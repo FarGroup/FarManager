@@ -588,7 +588,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 
 		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidCreationTime, &value) == S_OK )
 		{
-			if ( value.vt == VT_FILETIME )			
+			if ( value.vt == VT_FILETIME )
 				memcpy (&pItem->pi.FindData.ftCreationTime, &value.filetime, sizeof (FILETIME));
 		}
 

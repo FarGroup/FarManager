@@ -8,10 +8,16 @@
   #pragma pack(push,1)
 #endif
 
-#if defined(__GNUC__)
-#define _strtoi64 strtoul
+#ifdef __GNUC__
+#define _i64(num) num##ll
+#define _ui64(num) num##ull
+#else
+#define _i64(num) num##i64
+#define _ui64(num) num##ui64
 #endif
 
+static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags);
+static __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
 
 struct posix_header
 {                               /* byte offset */
@@ -106,4 +112,146 @@ int IsTarHeader (const unsigned char *Data, int DataSize)
     Sum+=Data[I];
 
   return (Sum==GetOctal(Header->chksum)?0:-1);
+}
+
+static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags)
+{
+/* flag values */
+#define FL_UNSIGNED   1       /* strtouq called */
+#define FL_NEG        2       /* negative sign found */
+#define FL_OVERFLOW   4       /* overflow occured */
+#define FL_READDIGIT  8       /* we've read at least one correct digit */
+#define _UI64_MAX     _ui64(0xFFFFFFFFFFFFFFFF)
+#define _UI64_MAXDIV8 _ui64(0x1FFFFFFFFFFFFFFF)
+#define _I64_MIN    (_i64(-9223372036854775807) - 1)
+#define _I64_MAX      _i64(9223372036854775807)
+
+    const char *p;
+    char c;
+    unsigned __int64 number;
+    unsigned digval;
+    unsigned __int64 maxval;
+
+    p = nptr;            /* p is our scanning pointer */
+    number = 0;            /* start with zero */
+
+    c = *p++;            /* read char */
+    while (c == 0x09 || c == 0x0D || c == 0x20)
+        c = *p++;        /* skip whitespace */
+
+    if (c == '-') {
+        flags |= FL_NEG;    /* remember minus sign */
+        c = *p++;
+    }
+    else if (c == '+')
+        c = *p++;        /* skip sign */
+
+    if (ibase < 0 || ibase == 1 || ibase > 36) {
+        /* bad base! */
+        if (endptr)
+            /* store beginning of string in endptr */
+            *endptr = nptr;
+        return 0L;        /* return 0 */
+    }
+    else if (ibase == 0) {
+        /* determine base free-lance, based on first two chars of
+           string */
+        if (c != '0')
+            ibase = 10;
+        else if (*p == 'x' || *p == 'X')
+            ibase = 16;
+        else
+            ibase = 8;
+    }
+
+    if (ibase == 16) {
+        /* we might have 0x in front of number; remove if there */
+        if (c == '0' && (*p == 'x' || *p == 'X')) {
+            ++p;
+            c = *p++;    /* advance past prefix */
+        }
+    }
+
+    /* if our number exceeds this, we will overflow on multiply */
+#ifdef _MSC_VER
+#if _MSC_VER >= 1310
+    maxval = (unsigned __int64)0x1FFFFFFFFFFFFFFFi64; // hack for VC.2003 = _UI64_MAX/8 :-)
+#else
+    maxval = _UI64_MAX / (unsigned __int64)ibase;
+#endif
+#else
+    maxval = _UI64_MAX / (unsigned __int64)ibase;
+#endif
+
+    for (;;) {    /* exit in middle of loop */
+        /* convert c to value */
+        if ( (BYTE)c >= '0' && (BYTE)c <= '9' )
+            digval = c - '0';
+        else if ( (BYTE)c >= 'A' && (BYTE)c <= 'Z')
+            digval = c - 'A' + 10;
+        else if ((BYTE)c >= 'a' && (BYTE)c <= 'z')
+            digval = c - 'a' + 10;
+        else
+            break;
+        if (digval >= (unsigned)ibase)
+            break;        /* exit loop if bad digit found */
+
+        /* record the fact we have read one digit */
+        flags |= FL_READDIGIT;
+
+        /* we now need to compute number = number * base + digval,
+           but we need to know if overflow occured.  This requires
+           a tricky pre-check. */
+
+        if (number < maxval || (number == maxval &&
+        (unsigned __int64)digval <= _UI64_MAX % (unsigned __int64)ibase)) {
+            /* we won't overflow, go ahead and multiply */
+            number = number * (unsigned __int64)ibase + (unsigned __int64)digval;
+        }
+        else {
+            /* we would have overflowed -- set the overflow flag */
+            flags |= FL_OVERFLOW;
+        }
+
+        c = *p++;        /* read next digit */
+    }
+
+    --p;                /* point to place that stopped scan */
+
+    if (!(flags & FL_READDIGIT)) {
+        /* no number there; return 0 and point to beginning of
+           string */
+        if (endptr)
+            /* store beginning of string in endptr later on */
+            p = nptr;
+        number = _i64(0);        /* return 0 */
+    }
+    else if ( (flags & FL_OVERFLOW) ||
+              ( !(flags & FL_UNSIGNED) &&
+                ( ( (flags & FL_NEG) && (number > -_I64_MIN) ) ||
+                  ( !(flags & FL_NEG) && (number > _I64_MAX) ) ) ) )
+    {
+        /* overflow or signed overflow occurred */
+//        errno = ERANGE;
+        if ( flags & FL_UNSIGNED )
+            number = _UI64_MAX;
+        else if ( flags & FL_NEG )
+            number = _I64_MIN;
+        else
+            number = _I64_MAX;
+    }
+    if (endptr != NULL)
+        /* store pointer to char that stopped the scan */
+        *endptr = p;
+
+    if (flags & FL_NEG)
+        /* negate result if there was a neg sign */
+        number = (unsigned __int64)(-(__int64)number);
+
+    return number;            /* done. */
+}
+
+static __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
+{
+    return (__int64) _strtoxq(nptr, (const char **)endptr, ibase, 0);
 }

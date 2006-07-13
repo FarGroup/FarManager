@@ -299,10 +299,10 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 
 			nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
 
-			m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
-
 			if ( !nResult )
 			{
+				m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
+
 				CharToOem(HeaderData.FileName,pItem->pi.FindData.cFileName);
 
 				pItem->pi.FindData.dwFileAttributes = HeaderData.FileAttr;
@@ -446,7 +446,7 @@ bool __stdcall WcxArchive::pExtract (
 					if ( (HeaderData.FileAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 					{
 						CreateDirectoryEx (lpDestName);
-						nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, lpDestName);
+						nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
 					}
 					else
 					{

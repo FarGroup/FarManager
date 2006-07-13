@@ -72,7 +72,7 @@ bool CheckForEsc ()
 
 	return EC;
 }
-    
+
 
 
 bool ArchivePanel::ReadArchive (bool bSilent)
@@ -562,118 +562,128 @@ int ParseString (
 		case '%':
 
 			if ( *(p+1) && (*(p+1) == '%') )
+			{
 				p += 2;
 
-			switch ( *p )
+				switch ( *p )
+				{
+
+				case 'A':
+					p++;
+					p = GetFlags (p, dwFlags);
+
+					if ( pParam->lpArchiveName )
+					{
+						ProcessName (
+								pParam->lpArchiveName,
+								lpProcessedName,
+								dwFlags,
+								false
+								);
+
+						strcat (lpResult, lpProcessedName);
+						n += strlen (lpProcessedName);
+						bEmpty = false;
+					};
+					break;
+
+				case 'a':
+
+					p++;
+					p = GetFlags (p, dwFlags);
+
+					if ( pParam->lpShortArchiveName )
+					{
+						ProcessName (
+								pParam->lpShortArchiveName,
+								lpProcessedName,
+								dwFlags,
+								false
+								);
+
+						strcat (lpResult, lpProcessedName);
+						n += strlen (lpProcessedName);
+						bEmpty = false;
+					};
+
+					break;
+
+				case 'W':
+					QUERY_AND_SET_PARAM (pParam->lpTempPath);
+
+				case 'P':
+					QUERY_AND_SET_PARAM (pParam->lpPassword);
+
+				case 'R':
+					QUERY_AND_SET_PARAM (pParam->lpCurrentArchiveFolder);
+
+				case 'S':
+					bHaveAdditionalOptions = true;
+					QUERY_AND_SET_PARAM (pParam->lpAdditionalCommandLine);
+
+				case 'L':
+				case 'l':
+
+					p++;
+					p = GetFlags (p, dwFlags);
+
+					if ( !bHaveList && pParam->lpListFileName )
+					{
+						bHaveList = true;
+
+						CreateListFile (
+								pParam->lpListFileName,
+								pItems,
+								nItemsNumber,
+								dwFlags
+								);
+
+						strcat (lpResult, pParam->lpListFileName);
+						n += strlen (pParam->lpListFileName);
+						bEmpty = false;
+					};
+
+					break;
+
+				case 'f':
+
+					p++;
+					p = GetFlags (p, dwFlags);
+
+					if ( pItems[pStartItemNumber].FindData.cFileName )
+					{
+						ProcessName (
+								pItems[pStartItemNumber].FindData.cFileName,
+								lpProcessedName,
+								dwFlags,
+								true
+								);
+
+						strcat (lpResult, lpProcessedName);
+						n += strlen (lpProcessedName);
+
+						bEmpty = false;
+
+						pStartItemNumber++;
+
+						if ( pStartItemNumber != nItemsNumber )
+							nResult = PE_MORE_FILES;
+					};
+
+					break;
+
+				default:
+					p++;
+					break;
+				}
+			}
+			else
 			{
+				lpResult[n] = *p;
+				lpResult[n+1] = '\0';
 
-			case 'A':
+				n++;
 				p++;
-				p = GetFlags (p, dwFlags);
-
-				if ( pParam->lpArchiveName )
-				{
-					ProcessName (
-							pParam->lpArchiveName,
-							lpProcessedName,
-							dwFlags,
-							false
-							);
-
-					strcat (lpResult, lpProcessedName);
-					n += strlen (lpProcessedName);
-					bEmpty = false;
-				};
-				break;
-
-			case 'a':
-
-				p++;
-				p = GetFlags (p, dwFlags);
-
-				if ( pParam->lpShortArchiveName )
-				{
-					ProcessName (
-							pParam->lpShortArchiveName,
-							lpProcessedName,
-							dwFlags,
-							false
-							);
-
-					strcat (lpResult, lpProcessedName);
-					n += strlen (lpProcessedName);
-					bEmpty = false;
-				};
-
-				break;
-
-			case 'W':
-				QUERY_AND_SET_PARAM (pParam->lpTempPath);
-
-			case 'P':
-				QUERY_AND_SET_PARAM (pParam->lpPassword);
-
-			case 'R':
-				QUERY_AND_SET_PARAM (pParam->lpCurrentArchiveFolder);
-
-			case 'S':
-				bHaveAdditionalOptions = true;
-				QUERY_AND_SET_PARAM (pParam->lpAdditionalCommandLine);
-
-			case 'L':
-			case 'l':
-
-				p++;
-				p = GetFlags (p, dwFlags);
-
-				if ( !bHaveList && pParam->lpListFileName )
-				{
-					bHaveList = true;
-
-					CreateListFile (
-							pParam->lpListFileName,
-							pItems,
-							nItemsNumber,
-							dwFlags
-							);
-
-					strcat (lpResult, pParam->lpListFileName);
-					n += strlen (pParam->lpListFileName);
-					bEmpty = false;
-				};
-
-				break;
-
-			case 'f':
-
-				p++;
-				p = GetFlags (p, dwFlags);
-
-				if ( pItems[pStartItemNumber].FindData.cFileName )
-				{
-					ProcessName (
-							pItems[pStartItemNumber].FindData.cFileName,
-							lpProcessedName,
-							dwFlags,
-							true
-							);
-
-					strcat (lpResult, lpProcessedName);
-					n += strlen (lpProcessedName);
-
-					bEmpty = false;
-
-					pStartItemNumber++;
-
-					if ( pStartItemNumber != nItemsNumber )
-						nResult = PE_MORE_FILES;
-				};
-
-				break;
-
-			default:
-				p++;
-				break;
 			}
 
 			break;
@@ -739,7 +749,7 @@ void GetArchiveItemsToProcess (
 						strlen (lpPath)
 						) )
 				{
-					if ( (pCurrentPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 )
+					//if ( (pCurrentPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 )
 					{
 						memcpy (&pResult[nCount++], pCurrentPanelItem, sizeof (PluginPanelItem));
 
@@ -908,7 +918,9 @@ void ExecuteCommand (
 	sInfo.hStdInput = NULL;
 	sInfo.hStdOutput = NULL;*/
 /////
+				FSF.ExpandEnvironmentStr(lpExecuteString,lpExecuteString,260);
 
+				OemToChar(lpExecuteString,lpExecuteString);
 
 				if ( CreateProcess (
 						NULL,

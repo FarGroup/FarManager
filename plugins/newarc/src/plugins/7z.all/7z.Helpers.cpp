@@ -388,37 +388,38 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		if ( archive->GetProperty (index, kpidPath, &value) != S_OK )
 			return S_OK; //!!! to return error
 
-  		char szArcFileName[NM];
-  		char szFullName[NM];
+		char szArcFileName[NM];
+		char szFullName[NM];
 
-  		if ( value.vt == VT_BSTR )
-  			WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArcFileName, NM, NULL, NULL);
-  		else
-  		{
-  			strcpy (szArcFileName, FSF.PointToName (m_pArchive->m_lpFileName));
-  			CutTo (szArcFileName, '.', true);
-  		}
+		if ( value.vt == VT_BSTR )
+			WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArcFileName, NM, NULL, NULL);
+		else
+		{
+			strcpy (szArcFileName, FSF.PointToName (m_pArchive->m_lpFileName));
+			CutTo (szArcFileName, '.', true);
+		}
 
-  		strcpy (szFullName, m_lpDestPath);
+		strcpy (szFullName, m_lpDestPath);
 
-  		FSF.AddEndSlash (szFullName);
+		FSF.AddEndSlash (szFullName);
 
-  		if ( !FSF.LStrnicmp (szArcFileName, m_lpCurrentFolder, strlen (m_lpCurrentFolder)) )
-  			strcat (szFullName, szArcFileName+strlen (m_lpCurrentFolder));
-  		else
-  			strcat (szFullName, szArcFileName);
+		if ( !FSF.LStrnicmp (szArcFileName, m_lpCurrentFolder, strlen (m_lpCurrentFolder)) )
+			strcat (szFullName, szArcFileName+strlen (m_lpCurrentFolder));
+		else
+			strcat (szFullName, szArcFileName);
 
-  		int itemindex = GetItemIndex (this, index);
-  		PluginPanelItem *item = m_pItems[itemindex].pItem;
+		int itemindex = GetItemIndex (this, index);
+		PluginPanelItem *item = m_pItems[itemindex].pItem;
 
-  		if ( m_pArchive->m_pfnCallback )
-  			m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
+		if ( m_pArchive->m_pfnCallback )
+			m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
 
-  		if ( (int)m_nLastProcessed == -1 )
-  			m_nLastProcessed = 0;
+		if ( (int)m_nLastProcessed == -1 )
+			m_nLastProcessed = 0;
 
-  		if ( archive->GetProperty (index, kpidIsFolder, &value)	&& (value.vt == VT_BOOL) )
-  		{
+		if ( item->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY ) //HACK!!!
+		//if ( archive->GetProperty (index, kpidIsFolder, &value) && (value.vt == VT_BOOL) )
+		{
 			*outStream = NULL;
 			CreateDirectoryEx (szFullName);
 		}
@@ -433,29 +434,29 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 			memset (&ftLastAccessTime, 0, sizeof (FILETIME));
 			memset (&ftLastWriteTime, 0, sizeof (FILETIME));
 
-    		if ( archive->GetProperty (index, kpidAttributes, &value) == S_OK )
-    		{
-    			if ( value.vt == VT_UI4 )
-    		        dwFileAttributes = value.ulVal;
-    		}
+			if ( archive->GetProperty (index, kpidAttributes, &value) == S_OK )
+			{
+				if ( value.vt == VT_UI4 )
+					dwFileAttributes = value.ulVal;
+			}
 
-    		if ( archive->GetProperty (index, kpidCreationTime, &value) == S_OK )
-    		{
-    			if ( value.vt == VT_FILETIME )			
-    				memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
-    		}
+			if ( archive->GetProperty (index, kpidCreationTime, &value) == S_OK )
+			{
+				if ( value.vt == VT_FILETIME )
+					memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
+			}
 
-    		if ( archive->GetProperty (index, kpidLastAccessTime, &value) == S_OK )
-    		{
-    			if ( value.vt == VT_FILETIME )
-    				memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
-    		}
+			if ( archive->GetProperty (index, kpidLastAccessTime, &value) == S_OK )
+			{
+				if ( value.vt == VT_FILETIME )
+					memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
+			}
 
-    		if ( archive->GetProperty (index, kpidLastWriteTime, &value) == S_OK )
-    		{
-    			if ( value.vt == VT_FILETIME )
-    				memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
-    		}
+			if ( archive->GetProperty (index, kpidLastWriteTime, &value) == S_OK )
+			{
+				if ( value.vt == VT_FILETIME )
+					memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
+			}
 
 			COutFile *file = new COutFile (szFullName);
 
@@ -466,7 +467,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 			}
 
 			*outStream = file;
-		} 
+		}
 
 
 
@@ -529,7 +530,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
 				*outStream = file;
 				VariantClear ((VARIANTARG*)&value);
-			} 
+			}
 		}*/
 	}
 	else
