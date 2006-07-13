@@ -333,6 +333,41 @@ int __stdcall WcxArchive::pGetArchiveType ()
 	return (m_nModuleNum);
 }
 
+void CreateDirectoryEx (char *FullPath) //$ 16.05.2002 AA
+{
+//	if( !FileExists (FullPath) )
+	{
+		for (char *c = FullPath; *c; c++)
+		{
+			if(*c!=' ')
+			{
+				for(; *c; c++)
+					if(*c=='\\')
+						{
+							*c=0;
+							CreateDirectory(FullPath, NULL);
+							*c='\\';
+						}
+				CreateDirectory(FullPath, NULL);
+				break;
+			}
+		}
+	}
+}
+
+void CreateDirs (const char *lpFileName)
+{
+	char *lpNameCopy = StrDuplicate (lpFileName);
+
+	CutToSlash (lpNameCopy);
+
+	CreateDirectoryEx (lpNameCopy);
+
+	StrFree (lpNameCopy);
+}
+
+
+
 bool __stdcall WcxArchive::pExtract (
 		PluginPanelItem *pItems,
 		int nItemsNumber,
@@ -406,9 +441,20 @@ bool __stdcall WcxArchive::pExtract (
 					if ( m_pfnCallback )
 						m_pfnCallback (AM_START_EXTRACT_FILE, (int)&pItems[i], (int)lpDestName);
 
-					int nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_EXTRACT, NULL, lpDestName);
+					int nProcessResult = 0;
 
-					if ( !nProcessResult )
+					if ( (HeaderData.FileAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
+					{
+						CreateDirectoryEx (lpDestName);
+						nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, lpDestName);
+					}
+					else
+					{
+						CreateDirs(lpDestName);
+						nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_EXTRACT, NULL, lpDestName);
+					}
+
+					if ( !nProcessResult  )
 						nProcessed++;
 
 					if ( /*m_bAborted ||*/ nProcessResult || (nProcessed == nItemsNumber) )
