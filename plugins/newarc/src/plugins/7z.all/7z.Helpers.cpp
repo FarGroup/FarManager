@@ -812,3 +812,85 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 	return bResult?S_OK:S_FALSE;
 }
+
+
+
+CArchiveUpdateCallback::CArchiveUpdateCallback ()
+{
+	m_nRefCount = 1;
+}
+
+CArchiveUpdateCallback::~CArchiveUpdateCallback()
+{
+}
+
+
+ULONG __stdcall CArchiveUpdateCallback::AddRef ()
+{
+	return ++m_nRefCount;
+}
+
+ULONG __stdcall CArchiveUpdateCallback::Release ()
+{
+	if ( --m_nRefCount == 0 )
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_nRefCount;
+}
+
+
+HRESULT __stdcall CArchiveUpdateCallback::QueryInterface (const IID &iid, void ** ppvObject)
+{
+	*ppvObject = NULL;
+
+	if ( iid == IID_IArchiveUpdateCallback )
+	{
+		*ppvObject = (void*)(IArchiveUpdateCallback*)this;
+		AddRef ();
+
+		return S_OK;
+	}
+
+	return E_NOINTERFACE;
+}
+
+
+
+HRESULT __stdcall CArchiveUpdateCallback::SetTotal (unsigned __int64 total)
+{
+	return S_OK;
+}
+
+HRESULT __stdcall CArchiveUpdateCallback::SetCompleted (const unsigned __int64* completeValue)
+{
+	return S_OK;
+}
+
+HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
+			unsigned int index, 
+			int *newData, // 1 - new data, 0 - old data
+			int *newProperties, // 1 - new properties, 0 - old properties
+			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
+			)
+{
+	return S_OK;
+}
+
+HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPID propID, PROPVARIANT *value)
+{
+	return S_OK;
+}
+
+HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequentialInStream **inStream)
+{
+	return S_OK;
+}
+
+HRESULT __stdcall CArchiveUpdateCallback::SetOperationResult (int operationResult)
+{
+	return S_OK;
+}
+

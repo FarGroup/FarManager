@@ -111,9 +111,12 @@ public:
 	virtual ULONG __stdcall AddRef ();
 	virtual ULONG __stdcall Release ();
 
+	//IProgress
 
 	virtual HRESULT __stdcall SetTotal (unsigned __int64 total);
 	virtual HRESULT __stdcall SetCompleted (const unsigned __int64* completeValue);
+
+	//IArchiveExtractCallback
 
 	virtual HRESULT __stdcall GetStream (unsigned int index, ISequentialOutStream **outStream, int askExtractMode);
   // GetStream OUT: S_OK - OK, S_FALSE - skeep this file
@@ -184,4 +187,43 @@ public:
 	virtual ULONG __stdcall Release ();
 
 	virtual HRESULT __stdcall Write (const void *data, unsigned int size, unsigned int* processedSize);
+};
+
+
+class CArchiveUpdateCallback : public IArchiveUpdateCallback {
+
+private:
+
+	int m_nRefCount;
+
+public:
+
+	CArchiveUpdateCallback ();
+	~CArchiveUpdateCallback();
+
+	//IUnknown
+
+	virtual HRESULT __stdcall QueryInterface (const IID &iid, void ** ppvObject);
+	virtual ULONG __stdcall AddRef ();
+	virtual ULONG __stdcall Release ();
+
+	//IProgress
+
+	virtual HRESULT __stdcall SetTotal (unsigned __int64 total);
+	virtual HRESULT __stdcall SetCompleted (const unsigned __int64* completeValue);
+
+	//IArchiveUpdateCallback
+
+	virtual HRESULT __stdcall GetUpdateItemInfo (
+			unsigned int index, 
+			int *newData, // 1 - new data, 0 - old data
+			int *newProperties, // 1 - new properties, 0 - old properties
+			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
+			);
+
+	virtual HRESULT __stdcall GetProperty (unsigned int index, PROPID propID, PROPVARIANT *value);
+	virtual HRESULT __stdcall GetStream (unsigned int index, ISequentialInStream **inStream);
+	virtual HRESULT __stdcall SetOperationResult (int operationResult);
+
+	//IProgress
 };
