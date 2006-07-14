@@ -656,7 +656,7 @@ bool __stdcall SevenZipArchive::pDelete (
 			(void**)&outArchive
 			)) )
 	{
-		ViewCollection <int> indicies;
+		Collection <ArchiveUpdateItem*> indicies;
 
 		indicies.Create (5);
 
@@ -674,7 +674,14 @@ bool __stdcall SevenZipArchive::pDelete (
 			}
 
 			if ( !bFound )
-				indicies.Add (i);
+			{
+				ArchiveUpdateItem *item = new ArchiveUpdateItem;
+
+				item->index = i;
+				item->bNewFile = false;
+
+				indicies.Add (item);
+			}
 		}
 
 		char szTempName[MAX_PATH];
@@ -708,6 +715,7 @@ bool __stdcall SevenZipArchive::pDelete (
 		delete pCallback;
 
 		outArchive->Release ();
+
 		indicies.Free ();
 	}
 

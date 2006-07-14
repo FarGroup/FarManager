@@ -200,6 +200,12 @@ public:
 };
 
 
+struct ArchiveUpdateItem {
+	unsigned int index;
+	bool bNewFile;
+	char *lpFileName;
+};
+
 class CArchiveUpdateCallback : 
 		public IArchiveUpdateCallback2,
 		public ICryptoGetTextPassword2 {
@@ -208,11 +214,11 @@ class CArchiveUpdateCallback :
 private:
 
 	int m_nRefCount;
-	ViewCollection<int> *m_indicies;
+	Collection<ArchiveUpdateItem*> *m_indicies;
 
 public:
 
-	CArchiveUpdateCallback (ViewCollection <int> *indicies);
+	CArchiveUpdateCallback (Collection <ArchiveUpdateItem*> *indicies);
 	~CArchiveUpdateCallback();
 
 	//IUnknown

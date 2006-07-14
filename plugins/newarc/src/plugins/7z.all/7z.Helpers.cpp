@@ -866,7 +866,7 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 
 
-CArchiveUpdateCallback::CArchiveUpdateCallback (ViewCollection<int> *indicies)
+CArchiveUpdateCallback::CArchiveUpdateCallback (Collection<ArchiveUpdateItem*> *indicies)
 {
 	m_nRefCount = 1;
 	m_indicies = indicies;
@@ -922,7 +922,7 @@ HRESULT __stdcall CArchiveUpdateCallback::QueryInterface (const IID &iid, void *
 		return S_OK;
 	}
 
-	else
+/*	else
 	{
 		BSTR bstr;
 
@@ -931,7 +931,7 @@ HRESULT __stdcall CArchiveUpdateCallback::QueryInterface (const IID &iid, void *
 		//MessageBoxW (0, bstr, L"inteface req", MB_OK);
 
 		SysFreeString(bstr);
-	}
+	}*/
 
 	return E_NOINTERFACE;
 }
@@ -957,10 +957,10 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
 			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
 			)
 {
-	int real_index = m_indicies->At(index);
+	ArchiveUpdateItem *item = m_indicies->At(index);
 
 	if ( indexInArchive )
-		*indexInArchive = real_index;
+		*indexInArchive = item->index;
 
 	if ( newData )
 		*newData = 0;
@@ -1008,7 +1008,7 @@ HRESULT __stdcall CArchiveUpdateCallback::CryptoGetTextPassword2 (int *passwordI
 	//MessageBox (0, "getpass", "as", MB_OK);
 
 	if ( passwordIsDefined )
-		*passwordIsDefined = false;
+		*passwordIsDefined = 0;
 
 	return S_OK;
 }
