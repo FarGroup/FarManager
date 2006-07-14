@@ -289,7 +289,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	m_pfnGetHandlerProperty (NArchive::kUpdate, &value);
 
 	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
-	
+
 	if ( (value.vt == VT_BOOL) && (value.boolVal == VARIANT_TRUE) )
 		pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD;
 
@@ -867,7 +867,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 
 			strcat (szCheckName, pItems[i]);
 
-			for (int j = 0; j < nArchiveItemsNumber; j++)
+			for (unsigned int j = 0; j < nArchiveItemsNumber; j++)
 			{
 				CPropVariant value;
 				char szArchiveFileName [MAX_PATH];

@@ -8,6 +8,7 @@ mkdir ..\o\plugins\targz
 mkdir ..\o\plugins\zip
 mkdir ..\o\plugins\7z
 mkdir ..\o\plugins\7z.all
+mkdir ..\o\plugins\7z.all\detect
 mkdir ..\o\plugins\wcx
 mkdir ..\o\rtl
 mkdir ..\bin
