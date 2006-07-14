@@ -960,27 +960,169 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
 	ArchiveUpdateItem *item = m_indicies->At(index);
 
 	if ( indexInArchive )
-		*indexInArchive = item->index;
+		*indexInArchive = item->index; //-1 on new file
 
 	if ( newData )
-		*newData = 0;
+	{
+		if ( item->bNewFile )
+			*newData = 1;
+		else
+			*newData = 0;
+	}
 
 	if ( newProperties )
-		*newProperties = 0;
+	{
+		if ( item->bNewFile )
+			*newProperties = 1;
+		else
+			*newProperties = 0;
+	}
 
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPID propID, PROPVARIANT *value)
 {
+	ArchiveUpdateItem *item = m_indicies->At(index);	
 
-	//MessageBox (0, "getprop", "as", MB_OK);
+
+	if ( item->bNewFile )
+	{
+		if ( propID == kpidPath )
+		{
+			wchar_t wszNameOnly[MAX_PATH];
+
+			MultiByteToWideChar (CP_OEMCP, 0, item->lpFileName, -1, wszNameOnly, MAX_PATH);
+
+			wchar_t wszFullPath[MAX_PATH];
+
+			MultiByteToWideChar (CP_OEMCP, 0, item->lpCurrentPath, -1, wszFullPath, MAX_PATH);
+
+			if ( wszFullPath[0] )
+				wcscat (wszFullPath, L"\\");
+
+			wcscat (wszFullPath, wszNameOnly);
+
+			value->vt = VT_BSTR;
+			value->bstrVal = SysAllocString(wszFullPath);
+			//MessageBox (0, "oath", "asD", MB_OK);
+			//MessageBoxW (0, wszFullPath, L"path", MB_OK);
+		}
+		else
+
+		if ( propID == kpidName )
+		{
+			//MessageBox (0, "name", "asD", MB_OK);
+			wchar_t wszNameOnly[MAX_PATH];
+
+			MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (item->lpFileName), -1, wszNameOnly, MAX_PATH);
+
+			value->vt = VT_BSTR;
+			value->bstrVal = SysAllocString(wszNameOnly);
+		}
+		else
+
+		if ( propID == kpidAttributes )
+		{
+			char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
+			FSF.AddEndSlash (lpFullName);
+			strcat (lpFullName, item->lpFileName);
+
+			//MessageBox (0, "attr", "asD", MB_OK);
+			value->vt = VT_UI4;
+			value->ulVal = GetFileAttributes (lpFullName);
+
+			//if ( OptionIsOn (value->ulVal, FILE_ATTRIBUTE_DIRECTORY) )
+			//	MessageBox (0, "!!!", "asd", MB_OK);
+
+
+			StrFree (lpFullName);
+		}
+		else
+
+		if ( propID == kpidLastWriteTime )
+		{
+			value->vt = VT_FILETIME;
+			memset (&value->filetime, 0, sizeof (FILETIME));
+		}
+		else
+
+		if ( propID == kpidIsFolder )
+		{
+			char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
+			FSF.AddEndSlash (lpFullName);
+			strcat (lpFullName, item->lpFileName);
+
+
+			value->vt = VT_BOOL;
+
+			DWORD dwFileAttributes = GetFileAttributes (lpFullName);
+
+			value->boolVal = OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY)?VARIANT_TRUE:VARIANT_FALSE;
+
+			//if ( OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+			//	MessageBox (0, "dir", "asd", MB_OK);
+
+			StrFree (lpFullName);
+		}
+		else
+
+		if ( propID == kpidSize )
+		{
+			char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
+			FSF.AddEndSlash (lpFullName);
+			strcat (lpFullName, item->lpFileName);
+
+			WIN32_FIND_DATA fdata;
+
+			HANDLE hSearch = FindFirstFile (lpFullName, &fdata);
+			FindClose (hSearch);
+
+			value->vt = VT_UI8;
+			value->uhVal.QuadPart = fdata.nFileSizeHigh*0x1000000000+fdata.nFileSizeLow;
+
+
+			StrFree (lpFullName);
+		}
+		/*else
+		{
+			char s[MAX_PATH];
+			wsprintf (s, "%d", propID);
+
+
+			MessageBox (0, "getprop", s, MB_OK);
+
+		}*/
+	}
+
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequentialInStream **inStream)
 {
+	ArchiveUpdateItem *item = m_indicies->At(index);	
+
 	//MessageBox (0, "getstream", "as", MB_OK);
+
+	if ( item->bNewFile )
+	{
+		char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
+
+		FSF.AddEndSlash (lpFullName);
+
+		strcat (lpFullName, item->lpFileName);
+
+	//	MessageBox (0, lpFullName, "gs", MB_OK);
+
+		CInFile *file = new CInFile (lpFullName);
+
+		StrFree (lpFullName);
+
+		file->Open ();
+
+		*inStream = file;
+	}
+
 	return S_OK;
 }
 

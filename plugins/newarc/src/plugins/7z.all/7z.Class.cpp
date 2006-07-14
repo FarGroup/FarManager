@@ -819,9 +819,124 @@ bool __stdcall SevenZipArchive::pExtract (
 }
 
 
-bool __stdcall SevenZipArchive::pAddFiles (const char **pItems, int nItemsNumber)
+bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char *lpCurrentPath, const char **pItems, int nItemsNumber)
 {
-	MessageBox (0, "add", "asd", MB_OK);
+	IOutArchive *outArchive;
 
-	return true;
+	unsigned int nArchiveItemsNumber;
+	bool bResult = false;
+
+	m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
+
+	if ( SUCCEEDED (m_pArchive->QueryInterface(
+			IID_IOutArchive, 
+			(void**)&outArchive
+			)) )
+	{
+		Collection <ArchiveUpdateItem*> indicies;
+
+		indicies.Create (5);
+
+		for (int i = 0; i < nArchiveItemsNumber; i++)
+		{
+			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+
+			item->index = i;
+			item->bNewFile = false;
+
+			indicies.Add (item);
+		}
+
+		for (int i = 0; i < nItemsNumber; i++)
+		{
+			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+
+			item->index = -1;
+			item->bNewFile = true;
+			item->lpFileName = pItems[i];
+			item->lpSourcePath = lpSourcePath;
+			item->lpCurrentPath = lpCurrentPath;
+
+			indicies.Add (item);
+		}   
+
+	/*	CPropVariant value;
+
+		char szArchiveFileName[MAX_PATH];
+		bool bFound = false;
+
+		for (int i = 0; i < nArchiveItemsNumber; i++)
+		{
+			bFound = false;
+			memset (&szArchiveFileName, 0, MAX_PATH);
+
+			if ( m_pArchive->GetProperty (i, kpidPath, &value) == S_OK )
+			{
+				if ( value.vt == VT_BSTR )
+					WideCharToMultiByte (CP_OEMCP, value.bstrVal, -1, (char*)&szArchiveFileName, MAX_PATH, NULL, NULL);
+			}
+
+			for (int j = 0; j < nItemsNumber; j++)
+			{
+				if ( !FSF.LStricmp (pItems[i], szArchiveFileName) )
+					bFound = true;
+
+			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+
+			item->index = i;
+			item->bNewFile = false;
+
+			indicies.Add (item);
+		}
+
+		for (int i = 0; i < nItemsNumber; i++)
+		{
+			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+
+			item->index = -1;
+			item->bNewFile = true;
+			item->lpFileName = pItems[i];
+			item->lpSourcePath = lpSourcePath;
+			item->lpCurrentPath = lpCurrentPath;
+
+			indicies.Add (item);
+		}  */ 
+
+
+		char szTempName[MAX_PATH];
+
+		CreateTempName (m_lpFileName, szTempName);
+
+		COutFile *file = new COutFile (szTempName);
+		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (&indicies);
+
+		if ( file->Open () )
+		{
+			if ( outArchive->UpdateItems (
+					file, 
+					indicies.GetCount(), 
+					pCallback
+					) == S_OK )
+				bResult = true;
+		}
+
+		delete file;
+
+		if ( bResult ) 
+		{
+			m_pInFile->Close ();
+			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+			m_pInFile->Open ();
+
+			m_bForcedUpdate = true;
+		}
+
+		delete pCallback;
+
+		outArchive->Release ();
+
+		indicies.Free ();
+	}
+
+	return bResult;
 }

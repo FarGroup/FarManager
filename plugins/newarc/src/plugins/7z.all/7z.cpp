@@ -293,6 +293,8 @@ int OnAdd (AddStruct *pAS)
 	SevenZipArchive *pArchive = (SevenZipArchive *)pAS->hArchive;
 
 	pAS->bResult = pArchive->pAddFiles (
+			pAS->lpSourcePath,
+			pAS->lpCurrentPath,
 			pAS->pItems,
 			pAS->nItemsNumber
 			);

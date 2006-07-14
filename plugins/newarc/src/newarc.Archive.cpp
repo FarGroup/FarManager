@@ -399,6 +399,8 @@ bool Archive::pExtract (
 }
 
 bool Archive::pAddFiles (
+		const char *lpSourcePath,
+		const char *lpCurrentPath,
 		const char **pItems,
 		int nItemsNumber
 		)
@@ -406,6 +408,8 @@ bool Archive::pAddFiles (
 	AddStruct AS;
 
 	AS.hArchive = m_hArchive;
+	AS.lpSourcePath = lpSourcePath;
+	AS.lpCurrentPath = lpCurrentPath;
 	AS.pItems = pItems;
 	AS.nItemsNumber = nItemsNumber;
 

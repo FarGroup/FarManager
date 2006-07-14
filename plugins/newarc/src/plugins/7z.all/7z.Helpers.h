@@ -203,7 +203,9 @@ public:
 struct ArchiveUpdateItem {
 	unsigned int index;
 	bool bNewFile;
-	char *lpFileName;
+	const char *lpFileName;
+	const char *lpSourcePath;
+	const char *lpCurrentPath;
 };
 
 class CArchiveUpdateCallback : 

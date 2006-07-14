@@ -1520,6 +1520,28 @@ l_Found:
 	delete D;
 }
 
+struct ScanStruct {
+	const char *lpSourcePath;
+	Collection <char*> *files;
+};
+
+
+
+int __stdcall ScanDirectory (
+		const WIN32_FIND_DATA *FData, 
+		const char *lpFullName,
+		ScanStruct *pSS
+		)
+{
+	char *lpNameCopy = new char[MAX_PATH];
+
+	strcpy (lpNameCopy, lpFullName+strlen(pSS->lpSourcePath)+1);
+	pSS->files->Add (lpNameCopy);
+
+	return TRUE;
+}
+
+
 
 int __stdcall ArchivePanel::pPutFiles(
 		PluginPanelItem *PanelItem,
@@ -1552,10 +1574,48 @@ int __stdcall ArchivePanel::pPutFiles(
 		}
 		else
 		{
+			PanelInfo pnInfo;
+			PanelInfo pnThis;
+
+			Info.Control (this, FCTL_GETANOTHERPANELSHORTINFO, &pnInfo);
+			Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
+
+			Collection<char*> files;
+
+			files.Create (5);
+
+			for (int i = 0; i < ItemsNumber; i++)
+			{
+				files.Add(PanelItem[i].FindData.cFileName);
+
+				if ( OptionIsOn (PanelItem[i].FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+				{
+					char *lpFullName = StrDuplicate (pnInfo.CurDir, MAX_PATH);
+					FSF.AddEndSlash (lpFullName);
+					strcat (lpFullName, PanelItem[i].FindData.cFileName);
+
+					ScanStruct SS;
+
+					SS.lpSourcePath = (const char*)&pnInfo.CurDir;
+					SS.files = &files;
+
+
+					FSF.FarRecursiveSearch (lpFullName, "*.*", (FRSUSERFUNC)ScanDirectory, FRS_RECUR, &SS);
+
+					StrFree (lpFullName);
+				}
+				//else
+				//	files.Add(PanelItem[i].FindData.cFileName);
+			}
+
 			m_pArchive->pAddFiles (
-					NULL, 
-					0
+					(const char*)&pnInfo.CurDir,
+					(const char*)&pnThis.CurDir,
+					(const char**)files.m_Data, 
+					files.GetCount()
 					);
+
+			files.Free ();
 		}
 	}
 

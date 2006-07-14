@@ -164,6 +164,9 @@ struct AddStruct {
 	DWORD dwStructSize;
 
 	HANDLE hArchive;
+
+	const char *lpSourcePath;
+	const char *lpCurrentPath;
 	const char **pItems;
 	int nItemsNumber;
 	bool bResult;
