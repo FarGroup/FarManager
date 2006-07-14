@@ -1741,6 +1741,7 @@ int __stdcall ArchivePanel::pDeleteFiles (
 						nItemsToProcessNumber
 						);
 
+			Info.Control (INVALID_HANDLE_VALUE, FCTL_UPDATEPANEL, NULL);
 				//m_pArchive->pCloseArchive ();
 		//	}
 		}

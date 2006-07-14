@@ -28,7 +28,6 @@ public:
 	~SevenZipModule ();
 
 	void GetArchiveFormatInfo (ArchiveFormatInfo *pInfo);
-//	bool HasSignature ();
 	bool IsSplitModule ();
 };
 
@@ -49,7 +48,9 @@ public:
 	DWORD m_nItemsNumber;
 
 	bool m_bListPassword;
-	bool m_bFirstTime;
+
+	bool m_bForcedUpdate;
+	bool m_bOpened;
 
 public:
 

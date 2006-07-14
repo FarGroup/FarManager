@@ -15,6 +15,7 @@ public:
 	~CInFile ();
 
 	bool Open ();
+	void Close ();
 
 	unsigned __int64 GetSize ();
 	const char *GetName ();
@@ -165,7 +166,7 @@ public:
 
 
 class COutFile : //public IUnknown,
-				public ISequentialOutStream {
+				public IOutStream {
 
 private:
 
@@ -179,6 +180,8 @@ public:
 	~COutFile ();
 
 	bool Open ();
+	void Close ();
+
 	bool SetTime (const FILETIME* lpCreationTime, const FILETIME* lpLastAccessTime, const FILETIME* lpLastWriteTime);
 	bool SetAttributes (DWORD dwFileAttributes);
 
@@ -186,19 +189,30 @@ public:
 	virtual ULONG __stdcall AddRef ();
 	virtual ULONG __stdcall Release ();
 
+	//ISequentialOutStream
+
 	virtual HRESULT __stdcall Write (const void *data, unsigned int size, unsigned int* processedSize);
+
+	//IOutStream
+
+	virtual HRESULT __stdcall Seek (__int64 offset, unsigned int seekOrigin, unsigned __int64 *newPosition);
+	virtual HRESULT __stdcall SetSize (__int64 newSize);
 };
 
 
-class CArchiveUpdateCallback : public IArchiveUpdateCallback {
+class CArchiveUpdateCallback : 
+		public IArchiveUpdateCallback2,
+		public ICryptoGetTextPassword2 {
+
 
 private:
 
 	int m_nRefCount;
+	ViewCollection<int> *m_indicies;
 
 public:
 
-	CArchiveUpdateCallback ();
+	CArchiveUpdateCallback (ViewCollection <int> *indicies);
 	~CArchiveUpdateCallback();
 
 	//IUnknown
@@ -225,5 +239,13 @@ public:
 	virtual HRESULT __stdcall GetStream (unsigned int index, ISequentialInStream **inStream);
 	virtual HRESULT __stdcall SetOperationResult (int operationResult);
 
-	//IProgress
+	//IArchiveUpdateCallback2
+	virtual HRESULT __stdcall GetVolumeSize (unsigned int index, unsigned __int64 *size);
+	virtual HRESULT __stdcall GetVolumeStream (unsigned int index, ISequentialOutStream **volumeStream);
+
+	//ICryptoGetTextPassword2
+
+	virtual HRESULT __stdcall CryptoGetTextPassword2 (int *passwordIsDefined, BSTR *password);
+
+
 };

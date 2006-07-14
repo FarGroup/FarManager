@@ -405,7 +405,8 @@ SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileNam
 	m_pModule = pModule;
 	m_lpFileName = StrDuplicate (lpFileName);
 
-	m_bFirstTime = true;
+	m_bForcedUpdate = false;
+	m_bOpened = false;
 }
 
 SevenZipArchive::~SevenZipArchive ()
@@ -420,8 +421,13 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 {
 	m_pfnCallback = pfnCallback;
 
-	if ( m_bFirstTime )
+	if ( m_bForcedUpdate || !m_bOpened )
 	{
+		m_bForcedUpdate = false;
+
+		if ( m_bOpened )
+			pCloseArchive ();
+
 	  	m_pInFile = new CInFile (m_lpFileName);
 
   		if ( m_pInFile->Open () )
@@ -447,7 +453,8 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   					if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
   					{
   						m_nItemsNumber--;
-  						m_bFirstTime = false;
+
+  						m_bOpened = true;
 
   						delete pCallback;
   						return true;
@@ -623,12 +630,88 @@ bool __stdcall SevenZipArchive::pTest (
 	return true;
 }
 
+void CreateTempName (const char *lpArchiveName, char *lpResultName) //MAX_PATH result!!
+{
+	int i = 0;
+
+	do {
+		wsprintf (lpResultName, "%s.%d", lpArchiveName, i++);
+	} while ( GetFileAttributes (lpResultName) != INVALID_FILE_ATTRIBUTES );
+}
+
+
 bool __stdcall SevenZipArchive::pDelete (
 		PluginPanelItem *pItems,
 		int nItemsNumber
 		)
 {
-	return true;
+	IOutArchive *outArchive;
+	unsigned int nArchiveItemsNumber;
+	bool bResult = false;
+
+	m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
+
+	if ( SUCCEEDED (m_pArchive->QueryInterface(
+			IID_IOutArchive, 
+			(void**)&outArchive
+			)) )
+	{
+		ViewCollection <int> indicies;
+
+		indicies.Create (5);
+
+		for (int i = 0; i < nArchiveItemsNumber; i++) //лажа полная написана
+		{
+			bool bFound = false;
+
+			for (int j = 0; j < nItemsNumber; j++)
+			{
+				if ( i == pItems[j].UserData )
+				{
+					bFound = true;
+					break;
+				}
+			}
+
+			if ( !bFound )
+				indicies.Add (i);
+		}
+
+		char szTempName[MAX_PATH];
+
+		CreateTempName (m_lpFileName, szTempName);
+
+		COutFile *file = new COutFile (szTempName);
+		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (&indicies);
+
+		if ( file->Open () )
+		{
+			if ( outArchive->UpdateItems (
+					file, 
+					indicies.GetCount(), 
+					pCallback
+					) == S_OK )
+				bResult = true;
+		}
+
+		delete file;
+
+		if ( bResult ) 
+		{
+			m_pInFile->Close ();
+			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+			m_pInFile->Open ();
+
+			m_bForcedUpdate = true;
+		}
+
+		delete pCallback;
+
+		outArchive->Release ();
+		indicies.Free ();
+	}
+
+	return bResult;
 }
 
 

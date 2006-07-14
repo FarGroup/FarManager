@@ -140,9 +140,6 @@
 				RelativePath="..\..\lib.part\Src\Registry.cpp">
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Memory.cpp">
-			</File>
-			<File
 				RelativePath="..\..\lib.part\Src\Rtl.Misc.cpp">
 			</File>
 			<File

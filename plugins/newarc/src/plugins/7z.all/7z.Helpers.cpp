@@ -22,6 +22,15 @@ bool CInFile::Open ()
 	return false;
 }
 
+void CInFile::Close ()
+{
+	if ( m_hFile != INVALID_HANDLE_VALUE )
+	{
+		CloseHandle (m_hFile);
+		m_hFile = INVALID_HANDLE_VALUE;
+	}
+}
+
 CInFile::CInFile (const char *lpFileName)
 {
 	m_nRefCount = 1;
@@ -142,6 +151,16 @@ bool COutFile::Open ()
 	return false;
 }
 
+void COutFile::Close ()
+{
+	if ( m_hFile != INVALID_HANDLE_VALUE )
+	{
+		CloseHandle (m_hFile);
+		m_hFile = INVALID_HANDLE_VALUE;
+	}
+}
+
+
 bool COutFile::SetTime (const FILETIME* lpCreationTime, const FILETIME* lpLastAccessTime, const FILETIME* lpLastWriteTime)
 {
 	return (bool)SetFileTime (m_hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
@@ -174,7 +193,15 @@ HRESULT __stdcall COutFile::QueryInterface (const IID &iid, void ** ppvObject)
 
 	if ( iid == IID_ISequentialOutStream )
 	{
-		*ppvObject = this;
+		*ppvObject = (void*)(ISequentialOutStream*)this;
+		AddRef ();
+
+		return S_OK;
+	}
+
+	if ( iid == IID_IOutStream )
+	{
+		*ppvObject = (void*)(IOutStream*)this;
 		AddRef ();
 
 		return S_OK;
@@ -213,6 +240,30 @@ HRESULT __stdcall COutFile::Write (const void *data, unsigned int size, unsigned
 	}
 
 	return E_FAIL;
+}
+
+HRESULT __stdcall COutFile::Seek (__int64 offset, unsigned int seekOrigin, unsigned __int64 *newPosition)
+{
+	DWORD hi, lo;
+
+	hi = offset >> 32;
+	lo = (DWORD)offset;
+
+	lo = SetFilePointer (m_hFile, lo, (PLONG)&hi, seekOrigin);
+
+	if ( (lo == INVALID_SET_FILE_POINTER) && (GetLastError () != NO_ERROR) )
+		return E_FAIL;
+	else
+	{
+		if ( newPosition )
+			*newPosition = ((unsigned __int64)hi)*0x100000000ull+(unsigned __int64)lo;
+		return S_OK;
+	}
+}
+
+HRESULT __stdcall COutFile::SetSize (__int64 newSize)
+{
+	return S_OK;
 }
 
 
@@ -815,9 +866,10 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 
 
-CArchiveUpdateCallback::CArchiveUpdateCallback ()
+CArchiveUpdateCallback::CArchiveUpdateCallback (ViewCollection<int> *indicies)
 {
 	m_nRefCount = 1;
+	m_indicies = indicies;
 }
 
 CArchiveUpdateCallback::~CArchiveUpdateCallback()
@@ -853,6 +905,33 @@ HRESULT __stdcall CArchiveUpdateCallback::QueryInterface (const IID &iid, void *
 
 		return S_OK;
 	}
+	else
+
+	if ( iid == IID_ICryptoGetTextPassword2 )
+	{
+		*ppvObject = (void*)(ICryptoGetTextPassword2*)this;
+		AddRef ();
+	}
+	else
+
+	if ( iid == IID_IArchiveUpdateCallback2 )
+	{
+		*ppvObject = (void*)(IArchiveUpdateCallback2*)this;
+		AddRef ();
+
+		return S_OK;
+	}
+
+	else
+	{
+		BSTR bstr;
+
+		StringFromIID(iid, &bstr);
+
+		//MessageBoxW (0, bstr, L"inteface req", MB_OK);
+
+		SysFreeString(bstr);
+	}
 
 	return E_NOINTERFACE;
 }
@@ -861,11 +940,13 @@ HRESULT __stdcall CArchiveUpdateCallback::QueryInterface (const IID &iid, void *
 
 HRESULT __stdcall CArchiveUpdateCallback::SetTotal (unsigned __int64 total)
 {
+	//MessageBox (0, "settot", "as", MB_OK);
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::SetCompleted (const unsigned __int64* completeValue)
 {
+	//MessageBox (0, "setcom", "as", MB_OK);
 	return S_OK;
 }
 
@@ -876,21 +957,58 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
 			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
 			)
 {
+	int real_index = m_indicies->At(index);
+
+	if ( indexInArchive )
+		*indexInArchive = real_index;
+
+	if ( newData )
+		*newData = 0;
+
+	if ( newProperties )
+		*newProperties = 0;
+
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPID propID, PROPVARIANT *value)
 {
+
+	//MessageBox (0, "getprop", "as", MB_OK);
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequentialInStream **inStream)
 {
+	//MessageBox (0, "getstream", "as", MB_OK);
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::SetOperationResult (int operationResult)
 {
+	//MessageBox (0, "setres", "as", MB_OK);
 	return S_OK;
 }
 
+HRESULT __stdcall CArchiveUpdateCallback::GetVolumeSize (unsigned int index, unsigned __int64 *size)
+{
+	//MessageBox (0, "get volume size", "as", MB_OK);
+	return S_OK;
+}
+
+HRESULT __stdcall CArchiveUpdateCallback::GetVolumeStream (unsigned int index, ISequentialOutStream **volumeStream)
+{
+	//MessageBox (0, "get vol stream", "as", MB_OK);
+	return S_OK;
+}
+
+
+HRESULT __stdcall CArchiveUpdateCallback::CryptoGetTextPassword2 (int *passwordIsDefined, BSTR *password)
+{
+	//MessageBox (0, "getpass", "as", MB_OK);
+
+	if ( passwordIsDefined )
+		*passwordIsDefined = false;
+
+	return S_OK;
+}
