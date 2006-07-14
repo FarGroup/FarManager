@@ -21,6 +21,11 @@ LNKFLAGS = -s $(LIBS)
 
 all: $(DLLFULLNAME)
 
+newarc.Messages.h: newarc.Language.feed.txt
+	@lng.generator.exe -i lang.ini newarc.Language.feed.txt
+	@$(MV) newarc.English.lng ../bin/newarc.English.lng
+	@$(MV) newarc.Russian.lng ../bin/newarc.Russian.lng
+
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
