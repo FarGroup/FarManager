@@ -30,7 +30,16 @@ $(OBJDIR)/%.d: %.cpp
 	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
+$(OBJDIR)/%.d: ./detect/%.cpp
+	@echo making depends for $<
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
 $(OBJDIR)/%.o: %.cpp
+	@echo compiling $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/%.o: ./detect/%.cpp
 	@echo compiling $<
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
