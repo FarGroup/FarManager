@@ -7,7 +7,7 @@ private:
 
 	HANDLE m_hFile;
 	int m_nRefCount;
-	char *m_lpFileName; 
+	char *m_lpFileName;
 
 public:
 
@@ -165,8 +165,7 @@ public:
 
 
 
-class COutFile : //public IUnknown,
-				public IOutStream {
+class COutFile : public IOutStream {
 
 private:
 
@@ -208,9 +207,8 @@ struct ArchiveUpdateItem {
 	const char *lpCurrentPath;
 };
 
-class CArchiveUpdateCallback : 
-		public IArchiveUpdateCallback2,
-		public ICryptoGetTextPassword2 {
+class CArchiveUpdateCallback : public IArchiveUpdateCallback {
+		//public ICryptoGetTextPassword2 {
 
 
 private:
@@ -239,7 +237,7 @@ public:
 	//IArchiveUpdateCallback
 
 	virtual HRESULT __stdcall GetUpdateItemInfo (
-			unsigned int index, 
+			unsigned int index,
 			int *newData, // 1 - new data, 0 - old data
 			int *newProperties, // 1 - new properties, 0 - old properties
 			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
@@ -256,6 +254,4 @@ public:
 	//ICryptoGetTextPassword2
 
 	virtual HRESULT __stdcall CryptoGetTextPassword2 (int *passwordIsDefined, BSTR *password);
-
-
 };

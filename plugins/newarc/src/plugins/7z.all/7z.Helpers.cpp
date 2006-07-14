@@ -505,7 +505,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
    		if ( archive->GetProperty (index, kpidIsFolder, &value) )
    		{
-   			if (value.vt == VT_BOOL) 
+   			if (value.vt == VT_BOOL)
    				bIsFolder = (value.boolVal == VARIANT_TRUE);
 		}
 
@@ -952,7 +952,7 @@ HRESULT __stdcall CArchiveUpdateCallback::SetCompleted (const unsigned __int64* 
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
-			unsigned int index, 
+			unsigned int index,
 			int *newData, // 1 - new data, 0 - old data
 			int *newProperties, // 1 - new properties, 0 - old properties
 			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
@@ -984,7 +984,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
 
 HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPID propID, PROPVARIANT *value)
 {
-	ArchiveUpdateItem *item = m_indicies->At(index);	
+	ArchiveUpdateItem *item = m_indicies->At(index);
 
 
 	if ( item->bNewFile )
@@ -1080,7 +1080,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 			FindClose (hSearch);
 
 			value->vt = VT_UI8;
-			value->uhVal.QuadPart = fdata.nFileSizeHigh*0x1000000000+fdata.nFileSizeLow;
+			value->uhVal.QuadPart = fdata.nFileSizeHigh*0x1000000000ull+fdata.nFileSizeLow;
 
 
 			StrFree (lpFullName);
@@ -1103,7 +1103,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequentialInStream **inStream)
 {
-	ArchiveUpdateItem *item = m_indicies->At(index);	
+	ArchiveUpdateItem *item = m_indicies->At(index);
 
 	//MessageBox (0, "getstream", "as", MB_OK);
 

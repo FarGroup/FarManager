@@ -652,7 +652,7 @@ bool __stdcall SevenZipArchive::pDelete (
 	m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
 
 	if ( SUCCEEDED (m_pArchive->QueryInterface(
-			IID_IOutArchive, 
+			IID_IOutArchive,
 			(void**)&outArchive
 			)) )
 	{
@@ -660,7 +660,7 @@ bool __stdcall SevenZipArchive::pDelete (
 
 		indicies.Create (5);
 
-		for (int i = 0; i < nArchiveItemsNumber; i++) //лажа полная написана
+		for (unsigned int i = 0; i < nArchiveItemsNumber; i++) //лажа полная написана
 		{
 			bool bFound = false;
 
@@ -694,8 +694,8 @@ bool __stdcall SevenZipArchive::pDelete (
 		if ( file->Open () )
 		{
 			if ( outArchive->UpdateItems (
-					file, 
-					indicies.GetCount(), 
+					(ISequentialOutStream *)file,
+					indicies.GetCount(),
 					pCallback
 					) == S_OK )
 				bResult = true;
@@ -703,7 +703,7 @@ bool __stdcall SevenZipArchive::pDelete (
 
 		delete file;
 
-		if ( bResult ) 
+		if ( bResult )
 		{
 			m_pInFile->Close ();
 			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -829,7 +829,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 	m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
 
 	if ( SUCCEEDED (m_pArchive->QueryInterface(
-			IID_IOutArchive, 
+			IID_IOutArchive,
 			(void**)&outArchive
 			)) )
 	{
@@ -837,7 +837,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 
 		indicies.Create (5);
 
-		for (int i = 0; i < nArchiveItemsNumber; i++)
+		for (unsigned int i = 0; i < nArchiveItemsNumber; i++)
 		{
 			ArchiveUpdateItem *item = new ArchiveUpdateItem;
 
@@ -858,7 +858,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 			item->lpCurrentPath = lpCurrentPath;
 
 			indicies.Add (item);
-		}   
+		}
 
 	/*	CPropVariant value;
 
@@ -900,7 +900,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 			item->lpCurrentPath = lpCurrentPath;
 
 			indicies.Add (item);
-		}  */ 
+		}  */
 
 
 		char szTempName[MAX_PATH];
@@ -913,8 +913,8 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 		if ( file->Open () )
 		{
 			if ( outArchive->UpdateItems (
-					file, 
-					indicies.GetCount(), 
+					(ISequentialOutStream *)file,
+					indicies.GetCount(),
 					pCallback
 					) == S_OK )
 				bResult = true;
@@ -922,7 +922,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 
 		delete file;
 
-		if ( bResult ) 
+		if ( bResult )
 		{
 			m_pInFile->Close ();
 			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
