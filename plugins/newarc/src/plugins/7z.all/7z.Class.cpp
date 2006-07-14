@@ -288,7 +288,7 @@ bool SevenZipModule::IsSplitModule ()
 
 void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 {
-	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST|AFF_SUPPORT_INTERNAL_DELETE;
+	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST|AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD;
 
 	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
 	{
@@ -816,4 +816,12 @@ bool __stdcall SevenZipArchive::pExtract (
 	free (items);
 
 	return bResult;
+}
+
+
+bool __stdcall SevenZipArchive::pAddFiles (const char **pItems, int nItemsNumber)
+{
+	MessageBox (0, "add", "asd", MB_OK);
+
+	return true;
 }

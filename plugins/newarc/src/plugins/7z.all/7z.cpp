@@ -288,6 +288,19 @@ int OnTest (TestStruct *pTS)
 	return NAERROR_SUCCESS;
 }
 
+int OnAdd (AddStruct *pAS)
+{
+	SevenZipArchive *pArchive = (SevenZipArchive *)pAS->hArchive;
+
+	pAS->bResult = pArchive->pAddFiles (
+			pAS->pItems,
+			pAS->nItemsNumber
+			);
+
+	return NAERROR_SUCCESS;
+}
+
+
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
 	if ( pGDC->nFormat < Formats.GetCount() )
@@ -358,6 +371,9 @@ int __stdcall PluginEntry (
 
 	case FID_DELETE:
 		return OnDelete ((DeleteStruct*)pParams);
+
+	case FID_ADD:
+		return OnAdd ((AddStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;

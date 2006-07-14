@@ -398,6 +398,24 @@ bool Archive::pExtract (
 	return false;
 }
 
+bool Archive::pAddFiles (
+		const char **pItems,
+		int nItemsNumber
+		)
+{
+	AddStruct AS;
+
+	AS.hArchive = m_hArchive;
+	AS.pItems = pItems;
+	AS.nItemsNumber = nItemsNumber;
+
+	if ( m_pPlugin->m_pfnPluginEntry (FID_ADD, (void*)&AS) == NAERROR_SUCCESS )
+		return AS.bResult;
+
+	return false;
+}
+
+
 
 bool Archive::pDelete (
 		PluginPanelItem *pItems,

@@ -160,6 +160,16 @@ struct DeleteStruct {
 	bool bResult;
 };
 
+struct AddStruct {
+	DWORD dwStructSize;
+
+	HANDLE hArchive;
+	const char **pItems;
+	int nItemsNumber;
+	bool bResult;
+};
+
+
 #define FID_INITIALIZE			 1	//param - PluginStartupInfo
 #define FID_FINALIZE			 2	//param - NULL
 #define FID_QUERYARCHIVE    	 3	//param - QueryArchiveStruct
@@ -173,6 +183,7 @@ struct DeleteStruct {
 #define FID_TEST				11
 #define FID_GETARCHIVEPLUGININFO	12	//param - ArchivePluginInfo
 #define FID_DELETE				13 //param - DeleteStruct
+#define FID_ADD                 14 //param - DeleteStruct
 
 #ifdef __cplusplus
 extern "C" {

@@ -51,6 +51,7 @@ public:
 
 	bool pExtract (PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentPath);
 	bool pDelete (PluginPanelItem *pItems, int nItemsNumber);
+	bool pAddFiles (const char **pItems, int nItemsNumber);
 
 	bool pGetDefaultCommand (int nCommand, char *lpCommand);
 

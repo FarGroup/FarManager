@@ -1532,19 +1532,31 @@ int __stdcall ArchivePanel::pPutFiles(
 		dlgModifyCreateArchive ();
 	else
 	{
-		PanelInfo pnInfo;
+		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_ADD);
 
-		Info.Control (INVALID_HANDLE_VALUE, FCTL_GETPANELSHORTINFO, &pnInfo);
+		if ( bExternal )
+		{
+			PanelInfo pnInfo;
 
-		SetCurrentDirectory (pnInfo.CurDir);
+			Info.Control (INVALID_HANDLE_VALUE, FCTL_GETPANELSHORTINFO, &pnInfo);
 
-		pExecuteCommand (
-				COMMAND_ADD,
-				NULL,
-				NULL,
-				PanelItem,
-				ItemsNumber
-				);
+			SetCurrentDirectory (pnInfo.CurDir);
+
+			pExecuteCommand (
+					COMMAND_ADD,
+					NULL,
+					NULL,
+					PanelItem,
+					ItemsNumber
+					);
+		}
+		else
+		{
+			m_pArchive->pAddFiles (
+					NULL, 
+					0
+					);
+		}
 	}
 
 	return TRUE;
