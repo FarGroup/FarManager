@@ -689,7 +689,7 @@ bool __stdcall SevenZipArchive::pDelete (
 		CreateTempName (m_lpFileName, szTempName);
 
 		COutFile *file = new COutFile (szTempName);
-		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (&indicies);
+		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (this, &indicies);
 
 		if ( file->Open () )
 		{
@@ -908,7 +908,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 		CreateTempName (m_lpFileName, szTempName);
 
 		COutFile *file = new COutFile (szTempName);
-		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (&indicies);
+		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (this, &indicies);
 
 		if ( file->Open () )
 		{

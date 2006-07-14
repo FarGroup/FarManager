@@ -866,10 +866,11 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 
 
-CArchiveUpdateCallback::CArchiveUpdateCallback (Collection<ArchiveUpdateItem*> *indicies)
+CArchiveUpdateCallback::CArchiveUpdateCallback (SevenZipArchive *pArchive, Collection<ArchiveUpdateItem*> *indicies)
 {
 	m_nRefCount = 1;
 	m_indicies = indicies;
+	m_pArchive = pArchive;
 }
 
 CArchiveUpdateCallback::~CArchiveUpdateCallback()
@@ -1094,6 +1095,8 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 		}*/
 	}
+	else
+		return m_pArchive->m_pArchive->GetProperty (item->index, propID, value);
 
 	return S_OK;
 }
@@ -1112,15 +1115,16 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 
 		strcat (lpFullName, item->lpFileName);
 
-	//	MessageBox (0, lpFullName, "gs", MB_OK);
+		if ( (GetFileAttributes (lpFullName) & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
+		{
+			CInFile *file = new CInFile (lpFullName);
 
-		CInFile *file = new CInFile (lpFullName);
+			StrFree (lpFullName);
 
-		StrFree (lpFullName);
+			file->Open ();
 
-		file->Open ();
-
-		*inStream = file;
+			*inStream = file;
+		}
 	}
 
 	return S_OK;

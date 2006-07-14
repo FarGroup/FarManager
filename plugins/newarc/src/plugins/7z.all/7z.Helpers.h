@@ -218,9 +218,11 @@ private:
 	int m_nRefCount;
 	Collection<ArchiveUpdateItem*> *m_indicies;
 
+	SevenZipArchive *m_pArchive;
+
 public:
 
-	CArchiveUpdateCallback (Collection <ArchiveUpdateItem*> *indicies);
+	CArchiveUpdateCallback (SevenZipArchive *pArchive, Collection <ArchiveUpdateItem*> *indicies);
 	~CArchiveUpdateCallback();
 
 	//IUnknown
