@@ -142,28 +142,7 @@
 				RelativePath=".\7z.Helpers.cpp">
 			</File>
 			<File
-				RelativePath=".\7zdetect.cpp">
-			</File>
-			<File
-				RelativePath=".\arjdetect.cpp">
-			</File>
-			<File
-				RelativePath=".\cabdetect.cpp">
-			</File>
-			<File
-				RelativePath=".\isodetect.cpp">
-			</File>
-			<File
-				RelativePath=".\lzhdetect.cpp">
-			</File>
-			<File
-				RelativePath=".\nsisdetect.cpp">
-			</File>
-			<File
 				RelativePath=".\PropVariant.cpp">
-			</File>
-			<File
-				RelativePath=".\rardetect.cpp">
 			</File>
 			<File
 				RelativePath="..\..\lib.part\Src\Registry.cpp">
@@ -177,12 +156,37 @@
 			<File
 				RelativePath="..\..\lib.part\Src\Rtl.Thunks.cpp">
 			</File>
-			<File
-				RelativePath=".\tardetect.cpp">
-			</File>
-			<File
-				RelativePath=".\zipdetect.cpp">
-			</File>
+			<Filter
+				Name="detect"
+				Filter="">
+				<File
+					RelativePath=".\detect\7zdetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\arjdetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\cabdetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\isodetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\lzhdetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\nsisdetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\rardetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\tardetect.cpp">
+				</File>
+				<File
+					RelativePath=".\detect\zipdetect.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

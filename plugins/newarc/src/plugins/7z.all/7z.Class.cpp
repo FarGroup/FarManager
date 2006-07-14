@@ -235,9 +235,7 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 		if ( m_pfnCreateObject &&
 			 m_pfnGetHandlerProperty )
 		{
-			PROPVARIANT value;
-
-			VariantInit ((VARIANTARG*)&value);
+			CPropVariant value;
 
 			m_pfnGetHandlerProperty (NArchive::kClassID, &value);
 
@@ -246,8 +244,6 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 				memcpy (&m_uid, value.bstrVal, sizeof (GUID));
 				bResult = true;
 			}
-
-			VariantClear ((VARIANTARG*)&value);
 		}
 	}
 
@@ -288,7 +284,14 @@ bool SevenZipModule::IsSplitModule ()
 
 void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 {
-	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST|AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD;
+	CPropVariant value;
+
+	m_pfnGetHandlerProperty (NArchive::kUpdate, &value);
+
+	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
+	
+	if ( (value.vt == VT_BOOL) && (value.boolVal == VARIANT_TRUE) )
+		pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD;
 
 	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
 	{
@@ -843,65 +846,68 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 
 			item->index = i;
 			item->bNewFile = false;
+			item->lpCurrentPath = lpCurrentPath;
+			item->lpSourcePath = lpSourcePath;
 
 			indicies.Add (item);
 		}
 
 		for (int i = 0; i < nItemsNumber; i++)
 		{
-			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+			bool bFound = false;
+			char szCheckName[MAX_PATH];
 
-			item->index = -1;
-			item->bNewFile = true;
-			item->lpFileName = pItems[i];
-			item->lpSourcePath = lpSourcePath;
-			item->lpCurrentPath = lpCurrentPath;
+			memset (szCheckName, 0, MAX_PATH);
 
-			indicies.Add (item);
-		}
-
-	/*	CPropVariant value;
-
-		char szArchiveFileName[MAX_PATH];
-		bool bFound = false;
-
-		for (int i = 0; i < nArchiveItemsNumber; i++)
-		{
-			bFound = false;
-			memset (&szArchiveFileName, 0, MAX_PATH);
-
-			if ( m_pArchive->GetProperty (i, kpidPath, &value) == S_OK )
+			if ( lpCurrentPath && *lpCurrentPath )
 			{
-				if ( value.vt == VT_BSTR )
-					WideCharToMultiByte (CP_OEMCP, value.bstrVal, -1, (char*)&szArchiveFileName, MAX_PATH, NULL, NULL);
+				strcpy (szCheckName, lpCurrentPath);
+				FSF.AddEndSlash (szCheckName);
 			}
 
-			for (int j = 0; j < nItemsNumber; j++)
+			strcat (szCheckName, pItems[i]);
+
+			for (int j = 0; j < nArchiveItemsNumber; j++)
 			{
-				if ( !FSF.LStricmp (pItems[i], szArchiveFileName) )
+				CPropVariant value;
+				char szArchiveFileName [MAX_PATH];
+
+				memset (szArchiveFileName, 0, MAX_PATH);
+
+				if ( m_pArchive->GetProperty (j, kpidPath, &value) == S_OK )
+				{
+					if ( value.vt == VT_BSTR )
+						WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArchiveFileName, MAX_PATH, NULL, NULL);
+				}
+
+				if ( !FSF.LStricmp (szArchiveFileName, szCheckName) )
+				{
 					bFound = true;
 
-			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+					ArchiveUpdateItem *item = indicies.At(j);
 
-			item->index = i;
-			item->bNewFile = false;
+					item->bNewFile = true;
+					item->lpFileName = pItems[i];
+					item->lpCurrentPath = lpCurrentPath;
+					item->lpSourcePath = lpSourcePath;
 
-			indicies.Add (item);
+					break;
+				}
+			}
+
+			if ( !bFound )
+			{
+				ArchiveUpdateItem *item = new ArchiveUpdateItem;
+
+				item->index = -1;
+				item->bNewFile = true;
+				item->lpFileName = pItems[i];
+				item->lpCurrentPath = lpCurrentPath;
+				item->lpSourcePath = lpSourcePath;
+
+				indicies.Add (item);
+			}
 		}
-
-		for (int i = 0; i < nItemsNumber; i++)
-		{
-			ArchiveUpdateItem *item = new ArchiveUpdateItem;
-
-			item->index = -1;
-			item->bNewFile = true;
-			item->lpFileName = pItems[i];
-			item->lpSourcePath = lpSourcePath;
-			item->lpCurrentPath = lpCurrentPath;
-
-			indicies.Add (item);
-		}  */
-
 
 		char szTempName[MAX_PATH];
 
