@@ -1086,9 +1086,13 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 	{
 		PluginPanelItem *pitem = item->pItem;
 
-		char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
-
-		FSF.AddEndSlash (lpFullName);
+		char *lpFullName = (char*)malloc (MAX_PATH);
+		
+		if ( item->lpSourcePath && *item->lpSourcePath )
+		{
+			strcpy (lpFullName, item->lpSourcePath);
+			FSF.AddEndSlash (lpFullName);
+		}
 
 		strcat (lpFullName, pitem->FindData.cFileName);
 

@@ -1586,11 +1586,10 @@ int __stdcall ArchivePanel::pPutFiles(
 		}
 		else
 		{
-			PanelInfo pnInfo;
-			PanelInfo pnThis;
+			char szCurDir[MAX_PATH];
 
-			Info.Control (this, FCTL_GETANOTHERPANELSHORTINFO, &pnInfo);
-			Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
+			GetCurrentDirectory (MAX_PATH, szCurDir);
+
 
 			int nFilesCount = 1;
 			int nCurrentFile = 0;
@@ -1612,13 +1611,13 @@ int __stdcall ArchivePanel::pPutFiles(
 
 				if ( OptionIsOn (pitem->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 				{
-					char *lpFullName = StrDuplicate (pnInfo.CurDir, MAX_PATH);
+					char *lpFullName = StrDuplicate (szCurDir, MAX_PATH);
 					FSF.AddEndSlash (lpFullName);
 					strcat (lpFullName, pitem->FindData.cFileName);
 
 					ScanStruct SS;
 
-					SS.lpSourcePath = (const char*)&pnInfo.CurDir;
+					SS.lpSourcePath = (const char*)&szCurDir;
 					SS.files = files;
 					SS.nCurrentFile = nCurrentFile;
 					SS.nFilesCount = nFilesCount;
@@ -1632,8 +1631,11 @@ int __stdcall ArchivePanel::pPutFiles(
 				}
 			}
 
+			PanelInfo pnThis;
+			Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
+
 			m_pArchive->pAddFiles (
-					(const char*)&pnInfo.CurDir,
+					(const char*)&szCurDir,
 					(const char*)&pnThis.CurDir,
 					files, 
 					nCurrentFile
@@ -2036,5 +2038,41 @@ int __stdcall ArchivePanel::pProcessKey (
 		dword dwControlState
 		)
 {
+	
+	if ( (nKey == VK_F7) && (dwControlState == 0) )
+	{
+		char szFolderPath[MAX_PATH];
+
+		if ( Info.InputBox (
+				"Создание папки",
+				"Создать папку",
+				NULL,
+				NULL,
+				szFolderPath,
+				MAX_PATH,
+				NULL,
+				FIB_EXPANDENV|FIB_BUTTONS
+				) )
+		{
+			PluginPanelItem item;
+
+			memset (&item, 0, sizeof (PluginPanelItem));
+
+			strcpy (item.FindData.cFileName, szFolderPath);
+			item.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+
+			PanelInfo pnThis;
+
+			Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
+
+			m_pArchive->pAddFiles (
+					NULL,
+					(const char*)&pnThis.CurDir,
+					&item, 
+					1
+					);
+		}
+	}
+
 	return FALSE;
 }
