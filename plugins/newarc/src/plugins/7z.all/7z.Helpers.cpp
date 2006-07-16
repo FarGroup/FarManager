@@ -524,9 +524,10 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 			{
 				file->SetAttributes (dwFileAttributes);
 				file->SetTime (&ftCreationTime, &ftLastAccessTime, &ftLastWriteTime);
+				*outStream = file;
 			}
-
-			*outStream = file;
+			else
+                delete file;
 		}
 	}
 	else
@@ -1097,6 +1098,8 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 
 			if ( file->Open () )
 				*inStream = file;
+			else
+				delete file;
 		}
 
 		StrFree (lpFullName);
