@@ -41,8 +41,8 @@ public:
 	virtual void __stdcall pCloseArchive ();
 
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
-	virtual bool __stdcall pExtract (PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);
-	virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
+	virtual bool __stdcall pExtract (const PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);
+	virtual bool __stdcall pTest (const PluginPanelItem *pItems, int nItemsNumber);
 
 	virtual int __stdcall pGetArchiveType () { return 0; }
 };

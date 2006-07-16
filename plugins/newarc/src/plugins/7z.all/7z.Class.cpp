@@ -822,7 +822,12 @@ bool __stdcall SevenZipArchive::pExtract (
 }
 
 
-bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char *lpCurrentPath, const char **pItems, int nItemsNumber)
+bool __stdcall SevenZipArchive::pAddFiles (
+		const char *lpSourcePath, 
+		const char *lpCurrentPath, 
+		PluginPanelItem *pItems, 
+		int nItemsNumber
+		)
 {
 	IOutArchive *outArchive;
 
@@ -865,7 +870,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 				FSF.AddEndSlash (szCheckName);
 			}
 
-			strcat (szCheckName, pItems[i]);
+			strcat (szCheckName, pItems[i].FindData.cFileName);
 
 			for (unsigned int j = 0; j < nArchiveItemsNumber; j++)
 			{
@@ -887,7 +892,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 					ArchiveUpdateItem *item = indicies.At(j);
 
 					item->bNewFile = true;
-					item->lpFileName = pItems[i];
+					item->pItem = &pItems[i];
 					item->lpCurrentPath = lpCurrentPath;
 					item->lpSourcePath = lpSourcePath;
 
@@ -901,7 +906,7 @@ bool __stdcall SevenZipArchive::pAddFiles (const char *lpSourcePath, const char 
 
 				item->index = -1;
 				item->bNewFile = true;
-				item->lpFileName = pItems[i];
+				item->pItem = &pItems[i];
 				item->lpCurrentPath = lpCurrentPath;
 				item->lpSourcePath = lpSourcePath;
 

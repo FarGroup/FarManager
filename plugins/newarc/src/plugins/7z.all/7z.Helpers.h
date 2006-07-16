@@ -202,7 +202,7 @@ public:
 struct ArchiveUpdateItem {
 	unsigned int index;
 	bool bNewFile;
-	const char *lpFileName;
+	PluginPanelItem *pItem;
 	const char *lpSourcePath;
 	const char *lpCurrentPath;
 };

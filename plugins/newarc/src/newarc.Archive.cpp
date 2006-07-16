@@ -401,7 +401,7 @@ bool Archive::pExtract (
 bool Archive::pAddFiles (
 		const char *lpSourcePath,
 		const char *lpCurrentPath,
-		const char **pItems,
+		PluginPanelItem *pItems,
 		int nItemsNumber
 		)
 {

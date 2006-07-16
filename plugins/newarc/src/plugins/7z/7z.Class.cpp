@@ -251,7 +251,7 @@ int __cdecl compare(const void *p1, const void *p2)
 
 
 bool __stdcall SevenZipArchive::pExtract (
-		PluginPanelItem *pItems,
+		const PluginPanelItem *pItems,
 		int nItemsNumber,
 		const char *lpDestPath,
 		const char *lpCurrentFolder

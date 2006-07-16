@@ -989,11 +989,13 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 	if ( item->bNewFile )
 	{
+		PluginPanelItem *pitem = item->pItem;
+
 		if ( propID == kpidPath )
 		{
 			wchar_t wszNameOnly[MAX_PATH];
 
-			MultiByteToWideChar (CP_OEMCP, 0, item->lpFileName, -1, wszNameOnly, MAX_PATH);
+			MultiByteToWideChar (CP_OEMCP, 0, pitem->FindData.cFileName, -1, wszNameOnly, MAX_PATH);
 
 			wchar_t wszFullPath[MAX_PATH];
 
@@ -1011,7 +1013,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 		}
 		else
 
-		if ( propID == kpidName )
+		/*if ( propID == kpidName )
 		{
 			//MessageBox (0, "name", "asD", MB_OK);
 			wchar_t wszNameOnly[MAX_PATH];
@@ -1021,79 +1023,51 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 			value->vt = VT_BSTR;
 			value->bstrVal = SysAllocString(wszNameOnly);
 		}
-		else
+		else*/
 
 		if ( propID == kpidAttributes )
 		{
-			char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
-			FSF.AddEndSlash (lpFullName);
-			strcat (lpFullName, item->lpFileName);
-
-			//MessageBox (0, "attr", "asD", MB_OK);
 			value->vt = VT_UI4;
-			value->ulVal = GetFileAttributes (lpFullName);
-
-			//if ( OptionIsOn (value->ulVal, FILE_ATTRIBUTE_DIRECTORY) )
-			//	MessageBox (0, "!!!", "asd", MB_OK);
-
-
-			StrFree (lpFullName);
+			value->ulVal = pitem->FindData.dwFileAttributes;
 		}
 		else
 
 		if ( propID == kpidLastWriteTime )
 		{
 			value->vt = VT_FILETIME;
-			memset (&value->filetime, 0, sizeof (FILETIME));
+			memcpy (&value->filetime, &pitem->FindData.ftLastWriteTime, sizeof (FILETIME));
+		}
+		else
+
+		if ( propID == kpidCreationTime )
+		{
+			value->vt = VT_FILETIME;
+			memcpy (&value->filetime, &pitem->FindData.ftCreationTime, sizeof (FILETIME));
+		}
+		else
+
+		if ( propID == kpidLastAccessTime )
+		{
+			value->vt = VT_FILETIME;
+			memcpy (&value->filetime, &pitem->FindData.ftLastAccessTime, sizeof (FILETIME));
 		}
 		else
 
 		if ( propID == kpidIsFolder )
 		{
-			char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
-			FSF.AddEndSlash (lpFullName);
-			strcat (lpFullName, item->lpFileName);
-
-
 			value->vt = VT_BOOL;
-
-			DWORD dwFileAttributes = GetFileAttributes (lpFullName);
-
-			value->boolVal = OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY)?VARIANT_TRUE:VARIANT_FALSE;
-
-			//if ( OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
-			//	MessageBox (0, "dir", "asd", MB_OK);
-
-			StrFree (lpFullName);
+			value->boolVal = OptionIsOn (pitem->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY)?VARIANT_TRUE:VARIANT_FALSE;
 		}
 		else
 
 		if ( propID == kpidSize )
 		{
-			char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
-			FSF.AddEndSlash (lpFullName);
-			strcat (lpFullName, item->lpFileName);
-
-			WIN32_FIND_DATA fdata;
-
-			HANDLE hSearch = FindFirstFile (lpFullName, &fdata);
-			FindClose (hSearch);
+			DWORD dwHi = pitem->FindData.nFileSizeHigh;
+			DWORD dwLo = pitem->FindData.nFileSizeLow;
 
 			value->vt = VT_UI8;
-			value->uhVal.QuadPart = fdata.nFileSizeHigh*0x1000000000ull+fdata.nFileSizeLow;
-
-
-			StrFree (lpFullName);
+			value->uhVal.QuadPart = dwHi*0x1000000000ull+dwLo;
 		}
-		/*else
-		{
-			char s[MAX_PATH];
-			wsprintf (s, "%d", propID);
-
-
-			MessageBox (0, "getprop", s, MB_OK);
-
-		}*/
 	}
 	else
 		return m_pArchive->m_pArchive->GetProperty (item->index, propID, value);
@@ -1105,26 +1079,27 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 {
 	ArchiveUpdateItem *item = m_indicies->At(index);
 
-	//MessageBox (0, "getstream", "as", MB_OK);
+	*inStream = NULL;
 
 	if ( item->bNewFile )
 	{
+		PluginPanelItem *pitem = item->pItem;
+
 		char *lpFullName = StrDuplicate (item->lpSourcePath, MAX_PATH);
 
 		FSF.AddEndSlash (lpFullName);
 
-		strcat (lpFullName, item->lpFileName);
+		strcat (lpFullName, pitem->FindData.cFileName);
 
-		if ( (GetFileAttributes (lpFullName) & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY )
+		if ( !OptionIsOn (pitem->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			CInFile *file = new CInFile (lpFullName);
 
-			StrFree (lpFullName);
-
-			file->Open ();
-
-			*inStream = file;
+			if ( file->Open () )
+				*inStream = file;
 		}
+
+		StrFree (lpFullName);
 	}
 
 	return S_OK;

@@ -1522,21 +1522,33 @@ l_Found:
 
 struct ScanStruct {
 	const char *lpSourcePath;
-	Collection <char*> *files;
+	PluginPanelItem *files;
+	int nCurrentFile;
+	int nFilesCount;
 };
 
 
 
 int __stdcall ScanDirectory (
-		const WIN32_FIND_DATA *FData, 
+		const WIN32_FIND_DATA *fdata, 
 		const char *lpFullName,
 		ScanStruct *pSS
 		)
 {
-	char *lpNameCopy = new char[MAX_PATH];
+	char szFileNameCopy[MAX_PATH];
+	strcpy (szFileNameCopy, lpFullName+strlen(pSS->lpSourcePath)+1);
 
-	strcpy (lpNameCopy, lpFullName+strlen(pSS->lpSourcePath)+1);
-	pSS->files->Add (lpNameCopy);
+	PluginPanelItem *pitem = &pSS->files[pSS->nCurrentFile++];
+
+	memset (pitem, 0, sizeof (PluginPanelItem));
+	memcpy (&pitem->FindData, fdata, sizeof (WIN32_FIND_DATA));
+	strcpy ((char*)&pitem->FindData.cFileName, szFileNameCopy); //???
+
+	if ( pSS->nCurrentFile == pSS->nFilesCount )
+	{
+		pSS->nFilesCount += 256;
+		pSS->files = (PluginPanelItem*)realloc (pSS->files, pSS->nFilesCount*sizeof (PluginPanelItem));
+	}
 
 	return TRUE;
 }
@@ -1580,42 +1592,54 @@ int __stdcall ArchivePanel::pPutFiles(
 			Info.Control (this, FCTL_GETANOTHERPANELSHORTINFO, &pnInfo);
 			Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
 
-			Collection<char*> files;
+			int nFilesCount = 1;
+			int nCurrentFile = 0;
 
-			files.Create (5);
+			PluginPanelItem *files = (PluginPanelItem*)malloc (nFilesCount*sizeof (PluginPanelItem));
+			memset (files, 0, nFilesCount*sizeof (PluginPanelItem));
 
 			for (int i = 0; i < ItemsNumber; i++)
 			{
-				files.Add(PanelItem[i].FindData.cFileName);
+				PluginPanelItem *pitem = &files[nCurrentFile++];
 
-				if ( OptionIsOn (PanelItem[i].FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+				memcpy (pitem, &PanelItem[i], sizeof (PluginPanelItem));
+
+				if ( nCurrentFile == nFilesCount )
+				{
+					nFilesCount += 256;
+					files = (PluginPanelItem*)realloc (files, nFilesCount*sizeof (PluginPanelItem));
+				}
+
+				if ( OptionIsOn (pitem->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 				{
 					char *lpFullName = StrDuplicate (pnInfo.CurDir, MAX_PATH);
 					FSF.AddEndSlash (lpFullName);
-					strcat (lpFullName, PanelItem[i].FindData.cFileName);
+					strcat (lpFullName, pitem->FindData.cFileName);
 
 					ScanStruct SS;
 
 					SS.lpSourcePath = (const char*)&pnInfo.CurDir;
-					SS.files = &files;
-
+					SS.files = files;
+					SS.nCurrentFile = nCurrentFile;
+					SS.nFilesCount = nFilesCount;
 
 					FSF.FarRecursiveSearch (lpFullName, "*.*", (FRSUSERFUNC)ScanDirectory, FRS_RECUR, &SS);
 
+					nCurrentFile = SS.nCurrentFile;
+					nFilesCount = SS.nFilesCount;
+
 					StrFree (lpFullName);
 				}
-				//else
-				//	files.Add(PanelItem[i].FindData.cFileName);
 			}
 
 			m_pArchive->pAddFiles (
 					(const char*)&pnInfo.CurDir,
 					(const char*)&pnThis.CurDir,
-					(const char**)files.m_Data, 
-					files.GetCount()
+					files, 
+					nCurrentFile
 					);
 
-			files.Free ();
+			free (files);
 		}
 	}
 

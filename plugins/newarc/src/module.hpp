@@ -167,7 +167,7 @@ struct AddStruct {
 
 	const char *lpSourcePath;
 	const char *lpCurrentPath;
-	const char **pItems;
+	PluginPanelItem *pItems;
 	int nItemsNumber;
 	bool bResult;
 };
