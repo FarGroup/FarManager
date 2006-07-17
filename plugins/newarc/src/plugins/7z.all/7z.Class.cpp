@@ -472,7 +472,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 
   					if ( m_bListPassword )
   					{
-  						m_nItemsNumber = -1;
+  						m_nItemsNumber = (DWORD)-1;
 	  					delete pCallback;
   						return true;
   					}
@@ -824,9 +824,9 @@ bool __stdcall SevenZipArchive::pExtract (
 
 
 bool __stdcall SevenZipArchive::pAddFiles (
-		const char *lpSourcePath, 
-		const char *lpCurrentPath, 
-		PluginPanelItem *pItems, 
+		const char *lpSourcePath,
+		const char *lpCurrentPath,
+		PluginPanelItem *pItems,
 		int nItemsNumber
 		)
 {
@@ -905,7 +905,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 			{
 				ArchiveUpdateItem *item = new ArchiveUpdateItem;
 
-				item->index = -1;
+				item->index = (unsigned int)-1;
 				item->bNewFile = true;
 				item->pItem = &pItems[i];
 				item->lpCurrentPath = lpCurrentPath;
