@@ -288,7 +288,7 @@ CArchiveExtractCallback::CArchiveExtractCallback (
 	FSF.AddEndSlash (m_lpDestPath);
 	FSF.AddEndSlash (m_lpCurrentFolder);
 
-	m_nLastProcessed = -1;
+	m_nLastProcessed = (unsigned __int64)-1;
 
 	m_pGetTextPassword = NULL;
 }
@@ -353,13 +353,13 @@ HRESULT __stdcall CArchiveExtractCallback::QueryInterface (const IID &iid, void 
 
 HRESULT __stdcall CArchiveExtractCallback::SetTotal (unsigned __int64 total)
 {
-	m_nLastProcessed = -1;
+	m_nLastProcessed = (unsigned __int64)-1;
 	return S_OK;
 }
 
 HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeValue)
 {
-	if ( (int)m_nLastProcessed != -1 )
+	if ( (__int64)m_nLastProcessed != -1 )
 	{
 		unsigned __int64 diff = *completeValue-m_nLastProcessed;
 
@@ -1087,7 +1087,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 		PluginPanelItem *pitem = item->pItem;
 
 		char *lpFullName = (char*)malloc (MAX_PATH);
-		
+
 		if ( item->lpSourcePath && *item->lpSourcePath )
 		{
 			strcpy (lpFullName, item->lpSourcePath);

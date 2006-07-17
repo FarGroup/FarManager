@@ -190,7 +190,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 
 
 bool __stdcall SevenZipArchive::pTest (
-		PluginPanelItem *pItems,
+		const PluginPanelItem *pItems,
 		int nItemsNumber
 		)
 {
