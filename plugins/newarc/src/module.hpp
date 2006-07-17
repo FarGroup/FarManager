@@ -172,6 +172,14 @@ struct AddStruct {
 	bool bResult;
 };
 
+struct OpenNewArchiveStruct {
+	DWORD dwStructSize;
+
+	int nFormat;
+	const char *lpFileName;
+
+	HANDLE hResult;
+};
 
 #define FID_INITIALIZE			 1	//param - PluginStartupInfo
 #define FID_FINALIZE			 2	//param - NULL
@@ -186,7 +194,8 @@ struct AddStruct {
 #define FID_TEST				11
 #define FID_GETARCHIVEPLUGININFO	12	//param - ArchivePluginInfo
 #define FID_DELETE				13 //param - DeleteStruct
-#define FID_ADD                 14 //param - DeleteStruct
+#define FID_ADD                 14 //param - AddStruct
+#define FID_OPENNEWARCHIVE    	15 //param - OpenNewArchiveStruct
 
 #ifdef __cplusplus
 extern "C" {

@@ -55,6 +55,7 @@ public:
 	int __stdcall pSetDirectory (const char *Dir, int nOpMode);
 
 	int __stdcall pGetFiles (PluginPanelItem *PanelItem, int ItemsNumber, int Move, char *DestPath, int OpMode);
+	int __stdcall pPutFilesNew (Archive *pArchive, PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode);
 	int __stdcall pPutFiles (PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode);
 	int __stdcall pDeleteFiles (PluginPanelItem *PanelItem,	int ItemsNumber, int OpMode);
 

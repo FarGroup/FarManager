@@ -81,6 +81,21 @@ Archive *ArchivePlugin::QueryArchive (
 	return NULL;
 }
 
+Archive *ArchivePlugin::OpenNewArchive (
+		int nFormat,
+		const char *lpFileName
+		)
+{
+	OpenNewArchiveStruct ONAS;
+
+	ONAS.nFormat = nFormat;
+	ONAS.lpFileName = lpFileName;
+
+	if ( m_pfnPluginEntry (FID_OPENNEWARCHIVE, &ONAS) == NAERROR_SUCCESS )
+		return new Archive (this, lpFileName, ONAS.hResult);
+
+	return NULL;
+}
 
 void ArchivePlugin::FinalizeArchive (
 		Archive *pArchive

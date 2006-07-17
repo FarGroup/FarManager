@@ -1358,7 +1358,7 @@ int __stdcall hndModifyCreateArchive (
 	return D->DefDlgProc (nMsg, nParam1, nParam2);
 }
 
-void dlgModifyCreateArchive ()
+void dlgModifyCreateArchive (ArchivePanel *pPanel)
 {
 	PanelInfo pnInfo;
 
@@ -1478,24 +1478,46 @@ void dlgModifyCreateArchive ()
 
 						if ( pPlugin )
 						{
-							GetDefaultCommandStruct GDC;
+							Archive *pArchive = pPlugin->OpenNewArchive (nIndex, lpArchiveName);
 
-							GDC.nFormat = nIndex;
-							GDC.nCommand = COMMAND_ADD;
-							GDC.lpCommand = lpCommand;
-
-							if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
+							if (pArchive)
 							{
-								ExecuteCommand (
-										nIndex,
-										lpCommand,
-										lpArchiveName,
-										lpPassword,
-										NULL,
-										lpAdditionalCommandLine,
-										pnInfo.SelectedItems+k,
-										( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber
-										);
+								pArchive->pOpenArchive (OM_ADD); //!!! а надо ли?
+
+								pPanel->pPutFilesNew (
+												pArchive,
+												pnInfo.SelectedItems+k,
+												( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber,
+												0,
+												0
+												);
+
+								pArchive->pCloseArchive (); //!!! а надо ли?
+
+								pPlugin->FinalizeArchive (pArchive);
+							}
+							else
+							{
+
+								GetDefaultCommandStruct GDC;
+
+								GDC.nFormat = nIndex;
+								GDC.nCommand = COMMAND_ADD;
+								GDC.lpCommand = lpCommand;
+
+								if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
+								{
+									ExecuteCommand (
+											nIndex,
+											lpCommand,
+											lpArchiveName,
+											lpPassword,
+											NULL,
+											lpAdditionalCommandLine,
+											pnInfo.SelectedItems+k,
+											( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber
+											);
+								}
 							}
 						}
 					}
@@ -1530,7 +1552,7 @@ struct ScanStruct {
 
 
 int __stdcall ScanDirectory (
-		const WIN32_FIND_DATA *fdata, 
+		const WIN32_FIND_DATA *fdata,
 		const char *lpFullName,
 		ScanStruct *pSS
 		)
@@ -1553,7 +1575,22 @@ int __stdcall ScanDirectory (
 	return TRUE;
 }
 
+int __stdcall ArchivePanel::pPutFilesNew(
+		Archive *pArchive,
+		PluginPanelItem *PanelItem,
+		int ItemsNumber,
+		int Move,
+		int OpMode
+        )
+{
+	m_pArchive = pArchive;
 
+	int nResult = pPutFiles(PanelItem,ItemsNumber,Move,OpMode);
+
+	m_pArchive = NULL;
+
+	return nResult;
+}
 
 int __stdcall ArchivePanel::pPutFiles(
 		PluginPanelItem *PanelItem,
@@ -1563,7 +1600,7 @@ int __stdcall ArchivePanel::pPutFiles(
         )
 {
 	if ( m_pArchive == NULL )
-		dlgModifyCreateArchive ();
+		dlgModifyCreateArchive (this);
 	else
 	{
 		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_ADD);
@@ -1638,7 +1675,7 @@ int __stdcall ArchivePanel::pPutFiles(
 			m_pArchive->pAddFiles (
 					(const char*)&szCurDir,
 					(const char*)&pnThis.CurDir,
-					files, 
+					files,
 					nCurrentFile
 					);
 
@@ -2039,7 +2076,7 @@ int __stdcall ArchivePanel::pProcessKey (
 		dword dwControlState
 		)
 {
-	
+
 	if ( (nKey == VK_F7) && (dwControlState == 0) )
 	{
 		char szFolderPath[MAX_PATH];
@@ -2069,7 +2106,7 @@ int __stdcall ArchivePanel::pProcessKey (
 			m_pArchive->pAddFiles (
 					NULL,
 					(const char*)&pnThis.CurDir,
-					&item, 
+					&item,
 					1
 					);
 		}

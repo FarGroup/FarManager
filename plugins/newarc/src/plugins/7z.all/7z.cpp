@@ -181,12 +181,29 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 				pQAS->hResult = (HANDLE)pArchive;
 
 				formats.Free ();
+
 				return NAERROR_SUCCESS;
 			}
 		}
 	}
 
 	formats.Free ();
+
+	return NAERROR_INTERNAL;
+}
+
+int OnOpenNewArchive(OpenNewArchiveStruct *pONAS)
+{
+	SevenZipModule *pModule = Formats[pONAS->nFormat];
+
+	if ( pModule )
+	{
+		SevenZipArchive *pArchive = new SevenZipArchive (pModule, pONAS->lpFileName);
+
+		pONAS->hResult = (HANDLE)pArchive;
+
+		return NAERROR_SUCCESS;
+	}
 
 	return NAERROR_INTERNAL;
 }
@@ -376,6 +393,9 @@ int __stdcall PluginEntry (
 
 	case FID_ADD:
 		return OnAdd ((AddStruct*)pParams);
+
+	case FID_OPENNEWARCHIVE:
+		return OnOpenNewArchive ((OpenNewArchiveStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;
