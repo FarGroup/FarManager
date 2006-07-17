@@ -1535,6 +1535,12 @@ int __stdcall ScanDirectory (
 		ScanStruct *pSS
 		)
 {
+	if ( pSS->nCurrentFile == pSS->nFilesCount )
+	{
+		pSS->nFilesCount += 256;
+		pSS->files = (PluginPanelItem*)realloc (pSS->files, pSS->nFilesCount*sizeof (PluginPanelItem));
+	}
+
 	char szFileNameCopy[MAX_PATH];
 	strcpy (szFileNameCopy, lpFullName+strlen(pSS->lpSourcePath)+1);
 
@@ -1543,12 +1549,6 @@ int __stdcall ScanDirectory (
 	memset (pitem, 0, sizeof (PluginPanelItem));
 	memcpy (&pitem->FindData, fdata, sizeof (WIN32_FIND_DATA));
 	strcpy ((char*)&pitem->FindData.cFileName, szFileNameCopy); //???
-
-	if ( pSS->nCurrentFile == pSS->nFilesCount )
-	{
-		pSS->nFilesCount += 256;
-		pSS->files = (PluginPanelItem*)realloc (pSS->files, pSS->nFilesCount*sizeof (PluginPanelItem));
-	}
 
 	return TRUE;
 }
@@ -1587,7 +1587,6 @@ int __stdcall ArchivePanel::pPutFiles(
 		else
 		{
 			char szCurDir[MAX_PATH];
-
 			GetCurrentDirectory (MAX_PATH, szCurDir);
 
 
@@ -1599,21 +1598,21 @@ int __stdcall ArchivePanel::pPutFiles(
 
 			for (int i = 0; i < ItemsNumber; i++)
 			{
-				PluginPanelItem *pitem = &files[nCurrentFile++];
-
-				memcpy (pitem, &PanelItem[i], sizeof (PluginPanelItem));
-
 				if ( nCurrentFile == nFilesCount )
 				{
 					nFilesCount += 256;
 					files = (PluginPanelItem*)realloc (files, nFilesCount*sizeof (PluginPanelItem));
 				}
 
-				if ( OptionIsOn (pitem->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+				PluginPanelItem *pitem = &files[nCurrentFile++];
+				memcpy (pitem, &PanelItem[i], sizeof (PluginPanelItem));
+
+				if ( (pitem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 				{
 					char *lpFullName = StrDuplicate (szCurDir, MAX_PATH);
+
 					FSF.AddEndSlash (lpFullName);
-					strcat (lpFullName, pitem->FindData.cFileName);
+					strcat (lpFullName, PanelItem[i].FindData.cFileName);
 
 					ScanStruct SS;
 
@@ -1626,9 +1625,11 @@ int __stdcall ArchivePanel::pPutFiles(
 
 					nCurrentFile = SS.nCurrentFile;
 					nFilesCount = SS.nFilesCount;
+					files = SS.files;
 
 					StrFree (lpFullName);
 				}
+
 			}
 
 			PanelInfo pnThis;
