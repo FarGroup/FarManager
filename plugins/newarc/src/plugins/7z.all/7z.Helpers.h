@@ -207,7 +207,7 @@ struct ArchiveUpdateItem {
 	const char *lpCurrentPath;
 };
 
-class CArchiveUpdateCallback : public IArchiveUpdateCallback, public ICryptoGetTextPassword2 {
+class CArchiveUpdateCallback : public IArchiveUpdateCallback2, public ICryptoGetTextPassword2 {
 
 
 private:

@@ -701,24 +701,23 @@ bool __stdcall SevenZipArchive::pDelete (
 					indicies.GetCount(),
 					pCallback
 					) == S_OK )
+			{
+				m_pInFile->Close ();
+				MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+				m_pInFile->Open ();
+
+				m_bForcedUpdate = true;
 				bResult = true;
+			}
 		}
+
+		if ( !bResult )
+			DeleteFile (szTempName);
 
 		delete file;
-
-		if ( bResult )
-		{
-			m_pInFile->Close ();
-			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
-			m_pInFile->Open ();
-
-			m_bForcedUpdate = true;
-		}
-
 		delete pCallback;
 
 		outArchive->Release ();
-
 		indicies.Free ();
 	}
 
@@ -928,24 +927,24 @@ bool __stdcall SevenZipArchive::pAddFiles (
 					indicies.GetCount(),
 					pCallback
 					) == S_OK )
+			{
+				m_pInFile->Close ();
+				MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+				m_pInFile->Open ();
+
+				m_bForcedUpdate = true;
+
 				bResult = true;
+			}
 		}
+
+		if ( !bResult )
+			DeleteFile (szTempName); 
 
 		delete file;
-
-		if ( bResult )
-		{
-			m_pInFile->Close ();
-			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
-			m_pInFile->Open ();
-
-			m_bForcedUpdate = true;
-		}
-
 		delete pCallback;
 
 		outArchive->Release ();
-
 		indicies.Free ();
 	}
 
