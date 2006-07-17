@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.144 07.07.2006 $ */
+/* Revision: 1.145 18.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1518,7 +1518,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     UnquoteW(strExpandedDir);
     apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
 
-    ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
 
     // скорректируем букву диска на "подступах"
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
@@ -1536,9 +1535,12 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       HANDLE hFile=apiFindFirstFile(strExpandedDir, &wfd);
       if(hFile!=INVALID_HANDLE_VALUE)
       {
-        wchar_t *Ptr = strExpandedDir.GetBuffer ();
+        wchar_t *Ptr = strExpandedDir.GetBuffer (), *Ptr2;
 
-        Ptr=wcsrchr(Ptr,L'\\');
+        Ptr2=wcsrchr(Ptr,L'\\');
+        if(!Ptr2)
+          Ptr2=wcsrchr(Ptr,L'/');
+        Ptr=Ptr2;
 
         if(Ptr)
         {
@@ -1563,6 +1565,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     DWORD DirAtt=GetFileAttributesW(strExpandedDir);
     if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsoluteW(strExpandedDir))
     {
+      ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
       SetPanel->SetCurDirW(strExpandedDir,TRUE);
       return TRUE;
     }
