@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.133 07.07.2006 $ */
+/* Revision: 1.134 17.07.2006 $ */
 
 /*
 Modify:
+  17.07.2006 AY
+    - прошлым фиксом испортил работу плагинов которые ожидали именно / для CD
   07.07.2006 AY
     - не работал CD когда в пути был /
     - для запуска в Win9x всегда выставляем пути пасивной панели
@@ -1897,8 +1899,6 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     Unquote(ExpandedDir);
     ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir));
 
-    ReplaceStrings(ExpandedDir,"/","\\",-1);
-
     // скорректируем букву диска на "подступах"
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
       ExpandedDir[0]=toupper(ExpandedDir[0]);
@@ -1916,6 +1916,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       if(hFile!=INVALID_HANDLE_VALUE)
       {
         char *Ptr=strrchr(ExpandedDir,'\\');
+        if (!Ptr)
+          Ptr=strrchr(ExpandedDir,'/');
         if(Ptr)
           *++Ptr=0;
         else
@@ -1934,6 +1936,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     DWORD DirAtt=GetFileAttributes(ExpandedDir);
     if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
     {
+      ReplaceStrings(ExpandedDir,"/","\\",-1);
       SetPanel->SetCurDir(ExpandedDir,TRUE);
       return TRUE;
     }
