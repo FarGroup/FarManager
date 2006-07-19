@@ -1118,7 +1118,7 @@ void SaveTemplates ()
 					lpINIFileName
 					);
 
-			itoa (Templates[i]->nArchiver, szArchiver, 10);
+			FSF.itoa (Templates[i]->nArchiver, szArchiver, 10);
 
 			WritePrivateProfileString (
 					Templates[i]->lpName,

@@ -529,7 +529,6 @@ int __stdcall Configure (
 
 
 #if defined(__GNUC__)
-#if 0
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -545,7 +544,6 @@ BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 	(void)lpReserved;
 	return TRUE;
 }
-#endif
 #else
 /*
 BOOL __stdcall DllMain (

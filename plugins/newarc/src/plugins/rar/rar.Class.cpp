@@ -95,33 +95,37 @@ int __stdcall RarArchive::pGetArchiveItem (
 		ArchiveItemInfo *pItem
 		)
 {
-	RARHeaderDataEx fileHeader;
+	RARHeaderDataEx *fileHeader = (RARHeaderDataEx *)malloc (sizeof(RARHeaderDataEx));
 
-	int nResult = m_pModule->m_pfnReadHeaderEx (m_hArchive, &fileHeader);
+	int nResult = m_pModule->m_pfnReadHeaderEx (m_hArchive, fileHeader);
 
 	if ( !nResult )
 	{
 		memset (pItem, 0, sizeof (PluginPanelItem));
 
-		strcpy ((char*)pItem->pi.FindData.cFileName, fileHeader.FileName);
+		strcpy ((char*)pItem->pi.FindData.cFileName, fileHeader->FileName);
 
-		pItem->pi.FindData.dwFileAttributes = fileHeader.FileAttr;
+		pItem->pi.FindData.dwFileAttributes = fileHeader->FileAttr;
 
-		if ( (fileHeader.Flags & 0x04) == 0x04 )
+		if ( (fileHeader->Flags & 0x04) == 0x04 )
 			pItem->dwFlags |= AIF_CRYPTED;
 
 		FILETIME lFileTime;
 
-		DosDateTimeToFileTime (HIWORD(fileHeader.FileTime), LOWORD(fileHeader.FileTime), &lFileTime);
+		DosDateTimeToFileTime (HIWORD(fileHeader->FileTime), LOWORD(fileHeader->FileTime), &lFileTime);
 		LocalFileTimeToFileTime (&lFileTime, &pItem->pi.FindData.ftLastWriteTime);
 
-		pItem->pi.FindData.nFileSizeHigh = fileHeader.UnpSizeHigh;
-		pItem->pi.FindData.nFileSizeLow = fileHeader.UnpSize;
+		pItem->pi.FindData.nFileSizeHigh = fileHeader->UnpSizeHigh;
+		pItem->pi.FindData.nFileSizeLow = fileHeader->UnpSize;
 
 		m_pModule->m_pfnProcessFile (m_hArchive, RAR_SKIP, NULL, NULL);
 
+		free(fileHeader);
+
 		return E_SUCCESS;
 	}
+
+	free(fileHeader);
 
 	if ( nResult == ERAR_END_ARCHIVE )
 		return E_EOF;
@@ -204,7 +208,7 @@ bool __stdcall RarArchive::pExtract (
 	int nProcessed = 0;
 	int nResult = 0;
 
-	RARHeaderDataEx fileHeader;
+	RARHeaderDataEx *fileHeader = (RARHeaderDataEx *)malloc (sizeof(RARHeaderDataEx));
 
 	bool bFound;
 
@@ -212,7 +216,7 @@ bool __stdcall RarArchive::pExtract (
 
 	while ( nResult == 0 )
 	{
-		nResult = m_pModule->m_pfnReadHeaderEx (m_hArchive, &fileHeader);
+		nResult = m_pModule->m_pfnReadHeaderEx (m_hArchive, fileHeader);
 
 		if ( nResult == 0 )
 		{
@@ -220,7 +224,7 @@ bool __stdcall RarArchive::pExtract (
 
 			for (int i = 0; i < nItemsNumber; i++)
 			{
-				if ( !strcmp (pItems[i].FindData.cFileName, fileHeader.FileName) )
+				if ( !strcmp (pItems[i].FindData.cFileName, fileHeader->FileName) )
 				{
 					strcpy (lpDestName, lpDestPath);
 
@@ -242,7 +246,7 @@ bool __stdcall RarArchive::pExtract (
 
 					m_pfnCallback (AM_START_EXTRACT_FILE, (dword)&pItems[i], (dword)lpDestName);
 
-					wchar_t *lpDestNameW = (wchar_t*)malloc (2*260);
+					wchar_t *lpDestNameW = (wchar_t *)malloc (2*260);
 
 					MultiByteToWideChar (CP_OEMCP, 0, lpDestName, 260, lpDestNameW, 260);
 
@@ -269,6 +273,7 @@ l_1:
 
 	m_bAborted = false;
 
+	free(fileHeader);
 
 	StrFree (lpDestName);
 

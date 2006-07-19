@@ -290,8 +290,8 @@ bool __stdcall ZipArchive::pExtract (
 							if ( nResult == UNZ_OK )
 							{
 								int nRead;
-								dword dwWritten;
-								char cBuffer[128*1024];
+								DWORD dwWritten;
+								char *cBuffer = (char *) malloc(128*1024);
 
 								do {
 									nRead = m_pModule->m_pfnUnzReadCurrentFile (
@@ -312,6 +312,8 @@ bool __stdcall ZipArchive::pExtract (
 									}
 
 								} while (nRead > 0);
+
+								free(cBuffer);
 
 								m_pModule->m_pfnUnzCloseCurrentFile (m_hFile);
 
