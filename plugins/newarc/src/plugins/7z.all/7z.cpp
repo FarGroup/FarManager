@@ -402,22 +402,7 @@ int __stdcall PluginEntry (
 }
 
 
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C"{
-#endif
-	BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
-{
-	DllMainGCC(hDll,dwReason,lpReserved);
-	return TRUE;
-}
-
-#else
+#if !defined(__GNUC__)
 
 BOOL __stdcall DllMain (
 		HINSTANCE hinstDLL,

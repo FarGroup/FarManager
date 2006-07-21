@@ -527,23 +527,6 @@ int __stdcall Configure (
 	return FALSE;
 }
 
-
-
-#if defined(__GNUC__)
-#ifdef __cplusplus
-extern "C" {
-#endif
-	BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
-{
-	DllMainGCC(hDll,dwReason,lpReserved);
-	return TRUE;
-}
-#else
 /*
 BOOL __stdcall DllMain (
 		HINSTANCE hinstDLL,
@@ -553,4 +536,3 @@ BOOL __stdcall DllMain (
 {
 	return true;
 }*/
-#endif
