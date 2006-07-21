@@ -5,7 +5,7 @@ DLLNAME = 7z.module
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = 7z.Class.cpp 7z.Helpers.cpp 7z.cpp
 DEF = 7z.gcc.def
-LIBS = -L ../../../o/RTL -lRTL -loleaut32
+LIBS = -L ../../../o/RTL -lRTL
 
 CXX = g++
 DLLTOOL = dlltool
@@ -16,8 +16,8 @@ MV = mv -f
 MKDIR = mkdir -p
 CXXFLAGS = -Wall -Wno-non-virtual-dtor -I ../../lib.part/Include -Os -fno-strict-aliasing -funsigned-char -fomit-frame-pointer  -fno-rtti -fno-exceptions
 #LNKFLAGS = -s -nostartfiles $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32
-LNKFLAGS = -s -nostartfiles $(LIBS)
-#LNKFLAGS = -s -nostartfiles -nodefaultlibs $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32
+#LNKFLAGS = -s -nostartfiles $(LIBS)
+LNKFLAGS = -s -nostartfiles -nodefaultlibs $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32 -loleaut32 -lcrtdll
 
 all: $(DLLFULLNAME)
 

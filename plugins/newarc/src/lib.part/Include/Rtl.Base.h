@@ -43,7 +43,9 @@
 #endif
 
 #include <Rtl.Types.h>
-//#include <Rtl.Memory.h>
+#ifdef __GNUC__
+#include <Rtl.Memory.h>
+#endif
 #include <Rtl.Strings.h>
 #include <Rtl.Kernel.h>
 #include <Rtl.Hook.h>

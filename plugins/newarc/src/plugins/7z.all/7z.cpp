@@ -4,7 +4,7 @@
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
-Collection <SevenZipModule*> Formats;
+Collection <SevenZipModule*> *Formats=NULL;
 ArchiveFormatInfo *pFormatInfo = NULL;
 
 struct ArchiveModuleInformation {
@@ -23,7 +23,9 @@ int OnInitialize (PluginStartupInfo *pInfo)
 	Info = *pInfo;
 	FSF = *pInfo->FSF;
 
-	Formats.Create (5);
+	Formats = new Collection <SevenZipModule*>;
+
+	Formats->Create (5);
 
 	WIN32_FIND_DATA fdata;
 	char *lpMask = StrDuplicate (Info.ModuleName, 260);
@@ -48,7 +50,7 @@ int OnInitialize (PluginStartupInfo *pInfo)
 				strcat (lpModuleName, fdata.cFileName);
 
 				if ( pModule->Initialize (lpModuleName) )
-					Formats.Add (pModule);
+					Formats->Add (pModule);
 				else
 					delete pModule;
 
@@ -66,7 +68,10 @@ int OnInitialize (PluginStartupInfo *pInfo)
 
 int OnFinalize ()
 {
-	Formats.Free ();
+	Formats->Free ();
+
+	delete Formats;
+
 	free (pFormatInfo);
 
 	return NAERROR_SUCCESS;
@@ -164,9 +169,9 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 	{
 		FormatPosition *pos = formats[j];
 
-		for (int i = 0; i < Formats.GetCount (); i++)
+		for (int i = 0; i < Formats->GetCount (); i++)
 		{
-			SevenZipModule *pModule = Formats[i];
+			SevenZipModule *pModule = (*Formats)[i];
 
 			if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
 			{
@@ -194,7 +199,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 int OnCreateArchive (CreateArchiveStruct *pCAS)
 {
-	SevenZipModule *pModule = Formats[pCAS->nFormat];
+	SevenZipModule *pModule = (*Formats)[pCAS->nFormat];
 
 	if ( pModule )
 	{
@@ -238,12 +243,12 @@ int OnGetArchivePluginInfo (
 		ArchivePluginInfo *ai
 		)
 {
-	int nCount = Formats.GetCount ();
+	int nCount = Formats->GetCount ();
 
 	pFormatInfo = (ArchiveFormatInfo*)realloc (pFormatInfo, nCount*sizeof (ArchiveFormatInfo));
 
 	for (int i = 0; i < nCount; i++)
-		Formats[i]->GetArchiveFormatInfo (&pFormatInfo[i]);
+		(*Formats)[i]->GetArchiveFormatInfo (&pFormatInfo[i]);
 
 	ai->nFormats = nCount;
 	ai->pFormatInfo = pFormatInfo;
@@ -266,9 +271,9 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 
 	SevenZipModule *pModule = pArchive->m_pModule;
 
-	for (int i = 0; i < Formats.GetCount(); i++)
+	for (int i = 0; i < Formats->GetCount(); i++)
 	{
-		if ( Formats[i] == pModule )
+		if ( (*Formats)[i] == pModule )
 		{
 			pGAF->nFormat = i;
 			break;
@@ -322,8 +327,8 @@ int OnAdd (AddStruct *pAS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-	if ( pGDC->nFormat < Formats.GetCount() )
-		pGDC->bResult = GetFormatCommand (Formats[pGDC->nFormat]->m_uid,
+	if ( pGDC->nFormat < Formats->GetCount() )
+		pGDC->bResult = GetFormatCommand ((*Formats)[pGDC->nFormat]->m_uid,
 										  pGDC->nCommand,
 										  pGDC->lpCommand);
 	else
@@ -402,11 +407,30 @@ int __stdcall PluginEntry (
 }
 
 
-BOOL __stdcall DllMain (
-    HINSTANCE hinstDLL,
-    DWORD fdwReason,
-    LPVOID lpvReserved
-    )
+#if defined(__GNUC__)
+#ifdef __cplusplus
+extern "C"{
+#endif
+	BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 {
-  return TRUE;
+	(void)hDll;
+	(void)dwReason;
+	(void)lpReserved;
+	return TRUE;
 }
+
+#else
+BOOL __stdcall DllMain (
+		HINSTANCE hinstDLL,
+		DWORD fdwReason,
+		LPVOID lpvReserved
+		)
+{
+	return true;
+}
+#endif

@@ -16,7 +16,7 @@
 
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)
 
-extern Collection<ArchivePlugin*> Plugins;
+extern Collection<ArchivePlugin*> *Plugins;
 
 /*char *pCommandNames[11] = {
 		"Extract",

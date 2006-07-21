@@ -479,7 +479,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   						if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
   						{
   							m_nItemsNumber--;
-  						
+
   							m_bOpened = true;
 
 	  						delete pCallback;
@@ -662,7 +662,7 @@ void CreateTempName (const char *lpArchiveName, char *lpResultName) //MAX_PATH r
 	int i = 0;
 
 	do {
-		wsprintf (lpResultName, "%s.%d", lpArchiveName, i++);
+		FSF.sprintf (lpResultName, "%s.%d", lpArchiveName, i++);
 	} while ( GetFileAttributes (lpResultName) != INVALID_FILE_ATTRIBUTES );
 }
 
@@ -900,7 +900,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 					strcpy (szCheckName, lpCurrentPath);
 					FSF.AddEndSlash (szCheckName);
 				}
-		
+
 				strcat (szCheckName, pItems[i].FindData.cFileName);
 
 				for (unsigned int j = 0; j < nArchiveItemsNumber; j++)

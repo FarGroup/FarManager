@@ -44,6 +44,11 @@ void __cdecl operator delete[] (void *ptr)
 }
 #endif
 
+#ifdef __GNUC__
+void __cxa_pure_virtual(void)
+{
+}
+#endif
 
 #if 0
 

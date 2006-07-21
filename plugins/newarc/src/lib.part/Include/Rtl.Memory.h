@@ -21,3 +21,13 @@ void *__cdecl operator new[]    (size_t size);
 void __cdecl  operator delete   (void *p);
 void __cdecl  operator delete[] (void *ptr);
 #endif
+
+#ifdef __GNUC__
+#ifdef __cplusplus
+extern "C"{
+#endif
+	void __cxa_pure_virtual(void);
+#ifdef __cplusplus
+};
+#endif
+#endif

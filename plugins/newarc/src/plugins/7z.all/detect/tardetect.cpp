@@ -81,9 +81,9 @@ int IsTarHeader (const unsigned char *Data, int DataSize)
 
   Header=(struct posix_header *)Data;
 
-  if(!lstrcmp (Header->magic, TMAGIC))
+  if(!strcmp (Header->magic, TMAGIC))
     TarArchiveFormat = POSIX_FORMAT;
-  else if(!lstrcmp (Header->magic, OLDGNU_MAGIC))
+  else if(!strcmp (Header->magic, OLDGNU_MAGIC))
     TarArchiveFormat = OLDGNU_FORMAT;
   else
     TarArchiveFormat = V7_FORMAT;

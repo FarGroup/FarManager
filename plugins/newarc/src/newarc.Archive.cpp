@@ -306,7 +306,7 @@ int __stdcall Archive::ArchiveCallback (
 			{
 				doIndicator (c.X+5, c.Y+6, dwPercent);
 
-				wsprintf (szPercents, "%4u%%", dwRealPercent);
+				FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
 				Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
 			}
 
@@ -324,7 +324,7 @@ int __stdcall Archive::ArchiveCallback (
 			{
 				doIndicator (c.X+5, c.Y+8, dwPercent);
 
-				wsprintf (szPercents, "%4u%%", dwRealPercent);
+				FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
 				Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
 
 				Info.Text (0, 0, 0, 0);
@@ -339,7 +339,7 @@ int __stdcall Archive::ArchiveCallback (
 			StrFree (lpTitle);
 		}
 
-		if ( !OptionIsOn (m_nMode, OPM_SILENT) ) 
+		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 		{
 			if ( CheckForEsc () )
 			{
@@ -427,7 +427,7 @@ bool Archive::pDelete (
 		)
 {
 	DeleteStruct DS;
-	
+
 	DS.hArchive = m_hArchive;
 	DS.pItems = pItems;
 	DS.nItemsNumber = nItemsNumber;

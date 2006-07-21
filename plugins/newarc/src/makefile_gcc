@@ -17,7 +17,7 @@ MKDIR = mkdir -p
 CXXFLAGS = -Wall -I ./lib.part/Include -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 #LNKFLAGS = -s -nostartfiles $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32
 #LNKFLAGS = -s $(LIBS)
-LNKFLAGS = -s -nostartfiles -nodefaultlibs $(LIBS) -luser32 -lkernel32 -ladvapi32 -lcrtdll
+LNKFLAGS = -s -nostartfiles $(LIBS) -luser32 -lkernel32 -ladvapi32 -lcrtdll
 
 all: $(DLLFULLNAME)
 
