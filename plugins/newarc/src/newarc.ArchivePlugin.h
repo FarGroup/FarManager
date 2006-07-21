@@ -32,7 +32,7 @@ public:
 	void Finalize ();
 
 	Archive *QueryArchive (const char *lpFileName, const char *lpBuffer, dword dwBufferSize);
-	Archive *OpenNewArchive (int nFormat, const char *lpFileName);
+	Archive *CreateArchive (int nFormat, const char *lpFileName);
 	void FinalizeArchive (Archive *pArchive);
 
 	bool pGetDefaultCommand (int nType, int nCommand, char *lpCommand);

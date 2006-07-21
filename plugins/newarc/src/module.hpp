@@ -53,6 +53,7 @@ struct ArchiveItemInfo {
 #define AFF_SUPPORT_INTERNAL_TEST		2
 #define AFF_SUPPORT_INTERNAL_ADD		4
 #define AFF_SUPPORT_INTERNAL_DELETE		5
+#define AFF_SUPPORT_INTERNAL_CREATE		6
 
 struct ArchiveFormatInfo {
 	DWORD dwFlags;
@@ -172,7 +173,7 @@ struct AddStruct {
 	bool bResult;
 };
 
-struct OpenNewArchiveStruct {
+struct CreateArchiveStruct {
 	DWORD dwStructSize;
 
 	int nFormat;
@@ -195,7 +196,7 @@ struct OpenNewArchiveStruct {
 #define FID_GETARCHIVEPLUGININFO	12	//param - ArchivePluginInfo
 #define FID_DELETE				13 //param - DeleteStruct
 #define FID_ADD                 14 //param - AddStruct
-#define FID_OPENNEWARCHIVE    	15 //param - OpenNewArchiveStruct
+#define FID_CREATEARCHIVE    	15 //param - CreateArchiveStruct
 
 #ifdef __cplusplus
 extern "C" {

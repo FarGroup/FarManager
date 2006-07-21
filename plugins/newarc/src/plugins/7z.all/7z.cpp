@@ -170,7 +170,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 			if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
 			{
-				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
+				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName, false);
 
 				/*ArchiveFormatInfo info;
 
@@ -192,15 +192,15 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 	return NAERROR_INTERNAL;
 }
 
-int OnOpenNewArchive(OpenNewArchiveStruct *pONAS)
+int OnCreateArchive (CreateArchiveStruct *pCAS)
 {
-	SevenZipModule *pModule = Formats[pONAS->nFormat];
+	SevenZipModule *pModule = Formats[pCAS->nFormat];
 
 	if ( pModule )
 	{
-		SevenZipArchive *pArchive = new SevenZipArchive (pModule, pONAS->lpFileName);
+		SevenZipArchive *pArchive = new SevenZipArchive (pModule, pCAS->lpFileName, true);
 
-		pONAS->hResult = (HANDLE)pArchive;
+		pCAS->hResult = (HANDLE)pArchive;
 
 		return NAERROR_SUCCESS;
 	}
@@ -394,8 +394,8 @@ int __stdcall PluginEntry (
 	case FID_ADD:
 		return OnAdd ((AddStruct*)pParams);
 
-	case FID_OPENNEWARCHIVE:
-		return OnOpenNewArchive ((OpenNewArchiveStruct*)pParams);
+	case FID_CREATEARCHIVE:
+		return OnCreateArchive ((CreateArchiveStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;

@@ -15,6 +15,7 @@ public:
 	~CInFile ();
 
 	bool Open ();
+	bool Create ();
 	void Close ();
 
 	unsigned __int64 GetSize ();

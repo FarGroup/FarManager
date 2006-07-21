@@ -51,10 +51,11 @@ public:
 
 	bool m_bForcedUpdate;
 	bool m_bOpened;
+	bool m_bNewArchive;
 
 public:
 
-	SevenZipArchive (SevenZipModule *pModule, const char *lpFileName);
+	SevenZipArchive (SevenZipModule *pModule, const char *lpFileName, bool bNewArchive);
 	virtual ~SevenZipArchive ();
 
 	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);

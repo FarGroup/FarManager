@@ -400,7 +400,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 }
 
 
-SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileName)
+SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileName, bool bNewArchive)
 {
 	m_pArchive = NULL;
 	m_pInFile = NULL;
@@ -410,6 +410,7 @@ SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileNam
 
 	m_bForcedUpdate = false;
 	m_bOpened = false;
+	m_bNewArchive = bNewArchive;
 }
 
 SevenZipArchive::~SevenZipArchive ()
@@ -433,64 +434,87 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 
 	  	m_pInFile = new CInFile (m_lpFileName);
 
-  		if ( m_pInFile->Open () )
+	  	if ( m_bNewArchive )
 	  	{
-			HRESULT hr = m_pModule->m_pfnCreateObject (
-  					&m_pModule->m_uid,
-  					&IID_IInArchive,
-  					(void**)&m_pArchive
-	  				);
+	  		if ( m_pInFile->Create () )
+	  		{
+				HRESULT hr = m_pModule->m_pfnCreateObject (
+  						&m_pModule->m_uid,
+  						&IID_IInArchive,
+						(void**)&m_pArchive
+	  					);
 
-			if ( hr == S_OK )
-  			{
-  				unsigned __int64 max = 1 << 17;
+				if ( hr == S_OK )
+				{
+					m_bOpened = true;
+					return true;
+				}
+	  		}
 
-				CArchiveOpenCallback *pCallback = new CArchiveOpenCallback (this);
-
-				m_bListPassword = false;
-
-				hr = m_pArchive->Open (m_pInFile, &max, pCallback);
+			m_pInFile->Release ();
+			m_pInFile = NULL;
+	  	}
+	  	else
+	  	{
+  			if ( m_pInFile->Open () )
+	  		{
+				HRESULT hr = m_pModule->m_pfnCreateObject (
+  						&m_pModule->m_uid,
+  						&IID_IInArchive,
+						(void**)&m_pArchive
+	  					);
 
 				if ( hr == S_OK )
 	  			{
-  					if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
-  					{
-  						m_nItemsNumber--;
+  					unsigned __int64 max = 1 << 17;
 
-  						m_bOpened = true;
+					CArchiveOpenCallback *pCallback = new CArchiveOpenCallback (this);
 
-  						delete pCallback;
-  						return true;
-	  				}
+					m_bListPassword = false;
 
-  					m_pArchive->Close();
-  				}
-  				else
-	  			{
-		  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
-	  				//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
+					hr = m_pArchive->Open (m_pInFile, &max, pCallback);
 
-  					if ( m_bListPassword )
-  					{
-  						m_nItemsNumber = (DWORD)-1;
-	  					delete pCallback;
-  						return true;
+					if ( hr == S_OK )
+		  			{
+  						if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
+  						{
+  							m_nItemsNumber--;
+  						
+  							m_bOpened = true;
+
+	  						delete pCallback;
+  							return true;
+	  					}
+
+  						m_pArchive->Close();
   					}
-				}
+	  				else
+		  			{
+			  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
+	  					//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
 
-				delete pCallback;
+  						if ( m_bListPassword )
+  						{
+  							m_nItemsNumber = (DWORD)-1;
+		  					delete pCallback;
+  							return true;
+  						}
+					}
 
-  				//if we get here, there is an error
+					delete pCallback;
 
-  				m_pArchive->Release ();
-  				m_pArchive = NULL;
-	  		}
+	  				//if we get here, there is an error
 
-  			m_pInFile->Release ();
-  			m_pInFile = NULL;
+  					m_pArchive->Release ();
+  					m_pArchive = NULL;
+	  			}
+
+	  			m_pInFile->Release ();
+  				m_pInFile = NULL;
+		  	}
+
+	  		return false;
 	  	}
-
-		return false;
 	}
 	else
 	{
@@ -835,8 +859,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 	unsigned int nArchiveItemsNumber;
 	bool bResult = false;
 
-	m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
-
 	if ( SUCCEEDED (m_pArchive->QueryInterface(
 			IID_IOutArchive,
 			(void**)&outArchive
@@ -846,65 +868,73 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 		indicies.Create (5);
 
-		for (unsigned int i = 0; i < nArchiveItemsNumber; i++)
+		if ( !m_bNewArchive )
 		{
-			ArchiveUpdateItem *item = new ArchiveUpdateItem;
+			m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
 
-			item->index = i;
-			item->bNewFile = false;
-			item->lpCurrentPath = lpCurrentPath;
-			item->lpSourcePath = lpSourcePath;
+			for (unsigned int i = 0; i < nArchiveItemsNumber; i++)
+			{
+				ArchiveUpdateItem *item = new ArchiveUpdateItem;
 
-			indicies.Add (item);
+				item->index = i;
+				item->bNewFile = false;
+				item->lpCurrentPath = lpCurrentPath;
+				item->lpSourcePath = lpSourcePath;
+
+				indicies.Add (item);
+			}
 		}
 
 		for (int i = 0; i < nItemsNumber; i++)
 		{
 			bool bFound = false;
-			char szCheckName[MAX_PATH];
 
-			memset (szCheckName, 0, MAX_PATH);
-
-			if ( lpCurrentPath && *lpCurrentPath )
+			if ( !m_bNewArchive )
 			{
-				strcpy (szCheckName, lpCurrentPath);
-				FSF.AddEndSlash (szCheckName);
-			}
+				char szCheckName[MAX_PATH];
 
-			strcat (szCheckName, pItems[i].FindData.cFileName);
+				memset (szCheckName, 0, MAX_PATH);
 
-			for (unsigned int j = 0; j < nArchiveItemsNumber; j++)
-			{
-				CPropVariant value;
-				char szArchiveFileName [MAX_PATH];
-
-				memset (szArchiveFileName, 0, MAX_PATH);
-
-				if ( m_pArchive->GetProperty (j, kpidPath, &value) == S_OK )
+				if ( lpCurrentPath && *lpCurrentPath )
 				{
-					if ( value.vt == VT_BSTR )
-						WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArchiveFileName, MAX_PATH, NULL, NULL);
+					strcpy (szCheckName, lpCurrentPath);
+					FSF.AddEndSlash (szCheckName);
 				}
+		
+				strcat (szCheckName, pItems[i].FindData.cFileName);
 
-				if ( !FSF.LStricmp (szArchiveFileName, szCheckName) )
+				for (unsigned int j = 0; j < nArchiveItemsNumber; j++)
 				{
-					bFound = true;
+					CPropVariant value;
+					char szArchiveFileName [MAX_PATH];
 
-					ArchiveUpdateItem *item = indicies.At(j);
+					memset (szArchiveFileName, 0, MAX_PATH);
 
-					item->bNewFile = true;
-					item->pItem = &pItems[i];
-					item->lpCurrentPath = lpCurrentPath;
-					item->lpSourcePath = lpSourcePath;
+					if ( m_pArchive->GetProperty (j, kpidPath, &value) == S_OK )
+					{
+						if ( value.vt == VT_BSTR )
+							WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArchiveFileName, MAX_PATH, NULL, NULL);
+					}
 
-					break;
+					if ( !FSF.LStricmp (szArchiveFileName, szCheckName) )
+					{
+						bFound = true;
+
+						ArchiveUpdateItem *item = indicies.At(j);
+
+						item->bNewFile = true;
+						item->pItem = &pItems[i];
+						item->lpCurrentPath = lpCurrentPath;
+						item->lpSourcePath = lpSourcePath;
+
+						break;
+					}
 				}
 			}
 
 			if ( !bFound )
 			{
 				ArchiveUpdateItem *item = new ArchiveUpdateItem;
-
 				item->index = (unsigned int)-1;
 				item->bNewFile = true;
 				item->pItem = &pItems[i];

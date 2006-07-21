@@ -1478,25 +1478,34 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 						if ( pPlugin )
 						{
-							Archive *pArchive = pPlugin->OpenNewArchive (nIndex, lpArchiveName);
+							bool bResult = false;
 
-							if (pArchive)
+							Archive *pArchive = pPlugin->CreateArchive (nIndex, lpArchiveName);
+
+							if ( pArchive )
 							{
-								pArchive->pOpenArchive (OM_ADD); //!!! а надо ли?
+								//MessageBox (0, "asd", "asd", MB_OK);
+								if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
+								{
+									pPanel->pPutFilesNew (
+													pArchive,
+													pnInfo.SelectedItems+k,
+													( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber,
+													0,
+													0
+													);
 
-								pPanel->pPutFilesNew (
-												pArchive,
-												pnInfo.SelectedItems+k,
-												( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber,
-												0,
-												0
-												);
+									bResult = true;
+									//MessageBox (0, "put", "asd", MB_OK);
 
-								pArchive->pCloseArchive (); //!!! а надо ли?
+									pArchive->pCloseArchive (); //!!! а надо ли?
+								}
 
 								pPlugin->FinalizeArchive (pArchive);
 							}
-							else
+							
+
+							if ( !bResult ) 
 							{
 
 								GetDefaultCommandStruct GDC;
@@ -1670,11 +1679,11 @@ int __stdcall ArchivePanel::pPutFiles(
 			}
 
 			PanelInfo pnThis;
-			Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
+			bool bPanel = Info.Control (this, FCTL_GETPANELSHORTINFO, &pnThis);
 
 			m_pArchive->pAddFiles (
 					(const char*)&szCurDir,
-					(const char*)&pnThis.CurDir,
+					bPanel?(const char*)&pnThis.CurDir:NULL,
 					files,
 					nCurrentFile
 					);

@@ -81,18 +81,18 @@ Archive *ArchivePlugin::QueryArchive (
 	return NULL;
 }
 
-Archive *ArchivePlugin::OpenNewArchive (
+Archive *ArchivePlugin::CreateArchive (
 		int nFormat,
 		const char *lpFileName
 		)
 {
-	OpenNewArchiveStruct ONAS;
+	CreateArchiveStruct CAS;
 
-	ONAS.nFormat = nFormat;
-	ONAS.lpFileName = lpFileName;
+	CAS.nFormat = nFormat;
+	CAS.lpFileName = lpFileName;
 
-	if ( m_pfnPluginEntry (FID_OPENNEWARCHIVE, &ONAS) == NAERROR_SUCCESS )
-		return new Archive (this, lpFileName, ONAS.hResult);
+	if ( m_pfnPluginEntry (FID_CREATEARCHIVE, &CAS) == NAERROR_SUCCESS )
+		return new Archive (this, lpFileName, CAS.hResult);
 
 	return NULL;
 }

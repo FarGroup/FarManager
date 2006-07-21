@@ -6,9 +6,30 @@ bool CInFile::Open ()
 	HANDLE hFile = CreateFile (
 			m_lpFileName,
 			GENERIC_READ,
-			FILE_SHARE_READ,
+			FILE_SHARE_READ|FILE_SHARE_WRITE,
 			NULL,
 			OPEN_EXISTING,
+			FILE_FLAG_SEQUENTIAL_SCAN,
+			NULL
+			);
+
+	if ( hFile != INVALID_HANDLE_VALUE )
+	{
+		m_hFile = hFile;
+		return true;
+	}
+
+	return false;
+}
+
+bool CInFile::Create ()
+{
+	HANDLE hFile = CreateFile (
+			m_lpFileName,
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			NULL,
+			CREATE_ALWAYS,
 			FILE_FLAG_SEQUENTIAL_SCAN,
 			NULL
 			);
@@ -1000,12 +1021,19 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 			wchar_t wszFullPath[MAX_PATH];
 
-			MultiByteToWideChar (CP_OEMCP, 0, item->lpCurrentPath, -1, wszFullPath, MAX_PATH);
+			memset (wszFullPath, 0, sizeof (wszFullPath));
 
-			if ( wszFullPath[0] )
-				wcscat (wszFullPath, L"\\");
+			if ( item->lpCurrentPath && *item->lpCurrentPath )
+			{
+				MultiByteToWideChar (CP_OEMCP, 0, item->lpCurrentPath, -1, wszFullPath, MAX_PATH);
 
-			wcscat (wszFullPath, wszNameOnly);
+				if ( wszFullPath[0] )
+					wcscat (wszFullPath, L"\\");
+
+				wcscat (wszFullPath, wszNameOnly);
+			}
+			else
+				wcscpy (wszFullPath, wszNameOnly);
 
 			value->vt = VT_BSTR;
 			value->bstrVal = SysAllocString(wszFullPath);
