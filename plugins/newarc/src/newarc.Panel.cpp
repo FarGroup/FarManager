@@ -1020,7 +1020,7 @@ struct ArchiveTemplate {
 	char *lpParams;
 };
 
-Collection <ArchiveTemplate*> *Templates=NULL;
+Collection <ArchiveTemplate*> Templates;
 
 int __stdcall hndAddEditTemplate (
 		FarDialogHandler *D,
@@ -1035,23 +1035,23 @@ int __stdcall hndAddEditTemplate (
 
 	if ( nMsg == DN_INITDIALOG )
 	{
-		for (int i = 0; i < Plugins->GetCount(); i++)
+		for (int i = 0; i < Plugins.GetCount(); i++)
 		{
-			for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
-				D->ListAddStr (5, (*Plugins)[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
+			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
+				D->ListAddStr (5, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
 		}
 
 		if ( iPos != -1 )
 		{
 			FarListPos arcPos;
 
-			arcPos.SelectPos = (*Templates)[iPos]->nArchiver;
+			arcPos.SelectPos = Templates[iPos]->nArchiver;
 			arcPos.TopPos = -1;
 
 			D->ListSetCurrentPos (5, &arcPos);
 
-			D->SetTextPtr (2, (*Templates)[iPos]->lpName);
-			D->SetTextPtr (7, (*Templates)[iPos]->lpParams);
+			D->SetTextPtr (2, Templates[iPos]->lpName);
+			D->SetTextPtr (7, Templates[iPos]->lpParams);
 		}
 	}
 
@@ -1062,8 +1062,7 @@ void LoadTemplates ()
 {
 	char *szNames = StrCreate (4096); //я знаю, что это ламерство, но я вообще не собираюсь хранить шаблоны в ини. ???
 
-	Templates = new Collection <ArchiveTemplate*>;
-	Templates->Create (5);
+	Templates.Create (5);
 
 	if ( GetPrivateProfileSectionNames(szNames, 4096, lpINIFileName) )
 	{
@@ -1075,26 +1074,26 @@ void LoadTemplates ()
 
 			pTemplate->lpName = StrDuplicate (lpName);
 
-			Templates->Add (pTemplate);
+			Templates.Add (pTemplate);
 
 			lpName += strlen (lpName)+1;
 		}
 	}
 
-	for (int i = 0; i < Templates->GetCount(); i++)
+	for (int i = 0; i < Templates.GetCount(); i++)
 	{
-		(*Templates)[i]->lpParams = StrCreate (260);
+		Templates[i]->lpParams = StrCreate (260);
 
 		GetPrivateProfileString (
-				(*Templates)[i]->lpName,
+				Templates[i]->lpName,
 				"Params",
 				"",
-				(*Templates)[i]->lpParams,
+				Templates[i]->lpParams,
 				260,
 				lpINIFileName
 				);
 
-		(*Templates)[i]->nArchiver = GetPrivateProfileInt ((*Templates)[i]->lpName, "Pos", -1, lpINIFileName);
+		Templates[i]->nArchiver = GetPrivateProfileInt (Templates[i]->lpName, "Pos", -1, lpINIFileName);
 	}
 
 	StrFree (szNames);
@@ -1102,7 +1101,7 @@ void LoadTemplates ()
 
 void SaveTemplates ()
 {
-	int iCount = Templates->GetCount();
+	int iCount = Templates.GetCount();
 
 	DeleteFile (lpINIFileName);
 
@@ -1113,16 +1112,16 @@ void SaveTemplates ()
 		for ( int i = 0; i < iCount; i++ )
 		{
 			WritePrivateProfileString (
-					(*Templates)[i]->lpName,
+					Templates[i]->lpName,
 					"Params",
-					(*Templates)[i]->lpParams,
+					Templates[i]->lpParams,
 					lpINIFileName
 					);
 
-			FSF.itoa ((*Templates)[i]->nArchiver, szArchiver, 10);
+			FSF.itoa (Templates[i]->nArchiver, szArchiver, 10);
 
 			WritePrivateProfileString (
-					(*Templates)[i]->lpName,
+					Templates[i]->lpName,
 					"Pos",
 					szArchiver,
 					lpINIFileName
@@ -1130,13 +1129,12 @@ void SaveTemplates ()
 		}
 	}
 
-	Templates->Free ();
-	delete Templates;
+	Templates.Free ();
 }
 
 int dlgAddEditTemplate (FarDialogHandler *DD, bool bAdd)
 {
-	int iPos = ( bAdd ) ? Templates->GetCount() : DD->ListGetCurrentPos(7,NULL);
+	int iPos = ( bAdd ) ? Templates.GetCount() : DD->ListGetCurrentPos(7,NULL);
 
 	FarDialog *D = new FarDialog (-1, -1, 55, 11);
 
@@ -1168,12 +1166,12 @@ int dlgAddEditTemplate (FarDialogHandler *DD, bool bAdd)
 		if ( bAdd )
 		{
 			ArchiveTemplate *pTemplate = new ArchiveTemplate;
-			Templates->Add (pTemplate);
+			Templates.Add (pTemplate);
 		}
 
-		(*Templates)[iPos]->lpName = StrDuplicate (D->m_Items[2].Data);
-		(*Templates)[iPos]->lpParams = StrDuplicate (D->m_Items[7].Data);
-		(*Templates)[iPos]->nArchiver = D->m_Items[5].ListPos;
+		Templates[iPos]->lpName = StrDuplicate (D->m_Items[2].Data);
+		Templates[iPos]->lpParams = StrDuplicate (D->m_Items[7].Data);
+		Templates[iPos]->nArchiver = D->m_Items[5].ListPos;
 	}
 
 	delete D;
@@ -1192,7 +1190,7 @@ void SetTemplate (FarDialogHandler *D)
 		FarListPos arcPos;
 		FarListInfo li;
 
-		int iCount = Templates->GetCount();
+		int iCount = Templates.GetCount();
 
 		D->ListInfo(7, &li);
 
@@ -1205,7 +1203,7 @@ void SetTemplate (FarDialogHandler *D)
 
 			for (int i = 0; i < iCount; i++)
 			{
-				D->ListAddStr (7, (*Templates)[i]->lpName);
+				D->ListAddStr (7, Templates[i]->lpName);
 			}
 
 			arcPos.TopPos = -1;
@@ -1215,8 +1213,8 @@ void SetTemplate (FarDialogHandler *D)
 
 		if ( li.SelectPos != -1 )
 		{
-			arcPos.SelectPos = (*Templates)[li.SelectPos]->nArchiver;
-			D->SetTextPtr (14, (*Templates)[li.SelectPos]->lpParams);
+			arcPos.SelectPos = Templates[li.SelectPos]->nArchiver;
+			D->SetTextPtr (14, Templates[li.SelectPos]->lpParams);
 		}
 		else
 		{
@@ -1233,7 +1231,7 @@ void SetTemplate (FarDialogHandler *D)
 		bInit = false;
 	}
 
-	bool bEnable = (Templates->GetCount() > 0);
+	bool bEnable = (Templates.GetCount() > 0);
 	int nFocus = D->GetFocus ();
 
 	D->Enable (9, bEnable);
@@ -1252,14 +1250,14 @@ int __stdcall hndModifyCreateArchive (
 {
 	if ( nMsg == DN_INITDIALOG )
 	{
-		for (int i = 0; i < Plugins->GetCount(); i++)
+		for (int i = 0; i < Plugins.GetCount(); i++)
 		{
-			for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
-				D->ListAddStr (12, (*Plugins)[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
+			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
+				D->ListAddStr (12, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
 		}
 
-		for (int i = 0; i < Templates->GetCount(); i++)
-			D->ListAddStr (7, (*Templates)[i]->lpName);
+		for (int i = 0; i < Templates.GetCount(); i++)
+			D->ListAddStr (7, Templates[i]->lpName);
 
 		SetTemplate (D);
 	}
@@ -1282,16 +1280,16 @@ int __stdcall hndModifyCreateArchive (
 		}
 
 		if ( nParam1 == 9 )
-			if (Templates->GetCount ()>0)
+			if (Templates.GetCount ()>0)
 			{
 				int iPos = D->ListGetCurrentPos (7, NULL);
 
-				Templates->Remove((*Templates)[iPos]);
+				Templates.Remove(Templates[iPos]);
 				SetTemplate (D);
 			}
 
 		if ( nParam1 == 10 )
-			if (Templates->GetCount ()>0)
+			if (Templates.GetCount ()>0)
 			{
 				dlgAddEditTemplate (D, false);
 				SetTemplate (D);
@@ -1450,14 +1448,14 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 		ArchivePlugin *pPlugin = NULL;
 
-		for (int i = 0; i < Plugins->GetCount(); i++)
+		for (int i = 0; i < Plugins.GetCount(); i++)
 		{
-			for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
+			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			{
 				if ( j == nPos )
 				{
 
-					pPlugin = (*Plugins)[i];
+					pPlugin = Plugins[i];
 					int nIndex = j;
 
 					bool bSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);

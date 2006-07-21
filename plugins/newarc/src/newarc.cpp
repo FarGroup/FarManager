@@ -3,9 +3,9 @@
 FARSTANDARDFUNCTIONS FSF;
 PluginStartupInfo Info;
 
-Collection <ArchivePlugin*> *Plugins=NULL;
+Collection <ArchivePlugin*> Plugins;
 
-ViewCollection <ArchivePanel*> *Panels=NULL;
+ViewCollection <ArchivePanel*> Panels;
 
 char *lpCurrentLanguage;
 
@@ -39,9 +39,9 @@ ArchivePanel *__stdcall OpenFilePlugin (
 
 	if ( lpFileName )
 	{
-		for (int i = 0; i < Plugins->GetCount(); i++)
+		for (int i = 0; i < Plugins.GetCount(); i++)
 		{
-			Archive *pArchive = (*Plugins)[i]->QueryArchive (
+			Archive *pArchive = Plugins[i]->QueryArchive (
 					lpFileName,
 					(const char*)pData,
 					nDataSize
@@ -73,7 +73,7 @@ ArchivePanel *__stdcall OpenFilePlugin (
 		free (pArchives);
 
 	if ( pPanelResult != INVALID_HANDLE_VALUE )
-		Panels->Add (pPanelResult);
+		Panels.Add (pPanelResult);
 
 	return pPanelResult;
 }
@@ -89,7 +89,7 @@ int __stdcall LoadAndInitializePlugins (
 		ArchivePlugin *pPlugin = new ArchivePlugin;
 
 		if ( pPlugin->Initialize (lpFullName, lpCurrentLanguage) )
-			Plugins->Add (pPlugin);
+			Plugins.Add (pPlugin);
 		else
 			delete pPlugin;
 	}
@@ -129,7 +129,7 @@ void __stdcall ClosePlugin (
 {
 	pPanel->pClosePlugin ();
 
-	Panels->Remove (pPanel);
+	Panels.Remove (pPanel);
 
 	delete pPanel;
 }
@@ -201,8 +201,7 @@ void __stdcall SetStartupInfo (
 	lpCurrentLanguage = StrCreate (260);
 	GetEnvironmentVariable("FARLANG", lpCurrentLanguage, 260);
 
-	Plugins = new Collection <ArchivePlugin*>;
-	Plugins->Create (5);
+	Plugins.Create (5);
 
 	char *lpPluginsPath = StrDuplicate (Info.ModuleName, 260);
 
@@ -220,8 +219,7 @@ void __stdcall SetStartupInfo (
 
 	StrFree (lpPluginsPath);
 
-	Panels = new ViewCollection <ArchivePanel*>;
-	Panels->Create (5);
+	Panels.Create (5);
 }
 
 int __stdcall ProcessHostFile(
@@ -264,14 +262,12 @@ int __stdcall ProcessKey (
 
 void __stdcall ExitFAR ()
 {
-	for (int i = 0; i < Plugins->GetCount(); i++)
-		(*Plugins)[i]->Finalize ();
+	for (int i = 0; i < Plugins.GetCount(); i++)
+		Plugins[i]->Finalize ();
 
-	Plugins->Free ();
-	delete Plugins;
+	Plugins.Free ();
 
-	Panels->Free ();
-	delete Panels;
+	Panels.Free ();
 
 	StrFree (lpCurrentLanguage);
 }
@@ -292,8 +288,8 @@ void __stdcall GetPluginInfo (
 
 	if ( FSF.LStricmp (lpLanguage, lpCurrentLanguage) )
 	{
-		for (int i = 0; i < Plugins->GetCount(); i++)
-			(*Plugins)[i]->ReloadLanguage (lpLanguage);
+		for (int i = 0; i < Plugins.GetCount(); i++)
+			Plugins[i]->ReloadLanguage (lpLanguage);
 
 		lpCurrentLanguage = StrReplace (
 				lpCurrentLanguage,
@@ -430,8 +426,8 @@ void mnuCommandLinesAndParams ()
 
 	int nCount = 0;
 
-	for (int i = 0; i < Plugins->GetCount(); i++)
-		for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
+	for (int i = 0; i < Plugins.GetCount(); i++)
+		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			nCount++;
 
 	FarMenuItem *pItems = (FarMenuItem*)malloc (
@@ -440,9 +436,9 @@ void mnuCommandLinesAndParams ()
 
 	nCount = 0;
 
-	for (int i = 0; i < Plugins->GetCount(); i++)
-		for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
-			strcpy (pItems[nCount++].Text, (*Plugins)[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
+	for (int i = 0; i < Plugins.GetCount(); i++)
+		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
+			strcpy (pItems[nCount++].Text, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
 
 	int nResult = Info.Menu (
 			Info.ModuleNumber,
@@ -466,12 +462,12 @@ void mnuCommandLinesAndParams ()
 
 		nCount = 0;
 
-		for (int i = 0; i < Plugins->GetCount(); i++)
-			for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
+		for (int i = 0; i < Plugins.GetCount(); i++)
+			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			{
 				if ( nResult == nCount )
 				{
-					pPlugin = (*Plugins)[i];
+					pPlugin = Plugins[i];
 					nItem = j;
 
 					goto l_Found;
@@ -544,9 +540,7 @@ extern "C" {
 
 BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 {
-	(void)hDll;
-	(void)dwReason;
-	(void)lpReserved;
+	DllMainGCC(hDll,dwReason,lpReserved);
 	return TRUE;
 }
 #else
