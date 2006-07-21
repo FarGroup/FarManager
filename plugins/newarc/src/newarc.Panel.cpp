@@ -1443,7 +1443,6 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 		char *lpAdditionalCommandLine = StrCreate (260);
 
 		int nPos = D->m_Items[12].ListPos;
-		int nIndex = 0;
 
 		strcpy (lpArchiveName, D->m_Items[2].Data);
 		strcpy (lpPassword, D->m_Items[17].Data);
@@ -1455,11 +1454,11 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 		{
 			for (int j = 0; j < (*Plugins)[i]->m_ArchivePluginInfo.nFormats; j++)
 			{
-				if ( nIndex == nPos )
+				if ( j == nPos )
 				{
 
 					pPlugin = (*Plugins)[i];
-					nIndex = j;
+					int nIndex = j;
 
 					bool bSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);
 					int	iCount = ( bSeparately ) ? pnInfo.SelectedItemsNumber : 1;
@@ -1475,37 +1474,39 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 						strcat (lpArchiveName, ".");
 
-						if ( !D->m_Items[22].Selected )
-							strcat (lpArchiveName, pPlugin->m_ArchivePluginInfo.pFormatInfo[j].lpDefaultExtention);
-
 						if ( pPlugin )
 						{
 							bool bResult = false;
 
-							Archive *pArchive = pPlugin->CreateArchive (nIndex, lpArchiveName);
+							if ( !D->m_Items[22].Selected )
+								strcat (lpArchiveName, pPlugin->m_ArchivePluginInfo.pFormatInfo[nIndex].lpDefaultExtention);
 
-							if ( pArchive )
+							if ( OptionIsOn(pPlugin->m_ArchivePluginInfo.pFormatInfo[nIndex].dwFlags,AFF_SUPPORT_INTERNAL_CREATE) )
 							{
-								//MessageBox (0, "asd", "asd", MB_OK);
-								if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
+								Archive *pArchive = pPlugin->CreateArchive (nIndex, lpArchiveName);
+
+								if ( pArchive )
 								{
-									pPanel->pPutFilesNew (
-													pArchive,
-													pnInfo.SelectedItems+k,
-													( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber,
-													0,
-													0
-													);
+									//MessageBox (0, "asd", "asd", MB_OK);
+									if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
+									{
+										pPanel->pPutFilesNew (
+														pArchive,
+														pnInfo.SelectedItems+k,
+														( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber,
+														0,
+														0
+														);
 
-									bResult = true;
-									//MessageBox (0, "put", "asd", MB_OK);
+										bResult = true;
+										//MessageBox (0, "put", "asd", MB_OK);
 
-									pArchive->pCloseArchive (); //!!! а надо ли?
+										pArchive->pCloseArchive (); //!!! а надо ли?
+									}
+
+									pPlugin->FinalizeArchive (pArchive);
 								}
-
-								pPlugin->FinalizeArchive (pArchive);
 							}
-
 
 							if ( !bResult )
 							{
@@ -1535,7 +1536,6 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 					goto l_Found;
 				}
-				nIndex++;
 			}
 		}
 

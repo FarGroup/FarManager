@@ -291,7 +291,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
 
 	if ( (value.vt == VT_BOOL) && (value.boolVal == VARIANT_TRUE) )
-		pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD;
+		pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE;
 
 	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
 	{
