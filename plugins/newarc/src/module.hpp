@@ -192,6 +192,23 @@ struct CreateArchiveStruct {
 	HANDLE hResult;
 };
 
+#define NOTIFY_EXTERNAL_ADD_START		1
+#define NOTIFY_EXTERNAL_ADD_END			2
+#define NOTIFY_EXTERNAL_DELETE_START	3
+#define NOTIFY_EXTERNAL_DELETE_END		4
+#define NOTIFY_EXTERNAL_EXTRACT_START	5
+#define NOTIFY_EXTERNAL_EXTRACT_END		6
+
+struct NotifyStruct {
+	DWORD dwStructSize;
+
+	HANDLE hArchive;
+	HANDLE hPanel;
+
+	int nEvent;
+	void *pEventData;
+};
+
 
 #define FID_INITIALIZE			 1	//param - PluginStartupInfo
 #define FID_FINALIZE			 2	//param - NULL
@@ -208,6 +225,7 @@ struct CreateArchiveStruct {
 #define FID_DELETE				13 //param - DeleteStruct
 #define FID_ADD                 14 //param - AddStruct
 #define FID_CREATEARCHIVE    	15 //param - CreateArchiveStruct
+#define FID_NOTIFY				16 //param - NotifyStruct
 
 #ifdef __cplusplus
 extern "C" {

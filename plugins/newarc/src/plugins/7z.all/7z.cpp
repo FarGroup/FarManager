@@ -344,6 +344,19 @@ int OnDelete (DeleteStruct *pDS)
 	return NAERROR_SUCCESS;
 }
 
+int OnNotify (NotifyStruct *pNS)
+{
+	SevenZipArchive *pArchive = (SevenZipArchive *)pNS->hArchive;
+
+	pArchive->pNotify (
+			pNS->nEvent,
+			pNS->pEventData
+			);
+
+	return NAERROR_SUCCESS;
+}
+
+
 
 int __stdcall PluginEntry (
 		int nFunctionID,
@@ -396,6 +409,9 @@ int __stdcall PluginEntry (
 
 	case FID_CREATEARCHIVE:
 		return OnCreateArchive ((CreateArchiveStruct*)pParams);
+
+	case FID_NOTIFY:
+		return OnNotify ((NotifyStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;

@@ -1630,6 +1630,8 @@ int __stdcall ArchivePanel::pPutFiles(
 
 		if ( bExternal )
 		{
+			m_pArchive->pNotify ((HANDLE)this, NOTIFY_EXTERNAL_ADD_START, NULL);
+
 			PanelInfo pnInfo;
 
 			Info.Control (INVALID_HANDLE_VALUE, FCTL_GETPANELSHORTINFO, &pnInfo);
@@ -1643,6 +1645,8 @@ int __stdcall ArchivePanel::pPutFiles(
 					PanelItem,
 					ItemsNumber
 					);
+
+			m_pArchive->pNotify ((HANDLE)this, NOTIFY_EXTERNAL_ADD_END, NULL);
 		}
 		else
 		{
@@ -1764,6 +1768,8 @@ bool doDeleteFiles (ArchivePanel *pPanel, Archive *pArchive, PluginPanelItem *pI
 
 	if ( bExternal )
 	{
+		pArchive->pNotify ((HANDLE)pPanel, NOTIFY_EXTERNAL_DELETE_START, NULL);
+
 		pPanel->pExecuteCommand (
 				COMMAND_DELETE,
 				NULL,
@@ -1771,6 +1777,8 @@ bool doDeleteFiles (ArchivePanel *pPanel, Archive *pArchive, PluginPanelItem *pI
 				pItemsToProcess,
 				nItemsToProcessNumber
 				);
+
+		pArchive->pNotify ((HANDLE)pPanel, NOTIFY_EXTERNAL_DELETE_END, NULL);
 	}
 	else
 	{
@@ -1781,7 +1789,7 @@ bool doDeleteFiles (ArchivePanel *pPanel, Archive *pArchive, PluginPanelItem *pI
 				nItemsToProcessNumber
 				);
 
-		Info.Control (INVALID_HANDLE_VALUE, FCTL_UPDATEPANEL, NULL);
+		Info.Control ((HANDLE)pPanel, FCTL_UPDATEPANEL, NULL);
 		//m_pArchive->pCloseArchive ();
 		//	}
 	}
@@ -1833,6 +1841,9 @@ int __stdcall ArchivePanel::pGetFiles (
 			hScreen = Info.SaveScreen (0, 0, -1, -1);
 
 		if ( bExternal )
+		{
+			m_pArchive->pNotify ((HANDLE)this, NOTIFY_EXTERNAL_EXTRACT_START, NULL);
+
 			pExecuteCommand (
 				((OpMode & (OPM_FIND|OPM_VIEW|OPM_EDIT)) ? COMMAND_EXTRACT_WITHOUT_PATH : COMMAND_EXTRACT),
 					NULL,
@@ -1840,6 +1851,9 @@ int __stdcall ArchivePanel::pGetFiles (
 					pItemsToProcess,
 					nItemsToProcessNumber
 					);
+
+			m_pArchive->pNotify ((HANDLE)this, NOTIFY_EXTERNAL_EXTRACT_END, NULL);
+		}
 		else
 		{
 			if ( m_pArchive->pOpenArchive (OM_EXTRACT) ) //to cache opened state!!!

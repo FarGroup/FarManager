@@ -483,6 +483,18 @@ int Archive::pGetArchiveItem (
 }
 
 
+void Archive::pNotify (HANDLE hPanel, int nEvent, void *pEventData)
+{
+	NotifyStruct NS;
+
+	NS.hArchive = m_hArchive;
+	NS.hPanel = hPanel;
+	NS.nEvent = nEvent;
+	NS.pEventData = pEventData;
+
+	m_pPlugin->m_pfnPluginEntry (FID_NOTIFY, (void*)&NS);
+}
+
 bool Archive::pGetDefaultCommand (
 		int nCommand,
 		char *lpCommand

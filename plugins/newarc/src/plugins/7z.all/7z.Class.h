@@ -66,6 +66,7 @@ public:
 	virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
 	virtual bool __stdcall pDelete (PluginPanelItem *pItems, int nItemsNumber);
 	virtual bool __stdcall pAddFiles (const char *lpSourcePath, const char *lpCurrentPath, PluginPanelItem *pItems, int nItemsNumber);
+	virtual void __stdcall pNotify (int nEvent, void *pEventData);
 
 	virtual int __stdcall pGetArchiveType () { return 0; }
 };

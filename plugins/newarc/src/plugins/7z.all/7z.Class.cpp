@@ -858,7 +858,6 @@ bool __stdcall SevenZipArchive::pExtract (
 	return bResult;
 }
 
-
 bool __stdcall SevenZipArchive::pAddFiles (
 		const char *lpSourcePath,
 		const char *lpCurrentPath,
@@ -994,4 +993,18 @@ bool __stdcall SevenZipArchive::pAddFiles (
 	}
 
 	return bResult;
+}
+
+void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
+{
+	//ламерство. € слабо представл€ю, что будет, если файл не откроетс€
+
+	if ( nEvent == NOTIFY_EXTERNAL_ADD_START )
+		m_pInFile->Close ();
+
+	if ( nEvent == NOTIFY_EXTERNAL_ADD_END )
+	{
+		m_pInFile->Open (); 
+		m_bForcedUpdate = true;
+	}
 }

@@ -55,6 +55,8 @@ public:
 	bool pDelete (PluginPanelItem *pItems, int nItemsNumber);
 	bool pAddFiles (const char *lpSourcePath, const char *lpCurrentPath, PluginPanelItem *pItems, int nItemsNumber);
 
+	void pNotify (HANDLE hPanel, int nEvent, void *pEventData);
+
 	bool pGetDefaultCommand (int nCommand, char *lpCommand);
 
 	void Finalize ();
