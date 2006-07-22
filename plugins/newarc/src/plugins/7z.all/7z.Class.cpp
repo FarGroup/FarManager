@@ -637,7 +637,10 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 				memcpy (&pItem->pi.FindData.ftLastWriteTime, &value.filetime, sizeof (FILETIME));
 		}
 
-		pItem->pi.UserData = m_nItemsNumber;
+
+		//__debug ("%d", m_nItemsNumber+1);
+
+		pItem->pi.UserData = m_nItemsNumber+1;
 
 		nResult = E_SUCCESS;
 	}
@@ -814,24 +817,35 @@ bool __stdcall SevenZipArchive::pExtract (
 	unsigned int *indices = (unsigned int*)malloc (nItemsNumber*sizeof (unsigned int));
 	ArchiveItem *items = (ArchiveItem*)malloc (nItemsNumber*sizeof (ArchiveItem));
 
+	int lastitem = 0;
+
 	for (int i = 0; i < nItemsNumber; i++)
 	{
-		indices[i] = pItems[i].UserData; //GetIndex (m_pArchive, pItems[i].FindData.cFileName);
+		if ( pItems[i].UserData )
+		{
+			//__debug ("indexed - %s %d", pItems[i].FindData.cFileName, pItems[i].UserData);
 
-		items[i].nIndex = indices[i];
-		items[i].pItem = &pItems[i];
+			indices[lastitem] = pItems[i].UserData-1; //GetIndex (m_pArchive, pItems[i].FindData.cFileName);
+
+			items[lastitem].nIndex = indices[lastitem];
+			items[lastitem].pItem = &pItems[i];
+
+			lastitem++;
+		}
+		//else
+		//	__debug ("non indexed - %s %d", pItems[i].FindData.cFileName, pItems[i].UserData);
 	}
 
-	FSF.qsort (indices, nItemsNumber, 4, compare);
+	FSF.qsort (indices, lastitem, 4, compare);
 
 	//unsigned int nItems = 0;
 	//m_pArchive->GetNumberOfItems((unsigned int*)&nItems);
 
-	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, nItemsNumber, lpDestPath, lpCurrentFolder);
+	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, lastitem, lpDestPath, lpCurrentFolder);
 
 	if ( m_pArchive->Extract(
 			indices,
-			(unsigned int)nItemsNumber,
+			(unsigned int)lastitem,
 			0,
 			pCallback
 			) == S_OK )

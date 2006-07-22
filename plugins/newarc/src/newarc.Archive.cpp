@@ -255,6 +255,8 @@ int __stdcall Archive::ArchiveCallback (
 			m_uTotalSize2 = 0;
 		}
 
+		//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
+
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 		{
 			lpTemp = StrCreate (260);

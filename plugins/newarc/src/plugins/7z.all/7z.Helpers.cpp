@@ -531,8 +531,11 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
    				bIsFolder = (value.boolVal == VARIANT_TRUE);
 		}
 
-		if ( bIsFolder || OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+		if ( bIsFolder || 
+			 OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )//|| 
+			 //OptionIsOn (item->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
+			//MessageBox (0, szFullName, "asd", MB_OK);
 			*outStream = NULL;
 			CreateDirectoryEx (szFullName);
 		}

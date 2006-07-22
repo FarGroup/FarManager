@@ -281,6 +281,7 @@ int __stdcall ArchivePanel::pGetFindData(
 						) )
 				{
 					pPanelItems[k].FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY; //ohhha-ha-ha!!!
+					pPanelItems[k].UserData = 0;
 					bAppend = false;
 					goto l_1;
 				}
@@ -292,9 +293,12 @@ int __stdcall ArchivePanel::pGetFindData(
 				strcpy (pPanelItems[nCount].FindData.cFileName, lpName2);
 
 				if ( bIsFolder )
+				{
 					pPanelItems[nCount].FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
-
-				pPanelItems[nCount].UserData = (dword)&m_pArchiveFiles[i];
+					pPanelItems[nCount].UserData = 0;
+				}
+				else
+					pPanelItems[nCount].UserData = (dword)&m_pArchiveFiles[i];
 
 				nCount++;
 
@@ -711,7 +715,13 @@ int ParseString (
 	return nResult;
 }
 
+bool IsFileInFolder (const char *lpCurrentPath, const char *lpFileName)
+{
+	int nLength = strlen (lpCurrentPath);
+	char ch = (nLength <= strlen (lpFileName))?lpFileName[nLength+1]:-1;
 
+	return !FSF.LStrnicmp (lpCurrentPath, lpFileName, nLength);// && ((ch == 0) || (ch == '\\') || (ch == '/'));
+}
 
 void GetArchiveItemsToProcess (
 		ArchivePanel *pPanel,
@@ -730,6 +740,49 @@ void GetArchiveItemsToProcess (
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
+		InternalArchiveItemInfo *pItemInfo = (InternalArchiveItemInfo*)pPanelItems[i].UserData;
+
+		if ( pItemInfo )
+		{
+			memcpy (&pResult[nCount++], &pItemInfo->ItemInfo.pi, sizeof (PluginPanelItem));
+
+		//	MessageBox (0, pItemInfo->ItemInfo.pi.FindData.cFileName, "asd", MB_OK);
+		}
+		else
+		{
+			char *lpFullName = StrCreate (260);
+
+			if ( *pPanel->m_lpCurrentFolder )
+			{
+				strcpy (lpFullName, pPanel->m_lpCurrentFolder);
+				FSF.AddEndSlash (lpFullName);
+			}
+
+			strcat (lpFullName, pPanelItems[i].FindData.cFileName);
+
+			memcpy (&pResult[nCount], &pPanelItems[i], sizeof (PluginPanelItem));
+
+			pResult[nCount].UserData = 0;
+
+			strcpy ((char*)&pResult[nCount++].FindData.cFileName, lpFullName);
+
+			//__debug ("no data - %s", lpFullName);
+
+			StrFree (lpFullName);
+		}
+
+        pPanel->m_pArchive->m_uFullSize += pPanelItems[i].FindData.nFileSizeHigh*0x100000000ull+pPanelItems[i].FindData.nFileSizeLow;
+
+		if ( nCount == nArrayCount )
+		{
+			nArrayCount = nArrayCount+256+nArrayCount/4;
+
+        	pResult = (PluginPanelItem*)realloc (
+					pResult,
+					nArrayCount*sizeof (PluginPanelItem)
+					);
+		}
+
 		if ( (pPanelItems[i].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 		{
 			char *lpPath = StrDuplicate (pPanel->m_lpCurrentFolder, 260);
@@ -743,14 +796,12 @@ void GetArchiveItemsToProcess (
 			{
 				PluginPanelItem *pCurrentPanelItem = &pPanel->m_pArchiveFiles[k].ItemInfo.pi;
 
-				if ( !FSF.LStrnicmp (
-						lpPath,
-						pCurrentPanelItem->FindData.cFileName,
-						strlen (lpPath)
-						) )
+				if ( IsFileInFolder (lpPath, pCurrentPanelItem->FindData.cFileName) )
 				{
-					//if ( (pCurrentPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 )
+					if ( (pCurrentPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 )
 					{
+						//MessageBox (0, pCurrentPanelItem->FindData.cFileName, pCurrentPanelItem->FindData.cFileName, MB_OK);
+
 						memcpy (&pResult[nCount++], pCurrentPanelItem, sizeof (PluginPanelItem));
 
 						pPanel->m_pArchive->m_uFullSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
@@ -771,46 +822,6 @@ void GetArchiveItemsToProcess (
 			StrFree (lpPath);
 		}
 
-		InternalArchiveItemInfo *pItemInfo = (InternalArchiveItemInfo*)pPanelItems[i].UserData;
-
-		if ( pItemInfo )
-		{
-			memcpy (&pResult[nCount++], &pItemInfo->ItemInfo.pi, sizeof (PluginPanelItem));
-
-		//	MessageBox (0, pItemInfo->ItemInfo.pi.FindData.cFileName, "asd", MB_OK);
-		}
-		else
-		{
-			//MessageBox (0, "error no data", "asd", MB_OK);
-
-			char *lpFullName = StrCreate (260);
-
-			if ( *pPanel->m_lpCurrentFolder )
-			{
-				strcpy (lpFullName, pPanel->m_lpCurrentFolder);
-				FSF.AddEndSlash (lpFullName);
-			}
-
-			strcat (lpFullName, pPanelItems[i].FindData.cFileName);
-
-			memcpy (&pResult[nCount], &pPanelItems[i], sizeof (PluginPanelItem));
-
-			strcpy ((char*)&pResult[nCount++].FindData.cFileName, lpFullName);
-
-			StrFree (lpFullName);
-		}
-
-        pPanel->m_pArchive->m_uFullSize += pPanelItems[i].FindData.nFileSizeHigh*0x100000000ull+pPanelItems[i].FindData.nFileSizeLow;
-
-		if ( nCount == nArrayCount )
-		{
-			nArrayCount = nArrayCount+256+nArrayCount/4;
-
-        	pResult = (PluginPanelItem*)realloc (
-					pResult,
-					nArrayCount*sizeof (PluginPanelItem)
-					);
-		}
 	}
 
 	*pItemsToProcessNumber = nCount;
