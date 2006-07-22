@@ -1441,6 +1441,7 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 		char *lpAdditionalCommandLine = StrCreate (260);
 
 		int nPos = D->m_Items[12].ListPos;
+		int nIndex = 0;
 
 		strcpy (lpArchiveName, D->m_Items[2].Data);
 		strcpy (lpPassword, D->m_Items[17].Data);
@@ -1452,11 +1453,11 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 		{
 			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			{
-				if ( j == nPos )
+				if ( nIndex == nPos )
 				{
 
 					pPlugin = Plugins[i];
-					int nIndex = j;
+					nIndex = j;
 
 					bool bSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);
 					int	iCount = ( bSeparately ) ? pnInfo.SelectedItemsNumber : 1;
@@ -1534,6 +1535,8 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 					goto l_Found;
 				}
+
+				nIndex++;
 			}
 		}
 
