@@ -142,6 +142,9 @@
 				RelativePath=".\7z.Helpers.cpp">
 			</File>
 			<File
+				RelativePath="..\..\lib.part\Src\debug.cpp">
+			</File>
+			<File
 				RelativePath=".\PropVariant.cpp">
 			</File>
 			<File

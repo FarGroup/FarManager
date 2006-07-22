@@ -1,5 +1,6 @@
 #include "7z.h"
 #include <objbase.h>
+#include <debug.h>
 
 bool CInFile::Open ()
 {

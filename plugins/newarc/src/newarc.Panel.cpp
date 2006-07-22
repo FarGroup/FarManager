@@ -1742,6 +1742,40 @@ bool dlgGetArchiveFiles (
 	return bResult;
 }
 
+bool doDeleteFiles (ArchivePanel *pPanel, Archive *pArchive, PluginPanelItem *pItemsToProcess, int nItemsToProcessNumber)
+{
+	bool bResult = true; //!!ERROR!!!
+
+	bool bExternal = !((pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_DELETE);
+
+	if ( bExternal )
+	{
+		pPanel->pExecuteCommand (
+				COMMAND_DELETE,
+				NULL,
+				NULL,
+				pItemsToProcess,
+				nItemsToProcessNumber
+				);
+	}
+	else
+	{
+		//	if ( m_pArchive->pOpenArchive (OM_EXTRACT) ) //to cache opened state!!!
+		//{
+		bResult = pArchive->pDelete (
+				pItemsToProcess,
+				nItemsToProcessNumber
+				);
+
+		Info.Control (INVALID_HANDLE_VALUE, FCTL_UPDATEPANEL, NULL);
+		//m_pArchive->pCloseArchive ();
+		//	}
+	}
+
+	return bResult;
+}
+
+
 
 int __stdcall ArchivePanel::pGetFiles (
 		PluginPanelItem *PanelItem,
@@ -1751,6 +1785,8 @@ int __stdcall ArchivePanel::pGetFiles (
 		int OpMode
 		)
 {
+	int bResult = true; ///!!! error!!!
+
 	char *lpResultDestPath = StrDuplicate (DestPath, 260);
 	char *lpCurrentDirectory = StrCreate (MAX_PATH);
 
@@ -1777,7 +1813,10 @@ int __stdcall ArchivePanel::pGetFiles (
 
 		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_EXTRACT);
 
-		HANDLE hScreen = Info.SaveScreen (0, 0, -1, -1);
+		HANDLE hScreen = NULL;
+		
+		if ( !OptionIsOn (OpMode, OPM_SILENT) )
+			hScreen = Info.SaveScreen (0, 0, -1, -1);
 
 		if ( bExternal )
 			pExecuteCommand (
@@ -1791,7 +1830,7 @@ int __stdcall ArchivePanel::pGetFiles (
 		{
 			if ( m_pArchive->pOpenArchive (OM_EXTRACT) ) //to cache opened state!!!
 			{
-				/*bool bResult =*/ m_pArchive->pExtract (
+				bResult = m_pArchive->pExtract (
 						pItemsToProcess,
 						nItemsToProcessNumber,
 						lpResultDestPath,
@@ -1803,18 +1842,13 @@ int __stdcall ArchivePanel::pGetFiles (
 		}
 
 		if ( Move )
-		{
-			pExecuteCommand (
-					COMMAND_DELETE,
-					NULL,
-					NULL,
-					pItemsToProcess,
-					nItemsToProcessNumber
-					);
-		}
+			doDeleteFiles (this, m_pArchive, pItemsToProcess, nItemsToProcessNumber);
 
-		Info.RestoreScreen (NULL);
-		Info.RestoreScreen (hScreen);
+		if ( hScreen )
+		{
+			Info.RestoreScreen (NULL);
+			Info.RestoreScreen (hScreen);
+		}
 
 		free (pItemsToProcess);
 	}
@@ -1824,7 +1858,7 @@ int __stdcall ArchivePanel::pGetFiles (
 	StrFree (lpResultDestPath);
 	StrFree (lpCurrentDirectory);
 
-	return TRUE;
+	return bResult;
 }
 
 bool msgDeleteFiles ()
@@ -1846,6 +1880,8 @@ bool msgDeleteFiles ()
 			);
 }
 
+
+
 int __stdcall ArchivePanel::pDeleteFiles (
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
@@ -1854,6 +1890,8 @@ int __stdcall ArchivePanel::pDeleteFiles (
 {
 	PluginPanelItem *pItemsToProcess;
 	int nItemsToProcessNumber;
+
+	int bResult = FALSE;
 
 	if ( msgDeleteFiles () )
 	{
@@ -1865,39 +1903,12 @@ int __stdcall ArchivePanel::pDeleteFiles (
 				&nItemsToProcessNumber
 				);
 
-		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_DELETE);
-
-		if ( bExternal )
-		{
-			pExecuteCommand (
-					COMMAND_DELETE,
-					NULL,
-					NULL,
-					pItemsToProcess,
-					nItemsToProcessNumber
-					);
-		}
-		else
-		{
-		//	if ( m_pArchive->pOpenArchive (OM_EXTRACT) ) //to cache opened state!!!
-			//{
-				m_pArchive->pDelete (
-						pItemsToProcess,
-						nItemsToProcessNumber
-						);
-
-			Info.Control (INVALID_HANDLE_VALUE, FCTL_UPDATEPANEL, NULL);
-				//m_pArchive->pCloseArchive ();
-		//	}
-		}
-
+		bResult = doDeleteFiles (this, m_pArchive, pItemsToProcess, nItemsToProcessNumber);
 
 		free (pItemsToProcess);
-
-		return TRUE;
 	}
 
-	return FALSE;
+	return bResult;
 }
 
 

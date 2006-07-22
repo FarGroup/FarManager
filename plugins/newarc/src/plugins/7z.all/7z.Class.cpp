@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "detectarchive.h"
 #include <Collections.h>
+#include <debug.h>
 
 const GUID FormatGUIDs[] = {
 		CLSID_CFormat7z,
@@ -830,13 +831,12 @@ bool __stdcall SevenZipArchive::pExtract (
 
 	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, nItemsNumber, lpDestPath, lpCurrentFolder);
 
-
-	if ( SUCCEEDED (m_pArchive->Extract(
+	if ( m_pArchive->Extract(
 			indices,
 			(unsigned int)nItemsNumber,
 			0,
 			pCallback
-			)) )
+			) == S_OK )
 		bResult = true;
 
 	delete pCallback;

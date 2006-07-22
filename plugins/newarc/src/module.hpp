@@ -34,6 +34,16 @@
 #define PASSWORD_LIST	1
 #define PASSWORD_FILE	2
 
+struct OperationStruct {
+	unsigned __int64 m_uFileSize; 
+	unsigned __int64 m_uProcessedSize; 
+	unsigned __int64 m_uTotalSize;
+	unsigned __int64 m_uTotalProcessedSize;
+	unsigned __int64 m_uTotalFiles;
+	unsigned __int64 m_uTotalProcessedFiles;
+};
+
+
 struct ArchivePassword {
 	DWORD dwBufferSize;
 	char *lpBuffer;
@@ -181,6 +191,7 @@ struct CreateArchiveStruct {
 
 	HANDLE hResult;
 };
+
 
 #define FID_INITIALIZE			 1	//param - PluginStartupInfo
 #define FID_FINALIZE			 2	//param - NULL

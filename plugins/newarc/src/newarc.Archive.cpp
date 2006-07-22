@@ -339,15 +339,15 @@ int __stdcall Archive::ArchiveCallback (
 			StrFree (lpTitle);
 		}
 
-		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		if ( CheckForEsc () )
 		{
-			if ( CheckForEsc () )
+			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 			{
 				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Операция прерывается...");
 				Info.Text (0, 0, 0, 0);
-
-				return 0;
 			}
+
+			return 0;
 		}
 	}
 
