@@ -513,8 +513,6 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 	  			m_pInFile->Release ();
   				m_pInFile = NULL;
 		  	}
-
-	  		return false;
 	  	}
 	}
 	else
@@ -524,9 +522,9 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 			m_nItemsNumber--;
 			return true;
 		}
-
-		return false;
 	}
+
+	return false;
 }
 
 void __stdcall SevenZipArchive::pCloseArchive ()
