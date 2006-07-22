@@ -997,14 +997,9 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
 {
-	//ламерство. € слабо представл€ю, что будет, если файл не откроетс€
-
-	if ( nEvent == NOTIFY_EXTERNAL_ADD_START )
-		m_pInFile->Close ();
-
-	if ( nEvent == NOTIFY_EXTERNAL_ADD_END )
+	if ( nEvent == NOTIFY_EXTERNAL_ADD_START || nEvent == NOTIFY_EXTERNAL_DELETE_START)
 	{
-		m_pInFile->Open (); 
-		m_bForcedUpdate = true;
+		pCloseArchive ();
+		m_bOpened = false;
 	}
 }

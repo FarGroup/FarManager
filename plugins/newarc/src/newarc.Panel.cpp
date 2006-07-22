@@ -718,9 +718,8 @@ int ParseString (
 bool IsFileInFolder (const char *lpCurrentPath, const char *lpFileName)
 {
 	int nLength = strlen (lpCurrentPath);
-	char ch = (nLength <= strlen (lpFileName))?lpFileName[nLength+1]:-1;
 
-	return !FSF.LStrnicmp (lpCurrentPath, lpFileName, nLength);// && ((ch == 0) || (ch == '\\') || (ch == '/'));
+	return !FSF.LStrnicmp (lpCurrentPath, lpFileName, nLength);
 }
 
 void GetArchiveItemsToProcess (
@@ -783,7 +782,7 @@ void GetArchiveItemsToProcess (
 					);
 		}
 
-		if ( (pPanelItems[i].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
+		if ( OptionIsOn(pPanelItems[i].FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			char *lpPath = StrDuplicate (pPanel->m_lpCurrentFolder, 260);
 
@@ -791,6 +790,7 @@ void GetArchiveItemsToProcess (
 				strcat (lpPath, "\\");
 
 			strcat (lpPath, pPanelItems[i].FindData.cFileName);
+			strcat (lpPath, "\\");
 
 			for (int k = 0; k < pPanel->m_nArchiveFilesCount; k++)
 			{
@@ -1836,7 +1836,7 @@ int __stdcall ArchivePanel::pGetFiles (
 		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_EXTRACT);
 
 		HANDLE hScreen = NULL;
-		
+
 		if ( !OptionIsOn (OpMode, OPM_SILENT) )
 			hScreen = Info.SaveScreen (0, 0, -1, -1);
 
