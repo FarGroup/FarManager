@@ -1,7 +1,8 @@
 newarc.Messages.h
 2
-newarc.English.lng Russian "Russian (Русский)"
-newarc.Russian.lng English "English"
+
+newarc.Russian.lng Russian "Russian (Русский)"
+newarc.English.lng English "English"
 
 MSG_cmn_B_OK
 "Продолжить"
