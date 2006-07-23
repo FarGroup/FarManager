@@ -409,7 +409,7 @@ SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileNam
 	m_pModule = pModule;
 	m_lpFileName = StrDuplicate (lpFileName);
 
-	m_bForcedUpdate = false;
+	//m_bForcedUpdate = false;
 	m_bOpened = false;
 	m_bNewArchive = bNewArchive;
 }
@@ -426,9 +426,9 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 {
 	m_pfnCallback = pfnCallback;
 
-	if ( m_bForcedUpdate || !m_bOpened )
+	if ( /*m_bForcedUpdate || */!m_bOpened )
 	{
-		m_bForcedUpdate = false;
+		//m_bForcedUpdate = false;
 
 		if ( m_bOpened )
 			pCloseArchive ();
@@ -541,6 +541,8 @@ void __stdcall SevenZipArchive::pCloseArchive ()
 		m_pInFile->Release (); //???
 		m_pInFile = NULL;
 	}
+
+	m_bOpened = false;
 }
 
 unsigned __int64 VariantToInt64 (CPropVariant *value)
@@ -734,11 +736,12 @@ bool __stdcall SevenZipArchive::pDelete (
 
 		if ( bResult )
 		{
-			m_pInFile->Close ();
+			pCloseArchive ();  //???
+			//m_pInFile->Close ();
 			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
-			m_pInFile->Open ();
+			//m_pInFile->Open ();
 
-			m_bForcedUpdate = true;
+			//m_bForcedUpdate = true;
 		}
 		else
 			DeleteFile (szTempName);
@@ -977,11 +980,12 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 		if ( bResult )
 		{
-			m_pInFile->Close ();
+			pCloseArchive ();
+			//m_pInFile->Close ();
 			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
-			m_pInFile->Open ();
+			//m_pInFile->Open ();
 
-			m_bForcedUpdate = true;
+			//m_bForcedUpdate = true;
 		}
 		else
 			DeleteFile (szTempName);
@@ -998,8 +1002,5 @@ bool __stdcall SevenZipArchive::pAddFiles (
 void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
 {
 	if ( nEvent == NOTIFY_EXTERNAL_ADD_START || nEvent == NOTIFY_EXTERNAL_DELETE_START)
-	{
 		pCloseArchive ();
-		m_bOpened = false;
-	}
 }

@@ -1,5 +1,6 @@
 #include <FarPluginBase.h>
 #include "zip.class.h"
+#include <debug.h>
 
 void ConvertSlashes (char *lpFileName)
 {
@@ -291,20 +292,20 @@ bool __stdcall ZipArchive::pExtract (
 							{
 								int nRead;
 								DWORD dwWritten;
-								char *cBuffer = (char *) malloc(128*1024);
+								char *pBuffer = (char *)malloc (128*1024);
 
 								do {
 									nRead = m_pModule->m_pfnUnzReadCurrentFile (
 											m_hFile,
-											(voidp)&cBuffer,
+											(voidp)pBuffer,
 											128*1024
 											);
 
 									if ( nRead > 0 )
 									{
-										WriteFile(hFile, cBuffer, nRead, &dwWritten, NULL);
+										WriteFile(hFile, pBuffer, nRead, &dwWritten, NULL);
 
-										if ( !m_pfnCallback (AM_PROCESS_DATA, (int)&cBuffer, (int)nRead) )
+										if ( !m_pfnCallback (AM_PROCESS_DATA, (int)pBuffer, (int)nRead) )
 										{
 											bAborted = true;
 											break;
@@ -313,7 +314,7 @@ bool __stdcall ZipArchive::pExtract (
 
 								} while (nRead > 0);
 
-								free(cBuffer);
+								free(pBuffer);
 
 								m_pModule->m_pfnUnzCloseCurrentFile (m_hFile);
 

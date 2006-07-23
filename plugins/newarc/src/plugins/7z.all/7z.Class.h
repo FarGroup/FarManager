@@ -49,7 +49,7 @@ public:
 
 	bool m_bListPassword;
 
-	bool m_bForcedUpdate;
+//	bool m_bForcedUpdate;
 	bool m_bOpened;
 	bool m_bNewArchive;
 
