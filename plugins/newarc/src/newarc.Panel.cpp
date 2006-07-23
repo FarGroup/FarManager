@@ -931,8 +931,6 @@ void ExecuteCommand (
 /////
 				FSF.ExpandEnvironmentStr(lpExecuteString,lpExecuteString,260);
 
-				OemToChar(lpExecuteString,lpExecuteString);
-
 				if ( CreateProcess (
 						NULL,
 						lpExecuteString,
