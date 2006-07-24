@@ -727,11 +727,14 @@ void GetArchiveItemsToProcess (
 		PluginPanelItem *pPanelItems,
 		int nItemsNumber,
 		PluginPanelItem **pItemsToProcess,
-		int *pItemsToProcessNumber
+		int *pItemsToProcessNumber,
+		OperationStruct *pOS
 		)
 {
 	int nArrayCount = 256;
 	int nCount = 0;
+
+	memset (pOS, 0, sizeof (OperationStruct));
 
 	PluginPanelItem *pResult = (PluginPanelItem*)malloc (
 			nArrayCount*sizeof (PluginPanelItem)
@@ -770,7 +773,7 @@ void GetArchiveItemsToProcess (
 			StrFree (lpFullName);
 		}
 
-        pPanel->m_pArchive->m_uFullSize += pPanelItems[i].FindData.nFileSizeHigh*0x100000000ull+pPanelItems[i].FindData.nFileSizeLow;
+        pOS->uTotalSize += pPanelItems[i].FindData.nFileSizeHigh*0x100000000ull+pPanelItems[i].FindData.nFileSizeLow;
 
 		if ( nCount == nArrayCount )
 		{
@@ -804,7 +807,7 @@ void GetArchiveItemsToProcess (
 
 						memcpy (&pResult[nCount++], pCurrentPanelItem, sizeof (PluginPanelItem));
 
-						pPanel->m_pArchive->m_uFullSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
+						pOS->uTotalSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
 
 						if ( nCount == nArrayCount )
 						{
@@ -826,6 +829,8 @@ void GetArchiveItemsToProcess (
 
 	*pItemsToProcessNumber = nCount;
 	*pItemsToProcess = pResult;
+
+	pOS->uTotalFiles = nCount;
 }
 
 
@@ -1821,14 +1826,13 @@ int __stdcall ArchivePanel::pGetFiles (
 		PluginPanelItem *pItemsToProcess;
 		int nItemsToProcessNumber;
 
-		m_pArchive->m_uFullSize = 0;
-
 		GetArchiveItemsToProcess (
 				this,
 				PanelItem,
 				ItemsNumber,
 				&pItemsToProcess,
-				&nItemsToProcessNumber
+				&nItemsToProcessNumber,
+				&m_pArchive->m_OS
 				);
 
 		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_EXTRACT);
@@ -1926,7 +1930,8 @@ int __stdcall ArchivePanel::pDeleteFiles (
 				PanelItem,
 				ItemsNumber,
 				&pItemsToProcess,
-				&nItemsToProcessNumber
+				&nItemsToProcessNumber,
+				&m_pArchive->m_OS
 				);
 
 		bResult = doDeleteFiles (this, m_pArchive, pItemsToProcess, nItemsToProcessNumber);
@@ -2083,7 +2088,8 @@ int __stdcall ArchivePanel::pProcessHostFile(
 				PanelItem,
 				ItemsNumber,
 				&pItemsToProcess,
-				&nItemsToProcessNumber
+				&nItemsToProcessNumber,
+				&m_pArchive->m_OS
 				);
 
 		if ( nCommand == COMMAND_TEST )

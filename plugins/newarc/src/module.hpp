@@ -29,18 +29,23 @@
 #define AM_NEED_PASSWORD		1
 #define AM_START_EXTRACT_FILE	2
 #define AM_PROCESS_DATA			4
+#define AM_START_OPERATION		5
+
+#define OPERATION_EXTRACT		1
+#define OPERATION_ADD			2
+#define OPERATION_DELETE		3
 
 #define PASSWORD_RESET	0
 #define PASSWORD_LIST	1
 #define PASSWORD_FILE	2
 
 struct OperationStruct {
-	unsigned __int64 m_uFileSize; 
-	unsigned __int64 m_uProcessedSize; 
-	unsigned __int64 m_uTotalSize;
-	unsigned __int64 m_uTotalProcessedSize;
-	unsigned __int64 m_uTotalFiles;
-	unsigned __int64 m_uTotalProcessedFiles;
+	unsigned __int64 uFileSize; 
+	unsigned __int64 uProcessedSize; 
+	unsigned __int64 uTotalSize;
+	unsigned __int64 uTotalProcessedSize;
+	unsigned __int64 uTotalFiles;
+	unsigned __int64 uTotalProcessedFiles;
 };
 
 

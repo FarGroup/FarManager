@@ -81,7 +81,7 @@
 				StructMemberAlignment="0"
 				BufferSecurityCheck="FALSE"
 				UsePrecompiledHeader="0"
-				WarningLevel="4"
+				WarningLevel="0"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"/>
 			<Tool

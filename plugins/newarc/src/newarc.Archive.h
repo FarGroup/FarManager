@@ -22,10 +22,7 @@ public:
 
 	bool m_bFirstFile;
 
-	unsigned __int64 m_uTotalSize;
-	unsigned __int64 m_uTotalSize2;
-	unsigned __int64 m_uFullSize;
-
+	OperationStruct m_OS;
 	PluginPanelItem *m_pCurrentItem;
 
 	FILETIME m_ArchiveLastAccessTime;

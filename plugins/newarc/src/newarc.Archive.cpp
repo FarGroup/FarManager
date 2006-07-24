@@ -252,7 +252,7 @@ int __stdcall Archive::ArchiveCallback (
 			}
 
 			m_bFirstFile = false;
-			m_uTotalSize2 = 0;
+			m_OS.uTotalProcessedSize = 0;
 		}
 
 		//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
@@ -282,21 +282,22 @@ int __stdcall Archive::ArchiveCallback (
 			Info.Text (0, 0, 0, 0);
 		}
 
-		m_uTotalSize = 0;
+		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000+m_pCurrentItem->FindData.nFileSizeLow;
+		m_OS.uProcessedSize = 0;
 	}
 
 	if ( nMsg == AM_PROCESS_DATA )
 	{
-		m_uTotalSize += nParam2;
-		m_uTotalSize2 += nParam2;
+		m_OS.uTotalProcessedSize += nParam2;
+		m_OS.uProcessedSize += nParam2;
 
 		if ( m_pCurrentItem )
 		{
 			double div;
 			char szPercents[MAX_PATH];
 
-			if (m_pCurrentItem->FindData.nFileSizeLow>0)
-				div = (double)m_uTotalSize/(double)(m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow);
+			if ( m_OS.uFileSize )
+				div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
 			else
 				div = 1;
 			if (div > 1)
@@ -312,8 +313,8 @@ int __stdcall Archive::ArchiveCallback (
 				Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
 			}
 
-			if (m_uFullSize>0)
-        		div = (double)m_uTotalSize2/(double)m_uFullSize;
+			if ( m_OS.uTotalSize )
+        		div = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
 	        else
     	    	div = 1;
 			if (div > 1)
