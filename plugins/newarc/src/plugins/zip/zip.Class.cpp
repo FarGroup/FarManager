@@ -203,6 +203,9 @@ bool __stdcall ZipArchive::pExtract (
 		{
 			nResult = m_pModule->m_pfnUnzGoToFirstFile (m_hFile);
 			m_bFirst = false;
+
+			if ( nResult == UNZ_OK )
+				Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
 		}
 		else
 		    nResult = m_pModule->m_pfnUnzGoToNextFile (m_hFile);
@@ -229,7 +232,7 @@ bool __stdcall ZipArchive::pExtract (
 				Password.lpBuffer = StrCreate (260);
 				Password.dwBufferSize = 260;
 
-				if ( m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_FILE, (int)&Password) )
+				if ( Callback (AM_NEED_PASSWORD, PASSWORD_FILE, (int)&Password) )
 					lpPassword = StrDuplicate (Password.lpBuffer);
 
 				StrFree (Password.lpBuffer);
@@ -262,7 +265,7 @@ bool __stdcall ZipArchive::pExtract (
 
 						strcat (lpDestName, lpName);
 
-						m_pfnCallback (AM_START_EXTRACT_FILE, (dword)&pItems[i], (dword)lpDestName);
+						Callback (AM_PROCESS_FILE, (dword)&pItems[i], (dword)lpDestName);
 
 						CreateDirs (lpDestName);
 
@@ -305,7 +308,7 @@ bool __stdcall ZipArchive::pExtract (
 									{
 										WriteFile(hFile, pBuffer, nRead, &dwWritten, NULL);
 
-										if ( !m_pfnCallback (AM_PROCESS_DATA, (int)pBuffer, (int)nRead) )
+										if ( !Callback (AM_PROCESS_DATA, (int)pBuffer, (int)nRead) )
 										{
 											bAborted = true;
 											break;
@@ -344,4 +347,12 @@ l_1:
 //	Info.RestoreScreen (hScreen);
 
 	return (bool)nProcessed;
+}
+
+int ZipArchive::Callback (int nMsg, int nParam1, int nParam2)
+{
+	if ( m_pfnCallback )
+		return m_pfnCallback (nMsg, nParam1, nParam2);
+
+	return FALSE;
 }

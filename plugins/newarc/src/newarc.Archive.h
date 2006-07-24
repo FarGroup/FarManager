@@ -1,9 +1,21 @@
 #pragma once
 #include "newarc.h"
 
+
+struct OperationStruct {
+	int nOperation;
+	bool bFirstFile;
+
+	unsigned __int64 uFileSize; 
+	unsigned __int64 uProcessedSize; 
+	unsigned __int64 uTotalSize;
+	unsigned __int64 uTotalProcessedSize;
+	unsigned __int64 uTotalFiles;
+	unsigned __int64 uTotalProcessedFiles;
+};
+
+
 class ArchivePlugin;
-
-
 
 class Archive {
 
@@ -20,7 +32,7 @@ public:
 
 public:
 
-	bool m_bFirstFile;
+//	bool m_bFirstFile;
 
 	OperationStruct m_OS;
 	PluginPanelItem *m_pCurrentItem;
@@ -63,4 +75,9 @@ friend class ArchivePlugin;
 private:
 
 	int __stdcall ArchiveCallback (int nMsg, int nParam, int nParam2);
+
+	int __stdcall OnStartOperation (int nOperation, OperationStructPlugin *pOS);
+	int __stdcall OnQueryPassword (int nMode, ArchivePassword *pPassword);
+	int __stdcall OnProcessFile (PluginPanelItem *item, const char *lpDestName);
+	int __stdcall OnProcessData (unsigned int uDataSize);
 };

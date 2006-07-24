@@ -74,6 +74,8 @@ public:
 	ZipArchive (ZipModule *pModule, const char *lpFileName);
 	virtual ~ZipArchive ();
 
+	int Callback (int nMsg, int nParam1, int nParam2);
+
 	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);
 	virtual void __stdcall pCloseArchive ();
 

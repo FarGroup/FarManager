@@ -844,6 +844,8 @@ bool __stdcall SevenZipArchive::pExtract (
 	//unsigned int nItems = 0;
 	//m_pArchive->GetNumberOfItems((unsigned int*)&nItems);
 
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
+
 	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, lastitem, lpDestPath, lpCurrentFolder);
 
 	if ( m_pArchive->Extract(
@@ -1003,4 +1005,12 @@ void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
 {
 	if ( nEvent == NOTIFY_EXTERNAL_ADD_START || nEvent == NOTIFY_EXTERNAL_DELETE_START)
 		pCloseArchive ();
+}
+
+int SevenZipArchive::Callback (int nMsg, int nParam1, int nParam2)
+{
+	if ( m_pfnCallback )
+		return m_pfnCallback (nMsg, nParam1, nParam2);
+
+	return FALSE;
 }

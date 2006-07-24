@@ -350,6 +350,8 @@ bool __stdcall WcxArchive::pExtract (
 	char *lpDestName = StrCreate (260);
 	char *lpTemp = StrCreate (260);
 
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
+
 	while ( /*m_hArchive &&*/ nResult == 0 )
 	{
 		tHeaderData HeaderData;
@@ -387,8 +389,7 @@ bool __stdcall WcxArchive::pExtract (
 
 					strcat (lpDestName, lpName);
 
-					if ( m_pfnCallback )
-						m_pfnCallback (AM_START_EXTRACT_FILE, (int)&pItems[i], (int)lpDestName);
+					Callback (AM_PROCESS_FILE, (int)&pItems[i], (int)lpDestName);
 
 					int nProcessResult = 0;
 
@@ -426,4 +427,12 @@ l_1:
 	StrFree (lpTemp);
 
 	return nProcessed!=0;
+}
+
+int WcxArchive::Callback (int nMsg, int nParam1, int nParam2)
+{
+	if ( m_pfnCallback )
+		return m_pfnCallback (nMsg, nParam1, nParam2);
+
+	return FALSE;
 }

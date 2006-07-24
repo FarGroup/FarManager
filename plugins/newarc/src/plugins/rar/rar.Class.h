@@ -57,6 +57,8 @@ public:
 	RarArchive (RarModule *pModule, const char *lpFileName);
 	virtual ~RarArchive ();
 
+	int Callback (int nMsg, int nParam1, int nParam2);
+
 	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);
 	virtual void __stdcall pCloseArchive ();
 

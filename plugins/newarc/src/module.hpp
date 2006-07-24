@@ -27,9 +27,9 @@
 #define OM_ADD		4
 
 #define AM_NEED_PASSWORD		1
-#define AM_START_EXTRACT_FILE	2
+#define AM_START_OPERATION		2
+#define AM_PROCESS_FILE			3
 #define AM_PROCESS_DATA			4
-#define AM_START_OPERATION		5
 
 #define OPERATION_EXTRACT		1
 #define OPERATION_ADD			2
@@ -39,15 +39,15 @@
 #define PASSWORD_LIST	1
 #define PASSWORD_FILE	2
 
-struct OperationStruct {
-	unsigned __int64 uFileSize; 
-	unsigned __int64 uProcessedSize; 
-	unsigned __int64 uTotalSize;
-	unsigned __int64 uTotalProcessedSize;
-	unsigned __int64 uTotalFiles;
-	unsigned __int64 uTotalProcessedFiles;
-};
 
+#define OS_FLAG_TOTALSIZE	1
+#define OS_FLAG_TOTALFILES	2
+
+struct OperationStructPlugin {
+	DWORD dwFlags;
+	unsigned __int64 uTotalSize;
+	unsigned __int64 uTotalFiles;
+};
 
 struct ArchivePassword {
 	DWORD dwBufferSize;

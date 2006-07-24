@@ -385,7 +385,7 @@ HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeV
 	{
 		unsigned __int64 diff = *completeValue-m_nLastProcessed;
 
-		if ( m_pArchive->m_pfnCallback && !m_pArchive->m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff) )
+		if ( !m_pArchive->Callback (AM_PROCESS_DATA, 0, (unsigned int)diff) )
 			return E_ABORT;
 
 		m_nLastProcessed = *completeValue;
@@ -486,8 +486,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		int itemindex = GetItemIndex (this, index);
 		PluginPanelItem *item = m_pItems[itemindex].pItem;
 
-		if ( m_pArchive->m_pfnCallback )
-			m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
+		m_pArchive->Callback (AM_PROCESS_FILE, (int)item, (int)szFullName);
 
 		if ( (int)m_nLastProcessed == -1 )
 			m_nLastProcessed = 0;
@@ -571,9 +570,7 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult (int resultEOperat
 	switch( resultEOperationResult )
 	{
 		case NArchive::NExtract::NOperationResult::kCRCError:
-			if ( m_pArchive->m_pfnCallback )
-				m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_RESET, 0);
-
+			m_pArchive->Callback (AM_NEED_PASSWORD, PASSWORD_RESET, 0);
 			return E_FAIL;
 	}
 
@@ -632,8 +629,7 @@ HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword (BSTR *password)
 	Password.lpBuffer = StrCreate (260);
 	Password.dwBufferSize = 260;
 
-	if ( m_pArchive->m_pfnCallback &&
-		 m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, (m_nType == TYPE_FILE)?PASSWORD_FILE:PASSWORD_LIST, (int)&Password) );
+	if ( m_pArchive->Callback (AM_NEED_PASSWORD, (m_nType == TYPE_FILE)?PASSWORD_FILE:PASSWORD_LIST, (int)&Password) );
 	{
 		wchar_t wszPassword[MAX_PATH];
 

@@ -323,3 +323,4 @@ int __stdcall MaArchive::pGetArchiveType ()
 {
 	return (m_nModuleNum+m_nArcType);
 }
+

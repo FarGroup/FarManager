@@ -171,188 +171,229 @@ void doEmptyDialog (
 
 extern bool CheckForEsc();
 
+int __stdcall Archive::OnStartOperation (int nOperation, OperationStructPlugin *pOS)
+{
+	if ( pOS )
+	{
+		if ( OptionIsOn (pOS->dwFlags, OS_FLAG_TOTALSIZE) )
+			m_OS.uTotalSize = pOS->uTotalSize;
+
+		if ( OptionIsOn (pOS->dwFlags, OS_FLAG_TOTALFILES) )
+			m_OS.uTotalFiles = pOS->uTotalFiles;
+
+	}
+
+	m_OS.nOperation = nOperation;
+	m_OS.bFirstFile = true;
+
+	return 1;
+}
+
+int __stdcall Archive::OnQueryPassword (int nMode, ArchivePassword *pPassword)
+{
+   	if ( nMode == PASSWORD_RESET )
+   	{
+   		if ( m_lpLastUsedPassword )
+   		{
+   			free (m_lpLastUsedPassword);
+   			m_lpLastUsedPassword = NULL;
+   		}
+   	}
+
+   	if ( (nMode == PASSWORD_LIST) || (nMode == PASSWORD_FILE) )
+   	{
+   		bool bResult = true;
+
+   		if ( !m_lpLastUsedPassword )
+   		{
+   			m_lpLastUsedPassword = StrCreate (512);
+
+   			bResult = Info.InputBox (
+   					(nMode == PASSWORD_LIST)?"Информация об именах файлов защищена паролем":"Содержимое файла защищено паролем",
+   					"Введите пароль",
+   					NULL,
+   					NULL,
+   					m_lpLastUsedPassword,
+   					512,
+   					NULL,
+   					0
+   					);
+
+   			if ( !bResult )
+   			{
+   				StrFree (m_lpLastUsedPassword);
+   				m_lpLastUsedPassword = NULL;
+   			}
+   		}
+
+   		if ( m_lpLastUsedPassword && bResult )
+   		{
+   			strcpy (pPassword->lpBuffer, m_lpLastUsedPassword);
+   			return TRUE;
+   		}
+
+   		return FALSE;
+   	}
+
+   	return FALSE;
+}
+
+static COORD c;
+
+int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestName)
+{
+	char *lpTemp;
+
+   	m_pCurrentItem = item;
+
+   	if ( m_OS.bFirstFile )
+   	{
+   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+   		{
+   			doEmptyDialog (false, c);
+
+   			if ( m_OS.nOperation == OPERATION_EXTRACT )
+	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Распаковка файла");
+
+			if ( m_OS.nOperation == OPERATION_ADD )
+	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Добавление файла");
+
+			if ( m_OS.nOperation == OPERATION_DELETE )
+	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Удаление файла");
+
+   			Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), "в");
+
+   			doIndicator (c.X+5, c.Y+6, 0);
+   			doIndicator (c.X+5, c.Y+8, 0);
+
+   			Info.Text (0, 0, 0, 0);
+   		}
+
+   		m_OS.bFirstFile = false;
+   		m_OS.uTotalProcessedSize = 0;
+   	}
+
+   	//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
+
+   	if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+   	{
+   		lpTemp = StrCreate (260);
+
+   		memset (lpTemp, 32, 40);
+   		Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+   		Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
+
+   		strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
+
+   		FSF.TruncPathStr (lpTemp, 40);
+   		Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+
+   		strcpy (lpTemp, lpDestName);
+   		FSF.TruncPathStr (lpTemp, 40);
+
+   		Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
+
+   		memset (lpTemp, 0, 260);
+
+   		StrFree (lpTemp);
+
+   		Info.Text (0, 0, 0, 0);
+   	}
+
+   	m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000+m_pCurrentItem->FindData.nFileSizeLow;
+   	m_OS.uProcessedSize = 0;
+
+   	return TRUE;
+}
+
+int __stdcall Archive::OnProcessData (unsigned int uDataSize)
+{
+	m_OS.uTotalProcessedSize += uDataSize;
+	m_OS.uProcessedSize += uDataSize;
+
+	if ( m_pCurrentItem )
+   	{
+   		double div;
+   		char szPercents[MAX_PATH];
+
+   		if ( m_OS.uFileSize )
+   			div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
+   		else
+   			div = 1;
+   		if (div > 1)
+   			div = 1;
+   		dword dwPercent = (int)(div*40);
+   		dword dwRealPercent = (int)(div*100);
+
+   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+   		{
+   			doIndicator (c.X+5, c.Y+6, dwPercent);
+
+   			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
+   			Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
+   		}
+
+   		if ( m_OS.uTotalSize )
+       		div = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
+           else
+   	    	div = 1;
+   		if (div > 1)
+   			div = 1;
+
+   		dwPercent = (int)(div*40);
+   		dwRealPercent = (int)(div*100);
+
+   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+   		{
+   			doIndicator (c.X+5, c.Y+8, dwPercent);
+
+   			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
+   			Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
+
+   			Info.Text (0, 0, 0, 0);
+   		}
+
+   		char *lpTitle = StrCreate (260);
+
+   		FSF.sprintf (lpTitle, "{%d%%} Распаковка - Far", (int)(div*100));
+
+   		SetConsoleTitle (lpTitle);
+
+   		StrFree (lpTitle);
+   	}
+
+   	if ( CheckForEsc () )
+   	{
+   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+   		{
+   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Операция прерывается...");
+   			Info.Text (0, 0, 0, 0);
+   		}
+
+   		return FALSE;
+   	}
+
+   	return TRUE;
+}
+
+
 int __stdcall Archive::ArchiveCallback (
 		int nMsg,
 		int nParam1,
 		int nParam2
 		)
 {
-	char *lpTemp;
-
-	static COORD c;
-
 	if ( nMsg == AM_NEED_PASSWORD )
-	{
-		ArchivePassword *pPassword = (ArchivePassword*)nParam2;
+		return OnQueryPassword (nParam1, (ArchivePassword*)nParam2);
 
-		if ( nParam1 == PASSWORD_RESET )
-		{
-			if ( m_lpLastUsedPassword )
-			{
-				free (m_lpLastUsedPassword);
-				m_lpLastUsedPassword = NULL;
-			}
-		}
+	if ( nMsg == AM_START_OPERATION )
+		return OnStartOperation (nParam1, (OperationStructPlugin *)nParam2); 
 
-		if ( (nParam1 == PASSWORD_LIST) || (nParam1 == PASSWORD_FILE) )
-		{
-			bool bResult = true;
-
-			if ( !m_lpLastUsedPassword )
-			{
-				m_lpLastUsedPassword = StrCreate (512);
-
-				bResult = Info.InputBox (
-						(nParam1 == PASSWORD_LIST)?"Информация об именах файлов защищена паролем":"Содержимое файла защищено паролем",
-						"Введите пароль",
-						NULL,
-						NULL,
-						m_lpLastUsedPassword,
-						512,
-						NULL,
-						0
-						);
-
-				if ( !bResult )
-				{
-					StrFree (m_lpLastUsedPassword);
-					m_lpLastUsedPassword = NULL;
-				}
-			}
-
-			if ( m_lpLastUsedPassword && bResult )
-			{
-				strcpy (pPassword->lpBuffer, m_lpLastUsedPassword);
-				return TRUE;
-			}
-
-			return FALSE;
-		}
-
-		return FALSE;
-	}
-
-	if ( nMsg == AM_START_EXTRACT_FILE )
-	{
-		m_pCurrentItem = (PluginPanelItem*)nParam1;
-
-		if ( m_bFirstFile )
-		{
-			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-			{
-				doEmptyDialog (false, c);
-
-				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Распаковка файла");
-				Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), "в");
-
-				doIndicator (c.X+5, c.Y+6, 0);
-				doIndicator (c.X+5, c.Y+8, 0);
-
-				Info.Text (0, 0, 0, 0);
-			}
-
-			m_bFirstFile = false;
-			m_OS.uTotalProcessedSize = 0;
-		}
-
-		//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
-
-		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-		{
-			lpTemp = StrCreate (260);
-
-			memset (lpTemp, 32, 40);
-			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
-			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
-
-			strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
-
-			FSF.TruncPathStr (lpTemp, 40);
-			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
-
-			strcpy (lpTemp, (char*)nParam2);
-			FSF.TruncPathStr (lpTemp, 40);
-
-			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
-
-			memset (lpTemp, 0, 260);
-
-			StrFree (lpTemp);
-
-			Info.Text (0, 0, 0, 0);
-		}
-
-		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000+m_pCurrentItem->FindData.nFileSizeLow;
-		m_OS.uProcessedSize = 0;
-	}
+	if ( nMsg == AM_PROCESS_FILE )
+		return OnProcessFile ((PluginPanelItem*)nParam1, (const char*)nParam2);
 
 	if ( nMsg == AM_PROCESS_DATA )
-	{
-		m_OS.uTotalProcessedSize += nParam2;
-		m_OS.uProcessedSize += nParam2;
-
-		if ( m_pCurrentItem )
-		{
-			double div;
-			char szPercents[MAX_PATH];
-
-			if ( m_OS.uFileSize )
-				div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
-			else
-				div = 1;
-			if (div > 1)
-				div = 1;
-			dword dwPercent = (int)(div*40);
-			dword dwRealPercent = (int)(div*100);
-
-			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-			{
-				doIndicator (c.X+5, c.Y+6, dwPercent);
-
-				FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
-				Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
-			}
-
-			if ( m_OS.uTotalSize )
-        		div = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
-	        else
-    	    	div = 1;
-			if (div > 1)
-				div = 1;
-
-			dwPercent = (int)(div*40);
-			dwRealPercent = (int)(div*100);
-
-			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-			{
-				doIndicator (c.X+5, c.Y+8, dwPercent);
-
-				FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
-				Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
-
-				Info.Text (0, 0, 0, 0);
-			}
-
-			char *lpTitle = StrCreate (260);
-
-			FSF.sprintf (lpTitle, "{%d%%} Распаковка - Far", (int)(div*100));
-
-			SetConsoleTitle (lpTitle);
-
-			StrFree (lpTitle);
-		}
-
-		if ( CheckForEsc () )
-		{
-			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-			{
-				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Операция прерывается...");
-				Info.Text (0, 0, 0, 0);
-			}
-
-			return 0;
-		}
-	}
+		return OnProcessData ((unsigned int)nParam2);
 
 	return 1;
 }
@@ -445,8 +486,6 @@ bool Archive::pOpenArchive (
 		int nMode
 		)
 {
-	m_bFirstFile = true;
-
 	OpenArchiveStruct OA;
 
 	OA.hArchive = m_hArchive;

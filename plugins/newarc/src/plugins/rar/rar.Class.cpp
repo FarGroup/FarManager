@@ -147,7 +147,7 @@ int __stdcall RarArchive::RarCallback (
 		Password.lpBuffer = StrCreate (260);
 		Password.dwBufferSize = 260;
 
-		if ( m_pfnCallback && m_pfnCallback (AM_NEED_PASSWORD, (m_nOpMode == RAR_OM_LIST)?PASSWORD_LIST:PASSWORD_FILE, (int)&Password) );
+		if ( Callback (AM_NEED_PASSWORD, (m_nOpMode == RAR_OM_LIST)?PASSWORD_LIST:PASSWORD_FILE, (int)&Password) );
 		{
 			lstrcpyn ((char*)nParam1, Password.lpBuffer, nParam2);
 		}
@@ -157,7 +157,7 @@ int __stdcall RarArchive::RarCallback (
 
 	if ( nMsg == UCM_PROCESSDATA )
 	{
-		if ( m_pfnCallback && !m_pfnCallback (AM_PROCESS_DATA, (dword)nParam1, (dword)nParam2) )
+		if ( !Callback (AM_PROCESS_DATA, (dword)nParam1, (dword)nParam2) )
 		{
 			m_bAborted = true; // а нужно ли...
 			return -1;
@@ -173,7 +173,7 @@ bool __stdcall RarArchive::pTest (
 		int nItemsNumber
 		)
 {
-	int nResult = 0;
+/*	int nResult = 0;
 
 	RARHeaderData fileHeader;
 
@@ -192,7 +192,7 @@ bool __stdcall RarArchive::pTest (
         	m_pModule->m_pfnProcessFile (m_hArchive, RAR_TEST, NULL, NULL);
 
 		}
-	}
+	}*/
 
 	return true;
 }
@@ -213,6 +213,8 @@ bool __stdcall RarArchive::pExtract (
 	bool bFound;
 
 	char *lpDestName = StrCreate (260);
+
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
 
 	while ( nResult == 0 )
 	{
@@ -244,7 +246,7 @@ bool __stdcall RarArchive::pExtract (
 
 					strcat (lpDestName, lpName);
 
-					m_pfnCallback (AM_START_EXTRACT_FILE, (dword)&pItems[i], (dword)lpDestName);
+					Callback (AM_PROCESS_FILE, (dword)&pItems[i], (dword)lpDestName);
 
 					wchar_t *lpDestNameW = (wchar_t *)malloc (2*260);
 
@@ -278,4 +280,13 @@ l_1:
 	StrFree (lpDestName);
 
 	return (bool)nProcessed;
+}
+
+
+int RarArchive::Callback (int nMsg, int nParam1, int nParam2)
+{
+	if ( m_pfnCallback )
+		return m_pfnCallback (nMsg, nParam1, nParam2);
+
+	return FALSE;
 }

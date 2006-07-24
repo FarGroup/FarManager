@@ -86,6 +86,8 @@ public:
 	WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileName);
 	virtual ~WcxArchive ();
 
+	int Callback (int nMsg, int nParam1, int nParam2);
+
 	virtual int ConvertResult (int nResult);
 
 	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);
