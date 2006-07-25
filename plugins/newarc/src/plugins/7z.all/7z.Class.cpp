@@ -292,7 +292,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
 
 	if ( (value.vt == VT_BOOL) && (value.boolVal == VARIANT_TRUE) )
-		pInfo->dwFlags |= AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE;
+		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
 
 	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
 	{
@@ -887,9 +887,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 		indicies.Create (5);
 
-		OperationStructPlugin os;
-		memset (&os, 0, sizeof (OperationStructPlugin));
-
 		if ( !m_bNewArchive )
 		{
 			m_pArchive->GetNumberOfItems (&nArchiveItemsNumber);
@@ -904,14 +901,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->lpSourcePath = lpSourcePath;
 
 				indicies.Add (item);
-
-				os.uTotalFiles++;
-
-				if ( m_pArchive->GetProperty (i, kpidSize, &value) == S_OK )
-				{
-					if ( value.vt == VT_UI8 )
-						os.uTotalSize += value.uhVal.QuadPart;
-				}
 			}
 		}
 
@@ -956,16 +945,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 						item->lpCurrentPath = lpCurrentPath;
 						item->lpSourcePath = lpSourcePath;
 
-						if ( m_pArchive->GetProperty (j, kpidSize, &value) == S_OK )
-						{
-							if ( value.vt == VT_UI8 )
-							{
-								os.uTotalSize -= value.uhVal.QuadPart;
-								os.uTotalSize += pItems[i].FindData.nFileSizeHigh*0x100000000+pItems[i].FindData.nFileSizeLow;
-							}
-						}
-
-
 						break;
 					}
 				}
@@ -980,14 +959,9 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->lpCurrentPath = lpCurrentPath;
 				item->lpSourcePath = lpSourcePath;
 
-				os.uTotalFiles++;
-				os.uTotalSize += pItems[i].FindData.nFileSizeHigh*0x100000000+pItems[i].FindData.nFileSizeLow;
-
 				indicies.Add (item);
 			}
 		}
-
-		os.dwFlags = OS_FLAG_TOTALSIZE|OS_FLAG_TOTALFILES;
 
 		char szTempName[MAX_PATH];
 
@@ -1027,7 +1001,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
 {
-	if ( nEvent == NOTIFY_EXTERNAL_ADD_START || nEvent == NOTIFY_EXTERNAL_DELETE_START)
+	if ( nEvent == NOTIFY_EXTERNAL_ADD_START || nEvent == NOTIFY_EXTERNAL_DELETE_START )
 		pCloseArchive ();
 }
 
