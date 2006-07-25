@@ -697,7 +697,7 @@ bool __stdcall SevenZipArchive::pDelete (
 
 			for (int j = 0; j < nItemsNumber; j++)
 			{
-				if ( i == pItems[j].UserData )
+				if ( i == (pItems[j].UserData-1) )
 				{
 					bFound = true;
 					break;
@@ -736,6 +736,8 @@ bool __stdcall SevenZipArchive::pDelete (
 
 		if ( bResult )
 		{
+			//MessageBox (0, szTempName, m_lpFileName, MB_OK);
+
 			pCloseArchive ();  //???
 			//m_pInFile->Close ();
 			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -881,8 +883,12 @@ bool __stdcall SevenZipArchive::pAddFiles (
 			)) )
 	{
 		Collection <ArchiveUpdateItem*> indicies;
+		CPropVariant value;
 
 		indicies.Create (5);
+
+		OperationStructPlugin os;
+		memset (&os, 0, sizeof (OperationStructPlugin));
 
 		if ( !m_bNewArchive )
 		{
@@ -898,6 +904,14 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->lpSourcePath = lpSourcePath;
 
 				indicies.Add (item);
+
+				os.uTotalFiles++;
+
+				if ( m_pArchive->GetProperty (i, kpidSize, &value) == S_OK )
+				{
+					if ( value.vt == VT_UI8 )
+						os.uTotalSize += value.uhVal.QuadPart;
+				}
 			}
 		}
 
@@ -921,7 +935,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 				for (unsigned int j = 0; j < nArchiveItemsNumber; j++)
 				{
-					CPropVariant value;
 					char szArchiveFileName [MAX_PATH];
 
 					memset (szArchiveFileName, 0, MAX_PATH);
@@ -943,6 +956,16 @@ bool __stdcall SevenZipArchive::pAddFiles (
 						item->lpCurrentPath = lpCurrentPath;
 						item->lpSourcePath = lpSourcePath;
 
+						if ( m_pArchive->GetProperty (j, kpidSize, &value) == S_OK )
+						{
+							if ( value.vt == VT_UI8 )
+							{
+								os.uTotalSize -= value.uhVal.QuadPart;
+								os.uTotalSize += pItems[i].FindData.nFileSizeHigh*0x100000000+pItems[i].FindData.nFileSizeLow;
+							}
+						}
+
+
 						break;
 					}
 				}
@@ -957,9 +980,14 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->lpCurrentPath = lpCurrentPath;
 				item->lpSourcePath = lpSourcePath;
 
+				os.uTotalFiles++;
+				os.uTotalSize += pItems[i].FindData.nFileSizeHigh*0x100000000+pItems[i].FindData.nFileSizeLow;
+
 				indicies.Add (item);
 			}
 		}
+
+		os.dwFlags = OS_FLAG_TOTALSIZE|OS_FLAG_TOTALFILES;
 
 		char szTempName[MAX_PATH];
 
@@ -983,11 +1011,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 		if ( bResult )
 		{
 			pCloseArchive ();
-			//m_pInFile->Close ();
 			MoveFileEx (szTempName, m_lpFileName, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
-			//m_pInFile->Open ();
-
-			//m_bForcedUpdate = true;
 		}
 		else
 			DeleteFile (szTempName);

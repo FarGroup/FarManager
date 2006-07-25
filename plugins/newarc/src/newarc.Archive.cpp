@@ -147,6 +147,7 @@ void doIndicator (
 
 
 void doEmptyDialog (
+		char *lpTitle,
 		bool bShowTotalProgress,
 		COORD &c
 		)
@@ -165,7 +166,7 @@ void doEmptyDialog (
 		c.Y = SInfo.dwSize.Y/2-9;
 	}
 
-	doFrame (c.X, c.Y, 55, 10+Diff, " Распаковка ", true);
+	doFrame (c.X, c.Y, 55, 10+Diff, lpTitle, true);
 }
 
 
@@ -250,16 +251,20 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
    	{
    		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
    		{
-   			doEmptyDialog (false, c);
-
    			if ( m_OS.nOperation == OPERATION_EXTRACT )
+   			{
+   				doEmptyDialog (" Распаковка ", false, c);
 	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Распаковка файла");
+			}
 
 			if ( m_OS.nOperation == OPERATION_ADD )
-	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Добавление файла");
+   				doEmptyDialog (" Добавление ", false, c);
 
 			if ( m_OS.nOperation == OPERATION_DELETE )
+			{
+   				doEmptyDialog (" Удаление ", false, c);
 	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Удаление файла");
+			}
 
    			Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), "в");
 
@@ -273,6 +278,14 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
    		m_OS.uTotalProcessedSize = 0;
    	}
 
+	if ( m_OS.nOperation == OPERATION_ADD )
+	{
+		if ( m_pCurrentItem )
+   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Добавление файла");
+		else
+			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Перепаковка архива");
+	}
+
    	//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
 
    	if ( !OptionIsOn (m_nMode, OPM_SILENT) )
@@ -283,24 +296,32 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
    		Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
    		Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
 
-   		strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
+   		if ( m_pCurrentItem )
+   		{
+	   		strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
 
-   		FSF.TruncPathStr (lpTemp, 40);
-   		Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+   			FSF.TruncPathStr (lpTemp, 40);
+   			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+		}
 
-   		strcpy (lpTemp, lpDestName);
-   		FSF.TruncPathStr (lpTemp, 40);
+		if ( lpDestName )
+		{
+	   		strcpy (lpTemp, lpDestName);
+   			FSF.TruncPathStr (lpTemp, 40);
 
-   		Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
-
-   		memset (lpTemp, 0, 260);
+   			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
+		}
 
    		StrFree (lpTemp);
 
    		Info.Text (0, 0, 0, 0);
    	}
 
-   	m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000+m_pCurrentItem->FindData.nFileSizeLow;
+	if ( m_pCurrentItem )
+   		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000+m_pCurrentItem->FindData.nFileSizeLow;
+	else
+		m_OS.uFileSize = m_OS.uTotalSize;
+
    	m_OS.uProcessedSize = 0;
 
    	return TRUE;
@@ -311,7 +332,10 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 	m_OS.uTotalProcessedSize += uDataSize;
 	m_OS.uProcessedSize += uDataSize;
 
-	if ( m_pCurrentItem )
+	//if ( m_OS.nOperation == OPERATION_ADD )
+	//__debug ("%d %I64d %I64d", uDataSize, m_OS.uProcessedSize, m_OS.uFileSize);
+
+	//if ( m_pCurrentItem )
    	{
    		double div;
    		char szPercents[MAX_PATH];

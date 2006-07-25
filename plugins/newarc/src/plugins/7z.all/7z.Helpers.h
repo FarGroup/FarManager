@@ -218,6 +218,8 @@ private:
 
 	SevenZipArchive *m_pArchive;
 
+	unsigned __int64 m_nLastProcessed;
+
 public:
 
 	CArchiveUpdateCallback (SevenZipArchive *pArchive, Collection <ArchiveUpdateItem*> *indicies);

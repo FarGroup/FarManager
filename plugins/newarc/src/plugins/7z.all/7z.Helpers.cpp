@@ -963,13 +963,29 @@ HRESULT __stdcall CArchiveUpdateCallback::QueryInterface (const IID &iid, void *
 
 HRESULT __stdcall CArchiveUpdateCallback::SetTotal (unsigned __int64 total)
 {
-	//MessageBox (0, "settot", "as", MB_OK);
+	OperationStructPlugin os;
+
+	os.uTotalFiles = 1;
+	os.uTotalSize = total;
+	os.dwFlags = OS_FLAG_TOTALFILES|OS_FLAG_TOTALSIZE;
+
+	m_nLastProcessed = 0;
+
+	m_pArchive->Callback (AM_START_OPERATION, OPERATION_ADD, (int)&os);
+	m_pArchive->Callback (AM_PROCESS_FILE, NULL, NULL);
+
 	return S_OK;
 }
 
 HRESULT __stdcall CArchiveUpdateCallback::SetCompleted (const unsigned __int64* completeValue)
 {
-	//MessageBox (0, "setcom", "as", MB_OK);
+	unsigned __int64 diff = *completeValue-m_nLastProcessed;
+
+	if ( !m_pArchive->Callback (AM_PROCESS_DATA, 0, (unsigned int)diff) )
+		return E_ABORT;
+
+	m_nLastProcessed = *completeValue;
+
 	return S_OK;
 }
 
@@ -1008,7 +1024,6 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 {
 	ArchiveUpdateItem *item = m_indicies->At(index);
 
-
 	if ( item->bNewFile )
 	{
 		PluginPanelItem *pitem = item->pItem;
@@ -1037,22 +1052,8 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 			value->vt = VT_BSTR;
 			value->bstrVal = SysAllocString(wszFullPath);
-			//MessageBox (0, "oath", "asD", MB_OK);
-			//MessageBoxW (0, wszFullPath, L"path", MB_OK);
 		}
 		else
-
-		/*if ( propID == kpidName )
-		{
-			//MessageBox (0, "name", "asD", MB_OK);
-			wchar_t wszNameOnly[MAX_PATH];
-
-			MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (item->lpFileName), -1, wszNameOnly, MAX_PATH);
-
-			value->vt = VT_BSTR;
-			value->bstrVal = SysAllocString(wszNameOnly);
-		}
-		else*/
 
 		if ( propID == kpidAttributes )
 		{
@@ -1129,7 +1130,10 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 			CInFile *file = new CInFile (lpFullName);
 
 			if ( file->Open () )
+			{
+				m_pArchive->Callback (AM_PROCESS_FILE, (int)pitem, (int)lpFullName);
 				*inStream = file;
+			}
 			else
 				delete file;
 		}
