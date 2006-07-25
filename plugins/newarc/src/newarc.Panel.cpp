@@ -1590,7 +1590,12 @@ int __stdcall ScanDirectory (
 	}
 
 	char szFileNameCopy[MAX_PATH];
-	strcpy (szFileNameCopy, lpFullName+strlen(pSS->lpSourcePath)+1);
+	const char *lpFileName = lpFullName+strlen(pSS->lpSourcePath);
+
+	if ( (*lpFileName == '\\') || (*lpFileName == '/') )
+		lpFileName++;
+
+	strcpy (szFileNameCopy, lpFileName);
 
 	PluginPanelItem *pitem = &pSS->files[pSS->nCurrentFile++];
 
@@ -1655,7 +1660,6 @@ int __stdcall ArchivePanel::pPutFiles(
 		{
 			char szCurDir[MAX_PATH];
 			GetCurrentDirectory (MAX_PATH, szCurDir);
-
 
 			int nFilesCount = 1;
 			int nCurrentFile = 0;
