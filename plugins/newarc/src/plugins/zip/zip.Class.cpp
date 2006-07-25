@@ -205,7 +205,7 @@ bool __stdcall ZipArchive::pExtract (
 			m_bFirst = false;
 
 			if ( nResult == UNZ_OK )
-				Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
+				Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 		}
 		else
 		    nResult = m_pModule->m_pfnUnzGoToNextFile (m_hFile);

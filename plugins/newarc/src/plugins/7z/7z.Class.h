@@ -45,4 +45,6 @@ public:
 	virtual bool __stdcall pTest (const PluginPanelItem *pItems, int nItemsNumber);
 
 	virtual int __stdcall pGetArchiveType () { return 0; }
+
+	virtual int __stdcall Callback (int nMsg, int nParam1, int nParam2);
 };

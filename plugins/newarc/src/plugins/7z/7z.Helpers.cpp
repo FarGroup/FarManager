@@ -266,7 +266,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 				int itemindex = GetItemIndex (this, index);
 				const PluginPanelItem *item = m_pItems[itemindex].pItem;
 
-				m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
+				m_pArchive->Callback (AM_PROCESS_FILE, (int)item, (int)szFullName);
 
 				if ( (int)m_nLastProcessed == -1 )
 					m_nLastProcessed = 0;

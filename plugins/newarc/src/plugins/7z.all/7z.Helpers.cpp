@@ -530,8 +530,8 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
    				bIsFolder = (value.boolVal == VARIANT_TRUE);
 		}
 
-		if ( bIsFolder || 
-			 OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )//|| 
+		if ( bIsFolder ||
+			 OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )//||
 			 //OptionIsOn (item->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			//MessageBox (0, szFullName, "asd", MB_OK);
@@ -972,7 +972,7 @@ HRESULT __stdcall CArchiveUpdateCallback::SetTotal (unsigned __int64 total)
 	m_nLastProcessed = 0;
 
 	m_pArchive->Callback (AM_START_OPERATION, OPERATION_ADD, (int)&os);
-	m_pArchive->Callback (AM_PROCESS_FILE, NULL, NULL);
+	m_pArchive->Callback (AM_PROCESS_FILE, 0, 0);
 
 	return S_OK;
 }

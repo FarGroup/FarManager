@@ -214,7 +214,7 @@ bool __stdcall RarArchive::pExtract (
 
 	char *lpDestName = StrCreate (260);
 
-	Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 
 	while ( nResult == 0 )
 	{

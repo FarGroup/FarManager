@@ -274,6 +274,8 @@ bool __stdcall SevenZipArchive::pExtract (
 	//unsigned int nItems = 0;
 	//m_pArchive->GetNumberOfItems((unsigned int*)&nItems);
 
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
+
 	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, nItemsNumber, lpDestPath, lpCurrentFolder);
 
 	if ( m_pArchive->Extract(
@@ -289,4 +291,12 @@ bool __stdcall SevenZipArchive::pExtract (
 	free (items);
 
 	return bResult;
+}
+
+int SevenZipArchive::Callback (int nMsg, int nParam1, int nParam2)
+{
+  if ( m_pfnCallback )
+    return m_pfnCallback (nMsg, nParam1, nParam2);
+
+  return FALSE;
 }

@@ -65,7 +65,7 @@ const FormatInfo signs[] = {
 	{&CLSID_CCpioHandler,  (const unsigned char *)&CpioSig,     5, true,  NULL},
 	{&CLSID_CChmHandler,   (const unsigned char *)&ChmSig,      4, true,  NULL},
 	{&CLSID_CNsisHandler,  (const unsigned char *)&NsisSig,    16, false, IsNSISHeader},
-	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, true, IsIsoHeader},
+	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, true,  IsIsoHeader},
 };
 
 
@@ -846,7 +846,7 @@ bool __stdcall SevenZipArchive::pExtract (
 	//unsigned int nItems = 0;
 	//m_pArchive->GetNumberOfItems((unsigned int*)&nItems);
 
-	Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 
 	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, lastitem, lpDestPath, lpCurrentFolder);
 

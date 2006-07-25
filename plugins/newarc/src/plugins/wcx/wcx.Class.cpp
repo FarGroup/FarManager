@@ -350,7 +350,7 @@ bool __stdcall WcxArchive::pExtract (
 	char *lpDestName = StrCreate (260);
 	char *lpTemp = StrCreate (260);
 
-	Callback (AM_START_OPERATION, OPERATION_EXTRACT, NULL);
+	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 
 	while ( /*m_hArchive &&*/ nResult == 0 )
 	{
