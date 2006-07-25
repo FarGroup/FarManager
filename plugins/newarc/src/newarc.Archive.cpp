@@ -318,7 +318,7 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
    	}
 
 	if ( m_pCurrentItem )
-   		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000+m_pCurrentItem->FindData.nFileSizeLow;
+   		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow;
 	else
 		m_OS.uFileSize = m_OS.uTotalSize;
 
