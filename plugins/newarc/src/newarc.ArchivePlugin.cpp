@@ -82,14 +82,14 @@ Archive *ArchivePlugin::QueryArchive (
 }
 
 Archive *ArchivePlugin::CreateArchive (
-		int nFormat,
+		const GUID &uid,
 		const char *lpFileName
 		)
 {
 	CreateArchiveStruct CAS;
 
-	CAS.nFormat = nFormat;
 	CAS.lpFileName = lpFileName;
+	CAS.uid = uid;
 
 	if ( m_pfnPluginEntry (FID_CREATEARCHIVE, &CAS) == NAERROR_SUCCESS )
 		return new Archive (this, lpFileName, CAS.hResult);
@@ -106,9 +106,10 @@ void ArchivePlugin::FinalizeArchive (
 	delete pArchive;
 }
 
+
 char *LoadDefaultCommand (
 		ArchivePlugin *pPlugin,
-		int nFormat,
+		const GUID &uid,
 		int nCommand,
 		char *lpCommand
 		)
@@ -121,7 +122,7 @@ char *LoadDefaultCommand (
 			lpRegKey,
 			"%s\\newarc\\Formats\\%s",
 			Info.RootKey,
-			pPlugin->m_ArchivePluginInfo.pFormatInfo[nFormat].lpName
+			GUID2STR (uid)
 			);
 
 	if ( RegOpenKeyEx (
@@ -149,22 +150,22 @@ char *LoadDefaultCommand (
 
 
 bool ArchivePlugin::pGetDefaultCommand (
-		int nFormat,
+		const GUID &uid,
 		int nCommand,
 		char *lpCommand
 		)
 {
 	char *lpCommand2 = NULL;
 
-	lpCommand2 = LoadDefaultCommand (this, nFormat, nCommand, lpCommand2);
+	lpCommand2 = LoadDefaultCommand (this, uid, nCommand, lpCommand2);
 
 	if ( !lpCommand2 )
 	{
 		GetDefaultCommandStruct GDC;
 
-		GDC.nFormat = nFormat;
 		GDC.nCommand = nCommand;
 		GDC.lpCommand = lpCommand;
+		GDC.uid = uid;
 
 		if ( m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
 			return GDC.bResult;
@@ -205,4 +206,13 @@ const char * __stdcall ArchivePlugin::pGetMsg (
 		return m_pLanguageStrings[nID];
 
 	return "NO LNG STRING";
+}
+
+const ArchiveFormatInfo* ArchivePlugin::GetArchiveFormatInfo (const GUID &uid)
+{
+	for (int i = 0; i < m_ArchivePluginInfo.nFormats; i++)
+		if ( m_ArchivePluginInfo.pFormatInfo[i].uid == uid ) 
+			return &m_ArchivePluginInfo.pFormatInfo[i];
+
+	return NULL;
 }

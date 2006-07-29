@@ -1,6 +1,8 @@
 #include <FarPluginBase.h>
 #include "wcx.class.h"
 
+
+
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
@@ -83,7 +85,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	WcxArchive *pArchive = (WcxArchive*)pGAF->hArchive;
 
-	pGAF->nFormat = pArchive->pGetArchiveType ();
+	pArchive->pGetArchiveType (&pGAF->uid);
 
 	return NAERROR_SUCCESS;
 }
@@ -118,7 +120,7 @@ int OnTest (TestStruct *pTS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-	pGDC->bResult = pModules->GetDefaultCommand (pGDC->nFormat, pGDC->nCommand, pGDC->lpCommand);
+	pGDC->bResult = pModules->GetDefaultCommand (pGDC->uid, pGDC->nCommand, pGDC->lpCommand);
 
 	return NAERROR_SUCCESS;
 }

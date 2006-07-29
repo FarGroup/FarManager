@@ -42,6 +42,7 @@ public:
 
 	PBYTE m_pCallbackThunk;
 
+	const ArchiveFormatInfo *m_pInfo;
 	int m_nMode;
 
 public:
@@ -53,10 +54,6 @@ public:
 
 	bool pOpenArchive (int nMode);
 	void pCloseArchive ();
-
-	int pGetArchiveFormatType ();
-
-	char *pGetArchiveFormatName ();
 
 	int pGetArchiveItem (ArchiveItemInfo *pItem);
 

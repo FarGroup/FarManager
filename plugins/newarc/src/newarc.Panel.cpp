@@ -183,7 +183,7 @@ int __stdcall ArchivePanel::pGetFindData(
 					);
 
 			for (int i = 0; i < m_nArchivesCount; i++)
-				FSF.sprintf (pItems[i].Text, "%s", m_pArchives[i]->pGetArchiveFormatName());
+				FSF.sprintf (pItems[i].Text, "%s", m_pArchives[i]->m_pInfo->lpName);
 
 			int nResult = 0;
 
@@ -336,7 +336,7 @@ void __stdcall ArchivePanel::pGetOpenPluginInfo (
 	{
 		memset (m_lpPanelTitle, 0, 260);
 
-		char *lpFormatName = m_pArchive->pGetArchiveFormatName ();
+		const char *lpFormatName = m_pArchive->m_pInfo?m_pArchive->m_pInfo->lpName:NULL;
 
 		FSF.sprintf (
 				m_lpPanelTitle,
@@ -1255,6 +1255,8 @@ void SetTemplate (FarDialogHandler *D)
 		D->SetFocus (8);
 }
 
+
+
 int __stdcall hndModifyCreateArchive (
 		FarDialogHandler *D,
 		int nMsg,
@@ -1267,7 +1269,17 @@ int __stdcall hndModifyCreateArchive (
 		for (int i = 0; i < Plugins.GetCount(); i++)
 		{
 			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
-				D->ListAddStr (12, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
+			{
+				int index = D->ListAddStr (12, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
+
+				formatStruct fs;
+
+				fs.uid = Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].uid;
+				fs.pPlugin = Plugins[i];
+
+				D->ListSetDataEx (12, index, &fs, sizeof (formatStruct));
+			}
+
 		}
 
 		for (int i = 0; i < Templates.GetCount(); i++)
@@ -1347,7 +1359,7 @@ int __stdcall hndModifyCreateArchive (
 
 	if ( nMsg == DN_CLOSE )
 	{
-		if ( nParam1 == 24 )
+		if ( nParam1 == 25 )
 		{
 			bool bResult;
 
@@ -1364,6 +1376,16 @@ int __stdcall hndModifyCreateArchive (
 
 	  		StrFree (lpPassword1);
   			StrFree (lpPassword2);
+
+
+  			FarListPos pos;
+
+  			D->ListGetCurrentPos (12, &pos);
+
+  			formatStruct *pfsresult = (formatStruct*)D->GetDlgData ();
+  			formatStruct *pfs = (formatStruct*)D->ListGetData (12, pos.SelectPos);
+
+  			memcpy (pfsresult, pfs, sizeof (formatStruct));
 
   			return bResult;
 		}
@@ -1446,115 +1468,91 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 	D->Button (-1, 17, "Отменить"); //26
 
+	formatStruct fs;
+
 	if ( D->ShowEx (
-			(PVOID)hndModifyCreateArchive
+			(PVOID)hndModifyCreateArchive,
+			&fs
 			) == 25 )
 	{
 		char *lpCommand = StrCreate (260);
 		char *lpPassword = StrCreate (260);
 		char *lpAdditionalCommandLine = StrCreate (260);
 
-		int nPos = D->m_Items[12].ListPos;
-		int nIndex = 0;
-
 		strcpy (lpArchiveName, D->m_Items[2].Data);
 		strcpy (lpPassword, D->m_Items[17].Data);
 		strcpy (lpAdditionalCommandLine, D->m_Items[14].Data);
 
-		ArchivePlugin *pPlugin = NULL;
+		ArchivePlugin *pPlugin = fs.pPlugin;
+		const ArchiveFormatInfo *info = pPlugin->GetArchiveFormatInfo (fs.uid);
 
-		for (int i = 0; i < Plugins.GetCount(); i++)
+		bool bSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);
+		int	nCount = (bSeparately)?pnInfo.SelectedItemsNumber:1;
+
+		for (int item = 0; item < nCount; item++)
 		{
-			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
+			if ( bSeparately )
 			{
-				if ( nIndex == nPos )
-				{
-
-					pPlugin = Plugins[i];
-					nIndex = j;
-
-					bool bSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);
-					int	iCount = ( bSeparately ) ? pnInfo.SelectedItemsNumber : 1;
-
-					for (int k = 0; k < iCount; k++)
-					{
-						if ( bSeparately )
-						{
-							strcpy (lpArchiveName, FSF.PointToName (pnInfo.SelectedItems[k].FindData.cFileName));
-							if ( !(pnInfo.SelectedItems[k].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) )
-								CutTo (lpArchiveName, '.', true);
-						}
-
-						strcat (lpArchiveName, ".");
-
-						if ( pPlugin )
-						{
-							bool bResult = false;
-
-							if ( !D->m_Items[22].Selected )
-								strcat (lpArchiveName, pPlugin->m_ArchivePluginInfo.pFormatInfo[nIndex].lpDefaultExtention);
-
-							if ( OptionIsOn(pPlugin->m_ArchivePluginInfo.pFormatInfo[nIndex].dwFlags,AFF_SUPPORT_INTERNAL_CREATE) )
-							{
-								Archive *pArchive = pPlugin->CreateArchive (nIndex, lpArchiveName);
-
-								if ( pArchive )
-								{
-									//MessageBox (0, "asd", "asd", MB_OK);
-									if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
-									{
-										pPanel->pPutFilesNew (
-														pArchive,
-														pnInfo.SelectedItems+k,
-														( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber,
-														0,
-														0
-														);
-
-										bResult = true;
-										//MessageBox (0, "put", "asd", MB_OK);
-
-										pArchive->pCloseArchive (); //!!! а надо ли?
-									}
-
-									pPlugin->FinalizeArchive (pArchive);
-								}
-							}
-
-							if ( !bResult )
-							{
-
-								GetDefaultCommandStruct GDC;
-
-								GDC.nFormat = nIndex;
-								GDC.nCommand = COMMAND_ADD;
-								GDC.lpCommand = lpCommand;
-
-								if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
-								{
-									ExecuteCommand (
-											nIndex,
-											lpCommand,
-											lpArchiveName,
-											lpPassword,
-											NULL,
-											lpAdditionalCommandLine,
-											pnInfo.SelectedItems+k,
-											( bSeparately ) ? 1 : pnInfo.SelectedItemsNumber
-											);
-								}
-							}
-						}
-					}
-
-					goto l_Found;
-				}
-
-				nIndex++;
+				strcpy (lpArchiveName, FSF.PointToName (pnInfo.SelectedItems[item].FindData.cFileName));
+				if ( !OptionIsOn (pnInfo.SelectedItems[item].FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+					CutTo (lpArchiveName, '.', true);
 			}
-		}
 
-l_Found:
+			strcat (lpArchiveName, ".");
+			
+			if ( !D->m_Items[22].Selected )
+				strcat (lpArchiveName, info->lpDefaultExtention);
+
+			bool bResult = false;
+
+   			if ( OptionIsOn (info->dwFlags, AFF_SUPPORT_INTERNAL_CREATE) )
+   			{
+   				Archive *pArchive = pPlugin->CreateArchive (info->uid, lpArchiveName);
+
+   				if ( pArchive )
+   				{
+   					if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
+   					{
+   						pPanel->pPutFilesNew (
+								pArchive,
+								pnInfo.SelectedItems+item,
+								(bSeparately)?1:pnInfo.SelectedItemsNumber,
+								0,
+								0
+								);
+
+   						bResult = true;
+
+   						pArchive->pCloseArchive (); //!!! а надо ли?
+   					}
+
+   					pPlugin->FinalizeArchive (pArchive);
+   				}
+   			}
+
+   			if ( !bResult )
+   			{
+	   			GetDefaultCommandStruct GDC;
+
+   				GDC.uid = info->uid;
+   				GDC.nCommand = COMMAND_ADD;
+   				GDC.lpCommand = lpCommand;
+
+   				if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
+   				{
+   					ExecuteCommand (
+   							COMMAND_ADD, //????
+   							lpCommand,
+   							lpArchiveName,
+   							lpPassword,
+   							NULL,
+   							lpAdditionalCommandLine,
+   							pnInfo.SelectedItems+item,
+							(bSeparately)?1:pnInfo.SelectedItemsNumber
+   							);
+   				}
+   			}
+		}
 
 		StrFree (lpPassword);
 		StrFree (lpCommand);
@@ -1634,7 +1632,7 @@ int __stdcall ArchivePanel::pPutFiles(
 		dlgModifyCreateArchive (this);
 	else
 	{
-		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_ADD);
+		bool bExternal = !OptionIsOn (m_pArchive->m_pInfo->dwFlags, AFF_SUPPORT_INTERNAL_ADD);
 
 		if ( bExternal )
 		{
@@ -1771,7 +1769,7 @@ bool doDeleteFiles (ArchivePanel *pPanel, Archive *pArchive, PluginPanelItem *pI
 {
 	bool bResult = true; //!!ERROR!!!
 
-	bool bExternal = !((pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_DELETE);
+	bool bExternal = !OptionIsOn (pArchive->m_pInfo->dwFlags, AFF_SUPPORT_INTERNAL_DELETE);
 
 	if ( bExternal )
 	{
@@ -1839,7 +1837,7 @@ int __stdcall ArchivePanel::pGetFiles (
 				&m_pArchive->m_OS
 				);
 
-		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_EXTRACT);
+		bool bExternal = !OptionIsOn (m_pArchive->m_pInfo->dwFlags, AFF_SUPPORT_INTERNAL_EXTRACT);
 
 		HANDLE hScreen = NULL;
 

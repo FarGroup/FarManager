@@ -2,21 +2,84 @@
 #include <debug.h>
 #include "wcx.class.h"
 
-int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
-{
-	if ( m_pfnCallback )
-		return m_pfnCallback (AM_PROCESS_DATA, 0, (int)Size);
+MY_DEFINE_GUID (CLSID_TemplateWCX, 0x66B22359, 0x4332, 0x4257, 0xA1, 0x1A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 
-	return 1;
+unsigned long CRC32(
+		unsigned long crc,
+		const char *buf,
+		unsigned int len
+		)
+{
+	static unsigned long crc_table[256];
+
+	if (!crc_table[1])
+	{
+		unsigned long c;
+		int n, k;
+
+		for (n = 0; n < 256; n++)
+		{
+			c = (unsigned long)n;
+			for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
+				crc_table[n] = c;
+		}
+	}
+
+	crc = crc ^ 0xffffffffL;
+	while (len-- > 0) {
+		crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
+	}
+
+	return crc ^ 0xffffffffL;
 }
 
-int __stdcall WcxArchive::SetChangeVolProc (char *ArcName, int Mode)
+
+const char *GUID2STR (const GUID &uid)
 {
-	return 1;
+	static char szGUID[64];
+	LPOLESTR string;
+
+	StringFromIID (uid, &string);
+
+	int length = wcslen (string)+1;
+	char *result = StrCreate (length);
+
+	memset (&szGUID, 0, sizeof (szGUID));
+
+	WideCharToMultiByte (CP_OEMCP, 0, string, -1, (char*)&szGUID, sizeof (szGUID), NULL, NULL);
+
+	CoTaskMemFree (string);
+
+	return (const char*)&szGUID;
 }
+
+
+bool GetGUIDFromModule (const WcxModule *pModule, WORD wFormat, GUID *puid)
+{
+	if ( puid && pModule )
+	{
+		memcpy (puid, &CLSID_TemplateWCX, sizeof (GUID));
+
+		memcpy ((unsigned char*)puid+10, &pModule->m_dwCRC, 4);
+		memcpy ((unsigned char*)puid+14, &wFormat, 2);
+
+		return true;
+	}
+
+	return false;
+}
+
 
 WcxModule::WcxModule (const char *lpFileName)
 {
+	m_lpModuleName = StrDuplicate (lpFileName);
+
+	FSF.LStrupr (m_lpModuleName);
+
+	const char *lpName = FSF.PointToName (m_lpModuleName);
+
+	m_dwCRC = CRC32 (0, lpName, strlen (lpName));
+
 	m_hModule = LoadLibraryEx (
 			lpFileName,
 			NULL,
@@ -66,7 +129,10 @@ bool WcxModule::LoadedOK ()
 WcxModule::~WcxModule ()
 {
 	FreeLibrary (m_hModule);
+
+	StrFree (m_lpModuleName);
 }
+
 
 WcxModules::WcxModules ()
 {
@@ -79,7 +145,6 @@ WcxModules::WcxModules ()
 	strcat (lpPluginsPath, "Formats");
 
 	m_Modules.Create(10);
-	m_ExtraPluginInfo.Create(10);
 
 	FSF.FarRecursiveSearch(lpPluginsPath,"*.wcx",(FRSUSERFUNC)LoadWcxModules,FRS_RECUR,this);
 
@@ -87,11 +152,22 @@ WcxModules::WcxModules ()
 
 	m_PluginInfo.pFormatInfo = (ArchiveFormatInfo *) realloc (m_PluginInfo.pFormatInfo, sizeof (ArchiveFormatInfo) * m_PluginInfo.nFormats);
 
-	for (int i=0; i<m_ExtraPluginInfo.GetCount (); i++)
+	GUID uid;
+	int index = 0;
+
+	for (int i = 0; i < m_Modules.GetCount(); i++)
 	{
-		m_PluginInfo.pFormatInfo[i].dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
-		m_PluginInfo.pFormatInfo[i].lpName = m_ExtraPluginInfo[i]->Name;
-		m_PluginInfo.pFormatInfo[i].lpDefaultExtention = m_ExtraPluginInfo[i]->DefaultExtention;
+		WcxModule *pModule = m_Modules[i];
+		WcxPluginInfo *info = &pModule->m_Info;
+
+		GetGUIDFromModule(pModule, 0, &uid);
+
+		m_PluginInfo.pFormatInfo[index].uid = uid;
+		m_PluginInfo.pFormatInfo[index].dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
+		m_PluginInfo.pFormatInfo[index].lpName = info->Name;
+		m_PluginInfo.pFormatInfo[index].lpDefaultExtention = info->DefaultExtention;
+
+		index++;
 	}
 }
 
@@ -100,7 +176,6 @@ WcxModules::~WcxModules ()
 	if ( m_PluginInfo.pFormatInfo )
 		free (m_PluginInfo.pFormatInfo);
 
-	m_ExtraPluginInfo.Free ();
 	m_Modules.Free ();
 }
 
@@ -162,16 +237,14 @@ int WINAPI WcxModules::LoadWcxModules (const WIN32_FIND_DATA *pFindData,
 		return TRUE;
 	}
 
-    pModules->m_PluginInfo.nFormats++;
+    WcxPluginInfo *info = &pModule->m_Info;
 
-    ExtraPluginInfo *pExtraPluginInfo = (ExtraPluginInfo *) malloc (sizeof (ExtraPluginInfo));
+	strcpy(info->Name,FSF.PointToName(lpFullName));
+	*strrchr(info->Name,'.') = 0;
+	strcpy(info->DefaultExtention, info->Name);
+	strcat(info->Name," [wcx]");
 
-	strcpy(pExtraPluginInfo->Name,FSF.PointToName(lpFullName));
-	*strrchr(pExtraPluginInfo->Name,'.') = 0;
-	strcpy(pExtraPluginInfo->DefaultExtention,pExtraPluginInfo->Name);
-	strcat(pExtraPluginInfo->Name," [wcx]");
-
-	pModules->m_ExtraPluginInfo.Add (pExtraPluginInfo);
+	pModules->m_PluginInfo.nFormats++;
 	pModules->m_Modules.Add (pModule);
 
 	return TRUE;
@@ -183,10 +256,24 @@ void WcxModules::GetArchivePluginInfo (ArchivePluginInfo *ai)
 	ai->pFormatInfo = m_PluginInfo.pFormatInfo;
 }
 
-bool WcxModules::GetDefaultCommand (int nFormat, int nCommand, char *lpCommand)
+bool WcxModules::GetDefaultCommand (const GUID &uid, int nCommand, char *lpCommand)
 {
 	return false;
 }
+
+int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
+{
+	if ( m_pfnCallback )
+		return m_pfnCallback (AM_PROCESS_DATA, 0, (int)Size);
+
+	return 1;
+}
+
+int __stdcall WcxArchive::SetChangeVolProc (char *ArcName, int Mode)
+{
+	return 1;
+}
+
 
 WcxArchive::WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileName)
 {
@@ -295,9 +382,9 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 	return ConvertResult (nResult);
 }
 
-int __stdcall WcxArchive::pGetArchiveType ()
+void  __stdcall WcxArchive::pGetArchiveType (GUID *puid)
 {
-	return (m_nModuleNum);
+	GetGUIDFromModule (m_pModule, 0, puid); //??? 0????
 }
 
 void CreateDirectoryEx (char *FullPath) //$ 16.05.2002 AA
@@ -436,3 +523,5 @@ int WcxArchive::Callback (int nMsg, int nParam1, int nParam2)
 
 	return FALSE;
 }
+
+

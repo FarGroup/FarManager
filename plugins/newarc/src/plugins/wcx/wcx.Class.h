@@ -17,11 +17,23 @@ typedef int    (__stdcall *PLUGINGETPACKERCAPS)();
 typedef BOOL   (__stdcall *PLUGINCANYOUHANDLETHISFILE)( const char* FileName );
 typedef void   (__stdcall *PLUGINPACKSETDEFAULTPARAMS)( PackDefaultParamStruct* dps );
 
+struct WcxPluginInfo {
+	char Name[100];
+	char DefaultExtention[260];
+};
+
 class WcxModule {
 
+public:
+
 	HMODULE m_hModule;
+	DWORD m_dwCRC;
+
+	WcxPluginInfo m_Info;
 
 public:
+
+	char *m_lpModuleName;
 
 	PLUGINOPENARCHIVE m_pfnOpenArchive;
 	PLUGINCLOSEARCHIVE m_pfnCloseArchive;
@@ -41,18 +53,14 @@ public:
 	~WcxModule ();
 };
 
+
+
+
 class WcxModules {
 
 	Collection <WcxModule*> m_Modules;
 
 	ArchivePluginInfo m_PluginInfo;
-
-	struct ExtraPluginInfo {
-		char Name[100];
-		char DefaultExtention[260];
-	};
-
-	Collection <ExtraPluginInfo*> m_ExtraPluginInfo;
 
 public:
 
@@ -64,7 +72,7 @@ public:
 	static int WINAPI LoadWcxModules(const WIN32_FIND_DATA *pFindData,const char *lpFullName,WcxModules *pModules);
 
 	void GetArchivePluginInfo (ArchivePluginInfo *ai);
-	bool GetDefaultCommand (int nFormat, int nCommand, char *lpCommand);
+	bool GetDefaultCommand (const GUID &uid, int nCommand, char *lpCommand);
 };
 
 class WcxArchive {
@@ -97,8 +105,7 @@ public:
 	//virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
 
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
-
-	virtual int __stdcall pGetArchiveType ();
+	virtual void __stdcall pGetArchiveType (GUID *puid);
 
 	int __stdcall ProcessDataProc (char *FileName, int Size);
 	int __stdcall SetChangeVolProc (char *ArcName, int Mode);

@@ -31,8 +31,21 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 	if ( pModule )
 	{
-		pQAS->hResult = (HANDLE)new MaArchive (pModule, nModuleNum, pQAS->lpFileName);
-		return NAERROR_SUCCESS;
+		bool bResult = false;
+
+		MaArchive *pArchive = new MaArchive (pModule, nModuleNum, pQAS->lpFileName);
+
+		if ( pArchive->pOpenArchive () )
+		{
+			bResult = true;
+			pArchive->pCloseArchive ();
+		}
+
+		if ( bResult )
+		{
+			pQAS->hResult = (HANDLE)pArchive;
+            return NAERROR_SUCCESS;
+		}
 	}
 
 	return NAERROR_INTERNAL;
@@ -85,14 +98,14 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	MaArchive *pArchive = (MaArchive*)pGAF->hArchive;
 
-	pGAF->nFormat = pArchive->pGetArchiveType ();
+    pArchive->pGetArchiveType (&pGAF->uid);
 
 	return NAERROR_SUCCESS;
 }
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-	pGDC->bResult = pModules->GetDefaultCommand (pGDC->nFormat, pGDC->nCommand, pGDC->lpCommand);
+	pGDC->bResult = pModules->GetDefaultCommand (pGDC->uid, pGDC->nCommand, pGDC->lpCommand);
 
 	return NAERROR_SUCCESS;
 }

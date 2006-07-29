@@ -24,6 +24,25 @@ char *pCommandNames[11] = {
         };
 
 
+const char *GUID2STR (const GUID &uid)
+{
+	static char szGUID[64];
+	LPOLESTR string;
+
+	StringFromIID (uid, &string);
+
+	int length = wcslen (string)+1;
+	char *result = StrCreate (length);
+
+	memset (&szGUID, 0, sizeof (szGUID));
+
+	WideCharToMultiByte (CP_OEMCP, 0, string, -1, (char*)&szGUID, sizeof (szGUID), NULL, NULL);
+
+	CoTaskMemFree (string);
+
+	return (const char*)&szGUID;
+}
+
 
 ArchivePanel *__stdcall OpenFilePlugin (
 		const char *lpFileName,
@@ -46,6 +65,7 @@ ArchivePanel *__stdcall OpenFilePlugin (
 					(const char*)pData,
 					nDataSize
 					);
+
 
 			if ( pArchive )
 			{
@@ -331,13 +351,13 @@ void dlgConfigure ()
 #define DECLARE_COMMAND(string, command) \
 	{\
 		D->Text (5, Y, string); \
-		pPlugin->pGetDefaultCommand (nFormat, command, lpCommand); \
+		pPlugin->pGetDefaultCommand (uid, command, lpCommand); \
 		D->Edit (29, Y++, 42, lpCommand); \
 	}
 
 void dlgCommandLinesAndParams (
 		ArchivePlugin *pPlugin,
-		int nFormat
+		GUID &uid
 		)
 {
 	int nHeight = 19;
@@ -349,7 +369,9 @@ void dlgCommandLinesAndParams (
 
 	char *lpTitle = StrCreate (260);
 
-	FSF.sprintf (lpTitle, "Параметры архиватора %s", pPlugin->m_ArchivePluginInfo.pFormatInfo[nFormat].lpName);
+	const ArchiveFormatInfo *info = pPlugin->GetArchiveFormatInfo (uid);
+
+	FSF.sprintf (lpTitle, "Параметры архиватора %s", info->lpName);
 
 	D->DoubleBox (3, 1, 72, nHeight-2, lpTitle); //0
 
@@ -359,7 +381,7 @@ void dlgCommandLinesAndParams (
 	D->Separator (Y++);
 
 	D->Text (5, Y, "Расширение файлов :");
-	D->Edit (25, Y, 10, pPlugin->m_ArchivePluginInfo.pFormatInfo[nFormat].lpDefaultExtention);
+	D->Edit (25, Y, 10, info->lpDefaultExtention);
 
 	D->Text (40, Y, "Маска \"все файлы\" :");
 	D->Edit (60, Y++, 10);
@@ -384,7 +406,7 @@ void dlgCommandLinesAndParams (
 				lpRegKey,
 				"%s\\newarc\\formats\\%s",
 				Info.RootKey,
-				pPlugin->m_ArchivePluginInfo.pFormatInfo[nFormat].lpName
+				GUID2STR (info->uid)
 				);
 
 		if ( RegCreateKeyEx (
@@ -430,22 +452,38 @@ void mnuCommandLinesAndParams ()
 		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			nCount++;
 
-	FarMenuItem *pItems = (FarMenuItem*)malloc (
-			nCount*sizeof (FarMenuItem)
+	FarMenuItemEx *pItems = (FarMenuItemEx*)malloc (
+			nCount*sizeof (FarMenuItemEx)
 			);
 
 	nCount = 0;
 
 	for (int i = 0; i < Plugins.GetCount(); i++)
+	{
 		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
-			strcpy (pItems[nCount++].Text, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
+		{
+			formatStruct *pfs = new formatStruct;
+
+			pfs->pPlugin = Plugins[i];
+
+			ArchiveFormatInfo *info = &Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j];
+
+			pfs->uid = info->uid;
+
+			pItems[nCount].UserData = (DWORD)pfs;
+			pItems[nCount].Flags = MIF_USETEXTPTR;
+			pItems[nCount].Text.TextPtr = info->lpName;
+
+			nCount++;
+		}
+	}
 
 	int nResult = Info.Menu (
 			Info.ModuleNumber,
 			-1,
 			-1,
 			0,
-			FMENU_WRAPMODE,
+			FMENU_WRAPMODE|FMENU_USEEXT,
 			"Формат архива",
 			NULL,
 			NULL,
@@ -457,30 +495,12 @@ void mnuCommandLinesAndParams ()
 
 	if ( nResult != -1 )
 	{
-		pPlugin = NULL;
-		nItem = 0;
-
-		nCount = 0;
-
-		for (int i = 0; i < Plugins.GetCount(); i++)
-			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
-			{
-				if ( nResult == nCount )
-				{
-					pPlugin = Plugins[i];
-					nItem = j;
-
-					goto l_Found;
-				}
-
-				nCount++;
-			}
-
-l_Found:
-
-		if ( pPlugin )
-			dlgCommandLinesAndParams (pPlugin, nItem);
+		formatStruct *pfs = (formatStruct*)pItems[nResult].UserData;
+		dlgCommandLinesAndParams (pfs->pPlugin, pfs->uid);
 	}
+
+	for (int i = 0; i < nCount; i++)
+		delete (formatStruct*)pItems[i].UserData;
 
 	free (pItems);
 }

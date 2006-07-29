@@ -70,7 +70,7 @@ const FormatInfo signs[] = {
 
 
 
-bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
+bool GetFormatCommand(const GUID &guid, int nCommand, char *lpCommand)
 {
 	if ( IsEqualGUID(guid, CLSID_CFormat7z) )
 		strcpy (lpCommand, p7Z[nCommand]);
@@ -290,6 +290,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	m_pfnGetHandlerProperty (NArchive::kUpdate, &value);
 
 	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
+	pInfo->uid = m_uid;
 
 	if ( (value.vt == VT_BOOL) && (value.boolVal == VARIANT_TRUE) )
 		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
@@ -401,7 +402,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 }
 
 
-SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileName, bool bNewArchive)
+SevenZipArchive::SevenZipArchive (const SevenZipModule *pModule, const char *lpFileName, bool bNewArchive)
 {
 	m_pArchive = NULL;
 	m_pInFile = NULL;

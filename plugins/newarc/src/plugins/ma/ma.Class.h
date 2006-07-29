@@ -14,7 +14,18 @@ typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest)
 typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
 typedef DWORD (WINAPI *PLUGINGETSFXPOS)(void);
 
+
+struct MaPluginInfo {
+	char Name[100];
+	char DefaultExtention[260];
+};
+
+
 class MaModule {
+public:
+
+	DWORD m_dwCRC;
+	Collection <MaPluginInfo*> m_Info;
 
 public:
 
@@ -32,6 +43,8 @@ public:
 
 public:
 
+	char *m_lpModuleName;
+
 	MaModule (const char *lpFileName);
 	bool LoadedOK();
 	~MaModule ();
@@ -39,23 +52,10 @@ public:
 
 class MaModules {
 
+public:
+
 	Collection <MaModule*> m_Modules;
-
 	ArchivePluginInfo m_PluginInfo;
-
-	struct ExtraPluginInfo {
-		char Name[100];
-		char DefaultExtention[260];
-		int FormatNumber;
-	};
-
-	struct ExtraPluginInfoArray {
-		int BaseNumber;
-		int Count;
-		ExtraPluginInfo *pExtraPluginInfo;
-	};
-
-	Collection <ExtraPluginInfoArray*> m_ExtraPluginInfo;
 
 public:
 
@@ -67,7 +67,7 @@ public:
 	static int WINAPI LoadFmtModules(const WIN32_FIND_DATA *pFindData,const char *lpFullName,MaModules *pModules);
 
 	void GetArchivePluginInfo (ArchivePluginInfo *ai);
-	bool GetDefaultCommand (int nFormat, int nCommand, char *lpCommand);
+	bool GetDefaultCommand (const GUID &uid, int nCommand, char *lpCommand);
 };
 
 class MaArchive {
@@ -96,5 +96,5 @@ public:
 
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
 
-	virtual int __stdcall pGetArchiveType ();
+	virtual void __stdcall pGetArchiveType (GUID *puid);
 };

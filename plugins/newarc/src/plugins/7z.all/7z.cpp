@@ -17,6 +17,15 @@ struct ArchiveModuleInformation {
 	char **pConfigStrings;
 };
 
+const SevenZipModule *GetModuleFromGUID (const GUID &uid)
+{
+	for (int i = 0; i < Formats.GetCount(); i++)
+		if ( Formats[i]->m_uid == uid )
+			return Formats[i];
+
+	return NULL;
+}
+
 int OnInitialize (PluginStartupInfo *pInfo)
 {
 	Info = *pInfo;
@@ -194,7 +203,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 int OnCreateArchive (CreateArchiveStruct *pCAS)
 {
-	SevenZipModule *pModule = Formats[pCAS->nFormat];
+	const SevenZipModule *pModule = GetModuleFromGUID (pCAS->uid);
 
 	if ( pModule )
 	{
@@ -263,17 +272,7 @@ int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
-
-	SevenZipModule *pModule = pArchive->m_pModule;
-
-	for (int i = 0; i < Formats.GetCount(); i++)
-	{
-		if ( Formats[i] == pModule )
-		{
-			pGAF->nFormat = i;
-			break;
-		}
-	}
+	pGAF->uid = pArchive->m_pModule->m_uid;
 
 	return NAERROR_SUCCESS;
 }
@@ -322,13 +321,7 @@ int OnAdd (AddStruct *pAS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-	if ( pGDC->nFormat < Formats.GetCount() )
-		pGDC->bResult = GetFormatCommand (Formats[pGDC->nFormat]->m_uid,
-										  pGDC->nCommand,
-										  pGDC->lpCommand);
-	else
-		pGDC->bResult = false;
-
+	pGDC->bResult = GetFormatCommand (pGDC->uid, pGDC->nCommand, pGDC->lpCommand);
 	return NAERROR_SUCCESS;
 }
 

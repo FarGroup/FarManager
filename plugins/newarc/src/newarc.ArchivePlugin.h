@@ -32,10 +32,12 @@ public:
 	void Finalize ();
 
 	Archive *QueryArchive (const char *lpFileName, const char *lpBuffer, dword dwBufferSize);
-	Archive *CreateArchive (int nFormat, const char *lpFileName);
+	Archive *CreateArchive (const GUID &uid, const char *lpFileName);
 	void FinalizeArchive (Archive *pArchive);
 
-	bool pGetDefaultCommand (int nType, int nCommand, char *lpCommand);
+	bool pGetDefaultCommand (const GUID &uid, int nCommand, char *lpCommand);
+
+	const ArchiveFormatInfo* GetArchiveFormatInfo (const GUID &uid);
 
 	void ReloadLanguage (const char *lpLanguage);
 

@@ -43,6 +43,14 @@ Archive::Archive (
 	m_lpLastUsedPassword = NULL;
 
 	m_nMode = 0;
+	m_pInfo = NULL;
+
+	GetArchiveFormatStruct GAF;
+
+	GAF.hArchive = m_hArchive;
+
+	if ( m_pPlugin->m_pfnPluginEntry (FID_GETARCHIVEFORMAT, (void*)&GAF) == NAERROR_SUCCESS )
+		m_pInfo = m_pPlugin->GetArchiveFormatInfo (GAF.uid);
 
 	CreateClassThunk (Archive, ArchiveCallback, m_pCallbackThunk);
 
@@ -423,28 +431,6 @@ int __stdcall Archive::ArchiveCallback (
 }
 
 
-int Archive::pGetArchiveFormatType ()
-{
-	GetArchiveFormatStruct GAF;
-
-	GAF.hArchive = m_hArchive;
-
-	if ( m_pPlugin->m_pfnPluginEntry (FID_GETARCHIVEFORMAT, (void*)&GAF) == NAERROR_SUCCESS )
-		return GAF.nFormat;
-
-	return 0;
-}
-
-char *Archive::pGetArchiveFormatName ()
-{
-	int nFormat = pGetArchiveFormatType ();
-
-	if ( nFormat < m_pPlugin->m_ArchivePluginInfo.nFormats)
-		return m_pPlugin->m_ArchivePluginInfo.pFormatInfo[nFormat].lpName;
-
-	return NULL;
-}
-
 bool Archive::pExtract (
 		PluginPanelItem *pItems,
 		int nItemsNumber,
@@ -565,7 +551,7 @@ bool Archive::pGetDefaultCommand (
 		)
 {
 	return m_pPlugin->pGetDefaultCommand (
-			pGetArchiveFormatType (),
+			m_pInfo->uid,
 			nCommand,
 			lpCommand
 			);

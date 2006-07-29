@@ -2,6 +2,8 @@
 #include "rar.class.h"
 #include "dll.hpp"
 
+MY_DEFINE_GUID (CLSID_FormatRAR, 0x8CD19CED, 0xC1B1, 0x4CC0, 0x88, 0x5B, 0x4F, 0x37, 0xFB, 0x64, 0xA2, 0x9F);
+
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
@@ -88,12 +90,15 @@ int OnGetArchivePluginInfo (
 		ArchivePluginInfo *ai
 		)
 {
-	static ArchiveFormatInfo FormatInfo[1] = {
-			{AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST, "RAR Archive", "rar"}
-			};
+	static ArchiveFormatInfo formatInfo;
+
+	formatInfo.uid = CLSID_FormatRAR;
+	formatInfo.dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT;
+	formatInfo.lpName = "RAR Archive";
+	formatInfo.lpDefaultExtention = "rar";
 
 	ai->nFormats = 1;
-	ai->pFormatInfo = (ArchiveFormatInfo*)&FormatInfo;
+	ai->pFormatInfo = (ArchiveFormatInfo*)&formatInfo;
 
 	return NAERROR_SUCCESS;
 }
@@ -111,7 +116,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	RarArchive *pArchive = (RarArchive*)pGAF->hArchive;
 
-	pGAF->nFormat = pArchive->pGetArchiveType ();
+	pGAF->uid = CLSID_FormatRAR;
 
 	return NAERROR_SUCCESS;
 }
@@ -160,7 +165,7 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
     };
 
 
-	if ( pGDC->nFormat == 0 )
+	if ( pGDC->uid == CLSID_FormatRAR )
 	{
 		strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
 		pGDC->bResult = true;

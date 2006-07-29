@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "zip.class.h"
 
+MY_DEFINE_GUID (CLSID_FormatZIP, 0x946378F0, 0xB7C0, 0x4811, 0x82, 0x7A, 0x27, 0xB2, 0xE9, 0xBC, 0xE8, 0x54);
+
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
@@ -19,12 +21,15 @@ int OnInitialize (PluginStartupInfo *pInfo)
 
 int OnGetArchivePluginInfo (ArchivePluginInfo *ai)
 {
-	static ArchiveFormatInfo FormatInfo[1] = {
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "ZIP Archive", "zip"}
-			};
+	static ArchiveFormatInfo formatInfo;
+
+	formatInfo.uid = CLSID_FormatZIP;
+	formatInfo.dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT;
+	formatInfo.lpName = "ZIP Archive";
+	formatInfo.lpDefaultExtention = "zip";
 
 	ai->nFormats = 1;
-	ai->pFormatInfo = (ArchiveFormatInfo*)&FormatInfo;
+	ai->pFormatInfo = (ArchiveFormatInfo*)&formatInfo;
 
 	return NAERROR_SUCCESS;
 }
@@ -94,7 +99,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	ZipArchive *pArchive = (ZipArchive*)pGAF->hArchive;
 
-	pGAF->nFormat = pArchive->pGetArchiveType ();
+	pGAF->uid = CLSID_FormatZIP;
 
 	return NAERROR_SUCCESS;
 }
@@ -130,7 +135,7 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
     /*Add files             */"pkzipc -add -attr=all -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA"
     };
 
-	if ( pGDC->nFormat == 0 )
+	if ( pGDC->uid == CLSID_FormatZIP )
 	{
 		strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
 

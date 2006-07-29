@@ -9,7 +9,7 @@ struct FormatPosition {
 typedef unsigned int (__stdcall *CREATEOBJECT) (const GUID *, const GUID *, void **);
 typedef HRESULT (__stdcall *GETHANDLERPROPERTY) (PROPID propID, PROPVARIANT *value);
 
-bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand);
+extern bool GetFormatCommand(const GUID &guid, int nCommand, char *lpCommand);
 
 
 class SevenZipModule {
@@ -35,7 +35,7 @@ class SevenZipArchive {
 
 public:
 
-	SevenZipModule *m_pModule;
+	const SevenZipModule *m_pModule;
 
 	HANDLE m_hArchive;
 	ARCHIVECALLBACK m_pfnCallback;
@@ -55,7 +55,7 @@ public:
 
 public:
 
-	SevenZipArchive (SevenZipModule *pModule, const char *lpFileName, bool bNewArchive);
+	SevenZipArchive (const SevenZipModule *pModule, const char *lpFileName, bool bNewArchive);
 	virtual ~SevenZipArchive ();
 
 	int Callback (int nMsg, int nParam1, int nParam2);

@@ -1,6 +1,16 @@
 #pragma once
 #include <plugin.hpp>
 
+#ifdef __cplusplus
+  #define MY_EXTERN_C extern "C"
+#else
+  #define MY_EXTERN_C extern
+#endif
+
+#define MY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+  MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
+
+
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)
 
 #define E_SUCCESS			0
@@ -71,9 +81,10 @@ struct ArchiveItemInfo {
 #define AFF_SUPPORT_INTERNAL_CREATE		16
 
 struct ArchiveFormatInfo {
+	GUID uid;
 	DWORD dwFlags;
-	char *lpName;
-	char *lpDefaultExtention;
+	const char *lpName;
+	const char *lpDefaultExtention;
 };
 
 struct ArchivePluginInfo {
@@ -104,7 +115,7 @@ struct QueryArchiveStruct {
 struct GetDefaultCommandStruct {
 	DWORD dwStructSize;
 
-	int nFormat;
+	GUID uid;
 	int nCommand;
 
 	char *lpCommand;
@@ -117,7 +128,7 @@ struct GetArchiveFormatStruct {
 
 	HANDLE hArchive;
 
-	int nFormat;
+	GUID uid;
 };
 
 struct ExtractStruct {
@@ -191,7 +202,7 @@ struct AddStruct {
 struct CreateArchiveStruct {
 	DWORD dwStructSize;
 
-	int nFormat;
+	GUID uid;
 	const char *lpFileName;
 
 	HANDLE hResult;

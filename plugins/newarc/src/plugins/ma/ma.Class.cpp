@@ -1,10 +1,89 @@
 #include <FarPluginBase.h>
 #include "ma.class.h"
+#include <debug.h>
+
+MY_DEFINE_GUID (CLSID_TemplateMA, 0x83FEFEBE, 0x3EE3, 0x4CD5, 0xB2, 0xF6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+
+unsigned long CRC32(
+		unsigned long crc,
+		const char *buf,
+		unsigned int len
+		)
+{
+	static unsigned long crc_table[256];
+
+	if (!crc_table[1])
+	{
+		unsigned long c;
+		int n, k;
+
+		for (n = 0; n < 256; n++)
+		{
+			c = (unsigned long)n;
+			for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
+				crc_table[n] = c;
+		}
+	}
+
+	crc = crc ^ 0xffffffffL;
+	while (len-- > 0) {
+		crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
+	}
+
+	return crc ^ 0xffffffffL;
+}
+
+
+const char *GUID2STR (const GUID &uid)
+{
+	static char szGUID[64];
+	LPOLESTR string;
+
+	StringFromIID (uid, &string);
+
+	int length = wcslen (string)+1;
+	char *result = StrCreate (length);
+
+	memset (&szGUID, 0, sizeof (szGUID));
+
+	WideCharToMultiByte (CP_OEMCP, 0, string, -1, (char*)&szGUID, sizeof (szGUID), NULL, NULL);
+
+	CoTaskMemFree (string);
+
+	return (const char*)&szGUID;
+}
+
+
+bool GetGUIDFromModule (const MaModule *pModule, WORD wFormat, GUID *puid)
+{
+	if ( puid && pModule )
+	{
+		memcpy (puid, &CLSID_TemplateMA, sizeof (GUID));
+
+		memcpy ((unsigned char*)puid+10, &pModule->m_dwCRC, 4);
+		memcpy ((unsigned char*)puid+14, &wFormat, 2);
+
+		return true;
+	}
+
+	return false;
+}
+
 
 MaModule::MaModule (
 		const char *lpFileName
 		)
 {
+	m_lpModuleName = StrDuplicate (lpFileName);
+
+	FSF.LStrupr (m_lpModuleName);
+
+	m_Info.Create (5);
+
+	const char *lpName = FSF.PointToName (m_lpModuleName);
+
+	m_dwCRC = CRC32 (0, lpName, strlen (lpName));
+
 	m_hModule = LoadLibraryEx (
 			lpFileName,
 			NULL,
@@ -28,6 +107,7 @@ MaModule::MaModule (
 	{
 		if (m_pfnLoadFormatModule)
 			m_pfnLoadFormatModule(lpFileName);
+
 		if (m_pfnSetFarInfo)
 		{
 			PluginStartupInfo _Info;
@@ -54,6 +134,9 @@ bool MaModule::LoadedOK ()
 MaModule::~MaModule ()
 {
 	FreeLibrary (m_hModule);
+	StrFree (m_lpModuleName);
+
+	m_Info.Free ();
 }
 
 MaModules::MaModules ()
@@ -67,7 +150,6 @@ MaModules::MaModules ()
 	strcat (lpPluginsPath, "Formats");
 
 	m_Modules.Create(10);
-	m_ExtraPluginInfo.Create(10);
 
 	FSF.FarRecursiveSearch(lpPluginsPath,"*.fmt",(FRSUSERFUNC)LoadFmtModules,FRS_RECUR,this);
 
@@ -75,12 +157,22 @@ MaModules::MaModules ()
 
 	m_PluginInfo.pFormatInfo = (ArchiveFormatInfo *) realloc (m_PluginInfo.pFormatInfo, sizeof (ArchiveFormatInfo) * m_PluginInfo.nFormats);
 
-	for (int i=0; i<m_ExtraPluginInfo.GetCount (); i++)
+	GUID uid;
+	int index = 0;
+
+	for (int i = 0; i < m_Modules.GetCount(); i++)
 	{
-		for (int j=0; j<m_ExtraPluginInfo[i]->Count; j++)
+		MaModule *pModule = m_Modules[i];
+
+		for (int j = 0; j < pModule->m_Info.GetCount(); j++)
 		{
-			m_PluginInfo.pFormatInfo[m_ExtraPluginInfo[i]->pExtraPluginInfo[j].FormatNumber].lpName=m_ExtraPluginInfo[i]->pExtraPluginInfo[j].Name;
-			m_PluginInfo.pFormatInfo[m_ExtraPluginInfo[i]->pExtraPluginInfo[j].FormatNumber].lpDefaultExtention=m_ExtraPluginInfo[i]->pExtraPluginInfo[j].DefaultExtention;
+			GetGUIDFromModule (pModule, j, &uid);
+
+			m_PluginInfo.pFormatInfo[index].lpName = pModule->m_Info[j]->Name;
+			m_PluginInfo.pFormatInfo[index].lpDefaultExtention = pModule->m_Info[j]->DefaultExtention;
+			m_PluginInfo.pFormatInfo[index].uid = uid;
+
+			index++;
 		}
 	}
 }
@@ -88,14 +180,8 @@ MaModules::MaModules ()
 MaModules::~MaModules ()
 {
 	if ( m_PluginInfo.pFormatInfo )
-	{
 		free (m_PluginInfo.pFormatInfo);
-	}
 
-	for (int i=0; i<m_ExtraPluginInfo.GetCount(); i++)
-		free (m_ExtraPluginInfo[i]->pExtraPluginInfo);
-
-	m_ExtraPluginInfo.Free ();
 	m_Modules.Free ();
 }
 
@@ -105,7 +191,7 @@ MaModule *MaModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
 	DWORD CurSFXSize;
 	MaModule *TrueArc = NULL;
 
-    *nModuleNum = -1;
+    //*nModuleNum = -1;
 
 	for (int i=0; i<m_Modules.GetCount(); i++)
 	{
@@ -120,7 +206,7 @@ MaModule *MaModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
 			{
 				MinSFXSize = CurSFXSize;
 				TrueArc = m_Modules[i];
-               	*nModuleNum = m_ExtraPluginInfo[i]->BaseNumber;
+               	//*nModuleNum = m_ExtraPluginInfo[i]->BaseNumber;
 			}
 		}
 	}
@@ -147,51 +233,31 @@ int WINAPI MaModules::LoadFmtModules (const WIN32_FIND_DATA *pFindData,
 		return TRUE;
 	}
 
-    ExtraPluginInfoArray *pExtraPluginInfoArray = (ExtraPluginInfoArray *)malloc (sizeof (ExtraPluginInfoArray));
-
-    memset (pExtraPluginInfoArray, 0, sizeof (ExtraPluginInfoArray));
-
-    pExtraPluginInfoArray->BaseNumber = pModules->m_PluginInfo.nFormats;
-
-    ExtraPluginInfo *pExtraPluginInfo = NULL;
-
 	if ( pModule->m_pfnGetFormatName )
 	{
-	    char Format[100], DefExt[NM];
+		int index = 0;
 
-	    *Format=0;
-	    *DefExt=0;
-
-		for (int i=0; pModule->m_pfnGetFormatName(i,Format,DefExt); i++)
+		while ( true )
 		{
-			pExtraPluginInfo = (ExtraPluginInfo *) realloc (pExtraPluginInfo, sizeof (ExtraPluginInfo) * (i+1));
+			MaPluginInfo *info = new MaPluginInfo;
 
-			strcpy(pExtraPluginInfo[i].Name,Format);
+			*info->Name = 0;
+			*info->DefaultExtention = 0;
 
-			strcpy(pExtraPluginInfo[i].DefaultExtention,DefExt);
-
-			pExtraPluginInfo[i].FormatNumber = pModules->m_PluginInfo.nFormats++;
-
-			pExtraPluginInfoArray->Count++;
-
-			*Format=0;
-			*DefExt=0;
+			if ( pModule->m_pfnGetFormatName (index, info->Name, info->DefaultExtention) )
+			{
+				pModule->m_Info.Add (info);
+				index++;
+				pModules->m_PluginInfo.nFormats++;
+			}
+			else
+			{
+				delete info;
+				break;
+			}
 		}
-
 	}
-
-	if ( !pExtraPluginInfoArray->Count )
-	{
-		pExtraPluginInfo = (ExtraPluginInfo *) malloc (sizeof (ExtraPluginInfo));
-
-        pExtraPluginInfo->FormatNumber = pModules->m_PluginInfo.nFormats++;
-
-		pExtraPluginInfoArray->Count++;
-	}
-
-	pExtraPluginInfoArray->pExtraPluginInfo = pExtraPluginInfo;
-	pModules->m_ExtraPluginInfo.Add (pExtraPluginInfoArray);
-
+	
 	pModules->m_Modules.Add (pModule);
 
 	return TRUE;
@@ -203,47 +269,30 @@ void MaModules::GetArchivePluginInfo (ArchivePluginInfo *ai)
 	ai->pFormatInfo = m_PluginInfo.pFormatInfo;
 }
 
-bool MaModules::GetDefaultCommand (int nFormat, int nCommand, char *lpCommand)
+bool MaModules::GetDefaultCommand (const GUID &uid, int nCommand, char *lpCommand)
 {
-	int nModuleNum=-1, nTypeNum=-1;
+	unsigned char *buffer = (unsigned char*)&uid;
 
-	for (int i=0; i<m_ExtraPluginInfo.GetCount (); i++)
+	WORD index = *(WORD*)(buffer+14);
+	DWORD crc = *(DWORD*)(buffer+10);
+
+	MaModule *pResultModule = NULL;
+
+	for (int i = 0; i < m_Modules.GetCount(); i++)
 	{
-		if ( m_ExtraPluginInfo[i]->BaseNumber > nFormat )
+		if ( m_Modules[i]->m_dwCRC == crc )
 		{
-			nModuleNum = i-1;
-			break;
-		}
-		if ( m_ExtraPluginInfo[i]->BaseNumber == nFormat )
-		{
-			nModuleNum = i;
-			nTypeNum = 0;
+			pResultModule = m_Modules[i];
 			break;
 		}
 	}
 
-	if (nModuleNum == -1)
-		nModuleNum = m_ExtraPluginInfo.GetCount()-1;
-
-	if (nModuleNum != -1 && nTypeNum == -1)
-	{
-		for (int i=0; i<m_ExtraPluginInfo[nModuleNum]->Count; i++)
-		{
-			if ( m_ExtraPluginInfo[nModuleNum]->pExtraPluginInfo[i].FormatNumber == nFormat )
-			{
-				nTypeNum = i;
-				break;
-			}
-		}
-	}
-
-	if (nModuleNum != -1 && nTypeNum != -1)
-		if ( m_Modules[nModuleNum]->m_pfnGetDefaultCommands )
-			return m_Modules[nModuleNum]->m_pfnGetDefaultCommands (
-										nTypeNum,
-										nCommand,
-										lpCommand
-										);
+	if ( pResultModule && pResultModule->m_pfnGetDefaultCommands )
+		return pResultModule->m_pfnGetDefaultCommands (
+				index,
+				nCommand,
+				lpCommand
+				);
 
 	return false;
 }
@@ -319,8 +368,8 @@ int __stdcall MaArchive::pGetArchiveItem (
 	return ConvertResult (nResult);
 }
 
-int __stdcall MaArchive::pGetArchiveType ()
+void __stdcall MaArchive::pGetArchiveType (GUID *puid)
 {
-	return (m_nModuleNum+m_nArcType);
+	GetGUIDFromModule (m_pModule, m_nArcType, puid);
 }
 

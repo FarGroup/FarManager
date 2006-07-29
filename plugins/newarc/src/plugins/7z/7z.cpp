@@ -1,5 +1,8 @@
 #include "7z.h"
 
+MY_DEFINE_GUID (CLSID_Format7z, 0x9F48C737, 0xC878, 0x4B3B, 0xB5, 0x31, 0x09, 0x7E, 0x96, 0x50, 0x62, 0xC2);
+
+
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
@@ -82,12 +85,15 @@ int OnGetArchivePluginInfo (
 		ArchivePluginInfo *ai
 		)
 {
-	static ArchiveFormatInfo FormatInfo[1] = {
-			{AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST, "7z Archive", "7z"}
-			};
+	static ArchiveFormatInfo formatInfo;
+
+	formatInfo.uid = CLSID_Format7z;
+	formatInfo.dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT;
+	formatInfo.lpName = "7z Archive";
+	formatInfo.lpDefaultExtention = "7z";
 
 	ai->nFormats = 1;
-	ai->pFormatInfo = (ArchiveFormatInfo*)&FormatInfo;
+	ai->pFormatInfo = (ArchiveFormatInfo*)&formatInfo;
 
 	return NAERROR_SUCCESS;
 }
@@ -105,7 +111,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
 
-	pGAF->nFormat = pArchive->pGetArchiveType ();
+	pGAF->uid = CLSID_Format7z;
 
 	return NAERROR_SUCCESS;
 }
@@ -154,7 +160,7 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
     };
 
 
-	if ( pGDC->nFormat == 0 )
+	if ( pGDC->uid == CLSID_Format7z )
 	{
 		strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
 		pGDC->bResult = true;

@@ -17,6 +17,7 @@
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)
 
 extern Collection <ArchivePlugin*> Plugins;
+extern const char *GUID2STR (const GUID &uid);
 
 /*char *pCommandNames[11] = {
 		"Extract",
@@ -35,6 +36,12 @@ extern Collection <ArchivePlugin*> Plugins;
 extern char *pCommandNames[11];
 
 #define FILE_ENCRYPTED 1
+
+struct formatStruct {
+	ArchivePlugin *pPlugin;
+	GUID uid;
+};
+
 
 struct ArchiveFile {
 	dword dwFlags;
