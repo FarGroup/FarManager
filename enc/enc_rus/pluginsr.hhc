@@ -459,6 +459,10 @@
                                 <param name="Local" value="html/fsf/rtrim.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="snprintf">
+                                <param name="Local" value="html/fsf/snprintf.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="sprintf">
                                 <param name="Local" value="html/fsf/sprintf.html">
                                 </OBJECT>
