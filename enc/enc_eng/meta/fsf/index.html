@@ -36,8 +36,9 @@ struct FarStandardFunctions
   FARSTDQSORT                <a href="qsort.html">qsort</a>;
   FARSTDBSEARCH              <a href="bsearch.html">bsearch</a>;
   FARSTDQSORT                <a href="qsortex.html">qsortex</a>;
+  FARSTDSNPRINTF             <a href="snprintf.html">snprintf</a>;
 
-  DWORD                      Reserved[9];
+  DWORD                      Reserved[8];
 
   FARSTDLOCALISLOWER         <a href="lislower.html">LIsLower</a>;
   FARSTDLOCALISUPPER         <a href="lisupper.html">LIsUpper</a>;
@@ -87,149 +88,152 @@ struct FarStandardFunctions
 <tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
 
   <tr class="cont"><td class="cont" width="40%">StructSize</td>
-  <td class="cont" width="60%">Structure size. If the structure will change in the future, this field will allow to determine it.</td>
-</tr>
+  <td class="cont" width="60%">Structure size. If the structure will change in the future, this field will allow to determine it.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="atoi.html">atoi</a></td>
-  <td class="cont" width="60%">converts a string to a 32-bit integer.</td>
-</tr>
+  <td class="cont" width="60%">converts a string to a 32-bit integer.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="atoi64.html">atoi64</a></td>
-  <td class="cont" width="60%">converts a string to a 64-bit integer (<b>__int64</b>).</td>
-</tr>
+  <td class="cont" width="60%">converts a string to a 64-bit integer (<b>__int64</b>).</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="itoa.html">itoa</a></td>
-  <td class="cont" width="60%">converts a 32-bit integer value into a string.</td>
-</tr>
+  <td class="cont" width="60%">converts a 32-bit integer value into a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="itoa64.html">itoa64</a></td>
-  <td class="cont" width="60%">converts a 64-bit integer (<b>__int64</b>) value into a string.</td>
-</tr>
+  <td class="cont" width="60%">converts a 64-bit integer (<b>__int64</b>) value into a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="sprintf.html">sprintf</a></td>
-  <td class="cont" width="60%">allows to write formatted output to a string.</td>
-</tr>
+  <td class="cont" width="60%">allows to write formatted output to a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="sscanf.html">sscanf</a></td>
-  <td class="cont" width="60%">allows to read formatted data from a string.</td>
-</tr>
+  <td class="cont" width="60%">allows to read formatted data from a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="qsort.html">qsort</a></td>
-  <td class="cont" width="60%">allows to sort an array of any type of data using the QuickSort algorithm.</td>
-</tr>
+  <td class="cont" width="60%">allows to sort an array of any type of data using the QuickSort algorithm.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="bsearch.html">bsearch</a></td>
-  <td class="cont" width="60%">allows to perform a binary search of a sorted array.</td>
-</tr>
+  <td class="cont" width="60%">allows to perform a binary search of a sorted array.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="qsortex.html">qsortex</a></td>
-  <td class="cont" width="60%">allows to sort an array of any type of data using the QuickSort algorithm.</td>
-</tr>
+  <td class="cont" width="60%">allows to sort an array of any type of data using the QuickSort algorithm.</td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a href="snprintf.html">snprintf</a></td>
+  <td class="cont" width="60%">allows to write formatted output to a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lislower.html">LIsLower</a></td>
-  <td class="cont" width="60%">tests whether the given character is in lower case.</td>
-</tr>
+  <td class="cont" width="60%">tests whether the given character is in lower case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lisupper.html">LIsUpper</a></td>
-  <td class="cont" width="60%">tests whether the given character is in upper case.</td>
-</tr>
+  <td class="cont" width="60%">tests whether the given character is in upper case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lisalpha.html">LIsAlpha</a></td>
-  <td class="cont" width="60%">tests whether the given character is a letter.</td>
-</tr>
+  <td class="cont" width="60%">tests whether the given character is a letter.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lisalphanum.html">LIsAlphanum</a></td>
-  <td class="cont" width="60%">tests whether the given character is a number or a letter.</td>
-</tr>
+  <td class="cont" width="60%">tests whether the given character is a number or a letter.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lupper.html">LUpper</a></td>
-  <td class="cont" width="60%">converts a character to upper case.</td>
-</tr>
+  <td class="cont" width="60%">converts a character to upper case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="llower.html">LLower</a></td>
-  <td class="cont" width="60%">converts a character to lower case.</td>
-</tr>
+  <td class="cont" width="60%">converts a character to lower case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lupperbuf.html">LUpperBuf</a></td>
-  <td class="cont" width="60%">converts an array of characters, including null ones, to upper case.</td>
-</tr>
+  <td class="cont" width="60%">converts an array of characters, including null ones, to upper case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="llowerbuf.html">LLowerBuf</a></td>
-  <td class="cont" width="60%">converts an array of characters, including null ones, to lower case.</td>
-</tr>
+  <td class="cont" width="60%">converts an array of characters, including null ones, to lower case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lstrupr.html">LStrupr</a></td>
-  <td class="cont" width="60%">converts a null-terminated string to upper case.</td>
-</tr>
+  <td class="cont" width="60%">converts a null-terminated string to upper case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lstrlwr.html">LStrlwr</a></td>
-  <td class="cont" width="60%">converts a null-terminated string to lower case.</td>
-</tr>
+  <td class="cont" width="60%">converts a null-terminated string to lower case.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lstricmp.html">LStricmp</a></td>
-  <td class="cont" width="60%">compares two strings without case sensitivity.</td>
-</tr>
+  <td class="cont" width="60%">compares two strings without case sensitivity.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="lstrnicmp.html">LStrnicmp</a></td>
-  <td class="cont" width="60%">compares portions of two strings without case sensitivity.</td>
-</tr>
+  <td class="cont" width="60%">compares portions of two strings without case sensitivity.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="unquote.html">Unquote</a></td>
-  <td class="cont" width="60%">removes all quotes from a null-terminated string.</td>
-</tr>
+  <td class="cont" width="60%">removes all quotes from a null-terminated string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="expandenvironmentstr.html">ExpandEnvironmentStr</a></td>
-  <td class="cont" width="60%">used to expand environment variables in a string to their values.</td>
-</tr>
+  <td class="cont" width="60%">used to expand environment variables in a string to their values.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="ltrim.html">LTrim</a></td>
-  <td class="cont" width="60%">removes leading whitespace from a string.</td>
-</tr>
+  <td class="cont" width="60%">removes leading whitespace from a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="rtrim.html">RTrim</a></td>
-  <td class="cont" width="60%">removes trailing whitespace from a string.</td>
-</tr>
+  <td class="cont" width="60%">removes trailing whitespace from a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="trim.html">Trim</a></td>
-  <td class="cont" width="60%">removes all leading and trailing whitespace from a string.</td>
-</tr>
+  <td class="cont" width="60%">removes all leading and trailing whitespace from a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="truncstr.html">TruncStr</a></td>
-  <td class="cont" width="60%">truncates a given string to the specified length and, if needed, inserts in its beginning an ellipsis instead of the truncated part.</td>
-</tr>
+  <td class="cont" width="60%">truncates a given string to the specified length and, if needed, inserts in its beginning an ellipsis instead of the truncated part.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="truncpathstr.html">TruncPathStr</a></td>
-  <td class="cont" width="60%">truncates a given path to specified length and, if needed, inserts an ellipsis to indicate the place of truncation.</td>
-</tr>
+  <td class="cont" width="60%">truncates a given path to specified length and, if needed, inserts an ellipsis to indicate the place of truncation.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="quotespaceonly.html">QuoteSpaceOnly</a></td>
-  <td class="cont" width="60%">quotes the input string if it contains at least one space inside.</td>
-</tr>
+  <td class="cont" width="60%">quotes the input string if it contains at least one space inside.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="pointtoname.html">PointToName</a></td>
-  <td class="cont" width="60%">used to get the file name from a given file path.</td>
-</tr>
+  <td class="cont" width="60%">used to get the file name from a given file path.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="getpathroot.html">GetPathRoot</a></td>
-  <td class="cont" width="60%">used to get the root directory from a given file path.</td>
-</tr>
+  <td class="cont" width="60%">used to get the root directory from a given file path.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="addendslash.html">AddEndSlash</a></td>
-  <td class="cont" width="60%">used to add a trailing backslash or a slash to a path.</td>
-</tr>
+  <td class="cont" width="60%">used to add a trailing backslash or a slash to a path.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="copytoclipboard.html">CopyToClipboard</a></td>
-  <td class="cont" width="60%">copies a text string to the Windows clipboard.</td>
-</tr>
+  <td class="cont" width="60%">copies a text string to the Windows clipboard.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="pastefromclipboard.html">PasteFromClipboard</a></td>
-  <td class="cont" width="60%">used to get data from the Windows clipboard.</td>
-</tr>
+  <td class="cont" width="60%">used to get data from the Windows clipboard.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="farkeytoname.html">FarKeyToName</a></td>
-  <td class="cont" width="60%">used to convert an internal FAR key code to a string.</td>
-</tr>
+  <td class="cont" width="60%">used to convert an internal FAR key code to a string.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="farnametokey.html">FarNameToKey</a></td>
-  <td class="cont" width="60%">used to convert a literal key name to an internal FAR key code.</td>
-</tr>
+  <td class="cont" width="60%">used to convert a literal key name to an internal FAR key code.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="farinputrecordtokey.html">FarInputRecordToKey</a></td>
-  <td class="cont" width="60%">used to convert a key code from an <a href="../winapi/input_record.html">INPUT_RECORD</a> structure to an internal FAR key code.</td>
-</tr>
+  <td class="cont" width="60%">used to convert a key code from an <a href="../winapi/input_record.html">INPUT_RECORD</a> structure to an internal FAR key code.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="xlat.html">XLat</a></td>
-  <td class="cont" width="60%">used to transliterate a string portion from one character set (for example Russian) to another character set (for example Latin).</td>
-</tr>
+  <td class="cont" width="60%">used to transliterate a string portion from one character set (for example Russian) to another character set (for example Latin).</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="getfileowner.html">GetFileOwner</a></td>
-  <td class="cont" width="60%">used to determine the owner of the given file.</td>
-</tr>
+  <td class="cont" width="60%">used to determine the owner of the given file.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="getnumberoflinks.html">GetNumberOfLinks</a></td>
-  <td class="cont" width="60%">returns the number of <a href="../dict.html#hardlinks">hard links</a> to the specified file.</td>
-</tr>
+  <td class="cont" width="60%">returns the number of <a href="../dict.html#hardlinks">hard links</a> to the specified file.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="farrecursivesearch.html">FarRecursiveSearch</a></td>
-  <td class="cont" width="60%">used to find a file in a directory tree with name matching the given mask.</td>
-</tr>
+  <td class="cont" width="60%">used to find a file in a directory tree with name matching the given mask.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="mktemp.html">MkTemp</a></td>
-  <td class="cont" width="60%">used to create a temporary file name with the path based on a specified template.</td>
-</tr>
+  <td class="cont" width="60%">used to create a temporary file name with the path based on a specified template.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="deletebuffer.html">DeleteBuffer</a></td>
-  <td class="cont" width="60%">used to free an allocated buffer returned by the <dfn>PasteFromClipboard</dfn> function.</td>
-</tr>
+  <td class="cont" width="60%">used to free an allocated buffer returned by the <dfn>PasteFromClipboard</dfn> function.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="processname.html">ProcessName</a></td>
-  <td class="cont" width="60%">allows to perform various actions on a file name: compare with a mask, with a list of masks or to generate new file name using a mask.</td>
-</tr>
+  <td class="cont" width="60%">allows to perform various actions on a file name: compare with a mask, with a list of masks or to generate new file name using a mask.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="mklink.html">MkLink</a></td>
-  <td class="cont" width="60%">supports creating hard and symbolic links and mounting local drives to the file system.</td>
-</tr>
+  <td class="cont" width="60%">supports creating hard and symbolic links and mounting local drives to the file system.</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="convertnametoreal.html">ConvertNameToReal</a></td>
-  <td class="cont" width="60%">converts a relative name of a file object to its full pathname and expands symbolic links (reparse points).</td>
-</tr>
+  <td class="cont" width="60%">converts a relative name of a file object to its full pathname and expands symbolic links (reparse points).</td></tr>
+
   <tr class="cont"><td class="cont" width="40%"><a href="getreparsepointinfo.html">GetReparsePointInfo</a></td>
-  <td class="cont" width="60%">allows to determine the target (path to the target drive and directory) of a symbolic link (reparse point).</td>
-</tr>
+  <td class="cont" width="60%">allows to determine the target (path to the target drive and directory) of a symbolic link (reparse point).</td></tr>
+
 </table>
 
 <h3>Remarks</h3>
