@@ -41,8 +41,8 @@ const char *GUID2STR (const GUID &uid)
 
 	StringFromIID (uid, &string);
 
-	int length = wcslen (string)+1;
-	char *result = StrCreate (length);
+	//int length = wcslen (string)+1;
+	//char *result = StrCreate (length);
 
 	memset (&szGUID, 0, sizeof (szGUID));
 
@@ -523,5 +523,3 @@ int WcxArchive::Callback (int nMsg, int nParam1, int nParam2)
 
 	return FALSE;
 }
-
-

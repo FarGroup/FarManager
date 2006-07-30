@@ -109,7 +109,7 @@ int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
+	//SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
 
 	pGAF->uid = CLSID_Format7z;
 

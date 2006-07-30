@@ -41,8 +41,8 @@ const char *GUID2STR (const GUID &uid)
 
 	StringFromIID (uid, &string);
 
-	int length = wcslen (string)+1;
-	char *result = StrCreate (length);
+	//int length = wcslen (string)+1;
+	//char *result = StrCreate (length);
 
 	memset (&szGUID, 0, sizeof (szGUID));
 
@@ -257,7 +257,7 @@ int WINAPI MaModules::LoadFmtModules (const WIN32_FIND_DATA *pFindData,
 			}
 		}
 	}
-	
+
 	pModules->m_Modules.Add (pModule);
 
 	return TRUE;
@@ -372,4 +372,3 @@ void __stdcall MaArchive::pGetArchiveType (GUID *puid)
 {
 	GetGUIDFromModule (m_pModule, m_nArcType, puid);
 }
-

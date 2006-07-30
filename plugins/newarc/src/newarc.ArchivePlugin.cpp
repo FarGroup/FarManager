@@ -211,7 +211,7 @@ const char * __stdcall ArchivePlugin::pGetMsg (
 const ArchiveFormatInfo* ArchivePlugin::GetArchiveFormatInfo (const GUID &uid)
 {
 	for (int i = 0; i < m_ArchivePluginInfo.nFormats; i++)
-		if ( m_ArchivePluginInfo.pFormatInfo[i].uid == uid ) 
+		if ( m_ArchivePluginInfo.pFormatInfo[i].uid == uid )
 			return &m_ArchivePluginInfo.pFormatInfo[i];
 
 	return NULL;

@@ -114,7 +114,7 @@ int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
-	RarArchive *pArchive = (RarArchive*)pGAF->hArchive;
+	//RarArchive *pArchive = (RarArchive*)pGAF->hArchive;
 
 	pGAF->uid = CLSID_FormatRAR;
 

@@ -31,8 +31,8 @@ const char *GUID2STR (const GUID &uid)
 
 	StringFromIID (uid, &string);
 
-	int length = wcslen (string)+1;
-	char *result = StrCreate (length);
+	//int length = wcslen (string)+1;
+	//char *result = StrCreate (length);
 
 	memset (&szGUID, 0, sizeof (szGUID));
 
@@ -443,8 +443,8 @@ void dlgCommandLinesAndParams (
 
 void mnuCommandLinesAndParams ()
 {
-	ArchivePlugin *pPlugin;
-	int nItem;
+	//ArchivePlugin *pPlugin;
+	//int nItem;
 
 	int nCount = 0;
 
