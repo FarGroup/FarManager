@@ -435,7 +435,7 @@ bool __stdcall WcxArchive::pExtract (
 	bool bFound;
 
 	char *lpDestName = StrCreate (260);
-	char *lpTemp = StrCreate (260);
+	char *lpCurrentFileName = StrCreate (260);
 
 	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 
@@ -448,7 +448,7 @@ bool __stdcall WcxArchive::pExtract (
 
 		if ( nResult == 0 )
 		{
-			CharToOem (HeaderData.FileName, lpTemp);
+			CharToOem (HeaderData.FileName, lpCurrentFileName);
 
 			bFound = false;
 
@@ -456,13 +456,13 @@ bool __stdcall WcxArchive::pExtract (
 
 			for (; i < nItemsNumber; i++)
 			{
-				if ( !strcmp (pItems[i].FindData.cFileName, lpTemp) )
+				if ( !strcmp (pItems[i].FindData.cFileName, lpCurrentFileName) )
 				{
 					OemToChar (lpDestPath, lpDestName);
 
 					FSF.AddEndSlash (lpDestName);
 
-					char *lpName = HeaderData.FileName;
+					char *lpName = lpCurrentFileName;//HeaderData.FileName;
 
 					if ( *lpCurrentFolder /*&& !strncmp (
 							lpName,
@@ -511,7 +511,7 @@ bool __stdcall WcxArchive::pExtract (
 l_1:
 
 	StrFree (lpDestName);
-	StrFree (lpTemp);
+	StrFree (lpCurrentFileName);
 
 	return nProcessed!=0;
 }

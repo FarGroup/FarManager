@@ -831,6 +831,8 @@ void GetArchiveItemsToProcess (
 	*pItemsToProcess = pResult;
 
 	pOS->uTotalFiles = nCount;
+
+	//__debug ("total - %I64u", pOS->uTotalSize);
 }
 
 

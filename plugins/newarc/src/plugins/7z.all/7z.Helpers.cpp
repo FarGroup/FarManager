@@ -313,6 +313,8 @@ CArchiveExtractCallback::CArchiveExtractCallback (
 	m_nLastProcessed = (unsigned __int64)-1;
 
 	m_pGetTextPassword = NULL;
+
+	m_nState = -1;
 }
 
 

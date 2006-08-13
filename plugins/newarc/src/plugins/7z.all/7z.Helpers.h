@@ -104,6 +104,8 @@ public:
 
 	CCryptoGetTextPassword *m_pGetTextPassword;
 
+	int m_nState; //0 - skip, 1 - extract
+
 public:
 
 	CArchiveExtractCallback (SevenZipArchive *pArchive, ArchiveItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);

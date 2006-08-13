@@ -15,6 +15,10 @@ AY - Alex Yaroslavsky
 WI - WARP ItSelf
 TS - Tim Sobolev
 
+[13/08/2006]
+
+[-] Не доставались русские имена через wcx.module. [wcx] [WI]
+
 [30/07/2006]
 
 [=] Сборка GCC и ворнинги. [AY]
