@@ -5,7 +5,7 @@ macro.cpp
 
 */
 
-/* Revision: 1.186 07.07.2006 $ */
+/* Revision: 1.187 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1340,7 +1340,15 @@ static TVar fattrFunc(TVar *param)
 {
   wchar_t *Str = (wchar_t *)param[0].toString();
   if(PathMayBeAbsoluteW(Str))
-    return TVar((__int64)(long)GetFileAttributesW(Str));
+  {
+    UINT  PrevErrMode;
+    DWORD dwAttr;
+    // дабы не выскакивал гуевый диалог, если диск эжектед.
+    PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+    dwAttr=GetFileAttributesW(Str);
+    SetErrorMode(PrevErrMode);
+    return TVar((__int64)dwAttr);
+  }
   else
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;

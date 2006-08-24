@@ -5,7 +5,7 @@ setattr.cpp
 
 */
 
-/* Revision: 1.81 06.06.2006 $ */
+/* Revision: 1.82 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -77,6 +77,7 @@ struct SetAttrDlgParam{
   DWORD OriginalCBFlag[16];
   int OState12, OState8, OState9;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
+  string strFSysName;
 };
 
 static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
@@ -510,6 +511,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if(!LocalStricmpW(strFSysName,L"NTFS"))
         AttrDlg[SETATTR_INDEXED].Flags&=~DIF_DISABLE;
     }
+    DlgParam.strFSysName=strFSysName;
   }
 
   {
@@ -819,9 +821,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             NewAttr|=FILE_ATTRIBUTE_TEMPORARY;
         */
 
-        SetWriteTime=ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
-        SetCreationTime=ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
-        SetLastAccessTime=ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
+        SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
+        SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
+        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
   //_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
           SetWriteTimeRetCode=ESetFileTimeW(strSelName,
@@ -920,12 +922,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(RetCode == 2)
           continue;
 
-        SetWriteTime=ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
-        SetCreationTime=ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
-        SetLastAccessTime=ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
+        SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
+        SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
+        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          RetCode=ESetFileTimeW(strSelName,
+          if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
+            RetCode=1;
+          else
+            RetCode=ESetFileTimeW(strSelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
@@ -987,12 +992,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             if(RetCode == 2)
               continue;
 
-            SetWriteTime=ReadFileTime(0,strFullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
-            SetCreationTime=ReadFileTime(1,strFullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
-            SetLastAccessTime=ReadFileTime(2,strFullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
+            SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
+            SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
+            SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              RetCode=ESetFileTimeW(strFullName,SetWriteTime ? &LastWriteTime:NULL,
+              if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
+                RetCode=1;
+              else
+                RetCode=ESetFileTimeW(strFullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
                            FindData.dwFileAttributes);
@@ -1157,7 +1165,7 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
   if(DigitCount)
-    return (*(__int64*)&FileTime - *(__int64*)&OriginalFileTime) == 0?FALSE:TRUE;
+    return (CompareFileTime(FileTime,OriginalFileTime) == 0)?FALSE:TRUE;
   return TRUE;
 }
 

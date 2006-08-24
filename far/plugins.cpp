@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.185 07.07.2006 $ */
+/* Revision: 1.186 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -710,6 +710,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.sprintf=swprintf;
+    StandardFunctions.snprintf=_snwprintf;
     StandardFunctions.sscanf=swscanf;
     StandardFunctions.qsort=FarQsort;
     StandardFunctions.qsortex=FarQsortEx;

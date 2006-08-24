@@ -5,7 +5,7 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.18 04.06.2006 $ */
+/* Revision: 1.19 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -195,15 +195,19 @@ int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *Creation
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     int SetTime;
+    DWORD LastError=0;
     if (hFile==INVALID_HANDLE_VALUE)
+    {
       SetTime=FALSE;
+      LastError=GetLastError();
+    }
     else
     {
       SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
+      LastError=GetLastError();
       CloseHandle(hFile);
     }
 
-    DWORD LastError=GetLastError();
     if (FileAttr & FA_RDONLY)
       SetFileAttributesW(Name,FileAttr);
     SetLastError(LastError);

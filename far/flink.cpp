@@ -5,7 +5,7 @@ flink.cpp
 
 */
 
-/* Revision: 1.61 07.07.2006 $ */
+/* Revision: 1.62 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -685,6 +685,7 @@ BOOL GetSubstNameW (int DriveType,const wchar_t *LocalName, string &strSubstName
         if(Name[1] == L':' && Name[2] == L'\\')
         {
           strSubstName = Name;
+          //FAR_OemToChar(SubstName,SubstName); // Mantis#224 ???????????????????????
           return TRUE;
         }
       }

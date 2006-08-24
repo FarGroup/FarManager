@@ -5,7 +5,7 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.22 22.04.2006 $ */
+/* Revision: 1.23 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -43,9 +43,14 @@ DWORD RawConvertShortNameToLongNameW(const wchar_t *src, string &strDest)
 
   DWORD SrcSize=wcslen(src);
 
-  if(SrcSize == 3 && src[1] == L':' && (src[2] == L'\\' || src[2] == L'/'))
+  string strBuffSrc;
+  int nLength = GetFullPathNameW (src, 0, NULL, NULL)+1;
+  wchar_t *lpwszBuffSrc = strBuffSrc.GetBuffer (nLength);
+  GetFullPathNameW (src, nLength, lpwszBuffSrc, NULL);
+
+  if(SrcSize == 3 && lpwszBuffSrc[1] == L':' && (lpwszBuffSrc[2] == L'\\' || lpwszBuffSrc[2] == L'/'))
   {
-    strDest = src;
+    strDest = strBuffSrc;
     strDest.Upper ();
     return strDest.GetLength();
   }
@@ -59,7 +64,7 @@ DWORD RawConvertShortNameToLongNameW(const wchar_t *src, string &strDest)
 
   while(SrcBuf)
   {
-     wcscpy(SrcBuf, src);
+     wcscpy(SrcBuf, lpwszBuffSrc);
      Src=SrcBuf;
 
      WIN32_FIND_DATAW wfd;
@@ -101,7 +106,7 @@ DWORD RawConvertShortNameToLongNameW(const wchar_t *src, string &strDest)
          ++Dots;
        else
        {
-          strDest = src;
+          strDest = strBuffSrc;
           if(SrcBuf) xf_free(SrcBuf);
           return strDest.GetLength();
        }

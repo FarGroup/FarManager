@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.203 07.07.2006 $ */
+/* Revision: 1.204 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -156,6 +156,7 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
       int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr);
       lpwszCurDir = strCurDir.GetBuffer (nSize+1);
       GetFullPathNameW(NewDir,nSize+1,lpwszCurDir,&ptr);
+      AddEndSlashW(strCurDir); //???????????????
       strCurDir.ReleaseBuffer ();
 
       if(CheckFolderW((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
@@ -257,7 +258,7 @@ void ConvertDateW (const FILETIME &ft,string &strDateText, string &strTimeText,i
   FileTimeToLocalFileTime(&ft,&ct);
   FileTimeToSystemTime(&ct,&st);
 
-  if ( !strTimeText.IsEmpty() )
+  //if ( !strTimeText.IsEmpty() )
   {
     const wchar_t *Letter=L"";
     if (TimeLength==6)
@@ -279,7 +280,7 @@ void ConvertDateW (const FILETIME &ft,string &strDateText, string &strTimeText,i
     }
   }
 
-  if ( !strDateText.IsEmpty() )
+  //if ( !strDateText.IsEmpty() )
   {
     int Year=st.wYear;
     if (!FullYear)
@@ -757,7 +758,7 @@ wchar_t* GetUnicodeLanguageString (int nID)
 
 BOOL GetDiskSizeW (const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
-typedef BOOL (WINAPI *GETDISKFREESPACEEXW)(
+  typedef BOOL (WINAPI *GETDISKFREESPACEEXW)(
     const wchar_t *lpwszDirectoryName,
     PULARGE_INTEGER lpFreeBytesAvailableToCaller,
     PULARGE_INTEGER lpTotalNumberOfBytes,

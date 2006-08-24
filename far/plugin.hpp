@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.270 06.06.2006 $ */
+/* Revision: 1.271 25.08.2006 $ */
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
@@ -1470,6 +1470,7 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
 
 // <C&C++>
 typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
+typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
 typedef int     (WINAPIV *FARSTDSSCANF)(const wchar_t *Buffer, const wchar_t *Format,...);
 // </C&C++>
 typedef void    (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
@@ -1573,8 +1574,11 @@ typedef struct FarStandardFunctions
   FARSTDQSORT                qsort;
   FARSTDBSEARCH              bsearch;
   FARSTDQSORTEX              qsortex;
+  // <C&C++>
+  FARSTDSNPRINTF             snprintf;
+  // </C&C++>
 
-  DWORD                      Reserved[9];
+  DWORD                      Reserved[8];
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;
