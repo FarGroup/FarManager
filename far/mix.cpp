@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.184 12.07.2006 $ */
+/* Revision: 1.185 25.08.2006 $ */
 
 /*
 Modify:
+  25.08.2006 SVS
+    ! уточнение FarChDir() (Mantis#190)
   12.07.2006 SVS
     ! kill class int64
   05.07.2006 IS
@@ -688,12 +690,13 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
         char *ptr;
         char FullDir[sizeof(CurDir)];
         GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
+        AddEndSlash(FullDir);
         PrepareDiskPath(FullDir,sizeof(FullDir)-1);
 
         DWORD att1 = GetFileAttributes(NewDir);
         DWORD att2 = GetFileAttributes(FullDir);
 
-        if (att1 != att2)
+        if (att1 != att2 && strcmp(NewDir,".."))
           rc=SetCurrentDirectory(NewDir);
         else
           rc=SetCurrentDirectory(FullDir);
@@ -1275,7 +1278,7 @@ char* FarMSG(int MsgID)
 
 BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalFree,unsigned __int64 *UserFree)
 {
-typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
+  typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
     LPCTSTR lpDirectoryName,
     PULARGE_INTEGER lpFreeBytesAvailableToCaller,
     PULARGE_INTEGER lpTotalNumberOfBytes,

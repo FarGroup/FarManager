@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.71 28.02.2006 $ */
+/* Revision: 1.72 26.07.2006 $ */
 
 /*
 Modify:
+  26.07.2006 SVS
+    ! на FAT?? не ставим дату/врем€, если Ё“ќ каталог.
+    ! считываем параметры даты/времени, только если значение изменилось.
   28.02.2006 SVS
     - Ќеверна€ работа...
       1) пометить "encrypted", пометить "process subfolders" - работает
@@ -274,6 +277,7 @@ struct SetAttrDlgParam{
   DWORD OriginalCBFlag[16];
   int OState12, OState8, OState9;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
+  char FSysName[NM];
 };
 
 static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
@@ -720,8 +724,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     //char lpRootPathName[NM];
     //GetCurrentDirectory(sizeof(lpRootPathName),lpRootPathName);
     //GetPathRoot(lpRootPathName,lpRootPathName);
-    char FSysName[NM];
-    if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,FSysName,sizeof(FSysName)))
+    if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,DlgParam.FSysName,sizeof(DlgParam.FSysName)))
     {
       if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
@@ -729,8 +732,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
-      if(!strcmp(FSysName,"NTFS"))
+      if(!strcmp(DlgParam.FSysName,"NTFS"))
         AttrDlg[SETATTR_INDEXED].Flags&=~DIF_DISABLE;
+
     }
   }
 
@@ -1040,9 +1044,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             NewAttr|=FILE_ATTRIBUTE_TEMPORARY;
         */
 
-        SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
-        SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
-        SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
+
+        SetWriteTime=DlgParam.OLastWriteTime && ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
+        SetCreationTime=DlgParam.OCreationTime && ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
+        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
   //_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
           SetWriteTimeRetCode=ESetFileTime(SelName,
@@ -1141,12 +1146,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(RetCode == 2)
           continue;
 
-        SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
-        SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
-        SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
+        SetWriteTime=DlgParam.OLastWriteTime && ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
+        SetCreationTime=DlgParam.OCreationTime && ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
+        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          RetCode=ESetFileTime(SelName,
+          if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
+            RetCode=1;
+          else
+            RetCode=ESetFileTime(SelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
@@ -1208,12 +1216,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             if(RetCode == 2)
               continue;
 
-            SetWriteTime=ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
-            SetCreationTime=ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
-            SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
+            SetWriteTime=DlgParam.OLastWriteTime && ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
+            SetCreationTime=DlgParam.OCreationTime && ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
+            SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              RetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
+              if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
+                RetCode=1;
+              else
+                RetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
                            FindData.dwFileAttributes);
@@ -1378,7 +1389,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
   if(DigitCount)
-    return (*(__int64*)&FileTime - *(__int64*)&OriginalFileTime) == 0?FALSE:TRUE;
+    return (CompareFileTime(FileTime,OriginalFileTime) == 0)?FALSE:TRUE;
   return TRUE;
 }
 

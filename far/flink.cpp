@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.50 07.07.2006 $ */
+/* Revision: 1.51 24.07.2006 $ */
 
 /*
 Modify:
+  24.07.2006 SVS
+    - Mantis#224 - В масдае SUBST...
   07.07.2006 IS
     ! косметика в коде
   05.07.2006 IS
@@ -876,7 +878,10 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
         if(Name[1] == ':' && Name[2] == '\\')
         {
           if(SubstName)
+          {
             xstrncpy(SubstName,Name,SubstSize-1);
+            FAR_OemToChar(SubstName,SubstName); // Mantis#224
+          }
           return TRUE;
         }
       }

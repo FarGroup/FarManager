@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.14 04.06.2006 $ */
+/* Revision: 1.15 24.07.2006 $ */
 
 /*
 Modify:
+  24.07.2006 SVS
+    ! уточнение позиции Ћаст≈ррора
   04.06.2006 SVS
     ! ESetFileEncryption - доп.параметр ("исполнить тихо")
   05.10.2005 SVS
@@ -266,15 +268,20 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     int SetTime;
+    DWORD LastError=0;
     if (hFile==INVALID_HANDLE_VALUE)
+    {
       SetTime=FALSE;
+      LastError=GetLastError();
+    }
     else
     {
       SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
+      LastError=GetLastError();
+
       CloseHandle(hFile);
     }
 
-    DWORD LastError=GetLastError();
     if (FileAttr & FA_RDONLY)
       SetFileAttributes(Name,FileAttr);
     SetLastError(LastError);

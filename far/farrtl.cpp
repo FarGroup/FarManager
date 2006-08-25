@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.24 12.03.2006 $ */
+/* Revision: 1.25 24.07.2006 $ */
 
 /*
 Modify:
+  24.07.2006 SVS
+    + FarSnprintf()
   12.03.2006 SVS
     ! _strtoi64 кроме борманда так же компилим в дебажной MSVC.
     ! Борьба с Debug.
@@ -366,8 +368,23 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...)
   if(buffer && format)
   {
     va_list argptr;
+
+    *buffer=0;
     va_start(argptr,format);
     ret=vsprintf(buffer,format,argptr);
+    va_end(argptr);
+  }
+  return ret;
+}
+
+int WINAPIV FarSnprintf(char *buffer,size_t __nsize,const char *format,...)
+{
+  int ret=0;
+  if(buffer && format)
+  {
+    va_list argptr;
+    va_start(argptr,format);
+    ret = vsnprintf(buffer,__nsize,format,argptr);
     va_end(argptr);
   }
   return ret;

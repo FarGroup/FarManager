@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.166 05.07.2006 $ */
+/* Revision: 1.167 24.07.2006 $ */
 
 /*
 Modify:
+  24.07.2006 SVS
+    + FSF.snprintf()
   05.07.2006 IS
     - warnings
   06.05.2006 SVS
@@ -1096,6 +1098,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.sprintf=FarSprintf;
+    StandardFunctions.snprintf=FarSnprintf;
 #ifndef FAR_MSVCRT
     StandardFunctions.sscanf=FarSscanf;
 #else
@@ -1116,7 +1119,6 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
 
     StandardFunctions.bsearch=FarBsearch;
 
-    StandardFunctions.SetFileApisTo=SetFileApisTo;
     /* $ 28.08.2000 SVS
        + Функции работы с...
     */

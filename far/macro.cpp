@@ -1878,7 +1878,15 @@ static TVar fattrFunc(TVar *param)
 {
   char *Str = (char *)param[0].toString();
   if(PathMayBeAbsolute(Str))
-    return TVar((__int64)(long)GetFileAttributes(Str));
+  {
+    UINT  PrevErrMode;
+    DWORD dwAttr;
+    // дабы не выскакивал гуевый диалог, если диск эжектед.
+    PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+    dwAttr=GetFileAttributes(Str);
+    SetErrorMode(PrevErrMode);
+    return TVar((__int64)dwAttr);
+  }
   else
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;

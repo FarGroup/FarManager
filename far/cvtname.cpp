@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.15 20.02.2006 $ */
+/* Revision: 1.16 24.07.2006 $ */
 
 /*
 Modify:
+  24.07.2006 SVS
+    ! уточнение RawConvertShortNameToLongName()
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   05.12.2005 AY
@@ -95,12 +97,15 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
      return 1;
   }
 
-  DWORD SrcSize=strlen(src);
+  char BuffSrc[2048];
+  char *NamePtr;
+  GetFullPathName(src,sizeof(BuffSrc)-1,BuffSrc,&NamePtr);
+  DWORD SrcSize=strlen(BuffSrc);
 
-  if(SrcSize == 3 && src[1] == ':' && (src[2] == '\\' || src[2] == '/'))
+  if(SrcSize == 3 && BuffSrc[1] == ':' && (BuffSrc[2] == '\\' || BuffSrc[2] == '/'))
   {
     SrcSize=Min((DWORD)SrcSize,(DWORD)maxsize);
-    memmove(dest,src,SrcSize);
+    memmove(dest,BuffSrc,SrcSize);
     dest[SrcSize]=0;
     *dest=toupper(*dest);
     return SrcSize;
@@ -115,7 +120,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 
   while(SrcBuf)
   {
-     strcpy(SrcBuf, src);
+     strcpy(SrcBuf, BuffSrc);
      Src=SrcBuf;
 
      WIN32_FIND_DATA wfd;
@@ -158,7 +163,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        else
        {
           SrcSize=Min((DWORD)SrcSize,(DWORD)maxsize);
-          memmove(dest,src,SrcSize);
+          memmove(dest,BuffSrc,SrcSize);
           dest[SrcSize]=0;
           if(SrcBuf) xf_free(SrcBuf);
           return SrcSize;

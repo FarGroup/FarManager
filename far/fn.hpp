@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.248 12.07.2006 $ */
+/* Revision: 1.249 24.07.2006 $ */
 
 /*
 Modify:
+  24.07.2006 SVS
+    + FarSnprintf()
   12.07.2006 SVS
     ! kill class int64
     ! FileSizeToStr() вместо двух параметров DWORD`ов имеет один __int64
@@ -1229,6 +1231,7 @@ int WINAPI FarAtoi(const char *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
 int WINAPIV FarSprintf(char *buffer,const char *format,...);
+int WINAPIV FarSnprintf(char *buffer,size_t sizebuf,const char *format,...);
 #ifndef FAR_MSVCRT
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 #endif
