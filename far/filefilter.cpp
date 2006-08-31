@@ -5,7 +5,7 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.17 06.06.2006 $ */
+/* Revision: 1.18 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -16,7 +16,7 @@ filefilter.cpp
 #include "dialog.hpp"
 #include "global.hpp"
 
-static DWORD CompEnabled,EncrEnabled,IsNTFS;
+static DWORD CompEnabled,EncrEnabled,IsNTFS,ReparsePointEnadled;
 static DWORD SizeType,DateType;
 
 // Запрет на использование атрибута Directory при фильтровании
@@ -72,7 +72,7 @@ FileFilter::FileFilter(int DisableDirAttr):
   xwcsncpy(TableItemDate[1].Text,UMSG(MFileFilterCreated),(sizeof(TableItemDate[1].Text)-1)/sizeof (wchar_t));
   xwcsncpy(TableItemDate[2].Text,UMSG(MFileFilterOpened),(sizeof(TableItemDate[2].Text)-1)/sizeof (wchar_t));
 
-  CompEnabled=EncrEnabled=IsNTFS=FALSE;
+  CompEnabled=EncrEnabled=IsNTFS=ReparsePointEnadled=FALSE;
   // Том поддерживает компрессию и шифрацию?
   unsigned long FSFlags=0;
   string strFSysName;
@@ -80,6 +80,9 @@ FileFilter::FileFilter(int DisableDirAttr):
   {
     if (FSFlags & FS_FILE_COMPRESSION)
       CompEnabled=TRUE;
+
+    if (FSFlags & FILE_SUPPORTS_REPARSE_POINTS)
+      ReparsePointEnadled=TRUE;
 
     if ((IsCryptFileASupport) && (FSFlags & FS_FILE_ENCRYPTION))
       EncrEnabled=TRUE;
@@ -165,6 +168,7 @@ enum enumFileFilterConfigure {
     ID_FF_NOTINDEXED,
     ID_FF_SPARSE,
     ID_FF_TEMP,
+    ID_FF_REPARSEPOINT,
 
     ID_FF_SEPARATOR4,
 
@@ -236,7 +240,7 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
            Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
            случае это будет логичнее, т.с. дефолтное значение
         */
-        for(int I=ID_FF_READONLY; I <= ID_FF_TEMP; ++I)
+        for(int I=ID_FF_READONLY; I <= ID_FF_REPARSEPOINT; ++I)
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
 
         // 6, 13 - позиции в списке
@@ -339,12 +343,13 @@ void FileFilter::Configure()
   /* 30 */DI_CHECKBOX,27,18,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrNI,
   /* 31 */DI_CHECKBOX,47,15,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrSparse,
   /* 32 */DI_CHECKBOX,47,16,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrT,
+  /* 33 */DI_CHECKBOX,47,17,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrReparse,
 
-  /* 33 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
+  /* 34 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
 
-  /* 34 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFileFilterOk,
-  /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterReset,
-  /* 36 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFileFilterCancel,
+  /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFileFilterOk,
+  /* 36 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterReset,
+  /* 37 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFileFilterCancel,
   };
 
   MakeDialogItemsEx(FilterDlgData,FilterDlg);
@@ -402,10 +407,11 @@ void FileFilter::Configure()
   FilterDlg[ID_FF_NOTINDEXED].Selected=(AttrSet & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?1:AttrClear & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?0:2);
   FilterDlg[ID_FF_SPARSE].Selected=(AttrSet & FILE_ATTRIBUTE_SPARSE_FILE?1:AttrClear & FILE_ATTRIBUTE_SPARSE_FILE?0:2);
   FilterDlg[ID_FF_TEMP].Selected=(AttrSet & FILE_ATTRIBUTE_TEMPORARY?1:AttrClear & FILE_ATTRIBUTE_TEMPORARY?0:2);
+  FilterDlg[ID_FF_REPARSEPOINT].Selected=(AttrSet & FILE_ATTRIBUTE_REPARSE_POINT?1:AttrClear & FILE_ATTRIBUTE_REPARSE_POINT?0:2);
 
   if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
   {
-    for(I=ID_FF_READONLY; I <= ID_FF_TEMP; ++I)
+    for(I=ID_FF_READONLY; I <= ID_FF_REPARSEPOINT; ++I)
       FilterDlg[I].Flags|=DIF_DISABLE;
   }
   if (CompEnabled==FALSE)
@@ -426,6 +432,11 @@ void FileFilter::Configure()
     FilterDlg[ID_FF_SPARSE].Selected=2;
     FilterDlg[ID_FF_TEMP].Flags|=DIF_DISABLE;
     FilterDlg[ID_FF_TEMP].Selected=2;
+  }
+  if(!ReparsePointEnadled)
+  {
+    FilterDlg[ID_FF_REPARSEPOINT].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_REPARSEPOINT].Selected=2;
   }
   if (DisableDir)
   {
@@ -469,6 +480,10 @@ void FileFilter::Configure()
     Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_NOTINDEXED,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_SPARSE,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_TEMP,DIF_DISABLE,0,0,DIF_DISABLE);
+  }
+  if(ReparsePointEnadled)
+  {
+    Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_REPARSEPOINT,DIF_DISABLE,0,0,DIF_DISABLE);
   }
   if (!DisableDir)
     Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -528,6 +543,7 @@ void FileFilter::Configure()
       AttrSet|=(FilterDlg[ID_FF_NOTINDEXED].Selected==1?FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:0);
       AttrSet|=(FilterDlg[ID_FF_SPARSE].Selected==1?FILE_ATTRIBUTE_SPARSE_FILE:0);
       AttrSet|=(FilterDlg[ID_FF_TEMP].Selected==1?FILE_ATTRIBUTE_TEMPORARY:0);
+      AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
       AttrClear|=(FilterDlg[ID_FF_READONLY].Selected==0?FILE_ATTRIBUTE_READONLY:0);
       AttrClear|=(FilterDlg[ID_FF_ARCHIVE].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
       AttrClear|=(FilterDlg[ID_FF_HIDDEN].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
@@ -538,6 +554,7 @@ void FileFilter::Configure()
       AttrClear|=(FilterDlg[ID_FF_NOTINDEXED].Selected==0?FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:0);
       AttrClear|=(FilterDlg[ID_FF_SPARSE].Selected==0?FILE_ATTRIBUTE_SPARSE_FILE:0);
       AttrClear|=(FilterDlg[ID_FF_TEMP].Selected==0?FILE_ATTRIBUTE_TEMPORARY:0);
+      AttrClear|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==0?FILE_ATTRIBUTE_REPARSE_POINT:0);
       FF.FAttr.AttrSet=AttrSet;
       FF.FAttr.AttrClear=AttrClear;
 

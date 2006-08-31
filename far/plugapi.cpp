@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.211 12.07.2006 $ */
+/* Revision: 1.212 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -352,7 +352,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
           {
-            if(Macro.IsRecording() || Macro.IsExecuting())
+            if(Macro.IsRecording()) // || Macro.IsExecuting())
               return FALSE;
             Macro.SaveMacros();
             return TRUE;

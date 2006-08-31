@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.280 12.07.2006 $ */
+/* Revision: 1.281 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -2684,6 +2684,27 @@ int FileList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
   return -1;
 }
 
+int FileList::FindFirstW(const wchar_t *Name)
+{
+  return FindNextW(0,Name);
+}
+
+int FileList::FindNextW(int StartPos, const wchar_t *Name)
+{
+  int I;
+  struct FileListItem *CurPtr;
+
+  if((DWORD)StartPos < (DWORD)FileCount)
+    for(I=StartPos; I < FileCount; I++)
+    {
+      CurPtr = ListData[I];
+      const wchar_t *CurPtrName=CurPtr->strName;
+      if (CmpNameW(Name,CurPtrName,TRUE))
+        if (!TestParentFolderNameW(CurPtrName))
+          return I;
+    }
+  return -1;
+}
 
 
 int FileList::IsSelectedW(const wchar_t *Name)

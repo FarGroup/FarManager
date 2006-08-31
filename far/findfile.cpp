@@ -5,7 +5,7 @@ findfile.cpp
 
 */
 
-/* Revision: 1.206 12.07.2006 $ */
+/* Revision: 1.207 01.09.2006 $ */
 
 
 #include "headers.hpp"
@@ -2260,14 +2260,17 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   /* $ 05.10.2003 KM
      Отобразим в панели поиска атрибуты найденных файлов
   */
-  wchar_t AttrStr[8];
+  wchar_t AttrStr[16];
   DWORD FileAttr=FindData->dwFileAttributes;
-  AttrStr[0]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
-  AttrStr[1]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L' ';
-  AttrStr[2]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L' ';
-  AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L' ';
-  AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L' ';
-  AttrStr[5]=0;
+  AttrStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L' ';
+  AttrStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L' ';
+  AttrStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L' ';
+  AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L' ';
+  AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L' ');
+  AttrStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
+  AttrStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':' ';
+  AttrStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L' ';
+  AttrStr[8]=0;
 
   strAttr.Format (L" %s", AttrStr);
   strFileText += strAttr;

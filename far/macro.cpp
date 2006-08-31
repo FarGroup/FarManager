@@ -5,7 +5,7 @@ macro.cpp
 
 */
 
-/* Revision: 1.187 25.08.2006 $ */
+/* Revision: 1.188 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -929,6 +929,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if(_MakePath1W(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
           {
+            UnquoteExternalW(strFileName);
             DeleteEndSlashW(strFileName);
             Cond = (const wchar_t*)strFileName;
           }
@@ -1335,14 +1336,13 @@ static TVar environFunc(TVar *param)
   return TVar(L"");
 }
 
-// N=fattr(S)
-static TVar fattrFunc(TVar *param)
+static TVar _fattrFunc(int Type,TVar *param)
 {
-  wchar_t *Str = (wchar_t *)param[0].toString();
-  if(PathMayBeAbsoluteW(Str))
+  if(Type == 0) // не панели
   {
     UINT  PrevErrMode;
     DWORD dwAttr;
+    wchar_t *Str = (wchar_t *)param[0].toString();
     // дабы не выскакивал гуевый диалог, если диск эжектед.
     PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     dwAttr=GetFileAttributesW(Str);
@@ -1351,24 +1351,60 @@ static TVar fattrFunc(TVar *param)
   }
   else
   {
+    int typePanel=(int)param[0].toInteger();
+    wchar_t *Str = (wchar_t *)param[1].toString();
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+    Panel *PassivePanel=NULL;
+    if(ActivePanel!=NULL)
+      PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+    //Frame* CurFrame=FrameManager->GetCurrentFrame();
 
-    long Pos=ActivePanel->FindFileW(Str,wcspbrk(Str,L"\\/:")?FALSE:TRUE);
-    if(Pos >= 0)
+    Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+    if(SelPanel)
     {
-      int FileAttr;
-      string strFileName;
-      ActivePanel->GetFileNameW(strFileName,Pos,FileAttr);
-      return TVar((__int64)FileAttr);
+      long Pos=-1;
+
+      if(wcspbrk(Str,L"\\/:") != NULL)
+        Pos=SelPanel->FindFirstW(Str);
+      else
+        Pos=SelPanel->FindFileW(Str,wcspbrk(Str,L"\\/:")?FALSE:TRUE);
+
+      if(Pos >= 0)
+      {
+        int FileAttr;
+        string strFileName;
+        SelPanel->GetFileNameW(strFileName,Pos,FileAttr);
+        return TVar((__int64)FileAttr);
+      }
     }
   }
+
   return TVar(-1);
+}
+
+// N=fattr(S)
+static TVar fattrFunc(TVar *param)
+{
+  return _fattrFunc(0,param);
 }
 
 // N=fexist(S)
 static TVar fexistFunc(TVar *param)
 {
-  TVar attr=fattrFunc(param);
+  TVar attr=_fattrFunc(0,param);
+  return TVar(attr.toInteger() != -1 ? 1 : 0);
+}
+
+// N=panel.fattr(S)
+static TVar panelfattrFunc(TVar *param)
+{
+  return _fattrFunc(1,param);
+}
+
+// N=panel.fexist(S)
+static TVar panelfexistFunc(TVar *param)
+{
+  TVar attr=_fattrFunc(1,param);
   return TVar(attr.toInteger() != -1 ? 1 : 0);
 }
 
@@ -2099,6 +2135,14 @@ done:
           case MCODE_F_PANEL_SETPOS: // N=Panel.SetPos(panelType,fileName)
             ePos-=1;
             eStack[ePos] = panelsetposFunc(eStack+ePos);
+            break;
+          case MCODE_F_PANEL_FATTR:         // N=Panel.FAttr(panelType,fileMask)
+            ePos-=1;
+            eStack[ePos] = panelfattrFunc(eStack+ePos);
+            break;
+          case MCODE_F_PANEL_FEXIST:        // N=Panel.FExist(panelType,fileMask)
+            ePos-=1;
+            eStack[ePos] = panelfexistFunc(eStack+ePos);
             break;
           case MCODE_F_SLEEP: // N=Sleep(N)
             eStack[ePos] = sleepFunc(eStack+ePos);
@@ -3355,6 +3399,8 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, " N=msgbox(\"Title\",\"Text\",flags)");
   else if ( k[i] == MCODE_F_MIN )              sprint(ii, " N=min(N1,N2)");
   else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, " N=panel.SetPos(panelType,fileName)");
+  else if ( k[i] == MCODE_F_PANEL_FATTR )      sprint(ii, " N=panel.fattr(panelType,S)");
+  else if ( k[i] == MCODE_F_PANEL_FEXIST )     sprint(ii, " S=panel.fexist(panelType,S)");
   else if ( k[i] == MCODE_F_CLIP )             sprint(ii, " V=clip(N,S)");
   else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
   else if ( k[i] == MCODE_F_DLG_GETVALUE )     sprint(ii, " V=Dlg.GetValue(ID,N)");
@@ -3429,7 +3475,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     else if ( ( KeyCode = KeyNameToKey(strCurrKeyText) ) == (DWORD)-1 )
     {
       int ProcError=0;
-      if ( strCurrKeyText.At(0) == L'%' && ( LocalIsalphaW(strCurrKeyText.At(1)) || ( strCurrKeyText.At(1) == L'%' && LocalIsalphaW(strCurrKeyText.At(2)) ) ) )
+      if ( strCurrKeyText.At(0) == L'%' && ( ( LocalIsalphaW(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) || ( strCurrKeyText.At(1) == L'%' && ( LocalIsalphaW(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' ) ) ) )
       {
         BufPtr = oldBufPtr;
         while ( *BufPtr && IsSpaceW(*BufPtr) )

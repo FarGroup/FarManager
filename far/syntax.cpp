@@ -5,7 +5,7 @@ syntax.cpp
 
 */
 
-/* Revision: 1.21 07.07.2006 $ */
+/* Revision: 1.22 01.09.2006 $ */
 
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
@@ -662,6 +662,8 @@ static TMacroFunction macroFunction[]={
   {L"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
   {L"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
   {L"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
+  {L"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
+  {L"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
   {L"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
   {L"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {L"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
@@ -946,7 +948,7 @@ static TToken getToken(void)
       return currTok = tInt;
     case L'%':
       ch = getChar();
-      if ( LocalIsalphaW(ch) || ( ch == L'%' ) && LocalIsalphaW(*sSrcString) )
+      if ( (LocalIsalphaW(ch) || ch == L'_') || ( ch == L'%'  && (LocalIsalphaW(*sSrcString) || *sSrcString == L'_')))
       {
         getVarName(ch);
         putBack(ch);
@@ -956,7 +958,7 @@ static TToken getToken(void)
         keyMacroParseError(err_Var_Expected,L""); // BUG nameString
       break;
     default:
-      if ( LocalIsalphaW(ch) )
+      if ( LocalIsalphaW(ch) ) // || ch == L'_' ????
       {
         getFarName(ch);
         if(ch == L' ')

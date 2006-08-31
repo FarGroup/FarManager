@@ -7,7 +7,7 @@ Tree panel
 
 */
 
-/* Revision: 1.33 06.06.2006 $ */
+/* Revision: 1.34 01.09.2006 $ */
 
 #include "panel.hpp"
 #include "UnicodeString.hpp"
@@ -94,6 +94,10 @@ class TreeList: public Panel
     int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
 
     void ProcessEnter();
+
+    virtual int FindFirstW(const wchar_t *Name);
+    virtual int FindNextW(int StartPos, const wchar_t *Name);
+
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}
     virtual int GetFileNameW(string &strName,int Pos,int &FileAttr);

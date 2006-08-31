@@ -7,7 +7,7 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.49 06.06.2006 $ */
+/* Revision: 1.50 01.09.2006 $ */
 
 #include "scrobj.hpp"
 #include "farconst.hpp"
@@ -150,6 +150,10 @@ class Panel:public ScreenObject
     virtual int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
 
     virtual int IsSelectedW(const wchar_t *Name) {return(FALSE);};
+
+    virtual int FindFirstW(const wchar_t *Name) {return -1;}
+    virtual int FindNextW(int StartPos, const wchar_t *Name) {return -1;}
+
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима
        "Помеченные файлы вперед"

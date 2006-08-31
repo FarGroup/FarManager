@@ -5,7 +5,7 @@ Tree panel
 
 */
 
-/* Revision: 1.93 07.07.2006 $ */
+/* Revision: 1.94 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1768,6 +1768,26 @@ int TreeList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
 }
 
 
+int TreeList::FindFirstW(const wchar_t *Name)
+{
+  return FindNextW(0,Name);
+}
+
+int TreeList::FindNextW(int StartPos, const wchar_t *Name)
+{
+  int I;
+  struct TreeItem *CurPtr;
+
+  if((DWORD)StartPos < (DWORD)TreeCount)
+    for( CurPtr=ListData+StartPos, I=StartPos; I < TreeCount; I++, CurPtr++ )
+    {
+      const wchar_t *CurPtrName=CurPtr->strName;
+      if (CmpNameW(Name,CurPtrName,TRUE))
+        if (!TestParentFolderNameW(CurPtrName))
+          return I;
+    }
+  return -1;
+}
 
 int TreeList::GetFileNameW(string &strName,int Pos,int &FileAttr)
 {

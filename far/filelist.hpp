@@ -7,7 +7,7 @@ filelist.hpp
 
 */
 
-/* Revision: 1.71 12.07.2006 $ */
+/* Revision: 1.72 01.09.2006 $ */
 
 #include "global.hpp"
 #include "panel.hpp"
@@ -262,6 +262,9 @@ class FileList:public Panel
 
     int IsSelected(char *Name);
     int IsSelectedW(const wchar_t *Name);
+
+    virtual int FindFirstW(const wchar_t *Name);
+    virtual int FindNextW(int StartPos, const wchar_t *Name);
 
     void ProcessHostFile();
     void UpdateViewPanel();
