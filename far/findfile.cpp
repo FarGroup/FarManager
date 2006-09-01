@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.186 11.07.2006 $ */
+/* Revision: 1.187 01.09.2006 $ */
 
 /*
 Modify:
+  01.09.2006 SVS
+    ! В результатах поиска отобразим атрибуты в том же виде, что и при выводе на панели (по аналогии с flshow.cpp)
   11.07.2006 EL
     - Убрал варнинги
   05.07.2006 IS
@@ -2782,14 +2784,17 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   /* $ 05.10.2003 KM
      Отобразим в панели поиска атрибуты найденных файлов
   */
-  char AttrStr[8];
+  char AttrStr[16];
   DWORD FileAttr=FindData->dwFileAttributes;
-  AttrStr[0]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
-  AttrStr[1]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
-  AttrStr[2]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
-  AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
-  AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
-  AttrStr[5]=0;
+  AttrStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
+  AttrStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
+  AttrStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
+  AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
+  AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':' ');
+  AttrStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
+  AttrStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':' ';
+  AttrStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':' ';
+  AttrStr[8]=0;
 
   sprintf(Attr," %s",AttrStr);
   strcat(FileText,Attr);

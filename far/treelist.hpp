@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.25 09.05.2006 $ */
+/* Revision: 1.26 28.08.2006 $ */
 
 /*
 Modify:
+  28.08.2006 SVS
+    + FindFirst() и FindNext()
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -150,6 +152,10 @@ class TreeList: public Panel
     int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
     int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     void ProcessEnter();
+
+    virtual int FindFirst(const char *Name);
+    virtual int FindNext(int StartPos, const char *Name);
+
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}
     virtual int GetFileName(char *Name,int Pos,int &FileAttr);

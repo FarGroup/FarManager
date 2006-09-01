@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.39 12.07.2006 $ */
+/* Revision: 1.40 28.08.2006 $ */
 
 /*
 Modify:
+  28.08.2006 SVS
+    + FindFirst() и FindNext()
   12.07.2006 SVS
     ! kill class int64
   09.05.2006 SVS
@@ -242,6 +244,10 @@ class Panel:public ScreenObject
     virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
     virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE) {return -1;};
     virtual int IsSelected(char *Name) {return(FALSE);};
+
+    virtual int FindFirst(const char *Name) {return -1;}
+    virtual int FindNext(int StartPos, const char *Name) {return -1;}
+
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима
        "Помеченные файлы вперед"

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.56 12.07.2006 $ */
+/* Revision: 1.57 28.08.2006 $ */
 
 /*
 Modify:
+  28.08.2006 SVS
+    + FindFirst() и FindNext()
   12.07.2006 SVS
     ! kill class int64
     ! struct PrevDataItem унеслась из filelist.cpp в filelist.hpp
@@ -394,6 +396,10 @@ class FileList:public Panel
     int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
     int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     int IsSelected(char *Name);
+
+    virtual int FindFirst(const char *Name);
+    virtual int FindNext(int StartPos, const char *Name);
+
     void ProcessHostFile();
     void UpdateViewPanel();
     void CompareDir();

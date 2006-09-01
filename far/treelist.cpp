@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.75 05.07.2006 $ */
+/* Revision: 1.76 28.08.2006 $ */
 
 /*
 Modify:
+  28.08.2006 SVS
+    + FindFirst() è FindNext()
   05.07.2006 IS
     - warnings
   09.05.2006 SVS
@@ -1819,6 +1821,26 @@ int TreeList::FindFile(const char *Name,BOOL OnlyPartName)
     if (LocalStricmp(Name,CurPtrName)==0)
       return I;
   }
+  return -1;
+}
+
+int TreeList::FindFirst(const char *Name)
+{
+  return FindNext(0,Name);
+}
+
+int TreeList::FindNext(int StartPos, const char *Name)
+{
+  int I;
+  struct TreeItem *CurPtr;
+
+  if((DWORD)StartPos < (DWORD)TreeCount)
+    for( CurPtr=ListData+StartPos, I=StartPos; I < TreeCount; I++, CurPtr++ )
+    {
+      if (CmpName(Name,CurPtr->Name,TRUE))
+        if (!TestParentFolderName(CurPtr->Name))
+          return I;
+    }
   return -1;
 }
 

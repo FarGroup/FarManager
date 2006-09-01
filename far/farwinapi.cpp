@@ -5,10 +5,12 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.10 10.04.2006 $ */
+/* Revision: 1.11 28.08.2006 $ */
 
 /*
 Modify:
+  28.08.2006 SVS
+    ! уточнение GetFileWin32FindData - дабы не выскакивал гуевый диалог, если диск эжектед.
   10.04.2006 SVS
     + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
   19.06.2005 SVS
@@ -200,7 +202,11 @@ BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo)
 {
   WIN32_FIND_DATA WFD_Info;
 
+  UINT  PrevErrMode;
+  // дабы не выскакивал гуевый диалог, если диск эжектед.
+  PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
   HANDLE FindHandle=FindFirstFile(Name,&WFD_Info);
+  SetErrorMode(PrevErrMode);
   if(FindHandle!=INVALID_HANDLE_VALUE)
   {
     FindClose(FindHandle);

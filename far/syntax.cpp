@@ -5,10 +5,13 @@ syntax.cpp
 
 */
 
-/* Revision: 1.17 09.04.2006 $ */
+/* Revision: 1.18 01.09.2006 $ */
 
 /*
 Modify:
+  01.09.2006 SVS
+    - Mantis#227 - не воспринимаются имена переменных, начинающихся с подчеркивания
+    + Panel.FAttr(), Panel.FExist()
   06.04.2006 AY
     ! GCC
   04.04.2006 SVS
@@ -704,6 +707,8 @@ static TMacroFunction macroFunction[]={
   {"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
   {"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
   {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
+  {"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
+  {"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
   {"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
   {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
@@ -990,7 +995,7 @@ static TToken getToken(void)
     }
     case '%':
       ch = getChar();
-      if ( isalpha(ch) || ( ch == '%' ) && isalpha(*sSrcString) )
+      if ( (isalpha(ch) || ch == '_') || ( ch == '%'  && (isalpha(*sSrcString) || *sSrcString == '_')))
       {
         getVarName(ch);
         putBack(ch);
@@ -1000,7 +1005,7 @@ static TToken getToken(void)
         keyMacroParseError(err_Var_Expected,"");//nameString); // BUG nameString
       break;
     default:
-      if ( isalpha(ch) )
+      if ( isalpha(ch) ) //  || ch == '_' ????
       {
         getFarName(ch);
         if(ch == ' ')

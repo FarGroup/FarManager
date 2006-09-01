@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.190 11.07.2006 $ */
+/* Revision: 1.191 01.09.2006 $ */
 
 /*
 Modify:
+  01.09.2006 SVS
+    ! Пусть во время воспроизведения макроса срабатывает функция SAVE
   11.07.2006 EL
     - Убрал варнинги
   06.05.2006 SVS
@@ -848,7 +850,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
           {
-            if(Macro.IsRecording() || Macro.IsExecuting())
+            if(Macro.IsRecording())// || Macro.IsExecuting())
               return FALSE;
             Macro.SaveMacros();
             return TRUE;

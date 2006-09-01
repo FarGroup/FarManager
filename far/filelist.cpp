@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.252 12.07.2006 $ */
+/* Revision: 1.253 28.08.2006 $ */
 
 /*
 Modify:
+  28.08.2006 SVS
+    + FindFirst() и FindNext()
+    - Mantis#225 - не перемещаются помеченные файлы вперед на пассивной панели после вызова функции сравнения папок
   12.07.2006 SVS
     ! struct PrevDataItem унеслась из filelist.cpp в filelist.hpp
   03.07.2006 SVS
@@ -3374,13 +3377,32 @@ int FileList::FindFile(const char *Name,BOOL OnlyPartName)
   return -1;
 }
 
+int FileList::FindFirst(const char *Name)
+{
+  return FindNext(0,Name);
+}
+
+int FileList::FindNext(int StartPos, const char *Name)
+{
+  int I;
+  struct FileListItem *CurPtr;
+
+  if((DWORD)StartPos < (DWORD)FileCount)
+    for( CurPtr=ListData+StartPos, I=StartPos; I < FileCount; I++, CurPtr++ )
+    {
+      if (CmpName(Name,CurPtr->Name,TRUE))
+        if (!TestParentFolderName(CurPtr->Name))
+          return I;
+    }
+  return -1;
+}
+
 
 int FileList::IsSelected(char *Name)
 {
   long Pos=FindFile(Name);
   return(Pos!=-1 && (ListData[Pos].Selected || SelFileCount==0 && Pos==CurFile));
 }
-
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
 int FileList::FindPartName(char *Name,int Next,int Direct)
@@ -3437,7 +3459,6 @@ int FileList::FindPartName(char *Name,int Next,int Direct)
   }
   return(FALSE);
 }
-
 
 int FileList::GetSelCount()
 {
@@ -3944,6 +3965,10 @@ void FileList::CompareDir()
 
   if (SelectedFirst)
     SortFileList(TRUE);
+
+  // помеченные файлы вперед (Mantis#225)
+  if (Another->SelectedFirst)
+    Another->SortFileList(TRUE);
 
   Redraw();
   Another->Redraw();

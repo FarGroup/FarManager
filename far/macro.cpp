@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.168 12.07.2006 $ */
+/* Revision: 1.169 01.09.2006 $ */
 
 /*
 Modify:
+  01.09.2006 SVS
+    - Mantis#151 - [A|P]Panel.UNCPath возвращают в конце символ '\'
+    - Mantis#230 - fexist() рулит по маске
+    + Panel.FAttr(), Panel.FExist()
   12.07.2006 SVS
     ! kill class int64
   06.07.2006 SVS
@@ -1470,6 +1474,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if(_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,FileName,sizeof(FileName)-1,""))
           {
+            UnquoteExternal(FileName);
             DeleteEndSlash(FileName);
             Cond = FileName;
           }
@@ -1873,38 +1878,72 @@ static TVar environFunc(TVar *param)
   return TVar("");
 }
 
-// N=fattr(S)
-static TVar fattrFunc(TVar *param)
+static TVar _fattrFunc(int Type,TVar *param)
 {
-  char *Str = (char *)param[0].toString();
-  if(PathMayBeAbsolute(Str))
+  if(Type == 0) // не панели
   {
+    WIN32_FIND_DATA FindData;
     UINT  PrevErrMode;
-    DWORD dwAttr;
+    char *Str = (char *)param[0].toString();
     // дабы не выскакивал гуевый диалог, если диск эжектед.
     PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-    dwAttr=GetFileAttributes(Str);
+    GetFileWin32FindData(Str,&FindData);
     SetErrorMode(PrevErrMode);
-    return TVar((__int64)dwAttr);
+    return TVar((__int64)FindData.dwFileAttributes);
   }
   else
   {
+    int typePanel=(int)param[0].toInteger();
+    char *Str = (char *)param[1].toString();
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-    long Pos=ActivePanel->FindFile(Str,strpbrk(Str,"\\/:")?FALSE:TRUE);
-    if(Pos >= 0)
+    Panel *PassivePanel=NULL;
+    if(ActivePanel!=NULL)
+      PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+    //Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+    Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+    if(SelPanel)
     {
-      int FileAttr;
-      ActivePanel->GetFileName(NULL,Pos,FileAttr);
-      return TVar((__int64)FileAttr);
+      long Pos=-1;
+      if(strpbrk(Str,"*?")!=NULL)
+        Pos=SelPanel->FindFirst(Str);
+      else
+        Pos=SelPanel->FindFile(Str,strpbrk(Str,"\\/:")?FALSE:TRUE);
+      if(Pos >= 0)
+      {
+        int FileAttr;
+        SelPanel->GetFileName(NULL,Pos,FileAttr);
+        return TVar((__int64)FileAttr);
+      }
     }
   }
-  return TVar(-1);
+
+  return TVar((__int64)-1);
+}
+
+// N=fattr(S)
+static TVar fattrFunc(TVar *param)
+{
+  return _fattrFunc(0,param);
 }
 
 // N=fexist(S)
 static TVar fexistFunc(TVar *param)
 {
-  TVar attr=fattrFunc(param);
+  TVar attr=_fattrFunc(0,param);
+  return TVar(attr.toInteger() != -1 ? 1 : 0);
+}
+
+// N=panel.fattr(S)
+static TVar panelfattrFunc(TVar *param)
+{
+  return _fattrFunc(1,param);
+}
+
+// N=panel.fexist(S)
+static TVar panelfexistFunc(TVar *param)
+{
+  TVar attr=_fattrFunc(1,param);
   return TVar(attr.toInteger() != -1 ? 1 : 0);
 }
 
@@ -2650,6 +2689,14 @@ done:
           case MCODE_F_PANEL_SETPOS: // N=Panel.SetPos(panelType,fileName)
             ePos-=1;
             eStack[ePos] = panelsetposFunc(eStack+ePos);
+            break;
+          case MCODE_F_PANEL_FATTR:         // N=Panel.FAttr(panelType,fileMask)
+            ePos-=1;
+            eStack[ePos] = panelfattrFunc(eStack+ePos);
+            break;
+          case MCODE_F_PANEL_FEXIST:        // N=Panel.FExist(panelType,fileMask)
+            ePos-=1;
+            eStack[ePos] = panelfexistFunc(eStack+ePos);
             break;
           case MCODE_F_SLEEP: // N=Sleep(N)
             eStack[ePos] = sleepFunc(eStack+ePos);
@@ -3911,6 +3958,8 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_MIN )              sprint(ii, " N=min(N1,N2)");
   else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
   else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, " N=panel.SetPos(panelType,fileName)");
+  else if ( k[i] == MCODE_F_PANEL_FATTR )      sprint(ii, " N=panel.fattr(panelType,S)");
+  else if ( k[i] == MCODE_F_PANEL_FEXIST )     sprint(ii, " S=panel.fexist(panelType,S)");
   else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " S=rindex(S1,S2)");
   else if ( k[i] == MCODE_F_DLG_GETVALUE )     sprint(ii, " V=Dlg.GetValue(ID,N)");
   else if ( k[i] == MCODE_F_STRING )           sprint(ii, " S=string(V)");
@@ -3989,7 +4038,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     else if ( ( KeyCode = KeyNameToKey(CurrKeyText) ) == (DWORD)-1 )
     {
       int ProcError=0;
-      if ( *CurrKeyText == '%' && ( isalpha(CurrKeyText[1]) || ( CurrKeyText[1] == '%' && isalpha(CurrKeyText[2]) ) ) )
+      if ( *CurrKeyText == '%' && ( ( isalpha(CurrKeyText[1]) || CurrKeyText[1] == '_' ) || ( CurrKeyText[1] == '%' && ( isalpha(CurrKeyText[2]) || CurrKeyText[2]=='_' ) ) ) )
       {
         BufPtr = oldBufPtr;
         while ( *BufPtr && IsSpace(*BufPtr) )

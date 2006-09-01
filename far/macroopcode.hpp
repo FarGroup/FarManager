@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.20 04.04.2006 $ */
+/* Revision: 1.21 01.09.2006 $ */
 
 /*
 Modify:
+  01.09.2006 SVS
+    + MCODE_F_PANEL_FEXIST и MCODE_F_PANEL_FATTR
   04.04.2006 SVS
     + MCODE_F_SLEEP (N=Sleep(N)), MCODE_V_FAR_HEIGHT (Far.Height), MCODE_V_DRVSHOWPOS (Drv.ShowPos)
     + MCODE_V_DRVSHOWMODE - Drv.ShowMode - режимы отображения меню выбора дисков
@@ -167,6 +169,8 @@ enum MACRO_OP_CODE {
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
   MCODE_F_CLIP,                     // V=clip(N,S)
   MCODE_F_SLEEP,                    // Sleep(N)
+  MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
+  MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
