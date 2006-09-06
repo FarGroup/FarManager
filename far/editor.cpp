@@ -6,776 +6,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.275 12.07.2006 $ */
-
-/*
-Modify:
-  12.07.2006 SVS
-    ! kill class int64
-  04.07.2006 IS
-    - warnings
-  08.05.2006 AY
-    ! Вызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
-  06.05.2006 SVS
-    ! ProcessEditorEvent(EE_READ) вызывается в FileEditor`е
-  24.03.2006 AY
-    - Добил глюк с раскраской в неполноэкраных редакторах.
-  24.03.2006 AY
-    - Не правильное позиционирование курсора при ReverseReplace.
-  24.02.2006 AY
-    - Неправильно рисовались вертикальные блоки и раскраска в редакторах с X1!=0.
-  06.10.2005 SVS
-    - Bugz#1169 - сломали в районе 2012.
-  26.07.2005 SVS
-    - Некомпиляция дебажной версии
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  15.07.2005 AY
-    - Убрал всё связанное с USE_OLDEXPANDTABS
-    ! InitUseDecodeTable,InitTableNum,InitAnsiText переехали в global.cpp
-  05.07.2005 SVS
-    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
-  02.07.2005 AY
-    ! Открываем файлы в WIN по умолчанию.
-  02.07.2005 AY + WARP
-    ! Неверный leftpos после ECTL_INSERTTEXT+ECTL_SETPOSITION
-  21.06.2005 SKV
-    + AllowEmptySpaceAfterEof
-  24.04.2005 AY
-    ! GCC
-  29.03.2005 SVS
-    - BugZ#1237 - некоректное значение EditorInfo.BlockStartLine
-  06.01.2005 WARP
-    ! Добавки к трехпозиционному ExpandTabs
-  23.12.2004 WARP
-    ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS, MCODE_V_EDITORCURLINE, MCODE_V_EDITORCURPOS, MCODE_V_EDITORLINES
-  13.10.2004 SVS
-    - Проблемы с выделением и работой плагинов
-  07.10.2004 SVS
-    - BugZ1168 - В редакторе не работают длинные макросы
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.07.2004 SVS
-    ! Macro II
-  30.06.2004 SVS
-    + Небольшая добавка по поводу Macro II (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
-  16.06.2004 SVS
-    - BugZ#1101 - появляется лишнее выделение
-  15.06.2004 SVS
-    - BugZ#1096 - shiftins в залоченном файле - двойное выделение.
-  29.05.2004 SVS
-    - BugZ#1048 - Сдвигается влево отображение в редакторе по CtrlShiftEnd
-      Строку "CurLine->EditLine.ObjWidth=X2-X1;" нужно было ставить до
-      вызова "ProcessKey(KEY_END);"!!!
-  29.05.2004 SVS
-    - Bugz#794 - пометка блока остается при удалении текста
-  17.05.2004 SVS
-    - BugZ#1080 - Редактор. CtrlIns/CtrlC без выделения не работают
-  11.05.2004 SVS
-    ! В связи с введением макрокоманды $IClip уточним работу с
-      UsedInternalClipboard для Ctrl-P и Ctrl-M
-  02.03.2004 SVS
-    ! Уточнение Editor::SaveData()
-  24.02.2004 SVS
-    - Ctrl+End в редакторе
-  12.01.2004 IS
-   - баг: неверно "скачем по словам", когда разделители слов содержат символы
-     с кодами больше 128. Решение: для сравнения с WordDiv используем
-     IsWordDiv, а не strchr
-  14.12.2003 SVS
-    - BugZ#1002 - ESPT_SETWORDDIV не влияет на переход по словам
-  04.11.2003 SKV
-    ! shift-left shift-right теперь не оставляют пустого выделения.
-  26.10.2003 KM
-    ! Поскольку теперь GlobalSearchString может хранить строку в 16 представлении,
-      тогда перед копированием её в LastSearchStr проверим этот режим и при необходимости
-      сконвертируем в обычный строковый формат.
-  20.10.2003 SVS
-    ! переименование
-        KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
-        KEY_MACRO_CHECKEOF     -> KEY_MACRO_EOF
-    + Обработка KEY_MACRO_EMPTY и KEY_MACRO_BOF
-  20.10.2003 SVS
-    ! Уточнение размера под вставку даты
-  13.10.2003 SVS
-    ! ESPT_WORDDIV -> ESPT_SETWORDDIV (NotInternal)
-  10.10.2003 SVS
-    + EditorOptions.WordDiv
-    + ESPT_WORDDIV
-  09.10.2003 SVS
-    ! Первое исправления "для колорера"
-    - Траблы с вертикальными постоянными блоками
-  04.10.2003 SVS
-    + KEY_MACRO_CHECKEOF - проверка конца файла
-  26.09.2003 SVS
-    ! Изменения в названиях макроклавиш
-    + Добавлена индикация Ctrl-Q в статусной строке - символ '"'
-  17.09.2003 SVS
-    - Неправильно "исправил" в прошлый раз вставку KEY_MACROPLAINTEXT и KEY_MACRODATE.
-      не учел тот факт, что $Date может быть без аргументов
-    - Отвалились макросы (например, Alt-Shift-Left=Alt-Left) после 1687
-  12.09.2003 SVS
-    ! Динамически выделим буфер при вставке Plain-text от макроса.
-      Для этого воспользуемся новой функцией
-      CtrlObject->Macro.GetMacroPlainTextSize(), чтобы получить
-      размер строки.
-  08.09.2003 SVS
-    + Обработка KEY_MACROPLAINTEXT
-  02.09.2003 SKV
-    - фикс выделения shift-up при отключенном cursor beyond end of line
-  31.07.2003 SKV
-    - фикс выделения персистентных блоков после Shift-[A-Z0-9]
-  25.07.2003 SVS
-    ! выставим SetLastError в Editor::ReadFile в случае неудачи.
-  15.07.2003 SVS
-    - Del/Bs в самой последней позиции ничего не удаляет, поэтому не модифицируем...
-  05.06.2003 SVS
-    - XLat, если ничего не сконвертил, все равно ставит модификацию текста.
-  05.06.2003 SKV
-    - Правка выделения в тексте с табуляцией и режиме !CursorBeyonEOL.
-  06.05.2003 SVS
-    ! Работа с закладками вынесена в отдельные функции SetBookmark() и GotoBookmark()
-  28.04.2003 SVS
-    ! Изменены параметры SaveData + немного очередных уточнений
-  15.04.2003 SVS
-    - Перестали работать некоторые функциональные клавиши (например, F1 -
-      вызов помощи) во время работы плагинов, использующих ProcessEditorInput
-      (например, AutoWrap)
-      Перенесем ECTL_PROCESSINPUT и ECTL_READINPUT из Editor в FileEditor
-  15.04.2003 VVM
-    ! После поиска отступим на четверть и проверим на перекрытие диалогом замены
-  31.03.2003 SVS
-    + _SYS_EE_REDRAW
-  05.03.2003 SVS
-    + Editor::ReadData, Editor::SaveData (пока невалидны с точки зрения работы) - для DI_MEMOEDIT
-    ! Закоментим _SVS
-  25.02.2003 SVS
-    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
-  14.02.2003 SVS
-    ! Детализация логов для ECTL_
-  05.02.2003 SKV
-    - little selection fix (deselection with shift-down on lines with tabs).
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  24.01.2003 KM
-    ! По окончании поиска отступим от верха экрана на
-      треть отображаемой высоты. А то уж действительно
-      неудобно получается оценивать найденное.
-  10.01.2003 SVS
-    ! Ctrl-P/Crtl-M в редакторе при постоянных блоках.
-      Изменим немного поведение этих действий, исключив виндовый клипборд
-      (see перемнную UsedInternalClipboard и clipboard.cpp)
-  17.12.2002 SVS
-    ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
-  11.12.2002 SVS
-    - В EditorControl (ECTL_READINPUT) полечим вариант события для KEY_CONSOLE_BUFFER_RESIZE
-  05.12.2002 SVS
-    ! Применим новую MkStrFTime(), сократив немного кода
-  12.11.2002 DJ
-    - исправление поведения Ctrl-Shift-Left за концом строки
-    ! теперь ECTL_GETSTRING для выделения за концом строки возвращает настоящие
-      координаты, а не скорректированные
-  10.11.2002 SKV
-    - BugZ#690, выделение...
-  08.11.2002 SVS
-    ! Очередная порция отучения Editor от понятия "файл":
-      * Editor::PluginData уехал в FileEditor::PluginData
-      * Editor::SetPluginData() уехал в FileEditor::SetPluginData()
-      * Команды ECTL_EDITORTOOEM, ECTL_OEMTOEDITOR и ECTL_GETBOOKMARKS
-        исполняются на уровне FileEditor (для DI_MEMOEDIT ЭТОГО ненать)
-      * ECTL_GETINFO разбит на 2 части. В FileEditor заполняется поле
-        EditorInfo.FileName.
-      * KEY_CTRLF - теперь обрабатывается в FileEditor::ProcessKey()
-      * Из Editor::~Editor() немного кода вынесено туда, где и должно быть
-        в FileEditor::~FileEditor()
-      * Editor::ReadFile() - Name уже в полном формате!!!
-        посему закомментим "преобразовалку" - нефига воду в ступе толочь
-  07.11.2002 SVS
-    ! Немного _SVS() для отладки :-)
-  04.11.2002 SKV
-    - Undo на последней строке
-  28.10.2002
-    - выделение с табами.
-  18.10.2002 SKV
-    - UnmarkEmptyBlock, не надо бурить его целиком.
-  14.10.2002 SVS
-    - BugZ#684 - ECTL_SETPOSITION с отрицательным столбцом
-  14.10.2002 SKV
-    ! выделение переписано заново
-  09.10.2002 SKV
-    - selection bugs
-  26.09.2002 SKV
-    - еще раз удаление блока
-    - еще раз выделение
-  21.09.2002 VVM
-    - Падение при удалении блока. Портился стек.
-  19.09.2002 SKV
-    - BugZ#643. Выделение, набор текста с шифтом.
-  18.09.2002 SKV
-    - Опять выделение. На сей раз в !EdOpt.CursorBeyondEOL режиме.
-  17.09.2002 SKV
-    - BugZ#538, продолжение эпопеи выделения.
-  17.09.2002 SVS
-    - BugZ#616 - ctrl-shift-alt в редакторе
-      "На экране диалог замены ("replace"). Нажимаю ctrl-shift-alt,
-      он исчезает, но под ним оказывается еще один - "search".
-      Не совсем логично."
-  17.09.2002 SKV
-    - выделение
-  04.09.2002 SVS
-    ! Структура EditList пеехала из editor.cpp в edit.hpp
-    ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
-      теперь это привелегия FileEditor`а
-    ! Команда ECTL_SAVEFILE обрабатывается в FileEditor::EditorControl
-    ! Команда ECTL_QUIT обрабатывается в FileEditor::EditorControl
-    ! Команда ECTL_SETTITLE обрабатывается в FileEditor::EditorControl
-    ! Код Editor::ShowStatus() переехал в FileEditor::ShowStatus()
-  27.08.2002 SVS
-    ! Убираем EditorInfo.WindowPos
-  19.08.2002 SVS
-    + ECTL_DELETEBLOCK - удалить блок в редакторе. Функция вернет TRUE
-      в случае удачного удаления блока и FALSE, если редактор заблокирован
-      (пользователь нажат Ctrl-L) или нет выделенного блока.
-  06.08.2002 IS
-    - Баг: падение в ECTL_SETSTRING при отрицательном StringLength.
-      Проверяем корректность StringLength и вернем FALSE, если оно меньше
-      нуля.
-  23.07.2002 SKV
-    - Еще одна попытка разобраться с выделением.
-  12.07.2002 SVS
-    ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
-      из Editor в FileEditor
-  10.07.2002 SKV
-    - Shift-Up на пустых строках.
-  02.07.2002 SKV
-    - Bugz#538 - В ECTL_SETPOSITION Pos проверяется не только на -1,
-      но и на полное совпадение с текущей позицией перед выставлением
-      FEDITOR_CURPOSCHANGEDBYPLUGIN.
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-    ! В редакторе (Editor) и вьювере (Viewer) отказываемся от абс. значений
-      размеров в пользу относительных (т.е. вместо ScrX/ScrY применяем
-      ObjWidth/ObjHeight).
-    ! Если редактор/вьювер не в FullScreen, то не отображаем часики
-    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
-      посему ECTL_SETKEYBAR переехал из Editor в FileEditor
-  24.06.2002 SKV
-    - Установим флажок PersistentBlock у новосозданных строк из опций.
-  24.06.2002 SKV
-    - Неисчезающее выделение.
-  24.06.2002 SKV
-    - При Shift-Down надо сбрасывать FEDITOR_CURPOSCHANGEDBYPLUGIN.
-  17.06.2002 SVS
-    - BugZ#557 - FAR builtin editor crash on invalid attributes of LastPositions
-  14.06.2002 IS
-    ! Тело SetDeleteOnClose переехало в editor.cpp
-    ! Параметр у SetDeleteOnClose стал int:
-        0 - не удалять ничего
-        1 - удалять файл и каталог
-        2 - удалять только файл
-    + Обработка FEDITOR_DELETEONLYFILEONCLOSE
-  10.06.2002 SVS
-    - некорректно поведение редактора для $Date & Ctrl-F
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-    ! "FAR_VerticalBlock" -> FAR_VerticalBlock
-  24.05.2002 SKV
-    - пробел меняем на 0x0d, получаем зависание. (Bugz#524)
-  22.05.2002 SVS
-    ! CurrentEditor инициализируется в FileEditor
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-    ! ФЛАГИ - сведем в кучу двухпозиционные переменные
-  13.05.2002 VVM
-    + EditorInfo.WindowPos - номер окна редактора. Может использоваться с ACTL_*WINDOW*
-  06.05.2002 KM
-    - AltF8 AltF9... Oops!
-  29.04.2002 SVS
-    - не туда залудил этот BugZ#488
-  29.04.2002 SVS
-    - BugZ#488 - Shift=enter
-  18.04.2002 SKV
-    ! При чтении позиции из кэша разворачиваем палки / в \
-    ! Перепозиционирование курсора и topline при alt-f9 в конце длинного файла.
-  04.04.2002 SVS
-    ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
-  04.04.2002 IS
-    + ECTL_TURNOFFMARKINGBLOK: убрать флаг редактора "осуществляется
-      выделение блока"
-  30.03.2002 IS
-    - Уберем пока установление FEDITOR_WASCHANGED в Undo (см. комментарии в теле
-      функции) в надежде убрать баг, когда Фар пытается запихнуть файл в архив,
-      который был вытащен из него по F4 и был изменен, а потом изменение было
-      отменено при помощи Alt-BackSpace.
-  23.03.2002 IS
-    + ESPT_LOCKMODE - запретить/отменить изменение файла из плагина
-  23.03.2002 VVM
-    + Прокрутка на 1 позиция с нажатым Альт. (Мышиное колесо)
-  19.03.2002 SVS
-    + Легализуем формат MAC_EOL_fmt
-  18.03.2002 IS
-    - Попытка избавиться от проблем выделения при наличии колорера и
-      Shift-Down, Shift-End (BugZ#319)
-  10.03.2002 IS
-    ! UnmarkEmptyBlock теперь нормально работает с вертикальными блоками
-      (раньше их не видела вообще и снимала выделение даже при не пустом блоке)
-  07.03.2002 IS
-    + UnmarkEmptyBlock(): удалить выделение, если оно пустое (выделено ноль
-      символов в ширину)
-    ! BugZ#328: Del не работает, когда Shift-Left, Shift-Right, Del
-      ([ ] Постоянные блоки, [x] Del удаляет блоки)
-    ! BugZ#326: не корректная работа ESPT_CHARTABLE (выделение левого пункта
-      в меню по Shift-F8)
-  06.03.2002 SVS
-    - Бага с выделением при постоянных блоках.
-  03.03.2002 SVS
-    ! По поводу трапа (патч от 28.06.2000) "более 1000 колонок"
-      Нефига заниматься ерундой в стиле "взять, изменить, наложить",
-      достаточно одной операции - "изменить" :-)
-  22.02.2002 SVS
-    ! Коррекция в связи с введение FAR_INT64
-  21.02.2002 SKV
-    - Порча EOL'а строки при вставке оной.
-  19.02.2002 SVS
-    - По поводу Ins - пока не жмакнули стрелку - размер курсора не изменился :-(
-  15.02.2002 SVS
-    ! Вызов ShowProcessList() вынесен в манагер
-    ! Для Ctrl-L сделаем обновление не всего экрана, а только статусной линии
-    ! Ins - тоже нефига перерисовывать весь экран
-  06.02.2002 IS
-    - Костыль для обработки CtrlShiftEnd, которая полетела после 1224
-  05.02.2002 SVS
-    ! Технологический патч - про сислоги
-  05.02.2002 SVS
-    ! Editor::IsShiftKey() -> keyboard.cpp::IsShiftKey()
-  04.02.2002 IS
-    ! Уточним проверку наличия выделения в shift-(left|right) и shift-end
-      чтобы исправить жука 280.
-  29.01.2002 SVS
-    - непостоянные блоки, Alt-F8 Enter - выделение блока не снимается
-  28.01.2002 VVM
-    + FreeAllocatedDaat()
-  19.01.2002 IS
-    ! Переместим проверку выделения из ctrl-shift-(left|right) на уровень
-      ниже - в shift-(left|right), чтобы добить жука 226.
-  18.01.2002 SKV
-    - CtrlShiftEnd bug fix
-  15.01.2002 SVS
-    ! Флаги вместо кучи переменных типа int
-    ! Первая серия по отучиванию класса Editor слову "Файл"
-    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
-  14.01.2002 SVS
-    ! DOS_EOL_fmt[], UNIX_EOL_fmt (в global.?pp)
-    - ФАР не компилился под MSVC после 1168.
-  12.01.2002 IS
-    ! Вместо "\r\n" и "\n" используем специальные константы: DOS_EOL_fmt и
-      UNIX_EOL_fmt.
-    ! Пропишем тип конца строки по умолчанию явно - DOS_EOL_fmt.
-    ! Немного const
-  11.01.2002 IS
-    - Странное поведение после 1160
-  10.01.2002 SVS
-    + ECTLToName - для логов
-  07.01.2002 IS
-    - Выделялось не то, что нужно, при использовании ctrl-shift-(left|right),
-      если перед этим позиция была изменена плагином, а не самим Фаром, а при
-      этом имелась в наличии ранее выделенная область
-  28.12.2001 SVS
-    ! Правка с учетом изменений структур (про анонимный union)
-  28.12.2001 VVM
-    ! Проверить на успешную запись перед сбросом флага изменений.
-  25.12.2001 SVS
-    + При изменении размеров консоли перед прорисовкой редактора вызовем
-      ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL).
-      Но здесь эээ... колорер реагирует только на EEREDRAW_CHANGE
-      (сам себе злобный буратино ;-()
-  24.12.2001 SVS
-    - Бага компиляции в Editor::ProcessEditorInput - лищняя скобка
-  14.12.2001 IS
-    ! stricmp -> LocalStricmp
-  14.12.2001 IS
-    ! внедрение const в соответствии с изменениями класса Edit
-  10.12.2001 SVS
-    - BugZ#164. При вставке имени файла (Ctrl-F) портилось оригинальное
-      имя файла.
-  03.12.2001 IS
-    ! UndoData - теперь указатель. Размер буфера undo можно изменить
-      через реестр.
-  03.12.2001 VVM
-    ! 1. Имеем 2 строки, втоная длиннее первой.
-      2. Встаем на 2 строку впозиции после конца первой, но до второй.
-      3. Shift-Up; Shift-End
-      4. Можем выделять второй блок, не связанный с первым...
-  09.11.2001 IS
-    -  проклятое место - EditorF7Rules,
-       опять фиксим, т.к. не соответствует заявленному в techinfo.
-  05.11.2001
-    SVS: ! ESPT_SETTABLE -> ESPT_CHARTABLE: все остальные ESPT_* тоже
-           устанавливают, но SET  в  их  названии  нету.
-    IS:  ! При неудачной смене таблицы по ESPT_SETTABLE оставим все как есть
-           (раньше включали oem).
-  01.11.2001 SVS
-    ! ECTL_GETBOOKMARK, EditorBookMark -> ECTL_GETBOOKMARKS, EditorBookMarks
-    ! С помощью IsBadWritePtr проверим на вшивость адресное пространство
-  29.10.2001 IS
-    ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
-      Теперь они локальны для каждой копии редактора, а первая опция может
-      быть изменена плагином.
-  28.10.2001 SVS
-    ! Приведем к одному знаманателю реакцию на вставку путей (то же как и
-      в панелях)
-  24.10.2001 SVS
-    ! обработка вставки имени файла и пути вынесена на уровень редактора, т.к.
-      при выделеном блоке в несколько строк получаем лабуду.
-    ! Корректно выставим последовательность отмены действий - DeleteBlock()
-      сам умеет выставлять ундо
-    - Аналогичная ситуация с Ctrl-F - при выделенном не персистентном блоке
-      сам блок не удаляется.
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  19.10.2001 OT
-    - Исправление ошибки HyperViewer
-  16.10.2001 SKV
-    - баг при выделении вертикальных блоков
-      после переключения EdOpt.CursorBeyondEOL туда сюда.
-  15.10.2001 SVS
-    + _KEYMACRO()
-  11.10.2001 IS
-    + обработка DeleteOnClose
-    ! внедрение const
-  11.10.2001 VVM
-    ! Полное имя файла вставляет CTRL+F (вместо CTRL+SHIFT+ENTER)
-  10.10.2001 SVS
-    + EditorInfo.CurState
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 SKV
-    - ctrl-left fix
-  18.08.2001 SVS
-    ! параметр у функции Paste - для отработки $Date, у которой есть '%n',
-      соответственно изненен код обработки "клавиши" KEY_MACRODATE.
-  14.09.2001 SVS
-    ! Немного SysLog`ов
-  13.09.2001 SKV
-    - Shift-End на длииинной строке в блоке с изменённым цветом фона.
-  30.08.2001 IS
-    - Неопределенное поведение при использовании ECTL_SETPOSITION: режим
-      Overtype не менялся, хотя и должен был в этой функции.
-  07.08.2001 IS
-    + Обработка ESPT_SETTABLE - смена кодировки.
-  25.07.2001 IS
-    - Баг: в меню по shift-f8 выделялась строка с той кодировкой, которая
-      автоматически определилась при открытии файла, даже если текущая
-      кодировка была другой. Решение: при открытии файла принудительно
-      сбросим номер таблицы символов, если UseDecodeTable==FALSE.
-  24.07.2001 IS
-    ! Замена проверки на ' ' и '\t' на вызов isspace
-  10.07.2001 SVS
-    + Обработка KEY_MACROXLAT
-  27.06.2001 SVS
-    - Stream Block можно двигать в залоченном состоянии :-((
-  25.06.2001 IS
-    ! Внедрение const
-  25.06.2001 SVS
-    ! Юзаем SEARCHSTRINGBUFSIZE
-  22.06.2001 SVS
-    + обработка KEY_MACRODATE
-  11.06.2001 SVS
-    ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
-  10.06.2001 IS
-    - Баг: зачем-то при продолжении _обратного_ поиска прокручивались на шаг
-      _вперед_.
-  08.06.2001 IS
-    - Баги в некоторых местах из-за использования strcpy, а не strncpy, в
-      результате чего гадили в память.
-  06.06.2001 SVS
-    + EDITOR_UNDO_COUNT - "от чисел к символам"
-    + ECTL_GETBOOKMARK - получить инфу о закладках.
-    ! Небольшая переделка с учетом InternalEditorBookMark.
-  04.06.2001 IS
-    - Editor::SaveFile - убраны (с подачи SVS) потенциальные баги - выход из
-      функции был до того, как восстановятся атрибуты файла
-  03.06.2001 OT
-    - Не обновлялся StatusLine после DrawLine в редакторе
-  31.05.2001 OT
-    ! Исправления в SaveFile() Вместо цифр - поименованные константы типа SAVEFILE_XXX
-  25.05.2001 IS
-    - При вставке поточного блока из буфера обмена первый символ вставлялся в
-      неверной кодировке. Это мой глюк, сорри :)
-  24.05.2001 IS
-    ! Опять правка последствий 592 (shift-home/end)
-  19.05.2001 IS
-    - Решение проблемы непрошеной конвертации табуляции (которая должна быть
-      добавлена в начало строки при автоотступе) в пробелы при вставке
-      чего-либо из буфера обмена.
-  16.05.2001 DJ
-    ! proof-of-concept
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-    ! Search теперь возвращает TRUE/FALSE
-  07.05.2001 IS
-    - Баги: по shift-f7 продолжалась замена, хотя должен был быть поиск
-      В Paste устранил потенциальный баг с delete []
-  06.05.2001 DJ
-    ! перетрях #include
-  05.05.2001 IS
-    ! shift-home/end - приблизим поведение к тому, какое было до 592
-  04.05.2001 OT
-    + Неверно формировалось меню плагинов по F11 (NWZ)
-      Изменился PluginSet::CommandsMenu()
-  27.04.2001 SVS
-    - Ctrl-Q: не выставлялся признак модификации
-    - Ctrl-Q: не помещались данные в буфер отката
-    - XLat: не помещались данные в буфер отката
-  27.04.2001 VVM
-    + Обработка KEY_MSWHEEL_XXXX
-  25.04.2001 SVS
-    + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
-      TRUE - если есть помеченный блок или FALSE - блока нету.
-  25.04.2001 IS
-    + ctrl-shift-enter - вставить в строку полное имя редактируемого файла
-  20.04.2001 IS
-    ! _Значительное_ ускорение выделения строки при помощи shift-home или
-      shift-end. Просьба сразу сообщать на малейшее отклонение от манеры
-      аналогичного поведения до этого патча, я вроде поэкспериментировал, но
-      мог что-нибудь и упустить.
-  11.04.2001 SVS
-    + Добавлена обработка Ctrl-Q - при вставки символа не удалялся блок
-      (постоянные блоки выключены)
-  10.04.2001 SVS
-    - Если файл RO и мы отказались его открывать - все равно плагину
-      посылался эвент, что мол файл закрыт! И это при том, что плагин не
-      получал эвен про удачное чтение - галиматья, блин :-((((
-    ! Избавляемся от варнингов.
-    - ^P/^M - некорректно работали: уловие для CurPos должно быть ">=",
-      а не "меньше".
-    - Забыли Pasting выставить :-( - для Shift-Ins из-за чего тот же колорер
-      неверно отрабатывал.
-  03.04.2001 IS
-    + Обработка ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL, ESPT_CHARCODEBASE
-      (это в ECTL_SETPARAM)
-  28.03.2001 SVS
-    + дополнительный параметр для SaveFile() - SaveAs
-  28.03.2001 VVM
-    ! При переходе на строку сдвигалась позиция на символ вправо.
-  26.03.2001 SVS
-    + При вызове списка плагинов говорим манагеру о том, чтобы он искал
-      предопределенный топик "Editor" для Shift-F1 из списка плагинов
-  20.03.2001 SVS
-    + При выводе сообщения о размере файла сообщается его размер и
-      минимально допустимый размер редактирования.
-  15.03.2001 OT
-    - Если нажать в редакторе <Enter> в конце файла, а потом сделать UNDO...
-  12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
-  27.02.2001 SVS
-    + В статусной строке показываем код символа в зависимости от базы -
-      Oct, Dec или Hex
-  27.02.2001 IS
-    + Проверка нового размера табуляции на допустимые значения в SetTabSize
-  26.02.2001 IS
-    ! Часть самостоятельных переменных заменено соответствующими из
-      EditorOptions. Надо было это сразу сделать, да я что-то стормозил :)
-    + SetCursorBeyondEOL
-  21.02.2001 IS
-    ! Opt.TabSize -> Opt.EdOpt.TabSize
-      Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
-      Opt.EditorDelRemovesBlocks -> Opt.EdOpt.DelRemovesBlocks
-      Opt.EditorExpandTabs -> Opt.EdOpt.ExpandTabs
-      Opt.EditorAutoIndent -> Opt.EdOpt.AutoIndent
-      Opt.EditorAutoDetectTable -> Opt.EdOpt.AutoDetectTable
-      Opt.EditorCursorBeyondEOL -> Opt.EdOpt.CursorBeyondEOL
-      Opt.EditorBSLikeDel -> Opt.EdOpt.BSLikeDel
-  19.02.2001 IS
-    - Забыл проинициализировать AttrStr
-  16.02.2001 IS
-    + Обработка ECTL_SETPARAM, пока только ESPT_TABSIZE и ESPT_EXPANDTABS
-  15.02.2001 IS
-    ! Opt.EditorDelRemovesBlocks -> DelRemovesBlocks
-      Opt.EditorPersistentBlocks -> PersistentBlocks
-    + SetDelRemovesBlocks, SetPersistentBlocks
-  15.02.2001 IS
-    + Обновим размер табуляции для всех Edit в функции SetTabSize
-    ! Opt.EditorExpandTabs -> ConvertTabs
-    + SetConvertTabs
-    ! SetTabSize вызывается везде перед SetConvertTabs
-  14.02.2001 IS
-    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
-      GetTabSize, SetTabSize
-  14.02.2000 SVS
-    ! Динамический размер под количество строк
-  14.02.2001 VVM
-    + При отсутствии блока AltU/AltI сдвигают текущую строчку
-  13.02.2001 IS
-    ! Строчка с атрибутами подготавливается при их считывании, а не при каждом
-      обновлении экрана. Т.с., оптимизация кода после себя самого ;)
-  12.02.2001 IS
-    ! Атрибуты считываются только в двух местах, а не при каждом обновлении
-      статуса
-  08.02.2001 skv
-    - EEREDRAW при Ctrl-P, Ctrl-M
-  03.02.2001 skv
-    - EEREDRAW_ALL теперь соответствует действительности,
-      при переходе с одной строки на другую при выключенном
-      cursor beyond end of line нажатием вправо.
-  21.01.2001 SVS
-    ! Диалоги поиска/замены выведен из Editor::Search в отдельную
-      функцию GetSearchReplaceString (файл stddlg.cpp)
-  14.01.2001 tran
-    - убран баг, когда при вызове редактора из плагина
-      показывался мусор
-  07.01.2001 IS
-    - не правильно работала проверка на ошибку при открытии файлов,
-      превышающих определенный размер (не всегда срабатывала)
-  28.12.2000 VVM
-    + Щелчок мышью снимает непостоянный блок всегда.
-  23.12.2000 OT
-    - Медленно делался CtrlShiftLeft и CtrlAltLeft на ооооочеееень
-      длинных словах
-  22.12.2000 SVS
-    - Вызов из EE_READ команды ECTL_SETKEYBAR приводил к падению ФАРа, т.к.
-      объект EditKeyBar еще не существует.
-  21.12.2000 SVS
-    - В предыдущем исправлении было задано неверное условие для
-      правила EditorF7Rules
-  16.12.2000 OT
-    - CtrlY на последней строке с выделенным вертикальным блоком не снимал
-      выделение
-  15.12.2000 SVS
-    ! Уточнение по поводу того, что вернула GetFileAttributes()
-  10.12.2000 IS
-    ! Обрабатываем при Xlat только то слово, на котором стоит курсор, или то
-      слово, что находится левее позиции курсора на 1 символ
-  08.12.2000 SLV
-    - Ctrl-Del в начале строки при выделенном блоке и
-      включенном Opt.EditorDelRemovesBlocks.
-  03.12.2000 IS
-    + Показывать в статусной строке буквами RSH соответствующие атрибуты файла,
-      если они установлены.
-  03.12.2000 SVS
-    + "Если файл имеет атрибут ReadOnly..." здесь System и Hidden - задаются
-      отдельно.
-  29.11.2000 SVS
-    + Если файл имеет атрибут ReadOnly или System или Hidden,
-      то сразу лочим файл - естественно отключаемо.
-    + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-      которого будет выдан диалог о целесообразности открытия подобного
-      файла на редактирование
-  28.11.2000 SVS
-    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
-      "О, это не ощибка - это свойство моей программы" :-)
-      Новое поведение стало подконтрольным.
-  25.11.2000 IS
-    + Если нет выделения, то обработаем текущее слово. Слово определяется на
-      основе специальной группы разделителей.
-  04.11.2000 SVS
-    + Проверка на альтернативную клавишу при XLat-перекодировке
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  23.10.2000 tran 1.40
-    ! ВБ, табуляция и CurBeyondEOL
-  16.10.2000 tran 1.39
-    ! первый поиск идет с текущей позиции, а следующий - со следующей (FGWL#10)
-  11.10.2000 SVS
-    ! Bs удаляет блок так же, как и Del
-    - "Редактировали, залочили, при выходе - потеряли файл :-("
-  01.10.2000 IS
-    ! Показывать букву диска в статусной строке
-  24.09.2000 SVS
-    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
-    + Перекодировка Xlat
-  20.09.2000 SVS
-    - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
-  20.09.2000 SVS
-    ! В Replace диалоге для строки replace удален флаг DIF_USELASTHISTORY
-    ! Если при замене жмакнули All, то при повторном Shift-F7 снова
-      появляется диалог о подтверждении действий.
-  13.09.2000 skv
-    ! EE_REDRAW вызывается с константами. 1 и 2 поменяны.
-  07.09.2000 skv
-    + ECTL_PROCESSKEY
-  07.09.2000 skv
-    - пофиксан быстрый replace при установленной перекодировке
-  30.08.2000 tran 1.21
-    - bug в автоотступе, внесенный патчем 66
-  15.08.2000 skv
-    ! Оптимизация Replace.
-  10.08.2000 skv
-    ! Оптимизация работы EE_REDRAW события редактора.
-  07.08.2000 SVS
-    + ECTL_SETKEYBAR - Функция установки Keybar Labels
-  03.08.2000 KM 1.17
-    ! В функцию Search добавлена возможность поиска целых слов.
-  03.08.2000 SVS 1.16
-    ! WordDiv -> Opt.WordDiv
-  01.08.2000 tran 1.15
-    + DIF_USELASTHISTORY в диалогах поиска,замены и перехода
-  25.07.2000 tran 1.14
-    - Bug 22 (остатки)
-      подправлены обработки alt-left,alt-right
-      на предмет перебега за границу блока
-  21.07.2000 tran 1.13
-    - Bug 22
-      вот теперь это верно решение.
-      предыдущие просба считать неверным.
-      оно все равно переделано
-      ввел три новых метода
-        int  GetLineCurPos(); - просто сокращает писанину
-        void BeginVBlockMarking(); - начинает вертикальный блок
-        void AdjustVBlock(int PrevX); - подравнивает вертикальный блок
-                при перебросках курсора при переходе через
-                пустое место табуляций
-      просьба оставить закоментаренный SysLog
-      если что-то в этой части случится, я быстрее разберусь
-      если нет - потом сам уберу...
-  21.07.2000 tran
-    ! Все внутри функции GoToPosition();
-  18.07.2000 tran
-    - Bug #22
-      встань в начало текста, нажми alt-right, alt-pagedown,
-      выделится блок шириной в 1 колонку, нажми еще alt-right
-      выделение сбросится
-  17.07.2000 tran
-    - баг с автоотступом при [ ] Expand tabs to spaces
-      и когда ентер жался сразу после символа '\t'
-      ранее в новую строку вставлялись пробелы (надо \t)
-      и символ табуляции на предыдущей строке стирался
-      теперь он не стирается и на новой вместо пробелов
-      все копируется из старой
-      новые {} кое-где, побочный эффект вставки печати отладки,
-      пусть их лежат... :)
-  17.07.2000 OT
-    + Застолбить место под разработку "моего" редактора
-  14.07.2000 tran
-    + переход на проценты
-      вводим 50%, попадаем прямо в середину
-      функция GetRowCol стала методом класса
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 tran
-    + строка статуса рисуется с учетом ширины консоли.
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  07.07.2000 SVS
-    + Разграничитель слов WordDiv находится теперь в global.cpp и
-      берется из реестра (общий для редактирования)
-  07.07.2000 tran & SVS
-    + in AltF8 - row,col support
-  29.06.2000 IG
-    + CtrlAltLeft, CtrlAltRight для вертикальный блоков
-  28.06.2000 tran
-    - trap при размере вертикального блока более 1000 колонок
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.286 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -823,11 +54,11 @@ Editor::Editor()
   */
   if (GlobalSearchHex)
   {
-    int LenSearchStr=sizeof(LastSearchStr);
-    Transform(LastSearchStr,LenSearchStr,GlobalSearchString,'S');
+    /*int LenSearchStr=sizeof(LastSearchStr);
+    Transform(LastSearchStr,LenSearchStr,GlobalSearchString,'S');*/ //BUGBUG
   }
   else
-    xstrncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
+    strLastSearchStr.SetData (GlobalSearchString, CP_OEMCP); //BUGBUG;
   /* KM $ */
 
   LastSearchCase=GlobalSearchCase;
@@ -855,7 +86,7 @@ Editor::Editor()
   LastChangeStrPos=0;
   BlockStart=NULL;
   BlockStartLine=0;
-  TopList=EndList=TopScreen=CurLine=new struct EditList (this);
+  TopList=EndList=TopScreen=CurLine=new struct EditList(this);
   TopList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
   /* $ 14.02.2001 IS
        Установим нужный размер табуляции
@@ -864,14 +95,14 @@ Editor::Editor()
   /* IS $ */
   TopList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
   TopList->EditLine.SetEditorMode(TRUE);
-  TopList->EditLine.SetWordDiv(EdOpt.WordDiv);
+  TopList->EditLine.SetWordDiv(EdOpt.strWordDiv);
   TopList->Prev=NULL;
   TopList->Next=NULL;
   /* $ 12.01.2002 IS
      По умолчанию конец строки так или иначе равен \r\n, поэтому нечего
      пудрить мозги, пропишем его явно.
   */
-  strcpy(GlobalEOL,DOS_EOL_fmt);
+  wcscpy(GlobalEOL,DOS_EOL_fmtW);
   /* IS $ */
   /* $ 03.12.2001 IS размер буфера undo теперь может меняться */
   UndoData=static_cast<EditorUndoData*>(xf_malloc(EdOpt.UndoSize*sizeof(EditorUndoData)));
@@ -947,7 +178,7 @@ void Editor::KeepInitParameters()
   if (GlobalSearchHex)
   {
     // Да! Тогда проверим, отличается ли LastSearchStr и строковое представление GlobalSearchString...
-    char SearchStr[2*NM];
+   /* char SearchStr[2*NM];
     int LenSearchStr=sizeof(SearchStr);
     Transform((unsigned char *)SearchStr,LenSearchStr,(char *)GlobalSearchString,'S');
 
@@ -958,10 +189,10 @@ void Editor::KeepInitParameters()
       // сконвертируем это значение в 16-ричное представление.
       int LenSearchStr=sizeof(GlobalSearchString);
       Transform((unsigned char *)GlobalSearchString,LenSearchStr,(char *)LastSearchStr,'X');
-    }
+    }*/ //BUGBUG
   }
   else
-    strcpy(GlobalSearchString,(char *)LastSearchStr);
+      UnicodeToAnsi(strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString)-1);
   /* KM $ */
 
   GlobalSearchCase=LastSearchCase;
@@ -978,7 +209,7 @@ void Editor::KeepInitParameters()
 }
 
 
-int Editor::ReadFile(const char *Name,int &UserBreak)
+int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
 {
   FILE *EditFile;
   struct EditList *PrevPtr;
@@ -999,10 +230,10 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
 
-  HANDLE hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
+  HANDLE hEdit=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
 
   if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+    hEdit=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
 
   if (hEdit==INVALID_HANDLE_VALUE)
   {
@@ -1038,32 +269,32 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
   {
     unsigned __int64 RealSizeFile;
-    /* $ 07.01.2001 IS
-        - без этого не правильно работала проверка на ошибку
-    */
+    DWORD dwHiPart, dwLoPart;
+
     SetLastError(NO_ERROR);
-    /* IS $ */
-    DWORD  RealSizeFileHi, RealSizeFileLo;
-    RealSizeFileLo=GetFileSize(hEdit,(DWORD*)&RealSizeFileHi);
-    RealSizeFile=MKUINT64(RealSizeFileHi,RealSizeFileLo);
-    if (GetLastError() == NO_ERROR)
+
+    dwLoPart = GetFileSize(hEdit, &dwHiPart);
+
+    if (GetLastError() == NO_ERROR) //BUGBUG!
     {
-      unsigned __int64 NeedSizeFile=MKUINT64(EdOpt.FileSizeLimitHi,EdOpt.FileSizeLimitLo);
+      RealSizeFile = dwHiPart*0x100000000+dwLoPart;
+
+      unsigned __int64 NeedSizeFile = EdOpt.FileSizeLimitHi*0x100000000+EdOpt.FileSizeLimitLo;
       if(RealSizeFile > NeedSizeFile)
       {
-        char TempBuf[2][128];
-        char TempBuf2[2][64];
+        string strTempStr1, strTempStr2, strTempStr3, strTempStr4;
         // Ширина = 8 - это будет... в Kb и выше...
-        FileSizeToStr(TempBuf2[0],RealSizeFile,8);
-        FileSizeToStr(TempBuf2[1],NeedSizeFile,8);
-        sprintf(TempBuf[0],MSG(MEditFileLong),RemoveExternalSpaces(TempBuf2[0]));
-        sprintf(TempBuf[1],MSG(MEditFileLong2),RemoveExternalSpaces(TempBuf2[1]));
-        if(Message(MSG_WARNING,2,MSG(MEditTitle),
+        FileSizeToStrW(strTempStr1,RealSizeFile,8);
+        FileSizeToStrW(strTempStr2,NeedSizeFile,8);
+        strTempStr3.Format (UMSG(MEditFileLong),(const wchar_t *)RemoveExternalSpacesW(strTempStr1));
+        strTempStr4.Format (UMSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpacesW(strTempStr2));
+
+        if(MessageW(MSG_WARNING,2,UMSG(MEditTitle),
                     Name,
-                    TempBuf[0],
-                    TempBuf[1],
-                    MSG(MEditROOpen),
-                    MSG(MYes),MSG(MNo)))
+                    strTempStr3,
+                    strTempStr4,
+                    UMSG(MEditROOpen),
+                    UMSG(MYes),UMSG(MNo)))
         {
           fclose(EditFile);
           SetLastError(ERROR_OPEN_FAILED);
@@ -1120,7 +351,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     */
     *GlobalEOL=0;
     /* IS $ */
-    char *Str;
+    wchar_t *Str;
     int StrLength,GetCode;
 
     clock_t StartTime=clock();
@@ -1131,7 +362,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       AnsiText=FALSE;
     }
 
-    while ((GetCode=GetStr.GetString(&Str,StrLength))!=0)
+    while ((GetCode=GetStr.GetStringW(&Str, CP_OEMCP, StrLength))!=0)
     {
       if (GetCode==-1)
       {
@@ -1154,23 +385,23 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         {
           SetCursorType(FALSE,0);
           SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-          EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
+          EditorShowMsg(UMSG(MEditTitle),UMSG(MEditReading),Name);
           MessageShown=TRUE;
         }
       }
 
-      char *CurEOL;
-      if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
-          (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
+      const wchar_t *CurEOL;
+      if (!LastLineCR && ((CurEOL=wmemchr(Str,L'\r',StrLength))!=NULL ||
+          (CurEOL=wmemchr(Str,L'\n',StrLength))!=NULL))
       {
-        xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
+        xwcsncpy(GlobalEOL,CurEOL,(sizeof(GlobalEOL)-1)/sizeof(wchar_t));
         GlobalEOL[sizeof(GlobalEOL)-1]=0;
         LastLineCR=1;
       }
 
       if (NumLastLine!=0)
       {
-        EndList->Next=new struct EditList (this);
+        EndList->Next=new struct EditList(this);
         if (EndList->Next==NULL)
         {
           fclose(EditFile);
@@ -1194,11 +425,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
       /* SKV $ */
       EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-      EndList->EditLine.SetBinaryString(Str,StrLength);
+      EndList->EditLine.SetBinaryStringW(Str,StrLength);
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->EditLine.SetEditorMode(TRUE);
-      EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
+      EndList->EditLine.SetWordDiv(EdOpt.strWordDiv);
       NumLastLine++;
     }
     SetPreRedrawFunc(NULL);
@@ -1220,11 +451,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
         /* SKV $ */
         EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-        EndList->EditLine.SetString("");
+        EndList->EditLine.SetStringW(L"");
         EndList->EditLine.SetCurPos(0);
         EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
         EndList->EditLine.SetEditorMode(TRUE);
-        EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
+        EndList->EditLine.SetWordDiv(EdOpt.strWordDiv);
         NumLastLine++;
       }
   }
@@ -1239,10 +470,10 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     long TotalSize=0;
     while (CurPtr!=NULL && CurPtr->Next!=NULL)
     {
-      const char *SaveStr,*EndSeq;
+      const wchar_t *SaveStr,*EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
-      TotalSize+=Length+strlen(EndSeq);
+      CurPtr->EditLine.GetBinaryStringW(SaveStr,&EndSeq,Length);
+      TotalSize+=Length+wcslen(EndSeq);
       if (TotalSize>StartChar)
         break;
       CurPtr=CurPtr->Next;
@@ -1254,16 +485,22 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       /* $ 14.01.2001 tran
          LeftPos надо было инициализировать... */
       unsigned int Line,ScreenLine,LinePos,LeftPos=0;
-      char CacheName[NM*3];
+
+      string strCacheName;
       if (HostFileEditor && *HostFileEditor->GetPluginData())
-        sprintf(CacheName,"%s%s",HostFileEditor->GetPluginData(),PointToName(Name));
+        strCacheName.Format (L"%s%s",HostFileEditor->GetPluginData(),PointToNameW(Name));
       else
       {
-        strcpy(CacheName,Name);
-        for(int i=0;CacheName[i];i++)
+        strCacheName = Name;
+
+        wchar_t *lpwszCacheName = strCacheName.GetBuffer();
+        for(int i=0;lpwszCacheName[i];i++)
         {
-          if(CacheName[i]=='/')CacheName[i]='\\';
+          if(lpwszCacheName[i]==L'/')
+              lpwszCacheName[i]=L'\\';
         }
+
+        strCacheName.ReleaseBuffer();
       }
       unsigned int Table;
       {
@@ -1275,7 +512,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
           PosCache.Position[2]=SavePos.ScreenLine;
           PosCache.Position[3]=SavePos.LeftPos;
         }
-        CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache);
+        CtrlObject->EditorPosCache->GetPosition(strCacheName,&PosCache);
         Line=PosCache.Param[0];
         ScreenLine=PosCache.Param[1];
         LinePos=PosCache.Param[2];
@@ -1315,7 +552,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (NumLine==Line-ScreenLine)
       {
         Lock ();
-        for (unsigned int I=0;I<ScreenLine;I++)
+        for (DWORD I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
         Unlock ();
@@ -1340,16 +577,21 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       }
       else
       {
-        char CacheName[NM*3];
+        string strCacheName;
         if (HostFileEditor && *HostFileEditor->GetPluginData())
-          sprintf(CacheName,"%s%s",HostFileEditor->GetPluginData(),PointToName(Name));
+          strCacheName.Format (L"%s%s",HostFileEditor->GetPluginData(),PointToNameW(Name));
         else
         {
-          strcpy(CacheName,Name);
-          for(int i=0;CacheName[i];i++)
+          strCacheName = Name;
+
+          wchar_t *lpwszCacheName = strCacheName.GetBuffer();
+          for(int i=0;lpwszCacheName[i];i++)
           {
-            if(CacheName[i]=='/')CacheName[i]='\\';
+            if(lpwszCacheName[i]==L'/')
+                lpwszCacheName[i]=L'\\';
           }
+
+          strCacheName.ReleaseBuffer();
         }
         unsigned int Table;
         {
@@ -1361,7 +603,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
             PosCache.Position[2]=SavePos.ScreenLine;
             PosCache.Position[3]=SavePos.LeftPos;
           }
-          CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache);
+          CtrlObject->EditorPosCache->GetPosition(strCacheName,&PosCache);
           Line=PosCache.Param[0];
           ScreenLine=PosCache.Param[1];
           LinePos=PosCache.Param[2];
@@ -1406,7 +648,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         Lock ();
         GoToLine(Line-ScreenLine);
         TopScreen=CurLine;
-        for (DWORD I=0;I<ScreenLine;I++)
+        for (unsigned int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
         //_D(SysLog("Setleftpos 2 to %i",LeftPos));
@@ -1426,7 +668,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   /* IS $ */
 
   //CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-  //_D(SysLog("%08d EE_READ",__LINE__));
+//_D(SysLog("%08d EE_READ",__LINE__));
   //CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
@@ -1744,7 +986,7 @@ void Editor::ShowEditor(int CurLineOnly)
         //GotoXY(X1,Y);
         //SetColor(COL_EDITORTEXT);
         //mprintf("%*s",ObjWidth,"");
-        SetScreen(X1,Y,X2,Y,' ',COL_EDITORTEXT); //??
+        SetScreen(X1,Y,X2,Y,L' ',COL_EDITORTEXT); //??
       }
   }
 
@@ -1967,6 +1209,7 @@ int Editor::ProcessKey(int Key)
       Pasting++;
       while (CurLine!=TopList)
       {
+
         ProcessKey(KEY_SHIFTPGUP);
       }
       ProcessKey(KEY_SHIFTHOME);
@@ -1984,6 +1227,7 @@ int Editor::ProcessKey(int Key)
       Pasting++;
       while (CurLine!=EndList)
       {
+
         ProcessKey(KEY_SHIFTPGDN);
       }
       /* $ 06.02.2002 IS
@@ -1999,8 +1243,8 @@ int Editor::ProcessKey(int Key)
       Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
       /* IS $ */
       ProcessKey(KEY_SHIFTEND);
-      Unlock ();
       Pasting--;
+      Unlock ();
 
       Show();
       return(TRUE);
@@ -2010,6 +1254,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
+
       for (I=Y1+1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTUP);
@@ -2032,6 +1277,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
+
       for (I=Y1+1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTDOWN);
@@ -2054,6 +1300,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
+
       if(SelAtBeginning)
       {
         CurLine->EditLine.Select(0,SelEnd);
@@ -2220,9 +1467,9 @@ int Editor::ProcessKey(int Key)
         int CurPos;
         while (1)
         {
-          const char *Str;
+          const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
           /* $ 12.11.2002 DJ
              обеспечим корректную работу Ctrl-Shift-Left за концом строки
           */
@@ -2252,8 +1499,8 @@ int Editor::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          if (IsSpace(Str[CurPos-1]) ||
-              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos-1]))
+          if (IsSpaceW(Str[CurPos-1]) ||
+              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1]))
           /* IS $ */
           /* SVS $ */
             if (SkipSpace)
@@ -2289,9 +1536,9 @@ int Editor::ProcessKey(int Key)
         int CurPos;
         while (1)
         {
-          const char *Str;
+          const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
           CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
@@ -2302,8 +1549,8 @@ int Editor::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          if (IsSpace(Str[CurPos]) ||
-              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos]))
+          if (IsSpaceW(Str[CurPos]) ||
+              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos]))
           /* IS $ */
           /* SVS $ */
             if (SkipSpace)
@@ -2625,12 +1872,12 @@ int Editor::ProcessKey(int Key)
           DeleteBlock();
         else
         {
-          AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+          AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                       CurLine->EditLine.GetCurPos(),UNDO_EDIT);
           if (CurPos>=CurLine->EditLine.GetLength())
           {
             if (CurLine->Next==NULL)
-              CurLine->EditLine.SetEOL("");
+              CurLine->EditLine.SetEOLW(L"");
             else
             {
               int SelStart,SelEnd,NextSelStart,NextSelEnd;
@@ -2638,17 +1885,17 @@ int Editor::ProcessKey(int Key)
               CurLine->EditLine.GetSelection(SelStart,SelEnd);
               CurLine->Next->EditLine.GetSelection(NextSelStart,NextSelEnd);
 
-              const char *Str;
+              const wchar_t *Str;
               int NextLength;
-              CurLine->Next->EditLine.GetBinaryString(Str,NULL,NextLength);
-              CurLine->EditLine.InsertBinaryString(Str,NextLength);
+              CurLine->Next->EditLine.GetBinaryStringW(Str,NULL,NextLength);
+              CurLine->EditLine.InsertBinaryStringW(Str,NextLength);
               CurLine->EditLine.SetCurPos(CurPos);
 
               BlockUndo++;
               DeleteString(CurLine->Next,TRUE,NumLine+1);
               BlockUndo--;
               if (NextLength==0)
-                CurLine->EditLine.SetEOL("");
+                CurLine->EditLine.SetEOLW(L"");
 
               if (NextSelStart!=-1)
                 if (SelStart==-1)
@@ -2715,7 +1962,7 @@ int Editor::ProcessKey(int Key)
           }
           else
           {
-            AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+            AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                         CurLine->EditLine.GetCurPos(),UNDO_EDIT);
             CurLine->EditLine.ProcessKey(KEY_BS);
           }
@@ -2741,7 +1988,7 @@ int Editor::ProcessKey(int Key)
             ProcessKey(KEY_BS);
           else
           {
-            AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+            AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                         CurLine->EditLine.GetCurPos(),UNDO_EDIT);
             CurLine->EditLine.ProcessKey(KEY_CTRLBS);
           }
@@ -3220,9 +2467,9 @@ int Editor::ProcessKey(int Key)
         /* OT $ */
         while (1)
         {
-          const char *Str;
+          const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
           int CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>Length)
           {
@@ -3238,8 +2485,8 @@ int Editor::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          if (IsSpace(Str[CurPos-1]) ||
-              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos-1]))
+          if (IsSpaceW(Str[CurPos-1]) ||
+              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1]))
           /* IS $ */
           /* SVS $ */
             if (SkipSpace)
@@ -3271,9 +2518,9 @@ int Editor::ProcessKey(int Key)
 
         while (1)
         {
-          const char *Str;
+          const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
           int CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
@@ -3284,8 +2531,8 @@ int Editor::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          if (IsSpace(Str[CurPos]) ||
-              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos]))
+          if (IsSpaceW(Str[CurPos]) ||
+              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos]))
           /* IS $ */
           /* SVS $*/
             if (SkipSpace)
@@ -3485,7 +2732,7 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
-        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+        AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                         CurLine->EditLine.GetCurPos(),UNDO_EDIT);
         CurLine->EditLine.ProcessKey(Key);
         Pasting--;
@@ -3510,7 +2757,7 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
-        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+        AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                         CurLine->EditLine.GetCurPos(),UNDO_EDIT);
         CurLine->EditLine.ProcessCtrlQ();
         Flags.Clear(FEDITOR_PROCESSCTRLQ);
@@ -3526,25 +2773,22 @@ int Editor::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
-        const char *Fmt = eStackAsString();
-        int SizeMacroText = 16+(*Fmt ? strlen(Fmt) : strlen(Opt.DateFormat));
+        const wchar_t *Fmt = eStackAsString();
+        string strTStr;
+
         if(Key == MCODE_OP_PLAINTEXT)
-          SizeMacroText=strlen(Fmt)+1;
-        SizeMacroText*=4+1;
-        char *TStr=(char*)alloca(SizeMacroText);
-        if(!TStr)
-          return FALSE;
-        if(Key == MCODE_OP_PLAINTEXT)
-          strcpy(TStr,Fmt);
-        if(Key == MCODE_OP_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
+          strTStr = Fmt;
+        if(Key == MCODE_OP_PLAINTEXT || MkStrFTimeW(strTStr, Fmt))
         {
-          char *Ptr=TStr;
+          wchar_t *Ptr=strTStr.GetBuffer();
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
           {
             if(*Ptr == 10)
               *Ptr=13;
             ++Ptr;
           }
+
+          strTStr.ReleaseBuffer();
 
           Pasting++;
           //_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),NULL));
@@ -3557,7 +2801,9 @@ int Editor::ProcessKey(int Key)
           }
           //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
           //              CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-          Paste(TStr);
+
+          Paste(strTStr);
+
           //if (!EdOpt.PersistentBlocks && IsBlock)
           UnmarkBlock();
           Pasting--;
@@ -3648,11 +2894,11 @@ int Editor::ProcessKey(int Key)
           return(TRUE);
         }
 
-        const char *Str;
-        char *CmpStr=0;
+        const wchar_t *Str;
+        wchar_t *CmpStr=0;
         int Length,CurPos;
 
-        CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+        CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
         CurPos=CurLine->EditLine.GetCurPos();
 
         if (Key<256 && CurPos>0 && Length==0)
@@ -3664,10 +2910,10 @@ int Editor::ProcessKey(int Key)
           {
             int TabPos=CurLine->EditLine.GetTabCurPos();
             CurLine->EditLine.SetCurPos(0);
-            const char *PrevStr=NULL;
+            const wchar_t *PrevStr=NULL;
             int PrevLength=0;
-            PrevLine->EditLine.GetBinaryString(PrevStr,NULL,PrevLength);
-            for (int I=0;I<PrevLength && IsSpace(PrevStr[I]);I++)
+            PrevLine->EditLine.GetBinaryStringW(PrevStr,NULL,PrevLength);
+            for (int I=0;I<PrevLength && IsSpaceW(PrevStr[I]);I++)
             {
               int NewTabPos=CurLine->EditLine.GetTabCurPos();
               if (NewTabPos==TabPos)
@@ -3688,9 +2934,9 @@ int Editor::ProcessKey(int Key)
 
         if (!SkipCheckUndo)
         {
-          CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
           CurPos=CurLine->EditLine.GetCurPos();
-          CmpStr=new char[Length+1];
+          CmpStr=new wchar_t[Length+1];
           memcpy(CmpStr,Str,Length);
           CmpStr[Length]=0;
         }
@@ -3743,9 +2989,9 @@ int Editor::ProcessKey(int Key)
           /* SKV $ */
           if (!SkipCheckUndo)
           {
-            const char *NewCmpStr;
+            wchar_t *NewCmpStr;
             int NewLength;
-            CurLine->EditLine.GetBinaryString(NewCmpStr,NULL,NewLength);
+            CurLine->EditLine.GetBinaryStringW(NewCmpStr,NULL,NewLength);
             if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length)!=0)
             {
               AddUndoData(CmpStr,NumLine,CurPos,UNDO_EDIT);
@@ -3933,9 +3179,9 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   /* skv $*/
   if (DelPtr->Next==NULL && (!DeleteLast || DelPtr->Prev==NULL))
   {
-    AddUndoData(DelPtr->EditLine.GetStringAddr(),UndoLine,
+    AddUndoData(DelPtr->EditLine.GetStringAddrW(),UndoLine,
                 DelPtr->EditLine.GetCurPos(),UNDO_EDIT);
-    DelPtr->EditLine.SetString("");
+    DelPtr->EditLine.SetStringW(L"");
     return;
   }
 
@@ -3985,7 +3231,7 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   if (DelPtr==VBlockStart)
     VBlockStart=VBlockStart->Next;
   if (UndoLine!=-1)
-    AddUndoData(DelPtr->EditLine.GetStringAddr(),UndoLine,0,UNDO_DELSTR);
+    AddUndoData(DelPtr->EditLine.GetStringAddrW(),UndoLine,0,UNDO_DELSTR);
   delete DelPtr;
 }
 
@@ -4029,23 +3275,23 @@ void Editor::InsertString()
   NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
   NewString->EditLine.SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
   NewString->EditLine.SetEditorMode(TRUE);
-  NewString->EditLine.SetWordDiv(EdOpt.WordDiv);
+  NewString->EditLine.SetWordDiv(EdOpt.strWordDiv);
   NewString->Prev=CurLine;
   NewString->Next=CurLine->Next;
   if (CurLine->Next)
     CurLine->Next->Prev=NewString;
   CurLine->Next=NewString;
   int Length;
-  char *CurLineStr;
-  const char *EndSeq;
-  CurLine->EditLine.GetBinaryString(CurLineStr,&EndSeq,Length);
+  wchar_t *CurLineStr;
+  const wchar_t *EndSeq;
+  CurLine->EditLine.GetBinaryStringW(CurLineStr,&EndSeq,Length);
 
   /* $ 13.01.2002 IS
      Если не был определен тип конца строки, то считаем что конец строки
      у нас равен DOS_EOL_fmt и установим его явно.
   */
   if (!*EndSeq)
-      CurLine->EditLine.SetEOL(*GlobalEOL?GlobalEOL:DOS_EOL_fmt);
+      CurLine->EditLine.SetEOLW(*GlobalEOL?GlobalEOL:DOS_EOL_fmtW);
   /* IS $ */
 
   CurPos=CurLine->EditLine.GetCurPos();
@@ -4063,12 +3309,12 @@ void Editor::InsertString()
     struct EditList *PrevLine=CurLine;
     while (PrevLine!=NULL)
     {
-      const char *Str;
+      const wchar_t *Str;
       int Length,Found=FALSE;
-      PrevLine->EditLine.GetBinaryString(Str,NULL,Length);
+      PrevLine->EditLine.GetBinaryStringW(Str,NULL,Length);
       for (int I=0;I<Length;I++)
         /* $ 24.07.2001 IS IsSpace для этого и придумали */
-        if (!IsSpace(Str[I]))
+        if (!IsSpaceW(Str[I]))
         /* IS $ */
         {
           PrevLine->EditLine.SetCurPos(I);
@@ -4097,7 +3343,7 @@ void Editor::InsertString()
     if (IndentPos>0)
       for (int I=0;I<CurPos;I++)
         /* $ 24.07.2001 IS IsSpace для этого и придумали */
-        if (!IsSpace(CurLineStr[I]))
+        if (!IsSpaceW(CurLineStr[I]))
         /* IS $ */
         {
           SpaceOnly=FALSE;
@@ -4105,14 +3351,14 @@ void Editor::InsertString()
         }
     /* tran 30.08.2000 $ */
 
-    NewString->EditLine.SetBinaryString(&CurLineStr[CurPos],Length-CurPos);
+    NewString->EditLine.SetBinaryStringW(&CurLineStr[CurPos],Length-CurPos);
     /* $ 17.07.2000 tran
        тут мы проверяем новую строку, есть ли на ней что нибудь кроме пробелов
     */
     for ( int i0=0; i0<Length-CurPos; i0++ )
     {
         /* $ 24.07.2001 IS IsSpace для этого и придумали */
-        if (!IsSpace(CurLineStr[i0+CurPos]))
+        if (!IsSpaceW(CurLineStr[i0+CurPos]))
         /* IS $ */
         {
             NewLineEmpty=FALSE;
@@ -4121,7 +3367,7 @@ void Editor::InsertString()
     }
     /* tran 17.07.2000 $ */
 
-    AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+    AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                 CurLine->EditLine.GetCurPos(),UNDO_EDIT);
     BlockUndo++;
     AddUndoData(NULL,NumLine+1,0,UNDO_INSSTR);
@@ -4132,8 +3378,8 @@ void Editor::InsertString()
        а тут в условие добавили проверку на нашу новую переменную */
     if (EdOpt.AutoIndent && NewLineEmpty)
     {
-      RemoveTrailingSpaces(CurLineStr);
-      StrSize=strlen(CurLineStr);
+      RemoveTrailingSpacesW(CurLineStr);
+      StrSize=wcslen(CurLineStr);
     }
     /* tran 17.07.2000 $ */
 
@@ -4141,13 +3387,13 @@ void Editor::InsertString()
       В этом месте портится EOL строки.
       Надо его вернуть на базу.
     */
-    CurLine->EditLine.SetBinaryString(CurLineStr,StrSize);
-    CurLine->EditLine.SetEOL(EndSeq);
+    CurLine->EditLine.SetBinaryStringW(CurLineStr,StrSize);
+    CurLine->EditLine.SetEOLW(EndSeq);
     /* skv $*/
   }
   else
   {
-    NewString->EditLine.SetString("");
+    NewString->EditLine.SetStringW(L"");
     AddUndoData(NULL,NumLine+1,0,UNDO_INSSTR);
   }
 
@@ -4179,7 +3425,7 @@ void Editor::InsertString()
     if (BlockStart!=NULL && NumLine<BlockStartLine)
       BlockStartLine++;
 
-  NewString->EditLine.SetEOL(EndSeq);
+  NewString->EditLine.SetEOLW(EndSeq);
 
   CurLine->EditLine.SetCurPos(0);
   if (CurLine==EndList)
@@ -4192,7 +3438,7 @@ void Editor::InsertString()
     int OrgIndentPos=IndentPos;
     ShowEditor(FALSE);
 
-    CurLine->EditLine.GetBinaryString(CurLineStr,NULL,Length);
+    CurLine->EditLine.GetBinaryStringW(CurLineStr,NULL,Length);
 
     if (SpaceOnly)
     {
@@ -4223,17 +3469,17 @@ void Editor::InsertString()
         int SaveOvertypeMode=CurLine->EditLine.GetOvertypeMode();
         CurLine->EditLine.SetOvertypeMode(FALSE);
 
-        const char *PrevStr=NULL;
+        const wchar_t *PrevStr=NULL;
         int PrevLength=0;
 
         if (SrcIndent)
         {
-          SrcIndent->EditLine.GetBinaryString(PrevStr,NULL,PrevLength);
+          SrcIndent->EditLine.GetBinaryStringW(PrevStr,NULL,PrevLength);
         }
 
         for (int I=0;CurLine->EditLine.GetTabCurPos()<IndentPos;I++)
         {
-          if (SrcIndent!=NULL && I<PrevLength && IsSpace(PrevStr[I]))
+          if (SrcIndent!=NULL && I<PrevLength && IsSpaceW(PrevStr[I]))
           {
             CurLine->EditLine.ProcessKey(PrevStr[I]);
           }
@@ -4250,7 +3496,7 @@ void Editor::InsertString()
       CurLine->EditLine.SetTabCurPos(IndentPos);
     }
 
-    CurLine->EditLine.GetBinaryString(CurLineStr,NULL,Length);
+    CurLine->EditLine.GetBinaryStringW(CurLineStr,NULL,Length);
     CurPos=CurLine->EditLine.GetCurPos();
     if (SpaceOnly)
     {
@@ -4364,40 +3610,46 @@ void Editor::ScrollUp()
 BOOL Editor::Search(int Next)
 {
   struct EditList *CurPtr,*TmpPtr;
-  unsigned char SearchStr[SEARCHSTRINGBUFSIZE],ReplaceStr[SEARCHSTRINGBUFSIZE];
-  static char LastReplaceStr[SEARCHSTRINGBUFSIZE];
+  string strSearchStr, strReplaceStr;
+  static string strLastReplaceStr;
   static int LastSuccessfulReplaceMode=0;
-  char MsgStr[512];
-  const char *TextHistoryName="SearchText",*ReplaceHistoryName="ReplaceText";
+  string strMsgStr;
+  const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
   /* $ 03.08.2000 KM
      Новая переменная
   */
   int CurPos,Count,Case,WholeWords,ReverseSearch,Match,NewNumLine,UserBreak;
   /* KM $ */
-  if (Next && *LastSearchStr==0)
+  if (Next && strLastSearchStr.IsEmpty() )
     return TRUE;
 
-  xstrncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
-  xstrncpy((char *)ReplaceStr,(char *)LastReplaceStr,sizeof(ReplaceStr)-1);
+  strSearchStr = strLastSearchStr;
+  strReplaceStr = strLastReplaceStr;
+
   Case=LastSearchCase;
   WholeWords=LastSearchWholeWords;
   ReverseSearch=LastSearchReverse;
 
   if (!Next)
-    if(!GetSearchReplaceString(ReplaceMode,SearchStr,sizeof(SearchStr),
-                   ReplaceStr,sizeof(ReplaceStr),
+    if(!GetSearchReplaceStringW(ReplaceMode,&strSearchStr,
+                   &strReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
                    &Case,&WholeWords,&ReverseSearch))
       return FALSE;
 
-  xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
-  xstrncpy((char *)LastReplaceStr,(char *)ReplaceStr,sizeof(LastReplaceStr)-1);
+  strLastSearchStr = strSearchStr;
+  strLastReplaceStr = strReplaceStr;
+
   LastSearchCase=Case;
   LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;
 
-  if (*SearchStr==0)
+  if ( strSearchStr.IsEmpty() )
     return TRUE;
+
+  wchar_t *SearchStr = _wcsdup (strSearchStr); //RAVE!!!
+  wchar_t *ReplaceStr = _wcsdup (strReplaceStr); //BUGBUG!!!
+
 
   LastSuccessfulReplaceMode=ReplaceMode;
 
@@ -4407,12 +3659,12 @@ BOOL Editor::Search(int Next)
   {
     //SaveScreen SaveScr;
 
-    int SearchLength=strlen((char *)SearchStr);
+    int SearchLength=strSearchStr.GetLength();
 
-    sprintf(MsgStr,"\"%s\"",SearchStr);
+    strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,0);
     //SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-    EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
+    EditorShowMsg(UMSG(MEditSearchTitle),UMSG(MEditSearchingFor),strMsgStr);
 
     Count=0;
     Match=0;
@@ -4457,7 +3709,7 @@ BOOL Editor::Search(int Next)
       /* $ 03.08.2000 KM
          Добавление нового параметра в функцию поиска
       */
-      if (CurPtr->EditLine.Search((char *)SearchStr,CurPos,Case,WholeWords,ReverseSearch))
+      if (CurPtr->EditLine.Search(SearchStr,CurPos,Case,WholeWords,ReverseSearch))
       /* KM $ */
       {
         int Skip=FALSE;
@@ -4500,21 +3752,24 @@ BOOL Editor::Search(int Next)
             GetCursorPos(CurX,CurY);
             GotoXY(CurX,CurY);
             SetColor(COL_EDITORSELECTEDTEXT);
-            const char *Str=CurPtr->EditLine.GetStringAddr()+CurPtr->EditLine.GetCurPos();
-            char *TmpStr=new char[SearchLength+1];
-            xstrncpy(TmpStr,Str,SearchLength);
+            const wchar_t *Str=CurPtr->EditLine.GetStringAddrW()+CurPtr->EditLine.GetCurPos();
+            wchar_t *TmpStr=new wchar_t[SearchLength+1];
+            xwcsncpy(TmpStr,Str,SearchLength);
             TmpStr[SearchLength]=0;
+
+            /*
             if (UseDecodeTable)
-              DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);
-            Text(TmpStr);
+              DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
+            TextW(TmpStr);
             delete[] TmpStr;
 
-            char QSearchStr[SEARCHSTRINGBUFSIZE+4],QReplaceStr[SEARCHSTRINGBUFSIZE+4];
-            sprintf(QSearchStr,"\"%s\"",LastSearchStr);
-            sprintf(QReplaceStr,"\"%s\"",LastReplaceStr);
-            MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
-              QSearchStr,MSG(MEditAskReplaceWith),QReplaceStr,
-              MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
+            string strQSearchStr, strQReplaceStr;
+            strQSearchStr.Format (L"\"%s\"", (const wchar_t*)strLastSearchStr);
+            strQReplaceStr.Format (L"\"%s\"", (const wchar_t*)strLastReplaceStr);
+
+            MsgCode=MessageW(0,4,UMSG(MEditReplaceTitle),UMSG(MEditAskReplace),
+              strQSearchStr,UMSG(MEditAskReplaceWith),strQReplaceStr,
+              UMSG(MEditReplace),UMSG(MEditReplaceAll),UMSG(MEditSkip),UMSG(MEditCancel));
             if (MsgCode==1)
               ReplaceAll=TRUE;
             if (MsgCode==2)
@@ -4532,7 +3787,7 @@ BOOL Editor::Search(int Next)
               If Replace string doesn't contain control symbols (tab and return),
               processed with fast method, otherwise use improved old one.
             */
-            if(strchr((char*)ReplaceStr,'\t') || strchr((char*)ReplaceStr,13))
+            if(wcschr(ReplaceStr,L'\t') || wcschr(ReplaceStr,13)) //BUGBUG!!
             {
               int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
               Flags.Set(FEDITOR_OVERTYPE);
@@ -4582,8 +3837,8 @@ BOOL Editor::Search(int Next)
                 }
               }
               int Cnt=0;
-              char *Tmp=(char*)ReplaceStr;
-              while((Tmp=strchr(Tmp,13)) != NULL)
+              wchar_t *Tmp=(wchar_t*)ReplaceStr;
+              while((Tmp=wcschr(Tmp,13)) != NULL)
               {
                 Cnt++;
                 Tmp++;
@@ -4598,33 +3853,31 @@ BOOL Editor::Search(int Next)
             else
             {
               /* Fast method */
-              const char *Str,*Eol;
+              const wchar_t *Str,*Eol;
               int StrLen,NewStrLen;
-              int SStrLen=strlen((char*)SearchStr),
-                  RStrLen=strlen((char*)ReplaceStr);
-              CurLine->EditLine.GetBinaryString(Str,&Eol,StrLen);
-              int EolLen=strlen((char*)Eol);
+              int SStrLen=strSearchStr.GetLength(),
+                  RStrLen=strReplaceStr.GetLength();
+              CurLine->EditLine.GetBinaryStringW(Str,&Eol,StrLen);
+              int EolLen=wcslen(Eol);
               NewStrLen=StrLen;
               NewStrLen-=SStrLen;
               NewStrLen+=RStrLen;
               NewStrLen+=EolLen;
-              char *NewStr=new char[NewStrLen+1];
+              wchar_t *NewStr=new wchar_t[NewStrLen+1];
               int CurPos=CurLine->EditLine.GetCurPos();
-              memcpy(NewStr,Str,CurPos);
-              memcpy(NewStr+CurPos,ReplaceStr,RStrLen);
-              /*$ 07.09.2000 skv
-                If table set need to encode string.
-              */
-              if(UseDecodeTable)
+              wmemcpy(NewStr,Str,CurPos);
+              wmemcpy(NewStr+CurPos,ReplaceStr,RStrLen);
+
+              /*if(UseDecodeTable)
               {
                 EncodeString(NewStr+CurPos,(unsigned char*)TableSet.EncodeTable,RStrLen);
-              }
-              /* skv$*/
-              memcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
-              memcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
-              AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+              }*/ //BUGBUG!!!
+
+              wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
+              wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
+              AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                           CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-              CurLine->EditLine.SetBinaryString(NewStr,NewStrLen);
+              CurLine->EditLine.SetBinaryStringW(NewStr,NewStrLen);
               CurLine->EditLine.SetCurPos(CurPos+RStrLen);
               delete [] NewStr;
 
@@ -4668,28 +3921,32 @@ BOOL Editor::Search(int Next)
   }
   Show();
   if (!Match && !UserBreak)
-    Message(MSG_DOWN|MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
-            MsgStr,MSG(MOk));
-   return TRUE;
+    MessageW(MSG_DOWN|MSG_WARNING,1,UMSG(MEditSearchTitle),UMSG(MEditNotFound),
+            strMsgStr,UMSG(MOk));
+
+  xf_free (SearchStr); //RAVE!!!
+  xf_free (ReplaceStr); //BUGBUG!!!
+
+  return TRUE;
 }
 /* SVS $ */
 
-void Editor::Paste(char *Src)
+void Editor::Paste(const wchar_t *Src)
 {
   if (Flags.Check(FEDITOR_LOCKMODE))
     return;
 
-  char *ClipText=Src;
+  const wchar_t *ClipText=Src;
   BOOL IsDeleteClipText=FALSE;
 
   if(!ClipText)
   {
-    if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlock))!=NULL)
+    if ((ClipText=PasteFormatFromClipboardW(FAR_VerticalBlockW))!=NULL)
     {
       VPaste(ClipText);
       return;
     }
-    if ((ClipText=PasteFromClipboard())==NULL)
+    if ((ClipText=PasteFromClipboardW())==NULL)
       return;
     IsDeleteClipText=TRUE;
   }
@@ -4697,11 +3954,10 @@ void Editor::Paste(char *Src)
   if (*ClipText)
   {
     Flags.Set(FEDITOR_NEWUNDO);
+
+    /*
     if (UseDecodeTable)
-      EncodeString(ClipText,(unsigned char *)TableSet.EncodeTable);
-    /*$ 10.08.2000 skv
-      Modified->TextChanged
-    */
+      EncodeString(ClipText,(unsigned char *)TableSet.EncodeTable);*/ //BUGBUG
     TextChanged(1);
     /* skv $*/
     int SaveOvertype=Flags.Check(FEDITOR_OVERTYPE);
@@ -4738,12 +3994,9 @@ void Editor::Paste(char *Src)
         {
           if(EdOpt.AutoIndent)       // первый символ вставим так, чтобы
           {                          // сработал автоотступ
-            /* $ 25.05.2001 IS
-                 Корректно обработаем вставку в файл в кодировке,
-                 отличной от oem
-            */
-            ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]);
-            /* IS $ */
+            //ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]); //BUGBUG
+              ProcessKey(ClipText[I]); //BUGBUG
+
             I++;
             StartPos=CurLine->EditLine.GetCurPos();
             if(StartPos) StartPos--;
@@ -4754,13 +4007,13 @@ void Editor::Paste(char *Src)
             Pos++;
           if (Pos>I)
           {
-            const char *Str;
+            const wchar_t *Str;
             int Length,CurPos;
-            CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+            CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
             CurPos=CurLine->EditLine.GetCurPos();
             AddUndoData(Str,NumLine,CurPos,UNDO_EDIT);
             BlockUndo=TRUE;
-            CurLine->EditLine.InsertBinaryString(&ClipText[I],Pos-I);
+            CurLine->EditLine.InsertBinaryStringW(&ClipText[I],Pos-I);
           }
           I=Pos;
         }
@@ -4799,14 +4052,14 @@ void Editor::Copy(int Append)
   }
 
   struct EditList *CurPtr=BlockStart;
-  char *CopyData=NULL;
+  wchar_t *CopyData=NULL;
   long DataSize=0,PrevSize=0;
 
   if (Append)
   {
-    CopyData=PasteFromClipboard();
+    CopyData=PasteFromClipboardW();
     if (CopyData!=NULL)
-      PrevSize=DataSize=strlen(CopyData);
+      PrevSize=DataSize=wcslen(CopyData);
   }
 
   while (CurPtr!=NULL)
@@ -4816,7 +4069,7 @@ void Editor::Copy(int Append)
     CurPtr->EditLine.GetSelection(StartSel,EndSel);
     if (StartSel==-1)
       break;
-    char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+2);
+    wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+Length+2)*sizeof (wchar_t));
     if (NewPtr==NULL)
     {
       delete CopyData;
@@ -4824,11 +4077,11 @@ void Editor::Copy(int Append)
       break;
     }
     CopyData=NewPtr;
-    CurPtr->EditLine.GetSelString(CopyData+DataSize,Length);
-    DataSize+=strlen(CopyData+DataSize);
+    CurPtr->EditLine.GetSelStringW(CopyData+DataSize,Length);
+    DataSize+=wcslen(CopyData+DataSize);
     if (EndSel==-1)
     {
-      strcpy(CopyData+DataSize,DOS_EOL_fmt);
+      wcscpy(CopyData+DataSize,DOS_EOL_fmtW);
       DataSize+=2;
     }
     CurPtr=CurPtr->Next;
@@ -4836,9 +4089,10 @@ void Editor::Copy(int Append)
 
   if (CopyData!=NULL)
   {
+    /*
     if (UseDecodeTable)
-      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);
-    CopyToClipboard(CopyData);
+      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
+    CopyToClipboardW(CopyData);
     delete CopyData;
   }
 }
@@ -4896,7 +4150,7 @@ void Editor::DeleteBlock()
     if (StartSel!=0 || EndSel!=0)
     {
       BlockUndo=UndoNext;
-      AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine,
+      AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine,
                   CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
       UndoNext=TRUE;
     }
@@ -4908,14 +4162,14 @@ void Editor::DeleteBlock()
     {
       Length=StartSel;
       CurPtr->EditLine.SetCurPos(Length);
-      CurPtr->EditLine.InsertBinaryString("",0);
+      CurPtr->EditLine.InsertBinaryStringW(L"",0);
     }
     /* SKV $ */
-    const char *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+    const wchar_t *CurStr,*EndSeq;
+    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
     // дальше будет realloc, поэтому тут malloc.
-    char *TmpStr=(char*)xf_malloc(Length+3);
-    memcpy(TmpStr,CurStr,Length);
+    wchar_t *TmpStr=(wchar_t*)xf_malloc((Length+3)*sizeof (wchar_t));
+    wmemcpy(TmpStr,CurStr,Length);
     TmpStr[Length]=0;
     int DeleteNext=FALSE;
     if (EndSel==-1)
@@ -4924,7 +4178,7 @@ void Editor::DeleteBlock()
       if (CurPtr->Next!=NULL)
         DeleteNext=TRUE;
     }
-    memmove(TmpStr+StartSel,TmpStr+EndSel,strlen(TmpStr+EndSel)+1);
+    wmemmove(TmpStr+StartSel,TmpStr+EndSel,wcslen(TmpStr+EndSel)+1);
     int CurPos=StartSel;
 /*    if (CurPos>=StartSel)
     {
@@ -4936,7 +4190,7 @@ void Editor::DeleteBlock()
     Length-=EndSel-StartSel;
     if (DeleteNext)
     {
-      const char *NextStr,*EndSeq;
+      const wchar_t *NextStr,*EndSeq;
       int NextLength,NextStartSel,NextEndSel;
       CurPtr->Next->EditLine.GetSelection(NextStartSel,NextEndSel);
       if (NextStartSel==-1)
@@ -4945,10 +4199,10 @@ void Editor::DeleteBlock()
         EndSel=-1;
       else
       {
-        CurPtr->Next->EditLine.GetBinaryString(NextStr,&EndSeq,NextLength);
+        CurPtr->Next->EditLine.GetBinaryStringW(NextStr,&EndSeq,NextLength);
         NextLength-=NextEndSel;
-        TmpStr=(char *)xf_realloc(TmpStr,Length+NextLength+3);
-        memcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
+        TmpStr=(wchar_t *)xf_realloc(TmpStr,Length+NextLength+3);
+        wmemcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
         Length+=NextLength;
       }
       if (CurLine==CurPtr->Next)
@@ -4968,11 +4222,11 @@ void Editor::DeleteBlock()
       if (BlockStartLine+1<NumLine)
         NumLine--;
     }
-    int EndLength=strlen(EndSeq);
-    memcpy(TmpStr+Length,EndSeq,EndLength);
+    int EndLength=wcslen(EndSeq);
+    wmemcpy(TmpStr+Length,EndSeq,EndLength);
     Length+=EndLength;
     TmpStr[Length]=0;
-    CurPtr->EditLine.SetBinaryString(TmpStr,Length);
+    CurPtr->EditLine.SetBinaryStringW(TmpStr,Length);
     /* $ 17.09.2002 SKV
       выделяли через malloc
     */
@@ -5119,13 +4373,13 @@ void Editor::GoToPosition()
   int CurPos;
   CurPos=CurLine->EditLine.GetCurPos();
 
-  const char *LineHistoryName="LineNumber";
-  static struct DialogData GoToDlgData[]=
+  const wchar_t *LineHistoryName=L"LineNumber";
+  static struct DialogDataEx GoToDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
-    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,"",
+    DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(const wchar_t *)MEditGoToLine,
+    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
   };
-  MakeDialogItems(GoToDlgData,GoToDlg);
+  MakeDialogItemsEx(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran
     PrevLine теперь не нужно - USELASTHISTORY рулит */
   //  static char PrevLine[40]={0};
@@ -5133,7 +4387,7 @@ void Editor::GoToPosition()
   //  strcpy(GoToDlg[1].Data,PrevLine);
   Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
   Dlg.SetPosition(-1,-1,25,5);
-  Dlg.SetHelp("EditorGotoPos");
+  Dlg.SetHelp(L"EditorGotoPos");
   Dlg.Process();
 
   /* $ 06.05.2002 KM
@@ -5149,7 +4403,7 @@ void Editor::GoToPosition()
   // Запомним ранее введенное значение в текущем сеансе работы FAR`а
   //  xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
 
-  GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
+  GetRowCol(GoToDlg[1].strData,&NewLine,&NewCol);
 
   //_D(SysLog("GoToPosition: NewLine=%i, NewCol=%i",NewLine,NewCol));
   GoToLine(NewLine);
@@ -5184,46 +4438,51 @@ void Editor::GoToPosition()
    теперь ничего не возвращает
    просто сама определяет относительность
    и вычисляет новые координаты */
-void Editor::GetRowCol(char *argv,int *row,int *col)
+void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
 {
-  int x=0xffff,y,l;
-  char *argvx=0;
+  int x=0xffff,y;
+  size_t l;
+  wchar_t *argvx=0;
   int LeftPos=CurLine->EditLine.GetTabCurPos() + 1;
+
+  string strArg = _argv;
 
   // что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
   // "прибьем" все внешние пробелы.
-  RemoveExternalSpaces(argv);
+  RemoveExternalSpacesW(strArg);
 
+  wchar_t *argv = strArg.GetBuffer ();
   // получаем индекс вхождения любого разделителя
   // в искомой строке
-  l=strcspn(argv,",:;. ");
+  l=wcscspn(argv,L",:;. ");
   // если разделителя нету, то l=strlen(argv)
 
-  if(l < static_cast<int>(strlen(argv))) // Варианты: "row,col" или ",col"?
+  if(l < wcslen(argv)) // Варианты: "row,col" или ",col"?
   {
-    argv[l]='\0'; // Вместо разделителя впиндюлим "конец строки" :-)
+    argv[l]=L'\0'; // Вместо разделителя впиндюлим "конец строки" :-)
     argvx=argv+l+1;
-    x=atoi(argvx);
+    x=_wtoi(argvx);
   }
-  y=atoi(argv);
+  y=_wtoi(argv);
   /* $ 14.07.2000 tran
     + переход на проценты */
-  if ( strchr(argv,'%')!=0 )
+  if ( wcschr(argv,L'%')!=0 )
     y=NumLastLine * y / 100;
   /* tran $ */
 
   /* $ 21.07.2000 tran
      вычисляем относительность */
-  if ( argv[0]=='-' || argv[0]=='+' )
+  if ( argv[0]==L'-' || argv[0]==L'+' )
     y=NumLine+y+1;
   if ( argvx )
   {
-    if ( argvx[0]=='-' || argvx[0]=='+' )
+    if ( argvx[0]==L'-' || argvx[0]==L'+' )
     {
         x=LeftPos+x;
     }
   }
 
+  strArg.ReleaseBuffer ();
   /* tran 21.07.2000 $ */
 
   // теперь загоним результат назад
@@ -5250,7 +4509,7 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
 /* $ 03.12.2001 IS
    UndoData - теперь указатель
 */
-void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
+void Editor::AddUndoData(const wchar_t *Str,int StrNum,int StrPos,int Type)
 {
   int PrevUndoDataPos;
   if (Flags.Check(FEDITOR_DISABLEUNDO) || !UndoData)
@@ -5277,9 +4536,9 @@ void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
   UndoData[UndoDataPos].StrNum=StrNum;
   if (Str!=NULL)
   {
-    UndoData[UndoDataPos].Str=new char[strlen(Str)+1];
+    UndoData[UndoDataPos].Str=new wchar_t[wcslen(Str)+1];
     if (UndoData[UndoDataPos].Str!=NULL)
-      strcpy(UndoData[UndoDataPos].Str,Str);
+      wcscpy(UndoData[UndoDataPos].Str,Str);
   }
   else
     UndoData[UndoDataPos].Str=NULL;
@@ -5339,11 +4598,11 @@ void Editor::Undo()
       }
       Pasting--;
       if (UndoData[UndoDataPos].Str!=NULL)
-        CurLine->EditLine.SetString(UndoData[UndoDataPos].Str);
+        CurLine->EditLine.SetStringW(UndoData[UndoDataPos].Str);
       break;
     case UNDO_EDIT:
       if (UndoData[UndoDataPos].Str!=NULL)
-        CurLine->EditLine.SetString(UndoData[UndoDataPos].Str);
+        CurLine->EditLine.SetStringW(UndoData[UndoDataPos].Str);
       CurLine->EditLine.SetCurPos(UndoData[UndoDataPos].StrPos);
       break;
   }
@@ -5401,10 +4660,10 @@ long Editor::GetCurPos()
   long TotalSize=0;
   while (CurPtr!=TopScreen)
   {
-    const char *SaveStr,*EndSeq;
+    const wchar_t *SaveStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
-    TotalSize+=Length+strlen(EndSeq);
+    CurPtr->EditLine.GetBinaryStringW(SaveStr,&EndSeq,Length);
+    TotalSize+=Length+wcslen(EndSeq);
     CurPtr=CurPtr->Next;
   }
   return(TotalSize);
@@ -5455,34 +4714,34 @@ void Editor::BlockLeft()
       break;
 
     int Length=CurPtr->EditLine.GetLength();
-    char *TmpStr=new char[Length+EdOpt.TabSize+5];
+    wchar_t *TmpStr=new wchar_t[Length+EdOpt.TabSize+5];
 
-    const char *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+    const wchar_t *CurStr,*EndSeq;
+    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
 
     Length--;
-    if (*CurStr==' ')
-      memcpy(TmpStr,CurStr+1,Length);
+    if (*CurStr==L' ')
+      wmemcpy(TmpStr,CurStr+1,Length);
     else
-      if (*CurStr=='\t')
+      if (*CurStr==L'\t')
       {
-        memset(TmpStr,' ',EdOpt.TabSize-1);
-        memcpy(TmpStr+EdOpt.TabSize-1,CurStr+1,Length);
+        wmemset(TmpStr, L' ', EdOpt.TabSize-1);
+        wmemcpy(TmpStr+EdOpt.TabSize-1,CurStr+1,Length);
         Length+=EdOpt.TabSize-1;
       }
 
     /* $ 24.07.2001 IS IsSpace для этого и придумали */
-    if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
+    if ((EndSel==-1 || EndSel>StartSel) && IsSpaceW(*CurStr))
     /* IS $ */
     {
-      int EndLength=strlen(EndSeq);
-      memcpy(TmpStr+Length,EndSeq,EndLength);
+      int EndLength=wcslen(EndSeq);
+      wmemcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
       AddUndoData(CurStr,LineNum,0,UNDO_EDIT);
       BlockUndo=TRUE;
       int CurPos=CurPtr->EditLine.GetCurPos();
-      CurPtr->EditLine.SetBinaryString(TmpStr,Length);
+      CurPtr->EditLine.SetBinaryStringW(TmpStr,Length);
       CurPtr->EditLine.SetCurPos(CurPos>0 ? CurPos-1:CurPos);
       /* $ 14.02.2001 VVM
         + Выделить только если двигаем блок */
@@ -5538,24 +4797,24 @@ void Editor::BlockRight()
       break;
 
     int Length=CurPtr->EditLine.GetLength();
-    char *TmpStr=new char[Length+5];
+    wchar_t *TmpStr=new wchar_t[Length+5];
 
-    const char *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
-    *TmpStr=' ';
-    memcpy(TmpStr+1,CurStr,Length);
+    const wchar_t *CurStr,*EndSeq;
+    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    *TmpStr=L' ';
+    wmemcpy(TmpStr+1,CurStr,Length);
     Length++;
 
     if (EndSel==-1 || EndSel>StartSel)
     {
-      int EndLength=strlen(EndSeq);
-      memcpy(TmpStr+Length,EndSeq,EndLength);
+      int EndLength=wcslen(EndSeq);
+      wmemcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
       AddUndoData(CurStr,LineNum,0,UNDO_EDIT);
       BlockUndo=TRUE;
       int CurPos=CurPtr->EditLine.GetCurPos();
       if (Length>1)
-        CurPtr->EditLine.SetBinaryString(TmpStr,Length+EndLength);
+        CurPtr->EditLine.SetBinaryStringW(TmpStr,Length+EndLength);
       CurPtr->EditLine.SetCurPos(CurPos+1);
       /* $ 14.02.2001 VVM
         + Выделить только если двигаем блок */
@@ -5619,33 +4878,33 @@ void Editor::DeleteVBlock()
     int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                     CurPtr->EditLine.TabPosToReal(VBlockX);
 
-    const char *CurStr,*EndSeq;
+    const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
     if (TBlockX>=Length)
       continue;
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine+Line,
+    AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,
                 CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
-    char *TmpStr=new char[Length+3];
+    wchar_t *TmpStr=new wchar_t[Length+3];
     int CurLength=TBlockX;
-    memcpy(TmpStr,CurStr,TBlockX);
+    wmemcpy(TmpStr,CurStr,TBlockX);
     if (Length>TBlockX+TBlockSizeX)
     {
       int CopySize=Length-(TBlockX+TBlockSizeX);
-      memcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
+      wmemcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
       CurLength+=CopySize;
     }
-    int EndLength=strlen(EndSeq);
-    memcpy(TmpStr+CurLength,EndSeq,EndLength);
+    int EndLength=wcslen(EndSeq);
+    wmemcpy(TmpStr+CurLength,EndSeq,EndLength);
     CurLength+=EndLength;
     TmpStr[CurLength]=0;
 
     int CurPos=CurPtr->EditLine.GetCurPos();
-    CurPtr->EditLine.SetBinaryString(TmpStr,CurLength);
+    CurPtr->EditLine.SetBinaryStringW(TmpStr,CurLength);
     if (CurPos>TBlockX)
     {
       CurPos-=TBlockSizeX;
@@ -5663,19 +4922,19 @@ void Editor::DeleteVBlock()
 void Editor::VCopy(int Append)
 {
   struct EditList *CurPtr=VBlockStart;
-  char *CopyData=NULL;
+  wchar_t *CopyData=NULL;
   long DataSize=0,PrevSize=0;
 
   if (Append)
   {
-    CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
+    CopyData=PasteFormatFromClipboardW(FAR_VerticalBlockW);
     if (CopyData!=NULL)
-      PrevSize=DataSize=strlen(CopyData);
+      PrevSize=DataSize=wcslen(CopyData);
     else
     {
-      CopyData=PasteFromClipboard();
+      CopyData=PasteFromClipboardW();
       if (CopyData!=NULL)
-        PrevSize=DataSize=strlen(CopyData);
+        PrevSize=DataSize=wcslen(CopyData);
     }
   }
 
@@ -5684,12 +4943,12 @@ void Editor::VCopy(int Append)
     int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
     int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                     CurPtr->EditLine.TabPosToReal(VBlockX);
-    const char *CurStr,*EndSeq;
+    const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
 
     int AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
-    char *NewPtr=(char *)xf_realloc(CopyData,AllocSize);
+    wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof (wchar_t));
     if (NewPtr==NULL)
     {
       delete CopyData;
@@ -5703,31 +4962,31 @@ void Editor::VCopy(int Append)
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
         CopySize=TBlockSizeX;
-      memcpy(CopyData+DataSize,CurStr+TBlockX,CopySize);
+      wmemcpy(CopyData+DataSize,CurStr+TBlockX,CopySize);
       if (CopySize<TBlockSizeX)
-        memset(CopyData+DataSize+CopySize,' ',TBlockSizeX-CopySize);
+        wmemset(CopyData+DataSize+CopySize,L' ',TBlockSizeX-CopySize);
     }
     else
-      memset(CopyData+DataSize,' ',TBlockSizeX);
+      wmemset(CopyData+DataSize,L' ',TBlockSizeX);
 
     DataSize+=TBlockSizeX;
 
 
-    strcpy(CopyData+DataSize,DOS_EOL_fmt);
+    wcscpy(CopyData+DataSize,DOS_EOL_fmtW);
     DataSize+=2;
   }
 
   if (CopyData!=NULL)
   {
-    if (UseDecodeTable)
-      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);
-    CopyToClipboard(CopyData);
-    CopyFormatToClipboard(FAR_VerticalBlock,CopyData);
+    /*if (UseDecodeTable)
+      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
+    CopyToClipboardW(CopyData);
+    CopyFormatToClipboardW(FAR_VerticalBlockW,CopyData);
     delete CopyData;
   }
 }
 
-void Editor::VPaste(char *ClipText)
+void Editor::VPaste(const wchar_t *ClipText)
 {
   if (Flags.Check(FEDITOR_LOCKMODE))
     return;
@@ -5787,7 +5046,7 @@ void Editor::VPaste(char *ClipText)
             */
             if(!EdOpt.AutoIndent)
               for (int I=0;I<StartPos;I++)
-                ProcessKey(' ');
+                ProcessKey(L' ');
             /* IS $ */
           }
         }
@@ -5848,16 +5107,16 @@ void Editor::VBlockShift(int Left)
     int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                     CurPtr->EditLine.TabPosToReal(VBlockX);
 
-    const char *CurStr,*EndSeq;
+    const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
     if (TBlockX>Length)
       continue;
-    if (Left && CurStr[TBlockX-1]=='\t' ||
-        !Left && TBlockX+TBlockSizeX<Length && CurStr[TBlockX+TBlockSizeX]=='\t')
+    if (Left && CurStr[TBlockX-1]==L'\t' ||
+        !Left && TBlockX+TBlockSizeX<Length && CurStr[TBlockX+TBlockSizeX]==L'\t')
     {
       CurPtr->EditLine.ReplaceTabs();
-      CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
       TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
       TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                   CurPtr->EditLine.TabPosToReal(VBlockX);
@@ -5865,14 +5124,14 @@ void Editor::VBlockShift(int Left)
 
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine+Line,
+    AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,
                 CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
     int StrLength=Max(Length,TBlockX+TBlockSizeX+!Left);
-    char *TmpStr=new char[StrLength+3];
-    memset(TmpStr,' ',StrLength);
-    memcpy(TmpStr,CurStr,Length);
+    wchar_t *TmpStr=new wchar_t[StrLength+3];
+    wmemset(TmpStr,L' ',StrLength);
+    wmemcpy(TmpStr,CurStr,Length);
 
     if (Left)
     {
@@ -5889,14 +5148,14 @@ void Editor::VBlockShift(int Left)
       TmpStr[TBlockX]=Ch;
     }
 
-    while (StrLength>0 && TmpStr[StrLength-1]==' ')
+    while (StrLength>0 && TmpStr[StrLength-1]==L' ')
       StrLength--;
-    int EndLength=strlen(EndSeq);
-    memcpy(TmpStr+StrLength,EndSeq,EndLength);
+    int EndLength=wcslen(EndSeq);
+    wmemcpy(TmpStr+StrLength,EndSeq,EndLength);
     StrLength+=EndLength;
     TmpStr[StrLength]=0;
 
-    CurPtr->EditLine.SetBinaryString(TmpStr,StrLength);
+    CurPtr->EditLine.SetBinaryStringW(TmpStr,StrLength);
     delete[] TmpStr;
   }
   VBlockX+=Left ? -1:1;
@@ -5927,8 +5186,8 @@ int Editor::EditorControl(int Command,void *Param)
         //CurPtr->EditLine.GetBinaryString(GetString->StringText,
         //                      &const_cast<const char*>(GetString->StringEOL),
         //                      GetString->StringLength);
-        CurPtr->EditLine.GetBinaryString(GetString->StringText,
-                                const_cast<const char **>(&GetString->StringEOL),
+        CurPtr->EditLine.GetBinaryStringW(GetString->StringText,
+                                const_cast<const wchar_t **>(&GetString->StringEOL),
                                 GetString->StringLength);
         GetString->SelStart=-1;
         GetString->SelEnd=0;
@@ -5998,7 +5257,7 @@ int Editor::EditorControl(int Command,void *Param)
       }
       else
       {
-        char *Str=(char *)Param;
+        const wchar_t *Str=(const wchar_t *)Param;
         Pasting++;
         Lock ();
 
@@ -6049,10 +5308,10 @@ int Editor::EditorControl(int Command,void *Param)
           return(FALSE);
         }
 
-        const char *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
+        const wchar_t *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
         /* IS 06.08.2002 IS $ */
-        int LengthEOL=strlen(EOL);
-        char *NewStr=(char*)xf_malloc(Length+LengthEOL+1);
+        int LengthEOL=wcslen(EOL);
+        wchar_t *NewStr=(wchar_t*)xf_malloc((Length+LengthEOL+1)*sizeof (wchar_t));
         if (NewStr==NULL)
         {
           _ECTLLOG(SysLog("xf_malloc(%d) return NULL",Length+LengthEOL+1));
@@ -6063,13 +5322,13 @@ int Editor::EditorControl(int Command,void *Param)
         if (DestLine==-1)
           DestLine=NumLine;
 
-        memcpy(NewStr,SetString->StringText,Length);
-        memcpy(NewStr+Length,EOL,LengthEOL);
-        AddUndoData(CurPtr->EditLine.GetStringAddr(),DestLine,
+        wmemcpy(NewStr,SetString->StringText,Length);
+        wmemcpy(NewStr+Length,EOL,LengthEOL);
+        AddUndoData(CurPtr->EditLine.GetStringAddrW(),DestLine,
                     CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
 
         int CurPos=CurPtr->EditLine.GetCurPos();
-        CurPtr->EditLine.SetBinaryString(NewStr,Length+LengthEOL);
+        CurPtr->EditLine.SetBinaryStringW(NewStr,Length+LengthEOL);
         CurPtr->EditLine.SetCurPos(CurPos);
         TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
         xf_free(NewStr);
@@ -6101,6 +5360,15 @@ int Editor::EditorControl(int Command,void *Param)
       return(TRUE);
     }
 
+
+    case ECTL_FREEINFO:
+    {
+      struct EditorInfo *Info=(struct EditorInfo *)Param;
+      xf_free ((void*)Info->FileName);
+      return(TRUE);
+    }
+
+
     case ECTL_GETINFO:
     {
       struct EditorInfo *Info=(struct EditorInfo *)Param;
@@ -6108,7 +5376,7 @@ int Editor::EditorControl(int Command,void *Param)
       {
         memset(Info,0,sizeof(*Info));
         Info->EditorID=Editor::EditorID;
-        Info->FileName="";
+        Info->FileName=_wcsdup (L"");
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1;
         Info->TotalLines=NumLastLine;
@@ -6351,7 +5619,7 @@ int Editor::EditorControl(int Command,void *Param)
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",StringNumber));
           return FALSE;
         }
-        AddUndoData(CurPtr->EditLine.GetStringAddr(),StringNumber,
+        AddUndoData(CurPtr->EditLine.GetStringAddrW(),StringNumber,
                     CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
         CurPtr->EditLine.ReplaceTabs();
       }
@@ -6454,14 +5722,14 @@ int Editor::EditorControl(int Command,void *Param)
         {
           case ESPT_GETWORDDIV:
             _ECTLLOG(SysLog("  cParam      =(%p)",espar->Param.cParam));
-            if(!IsBadWritePtr(espar->Param.cParam,sizeof(EdOpt.WordDiv)))
-              xstrncpy(espar->Param.cParam,EdOpt.WordDiv,sizeof(EdOpt.WordDiv)-1);
+            if(!IsBadWritePtr(espar->Param.cParam, EdOpt.strWordDiv.GetLength()+1))
+              xwcsncpy(espar->Param.cParam,EdOpt.strWordDiv,EdOpt.strWordDiv.GetLength()*sizeof (wchar_t)); //BUGBUG
             else
               rc=FALSE;
             break;
           case ESPT_SETWORDDIV:
             _ECTLLOG(SysLog("  cParam      =[%s]",espar->Param.cParam));
-            SetWordDiv((!espar->Param.cParam || !*espar->Param.cParam)?Opt.WordDiv:espar->Param.cParam);
+            SetWordDiv((!espar->Param.cParam || !*espar->Param.cParam)?Opt.strWordDiv:espar->Param.cParam);
             break;
           case ESPT_TABSIZE:
             _ECTLLOG(SysLog("  iParam      =%d",espar->Param.iParam));
@@ -6736,15 +6004,15 @@ void Editor::Xlat()
       int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
       int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                       CurPtr->EditLine.TabPosToReal(VBlockX);
-      const char *CurStr,*EndSeq;
+      const wchar_t *CurStr,*EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;
-      AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine+Line,0,UNDO_EDIT);
+      AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      ::Xlat(CurPtr->EditLine.Str,TBlockX,TBlockX+CopySize,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+      ::XlatW(CurPtr->EditLine.Str,TBlockX,TBlockX+CopySize,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
     }
     DoXlat=TRUE;
   }
@@ -6765,9 +6033,9 @@ void Editor::Xlat()
         if (StartSel==-1)
           break;
         if(EndSel == -1)
-          EndSel=strlen(CurPtr->EditLine.Str);
-        AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine+Line,0,UNDO_EDIT);
-        ::Xlat(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+          EndSel=wcslen(CurPtr->EditLine.Str);
+        AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,0,UNDO_EDIT);
+        ::XlatW(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
         CurPtr=CurPtr->Next;
@@ -6776,8 +6044,8 @@ void Editor::Xlat()
     }
     else
     {
-      char *Str=CurLine->EditLine.Str;
-      int start=CurLine->EditLine.GetCurPos(), end, StrSize=strlen(Str);
+      wchar_t *Str=CurLine->EditLine.Str;
+      int start=CurLine->EditLine.GetCurPos(), end, StrSize=wcslen(Str);
       /* $ 10.12.2000 IS
          Обрабатываем только то слово, на котором стоит курсор, или то слово,
          что находится левее позиции курсора на 1 символ
@@ -6788,22 +6056,22 @@ void Editor::Xlat()
          Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
          текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
       */
-      if(IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[start]))
+      if(IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
       {
          if(start) start--;
-         DoXlat=(!IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[start]));
+         DoXlat=(!IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]));
       }
 
       if(DoXlat)
       {
-        while(start>=0 && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[start]))
+        while(start>=0 && !IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
           start--;
         start++;
         end=start+1;
-        while(end<StrSize && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[end]))
+        while(end<StrSize && !IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[end]))
           end++;
-        AddUndoData(Str,NumLine,start,UNDO_EDIT);
-        ::Xlat(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
+        AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,start,UNDO_EDIT);
+        ::XlatW(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
       }
       /* 12.01.2004 IS */
      /* IS $ */
@@ -6943,9 +6211,9 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 }
 /* IS $ */
 
-void Editor::EditorShowMsg(const char *Title,const char *Msg, const char* Name)
+void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name)
 {
-  Message(0,0,Title,Msg,Name);
+  MessageW(0,0,Title,Msg,Name);
   PreRedrawParam.Param1=(void *)Title;
   PreRedrawParam.Param2=(void *)Msg;
   PreRedrawParam.Param3=(void *)Name;
@@ -6953,7 +6221,7 @@ void Editor::EditorShowMsg(const char *Title,const char *Msg, const char* Name)
 
 void Editor::PR_EditorShowMsg(void)
 {
-  Editor::EditorShowMsg((char*)PreRedrawParam.Param1,(char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3);
+  Editor::EditorShowMsg((wchar_t*)PreRedrawParam.Param1,(wchar_t*)PreRedrawParam.Param2,(wchar_t*)PreRedrawParam.Param3);
 }
 
 #endif //!defined(EDITOR2)

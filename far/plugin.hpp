@@ -12,805 +12,11 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.257 24.07.2006 $ */
-
-#ifdef FAR_USE_INTERNALS
-/*
-ВНИМАНИЕ!
-В этом файле писать все изменения только в в этом блоке!!!!
-
-Modify:
-  24.07.2006 SVS
-    + FSF.snprintf()
-    ! удалил экспериментальные ошметки от патча 1759
-  17.03.2006 AY
-    + #undef _export для _MSC_VER
-  23.01.2006 SVS
-    + PKF_PREPROCESS - выставляется у VK (второй параметр ProcessKey), говорит о том, что это предобработка
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  06.05.2005 SVS
-    + ACTL_GETMEDIATYPE, FARMEDIATYPE, struct ActlMediaType, FARMEDIATYPEFLAGS
-  12.04.2005 AY
-    + ACTL_GETSHORTWINDOWINFO
-  06.04.2005 SVS
-    + ECF_TAB1
-  01.03.2005 SVS
-    + XLAT_CONVERTALLCMDLINE
-  21.01.2005 SVS
-    ! Открытие Viewer API
-    ! VE_READ и VE_CLOSE "загнаны" в enum
-  06.01.2005 WARP
-    + EXPAND_TABS, EOPT_EXPANDONLYNEWTABS
-    ! EOPT_EXPANDTABS -> EOPT_EXPANDALLTABS
-  06.07.2004 SVS
-    + ActlKeyMacro.Param.MacroResult для MCMD_CHECKMACRO (для Macro II)
-  24.05.2004 SVS
-    + PFLAGS_NUMERICSORT, FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
-  11.05.2004 SVS
-    + DN_LISTHOTKEY - хоткеи в листах
-  01.03.2004 SVS
-    + для внутреннего использования SetFileApisTo
-    ! SETFILEAPISTO_TYPE - так же определен в farconst.hpp
-  27.02.2004 SVS
-    ! Выкинем нах DIF_LISTNOMOUSEREACTION - по другому пути пойдем
-    + LMRT_*
-    + DIF_LISTNOCLOSE
-    + MCMD_CHECKMACRO - закомменчено
-  19.02.2004 SVS
-    + DIF_LISTNOMOUSEREACTION
-  09.12.2003 SVS
-    + ESPT_GETWORDDIV
-  05.11.2003 SVS
-    + FMENU_CHANGECONSOLETITLE - изменять заголовок консоли для менюх
-  24.10.2003 SVS
-    + DI_MEMOEDIT - продолжаем работу на мультистроковым диалоговым элементом редактирования
-      (пока для внутреннего использования)
-  17.10.2003 SVS
-    + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
-  13.10.2003 SVS
-    ! ESPT_WORDDIV -> ESPT_SETWORDDIV (NotInternal)
-  10.10.2003 SVS
-    + ESPT_WORDDIV (Internal)
-  04.10.2003 SVS
-    + Новый флаг KSFLAGS_NOSENDKEYSTOPLUGINS - не передавать клавиши редакторным
-      плагинам (плагинам, экспортирующим функцию ProcessEditorInput)
-    * Уточнение структуры ActlKeyMacro: добавлен член Param.PlainText -
-      указатель на строку, содержащую макропоследовательность.
-  08.09.2003 SVS
-    + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
-      в виде plain-text.
-    ! В связи с этим, уточнение структуры ActlKeyMacro - добавлен член
-      ActlKeyMacro.Param.PlainText
-  14.07.2003 SVS
-    ! Сделаем перечисления именованными
-  15.06.2003 SVS
-    + DN_DRAWDIALOGDONE - приходит после отриосвки диалога
-    + ACTL_GETDIALOGSETTINGS
-    ! FIS_PERSISTENTBLOCKSINEDITCONTROLS -> FDIS_PERSISTENTBLOCKSINEDITCONTROLS
-    ! FIS_HISTORYINDIALOGEDITCONTROLS    -> FDIS_HISTORYINDIALOGEDITCONTROLS
-    ! FIS_AUTOCOMPLETEININPUTLINES       -> FDIS_AUTOCOMPLETEININPUTLINES
-  14.06.2003 SVS
-    ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
-  13.06.2003 SVS
-    ! Для FRS_SCANJUNCTION только младший байт!
-    + FSS_SCANSYMLINK (забыл про доступность опции :-))
-  30.05.2003 SVS
-    + ACTL_GETPLUGINMAXREADDATA
-    ! ACTL_GETWCHARMODE доступна
-    + FRS_SCANJUNCTION
-    + FFPOL_MAINMENUDIALOGS
-    ! DM_GETSELECTION/DM_SETSELECTION доступны
-  27.05.2003 SVS
-    + Константа FARMACRO_KEY_EVENT определяет тип входного сообщения
-      структуры INPUT_RECORD, которое передается в ProcessEditorInput
-      во время исполнения макрокоманды. Элемент Event содержит
-      структуру KEY_EVENT_RECORD с информацией о сообщении с клавиатуры.
-  16.04.2003 SVS
-    + DM_GETSELECTION и DM_SETSELECTION - пока для внутреннего юзания
-  17.03.2003 SVS
-    + ACTL_GETPOLICIES + FFPOL_* - пока для внутреннего юзания
-  07.01.2003 SVS
-    + XLAT_USEKEYBLAYOUTNAME - пока для внутренних целей
-  23.12.2002 SVS
-    + FARINT64 (пока для внутреннего юзания)
-    ! Учтем, что у нас __int64 теперь как часть FARINT64 во вьюверных структурах
-  17.12.2002 SVS
-    ! Изменены структуры ViewerSelect, ViewerSetPosition и ViewerInfo
-      в связи с вводом в строй Viewer64
-  27.10.2002 DJ
-    ! переименуем FarListColors.ColorItem в ColorCount (чтобы было понятно,
-      что к чему)
-    ! переименуем FARColor в FarSetColors (для единообразия в именовании и,
-      опять же, чтобы было понятно, что к чему)
-  22.10.2002 SVS
-    ! добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом не думать как
-      ЭТО сделать ;-)
-  30.09.2002 SVS
-    + struct FarListColors - описание цветовой схемы листов
-  25.09.2002 SVS
-    ! легилизация ACTL_SETARRAYCOLOR и еже с ним.
-  23.09.2002 SVS
-    + ACTL_SETARRAYCOLOR, FARCOLORFLAGS, FARColor пока для внутренного юзания
-      (хотя, блин, работает на ура!)
-  20.09.2002 SVS
-    + флаги FDLG_NODRAWSHADOW и FDLG_NODRAWPANEL
-  27.08.2002 SVS
-    ! Убираем EditorInfo.WindowPos
-    + "Очень не помешал бы у DM_SETCHECK еще один способ типа: BSTATE_TOGGLE"
-  19.08.2002 SVS
-    + ECTL_DELETEBLOCK - удалить блок в редакторе. Функция вернет TRUE
-      в случае удачного удаления блока и FALSE, если редактор заблокирован
-      (пользователь нажат Ctrl-L) или нет выделенного блока.
-  21.06.2002 SVS
-    + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
-      "Сегодня ФАР рисует в окне с помощью W-функции или где?"
-  14.06.2002 IS
-    + VF_DELETEONLYFILEONCLOSE,  EF_DELETEONLYFILEONCLOSE
-  10.06.2002 SVS
-    + DIF_EDITPATH (FIB_EDITPATH) - для внутренних целей
-  04.06.2002 SVS
-    + DIF_CENTERTEXT
-    + DIF_NOTCVTUSERCONTROL
-  30.05.2002 SVS
-    + FLINK_DONOTUPDATEPANEL
-  22.05.2002 SKV
-    + ?F_IMMEDIATERETURN
-  13.05.2002 VVM
-    + EditorInfo.WindowPos - номер окна редактора. Может использоваться с ACTL_*WINDOW*
-  11.05.2002 SVS
-    ! Меняем LIF_UPDATEKEEPUSERDATA на противоположный LIF_DELETEUSERDATA,
-      делаем этот флаг доступным (соответственно меняется логика -
-      при апдейте итема списка удаляем привязанные данные только в случае,
-      если нас об этом попросили)
-  10.05.2002 SVS
-    + FCTL_CHECKPANELSEXIST - панели доступны?
-  29.04.2002 SVS
-    ! WTYPE_COMBOBOX -> for internal
-  28.04.2002 KM
-    + WTYPE_COMBOBOX
-  28.04.2002 IS
-    ! внедрение const (SetFindList)
-  27.04.2002 SVS
-    + MAXSIZE_SHORTCUTDATA для "облагораживания" OpenPluginInfo.ShortcutData
-  25.04.2002 SVS
-    - BugZ#479 - struct FAR_FIND_DATA and C
-  25.04.2002 IS
-    ! внедрение const (OpenPluginInfo)
-  12.04.2002 SVS
-    + FCTL_GET[ANOTHER]PANELSHORTINFO
-  08.04.2002 SVS
-    + OPM_QUICKVIEW
-    ! Немного красоты ;-)
-  04.04.2002 SVS
-    ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
-  04.04.2002 IS
-    + ECTL_TURNOFFMARKINGBLOK
-  04.04.2002 SVS
-    + DN_ACTIVATEAPP
-  25.03.2002 SVS
-    ! CONSOLE_* -> FAR_CONSOLE_* (ибо с мелкософтом не поспоришь :-(()
-  23.03.2002 IS
-    + ESPT_LOCKMODE
-  13.02.2002 SVS
-    + FIB_NOAMPERSAND
-  27.02.2002 SVS
-    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
-    + LIF_UPDATEKEEPUSERDATA - "не убивать юзердату при обновлении"
-    ! Небольшая логическая перетасовка строк :-))
-  23.02.2002 DJ
-    ! выкинута константа LINFO_ALWAYSSCROLLBAR как не несущая полезной
-      информации (она установлена для _любого_ списка)
-  21.02.2002 SVS
-    + EJECT_READY - только для внутренних целей...
-  13.02.2002 SVS
-    + MIF_USETEXTPTR - щоб юзать FarMenuItemEx.Text.TextPtr
-    ! 130 -> 128 - так вот и живем...
-  11.02.2002 SVS
-    ! Переделки FarListItem, FarListUpdate, FarListInsert, FarMenuItemEx
-      - размер FarMenuItemEx.Text = 130 + AccelKey (в FAR нотации)
-      - у FarListUpdate и FarListInsert вместо указателей - объекты
-      - у FarListItem - размер и добавки
-    ! FarDialogItem.Data.ListPos -> FarDialogItem.Param.ListPos
-  11.02.2002 SVS
-    + DM_LISTGETDATASIZE
-  06.02.2002 DJ
-    ! _FAR_USE_FARFINDDATA
-  30.01.2002 DJ
-    ! _FAR_NO_NAMELESS_UNIONS
-  30.01.2002 DJ
-    + ACTL_GETDESCSETTINGS, FarDescriptionSettings
-    ! DM_SETLISTMOUSEREACTION -> DM_LISTSETMOUSEREACTION
-  21.01.2002 SVS
-    + DM_GETCURSORSIZE, DM_SETCURSORSIZE
-  14.01.2002 SVS
-    ! "Косметика" - небольшая перетаксовка фрагментов.
-  10.01.2002 SVS
-    + EEC_* - коды возвратов редактора
-    + EF_NEWIFOPEN - дополнительный флаг.
-  08.01.2002 IS
-    ! Доведем начатое SVS 28.12.2001 дело до конца.
-  08.01.2002 SVS
-    + DM_SETLISTMOUSEREACTION
-  28.12.2001 SVS
-    ! Учтем (частично) замечания г-на Stanislav V. Mekhanoshin про чистый C
-      (правка с учетом изменений структур - про анонимный union)
-      Структуру FarDialogItem для плагинов пока не трогаю!!!
-      Если кто (Кажется Иван вызвался ;-) сподобится на подвиг по
-      преобразованию стд.плагинов в этом направлении, то тогда сделаем одну
-      структуру.
-    ! С подачи IS: #if sizeof(PluginPanelItem) != 366
-  26.12.2001 SVS
-    + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
-      поменяли, а плагинам обломится что ли?
-  20.12.2001 IS
-    ! небольшое предупреждение по поводу изменения WTYPE_*
-  12.12.2001 SVS
-    ! BugZ#173. Для плагинов обконстантим параметр в FARSTDPOINTTONAME
-  12.12.2001 DJ
-    ! для DM_SETTEXTLENGTH тоже нужно сохранить совместимость
-  ! убрано дублирование PFLAGS_* и FPS_*
-  + PFLAGS_REALNAMES
-  10.12.2001 SVS
-    ! DM_SETREDRAW=DM_REDRAW, DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH,
-      DM_LISTGET -> DM_LISTGETITEM
-    + struct FarListGetItem для DM_LISTGETITEM
-  07.12.2001 IS
-    + FIB_CHECKBOX - добавить пользовательский чек-бокс к InputBox.
-      Только для внутренних нужд Фара!
-  03.12.2001 SVS
-    ! Нефига портить стройные ряды DM_* (по поводу вставки DM_LISTSET в
-      середину списка)
-  01.12.2001 KM
-    + DM_LISTSET - новое сообщение, отличается от DM_LISTADD тем, что
-      если в списке есть строки, то сначала удалим их, т.с. "чистая"
-      установка.
-  28.11.2001 SVS
-    ! DM_EDITCLEARFLAG заменен на более корректное DM_EDITUNCHANGEDFLAG
-    + FIS_SHOWCOPYINGTIMEINFO
-  28.11.2001 SVS
-    + DM_EDITCLEARFLAG
-  24.11.2001 IS
-    + ACTL_GETSYSTEMSETTINGS,  ACTL_GETPANELSETTINGS,
-      ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
-      FarSystemSettings, FarPanelSettings,  FarInterfaceSettings,
-      FarConfirmationsSettings
-  22.11.2001 SVS
-    ! Забыл ограничить FMSG_COLOURS "скобками"
-  21.11.2001 SVS
-    + DIF_AUTOMATION, DM_GETITEMDATA, DM_SETITEMDATA
-  19.11.2001 SVS
-    ! FARMANAGERVERSION в виде MAKEFARVERSION (с подачи JouriM)
-  14.11.2001 SVS
-    ! FarMenuItemEx.Reserved -> FarMenuItemEx.UserData
-  12.11.2001 SVS
-    - Какой нахрен const у FarDialogItem.ListItems??? ;-(((
-  08.11.2001 SVS
-    ! FarMenuItemEx и FarListItem размер текста 128 + DWORD Reserved
-  06.11.2001 SVS
-    ! DM_LIST[G|S]ETTITLE -> DM_LIST[G|S]ETTITLES
-    ! LINFO_REVERSIHLIGHT -> LINFO_REVERSEHIGHLIGHT
-  05.11.2001 SVS
-    ! ESPT_SETTABLE -> ESPT_CHARTABLE: все остальные ESPT_* тоже
-      устанавливают, но SET  в  их  названии  нету.
-  02.11.2001 SVS
-    ! ECTL_GETBOOKMARK, EditorBookMark -> ECTL_GETBOOKMARKS, EditorBookMarks
-    ! DM_SETNOTIFYMOUSEEVENT -> DM_SETMOUSEEVENTNOTIFY
-    ! FCTL_GETCMDLINESELECTION -> FCTL_GETCMDLINESELECTEDTEXT
-    + FCTL_GETCMDLINESELECTION - получить позиции выделения!
-  30.10.2001 SVS
-    ! FarListUpdate.Items -> FarListUpdate.Item
-    ! WTYPE_VIRTUAL - частная собственность
-  29.10.2001 IS
-    + ESPT_SAVEFILEPOSITION
-  23.10.2001 SVS
-    ! FarListTitle -> FarListTitles
-  19.10.2001 SVS
-    + DIF_SEPARATOR2 - двойной сепаратор
-  17.10.2001 SVS
-    + LINFO_* - хмм... почемуто не был описан :-(
-    ! FARSTDMKLINK - const параметры
-  10.10.2001 SVS
-    - FAR_USE_INTERNALS неверно использован!!!!!!!!
-  10.10.2001 IS
-    + EF_DELETEONCLOSE
-    ! внедрение const
-  10.10.2001 SVS
-    + EditorInfo.CurState - состояние редактора (дополнительные флаги)
-    ! EditorGetString.StringText и StringEOL для плагинов имеют суть const
-  07.10.2001 SVS 1.148
-    + По просьбам трудящихся - добавлен "|| defined(__WATCOMC__)"
-  01.10.2001 SVS 1.147
-    - GetRepasePointInfo -> GetRepa_R_sePointInfo
-  26.09.2001 SVS 1.146
-    ! AddEndSlash имеет возвращаемый тип BOOL
-  24.09.2001 SVS 1.145
-    + FSF.GetRepasePointInfo
-  20.09.2001 SVS 1.144
-    ! У функции FSF.FarInputRecordToKey параметр имеет сущность "const"!
-  15.09.2001 tran 1.143
-    + VE_READ, VE_CLOSE
-  15.09.2001 tran 1.142
-    + ACTL_GETFARHWND
-  12.09.2001 SVS
-    + FSF.ConvertNameToReal
-  09.09.2001 IS
-    + VF_DISABLEHISTORY, EF_DISABLEHISTORY
-  31.08.2001 IS
-    ! Все поля структуры CharTableSet кроме TableName теперь unsigned char.
-  17.08.2001 VVM
-    + PluginPanelItem.CRC32
-  15.08.2001 SVS
-    + DN_MOUSE, DM_SETNOTIFYMOUSEEVENT
-  13.08.2001 SKV
-    + FCTL_GETCMDLINESELECTION, FCTL_SETCMDLINESELECTION, struct CmdLineSelect.
-  08.08.2001 SVS
-    + DM_GETITEMPOSITION
-  07.08.2001 IS
-    + ESPT_SETTABLE
-    ! FARAPICHARTABLE - второй параметр теперь не const, потому что он может
-      изменяться в FarCharTable.
-  07.08.2001 SVS
-    + DN_RESIZECONSOLE
-  01.08.2001 SVS
-    ! Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME в морг
-  31.07.2001 IS
-    + Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME
-  31.07.2001 SVS
-    + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
-      который будет генерить одноименный файл для дистрибутива. Если нужно
-      исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
-      1 # ifdef FAR_USE_INTERNALS
-      2   то, что должно быть скрыто
-      3 # else // ELSE FAR_USE_INTERNALS
-      4   замена!
-      5 # endif // END FAR_USE_INTERNALS
-  31.07.2001 IS
-    + Внедрение const (FARAPIGETMSG)
-  27.07.2001 SVS
-    + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
-  16.07.2001 SVS
-    + FMENU_USEEXT & MENUITEMFLAGS & FarMenuItemEx
-    + DM_SETHISTORY - управление наличием истории у DI_EDIT & DI_FIXEDIT
-  11.07.2001 OT
-    + Новое "техническое" сообщения диалогу - DM_KILLSAVESCREEN
-  30.06.2001 KM
-    ! Языковое уточнение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
-    + Новая структура FarListPos.
-  29.06.2001 SVS
-    ! Уточнение FarListFind.
-    + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
-      поиске в списке
-  26.06.2001 SKV
-    + ACTL_COMMIT
-  26.06.2001 SVS
-    ! Перенесем DM_GETDROPDOWNOPENED и DM_SETDROPDOWNOPENED в "обычное"
-      место и дадим ход в публику :-)
-  25.06.2001 IS
-    ! Внедрение const, чтобы было как можно меньше отличий от "официального"
-     plugin.hpp
-  23.06.2001 KM
-    + DM_GETDROPDOWNOPENED - определить, открыт ли в диалоге комбобокс или хистори.
-    + DM_SETDROPDOWNOPENED - открыть или закрыть программным путём комбобокс или хистори.
-  21.06.2001 SVS
-    ! ACTL_POSTSEQUENCEKEY  -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
-    ! SKFLAGS_DISABLEOUTPUT -> KSFLAGS_DISABLEOUTPUT
-    ! SequenceKey           -> KeySequence
-  20.06.2001 SVS
-    ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY
-    ! SKEY_NOTMACROS -> SKFLAGS_DISABLEOUTPUT
-  19.06.2001 SVS
-    + DN_DRAGGED
-  14.06.2001 SVS
-    + Дополнение к ACTL_*WINDOW* - WTYPE_* - типы окон
-      2AT: если что-то не так - изменяй.
-  06.06.2001 SVS
-    + EditorBookMark, ECTL_GETBOOKMARK
-    + EditorInfo.BookMarkCount - дабы не вызывать несколько раз ECTL_GETBOOKMARK.
-  05.06.2001 tran
-    + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
-    + struct WindowInfo
-  04.06.2001 SVS
-    ! выкинут LIF_PTRDATA - изжил себя как класс :-)
-    ! Соответственно изменилась структура FarListItem
-  03.06.2001 KM
-    + Два новых сообщения:
-      DM_LISTSETTITLE
-      DM_LISTGETTITLE
-      для установки/получения заголовков в DI_LISTBOX.
-    + Вернулся флаг DIF_LISTAUTOHIGHLIGHT.
-  03.06.2001 SVS
-    ! Небольшое уточнение структуры FarListItemData (до 16 байт :-)
-    + Пара макросов для листа
-  03.06.2001 SVS
-    + DM_LISTGETDATA, DM_LISTSETDATA, FarListItemData
-  30.05.2001 SVS
-    + MKLINKOP, FARSTDMKLINK
-  29.05.2001 tran
-    + макрос - MAKEFARVERSION
-  21.05.2001 DJ
-    + FDLG_NONMODAL
-  21.05.2001 SVS
-    + DM_RESIZEDIALOG
-    + DM_SETITEMPOSITION
-  18.05.2001 SVS
-    + DM_LISTINSERT, DM_LISTINFO, DM_LISTFINDSTRING
-    + DM_GETCHECK, DM_SETCHECK, DM_SET3STATE
-    + BSTATE_*
-    + Структуры FarListInsert, FarListInfo, FarListFind
-  17.05.2001 SVS
-    + DM_LISTUPDATE
-    + FMENU_SHOWNOBOX (ЭТО НЕ ПУБЛИКУЕТСЯ, ЭТО ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ!)
-    + структура FarListUpdate для DM_LISTUPDATE, по сути то же самое что и
-      FarList - т.с. для лучшего понимания :-)
-  15.05.2001 KM
-    ! Убран флаг DIF_LISTHIGHLIGHT, так как его функцию
-      уже выполнял DIF_LISTNOAMPERSAND, только наоборот.
-  14.05.2001 SVS
-    ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
-  13.05.2001 SVS
-    + DIF_LISTWRAPMODE, DIF_LISTHIGHLIGHT
-    + DM_LISTADDSTR
-  12.05.2001 DJ
-    + VF_ENABLE_F6, EF_ENABLE_F6
-  08.05.2001 SVS
-    + FDLG_* - флаги для DialogEx
-  07.05.2001 SVS
-    + DM_LISTADD, DM_LISTDELETE, DM_LISTGET, DM_LISTSORT, DM_LISTGETCURPOS,
-      DM_LISTSETCURPOS
-    + DIF_LISTNOBOX - рамку для DI_LISTBOX не рисовать
-    + struct FarListDelete
-    + Макросы DlgList_*, DlgItem_*, DlgEdit_*, Dlg_* - типа windowsx.h ;-)
-      Для затравки - глядишь и продолжат начинания :-)))
-  04.05.2001 SVS
-    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
-  24.04.2001 SVS
-    + PanelInfo.Flags, флаги PANELINFOFLAGS.
-  22.04.2001 SVS
-    + EJECT_LOAD_MEDIA - работает только в NT/2000
-  12.04.2001 SVS
-    + DM_ADDHISTORY - добавить строку в историю
-    + DIF_MANUALADDHISTORY - добавлять в историю только "ручками"
-  03.04.2001 IS
-    + ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL, ESPT_CHARCODEBASE
-  26.03.2001 SVS
-    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
-  24.03.2001 tran
-    + qsortex
-  21.03.2001 VVM
-    + Флаг EF_CREATENEW для редактора - создать новый файл (аналог SHIFT+F4)
-  20.03.2001 tran 1.89
-    + FarRecursiveSearch - добавлен void *param
-  19.03.2001 SVS
-    ! DN_CLOSE=DM_CLOSE, DN_KEY=DM_KEY - для наглядности. :-)
-  16.02.2001 IS
-    + Добавлена проверка правильности выравнивания на основе известного
-      размера PluginPanelItem - он должен быть равным 366. Если это не так, то
-      если определено STRICT, то компилирование вообще прекратится, иначе -
-      будет выдан warning
-  16.02.2001 IS
-    + команда ECTL_SETPARAM - изменить некую настройку редактора
-    + EDITOR_SETPARAMETER_TYPES - тип настройки
-    + структура EditorSetParameter - информация о типе настройки и все
-      остальном
-  13.02.2001 SVS
-    ! В связи с введением DIF_VAREDIT для DI_COMBOBOX изменена структура
-      FarListItem и добавлен флаг LIF_PTRDATA
-    ! Изменено значение флага LIF_DISABLE
-    ! Изменены имена полей структуры FarDialogItemData - для "похожести"
-      на диалог.
-  11.02.2001 SVS
-    ! FarDialogItem - изменения, касаемые Ptr
-    + DIF_VAREDIT - флаг, указывающий на то, что будет использоваться
-      FarDialogItem.Ptr вместо FarDialogItem.Data
-  11.02.2001 SVS
-    ! Изменения в LISTITEMFLAGS - флаги переехали в старшее слово
-  28.01.2001 SVS
-    ! SequenceKey.Sequence НЕ! "валяются" VK_* - только KEY_*
-    + FMSG_ALLINONE - в качестве Items передается указатель на
-      строку, в которой разделители строк - символ '\n'
-    + FMSG_MB_* - дополнительно показать кнопки (в Items можно не указывать)
-  25.01.2001 SVS
-    ! Тип SequenceKey.Sequence изменен на DWORD
-    + SKEY_VK_KEYS - в SequenceKey.Sequence "валяются" VK_* вместо KEY_*
-  23.01.2001 SVS
-    + SKEY_NOTMACROS - не использовать бинденные клавиши в SequenceKey
-    + ViewerInfo.LeftPos и ViewerInfo.Reserved3;
-  21.01.2001 SVS
-    + struct SequenceKey
-    + ACTL_PROCESSSEQUENCEKEY
-  21.01.2001 IS
-    ! Для однообразия с редактором изменил пару названий:
-      VCTL_SETPOS -> VCTL_SETPOSITION
-      AnsiText -> AnsiMode
-  19.01.2001 SVS
-    ! перестановки в командах VIEWER_CONTROL_COMMANDS
-    + некоторые структуры для Viewer API: ViewerSelect, ViewerSetPosition и
-      перечисление VIEWER_SETPOS_FLAGS
-  03.01.2001 SVS
-    + DIF_HIDDEN - элемент не видим
-    + DM_SHOWITEM показать/скрыть элемент
-  25.12.2000 SVS
-    ! ACTL_KEYMACRO поддерживает только 2 команды: MCMD_LOADALL, MCMD_SAVEALL
-  23.12.2000 SVS
-    + MCMD_PLAYSTRING - "проиграть" строку.
-    + MACRO_* - области действия макросов
-    ! ActlKeyMacro - уточнения содержимого стркутуры для команды MCMD_PLAYSTRING
-    + MFLAGS_ - флаги макроса
-  21.12.2000 SVS
-    + ACTL_KEYMACRO
-    + структура ActlKeyMacro (с зарезервированными полями :-)
-    + MacroCommand: MCMD_LOADALL, MCMD_SAVEALL (на этом пока остановимся,
-      остальное будет опосля)
-  21.12.2000 SVS
-    + DM_GETTEXTPTR, DM_SETTEXTPTR
-  18.12.2000 SVS
-    + FHELP_NOSHOWERROR
-  14.12.2000 SVS
-    + ACTL_EJECTMEDIA & struct ActlEjectMedia & EJECT_NO_MESSAGE
-  08.12.2000 SVS 1.70
-    ! Оригинальный номер ревизии получился - 1.70 ;-) - символично.
-      Для DM_SETTEXT, DM_GETTEXT в Param2 передается структура
-      FarDialogItemData.
-  07.12.2000 SVS
-    ! Изменена константа FARMANAGERVERSION. Остальное читайте в
-      DIFF.DOC\00300.FAR_VERSION.txt
-  04.12.2000 SVS
-    + DIF_3STATE - 3-х уровневый CheckBox
-    + ACTL_GETCOLOR - получить определенный цвет
-    + ACTL_GETARRAYCOLOR - получить весь массив цветов
-  04.11.2000 SVS
-    + XLAT_SWITCHKEYBBEEP - выдать звуковой сигнал при переключении
-      клавиатуры
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  26.10.2000 SVS
-    ! DM_SETEDITPOS/DM_GETEDITPOS -> DM_SETCURSORPOS/DM_GETCURSORPOS
-  25.10.2000 IS
-    + Изменил имя параметра в MkTemp с Template на Prefix
-  23.10.2000 SVS
-    + DM_SETEDITPOS, DM_GETEDITPOS -
-      позиционирование курсора в строках редактирования.
-  20.10.2000 SVS
-    ! ProcessName: Flags должен быть DWORD, а не int
-  20.10.2000 SVS
-    + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
-  09.10.2000 IS
-    + Флаги для ProcessName (PN_*)
-    + Указатель в FARSTANDARDFUNCTIONS на ProcessName;
-  27.09.2000 SVS
-    + VCTL_QUIT      - закрыть вьювер
-    + VCTL_GETINFO   - получение информации о Viewer
-    + VCTL_SETKEYBAR - функция установки KeyBar Labels во вьювере
-  27.09.2000 skv
-    + DeleteBuffer
-  26.09.2000 SVS
-    ! FARSTDKEYTOTEXT -> FARSTDKEYTOKEYNAME
-  24.09.2000 SVS
-    ! Чистка файла от комментариев - писать только в этом блоке (Modify)!!!
-    ! FarKeyToText -> FarKeyToName
-    + FarNameToKey
-  21.09.2000 SVS
-    + OPEN_FILEPANEL открыт из файловой панели.
-    + Поле PluginInfo.SysID - системный идентификатор плагина
-  20.09.2000 SVS
-    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
-  19.09.2000 SVS
-    + выравнивание на 2 байта
-    + функция FSF.FolderPresent - "сужествует ли каталог"
-  18.09.2000 SVS
-    + DIF_READONLY - флаг для строк редактирования
-      (пока! для строк редактирования).
-  18.09.2000 SVS
-    ! Функция DialogEx имеет 2 дополнительных параметра (Future)
-    ! переделки в struct PluginStartupInfo!!!!
-    ! FarRecurseSearch -> FarRecursiveSearch
-    ! FRS_RECURSE -> FRS_RECUR
-  14.09.2000 SVS
-    ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
-    + FSF.MkTemp
-    + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX
-      выставляется флаг MENU_SHOWAMPERSAND. Этот флаг подавляет такое
-      повдедение
-  13.09.2000 skv
-    + EEREDRAW_XXXXX defines
-  12.09.2000 SVS
-    + Флаги FHELP_* для функции ShowHelp
-    ! FSF.ShowHelp возвращает BOOL
-  10.09.2000 SVS
-    ! KeyToText возвращает BOOL, если нет такой клавиши.
-  10.09.2000 SVS 1.46
-    + typedef struct _CHAR_INFO    CHAR_INFO;
-      На тот случай, если wincon.h не был загружен.
-  10.09.2000 tran 1.45
-    + FSF/FarRecurseSearch
-  10.09.2000 SVS 1.44
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
-    + DIF_NOFOCUS - элемент не получает фокуса ввода (клавиатурой)
-    + CHAR_INFO *VBuf; в элементах диалога
-    + DIF_SELECTONENTRY - выделение Edit при получении фокуса
-  08.09.2000 VVM
-    + FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
-      FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
-      Смена сортировки на панели
-  08.09.2000 SVS
-    ! QWERTY -> Transliterate
-    ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
-  08.09.2000 SVS
-    + FARMANAGERVERSION
-    ! FarStandardFunctions.Reserved* -> FarStandardFunctions.Reserved[10];
-  07.09.2000 skv
-    + ECTL_PROCESSKEY
-  07.09.2000 VVM 1.39
-    + PF_FULLCMDLINE флаг для передачи плагину всей строки вместе с
-      префиксом
-  07.09.2000 SVS 1.38
-    + FSF.bsearch
-    + FSF.GetFileOwner
-    + FSF.GetNumberOfLinks;
-  05.09.2000 SVS 1.37
-    + QWERTY - перекодировщик - StandardFunctions.EDQwerty
-  01.09.2000 SVS
-    + конструкция (с подачи MY)
-      #ifndef _WINCON_
-      typedef struct _INPUT_RECORD INPUT_RECORD;
-      #endif
-  31.08.2000 tran 1.35
-    + FSF: int FarInputRecordToKey(INPUT_RECORD*r);
-  31.08.2000 SVS
-    ! изменение FSF-функций
-      FSF.RemoveLeadingSpaces =FSF.LTrim
-      FSF.RemoveTrailingSpaces=FSF.RTrim
-      FSF.RemoveExternalSpaces=FSF.Trim
-    + DM_ENABLE
-    + Флаг DIF_DISABLE переводящий элемент диалога в состояние Disable
-    + Флаг LIF_DISABLE переводящий элемент списка в состояние Disable
-  30.08.2000 SVS
-    ! Пал смертью храбрых флаг FMI_GETFARMSGID
-    + DM_MOVEDIALOG - переместить диалог.
-  29.08.2000 SVS
-    ! Вот и глючек вылез с unsigned char во внутренней структуре DialogItem,
-      и из-за этого uchar элемент DI_USERCONTROL не может быть > 255 :-((((((
-  29.08.2000 SVS
-    + Плагин может запросить "месаг" из FAR*.LNG, для этого
-      небходимо к MsgId (в функции GetMsg)добавить флаг FMI_GETFARMSGID
-  28.08.2000 SVS
-    + SFS-функции аля Local*
-    ! уточнение для FARSTDQSORT - явное указание __cdecl для функции сравнения
-    ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
-    + FARSTDITOA64
-  25.08.2000 SVS
-    + DM_GETDLGRECT - получить координаты диалогового окна
-    + DM_USER - эт для юзеровских месагов :-)
-  25.08.2000 SVS
-    ! Удалены из FSF функции:
-      memset, memcpy, memmove, memcmp,
-      strchr, strrchr, strstr, strtok, strpbrk
-    + Флаг FIB_BUTTONS - в функции InputBox если нужно - показываем
-      кнопки <Ok> & <Cancel>
-  24.08.2000 SVS
-    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
-    + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
-  23.08.2000 SVS
-    ! Уточнения категорий DMSG_* -> DM_ (месаг) & DN_ (нотифи)
-    + DM_KEY        - послать/получить клавишу(ы)
-    + DM_GETDLGDATA - взять данные диалога.
-    + DM_SETDLGDATA - установить данные диалога.
-    + DM_SHOWDIALOG - показать/спрятать диалог
-    ! Все Flags приведены к одному виду -> DWORD.
-      Модифицированы:
-        * функции   FarMenuFn, FarMessageFn, FarShowHelp
-        * структуры FarListItem, FarDialogItem
-  22.08.2000 SVS
-    ! DMSG_PAINT -> DMSG_DRAWDIALOG
-    ! DMSG_DRAWITEM -> DMSG_DRAWDLGITEM
-    ! DMSG_CHANGELIST -> DMSG_LISTCHANGE
-  21.08.2000 SVS 1.23
-    ! DMSG_CHANGEITEM -> DMSG_EDITCHANGE
-    + DMSG_BTNCLICK
-  18.08.2000 tran
-    + Flags in ShowHelp
-  12.08.2000 KM 1.22
-    + DIF_MASKEDIT - новый флаг, реализующий функциональность ввода
-      по маске в строках ввода.
-    ! В структуре FarDialogItem новое поле, включенное в union, char *Mask
-  17.08.2000 SVS
-    ! struct FarListItems -> struct FarList, а то совсем запутался :-)
-    + Сообщения диалога: DMSG_ENABLEREDRAW, DMSG_MOUSECLICK,
-    + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
-  17.08.2000 SVS
-    ! Изменение номера весрии :-)
-  09.08.2000 SVS
-    + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
-      истории задается отдельно!!!
-  09.08.2000 tran
-    + #define CONSOLE_*
-  04.08.2000 SVS
-    + ECTL_SETKEYBAR - функция установки KeyBar Labels в редакторе
-  04.08.2000 SVS
-    + FarListItems.CountItems -> FarListItems.ItemsNumber
-  03.08.2000 SVS
-    + Функция от AT: GetMinFarVersion
-  03.08.2000 SVS
-    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
-  02.08.2000 SVS
-    + Дополнения для KeyBarTitles:
-        CtrlShiftTitles
-        AltShiftTitles,
-        CtrlAltTitles
-    + Добавка в OpenPluginInfo для того, чтобы различить FAR <= 1.65 и > 1.65
-  01.08.2000 SVS
-    ! Функция ввода строки имеет один параметр для всех флагов
-    ! дополнительный параметра у KeyToText - размер данных
-    + Флаг DIF_USELASTHISTORY для строк ввода.
-      если у строки ввода есть история то начальное значение брать первым
-      из истории
-    ! Полная переделка структуры списка и "оболочка" вокруг списка
-    + флаги для FarListItem.Flags
-      LIF_SELECTED, LIF_CHECKED, LIF_SEPARATOR
-    + Сообщения для обработки диалога, имееющий место быть :-)
-      DMSG_SETDLGITEM, DMSG_CHANGELIST
-    ! Изменено наименование типа функции обработчика на универсальное
-      FARDIALOGPROC -> FARWINDOWPROC
-  28.07.2000 SVS
-    + Введен новый элемент DI_LISTBOX (зарезервировано место)
-    + Сообщения для обработки диалога, имееющий место быть :-)
-        DMSG_INITDIALOG, DMSG_ENTERIDLE, DMSG_HELP, DMSG_PAINT,
-        DMSG_SETREDRAW, DMSG_DRAWITEM, DMSG_GETDLGITEM, DMSG_KILLFOCUS,
-        DMSG_GOTFOCUS, DMSG_SETFOCUS, DMSG_GETTEXTLENGTH, DMSG_GETTEXT,
-        DMSG_CTLCOLORDIALOG, DMSG_CTLCOLORDLGITEM, DMSG_CTLCOLORDLGLIST,
-        DMSG_SETTEXTLENGTH, DMSG_SETTEXT, DMSG_CHANGEITEM, DMSG_HOTKEY,
-        DMSG_CLOSE,
-  25.07.2000 SVS
-    ! Некоторое упорядочение в FarStandardFunctions
-    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
-    + FSF-функция KeyToText
-    ! WINAPI для сервисных дополнительных функций
-    + Функция-диалог ввода тестовой строки InputBox
-  23.07.2000 SVS
-    + DialogEx, SendDlgMessage, DefDlgProc,
-    ! WINAPI для сервисных дополнительных функций
-  18.07.2000 SVS
-    + Введен новый элемент: DI_COMBOBOX и флаг DIF_DROPDOWNLIST
-      (для нередактируемого DI_COMBOBOX - пока не реализовано!)
-  12.07.2000 IS
-    + Флаги  редактора:
-      EF_NONMODAL - открытие немодального редактора
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  10.07.2000 IS
-    ! Некоторые изменения с учетом голого C (по совету SVS)
-  07.07.2000 IS
-    + Указатели на функции в FarStandardFunctions:
-      atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
-      RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
-      PointToName, GetPathRoot, AddEndSlash
-  06.07.2000 IS
-    + Функция AdvControl (PluginStartupInfo)
-    + Команда ACTL_GETFARVERSION для AdvControl
-    + Указатель на структуру FarStandardFunctions в PluginStartupInfo - она
-      содержит указатели на полезные функции. Плагин должен обязательно
-      скопировать ее себе, если хочет использовать в дальнейшем.
-    + Указатели на функции в FarStandardFunctions:
-      Unquote, ExpandEnvironmentStr,
-      sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
-      strtok, memset, strpbrk
-  05.06.2000 SVS
-    + DI_EDIT имеет флаг DIF_EDITEXPAND - расширение переменных среды
-      в enum FarDialogItemFlags
-  03.07.2000 IS
-    + Функция вывода помощи в api
-  28.06.2000 SVS
-    + Для MSVC тоже требуется extern "C" при декларации
-      экспортируемых функций + коррекция на Borland C++ 5.5
-  26.06.2000 SVS
-    ! Подготовка Master Copy
-*/
-#endif // END FAR_USE_INTERNALS
+/* Revision: 1.271 25.08.2006 $ */
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION  MAKEFARVERSION(1,70,1069)
+#define FARMANAGERVERSION  MAKEFARVERSION(1,80,1)
 
 
 #ifdef FAR_USE_INTERNALS
@@ -920,8 +126,8 @@ enum FARMESSAGEFLAGS{
 typedef int (WINAPI *FARAPIMESSAGE)(
   int PluginNumber,
   DWORD Flags,
-  const char *HelpTopic,
-  const char * const *Items,
+  const wchar_t *HelpTopic,
+  const wchar_t * const *Items,
   int ItemsNumber,
   int ButtonsNumber
 );
@@ -959,7 +165,6 @@ enum FarDialogItemFlags {
   DIF_NOBRACKETS            = 0x00008000UL,
   DIF_MANUALADDHISTORY      = 0x00008000UL,
   DIF_SEPARATOR             = 0x00010000UL,
-  DIF_VAREDIT               = 0x00010000UL,
   DIF_SEPARATOR2            = 0x00020000UL,
   DIF_EDITOR                = 0x00020000UL,
   DIF_LISTNOAMPERSAND       = 0x00020000UL,
@@ -1131,7 +336,7 @@ enum LISTITEMFLAGS {
 struct FarListItem
 {
   DWORD Flags;
-  char  Text[128];
+  wchar_t  Text[128]; //BUGBUG
   DWORD Reserved[3];
 };
 
@@ -1166,7 +371,7 @@ enum FARLISTFINDFLAGS{
 struct FarListFind
 {
   int StartIndex;
-  const char *Pattern;
+  const wchar_t *Pattern;
   DWORD Flags;
   DWORD Reserved;
 };
@@ -1213,9 +418,9 @@ struct FarList
 struct FarListTitles
 {
   int   TitleLen;
-  char *Title;
+  const wchar_t *Title;
   int   BottomLen;
-  char *Bottom;
+  const wchar_t *Bottom;
 };
 
 struct FarListColors{
@@ -1233,8 +438,8 @@ struct FarDialogItem
   union
   {
     int Selected;
-    const char *History;
-    const char *Mask;
+    const wchar_t *History;
+    const wchar_t *Mask;
     struct FarList *ListItems;
     int  ListPos;
     CHAR_INFO *VBuf;
@@ -1245,27 +450,15 @@ struct FarDialogItem
   ;
   DWORD Flags;
   int DefaultButton;
-  union
-  {
-    char Data[512];
-    struct
-    {
-      DWORD PtrFlags;
-      int   PtrLength;
-      char *PtrData;
-      char  PtrTail[1];
-    } Ptr;
-  }
-#ifdef _FAR_NO_NAMELESS_UNIONS
-  Data
-#endif
-  ;
+
+  wchar_t *PtrData;
+  int PtrLength;
 };
 
 struct FarDialogItemData
 {
   int   PtrLength;
-  char *PtrData;
+  wchar_t *PtrData;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
@@ -1335,7 +528,7 @@ typedef int (WINAPI *FARAPIDIALOG)(
   int                   Y1,
   int                   X2,
   int                   Y2,
-  const char           *HelpTopic,
+  const wchar_t           *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber
 );
@@ -1346,7 +539,7 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   int                   Y1,
   int                   X2,
   int                   Y2,
-  const char           *HelpTopic,
+  const wchar_t           *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber,
   DWORD                 Reserved,
@@ -1358,7 +551,7 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
 
 struct FarMenuItem
 {
-  char Text[128];
+  const wchar_t *Text;
   int  Selected;
   int  Checked;
   int  Separator;
@@ -1378,10 +571,7 @@ enum MENUITEMFLAGS {
 struct FarMenuItemEx
 {
   DWORD Flags;
-  union {
-    char  Text[128];
-    const char *TextPtr;
-  } Text;
+  const wchar_t *Text;
   DWORD AccelKey;
   DWORD Reserved;
   DWORD UserData;
@@ -1405,9 +595,9 @@ typedef int (WINAPI *FARAPIMENU)(
   int                 Y,
   int                 MaxHeight,
   DWORD               Flags,
-  const char         *Title,
-  const char         *Bottom,
-  const char         *HelpTopic,
+  const wchar_t      *Title,
+  const wchar_t      *Bottom,
+  const wchar_t      *HelpTopic,
   const int          *BreakKeys,
   int                *BreakCode,
   const struct FarMenuItem *Item,
@@ -1421,43 +611,32 @@ enum PLUGINPANELITEMFLAGS{
   PPIF_USERDATA               = 0x20000000,
 };
 
-#ifdef _FAR_USE_FARFINDDATA
-
 struct FAR_FIND_DATA
 {
-  DWORD    dwFileAttributes;
-  FILETIME ftCreationTime;
-  FILETIME ftLastAccessTime;
-  FILETIME ftLastWriteTime;
-  DWORD    nFileSizeHigh;
-  DWORD    nFileSizeLow;
-  DWORD    dwReserved0;
-  DWORD    dwReserved1;
-  CHAR     cFileName[MAX_PATH];
-  CHAR     cAlternateFileName[14];
+    DWORD    dwFileAttributes;
+    FILETIME ftCreationTime;
+    FILETIME ftLastAccessTime;
+    FILETIME ftLastWriteTime;
+    unsigned __int64 nFileSize;
+    unsigned __int64 nPackSize;
+    wchar_t *lpwszFileName;
+    wchar_t *lpwszAlternateFileName;
 };
 
-#endif
-
-struct PluginPanelItem
+struct PluginPanelItemW
 {
-#ifdef _FAR_USE_FARFINDDATA
-  struct FAR_FIND_DATA   FindData;
-#else
-  WIN32_FIND_DATA FindData;
-#endif
-  DWORD           PackSizeHigh;
-  DWORD           PackSize;
-  DWORD           Flags;
-  DWORD           NumberOfLinks;
-  char           *Description;
-  char           *Owner;
-  char          **CustomColumnData;
-  int             CustomColumnNumber;
-  DWORD           UserData;
-  DWORD           CRC32;
-  DWORD           Reserved[2];
+  FAR_FIND_DATA FindData;
+  DWORD         Flags;
+  DWORD         NumberOfLinks;
+  wchar_t      *Description;
+  wchar_t      *Owner;
+  wchar_t     **CustomColumnData;
+  int           CustomColumnNumber;
+  DWORD         UserData;
+  DWORD         CRC32;
+  DWORD         Reserved[2];
 };
+
 
 #if defined(__BORLANDC__)
 #if sizeof(struct PluginPanelItem) != 366
@@ -1491,18 +670,18 @@ struct PanelInfo
   int PanelType;
   int Plugin;
   RECT PanelRect;
-  struct PluginPanelItem *PanelItems;
+  struct PluginPanelItemW *PanelItems;
   int ItemsNumber;
-  struct PluginPanelItem *SelectedItems;
+  struct PluginPanelItemW *SelectedItems;
   int SelectedItemsNumber;
   int CurrentItem;
   int TopPanelItem;
   int Visible;
   int Focus;
   int ViewMode;
-  char ColumnTypes[80];
-  char ColumnWidths[80];
-  char CurDir[NM];
+  wchar_t *lpwszColumnTypes;
+  wchar_t *lpwszColumnWidths;
+  wchar_t *lpwszCurDir;
   int ShortNames;
   int SortMode;
   DWORD Flags;
@@ -1554,6 +733,7 @@ enum FILE_CONTROL_COMMANDS{
   FCTL_CHECKPANELSEXIST,
   FCTL_SETNUMERICSORT,
   FCTL_SETANOTHERNUMERICSORT,
+  FCTL_FREEPANELINFO
 };
 
 typedef int (WINAPI *FARAPICONTROL)(
@@ -1566,7 +746,7 @@ typedef void (WINAPI *FARAPITEXT)(
   int X,
   int Y,
   int Color,
-  const char *Str
+  const wchar_t *Str
 );
 
 typedef HANDLE (WINAPI *FARAPISAVESCREEN)(int X1, int Y1, int X2, int Y2);
@@ -1575,20 +755,21 @@ typedef void (WINAPI *FARAPIRESTORESCREEN)(HANDLE hScreen);
 
 
 typedef int (WINAPI *FARAPIGETDIRLIST)(
-  const char *Dir,
-  struct PluginPanelItem **pPanelItem,
+  const wchar_t *Dir,
+  FAR_FIND_DATA **pPanelItem,
   int *pItemsNumber
 );
 
 typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
   int PluginNumber,
   HANDLE hPlugin,
-  const char *Dir,
-  struct PluginPanelItem **pPanelItem,
+  const wchar_t *Dir,
+  struct PluginPanelItemW **pPanelItem,
   int *pItemsNumber
 );
 
-typedef void (WINAPI *FARAPIFREEDIRLIST)(const struct PluginPanelItem *PanelItem);
+typedef void (WINAPI *FARAPIFREEDIRLIST)(FAR_FIND_DATA *PanelItem, int nItemsNumber);
+typedef void (WINAPI *FARAPIFREEPLUGINDIRLIST)(PluginPanelItemW *PanelItem, int nItemsNumber);
 
 enum VIEWER_FLAGS {
   VF_NONMODAL              = 0x00000001,
@@ -1600,8 +781,8 @@ enum VIEWER_FLAGS {
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(
-  const char *FileName,
-  const char *Title,
+  const wchar_t *FileName,
+  const wchar_t *Title,
   int X1,
   int Y1,
   int X2,
@@ -1638,8 +819,8 @@ enum EDITOR_EXITCODE{
 };
 
 typedef int (WINAPI *FARAPIEDITOR)(
-  const char *FileName,
-  const char *Title,
+  const wchar_t *FileName,
+  const wchar_t *Title,
   int X1,
   int Y1,
   int X2,
@@ -1650,8 +831,8 @@ typedef int (WINAPI *FARAPIEDITOR)(
 );
 
 typedef int (WINAPI *FARAPICMPNAME)(
-  const char *Pattern,
-  const char *String,
+  const wchar_t *Pattern,
+  const wchar_t *String,
   int SkipPath
 );
 
@@ -1694,8 +875,8 @@ enum FarHelpFlags{
 };
 
 typedef BOOL (WINAPI *FARAPISHOWHELP)(
-  const char *ModuleName,
-  const char *Topic,
+  const wchar_t *ModuleName,
+  const wchar_t *Topic,
   DWORD Flags
 );
 
@@ -1904,15 +1085,15 @@ struct ActlKeyMacro{
   int Command;
   union{
     struct {
-      char *SequenceText;
+      wchar_t *SequenceText;
       DWORD Flags;
     } PlainText;
 #ifdef FAR_USE_INTERNALS
     struct KeySequence Compile;
     struct {
-      const char *ErrMsg1;
-      const char *ErrMsg2;
-      const char *ErrMsg3;
+      const wchar_t *ErrMsg1;
+      const wchar_t *ErrMsg2;
+      const wchar_t *ErrMsg3;
     } MacroResult;
 #endif // END FAR_USE_INTERNALS
     DWORD Reserved[3];
@@ -2019,11 +1200,11 @@ struct ViewerMode{
   DWORD Reserved[4];
 };
 
-struct ViewerInfo
+struct ViewerInfoW
 {
   int    StructSize;
   int    ViewerID;
-  const char *FileName;
+  const wchar_t *FileName;
   FARINT64 FileSize;
   FARINT64 FilePos;
   int    WindowSizeX;
@@ -2065,6 +1246,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_DELETECHAR,
   ECTL_INSERTTEXT,
   ECTL_GETINFO,
+  ECTL_FREEINFO, //!!!!!
   ECTL_SETPOSITION,
   ECTL_SELECT,
   ECTL_REDRAW,
@@ -2106,7 +1288,7 @@ struct EditorSetParameter
   int Type;
   union {
     int iParam;
-    char *cParam;
+    wchar_t *cParam;
     DWORD Reserved1;
   } Param;
   DWORD Flags;
@@ -2117,11 +1299,11 @@ struct EditorGetString
 {
   int StringNumber;
 #ifdef FAR_USE_INTERNALS
-  char *StringText;
-  char *StringEOL;
+  wchar_t *StringText;
+  wchar_t *StringEOL;
 #else // ELSE FAR_USE_INTERNALS
-  const char *StringText;
-  const char *StringEOL;
+  const wchar_t *StringText;
+  const wchar_t *StringEOL;
 #endif // END FAR_USE_INTERNALS
   int StringLength;
   int SelStart;
@@ -2132,13 +1314,8 @@ struct EditorGetString
 struct EditorSetString
 {
   int StringNumber;
-#ifdef FAR_USE_INTERNALS
-  const char *StringText;
-  const char *StringEOL;
-#else // ELSE FAR_USE_INTERNALS
-  char *StringText;
-  char *StringEOL;
-#endif // END FAR_USE_INTERNALS
+  const wchar_t *StringText;
+  const wchar_t *StringEOL;
   int StringLength;
 };
 
@@ -2177,7 +1354,7 @@ enum EDITOR_CURRENTSTATE {
 struct EditorInfo
 {
   int EditorID;
-  const char *FileName;
+  const wchar_t *FileName;
   int WindowSizeX;
   int WindowSizeY;
   int TotalLines;
@@ -2230,7 +1407,7 @@ struct EditorSelect
 
 struct EditorConvertText
 {
-  char *Text;
+  wchar_t *Text;
   int TextLength;
 };
 
@@ -2258,8 +1435,8 @@ struct EditorColor
 
 struct EditorSaveFile
 {
-  char FileName[NM];
-  char *FileEOL;
+  const wchar_t *FileName;
+  const wchar_t *FileEOL;
 };
 
 typedef int (WINAPI *FARAPIEDITORCONTROL)(
@@ -2281,75 +1458,65 @@ enum INPUTBOXFLAGS{
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
-  const char *Title,
-  const char *SubTitle,
-  const char *HistoryName,
-  const char *SrcText,
-  char *DestText,
+  const wchar_t *Title,
+  const wchar_t *SubTitle,
+  const wchar_t *HistoryName,
+  const wchar_t *SrcText,
+  wchar_t *DestText,
   int   DestLength,
-  const char *HelpTopic,
+  const wchar_t *HelpTopic,
   DWORD Flags
 );
 
 // <C&C++>
-typedef int     (WINAPIV *FARSTDSPRINTF)(char *Buffer,const char *Format,...);
-typedef int     (WINAPIV *FARSTDSNPRINTF)(char *Buffer,size_t Sizebuf,const char *Format,...);
-typedef int     (WINAPIV *FARSTDSSCANF)(const char *Buffer, const char *Format,...);
+typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
+typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
+typedef int     (WINAPIV *FARSTDSSCANF)(const wchar_t *Buffer, const wchar_t *Format,...);
 // </C&C++>
 typedef void    (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 typedef void    (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam);
 typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef int     (WINAPI *FARSTDGETFILEOWNER)(const char *Computer,const char *Name,char *Owner);
-typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(const char *Name);
-typedef int     (WINAPI *FARSTDATOI)(const char *s);
-typedef __int64 (WINAPI *FARSTDATOI64)(const char *s);
-typedef char   *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
-typedef char   *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
-typedef char   *(WINAPI *FARSTDLTRIM)(char *Str);
-typedef char   *(WINAPI *FARSTDRTRIM)(char *Str);
-typedef char   *(WINAPI *FARSTDTRIM)(char *Str);
-typedef char   *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
-typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
-typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
-#ifdef FAR_USE_INTERNALS
-typedef char*   (WINAPI *FARSTDPOINTTONAME)(char *Path);
-#else // ELSE FAR_USE_INTERNALS
-typedef char*   (WINAPI *FARSTDPOINTTONAME)(const char *Path);
-#endif // END FAR_USE_INTERNALS
-typedef void    (WINAPI *FARSTDGETPATHROOT)(const char *Path,char *Root);
-typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(char *Path);
-typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const char *Data);
-typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
+typedef int     (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_t *Name,wchar_t *Owner);
+typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
+typedef int     (WINAPI *FARSTDATOI)(const wchar_t *s);
+typedef __int64 (WINAPI *FARSTDATOI64)(const wchar_t *s);
+typedef wchar_t   *(WINAPI *FARSTDITOA64)(__int64 value, wchar_t *string, int radix);
+typedef wchar_t   *(WINAPI *FARSTDITOA)(int value, wchar_t *string, int radix);
+typedef wchar_t   *(WINAPI *FARSTDLTRIM)(wchar_t *Str);
+typedef wchar_t   *(WINAPI *FARSTDRTRIM)(wchar_t *Str);
+typedef wchar_t   *(WINAPI *FARSTDTRIM)(wchar_t *Str);
+typedef wchar_t   *(WINAPI *FARSTDTRUNCSTR)(wchar_t *Str,int MaxLength);
+typedef wchar_t   *(WINAPI *FARSTDTRUNCPATHSTR)(wchar_t *Str,int MaxLength);
+typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
+typedef const wchar_t*   (WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
+typedef void    (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root);
+typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
+typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
+typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 typedef int     (WINAPI *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);
-typedef int     (WINAPI *FARSTDLOCALISLOWER)(unsigned Ch);
-typedef int     (WINAPI *FARSTDLOCALISUPPER)(unsigned Ch);
-typedef int     (WINAPI *FARSTDLOCALISALPHA)(unsigned Ch);
-typedef int     (WINAPI *FARSTDLOCALISALPHANUM)(unsigned Ch);
-typedef unsigned (WINAPI *FARSTDLOCALUPPER)(unsigned LowerChar);
-typedef unsigned (WINAPI *FARSTDLOCALLOWER)(unsigned UpperChar);
-typedef void    (WINAPI *FARSTDLOCALUPPERBUF)(char *Buf,int Length);
-typedef void    (WINAPI *FARSTDLOCALLOWERBUF)(char *Buf,int Length);
-typedef void    (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
-typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
-typedef int     (WINAPI *FARSTDLOCALSTRICMP)(const char *s1,const char *s2);
-typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(const char *s1,const char *s2,int n);
+typedef int     (WINAPI *FARSTDLOCALISLOWER)(wchar_t Ch);
+typedef int     (WINAPI *FARSTDLOCALISUPPER)(wchar_t Ch);
+typedef int     (WINAPI *FARSTDLOCALISALPHA)(wchar_t Ch);
+typedef int     (WINAPI *FARSTDLOCALISALPHANUM)(wchar_t Ch);
+typedef wchar_t (WINAPI *FARSTDLOCALUPPER)(wchar_t LowerChar);
+typedef wchar_t (WINAPI *FARSTDLOCALLOWER)(wchar_t UpperChar);
+typedef void    (WINAPI *FARSTDLOCALUPPERBUF)(wchar_t *Buf,int Length);
+typedef void    (WINAPI *FARSTDLOCALLOWERBUF)(wchar_t *Buf,int Length);
+typedef void    (WINAPI *FARSTDLOCALSTRUPR)(wchar_t *s1);
+typedef void    (WINAPI *FARSTDLOCALSTRLWR)(wchar_t *s1);
+typedef int     (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2);
+typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,int n);
 
 enum PROCESSNAME_FLAGS{
  PN_CMPNAME      = 0x00000000UL,
- PN_CMPNAMELIST  = 0x00001000UL,
- PN_GENERATENAME = 0x00002000UL,
- PN_SKIPPATH     = 0x00100000UL,
+ PN_CMPNAMELIST  = 0x00010000UL,
+ PN_GENERATENAME = 0x00020000UL,
+ PN_SKIPPATH     = 0x01000000UL,
 };
 
-typedef int     (WINAPI *FARSTDPROCESSNAME)(const char *param1, char *param2, DWORD flags);
+typedef int     (WINAPI *FARSTDPROCESSNAME)(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
 
-typedef void (WINAPI *FARSTDUNQUOTE)(char *Str);
-
-typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
-  const char *src,
-  char *dst,
-  size_t size
-);
+typedef void (WINAPI *FARSTDUNQUOTE)(wchar_t *Str);
 
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT  = 0x00000001UL,
@@ -2364,9 +1531,9 @@ typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const st
 typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
 
-typedef int (WINAPI *FRSUSERFUNC)(
-  const WIN32_FIND_DATA *FData,
-  const char *FullName,
+typedef int (WINAPI *FRSUSERFUNCW)(
+  const FAR_FIND_DATA *FData,
+  const wchar_t *FullName,
   void *Param
 );
 
@@ -2376,8 +1543,8 @@ enum FRSMODE{
   FRS_SCANSYMLINK          = 0x04,
 };
 
-typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
-typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest,const char *Prefix);
+typedef void    (WINAPI *FARSTDRECURSIVESEARCHW)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNCW Func,DWORD Flags,void *Param);
+typedef wchar_t* (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum MKLINKOP{
@@ -2388,7 +1555,7 @@ enum MKLINKOP{
   FLINK_SHOWERRMSG       = 0x10000,
   FLINK_DONOTUPDATEPANEL = 0x20000,
 };
-typedef int     (WINAPI *FARSTDMKLINK)(const char *Src,const char *Dest,DWORD Flags);
+typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
 
@@ -2407,7 +1574,6 @@ typedef struct FarStandardFunctions
   FARSTDQSORT                qsort;
   FARSTDBSEARCH              bsearch;
   FARSTDQSORTEX              qsortex;
-
   // <C&C++>
   FARSTDSNPRINTF             snprintf;
   // </C&C++>
@@ -2428,7 +1594,6 @@ typedef struct FarStandardFunctions
   FARSTDLOCALSTRNICMP        LStrnicmp;
 
   FARSTDUNQUOTE              Unquote;
-  FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
   FARSTDLTRIM                LTrim;
   FARSTDRTRIM                RTrim;
   FARSTDTRIM                 Trim;
@@ -2446,7 +1611,7 @@ typedef struct FarStandardFunctions
   FARSTDXLAT                 XLat;
   FARSTDGETFILEOWNER         GetFileOwner;
   FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
-  FARSTDRECURSIVESEARCH      FarRecursiveSearch;
+  FARSTDRECURSIVESEARCHW     FarRecursiveSearch;
   FARSTDMKTEMP               MkTemp;
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
@@ -2458,9 +1623,9 @@ typedef struct FarStandardFunctions
 struct PluginStartupInfo
 {
   int StructSize;
-  char ModuleName[NM];
+  const wchar_t *ModuleName;
   int ModuleNumber;
-  const char *RootKey;
+  const wchar_t *RootKey;
   FARAPIMENU             Menu;
   FARAPIDIALOG           Dialog;
   FARAPIMESSAGE          Message;
@@ -2471,6 +1636,7 @@ struct PluginStartupInfo
   FARAPIGETDIRLIST       GetDirList;
   FARAPIGETPLUGINDIRLIST GetPluginDirList;
   FARAPIFREEDIRLIST      FreeDirList;
+  FARAPIFREEPLUGINDIRLIST FreePluginDirList;
   FARAPIVIEWER           Viewer;
   FARAPIEDITOR           Editor;
   FARAPICMPNAME          CmpName;
@@ -2499,19 +1665,18 @@ enum PLUGIN_FLAGS {
   PF_FULLCMDLINE    = 0x0010,
 };
 
-
-struct PluginInfo
+struct PluginInfoW
 {
   int StructSize;
   DWORD Flags;
-  const char * const *DiskMenuStrings;
+  const wchar_t * const *DiskMenuStrings;
   int *DiskMenuNumbers;
   int DiskMenuStringsNumber;
-  const char * const *PluginMenuStrings;
+  const wchar_t * const *PluginMenuStrings;
   int PluginMenuStringsNumber;
-  const char * const *PluginConfigStrings;
+  const wchar_t * const *PluginConfigStrings;
   int PluginConfigStringsNumber;
-  const char *CommandPrefix;
+  const wchar_t *CommandPrefix;
 #ifdef FAR_USE_INTERNALS
   DWORD SysID;
 #else // ELSE FAR_USE_INTERNALS
@@ -2520,24 +1685,25 @@ struct PluginInfo
 };
 
 
-struct InfoPanelLine
+
+struct InfoPanelLineW
 {
-  char Text[80];
-  char Data[80];
+  wchar_t Text[80];
+  wchar_t Data[80];
   int  Separator;
 };
 
 struct PanelMode
 {
-  char  *ColumnTypes;
-  char  *ColumnWidths;
-  char **ColumnTitles;
+  wchar_t  *ColumnTypes;
+  wchar_t  *ColumnWidths;
+  wchar_t **ColumnTitles;
   int    FullScreen;
   int    DetailedStatus;
   int    AlignExtensions;
   int    CaseConversion;
-  char  *StatusColumnTypes;
-  char  *StatusColumnWidths;
+  wchar_t  *StatusColumnTypes;
+  wchar_t  *StatusColumnWidths;
   DWORD  Reserved[2];
 };
 
@@ -2580,14 +1746,14 @@ enum OPENPLUGININFO_SORTMODES {
 
 struct KeyBarTitles
 {
-  char *Titles[12];
-  char *CtrlTitles[12];
-  char *AltTitles[12];
-  char *ShiftTitles[12];
+  wchar_t *Titles[12];
+  wchar_t *CtrlTitles[12];
+  wchar_t *AltTitles[12];
+  wchar_t *ShiftTitles[12];
 
-  char *CtrlShiftTitles[12];
-  char *AltShiftTitles[12];
-  char *CtrlAltTitles[12];
+  wchar_t *CtrlShiftTitles[12];
+  wchar_t *AltShiftTitles[12];
+  wchar_t *CtrlAltTitles[12];
 };
 
 
@@ -2603,17 +1769,17 @@ enum OPERATION_MODES {
 
 #define MAXSIZE_SHORTCUTDATA  8192
 
-struct OpenPluginInfo
+struct OpenPluginInfoW
 {
   int                   StructSize;
   DWORD                 Flags;
-  const char           *HostFile;
-  const char           *CurDir;
-  const char           *Format;
-  const char           *PanelTitle;
-  const struct InfoPanelLine *InfoLines;
+  const wchar_t           *HostFile;
+  const wchar_t           *CurDir;
+  const wchar_t           *Format;
+  const wchar_t           *PanelTitle;
+  const struct InfoPanelLineW *InfoLines;
   int                   InfoLinesNumber;
-  const char * const   *DescrFiles;
+  const wchar_t * const   *DescrFiles;
   int                   DescrFilesNumber;
   const struct PanelMode *PanelModesArray;
   int                   PanelModesNumber;
@@ -2621,7 +1787,7 @@ struct OpenPluginInfo
   int                   StartSortMode;
   int                   StartSortOrder;
   const struct KeyBarTitles *KeyBar;
-  const char           *ShortcutData;
+  const wchar_t           *ShortcutData;
   long                  Reserverd;
 };
 
@@ -2662,30 +1828,30 @@ extern "C"{
 // Exported Functions
 
 void   WINAPI _export ClosePlugin(HANDLE hPlugin);
-int    WINAPI _export Compare(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
+int    WINAPI _export Compare(HANDLE hPlugin,const struct PluginPanelItemW *Item1,const struct PluginPanelItemW *Item2,unsigned int Mode);
 int    WINAPI _export Configure(int ItemNumber);
-int    WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+int    WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
 void   WINAPI _export ExitFAR(void);
-void   WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-void   WINAPI _export FreeVirtualFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-int    WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
-int    WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+void   WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber);
+void   WINAPI _export FreeVirtualFindData(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber);
+int    WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
+int    WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItemW **pPanelItem,int *pItemsNumber,int OpMode);
 int    WINAPI _export GetMinFarVersion(void);
 void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);
 void   WINAPI _export GetPluginInfo(struct PluginInfo *Info);
-int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
+int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
-HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
+HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item);
 int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
 int    WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param);
-int    WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+int    WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
 int    WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
 int    WINAPI _export ProcessViewerEvent(int Event,void *Param);
-int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
-int    WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode);
-int    WINAPI _export SetFindList(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
+int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
+int    WINAPI _export SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
+int    WINAPI _export SetFindList(HANDLE hPlugin,const struct PluginPanelItemW *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
 
 #ifdef __cplusplus

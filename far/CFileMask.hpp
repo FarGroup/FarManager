@@ -8,16 +8,7 @@ CFileMask.hpp
 
 */
 
-/* Revision: 1.01 02.07.2001 $ */
-
-/*
-Modify:
-  02.07.2001 IS
-    ! Free переехал в public
-    + FMF_ADDASTERISK
-  01.07.2001 IS
-    + Впервые в эфире
-*/
+/* Revision: 1.03 16.03.2006 $ */
 
 #include "BaseFileMask.hpp"
 
@@ -28,25 +19,27 @@ enum FM_FLAGS
   FMF_ADDASTERISK   = 0x00000004
 };
 
-class CFileMask
+
+class CFileMaskW
 {
 private:
-    BaseFileMask *FileMask;
+    BaseFileMaskW *FileMask;
 
 public:
-    CFileMask();
-    ~CFileMask() { Free(); }
+    CFileMaskW();
+    ~CFileMaskW() { Free(); }
 
 public:
-    BOOL Set(const char *Masks, DWORD Flags);
-    BOOL Compare(const char *Name);
+    BOOL Set(const wchar_t *Masks, DWORD Flags);
+    BOOL Compare(const wchar_t *Name);
     BOOL IsEmpty(void);
     void Free();
 
 private:
-  CFileMask& operator=(const CFileMask& rhs); /* чтобы не */
-  CFileMask(const CFileMask& rhs); /* генерировалось по умолчанию */
+  CFileMaskW& operator=(const CFileMaskW& rhs); /* чтобы не */
+  CFileMaskW(const CFileMaskW& rhs); /* генерировалось по умолчанию */
 
 };
+
 
 #endif // __CFileMask_HPP

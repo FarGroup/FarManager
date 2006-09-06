@@ -5,7 +5,7 @@ filestr.cpp
 
 */
 
-/* Revision: 1.06 21.01.2003 $ */
+/* Revision: 1.07 25.05.2006 $ */
 
 /*
 Modify:
@@ -43,6 +43,7 @@ GetFileString::GetFileString(FILE *SrcFile)
      “.к. в последствии пам€ть перераспредел€етс€ через realloc, то
      конструкци€ Str=new char[1024]; не применима...
   */
+  wStr = NULL;
   Str=(char*)xf_malloc(1024);
   /* SVS $ */
   StrLength=1024;
@@ -58,9 +59,26 @@ GetFileString::~GetFileString()
      используем free
   */
   xf_free(Str);
+  xf_free(wStr);
   /* SVS $ */
 }
 
+
+int GetFileString::GetStringW(wchar_t **DestStr, int CodePage, int &Length)
+{
+    char *Str;
+
+    int nExitCode = GetString(&Str, Length);
+
+    wStr = (wchar_t*)xf_realloc (wStr, (Length+1)*sizeof (wchar_t));
+    wmemset (wStr, 0, Length+1);
+
+    MultiByteToWideChar (CodePage, 0, Str, Length, wStr, Length);
+
+    *DestStr = wStr;
+
+    return nExitCode;
+}
 
 int GetFileString::GetString(char **DestStr,int &Length)
 {

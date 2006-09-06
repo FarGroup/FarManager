@@ -9,146 +9,7 @@ editor.hpp
 
 */
 
-/* Revision: 1.50 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  22.04.2004 SVS
-    ! Константы SAVEFILE_* уехали из editor.hpp в fileedit.hpp
-  09.12.2003 SVS
-    + Editor::GetWordDiv()
-  10.10.2003 SVS
-    + SetWordDiv()
-  26.09.2003 SVS
-    + FEDITOR_PROCESSCTRLQ - нажата Ctrl-Q и идет процесс вставки кода символа
-  06.05.2003 SVS
-    ! Работа с закладками вынесена в отдельные функции SetBookmark() и GotoBookmark()
-  28.04.2003 SVS
-    ! Изменены параметры SaveData
-  05.03.2003 SVS
-    + Editor::ReadData, Editor::SaveData (пока невалидны с точки зрения работы)  - для DI_MEMOEDIT
-  17.12.2002 SVS
-    ! Изменены типы полей структуры InternalEditorBookMark
-      (see класс FilePositionCache)
-  08.11.2002 SVS
-    ! Editor::PluginData уехал в FileEditor::PluginData
-    ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
-    ! Очередная порция отучения Editor от понятия "файл"
-  04.09.2002 SVS
-    ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
-      теперь это привелегия FileEditor`а
-  25.06.2002 SVS
-    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
-  14.06.2002 IS
-    + FEDITOR_DELETEONLYFILEONCLOSE
-    ! Параметр у SetDeleteOnClose стал int:
-        0 - не удалять ничего
-        1 - удалять файл и каталог
-        2 - удалять только файл
-    ! Тело SetDeleteOnClose переехало в editor.cpp
-  18.05.2002 SVS
-    ! ФЛАГИ - сведем в кучу двухпозиционные переменные
-  07.03.2002 IS
-    + UnmarkEmptyBlock(): удалить выделение, если оно пустое (выделено ноль
-      символов в ширину)
-  04.02.2002 SVS
-    ! Editor::IsShiftKey() -> keyboard.cpp::IsShiftKey()
-  28.01.2002 VVM
-    + Освободить всю занятую память - void FreeAllocatedData()
-  15.01.2002 SVS
-    ! FileEditor - друг Editor`у (в последствии - для "отучения Editor от 'файл'")
-    + GetHostFileEditor()
-    ! Вместо кучи int`ов - битовые флаги FLAGS_CLASS_EDITOR
-    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
-  11.11.2002 IS
-    + CurPosChangedByPlugin
-  25.12.2001 SVS
-    + ResizedConsole - при изменении консоли = 1
-  14.12.2001 IS
-    ! внедрение const в соответствии с изменениями класса Edit
-  03.12.2001 IS
-    ! UndoData теперь указатель, т.к. размер может меняться
-    ! Убрал EDITOR_UNDO_COUNT, т.к. вместо него теперь Opt.EditorUndoSize
-  29.10.2001 IS
-    + GetSavePosMode/SetSavePosMode
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  10.10.2001 IS
-    + обработка DeleteOnClose
-  18.08.2001 SVS
-    + параметр у функции Paste - для отработки $Date, у которой есть '%n'
-  25.06.2001 IS
-    ! Внедрение const
-  25.06.2001 SVS
-    - Падение ФАРа при поске в редакторе
-  06.06.2001 SVS
-    + EDITOR_UNDO_COUNT - "от чисел к символам" (для наглядности :-)
-    ! SavePos* заменено на SavePos (одной структурой - InternalEditorBookMark)
-  03.06.2001 OT
-    - Не обновлялся StatusLine после DrawLine в редакторе
-  27.05.2001 DJ
-    + константы для кодов возврата Editor::SaveFile()
-  07.05.2001 SVS
-    ! Search теперь возвращает TRUE/FALSE
-  06.05.2001 DJ
-    ! перетрях #include
-  28.03.2001 SVS
-    + дополнительный параметр для SaveFile() - SaveAs
-  27.02.2001 SVS
-    + *CharCodeBase() - по поводу базы вывода
-  26.02.2001 IS
-    ! Часть самостоятельных переменных заменено соответствующими из
-      EditorOptions. Надо было это сразу сделать, да я что-то стормозил :)
-    + SetAutoIndent/GetAutoIndent
-      SetAutoDetectTable/GetAutoDetectTable
-      SetCursorBeyondEOL/GetCursorBeyondEOL
-      SetBSLikeDel/GetBSLikeDel
-  15.02.2001 IS
-    + Локальные переменные, в которых запоминается то, что храниться в
-      настройках редактора:
-      DelRemovesBlocks - "Del удаляет блоки"
-      PersistentBlocks - "Постоянные блоки"
-    + Функции для управления их состоянием:
-      SetDelRemovesBlocks/GetDelRemovesBlocks
-      SetPersistentBlocks/GetPersistentBlocks
-  15.02.2001 IS
-    - Тело функции SetTabSize переехало в editor.cpp
-    + За режима "Пробелы вместо табуляции" отвечает переменная ConvertTabs
-    + GetConvertTabs и SetConvertTabs
-  14.02.2001 IS
-    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
-      GetTabSize, SetTabSize
-  13.02.2001 IS
-    + Переменная AttrStr
-    + Функция GetFileAttributes;
-  12.02.2001 IS
-    + FileAttributes
-  24.09.2000 SVS
-    + Функция Xlat
-  10.08.2000 skv
-    + добавлены int JustModied и void TextChanged(state);
-  30.07.2000 KM 1.06
-    + LastSearchWholeWords
-  21.07.2000 tran
-    - три новых метода  - Bug22
-  21.07.2000 tran
-    ! GotoLine стала как раньше void и добавилась GoToPosition
-  17.07.2000 OT
-    + Застолбить место под разработку "моего" редактора
-  14.07.2000 tran
-    ! функцию GetRowCol сделал методом класса
-  05.07.2000 tran
-    ! изменил тип возврата у GoToLine() с 'void ' на 'int'
-      возвращаемое значение - это колонка, введенная пользователем
-      используется только в одном месте - в обработке Alt-F8
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.55 25.05.2006 $ */
 
 #include "scrobj.hpp"
 #include "struct.hpp"
@@ -173,7 +34,7 @@ struct EditorUndoData
   int UndoNext;
   int StrPos;
   int StrNum;
-  char *Str;
+  wchar_t *Str;
 };
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
@@ -252,7 +113,7 @@ class Editor:public ScreenObject
     struct EditorOptions EdOpt;
     /* IS $ */
     int Pasting;
-    char GlobalEOL[10];
+    wchar_t GlobalEOL[10];
 
     struct EditList *BlockStart;
     int BlockStartLine;
@@ -265,7 +126,7 @@ class Editor:public ScreenObject
 
     int MaxRightPos;
 
-    unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
+    string strLastSearchStr;
     /* $ 30.07.2000 KM
        Новая переменная для поиска "Whole words"
     */
@@ -320,7 +181,7 @@ class Editor:public ScreenObject
     /* skv $*/
 
     int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
-    void Paste(char *Src=NULL);
+    void Paste(const wchar_t *Src=NULL);
     void Copy(int Append);
     void DeleteBlock();
     void UnmarkBlock();
@@ -329,7 +190,7 @@ class Editor:public ScreenObject
     */
     void UnmarkEmptyBlock();
     /* IS $ */
-    void AddUndoData(const char *Str,int StrNum,int StrPos,int Type);
+    void AddUndoData(const wchar_t *Str,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
     void SetStringsTable();
@@ -337,10 +198,10 @@ class Editor:public ScreenObject
     void BlockRight();
     void DeleteVBlock();
     void VCopy(int Append);
-    void VPaste(char *ClipText);
+    void VPaste(const wchar_t *ClipText);
     void VBlockShift(int Left);
     struct EditList * GetStringByNumber(int DestLine);
-    static void EditorShowMsg(const char *Title,const char *Msg, const char* Name);
+    static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name);
 
     int SetBookmark(DWORD Pos);
     int GotoBookmark(DWORD Pos);
@@ -350,7 +211,7 @@ class Editor:public ScreenObject
     ~Editor();
 
   public:
-    int ReadFile(const char *Name,int &UserBreak);               // преобразование из файла в список
+    int ReadFile(const wchar_t *Name,int &UserBreak);               // преобразование из файла в список
 
     int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
     int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер
@@ -361,7 +222,7 @@ class Editor:public ScreenObject
     void SetStartPos(int LineNum,int CharNum);
     int IsFileModified();
     int IsFileChanged();
-    void SetTitle(const char *Title);
+    void SetTitle(const wchar_t *Title);
     long GetCurPos();
     int EditorControl(int Command,void *Param);
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
@@ -400,8 +261,8 @@ class Editor:public ScreenObject
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
-    void SetWordDiv(const char *WordDiv) { xstrncpy(EdOpt.WordDiv,WordDiv,sizeof(EdOpt.WordDiv)-1); }
-    const char *GetWordDiv() { return EdOpt.WordDiv; }
+    void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
+    const wchar_t *GetWordDiv() { return (const wchar_t*)EdOpt.strWordDiv; }
     /* $ 29.10.2001 IS
          Работа с настройками "сохранять позицию файла" и
          "сохранять закладки" после смены настроек по alt-shift-f9.
@@ -413,10 +274,7 @@ class Editor:public ScreenObject
     void SetSavePosMode(int SavePos, int SaveShortPos);
     /* IS $ */
 
-    /* $ tran 14.07.2000
-      + goto to percent support */
-    void GetRowCol(char *argv,int *row,int *col);
-    /* tran 14.07.2000 $ */
+    void GetRowCol(const wchar_t *argv,int *row,int *col);
 
     /* $ 21.07.2000 tran
        три новых метода*/

@@ -5,162 +5,7 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.57 12.07.2006 $ */
-
-/*
-Modify:
-  12.07.2006 SVS
-    ! kill class int64
-    ! "Грязный" хак имени WARP`а: явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
-  05.07.2006 IS
-    - warnings
-  20.02.2006 SVS
-    ! У ConvertNameToShort новый параметр - размер для Dest
-  07.12.2005 SVS
-    + инициализация Is_FS_NTFS
-  09.09.2005 SVS
-    ! Функционал получения имени компьютера по текущему пути вынесен в
-      отдельную функцию CurPath2ComputerName()
-  30.08.2004 SVS
-    + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  28.02.2004 SVS
-    + Opt.AutoUpdateRemoteDrive - управление автоапдейтом сетевых дисков
-  13.11.2003 SVS
-    + _ALGO()
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  12.09.2003 VVM
-    + Очистить буфер, если не смогли сменить каталог.
-  12.09.2003 SVS
-    ! Немного увеличим буфер для GetPathRootOne
-  06.06.2003 SVS
-    + сброс кэша SID`ов
-  25.02.2003 SVS
-    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
-    ! Вернем схему наложения раскраски взад - все за один цикл
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-    ! В FileList::PluginPutFilesToNew() вместо индексного массива
-      применим указатели.
-    ! В FileList::AddParentPoint() делаем статическую переменную
-      типа FileListItem, при первом обращении к этой функции
-      заполняем структуру, а потом просто юзаем.
-  26.01.2003 IS
-    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать для удаления
-      соответственно файлов и каталогов.
-  21.12.2002 SVS
-    ! Избавимся от "не той" прорисовки пересчетчика файлов в момент выхода
-      из редактора в каталоге со значительным количеством файлов.
-  18.06.2002 SVS
-    ! Перед чтением контента (функция FileList::ReadFileNames - вот здесь
-      возможно что код лишний!) проверим на "читаемость" диска и если надо
-      вызовем нашу новую функцию IfGoHome(), которая молча...
-  12.04.2002 SVS
-    - BugZ#452 - Ctrl+N на ТмпПанели
-  11.04.2002 SVS
-    ! OPM_QUICKVIEW -> OPM_VIEW|OPM_QUICKVIEW
-  08.04.2002 SVS
-    ! Для QView в плагине (GetFiles) вместо OPM_VIEW передаем OPM_QUICKVIEW
-  28.03.2002 KM
-    - Падение VC на
-      char *LocalName="A:";
-      *LocalName=*CurDir;
-      Так как память в LocalName ReadOnly.
-  20.03.2002 SVS
-    ! GetCurrentDirectory -> FarGetCurDir
-  20.03.2002 DJ
-    ! UpdateIfRequired() должен сам сбрасывать UpdateRequired
-  19.03.2002 DJ
-    ! возможность форсировать апдейт, даже если панель невидима
-    ! UpdateIfRequired()
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  13.02.2002 DJ
-    ! не выставляем заголовок окна, если мы не текущий фрейм
-  24.01.2002 VVM
-    ! Поменяем логику обновления панелей
-    ! hListChange работает с INVALID_HANDLE_VALUE, а не с NULL
-  14.01.2002 IS
-    - Опечатка
-  27.12.2001 SVS
-    ! "Ошибки производства".
-  25.12.2001 SVS
-    ! Небольшое уточнение
-  25.12.2001 SVS
-    ! немного оптимизации (если VC сам умеет это делать, то
-      борманду нужно помочь)
-  19.12.2001 VVM
-    ! Сменим приоритеты. При Force обновление всегда! в UpdateIfChanged()
-  14.12.2001 VVM
-    ! При обновлении списка файлов не прерываемся при обломе в SetCurDir(),
-      т.к. там мы все-равно куда-нибудь и встали. Может и не на тот-же диск...
-  23.11.2001 SVS
-    ! небольшая оптимизация в "запроснике" цветов - цвета запрашиваем
-      только после сбора информации о файловых объектах и применяем
-      новую функцию HighlightFiles::GetHiColor(), работающая с кипой
-      структур FileListItem
-    - ФАР жрал кучу процессорного времени - во время простоя все
-      время перекраска каталога шла.
-  22.11.2001 VVM
-    + Раскрасить ".." при OPIF_ADDDOTS
-  13.11.2001 OT
-    ! Попытка исправить создание каталогов на пассивной панели по F7
-  24.10.2001 SVS
-    ! сначала проапдейтим пассивную панель, а потом активную.
-  02.10.2001 SVS
-    - UpdateColorItems() предназначена не для плагиновых панелей!
-  01.10.2001 SVS
-    ! Немного оптимизации - для ускорения считывания директории
-    + AddParentPoint() - общий код по добавлению ".."
-    + UpdateColorItems() - колоризация итемов
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 SVS
-    + Opt.AutoUpdateLimit -  выше этого количество не обновлять панели.
-  05.09.2001 SVS
-    ! Вместо полей Color* в структе FileListItem используется
-      структура HighlightDataColor
-  17.08.2001 VVM
-    + FileListItem.CRC32
-  22.06.2001 SKV
-    ! UpdateIfChanged - добавлен параметр Force.
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  26.03.2001 SVS
-    ! для любых сетевых путей добавляем ".." - иногда операционка этого
-      сама не делает :-(
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  25.02.2001 VVM
-    + Обработка флага RDF_NO_UPDATE в ReadDiz()
-  11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
-  11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.74 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -199,7 +44,7 @@ void FileList::Update(int Mode)
         break;
       case PLUGIN_PANEL:
         {
-          struct OpenPluginInfo Info;
+          struct OpenPluginInfoW Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           ProcessPluginCommand();
           if (PanelMode!=PLUGIN_PANEL)
@@ -233,15 +78,15 @@ void FileList::UpdateIfRequired()
 /* DJ $ */
 
 
-void ReadFileNamesMsg(char *Msg)
+void ReadFileNamesMsg(const wchar_t *Msg)
 {
-  Message(0,0,MSG(MReadingTitleFiles),Msg);
-  PreRedrawParam.Param1=Msg;
+  MessageW(0,0,UMSG(MReadingTitleFiles),Msg);
+  PreRedrawParam.Param1=(void*)Msg;
 }
 
 static void PR_ReadFileNamesMsg(void)
 {
-  ReadFileNamesMsg((char *)PreRedrawParam.Param1);
+  ReadFileNamesMsg((wchar_t *)PreRedrawParam.Param1);
 }
 
 
@@ -263,11 +108,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   Is_FS_NTFS=FALSE;
   AccessTimeUpdateRequired=FALSE;
   DizRead=FALSE;
-
   HANDLE FindHandle;
-  WIN32_FIND_DATA fdata;
-  struct FileListItem *CurPtr=0,*OldData=0;
-  char CurName[NM],NextCurName[NM];
+  FAR_FIND_DATA_EX fdata;
+  struct FileListItem *CurPtr=0,**OldData=0;
+  string strCurName, strNextCurName;
   long OldFileCount=0;
   int Done;
   int I;
@@ -279,20 +123,18 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel )
     return;
 
-  char SaveDir[NM];
-  *(int*)SaveDir=0;
-  FarGetCurDir(NM, SaveDir);
+  string strSaveDir;
+  FarGetCurDirW(strSaveDir);
   {
-    char OldCurDir[NM*2];
-    xstrncpy(OldCurDir, CurDir, NM-1);
+    string strOldCurDir = strCurDir;
     if (!SetCurPath())
     {
       FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
-      if (strcmp(CurDir, OldCurDir) == 0)
+      if (wcscmp(strCurDir, strOldCurDir) == 0) //?? i??
       {
-        GetPathRootOne(OldCurDir,OldCurDir);
-        if(!IsDiskInDrive(OldCurDir))
-          IfGoHome(*OldCurDir);
+        GetPathRootOneW(strOldCurDir,strOldCurDir);
+        if(!IsDiskInDriveW(strOldCurDir))
+          IfGoHomeW(strOldCurDir.At(0));
         /* При смене каталога путь не изменился */
         return;
       }
@@ -305,14 +147,16 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     Filter=new PanelFilter(this);
 
   if (GetFocus())
-    CtrlObject->CmdLine->SetCurDir(CurDir);
+    CtrlObject->CmdLine->SetCurDirW(strCurDir);
 
   {
-    char FileSysName[NM],RootDir[NM*2];
-    ConvertNameToFull(CurDir,RootDir, sizeof(RootDir));
-    GetPathRoot(RootDir,RootDir);
-    if (GetVolumeInformation(RootDir,NULL,0,NULL,NULL,NULL,FileSysName,sizeof(FileSysName)))
-      Is_FS_NTFS=!strcmp(FileSysName,"NTFS")?TRUE:FALSE;
+    string strFileSysName;
+    string strRootDir;
+
+    ConvertNameToFullW(strCurDir,strRootDir);
+    GetPathRootW(strRootDir, strRootDir);
+    if ( apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
+      Is_FS_NTFS=!LocalStricmpW(strFileSysName,L"NTFS")?TRUE:FALSE;
   }
 
   LastCurFile=-1;
@@ -330,24 +174,27 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (Opt.ShowPanelFree)
   {
     unsigned __int64 TotalSize,TotalFree;
-    char DriveRoot[NM];
-    GetPathRoot(CurDir,DriveRoot);
-    if (!GetDiskSize(DriveRoot,&TotalSize,&TotalFree,(unsigned __int64*)&FreeDiskSize))
+    string strDriveRoot;
+    GetPathRootW(strCurDir,strDriveRoot);
+    if (!GetDiskSizeW(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 
-  *CurName=*NextCurName=0;
   if (FileCount>0)
   {
-    strcpy(CurName,ListData[CurFile].Name);
-    if (ListData[CurFile].Selected)
+    strCurName = ListData[CurFile]->strName;
+    if (ListData[CurFile]->Selected)
     {
-      for (I=CurFile+1, CurPtr=ListData+I; I < FileCount; I++, CurPtr++)
+      for (I=CurFile+1; I < FileCount; I++)
+      {
+          CurPtr = ListData[I];
+
         if (!CurPtr->Selected)
         {
-          strcpy(NextCurName,CurPtr->Name);
+          strNextCurName = CurPtr->strName;
           break;
         }
+      }
     }
   }
   if (KeepSelection || PrevSelFileCount>0)
@@ -366,24 +213,25 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int ReadPacked=IsColumnDisplayed(PACKED_COLUMN);
   int ReadNumLinks=IsColumnDisplayed(NUMLINK_COLUMN);
 
-  char ComputerName[NM];
-  *ComputerName=0;
+  string strComputerName;
+
   if (ReadOwners)
   {
-    CurPath2ComputerName(CurDir,ComputerName,sizeof(ComputerName)-1);
+    CurPath2ComputerName(strCurDir, strComputerName);
     // сбросим кэш SID`ов
     SIDCacheFlush();
   }
 
   SetLastError(0);
 
-  Done=((FindHandle=FindFirstFile("*.*",&fdata))==INVALID_HANDLE_VALUE);
+  //BUGBUG!!!
+  Done=((FindHandle=apiFindFirstFile(L"*.*",&fdata))==INVALID_HANDLE_VALUE);
 
   int AllocatedCount=0;
   struct FileListItem *NewPtr;
 
   // вне цикла получим указатель.
-  char *PointToName_CurDir=PointToName(CurDir);
+  const wchar_t *PointToName_CurDir=PointToNameW(strCurDir);
 
   // сформируем заголовок вне цикла
   char Title[2048];
@@ -395,69 +243,86 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   for (FileCount=0; !Done; )
   {
-    if ((fdata.cFileName[0]!='.' || fdata.cFileName[1]!=0) &&
+    if ((fdata.strFileName.At(0) != L'.' || fdata.strFileName.At(1) != 0) &&
         (Opt.ShowHidden || (fdata.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM))==0) &&
         ((fdata.dwFileAttributes & FA_DIREC) ||
-        Filter->CheckName(fdata.cFileName)))
+        Filter->CheckNameW(fdata.strFileName)))
     {
       int UpperDir=FALSE;
-      if (fdata.cFileName[0]=='.' && fdata.cFileName[1]=='.' && fdata.cFileName[2]==0)
+      if (fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)
       {
         UpperDir=TRUE;
         DotsPresent=TRUE;
         if (*PointToName_CurDir==0)
         {
-          Done=!FindNextFile(FindHandle,&fdata);
+          Done=!apiFindNextFile (FindHandle,&fdata);
           continue;
         }
       }
       if (FileCount>=AllocatedCount)
       {
         AllocatedCount=AllocatedCount+256+AllocatedCount/4;
-        if ((CurPtr=(struct FileListItem *)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
+
+        FileListItem **pTemp;
+
+        if ((pTemp=(struct FileListItem **)xf_realloc(ListData,AllocatedCount*4))==NULL)
           break;
-        ListData=CurPtr;
+        ListData=pTemp;
       }
 
-      NewPtr=ListData+FileCount;
-      memset(NewPtr,0,sizeof(struct FileListItem));
-      memcpy(&NewPtr->FileAttr,&fdata,sizeof(fdata));
+      ListData[FileCount] = new FileListItem;
+
+      memset (ListData[FileCount], 0, sizeof(FileListItem)); //BUGBUG, Clear!
+
+      NewPtr=ListData[FileCount];
+
+      NewPtr->FileAttr = fdata.dwFileAttributes;
+      NewPtr->CreationTime = fdata.ftCreationTime;
+      NewPtr->AccessTime = fdata.ftLastAccessTime;
+      NewPtr->WriteTime = fdata.ftLastWriteTime;
+
+      NewPtr->UnpSize = fdata.nFileSize;
+
+      NewPtr->strName = fdata.strFileName;
+      NewPtr->strShortName = fdata.strAlternateFileName;
+
       NewPtr->Position=FileCount++;
       NewPtr->NumberOfLinks=1;
 
       if ((fdata.dwFileAttributes & FA_DIREC) == 0)
       {
-        TotalFileSize+=MKUINT64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
+        TotalFileSize += NewPtr->UnpSize;
         int Compressed=FALSE;
         if (ReadPacked && (fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
         {
-          NewPtr->PackSize=GetCompressedFileSize(fdata.cFileName,&NewPtr->PackSizeHigh);
-          if (CurPtr->PackSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
+          DWORD dwLoPart, dwHighPart;
+
+          dwLoPart = GetCompressedFileSizeW (fdata.strFileName, &dwHighPart);
+
+          if ( (dwLoPart != (DWORD)-1) || (GetLastError () != NO_ERROR) )
+          {
+            NewPtr->PackSize = dwHighPart*0x100000000+dwLoPart;
             Compressed=TRUE;
+          }
         }
         if (!Compressed)
-        {
-          NewPtr->PackSizeHigh=fdata.nFileSizeHigh;
-          NewPtr->PackSize=fdata.nFileSizeLow;
-        }
+          NewPtr->PackSize = fdata.nFileSize;
         if (ReadNumLinks)
-          NewPtr->NumberOfLinks=GetNumberOfLinks(fdata.cFileName);
+          NewPtr->NumberOfLinks=GetNumberOfLinksW(fdata.strFileName);
       }
       else
-      {
-        NewPtr->PackSizeHigh=NewPtr->PackSize=0;
-      }
+        NewPtr->PackSize = 0;
 
       NewPtr->SortGroup=DEFAULT_SORT_GROUP;
       if (ReadOwners)
       {
-        char Owner[NM];
-        GetFileOwner(*ComputerName ? ComputerName:NULL,NewPtr->Name,Owner);
-        xstrncpy(NewPtr->Owner,Owner,sizeof(NewPtr->Owner)-1);
+        string strOwner;
+        GetFileOwnerW(strComputerName, NewPtr->strName,strOwner);
+        NewPtr->strOwner = strOwner;
       }
 
       if (NeedHighlight)
-        CtrlObject->HiFiles->GetHiColor(NewPtr,1);
+        CtrlObject->HiFiles->GetHiColor(&NewPtr,1);
 
       if (!UpperDir && (fdata.dwFileAttributes & FA_DIREC)==0)
         TotalFileCount++;
@@ -470,7 +335,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
         if (IsVisible())
         {
-          char ReadMsg[100];
+          string strReadMsg;
           if(!IsShowTitle)
           {
             if(DrawMessage)
@@ -483,25 +348,25 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
             }
           }
 
-          sprintf(ReadMsg,MSG(MReadingFiles),FileCount);
+          strReadMsg.Format (UMSG(MReadingFiles),FileCount);
           if(DrawMessage)
-            ReadFileNamesMsg(ReadMsg);
+            ReadFileNamesMsg(strReadMsg);
           else
           {
-            TruncStr(ReadMsg,TitleLength-2);
-            int MsgLength=strlen(ReadMsg);
+            TruncStrW(strReadMsg,TitleLength-2);
+            int MsgLength=strReadMsg.GetLength();
             GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
-            mprintf(" %s ",ReadMsg);
+            mprintfW(L" %s ", (const wchar_t*)strReadMsg);
           }
         }
         if (CheckForEsc())
         {
-          Message(MSG_WARNING,1,MSG(MUserBreakTitle),MSG(MOperationNotCompleted),MSG(MOk));
+          MessageW(MSG_WARNING,1,UMSG(MUserBreakTitle),UMSG(MOperationNotCompleted),UMSG(MOk));
           break;
         }
       }
     }
-    Done=!FindNextFile(FindHandle,&fdata);
+    Done=!apiFindNextFile(FindHandle,&fdata);
   }
 
   SetPreRedrawFunc(NULL);
@@ -509,7 +374,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int ErrCode=GetLastError();
   if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND ||
         (ErrCode==ERROR_BAD_PATHNAME && WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && Opt.IgnoreErrorBadPathName)))
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
+    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MReadFolderError),UMSG(MOk));
 
   FindClose(FindHandle);
 
@@ -521,23 +386,26 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     ReadDiz();
 
   int NetRoot=FALSE;
-  if (CurDir[0]=='\\' && CurDir[1]=='\\')
+  if (strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\')
   {
-    char *ChPtr=strchr(CurDir+2,'\\');
-    if (ChPtr==NULL || strchr(ChPtr+1,'\\')==NULL)
+    const wchar_t *ChPtr=wcschr((const wchar_t*)strCurDir+2,'\\');
+    if (ChPtr==NULL || wcschr(ChPtr+1,L'\\')==NULL)
       NetRoot=TRUE;
   }
   // пока кусок закомментим, возможно он даже и не пригодится.
-  if (!DotsPresent && *PointToName(CurDir)!=0)// && !NetRoot)
+  const wchar_t *lpwszName = PointToNameW(strCurDir);
+
+  if (!DotsPresent && *lpwszName )// && !NetRoot)
   {
     if (FileCount>=AllocatedCount)
     {
-      if ((CurPtr=(struct FileListItem *)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
-        ListData=CurPtr;
+        FileListItem **pTemp;
+      if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+1)*4))!=NULL)
+        ListData=pTemp;
     }
     if (CurPtr!=NULL)
     {
-      AddParentPoint(ListData+FileCount,FileCount);
+      AddParentPoint(ListData[FileCount],FileCount);
       FileCount++;
     }
   }
@@ -545,33 +413,36 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (AnotherPanel->GetMode()==PLUGIN_PANEL)
   {
     HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-    PluginPanelItem *PanelData=NULL, *PtrPanelData;
-    char Path[NM];
+    PluginPanelItemW *PanelData=NULL, *PtrPanelData;
+    string strPath;
     int PanelCount=0;
-    strcpy(Path,CurDir);
-    AddEndSlash(Path);
-    if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,Path))
+
+    strPath = strCurDir;
+    AddEndSlashW(strPath);
+    if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
     {
-      if ((CurPtr=(struct FileListItem *)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
+        FileListItem **pTemp;
+      if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*4))!=NULL)
       {
-        ListData=CurPtr;
-        for (CurPtr=ListData+FileCount, PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
+        ListData=pTemp;
+        for (PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
         {
-          WIN32_FIND_DATA &fdata=PtrPanelData->FindData;
+            CurPtr = ListData[FileCount+I];
+          FAR_FIND_DATA &fdata=PtrPanelData->FindData;
           PluginToFileListItem(PtrPanelData,CurPtr);
           CurPtr->Position=FileCount;
-          TotalFileSize+=MKUINT64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
+          TotalFileSize += fdata.nFileSize;
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
           if ((CurPtr->FileAttr & FA_DIREC)==0)
-            CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
+            CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->strName);
           else
             CurPtr->SortGroup=DEFAULT_SORT_GROUP;
-          if (!TestParentFolderName(fdata.cFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
+          if (!TestParentFolderNameW(fdata.lpwszFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
             TotalFileCount++;
         }
         // цветовую боевую раскраску в самом конце, за один раз
-        CtrlObject->HiFiles->GetHiColor(ListData+FileCount,PanelCount);
+        CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],PanelCount);
         FileCount+=PanelCount;
       }
       CtrlObject->Plugins.FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
@@ -599,9 +470,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   SortFileList(FALSE);
 
-  if (CurFile>=FileCount || LocalStricmp((ListData+CurFile)->Name,CurName)!=0)
-    if (!GoToFile(CurName) && *NextCurName)
-      GoToFile(NextCurName);
+  if (CurFile>=FileCount || LocalStricmpW(ListData[CurFile]->strName,strCurName)!=0)
+    if (!GoToFileW(strCurName) && !strNextCurName.IsEmpty())
+      GoToFileW(strNextCurName);
 
   /* $ 13.02.2002 DJ
      SetTitle() - только если мы текущий фрейм!
@@ -610,9 +481,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     SetTitle();
   /* DJ $ */
 
-  if (*SaveDir) {
-    SetCurrentDirectory(SaveDir);
-  }
+  FarChDirW (strSaveDir); //???
 }
 
 /*$ 22.06.2001 SKV
@@ -669,29 +538,25 @@ void FileList::UpdateColorItems(void)
 
 void FileList::CreateChangeNotification(int CheckTree)
 {
-  char RootDir[4]=" :\\";
+  wchar_t RootDir[4]=L" :\\";
   DWORD DriveType=DRIVE_REMOTE;
 
   CloseChangeNotification();
 
-  if(IsLocalPath(CurDir))
+  if(IsLocalPathW(strCurDir))
   {
-    RootDir[0]=*CurDir;
-    DriveType=FAR_GetDriveType(RootDir);
+    RootDir[0]=strCurDir.At(0);
+    DriveType=FAR_GetDriveTypeW(RootDir);
   }
 
   if(Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))
   {
-    char AnsiName[NM];
-    FAR_OemToChar(CurDir,AnsiName);
-    SetFileApisTo(APIS2ANSI);
-    hListChange=FindFirstChangeNotification(AnsiName,CheckTree,
+    hListChange=FindFirstChangeNotificationW(strCurDir,CheckTree,
                         FILE_NOTIFY_CHANGE_FILE_NAME|
                         FILE_NOTIFY_CHANGE_DIR_NAME|
                         FILE_NOTIFY_CHANGE_ATTRIBUTES|
                         FILE_NOTIFY_CHANGE_SIZE|
                         FILE_NOTIFY_CHANGE_LAST_WRITE);
-    SetFileApisTo(APIS2OEM);
   }
 }
 
@@ -706,29 +571,27 @@ void FileList::CloseChangeNotification()
 }
 
 
-void FileList::MoveSelection(struct FileListItem *ListData,long FileCount,
-                             struct FileListItem *OldData,long OldFileCount)
+void FileList::MoveSelection(struct FileListItem **ListData,long FileCount,
+                             struct FileListItem **OldData,long OldFileCount)
 {
-  struct FileListItem *OldPtr;
+  struct FileListItem **OldPtr;
   SelFileCount=0;
   SelFileSize=0;
-  far_qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
+  far_qsort((void *)OldData,OldFileCount,4,SortSearchList);
   while (FileCount--)
   {
-    OldPtr=(struct FileListItem *)bsearch((void *)ListData,(void *)OldData,
-                                  OldFileCount,sizeof(*OldData),SortSearchList);
+    OldPtr=(struct FileListItem **)bsearch((void *)ListData,(void *)OldData,
+                                  OldFileCount,4,SortSearchList);
     if (OldPtr!=NULL)
     {
-      if (OldPtr->ShowFolderSize)
+      if (OldPtr[0]->ShowFolderSize)
       {
-        ListData->ShowFolderSize=2;
-        ListData->UnpSize=OldPtr->UnpSize;
-        ListData->UnpSizeHigh=OldPtr->UnpSizeHigh;
-        ListData->PackSize=OldPtr->PackSize;
-        ListData->PackSizeHigh=OldPtr->PackSizeHigh;
+        ListData[0]->ShowFolderSize=2;
+        ListData[0]->UnpSize=OldPtr[0]->UnpSize;
+        ListData[0]->PackSize=OldPtr[0]->PackSize;
       }
-      Select(ListData,OldPtr->Selected);
-      ListData->PrevSelected=OldPtr->PrevSelected;
+      Select(ListData[0],OldPtr[0]->Selected);
+      ListData[0]->PrevSelected=OldPtr[0]->PrevSelected;
     }
     ListData++;
   }
@@ -751,27 +614,27 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   DizRead=FALSE;
 
   int I;
-  struct FileListItem *CurPtr, *OldData=0;
-  char CurName[NM],NextCurName[NM];
+  struct FileListItem *CurPtr, **OldData=0;
+  string strCurName, strNextCurName;
   long OldFileCount=0;
 
   CloseChangeNotification();
 
   LastCurFile=-1;
 
-  struct OpenPluginInfo Info;
+  struct OpenPluginInfoW Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
   if (Opt.ShowPanelFree && (Info.Flags & OPIF_REALNAMES))
   {
     unsigned __int64 TotalSize,TotalFree;
-    char DriveRoot[NM];
-    GetPathRoot(CurDir,DriveRoot);
-    if (!GetDiskSize(DriveRoot,&TotalSize,&TotalFree,(unsigned __int64*)&FreeDiskSize))
+    string strDriveRoot;
+    GetPathRootW(strCurDir,strDriveRoot);
+    if (!GetDiskSizeW(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 
-  PluginPanelItem *PanelData=NULL;
+  PluginPanelItemW *PanelData=NULL;
   int PluginFileCount;
 
   if (!CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
@@ -782,7 +645,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
     // WARP> явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
     if ( PrevDataStackSize )
-      GoToFile (PrevDataStack[PrevDataStackSize-1].PrevName);
+      GoToFileW (PrevDataStack[PrevDataStackSize-1]->strPrevName);
 
     return;
   }
@@ -792,26 +655,29 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   SelFileSize=0;
   TotalFileCount=0;
   TotalFileSize=0;
-  *PluginDizName=0;
 
-  *CurName=*NextCurName=0;
+  strPluginDizName = L"";
+
   if (FileCount>0)
   {
-    CurPtr=ListData+CurFile;
-    strcpy(CurName,CurPtr->Name);
+    CurPtr=ListData[CurFile];
+    strCurName = CurPtr->strName;
     if (CurPtr->Selected)
     {
-      for (++CurPtr, I=CurFile+1; I < FileCount; I++, CurPtr++)
+      for (I=CurFile+1; I < FileCount; I++)
+      {
+          CurPtr = ListData[I];
         if (!CurPtr->Selected)
         {
-          strcpy(NextCurName,CurPtr->Name);
+          strNextCurName = CurPtr->strName;
           break;
         }
+      }
     }
   }
   else
     if (Info.Flags & OPIF_ADDDOTS)
-      strcpy(CurName,"..");
+      strCurName = L"..";
   if (KeepSelection || PrevSelFileCount>0)
   {
     OldData=ListData;
@@ -821,7 +687,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     DeleteListData(ListData,FileCount);
 
   FileCount=PluginFileCount;
-  ListData=(struct FileListItem*)xf_malloc(sizeof(struct FileListItem)*(FileCount+1));
+  ListData=(struct FileListItem**)xf_malloc(4*(FileCount+1));
 
   if (ListData==NULL)
   {
@@ -836,14 +702,14 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   int FileListCount=0;
 
-  struct PluginPanelItem *CurPanelData=PanelData;
+  struct PluginPanelItemW *CurPanelData=PanelData;
   for (I=0; I < FileCount; I++, CurPanelData++)
   {
-    struct FileListItem *CurListData=ListData+FileListCount;
+    struct FileListItem *CurListData=ListData[FileListCount];
 
     if (Info.Flags & OPIF_USEFILTER)
       if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
-        if (!Filter->CheckName(CurPanelData->FindData.cFileName))
+        if (!Filter->CheckNameW(CurPanelData->FindData.lpwszFileName))
           continue;
     if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM)))
       continue;
@@ -851,15 +717,15 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     PluginToFileListItem(CurPanelData,CurListData);
     if(Info.Flags & OPIF_REALNAMES)
     {
-      ConvertNameToShort(CurListData->Name,CurListData->ShortName,sizeof(CurListData->ShortName)-1);
+        ConvertNameToShortW (CurListData->strName, CurListData->strShortName);
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(
-          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurListData->Name,
+          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:(const wchar_t*)CurListData->strName,
           CurListData->FileAttr,&CurListData->Colors);
     if ((Info.Flags & OPIF_USESORTGROUPS) && (CurListData->FileAttr & FA_DIREC)==0)
-      CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(CurListData->Name);
+      CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(CurListData->strName);
     else
       CurListData->SortGroup=DEFAULT_SORT_GROUP;
     if (CurListData->DizText==NULL)
@@ -867,7 +733,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       CurListData->DeleteDiz=FALSE;
       //CurListData->DizText=NULL;
     }
-    if (TestParentFolderName(CurListData->Name))
+    if (TestParentFolderNameW(CurListData->strName))
     {
       DotsPresent=TRUE;
       CurListData->FileAttr|=FA_DIREC;
@@ -875,7 +741,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     else
       if ((CurListData->FileAttr & FA_DIREC)==0)
         TotalFileCount++;
-    TotalFileSize+=MKUINT64(CurListData->UnpSizeHigh,CurListData->UnpSize);
+    TotalFileSize += CurListData->UnpSize;
     FileListCount++;
   }
 
@@ -884,22 +750,19 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
   {
     struct FileListItem *CurPtr;
-    AddParentPoint((CurPtr=ListData+FileCount),FileCount);
+    AddParentPoint((CurPtr=ListData[FileCount]),FileCount);
     /* $ 22.11.2001 VVM
       + Не забыть раскрасить :) */
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(
-          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurPtr->Name,
+          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:(const wchar_t*)CurPtr->strName,
           CurPtr->FileAttr,&CurPtr->Colors);
     /* VVM $ */
     if (Info.HostFile && *Info.HostFile)
     {
-      WIN32_FIND_DATA FindData;
-      HANDLE FindHandle;
-      FindHandle=FindFirstFile(Info.HostFile,&FindData);
-      FindClose(FindHandle);
+      FAR_FIND_DATA_EX FindData;
 
-      if (FindHandle!=INVALID_HANDLE_VALUE)
+      if ( apiGetFindDataEx (Info.HostFile,&FindData) )
       {
         CurPtr->WriteTime=FindData.ftLastWriteTime;
         CurPtr->CreationTime=FindData.ftCreationTime;
@@ -933,14 +796,14 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   SortFileList(FALSE);
 
-  if (CurFile>=FileCount || LocalStricmp((ListData+CurFile)->Name,CurName)!=0)
-    if (!GoToFile(CurName) && *NextCurName)
-      GoToFile(NextCurName);
+  if (CurFile>=FileCount || LocalStricmpW(ListData[CurFile]->strName,strCurName)!=0)
+      if (!GoToFileW(strCurName) && !strNextCurName.IsEmpty() )
+        GoToFileW(strNextCurName);
   SetTitle();
 }
 
 
-void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
+void FileList::ReadDiz(struct PluginPanelItemW *ItemList,int ItemLength,DWORD dwFlags)
 {
   if (DizRead)
     return;
@@ -948,13 +811,13 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
   Diz.Reset();
 
   if (PanelMode==NORMAL_PANEL)
-    Diz.Read(CurDir);
+    Diz.Read(strCurDir);
   else
   {
-    PluginPanelItem *PanelData=NULL;
+    PluginPanelItemW *PanelData=NULL;
     int PluginFileCount=0;
 
-    struct OpenPluginInfo Info;
+    struct OpenPluginInfoW Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     if (Info.DescrFilesNumber==0)
@@ -975,23 +838,27 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
     {
       for (int I=0;I<Info.DescrFilesNumber;I++)
       {
-        PluginPanelItem *CurPanelData=PanelData;
+        PluginPanelItemW *CurPanelData=PanelData;
         for (int J=0; J < PluginFileCount; J++, CurPanelData++)
         {
-          if (LocalStricmp(CurPanelData->FindData.cFileName,Info.DescrFiles[I])==0)
+            string strFileName = CurPanelData->FindData.lpwszFileName;
+
+          if (LocalStricmpW(strFileName,Info.DescrFiles[I])==0)
           {
-            char TempDir[NM],DizName[NM];
-            if (FarMkTempEx(TempDir) && CreateDirectory(TempDir,NULL))
+            string strTempDir, strDizName;
+            if (FarMkTempExW(strTempDir) && CreateDirectoryW(strTempDir,NULL))
             {
-              if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,TempDir,DizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
+              if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
               {
-                strcpy(PluginDizName,Info.DescrFiles[I]);
-                Diz.Read("",DizName);
-                DeleteFileWithFolder(DizName);
+                strPluginDizName = Info.DescrFiles[I];
+
+                Diz.Read(L"",strDizName);
+
+                DeleteFileWithFolderW(strDizName);
                 I=Info.DescrFilesNumber;
                 break;
               }
-              FAR_RemoveDirectory(TempDir);
+              FAR_RemoveDirectoryW(strTempDir);
               //ViewPanel->ShowFile(NULL,FALSE,NULL);
             }
           }
@@ -1004,13 +871,14 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
       /* VVM $ */
     }
   }
-  struct FileListItem *CurPtr=ListData;
-  for (int I=0;I<FileCount;I++,CurPtr++)
+  struct FileListItem *CurPtr;
+  for (int I=0;I<FileCount;I++)
   {
+    CurPtr = ListData[I];
     if (CurPtr->DizText==NULL)
     {
       CurPtr->DeleteDiz=FALSE;
-      CurPtr->DizText=Diz.GetDizTextAddr(CurPtr->Name,CurPtr->ShortName,CurPtr->UnpSize);
+      CurPtr->DizText=(wchar_t*)Diz.GetDizTextAddr(CurPtr->strName,CurPtr->strShortName,CurPtr->UnpSize);
     }
   }
 }
@@ -1021,11 +889,12 @@ void FileList::ReadSortGroups()
   if (SortGroupsRead)
     return;
   SortGroupsRead=TRUE;
-  struct FileListItem *CurPtr=ListData;
-  for (int I=0;I<FileCount;I++,CurPtr++)
+  struct FileListItem *CurPtr;
+  for (int I=0;I<FileCount;I++)
   {
+      CurPtr = ListData[I];
     if ((CurPtr->FileAttr & FA_DIREC)==0)
-      CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
+      CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->strName);
     else
       CurPtr->SortGroup=DEFAULT_SORT_GROUP;
   }
@@ -1034,11 +903,16 @@ void FileList::ReadSortGroups()
 // Обнулить текущий CurPtr и занести предопределенные данные для каталога ".."
 void FileList::AddParentPoint(struct FileListItem *CurPtr,long CurFilePos)
 {
+#if defined(__BORLANDC__)
+  static struct FileListItem ParentItem;
+#else
   static struct FileListItem ParentItem={0};
+#endif
   if(ParentItem.FileAttr == 0)
   {
-    strcpy(ParentItem.ShortName,"..");
-    strcpy(ParentItem.Name,"..");
+    ParentItem.strName = L"..";
+    ParentItem.strShortName = L"..";
+
     ParentItem.FileAttr=FA_DIREC;
   }
   ParentItem.Position=CurFilePos;

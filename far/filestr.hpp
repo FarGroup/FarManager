@@ -7,7 +7,7 @@ filestr.hpp
 
 */
 
-/* Revision: 1.01 09.04.2001 $ */
+/* Revision: 1.02 25.05.2006 $ */
 
 /*
 Modify:
@@ -24,12 +24,14 @@ class GetFileString
     char ReadBuf[8192];
     int ReadPos,ReadSize;
     char *Str;
+    wchar_t *wStr;
     int StrLength;
     FILE *SrcFile;
   public:
     GetFileString(FILE *SrcFile);
     ~GetFileString();
     int GetString(char **DestStr,int &Length);
+    int GetStringW(wchar_t **DestStr, int CodePage, int &Length);
 };
 
-#endif	// __GETFILESTRING_HPP__
+#endif  // __GETFILESTRING_HPP__

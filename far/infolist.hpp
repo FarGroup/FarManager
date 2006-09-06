@@ -7,35 +7,7 @@ infolist.hpp
 
 */
 
-/* Revision: 1.10 09.05.2006 $ */
-
-/*
-Modify:
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  25.04.2002 IS
-    ! внедрение const
-  26.03.2002 DJ
-    ! перенесем реализацию Update() в .cpp
-  16.01.2002 SVS
-    + DizPresent
-  02.01.2002 IS
-    + GetCurName
-  06.05.2001 DJ
-    ! перетрях #include
-  30.04.2001 DJ
-    + UpdateKeyBar()
-    ! вместо CloseDizFile() используется виртуальный CloseFile()
-  05.04.2001 VVM
-    + Переключение макросов в режим MACRO_INFOPANEL
-  03.04.2001 VVM
-    + Используется Viewer для просмотра описаний.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.14 09.05.2006 $ */
 
 #include "panel.hpp"
 #include "viewer.hpp"
@@ -75,21 +47,22 @@ class InfoList:public Panel
     int  DizPresent;
     int  OldWrapMode;
     int  OldWrapType;
-    char DizFileName[NM];
+    string strDizFileName;
 
   private:
     void DisplayObject();
     void ShowDirDescription();
     void ShowPluginDescription();
-    void PrintText(const char *Str);
-    void PrintText(int MsgID);
-    void PrintInfo(const char *Str);
-    void PrintInfo(int MsgID);
-    int  OpenDizFile(char *DizFile);
+
+    void PrintTextW(const wchar_t *Str);
+    void PrintTextW(int MsgID);
+    void PrintInfoW(const wchar_t *Str);
+    void PrintInfoW(int MsgID);
+
+
+    int  OpenDizFile(const wchar_t *DizFile);
     void SetMacroMode(int Restore = FALSE);
-    /* $ 30.04.2001 DJ */
     void DynamicUpdateKeyBar();
-    /* DJ $ */
 
   public:
     InfoList();
@@ -100,17 +73,11 @@ class InfoList:public Panel
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Update(int Mode);
     virtual void SetFocus();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void KillFocus();
-    /* $ 30.04.2001 DJ */
+    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     virtual BOOL UpdateKeyBar();
     virtual void CloseFile();
-    /* DJ $ */
-    /* $ 02.01.2002 IS
-       Получить имя просматриваемого diz-файла
-    */
-    virtual int GetCurName(char *Name,char *ShortName);
-    /* IS $ */
+    virtual int GetCurNameW(string &strName, string &strShortName);
 };
 
 #endif  // __INFOLIST_HPP__

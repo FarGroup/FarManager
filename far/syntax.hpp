@@ -5,26 +5,8 @@ syntax.hpp
 
 */
 
-/* Revision: 1.06 17.03.2006 $ */
+/* Revision: 1.08 17.03.2006 $ */
 
-/*
-Modify:
-  17.03.2006 SVS
-    ! UnrecogniSed (s -> z)
-    ! err_Unexpected_function -> err_Unrecognized_function
-  16.03.2006 SVS
-    + err_Unexpected_function
-  02.03.2006 SVS
-    ! Числа в макросах имеют суть __int64
-  24.04.2005 AY
-    ! GCC
-  05.03.2005 SVS
-    + varEnum()
-  05.08.2004 SVS
-    + funcLook()
-  14.06.2004 SVS & AN
-    + Адд
-*/
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
@@ -45,10 +27,11 @@ class TVar
 private:
   TVarType vType;
   __int64 inum;
-  char *str;
+  wchar_t *str;
 public:
   TVar(__int64 = 0);
-  TVar(const char*);
+//  TVar(const char*);
+  TVar(const wchar_t*);
   TVar(const TVar&);
   ~TVar();
 
@@ -86,10 +69,10 @@ public:
   int isString()   const { return vType == vtString;  }
   int isInteger()  const { return vType == vtInteger; }
 
-  __int64 i()      const;// { return isInteger() ? inum : 0; };
-  const char *s()  const;// { return isString() ? ( str ? str : "" ) : ""; };
+  __int64 i()         const;// { return isInteger() ? inum : 0; };
+  const wchar_t *s()  const;// { return isString() ? ( str ? str : "" ) : ""; };
 
-  const char *toString();
+  const wchar_t *toString();
   __int64 toInteger();
 };
 
@@ -100,16 +83,16 @@ public:
 class TAbstractSet
 {
   public:
-    char *str;
+    wchar_t *str;
     TAbstractSet *next;
-    TAbstractSet(const char *s)
+    TAbstractSet(const wchar_t *s)
     {
       str = NULL;
       next = NULL;
       if ( s )
       {
-        str = new char[strlen(s)+1];
-        strcpy(str, s);
+        str = new wchar_t[wcslen(s)+1];
+        wcscpy(str, s);
       }
     }
     ~TAbstractSet()
@@ -123,7 +106,7 @@ class TVarSet : public TAbstractSet
 {
   public:
     TVar value;
-    TVarSet(const char *s) :
+    TVarSet(const wchar_t *s) :
       TAbstractSet(s),
       value() {}
 };
@@ -131,14 +114,14 @@ class TVarSet : public TAbstractSet
 const int V_TABLE_SIZE = 23;
 
 typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
-extern int isVar(TVarTable, const char*);
+extern int isVar(TVarTable, const wchar_t*);
 extern TVarSet *varEnum(TVarTable, int, int);
-extern TVarSet *varLook(TVarTable, const char*, int&, int = 0);
-extern void varKill(TVarTable, const char*);
+extern TVarSet *varLook(TVarTable, const wchar_t*, int&, int = 0);
+extern void varKill(TVarTable, const wchar_t*);
 extern void initVTable(TVarTable);
 extern void deleteVTable(TVarTable);
 
-inline TVarSet *varInsert(TVarTable t, const char *s)
+inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
 {
   int e;
   return varLook(t, s, e, 1);
@@ -162,7 +145,7 @@ enum TToken
 
 struct TMacroKeywords {
   int Type;                    // Тип: 0=Area, 1=Flags, 2=Condition
-  char *Name;                  // Наименование
+  const wchar_t *Name;                  // Наименование
   DWORD Value;         // Значение
   DWORD Reserved;
 };
@@ -181,9 +164,9 @@ enum errParseCode
   err_Expr_Expected,
 };
 
-int parseExpr(const char*&, unsigned long*, char, char);
-void keyMacroParseError(int, const char*, const char*, const char* = NULL);
-DWORD funcLook(const char *s, int& nParam);
+int parseExpr(const wchar_t*&, unsigned long*, wchar_t, wchar_t);
+void keyMacroParseError(int, const wchar_t*, const wchar_t*, const wchar_t* = NULL);
+DWORD funcLook(const wchar_t *s, int& nParam);
 
 extern int MKeywordsSize;
 extern TMacroKeywords MKeywords[];

@@ -7,103 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.31 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  15.07.2005 AY
-    - Убрал всё связанное с USE_OLDEXPANDTABS
-  24.04.2005 AY
-    ! GCC
-  23.12.2004 WARP
-    ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
-  14.12.2003 SVS
-    + SetWordDiv(), WordDiv - как указатель, по умолчанию - Opt.WordDiv
-  08.09.2003 SVS
-    + ProcessInsPlainText() - вставка plain-text`а
-  17.09.2002 SKV
-    + GetConvertTabs()
-  04.09.2002 SVS
-    ! Структура EditList пеехала из editor.cpp в edit.hpp
-    ! У функции SetInputMask параметр имеет сущность const
-  18.05.2002 SVS
-    ! ФЛАГИ - сведем в кучу двухпозиционные переменные
-  28.01.2002 SVS
-    + ProcessInsPath() - вставка пути с учетом кодовой таблицы
-  21.01.2002 SVS
-    + Возможность работы с курсором в диалогах (CursorVisible,CursorSize).
-  12.01.2002 IS
-    ! внедрение const
-  14.12.2001 IS
-    ! внедрение const
-  28.11.2001 SVS
-    + GetClearFlag() - получить состояние флага ClearFlag
-  23.11.2001 SVS
-    ! IsDialogParent может иметь 3 значения: EDPARENT_*
-    + Вместо длинного "if(Mask[...)" введена функция CheckCharMask()
-  08.11.2001 SVS
-    + IsDialogParent - а родитель у нас кто?
-  22.06.2001 SVS
-    + ProcessInsDate()
-  06.05.2001 DJ
-    ! перетрях #include
-  13.04.2001 SVS
-    ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
-      используется в editor.cpp
-  15.02.2001 IS
-    + Локальные переменные, в которых запоминается то, что храниться в
-      настройках редактора:
-      DelRemovesBlocks - "Del удаляет блоки"
-      PersistentBlocks - "Постоянные блоки"
-    + Функции для управления их состоянием:
-      SetDelRemovesBlocks/GetDelRemovesBlocks
-      SetPersistentBlocks/GetPersistentBlocks
-  14.02.2001 IS
-    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
-      GetTabSize, SetTabSize
-  13.12.2000 SVS
-    + Дополнительный параметр в функции  Xlat()
-  16.11.2000 KM & SVS
-    + KeyMatchedMask - Проверяет: попадает ли символ в разрешённый
-      диапазон символов, пропускаемых маской
-    ! Кометика (от SVS :-)
-  24.09.2000 SVS
-    + Класс Editor - друг
-    + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
-  18.09.2000 SVS
-    + класс Dialog является "другом" (т.е. полноправным совладельцем)
-  12.08.2000 KM 1.06
-    + Новые функции SetInputMask и GetInputMask для установки и получения маски ввода.
-    + Новая переменная Mask, которая хранит маску ввода для данного объекта Edit.
-    + Новая функция GetNextCursorPos, вычисляющая следующее положение курсора
-      в строке ввода с учётом Mask.
-    + Новая функция RefreshStrByMask.
-  03.08.2000 KM
-    ! Изменены входные параметры функции Search - добавлен параметр int WholeWords.
-    ! Добавление в поиск функциональности нахождения целых слов
-  28.07.2000 SVS
-    + Получение максимального значения строки для потребностей
-       Dialod API - GetMaxLength()
-    + Функция получения текущих Color,SelColor
-    + Переменная класса ColorUnChanged (для диалога)
-    + Функция GetObjectColorUnChanged получения текущего ColorUnChanged
-    ! SetObjectColor имеет дополнительный параметр для установки ColorUnChanged
-  25.07.2000 tran
-    + DropDownBox style
-  21.07.2000 tran
-    + ReplaceSpaces()
-  03.07.2000 tran
-    + ReadOnly style
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.36 25.05.2006 $ */
 
 #include "scrobj.hpp"
 #include "colors.hpp"
 #include "bitflags.hpp"
+#include "UnicodeString.hpp"
 
 //изменить флаги (подвинуть убрав FEDITLINE_CONVERTTABS)
 
@@ -138,11 +47,14 @@ class Edit:public ScreenObject
   friend class Editor;
 
   private:
-    char  *Str;
+//    char  *Str;
+    wchar_t *Str;
+
     int    StrSize;
     int    MaxLength;
 
-    char  *Mask;             // 12.08.2000 KM - Переменная для хранения маски ввода
+//    char  *Mask;             // 12.08.2000 KM - Переменная для хранения маски ввода
+    wchar_t *Mask;
 
     struct CharTableSet *TableSet;
     struct ColorItem *ColorList;
@@ -167,11 +79,12 @@ class Edit:public ScreenObject
 
     int    CursorSize;
     int    CursorPos;
-    const char *WordDiv;
+//    const char *WordDiv;
+    const wchar_t *WordDiv;
 
   private:
     void   DisplayObject();
-    void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
+    void   ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd);
     int    InsertKey(int Key);
     int    RecurseProcessKey(int Key);
     void   DeleteBlock();
@@ -194,7 +107,7 @@ class Edit:public ScreenObject
     int ProcessCtrlQ(void);
     int ProcessInsDate(void);
     int ProcessInsPlainText(void);
-    int CheckCharMask(char Chr);
+    int CheckCharMask(wchar_t Chr);
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
   public:
@@ -228,22 +141,32 @@ class Edit:public ScreenObject
     void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
     int  GetPersistentBlocks(void) {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
     /* IS $ */
-    void  GetString(char *Str,int MaxSize);
-    const char* GetStringAddr();
-    void  SetString(const char *Str);
-    void  SetBinaryString(const char *Str,int Length);
-    void  GetBinaryString(char *&Str,const char **EOL,int &Length);
-    void  GetBinaryString(const char *&Str,const char **EOL,int &Length);
-    void  SetEOL(const char *EOL);
-    int   GetSelString(char *Str,int MaxSize);
+    void  GetStringW(wchar_t *Str, int MaxSize);
+    void  GetStringW(string &strStr);
+
+    const wchar_t* GetStringAddrW();
+
+    void  SetStringW(const wchar_t *Str);
+
+    void  SetBinaryStringW(const wchar_t *Str,int Length);
+
+    void  GetBinaryStringW (wchar_t *&Str, const wchar_t **EOL,int &Length);
+    void  GetBinaryStringW (const wchar_t *&Str, const wchar_t **EOL,int &Length);
+
+    void  SetEOLW(const wchar_t *EOL);
+
+    int   GetSelStringW(wchar_t *Str,int MaxSize);
+    int   GetSelStringW (string &strStr);
+
     int   GetLength();
-    void  InsertString(const char *Str);
-    void  InsertBinaryString(const char *Str,int Length);
+
+    void  InsertStringW(const wchar_t *Str);
+    void  InsertBinaryStringW(const wchar_t *Str,int Length);
     /* $ 03.08.2000 KM
        Добавление параметра WholeWords для поиска целых слов
        в функцию Search.
     */
-    int   Search(char *Str,int Position,int Case,int WholeWords,int Reverse);
+    int   Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Reverse);
     /* KM $ */
     void  SetClearFlag(int Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
     int   GetClearFlag(void) {return Flags.Check(FEDITLINE_CLEARFLAG);}
@@ -263,8 +186,9 @@ class Edit:public ScreenObject
     /* $ 12.08.2000 KM
        Функции установки и получения маски ввода
     */
-    void  SetInputMask(const char *InputMask);
-    char* GetInputMask() {return Mask;}
+    void  SetInputMaskW(const wchar_t *InputMask);
+    const wchar_t* GetInputMaskW() {return Mask;}
+
     /* KM $ */
     void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
     int   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
@@ -300,6 +224,8 @@ class Edit:public ScreenObject
     */
     void Xlat(BOOL All=FALSE);
     /* SVS $ */
+    /* SVS $ */
+
     static void DisableEncode(int Disable);
 
     void SetDialogParent(DWORD Sets);
@@ -309,7 +235,7 @@ class Edit:public ScreenObject
     void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
-    void SetWordDiv(const char *WordDiv){Edit::WordDiv=WordDiv;}
+    void SetWordDiv(const wchar_t *WordDiv){Edit::WordDiv=WordDiv;}
 };
 
 

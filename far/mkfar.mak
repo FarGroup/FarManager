@@ -181,6 +181,7 @@ FAROBJ=\
    $(OBJPATH)\plugapi.obj\
    $(OBJPATH)\plugins.obj\
    $(OBJPATH)\poscache.obj\
+   $(OBJPATH)\UnicodeString.obj\
    $(OBJPATH)\print.obj\
    $(OBJPATH)\mktemp.obj\
    $(OBJPATH)\qsortex.obj\

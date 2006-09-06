@@ -5,19 +5,7 @@ CFileMask.cpp
 
 */
 
-/* Revision: 1.03 24.04.2005 $ */
-
-/*
-Modify:
-  24.04.2005 AY
-    ! GCC
-  10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
-  02.07.2001 IS
-    + Обработка FMF_ADDASTERISK
-  01.07.2001 IS
-    + Впервые в эфире
-*/
+/* Revision: 1.05 16.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -30,12 +18,14 @@ Modify:
 
 const int EXCLUDEMASKSEPARATOR=0x7C; // '|'
 
-CFileMask::CFileMask()
+////////////////////////
+
+CFileMaskW::CFileMaskW()
 {
     FileMask=NULL;
 }
 
-void CFileMask::Free()
+void CFileMaskW::Free()
 {
     if(FileMask)
        delete FileMask;
@@ -49,7 +39,7 @@ void CFileMask::Free()
  масок равна 0).
 */
 
-BOOL CFileMask::Set(const char *Masks, DWORD Flags)
+BOOL CFileMaskW::Set(const wchar_t *Masks, DWORD Flags)
 {
   Free();
   BOOL rc=FALSE;
@@ -58,13 +48,13 @@ BOOL CFileMask::Set(const char *Masks, DWORD Flags)
   if(Flags & FMF_ADDASTERISK) flags|=FMPF_ADDASTERISK;
   if (Masks && *Masks)
   {
-    if(strchr(Masks, EXCLUDEMASKSEPARATOR))
+    if(wcschr(Masks, EXCLUDEMASKSEPARATOR))
     {
       if(!(Flags&FMF_FORBIDEXCLUDE))
-        FileMask=new FileMasksWithExclude;
+        FileMask=new FileMasksWithExcludeW;
     }
     else
-      FileMask=new FileMasksProcessor;
+      FileMask=new FileMasksProcessorW;
 
     if(FileMask)
        rc=FileMask->Set(Masks, flags);
@@ -74,13 +64,13 @@ BOOL CFileMask::Set(const char *Masks, DWORD Flags)
   }
 
   if(!Silent && !rc)
-    Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
+    MessageW(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MIncorrectMask), UMSG(MOk));
 
   return rc;
 }
 
 // Возвращает TRUE, если список масок пустой
-BOOL CFileMask::IsEmpty(void)
+BOOL CFileMaskW::IsEmpty(void)
 {
   return FileMask?FileMask->IsEmpty():TRUE;
 }
@@ -89,7 +79,7 @@ BOOL CFileMask::IsEmpty(void)
    Возвращает TRUE в случае успеха.
    Путь в имени файла игнорируется.
 */
-BOOL CFileMask::Compare(const char *FileName)
+BOOL CFileMaskW::Compare(const wchar_t *FileName)
 {
-  return FileMask?FileMask->Compare(PointToName((char*)FileName)):FALSE;
+  return FileMask?FileMask->Compare(PointToNameW((wchar_t*)FileName)):FALSE;
 }

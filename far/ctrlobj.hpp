@@ -7,10 +7,12 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.07 12.05.2001 $ */
+/* Revision: 1.08 21.11.2005 $ */
 
 /*
 Modify:
+  21.11.2005 WARP
+    + HistoryW
   12.05.2001 DJ
     ! FrameManager оторван от CtrlObject
     ! глобальный указатель на CtrlObject переехал сюда
@@ -36,6 +38,7 @@ Modify:
 
 class CommandLine;
 class History;
+class HistoryW;
 class KeyBar;
 class MenuBar;
 class HighlightFiles;
@@ -70,10 +73,11 @@ class ControlObject
   public:
     FilePanels *Cp();
 
-    void CreateFilePanels(); 
+    void CreateFilePanels();
 
     CommandLine *CmdLine;
-    History *CmdHistory,*FolderHistory,*ViewHistory;
+    HistoryW *CmdHistory,*FolderHistory,*ViewHistory;
+
     KeyBar *MainKeyBar;
     MenuBar *TopMenuBar;
     HighlightFiles *HiFiles;

@@ -5,148 +5,7 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.56 07.07.2005 $ */
-
-/*
-Modify:
-  07.07.2005 SVS
-    ! Вьюверные настройки собраны в одно место
-  04.07.2005 WARP
-    - Недетский баг с регистрацией
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  06.05.2004 SVS
-    - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
-  18.12.2003 SVS
-    + новый параметр у конструктора History
-  06.06.2003 SVS
-    + сброс кэша SID`ов
-  22.04.2003 SVS
-    ! strcpy -> strNcpy
-  21.04.2003 SVS
-    ! Если _beginthread вернула -1, то вызовен функцию CheckVersion() напрямую
-  14.04.2003 SVS
-    ! принудительно запоминаем и выставляем заголовок консоли после загрузки плагинов
-  25.02.2003 SVS
-    ! Вместо chdir применим FarChDir
-  03.02.2003 SVS
-    + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
-      проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
-    - BugZ#784 - Текущий каталог при загрузке плагина
-  10.01.2003 SVS
-    ! Если есть критическая внутренняя ошибка (переменная CriticalInternalError != 0),
-      то фактически не исполняем деструктор ControlObject::~ControlObject()
-      иначе уйдем в бесконечный цикл до исчерпания стека
-  21.12.2002 SVS
-    ! Перенесем показ промптера сом.строки и кейбара выше апдейта панелей
-      Т.о. исключаем очередной BugZ# про непрорисовку онных в момент старта
-      ФАРа (эт когда столяли на охрененном каталоге и... начался процесс
-      сканирования или была панель QView)
-  17.12.2002 SVS
-    ! Загрузка плагинов перенесена чуток пониже...
-  17.12.2002 SVS
-    ! ViewerPosCache и EditorPosCache теперь сильно различаются (see класс FilePositionCache).
-      ViewerPosCache работает с типом кэша FPOSCACHE_64,
-      EditorPosCache работает с типом кэша FPOSCACHE_32.
-  28.05.2002 SVS
-    + Вызов PluginCommit() - убивает двух зайцев - BugZ##536, 530
-  27.05.2002 SVS
-    + файловые панели суем в очередь перед загрузкой плагинов.
-  14.03.2002 SVS
-    - Блин, уродская неразбериха с этими сраными понятиями :-((
-      Типа "левая-правая" и "активная-пассивная"
-  21.02.2002 SVS
-    ! Покажим кейбар (если надо) и командную строку перед загрузкой
-      плагинов, а мало того, что пустые панели, так они еще и подвешены
-  31.01.2002 SVS
-    - BugZ#194 - Не сохраняются позиции в фоновых вьюверах/редакторах при
-      выходе из FARа
-      Ну естественно, сначала кешь сохраняем, а потом ExitAll() делаем.
-      Круто, блин.
-  14.12.2001 SVS
-    ! Сделаем сроллинг перед выводом "лейбака"
-  15,11,2001 SVS
-    ! Для каждого из *History назначим тип.
-    - При выставленном Interface\ShowMenuBar=1 ФАР при старте падал,
-      т.к. в panel.cpp кто-то (IS) залудил когда-то вызов TopMenuBar->Show(),
-      и кто-то (уже и не знаю кто)... в общем Long History
-  29.10.2001 IS
-    ! SaveEditorPos переехала в EditorOptions
-  24.10.2001 SVS
-    ! подсократим "лишний" код
-  26.09.2001 SVS
-    - Бага: При старте неверно выставлен текущий каталог
-  25.07.2001 SVS
-    ! Copyright переехала в global.cpp.
-  06.07.2001 OT
-    - баг с зацикливанием при выдаче сообщения о неправильной загрузки плагина
-  23.06.2001 OT
-    - far -r
-  30.05.2001 OT
-    ! Очистка исходников от закомментареных ранее кусков
-  16.05.2001 DJ
-    ! proof-of-concept
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  12.05.2001 DJ
-    ! FrameManager оторван от CtrlObject
-    ! глобальный указатель на CtrlObject переехал сюда
-  11.05.2001 OT
-    ! Отрисовка Background
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 VVM
-    + KeyBar тоже умеет обрабатывать клавиши.
-  22.04.2001 SVS
-    ! Загрузка плагнов - после создания ВСЕХ основных объектов
-  02.04.2001 VVM
-    + Обработка Opt.FlagPosixSemantics
-  28.02.2001 IS
-    ! Т.е. CmdLine теперь указатель, то произведем замену
-      "CmdLine." на "CmdLine->" и собственно создадим/удалим ее в конструкторе
-      и деструкторе CtrlObject.
-  09.02.2001 IS
-    + восстановим состояние опций "помеченное вперед"
-  09.01.2001 SVS
-    + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
-  29.12.2000 IS
-    + Проверяем при выходе, сохранены ли все измененные файлы. Если нет, то
-      не выходим из фара.
-  15.12.2000 SVS
-    ! Метод ShowCopyright - public static & параметр Flags.
-      Если Flags&1, то использовать printf вместо внутренних функций
-  25.11.2000 SVS
-    ! Copyright в 2 строки
-  27.09.2000 SVS
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  19.09.2000 IS
-    ! Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
-  19.09.2000 SVS
-    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
-  19.09.2000 SVS
-    + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
-  07.09.2000 tran 1.05
-    + Current File
-  15.07.2000 tran
-    + а я код раздуваю :) вводя новый метод Redraw
-  13.07.2000 SVS
-    ! Некоторые коррекция по сокращению кода ;-)
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  29.06.2000 tran
-    ! соощение о копирайте включается из copyright.inc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.62 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -188,9 +47,9 @@ ControlObject::ControlObject()
   CmdLine=new CommandLine;
   /* IS $ */
 
-  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
-  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
-  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+  CmdHistory=new HistoryW(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
+  FolderHistory=new HistoryW(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
+  ViewHistory=new HistoryW(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
 
   FolderHistory->SetAddMode(TRUE,2,TRUE);
   ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
@@ -224,7 +83,7 @@ void ControlObject::Init()
   if (RegVer)
     mprintf("%s: %s",MSG(MRegistered),TruncRegName);
   else
-    Text(MShareware);
+    TextW(MShareware);
 
   CmdLine->SaveBackground(0,0,ScrX,ScrY);
 
@@ -258,24 +117,24 @@ void ControlObject::Init()
     + Config//Current File */
   if (Opt.AutoSaveSetup)
   {
-      Cp()->LeftPanel->GoToFile(Opt.LeftCurFile);
-      Cp()->RightPanel->GoToFile(Opt.RightCurFile);
+      Cp()->LeftPanel->GoToFileW(Opt.strLeftCurFile);
+      Cp()->RightPanel->GoToFileW(Opt.strRightCurFile);
   }
   /* tran 07.09.2000 $ */
 
   FrameManager->InsertFrame(FPanels);
 
-  char StartCurDir[2048];
-  Cp()->ActivePanel->GetCurDir(StartCurDir);
-  FarChDir(StartCurDir, TRUE);
+  string strStartCurDir;
+  Cp()->ActivePanel->GetCurDirW(strStartCurDir);
+  FarChDirW(strStartCurDir, TRUE);
   Cp()->ActivePanel->SetFocus();
 
   {
-    char OldTitle[512];
-    GetConsoleTitle(OldTitle,sizeof(OldTitle));
+    string strOldTitle;
+    apiGetConsoleTitle (strOldTitle);
     FrameManager->PluginCommit();
     Plugins.LoadPlugins();
-    SetConsoleTitle(OldTitle);
+    SetConsoleTitleW(strOldTitle);
   }
 /*
   FarChDir(StartCurDir, TRUE);
@@ -302,9 +161,9 @@ ControlObject::~ControlObject()
       SaveConfig(0);
     if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
     {
-      char CurDir[NM];
-      Cp()->ActivePanel->GetCurDir(CurDir);
-      FolderHistory->AddToHistory(CurDir,NULL,0);
+      string strCurDir;
+      Cp()->ActivePanel->GetCurDirW(strCurDir);
+      FolderHistory->AddToHistory(strCurDir,NULL,0);
     }
   }
 
@@ -324,11 +183,11 @@ ControlObject::~ControlObject()
   delete GrpSort;
 
   if (Opt.ViOpt.SaveViewerPos)
-    ViewerPosCache->Save("Viewer\\LastPositions");
+    ViewerPosCache->Save(L"Viewer\\LastPositions");
   delete ViewerPosCache;
 
   if (Opt.EdOpt.SavePos)
-    EditorPosCache->Save("Editor\\LastPositions");
+    EditorPosCache->Save(L"Editor\\LastPositions");
 
   delete EditorPosCache;
   delete FrameManager;

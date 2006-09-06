@@ -5,36 +5,7 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.09 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  07.04.2006 AY
-    ! GCC
-  17.07.2005 SVS
-    ! немного gcc
-  09.06.2005 SVS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  06.05.2005 SVS
-    ! FAR_GetDriveType() теперь сам определяет что это SUBST (и USB) (т.с. сокращание кода :-)
-  24.07.2004 VVM
-    - Портились диски во время записи при включенном определении типа привода.
-      Вызов DeviceIoControl(IOCTL_SCSI_PASS_THROUGH) с параметром SCSIOP_INQUIRY
-      давал такой эффект.
-  01.07.2004 SVS
-    ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
-  28.06.2004 SVS
-    - Некомпиляция - старые версии H-файлов в BCC 5.02 :-(
-  21.06.2004 SVS
-    + добавлен в проект.
-      Исходный  - EnumCD (http://support.microsoft.com/default.aspx?scid=kb;en-us;305184)
-      Доработка - Alexander Kornienko <alexfh@mail.ru>
-*/
+/* Revision: 1.12 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -666,25 +637,26 @@ BOOL IsDriveTypeCDROM(UINT DriveType)
   return DriveType == DRIVE_CDROM || DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_DVD_RAM;
 }
 
-UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
+
+UINT FAR_GetDriveTypeW(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
 {
   if(RootDir && !*RootDir)
     RootDir=NULL;
 
-  char LocalName[4]=" :";
+  wchar_t LocalName[4]=L" :";
   LocalName[0]=RootDir?*RootDir:0;
 
   CDROM_DeviceCaps caps=CDDEV_CAPS_NONE;
-  UINT DrvType = GetDriveType(RootDir);
+  UINT DrvType = GetDriveTypeW(RootDir);
 
   // анализ CD-привода
-  if ((Detect&1) && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if ((Detect&1) && RootDir && IsLocalPathW(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
-    char szVolumeName[20]="\\\\.\\ :";
+    wchar_t szVolumeName[20]=L"\\\\.\\ :";
     szVolumeName[4]=*RootDir;
 
     //get a handle to the device
-    HANDLE hDevice = FAR_CreateFile(szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+    HANDLE hDevice = FAR_CreateFileW(szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {

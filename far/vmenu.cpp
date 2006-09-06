@@ -8,497 +8,7 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.151 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  30.01.2006 SVS
-    - Memory Леак.
-  07.12.2005 SVS
-    + MACRO_USERMENU
-  05.10.2005 SVS
-    + обработка KEY_ALTLEFT и KEY_ALTRIGHT - для скроллинга хистори.
-      Реализация только для текущего пункта истории
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  14.06.2005 SVS
-    - неучтенка ширины - про боттомтайтл забыли
-  29.01.2005 WARP
-    ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
-  27.12.2004 WARP
-    ! Сделал критические секции при практически всех вызовах Dialog & VMenu
-  12.12.2004 WARP
-    ! Оптимизация с VMENU_DISABLEBACKGROUND не совсем удалась.
-  08.12.2004 WARP
-    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
-  01.12.2004 WARP
-    ! Устраняем лишние перерисовки VMenu
-  19.11.2004 WARP
-    ! "Нормальная" реализация UpdateRequired для VMenu,
-      более интеллектальное обновление листа в поске.
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  27.08/2004 VVM
-    - Некорректное исправление от 20.07.2004
-      Перестало работать корректировка выделения при добавлении в пустой список.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  02.08.2004 SVS
-    - BugZ#1144 - Непонятки c CheckHotkey
-      Забыл учесть AmpPos
-  20.07.2004 KM
-    - Падение меню в AdjustSelectPos при SelectPos=-1
-  08.07.2004 SVS
-    + обработка MCODE_OP_PLAINTEXT в VMenu
-  07.07.2004 SVS
-    ! Macro II
-  30.06.2004 SVS
-    + CheckHighlights() - проверка "есть ли такой хоткей в меню"
-      (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
-    + Небольшая добавка по поводу Macro II
-      (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
-  31.05.2004 SVS
-    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
-  11.05.2004 SVS
-    ! Вызов VMenu::ParentDialog->ProcessKey() в VMenu::ProcessKey уберем, т.к.
-      в этом случае получаем зацикливание.
-    + Из VMenu сделаем нотификацию DN_LISTHOTKEY для диалоговой процедуры.
-  24.02.2004 SVS
-    ! Проверка на макро USE_WFUNC
-  19.02.2004 SVS
-    - Некорретная отрисовка меню в W-режиме в связи с применением Text() вместо BoxText()
-  19.01.2004 SVS
-    ! уточнение VMENU_SELECTPOSNONE
-  12.01.2004 SVS
-    - падение в VMenu::GetUserData,  если GetPosition(Position) вернул -1
-    - BugZ#1010 -   не работает DM_LISTGETCURPOS
-  05.01.2004 SVS
-    + VMENU_SELECTPOSNONE - признак того, что SelectPos не выставлен (например, все элементы списка задисаблены)
-    ! Корректировка SelectPos (по флагу VMENU_SELECTPOSNONE)
-  25.11.2003 SVS
-    ! ConsoleTitle должен создаваться по мере надобности, а не в конструкторе
-  05.11.2003 SVS
-    + VMENU_CHANGECONSOLETITLE, OldTitle
-  27.10.2003 SVS
-    + В VMenu::AddItem() засунем критические секции
-  23.10.2003 SVS
-    + Обработка KEY_MACRO_EMPTY, KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
-    ! VMenuCSection -> CSection
-    ! вернем обратно вайлы и слипы
-  14.10.2003 SVS
-    + VMenuCSection
-    ! цикл со счетчиком и Sleep(10) убраны в пользу критических секций
-  06.10.2003 SVS
-    - BugZ#966 - У диалога съезжает рамка при его перещении
-      Для VMENU_LISTBOX не делаем операцию "X2=ScrX-2;"
-  26.09.2003 SVS
-    ! Изменения в названиях макроклавиш
-  17.06.2003
-   - Bug: теперь в плагинах заголовки на листах появляются только на
-          пустых листах, а на листах с элементами - нет.
-   - Bug: при удалении из DI_LISTBOX после 1663 курсор скакал на поз.0
-          сделаем более правильное решение - вычислим "правильную" позицию
-   ! Вместо CallCount++ и CallCount-- применим InterlockedIncrement(&CallCount)
-     и InterlockedDecrement(&CallCount)
-  27.05.2003 SVS
-    + VMenu::DrawTitles() - кусок кода, прорисовывающий заголовки вынесен в
-      эту функцию. Это бага про
-      "DM_LISTSETTITLES не работает, если в листе ни одного элемента."
-    - DI_LISTBOX, Bugs: "При удалении элементов списка, если курсор стоит
-      не на удаляемом элементе, то курсоров становится 2"
-      Здесь сбросим все селекты сразу после удаления и "пересчитаем"
-      по новой.
-  10.05.2003 SVS
-    ! В VMenu::SortItems() добавлен третий параметр SortForDataDWORD,
-      который заставляет делать сортировку только по UserData. По умолчанию
-      = FALSE
-    - Для ListBox не рисовалось поле (Box), если ItemCount=0
-  06.04.2003 SVS
-    - "...хоткей '-' не срабатывает в меню "Команды внешних модулей" (F11),
-      если набирать на цифровой клавиатуре..."
-  17.03.2003 SVS
-    - BugZ#814 - DI_LISTBOX высотой 1 не отображается
-    ! Подложка для DI_LISTBOX и DI_COMBOBOX рисуется цветом COL_*DIALOGLISTTEXT
-    - очередные уточнения позиций
-  04.02.2003 SVS
-    - BugZ#788 - Криво считается ширина меню.
-  30.01.2003 KM
-    - Нашёл ещё причину падения фара в поиске. Как выяснилось
-      это происходило в SetSelectPos, если SelectPos был равен -1.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  16.01.2003 KM
-    ! Убрал свою правку, чтобы не загромождать код.
-      После Валиной онп не имеет смысла (почти).
-  13.01.2003 SVS
-    - дополнение к двум предыдущим патчам :-)
-  11.01.2003 KM
-    - 100% падение фара в ShowMenu, скомпилированного VC, из
-      диалога поиска при попытке отрисовки DI_LISTBOX.
-  03.01.2003 SVS
-    - Bug#757 - Несанкционированный доступ к настройкам
-      (видимо не только в конструкторе нужно... надо подумать потом!!!)
-  16.12.2002 SVS
-    - BugZ#729 - некорректная отрисовка в диалоге найденных файлов
-  04.11.2002 SVS
-    - ListBox некорректно отрисовывается при отрисовки диалога,
-      расположенного вплотную к по правому краю экрана
-  29.10.2002 SVS
-    ! скорректируем SelectPos после сортировки
-  22.10.2002 SVS
-    ! PrevCursorSize, PrevMacroMode - для пред.курсора
-     > у меня сразу после выбора DrawLine из меню F11 пропадает курсор.
-     > проявляется после практически любого нажатия на кнопки
-  10.10.2002 SVS
-    ! Уточнение BugZ#675.
-  08.10.2002 SVS
-    - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
-  04.10.2002 SVS
-    ! Уточнение и расширение VMenu::SetColors()
-  30.09.2002 SVS
-    ! Цветовые истории (Colors не short, а BYTE и применим новую структуру
-      FarListColors для SetColors/GetColors)
-    ! небольшая оптимизация VMenu::SetColors
-    - BugZ#400 - скролбар и проблемы из-за него
-  20.09.2002 SVS
-    - BugZ#635 - Плавающая ширина Plugin Configuration
-    - BugZ#646 - Color groups\Dialog\*List* где они бывают?
-  05.09.2002 SVS
-    ! Уточнение BugZ#611
-  03.09.2002 SVS
-    - BugZ#611 - Нелепая сортировка в меню плагинов
-    ! функция SortItems имеет доп параметр Offset
-    - BugZ#601 - DM_LISTSETCURPOS & TopPos=-1
-      Уточнение.
-  27.08.2002 SVS
-    - BugZ#601 - DM_LISTSETCURPOS & TopPos=-1
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-  18.06.2002 SVS
-    ! В VMenu::Show() учтем факт того момента, что где-то когда то мы залочили
-      отрисовку и... соответственно не станем делать эту саму отрисовку.
-      Если этого не делать, то настырный манагер все равно отрисует менюху
-      (даже если одна в состоянии Hide), при этом будем наблюдать (при выборе
-      диска) визуальные противные эффекты (меню появилось, мать его).
-      Эта побасенка про LockRefreshCount - в меню выбора дисков при извлечении
-      CD-привода мы его (естественно меню :-) гасим и лочим.
-  31.05.2002 SVS
-    - BugZ#412 - bug в combobox'ах
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  18.05.2002 SVS
-    - BugZ#517 - Пустое меню плагинов (и их конфигов) нельзя закрыть мышкой.
-  18.05.2002 SVS
-    - При апдейте данных в списке ЗАТИРАЛОСЬ ВСЕ!, потому то и нихрена не
-      работало :-( Обновляем только те поля, которые нужно.
-  18.05.2002 SVS
-    ! MouseDown -> VMENU_MOUSEDOWN
-  11.05.2002 SVS
-    ! Меняем LIF_UPDATEKEEPUSERDATA на противоположный LIF_DELETEUSERDATA,
-      делаем этот флаг доступным (соответственно меняется логика -
-      при апдейте итема списка удаляем привязанные данные только в случае,
-      если нас об этом попросили)
-  28.04.2002 KM
-    + GetTypeAndName возвращает тип MODALTYPE_VMENU и
-      MODALTYPE_COMBOBOX.
-  25.04.2002 SVS
-    - BugZ#467 - Дублирующиеся хоткеи в Folders History
-  18.04.2002 KM
-    - Сбрасываем флаг "координаты установлены" у
-      меню. Убивается баг:
-      ===
-      Новый прикол с DI_COMBOBOX
-      3. Открывается (Ctrl-Down) и закрывается COMBOBOX (неважно как с
-         выбором или по ESC).
-      4. Теперь откравается EDIT (Ctrl-Down).
-      5. Наблюдается глюк (открывшийся COMBOBOX).
-      ===
-  13.04.2002 KM
-    - Добавим проверку на существование буфера сохранения,
-      т.к. ResizeConsole вызывается теперь для всех экземпляров
-      VMenu при AltF9.
-  02.04.2002 SVS
-    - BugZ#416 - Listbox with DIF_LISTNOBOX does not work correctly
-  18.03.2002 SVS
-    ! Про курсор
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  27.02.2002 SVS
-    + LIF_UPDATEKEEPUSERDATA - "не убивать юзердату при обновлении"
-    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
-  23.02.2002 DJ
-    - не перерисовывалось меню после DM_LISTDELETE (NULL)
-    ! Show() также использует флаг VMENU_LISTHASFOCUS
-    - после DM_LISTDELETE не ставим текущую позицию на сепаратор
-    - VMenu::GetTitle() неправильно возвращало пустой заголовок
-    - скорректирован алгоритм обрезания длинных заголовков меню
-    - обработка LIF_SELECTED в UpdateItem
-    - маскировка внутренних флагов в GetVMenuInfo
-  21.02.2002 DJ
-    ! корректная отрисовка списков, не имеющих фокуса
-    - зависание, если в меню без WRAPMODE последний элемент - сепаратор
-    + функция корректировки текущей позиции в меню
-  19.02.2002 SVS
-    - Забыли про Disable для хоткеев и акселераторов
-  18.02.2002 SVS
-    - Неверный расчет AmpPos
-  13.02.2002 SVS
-    ! Немного оптимизации...
-    + Один интересный повторяющийся кусок вынесен в CheckKeyHighlighted()
-    + MIF_USETEXTPTR - щоб юзать TextPtr
-  11.02.2002 SVS
-    + Член AccelKey в MenuData и MenuItem
-    + BitFlags
-    ! у функции UpdateItem() параметр должен быть типа FarListUpdate
-    ! Сепаратор может иметь лэйб
-  26.12.2001 SVS
-    - если все пункты задисаблены, то нефига показывать селектед-пункт
-      цветом курсора.
-  21.12.2001 SVS
-    - не учитывался флаг VMENU_LISTBOX при пересчете координат, из-за чего
-      нельзя было спозиционировать список в X1=0
-  02.12.2001 KM
-    + Поелику VMENU_SHOWAMPERSAND сбрасывается в AssignHighlights
-      для корректной работы ShowMenu сделаем сохранение энтого флага
-      в переменной VMOldFlags, в противном случае если в диалоге
-      использовался DI_LISTBOX без флага DIF_LISTNOAMPERSAND, то
-      амперсанды отображались в списке только один раз до следующего
-      ShowMenu.
-  30.11.2001 DJ
-    - не забудем инициализировать MaxLength
-  14.11.2001 SVS
-    ! Уточнение позиционирования при TopPos=-1 - возможно ошибся
-  12.11.2001 SVS
-    ! Небольшие уточнения.
-  06.11.2001 SVS
-    ! VMENU_REVERSIHLIGHT -> VMENU_REVERSEHIGHLIGHT
-    ! struct FarListInsert.
-         Если Index больше текущего количества элементов списка, то
-         вставляемый пункт будет добавлен в конец списка.
-         Если Index меньше нуля, то вставляемый пункт будет добавлен
-         в начало списка.
-  05.11.2001 SVS
-    ! немного комментариев-разъяснений по поводу "прикрепленных" данных
-  01.11.2001 SVS
-    + немного про "типы" - GetType*()
-  30.10.2001 SVS
-    - Ошибка инженерной мысли :-) в VMenu::FindItem() - забыли передать
-      флаги.
-  13.10.2001 VVM
-    ! Теперь меню не реагирует на отпускание клавиши мышки, если клавиша была нажата не в меню.
-  12.10.2001 VVM
-    ! Исправление ситуации со скроллбаром в DROPDOWNLIST-е
-  10.10.2001 IS
-    ! внедрение const
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  16.09.2001 SVS
-    - BugZ#26: Динамическое изменение ширины списка истории
-      (не вычищенные остатки предыдущих испытаний :-)
-  12.09.2001 SVS
-    - BugZ#10: F6, Ctrl-Down - "курсор" стоит не на верхней строке.
-               Так и должно быть? Мне кажется - нет, должен "предлагаться"
-               последний вариант из списка.
-  09.09.2001 SVS
-    ! Очредное уточнение на размер меню (вроде от глюков избавились!)
-  05.09.2001 SVS
-    ! небольшое уточнение на размер меню (вроде от глюков избавились?)
-  14.08.2001 SVS
-    ! уточнение пересчета координат при автоцентировании
-  07.08.2001 SVS
-    - неверно в прошлой серии велся пересчет координат.
-  06.08.2001 SVS
-    - бага с MaxLength - небыло контроля на длину титла
-  01.08.2001 KM
-    ! Ещё однго небольшое исправление.
-      Добавлен инкремент/декремент CallCount
-      в ShowMenu.
-  31.07.2001 SVS
-    ! Небольшое исправление (с подачи KM)
-    ! MACRO_OTHER -> MACRO_MENU
-  26.07.2001 OT
-    - Поправлен ResizeConsole()
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  22.07.2001 KM
-    ! Исправление неточности перехода по PgUp/PgDn
-      с установленным флагом VMENU_SHOWNOBOX (NO_BOX)
-  22.07.2001 KM
-    - Не устанавливался тип рамки при первом вызове
-      ShowMenu с параметром TRUE, что давало неверную
-      отрисовку меню.
-  21.07.2001 KM
-    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
-    ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-
-      Теперь DI_LISTBOX с выставленным флагом DIF_LISTNOBOX и меню
-      с флагом VMENU_SHOWNOBOX рисуются без лишних окантовывающих пробелов
-      вокруг списка, что автоматически позволяет использовать DI_LISTBOX в
-      диалогах, не опасаясь затирания рамки самого диалога пустым местом от
-      списка.
-  19.07.2001 OT
-    - VFMenu - продолжение исправления
-  18.07.2001 OT
-    + Новый класс VFMenu
-  11.07.2001 SVS
-    + Shift-F1 на равне с F1 может вызывать хелп. Это на тот случай, если мы
-      в качестве хоткея назначили F1 (естественно хелп в такой ситуации не
-      будет вызываться)
-  30.06.2001 KM
-    ! Языковое уточненение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
-    + GetSelectPos(struct FarListPos *)
-    + SetSelectPos(struct FarListPos *)
-    ! Небольшое изменение в функции UpdateRequired: теперь она возвращает
-      TRUE и при условии, что выставлен флаг VMENU_UPDATEREQUIRED
-  29.06.2001 SVS
-    + Новый параметр у FindItem - флаги
-    + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
-      поиске в списке
-  25.06.2001 IS
-    ! Внедрение const
-  14.06.2001 SVS
-    - Установка позиции всегда приводит к выбору 0 итема.
-  13.06.2001 SVS
-    - приведение типов.
-  12.06.2001 KM
-    - Некорректно работала функция GetUserData. Забыли, что данные
-      в меню могут храниться не в UserData, а просто в Name, из-за
-      чего не работал выбор из комбобокса (выбирался мусор).
-  10.06.2001 SVS
-    + FindItem с двумя параметрами - для будущего ручного финдера в списке.
-    - не работал поиск, т.к. присутствовали символы '&'
-  05.06.2001 KM
-    - Избавление от маленькой дырочки в Set*Title.
-  04.06.2001 SVS
-    - Злостная бага в DeleteItem :-(
-  04.06.2001 SVS
-    ! "Фигня с пацанами вышла" - это про патч 706. В общем уточнения функций.
-  03.06.2001 KM
-    + Функции SetTitle, GetTitle, GetBottomTitle.
-    ! Вернём DI_LISTBOX'у возможность задавать заголовок.
-    ! Убрана дефолтная установка флага VMENU_WRAPMODE, в противном
-      случае при создании меню прокрутка работала _ВСЕГДА_, что
-      не всегда удобно.
-  03.06.2001 SVS
-    ! Изменения в связи с переделкой UserData в VMenu
-    + GetPosition() - возвращает реальную позицию итема.
-    + GetUserDataSize() - получить размер данных
-    + SetUserData() - присовокупить данные к пункту меню
-    ! GetUserData() - возвращает указатель на сами данные
-  30.05.2001 OT
-    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched
-      запоминается тот фрейм, откуда это меню запускалось.
-      Чтобы потом он не перерисовавался, когда его не просят :)
-  25.05.2001 DJ
-    + SetColor()
-  23.05.2001 SVS
-    - Проблемы с горячими клавишами в меню (Part II) - ни тебе инициализации
-      AmpPos при добавлении пунктов, да еще и разницу между имененм и
-      позицией... Срань.
-  23.05.2001 SVS
-    - Проблемы с горячими клавишами в меню.
-  22.05.2001 SVS
-    ! Не трогаем оригинал на предмет вставки '&', все делаем только при
-      прорисовке.
-  21.05.2001 DJ
-    - Забыли вернуть значение в VMenu::ChangeFlags()
-  21.05.2001 SVS
-    ! VMENU_DRAWBACKGROUND -> VMENU_DISABLEDRAWBACKGROUND
-    ! MENU_* выкинуты
-    ! DialogStyle -> VMENU_WARNDIALOG
-    ! struct MenuData
-      Поля Selected, Checked и Separator преобразованы в DWORD Flags
-    ! struct MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-  18.05.2001 SVS
-    ! UpdateRequired -> VMENU_UPDATEREQUIRED
-    ! DrawBackground -> VMENU_DRAWBACKGROUND
-    ! WrapMode -> VMENU_WRAPMODE
-    ! ShowAmpersand -> VMENU_SHOWAMPERSAND
-    + Функции InsertItem(), FindItem(), UpdateRequired(), GetVMenuInfo()
-  17.05.2001 SVS
-    + UpdateItem() - обновить пункт
-    + FarList2MenuItem() \ функции преобразования "туда-сюда"
-    + MenuItem2FarList() /
-    ! табуляции меняем только при показе - для сохранение оригинальной строки
-    ! При автоназначении учтем факт того, что должны вернуть оригинал не тронутым
-  15.05.2001 KM
-    - Не работал флаг DIF_CHECKED в DI_LISTBOX
-    + Добавлена возможность назначать в DI_LISTBOX с флагом DIF_CHECKED
-      произвольный символ (в младшем слове Flags), который будет
-      использоваться в качестве Check mark, следующим образом:
-      MacroMenuItems[i].Flags|=(S[0]=='~')?LIF_CHECKED|'-':0;
-  12.05.2001 SVS
-    + AddItem(char *NewStrItem);
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-    + AddItem, отличается тем, что параметр типа struct FarList - для
-      сокращения кода в диалогах :-)
-    + SortItems() - опять же - для диалогов
-    * Изменен тип возвращаемого значения для GetItemPtr() и убран первый
-      параметр функции - Item
-  06.05.2001 DJ
-    ! перетрях #include
-  27.04.2001 VVM
-    + Обработка KEY_MSWHEEL_XXXX
-    + В меню нажатие средней кнопки аналогично нажатию ЕНТЕР
-  09.04.2001 SVS
-    ! Избавимся от некоторых варнингов
-  20.02.2001 SVS
-    + Добавлена функция SetSelectPos() - переместить курсор с учетом
-      Disabled & Separator
-    ! Изменения в клавишнике и "мышнике" :-) с учетом введения SetSelectPos()
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-    ! Оптимизирован механизм отображения сепаратора - сначала формируем в
-      памяти, потом выводим в виртуальный буфер
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  11.12.2000 tran
-    + прокрутка мышью не должна врапить меню
-  20.09.2000 SVS
-    + Функция GetItemPtr - получить указатель на нужный Item.
-  29.08.2000 tran 1.09
-    - BUG с не записью \0 в конец строки в GetUserData
-  01.08.2000 SVS
-    + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
-      самостоятельно или из другой функции ;-)
-    - Bug в конструкторе, если передали NULL для Title
-    ! ListBoxControl -> VMFlags
-    + функция удаления N пунктов меню
-    + функция обработки меню (по умолчанию)
-    + функция посылки сообщений меню
-    ! Изменен вызов конструктора для указания функции-обработчика и родителя!
-  28.07.2000 SVS
-    + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
-      атрибутами:
-      SetColors();
-      GetColors();
-  23.07.2000 SVS
-    + Куча рамарок в исходниках :-)
-    ! AlwaysScrollBar изменен на ListBoxControl
-    ! Тень рисуется только для меню, для ListBoxControl она ненужна
-  18.07.2000 SVS
-    ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
-      необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  06.07.2000 tran
-    + mouse support for menu scrollbar
-  29.06.2000 SVS
-    ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
-  28.06.2000 tran
-    + вертикальный скролбар в меню при необходимости
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.162 01.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -517,17 +27,16 @@ Modify:
 #include "manager.hpp"
 #include "constitle.hpp"
 
-/* $ 18.07.2000 SVS
-   ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
-     scrollbar в DI_LISTBOX & DI_COMBOBOX
-*/
-VMenu::VMenu(const char *Title,       // заголовок меню
-             struct MenuData *Data, // пункты меню
+
+VMenu::VMenu(const wchar_t *Title,       // заголовок меню
+             MenuDataEx *Data, // пункты меню
              int ItemCount,     // количество пунктов меню
+             bool bUnicode,
              int MaxHeight,     // максимальная высота
              DWORD Flags,       // нужен ScrollBar?
              FARWINDOWPROC Proc,    // обработчик
-             Dialog *ParentDialog)  // родитель для ListBox
+             Dialog *ParentDialog
+             )  // родитель для ListBox
 {
   int I;
   SetDynamicallyBorn(false);
@@ -561,11 +70,12 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   VMenuProc=Proc;
 
   if (Title!=NULL)
-    xstrncpy(VMenu::Title,Title, sizeof(VMenu::Title)-1);
+    strTitle = Title;
   else
-    *VMenu::Title=0;
+    strTitle = L"";
 
-  *BottomTitle=0;
+  strBottomTitle = L"";
+
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
 
@@ -577,33 +87,34 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   /* $ 30.11.2001 DJ
      инициализируем перед тем, как добавлять айтема
   */
-  MaxLength=strlen(VMenu::Title)+2;
+  MaxLength=strTitle.GetLength ()+2;
   /* DJ $ */
   /* SVS $ */
 
   RLen[0]=RLen[1]=0; // реальные размеры 2-х половин
 
-  struct MenuItem NewItem;
+  MenuItemEx NewItem;
   for (I=0; I < ItemCount; I++)
   {
-    memset(&NewItem,0,sizeof(NewItem));
+    NewItem.Clear ();
+
     if ((unsigned int)Data[I].Name < MAX_MSG)
-      xstrncpy(NewItem.Name,MSG((unsigned int)Data[I].Name),sizeof(NewItem.Name)+1);
+      NewItem.strName = UMSG((unsigned int)Data[I].Name);
     else
-      xstrncpy(NewItem.Name,Data[I].Name,sizeof(NewItem.Name)+1);
+      NewItem.strName = Data[I].Name;
     //NewItem.AmpPos=-1;
     NewItem.AccelKey=Data[I].AccelKey;
     NewItem.Flags=Data[I].Flags;
-    AddItem(&NewItem);
+    AddItemW(&NewItem);
   }
 
   BoxType=DOUBLE_BOX;
   for (SelectPos=-1,I=0;I<ItemCount;I++)
   {
-    int Length=strlen(Item[I].Name);
+    int Length=Item[I]->strName.GetLength();
     if (Length>MaxLength)
       MaxLength=Length;
-    if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
+    if ((Item[I]->Flags&LIF_SELECTED) && !(Item[I]->Flags&LIF_DISABLE))
       SelectPos=I;
   }
 
@@ -626,14 +137,14 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
     if (PrevMacroMode!=MACRO_MAINMENU &&
-        PrevMacroMode!=MACRO_DIALOG &&
-        PrevMacroMode!=MACRO_USERMENU)
+        PrevMacroMode!=MACRO_DIALOG)
       CtrlObject->Macro.SetMode(MACRO_MENU);
   }
 
   if (!VMFlags.Check(VMENU_LISTBOX))
     FrameManager->ModalizeFrame(this);
 }
+
 
 
 VMenu::~VMenu()
@@ -819,9 +330,9 @@ void VMenu::DisplayObject()
        ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
       */
       if (BoxType!=NO_BOX)
-        SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[VMenuColorBody]);
+        SetScreen(X1-2,Y1-1,X2+2,Y2+1,L' ',VMenu::Colors[VMenuColorBody]);
       else
-        SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
+        SetScreen(X1,Y1,X2,Y2,L' ',VMenu::Colors[VMenuColorBody]);
       /* KM $ */
       if(!VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
       {
@@ -855,21 +366,22 @@ void VMenu::DrawTitles()
 
   int MaxTitleLength = X2-X1-2;
   int WidthTitle;
-  if (*Title)
+
+  if ( !strTitle.IsEmpty() )
   {
-    if((WidthTitle=strlen(Title)) > MaxTitleLength)
+    if((WidthTitle=strTitle.GetLength()) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[VMenuColorTitle]);
-    mprintf(" %*.*s ",WidthTitle,WidthTitle,Title);
+    mprintfW(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strTitle);
   }
-  if (*BottomTitle)
+  if ( !strBottomTitle.IsEmpty() )
   {
-    if((WidthTitle=strlen(BottomTitle)) > MaxTitleLength)
+    if((WidthTitle=strBottomTitle.GetLength()) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[VMenuColorTitle]);
-    mprintf(" %*.*s ",WidthTitle,WidthTitle,BottomTitle);
+    mprintfW(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strBottomTitle);
   }
 }
 
@@ -882,6 +394,8 @@ void VMenu::ShowMenu(int IsParent)
   CriticalSectionLock Lock(CS);
 
   char TmpStr[1024];
+  wchar_t TmpStrW[1024]; //BUGBUG, dynamic
+
   unsigned char BoxChar[2],BoxChar2[2];
   int Y,I;
   /* $ 23.02.2002 DJ
@@ -928,7 +442,7 @@ void VMenu::ShowMenu(int IsParent)
     {
       if(ItemCount)
         BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
-      SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
+      SetScreen(X1,Y1,X2,Y2,L' ',VMenu::Colors[VMenuColorBody]);
     }
     if (BoxType!=NO_BOX)
       Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
@@ -955,10 +469,10 @@ void VMenu::ShowMenu(int IsParent)
 
   if (SelectPos<ItemCount)
   {
-    if(Item[SelectPos].Flags&LIF_DISABLE)
-      Item[SelectPos].Flags&=~LIF_SELECTED;
+    if(Item[SelectPos]->Flags&LIF_DISABLE)
+      Item[SelectPos]->Flags&=~LIF_SELECTED;
     else
-      Item[SelectPos].Flags|=LIF_SELECTED;
+      Item[SelectPos]->Flags|=LIF_SELECTED;
   }
 
   /* $ 02.12.2001 KM
@@ -984,7 +498,7 @@ void VMenu::ShowMenu(int IsParent)
     GotoXY(X1,Y);
     if (I<ItemCount)
     {
-      if (Item[I].Flags&LIF_SEPARATOR)
+      if (Item[I]->Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
         char *Ptr=TmpStr+1;
@@ -994,14 +508,14 @@ void VMenu::ShowMenu(int IsParent)
         if (I>0 && I<ItemCount-1 && SepWidth>3)
           for (unsigned int J=0;Ptr[J+3]!=0;J++)
           {
-            if (Item[I-1][J]==0)
+            if (Item[I-1]->strName.At(J)==0)
               break;
-            if (Item[I-1][J]==0x0B3)
+            if (Item[I-1]->strName.At(J)==0x0B3) //BUGBUG
             {
               int Correction=0;
-              if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && memchr(Item[I-1].PtrName(),'&',J)!=NULL)
+              if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=NULL)
                 Correction=1;
-              if (strlen(Item[I+1].PtrName())>=J && Item[I+1][J]==0x0B3)
+              if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==0x0B3)//BUGBUG
                 Ptr[J-Correction+2]=0x0C5;
               else
                 Ptr[J-Correction+2]=0x0C1;
@@ -1016,11 +530,11 @@ void VMenu::ShowMenu(int IsParent)
 #endif
           BoxText(TmpStr,FALSE);
 
-        if (*Item[I].PtrName())
+        if ( !Item[I]->strName.IsEmpty() )
         {
-          int ItemWidth=strlen(Item[I].PtrName());
+          int ItemWidth=Item[I]->strName.GetLength();
           GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-          mprintf(" %*.*s ",ItemWidth,ItemWidth,Item[I].PtrName());
+          mprintfW(L" %*.*s ",ItemWidth,ItemWidth,(const wchar_t*)Item[I]->strName);
         }
       }
       else
@@ -1036,8 +550,8 @@ void VMenu::ShowMenu(int IsParent)
           BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
         }
 
-        char *Item_I_PtrName=Item[I].PtrName();
-        char *_MItemPtr=Item_I_PtrName+Item[I].ShowPos;
+        const wchar_t *Item_I_PtrName=(const wchar_t *)Item[I]->strName;
+        const wchar_t *_MItemPtr=(const wchar_t *)Item_I_PtrName+Item[I]->ShowPos;
 
 //        if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
 //          SetColor(VMenu::Colors[VMenuColorSelected]);
@@ -1046,44 +560,42 @@ void VMenu::ShowMenu(int IsParent)
 
         if (BoxType!=NO_BOX)
         {
-          if(Item[I].ShowPos > 0)
+          if(Item[I]->ShowPos > 0)
           {
-            Text(X1,Y,VMenu::Colors[Item[I].Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],"{");
+            TextW(X1,Y,VMenu::Colors[Item[I]->Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],L"{");
           }
           GotoXY(X1+1,Y);
         }
         else
           GotoXY(X1,Y);
-//
-        if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
+
+        if ((Item[I]->Flags&LIF_SELECTED) && !(Item[I]->Flags&LIF_DISABLE))
           SetColor(VMenu::Colors[VMenuColorSelected]);
         else
-          SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
+          SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE?9:3)]);
 
-
-        char Check=' ';
-        if (Item[I].Flags&LIF_CHECKED)
-          if (!(Item[I].Flags&0x0000FFFF))
-            Check=0x0FB;
+        wchar_t Check=L' ';
+        if (Item[I]->Flags&LIF_CHECKED)
+          if (!(Item[I]->Flags&0x0000FFFF))
+            Check=0x221A;
           else
-            Check=(char)Item[I].Flags&0x0000FFFF;
+            Check=(char)Item[I]->Flags&0x0000FFFF;
 
-        if(HiStrlen(_MItemPtr) > X2-X1-3)
-          sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,_MItemPtr);
+        if(HiStrlenW(_MItemPtr,TRUE) > X2-X1-3)
+          swprintf(TmpStrW,L"%c %.*s",Check,X2-X1-3,(const wchar_t*)_MItemPtr);
         else
-          sprintf(TmpStr,"%c %s",Check,_MItemPtr);
-
+          swprintf(TmpStrW,L"%c %s",Check,(const wchar_t*)_MItemPtr);
         { // табуляции меняем только при показе!!!
           // для сохранение оригинальной строки!!!
-          char *TabPtr;
-          while ((TabPtr=strchr(TmpStr,'\t'))!=NULL)
-            *TabPtr=' ';
+          wchar_t *TabPtr;
+          while ((TabPtr=wcschr(TmpStrW,L'\t'))!=NULL)
+            *TabPtr=L' ';
         }
         int Col;
 
-        if(!(Item[I].Flags&LIF_DISABLE))
+        if(!(Item[I]->Flags&LIF_DISABLE))
         {
-          if (Item[I].Flags&LIF_SELECTED)
+          if (Item[I]->Flags&LIF_SELECTED)
               Col=VMenu::Colors[VMenuColorHSelect];
           else
               Col=VMenu::Colors[VMenuColorHilite];
@@ -1091,22 +603,22 @@ void VMenu::ShowMenu(int IsParent)
         else
           Col=VMenu::Colors[VMenuColorDisabled];
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-          Text(TmpStr);
+          TextW(TmpStrW);
         else
         {
-          short AmpPos=Item[I].AmpPos+2;
+          short AmpPos=Item[I]->AmpPos+2;
 //_SVS(SysLog(">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
-          if(AmpPos >= 2 && AmpPos < sizeof(TmpStr) && TmpStr[AmpPos] != '&')
+          if(AmpPos >= 2 && TmpStrW[AmpPos] != L'&')
           {
-            memmove(TmpStr+AmpPos+1,TmpStr+AmpPos,strlen(TmpStr+AmpPos)+1);
-            TmpStr[AmpPos]='&';
+            wmemmove(TmpStrW+AmpPos+1,TmpStrW+AmpPos,wcslen(TmpStrW+AmpPos)+1);
+            TmpStrW[AmpPos]='&';
           }
 //_SVS(SysLog("<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
-          HiText(TmpStr,Col);
+          HiTextW(TmpStrW,Col);
         }
 
         // сделаем добавочку для NO_BOX
-        mprintf("%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),"");
+        mprintfW(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
       }
     }
     else
@@ -1126,7 +638,7 @@ void VMenu::ShowMenu(int IsParent)
         GotoXY(X1,Y);
       SetColor(VMenu::Colors[VMenuColorText]);
                                                      // сделаем добавочку для NO_BOX
-      mprintf("%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),"");
+      mprintfW(L"%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),L"");
       /* KM $ */
     }
   }
@@ -1171,21 +683,23 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   CriticalSectionLock Lock(CS);
 
   int I;
-  struct MenuItem *CurItem;
+  MenuItemEx *CurItem;
 
   if(VMFlags.Check(VMENU_LISTBOX)) // не забудем сбросить EndLoop для листбокса,
     EndLoop=FALSE;                 // иначе не будут работать хоткеи в активном списке
 
-  for (CurItem=Item,I=0; I < ItemCount; I++, ++CurItem)
+  for (I=0; I < ItemCount; I++)
   {
+    CurItem = Item[I];
+
     if(!(CurItem->Flags&LIF_DISABLE) &&
        (
          (!Type && CurItem->AccelKey && Key == CurItem->AccelKey) ||
-         (Type && Dialog::IsKeyHighlighted(CurItem->PtrName(),Key,Translate,CurItem->AmpPos))
+         (Type && Dialog::IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))
        )
       )
     {
-      Item[SelectPos].Flags&=~LIF_SELECTED;
+      Item[SelectPos]->Flags&=~LIF_SELECTED;
       CurItem->Flags|=LIF_SELECTED;
       SelectPos=I;
       ShowMenu(TRUE);
@@ -1213,7 +727,7 @@ int VMenu::ProcessKey(int Key)
   {
     case MCODE_OP_PLAINTEXT:
     {
-      const char *str = eStackAsString();
+      const wchar_t *str = eStackAsString();
       if (!*str)
         return FALSE;
       Key=*str;
@@ -1233,7 +747,7 @@ int VMenu::ProcessKey(int Key)
       return SelectPos+1;
     case MCODE_F_MENU_CHECKHOTKEY:
     {
-      const char *str = eStackAsString(1);
+      const wchar_t *str = eStackAsString(1);
       if ( *str )
         return CheckHighlights(*str);
       return FALSE;
@@ -1254,13 +768,13 @@ int VMenu::ProcessKey(int Key)
     DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));
 
     if (K==KEY_MULTIPLY)
-      Key='*'|S;
+      Key=L'*'|S;
     else if (K==KEY_ADD)
-      Key='+'|S;
+      Key=L'+'|S;
     else if (K==KEY_SUBTRACT)
-      Key='-'|S;
+      Key=L'-'|S;
     else if (K==KEY_DIVIDE)
-      Key='/'|S;
+      Key=L'/'|S;
   }
 
   switch(Key)
@@ -1269,7 +783,7 @@ int VMenu::ProcessKey(int Key)
     {
       if(!VMenu::ParentDialog)
       {
-        if(!(Item[SelectPos].Flags&LIF_DISABLE))
+        if(!(Item[SelectPos]->Flags&LIF_DISABLE))
         {
           EndLoop=TRUE;
           Modal::ExitCode=SelectPos;
@@ -1332,15 +846,15 @@ int VMenu::ProcessKey(int Key)
     case KEY_ALTLEFT:
     case KEY_ALTRIGHT:
     {
-      int ItemShowPos=Item[SelectPos].ShowPos;
+      int ItemShowPos=Item[SelectPos]->ShowPos;
 
       int _len;
       int _OWidth=X2-X1-3;
 
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-        _len=HiStrlen(Item[SelectPos].PtrName(),TRUE);
+        _len=HiStrlenW(Item[SelectPos]->strName,TRUE);
       else
-        _len=strlen(Item[SelectPos].PtrName());
+        _len=wcslen(Item[SelectPos]->strName);
 
       if(Key == KEY_ALTLEFT && ItemShowPos==0 || Key == KEY_ALTRIGHT && ItemShowPos > _len || _len < _OWidth)
         break;
@@ -1350,9 +864,9 @@ int VMenu::ProcessKey(int Key)
       if(ItemShowPos > _len-_OWidth)
         ItemShowPos=_len-_OWidth;
 
-      if(ItemShowPos != Item[SelectPos].ShowPos)
+      if(ItemShowPos != Item[SelectPos]->ShowPos)
       {
-        Item[SelectPos].ShowPos=ItemShowPos;
+        Item[SelectPos]->ShowPos=ItemShowPos;
         ShowMenu(TRUE);
       }
       break;
@@ -1401,8 +915,8 @@ int VMenu::ProcessKey(int Key)
 
       if(VMenu::ParentDialog && OldSelectPos!=SelectPos && Dialog::SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
       {
-        Item[SelectPos].Flags&=~LIF_SELECTED;
-        Item[OldSelectPos].Flags|=LIF_SELECTED;
+        Item[SelectPos]->Flags&=~LIF_SELECTED;
+        Item[OldSelectPos]->Flags|=LIF_SELECTED;
         SelectPos=OldSelectPos;
         ShowMenu(TRUE);
       }
@@ -1511,7 +1025,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           MsPos=0;
           Delta=1;
         }
-        if(!(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
+        if(!(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&LIF_DISABLE))
           SelectPos=SetSelectPos(MsPos,Delta); //??
         ShowMenu(TRUE);
       }
@@ -1554,7 +1068,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     */
     MsPos=TopPos+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
     /* KM $ */
-    if (MsPos<ItemCount && !(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
+    if (MsPos<ItemCount && !(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&LIF_DISABLE))
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
       {
@@ -1567,8 +1081,8 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 */
         {
-          Item[SelectPos].Flags&=~LIF_SELECTED;
-          Item[MsPos].Flags|=LIF_SELECTED;
+          Item[SelectPos]->Flags&=~LIF_SELECTED;
+          Item[MsPos]->Flags|=LIF_SELECTED;
           SelectPos=MsPos;
         }
         ShowMenu(TRUE);
@@ -1610,8 +1124,12 @@ void VMenu::DeleteItems()
   if(Item)
   {
     for(int I=0; I < ItemCount; ++I)
-      if(Item[I].UserDataSize > sizeof(Item[I].UserData) && Item[I].UserData)
-        xf_free(Item[I].UserData);
+    {
+      if(Item[I]->UserDataSize > sizeof(Item[I]->UserData) && Item[I]->UserData)
+        xf_free(Item[I]->UserData);
+
+      delete Item[I];
+    }
     xf_free(Item);
   }
   /* SVS $ */
@@ -1619,7 +1137,7 @@ void VMenu::DeleteItems()
   ItemCount=0;
   SelectPos=-1;
   TopPos=0;
-  MaxLength=Max((int)strlen(VMenu::Title),(int)strlen(VMenu::BottomTitle))+2;
+  MaxLength=Max(strTitle.GetLength(),strBottomTitle.GetLength())+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
   /* $ 23.02.2002 DJ
@@ -1649,9 +1167,9 @@ int VMenu::DeleteItem(int ID,int Count)
   int OldItemSelected=-1;
   for(I=0; I < ItemCount; ++I)
   {
-    if(Item[I].Flags & LIF_SELECTED)
+    if(Item[I]->Flags & LIF_SELECTED)
       OldItemSelected=I;
-    Item [I].Flags&=~LIF_SELECTED;
+    Item [I]->Flags&=~LIF_SELECTED;
   }
 
   if(OldItemSelected >= ID)
@@ -1666,14 +1184,14 @@ int VMenu::DeleteItem(int ID,int Count)
   // Надобно удалить данные, чтоб потери по памяти не были
   for(I=0; I < Count; ++I)
   {
-    struct MenuItem *PtrItem=Item+ID+I;
+    MenuItemEx *PtrItem=Item[ID+I];
     if(PtrItem->UserDataSize > sizeof(PtrItem->UserData) && PtrItem->UserData)
       xf_free(PtrItem->UserData);
   }
 
   // а вот теперь перемещения
   if(ItemCount > 1)
-    memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*(ItemCount-(ID+Count))); //???
+    memmove(Item+ID,Item+ID+Count,4*(ItemCount-(ID+Count))); //BUGBUG
 
   // коррекция текущей позиции
   if(SelectPos >= ID && SelectPos < ID+Count)
@@ -1684,7 +1202,7 @@ int VMenu::DeleteItem(int ID,int Count)
     /* $ 23.02.2002 DJ
        постараемся не ставить выделение на сепаратор
     */
-    while (SelectPos > 0 &&(Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    while (SelectPos > 0 &&(Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
       SelectPos--;
     /* DJ $ */
   }
@@ -1712,24 +1230,24 @@ int VMenu::DeleteItem(int ID,int Count)
   }
 
   SelectPos=SetSelectPos(OldItemSelected,1);
-  if (Item[SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+  if (Item[SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
     VMFlags.Set(VMENU_SELECTPOSNONE);
 
   if(SelectPos > -1)
-    Item[SelectPos].Flags|=LIF_SELECTED;
+    Item[SelectPos]->Flags|=LIF_SELECTED;
 
   return(ItemCount);
 }
 /* SVS $ */
 
-int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
+int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
 {
   CriticalSectionLock Lock(CS);
 
   if(!NewItem)
     return -1; //???
 
-  struct MenuItem *NewPtr;
+  MenuItemEx **NewPtr;
   int Length;
 
   if(PosAdd >= ItemCount)
@@ -1740,7 +1258,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 
   if ((ItemCount & 255)==0)
   {
-    if ((NewPtr=(struct MenuItem *)xf_realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
+    if ((NewPtr=(MenuItemEx **)xf_realloc(Item, 4*(ItemCount+256+1)))==NULL)
       return(0);
     Item=NewPtr;
   }
@@ -1750,29 +1268,43 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     PosAdd=0;
 
   if(PosAdd < ItemCount)
-    memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
+    memmove(Item+PosAdd+1,Item+PosAdd,4*(ItemCount-PosAdd)); //??
 
-  Item[PosAdd]=*NewItem;
-  Item[PosAdd].ShowPos=0;
+  Item[PosAdd] = new MenuItemEx;
+
+  memset (Item[PosAdd], 0, sizeof (MenuItemEx));
+
+  Item[PosAdd]->Flags = NewItem->Flags;
+  Item[PosAdd]->strName = NewItem->strName;
+  Item[PosAdd]->AccelKey = NewItem->AccelKey;
+  Item[PosAdd]->UserDataSize = NewItem->UserDataSize;
+  Item[PosAdd]->UserData = NewItem->UserData;
+  Item[PosAdd]->AmpPos = NewItem->AmpPos;
+  Item[PosAdd]->Len[0] = NewItem->Len[0];
+  Item[PosAdd]->Len[1] = NewItem->Len[1];
+  Item[PosAdd]->Idx2 = NewItem->Idx2;
+  Item[PosAdd]->ShowPos = NewItem->ShowPos;
+
+  Item[PosAdd]->ShowPos = 0;
 
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-    Length=strlen(Item[PosAdd].PtrName());
+    Length=Item[PosAdd]->strName.GetLength();
   else
-    Length=HiStrlen(Item[PosAdd].PtrName(),TRUE);
+    Length=HiStrlenW(Item[PosAdd]->strName,TRUE);
 
   if (Length>MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
-  if (Item[PosAdd].Flags&LIF_SELECTED)
+  if (Item[PosAdd]->Flags&LIF_SELECTED)
     SelectPos=PosAdd;
-  if(Item[PosAdd].Flags&0x0000FFFF)
+  if(Item[PosAdd]->Flags&0x0000FFFF)
   {
-    Item[PosAdd].Flags|=LIF_CHECKED;
-    if((Item[PosAdd].Flags&0x0000FFFF) == 1)
-      Item[PosAdd].Flags&=0xFFFF0000;
+    Item[PosAdd]->Flags|=LIF_CHECKED;
+    if((Item[PosAdd]->Flags&0x0000FFFF) == 1)
+      Item[PosAdd]->Flags&=0xFFFF0000;
   }
-  Item[PosAdd].AmpPos=-1;
+  Item[PosAdd]->AmpPos=-1;
 
   VMFlags.Clear(VMENU_SELECTPOSNONE);
   if(SelectPos < 0)
@@ -1783,41 +1315,41 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 
   // Вычисление размеров
   int I=0, J=0;
-  char Chr;
-  const char *NamePtr=Item[PosAdd].PtrName();
+  wchar_t Chr;
+  const wchar_t *NamePtr=Item[PosAdd]->strName;
   while((Chr=NamePtr[I]) != 0)
   {
-    if(Chr != '&' && Chr != '\t')
+    if(Chr != L'&' && Chr != L'\t')
       J++;
     else
     {
-      if(Chr != '&')
-        Item[PosAdd].Idx2=++J;
-      else if(Item[PosAdd].AmpPos != -1)
-        Item[PosAdd].AmpPos=J;
+      if(Chr != L'&')
+        Item[PosAdd]->Idx2=++J;
+      else if(Item[PosAdd]->AmpPos != -1)
+        Item[PosAdd]->AmpPos=J;
     }
     ++I;
   }
 
-  Item[PosAdd].Len[0]=strlen(NamePtr)-Item[PosAdd].Idx2; //??
-  if(Item[PosAdd].Idx2)
-    Item[PosAdd].Len[1]=strlen(&NamePtr[Item[PosAdd].Idx2]);
+  Item[PosAdd]->Len[0]=wcslen(NamePtr)-Item[PosAdd]->Idx2; //??
+  if(Item[PosAdd]->Idx2)
+    Item[PosAdd]->Len[1]=wcslen(&NamePtr[Item[PosAdd]->Idx2]);
 
   // Уточнение общих размеров
-  if(RLen[0] < Item[PosAdd].Len[0])
-    RLen[0]=Item[PosAdd].Len[0];
-  if(RLen[1] < Item[PosAdd].Len[1])
-    RLen[1]=Item[PosAdd].Len[1];
+  if(RLen[0] < Item[PosAdd]->Len[0])
+    RLen[0]=Item[PosAdd]->Len[0];
+  if(RLen[1] < Item[PosAdd]->Len[1])
+    RLen[1]=Item[PosAdd]->Len[1];
 
   if(VMFlags.Check(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
     AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
 //  if(VMFlags.Check(VMENU_LISTBOXSORT))
 //    SortItems(0);
   LastAddedItem = PosAdd;
-  return(ItemCount++);
+  return ItemCount++;
 }
 
-int  VMenu::AddItem(const char *NewStrItem)
+int  VMenu::AddItem(const wchar_t *NewStrItem)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1828,11 +1360,11 @@ int  VMenu::AddItem(const char *NewStrItem)
   if(!NewStrItem || NewStrItem[0] == 0x1)
   {
     FarListItem0.Flags=LIF_SEPARATOR;
-    xstrncpy(FarListItem0.Text,NewStrItem+1,sizeof(FarListItem0.Text)-2);
+    xwcsncpy(FarListItem0.Text,NewStrItem+1,(sizeof(FarListItem0.Text)-2)/sizeof(wchar_t));
   }
   else
   {
-    xstrncpy(FarListItem0.Text,NewStrItem,sizeof(FarListItem0.Text)-1);
+    xwcsncpy(FarListItem0.Text,NewStrItem,(sizeof(FarListItem0.Text)-1)/sizeof(wchar_t));
   }
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
@@ -1845,11 +1377,11 @@ int VMenu::AddItem(const struct FarList *List)
 
   if(List && List->Items)
   {
-    struct MenuItem MItem;
+    MenuItemEx MItem;
     struct FarListItem *FItem=List->Items;
 
     for (int J=0; J < List->ItemsNumber; J++, ++FItem)
-      AddItem(FarList2MenuItem(FItem,&MItem));
+      AddItemW(FarList2MenuItem(FItem,&MItem));
   }
   return ItemCount;
 }
@@ -1860,9 +1392,9 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
 
   if(NewItem && (DWORD)NewItem->Index < (DWORD)ItemCount)
   {
-    struct MenuItem MItem;
+    MenuItemEx MItem;
     // Освободим память... от ранее занятого ;-)
-    struct MenuItem *PItem=Item+NewItem->Index;
+    MenuItemEx *PItem=Item[NewItem->Index];
     if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
     {
       xf_free(PItem->UserData);
@@ -1872,7 +1404,8 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
 
     FarList2MenuItem(&NewItem->Item,&MItem);
     PItem->Flags=MItem.Flags;
-    memcpy(PItem->Name,MItem.Name,sizeof(PItem->Name));
+
+    PItem->strName = MItem.strName;
 
     /* $ 23.02.2002 DJ
        если элемент selected - поставим на него выделение
@@ -1893,8 +1426,8 @@ int VMenu::InsertItem(const struct FarListInsert *NewItem)
 
   if(NewItem)
   {
-    struct MenuItem MItem;
-    return AddItem(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index);
+    MenuItemEx MItem;
+    return AddItemW(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index);
   }
   return -1;
 }
@@ -1906,12 +1439,12 @@ int VMenu::GetUserDataSize(int Position)
   if (ItemCount==0)
     return(0);
 
-  int DataSize=Item[GetPosition(Position)].UserDataSize;
+  int DataSize=Item[GetPosition(Position)]->UserDataSize;
 
   return(DataSize);
 }
 
-int VMenu::_SetUserData(struct MenuItem *PItem,
+int VMenu::_SetUserData(MenuItemEx *PItem,
                        const void *Data,   // Данные
                        int Size)     // Размер, если =0 то предполагается, что в Data-строка
 {
@@ -1958,7 +1491,7 @@ int VMenu::_SetUserData(struct MenuItem *PItem,
   return(PItem->UserDataSize);
 }
 
-void* VMenu::_GetUserData(struct MenuItem *PItem,void *Data,int Size)
+void* VMenu::_GetUserData(MenuItemEx *PItem,void *Data,int Size)
 {
   int DataSize=PItem->UserDataSize;
   char *PtrData=PItem->UserData; // PtrData содержит: либо указатель на что-то либо
@@ -1984,48 +1517,36 @@ void* VMenu::_GetUserData(struct MenuItem *PItem,void *Data,int Size)
     }
     else // ... данных нет, значит лудим имя пункта!
     {
-      PtrData=PItem->PtrName();
-      if(PItem->Flags&MIF_USETEXTPTR)
-        memmove(Data,PtrData,Min(Size,(int)strlen(PtrData)));
-      else
-        memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
+      UnicodeToAnsi (PItem->strName, (char*)Data, Size); //BUGBUG
     }
   }
   /* KM $ */
   return(PtrData);
 }
 
-struct FarListItem *VMenu::MenuItem2FarList(const struct MenuItem *MItem,
-                                            struct FarListItem *FItem)
+struct FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)
 {
   if(FItem && MItem)
   {
     memset(FItem,0,sizeof(struct FarListItem));
     FItem->Flags=MItem->Flags&(~MIF_USETEXTPTR); //??
-    xstrncpy(FItem->Text,((struct MenuItem *)MItem)->PtrName(),sizeof(FItem->Text)-1);
-//    FItem->AccelKey=MItem->AccelKey;
-    //??????????????????
-    //   FItem->UserData=MItem->UserData;
-    //   FItem->UserDataSize=MItem->UserDataSize;
-    //??????????????????
+
+    xwcsncpy (FItem->Text, MItem->strName, (sizeof (FItem->Text)-1)/sizeof (wchar_t));
     return FItem;
   }
   return NULL;
 }
 
-struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
-                                         struct MenuItem *MItem)
+struct MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem,
+                                         MenuItemEx *MItem)
 {
   if(FItem && MItem)
   {
-    memset(MItem,0,sizeof(struct MenuItem));
+    MItem->Clear ();
     MItem->Flags=FItem->Flags;
-//    MItem->AccelKey=FItem->AccelKey;
-    xstrncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
-    MItem->Flags&=~MIF_USETEXTPTR;
-    //MItem->Flags|=LIF_DELETEUSERDATA; //???????????????????
-    //VMenu::_SetUserData(MItem,FItem->UserData,FItem->UserDataSize); //???
-    // А здесь надо вычислять AmpPos????
+
+    MItem->strName = FItem->Text;
+
     return MItem;
   }
   return NULL;
@@ -2122,7 +1643,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
     }
     /* DJ $ */
 
-    if(!(Item[Pos].Flags&LIF_SEPARATOR) && !(Item[Pos].Flags&LIF_DISABLE))
+    if(!(Item[Pos]->Flags&LIF_SEPARATOR) && !(Item[Pos]->Flags&LIF_DISABLE))
       break;
 
     Pos+=Direct;
@@ -2140,9 +1661,9 @@ int VMenu::SetSelectPos(int Pos,int Direct)
      - Иногда фар падал. Как выяснилось если SelectPos был равен -1.
   */
   if (SelectPos!=-1)
-    Item[SelectPos].Flags&=~LIF_SELECTED;
+    Item[SelectPos]->Flags&=~LIF_SELECTED;
   /* KM $ */
-  Item[Pos].Flags|=LIF_SELECTED;
+  Item[Pos]->Flags|=LIF_SELECTED;
   SelectPos=Pos;
 
   if (SelectPos!=-1)
@@ -2179,24 +1700,24 @@ void VMenu::AdjustSelectPos()
 //  {
     int OldSelectPos = SelectPos;
     // если selection стоит в некорректном месте - сбросим его
-    if (SelectPos >= 0 && Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+    if (SelectPos >= 0 && Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
       SelectPos = -1;
 
     for (int i=0; i<ItemCount; i++)
     {
-      if (Item [i].Flags & (LIF_SEPARATOR | LIF_DISABLE))
-        Item [i].SetSelect (FALSE);
+      if (Item [i]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
+        Item [i]->SetSelect (FALSE);
       else
       {
         if (SelectPos == -1)
         {
-          Item [i].SetSelect (TRUE);
+          Item [i]->SetSelect (TRUE);
           SelectPos = i;
         }
         else if (SelectPos >= 0 && SelectPos != i)
         {
           // если уже есть выделенный элемент - оставим как было
-          Item [i].SetSelect (FALSE);
+          Item [i]->SetSelect (FALSE);
         }
       }
     }
@@ -2206,7 +1727,7 @@ void VMenu::AdjustSelectPos()
     {
       SelectPos = OldSelectPos;
       if (SelectPos >= 0)
-        Item [SelectPos].SetSelect (TRUE);
+        Item [SelectPos]->SetSelect (TRUE);
     }
 //  }
   /* KM $ */
@@ -2219,15 +1740,20 @@ void VMenu::AdjustSelectPos()
 
 /* DJ $ */
 
-void VMenu::SetTitle(const char *Title)
+void VMenu::SetTitle(const wchar_t *Title)
 {
   CriticalSectionLock Lock(CS);
 
   int Length;
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  Title=NullToEmpty(Title);
-  xstrncpy(VMenu::Title,Title,sizeof(VMenu::Title)-1);
-  Length=strlen(Title)+2;
+
+  if ( Title )
+    strTitle = Title;
+  else
+    strTitle = L"";
+
+  Length=strTitle.GetLength()+2;
+
   if (Length > MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -2235,11 +1761,12 @@ void VMenu::SetTitle(const char *Title)
 
   if(VMFlags.Check(VMENU_CHANGECONSOLETITLE))
   {
-    if(*VMenu::Title)
+    if( !strTitle.IsEmpty() )
     {
       if(!OldTitle)
         OldTitle=new ConsoleTitle;
-      SetFarTitle(VMenu::Title);
+
+      SetFarTitleW(strTitle);
     }
     else
     {
@@ -2253,29 +1780,31 @@ void VMenu::SetTitle(const char *Title)
 }
 
 
-char *VMenu::GetTitle(char *Dest,int Size)
+string &VMenu::GetTitle(string &strDest)
 {
   CriticalSectionLock Lock(CS);
 
   /* $ 23.02.2002 DJ
      Если заголовок пустой - это не значит, что его нельзя вернуть!
   */
-  if (Dest /*&& *VMenu::Title*/)
-    return xstrncpy(Dest,VMenu::Title,Size-1);
-  /* DJ $ */
-  return NULL;
+  strDest = strTitle;
+
+  return strDest;
 }
 
 
-void VMenu::SetBottomTitle(const char *BottomTitle)
+void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 {
   CriticalSectionLock Lock(CS);
 
   int Length;
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  BottomTitle=NullToEmpty(BottomTitle);
-  xstrncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle)-1);
-  Length=strlen(BottomTitle)+2;
+
+  if ( BottomTitle )
+    strBottomTitle  = BottomTitle;
+  else
+    strBottomTitle = L"";
+  Length=strBottomTitle.GetLength()+2;
   if (Length > MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -2283,13 +1812,13 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
 }
 
 
-char *VMenu::GetBottomTitle(char *Dest,int Size)
+string &VMenu::GetBottomTitle(string &strDest)
 {
   CriticalSectionLock Lock(CS);
 
-  if (Dest && *VMenu::BottomTitle)
-    return xstrncpy(Dest,VMenu::BottomTitle,Size-1);
-  return NULL;
+  strDest = strBottomTitle;
+
+  return strDest;
 }
 
 
@@ -2319,10 +1848,10 @@ int VMenu::GetSelection(int Position)
     return(0);
 
   int DataPos=GetPosition(Position);
-  if (Item[DataPos].Flags&LIF_SEPARATOR)
+  if (Item[DataPos]->Flags&LIF_SEPARATOR)
     return(0);
-  int Checked=Item[DataPos].Flags&0xFFFF;
-  return((Item[DataPos].Flags&LIF_CHECKED)?(Checked?Checked:1):0);
+  int Checked=Item[DataPos]->Flags&0xFFFF;
+  return((Item[DataPos]->Flags&LIF_CHECKED)?(Checked?Checked:1):0);
 }
 
 
@@ -2332,34 +1861,34 @@ void VMenu::SetSelection(int Selection,int Position)
 
   if (ItemCount==0)
     return;
-  Item[GetPosition(Position)].SetCheck(Selection);
+  Item[GetPosition(Position)]->SetCheck(Selection);
 }
 
 // Функция GetItemPtr - получить указатель на нужный Item.
-struct MenuItem *VMenu::GetItemPtr(int Position)
+struct MenuItemEx *VMenu::GetItemPtr(int Position)
 {
   CriticalSectionLock Lock(CS);
 
   if (ItemCount==0)
     return NULL;
-  return Item+GetPosition(Position);
+  return Item[GetPosition(Position)];
 }
 
-BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
+BOOL VMenu::CheckHighlights(WORD CheckSymbol)
 {
   CriticalSectionLock Lock(CS);
 
   for (int I=0; I < ItemCount; I++)
   {
-    char Ch=0;
-    const char *Name=Item[I].PtrName();
-    const char *ChPtr=strchr(Name,'&');
+    wchar_t Ch=0;
+    const wchar_t *Name=Item[I]->strName;
+    const wchar_t *ChPtr=wcschr(Name,L'&');
 
-    if (ChPtr || Item[I].AmpPos > -1)
+    if (ChPtr || Item[I]->AmpPos > -1)
     {
-      if (!ChPtr && Item[I].AmpPos > -1)
+      if (!ChPtr && Item[I]->AmpPos > -1)
       {
-        ChPtr=Name+Item[I].AmpPos;
+        ChPtr=Name+Item[I]->AmpPos;
         Ch=*ChPtr;
       }
       else
@@ -2367,13 +1896,13 @@ BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
 
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
       {
-        ChPtr=strchr(ChPtr+1,'&');
+        ChPtr=wcschr(ChPtr+1,L'&');
         if(ChPtr)
           Ch=ChPtr[1];
       }
     }
 
-    if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
+    if(Ch && LocalUpperW(CheckSymbol) == LocalUpperW(Ch))
       return TRUE;
   }
   return FALSE;
@@ -2383,7 +1912,7 @@ void VMenu::AssignHighlights(int Reverse)
 {
   CriticalSectionLock Lock(CS);
 
-  BYTE Used[256];
+  WORD Used[65536]; //BUGBUG
   memset(Used,0,sizeof(Used));
 
   /* $ 02.12.2001 KM
@@ -2401,27 +1930,27 @@ void VMenu::AssignHighlights(int Reverse)
   int I, Delta=Reverse ? -1:1;
   for (I=(Reverse ? ItemCount-1:0); I >= 0 && I < ItemCount; I+=Delta)
   {
-    char Ch=0;
-    const char *Name=Item[I].PtrName();
-    const char *ChPtr=strchr(Name,'&');
+    wchar_t Ch=0;
+    const wchar_t *Name=Item[I]->strName;
+    const wchar_t *ChPtr=wcschr(Name,L'&');
 
-    Item[I].AmpPos=-1;
+    Item[I]->AmpPos=-1;
     if (ChPtr)
     {
       Ch=ChPtr[1];
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
       {
-        ChPtr=strchr(ChPtr+1,'&');
+        ChPtr=wcschr(ChPtr+1,L'&');
         if(ChPtr)
           Ch=ChPtr[1];
       }
     }
 
-    if(Ch && !Used[LocalUpper(Ch)] && !Used[LocalLower(Ch)])
+    if(Ch && !Used[LocalUpperW(Ch)] && !Used[LocalLowerW(Ch)])
     {
-      Used[LocalUpper(Ch)]++;
-      Used[LocalLower(Ch)]++;
-      Item[I].AmpPos=ChPtr-Name;
+      Used[LocalUpperW(Ch)]++;
+      Used[LocalLowerW(Ch)]++;
+      Item[I]->AmpPos=ChPtr-Name;
     }
   }
 //_SVS(SysLogDump("Used Pre",0,Used,sizeof(Used),NULL));
@@ -2429,19 +1958,19 @@ void VMenu::AssignHighlights(int Reverse)
   // TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
   for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
-    const char *Name=Item[I].PtrName();
-    const char *ChPtr=strchr(Name,'&');
+    const wchar_t *Name=Item[I]->strName;
+    const wchar_t *ChPtr=wcschr(Name,L'&');
     if (ChPtr==NULL || VMFlags.Check(VMENU_SHOWAMPERSAND))
     {
       for (int J=0; Name[J]; J++)
       {
-        char Ch=Name[J];
-        if((Ch =='&' || LocalIsalpha(Ch) || (Ch >= '0' && Ch <='9')) &&
-             !Used[LocalUpper(Ch)] && !Used[LocalLower(Ch)])
+        wchar_t Ch=Name[J];
+        if((Ch ==L'&' || LocalIsalphaW(Ch) || (Ch >= L'0' && Ch <=L'9')) &&
+             !Used[LocalUpperW(Ch)] && !Used[LocalLowerW(Ch)])
         {
-          Used[LocalUpper(Ch)]++;
-          Used[LocalLower(Ch)]++;
-          Item[I].AmpPos=J;
+          Used[LocalUpperW(Ch)]++;
+          Used[LocalLowerW(Ch)]++;
+          Item[I]->AmpPos=J;
           break;
         }
       }
@@ -2587,26 +2116,27 @@ struct SortItemParam{
   int Offset;
 };
 
-static int __cdecl  SortItem(const struct MenuItem *el1,
-                           const struct MenuItem *el2,
-                           const struct SortItemParam *Param)
+static int __cdecl  SortItem(const MenuItemEx *el1,
+                           const MenuItemEx *el2,
+                           const SortItemParam *Param)
 {
-  char Name1[2*NM],Name2[2*NM];
-  xstrncpy(Name1,((struct MenuItem *)el1)->PtrName(),sizeof(Name1));
-  RemoveChar(Name1,'&',TRUE);
-  xstrncpy(Name2,((struct MenuItem *)el2)->PtrName(),sizeof(Name2));
-  RemoveChar(Name2,'&',TRUE);
-  int Res=LocalStricmp(Name1+Param->Offset,Name2+Param->Offset);
+  string strName1, strName2;
+
+  strName1 = el1->strName;
+  strName2 = el2->strName;
+  RemoveCharW (strName1,L'&',TRUE);
+  RemoveCharW (strName2,L'&',TRUE);
+  int Res=LocalStricmpW((const wchar_t*)strName1+Param->Offset,(const wchar_t*)strName2+Param->Offset);
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
 
-static int __cdecl  SortItemDataDWORD(const struct MenuItem *el1,
-                           const struct MenuItem *el2,
-                           const struct SortItemParam *Param)
+static int __cdecl  SortItemDataDWORD(const MenuItemEx *el1,
+                           const MenuItemEx *el2,
+                           const SortItemParam *Param)
 {
   int Res;
-  DWORD Dw1=(DWORD)(((struct MenuItem *)el1)->UserData);
-  DWORD Dw2=(DWORD)(((struct MenuItem *)el2)->UserData);
+  DWORD Dw1=(DWORD)(el1->UserData);
+  DWORD Dw2=(DWORD)(el2->UserData);
   if(Dw1 == Dw2)
     Res=0;
   else if(Dw1 > Dw2)
@@ -2632,20 +2162,20 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
   if(!SortForDataDWORD) // обычная сортировка
     qsortex((char *)Item,
           ItemCount,
-          sizeof(struct MenuItem),
+          sizeof(MenuItemEx),
           (qsortex_fn)SortItem,
           &Param);
   else
     qsortex((char *)Item,
           ItemCount,
-          sizeof(struct MenuItem),
+          sizeof(MenuItemEx),
           (qsortex_fn)SortItemDataDWORD,
           &Param);
   //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
 
   // скорректируем SelectPos
   for(I=0; I < ItemCount; ++I)
-    if (Item[I].Flags & LIF_SELECTED && !(Item[I].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    if (Item[I]->Flags & LIF_SELECTED && !(Item[I]->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
     {
       SelectPos=I;
       break;
@@ -2660,28 +2190,29 @@ int VMenu::FindItem(const struct FarListFind *FItem)
   return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
-int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
+int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
 {
   CriticalSectionLock Lock(CS);
 
-  char TmpBuf[130];
+  string strTmpBuf;
   if((DWORD)StartIndex < (DWORD)ItemCount)
   {
-    const char *NamePtr;
-    int LenPattern=strlen(Pattern);
+    int LenPattern=wcslen(Pattern);
     for(int I=StartIndex;I < ItemCount;I++)
     {
-      NamePtr=Item[I].PtrName();
-      int LenNamePtr=strlen(NamePtr);
-      memcpy(TmpBuf,NamePtr,Min((int)LenNamePtr+1,(int)sizeof(TmpBuf)));
+      strTmpBuf = Item[I]->strName;
+      int LenNamePtr = strTmpBuf.GetLength();
+
+      RemoveCharW (strTmpBuf, L'&');
+
       if(Flags&LIFIND_EXACTMATCH)
       {
-        if(!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,Max(LenPattern,LenNamePtr)))
+        if(!LocalStrnicmpW(strTmpBuf,Pattern,Max(LenPattern,LenNamePtr)))
           return I;
       }
       else
       {
-        if(CmpName(Pattern,RemoveChar(TmpBuf,'&'),1))
+        if(CmpNameW(Pattern,strTmpBuf,1))
           return I;
       }
     }
@@ -2722,7 +2253,7 @@ int VMenu::SetUserData(void *Data,   // Данные
   if (ItemCount==0 || Position < 0)
     return(0);
 
-  int DataSize=VMenu::_SetUserData(Item+GetPosition(Position),Data,Size);
+  int DataSize=VMenu::_SetUserData(Item[GetPosition(Position)],Data,Size);
 
   return DataSize;
 }
@@ -2736,7 +2267,7 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
   if (ItemCount || Position < 0)
   {
     if((Position=GetPosition(Position)) >= 0)
-      PtrData=VMenu::_GetUserData(Item+Position,Data,Size);
+      PtrData=VMenu::_GetUserData(Item[Position],Data,Size);
   }
   return(PtrData);
 }
@@ -2784,14 +2315,13 @@ void VMenu::ResizeConsole()
   }
 }
 
-int VMenu::GetTypeAndName(char *Type,char *Name)
+int VMenu::GetTypeAndName(string &strType, string &strName)
 {
   CriticalSectionLock Lock(CS);
 
-  if(Type)
-    strcpy(Type,MSG(MVMenuType));
-  if(Name)
-    strcpy(Name,Title);
+  strType = UMSG(MVMenuType);
+  strName = strTitle;
+
   return(CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU);
 }
 
@@ -2823,15 +2353,3 @@ long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
-
-char MenuItem::operator[](int Pos) const
-{
-  if(Flags&MIF_USETEXTPTR)
-    return (!NamePtr || static_cast<size_t>(Pos) > strlen(NamePtr))?0:NamePtr[Pos];
-  return (static_cast<size_t>(Pos) > strlen(Name))?0:Name[Pos];
-}
-
-char* MenuItem::PtrName()
-{
-  return ((Flags&MIF_USETEXTPTR)!=0&&NamePtr)?NamePtr:Name;
-}

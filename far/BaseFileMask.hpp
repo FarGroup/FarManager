@@ -7,10 +7,12 @@ BaseFileMask.hpp
 Абстрактный класс, заведен для удобства работы с масками.
 */
 
-/* Revision: 1.01 24.04.2005 $ */
+/* Revision: 1.02 21.11.2005 $ */
 
 /*
 Modify:
+  21.11.2005 WARP
+    + BaseFileMaskW
   24.04.2005 AY
     ! GCC
   01.07.2001 IS
@@ -35,5 +37,24 @@ private:
   BaseFileMask(const BaseFileMask& rhs); /* генерировалось по умолчанию */
 
 };
+
+
+class BaseFileMaskW
+{
+public:
+    BaseFileMaskW() {}
+    virtual ~BaseFileMaskW() {}
+
+public:
+    virtual BOOL Set(const wchar_t *Masks, DWORD Flags)=0;
+    virtual BOOL Compare(const wchar_t *Name)=0;
+    virtual BOOL IsEmpty(void) { return TRUE; }
+
+private:
+  BaseFileMaskW& operator=(const BaseFileMaskW& rhs); /* чтобы не */
+  BaseFileMaskW(const BaseFileMaskW& rhs); /* генерировалось по умолчанию */
+
+};
+
 
 #endif // __BaseFileMask_HPP

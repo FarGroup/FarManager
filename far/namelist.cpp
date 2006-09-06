@@ -5,45 +5,7 @@ namelist.cpp
 
 */
 
-/* Revision: 1.12 13.07.2005 $ */
-
-/*
-Modify:
-  13.07.2005 SVS
-    - ну нафига ж юзать аж два раза Names.toNext() и Names.toPrev() :-(
-  13.07.2005 SVS
-    ! Изменен класс NamesList. Теперь он управляет двумя именами.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  19.11.2003 IS
-    + Работа со списком (TList) на основе кода, созданного KS, чтобы
-      собиралось под борманом.
-    ! внедрение const
-    + защита от переполнения буфера в GetNextName/GetPrevName
-    ! MoveData работает со ссылкой, а не указателем
-  14.10.2003 SVS
-    ! Перетрях в NamesList.
-    ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
-    + NamesList::Init()
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  08.05.2002 SVS
-    ! Проверка на NULL перед free()
-  06.12.2001 SVS
-    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
-  26.11.2001 SVS
-    ! Заюзаем PrepareDiskPath() для преобразования пути.
-  06.05.2001 DJ
-    ! перетрях #include
-  20.02.2001 SVS
-    ! Заголовки - к общему виду!
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.15 31.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -60,79 +22,89 @@ NamesList::~NamesList()
 {
 }
 
-void NamesList::AddName(const char *Name,const char *ShortName)
+void NamesList::AddName(const wchar_t *Name,const wchar_t *ShortName)
 {
-  xstrncpy(CurName.Value.Name,Name,sizeof(CurName.Value.Name)-1);
-  xstrncpy(CurName.Value.ShortName,NullToEmpty(ShortName),sizeof(CurName.Value.ShortName)-1);
-  Names.push_back(CurName);
+    CurName.Value.strName = Name?Name:L"";
+    CurName.Value.strShortName = ShortName?ShortName:L"";
+    Names.push_back(CurName);
 }
 
 
-bool NamesList::GetNextName(char *Name, const size_t NameSize,char *ShortName, const size_t ShortNameSize)
+bool NamesList::GetNextName(string &strName, string &strShortName)
 {
   if(Names.isEnd())
     return(false);
+
   const OneName *pName=Names.toNext();
-  xstrncpy(Name, pName->Value.Name, NameSize-1);
-  if(ShortName)
-    xstrncpy(ShortName, pName->Value.ShortName, ShortNameSize-1);
+
+  strName = pName->Value.strName;
+  strShortName = pName->Value.strShortName;
+
   return(true);
 }
 
 
-bool NamesList::GetPrevName(char *Name, const size_t NameSize,char *ShortName, const size_t ShortNameSize)
+bool NamesList::GetPrevName (string &strName, string &strShortName)
 {
   if (Names.isBegin())
     return(false);
+
   const OneName *pName=Names.toPrev();
-  xstrncpy(Name, pName->Value.Name, NameSize-1);
-  if(ShortName)
-    xstrncpy(ShortName, pName->Value.ShortName, ShortNameSize-1);
+
+  strName = pName->Value.strName;
+  strShortName = pName->Value.strShortName;
+
   return(true);
 }
 
 
-void NamesList::SetCurName(const char *Name)
+void NamesList::SetCurName(const wchar_t *Name)
 {
-  Names.storePosition();
-  pCurName=Names.toBegin();
-  while(pCurName)
-  {
-    if(!strcmp(Name,pCurName->Value.Name))
-      return;
-    pCurName=Names.toNext();
-  }
-  Names.restorePosition();
+    Names.storePosition();
+
+    pCurName=Names.toBegin();
+
+    while ( pCurName )
+    {
+        if ( !wcscmp (Name, pCurName->Value.strName) )
+            return;
+
+        pCurName=Names.toNext();
+    }
+
+    Names.restorePosition();
 }
 
 
 void NamesList::MoveData(NamesList &Dest)
 {
-  Dest.Names.swap(Names);
-  Dest.CurName=CurName;
-  strcpy(Dest.CurDir,CurDir);
-  Init();
+    Dest.Names.swap(Names);
+    Dest.CurName=CurName;
+
+    Dest.strCurrentDir = strCurrentDir;
+
+    Init();
 }
 
 
-void NamesList::GetCurDir(char *Dir,int DestSize)
+void NamesList::GetCurDir (string &strDir)
 {
-  if(*CurDir)
-    xstrncpy(Dir,CurDir,DestSize);
-  else
-    *Dir=0;
+    strDir = strCurrentDir;
 }
 
 
-void NamesList::SetCurDir(const char *Dir)
+void NamesList::SetCurDir (const wchar_t *Dir)
 {
-  PrepareDiskPath(xstrncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
+  strCurrentDir = Dir;
+  PrepareDiskPathW(strCurrentDir);
 }
 
 void NamesList::Init()
 {
-  Names.clear();
-  CurName.Value.Name[0]=0;
-  CurName.Value.ShortName[0]=0;
-  *CurDir=0;
+    Names.clear();
+
+    CurName.Value.strName = L"";
+    CurName.Value.strShortName = L"";
+
+    strCurrentDir = L"";
 }

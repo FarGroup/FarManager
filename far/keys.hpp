@@ -24,14 +24,16 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.33 09.09.2005 $ */
+/* Revision: 1.34 15.09.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
-  09.09.2005 SVS
+  15.09.2005 SVS
     + Добавлены (в т.ч. и имена) KEY_F13..KEY_F24 и несколько MM клавиш с
       VK-кодами от A6 до B7.
+  14.09.2005 WARP
+    ! Изменение схемы клавиш
   07.07.2004 SVS
     ! Macro II
   06.07.2004 SVS
@@ -139,6 +141,45 @@ LoWord
 */
 #endif // END FAR_USE_INTERNALS
 
+//from WinUser.h
+#define VK_BROWSER_BACK                  0xA6
+#define VK_BROWSER_FORWARD               0xA7
+#define VK_BROWSER_REFRESH               0xA8
+#define VK_BROWSER_STOP                  0xA9
+#define VK_BROWSER_SEARCH                0xAA
+#define VK_BROWSER_FAVORITES             0xAB
+#define VK_BROWSER_HOME                  0xAC
+#define VK_VOLUME_MUTE                   0xAD
+#define VK_VOLUME_DOWN                   0xAE
+#define VK_VOLUME_UP                     0xAF
+#define VK_MEDIA_NEXT_TRACK              0xB0
+#define VK_MEDIA_PREV_TRACK              0xB1
+#define VK_MEDIA_STOP                    0xB2
+#define VK_MEDIA_PLAY_PAUSE              0xB3
+#define VK_LAUNCH_MAIL                   0xB4
+#define VK_LAUNCH_MEDIA_SELECT           0xB5
+#define VK_LAUNCH_APP1                   0xB6
+#define VK_LAUNCH_APP2                   0xB7
+#define VK_OEM_1                         0xBA   // ';:' for US
+#define VK_OEM_PLUS                      0xBB   // '+' any country
+#define VK_OEM_COMMA                     0xBC   // ',' any country
+#define VK_OEM_MINUS                     0xBD   // '-' any country
+#define VK_OEM_PERIOD                    0xBE   // '.' any country
+#define VK_OEM_2                         0xBF   // '/?' for US
+#define VK_OEM_3                         0xC0   // '`~' for US
+#define VK_OEM_4                         0xDB  //  '[{' for US
+#define VK_OEM_5                         0xDC  //  '\|' for US
+#define VK_OEM_6                         0xDD  //  ']}' for US
+#define VK_OEM_7                         0xDE  //  ''"' for US
+#define VK_OEM_8                         0xDF
+#define VK_OEM_AX                        0xE1  //  'AX' key on Japanese AX kbd
+#define VK_OEM_102                       0xE2  //  "<>" or "\|" on RT 102-key kbd.
+
+
+#define EXTENDED_KEY_BASE   0x00010000
+#define INTERNAL_KEY_BASE   0x00020000
+#define INTERNAL_KEY_BASE_2 0x00030000
+
 enum BaseDefKeyboard
 {
   KEY_CTRL                 =0x01000000,
@@ -169,138 +210,138 @@ enum BaseDefKeyboard
   KEY_ESC                  =0x0000001B,
   KEY_SPACE                =0x00000020,
 
-  KEY_MASKF                =0x00000FFF,
+  KEY_MASKF                =0x0001FFFF,
 
-  KEY_FKEY_BEGIN           =0x00000100,
+  KEY_FKEY_BEGIN           =EXTENDED_KEY_BASE,
 
-  KEY_BREAK                =0x00000103,
+  KEY_BREAK                =EXTENDED_KEY_BASE+VK_CANCEL,
 
-  KEY_PGUP                 =0x00000121,
-  KEY_PGDN                 =0x00000122,
-  KEY_END                  =0x00000123,
-  KEY_HOME                 =0x00000124,
-  KEY_LEFT                 =0x00000125,
-  KEY_UP                   =0x00000126,
-  KEY_RIGHT                =0x00000127,
-  KEY_DOWN                 =0x00000128,
-  KEY_INS                  =0x0000012D,
-  KEY_DEL                  =0x0000012E,
+  KEY_PGUP                 =EXTENDED_KEY_BASE+VK_PRIOR,
+  KEY_PGDN                 =EXTENDED_KEY_BASE+VK_NEXT,
+  KEY_END                  =EXTENDED_KEY_BASE+VK_END,
+  KEY_HOME                 =EXTENDED_KEY_BASE+VK_HOME,
+  KEY_LEFT                 =EXTENDED_KEY_BASE+VK_LEFT,
+  KEY_UP                   =EXTENDED_KEY_BASE+VK_UP,
+  KEY_RIGHT                =EXTENDED_KEY_BASE+VK_RIGHT,
+  KEY_DOWN                 =EXTENDED_KEY_BASE+VK_DOWN,
+  KEY_INS                  =EXTENDED_KEY_BASE+VK_INSERT,
+  KEY_DEL                  =EXTENDED_KEY_BASE+VK_DELETE,
 
-  KEY_LWIN                 =0x0000015B,
-  KEY_RWIN                 =0x0000015C,
-  KEY_APPS                 =0x0000015D,
+  KEY_LWIN                 =EXTENDED_KEY_BASE+VK_LWIN,
+  KEY_RWIN                 =EXTENDED_KEY_BASE+VK_RWIN,
+  KEY_APPS                 =EXTENDED_KEY_BASE+VK_APPS,
 
-  KEY_NUMPAD0              =0x00000160,
-  KEY_NUMPAD1              =0x00000161,
-  KEY_NUMPAD2              =0x00000162,
-  KEY_NUMPAD3              =0x00000163,
-  KEY_NUMPAD4              =0x00000164,
-  KEY_NUMPAD5              =0x00000165,
+  KEY_NUMPAD0              =EXTENDED_KEY_BASE+VK_NUMPAD0,
+  KEY_NUMPAD1              =EXTENDED_KEY_BASE+VK_NUMPAD1,
+  KEY_NUMPAD2              =EXTENDED_KEY_BASE+VK_NUMPAD2,
+  KEY_NUMPAD3              =EXTENDED_KEY_BASE+VK_NUMPAD3,
+  KEY_NUMPAD4              =EXTENDED_KEY_BASE+VK_NUMPAD4,
+  KEY_NUMPAD5              =EXTENDED_KEY_BASE+VK_NUMPAD5,
   KEY_CLEAR                =KEY_NUMPAD5,
-  KEY_NUMPAD6              =0x00000166,
-  KEY_NUMPAD7              =0x00000167,
-  KEY_NUMPAD8              =0x00000168,
-  KEY_NUMPAD9              =0x00000169,
+  KEY_NUMPAD6              =EXTENDED_KEY_BASE+VK_NUMPAD6,
+  KEY_NUMPAD7              =EXTENDED_KEY_BASE+VK_NUMPAD7,
+  KEY_NUMPAD8              =EXTENDED_KEY_BASE+VK_NUMPAD8,
+  KEY_NUMPAD9              =EXTENDED_KEY_BASE+VK_NUMPAD9,
 
-  KEY_MULTIPLY             =0x0000016A,
-  KEY_ADD                  =0x0000016B,
-  KEY_SUBTRACT             =0x0000016D,
-  KEY_DIVIDE               =0x0000016F,
+  KEY_MULTIPLY             =EXTENDED_KEY_BASE+VK_MULTIPLY,
+  KEY_ADD                  =EXTENDED_KEY_BASE+VK_ADD,
+  KEY_SUBTRACT             =EXTENDED_KEY_BASE+VK_SUBTRACT,
+  KEY_DIVIDE               =EXTENDED_KEY_BASE+VK_DIVIDE,
 
-  KEY_F1                   =0x00000170,
-  KEY_F2                   =0x00000171,
-  KEY_F3                   =0x00000172,
-  KEY_F4                   =0x00000173,
-  KEY_F5                   =0x00000174,
-  KEY_F6                   =0x00000175,
-  KEY_F7                   =0x00000176,
-  KEY_F8                   =0x00000177,
-  KEY_F9                   =0x00000178,
-  KEY_F10                  =0x00000179,
-  KEY_F11                  =0x0000017A,
-  KEY_F12                  =0x0000017B,
+  KEY_F1                   =EXTENDED_KEY_BASE+VK_F1,
+  KEY_F2                   =EXTENDED_KEY_BASE+VK_F2,
+  KEY_F3                   =EXTENDED_KEY_BASE+VK_F3,
+  KEY_F4                   =EXTENDED_KEY_BASE+VK_F4,
+  KEY_F5                   =EXTENDED_KEY_BASE+VK_F5,
+  KEY_F6                   =EXTENDED_KEY_BASE+VK_F6,
+  KEY_F7                   =EXTENDED_KEY_BASE+VK_F7,
+  KEY_F8                   =EXTENDED_KEY_BASE+VK_F8,
+  KEY_F9                   =EXTENDED_KEY_BASE+VK_F9,
+  KEY_F10                  =EXTENDED_KEY_BASE+VK_F10,
+  KEY_F11                  =EXTENDED_KEY_BASE+VK_F11,
+  KEY_F12                  =EXTENDED_KEY_BASE+VK_F12,
 
-  KEY_F13                  =0x0000017C,
-  KEY_F14                  =0x0000017D,
-  KEY_F15                  =0x0000017E,
-  KEY_F16                  =0x0000017F,
-  KEY_F17                  =0x00000180,
-  KEY_F18                  =0x00000181,
-  KEY_F19                  =0x00000182,
-  KEY_F20                  =0x00000183,
-  KEY_F21                  =0x00000184,
-  KEY_F22                  =0x00000185,
-  KEY_F23                  =0x00000186,
-  KEY_F24                  =0x00000187,
+  KEY_F13                  =EXTENDED_KEY_BASE+VK_F13,
+  KEY_F14                  =EXTENDED_KEY_BASE+VK_F14,
+  KEY_F15                  =EXTENDED_KEY_BASE+VK_F15,
+  KEY_F16                  =EXTENDED_KEY_BASE+VK_F16,
+  KEY_F17                  =EXTENDED_KEY_BASE+VK_F17,
+  KEY_F18                  =EXTENDED_KEY_BASE+VK_F18,
+  KEY_F19                  =EXTENDED_KEY_BASE+VK_F19,
+  KEY_F20                  =EXTENDED_KEY_BASE+VK_F20,
+  KEY_F21                  =EXTENDED_KEY_BASE+VK_F21,
+  KEY_F22                  =EXTENDED_KEY_BASE+VK_F22,
+  KEY_F23                  =EXTENDED_KEY_BASE+VK_F23,
+  KEY_F24                  =EXTENDED_KEY_BASE+VK_F24,
 
-  KEY_BROWSER_BACK         =0x000001A6,
-  KEY_BROWSER_FORWARD      =0x000001A7,
-  KEY_BROWSER_REFRESH      =0x000001A8,
-  KEY_BROWSER_STOP         =0x000001A9,
-  KEY_BROWSER_SEARCH       =0x000001AA,
-  KEY_BROWSER_FAVORITES    =0x000001AB,
-  KEY_BROWSER_HOME         =0x000001AC,
-  KEY_VOLUME_MUTE          =0x000001AD,
-  KEY_VOLUME_DOWN          =0x000001AE,
-  KEY_VOLUME_UP            =0x000001AF,
-  KEY_MEDIA_NEXT_TRACK     =0x000001B0,
-  KEY_MEDIA_PREV_TRACK     =0x000001B1,
-  KEY_MEDIA_STOP           =0x000001B2,
-  KEY_MEDIA_PLAY_PAUSE     =0x000001B3,
-  KEY_LAUNCH_MAIL          =0x000001B4,
-  KEY_LAUNCH_MEDIA_SELECT  =0x000001B5,
-  KEY_LAUNCH_APP1          =0x000001B6,
-  KEY_LAUNCH_APP2          =0x000001B7,
+  KEY_BROWSER_BACK         =EXTENDED_KEY_BASE+VK_BROWSER_BACK,
+  KEY_BROWSER_FORWARD      =EXTENDED_KEY_BASE+VK_BROWSER_FORWARD,
+  KEY_BROWSER_REFRESH      =EXTENDED_KEY_BASE+VK_BROWSER_REFRESH,
+  KEY_BROWSER_STOP         =EXTENDED_KEY_BASE+VK_BROWSER_STOP,
+  KEY_BROWSER_SEARCH       =EXTENDED_KEY_BASE+VK_BROWSER_SEARCH,
+  KEY_BROWSER_FAVORITES    =EXTENDED_KEY_BASE+VK_BROWSER_FAVORITES,
+  KEY_BROWSER_HOME         =EXTENDED_KEY_BASE+VK_BROWSER_HOME,
+  KEY_VOLUME_MUTE          =EXTENDED_KEY_BASE+VK_VOLUME_MUTE,
+  KEY_VOLUME_DOWN          =EXTENDED_KEY_BASE+VK_VOLUME_DOWN,
+  KEY_VOLUME_UP            =EXTENDED_KEY_BASE+VK_VOLUME_UP,
+  KEY_MEDIA_NEXT_TRACK     =EXTENDED_KEY_BASE+VK_MEDIA_NEXT_TRACK,
+  KEY_MEDIA_PREV_TRACK     =EXTENDED_KEY_BASE+VK_MEDIA_PREV_TRACK,
+  KEY_MEDIA_STOP           =EXTENDED_KEY_BASE+VK_MEDIA_STOP,
+  KEY_MEDIA_PLAY_PAUSE     =EXTENDED_KEY_BASE+VK_MEDIA_PLAY_PAUSE,
+  KEY_LAUNCH_MAIL          =EXTENDED_KEY_BASE+VK_LAUNCH_MAIL,
+  KEY_LAUNCH_MEDIA_SELECT  =EXTENDED_KEY_BASE+VK_LAUNCH_MEDIA_SELECT,
+  KEY_LAUNCH_APP1          =EXTENDED_KEY_BASE+VK_LAUNCH_APP1,
+  KEY_LAUNCH_APP2          =EXTENDED_KEY_BASE+VK_LAUNCH_APP2,
 
-  KEY_CTRLALTSHIFTPRESS    =0x00000201,
-  KEY_CTRLALTSHIFTRELEASE  =0x00000202,
+  KEY_CTRLALTSHIFTPRESS    =INTERNAL_KEY_BASE+1,
+  KEY_CTRLALTSHIFTRELEASE  =INTERNAL_KEY_BASE+2,
 
-  KEY_MSWHEEL_UP           =0x00000203,
-  KEY_MSWHEEL_DOWN         =0x00000204,
+  KEY_MSWHEEL_UP           =INTERNAL_KEY_BASE+3,
+  KEY_MSWHEEL_DOWN         =INTERNAL_KEY_BASE+4,
 #ifdef FAR_USE_INTERNALS
 #if defined(MOUSEKEY)
-  KEY_MSLDBLCLICK          =0x00000205,
-  KEY_MSRDBLCLICK          =0x00000206,
+  KEY_MSLDBLCLICK          =INTERNAL_KEY_BASE+5,
+  KEY_MSRDBLCLICK          =INTERNAL_KEY_BASE+6,
 #endif
-  KEY_RCTRLALTSHIFTPRESS   =0x00000207,
-  KEY_RCTRLALTSHIFTRELEASE =0x00000208,
+  KEY_RCTRLALTSHIFTPRESS   =INTERNAL_KEY_BASE+7,
+  KEY_RCTRLALTSHIFTRELEASE =INTERNAL_KEY_BASE+8,
 #endif // END FAR_USE_INTERNALS
 
-  KEY_VK_0xFF_BEGIN        =0x00000300,
+  KEY_VK_0xFF_BEGIN        =EXTENDED_KEY_BASE+0x00000100,
 #ifdef FAR_USE_INTERNALS
-//  KEY_HP_INTERNET          =0x00000323,
-//  KEY_HP_HOME              =0x0000031F,
-//  KEY_HP_SEARCH            =0x0000031A,
-//  KEY_HP_MAIL              =0x0000031E,
-//  KEY_HP_COMMUNITIES       =0x00000313,
-//  KEY_HP_MARKET            =0x00000314,
-//  KEY_HP_MEETING           =0x00000315,
-//  KEY_HP_NEWS              =0x0000031B,
+//  KEY_HP_INTERNET          =KEY_VK_0xFF_BEGIN+0x00000023,
+//  KEY_HP_HOME              =KEY_VK_0xFF_BEGIN+0x0000001F,
+//  KEY_HP_SEARCH            =KEY_VK_0xFF_BEGIN+0x0000001A,
+//  KEY_HP_MAIL              =KEY_VK_0xFF_BEGIN+0x0000001E,
+//  KEY_HP_COMMUNITIES       =KEY_VK_0xFF_BEGIN+0x00000013,
+//  KEY_HP_MARKET            =KEY_VK_0xFF_BEGIN+0x00000014,
+//  KEY_HP_MEETING           =KEY_VK_0xFF_BEGIN+0x00000015,
+//  KEY_HP_NEWS              =KEY_VK_0xFF_BEGIN+0x0000001B,
 //
-//  KEY_AC_HOME              =0x00000323,
-//  KEY_AC_BACK              =0x00000324,
-//  KEY_AC_FORWARD           =0x00000325,
-//  KEY_AC_STOP              =0x00000326,
-//  KEY_AC_REFRESH           =0x00000327,
-//  KEY_AC_BOOKMARKS         =0x0000032A,
+//  KEY_AC_HOME              =KEY_VK_0xFF_BEGIN+0x00000023,
+//  KEY_AC_BACK              =KEY_VK_0xFF_BEGIN+0x00000024,
+//  KEY_AC_FORWARD           =KEY_VK_0xFF_BEGIN+0x00000025,
+//  KEY_AC_STOP              =KEY_VK_0xFF_BEGIN+0x00000026,
+//  KEY_AC_REFRESH           =KEY_VK_0xFF_BEGIN+0x00000027,
+//  KEY_AC_BOOKMARKS         =KEY_VK_0xFF_BEGIN+0x0000002A,
 #endif // END FAR_USE_INTERNALS
-  KEY_VK_0xFF_END          =0x000003FF,
+  KEY_VK_0xFF_END          =EXTENDED_KEY_BASE+0x000001FF,
 
-  KEY_END_FKEY             =0x00000FFF,
+  KEY_END_FKEY             =0x0001FFFF,
 
-  KEY_NONE                 =0x00001001,
-  KEY_IDLE                 =0x00001002,
+  KEY_NONE                 =INTERNAL_KEY_BASE_2+1,
+  KEY_IDLE                 =INTERNAL_KEY_BASE_2+2,
 #ifdef FAR_USE_INTERNALS
-  KEY_DRAGCOPY             =0x00001003,
-  KEY_DRAGMOVE             =0x00001004,
-  KEY_LOCKSCREEN           =0x00001005,
+  KEY_DRAGCOPY             =INTERNAL_KEY_BASE_2+3,
+  KEY_DRAGMOVE             =INTERNAL_KEY_BASE_2+4,
+  KEY_LOCKSCREEN           =INTERNAL_KEY_BASE_2+5,
 
-  KEY_KILLFOCUS            =0x00001006,
-  KEY_GOTFOCUS             =0x00001007,
-  KEY_CONSOLE_BUFFER_RESIZE=0x00001008,
-
+  KEY_KILLFOCUS            =INTERNAL_KEY_BASE_2+6,
+  KEY_GOTFOCUS             =INTERNAL_KEY_BASE_2+7,
+  KEY_CONSOLE_BUFFER_RESIZE=INTERNAL_KEY_BASE_2+8,
 #endif // END FAR_USE_INTERNALS
-  KEY_END_SKEY             =0x0000FFFF,
+
+  KEY_END_SKEY             =0x0003FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
 
 #ifdef FAR_USE_INTERNALS

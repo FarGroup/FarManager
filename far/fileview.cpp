@@ -5,186 +5,7 @@ fileview.cpp
 
 */
 
-/* Revision: 1.77 06.07.2006 $ */
-
-/*
-Modify:
-  06.07.2006 SVS
-    + GetViewFilePos(), GetViewFileSize()
-  04.07.2006 IS
-    - warnings
-  29.05.2006 SVS
-    + GetTitle()
-  17.03.2006 SVS
-    - Если файл не удалось открыть (например C:\WINNT\system32\config\system),
-      то область макроса оставалась той же (т.е. Вьювер).
-  02.03.2006 SVS
-    ! Явно зададит область действия макроса
-  28.10.2005 SVS
-    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
-  07.07.2005 SVS
-    ! Вьюверные настройки собраны в одно место
-  14.04.2005 SVS
-    ! Opt.UsePrintManager
-  02.02.2005 SVS
-    - BugZ#1242 - Ctrl-Tab заело
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  05.06.2003 SVS
-    - "view:a:\a F6" - не работает, в тоже время "view:A:\a F6" - работает
-  30.05.2003 SVS
-    + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
-      Пока закомментим (чтобы не потерялось)
-  14.05.2003 VVM
-    + ViewerOptions.PersistentBlocks;
-  02.03.2003 SVS
-    - забыл закрыть поток, блин :-(
-  26.02.2003 SVS
-    ! Перед переключением в редактор проверим доступность файла на редактирование
-  26.12.2002
-    - BugZ#754 - открытие редатора с большИми у2, х2
-      Проверим координаты в Init
-  23.12.2002 SVS
-    + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
-  10.12.2002 SVS
-    - BugZ#720 - far /v file + Ctrl-O
-  14.06.2002 IS
-    + Дополнительный параметр у SetTempViewName - DeleteFolder
-  04.06.2002 SVS
-    - BugZ#546 - Editor валит фар (здесь такая же фигня, что и в редакторе!)
-  24.05.2002 SVS
-    ! Уточнения в FileViewer::ViewerControl для логов
-  22.05.2002 SVS
-    + ViewerControl()
-  13.05.2002 VVM
-    + Перерисуем заголовок консоли после позиционирования на файл.
-  26.03.2002 DJ
-    ! при неудаче открытия - не пишем мусор в историю
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  19.03.2002 SVS
-    - BugZ#373 - F3 Ctrl-O - виден курсор
-  28.01.2002 OT
-    - При неудачном открытии файла не удалялся фрейм
-  28.12.2001 DJ
-    ! унифицируем обработку Ctrl-F10
-  17.12.2001 KM
-    ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-  08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
-  27.11.2001 DJ
-    + Local в ViewerConfig
-  14.11.2001 SVS
-    ! Ctrl-F10 не выходит, а только позиционирует
-  02.11.2001 IS
-    - отрицательные координаты левого верхнего угла заменяются на нулевые
-  12.10.2001 VVM
-    ! Неправильно запоминалось имя файла в истории.
-  11.10.2001 IS
-    ! Если просили удалить файл при закрытии и переключаемся в редактор
-      по F6, то удалять файл уже не нужно.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  08.09.2001 IS
-    + Дополнительный параметр у второго конструктора: DisableHistory
-  17.08.2001 KM
-    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
-      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
-      найденного файла из архива.
-    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
-    - Убрана в KeyBar надпись на клавишу F12 при CanLoseFocus=TRUE
-  11.07.2001 OT
-    Перенос CtrlAltShift в Manager
-  25.06.2001 IS
-   ! Внедрение const
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.06.2001 OT
-    ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
-    + добавлен деструктор ~FileViewer()... с косметическими целями
-  05.06.2001 tran
-    + класс FileView - добавлен OnChangeFocus
-  27.05.2001 DJ
-    - Не делаем DeleteFrame() в случае ошибки открытия
-  26.05.2001 OT
-    - Вьюер возможно запускать в модальном режиме
-  20.05.2001 DJ
-    - починим макросы
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 OT
-    ! Изменение порядка вызова параметров ReplaceFrame (для единообразия и удобства)
-  12.05.2001 DJ
-    ! отрисовка по OnChangeFocus перенесена в Frame
-    ! убран дублирующийся ExitCode
-  11.05.2001 OT
-    ! Отрисовка Background
-  10.05.2001 DJ
-    + Alt-F11 - view/edit history
-    + Ctrl-F10 всегда переключается на панели
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  07.05.2001 DJ
-    - кейбар не обновлялся
-  06.05.2001 DJ
-    ! перетрях #include
-    + обработка F6 под NWZ
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 VVM
-    + KeyBar тоже умеет обрабатывать клавиши.
-  10.04.2001 IS
-    ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
-      панелях, тем самым добиваемся того, что выделение с элементов
-      панелей не сбрасывается.
-  29.03.2001 IS
-    + Работа с локальной копией ViewerOptions при KEY_ALTSHIFTF9
-  22.03.2001 SVS
-    - "Залипание" кейбара после исполнения макроса
-  03.01.2001 SVS
-    ! для KEY_ALTSHIFTF9 забыли сделать Show()
-  19.12.2000 SVS
-    + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
-    - [*] Забыли "застолбить" место в LNG-файлах под клавишу F9 :-)
-      застолбить -застолбили, но не показывает.
-  16.12.2000 tran 1.14
-    ! Ctrl-F10 смотрит на пассивную панель
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  27.09.2000 SVS
-    + Печать файла с использованием плагина PrintMan
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  15.09.2000 tran 1.09
-    - FKL bug
-  14.09.2000 SVS
-    - Bug #NN1 - Непонятки  поведением KeyBar (см. описание к Patch#191)
-  24.08.2000 SVS
-    + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
-  07.08.2000 SVS
-    + добавил названия расширенных функциональных клавиш
-  22.07.2000 tran 1.06
-    + Ctrl-F10 выходит с установкой на файл на текущей панели
-  21.07.2000 tran 1.05
-      - артефакт при CtrlO при выключенном кейбаре
-  15.07.2000 tran
-      + CtrlB выключает/включает keybar
-  04.07.2000 tran
-    + не показывать мессаг бакс при невозвожности открыть файл
-  29.06.2000 tran
-    + названия всех функциональных клавиш
-  28.06.2000 tran
-    - NT Console resize
-      adding SetScreenPosition
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.87 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -203,8 +24,8 @@ Modify:
 #include "cmdline.hpp"
 #include "savescr.hpp"
 
-FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
-                       int DisableEdit,long ViewStartPos,char *PluginData,
+FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
+                       int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
                        NamesList *ViewNamesList,int ToSaveAs)
 {
   _OT(SysLog("[%p] FileViewer::FileViewer(I variant...)", this));
@@ -215,8 +36,8 @@ FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
 }
 
 
-FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
-                       const char *Title, int X1,int Y1,int X2,int Y2)
+FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
+                       const wchar_t *Title, int X1,int Y1,int X2,int Y2)
 {
   _OT(SysLog("[%p] FileViewer::FileViewer(II variant...)", this));
   DisableEdit=TRUE;
@@ -245,12 +66,12 @@ FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
   SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   View.SetTitle(Title);
-  Init(Name,EnableSwitch,DisableHistory,-1,"",NULL,FALSE);
+  Init(Name,EnableSwitch,DisableHistory,-1,L"",NULL,FALSE);
 }
 
 
-void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
-                      long ViewStartPos,char *PluginData,
+void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, ///
+                      long ViewStartPos,const wchar_t *PluginData,
                       NamesList *ViewNamesList,int ToSaveAs)
 {
   RedrawTitle = FALSE;
@@ -266,7 +87,9 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   View.SetHostFileViewer(this);
 
   DisableHistory=disableHistory; ///
-  xstrncpy(Name,name,sizeof(Name)-1); ///
+
+  strName = name;
+
   SetCanLoseFocus(EnableSwitch);
 
   /* $ 17.08.2001 KM
@@ -278,9 +101,9 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
 
   InitKeyBar();
 
-  if (!View.OpenFile(Name,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
+  if (!View.OpenFile(strName,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
   {
-    DisableHistory = TRUE; // $ 26.03.2002 DJ - при неудаче открытия - не пишем мусор в историю
+    DisableHistory = TRUE;  // $ 26.03.2002 DJ - при неудаче открытия - не пишем мусор в историю
     // FrameManager->DeleteFrame(this); // ЗАЧЕМ? Вьювер то еще не помещен в очередь манагера!
     ExitCode=FALSE;
     CtrlObject->Macro.SetMode(OldMacroMode);
@@ -293,12 +116,13 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
     View.SetNamesList(ViewNamesList);
   ExitCode=TRUE;
   ViewKeyBar.Show();
+
   if ( Opt.ViOpt.ShowKeyBar==0 )
     ViewKeyBar.Hide0();
 
-  sprintf(NewTitle,MSG(MInViewer),PointToName(Name));
-  SetFarTitle(NewTitle);
+
   ShowConsoleTitle();
+
   F3KeyOnly=TRUE;
   if (EnableSwitch) {
     FrameManager->InsertFrame(this);
@@ -336,29 +160,29 @@ void FileViewer::InitKeyBar(void)
       /* CtrlAlt   */ {KBL_CTRLALT,MSingleViewCtrlAltF1,MSingleViewCtrlAltF2,MSingleViewCtrlAltF3,MSingleViewCtrlAltF4,MSingleViewCtrlAltF5,MSingleViewCtrlAltF6,MSingleViewCtrlAltF7,MSingleViewCtrlAltF8,MSingleViewCtrlAltF9,MSingleViewCtrlAltF10,MSingleViewCtrlAltF11,MSingleViewCtrlAltF12},
     }
   };
-  char *FViewKeys[12];
+  wchar_t *FViewKeys[12];
   int I,J;
 
   for(I=0; I < 7; ++I)
   {
     for(J=1; J <= 12; ++J)
     {
-      FViewKeys[J-1]=MSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
+      FViewKeys[J-1]=UMSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
     }
     switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
     {
       case KBL_MAIN:
         if(DisableEdit)
-          FViewKeys[6-1]="";
+          FViewKeys[6-1]=L"";
         if(!GetCanLoseFocus())
-          FViewKeys[12-1]="";
+          FViewKeys[12-1]=L"";
         break;
       case KBL_ALT:
         // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
         if(!GetCanLoseFocus())
-          FViewKeys[11-1]="";
+          FViewKeys[11-1]=L"";
         if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
-          FViewKeys[5-1]="";
+          FViewKeys[5-1]=L"";
         break;
     }
     ViewKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FViewKeys,sizeof(FViewKeys)/sizeof(FViewKeys[0]));
@@ -429,9 +253,12 @@ int FileViewer::ProcessKey(int Key)
         /* $ 28.12.2001 DJ
            унифицируем обработку Ctrl-F10
         */
-        char FileName[NM];
-        View.GetFileName(FileName);
-        CtrlObject->Cp()->GoToFile (FileName);
+        string strFileName;
+
+        View.GetFileName(strFileName);
+
+        CtrlObject->Cp()->GoToFileW (strFileName);
+
         RedrawTitle = TRUE;
         /* DJ $ */
         return (TRUE);
@@ -478,26 +305,22 @@ int FileViewer::ProcessKey(int Key)
     case KEY_F6:
       if (!DisableEdit)
       {
-        char ViewFileName[NM];
-        View.GetFileName(ViewFileName);
-/*
-        HANDLE hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
-                                    OPEN_EXISTING,
-                                    FILE_FLAG_SEQUENTIAL_SCAN|(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?FILE_FLAG_POSIX_SEMANTICS:0),
-                                    NULL);
-*/
+        string strViewFileName;
+
+        View.GetFileName(strViewFileName);
+
         HANDLE hEdit=INVALID_HANDLE_VALUE;
         if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-          hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+          hEdit=FAR_CreateFileW(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
             OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
             NULL);
         if(hEdit==INVALID_HANDLE_VALUE)
-          hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+          hEdit=FAR_CreateFileW(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
             OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
         if (hEdit==INVALID_HANDLE_VALUE)
         {
-          Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),ViewFileName,MSG(MOk));
+          MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strViewFileName,UMSG(MOk));
           return(TRUE);
         }
         CloseHandle(hEdit);
@@ -506,16 +329,17 @@ int FileViewer::ProcessKey(int Key)
             Если переключаемся в редактор, то удалять файл уже не
             нужно
         */
-        SetTempViewName("");
+        SetTempViewName(L"");
         /* IS $ */
         SetExitCode(0);
         __int64 FilePos=View.GetFilePos();
         /* $ 06.05.2001 DJ обработка F6 под NWZ */
-        /* $ 04.07.2006 IS
+
+        /* $ 07.07.2006 IS
            Тут косяк, замеченный при чтении warnings - FilePos теряет информацию при преобразовании __int64 -> int
            Надо бы поправить FileEditor на этот счет.
         */
-        FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, GetCanLoseFocus(),
+        FileEditor *ShellEditor = new FileEditor (strViewFileName, FALSE, GetCanLoseFocus(),
           -2, static_cast<int>(FilePos), FALSE, NULL, SaveToSaveAs);
         /* IS $ */
         ShellEditor->SetEnableF6 (TRUE);
@@ -524,6 +348,7 @@ int FileViewer::ProcessKey(int Key)
         /* DJ $ */
         /* DJ $ */
         FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
+
         ShowTime(2);
       }
       return(TRUE);
@@ -610,11 +435,12 @@ int FileViewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int FileViewer::GetTypeAndName(char *Type,char *Name)
+int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
-  if ( Type ) strcpy(Type,MSG(MScreensView));
-  if ( Name ) View.GetFileName(Name);
-  return(MODALTYPE_VIEWER);
+   strType = UMSG(MScreensView);
+   View.GetFileName (strName);
+
+   return(MODALTYPE_VIEWER);
 }
 
 
@@ -625,7 +451,7 @@ void FileViewer::ShowConsoleTitle()
 }
 
 
-void FileViewer::SetTempViewName(const char *Name, BOOL DeleteFolder)
+void FileViewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
 {
   View.SetTempViewName(Name, DeleteFolder);
 }
@@ -639,11 +465,12 @@ FileViewer::~FileViewer()
 void FileViewer::OnDestroy()
 {
   _OT(SysLog("[%p] FileViewer::OnDestroy()",this));
-  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
+  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || wcscmp (strName, L"-")!=0))
   {
-    char FullFileName[NM];
-    View.GetFileName(FullFileName);
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
+    string strFullFileName;
+    View.GetFileName(strFullFileName);
+
+    CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryView),0);
   }
 }
 
@@ -659,7 +486,7 @@ int FileViewer::ViewerControl(int Command,void *Param)
   return View.ViewerControl(Command,Param);
 }
 
-void FileViewer::GetTitle(char *Title,int LenTitle,int TruncSize)
+void FileViewer::GetTitle(string &Title,int LenTitle,int TruncSize)
 {
   View.GetTitle(Title,LenTitle,TruncSize);
 }

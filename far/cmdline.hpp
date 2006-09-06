@@ -7,55 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.16 06.05.2005 $ */
-
-/*
-Modify:
-  06.05.2005 SVS
-    ! ???::GetCurDir() теперь возвращает размер пути, при этом
-      его параметр может быть равен NULL. Сделано для того, чтобы
-      как то получить этот размер.
-  24.04.2005 AY
-    ! GCC
-  26.02.2005 SVS
-    + CommandLine::LockUpdatePanel() и FCMDOBJ_LOCKUPDATEPANEL
-  09.03.2004 SVS
-    + CorrectRealScreenCoord() - корректировка размеров буфера
-  21.08.2003 SVS
-    ! Сделаем LastCmdStr динамической переменной.
-      Отсюда все остальные изменения
-    + CommandLine::SetLastCmdStr() - "выставляет" эту самую LastCmdStr.
-  28.02.2002 SVS
-    ! SetString() имеет доп. параметр - надобность в прорисовке новой строки
-  24.12.2001 SVS
-    ! В ProcessOSCommands учтем вариант запуска с SeparateWindow!=0
-      (решает багу BugZ#197)
-  14.12.2001 IS
-    + GetStringAddr()
-  02.11.2001 SVS
-    + GetSelection()
-  05.10.2001 SVS
-    ! Снова гавеное увеличение размера СТРОКИ - LastCmdStr ;-(
-  09.09.2001 IS
-    + SetPersistentBlocks
-  13.08.2001 SKV
-    + GetSelString, Select
-  17.05.2001 OT
-    - Отрисовка при изменении размеров консоли - ResizeConsole().
-  11.05.2001 OT
-    ! Новые методы для отрисовки Background
-  10.05.2001 DJ
-    * ShowViewEditHistory()
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.20 25.05.2006 $ */
 
 #include "scrobj.hpp"
 #include "edit.hpp"
 #include "farconst.hpp"
+#include "UnicodeString.hpp"
 
 enum {
   FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
@@ -66,17 +23,16 @@ class CommandLine:public ScreenObject
   private:
     Edit CmdStr;
     SaveScreen *BackgroundScreen;
-    char CurDir[NM];
-    char *LastCmdStr;
-    int  LastCmdLength;
+    string strCurDir;
+    string strLastCmdStr;
     int  LastCmdPartLength;
 
   private:
     void DisplayObject();
-    int CmdExecute(char *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
-    int ProcessOSCommands(char *CmdLine,int SeparateWindow);
-    void GetPrompt(char *DestStr);
-    BOOL SetLastCmdStr(const char *Ptr,int LenPtr);
+    int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
+    int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
+    void GetPrompt(string &strDestStr);
+    BOOL SetLastCmdStr(const wchar_t *Ptr);
 
   public:
     CommandLine();
@@ -86,36 +42,34 @@ class CommandLine:public ScreenObject
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    int GetCurDir(char *CurDir);
-    void SetCurDir(const char *CurDir);
-    void GetString(char *Str,int MaxSize);
-    const char *GetStringAddr();
-    void SetString(const char *Str,BOOL Redraw=TRUE);
+    int GetCurDirW(string &strCurDir);
+    void SetCurDirW(const wchar_t *CurDir);
+
+    void GetStringW (string &strStr);
+
+    void SetStringW(const wchar_t *Str,BOOL Redraw=TRUE);
     int GetLength() {return(CmdStr.GetLength());};
-    void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
-    /* $ 10.05.2001 DJ */
+    void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
+
     void ShowViewEditHistory();
-    /* DJ $ */
-    void InsertString(const char *Str);
+
+    void InsertStringW(const wchar_t *Str);
+
     void SetCurPos(int Pos);
     int GetCurPos();
-    /* $ 11.05.2001 OT */
 
-    /* $ 09.09.2001 IS
-       установить/сбросить постоянные блоки */
     void SetPersistentBlocks(int Mode);
-    /* IS $ */
 
-    /*$ 13.08.2001 SKV*/
-    void GetSelString(char*,int);
+    void GetSelStringW (string &strStr);
+
+
     void Select(int,int);
-    /* SKV$*/
+
     void GetSelection(int &Start,int &End);
     void SaveBackground(int X1,int Y1,int X2,int Y2);
     void SaveBackground();
     void ShowBackground();
     void CorrectRealScreenCoord();
-    /* OT $ */
     void ResizeConsole();
     void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };

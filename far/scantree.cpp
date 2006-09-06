@@ -6,46 +6,7 @@ scantree.cpp
 
 */
 
-/* Revision: 1.11 29.09.2005 $ */
-
-/*
-Modify:
-  29.09.2005 SVS
-    + FSCANTREE_USEDALTFOLDERNAME
-    + доп.параметр у конструктора ScanTree()
-    ! если выставлен Opt.FolderDeepScan и есть флаг FSCANTREE_USEDALTFOLDERNAME и
-      GetFileAttributes вернул ошибку по длинному имени... работаем с коротким (для каталогов)
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  14.06.2003 SVS
-    ! Внедрение новых флагов
-    ! Вместо SecondPass[] и FindHandle[] вводим структуру ScanTreeData
-    + InsideJunction() - при очередном проходе скажет нам - "мы в симлинке?"
-    ! FSCANTREE_SCANJUNCTION -> FSCANTREE_SCANSYMLINK
-  01.06.2003 SVS
-    ! переходим на BitFlags
-  06.03.2003 SVS
-    + Opt.ScanJunction - сканировать так же симлинки.
-  27.12.2002 VVM
-    + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
-      Это параметр по умолчанию устанавливается в функции SetFindPath, если не задано братное.
-      Смысл в том, что для сканирования дерева нам не нужны два прохода. Я думаю, что
-      потери в скорости были именно здесь.
-  23.06.2002 SVS
-    ! ннбольшая оптимизация кода
-  26.03.2002 DJ
-    ! GetNextName() принимает размер буфера для имени файла
-  25.06.2001 IS
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  28.11.2000 SVS
-    + Если каталог является SymLink (т.н. "Directory Junctions"),
-      то в него не ломимся.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.15 06.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -53,12 +14,11 @@ Modify:
 #include "scantree.hpp"
 #include "fn.hpp"
 
-ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction,int UsedAltFolderName)
+ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
 {
   Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
   Flags.Change(FSCANTREE_RECUR,Recurse);
   Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?Opt.ScanJunction:ScanJunction));
-  Flags.Change(FSCANTREE_USEDALTFOLDERNAME,UsedAltFolderName);
   Init();
 }
 
@@ -80,28 +40,32 @@ void ScanTree::Init()
 }
 
 
-void ScanTree::SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags)
+void ScanTree::SetFindPathW(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
   Init();
-  xstrncpy(FindMask,Mask,sizeof(FindMask)-1);
-  xstrncpy(FindPath,Path,sizeof(FindPath)-1);
-  AddEndSlash(FindPath);
-  strcat(FindPath,FindMask);
+
+  strFindMask = Mask;
+  strFindPath = Path;
+
+  AddEndSlashW(strFindPath);
+
+  strFindPath += strFindMask;
+
   Flags.Flags=(Flags.Flags&0x0000FFFF)|(NewScanFlags&0xFFFF0000);
 }
 
 
-int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
+int ScanTree::GetNextNameW(FAR_FIND_DATA_EX *fdata,string &strFullName)
 {
   int Done;
-  char *ChPtr;
+  wchar_t *ChPtr;
   Flags.Clear(FSCANTREE_SECONDDIRNAME);
   while (1)
   {
     if (Data[FindHandleCount].FindHandle==0)
-      Done=((Data[FindHandleCount].FindHandle=FindFirstFile(FindPath,fdata))==INVALID_HANDLE_VALUE);
+      Done=((Data[FindHandleCount].FindHandle=apiFindFirstFile(strFindPath,fdata))==INVALID_HANDLE_VALUE);
     else
-      Done=!FindNextFile(Data[FindHandleCount].FindHandle,fdata);
+      Done=!apiFindNextFile(Data[FindHandleCount].FindHandle,fdata);
 
     if (Flags.Check(FSCANTREE_FILESFIRST))
     {
@@ -124,8 +88,8 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       }
     } /* if */
 
-    char *FileName=fdata->cFileName;
-    if (Done || !(*FileName=='.' && (!FileName[1] || FileName[1]=='.' && !FileName[2])))
+    const wchar_t *FileName=fdata->strFileName;
+    if (Done || !(*FileName==L'.' && (!FileName[1] || FileName[1]==L'.' && !FileName[2])))
       break;
   }
 
@@ -145,29 +109,35 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))
         Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
-      if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
+      ChPtr = strFindPath.GetBuffer ();
+
+      if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
         *ChPtr=0;
+
+      strFindPath.ReleaseBuffer ();
 
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
-        HANDLE UpHandle;
-        strcpy(FullName,FindPath);
-        UpHandle=FindFirstFile(FullName,fdata);
-        FindClose(UpHandle);
+        strFullName = strFindPath;
+        apiGetFindDataEx (strFindPath, fdata);
       }
 
-      if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
+      ChPtr = strFindPath.GetBuffer ();
+
+      if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
         *(ChPtr+1)=0;
 
-      strcat(FindPath,FindMask);
+      strFindPath.ReleaseBuffer ();
 
-      _SVS(SysLog("1. FullName='%s'",FullName));
+      strFindPath += strFindMask;
+
+      _SVS(SysLog("1. FullName='%S'",(const wchar_t*)strFullName));
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
         Flags.Set(FSCANTREE_SECONDDIRNAME);
         return(TRUE);
       }
-      return(GetNextName(fdata,FullName, BufSize));
+      return(GetNextNameW(fdata,strFullName));
     }
   }
   else
@@ -181,19 +151,20 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
           (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK)))
     /* SVS $ */
     {
-      if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
-        *(ChPtr+1)=0;
-      if(Opt.FolderDeepScan && Flags.Check(FSCANTREE_USEDALTFOLDERNAME))
-        strcat(FindPath,GetFileAttributes(fdata->cFileName)==(DWORD)-1 && *fdata->cAlternateFileName?fdata->cAlternateFileName:fdata->cFileName);
-      else
-        strcat(FindPath,fdata->cFileName);
-      strcpy(FullName,FindPath);
-      strcat(FindPath,"\\");
-      strcat(FindPath,FindMask);
 
-      _SVS(SysLog("2. FullName='%s'",FullName));
-      if (strlen(FindPath)>NM)
-        return(FALSE);
+      ChPtr = strFindPath.GetBuffer ();
+
+      if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
+        *(ChPtr+1)=0;
+
+      strFindPath.ReleaseBuffer ();
+
+      strFindPath += fdata->strFileName;
+
+      strFullName = strFindPath;
+
+      strFindPath += L"\\";
+      strFindPath += strFindMask;
 
       Data[++FindHandleCount].FindHandle=0;
       Data[FindHandleCount].Flags=Data[FindHandleCount-1].Flags; // наследуем флаг
@@ -210,28 +181,22 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
   /* $ 26.03.2002 DJ
      если имя слишком длинное - пропустим и вернем следующее
   */
-  if (strlen (FindPath) < BufSize)
-  {
-    strcpy(FullName,FindPath);
+  strFullName = strFindPath;
 
-    if ((ChPtr=strrchr(FullName,'\\'))!=NULL)
-      *(ChPtr+1)=0;
+  ChPtr = strFullName.GetBuffer ();
 
-    if (strlen (FullName) + strlen (fdata->cFileName) < BufSize)
-    {
-      strcat (FullName, fdata->cFileName);
-      _SVS(SysLog("3. FullName='%s'",FullName));
-      return TRUE;
-    }
-  }
-  return GetNextName (fdata, FullName, BufSize);
-  /* DJ $ */
+  if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
+    *(ChPtr+1)=0;
+
+  strFullName.ReleaseBuffer ();
+
+  strFullName += fdata->strFileName;
+  return TRUE;
 }
-
 
 void ScanTree::SkipDir()
 {
-  char *ChPtr;
+  wchar_t *ChPtr;
 
   if (FindHandleCount==0)
     return;
@@ -244,11 +209,15 @@ void ScanTree::SkipDir()
   if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))
     Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
-  if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
-    *ChPtr=0;
+  ChPtr = strFindPath.GetBuffer ();
 
-  if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
-    *(ChPtr+1)=0;
+  if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
+     *ChPtr=0;
 
-  strcat(FindPath,FindMask);
+  if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
+     *(ChPtr+1)=0;
+
+  strFindPath.ReleaseBuffer ();
+
+  strFindPath += strFindMask;
 }

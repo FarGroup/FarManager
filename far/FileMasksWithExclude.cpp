@@ -5,20 +5,7 @@ FileMasksWithExclude.cpp
 исключения).
 */
 
-/* Revision: 1.03 21.01.2003 $ */
-
-/*
-Modify:
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
-  02.07.2001 IS
-    ! Воспользуемся тем, что доступен FileMasksProcessor.Free()
-  01.07.2001 IS
-    + Впервые в эфире
-*/
+/* Revision: 1.05 16.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -26,11 +13,12 @@ Modify:
 #include "FileMasksWithExclude.hpp"
 #include "fn.hpp"
 
-FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
+
+FileMasksWithExcludeW::FileMasksWithExcludeW():BaseFileMaskW()
 {
 }
 
-void FileMasksWithExclude::Free()
+void FileMasksWithExcludeW::Free()
 {
     Include.Free();
     Exclude.Free();
@@ -42,28 +30,28 @@ void FileMasksWithExclude::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
+BOOL FileMasksWithExcludeW::Set(const wchar_t *masks, DWORD Flags)
 {
   Free();
   if(NULL==masks || !*masks) return FALSE;
 
-  int len=strlen(masks)+2, rc=FALSE;
-  char *MasksStr=(char *) xf_malloc(len);
+  int len=wcslen(masks)+2, rc=FALSE;
+  wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof (wchar_t));
   if(MasksStr)
   {
      rc=TRUE;
-     strcpy(MasksStr, masks);
-     char *pExclude=strchr(MasksStr,EXCLUDEMASKSEPARATOR);
+     wcscpy(MasksStr, masks);
+     wchar_t *pExclude=wcschr(MasksStr,EXCLUDEMASKSEPARATOR);
      if(pExclude)
      {
        *pExclude=0;
        ++pExclude;
-       if(strchr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
+       if(wcschr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
      }
 
      if(rc)
      {
-        rc=Include.Set(*MasksStr?MasksStr:"*",
+        rc=Include.Set(*MasksStr?MasksStr:L"*",
                        (Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
         if(rc) rc=Exclude.Set(pExclude, 0);
      }
@@ -81,12 +69,12 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-BOOL FileMasksWithExclude::Compare(const char *FileName)
+BOOL FileMasksWithExcludeW::Compare(const wchar_t *FileName)
 {
    return (Include.Compare(FileName) && !Exclude.Compare(FileName));
 }
 
-BOOL FileMasksWithExclude::IsEmpty(void)
+BOOL FileMasksWithExcludeW::IsEmpty(void)
 {
   return Include.IsEmpty() && Exclude.IsEmpty();
 }

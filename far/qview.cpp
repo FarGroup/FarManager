@@ -5,111 +5,7 @@ Quick view panel
 
 */
 
-/* Revision: 1.42 12.07.2006 $ */
-
-/*
-Modify:
-  12.07.2006 SVS
-    ! kill class int64
-  22.06.2006 thims
-    - Исправление бага QuickView (MantisID: 0000197)
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  23.10.2005 SVS
-    - Ctrl+Q по каталогу не идёт вниз по символическим связям.
-      (Параметры -> Системные параметры -> Сканировать символические связи - установлен чекбокс)
-  29.09.2005 SVS
-    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
-      Для этого для GetDirInfo выставим флаг GETDIRINFO_USEDALTFOLDERNAME
-  07.07.2005 SVS
-    ! Вьюверные настройки собраны в одно место
-  26.04.2005 SVS
-    ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  12.09.2003 SVS
-    ! Немного увеличим буфер для GetPathRootOne
-  06.05.2003 SVS
-    + Фича: показ Ratio (задолбался сегодня на калькуляторе считать ;-(
-  26.02.2003 SVS
-    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
-    ! вместо ShellUpdatePanels() исполним Redraw()
-  25.02.2003 SVS
-    - BugZ#805 - Остается прорисовка после поиска в Qview & InfoPanel
-  26.01.2003 IS
-    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать для удаления
-      соответственно файлов и каталогов.
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  27.04.2002 SVS
-    ! 8192 -> MAXSIZE_SHORTCUTDATA
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  22.03.2002 DJ
-    ! отведем побольше места на Title
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  16.01.2002 SVS
-    ! уточнение кейбара для варианта с каталогом (косметика)
-  24.12.2001
-    + virtual int GetCurName(char *Name,char *ShortName) - текущий просматриваемый файл
-  08.12.2001 IS
-    - баг: после показа хелпа по панели показывалась непонятно зачем
-      еще и справка по встроенной программе просмотра
-  11.09.2001 SVS
-    + для "volume mount point" укажем что это именно монтированный том и по
-      возможности (если имя диска есть) покажем букву диска. Для прочих
-      символических связей оставим "Link"
-  16.05.2001 DJ
-    ! proof-of-concept
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  30.04.2001 DJ
-    + UpdateKeyBar()
-    - правильный help topic
-  05.04.2001 VVM
-    + Переключение макросов в режим MACRO_QVIEWPANEL
-  12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  20.02.2001 VVM
-    ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
-  12.02.2001 SVS
-    ! Выделенный текст отображается COL_PANELINFOTEXT (Highlighted info),
-      а не COL_PANELSELECTEDTEXT (Selected text)
-  01.02.2001 SVS
-    + В панели "Quick view" добавим инфу про Junction
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  04.08.2000 tran 1.06
-     Gray+, Gray- передвигают курсор на другой панели
-  20.07.2000 tran
-    - bug#21, пустой заголовок консоли
-      теперь он верный всегда
-  12.07.2000 SVS
-    ! Для возможности 3-х позиционного Wrap`а статическая переменная
-      LastWrapMode имеет не булевое значение, а обычный int
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  04.07.2000 tran
-    + не показывать мессаг бакс при невозвожности открыть файл
-  28.06.2000 IS
-    - Не показывать тип файла для каталогов в "Быстром просмотре"
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.54 22.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -142,9 +38,6 @@ QuickView::QuickView()
 {
   Type=QVIEW_PANEL;
   QView=NULL;
-  *CurFileName=0;
-  *CurFileType=0;
-  *TempName=0;
   Directory=0;
   PrevMacroMode = -1;
   /* $ 20.02.2001 VVM
@@ -164,12 +57,10 @@ QuickView::~QuickView()
 }
 
 
-void QuickView::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+void QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  char Title[512];
-  sprintf(Title," %s ",MSG(MQuickViewTitle));
-  TruncStr(Title,X2-X1-3);
-  xstrncpy(lTitle,Title,LenTitle);
+  strTitle.Format (L" %s ", UMSG(MQuickViewTitle));
+  TruncStrW(strTitle,X2-X1-3);
 }
 
 void QuickView::DisplayObject()
@@ -178,58 +69,63 @@ void QuickView::DisplayObject()
     return;
   Flags.Set(FSCROBJ_ISREDRAWING);
 
-  char Title[NM];
+  string strTitle;
   if (QView==NULL && !ProcessingPluginCommand)
     CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
   if (QView!=NULL)
     QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
-  SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
+  SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-  GetTitle(Title,sizeof(Title)-1);
-  if (*Title)
+  GetTitle(strTitle);
+  if ( !strTitle.IsEmpty() )
   {
-    GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);
-    Text(Title);
+    GotoXY(X1+(X2-X1+1-strTitle.GetLength())/2,Y1);
+    TextW(strTitle);
   }
   DrawSeparator(Y2-2);
   SetColor(COL_PANELTEXT);
   GotoXY(X1+1,Y2-1);
-  mprintf("%-*.*s",X2-X1-1,X2-X1-1,PointToName(CurFileName));
-  if (*CurFileType)
+  mprintfW(L"%-*.*s",X2-X1-1,X2-X1-1,PointToNameW(strCurFileName));
+
+  if ( !strCurFileType.IsEmpty() )
   {
-    char TypeText[sizeof(CurFileType)];
-    sprintf(TypeText," %s ",CurFileType);
-    TruncStr(TypeText,X2-X1-1);
+    string strTypeText;
+    strTypeText.Format (L" %s ", (const wchar_t*)strCurFileType);
+    TruncStrW(strTypeText,X2-X1-1);
     SetColor(COL_PANELSELECTEDINFO);
-    GotoXY(X1+(X2-X1+1-strlen(TypeText))/2,Y2-2);
-    Text(TypeText);
+    GotoXY(X1+(X2-X1+1-strTypeText.GetLength())/2,Y2-2);
+    TextW(strTypeText);
   }
   if (Directory)
   {
-    char Msg[NM*2];
-    sprintf(Msg,MSG(MQuickViewFolder),CurFileName);
-    TruncStr(Msg,X2-X1-4);
+    string strMsg;
+
+    strMsg.Format (UMSG(MQuickViewFolder),(const wchar_t*)strCurFileName);
+
+    TruncStrW(strMsg,X2-X1-4);
     SetColor(COL_PANELTEXT);
     GotoXY(X1+2,Y1+2);
-    PrintText(Msg);
-
+    PrintTextW(strMsg);
     /* $ 01.02.2001 SVS
        В панели "Quick view" добавим инфу про Junction
     */
-    if((GetFileAttributes(CurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+    if((GetFileAttributesW(strCurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
-      char JuncName[NM*2];
+      string strJuncName;
       int ID_Msg, Width;
-      if(GetJunctionPointInfo(CurFileName,JuncName,sizeof(JuncName))) //"\??\D:\Junc\Src\"
+      if(GetJunctionPointInfoW(strCurFileName, strJuncName)) //"\??\D:\Junc\Src\"
       {
-        if(!strncmp(JuncName+4,"Volume{",7))
+        strJuncName.RShift (4);
+
+        if(!wcsncmp(strJuncName,L"Volume{",7))
         {
-          char JuncRoot[NM*2];
-          JuncRoot[0]=JuncRoot[1]=0;
-          GetPathRootOne(JuncName+4,JuncRoot);
-          if(JuncRoot[1] == ':')
-            strcpy(JuncName+4,JuncRoot);
+          string strJuncRoot;
+          GetPathRootOneW(strJuncName, strJuncRoot);
+          if( strJuncRoot.At(1) == L':')
+          {
+              strJuncName = strJuncRoot;
+          }
           ID_Msg=MQuickViewVolMount;
           Width=20;
         }
@@ -238,82 +134,91 @@ void QuickView::DisplayObject()
           ID_Msg=MQuickViewJunction;
           Width=9;
         }
-        sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+4,X2-X1-4-Width));
-        //TruncStr(Msg,X2-X1-4);
+
+        TruncPathStrW(strJuncName,X2-X1-4-Width);
+
+        strMsg.Format (UMSG(ID_Msg), (const wchar_t*)strJuncName);
+        TruncStrW(strMsg,X2-X1-4);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);
-        PrintText(Msg);
+        PrintTextW(strMsg);
       }
     }
     /* SVS $ */
 
     if (Directory==1 || Directory==4)
     {
-      char SlackMsg[100];
+      string strSlackMsg;
 
       GotoXY(X1+2,Y1+4);
-      PrintText(MSG(MQuickViewContains));
+      PrintTextW(UMSG(MQuickViewContains));
       GotoXY(X1+2,Y1+6);
-      PrintText(MSG(MQuickViewFolders));
+      PrintTextW(UMSG(MQuickViewFolders));
       SetColor(COL_PANELINFOTEXT);
-      sprintf(Msg,"%d",DirCount);
-      PrintText(Msg);
+      strMsg.Format (L"%d",DirCount);
+      PrintTextW(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+7);
-      PrintText(MSG(MQuickViewFiles));
+      PrintTextW(UMSG(MQuickViewFiles));
       SetColor(COL_PANELINFOTEXT);
-      sprintf(Msg,"%d",FileCount);
-      PrintText(Msg);
+      strMsg.Format (L"%d",FileCount);
+      PrintTextW(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+8);
-      PrintText(MSG(MQuickViewBytes));
+      PrintTextW(UMSG(MQuickViewBytes));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommas(FileSize,Msg);
-      PrintText(Msg);
+      InsertCommasW(FileSize,strMsg);
+      PrintTextW(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
-      PrintText(MSG(MQuickViewCompressed));
+      PrintTextW(UMSG(MQuickViewCompressed));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommas(CompressedFileSize,Msg);
-      PrintText(Msg);
+      InsertCommasW(CompressedFileSize,strMsg);
+      PrintTextW(strMsg);
 
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+10);
-      PrintText(MSG(MQuickViewRatio));
+      PrintTextW(UMSG(MQuickViewRatio));
       SetColor(COL_PANELINFOTEXT);
-      sprintf(SlackMsg,"%d%%",ToPercent64(CompressedFileSize,FileSize));
-      PrintText(SlackMsg);
+      strSlackMsg.Format (L"%d%%",ToPercent64(CompressedFileSize,FileSize));
+      PrintTextW(strSlackMsg);
 
       if (Directory!=4 && RealFileSize>=CompressedFileSize)
       {
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+12);
-        PrintText(MSG(MQuickViewCluster));
+        PrintTextW(UMSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(ClusterSize,Msg);
-        PrintText(Msg);
+        InsertCommasW(ClusterSize,strMsg);
+        PrintTextW(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
-        PrintText(MSG(MQuickViewRealSize));
+        PrintTextW(UMSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(RealFileSize,Msg);
-        PrintText(Msg);
+        InsertCommasW(RealFileSize,strMsg);
+        PrintTextW(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+14);
-        PrintText(MSG(MQuickViewSlack));
+        PrintTextW(UMSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(RealFileSize-CompressedFileSize,Msg);
-        __int64 Size1=RealFileSize-CompressedFileSize;
-        __int64 Size2=RealFileSize;
-        sprintf(SlackMsg,"%s (%d%%)",Msg,ToPercent64(Size1,Size2));
-        PrintText(SlackMsg);
+        InsertCommasW(RealFileSize-CompressedFileSize,strMsg);
+        unsigned __int64 Size1=RealFileSize-CompressedFileSize;
+        unsigned __int64 Size2=RealFileSize;
+
+        while ( (Size2 >> 32) !=0)
+        {
+          Size1=Size1>>1;
+          Size2=Size2>>1;
+        }
+        strSlackMsg.Format (L"%s (%d%%)",(const wchar_t*)strMsg,ToPercent((DWORD)Size1, (DWORD)Size2));
+        PrintTextW(strSlackMsg);
       }
     }
   }
   else
     if (QView!=NULL)
       QView->Show();
-  Flags.Clear(FSCROBJ_ISREDRAWING);
+ Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 
@@ -330,7 +235,7 @@ int QuickView::ProcessKey(int Key)
   */
   if (Key == KEY_F1)
   {
-    Help Hlp ("QViewPanel");
+    Help Hlp (L"QViewPanel");
     return TRUE;
   }
   /* DJ $ */
@@ -365,12 +270,10 @@ int QuickView::ProcessKey(int Key)
     }
     if (Key == KEY_F7 || Key == KEY_SHIFTF7)
     {
-      /*
-      __int64 Pos;
-      int Length;
-      DWORD Flags;
-      QView->GetSelectedParam(Pos,Length,Flags);
-      */
+      //__int64 Pos;
+      //int Length;
+      //DWORD Flags;
+      //QView->GetSelectedParam(Pos,Length,Flags);
       Redraw();
       CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
       //QView->SelectText(Pos,Length,Flags|1);
@@ -401,7 +304,7 @@ void QuickView::Update(int Mode)
 {
   if (!EnableUpdate)
     return;
-  if (*CurFileName==0)
+  if ( strCurFileName.IsEmpty() )
     CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
   Redraw();
 }
@@ -410,13 +313,15 @@ void QuickView::Update(int Mode)
 #endif
 
 
-void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
+void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
-  char *ExtPtr;
+  wchar_t *ExtPtr;
   int FileAttr;
   CloseFile();
   QView=NULL;
-  *CurFileName=0;
+
+  strCurFileName = L"";
+
   if (!IsVisible())
     return;
   if (FileName==NULL)
@@ -438,30 +343,29 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   QView->SetWrapMode(LastWrapMode);
   QView->SetWrapType(LastWrapType);
   /* VVM $ */
-  strcpy(CurFileName,FileName);
 
-  if ((ExtPtr=strrchr(CurFileName,'.'))!=NULL)
+  strCurFileName = FileName;
+
+  if ((ExtPtr=wcsrchr(strCurFileName,L'.'))!=NULL)
   {
-    char Value[80];
-    LONG ValueSize=sizeof(Value);
-    if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)ExtPtr,(LPTSTR)Value,&ValueSize)==ERROR_SUCCESS)
+    string strValue;
+
+    if ( RegQueryStringValue (HKEY_CLASSES_ROOT, ExtPtr, strValue)==ERROR_SUCCESS)
     {
-      ValueSize=sizeof(CurFileType);
-      if (RegQueryValue(HKEY_CLASSES_ROOT,Value,(LPTSTR)CurFileType,&ValueSize)!=ERROR_SUCCESS)
-        *CurFileType=0;
-      FAR_CharToOem(CurFileType,CurFileType);
+      if (RegQueryStringValue (HKEY_CLASSES_ROOT, strValue,strCurFileType)!=ERROR_SUCCESS)
+        strCurFileType=L"";
     }
   }
-  if (hDirPlugin || (FileAttr=GetFileAttributes(CurFileName))!=-1 && (FileAttr & FA_DIREC))
+  if (hDirPlugin || (FileAttr=GetFileAttributesW(strCurFileName))!=-1 && (FileAttr & FA_DIREC))
   {
     /* $ 28.06.2000 IS
      Не показывать тип файла для каталогов в "Быстром просмотре" /
     */
-    *CurFileType=0;
+    strCurFileType=L"";
     /* IS $ */
     if (hDirPlugin)
     {
-      int ExitCode=GetPluginDirInfo(hDirPlugin,CurFileName,DirCount,
+      int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize);
       if (ExitCode)
         Directory=4;
@@ -470,9 +374,9 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     }
     else
     {
-      int ExitCode=GetDirInfo(MSG(MQuickViewTitle),CurFileName,DirCount,
+      int ExitCode=GetDirInfo(UMSG(MQuickViewTitle),strCurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
-                   ClusterSize,500,GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF);
+                   ClusterSize,500,GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF);
       if (ExitCode==1)
         Directory=1;
       else
@@ -483,28 +387,19 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     }
   }
   else
-    if (*CurFileName)
-      /* $ 04.07.2000 tran
-         + add FALSE as 'warning' parameter*/
-      QView->OpenFile(CurFileName,FALSE);
-      /* tran 04.07.2000 $ */
+    if ( !strCurFileName.IsEmpty() )
+      QView->OpenFile(strCurFileName,FALSE);
 
-  if (TempFile){
-//    ConvertNameToFull(CurFileName,TempName, sizeof(TempName));
-    if (ConvertNameToFull(CurFileName,TempName, sizeof(TempName)) >= sizeof(TempName)){
-      return;
-    }
-  }
+  if (TempFile)
+    ConvertNameToFullW (strCurFileName, strTempName);
+
   Redraw();
-  /* $ 30.04.2001 DJ
-     обновляем кейбар
-  */
+
   if (CtrlObject->Cp()->ActivePanel == this)
   {
     DynamicUpdateKeyBar();
     CtrlObject->MainKeyBar->Redraw();
   }
-  /* DJ $ */
 }
 
 
@@ -522,15 +417,17 @@ void QuickView::CloseFile()
     delete QView;
     QView=NULL;
   }
+
+  strCurFileType = L"";
+
   QViewDelTempName();
-  *CurFileType=0;
   Directory=0;
 }
 
 
 void QuickView::QViewDelTempName()
 {
-  if (*TempName)
+  if ( !strTempName.IsEmpty() )
   {
     if (QView!=NULL)
     {
@@ -544,30 +441,33 @@ void QuickView::QViewDelTempName()
       delete QView;
       QView=NULL;
     }
-    chmod(TempName,S_IREAD|S_IWRITE);
-    remove(TempName);
-    *PointToName(TempName)=0;
-    FAR_RemoveDirectory(TempName);
-    *TempName=0;
+
+    SetFileAttributesW (strTempName, FILE_ATTRIBUTE_ARCHIVE); //was chmod(TempName,S_IREAD|S_IWRITE);
+    DeleteFileW (strTempName); //BUGBUG
+
+    CutToSlashW (strTempName);
+    FAR_RemoveDirectoryW(strTempName);
+
+    strTempName=L"";
   }
 }
 
 
-void QuickView::PrintText(char *Str)
+void QuickView::PrintTextW(const wchar_t *Str)
 {
   if (WhereY()>Y2-3 || WhereX()>X2-2)
     return;
-  mprintf("%.*s",X2-2-WhereX()+1,Str);
+
+  mprintfW(L"%.*s",X2-2-WhereX()+1,Str);
 }
 
 
 int QuickView::UpdateIfChanged(int UpdateMode)
 {
-  if (IsVisible() && *CurFileName && Directory==2)
+  if (IsVisible() && !strCurFileName.IsEmpty() && Directory==2)
   {
-    char ViewName[NM+30];
-    strcpy(ViewName,CurFileName);
-    ShowFile(ViewName,*TempName,NULL);
+    string strViewName = strCurFileName;
+    ShowFile(strViewName, !strTempName.IsEmpty() ,NULL);
     return(TRUE);
   }
   return(FALSE);
@@ -579,17 +479,24 @@ void QuickView::SetTitle()
 {
   if (GetFocus())
   {
-    char TitleDir[NM+30];
-    if (*CurFileName)
-      sprintf(TitleDir,"{%.*s - QuickView}",NM-1,CurFileName);
+    string strTitleDir = L"{";
+    if ( !strCurFileName.IsEmpty() )
+    {
+      strTitleDir += strCurFileName;
+      strTitleDir += L" - QuickView";
+    }
     else
     {
-      char CmdText[512];
-      CtrlObject->CmdLine->GetString(CmdText,sizeof(CmdText));
-      sprintf(TitleDir,"{%.*s}",sizeof(TitleDir)-3,CmdText);
+      string strCmdText;
+      CtrlObject->CmdLine->GetStringW (strCmdText);
+
+      strTitleDir += strCmdText;
     }
-    strcpy(LastFarTitle,TitleDir);
-    SetFarTitle(TitleDir);
+
+    strTitleDir += L"}";
+
+    strLastFarTitle = strTitleDir;
+    SetFarTitleW(strTitleDir);
   }
 }
 // и его показ в случае получения фокуса
@@ -636,54 +543,55 @@ BOOL QuickView::UpdateKeyBar()
   return TRUE;
 }
 
-int QuickView::GetCurName(char *Name,char *ShortName)
+int QuickView::GetCurNameW(string &strName, string &strShortName)
 {
-  if (Name && ShortName && *CurFileName)
+  if ( !strCurFileName.IsEmpty() )
   {
-    strcpy(Name, CurFileName);
-    strcpy(ShortName, Name);
+    strName = strCurFileName;
+    strShortName = strName;
     return (TRUE);
   }
   return (FALSE);
 }
+
 
 void QuickView::DynamicUpdateKeyBar()
 {
   KeyBar *KB = CtrlObject->MainKeyBar;
   if (Directory || !QView)
   {
-    KB->Change (MSG(MF2), 2-1);
-    KB->Change ("", 4-1);
-    KB->Change ("", 8-1);
-    KB->Change (KBL_SHIFT, "", 2-1);
-    KB->Change (KBL_SHIFT, "", 8-1);
-    KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
+    KB->Change (UMSG(MF2), 2-1);
+    KB->Change (L"", 4-1);
+    KB->Change (L"", 8-1);
+    KB->Change (KBL_SHIFT, L"", 2-1);
+    KB->Change (KBL_SHIFT, L"", 8-1);
+    KB->Change (KBL_ALT, UMSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
   else {
     if (QView->GetHexMode())
-      KB->Change (MSG(MViewF4Text), 4-1);
+      KB->Change (UMSG(MViewF4Text), 4-1);
     else
-      KB->Change (MSG(MQViewF4), 4-1);
+      KB->Change (UMSG(MQViewF4), 4-1);
 
     if (QView->GetAnsiMode())
-      KB->Change (MSG(MViewF8DOS), 8-1);
+      KB->Change (UMSG(MViewF8DOS), 8-1);
     else
-      KB->Change (MSG(MQViewF8), 8-1);
+      KB->Change (UMSG(MQViewF8), 8-1);
 
     if (!QView->GetWrapMode())
     {
       if (QView->GetWrapType())
-        KB->Change (MSG(MViewShiftF2), 2-1);
+        KB->Change (UMSG(MViewShiftF2), 2-1);
       else
-        KB->Change (MSG(MViewF2), 2-1);
+        KB->Change (UMSG(MViewF2), 2-1);
     }
     else
-      KB->Change (MSG(MViewF2Unwrap), 2-1);
+      KB->Change (UMSG(MViewF2Unwrap), 2-1);
 
     if (QView->GetWrapType())
-      KB->Change (KBL_SHIFT, MSG(MViewF2), 2-1);
+      KB->Change (KBL_SHIFT, UMSG(MViewF2), 2-1);
     else
-      KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+      KB->Change (KBL_SHIFT, UMSG(MViewShiftF2), 2-1);
   }
 }
 

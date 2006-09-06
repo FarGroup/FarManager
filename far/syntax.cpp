@@ -5,53 +5,8 @@ syntax.cpp
 
 */
 
-/* Revision: 1.18 01.09.2006 $ */
+/* Revision: 1.22 01.09.2006 $ */
 
-/*
-Modify:
-  01.09.2006 SVS
-    - Mantis#227 - не воспринимаются имена переменных, начинающихся с подчеркивания
-    + Panel.FAttr(), Panel.FExist()
-  06.04.2006 AY
-    ! GCC
-  04.04.2006 SVS
-    + N=sleep(N)
-  17.03.2006 AY & SVS
-    ! UnrecogniSed (s -> z)
-    ! err_Unexpected_function -> err_Unrecognized_function
-  16.03.2006 SVS
-    ! Уточнение диагностики парсера
-  04.03.2006 SVS
-    + MCODE_F_CLIP (V=clip(N,S))
-    ! Числа в макросах имеют суть __int64
-  17.01.2006 SVS
-    + Panel.SetPos
-  09.12.2005 SVS
-    + "тестовая зона"...
-  07.10.2005 SVS
-    + Macro: Функция V=Dlg.GetValue(ID,N)
-  05.07.2005 SVS
-    + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
-  24.04.2005 AY
-    ! GCC
-  06.04.2005 SVS
-    + b=msave(var)
-  01.04.2005 SVS
-    + MCODE_F_PANELITEM
-  05.03.2005 SVS
-    + varEnum()
-  15.02.2005 SVS
-    + функция "S=itoa(N,Radix)"
-  11.11.2004 SVS
-    - BugZ#1188 - тест макропоследовательности (имена макро-функций)
-  10.09.2004 SVS
-    + UCase, LCase
-  05.08.2004 SVS
-    + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX
-    ! funcLook() стала глобальной
-  14.06.2004 SVS & AN
-    + Адд
-*/
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
@@ -69,17 +24,17 @@ Modify:
 #include "fn.hpp"
 #include "syntax.hpp"
 
-#define EOFCH 256
+#define EOFCH 65536
 
 //---------------------------------------------------------------
 // Реализация класса TVar ("кастрированый" вариант - только целое
 // и строковое значение)
 //---------------------------------------------------------------
 
-static const char *toString(__int64 num)
+static const wchar_t *toString(__int64 num)
 {
-  static char str[128];
-  _i64toa(num, str, 10);
+  static wchar_t str[128];
+  _i64tow(num, str, 10);
   return str;
 };
 
@@ -96,14 +51,15 @@ TVar::TVar(__int64 v) :
   str = NULL;
 };
 
-TVar::TVar(const char *v) :
+TVar::TVar(const wchar_t *v) :
   vType(vtString),
   inum(0)
 {
-  str = new char[strlen(v)+1];
+  str = new wchar_t[wcslen(v)+1];
   if ( str )
-    strcpy(str, v);
+    wcscpy(str, v);
 };
+
 
 TVar::TVar(const TVar& v) :
   vType(v.vType),
@@ -111,9 +67,9 @@ TVar::TVar(const TVar& v) :
 {
   if ( v.str )
   {
-    str = new char[strlen(v.str)+1];
+    str = new wchar_t[wcslen(v.str)+1];
     if ( str )
-      strcpy(str, v.str);
+      wcscpy(str, v.str);
   }
   else
     str = NULL;
@@ -128,42 +84,42 @@ TVar& TVar::operator=(const TVar& v)
   str = NULL;
   if ( v.str )
   {
-    str = new char[strlen(v.str)+1];
+    str = new wchar_t[wcslen(v.str)+1];
     if ( str )
-      strcpy(str, v.str);
+      wcscpy(str, v.str);
   }
   return *this;
 }
 
 __int64 TVar::i() const
 {
-  return isInteger() ? inum : ( str ? _atoi64(str) : 0 );
+  return isInteger() ? inum : ( str ? _wtoi64(str) : 0 );
 }
 
-const char *TVar::s() const
+const wchar_t *TVar::s() const
 {
   if(isString())
-    return  str ? str : "";
+    return  str ? str : L"";
   return ::toString(inum);
 }
 
 
-const char *TVar::toString()
+const wchar_t *TVar::toString()
 {
-  char s[128];
+  wchar_t s[128];
   switch ( vType )
   {
     case vtInteger:
-      strncpy(s, ::toString(inum),sizeof(s)-1);
+      wcsncpy(s, ::toString(inum),(sizeof(s)-1)/sizeof (wchar_t));
       break;
     default:
       return str;
   }
   if ( str )
     delete [] str;
-  str = new char[strlen(s)+1];
+  str = new wchar_t[wcslen(s)+1];
   if ( str )
-    strcpy(str, s);
+    wcscpy(str, s);
   vType = vtString;
   return str;
 };
@@ -173,7 +129,7 @@ __int64 TVar::toInteger()
   switch ( vType )
   {
     case vtString:
-      inum = str ? _atoi64(str) : 0;
+      inum = str ? _wtoi64(str) : 0;
       break;
   }
   vType = vtInteger;
@@ -186,7 +142,7 @@ int operator==(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum == b.inum;          break;
-    case vtString:  if ( b.isString() )  r = strcmp(a.s(), b.s()) == 0; break;
+    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) == 0; break;
   }
   return r;
 };
@@ -197,7 +153,7 @@ int operator!=(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum != b.inum;          break;
-    case vtString:  if ( b.isString() )  r = strcmp(a.s(), b.s()) != 0; break;
+    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) != 0; break;
   }
   return r;
 };
@@ -208,7 +164,7 @@ int operator<(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum < b.inum;           break;
-    case vtString:  if ( b.isString() )  r = strcmp(a.s(), b.s()) < 0;  break;
+    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) < 0;  break;
   }
   return r;
 };
@@ -219,7 +175,7 @@ int operator<=(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum <= b.inum;          break;
-    case vtString:  if ( b.isString() )  r = strcmp(a.s(), b.s()) <= 0; break;
+    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) <= 0; break;
   }
   return r;
 };
@@ -230,7 +186,7 @@ int operator>(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum > b.inum;           break;
-    case vtString:  if ( b.isString() )  r = strcmp(a.s(), b.s()) > 0;  break;
+    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) > 0;  break;
   }
   return r;
 };
@@ -241,18 +197,18 @@ int operator>=(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum >= b.inum;          break;
-    case vtString:  if ( b.isString() )  r = strcmp(a.s(), b.s()) >= 0; break;
+    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) >= 0; break;
   }
   return r;
 };
 
-static TVar addStr(const char *a, const char *b)
+static TVar addStr(const wchar_t *a, const wchar_t *b)
 {
-  TVar r("");
-  char *c = new char[strlen(a ? a : "")+strlen(b ? b : "")+1];
+  TVar r(L"");
+  wchar_t *c = new wchar_t[wcslen(a ? a : L"")+wcslen(b ? b : L"")+1];
   if ( c )
   {
-    r = strcat(strcpy(c, a ? a : ""), b ? b : "");
+    r = wcscat(wcscpy(c, a ? a : L""), b ? b : L"");
     delete [] c;
   }
   return r;
@@ -469,10 +425,10 @@ TVar TVar::operator!()
 // Работа с таблицами имен переменных
 //---------------------------------------------------------------
 
-int hash(const char *p)
+int hash(const wchar_t *p)
 {
   int i = 0;
-  char *pp = (char*)p;
+  wchar_t *pp = (wchar_t*)p;
   while ( *pp )
     i = i << (1^*(pp++));
   if ( i < 0 )
@@ -481,21 +437,21 @@ int hash(const char *p)
   return i;
 }
 
-int isVar(TVarTable table, const char *p)
+int isVar(TVarTable table, const wchar_t *p)
 {
   int i = hash(p);
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-    if ( !stricmp(n->str, p) )
+    if ( !LocalStricmpW(n->str, p) )
       return 1;
   return 0;
 }
 
-TVarSet *varLook(TVarTable table, const char *p, int& error, int ins)
+TVarSet *varLook(TVarTable table, const wchar_t *p, int& error, int ins)
 {
   int i = hash(p);
   error = 0;
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-    if ( !stricmp(n->str, p) )
+    if ( !LocalStricmpW(n->str, p) )
       return n;
   if ( !ins )
     error = 1;
@@ -517,13 +473,13 @@ TVarSet *varEnum(TVarTable table,int NumTable, int Index)
   return n;
 }
 
-void varKill(TVarTable table, const char *p)
+void varKill(TVarTable table, const wchar_t *p)
 {
   int i = hash(p);
   TVarSet *nn = table[i];
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
   {
-    if ( !stricmp(n->str, p) )
+    if ( !LocalStricmpW(n->str, p) )
     {
       if(n == table[i])
          table[i]=((TVarSet*)n->next);
@@ -573,9 +529,9 @@ static void put64(unsigned __int64 code)
   exprBuff[Size++] = i64.Part.LowPart;    //???
 }
 
-static void putstr(const char *s)
+static void putstr(const wchar_t *s)
 {
-  int Length = strlen(s)+1;
+  int Length = wcslen(s)+1;
   // строка должна быть выровнена на 4
   int nSize = Length/sizeof(unsigned long);
   if ( Length == 1 || ( Length % sizeof(unsigned long)) != 0 ) // дополнение до sizeof(DWORD) нулями.
@@ -583,17 +539,17 @@ static void putstr(const char *s)
   for ( int i = 0 ; i < nSize ; i++ )
   {
     unsigned long d[2] = { 0, 0 };
-    strncpy((char*)d, s, sizeof(unsigned long));
+    wcsncpy((wchar_t*)d, s, sizeof(unsigned long));
     s += sizeof(unsigned long);
     exprBuff[Size++] = *d;
   }
 }
 
 int _macro_nErr = 0;
-static char nameString[1024];
-static char *sSrcString;
-static char *pSrcString = NULL;
-static char *oSrcString = NULL;
+static wchar_t nameString[1024];
+static wchar_t *sSrcString;
+static wchar_t *pSrcString = NULL;
+static wchar_t *oSrcString = NULL;
 
 static TToken currTok = tNo;
 static TVar currVar;
@@ -602,57 +558,56 @@ static void expr(void);
 static __int64 _cdecl getInt64();
 
 //-----------------------------------------------
-static char ErrMessage[3][256];
+static string ErrMessage[3];
 
-BOOL GetMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3)
+BOOL GetMacroParseError(string *strErrMsg1,string *strErrMsg2,string *strErrMsg3)
 {
   if(_macro_nErr)
   {
-    if(ErrMsg1)
-      strcpy(ErrMsg1,ErrMessage[0]);
-    if(ErrMsg2)
-      strcpy(ErrMsg2,ErrMessage[1]);
-    if(ErrMsg3)
-      strcpy(ErrMsg3,ErrMessage[2]);
+    if(strErrMsg1)
+      *strErrMsg1 = ErrMessage[0];
+    if(strErrMsg2)
+      *strErrMsg2 = ErrMessage[1];
+    if(strErrMsg3)
+      *strErrMsg3 = ErrMessage[2];
     return TRUE;
   }
   return FALSE;
 }
 
 
-void keyMacroParseError(int err, const char *s, const char *p, const char *c)
+void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c)
 {
   if ( !_macro_nErr++ )
   {
     int oPos = 0, ePos = (int)(s-p);
-    ErrMessage[0][0]=ErrMessage[1][0]=ErrMessage[2][0]=0;
+    ErrMessage[0]=ErrMessage[1]=ErrMessage[2]=L"";
     if ( ePos < 0 )
     {
-      xstrncpy(ErrMessage[0],MSG(MMacroPErrExpr_Expected),sizeof(ErrMessage[0])-1); // TODO!!!
+      ErrMessage[0] = UMSG(MMacroPErrExpr_Expected); // TODO: .Format !
       return;
     }
 
-    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognized_keyword+err),c);
+    ErrMessage[0].Format (UMSG(MMacroPErrUnrecognized_keyword+err),c);
     if ( ePos > 61 )
     {
       oPos = ePos-50;
-      strcpy(ErrMessage[1], "...");
+      ErrMessage[1] = L"...";
     }
-    strncat(ErrMessage[1], p+oPos,sizeof(ErrMessage[1])-1);
-    if ( ErrMessage[1][61] )
-      strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
+    ErrMessage[1] += p+oPos;
+
+//    if ( ErrMessage[1][61] ) BUGBUG
+//      strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
+
     int lPos = ePos-oPos+(oPos ? 3 : 0);
 
-    InsertQuote(ErrMessage[1]);
-    sprintf(ErrMessage[2],"%*s%c", lPos+1, "", '^');
-
-    _KEYMACRO(SysLog(ErrMessage[0]));
-    _KEYMACRO(SysLog(ErrMessage[1]));
-    _KEYMACRO(SysLog(ErrMessage[2]));
+    InsertQuoteW(ErrMessage[1]);
+    ErrMessage[2].Format (L"%*s%c", lPos+1, L"", L'^');
   }
 }
 
-void keyMacroParseError(int err, const char *c = NULL) {
+void keyMacroParseError(int err, const wchar_t *c = NULL)
+{
   keyMacroParseError(err, oSrcString, pSrcString, c);
   //                      ^ s?
 }
@@ -663,7 +618,7 @@ static int getNextChar()
   if ( *sSrcString )
   {
     int ch;
-    while ( ( ( ch = *(sSrcString++) ) != 0 ) && isspace(ch) )
+    while ( ( ( ch = *(sSrcString++) ) != 0 ) && iswspace(ch) )
       ;
     return ch ? ch : EOFCH;
   }
@@ -681,50 +636,50 @@ static inline int getChar()
 }
 
 typedef struct __TMacroFunction{
-  const char *Name;             // имя функции
+  const wchar_t *Name;             // имя функции
   int nParam;                   // количество параметров
   TFunction Code;               // байткод функции
 } TMacroFunction;
 
 static TMacroFunction macroFunction[]={
-  {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
-  {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
-  {"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
-  {"DATE",           1,    MCODE_F_DATE},                // S=date(S)
-  {"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
-  {"EDITOR.SET",     2,    MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
-  {"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
-  {"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
-  {"FEXIST",         1,    MCODE_F_FEXIST},              // N=fexist(S)
-  {"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
-  {"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
-  {"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
-  {"INT",            1,    MCODE_F_INT},                 // N=int(V)
-  {"ITOA",           2,    MCODE_F_ITOA},                // S=itoa(N,radix)
-  {"LCASE",          1,    MCODE_F_LCASE},               // S=lcase(S1)
-  {"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
-  {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
-  {"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
-  {"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
-  {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
-  {"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
-  {"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
-  {"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
-  {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
-  {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
-  {"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
-  {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
-  {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
-  {"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
-  {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
+  {L"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
+  {L"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {L"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
+  {L"DATE",           1,    MCODE_F_DATE},                // S=date(S)
+  {L"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
+  {L"EDITOR.SET",     2,    MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
+  {L"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
+  {L"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
+  {L"FEXIST",         1,    MCODE_F_FEXIST},              // N=fexist(S)
+  {L"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
+  {L"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
+  {L"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
+  {L"INT",            1,    MCODE_F_INT},                 // N=int(V)
+  {L"ITOA",           2,    MCODE_F_ITOA},                // S=itoa(N,radix)
+  {L"LCASE",          1,    MCODE_F_LCASE},               // S=lcase(S1)
+  {L"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
+  {L"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
+  {L"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
+  {L"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
+  {L"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
+  {L"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
+  {L"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
+  {L"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
+  {L"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
+  {L"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
+  {L"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
+  {L"STRING",         1,    MCODE_F_STRING},              // S=string(V)
+  {L"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
+  {L"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
+  {L"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
 
-DWORD funcLook(const char *s, int& nParam)
+DWORD funcLook(const wchar_t *s, int& nParam)
 {
   nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
     //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
-    if(!strnicmp(s, macroFunction[I].Name, Max(strlen(macroFunction[I].Name),strlen(s))))
+    if(!LocalStrnicmpW(s, macroFunction[I].Name, Max(wcslen(macroFunction[I].Name),wcslen(s))))
     {
       nParam = macroFunction[I].nParam;
       return (DWORD)macroFunction[I].Code;
@@ -751,9 +706,9 @@ static void calcFunc(void)
         if ( currTok != ( (i == nParam-1) ? tRp : tComma ) )
         {
           if ( i == nParam-1 )
-            keyMacroParseError(err_Expected, ")");
+            keyMacroParseError(err_Expected, L")");
           else
-            keyMacroParseError(err_Expected, ",");
+            keyMacroParseError(err_Expected, L",");
           currTok = tEnd;
         }
        }
@@ -763,7 +718,7 @@ static void calcFunc(void)
       getToken();
       if ( currTok != tRp )
       {
-        keyMacroParseError(err_Expected, ")");
+        keyMacroParseError(err_Expected, L")");
         currTok = tEnd;
       }
     }
@@ -778,23 +733,23 @@ static void calcFunc(void)
 
 static void getVarName(int& ch)
 {
-  char* p = nameString;
-  *p++ = (char)ch;
-  while ( ( ( ch = getChar() ) != EOFCH ) && ( isalnum(ch) || ( ch == '_') ) )
-    *p++ = (char)ch;
+  wchar_t* p = nameString;
+  *p++ = (wchar_t)ch;
+  while ( ( ( ch = getChar() ) != EOFCH ) && ( iswalnum(ch) || ( ch == L'_') ) )
+    *p++ = (wchar_t)ch;
   *p = 0;
 }
 
 static void getFarName(int& ch)
 {
-  char* p = nameString;
-  *p++ = (char)ch;
-  while ( ( ( ch = getChar() ) != EOFCH ) && ( isalnum(ch) || ( ch == '_') || ( ch == '.') ) )
-    *p++ = (char)ch;
+  wchar_t* p = nameString;
+  *p++ = (wchar_t)ch;
+  while ( ( ( ch = getChar() ) != EOFCH ) && ( iswalnum(ch) || ( ch == L'_') || ( ch == L'.') ) )
+    *p++ = (wchar_t)ch;
   *p = 0;
 }
 
-static char *putBack(int ch)
+static wchar_t *putBack(int ch)
 {
   if ( ( ch && ( ch != EOFCH ) ) && ( sSrcString > pSrcString ) )
     sSrcString--;
@@ -810,49 +765,49 @@ static inline int peekChar()
 
 static long getLong()
 {
-  static char buffer[32];
-  char *p = buffer;
+  static wchar_t buffer[32];
+  wchar_t *p = buffer;
   int ch;
-  while ( ( ( ch = getChar() ) != EOFCH ) && (isxdigit(ch) || ch == 'x') && ( (p-buffer) < 32 ))
-    *p++ = (char)ch;
+  while ( ( ( ch = getChar() ) != EOFCH ) && (iswxdigit(ch) || ch == L'x') && ( (p-buffer) < 32 ))
+    *p++ = (wchar_t)ch;
   *p = 0;
   putBack(ch);
-  char *endptr;
-  return strtol(buffer,&endptr,0);
+  wchar_t *endptr;
+  return wcstol(buffer,&endptr,0);
 }
+
 
 static __int64 _cdecl getInt64()
 {
-  static char buffer[128];
-  char *p = buffer;
+  static wchar_t buffer[128];
+  wchar_t *p = buffer;
   int ch;
-  while ( ( ( ch = getChar() ) != EOFCH ) && (isxdigit(ch) || ch == 'x') && ( (p-buffer) < 32 ))
+  while ( ( ( ch = getChar() ) != EOFCH ) && (iswxdigit(ch) || ch == 'x') && ( (p-buffer) < 32 ))
     *p++ = (char)ch;
   *p = 0;
   putBack(ch);
-  char *endptr;
-  __int64 __val=_strtoi64(buffer,&endptr,0);
+  wchar_t *endptr;
+  __int64 __val=_wcstoi64(buffer,&endptr,0);
   return __val;
 }
 
-
-static char hex2ch(char b1, char b2)
+static wchar_t hex2ch(wchar_t b1, wchar_t b2)
 {
-  if ( b1 >= '0' && b1 <= '9' )
-    b1 -= '0';
+  if ( b1 >= L'0' && b1 <= L'9' )
+    b1 -= L'0';
   else
   {
     b1 &= ~0x20;
-    b1 -= (char)('A'-10);
+    b1 -= (wchar_t)(L'A'-10);
   }
-  if ( b2 >= '0' && b2 <= '9')
-    b2 -= '0';
+  if ( b2 >= L'0' && b2 <= L'9')
+    b2 -= L'0';
   else
   {
     b2 &= ~0x20;
-    b2 -= (char)('A'-10);
+    b2 -= (wchar_t)(L'A'-10);
   }
-  return (char)( ( ( b1 << 4 ) & 0x00F0 ) | ( b2 & 0x000F ) );
+  return (wchar_t)( ( ( b1 << 4 ) & 0x00F0 ) | ( b2 & 0x000F ) );
 }
 
 static TToken getToken(void)
@@ -863,91 +818,91 @@ static TToken getToken(void)
   {
     case EOFCH:
     case 0:   return currTok = tEnd;
-    case ',': return currTok = tComma;
-    case '+': return currTok = tPlus;
-    case '-': return currTok = tMinus;
-    case '*': return currTok = tMul;
-    case '/': return currTok = tDiv;
-    case '(': return currTok = tLp;
-    case ')': return currTok = tRp;
-    case '^': return currTok = tBitXor;
-    case '|':
-      if ( ( ch = getChar() ) == '|')
+    case L',': return currTok = tComma;
+    case L'+': return currTok = tPlus;
+    case L'-': return currTok = tMinus;
+    case L'*': return currTok = tMul;
+    case L'/': return currTok = tDiv;
+    case L'(': return currTok = tLp;
+    case L')': return currTok = tRp;
+    case L'^': return currTok = tBitXor;
+    case L'|':
+      if ( ( ch = getChar() ) == L'|')
         return currTok = tBoolOr;
       else
       {
         putBack(ch);
         return currTok = tBitOr;
       }
-    case '&':
-      if ( ( ch = getChar() ) == '&')
+    case L'&':
+      if ( ( ch = getChar() ) == L'&')
         return currTok = tBoolAnd;
       else
       {
         putBack(ch);
         return currTok = tBitAnd;
       }
-    case '=':
-      if ( ( ch = getChar() ) == '=')
+    case L'=':
+      if ( ( ch = getChar() ) == L'=')
         return currTok = tEq;
       else
       {
         putBack(ch);
         return currTok = tLet;
       }
-    case '>':
-      if ( ( ch = getChar() ) == '=')
+    case L'>':
+      if ( ( ch = getChar() ) == L'=')
         return currTok = tGe;
       else
       {
         putBack(ch);
         return currTok = tGt;
       }
-    case '<':
+    case L'<':
       switch ( ch = getChar() )
       {
         //case '>': return currTok = tNe;
-        case '=': return currTok = tLe;
+        case L'=': return currTok = tLe;
         default:
           putBack(ch);
           return currTok = tLt;
       }
-    case '!':
-      if((ch = getChar() ) != '=')
+    case L'!':
+      if((ch = getChar() ) != L'=')
       {
         putBack(ch);
         return currTok = tNot;
       }
       return currTok = tNe;
-    case '\"':
+    case L'\"':
       //-AN----------------------------------------------
       // Вообще-то это почти полный аналог ParsePlainText
       //-AN----------------------------------------------
-      currVar = "";
-      while ( ( ( ch = getChar() ) != EOFCH ) && ( ch != '\"' ) )
+      currVar = L"";
+      while ( ( ( ch = getChar() ) != EOFCH ) && ( ch != L'\"' ) )
       {
-        if ( ch == '\\' )
+        if ( ch == L'\\' )
         {
           switch ( ch = getChar() )
           {
-            case 'a' : ch = '\a'; break;
-            case 'b' : ch = '\b'; break;
-            case 'f' : ch = '\f'; break;
-            case 'n' : ch = '\n'; break;
-            case 'r' : ch = '\r'; break;
-            case 't' : ch = '\t'; break;
-            case 'v' : ch = '\v'; break;
-            case '\'': ch = '\''; break;
-            case '\"': ch = '\"'; break;
-            case '\\': ch = '\\'; break;
-            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': // octal: \d \dd \ddd
+            case L'a' : ch = L'\a'; break;
+            case L'b' : ch = L'\b'; break;
+            case L'f' : ch = L'\f'; break;
+            case L'n' : ch = L'\n'; break;
+            case L'r' : ch = L'\r'; break;
+            case L't' : ch = L'\t'; break;
+            case L'v' : ch = L'\v'; break;
+            case L'\'': ch = L'\''; break;
+            case L'\"': ch = L'\"'; break;
+            case L'\\': ch = L'\\'; break;
+            case L'0': case L'1': case L'2': case L'3': case L'4': case L'5': case L'6': case L'7': // octal: \d \dd \ddd
             {
-              BYTE n = ch - '0';
-              if ((ch = getChar()) >= '0' && ch < '8')
+              BYTE n = ch - L'0';
+              if ((ch = getChar()) >= L'0' && ch < L'8')
               {
-                n = 8 * n + ch - '0';
-                if ((ch = getChar()) >= '0' && ch < '8')
-                  n = 8 * n + ch - '0';
+                n = 8 * n + ch - L'0';
+                if ((ch = getChar()) >= L'0' && ch < L'8')
+                  n = 8 * n + ch - L'0';
                 else
                   putBack(ch);
               }
@@ -956,16 +911,16 @@ static TToken getToken(void)
               ch = n;
               break;
             }
-            case 'x':
-              if ( isxdigit(ch = getChar()) )
+            case L'x':
+              if ( iswxdigit(ch = getChar()) )
               {
-                char hBuf[3] = { (char)ch, 0, 0 };
-                if ( isxdigit(ch = getChar()) )
-                  hBuf[1] = (char)ch;
+                wchar_t hBuf[3] = { static_cast<wchar_t>(ch), 0, 0 };
+                if ( iswxdigit(ch = getChar()) )
+                  hBuf[1] = static_cast<wchar_t>(ch);
                 else
                 {
                   hBuf[1] = hBuf[0];
-                  hBuf[0] = '0';
+                  hBuf[0] = L'0';
                   putBack(ch);
                 }
                 ch = hex2ch(hBuf[0], hBuf[1]);
@@ -981,45 +936,43 @@ static TToken getToken(void)
               return currTok = tEnd;
           }
         }
-        char p[] = " ";
-        *p = (char)ch;
+        wchar_t p[] = L" ";
+        *p = (wchar_t)ch;
         currVar = currVar+TVar(p);
       }
       return currTok = tStr;
-    case '0': case '1': case '2': case '3': case '4':
-    case '5': case '6': case '7': case '8': case '9':
-    {
+    case L'0': case L'1': case L'2': case L'3': case L'4':
+    case L'5': case L'6': case L'7': case L'8': case L'9':
       putBack(ch);
       currVar = getInt64();
       return currTok = tInt;
-    }
-    case '%':
+    case L'%':
       ch = getChar();
-      if ( (isalpha(ch) || ch == '_') || ( ch == '%'  && (isalpha(*sSrcString) || *sSrcString == '_')))
+      if ( (LocalIsalphaW(ch) || ch == L'_') || ( ch == L'%'  && (LocalIsalphaW(*sSrcString) || *sSrcString == L'_')))
       {
         getVarName(ch);
         putBack(ch);
         return currTok = tVar;
       }
       else
-        keyMacroParseError(err_Var_Expected,"");//nameString); // BUG nameString
+        keyMacroParseError(err_Var_Expected,L""); // BUG nameString
       break;
     default:
-      if ( isalpha(ch) ) //  || ch == '_' ????
+      if ( LocalIsalphaW(ch) ) // || ch == L'_' ????
       {
         getFarName(ch);
-        if(ch == ' ')
+        if(ch == L' ')
         {
-          while(ch == ' ')
+          while(ch == L' ')
             ch = getNextChar();
         }
-        if ( ch == '(' ) //!!!! а пробелы пропустить? ДА!
+        if ( ch == L'(' ) //!!!! а пробелы пропустить? ДА!
           return currTok = tFunc;
         else
         {
           putBack(ch);
           for ( int i = 0 ; i < MKeywordsSize ; i++ )
-            if ( !stricmp(nameString, MKeywords[i].Name) )
+            if ( !LocalStricmpW(nameString, MKeywords[i].Name) )
             {
               FARVar = MKeywords[i].Value;
               return currTok = tFARVar;
@@ -1078,7 +1031,7 @@ static void prim(void)
       getToken();
       expr();
       if ( currTok != tRp )
-        keyMacroParseError(err_Expected, ")");
+        keyMacroParseError(err_Expected, L")");
       getToken();
       break;
     default:
@@ -1146,16 +1099,16 @@ static void expr(void)
     }
 }
 
-int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound2)
+int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wchar_t bound2)
 {
-  char tmp[4];
+  wchar_t tmp[4];
   IsProcessFunc=0;
   Size = _macro_nErr = 0;
-  while ( *BufPtr && isspace(*BufPtr) )
+  while ( *BufPtr && iswspace(*BufPtr) )
     BufPtr++;
   if ( bound1 )
   {
-    pSrcString = oSrcString = sSrcString = (char*)BufPtr+1;
+    pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr+1;
     if ( *BufPtr != bound1 )
     {
       tmp[0] = bound1;
@@ -1165,7 +1118,7 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
     }
   }
   else
-    pSrcString = oSrcString = sSrcString = (char*)BufPtr;
+    pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr;
   exprBuff = eBuff;
   put(MCODE_OP_EXPR);
 #if !defined(TEST000)
@@ -1176,11 +1129,11 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
     prim();
   put(MCODE_OP_DOIT);
   BufPtr = oSrcString;
-  while ( *BufPtr && isspace(*BufPtr) )
+  while ( *BufPtr && iswspace(*BufPtr) )
     BufPtr++;
   if ( bound2 )
   {
-    if ( ( *BufPtr != bound2 ) || !( !BufPtr[1] || isspace(BufPtr[1]) ) )
+    if ( ( *BufPtr != bound2 ) || !( !BufPtr[1] || iswspace(BufPtr[1]) ) )
     {
       tmp[0] = bound2;
       tmp[1] = 0;
@@ -1200,11 +1153,11 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
       prim();
     put(MCODE_OP_DOIT);
     BufPtr = oSrcString;
-    while ( *BufPtr && isspace(*BufPtr) )
+    while ( *BufPtr && iswspace(*BufPtr) )
       BufPtr++;
     if ( bound2 )
     {
-      if ( ( *BufPtr != bound2 ) || !( !BufPtr[1] || isspace(BufPtr[1]) ) )
+      if ( ( *BufPtr != bound2 ) || !( !BufPtr[1] || iswspace(BufPtr[1]) ) )
       {
         tmp[0] = bound2;
         tmp[1] = 0;

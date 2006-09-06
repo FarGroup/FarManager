@@ -7,620 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.249 24.07.2006 $ */
-
-/*
-Modify:
-  24.07.2006 SVS
-    + FarSnprintf()
-  12.07.2006 SVS
-    ! kill class int64
-    ! FileSizeToStr() вместо двух параметров DWORD`ов имеет один __int64
-  05.07.2006 IS
-    - warnings
-  03.07.2006 SVS
-    ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
-  29.06.2006 SVS
-    ! Bath -> Batch
-    ! Execute + доп параметр (Mantis#204)
-  28.06.2006 SVS
-    + IsBathExtType(), BathFileExist()
-  29.05.2006 SVS
-    + CheckInitSetupAPI()
-  25.05.2006 SVS
-    + InitializeSetupAPI (), FinalizeSetupAPI ();
-  24.05.2006 SVS
-    + ProcessRemoveHotplugDevice()
-  23.04.2006 AY
-    ! Убираем SetUpDirs из Execute().
-  10.04.2006 SVS
-    + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
-  02.03.2006 SVS
-    ! EnumRegValue - доп параметр, для переменной типа REG_QWORD.
-    + Добавлены фунцкии по работе с реестром с типом REG_QWORD: SetRegKey64, GetRegKey64 (в двух видах)
-  20.02.2006 SVS
-    ! У ConvertNameToShort новый параметр - размер для Dest
-  09.02.2006 AY
-    ! Изменения в GetColorDialog()
-  06.12.2005 AY
-    + PointToNameUNC()
-  04.10.2005 SVS
-    ! Изменения в CheckDisksProps()
-  30.09.2005 SVS
-    + CheckDisksProps() - функция проверки 2-х файловых систем
-  29.09.2005 SVS
-    ! последние параметры GetDirInfo() => флаг
-  09.09.2005 SVS
-    ! Функционал получения имени компьютера по текущему пути вынесен в
-      отдельную функцию CurPath2ComputerName()
-  13.07.2005 SVS
-    + PanelViewSettings_Dump()
-  23.06.2005 SVS
-    + WIN32_FIND_DATA_Dump()
-    + макрос для t-rex`а -> _TREX()
-  19.06.2005 SVS
-    + Init_CopyFileEx()
-  14.06.2005 SVS
-    + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
-  30.05.2005 SVS
-    ! изменены FAR_GetDriveType и IsEjectableMedia
-  06.05.2005 SVS
-    + RemoveUSBDrive(), IsDriveUsb()
-  26.04.2005 SVS
-    ! У GetShortcutFolder добавлен параметр - скока брать на грудь для пути.
-    + Функция GetShortcutFolderSize() - возвращает размер для ShortcutN
-  24.04.2005 AY
-    ! GCC
-  23.04.2005 KM
-    ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
-  05.04.2005 SVS
-    + У GetText() появился доп параметр - скока читать.
-  05.03.2005 SVS
-    ! Изменена функция EnumRegValue()
-       - добавлен параметр LPDWORD (для полечения REG_DWORD)
-       - возвращает тип значения.
-  31.01.2005 SVS
-    ! В GetMenuHotKey() новый параметр - "имя плагина"
-  21.01.2005 SVS
-    + GetVolumeInformation_Dump
-  11.11.2004 SVS
-    + _MakePath1()
-  09.11.2004 SVS
-    + макрос _WARP
-  28.10.2004 SVS
-    + UnquoteExternal() - удаление внешних кавычек
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.07.2004 SVS
-    ! Macro II
-    + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
-  06.07.2004 SVS
-    + GetMacroParseError (Macro II)
-  01.07.2004 SVS
-    ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
-  30.06.2004 SVS
-   + initMacroVarTable(), doneMacroVarTable(), eStackAsString()
-     (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
-  21.06.2004 SVS
-   + GetCDDeviceCaps(), GetCDDeviceTypeByCaps();
-   ! У FAR_GetDriveType добавился опциональный параметр - для CD
-     возвращается тип читаемых дисков - CDROM_DeviceCaps.
-  14.06.2004 SVS
-    + добавки MACRODRIVE2
-  14.06.2004 SVS
-    + UnExpandEnvString() и PathUnExpandEnvStr().
-  08.06.2004 SVS
-    + FAR_GetDriveType(), IsDriveTypeCDROM()
-  31.05.2004 SVS
-    ! ReplaceStrings - последний параметр - не различать "высоту" букв
-  07.05.2004 SVS
-    + PartCmdLine(), ProcessOSAliases()
-  05.05.2004 SVS
-    + IsEjectableMedia() - возвращает TRUE, если медию можно "выкинуть"
-    ! оконстантим параметр у конструктора CleverSysLog()
-  22.04.2004 SVS
-    + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
-  01.03.2004 SVS
-    + Обертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
-  19.02.2004 SVS
-    + BoxTextW2()
-  09.02.2004 SVS
-    ! SetRegKey возвращают значения!
-    + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
-  12.01.2004 SVS
-    ! Корректировка CalcWordFromString с учетом IsWordDiv()
-  12.01.2004 IS
-   + IsWordDiv - функция для сверки символа с разделителями слова
-     с учетом текущей кодировки
-  26.10.2003 KM
-    ! Изменение входных параметров у Transform.
-  16.10.2003 SVS
-    ! функции, возвращающие код клавиши возвращают не int, а DWORD
-  09.10.2003 SVS
-    + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
-  23.09.2003 KM
-    + Transform() - преобразует строку в hex представление и обратно.
-  02.09.2003 SVS
-    ! Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
-    ! У CheckFolder - параметр есть "const"
-  02.09.2003 SVS
-    ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
-    + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
-      контент каталога можно "прочитать"
-  11.07.2003 SVS
-    + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
-    + NumStrcmp() - "цифровое" сравнение двух строк
-    + __PrepareKMGTbStr() - переинициализация массива KMGTbStr
-  15.06.2003 SVS
-    ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
-      (добавлен еще один параметр)
-  14.06.2003 IS
-    ! CheckParseJunction -> IsLocalDrive
-  06.06.2003 SVS
-    + SIDCacheFlush()
-  05.06.2003 SVS
-    ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
-  19.05.2003 SVS
-    + DialogSettings()
-  14.05.2003 SVS
-    + GetOpenPluginInfo_Dump()
-  12.05.2003 SVS
-    ! EditFileTypes() теперь без параметра.
-    + RenumKeyRecord() делает перенумерацию итемов
-  06.05.2003 SVS
-    ! W-Console!!!
-    + SetRealColor()
-  21.04.2003 SVS
-    + IsLocalRootPath()
-    + InternalPasteFromClipboard(int AnsiMode);
-    + InternalPasteFromClipboardEx(int max,int AnsiMode)
-    + InternalCopyToClipboard(const char *Data,int AnsiMode);
-  31.03.2003 SVS
-    + _EE_ToName(), _EEREDRAW_ToName()
-    + SYSLOG_EE_REDRAW
-  05.03.2003 SVS
-    + SYSLOG_COPYR
-    + CheckParseJunction
-  20.02.2003 SVS
-    + TestParentFolderName() - вместо strcmp(Name,"..")
-    ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
-  18.02.2003 SVS
-    + _ESPT_ToName + _SysLog_LinearDump
-  26.01.2003 IS
-    + FAR_DeleteFile, FAR_RemoveDirectory просьба только их использовать
-      для удаления соответственно файлов и каталогов.
-    + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-    + INPUT_RECORD_DumpBuffer() - дамп оставшихся эвентов в консольной очереди
-  10.01.2003 SVS
-    + FAR_EmptyClipboard()
-  03.01.2003 SVS
-    + FARGetKeybLayoutName
-  21.12.2002 SVS
-    ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
-      "не рефрешить панели!"
-  10.12.2002 SVS
-    + ManagerClass_Dump()
-  05.12.2002 SVS
-    + MkStrFTime()
-  07.11.2002 SVS
-    + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
-      (доступно только под дебугинфой)
-  04.10.2002 SVS
-    + ConvertCurrentPalette()
-  18.09.2002 VVM
-    + SheckForEscSilent() - проверить на ESC безо всяких запросов пользователя
-    + CinfirmAbortOp()    - спросить у пользователя подтверждение прерывания
-  17.09.2002 SVS
-    + DrawLine()
-  23.08.2002 SVS
-    + SaveScreenDumpBuffer()
-    + _GetRealText/_PutRealText - обобщенные функции
-  21.08.2002 SVS
-    ! WaitKey теперь возвращает код нажатой клавиши
-  02.07.2002 SVS
-    + _PluginsStackItem_Dump() - дамп стека плагинов
-  18.06.2002 SVS
-    ! Функция IsFolderNotEmpty переименована в CheckFolder
-  04.06.2002 SVS
-    + TextToCharInfo
-    ! Немного const
-  31.05.2002 SVS
-    ! GetVidChar стал inline в fn.hpp, код, ответственный за юникод
-      перекочевал в GetVidCharW (из-за "for").
-    ! SetVidChar стал inline
-  30.05.2002 SVS
-    + InitRecodeOutTable()
-    ! GetVidChar и SetVidChar оперируют байтами
-  30.05.2002 SVS
-    + ShellUpdatePanels и CheckUpdateAnotherPanel
-  28.05.2002 SVS
-    + IsLocalPath()
-  25.05.2002 IS
-    ! первый параметр у ConvertDate теперь ссылка на константу
-  24.05.2002 SVS
-    + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
-    + _FCTLLOG
-    + RunGraber()
-  22.05.2002 SVS
-    + _VCTL_ToName, _VCTLLOG
-  22.05.2002 SVS
-    + IsDiskInDrive()
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  16.05.2002 SVS
-    ! Лишние описания функций
-  29.04.2002 SVS
-    ! немного const
-  27.04.2002 SVS
-    ! [G|S]etShortcutFolder могут теперь иметь в качестве некоторых параметров
-      значение равное NULL
-  25.04.2002 IS
-    + const вариант PointToName
-  05.04.2002 SVS
-    + CheckShortcutFolder()
-  04.04.2002 SVS
-    ! WordWrap -> FarFormatText
-    + _ACTL_ToName
-  02.04.2002 SVS
-    + SetInitialCursorType()
-  28.03.2002 SVS
-    + ClearScreen()
-  26.03.2002 IS
-    + void InitLCIDSort();
-  26.03.2002 DJ
-    ! вынесем CharBufferTooSmallWarn() на всеобщее обозрение
-  20.03.2002 SVS
-    + FarGetCurDir()
-  20.03.2002 IS
-    ! PrepareOSIfExist теперь принимает и возвращает const
-    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
-      "name\" (оканчивается на слеш) возвращает указатель на name, а не
-      на пустую строку
-  17.03.2002 IS
-    + PrepareTable: параметр UseTableName - в качестве имени таблицы
-      использовать не имя ключа реестра, а соответствующую переменную.
-      По умолчанию - FALSE (использовать имя ключа).
-  12.03.2002 VVM
-    + Новая функция - пользователь попытался прервать операцию.
-      Зададим вопрос.
-  05.03.2002 DJ
-    ! SubstFileName() получает размер буфера
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  03.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-      FarMkTemp - это для плагинов
-    + ChangeBlockColor() - изменение цвета в блоке
-  22.02.2002 SVS
-    + Добавка функций ToPercent64() и filelen64()
-    ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
-  15.02.2002 IS
-    + Новый параметр ChangeDir у FarChDir, если FALSE, то не меняем текущий
-      диск, а только устанавливаем переменные окружения. По умолчанию - TRUE.
-  13.02.2002 SVS
-    + SysLogLastError()
-  11.02.2002 SVS
-    + _DLGMSG_ToName()
-  05.02.2002 SVS
-    ! У DeleteFileWithFolder параметр имеет суть const
-    + _*_ToName() - для отладочных целей
-  05.02.2002 SVS
-    + IsNavKey(), IsShiftKey()
-  25.01.2002 SVS
-    + GetRegKeySize с уже открытым ключем HKEY hKey
-  14.01.2002 IS
-    + FarChDir - установка нужного диска и каталога и установление
-      соответствующей переменной окружения. В случае успеха возвращается
-      не ноль.
-  11.01.2002 IS
-    + InitKeysArray
-  10.01.2002 SVS
-    + SYSLOG_ECTL
-  25.12.2001 SVS
-    + AddEndSlash(char *Path,char TypeSlash) - с явно заданным слешем
-  21.12.2001 SVS
-    + CalcWordFromString - "вычисление" слова
-  07.12.2001 SVS
-    ! У Execute команда (первый параметр) - const
-  07.12.2001 IS
-    ! Два дополнительных параметра у GetString, которые используются
-      при добавлении чек-бокса.
-    + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
-      функциональностью. Сделано для того, чтобы не дублировать код GetString.
-  06.12.2001 SVS
-    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
-  02.12.2001 SVS
-    ! PrepareDiskPath() имеет второй параметр по умолчанию TRUE
-  27.11.2001 DJ
-    + параметр Local у EditorConfig и ViewerConfig
-  26.11.2001 SVS
-    + PrepareDiskPath()
-  22.11.2001 SVS
-    + У Execute() добавлен параметр - SetUpDirs "Нужно устанавливать каталоги?"
-      Это как раз про ту войну, когда Костя "отлучил" кусок кода про
-      установку каталогов. Это понадобится гораздо позже.
-  19.11.2001 SVS
-    + ReplaceStrings - замена подстроки
-  15.11.2001 OT
-    - Исправление поведения cd c:\ на активном панельном плагине
-  06.11.2001 SVS
-    + EnumRegValue() - перечисление Values у ключа
-    ! Немного const для функции работы с реестром
-  18.10.2001 SVS
-    ! У функций Message параметр Flags имеет суть "DWORD"
-    + WordWrap()
-  15.10.2001 SVS
-    + Экспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
-    + _DIALOG & SYSLOG_DIALOG
-  07.10.2001 SVS
-    + InsertString()
-  01.10.2001 IS
-    + TruncStrFromEnd
-  26.09.2001 SVS
-    + DeleteEndSlash (с подачи IS)
-  24.09.2001 SVS
-    ! CleverSysLog - параметр у конструктора - "заголовок"
-  20.09.2001 SVS
-    ! Параметр у InputRecordToKey "const"
-  18.09.2001 SVS
-    + _ALGO & SYSLOG_ALGO - для "алгоритмов работы"
-      Внимание! Лог в последствии будет большим!
-  18.09.2001 SVS
-    + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
-  12.09.2001 SVS
-    + ConvertNameToReal()
-  09.09.2001 SVS
-    + GetMenuHotKey()
-  07.08.2001 IS
-    ! FarCharTable: второй параметр теперь не const, потому что он может
-      меняться. в FarCharTable.
-  03.08.2001 IS
-    + InsertQuote
-  31.07.2001 IS
-    ! Внедрение const (FarGetMsgFn)
-  25.07.2001 SVS
-    ! Осмысленный параметр у InitConsole.
-  11.07.2001 SVS
-    ! HiStrlen и RemoveChar - дополнительный параметр - при дублях, типа '&&'
-      "удалять ли все или оставлять только один символ"
-  06.07.2001 IS
-    ! Убрал CopyMaskStr, нефиг плодить сущности
-  04.07.2001 SVS
-    ! BoxText может рисовать вертикальный сепаратор
-  04.07.2001 SVS
-    + Функции про хип
-  02.07.2001 IS
-    + RawConvertShortNameToLongName
-  25.06.2001 IS
-    ! Внедрение const
-  22.06.2001 SVS
-    + StrFTime
-  21.06.2001 SVS
-    ! Удалена функция WriteSequenceInput() за ненадобностью
-  18.06.2001 SVS
-    + ExtractIfExistCommand()
-  11.06.2001 SVS
-    ! Новые параметры у GetSearchReplaceString()
-  08.06.2001 SVS
-    + GenerateWINDOW_BUFFER_SIZE_EVENT()
-  06.06.2001 SVS
-    ! функции получения символа юзаем пока только в режиме USE_WFUNC
-  03.06.2001 SVS
-    + GetRegKeySize() - получить размер данных
-  30.05.2001 SVS
-    ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
-  21.05.2001 OT
-    - Исправление поведения AltF9
-  16.05.2001 SVS
-   + _D(x) Для Мельникова!
-    ! DumpExceptionInfo переименован в WriteEvent и переехал в farexcpt.hpp
-    ! xfilter переехал в farexcpt.hpp
-  09.05.2001 OT
-   ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
-  07.05.2001 SVS
-   ! _D(x) для SysLog
-  07.05.2001 DJ
-   + LocalUpperFast(), LocalLowerFast(), CopyMaskStr()
-  06.05.2001 DJ
-   ! перетрях #include
-  29.04.2001 ОТ
-   + Внедрение NWZ от Третьякова
-  28.04.2001 SVS
-   + xfilter
-   + Новый параметр у DumpExceptionInfo - указатель на PluginItem.
-   + Фунция печати дампа памяти SysLogDump()
-  08.04.2001 SVS
-   ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
-   ! ExpandPATHEXT() выкинуты за ненадобностью.
-  06.04.2001 SVS
-   + ExpandPATHEXT()
-  04.04.2001 SVS
-   + MkRegKeyHighlightName
-  03.04.2001 SVS
-   + Add_PATHEXT()
-  30.03.2001 SVS
-   + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
-     скрытых логических дисков
-  29.03.2001 IS
-   ! void ViewerConfig() -> void ViewerConfig(struct ViewerOptions &ViOpt);
-  24.03.2001 tran 1.69
-   + FarQsortEx, qsortex
-  20.03.2001 tran 1.67
-   + FarRecursiveSearch - добавлен void *param
-  20.03.2001 SVS
-   + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
-     вид - выдрана из FileList::ShowList()
-  16.03.2001 SVS
-   + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
-   + GetNameAndPassword();
-  13.03.2001 SVS
-   ! GetPathRoot переехала в flink.hpp :-)
-  07.03.2001 IS
-   + DeleteEmptyKey
-  06.03.2001 SVS
-   ! InsertCommas возвращает знчение на Dest
-  28.02.2001 SVS
-   ! CenterStr возвращает указатель на Dest
-  27.02.2001 SVS
-   + BoxText(Char) - вывод одного символа
-  22.02.2001 SVS
-   + RemoveChar - удаляет символ из строки
-   ! RemoveHighlights(Str) как макрос - вызывает RemoveChar(Str,'&')
-  21.02.2001 IS
-   + EditorConfig вызывается с ссылкой на EditorOptions
-  20.02.2001 SVS
-   ! ShowSeparator - дополнительный параметр - тип сепаратора
-   + MakeSeparator - создание разделителя в памяти
-  14.02.2001 SKV
-   ! Параметр setpal для InitConsole, с default значением 1.
-     Переинитить ли палитру.
-  02.02.2001 IS
-   + RemoveUnprintableCharacters
-  28.01.2001 SVS
-   ! DumpExeptionInfo -> DumpExceptionInfo ;-)
-  27.01.2001 VVM
-   + Дополнительный параметр у GetErrorString - резмер буфера
-  25.01.2001 SVS
-   ! WriteInput - имеет дополнительный параметр - флаги
-   ! TranslateKeyToVK - имеет дополнительный параметр - указатель на эвенты.
-  23.01.2001 SVS
-   + DumpExeptionInfo()
-  23.01.2001 SVS
-   ! CalcKeyCode - новый параметр.
-  22.01.2001 SVS
-   ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
-  20.01.2001 SVS
-   + GetSearchReplaceString, WriteSequenceInput
-   ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
-  14.01.2001 SVS
-   + PrepareOSIfExist
-  05.01.2001 SVS
-   ! Функция GetSubstName переехала в flink.hpp
-  04.01.2001 SVS
-   + KeyNameMacroToKey() и TranslateKeyToVK()
-  04.01.2001 SVS
-   ! Описания MkLink, GetNumberOfLinks переехали в flink.hpp
-  03.01.2001 SVS
-   ! Дополнительный параметр у ConvertDate -
-     "как взять формат даты - динамически или статически?"
-  30.12.2000 SVS
-   + Функции работы с атрибутами файлов "опубликованы"
-  26.12.2000 SVS
-   + KeyMacroToText()
-  14.12.2000 SVS
-   + EjectVolume()
-  02.11.2000 OT
-   ! Введение проверки на длину буфера, отведенного под имя файла.
-  25.10.2000 IS
-   ! Изменил имя параметра в FarMkTemp с Template на Prefix
-  23.10.2000 SVS
-   ! Узаконненая версия SysLog :-)
-  20.10.2000 SVS
-   ! ProcessName: Flags должен быть DWORD, а не int
-  20.10.2000 SVS
-   + SysLog
-  16.10.2000 tran
-   + PasteFromClipboardEx(int max);
-  09.10.2000 IS
-   + ProcessName
-  27.09.2000 SVS
-   + FarViewerControl
-  27.09.2000 skv
-   + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
-  24.09.2000 SVS
-   + Функция KeyNameToKey - получение кода клавиши по имени
-     Если имя не верно или нет такого - возвращается -1
-  20.09.2000 SVS
-   ! удалил FolderPresent (блин, совсем крышу сорвало :-(
-  19.09.2000 SVS
-   + функция FolderPresent - "сужествует ли каталог"
-  18.09.2000 SVS
-   ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
-   ! FarRecurseSearch -> FarRecursiveSearch
-  15.09.2000 IS
-   + Функция CheckRegValue - возвращает FALSE, если указанная переменная не
-     содержит данные или размер данных равен нулю.
-   + Функция DistrTableExist - проверяет, установлена ли таблица с
-     распределением частот символов, возвращает TRUE в случае успеха
-  14.09.2000 SVS
-    + Функция FarMkTemp - получение имени временного файла с полным путем.
-  12.09.2000 SVS
-    ! FarShowHelp возвращает BOOL
-  10.09.2000 SVS
-    ! KeyToText возвращает BOOL
-  10.09.2000 tran 1.23
-    + FSF/FarRecurseSearch
-  10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
-  08.09.2000 SVS
-    ! QWERTY -> Transliterate
-  07.09.2000 SVS
-    ! Функции GetFileOwner и GetNumberOfLinks имеют вызов WINAPI
-    + FarBsearch
-  05.09.2000 SVS
-    + QWERTY-перекодировка!
-      На основе плагина EditSwap by SVS :-)))
-  31.08.2000 tran
-    + FSF/FarInputRecordToKey
-  29.08.2000 SVS
-    + Дополнительный параметр у Message* - номер плагина.
-  28.08.2000 SVS
-    + Модификация вызова под WINAPI у функций Local*
-    ! уточнение для FarQsort
-    ! Не FarAtoa64, но FarAtoi64
-    + FarItoa64
-  24.08.2000 SVS
-    + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
-  23.08.2000 SVS
-    ! Все Flags приведены к одному виду -> DWORD.
-      Модифицированы:
-        * функции   FarMenuFn, FarMessageFn, FarShowHelp
-        * структуры FarListItem, FarDialogItem
-  23.08.2000 SVS
-    + Уточнения (комментарий) для IsMouseButtonPressed()
-  18.08.2000 tran
-    + Flags parameter in FarShowHelp
-  14.08.2000 SVS
-    + Функции семейства seek под __int64
-  01.08.2000 SVS
-    ! Функция ввода строки GetString имеет один параметр для всех флагов
-    ! дополнительный параметра у KeyToText - размер данных
-  31.07.2000 SVS
-    ! функция GetString имеет еще один параметр - расширение среды
-  24.07.2000 SVS
-    ! Все функции, попадающие в разряд FSF должны иметь WINAPI!!!
-  23.07.2000 SVS
-    + Функция FarDialogEx - расширенный диалог
-    + Функция FarDefDlgProc обработки диалога по умолчанию
-    + Функция FarSendDlgMessage - посылка сообщения диалогу
-    + Text(int X, int Y, int Color, char *Str);
-    + Text(int X, int Y, int Color, int MsgId);
-  18.07.2000 tran 1.06
-    ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
-      нужно для Viewer
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  07.07.2000 IS
-    + SetHighlighting из main.cpp
-  07.07.2000 SVS
-    + Дополнительная функция обработки строк: RemoveExternalSpaces
-  06.07.2000 IS
-    + Функция FarAdvControl
-  05.07.2000 SVS
-    + Функция ExpandEnvironmentStr
-  03.07.2000 IS
-    + Функция вывода помощи
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.279 04.07.2006 $ */
 
 #include "farconst.hpp"
 #include "global.hpp"
+#include "plugin.hpp"
 
+char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength = -1);
+void UnicodeToAnsi (const wchar_t *lpwszUnicodeString, char *lpDest, int nMaxLength = -1); //BUGBUG
 /* $ 07.07.2000 IS
    Функция перешла сюда из main.cpp
 */
@@ -661,6 +55,7 @@ void Text(const char *Str);
 #if defined(USE_WFUNC)
 void TextW(int X, int Y, int Color, const WCHAR *Str);
 void TextW(const WCHAR *Str);
+void TextW(int MsgId);
 #endif
 void Text(int X, int Y, int Color, int MsgId);
 void Text(int MsgId);
@@ -689,59 +84,42 @@ void ClearScreen(int Color);
 int  GetColor();
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
-#if defined(USE_WFUNC)
-void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src);
-#endif
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest);
 void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
 void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 
 #if defined(USE_WFUNC)
-void mprintfW(CHAR *fmt,...);
-void vmprintfW(CHAR *fmt,...);
+void mprintfW(WCHAR *fmt,...);
+void vmprintfW(WCHAR *fmt,...);
 #endif
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
 
-#if defined(USE_WFUNC)
-WORD GetVidCharW(CHAR_INFO CI);
 inline WORD GetVidChar(CHAR_INFO CI)
 {
-  if(Opt.UseUnicodeConsole)
-    return GetVidCharW(CI);
-  return CI.Char.AsciiChar;
+  return CI.Char.UnicodeChar;
 }
 
 inline void SetVidChar(CHAR_INFO& CI,WORD Chr)
 {
-  extern WCHAR Oem2Unicode[];
-  extern BYTE RecodeOutTable[];
-
-  if(Opt.UseUnicodeConsole)
-    CI.Char.UnicodeChar = Oem2Unicode[Chr];
-  else
-    CI.Char.AsciiChar=RecodeOutTable[Chr];
+  CI.Char.UnicodeChar = Chr;
 }
-
-#else
-#define GetVidChar(CI)     (CI).Char.AsciiChar
-#define SetVidChar(CI,Chr) (CI).Char.AsciiChar=Chr
-#endif
-
 
 void ShowTime(int ShowAlways);
 int GetDateFormat();
 int GetDateSeparator();
 int GetTimeSeparator();
+
 char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
-char* InsertCommas(const unsigned long &Number,char *Dest);
-char* InsertCommas(const unsigned __int64 &li,char *Dest);
-void DeleteDirTree(const char *Dir);
-int GetClusterSize(char *Root);
+
+string &InsertCommasW(unsigned __int64 li, string &strDest);
+
+void DeleteDirTree(const wchar_t *Dir);
+int GetClusterSizeW(const wchar_t *Root);
 
 void __cdecl CheckVersion(void *Param);
 void __cdecl ErrRegFn(void *Param);
@@ -763,13 +141,29 @@ void BoxTextW2(const char *Str,int IsVert);
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();
+
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
-char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
+string &RemoveCharW(string &strStr,wchar_t Target,BOOL Dup=TRUE);
+
+wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
+
 int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
+int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
+
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
+#define RemoveHighlightsW(Str) RemoveCharW(Str,L'&')
+
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
-int DeleteFileWithFolder(const char *FileName);
+
+#if defined(USE_WFUNC)
+#if defined(__UNICODESTRING_HPP__)
+BOOL IsCaseMixedW(const string &strStr);
+BOOL IsCaseLowerW(const string &strStr);
+#endif
+#endif
+
+int DeleteFileWithFolderW(const wchar_t *FileName);
 
 
 /* $ 26.01.2003 IS
@@ -779,13 +173,13 @@ int DeleteFileWithFolder(const char *FileName);
       ее вместо CreateFile
 */
 // удалить файл, код возврата аналогичен DeleteFile
-BOOL WINAPI FAR_DeleteFile(const char *FileName);
+BOOL WINAPI FAR_DeleteFileW(const wchar_t *FileName);
 // удалить каталог, код возврата аналогичен RemoveDirectory
-BOOL WINAPI FAR_RemoveDirectory(const char *DirName);
+BOOL WINAPI FAR_RemoveDirectoryW(const wchar_t *DirName);
 
-// открыть файл, вод возврата аналогичен CreateFile
-HANDLE WINAPI FAR_CreateFile(
-    LPCTSTR lpFileName,     // pointer to name of the file
+
+HANDLE WINAPI FAR_CreateFileW(
+    const wchar_t *lpwszFileName,     // pointer to name of the file
     DWORD dwDesiredAccess,  // access (read-write) mode
     DWORD dwShareMode,      // share mode
     LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
@@ -793,30 +187,42 @@ HANDLE WINAPI FAR_CreateFile(
     DWORD dwFlagsAndAttributes,   // file attributes
     HANDLE hTemplateFile          // handle to file with attributes to copy
    );
+
 /* IS $ */
 
-BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo=NULL);
-
-BOOL FAR_CopyFile(
-    LPCTSTR lpExistingFileName, // pointer to name of an existing file
-    LPCTSTR lpNewFileName,  // pointer to filename to copy to
+BOOL FAR_CopyFileW(
+    const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
+    const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
     BOOL bFailIfExists  // flag for operation if file exists
    );
 
+
 BOOL Init_CopyFileEx(void);
-BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
-            LPCTSTR lpNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
-BOOL FAR_MoveFile(
-    LPCTSTR lpExistingFileName, // address of name of the existing file
-    LPCTSTR lpNewFileName   // address of new name for the file
+
+
+BOOL FAR_CopyFileExW(
+        const wchar_t *lpExistingFileName,
+        const wchar_t *lpNewFileName,
+        void *lpProgressRoutine,
+        LPVOID lpData,
+        LPBOOL pbCancel,
+        DWORD dwCopyFlags
+        );
+
+
+BOOL FAR_MoveFileW(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName   // address of new name for the file
    );
-BOOL FAR_MoveFileEx(
-    LPCTSTR lpExistingFileName, // address of name of the existing file
-    LPCTSTR lpNewFileName,   // address of new name for the file
+
+BOOL FAR_MoveFileExW(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
    );
-BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
+
+
+BOOL MoveFileThroughTempW(const wchar_t *Src, const wchar_t *Dest);
 
 
 void WINAPI SetFileApisTo(int Type);
@@ -827,33 +233,40 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst);
 
 BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer);
 
+char* GetAnsiLanguageString (int nID);
+wchar_t* GetUnicodeLanguageString (int nID);
 
-char* FarMSG(int MsgID);
-#define MSG(ID) FarMSG(ID)
+#define MSG(ID) GetAnsiLanguageString(ID)
+#define UMSG(ID) GetUnicodeLanguageString(ID)
 
 /* $ 29.08.2000 SVS
    Дополнительный параметр у Message* - номер плагина.
 */
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2=NULL,const char *Str3=NULL,const char *Str4=NULL,
+
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,
             int PluginNumber=-1);
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
-            const char *Str5,const char *Str6=NULL,const char *Str7=NULL,
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
+            const wchar_t *Str5,const wchar_t *Str6=NULL,const wchar_t *Str7=NULL,
             int PluginNumber=-1);
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
-            const char *Str5,const char *Str6,const char *Str7,
-            const char *Str8,const char *Str9=NULL,const char *Str10=NULL,
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
+            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
+            const wchar_t *Str8,const wchar_t *Str9=NULL,const wchar_t *Str10=NULL,
             int PluginNumber=-1);
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
-            const char *Str5,const char *Str6,const char *Str7,
-            const char *Str8,const char *Str9,const char *Str10,
-            const char *Str11,const char *Str12=NULL,const char *Str13=NULL,
-            const char *Str14=NULL, int PluginNumber=-1);
-int Message(DWORD Flags,int Buttons,const char *Title,const char * const *Items,
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
+            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
+            const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
+            const wchar_t *Str11,const wchar_t *Str12=NULL,const wchar_t *Str13=NULL,
+            const wchar_t *Str14=NULL, int PluginNumber=-1);
+
+//int __cdecl MessageW (DWORD Flags,int Buttons,const char *Title, int PluginNumber, ...);
+
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t * const *Items,
             int ItemsNumber,int PluginNumber=-1);
+
 /* SVS $*/
 /* $ 12.03.2002 VVM
   Новая функция - пользователь попытался прервать операцию.
@@ -864,36 +277,50 @@ int Message(DWORD Flags,int Buttons,const char *Title,const char * const *Items,
 */
 int AbortMessage();
 /* VVM $ */
-void SetMessageHelp(const char *Topic);
+void SetMessageHelp(const wchar_t *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
-int ToPercent64(__int64 N1,__int64 N2);
+int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
-int CmpName(const char *pattern,const char *string,int skippath=TRUE);
+int CmpName(const char *pattern,const char *str,int skippath=TRUE);
+int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
 /* $ 09.10.2000 IS
     + Новая функция для обработки имени файла
 */
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int WINAPI ProcessName(const char *param1, char *param2, DWORD flags);
+int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
 /* IS $ */
-char* QuoteSpace(char *Str);
-/* $ 03.08.2001 IS функция заключения строки в кавычки */
-char *InsertQuote(char *Str);
+
+wchar_t* WINAPI QuoteSpaceW (wchar_t *Str);
+string &QuoteSpaceW(string &strStr);
+
+
+wchar_t* WINAPI InsertQuoteW (wchar_t *Str);
+string& InsertQuoteW(string& strStr);
 /* IS $ */
-int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
-int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish);
-void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish);
-int SubstFileName(char *Str,int StrSize, char *Name,char *ShortName,
-                  char *ListName=NULL,char *ShortListName=NULL,
-                  int IgnoreInput=FALSE,char *CmdLineDir=NULL);
-BOOL ExtractIfExistCommand(char *CommandText);
+//int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
+int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish);
+
+int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish);
+void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish);
+
+int SubstFileName(string &strStr, const wchar_t *Name, const wchar_t *ShortName,
+                  string *strListName=NULL,
+                  string *strAnotherListName = NULL,
+                  string *strShortListName=NULL,
+                  string *strAnotherShortListName=NULL,
+                  int IgnoreInput=FALSE,const wchar_t *CmdLineDir=NULL);
+BOOL ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
 void ProcessUserMenu(int EditMenu);
-DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize);
-int ConvertNameToFull(const char *Src,char *Dest, int DestSize);
-int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize);
-void ConvertNameToShort(const char *Src,char *Dest,int DestSize);
+
+DWORD RawConvertShortNameToLongNameW(const wchar_t *src, string &strDest);
+
+int ConvertNameToFullW(const wchar_t *lpwszSrc, string &strDest);
+int WINAPI ConvertNameToRealW(const wchar_t *Src, string &strDest);
+void ConvertNameToShortW(const wchar_t *Src, string &strDest);
+
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
 void SystemSettings();
@@ -902,7 +329,7 @@ void InterfaceSettings();
 void DialogSettings();
 void SetConfirmations();
 void SetDizConfig();
-int  IsLocalDrive(const char *Path);
+int  IsLocalDriveW(const wchar_t *Path);
 /* $ 27.11.2001 DJ
    параметр Local
 */
@@ -914,24 +341,30 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color,bool bCentered=false);
-int HiStrlen(const char *Str,BOOL Dup=TRUE);
+int HiStrlenW(const wchar_t *Str,BOOL Dup=TRUE);
 /* $ 27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера */
 int GetErrorString(char *ErrStr, DWORD StrSize);
+int GetErrorStringW (string &strErrStr);
 /* VVM $ */
 // Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
 BOOL CheckErrorForProcessed(DWORD Err);
 void ShowProcessList();
-int CopyFormatToClipboard(const char *Format,char *Data);
-char* PasteFormatFromClipboard(const char *Format);
-/* $ 16.10.2000 tran
-  параметер - ограничение по длины */
-char* WINAPI PasteFromClipboardEx(int max);
+
+wchar_t* PasteFormatFromClipboardW(const wchar_t *Format);
+int CopyFormatToClipboardW(const wchar_t *Format,const wchar_t *Data);
+wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
+wchar_t* WINAPI PasteFromClipboardExW(int max);
 /* tran $ */
 BOOL WINAPI FAR_EmptyClipboard(VOID);
 
-int GetFileTypeByName(const char *Name);
-void SetFarTitle(const char *Title);
+int GetFileTypeByNameW(const wchar_t *Name);
+
+string &CutToSlashW (string &strStr, bool bInclude = false);
+string &CutToNameUNCW (string &strPath);
+const wchar_t *PointToNameUNCW (const wchar_t *lpwszPath);
+
+void SetFarTitleW (const wchar_t *Title);
 void LocalUpperInit();
 /* $ 11.01.2002 IS инициализация массива клавиш */
 void InitKeysArray();
@@ -955,16 +388,35 @@ int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 /* SVS $ */
 const char * __cdecl LocalStrstri(const char *str1, const char *str2);
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
+
+const wchar_t * __cdecl StrstriW(const wchar_t *str1, const wchar_t *str2);
+const wchar_t * __cdecl RevStrstriW(const wchar_t *str1, const wchar_t *str2);
+
 int __cdecl LocalStricmp(const char *s1,const char *s2);
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
 int __cdecl LCStricmp(const char *s1,const char *s2);
 int __cdecl LCNumStricmp(const char *s1,const char *s2);
 
+
+void WINAPI LocalUpperBufW(wchar_t *Buf,int Length);
+void WINAPI LocalLowerBufW(wchar_t *Buf,int Length);
+void WINAPI LocalStruprW(wchar_t *s1);
+void WINAPI LocalStrlwrW(wchar_t *s1);
+
+wchar_t WINAPI LocalUpperW (wchar_t Ch);
+wchar_t WINAPI LocalLowerW (wchar_t Ch);
+int WINAPI LocalStrnicmpW (const wchar_t *s1, const wchar_t *s2, int n);
+int WINAPI LocalStricmpW (const wchar_t *s1, const wchar_t *s2);
+int WINAPI LocalIslowerW (wchar_t Ch);
+int WINAPI LocalIsupperW (wchar_t Ch);
+int WINAPI LocalIsalphaW (wchar_t Ch);
+int WINAPI LocalIsalphanumW (wchar_t Ch);
+
 int LocalKeyToKey(int Key);
-int GetShortcutFolder(int Key,char *DestFolder,int DestSize,char *PluginModule=NULL,
-                      char *PluginFile=NULL,char *PluginData=NULL);
-int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule=NULL,
-                       char *PluginFile=NULL,char *PluginData=NULL);
+int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL,
+                      string *pPluginFile=NULL,string *pPluginData=NULL);
+int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=NULL,
+                       string *pPluginFile=NULL,string *pPluginData=NULL);
 int GetShortcutFolderSize(int Key);
 void ShowFolderShortcut();
 void ShowFilter();
@@ -975,14 +427,26 @@ int DistrTableExist(void);
 /* IS $ */
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
+
+int GetTableEx ();
+void DecodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
+void EncodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
+
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
 //char *NullToEmpty(char *Str);
 const char *NullToEmpty(const char *Str);
-char* CenterStr(char *Src,char *Dest,int Length);
+#define NullToEmptyW(s) (s?s:L"")
+
+string& CenterStrW(const wchar_t *Src, string &strDest,int Length);
+
 const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
+const wchar_t *GetCommaWordW(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
+
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
-int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner);
+
+int WINAPI GetFileOwnerW(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
+
 void SIDCacheFlush(void);
 
 /* $ 26.10.2003 KM
@@ -995,48 +459,56 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 /* KM $ */
 /* KM $ */
 
-void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
+void ConvertDateW(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
+
+
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 
 // Registry
 void SetRegRootKey(HKEY hRootKey);
-LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData);
-LONG SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);
-LONG SetRegKey64(const char *Key,const char *ValueName,unsigned __int64 ValueData);
-LONG SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize);
-int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
-int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey64(const char *Key,const char *ValueName,__int64 &ValueData,unsigned __int64 Default);
-int GetRegKey(const char *Key,const char *ValueName,DWORD Default);
-__int64 GetRegKey64(const char *Key,const char *ValueName,unsigned __int64 Default);
-int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
-HKEY CreateRegKey(const char *Key);
-HKEY OpenRegKey(const char *Key);
-int GetRegKeySize(const char *Key,const char *ValueName);
-int GetRegKeySize(HKEY hKey,const char *ValueName);
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
-void DeleteRegKey(const char *Key);
-void DeleteRegValue(const char *Key,const char *Value);
-void DeleteKeyRecord(const char *KeyMask,int Position);
-void InsertKeyRecord(const char *KeyMask,int Position,int TotalKeys);
-void RenumKeyRecord(const char *KeyRoot,const char *KeyMask,const char *KeyMask0);
-void DeleteKeyTree(const char *KeyName);
-int CheckRegKey(const char *Key);
-int CheckRegValue(const char *Key,const char *ValueName);
-int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName);
-int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize);
-int CopyKeyTree(const char *Src,const char *Dest,const char *Skip);
+
+LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData);
+LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData);
+LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize);
+int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default);
+int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default);
+int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,DWORD Default);
+int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
+HKEY CreateRegKeyW(const wchar_t *Key);
+HKEY OpenRegKeyW(const wchar_t *Key);
+int GetRegKeySizeW(const wchar_t *Key,const wchar_t *ValueName);
+int GetRegKeySizeW(HKEY hKey,const wchar_t *ValueName);
+int EnumRegValueW(const wchar_t *Key,DWORD Index, string &strDestName, LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
+int EnumRegValueExW(const wchar_t *Key,DWORD Index, string &strDestName, string strData, LPDWORD IData=NULL,__int64* IData64=NULL);
+LONG SetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData);
+int GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default);
+__int64 GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default);
+void DeleteRegKeyW(const wchar_t *Key);
+void DeleteRegValueW(const wchar_t *Key,const wchar_t *Value);
+void DeleteKeyRecordW(const wchar_t *KeyMask,int Position);
+void InsertKeyRecordW(const wchar_t *KeyMask,int Position,int TotalKeys);
+void RenumKeyRecordW(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t *KeyMask0);
+void DeleteKeyTreeW(const wchar_t *KeyName);
+int CheckRegKeyW(const wchar_t *Key);
+int CheckRegValueW(const wchar_t *Key,const wchar_t *ValueName);
+int DeleteEmptyKeyW(HKEY hRoot, const wchar_t *FullKeyName);
+int EnumRegKeyW(const wchar_t *Key,DWORD Index,string &strDestName);
+int CopyKeyTreeW(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip);
+
 void UseSameRegKey();
 void CloseSameRegKey();
 
+int RegQueryStringValueEx (HKEY hKey, const wchar_t *lpwszValueName, string &strData, const wchar_t *lpwszDefault = L"");
+int RegQueryStringValue (HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");
 
-int CheckFolder(const char *Name);
-int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silent=FALSE);
+
+int CheckFolderW(const wchar_t *Name);
+int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
 UDWORD NTTimeToDos(FILETIME *ft);
-int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
+int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
 #endif
 
 class Panel;
@@ -1045,15 +517,16 @@ void ShellDelete(Panel *SrcPanel,int Wipe);
 int  ShellSetFileAttributes(Panel *SrcPanel);
 void PrintFiles(Panel *SrcPanel);
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
-int  CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName);
+int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
 
-BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalFree,unsigned __int64 *UserFree);
-int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
+BOOL GetDiskSizeW(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
+
+int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
                DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
-int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
+int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize);
 
@@ -1070,52 +543,38 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FA
 #endif
 
 
-
-#if defined(_INC_WINDOWS) || defined(_WINDOWS_)
-ULARGE_INTEGER operator - (ULARGE_INTEGER &s1,unsigned int s2);
-ULARGE_INTEGER operator + (ULARGE_INTEGER &s1,unsigned int s2);
-ULARGE_INTEGER operator - (ULARGE_INTEGER &s1,ULARGE_INTEGER &s2);
-ULARGE_INTEGER operator + (ULARGE_INTEGER &s1,ULARGE_INTEGER &s2);
-ULARGE_INTEGER operator -= (ULARGE_INTEGER &s1,unsigned int s2);
-ULARGE_INTEGER operator += (ULARGE_INTEGER &s1,unsigned int s2);
-ULARGE_INTEGER operator -= (ULARGE_INTEGER &s1,ULARGE_INTEGER &s2);
-ULARGE_INTEGER operator += (ULARGE_INTEGER &s1,ULARGE_INTEGER &s2);
-unsigned int operator / (ULARGE_INTEGER d1,unsigned int d2);
-ULARGE_INTEGER operator >> (ULARGE_INTEGER c1,unsigned int c2);
-BOOL operator < (ULARGE_INTEGER &c1,int c2);
-BOOL operator >= (ULARGE_INTEGER &c1,int c2);
-BOOL operator >= (ULARGE_INTEGER &c1,ULARGE_INTEGER &c2);
-#endif
-
 #ifdef __PLUGIN_HPP__
 // эти функции _были_ как static
 int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
-                  const char *Dir,struct PluginPanelItem **pPanelItem,
+                  const wchar_t *Dir,struct PluginPanelItemW **pPanelItem,
                   int *pItemsNumber);
+void WINAPI FarFreePluginDirList(PluginPanelItemW *PanelItem, int ItemsNumber);
+
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,const char *Title,const char *Bottom,
-           const char *HelpTopic,const int *BreakKeys,int *BreakCode,
+           DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
+           const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber);
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
-           const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
+           const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
 const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,
-           const char *HelpTopic,const char * const *Items,int ItemsNumber,
+           const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
            int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
-int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
-           int *pItemsNumber);
-void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem);
-int WINAPI FarViewer(const char *FileName,const char *Title,
+
+int WINAPI FarGetDirList(const wchar_t *Dir, FAR_FIND_DATA **pPanelItem, int *pItemsNumber);
+void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber);
+
+int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2,int Y2,DWORD Flags);
-int WINAPI FarEditor(const char *FileName,const char *Title,
+int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags,
                      int StartLine,int StartChar);
-int WINAPI FarCmpName(const char *pattern,const char *string,int skippath);
+int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath);
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
-void WINAPI FarText(int X,int Y,int Color,const char *Str);
+void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
 #if defined(USE_WFUNC)
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
 #endif
@@ -1128,18 +587,18 @@ int WINAPI FarViewerControl(int Command,void *Param);
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-BOOL WINAPI FarShowHelp(const char *ModuleName,
-                        const char *HelpTopic,DWORD Flags);
+BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
+                        const wchar_t *HelpTopic,DWORD Flags);
 /* IS $ */
 /* tran 18.08.2000 $ */
 /* $ 07.12.2001 IS
    Обертка вокруг GetString для плагинов - с меньшей функциональностью.
    Сделано для того, чтобы не дублировать код GetString.
 */
-int WINAPI FarInputBox(const char *Title,const char *Prompt,
-                       const char *HistoryName,const char *SrcText,
-                       char *DestText,int DestLength,
-                       const char *HelpTopic,DWORD Flags);
+int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
+                       const wchar_t *HistoryName,const wchar_t *SrcText,
+                       wchar_t *DestText,int DestLength,
+                       const wchar_t *HelpTopic,DWORD Flags);
 /* IS $ */
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
@@ -1151,7 +610,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 */
 //  Функция расширенного диалога
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
-      const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+      const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
       DWORD Reserved, DWORD Flags,
       FARWINDOWPROC Proc,long Param);
 //  Функция обработки диалога по умолчанию
@@ -1163,41 +622,43 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
 #endif
 
 
-/* $ 24.07.2000 SVS
-   Те функции, которые попадают в FSF
-   Должны иметь WINAPI
-*/
-/* $ 05.07.2000 SVS
-   Расширение переменной среды
-*/
-DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dst, size_t size=8192);
-/* SVS $ */
-
 BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize);
 BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize);
 
-void WINAPI Unquote(char *Str);
-void UnquoteExternal(char *Str);
+void WINAPI UnquoteW(string &strStr);
+void WINAPI UnquoteW(wchar_t *Str);
+
+void UnquoteExternalW(string &strStr);
 
 /* $ 07.07.2000 SVS
    + удалить пробелы снаружи
    ! изменен тип возврата
 */
-char* WINAPI RemoveLeadingSpaces(char *Str);
+wchar_t* WINAPI RemoveLeadingSpacesW(wchar_t *Str);
+string& WINAPI RemoveLeadingSpacesW(string &strStr);
+
 char* WINAPI RemoveTrailingSpaces(char *Str);
-char* WINAPI RemoveExternalSpaces(char *Str);
+wchar_t *WINAPI RemoveTrailingSpacesW(wchar_t *Str);
+string& WINAPI RemoveTrailingSpacesW(string &strStr);
+
+wchar_t* WINAPI RemoveExternalSpacesW(wchar_t *Str);
+string & WINAPI RemoveExternalSpacesW(string &strStr);
 /* SVS $ */
 /* $ 02.02.2001 IS
   + Новая функция: заменяет пробелами непечатные символы в строке
 */
-char* WINAPI RemoveUnprintableCharacters(char *Str);
-/* IS $ */
-char* WINAPI TruncStr(char *Str,int MaxLength);
-char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
-char* WINAPI TruncPathStr(char *Str,int MaxLength);
-char* WINAPI QuoteSpaceOnly(char *Str);
-char* WINAPI PointToName(char *Path);
-char* WINAPI PointToNameUNC(char *Path);
+string & WINAPI RemoveUnprintableCharactersW(string &strStr);
+
+wchar_t* __stdcall TruncStrW (wchar_t *Str,int MaxLength);
+string& __stdcall TruncStrW (string &strStr,int MaxLength);
+
+string& __stdcall TruncStrFromEndW (string &strStr, int MaxLength);
+
+wchar_t* __stdcall TruncPathStrW (wchar_t *Str, int MaxLength);
+string& __stdcall TruncPathStrW (string &strStr, int MaxLength);
+
+wchar_t* WINAPI QuoteSpaceOnlyW(wchar_t *Str);
+string& WINAPI QuoteSpaceOnlyW(string &strStr);
 /* $ 12.01.2004 IS
    + Функция для сверки символа с разделителями слова с учетом текущей
      кодировки
@@ -1209,55 +670,56 @@ char* WINAPI PointToNameUNC(char *Path);
 //   WordDiv  - набор разделителей слова в кодировке OEM
 //   Chr      - проверяемый символ
 BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr);
+BOOL IsWordDivW(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
 /* IS $ */
-const char* WINAPI PointToName(const char *Path);
-/* $ 20.03.2002 IS
-    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
-      "name\" (оканчивается на слеш) возвращает указатель на name, а не
-      на пустую строку
-*/
-char* WINAPI PointToFolderNameIfFolder(const char *Path);
-/* IS $ */
-BOOL  TestParentFolderName(const char *Name);
-BOOL  AddEndSlash(char *Path,char TypeSlash);
-BOOL  WINAPI AddEndSlash(char *Path);
+char* __stdcall PointToName (char *Path);
+const char* __stdcall PointToName (const char *Path);
+const wchar_t* __stdcall PointToNameW (const wchar_t *lpwszPath);
+
+const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *lpwszPath);
+
+BOOL  TestParentFolderNameW(const wchar_t *Name);
+
+BOOL  AddEndSlashW (string &strPath, wchar_t TypeSlash);
+BOOL  AddEndSlashW (string &strPath);
+
+BOOL  AddEndSlashW (wchar_t *Path, wchar_t TypeSlash);
+BOOL  WINAPI AddEndSlashW (wchar_t *Path);
+
 BOOL  WINAPI DeleteEndSlash(char *Path);
+BOOL  WINAPI DeleteEndSlashW(string &strPath);
+
 int __cdecl NumStrcmp(const char *s1, const char *s2);
 int __digit_cnt_0(const char* s, const char** beg);
-char *WINAPI FarItoa(int value, char *string, int radix);
-__int64 WINAPI FarAtoi64(const char *s);
-char *WINAPI FarItoa64(__int64 value, char *string, int radix);
-int WINAPI FarAtoi(const char *s);
+wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix);
+__int64 WINAPI FarAtoi64(const wchar_t *s);
+wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix);
+int WINAPI FarAtoi(const wchar_t *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
-int WINAPIV FarSprintf(char *buffer,const char *format,...);
-int WINAPIV FarSnprintf(char *buffer,size_t sizebuf,const char *format,...);
-#ifndef FAR_MSVCRT
-int WINAPIV FarSscanf(const char *buffer, const char *format,...);
-#endif
 int WINAPI CopyToClipboard(const char *Data);
 char* WINAPI PasteFromClipboard(void);
 
+int WINAPI CopyToClipboardW(const wchar_t *Data);
+wchar_t* WINAPI PasteFromClipboardW(void);
+
+
 char* InternalPasteFromClipboard(int AnsiMode);
+wchar_t* InternalPasteFromClipboardW(int AnsiMode);
 char* InternalPasteFromClipboardEx(int max,int AnsiMode);
+wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode);
 int InternalCopyToClipboard(const char *Data,int AnsiMode);
-/* $ 01.08.2000 SVS
-   ! Функция ввода строки GetString имеет один параметр для всех флагов
-*/
-/* $ 31.07.2000 SVS
-    ! функция GetString имеет еще один параметр - расширение среды
-*/
-/* $ 07.12.2001 IS
-   ! Два дополнительных параметра, которые используются при добавлении
-     чек-бокса
-*/
-int WINAPI GetString(const char *Title,const char *SubTitle,
-                     const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic=NULL,DWORD Flags=0,
-    int *CheckBoxValue=NULL,const char *CheckBoxText=NULL);
+int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode);
+
+
+int WINAPI GetStringW(const wchar_t *Title,const wchar_t *SubTitle,
+                     const wchar_t *HistoryName,const wchar_t *SrcText,
+    string &strDestText,int DestLength,const wchar_t *HelpTopic=NULL,DWORD Flags=0,
+    int *CheckBoxValue=NULL,const wchar_t *CheckBoxText=NULL);
+
 /* IS $ */
 /* SVS $ */
-int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags);
+int WINAPI GetNameAndPasswordW(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
 /* Программое переключение FulScreen <-> Windowed
    (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
@@ -1281,6 +743,13 @@ char* WINAPI Xlat(char *Line,
                     int EndPos,
                     const struct CharTableSet *TableSet,
                     DWORD Flags);
+
+wchar_t* WINAPI XlatW(wchar_t *Line,
+                    int StartPos,
+                    int EndPos,
+                    const struct CharTableSet *TableSet,
+                    DWORD Flags);
+
 /* SVS $ */
 
 /* $ 14.08.2000 SVS
@@ -1292,23 +761,24 @@ extern "C" {
 
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 
-/* $ 10.09.2000 tran
-   FSF/FarRecurseSearch*/
-typedef int  (WINAPI *FRSUSERFUNC)(const WIN32_FIND_DATA *FData,const char *FullName,void *param);
-void WINAPI FarRecursiveSearch(const char *initdir,const char *mask,FRSUSERFUNC func,DWORD flags,void *param);
-/* tran 10.09.2000 $ */
+// $ 10.09.2000 tran - FSF/FarRecurseSearch
+typedef int  (WINAPI *FRSUSERFUNCW)(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param);
+void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNCW func,DWORD flags,void *param);
+
 /* $ 14.09.2000 SVS
  + Функция FarMkTemp - получение имени временного файла с полным путем.
 */
 /* $ 25.10.2000 IS
  ! Изменил имя параметра с Template на Prefix
 */
-char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
-char* FarMkTempEx(char *Dest, const char *Prefix=NULL, BOOL WithPath=TRUE);
+//char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
+
+wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
+string& FarMkTempExW(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
 /* IS $*/
 /* SVS $*/
 
-void CreatePath(char *Path);
+void CreatePathW(string &strPath);
 
 /* $ 15.02.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
@@ -1316,16 +786,16 @@ void CreatePath(char *Path);
    Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
    переменные окружения.
 */
-BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
+BOOL FarChDirW(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 /* IS $ */
 
 // обертка вокруг функции получения текущего пути.
 // для локального пути делает букву диска в uppercase
-DWORD FarGetCurDir(DWORD Length,char *Buffer);
+DWORD FarGetCurDirW (string &strBuffer);
 
-class UserDefinedList;
-UserDefinedList *SaveAllCurDir(void);
-void RestoreAllCurDir(UserDefinedList *DirList);
+class UserDefinedListW;
+UserDefinedListW *SaveAllCurDir(void);
+void RestoreAllCurDir(UserDefinedListW *DirList);
 
 /*$ 27.09.2000 skv
 */
@@ -1346,7 +816,7 @@ void SysLogLastError(void);
 void ShowHeap();
 void CheckHeap(int NumLine);
 
-const char *_FARKEY_ToName(int Key);
+string _FARKEY_ToName(int Key);
 const char *_VK_KEY_ToName(int VkKey);
 const char *_ECTL_ToName(int Command);
 const char *_EE_ToName(int Command);
@@ -1551,11 +1021,11 @@ class CleverSysLog{ // ;-)
 #define MAX_FILE 260
 
 
-BOOL EjectVolume(char Letter,DWORD Flags);
+BOOL EjectVolume(wchar_t Letter,DWORD Flags);
 BOOL RemoveUSBDrive(char Letter,DWORD Flags);
-BOOL IsEjectableMedia(char Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
-BOOL IsDriveUsb(char DriveName,void *pDevInst);
-int  ProcessRemoveHotplugDevice (char Drive, DWORD Flags);
+BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
+BOOL IsDriveUsb(wchar_t DriveName,void *pDevInst);
+int  ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags);
 
 bool InitializeSetupAPI ();
 bool CheckInitSetupAPI ();
@@ -1567,44 +1037,45 @@ void ShowHotplugDevice ();
    Функции работы с атрибутами файлов "опубликованы"
 */
 int GetEncryptFunctions(void);
-int ESetFileAttributes(const char *Name,int Attr);
-int ESetFileCompression(const char *Name,int State,int FileAttr);
-int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent=0);
-#define ESetFileEncryptionSilent(Name,State,FileAttr) ESetFileEncryption(Name,State,FileAttr,1)
-int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
+
+int ESetFileAttributesW(const wchar_t *Name,int Attr);
+int ESetFileCompressionW(const wchar_t *Name,int State,int FileAttr);
+int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent=0);
+#define ESetFileEncryptionSilentW(Name,State,FileAttr) ESetFileEncryptionW(Name,State,FileAttr,1)
+int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
                   int FileAttr);
+
 /* SVS $ */
-int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
+//int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
+int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
-const char* WINAPI PrepareOSIfExist(const char *CmdLine);
-BOOL IsBatchExtType(const char *ExtPtr);
+const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
+BOOL IsBatchExtTypeW(const wchar_t *ExtPtr);
+#ifdef ADD_GUI_CHECK
 BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName);
+#endif
 
-int WINAPI GetSearchReplaceString(
+int WINAPI GetSearchReplaceStringW (
          int IsReplaceMode,
-         unsigned char *SearchStr,
-         int LenSearchStr,
-         unsigned char *ReplaceStr,
-         int LenReplaceStr,
-         const char *TextHistoryName,
-         const char *ReplaceHistoryName,
+         string *pSearchStr,
+         string *pReplaceStr,
+         const wchar_t *TextHistoryName,
+         const wchar_t *ReplaceHistoryName,
          int *Case,
          int *WholeWords,
          int *Reverse);
 
-BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
-int WINAPI KeyNameMacroToKey(const char *Name);
+
+BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0);
+int WINAPI KeyNameMacroToKey(const wchar_t *Name);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
 /* $ 24.09.2000 SVS
  + Функция KeyNameToKey - получение кода клавиши по имени
    Если имя не верно или нет такого - возвращается -1
 */
-int WINAPI KeyNameToKey(const char *Name);
-/* SVS $*/
-// ! дополнительный параметра у KeyToText - размер данных
-//   Size=0 - по максимуму!
-BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
+int WINAPI KeyNameToKey(const wchar_t *Name);
+BOOL WINAPI KeyToText (int Key, string &strKeyText);
 /* SVS $ */
 /* 01.08.2000 SVS $ */
 /* $ 31.08.2000 tran
@@ -1619,7 +1090,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 */
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1);
 /* SVS $ */
-char *FARGetKeybLayoutName(char *Dest,int DestSize);
+BOOL FARGetKeybLayoutNameW (string &strDest);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
@@ -1628,13 +1099,15 @@ int CheckForEscSilent();
 int ConfirmAbortOp();
 
 // Получить из имени диска RemoteName
-char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
+string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest);
+
 void __PrepareKMGTbStr(void);
-char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
+string& __stdcall FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
+
 
 DWORD WINAPI FarGetLogicalDrives(void);
 
-char *Add_PATHEXT(char *Dest);
+string &Add_PATHEXT(string &strDest);
 
 #ifdef __cplusplus
 extern "C" {
@@ -1645,6 +1118,7 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
 
 char * __cdecl farmktemp(char *temp);
 char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen);
+wchar_t * __cdecl xwcsncpy (wchar_t * dest,const wchar_t * src,size_t maxlen);
 char * __cdecl xf_strdup (const char * string);
 void __cdecl far_qsort (
     void *base,
@@ -1683,23 +1157,24 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 void PrepareStrFTime(void);
 int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
 int MkStrFTime(char *Dest,int DestSize,const char *Fmt=NULL);
+int MkStrFTimeW(string &strDest, const wchar_t *Fmt=NULL);
 
-BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
-                          char *DlgHotKeyTitle,
-                          char *DlgHotKeyText,
-                          char *DlgPluginTitle,  // заголовок
-                          char *HelpTopic,
-                          char *RegKey,
-                          char *RegValueName);
+BOOL WINAPI GetMenuHotKeyW(string &strHotKey,int LenHotKey,
+                          const wchar_t *DlgHotKeyTitle,
+                          const wchar_t *DlgHotKeyText,
+                          const wchar_t *DlgPluginTitle,  // заголовок
+                          const wchar_t *HelpTopic,
+                          const wchar_t *RegKey,
+                          const wchar_t *RegValueName);
 
-char *WINAPI FarFormatText(const char *SrcText,int Width,
-                      char *DestText,int MaxLen,
-                      const char* Break, DWORD Flags);
+string& WINAPI FarFormatTextW(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+
 
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
-int PathMayBeAbsolute(const char *Src);
-char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
+int PathMayBeAbsoluteW(const wchar_t *Src);
+
+string& PrepareDiskPathW(string &strPath, BOOL CheckFullPath=TRUE);
 
 #if defined(MOUSEKEY)
 //   TableSet - указатель на таблицы перекодировки (если отсутствует,
@@ -1709,38 +1184,62 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const char *WordDiv);
 #endif
 
-void CharBufferTooSmallWarn(int BufSize, int FileNameSize);
-
 long filelen(FILE *FPtr);
 __int64 filelen64(FILE *FPtr);
 __int64 ftell64(FILE *fp);
 int fseek64 (FILE *fp, __int64 offset, int whence);
 
-BOOL IsDiskInDrive(const char *Drive);
+BOOL IsDiskInDriveW(const wchar_t *Drive);
 
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 BOOL IsDriveTypeCDROM(UINT DriveType);
-UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
+UINT FAR_GetDriveTypeW(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
 
-BOOL IsLocalPath(const char *Path);
-BOOL IsLocalRootPath(const char *Path);
+BOOL IsLocalPathW(const wchar_t *Path);
+BOOL IsLocalRootPathW(const wchar_t *Path);
 
 BOOL RunGraber(void);
 
-BOOL ProcessOSAliases(char *Str,int SizeStr);
-int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCmdPar,int SizeNewCmdPar);
+BOOL ProcessOSAliasesW(string &strStr);
+
+int PartCmdLineW(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar);
 
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
-const char *eStackAsString(int Pos=0);
+const wchar_t *eStackAsString(int Pos=0);
 
-BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
+BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
 
-int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int ShortNameAsIs=TRUE);
+int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
-const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName);
+DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer);
+DWORD apiGetCurrentDirectory (string &strCurDir);
+DWORD apiGetTempPath (string &strBuffer);
+DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName);
+DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest);
+DWORD apiGetConsoleTitle (string &strConsoleTitle);
+DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName);
+BOOL apiGetVolumeInformation (
+   const wchar_t *lpwszRootPathName,
+   string *pVolumeName,
+   LPDWORD lpVolumeSerialNumber,
+   LPDWORD lpMaximumComponentLength,
+   LPDWORD lpFileSystemFlags,
+   string *pFileSystemName
+   );
 
-int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType);
+HANDLE apiFindFirstFile (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindFileData);
+BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData);
+
+void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest);
+void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest);
+void apiFreeFindData (FAR_FIND_DATA *pData);
+
+BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData);
+
+string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
+
+int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
 #endif  // __FARFUNC_HPP__

@@ -5,45 +5,7 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.14 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  15.01.2004 SVS
-    - BugZ#455 - Некорректная работа описалова при копировании с добавлением
-  25.02.2003 SVS
-    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  08.05.2002 SVS
-    ! Проверка на NULL перед free()
-  27.03.2002 SVS
-    - имело место быть обрезаение имени файла, если оно было более, чем
-      указано в "Position of new descriptions in the string"
-    + Добавим месаг, если результирующее имя к DIZ-файлу превышает NM
-  25.03.2002 SVS
-    - Конструкция "%-*.*s" при OptDizStartPos=0 НИЧЕГО не рисует
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  26.12.2001 SVS
-    + Обработка RO-файлов описаний
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  25.06.2001 IS
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.17 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -54,18 +16,13 @@ Modify:
 #include "lang.hpp"
 #include "savescr.hpp"
 
-struct DizRecord
-{
-  char *DizText;
-  int Deleted;
-};
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
 int _cdecl SortDizSearch(const void *key,const void *elem);
 
 #define MAX_DIZ_LENGTH  8192
 
-static struct DizRecord *SearchDizData;
+static DizRecord *SearchDizData;
 
 DizList::DizList()
 {
@@ -73,7 +30,7 @@ DizList::DizList()
   DizCount=0;
   IndexData=NULL;
   IndexCount=0;
-  *DizFileName=0;
+  strDizFileName=L"";
 }
 
 
@@ -100,36 +57,37 @@ void DizList::Reset()
 
 void DizList::PR_ReadingMsg(void)
 {
-  Message(0,0,"",MSG(MReadingDiz));
+  MessageW(0,0,L"",UMSG(MReadingDiz));
 }
 
-void DizList::Read(char *Path,char *DizName)
+void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 {
   Reset();
 
-  const char *NamePtr=Opt.Diz.ListNames;
+  const wchar_t *NamePtr=Opt.Diz.strListNames;
 
   while (1)
   {
     if (DizName!=NULL)
-      xstrncpy(DizFileName,DizName,sizeof(DizFileName)-1);
+      strDizFileName = DizName;
     else
     {
-      char ArgName[NM];
-      if ((NamePtr=GetCommaWord(NamePtr,ArgName))==NULL)
+      string strArgName;
+      if ((NamePtr=GetCommaWordW(NamePtr,strArgName))==NULL)
         break;
-      xstrncpy(DizFileName,Path,sizeof(DizFileName)-2); // 2 - на слешь
-      AddEndSlash(DizFileName);
-      if(strlen(DizFileName)+strlen(ArgName) < sizeof(DizFileName))
-        strcat(DizFileName,ArgName);
-      else
-        break;
+
+      strDizFileName = Path;
+
+      AddEndSlashW(strDizFileName);
+
+      strDizFileName += strArgName;
     }
 
     FILE *DizFile;
-    if ((DizFile=fopen(DizFileName,"rb"))!=NULL)
+    if ((DizFile=_wfopen(strDizFileName,L"rb"))!=NULL)
     {
-      char DizText[MAX_DIZ_LENGTH];
+      string strDizText;
+      char DizText[MAX_DIZ_LENGTH]; //BUGBUG
       //SaveScreen *SaveScr=NULL;
       clock_t StartTime=clock();
 
@@ -147,8 +105,10 @@ void DizList::Read(char *Path,char *DizName)
           if (CheckForEsc())
             break;
         }
-        RemoveTrailingSpaces(DizText);
-        AddRecord(DizText);
+
+        strDizText.SetData (DizText, CP_OEMCP); //BUGBUG
+        RemoveTrailingSpacesW(strDizText);
+        AddRecord(strDizText);
       }
       SetPreRedrawFunc(NULL);
 
@@ -160,11 +120,11 @@ void DizList::Read(char *Path,char *DizName)
     if (DizName!=NULL)
       break;
   }
-  *DizFileName=0;
+  strDizFileName=L"";
 }
 
 
-void DizList::AddRecord(char *DizText)
+void DizList::AddRecord(const wchar_t *DizText)
 {
   struct DizRecord *NewDizData=DizData;
   if ((DizCount & 15)==0)
@@ -173,41 +133,45 @@ void DizList::AddRecord(char *DizText)
   if (NewDizData!=NULL)
   {
     DizData=NewDizData;
-    DizData[DizCount].DizText=new char[strlen(DizText)+1];
-    strcpy(DizData[DizCount].DizText,DizText);
+    DizData[DizCount].DizText=new wchar_t[wcslen(DizText)+1];
+    wcscpy(DizData[DizCount].DizText,DizText);
     DizData[DizCount].Deleted=0;
     DizCount++;
   }
 }
 
 
-char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
+const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortName, const __int64 &FileSize)
 {
   int TextPos;
   int DizPos=GetDizPosEx(Name,ShortName,&TextPos);
-  char *DizText=NULL;
+  wchar_t *DizText=NULL;
 
   if (DizPos!=-1)
   {
     DizText=DizData[DizPos].DizText+TextPos;
-    while (*DizText && IsSpace(*DizText))
+    while (*DizText && IsSpaceW(*DizText))
       DizText++;
-    if (isdigit(*DizText))
+    if (iswdigit(*DizText))
     {
-      char SizeText[20],*DizPtr=DizText;
+
+      wchar_t SizeText[20], *DizPtr=DizText;
+      string strSizeText;
       int I,SkipSize;
-      sprintf(SizeText,"%d",FileSize);
+
+      swprintf (SizeText, L"%d", FileSize);
+
       for (I=0,SkipSize=TRUE;SizeText[I]!=0;DizPtr++)
-        if (*DizPtr!=',' && *DizPtr!='.')
+        if (*DizPtr!=L',' && *DizPtr!=L'.')
           if (SizeText[I++]!=*DizPtr)
           {
             SkipSize=FALSE;
             break;
           }
-      if (SkipSize && IsSpace(*DizPtr))
+      if (SkipSize && IsSpaceW(*DizPtr))
       {
         DizText=DizPtr;
-        while (*DizText && IsSpace(*DizText))
+        while (*DizText && IsSpaceW(*DizText))
           DizText++;
       }
     }
@@ -216,32 +180,36 @@ char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
 }
 
 
-int DizList::GetDizPosEx(char *Name,char *ShortName,int *TextPos)
+int DizList::GetDizPosEx(const wchar_t *Name,const wchar_t *ShortName,int *TextPos)
 {
   int DizPos=GetDizPos(Name,ShortName,TextPos);
   if (DizPos==-1)
   {
-    char QuotedName[2*NM],QuotedShortName[2*NM];
-    sprintf(QuotedName,"\"%.*s\"",sizeof(QuotedName)-4,Name);
-    sprintf(QuotedShortName,"\"%s\"",ShortName);
-    DizPos=GetDizPos(QuotedName,QuotedShortName,TextPos);
+    string strQuotedName, strQuotedShortName;
+
+    strQuotedName.Format (L"\"%s\"", Name);
+    strQuotedShortName.Format (L"\"%s\"", ShortName);
+    DizPos=GetDizPos(strQuotedName,strQuotedShortName,TextPos);
   }
   return(DizPos);
 }
 
 
-int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
+int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos)
 {
-  char QuotedName[NM];
-  xstrncpy(QuotedName,Name,sizeof(QuotedName)-3); // 3 - для кавычек
-  QuoteSpaceOnly(QuotedName);
+  string strQuotedName;
+
+  strQuotedName = Name; // 3 - для кавычек
+
+  QuoteSpaceOnlyW (strQuotedName);
+
   if (DizData==NULL)
     return(-1);
 
   struct DizRecord *DizRecordAddr;
   int *DestIndex;
   SearchDizData=DizData;
-  DestIndex=(int *)bsearch(QuotedName,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
+  DestIndex=(int *)bsearch((const wchar_t*)strQuotedName,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
 
   if (DestIndex!=NULL)
   {
@@ -250,8 +218,8 @@ int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
     {
       if (TextPos!=NULL)
       {
-        *TextPos=strlen(QuotedName)+1;
-        int DizLength=strlen(DizRecordAddr->DizText);
+        *TextPos=strQuotedName.GetLength()+1;
+        int DizLength=wcslen(DizRecordAddr->DizText);
         if (*TextPos>DizLength)
           *TextPos=DizLength;
       }
@@ -269,8 +237,8 @@ int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
       {
         if (TextPos!=NULL)
         {
-          *TextPos=strlen(ShortName)+1;
-          int DizLength=strlen(DizRecordAddr->DizText);
+          *TextPos=wcslen(ShortName)+1;
+          int DizLength=wcslen(DizRecordAddr->DizText);
           if (*TextPos>DizLength)
             *TextPos=DizLength;
         }
@@ -306,28 +274,28 @@ void DizList::BuildIndex()
 
 int _cdecl SortDizIndex(const void *el1,const void *el2)
 {
-  char *Diz1=SearchDizData[*(int *)el1].DizText;
-  char *Diz2=SearchDizData[*(int *)el2].DizText;
-  return(LocalStricmp(Diz1,Diz2));
+  const wchar_t *Diz1=SearchDizData[*(int *)el1].DizText;
+  const wchar_t *Diz2=SearchDizData[*(int *)el2].DizText;
+  return(LocalStricmpW(Diz1,Diz2));
 }
 
 
 int _cdecl SortDizSearch(const void *key,const void *elem)
 {
-  char *SearchName=(char *)key;
-  char *TableName=SearchDizData[*(int *)elem].DizText;
-  int NameLength=strlen(SearchName);
-  int CmpCode=LocalStrnicmp(SearchName,TableName,NameLength);
+  const wchar_t *SearchName=(const wchar_t *)key;
+  const wchar_t *TableName=SearchDizData[*(int *)elem].DizText;
+  int NameLength=wcslen(SearchName);
+  int CmpCode=LocalStrnicmpW(SearchName,TableName,NameLength);
 
   if (CmpCode==0)
   {
     int Ch=TableName[NameLength];
-    if (Ch==0 || IsSpace(Ch))
+    if (Ch==0 || IsSpaceW(Ch))
       return(0);
-    if (Ch=='.')
+    if (Ch==L'.')
     {
       int Ch1=TableName[NameLength+1];
-      if (Ch1==0 || IsSpace(Ch1))
+      if (Ch1==0 || IsSpaceW(Ch1))
         return(0);
     }
     return(-1);
@@ -336,7 +304,7 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 }
 
 
-int DizList::DeleteDiz(char *Name,char *ShortName)
+int DizList::DeleteDiz(const wchar_t *Name,const wchar_t *ShortName)
 {
   int DizPos=GetDizPosEx(Name,ShortName,NULL);
   if (DizPos==-1)
@@ -345,7 +313,7 @@ int DizList::DeleteDiz(char *Name,char *ShortName)
   DizData[DizPos++].Deleted=TRUE;
   while (DizPos<DizCount)
   {
-    if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
+    if (*DizData[DizPos].DizText && !IsSpaceW(DizData[DizPos].DizText[0]))
       break;
     DizData[DizPos].Deleted=TRUE;
     DizPos++;
@@ -354,47 +322,42 @@ int DizList::DeleteDiz(char *Name,char *ShortName)
 }
 
 
-int DizList::Flush(char *Path,char *DizName)
+int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 {
   if (DizName!=NULL)
-    xstrncpy(DizFileName,DizName,sizeof(DizFileName)-1);
-  else if (*DizFileName==0)
+    strDizFileName = DizName;
+  else if ( strDizFileName.IsEmpty() )
   {
     if (DizData==NULL || Path==NULL)
       return(FALSE);
 
-    xstrncpy(DizFileName,Path,sizeof(DizFileName)-2);
-    AddEndSlash(DizFileName);
+    strDizFileName = Path;
+    AddEndSlashW(strDizFileName);
 
-    char ArgName[NM];
-    GetCommaWord(Opt.Diz.ListNames,ArgName);
-    if(strlen(DizFileName)+strlen(ArgName) < sizeof(DizFileName))
-      strcat(DizFileName,ArgName);
-    else
-    {
-      Message(MSG_WARNING,1,MSG(MError),MSG(MErrorFullPathNameLong),MSG(MCannotUpdateDiz),MSG(MOk));
-      return(FALSE);
-    }
+    string strArgName;
+    GetCommaWordW(Opt.Diz.strListNames,strArgName);
+
+    strDizFileName += strArgName;
   }
 
   FILE *DizFile;
-  int FileAttr=GetFileAttributes(DizFileName);
+  int FileAttr=GetFileAttributesW(strDizFileName);
 
   if(FileAttr != -1)
   {
     if(Opt.Diz.ROUpdate && (FileAttr&FA_RDONLY))
-      SetFileAttributes(DizFileName,FileAttr&(~FA_RDONLY));
+      SetFileAttributesW(strDizFileName,FileAttr&(~FA_RDONLY));
 
     if ((FileAttr & FA_RDONLY)==0)
-      SetFileAttributes(DizFileName,FA_ARCH);
+      SetFileAttributesW(strDizFileName,FA_ARCH);
   }
 
-  if ((DizFile=fopen(DizFileName,"wb"))==NULL)
+  if ((DizFile=_wfopen(strDizFileName,L"wb"))==NULL)
   {
     if(!Opt.Diz.ROUpdate && (FileAttr&FA_RDONLY))
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
+      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MCannotUpdateRODiz),UMSG(MOk));
     else
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
+      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
     return(FALSE);
   }
 
@@ -402,13 +365,18 @@ int DizList::Flush(char *Path,char *DizName)
   for (int I=0;I<DizCount;I++)
     if (!DizData[I].Deleted)
     {
-      fprintf(DizFile,"%s\r\n",DizData[I].DizText);
+      char *lpDizText = UnicodeToAnsi (DizData[I].DizText); //BUGBUG
+
+      fprintf(DizFile,"%s\r\n", lpDizText);
+
+      xf_free (lpDizText);
+
       AddedDizCount++;
     }
 
   int CloseCode=fclose(DizFile);
   if (AddedDizCount==0)
-    remove(DizFileName);
+    DeleteFileW(strDizFileName); //BUGBUG
 
   if (FileAttr==-1)
   {
@@ -417,14 +385,14 @@ int DizList::Flush(char *Path,char *DizName)
       FileAttr|=FA_HIDDEN;
   }
 
-  SetFileAttributes(DizFileName,FileAttr);
+  SetFileAttributesW(strDizFileName,FileAttr);
 
   if (CloseCode==EOF)
   {
     clearerr(DizFile);
     fclose(DizFile);
-    remove(DizFileName);
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
+    DeleteFileW(strDizFileName); //BUGBUG
+    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
     return(FALSE);
   }
 
@@ -432,41 +400,42 @@ int DizList::Flush(char *Path,char *DizName)
 }
 
 
-void DizList::AddDiz(char *Name,char *ShortName,char *DizText)
+void DizList::AddDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DizText)
 {
   DeleteDiz(Name,ShortName);
   AddRecord(DizText);
 }
 
 
-int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
-                     char *DestShortName,DizList *DestDiz)
+int DizList::CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName,
+                     const wchar_t *DestShortName,DizList *DestDiz)
 {
   int TextPos;
   int DizPos=GetDizPosEx(Name,ShortName,&TextPos);
   if (DizPos==-1)
     return(FALSE);
 
-  while (IsSpace(DizData[DizPos].DizText[TextPos]))
+  while (IsSpaceW(DizData[DizPos].DizText[TextPos]))
     TextPos++;
 
-  char DizText[MAX_DIZ_LENGTH+NM],QuotedName[NM];
-  xstrncpy(QuotedName,DestName,sizeof(QuotedName)-3);
-  QuoteSpaceOnly(QuotedName);
+  string strDizText, strQuotedName;
+
+  strQuotedName = DestName;
+  QuoteSpaceOnlyW(strQuotedName);
   int OptDizStartPos=(Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0);
-  int LenQuotedName=strlen(QuotedName);
+  int LenQuotedName=strQuotedName.GetLength ();
 
   if(!OptDizStartPos || OptDizStartPos < LenQuotedName)
-    OptDizStartPos=strlen(QuotedName);
+    OptDizStartPos=strQuotedName.GetLength();
 
-  sprintf(DizText,"%-*.*s %.*s",
-       OptDizStartPos,OptDizStartPos,QuotedName,
-       (sizeof(DizText)-OptDizStartPos-2),&DizData[DizPos].DizText[TextPos]);
+  strDizText.Format (L"%-*.*s %.*s",
+       OptDizStartPos,OptDizStartPos,(const wchar_t*)strQuotedName,
+       NM/*(sizeof(DizText)-OptDizStartPos-2)*/,&DizData[DizPos].DizText[TextPos]); //BUGBUG
 
-  DestDiz->AddDiz(DestName,DestShortName,DizText);
+  DestDiz->AddDiz(DestName,DestShortName,strDizText);
   while (++DizPos<DizCount)
   {
-    if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
+    if (*DizData[DizPos].DizText && !IsSpaceW(DizData[DizPos].DizText[0]))
       break;
     DestDiz->AddDiz(DestName,DestShortName,DizData[DizPos].DizText);
   }
@@ -476,7 +445,7 @@ int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
 }
 
 
-void DizList::GetDizName(char *DizName)
+void DizList::GetDizName(string &strDizName)
 {
-  strcpy(DizName,DizFileName);
+  strDizName = strDizFileName;
 }

@@ -5,461 +5,7 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.177 29.05.2006 $ */
-
-/*
-Modify:
-  29.05.2006 SVS
-    + GetTitle()
-  08.05.2006 AY
-    ! Вызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
-  13.04.2006 SVS
-    - Shift-F4 Del Enter Esc - в истории имя файла как "?NewFile?"
-  02.03.2006 SVS
-    ! Явно зададит область действия макроса
-  09.02.2006 AY
-    ! Не выставлялись многие настройки текущего редактора.
-  28.10.2005 SVS
-    + Ctrl-B - показать/спрятать кейбар в редакторе
-  27.10.2005 SVS
-    - Mantis#46 - Редактор, ^O, unregistered user
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  15.07.2005 AY
-    + Открываем новые файлы в WIN/DOS в соответсвии с AnsiTableForNewFile
-  05.07.2005 SVS
-    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
-    + GetEditorOptions()/SetEditorOptions()
-  02.07.2005 AY
-    - Если редактор открывался в WIN то в keybar в F8 тоже было WIN
-  01.07.2005 AY
-    - бага с прорисовкой (подробнее в .txt)
-  14.06.2005 SVS
-    ! FileEditor::GetLastInfo() стала самостоятельной GetFileWin32FindData()
-  20.05.2005 AY
-    ! Теперь в диалоге SaveAs делаем ExpandEnvironmentStr() для введенного пути.
-  28.04.2005 AY
-    ! В EditorControl(ECTL_GETINFO) не проверялась возможность FEdit->EditorControl()==FALSE
-    + ECTL_GETBOOKMARKS и ECTL_GETINFO можно вызывать в EE_CLOSE. Теперь FEdit
-      уничтожается только после EE_CLOSE но чтоб не было проблем я добавил флаг bClosing
-      который выставляется в деструкторе и проверяется в EditorControl() чтоб разрешать
-      только эти две команды при закрытии редактора.
-  24.04.2005 AY
-    ! GCC
-  14.04.2005 SVS
-    ! Opt.UsePrintManager
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  04.11.2004 SVS
-    ! убираем *_EDITPATH
-  17.09.2004 SVS
-    ! Если файл не изменен (!FEDITOR_MODIFIED), то не производим апдейт панелей.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.07.2004 SVS
-    ! Macro II
-  06.07.2004 SVS
-    + обработка KEY_MACRO_EDITORSTATE для Macro II
-  31.05.2004 SVS
-    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  28.04.2004 SVS
-    - В FarFTN прописана замена р -> р
-        При попытке ввести "р" в VC-версии срабатывает fexcept
-        BC-версия в тех же условиях молча валится.
-  22.04.2004 SVS
-    - При вызове команды ECTL_SAVEFILE FAR не запоминал новое имя файла.
-  16.04.2004 SVS
-    - BugZ#1058 - Заголовок редактора
-  19.11.2003 IS
-    ! MoveData работает со ссылкой, а не указателем
-  11.11.2003 SVS
-    + BugZ#2 - Shift-F4: открывать редактор без имени файла
-  04.11.2003 SKV
-    ! не надо делать SetFileAttributes если мы их не меняли.
-  16.10.2003 SVS
-    - BugZ#821 - Удаление файла, редактор и вьювер
-  13.10.2003 SVS
-    ! Те плагин, кто работал по схеме
-         while (!Done)
-         {
-           Info.EditorControl(ECTL_READINPUT,&rec);
-           Info.EditorControl(ECTL_PROCESSINPUT,&rec);
-         }
-       не давали выполняться макросам, например:
-       1. Вызываем DrawLine
-       2. Вызываем макрос Ctrl-D=$Date "%d.%Y"
-       3. вылазит лишь 'Y'
-  10.10.2003 SVS
-    ! Shift-F4 только для немодалов!
-  09.10.2003 SVS
-    - BugZ#913 - Save As на существующий файл
-  26.09.2003 SVS
-    ! Изменения в названиях макроклавиш
-    + Добавлена индикация Ctrl-Q в статусной строке - символ '"'
-  15.09.2003 SVS
-    ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
-    + Если по Shift-F2 было кривое имя - то выдадим диалог и вернемся опять в диалог.
-  04.09.2003 SVS
-    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
-      приведем FILETIME к __int64
-  29.07.2003 SVS
-    ! Уточнение логики работы макросов.
-    + ECTL_PROCESSKEY _также_ выполняется в FileEditor::EditorControl()!
-  25.07.2003 SVS
-    ! выставим SetLastError в случае неудачи, чтобы корректно отобразить сообщение
-      (используется новый член класса - DWORD SysErrorCode)
-    ! Отмеченные куски "#if 0" - не трогать!!! ЭТО NT! :-)
-  15.07.2003 SVS
-    + немного логов
-  30.05.2003 SVS
-    + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
-      Пока закомментим (чтобы не потерялось)
-  19.05.2003 SVS
-    - BugZ#889 - Плагину доходят клавиши во время записи макроса.
-      Пусть доходят! Кроме того теперь доходят и те клавиши, которые не доходили :-)
-  21.04.2003 SVS
-    + Немного логов
-  14.04.2003 SVS
-    - Перестали работать некоторые функциональные клавиши (например, F1 -
-      вызов помощи) во время работы плагинов, использующих ProcessEditorInput
-      (например, AutoWrap)
-      Перенесем ECTL_PROCESSINPUT и ECTL_READINPUT из Editor в FileEditor
-  31.03.2003 SVS
-    + добавим _ECTLLOG для ECTL_GETINFO
-  05.03.2003 SVS
-    ! Закоментим _SVS
-  18.02.2003 SVS
-    ! Детализация логов для ECTL_
-  07.02.2003 SVS
-    ! В FileEditor::ShowStatus() при выводе статусной строки будем юзать
-      не координаты объекта Editor, "свои" имени FileEditor.
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  26.12.2002 SVS
-    - BugZ#754 - открытие редатора с большИми у2, х2
-      Проверим координаты в Init
-  23.12.2002 SVS
-    + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
-  21.12.2002 SVS
-    - Ну...  некоторым образом облагороженная вариация BugZ#660 :-)
-      Применим новый флаг UPDATE_DRAW_MESSAGE - "показывать счетчик
-      считываемых файлов при обновлении панели в месаге"
-  17.12.2002 SVS
-    ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
-  11.12.2002 SVS
-    - BugZ#292 - CtrlF10 на новых файлах ошибается.
-    ! Некоторые переменные класса заменены на флаги
-  10.12.2002 SVS
-    - BugZ#720 - far /v file + Ctrl-O
-  10.11.2002 SKV
-    ! Слэши в имени файла должны быть только обратные, дабы избежать проблем с историей и т.д.
-  08.11.2002 SVS
-    ! Editor::PluginData уехал в FileEditor::PluginData
-    ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
-    ! Код по апдейту панелей вынесен в оттдельную функцию FileEditor::UpdateFileList()
-    - "The file was changed by an external program"
-    ! Очередная порция отучения Editor от понятия "файл"
-  07.11.2002 SVS
-    - BugZ#660 - "Reading: %d files" в заголовке окна редактора
-      Перенес код из функции сохранение в функцию выхода из редактора.
-      Поломаться ничего не должно :-))
-  01.10.2002 SVS
-    - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
-  04.09.2002 SVS
-    + "Файл был изменен внешней программой"
-    ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
-      теперь это привелегия FileEditor`а
-    ! Команда ECTL_SAVEFILE обрабатывается в FileEditor::EditorControl
-    ! Команда ECTL_QUIT обрабатывается в FileEditor::EditorControl
-    ! Команда ECTL_SETTITLE обрабатывается в FileEditor::EditorControl
-    ! Код Editor::ShowStatus() переехал в FileEditor::ShowStatus()
-  21.08.2002 SVS
-    ! Уточнение про WaitKey
-  13.07.2002 SVS
-    - До плагина не доходила клавиша F1.
-      Введем понятие пост обработка!
-  12.07.2002 SVS
-    ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
-      из Editor в FileEditor
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
-      посему ECTL_SETKEYBAR переехал из Editor в FileEditor
-  14.06.2002 IS
-    ! DeleteOnClose стал int.
-  10.06.2002 SVS
-    - BugZ#554 - bug, overwrite local memory
-    ! Загоним в блок вызов Dialog (щоб глюков избежать)
-  04.06.2002 SVS
-    - BugZ#545 - Ctrl-F10 для удалённого файла
-    - BugZ#546 - Editor валит фар
-  30.05.2002 IS
-    ! небольшая оптимизация там же - уберем лишний strlen
-  29.05.2002 SVS
-    ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
-  28.05.2002 SVS
-    ! применим функцию  IsLocalPath()
-  27.05.2002 SVS
-    ! В некоторых местах в Init() явно не стояло выставление кода возврата.
-  24.05.2002 SVS
-    ! Уточнения в FileEditor::EditorControl для логов
-  22.05.2002 SVS
-    + SetTitle()
-    ! В Init добавлен вторым параметром - Title
-    ! FEdit из объекта превращается в указатель - контроля с нашей стороны
-      поболее будет
-  18.05.2002 SVS
-    - BugZ#515 - AltF5 не приходит в ProcessEditorInput
-  18.05.2002 SVS
-    ! ФЛАГИ
-  13.05.2002 VVM
-    + Перерисуем заголовок консоли после позиционирования на файл.
-  11.05.2002 SVS
-    - BugZ#468 - File saving after, cancelation.
-  29.04.2002 SVS
-    - BugZ#488 - Shift=enter
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  21.03.2002 SVS
-    ! Запретим показ амп. в проптере диалога Save As
-  20.03.2002 SVS
-    ! GetCurrentDirectory -> FarGetCurDir
-  19.03.2002 SVS
-    - BugZ#371 - F2 -> разное поведение.
-    + Save As... "Mac format (CR)"
-  19.03.2002 SVS
-    - BugZ#373 - F4 Ctrl-O - виден курсор
-  18.03.2002 SVS
-    + SetLockEditor() - возможноть программно лочить редактор
-  26.02.2002 VVM
-    ! При поиске папки (запись файла) учтем корень диска или "текущий каталог"
-  09.02.2002 VVM
-    + Обновить панели, если писали в текущий каталог
-  05.02.2002 SVS
-    ! Технологический патч - про сислоги
-  04.02.2002 SVS
-    - проблемы с текущим каталогом
-  28.01.2002 OT
-    При неудачном открытии файла не удалялся фрейм (частичная отмена 1210)
-  28.01.2002 VVM
-    ! Если не прочитали файл - освободить память.
-  23.01.2002 SVS
-    ! MEditSavedChangedNonFile2
-  21.01.2002 SVS
-    - Bug#255 - Alt-Shift-Ins - каталог с другой панели
-  16.01.2002 SVS
-    - Вах. Забыли поставить "return TRUE" в FileEditor::SetFileName()
-  15.01.2002 SVS
-    ! Первая серия по отучиванию класса Editor слову "Файл"
-    + FileEditor::EditorControl() - первая стадия по отучению класса Editor
-      от слова File
-    + SetFileName() - установить переменные в имя редактируемого файла
-    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
-    + ReadFile() - постепенно сюды переносить код из Editor::ReadFile
-    + SaveFile() - постепенно сюды переносить код из Editor::SaveFile
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  12.01.2002 IS
-    ! ExitCode=0 -> ExitCode=XC_OPEN_ERROR
-  10.01.2002 SVS
-    - Bugz#213 - Не туда сохраняется файл
-  28.12.2001 DJ
-    ! обработка Ctrl-F10 вынесена в единую функцию
-  28.12.2001 SVS
-    - BugZ#213 Не туда сохраняется файл
-  26.12.2001 SVS
-    + внедрение FEOPMODE_*
-  25.12.2001 SVS
-    + ResizeConsole()
-  17.12.2001 KM
-    ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-  08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
-  27.11.2001 DJ
-    + Local в EditorConfig
-  26.11.2001 VVM
-    ! Использовать полное имя файла при CTRL+F10
-  14.11.2001 SVS
-    ! Ctrl-F10 не выходит, а только позиционирует
-  02.11.2001 IS
-    - отрицательные координаты левого верхнего угла заменяются на нулевые
-  29.10.2001 IS
-    + Обновим настройки "сохранять позицию файла" и "сохранять закладки" после
-      смены настроек по alt-shift-f9.
-  28.10.2001 SVS
-    - Не чистится экран после отмены открытия редактора
-  19.10.2001 OT
-    - Исправление ошибки HyperViewer
-  15.10.2001 SVS
-    + _KEYMACRO()
-  10.10.2001 IS
-    + обработка DeleteOnClose
-  04.10.2001 OT
-    - исправлен баг в fileEditor, когда на вопрос How to open this file? ответить Current не удалался созданный, уже не нужный никому пустой фрейм.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 SVS
-    - Бага с Ctrl-F10, когда указывался корень диска.
-  08.09.2001 IS
-    + Дополнительный параметр у второго конструктора: DisableHistory
-  17.08.2001 KM
-    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
-      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
-      найденного файла из архива.
-    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
-    - Убрана в KeyBar надпись на клавишу F12 при CanLoseFocus=TRUE
-  01.08.2001 tran
-    - bug с Shift-F2, существующее имя, esc. F2
-  23.07.2001 SVS
-    ! Изменен порядок кнопок  MNewOpen и MReload
-  22.07.2001 SVS
-    + Добавлен хелп для месага про "релоад"
-    ! Имя файла в месага про "релоад" усекается.
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  06.07.2001 IS
-    - При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
-      не нарушать однообразие.
-  25.06.2001 IS
-    ! Внедрение const
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  07.06.2001 IS
-    - Баг (сохранение файла): нужно сначала убирать пробелы, а только потом
-      кавычки
-  06.06.2001 IS
-    - мелкий фикс моего последнего патча
-  05.06.2001 IS
-    + посылаем подальше всех, кто пытается отредактировать каталог
-  27.05.2001 DJ
-    ! используются константы для кодов возврата
-  26.05.2001 OT
-    - Выпрямление логики вызовов в NFZ
-    - Редактор возможно запускать в модальном режиме
-  23.05.2001 OT
-    + Опция AllowReedit
-    ! Исправление бага из-за которго файл трапался по отмене ReloadAgain
-    - Выпрямление логики вызовов в NFZ
-  19.05.2001 DJ
-    ! лечим последствия NFZ
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 OT
-    - Борьба с F4 -> ReloadAgain
-  12.05.2001 DJ
-    ! отрисовка по OnChangeFocus перенесена в Frame
-  11.05.2001 OT
-    ! Отрисовка Background
-  10.05.2001 DJ
-    + OnDestroy() (не работало добавление во view/edit history)
-    + FileEditor::DisableHistory, DisableF6
-    + Alt-F11 - показать историю
-    + при Ctrl-F10 переключаемся на панели
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  07.05.2001 DJ
-    + добавлен NameList (пока только для передачи обратно во вьюер при
-      повторном нажатии F6)
-    - кейбар не обновлялся
-  06.05.2001 DJ
-    ! перетрях #include
-    + обработка F6
-  07.05.2001 ОТ
-    - Избавимся от "дублирования" УчшеСщву здесь и во Frame :)
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  04.05.2001 DJ
-    - В процессе наложения 623-го был выкинут патч 616:
-      "не передаем KEY_MACRO* в ProcessEditorInput()"
-      Вернул его обратно.
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 VVM
-    + KeyBar тоже умеет обрабатывать клавиши.
-  19.04.2001 SVS
-    ! Диалог SaveAs некорректно работал при нажатии Ctrl-Enter
-  10.04.2001 IS
-    ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
-      панелях, тем самым добиваемся того, что выделение с элементов
-      панелей не сбрасывается.
-  05.04.2001 SVS
-    + Добавлен вызов топика "FileSaveAs" для диалога SaveAs
-  28.03.2001 SVS
-    ! Передадим в SaveFile новый параметр - SaveAs?
-  22.03.2001 SVS
-    - "Залипание" кейбара после исполнения макроса
-  18.03.2001 IS
-    ! Поменял местами проверку при открытии на "только для чтения" и
-      "уже открыт", тем самым избавились от ситуации, когда задавался вопрос
-      "вы уверены, что хотите редактировать r/o файл" для ужЕ открытых файлов.
-  01.03.2001 IS
-    - Баг: не учитывалось, закрылся ли файл на самом деле по ctrl-f10
-  27.02.2001 SVS
-    + Добавки по поводу базы вывода.
-  26.02.2001 IS
-    + В прошлый раз я не все доделал :(
-      Теперь на самом деле большинство переменных, редактируемых в редакторе по
-      alt-shift-f9, локальные, кроме настроек внешнего редактора и опций
-      "Сохранять позицию файла", "Сохранять закладки"
-  21.02.2001 IS
-    + При обработке alt-shift-f9 работаем с локальными переменными
-  15.02.2001 IS
-    + Обновим "постоянные блоки" и "del удаляет блоки"
-      при смене настроек редактора по AltShiftF9
-  15.02.2001 IS
-    + Обновим размер табуляции и режим "Пробелы вместо табуляции" при смене
-      настроек редактора по AltShiftF9
-  01.02.2001 IS
-    ! Открываем по F6 вьюер с указанием длинного имени файла, а не короткого
-  03.01.2001 SVS
-    ! для KEY_ALTSHIFTF9 забыли сделать Show()
-  19.12.2000 SVS
-    + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
-  16.12.2000 tran 1.15
-    ! Ctrl-F10 смотрит на пассивную панель
-  15.12.2000 SVS
-    - Shift-F4, новый файл. Выдает сообщение :-(
-  03.12.2000 SVS
-    + "Если файл имеет атрибут ReadOnly..." здесь System и Hidden - задаются
-      отдельно.
-  29.11.2000 SVS
-    + Если файл имеет атрибут ReadOnly или System или Hidden,
-      И параметр на запрос выставлен, то сначала спросим.
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  16.10.2000 SVS
-    ! Отмена 1.08 (#229)
-  13.10.2000 tran 1.08
-    ! код возврата опредеяется по IsFileModified вместо IsFileChanged()
-  27.09.2000 SVS
-    + Печать файла/блока с использованием плагина PrintMan
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  27.09.2000 SKV
-    + Для правильного функционирования макро с Ctrl-O делается FEdit.Hide()
-  24.08.2000 SVS
-    + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
-  07.08.2000 SVS
-    + добавил названия расширенных функциональных клавиш
-    + Функция инициализации KeyBar Labels - InitKeyBar()
-  21.07.2000 SKV
-    + выход с позиционированием на редактируемом файле по CTRLF10
-  29.06.2000 tran
-    + названия всех функциональных клавиш
-  28.06.2000 tran
-    - (NT Console resize bug)
-      adding FileEditor::SetScreenPosition
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.197 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -486,9 +32,9 @@ Modify:
 #include "savescr.hpp"
 
 
-FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
+FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
-                       char *PluginData,int ToSaveAs, int OpenModeExstFile)
+                       const wchar_t *PluginData,int ToSaveAs, int OpenModeExstFile)
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(1)"));
   _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
@@ -500,8 +46,8 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
 }
 
 
-FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
-            int StartLine,int StartChar,const char *Title,
+FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
+            int StartLine,int StartChar,const wchar_t *Title,
             int X1,int Y1,int X2,int Y2,int DisableHistory, int DeleteOnClose,
             int OpenModeExstFile)
 {
@@ -533,7 +79,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   /* IS $ */
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   Flags.Change(FFILEEDIT_FULLSCREEN,(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY));
-  Init(Name,Title,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
+  Init(Name,Title,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,L"",
        FALSE,DeleteOnClose,OpenModeExstFile);
 }
 
@@ -559,11 +105,13 @@ FileEditor::~FileEditor()
     int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
     int CurPos=FEdit->CurLine->EditLine.GetTabCurPos();
     int LeftPos=FEdit->CurLine->EditLine.GetLeftPos();
-    char CacheName[NM*3];
-    if (*PluginData)
-      sprintf(CacheName,"%s%s",PluginData,PointToName(FullFileName));
+
+    string strCacheName;
+
+    if ( !strPluginData.IsEmpty() )
+      strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToNameW(strFullFileName));
     else
-      strcpy(CacheName,FullFileName);
+      strCacheName = strFullFileName;
 
     unsigned int Table=0;
     if (FEdit->Flags.Check(FEDITOR_TABLECHANGEDBYUSER))
@@ -591,7 +139,7 @@ FileEditor::~FileEditor()
         PosCache.Position[2]=FEdit->SavePos.ScreenLine;
         PosCache.Position[3]=FEdit->SavePos.LeftPos;
       }
-      CtrlObject->EditorPosCache->AddPosition(CacheName,&PosCache);
+      CtrlObject->EditorPosCache->AddPosition(strCacheName,&PosCache);
     }
   }
 
@@ -612,14 +160,14 @@ FileEditor::~FileEditor()
        FEDITOR_DELETEONCLOSE, то удаляем только файл.
     */
     if (FEditFlags.Check(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE) &&
-       !FrameManager->CountFramesWithName(FullFileName))
+       !FrameManager->CountFramesWithName(strFullFileName))
     {
        if(FEditFlags.Check(FEDITOR_DELETEONCLOSE))
-         DeleteFileWithFolder(FullFileName);
+         DeleteFileWithFolderW(strFullFileName);
        else
        {
-         SetFileAttributes(FullFileName,FILE_ATTRIBUTE_NORMAL);
-         remove(FullFileName);
+         SetFileAttributesW(strFullFileName,FILE_ATTRIBUTE_NORMAL);
+         DeleteFileW(strFullFileName); //BUGBUG
        }
     }
     /* IS 14.06.2002 $ */
@@ -639,15 +187,15 @@ FileEditor::~FileEditor()
   _KEYMACRO(SysLog("FileEditor::~FileEditor()"));
 }
 
-void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
+void FileEditor::Init(const wchar_t *Name,const wchar_t *Title,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
-                      char *PluginData,int ToSaveAs,int DeleteOnClose,
+                      const wchar_t *PluginData,int ToSaveAs,int DeleteOnClose,
                       int OpenModeExstFile)
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::Init()"));
   _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
   SysErrorCode=0;
-  int BlankFileName=!strcmp(Name,MSG(MNewFileName));
+  int BlankFileName=!wcscmp(Name,UMSG(MNewFileName));
 
   //AY: флаг оповещающий закрытие редактора.
   bClosing = false;
@@ -669,7 +217,6 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   CurrentEditor=this;
   FileAttributes=-1;
   FileAttributesModified=false;
-  *PluginTitle=0;
   SetTitle(Title);
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
@@ -698,7 +245,8 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   FEdit->SetHostFileEditor(this);
   _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
-  FarGetCurDir(sizeof(StartDir),StartDir);
+
+  FarGetCurDirW (strStartDir);
 
   if(!SetFileName(Name))
   {
@@ -712,7 +260,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   if (EnableSwitch)
   {
     //if (EnableSwitch)
-    int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
+    int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
     if (FramePos!=-1)
     {
       int SwitchTo=FALSE;
@@ -722,13 +270,13 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       {
         if(OpenModeExstFile == FEOPMODE_QUERY)
         {
-          char MsgFullFileName[NM];
-          xstrncpy(MsgFullFileName,FullFileName,sizeof(MsgFullFileName)-1);
-          SetMessageHelp("EditorReload");
-          MsgCode=Message(0,3,MSG(MEditTitle),
-                TruncPathStr(MsgFullFileName,ScrX-16),
-                MSG(MAskReload),
-                MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
+          string strMsgFullFileName;
+          strMsgFullFileName = strFullFileName;
+          SetMessageHelp(L"EditorReload");
+          MsgCode=MessageW(0,3,UMSG(MEditTitle),
+                TruncPathStrW(strMsgFullFileName,ScrX-16),
+                UMSG(MAskReload),
+                UMSG(MCurrent),UMSG(MNewOpen),UMSG(MReload));
         }
         else
         {
@@ -783,13 +331,13 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   /* $ 15.12.2000 SVS
     - Shift-F4, новый файл. Выдает сообщение :-(
   */
-  DWORD FAttr=::GetFileAttributes(Name);
+  DWORD FAttr=::GetFileAttributesW(Name);
   /* $ 05.06.2001 IS
      + посылаем подальше всех, кто пытается отредактировать каталог
   */
   if(FAttr!=-1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
   {
-    Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditCanNotEditDirectory),MSG(MOk));
+    MessageW(MSG_WARNING,1,UMSG(MEditTitle),UMSG(MEditCanNotEditDirectory),UMSG(MOk));
     ExitCode=XC_OPEN_ERROR;
     return;
   }
@@ -809,8 +357,9 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   /* SVS $ */
   {
     _ECTLLOG(SysLog("Message: %s",MSG(MEditROOpen)));
-    if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
-                             MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+
+    if(MessageW(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRSH),
+                             UMSG(MEditROOpen),UMSG(MYes),UMSG(MNo)))
     {
       //SetLastError(ERROR_ACCESS_DENIED);
       ExitCode=XC_OPEN_ERROR;
@@ -833,7 +382,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 
   Flags.Change(FFILEEDIT_ISNEWFILE,CreateNewFile);
 
-  if (!ReadFile(FullFileName,UserBreak))
+  if (!ReadFile(strFullFileName,UserBreak))
   {
     if(BlankFileName)
       UserBreak=0;
@@ -842,7 +391,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       if (UserBreak!=1)
       {
         SetLastError(SysErrorCode);
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),FileName,MSG(MOk));
+        MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strFileName,UMSG(MOk));
         ExitCode=XC_OPEN_ERROR;
       }
       else
@@ -871,6 +420,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       FEdit->TableNum=0;
       FEdit->UseDecodeTable=FALSE;
     }
+
   }
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
@@ -936,45 +486,45 @@ void FileEditor::InitKeyBar(void)
       /* CtrlAlt   */ {KBL_CTRLALT,MSingleEditCtrlAltF1,MSingleEditCtrlAltF2,MSingleEditCtrlAltF3,MSingleEditCtrlAltF4,MSingleEditCtrlAltF5,MSingleEditCtrlAltF6,MSingleEditCtrlAltF7,MSingleEditCtrlAltF8,MSingleEditCtrlAltF9,MSingleEditCtrlAltF10,MSingleEditCtrlAltF11,MSingleEditCtrlAltF12},
     }
   };
-  char *FEditKeys[12];
+  wchar_t *FEditKeys[12];
   int I,J;
 
   for(I=0; I < 7; ++I)
   {
     for(J=1; J <= 12; ++J)
     {
-      FEditKeys[J-1]=MSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
+      FEditKeys[J-1]=UMSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
     }
     switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
     {
       case KBL_SHIFT:
         if(!GetCanLoseFocus())
-          FEditKeys[4-1]="";
+          FEditKeys[4-1]=L"";
         break;
       case KBL_MAIN:
         if(Flags.Check(FFILEEDIT_SAVETOSAVEAS))
-          FEditKeys[2-1]=MSG(MEditShiftF2);
+          FEditKeys[2-1]=UMSG(MEditShiftF2);
         // $ 10.05.2001 DJ - смотрим на EnableF6 вместо CanLoseFocus
         if(!Flags.Check(FFILEEDIT_ENABLEF6))
-          FEditKeys[6-1]="";
+          FEditKeys[6-1]=L"";
         if(!GetCanLoseFocus())
-          FEditKeys[12-1]="";
+          FEditKeys[12-1]=L"";
         break;
       case KBL_ALT:
         // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
         if(!GetCanLoseFocus())
-          FEditKeys[11-1]="";
+          FEditKeys[11-1]=L"";
         if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
-          FEditKeys[5-1]="";
+          FEditKeys[5-1]=L"";
         break;
     }
     EditKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FEditKeys,sizeof(FEditKeys)/sizeof(FEditKeys[0]));
   }
 
   if (FEdit->AnsiText)
-    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+    EditKeyBar.Change(UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
   else
-    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+    EditKeyBar.Change(UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Show();
   FEdit->SetPosition(X1,Y1,X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
@@ -1009,7 +559,7 @@ void FileEditor::Show()
 
 void FileEditor::DisplayObject()
 {
-  if (!FEdit->Locked ())
+  if ( !FEdit->Locked() )
   {
     if(FEdit->Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
     {
@@ -1030,7 +580,6 @@ int FileEditor::ProcessKey(int Key)
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 {
   DWORD FNAttr;
-  char *Ptr, Chr;
 
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
@@ -1108,12 +657,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         // возможно здесь она и не нужна!
         // хотя, раз уж были изменени, то
         if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
-           ::GetFileAttributes(FullFileName) == -1) // а файл еще существует?
+           ::GetFileAttributesW(strFullFileName) == -1) // а файл еще существует?
         {
-          switch(Message(MSG_WARNING,2,MSG(MEditTitle),
-                         MSG(MEditSavedChangedNonFile),
-                         MSG(MEditSavedChangedNonFile2),
-                         MSG(MEditSave),MSG(MCancel)))
+          switch(MessageW(MSG_WARNING,2,UMSG(MEditTitle),
+                         UMSG(MEditSavedChangedNonFile),
+                         UMSG(MEditSavedChangedNonFile2),
+                         UMSG(MEditSave),UMSG(MCancel)))
           {
             case 0:
               if(ProcessKey(KEY_F2))
@@ -1126,7 +675,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           }
         }
 
-        if(!FirstSave || FEdit->IsFileChanged() || ::GetFileAttributes(FullFileName)!=-1)
+        if(!FirstSave || FEdit->IsFileChanged() || ::GetFileAttributesW (strFullFileName)!=-1)
         {
           long FilePos=FEdit->GetCurPos();
           /* $ 01.02.2001 IS
@@ -1146,7 +695,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             /* $ 07.05.2001 DJ
                сохраняем NamesList
             */
-            FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
+
+
+            FileViewer *Viewer = new FileViewer (strFullFileName, GetCanLoseFocus(), FALSE,
                FALSE, FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
             /* DJ $ */
   //OT          FrameManager->InsertFrame (Viewer);
@@ -1200,7 +751,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     {
       case KEY_F1:
       {
-        Help Hlp ("Editor");
+        Help Hlp (L"Editor");
         return(TRUE);
       }
 
@@ -1221,9 +772,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           }
           //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
           //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-          char FileName0[NM];
-          xstrncpy(FileName0,FullFileName,sizeof(FileName0)-1);
-          FEdit->Paste(FileName0);
+          FEdit->Paste(strFullFileName); //???
           //if (!EdOpt.PersistentBlocks)
           FEdit->UnmarkBlock();
           FEdit->Pasting--;
@@ -1239,11 +788,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       {
         if(!Opt.OnlyEditorViewerUsed)
         {
-          /*$ 27.09.2000 skv
-            To prevent redraw in macro with Ctrl-O
-          */
-          FEdit->Hide();
-          /* skv$*/
+          FEdit->Hide();  // $ 27.09.2000 skv - To prevent redraw in macro with Ctrl-O
           if(FrameManager->ShowBackground())
           {
             SetCursorType(FALSE,0);
@@ -1259,32 +804,40 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       case KEY_SHIFTF2:
       {
         BOOL Done=FALSE;
-        char OldCurDir[4096];
-        FarGetCurDir(sizeof(OldCurDir),OldCurDir);
+
+        string strOldCurDir;
+        FarGetCurDirW (strOldCurDir);
+
+        wchar_t *lpwszPtr;
+        wchar_t wChr;
 
         while(!Done) // бьемся до упора
         {
           // проверим путь к файлу, может его уже снесли...
-          Ptr=strrchr(FullFileName,'\\');
-          if(Ptr)
+          lpwszPtr = strFullFileName.GetBuffer ();
+
+          lpwszPtr=wcsrchr(lpwszPtr,L'\\');
+          if(lpwszPtr)
           {
-            Chr=*Ptr;
-            *Ptr=0;
+            wChr=*lpwszPtr;
+            *lpwszPtr=0;
             // В корне?
-            if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && !FullFileName[2]))
+            if (!(LocalIsalphaW(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && !strFullFileName.At(2)))
             {
               // а дальше? каталог существует?
-              if((FNAttr=::GetFileAttributes(FullFileName)) == -1 ||
+              if((FNAttr=::GetFileAttributesW(strFullFileName)) == -1 ||
                                 !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
                   //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
                 )
                 Flags.Set(FFILEEDIT_SAVETOSAVEAS);
             }
-            *Ptr=Chr;
+            *lpwszPtr=wChr;
           }
+          strFullFileName.ReleaseBuffer ();
+
 
           if(Key == KEY_F2 &&
-             (FNAttr=::GetFileAttributes(FullFileName)) != -1 &&
+             (FNAttr=::GetFileAttributesW(strFullFileName)) != -1 &&
              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
               Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 
@@ -1292,72 +845,84 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           int NameChanged=FALSE;
           if (Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS))
           {
-            const char *HistoryName="NewEdit";
-            static struct DialogData EditDlgData[]=
+            const wchar_t *HistoryName=L"NewEdit";
+            static struct DialogDataEx EditDlgData[]=
             {
-              /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
-              /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
-              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,"",
-              /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-              /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
-              /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
-              /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveDOS,
-              /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MEditSaveUnix,
-              /* 8 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(char *)MEditSaveMac,
-              /* 9 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-              /*10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-              /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+              /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(const wchar_t *)MEditTitle,
+              /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSaveAs,
+              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
+              /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+              /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
+              /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
+              /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(const wchar_t *)MEditSaveDOS,
+              /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(const wchar_t *)MEditSaveUnix,
+              /* 8 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(const wchar_t *)MEditSaveMac,
+              /* 9 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+              /*10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+              /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
             };
-            MakeDialogItems(EditDlgData,EditDlg);
-            xstrncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
-            char *PtrEditDlgData=strstr(EditDlg[2].Data,MSG(MNewFileName));
+            MakeDialogItemsEx(EditDlgData,EditDlg);
+
+            EditDlg[2].strData = (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName);
+
+            //xstrncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
+            wchar_t *PtrEditDlgData=EditDlg[2].strData.GetBuffer ();
+
+            PtrEditDlgData = wcsstr (PtrEditDlgData, UMSG(MNewFileName));
             if(PtrEditDlgData)
               *PtrEditDlgData=0;
+
+            EditDlg[2].strData.ReleaseBuffer();
+
             EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
             EditDlg[5+TextFormat].Selected=TRUE;
 
             {
               Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
               Dlg.SetPosition(-1,-1,76,14);
-              Dlg.SetHelp("FileSaveAs");
+              Dlg.SetHelp(L"FileSaveAs");
               Dlg.Process();
-              if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
+              if (Dlg.GetExitCode()!=10 || EditDlg[2].strData.IsEmpty() )
                 return(FALSE);
             }
-            ExpandEnvironmentStr(EditDlg[2].Data,EditDlg[2].Data,sizeof(EditDlg[2].Data));
+            apiExpandEnvironmentStrings (EditDlg[2].strData,EditDlg[2].strData);
             /* $ 07.06.2001 IS
                - Баг: нужно сначала убирать пробелы, а только потом кавычки
             */
-            RemoveTrailingSpaces(EditDlg[2].Data);
-            Unquote(EditDlg[2].Data);
+            RemoveTrailingSpacesW(EditDlg[2].strData);
+            UnquoteW(EditDlg[2].strData);
             /* IS $ */
 
-            NameChanged=LocalStricmp(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName))!=0;
+            string strData = EditDlg[2].strData;
+
+            NameChanged=LocalStricmpW(strData,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
             /* $ 01.08.2001 tran
                этот кусок перенесен повыше и вместо FileName
                используеся EditDlg[2].Data */
-            if(!NameChanged)
-              FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
+            if( !NameChanged )
+              FarChDirW (strStartDir); // ПОЧЕМУ? А нужно ли???
 
-            FNAttr=::GetFileAttributes(EditDlg[2].Data);
+            FNAttr=::GetFileAttributesW(strData);
             if (NameChanged && FNAttr != -1)
             {
-              if (Message(MSG_WARNING,2,MSG(MEditTitle),EditDlg[2].Data,MSG(MEditExists),
-                           MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
+              if (MessageW(MSG_WARNING,2,UMSG(MEditTitle),strData,UMSG(MEditExists),
+                           UMSG(MEditOvr),UMSG(MYes),UMSG(MNo))!=0)
               {
-                FarChDir(OldCurDir);
+                FarChDirW(strOldCurDir);
                 return(TRUE);
               }
               Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
             }
             /* tran $ */
 
-            if(!SetFileName(EditDlg[2].Data))
+            string strFileNameTemp = strData;
+
+            if(!SetFileName(strFileNameTemp))
             {
               SetLastError(ERROR_INVALID_NAME);
-              Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),EditDlg[2].Data,MSG(MOk));
+              MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),strFileNameTemp,UMSG(MOk));
               if(!NameChanged)
-                FarChDir(OldCurDir);
+                FarChDirW(strOldCurDir);
               continue;
               //return FALSE;
             }
@@ -1371,16 +936,17 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if (EditDlg[8].Selected)
               TextFormat=3;
             if(!NameChanged)
-              FarChDir(OldCurDir);
+              FarChDirW(strOldCurDir);
           }
           ShowConsoleTitle();
-          FarChDir(StartDir); //???
 
-          if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2) == SAVEFILE_ERROR)
+          FarChDirW (strStartDir); //???
+
+          if(SaveFile(strFullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2) == SAVEFILE_ERROR)
           {
             SetLastError(SysErrorCode);
-            if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-                        FileName,MSG(MRetry),MSG(MCancel))!=0)
+            if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
+                        strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
             {
               Done=TRUE;
               break;
@@ -1417,18 +983,17 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             return(TRUE);
           }
 
-          char FullFileNameTemp[NM*2];
-          strcpy(FullFileNameTemp,FullFileName);
+          string strFullFileNameTemp = strFullFileName;
           /* 26.11.2001 VVM
             ! Использовать полное имя файла */
           /* $ 28.12.2001 DJ
              вынесем код в общую функцию
           */
-          if(::GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
+          if(::GetFileAttributesW(strFullFileName) == -1) // а сам файл то еще на месте?
           {
-            if(!CheckShortcutFolder(FullFileNameTemp,sizeof(FullFileNameTemp)-1,FALSE))
+              if(!CheckShortcutFolderW(&strFullFileNameTemp,-1,FALSE))
               return FALSE;
-            strcat(FullFileNameTemp,"\\."); // для вваливания внутрь :-)
+            strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
           }
 
           if(Flags.Check(FFILEEDIT_NEW))
@@ -1439,7 +1004,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           {
             SaveScreen Sc;
-            CtrlObject->Cp()->GoToFile (FullFileNameTemp);
+            CtrlObject->Cp()->GoToFileW (strFullFileNameTemp);
             Flags.Set(FFILEEDIT_REDRAWTITLE);
           }
           /* DJ $ */
@@ -1457,9 +1022,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         else
           EditKeyBar.Hide0(); // 0 mean - Don't purge saved screen
         Show();
-        /* $ 07.05.2001 DJ */
         KeyBarVisible = Opt.EdOpt.ShowKeyBar;
-        /* DJ $ */
         return (TRUE);
       }
 
@@ -1472,21 +1035,21 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         int FirstSave=1, NeedQuestion=1;
         if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
         {
-          int FilePlased=::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE);
+          int FilePlased=::GetFileAttributesW (strFullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE);
           if(FEdit->IsFileChanged() ||  // в текущем сеансе были изменения?
              FilePlased) // а сам файл то еще на месте?
           {
             int Res;
             if(FEdit->IsFileChanged() && FilePlased)
-                Res=Message(MSG_WARNING,3,MSG(MEditTitle),
-                           MSG(MEditSavedChangedNonFile),
-                           MSG(MEditSavedChangedNonFile2),
-                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
+                Res=MessageW(MSG_WARNING,3,UMSG(MEditTitle),
+                           UMSG(MEditSavedChangedNonFile),
+                           UMSG(MEditSavedChangedNonFile2),
+                           UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue));
             else if(!FEdit->IsFileChanged() && FilePlased)
-                Res=Message(MSG_WARNING,3,MSG(MEditTitle),
-                           MSG(MEditSavedChangedNonFile1),
-                           MSG(MEditSavedChangedNonFile2),
-                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
+                Res=MessageW(MSG_WARNING,3,UMSG(MEditTitle),
+                           UMSG(MEditSavedChangedNonFile1),
+                           UMSG(MEditSavedChangedNonFile2),
+                           UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue));
             else
                Res=100;
             switch(Res)
@@ -1528,11 +1091,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         struct EditorOptions EdOpt;
         GetEditorOptions(EdOpt);
 
-        /* $ 27.11.2001 DJ
-           Local в EditorConfig
-        */
-        EditorConfig(EdOpt,1);
-        /* DJ $ */
+        EditorConfig(EdOpt,1); // $ 27.11.2001 DJ - Local в EditorConfig
         EditKeyBar.Show(); //???? Нужно ли????
 
         SetEditorOptions(EdOpt);
@@ -1540,6 +1099,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         /* IS $ */
         if ( Opt.EdOpt.ShowKeyBar )
           EditKeyBar.Show();
+
         FEdit->Show();
         return TRUE;
       }
@@ -1566,15 +1126,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
-  char OldCurDir[4096];
-  FarGetCurDir(sizeof(OldCurDir),OldCurDir);
+  string strOldCurDir;
+  FarGetCurDirW (strOldCurDir);
   while (1)
   {
-    FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
+    FarChDirW(strStartDir); // ПОЧЕМУ? А нужно ли???
     int SaveCode=SAVEFILE_SUCCESS;
     if(NeedQuestion)
     {
-      SaveCode=SaveFile(FullFileName,FirstSave,0,FALSE);
+      SaveCode=SaveFile(strFullFileName,FirstSave,0,FALSE);
     }
     if (SaveCode==SAVEFILE_CANCEL)
       break;
@@ -1592,37 +1152,37 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       SetExitCode (XC_QUIT);
       break;
     }
-    if(!strcmp(FileName,MSG(MNewFileName)))
+    if(!wcscmp(strFileName,UMSG(MNewFileName)))
       if(!ProcessKey(KEY_SHIFTF2))
       {
-        FarChDir(OldCurDir);
+        FarChDirW(strOldCurDir);
         return FALSE;
       }
       else
         break;
     SetLastError(SysErrorCode);
-    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-              FileName,MSG(MRetry),MSG(MCancel))!=0)
+    if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
+              strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
         break;
     FirstSave=0;
   }
 
-  FarChDir(OldCurDir);
+  FarChDirW(strOldCurDir);
   return GetExitCode() == XC_QUIT;
 }
 
 
 // сюды плавно переносить код из Editor::ReadFile()
-int FileEditor::ReadFile(const char *Name,int &UserBreak)
+int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 {
   int Ret=FEdit->ReadFile(Name,UserBreak);
   SysErrorCode=GetLastError();
-  GetFileWin32FindData(Name,&FileInfo);
+  apiGetFindDataEx (Name,&FileInfo);
   return Ret;
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
-int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
+int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
 {
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(
@@ -1638,8 +1198,8 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 
     if (Ask)
     {
-      switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),
-              MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+      switch (MessageW(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSave),
+              UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue)))
       {
         case -1:
         case -2:
@@ -1656,20 +1216,20 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 
   int NewFile=TRUE;
   FileAttributesModified=false;
-  if ((FileAttributes=::GetFileAttributes(Name))!=-1)
+  if ((FileAttributes=::GetFileAttributesW(Name))!=-1)
   {
     // Проверка времени модификации...
     if(!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
     {
-      WIN32_FIND_DATA FInfo;
-      if(GetFileWin32FindData(Name,&FInfo) && *FileInfo.cFileName)
+      FAR_FIND_DATA_EX FInfo;
+      if( apiGetFindDataEx (Name,&FInfo) && *FileInfo.strFileName)
       {
         __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
-        if(RetCompare || !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh && FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
+        if(RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
         {
-          SetMessageHelp("WarnEditorSavedEx");
-          switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
-                  MSG(MEditSave),MSG(MEditBtnSaveAs),MSG(MEditContinue)))
+          SetMessageHelp(L"WarnEditorSavedEx");
+          switch (MessageW(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSaveExt),
+                  UMSG(MEditSave),UMSG(MEditBtnSaveAs),UMSG(MEditContinue)))
           {
             case -1:
             case -2:
@@ -1691,39 +1251,41 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     NewFile=FALSE;
     if (FileAttributes & FA_RDONLY)
     {
-      int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
-                           MSG(MEditOvr),MSG(MYes),MSG(MNo));
+        //BUGBUG
+      int AskOverwrite=MessageW(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRO),
+                           UMSG(MEditOvr),UMSG(MYes),UMSG(MNo));
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
 
-      SetFileAttributes(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
+      SetFileAttributesW(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
       FileAttributesModified=true;
     }
 
     if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
     {
-      SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+      SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
       FileAttributesModified=true;
     }
   }
   else
   {
     // проверим путь к файлу, может его уже снесли...
-    char CreatedPath[4096];
-    char *Ptr=strrchr(xstrncpy(CreatedPath,Name,sizeof(CreatedPath)-1),'\\'), Chr;
-    if(Ptr)
+    string strCreatedPath = Name;
+
+    const wchar_t *Ptr = wcsrchr (strCreatedPath, L'\\');
+
+    if ( Ptr )
     {
-      Chr=*Ptr;
-      *Ptr=0;
+      CutToSlashW (strCreatedPath, true);
       DWORD FAttr=0;
-      if(::GetFileAttributes(CreatedPath) == -1)
+      if(::GetFileAttributesW(strCreatedPath) == -1)
       {
         // и попробуем создать.
         // Раз уж
-        CreatePath(CreatedPath);
-        FAttr=::GetFileAttributes(CreatedPath);
+        CreatePathW(strCreatedPath);
+        FAttr=::GetFileAttributesW(strCreatedPath);
       }
-      *Ptr=Chr;
+
       if(FAttr == -1)
         return SAVEFILE_ERROR;
     }
@@ -1746,17 +1308,17 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   switch(TextFormat)
   {
     case 1:
-      strcpy(FEdit->GlobalEOL,DOS_EOL_fmt);
+      wcscpy(FEdit->GlobalEOL,DOS_EOL_fmtW);
       break;
     case 2:
-      strcpy(FEdit->GlobalEOL,UNIX_EOL_fmt);
+      wcscpy(FEdit->GlobalEOL,UNIX_EOL_fmtW);
       break;
     case 3:
-      strcpy(FEdit->GlobalEOL,MAC_EOL_fmt);
+      wcscpy(FEdit->GlobalEOL,MAC_EOL_fmtW);
       break;
   }
 
-  if(::GetFileAttributes(Name) == -1)
+  if(::GetFileAttributesW(Name) == -1)
     Flags.Set(FFILEEDIT_NEW);
 
   {
@@ -1775,12 +1337,12 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     if (FileAttributes!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
       FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
 
-    HANDLE hEdit=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
+    HANDLE hEdit=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
                  FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,FileFlags,NULL);
     if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
     {
       //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
-      hEdit=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
+      hEdit=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
                        FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     }
     if (hEdit==INVALID_HANDLE_VALUE)
@@ -1818,42 +1380,56 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 */
     SetCursorType(FALSE,0);
     SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-    Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
+    Editor::EditorShowMsg(UMSG(MEditTitle),UMSG(MEditSaving),Name);
 
     struct EditList *CurPtr=FEdit->TopList;
 
     while (CurPtr!=NULL)
     {
-      const char *SaveStr, *EndSeq;
+      const wchar_t *SaveStr, *EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(SaveStr,&EndSeq,Length);
       if (*EndSeq==0 && CurPtr->Next!=NULL)
-        EndSeq=*FEdit->GlobalEOL ? FEdit->GlobalEOL:DOS_EOL_fmt;
+        EndSeq=*FEdit->GlobalEOL ? FEdit->GlobalEOL:DOS_EOL_fmtW;
       if (TextFormat!=0 && *EndSeq!=0)
       {
         if (TextFormat==1)
-          EndSeq=DOS_EOL_fmt;
+          EndSeq=DOS_EOL_fmtW;
         else if (TextFormat==2)
-          EndSeq=UNIX_EOL_fmt;
+          EndSeq=UNIX_EOL_fmtW;
         else
-          EndSeq=MAC_EOL_fmt;
-        CurPtr->EditLine.SetEOL(EndSeq);
+          EndSeq=MAC_EOL_fmtW;
+        CurPtr->EditLine.SetEOLW(EndSeq);
       }
-      int EndLength=strlen(EndSeq);
-      if (fwrite(SaveStr,1,Length,EditFile)!=Length ||
-          fwrite(EndSeq,1,EndLength,EditFile)!=EndLength)
+      int EndLength=wcslen(EndSeq);
+
+      char *SaveStrCopy = new char[Length];
+      char *EndSeqCopy = new char[EndLength];
+
+      WideCharToMultiByte(CP_OEMCP, 0, SaveStr, Length, SaveStrCopy, Length, NULL, NULL);
+      WideCharToMultiByte(CP_OEMCP, 0, EndSeq, EndLength, EndSeqCopy, EndLength, NULL, NULL);
+
+      if (fwrite(SaveStrCopy,1,Length,EditFile)!=Length ||
+          fwrite(EndSeqCopy,1,EndLength,EditFile)!=EndLength)
       {
+        delete SaveStrCopy;
+        delete EndSeqCopy;
+
         fclose(EditFile);
-        remove(Name);
+        _wremove(Name);
         RetCode=SAVEFILE_ERROR;
         goto end;
       }
+
+      delete SaveStrCopy;
+      delete EndSeqCopy;
+
       CurPtr=CurPtr->Next;
     }
     if (fflush(EditFile)==EOF)
     {
       fclose(EditFile);
-      remove(Name);
+      _wremove(Name);
       RetCode=SAVEFILE_ERROR;
       goto end;
     }
@@ -1866,9 +1442,10 @@ end:
 
   if (FileAttributes!=-1 && FileAttributesModified)
   {
-    SetFileAttributes(Name,FileAttributes|FA_ARCH);
+    SetFileAttributesW(Name,FileAttributes|FA_ARCH);
   }
-  GetFileWin32FindData(FullFileName,&FileInfo);
+
+  apiGetFindDataEx (strFullFileName,&FileInfo);
 
   if (FEdit->Flags.Check(FEDITOR_MODIFIED) || NewFile)
     FEdit->Flags.Set(FEDITOR_WASCHANGED);
@@ -1892,7 +1469,7 @@ end:
   /* skv$*/
 
   if(GetDynamicallyBorn()) // принудительно сбросим Title // Flags.Check(FFILEEDIT_SAVETOSAVEAS) ????????
-    *FileEditor::Title=0;
+    strTitle = L"";
 
   Show();
   /* IS $ */
@@ -1914,20 +1491,23 @@ int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int FileEditor::GetTypeAndName(char *Type,char *Name)
+int FileEditor::GetTypeAndName(string &strType, string &strName)
 {
-  if ( Type ) strcpy(Type,MSG(MScreensEdit));
-  if ( Name ) strcpy(Name,FullFileName);
+  strType = UMSG(MScreensEdit);
+  strName = strFullFileName;
+
   return(MODALTYPE_EDITOR);
 }
 
 
 void FileEditor::ShowConsoleTitle()
 {
-  char Title[NM+20];
-  sprintf(Title,MSG(MInEditor),PointToName(FileName));
-  SetFarTitle(Title);
-  Flags.Clear(FFILEEDIT_REDRAWTITLE);
+    string strTitle;
+
+    strTitle.Format (UMSG(MInEditor), PointToNameW (strFileName));
+    SetFarTitleW (strTitle);
+
+    Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
 
@@ -1950,8 +1530,8 @@ void FileEditor::SetScreenPosition()
 void FileEditor::OnDestroy()
 {
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
-  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && stricmp(FileName,MSG(MNewFileName)))
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),
+  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && _wcsicmp(strFileName,UMSG(MNewFileName)))
+    CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryEdit),
                   (FEdit->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   /* $ 19.10.2001 OT
   */
@@ -2014,119 +1594,118 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
   return RetCode;
 }
 
-void FileEditor::SetPluginTitle(const char *PluginTitle)
+void FileEditor::SetPluginTitle(const wchar_t *PluginTitle)
 {
-  strcpy(FileEditor::PluginTitle,NullToEmpty(PluginTitle));
+    if ( !PluginTitle )
+        strPluginTitle = L"";
+    else
+        strPluginTitle = PluginTitle;
 }
 
-BOOL FileEditor::SetFileName(const char *NewFileName)
+BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 {
-  if(strcmp(NewFileName,MSG(MNewFileName)))
+  strFileName = NewFileName;
+
+  if( wcscmp (strFileName,UMSG(MNewFileName)))
   {
-    if (strpbrk(NewFileName,ReservedFilenameSymbols) ||
-        ConvertNameToFull(NewFileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
+    if ( wcspbrk (strFileName, ReservedFilenameSymbolsW) )
+        return FALSE;
+
+    ConvertNameToFullW (strFileName, strFullFileName);
+
+    //Дабы избежать бардака, развернём слэшики...
+
+    wchar_t *lpwszChar = strFullFileName.GetBuffer ();
+
+    while ( *lpwszChar )
     {
-      return FALSE;
+        if ( *lpwszChar == L'/' )
+            *lpwszChar = L'\\';
+
+        lpwszChar++;
     }
-    /* $ 10.11.2002 SKV
-      Дабы избежать бардака, развернём слэшики...
-    */
-    for(char* fn=FullFileName;*fn;fn++)
-    {
-      if(*fn=='/')*fn='\\';
-    }
-    /* SKV $ */
+
+    strFullFileName.ReleaseBuffer ();
   }
   else
   {
-    strcpy(FullFileName,StartDir);
-    AddEndSlash(FullFileName);
-    strcat(FullFileName,NewFileName);
+    strFullFileName = strStartDir;
+    AddEndSlashW (strFullFileName);
+
+    strFullFileName += strFileName;
   }
-  xstrncpy(FileName,NewFileName,sizeof(FileName)-1);
+
   return TRUE;
 }
 
-void FileEditor::SetTitle(const char *Title)
+void FileEditor::SetTitle(const wchar_t *Title)
 {
-  if (Title==NULL)
-    *FileEditor::Title=0;
-  else
-  /* $ 08.06.2001
-     - Баг: не учитывался размер Title, что приводило к порче памяти и
-       к падению Фара.
-  */
-    xstrncpy(FileEditor::Title, Title, sizeof(FileEditor::Title)-1);
-  /* IS $ */
+    if ( Title == NULL )
+        strTitle = L"";
+    else
+        strTitle = Title;
 }
 
 void FileEditor::ChangeEditKeyBar()
 {
   if (FEdit->AnsiText)
-    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+    EditKeyBar.Change(UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
   else
-    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+    EditKeyBar.Change(UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Redraw();
 }
 
-void FileEditor::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+void FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
 {
-  xstrncpy(lTitle,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),LenTitle);
+  if ( !strPluginTitle.IsEmpty () )
+    strLocalTitle = strPluginTitle;
+  else
+  {
+    if ( !strTitle.IsEmpty () )
+      strLocalTitle = strTitle;
+    else
+      strLocalTitle = strFullFileName;
+  }
 }
 
 void FileEditor::ShowStatus()
 {
-  if (FEdit->Locked())
+  if ( FEdit->Locked () )
     return;
+
   SetColor(COL_EDITORSTATUS);
+
   GotoXY(X1,Y1); //??
-  char TruncFileName[2048],StatusStr[NM],LineStr[50];
-  /* $ 08.06.2001 IS
-     - Баг: затирался стек, потому что, например, размер Title больше,
-       чем размер TruncFileName
-  */
-  GetTitle(TruncFileName,sizeof(TruncFileName)-1);
-  /* IS $ */
-  int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
-  /* $ 11.07.2000 tran
-     + expand filename if console more when 80 column */
-  if (X2>80)
-     NameLength+=(X2-80);
-  /* tran 11.07.2000 $ */
 
-  if (*PluginTitle || *Title)
-    /* $ 20.09.2000 SVS
-      - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
-    */
-    /* $ 01.10.2000 IS
-      ! Показывать букву диска в статусной строке
-    */
-    TruncPathStr(TruncFileName,(ObjWidth<NameLength?ObjWidth:NameLength));
-    /* IS $ */
-    /* SVS $ */
-  else
-    /* $ 01.10.2000 IS
-      ! Показывать букву диска в статусной строке
-    */
-    TruncPathStr(TruncFileName,NameLength);
-    /* IS $ */
-  /* $ 14.02.2000 SVS
-     Динамический размер под количество строк
-  */
-  // предварительный расчет.
-  sprintf(LineStr,"%d/%d",FEdit->NumLastLine,FEdit->NumLastLine);
-  int SizeLineStr=strlen(LineStr);
-  if(SizeLineStr > 12)
-    NameLength-=(SizeLineStr-12);
-  else
-    SizeLineStr=12;
+  wchar_t wszStatus[NM];
+  wchar_t wszLineStr[NM]; //BUGBUG
 
-  sprintf(LineStr,"%d/%d",FEdit->NumLine+1,FEdit->NumLastLine);
-  /* $ 13.02.2001 IS
-    ! Используем уже готовую AttrStr, которая сформирована в
-      GetFileAttributes
-  */
+  string strLocalTitle;
+  GetTitle(strLocalTitle);
+
+  int NameLength = Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
+
+  if ( X2 > 80)
+     NameLength += (X2-80);
+
+  if ( !strPluginTitle.IsEmpty () || !strTitle.IsEmpty ())
+    TruncPathStrW (strLocalTitle, (ObjWidth<NameLength?ObjWidth:NameLength));
+  else
+    TruncPathStrW (strLocalTitle, NameLength);
+
+  //предварительный расчет
+  swprintf (wszLineStr, L"%d/%d", FEdit->NumLastLine, FEdit->NumLastLine);
+
+  int SizeLineStr = wcslen(wszLineStr);
+
+  if( SizeLineStr > 12 )
+    NameLength -= (SizeLineStr-12);
+  else
+    SizeLineStr = 12;
+
+  swprintf (wszLineStr, L"%d/%d", FEdit->NumLine+1, FEdit->NumLastLine);
+
   const char *TableName;
   char TmpTableName[32];
   if(FEdit->UseDecodeTable)
@@ -2137,24 +1716,41 @@ void FileEditor::ShowStatus()
   else
     TableName=FEdit->AnsiText ? "Win":"DOS";
 
-  sprintf(StatusStr,"%-*s %c%c%c%10.10s %7s %*.*s %5s %-4d %3s",
-          NameLength,TruncFileName,(FEdit->Flags.Check(FEDITOR_MODIFIED) ? '*':' '),
-          (FEdit->Flags.Check(FEDITOR_LOCKMODE) ? '-':' '),
-          (FEdit->Flags.Check(FEDITOR_PROCESSCTRLQ) ? '"':' '),
-          TableName,
-          MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
-          MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);
-  /* IS $ */
-  /* SVS $ */
+  string strTableName;
+  strTableName.SetData (TableName, CP_OEMCP);
+
+  string strAttr;
+  strAttr.SetData (AttrStr, CP_OEMCP);
+
+  swprintf (
+        wszStatus,
+        L"%-*s %c%c%c%10.10s %7s %*.*s %5s %-4d %3s",
+        NameLength,
+        (const wchar_t*)strLocalTitle,
+        (FEdit->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' '),
+        (FEdit->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' '),
+        (FEdit->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' '),
+        (const wchar_t*)strTableName,
+        UMSG(MEditStatusLine),
+        SizeLineStr,
+        SizeLineStr,
+        wszLineStr,
+        UMSG(MEditStatusCol),
+        FEdit->CurLine->EditLine.GetTabCurPos()+1,
+        (const wchar_t*)strAttr
+        );
+
   int StatusWidth=ObjWidth - (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)?5:0);
+
   if (StatusWidth<0)
     StatusWidth=0;
-  mprintf("%-*.*s",StatusWidth,StatusWidth,StatusStr);
+
+  mprintfW (L"%-*.*s", StatusWidth, StatusWidth, wszStatus);
 
   {
-    const char *Str;
+    const wchar_t *Str;
     int Length;
-    FEdit->CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+    FEdit->CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
     int CurPos=FEdit->CurLine->EditLine.GetCurPos();
     if (CurPos<Length)
     {
@@ -2162,11 +1758,12 @@ void FileEditor::ShowStatus()
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */
-      static char *FmtCharCode[3]={"%03o","%3d","%02Xh"};
-      mprintf(FmtCharCode[FEdit->EdOpt.CharCodeBase%3],(unsigned char)Str[CurPos]);
+      static wchar_t *FmtCharCode[3]={L"%03o",L"%3d",L"%02Xh"};
+      mprintfW(FmtCharCode[FEdit->EdOpt.CharCodeBase%3],(wchar_t)Str[CurPos]);
       /* SVS $ */
     }
   }
+
   if (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))
     ShowTime(FALSE);
 }
@@ -2175,9 +1772,9 @@ void FileEditor::ShowStatus()
      Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
      статуса.
 */
-DWORD FileEditor::GetFileAttributes(LPCTSTR Name)
+DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
 {
-  FileAttributes=::GetFileAttributes(Name);
+  FileAttributes=::GetFileAttributesW(Name);
   int ind=0;
   if(0xFFFFFFFF!=FileAttributes)
   {
@@ -2195,13 +1792,19 @@ DWORD FileEditor::GetFileAttributes(LPCTSTR Name)
 BOOL FileEditor::UpdateFileList()
 {
   Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
-  char *FileName = PointToName((char *)FullFileName);
-  char FilePath[NM], PanelPath[NM];
-  xstrncpy(FilePath, FullFileName, FileName - FullFileName);
-  ActivePanel->GetCurDir(PanelPath);
-  AddEndSlash(PanelPath);
-  AddEndSlash(FilePath);
-  if (!strcmp(PanelPath, FilePath))
+  const wchar_t *FileName = PointToNameW(strFullFileName);
+  string strFilePath, strPanelPath;
+
+  wchar_t *lpwszFilePath = strFilePath.GetBuffer();
+
+  xwcsncpy(lpwszFilePath, strFullFileName, (FileName - (const wchar_t*)strFullFileName)/sizeof(wchar_t));
+
+  strFilePath.ReleaseBuffer();
+
+  ActivePanel->GetCurDirW(strPanelPath);
+  AddEndSlashW(strPanelPath);
+  AddEndSlashW(strFilePath);
+  if (!wcscmp(strPanelPath, strFilePath))
   {
     ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
     return TRUE;
@@ -2209,9 +1812,9 @@ BOOL FileEditor::UpdateFileList()
   return FALSE;
 }
 
-void FileEditor::SetPluginData(char *PluginData)
+void FileEditor::SetPluginData(const wchar_t *PluginData)
 {
-  strcpy(FileEditor::PluginData,NullToEmpty(PluginData));
+  FileEditor::strPluginData = NullToEmptyW(PluginData);
 }
 
 /* $ 14.06.2002 IS
@@ -2261,7 +1864,7 @@ int FileEditor::EditorControl(int Command,void *Param)
   _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
   _ECTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
-  if (bClosing && Command != ECTL_GETINFO && Command != ECTL_GETBOOKMARKS)
+  if (bClosing && Command != ECTL_GETINFO && Command != ECTL_GETBOOKMARKS && Command != ECTL_FREEINFO)
     return FALSE;
   switch(Command)
   {
@@ -2270,7 +1873,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       if (FEdit->EditorControl(Command,Param))
       {
         struct EditorInfo *Info=(struct EditorInfo *)Param;
-        Info->FileName=FullFileName;
+        Info->FileName=_wcsdup (strFullFileName); //BUGBUG
         _ECTLLOG(SysLog("struct EditorInfo{"));
         _ECTLLOG(SysLog("  EditorID       = %d",Info->EditorID));
         _ECTLLOG(SysLog("  FileName       = '%s'",Info->FileName));
@@ -2297,6 +1900,12 @@ int FileEditor::EditorControl(int Command,void *Param)
       return FALSE;
     }
 
+    case ECTL_FREEINFO:
+    {
+      struct EditorInfo *Info=(struct EditorInfo *)Param;
+      xf_free ((void*)Info->FileName);
+    }
+
     case ECTL_GETBOOKMARKS:
     {
       if(!FEdit->Flags.Check(FEDITOR_OPENFAILED) && Param)
@@ -2319,7 +1928,12 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       // $ 08.06.2001 IS - Баг: не учитывался размер PluginTitle
       _ECTLLOG(SysLog("Title='%s'",Param));
-      xstrncpy(PluginTitle,NullToEmpty((char *)Param),sizeof(PluginTitle)-1);
+
+      if ( Param)
+        strPluginTitle.SetData ((const char*)Param, CP_OEMCP);
+      else
+        strPluginTitle = L"";
+
       ShowStatus();
       ScrBuf.Flush();
       return TRUE;
@@ -2329,7 +1943,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       if(!Param)
         return FALSE;
-      struct EditorConvertText *ect=(struct EditorConvertText *)Param;
+      /*struct EditorConvertText *ect=(struct EditorConvertText *)Param;
       _ECTLLOG(SysLog("struct EditorConvertText{"));
       _ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
       _ECTLLOG(SysLog("  TextLength =%d",ect->TextLength));
@@ -2338,7 +1952,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       {
         DecodeString(ect->Text,(unsigned char *)FEdit->TableSet.DecodeTable,ect->TextLength);
         _ECTLLOG(SysLog("DecodeString -> ect->Text='%s'",ect->Text));
-      }
+      }*/ //BUGBUG
       return TRUE;
     }
 
@@ -2347,7 +1961,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       if(!Param)
         return FALSE;
 
-      struct EditorConvertText *ect=(struct EditorConvertText *)Param;
+      /*struct EditorConvertText *ect=(struct EditorConvertText *)Param;
       _ECTLLOG(SysLog("struct EditorConvertText{"));
       _ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
       _ECTLLOG(SysLog("  TextLength =%d",ect->TextLength));
@@ -2356,7 +1970,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       {
         EncodeString(ect->Text,(unsigned char *)FEdit->TableSet.EncodeTable,ect->TextLength);
         _ECTLLOG(SysLog("EncodeString -> ect->Text='%s'",ect->Text));
-      }
+      }*/ //BUGBUG
       return TRUE;
     }
 
@@ -2412,7 +2026,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     case ECTL_SAVEFILE:
     {
       EditorSaveFile *esf=(EditorSaveFile *)Param;
-      char *Name=FullFileName;
+      string strName = strFullFileName;
       int EOL=0;
       if (esf!=NULL)
       {
@@ -2424,24 +2038,24 @@ int FileEditor::EditorControl(int Command,void *Param)
         _ECTLLOG(if(LinDump)xf_free(LinDump));
 
         if (*esf->FileName)
-          Name=esf->FileName;
+          strName=esf->FileName;
         if (esf->FileEOL!=NULL)
         {
-          if (strcmp(esf->FileEOL,DOS_EOL_fmt)==0)
+          if (wcscmp(esf->FileEOL,DOS_EOL_fmtW)==0)
             EOL=1;
-          if (strcmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+          if (wcscmp(esf->FileEOL,UNIX_EOL_fmtW)==0)
             EOL=2;
-          if (strcmp(esf->FileEOL,MAC_EOL_fmt)==0)
+          if (wcscmp(esf->FileEOL,MAC_EOL_fmtW)==0)
             EOL=3;
         }
         _ECTLLOG(SysLog("EOL=%d",EOL));
       }
 
       {
-        char OldFullFileName[NM];
-        xstrncpy(OldFullFileName,FullFileName,sizeof(OldFullFileName)-1);
-        if(SetFileName(Name))
-          return SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,OldFullFileName));
+        string strOldFullFileName = strFullFileName;
+
+        if(SetFileName(strName))
+          return SaveFile(strName,FALSE,EOL,!LocalStricmpW(strName, strOldFullFileName));
       }
       return FALSE;
     }

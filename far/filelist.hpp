@@ -7,148 +7,9 @@ filelist.hpp
 
 */
 
-/* Revision: 1.57 28.08.2006 $ */
+/* Revision: 1.72 01.09.2006 $ */
 
-/*
-Modify:
-  28.08.2006 SVS
-    + FindFirst() и FindNext()
-  12.07.2006 SVS
-    ! kill class int64
-    ! struct PrevDataItem унеслась из filelist.cpp в filelist.hpp
-  03.07.2006 SVS
-    ! CreateFullPathName() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  23.01.2006 SVS
-    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
-      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
-      флаг PKF_PREPROCESS.
-  07.12.2005 SVS
-    + Is_FS_NTFS
-  23.10.2005 SVS
-    + virtual SendKeyToPlugin()
-  22.07.2005 SVS
-    + PluginsStackItem.PrevViewSettings
-  23.04.2005 KM
-    ! Использование фильтра в GetSelName
-  21.04.2005 SVS
-    ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
-  01.04.2005 SVS
-    + GetItem()
-  10.03.2005 SVS
-    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
-  03.03.2005 SVS
-    ! У функции FindPartName() добавлен третий параметр - направление поиска.
-  14.02.2005 SVS
-    ! FileList::FindFile() перенесем в public секцию
-  08.11.2004 WARP
-    + GetShowColor()
-  01.11.2004 SVS
-    + ColumnsInGlobal
-  24.05.2004 SVS
-    + PluginsStackItem.PrevNumericSort
-    + GetPrevNumericSort()
-  18.05.2004 SVS
-    ! IsNumeric() переехала из filelist.hpp в panel.hpp
-  06.10.2003 SVS
-    ! FileList::CreatePluginItemList() имеет доп.параметр - "добавлять '..'?"
-      по умолчанию - "добавлять"
-      В FileList::PluginGetPanelInfo() этот параметр = FALSE ("не добавлять")
-  31.08.2003 SVS
-    ! В FileList::CountDirSize() передается 1 параметр - DWORD, флаги плагина
-  11.07.2003 SVS
-    + FileList::IsNumeric()
-  13.01.2003 SVS
-    ! Доп.параметр у ConvertName() - файловые атрибуты, для того, чтобы
-      обечпечить работу опции "Выравнивать расширения файлов"
-  21.12.2002 SVS
-    ! Добавляем третий параметр в FileList::ReadFileNames()
-  18.06.2002 SVS
-    + IfGoHome()
-  14.05.2002 VVM
-    + ResetLastUpdateTime() - сбросить время последнего обновления панели.
-  12.04.2002 SVS
-    ! Увеличим размер шортнэйма до NM
-  12.04.2002 IS
-    ! PluginPutFilesToAnother теперь int - возвращает то, что возвращает
-      PutFiles
-  11.04.2002 SVS
-    ! Доп.Параметр у PluginGetPanelInfo - получать полную инфу или не полную
-  10.04.2002 SVS
-    + ProcessOneHostFile - обработка одного хост-файла
-  08.04.2002 IS
-    ! внедрение const
-  05.04.2002 SVS
-    ! CheckShortcutFolder стала самостоятельной и уехала в mix.cpp
-  21.03.2002 SVS
-    + CheckShortcutFolder()
-  19.03.2002 DJ
-    + UpdateIfRequired()
-    + параметр IgnoreVisible
-  19.02.2002 SVS
-    ! ChangeDir() имеет доп.параметр.
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  27.11.2001 SVS
-    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
-      с учетом вложенности панельного плагина, т.е. имя самого верхнего
-      хост-файла в стеке.
-  09.11.2001 IS
-    + openBracket, closeBracket
-  25.10.2001 SVS
-    ! У функции CopyNames() 2 параметра:
-      FillPathName - при копировании вставлять полный путь
-      UNC          - учитывать так же UNC-путь (а так же с учетом symlink)
-    + Функция CreateFullPathName() - конструирует на основе некоторых сведений
-      полное имя файлового объекта.
-  21.10.2001 SVS
-    + AddPluginPrefix()
-  01.10.2001 SVS
-    + AddParentPoint() - общий код по добавлению ".."
-    + UpdateColorItems() - колоризация итемов
-  05.09.2001 SVS
-    ! Вместо полей Color* в структе FileListItem используется
-      структура HighlightDataColor
-  17.08.2001 VVM
-    + FileListItem.CRC32
-  09.08.2001 SVS
-    + virtual long GetFileCount() для нужд макросов :-)
-  20.07.2001 SVS
-    ! PluginPanelHelp переехала из help.hpp
-  22.06.2001 SKV
-    + Параметр Force у UpdateIfChanged.
-  06.05.2001 DJ
-    + перетрях #include
-  30.04.2001 DJ
-    + UpdateKeyBar()
-  26.04.2001 VVM
-    + Scroll() - прокрутить файлы, не двигая курсор
-  25.04.2001 SVS
-    + GetRealSelCount() - сейчас используется для макросов.
-  24.04.2001 VVM
-    + Функция для смены порядка сортировки.
-  09.04.2001 SVS
-    ! ChangeDir() возвращает FALSE, если файловая панель была закрыта
-  25.02.2001 VVM
-    + Доп. параметр у ReadDiz - dwFlags
-  09.02.2001 IS
-    + Get(Set)SelectedFirstMode
-  04.01.2001 SVS
-    ! TranslateKeyToVK() -> keyboard.cpp
-  27.09.2000 SVS
-    ! FileList::CallPlugin() перенесен в PluginsSet
-  21.09.2000 SVS
-    + Функция CallPlugin - найти плагин по ID и запустить
-  11.09.2000 SVS
-    + Переменная IsEmpty, указывающая на полностью пустую колонку
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
+#include "global.hpp"
 #include "panel.hpp"
 #include "dizlist.hpp"
 
@@ -168,30 +29,30 @@ struct FileListItem
 
   int Position;
   int SortGroup;
-  char *DizText;
+  wchar_t *DizText;
   char DeleteDiz;
-  char Owner[40];
-  char **CustomColumnData;
+  string strOwner;
+  wchar_t **CustomColumnData;
   int CustomColumnNumber;
   DWORD CRC32;
 
-  // Аля  WIN32_FIND_DATA - эту часть желательно держать в таком виде
+  //BUGBUG!!
   DWORD FileAttr;
   FILETIME CreationTime;
   FILETIME AccessTime;
   FILETIME WriteTime;
-  DWORD UnpSizeHigh;
-  DWORD UnpSize;
-  DWORD PackSizeHigh;     // WIN32_FIND_DATA.dwReserved0
-  DWORD PackSize;         // WIN32_FIND_DATA.dwReserved1
-  char Name[NM];
-  char ShortName[NM];
+
+  unsigned __int64 UnpSize;
+  unsigned __int64 PackSize;
+
+  string strName;
+  string strShortName;
 };
 
 struct PluginsStackItem
 {
   HANDLE hPlugin;
-  char HostFile[NM];
+  string strHostFile;
   int Modified;
   int PrevViewMode;
   int PrevSortMode;
@@ -202,9 +63,9 @@ struct PluginsStackItem
 
 struct PrevDataItem
 {
-  struct FileListItem *PrevListData;
+  struct FileListItem **PrevListData;
   long PrevFileCount;
-  char PrevName[NM];
+  string strPrevName;
   long PrevTopFile;
 };
 
@@ -225,15 +86,15 @@ class FileList:public Panel
          Открывающий и закрывающий символ, которые используются для показа
          имени, которое не помещается в панели. По умолчанию - фигурные скобки.
     */
-    char openBracket[2], closeBracket[2];
+    wchar_t openBracket[2], closeBracket[2];
     /* IS $ */
-    char PluginDizName[NM];
-    struct FileListItem *ListData;
+    string strPluginDizName;
+    struct FileListItem **ListData;
     long FileCount;
     HANDLE hPlugin;
-    struct PrevDataItem *PrevDataStack;
+    struct PrevDataItem **PrevDataStack;
     int PrevDataStackSize;
-    struct PluginsStackItem *PluginsStack;
+    PluginsStackItem **PluginsStack;
     int PluginsStackSize;
     HANDLE hListChange;
     long UpperFolderTopFile,LastCurFile;
@@ -241,9 +102,9 @@ class FileList:public Panel
     long SelFileCount;
     long GetSelPosition,LastSelPosition;
     long TotalFileCount;
-    __int64 SelFileSize;
-    __int64 TotalFileSize;
-    __int64 FreeDiskSize;
+    unsigned __int64 SelFileSize;
+    unsigned __int64 TotalFileSize;
+    unsigned __int64 FreeDiskSize;
     clock_t LastUpdateTime;
     int Height,Columns;
 
@@ -260,8 +121,6 @@ class FileList:public Panel
     /* SVS $ */
     int AccessTimeUpdateRequired;
 
-    PluginPanelItem *DataToDelete[32];
-    int DataSizeToDelete[32];
     int DataToDeleteCount;
     int UpdateRequired,UpdateRequiredMode;
     int SortGroupsRead;
@@ -278,8 +137,7 @@ class FileList:public Panel
     int GetSelectedFirstMode(void) {return SelectedFirst;};
     /* IS $ */
     void DisplayObject();
-    void DeleteListData(struct FileListItem *(&ListData),long &FileCount);
-    void DeleteAllDataToDelete();
+    void DeleteListData(struct FileListItem **(&ListData),long &FileCount);
     void Up(int Count);
     void Down(int Count);
     void Scroll(int Count);
@@ -289,15 +147,16 @@ class FileList:public Panel
     void SetShowColor(int Position);
     int GetShowColor(int Position);
     void ShowSelectedSize();
-    void ShowTotalSize(struct OpenPluginInfo &Info);
-    int ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr);
+    void ShowTotalSize(struct OpenPluginInfoW &Info);
+    int ConvertNameW (const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
+
     void Select(struct FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
     void ProcessEnter(int EnableExec,int SeparateWindow);
     /* $ 09.04.2001 SVS
        ChangeDir возвращает FALSE, eсли файловая панель была закрыта
     */
-    BOOL ChangeDir(char *NewDir,BOOL IsUpdated=TRUE);
+    BOOL ChangeDirW(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
     /* SVS $ */
     void CountDirSize(DWORD PluginFlags);
     /* $ 19.03.2002 DJ
@@ -306,52 +165,55 @@ class FileList:public Panel
     void ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage);
     void UpdatePlugin(int KeepSelection, int IgnoreVisible);
     /* DJ $ */
-    void MoveSelection(struct FileListItem *FileList,long FileCount,
-                       struct FileListItem *OldList,long OldFileCount);
+    void MoveSelection(struct FileListItem **FileList,long FileCount,
+                       struct FileListItem **OldList,long OldFileCount);
     int GetSelCount();
-    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
+    int GetSelNameW(string *strName,int &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
     void UngetSelName();
     void ClearLastGetSelection();
-    long GetLastSelectedSize(__int64 *Size);
+
+    unsigned __int64 GetLastSelectedSize ();
     int GetLastSelectedItem(struct FileListItem *LastItem);
-    int GetCurName(char *Name,char *ShortName);
-    int GetCurBaseName(char *Name,char *ShortName);
-    void PushPlugin(HANDLE hPlugin,char *HostFile);
+
+    int GetCurNameW(string &strName, string &strShortName);
+    int GetCurBaseNameW(string &strName, string &strShortName);
+
+    void PushPlugin(HANDLE hPlugin,const wchar_t *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
     void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
     void SelectSortMode();
     void ApplyCommand();
     void DescribeFiles();
-    void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
-    void DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
-    HANDLE OpenPluginForFile(char *FileName,DWORD FileAttr=0);
+    void CreatePluginItemList(struct PluginPanelItemW *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
+    void DeletePluginItemList(struct PluginPanelItemW *(&ItemList),int &ItemNumber);
+    HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr=0);
     int PreparePanelView(struct PanelViewSettings *PanelView);
     int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
                             int &ColumnCount,int FullScreen);
-    void PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo);
+    void PrepareViewSettings(int ViewMode,struct OpenPluginInfoW *PlugInfo);
 
     void PluginDelete();
-    void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemList,
+    void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItemW *ItemList,
                         int ItemNumber,int Delete,int Move,DizList *SrcDiz,
                         DizList *DestDiz);
-    void PluginGetFiles(char *DestPath,int Move);
+    void PluginGetFiles(const wchar_t *DestPath,int Move);
     void PluginToPluginFiles(int Move);
     void PluginHostGetFiles();
     void PluginPutFilesToNew();
     // возвращает то, что возвращает PutFiles
     int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
     void ProcessPluginCommand();
-    void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
+    void PluginClearSelection(struct PluginPanelItemW *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
     void ReadSortGroups();
     void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
     int  ProcessOneHostFile(int Idx);
 
-    static void TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
+    static void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
            unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);
     static void ViewSettingsToText(unsigned int *ViewColumnTypes,
-           int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
-           char *ColumnWidths=NULL);
+           int *ViewColumnWidths,int ColumnCount,string &strColumnTitles,
+           string &strColumnWidths);
 
   public:
     FileList();
@@ -384,21 +246,25 @@ class FileList:public Panel
     void SetViewMode(int ViewMode);
     void SetSortMode(int SortMode);
     virtual void ChangeSortOrder(int NewOrder);
-    void SetCurDir(char *NewDir,int ClosePlugin);
+    void SetCurDirW(const wchar_t *NewDir,int ClosePlugin);
     int GetPrevSortMode();
     int GetPrevSortOrder();
     int GetPrevViewMode();
     int GetPrevNumericSort();
-    HANDLE OpenFilePlugin(char *FileName,int PushPrev);
-    int GetFileName(char *Name,int Pos,int &FileAttr);
+    HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
+    int GetFileNameW(string &strName,int Pos,int &FileAttr);
     int GetCurrentPos();
-    int FindPartName(char *Name,int Next,int Direct=1);
-    int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
+    int FindPartName(const wchar_t *Name,int Next,int Direct=1);
     int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
-    int IsSelected(char *Name);
 
-    virtual int FindFirst(const char *Name);
-    virtual int FindNext(int StartPos, const char *Name);
+    int GoToFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+    int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+
+    int IsSelected(char *Name);
+    int IsSelectedW(const wchar_t *Name);
+
+    virtual int FindFirstW(const wchar_t *Name);
+    virtual int FindNextW(int StartPos, const wchar_t *Name);
 
     void ProcessHostFile();
     void UpdateViewPanel();
@@ -407,30 +273,31 @@ class FileList:public Panel
     void SaveSelection();
     void RestoreSelection();
     void EditFilter();
-    void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
-    void DeleteDiz(char *Name,char *ShortName);
+    void ReadDiz(struct PluginPanelItemW *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
+    void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
     void FlushDiz();
-    void GetDizName(char *DizName);
-    void CopyDiz(char *Name,char *ShortName,char *DestName,
-                 char *DestShortName,DizList *DestDiz);
+    void GetDizName(string &strDizName);
+    void CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName,
+                 const wchar_t *DestShortName,DizList *DestDiz);
     int IsFullScreen();
     int IsCaseSensitive();
     int IsDizDisplayed();
     int IsColumnDisplayed(int Type);
     void SetReturnCurrentFile(int Mode);
-    void GetPluginInfo(struct PluginInfo *Info);
-    void GetOpenPluginInfo(struct OpenPluginInfo *Info);
-    void SetPluginMode(HANDLE hPlugin,char *PluginFile);
+    void GetPluginInfo(struct PluginInfoW *Info);
+    void GetOpenPluginInfo(struct OpenPluginInfoW *Info);
+    void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile);
     void PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo=TRUE);
     void PluginSetSelection(struct PanelInfo *Info);
     void SetPluginModified();
     int ProcessPluginEvent(int Event,void *Param);
     void SetTitle();
-    //virtual void GetTitle(char *Title,int LenTitle,int TruncSize);
+    //virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     int PluginPanelHelp(HANDLE hPlugin);
     long GetFileCount() {return FileCount;}
-    char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,
-                            char *Dest,int SizeDest,int UNC,int ShortNameAsIs=TRUE);
+
+    string &CreateFullPathNameW(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
+
 
     virtual BOOL GetItem(int Index,void *Dest);
     /* $ 30.04.2001 DJ
@@ -440,7 +307,7 @@ class FileList:public Panel
     /* DJ $ */
     void UpdateColorItems(void);
 
-    virtual void IfGoHome(char Drive);
+    virtual void IfGoHomeW(wchar_t Drive);
 
     /* 14.05.2002 VVM
       + Сбросить время последнего обновления панели */
@@ -451,11 +318,11 @@ class FileList:public Panel
     static void SetFilePanelModes();
     static void SavePanelModes();
     static void ReadPanelModes();
-    static int FileNameToPluginItem(char *Name,PluginPanelItem *pi);
-    static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
-    static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
+    static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItemW *pi);
+    static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItemW *pi);
+    static void PluginToFileListItem(struct PluginPanelItemW *pi,struct FileListItem *fi);
     static int IsModeFullScreen(int Mode);
-    static char* AddPluginPrefix(FileList *SrcPanel,char *Prefix);
+    static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
 };
 
 #endif  // __FILELIST_HPP__

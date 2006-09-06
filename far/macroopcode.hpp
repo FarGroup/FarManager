@@ -7,67 +7,6 @@ OpCode для макросов
 
 /* Revision: 1.21 01.09.2006 $ */
 
-/*
-Modify:
-  01.09.2006 SVS
-    + MCODE_F_PANEL_FEXIST и MCODE_F_PANEL_FATTR
-  04.04.2006 SVS
-    + MCODE_F_SLEEP (N=Sleep(N)), MCODE_V_FAR_HEIGHT (Far.Height), MCODE_V_DRVSHOWPOS (Drv.ShowPos)
-    + MCODE_V_DRVSHOWMODE - Drv.ShowMode - режимы отображения меню выбора дисков
-    + MCODE_V_TITLE - Title - заголовок текущего объекта
-  04.03.2006 SVS
-    + MCODE_F_CLIP (V=clip(N,S))
-  17.01.2006 SVS
-    + Panel.SetPos
-  07.10.2005 SVS
-    ! Editor.CurStr -> Editor.Value. так точнее будет
-    + Dlg.GetValue()
-  05.10.2005 SVS
-    + Editor.CurStr - содержимое текущей строки
-  19.09.2005 SVS
-    + MCODE_V_PPANEL_DRIVETYPE, MCODE_V_APANEL_DRIVETYPE
-  05.07.2005 SVS
-    + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
-    + Editor.FileName - имя редактируемого файла
-    + Viewer.FileName - имя просматриваемого файла
-  06.04.2005 SVS
-    + MCODE_F_MSAVE       // b=msave(var)
-    + MCODE_C_APANEL_LFN  // на активной панели длинные имена?
-    + MCODE_C_PPANEL_LFN  // на пассивной панели длинные имена?
-  01.04.2005 SVS
-    + MCODE_F_PANELITEM
-  02.03.2005 SVS
-    + MCODE_V_FAR_WIDTH
-  15.02.2005 SVS
-    + MCODE_F_ITOA
-  14.02.2005 SVS
-    + MCODE_V_APANEL_OPIFLAGS, MCODE_V_PPANEL_OPIFLAGS, MCODE_V_CMDLINE_VALUE
-  08.12.2004 SVS
-    + Dlg.ItemCount, Dlg.CurPos, CmdLine.ItemCount, CmdLine.CurPos
-  11.11.2004 SVS
-    + [A|P]Panel.UNCPath
-    ! [A|P]Panel.Count переименован в [A|P]Panel.ItemCount
-    + В дополнении к [A|P]Panel.ItemCount 2 новых слова:
-        "ItemCount" - число элементов в текущем объекте
-        "CurPos" - текущий индекс в текущем объекте (начиная с 1)
-    + Три обособленных, для редактора:
-        "Editor.CurLine"  - текущая строка в редакторе (начиная с 1)
-        "Editor.Lines"    - количество строк
-        "Editor.CurPos"   - текущая позиция курсора в строке (начиная с 1)
-  10.11.2004 SVS
-    + [A|P]Panel.Count, [A|P]Panel.CurPos
-  09.11.2004 SVS
-    + MCODE_V_APANEL_TYPE, MCODE_V_PPANEL_TYPE, MCODE_C_APANEL_FILEPANEL, MCODE_C_PPANEL_FILEPANEL
-  10.09.2004 SVS
-    + UCase (MCODE_F_UCASE), LCase (MCODE_F_UCASE)
-  05.08.2004 SVS
-    + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX, MCODE_C_CMDLINE_EMPTY, MCODE_C_CMDLINE_SELECTED, MCODE_V_DLGITEMTYPE
-  02.08.2004 SVS
-    + MCODE_C_CMDLINE_BOF, MCODE_C_CMDLINE_EOF
-  07.07.2004 SVS & AN
-    + Адд
-*/
-
 #ifndef __MACROOPCODE_HPP__
 #define __MACROOPCODE_HPP__
 
@@ -164,7 +103,7 @@ enum MACRO_OP_CODE {
   MCODE_F_ITOA,                     //
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
   MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
-  MCODE_F_MSAVE,                    // B=msave(var)
+  MCODE_F_MSAVE,                    // b=msave(var)
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
   MCODE_F_CLIP,                     // V=clip(N,S)
@@ -211,7 +150,7 @@ enum MACRO_OP_CODE {
   MCODE_C_CMDLINE_EMPTY,            // ком.строка пуста?
   MCODE_C_CMDLINE_SELECTED,         // в ком.строке есть выделение блока?
 
-    /* ************************************************************************* */
+  /* ************************************************************************* */
   // не булевые переменные
   MCODE_V_FAR_WIDTH=KEY_MACRO_V_BASE,// Far.Width - ширина консольного окна
   MCODE_V_FAR_HEIGHT,               // Far.Height - ширина консольного окна
@@ -237,7 +176,6 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_OPIFLAGS,          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
   MCODE_V_APANEL_DRIVETYPE,         // APanel.DriveType - активная панель: тип привода
   MCODE_V_PPANEL_DRIVETYPE,         // PPanel.DriveType - пассивная панель: тип привода
-
 
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте

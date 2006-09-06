@@ -8,37 +8,12 @@ scantree.hpp
 
 */
 
-/* Revision: 1.08 29.09.2005 $ */
-
-/*
-Modify:
-  29.09.2005 SVS
-    + FSCANTREE_USEDALTFOLDERNAME
-    + доп.параметр у конструктора ScanTree()
-  14.06.2003 SVS
-    ! Внедрение новых флагов
-    ! Вместо SecondPass[] и FindHandle[] вводим структуру ScanTreeData
-    + InsideJunction() - при очередном проходе скажет нам - "мы в симлинке?"
-    ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
-  01.06.2003 SVS
-    ! переходим на BitFlags
-  27.12.2002 VVM
-    + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
-  23.06.2002 SVS
-    ! Немного красоты ;-)
-  26.03.2002 DJ
-    ! GetNextName() принимает размер буфера для имени файла
-  25.06.2001 IS
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.11 06.06.2006 $ */
 
 #include "farconst.hpp"
 #include "bitflags.hpp"
+#include "UnicodeString.hpp"
+#include "struct.hpp"
 
 enum{
   // эту фигню может ставить плагин (младшие 8 бит)
@@ -47,7 +22,6 @@ enum{
   FSCANTREE_SCANSYMLINK      = 0x00000004, // = FRS_SCANSYMLINK
 
   // в младшем слове старшие 8 бита служебные!
-  FSCANTREE_USEDALTFOLDERNAME= 0x00001000, //
   FSCANTREE_SECONDPASS       = 0x00002000, // то, что раньше было было SecondPass[]
   FSCANTREE_SECONDDIRNAME    = 0x00004000,
   FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?
@@ -67,20 +41,22 @@ class ScanTree
     BitFlags Flags;
     struct ScanTreeData Data[NM/2];
     int FindHandleCount;
-    char FindPath[4*NM];
-    char FindMask[NM];
+
+    string strFindPath;
+    string strFindMask;
 
   private:
     void Init();
 
   public:
-    ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1,int UsedAltFolderName=0);
+    ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1);
     ~ScanTree();
 
   public:
     // 3-й параметр - флаги из старшего слова
-    void SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
-    int GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize);
+    void SetFindPathW(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
+    int GetNextNameW(FAR_FIND_DATA_EX *fdata,string &strFullName);
+
     void SkipDir();
     int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
     int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);};

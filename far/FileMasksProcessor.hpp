@@ -8,16 +8,7 @@ FileMasksProcessor.hpp
 исключения).
 */
 
-/* Revision: 1.01 02.07.2001 $ */
-
-/*
-Modify:
-  02.07.2001 IS
-    ! Метод Free стал public
-    + FMPF_ADDASTERISK
-  01.07.2001 IS
-    + Впервые в эфире
-*/
+/* Revision: 1.03 16.03.2006 $ */
 
 #include "BaseFileMask.hpp"
 #include  "udlist.hpp"
@@ -29,25 +20,25 @@ enum FMP_FLAGS
                                 // символов: '*', '?', '.'
 };
 
-class FileMasksProcessor:public BaseFileMask
+class FileMasksProcessorW:public BaseFileMaskW
 {
 public:
-    FileMasksProcessor();
-    ~FileMasksProcessor() {}
+    FileMasksProcessorW();
+    ~FileMasksProcessorW() {}
 
 public:
-    BOOL Set(const char *Masks, DWORD Flags);
-    BOOL Compare(const char *Name);
+    BOOL Set(const wchar_t *Masks, DWORD Flags);
+    BOOL Compare(const wchar_t *Name);
     BOOL IsEmpty(void);
     void Free();
 
 private:
-    UserDefinedList Masks; // список масок файлов
-    const char *MaskPtr;   // указатель на текущую маску в списке
+    UserDefinedListW Masks; // список масок файлов
+    const wchar_t *MaskPtr;   // указатель на текущую маску в списке
 
 private:
-  FileMasksProcessor& operator=(const FileMasksProcessor& rhs); /* чтобы не */
-  FileMasksProcessor(const FileMasksProcessor& rhs); /* генерировалось по умолчанию */
+  FileMasksProcessorW& operator=(const FileMasksProcessorW& rhs); /* чтобы не */
+  FileMasksProcessorW(const FileMasksProcessorW& rhs); /* генерировалось по умолчанию */
 
 };
 

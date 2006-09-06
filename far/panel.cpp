@@ -5,414 +5,7 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.155 12.07.2006 $ */
-
-/*
-Modify:
-  12.07.2006 SVS
-    ! kill class int64
-  05.07.2006 IS
-    - warnings
-  29.05.2006 SVS
-    - В плагиновых панелях в заголовке обрезается 2 символа
-  25.05.2006 SVS
-    + EJECT_NOTIFY_AFTERREMOVE
-  24.05.2006 SVS
-    + Shift-Del - извлечение HotPlu`ов
-  22.05.2006 SVS
-    ! Уточнение GetTitle.
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  06.04.2006 AY
-    ! Размер дисков больше терабайта показывался не правильно
-    + Новые режимы меню дисков - показ размера с точкой и отмена показа инфы для сетевых дисков
-  04.04.2006 SVS
-    ! сохраняем для потомком Macro_DskShowPosType (локальный класс Guard_Macro_DskShowPosType :-))
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  23.06.2005 SVS
-    - BugZ#1349 - Быстрый поиск: Вставка из буфера обмена не добавляет, а заменяет строку
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  06.05.2005 SVS
-    ! ???::GetCurDir() теперь возвращает размер пути, при этом
-      его параметр может быть равен NULL. Сделано для того, чтобы
-      как то получить этот размер.
-    + Добавлен конфирманс про удаление SUBST-девайсов (задолбася уже
-      промахиваться, а боевой диск - как раз SUBST)
-    + Eject USB-девайсов
-  26.04.2005 SVS
-    + Panel::ProcessShortcutFolder()
-  24.04.2005 AY
-    ! GCC
-  05.03.2005 SVS
-    ! В меню выбора дисков сетевое имя усекаем.
-  03.03.2005 SVS
-    ! FastFind теперь "умеет обратную ходку" по Ctrl-Shift-Enter
-  16.01.2005 WARP
-    - При вставлении в быствый поиск строки из буфера обмена
-      происходил переход на первый файл даже если строка не
-      совпадала не с одним из имен.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  26.07.2004 SVS
-    - strcpy()
-  26.07.2004 VVM
-    - Функция SetCurPath() зависала при вызове из панели QuickView.
-  08.07.2004 SVS
-    - В макросе: "%file=APanel.Current; Tab Home Alt< $Text %file"
-      не работает вставка текста в Alt< с помощью $Text "xx"
-  07.07.2004 SVS
-    ! Macro II
-  01.07.2004 SVS
-    ! тип CD в меню выбора дисков определяется тока если выставлен DRIVE_SHOW_CDROM
-  21.06.2004 SVS
-    + DRIVE_DVD_RAM
-  09.06.2004 SVS
-    + DRIVE_CD_RWDVD
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-    + добавка типа CD-привода
-  04.06.2004 SVS
-    - Copy/Paste :-(
-  03.06.2004 SVS
-    ! SetPluginCommand теперь возвращает TRUE/FALSE
-    ! подсократим код... за счет CtrlObject->Cp() -> FPanels
-  24.05.2004 SVS
-    + PFLAGS_NUMERICSORT, FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
-  18.05.2004 SVS
-    ! инициализация NumericSort
-  06.05.2004 SVS
-    - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
-      MainMenu перерисуем пораньше....
-  05.05.2004 SVS
-    ! проверим медию на выбрасываемость - вызов новой функции IsEjectableMedia()
-  07.01.2004 SVS
-    + FastFindProcessName() - подбор имени файла :-)
-    - BugZ#992 - XLat в FastFind
-  07.01.2004 SVS
-    - AA> вставляю из буфера обмена в пустое инксеч-окно всякую ерунду. чего-то
-      AA> находится и подсветка на это "чего-то" перемещается. но по CtrlEnter
-      AA> делается перебор всех файлов по порядку, словно окно инксеч все еще пустое
-  11.11.2003 SVS
-    ! несколько иной взгляд на Shift-Ins в быстром поиске
-    ! Доп проверки на вшивость в Panel::SetPluginCommand()
-  24.10.2003 SVS
-    - Макрос "Alt> ShiftIns" не работал.
-      забыл, что кроме KEY_EVENT нужно так же FARMACRO_KEY_EVENT анализироват
-  15.10.2003 SVS
-    - После предыдущего патча перестал работать Shift-Ins в макросах для квиксерча
-      Воспользуемся новой возможность макродвижка - сохранение/восстановление своего
-      состояния, т.е. если сейчас выполнение макроса, то сохраним состояние,
-      запостим (Ctrl-V) новый макрос, после отработки этого макроса возобновим
-      выполнение предыдущего, вызвав PopState
-  13.10.2003 SVS
-    - BugZ#973 - panels QuickSearch wish
-  09.10.2003 SVS
-    - BugZ#858 - проблемы с [Drive]
-  12.09.2003 SVS
-    ! Уточнение логики Panel::SetCurPath().
-  04.06.2003 SVS
-    ! Уберем двойные '**' при обработке FastFind
-  08.05.2003 SVS
-    - BugZ#888 - две строки подстветки в драйв меню
-  02.05.2003 SVS
-    - BugZ#727 - [wish] Прикрутить Ctrl-R к меню выбора дисков
-      Теперь поправлен:
-      "...после Ctrl-R все равно прыгает на A:, если до перечитывания
-      курсор стоял на одном из плагинов (например, FTP)..."
-  05.03.2003 SVS
-    ! Закоментим _SVS
-  23.02.2003 SVS
-    + BugZ#727 - [wish] Прикрутить Ctrl-R к меню выбора дисков
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  03.02.2003 SVS
-    - BugZ#787 - Криво активируется QuickSearch при выполнении макроса.
-  20.01.2003 SVS
-    + Показ по F1 в FastFind соответствующего раздела помощи
-  15.01.2003 SVS
-    ! Корректировка Fastind на предмет Alt-Б и еже с ним
-  11.12.2002 VVM
-    - При проверке сетевого диска под НТ и 9х разные ветки реестра.
-  10.12.2002 SVS
-    + ProcessDelDisk() - поимел третий параметр, указатель на VMenu для того, чтобы патом
-      прорефрешить меню!
-    - BugZ#721 - Кривизна отрисовки при удалении примапленного диска
-  09.11.2002 SVS
-    - Bug: В панелях Ctrl-L Ctrl-U - видим багу.
-      Лечится путем инициализации ViewSettings.FullScreen в 0
-  27.09.2002 SVS
-    - BugZ#640 - отрисовка
-  22.01.2002 IS
-    ! Автохоткеи назначаем после основных (меню выбора дисков)
-  21.01.2002 IS
-    + Снимем ограничение на количество пунктов плагинов в меню выбора дисков
-  18.06.2002 SVS
-    + Panel::IfGoHome()
-    ! Код из Panel::ProcessDelDisk(), отвечающий за извлечение CD вынесен
-      в обработчик KEY_DEL меню выбора дисков. Сама же обработка извелечения
-      значительно переработана для того, чтобы решить проблему с прорисовкой
-    ! В манагер добавлена переменная StartManager, отвечающая на вопрос
-      "Манагер уже стартовал?". Это позволяет в Panel::SetCurPath() избежать
-      ситуации, когда при старте FAR`а диска как бы нету (скажем CD вынут).
-      При этом мы просто перейдем в корень того диска, откуда запущен
-      ФАР (т.к. манагер еще не запущен, то возникают проблемы, когда
-      в такой ситуации ФАР пытается вызавть меню смены диска... а манагер
-      еще не стартован - получаем либо висюна, либо GPF)
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  22.05.2002 SVS
-    ! Opt.CloseCDGate + IsDiskInDrive() перед монтированием CD
-  15.05.2002 SVS
-    ! Вместо прямого присвоения значения переменной воспользуемся
-      вызовом функции
-  11.04.2002 SVS
-    + FCTL_GET[ANOTHER]PANELSHORTINFO
-    + Проверка вида IsBadWritePtr(Param,sizeof(struct PanelInfo))
-  22.03.2002 DJ
-    ! косметика от BoundsChecker
-  20.03.2002 SVS
-    ! GetCurrentDirectory -> FarGetCurDir
-  19.03.2002 DJ
-    ! при обработке FCTL_GET[ANOTHER]PANELINFO прочитаем данные, даже
-      если панель невидима
-  21.02.2002 SVS
-    + Небольшой сервис, аля WC ;-) Если CD-диск выдвинут и мы при выборе
-      этого диска из меню жмакаем Enter, то... сначала всунем онный, а потом
-      только прочтем оглавление ;-)
-  15.02.2002 IS
-    - Не дергаем пассивный каталог в SetCurPath
-  09.02.2002 VVM
-    ! Когда жмет Del на сидюке - не надо сдвигать позицию.
-  06.02.2002 tran
-    ! Bugz#208 - уточняем еще раз - панель должна быть FILE_PANEL
-      а не TREE, INFO, QUICK и пр.
-  05.02.2002 SVS
-    ! BugZ#208 - Панель должна быть видимой для "простого Update", иначе
-      перевыводим панель
-  04.02.2002 SVS
-    ! Уточнение для BugZ#208 - просто сделаем Update, если панель не
-      плагиновая и пути совпадают.
-  31.01.2002 SVS
-    - BugZ#208 - Несохранение позиции в панели.
-  19.01.2002 VVM
-    ! При удалении последнего диска из меню остаемся на предыдущем диске
-  18.01.2002 VVM
-    ! Избавимся от setdisk() - используем FarChDir
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  28.12.2001 DJ
-    ! обработка Del в меню дисков вынесена в отдельную функцию
-  14.12.2001 IS
-    ! stricmp -> LocalStricmp
-  14.12.2001 VVM
-    ! Ошибочка в NeedUpdatePanel
-  12.12.2001 DJ
-    ! перетрях флагов в GETPANELINFO
-  06.12.2001 SVS
-    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
-    ! Во время вызова команд FCTL_SETANOTHERPANELDIR и FCTL_SETPANELDIR не
-      вызываем PrepareDiskPath(), это делается потом (исключаем лишний вызов
-      функции)
-  03.12.2001 DJ
-    - вызываем PrepareDiskPath() для пути, переданного в FCTL_SETPANELDIR
-      и FCTL_SETANOTHERPANELDIR
-  27.11.2001 SVS
-    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
-      с учетом вложенности панельного плагина, т.е. имя самого верхнего
-      хост-файла в стеке.
-  26.11.2001 SVS
-    ! Заюзаем PrepareDiskPath() для преобразования пути.
-  19.11.2001 OT
-    - Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
-  12.11.2001 SVS
-    ! откат 1041 до лучших времен.
-  08.11.2001 SVS
-    - Shift-Enter на дисках запускал черти что, но только не проводник
-  01.11.2001 SVS
-    ! уберем Opt.CPAJHefuayor ;-(
-  30.10.2001 SVS
-    + HEFUAYOR: если плагин закрывается и передает в качестве каталога нечто,
-      связанное с префиксами, то... выполним эти префиксы. Фича опциональная
-      и по умолчанию пока отрублена
-  29.10.2001 SVS
-    ! уточнение Panel::SetCurPath()
-  24.10.2001 SVS
-    ! Немного оптимизации в SetCurPath()
-  05.10.2001 SVS
-    ! Для начала выставим нужные значения в Panel::SetCurPath()
-      для пассивной панели, а уж потом...
-    ! Перенос функции Panel::MakeListFile() в fnparse.cpp - там ей место
-  03.10.2001 IS
-    + перерисуем строчку меню при показе панели
-  01.10.2001 IS
-    - косметические дефекты при усечении длинных строк
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 SVS
-    + Panel::NeedUpdatePanel() - нужно ли обновлять панели с учетом нового
-      параметра Opt.AutoUpdateLimit
-  24.09.2001 SVS
-    ! немного оптимизации (сокращение кода)
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  24.07.2001 SVS
-    + Opt.PgUpChangeDisk
-  23.07.2001 SVS
-    ! В функции FastFind() код ограничим WaitInFastFind++ и WaitInFastFind--
-      ибо здесь ему место (сама переменная как раз за ЭТО и отвечает)
-  23.07.2001 SVS
-    ! Вернем обратно режим отображения размера в меню выбора диска
-      но несколько расширим размеры (+1) числа и сократим "MB" до "M"
-  22.07.2001 SVS
-    + Повторное нажатие CtrlPgUp в меню выбора дисков гасит это меню.
-    + Shift-Enter в меню выбора дисков вызывает проводник для данного диска
-  18.07.2001 OT
-    ! VFMenu
-  21.06.2001 tran
-    ! убран глюк AltF1,F1,esc
-  17.06.2001 KM
-    ! Добавление WRAPMODE в меню.
-  14.06.2001 KM
-    + Добавлена установка переменных окружения, определяющих
-      текущие директории дисков как для активной, так и для
-      пассивной панели. Это необходимо программам запускаемым
-      из FAR.
-  06.06.2001 SVS
-    ! Mix/Max
-  03.06.2001 SVS
-    ! Изменения в связи с переделкой UserData в VMenu
-  21.05.2001 DJ
-    ! в связи с появлением нового типа немодальных окон переписана отрисовка
-      счетчика фоновых экранов
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-  12.05.2001 DJ
-    - FCTL_REDRAW[ANOTHER]PANEL обрабатывается только тогда, когда панели
-      являются активным фреймом
-  10.05.2001 SVS
-    - Косметика: при огромных размерах диска в меню "выбора диска" криво
-      показываются размеры (сдвиг вправо).
-  09.05.2001 OT
-    - исправление Panel::Show
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  30.04.2001 DJ
-    - не давало закрыть по Esc менюшку выбора диска, вызванную из quick view
-      панели
-  28.04.2001 VVM
-    + GetSubstName() принимает тип носителя
-  27.04.2001 SVS
-    + Т.к. нет способа получить состояние "открытости" устройства,
-      то добавим обработку Ins для CD - "закрыть диск"
-  26.04.2001 VVM
-    ! Отмена патча 547
-  24.04.2001 SVS
-    + Заполнение флагов PanelInfo.Flags
-    - !@AFQ! в корне любого диска делал "E:\\file.txt", т.е. 2 слеша.
-  24.04.2001 VVM
-    - Баг при смене порядка сортировки
-  22.04.2001 SVS
-    ! Временная отмена куска патча 547
-    + Добавка для NT/2000 - вторичный Del на CDROOM задвигает диск.
-      Афишировать пока не бум :-)
-  19.04.2001 SVS
-    - не удалялся SUBST-диск - портилось оригинальное значение DriveType
-      в момент проверки "Мы хотим спрятать cd-rom или сменный диск"
-  09.04.2001 SVS
-    ! проблемы с быстрым поиском.
-  02.04.2001 SVS
-    ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
-  02.04.2001 VVM
-    ! Попытка не будить спящие диски...
-  30.03.2001 SVS
-    ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
-      компании по поддержке виндовой "полиции".
-  28.03.2001 VVM
-    + Обработка Opt.RememberLogicalDrives.
-  27.03.2001 SVS
-    + Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...
-  16.03.2001 SVS
-    + добавлена информация о пути соединения в диалог подтверждения удаления
-      мапленного диска.
-    ! Кусок кода, получающий информацию о RemoteName вынесен в функцию
-      DriveLocalToRemoteName()
-  15.03.2001 SVS
-    ! Del в меню дисков
-  15.03.2001 IS
-    + Используем дополнительные хоткеи, а не просто '#', как раньше, если строк
-      от плагинов в меню выбора диска больше 9 штук
-  12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  26.02.2001 VVM
-    - Отмена предыдущего патча
-  26.02.2001 VVM
-    ! Обработка NULL после OpenPlugin
-  14.02.2001 SVS
-    ! Дополнительный параметр для MakeListFile - модификаторы
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  22.01.2001 VVM
-    - Порядок сортировки задается аналогично StartSortOrder
-  09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
-  05.01.2001 SVS
-    + Попробуем удалить SUBST диск
-    + Покажем инфу, что ЭТО - SUBST-диск
-  14.12.2000 SVS
-    + Попробуем сделать Eject для съемных дисков в меню выбора дисковода.
-  11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
-  11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
-  24.09.2000 SVS
-    ! Перерисовка CtrlObject->MainKeyBar (случай, если:
-       Ctr-Alt-Shift, потом, Alt-отжать, появится быстрый поиск,
-       дальше отпускаем Ctrl и Shift - окно быстрого поиска на месте.
-       Теперь, если нажать Esc - KeyBar не перерисуется)
-  08.09.2000 VVM
-    + Обработка команд
-      FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
-      FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
-  07.09.2000 SVS
-    ! Еще одна поправочка (с подачи AT) для Bug#12:
-      еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
-      "\\server\share\"
-  06.09.2000 tran
-    - правя баг, внесли пару новых:
-       1. strncpy не записывает 0 в конец строки
-       2. GetDriveType вызывается постоянно, что грузит комп.
-  05.09.2000 SVS
-    - Bug#12 -   При удалении сетевого диска по Del и отказе от меню
-        фар продолжает показывать удаленный диск. хотя не должен.
-        по ctrl-r переходит на ближайший.
-  21.07.2000 IG
-    - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.173 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -445,11 +38,11 @@ Modify:
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
 static SaveScreen *DragSaveScr=NULL;
-static char DragName[NM];
+static string strDragName;
 
-static unsigned char VerticalLine=0x0B3;
+//static wchar_t VerticalLine=/*0x0B3*/0x2502;
 
-static int MessageRemoveConnection(char Letter, int &UpdateProfile);
+static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
 
 /* $ 21.08.2002 IS
    Класс для хранения пункта плагина в меню выбора дисков
@@ -457,11 +50,11 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile);
 class ChDiskPluginItem
 {
   public:
-   MenuItem Item;
+   MenuItemEx Item;
    unsigned int HotKey;
    ChDiskPluginItem():HotKey(0)
    {
-     memset(&Item,0,sizeof(Item));
+     Item.Clear ();
    }
    bool operator==(const ChDiskPluginItem &rhs) const;
    int operator<(const ChDiskPluginItem &rhs) const;
@@ -474,14 +67,14 @@ class ChDiskPluginItem
 bool ChDiskPluginItem::operator==(const ChDiskPluginItem &rhs) const
 {
   return HotKey==rhs.HotKey &&
-    !LocalStricmp(Item.Name,rhs.Item.Name) &&
+    !LocalStricmpW(Item.strName,rhs.Item.strName) &&
     Item.UserData==rhs.Item.UserData;
 }
 
 int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
 {
   if(HotKey==rhs.HotKey)
-    return LocalStricmp(Item.Name,rhs.Item.Name)<0;
+    return LocalStricmpW(Item.strName,rhs.Item.strName)<0;
   else if(HotKey && rhs.HotKey)
     return HotKey < rhs.HotKey;
   else
@@ -501,7 +94,6 @@ Panel::Panel()
 {
   _OT(SysLog("[%p] Panel::Panel()", this));
   Focus=0;
-  *CurDir=0;
   NumericSort=0;
   PanelMode=NORMAL_PANEL;
   PrevViewMode=VIEW_3;
@@ -531,17 +123,17 @@ void Panel::SetViewMode(int ViewMode)
 
 void Panel::ChangeDirToCurrent()
 {
-  char NewDir[NM];
-  FarGetCurDir(sizeof(NewDir),NewDir);
-  SetCurDir(NewDir,TRUE);
+  string strNewDir;
+  FarGetCurDirW(strNewDir);
+  SetCurDirW(strNewDir,TRUE);
 }
 
 
 void Panel::ChangeDisk()
 {
   int Pos,FirstCall=TRUE;
-  if (CurDir[0]!=0 && CurDir[1]==':')
-    Pos=toupper(CurDir[0])-'A';
+  if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+    Pos=LocalUpperW(strCurDir.At(0))-L'A';
   else
     Pos=getdisk();
   while (Pos!=-1)
@@ -562,14 +154,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   Guard_Macro_DskShowPosType _guard_Macro_DskShowPosType(this);
 
-  struct MenuItem ChDiskItem;
-  char DiskType[100],RootDir[10],DiskLetter[50];
+  MenuItemEx ChDiskItem;
+  string strDiskType, strRootDir, strDiskLetter;
   DWORD Mask,DiskMask;
   int DiskCount,Focus,I,J;
   int ShowSpecial=FALSE, SetSelected=FALSE;
 
-  memset(&ChDiskItem,0,sizeof(ChDiskItem));
-  *DiskLetter=0;
+  ChDiskItem.Clear ();
 
   _tran(SysLog("Panel::ChangeDiskMenu(), Pos=%i, FirstCall=%i",Pos,FirstCall));
   Mask=FarGetLogicalDrives();
@@ -581,21 +172,21 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   DWORD UserData=0;
   {
     _tran(SysLog("create VMenu ChDisk"));
-    VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+    VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,TRUE,ScrY-Y1-3);
     ChDisk.SetFlags(VMENU_NOTCENTER);
     if ( this==CtrlObject->Cp()->LeftPanel){
       ChDisk.SetFlags(VMENU_LEFTMOST);
     }
-    ChDisk.SetHelp("DriveDlg");
+    ChDisk.SetHelp(L"DriveDlg");
     /* $ 17.06.2001 KM
        ! Добавление WRAPMODE в меню.
     */
     ChDisk.SetFlags(VMENU_WRAPMODE);
     /* KM $ */
 
-    char MenuText[NM];
+    string strMenuText;
     int DriveType,MenuLine;
-    int LabelWidth=Max(11,(int)strlen(MSG(MChangeDriveLabelAbsent)));
+    int LabelWidth=Max(11,(int)wcslen(UMSG(MChangeDriveLabelAbsent)));
 
     /* $ 02.04.2001 VVM
       ! Попытка не будить спящие диски... */
@@ -603,9 +194,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     {
       if (DiskMask & 1)
       {
-        sprintf(MenuText,"&%c: ",'A'+I);
-        sprintf(RootDir,"%c:\\",'A'+I);
-        DriveType = FAR_GetDriveType(RootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+        strMenuText.Format (L"&%c: ",L'A'+I);
+        strRootDir.Format (L"%c:\\",L'A'+I);
+        DriveType = FAR_GetDriveTypeW(strRootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
         if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
         {
           static struct TypeMessage{
@@ -626,29 +217,31 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           for(J=0; J < sizeof(DrTMsg)/sizeof(DrTMsg[1]); ++J)
             if(DrTMsg[J].DrvType == DriveType)
             {
-              strcpy(DiskType,MSG(DrTMsg[J].FarMsg));
-              _SVS(SysLog("DriveType=%d, DiskType='%s'",DriveType,DiskType));
+              strDiskType = UMSG(DrTMsg[J].FarMsg);
+              _SVS(SysLog("DriveType=%d, DiskType='%S'",DriveType,(const wchar_t*)strDiskType));
               break;
             }
 
           if(J >= sizeof(DrTMsg)/sizeof(DrTMsg[1]))
-            sprintf(DiskType,"%*s",strlen(MSG(MChangeDriveFixed)),"");
+            strDiskType.Format (L"%*s",wcslen(UMSG(MChangeDriveFixed)),L"");
 
           /* 05.01.2001 SVS
              + Информация про Subst-тип диска
           */
           {
-            char LocalName[8],SubstName[NM];
-            sprintf(LocalName,"%c:",*RootDir);
-            if(GetSubstName(DriveType,LocalName,SubstName,sizeof(SubstName)))
+            string strLocalName;
+            string strSubstName;
+
+            strLocalName.Format (L"%c:",strRootDir.At(0));
+            if(GetSubstNameW(DriveType,strLocalName,strSubstName))
             {
-              strcpy(DiskType,MSG(MChangeDriveSUBST));
+              strDiskType = UMSG(MChangeDriveSUBST);
               DriveType=DRIVE_SUBSTITUTE;
             }
           }
           /* SVS $ */
 
-          strcat(MenuText,DiskType);
+          strMenuText += strDiskType;
         }
 
         int ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
@@ -656,56 +249,68 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                        (DriveType!=DRIVE_REMOTE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOTE));
         if (Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
         {
-          char VolumeName[NM],FileSystemName[NM];
-          *VolumeName=*FileSystemName=0;
-          if (ShowDisk && !GetVolumeInformation(RootDir,VolumeName,sizeof(VolumeName),NULL,NULL,NULL,FileSystemName,sizeof(FileSystemName)))
+          string strVolumeName, strFileSystemName;
+
+          if (ShowDisk && !apiGetVolumeInformation (strRootDir,&strVolumeName,NULL,NULL,NULL,&strFileSystemName))
           {
-            strcpy(VolumeName,MSG(MChangeDriveLabelAbsent));
+            strVolumeName = UMSG(MChangeDriveLabelAbsent);
             ShowDisk=FALSE;
           }
+
           if (Opt.ChangeDriveMode & DRIVE_SHOW_LABEL)
           {
             /* $ 01.10.2001 IS метку усекаем с конца */
-            TruncStrFromEnd(VolumeName,LabelWidth);
+            TruncStrFromEndW(strVolumeName,LabelWidth);
             /* IS $ */
-            sprintf(MenuText+strlen(MenuText),"%c%-*s",VerticalLine,LabelWidth,VolumeName);
+            string strTemp;
+            strTemp.Format (L"%c%-*s",(WORD)VerticalLine,LabelWidth,(const wchar_t*)strVolumeName);
+
+            strMenuText += strTemp;
           }
           if (Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
-            sprintf(MenuText+strlen(MenuText),"%c%-8.8s",VerticalLine,FileSystemName);
+          {
+              string strTemp;
+              strTemp.Format (L"%c%-8.8s",(WORD)VerticalLine,(const wchar_t*)strFileSystemName);
+
+              strMenuText += strTemp;
+          }
         }
 
         if (Opt.ChangeDriveMode & (DRIVE_SHOW_SIZE|DRIVE_SHOW_SIZE_FLOAT))
         {
-          char TotalText[NM],FreeText[NM];
-          *TotalText=*FreeText=0;
+          string strTotalText, strFreeText;
           unsigned __int64 TotalSize,TotalFree,UserFree;
-          if (ShowDisk && GetDiskSize(RootDir,&TotalSize,&TotalFree,&UserFree))
+          if (ShowDisk && GetDiskSizeW(strRootDir,&TotalSize,&TotalFree,&UserFree))
           {
             if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
             {
               //размер как минимум в мегабайтах
-              FileSizeToStr(TotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
-              FileSizeToStr(FreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
+              FileSizeToStrW(strTotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
+              FileSizeToStrW(strFreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
             }
             else
             {
               //размер с точкой и для 0 добавляем букву размера (B)
-              FileSizeToStr(TotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-              FileSizeToStr(FreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStrW(strTotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStrW(strFreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
             }
           }
-          sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
+
+          string strTemp;
+          strTemp.Format(L"%c%-8s%c%-8s",(WORD)VerticalLine,(const wchar_t*)strTotalText,(WORD)VerticalLine,(const wchar_t*)strFreeText);
+
+          strMenuText += strTemp;
         }
 
         if (Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME)
         {
-          char RemoteName[NM];
-          DriveLocalToRemoteName(DriveType,*RootDir,RemoteName);
-          TruncPathStr(RemoteName,ScrX-strlen(MenuText)-12);
-          if(*RemoteName)
+          string strRemoteName;
+          DriveLocalToRemoteNameW(DriveType,strRootDir.At(0),strRemoteName);
+          TruncPathStrW(strRemoteName,ScrX-strMenuText.GetLength()-12);
+          if( !strRemoteName.IsEmpty() )
           {
-            strcat(MenuText,"  ");
-            strcat(MenuText,RemoteName);
+            strMenuText += L"  ";
+            strMenuText += strRemoteName;
           }
           ShowSpecial=TRUE;
         }
@@ -723,13 +328,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             SetSelected=(MenuLine==Pos);
         }
 
-        xstrncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
-        if (strlen(MenuText)>4)
+        ChDiskItem.strName = strMenuText;
+        if ( strMenuText.GetLength()>4)
           ShowSpecial=TRUE;
 
         UserData=MAKELONG(MAKEWORD('A'+I,0),DriveType);
         ChDisk.SetUserData((char*)UserData,sizeof(UserData),
-                 ChDisk.AddItem(&ChDiskItem));
+                 ChDisk.AddItemW(&ChDiskItem));
         MenuLine++;
       } // if (DiskMask & 1)
     } // for
@@ -760,14 +365,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
       int PluginNumber=0, PluginItem; // IS: счетчики - плагинов и пунктов плагина
       int PluginTextNumber, ItemPresent, HotKey, Done=FALSE;
-      char PluginText[100];
+      string strPluginText;
 
       while(!Done)
       {
         for (PluginItem=0;;++PluginItem)
         {
           if (!CtrlObject->Plugins.GetDiskMenuItem(PluginNumber,PluginItem,
-              ItemPresent,PluginTextNumber,PluginText,sizeof(PluginText)))
+              ItemPresent,PluginTextNumber,strPluginText))
           {
             Done=TRUE;
             break;
@@ -794,7 +399,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             }
 
             if(PluginTextNumber<10)
-              HotKey=PluginTextNumber+'0';
+              HotKey=PluginTextNumber+L'0';
             else if(AHKPos<AHKSize)
               HotKey=AdditionalHotKey[AHKPos];
             else
@@ -804,30 +409,28 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           /* $ 22.08.2002 IS
                Используем дополнительные хоткеи, а не просто '#', как раньше.
           */
-          *MenuText=0;
+          strMenuText=L"";
           if(HotKey<0)
-            xstrncpy(MenuText,ShowSpecial?PluginText:"",
-              sizeof(MenuText)-1-4); // -4 - добавка для хоткея
+            strMenuText = ShowSpecial?strPluginText:L"";
+
           else if(PluginTextNumber<10)
           {
-            sprintf(MenuText,"&%c: %s", HotKey,
-              ShowSpecial ? PluginText:"");
+            strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
           }
           else if(AHKPos<AHKSize)
           {
-            sprintf(MenuText,"&%c: %s", HotKey,
-              ShowSpecial ? PluginText:"");
+            strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
             ++AHKPos;
           }
           else if(ShowSpecial) // IS: не добавляем пустые строки!
           {
             HotKey=0;
-            sprintf(MenuText,"   %s", PluginText);
+            strMenuText.Format (L"   %s", (const wchar_t*)strPluginText);
           }
           /* IS $ */
-          if(HotKey>-1 && *MenuText) // IS: не добавляем пустые строки!
+          if(HotKey>-1 && !strMenuText.IsEmpty()) // IS: не добавляем пустые строки!
           {
-            xstrncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+            OneItem.Item.strName = strMenuText;
             OneItem.Item.UserDataSize=0;
             OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
             OneItem.HotKey=HotKey;
@@ -839,7 +442,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           else if(HotKey<0) // IS: назначение автохоткеей отложим на потом
           {
-            xstrncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+            OneItem.Item.strName = strMenuText;
             OneItem.Item.UserDataSize=0;
             OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
             OneItem.HotKey=HotKey;
@@ -868,26 +471,26 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           UsedNumbers[PluginTextNumber%10]=1;
 
-          *MenuText=0;
+          strMenuText=L"";
           if(PluginTextNumber<10)
           {
             item->HotKey=PluginTextNumber+'0';
-            sprintf(MenuText,"&%c: %s", item->HotKey, item->Item.Name);
+            strMenuText.Format (L"&%c: %s", item->HotKey, (const wchar_t*)item->Item.strName);
           }
           else if(AHKPos<AHKSize)
           {
             item->HotKey=AdditionalHotKey[AHKPos];
-            sprintf(MenuText,"&%c: %s", item->HotKey, item->Item.Name);
+            strMenuText.Format (L"&%c: %s", item->HotKey, (const wchar_t*)item->Item.strName);
             ++AHKPos;
           }
           else if(ShowSpecial) // IS: не добавляем пустые строки!
           {
             item->HotKey=0;
-            sprintf(MenuText,"   %s", item->Item.Name);
+            strMenuText.Format (L"   %s", (const wchar_t*)item->Item.strName);
           }
 
-          xstrncpy(item->Item.Name, MenuText, sizeof(item->Item.Name)-1);
-          if(*item->Item.Name && !MPItems.addItem(*item))
+          item->Item.strName = strMenuText;
+          if( !item->Item.strName.IsEmpty() && !MPItems.addItem(*item))
             break;
         }
         else
@@ -902,7 +505,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         memset(&ChDiskItem,0,sizeof(ChDiskItem));
         ChDiskItem.Flags|=LIF_SEPARATOR;
         ChDiskItem.UserDataSize=0;
-        ChDisk.AddItem(&ChDiskItem);
+        ChDisk.AddItemW(&ChDiskItem);
 
         ChDiskItem.Flags&=~LIF_SEPARATOR;
         for (int I=0;I<PluginMenuItemsCount;++I)
@@ -913,7 +516,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if(!SetSelected)
               SetSelected=DiskCount+I+1==Pos;
           }
-          ChDisk.AddItem(&MPItems.getItem(I)->Item);
+          ChDisk.AddItemW(&MPItems.getItem(I)->Item);
         }
       }
     }
@@ -950,9 +553,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           {
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
             {
-              char DosDeviceName[16];
-              sprintf(DosDeviceName,"%c:\\",LOBYTE(LOWORD(UserData)));
-              Execute(DosDeviceName,FALSE,TRUE,TRUE);
+              string strDosDeviceName;
+              strDosDeviceName.Format (L"%c:\\",LOWORD(UserData)); //BUGBUG
+              Execute(strDosDeviceName,FALSE,TRUE,TRUE);
             }
           }
           break;
@@ -974,7 +577,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               if(IsDriveTypeCDROM(DriveType) /* || DriveType == DRIVE_REMOVABLE*/)
               {
                 SaveScreen SvScrn;
-                EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA);
+                EjectVolume(LOWORD(UserData),EJECT_LOAD_MEDIA);
                 return(SelPos);
               }
             }
@@ -991,18 +594,20 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {
               if(HIWORD(UserData) == DRIVE_REMOVABLE || IsDriveTypeCDROM(HIWORD(UserData)))
               {
-                if(HIWORD(UserData) == DRIVE_REMOVABLE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !IsEjectableMedia(LOBYTE(LOWORD(UserData))))
+                if(HIWORD(UserData) == DRIVE_REMOVABLE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !IsEjectableMedia(LOWORD(UserData)))
                   break;
 
                 // первая попытка извлеч диск
-                if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE))
+                if(!EjectVolume(LOWORD(UserData),EJECT_NO_MESSAGE))
                 {
                   // запоминаем состояние панелей
                   int CMode=GetMode();
                   int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
-                  char TmpCDir[NM], TmpADir[NM];
-                  GetCurDir (TmpCDir);
-                  CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir (TmpADir);
+
+                  string strTmpCDir, strTmpADir;
+
+                  GetCurDirW (strTmpCDir);
+                  CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDirW (strTmpADir);
 
                   // отключим меню, иначе бага с прорисовкой этой самой меню
                   // (если меню поболее высоты экрана)
@@ -1015,22 +620,22 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   {
                     // "освободим диск" - перейдем при необходимости в домашний каталог
                     // TODO: А если домашний каталог - CD? ;-)
-                    IfGoHome(LOBYTE(LOWORD(UserData)));
+                    IfGoHomeW(LOWORD(UserData));
                     // очередная попытка извлечения без вывода сообщения
-                    int ResEject=EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                    int ResEject=EjectVolume(LOWORD(UserData),EJECT_NO_MESSAGE);
                     if(!ResEject)
                     {
                       // восстановим пути - это избавит нас от левых данных в панели.
                       if (AMode != PLUGIN_PANEL)
-                        CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir (TmpADir, FALSE);
+                        CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDirW (strTmpADir, FALSE);
                       if (CMode != PLUGIN_PANEL)
-                        SetCurDir (TmpCDir, FALSE);
+                        SetCurDirW (strTmpCDir, FALSE);
 
                       // ... и выведем месаг о...
-                      char MsgText[200];
-                      sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),LOBYTE(LOWORD(UserData)));
+                      string strMsgText;
+                      strMsgText.Format (UMSG(MChangeCouldNotEjectMedia), LOWORD(UserData));
                       SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-                      DoneEject=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel))!=0;
+                      DoneEject=MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,UMSG(MRetry),UMSG(MCancel))!=0;
                     }
                     else
                       DoneEject=TRUE;
@@ -1043,7 +648,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               }
               else
               {
-                int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData), &ChDisk);
+                int Code = ProcessDelDisk (LOWORD(UserData), HIWORD(UserData), &ChDisk);
                 if (Code != DRIVE_DEL_FAIL)
                 {
                   // "BugZ#640 - отрисовка" - обновим экран.
@@ -1066,15 +671,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
             {
               // первая попытка удалить устройство
-              int Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),EJECT_NOTIFY_AFTERREMOVE);
+              int Code=ProcessRemoveHotplugDevice(LOWORD(UserData),EJECT_NOTIFY_AFTERREMOVE);
               if(Code == 0)
               {
                 // запоминаем состояние панелей
                 int CMode=GetMode();
                 int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
-                char TmpCDir[NM], TmpADir[NM];
-                GetCurDir (TmpCDir);
-                CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir (TmpADir);
+
+                string strTmpCDir, strTmpADir;
+
+                GetCurDirW (strTmpCDir);
+                CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDirW (strTmpADir);
 
                 // отключим меню, иначе бага с прорисовкой этой самой меню
                 // (если меню поболее высоты экрана)
@@ -1087,22 +694,22 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                 {
                   // "освободим диск" - перейдем при необходимости в домашний каталог
                   // TODO: А если домашний каталог - USB? ;-)
-                  IfGoHome(LOBYTE(LOWORD(UserData)));
+                  IfGoHomeW(LOWORD(UserData));
                   // очередная попытка извлечения без вывода сообщения
-                  Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
+                  Code=ProcessRemoveHotplugDevice(LOWORD(UserData),EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
                   if(Code == 0)
                   {
                     // восстановим пути - это избавит нас от левых данных в панели.
                     if (AMode != PLUGIN_PANEL)
-                      CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir (TmpADir, FALSE);
+                      CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDirW (strTmpADir, FALSE);
                     if (CMode != PLUGIN_PANEL)
-                      SetCurDir (TmpCDir, FALSE);
+                      SetCurDirW (strTmpCDir, FALSE);
 
                     // ... и выведем месаг о...
-                    char MsgText[200];
-                    sprintf(MsgText,MSG(MChangeCouldNotEjectHotPlugMedia),LOBYTE(LOWORD(UserData)));
+                    string strMsgText;
+                    strMsgText.Format (UMSG(MChangeCouldNotEjectHotPlugMedia), LOWORD(UserData));
                     SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-                    DoneEject=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MHRetry),MSG(MHCancel))!=0;
+                    DoneEject=MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,UMSG(MHRetry),UMSG(MHCancel))!=0;
                   }
                   else
                     DoneEject=TRUE;
@@ -1171,8 +778,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           {
             // Вызываем нужный топик, который передали в CommandsMenu()
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
-              FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)].ModuleName,
+            {
+              FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)]->strModuleName,
                     NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+            }
           }
           break;
         /* SVS $ */
@@ -1214,12 +823,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
          и еще одна поправочка: не дает выйти из меню, если оно вызвано
          из quick view panel (в нем CurDir пустая)
       */
-      if (ChDisk.Done() && ChDisk.Modal::GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
+      if (ChDisk.Done() && ChDisk.Modal::GetExitCode()<0 && !strCurDir.IsEmpty() && wcsncmp(strCurDir,L"\\\\",2)!=0)
       {
-        char RootDir[10];
-        xstrncpy(RootDir,CurDir,3);
+        wchar_t RootDir[10]; //BUGBUG
+        wcsncpy(RootDir,strCurDir,3);
         RootDir[3]=0;
-        if (FAR_GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
+        if (FAR_GetDriveTypeW(RootDir)==DRIVE_NO_ROOT_DIR)
           ChDisk.ClearDone();
       }
       /* DJ $ */
@@ -1237,14 +846,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   if(Opt.CloseCDGate && UserData != 0 && IsDriveTypeCDROM(HIWORD(UserData)) && UserDataSize == 3)
   {
-    sprintf(RootDir,"%c:",LOBYTE(LOWORD(UserData)));
-    if(!IsDiskInDrive(RootDir))
+    strRootDir.Format (L"%c:",LOWORD(UserData));
+    if(!IsDiskInDriveW(strRootDir))
     {
-      if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_READY|EJECT_NO_MESSAGE))
+      if(EjectVolume(LOWORD(UserData),EJECT_READY|EJECT_NO_MESSAGE))
       {
         SaveScreen SvScrn;
-        Message(0,0,"",MSG(MChangeWaitingLoadDisk));
-        EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
+        MessageW(0,0,L"",UMSG(MChangeWaitingLoadDisk));
+        EjectVolume(LOWORD(UserData),EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
       }
     }
   }
@@ -1260,34 +869,44 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   {
     while (1)
     {
-      int NumDisk=LOBYTE(LOWORD(UserData))-'A';
-      char MsgStr[NM],NewDir[NM];
-      sprintf(NewDir,"%c:",LOBYTE(LOWORD(UserData)));
-      FarChDir(NewDir);
-      CtrlObject->CmdLine->GetCurDir(NewDir);
-      if (toupper(*NewDir)==LOBYTE(LOWORD(UserData)))
-        FarChDir(NewDir);
+      int NumDisk=LOWORD(UserData)-'A';
+
+      string strMsgStr;
+      string strNewDir;
+
+      strNewDir.Format (L"%c:", LOWORD(UserData));
+
+      FarChDirW(strNewDir);
+      CtrlObject->CmdLine->GetCurDirW(strNewDir);
+
+      strNewDir.Upper();
+
+      if ( strNewDir.At (0) == LOWORD(UserData))
+        FarChDirW(strNewDir);
       if (getdisk()!=NumDisk)
       {
-        char RootDir[NM];
-        sprintf(RootDir,"%c:\\",LOBYTE(LOWORD(UserData)));
-        FarChDir(RootDir);
+        string strRootDir;
+        strRootDir.Format (L"%c:\\", LOWORD(UserData));
+        FarChDirW(strRootDir);
         if (getdisk()==NumDisk)
           break;
       }
       else
         break;
-      sprintf(MsgStr,MSG(MChangeDriveCannotReadDisk),LOBYTE(LOWORD(UserData)));
-      if (Message(MSG_WARNING,2,MSG(MError),MsgStr,MSG(MRetry),MSG(MCancel))!=0)
+
+      strMsgStr.Format (UMSG(MChangeDriveCannotReadDisk), LOWORD(UserData));
+
+      if (MessageW(MSG_WARNING,2,UMSG(MError),strMsgStr, UMSG(MRetry), UMSG(MCancel))!=0)
         return(-1);
     }
-    char NewCurDir[NM];
-    FarGetCurDir(sizeof(NewCurDir),NewCurDir);
+
+    string strNewCurDir;
+    FarGetCurDirW (strNewCurDir);
     // BugZ#208. Если пути совпадают, то ничего не делаем.
     //_tran(SysLog("PanelMode=%i (%i), CurDir=[%s], NewCurDir=[%s]",PanelMode,GetType(),
     //            CurDir,NewCurDir);)
 
-    if(PanelMode == NORMAL_PANEL && GetType()==FILE_PANEL && !LocalStricmp(CurDir,NewCurDir) && IsVisible())
+    if(PanelMode == NORMAL_PANEL && GetType()==FILE_PANEL && !LocalStricmpW(strCurDir,strNewCurDir) && IsVisible())
     {
       // А нужно ли делать здесь Update????
       Update(UPDATE_KEEP_SELECTION);
@@ -1296,7 +915,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     {
       Focus=GetFocus();
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,FALSE);
-      NewPanel->SetCurDir(NewCurDir,TRUE);
+      NewPanel->SetCurDirW(strNewCurDir,TRUE);
       NewPanel->Show();
       if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
         NewPanel->SetFocus();
@@ -1324,15 +943,15 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
    обработка Del в меню дисков
 */
 
-int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
+int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 {
-  char MsgText[200];
+  string strMsgText;
   int UpdateProfile=CONNECT_UPDATE_PROFILE;
   BOOL Processed=FALSE;
 
-  char DiskLetter [4];
+  wchar_t DiskLetter [4];
   DiskLetter[0] = Drive;
-  DiskLetter[1] = ':';
+  DiskLetter[1] = L':';
   DiskLetter[2] = 0;
 
   if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
@@ -1344,7 +963,7 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
     LockScreen LckScr;
     // если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
     // удалению
-    IfGoHome(Drive);
+    IfGoHomeW(Drive);
     FrameManager->ResizeAllFrame();
     FrameManager->GetCurrentFrame()->Show();
     ChDiskMenu->Show();
@@ -1358,9 +977,9 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
   {
     if(Opt.Confirm.RemoveSUBST)
     {
-      char MsgText[200];
-      sprintf(MsgText,MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
-      if(Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),MsgText,MSG(MYes),MSG(MNo))!=0)
+      string strMsgText;
+      strMsgText.Format (UMSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
+      if(MessageW(MSG_WARNING,2,UMSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,UMSG(MYes),UMSG(MNo))!=0)
         return DRIVE_DEL_FAIL;
     }
 
@@ -1369,18 +988,18 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
     else
     {
       int LastError=GetLastError();
-      sprintf(MsgText,MSG(MChangeDriveCannotDelSubst),DiskLetter);
+      strMsgText.Format (UMSG(MChangeDriveCannotDelSubst),DiskLetter);
       if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
-                "\x1",MSG(MChangeDriveOpenFiles),
-                MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+        if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,
+                L"\x1",UMSG(MChangeDriveOpenFiles),
+                UMSG(MChangeDriveAskDisconnect),UMSG(MOk),UMSG(MCancel))==0)
         {
           if(!DelSubstDrive(DiskLetter))
             return DRIVE_DEL_SUCCESS;
         }
         else
           return DRIVE_DEL_FAIL;
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),strMsgText,UMSG(MOk));
     }
     return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
   }
@@ -1388,26 +1007,26 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 
   if(Processed)
   {
-    if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
+    if (WNetCancelConnection2W(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
       return DRIVE_DEL_SUCCESS;
     else
     {
       int LastError=GetLastError();
-      sprintf(MsgText,MSG(MChangeDriveCannotDisconnect),DiskLetter);
+      strMsgText.Format (UMSG(MChangeDriveCannotDisconnect),DiskLetter);
       if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
-                "\x1",MSG(MChangeDriveOpenFiles),
-                MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+        if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,
+                L"\x1",UMSG(MChangeDriveOpenFiles),
+                UMSG(MChangeDriveAskDisconnect),UMSG(MOk),UMSG(MCancel))==0)
         {
-          if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
+          if (WNetCancelConnection2W(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
             return DRIVE_DEL_SUCCESS;
         }
         else
           return DRIVE_DEL_FAIL;
-      char RootDir[50];
-      sprintf(RootDir,"%c:\\",*DiskLetter);
-      if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+      string strRootDir;
+      strRootDir.Format (L"%c:\\", *DiskLetter);
+      if (FAR_GetDriveTypeW(strRootDir)==DRIVE_REMOTE)
+        MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),strMsgText,UMSG(MOk));
     }
     return DRIVE_DEL_FAIL;
   }
@@ -1416,19 +1035,17 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 /* DJ $ */
 
 
-void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,char *Name)
+void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
 {
-  if(strlen(Src) <= NM*2) // сделаем разумное ограничение на размер...
-  {
-    char *Ptr=(char *)xf_malloc(strlen(Src)+strlen(FindEdit->GetStringAddr())+32);
+   wchar_t *Ptr=(wchar_t *)xf_malloc((wcslen(Src)+wcslen(FindEdit->GetStringAddrW())+32)*sizeof (wchar_t));
     if(Ptr)
     {
-      strcpy(Ptr,FindEdit->GetStringAddr());
-      char *EndPtr=Ptr+strlen(Ptr);
-      strcat(Ptr,Src);
-      Unquote(EndPtr);
+      wcscpy(Ptr,FindEdit->GetStringAddrW());
+      wchar_t *EndPtr=Ptr+wcslen(Ptr);
+      wcscat(Ptr,Src);
+      UnquoteW(EndPtr);
 
-      EndPtr=Ptr+strlen(Ptr);
+      EndPtr=Ptr+wcslen(Ptr);
       DWORD Key;
       while(1)
       {
@@ -1442,9 +1059,9 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
         {
           Key=*(EndPtr-1);
           *EndPtr=0;
-          FindEdit->SetString(Ptr);
-          strcpy(LastName,Ptr);
-          strcpy(Name,Ptr);
+          FindEdit->SetStringW(Ptr);
+          strLastName = Ptr;
+          strName = Ptr;
           FindEdit->Show();
           break;
         }
@@ -1453,7 +1070,6 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
       }
       xf_free(Ptr);
     }
-  }
 }
 
 // корректировка букв
@@ -1473,9 +1089,8 @@ void Panel::FastFind(int FirstKey)
 {
   // // _SVS(CleverSysLog Clev("Panel::FastFind"));
   INPUT_RECORD rec;
-  char LastName[NM],Name[NM];
+  string strLastName, strName;
   int Key,KeyToProcess=0;
-  *LastName=0;
   WaitInFastFind++;
   {
     int FindX=Min(X1+9,ScrX-22);
@@ -1514,10 +1129,10 @@ void Panel::FastFind(int FirstKey)
           // для вставки воспользуемся макродвижком...
           if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
           {
-            char *ClipText=PasteFromClipboard();
+            wchar_t *ClipText=PasteFromClipboardW();
             if(ClipText && *ClipText)
             {
-              FastFindProcessName(&FindEdit,ClipText,LastName,Name);
+              FastFindProcessName(&FindEdit,ClipText,strLastName,strName);
               FastFindShow(FindX,FindY);
               delete[] ClipText;
             }
@@ -1527,21 +1142,21 @@ void Panel::FastFind(int FirstKey)
                    Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey) ||
                   Key == MCODE_OP_XLAT)
           {
-            char TempName[NM*2];
+            string strTempName;
             FindEdit.Xlat();
-            FindEdit.GetString(TempName,sizeof(TempName));
-            FindEdit.SetString("");
-            FastFindProcessName(&FindEdit,TempName,LastName,Name);
+            FindEdit.GetStringW(strTempName);
+            FindEdit.SetStringW(L"");
+            FastFindProcessName(&FindEdit,strTempName,strLastName,strName);
             FastFindShow(FindX,FindY);
             continue;
           }
           else if(Key == MCODE_OP_DATE || Key == MCODE_OP_PLAINTEXT)
           {
-            char TempName[NM*2];
+            string strTempName;
             FindEdit.ProcessKey(Key);
-            FindEdit.GetString(TempName,sizeof(TempName));
-            FindEdit.SetString("");
-            FastFindProcessName(&FindEdit,TempName,LastName,Name);
+            FindEdit.GetStringW(strTempName);
+            FindEdit.SetStringW(L"");
+            FastFindProcessName(&FindEdit,strTempName,strLastName,strName);
             FastFindShow(FindX,FindY);
             continue;
           }
@@ -1557,12 +1172,12 @@ void Panel::FastFind(int FirstKey)
 
       // // _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
-        Key=tolower(Key-KEY_ALT_BASE);
+        Key=LocalLowerW (Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
-        Key=tolower(Key-KEY_ALTSHIFT_BASE);
+        Key=LocalLowerW (Key-KEY_ALTSHIFT_BASE);
 
       if (Key==KEY_MULTIPLY)
-        Key='*';
+        Key=L'*';
 
       switch (Key)
       {
@@ -1571,19 +1186,19 @@ void Panel::FastFind(int FirstKey)
           FindEdit.Hide();
           SaveScr.RestoreArea();
           {
-            Help Hlp ("FastFind");
+            Help Hlp (L"FastFind");
           }
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;
         }
         case KEY_CTRLENTER:
-          FindPartName(Name,TRUE);
+          FindPartName(strName,TRUE);
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;
         case KEY_CTRLSHIFTENTER:
-          FindPartName(Name,TRUE,-1);
+          FindPartName(strName,TRUE,-1);
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;
@@ -1602,28 +1217,33 @@ void Panel::FastFind(int FirstKey)
 
           if (FindEdit.ProcessKey(Key))
           {
-            FindEdit.GetString(Name,sizeof(Name));
+            FindEdit.GetStringW(strName);
 
             // уберем двойные '**'
-            int LenName=strlen(Name);
-            if(LenName > 1 && Name[LenName-1] == '*' && Name[LenName-2] == '*')
+
+            wchar_t *Name = strName.GetBuffer ();
+
+            int LenName=wcslen(Name);
+            if(LenName > 1 && Name[LenName-1] == L'*' && Name[LenName-2] == L'*')
             {
               Name[LenName-1]=0;
-              FindEdit.SetString(Name);
+              FindEdit.SetStringW(Name);
             }
             /* $ 09.04.2001 SVS
                проблемы с быстрым поиском.
                Подробнее в 00573.ChangeDirCrash.txt
             */
-            if(*Name == '"')
+            if(*Name == L'"')
             {
-              memmove(Name,Name+1,sizeof(Name)-1);
-              Name[strlen(Name)-1]=0;
-              FindEdit.SetString(Name);
+              memmove(Name,Name+1,(sizeof(Name)-1)*sizeof (wchar_t));
+              Name[wcslen(Name)-1]=0;
+              FindEdit.SetStringW(Name);
             }
+
+            strName.ReleaseBuffer ();
             /* SVS $ */
-            if (FindPartName(Name,FALSE))
-              strcpy(LastName,Name);
+            if (FindPartName(strName,FALSE))
+              strLastName = strName;
             else
             {
               if(CtrlObject->Macro.IsExecuting())// && CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
@@ -1632,8 +1252,8 @@ void Panel::FastFind(int FirstKey)
 //                CtrlObject->Macro.PopState();
 ;
               }
-              FindEdit.SetString(LastName);
-              strcpy(Name,LastName);
+              FindEdit.SetStringW(strLastName);
+              strName = strLastName;
             }
             FindEdit.Show();
             FastFindShow(FindX,FindY);
@@ -1659,13 +1279,13 @@ void Panel::FastFindShow(int FindX,int FindY)
 {
   SetColor(COL_DIALOGTEXT);
   GotoXY(FindX+1,FindY+1);
-  Text(" ");
+  TextW(L" ");
   GotoXY(FindX+20,FindY+1);
-  Text(" ");
+  TextW(L" ");
   Box(FindX,FindY,FindX+21,FindY+2,COL_DIALOGBOX,DOUBLE_BOX);
   GotoXY(FindX+7,FindY);
   SetColor(COL_DIALOGBOXTITLE);
-  Text(MSearchFileTitle);
+  TextW(MSearchFileTitle);
 }
 
 
@@ -1682,7 +1302,7 @@ void Panel::SetFocus()
     CtrlObject->Cp()->RedrawKeyBar();
     Focus=TRUE;
     Redraw();
-    FarChDir(CurDir);
+    FarChDirW(strCurDir);
   }
 }
 
@@ -1753,7 +1373,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
       {
         if (SrcDragPanel->GetSelCount()==1 && DragSaveScr==NULL)
         {
-          SrcDragPanel->GoToFile(DragName);
+          SrcDragPanel->GoToFileW(strDragName);
           SrcDragPanel->Show();
         }
         DragMessage(MouseEvent->dwMousePosition.X,MouseEvent->dwMousePosition.Y,DragMove);
@@ -1773,8 +1393,8 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
   {
     int FileAttr;
     MoveToMouse(MouseEvent);
-    GetSelName(NULL,FileAttr);
-    if (GetSelName(DragName,FileAttr) && !TestParentFolderName(DragName))
+    GetSelNameW(NULL,FileAttr);
+    if (GetSelNameW(&strDragName,FileAttr) && !TestParentFolderNameW(strDragName))
     {
       SrcDragPanel=this;
       DragX=MouseEvent->dwMousePosition.X;
@@ -1802,7 +1422,7 @@ void Panel::EndDrag()
 
 void Panel::DragMessage(int X,int Y,int Move)
 {
-  char DragMsg[NM],SelName[NM];
+  string strDragMsg, strSelName;
   int SelCount,MsgX,Length;
 
   if ((SelCount=SrcDragPanel->GetSelCount())==0)
@@ -1810,30 +1430,31 @@ void Panel::DragMessage(int X,int Y,int Move)
 
   if (SelCount==1)
   {
-    char CvtName[NM+16];
+    string strCvtName;
     int FileAttr;
-    SrcDragPanel->GetSelName(NULL,FileAttr);
-    SrcDragPanel->GetSelName(SelName,FileAttr);
-    strcpy(CvtName,PointToName(SelName));
-    QuoteSpace(CvtName);
-    strcpy(SelName,CvtName);
+    SrcDragPanel->GetSelNameW(NULL,FileAttr);
+    SrcDragPanel->GetSelNameW(&strSelName,FileAttr);
+    strCvtName = PointToNameW(strSelName);
+    QuoteSpaceW(strCvtName);
+    strSelName = strCvtName;
   }
   else
-    sprintf(SelName,MSG(MDragFiles),SelCount);
+    strSelName.Format (UMSG(MDragFiles), SelCount);
 
   if (Move)
-    sprintf(DragMsg,MSG(MDragMove),SelName);
+    strDragMsg.Format (UMSG(MDragMove), (const wchar_t*)strSelName);
   else
-    sprintf(DragMsg,MSG(MDragCopy),SelName);
-  if ((Length=strlen(DragMsg))+X>ScrX)
+    strDragMsg.Format (UMSG(MDragCopy), (const wchar_t*)strSelName);
+
+  if ((Length=strDragMsg.GetLength())+X>ScrX)
   {
     MsgX=ScrX-Length;
     if (MsgX<0)
     {
       MsgX=0;
-      /* $ 01.10.2001 IS усекаем с конца, иначе теряется инф.нагрузка */
-      Length=strlen(TruncStrFromEnd(DragMsg,ScrX));
-      /* IS $ */
+      TruncStrFromEndW(strDragMsg,ScrX);
+
+      Length=strDragMsg.GetLength ();
     }
   }
   else
@@ -1843,33 +1464,30 @@ void Panel::DragMessage(int X,int Y,int Move)
   DragSaveScr=new SaveScreen(MsgX,Y,MsgX+Length-1,Y);
   GotoXY(MsgX,Y);
   SetColor(COL_PANELDRAGTEXT);
-  Text(DragMsg);
+  TextW(strDragMsg);
 }
 
 
-int Panel::GetCurDir(char *CurDir)
+
+int Panel::GetCurDirW(string &strCurDir)
 {
-  if(CurDir)
-    strcpy(CurDir,Panel::CurDir); // TODO: ОПАСНО!!!
-  return strlen(Panel::CurDir);
+  strCurDir = Panel::strCurDir; // TODO: ОПАСНО!!!
+  return strCurDir.GetLength();
 }
 
 
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
-void Panel::SetCurDir(char *CurDir,int ClosePlugin)
+
+void Panel::SetCurDirW(const wchar_t *CurDir,int ClosePlugin)
 {
-  PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+  strCurDir = CurDir;
+  PrepareDiskPathW (strCurDir);
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
 
 
-void Panel::InitCurDir(char *CurDir)
+void Panel::InitCurDirW(const wchar_t *CurDir)
 {
-  PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+  strCurDir = CurDir;
+  PrepareDiskPathW (strCurDir);
 }
 
 
@@ -1897,40 +1515,40 @@ int  Panel::SetCurPath()
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=PLUGIN_PANEL)
   {
-    if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
-        toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
+    if (LocalIsalphaW(AnotherPanel->strCurDir.At(0)) && AnotherPanel->strCurDir.At(1)==L':' &&
+        LocalUpperW(AnotherPanel->strCurDir.At(0))!=LocalUpperW(strCurDir.At(0)))
     {
       // сначала установим переменные окружения для пассивной панели
       // (без реальной смены пути, чтобы лишний раз пассивный каталог
       // не перечитывать)
-      FarChDir(AnotherPanel->CurDir,FALSE);
+      FarChDirW(AnotherPanel->strCurDir,FALSE);
     }
   }
 
-  if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==0xFFFFFFFF)
+  if (!FarChDirW(strCurDir) || GetFileAttributesW(strCurDir)==0xFFFFFFFF)
   {
    // здесь на выбор :-)
 #if 1
-    while(!FarChDir(CurDir))
+    while(!FarChDirW(strCurDir))
     {
-      char Root[1024];
-      GetPathRoot(CurDir,Root);
-      if(FAR_GetDriveType(Root) != DRIVE_REMOVABLE || IsDiskInDrive(Root))
+      string strRoot;
+      GetPathRootW (strCurDir, strRoot);
+      if(FAR_GetDriveTypeW(strRoot) != DRIVE_REMOVABLE || IsDiskInDriveW(strRoot))
       {
-        int Result=CheckFolder(CurDir);
+        int Result=CheckFolderW(strCurDir);
         if(Result == CHKFLD_NOTACCESS)
         {
-          if(FarChDir(Root))
+          if(FarChDirW(strRoot))
           {
-            SetCurDir(Root,TRUE);
+            SetCurDirW(strRoot,TRUE);
             return TRUE;
           }
         }
         else if(Result == CHKFLD_NOTFOUND)
         {
-          if(CheckShortcutFolder(CurDir,sizeof(CurDir)-1,FALSE,TRUE) && FarChDir(CurDir))
+          if(CheckShortcutFolderW(&strCurDir,FALSE,TRUE) && FarChDirW(strCurDir))
           {
-            SetCurDir(CurDir,TRUE);
+            SetCurDirW(strCurDir,TRUE);
             return TRUE;
           }
         }
@@ -2041,16 +1659,24 @@ void Panel::ShowScreensCount()
     int Dialogs=FrameManager->GetFrameCountByType (MODALTYPE_DIALOG);
     if (Viewers>0 || Editors>0 || Dialogs > 0)
     {
-      char ScreensText[100];
-      sprintf(ScreensText,"[%d", Viewers);
+      string strScreensText;
+      string strAdd;
+      strScreensText.Format (L"[%d", Viewers);
       if (Editors > 0)
-        sprintf (ScreensText+strlen (ScreensText), "+%d", Editors);
+      {
+        strAdd.Format (L"+%d", Editors);
+        strScreensText += strAdd;
+      }
+
       if (Dialogs > 0)
-        sprintf (ScreensText+strlen (ScreensText), ",%d", Dialogs);
-      strcat (ScreensText, "]");
+      {
+        strAdd.Format (L",%d", Dialogs);
+        strScreensText += strAdd;
+      }
+      strScreensText += L"]";
       GotoXY(Opt.ShowColumnTitles ? X1:X1+2,Y1);
       SetColor(COL_PANELSCREENSNUMBER);
-      Text(ScreensText);
+      TextW(strScreensText);
     }
     /* DJ $ */
   }
@@ -2061,47 +1687,47 @@ void Panel::SetTitle()
 {
   if (GetFocus())
   {
-    char TitleDir[NM+16];
-    *TitleDir='{';
-    if (*CurDir)
-      xstrncpy(TitleDir+1,CurDir,sizeof(TitleDir)-3);
+    string strTitleDir = L"{";
+
+    if ( !strCurDir.IsEmpty() )
+      strTitleDir += strCurDir;
     else
     {
-      char CmdText[512];
-      // $ 21.07.2000 IG - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
-      CtrlObject->CmdLine->GetCurDir(CmdText);
-      xstrncpy(TitleDir+1,CmdText,sizeof(TitleDir)-3);
+      string strCmdText;
+      CtrlObject->CmdLine->GetCurDirW(strCmdText);
+
+      strTitleDir += strCmdText;
     }
-    strncat(TitleDir,"}",sizeof(TitleDir)-3);
-    strcpy(LastFarTitle,TitleDir);
-    SetFarTitle(TitleDir);
+
+    strTitleDir += L"}";
+
+    strLastFarTitle = strTitleDir; //BUGBUG
+    SetFarTitleW(strTitleDir);
   }
 }
 
-void Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  char Title[512];
-  char TitleDir[512];
-  *Title=0;
+  string strTitleDir;
+
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct OpenPluginInfo PInfo;
-    GetOpenPluginInfo(&PInfo);
-    RemoveExternalSpaces(xstrncpy(TitleDir,NullToEmpty(PInfo.PanelTitle),sizeof (TitleDir)-1));
-    //RemoveExternalSpaces(TitleDir);
-    TruncStr(TitleDir,LenTitle-TruncSize);
+    struct OpenPluginInfoW Info;
+    GetOpenPluginInfo(&Info);
+    strTitleDir = NullToEmptyW(Info.PanelTitle);
+    RemoveExternalSpacesW(strTitleDir);
+    TruncStrW(strTitleDir,SubLen-TruncSize);
   }
   else
   {
     if (ShowShortNames)
-      ConvertNameToShort(CurDir,TitleDir,sizeof(TitleDir)-1);
+      ConvertNameToShortW(strCurDir,strTitleDir);
     else
-      xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
-    TruncPathStr(TitleDir,LenTitle-TruncSize);
+      strTitleDir = strCurDir;
+    TruncPathStrW(strTitleDir,SubLen-TruncSize);
   }
-  if(*TitleDir)
-    sprintf(Title," %s ",TitleDir);
-  xstrncpy(lTitle,Title,LenTitle);
+
+  strTitle = L" "+strTitleDir+L" ";
 }
 
 int Panel::SetPluginCommand(int Command,void *Param)
@@ -2176,6 +1802,26 @@ int Panel::SetPluginCommand(int Command,void *Param)
       //  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
       break;
 
+    case FCTL_FREEPANELINFO:
+    {
+        if (Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
+            break;
+
+        PanelInfo *Info=(PanelInfo *)Param;
+
+        xf_free (Info->lpwszCurDir);
+        xf_free (Info->lpwszColumnTypes);
+        xf_free (Info->lpwszColumnWidths);
+
+        for (int i = 0; i < Info->ItemsNumber; i++)
+            apiFreeFindData (&Info->PanelItems[i].FindData);
+
+        for (int i = 0; i < Info->SelectedItemsNumber; i++)
+            apiFreeFindData (&Info->SelectedItems[i].FindData);
+
+        break;
+    }
+
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
     case FCTL_GETPANELSHORTINFO:
@@ -2219,7 +1865,12 @@ int Panel::SetPluginCommand(int Command,void *Param)
       Info->Focus=DestPanel->GetFocus();
       Info->ViewMode=DestPanel->GetViewMode();
       Info->SortMode=SM_UNSORTED-UNSORTED+DestPanel->GetSortMode();
-      DestPanel->GetCurDir(Info->CurDir);
+
+      string strInfoCurDir;
+
+      DestPanel->GetCurDirW(strInfoCurDir);
+
+      Info->lpwszCurDir = _wcsdup(strInfoCurDir);
       /* $ 24.04.2001 SVS
          Заполнение флагов PanelInfo.Flags
       */
@@ -2254,9 +1905,10 @@ int Panel::SetPluginCommand(int Command,void *Param)
         if (!Reenter && Info->Plugin)
         {
           Reenter++;
-          struct OpenPluginInfo PInfo;
+          struct OpenPluginInfoW PInfo;
           DestFilePanel->GetOpenPluginInfo(&PInfo);
-          xstrncpy(Info->CurDir,PInfo.CurDir,sizeof(Info->CurDir)-1);
+
+          Info->lpwszCurDir = _wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
           /* $ 12.12.2001 DJ
              обработаем флаги
           */
@@ -2315,7 +1967,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
         // $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
         if (FPanels->IsTopFrame())
         {
-          DestPanel->Redraw ();
+          DestPanel->Redraw();
           Result=TRUE;
         }
       }
@@ -2329,7 +1981,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
       Panel *DestPanel=Command==FCTL_SETANOTHERPANELDIR?AnotherPanel:this;
       if (DestPanel && Param)
       {
-        DestPanel->SetCurDir((char *)Param,TRUE);
+        DestPanel->SetCurDirW((const wchar_t *)Param,TRUE);
         Result=TRUE;
       }
       break;
@@ -2341,23 +1993,40 @@ int Panel::SetPluginCommand(int Command,void *Param)
 }
 
 
-int Panel::GetCurName(char *Name,char *ShortName)
+/*int Panel::GetCurName(char *Name,char *ShortName)
 {
   *Name=*ShortName=0;
   return(FALSE);
+}*/
+
+
+int Panel::GetCurNameW(string &strName, string &strShortName)
+{
+  strName = L"";
+  strShortName = L"";
+  return(FALSE);
 }
 
+/*
 int Panel::GetCurBaseName(char *Name,char *ShortName)
 {
   *Name=*ShortName=0;
   return(FALSE);
 }
+*/
 
-static int MessageRemoveConnection(char Letter, int &UpdateProfile)
+int Panel::GetCurBaseNameW(string &strName, string &strShortName)
+{
+  strName = L"";
+  strShortName = L"";
+  return(FALSE);
+}
+
+static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 {
   int Len1, Len2, Len3,Len4;
   BOOL IsPersistent;
-  char MsgText[NM];
+  string strMsgText;
 /*
   0         1         2         3         4         5         6         7
   0123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -2373,37 +2042,45 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
 10  +------------------------------------------------+
 11
 */
-  static struct DialogData DCDlgData[]=
+  static struct DialogDataEx DCDlgData[]=
   {
 /*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
                                       Selected               Data
 */
-/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0,"",
-/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 2 */ DI_TEXT,      5, 3,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 3 */ DI_TEXT,      5, 4,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 4 */ DI_TEXT,      0, 5,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
-/* 5 */ DI_CHECKBOX,  5, 6, 70, 5, 0, 0, 0,                0,"",
-/* 6 */ DI_TEXT,      0, 7,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
-/* 7 */ DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1,"",
-/* 8 */ DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0,L"",
+/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"",
+/* 2 */ DI_TEXT,      5, 3,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"",
+/* 3 */ DI_TEXT,      5, 4,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"",
+/* 4 */ DI_TEXT,      0, 5,  0, 6, 0, 0, DIF_SEPARATOR,    0,L"",
+/* 5 */ DI_CHECKBOX,  5, 6, 70, 5, 0, 0, 0,                0,L"",
+/* 6 */ DI_TEXT,      0, 7,  0, 6, 0, 0, DIF_SEPARATOR,    0,L"",
+/* 7 */ DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1,L"",
+/* 8 */ DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0,L""
   };
-  MakeDialogItems(DCDlgData,DCDlg);
+  MakeDialogItemsEx(DCDlgData,DCDlg);
 
-  Len1=strlen(strcpy(DCDlg[0].Data,MSG(MChangeDriveDisconnectTitle)));
-  sprintf(MsgText,MSG(MChangeDriveDisconnectQuestion),Letter);
-  Len2=strlen(strcpy(DCDlg[1].Data,MsgText));
-  sprintf(MsgText,MSG(MChangeDriveDisconnectMapped),Letter);
-  Len4=strlen(strcpy(DCDlg[2].Data,MsgText));
-  Len3=strlen(strcpy(DCDlg[5].Data,MSG(MChangeDriveDisconnectReconnect)));
+
+  DCDlg[0].strData = UMSG(MChangeDriveDisconnectTitle);
+  Len1 = DCDlg[0].strData.GetLength();
+
+  strMsgText.Format (UMSG(MChangeDriveDisconnectQuestion),Letter);
+  DCDlg[1].strData = strMsgText;
+  Len2=DCDlg[1].strData.GetLength ();
+
+  strMsgText.Format (UMSG(MChangeDriveDisconnectMapped),Letter);
+  DCDlg[2].strData = strMsgText;
+  Len4 = DCDlg[2].strData.GetLength();
+
+  DCDlg[5].strData = UMSG(MChangeDriveDisconnectReconnect);
+  Len3= DCDlg[5].strData.GetLength ();
 
 
   Len1=Max(Len1,Max(Len2,Max(Len3,Len4)));
 
-  strcpy(DCDlg[3].Data,TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,MsgText),Len1));
+  DCDlg[3].strData = TruncPathStrW(DriveLocalToRemoteNameW(DRIVE_REMOTE,Letter,strMsgText),Len1);
 
-  strcpy(DCDlg[7].Data,MSG(MYes));
-  strcpy(DCDlg[8].Data,MSG(MCancel));
+  DCDlg[7].strData = UMSG(MYes);
+  DCDlg[8].strData = UMSG(MCancel);
 
   // проверяем - это было постоянное соедение или нет?
   // Если ветка в реестре HKCU\Network\БукваДиска есть - это
@@ -2412,10 +2089,11 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
     HKEY hKey;
     IsPersistent=TRUE;
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-      sprintf(MsgText,"Network\\%c",toupper(Letter));
+      strMsgText.Format (L"Network\\%c",LocalUpperW(Letter));
     else
-      sprintf(MsgText,"Network\\Persistent\\%c",toupper(Letter));
-    if(RegOpenKeyEx(HKEY_CURRENT_USER,MsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+      strMsgText.Format (L"Network\\Persistent\\%c", LocalUpperW(Letter));
+
+    if(RegOpenKeyExW(HKEY_CURRENT_USER,strMsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {
       DCDlg[5].Flags|=DIF_DISABLE;
       DCDlg[5].Selected=0;
@@ -2434,7 +2112,7 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   {
     Dialog Dlg(DCDlg,sizeof(DCDlg)/sizeof(DCDlg[0]));
     Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
-    Dlg.SetHelp("DisconnectDrive");
+    Dlg.SetHelp(L"DisconnectDrive");
     Dlg.Process();
     ExitCode=Dlg.GetExitCode();
   }
@@ -2448,48 +2126,41 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
   /* Обновить, если обновление разрешено и пути совпадают */
   if ((!Opt.AutoUpdateLimit || static_cast<DWORD>(GetFileCount()) <= Opt.AutoUpdateLimit) &&
-      LocalStricmp(AnotherPanel->CurDir,CurDir)==0)
+      LocalStricmpW(AnotherPanel->strCurDir,strCurDir)==0)
     return TRUE;
   return FALSE;
 }
 
 int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 {
-  char *ShortcutFolder;
-  char PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
-  int SizeFolderNameShortcut=GetShortcutFolderSize(Key);
-  ShortcutFolder=new char[SizeFolderNameShortcut+NM];
+  string strShortcutFolder, strPluginModule, strPluginFile, strPluginData;
 
-  if(ShortcutFolder)
-  {
-    if (GetShortcutFolder(Key,ShortcutFolder,SizeFolderNameShortcut+NM,PluginModule,PluginFile,PluginData))
+    if (GetShortcutFolder(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
     {
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       if(ProcTreePanel)
       {
         if (AnotherPanel->GetType()==FILE_PANEL)
         {
-          AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
+          AnotherPanel->SetCurDirW(strShortcutFolder,TRUE);
           AnotherPanel->Redraw();
         }
         else
         {
-          SetCurDir(ShortcutFolder,TRUE);
+          SetCurDirW(strShortcutFolder,TRUE);
           ProcessKey(KEY_ENTER);
         }
       }
       else
       {
-        if (AnotherPanel->GetType()==FILE_PANEL && *PluginModule==0)
+        if (AnotherPanel->GetType()==FILE_PANEL && !strPluginModule.IsEmpty() )
         {
-          AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
+          AnotherPanel->SetCurDirW(strShortcutFolder,TRUE);
           AnotherPanel->Redraw();
         }
       }
-      delete[] ShortcutFolder;
       return(TRUE);
     }
-    delete[] ShortcutFolder;
-  }
+
   return FALSE;
 }

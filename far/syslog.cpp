@@ -5,156 +5,7 @@ syslog.cpp
 
 */
 
-/* Revision: 1.57 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  09.09.2005 SVS
-    ! добавки по всем VK.
-  23.07.2005 SVS
-    ! vsprintf -> vsnprintf
-    ! уточнение PanelViewSettings_Dump()
-  13.07.2005 SVS
-    + PanelViewSettings_Dump()
-  27.06.2005 SVS
-    ! небольшая корректировка WIN32_FIND_DATA_Dump
-  23.06.2005 SVS
-    + WIN32_FIND_DATA_Dump()
-  21.01.2005 SVS
-    + GetVolumeInformation_Dump
-  09.11.2004 SVS
-    + SYSLOG_WARP
-  03.06.2004 SVS
-    ! уточнения в _FCTL_ToName
-    - ошибка в _INPUT_RECORD_Dump - нехватало пятой спецификации '%c'
-  24.05.2004 SVS
-    + PrevNumericSort в PluginsStackItem_Dump
-  28.04.2004 SVS
-    ! оконстантим параметр у конструктора CleverSysLog()
-  13.10.2003 SVS
-    + ESPT_SETWORDDIV
-  31.07.2003 SVS
-    ! Для экспортнутых функций - сделаем проверку на CapsLock
-  11.07.2003 SVS
-    ! Уберем лишние варнинги
-    + В _INPUT_RECORD_Dump() добавим FARMACRO_KEY_EVENT и 0
-  17.06.2003 SVS
-    + DN_DRAWDIALOGDONE
-  14.05.2003 SVS
-    + GetOpenPluginInfo_Dump()
-  16.04.2003 SVS
-    + Логирование DM_GETSELECTION и DM_SETSELECTION.
-  31.03.2003 SVS
-    + _EE_ToName(), _EEREDRAW_ToName()
-    + _SYS_EE_REDRAW
-  05.03.2003 SVS
-    + SYSLOG_COPYR
-  18.02.2003 SVS
-    + _ESPT_ToName + _SysLog_LinearDump
-    + DEF_ECTL_(DELETEBLOCK)
-  11.02.2003 SVS
-    ! Немного красоты в SysLog.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-    + INPUT_RECORD_DumpBuffer() - дамп оставшихся эвентов в консольной очереди
-    + IsLogON() - теперь любые логи будут писаться (только в дебажной версии)
-      если включен ScrollLock
-  10.12.2002 SVS
-    + ManagerClass_Dump()
-  04.11.2002 SVS
-    + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
-      (доступно только под дебугинфой)
-  23.08.2002 SVS
-    + SaveScreenDumpBuffer()
-  02.07.2002 SVS
-    - ошибки в _VCTL_ToName
-    + _PluginsStackItem_Dump() - дамп стека плагинов
-  25.06.2002 SVS
-    - Ошибки проектирования в _INPUT_RECORD_Dump
-  24.05.2002 SVS
-    + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
-  22.05.2002 SVS
-    + _VCTL_ToName
-  05.05.2002 SVS
-    ! Немного усовершенствуем лог по хипу
-  04.04.2002 SVS
-    ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
-  04.04.2002 IS
-    + ECTL_TURNOFFMARKINGBLOK в _ECTL_ToName
-  04.04.2002 SVS
-    + DN_ACTIVATEAPP
-    + _ACTL_ToName()
-  13.02.2002 SVS
-    + SysLogLastError() - вывод в лог результата GetLastError()
-  11.02.2002 SVS
-    ! dialog.cpp::MsgToName() - syslog.cpp::_DLGMSG_ToName()
-    ! Уточнения в _*_ToName()
-  05.02.2002 SVS
-    + Пара новых функций для отладочных мероприятий
-       _FARKEY_ToName() - формирует строку из HEX-кода клавиши и названия онной
-       _VK_KEY_ToName() - то же самое. но для виртуального кода.
-    ! ECTLToName переимована в _ECTL_ToName
-    + _FCTL_ToName()
-  10.01.2002 SVS
-    + SYSLOG_ECTL
-  24.12.2001 SVS
-    + Добавим в функции FarSysLog() в LOG-файл имя модуля.
-  15.10.2001 SVS
-    + Экспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
-  03.10.2001 SVS
-    ! В некоторых источниках говорится, что IsDebuggerPresent() есть только
-      в NT, так что... бум юзать ее динамически!
-  24.09.2001 SVS
-    ! CleverSysLog - параметр у конструктора - "заголовок"
-  18.09.2001 SVS
-    + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
-  15.08.2001 OT
-    - "Перевод строки" в дебагере среды VC
-  25.07.2001 SVS
-    - Обломы с компиляцией под VC
-  24.07.2001 SVS
-    + Если запущены под дебагером (IsDebuggerPresent), то выводим строку
-      в LOG-окно дебагера (OutputDebugString)
-      Внимание! Винды ниже 98-х не подойдут.
-  04.07.2001 SVS
-    ! очередное уточнение LOG-файла :-)
-    + Функции про хип
-  27.06.2001 SVS
-    ! Небольшая переделка LOG-файла :-)
-      Теперь файлы складывается в каталог %FAR%\$Log и имеют имя
-      Far.YYYYMMDD.BILD.log - BILD=%05d
-  25.06.2001 SVS
-    ! Заюзаем внутреннюю функцию StrFTime вместо стандартной.
-  16.05.2001 SVS
-    ! DumpExceptionInfo -> farexcpt.cpp
-    + _SYSLOG_KM()
-  09.05.2001 OT
-    ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
-  07.05.2001 SVS
-    + В DumpExceptionInfo добавлена версия ФАРа в формате FAR_VERSION
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 SVS
-    ! немного изменений в SysLog* ;-)
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 SVS
-    - Неверно выставлен флаг, вместо теста CONTEXT_INTEGER стояло
-      CONTEXT_SEGMENTS
-    ! Полная переделка функций семейства SysLog()
-    + Функция печати дампа памяти SysLogDump()
-      Если указатель на файл = NULL, то будет писаться в стандартный лог,
-      иначе в указанный открытый файл.
-  26.01.2001 SVS
-    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
-  23.01.2001 SVS
-    + DumpExeptionInfo()
-  22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.58 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -382,10 +233,10 @@ void SysLogLastError(void)
   if(!IsLogON())
     return;
 
-  LPSTR lpMsgBuf;
+  char *lpMsgBuf;
 
   DWORD LastErr=GetLastError();
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+  FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                 NULL,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
                 (LPTSTR) &lpMsgBuf,0,NULL);
 
@@ -393,7 +244,7 @@ void SysLogLastError(void)
   if (LogStream)
   {
     char timebuf[64];
-    RemoveUnprintableCharacters(lpMsgBuf);
+    // RemoveUnprintableCharactersW(lpMsgBuf);
     fprintf(LogStream,"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf),MakeSpace(),LastErr,LastErr,lpMsgBuf);
     fflush(LogStream);
   }
@@ -590,7 +441,7 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
                   "PrevSortMode=%d/%-17s "
                   "PrevSortOrder=%02d "
                   "PrevNumericSort=%02d "
-                  "HostFile=%s\n",
+                  "HostFile=%S\n",
          I,
          StackItems[I].hPlugin,
          (StackItems[I].Modified?"True ":"False"),
@@ -599,7 +450,7 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
            (StackItems[I].PrevSortMode<BY_NUMLINKS?__SORT[StackItems[I].PrevSortMode].Name:"<Unknown>"),
          StackItems[I].PrevSortOrder,
          StackItems[I].PrevNumericSort,
-         StackItems[I].HostFile);
+         (const wchar_t*)StackItems[I].strHostFile);
     }
     fprintf(fp,"\n");
     fflush(fp);
@@ -610,7 +461,7 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
 #endif
 }
 
-void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *fp)
+void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfoW *Info,FILE *fp)
 {
 #if defined(SYSLOG)
   if(!IsLogON())
@@ -628,10 +479,10 @@ void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *
   {
     fprintf(fp,"\tStructSize      =%d\n",Info->StructSize);
     fprintf(fp,"\tFlags           =0x%08X\n",Info->Flags);
-    fprintf(fp,"\tHostFile        ='%s'\n",NullToEmpty(Info->HostFile));
-    fprintf(fp,"\tCurDir          ='%s'\n",NullToEmpty(Info->CurDir));
-    fprintf(fp,"\tFormat          ='%s'\n",NullToEmpty(Info->Format));
-    fprintf(fp,"\tPanelTitle      ='%s'\n",NullToEmpty(Info->PanelTitle));
+    fprintf(fp,"\tHostFile        ='%S'\n",NullToEmptyW(Info->HostFile));
+    fprintf(fp,"\tCurDir          ='%S'\n",NullToEmptyW(Info->CurDir));
+    fprintf(fp,"\tFormat          ='%S'\n",NullToEmptyW(Info->Format));
+    fprintf(fp,"\tPanelTitle      ='%S'\n",NullToEmptyW(Info->PanelTitle));
     fprintf(fp,"\tInfoLines       =%p\n",Info->InfoLines);
     fprintf(fp,"\tInfoLinesNumber =%d\n",Info->InfoLinesNumber);
     if(Info->InfoLines)
@@ -639,7 +490,7 @@ void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *
       for(int I=0;I<Info->InfoLinesNumber;++I)
       {
         fprintf(fp,"\t\t%d) Text=[%s], Data=[%s], Separator=[%d]\n",I,
-           NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
+           NullToEmptyW(Info->InfoLines[I].Text),NullToEmptyW(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
       }
     }
     fprintf(fp,"\tDescrFiles      =%p\n",Info->DescrFiles);
@@ -651,15 +502,15 @@ void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *
       for(int I=0;I<Info->PanelModesNumber;++I)
       {
         fprintf(fp,"\t%d) ------------------\n",I);
-        fprintf(fp,"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
-        fprintf(fp,"\t\tColumnWidths      ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
+        fprintf(fp,"\t\tColumnTypes       ='%S'\n",NullToEmptyW(Info->PanelModesArray[I].ColumnTypes));
+        fprintf(fp,"\t\tColumnWidths      ='%S'\n",NullToEmptyW(Info->PanelModesArray[I].ColumnWidths));
         fprintf(fp,"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
         fprintf(fp,"\t\tFullScreen        =%d\n",Info->PanelModesArray[I].FullScreen);
         fprintf(fp,"\t\tDetailedStatus    =%d\n",Info->PanelModesArray[I].DetailedStatus);
         fprintf(fp,"\t\tAlignExtensions   =%d\n",Info->PanelModesArray[I].AlignExtensions);
         fprintf(fp,"\t\tCaseConversion    =%d\n",Info->PanelModesArray[I].CaseConversion);
-        fprintf(fp,"\t\tStatusColumnTypes ='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnTypes));
-        fprintf(fp,"\t\tStatusColumnWidths='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnWidths));
+        fprintf(fp,"\t\tStatusColumnTypes ='%S'\n",NullToEmptyW(Info->PanelModesArray[I].StatusColumnTypes));
+        fprintf(fp,"\t\tStatusColumnWidths='%S'\n",NullToEmptyW(Info->PanelModesArray[I].StatusColumnWidths));
       }
     }
     fprintf(fp,"\tStartPanelMode  =%d\n",Info->StartPanelMode);
@@ -697,7 +548,7 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
     const Manager *Man=(m==NULL?FrameManager:m);
 //StartSysLog
     int I;
-    char Type[NM],Name[NM*2];
+    string Type,Name;
     fprintf(fp,"**** Очередь модальных фреймов ***\nFrameListSize=%d, FramePos=%d, FrameCount=%d\n",Man->FrameListSize,Man->FramePos,Man->FrameCount);
     if(Man->FrameList)
     {
@@ -706,7 +557,7 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
         if(Man->FrameList[I])
         {
           Man->FrameList[I]->GetTypeAndName(Type,Name);
-          fprintf(fp,"\tFrameList[%d] %p  Type='%s' Name='%s'\n",I,Man->FrameList[I],Type,Name);
+          fprintf(fp,"\tFrameList[%d] %p  Type='%S' Name='%S'\n",I,Man->FrameList[I],(const wchar_t*)Type,(const wchar_t*)Name);
         }
         else
           fprintf(fp,"\tFrameList[%d] NULL\n",I,Man->FrameList[I]);
@@ -723,8 +574,8 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
         if(Man->ModalStack[I])
         {
           Man->ModalStack[I]->GetTypeAndName(Type,Name);
-          fprintf(fp,"\tModalStack[%d] %p  Type='%s' Name='%s'\n",
-                      I,Man->ModalStack[I],Type,Name);
+          fprintf(fp,"\tModalStack[%d] %p  Type='%S' Name='%S'\n",
+                      I,Man->ModalStack[I],(const wchar_t*)Type,(const wchar_t*)Name);
         }
         else
           fprintf(fp,"\tModalStack[%d] NULL\n",I,Man->ModalStack[I]);
@@ -736,68 +587,68 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
     fprintf(fp,"**** Претенденты на ... ***\n");
 
     if(!Man->InsertedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->InsertedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tInsertedFrame=%p (Type='%s' Name='%s') - Фрейм, который будет добавлен в конец немодальной очереди\n",
-      Man->InsertedFrame,Type,Name);
+    fprintf(fp,"\tInsertedFrame=%p (Type='%S' Name='%S') - Фрейм, который будет добавлен в конец немодальной очереди\n",
+      Man->InsertedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->DeletedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->DeletedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tDeletedFrame=%p (Type='%s' Name='%s') - Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)\n",
-       Man->DeletedFrame,Type,Name);
+    fprintf(fp,"\tDeletedFrame=%p (Type='%S' Name='%S') - Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)\n",
+       Man->DeletedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->ActivatedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->ActivatedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tActivatedFrame=%p (Type='%s' Name='%s') - Фрейм, который необходимо активировать после каких нибудь изменений\n",
-      Man->ActivatedFrame,Type,Name);
+    fprintf(fp,"\tActivatedFrame=%p (Type='%S' Name='%S') - Фрейм, который необходимо активировать после каких нибудь изменений\n",
+      Man->ActivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->RefreshedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->RefreshedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tRefreshedFrame=%p (Type='%s' Name='%s') - Фрейм, который нужно просто освежить, т.е. перерисовать\n",
-      Man->RefreshedFrame,Type,Name);
+    fprintf(fp,"\tRefreshedFrame=%p (Type='%S' Name='%S') - Фрейм, который нужно просто освежить, т.е. перерисовать\n",
+      Man->RefreshedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->ModalizedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->ModalizedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tModalizedFrame=%p (Type='%s' Name='%s') - Фрейм, который становится в 'очередь' к текущему немодальному фрейму\n",
-      Man->ModalizedFrame,Type,Name);
+    fprintf(fp,"\tModalizedFrame=%p (Type='%S' Name='%S') - Фрейм, который становится в 'очередь' к текущему немодальному фрейму\n",
+      Man->ModalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->UnmodalizedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tUnmodalizedFrame=%p (Type='%s' Name='%s') -Фрейм, убираюющийся из 'очереди' немодального фрейма\n",
-      Man->UnmodalizedFrame,Type,Name);
+    fprintf(fp,"\tUnmodalizedFrame=%p (Type='%S' Name='%S') -Фрейм, убираюющийся из 'очереди' немодального фрейма\n",
+      Man->UnmodalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->DeactivatedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->DeactivatedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tDeactivatedFrame=%p (Type='%s' Name='%s') -Фрейм, который указывает на предудущий активный фрейм\n",
-      Man->DeactivatedFrame,Type,Name);
+    fprintf(fp,"\tDeactivatedFrame=%p (Type='%S' Name='%S') -Фрейм, который указывает на предудущий активный фрейм\n",
+      Man->DeactivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
 
     if(!Man->ExecutedFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->ExecutedFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tExecutedFrame=%p (Type='%s' Name='%s') - Фрейм, которого вскорости нужно будет поставить на вершину модального сттека\n",
-      Man->ExecutedFrame,Type,Name);
+    fprintf(fp,"\tExecutedFrame=%p (Type='%S' Name='%S') - Фрейм, которого вскорости нужно будет поставить на вершину модального сттека\n",
+      Man->ExecutedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->CurrentFrame)
-      *Type=*Name=0;
+      Type=L"", Name=L"";
     else
       Man->CurrentFrame->GetTypeAndName(Type,Name);
-    fprintf(fp,"\tCurrentFrame=%p (Type='%s' Name='%s') - текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке\n",
-      Man->CurrentFrame,Type,Name);
+    fprintf(fp,"\tCurrentFrame=%p (Type='%S' Name='%S') - текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке\n",
+      Man->CurrentFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     fprintf(fp,"\n");
     fflush(fp);
@@ -1041,17 +892,19 @@ const char *_FCTL_ToName(int Command)
 }
 
 
-const char *_FARKEY_ToName(int Key)
+string _FARKEY_ToName(int Key)
 {
 #if defined(SYSLOG)
-  static char Name[512];
-  if(KeyToText(Key,Name,0))
+  string Name;
+  if(KeyToText(Key,Name))
   {
-    InsertQuote(Name);
-    sprintf(Name+strlen(Name)," [%u/0x%08X]",Key,Key);
+    string tmp;
+    InsertQuoteW(Name);
+    tmp.Format(L"%s [%u/0x%08X]",Name,Key,Key);
+    Name = tmp;
     return Name;
   }
-  sprintf(Name,"\"KEY_????\" [%u/0x%08X]",Key,Key);
+  Name.Format(L"\"KEY_????\" [%u/0x%08X]",Key,Key);
   return Name;
 #else
   return "";
@@ -1752,8 +1605,6 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
 
   if (fp)
   {
-    static char D[16]="",T[16]="";
-
     fprintf(fp,"%*s %s  dwFileAttributes      =0x%08X\n",12,"",space,wfd.dwFileAttributes);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
       fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ARCHIVE\n",12,"",space);
@@ -1781,12 +1632,13 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY)
       fprintf(fp,"%*s %s     FILE_ATTRIBUTE_TEMPORARY\n",12,"",space);
 
-    ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
-    fprintf(fp,"%*s %s  ftCreationTime        =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime,D,T);
-    ConvertDate(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
-    fprintf(fp,"%*s %s  ftLastAccessTime      =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime,D,T);
-    ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
-    fprintf(fp,"%*s %s  ftLastWriteTime       =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime,D,T);
+    string D="", T="";
+    ConvertDateW(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftCreationTime        =0x%08X 0x%08X\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
+    ConvertDateW(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
+    ConvertDateW(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 
     FAR_INT64 Number;
     Number.Part.HighPart=wfd.nFileSizeHigh;

@@ -5,57 +5,7 @@ checkver.cpp
 
 */
 
-/* Revision: 1.17 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  24.10.2005 SVS
-    ! для нерегистринной версии выставим так же табы для вьювера.
-  10.11.2004 SVS
-    - некомпиляция checkver.cpp под бормандом.
-  09.11.2004 SVS
-    - выравнивание :-( При регистрации ФАР падал...
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  09.02.2004 SVS
-    ! Про регистрацию:
-      Запись = HKLM, если не удалось, то в HKCU
-      Чтение = HKCU а потом HKLM
-    + "FAR Group" 8-)
-  22.04.2003 SVS
-    ! strcpy -> strNcpy
-  21.04.2003 SVS
-    ! Уточним. Если трид не удалось создать, то функции вызываются напрамую, но
-      если не предпренять спец.мер, то _endthread вываливат сам ФАР.
-      Т.е. если RegistrationBugs==FALSE, то вызываем _endthread
-  28.02.2003 SVS
-    + Выставим DMODE_MSGINTERNAL перед работой диалога
-      (как вариант решения разногласий между BugZ#811 и BugZ#806)
-      по аналогии с Message
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  06.11.2001 SVS
-    ! const при передаче в реестр.
-  06.05.2001 DJ
-    - перетрях #include
-  09.04.2001 SVS
-    - проблемы с отладкой под VC - трапается на GetxUSSRRegName()
-  03.04.2001 SVS
-    - проблемы с компиляцией под VC
-  30.03.2001 SVS
-    ! ...а все началось с того, что нужно было убрать кирилицу из строк в
-      исходниках... и получился вот такой исзврат с "xUSSR регистрация" и
-      именами дней недели :-)
-  21.02.2001 IS
-    ! Opt.TabSize -> Opt.EdOpt.TabSize
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.23 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -65,7 +15,7 @@ Modify:
 #include "dialog.hpp"
 #include "fn.hpp"
 
-static const char KeyRegistration[]="Registration";
+static const wchar_t KeyRegistration[]=L"Registration";
 
 static const unsigned char MyName[]={
     'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,
@@ -77,6 +27,15 @@ static const unsigned char MyName[]={
 
 static const char *GetDaysName(int wDayOfWeek)
 {
+/*  {"\x0432\x043E\x0441\x043A\x0440\x0435\x0441\x0435\x043D\x044C\x0435"},
+  {"\x043F\x043E\x043D\x0435\x0434\x0435\x043B\x044C\x043D\x0438\x043A"},
+  {"\x0432\x0442\x043E\x0440\x043D\x0438\x043A"},
+  {"\x0441\x0440\x0435\x0434\x0430"},
+  {"\x0447\x0435\x0442\x0432\x0435\x0440\x0433"},
+  {"\x043F\x044F\x0442\x043D\x0438\x0446\x0430"},
+  {"\x0441\x0443\x0431\x0431\x043E\x0442\x0430"}
+  {"\x0432\x043E\x0441\x043A\x0440\x0435\x0441\x0435\x043D\x044C\x0435"}*/
+
   static unsigned char Days[7][16]={
     {"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "воскресенье",
     {"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "понедельник",
@@ -138,32 +97,41 @@ void __cdecl CheckVersion(void *Param)
 
 void Register()
 {
-  static struct DialogData RegDlgData[]=
+  static struct DialogDataEx RegDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MRegTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MRegUser,
-    DI_EDIT,5,3,70,3,1,0,0,0,"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MRegCode,
-    DI_EDIT,5,5,70,5,0,0,0,0,"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MRegTitle,
+    DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MRegUser,
+    DI_EDIT,5,3,70,3,1,0,0,0,L"",
+    DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MRegCode,
+    DI_EDIT,5,5,70,5,0,0,0,0,L"",
+    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
-  MakeDialogItems(RegDlgData,RegDlg);
+  MakeDialogItemsEx(RegDlgData,RegDlg);
   Dialog Dlg(RegDlg,sizeof(RegDlg)/sizeof(RegDlg[0]));
   Dlg.SetPosition(-1,-1,76,10);
-  Dlg.SetHelp("Register");
+  Dlg.SetHelp(L"Register");
   Dlg.SetDialogMode(DMODE_MSGINTERNAL);
   FlushInputBuffer();
   Dlg.Process();
   if (Dlg.GetExitCode()!=6)
     return;
-  char RegName[256],RegCode[256],RegData[256];
-  xstrncpy(RegName,RegDlg[2].Data,sizeof(RegName)-1);
-  xstrncpy(RegCode,RegDlg[4].Data,sizeof(RegCode)-1);
-  int Length=strlen(RegName);
-  if (*RegName==0 || *RegCode==0)
+  string strRegName, strRegCode;
+  strRegName = RegDlg[2].strData;
+  strRegCode = RegDlg[4].strData;
+
+  if ( strRegName.IsEmpty() || strRegCode.IsEmpty() )
     return;
+
+  int Length=strRegName.GetLength ();
+
+  char RegName[256],RegCode[256],RegData[256];
+
+  UnicodeToAnsi (strRegName, RegName, sizeof (RegName)-1);
+  UnicodeToAnsi (strRegCode, RegCode, sizeof (RegCode)-1);
+
+
   unsigned char Xor=17;
   int I;
   for (I=0;RegName[I]!=0;I++)
@@ -178,7 +146,7 @@ void Register()
   }
   if (!xUSSR && (Length<4 || (Xor & 0xf)!=ToHex(RegCode[0]) || ((~(Xor>>4))&0xf)!=ToHex(RegCode[3])))
   {
-    Message(MSG_WARNING,1,MSG(MError),MSG(MRegFailed),MSG(MOk));
+    MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MRegFailed),UMSG(MOk));
     return;
   }
   Dlg.Hide();
@@ -193,23 +161,24 @@ void Register()
   for (I=1;I<Size;I++)
     RegData[I]^=RegData[0];
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  char SaveKey[512];
-  strcpy(SaveKey,Opt.RegRoot);
-  strcpy(Opt.RegRoot,"Software\\Far");
-  if(SetRegKey(KeyRegistration,"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
+
+  string strSaveKey;
+  strSaveKey = Opt.strRegRoot;
+  Opt.strRegRoot = L"Software\\Far18";
+  if(SetRegKeyW(KeyRegistration,L"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
   {
     // в случае неудачи пишем в HKCU
     SetRegRootKey(HKEY_CURRENT_USER);
-    strcpy(Opt.RegRoot,SaveKey);
-    if(SetRegKey(KeyRegistration,"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
+    Opt.strRegRoot = strSaveKey;
+    if(SetRegKeyW(KeyRegistration,L"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
     {
-      Message(MSG_WARNING,1,MSG(MError),MSG(MRegFailed),MSG(MOk));
+      MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MRegFailed),UMSG(MOk));
       return;
     }
   }
-  strcpy(Opt.RegRoot,SaveKey);
+  Opt.strRegRoot = strSaveKey;
   SetRegRootKey(HKEY_CURRENT_USER);
-  Message(0,1,MSG(MRegTitle),MSG(MRegThanks),MSG(MOk));
+  MessageW(0,1,UMSG(MRegTitle),UMSG(MRegThanks),UMSG(MOk));
 }
 
 
@@ -221,19 +190,19 @@ void __cdecl CheckReg(void *Param)
 
   SetRegRootKey(HKEY_CURRENT_USER);
   // в первую очередь читаем из HKCU
-  if(!CheckRegKey(KeyRegistration))
+  if(!CheckRegKeyW(KeyRegistration))
   {
     // а потом из HKLM
-    char SaveKey[512];
-    strcpy(SaveKey,Opt.RegRoot);
-    strcpy(Opt.RegRoot,"Software\\Far");
+    string strSaveKey;
+    strSaveKey = Opt.strRegRoot;
+    Opt.strRegRoot = L"Software\\Far18";
     SetRegRootKey(HKEY_LOCAL_MACHINE);
-    Size=GetRegKey(KeyRegistration,"Data",(BYTE *)RegData,NULL,Size);
+    Size=GetRegKeyW(KeyRegistration,L"Data",(BYTE *)RegData,NULL,Size);
     SetRegRootKey(HKEY_CURRENT_USER);
-    strcpy(Opt.RegRoot,SaveKey);
+    Opt.strRegRoot = strSaveKey;
   }
   else
-    Size=GetRegKey(KeyRegistration,"Data",(BYTE *)RegData,NULL,Size);
+    Size=GetRegKeyW(KeyRegistration,L"Data",(BYTE *)RegData,NULL,Size);
 
   memset(Reg,0,sizeof(*Reg));
   if (Size==0)
@@ -287,7 +256,7 @@ void __cdecl ErrRegFn(void *Param)
 {
   if (RegVer!=3)
   {
-    Message(0,1,MSG(MRegTitle),MSG(MRegFailed),MSG(MOk));
+    MessageW(0,1,UMSG(MRegTitle),UMSG(MRegFailed),UMSG(MOk));
     RegVer=0;
   }
   if(!RegistrationBugs)

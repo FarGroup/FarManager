@@ -7,46 +7,10 @@ history.hpp
 
 */
 
-/* Revision: 1.13 15.03.2004 $ */
-
-/*
-Modify:
-  15.03.2004 SVS
-    ! LastStr должна быть указателем! (в патче от 18.12.2003 забыл про это)
-  18.12.2003 SVS
-    + HistoryCount - размер истории
-  25.04.2002 IS
-    ! внедрение const
-  18.03.2002 SVS
-    + ReloadTitle() и EqualType()
-  06.03.2002 SVS
-    ! Косметика имени параметра у FreeHistory() - рука дрогнула :-)
-    ! У функций Истории появились доп.параметры
-  25.01.2002 SVS
-    ! Компонента Name теперь динамическая. Размер в масдае - max 511 байт.
-      В NT - сколько есть. Т.е. обрезаение строк будет только в масдае.
-  16.01.2002 VVM
-    + AddToHistory - новый параметр
-      SaveForbid - принудительно запретить запись добавляемой строки.
-      Используется на панели плагина
-  15,11,2001 SVS
-    + Тип истории.
-  08.11.2001 SVS
-    ! Ничего личного - только причесал сорцы :-)
-  04.06.2001 SVS
-    ! 64 -> HISTORY_COUNT
-  06.05.2001 DJ
-    ! перетрях #include
-  09.01.2001 SVS
-    - Бага с CmdHistoryRule=1
-  24.09.2000 SVS
-    + SetFirst() - для CmdHistoryRule
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.17 15.03.2006 $ */
 
 #include "farconst.hpp"
+#include "UnicodeString.hpp"
 
 enum{
   HISTORYTYPE_CMD,
@@ -56,17 +20,17 @@ enum{
 
 #define HISTORY_TITLESIZE 32
 
-struct HistoryRecord
+struct HistoryRecordW
 {
   int   Type;
-  char  Title[HISTORY_TITLESIZE];
-  char *Name;
+  wchar_t  Title[HISTORY_TITLESIZE]; //BUGBUG
+  wchar_t *Name;
 };
 
-class History
+class HistoryW
 {
   private:
-    char RegKey[256];
+    string strRegKey;
     unsigned int LastPtr,CurLastPtr;
     unsigned int LastPtr0,CurLastPtr0;
     int EnableAdd,RemoveDups,KeepSelectedPos;
@@ -76,28 +40,29 @@ class History
     int SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
-    struct HistoryRecord *LastStr;
+    struct HistoryRecordW *LastStr;
 
   private:
-    void AddToHistoryLocal(const char *Str,const char *Title,int Type);
+    void AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type);
     void FreeHistory();
     BOOL EqualType(int Type1, int Type2);
 
   public:
-    History(int TypeHistory,int HistoryCount,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
-   ~History();
+    HistoryW(int TypeHistory,int HistoryCount,const wchar_t *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
+   ~HistoryW();
 
   public:
-    void AddToHistory(const char *Str,const char *Title=NULL,int Type=0,int SaveForbid=0);
+    void AddToHistory(const wchar_t *Str,const wchar_t *Title=NULL,int Type=0,int SaveForbid=0);
     BOOL ReadHistory();
     BOOL SaveHistory();
-    int  Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle=NULL);
-    void GetPrev(char *Str,int StrLength);
-    void GetNext(char *Str,int StrLength);
+    int  Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strStr,int &Type, string *strItemTitle = NULL);
+    void GetPrev(string &strStr);
+    void GetNext(string &strStr);
     void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}
-    void GetSimilar(char *Str,int LastCmdPartLength);
+    void GetSimilar(string &strStr,int LastCmdPartLength);
     void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);
     void ReloadTitle();
 };
+
 
 #endif  // __HISTORY_HPP__

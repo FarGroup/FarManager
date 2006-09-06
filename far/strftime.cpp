@@ -5,40 +5,7 @@ strftime.cpp
 
 */
 
-/* Revision: 1.12 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  20.10.2003 SVS
-    ! Уточнение некоторых деталей
-  08.09.2003 SVS
-    - траблы с wday (%a, %W, etc)
-  05.12.2002 SVS
-    ! Применим новую MkStrFTime(), сократив немного кода
-  19.03.2002 SVS
-    - Неверно работали %a и %A (t->tm_wday=0 это воскресенье!)
-  03.01.2002 SVS
-    ! Хе, блин, русские буковки им не понрявились ;-(
-  20.12.2001 SVS
-    - BugZ#191 - %C вставляет последние две цифры года
-  27.06.2001 SVS
-    - в StrFTime учтем момент, что LNG могут быть еще не загружены
-  25.06.2001 IS
-    ! Внедрение const
-  25.06.2001 SVS
-    - ошибка для '%m' неверно учитывался ведущий нуль
-    + '%m0' - с ведущим нулем (%m - без ведущего нуля)
-    - ошибка: вызов самого себя, но не совсем себя - а обычную функцю :-((
-  23.06.2001 OT
-    - косметические исправления, чтобы VC не "предупреждал" :)
-  22.06.2001 SVS
-    Created
-*/
+/* Revision: 1.13 12.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -301,11 +268,29 @@ int MkStrFTime(char *Dest,int DestSize,const char *Fmt)
   tzset();
   time(&secs_now);
   time_now = localtime(&secs_now);
-  xstrncpy(Fmt0,!Fmt || !Fmt[0]?Opt.DateFormat:Fmt,sizeof(Fmt0));
+
+  char szDateFormat[NM];
+
+  UnicodeToAnsi (Opt.strDateFormat, szDateFormat, NM-1); //BUGBUG
+
+  xstrncpy(Fmt0,!Fmt || !Fmt[0]?szDateFormat:Fmt,sizeof(Fmt0));
   return StrFTime(Dest, DestSize, Fmt0, time_now);
 }
 
+int MkStrFTimeW(string &strDest, const wchar_t *Fmt)
+{
+    char szDest[NM]; //BUGBUG
 
+    memset (szDest, 0, NM);
+
+    char *lpFmt = UnicodeToAnsi (Fmt);
+
+    int nResult = MkStrFTime (szDest, NM-1, lpFmt);
+
+    xf_free (lpFmt);
+
+    return nResult;
+}
 /*
 Вызов:
 struct tm *time_now;

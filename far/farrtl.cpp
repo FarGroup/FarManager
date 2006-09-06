@@ -4,83 +4,7 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.25 24.07.2006 $ */
-
-/*
-Modify:
-  24.07.2006 SVS
-    + FarSnprintf()
-  12.03.2006 SVS
-    ! _strtoi64 кроме борманда так же компилим в дебажной MSVC.
-    ! Борьба с Debug.
-      - Борьба с месагом дебажной линковкой про __ftol2 по материалам
-        http://q12.org/pipermail/ode/2004-January/010811.html
-  02.03.2006 SVS
-    + кусок кода из RTL strtoq.c для борманда (_strtoi64)
-  24.04.2005 AY
-    ! GCC
-  09.10.2004 SVS
-    - BugZ#1170 - Strange viewer behaviour if filesize > 0xFFFFFFFF
-  09.08.2004 SKV
-    - ftell64, fseek64 fix.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.06.2003 SVS
-    ! FAR_CreateFile переехал из farrtl.cpp в farwinapi.cpp
-  25.02.2003 SVS
-    ! применим счетчик CallNewDelete/CallMallocFree для отладки
-  20.02.2003 SVS
-    ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
-  26.01.2003 IS
-    + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  21.03.2002 SVS
-    ! переезд функций FarBsearch, FarSscanf, FarSprintf, FarQsortEx,
-      FarQsort, FarAtoi64, FarAtoi, FarItoa64, FarItoa из mix.cpp
-      в farrtl.cpp
-  27.02.2002 SVS
-    ! кусок кода вынесен нафиг в cmem.cpp
-  26.02.2002 SVS
-    - Бага с RTL VC (теперь все нормально с V64 под MSVC!)
-  22.02.2002 SVS
-    ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
-  10.07.2001 SVS
-    - Забыли в свое время включить "fn.hpp" :-(
-  31.10.2000 SVS
-    ! Нормально можно и без объявления _nfile прожить (BC5.5.1 ругается)
-  29.08.2000 SVS
-    ! Уточнения для функций семейства seek под __int64
-  14.08.2000 SVS
-    + Функции семейства seek под __int64
-  19.07.2000 SVS
-    + Добавлена функция getdisk
-      Из-за различий в реализации функции getdisk в BC & VC
-      не работал AltFx если панель имела UNC путь
-  13.07.2000 SVS (с подачи VVM)
-    ! VVM> Где я выделил - если block = NULL, то 95/98 возвращают
-      VVM> ошибку, а НТ проглатывает...
-      VVM> if(!size)
-      VVM>   HeapFree(FARHeapForNew,0,block);
-  12.07.2000 IS
-    ! В new заменил "void *p" на "void *p=NULL" (SVS забыл это сделать...)
-    ! Проверка на NULL "переехала" из delete в free
-  12.07.2000 SVS
-    ! Увеличение MEM_DELTA до 4095
-    + Включение операторов new/delete by IS
-    + Включение cmem в качестве смотрелки памяти.
-  11.07.2000 SVS
-    ! Более разумное (с запасом) распределение памяти.
-  05.07.2000 IS
-    ! Добавил кучу проверок, почти заново написал все, но фар все равно
-      рушится, если переопределить new/delete :-(((
-  04.07.2000 SVS
-    ! Выделение в качестве самодостаточного модуля!
-  03.07.2000 IS
-    ! Включение сего файла в проект
-*/
+/* Revision: 1.26 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -316,32 +240,32 @@ int fseek64 (FILE *fp, __int64 offset, int whence)
 /* $ 25.07.2000 SVS
    Оболочки вокруг вызовов стандартных функцйи, приведенных к WINAPI
 */
-char *WINAPI FarItoa(int value, char *string, int radix)
+wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
   if(string)
-    return itoa(value,string,radix);
+    return _itow(value,string,radix);
   return NULL;
 }
 /* $ 28.08.2000 SVS
   + FarItoa64
 */
-char *WINAPI FarItoa64(__int64 value, char *string, int radix)
+wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix)
 {
   if(string)
-    return _i64toa(value, string, radix);
+    return _i64tow(value, string, radix);
   return NULL;
 }
 /* SVS $ */
-int WINAPI FarAtoi(const char *s)
+int WINAPI FarAtoi(const wchar_t *s)
 {
   if(s)
-    return atoi(s);
+    return _wtoi(s);
   return 0;
 }
-__int64 WINAPI FarAtoi64(const char *s)
+__int64 WINAPI FarAtoi64(const wchar_t *s)
 {
   if(s)
-    return _atoi64(s);
+    return _wtoi64(s);
   return _i64(0);
 }
 
@@ -361,80 +285,6 @@ void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
     qsortex((char*)base,nelem,width,fcmp,user);
 }
 /* tran $ */
-
-int WINAPIV FarSprintf(char *buffer,const char *format,...)
-{
-  int ret=0;
-  if(buffer && format)
-  {
-    va_list argptr;
-
-    *buffer=0;
-    va_start(argptr,format);
-    ret=vsprintf(buffer,format,argptr);
-    va_end(argptr);
-  }
-  return ret;
-}
-
-int WINAPIV FarSnprintf(char *buffer,size_t __nsize,const char *format,...)
-{
-  int ret=0;
-  if(buffer && format)
-  {
-    va_list argptr;
-    va_start(argptr,format);
-    ret = vsnprintf(buffer,__nsize,format,argptr);
-    va_end(argptr);
-  }
-  return ret;
-}
-
-#ifndef FAR_MSVCRT
-/* $ 29.08.2000 SVS
-   - Неверно отрабатывала функция FarSscanf
-   Причина - т.к. у VC нету vsscanf, то пришлось смоделировать (взять из
-   исходников VC sscanf и "нарисовать" ее сюда
-*/
-#if defined(_MSC_VER)
-extern "C" {
-int __cdecl _input (FILE *stream,const unsigned char *format,va_list arglist);
-};
-#endif
-
-int WINAPIV FarSscanf(const char *buffer, const char *format,...)
-{
-  if(!buffer || !format)
-    return 0;
-#if defined(_MSC_VER)
-  // полная копия внутренностей sscanf :-)
-  va_list arglist;
-  FILE str;
-  FILE *infile = &str;
-  int retval;
-
-  va_start(arglist, format);
-
-  infile->_flag = _IOREAD|_IOSTRG|_IOMYBUF;
-  infile->_ptr = infile->_base = (char *) buffer;
-  infile->_cnt = strlen(buffer);
-
-  retval = (_input(infile,(const unsigned char *)format,arglist));
-
-  return(retval);
-#else
-  va_list argptr;
-  va_start(argptr,format);
-  int ret=vsscanf(buffer,format,argptr);
-  va_end(argptr);
-  return ret;
-#endif
-}
-/* 29.08.2000 SVS $ */
-/* SVS $ */
-
-#endif
-
 
 /* $ 07.09.2000 SVS
    Оболочка FarBsearch для плагинов (функция bsearch)
@@ -620,6 +470,7 @@ __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
 }
 
 #endif
+
 
 #if defined(_DEBUG) && defined(_MSC_VER) && (_MSC_VER >= 1300)
 // && (WINVER < 0x0500)

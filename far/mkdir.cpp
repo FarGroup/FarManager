@@ -5,64 +5,7 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.21 26.06.2006 $ */
-
-/*
-Modify:
-  21.06.2006 AY
-    - Падали в очень определенных случаях из за попытки добавить в
-      TreeList::AddTreeName() несуществующий путь. И заодно добавил
-      возможность Skip когда MultiMakeDir.
-  04.11.2004 SVS
-    ! убираем *_EDITPATH
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  27.10.2003 SVS
-    - Непозиционирование на каталог, если в имени последний символ - '.'
-  15.09.2003 SVS
-    ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
-  15.08.2002 IS
-    ! DirList.Start -> DirList.Reset
-    + DirList - применяется ULF_UNIQUE, для исключения дублей
-  03.07.2002 SVS
-    - Косметика при выводе ошибки о невозможности создания кататалога
-  10.06.2002 SVS
-    + FIB_EDITPATH
-  18.03.2002 SVS
-    + Заюзаем горячие клавиши в промте (FIB_NOAMPERSAND)
-  07.12.2001 IS
-    + Cоздание нескольких каталогов за раз теперь опционально.
-  26.09.2001 SVS
-    + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
-      панель (если ее содержимое не равно активной).
-  24.07.2001 IS
-    ! Уточнение предыдущего изменения SVS. Первоначальный предложенный мною
-      вариант не учитывал такую ситуацию, как пробелы, а потом имя каталога в
-      кавычках. Теперь заключение в кавычки происходит только, если строка не
-      содержит разделителей и _кавычек_
-  23.07.2001 SVS
-    ! уточнение поведения механизма создания каталогов
-  05.06.2001 IS
-    + Отмена предыдущего патча VVM
-  05.06.2001 VVM
-    + убрать кавычки в создаваемом каталоге
-  04.06.2001 IS
-    + научимся создавать несколько каталогов за один раз
-  02.06.2001 KM
-    + Маленькая модификация: добавлены кнопки [ OK ] и [ Cancel ]
-      в диалог создания каталога
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  31.07.2000 SVS
-    ! Расширим переменные среды в диалоге создания каталога
-  25.07.2000 IG
-    - Bug 24 (не перечитывалась панель, после неудачного вложенного создания директорий)
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.25 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -82,10 +25,11 @@ Modify:
 */
 void ShellMakeDir(Panel *SrcPanel)
 {
-  char DirName[NM*2], OriginalDirName[NM*2];
-  *DirName=0;
+  string strDirName;
+  string strOriginalDirName;
+  wchar_t *lpwszDirName;
   /* $ 15.08.2002 IS запретить дубли */
-  UserDefinedList DirList(0,0,ULF_UNIQUE);
+  UserDefinedListW DirList(0,0,ULF_UNIQUE);
   /* IS $ */
 
   /* $ 07.12.2001 IS
@@ -94,10 +38,10 @@ void ShellMakeDir(Panel *SrcPanel)
   BOOL MultiMakeDir=Opt.MultiMakeDir;
   for(;;)
   {
-    if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",
-         DirName,DirName,sizeof(DirName),"MakeFolder",
+    if (!GetStringW(UMSG(MMakeFolderTitle),UMSG(MCreateFolder),L"NewFolder",
+         L"",strDirName,NM*2,L"MakeFolder", //BUGBUG, no size!!!
          FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX/*|FIB_EDITPATH*/,&MultiMakeDir,
-         MSG(MMultiMakeDir)))
+         UMSG(MMultiMakeDir)))
       return;
 
     Opt.MultiMakeDir=MultiMakeDir;
@@ -105,64 +49,68 @@ void ShellMakeDir(Panel *SrcPanel)
     // это по поводу создания одиночного каталога, который
     // начинается с пробела! Чтобы ручками не заключать
     // такой каталог в кавычки
-    if(Opt.MultiMakeDir && strpbrk(DirName,";,\"") == NULL)
-       QuoteSpaceOnly(DirName);
+    if(Opt.MultiMakeDir && wcspbrk(strDirName,L";,\"") == NULL)
+       QuoteSpaceOnlyW(strDirName);
 
     if(!Opt.MultiMakeDir)   // нужно создать только ОДИН каталог
     {
-      Unquote(DirName);     // уберем все лишние кавычки
-      InsertQuote(DirName); // возьмем в кавычки, т.к. могут быть разделители
+      UnquoteW(strDirName);     // уберем все лишние кавычки
+      InsertQuoteW(strDirName); // возьмем в кавычки, т.к. могут быть разделители
     }
 
-    if(DirList.Set(DirName) && !strpbrk(DirName,ReservedFilenameSymbols))
+    if(DirList.Set(strDirName) && !wcspbrk(strDirName, ReservedFilenameSymbolsW))
       break;
     else
-      Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
-                 MSG(MIncorrectDirList), MSG(MOk));
+      MessageW(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
+                 UMSG(MIncorrectDirList), UMSG(MOk));
   }
   /* IS $ */
 
-  *DirName=0;
-  const char *OneDir;
+  const wchar_t *OneDir;
 
   DirList.Reset();
+
   while(NULL!=(OneDir=DirList.GetNext()))
   {
-    xstrncpy(DirName, OneDir, sizeof(DirName)-1);
-    strcpy(OriginalDirName,DirName);
+    strDirName = OneDir;
+    strOriginalDirName = strDirName;
 
     //Unquote(DirName);
-    if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
-      LocalStrupr(DirName);
+    if (Opt.CreateUppercaseFolders && !IsCaseMixedW(strDirName))
+      strDirName.Upper();
 
-    int Length=strlen(DirName);
+    int Length=strDirName.GetLength();
 
-    while (Length>0 && DirName[Length-1]==' ')
+
+    lpwszDirName = strDirName.GetBuffer ();
+    while (Length>0 && lpwszDirName[Length-1]==' ')
       Length--;
-    DirName[Length]=0;
+    lpwszDirName[Length]=0;
 
     bool bSuccess = false;
     int Error=FALSE;
 
-    if (Length>0 && (DirName[Length-1]=='/' || DirName[Length-1]=='\\'))
-      DirName[Length-1]=0;
+    if (Length>0 && (lpwszDirName[Length-1]==L'/' || lpwszDirName[Length-1]==L'\\'))
+      lpwszDirName[Length-1]=0;
 
-    for (char *ChPtr=DirName;*ChPtr!=0;ChPtr++)
-      if (*ChPtr=='\\' || *ChPtr=='/')
+    for (wchar_t *ChPtr=lpwszDirName;*ChPtr!=0;ChPtr++)
+      if (*ChPtr==L'\\' || *ChPtr==L'/')
       {
         *ChPtr=0;
-        if (*DirName && CreateDirectory(DirName,NULL))
+
+        if (*lpwszDirName && CreateDirectoryW(lpwszDirName,NULL))
         {
-          TreeList::AddTreeName(DirName);
+          TreeList::AddTreeName(lpwszDirName);
           bSuccess = true;
         }
-        *ChPtr='\\';
+        *ChPtr=L'\\';
       }
 
+    strDirName.ReleaseBuffer ();
 
     BOOL bSuccess2;
     bool bSkip=false;
-    while (!(bSuccess2=CreateDirectory(DirName,NULL)))
+    while (!(bSuccess2=CreateDirectoryW(strDirName,NULL)))
     {
       int LastError=GetLastError();
       if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
@@ -170,9 +118,9 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         int ret;
         if (DirList.IsEmpty())
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MCancel));
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MCancel));
         else
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MCancel),MSG(MSkip));
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MOk),UMSG(MSkip));
         bSkip = ret==1;
         if (bSuccess || bSkip) break;
         else return;
@@ -181,10 +129,10 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         int ret;
         if (DirList.IsEmpty())
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MRetry),MSG(MCancel));
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MCancel));
         else
         {
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MSkip),UMSG(MCancel));
           bSkip = ret==1;
         }
         if (ret!=0)
@@ -195,24 +143,29 @@ void ShellMakeDir(Panel *SrcPanel)
       }
     }
     if (bSuccess2)
-      TreeList::AddTreeName(DirName);
+      TreeList::AddTreeName(strDirName);
     else if (!bSkip)
       break;
   }
 
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
-  if(*DirName)
+  lpwszDirName = strDirName.GetBuffer ();
+
+  if(*lpwszDirName)
   {
-    char *Slash=strchr(DirName,'\\');
+    wchar_t *Slash=wcschr(lpwszDirName,L'\\');
     if (Slash!=NULL)
       *Slash=0;
-    if(!SrcPanel->GoToFile(DirName) && DirName[strlen(DirName)-1]=='.')
+    if(!SrcPanel->GoToFileW(lpwszDirName) && lpwszDirName[wcslen(lpwszDirName)-1]==L'.')
     {
-      DirName[strlen(DirName)-1]=0;
-      SrcPanel->GoToFile(DirName);
+      lpwszDirName[wcslen(lpwszDirName)-1]=0;
+      SrcPanel->GoToFileW(lpwszDirName);
     }
   }
+
+  strDirName.ReleaseBuffer ();
+
   SrcPanel->Redraw();
 
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);

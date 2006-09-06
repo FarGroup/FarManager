@@ -5,18 +5,7 @@ menubar.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
-
-/*
-Modify:
-  06.05.2001 DJ
-    ! перетрях #include
-  05.01.2001 SVS
-    ! Вместо "толпы" инклудов - стандартный интернал заголовок
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.03 29.11.2005 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -28,14 +17,15 @@ Modify:
 
 void MenuBar::DisplayObject()
 {
-  char Msg[100],FullMsg[500];
-  sprintf(Msg,"    %s    %s    %s    %s    %s  ",MSG(MMenuLeftTitle),
-          MSG(MMenuFilesTitle),MSG(MMenuCommandsTitle),
-          MSG(MMenuOptionsTitle),MSG(MMenuRightTitle));
-  RemoveHighlights(Msg);
+  string strMsg, strFullMsg;
+
+  strMsg.Format (L"    %s    %s    %s    %s    %s  ", UMSG(MMenuLeftTitle), UMSG(MMenuFilesTitle), UMSG(MMenuCommandsTitle), UMSG(MMenuOptionsTitle),UMSG(MMenuRightTitle));
+  RemoveHighlightsW(strMsg);
+
   int Length=X2-X1+1;
-  sprintf(FullMsg,"%-*.*s",Length,Length,Msg);
+
+  strFullMsg.Format (L"%-*.*s", Length,Length, (const wchar_t*)strMsg);
   GotoXY(X1,Y1);
   SetColor(COL_HMENUTEXT);
-  Text(FullMsg);
+  TextW(strFullMsg);
 }

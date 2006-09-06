@@ -5,71 +5,7 @@ gettable.cpp
 
 */
 
-/* Revision: 1.21 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  14.04.2004 SVS
-    - BugZ#1055 - проблема с позиционированием начальной кодировки в меню по alt-f8
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  14.01.2004 SVS
-    ! Если есть "AutoDetect" и он равен 0, то исключаем таблицу из автодетекта
-      (см. BugZ#158 - фича)
-    ! если есть ключ, но нет "Mapping", то не вываливаем, а продолжаем сканировать
-      следующие таблицы!
-  10.12.2002 SVS
-    ! Уберем условную компиляцию (а зачем ее делали то?)
-  29.10.2002 SVS
-    - Блин, с этой сраной сортировкой поломал GetTable()...
-  22.10.2002 SVS
-    ! добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом не
-      думать как ЭТО сделать ;-)
-    ! изменена GetTable() - сортируем 1 раз, после заполнения списка.
-  17.03.2002 IS
-    + PrepareTable: параметр UseTableName - в качестве имени таблицы
-      использовать не имя ключа реестра, а соответствующую переменную.
-      По умолчанию - FALSE (использовать имя ключа).
-  22.02.2002 SVS
-    ! Заюзаем fseek64
-  07.08.2001 IS
-    - Баги: некоторые символы считались буквами, даже если они таковыми не
-      являлись.
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  22.07.2001 SVS
-    ! Избавляемся от варнингов
-  18.07.2001 OT
-    ! VFMenu
-  03.06.2001 IS
-    - Баг: некорректно генерировалась кодовая таблица в PrepareTable, в
-      частности, для cp1251 после этой функции символы 0x84 (открывающие
-      кавычки) и 0x93 (закрывающие кавычки) путались с "буквами", потому что
-      как и буквы имели различные значения в LowerTable и UpperTable.
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  06.05.2001 DJ
-    ! перетрях #include
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  15.09.2000 IS
-    + Функция DistrTableExist - проверяет, установлена ли таблица с
-      распределением частот символов, возвращает TRUE в случае успеха
-  08.09.2000 tran 1.03
-    + menu from registry
-  27.08.2000 tran
-    + hotkeys as numbers
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.24 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -88,15 +24,56 @@ static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned cha
 */
 int DistrTableExist(void)
 {
- return (CheckRegValue("CodeTables","Distribution"));
+ return (CheckRegValueW(L"CodeTables",L"Distribution"));
 }
 /* IS $ */
+
+static VMenu *tables;
+
+BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
+{
+    DWORD dwCP = _wtoi(lpwszCodePage);
+    CPINFOEXW cpi;
+
+    GetCPInfoExW (dwCP, 0, &cpi);
+
+    MenuItemEx item;
+
+    item.Clear ();
+    item.strName = cpi.CodePageName;
+
+    tables->SetUserData(&dwCP, sizeof (DWORD), tables->AddItemW (&item));
+
+    return TRUE;
+}
+
+
+int GetTableEx ()
+{
+    int nPos = -1;
+
+    tables = new VMenu (UMSG(MGetTableTitle),NULL,0,TRUE,ScrY-4);
+
+    EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
+
+    tables->SetFlags(VMENU_WRAPMODE);
+    tables->SetPosition(-1,-1,0,0);
+
+    tables->Process ();
+
+    if ( tables->Modal::GetExitCode() >= 0 )
+        nPos = (int)tables->GetUserData(NULL, 0);
+
+    delete tables;
+
+    return nPos;
+}
 
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode)
 {
   int I;
-  char ItemName[128],t[128],t2[128];
+  string strItemName,t,t2;
 
   if (AnsiText)
   {
@@ -126,34 +103,37 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     return(TRUE);
   }
 
-  VMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
+  VMenu TableList(UMSG(MGetTableTitle),NULL,0,TRUE,ScrY-4);
   TableList.SetFlags(VMENU_WRAPMODE);
   TableList.SetPosition(-1,-1,0,0);
 
-  struct MenuItem ListItem;
-  memset(&ListItem,0,sizeof(ListItem));
+  MenuItemEx ListItem;
+
+  ListItem.Clear ();
+
   ListItem.SetSelect(!TableNum);
-  strcpy(ListItem.Name,MSG(MGetTableNormalText));
-  TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItem(&ListItem));
+  ListItem.strName = UMSG(MGetTableNormalText);
+  TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItemW(&ListItem));
 
   if (UseUnicode)
   {
     ListItem.SetSelect(TableNum==1);
-    strcpy(ListItem.Name,"Unicode");
-    TableList.SetUserData((void*)1,sizeof(DWORD),TableList.AddItem(&ListItem));
+    ListItem.strName = L"Unicode";
+    TableList.SetUserData((void*)1,sizeof(DWORD),TableList.AddItemW(&ListItem));
   }
 
   for (I=0;;I++)
   {
-    char TableKey[512];
-    if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
+    string strTableKey;
+    if (!EnumRegKeyW(L"CodeTables",I,strTableKey))
       break;
-    FAR_CharToOem(PointToName(TableKey),ItemName);
-    sprintf(t,"CodeTables\\%s",ItemName);
-    GetRegKey(t,"TableName",t2,ItemName,128);
-    strcpy(ListItem.Name,t2);
+
+    strItemName = PointToNameW (strTableKey);
+    t.Format (L"CodeTables\\%s", (const wchar_t*)strItemName);
+    GetRegKeyW(t,L"TableName",t2,strItemName);
+    ListItem.strName = t2;
     ListItem.SetSelect(I+1+UseUnicode == TableNum);
-    TableList.SetUserData((void*)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
+    TableList.SetUserData((void*)(I+1+UseUnicode),sizeof(I),TableList.AddItemW(&ListItem));
   }
 
   //TableList.SetSelectPos(1+UseUnicode == TableNum,1);
@@ -177,6 +157,8 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   return(Pos!=0);
 }
+
+
 
 
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length)
@@ -203,11 +185,12 @@ void EncodeString(char *Str,unsigned char *EncodeTable,int Length)
 }
 
 
+
 int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 {
   unsigned char DistrTable[256],FileDistr[256],FileData[4096];
   int ReadSize;
-  if (!GetRegKey("CodeTables","Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
+  if (!GetRegKeyW(L"CodeTables",L"Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
   {
     TableNum=0;
     return(FALSE);
@@ -276,15 +259,15 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 
   for (I=0;;I++)
   {
-    char TableKey[512];
-    if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
+    string strTableKey;
+    if (!EnumRegKeyW(L"CodeTables",I,strTableKey))
       break;
 
-    if(!GetRegKey(TableKey,"AutoDetect",1))
+    if(!GetRegKeyW(strTableKey,L"AutoDetect",1))
       continue;
 
     unsigned char DecodeTable[256];
-    if (!GetRegKey(TableKey,"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
+    if (!GetRegKeyW(strTableKey,L"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
       continue; //return(FALSE);
 
     unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
@@ -351,16 +334,20 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
     TableSet->DecodeTable[I]=TableSet->EncodeTable[I]=I;
     TableSet->LowerTable[I]=TableSet->UpperTable[I]=I;
   }
-  char TableKey[512];
-  if (!EnumRegKey("CodeTables",TableNum,TableKey,sizeof(TableKey)))
+  string strTableKey;
+  if (!EnumRegKeyW(L"CodeTables",TableNum,strTableKey))
     return(FALSE);
-  if (!GetRegKey(TableKey,"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
+  if (!GetRegKeyW(strTableKey,L"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
     return(FALSE);
 
+  char *lpTableKey = UnicodeToAnsi (strTableKey);
+
   if(UseTableName)
-    GetRegKey(TableKey,"TableName",TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName));
+    GetRegKeyW(strTableKey,L"TableName",(BYTE*)TableSet->TableName,(const BYTE*)PointToName(lpTableKey),sizeof(TableSet->TableName));
   else
-    xstrncpy(TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName)-1);
+    xstrncpy(TableSet->TableName,PointToName(lpTableKey),sizeof(TableSet->TableName)-1);
+
+  xf_free(lpTableKey);
 
   //GetRegKey(TableKey,"RFCCharset",TableSet->RFCCharset,"",sizeof(TableSet->RFCCharset));
 

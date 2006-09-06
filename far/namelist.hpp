@@ -7,10 +7,12 @@ namelist.hpp
 
 */
 
-/* Revision: 1.05 13.07.2005 $ */
+/* Revision: 1.06 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 WARP
+    ! Лист имен файлов на панели (Gray+/- во вьювере) держится в юникоде (класс NameList).
   13.07.2005 SVS
     ! Изменен класс NamesList. Теперь он управляет двумя именами.
   06.08.2004 SKV
@@ -41,23 +43,22 @@ class NamesList
 {
   private:
     struct FileName2{
-      char Name[MAX_PATH];
-      char ShortName[MAX_PATH];
+        string strName;
+        string strShortName;
     };
 
     struct OneName
     {
       struct FileName2 Value;
+
       OneName()
       {
-        Value.Name[0]=0;
-        Value.ShortName[0]=0;
       }
       // для перекрывающихся объектов поведение как у xstrncpy!
       const OneName& operator=(struct FileName2 &rhs)
       {
-        xstrncpy(Value.Name,rhs.Name,sizeof(Value.Name)-1);
-        xstrncpy(Value.ShortName,rhs.ShortName,sizeof(Value.ShortName)-1);
+        Value.strName = rhs.strName;
+        Value.strShortName = rhs.strShortName;
         return *this;
       }
     };
@@ -68,7 +69,7 @@ class NamesList
     OneName CurName;
     const OneName *pCurName;
 
-    char CurDir[NM];
+    string strCurrentDir;
 
   private:
     void Init();
@@ -78,13 +79,13 @@ class NamesList
     ~NamesList();
 
   public:
-    void AddName(const char *Name,const char *ShortName);
-    bool GetNextName(char *Name, const size_t NameSize,char *ShortName, const size_t ShortNameSize);
-    bool GetPrevName(char *Name, const size_t NameSize,char *ShortName, const size_t ShortNameSize);
-    void SetCurName(const char *Name);
+    void AddName(const wchar_t *Name,const wchar_t *ShortName);
+    bool GetNextName(string &strName, string &strShortName);
+    bool GetPrevName(string &strName, string &strShortName);
+    void SetCurName(const wchar_t *Name);
     void MoveData(NamesList &Dest);
-    void GetCurDir(char *Dir,int DestSize);
-    void SetCurDir(const char *Dir);
+    void GetCurDir(string &strDir);
+    void SetCurDir(const wchar_t *Dir);
 };
 
 #endif  // __NAMELIST_HPP__

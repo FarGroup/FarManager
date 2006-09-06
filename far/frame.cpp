@@ -5,12 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.22 25.07.2005 $ */
+/* Revision: 1.22 26.07.2005 $ */
 
 /*
 Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
+  26.07.2005 WARP
+    ! see 00033.LoskUnLock.txt
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.

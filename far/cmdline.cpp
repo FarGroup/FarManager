@@ -5,213 +5,7 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.85 13.04.2006 $ */
-
-/*
-Modify:
-  13.04.2006 SVS
-    ! Для Alt-F12 сначала предоставим слово плагинам на предмет проврки и исполнения префиксов
-  05.04.2006 SVS
-    ! Расширен набор символов в Формате командной строки.
-    ! после выбора из истории всегда создавать файл - оно проверено на в хистори!
-  29.07.2005 SVS
-    Временно убрем
-  28.07.2005 SVS
-    ! застолбленное место для autocomplete при скрытых панелях
-  06.05.2005 SVS
-    ! ???::GetCurDir() теперь возвращает размер пути, при этом
-      его параметр может быть равен NULL. Сделано для того, чтобы
-      как то получить этот размер.
-  24.04.2005 AY
-    ! GCC
-  28.02.2005 SVS
-    ! В строках ввода (диалоги) и ком.строка - будет конвертироваться
-      ближайшее слово или выделение.
-    + XLAT_CONVERTALLCMDLINE
-  23.12.2004 WARP
-    ! Нафиг отрубаем показ дерева, если его создание прервали по Esc (нечего пустое дерево показывать).
-      Ставим флаг IsPanel в FALSE. Мы ведь панель не создаем.
-  08.12.2004 SVS
-    + CmdLine.ItemCount, CmdLine.CurPos
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  04.11.2004 SVS
-    - Alt+F11 F3/F4: по ф3 ничего не происходит, по ф4 - просмотр
-  25.10.2004 SVS
-    + Реакция на Ctrl-Shift-Enter в истории папок - перейти в папку на пассивной панели
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  05.08.2004 SVS
-    ! MCODE_C_CMDLINE_BOF, MCODE_C_CMDLINE_EOF, MCODE_C_CMDLINE_EMPTY, MCODE_C_CMDLINE_SELECTED
-  02.08.2004 SVS
-    + обработка MCODE_C_CMDLINE_BOF и MCODE_C_CMDLINE_EOF
-  07.07.2004 SVS
-    ! Macro II
-  06.05.2004 SVS
-    + ProcessOSAliases()
-  09.03.2004 SVS
-    + CorrectRealScreenCoord() - корректировка размеров буфера
-  09.01.2004 SVS
-    + Opt.ExcludeCmdHistory
-  25.09.2003 SVS
-    ! KEY_MACROXLAT переименован в KEY_MACRO_XLAT
-  09.09.2003 SVS
-    - Автодополнение по ^End в пустой строке сразу после старта не работает.
-  03.09.2003 SVS
-    + Продвинутый вариант промптера, как в XP. Добавил, чтобы не потерялось (трудные времена настают :-(
-  21.08.2003 SVS
-    ! Сделаем LastCmdStr динамической переменной.
-      Отсюда все остальные изменения
-    + CommandLine::SetLastCmdStr() - "выставляет" эту самую LastCmdStr.
-  28.05.2003 SVS
-    ! Opt.EdOpt.PersistentBlocks -> Opt.Dialogs.EditBlock
-  22.04.2003 SVS
-    ! strcpy -> strNcpy
-  20.09.2002 SVS
-    - BugZ#619 - ftp: /pub в истории папок
-  06.08.2002 SVS
-    - после открытия дерева по Alt-F10 и после отмены диалога не по esc,
-      а нажатием мыши вне его, не восстанавливается текст линейки клавиш
-      модифицированных нажатием Alt, Shift, ...
-  30.05.2002 IS
-    ! взял управление на себя :-) - тут IsLocalPath применять можно
-      безболезненно
-  29.05.2002 SVS
-    ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
-  28.05.2002 SVS
-    ! применим функцию  IsLocalPath()
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  05.04.2002 SVS
-    ! Продолжение для BugZ#239 (Folder shortcuts для несуществующих папок)
-      Аналогичное поведение сделаем и для Alt-F12, ибо это правильно!
-  25.03.2002 VVM
-    + При погашенных панелях колесом крутим историю
-  18.03.2002 SVS
-    ! Уточнения, в связи с введением Opt.Dialogs
-    ! Немного оптимизации и комментариния кода
-  06.03.2002 SVS
-    ! У функций Истории появились доп.параметры
-  28.02.2002 SVS
-    ! SetString() имеет доп. параметр - надобность в прорисовке новой строки
-  14.12.2001 IS
-    + GetStringAddr();
-  06.12.2001 SVS
-    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
-  26.11.2001 SVS
-    ! Заюзаем PrepareDiskPath() для преобразования пути.
-  15.11.2001 IS
-    - очепятка при предыдущем изменении :-(
-  13.11.2001 IS
-    - После xlat неправильно работал ctrl-end.
-  02.11.2001 SVS
-    + GetSelection()
-  10.10.2001 SVS
-    ! Часть кода, ответственная за "пусковик" внешних прилад вынесена
-      в отдельный модуль execute.cpp
-  05.10.2001 SVS
-    ! Немного оптимизации (с сокращение повторяющегося кода)
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 VVM
-    ! Перерисовать панели, если были изменения. В догонку к предыдущему патчу.
-  23.09.2001 VVM
-    ! CmdExecute: RedrawDesktop должен уничтожиться _до_ вызова UpdateIfChanged.
-      Иначе InfoPanel перерисовывается при изменении каталога и портит background
-  09.09.2001 IS
-    + SetPersistentBlocks - установить/сбросить постоянные блоки
-  08.09.2001 VVM
-    + Использовать Opt.DialogsEditBlock
-  30.08.2001 VVM
-    ! В командной строке блоки всегда непостояные.
-  23.08.2001 OT
-    - исправление far -e file -> AltF9
-  13.08.2001 SKV
-    + GetSelString, Select
-  07.08.2001 SVS
-    + Добавим обработку команды OS - CLS
-  10.07.2001 SVS
-    + Обработка KEY_MACROXLAT
-  25.06.2001 SVS
-    - неверно работало в "If exist" преобразование toFullName, не учитывался
-      факт того, что имя уже может иметь полный путь.
-  22.06.2001 SKV
-    - Update панелей после исполнения команды.
-  18.06.2001 SVS
-    - Во время проверки "If exist" не учитывался текущий каталог.
-  17.06.2001 IS
-    ! Вместо ExpandEnvironmentStrings применяем ExpandEnvironmentStr, т.к. она
-      корректно работает с символами, коды которых выше 0x7F.
-    + Перекодируем строки перед SetEnvironmentVariable из OEM в ANSI
-  07.06.2001 SVS
-    + Добавлена обработка операторов "REM" и "::"
-  04.06.2001 OT
-    - Исправление отрисовки консоли при наличии Qinfo и или других "настандартных" панелей
-  26.05.2001 OT
-    - Выпрямление логики вызовов в NFZ
-  17.05.2001 OT
-    - Отрисовка при изменении размеров консоли - ResizeConsole().
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  12.05.2001 DJ
-    ! перерисовка командной строки после обработки команды делается только
-      если панели остались верхним фреймом
-  11.05.2001 OT
-    ! Новые методы для отрисовки Background
-  10.05.2001 DJ
-    * ShowViewEditHistory()
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  25.04.2001 DJ
-    * обработка @ в IF EXIST
-    * обработка кавычек внутри имени файла в IF EXIST
-  11.04.2001 SVS
-    ! Для Alt-F11 и Alt-F12 - теперь будут свои конкретные темы помощи, а не
-      абстрактное описание команд командной строки (не нужное для этих
-      историй)
-  02.04.2001 VVM
-    + Обработка Opt.FlagPosixSemantics
-  12.03.2001 SVS
-    + Alt-Shift-Left, Alt-Shift-Right, Alt-Shift-Home и Alt-Shift-End выделяют
-      блок в командной строке независимо от состояния панелей.
-  21.02.2001 IS
-    ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
-  19.02.2001 IS
-    - баг: не сбрасывалось выделение в командной строке по enter и shift-enter
-  14.01.2001 SVS
-    + В ProcessOSCommands добавлена обработка
-       "IF [NOT] EXIST filename command"
-       "IF [NOT] DEFINED variable command"
-  18.12.2000 SVS
-    - Написано же "Ctrl-D - Символ вправо"!
-    + Сбрасываем выделение при редактировании на некоторых клавишах
-  13.12.2000 SVS
-    ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
-  04.11.2000 SVS
-    + Проверка на альтернативную клавишу при XLat-перекодировке
-  24.09.2000 SVS
-    + поведение ESC.
-    + вызов функции Xlat
-  19.09.2000 SVS
-    - При выборе из History (по Alt-F8) плагин не получал управление!
-  13.09.2000 tran 1.02
-    + COL_COMMANDLINEPREFIX
-  02.08.2000 tran 1.01
-    - мелкий фикс - при выходе по CtrlF10, если файл был открыт на просмотр
-      из Alt-F11, был виден keybar в панелях
-      как всегда добавил CtrlObject->Cp()->Redraw()
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.95 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -236,20 +30,14 @@ Modify:
 
 CommandLine::CommandLine()
 {
-  *CurDir=0;
   CmdStr.SetEditBeyondEnd(FALSE);
   SetPersistentBlocks(Opt.Dialogs.EditBlock);
-  LastCmdStr=NULL;
-  LastCmdLength=0;
   LastCmdPartLength=-1;
   BackgroundScreen=NULL;
 }
 
 CommandLine::~CommandLine()
 {
-  if(LastCmdStr)
-    xf_free(LastCmdStr);
-
 }
 
 /* $ 09.09.2001 IS установить/сбросить постоянные блоки */
@@ -262,15 +50,15 @@ void CommandLine::SetPersistentBlocks(int Mode)
 void CommandLine::DisplayObject()
 {
   _OT(SysLog("[%p] CommandLine::DisplayObject()",this));
-  char TruncDir[1024];
-  GetPrompt(TruncDir);
-  TruncPathStr(TruncDir,(X2-X1)/2);
+  string strTruncDir;
+  GetPrompt(strTruncDir);
+  TruncPathStrW(strTruncDir,(X2-X1)/2);
   GotoXY(X1,Y1);
   SetColor(COL_COMMANDLINEPREFIX);
-  Text(TruncDir);
+  TextW(strTruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
   CmdStr.SetLeftPos(0);
-  CmdStr.SetPosition(X1+strlen(TruncDir),Y1,X2,Y2);
+  CmdStr.SetPosition(X1+strTruncDir.GetLength(),Y1,X2,Y2);
   CmdStr.Show();
 }
 
@@ -282,24 +70,16 @@ void CommandLine::SetCurPos(int Pos)
   CmdStr.Redraw();
 }
 
-BOOL CommandLine::SetLastCmdStr(const char *Ptr,int LenPtr)
+BOOL CommandLine::SetLastCmdStr(const wchar_t *Ptr)
 {
-  if(LenPtr+1 > LastCmdLength)
-    LastCmdStr=(char *)xf_realloc(LastCmdStr, LenPtr+1);
-  if(LastCmdStr)
-  {
-    LastCmdLength=LenPtr;
-    strcpy(LastCmdStr,Ptr);
-    return TRUE;
-  }
-  else
-    LastCmdLength=0;
-  return FALSE;
+  strLastCmdStr = Ptr;
+  return TRUE;
 }
 
 int CommandLine::ProcessKey(int Key)
 {
-  char Str[2048], *PStr;
+  const wchar_t *PStr;
+  string strStr;
 
   if(Key >= MCODE_C_CMDLINE_BOF && Key <= MCODE_C_CMDLINE_SELECTED)
     return CmdStr.ProcessKey(Key-MCODE_C_CMDLINE_BOF+MCODE_C_BOF);
@@ -311,20 +91,17 @@ int CommandLine::ProcessKey(int Key)
   if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
     if (LastCmdPartLength==-1)
-      SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength());
+      SetLastCmdStr(CmdStr.GetStringAddrW());
 
-    if(!LastCmdStr)
-      return TRUE;
-
-    xstrncpy(Str,LastCmdStr,sizeof(Str)-1);
-    int CurCmdPartLength=strlen(Str);
-    CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
+    strStr = strLastCmdStr;
+    int CurCmdPartLength=strStr.GetLength ();
+    CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
-      if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
+      if(SetLastCmdStr(CmdStr.GetStringAddrW()))
         LastCmdPartLength=CurCmdPartLength;
     }
-    CmdStr.SetString(Str);
+    CmdStr.SetStringW(strStr);
     Show();
     return(TRUE);
   }
@@ -354,20 +131,12 @@ int CommandLine::ProcessKey(int Key)
 
   switch(Key)
   {
-    //case KEY_TAB: // autocomplete
-    //{
-      //xstrncpy(Str,,sizeof(Str)-1);
-      //CmdStr.SetString(Str);
-      //Show();
-    //  return(TRUE);
-    //}
-
     case KEY_CTRLE:
     case KEY_CTRLX:
       if(Key == KEY_CTRLE)
-        CtrlObject->CmdHistory->GetPrev(Str,sizeof(Str));
+        CtrlObject->CmdHistory->GetPrev(strStr);
       else
-        CtrlObject->CmdHistory->GetNext(Str,sizeof(Str));
+        CtrlObject->CmdHistory->GetNext(strStr);
     case KEY_ESC:
       if(Key == KEY_ESC)
       {
@@ -377,11 +146,11 @@ int CommandLine::ProcessKey(int Key)
         */
         if(Opt.CmdHistoryRule)
           CtrlObject->CmdHistory->SetFirst();
-        PStr="";
+        PStr=L"";
       }
       else
-        PStr=Str;
-      SetString(PStr);
+        PStr=strStr;
+      SetStringW(PStr);
       return(TRUE);
     case KEY_F2:
       ProcessUserMenu(0);
@@ -392,10 +161,10 @@ int CommandLine::ProcessKey(int Key)
         /* $ 19.09.2000 SVS
            - При выборе из History (по Alt-F8) плагин не получал управление!
         */
-        int SelectType=CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,sizeof(Str),Type);
+        int SelectType=CtrlObject->CmdHistory->Select(UMSG(MHistoryTitle),L"History",strStr,Type);
         if(SelectType > 0 && SelectType <= 3)
         {
-          SetString(Str);
+          SetStringW(strStr);
           if(SelectType < 3)
             ProcessKey(SelectType==1?KEY_ENTER:KEY_SHIFTENTER);
         }
@@ -411,13 +180,13 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF10:
       {
         {
-          FolderTree Tree(Str,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4, FALSE);
+          FolderTree Tree(strStr,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4, FALSE);
           FrameManager->GetCurrentFrame()->RedrawKeyBar(); // Затычка ;-(
         }
-        if (*Str)
+        if ( !strStr.IsEmpty() )
         {
           Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-          ActivePanel->SetCurDir(Str,TRUE);
+          ActivePanel->SetCurDirW(strStr,TRUE);
           ActivePanel->Show();
           if (ActivePanel->GetType()==TREE_PANEL)
             ActivePanel->ProcessKey(KEY_ENTER);
@@ -438,7 +207,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF12:
       {
         int Type;
-        int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,sizeof(Str),Type);
+        int SelectType=CtrlObject->FolderHistory->Select(UMSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type);
         /*
            SelectType = 0 - Esc
                         1 - Enter
@@ -455,12 +224,11 @@ int CommandLine::ProcessKey(int Key)
           if(SelectType == 6)
             Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
 
-          if(!CtrlObject->Plugins.ProcessCommandLine(Str,Panel))
+          if(!CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
           {
-            if(Panel->GetMode() == PLUGIN_PANEL ||
-               CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
+            if(Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolderW(&strStr,FALSE))
             {
-              Panel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
+              Panel->SetCurDirW(strStr,Type==0 ? TRUE:FALSE);
               Panel->Redraw();
               CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
             }
@@ -468,7 +236,7 @@ int CommandLine::ProcessKey(int Key)
         }
         else
           if (SelectType==3)
-            SetString(Str);
+            SetStringW(strStr);
       }
       return(TRUE);
     case KEY_ENTER:
@@ -481,15 +249,28 @@ int CommandLine::ProcessKey(int Key)
         CmdStr.Select(-1,0);
         CmdStr.Show();
         /* IS $ */
-        CmdStr.GetString(Str,sizeof(Str));
-        if (*Str==0)
+        CmdStr.GetStringW(strStr);
+        if ( strStr.IsEmpty() )
           break;
+
         ActivePanel->SetCurPath();
+
         if(!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-          CtrlObject->CmdHistory->AddToHistory(Str);
-        ProcessOSAliases(Str,sizeof(Str));
+          CtrlObject->CmdHistory->AddToHistory(strStr);
+
+        ProcessOSAliasesW(strStr);
+
+        char *Str = UnicodeToAnsi (strStr);
+
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)Str))
-          CmdExecute(Str,FALSE,Key==KEY_SHIFTENTER,FALSE);
+        {
+          wchar_t *lpwszStr = strStr.GetBuffer (); //BUGBUG
+          CmdExecute(lpwszStr,FALSE,Key==KEY_SHIFTENTER,FALSE);
+
+          strStr.ReleaseBuffer ();
+        }
+
+        xf_free (Str);
       }
       return(TRUE);
 
@@ -521,8 +302,8 @@ int CommandLine::ProcessKey(int Key)
         CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
         /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
-        if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
-          LastCmdPartLength=strlen(LastCmdStr);
+        if(SetLastCmdStr(CmdStr.GetStringAddrW()))
+          LastCmdPartLength=strLastCmdStr.GetLength ();
         /* IS $ */
         return(TRUE);
       }
@@ -573,53 +354,49 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-void CommandLine::SetCurDir(const char *CurDir)
+void CommandLine::SetCurDirW(const wchar_t *CurDir)
 {
-  PrepareDiskPath(xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1),sizeof(CommandLine::CurDir)-1);
+    strCurDir = CurDir;
+    PrepareDiskPathW (strCurDir);
 }
 
 
-int CommandLine::GetCurDir(char *CurDir)
+int CommandLine::GetCurDirW(string &strCurDir)
 {
-  if(CurDir)
-    strcpy(CurDir,CommandLine::CurDir); // TODO: ОПАСНО!!!
-  return strlen(CommandLine::CurDir);
+    strCurDir = CommandLine::strCurDir;
+    return strCurDir.GetLength();
 }
 
-void CommandLine::GetString(char *Str,int MaxSize)
+
+void CommandLine::GetStringW (string &strStr)
 {
-  CmdStr.GetString(Str,MaxSize);
+  CmdStr.GetStringW(strStr);
 }
 
-/* $ 14.12.2001 IS получить адрес данных командной строки */
-const char *CommandLine::GetStringAddr()
-{
-  return CmdStr.GetStringAddr();
-}
-/* IS $ */
 
-void CommandLine::SetString(const char *Str,BOOL Redraw)
+void CommandLine::SetStringW(const wchar_t *Str,BOOL Redraw)
 {
   LastCmdPartLength=-1;
-  CmdStr.SetString(Str);
+  CmdStr.SetStringW(Str);
   CmdStr.SetLeftPos(0);
   if(Redraw)
     CmdStr.Show();
 }
 
 
-void CommandLine::ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow,
+
+void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
                              int DirectRun)
 {
-  SetString(Str);
+  SetStringW(Str);
   CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun);
 }
 
 
-void CommandLine::InsertString(const char *Str)
+void CommandLine::InsertStringW(const wchar_t *Str)
 {
   LastCmdPartLength=-1;
-  CmdStr.InsertString(Str);
+  CmdStr.InsertStringW(Str);
   CmdStr.Show();
 }
 
@@ -629,79 +406,95 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return(CmdStr.ProcessMouse(MouseEvent));
 }
 
+void add_char (string &str, wchar_t c) //BUGBUG
+{
+    wchar_t cc[2];
 
-void CommandLine::GetPrompt(char *DestStr)
+    cc[0] = c;
+    cc[1] = 0;
+
+    str += (const wchar_t*)&cc;
+}
+
+void CommandLine::GetPrompt(string &strDestStr)
 {
 #if 0
   char FormatStr[512],ExpandedFormatStr[512];
-  xstrncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
-  char *Format=FormatStr;
+  string strFormatStr;
+  string strExpandedFormatStr;
+
+  if ( Opt.UsePromptFormat )
+    strFormatStr = Opt.strPromptFormat;
+  else
+    strFormatStr = L"$p$g";
+
+  const wchar_t *Format=strFormatStr;
+
   if (Opt.UsePromptFormat)
   {
-    ExpandEnvironmentStr(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
-    Format=ExpandedFormatStr;
+    ExpandEnvironmentStrW(strFormatStr, strExpandedFormatStr);
+    Format = strExpandedFormatStr;
   }
+
   while (*Format)
   {
-    if (*Format=='$')
+    if (*Format==L'$')
     {
       Format++;
       switch(*Format)
       {
-        case '$':
-          *(DestStr++)='$';
+        case L'$':
+          strDestStr += L'$';
           break;
-        case 'p':
-          strcpy(DestStr,CurDir);
-          DestStr+=strlen(CurDir);
+        case L'p':
+          strDestStr += strCurDir;
           break;
-        case 'n':
-          if (IsLocalPath(CurDir) && CurDir[2]=='\\')
-            *(DestStr++)=LocalUpper(*CurDir);
+        case L'n':
+          if (IsLocalPathW(strCurDir) && strCurDir.At(2)==L'\\')
+            add_char (strDestStr, LocalUpperW(strCurDir.At(0)));
           else
-            *(DestStr++)='?';
+            add_char (strDestStr, L'?');
           break;
-        case 'g':
-          *(DestStr++)='>';
+        case L'g':
+          add_char (strDestStr, L'>');
           break;
       }
       Format++;
     }
     else
-      *(DestStr++)=*(Format++);
+      add_char (strDestStr, *(Format++));
   }
-  *DestStr=0;
+
 #else
   // продвинутый вариант промптера, как в XP
   if (Opt.UsePromptFormat)
   {
-    char FormatStr[512],ExpandedFormatStr[512];
-    strcpy(FormatStr,Opt.PromptFormat);
-    char *Format=FormatStr;
-    ExpandEnvironmentStr(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
-    Format=ExpandedFormatStr;
-    char ChrFmt[][2]={
-      {'A','&'},   // $A - & (Ampersand)
-      {'B','|'},   // $B - | (pipe)
-      {'C','('},   // $C - ( (Left parenthesis)
-      {'F',')'},   // $F - ) (Right parenthesis)
-      {'G','>'},   // $G - > (greater-than sign)
-      {'L','<'},   // $L - < (less-than sign)
-      {'Q','='},   // $Q - = (equal sign)
-      {'S',' '},   // $S - (space)
-      {'$','$'},   // $$ - $ (dollar sign)
+    string strFormatStr, strExpandedFormatStr;
+    strFormatStr = Opt.strPromptFormat;
+    apiExpandEnvironmentStrings (strFormatStr, strExpandedFormatStr);
+    const wchar_t *Format=strExpandedFormatStr;
+    wchar_t ChrFmt[][2]={
+      {L'A',L'&'},   // $A - & (Ampersand)
+      {L'B',L'|'},   // $B - | (pipe)
+      {L'C',L'('},   // $C - ( (Left parenthesis)
+      {L'F',L')'},   // $F - ) (Right parenthesis)
+      {L'G',L'>'},   // $G - > (greater-than sign)
+      {L'L',L'<'},   // $L - < (less-than sign)
+      {L'Q',L'='},   // $Q - = (equal sign)
+      {L'S',L' '},   // $S - (space)
+      {L'$',L'$'},   // $$ - $ (dollar sign)
     };
     while (*Format)
     {
-      if (*Format=='$')
+      if (*Format==L'$')
       {
-        char Chr=toupper(*++Format);
+        wchar_t Chr=LocalUpperW(*++Format);
         int I;
         for(I=0; I < sizeof(ChrFmt)/sizeof(ChrFmt[0]); ++I)
         {
           if(ChrFmt[I][0] == Chr)
           {
-            *(DestStr++)=ChrFmt[I][1];
+            add_char (strDestStr, ChrFmt[I][1]);
             break;
           }
         }
@@ -715,41 +508,39 @@ void CommandLine::GetPrompt(char *DestStr)
             $V - Windows XP version number
             $_ - Carriage return and linefeed
             */
-            case 'H': // $H - Backspace (erases previous character)
-              DestStr--;
+            case L'H': // $H - Backspace (erases previous character)
+              strDestStr.GetBuffer (strDestStr.GetLength()-1);
+              strDestStr.ReleaseBuffer (); //BUGBUG
               break;
-            case 'D': // $D - Current date
-            case 'T': // $T - Current time
+            case L'D': // $D - Current date
+            case L'T': // $T - Current time
             {
-              char DateTime[64];
-              MkStrFTime(DateTime,sizeof(DateTime)-1,(Chr=='D'?"%D":"%T"));
-              strcpy(DestStr,DateTime);
-              DestStr+=strlen(DateTime);
+              string strDateTime;
+              MkStrFTimeW(strDateTime,(Chr==L'D'?L"%D":L"%T"));
+              strDestStr += strDateTime;
               break;
             }
-            case 'N': // $N - Current drive
-              if (IsLocalPath(CurDir) && CurDir[2]=='\\')
-                *(DestStr++)=LocalUpper(*CurDir);
+            case L'N': // $N - Current drive
+              if (IsLocalPathW(strCurDir) && strCurDir.At(2)==L'\\')
+                add_char (strDestStr, LocalUpperW(strCurDir.At(0)));
               else
-                *(DestStr++)='?';
+                add_char (strDestStr, L'?');
               break;
-            case 'P': // $P - Current drive and path
-              strcpy(DestStr,CurDir);
-              DestStr+=strlen(CurDir);
+            case L'P': // $P - Current drive and path
+              strDestStr+=strCurDir;
               break;
           }
         }
         Format++;
       }
       else
-        *(DestStr++)=*(Format++);
+        add_char (strDestStr, *(Format++));
     }
-    *DestStr=0;
   }
   else // default prompt = "$p$g"
   {
-    strcpy(DestStr,CurDir);
-    strcat(DestStr,">");
+    strDestStr = strCurDir;
+    strDestStr += L">";
   }
 #endif
 }
@@ -762,10 +553,11 @@ void CommandLine::GetPrompt(char *DestStr)
 
 void CommandLine::ShowViewEditHistory()
 {
-  char Str[1024], ItemTitle[256];
+  string strStr;
+  string strItemTitle;
   int Type;
 
-  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,sizeof(Str),Type,ItemTitle);
+  int SelectType=CtrlObject->ViewHistory->Select(UMSG(MViewHistoryTitle),L"HistoryViews",strStr,Type,&strItemTitle);
   /*
      SelectType = 0 - Esc
                   1 - Enter
@@ -776,14 +568,14 @@ void CommandLine::ShowViewEditHistory()
   if (SelectType == 1 || SelectType == 2)
   {
     if (SelectType!=2)
-      CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
+      CtrlObject->ViewHistory->AddToHistory(strStr,strItemTitle,Type);
     CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
 
     switch(Type)
     {
       case 0: // вьювер
       {
-        new FileViewer(Str,TRUE);
+        new FileViewer(strStr,TRUE);
         break;
       }
 
@@ -791,7 +583,7 @@ void CommandLine::ShowViewEditHistory()
       case 4: // открытие с локом
       {
         // пусть файл создается
-        FileEditor *FEdit=new FileEditor(Str,TRUE,TRUE);
+        FileEditor *FEdit=new FileEditor(strStr,TRUE,TRUE);
         if(Type == 4)
            FEdit->SetLockEditor(TRUE);
         break;
@@ -801,14 +593,17 @@ void CommandLine::ShowViewEditHistory()
       case 2:
       case 3:
       {
-        if (*Str!='@')
-          ExecString(Str,Type-2);
+        if ( strStr.At(0) !=L'@' )
+        {
+          ExecString(strStr,Type-2);
+        }
         else
         {
           SaveScreen SaveScr;
           CtrlObject->Cp()->LeftPanel->CloseFile();
           CtrlObject->Cp()->RightPanel->CloseFile();
-          Execute(Str+1,Type-2);
+
+          Execute((const wchar_t*)strStr+1,Type-2);
         }
         break;
       }
@@ -817,7 +612,7 @@ void CommandLine::ShowViewEditHistory()
   }
   else
     if (SelectType==3) // скинуть из истории в ком.строку?
-      SetString(Str);
+      SetStringW(strStr);
 }
 
 /* DJ $ */
@@ -862,11 +657,11 @@ void CommandLine::ResizeConsole()
 //  this->DisplayObject();
 }
 
-/*$ 13.08.2001 SKV */
-void CommandLine::GetSelString(char* Buffer,int MaxLength)
+void CommandLine::GetSelStringW (string &strStr)
 {
-  CmdStr.GetSelString(Buffer,MaxLength);
+  CmdStr.GetSelStringW(strStr);
 }
+
 
 void CommandLine::Select(int Start,int End)
 {

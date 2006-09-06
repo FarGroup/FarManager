@@ -5,45 +5,14 @@ iswind.cpp
 
 */
 
-/* Revision: 1.10 28.04.2004 $ */
-
-/*
-Modify:
-  28.04.2004 SVS
-    ! Добавлены "новые знания" о функциях ;-)
-  17.01.2003 IS
-    + InitDetectWindowedMode: там, где можно, используем для поиска окна
-      соответствующую функцию ОС (GetConsoleWindow)
-  10.06.2002 SVS
-    - Заголовок окна пустой - hFarWnd равен NULL
-  25.03.2002 SVS
-    ! Вместо чисел - константы FAR_CONSOLE_*
-  17.01.2002 SVS
-    - какой хрен меня понес... нужно было GetWindowText() юзать!
-  16.01.2002 SVS
-    ! Немного другая математика поиска заголовка (ищем как часть заголовка)
-      Почему? К Сергею Обломову UIN: 12411939 (есть у него интересная фишка,
-      не плагин!)
-  06.05.2001 DJ
-    ! перетрях #include
-  19.01.2001 VVM
-    + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна
-      Такое бывает, если ФАР запущен из под ФАР-а или другой консольной
-      программы
-  20.09.2000 SVS
-    ! hFarWnd глобальна
-  25.07.2000 SVS
-    + Программое переключение FulScreen <-> Windowed
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.11 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 #include "plugin.hpp"
 #include "global.hpp"
+#include "fn.hpp"
 
 static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
 
@@ -83,12 +52,14 @@ void DetectWindowedMode()
 
 BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
 {
-  char Title[256];
-  int LenTitle=GetWindowText(hwnd,Title, sizeof(Title));
+  wchar_t Title[256]; //BUGBUG, dynamic
+
+  int LenTitle=GetWindowTextW (hwnd, Title, sizeof(Title));
+
   if (LenTitle)
   {
     Title[LenTitle]=0;
-    if(strstr(Title,(char *)FARTitl))
+    if(wcsstr(Title,(const wchar_t *)FARTitl))
     {
       hFarWnd=hwnd;
       return(FALSE);
@@ -101,20 +72,18 @@ BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
     + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
 void FindFarWndByTitle()
 {
-  char OldTitle[256];
-  char NewTitle[256];
+  string strOldTitle;
+  string strNewTitle;
 
-  OldTitle[0]=0;
+  apiGetConsoleTitle(strOldTitle);
 
-  GetConsoleTitle(OldTitle, sizeof(OldTitle));
+  strNewTitle.Format (L"%d - %s",clock(),(const wchar_t*)strOldTitle);
 
-  {
-    sprintf(NewTitle,"%d - %s",clock(),OldTitle);
-    SetConsoleTitle(NewTitle);
+  SetConsoleTitleW (strNewTitle);
     //hFarWnd = FindWindow(NULL,NewTitle);
-    EnumWindows(IsWindowedEnumProc2,(LPARAM)NewTitle);
-    SetConsoleTitle(OldTitle);
-  } /* if */
+
+  EnumWindows(IsWindowedEnumProc2,(LPARAM)(const wchar_t*)strNewTitle);
+  SetConsoleTitleW (strOldTitle);
 } /* void FindFarWndByTitle */
 /* VVM $ */
 
@@ -141,10 +110,10 @@ void InitDetectWindowedMode()
   /* IS $ */
   if (hFarWnd && Opt.SmallIcon)
   {
-    char FarName[NM];
-    GetModuleFileName(NULL,FarName,sizeof(FarName));
+    string strFarName;
+    apiGetModuleFileName (NULL, strFarName);
     HICON hSmallIcon=NULL,hLargeIcon=NULL;
-    ExtractIconEx(FarName,0,&hLargeIcon,&hSmallIcon,1);
+    ExtractIconExW(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 
     if (hLargeIcon!=NULL)
       hOldLargeIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);

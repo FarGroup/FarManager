@@ -5,250 +5,7 @@ help.cpp
 
 */
 
-/* Revision: 1.91 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  16.05.2005 WARP & AY
-    ! Исправления в отрисовке файлов помщи
-  03.03.2005 SVS
-    - BugZ#1291 - Дельта для прокрутки в поиске нет: Opt.MsWheelDelta -> Opt.MsWheelDeltaHelp
-  17.01.2005 WARP
-    ! Некоторые уточнения в спецификатор переноса строки.
-  18.12.2004 WARP
-    ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.06.2004 SVS
-    - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
-  04.06.2004 SVS
-    - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
-  27.05.2004 SVS
-    - BugZ#1086 - нельзя перейти на последний топик ни по end ни через PgDn
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-    ! Выкинем нафиг упоминание про DHELP2 - нет такого
-  22.10.2003 SVS
-    - лишняя добавка к пути (лишний символ '\')
-  13.10.2003 SVS
-    ! Заготовка для мультисимвольного CtrlColorChar
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  15.09.2003 SVS
-    - BugZ#457 - Форматирование в Help-файлах
-      (ВНИМАНИЕ! НЕ УВЕРЕН! но бага излечилась :-))
-  03.06.2003 SVS
-    + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
-    ! Теперь в кейбар можно тыкать мышой
-  22.04.2003 SVS
-    - BugZ#851 - Wrong error message by ShowHelp
-  26.02.2003 SVS
-    + Укажем что именно не найдено в ERROR-месаге
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  14.07.2002 IS
-    ! внедрение const
-    ! '>' -> HelpEndLink
-    ! JumpTopic: при переходе по ссылкам используем всегда только
-      абсолютные пути, если это возможно.
-  02.07.2002 SVS
-    - BugZ#400 - скролбар и проблемы из-за него
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  25.04.2002 SVS
-    - BugZ#476 - Проблемы с .Options TabSize
-  15.03.2002 DJ
-    + обработка клика в середине скроллбара в хелпе
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  15.01.2001 SVS
-    - Была бага - например, F1 выбрать "Клавиатурные команды" - курсор
-      позиционировался на второй линк. Причем, если в Far*.hlf (далее в
-      описалове)
-  28.12.2001 SVS
-    - Фар плющило при переходе в несуществующий топик - переполнение стека.
-  28.12.2001 SVS
-    - Бага с кустом-линками
-    - BugZ#62: ошибка форматирования hlf.
-  25.12.2001 SVS
-    - Работа над ошибками (Help::MkTopic для ModuleName)
-  24.12.2001 SVS
-    ! HelpMask переехала в StackHelpData.
-    ! Уточнения для "документов" (в принципе уже можно открывать!)
-    + Математика поиска в хелпе (зачатки!).
-      Не обижусь, если кто-нить поможет ;-) Все равно до релиза
-      (а может и дальше) поисковика не будет (но терять идеи надоело!!!)
-  24.12.2001 SVS
-    ! Уточнение.
-  21.12.2001 SVS
-    - Bug: не работала ссылка вида
-      "@<c:\program files\far\plugins\multiarc\multiarc.dll>"
-      Нужно было удавить "multiarc.dll". Плюс к этому теперь для
-      __PluginContents__ путь заканчивается на слеш (для унификации)
-  19.12.2001 VVM
-    ! Если JumpTopic() не выполнился, то данные из стека удалим.
-  03.12.2001 SVS
-    ! Для "обрезания" :-) есть спец-функция.
-  03.12.2001 DJ
-    - если PluginContents очень длинный, надо его обрезать
-  29.11.2001 DJ
-    + в заголовке окна хелпа показываем, чей это хелп
-  27.11.2001 DJ
-    - забыли инициализировать CtrlTabSize
-  27.11.2001 SVS
-    ! ОпЯчатка в пред. патче
-  26.11.2001 SVS
-    + DoubliClock - свернуть/развернуть хелп.
-    ! F1 в хелпе - всегда вызывать "Help"
-  26.11.2001 VVM
-    ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
-  01.11.2001 SVS
-    + немного про "типы" - GetType*()
-  26.10.2001 VVM
-    + Считать нажатие средней кнопки за ЕНТЕР
-  15.10.2001 SVS
-    ! вместо strcmp применяем LCStricmp
-  15.10.2001 SVS
-    + Сортируем индекс хелпов от плагинов перед выдачей на экран.
-  07.10.2001 SVS
-    + Opt.HelpTabSize - размер табуляции по умолчанию.
-  01.10.2001 SVS
-    ! Временно отключим "KEY_SHIFTF3"
-    + CtrlTabSize - опция! размер табуляции - резерв на будущее!
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 VVM
-    ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках...
-  19.09.2001 VVM
-    + Заменить ТАБУЛЯЦИЮ на пробел.
-  21.08.2001 KM
-    - Неверно создавался топик с учётом нового правила,
-      в котором путь для топика должен заканчиваться "/".
-  20.08.2001 VVM
-    ! Обработка прокрутки с альтом.
-  07.08.2001 SVS
-    ! косметика - для собственных нужд (по поводу help2.?pp)
-  05.08.2001 SVS
-    + AddTitle() - добавить титл.
-    ! В Help::MkTopic() исключим возможность повторного формирования топика,
-      если он уже сформирован. Здесь еще нужно поковыряться, т.к. пока есть
-      непонятки:
-        К примеру, если принять как аксиому, что имя модуля всегда содержит
-        ".ext" (точку), то все решается на ура.
-  03.08.2001 SVS
-    - бага с вызовом хелпа.
-  01.08.2001 SVS
-    + Новый взгляд на линки
-    + Понятие - "Коллекция документов" (часть первая)
-  26.07.2001 VVM
-    + С альтом скролим всегда по 1
-  22.07.2001 SVS
-    ! Переделка number two - пытаемся при возврате показать привычное
-      расположение хелпа (но пока, увы)
-  20.07.2001 SVS
-    - "То-ро-пыш-ка" :-( (или увеличение номера билда)
-    ! PluginPanelHelp переехала к плагинам (не место ей здесь)
-    ! Удалены за ненадобностью Get/Set-FullScreenMode
-  20.07.2001 SVS
-    - F1 Esc - проблемы
-  20.07.2001 SVS
-    ! "Перетрях мозглей" Help API. Part I.
-  11.07.2001 SVS
-    - Исправляем ситуацию с приганием курсора на следующую позицию при
-      редраве окна хелпа
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  10.07.2001 OT
-    - Возвращены переменные static SaveScreen *TopScreen и TopLevel :)
-  20.06.2001 SVS
-    - Исправляем проблемы с Alt-F9
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  04.06.2001 OT
-    - Окончательное исправление F1->AltF9.
-      Истреблены переменные static SaveScreen *TopScreen и TopLevel за ненадобностью
-  31.05.2001 OT
-    + ResizeConsole()
-    - Исправление F1->AltF9-> ?? Остались некоторые артефакты,
-      связанные со ScreenSaveом, но... это чуть позже :)
-  26.05.2001 OT
-    - Выпрямление логики вызовов в NFZ
-    - По умолчанию хелпы создаются статически.
-  16.05.2001 DJ
-    ! proof-of-concept
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  07.05.2001 DJ
-    ! поддержка mouse wheel
-    - кейбар не обновлялся
-  06.05.2001 DJ
-    ! перетрях #include
-  26.04.2001 DJ
-    - используем сохраненный Mask при обработке F5
-  16.04.2001 SVS
-    - не поганим SelTopic, если и так в "Help on Help"
-  12.04.2001 SVS
-    + сохранение значения Mask, переданного в конструктор (для корректной
-      работы HlfViewer)
-    - не работало последовательное нажатие F1, Shift-F1, Enter
-  26.03.2001 SVS
-    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
-    ! ReadHelp возвращает TRUE/FALSE
-  21.03.2001 VVM
-    ! уточнение поведения символа '$'
-  16.03.2001 VVM
-    ! Если топик не найден - остаемся, где были
-    - В функции ReadPluginsHelp инициализировать CtrlColorChar
-  22.02.2001 SVS
-    ! в активаторе замена двойных символов ~~ и ## на одинарные эквиваленты
-  06.02.2001 SVS
-    - Исправлен(?) баг с активатором...
-      (новый кусок пока не трогать - возможно потом исключим его вообще)
-  20.01.2001 SVS
-    - Пропадал курсор при вызове справки.
-      Бяка появилась на 354-м патче, когда была введена поддержка кеёбар
-  18.12.2000 SVS
-    + Дополнительный параметр у конструктора - DWORD Flags.
-    + учитываем флаг FHELP_NOSHOWERROR
-  18.12.2000 SVS
-    - ExpandEnv забыл поставить в активаторе :-(
-  07.12.2000 SVS
-    ! Изменен механизм запуска URL приложения - были нарекания со стороны
-      владельцев оутглюка.
-  27.09.2000 SVS
-    ! Разрешения для активизации URL-ссылок.
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  19.09.2000 OT
-    - Ошибка при отрисовки хелпа
-  12.09.2000 SVS
-    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
-      файлов.
-  01.09.2000 SVS
-    + Мои любимые цветовые атрибуты - Учтем символ CtrlColorChar
-  25.08.2000 SVS
-    + CtrlAltShift - спрятать/показать помощь...
-    + URL активатор - это ведь так просто :-)))
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  28.06.2000
-    - NT Console resize
-      adding SetScreenPosition method
-  26.06.2000 IS
-    - Глюк с хелпом по f1, shift+f2, end
-      (решение предложил IG)
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.98 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -279,17 +36,17 @@ class CallBackStack
       int   TopStr;            // номер верхней видимой строки темы
       int   CurX,CurY;         // координаты (???)
 
-      char  *HelpTopic;        // текущий топик
-      char  *HelpPath;         // путь к хелпам
-      char  *SelTopic;         // текущее выделение
-      char  *HelpMask;         // маска
+      string strHelpTopic;        // текущий топик
+      string strHelpPath;         // путь к хелпам
+      string strSelTopic;         // текущее выделение
+      string strHelpMask;         // маска
 
       ListNode(const struct StackHelpData *Data, ListNode* n=NULL)
       {
-        HelpTopic=xf_strdup(Data->HelpTopic);
-        HelpPath=xf_strdup(Data->HelpPath);
-        SelTopic=xf_strdup(Data->SelTopic);
-        HelpMask=xf_strdup(Data->HelpMask);
+        strHelpTopic=Data->strHelpTopic;
+        strHelpPath=Data->strHelpPath;
+        strSelTopic=Data->strSelTopic;
+        strHelpMask=Data->strHelpMask;
         Flags=Data->Flags;
         TopStr=Data->TopStr;
         CurX=Data->CurX;
@@ -299,10 +56,6 @@ class CallBackStack
       }
       ~ListNode()
       {
-        if(HelpTopic) xf_free(HelpTopic);
-        if(HelpPath)  xf_free(HelpPath);
-        if(SelTopic)  xf_free(SelTopic);
-        if(HelpMask)  xf_free(HelpMask);
       }
     };
 
@@ -319,22 +72,92 @@ class CallBackStack
     void Push(const struct StackHelpData *Data);
     int Pop(struct StackHelpData *Data=NULL);
 
-    void PrintStack(const char *Title);
+    void PrintStack(const wchar_t *Title);
 };
 
 
 #define MAX_HELP_STRING_LENGTH 300
 
-static const char *PluginContents="__PluginContents__";
+static const wchar_t *PluginContents=L"__PluginContents__";
 #if defined(WORK_HELP_DOCUMS)
-static const char *DocumentContents="__DocumentContents__";
+static const wchar_t *DocumentContents=L"__DocumentContents__";
 #endif
-static const char *HelpOnHelpTopic=":Help";
-static const char *HelpContents="Contents";
+static const wchar_t *HelpOnHelpTopic=L":Help";
+static const wchar_t *HelpContents=L"Contents";
 
-static int RunURL(char *Protocol, char *URLPath);
+static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
 
-Help::Help(const char *Topic, const char *Mask,DWORD Flags)
+wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
+{
+    char *lpDest = (char*)xf_malloc ((nDestLength+1)*3); //UTF-8, up to 3 bytes per char support
+
+    memset (lpDest, 0, (nDestLength+1)*3);
+    memset (lpwszDest, 0, nDestLength*sizeof (wchar_t));
+
+    if ( (nType == TYPE_UNICODE) || (nType == TYPE_REVERSEBOM) )
+    {
+        if ( !fgetws (lpwszDest, nDestLength, file) )
+        {
+            xf_free (lpDest);
+            return NULL;
+        }
+
+        if ( nType == TYPE_REVERSEBOM )
+        {
+            swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
+
+            wchar_t *Ch = lpwszDest;
+            int nLength = min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
+
+            while ( *Ch )
+            {
+                if ( *Ch == L'\n' )
+                {
+                    *(Ch+1) = 0;
+                    break;
+                }
+
+                Ch++;
+            }
+
+            int nNewLength = min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
+
+            fseek (file, (nNewLength-nLength)*sizeof (wchar_t), SEEK_CUR);
+        }
+
+    }
+    else
+
+    if ( nType == TYPE_UTF8 )
+    {
+        if ( fgets (lpDest, nDestLength*3, file) )
+            MultiByteToWideChar (CP_UTF8, 0, lpDest, -1, lpwszDest, nDestLength);
+        else
+        {
+            xf_free (lpDest);
+            return NULL;
+        }
+
+    }
+    else
+
+    if ( nType == TYPE_ANSI )
+    {
+        if ( fgets (lpDest, nDestLength, file) )
+            MultiByteToWideChar (CP_OEMCP, 0, lpDest, -1, lpwszDest, nDestLength);
+        else
+        {
+            xf_free (lpDest);
+            return NULL;
+        }
+    }
+
+    xf_free (lpDest);
+
+    return lpwszDest;
+}
+
+Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
 {
   /* $ OT По умолчанию все хелпы создаются статически*/
   SetDynamicallyBorn(FALSE);
@@ -350,7 +173,12 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   Stack=new CallBackStack;
 
   memset(&StackData,0,sizeof(StackData));
+
   StackData.Flags=Flags;
+  StackData.strHelpMask = L"";
+  StackData.strHelpPath = L"";
+  StackData.strHelpTopic = L"";
+  StackData.strSelTopic = L"";
 
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
@@ -364,29 +192,36 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   CtrlTabSize = 8;
   /* DJ $ */
 
-  xstrncpy(StackData.HelpMask,NullToEmpty(Mask),sizeof(StackData.HelpMask)-1); // сохраним маску файла
+  StackData.strHelpMask = NullToEmptyW(Mask); // сохраним маску файла
 
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
   TopScreen=new SaveScreen;
   HelpData=NULL;
-  strcpy(StackData.HelpTopic,Topic);
-  *StackData.HelpPath=0;
+  StackData.strHelpTopic = Topic;
+
   if (Opt.FullScreenHelp)
     SetPosition(0,0,ScrX,ScrY);
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
 
-  if(!ReadHelp(StackData.HelpMask) && (Flags&FHELP_USECONTENTS))
+  if(!ReadHelp(StackData.strHelpMask) && (Flags&FHELP_USECONTENTS))
   {
-    strcpy(StackData.HelpTopic,Topic);
-    if(*StackData.HelpTopic == HelpBeginLink)
+    StackData.strHelpTopic = Topic;
+    if( StackData.strHelpTopic.At(0) == HelpBeginLink)
     {
-      char *Ptr=strrchr(StackData.HelpTopic,HelpEndLink);
-      if(Ptr)
-        strcpy(++Ptr,HelpContents);
+      wchar_t *Ptr = StackData.strHelpTopic.GetBuffer ();
+
+      Ptr=wcsrchr(Ptr,HelpEndLink);
+
+      if ( Ptr )
+        *Ptr = 0;
+
+      StackData.strHelpTopic.ReleaseBuffer ();
+
+      StackData.strHelpTopic += HelpContents;
     }
-    *StackData.HelpPath=0;
-    ReadHelp(StackData.HelpMask);
+    StackData.strHelpPath=L"";
+    ReadHelp(StackData.strHelpMask);
   }
 
 
@@ -406,7 +241,7 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
       if(!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
       {
         BlockExtKey blockExtKey;
-        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+        MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
       }
       ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
     }
@@ -455,28 +290,36 @@ void Help::Hide()
 }
 
 
-int Help::ReadHelp(const char *Mask)
+int Help::ReadHelp(const wchar_t *Mask)
 {
-  char FileName[NM],ReadStr[2*MAX_HELP_STRING_LENGTH];
-  char SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
+  string strFileName;
+  wchar_t ReadStr[2*MAX_HELP_STRING_LENGTH];
+  wchar_t SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
   int Formatting=TRUE,RepeatLastLine,PosTab,BreakProcess;
   const int MaxLength=X2-X1-1;
-  char TabSpace[32];
+  wchar_t TabSpace[32]; //BUGBUG
 
-  char Path[NM],*TopicPtr;
-  if (*StackData.HelpTopic==HelpBeginLink)
+  string strPath;
+
+  wchar_t *TopicPtr;
+  if ( StackData.strHelpTopic.At (0)==HelpBeginLink)
   {
-    strcpy(Path,StackData.HelpTopic+1);
-    if ((TopicPtr=strchr(Path,HelpEndLink))==NULL)
+    strPath = (const wchar_t*)StackData.strHelpTopic+1;
+
+    wchar_t *lpwszPath = strPath.GetBuffer();
+
+    if ((TopicPtr=wcschr(lpwszPath,HelpEndLink))==NULL)
       return FALSE;
-    strcpy(StackData.HelpTopic,TopicPtr+1);
+    StackData.strHelpTopic = TopicPtr+1;
     *TopicPtr=0;
-    strcpy(StackData.HelpPath,Path);
+    StackData.strHelpPath = lpwszPath;
+
+    strPath.ReleaseBuffer();
   }
   else
-    strcpy(Path,*StackData.HelpPath ? StackData.HelpPath:FarPath);
+    strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:g_strFarPath;
 
-  if (!strcmp(StackData.HelpTopic,PluginContents))
+  if (!wcscmp(StackData.strHelpTopic,PluginContents))
   {
     ReadDocumentsHelp(HIDX_PLUGINS);
     return TRUE;
@@ -490,7 +333,9 @@ int Help::ReadHelp(const char *Mask)
   }
 #endif
 
-  FILE *HelpFile=Language::OpenLangFile(Path,(!*Mask?HelpFileMask:Mask),Opt.HelpLanguage,FileName);
+  int nType = TYPE_ANSI;
+
+  FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFileName, nType);
 
   if (HelpFile==NULL)
   {
@@ -501,43 +346,37 @@ int Help::ReadHelp(const char *Mask)
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
       {
         BlockExtKey blockExtKey;
-        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),Mask,MSG(MOk));
+        MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MCannotOpenHelp),Mask,UMSG(MOk));
       }
     }
     return FALSE;
   }
 
-  *ReadStr=0;
-  if (Language::GetOptionsParam(HelpFile,"TabSize",ReadStr))
+  string strReadStr;
+
+  if (Language::GetOptionsParam(HelpFile,L"TabSize",strReadStr, nType))
   {
-    CtrlTabSize=atoi(ReadStr);
+    CtrlTabSize=_wtoi(strReadStr);
   }
   if(CtrlTabSize < 0 || CtrlTabSize > 16)
     CtrlTabSize=Opt.HelpTabSize;
 
-  *ReadStr=0;
-  if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
-  {
-    xstrncpy(CtrlColorChar,ReadStr,sizeof(CtrlColorChar)-1);
-  }
+  if (Language::GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nType))
+    strCtrlColorChar = strReadStr;
   else
-    CtrlColorChar[0]=0;
+    strCtrlColorChar=L"";
 
-
-  *ReadStr=0;
-  if (Language::GetOptionsParam(HelpFile,"CtrlStartPosChar",ReadStr))
-  {
-    xstrncpy(CtrlStartPosChar,ReadStr,sizeof(CtrlStartPosChar)-1);
-  }
+  if (Language::GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nType))
+    strCtrlStartPosChar = strReadStr;
   else
-    CtrlStartPosChar[0] = '\0';
+    strCtrlStartPosChar = L"";
 
 
   /* $ 29.11.2001 DJ
      запомним, чего там написано в PluginContents
   */
-  if (!Language::GetLangParam (HelpFile,"PluginContents",CurPluginContents, NULL))
-    *CurPluginContents = '\0';
+  if (!Language::GetLangParam (HelpFile,L"PluginContents",&strCurPluginContents, NULL, nType))
+    strCurPluginContents = L"";
   /* DJ $ */
 
   *SplitLine=0;
@@ -550,10 +389,12 @@ int Help::ReadHelp(const char *Mask)
   RepeatLastLine=FALSE;
   BreakProcess=FALSE;
   int NearTopicFound=0;
-  char PrevSymbol=0;
+  wchar_t PrevSymbol=0;
 
-  memset(TabSpace,' ',sizeof(TabSpace)-1);
-  TabSpace[sizeof(TabSpace)-1]=0;
+  for (int i = 0; i < sizeof(TabSpace)/sizeof (wchar_t); i++)
+    TabSpace[i] = L' ';
+
+  TabSpace[(sizeof(TabSpace)-1)/sizeof (wchar_t)]=0;
 
   StartPos = -1;
   LastStartPos = -1;
@@ -567,7 +408,7 @@ int Help::ReadHelp(const char *Mask)
     else
       RealMaxLength = MaxLength;
 
-    if (!RepeatLastLine && !BreakProcess && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
+    if (!RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nType)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
       {
@@ -584,27 +425,27 @@ int Help::ReadHelp(const char *Mask)
     }
     RepeatLastLine=FALSE;
 
-    while((Ptr=strchr(ReadStr,'\t')) != NULL)
+    while((Ptr=wcschr(ReadStr,L'\t')) != NULL)
     {
-      *Ptr=' ';
+      *Ptr=L' ';
       PosTab=Ptr-ReadStr+1;
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
-        InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
-      if(strlen(ReadStr) > sizeof(ReadStr)/2)
+        InsertStringW(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
+      if(wcslen(ReadStr) > sizeof(ReadStr)/2/sizeof (wchar_t))
         break;
     }
 
-    RemoveTrailingSpaces(ReadStr);
+    RemoveTrailingSpacesW(ReadStr);
 
-    if ( *CtrlStartPosChar && strstr (ReadStr, CtrlStartPosChar) )
+    if ( !strCtrlStartPosChar.IsEmpty() && wcsstr (ReadStr, strCtrlStartPosChar) )
     {
-        char Line[MAX_HELP_STRING_LENGTH];
-        int Length = strstr (ReadStr, CtrlStartPosChar)-ReadStr;
+        wchar_t Line[MAX_HELP_STRING_LENGTH];
+        int Length = wcsstr (ReadStr, strCtrlStartPosChar)-ReadStr;
 
-        xstrncpy (Line, ReadStr, Length);
-        LastStartPos = StringLen (Line);;
+        xwcsncpy (Line, ReadStr, Length);
+        LastStartPos = StringLen (Line);
 
-        strcpy (ReadStr+Length, ReadStr+Length+strlen(CtrlStartPosChar));
+        wcscpy (ReadStr+Length, ReadStr+Length+strCtrlStartPosChar.GetLength());
     }
 
     if (TopicFound)
@@ -612,17 +453,17 @@ int Help::ReadHelp(const char *Mask)
       HighlightsCorrection(ReadStr);
     }
 
-    if (*ReadStr=='@' && !BreakProcess)
+    if (*ReadStr==L'@' && !BreakProcess)
     {
       if (TopicFound)
       {
-        if (strcmp(ReadStr,"@+")==0)
+        if (wcscmp(ReadStr,L"@+")==0)
         {
           Formatting=TRUE;
           PrevSymbol=0;
           continue;
         }
-        if (strcmp(ReadStr,"@-")==0)
+        if (wcscmp(ReadStr,L"@-")==0)
         {
           Formatting=FALSE;
           PrevSymbol=0;
@@ -638,7 +479,7 @@ int Help::ReadHelp(const char *Mask)
         break;
       }
       else
-        if (LocalStricmp(ReadStr+1,StackData.HelpTopic)==0)
+        if (LocalStricmpW(ReadStr+1,StackData.strHelpTopic)==0)
         {
           TopicFound=1;
           NearTopicFound=1;
@@ -662,7 +503,7 @@ m1:
         }
 
 
-        if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
+        if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
         {
           AddLine(ReadStr+1);
           FixCount++;
@@ -702,12 +543,12 @@ m1:
             }
             else if(!*ReadStr && !*SplitLine)
             {
-              AddLine("");
+              AddLine(L"");
               continue;
             }
           }
 
-          if (*ReadStr && IsSpace(*ReadStr) && Formatting)
+          if (*ReadStr && IsSpaceW(*ReadStr) && Formatting)
           {
             if (StringLen(SplitLine)<RealMaxLength)
             {
@@ -717,7 +558,7 @@ m1:
                 StartPos = -1;
               }
 
-              strcpy(SplitLine,ReadStr);
+              wcscpy(SplitLine,ReadStr);
 
               *ReadStr=0;
               continue;
@@ -729,8 +570,8 @@ m1:
           if (!RepeatLastLine)
           {
             if (*SplitLine)
-              strcat(SplitLine," ");
-            strcat(SplitLine,ReadStr);
+              wcscat(SplitLine,L" ");
+            wcscat(SplitLine,ReadStr);
           }
 
           if (StringLen(SplitLine)<RealMaxLength)
@@ -742,34 +583,34 @@ m1:
 
           int Splitted=0;
 
-          for (int I=strlen(SplitLine)-1;I>0;I--)
+          for (int I=wcslen(SplitLine)-1;I>0;I--)
           {
-            if (I>0 && SplitLine[I]=='~' && SplitLine[I-1]=='~')
+            if (I>0 && SplitLine[I]==L'~' && SplitLine[I-1]==L'~')
             {
               I--;
               continue;
             }
-            if (I>0 && SplitLine[I]=='~' && SplitLine[I-1]!='~')
+            if (I>0 && SplitLine[I]==L'~' && SplitLine[I-1]!=L'~')
             {
               do {
                 I--;
-              } while (I>0 && SplitLine[I]!='~');
+              } while (I>0 && SplitLine[I]!=L'~');
               continue;
             }
-            if (SplitLine[I]==' ')
+            if (SplitLine[I]==L' ')
             {
               SplitLine[I]=0;
               if (StringLen(SplitLine)<RealMaxLength)
               {
                 AddLine(SplitLine);
-                memmove(SplitLine+1,SplitLine+I+1,strlen(SplitLine+I+1)+1);
-                *SplitLine=' ';
+                memmove(SplitLine+1,SplitLine+I+1,(wcslen(SplitLine+I+1)+1)*sizeof(wchar_t));
+                *SplitLine=L' ';
                 HighlightsCorrection(SplitLine);
                 Splitted=TRUE;
                 break;
               }
               else
-                SplitLine[I]=' ';
+                SplitLine[I]=L' ';
             }
           }
           if (!Splitted)
@@ -790,7 +631,7 @@ m1:
     }
     PrevSymbol=*ReadStr;
   }
-  AddLine("");
+  AddLine(L"");
 
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);
@@ -804,47 +645,47 @@ m1:
 }
 
 
-void Help::AddLine(const char *Line)
+void Help::AddLine(const wchar_t *Line)
 {
-  char *NewHelpData=(char *)xf_realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH);
+  wchar_t *NewHelpData=(wchar_t *)xf_realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH*sizeof (wchar_t));
   if (NewHelpData==NULL)
     return;
   HelpData=NewHelpData;
 
-  char *HelpStr = HelpData+StrCount*MAX_HELP_STRING_LENGTH;
+  wchar_t *HelpStr = HelpData+StrCount*MAX_HELP_STRING_LENGTH;
 
-  memset (HelpStr, 0, MAX_HELP_STRING_LENGTH);
+  wmemset (HelpStr, 0, MAX_HELP_STRING_LENGTH);
 
-  if ( StartPos != -1 )
+  if ( StartPos != 0xFFFFFFFF )
   {
     for (DWORD i = 0; i < StartPos; i++)
-      HelpStr[i] = ' ';
+      HelpStr[i] = L' ';
 
-    xstrncpy(HelpStr+StartPos, (*Line == ' ')?Line+1:Line, MAX_HELP_STRING_LENGTH-1);
+    xwcsncpy(HelpStr+StartPos, (*Line == L' ')?Line+1:Line, MAX_HELP_STRING_LENGTH-1);
   }
   else
-    xstrncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH-1);
+    xwcsncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH-1);
 
   StrCount++;
 }
 
-void Help::AddTitle(const char *Title)
+void Help::AddTitle(const wchar_t *Title)
 {
-  char IndexHelpTitle[100];
-  sprintf(IndexHelpTitle,"^ #%s#",Title);
-  AddLine(IndexHelpTitle);
+  string strIndexHelpTitle;
+  strIndexHelpTitle.Format (L"^ #%s#", Title);
+  AddLine(strIndexHelpTitle);
 }
 
-void Help::HighlightsCorrection(char *Str)
+void Help::HighlightsCorrection(wchar_t *Str)
 {
   int I,Count;
   for (I=0,Count=0;Str[I]!=0;I++)
-    if (Str[I]=='#')
+    if (Str[I]==L'#')
       Count++;
-  if ((Count & 1) && *Str!='$')
+  if ((Count & 1) && *Str!=L'$')
   {
-    memmove(Str+1,Str,strlen(Str)+1);
-    *Str='#';
+    memmove(Str+1,Str,(wcslen(Str)+1)*sizeof (wchar_t));
+    *Str=L'#';
   }
 }
 
@@ -861,14 +702,14 @@ void Help::DisplayObject()
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
       {
         BlockExtKey blockExtKey;
-        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+        MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
       }
       ProcessKey(KEY_ALTF1);
     }
     return;
   }
   SetCursorType(0,10);
-  if (*StackData.SelTopic==0)
+  if ( StackData.strSelTopic.IsEmpty() )
     MoveToReference(1,1);
   FastShow();
   if (!Opt.FullScreenHelp)
@@ -894,7 +735,7 @@ void Help::FastShow()
   /* DJ $ */
 
   CorrectPosition();
-  *StackData.SelTopic=0;
+  StackData.strSelTopic=L"";
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
      чтобы новая тема начиналась с нормальными атрибутами
@@ -925,8 +766,8 @@ void Help::FastShow()
       }
     if (StrPos<StrCount)
     {
-      char *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
-      if (*OutStr=='^')
+      wchar_t *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
+      if (*OutStr==L'^')
       {
         GotoXY(X1+(X2-X1+1-StringLen(OutStr))/2,Y1+I+1);
         OutStr++;
@@ -952,24 +793,24 @@ void Help::FastShow()
 
 void Help::DrawWindowFrame()
 {
-  SetScreen(X1,Y1,X2,Y2,' ',COL_HELPTEXT);
+  SetScreen(X1,Y1,X2,Y2,L' ',COL_HELPTEXT);
   Box(X1,Y1,X2,Y2,COL_HELPBOX,DOUBLE_BOX);
   SetColor(COL_HELPBOXTITLE);
 
-  char HelpTitleBuf [256];
-  strcpy (HelpTitleBuf, MSG(MHelpTitle));
-  strcat (HelpTitleBuf, " - ");
-  if (*CurPluginContents)
-    strcat (HelpTitleBuf, CurPluginContents);
+  string strHelpTitleBuf;
+  strHelpTitleBuf = UMSG(MHelpTitle);
+  strHelpTitleBuf += L" - ";
+  if ( !strCurPluginContents.IsEmpty() )
+    strHelpTitleBuf += strCurPluginContents;
   else
-    strcat (HelpTitleBuf, "FAR");
+    strHelpTitleBuf += L"FAR";
   /* $ 03.12.2001 DJ
      обрежем длинный заголовок
   */
-  TruncStrFromEnd(HelpTitleBuf,X2-X1-3);
+  TruncStrFromEndW(strHelpTitleBuf,X2-X1-3);
   /* DJ $ */
-  GotoXY(X1+(X2-X1+1-strlen(HelpTitleBuf)-2)/2,Y1);
-  mprintf(" %s ",HelpTitleBuf);
+  GotoXY(X1+(X2-X1+1-strHelpTitleBuf.GetLength()-2)/2,Y1);
+  mprintfW(L" %s ", (const wchar_t*)strHelpTitleBuf);
 }
 
 /* DJ $ */
@@ -977,17 +818,17 @@ void Help::DrawWindowFrame()
 /* $ 01.09.2000 SVS
   Учтем символ CtrlColorChar & CurColor
 */
-void Help::OutString(const char *Str)
+void Help::OutString(const wchar_t *Str)
 {
-  char OutStr[512];
-  const char *StartTopic=NULL;
+  wchar_t OutStr[512]; //BUGBUG
+  const wchar_t *StartTopic=NULL;
   int OutPos=0,Highlight=0,Topic=0;
-  while (OutPos<sizeof(OutStr)-10)
+  while (OutPos<sizeof(OutStr)/sizeof(wchar_t)-10)
   {
-    if (Str[0]=='~' && Str[1]=='~' ||
-        Str[0]=='#' && Str[1]=='#' ||
-        Str[0]=='@' && Str[1]=='@' ||
-        (*CtrlColorChar && Str[0]==*CtrlColorChar && Str[1]==*CtrlColorChar)
+    if (Str[0]==L'~' && Str[1]==L'~' ||
+        Str[0]==L'#' && Str[1]==L'#' ||
+        Str[0]==L'@' && Str[1]==L'@' ||
+        ( !strCtrlColorChar.IsEmpty() && Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
        )
     {
       OutStr[OutPos++]=*Str;
@@ -995,7 +836,7 @@ void Help::OutString(const char *Str)
       continue;
     }
 
-    if (*Str=='~' || ((*Str=='#' || *Str == *CtrlColorChar) && !Topic) /*|| *Str==HelpBeginLink*/ || *Str==0)
+    if (*Str==L'~' || ((*Str==L'#' || *Str == strCtrlColorChar.At(0)) && !Topic) /*|| *Str==HelpBeginLink*/ || *Str==0)
     {
       OutStr[OutPos]=0;
       if (Topic)
@@ -1007,25 +848,29 @@ void Help::OutString(const char *Str)
                 RealCurX<WhereX()+(Str-StartTopic)-1)
         {
           SetColor(COL_HELPSELECTEDTOPIC);
-          if (Str[1]=='@')
+          if (Str[1]==L'@')
           {
-            xstrncpy(StackData.SelTopic,Str+2,sizeof(StackData.SelTopic)-1);
-            char *EndPtr=strchr(StackData.SelTopic,'@');
+            StackData.strSelTopic = (Str+2);
+
+            wchar_t *EndPtr = StackData.strSelTopic.GetBuffer (StackData.strSelTopic.GetLength()*2);
+            EndPtr=wcschr(EndPtr,L'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
                этот вариант только для URL!
             */
             if (EndPtr!=NULL)
             {
-              if(*(EndPtr+1) == '@')
+              if(*(EndPtr+1) == L'@')
               {
-                memmove(EndPtr,EndPtr+1,strlen(EndPtr)+1);
+                memmove(EndPtr,EndPtr+1,(wcslen(EndPtr)+1)*sizeof (wchar_t));
                 EndPtr++;
               }
-              EndPtr=strchr(EndPtr,'@');
+              EndPtr=wcschr(EndPtr,L'@');
               if (EndPtr!=NULL)
                 *EndPtr=0;
             }
+
+            StackData.strSelTopic.ReleaseBuffer ();
             /* SVS $ */
           }
         }
@@ -1039,20 +884,20 @@ void Help::OutString(const char *Str)
           SetColor(CurColor);
       /* $ 24.09.2001 VVM
         ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-      if (static_cast<int>(strlen(OutStr) + WhereX()) > X2)
+      if (static_cast<int>(wcslen(OutStr) + WhereX()) > X2)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
       if (Locked())
-        GotoXY(WhereX()+strlen(OutStr),WhereY());
+        GotoXY(WhereX()+wcslen(OutStr),WhereY());
       else
-        Text(OutStr);
+        TextW(OutStr);
       OutPos=0;
     }
 
     if (*Str==0)
       break;
 
-    if (*Str=='~')
+    if (*Str==L'~')
     {
       if (!Topic)
         StartTopic=Str;
@@ -1060,48 +905,48 @@ void Help::OutString(const char *Str)
       Str++;
       continue;
     }
-    if (*Str=='@')
+    if (*Str==L'@')
     {
       /* $ 25.08.2000 SVS
          учтем, что может быть такой вариант: @@
          этот вариант только для URL!
       */
       while (*Str)
-        if (*(++Str)=='@' && *(Str-1)!='@')
+        if (*(++Str)==L'@' && *(Str-1)!=L'@')
           break;
       /* SVS $ */
       Str++;
       continue;
     }
-    if (*Str=='#')
+    if (*Str==L'#')
     {
       Highlight=!Highlight;
       Str++;
       continue;
     }
-    if (*Str == *CtrlColorChar)
+    if (*Str == strCtrlColorChar.At(0))
     {
       WORD Chr;
 
       Chr=(BYTE)Str[1];
-      if(Chr == '-') // "\-" - установить дефолтовый цвет
+      if(Chr == L'-') // "\-" - установить дефолтовый цвет
       {
         Str+=2;
         CurColor=COL_HELPTEXT;
         continue;
       }
-      if(isxdigit(Chr) && isxdigit(Str[2]))
+      if(iswxdigit(Chr) && iswxdigit(Str[2]))
       {
         WORD Attr;
 
-        if(Chr >= '0' && Chr <= '9') Chr-='0';
-        else { Chr&=~0x20; Chr=Chr-'A'+10; }
+        if(Chr >= L'0' && Chr <= L'9') Chr-=L'0';
+        else { Chr&=~0x20; Chr=Chr-L'A'+10; }
         Attr=(Chr<<4)&0x00F0;
 
         // next char
         Chr=Str[2];
-        if(Chr >= '0' && Chr <= '9') Chr-='0';
-        else { Chr&=~0x20; Chr=Chr-'A'+10; }
+        if(Chr >= L'0' && Chr <= L'9') Chr-=L'0';
+        else { Chr&=~0x20; Chr=Chr-L'A'+10; }
         Attr|=(Chr&0x000F);
         CurColor=Attr;
         Str+=3;
@@ -1114,34 +959,34 @@ void Help::OutString(const char *Str)
   if (!Locked() && WhereX()<X2)
   {
     SetColor(CurColor);
-    mprintf("%*s",X2-WhereX(),"");
+    mprintfW(L"%*s",X2-WhereX(),L"");
   }
 }
 
 
-int Help::StringLen(const char *Str)
+int Help::StringLen(const wchar_t *Str)
 {
   int Length=0;
   while (*Str)
   {
-    if (Str[0]=='~' && Str[1]=='~' ||
-        Str[0]=='#' && Str[1]=='#' ||
-        Str[0]=='@' && Str[1]=='@' ||
-        (*CtrlColorChar && Str[0]==*CtrlColorChar && Str[1]==*CtrlColorChar)
+    if (Str[0]==L'~' && Str[1]==L'~' ||
+        Str[0]==L'#' && Str[1]==L'#' ||
+        Str[0]==L'@' && Str[1]==L'@' ||
+        ( !strCtrlColorChar.IsEmpty() && Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
        )
     {
       Length++;
       Str+=2;
       continue;
     }
-    if (*Str=='@')
+    if (*Str==L'@')
     {
       /* $ 25.08.2000 SVS
          учтем, что может быть такой вариант: @@
          этот вариант только для URL!
       */
       while (*Str)
-        if (*(++Str)=='@' && *(Str-1)!='@')
+        if (*(++Str)==L'@' && *(Str-1)!=L'@')
           break;
       /* SVS $ */
       Str++;
@@ -1150,15 +995,15 @@ int Help::StringLen(const char *Str)
     /* $ 01.09.2000 SVS
        учтем наше нововведение \XX или \-
     */
-    if(*Str == *CtrlColorChar)
+    if(*Str == strCtrlColorChar.At(0))
     {
-      if(Str[1] == '-')
+      if(Str[1] == L'-')
       {
         Str+=2;
         continue;
       }
 
-      if(isxdigit(Str[1]) && isxdigit(Str[2]))
+      if(iswxdigit(Str[1]) && iswxdigit(Str[2]))
       {
         Str+=3;
         continue;
@@ -1166,7 +1011,7 @@ int Help::StringLen(const char *Str)
     }
     /* SVS $ */
 
-    if (*Str!='#' && *Str!='~')
+    if (*Str!=L'#' && *Str!=L'~')
       Length++;
     Str++;
   }
@@ -1241,7 +1086,7 @@ int Help::Search(int Next)
 
     if (!Case)
       for (int I=0;I<SearchLength;I++)
-        SearchStr[I]=LocalUpper(SearchStr[I]);
+        SearchStr[I]=LocalUpperW(SearchStr[I]);
 /*
     //if(!ReadHelp(HelpMask))
     //fseek(ViewFile,LastSearchPos,SEEK_SET);
@@ -1266,7 +1111,7 @@ int Help::Search(int Next)
 
 int Help::ProcessKey(int Key)
 {
-  if (*StackData.SelTopic==0)
+  if ( StackData.strSelTopic.IsEmpty() )
     StackData.CurX=StackData.CurY=0;
   switch(Key)
   {
@@ -1298,7 +1143,7 @@ int Help::ProcessKey(int Key)
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr=0;
       FastShow();
-      if (*StackData.SelTopic==0)
+      if ( StackData.strSelTopic.IsEmpty() )
         MoveToReference(1,1);
       return(TRUE);
     }
@@ -1310,7 +1155,7 @@ int Help::ProcessKey(int Key)
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr=StrCount;
       FastShow();
-      if (*StackData.SelTopic==0)
+      if ( StackData.strSelTopic.IsEmpty() )
       {
         StackData.CurX=0;
         StackData.CurY=Y2-Y1-2-FixSize;
@@ -1330,7 +1175,7 @@ int Help::ProcessKey(int Key)
           StackData.CurY++;
         }
         FastShow();
-        if (*StackData.SelTopic==0)
+        if (StackData.strSelTopic.IsEmpty())
           MoveToReference(0,1);
       }
       else
@@ -1347,7 +1192,7 @@ int Help::ProcessKey(int Key)
           StackData.CurY--;
         StackData.CurX=0;
         FastShow();
-        if (*StackData.SelTopic==0)
+        if (StackData.strSelTopic.IsEmpty())
           MoveToReference(1,1);
       }
       else
@@ -1383,7 +1228,7 @@ int Help::ProcessKey(int Key)
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr-=Y2-Y1-2-FixSize;
       FastShow();
-      if (*StackData.SelTopic==0)
+      if (StackData.strSelTopic.IsEmpty())
       {
         StackData.CurX=StackData.CurY=0;
         MoveToReference(1,1);
@@ -1426,7 +1271,7 @@ int Help::ProcessKey(int Key)
     case KEY_F1:
     {
       // не поганим SelTopic, если и так в Help on Help
-      if(LocalStricmp(StackData.HelpTopic,HelpOnHelpTopic)!=0)
+      if(LocalStricmpW(StackData.strHelpTopic,HelpOnHelpTopic)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1440,7 +1285,7 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTF1:
     {
       //   не поганим SelTopic, если и так в теме Contents
-      if(LocalStricmp(StackData.HelpTopic,HelpContents)!=0)
+      if(LocalStricmpW(StackData.strHelpTopic,HelpContents)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1454,7 +1299,7 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTF2:
     {
       //   не поганим SelTopic, если и так в PluginContents
-      if(LocalStricmp(StackData.HelpTopic,PluginContents)!=0)
+      if(LocalStricmpW(StackData.strHelpTopic,PluginContents)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1469,7 +1314,7 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTF3: // Для "документов" :-)
     {
       //   не поганим SelTopic, если и так в DocumentContents
-      if(LocalStricmp(StackData.HelpTopic,DocumentContents)!=0)
+      if(LocalStricmpW(StackData.strHelpTopic,DocumentContents)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1488,7 +1333,7 @@ int Help::ProcessKey(int Key)
       if(!Stack->isEmpty())
       {
         Stack->Pop(&StackData);
-        JumpTopic(StackData.HelpTopic);
+        JumpTopic(StackData.strHelpTopic);
         ErrorHelp=FALSE;
         return(TRUE);
       }
@@ -1497,14 +1342,14 @@ int Help::ProcessKey(int Key)
 
     case KEY_ENTER:
     {
-      if (*StackData.SelTopic && LocalStricmp(StackData.HelpTopic,StackData.SelTopic)!=0)
+      if ( !StackData.strSelTopic.IsEmpty() && LocalStricmpW(StackData.strHelpTopic,StackData.strSelTopic)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
         if (!JumpTopic())
         {
           Stack->Pop(&StackData);
-          ReadHelp(StackData.HelpMask); // вернем то, что отображали.
+          ReadHelp(StackData.strHelpMask); // вернем то, что отображали.
         }
         ErrorHelp=FALSE;
         IsNewTopic=FALSE;
@@ -1530,109 +1375,142 @@ int Help::ProcessKey(int Key)
   return(FALSE);
 }
 
-int Help::JumpTopic(const char *JumpTopic)
+int Help::JumpTopic(const wchar_t *JumpTopic)
 {
-  char NewTopic[512];
-  char *p;
+  string strNewTopic;
+  wchar_t *p;
 
   Stack->PrintStack(JumpTopic);
 
   if(JumpTopic)
-    strcpy(StackData.SelTopic,JumpTopic);
+    StackData.strSelTopic = JumpTopic;
   /* $ 14.07.2002 IS
        При переходе по ссылкам используем всегда только абсолютные пути,
        если это возможно.
   */
   // Если ссылка на другой файл, путь относительный и есть то, от чего можно
   // вычислить абсолютный путь, то сделаем это
-  if(*StackData.SelTopic==HelpBeginLink &&
-     NULL!=(p=strchr(StackData.SelTopic+2,HelpEndLink))&&
-     !PathMayBeAbsolute(StackData.SelTopic+1) &&
-     *StackData.HelpPath)
+  if( StackData.strSelTopic.At(0)==HelpBeginLink &&
+     NULL!=(wcschr((const wchar_t*)StackData.strSelTopic+2,HelpEndLink))&&
+     !PathMayBeAbsoluteW((const wchar_t*)StackData.strSelTopic+1) &&
+     !StackData.strHelpPath.IsEmpty())
   {
-    char FullPath[sizeof(NewTopic)*2];
-    xstrncpy(NewTopic, StackData.SelTopic+1,p-StackData.SelTopic-1);
-    strcpy(FullPath,StackData.HelpPath);
 
+    string strFullPath;
+
+    p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
+
+    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((p-(const wchar_t*)StackData.strSelTopic-1)*sizeof (wchar_t));
+
+    xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof(wchar_t));
+
+    strNewTopic.ReleaseBuffer();
+
+    strFullPath = StackData.strHelpPath;
+
+    wchar_t *lpwszFullPath = strFullPath.GetBuffer();
     // уберем _все_ конечные слеши и добавим один
-    int Len=strlen(FullPath)-1;
-    while(Len>-1 && FullPath[Len]=='\\')
+    int Len=wcslen(lpwszFullPath)-1;
+    while(Len>-1 && lpwszFullPath[Len]==L'\\')
     {
-      FullPath[Len]=0;
+      lpwszFullPath[Len]=0;
       --Len;
     }
     if(Len<0)
       Len=0;
     else
       ++Len;
-    FullPath[Len]='\\';
-    FullPath[Len+1]=0;
+    lpwszFullPath[Len]=L'\\';
+    lpwszFullPath[Len+1]=0;
 
-    strcat(FullPath,NewTopic+((*NewTopic=='\\' || *NewTopic=='/')?1:0));
-    BOOL addSlash=DeleteEndSlash(FullPath);
-    if(ConvertNameToFull(FullPath,NewTopic,sizeof(NewTopic))<sizeof(NewTopic))
-    {
-      sprintf(FullPath,addSlash?HelpFormatLink:HelpFormatLinkModule,
-        NewTopic,p+1);
-      xstrncpy(StackData.SelTopic,FullPath,sizeof(StackData.SelTopic));
-    }
+    strFullPath.ReleaseBuffer();
+
+    strFullPath += (const wchar_t*)strNewTopic+((strNewTopic.At(0)==L'\\' || strNewTopic.At(0)==L'/')?1:0);
+    BOOL addSlash=DeleteEndSlashW(strFullPath);
+
+    ConvertNameToFullW(strFullPath,strNewTopic);
+
+    strFullPath.Format (addSlash?HelpFormatLink:HelpFormatLinkModule, (const wchar_t*)strNewTopic, wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink)+1);
+    StackData.strSelTopic = strFullPath;
   }
   /* IS 14.07.2002 $ */
 //_SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
   // URL активатор - это ведь так просто :-)))
   {
-    strcpy(NewTopic,StackData.SelTopic);
-    p=strchr(NewTopic,':');
-    if(p && NewTopic[0] != ':') // наверное подразумевается URL
+    strNewTopic = StackData.strSelTopic;
+
+    wchar_t *lpwszNewTopic = strNewTopic.GetBuffer ();
+
+    p=wcschr(lpwszNewTopic,L':');
+    if(p && strNewTopic.At(0) != L':') // наверное подразумевается URL
     {
       *p=0;
-      if(RunURL(NewTopic,StackData.SelTopic))
+
+      wchar_t *lpwszTopic = StackData.strSelTopic.GetBuffer ();
+
+      if(RunURL(lpwszNewTopic, lpwszTopic))
+      {
+          StackData.strSelTopic.ReleaseBuffer ();
+
         return(FALSE);
+      }
+      else
+          StackData.strSelTopic.ReleaseBuffer ();
       *p=':';
     }
+
+    strNewTopic.ReleaseBuffer ();
   }
   // а вот теперь попробуем...
 
 //_SVS(SysLog("JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
-  if (*StackData.HelpPath && *StackData.SelTopic!=HelpBeginLink && strcmp(StackData.SelTopic,HelpOnHelpTopic)!=0)
+  if ( !StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && wcscmp(StackData.strSelTopic,HelpOnHelpTopic)!=0)
   {
-    if (*StackData.SelTopic==':')
+    if ( StackData.strSelTopic.At(0)==L':')
     {
-      strcpy(NewTopic,StackData.SelTopic+1);
+      strNewTopic = (const wchar_t*)StackData.strSelTopic+1;
       StackData.Flags&=~FHELP_CUSTOMFILE;
     }
     else if(StackData.Flags&FHELP_CUSTOMFILE)
-      strcpy(NewTopic,StackData.SelTopic);
+      strNewTopic = StackData.strSelTopic;
     else
-      sprintf(NewTopic,HelpFormatLink,StackData.HelpPath,StackData.SelTopic);
+      strNewTopic.Format (HelpFormatLink,(const wchar_t*)StackData.strHelpPath,(const wchar_t*)StackData.strSelTopic);
   }
   else
   {
-    strcpy(NewTopic,StackData.SelTopic+(!strcmp(StackData.SelTopic,HelpOnHelpTopic)?1:0));
+    strNewTopic = (const wchar_t*)StackData.strSelTopic+(!wcscmp(StackData.strSelTopic,HelpOnHelpTopic)?1:0);
   }
 
   // удалим ссылку на .DLL
-  p=strrchr(NewTopic,HelpEndLink);
+
+  wchar_t *lpwszNewTopic = strNewTopic.GetBuffer();
+
+  p=wcsrchr(lpwszNewTopic,HelpEndLink);
   if(p)
   {
-    if(*(p-1) != '\\')
+    if(*(p-1) != L'\\')
     {
-      char *p2=p;
-      while(p >= NewTopic)
+      wchar_t *p2=p;
+      while(p >= lpwszNewTopic)
       {
-        if(*p == '\\')
+        if(*p == L'\\')
         {
 //          ++p;
           if(*p)
           {
             StackData.Flags|=FHELP_CUSTOMFILE;
-            strcpy(StackData.HelpMask,p+1);
-            *strrchr(StackData.HelpMask,HelpEndLink)=0;
+            StackData.strHelpMask = p+1;
+
+            wchar_t *lpwszMask = StackData.strHelpMask.GetBuffer ();
+
+            *wcsrchr(lpwszMask,HelpEndLink)=0;
+
+            StackData.strHelpMask.ReleaseBuffer ();
           }
-          memmove(p,p2,strlen(p2)+1);
-          p=strrchr(StackData.HelpMask,'.');
-          if(p && stricmp(p,".hlf"))
-            *StackData.HelpMask=0;
+          memmove(p,p2,(wcslen(p2)+1)*sizeof(wchar_t));
+          p=wcsrchr(StackData.strHelpMask,L'.');
+          if(p && LocalStricmpW(p,L".hlf"))
+            StackData.strHelpMask=L"";
           break;
         }
         --p;
@@ -1645,39 +1523,49 @@ int Help::JumpTopic(const char *JumpTopic)
     }
   }
 
+  strNewTopic.ReleaseBuffer();
+
 //_SVS(SysLog("HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
-  if(*StackData.SelTopic != ':' &&
-     LocalStricmp(StackData.SelTopic,PluginContents)
+  if( StackData.strSelTopic.At(0) != L':' &&
+     LocalStricmpW(StackData.strSelTopic,PluginContents)
 #if defined(WORK_HELP_DOCUMS)
-     && LocalStricmp(StackData.SelTopic,DocumentContents)
+     && LocalStricmpW(StackData.strSelTopic,DocumentContents)
 #endif
     )
   {
-    if(!(StackData.Flags&FHELP_CUSTOMFILE) && strrchr(NewTopic,HelpEndLink))
+    if(!(StackData.Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic,HelpEndLink))
     {
-      if(StackData.HelpMask)
-        *StackData.HelpMask=0;
+       StackData.strHelpMask=L"";
     }
   }
   else
   {
-    if(StackData.HelpMask)
-      *StackData.HelpMask=0;
+      StackData.strHelpMask=L"";
   }
-  strcpy(StackData.HelpTopic,NewTopic);
+  StackData.strHelpTopic = strNewTopic;
   if(!(StackData.Flags&FHELP_CUSTOMFILE))
-    *StackData.HelpPath=0;
-  if(!ReadHelp(StackData.HelpMask))
+    StackData.strHelpPath=L"";
+  if(!ReadHelp(StackData.strHelpMask))
   {
-    strcpy(StackData.HelpTopic,NewTopic);
-    if(*StackData.HelpTopic == HelpBeginLink)
+    StackData.strHelpTopic = strNewTopic;
+    if( StackData.strHelpTopic.At(0) == HelpBeginLink)
     {
-      char *Ptr=strrchr(StackData.HelpTopic,HelpEndLink);
-      if(Ptr)
-        strcpy(++Ptr,HelpContents);
+        wchar_t *Ptr=StackData.strHelpTopic.GetBuffer ();
+
+        Ptr = wcsrchr(Ptr,HelpEndLink);
+
+        if ( Ptr )
+        {
+            *(Ptr++) = 0;
+            StackData.strHelpTopic.ReleaseBuffer ();
+
+            StackData.strHelpTopic += HelpContents;
+        }
+        else
+            StackData.strHelpTopic.ReleaseBuffer ();
     }
-    *StackData.HelpPath=0;
-    ReadHelp(StackData.HelpMask);
+    StackData.strHelpPath=L"";
+    ReadHelp(StackData.strHelpMask);
   }
   ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 
@@ -1687,15 +1575,15 @@ int Help::JumpTopic(const char *JumpTopic)
     if(!(StackData.Flags&FHELP_NOSHOWERROR))
     {
       BlockExtKey blockExtKey;
-      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+      MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
     }
     return FALSE;
   }
 //  ResizeConsole();
   if(IsNewTopic
-    || !LocalStricmp(StackData.SelTopic,PluginContents) // Это неприятный костыль :-((
+    || !LocalStricmpW(StackData.strSelTopic,PluginContents) // Это неприятный костыль :-((
 #if defined(WORK_HELP_DOCUMS)
-    || !LocalStricmp(StackData.SelTopic,DocumentContents)
+    || !LocalStricmpW(StackData.strSelTopic,DocumentContents)
 #endif
     )
     MoveToReference(1,1);
@@ -1813,7 +1701,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwEventFlags==0 &&
      (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
       MouseDown &&
-      *StackData.SelTopic)
+      !StackData.strSelTopic.IsEmpty())
   {
     MouseDown = FALSE;
     ProcessKey(KEY_ENTER);
@@ -1836,23 +1724,23 @@ int Help::IsReferencePresent()
     return FALSE;
   }
   /* OT 19.09.2000 $ */
-  char *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
-  return (strchr(OutStr,'@')!=NULL && strchr(OutStr,'~')!=NULL);
+  wchar_t *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
+  return (wcschr(OutStr,L'@')!=NULL && wcschr(OutStr,L'~')!=NULL);
 }
 
 
 void Help::MoveToReference(int Forward,int CurScreen)
 {
-  int StartSelection=*StackData.SelTopic;
+  int StartSelection=!StackData.strSelTopic.IsEmpty();
   int SaveCurX=StackData.CurX;
   int SaveCurY=StackData.CurY;
   int SaveTopStr=StackData.TopStr;
   BOOL ReferencePresent;
 
-  *StackData.SelTopic=0;
+  StackData.strSelTopic=L"";
   Lock ();
 
-  if(!ErrorHelp) while (*StackData.SelTopic==0)
+  if(!ErrorHelp) while ( StackData.strSelTopic.IsEmpty() )
   {
     ReferencePresent=IsReferencePresent();
     if (Forward)
@@ -1886,7 +1774,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 
     FastShow();
 
-    if (*StackData.SelTopic==0)
+    if ( StackData.strSelTopic.IsEmpty() )
       StartSelection=0;
     else
     {
@@ -1895,11 +1783,11 @@ void Help::MoveToReference(int Forward,int CurScreen)
         StartSelection=0;
 
       if (StartSelection)
-        *StackData.SelTopic=0;
+        StackData.strSelTopic=L"";
     }
   }
   Unlock ();
-  if (*StackData.SelTopic==0)
+  if ( StackData.strSelTopic.IsEmpty() )
   {
     StackData.CurX=SaveCurX;
     StackData.CurY=SaveCurY;
@@ -1916,7 +1804,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   /* $ 29.11.2001 DJ
      это не плагин -> чистим CurPluginContents
   */
-  *CurPluginContents = '\0';
+  strCurPluginContents = L"";
   /* DJ $ */
 
   StrCount=0;
@@ -1925,17 +1813,17 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   StackData.TopStr=0;
   TopicFound=TRUE;
   StackData.CurX=StackData.CurY=0;
-  CtrlColorChar[0]=0;
+  strCtrlColorChar=L"";
 
-  char *PtrTitle=0, *ContentsName=0;
-  char Path[NM],FullFileName[NM],*Slash;
-  char EntryName[512],HelpLine[512],SecondParam[512];
+  wchar_t *PtrTitle=0, *ContentsName=0;
+  string strPath, strFullFileName;
+  string strEntryName, strHelpLine, strSecondParam;
 
   switch(TypeIndex)
   {
     case HIDX_PLUGINS:
-      PtrTitle=MSG(MPluginsHelpTitle);
-      ContentsName="PluginContents";
+      PtrTitle=UMSG(MPluginsHelpTitle);
+      ContentsName=L"PluginContents";
       break;
 #if defined(WORK_HELP_DOCUMS)
     case HIDX_DOCUMS:
@@ -1958,19 +1846,24 @@ void Help::ReadDocumentsHelp(int TypeIndex)
     {
       for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
       {
-        strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
-        if ((Slash=strrchr(Path,'\\'))!=NULL)
-          *++Slash=0;
-        FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
+        strPath = CtrlObject->Plugins.PluginsData[I]->strModuleName;
+
+        CutToSlashW(strPath);
+
+        int nType = TYPE_ANSI;
+
+        FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nType);
+
         if (HelpFile!=NULL)
         {
-          if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
+          string strEntryName, strHelpLine, strSecondParam;
+          if (Language::GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nType))
           {
-            if (*SecondParam)
-              sprintf(HelpLine,"   ~%s,%s~@" HelpFormatLink "@",EntryName,SecondParam,Path,HelpContents);
+            if ( !strSecondParam.IsEmpty() )
+              strHelpLine.Format (L"   ~%s,%s~@" HelpFormatLink L"@", (const wchar_t*)strEntryName, (const wchar_t*)strSecondParam, (const wchar_t*)strPath,HelpContents);
             else
-              sprintf(HelpLine,"   ~%s~@" HelpFormatLink "@",EntryName,Path,HelpContents);
-            AddLine(HelpLine);
+              strHelpLine.Format (L"   ~%s~@" HelpFormatLink L"@",(const wchar_t*)strEntryName, (const wchar_t*)strPath,HelpContents);
+            AddLine(strHelpLine);
           }
 
           fclose(HelpFile);
@@ -1988,7 +1881,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
         strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
         if ((Slash=strrchr(Path,'\\'))!=NULL)
           *++Slash=0;
+
         FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
+
         if (HelpFile!=NULL)
         {
           if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
@@ -2007,7 +1902,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       // в документах.
       {
         WIN32_FIND_DATA FindData;
-        char FMask[NM], *PtrPath;
+        char FMask[NM];
         AddEndSlash(strcpy(Path,FarPath));
         strcat(Path,"Doc");
         ScanTree ScTree(FALSE,FALSE);
@@ -2044,42 +1939,47 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 #endif
   }
   // сортируем по алфавиту
-  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (__cdecl*)(const void *,const void *))LCStricmp);
+  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH*sizeof (wchar_t),(int (__cdecl*)(const void *,const void *))LocalStricmpW);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */
-  AddLine("");
+  AddLine(L"");
   /* IS $ */
 }
 
 // Формирование топика с учетом разных факторов
-char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
+string &Help::MkTopic(int PluginNumber,const wchar_t *HelpTopic,string &strTopic)
 {
-  *Topic=0;
+  strTopic=L"";
   if (HelpTopic && *HelpTopic)
   {
-    if (*HelpTopic==':')
-      strcpy(Topic,HelpTopic+1);
+    if (*HelpTopic==L':')
+      strTopic = (HelpTopic+1);
     else
     {
       if(PluginNumber != -1 && *HelpTopic!=HelpBeginLink)
       {
-         sprintf(Topic,HelpFormatLinkModule,
-                CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName,
-                HelpTopic);
+         strTopic.Format (
+                HelpFormatLinkModule,
+                (const wchar_t*)CtrlObject->Plugins.PluginsData[PluginNumber]->strModuleName,
+                HelpTopic
+                );
       }
       else
-        xstrncpy(Topic,HelpTopic,511);
+        strTopic = HelpTopic;
 
-      if(*Topic==HelpBeginLink)
+      if( strTopic.At(0)==HelpBeginLink)
       {
-        char *Ptr, *Ptr2;
-        if((Ptr=strchr(Topic,HelpEndLink)) == NULL)
-          *Topic=0;
+        wchar_t *Ptr, *Ptr2;
+
+        wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
+
+        if((Ptr=wcschr(lpwszTopic,HelpEndLink)) == NULL)
+          *lpwszTopic=0;
         else
         {
           if(!Ptr[1]) // Вона как поперло то...
-            strcat(Topic,HelpContents); // ... значит покажем основную тему.
+            wcscat(lpwszTopic,HelpContents); // ... значит покажем основную тему. //BUGBUG
 
           /* А вот теперь разгребем...
              Формат может быть :
@@ -2088,28 +1988,30 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
              Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
           */
           Ptr2=Ptr-1;
-          if(*Ptr2 != '\\') // Это имя модуля?
+          if(*Ptr2 != L'\\') // Это имя модуля?
           {
             // значит удалим это чертово имя :-)
-            if((Ptr2=strrchr(Topic,'\\')) == NULL) // ВО! Фигня какая-то :-(
-              *Topic=0;
+            if((Ptr2=wcsrchr(lpwszTopic,L'\\')) == NULL) // ВО! Фигня какая-то :-(
+              *lpwszTopic=0;
           }
-          if(*Topic)
+          if( *lpwszTopic )
           {
             /* $ 21.08.2001 KM
               - Неверно создавался топик с учётом нового правила,
                 в котором путь для топика должен заканчиваться "/".
             */
-            memmove(Ptr2+1,Ptr,strlen(Ptr)+1); //???
+            memmove(Ptr2+1,Ptr,(wcslen(Ptr)+1)*sizeof(wchar_t)); //???
             /* KM $ */
 
             // А вот ЗДЕСЬ теперь все по правилам Help API!
           }
         }
+
+        strTopic.ReleaseBuffer();
       }
     }
   }
-  return *Topic?Topic:NULL;
+  return strTopic;
 }
 
 
@@ -2134,16 +2036,16 @@ void Help::SetScreenPosition()
 */
 void Help::InitKeyBar(void)
 {
-  char *FHelpKeys[]={MSG(MHelpF1),MSG(MHelpF2),MSG(MHelpF3),MSG(MHelpF4),MSG(MHelpF5),MSG(MHelpF6),MSG(MHelpF7),MSG(MHelpF8),MSG(MHelpF9),MSG(MHelpF10),MSG(MHelpF11),MSG(MHelpF12)};
-  char *FHelpShiftKeys[]={MSG(MHelpShiftF1),MSG(MHelpShiftF2),MSG(MHelpShiftF3),MSG(MHelpShiftF4),MSG(MHelpShiftF5),MSG(MHelpShiftF6),MSG(MHelpShiftF7),MSG(MHelpShiftF8),MSG(MHelpShiftF9),MSG(MHelpShiftF10),MSG(MHelpShiftF11),MSG(MHelpShiftF12)};
-  char *FHelpAltKeys[]={MSG(MHelpAltF1),MSG(MHelpAltF2),MSG(MHelpAltF3),MSG(MHelpAltF4),MSG(MHelpAltF5),MSG(MHelpAltF6),MSG(MHelpAltF7),MSG(MHelpAltF8),MSG(MHelpAltF9),MSG(MHelpAltF10),MSG(MHelpAltF11),MSG(MHelpAltF12)};
-  char *FHelpCtrlKeys[]={MSG(MHelpCtrlF1),MSG(MHelpCtrlF2),MSG(MHelpCtrlF3),MSG(MHelpCtrlF4),MSG(MHelpCtrlF5),MSG(MHelpCtrlF6),MSG(MHelpCtrlF7),MSG(MHelpCtrlF8),MSG(MHelpCtrlF9),MSG(MHelpCtrlF10),MSG(MHelpCtrlF11),MSG(MHelpCtrlF12)};
+  wchar_t *FHelpKeys[]={UMSG(MHelpF1),UMSG(MHelpF2),UMSG(MHelpF3),UMSG(MHelpF4),UMSG(MHelpF5),UMSG(MHelpF6),UMSG(MHelpF7),UMSG(MHelpF8),UMSG(MHelpF9),UMSG(MHelpF10),UMSG(MHelpF11),UMSG(MHelpF12)};
+  wchar_t *FHelpShiftKeys[]={UMSG(MHelpShiftF1),UMSG(MHelpShiftF2),UMSG(MHelpShiftF3),UMSG(MHelpShiftF4),UMSG(MHelpShiftF5),UMSG(MHelpShiftF6),UMSG(MHelpShiftF7),UMSG(MHelpShiftF8),UMSG(MHelpShiftF9),UMSG(MHelpShiftF10),UMSG(MHelpShiftF11),UMSG(MHelpShiftF12)};
+  wchar_t *FHelpAltKeys[]={UMSG(MHelpAltF1),UMSG(MHelpAltF2),UMSG(MHelpAltF3),UMSG(MHelpAltF4),UMSG(MHelpAltF5),UMSG(MHelpAltF6),UMSG(MHelpAltF7),UMSG(MHelpAltF8),UMSG(MHelpAltF9),UMSG(MHelpAltF10),UMSG(MHelpAltF11),UMSG(MHelpAltF12)};
+  wchar_t *FHelpCtrlKeys[]={UMSG(MHelpCtrlF1),UMSG(MHelpCtrlF2),UMSG(MHelpCtrlF3),UMSG(MHelpCtrlF4),UMSG(MHelpCtrlF5),UMSG(MHelpCtrlF6),UMSG(MHelpCtrlF7),UMSG(MHelpCtrlF8),UMSG(MHelpCtrlF9),UMSG(MHelpCtrlF10),UMSG(MHelpCtrlF11),UMSG(MHelpCtrlF12)};
 //  char *FHelpAltShiftKeys[]={MSG(MHelpAltShiftF1),MSG(MHelpAltShiftF2),MSG(MHelpAltShiftF3),MSG(MHelpAltShiftF4),MSG(MHelpAltShiftF5),MSG(MHelpAltShiftF6),MSG(MHelpAltShiftF7),MSG(MHelpAltShiftF8),MSG(MHelpAltShiftF9),MSG(MHelpAltShiftF10),MSG(MHelpAltShiftF11),MSG(MHelpAltShiftF12)};
 //  char *FHelpCtrlShiftKeys[]={MSG(MHelpCtrlShiftF1),MSG(MHelpCtrlShiftF2),MSG(MHelpCtrlShiftF3),MSG(MHelpCtrlShiftF4),MSG(MHelpCtrlShiftF5),MSG(MHelpCtrlShiftF6),MSG(MHelpCtrlShiftF7),MSG(MHelpCtrlShiftF8),MSG(MHelpCtrlShiftF9),MSG(MHelpCtrlShiftF10),MSG(MHelpCtrlShiftF11),MSG(MHelpCtrlShiftF12)};
 //  char *FHelpCtrlAltKeys[]={MSG(MHelpCtrlAltF1),MSG(MHelpCtrlAltF2),MSG(MHelpCtrlAltF3),MSG(MHelpCtrlAltF4),MSG(MHelpCtrlAltF5),MSG(MHelpCtrlAltF6),MSG(MHelpCtrlAltF7),MSG(MHelpCtrlAltF8),MSG(MHelpCtrlAltF9),MSG(MHelpCtrlAltF10),MSG(MHelpCtrlAltF11),MSG(MHelpCtrlAltF12)};
-  char *FHelpAltShiftKeys[]={"","","","","","","","","","","",""};
-  char *FHelpCtrlShiftKeys[]={"","","","","","","","","","","",""};
-  char *FHelpCtrlAltKeys[]={"","","","","","","","","","","",""};
+  wchar_t *FHelpAltShiftKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
+  wchar_t *FHelpCtrlShiftKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
+  wchar_t *FHelpCtrlAltKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
 
   // Уберем лишнее с глаз долой
 #if !defined(WORK_HELP_DOCUMS)
@@ -2178,40 +2080,41 @@ void Help::InitKeyBar(void)
      Protocol="mailto"
      URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
 */
-static int RunURL(char *Protocol, char *URLPath)
+static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 {
   int EditCode=0;
   if(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF))
   {
-    char *Buf=(char*)xf_malloc(2048);
+    wchar_t *Buf=(wchar_t*)xf_malloc(2048); //BUGBUG
     if(Buf)
     {
       HKEY hKey;
       DWORD Disposition, DataSize=250;
-      strcpy(Buf,Protocol);
-      strcat(Buf,"\\shell\\open\\command");
-      if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+      wcscpy(Buf,Protocol);
+      wcscat(Buf,L"\\shell\\open\\command");
+      if(RegOpenKeyExW(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
       {
-        Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
-        ExpandEnvironmentStr(Buf, Buf, 2048);
+        Disposition=RegQueryValueExW(hKey,L"",0,&Disposition,(LPBYTE)Buf,&DataSize);
+
+        ExpandEnvironmentStringsW(Buf, Buf, 2048); //BUGBUG
         RegCloseKey(hKey);
         if(Disposition == ERROR_SUCCESS)
         {
-          char *pp=strrchr(Buf,'%');
-          if(pp) *pp='\0'; else strcat(Buf," ");
+          wchar_t *pp=wcsrchr(Buf,L'%');
+          if(pp) *pp=L'\0'; else wcscat(Buf,L" ");
 
           // удалим два идущих в подряд ~~
           pp=URLPath;
-          while(*pp && (pp=strstr(pp,"~~")) != NULL)
+          while(*pp && (pp=wcsstr(pp,L"~~")) != NULL)
           {
-            memmove(pp,pp+1,strlen(pp+1)+1);
+            memmove(pp,pp+1,(wcslen(pp+1)+1)*sizeof (wchar_t));
             ++pp;
           }
           // удалим два идущих в подряд ##
           pp=URLPath;
-          while(*pp && (pp=strstr(pp,"##")) != NULL)
+          while(*pp && (pp=wcsstr(pp,L"##")) != NULL)
           {
-            memmove(pp,pp+1,strlen(pp+1)+1);
+            memmove(pp,pp+1,(wcslen(pp+1)+1)*sizeof (wchar_t));
             ++pp;
           }
 
@@ -2219,14 +2122,14 @@ static int RunURL(char *Protocol, char *URLPath)
           if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
           {
             BlockExtKey blockExtKey;
-            Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
-                        MSG(MHelpActivatorURL),
+            Disposition=MessageW(MSG_WARNING,2,UMSG(MHelpTitle),
+                        UMSG(MHelpActivatorURL),
                         Buf,
-                        MSG(MHelpActivatorFormat),
+                        UMSG(MHelpActivatorFormat),
                         URLPath,
-                        "\x01",
-                        MSG(MHelpActivatorQ),
-                        MSG(MYes),MSG(MNo));
+                        L"\x01",
+                        UMSG(MHelpActivatorQ),
+                        UMSG(MYes),UMSG(MNo));
           }
           EditCode=2; // Все Ok!
           if(Disposition == 0)
@@ -2251,23 +2154,18 @@ static int RunURL(char *Protocol, char *URLPath)
                 EditCode=1;
               SetFileApisTo(APIS2OEM);
 #else
-              FAR_OemToChar(URLPath,Buf);
-              SetFileApisTo(APIS2ANSI);
-              EditCode=ShellExecute(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
-              SetFileApisTo(APIS2OEM);
+              wcscpy (Buf, URLPath);
+              EditCode=ShellExecuteW(0, 0, RemoveExternalSpacesW(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
 #endif
             }
             else
             {
-              STARTUPINFO si={0};
+              STARTUPINFOW si={0};
               PROCESS_INFORMATION pi={0};
               si.cb=sizeof(si);
-              strcat(Buf,URLPath);
-              FAR_OemToChar(Buf,Buf);
-              SetFileApisTo(APIS2ANSI); //????
-              if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+              wcscat(Buf,URLPath);
+              if(!CreateProcessW(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
                  EditCode=1;
-              SetFileApisTo(APIS2OEM); //????
             }
           }
         }
@@ -2303,7 +2201,7 @@ void Help::ResizeConsole()
   }
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-  ReadHelp(StackData.HelpMask);
+  ReadHelp(StackData.strHelpMask);
   ErrorHelp=FALSE;
 //  StackData.CurY--; // ЭТО ЕСМЬ КОСТЫЛЬ (пусть пока будет так!)
   StackData.CurX--;
@@ -2320,12 +2218,11 @@ int Help::FastHide()
 }
 
 
-int Help::GetTypeAndName(char *Type,char *Name)
+int Help::GetTypeAndName(string &strType, string &strName)
 {
-  if(Type)
-    strcpy(Type,MSG(MHelpType));
-  if(Name)
-    strcpy(Name,"");
+  strType = UMSG(MHelpType);
+  strName = L"";
+
   return(MODALTYPE_HELP);
 }
 
@@ -2344,10 +2241,10 @@ int CallBackStack::Pop(struct StackHelpData *Dest)
     topOfStack = topOfStack->Next;
     if(Dest!=NULL)
     {
-      strcpy(Dest->HelpTopic,oldTop->HelpTopic);
-      strcpy(Dest->HelpPath,oldTop->HelpPath);
-      strcpy(Dest->SelTopic,oldTop->SelTopic);
-      strcpy(Dest->HelpMask,oldTop->HelpMask);
+      Dest->strHelpTopic = oldTop->strHelpTopic;
+      Dest->strHelpPath = oldTop->strHelpPath;
+      Dest->strSelTopic = oldTop->strSelTopic;
+      Dest->strHelpMask = oldTop->strHelpMask;
 
       Dest->Flags=oldTop->Flags;
       Dest->TopStr=oldTop->TopStr;
@@ -2365,7 +2262,7 @@ void CallBackStack::Push(const struct StackHelpData *Data)
   topOfStack=new ListNode(Data,topOfStack);
 }
 
-void CallBackStack::PrintStack(const char *Title)
+void CallBackStack::PrintStack(const wchar_t *Title)
 {
 #if defined(SYSLOG)
   int I=0;
@@ -2374,7 +2271,7 @@ void CallBackStack::PrintStack(const char *Title)
   SysLog(1);
   while(Ptr)
   {
-    SysLog("%03d HelpTopic='%s' HelpPath='%s' HelpMask='%s'",I++,Ptr->HelpTopic,Ptr->HelpPath,Ptr->HelpMask);
+    SysLog("%03d HelpTopic='%S' HelpPath='%S' HelpMask='%S'",I++,(const wchar_t*)Ptr->strHelpTopic,(const wchar_t*)Ptr->strHelpPath,(const wchar_t*)Ptr->strHelpMask);
     Ptr=Ptr->Next;
   }
   SysLog(-1);

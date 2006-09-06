@@ -7,40 +7,7 @@ Files highlighting
 
 */
 
-/* Revision: 1.09 14.12.2001 $ */
-
-/*
-Modify:
-  14.12.2001 SVS
-    ! SaveHiData() private -> public для юзания в SaveConfig()
-  23.11.2001 SVS
-    + GetHiColor(), работающая с кипой структур FileListItem
-  25.09.2001 IS
-    + HighlightData.IgnoreMask
-    + Параметр IgnoreMask у AddMask и у DupHighlightData
-  12.07.2001 SVS
-    ! Вместо полей Color* в структе HighlightData используется
-      структура HighlightDataColor
-    ! Естественно, сокращено количество параметров у GetHiColor()
-    + функция ReWriteWorkColor - задел на будущее
-  12.07.2001 SVS
-    + Функция дублирования - DupHighlightData()
-  06.07.2001 IS
-    + В HighlightData используем вместо Masks (рабочая маска) соответствующий
-      класс.
-    ! В HighlightData OriginalMasks стал самым первым членом.
-  23.04.2001 SVS
-    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
-      юзаем - разные сущности.
-  12.02.2001 SVS
-    + Функция ClearData - очистка HiData
-  07.07.2000 IS
-    + Новая функция InitHighlightFiles, в которую я вынес содержимое
-      конструктора. Нужна, чтобы повторно использовать один и тот же код.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.11 16.12.2005 $ */
 
 #include "CFileMask.hpp"
 #include "struct.hpp"
@@ -50,8 +17,8 @@ Modify:
 */
 struct HighlightData
 {
-  char *OriginalMasks;
-  CFileMask *FMasks;
+  string strOriginalMasks;
+  CFileMaskW *FMasks;
   /* $ 25.09.2001 IS
        Если TRUE, то маска файлов игнорируется и сравнение идет только по
        атрибутам.
@@ -70,7 +37,7 @@ struct FileListItem;
 class HighlightFiles
 {
   private:
-    struct HighlightData *HiData;
+    struct HighlightData **HiData;
     int HiDataCount;
     int StartHiDataCount;
 
@@ -83,10 +50,10 @@ class HighlightFiles
     void InitHighlightFiles();
     /* IS $ */
     void ClearData();
-    int  DupHighlightData(struct HighlightData *Data,char *Mask,BOOL IgnoreMask,int RecPos);
+    int  DupHighlightData(HighlightData *Data,const wchar_t *Mask,BOOL IgnoreMask,int RecPos);
 
-    char *GetMask(int Idx);
-    BOOL AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMask,struct HighlightData *Src=NULL);
+    const wchar_t *GetMask(int Idx);
+    BOOL AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL IgnoreMask,struct HighlightData *Src=NULL);
     void DeleteMask(struct HighlightData *CurHighlightData);
     void FillMenu(VMenu *HiMenu,int MenuPos);
 
@@ -95,17 +62,14 @@ class HighlightFiles
     ~HighlightFiles();
 
   public:
-    void GetHiColor(char *Path,int Attr,
+    void GetHiColor(const wchar_t *Path,int Attr,
                     struct HighlightDataColor *Colors);
-    void GetHiColor(struct FileListItem *FileItem,int FileCount);
+    void GetHiColor(struct FileListItem **FileItemEx,int FileCount);
     void HiEdit(int MenuPos);
 
     void SaveHiData();
 
     static void ReWriteWorkColor(struct HighlightDataColor *Colors=NULL);
 };
-
-// сама функция в hilight.cpp
-char *MkRegKeyHighlightName(char *RegKey);
 
 #endif  // __HIGHLIGHTFILES_HPP__

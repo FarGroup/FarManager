@@ -7,401 +7,17 @@ struct.hpp
 
 */
 
-/* Revision: 1.145 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 SVS
-    + Opt.ExecuteFullTitle
-  29.06.2006 SVS
-    ! Bath -> Batch
-  28.06.2006 SVS
-    + Opt.ExecuteBathType
-  24.05.2006 SVS
-    + Opt.Confirm.RemoveHotPlug
-  20.04.2006 SVS
-    + Opt.UseVk_oem_x
-  13.04.2006 SVS
-    + PreRedrawParamStruct.Param5 - пусть будет int64
-  13.04.2006 SVS
-    + Opt.SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
-  28.10.2005 SVS
-    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
-    + Opt.EdOpt.ShowKeyBar - Ctrl-B - показать/спрятать кейбар в редакторе
-  05.10.2005 SVS
-    ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
-  04.10.2005 SVS
-    + Opt.NetSupportEncryption
-  29.09.2005 SVS
-    + Opt.FolderDeepScan
-  15.07.2005 AY
-    + AnsiTableAsDefault для настроек редактора и вьювера.
-  12.07.2005 SVS
-    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
-    + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
-  07.07.2005 SVS
-    ! Вьюверные настройки собраны в одно место
-  05.07.2005 SVS
-    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
-  21.06.2005 SKV
-    + Opt.AllowEmptySpaceAfterEof
-  14.06.2005 SVS
-    + Opt.ShowTimeoutDACLFiles
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  06.05.2005 SVS
-    + Confirmation.RemoveSUBST, Confirmation.RemoveUSB, Confirmation.AfterRemoveUSB
-  14.04.2005 SVS
-    + Opt.UsePrintManager
-  12.04.2005 KM
-    ! Дополнена структура FindFileOptions двумя параметрами:
-      Opt.FindOpt.SearchInFirst и Opt.FindOpt.SearchInFirstSize
-  06.04.2005 SVS
-    ! Opt.EdOpt.ExpandTabColor свое отслужил, выкидываем :-)
-  05.04.2005 SVS
-    + Opt.EdOpt.ExpandTabColor
-  03.03.2005 SVS
-    + Opt.MsWheelDeltaHelp
-  01.03.2005 SVS
-    + struct TreeOptions
-    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
-  02.02.2005 SVS
-    + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
-  30.08.2004 SVS
-    + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
-  18.05.2004 SVS
-    + В структуру PanelOptions добавлен член NumericSort
-  07.05.2004 SVS
-    + DialogsOptions.DelRemovesBlocks
-  01.03.2004 SVS
-    + FAR_ANSI
-  28.02.2004 SVS
-    + Opt.AutoUpdateRemoteDrive - управление автоапдейтом сетевых дисков
-  15.01.2004 SVS
-    + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
-  07.01.2004 SVS
-    + XLat.XLatFastFindKey и XLat.XLatAltFastFindKey - транслитерация для FastFind
-    + Opt.ExecuteShowErrorMessage
-  18.12.2003 SVS
-    + DialogsOptions.MouseButton - Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
-      Бит есть - функция работает
-    ! перечисления FSizeType и FDateType переехали из struct.hpp в farconst.hpp
-    + Opt.HistoryCount, FoldersHistoryCount, ViewHistoryCount, DialogsHistoryCount.
-    + Opt.CASRule
-  29.10.2003 SVS
-    + LoadPluginsOptions.SilentLoadPlugin - тихий режим загрузки плагинов
-  14.10.2003 SVS
-    ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
-    + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
-  13.10.2003 SVS
-    ! переименование:
-      Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
-      Opt.KeyMacroRecord2  -> Opt.KeyMacroCtrlShiftDot
-  10.10.2003 SVS
-    + EditorOptions.WordDiv
-  05.10.2003 KM
-    + struct FilterParams, Opt.OpFilter
-  04.10.2003 SVS
-    + Opt.KeyMacroRecord1 аля KEY_CTRLDOT и Opt.KeyMacroRecord2  аля KEY_CTRLSHIFTDOT
-  17.09.2003 KM
-    + Opt.CharTable
-  25.08.2003 SVS
-    ! Opt.QuotedName - DWORD, т.к. битовые флаги
-  25.08.2003 SVS
-    + Opt.QuotedName - заключать имена файлов/папок в кавычки
-  23.07.2003 SVS
-    + Opt.ScrSize.DeltaXY - уточнение размера для "распаховки" консоли
-  06.06.2003 SVS
-    ! Все, что связано с загрузкой плагинов объединено в структуру LoadPluginsOptions
-  19.05.2003 SVS
-    - неправильные комментарии в struct DialogsOptions
-    ! DialogsOptions.SelectedType -> DialogsOptions.EditLine
-  14.05.2003 VVM
-    + ViewerOptions.PersistentBlocks - постоянные блоки во вьюере
-  06.05.2003 SVS
-    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
-  21.04.2003 SVS
-    + Opt.DelThreadPriority
-    + struct ScreenSizes, Opt.ScrSize - для отладки "Alt-Enter"
-  05.03.2003 SVS
-    + Opt.ScanJunction - сканировать так же симлинки.
-  10.02.2003 SVS
-    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
-  13.01.2003 SVS
-    + Opt.SortFolderExt
-  23.12.2002 SVS
-    ! OnlyEditorViewerUsed стал частью структуры Options
-  07.10.2002 SVS
-    + Opt.SetupArgv - количество каталогов в комюстроке ФАРа
-  12.08.2002 SVS
-   + Opt.ExecuteUseAppPath
-  30.05.2002 SVS
-    + Opt.UseTTFFont
-  25.05.2002 IS
-    ! внедрение const
-  24.05.2002 SVS
-    + Opt.UseNumPad
-  22.05.2002 SVS
-    + Opt.CloseCDGate
-  05.04.2002 SVS
-    + Opt.PluginMaxReadData
-  01.04.2002 SVS
-    + struct NowellOptions
-  18.03.2002 SVS
-    ! Опции, ответственные за диалоги вынесены в отдельную
-      структуру DialogsOptions
-    + Opt.Dialogs.SelectedType
-  12.03.2002 VVM
-    + Opt.EscTwiceToInterrupt
-      Определяет поведение при прерывании длительной операции
-      0 - второй ESC продолжает операцию
-      1 - второй ESC прерывает операцию
-  19.02.2002 SVS
-    ! В таблицах и правилах Opt.XLat - первый байт = размер таблицы.
-    ! Opt.XLat.Rules - 80 байт (по 40 правил)
-  26.12.2001 SVS
-    + Opt.CloseConsoleRule, Opt.Diz.ROUpdate
-    ! Opt.CursorSize - плюс еще 2 позиции под Overide-режим
-  21.12.2001 SVS
-    + Opt.RestoreCPAfterExecute
-  17.12.2001 IS
-    + Opt.PanelMiddleClickRule - поведение средней кнопки мыши в панелях
-  07.12.2001 IS
-    + Opt.MultiMakeDir - опция создания нескольких каталогов за один сеанс
-  03.12.2001 IS
-    + Opt.EditorUndoSize - размер буфера undo в редакторе
-  01.11.2001 SVS
-    ! уберем Opt.CPAJHefuayor ;-(
-  30.10.2001 SVS
-    + Opt.CPAJHefuayor
-  29.10.2001 IS
-    ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
-  26.10.2001 KM
-    + Opt.FindFolders. Запомнить флаг разрешения поиска каталогов в Alt-F7
-  19.10.2001 SVS
-    + struct PreRedrawParamStruct - для исправления BugZ#85
-  15.10.2001 SVS
-    + Opt.DlgSelectFromHistory
-  12.10.2001 SVS
-    ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
-      Opt.SetAttrFolderRules!
-  11.10.2001 SVS
-    + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
-  07.10.2001 SVS
-    + Opt.HelpTabSize - размер табуляции по умолчанию.
-  26.09.2001 SVS
-    + Opt.AutoUpdateLimit -  выше этого количество автоматически
-      не обновлять панели.
-  08.09.2001 VVM
-    + Постоянные блоки в строках ввода - Opt.DialogsEditBlock;
-      0 - Блоки непостоянные
-      1 - Блоки постоянные
-  05.09.2001 SVS
-    + сктруктура HighlightDataColor
-  03.08.2001 IS
-    + опция "разрешить мультикопирование/перемещение/создание связей":
-      Opt.MultiCopy
-  24.07.2001 SVS
-    + Opt.PgUpChangeDisk
-    + Opt.Confirmation.HistoryClear
-  04.07.2001 SVS
-    + Opt.LCIDSort
-  22.06.2001 SVS
-    + Opt.DateFormat
-  21.05.2001 OT
-    + Opt.AltF9
-    + Opt.Confirmation.AllowReedit
-  14.05.2001 SVS
-    + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
-  06.05.2001 DJ
-    ! перетрях #include
-  04.05.2001 SVS
-    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
-  28.04.2001 VVM
-    + Opt.SubstNameRule битовая маска:
-      0 - если установлен, то опрашивать сменные диски при GetSubstName()
-      1 - если установлен, то опрашивать все остальные при GetSubstName()
-  26.04.2001 VVM
-    + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
-    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
-    + Opt.MouseWheelDelta -> Opt.MsWheelDelta
-  23.04.2001 SVS
-    ! Новые члены GroupSortData.OriginalMasks и HighlightData.OriginalMasks
-      новый вгляд на %PATHEXT% - то что редактируем и то, что юзаем -
-      разные сущности.
-  22.04.2001 SVS
-    + Opt.QuotedSymbols - разделители для QuoteSpace()
-  16.04.2001 VVM
-    + Opt.MouseWheelDelta - задает смещение для прокрутки.
-  02.04.2001 VVM
-    + Opt.FlagPosixSemantics будет влиять на:
-        добавление файлов в историю с разным регистром
-        добавление LastPositions в редакторе и вьюере
-  30.03.2001 SVS
-   + Opt.Policies - прообраз полиции.
-  29.03.2001 IS
-   + struct ViewerOptions
-  28.03.2001 VVM
-   + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать
-     каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
-  20.03.2001 SVS
-   + Opt.FullScreenHelp - для унификации интерфейса конфигурации
-  16.03.2001 SVS
-   + Opt.ChangeDriveDisconnetMode - для запоминания - как удалять мапленные
-     диски (для CheckBox`а)
-  15.03.2001 SVS
-   + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
-  12.03.2001 SVS
-   + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
-  12.03.2001 SVS
-   + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
-  27.02.2001 SVS
-   + EditorOptions.CharCodeBase - база вывода кода символа
-  26.02.2001 VVM
-   + Opt.ExceptCallDebugger - вызывать дебаггер или нет
-   ! Opt.ExceptRules - битовая маска
-  21.02.2001 IS
-   ! Часть настроек редактора переехала в EditorOptions
-  12.02.2001 SKV
-   + ConsoleDetachKey. Клавиша отстёгивания консоли фара от
-     долгоиграющего процесса в ней запущенного.
-  11.02.2001 SVS
-   ! Изменения структур DialogItem и DialogData (DIF_VAREDIT)
-   ! HighlightData.Masks - сделан ссылкой (DIF_VAREDIT)
-   ! GroupSortData.Masks - сделан ссылкой (DIF_VAREDIT)
-   ! FilterDataRecord.Masks - сделан ссылкой (DIF_VAREDIT)
-  11.02.2001 SVS
-   ! Изменения в MenuItem.
-  09.02.2001 IS
-   + RightSelectedFirst, LeftSelectedFirst;
-   + Confirmation.Esc
-  30.01.2001 VVM
-   + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule
-  22.01.2001 SVS
-   + Opt.CursorSize[2] - Размер курсора ФАРа :-)
-  19.01.2001 SVS
-   + Opt.MacroReuseRules - повторное использование.
-  09.01.2001 SVS
-   + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
-     Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
-  28.12.2000 SVS
-   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев
-  21.12.2000 SVS
-   ! структура MacroRecord перенесена в macro.hpp
-  08.12.2000 SVS
-   ! изменения в структуре DialogItem.
-  29.11.2000 SVS
-   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
-     он имеет атрибуты R|S|H
-   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открытия подобного
-     файла на редактирование
-  28.11.2000 SVS
-   + Opt.EditorF7Rules - Правило на счет поиска в редакторе
-  27.11.2000 SVS
-   + Opt.ExceptRules - Правило на счет вызова исключений
-  25.11.2000 IS
-   + Разграничитель слов из реестра для функции Xlat (WordDivForXlat)
-  24.11.2000 SVS
-   ! XLat.Rules - 3 по 30 правил, вместо 10
-   + Правило на счет установки атрибутов на каталоги
-  04.11.2000 SVS
-   ! XLat - все что относится к XLat - в одну структуру.
-   + XLat - добавление альтернативных клавиш:
-       XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
-  20.10.2000 SVS
-   + Opt.PanelCtrlFRule
-      Panel/CtrlFRule в реестре - задает поведение Ctrl-F
-      Если = 0, то штампуется файл как есть, иначе - с учетом
-      отображения на панели
-  17.10.2000 SVS
-   ! WordDiv имеет размер 256;
-  10.10.2000 SVS
-   + Opt.EditorBSLikeDel
-  27.09.2000 SVS
-   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
-   + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
-     бит установлен - функция включена:
-     0 - Panel
-     1 - Edit
-     2 - View
-     3 - Help
-     4 - Dialog
-  24.09.2000 SVS
-   + Opt.MaxPositionCache - количество позиций в кэше сохранения
-   + Opt.SaveViewerShortPos - запоминание позиций во вьювере по Ctrl-0..9
-   + Opt.SaveEditorShortPos - запоминание позиций в редакторе по Ctrl-0..9
-   + Opt.CmdHistoryRule задает поведение Esc для командной строки.
-   + Клавиши для вызова функции Xlat:
-     Opt.XLatEditorKey, Opt.XLatCmdLineKey, Opt.XLatDialogKey
-  20.09.2000 SVS
-   + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
-     для Ctrl-[ и ему подобные
-  19.09.2000 SVS
-   + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
-  12.09.2000 SVS
-   + Добавлена переменная Options.ViewerWrap
-   ! ViewerTypeWrap переименована в ViewerIsWrap
-       Разделение Wrap/WWrap/UnWrap на 2 составляющих -
-       Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
-        ViewerIsWrap  =  UnWrap=0  | Перенос=1
-        ViewerWrap    =  Wrap=0    | WordWarp=1
-   + Opt.PanelRightClickRule задает поведение правой клавиши мыши
-     (это по поводу Bug#17)
-  11.09.2000 SVS
-   + В Opt добавлена переменная DlgEULBsClear
-     если = 1, то BS в диалогах для UnChanged строки удаляет такую
-     строку также, как и Del
-  09.09.2000 SVS 1.14
-   + CHAR_INFO *VBuf; в элементах диалога
-  07.09.2000 tran 1.13
-   + Config//Current File
-  05.09.2000 SVS 1.12
-   + Структура CodeQWERTY, описывающая QWERTY-перекодировщик
-   ! В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
-  01.09.2000 tran 1.11
-   + Options.PluginsCacheOnly - грузить плагины только из кеша
-  31.08.2000 SVS
-   ! DialogItem.Flags, DialogData.Flags - тип DWORD
-   - не сохраняется тип врапа.
-     Добавлена переменная Options.ViewerTypeWrap
-  12.08.2000 KM 1.09
-   ! В структурах DialogItem и DialogData новое поле, включенное
-     в union, char *Mask.
-  18.08.2000 SVS
-   ! struct FarListItems -> struct FarList, а то совсем запутался :-)
-  03.08.2000 SVS
-   ! WordDiv -> Opt.WordDiv
-  03.08.2000 SVS
-   + Добавка в Options: MainPluginDir - использовать основной путь для
-     поиска плагинов...
-  01.08.2000 SVS
-   ! Изменения в структурах Dialog*
-  26.07.2000 SVS
-   + Opt.AutoComplete
-  18.07.2000 tran 1.04
-   + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
-  15.07.2000 tran
-   + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
-  15.07.2000 SVS
-   + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
-  29.06.2000 SVS
-   + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
-  25.06.2000 SVS
-   ! Подготовка Master Copy
-   ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.152 07.07.2006 $ */
 
 #include "farconst.hpp"
+#include "UnicodeString.hpp"
 
 struct FilterParams
 {
   struct
   {
     DWORD Used;
-    char Mask[NM*2];
+    string strMask;
   } FMask;
   struct
   {
@@ -486,7 +102,7 @@ struct RegInfo
 
 struct DizOptions
 {
-  char ListNames[NM];
+  string strListNames;
   int ROUpdate;
   int UpdateMode;
   int SetHidden;
@@ -517,7 +133,7 @@ struct CodeXLAT{
   /* $ 25.11.2000 IS
      Разграничитель слов из реестра для функции Xlat
   */
-  char WordDivForXlat[256];
+  string strWordDivForXlat;
   /* IS $ */
   // первый байт - размер таблицы
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
@@ -548,7 +164,7 @@ struct EditorOptions
   int SaveShortPos;
   int F7Rules; // $ 28.11.2000 SVS - Правило на счет поиска в редакторе
   int AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
-  char WordDiv[256];
+  string strWordDiv;
 
   int ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
   int UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
@@ -649,12 +265,8 @@ struct LoadPluginsOptions{
   /* tran $ */
   int PluginsPersonal;
 
-  char CustomPluginsPath[NM];  // путь для поиска плагинов, указанный в /p
-  /* $ 15.07.2000 SVS
-    + путь для поиска персональных плагинов, большой размер из-за того,
-      что здесь может стоять сетевой путь...
-  */
-  char PersonalPluginsPath[1024];
+  string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
+  string strPersonalPluginsPath;
   /* SVS $*/
   int SilentLoadPlugin; // при загрузке плагина с кривым...
 };
@@ -664,7 +276,7 @@ struct FindFileOptions{
   int CollectFiles;
   int FileSearchMode;
   int SearchInFirst;
-  char SearchInFirstSize[NM];
+  string strSearchInFirstSize;
 };
 
 struct TreeOptions{
@@ -693,27 +305,22 @@ struct Options
   int ScreenSaver;
   int ScreenSaverTime;
   int UsePromptFormat;
-  char PromptFormat[80];
+  string strPromptFormat;
   int AltGr;
   int UseVk_oem_x;
   int InactivityExit;
   int InactivityExitTime;
   int ShowHidden;
   int Highlight;
-  char LeftFolder[NM];
-  char RightFolder[NM];
-  /* $ 07.09.2000 tran
-     + Config//Current File */
-  char LeftCurFile[NM];
-  char RightCurFile[NM];
-  /* tran 07.09.2000 $ */
 
-  /* $ 09.02.2001 IS
-     состояние режима "помеченное вперед"
-  */
+  string strLeftFolder;
+  string strRightFolder;
+
+  string strLeftCurFile;
+  string strRightCurFile;
+
   int RightSelectedFirst;
   int LeftSelectedFirst;
-  /* IS $ */
   int SelectFolders;
   int ReverseSort;
   int ClearReadOnly;
@@ -735,14 +342,14 @@ struct Options
   int SaveViewHistory;
   int ViewHistoryCount;
 
-  char ExternalEditor[NM];
+  string strExternalEditor;
   struct EditorOptions EdOpt;
-  char ExternalViewer[NM];
+  string strExternalViewer;
   struct ViewerOptions ViOpt;
 
 
-  char WordDiv[256]; // $ 03.08.2000 SVS Разграничитель слов из реестра
-  char QuotedSymbols[32];
+  string strWordDiv; // $ 03.08.2000 SVS Разграничитель слов из реестра
+  string strQuotedSymbols;
   DWORD QuotedName;
   int AutoSaveSetup;
   int SetupArgv; // количество каталогов в комюстроке ФАРа
@@ -758,10 +365,12 @@ struct Options
 
   struct FindFileOptions FindOpt;
 
-  char TempPath[NM];
+  string strTempPath;
   int HeightDecrement;
   int WidthDecrement;
-  char PassiveFolder[NM];
+
+  string strPassiveFolder;
+
   int ShowColumnTitles;
   int ShowPanelStatus;
   int ShowPanelTotals;
@@ -771,10 +380,10 @@ struct Options
   int ShowScreensNumber;
   int ShowSortMode;
   int ShowMenuBar;
-  int FolderDeepScan;
+
   int CleanAscii;
   int NoGraphics;
-  char FolderInfoFiles[1024];
+  string strFolderInfoFiles;
 
   struct Confirmation Confirm;
   struct DizOptions Diz;
@@ -784,9 +393,9 @@ struct Options
   DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
   int AutoUpdateRemoteDrive;
 
-  char Language[80];
+  string strLanguage;
   int SmallIcon;
-  char RegRoot[NM];
+  string strRegRoot;
   /* $ 12.09.2000 SVS
    + Opt.PanelRightClickRule задает поведение правой клавиши мыши
      (это по поводу Bug#17)
@@ -890,7 +499,7 @@ struct Options
 
   int UsePrintManager;
 
-  char HelpLanguage[80];
+  string strHelpLanguage;
   int FullScreenHelp;
   int HelpTabSize;
   /* $ 27.09.2000 SVS
@@ -944,7 +553,7 @@ struct Options
   int ExecuteShowErrorMessage;
   int ExecuteUseAppPath;
   int ExecuteFullTitle;
-  char ExecuteBatchType[256];
+  string strExecuteBatchType;
 
 #if defined(FAR_ANSI)
   int FarAnsi;
@@ -961,7 +570,7 @@ struct Options
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"
 
-  char DateFormat[80]; // Для $Date
+  string strDateFormat; // Для $Date
   struct LoadPluginsOptions LoadPlug;
 
   struct DialogsOptions Dialogs;
@@ -1005,8 +614,8 @@ struct HighlightDataColor
   BYTE SelColor;
   BYTE CursorColor;
   BYTE CursorSelColor;
-  BYTE MarkChar;
-  BYTE Reserved[11];
+  wchar_t MarkChar;
+  BYTE Reserved[10];
 };
 
 struct PreRedrawParamStruct
@@ -1018,5 +627,26 @@ struct PreRedrawParamStruct
   void *Param4;
   __int64 Param5;
 };
+
+struct FAR_FIND_DATA_EX
+{
+    DWORD    dwFileAttributes;
+    FILETIME ftCreationTime;
+    FILETIME ftLastAccessTime;
+    FILETIME ftLastWriteTime;
+    unsigned __int64 nFileSize;
+
+    union {
+        unsigned __int64 nPackSize; //same as reserved
+        struct {
+            DWORD dwReserved0;
+            DWORD dwReserved1;
+        };
+    };
+
+    string   strFileName;
+    string   strAlternateFileName;
+};
+
 
 #endif // __FARSTRUCT_HPP__

@@ -5,510 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.191 01.09.2006 $ */
-
-/*
-Modify:
-  01.09.2006 SVS
-    ! Пусть во время воспроизведения макроса срабатывает функция SAVE
-  11.07.2006 EL
-    - Убрал варнинги
-  06.05.2006 SVS
-    - mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
-  05.10.2005 AY
-    - Не обновлялись панели после выхода из диалога.
-  11.08.2005 WARP
-    ! see 02039.Mix.txt
-  04.08.2005 WARP
-    ! убрал из DialogEx лок. не совсем хорошее решение, но работает и дает жить MultiPanel.
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  12.07.2005 SVS
-    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  06.05.2005 SVS
-    + ACTL_GETMEDIATYPE
-    ! ACTL_EJECTMEDIA "умеет" кроме CD еще и SUBST и USB
-  12.04.2005 AY
-    + ACTL_GETSHORTWINDOWINFO - тоже самое что ACTL_GETWINDOWINFO только не вызывает
-      GetTypeAndName() и поэтому его можно вызывать из любых тредов.
-  01.03.2005 SVS
-    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
-  25.10.2004 SVS
-    - BugZ#1171 - срыв стека
-  05.10.2004 SVS
-    - Отвалился F3 на каталогах в панели плагинов
-  26.08.2004 SVS
-    - В функциях FarGetPluginDirList и FarGetDirList проверим параметры и..., если есть "траблы" - вернем FALSE
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  02.08.2004 SVS
-    ! принудительно выставим область действия макроса в менюхе (FarMenuFn)
-  30.07.2004 SVS
-    - BugZ#1141 Сохранение (F2) убивает пользовательский Title у редактора
-  07.07.2004 SVS
-    ! Macro II
-  06.07.2004 SVS
-    ! MCMD_CHECKMACRO для Macro II
-  03.06.2004 SVS
-    ! подсократим код... за счет CtrlObject->Cp() -> FPanels
-  24.05.2004 SVS
-    + FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
-  28.02.2004 SVS
-    + MCMD_CHECKMACRO - закомменчено
-  12.01.2004 SVS
-    - Забыл сдвинуть флаги на 8 для MCMD_POSTMACROSTRING
-  25.12.2003 SVS
-    ! принудительная инициализация структуры MRec
-  15.12.2003 SVS
-    ! Инициализация MacroRecord в ACTL_POSTKEYSEQUENCE
-  25.11.2003 SVS
-    ! принудительно выставим заголовок для меню.
-  11.11.2003 SVS
-    + FMENU_CHANGECONSOLETITLE - изменять заголовок консоли для менюх
-    + Доп проверки на вшивость в FarControl()
-  17.10.2003 SVS
-    + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
-  04.10.2003 SVS
-    ! Уточнение структуры ActlKeyMacro: добавлен член Param.PlainText -
-      указатель на строку, содержащую макропоследовательность.
-  08.09.2003 SVS
-    + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
-      в виде plain-text.
-  21.08.2003 SVS
-    - Заходим в достаточно большой архив, становимся на '..' и жмем F3.
-      Пытаемся прервать. Отказываемся от прерывания - видим багу с прорисовкой
-  15.06.2003 SVS
-    + ACTL_GETDIALOGSETTINGS
-    ! FIS_PERSISTENTBLOCKSINEDITCONTROLS -> FDIS_PERSISTENTBLOCKSINEDITCONTROLS
-    ! FIS_HISTORYINDIALOGEDITCONTROLS    -> FDIS_HISTORYINDIALOGEDITCONTROLS
-    ! FIS_AUTOCOMPLETEININPUTLINES       -> FDIS_AUTOCOMPLETEININPUTLINES
-  14.06.2003 SVS
-    + FSS_SCANSYMLINK
-  30.05.2003 SVS
-    + ACTL_GETPLUGINMAXREADDATA
-  06.05.2003 SVS
-    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
-    - траблы с макросами:
-      BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
-      BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
-  17.03.2003 SVS
-    + ACTL_GETPOLICIES + FFPOL_* - пока для внутреннего юзания
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  04.02.2003 SVS
-    - BugZ#788 - Криво считается ширина меню.
-      Разнесем применение флагов общих (до добавления контента) и зависимых
-      от уже существующего контента.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  26.12.2002 SVS
-    ! Из FarViewer и FarEditor проверка координат вынесена в конструкторы этих объектов
-  11.12.2002 SVS
-    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
-  04.11.2002 SVS
-    ! У FarMessageFn() параметр PluginNumber может быть равен -1
-      При этом хелп недоступен!
-    - Для ACTL_GETFARHWND указатель на окно (под некоторыми прогами) == NULL
-      В этом случае продетектим по новой
-  27.10.2002 DJ
-    ! переименуем FARColor в FarSetColors (для единообразия в именовании и,
-      опять же, чтобы было понятно, что к чему)
-  23.10.2002 SVS
-    - ошибки проектирования  в FarCharTable() - забыл вернуть данные плагину ;-/
-  22.10.2002 SVS
-    ! переделана FarCharTable() - немного "обезопасим" себя, т.е. сначала все
-      сформируем в локальной переменной, а потом "вернем" результат плагину
-    ! так же добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом
-      не думать как ЭТО сделать ;-)
-  30.09.2002 SVS
-    ! немного по другому прорешрешим консоль при изменении цветов
-    ! проинициализируем ID у элементов диалога!
-  23.09.2002 SVS
-    + ACTL_SETARRAYCOLOR, FARCOLORFLAGS, FARColor пока для внутренного юзания
-      (хотя, блин, работает на ура!)
-  20.09.2002 SVS
-    + флаги FDLG_NODRAWSHADOW и FDLG_NODRAWPANEL
-  10.09.2002 SVS
-    ! Добавим обработку исключений про диалоги - если флаг PSIF_DIALOG
-      установлен - инициируем выгрузку плагина.
-  21.08.2002 SVS
-    ! ACTL_WAITKEY теперь возвращает код нажатой клавиши
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-  21.06.2002 SVS
-    + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
-      "Сегодня ФАР рисует в окне с помощью W-функции или где?"
-  14.06.2002 IS
-    + Обработка xF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-      приоритет по сравнению с xF_DELETEONCLOSE
-  27.05.2002 SVS
-    - Блин, поспешил с BugZ#514 (что называется перебор - в одном месте проверил,
-      а самое главное - MultiArc...  :-(
-  27.05.2002 SVS
-    - BugZ#514 - Multiple selected items in menu...
-    + Автокомит для ?F_IMMEDIATERETURN (по мотивам BugZ#530 - флаг
-      EF_IMMEDIATERETURN не работает из SetStartupInfo)
-    + Проверка кода возврата создания редактора, если Editor !=0 и кон возврата != XC_OPEN_ERROR?
-      то продолжаем исполнение, иначе вернем EEC_OPEN_ERROR
-  24.05.2002 SVS
-    + Добавка в FarControl() логов для _FCTLLOG
-    ! Из FarEditorControl выкошен код для логов - перенесен в fileedit.cpp
-  22.05.2002 SKV
-    + ?F_IMMEDIATERETURN
-  18.05.2002 SVS
-    ! Удавлен жучара, из-за которого не было возможности вводить ФЛАГИ
-      Закомментим SetOwnsItems до той поры, пока не появятся немодальные
-      диалоги
-  14.05.2002 SKV
-    + запретим создание немодального viewer/editor из модального,
-      а так же переключение на другие фреймы.
-  10.05.2002 SVS
-    - BugZ#502 - вызов Info.Control для из редактора far /e
-      Запрещаем использование Control для CmdMode=1 (для /e и /v)
-    + FCTL_CHECKPANELSEXIST - работаем в командном режиме (панели доступны?)
-  30.04.2002 SVS
-    - Снова Message :-(
-  15.04.2002 SVS
-    - Message(FMSG_ALLINONE,"\n\nFoobar") приводил к падению
-  11.04.2002 SVS
-    + FCTL_GET[ANOTHER]PANELSHORTINFO
-    - Message(FMSG_ALLINONE,"\nFoobar") приводил к падению (первым '\n'
-      пытались подавить вывод заголовка месагбокса)
-  04.04.2002 SVS
-    - Если в меню указали первым итемом сепаратор, но не указали
-      selected, то получаем на экране лажу.
-  30.03.2002 OT
-    - После исправления бага №314 (патч 1250) отвалилось закрытие
-      фара по кресту.
-  26.03.2002 DJ
-    ! разрешим GetMsg() при ManagerIsDown()
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  25.03.2002 SVS
-    ! Запрет вызовов некторых функций АПИ, если ManagerIsDown() == FALSE
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  18.03.2002 SVS
-    ! Уточнения, в связи с введением Opt.Dialogs
-  17.03.2002 IS
-    - FarCharTable: по возможности используем значение TableName (BugZ#331)
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  28.02.2002 SVS
-    - Для ACTL_CONSOLEMODE+CONSOLE_GET_MODE
-      Param=NULL - это... обычный (void*)0, так шта...
-      К тому же "*(int*)Param" - это полная хрень.
-    ! ACTL_*WINDOW* - Добавим проверку на FrameManager != NULL
-    - ACTL_GETWINDOWINFO - забыли выставить корректное значение WindowInfo.Pos
-  19.02.2002 SVS
-    ! Добавим проверку на PluginNumber в Menu, Message & Dialog
-  13.02.2002 SVS
-    + MIF_USETEXTPTR - щоб юзать TextPtr
-    ! Уборка варнингов
-  11.02.2002 SVS
-    + Добавка в меню - акселератор - решение BugZ#299
-    ! Сепаратор может иметь лэйб только для варианта с Ex
-  05.02.2002 SVS
-    ! Технологический патч про отладку
-  30.01.2002 DJ
-    + ACTL_GETDESCSETTINGS
-  22.01.2002 SVS
-    ! Включим обратно Opt.ExceptRules в диалогах, ибо теперь я точно знаю,
-      что падение было в ДИАЛОГЕ! ;-)
-    ! немного косметики в сорцах.
-  10.01.2002 SVS
-    ! Немного SYSLOG_KEYMACRO
-    ! Временная отмена новых редакторных флагов
-  26.12.2001 SVS
-    + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
-      поменяли, а плагинам обломится что ли?
-  24.12.2001 SVS
-    - Бага с прорисовкой (при заходе в битый архив выводится месаг, но потом
-      панели не обновляются, или просмотр HLF-файла - аналогично)
-    ! Для LIF_SEPARATOR обнуляем пункт меню.
-  22.12.2001 VVM
-    + ACTL_GETWINDOWINFO: Если Pos == -1 то берем текущий фрейм
-  07.12.2001 IS
-    + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
-      функциональностью. Сделано для того, чтобы не дублировать код GetString.
-  05.12.2001 SVS
-    ! Временно отключаем обработку исключений на этом уровне.
-  30.11.2001 DJ
-    - не вылетаем, если GetPluginDirList() вызывается не на плагиновой панели
-    - в GetPluginDirList() некорректно копировалась PPIF_USERDATA для каталогов
-  28.11.2001 SVS
-    + FIS_SHOWCOPYINGTIMEINFO
-    ! Немного оптимизации для ACTL_GET*SETTINGS
-  24.11.2001 IS
-    + Обработка ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS,
-      ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
-  02.11.2001 SVS
-    ! Выкинем ненужный код (а кое-где добавим :-))
-    ! FCTL_GETCMDLINESELECTION -> FCTL_GETCMDLINESELECTEDTEXT
-    + FCTL_GETCMDLINESELECTION - получить позиции выделения!
-  28.10.2001 SVS
-    ! Вернем обратно опрометчево убранный SaveScreen.
-  26.10.2001 SVS
-    - неверно инициализировался массив MsgItems в FarMessageFn()
-  22.10.2001 SVS
-    - уточнение (восстановление) поведения Message для плагинов
-  22.10.2001 SVS
-    ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-    ! Переработанный Message для плагинов (снято ограничение на 13 строк)
-  11.10.2001 IS
-    + обработка EF_DELETEONCLOSE
-  08.10.2001 OT
-    ! Запуск немодального фрейма в модальном режиме
-  07.10.2001 SVS
-    - Нету у нас немодальных диалогов!
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  22.09.2001 OT
-    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
-  21.09.2001 SVS
-    - Бага. При старте ФАР, если плагин вызывает Message или Dialog, то
-      ФАРу плохеет, т.к. Frame как такового нету. В общем введена проверка
-      на NULL для Lock/Unlock
-  20.09.2001 SVS
-    ! ограничим диалоги и месагбоксы, вызванные из плагинов "скобками
-      необновления нижнего экрана"
-      А как на счет вызова меню из плагина???
-  16.09.2001 SVS
-    ! Отключаемые исключения
-  15.09.2001 tran
-    + ACTL_GETFARHWND
-  09.09.2001 IS
-    + Обработка VF_DISABLEHISTORY/EF_DISABLEHISTORY - плагин может запрещать
-      добавление имени файла в историю.
-  08.09.2001 IS
-    ! Теперь имя файла добавляется в историю просмотра/редактирования
-      при использовании функций апи Editor/Viewer
-  13.08.2001 SKV
-    + FCTL_GETCMDLINESELECTION,FCTL_SETCMDLINESELECTION
-  13.08.2001 SVS
-    - Забыл в прошлый раз проставить интернал PluginNumber в функции
-      GetPluginDirList() для случая, если hPlugin=INVALID_HANDLE_VALUE
-  07.08.2001 IS
-    + Фича в FarCharTable: при неудаче считывания настроек по определенной
-      символьной таблице структура CharTableSet заполняется данными для OEM.
-    ! FarCharTable: второй параметр теперь не const, т.к. он меняется в функции.
-  05.08.2001 SVS
-    - Бага с вызовом хелпа в диалогах из плагинов
-    ! Убираем из борланда ненужные (тупорылые) варнинги
-  01.08.2001 SVS
-    + Поменяем правила игры с новыми флагами (про тему помощи)!
-  31.07.2001 IS
-    + Изменения и новое в FarDialogEx, FarMenuFn, FarMessageFn:
-      1. Учтем флаг F*_CUSTOMNAME
-      2. Выкинем спецобработку для случая с *HelpTopic=='#'
-      3. Считается, что помощи нет, если имя темы пустое.
-  31.07.2001 IS
-    - Баг: меню плагина закрывалось в случае нажатия на
-      ctrl-key, alt-key или shift-key, даже если эти комбинации
-      вовсе не были указаны в BreakKeys, а плагину было нужно
-      отследить нажатие на просто key.
-    ! Внедрение const (FarGetMsgFn)
-  31.07.2001 SVS
-    + Обработка хелпов по шаблону: ~Text~@#Path#Topic@
-  27.07.2001 SVS
-    + кусок для тестовых выкрутасов с ACTL_POSTKEYSEQUENCE
-    + Дадим возможность плагина при вызове GetPluginDirList
-      ссылаться на активную панель, т.е. hPlugin=INVALID_HANDLE_VALUE.
-      По аналогии с Control
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  19.07.2001 OT
-    Мелкий баг с неотрисовкой
-  18.07.2001 OT
-    VFMenu
-  16.07.2001 SVS
-    + Обработка FarMenuItemEx в FarMenu
-  26.06.2001 SVS
-    ! __except -> EXCEPT
-  26.06.2001 SKV
-    + ACTL_COMMIT
-  25.06.2001 IS
-   ! Внедрение const
-  21.06.2001 SVS
-    ! ACTL_POSTSEQUENCEKEY -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
-    ! SequenceKey           -> KeySequence
-    ! В ACTL_GETWINDOWINFO добавим проверку Param на NULL
-  20.06.2001 SVS
-    ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY, в т.ч. механизм
-      этой команды теперь основывается на Macro API
-  19.06.2001 IS
-    - Баг: не работало автоопределение кодировки после 268.
-  06.06.2001 SVS
-    - Во время исполнения макроса в меню игнорировались BreakKeys.
-  05.06.2001 tran
-    + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
-  04.06.2001 SVS
-    ! Фигня по поводу Checked символа в меню. Исправлено.
-  03.06.2001 SVS
-    ! Изменения в связи с переделкой UserData в VMenu
-  31.05.2001 OT
-    - ExitCode в соответствии с официальной документацией plugin.hlp
-  27.05.2001 OT
-    - Исправление вызовов конструкторов FileView и FileEdit в FarViewer() и FarEditor()
-  26.05.2001 OT
-    - Выпрямление логики вызовов в NFZ
-  21.05.2001 DJ
-    + FDLG_NONMODAL
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  16.05.2001 DJ
-    ! proof-of-concept
-  16.05.2001 SVS
-    + #include "farexcpt.hpp"
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 SVS
-    ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
-  12.05.2001 DJ
-    + EF_ENABLE_F6, VF_ENABLE_F6
-  12.05.2001 DJ
-    ! убран SaveScr при вызове редактора/вьюера из плагина
-  10.05.2001 SVS
-    + В FarDialogEx() добавлена установка флагов FDLG_WARNING и FDLG_SMALLDILAOG.
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  01.05.2001 SVS
-    - Вместо PluginNumber в FarDialogEx() залудил ItemsNumber :-(((
-  28.04.2001 SVS
-    + Обработка исключений в FarDialogEx() - равеновский чекер валил ФАР
-      именно в диалогах, гад такой.
-  11.09.2001 SVS
-    - FarMessageFn(): если установлен флаг FMSG_ERRORTYPE, ItemsNumber равное 1,
-      тоже должно позволять показывать сообщение.
-    - FarMessageFn(): неверно сделанный патч #530 - исправляем.
-  09.04.2001 SVS
-    ! Избавимся от некоторых варнингов
-  08.04.2001 SVS
-    ! Уточнение в FarShowHelp
-  28.03.2001 SVS
-    ! ACTL_GETFARVERSION возвращает номер версии, а не TRUE - так практичнее
-    ! ACTL_KEYMACRO, ACTL_EJECTMEDIA, ACTL_WAITKEY, ACTL_CONSOLEMODE -
-      проверка Param на NULL.
-    ! FarGetMsgFn - проверка на "готовность" CtrlObject (проверка на NULL)
-  26.03.2001 SVS
-    + добавлена обработка флага FHELP_USECONTENTS
-  22.03.2001 tran 1.42
-    ! мелкий баг в FarMessageFn/FMSG_ALLINONE
-  21.03.2001 VVM
-    + Обработка флага EF_CREATENEW
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  11.02.2001 SVS
-    ! Сократим повторяющийся код в FarDialogEx
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  28.01.2001 SVS
-    ! Конкретно обновим функцию FarMessageFn()
-  23.01.2001 SVS
-    ! Проверки параметров в FarDialogEx()
-  21.01.2001 SVS
-    + ACTL_PROCESSSEQUENCEKEY
-  24.12.2000 SVS
-    ! Отключаем "MCMD_PLAYSTRING"
-    ! Уточнения MCMD_LOADALL и MCMD_SAVEALL - не работать во время записи
-      или "воспроизведения макроса
-  23.12.2000 SVS
-    + MCMD_PLAYSTRING - "проиграть" строку (строка в том виде, как в реестре)
-  21.12.2000 SVS
-    + ACTL_KEYMACRO - зачатки будущего KeyMacro API
-  18.12.2000 SVS
-    ! Коррекции в FarShowHelp
-  14.12.2000 SVS
-    + ACTL_EJECTMEDIA
-  13.12.2000 SVS
-    ! FarDialogItem.Data - копирование strcpy заменено на memmove
-      (терялись данные пользователя)
-  04.12.2000 SVS
-    + ACTL_GETCOLOR - получить определенный цвет
-    + ACTL_GETARRAYCOLOR - получить весь массив цветов
-  17.11.2000 SVS
-    ! "Приколы нашего городка" - бага в функцию ShowHelp закралась :-(
-  11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
-  11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  05.10.2000 SVS
-   - бага с вызовом хелпа (FHELP_CUSTOMFILE)
-  27.09.2000 SVS
-   + FarViewerControl
-  18.09.2000 SVS
-    ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
-  12.09.2000 SVS
-    + Реализация флагов FHELP_* для вывода помощи.
-  08.09.2000 VVM
-    + Обработка команд
-      FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
-      FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
-  30.08.2000 SVS
-    ! Пал смертью храбрых флаг FMI_GETFARMSGID
-  29.08.2000 SVS
-    + Для диалога запомним номер плагина, вызвавшего этот диалог. Сейчас
-      это для того, чтобы правильно отреагировать в Dialog API на DN_HELP
-  29.08.2000 SVS
-    ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
-      хотим использовать "месаги" из САМОГО far*.lng
-  24.08.2000 SVS
-    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
-  23.08.2000 SVS
-    ! Все Flags приведены к одному виду -> DWORD.
-      Модифицированы:
-        * функции   FarMenuFn, FarMessageFn, FarShowHelp
-        * структуры FarListItem, FarDialogItem
-  22.08.2000 SVS
-    ! Исключаем ненужные вызовы из FarText.
-  18.08.2000 tran 1.12
-    + Flags parameter in FarShowHelp
-  09.08.2000 tran 1.11
-    ! ACTL_GETSYSWORDDIV при Param==NULL просто возвращает длину строки
-  03.08.2000 SVS
-    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
-  01.08.2000 SVS
-    ! FARDIALOGPROC -> FARWINDOWPROC
-  28.07.2000 SVS
-    ! В связи с появлением SendDlgMessage в классе Dialog
-      вносим некоторые изменения!
-  25.07.2000 SVS
-    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
-  23.07.2000 SVS
-    + Функция FarDefDlgProc обработки диалога по умолчанию
-    + Функция FarSendDlgMessage - посылка сообщения диалогу
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  12.07.2000 IS
-    + Проверка флагов редактора в FarEditor (раньше они игнорировались) и
-      открытие _немодального_ редактора, если есть соответствующий флаг.
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  05.07.2000 IS
-    + Функция FarAdvControl
-    + Команда ACTL_GETFARVERSION (в FarAdvControl)
-  03.07.2000 IS
-    + Функция вывода помощи
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.212 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -538,6 +35,7 @@ Modify:
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 #include "lockscrn.hpp"
+#include "constitle.hpp"
 
 
 void ScanPluginDir();
@@ -547,44 +45,49 @@ void ScanPluginDir();
    Обертка вокруг GetString для плагинов - с меньшей функциональностью.
    Сделано для того, чтобы не дублировать код GetString.
 */
-int WINAPI FarInputBox(const char *Title,const char *Prompt,
-                       const char *HistoryName,const char *SrcText,
-                       char *DestText,int DestLength,
-                       const char *HelpTopic,DWORD Flags)
+int WINAPI FarInputBox (
+        const wchar_t *Title,
+        const wchar_t *Prompt,
+        const wchar_t *HistoryName,
+        const wchar_t *SrcText,
+        wchar_t *DestText,
+        int DestLength,
+        const wchar_t *HelpTopic,
+        DWORD Flags
+        )
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
-   return GetString(Title,Prompt,HistoryName,SrcText,DestText,DestLength,
-     HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
-}
-/* IS $ */
 
-/* $ 12.09.2000 SVS
-  + Реализация флагов для вывода помощи.
-*/
-/* $ 18.08.2000 tran
-   + Flags parameter */
-/* $ 03.07.2000 IS
-  Функция вывода помощи
-*/
-BOOL WINAPI FarShowHelp(const char *ModuleName,
-                        const char *HelpTopic,
+  string strDest;
+
+  int nResult = GetStringW(Title,Prompt,HistoryName,SrcText,strDest,DestLength,
+     HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
+
+  xwcsncpy (DestText, strDest, DestLength);
+
+  return nResult;
+}
+
+/* Функция вывода помощи */
+BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
+                        const wchar_t *HelpTopic,
                         DWORD Flags)
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
   if (!HelpTopic)
-    HelpTopic="Contents";
+    HelpTopic=L"Contents";
 
   DWORD OFlags=Flags;
   Flags&=~(FHELP_NOSHOWERROR|FHELP_USECONTENTS);
-  char Path[2*NM],Topic[512];
-  char *Mask=NULL;
+  string strPath, strTopic;
+  string strMask;
 
   // двоеточие в начале топика надо бы игнорировать и в том случае,
   // если стоит FHELP_FARHELP...
-  if((Flags&FHELP_FARHELP) || *HelpTopic==':')
-    xstrncpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0),sizeof(Topic)-1);
+  if((Flags&FHELP_FARHELP) || *HelpTopic==L':')
+    strTopic = HelpTopic+((*HelpTopic == L':')?1:0);
   else
   {
     if(ModuleName)
@@ -597,19 +100,18 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
       */
       if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
       {
-        xstrncpy(Path,ModuleName,sizeof(Path)-1);
+        strPath = ModuleName;
         if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
         {
-          Mask=PointToName(Path);
+          strMask=PointToNameW(strPath);
           if(Flags&FHELP_CUSTOMFILE)
           {
-            memmove(Mask+1,Mask,strlen(Mask)+1);
-            *Mask++=0;
+              strPath = PointToNameW(strPath);
           }
           else
           {
-            *Mask=0;
-            Mask=NULL;
+              CutToSlashW(strPath);
+              strMask = L"";
           }
         }
       }
@@ -617,13 +119,13 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
         return FALSE;
       /* SVS $*/
 
-      sprintf(Topic,HelpFormatLink,Path,HelpTopic);
+      strTopic.Format (HelpFormatLink,(const wchar_t*)strPath,HelpTopic);
     }
     else
       return FALSE;
   }
   {
-    Help Hlp (Topic,Mask,OFlags);
+    Help Hlp (strTopic,strMask,OFlags);
     if(Hlp.GetError())
       return FALSE;
   }
@@ -711,11 +213,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_GETSYSWORDDIV:
     {
-      int LenWordDiv=strlen(Opt.WordDiv);
+      int LenWordDiv=Opt.strWordDiv.GetLength ();
       /* $ 09.08.2000 tran
        + if param==NULL, plugin хочет только узнать длину строки  */
       if (Param && !IsBadWritePtr(Param,LenWordDiv+1))
-        strcpy((char *)Param,Opt.WordDiv);
+        wcscpy((wchar_t *)Param,Opt.strWordDiv);
       /* tran 09.08.2000 $ */
       return LenWordDiv;
     }
@@ -850,7 +352,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
           {
-            if(Macro.IsRecording())// || Macro.IsExecuting())
+            if(Macro.IsRecording()) // || Macro.IsExecuting())
               return FALSE;
             Macro.SaveMacros();
             return TRUE;
@@ -872,8 +374,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             }
             else
             {
-              static char ErrMsg[3][256];
-              GetMacroParseError(ErrMsg[0],ErrMsg[1],ErrMsg[2]);
+              static string ErrMsg[3];
+              GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
               KeyMacro->Param.MacroResult.ErrMsg1=ErrMsg[0];
               KeyMacro->Param.MacroResult.ErrMsg2=ErrMsg[1];
               KeyMacro->Param.MacroResult.ErrMsg3=ErrMsg[2];
@@ -947,6 +449,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     {
       if(FrameManager && Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
       {
+        string strType, strName;
         WindowInfo *wi=(WindowInfo*)Param;
         Frame *f;
         /* $ 22.12.2001 VVM
@@ -959,7 +462,12 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         if ( f==NULL )
           return FALSE;
         if (Command==ACTL_GETWINDOWINFO)
-          f->GetTypeAndName(wi->TypeName,wi->Name);
+        {
+          f->GetTypeAndName(strType, strName);
+
+          UnicodeToAnsi (strType, wi->TypeName, sizeof (wi->TypeName)-1); //BUGBUG
+          UnicodeToAnsi (strName, wi->Name, sizeof (wi->Name)-1); //BUGBUG
+        }
         else
         {
           wi->TypeName[0]=0;
@@ -1150,8 +658,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 /* IS $ */
 
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,const char *Title,const char *Bottom,
-           const char *HelpTopic, const int *BreakKeys,int *BreakCode,
+           DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
+           const wchar_t *HelpTopic, const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber)
 {
   int I;
@@ -1167,16 +675,16 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
   int ExitCode;
   {
-    VMenu FarMenu(Title,NULL,0,MaxHeight);
+    VMenu FarMenu(Title,NULL,0,true,MaxHeight);
     CtrlObject->Macro.SetMode(MACRO_MENU);
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
       *BreakCode=-1;
 
     {
-      char Topic[512];
-      if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
-        FarMenu.SetHelp(Topic);
+      string strTopic;
+      if(Help::MkTopic(PluginNumber,HelpTopic,strTopic))
+        FarMenu.SetHelp(strTopic);
     }
 
     if (Bottom!=NULL)
@@ -1192,8 +700,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       MenuFlags|=VMENU_CHANGECONSOLETITLE;
     FarMenu.SetFlags(MenuFlags);
 
-    struct MenuItem CurItem;
-    memset(&CurItem,0,sizeof(CurItem));
+    MenuItemEx CurItem;
+
+    CurItem.Clear ();
     int Selected=0;
 
     if(Flags&FMENU_USEEXT)
@@ -1202,7 +711,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
-        CurItem.NamePtr=NULL; // за раз 4 байта в 0 :-)
+        CurItem.strName=L"";
 
         // исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
         DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
@@ -1213,17 +722,10 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
           Selected++;
         }
 
-        if(CurItem.Flags&MIF_USETEXTPTR)
-          CurItem.NamePtr=(char*)ItemEx->Text.TextPtr;
-        else
-          xstrncpy(CurItem.Name,ItemEx->Text.Text,sizeof(CurItem.Name)-1);
-        /*
-        xstrncpy(CurItem.Name,
-            ((ItemEx->Flags&MIF_USETEXTPTR) && ItemEx->Text.TextPtr)?ItemEx->Text.TextPtr:ItemEx->Text.Text,
-            sizeof(CurItem.Name)-1);
-        */
+        CurItem.strName=ItemEx->Text;
+
         CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
-        FarMenu.AddItem(&CurItem);
+        FarMenu.AddItemW(&CurItem);
       }
     }
     else
@@ -1234,9 +736,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
         CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
         if(Item[I].Separator)
-          CurItem.Name[0]=0;
+          CurItem.strName=L"";
         else
-          xstrncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
+          CurItem.strName = Item[I].Text;
 
         DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
         CurItem.Flags&=~LIF_SELECTED;
@@ -1245,7 +747,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
           CurItem.Flags|=SelCurItem;
           Selected++;
         }
-        FarMenu.AddItem(&CurItem);
+        FarMenu.AddItemW(&CurItem);
       }
     }
 
@@ -1257,7 +759,10 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       FarMenu.AssignHighlights(FALSE);
     if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
       FarMenu.AssignHighlights(TRUE);
+
+
     FarMenu.SetTitle(Title);
+
     FarMenu.Show();
     while (!FarMenu.Done() && !CloseFARMenu)
     {
@@ -1361,7 +866,7 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 /* SVS $ */
 
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
-           const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
+           const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
 {
   return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
 }
@@ -1376,7 +881,7 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
 /* Цель данной функции - выставить флаг Flags - признак того, что
    мы упали где то в плагине
 */
-static int Except_FarDialogEx(struct DialogItem *InternalItem)
+static int Except_FarDialogEx(struct DialogItemEx *InternalItem)
 {
   if(CtrlObject)
     CtrlObject->Plugins.Flags.Set(PSIF_DIALOG);
@@ -1396,12 +901,12 @@ static int Except_FarDialogEx(struct DialogItem *InternalItem)
   return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
 }
 
-static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struct DialogItem* InternalItem, int ItemsNumber)
+static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struct DialogItemEx* InternalItem, int ItemsNumber)
 {
   TRY
   {
     FarDialog.Process();
-    Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+    Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
     int I;
     for(I=0; I < ItemsNumber; ++I)
       InternalItem[I].ID=I;
@@ -1413,9 +918,8 @@ static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struc
   }
 }
 
-
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
-           const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+           const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
            FARWINDOWPROC DlgProc,long Param)
 
@@ -1438,7 +942,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     return -1;
   }
 
-  struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
+  struct DialogItemEx *InternalItem=new DialogItemEx[ItemsNumber];
 
   if(!InternalItem)
     return -1;
@@ -1447,9 +951,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   //struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
 
-  memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
+  memset(InternalItem,0,sizeof(DialogItemEx)*ItemsNumber);
 
-  Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
+  Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
@@ -1483,12 +987,12 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     if(Opt.ExceptRules)
     {
       CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
-      ExitCode = FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber);
+      ExitCode=FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber);
     }
     else
     {
       FarDialog.Process();
-      Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+      Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
       for(I=0; I < ItemsNumber; ++I)
         InternalItem[I].ID=I;
       ExitCode=FarDialog.GetExitCode();
@@ -1522,11 +1026,10 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
   if (PluginNumber<PluginsCount)
   {
-    struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
-    char Path[NM];
-    xstrncpy(Path,CurPlugin->ModuleName,sizeof(Path)-1);
-    *PointToName(Path)=0;
-    if (CurPlugin->Lang.Init(Path))
+    struct PluginItem *CurPlugin=PluginsData[PluginNumber];
+    string strPath = CurPlugin->strModuleName;
+    CutToSlashW(strPath);
+    if (CurPlugin->Lang.Init(strPath))
       return(CurPlugin->Lang.GetMsg(MsgId));
   }
   return("");
@@ -1536,8 +1039,8 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
    ! Конкретно обновим функцию FarMessageFn()
 */
 
-int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
-                        const char * const *Items,int ItemsNumber,
+int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
+                        const wchar_t * const *Items,int ItemsNumber,
                         int ButtonsNumber)
 {
   if (FrameManager->ManagerIsDown())
@@ -1552,38 +1055,38 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if(PluginNumber != -1 && (DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
     return(-1); // к терапевту.
 
-  char *SingleItems=NULL;
-  char *Msg;
+  wchar_t *SingleItems=NULL;
+  wchar_t *Msg;
   int I;
 
   // анализ количества строк для FMSG_ALLINONE
   if(Flags&FMSG_ALLINONE)
   {
     ItemsNumber=0;
-    I=strlen((char *)Items)+2;
-    if((SingleItems=(char *)xf_malloc(I)) == NULL)
+    I=wcslen((wchar_t *)Items)+2;
+    if((SingleItems=(wchar_t *)xf_malloc(I*sizeof (wchar_t))) == NULL)
       return -1;
 
-    Msg=strcpy(SingleItems,(char *)Items);
-    while ((Msg = strchr(Msg, '\n')) != NULL)
+    Msg=wcscpy(SingleItems,(wchar_t *)Items);
+    while ((Msg = wcschr(Msg, L'\n')) != NULL)
     {
 //      *Msg='\0';
 
-      if(*++Msg == '\0')
+      if(*++Msg == L'\0')
         break;
       ++ItemsNumber;
     }
     ItemsNumber++; //??
   }
 
-  const char **MsgItems=(const char **)xf_malloc(sizeof(char*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
+  const wchar_t **MsgItems=(const wchar_t **)xf_malloc(sizeof(wchar_t*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
   if(!MsgItems)
   {
     xf_free(SingleItems);
     return(-1);
   }
 
-  memset(MsgItems,0,sizeof(char*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
+  memset(MsgItems,0,sizeof(wchar_t*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
 
   if(Flags&FMSG_ALLINONE)
   {
@@ -1591,14 +1094,14 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     Msg=SingleItems;
 
     // анализ количества строк и разбивка на пункты
-    char *MsgTemp;
-    while ((MsgTemp = strchr(Msg, '\n')) != NULL)
+    wchar_t *MsgTemp;
+    while ((MsgTemp = wcschr(Msg, L'\n')) != NULL)
     {
-      *MsgTemp='\0';
+      *MsgTemp=L'\0';
       MsgItems[I]=Msg;
-      Msg+=strlen(Msg)+1;
+      Msg+=wcslen(Msg)+1;
 
-      if(*Msg == '\0')
+      if(*Msg == L'\0')
         break;
       ++I;
     }
@@ -1626,34 +1129,34 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   {
     case FMSG_MB_OK:
       ButtonsNumber=1;
-      MsgItems[ItemsNumber++]=MSG(MOk);
+      MsgItems[ItemsNumber++]=UMSG(MOk);
       break;
     case FMSG_MB_OKCANCEL:
       ButtonsNumber=2;
-      MsgItems[ItemsNumber++]=MSG(MOk);
-      MsgItems[ItemsNumber++]=MSG(MCancel);
+      MsgItems[ItemsNumber++]=UMSG(MOk);
+      MsgItems[ItemsNumber++]=UMSG(MCancel);
       break;
     case FMSG_MB_ABORTRETRYIGNORE:
       ButtonsNumber=3;
-      MsgItems[ItemsNumber++]=MSG(MAbort);
-      MsgItems[ItemsNumber++]=MSG(MRetry);
-      MsgItems[ItemsNumber++]=MSG(MIgnore);
+      MsgItems[ItemsNumber++]=UMSG(MAbort);
+      MsgItems[ItemsNumber++]=UMSG(MRetry);
+      MsgItems[ItemsNumber++]=UMSG(MIgnore);
       break;
     case FMSG_MB_YESNO:
       ButtonsNumber=2;
-      MsgItems[ItemsNumber++]=MSG(MYes);
-      MsgItems[ItemsNumber++]=MSG(MNo);
+      MsgItems[ItemsNumber++]=UMSG(MYes);
+      MsgItems[ItemsNumber++]=UMSG(MNo);
       break;
     case FMSG_MB_YESNOCANCEL:
       ButtonsNumber=3;
-      MsgItems[ItemsNumber++]=MSG(MYes);
-      MsgItems[ItemsNumber++]=MSG(MNo);
-      MsgItems[ItemsNumber++]=MSG(MCancel);
+      MsgItems[ItemsNumber++]=UMSG(MYes);
+      MsgItems[ItemsNumber++]=UMSG(MNo);
+      MsgItems[ItemsNumber++]=UMSG(MCancel);
       break;
     case FMSG_MB_RETRYCANCEL:
       ButtonsNumber=2;
-      MsgItems[ItemsNumber++]=MSG(MRetry);
-      MsgItems[ItemsNumber++]=MSG(MCancel);
+      MsgItems[ItemsNumber++]=UMSG(MRetry);
+      MsgItems[ItemsNumber++]=UMSG(MCancel);
       break;
   }
   /* tran $ */
@@ -1661,16 +1164,16 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   // запоминаем топик
   if(PluginNumber != -1)
   {
-    char Topic[512];
-    if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
-      SetMessageHelp(Topic);
+    string strTopic;
+    if(Help::MkTopic(PluginNumber,HelpTopic,strTopic))
+      SetMessageHelp(strTopic);
   }
 
   // непосредственно... вывод
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->Lock(); // отменим прорисовку фрейма
-  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
+  int MsgCode=MessageW(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
   /* $ 15.05.2002 SKV
     Однако разлочивать надо ровно то, что залочили.
   */
@@ -1704,7 +1207,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
-      xstrncpy(DirToSet,NullToEmpty((char *)Param),sizeof(DirToSet)-1);
+      g_strDirToSet = NullToEmptyW((wchar_t *)Param);
 
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
@@ -1803,10 +1306,15 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     {
       if(Param && !IsBadWritePtr(Param,sizeof(char) * 1024))
       {
+          string strParam;
+
         if (Command==FCTL_GETCMDLINE)
-          CmdLine->GetString((char *)Param,1024);
+          CmdLine->GetStringW(strParam);
         else
-          CmdLine->GetSelString((char *)Param,1024);
+          CmdLine->GetSelStringW(strParam);
+
+        UnicodeToAnsi (strParam, (char*)Param, 1024-1);
+
         return TRUE;
       }
       return FALSE;
@@ -1815,10 +1323,14 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETCMDLINE:
     case FCTL_INSERTCMDLINE:
     {
+      string strParam;
+
+      strParam.SetData (NullToEmpty((char*)Param), CP_OEMCP); //BUGBUG
+
       if (Command==FCTL_SETCMDLINE)
-        CmdLine->SetString(NullToEmpty((char *)Param));
+        CmdLine->SetStringW(strParam);
       else
-        CmdLine->InsertString(NullToEmpty((char *)Param));
+        CmdLine->InsertStringW(strParam);
       CmdLine->Redraw();
       return(TRUE);
     }
@@ -1900,17 +1412,17 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 
 static void PR_FarGetDirListMsg(void)
 {
-  Message(MSG_DOWN,0,"",MSG(MPreparingList));
+  MessageW(MSG_DOWN,0,L"",UMSG(MPreparingList));
 }
 
-int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int *pItemsNumber)
+int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pItemsNumber)
 {
   if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
     return FALSE;
 
-  char DirName[NM];
-  if (ConvertNameToFull(Dir,DirName, sizeof(DirName)) >= sizeof(DirName))
-    return FALSE;
+  string strDirName;
+
+  ConvertNameToFullW(Dir, strDirName);
 
   {
     SaveScreen SaveScr;
@@ -1920,16 +1432,17 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
     *pItemsNumber=0;
     *pPanelItem=NULL;
 
-    WIN32_FIND_DATA FindData;
-    char FullName[NM];
+    FAR_FIND_DATA_EX FindData;
+    string strFullName;
     ScanTree ScTree(FALSE);
 
-    ScTree.SetFindPath(DirName,"*.*");
-    *PointToName(DirName)=0;
-    int DirLength=strlen(DirName);
-    PluginPanelItem *ItemsList=NULL;
+    ScTree.SetFindPathW(strDirName,L"*.*");
+
+    CutToSlashW (strDirName); //BUGBUG
+    int DirLength=strDirName.GetLength();
+    FAR_FIND_DATA *ItemsList=NULL;
     int ItemsNumber=0;
-    while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+    while (ScTree.GetNextNameW(&FindData,strFullName))
     {
       if ((ItemsNumber & 31)==0)
       {
@@ -1949,7 +1462,7 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
           MsgOut=1;
         }
 
-        ItemsList=(PluginPanelItem *)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
+        ItemsList=(FAR_FIND_DATA*)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
         if (ItemsList==NULL)
         {
           *pItemsNumber=0;
@@ -1958,9 +1471,15 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
         }
       }
 
-      memset(&ItemsList[ItemsNumber],0,sizeof(*ItemsList));
-      ItemsList[ItemsNumber].FindData=FindData;
-      strcpy(ItemsList[ItemsNumber].FindData.cFileName,FullName+DirLength);
+      ItemsList[ItemsNumber].dwFileAttributes = FindData.dwFileAttributes;
+      ItemsList[ItemsNumber].nFileSize = FindData.nFileSize;
+      ItemsList[ItemsNumber].nPackSize = FindData.nPackSize;
+      ItemsList[ItemsNumber].ftCreationTime = FindData.ftCreationTime;
+      ItemsList[ItemsNumber].ftLastAccessTime = FindData.ftLastAccessTime;
+      ItemsList[ItemsNumber].ftLastWriteTime = FindData.ftLastWriteTime;
+      ItemsList[ItemsNumber].lpwszFileName = _wcsdup (FindData.strFileName);
+      ItemsList[ItemsNumber].lpwszAlternateFileName = _wcsdup (FindData.strAlternateFileName);
+
       ItemsNumber++;
     }
 
@@ -1972,41 +1491,41 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
 }
 
 
-static struct PluginPanelItem *PluginDirList;
+static struct PluginPanelItemW *PluginDirList;
 static int DirListItemsNumber;
 static char PluginSearchPath[NM*16];
 static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
-static struct
+/*static struct
 {
-  PluginPanelItem *Addr;
+  PluginPanelItemW *Addr;
   int ItemsNumber;
-} DirListNumbers[16];
+} DirListNumbers[16];*/
 
-static void FarGetPluginDirListMsg(char *Name,DWORD Flags)
+static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
-  Message(Flags,0,"",MSG(MPreparingList),Name);
+  MessageW(Flags,0,L"",UMSG(MPreparingList),Name);
   PreRedrawParam.Flags=Flags;
-  PreRedrawParam.Param1=Name;
+  PreRedrawParam.Param1=(void*)Name;
 }
 
 static void PR_FarGetPluginDirListMsg(void)
 {
-  FarGetPluginDirListMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  FarGetPluginDirListMsg((const wchar_t *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 int WINAPI FarGetPluginDirList(int PluginNumber,
                                HANDLE hPlugin,
-                               const char *Dir,
-                               struct PluginPanelItem **pPanelItem,
+                               const wchar_t *Dir,
+                               struct PluginPanelItemW **pPanelItem,
                                int *pItemsNumber)
 {
   if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
     return FALSE;
 
   {
-    if (strcmp(Dir,".")==0 || TestParentFolderName(Dir))
+    if (wcscmp(Dir,L".")==0 || TestParentFolderNameW(Dir))
       return FALSE;
 
     static struct PluginHandle DirListPlugin;
@@ -2035,14 +1554,14 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
 
       SetPreRedrawFunc(NULL);
       {
-        char DirName[512];
-        xstrncpy(DirName,Dir,sizeof(DirName)-1);
-        TruncStr(DirName,30);
-        CenterStr(DirName,DirName,30);
+        string strDirName;
+        strDirName = Dir;
+        TruncStrW(strDirName,30);
+        CenterStrW(strDirName,strDirName,30);
         SetCursorType(FALSE,0);
 
         SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
-        FarGetPluginDirListMsg(DirName,0);
+        FarGetPluginDirListMsg(strDirName,0);
         PluginSearchMsgOut=FALSE;
 
         hDirListPlugin=(HANDLE)&DirListPlugin;
@@ -2050,50 +1569,47 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
         *pItemsNumber=DirListItemsNumber=0;
         *pPanelItem=PluginDirList=NULL;
 
-        struct OpenPluginInfo Info;
+        struct OpenPluginInfoW Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&Info);
 
-        char *PrevDir=(char*)alloca(strlen(Info.CurDir)+1);
-        if(PrevDir)
-          strcpy(PrevDir,Info.CurDir);
-        else
-          PrevDir="";
+        string strPrevDir = Info.CurDir;
 
         if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_FIND))
         {
-          xstrncpy(PluginSearchPath,Dir,sizeof(PluginSearchPath)-1);
+            UnicodeToAnsi(Dir, PluginSearchPath, sizeof(PluginSearchPath)-1);
+          //xstrncpy(PluginSearchPath,Dir,sizeof(PluginSearchPath)-1);
           strncat(PluginSearchPath,"\x1",sizeof(PluginSearchPath)-1);
 
           ScanPluginDir();
 
           *pPanelItem=PluginDirList;
           *pItemsNumber=DirListItemsNumber;
-          CtrlObject->Plugins.SetDirectory(hDirListPlugin,"..",OPM_FIND);
-          PluginPanelItem *PanelData=NULL;
+          CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND);
+          PluginPanelItemW *PanelData=NULL;
 
           int ItemCount=0;
           if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
             CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
 
-          struct OpenPluginInfo NewInfo;
+          struct OpenPluginInfoW NewInfo;
           CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
 
-          if (LocalStricmp(PrevDir,NewInfo.CurDir)!=0)
-            CtrlObject->Plugins.SetDirectory(hDirListPlugin,PrevDir,OPM_FIND);
+          if ( LocalStricmpW (strPrevDir, NewInfo.CurDir)!=0)
+            CtrlObject->Plugins.SetDirectory(hDirListPlugin,strPrevDir,OPM_FIND);
         }
       }
       SetPreRedrawFunc(NULL);
     }
   }
 
-  if (!StopSearch)
+  /*if (!StopSearch)
     for (int I=0;I<sizeof(DirListNumbers)/sizeof(DirListNumbers[0]);I++)
       if (DirListNumbers[I].Addr==NULL)
       {
         DirListNumbers[I].Addr=*pPanelItem;
         DirListNumbers[I].ItemsNumber=*pItemsNumber;
         break;
-      }
+      }*/
   return(!StopSearch);
 }
 
@@ -2101,14 +1617,22 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
    вытащим в функцию общий код для копирования айтема в ScanPluginDir()
 */
 
-static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
+static void CopyPluginDirItem (PluginPanelItemW *CurPanelItem)
 {
-  char FullName[2*NM+1];
-  sprintf(FullName,"%.*s%.*s",NM,PluginSearchPath,NM,CurPanelItem->FindData.cFileName);
-  for (int I=0;FullName[I]!=0;I++)
-    if (FullName[I]=='\x1')
-      FullName[I]='\\';
-  PluginPanelItem *DestItem=PluginDirList+DirListItemsNumber;
+  string strFullName;
+
+  strFullName.SetData(PluginSearchPath, CP_OEMCP); //BUGBUG
+  strFullName += CurPanelItem->FindData.lpwszFileName;
+
+  wchar_t *lpwszFullName = strFullName.GetBuffer ();
+
+  for (int I=0;lpwszFullName[I]!=0;I++)
+    if (lpwszFullName[I]==L'\x1')
+      lpwszFullName[I]=L'\\';
+
+  strFullName.ReleaseBuffer ();
+
+  PluginPanelItemW *DestItem=PluginDirList+DirListItemsNumber;
   *DestItem=*CurPanelItem;
   if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
   {
@@ -2121,7 +1645,7 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
     memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
   }
 
-  xstrncpy(DestItem->FindData.cFileName,FullName,sizeof(DestItem->FindData.cFileName)-1);
+  DestItem->FindData.lpwszFileName = _wcsdup (strFullName);
   DirListItemsNumber++;
 }
 
@@ -2131,18 +1655,23 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
 void ScanPluginDir()
 {
   int I;
-  PluginPanelItem *PanelData=NULL;
+  PluginPanelItemW *PanelData=NULL;
   int ItemCount=0;
   int AbortOp=FALSE;
 
-  char DirName[NM];
-  xstrncpy(DirName,PluginSearchPath,sizeof(DirName)-1);
-  DirName[sizeof(DirName)-1]=0;
-  for (I=0;DirName[I]!=0;I++)
-    if (DirName[I]=='\x1')
-      DirName[I]=DirName[I+1]==0 ? 0:'\\';
-  TruncStr(DirName,30);
-  CenterStr(DirName,DirName,30);
+  string strDirName;
+  strDirName.SetData(PluginSearchPath, CP_OEMCP); //BUGBUG
+
+  wchar_t *lpwszDirName = strDirName.GetBuffer();
+
+  for (I=0;lpwszDirName[I]!=0;I++)
+    if (lpwszDirName[I]=='\x1')
+      lpwszDirName[I]=lpwszDirName[I+1]==0 ? 0:L'\\';
+
+  strDirName.ReleaseBuffer();
+
+  TruncStrW(strDirName,30);
+  CenterStrW(strDirName,strDirName,30);
 
   if (CheckForEscSilent())
   {
@@ -2153,11 +1682,11 @@ void ScanPluginDir()
       StopSearch=TRUE;
   }
 
-  FarGetPluginDirListMsg(DirName,AbortOp?0:MSG_KEEPBACKGROUND);
+  FarGetPluginDirListMsg(strDirName,AbortOp?0:MSG_KEEPBACKGROUND);
 
   if (StopSearch || !CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
     return;
-  struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
+  struct PluginPanelItemW *NewList=(struct PluginPanelItemW *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
   if (NewList==NULL)
   {
     StopSearch=TRUE;
@@ -2166,7 +1695,7 @@ void ScanPluginDir()
   PluginDirList=NewList;
   for (I=0;I<ItemCount && !StopSearch;I++)
   {
-    PluginPanelItem *CurPanelItem=PanelData+I;
+    PluginPanelItemW *CurPanelItem=PanelData+I;
     /* $ 30.11.2001 DJ
        вытащим копирование айтема в функцию
     */
@@ -2176,13 +1705,13 @@ void ScanPluginDir()
   }
   for (I=0;I<ItemCount && !StopSearch;I++)
   {
-    PluginPanelItem *CurPanelItem=PanelData+I;
+    PluginPanelItemW *CurPanelItem=PanelData+I;
     if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
-        strcmp(CurPanelItem->FindData.cFileName,".")!=0 &&
-        !TestParentFolderName(CurPanelItem->FindData.cFileName))
+        wcscmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&
+        !TestParentFolderNameW(CurPanelItem->FindData.lpwszFileName))
 
     {
-      struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
+      struct PluginPanelItemW *NewList=(struct PluginPanelItemW *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
       if (NewList==NULL)
       {
         StopSearch=TRUE;
@@ -2195,9 +1724,16 @@ void ScanPluginDir()
       */
       CopyPluginDirItem (CurPanelItem);
       /* DJ $ */
-      if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,CurPanelItem->FindData.cFileName,OPM_FIND))
+
+      string strFileName = CurPanelItem->FindData.lpwszFileName;
+
+      if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
       {
-        strcat(PluginSearchPath,CurPanelItem->FindData.cFileName);
+          char szFileName[NM];
+
+          UnicodeToAnsi(CurPanelItem->FindData.lpwszFileName, szFileName, sizeof (szFileName)-1);
+
+        strcat(PluginSearchPath,szFileName);
         strcat(PluginSearchPath,"\x1");
         if (strlen(PluginSearchPath)<sizeof(PluginSearchPath)-NM)
           ScanPluginDir();
@@ -2207,7 +1743,7 @@ void ScanPluginDir()
           *(NamePtr+1)=0;
         else
           *PluginSearchPath=0;
-        if (!CtrlObject->Plugins.SetDirectory(hDirListPlugin,"..",OPM_FIND))
+        if (!CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND))
         {
           StopSearch=TRUE;
           break;
@@ -2219,29 +1755,37 @@ void ScanPluginDir()
 }
 
 
-void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem)
+void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber)
+{
+  for (int I=0;I<nItemsNumber;I++)
+  {
+    FAR_FIND_DATA *CurPanelItem=PanelItem+I;
+
+    apiFreeFindData (CurPanelItem);
+  }
+
+  xf_free (PanelItem);
+}
+
+
+void WINAPI FarFreePluginDirList(PluginPanelItemW *PanelItem, int ItemsNumber)
 {
   if (PanelItem==NULL)
     return;
-  int ItemsNumber=0;
   int I;
-  for (I=0;I<sizeof(DirListNumbers)/sizeof(DirListNumbers[0]);I++)
-    if (DirListNumbers[I].Addr==PanelItem)
-    {
-      DirListNumbers[I].Addr=NULL;
-      ItemsNumber=DirListNumbers[I].ItemsNumber;
-      break;
-    }
 
   for (I=0;I<ItemsNumber;I++)
   {
-    const PluginPanelItem *CurPanelItem=PanelItem+I;
+    PluginPanelItemW *CurPanelItem=PanelItem+I;
+
     if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
       /* $ 13.07.2000 SVS
         для запроса использовали malloc
       */
       xf_free((void *)CurPanelItem->UserData);
       /* SVS $*/
+
+    apiFreeFindData (&CurPanelItem->FindData);
   }
   /* $ 13.07.2000 SVS
     для запроса использовали realloc
@@ -2256,13 +1800,14 @@ void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem)
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-int WINAPI FarViewer(const char *FileName,const char *Title,
+int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags)
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
-  char OldTitle[512];
-  GetConsoleTitle(OldTitle,sizeof(OldTitle));
+
+
+  class ConsoleTitle ct;
   /* $ 09.09.2001 IS */
   int DisableHistory=(Flags & VF_DISABLEHISTORY)?TRUE:FALSE;
   /* IS $ */
@@ -2329,7 +1874,6 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     /* $ 12.05.2001 DJ */
     Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
-    SetConsoleTitle(OldTitle);
     if (!Viewer.GetExitCode()){
       return FALSE;
     }
@@ -2338,14 +1882,15 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
 }
 
 
-int WINAPI FarEditor(const char *FileName,const char *Title,
+int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2,
                      int Y2,DWORD Flags,int StartLine,int StartChar)
 {
   if (FrameManager->ManagerIsDown())
     return EEC_OPEN_ERROR;
-  char OldTitle[512];
-  GetConsoleTitle(OldTitle,sizeof(OldTitle));
+
+  ConsoleTitle ct;
+
   /* $ 12.07.2000 IS
    Проверка флагов редактора (раньше они игнорировались) и открытие
    немодального редактора, если есть соответствующий флаг
@@ -2440,7 +1985,6 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
       Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
       Editor.SetPluginTitle(Title);
-      SetConsoleTitle(OldTitle);
       /* $ 15.05.2002 SKV
         Зафиксируем вход и выход в/из модального редактора.
       */
@@ -2468,9 +2012,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
 #endif
 
 
-int WINAPI FarCmpName(const char *pattern,const char *string,int skippath)
+int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
 {
-  return(CmpName(pattern,string,skippath));
+  return(CmpNameW(pattern,string,skippath));
 }
 
 
@@ -2483,13 +2027,13 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 
   if (Command==FCT_DETECT)
   {
-    char DataFileName[NM];
+    string strDataFileName;
     FILE *DataFile;
     /* $ 19.06.2001
        - Баг: не работало автоопределение.
          Эх, Валя, зачем же ты return -1 закомментарил в 268??
     */
-    if (!FarMkTempEx(DataFileName) || (DataFile=fopen(DataFileName,"w+b"))==NULL)
+    if (!FarMkTempExW(strDataFileName) || (DataFile=_wfopen(strDataFileName,L"w+b"))==NULL)
       return(-1);
     /* IS $ */
     fwrite(Buffer,1,BufferSize,DataFile);
@@ -2497,7 +2041,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     int TableNum;
     int DetectCode=DetectTable(DataFile,&TableSet,TableNum);
     fclose(DataFile);
-    remove(DataFileName);
+    _wremove(strDataFileName);
     return(DetectCode ? TableNum-1:-1);
   }
 
@@ -2528,7 +2072,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 }
 
 
-void WINAPI FarText(int X,int Y,int Color,const char *Str)
+void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 {
   if (FrameManager->ManagerIsDown())
     return;
@@ -2544,7 +2088,7 @@ void WINAPI FarText(int X,int Y,int Color,const char *Str)
     /* $ 22.08.2000 SVS
        Исключаем ненужные вызовы из FarText.
     */
-    Text(X,Y,Color,Str);
+    TextW(X,Y,Color,Str);
     /* SVS $ */
   }
 }

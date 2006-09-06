@@ -5,83 +5,19 @@ fileowner.cpp
 
 */
 
-/* Revision: 1.03 09.09.2005 $ */
-
-/*
-Modify:
-  09.09.2005 SVS
-    ! Пусть работает новый механизм сбора овнеров (вариант с кешированием SID`ов).
-      Так будет быстрее.
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  06.06.2003 SVS
-    ! GetFileOwner уехала из mix.cpp в fileowner.cpp
-    ! Создан
-*/
+/* Revision: 1.06 23.04.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 #include "fn.hpp"
 
-#if 0
-
-/* $ 07.09.2000 SVS
-   Функция GetFileOwner тоже доступна плагинам :-)
-*/
-int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
-{
-  SECURITY_INFORMATION si;
-  SECURITY_DESCRIPTOR *sd;
-  char sddata[500];
-  DWORD Needed;
-  *Owner=0;
-  si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
-  sd=(SECURITY_DESCRIPTOR *)sddata;
-
-  char AnsiName[NM];
-  FAR_OemToChar(Name,AnsiName);
-  SetFileApisTo(APIS2ANSI);
-  int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
-  SetFileApisTo(APIS2OEM);
-
-  /* $ 21.02.2001 VVM
-      ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
-  if (!GetCode || (Needed>sizeof(sddata)))
-    return(FALSE);
-  /* VVM $ */
-  PSID pOwner;
-  BOOL OwnerDefaulted;
-  if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
-    return(FALSE);
-  char AccountName[200],DomainName[200];
-  DWORD AccountLength=sizeof(AccountName),DomainLength=sizeof(DomainName);
-  SID_NAME_USE snu;
-  if (!LookupAccountSid(Computer,pOwner,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
-    return(FALSE);
-  FAR_CharToOem(AccountName,Owner);
-  return(TRUE);
-}
-/* SVS $*/
-
-void SIDCacheFlush(void)
-{
-  return;
-}
-
-
-#else
-
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
 struct SIDCacheRecord
 {
   PSID sid;
-  char *username;
+  wchar_t *username;
   SIDCacheRecord *next;
 };
 
@@ -100,9 +36,9 @@ void SIDCacheFlush(void)
   }
 }
 
-static const char *add_sid_cache(const char *computer,PSID sid)
+static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
 {
-  const char *res=NULL;
+  const wchar_t *res=NULL;
   SIDCacheRecord *new_rec=(SIDCacheRecord *)malloc(sizeof(SIDCacheRecord));
   if(new_rec)
   {
@@ -112,18 +48,17 @@ static const char *add_sid_cache(const char *computer,PSID sid)
     {
       CopySid(GetLengthSid(sid),new_rec->sid,sid);
 
-      char AccountName[200],DomainName[200];
-      DWORD AccountLength=sizeof(AccountName),DomainLength=sizeof(DomainName);
+      wchar_t AccountName[200],DomainName[200]; //BUGBUG
+      DWORD AccountLength=sizeof(AccountName)/sizeof (wchar_t),DomainLength=sizeof(DomainName)/sizeof (wchar_t);
       SID_NAME_USE snu;
-      if (LookupAccountSid(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
+      if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
       {
-        if((new_rec->username=(char *)malloc(AccountLength+DomainLength+16)) != NULL)
+        if((new_rec->username=(wchar_t *)malloc(AccountLength+DomainLength+16)) != NULL)
         {
-          int Len=strlen(strcpy(new_rec->username,DomainName));
+          int Len=wcslen(wcscpy(new_rec->username,DomainName));
           new_rec->username[Len+1]=0;
-          new_rec->username[Len]='\\';
-          strcat(new_rec->username,AccountName);
-          FAR_CharToOem(new_rec->username,new_rec->username);
+          new_rec->username[Len]=L'\\';
+          wcscat(new_rec->username,AccountName);
           res=new_rec->username+Len+1;
         }
         else
@@ -136,9 +71,9 @@ static const char *add_sid_cache(const char *computer,PSID sid)
   return res;
 }
 
-static const char *get_sid_cache(PSID sid)
+static const wchar_t *get_sid_cache(PSID sid)
 {
-  char *res=NULL;
+  wchar_t *res=NULL;
   SIDCacheRecord *tmp_rec=sid_cache;
   while(tmp_rec)
   {
@@ -156,40 +91,36 @@ static const char *get_sid_cache(PSID sid)
 /* $ 07.09.2000 SVS
    Функция GetFileOwner тоже доступна плагинам :-)
 */
-int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
+int WINAPI GetFileOwnerW(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 {
-  if(!Owner)
+/*  if(!Owner)
   {
     SIDCacheFlush();
     return(TRUE);
-  }
+  }*/
 
   SECURITY_INFORMATION si;
   SECURITY_DESCRIPTOR *sd;
   char sddata[500];
   DWORD Needed;
-  *Owner=0;
+
+  strOwner=L"";
+
   si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
   sd=(SECURITY_DESCRIPTOR *)sddata;
 
-  char AnsiName[NM];
-  FAR_OemToChar(Name,AnsiName);
-  SetFileApisTo(APIS2ANSI);
-  int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
-  SetFileApisTo(APIS2OEM);
+  int GetCode=GetFileSecurityW(Name,si,sd,sizeof(sddata),&Needed);
 
-  /* $ 21.02.2001 VVM
-      ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
   if (!GetCode || (Needed>sizeof(sddata)))
     return(FALSE);
-  /* VVM $ */
+
   PSID pOwner;
   BOOL OwnerDefaulted;
   if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
     return(FALSE);
 #if 1
-  Owner[0]=0;
-  const char *SID=NULL;
+  strOwner=L"";
+  const wchar_t *SID=NULL;
   if(IsValidSid(pOwner))
   {
     SID=get_sid_cache(pOwner);
@@ -198,7 +129,7 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
   }
   if(!SID)
     return(FALSE);
-  strcpy(Owner,SID);
+  strOwner = SID;
 #else
   char AccountName[200],DomainName[200];
   DWORD AccountLength=sizeof(AccountName),DomainLength=sizeof(DomainName);
@@ -209,6 +140,3 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
 #endif
   return(TRUE);
 }
-/* SVS $*/
-
-#endif

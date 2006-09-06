@@ -8,58 +8,28 @@ flink.hpp
 
 */
 
-/* Revision: 1.12 17.10.2001 $ */
+/* Revision: 1.16 17.03.2006 $ */
 
-/*
-Modify:
-  17.10.2001 SVS
-   ! Внедрение const
-  16.10.2001 SVS
-    + EnumNTFSStreams() - получить информацию о потоках
-    ! немного const-модификаторов
-  01.10.2001 SVS
-    ! FarGetRepasePointInfo -> FarGetRepa_R_sePointInfo
-  24.09.2001 SVS
-    + FarGetRepasePointInfo - оболочка вокруг GetJunctionPointInfo() для
-      плагинов.
-  25.06.2001 IS
-   ! Внедрение const
-  30.05.2001 SVS
-    + FarMkLink()
-  29.05.2001 SVS
-    + GetPathRootOne()
-  28.04.2001 VVM
-    + GetSubstName получает тип носителя
-  25.04.2001 SVS
-    + CreateVolumeMountPoint() - монтирование диска на файловую систему
-  06.04.2001 SVS
-    + CanCreateHardLinks() - проверка на вшивость.
-  13.03.2001 SVS
-    ! GetPathRoot переехала в fn.hpp :-)
-  05.01.2001 SVS
-    + Функция DelSubstDrive - удаление Subst драйвера
-    + Функция GetSubstName переехала из fh.hpp
-  04.01.2001 SVS
-    + Создан.
-    + Описания MkLink, GetNumberOfLinks переехали из fn.hpp
-*/
+int   WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest);
+int   WINAPI FarMkLinkW(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 
-int   WINAPI MkLink(const char *Src,const char *Dest);
-int   WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags);
-BOOL  WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName);
-int   WINAPI GetNumberOfLinks(const char *Name);
-int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);
+BOOL  WINAPI CanCreateHardLinksW(const wchar_t *TargetFile,const wchar_t *HardLinkName);
+int   WINAPI GetNumberOfLinksW(const wchar_t *Name);
+int   WINAPI CreateVolumeMountPointW(const wchar_t *SrcVolume, const wchar_t *LinkFolder);
+
 BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
-BOOL  WINAPI DeleteJunctionPoint(LPCTSTR szMountDir);
-DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
-              LPTSTR  szDestBuff,
-              DWORD   dwBuffSize);
-int   WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize);
+BOOL  WINAPI CreateJunctionPointW(const wchar_t *szMountDir, const wchar_t *szDestDir);
+BOOL  WINAPI DeleteJunctionPointW(const wchar_t *szMountDir);
 
-BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);
-int DelSubstDrive(char *DosDeviceName);
-void  WINAPI GetPathRoot(const char *Path,char *Root);
-void GetPathRootOne(const char *Path,char *Root);
+DWORD WINAPI GetJunctionPointInfoW(const wchar_t *szMountDir, string &szDestBuff);
+
+//int   WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize);
+
+BOOL GetSubstNameW(int DriveType,const wchar_t *LocalName,string &strSubstName);
+
+int DelSubstDrive(const wchar_t *DosDeviceName);
+void  WINAPI GetPathRootW(const wchar_t *Path, string &strRoot);
+void GetPathRootOneW(const wchar_t *Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока

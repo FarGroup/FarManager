@@ -7,116 +7,11 @@ macro.hpp
 
 */
 
-/* Revision: 1.38 11.07.2005 $ */
+/* Revision: 1.39 12.03.2006 $ */
 
-/*
-Modify:
-  11.07.2005 SVS
-    - выход за пределы массива
-  05.03.2005 SVS
-    + KeyMacro::ReadVarsConst()
-    + KeyMacro::WriteVarsConst()
-  05.08.2004 SVS
-    + RestartAutoMacro()
-  07.07.2004 SVS
-    ! Macro II
-  14.06.2004 SVS
-    + добавки MACRODRIVE2
-  26.05.2004 SVS
-    ! MkTextSequence() - третий параметр - некомпиленный текст макроса
-  15.12.2003 SVS
-    ! Структура MacroRecord увеличена в размере (задел на будущее)
-  28.10.2003 SVS
-    ! Executing -> MacroState.Executing
-  15.10.2003 SVS
-    + GetMacroKeyInfo - информация об очередной макроклавише.
-    + Сохранение/восстановление макроокружения.
-  04.10.2003 SVS
-    ! Куча переделок - все описание см. 01715.Macro.txt
-  26.09.2003 SVS
-    ! Переименование
-      GetMacroPlainText        -> GetPlainText
-      GetMacroPlainTextSize    -> GetPlainTextSize
-  22.09.2003 SVS
-    + KeyMacro::KeyToBuffer() - поместить код в буфер
-    ! KeyMacro::IfCondition() - возвращает int
-  12.09.2003 SVS
-    + Добавлена функция KeyMacro::GetMacroPlainTextSize() - размер plain-text
-  15.07.2003 SVS
-    + KeyMacro::CheckInsidePlugin() - "мы внутри плагина?"
-    + KeyMacro::DropProcess() - прервать текущий исполняемый макрос.
-  02.05.2003 SVS
-    - BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
-    + IsExecutingLastKey() - введем проверку на... "это последняя клавиша макрокоманды?"
-  19.08.2002 SVS
-    + KeyMacro::KeyFromBuffer() - юзать ее для получения нужной клавиши из
-      буфера
-  02.06.2002 SVS
-    ! Внедрение const
-    ! ParseMacroString стала public
-  12.04.2002 SVS
-    ! Уберем #if/#endif - выбор на уровне MAK-файла (технологический патч)
-    ! SaveMacros - один параметр
-  03.03.2002 SVS
-    + TempMacroNumber - количество структур во временной очереди
-  10.12.2001 SVS
-    + IsDsableOutput() - проверка на "отображаемость"
-  14.09.2001 SVS
-    - BugZ#9 - окончание
-  07.09.2001 SVS
-    + CheckCurMacroFlags() - проверка флагов текущего _ИСПОЛНЯЕМОГО_ макроса.
-  15.08.2001 SVS
-    ! косметика - для собственных нужд (по поводу macro2.?pp)
-  09.08.2001 SVS
-    + IfCondition() - вернет TRUE/FALSE в зависимости от условия
-  22.06.2001 SVS
-    + GetMacroPlainText()
-  20.06.2001 SVS
-    ! Названия функций приведены к более конкретному их назначению:
-      PlayKeyMacro -> PostTempKeyMacro
-    ! TempMacroType удален за ненадобностью, т.к. для Temp-макросов все равно
-      память динамически перераспределяется.
-  23.05.2001 SVS
-    ! IndexMode - двумерный массив: первый индекс - начало, второй - количество.
-  23.05.2001 SVS
-    + Sort()
-    + IndexMode - массив начала макросов в Macros
-  16.05.2001 SVS
-    + GetCurRecord() - для дампа
-  06.05.2001 DJ
-    ! перетрях #include
-  25.04.2001 SVS
-    ! Код проверки флагов для старта макросов вынесен в функции Check* -
-      слишком много повторяющегося кода :-(
-  08.03.2001 SVS
-    + Функция MkTextSequence - формирование строкового представления Sequence
-  22.01.2001 SVS
-    + Функция MkRegKeyName - формирование имени ключа в реестре.
-  17.01.2001 SVS
-    + функции получения индекса макроса и размера под макропоследовательность:
-       int GetIndex(int Key, int Mode);
-       int GetRecordSize(int Key, int Mode);
-  04.01.2001 SVS
-    ! изменен ReadMacros и GetMacroSettings
-    + функция AssignMacroKey
-    ! удалена структура struct TKeyNames
-  26.12.2000 SVS
-    + SwitchFlags()
-  23.12.2000 SVS
-    + int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
-    + int PlayKeyMacro(struct MacroRecord *MRec)
-    + int PlayKeyMacro(char *KeyBuffer)
-  21.12.2000 SVS
-    ! структура MacroRecord перенесена из struct.hpp и "сжата"
-    ! Функция KeyToText удалена за ненадобностью
-  10.09.2000 SVS
-    ! Функция ReadMacros имеет дополнительные аргументы
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
 #include "farconst.hpp"
 #include "syntax.hpp"
+#include "UnicodeString.hpp"
 
 class Panel;
 
@@ -126,7 +21,7 @@ struct MacroRecord
   int    Key;           // Назначенная клавиша
   int    BufferSize;    // Размер буфера компилированной последовательности
   DWORD *Buffer;        // компилированная последовательность (OpCode) макроса
-  char  *Src;           // оригинальный "текст" макроса
+  wchar_t  *Src;           // оригинальный "текст" макроса
   DWORD  Reserved[3];   // зарезервировано
 };
 
@@ -176,9 +71,9 @@ class KeyMacro
     class LockScreen *LockScr;
 
   private:
-    int ReadVarsConst(int ReadMode, char *Buffer, int BufferSize);
+    int ReadVarsConst(int ReadMode, string &strBuffer);
     int WriteVarsConst(int ReadMode);
-    int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
+    int ReadMacros(int ReadMode, string &strBuffer);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);
     void InitInternalVars(BOOL InitedRAM=TRUE);
@@ -186,7 +81,7 @@ class KeyMacro
     void ReleaseWORKBuffer(BOOL All=FALSE); // удалить временный буфер
 
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
-    char *MkRegKeyName(int IdxMacro,char *RegKeyName);
+    string &MkRegKeyName(int IdxMacro,string &strRegKeyName);
 
     BOOL CheckEditSelected(DWORD CurFlags);
     BOOL CheckInsidePlugin(DWORD CurFlags);
@@ -226,7 +121,7 @@ class KeyMacro
     void RunStartMacro();
 
     // Поместить временное строковое представление макроса
-    int PostNewMacro(char *PlainText,DWORD Flags=0);
+    int PostNewMacro(const wchar_t *PlainText,DWORD Flags=0);
     // Поместить временный рекорд (бинарное представление)
     int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0);
 
@@ -239,7 +134,7 @@ class KeyMacro
     // получение размера, занимаемого указанным макросом
     int GetRecordSize(int Key, int Mode);
 
-    char *GetPlainText(char *Dest);
+    wchar_t *GetPlainText(wchar_t *Dest);
     int   GetPlainTextSize();
 
     void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
@@ -251,12 +146,12 @@ class KeyMacro
     // проверить флаги текущего исполняемого макроса.
     BOOL CheckCurMacroFlags(DWORD Flags);
 
-    static char* GetSubKey(int Mode);
-    static int   GetSubKey(char *Mode);
-    static int   GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize);
-    static char *MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src=NULL);
+    static const wchar_t* GetSubKey(int Mode);
+    static int   GetSubKey(const wchar_t *Mode);
+    static int   GetMacroKeyInfo(int Mode,int Pos,const wchar_t *KeyName,string &strDescription);
+    static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=NULL);
     // из строкового представления макроса сделать MacroRecord
-    int ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
+    int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr);
     void DropProcess();
 };
 

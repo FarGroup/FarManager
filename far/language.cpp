@@ -5,79 +5,7 @@ language.cpp
 
 */
 
-/* Revision: 1.27 18.12.2004 $ */
-
-/*
-Modify:
-  18.12.2004 WARP
-    - При сравнении затиралась строка .Options.
-  22.04.2004 SVS
-    + Метод Language::Free() и декструктор Language::~Language()
-    ! Так же изменена логика класса Language по причине... описанной в 01768.Mix.txt (слишком много сюда писать :-)
-  20.10.2003 SVS
-    - в .lng файле нельзя ставить пробелы после идентификатора .Language, типа .Language = %%,
-      только .Language=%%.
-  29.04.2003 SVS
-    ! из GetMsg вынесем код проверки в отдельную функцию CheckMsgId
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  14.07.2002 IS
-    ! внедрение const
-  24.05.2002 SKV
-    - На всякий случай проверяем на NULL то, от чего вызывается delete [] в Close()
-  26.03.2002 DJ
-    ! не выводим сообщение в GetMsg(), если менеджер уже в дауне
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  19.03.2002 DJ
-    ! не вылетаем при отрицательном индексе в GetMsg()
-  27.02.2002 SVS
-    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
-  25.01.2002 SVS
-    ! Обрежим пробелы и слева и справа при чтении из LNG-файла
-  24.12.2001 SVS
-    + Доп.параметр у OpenLangFile() - StrongLang: "только заданный язык и не более"
-  14.12.2001 IS
-    ! stricmp -> LocalStricmp
-  29.11.2001 DJ
-    ! GetLangParam() читает файл только до @Contents и не забывает
-      восстановить позицию
-  01.10.2001 SVS
-    ! Учтем, что может быть, т.н. "DocumentContents"
-  01.08.2001 SVS
-    - Не допускаем дубликатов!
-      Если в каталог с ФАРом положить еще один HLF с одноименным
-      языком, то... фигня получается при выборе языка.
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  27.06.2001 SVS
-    ! Позаботимся об информации про LanguageLoaded :-)
-  03.06.2001 SVS
-    ! Изменения в связи с переделкой UserData в VMenu
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  17.05.2001 OT
-    ! выравнивание сообщений на границу 4 байт.
-  06.05.2001 DJ
-    ! перетрях #include
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  19.01.2001 SVS
-    + Проведем проверку на количество строк в LNG-файлах
-  03.09.2000 IS
-    ! Нормальное сообщение об отсутствии строки в языковом файле
-      (раньше имя файла обрезалось справа и приходилось иногда гадать - в
-      каком же файле ошибка)
-  01.09.2000 SVS
-    + Новый метод, для получения параметров для .Options
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.34 06.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -90,7 +18,9 @@ Modify:
 #include "vmenu.hpp"
 #include "manager.hpp"
 
-#define LangFileMask "*.lng"
+extern wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType);
+
+#define LangFileMask L"*.lng"
 
 #ifndef pack
  #define _PACK_BITS 2
@@ -106,42 +36,66 @@ Language::Language()
 {
   MsgList=NULL;
   MsgAddr=NULL;
+
+  MsgListW = NULL;
+  MsgAddrW = NULL;
+
   MsgCount=0;
   MsgSize=0;
 }
 
 
-int Language::Init(char *Path,int CountNeed)
+int Language::Init(const wchar_t *Path,int CountNeed)
 {
   if (MsgList!=NULL)
     return(TRUE);
 
   int LastError=GetLastError();
 
-  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.Language,MessageFile);
+  int nType = TYPE_ANSI;
+  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nType);
+
   if (LangFile==NULL)
     return(FALSE);
 
-  char ReadStr[1024];
+  wchar_t ReadStr[1024];
+  memset (&ReadStr, 0, sizeof (ReadStr));
 
-  while (fgets(ReadStr,sizeof(ReadStr),LangFile)!=NULL)
+  while ( ReadString (LangFile, ReadStr, sizeof (ReadStr)/sizeof (wchar_t), nType) !=NULL )
   {
-    char DestStr[1024];
-    RemoveExternalSpaces(ReadStr);
-    if (*ReadStr!='\"')
+    string strDestStr;
+    RemoveExternalSpacesW(ReadStr);
+    if ( *ReadStr != L'\"')
       continue;
-    int SrcLength=strlen(ReadStr);
-    if (ReadStr[SrcLength-1]=='\"')
+    int SrcLength=wcslen (ReadStr);
+
+    if (ReadStr[SrcLength-1]==L'\"')
       ReadStr[SrcLength-1]=0;
-    ConvertString(ReadStr+1,DestStr);
-    int DestLength=pack(strlen(DestStr)+1);
+
+    ConvertString(ReadStr+1,strDestStr);
+
+    int DestLength=pack(strDestStr.GetLength()+1);
+
     if ((MsgList=(char *)xf_realloc(MsgList,MsgSize+DestLength))==NULL)
     {
       fclose(LangFile);
       return(FALSE);
     }
+
+    if ( (MsgListW = (wchar_t*)xf_realloc(MsgListW, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
+    {
+      free (MsgList);
+      MsgList = NULL;
+      fclose(LangFile);
+      return(FALSE);
+    }
+
     *(int*)&MsgList[MsgSize+DestLength-_PACK]=0;
-    strcpy(MsgList+MsgSize,DestStr);
+    *(int*)&MsgListW[MsgSize+DestLength-_PACK] = 0;
+
+    WideCharToMultiByte(CP_OEMCP, 0, strDestStr, -1, MsgList+MsgSize, DestLength, NULL, NULL);
+    wcscpy(MsgListW+MsgSize, strDestStr);
+
     MsgSize+=DestLength;
     MsgCount++;
   }
@@ -154,17 +108,33 @@ int Language::Init(char *Path,int CountNeed)
   }
   /* SVS $ */
   char *CurAddr=MsgList;
+  wchar_t *CurAddrW = MsgListW;
+
   MsgAddr=new LPSTR[MsgCount];
+  MsgAddrW = new wchar_t*[MsgCount];
+
   if (MsgAddr==NULL)
   {
     fclose(LangFile);
     return(FALSE);
   }
+
+  if ( MsgAddrW == NULL )
+  {
+    free (MsgAddr);
+    fclose(LangFile);
+    return(FALSE);
+  }
+
   for (int I=0;I<MsgCount;I++)
   {
     MsgAddr[I]=CurAddr;
+    MsgAddrW[I]=CurAddrW;
+
+    CurAddrW+=pack(wcslen(CurAddrW)+1);
     CurAddr+=pack(strlen(CurAddr)+1);
   }
+
   fclose(LangFile);
   SetLastError(LastError);
   if(this == &Lang)
@@ -209,53 +179,57 @@ void Language::Close()
 }
 
 
-void Language::ConvertString(char *Src,char *Dest)
+void Language::ConvertString(const wchar_t *Src,string &strDest)
 {
+  wchar_t *Dest = strDest.GetBuffer (wcslen (Src)*2);
+
   while (*Src)
     switch(*Src)
     {
-      case '\\':
+      case L'\\':
         switch(Src[1])
         {
-          case '\\':
-            *(Dest++)='\\';
+          case L'\\':
+            *(Dest++)=L'\\';
             Src+=2;
             break;
-          case '\"':
-            *(Dest++)='\"';
+          case L'\"':
+            *(Dest++)=L'\"';
             Src+=2;
             break;
-          case 'n':
-            *(Dest++)='\n';
+          case L'n':
+            *(Dest++)=L'\n';
             Src+=2;
             break;
-          case 'r':
-            *(Dest++)='\r';
+          case L'r':
+            *(Dest++)=L'\r';
             Src+=2;
             break;
-          case 'b':
-            *(Dest++)='\b';
+          case L'b':
+            *(Dest++)=L'\b';
             Src+=2;
             break;
-          case 't':
-            *(Dest++)='\t';
+          case L't':
+            *(Dest++)=L'\t';
             Src+=2;
             break;
           default:
-            *(Dest++)='\\';
+            *(Dest++)=L'\\';
             Src++;
             break;
         }
         break;
-      case '"':
-        *(Dest++)='"';
-        Src+=(Src[1]=='"') ? 2:1;
+      case L'"':
+        *(Dest++)=L'"';
+        Src+=(Src[1]==L'"') ? 2:1;
         break;
       default:
         *(Dest++)=*(Src++);
         break;
     }
   *Dest=0;
+
+  strDest.ReleaseBuffer();
 }
 
 BOOL Language::CheckMsgId(int MsgId)
@@ -279,13 +253,13 @@ BOOL Language::CheckMsgId(int MsgId)
            (раньше имя файла обрезалось справа и приходилось иногда гадать - в
            каком же файле ошибка)
       */
-      char Msg1[100],Msg2[100],Tmp[NM];
-      strcpy(Tmp,MessageFile);
-      TruncPathStr(Tmp,41);
-      sprintf(Msg1,"Incorrect or damaged %s",Tmp);
+      string strMsg1, strMsg2, strTmp;
+      strTmp = strMessageFile;
+      TruncPathStrW(strTmp,41);
+      strMsg1.Format(L"Incorrect or damaged %s", (const wchar_t*)strTmp);
       /* IS $ */
-      sprintf(Msg2,"Message %d not found",MsgId);
-      if (Message(MSG_WARNING,2,"Error",Msg1,Msg2,"Ok","Quit")==1)
+      strMsg2.Format(L"Message %d not found",MsgId);
+      if (MessageW(MSG_WARNING,2,L"Error",strMsg1,strMsg2,L"Ok",L"Quit")==1)
         exit(0);
     }
     /* DJ $ */
@@ -303,92 +277,139 @@ char* Language::GetMsg(int MsgId)
   return(MsgAddr[MsgId]);
 }
 
-
-FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang)
+wchar_t* Language::GetMsgW (int nID)
 {
-  *FileName=0;
+  if( !CheckMsgId (nID) )
+    return L"";
+
+  if( this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
+    return(OldLang.MsgAddrW[nID]);
+
+  return(MsgAddrW[nID]);
+}
+
+
+FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, int &nType, BOOL StrongLang)
+{
+  strFileName=L"";
 
   FILE *LangFile=NULL;
-  char FullName[NM], EngFileName[NM];
-  WIN32_FIND_DATA FindData;
-
-  *EngFileName=0;
+  string strFullName, strEngFileName;
+  FAR_FIND_DATA_EX FindData;
 
   ScanTree ScTree(FALSE,FALSE);
-  ScTree.SetFindPath(Path,Mask);
-  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+  ScTree.SetFindPathW(Path,Mask);
+  while (ScTree.GetNextNameW(&FindData, strFullName))
   {
-    strcpy(FileName,FullName);
+    strFileName = strFullName;
     if (Language==NULL)
       break;
-    if ((LangFile=fopen(FileName,"rb"))==NULL)
-      *FileName=0;
+    if ((LangFile=_wfopen(strFileName,L"rb"))==NULL)
+      strFileName=L"";
     else
     {
-      char LangName[100];
-      if (GetLangParam(LangFile,"Language",LangName,NULL) && LocalStricmp(LangName,Language)==0)
+      DWORD dwTemp;
+      nType = TYPE_ANSI;
+
+      if ( fread (&dwTemp, 4, 1, LangFile) == 1 )
+      {
+          if ( LOWORD (dwTemp) == 0xFEFF )
+              nType = TYPE_UNICODE;
+          else
+
+          if ( LOWORD (dwTemp) == 0xFFFE )
+              nType = TYPE_REVERSEBOM;
+          else
+
+          if ( (dwTemp & 0x00FFFFFF) == 0xBFBBEF )
+              nType = TYPE_UTF8;
+      }
+      else
+        fseek(LangFile, 0, SEEK_SET);
+
+      string strLangName;
+      string strNULL;
+
+      if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nType) && LocalStricmpW(strLangName,Language)==0)
         break;
       fclose(LangFile);
       LangFile=NULL;
       if(StrongLang)
       {
-        *FileName=*EngFileName=0;
+        strFileName=strEngFileName=L"";
         break;
       }
-      if (LocalStricmp(LangName,"English")==0)
-        strcpy(EngFileName,FileName);
+      if (LocalStricmpW(strLangName,L"English")==0)
+        strEngFileName = strFileName;
     }
   }
 
   if (LangFile==NULL)
   {
-    if (*EngFileName)
-      strcpy(FileName,EngFileName);
-    if (*FileName)
-      LangFile=fopen(FileName,"rb");
+    if ( !strEngFileName.IsEmpty() )
+      strFileName = strEngFileName;
+    if ( !strFileName.IsEmpty() )
+      LangFile=_wfopen(strFileName,L"rb");
   }
 
   return(LangFile);
 }
 
 
-int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2)
+int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nType)
 {
-  char ReadStr[1024],FullParamName[64];
-  sprintf(FullParamName,".%s",ParamName);
-  int Length=strlen(FullParamName);
+  wchar_t ReadStr[1024];
+
+  string strFullParamName = L".";
+
+  strFullParamName += ParamName;
+
+  int Length=strFullParamName.GetLength();
   /* $ 29.11.2001 DJ
      не поганим позицию в файле; дальше @Contents не читаем
   */
   BOOL Found = FALSE;
   long OldPos = ftell (SrcFile);
-  fseek(SrcFile,0,SEEK_SET);
-  while (fgets(ReadStr,sizeof(ReadStr),SrcFile)!=NULL)
+
+  if ( (nType == TYPE_UNICODE) || (nType == TYPE_REVERSEBOM) )
+    fseek(SrcFile,2,SEEK_SET);
+  else
+  if ( nType == TYPE_UTF8 )
+    fseek (SrcFile, 3, SEEK_SET);
+  else
+    fseek(SrcFile,0,SEEK_SET);
+
+  while ( ReadString (SrcFile, ReadStr, 1024, nType)!=NULL)
   {
-    if (strnicmp(ReadStr,FullParamName,Length)==0)
+    if (LocalStrnicmpW(ReadStr,strFullParamName,Length)==0)
     {
-      char *Ptr=strchr(ReadStr,'=');
+      wchar_t *Ptr=wcschr(ReadStr,L'=');
       if(Ptr)
       {
-        RemoveExternalSpaces(strcpy(Param1,Ptr+1));
-        char *EndPtr=strchr(Param1,',');
-        if (Param2)
-          *Param2=0;
+          *strParam1 = Ptr+1;
+          wchar_t *EndPtr=strParam1->GetBuffer ();
+
+          EndPtr = wcschr(EndPtr,L',');
+        if ( strParam2 )
+          *strParam2=L"";
         if (EndPtr!=NULL)
         {
-          if (Param2)
+          if (strParam2)
           {
-            strcpy(Param2,EndPtr+1);
-            RemoveTrailingSpaces(Param2);
+            *strParam2 = EndPtr+1;
+            RemoveTrailingSpacesW(*strParam2);
           }
           *EndPtr=0;
         }
-        RemoveTrailingSpaces(Param1);
+
+        strParam1->ReleaseBuffer();
+
+        RemoveTrailingSpacesW(*strParam1);
         Found = TRUE;
         break;
       }
     }
-    else if (!strnicmp (ReadStr, "@Contents", 9))
+    else if (!LocalStrnicmpW (ReadStr, L"@Contents", 9))
       break;
   }
   fseek (SrcFile,OldPos,SEEK_SET);
@@ -399,55 +420,65 @@ int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Para
 
 int Language::Select(int HelpLanguage,VMenu **MenuPtr)
 {
-  const char *Title,*Mask;
-  char *Dest;
+  const wchar_t *Title,*Mask;
+  string strDest;
   if (HelpLanguage)
   {
-    Title=MSG(MHelpLangTitle);
+    Title=UMSG(MHelpLangTitle);
     Mask=HelpFileMask;
-    Dest=Opt.HelpLanguage;
+    strDest=Opt.strHelpLanguage;
   }
   else
   {
-    Title=MSG(MLangTitle);
+    Title=UMSG(MLangTitle);
     Mask=LangFileMask;
-    Dest=Opt.Language;
+    strDest=Opt.strLanguage;
   }
 
-  struct MenuItem LangMenuItem;
-  memset(&LangMenuItem,0,sizeof(LangMenuItem));
-  VMenu *LangMenu=new VMenu(Title,NULL,0,ScrY-4);
+  MenuItemEx LangMenuItem;
+
+  LangMenuItem.Clear ();
+  VMenu *LangMenu=new VMenu(Title,NULL,0,TRUE, ScrY-4);
   *MenuPtr=LangMenu;
   LangMenu->SetFlags(VMENU_WRAPMODE);
   LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 
-  char FullName[NM];
-  WIN32_FIND_DATA FindData;
+  string strFullName;
+  FAR_FIND_DATA_EX FindData;
   ScanTree ScTree(FALSE,FALSE);
-  ScTree.SetFindPath(FarPath,Mask);
-  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+  ScTree.SetFindPathW(g_strFarPath, Mask);
+  while (ScTree.GetNextNameW(&FindData,strFullName))
   {
-    FILE *LangFile=fopen(FullName,"rb");
+    FILE *LangFile=_wfopen(strFullName,L"rb");
     if (LangFile==NULL)
       continue;
-    char LangName[200],LangDescr[200];
-    if (GetLangParam(LangFile,"Language",LangName,LangDescr))
+
+    WORD wTemp;
+    bool bUnicode = false;
+
+    if ( (fread (&wTemp, 2, 1, LangFile) == 1) && (wTemp == 0xFEFF) )
+        bUnicode = true;
+    else
+        fseek(LangFile, 0, SEEK_SET);
+
+    string strLangName, strLangDescr;
+    if (GetLangParam(LangFile,L"Language",&strLangName,&strLangDescr,bUnicode))
     {
-       char EntryName[512];
-       if (!GetLangParam(LangFile,"PluginContents",EntryName,NULL) &&
-           !GetLangParam(LangFile,"DocumentContents",EntryName,NULL))
+       string strEntryName;
+       if (!GetLangParam(LangFile,L"PluginContents",&strEntryName,NULL,bUnicode) &&
+           !GetLangParam(LangFile,L"DocumentContents",&strEntryName,NULL,bUnicode))
        {
 
-         sprintf(LangMenuItem.Name,"%.40s",*LangDescr ? LangDescr:LangName);
+         LangMenuItem.strName.Format(L"%.40s", !strLangDescr.IsEmpty() ? (const wchar_t*)strLangDescr:(const wchar_t*)strLangName);
          /* $ 01.08.2001 SVS
             Не допускаем дубликатов!
             Если в каталог с ФАРом положить еще один HLF с одноименным
             языком, то... фигня получается при выборе языка.
          */
-         if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_EXACTMATCH) == -1)
+         if(LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
          {
-           LangMenuItem.SetSelect(LocalStricmp(Dest,LangName)==0);
-           LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
+           LangMenuItem.SetSelect(LocalStricmpW(strDest,strLangName)==0);
+           LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItemW(&LangMenuItem));
          }
          /* SVS $ */
        }
@@ -458,7 +489,13 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   LangMenu->Process();
   if (LangMenu->Modal::GetExitCode()<0)
     return(FALSE);
-  LangMenu->GetUserData(Dest,sizeof(Opt.Language));
+
+  wchar_t *lpwszDest = strDest.GetBuffer(100); //BUGBUG!!!
+
+  LangMenu->GetUserData(lpwszDest, 100*sizeof(wchar_t));
+
+  strDest.ReleaseBuffer();
+
   return(LangMenu->GetUserDataSize());
 }
 
@@ -466,31 +503,52 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   + Новый метод, для получения параметров для .Options
    .Options <KeyName>=<Value>
 */
-int Language::GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value)
+int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nType)
 {
-  char ReadStr[1024],FullParamName[64], *Ptr;
+  wchar_t ReadStr[1024];
 
-  memset (FullParamName, 0, 64);
+  string strFullParamName;
 
-  int Length=strlen(".Options");
+  wchar_t *Ptr;
+
+  int Length=wcslen(L".Options");
 
   long CurFilePos=ftell(SrcFile);
-  fseek(SrcFile,0,SEEK_SET);
-  while (fgets(ReadStr,sizeof(ReadStr),SrcFile)!=NULL)
-  {
-    if (!strnicmp(ReadStr,".Options",Length))
-    {
-      strcpy(FullParamName,RemoveExternalSpaces(ReadStr+Length));
 
-      if((Ptr=strchr(FullParamName,'=')) == NULL)
+  if ( (nType == TYPE_UNICODE) || (nType == TYPE_REVERSEBOM) )
+    fseek(SrcFile,2,SEEK_SET);
+  else
+
+  if ( nType == TYPE_UTF8 )
+    fseek(SrcFile,3,SEEK_SET);
+  else
+    fseek(SrcFile,0,SEEK_SET);
+
+  while ( ReadString (SrcFile, ReadStr, 1024, nType) !=NULL)
+  {
+    if (!LocalStrnicmpW(ReadStr,L".Options",Length))
+    {
+      strFullParamName = RemoveExternalSpacesW(ReadStr+Length);
+
+      Ptr = strFullParamName.GetBuffer ();
+
+
+      if((Ptr=wcsrchr(Ptr,L'=')) == NULL)
+      {
+        strFullParamName.ReleaseBuffer ();
         continue;
+      }
+
       *Ptr++=0;
 
-      if (!LocalStricmp(RemoveExternalSpaces(FullParamName),KeyName))
-      {
-        strcpy(Value,RemoveExternalSpaces(Ptr));
+      strValue = RemoveExternalSpacesW(Ptr);
+
+      strFullParamName.ReleaseBuffer ();
+
+      RemoveExternalSpacesW (strFullParamName);
+
+      if (!LocalStricmpW(strFullParamName,KeyName))
         return(TRUE);
-      }
     }
   }
   fseek(SrcFile,CurFilePos,SEEK_SET);

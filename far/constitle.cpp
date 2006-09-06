@@ -5,27 +5,8 @@ constitle.cpp
 
 */
 
-/* Revision: 1.06 23.07.2005 $ */
+/* Revision: 1.11 21.05.2006 $ */
 
-/*
-Modify:
-  23.07.2005 SVS
-    ! vsprintf -> vsnprintf
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  10.05.2002 SVS
-    - Хрень выводилась в заголовке. Сделаем конвертирование
-  01.04.2002 SVS
-    ! Про заголовок - заюзаем SetFarTitle для корректного восстановления после
-      макроса
-  14.05.2001 SVS
-    + изменен конструктор
-  06.05.2001 DJ
-    + перетрях #include
-  20.03.2001 tran
-    ! created
-*/
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -34,33 +15,41 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 
-ConsoleTitle::ConsoleTitle(char *title)
+ConsoleTitle::ConsoleTitle(const wchar_t *title)
 {
-  GetConsoleTitle(OldTitle,512);
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    FAR_CharToOem(OldTitle,OldTitle);
-//  _SVS(SysLog(1,"ConsoleTitle> '%s'",OldTitle));
-  if(title)
-    SetFarTitle(title);
+  apiGetConsoleTitle (strOldTitle);
+
+  if( title )
+    SetFarTitleW (title);
+
 }
 
 ConsoleTitle::~ConsoleTitle()
 {
-  char *Ptr=OldTitle+strlen(OldTitle)-strlen(FarTitleAddons);
-  if(!stricmp(Ptr,FarTitleAddons))
-    *Ptr=0;
-  SetFarTitle(OldTitle);
-//  _SVS(SysLog(-1,"~ConsoleTitle '%s'",OldTitle));
+    wchar_t *lpwszTitle = strOldTitle.GetBuffer ();
+
+    if ( *lpwszTitle )
+    {
+        lpwszTitle += wcslen (lpwszTitle);
+        lpwszTitle -= wcslen (FarTitleAddonsW);
+
+        if ( !LocalStricmpW (lpwszTitle, FarTitleAddonsW) )
+            *lpwszTitle = 0;
+    }
+
+    strOldTitle.ReleaseBuffer ();
+
+    SetFarTitleW (strOldTitle);
 }
 
-void ConsoleTitle::Set(char *fmt,...)
+void ConsoleTitle::Set(const wchar_t *fmt,...)
 {
-  char msg[2048];
+  wchar_t msg[2048];
 
   va_list argptr;
   va_start( argptr, fmt );
 
-  vsnprintf( msg, sizeof(msg)-1, fmt, argptr );
+  vsnwprintf( msg, sizeof(msg)/sizeof(msg[0])-1, fmt, argptr );
   va_end(argptr);
-  SetFarTitle(msg);
+  SetFarTitleW(msg);
 }

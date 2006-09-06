@@ -5,49 +5,7 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.15 24.07.2006 $ */
-
-/*
-Modify:
-  24.07.2006 SVS
-    ! уточнение позиции ЛастЕррора
-  04.06.2006 SVS
-    ! ESetFileEncryption - доп.параметр ("исполнить тихо")
-  05.10.2005 SVS
-    ! сохраним значение GetLastError() в _localLastError
-  03.05.2005 AY
-    - в функции ESetFileTime() была испорчена логика проверки папки совместно с версией win.
-  16.09.2004 SVS
-    - в функции ESetFileTime() перед выставлением времени RO снимается, но назад не ставится
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  30.05.2003 SVS
-    - Не выставлялся атрибут Compressed для файлового объекта, имеющего ReadOnly.
-      Вернее... При смене атрибута с Encripted на Compressed... имеющего ReadOnly.
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  12.06.2002 SVS
-    ! Функции, выставляющие атрибуты, так же как и ESetFileTime
-      возвращают: 0 - ошибка, 1 - Ок, 2 - Skip
-      Сделано для подавления баги "Skip == Cancel"
-  30.01.2002 SVS
-    - В ESetFileTime скидывали RO, но потом не ставили обратно.
-  28.12.2001 SVS
-    ! Применяем кнопки с хоткеями
-  19.10.2001 SVS
-    - бага с выставлением шифрования для файлов с русскими буквицами.
-  14.05.2001 SVS
-    При выставлении даты/времени RO атрибут снимали, а возвращать забывали :-(
-  06.05.2001 DJ
-    ! перетрях #include
-  30.12.2000 SVS
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.19 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -56,52 +14,47 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 
-typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
-typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);
+typedef BOOL (WINAPI *PEncryptFileW)(const wchar_t *lpwszFileName);
+typedef BOOL (WINAPI *PDecryptFileW)(const wchar_t *lpwszFileName, DWORD dwReserved);
 
-static PEncryptFileA pEncryptFileA=NULL;
-static PDecryptFileA pDecryptFileA=NULL;
+static PEncryptFileW pEncryptFileW=NULL;
+static PDecryptFileW pDecryptFileW=NULL;
 
-static int SetFileEncryption(const char *Name,int State);
-static int SetFileCompression(const char *Name,int State);
-
+static int SetFileEncryptionW(const wchar_t *Name,int State);
+static int SetFileCompressionW(const wchar_t *Name,int State);
 
 // получим функции криптования
 int GetEncryptFunctions(void)
 {
-  const char *Names[]={
-    "KERNEL32","ADVAPI32","EncryptFileA","DecryptFileA",
-  };
-
-  if(!pEncryptFileA)
+  if(!pEncryptFileW)
   {
     // работает только под Win2000! Если не 2000, то не надо и показывать эту опцию.
-    pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle(Names[0]),Names[2]);
-    if(!pEncryptFileA)
-      pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle(Names[1]),Names[2]);
+    pEncryptFileW = (PEncryptFileW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"), "EncryptFileW");
+    if(!pEncryptFileW)
+      pEncryptFileW = (PEncryptFileW)GetProcAddress(GetModuleHandleW(L"ADVAPI32.DLL"), "EncryptFileW");
   }
 
-  if(!pDecryptFileA)
+  if(!pDecryptFileW)
   {
-    pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle(Names[0]),Names[3]);
-    if(!pDecryptFileA)
-      pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle(Names[1]),Names[3]);
+    pDecryptFileW = (PDecryptFileW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"), "DecryptFileW");
+    if(!pDecryptFileW)
+      pDecryptFileW = (PDecryptFileW)GetProcAddress(GetModuleHandleW(L"ADVAPI32.DLL"), "DecryptFileW");
   }
 
-  if(pDecryptFileA && pEncryptFileA)
+  if(pDecryptFileW && pEncryptFileW)
     IsCryptFileASupport=TRUE;
 
   return IsCryptFileASupport;
 }
 
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileAttributes(const char *Name,int Attr)
+int ESetFileAttributesW(const wchar_t *Name,int Attr)
 {
 //_SVS(SysLog("Attr=0x%08X",Attr));
-  while (!SetFileAttributes(Name,Attr))
+  while (!SetFileAttributesW(Name,Attr))
   {
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-             MSG(MSetAttrCannotFor),(char *)Name,MSG(MHRetry),MSG(MHSkip),MSG(MHCancel));
+    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+             UMSG(MSetAttrCannotFor),Name,UMSG(MHRetry),UMSG(MHSkip),UMSG(MHCancel));
     if (Code==1 || Code<0)
       return 2;
     if (Code==2)
@@ -111,9 +64,9 @@ int ESetFileAttributes(const char *Name,int Attr)
 }
 
 
-static int SetFileCompression(const char *Name,int State)
+static int SetFileCompressionW(const wchar_t *Name,int State)
 {
-  HANDLE hFile=FAR_CreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
+  HANDLE hFile=FAR_CreateFileW(Name,FILE_READ_DATA|FILE_WRITE_DATA,
                  FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                  FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
@@ -126,34 +79,30 @@ static int SetFileCompression(const char *Name,int State)
   return(RetCode);
 }
 
-/*
-  Для безусловного выставления атрибута FILE_ATTRIBUTE_COMPRESSED
-  необходимо в качестве параметра FileAttr передать значение 0
-*/
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileCompression(const char *Name,int State,int FileAttr)
+
+int ESetFileCompressionW(const wchar_t *Name,int State,int FileAttr)
 {
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
     return 1;
 
   int Ret=1;
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
+    SetFileAttributesW(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
 
   // Drop Encryption
   if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-    SetFileEncryption(Name,0);
+    SetFileEncryptionW(Name,0);
 
-  while (!SetFileCompression(Name,State))
+  while (!SetFileCompressionW(Name,State))
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
     {
       Ret=1;
       break;
     }
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrCompressedCannotFor),(char *)Name,MSG(MHRetry),
-                MSG(MHSkip),MSG(MHCancel));
+    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+                UMSG(MSetAttrCompressedCannotFor),Name,UMSG(MHRetry),
+                UMSG(MHSkip),UMSG(MHCancel));
     if (Code==1 || Code<0)
     {
       Ret=2;
@@ -167,39 +116,22 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
   }
   // Set ReadOnly
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr);
+    SetFileAttributesW(Name,FileAttr);
   return(Ret);
 }
 
-/* $ 20.10.2000 SVS
-   Новый атрибут Encripted
-*/
 
-static int SetFileEncryption(const char *Name,int State)
+static int SetFileEncryptionW(const wchar_t *Name,int State)
 {
-  class ApisToANSI{
-    public:
-     ApisToANSI() {SetFileApisTo(APIS2ANSI);}
-    ~ApisToANSI() {SetFileApisTo(APIS2OEM);}
-  };
-
-  char AnsiName[NM];
-
-  ApisToANSI Apis;
-  FAR_OemToChar(Name,AnsiName);
-
   // заодно и проверяется успешность получения адреса API...
   if(State)
-     return pEncryptFileA ? (*pEncryptFileA)(AnsiName) : FALSE;
+     return pEncryptFileW ? (*pEncryptFileW)(Name) : FALSE;
   else
-     return pDecryptFileA ? (*pDecryptFileA)(AnsiName, 0) : FALSE;
+     return pDecryptFileW ? (*pDecryptFileW)(Name, 0) : FALSE;
 }
-/*
-  Для безусловного выставления атрибута FILE_ATTRIBUTE_ENCRYPTED
-  необходимо в качестве параметра FileAttr передать значение 0
-*/
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
+
+
+int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
     return 1;
@@ -209,29 +141,24 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
 
   int Ret=1;
 
-  // Drop Compress
-  // Этот кусок не нужен, т.к. функция криптования сама умеет
-  // разжимать сжатые файлы.
-  //if ((FileAttr & FILE_ATTRIBUTE_COMPRESSED) && State)
-  //  SetFileCompression(Name,0);
-
   // Drop ReadOnly
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
+    SetFileAttributesW(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
 
-  while (!SetFileEncryption(Name,State))
+  while (!SetFileEncryptionW(Name,State))
   {
+    if (GetLastError()==ERROR_INVALID_FUNCTION)
+      break;
+
     if(Silent)
     {
       Ret=0;
       break;
     }
 
-    if ((_localLastError=GetLastError())==ERROR_INVALID_FUNCTION)
-      break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrEncryptedCannotFor),(char *)Name,MSG(MHRetry),
-                MSG(MHSkip),MSG(MHCancel));
+    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+                UMSG(MSetAttrEncryptedCannotFor),Name,UMSG(MHRetry), //BUGBUG
+                UMSG(MHSkip),UMSG(MHCancel));
     if (Code==1 || Code<0)
     {
       Ret=2;
@@ -246,13 +173,13 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
 
   // Set ReadOnly
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr);
+    SetFileAttributesW(Name,FileAttr);
 
   return(Ret);
 }
 
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
+
+int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                   FILETIME *LastAccessTime,int FileAttr)
 {
   if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
@@ -262,9 +189,9 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
   while (1)
   {
     if (FileAttr & FA_RDONLY)
-      SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
+      SetFileAttributesW(Name,FileAttr & ~FA_RDONLY);
 
-    HANDLE hFile=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hFile=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     int SetTime;
@@ -278,19 +205,18 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
     {
       SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
       LastError=GetLastError();
-
       CloseHandle(hFile);
     }
 
     if (FileAttr & FA_RDONLY)
-      SetFileAttributes(Name,FileAttr);
+      SetFileAttributesW(Name,FileAttr);
     SetLastError(LastError);
 
     if (SetTime)
       break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrTimeCannotFor),(char *)Name,MSG(MHRetry),
-                MSG(MHSkip),MSG(MHCancel));
+    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+                UMSG(MSetAttrTimeCannotFor),Name,UMSG(MHRetry), //BUGBUG
+                UMSG(MHSkip),UMSG(MHCancel));
     if (Code<0)
       return 0; //???
     if(Code == 1)

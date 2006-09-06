@@ -7,33 +7,10 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.08 25.04.2002 $ */
-
-/*
-Modify:
-  25.04.2002 IS
-    ! внедрение const
-  26.07.2001 OT
-    Косметическое исправление (борьба варнингами)
-  18.07.2001 OT
-    VFMenu
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.05.2001 DJ
-    ! перетрях #include
-  05.05.2001 DJ
-    + Перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  29.06.2000 tran
-    - (NT Console resize bug)
-      adding virtual method SetScreenPosition
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.09 16.12.2005 $ */
 
 #include "scrobj.hpp"
+#include "unicodestring.hpp"
 
 class Modal: virtual public ScreenObject
 {
@@ -43,7 +20,7 @@ class Modal: virtual public ScreenObject
     typedef ScreenObject inherited;
   protected:
     INPUT_RECORD ReadRec;
-    char HelpTopic[512];
+    string strHelpTopic;
     int  ExitCode;
     int  EndLoop;
 
@@ -61,7 +38,7 @@ class Modal: virtual public ScreenObject
     void WriteInput(int Key);
     void ProcessInput();
 
-    void SetHelp(const char *Topic);
+    void SetHelp(const wchar_t *Topic);
     void ShowHelp();
 //    void SetScreenPosition(){inherited::SetScreenPosition();}
 

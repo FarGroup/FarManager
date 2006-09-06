@@ -5,90 +5,7 @@ Screen grabber
 
 */
 
-/* Revision: 1.27 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  26.10.2005 SVS
-    - Mantis#40 - Выделение по Alt-Ins
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  05.04.2005 SVS
-    + У GetText() появился доп параметр - скока читать.
-  28.03.2005 SVS
-    ! уточнения граббера для M$9x
-  15.12.2004 WARP
-    ! Граббер запрещает фрейму перерисовываться.
-    ! Граббер восстанавливает размер/видимость курсора при каждом нажатии клавиши.
-  14.12.2004 WARP
-    - Обновление текущего фрейма после работы граббера
-      и восстановления им экрана (раз уж позволяем
-      рисовать на экране во время работы граббера).
-  26.07.2004 SVS
-    - BugZ#566 - Недограбливаются диалоги, содержащие точки
-      Дополнительное уточнение (про "*<>|X")
-  31.05.2004 SVS
-    - BugZ#566 - Недограбливаются диалоги, содержащие точки
-      Дополнительное уточнение
-  29.05.2004 SVS
-    - BugZ#566 - Недограбливаются диалоги, содержащие точки
-      Дополнительное уточнение
-  07.05.2004 SVS
-    - BugZ#566 - Недограбливаются диалоги, содержащие точки
-  14.10.2003 SVS
-    ! небольшая коррекция символов
-  09.09.2003 SVS
-    - Ctrl-U полность не сбрасывал выделение
-  05.09.2003 SVS
-    + Grabber::Reset() - сброс выделения
-    + Реация на Ctrl-U в грабере - сброс выделения.
-  25.02.2003 SVS
-    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-    ! new/delete заменены на malloc/free, т.к. есть промежуточный вызов realloc
-  04.06.2002 SVS
-    - не обновлялся указатель PtrCopyBuf при преобразовании в CHAR_INFO
-  02.06.2002 SVS
-    ! Grabber::CopyGrabbedArea - изменен алгоритм преобразования
-      CHAR_INFO в char (исключены strcat)
-  24.05.2002 SVS
-    ! "FAR_VerticalBlock" -> FAR_VerticalBlock
-    ! Запуск грабера вынесен в отдельную функцию grabber.cpp::RunGraber()
-    ! Уточнения поведения грабера при работе с макросами
-    ! CopyGrabbedArea имеет доп.параметр
-    + немного заготовок для вертикального блока (а нужно ли ЭТО вообще?)
-    ! Дублирование Numpad и циферок (полезно при включенном NumLock)
-  14.11.2001 SVS
-    + В режиме грабера курсор по нажатию Shift-Ctrl-Arrows скачет на
-      N позиций с выделением.
-  06.06.2001 SVS
-    ! W-функции юзаем пока только в режиме USE_WFUNC
-  06.05.2001 DJ
-    ! перетрях #include
-  14.03.2001 SVS
-    - Неправильно воспроизводился макрос в режиме грабления экрана.
-      При воспроизведении клавиша Home перемещала курсор в координаты
-      0,0 консоли.
-      Не было учтено режима выполнения макроса.
-  07.02.2001 SVS
-    - Бага с грабилкой... Забыли ввести проверку на "вынос" координат мыши за
-      пределы экрана.
-  17.10.2000 tran
-    !  screen grabber (Alt-Ins) при добавлении к содержимому clipboard (Ctrl-Gray+)
-       не вставляет <CR> в конце, из-за чего несколько фрагментов "слипаются"
-       на стыках. возможно имеет смысл также вставлять <CR> в начале фрагмента
-  14.08.2000 tran
-    - trap при проигрывании макроса с клавишами типа Shift...
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.27 15.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -169,7 +86,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
   int BufSize=(GWidth+3)*GHeight;
   CHAR_INFO *CharBuf=new CHAR_INFO[BufSize], *PtrCharBuf;
-  char *CopyBuf=(char *)xf_malloc(BufSize), *PtrCopyBuf;
+  wchar_t *CopyBuf=(wchar_t *)xf_malloc(BufSize*sizeof (wchar_t)), *PtrCopyBuf;
   WORD Chr;
   GetText(X1,Y1,X2,Y2,CharBuf,BufSize*sizeof(CHAR_INFO));
   *CopyBuf=0;
@@ -179,34 +96,34 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   {
     if (I>0)
     {
-      *PtrCopyBuf++='\r';
-      *PtrCopyBuf++='\n';
+      *PtrCopyBuf++=L'\r';
+      *PtrCopyBuf++=L'\n';
       *PtrCopyBuf=0;
     }
 
     for (int J=0;J<GWidth;J++, ++PtrCharBuf)
     {
-      WORD Chr2=Opt.UseUnicodeConsole?PtrCharBuf->Char.UnicodeChar:(WORD)PtrCharBuf->Char.AsciiChar;
+      WORD Chr2 = PtrCharBuf->Char.UnicodeChar;
       Chr=GetVidChar(*PtrCharBuf);
 
-           if(Chr2 == 0xBB) Chr=Opt.UseUnicodeConsole?'>':0xBB;
-      else if(Chr2 == 0xAB) Chr=Opt.UseUnicodeConsole?'<':0xAB;
+           if(Chr2 == 0xBB) Chr=L'>';
+      else if(Chr2 == 0xAB) Chr=L'<';
       else if(Opt.CleanAscii)
       {
         switch(Chr2)
         {
-          case '.':  Chr='.'; break;
-          case 0x07: Chr='*'; break;
-          case 0x10: Chr='>'; break;
-          case 0x11: Chr='<'; break;
+          case L'.':  Chr=L'.'; break;
+          case 0x07: Chr=L'*'; break;
+          case 0x10: Chr=L'>'; break;
+          case 0x11: Chr=L'<'; break;
           case 0x18:
-          case 0x19: Chr='|'; break;
+          case 0x19: Chr=L'|'; break;
           case 0x1E:
-          case 0x1F: Chr='X'; break;
-          case 0xFF: Chr=' '; break;
+          case 0x1F: Chr=L'X'; break;
+          case 0xFF: Chr=L' '; break;
           default:
             if(Chr2 < 0x20)
-              Chr='.';
+              Chr=L'.';
             else if(Chr2 < 0x100)
               Chr=Chr2;
             break;
@@ -218,44 +135,44 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
         switch(Chr2)
         {
           case 0xB3:
-          case 0xBA: Chr='|'; break;
-          case 0xC4: Chr='-'; break;
-          case 0xCD: Chr='='; break;
-          default:   Chr='+'; break;
+          case 0xBA: Chr=L'|'; break;
+          case 0xC4: Chr=L'-'; break;
+          case 0xCD: Chr=L'='; break;
+          default:   Chr=L'+'; break;
         }
       }
 
-      *PtrCopyBuf++=static_cast<char>(Chr);
+      *PtrCopyBuf++=Chr;
       *PtrCopyBuf=0;
     }
-    for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)
+    for (int K=wcslen(CopyBuf)-1;K>=0 && CopyBuf[K]==L' ';K--)
       CopyBuf[K]=0;
-    PtrCopyBuf=CopyBuf+strlen(CopyBuf);
+    PtrCopyBuf=CopyBuf+wcslen(CopyBuf);
   }
   if (Append)
   {
-    char *AppendBuf=PasteFromClipboard();
+    wchar_t *AppendBuf=PasteFromClipboardW();
     int add=0;
     if (AppendBuf!=NULL)
     {
-      int DataSize=strlen(AppendBuf);
-      if ( AppendBuf[DataSize-1]!='\n' )
+      int DataSize=wcslen(AppendBuf);
+      if ( AppendBuf[DataSize-1]!=L'\n' )
       {
         add=2;
       }
-      AppendBuf=(char *)xf_realloc(AppendBuf,DataSize+BufSize+add);
-      memcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
+      AppendBuf=(wchar_t *)xf_realloc(AppendBuf,(DataSize+BufSize+add)*sizeof (wchar_t));
+      memcpy(AppendBuf+DataSize+add,CopyBuf,BufSize*sizeof (wchar_t));
       if ( add )
-        memcpy(AppendBuf+DataSize,"\r\n",2);
+        memcpy(AppendBuf+DataSize,L"\r\n",2*sizeof (wchar_t));
 
       xf_free(CopyBuf);
       CopyBuf=AppendBuf;
     }
   }
   if(VerticalBlock)
-    CopyFormatToClipboard(FAR_VerticalBlock,CopyBuf);
+    CopyFormatToClipboardW(FAR_VerticalBlockW,CopyBuf);
   else
-    CopyToClipboard(CopyBuf);
+    CopyToClipboardW(CopyBuf);
 
   if(CopyBuf)
     xf_free(CopyBuf);
@@ -298,7 +215,6 @@ void Grabber::DisplayObject()
         }
 
       PutText(X1,Y1,X2,Y2,CharBuf);
-
       delete[] CharBuf;
     }
     if (GArea.X1==-2)
@@ -352,32 +268,32 @@ int Grabber::ProcessKey(int Key)
       CopyGrabbedArea(Key == KEY_CTRLADD,VerticalBlock);
       SetExitCode(1);
       break;
-    case KEY_LEFT:      case KEY_NUMPAD4:   case '4':
+    case KEY_LEFT:      case KEY_NUMPAD4:   case L'4':
       if (GArea.CurX>0)
         GArea.CurX--;
       break;
-    case KEY_RIGHT:     case KEY_NUMPAD6:   case '6':
+    case KEY_RIGHT:     case KEY_NUMPAD6:   case L'6':
       if (GArea.CurX<ScrX)
         GArea.CurX++;
       break;
-    case KEY_UP:        case KEY_NUMPAD8:   case '8':
+    case KEY_UP:        case KEY_NUMPAD8:   case L'8':
       if (GArea.CurY>0)
         GArea.CurY--;
       break;
-    case KEY_DOWN:      case KEY_NUMPAD2:   case '2':
+    case KEY_DOWN:      case KEY_NUMPAD2:   case L'2':
       if (GArea.CurY<ScrY)
         GArea.CurY++;
       break;
-    case KEY_HOME:      case KEY_NUMPAD7:   case '7':
+    case KEY_HOME:      case KEY_NUMPAD7:   case L'7':
       GArea.CurX=0;
       break;
-    case KEY_END:       case KEY_NUMPAD1:   case '1':
+    case KEY_END:       case KEY_NUMPAD1:   case L'1':
       GArea.CurX=ScrX;
       break;
-    case KEY_PGUP:      case KEY_NUMPAD9:   case '9':
+    case KEY_PGUP:      case KEY_NUMPAD9:   case L'9':
       GArea.CurY=0;
       break;
-    case KEY_PGDN:      case KEY_NUMPAD3:   case '3':
+    case KEY_PGDN:      case KEY_NUMPAD3:   case L'3':
       GArea.CurY=ScrY;
       break;
     case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:

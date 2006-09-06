@@ -5,51 +5,7 @@ plist.cpp
 
 */
 
-/* Revision: 1.16 14.06.2005 $ */
-
-/*
-Modify:
-  14.06.2005 SVS
-    + SetBottomTitle()
-  01.03.2004 SVS
-    ! ќбертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  05.07.2003 SVS
-    - Ctrl-W F1 Ctrl-W F1 Ctrl-W ....
-  06.05.2003 SVS
-    ! ≈сли выставлена полици€, то покажет соответствующее сообщение
-  21.03.2003 SVS
-    - Ctrl-W Del Ctrl-W и т.д....
-  17.03.2003 SVS
-    + ѕолици€ 21 - "Ќельз€ кил€ть задачи"
-  23.12.2002 SVS
-    - BugZ#744 - [wish] работа Ctrl-R в окне списка задач
-  17.12.2002 SVS
-    + Ctrl-R позвол€ет обновить список задач.
-  24.02.2002 SVS
-    ! јктивизаци€ процесса с подачи MY.
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  18.07.2001 OT
-    VFMenu
-  03.06.2001 SVS
-    ! »зменени€ в св€зи с переделкой UserData в VMenu
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      ѕол€ Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    !  онстанты MENU_ - в морг
-  06.05.2001 DJ
-    ! перетр€х #include
-  11.02.2001 SVS
-    ! Ќесколько уточнений кода в св€зи с изменени€ми в структуре MenuItem
-  31.01.2001 IS
-    ! “еперь это меню более дружелюбно - попытка перемещени€ курсора выше
-      первого пункта или ниже последнего будет приводить к перемещению
-      соответственно к последнему или к первому пункту.
-  25.06.2000 SVS
-    ! ѕодготовка Master Copy
-    ! ¬ыделение в качестве самосто€тельного модул€
-*/
+/* Revision: 1.22 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -67,7 +23,7 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-  VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
+  VMenu ProcList(UMSG(MProcessListTitle),NULL,0,TRUE, ScrY-4);
   /* $ 31.01.2001 IS
      ! “еперь это меню более дружелюбно ;)
   */
@@ -78,7 +34,7 @@ void ShowProcessList()
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
     return;
   ProcList.AssignHighlights(FALSE);
-  ProcList.SetBottomTitle(MSG(MProcessListBottom));
+  ProcList.SetBottomTitle(UMSG(MProcessListBottom));
   ProcList.Show();
 
   while (!ProcList.Done())
@@ -90,7 +46,7 @@ void ShowProcessList()
       {
         BlockExtKey blockExtKey;
         {
-          Help Hlp ("TaskList");
+          Help Hlp (L"TaskList");
         }
         break;
       }
@@ -116,20 +72,25 @@ void ShowProcessList()
           // ѕолици€ 21
           if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
           {
-            Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
+            MessageW(MSG_WARNING,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcessPerm),UMSG(MOk));
             break;
           }
 
           HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
           if (ProcWnd!=NULL)
           {
-            char WinTitle[512];
-            GetWindowText(ProcWnd,WinTitle,sizeof(WinTitle));
-            FAR_CharToOem(WinTitle,WinTitle);
+            string strWinTitle;
+
+            wchar_t *lpwszTitle = strWinTitle.GetBuffer (NM*2);
+
+            GetWindowTextW(ProcWnd, lpwszTitle, NM*2);
+
+            strWinTitle.ReleaseBuffer ();
+
             DWORD ProcID;
             GetWindowThreadProcessId(ProcWnd,&ProcID);
-            if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-                        WinTitle,MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
+            if (MessageW(MSG_WARNING,2,UMSG(MKillProcessTitle),UMSG(MAskKillProcess),
+                        strWinTitle,UMSG(MKillProcessWarning),UMSG(MKillProcessKill),UMSG(MCancel))==0)
               if (KillProcess(ProcID))
               {
                 Sleep(500);
@@ -138,7 +99,7 @@ void ShowProcessList()
                 return;
               }
               else
-                Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
+                MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcess),UMSG(MOk));
           }
         }
         break;
@@ -203,18 +164,23 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
   VMenu *ProcList=(VMenu *)lParam;
   if (IsWindowVisible(hwnd) ||
-      IsIconic(hwnd) && (GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)==0)
+      IsIconic(hwnd) && (GetWindowLongW(hwnd,GWL_STYLE) & WS_DISABLED)==0)
   {
-    char Title[256];
-    GetWindowText(hwnd,Title,sizeof(Title));
-    if (*Title)
+    string strTitle;
+
+    wchar_t *lpwszTitle = strTitle.GetBuffer (NM*2);
+
+    GetWindowTextW (hwnd, lpwszTitle, NM*2);
+
+    strTitle.ReleaseBuffer ();
+
+    if ( !strTitle.IsEmpty() )
     {
-      struct MenuItem ListItem;
-      memset(&ListItem,0,sizeof(ListItem));
-      TruncStr(Title,sizeof(ListItem.Name)-1);
-      sprintf(ListItem.Name,"%-25s",Title);
-      FAR_CharToOem(ListItem.Name,ListItem.Name);
-      ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+      MenuItemEx ListItem;
+
+      ListItem.Clear ();
+      ListItem.strName = strTitle;
+      ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItemW(&ListItem));
     }
   }
   return(TRUE);

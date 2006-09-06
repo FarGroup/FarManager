@@ -7,28 +7,18 @@ grpsort.hpp
 
 */
 
-/* Revision: 1.01 23.04.2001 $ */
-
-/*
-Modify:
-  23.04.2001 SVS
-    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
-      юзаем - разные сущности.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.02 15.03.2006 $ */
 
 class GroupSort
 {
   private:
-    struct GroupSortData *GroupData;
+    struct GroupSortData **GroupData;
     int GroupCount;
 
   private:
     int EditGroupsMenu(int Pos);
-    char *GetMask(int Idx);
-    BOOL AddMask(struct GroupSortData *Dest,char *Mask,int Group);
+    const wchar_t *GetMask(int Idx);
+    BOOL AddMask(struct GroupSortData *Dest,const wchar_t *Mask,int Group);
     void DeleteMask(struct GroupSortData *CurGroupData);
 
   public:
@@ -36,8 +26,8 @@ class GroupSort
     ~GroupSort();
 
   public:
-    int GetGroup(char *Path);
+    int GetGroup(const wchar_t *Path);
     void EditGroups();
 };
 
-#endif	// __GROUPSORT_HPP__
+#endif  // __GROUPSORT_HPP__

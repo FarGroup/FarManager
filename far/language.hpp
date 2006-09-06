@@ -7,33 +7,15 @@ language.hpp
 
 */
 
-/* Revision: 1.08 22.04.2004 $ */
-
-/*
-Modify:
-  22.04.2004 SVS
-    + Метод Language::Free() и декструктор Language::~Language()
-  29.04.2003 SVS
-    ! из GetMsg вынесем код проверки в отдельную функцию CheckMsgId
-  14.07.2002 IS
-    ! внедрение const
-  24.12.2001 SVS
-    + Доп.параметр у OpenLangFile() - StrongLang: "только заданный язык и не более"
-      По умолчанию StrongLang=FALSE (как и раньше)
-  06.05.2001 DJ
-    ! перетрях #include
-  27.02.2001 SVS
-    ! Нафига сюда впиндювивали stdio.h - ума не дам...
-  19.01.2001 SVS
-    + дополнительный параметр для Init - количество нужных строк
-  01.09.2000 SVS
-    + Новый метод, для получения параметров для .Options
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.12 05.04.2006 $ */
 
 #include "farconst.hpp"
+#include "unicodestring.hpp"
+
+#define TYPE_ANSI       0
+#define TYPE_UNICODE    1
+#define TYPE_REVERSEBOM 2
+#define TYPE_UTF8       3
 
 class VMenu;
 
@@ -42,12 +24,19 @@ class Language
   private:
     char **MsgAddr;
     char *MsgList;
+
+    wchar_t **MsgAddrW;
+    wchar_t *MsgListW;
+
     long MsgSize;
+    long MsgSizeW;
+
     int MsgCount;
-    char MessageFile[NM];
+
+    string strMessageFile;
 
   private:
-    void ConvertString(char *Src,char *Dest);
+    void ConvertString(const wchar_t *Src,string &strDest);
     BOOL CheckMsgId(int MsgId);
     void Free();
 
@@ -56,17 +45,19 @@ class Language
     ~Language();
 
   public:
-    int Init(char *Path,int CountNeed=-1);
+    int Init(const wchar_t *Path,int CountNeed=-1);
     void Close();
-    char* GetMsg(int MsgId);
 
-    static FILE* OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang=FALSE);
-    static int GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2);
+    char* GetMsg(int MsgId);
+    wchar_t* GetMsgW (int nID);
+
+    static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nType, BOOL StrongLang=FALSE);
+    static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nType);
     /* $ 01.09.2000 SVS
       + Новый метод, для получения параметров для .Options
         .Options <KeyName>=<Value>
     */
-    static int GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value);
+    static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nType);
     /* SVS $ */
     static int Select(int HelpLanguage,VMenu **MenuPtr);
 };

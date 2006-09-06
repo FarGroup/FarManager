@@ -5,18 +5,7 @@ class PreserveLongName
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
-
-/*
-Modify:
-  06.05.2001 DJ
-    ! перетрях #include
-  20.02.2001 SVS
-    ! Заголовки - к общему виду!
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.06 06.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -24,39 +13,48 @@ Modify:
 #include "plognmn.hpp"
 #include "fn.hpp"
 
-PreserveLongName::PreserveLongName(char *ShortName,int Preserve)
+PreserveLongNameW::PreserveLongNameW(const wchar_t *ShortName,int Preserve)
 {
-  PreserveLongName::Preserve=Preserve;
+  PreserveLongNameW::Preserve=Preserve;
   if (Preserve)
   {
-    WIN32_FIND_DATA FindData;
-    HANDLE FindHandle;
-    FindHandle=FindFirstFile(ShortName,&FindData);
-    FindClose(FindHandle);
-    if (FindHandle==INVALID_HANDLE_VALUE)
-      *SaveLongName=0;
+    FAR_FIND_DATA_EX FindData;
+
+    if ( apiGetFindDataEx(ShortName, &FindData) )
+        strSaveLongName = FindData.strFileName;
     else
-      strcpy(SaveLongName,FindData.cFileName);
-    strcpy(SaveShortName,ShortName);
+        strSaveLongName = L"";
+
+    strSaveShortName = ShortName;
   }
 }
 
 
-PreserveLongName::~PreserveLongName()
+PreserveLongNameW::~PreserveLongNameW()
 {
-  if (Preserve && GetFileAttributes(SaveShortName)!=0xFFFFFFFF)
+  if (Preserve && GetFileAttributesW(strSaveShortName)!=0xFFFFFFFF)
   {
-    WIN32_FIND_DATA FindData;
-    HANDLE FindHandle;
-    FindHandle=FindFirstFile(SaveShortName,&FindData);
-    FindClose(FindHandle);
-    if (FindHandle==INVALID_HANDLE_VALUE ||
-        strcmp(SaveLongName,FindData.cFileName)!=0)
+    FAR_FIND_DATA_EX FindData;
+
+    if ( !apiGetFindDataEx (strSaveShortName, &FindData) || wcscmp(strSaveLongName,FindData.strFileName)!=0)
     {
-      char NewName[NM];
-      strcpy(NewName,SaveShortName);
-      strcpy(PointToName(NewName),SaveLongName);
-      rename(SaveShortName,NewName);
+      string strNewName;
+
+      strNewName = strSaveShortName;
+
+      wchar_t *lpwszNewName = strNewName.GetBuffer ();
+
+      lpwszNewName = wcsrchr (lpwszNewName, '\\'); //BUGBUG
+
+      if ( lpwszNewName )
+        *lpwszNewName = 0;
+
+      strNewName.ReleaseBuffer ();
+
+      strNewName += "\\";
+      strNewName += strSaveLongName;
+
+      MoveFileW (strSaveShortName, strNewName);
     }
   }
 }

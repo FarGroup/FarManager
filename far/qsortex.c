@@ -53,7 +53,7 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
 {
   char *stack[40], **sp;                 /* stack and stack pointer        */
   char *i, *j, *limit;                   /* scan and limit pointers        */
-  unsigned thresh;                       /* size of _maxspan elements in   */
+  /*unsigned*/int thresh;                       /* size of _maxspan elements in   */
   void (__cdecl  *swap_fp) (void *, void *,unsigned int );      /* bytes */
   unsigned int n_to_swap;
 
@@ -73,7 +73,7 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
   limit = base + nel * width;            /* pointer past end of array      */
   while (1)                              /* repeat until done then return  */
   {
-    while ((unsigned)(limit - base) > thresh) /* if more than _maxspan elements */
+    while (limit - base > thresh)        /* if more than _maxspan elements */
     {
       /*swap middle, base*/
       SWAP (((unsigned)(limit - base) >> 1) -

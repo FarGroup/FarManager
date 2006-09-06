@@ -8,50 +8,7 @@ udlist.cpp
 
 */
 
-/* Revision: 1.12 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  18.09.2002 DJ
-    - При ULF_ADDASTERISK выделялось на 1 байт памяти меньше, чем надо,
-      что приводило к падению после find files
-  15.08.2002 IS
-    + Использование TArray
-    + ULF_UNIQUE,  ULF_SORT
-  11.07.2002 IS
-    + В режиме ULF_PACKASTERISKS пакуем все последовательности из двух или
-      больше символов '*' в один символ '*'.
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  11.08.2001 IS
-    - Некритическая опечатка
-    ! SetSeparators -> SetParameters
-    + Обработка UDL_FLAGS
-  01.08.2001 IS
-    + Подсчет элементов в списке (Total)
-  02.07.2001 IS
-    + AddAsterisk
-  12.06.2001 IS
-    + При добавлении элементов списка игнорируются заключительные и начальные
-      пробелы. Если нужно учитывать пробелы, то элемент списка должен быть
-      заключен в кавычки
-    + Обрабатываются квадратные скобки. Теперь можно выкинуть GetCommaWord и
-      заменить его использованием UserDefinedList
-    + CheckSeparators()
-  12.06.2001 IS
-    + Если кроме разделителя ничего больше в строке нет,
-      то считается, что это не разделитель, а простой символ
-  09.06.2001 IS
-    + Переписано с учетом второго разделителя. Теперь разделителей два. По
-      умолчанию они равны ';' и ','
-  02.06.2001 IS
-    + Впервые в эфире
-*/
+/* Revision: 1.15 23.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -59,29 +16,31 @@ Modify:
 #include "udlist.hpp"
 #include "fn.hpp"
 
-UserDefinedListItem::~UserDefinedListItem()
+//unicode
+
+UserDefinedListItemW::~UserDefinedListItemW()
 {
   if(Str)
     xf_free(Str);
 }
 
-bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
+bool UserDefinedListItemW::operator==(const UserDefinedListItemW &rhs) const
 {
-  return (Str && rhs.Str)?(!LocalStricmp(Str, rhs.Str)):false;
+  return (Str && rhs.Str)?(!LocalStricmpW(Str, rhs.Str)):false;
 }
 
-int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
+int UserDefinedListItemW::operator<(const UserDefinedListItemW &rhs) const
 {
   if(!Str)
     return 1;
   else if(!rhs.Str)
     return -1;
   else
-    return LocalStricmp(Str, rhs.Str)<0;
+    return LocalStricmpW(Str, rhs.Str)<0;
 }
 
-const UserDefinedListItem& UserDefinedListItem::operator=(const
-  UserDefinedListItem &rhs)
+const UserDefinedListItemW& UserDefinedListItemW::operator=(const
+  UserDefinedListItemW &rhs)
 {
   if(this!=&rhs)
   {
@@ -91,13 +50,13 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const
       Str=NULL;
     }
     if(rhs.Str)
-      Str=xf_strdup(rhs.Str);
+      Str=_wcsdup(rhs.Str);
     index=rhs.index;
   }
   return *this;
 }
 
-const UserDefinedListItem& UserDefinedListItem::operator=(const char *rhs)
+const UserDefinedListItemW& UserDefinedListItemW::operator=(const wchar_t *rhs)
 {
   if(Str!=rhs)
   {
@@ -107,12 +66,12 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const char *rhs)
       Str=NULL;
     }
     if(rhs)
-      Str=xf_strdup(rhs);
+      Str=wcsdup(rhs);
   }
   return *this;
 }
 
-char *UserDefinedListItem::set(const char *Src, unsigned int size)
+wchar_t *UserDefinedListItemW::set(const wchar_t *Src, unsigned int size)
 {
   if(Str!=Src)
   {
@@ -121,44 +80,44 @@ char *UserDefinedListItem::set(const char *Src, unsigned int size)
       xf_free(Str);
       Str=NULL;
     }
-    Str=static_cast<char*>(xf_malloc(size+1));
+    Str=static_cast<wchar_t*>(xf_malloc((size+1)*sizeof(wchar_t)));
     if(Str)
     {
-      memcpy(Str, Src, size);
+      memcpy(Str, Src, size*sizeof(wchar_t));
       Str[size]=0;
     }
   }
   return Str;
 }
 
-UserDefinedList::UserDefinedList()
+UserDefinedListW::UserDefinedListW()
 {
   Reset();
   SetParameters(0,0,0);
 }
 
-UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2,
+UserDefinedListW::UserDefinedListW(WORD separator1, WORD separator2,
                                  DWORD Flags)
 {
   Reset();
   SetParameters(separator1, separator2, Flags);
 }
 
-void UserDefinedList::SetDefaultSeparators()
+void UserDefinedListW::SetDefaultSeparators()
 {
-  Separator1=';';
-  Separator2=',';
+  Separator1=L';';
+  Separator2=L',';
 }
 
-BOOL UserDefinedList::CheckSeparators() const
+BOOL UserDefinedListW::CheckSeparators() const
 {
-  return !((Separator1=='\"' || Separator2=='\"') ||
-           (ProcessBrackets &&  (Separator1=='[' || Separator2=='[' ||
-            Separator1==']' || Separator2==']'))
+  return !((Separator1==L'\"' || Separator2==L'\"') ||
+           (ProcessBrackets &&  (Separator1==L'[' || Separator2==L'[' ||
+            Separator1==L']' || Separator2==L']'))
           );
 }
 
-BOOL UserDefinedList::SetParameters(BYTE separator1, BYTE separator2,
+BOOL UserDefinedListW::SetParameters(WORD separator1, WORD separator2,
                                     DWORD Flags)
 {
   Free();
@@ -180,13 +139,13 @@ BOOL UserDefinedList::SetParameters(BYTE separator1, BYTE separator2,
   return CheckSeparators();
 }
 
-void UserDefinedList::Free()
+void UserDefinedListW::Free()
 {
   Array.Free();
   Reset();
 }
 
-BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
+BOOL UserDefinedListW::Set(const wchar_t *List, BOOL AddToList)
 {
   if(AddToList)
   {
@@ -200,21 +159,21 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
   if(CheckSeparators() && List && *List)
   {
     int Length, RealLength;
-    UserDefinedListItem item;
+    UserDefinedListItemW item;
     item.index=Array.getSize();
     if(*List!=Separator1 && *List!=Separator2)
     {
-      Length=lstrlen(List);
+      Length=wcslen(List);
       BOOL Error=FALSE;
-      const char *CurList=List;
+      const wchar_t *CurList=List;
       while(!Error &&
             NULL!=(CurList=Skip(CurList, Length, RealLength, Error)))
       {
         if(Length)
         {
-          if(PackAsterisks && 3==Length && 0==memcmp(CurList, "*.*", 3))
+          if(PackAsterisks && 3==Length && 0==memcmp(CurList, L"*.*", 6))
           {
-            item="*";
+            item=L"*";
             if(!item.Str || !Array.addItem(item))
               Error=TRUE;
           }
@@ -228,14 +187,14 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
                 int i=0, lastAsterisk=FALSE;
                 while(i<Length)
                 {
-                  if(item.Str[i]=='*')
+                  if(item.Str[i]==L'*')
                   {
                     if(!lastAsterisk)
                       lastAsterisk=TRUE;
                     else
                     {
                       memcpy(item.Str+i, item.Str+i+1,
-                        strlen(item.Str+i+1)+1);
+                        (wcslen(item.Str+i+1)+1)*sizeof(wchar_t));
                       --i;
                     }
                   }
@@ -245,17 +204,17 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
                 }
               }
 
-              if(AddAsterisk && strpbrk(item.Str,"?*.")==NULL)
+              if(AddAsterisk && wcspbrk(item.Str,L"?*.")==NULL)
               {
-                Length=strlen(item.Str);
+                Length=wcslen(item.Str);
                 /* $ 18.09.2002 DJ
                    выделялось на 1 байт меньше, чем надо
                 */
-                item.Str=static_cast<char*>(xf_realloc(item.Str, Length+2));
+                item.Str=static_cast<wchar_t*>(xf_realloc(item.Str, (Length+2)*sizeof(wchar_t)));
                 /* DJ $ */
                 if(item.Str)
                 {
-                  item.Str[Length]='*';
+                  item.Str[Length]=L'*';
                   item.Str[Length+1]=0;
                 }
                 else
@@ -279,11 +238,11 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
     }
     else
     {
-      const char *End=List+1;
-      while(IsSpace(*End)) ++End; // пропустим мусор
+      const wchar_t *End=List+1;
+      while(IsSpaceW(*End)) ++End; // пропустим мусор
       if(!*End) // Если кроме разделителя ничего больше в строке нет,
       {         // то считается, что это не разделитель, а простой символ
-        item=" ";
+        item=L" ";
         if(item.Str)
         {
           *item.Str=*List;
@@ -316,8 +275,8 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
   return rc;
 }
 
-int __cdecl UserDefinedList::CmpItems(const UserDefinedListItem **el1,
-  const UserDefinedListItem **el2)
+int __cdecl UserDefinedListW::CmpItems(const UserDefinedListItemW **el1,
+  const UserDefinedListItemW **el2)
 {
   if(el1==el2)
     return 0;
@@ -329,18 +288,18 @@ int __cdecl UserDefinedList::CmpItems(const UserDefinedListItem **el1,
     return 1;
 }
 
-const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength, BOOL &Error)
+const wchar_t *UserDefinedListW::Skip(const wchar_t *Str, int &Length, int &RealLength, BOOL &Error)
 {
    Length=RealLength=0;
    Error=FALSE;
 
-   while(IsSpace(*Str)) ++Str;
+   while(IsSpaceW(*Str)) ++Str;
    if(*Str==Separator1 || *Str==Separator2) ++Str;
-   while(IsSpace(*Str)) ++Str;
+   while(IsSpaceW(*Str)) ++Str;
    if(!*Str) return NULL;
 
-   const char *cur=Str;
-   BOOL InBrackets=FALSE, InQoutes = (*cur=='\"');
+   const wchar_t *cur=Str;
+   BOOL InBrackets=FALSE, InQoutes = (*cur==L'\"');
 
 
    if(!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
@@ -348,10 +307,10 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
      {
         if(ProcessBrackets)
         {
-           if(*cur==']')
+           if(*cur==L']')
              InBrackets=FALSE;
 
-           if(*cur=='[' && NULL!=strchr(cur+1, ']'))
+           if(*cur==L'[' && NULL!=wcschr(cur+1, L']'))
              InBrackets=TRUE;
         }
 
@@ -365,7 +324,7 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
     {
       RealLength=Length=cur-Str;
       --cur;
-      while(IsSpace(*cur))
+      while(IsSpaceW(*cur))
        {
          --Length;
          --cur;
@@ -375,15 +334,15 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
 
    // мы в кавычках - захватим все отсюда и до следующих кавычек
    ++cur;
-   const char *QuoteEnd=strchr(cur, '\"');
+   const wchar_t *QuoteEnd=wcschr(cur, L'\"');
    if(QuoteEnd==NULL)
     {
       Error=TRUE;
       return NULL;
     }
 
-   const char *End=QuoteEnd+1;
-   while(IsSpace(*End)) ++End;
+   const wchar_t *End=QuoteEnd+1;
+   while(IsSpaceW(*End)) ++End;
    if(!*End || *End==Separator1 || *End==Separator2)
    {
      Length=QuoteEnd-cur;
@@ -395,20 +354,20 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
    return NULL;
 }
 
-void UserDefinedList::Reset(void)
+void UserDefinedListW::Reset(void)
 {
   CurrentItem=0;
 }
 
-BOOL UserDefinedList::IsEmpty()
+BOOL UserDefinedListW::IsEmpty()
 {
   unsigned int Size=Array.getSize();
   return !Size || CurrentItem>=Size;
 }
 
-const char *UserDefinedList::GetNext()
+const wchar_t *UserDefinedListW::GetNext()
 {
-  UserDefinedListItem *item=Array.getItem(CurrentItem);
+  UserDefinedListItemW *item=Array.getItem(CurrentItem);
   ++CurrentItem;
   return item?item->Str:NULL;
 }

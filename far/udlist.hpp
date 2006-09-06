@@ -11,33 +11,7 @@ udlist.hpp
 
 */
 
-/* Revision: 1.07 15.08.2002 $ */
-
-/*
-Modify:
-  15.08.2002 IS
-    + Использование TArray
-    + ULF_UNIQUE,  ULF_SORT
-    + BOOL AddItem(const char *NewItem)
-  11.07.2002 IS
-    ! Изменился комментарий ULF_PACKASTERISKS
-  11.08.2001 IS
-    + UDL_FLAGS
-    ! SetSeparators -> SetParameters
-  01.08.2001 IS
-    + GetTotal
-  02.07.2001 IS
-    + AddAsterisk
-    ! Метод Free стал public
-  12.06.2001 IS
-    + Добавлено связанное с обработкой квадратных скобок
-    + Функция для проверки корректности разделителей.
-  09.06.2001 IS
-    + Переписано с учетом второго разделителя. Теперь разделителей два. По
-      умолчанию они равны ';' и ','
-  02.06.2001 IS
-    + Впервые в эфире
-*/
+/* Revision: 1.09 23.05.2006 $ */
 
 #include "farconst.hpp"
 #include "array.hpp"
@@ -54,50 +28,51 @@ enum UDL_FLAGS
   ULF_SORT           =0x00000020, // отсортировать (с учетом регистра)
 };
 
-class UserDefinedListItem
+
+class UserDefinedListItemW
 {
   public:
    unsigned int index;
-   char *Str;
-   UserDefinedListItem():Str(NULL), index(0)
+   wchar_t *Str;
+   UserDefinedListItemW():Str(NULL), index(0)
    {
    }
-   bool operator==(const UserDefinedListItem &rhs) const;
-   int operator<(const UserDefinedListItem &rhs) const;
-   const UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
-   const UserDefinedListItem& operator=(const char *rhs);
-   char *set(const char *Src, unsigned int size);
-   ~UserDefinedListItem();
+   bool operator==(const UserDefinedListItemW &rhs) const;
+   int operator<(const UserDefinedListItemW &rhs) const;
+   const UserDefinedListItemW& operator=(const UserDefinedListItemW &rhs);
+   const UserDefinedListItemW& operator=(const wchar_t *rhs);
+   wchar_t *set(const wchar_t *Src, unsigned int size);
+   ~UserDefinedListItemW();
 };
 
-class UserDefinedList
+class UserDefinedListW
 {
   private:
-    TArray<UserDefinedListItem> Array;
+    TArray<UserDefinedListItemW> Array;
     unsigned int CurrentItem;
-    BYTE Separator1, Separator2;
+    WORD Separator1, Separator2;
     BOOL ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort;
 
   private:
     BOOL CheckSeparators() const; // проверка разделителей на корректность
     void SetDefaultSeparators();
-    const char *Skip(const char *Str, int &Length, int &RealLength, BOOL &Error);
-    static int __cdecl CmpItems(const UserDefinedListItem **el1,
-      const UserDefinedListItem **el2);
+    const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, BOOL &Error);
+    static int __cdecl CmpItems(const UserDefinedListItemW **el1,
+      const UserDefinedListItemW **el2);
 
   private:
-    UserDefinedList& operator=(const UserDefinedList& rhs); // чтобы не
-    UserDefinedList(const UserDefinedList& rhs); // генерировалось по умолчанию
+    UserDefinedListW& operator=(const UserDefinedListW& rhs); // чтобы не
+    UserDefinedListW(const UserDefinedListW& rhs); // генерировалось по умолчанию
 
   public:
     // по умолчанию разделителем считается ';' и ',', а
     // ProcessBrackets=AddAsterisk=PackAsterisks=FALSE
     // Unique=Sort=FALSE
-    UserDefinedList();
+    UserDefinedListW();
 
     // Явно указываются разделители. См. описание SetParameters
-    UserDefinedList(BYTE separator1, BYTE separator2, DWORD Flags);
-    ~UserDefinedList() { Free(); }
+    UserDefinedListW(WORD separator1, WORD separator2, DWORD Flags);
+    ~UserDefinedListW() { Free(); }
 
   public:
     // Сменить символы-разделитель и разрешить или запретить обработку
@@ -111,17 +86,17 @@ class UserDefinedList
     // Возвращает FALSE, если один из разделителей является кавычкой или
     // включена обработка скобок и один из разделителей является квадратной
     // скобкой.
-    BOOL SetParameters(BYTE Separator1, BYTE Separator2, DWORD Flags);
+    BOOL SetParameters(WORD Separator1, WORD Separator2, DWORD Flags);
 
     // Инициализирует список. Принимает список, разделенный разделителями.
     // Возвращает FALSE при неудаче.
     // Фича: если List==NULL, то происходит освобождение занятой ранее памяти
-    BOOL Set(const char *List, BOOL AddToList=FALSE);
+    BOOL Set(const wchar_t *List, BOOL AddToList=FALSE);
 
     // Добавление к уже существующему списку
     // Фича: если NewItem==NULL, то происходит освобождение занятой ранее
     // памяти
-    BOOL AddItem(const char *NewItem)
+    BOOL AddItem(const wchar_t *NewItem)
     {
       return Set(NewItem,TRUE);
     }
@@ -130,7 +105,7 @@ class UserDefinedList
     void Reset(void);
 
     // Выдает указатель на очередной элемент списка или NULL
-    const char *GetNext(void);
+    const wchar_t *GetNext(void);
 
     // Освободить память
     void Free();

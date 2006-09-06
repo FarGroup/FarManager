@@ -5,207 +5,7 @@ setattr.cpp
 
 */
 
-/* Revision: 1.72 26.07.2006 $ */
-
-/*
-Modify:
-  26.07.2006 SVS
-    ! на FAT?? не ставим дату/время, если ЭТО каталог.
-    ! считываем параметры даты/времени, только если значение изменилось.
-  28.02.2006 SVS
-    - Неверная работа...
-      1) пометить "encrypted", пометить "process subfolders" - работает
-      2) пометить "process subfolders", пометить "encrypted" - НЕ работает
-  09.02.2006 AY
-    - Атрибуты T и $ - только чтоб показывать, выставлять их нельзя.
-    ! Баг с определением состояния чекбокса I при обработке нескольких файлов.
-  07.12.2005 SVS
-    ! небольшие недочеты от пред.патча :-)
-  27.10.2005 SVS
-    + Mantis#24 - FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
-    + Mantis#49 - В плагиновых панелях вызывать диалог установки аттрибутов в RO-режиме
-  05.10.2005 SVS
-    ! за каким то миллисекунды не обнулялись
-  29.09.2005 SVS
-    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
-  03.05.2005 AY
-    - В ShellSetFileAttributes() на папках посылались в IsFileWritable() атрибуты верхней
-      папки а не обрабатываемого файла (и ещё в одном месте).
-    - IsFileWritable() пытался CreateFile() на папках в win9x.
-  06.04.2005 AY
-    ! В ShellSetFileAttributes() когда "[x] Process subfolders" IsFileWritable()
-      вызывалась всегда для начальной папки вместо обрабатываемого файла, что и приводило
-      к не работоспособности этого функционала.
-  21.01.2005 SVS
-    + GetVolumeInformation_Dump
-  17.09.2004 SVS
-    ! Хе, ну и назвал :-)) CheckWratableFile! Будет IsFileWritable
-  16.09.2004 SVS
-    - Если файл залочен, то попытка выставить атрибуты неправильная (см. описание патча)
-    + функция CheckWratableFile, которая еще "на подступах" к выставлению атрибутов матерится
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  12.09.2003 SVS
-    ! Немного увеличим буфер для GetPathRootOne
-  04.09.2003 SVS
-    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
-      приведем FILETIME к __int64
-  06.05.2003 SVS
-    - траблы с выставлением атрибутов C и E
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  12.07.2002 SVS
-    ! SetAttr - для одиночного фолдера не меняем те поля, которые изменили!
-      Но! Если клинкнули на оригинал, то делаем вид, будто ничего не менялось.
-  12.06.2002 SVS
-    - Бага: Skip был аналогичен кнопке Cancel
-  25.05.2002 IS
-    ! первый параметр у ConvertDate теперь ссылка на константу
-  26.04.2002 SVS
-    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
-  05.04.2002 SVS
-    - BugZ#424 - Error change file attributes
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 DJ
-    ! зачем-то была переменная FullName, с которой не делалось ничего, кроме
-      порчи стека
-  30.01.2002 SVS
-    ! Для симлинков не ставим дату-время, т.к. в этом случае меняется
-      дата-время оригинала, а не линка.
-  28.12.2001 SVS
-    ! Если время не удалось выставить, то не пытаемся выставлять и атрибуты
-  17.12.2001 SVS
-    - Бага, аднака - для одиночного файлового объекта месаг процесса установки
-      атрибутов был пустым.
-    ! Часть кода по разбору даты и времени вынесена в функцию GetFileDateAndTime()
-  08.11.2001 SVS
-    ! Уточнение ширины - прагала падлюка.
-  06.11.2001 SVS
-    ! Ширина месага при удалении файлов и выставлении атрибутов динамически
-      меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
-  24.10.2001 SVS
-    - Уберем флаг MSG_KEEPBACKGROUND для месага.
-  23.10.2001 SVS
-    - неверное выставлялись атрибуты для нескольких объектов
-    ! немного уточнений по поводу вывода текущего обрабатываемого файла
-    - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
-      погашена - остается кусок месагбокса)
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  12.10.2001 SVS
-    ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
-      Opt.SetAttrFolderRules!
-    + кнопка "Original" - исходное значение файловых времен.
-  11.10.2001 SVS
-    + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 SVS
-    - В деревяхе Ctrl-A неверно отображало инфу для симлинков.
-  11.09.2001 SVS
-    + для "volume mount point" укажем что это именно монтированный том и по
-      возможности (если имя диска есть) покажем букву диска. Для прочих
-      символических связей оставим "Link"
-  11.09.2001 SVS
-    - BugZ#7: Уточнение по поводу слинкованной файловой системы отличной от NTFS.
-  17.07.2001 SKV
-    - баг в ReadFileTime. Псевдопотенциальный, в debug срабатывал всегда.
-    ! закомментировал несколько неюзаемых переменных, сократив кол-во варнингов
-  25.06.2001 IS
-    ! Внедрение const
-  10.06.2001 SVS
-    - ошибка в логике при работе с атрибутами для каталога
-  20.05.2001 SVS
-    - воздействие на кнопки "текущее" и "пусто" приводило к закрытию дислога
-    + реакция на клик мыши на лейбах Modification, Creation и Last access
-      перемещает фокус ввода на ближайшее поле ввода.
-  18.05.2001 SVS
-    ! Вся логика работы диалога перенесена на уровень диалогой процедуры.
-      Осталось и инициализирующую часть впихнуть по назначению ;-)
-  14.05.2001 SVS
-    - Проблемы с выставлением времени файла
-    + DOUBLE_CLICK: ;-)
-      1) на лейбаках: Modification, Creation & Last access
-         выставляет текущую дату для всей строки (дата и время)
-      2) в отдельных едитах - только в них.
-    ! Логика выставления времени перенесена на уровень функции-обработчика
-      диалога
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  12.04.2001 SVS
-    ! Для FILE_ATTRIBUTE_REPARSE_POINT всегда показываем "Link to:",
-      но, если данные не доступны - так и говорим - "НЕТУ!"
-  09.04.2001 SVS
-    - нужно было использовать локальные копии для параметров SrcDate и SrcTime
-      в функции ReadFileTime
-    ! немного оптимизации в функции ReadFileTime
-  08.04.2001 SVS
-    ! Полная независимость выставления значений для даты и времени.
-    - Исправлен баг с "неустановкой" даты для одиночного файла.
-  08.04.2001 IS
-    - не работало изменение атрибутов после ?557
-  04.04.2001 VVM
-    + Кнопка [ Blank ] в диалоге. Очистить поля даты/времени.
-  03.04.2001 SVS
-    ! FillFileldDir -> FillingOfFields ;-)
-  28.02.2001 SVS
-    - Бага в Win2K с взаимоисключениями Сжатого и Шифрованного атрибута
-    + Выставляем заголовок консоли во время процесса установки атрибутов
-    + В месаге процесса установки отображаем текущЕЕ файлО.
-  30.01.2001 SVS
-    ! снимаем 3-state, если "есть все или нет ничего"
-      за исключением случая, если есть Фолдер среди объектов
-  23.01.2001 SVS
-    + Немного оптимизации кода :-)
-  22.01.2001 SVS
-    ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
-    + Если это плагиновая панель, то посмотрим на OPIF_REALNAMES
-  22.01.2001 SVS
-    + Больше интелектуальности диалогу установки атрибутов !!!! :-)))
-      Теперь, для случая Multi, если есть подряд идущие атрибуты, то
-      они изначально инициализируются как надо - либо [x] либо [ ] либо
-      [*] для случая если "не все"
-  14.01.2001 SVS
-    + обработка случая, если ЭТО SymLink
-  04.01.2001 SVS
-    - Бага с одиночным файлом - переоптимизировал ;-(
-  03.01.2001 SVS
-    ! ускорим процесс за счет "необработки" подобных атрибут
-    - бага с переходами между контролами
-  03.01.2001 SVS
-    ! новый имидж диалога атрибутов - один интелектуальный диалог на
-      все случаи жизни :-)
-  30.12.2000 SVS
-    ! Функции для работы с файловыми атрибутами вынесены в fileattr.cpp
-  21.12.2000 SVS
-    ! Если папка одна, то включение "Process subfolders" не очищает
-      область с атрибутами.
-  14.12.2000 SVS
-    ! Показываем недостающие атрибуты, но делаем их недоступными.
-  24.11.2000 SVS
-    + Правило на счет установки атрибутов на каталоги
-  16.11.2000 SVS
-    ! массивы для масок имеют постоянный адрес прописки - объявлены как static
-  11.11.2000 SVS
-    - "сложности" с криптованием :-))))
-  02.11.2000 SVS
-    - исправляем баги :-)
-  20.10.2000 SVS
-    + Новый атрибут Encripted (NTFS/Win2K)
-  14.08.2000 KM
-    ! Изменена инициализация диалога с учётом возможностей Mask.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.82 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -262,47 +62,47 @@ enum {
   SETATTR_TITLELINK=32,
 };
 
-const char FmtMask1[]="99%c99%c99";
-const char FmtMask2[]="99%c99%c9999";
-const char FmtMask3[]="9999%c99%c99";
+const wchar_t FmtMask1[]=L"99%c99%c99";
+const wchar_t FmtMask2[]=L"99%c99%c9999";
+const wchar_t FmtMask3[]=L"9999%c99%c99";
 
 struct SetAttrDlgParam{
   BOOL  Plugin;
   DWORD FileSystemFlags;
   int ModeDialog;
   int DateFormat;
-  char *SelName;
+  string strSelName;
   int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
   int OriginalCBAttr2[16]; //
   DWORD OriginalCBFlag[16];
   int OState12, OState8, OState9;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
-  char FSysName[NM];
+  string strFSysName;
 };
 
-static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
-static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
-                       char *OSrcDate,char *OSrcTime);
+static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
+static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *FileTime,
+                       const wchar_t *OSrcDate, const wchar_t *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
-void ShellSetFileAttributesMsg(char *Name);
+void ShellSetFileAttributesMsg(const wchar_t *Name);
 
 // В Dst получить числа для даты времени
-static void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
+static void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
 {
-  char Temp[32], Digit[16],*PtrDigit;
+  string strDigit;
+  const wchar_t *PtrDigit;
   int I;
 
-  xstrncpy(Temp,Src,sizeof(Temp)-1);
   Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
   I=0;
-  const char *Ptr=Temp;
-  while((Ptr=GetCommaWord(Ptr,Digit,Separator)) != NULL)
+  const wchar_t *Ptr=Src;
+  while((Ptr=GetCommaWordW(Ptr,strDigit,Separator)) != NULL)
   {
-    PtrDigit=Digit;
-    while (*PtrDigit && !isdigit(*PtrDigit))
+    PtrDigit=strDigit;
+    while (*PtrDigit && !iswdigit(*PtrDigit))
       PtrDigit++;
     if(*PtrDigit)
-      Dst[I]=atoi(PtrDigit);
+      Dst[I]=_wtoi(PtrDigit);
     ++I;
   }
 }
@@ -398,12 +198,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 }
                 if(Opt.SetAttrFolderRules)
                 {
-                  HANDLE FindHandle;
-                  WIN32_FIND_DATA FindData;
-                  FindHandle=FindFirstFile(DlgParam->SelName,&FindData);
-                  FindClose(FindHandle);
+                  FAR_FIND_DATA_EX FindData;
 
-                  if (FindHandle!=INVALID_HANDLE_VALUE)
+                  if ( apiGetFindDataEx (DlgParam->strSelName,&FindData) )
                   {
                     if(!State12)
                     {
@@ -477,12 +274,10 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       // Set Original? / Set All? / Clear All?
       else if(Param1 == SETATTR_ORIGINAL)
       {
-        HANDLE FindHandle;
-        WIN32_FIND_DATA FindData;
+        FAR_FIND_DATA_EX FindData;
         DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
-        if ((FindHandle=FindFirstFile(DlgParam->SelName,&FindData))!=INVALID_HANDLE_VALUE)
+        if ( apiGetFindDataEx (DlgParam->strSelName,&FindData) )
         {
-          FindClose(FindHandle);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(DWORD)&FindData.ftLastWriteTime);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_CREATION,(DWORD)&FindData.ftCreationTime);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_LASTACCESS,(DWORD)&FindData.ftLastAccessTime);
@@ -535,7 +330,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_SETATTR:
       {
         FILETIME ft;
-        char Date[16],Time[16];
+        string strDate, strTime;
         int Set1, Set2;
         if(Param2) // Set?
         {
@@ -543,11 +338,11 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             GetSystemTimeAsFileTime(&ft);
           else
             ft=*(FILETIME *)Param2;
-          ConvertDate(ft,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDateW(ft,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
         }
         else if(!Param2) // Clear
         {
-           Date[0]=Time[0]=0;
+            strDate=strTime=L"";
         }
 
         // Глянем на место, где был клик
@@ -558,9 +353,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         else { Set1=-1; Set2=Param1; }
 
         if(Set1 != -1)
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(long)Date);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(long)(const wchar_t*)strDate);
         if(Set2 != -1)
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(long)Time);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(long)(const wchar_t*)strTime);
         return TRUE;
       }
   }
@@ -569,41 +364,39 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 static void PR_ShellSetFileAttributesMsg(void)
 {
-  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1);
+  ShellSetFileAttributesMsg((wchar_t *)PreRedrawParam.Param1);
 }
 
-void ShellSetFileAttributesMsg(char *Name)
+void ShellSetFileAttributesMsg(const wchar_t *Name)
 {
   static int Width=54;
   int WidthTemp;
-  char OutFileName[NM];
+  string strOutFileName;
 
   if(Name && *Name)
-    WidthTemp=Max((int)strlen(Name),(int)54);
+    WidthTemp=Max((int)wcslen(Name),(int)54);
   else
     Width=WidthTemp=54;
 
   if(WidthTemp > WidthNameForMessage)
     WidthTemp=WidthNameForMessage; // ширина месага - 38%
-  if(WidthTemp >= sizeof(OutFileName)-4)
-    WidthTemp=sizeof(OutFileName)-5;
 
   if(Width < WidthTemp)
     Width=WidthTemp;
 
   if(Name && *Name)
   {
-    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
-    TruncPathStr(OutFileName,Width);
-    CenterStr(OutFileName,OutFileName,Width+4);
+    strOutFileName = Name;
+    TruncPathStrW(strOutFileName,Width);
+    CenterStrW(strOutFileName,strOutFileName,Width+4);
   }
   else
   {
-    *OutFileName=0;
-    CenterStr(OutFileName,OutFileName,Width+4); // подготавливаем нужную ширину (вид!)
+    strOutFileName=L"";
+    CenterStrW(strOutFileName,strOutFileName,Width+4); // подготавливаем нужную ширину (вид!)
   }
-  Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
-  PreRedrawParam.Param1=Name;
+  MessageW(0,0,UMSG(MSetAttrTitle),UMSG(MSetAttrSetting),(const wchar_t*)strOutFileName);
+  PreRedrawParam.Param1=(void*)Name;
 }
 
 int ShellSetFileAttributes(Panel *SrcPanel)
@@ -636,42 +429,42 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 23   +-------------------------------------+   23
 24                                             24
 */
-  static struct DialogData AttrDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(char *)MSetAttrTitle,
-  /* 01 */DI_TEXT,-1,2,0,0,0,0,0,0,(char *)MSetAttrFor,
-  /* 02 */DI_TEXT,-1,3,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-  /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 04 */DI_CHECKBOX,5, 5,0,0,1,0,DIF_3STATE,0,(char *)MSetAttrRO,
-  /* 05 */DI_CHECKBOX,5, 6,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrArchive,
-  /* 06 */DI_CHECKBOX,5, 7,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrHidden,
-  /* 07 */DI_CHECKBOX,5, 8,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrSystem,
-  /* 08 */DI_CHECKBOX,5, 9,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrCompressed,
-  /* 09 */DI_CHECKBOX,35, 5,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrEncrypted,
-  /* 10 */DI_CHECKBOX,35, 6,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(char *)MSetAttrNotIndexed,
-  /* 11 */DI_CHECKBOX,35, 7,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(char *)MSetAttrSparse,
-  /* 12 */DI_CHECKBOX,35, 8,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(char *)MSetAttrTemp,
-  /* 13 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 14 */DI_CHECKBOX,5,11,0,0,0,0,DIF_DISABLE,0,(char *)MSetAttrSubfolders,
-  /* 15 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 16 */DI_TEXT,45,13,0,0,0,0,0,0,"",
-  /* 17 */DI_TEXT,    5,14,0,0,0,0,0,0,(char *)MSetAttrModification,
-  /* 18 */DI_FIXEDIT,45,14,54,14,0,0,DIF_MASKEDIT,0,"",
-  /* 19 */DI_FIXEDIT,56,14,63,14,0,0,DIF_MASKEDIT,0,"",
-  /* 20 */DI_TEXT,    5,15,0,0,0,0,0,0,(char *)MSetAttrCreation,
-  /* 21 */DI_FIXEDIT,45,15,54,15,0,0,DIF_MASKEDIT,0,"",
-  /* 22 */DI_FIXEDIT,56,15,63,15,0,0,DIF_MASKEDIT,0,"",
-  /* 23 */DI_TEXT,    5,16,0,0,0,0,0,0,(char *)MSetAttrLastAccess,
-  /* 24 */DI_FIXEDIT,45,16,54,16,0,0,DIF_MASKEDIT,0,"",
-  /* 25 */DI_FIXEDIT,56,16,63,16,0,0,DIF_MASKEDIT,0,"",
-  /* 26 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MSetAttrOriginal,
-  /* 27 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MSetAttrCurrent,
-  /* 28 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MSetAttrBlank,
-  /* 29 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 30 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
-  /* 31 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
-  /* 32 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
+  static struct DialogDataEx AttrDlgData[]={
+  /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(wchar_t *)MSetAttrTitle,
+  /* 01 */DI_TEXT,-1,2,0,0,0,0,0,0,(wchar_t *)MSetAttrFor,
+  /* 02 */DI_TEXT,-1,3,0,0,0,0,DIF_SHOWAMPERSAND,0,L"",
+  /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 04 */DI_CHECKBOX,5, 5,0,0,1,0,DIF_3STATE,0,(wchar_t *)MSetAttrRO,
+  /* 05 */DI_CHECKBOX,5, 6,0,0,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrArchive,
+  /* 06 */DI_CHECKBOX,5, 7,0,0,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrHidden,
+  /* 07 */DI_CHECKBOX,5, 8,0,0,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrSystem,
+  /* 08 */DI_CHECKBOX,5, 9,0,0,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrCompressed,
+  /* 09 */DI_CHECKBOX,35, 5,0,0,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrEncrypted,
+  /* 10 */DI_CHECKBOX,35, 6,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrNotIndexed,
+  /* 11 */DI_CHECKBOX,35, 7,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
+  /* 12 */DI_CHECKBOX,35, 8,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
+  /* 13 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 14 */DI_CHECKBOX,5,11,0,0,0,0,DIF_DISABLE,0,(wchar_t *)MSetAttrSubfolders,
+  /* 15 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */DI_TEXT,45,13,0,0,0,0,0,0,L"",
+  /* 17 */DI_TEXT,    5,14,0,0,0,0,0,0,(wchar_t *)MSetAttrModification,
+  /* 18 */DI_FIXEDIT,45,14,54,14,0,0,DIF_MASKEDIT,0,L"",
+  /* 19 */DI_FIXEDIT,56,14,63,14,0,0,DIF_MASKEDIT,0,L"",
+  /* 20 */DI_TEXT,    5,15,0,0,0,0,0,0,(wchar_t *)MSetAttrCreation,
+  /* 21 */DI_FIXEDIT,45,15,54,15,0,0,DIF_MASKEDIT,0,L"",
+  /* 22 */DI_FIXEDIT,56,15,63,15,0,0,DIF_MASKEDIT,0,L"",
+  /* 23 */DI_TEXT,    5,16,0,0,0,0,0,0,(wchar_t *)MSetAttrLastAccess,
+  /* 24 */DI_FIXEDIT,45,16,54,16,0,0,DIF_MASKEDIT,0,L"",
+  /* 25 */DI_FIXEDIT,56,16,63,16,0,0,DIF_MASKEDIT,0,L"",
+  /* 26 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrOriginal,
+  /* 27 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrCurrent,
+  /* 28 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrBlank,
+  /* 29 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 30 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(wchar_t *)MSetAttrSet,
+  /* 31 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel,
+  /* 32 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,L"",
   };
-  MakeDialogItems(AttrDlgData,AttrDlg);
+  MakeDialogItemsEx(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
 
   int SelCount, I, J;
@@ -684,7 +477,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   if (SrcPanel->GetMode()==PLUGIN_PANEL)
   {
-    struct OpenPluginInfo Info;
+    struct OpenPluginInfoW Info;
     HANDLE hPlugin=SrcPanel->GetPluginHandle();
     if(hPlugin == INVALID_HANDLE_VALUE)
       return 0;
@@ -699,21 +492,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   DlgParam.FileSystemFlags=0;
 
-  _SVS(char lpRootPathName[NM]="");
-  _SVS(char lpVolumeNameBuffer[NM]="");
-  _SVS(char lpFileSystemNameBuffer[NM]="");
-  _SVS(DWORD lpVolumeSerialNumber=0);
-  _SVS(DWORD lpMaximumComponentLength=0);
-  _SVS(DWORD lpFileSystemFlags=0);
-  _SVS(GetCurrentDirectory(sizeof(lpRootPathName),lpRootPathName));
-  _SVS(GetPathRoot(lpRootPathName,lpRootPathName));
-  _SVS(GetVolumeInformation(lpRootPathName,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
-                                           &lpVolumeSerialNumber,&lpMaximumComponentLength,&lpFileSystemFlags,
-                                           lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer)));
-  _SVS(GetVolumeInformation_Dump("SetAttr",lpRootPathName,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
-                                           lpVolumeSerialNumber,lpMaximumComponentLength,lpFileSystemFlags,
-                                           lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer),NULL));
-
   if(DlgParam.Plugin)
   {
     AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
@@ -721,10 +499,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   }
   else
   {
-    //char lpRootPathName[NM];
-    //GetCurrentDirectory(sizeof(lpRootPathName),lpRootPathName);
-    //GetPathRoot(lpRootPathName,lpRootPathName);
-    if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,DlgParam.FSysName,sizeof(DlgParam.FSysName)))
+    string strFSysName;
+    if (apiGetVolumeInformation(NULL,NULL,NULL,NULL,&DlgParam.FileSystemFlags,&strFSysName))
     {
       if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
@@ -732,25 +508,25 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
-      if(!strcmp(DlgParam.FSysName,"NTFS"))
+      if(!LocalStricmpW(strFSysName,L"NTFS"))
         AttrDlg[SETATTR_INDEXED].Flags&=~DIF_DISABLE;
-
     }
+    DlgParam.strFSysName=strFSysName;
   }
 
   {
-    char SelName[NM];
+    string strSelName;
     int FileAttr;
     FILETIME LastWriteTime,CreationTime,LastAccessTime;
     int SetWriteTime,SetCreationTime,SetLastAccessTime;
     int SetWriteTimeRetCode=TRUE;
-    WIN32_FIND_DATA FindData;
+    FAR_FIND_DATA_EX FindData;
 
     //SaveScreen SaveScr;
 
-    SrcPanel->GetSelName(NULL,FileAttr);
-    SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData);
-    if (SelCount==0 || SelCount==1 && TestParentFolderName(SelName))
+    SrcPanel->GetSelNameW(NULL,FileAttr);
+    SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData);
+    if (SelCount==0 || SelCount==1 && TestParentFolderNameW(strSelName))
       return 0;
 
 //    int NewAttr;
@@ -758,63 +534,58 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     int DateSeparator=GetDateSeparator();
     int TimeSeparator=GetTimeSeparator();
-    static char DMask[20],TMask[20];
+    string strDMask, strTMask;
 
-    sprintf(TMask,FmtMask1,TimeSeparator,TimeSeparator);
+    strTMask.Format (FmtMask1,TimeSeparator,TimeSeparator);
+
+    string strAttr;
+
     switch(DlgParam.DateFormat=GetDateFormat())
     {
       case 0:
-        sprintf(AttrDlg[SETATTR_TITLEDATE].Data,MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
-        sprintf(DMask,FmtMask2,DateSeparator,DateSeparator);
+        strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
+        strAttr.Format (UMSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        strDMask.Format (FmtMask2,DateSeparator,DateSeparator);
         break;
       case 1:
-        sprintf(AttrDlg[SETATTR_TITLEDATE].Data,MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
-        sprintf(DMask,FmtMask2,DateSeparator,DateSeparator);
+        strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
+        strAttr.Format (UMSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        strDMask.Format (FmtMask2,DateSeparator,DateSeparator);
         break;
       default:
-        sprintf(AttrDlg[SETATTR_TITLEDATE].Data,MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
-        sprintf(DMask,FmtMask3,DateSeparator,DateSeparator);
+        strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
+        strAttr.Format (UMSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        strDMask.Format (FmtMask3,DateSeparator,DateSeparator);
         break;
     }
 
-    AttrDlg[SETATTR_MDATE].Mask=DMask;
-    AttrDlg[SETATTR_MTIME].Mask=TMask;
-    AttrDlg[SETATTR_CDATE].Mask=DMask;
-    AttrDlg[SETATTR_CTIME].Mask=TMask;
-    AttrDlg[SETATTR_ADATE].Mask=DMask;
-    AttrDlg[SETATTR_ATIME].Mask=TMask;
+    AttrDlg[SETATTR_MDATE].Mask=strDMask;
+    AttrDlg[SETATTR_MTIME].Mask=strTMask;
+    AttrDlg[SETATTR_CDATE].Mask=strDMask;
+    AttrDlg[SETATTR_CTIME].Mask=strTMask;
+    AttrDlg[SETATTR_ADATE].Mask=strDMask;
+    AttrDlg[SETATTR_ATIME].Mask=strTMask;
 
     if (SelCount==1)
     {
       if((FileAttr & FA_DIREC))
       {
-        if(SelName[strlen(SelName)-1] != '\\')
+        if(strSelName.At(strSelName.GetLength()-1) != L'\\')
         {
-          AddEndSlash(SelName);
-          FileAttr=GetFileAttributes(SelName);
-          SelName[strlen(SelName)-1]=0;
+          string strCopy = strSelName;
+          AddEndSlashW(strCopy);
+          FileAttr=GetFileAttributesW(strCopy);
         }
         //_SVS(SysLog("SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
         AttrDlg[SETATTR_SUBFOLDERS].Flags&=~DIF_DISABLE;
         AttrDlg[SETATTR_SUBFOLDERS].Selected=Opt.SetAttrFolderRules == 1?0:1;
         if(Opt.SetAttrFolderRules)
         {
-          if(DlgParam.Plugin)
+          if ( apiGetFindDataEx (strSelName,&FindData) )
           {
-            ConvertDate(FindData.ftLastWriteTime, AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-          }
-          else
-          {
-            HANDLE FindHandle;
-            if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
-            {
-              FindClose(FindHandle);
-              ConvertDate(FindData.ftLastWriteTime, AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-              ConvertDate(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-              ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-            }
+            ConvertDateW(FindData.ftLastWriteTime, AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDateW(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDateW(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
           }
           AttrDlg[SETATTR_RO].Selected=(FileAttr & FA_RDONLY)!=0;
           AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FA_ARCH)!=0;
@@ -835,8 +606,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         // обработка случая, если ЭТО SymLink
         if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          char JuncName[NM*2];
-          DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
+          string strJuncName;
+          DWORD LenJunction=GetJunctionPointInfoW(strSelName, strJuncName);
           //"\??\D:\Junc\Src\" или "\\?\Volume{..."
 
           AttrDlg[SETATTR_TITLE].Y2++;
@@ -850,13 +621,18 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           JunctionPresent=TRUE;
 
           int ID_Msg, Width;
-          if(!strncmp(JuncName+4,"Volume{",7))
+          if(!wcsncmp((const wchar_t*)strJuncName+4,L"Volume{",7))
           {
-            char JuncRoot[NM*2];
-            JuncRoot[0]=JuncRoot[1]=0;
-            GetPathRootOne(JuncName+4,JuncRoot);
-            if(JuncRoot[1] == ':')
-              strcpy(JuncName+4,JuncRoot);
+            string strJuncRoot;
+            GetPathRootOneW((const wchar_t*)strJuncName+4,strJuncRoot);
+
+            wchar_t *lpwszJunc = strJuncName.GetBuffer (strJuncRoot.GetLength()+4);
+
+            if(strJuncRoot.At(1) == L':')
+              wcscpy(lpwszJunc+4,strJuncRoot);
+
+            strJuncName.ReleaseBuffer ();
+
             ID_Msg=MSetAttrVolMount;
             Width=38;
           }
@@ -866,18 +642,21 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             Width=52;
           }
 
-          sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
+          string strJuncTemp = (const wchar_t*)strJuncName+4;
+
+
+          AttrDlg[SETATTR_TITLELINK].strData.Format (UMSG(ID_Msg),
                 (LenJunction?
-                   TruncPathStr(JuncName+4,Width):
-                   MSG(MSetAttrUnknownJunction)));
+                   (const wchar_t *)TruncPathStrW(strJuncTemp,Width):
+                   UMSG(MSetAttrUnknownJunction)));
 
           /* $ 11.09.2001 SVS
              Уточнение по поводу слинкованной файловой системы отличной от
              NTFS.
           */
           DlgParam.FileSystemFlags=0;
-          GetPathRoot(SelName,JuncName);
-          if (GetVolumeInformation(JuncName,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
+          GetPathRootW(strSelName,strJuncName);
+          if (apiGetVolumeInformation (strJuncName,NULL,NULL,NULL,&DlgParam.FileSystemFlags,NULL))
           {
             if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
               AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
@@ -895,8 +674,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AttrDlg[I].Flags&=~DIF_3STATE;
       }
 
-      strcpy(AttrDlg[SETATTR_NAME].Data,SelName);
-      TruncStr(AttrDlg[SETATTR_NAME].Data,54);
+      AttrDlg[SETATTR_NAME].strData = strSelName;
+      TruncStrW(AttrDlg[SETATTR_NAME].strData,54);
 
       AttrDlg[SETATTR_RO].Selected=(FileAttr & FA_RDONLY)!=0;
       AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FA_ARCH)!=0;
@@ -910,19 +689,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       if(DlgParam.Plugin)
       {
-        ConvertDate(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-        ConvertDate(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-        ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDateW(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDateW(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDateW(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
       }
       else
       {
-        HANDLE FindHandle;
-        if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
+        if ( apiGetFindDataEx (strSelName,&FindData))
         {
-          FindClose(FindHandle);
-          ConvertDate(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDateW(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDateW(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDateW(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
         }
       }
     }
@@ -931,13 +708,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_RO].Selected=AttrDlg[SETATTR_ARCHIVE].Selected=AttrDlg[SETATTR_HIDDEN].Selected=
       AttrDlg[SETATTR_SYSTEM].Selected=AttrDlg[SETATTR_COMPRESSED].Selected=AttrDlg[SETATTR_ENCRYPTED].Selected=
       AttrDlg[SETATTR_INDEXED].Selected=AttrDlg[SETATTR_SPARSE].Selected=AttrDlg[SETATTR_TEMP].Selected=2;
-      AttrDlg[SETATTR_MDATE].Data[0]=AttrDlg[SETATTR_MTIME].Data[0]=AttrDlg[SETATTR_CDATE].Data[0]=
-      AttrDlg[SETATTR_CTIME].Data[0]=AttrDlg[SETATTR_ADATE].Data[0]=AttrDlg[SETATTR_ATIME].Data[0]='\0';
+      AttrDlg[SETATTR_MDATE].strData=AttrDlg[SETATTR_MTIME].strData=AttrDlg[SETATTR_CDATE].strData=
+      AttrDlg[SETATTR_CTIME].strData=AttrDlg[SETATTR_ADATE].strData=AttrDlg[SETATTR_ATIME].strData=L"";
 
       AttrDlg[SETATTR_ORIGINAL].Flags|=DIF_HIDDEN;
       AttrDlg[SETATTR_ORIGINAL].Flags&=~DIF_CENTERGROUP;
 
-      strcpy(AttrDlg[SETATTR_NAME].Data,MSG(MSetAttrSelectedObjects));
+      AttrDlg[SETATTR_NAME].strData = UMSG(MSetAttrSelectedObjects);
       // выставим -1 - потом учтем этот факт :-)
       for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
         AttrDlg[I].Selected=0;
@@ -945,8 +722,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       // проверка - есть ли среди выделенных - каталоги?
       // так же проверка на атрибуты
       J=0;
-      SrcPanel->GetSelName(NULL,FileAttr);
-      while (SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData))
+      SrcPanel->GetSelNameW(NULL,FileAttr);
+      while (SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData))
       {
         if(!J && (FileAttr & FA_DIREC))
         {
@@ -964,8 +741,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         AttrDlg[SETATTR_SPARSE].Selected+=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)?1:0;
         AttrDlg[SETATTR_TEMP].Selected+=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)?1:0;
       }
-      SrcPanel->GetSelName(NULL,FileAttr);
-      SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData);
+      SrcPanel->GetSelNameW(NULL,FileAttr);
+      SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData);
       // выставим "неопределенку" или то, что нужно
       for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
       {
@@ -983,8 +760,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     if(FolderPresent && !Opt.SetAttrFolderRules)
     {
       AttrDlg[SETATTR_SUBFOLDERS].Selected=1;
-      AttrDlg[SETATTR_MDATE].Data[0]=AttrDlg[SETATTR_MTIME].Data[0]=AttrDlg[SETATTR_CDATE].Data[0]=
-      AttrDlg[SETATTR_CTIME].Data[0]=AttrDlg[SETATTR_ADATE].Data[0]=AttrDlg[SETATTR_ATIME].Data[0]='\0';
+      AttrDlg[SETATTR_MDATE].strData=AttrDlg[SETATTR_MTIME].strData=AttrDlg[SETATTR_CDATE].strData=
+      AttrDlg[SETATTR_CTIME].strData=AttrDlg[SETATTR_ADATE].strData=AttrDlg[SETATTR_ATIME].strData=L"";
       for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
       {
         AttrDlg[I].Selected=2;
@@ -1001,7 +778,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
 
     DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FA_DIREC)==0)?0:(SelCount==1?1:2));
-    DlgParam.SelName=SelName;
+    DlgParam.strSelName=strSelName;
     DlgParam.OState12=AttrDlg[SETATTR_SUBFOLDERS].Selected;
     DlgParam.OState8=AttrDlg[SETATTR_COMPRESSED].Selected;
     DlgParam.OState9=AttrDlg[SETATTR_ENCRYPTED].Selected;
@@ -1009,7 +786,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // <Dialog>
     {
       Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc,(DWORD)&DlgParam);
-      Dlg.SetHelp("FileAttrDlg");                 //  ^ - это одиночный диалог!
+      Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
       Dlg.SetPosition(-1,-1,69,JunctionPresent?23:22);
       Dlg.Process();
       if (Dlg.GetExitCode()!=SETATTR_SET)
@@ -1018,21 +795,21 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // </Dialog>
 
     SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
-    ShellSetFileAttributesMsg(SelCount==1?SelName:NULL);
+    ShellSetFileAttributesMsg(SelCount==1?(const wchar_t*)strSelName:NULL);
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
-      if(IsFileWritable(SelName,FileAttr,TRUE,MSetAttrCannotFor) == 1)
+      if(IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor) == 1)
       {
         int NewAttr;
         NewAttr=FileAttr & FA_DIREC;
-        if (AttrDlg[SETATTR_RO].Selected)              NewAttr|=FA_RDONLY;
-        if (AttrDlg[SETATTR_ARCHIVE].Selected)         NewAttr|=FA_ARCH;
-        if (AttrDlg[SETATTR_HIDDEN].Selected)          NewAttr|=FA_HIDDEN;
-        if (AttrDlg[SETATTR_SYSTEM].Selected)          NewAttr|=FA_SYSTEM;
-        if (AttrDlg[SETATTR_COMPRESSED].Selected)      NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
-        if (AttrDlg[SETATTR_ENCRYPTED].Selected)       NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-        if (AttrDlg[SETATTR_INDEXED].Selected)         NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+        if (AttrDlg[SETATTR_RO].Selected)         NewAttr|=FA_RDONLY;
+        if (AttrDlg[SETATTR_ARCHIVE].Selected)    NewAttr|=FA_ARCH;
+        if (AttrDlg[SETATTR_HIDDEN].Selected)     NewAttr|=FA_HIDDEN;
+        if (AttrDlg[SETATTR_SYSTEM].Selected)     NewAttr|=FA_SYSTEM;
+        if (AttrDlg[SETATTR_COMPRESSED].Selected) NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
+        if (AttrDlg[SETATTR_ENCRYPTED].Selected)  NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+        if (AttrDlg[SETATTR_INDEXED].Selected)    NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
 
         /*
         AY: мы с этими атрибутами не работаем
@@ -1044,13 +821,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             NewAttr|=FILE_ATTRIBUTE_TEMPORARY;
         */
 
-
-        SetWriteTime=DlgParam.OLastWriteTime && ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
-        SetCreationTime=DlgParam.OCreationTime && ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
-        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
+        SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
+        SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
+        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
   //_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-          SetWriteTimeRetCode=ESetFileTime(SelName,
+          SetWriteTimeRetCode=ESetFileTimeW(strSelName,
                                            (SetWriteTime ? &LastWriteTime:NULL),
                                            (SetCreationTime ? &CreationTime:NULL),
                                            (SetLastAccessTime ? &LastAccessTime:NULL),
@@ -1062,16 +838,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(SetWriteTimeRetCode == 1) // если время удалось выставить...
         {
           if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            ESetFileCompression(SelName,1,FileAttr);
+            ESetFileCompressionW(strSelName,1,FileAttr);
           else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            ESetFileCompression(SelName,0,FileAttr);
+            ESetFileCompressionW(strSelName,0,FileAttr);
 
           if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            ESetFileEncryption(SelName,1,FileAttr);
+            ESetFileEncryptionW(strSelName,1,FileAttr);
           else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            ESetFileEncryption(SelName,0,FileAttr);
+            ESetFileEncryptionW(strSelName,0,FileAttr);
 
-          ESetFileAttributes(SelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+          ESetFileAttributesW(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
         }
       }
     }
@@ -1080,7 +856,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     else
     {
       int RetCode=1;
-      ConsoleTitle *SetAttrTitle= new ConsoleTitle(MSG(MSetAttrTitle));
+      ConsoleTitle *SetAttrTitle= new ConsoleTitle(UMSG(MSetAttrTitle));
       int SetAttr,ClearAttr,Cancel=0;
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
@@ -1088,12 +864,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       if (AttrDlg[SETATTR_RO].Selected == 1)         SetAttr|=FA_RDONLY;
       else if (!AttrDlg[SETATTR_RO].Selected)        ClearAttr|=FA_RDONLY;
-      if (AttrDlg[SETATTR_ARCHIVE].Selected == 1)         SetAttr|=FA_ARCH;
-      else if (!AttrDlg[SETATTR_ARCHIVE].Selected)        ClearAttr|=FA_ARCH;
-      if (AttrDlg[SETATTR_HIDDEN].Selected == 1)         SetAttr|=FA_HIDDEN;
-      else if (!AttrDlg[SETATTR_HIDDEN].Selected)        ClearAttr|=FA_HIDDEN;
-      if (AttrDlg[SETATTR_SYSTEM].Selected == 1)         SetAttr|=FA_SYSTEM;
-      else if (!AttrDlg[SETATTR_SYSTEM].Selected)        ClearAttr|=FA_SYSTEM;
+      if (AttrDlg[SETATTR_ARCHIVE].Selected == 1)    SetAttr|=FA_ARCH;
+      else if (!AttrDlg[SETATTR_ARCHIVE].Selected)   ClearAttr|=FA_ARCH;
+      if (AttrDlg[SETATTR_HIDDEN].Selected == 1)     SetAttr|=FA_HIDDEN;
+      else if (!AttrDlg[SETATTR_HIDDEN].Selected)    ClearAttr|=FA_HIDDEN;
+      if (AttrDlg[SETATTR_SYSTEM].Selected == 1)     SetAttr|=FA_SYSTEM;
+      else if (!AttrDlg[SETATTR_SYSTEM].Selected)    ClearAttr|=FA_SYSTEM;
 
       if (AttrDlg[SETATTR_COMPRESSED].Selected == 1)
       {
@@ -1129,32 +905,32 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       */
 
-      SrcPanel->GetSelName(NULL,FileAttr);
+      SrcPanel->GetSelNameW(NULL,FileAttr);
 
-      while (SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData) && !Cancel)
+      while (SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData) && !Cancel)
       {
 //_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
-        ShellSetFileAttributesMsg(SelName);
+        ShellSetFileAttributesMsg(strSelName);
 
         if (CheckForEsc())
           break;
 
-        RetCode=IsFileWritable(SelName,FileAttr,TRUE,MSetAttrCannotFor);
+        RetCode=IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor);
         if(!RetCode)
           break;
         if(RetCode == 2)
           continue;
 
-        SetWriteTime=DlgParam.OLastWriteTime && ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
-        SetCreationTime=DlgParam.OCreationTime && ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
-        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
+        SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
+        SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
+        SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
+          if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
             RetCode=1;
           else
-            RetCode=ESetFileTime(SelName,
+            RetCode=ESetFileTimeW(strSelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
@@ -1168,7 +944,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           if (AttrDlg[SETATTR_COMPRESSED].Selected != 2)
           {
-            RetCode=ESetFileCompression(SelName,AttrDlg[SETATTR_COMPRESSED].Selected,FileAttr);
+            RetCode=ESetFileCompressionW(strSelName,AttrDlg[SETATTR_COMPRESSED].Selected,FileAttr);
             if(!RetCode) // неудача сжать :-(
               break;
             if(RetCode == 2)
@@ -1178,14 +954,14 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           {
             if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
             {
-              RetCode=ESetFileEncryption(SelName,AttrDlg[SETATTR_ENCRYPTED].Selected,FileAttr);
+              RetCode=ESetFileEncryptionW(strSelName,AttrDlg[SETATTR_ENCRYPTED].Selected,FileAttr);
               if(!RetCode) // неудача зашифровать :-(
                 break;
               if(RetCode == 2)
                 continue;
             }
           }
-          RetCode=ESetFileAttributes(SelName,((FileAttr|SetAttr)&(~ClearAttr)));
+          RetCode=ESetFileAttributesW(strSelName,((FileAttr|SetAttr)&(~ClearAttr)));
           if(!RetCode)
             break;
           if(RetCode == 2)
@@ -1194,20 +970,20 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
         if ((FileAttr & FA_DIREC) && AttrDlg[SETATTR_SUBFOLDERS].Selected)
         {
-          char FullName[NM];
-          ScanTree ScTree(FALSE,TRUE,-1,TRUE);
+          string strFullName;
+          ScanTree ScTree(FALSE);
 
-          ScTree.SetFindPath(SelName,"*.*");
-          while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+          ScTree.SetFindPathW(strSelName,L"*.*");
+          while (ScTree.GetNextNameW(&FindData,strFullName))
           {
-            ShellSetFileAttributesMsg(FullName);
+            ShellSetFileAttributesMsg(strFullName);
             if (CheckForEsc())
             {
               Cancel=1;
               break;
             }
 
-            RetCode=IsFileWritable(FullName,FindData.dwFileAttributes,TRUE,MSetAttrCannotFor);
+            RetCode=IsFileWritable(strFullName,FindData.dwFileAttributes,TRUE,MSetAttrCannotFor);
             if(!RetCode)
             {
               Cancel=1;
@@ -1216,15 +992,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             if(RetCode == 2)
               continue;
 
-            SetWriteTime=DlgParam.OLastWriteTime && ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
-            SetCreationTime=DlgParam.OCreationTime && ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
-            SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
+            SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
+            SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
+            SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
+              if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
                 RetCode=1;
               else
-                RetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
+                RetCode=ESetFileTimeW(strFullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
                            FindData.dwFileAttributes);
@@ -1241,7 +1017,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             {
               if (AttrDlg[SETATTR_COMPRESSED].Selected != 2)
               {
-                RetCode=ESetFileCompression(FullName,AttrDlg[SETATTR_COMPRESSED].Selected,FindData.dwFileAttributes);
+                RetCode=ESetFileCompressionW(strFullName,AttrDlg[SETATTR_COMPRESSED].Selected,FindData.dwFileAttributes);
                 if(RetCode == 0)
                 {
                   Cancel=1;
@@ -1254,7 +1030,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               {
                 if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
                 {
-                  RetCode=ESetFileEncryption(FullName,AttrDlg[SETATTR_ENCRYPTED].Selected,FindData.dwFileAttributes);
+                  RetCode=ESetFileEncryptionW(strFullName,AttrDlg[SETATTR_ENCRYPTED].Selected,FindData.dwFileAttributes);
                   if (RetCode == 0)
                   {
                     Cancel=1;
@@ -1264,7 +1040,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                     continue;
                 }
               }
-              RetCode=ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr));
+              RetCode=ESetFileAttributesW(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr));
               if (RetCode == 0)
               {
                 Cancel=1;
@@ -1290,8 +1066,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   return 1;
 }
 
-static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
-                       char *OSrcDate,char *OSrcTime)
+static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *FileTime,
+                        const wchar_t *OSrcDate, const wchar_t *OSrcTime)
 {
   FILETIME ft, oft;
   SYSTEMTIME st, ost;
@@ -1316,7 +1092,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
      TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
   {
     // получаем инфу про оригинальную дату и время файла.
-    HANDLE hFile=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hFile=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     if (hFile==INVALID_HANDLE_VALUE)
@@ -1394,7 +1170,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
 }
 
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
+static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
 {
   if ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     return 1;
@@ -1402,9 +1178,9 @@ static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, i
   while (1)
   {
     if (FileAttr & FA_RDONLY)
-      SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
+      SetFileAttributesW(Name,FileAttr & ~FA_RDONLY);
 
-    HANDLE hFile=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    HANDLE hFile=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     BOOL Writable=TRUE;
     if(hFile == INVALID_HANDLE_VALUE)
       Writable=FALSE;
@@ -1413,7 +1189,7 @@ static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, i
 
     DWORD LastError=GetLastError();
     if (FileAttr & FA_RDONLY)
-      SetFileAttributes(Name,FileAttr);
+      SetFileAttributesW(Name,FileAttr);
     SetLastError(LastError);
 
     if (Writable)
@@ -1421,9 +1197,9 @@ static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, i
 
     int Code;
     if(IsShowErrMsg)
-        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                     MSG(Msg),(char *)Name,
-                     MSG(MHRetry),MSG(MHSkip),MSG(MHCancel));
+        Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+                     UMSG(Msg),Name,
+                     UMSG(MHRetry),UMSG(MHSkip),UMSG(MHCancel));
     else
        return 0;
 

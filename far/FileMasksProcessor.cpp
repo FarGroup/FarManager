@@ -5,31 +5,20 @@ FileMasksProcessor.cpp
 исключения).
 */
 
-/* Revision: 1.03 15.08.2002 $ */
+/* Revision: 1.05 16.03.2006 $ */
 
-/*
-Modify:
-  15.08.2002 IS
-    ! Masks.Start -> Masks.Reset
-    + Маски файлов: перед использованием сортируем и удаляем дубликаты
-  11.08.2001 IS
-    + Используем UDL_FLAGS:
-  10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
-  01.07.2001 IS
-    + Впервые в эфире
-*/
 #include "headers.hpp"
 #pragma hdrstop
 
 #include "FileMasksProcessor.hpp"
 #include "fn.hpp"
 
-FileMasksProcessor::FileMasksProcessor():BaseFileMask()
+
+FileMasksProcessorW::FileMasksProcessorW():BaseFileMaskW()
 {
 }
 
-void FileMasksProcessor::Free()
+void FileMasksProcessorW::Free()
 {
     Masks.Free();
 }
@@ -40,16 +29,16 @@ void FileMasksProcessor::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
+BOOL FileMasksProcessorW::Set(const wchar_t *masks, DWORD Flags)
 {
   // разделителем масок является не только запятая, но и точка с запятой!
   DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
   if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
-  Masks.SetParameters(',',';',flags);
+  Masks.SetParameters(L',',L';',flags);
   return Masks.Set(masks);
 }
 
-BOOL FileMasksProcessor::IsEmpty(void)
+BOOL FileMasksProcessorW::IsEmpty(void)
 {
   Masks.Reset();
   return Masks.IsEmpty();
@@ -58,12 +47,12 @@ BOOL FileMasksProcessor::IsEmpty(void)
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-BOOL FileMasksProcessor::Compare(const char *FileName)
+BOOL FileMasksProcessorW::Compare(const wchar_t *FileName)
 {
   Masks.Reset();
   while(NULL!=(MaskPtr=Masks.GetNext()))
   {
-    if (CmpName(MaskPtr,FileName, FALSE))
+    if (CmpNameW(MaskPtr,FileName, FALSE))
     // SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
        return TRUE;
   }

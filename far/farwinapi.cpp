@@ -5,42 +5,7 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.11 28.08.2006 $ */
-
-/*
-Modify:
-  28.08.2006 SVS
-    ! уточнение GetFileWin32FindData - дабы не выскакивал гуевый диалог, если диск эжектед.
-  10.04.2006 SVS
-    + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
-  19.06.2005 SVS
-    - BugZ#1348 - Ќе обновл€етс€ индикатор копировани€ при операци€х с флешкой
-  14.06.2005 SVS
-    + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
-  21.06.2004 SVS
-    ! FAR_GetDriveType и IsDriveTypeCDROM умчали в cddrv.cpp
-  14.06.2004 SVS
-    ! добавим вариант, когда не получилось определить (нехватка прав на доступ к девайсу) - в этом случае
-      максимум, что сможем определить - это DVD или нет.
-  09.06.2004 SVS
-    ! ѕопалс€ привод - DVD читает, но не писатель (не CD-RW) - изменена логика.
-    + работаем в NT-based (проверено так же на NT4 SP6a)
-  09.06.2004 SVS
-    - ¬от ить.... забыл, что у GetDriveType параметр может быть равен NULL.
-  08.06.2004 SVS
-    ! ¬место GetDriveType теперь вызываем FAR_GetDriveType().
-    ! ¬место "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  01.03.2004 SVS
-    + ќбертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
-    + FAR_ANSI - руками не мацать (уж больно трудно синхронизацией заниматьс€)
-      на "сейчас" вли€ни€ не окажет, зато потом...
-  09.10.2003 SVS
-    + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
-  01.06.2003 SVS
-    ! ¬ыделение в качестве самосто€тельного модул€
-    ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
-    ! FAR_CreateFile переехал из farrtl.cpp в farwinapi.cpp
-*/
+/* Revision: 1.19 06.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -48,45 +13,41 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 
-/* $ 26.01.2003 IS
-    + FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать дл€ удалени€
-      соответственно файлов и каталогов.
-*/
-// удалить файл, код возврата аналогичен DeleteFile
-BOOL WINAPI FAR_DeleteFile(const char *FileName)
+BOOL WINAPI FAR_DeleteFileW(const wchar_t *FileName)
 {
   // IS: сначала попробуем удалить стандартной функцией, чтобы
   // IS: не осуществл€ть лишние телодвижени€
-  BOOL rc=DeleteFile(FileName);
+  BOOL rc=DeleteFileW(FileName);
   if(!rc) // IS: вот тут лишние телодвижени€ и начнем...
   {
     SetLastError((_localLastError = GetLastError()));
     if(CheckErrorForProcessed(_localLastError))
     {
-      char FullName[NM*2]="\\\\?\\";
-      // IS: +4 - чтобы не затереть наши "\\?\"
-      if(ConvertNameToFull(FileName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
-      {
-        // IS: проверим, а вдруг уже есть есть нужные символы в пути
-        if( (FullName[4]=='/' && FullName[5]=='/') ||
-            (FullName[4]=='\\' && FullName[5]=='\\') )
-          rc=DeleteFile(FullName+4);
-        // IS: нужных символов в пути нет, поэтому используем наши
-        else
-          rc=DeleteFile(FullName);
-      }
+      string strFullName;
+      //char FullName[NM*2]="\\\\?\\";
+
+      ConvertNameToFullW (FileName, strFullName);
+
+      strFullName = L"\\\\?\\"+strFullName;
+
+      if( (strFullName.At(4)==L'/' && strFullName.At(5)==L'/') ||
+          (strFullName.At(4)==L'\\' && strFullName.At(5)==L'\\') )
+        rc=DeleteFileW((const wchar_t*)strFullName+4);
+      // IS: нужных символов в пути нет, поэтому используем наши
+      else
+        rc=DeleteFileW(strFullName);
     }
   }
   return rc;
 }
 
-// удалить каталог, код возврата аналогичен RemoveDirectory
-BOOL WINAPI FAR_RemoveDirectory(const char *DirName)
+
+BOOL WINAPI FAR_RemoveDirectoryW (const wchar_t *DirName)
 {
-  // IS: сначала попробуем удалить стандартной функцией, чтобы
-  // IS: не осуществл€ть лишние телодвижени€
-  BOOL rc=RemoveDirectory(DirName);
+  BOOL rc = RemoveDirectoryW (DirName);
+
+  //BUGBUG
+  /*
   if(!rc) // IS: вот тут лишние телодвижени€ и начнем...
   {
     SetLastError((_localLastError = GetLastError()));
@@ -106,17 +67,15 @@ BOOL WINAPI FAR_RemoveDirectory(const char *DirName)
       }
     }
   }
+  */
   return rc;
 }
+
 /* IS $ */
 
-/* $ 26.01.2003 IS
-     + FAR_CreateFile - обертка дл€ CreateFile, просьба использовать именно
-       ее вместо CreateFile
-*/
-// открыть файл, вод возврата аналогичен CreateFile
-HANDLE WINAPI FAR_CreateFile(
-    LPCTSTR lpFileName,     // pointer to name of the file
+
+HANDLE WINAPI FAR_CreateFileW(
+    const wchar_t *lpwszFileName,     // pointer to name of the file
     DWORD dwDesiredAccess,  // access (read-write) mode
     DWORD dwShareMode,      // share mode
     LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
@@ -125,11 +84,12 @@ HANDLE WINAPI FAR_CreateFile(
     HANDLE hTemplateFile          // handle to file with attributes to copy
    )
 {
-  HANDLE hFile=CreateFile(lpFileName,dwDesiredAccess,dwShareMode,
+  HANDLE hFile=CreateFileW(lpwszFileName,dwDesiredAccess,dwShareMode,
     lpSecurityAttributes, dwCreationDistribution,dwFlagsAndAttributes,
     hTemplateFile);
   return hFile;
 }
+
 /* IS $ */
 
 void WINAPI SetFileApisTo(int Type)
@@ -198,44 +158,29 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
   return CharToOem(lpszSrc,lpszDst);
 }
 
-BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo)
-{
-  WIN32_FIND_DATA WFD_Info;
-
-  UINT  PrevErrMode;
-  // дабы не выскакивал гуевый диалог, если диск эжектед.
-  PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-  HANDLE FindHandle=FindFirstFile(Name,&WFD_Info);
-  SetErrorMode(PrevErrMode);
-  if(FindHandle!=INVALID_HANDLE_VALUE)
-  {
-    FindClose(FindHandle);
-    if(FInfo)
-      memmove(FInfo,&WFD_Info,sizeof(WIN32_FIND_DATA));
-    return TRUE;
-  }
-  else if(FInfo)
-  {
-    memset(FInfo,0,sizeof(WIN32_FIND_DATA));
-    FInfo->dwFileAttributes=(DWORD)-1;
-  }
-  return FALSE;
-}
 
 
-BOOL FAR_CopyFile(
-    LPCTSTR lpExistingFileName, // pointer to name of an existing file
-    LPCTSTR lpNewFileName,  // pointer to filename to copy to
+
+
+BOOL FAR_CopyFileW(
+    const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
+    const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
     BOOL bFailIfExists  // flag for operation if file exists
    )
 {
-  return CopyFile(lpExistingFileName,lpNewFileName,bFailIfExists);
+  return CopyFileW(lpwszExistingFileName,lpwszNewFileName,bFailIfExists);
 }
 
 typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
             LPCTSTR lpNewFileName,void *lpProgressRoutine,
             LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+
+typedef BOOL (WINAPI *COPYFILEEXW)(const wchar_t *lpwszExistingFileName,
+            const wchar_t *lpwszNewFileName,void *lpProgressRoutine,
+            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+
 static COPYFILEEX pCopyFileEx=NULL;
+static COPYFILEEXW pCopyFileExW=NULL;
 
 BOOL Init_CopyFileEx(void)
 {
@@ -243,50 +188,57 @@ BOOL Init_CopyFileEx(void)
 
   if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
   {
-    HMODULE hKernel=GetModuleHandle("KERNEL32.DLL");
+    HMODULE hKernel=GetModuleHandleW(L"KERNEL32.DLL");
     if (hKernel)
-      pCopyFileEx=(COPYFILEEX)GetProcAddress(hKernel,"CopyFileExA");
-    IsFn_FAR_CopyFileEx=pCopyFileEx != NULL;
+    {
+      pCopyFileExW=(COPYFILEEXW)GetProcAddress(hKernel,"CopyFileExW");
+    }
+    IsFn_FAR_CopyFileEx=(pCopyFileExW != NULL);
     LoadAttempt=TRUE;
   }
+
   return IsFn_FAR_CopyFileEx;
 }
 
-BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
-            LPCTSTR lpNewFileName,void *lpProgressRoutine,
+BOOL FAR_CopyFileExW(const wchar_t *lpwszExistingFileName,
+            const wchar_t *lpwszNewFileName,void *lpProgressRoutine,
             LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags)
 {
-  if(pCopyFileEx)
-    return pCopyFileEx(lpExistingFileName,lpNewFileName,lpProgressRoutine,lpData,pbCancel,dwCopyFlags);
+  if(pCopyFileExW)
+    return pCopyFileExW(lpwszExistingFileName,lpwszNewFileName,lpProgressRoutine,lpData,pbCancel,dwCopyFlags);
   return FALSE;
 }
 
-BOOL FAR_MoveFile(
-    LPCTSTR lpExistingFileName, // address of name of the existing file
-    LPCTSTR lpNewFileName   // address of new name for the file
+
+BOOL FAR_MoveFileW(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName   // address of new name for the file
    )
 {
-  return MoveFile(lpExistingFileName,lpNewFileName);
+  return MoveFileW(lpwszExistingFileName,lpwszNewFileName);
 }
 
-BOOL FAR_MoveFileEx(
-    LPCTSTR lpExistingFileName, // address of name of the existing file
-    LPCTSTR lpNewFileName,   // address of new name for the file
+BOOL FAR_MoveFileExW(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
    )
 {
-  return MoveFileEx(lpExistingFileName,lpNewFileName,dwFlags);
+  return MoveFileExW(lpwszExistingFileName,lpwszNewFileName,dwFlags);
 }
 
-BOOL MoveFileThroughTemp(const char *Src, const char *Dest)
+
+BOOL MoveFileThroughTempW(const wchar_t *Src, const wchar_t *Dest)
 {
-  char Temp[NM];
+  string strTemp;
   BOOL rc = FALSE;
-  if(FarMkTempEx(Temp, NULL, FALSE))
+
+  if ( FarMkTempExW (strTemp, NULL, FALSE) )
   {
-    if(MoveFile(Src, Temp))
-      rc = MoveFile(Temp, Dest);
+      if ( MoveFileW (Src, strTemp) )
+          rc = MoveFileW (strTemp, Dest);
   }
+
   return rc;
 }
 
@@ -297,7 +249,7 @@ BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
   BOOL Ret=FALSE;
 
   if(!pGlobalMemoryStatusEx)
-    pGlobalMemoryStatusEx = (PGlobalMemoryStatusEx)GetProcAddress(GetModuleHandle("KERNEL32"),"GlobalMemoryStatusEx");
+    pGlobalMemoryStatusEx = (PGlobalMemoryStatusEx)GetProcAddress(GetModuleHandleW(L"KERNEL32"),"GlobalMemoryStatusEx");
 
   if(pGlobalMemoryStatusEx)
   {
@@ -324,4 +276,252 @@ BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
     Ret=TRUE;
   }
   return Ret;
+}
+
+
+DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
+{
+    int nSize = GetEnvironmentVariableW (lpwszName, NULL, 0);
+
+    if ( nSize )
+    {
+        wchar_t *lpwszBuffer = strBuffer.GetBuffer (nSize);
+
+        nSize = GetEnvironmentVariableW (lpwszName, lpwszBuffer, nSize);
+
+        strBuffer.ReleaseBuffer ();
+    }
+
+    return nSize;
+}
+
+DWORD apiGetCurrentDirectory (string &strCurDir)
+{
+    DWORD dwSize = GetCurrentDirectoryW (0, NULL);
+
+    wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize+1);
+
+    dwSize = GetCurrentDirectoryW (dwSize, lpwszCurDir);
+
+    strCurDir.ReleaseBuffer ();
+
+    return dwSize;
+}
+
+DWORD apiGetTempPath (string &strBuffer)
+{
+    DWORD dwSize = GetTempPathW (0, NULL);
+
+    wchar_t *lpwszBuffer = strBuffer.GetBuffer (dwSize+1);
+
+    dwSize = GetTempPathW (dwSize, lpwszBuffer);
+
+    strBuffer.ReleaseBuffer ();
+
+    return dwSize;
+};
+
+
+DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName)
+{
+    DWORD dwSize = 0;
+    DWORD dwBufferSize = MAX_PATH;
+    wchar_t *lpwszFileName = NULL;
+
+    do {
+        dwBufferSize <<= 1;
+
+        lpwszFileName = (wchar_t*)xf_realloc (lpwszFileName, dwBufferSize*sizeof (wchar_t));
+
+        dwSize = GetModuleFileNameW (hModule, lpwszFileName, dwBufferSize);
+    } while ( dwSize && (dwSize >= dwBufferSize) );
+
+    if ( dwSize )
+        strFileName = lpwszFileName;
+
+    xf_free (lpwszFileName);
+
+    return dwSize;
+}
+
+DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
+{
+  string strSrc = src;
+
+  DWORD Len = ExpandEnvironmentStringsW(strSrc, NULL, 0);
+
+  wchar_t *lpwszDest = strDest.GetBuffer (Len+1);
+
+  ExpandEnvironmentStringsW(strSrc, lpwszDest, Len);
+
+  strDest.ReleaseBuffer ();
+
+  return strDest.GetLength ();
+}
+
+
+DWORD apiGetConsoleTitle (string &strConsoleTitle)
+{
+  DWORD dwSize = 0;
+  DWORD dwBufferSize = MAX_PATH;
+  wchar_t *lpwszTitle = NULL;
+
+  do {
+      dwBufferSize <<= 1;
+
+      lpwszTitle = (wchar_t*)xf_realloc (lpwszTitle, dwBufferSize*sizeof (wchar_t));
+
+      dwSize = GetConsoleTitleW (lpwszTitle, dwBufferSize);
+
+  } while ( !dwSize && GetLastError() == ERROR_SUCCESS );
+
+  if ( dwSize )
+    strConsoleTitle = lpwszTitle;
+
+  xf_free (lpwszTitle);
+
+  return dwSize;
+}
+
+
+DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName)
+{
+    DWORD dwRemoteNameSize = 0;
+    DWORD dwResult = WNetGetConnectionW(lpwszLocalName, NULL, &dwRemoteNameSize);
+
+    if ( dwResult == ERROR_SUCCESS )
+    {
+        wchar_t *lpwszRemoteName = strRemoteName.GetBuffer (dwRemoteNameSize+1);
+
+        dwResult = WNetGetConnectionW (lpwszLocalName, lpwszRemoteName, &dwRemoteNameSize);
+
+        strRemoteName.ReleaseBuffer ();
+    }
+
+    return dwResult;
+}
+
+BOOL apiGetVolumeInformation (
+        const wchar_t *lpwszRootPathName,
+        string *pVolumeName,
+        LPDWORD lpVolumeSerialNumber,
+        LPDWORD lpMaximumComponentLength,
+        LPDWORD lpFileSystemFlags,
+        string *pFileSystemName
+        )
+{
+    wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer (MAX_PATH+1):NULL; //MSDN!
+    wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer (MAX_PATH+1):NULL;
+
+    BOOL bResult = GetVolumeInformationW (
+            lpwszRootPathName,
+            lpwszVolumeName,
+            lpwszVolumeName?MAX_PATH:0,
+            lpVolumeSerialNumber,
+            lpMaximumComponentLength,
+            lpFileSystemFlags,
+            lpwszFileSystemName,
+            lpwszFileSystemName?MAX_PATH:0
+            );
+
+    if ( lpwszVolumeName )
+        pVolumeName->ReleaseBuffer ();
+
+    if ( lpwszFileSystemName )
+        pFileSystemName->ReleaseBuffer ();
+
+    return bResult;
+}
+
+HANDLE apiFindFirstFile (
+        const wchar_t *lpwszFileName,
+        FAR_FIND_DATA_EX *pFindFileData
+        )
+{
+    WIN32_FIND_DATAW fdata;
+
+    HANDLE hResult = FindFirstFileW (lpwszFileName, &fdata);
+
+    if ( hResult != INVALID_HANDLE_VALUE )
+    {
+        pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+        pFindFileData->ftCreationTime = fdata.ftCreationTime;
+        pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
+        pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
+        pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000+fdata.nFileSizeLow;
+        pFindFileData->dwReserved0 = fdata.dwReserved0;
+        pFindFileData->dwReserved1 = fdata.dwReserved1;
+        pFindFileData->strFileName = fdata.cFileName;
+        pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
+    }
+
+    return hResult;
+}
+
+BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
+{
+    WIN32_FIND_DATAW fdata;
+
+    BOOL bResult = FindNextFileW (hFindFile, &fdata);
+
+    if ( bResult )
+    {
+        pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+        pFindFileData->ftCreationTime = fdata.ftCreationTime;
+        pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
+        pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
+        pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000+fdata.nFileSizeLow;
+        pFindFileData->dwReserved0 = fdata.dwReserved0;
+        pFindFileData->dwReserved1 = fdata.dwReserved1;
+        pFindFileData->strFileName = fdata.cFileName;
+        pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
+    }
+
+    return bResult;
+}
+
+
+void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
+{
+    pDest->dwFileAttributes = pSrc->dwFileAttributes;
+    pDest->ftCreationTime = pSrc->ftCreationTime;
+    pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
+    pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
+    pDest->nFileSize = pSrc->nFileSize;
+    pDest->nPackSize = pSrc->nPackSize;
+    pDest->strFileName = pSrc->lpwszFileName;
+    pDest->strAlternateFileName = pSrc->lpwszAlternateFileName;
+}
+
+void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
+{
+    pDest->dwFileAttributes = pSrc->dwFileAttributes;
+    pDest->ftCreationTime = pSrc->ftCreationTime;
+    pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
+    pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
+    pDest->nFileSize = pSrc->nFileSize;
+    pDest->nPackSize = pSrc->nPackSize;
+    pDest->lpwszFileName = _wcsdup (pSrc->strFileName);
+    pDest->lpwszAlternateFileName = _wcsdup (pSrc->strAlternateFileName);
+}
+
+void apiFreeFindData (FAR_FIND_DATA *pData)
+{
+    xf_free (pData->lpwszFileName);
+    xf_free (pData->lpwszAlternateFileName);
+}
+
+BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData)
+{
+    HANDLE hSearch = apiFindFirstFile (lpwszFileName, pFindData);
+
+    if ( hSearch != INVALID_HANDLE_VALUE )
+    {
+        FindClose (hSearch);
+        return TRUE;
+    }
+    else
+        pFindData->dwFileAttributes = -1; //BUGBUG
+
+    return FALSE;
 }

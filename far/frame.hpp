@@ -8,62 +8,10 @@ frame.hpp
 
 */
 
-/* Revision: 1.23 29.05.2006 $ */
-
-/*
-Modify:
-  29.05.2006 SVS
-    + GetTitle()
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  30.06.2004 SVS
-    + GetTopModal() - ответ на вопрос "как добраться до верхнего модала?"
-  15.05.2002 SVS
-    ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
-      для всех Frame в методе Manager::InitKeyBar.
-  28.04.2002 KM
-    + MODALTYPE_COMBOBOX
-  20.12.2001 IS
-    - Баг: MODALTYPE_* не были синхронизированы с WTYPE_*
-  02.11.2001 SVS
-    ! возвращаемое значение у GetTypeName() - модификатор const
-  04.10.2001 OT
-    ! Отмена 956 патча
-  18.07.2001 OT
-    ! VFMenu
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  09.07.2001 OT
-    - Исправление MacroMode для диалогов
-  23.06.2001 OT
-    - Решение проблемы "старика Мюллера"
-  20.06.2001 tran
-    * Refresh* внес в cpp из hpp - удобней отлаживать.
-  30.05.2001 OT
-    - Небольшая корректировка UnlockRefresh()
-  26.05.2001 OT
-    + Новый атрибут - DynamicallyBorn - показывает, статически или динамически был создан объект
-    + SetDynamicallyBorn() и GetDynamicallyBorn()
-    + Возможность блокировки перерисовки фрейма: LockRefreshCount, LockRefresh(),UnlockRefresh(),Refreshable()
-  18.05.2001 DJ
-    ! Функция SetExitCode() теперь виртуальная
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 OT
-    ! метод GetCanLoseFocus() стал виртуальным и введен параметр по умолчанию
-  12.05.2001 DJ
-    ! отрисовка по OnChangeFocus сделана дефолтным поведением
-  12.05.2001 DJ
-    + IsTopFrame(), GetMacroMode()
-  07.05.2001 DJ
-    ! причешем идентификаторы
-  06.05.2001 DJ
-    ! перетрях #include
-  05.05.2001 DJ
-    created
-*/
+/* Revision: 1.24 04.06.2006 $ */
 
 #include "scrobj.hpp"
+#include "UnicodeString.hpp"
 
 class KeyBar;
 
@@ -81,7 +29,7 @@ enum { MODALTYPE_VIRTUAL,
   MODALTYPE_USER,
 };
 
-class Frame: public virtual ScreenObject
+class Frame: virtual public ScreenObject
 {
   friend class Manager;
   private:
@@ -112,8 +60,8 @@ class Frame: public virtual ScreenObject
 
     virtual BOOL IsFileModified() {return(FALSE);};
 
-    virtual const char *GetTypeName() {return "[FarModal]";};
-    virtual int GetTypeAndName(char *Type,char *Name) {return(MODALTYPE_VIRTUAL);};
+    virtual const wchar_t *GetTypeName() {return L"[FarModal]";};
+    virtual int GetTypeAndName(string &strType, string &strName) {return(MODALTYPE_VIRTUAL);};
     virtual int GetType() { return MODALTYPE_VIRTUAL; }
 
     virtual void OnDestroy();  // вызывается перед уничтожением окна
@@ -145,8 +93,7 @@ class Frame: public virtual ScreenObject
     void ResizeConsole();
     bool HasSaveScreen();
 //    bool ifFullConsole();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0){};
-
+    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0){};
 };
 
 #endif // __FRAME_HPP__

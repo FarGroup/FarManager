@@ -11,190 +11,7 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.62 04.04.2006 $ */
-
-/*
-Modify:
-  04.04.2006 SVS
-    ! антураж
-  05.10.2005 SVS
-    + MenuItem.ShowPos
-  24.04.2005 AY
-    ! GCC
-  29.01.2005 WARP
-    ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
-  08.12.2004 WARP
-    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
-  19.11.2004 WARP
-    + LastAddedItem
-  06.07.2004 SVS
-    ! CheckHighlights уехал в приват
-  30.06.2004 SVS
-    + CheckHighlights() - проверка "есть ли такой хоткей в меню"
-  11.05.2004 SVS
-    + DialogItemID и пара функция для получения/установки этого DialogItemID
-  05.01.2004 SVS
-    + VMENU_SELECTPOSNONE - признак того, что SelectPos не выставлен (например, все элементы списка задисаблены)
-  05.11.2003 SVS
-    + VMENU_CHANGECONSOLETITLE, OldTitle
-  20.10.2003 SVS
-    + GetPtrTitle() - для диалогов
-    ! VMenuCSection -> CSection
-  14.10.2003 SVS
-    + VMenuCSection
-  17.06.2003 SVS
-    ! VMenu::CallCount сделаем как LONG
-  27.05.2003 SVS
-    + VMenu::DrawTitles() - кусок кода, прорисовывающий заголовки вынесен в
-      эту функцию. Это бага про
-      "DM_LISTSETTITLES не работает, если в листе ни одного элемента."
-  10.05.2003 SVS
-    ! В VMenu::SortItems() добавлен третий параметр SortForDataDWORD,
-      который заставляет делать сортировку только по UserData. По умолчанию
-      = FALSE
-  22.10.2002 SVS
-    + PrevCursorSize, PrevMacroMode - для пред.курсора
-  04.10.2002 SVS
-    + VMENU_DISABLED - говорит о том, что ВЕСЬ список (как элемент диалога) заблокирован
-  30.09.2002 SVS
-    ! Цветовые истории (Colors не short, а BYTE и применим новую структуру
-      FarListColors для SetColors/GetColors)
-  03.09.2002 SVS
-    ! функция SortItems имеет доп параметр Offset
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-  31.05.2002 SVS
-    + SetMaxHeight()
-  18.05.2002 SVS
-    ! MouseDown -> VMENU_MOUSEDOWN
-  28.04.2002 KM
-    + VMENU_COMBOBOX
-    + Меню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
-  13.04.2002 KM
-    - ??? Я не понял зачем в классе свой член SaveScr,
-      если в ScreenObj он уже есть. Используя SaveScr из
-      ScreenObj удалось избавиться от неперерисовок при
-      ресайзинге консоли.
-  21.02.2002 DJ
-    ! корректная отрисовка списков, имеющих рамку, но не имеющих фокуса
-    + функция корректировки текущей позиции в меню
-  13.02.2002 SVS
-    + Один интересный повторяющийся кусок вынесен в CheckKeyHighlighted()
-    + MenuItem.NamePtr
-  11.02.2002 SVS
-    + Член AccelKey в MenuData и MenuItem
-    + BitFlags
-    ! у функции UpdateItem() параметр должен быть типа FarListUpdate
-  01.12.2001 DJ
-    - корректный MenuItem::SetCheck()
-  02.12.2001 KM
-    + VMOldFlags
-  30.11.2001 DJ
-    - значение VMENU_COLOR_COUNT приведено в соответствие с действительностью
-  06.11.2001 SVS
-    ! VMENU_REVERSIHLIGHT -> VMENU_REVERSEHIGHLIGHT
-  01.11.2001 SVS
-    + немного про "типы" - GetType*()
-  13.10.2001 VVM
-    ! Теперь меню не реагирует на отпускание клавиши мышки, если клавиша была нажата не в меню.
-  10.10.2001 IS
-    ! внедрение const
-  24.08.2001 VVM
-    + void SetExitCode(int Code) - вызывает функцию от предка Modal::
-  31.07.2001 KM
-    + Проверим, а не выполняется ли какая функа у нас...
-      GetCallCount().
-  26.07.2001 OT
-    Исправления отрисовки ShiftF10-F1-AltF9
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  18.07.2001 OT
-    ! Новый класс VFMenu. Добавлены константы, позоляющие ресайзить меню
-  30.06.2001 KM
-    + SetSelectPos(struct FarListPos *)
-  + GetSelectPos(struct FarListPos *)
-  29.06.2001 SVS
-    + Новый параметр у FindItem - флаги
-  25.06.2001 IS
-    ! Внедрение const
-  14.06.2001 SVS
-    ! число -> VMENU_COLOR_COUNT
-  10.06.2001 SVS
-    + FindItem с двумя параметрами.
-  04.06.2001 SVS
-    ! Уточнение структуры MenuItem
-  03.06.2001 KM
-    + Функции SetTitle, GetTitle, GetBottomTitle.
-  03.06.2001 SVS
-    ! переделка MenuItem
-    + GetPosition() - возвращает реальную позицию итема.
-    + GetUserDataSize() - получить размер данных
-    + SetUserData() - присовокупить данные к пункту меню
-    ! GetUserData() - возвращает указатель на сами данные
-  30.05.2001 OT
-    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched
-      запоминается тот фрейм, откуда это меню запускалось.
-      Чтобы потом он не перерисовавался, когда его не просят :)
-  25.05.2001 DJ
-   + SetOneColor()
-  21.05.2001 SVS
-   ! VMENU_DRAWBACKGROUND -> VMENU_DISABLEDRAWBACKGROUND
-   ! MENU_* выкинуты
-   ! DialogStyle -> VMENU_WARNDIALOG
-   ! struct MenuData
-     Поля Selected, Checked и Separator преобразованы в DWORD Flags
-   ! struct MenuItem
-     Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-  18.05.2001 SVS
-   ! UpdateRequired -> VMENU_UPDATEREQUIRED
-   ! DrawBackground -> VMENU_DRAWBACKGROUND
-   ! WrapMode -> VMENU_WRAPMODE
-   ! ShowAmpersand -> VMENU_SHOWAMPERSAND
-   + Функции InsertItem(), FindItem(), UpdateRequired(), GetVMenuInfo()
-  17.05.2001 SVS
-   + UpdateItem()
-   + FarList2MenuItem()
-   + MenuItem2FarList()
-   + MenuItem.AmpPos - позиция автоназначенной подсветки - для того, чтобы
-     вернуть владельцу листа те данные, которые он передавал!
-  12.05.2001 SVS
-   + AddItem(char *NewStrItem);
-  07.05.2001 SVS
-   + AddItem, отличается тем, что параметр типа struct FarList - для
-     сокращения кода в диалогах :-)
-   + SortItems() - опять же - для диалогов
-   * Изменен тип возвращаемого значения для GetItemPtr() и убран первый
-     параметр функции - Item
-  06.05.2001 DJ
-   ! перетрях #include
-  20.01.2001 SVS
-   + SetSelectPos() - установить позицию курсора!
-  20.09.2000 SVS
-   + Функция GetItemPtr - получить указатель на нужный Item.
-  01.08.2000 SVS
-   + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
-     самостоятельно или из другой функции ;-)
-   ! Вызов конструктора
-   ! ListBoxControl -> VMFlags
-   + Флаги для параметра Flags в конструкторе
-   + функция обработки меню (по умолчанию)
-   + функция посылки сообщений меню
-   + функция удаления N пунктов меню
-   ! Изменен вызов конструктора для указания функции-обработчика!
-  28.07.2000 SVS
-   + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
-     атрибутами:
-  22.07.2000 SVS
-   !  AlwaysScrollBar изменен на ListBoxControl
-  18.07.2000 SVS
-    + Добавлена переменная класса AlwaysScrollBar, предназначенная
-      для отображения (всегда, по мере надобности!) в элементах
-      DI_LISTBOX & DI_COMBOBOX
-    ! В связи с этим изменен вызов конструктора класса.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.69 23.04.2006 $ */
 
 #include "modal.hpp"
 #include "plugin.hpp"
@@ -202,6 +19,7 @@ Modify:
 #include "frame.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
+#include "UnicodeString.hpp"
 
 /* $ 30.11.2001 DJ
    значение приведено в соответствие с действительностью
@@ -228,38 +46,36 @@ enum{
 };
 /* SVS */
 
-enum VMENU_FLAGS_TYPE{
-  VMENU_ALWAYSSCROLLBAR       =0x00000100, // всегда показывать скроллбар
-  VMENU_LISTBOX               =0x00000200, // Это список в диалоге
-  VMENU_SHOWNOBOX             =0x00000400, // показать без рамки
-  VMENU_AUTOHIGHLIGHT         =0x00000800, // автоматически выбирать симолы подсветки
-  VMENU_REVERSEHIGHLIGHT      =0x00001000, // ... только с конца
-  VMENU_UPDATEREQUIRED        =0x00002000, // лист необходимо обновить (перерисовать)
-  VMENU_DISABLEDRAWBACKGROUND =0x00004000, // подложку не рисовать
-  VMENU_WRAPMODE              =0x00008000, // зацикленный список (при перемещении)
-  VMENU_SHOWAMPERSAND         =0x00010000, // символ '&' показывать AS IS
-  VMENU_WARNDIALOG            =0x00020000, //
-  VMENU_NOTCENTER             =0x00040000, // не цитровать
-  VMENU_LEFTMOST              =0x00080000, // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
-  VMENU_NOTCHANGE             =0x00100000, //
-  VMENU_LISTHASFOCUS          =0x00200000, // меню является списком в диалоге и имеет фокус
-  VMENU_COMBOBOX              =0x00400000, // меню является комбобоксом и обрабатывается менеджером по-особому.
-  VMENU_MOUSEDOWN             =0x00800000, //
-  VMENU_CHANGECONSOLETITLE    =0x01000000, //
-  VMENU_SELECTPOSNONE         =0x02000000, //
-  VMENU_DISABLED              =0x80000000, //
-};
+#define VMENU_ALWAYSSCROLLBAR       0x00000100  // всегда показывать скроллбар
+#define VMENU_LISTBOX               0x00000200  // Это список в диалоге
+#define VMENU_SHOWNOBOX             0x00000400  // показать без рамки
+#define VMENU_AUTOHIGHLIGHT         0x00000800  // автоматически выбирать симолы подсветки
+#define VMENU_REVERSEHIGHLIGHT      0x00001000  // ... только с конца
+#define VMENU_UPDATEREQUIRED        0x00002000  // лист необходимо обновить (перерисовать)
+#define VMENU_DISABLEDRAWBACKGROUND 0x00004000  // подложку не рисовать
+#define VMENU_WRAPMODE              0x00008000  // зацикленный список (при перемещении)
+#define VMENU_SHOWAMPERSAND         0x00010000  // символ '&' показывать AS IS
+#define VMENU_WARNDIALOG            0x00020000  //
+#define VMENU_NOTCENTER             0x00040000  // не цитровать
+#define VMENU_LEFTMOST              0x00080000  // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
+#define VMENU_NOTCHANGE             0x00100000  //
+#define VMENU_LISTHASFOCUS          0x00200000  // меню является списком в диалоге и имеет фокус
+#define VMENU_COMBOBOX              0x00400000  // меню является комбобоксом и обрабатывается менеджером по-особому.
+#define VMENU_MOUSEDOWN             0x00800000  //
+#define VMENU_CHANGECONSOLETITLE    0x01000000  //
+#define VMENU_SELECTPOSNONE         0x02000000  //
+#define VMENU_DISABLED              0x80000000  //
 
 class Dialog;
 class SaveScreen;
 
-struct MenuItem
+
+struct MenuItemEx
 {
   DWORD  Flags;                  // Флаги пункта
-  union {
-    char  Name[128];              // Текст пункта
-    char *NamePtr;
-  };
+
+  string strName;
+
   DWORD  AccelKey;
   int    UserDataSize;           // Размер пользовательских данных
   union {                        // Пользовательские данные:
@@ -292,14 +108,27 @@ struct MenuItem
 
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
-  char  operator[](int Pos) const;
-                     // здесь сыграем на том, что у нас union ;-)
-  char* PtrName();
+
+  void Clear ()
+  {
+    Flags = 0;
+    strName = L"";
+    AccelKey = 0;
+    UserDataSize = 0;
+    UserData = NULL;
+    AmpPos = 0;
+    Len[0] = 0;
+    Len[1] = 0;
+    Idx2 = 0;
+    ShowPos = 0;
+  }
+//  char  operator[](int Pos) const;
 };
+
 
 struct MenuData
 {
-  char *Name;
+  const char *Name;
   DWORD Flags;
   DWORD AccelKey;
 
@@ -323,6 +152,33 @@ struct MenuData
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
+struct MenuDataEx
+{
+  const wchar_t *Name;
+  DWORD Flags;
+  DWORD AccelKey;
+
+  /* $ 01.12.2001 DJ
+     исправим баг, заодно нормально отформатируем код
+  */
+  DWORD SetCheck(int Value)
+  {
+    if(Value)
+    {
+      Flags &= ~0xFFFF;
+      Flags|=((Value&0xFFFF)|LIF_CHECKED);
+    }
+    else
+      Flags&=~(0xFFFF|LIF_CHECKED);
+    return Flags;
+  }
+  /* DJ $ */
+
+  DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+  DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+};
+
+
 class ConsoleTitle;
 
 class VMenu: virtual public Modal, virtual public Frame
@@ -331,8 +187,9 @@ class VMenu: virtual public Modal, virtual public Frame
 #pragma warning(disable:4250)
 #endif //_MSC_VER
   private:
-    char Title[100];
-    char BottomTitle[100];
+    string strTitle;
+    string strBottomTitle;
+
     int SelectPos;
     int TopPos;
     int MaxHeight;
@@ -365,21 +222,14 @@ class VMenu: virtual public Modal, virtual public Frame
     CriticalSection CS;
 
   protected:
-    /* $ 13.04.2002 KM
-      - ??? Я не понял зачем здесь свой член SaveScr,
-        если в ScreenObj уже есть этот член.
-    */
-//    SaveScreen *SaveScr;
-    /* KM $ */
-    struct MenuItem *Item;
+
+    MenuItemEx **Item;
+
     int ItemCount;
 
     int LastAddedItem;
-    /* $ 28.07.2000 SVS
-       Цветовые атрибуты
-    */
+
     BYTE Colors[VMENU_COLOR_COUNT];
-    /* SVS */
 
   public:
     Frame *FrameFromLaunched;
@@ -389,30 +239,23 @@ class VMenu: virtual public Modal, virtual public Frame
     void ShowMenu(int IsParent=0);
     void DrawTitles();
     int  GetPosition(int Position);
-    static int _SetUserData(struct MenuItem *PItem,const void *Data,int Size);
-    static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);
+    static int _SetUserData(MenuItemEx *PItem,const void *Data,int Size);
+    static void* _GetUserData(MenuItemEx *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
-    BOOL CheckHighlights(BYTE Chr);
+    BOOL CheckHighlights(WORD Chr);
 
   public:
-    /* $ 18.07.2000 SVS
-       ! изменен вызов конструктора с учетом необходимости scrollbar в
-         DI_LISTBOX & DI_COMBOBOX
-         По умолчанию - зависит от настроек показа scrollbar в меню,
-         т.е. не требуется. Для данных элементов (DI_LISTBOX & DI_COMBOBOX)
-         параметр isListBoxControl должен быть равен TRUE.
-    */
-    /* $ 01.08.2000 SVS
-       Изменен вызов конструктора для указания функции-обработчика и родителя!
-    */
-    VMenu(const char *Title,
-          struct MenuData *Data,int ItemCount,
+
+    VMenu(const wchar_t *Title,
+          MenuDataEx *Data,
+          int ItemCount,
+          bool bUnicode,/*FAKE, to make ctors different*/
           int MaxHeight=0,
           DWORD Flags=0,
           FARWINDOWPROC Proc=NULL,
           Dialog *ParentDialog=NULL);
-    /* 01.08.2000 SVS $ */
-    /* SVS $ */
+
+
     ~VMenu();
 
   public:
@@ -420,13 +263,13 @@ class VMenu: virtual public Modal, virtual public Frame
     void Show();
     void Hide();
 
-    void SetTitle(const char *Title);
-    char *GetTitle(char *Dest,int Size);
-    const char *GetPtrTitle() { return Title; }
+    void SetTitle(const wchar_t *Title);
+    string &GetTitle(string &strDest);
+    const wchar_t *GetPtrTitle() { return (const wchar_t*)strTitle; }
 
 
-    void SetBottomTitle(const char *BottomTitle);
-    char *GetBottomTitle(char *Dest,int Size);
+    void SetBottomTitle(const wchar_t *BottomTitle);
+    string &GetBottomTitle(string &strDest);
     void SetDialogStyle(int Style) {VMFlags.Change(VMENU_WARNDIALOG,Style);SetColors(NULL);}
     void SetUpdateRequired(int SetUpdate) {VMFlags.Change(VMENU_UPDATEREQUIRED,SetUpdate);}
     void SetBoxType(int BoxType);
@@ -457,14 +300,14 @@ class VMenu: virtual public Modal, virtual public Frame
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
 
-    int  AddItem(const struct MenuItem *NewItem,int PosAdd=0x7FFFFFFF);
-    int  AddItem(const struct FarList *NewItem);
-    int  AddItem(const char *NewStrItem);
+    int  AddItemW(const MenuItemEx *NewItem,int PosAdd=0x7FFFFFFF);
+    int  AddItem(const FarList *NewItem);
+    int  AddItem(const wchar_t *NewStrItem);
 
-    int  InsertItem(const struct FarListInsert *NewItem);
-    int  UpdateItem(const struct FarListUpdate *NewItem);
-    int  FindItem(const struct FarListFind *FindItem);
-    int  FindItem(int StartIndex,const char *Pattern,DWORD Flags=0);
+    int  InsertItem(const FarListInsert *NewItem);
+    int  UpdateItem(const FarListUpdate *NewItem);
+    int  FindItem(const FarListFind *FindItem);
+    int  FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
 
@@ -490,7 +333,7 @@ class VMenu: virtual public Modal, virtual public Frame
     /* $ 20.09.2000 SVS
       + Функция GetItemPtr - получить указатель на нужный Item.
     */
-    struct MenuItem *GetItemPtr(int Position=-1);
+    struct MenuItemEx *GetItemPtr(int Position=-1);
     /* SVS $*/
 
     void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
@@ -498,8 +341,8 @@ class VMenu: virtual public Modal, virtual public Frame
 
     void SetExitCode(int Code) {Modal::SetExitCode(Code);}
 
-    virtual const char *GetTypeName() {return "[VMenu]";};
-    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual const wchar_t *GetTypeName() {return L"[VMenu]";};
+    virtual int GetTypeAndName(string &strType, string &strName);
     /* $ 28.04.2002 KM
         Меню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
     */
@@ -511,8 +354,8 @@ class VMenu: virtual public Modal, virtual public Frame
     void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
 
   public:
-    static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);
-    static struct FarListItem *MenuItem2FarList(const struct MenuItem *ListItem,struct FarListItem *Item);
+    static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
+    static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)
     */

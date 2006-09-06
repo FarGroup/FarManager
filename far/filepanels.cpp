@@ -5,171 +5,7 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.63 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  24.04.2005 AY
-    ! GCC
-  22.03.2005 SVS
-    - мля, поспешил с PrepareOptFolder()
-  22.03.2005 SVS
-    ! в PrepareOptFolder() проэкспандим значение из реестра.
-  28.02.2005 SVS
-    - BugZ#1281 - Курсор на левой панели, обе отображены.
-                  Жмём CtrlF2 CtrlO CtrlF2 CtrlF2 CtrlO.
-                  Курсор на правой панели, а отображена левая.
-      Не был учтен вариант, когда активная панель скрыта :-)
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.07.2004 SVS
-    + Macro II
-    - Bug: делаем Ctrl-Q Tab Ctrl-5 (или любой другой режим) - ФАР упал, т.к.
-      в FilePanels::ChangePanelViewMode после вызова ChangePanelToFilled
-      Current панель совсем не так, что была (была QView, она уничтожилась,
-      стала обычная файловая)
-  03.06.2004 SVS
-    ! Часть кода вынесена в отдельные функции:
-       a) Установить фокус на противоположную панель (Tab)
-          FilePanels::SetAnhoterPanelFocus()
-       b) поменять панели местами (Ctrl-U)
-          FilePanels::SwapPanels()
-       c) сменить режим панели
-          FilePanels::ChangePanelViewMode()
-  24.05.2004 SVS
-    - BugZ#1085 - сбос цифровой сортировки на панели
-  20.05.2004 SVS
-    ! NumericSort - свойство конкретной панели, а не режима отображения
-  06.05.2004 SVS
-    - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
-  20.10.2003 SVS
-    + Обработка KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
-  12.09.2003 SVS
-    - BugZ#952 - не восстанавливаются сохраненные дириктории на панелях.
-      В FilePanels::Init() каталоги Opt.LeftFolder и Opt.RightFolder
-      инициализировались только если включена опция автосохранения.
-  02.09.2003 SVS
-    ! Изменения в PrepareOptFolder:
-      1. уберем "задний" слеш (иначе не будет ".." для некорневого каталога)
-      2. Воспользуемся функцией CheckShortcutFolder для нахождения
-      ближайшего пути.
-  27.08.2003 SVS
-    - BugZ#934 - ФАР не хочет запускаться, если в системе недоступен...
-      (ПОПЫТКА!)
-  18.11.2002 SVS
-    - BugZ#705 - Восстановление ширины панелей при Alt-F9
-  07.10.2002 SVS
-    - BugZ#674 - far.exe c:\dir [c:\dir2] - не работает
-  17.09.2002 SKV
-    - GoToFile на плагиновой панели.
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  29.04.2002 SVS
-    ! Орисовка. Задолбала. Уморила. Думаю этот костыль поможет.
-  13.04.2002 KM
-    ! ??? Я не понял зачем Redraw в OnChangeFocus, если
-      Redraw вызывается следом во Frame::OnChangeFocus и там
-      благополучно перерисовывает панели.
-  08.04.2002 IS
-    + При смене диска по Alt-(F1|F2) установим принудительно текущий каталог
-      на активной панели, т.к. система не знает ничего о том, что у Фара две
-      панели, и текущим для системы после смены диска может быть каталог и на
-      пассивной панели.
-    ! Параметр у GoToFile - const
-  26.03.2002 VVM
-      GoToFile() - Если пассивная панель - плагиновая, то не прыгаем на нее
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  19.03.2002 OT
-    - Исправление #96
-  15.02.2002 SVS
-    ! Вызов ShowProcessList() вынесен в манагер
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  16.01.2002 OT
-    Испраление поведения макросов в инфо-, квик- и три-панелей
-  02.01.2002 IS
-    - Баг: забыли в GetTypeAndName про то, что бывают INFO_PANEL
-  31.12.2002 VVM
-    ! GoToFile() портила передаваемое ей имя.
-  28.12.2001 DJ
-    + единый метод GoToFile()
-  24.12.2001 SVS
-    - BugZ#198 - Ctrl-Up/Down при непустой командной строке
-      Временная отмена KEY_CTRLUP и KEY_CTRLDOWN (передача в CmdLine)
-  24.12.2001 VVM
-    + GetTypeAndName возвращает имя файла на панелях TREE, QVIEW, FILE
-  11.12.2001 SVS
-    ! Заставим корректно отображаться кейбар в зависимости от типа панели.
-  06.12.2001 SVS
-    - при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
-  27.11.2001 DJ
-    - мелочевка
-  19.11.2001 OT
-    Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
-  19.11.2001 VVM
-    ! ActivePanel надо инициализировать до использования. А иначе...
-  13.11.2001 OT
-    ! Попытка исправить создание каталогов на пассивной панели по F7
-  24.10.2001 SVS
-    ! вместо "левая-правая" применим понятие "активная-пассивная" - так будет
-      правильнее для ситуации "каталог создан не на той панели"
-    ! KEY_CTRLUP и KEY_CTRLDOWN так же передадим в CmdLine (для будущего
-      скроллирования юзвер-скрина)
-  07.09.2001 VVM
-    ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево.
-  13.08.2001 OT
-    - исправление бага с появлением пропавших панелей при старте.
-  31.07.2001 SKV
-    ! Frame::OnChangeFocus(1)->OnChangeFocus(1)
-  18.07.2001 OT
-    VFMenu
-  12.07.2001 OT
-    - Не инициализировались панель Tree Info, QView
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  10.07.2001 SKV
-    + keybar
-  22.06.2001 SKV
-    + update панелей при получении фокуса
-  20.06.2001 tran
-    - bug с отрисовкой при копировании
-      смотреть в OnChangeFocus
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  03.06.2001 IS
-    + ChangePanel: "Наследуем" состояние режима "Помеченные файлы вперед"
-  31.05.2001 SVS
-    ! Сносим лейбак по Alt-F6 для не NT
-  30.05.2001 OT
-    ! Перенос AltF9 в Manager::ProcessKey()
-  21.05.2001 OT
-    - Исправление поведения AltF9
-  16.05.2001 DJ
-    ! proof-of-concept
-  16.05.2001 SVS
-    ! _D() -> _OT()
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  11.05.2001 OT
-    ! Отрисовка Background
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  07.05.2001 DJ
-   - чтоб кейбар обновлялся
-  06.05.2001 DJ
-   ! перетрях #include
-  06.05.2001 ОТ
-   ! Переименование Window в Frame :)
-  05.05.2001 DJ
-   + перетрях NWZ
-  09.01.2001 tran
-     Created
-*/
+/* Revision: 1.73 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -216,29 +52,32 @@ FilePanels::FilePanels()
 //  _D(SysLog("MainKeyBar=0x%p",&MainKeyBar));
 }
 
-static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
+static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
 {
-  if(!*Src)
+  if ( strSrc.IsEmpty() )
   {
-    xstrncpy(Src,FarPath,SizeSrc);
-    DeleteEndSlash(Src);
+    strSrc = g_strFarPath;
+    DeleteEndSlashW(strSrc);
   }
   else
-    ExpandEnvironmentStr(Src,Src,SizeSrc);
+    apiExpandEnvironmentStrings(strSrc, strSrc);
 
-
-
-  if(!strcmp(Src,"/"))
+  if(!wcscmp(strSrc,L"/"))
   {
-    xstrncpy(Src,FarPath,SizeSrc);
+    strSrc = g_strFarPath;
+
+    wchar_t *lpwszSrc = strSrc.GetBuffer ();
+
     if(IsLocalPath_FarPath)
     {
-      Src[2]='\\';
-      Src[3]=0;
+      lpwszSrc[2]='\\';
+      lpwszSrc[3]=0;
     }
+
+    strSrc.ReleaseBuffer ();
   }
   else
-   CheckShortcutFolder(Src,SizeSrc,FALSE,TRUE);
+    CheckShortcutFolderW(&strSrc,FALSE,TRUE);
 }
 
 void FilePanels::Init()
@@ -279,17 +118,17 @@ void FilePanels::Init()
   ActivePanel->SetFocus();
 
   // пытаемся избавится от зависания при запуске
-  int IsLocalPath_FarPath=IsLocalPath(FarPath);
-  PrepareOptFolder(Opt.LeftFolder,sizeof(Opt.LeftFolder),IsLocalPath_FarPath);
-  PrepareOptFolder(Opt.RightFolder,sizeof(Opt.RightFolder),IsLocalPath_FarPath);
-  PrepareOptFolder(Opt.PassiveFolder,sizeof(Opt.PassiveFolder),IsLocalPath_FarPath);
+  int IsLocalPath_FarPath=IsLocalPathW(g_strFarPath);
+  PrepareOptFolderW(Opt.strLeftFolder,IsLocalPath_FarPath);
+  PrepareOptFolderW(Opt.strRightFolder,IsLocalPath_FarPath);
+  PrepareOptFolderW(Opt.strPassiveFolder,IsLocalPath_FarPath);
 
   if (Opt.AutoSaveSetup || !Opt.SetupArgv)
   {
-    if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
-      LeftPanel->InitCurDir(Opt.LeftFolder);
-    if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
-      RightPanel->InitCurDir(Opt.RightFolder);
+    if (GetFileAttributesW(Opt.strLeftFolder)!=0xffffffff)
+      LeftPanel->InitCurDirW(Opt.strLeftFolder);
+    if (GetFileAttributesW(Opt.strRightFolder)!=0xffffffff)
+      RightPanel->InitCurDirW(Opt.strRightFolder);
   }
 
   if (!Opt.AutoSaveSetup)
@@ -298,31 +137,31 @@ void FilePanels::Init()
     {
       if(ActivePanel==RightPanel)
       {
-        if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
-          RightPanel->InitCurDir(Opt.RightFolder);
+        if (GetFileAttributesW(Opt.strRightFolder)!=0xffffffff)
+          RightPanel->InitCurDirW(Opt.strRightFolder);
       }
       else
       {
-        if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
-          LeftPanel->InitCurDir(Opt.LeftFolder);
+        if (GetFileAttributesW(Opt.strLeftFolder)!=0xffffffff)
+          LeftPanel->InitCurDirW(Opt.strLeftFolder);
       }
       if(Opt.SetupArgv == 2)
       {
         if(ActivePanel==LeftPanel)
         {
-          if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
-            RightPanel->InitCurDir(Opt.RightFolder);
+          if (GetFileAttributesW(Opt.strRightFolder)!=0xffffffff)
+            RightPanel->InitCurDirW(Opt.strRightFolder);
         }
         else
         {
-          if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
-            LeftPanel->InitCurDir(Opt.LeftFolder);
+          if (GetFileAttributesW(Opt.strLeftFolder)!=0xffffffff)
+            LeftPanel->InitCurDirW(Opt.strLeftFolder);
         }
       }
     }
-    if (Opt.SetupArgv < 2 && *Opt.PassiveFolder && (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff))
+    if (Opt.SetupArgv < 2 && !Opt.strPassiveFolder.IsEmpty() && (GetFileAttributesW(Opt.strPassiveFolder)!=0xffffffff))
     {
-      PassivePanel->InitCurDir(Opt.PassiveFolder);
+      PassivePanel->InitCurDirW(Opt.strPassiveFolder);
     }
   }
 #if 1
@@ -353,7 +192,7 @@ void FilePanels::Init()
   // при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
   if (!Opt.RightPanel.Visible && !Opt.LeftPanel.Visible)
   {
-    CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Opt.RightFolder:Opt.LeftFolder);
+    CtrlObject->CmdLine->SetCurDirW(PassiveIsLeftFlag?Opt.strRightFolder:Opt.strLeftFolder);
   }
 
   SetKeyBar(&MainKeyBar);
@@ -413,21 +252,21 @@ void FilePanels::RedrawKeyBar()
 {
   if (ActivePanel->GetType()==FILE_PANEL)
   {
-    char empty[] = "";
-    char *FKeys[]={MSG(MF1),MSG(MF2),MSG(MF3),MSG(MF4),MSG(MF5),MSG(MF6),MSG(MF7),MSG(MF8),MSG(MF9),MSG(MF10),MSG(MF11),MSG(MF12)};
-    char *FAltKeys[]={MSG(MAltF1),MSG(MAltF2),MSG(MAltF3),MSG(MAltF4),MSG(MAltF5),empty,MSG(MAltF7),MSG(MAltF8),MSG(MAltF9),MSG(MAltF10),MSG(MAltF11),MSG(MAltF12)};
-    char *FCtrlKeys[]={MSG(MCtrlF1),MSG(MCtrlF2),MSG(MCtrlF3),MSG(MCtrlF4),MSG(MCtrlF5),MSG(MCtrlF6),MSG(MCtrlF7),MSG(MCtrlF8),MSG(MCtrlF9),MSG(MCtrlF10),MSG(MCtrlF11),MSG(MCtrlF12)};
-    char *FShiftKeys[]={MSG(MShiftF1),MSG(MShiftF2),MSG(MShiftF3),MSG(MShiftF4),MSG(MShiftF5),MSG(MShiftF6),MSG(MShiftF7),MSG(MShiftF8),MSG(MShiftF9),MSG(MShiftF10),MSG(MShiftF11),MSG(MShiftF12)};
+    wchar_t empty[] = L"";
+    wchar_t *FKeys[]={UMSG(MF1),UMSG(MF2),UMSG(MF3),UMSG(MF4),UMSG(MF5),UMSG(MF6),UMSG(MF7),UMSG(MF8),UMSG(MF9),UMSG(MF10),UMSG(MF11),UMSG(MF12)};
+    wchar_t *FAltKeys[]={UMSG(MAltF1),UMSG(MAltF2),UMSG(MAltF3),UMSG(MAltF4),UMSG(MAltF5),empty,UMSG(MAltF7),UMSG(MAltF8),UMSG(MAltF9),UMSG(MAltF10),UMSG(MAltF11),UMSG(MAltF12)};
+    wchar_t *FCtrlKeys[]={UMSG(MCtrlF1),UMSG(MCtrlF2),UMSG(MCtrlF3),UMSG(MCtrlF4),UMSG(MCtrlF5),UMSG(MCtrlF6),UMSG(MCtrlF7),UMSG(MCtrlF8),UMSG(MCtrlF9),UMSG(MCtrlF10),UMSG(MCtrlF11),UMSG(MCtrlF12)};
+    wchar_t *FShiftKeys[]={UMSG(MShiftF1),UMSG(MShiftF2),UMSG(MShiftF3),UMSG(MShiftF4),UMSG(MShiftF5),UMSG(MShiftF6),UMSG(MShiftF7),UMSG(MShiftF8),UMSG(MShiftF9),UMSG(MShiftF10),UMSG(MShiftF11),UMSG(MShiftF12)};
 
-    char *FAltShiftKeys[]={MSG(MAltShiftF1),MSG(MAltShiftF2),MSG(MAltShiftF3),MSG(MAltShiftF4),MSG(MAltShiftF5),MSG(MAltShiftF6),MSG(MAltShiftF7),MSG(MAltShiftF8),MSG(MAltShiftF9),MSG(MAltShiftF10),MSG(MAltShiftF11),MSG(MAltShiftF12)};
-    char *FCtrlShiftKeys[]={MSG(MCtrlShiftF1),MSG(MCtrlShiftF2),MSG(MCtrlShiftF3),MSG(MCtrlShiftF4),MSG(MCtrlShiftF5),MSG(MCtrlShiftF6),MSG(MCtrlShiftF7),MSG(MCtrlShiftF8),MSG(MCtrlShiftF9),MSG(MCtrlShiftF10),MSG(MCtrlShiftF11),MSG(MCtrlShiftF12)};
-    char *FCtrlAltKeys[]={MSG(MCtrlAltF1),MSG(MCtrlAltF2),MSG(MCtrlAltF3),MSG(MCtrlAltF4),MSG(MCtrlAltF5),MSG(MCtrlAltF6),MSG(MCtrlAltF7),MSG(MCtrlAltF8),MSG(MCtrlAltF9),MSG(MCtrlAltF10),MSG(MCtrlAltF11),MSG(MCtrlAltF12)};
+    wchar_t *FAltShiftKeys[]={UMSG(MAltShiftF1),UMSG(MAltShiftF2),UMSG(MAltShiftF3),UMSG(MAltShiftF4),UMSG(MAltShiftF5),UMSG(MAltShiftF6),UMSG(MAltShiftF7),UMSG(MAltShiftF8),UMSG(MAltShiftF9),UMSG(MAltShiftF10),UMSG(MAltShiftF11),UMSG(MAltShiftF12)};
+    wchar_t *FCtrlShiftKeys[]={UMSG(MCtrlShiftF1),UMSG(MCtrlShiftF2),UMSG(MCtrlShiftF3),UMSG(MCtrlShiftF4),UMSG(MCtrlShiftF5),UMSG(MCtrlShiftF6),UMSG(MCtrlShiftF7),UMSG(MCtrlShiftF8),UMSG(MCtrlShiftF9),UMSG(MCtrlShiftF10),UMSG(MCtrlShiftF11),UMSG(MCtrlShiftF12)};
+    wchar_t *FCtrlAltKeys[]={UMSG(MCtrlAltF1),UMSG(MCtrlAltF2),UMSG(MCtrlAltF3),UMSG(MCtrlAltF4),UMSG(MCtrlAltF5),UMSG(MCtrlAltF6),UMSG(MCtrlAltF7),UMSG(MCtrlAltF8),UMSG(MCtrlAltF9),UMSG(MCtrlAltF10),UMSG(MCtrlAltF11),UMSG(MCtrlAltF12)};
 
-    FAltKeys[6-1]=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?MSG(MAltF6):empty;
+    FAltKeys[6-1]=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?UMSG(MAltF6):empty;
 
     if (ActivePanel!=NULL && ActivePanel->GetMode()==PLUGIN_PANEL)
     {
-      struct OpenPluginInfo Info;
+      struct OpenPluginInfoW Info;
       ActivePanel->GetOpenPluginInfo(&Info);
       if (Info.KeyBar!=NULL)
       {
@@ -446,7 +285,7 @@ void FilePanels::RedrawKeyBar()
             FShiftKeys[I]=Info.KeyBar->ShiftTitles[I];
 
         // Ага, мы ведь недаром увеличивали размер структуры ;-)
-        if(Info.StructSize >= sizeof(struct OpenPluginInfo))
+        if(Info.StructSize >= sizeof(struct OpenPluginInfoW))
         {
           for (I=0;I<sizeof(Info.KeyBar->CtrlShiftTitles)/sizeof(Info.KeyBar->CtrlShiftTitles[0]);I++)
             if (Info.KeyBar->CtrlShiftTitles[I]!=NULL)
@@ -621,7 +460,7 @@ int  FilePanels::ProcessKey(int Key)
     {
       if (!ActivePanel->ProcessKey(KEY_F1))
       {
-        Help Hlp ("Contents");
+        Help Hlp (L"Contents");
       }
       return(TRUE);
     }
@@ -715,9 +554,9 @@ int  FilePanels::ProcessKey(int Key)
             ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
           if (ActivePanel->GetType() == TREE_PANEL)
           {
-            char CurDir[NM];
-            ActivePanel->GetCurDir(CurDir);
-            AnotherPanel->SetCurDir(CurDir, TRUE);
+            string strCurDir;
+            ActivePanel->GetCurDirW(strCurDir);
+            AnotherPanel->SetCurDirW(strCurDir, TRUE);
             AnotherPanel->Update(0);
           }
           else
@@ -1098,28 +937,25 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 }
 /* IS $ */
 
-int  FilePanels::GetTypeAndName(char *Type,char *Name)
+int  FilePanels::GetTypeAndName(string &strType, string &strName)
 {
-  if ( Type )
-      strcpy(Type,MSG(MScreensPanels));
-  if ( Name)
+  strType = UMSG(MScreensPanels);
+
+  string strFullName, strShortName;
+
+  switch (ActivePanel->GetType())
   {
-    char FullName[NM], ShortName[NM];
-    *FullName = *ShortName = 0;
-    switch (ActivePanel->GetType())
-    {
-      case TREE_PANEL:
-      case QVIEW_PANEL:
-      case FILE_PANEL:
-      /* $ 02.01.2002 IS а еще бывают информационные панели... */
-      case INFO_PANEL:
-      /* IS $ */
-        ActivePanel->GetCurName(FullName, ShortName);
-        ConvertNameToFull(FullName, FullName, sizeof(FullName));
+    case TREE_PANEL:
+    case QVIEW_PANEL:
+    case FILE_PANEL:
+    case INFO_PANEL:
+        ActivePanel->GetCurNameW(strFullName, strShortName);
+        ConvertNameToFullW(strFullName, strFullName);
         break;
-    } /* case */
-    strcpy(Name, FullName);
   }
+
+  strName = strFullName;
+
   return(MODALTYPE_PANELS);
 }
 
@@ -1145,7 +981,7 @@ void FilePanels::OnChangeFocus(int f)
   }
 }
 
-void FilePanels::DisplayObject()
+void FilePanels::DisplayObject ()
 {
 //  if ( Focus==0 )
 //      return;
@@ -1252,66 +1088,51 @@ void FilePanels::Refresh()
   /* SKV$*/
 }
 
-/* $ 28.12.2001 DJ
-   обработка Ctrl-F10 из вьюера и редактора */
-/* $ 31.12.2001 VVM
-   Не портим переданное имя файла... */
-/* $ 26.03.2002 VVM
-   Если пассивная панель - плагиновая, то не прыгаем на нее */
-/* $ 17.09.2002 SKV
-   Если активная панель - плагиновая, то в обяз делаем SetCurDir() :)
-*/
-void FilePanels::GoToFile (const char *FileName)
+void FilePanels::GoToFileW (const wchar_t *FileName)
 {
-  if(strchr(FileName,'\\') || strchr(FileName,'/'))
+  if(wcschr(FileName,'\\') || wcschr(FileName,'/'))
   {
-    char ADir[NM],PDir[NM];
+    string ADir,PDir;
     Panel *PassivePanel = GetAnotherPanel(ActivePanel);
     int PassiveMode = PassivePanel->GetMode();
     if (PassiveMode == NORMAL_PANEL)
     {
-      PassivePanel->GetCurDir(PDir);
-      AddEndSlash (PDir);
+      PassivePanel->GetCurDirW(PDir);
+      AddEndSlashW (PDir);
     }
-    else
-      PDir[0] = 0;
 
     int ActiveMode = ActivePanel->GetMode();
     if(ActiveMode==NORMAL_PANEL)
     {
-      ActivePanel->GetCurDir(ADir);
-      AddEndSlash (ADir);
-    }
-    else
-    {
-      ADir[0]=0;
+      ActivePanel->GetCurDirW(ADir);
+      AddEndSlashW (ADir);
     }
 
-    char NameFile[NM], NameDir[NM];
-    xstrncpy(NameDir, FileName,sizeof(NameDir)-1);
-    char *NameTmp=PointToName(NameDir);
-    xstrncpy(NameFile,NameTmp,sizeof(NameFile)-1);
-    *NameTmp=0;
+    string strNameFile = PointToNameW (FileName);
+    string strNameDir = FileName;
+
+    CutToSlashW (strNameDir);
 
     /* $ 10.04.2001 IS
          Не делаем SetCurDir, если нужный путь уже есть на открытых
          панелях, тем самым добиваемся того, что выделение с элементов
          панелей не сбрасывается.
     */
-    BOOL AExist=(ActiveMode==NORMAL_PANEL) && (LocalStricmp(ADir,NameDir)==0);
-    BOOL PExist=(PassiveMode==NORMAL_PANEL) && (LocalStricmp(PDir,NameDir)==0);
+    BOOL AExist=(ActiveMode==NORMAL_PANEL) && (LocalStricmpW(ADir,strNameDir)==0);
+    BOOL PExist=(PassiveMode==NORMAL_PANEL) && (LocalStricmpW(PDir,strNameDir)==0);
     // если нужный путь есть на пассивной панели
     if (!AExist && PExist)
       ProcessKey(KEY_TAB);
     if (!AExist && !PExist)
-      ActivePanel->SetCurDir(NameDir,TRUE);
+      ActivePanel->SetCurDirW(strNameDir,TRUE);
     /* IS */
-    ActivePanel->GoToFile(NameFile);
+    ActivePanel->GoToFileW(strNameFile);
     // всегда обновим заголовок панели, чтобы дать обратную связь, что
     // Ctrl-F10 обработан
     ActivePanel->SetTitle();
   }
 }
+
 
 /* VVM $ */
 

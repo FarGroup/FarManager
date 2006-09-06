@@ -324,6 +324,10 @@ SOURCE=.\infolist.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\int64.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\interf.cpp
 # End Source File
 # Begin Source File

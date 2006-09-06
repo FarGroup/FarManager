@@ -5,299 +5,7 @@ manager.cpp
 
 */
 
-/* Revision: 1.100 11.07.2006 $ */
-
-/*
-Modify:
-  11.07.2006 EL
-    - Убрал варнинги
-  03.07.2006 SVS
-    - CAS при пятом режиме панели... не гасит панель.
-  23.05.2006 SVS
-    - При ширине экрана поболее и имени файла > 128 - в окне Screen видны ошметки в конце строки + иногда ФАР вываливается
-  31.03.2006 SVS
-    - после переноса функционала CAS из filepanels.cpp сюда перестало работать правило TechInfo#8
-  23.01.2006 SVS
-    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
-      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
-      флаг PKF_PREPROCESS.
-  25.10.2005 SVS
-    ! Часть I. Разрешим плагинам "ВСЕ" кеи (кроме макрокодов) - для ProcessKey()
-    ! параметр у ProcessKey не int, а DWORD
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  24.04.2005 AY
-    ! GCC
-  22.03.2005 SVS
-    - откат предыдущего изменения, не туда копал :-(
-  22.03.2005 SVS
-    - BugZ#1303 - Падение, вроде как из за DM_CLOSE в DN_INITDIALOG
-  02.02.2005 SVS
-    ! ShowBackground() теперь возвращает TRUE/FALSE
-  11.11.2004 SVS
-    + Manager::GetTopModal() - возвращает top-модал или сам фрейм, если у фрейма нету модалов
-  04.06.2004 SVS
-    ! Щёб KEY_APPS|KEY_CTRL|KEY_ALT не какал в regmon при каждом нажатии клавиш... изменим условие
-  17.05.2004 SVS
-    ! Для cl.exe (тот, что Microsoft позиционирует как freeware, version
-      13.10.3052) сделаем уточнение для Test_EXCEPTION_STACK_OVERFLOW.
-      Щёб не матерился.
-  18.12.2003 SVS
-    ! Пробуем различать левый и правый CAS (попытка #1).
-  13.10.2003 SVS
-    ! RunGraber() вызываем в манагере, а в CalcKeyCode() просто вернем KEY_INS|KEY_ALT
-  27.05.2003 SVS
-    ! Зачатки каптюризации мыши :-)
-      Введен ScreenObject *ScreenObject::CaptureMouseObject, который
-      указывает на объект, захвативший мышь.
-  08.04.2003 SVS
-    - Висюн ФАРа, если в плагиновом StartupInfo до старта манагера вызывается что-то активное
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  10.01.2003 SVS
-    + Для отработки процесса исключений самого ФАРа (эмуляция) в manager.cpp
-      добавлен код, вызывающий менюху по Ctrl-Alt-Apps с последующим
-      исполнением "плохого" кода. ЭТОТ будет только для "закрытых" альф
-      (только для тестеров).
-      Если кто знает как остальные баги проэмульгировать - добавляйте
-  07.11.2002 SVS
-    ! Не компиляция под Borland 5.5
-  08.10.2002 SVS
-    - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
-  26.09.2002 SVS
-    + Вынесем код по ресайзу в функцию ResizeAllFrame()
-  20.06.2002 SVS
-    ! Для хелпа и диалога по F12 не кажим список скринов.
-  18.06.2002 SVS
-    + В манагер добавлена переменная StartManager, отвечающая на вопрос
-      "Манагер уже стартовал?"
-  24.05.2002 SVS
-    + Обработка KEY_ALTINS (временно закомменчено, до выяснения обстоятельств)
-  22.05.2002 SKV
-    + удалён институт semimodal фрэймов, и всё что с ним связано.
-    + У ExecuteNonModal своё цикл работы.
-  14.05.2002 SKV
-    - Куча багов связанных с переключениями между полумодальными
-      редакторами и вьюерами.
-  15.05.2002 SVS
-    ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
-      для всех Frame в методе Manager::InitKeyBar.
-  28.04.2002 KM
-    - Баг с зацикливанием:
-      F12 F1 F12 F1 F12 F1... и так далее из любого фрейма
-      приводило к бякам с перерисовкой.
-    - Bug#485
-      ===
-      Вызываем UserMenu: F2 Alt-F4 и попадаем в модальный редактор.
-
-      Далее:
-      1. Ctrl-O - видим User Screen
-      2. CAS    - (no comment)
-
-      ImmediateHide говорите. Хе!
-      ===
-  18.04.2002 SKV
-    - фикс деактиватора.
-  13.04.2002 KM
-    - Устранён важный момент неперерисовки, когда один
-      над другим находится несколько объектов VMenu. Пример:
-      настройка цветов. Теперь AltF9 в диалоге настройки
-      цветов корректно перерисовывает меню.
-  07.04.2002 KM
-    - Надо бы ещё и прорефрешить меню, находящееся над диалогом,
-      иначе при активации ещё одного диалога поверх меню, с
-      последующим его закрытием, меню перемещалось под первый
-      диалог (точнее первый диалог рисовался поверх меню).
-  04.04.2002 KM
-    - Удавлен ещё один артефакт, приводящий к неперерисовке
-      меню, вызванного из модального объекта. Проверялось так:
-      до этого патча делаем AltF7, вызываем меню дисков (AltD),
-      затем хелп (F1), затем AltF9, Esc - меню исчезло (!).
-    - Устранено мелькание заголовка консоли при использовании
-      CAS (Ctrl-Alt-Shift).
-  30.03.2002 OT
-    - После исправления бага №314 (патч 1250) отвалилось закрытие
-      фара по кресту.
-  27.03.2002 OT
-    - Дыра в ДелитКоммит(). Не корректно удалялся фрейм, которого
-      не было ни в модальном стеке, ни в списке немодальных фреймов.
-      Проявлялось при попытке открыть залоченный файл из поиска файлов.
-  22.03.2002 SVS
-    - strcpy - Fuck!
-    ! Уточнение для BugZ#386 - F12 вызывается всегда, но!
-      Но для модального редактора (или вьювера из поиска)
-      все пункты меню задисаблены.
-  22.03.2002 SVS
-    - BugZ#386 - Поиск файлов и редактор
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  15.02.2002 SVS
-    ! Вызов ShowProcessList() вынесен в манагер
-  29.01.2002 OT
-    - падение фара в рефрешКоммит()
-  08.01.2002 SVS
-    - Бага с макросом, в котором есть Alt-F9 (смена режима)
-  02.01.2002 IS
-    ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере
-    ! Если на панели QVIEW или INFO открыт файл, то считаем, что это
-      полноценный вьюер и запускаем с соответствующим параметром плагины
-  13.12.2001 OT
-    ФАР виснет при закрытии по [X] при модальном фрейме. (Bug 175)
-  15.11.2001 SVS
-    - BugZ#66 - порча командной строки после двойного AltF9
-      Добавив немного Sleep(1) избавляемся от бага...
-  11.10.2001 IS
-    + CountFramesWithName
-  04.10.2001 OT
-    Запуск немодального фрейма в модальном режиме
-  21.09.2001 SVS
-    ! расширим диалог
-  18.09.2001 SVS
-    ! Безхозный "_D(" заменен на "_OT(".
-      2OT: Ты не против? А то для _ALGO этот макрос всю масть сбивает :-)
-  31.08.2001 OT
-    - Закрытие ExitAll() при far -e и изменении оного
-  23.08.2001 OT
-    - Исправление зависания фара по F10 из панелей с несохраненными файлами
-      в редакторе. Криво была написана функция ExitAll()
-  08.08.2001 OT
-    - Исправление CtrlF10 в редакторе/вьюере
-  28.07.2001 OT
-    - Исправление зацикливания Reversi
-  27.07.2001 SVS
-    - При обновлении часиков учитывать тот факт, что они могут быть
-      отключены (к тому же не в той функции вызов стоял)
-    ! KEY_CTRLALTSHIFTPRESS уже не привелегированная
-  26.07.2001 OT
-    - Исправление far /e - AltF9
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  25.07.2001 SVS
-    ! Принудительно вызовем ShowTime(1); в ActivateCommit() для того, чтобы
-      редравить часы (ибо теперь они могут быть трех цветов :-)
-  25.07.2001 SVS
-    ! Во время назначения макроса не юзаем некотрое количество клавиш :-)
-      Об этом нам говорит флаг IsProcessAssignMacroKey
-  24.07.2001 OT
-    - Исправление отрисовки CAS при 2-х и более модальных диалогах
-  24.07.2001 SVS
-    ! Заюзаем флаг NotUseCAS - чтобы не гасилось ничего для одиночного
-      редатора/вьювера (far /e)
-  23.07.2001 SVS
-    ! Закомментим пока WaitInFastFind - они здесь как бы не нужны.
-  19.07.2001 OT
-    + Добавились новые члены и методв типа UnmodalizeХХХ
-  18.07.2001 OT
-    ! VFMenu
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  07.07.2001 IS
-    + При выборе фреймов (F12), если фреймов больше 10, то используем для
-      горячих клавиш буквы латинского алфавита, т.о. получаем всего не 10,
-      а 36 горячих клавиш.
-  29.06.2001 OT
-    - Зацикливание при UpdateCommit()
-  26.06.2001 SKV
-    + PluginCommit(); вызов ACTL_COMMIT
-  23.06.2001 OT
-    - Решение проблемы "старика Мюллера"
-    - некие проблемы при far -r. FramePos теперь инициализируется значение -1.
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.06.2001 OT
-    - Исправлены баги приводившие к утечкам памяти в ситуации: AltF7->Enter->F3->F6->F6->:((
-    - Перемудрил зачем-то с ExecuteFrame()...
-  04.06.2001 OT
-     Подпорка для "естественного" обновления экрана
-  30.05.2001 OT
-    - Баг типа memory leak после F6 в редакторе/вьюере. Исправлена функция UpdateCommit()
-    - Приведение CloseAll() и ExitAll() к канонами NFZ.
-    - Исправление ActivateCommit(). При некоторых обстоятельствах
-      бестолку "проглатывался" ActivatedFrame.
-    + AltF9 работет теперь не только в панелях, но и ... везде :)
-  28.05.2001 OT
-    - Исправление "Файл после F3 остается залоченным" (переписан DeleteCommit())
-  26.05.2001 OT
-    - Исправление ExucuteModal()
-    + Новые методы ExecuteComit(), ExecuteFrame(), IndexOfStack()
-    + Новый член Frame *ExecutedFrame;
-    ! Исправление функций DeleteCommit(), UpdateCommit(), связанных с появлением ExecuteFrame
-    ! Исправление поведения RefreshCommit() с учетом блокировок.
-  25.05.2001 DJ
-    - Исправлен трап при закрытии Alt-F7.
-  23.05.2001 OT
-    - Исправление бага - удаление Frame, не внесенного в список FrameList
-  22.05.2001 OT
-    + Добавился RefreshedFrame
-  22.05.2001 DJ
-    ! в ExecuteModal() прежде всего делаем явный commit (если остались
-      подвисшие операции, возможны разные глюки)
-  21.05.2001 DJ
-    ! чистка внутренностей; в связи с появлением нового типа фреймов
-      выкинуто GetFrameTypesCount(); не посылалось OnChangeFocus(0)
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  16.05.2001 DJ
-    ! возвращение ExecuteModal()
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 OT
-    - Борьба с F4 -> ReloadAgain
-  12.05.2001 DJ
-    ! Убран ModalFrame.Show() в Manager::ExecuteModal()
-  12.05.2001 DJ
-    ! FrameManager оторван от CtrlObject
-    ! объединены ExecuteModal() и ExecuteModalPtr() (и о чем я думал, когда
-      делал две функции?)
-    ! ReplaceCurrentFrame() заменена на более универсальную ReplaceFrame()
-      (с подачи ОТ)
-  11.05.2001 OT
-    ! Отрисовка Background
-  10.05.2001 DJ
-    + SwitchToPanels()
-    * GetFrameTypesCount() не учитывает фрейм, который мы собрались удалять
-    + ModalStack
-    - всякие перетряхи логики DestroyFrame() и иже с ними
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  07.05.2001 DJ
-    ! приведены в порядок CloseAll() и ExitAll()
-  06.05.2001 DJ
-    ! перетрях #include
-    + ReplaceCurrentFrame()
-  07.05.2001 ОТ
-    - Баг с порядком индекса текущего фрейма FramePos при удалении
-      какого-нибудь из списка :)
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  04.05.2001 OT
-    + Неверно формировалось меню плагинов по F11 (NWZ)
-      Изменился PluginSet::CommandsMenu()
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  29.12.2000 IS
-    + Метод ExitAll - аналог CloseAll, но разрешает продолжение полноценной
-      работы в фаре, если пользователь продолжил редактировать файл.
-      Возвращает TRUE, если все закрыли и можно выходить из фара.
-  28.07.2000 tran 1.04
-    + косметика при выводе списка окон -
-      измененные файлы в редакторе маркируются "*"
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  28.06.2000 tran
-    - NT Console resize
-      add class member ActiveModal
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.103 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -555,16 +263,16 @@ int Manager::GetModalExitCode()
 /* $ 11.10.2001 IS
    Подсчитать количество фреймов с указанным именем.
 */
-int Manager::CountFramesWithName(const char *Name, BOOL IgnoreCase)
+int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
 {
    int Counter=0;
-   typedef int (__cdecl *cmpfunc_t)(const char *s1, const char *s2);
-   cmpfunc_t cmpfunc=IgnoreCase?(cmpfunc_t)LocalStricmp:(cmpfunc_t)strcmp;
-   char Type[200],curName[NM];
+   typedef int (__cdecl *cmpfunc_t)(const wchar_t *s1, const wchar_t *s2);
+   cmpfunc_t cmpfunc=IgnoreCase?(cmpfunc_t)LocalStricmpW:(cmpfunc_t)wcscmp;
+   string strType, strCurName;
    for (int I=0;I<FrameCount;I++)
    {
-     FrameList[I]->GetTypeAndName(Type,curName);
-     if(!cmpfunc(Name, curName)) ++Counter;
+     FrameList[I]->GetTypeAndName(strType, strCurName);
+     if(!cmpfunc(Name, strCurName)) ++Counter;
    }
    return Counter;
 }
@@ -590,10 +298,11 @@ Frame *Manager::FrameMenu()
 
   int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
   {
-    struct MenuItem ModalMenuItem;
-    memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
-    VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
-    ModalMenu.SetHelp("ScrSwitch");
+    MenuItemEx ModalMenuItem;
+
+    ModalMenuItem.Clear ();
+    VMenu ModalMenu(UMSG(MScreensTitle),NULL,0,TRUE, ScrY-4);
+    ModalMenu.SetHelp(L"ScrSwitch");
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
 
@@ -602,28 +311,23 @@ Frame *Manager::FrameMenu()
 
     for (int I=0;I<FrameCount;I++)
     {
-      char Type[200],Name[NM*2],NumText[100];
-      FrameList[I]->GetTypeAndName(Type,Name);
-      /* $ 07.07.2001 IS
-         Если фреймов больше 10, то используем для горячих клавиш буквы
-         латинского алфавита, т.о. получаем всего не 10, а 36 горячих клавиш.
-      */
+      string strType, strName, strNumText;
+      FrameList[I]->GetTypeAndName(strType, strName);
+
       if (I<10)
-        sprintf(NumText,"&%d. ",I);
+        strNumText.Format (L"&%d. ",I);
       else if (I<36)
-        sprintf(NumText,"&%c. ",I+55); // 55='A'-10
+        strNumText.Format (L"&%c. ",I+55); // 55='A'-10
       else
-        strcpy(NumText,"&   ");
-      /* IS $ */
-      /* $ 28.07.2000 tran
-         файл усекает по ширине экрана */
-      TruncPathStr(Name,Min((int)ScrX,(int)(sizeof(ModalMenuItem.Name)-1))-24);
-      ReplaceStrings(Name,"&","&&",-1);
+        strNumText = L"&   ";
+
+      TruncPathStrW(strName,ScrX-24);
+      ReplaceStringsW(strName,L"&",L"&&",-1);
       /*  добавляется "*" если файл изменен */
-      sprintf(ModalMenuItem.Name,"%s%-10.10s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
+      ModalMenuItem.strName.Format (L"%s%-10.10s %c %s", (const wchar_t*)strNumText, (const wchar_t*)strType,(FrameList[I]->IsFileModified()?L'*':L' '), (const wchar_t*)strName);
       /* tran 28.07.2000 $ */
       ModalMenuItem.SetSelect(I==FramePos);
-      ModalMenu.AddItem(&ModalMenuItem);
+      ModalMenu.AddItemW(&ModalMenuItem);
     }
     /* $ 28.04.2002 KM */
     AlreadyShown=TRUE;
@@ -670,23 +374,23 @@ void Manager::SetFramePos(int NewPos)
 }
 
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
-int  Manager::FindFrameByFile(int ModalType,char *FileName,char *Dir)
+int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar_t *Dir)
 {
-  char bufFileName[NM*2];
-  char *FullFileName=FileName;
+  string strBufFileName;
+  string strFullFileName = FileName;
   if (Dir)
   {
-    strcpy(bufFileName,Dir);
-    AddEndSlash(bufFileName);
-    strcat(bufFileName,FileName);
-    FullFileName=bufFileName;
+    strBufFileName = Dir;
+    AddEndSlashW(strBufFileName);
+    strBufFileName += FileName;
+    strFullFileName = strBufFileName;
   }
 
   for (int I=0;I<FrameCount;I++)
   {
-    char Type[200],Name[NM];
-    if (FrameList[I]->GetTypeAndName(Type,Name)==ModalType)
-      if (LocalStricmp(Name,FullFileName)==0)
+    string strType, strName;
+    if (FrameList[I]->GetTypeAndName(strType, strName)==ModalType)
+      if (LocalStricmpW(strName, strFullFileName)==0)
         return(I);
   }
   return(-1);
@@ -697,7 +401,7 @@ BOOL Manager::ShowBackground()
 {
   if (!RegVer)
   {
-    Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
+    MessageW(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
     return FALSE;
   }
   CtrlObject->CmdLine->ShowBackground();
@@ -849,7 +553,7 @@ void Manager::ExitMainLoop(int Ask)
     CloseFAR=FALSE;
     CloseFARMenu=TRUE;
   };
-  if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
+  if (!Ask || !Opt.Confirm.Exit || MessageW(0,2,UMSG(MQuit),UMSG(MAskQuit),UMSG(MYes),UMSG(MNo))==0)
    /* $ 29.12.2000 IS
       + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
         из фара.
@@ -893,6 +597,7 @@ int  Manager::ProcessKey(DWORD Key)
   {
     //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
     int i=0;
+
     if((Key&(~KEY_CTRLMASK)) < KEY_MACRO_BASE) // пропустим макро-коды
     {
       switch(CurrentFrame->GetType())
@@ -924,20 +629,21 @@ int  Manager::ProcessKey(DWORD Key)
           break;
       }
     }
+
 #if defined(FAR_ALPHA_VERSION)
-// сей код для проверки исключатора, просьба не трогать :-)
-    if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKey("System\\Exception","Used",0))
+// сей код для проверки исключатор, просьба не трогать :-)
+    if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKeyW(L"System\\Exception",L"Used",0))
     {
       struct __ECODE {
         DWORD Code;
-        char *Name;
+        const wchar_t *Name;
       } ECode[]={
-        {EXCEPTION_ACCESS_VIOLATION,"Access Violation (Read)"},
-        {EXCEPTION_ACCESS_VIOLATION,"Access Violation (Write)"},
-        {EXCEPTION_INT_DIVIDE_BY_ZERO,"Divide by zero"},
-        {EXCEPTION_ILLEGAL_INSTRUCTION,"Illegal instruction"},
-        {EXCEPTION_STACK_OVERFLOW,"Stack Overflow"},
-        {EXCEPTION_FLT_DIVIDE_BY_ZERO,"Floating-point divide by zero"},
+        {EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Read)"},
+        {EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Write)"},
+        {EXCEPTION_INT_DIVIDE_BY_ZERO,L"Divide by zero"},
+        {EXCEPTION_ILLEGAL_INSTRUCTION,L"Illegal instruction"},
+        {EXCEPTION_STACK_OVERFLOW,L"Stack Overflow"},
+        {EXCEPTION_FLT_DIVIDE_BY_ZERO,L"Floating-point divide by zero"},
 /*
         {EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW"},
         {EXCEPTION_DATATYPE_MISALIGNMENT,"EXCEPTION_DATATYPE_MISALIGNMENT",},
@@ -959,16 +665,17 @@ int  Manager::ProcessKey(DWORD Key)
 */
       };
 
-      struct MenuItem ModalMenuItem;
-      memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
-      VMenu ModalMenu("Test Exceptions",NULL,0,ScrY-4);
+      MenuItemEx ModalMenuItem;
+
+      ModalMenuItem.Clear ();
+      VMenu ModalMenu(L"Test Exceptions",NULL,0,TRUE,ScrY-4);
       ModalMenu.SetFlags(VMENU_WRAPMODE);
       ModalMenu.SetPosition(-1,-1,0,0);
 
       for (int I=0;I<sizeof(ECode)/sizeof(ECode[0]);I++)
       {
-        strcpy(ModalMenuItem.Name,ECode[I].Name);
-        ModalMenu.AddItem(&ModalMenuItem);
+        ModalMenuItem.strName = ECode[I].Name;
+        ModalMenu.AddItemW(&ModalMenuItem);
       }
 
       ModalMenu.Process();
@@ -1131,7 +838,6 @@ int  Manager::ProcessKey(DWORD Key)
 
                   CtrlObject->Cp()->LeftPanel->Hide0();
                   CtrlObject->Cp()->RightPanel->Hide0();
-
                   switch(Opt.PanelCtrlAltShiftRule)
                   {
                     case 0:
@@ -1210,11 +916,11 @@ void Manager::PluginsMenu()
       int pType=CtrlObject->Cp()->ActivePanel->GetType();
       if(pType==QVIEW_PANEL || pType==INFO_PANEL)
       {
-         char CurFileName[NM]="";
-         CtrlObject->Cp()->GetTypeAndName(NULL,CurFileName);
-         if(*CurFileName)
+         string strType, strCurFileName;
+         CtrlObject->Cp()->GetTypeAndName(strType, strCurFileName);
+         if( !strCurFileName.IsEmpty () )
          {
-           DWORD Attr=GetFileAttributes(CurFileName);
+           DWORD Attr=GetFileAttributesW(strCurFileName);
            // интересуют только обычные файлы
            if(Attr!=0xFFFFFFFF && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
              curType=MODALTYPE_VIEWER;
@@ -1223,8 +929,8 @@ void Manager::PluginsMenu()
     }
 
     // в редакторе или вьюере покажем свою помощь по Shift-F1
-    const char *Topic=curType==MODALTYPE_EDITOR?"Editor":
-      curType==MODALTYPE_VIEWER?"Viewer":NULL;
+    const wchar_t *Topic=curType==MODALTYPE_EDITOR?L"Editor":
+      curType==MODALTYPE_VIEWER?L"Viewer":NULL;
     CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
     /* IS $ */
   }
@@ -1568,7 +1274,7 @@ void Manager::RefreshCommit()
   if(IndexOf(RefreshedFrame)==-1 && IndexOfStack(RefreshedFrame)==-1)
     return;
 
-  if ( !RefreshedFrame->Locked())
+  if ( !RefreshedFrame->Locked() )
   {
     if (!IsRedrawFramesInProcess)
       RefreshedFrame->ShowConsoleTitle();
@@ -1639,7 +1345,7 @@ void Manager::ImmediateHide()
       IsRedrawFramesInProcess++;
       /* KM $ */
 
-      while ( (*this)[FramePos]->Locked())
+      while ((*this)[FramePos]->Locked())
       {
         (*this)[FramePos]->Unlock();
         UnlockCount++;

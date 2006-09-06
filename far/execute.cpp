@@ -5,384 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.134 17.07.2006 $ */
-
-/*
-Modify:
-  17.07.2006 AY
-    - прошлым фиксом испортил работу плагинов которые ожидали именно / для CD
-  07.07.2006 AY
-    - не работал CD когда в пути был /
-    - для запуска в Win9x всегда выставляем пути пасивной панели
-  04.07.2006 IS
-    - warnings
-  04.07.2006 SVS
-    + Opt.ExecuteFullTitle
-  03.07.2006 SVS
-    - Mantis#0000204: Не всегда запускается проводник на папке по Shift-Enter
-     (теперь, . ShiftEnter)
-  30.06.2006 SVS
-    ! Mantis#204 - небольшие недоделки.
-  29.06.2006 SVS
-    ! Bath -> Batch
-    ! Execute + доп параметр (Mantis#204)
-  28.06.2006 SVS
-    + IsBathExtType(), BathFileExist()
-  23.04.2006 AY
-    - Execute() не выставлял путь пассивной панели для правильной работы driveletter: путей в win9x.
-  31.03.2006 SVS
-    - Некорректная работа команд CD и CHDIR с переменными среды.
-  25.03.2006 AY
-    - %var% не обрабатывались вообще в параметрах ком строки
-  05.12.2005 AY
-    ! Не совсем правильная обработка кавычек в CommandLine::ProcessOSCommands для CD/CHDIR
-  14.07.2005 AY
-    - теперь в заголовке окна (по Enter и ShiftEnter) показываем всегда то что запускает фар
-      (путь к файлу и параметры без %comspec% /c).
-    - при запуске в отдельном окне NewCmd* перекодировался в Char но не перекодировался
-      назад в OEM после запуска, что приводило к неправильному показу имени файла в сообщении
-      об ошибке.
-  14.07.2005 SVS
-    - Грязный хак в исполняторе против CtrlEnter ShiftEnter (см. 02025.Mix.txt)
-  05.07.2005 SVS
-    - ошибка в обработчике "cd" (когда применялась маска)
-  05.04.2005 AY
-    - Это не правильно (предыдущий фикс), надо убирать только первый пробел,
-      что теперь и делает PartCmdLine.
-  05.04.2005 SVS
-    - Ctrl-G "echo L:\Foo\Bar" приводит к "echo  L:\Foo\Bar", т.е. добавляется доп.пробел между "echo" и "L"
-  05.04.2005 AY
-    ! Добавил в Execute все описаные в cmd.exe /? символы которые
-      надо дабл-квотить "&<>()@^|".
-  03.04.2005 WARP
-    ! Изменения в execut'оре на предмет работы в 9x
-  28.03.2005 SVS
-    - BugZ#1091 - Неполноценная команда cd
-    + добавил обработку "cd ~" - переход в "свой" каталог. Сделал для себя :-)
-  02.03.2005 WARP
-    ! Открытие папок во Shift-Enter.
-    ! Подстановка значения из реестра для lpVerb.
-  26.02.2005 SVS
-    ! если у CommandLine не выставлен флаг FCMDOBJ_LOCKUPDATEPANEL,
-      то перерисовать панели.
-    ! Для перерисовки панелей воспользуемся существующей функцией
-      ShellUpdatePanels() - она более корректно отрисовывает панели.
-  26.02.2005 WARP
-    ! Переписал (пересобрал) функцию execute
-  05.01.2005 SVS
-    - нужно указывать скока мы ходим взять из реестра, а не "0"
-  05.01.2005 WARP
-    ! Временно убрал экранирование & и ^ в исполняторе.
-  15.12.2004 WARP
-    ! Поменял метод окавычивания ком. строки
-  15.12.2004 SVS
-    - BugZ#1119 -  Неправильный разбор cmd строки для запуска
-  14.12.2004 WARP
-    ! Немного поломал executor. (see 01875.Executor.txt)
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  18.05.2004 SVS
-    - BugZ#1077 - Падение при отсутствующей Win-ассоциации
-  17.05.2004 SVS
-    ! небольшие уточнение в запускаторе в порыве исправить падение на ассоциациях
-  06.05.2004 SVS
-    ! Кусок кода, разбивающий ком.строку на исполнятор и параметры вынесен в PartCmdLine()
-  27.04.2004 SVS
-    - BugZ#568 - Confusing message on wrong path in CHDIR in case of forward-slash delimiter
-      Исправление не претендует на оригинальность - если первый раз для CD
-      не получилось найти каталог, то влоб меняем все '/' на '\' и отдаем
-      команду на откуп операционке.
-      CommandLine::ProcessOSCommands() для CD возвращает -1, если нет каталога.
-      Этим и будем пользоваться.
-      Если что откатим.
-  29.03.2004 SVS
-    ! CHCP: сначала вызываем LocalUpperInit(), потом InitLCIDSort(), а не наоборот
-  15.03.2004 SVS
-    - не работает "C:\Program Files\Far\Far.exe" /p"C:\Program Files\Far\plugins"
-      и вариации на эту тему (по Shift-Enter).
-      Пока закомментил..., т.к. возможно повторение BugZ#752
-  09.03.2004 SVS
-    - SD> 2) окно far'a 102x37
-      SD> запускаю батник с одной лишь строкой
-      SD> if '%os%'=='Windows_NT' MODE CON: COLS=80 LINES=25
-      VC-версия трапается
-      BC-версия шнягу на экран выдает
-      Проверим размеры окна и вызовем CtrlObject->CmdLine->CorrectRealScreenCoord()
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  09.02.2004 SVS
-    - BugZ#993 - перекрытие сообщения рамок меню (уточнение)
-    - BugZ#752 - Проблемы Shift-Enter для UNC ресурсов с пробелами и без (уточнение)
-  15.01.2004 SVS
-    - BugZ#993 - перекрытие сообщения рамок меню
-  08.01.2004 SVS
-    + учтем опцию Opt.ExecuteShowErrorMessage и выведем текст на экран, а не в месагбоксе
-  05.01.2004 SVS
-    ! Уточнение запускатора (про "far.exe/?")
-  05.01.2004 SVS
-    - BugZ#1007 - Не передаются параметры прогам когда Executor\Type=1
-  11.11.2003 SVS
-    - Правки в Execute() по поводу Shift-Enter
-  16.10.2003 SVS
-    ! Если в ассоциациях нету "command" или этот параметр реестра
-      пуст - не вызываем ShellExecuteEx().
-      Так же добавлен флаг SEE_MASK_FLAG_NO_UI, чтобы ФАР выбывал сообщения
-      (если что - убрать!).
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  06.10.2003 SVS
-    - BugZ#955 - Alt-F9 + Mode CON: Lines=12
-      Достаточно "получить" данные о размере консоли... иначе вылетаем
-      в ScrBuf.FillBuf(), там ScrY неверное значение имеет
-  26.09.2003 VVM
-    ! При поиске файла сначала ищем по переменной PATH и только потом в остальных местах
-  03.09.2003 SVS
-    - bugz#933 - задолбал этот strcpy :-(
-    + В CommandLine::ProcessOSCommands() добавлен закомментированный кусок
-      ...вариант для "SET /P variable=[promptString]" - что бы не потерялось...
-  02.09.2003 SVS
-    ! уточнение кода возврата функции CheckFolder()
-  31.07.2003 VVM
-    ! Некорректное определение типа исполняемого файла.
-  05.06.2003 SVS
-    ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
-  06.05.2003 SVS
-    ! при смене кодовой страницы так же переинициализируем некоторое массивы
-    ! попытка борьбы с синим фоном в 4NT при старте консоль
-  17.03.2003 SVS
-    - BugZ#831 - Неверный заголовок окна при запуске из командной строки
-  06.03.2003 SVS
-    - BugZ#678 - Незапуск .msi по Shift-Enter
-    ! Закоментим _SVS
-  25.02.2003 SVS
-    ! Вернем "старое" поведение для выставление титла консоли, ибо строка
-      "gzip foo.bar" намного понятнее выглядит, нежели "c:\usr\bin\gzip.EXE"
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  17.01.2003 VVM
-    ! Косметика
-  17.12.2002 VVM
-    - BugZ#678 - Незапуск .msi по Shift-Enter (вторая часть!)
-  11.12.2002 VVM
-    - Opps. Уберем грязь от экспериментов...
-  11.12.2002 VVM
-    - Исправлен баг с запуском приложений из архивов с русским именем.
-      Для ГУИ будем пользовать ShellExcuteEx()
-  04.10.2002 VVM
-    ! Небольшой баг при поиске файла по списку расширений. Перед поиском расширения
-      отделим имя файла от пути к нему.
-  03.10.2002 VVM
-    + Default action может содержать несколько команнд через запятую.
-    + При поиске в App paths учтем кавычки и переменные окружения.
-  20.09.2002 SKV
-    | Отключил cd net:server
-  03.09.2002 SVS
-    - BugZ#606 - не работают переменные окружения в ассоциациях
-      не стояла проверка на символы ":\" для "распахнутой" строки...
-  21.08.2002 SVS
-    - Исправления 1493 патча. Сначала нужно в обязательном порядке проверить
-      кей "open", а если его нету, то... что первое попадется ;-)
-  17.08.2002 VVM
-    + GetShellAction() - если нет "Default action",  то возьмем первую,
-      у которой будет ключ "Command"
-  12.08.2002 SVS
-    + Opt.ExecuteUseAppPath
-  08.08.2002 VVM
-    ! Вернем назад полный путь до текущего каталога.
-  17.07.2002 VVM
-    - Если пускаем из текущего каталога, то не делаем "развертку" пути.
-    ! Команды из ExcludeCmds имеют ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI
-    + Если ImageSubsystem == IMAGE_SUBSYSTEM_UNKNOWN, то детачим запускаемый процесс.
-    - Плюс затычка для "\ Enter"
-  15.07.2002 VVM
-    + Для виндовс-ГУИ сделаем всегда запуск через ShellExecuteEx(). По идее SVS
-  06.07.2002 VVM
-    + Если не установлена переменная %COMSPEC% - предупредить и выйти.
-  05.07.2002 SVS
-    - ФАР ждет завершения GUI-прилад с NE-заголовком.
-      Уточним этот факт (с подачи Andrzej Novosiolov <andrzej@se.kiev.ua>)
-  19.02.2002 SVS
-    - BugZ#558 - ShiftEnter из меню выбора диска
-      Проверим так же на "корень диска" и выставим запуск через ShellExecuteEx()
-  18.06.2002 SVS
-    ! В обработчике команды "CD" (see CommandLine::ProcessOSCommands)
-      посмотрим на CHKFLD_NOTACCESS (эту константу вернет нам та самая
-      CheckFolder). Если все оби - едем дальше, иначе вернем FALSE и
-      при этом ФАР матюкнется в консоль словами OS о том, что
-      "Хреновый ты путь указал, малый. Отвали!".
-      Тем самым реализуем ситуацию "пред-обработки", т.е. матюкаемся не
-      тогда, когда ввалились в FileList::ReadFileNames, а... чуток пораньше! ;-)
-      (эта побасенка про BugZ#513 - при cd на нечитаемую сетевую
-      шару остаётся старое содержимое панели).
-  14.06.2002 VVM
-    + IsCommandPEExeGUI переделана. Теперь она возвращает не IsGUI битовый,
-      а значения IMAGE_SUBSYSTEM_*
-    + Переделана запускалка. Теперь в строке можно набрать "excel" и запустится ексель.
-      Т.е. по реестру дополнительный поиск с расширениями из StdExecuteEx
-  30.05.2002 SVS
-    ! Для CHCP добавлен вызов InitRecodeOutTable().
-  29.05.2002 SVS
-    ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
-  28.05.2002 SVS
-    ! применим функцию  IsLocalPath()
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  10.05.2002 SVS
-    + обработка CHCP
-  17.04.2002 VVM
-    ! Уточнение исполнятора.
-  16.04.2002 DJ
-    ! пропускаем встроенную обработку cd, если нажат Shift-Enter
-  02.04.2002 SVS
-    - BugZ#421 - Курсор в запускаемых программах
-  30.03.2002 VVM
-    ! Кавычим строку выполнения только если пускаем в отдельном окне.
-  28.03.2002 SVS
-    - CLS не выставляла атрибуты консоли
-  26.03.2002 SVS
-    - BugZ#393 - . Shift-Enter
-  25.03.2002 VVM
-    ! Очередная правка запускатора :)
-  22.03.2002 IS
-    - Устанавливали заголовок консоли крякозябрами, потому что не учили, что
-      для 9x параметр у SetConsoleTitle должен быть в ANSI-кодировке
-  21.03.2002 SVS
-    - BugZ#365 - Глюк с открытием папок в проводнике по шифт+ентер
-  20.03.2002 SVS
-    ! GetCurrentDirectory -> FarGetCurDir
-  20.03.2002 IS
-    + "if [not] exist" дружит теперь с масками файлов
-    ! PrepareOSIfExist теперь принимает и возвращает const
-  18.03.2002 SVS
-    ! Бадяга про курсор - там где нужно гасить, выставлялася 1
-  28.02.2002 SVS
-    - BugZ#318 - dot Shift-Enter
-  26.02.2002 SVS
-    ! "." и ".." по Shift-Enter рисуем AS IS, без модификации.
-  19.02.2002 SVS
-    ! В исполняторе юзаем только *ConsoleTitle, т.е. апишные...
-  18.02.2002 SVS
-    - set хрен=редька
-      Сабжевая команда под cmd.exe работает правильно, а под фаром - отнюдь.
-      Левая часть оказывается в неверной кодировке.
-  15.02.2002 DJ
-    - еще про заголовок: запускаем файл по ассоциации и видим, что через
-      несколько секунд после запуска заголовок с нормального меняется
-      на название запущенной программы
-  14.02.2002 SVS
-    - BugZ#300 - Shift-Enter на папке меняет путь заголовок окна
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  07.02.2002 SKV
-    - Не надо при отрыве консоли менять её моду и т.д.
-  04.02.2002 SVS
-    - BugZ#289 Неправильно определяется GUI/Console для *.exe с русскими
-      именами
-  30.01.2002 SVS
-    ! Проверим, а не папку ли мы хотим открыть по Shift-Enter?
-      Если так, то вместо CreateProcess запустим ShellExe...
-  28.01.2002 tran
-    ! тройные кавычки нужны не всегда.
-  18.01.2002 VVM
-    ! Избавимся от setdisk() -> FarChDir()
-  16.01.2002 SVS
-    - Тот же самый BugZ#238. Немного увеличим буфера (до 4096 размер под FullPath)
-  15.01.2002 SVS
-    - Не исполняется "C:\Program Files\Far\Far.exe" "C:\Program Files\Far\Plugins"
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  24.12.2001 SVS
-    - BugZ#193: не работает <, >, | (в 9х)
-    + проверка на вшивость на подступах - если введено нечто вроде "|" или ">"
-      или "<" (т.е. один символ) - то... в морг.
-  21.12.2001 SVS
-    - Bug: после запуска компилятора Java от MS, jvc.exe симолы псевдографики
-           в пользовательском интерфейсе Far'а заменяются на русские буквы.
-      Кстати, этим же страдают проги типа sh.exe (bash) из портированного
-      унихового утилия.
-  20.12.2001 SVS
-    ! Для Shift-Enter учтем перенаправления и каналы.
-  14.12.2001 IS
-    ! stricmp -> LocalStricmp
-  08.12.2001 SVS
-    ! Уточнения в новом исполняторе - теперь вид шаблона исполнения задается
-      по другому.
-  07.12.2001 SVS
-    ! Уточнения в новом исполняторе (их еще будет море ;-))
-    ! Из CommandLine::CmdExecute() гашение панелей перенесено в RedrawDesktop
-    ! В новом исполняторе введено понятие исклительных команд, которые,
-      если попадаются, то не исполняются!
-    ! DWORD* переделан в DWORD&
-    ! У Execute команда (первый параметр) - const
-  06.12.2001 SVS
-    ! Откат к старому обработчику с возможностью работы с новым.
-      Детельное описание читайте в 01104.Mix.txt
-  05.12.2001 SVS
-    - При определении ассоциации забыл "расширить" переменные среды :-(
-  04.12.2001 SVS
-    - забыл выделить имя модуля (не учитывались кавычки в активаторе)
-  04.12.2001 SVS
-    ! Очередное уточнение пусковика. На этот раз... при старте DOC-файлов
-      ФАР ждет завершения. Выход из положения - "посмотрить" на гуевость
-      пусковика.
-  03.12.2001 SVS
-    ! Уточнение для... пути со скобками :-)
-    ! Новое поведение - убрали DETACHED_PROCESS и ждем завершение процесса.
-  02.12.2001 SVS
-    ! Неверный откат. :-(( Вернем все обратно, но с небольшой правкой,
-      не будем изменять строку запуска, если явно не указано расширение, т.е.
-      если вводим "date" - исполняется внутренняя команда ком.проц., если
-      вводим "date.exe", то будет искаться и исполняться именно "date.exe"
-      В остальном все должно быть как и раньше.
-  30.11.2001 SVS
-    ! Почти полный откат предыдущих наворотов с пусковиком
-  29.11.2001 SVS
-    - Бага с русскими буковками - забыли конвертнуть путь обратно в OEM.
-  28.11.2001 SVS
-    - BugZ#129 не запускаются программым с пробелом в названии
-    ! небольшие уточнения в PrepareExecuteModule()
-  22.11.2001 SVS
-    - Как последний гад этот самый Екзекутеор валит ФАР на простой формуле:
-      >"" Enter
-      Ок. Будем вылавливать еще на подходе.
-    + У Execute() добавлен параметр - SetUpDirs "Нужно устанавливать каталоги?"
-      Это как раз про ту войну, когда Костя "отлучил" кусок кода про
-      установку каталогов. Это понадобится гораздо позже.
-  21.11.2001 SVS
-    ! Объединение и небольшое "усиление" кода пусковика, а так же
-      переименование IsCommandExeGUI в PrepareExecuteModule (фактически
-      новая функция). GetExistAppPaths удалена за ненадобностью.
-  21.11.2001 VVM
-    ! Очереднйо перетрях прорисовки при запуске программ.
-  20.11.2001 SVS
-    - BugZ#111 - для cd Це: скорректируем букву диска - сделаем ее Upper.
-  20.11.2001 SVS
-    ! Уточнение пусковика.
-  19.11.2001 SVS
-    + GetExistAppPaths() - получить если надо путь из App Paths
-    ! Функция IsCommandExeGUI() вторым параметром возврпащает полный путь
-      к наденному файлу
-  15.11.2001 OT
-    - Исправление поведения cd c:\ на активном панельном плагине
-  14.11.2001 SVS
-    - Последствия исправлений BugZ#90 - панели не обновлялись
-  12.11.2001 SVS
-    - BugZ#90: панель остается на экране
-  12.11.2001 SVS
-    ! откат 1033 и 1041 до лучших времен.
-  08.11.2001 SVS
-    - неудачная попытка (возможно и ЭТОТ патч неудачный) запуска (про каталоги)
-  31.10.2001 VVM
-    + Попытка переделать запуск программ. Стараемся пускать не через "start.exe",
-      а через CREATE_NEW_CONSOLE
-  10.10.2001 SVS
-    + Создан
-*/
+/* Revision: 1.145 18.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -403,7 +26,7 @@ Modify:
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
 
-static const char strSystemExecutor[]="System\\Executor";
+static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
 // ГУЯХ PE-модуля
@@ -416,7 +39,7 @@ static const char strSystemExecutor[]="System\\Executor";
 // Для DOS-приложений определим еще одно значение флага.
 #define IMAGE_SUBSYSTEM_DOS_EXECUTABLE  255
 
-static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
+static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 {
   //_SVS(CleverSysLog clvrSLog("IsCommandPEExeGUI()"));
   //_SVS(SysLog("Param: FileName='%s'",FileName));
@@ -425,7 +48,7 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
   int Ret=FALSE;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-  if((hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
+  if((hFile=FAR_CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
     DWORD FileSizeLow, FileSizeHigh, ReadSize;
     IMAGE_DOS_HEADER dos_head;
@@ -521,53 +144,53 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 // по имени файла (по его расширению) получить команду активации
 // Дополнительно смотрится гуевость команды-активатора
 // (чтобы не ждать завершения)
-char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
+wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
   //_SVS(CleverSysLog clvrSLog("GetShellAction()"));
   //_SVS(SysLog("Param: FileName='%s'",FileName));
 
-  char Value[1024];
-  char NewValue[2048];
-  const char *ExtPtr;
-  char *RetPtr;
+  wchar_t Value[1024]; //BUGBUG
+  string strNewValue;
+  const wchar_t *ExtPtr;
+  wchar_t *RetPtr;
   LONG ValueSize;
-  const char command_action[]="\\command";
+  const wchar_t command_action[]=L"\\command";
 
   Error=ERROR_SUCCESS;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-  if ((ExtPtr=strrchr(FileName,'.'))==NULL)
+  if ((ExtPtr=wcsrchr(FileName,L'.'))==NULL)
     return(NULL);
 
   ValueSize=sizeof(Value);
   *Value=0;
 
-  if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)ExtPtr,(LPTSTR)Value,&ValueSize)!=ERROR_SUCCESS)
+  if (RegQueryValueW(HKEY_CLASSES_ROOT,ExtPtr,Value,&ValueSize)!=ERROR_SUCCESS)
     return(NULL);
 
-  strcat(Value,"\\shell");
+  wcscat(Value,L"\\shell");
 //_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
 
   HKEY hKey;
-  if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKeyW(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
-  static char Action[512];
+  static wchar_t Action[512];
 
   *Action=0;
   ValueSize=sizeof(Action);
-  LONG RetQuery = RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize);
-  strcat(Value,"\\");
+  LONG RetQuery = RegQueryValueExW(hKey,L"",NULL,NULL,(PBYTE)Action,(LPDWORD)&ValueSize);
+  wcscat(Value,L"\\");
 //_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
 
   if (RetQuery == ERROR_SUCCESS)
   {
-    UserDefinedList ActionList(0,0,ULF_UNIQUE);
+    UserDefinedListW ActionList(0,0,ULF_UNIQUE);
 
     RetPtr=(*Action==0 ? NULL:Action);
     /* $ 03.10.2002 VVM
       + Команд в одной строке может быть несколько. */
-    const char *ActionPtr;
+    const wchar_t *ActionPtr;
 
     LONG RetEnum = ERROR_SUCCESS;
     if (RetPtr != NULL && ActionList.Set(Action))
@@ -577,20 +200,21 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       ActionList.Reset();
       while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
       {
-        xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
-        strncat(NewValue, ActionPtr, sizeof(NewValue) - 1);
-        strncat(NewValue, command_action, sizeof(NewValue) - 1);
-        if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
+        strNewValue = Value;
+        strNewValue += ActionPtr;
+        strNewValue += command_action;
+
+        if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          strncat(Value, ActionPtr, sizeof(Value) - 1);
-          RetPtr = xstrncpy(Action,ActionPtr,sizeof(Action)-1);
+          wcsncat(Value, ActionPtr, (sizeof(Value) - 1)/2);
+          RetPtr = xwcsncpy(Action,ActionPtr,(sizeof(Action)-1)/2);
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */
     } /* if */
     else
-      strncat(Value,Action, sizeof(Value) - 1);
+      wcsncat(Value,Action, (sizeof(Value) - 1)/2);
     /* VVM $ */
 
 //_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
@@ -616,14 +240,16 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     HKEY hOpenKey;
 
     // Сначала проверим "open"...
-    strcpy(Action,"open");
-    xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
-    strncat(NewValue, Action, sizeof(NewValue) - 1);
-    strncat(NewValue, command_action, sizeof(NewValue) - 1);
-    if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
+    wcscpy(Action,L"open");
+
+    strNewValue = Value;
+    strNewValue += Action;
+    strNewValue += command_action;
+
+    if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
     {
       RegCloseKey(hOpenKey);
-      strncat(Value, Action, sizeof(Value) - 1);
+      wcsncat(Value, Action, (sizeof(Value) - 1)/2);
       RetPtr = Action;
       RetEnum = ERROR_NO_MORE_ITEMS;
 //_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
@@ -633,17 +259,17 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     while (RetEnum == ERROR_SUCCESS)
     {
       dwKeySize = sizeof(Action);
-      RetEnum = RegEnumKeyEx(hKey, dwIndex++, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
+      RetEnum = RegEnumKeyExW(hKey, dwIndex++, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
       if (RetEnum == ERROR_SUCCESS)
       {
         // Проверим наличие "команды" у этого ключа
-        xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
-        strncat(NewValue, Action, sizeof(NewValue) - 1);
-        strncat(NewValue, command_action, sizeof(NewValue) - 1);
-        if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
+        strNewValue = Value;
+        strNewValue += Action;
+        strNewValue += command_action;
+        if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          strncat(Value, Action, sizeof(Value) - 1);
+          wcsncat(Value, Action, (sizeof(Value) - 1)/2);
           RetPtr = Action;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
@@ -655,32 +281,40 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 
   if (RetPtr != NULL)
   {
-    strncat(Value,command_action, sizeof(Value) - 1);
+    wcsncat(Value,command_action, (sizeof(Value) - 1)/2);
 
     // а теперь проверим ГУЕвость запускаемой проги
-    if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
+    if (RegOpenKeyW(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
     {
-      ValueSize=sizeof(NewValue);
-      RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)NewValue,(LPDWORD)&ValueSize);
+      ValueSize=1024*sizeof (wchar_t);
+
+      wchar_t *lpwszNewValue = strNewValue.GetBuffer (1024); //BUGBUG
+
+      RetQuery=RegQueryValueExW(hKey,L"",NULL,NULL,(PBYTE)lpwszNewValue,(LPDWORD)&ValueSize);
+
+      strNewValue.ReleaseBuffer ();
+
       RegCloseKey(hKey);
-      if(RetQuery == ERROR_SUCCESS && *NewValue)
+      if(RetQuery == ERROR_SUCCESS && !strNewValue.IsEmpty())
       {
-        char *Ptr;
-        ExpandEnvironmentStr(NewValue,NewValue,sizeof(NewValue));
+        apiExpandEnvironmentStrings(strNewValue,strNewValue);
+
+        wchar_t *Ptr = strNewValue.GetBuffer ();
         // Выделяем имя модуля
-        if (*NewValue=='\"')
+        if (*Ptr==L'\"')
         {
-          FAR_OemToChar(NewValue+1,NewValue);
-          if ((Ptr=strchr(NewValue,'\"'))!=NULL)
+          if ((Ptr=wcschr(Ptr,L'\"'))!=NULL)
             *Ptr=0;
         }
         else
         {
-          FAR_OemToChar(NewValue,NewValue);
-          if ((Ptr=strpbrk(NewValue," \t/"))!=NULL)
+          if ((Ptr=wcspbrk(Ptr,L" \t/"))!=NULL)
             *Ptr=0;
         }
-        IsCommandPEExeGUI(NewValue,ImageSubsystem);
+
+        strNewValue.ReleaseBuffer ();
+
+        IsCommandPEExeGUI(strNewValue,ImageSubsystem);
       }
       else
       {
@@ -707,37 +341,39 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
  Команда в функцию передается уже разкавыченная. Ничего не меняем.
  И подменять ничего не надо, т.к. все параметры мы отсекли раньше
 */
-int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWORD& ImageSubsystem)
+int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& ImageSubsystem)
 {
-  //_SVS(CleverSysLog clvrSLog("PrepareExecuteModule()"));
-  //_SVS(SysLog("Param: Command='%s'",Command));
   int Ret, I;
-  char FileName[4096],FullName[4096], *Ptr;
-  // int IsQuoted=FALSE;
-  // int IsExistExt=FALSE;
+  wchar_t *Ptr;
+
+  string strCommand = Command;
+
+  string strFileName;
+  string strFullName;
 
   // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
-  static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
-  static const char RegPath[]="SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+  static wchar_t StdExecuteExt[NM]=L".BAT;.CMD;.EXE;.COM;";
+  static const wchar_t RegPath[]=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
   static int PreparePrepareExt=FALSE;
 
   if(!PreparePrepareExt) // самоинициилизирующийся кусок
   {
     // если переменная %PATHEXT% доступна...
-    if((I=GetEnvironmentVariable("PATHEXT",FullName,sizeof(FullName)-1)) != 0)
+    if((I=apiGetEnvironmentVariable(L"PATHEXT",strFullName)) != 0)
     {
-      FullName[I]=0;
-      // удаляем дубляжи из PATHEXT
-      static char const * const StdExecuteExt0[4]={".BAT;",".CMD;",".EXE;",".COM;"};
+      static wchar_t const * const StdExecuteExt0[4]={L".BAT;",L".CMD;",L".EXE;",L".COM;"};
       for(I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
-        ReplaceStrings(FullName,StdExecuteExt0[I],"",-1);
+        ReplaceStringsW(strFullName,StdExecuteExt0[I],L"",-1);
     }
 
-    Ptr=strcat(StdExecuteExt,strcat(FullName,";")); //!!!
-    StdExecuteExt[strlen(StdExecuteExt)]=0;
+
+    strFullName += ";";
+
+    Ptr=wcscat(StdExecuteExt, strFullName);  //BUGBUG
+    StdExecuteExt[wcslen(StdExecuteExt)]=0;
     while(*Ptr)
     {
-      if(*Ptr == ';')
+      if(*Ptr == L';')
         *Ptr=0;
       ++Ptr;
     }
@@ -747,18 +383,18 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   /* Берем "исключения" из реестра, которые должны исполянться директом,
      например, некоторые внутренние команды ком.процессора.
   */
-  static char ExcludeCmds[4096]={0};
+  static wchar_t ExcludeCmds[4096]={0};
   static int PrepareExcludeCmds=FALSE;
-  if(GetRegKey(strSystemExecutor,"Type",0))
+  if(GetRegKeyW(strSystemExecutor,L"Type",0))
   {
     if (!PrepareExcludeCmds)
     {
-      GetRegKey(strSystemExecutor,"ExcludeCmds",(char*)ExcludeCmds,"",sizeof(ExcludeCmds));
-      Ptr=strcat(ExcludeCmds,";"); //!!!
-      ExcludeCmds[strlen(ExcludeCmds)]=0;
+      GetRegKeyW(strSystemExecutor,L"ExcludeCmds",(PBYTE)ExcludeCmds,(PBYTE)L"",sizeof(ExcludeCmds));
+      Ptr=wcscat(ExcludeCmds,L";"); //!!!
+      ExcludeCmds[wcslen(ExcludeCmds)]=0;
       while(*Ptr)
       {
-        if(*Ptr == ';')
+        if(*Ptr == L';')
           *Ptr=0;
         ++Ptr;
       }
@@ -774,107 +410,114 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN; // GUIType всегда вначале инициализируется в FALSE
   Ret=FALSE;
 
-  /* $ 14.06.2002 VVM
-     Имя модуля всегда передается без кавычек. Нефиг лишний раз гонять туда/сюда
-  // Выделяем имя модуля
-  if (*Command=='\"')
-  {
-    FAR_OemToChar(Command+1,FullName);
-    if ((Ptr=strchr(FullName,'\"'))!=NULL)
-      *Ptr=0;
-    IsQuoted=TRUE;
-  }
-  else
-  {
-    FAR_OemToChar(Command,FullName);
-    if ((Ptr=strpbrk(FullName," \t/|><"))!=NULL)
-      *Ptr=0;
-  } VVM $ */
-
-  if(!*Command) // вот же, надо же... пустышку передали :-(
+  if( strCommand.IsEmpty() ) // вот же, надо же... пустышку передали :-(
     return 0;
 
-  FAR_OemToChar(Command,FileName);
+  strFileName = strCommand;
 
   // нулевой проход - смотрим исключения
   {
-    char *Ptr=ExcludeCmds;
+    wchar_t *Ptr=ExcludeCmds;
     while(*Ptr)
     {
-      if(!LocalStricmp(FileName,Ptr))
+      if(!LocalStricmpW(strFileName,Ptr))
       {
         ImageSubsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
         return TRUE;
       }
-      Ptr+=strlen(Ptr)+1;
+      Ptr+=wcslen(Ptr)+1;
     }
   }
 
-  // IsExistExt - если точки нету (расширения), то потом модифицировать не
-  // будем.
-  // IsExistExt=strrchr(FullName,'.')!=NULL;
-
-  SetFileApisTo(APIS2ANSI);
 
   {
-    char *FilePart;
-    char *PtrFName=strrchr(PointToName(strcpy(FullName,FileName)),'.');
-    char *WorkPtrFName=0;
-    if(!PtrFName)
-      WorkPtrFName=FullName+strlen(FullName);
+    wchar_t *lpwszFilePart;
 
-    char *PtrExt=StdExecuteExt;
+    strFullName = strFileName;
+
+    const wchar_t *PtrFName = PointToNameW (strFullName);
+    PtrFName = wcsrchr (PtrFName, L'.');
+
+    string strWorkName;
+
+    wchar_t *PtrExt=StdExecuteExt;
     while(*PtrExt) // первый проход - в текущем каталоге
     {
-      if(!PtrFName)
-        strcpy(WorkPtrFName,PtrExt);
-      if(GetFileAttributes(FullName) != -1)
-      {
-        // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
-        // в текущем каталоге, то нифига ничего доброго не получаем
-        // cmd.exe по каким то причинам вызыват внутренний date
-        GetFullPathName(FullName,sizeof(FullName),FullName,&FilePart);
+      strWorkName = strFullName;
 
+      if (!PtrFName)
+        strWorkName += PtrExt;
+
+      if(GetFileAttributesW(strFullName) != -1)
+      {
+        ConvertNameToFullW (strFullName, strFullName);
         Ret=TRUE;
         break;
       }
-      PtrExt+=strlen(PtrExt)+1;
+      PtrExt+=wcslen(PtrExt)+1;
     }
 
     if(!Ret) // второй проход - по правилам SearchPath
     {
       /* $ 26.09.2003 VVM
         ! Сначала поищем по переменной PATH, а уж потом везде */
-      char PathEnv[4096];
-      if (GetEnvironmentVariable("PATH",PathEnv,sizeof(PathEnv)-1) != 0)
+      string strPathEnv;
+      if (apiGetEnvironmentVariable(L"PATH",strPathEnv) != 0)
       {
         PtrExt=StdExecuteExt;
+
+        DWORD dwSize = 0;
+
         while(*PtrExt)
         {
-          if(!PtrFName)
-            strcpy(WorkPtrFName,PtrExt);
-          if(SearchPath(PathEnv,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+          strWorkName = strFullName;
+
+          if (!PtrFName)
+            strWorkName += PtrExt;
+
+          if ( (dwSize = SearchPathW (strPathEnv, strFullName, PtrExt, 0, NULL, NULL)) != 0 )
           {
+            wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
+
+            SearchPathW(strPathEnv,strFullName,PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
+
+            strFullName.ReleaseBuffer ();
+
             Ret=TRUE;
             break;
           }
-          PtrExt+=strlen(PtrExt)+1;
+
+          PtrExt+=wcslen(PtrExt)+1;
         }
       }
+
+      DWORD dwSize;
 
       if (!Ret)
       {
         PtrExt=StdExecuteExt;
         while(*PtrExt)
         {
-          if(!PtrFName)
-            strcpy(WorkPtrFName,PtrExt);
-          if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+          strWorkName = strFullName;
+
+          if (!PtrFName)
+            strWorkName += PtrExt;
+
+
+
+          if ( (dwSize = SearchPathW (NULL, strFullName, PtrExt, 0, NULL, NULL)) != 0 )
           {
+            wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
+
+            SearchPathW(NULL,strFullName,PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
+
+            strFullName.ReleaseBuffer ();
+
             Ret=TRUE;
             break;
           }
-          PtrExt+=strlen(PtrExt)+1;
+
+          PtrExt+=wcslen(PtrExt)+1;
         }
       }
       /* VVM $ */
@@ -887,18 +530,27 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
         HKEY hKey;
         HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
 
+        strFullName = RegPath+strFileName;
+
         for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
         {
-          sprintf(FullName,"%s%s",RegPath,FileName);
-          if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+          if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
-            DWORD Type, DataSize=sizeof(FullName);
-            RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
+            DWORD Type, DataSize;
+
+            DataSize = strFullName.GetLength()*2; //???
+
+            wchar_t *lpwszFullName = strFullName.GetBuffer ();
+
+            RegQueryValueExW(hKey,L"", 0, &Type, (LPBYTE)lpwszFullName, &DataSize);
+
+            strFullName.ReleaseBuffer ();
+
             RegCloseKey(hKey);
             /* $ 03.10.2001 VVM Обработать переменные окружения */
-            strcpy(FileName, FullName);
-            ExpandEnvironmentStrings(FileName,FullName,sizeof(FullName));
-            Unquote(FullName);
+            strFileName = strFullName;
+            apiExpandEnvironmentStrings(strFileName, strFullName);
+            UnquoteW(strFullName);
             Ret=TRUE;
             break;
           }
@@ -909,25 +561,35 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
            Не нашли - попробуем с расширением */
         {
           PtrExt=StdExecuteExt;
+
           while(*PtrExt && !Ret)
           {
+            strFullName = RegPath+strFileName+PtrExt;
+
             for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
             {
-              sprintf(FullName,"%s%s%s",RegPath,FileName,PtrExt);
-              if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+              if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
               {
-                DWORD Type, DataSize=sizeof(FullName);
-                RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
+                DWORD Type, DataSize;
+
+                DataSize = strFullName.GetLength()*2;
+
+                wchar_t *lpwszFullName = strFullName.GetBuffer ();
+
+                RegQueryValueExW(hKey,L"", 0, &Type, (LPBYTE)lpwszFullName,&DataSize);
+
+                strFullName.GetBuffer ();
+
                 RegCloseKey(hKey);
                 /* $ 03.10.2001 VVM Обработать переменные окружения */
-                strcpy(FileName, FullName);
-                ExpandEnvironmentStrings(FileName,FullName,sizeof(FullName));
-                Unquote(FullName);
+                strFileName = strFullName;
+                apiExpandEnvironmentStrings(strFileName, strFullName);
+                UnquoteW(strFullName);
                 Ret=TRUE;
                 break;
               }
             } /* for */
-            PtrExt+=strlen(PtrExt)+1;
+            PtrExt+=wcslen(PtrExt)+1;
           }
         } /* if */
       } /* if */
@@ -936,34 +598,11 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 
   if(Ret) // некоторые "подмены" данных
   {
-    // char TempStr[4096];
-    // сначала проверим...
-    IsCommandPEExeGUI(FullName,ImageSubsystem);
-    /* $ 14.06.2002 VVM
-       Не надо квотить - взяли без кавычек - так и отдадим...
-    QuoteSpaceOnly(FullName);
-    QuoteSpaceOnly(FileName);
-      VVM $ */
+    IsCommandPEExeGUI(strFullName,ImageSubsystem);
 
-    // Для случая, когда встретились скобки:
-    /* $ 14.06.2002 VVM
-       Скобки - допустимый символ в имени файла...
-    if(strpbrk(FullName,"()"))
-      IsExistExt=FALSE;
-      VVM $ */
-
-    // xstrncpy(TempStr,Command,sizeof(TempStr)-1);
-    FAR_CharToOem(FullName,FullName);
-    // FAR_CharToOem(FileName,FileName);
-    // ReplaceStrings(TempStr,FileName,FullName);
-    if(!DestSize)
-      DestSize=strlen(FullName);
-    // if(Dest && IsExistExt)
-    if (Dest)
-      xstrncpy(Dest,FullName,DestSize);
+    strDest = strFullName;
   }
 
-  SetFileApisTo(APIS2OEM);
   return(Ret);
 }
 
@@ -1030,32 +669,53 @@ DWORD IsCommandExeGUI(const char *Command)
 #endif
 /* VVM $ */
 
+
 /* Функция для выставления пути для пассивной панели
    чтоб путь на пассивной панели был доступен по DriveLetter:
    для запущенных из фара программ в Win9x
 */
-void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
+void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr)
 {
   Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
 
-  if (PassivePanel->GetType()==FILE_PANEL)
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
   {
     //for (int I=0;CmdStr[I]!=0;I++)
     //{
-      //if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
+      //if (LocalIsalphaW(CmdStr[I]) && CmdStr[I+1]==L':' && CmdStr[I+2]!=L'\\')
       //{
-        char SavePath[NM],PanelPath[NM],SetPathCmd[NM*2];
-        FarGetCurDir(sizeof(SavePath),SavePath);
-        PassivePanel->GetCurDir(PanelPath);
-        sprintf(SetPathCmd,"%s /C chdir %s",Comspec,QuoteSpace(PanelPath));
-        STARTUPINFO si;
+        string strSetPathCmd;
+        string strSavePath;
+        string strPanelPath;
+
+        FarGetCurDirW(strSavePath);
+        PassivePanel->GetCurDirW(strPanelPath);
+
+        QuoteSpaceW (strPanelPath);
+
+        strSetPathCmd = strComspec+L" /C chdir %s"+strPanelPath;
+
+        STARTUPINFOW si;
         PROCESS_INFORMATION pi;
-        memset (&si, 0, sizeof (STARTUPINFO));
+        memset (&si, 0, sizeof (si));
         si.cb = sizeof (si);
-        CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&si,&pi);
+
+        CreateProcessW(
+              NULL,
+              (wchar_t*)(const wchar_t*)strSetPathCmd,
+              NULL,
+              NULL,
+              FALSE,
+              CREATE_DEFAULT_ERROR_MODE,
+              NULL,
+              NULL,
+              &si,
+              &pi
+              );
+
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
-        FarChDir(SavePath);
+        FarChDirW(strSavePath);
         //break;
       //}
     //}
@@ -1065,7 +725,7 @@ void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
-int Execute(const char *CmdStr,    // Ком.строка для исполнения
+int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
             int DirectRun,         // Выполнять директом? (без CMD)
@@ -1075,19 +735,15 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
   bool bIsNT = (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT);
 
-  char NewCmdStr[4096];
-  char NewCmdPar[4096];
-  char ExecLine[4096];
+  string strNewCmdStr;
+  string strNewCmdPar;
+  string strExecLine;
 
-  memset (&NewCmdStr, 0, sizeof (NewCmdStr));
-  memset (&NewCmdPar, 0, sizeof (NewCmdPar));
 
-  PartCmdLine (
+  PartCmdLineW (
           CmdStr,
-          NewCmdStr,
-          sizeof(NewCmdStr),
-          NewCmdPar,
-          sizeof(NewCmdPar)
+          strNewCmdStr,
+          strNewCmdPar
           );
 
   /* $ 05.04.2005 AY: Это не правильно, надо убирать только первый пробел,
@@ -1096,37 +752,37 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
     RemoveExternalSpaces(NewCmdPar);
   AY $ */
 
-  DWORD dwAttr = GetFileAttributes(NewCmdStr);
+  DWORD dwAttr = GetFileAttributesW(strNewCmdStr);
 
   if ( SeparateWindow == 1 )
   {
-      if ( !*NewCmdPar && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
+      if ( strNewCmdPar.IsEmpty() && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
       {
-          ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
+          ConvertNameToFullW(strNewCmdStr, strNewCmdStr);
           SeparateWindow=2;
           FolderRun=TRUE;
       }
   }
 
 
-  SHELLEXECUTEINFO seInfo;
-  memset (&seInfo, 0, sizeof seInfo);
+  SHELLEXECUTEINFOW seInfo;
+  memset (&seInfo, 0, sizeof (seInfo));
 
-  seInfo.cbSize = sizeof (SHELLEXECUTEINFO);
+  seInfo.cbSize = sizeof (seInfo);
 
-  STARTUPINFO si;
+  STARTUPINFOW si;
   PROCESS_INFORMATION pi;
 
-  memset (&si, 0, sizeof (STARTUPINFO));
+  memset (&si, 0, sizeof (si));
 
   si.cb = sizeof (si);
 
-  char Comspec[NM] = {0};
-  GetEnvironmentVariable("COMSPEC", Comspec, sizeof(Comspec));
+  string strComspec;
+  apiGetEnvironmentVariable (L"COMSPEC", strComspec);
 
-  if ( !*Comspec && (SeparateWindow != 2) )
+  if ( strComspec.IsEmpty() && (SeparateWindow != 2) )
   {
-    Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
+    MessageW(MSG_WARNING, 1, UMSG(MWarning), UMSG(MComspecNotFound), UMSG(MErrorCancelled), UMSG(MOk));
     return -1;
   }
 
@@ -1149,11 +805,11 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
   GetConsoleScreenBufferInfo(hConOut,&sbi);
 
-  char OldTitle[512];
-  GetConsoleTitle (OldTitle, sizeof(OldTitle));
+  wchar_t OldTitle[512];
+  GetConsoleTitleW(OldTitle, sizeof(OldTitle)/sizeof(wchar_t));
 
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && *Comspec)
-    SetCurrentDirectoryForPassivePanel(Comspec,CmdStr);
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !strComspec.IsEmpty())
+    SetCurrentDirectoryForPassivePanel(strComspec,CmdStr);
 
   DWORD dwSubSystem;
   DWORD dwError = 0;
@@ -1161,21 +817,19 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   HANDLE hProcess = NULL, hThread = NULL;
 
   if(FolderRun && SeparateWindow==2)
-    AddEndSlash(NewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+    AddEndSlashW(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
   else
   {
-    PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
+    PrepareExecuteModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 
     if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
     {
       DWORD Error=0, dwSubSystem2=0;
-      char *ExtPtr=strrchr(NewCmdStr,'.');
+      wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
 
-      if(ExtPtr &&
-        !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
-          IsBatchExtType(ExtPtr))
-        )
-        if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
+      if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
+         IsBatchExtTypeW(ExtPtr)))
+        if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
           dwSubSystem=dwSubSystem2;
     }
 
@@ -1187,88 +841,76 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
   if ( SeparateWindow == 2 )
   {
-    FAR_OemToChar (NewCmdStr, NewCmdStr);
-    FAR_OemToChar (NewCmdPar, NewCmdPar);
-
-    seInfo.lpFile = NewCmdStr;
-    seInfo.lpParameters = NewCmdPar;
+    seInfo.lpFile = strNewCmdStr;
+    seInfo.lpParameters = strNewCmdPar;
     seInfo.nShow = SW_SHOWNORMAL;
 
-    seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)NewCmdStr, dwSubSystem, dwError);
+    seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
     //seInfo.lpVerb = "open";
     seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
 
     if ( !dwError )
     {
-      SetFileApisTo(APIS2ANSI);
-
-      if ( ShellExecuteEx (&seInfo) )
+      if ( ShellExecuteExW (&seInfo) )
       {
         hProcess = seInfo.hProcess;
         StartExecTime=clock();
       }
       else
         dwError = GetLastError ();
-
-      SetFileApisTo(APIS2OEM);
     }
-
-    FAR_CharToOem (NewCmdStr, NewCmdStr);
-    FAR_CharToOem (NewCmdPar, NewCmdPar);
   }
   else
   {
-    char FarTitle[2048];
+    string strFarTitle;
     if(!Opt.ExecuteFullTitle)
-      xstrncpy(FarTitle,CmdStr,sizeof(FarTitle)-1);
+    {
+      strFarTitle=CmdStr;
+    }
     else
     {
-      xstrncpy(FarTitle,NewCmdStr,sizeof(FarTitle)-1);
-      if (*NewCmdPar)
+      strFarTitle = strNewCmdStr;
+      if ( !strNewCmdPar.IsEmpty() )
       {
-        strncat(FarTitle," ",sizeof(FarTitle)-1);
-        strncat(FarTitle,NewCmdPar,sizeof(FarTitle)-1);
+        strFarTitle += L" ";
+        strFarTitle += strNewCmdPar;
       }
     }
+    SetConsoleTitleW(strFarTitle);
 
-    if ( bIsNT )
-      SetConsoleTitle(FarTitle);
-    FAR_OemToChar(FarTitle,FarTitle);
-    if ( !bIsNT )
-      SetConsoleTitle(FarTitle);
     if (SeparateWindow)
-      si.lpTitle=FarTitle;
+      si.lpTitle=(wchar_t*)(const wchar_t*)strFarTitle;
 
-    QuoteSpace (NewCmdStr);
+    QuoteSpaceW (strNewCmdStr);
 
-    strcpy (ExecLine, Comspec);
-    strcat (ExecLine, " /C ");
+    strExecLine = strComspec;
+    strExecLine += L" /C ";
 
     bool bDoubleQ = false;
 
-    if ( bIsNT && strpbrk (NewCmdStr, "&<>()@^|") )
+    if ( bIsNT && wcspbrk (strNewCmdStr, L"&<>()@^|") )
       bDoubleQ = true;
 
-    if ( (bIsNT && *NewCmdPar) || bDoubleQ )
-      strcat (ExecLine, "\"");
+    if ( (bIsNT && !strNewCmdPar.IsEmpty()) || bDoubleQ )
+      strExecLine += L"\"";
 
-    strcat (ExecLine, NewCmdStr);
+    strExecLine += strNewCmdStr;
 
-    if ( *NewCmdPar )
+    if ( !strNewCmdPar.IsEmpty() )
     {
-      strcat (ExecLine, " ");
-      strcat (ExecLine, NewCmdPar);
+      strExecLine += L" ";
+      strExecLine += strNewCmdPar;
     }
 
-    if ( (bIsNT && *NewCmdPar) || bDoubleQ)
-      strcat (ExecLine, "\"");
+    if ( (bIsNT && !strNewCmdPar.IsEmpty()) || bDoubleQ)
+      strExecLine += L"\"";
 
     // // попытка борьбы с синим фоном в 4NT при старте консоль
     SetRealColor (F_LIGHTGRAY|B_BLACK);
 
-    if ( CreateProcess (
+    if ( CreateProcessW (
         NULL,
-        ExecLine,
+        (wchar_t*)(const wchar_t*)strExecLine,
         NULL,
         NULL,
         false,
@@ -1294,12 +936,6 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
     {
       ScrBuf.Flush ();
 
-//      char s[100];
-
-//      sprintf (s, "%d %d", AlwaysWaitFinish, SeparateWindow);
-
-//      MessageBox (0, s, s, MB_OK);
-
       if ( AlwaysWaitFinish || !SeparateWindow )
       {
         if ( Opt.ConsoleDetachKey == 0 )
@@ -1315,7 +951,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
           HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
           HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
 
-              INPUT_RECORD ir[256];
+          INPUT_RECORD ir[256];
           DWORD rd;
 
           int vkey=0,ctrl=0;
@@ -1338,7 +974,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
               ) != WAIT_OBJECT_0
               )
           {
-            if ( PeekConsoleInput(hHandles[1],ir,256,&rd) && rd)
+            if ( PeekConsoleInputW(hHandles[1],ir,256,&rd) && rd)
             {
               int stop=0;
 
@@ -1367,7 +1003,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
                       hLargeIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
                     }
 
-                    ReadConsoleInput(hInput,ir,256,&rd);
+                    ReadConsoleInputW(hInput,ir,256,&rd);
 
                     /*
                       Не будем вызыват CloseConsole, потому, что она поменяет
@@ -1400,9 +1036,9 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
                     {
                       if ( Opt.SmallIcon )
                       {
-                        char FarName[NM];
-                        GetModuleFileName(NULL,FarName,sizeof(FarName));
-                        ExtractIconEx(FarName,0,&hLargeIcon,&hSmallIcon,1);
+                        string strFarName;
+                        apiGetModuleFileName (NULL, strFarName);
+                        ExtractIconExW(strFarName,0,&hLargeIcon,&hSmallIcon,1);
                       }
 
                       if ( hLargeIcon != NULL )
@@ -1441,25 +1077,27 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   }
   else
   {
-    char OutStr[1024];
+    string strOutStr;
 
     if( Opt.ExecuteShowErrorMessage )
     {
-      SetMessageHelp("ErrCannotExecute");
+      SetMessageHelp(L"ErrCannotExecute");
 
-      xstrncpy(OutStr,NewCmdStr,sizeof(OutStr)-1);
-      Unquote(OutStr);
-      TruncPathStr(OutStr,ScrX-15);
+      strOutStr = strNewCmdStr;
+      UnquoteW(strOutStr);
+      TruncPathStrW(strOutStr,ScrX-15);
 
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
+      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotExecute),strOutStr,UMSG(MOk));
     }
     else
     {
       ScrBuf.Flush ();
 
-      sprintf(OutStr,MSG(MExecuteErrorMessage),NewCmdStr);
-      char *PtrStr=FarFormatText(OutStr,ScrX,OutStr,sizeof(OutStr),"\n",0);
-      printf(PtrStr);
+      strOutStr.Format (UMSG(MExecuteErrorMessage),(const wchar_t *)strNewCmdStr);
+      string strPtrStr=FarFormatTextW(strOutStr,ScrX, strPtrStr,L"\n",0);
+
+      wprintf(strPtrStr);
+
       ScrBuf.FillBuf();
     }
 
@@ -1473,7 +1111,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   SetCursorType(Visible,Size);
   SetRealCursorType(Visible,Size);
 
-  SetConsoleTitle(OldTitle);
+  SetConsoleTitleW(OldTitle);
 
   /* Если юзер выполнил внешнюю команду, например
      mode con lines=50 cols=100
@@ -1494,10 +1132,11 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 }
 
 
-int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
+int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
                             int SeparateWindow,int DirectRun)
 {
   LastCmdPartLength=-1;
+
   if (!SeparateWindow && CtrlObject->Plugins.ProcessCommandLine(CmdLine))
   {
     /* $ 12.05.2001 DJ
@@ -1505,9 +1144,9 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     */
     if (CtrlObject->Cp()->IsTopFrame())
     {
-      CmdStr.SetString("");
+      CmdStr.SetStringW(L"");
       GotoXY(X1,Y1);
-      mprintf("%*s",X2-X1+1,"");
+      mprintfW(L"%*s",X2-X1+1,L"");
       Show();
       ScrBuf.Flush();
     }
@@ -1525,18 +1164,18 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
 
       ScrollScreen(1);
       MoveCursor(X1,Y1);
-      if (CurDir[0] && CurDir[1]==':')
-        FarChDir(CurDir);
-      CmdStr.SetString("");
+      if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+        FarChDirW(strCurDir);
+      CmdStr.SetStringW(L"");
       if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
         Code=-1;
       else
       {
-        char TempStr[2048];
-        xstrncpy(TempStr,CmdLine,sizeof(TempStr)-1);
+        string strTempStr;
+        strTempStr = CmdLine;
         if(Code == -1)
-          ReplaceStrings(TempStr,"/","\\",-1);
-        Code=Execute(TempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
+          ReplaceStringsW(strTempStr,L"/",L"\\",-1);
+        Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
       }
 
       GetConsoleScreenBufferInfo(hConOut,&sbi1);
@@ -1589,13 +1228,13 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
    Исходная строка (CmdLine) не модифицируется!!! - на что явно указывает const
                                                     IS 20.03.2002 :-)
 */
-const char* WINAPI PrepareOSIfExist(const char *CmdLine)
+const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
 {
   if(!CmdLine || !*CmdLine)
     return NULL;
 
-  char Cmd[1024];
-  const char *PtrCmd=CmdLine, *CmdStart;
+  wchar_t Cmd[1024]; //BUGBUG
+  const wchar_t *PtrCmd=CmdLine, *CmdStart;
   int Not=FALSE;
   int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
                // > 0 - эсть такая конструкция
@@ -1603,30 +1242,30 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
   /* $ 25.04.2001 DJ
      обработка @ в IF EXIST
   */
-  if (*PtrCmd == '@')
+  if (*PtrCmd == L'@')
   {
     // здесь @ игнорируется; ее вставит в правильное место функция
     // ExtractIfExistCommand в filetype.cpp
     PtrCmd++;
-    while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
+    while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;
   }
   /* DJ $ */
   while(1)
   {
-    if (!PtrCmd || !*PtrCmd || memicmp(PtrCmd,"IF ",3))
+    if (!PtrCmd || !*PtrCmd || LocalStrnicmpW(PtrCmd,L"IF ",3))
       break;
 
     PtrCmd+=3; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
 
-    if (memicmp(PtrCmd,"NOT ",4)==0)
+    if (LocalStrnicmpW(PtrCmd,L"NOT ",4)==0)
     {
       Not=TRUE;
       PtrCmd+=4; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
     }
 
-    if (*PtrCmd && !memicmp(PtrCmd,"EXIST ",6))
+    if (*PtrCmd && !LocalStrnicmpW(PtrCmd,L"EXIST ",6))
     {
-      PtrCmd+=6; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=6; while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
 
       /* $ 25.04.01 DJ
@@ -1635,85 +1274,82 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
       BOOL InQuotes=FALSE;
       while (*PtrCmd)
       {
-        if (*PtrCmd == '\"')
+        if (*PtrCmd == L'\"')
           InQuotes = !InQuotes;
-        else if (*PtrCmd == ' ' && !InQuotes)
+        else if (*PtrCmd == L' ' && !InQuotes)
           break;
         PtrCmd++;
       }
 
-      if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
+      if(PtrCmd && *PtrCmd && *PtrCmd == L' ')
       {
-        char ExpandedStr[8192];
-        memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
+        string strExpandedStr;
+        wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
         Cmd[PtrCmd-CmdStart]=0;
-        Unquote(Cmd);
+        //UnquoteW(Cmd); BUGBUG
 //_SVS(SysLog("Cmd='%s'",Cmd));
-        if (ExpandEnvironmentStr(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
+        if (apiExpandEnvironmentStrings(Cmd,strExpandedStr)!=0)
         {
-          char FullPath[8192]="";
-          if(!(Cmd[1] == ':' || (Cmd[0] == '\\' && Cmd[1]=='\\') || ExpandedStr[1] == ':' || (ExpandedStr[0] == '\\' && ExpandedStr[1]=='\\')))
+          string strFullPath;
+          if(!(Cmd[1] == L':' || (Cmd[0] == L'\\' && Cmd[1]==L'\\') || strExpandedStr.At(1) == L':' || (strExpandedStr.At(0) == L'\\' && strExpandedStr.At(1)==L'\\')))
           {
             if(CtrlObject)
-              CtrlObject->CmdLine->GetCurDir(FullPath);
+              CtrlObject->CmdLine->GetCurDirW(strFullPath);
             else
-              FarGetCurDir(sizeof(FullPath),FullPath);
-            AddEndSlash(FullPath);
+              FarGetCurDirW(strFullPath);
+            AddEndSlashW(strFullPath);
           }
-          strcat(FullPath,ExpandedStr);
+          strFullPath += strExpandedStr;
           DWORD FileAttr=-1;
-          if(strpbrk(ExpandedStr,"*?")) // это маска?
+          if(wcspbrk(strExpandedStr,L"*?")) // это маска?
           {
-            WIN32_FIND_DATA wfd;
-            HANDLE hFile=FindFirstFile(FullPath, &wfd);
-            if(hFile!=INVALID_HANDLE_VALUE)
-            {
+            FAR_FIND_DATA_EX wfd;
+
+            if ( apiGetFindDataEx (strFullPath, &wfd) )
               FileAttr=wfd.dwFileAttributes;
-              FindClose(hFile);
-            }
           }
           else
           {
-            ConvertNameToFull(FullPath, FullPath, sizeof(FullPath));
-            FileAttr=GetFileAttributes(FullPath);
+            ConvertNameToFullW(strFullPath, strFullPath);
+            FileAttr=GetFileAttributesW(strFullPath);
           }
 //_SVS(SysLog("%08X FullPath=%s",FileAttr,FullPath));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
-            while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
+            while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;
             Exist++;
           }
           else
-            return "";
+            return L"";
         }
       }
       /* DJ $ */
     }
     // "IF [NOT] DEFINED variable command"
-    else if (*PtrCmd && !memicmp(PtrCmd,"DEFINED ",8))
+    else if (*PtrCmd && !LocalStrnicmpW(PtrCmd,L"DEFINED ",8))
     {
-      PtrCmd+=8; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=8; while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
-      if(*PtrCmd == '"')
-        PtrCmd=strchr(PtrCmd+1,'"');
+      if(*PtrCmd == L'"')
+        PtrCmd=wcschr(PtrCmd+1,L'"');
 
       if(PtrCmd && *PtrCmd)
       {
-        PtrCmd=strchr(PtrCmd,' ');
+        PtrCmd=wcschr(PtrCmd,' ');
         if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
         {
-          char ExpandedStr[8192];
-          memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
+          string strExpandedStr;
+          wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
           Cmd[PtrCmd-CmdStart]=0;
-          DWORD ERet=GetEnvironmentVariable(Cmd,ExpandedStr,sizeof(ExpandedStr));
+          DWORD ERet=apiGetEnvironmentVariable(Cmd,strExpandedStr);
 //_SVS(SysLog(Cmd));
           if(ERet && !Not || !ERet && Not)
           {
-            while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
+            while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;
             Exist++;
           }
           else
-            return "";
+            return L"";
         }
       }
     }
@@ -1723,98 +1359,73 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
 /* SVS $ */
 /* IS $ */
 
-int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
+int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 {
   Panel *SetPanel;
   int Length;
+
+  string strCmdLine = CmdLine;
 
   SetPanel=CtrlObject->Cp()->ActivePanel;
 
   if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
     SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-  RemoveTrailingSpaces(CmdLine);
+  RemoveTrailingSpacesW(strCmdLine);
 
-  if (!SeparateWindow && isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
+  if (!SeparateWindow && LocalIsalphaW(strCmdLine.At(0)) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
   {
-    char NewDir[10];
-    sprintf(NewDir,"%c:",toupper(CmdLine[0]));
-    FarChDir(CmdLine);
-    if (getdisk()!=NewDir[0]-'A')
+    wchar_t NewDir[10];
+    swprintf(NewDir,L"%c:",LocalUpperW(strCmdLine.At(0)));
+    FarChDirW(strCmdLine);
+    if (getdisk()!=NewDir[0]-L'A')
     {
-      strcat(NewDir,"\\");
-      FarChDir(NewDir);
+      wcscat(NewDir,L"\\");
+      FarChDirW(NewDir);
     }
     SetPanel->ChangeDirToCurrent();
     return(TRUE);
   }
 
   // SET [переменная=[строка]]
-  if (strnicmp(CmdLine,"SET ",4)==0)
+  if (LocalStrnicmpW(strCmdLine,L"SET ",4)==0)
   {
-    char Cmd[1024];
-#if 0
-    // Вариант для "SET /P variable=[promptString]"
-    int Offset=4, NeedInput=FALSE;
-    char *ParamP=strchr(CmdLine,'/');
-    if (ParamP && (ParamP[1] == 'P' || ParamP[1] == 'p') && ParamP[2] == ' ')
-    {
-      Offset=ParamP-CmdLine+3;
-      NeedInput=TRUE;
-    }
+    string strCmd;
 
-    xstrncpy(Cmd,CmdLine+Offset,sizeof(Cmd)-1);
+    strCmd = (const wchar_t*)strCmdLine+4;
 
-    char *Value=strchr(Cmd,'=');
-    if (Value==NULL)
+    wchar_t *lpwszValue = strCmd.GetBuffer ();
+
+    lpwszValue=wcschr(lpwszValue,L'=');
+
+    if (lpwszValue==NULL)
       return(FALSE);
 
-    *Value=0;
-    if(NeedInput)
-    {
-      Offset=Value-Cmd+1;
-      if(!::GetString("",Value+1,"PromptSetEnv","",Value+1,sizeof(Cmd)-Offset-1,NULL,FIB_ENABLEEMPTY))
-        return TRUE;
-    }
-#else
-    xstrncpy(Cmd,CmdLine+4,sizeof(Cmd)-1);
-    char *Value=strchr(Cmd,'=');
-    if (Value==NULL)
-      return(FALSE);
+    *lpwszValue=0;
 
-    *Value=0;
-#endif
-    FAR_OemToChar(Cmd, Cmd);
-
-    if (Value[1]==0)
-      SetEnvironmentVariable(Cmd,NULL);
+    if (lpwszValue[1]==0) //??
+      SetEnvironmentVariableW(strCmd,NULL);
     else
     {
-      char ExpandedStr[8192];
-      /* $ 17.06.2001 IS
-         ! Применяем ExpandEnvironmentStr, т.к. она корректно работает с
-           русскими буквами.
-         + Перекодируем строки перед SetEnvironmentVariable из OEM в ANSI
-      */
-      if (ExpandEnvironmentStr(Value+1,ExpandedStr,sizeof(ExpandedStr))!=0)
-      {
-        // переменные окружения должны быть в ANSI???
-        FAR_OemToChar(ExpandedStr, ExpandedStr);
-        SetEnvironmentVariable(Cmd,ExpandedStr);
-      }
-      /* IS $ */
+      string strExpandedStr;
+
+      if (apiExpandEnvironmentStrings(lpwszValue+1,strExpandedStr) != 0)
+        SetEnvironmentVariableW(strCmd,strExpandedStr);
     }
+
+    strCmd.ReleaseBuffer ();
+
     return(TRUE);
   }
 
-  if (!memicmp(CmdLine,"REM ",4) || !memicmp(CmdLine,"::",2))
+  if (!LocalStrnicmpW(strCmdLine,L"REM ",4) || !LocalStrnicmpW(strCmdLine,L"::",2))
   {
     return TRUE;
   }
 
-  if (!memicmp(CmdLine,"CLS",3))
+  if (!LocalStrnicmpW(strCmdLine,L"CLS",3))
   {
-    if(CmdLine[3])
+    if(strCmdLine.At(3))
       return FALSE;
 
     ClearScreen(F_LIGHTGRAY|B_BLACK);
@@ -1827,23 +1438,29 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     nnn   Specifies a code page number (Dec or Hex).
   Type CHCP without a parameter to display the active code page number.
   */
-  if (!memicmp(CmdLine,"CHCP",4))
+  if (!LocalStrnicmpW(strCmdLine,L"CHCP",4))
   {
-    if(CmdLine[4] == 0 || !(CmdLine[4] == ' ' || CmdLine[4] == '\t'))
+    if(strCmdLine.At(4) == 0 || !(strCmdLine.At(4) == L' ' || strCmdLine.At(4) == L'\t'))
       return(FALSE);
 
-    char *Ptr=RemoveExternalSpaces(CmdLine+5), Chr;
+    strCmdLine = (const wchar_t*)strCmdLine+5;
 
-    if(!isdigit(*Ptr))
+    const wchar_t *Ptr=RemoveExternalSpacesW(strCmdLine);
+    wchar_t Chr;
+
+    if(!iswdigit(*Ptr))
       return FALSE;
 
     while((Chr=*Ptr) != 0)
     {
-      if(!isdigit(Chr))
+      if(!iswdigit(Chr))
         break;
       ++Ptr;
     }
-    UINT cp=(UINT)strtol(CmdLine+5,&Ptr,10);
+
+    wchar_t *Ptr2;
+
+    UINT cp=(UINT)wcstol((const wchar_t*)strCmdLine+5,&Ptr2,10); //BUGBUG
     BOOL r1=SetConsoleCP(cp);
     BOOL r2=SetConsoleOutputCP(cp);
     if(r1 && r2) // Если все ОБИ, то так  и...
@@ -1865,15 +1482,16 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
        "IF [NOT] EXIST filename command"
        "IF [NOT] DEFINED variable command"
   */
-  if (memicmp(CmdLine,"IF ",3)==0)
+  if (LocalStrnicmpW(strCmdLine,L"IF ",3)==0)
   {
-    const char *PtrCmd=PrepareOSIfExist(CmdLine);
+    const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
     // здесь PtrCmd - уже готовая команда, без IF
+
     if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
     {
-      CmdStr.SetString("");
+      CmdStr.SetStringW(L"");
       GotoXY(X1,Y1);
-      mprintf("%*s",X2-X1+1,"");
+      mprintfW(L"%*s",X2-X1+1,L"");
       Show();
       return TRUE;
     }
@@ -1885,59 +1503,70 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
      пропускаем обработку, если нажат Shift-Enter
   */
   if (!SeparateWindow &&  /* DJ $ */
-      (strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
-      (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || CmdLine[Length]=='/' || TestParentFolderName(CmdLine+Length)))
+      (LocalStrnicmpW(strCmdLine,L"CD",Length=2)==0 || LocalStrnicmpW(strCmdLine,L"CHDIR",Length=5)==0) &&
+      (IsSpaceW(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
+      TestParentFolderNameW((const wchar_t*)strCmdLine+Length)))
   {
     int ChDir=(Length==5);
 
-    while (IsSpace(CmdLine[Length]))
+    while (IsSpaceW(strCmdLine.At(Length)))
       Length++;
 
-    char ExpandedDir[8192];
-    xstrncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
+    string strExpandedDir;
+    strExpandedDir = (const wchar_t*)strCmdLine+Length;
 
-    Unquote(ExpandedDir);
-    ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir));
+    UnquoteW(strExpandedDir);
+    apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
+
 
     // скорректируем букву диска на "подступах"
-    if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
-      ExpandedDir[0]=toupper(ExpandedDir[0]);
+//    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
+//      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-    if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1)
+    if(SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == (DWORD)-1)
     {
-      GetRegKey(strSystemExecutor,"~",(char*)ExpandedDir,FarPath,sizeof(ExpandedDir)-1);
-      DeleteEndSlash(ExpandedDir);
+      GetRegKeyW(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
+      DeleteEndSlashW(strExpandedDir);
     }
 
-    if(strpbrk(ExpandedDir,"?*")) // это маска?
+    if(wcspbrk(strExpandedDir,L"?*")) // это маска?
     {
-      WIN32_FIND_DATA wfd;
-      HANDLE hFile=FindFirstFile(ExpandedDir, &wfd);
+      FAR_FIND_DATA_EX wfd;
+      HANDLE hFile=apiFindFirstFile(strExpandedDir, &wfd);
       if(hFile!=INVALID_HANDLE_VALUE)
       {
-        char *Ptr=strrchr(ExpandedDir,'\\');
-        if (!Ptr)
-          Ptr=strrchr(ExpandedDir,'/');
+        wchar_t *Ptr = strExpandedDir.GetBuffer (), *Ptr2;
+
+        Ptr2=wcsrchr(Ptr,L'\\');
+        if(!Ptr2)
+          Ptr2=wcsrchr(Ptr,L'/');
+        Ptr=Ptr2;
+
         if(Ptr)
+        {
           *++Ptr=0;
+          strExpandedDir.ReleaseBuffer ();
+        }
         else
-          *ExpandedDir=0;
-        strncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
+        {
+          strExpandedDir.ReleaseBuffer ();
+          strExpandedDir=L"";
+        }
+
+
+        strExpandedDir += wfd.strFileName;
         FindClose(hFile);
       }
     }
-
-    // \\?\UNC\<hostname>\<sharename>\<dirname> , а также cd \\.\<disk>:\<dirname>
-
     /* $ 15.11.2001 OT
       Сначала проверяем есть ли такая "обычная" директория.
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
-    DWORD DirAtt=GetFileAttributes(ExpandedDir);
-    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
+    DWORD DirAtt=GetFileAttributesW(strExpandedDir);
+    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsoluteW(strExpandedDir))
     {
-      ReplaceStrings(ExpandedDir,"/","\\",-1);
-      SetPanel->SetCurDir(ExpandedDir,TRUE);
+      ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
+      SetPanel->SetCurDirW(strExpandedDir,TRUE);
       return TRUE;
     }
     /* OT $ */
@@ -1961,18 +1590,20 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     */
     /* SKV $ */
 
+    strExpandedDir.ReleaseBuffer ();
+
     if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
     {
-      SetPanel->SetCurDir(ExpandedDir,ChDir);
+      SetPanel->SetCurDirW(strExpandedDir,ChDir);
       return(TRUE);
     }
 
-    //if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
+    //if (ExpandEnvironmentStrW(strExpandedDir,strExpandedDir)!=0)
     {
-      if(CheckFolder(ExpandedDir) <= CHKFLD_NOTACCESS)
+      if(CheckFolderW(strExpandedDir) <= CHKFLD_NOTACCESS)
         return -1;
 
-      if (!FarChDir(ExpandedDir))
+      if (!FarChDirW(strExpandedDir))
         return(FALSE);
     }
 
@@ -1986,19 +1617,20 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 }
 
 // Проверить "Это батник?"
-BOOL IsBatchExtType(const char *ExtPtr)
+BOOL IsBatchExtTypeW(const wchar_t *ExtPtr)
 {
-  char *PtrBatchType=Opt.ExecuteBatchType;
+  const wchar_t *PtrBatchType=Opt.strExecuteBatchType;
   while(*PtrBatchType)
   {
-    if(stricmp(ExtPtr,PtrBatchType)==0)
+    if(LocalStricmpW(ExtPtr,PtrBatchType)==0)
       return TRUE;
-    PtrBatchType+=strlen(PtrBatchType)+1;
+    PtrBatchType+=wcslen(PtrBatchType)+1;
   }
 
   return FALSE;
 }
 
+#ifdef ADD_GUI_CHECK
 // батник существует? (и вернем полное имя - добавляется расширение)
 BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
 {
@@ -2028,3 +1660,4 @@ BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
 
   return Result;
 }
+#endif

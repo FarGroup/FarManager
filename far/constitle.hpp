@@ -7,10 +7,12 @@ constitle.hpp
 
 */
 
-/* Revision: 1.02 01.04.2002 $ */
+/* Revision: 1.03 16.07.2005 $ */
 
 /*
 Modify:
+  16.07.2005 WARP
+    ! Класс ConsoleTitle полностью юникодный.
   01.04.2002 SVS
     ! Про заголовок
   14.05.2001 SVS
@@ -18,19 +20,19 @@ Modify:
   20.03.2001 tran
     ! created
 */
-
+#include "UnicodeString.hpp"
 
 class ConsoleTitle
 {
   private:
-    char OldTitle[512];
+    string strOldTitle;
 
   public:
-    ConsoleTitle(char *title=NULL);
+    ConsoleTitle(const wchar_t *title=NULL);
     ~ConsoleTitle();
 
   public:
-    void Set(char *fmt,...);
+    void Set(const wchar_t *fmt,...);
 
 };
 

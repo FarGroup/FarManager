@@ -7,29 +7,23 @@ class PreserveLongName
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
-
-/*
-Modify:
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.03 01.05.2006 $ */
 
 #include "farconst.hpp"
+#include "unicodestring.hpp"
 
-class PreserveLongName
+
+class PreserveLongNameW
 {
   private:
-    char SaveLongName[NM],SaveShortName[NM];
+    string strSaveLongName;
+    string strSaveShortName;
     int Preserve;
   public:
-    PreserveLongName(char *ShortName,int Preserve);
-    ~PreserveLongName();
+    PreserveLongNameW(const wchar_t *ShortName,int Preserve);
+    ~PreserveLongNameW();
 };
 
 
 
-#endif	// __PRESERVELONGNAME_HPP__
+#endif  // __PRESERVELONGNAME_HPP__

@@ -7,36 +7,10 @@ Quick view panel
 
 */
 
-/* Revision: 1.10 12.07.2006 $ */
-
-/*
-Modify:
-  12.07.2006 SVS
-    ! kill class int64
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  24.12.2001
-    + virtual int GetCurName(char *Name,char *ShortName) - текущий просматриваемый файл
-  06.05.2001 DJ
-    ! перетрях #include
-  30.04.2001 DJ
-    + UpdateKeyBar(), DynamicUpdateKeyBar()
-  05.04.2001 VVM
-    + Переключение макросов в режим MACRO_QVIEWPANEL
-  20.02.2001 VVM
-    ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
-  20.07.2000 tran 1.01
-    - bug 21, реализовал два виртуальных метода
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.14 09.05.2006 $ */
 
 #include "panel.hpp"
+#include "CriticalSections.hpp"
 
 class Viewer;
 
@@ -44,11 +18,16 @@ class QuickView:public Panel
 {
   private:
     void DisplayObject();
-    void PrintText(char *Str);
+    void PrintTextW(const wchar_t *Str);
+
     Viewer *QView;
-    char CurFileName[NM];
-    char CurFileType[80];
-    char TempName[NM];
+
+    string strCurFileName;
+    string strCurFileType;
+    string strTempName;
+
+    CriticalSection CS;
+
     int Directory;
     int PrevMacroMode;
     unsigned long DirCount,FileCount,ClusterSize;
@@ -65,21 +44,16 @@ class QuickView:public Panel
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Update(int Mode);
-    void ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin);
+    void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
     void CloseFile();
     void QViewDelTempName();
     virtual int UpdateIfChanged(int UpdateMode);
-    /* $ 20.07.2000 tran
-       add two new virtual methos - for correct title showing*/
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     virtual void SetFocus();
-    /* tran 20.07.2000 $ */
     virtual void KillFocus();
-    /* $ 30.04.2001 DJ */
     virtual BOOL UpdateKeyBar();
-    /* DJ $ */
-    virtual int GetCurName(char *Name,char *ShortName);
+    virtual int GetCurNameW(string &strName, string &strShortName);
 };
 
 

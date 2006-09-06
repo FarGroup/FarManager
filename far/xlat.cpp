@@ -5,28 +5,7 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.08 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  24.04.2005 AY
-    ! GCC
-  14.04.2005 AY
-    ! Не доходили до последнего символа в Opt.XLat.Table
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  19.02.2002 SVS
-    ! Уточнение кодера.
-  25.06.2001 IS
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.10 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -84,12 +63,12 @@ char* WINAPI Xlat(
     // из текущей кодировки в OEM
     DecodeString(Line+StartPos,(LPBYTE)TableSet->DecodeTable,EndPos-StartPos+1);
 
-  char LayoutName[64];
+  string strLayoutName;
 
   int ProcessLayoutName=FALSE;
-  if((Flags & XLAT_USEKEYBLAYOUTNAME) && FARGetKeybLayoutName(LayoutName,sizeof(LayoutName)-1))
+  if((Flags & XLAT_USEKEYBLAYOUTNAME) && FARGetKeybLayoutNameW(strLayoutName))
   {
-    GetRegKey("XLat",LayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)"",sizeof(Opt.XLat.Rules[2]));
+    GetRegKeyW(L"XLat",strLayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)"",sizeof(Opt.XLat.Rules[2]));
     if(Opt.XLat.Rules[2][1])
       ProcessLayoutName=TRUE;
   }
@@ -194,7 +173,7 @@ char* WINAPI Xlat(
   */
   if(hFarWnd && (Flags & XLAT_SWITCHKEYBLAYOUT))
   {
-    PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
+    PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
     /* $ 04.11.2000 SVS
        Выдаем звуковой сигнал, если надо.
     */
@@ -207,3 +186,12 @@ char* WINAPI Xlat(
   return Line;
 }
 /* SVS $ */
+
+wchar_t* WINAPI XlatW(wchar_t *Line,
+                    int StartPos,
+                    int EndPos,
+                    const struct CharTableSet *TableSet,
+                    DWORD Flags)
+{
+    return  Line; //BUGBUG
+}

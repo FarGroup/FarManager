@@ -7,31 +7,18 @@ hmenu.hpp
 
 */
 
-/* Revision: 1.03 26.07.2001 $ */
-
-/*
-Modify:
-  26.07.2001 SVS
-    ! HMenu прикручен к фреймам - попытка "раз"
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.06 23.04.2006 $ */
 
 #include "modal.hpp"
 #include "frame.hpp"
 
 struct HMenuData
 {
-  char *Name;
+  const wchar_t *Name;
   int Selected;
-  struct MenuData *SubMenu;
+  struct MenuDataEx *SubMenu;
   int SubMenuSize;
-  char *SubMenuHelp;
+  const wchar_t *SubMenuHelp;
 };
 
 class VMenu;
@@ -41,7 +28,7 @@ class HMenu:virtual public Modal, virtual public Frame
   private:
     void DisplayObject();
     void ShowMenu();
-    void ProcessSubMenu(struct MenuData *Data,int DataCount,char *SubMenuHelp,
+    void ProcessSubMenu(struct MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
                         int X,int Y,int &Position);
     VMenu *SubMenu;
     struct HMenuData *Item;
@@ -60,4 +47,4 @@ class HMenu:virtual public Modal, virtual public Frame
 };
 
 
-#endif	// __HMENU_HPP__
+#endif  // __HMENU_HPP__

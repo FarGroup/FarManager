@@ -5,46 +5,7 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.15 03.03.2005 $ */
-
-/*
-Modify:
-  03.03.2005 SVS
-    ! FastFind теперь "умеет обратную ходку" по Ctrl-Shift-Enter
-  17.10.2004 SVS
-    + MACRO_FINDFOLDER
-    + Навигация Gray+ Gray- по OFM
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  22.04.2002 KM
-    - Затычка: запрет на AltF9 в помощи. Пока.
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  18.03.2002 SVS
-    ! Уточнения, в связи с введением Opt.Dialogs
-  24.10.2001 SVS
-    + дополнительный параметр у FolderTree - "ЭТО НЕ ПАНЕЛЬ!"
-    - бага с прорисовкой при вызове дерева из диалога копирования
-  08.09.2001 VVM
-    + Использовать Opt.DialogsEditBlock
-  30.08.2001 VVM
-    ! Блоки в строке поиска непостоянны :)
-  06.06.2001 SVS
-    ! Mix/Max
-  16.05.2001 DJ
-    ! proof-of-concept
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  06.05.2001 DJ
-    ! перетрях #include
-  25.04.2001 SVS
-    + Обработка MODALTREE_FREE
-  09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.19 15.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -60,24 +21,26 @@ Modify:
 #include "help.hpp"
 #include "savescr.hpp"
 
-FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2,int IsPanel)
+FolderTree::FolderTree(string &strResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2,int IsPanel)
 {
   SetRestoreScreenMode(FALSE);
   SaveScreen SaveScr;
   if(ModalMode != MODALTREE_FREE)
-    *ResultFolder=0;
-  *NewFolder=0;
+    strResultFolder=L"";
+
+  strNewFolder=L"";
   SetPosition(TX1,TY1,TX2,TY2);
   int CurMacroMode=CtrlObject->Macro.GetMode();
 
   if ((Tree=new TreeList(IsPanel))!=NULL)
   {
     CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
-    *LastName=0;
+
+    strLastName=L"";
     Tree->SetModalMode(ModalMode);
     Tree->SetPosition(X1,Y1,X2,Y2);
     if(ModalMode == MODALTREE_FREE)
-      Tree->SetRootDir(ResultFolder);
+      Tree->SetRootDirW(strResultFolder);
     Tree->Update(0);
     Tree->Show();
     // если было прерывание в процессе сканирования и это было дерево копира...
@@ -86,7 +49,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
       if(ModalMode == MODALTREE_FREE)
       {
         Tree->Update(UPDATE_KEEP_SELECTION);
-        Tree->GoToFile(ResultFolder);
+        Tree->GoToFileW(strResultFolder);
         Tree->Redraw();
       }
       MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
@@ -110,7 +73,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
     delete Tree;
 
     CtrlObject->Macro.SetMode(CurMacroMode);
-    strcpy(ResultFolder,NewFolder);
+    strResultFolder = strNewFolder;
   }
 }
 
@@ -129,7 +92,7 @@ int FolderTree::ProcessKey(int Key)
             с Frame.
         */
         IsProcessAssignMacroKey++;
-        Help Hlp ("FindFolder");
+        Help Hlp (L"FindFolder");
         IsProcessAssignMacroKey--;
         /* KM $ */
       }
@@ -139,8 +102,8 @@ int FolderTree::ProcessKey(int Key)
       SetExitCode(1);
       break;
     case KEY_ENTER:
-      Tree->GetCurDir(NewFolder);
-      if (GetFileAttributes(NewFolder)!=0xFFFFFFFF)
+      Tree->GetCurDirW(strNewFolder);
+      if (GetFileAttributesW(strNewFolder)!=0xFFFFFFFF)
         SetExitCode(1);
       else
       {
@@ -155,17 +118,17 @@ int FolderTree::ProcessKey(int Key)
       break;
     case KEY_CTRLENTER:
       {
-        char Name[NM];
-        FindEdit->GetString(Name,sizeof(Name));
-        Tree->FindPartName(Name,TRUE);
+        string strName;
+        FindEdit->GetStringW(strName);
+        Tree->FindPartName(strName,TRUE);
         DrawEdit();
       }
       break;
     case KEY_CTRLSHIFTENTER:
       {
-        char Name[NM];
-        FindEdit->GetString(Name,sizeof(Name));
-        Tree->FindPartName(Name,TRUE,-1);
+        string strName;
+        FindEdit->GetStringW(strName);
+        Tree->FindPartName(strName,TRUE,-1);
         DrawEdit();
       }
       break;
@@ -176,7 +139,7 @@ int FolderTree::ProcessKey(int Key)
     case KEY_PGDN:
     case KEY_HOME:
     case KEY_END:
-      FindEdit->SetString("");
+      FindEdit->SetStringW(L"");
       Tree->ProcessKey(Key);
       DrawEdit();
       break;
@@ -198,14 +161,14 @@ int FolderTree::ProcessKey(int Key)
 */
       if (FindEdit->ProcessKey(Key))
       {
-        char Name[NM];
-        FindEdit->GetString(Name,sizeof(Name));
-        if (Tree->FindPartName(Name,FALSE))
-          strcpy(LastName,Name);
+        string strName;
+        FindEdit->GetStringW(strName);
+        if (Tree->FindPartName(strName,FALSE))
+          strLastName = strName;
         else
         {
-          FindEdit->SetString(LastName);
-          xstrncpy(Name,LastName,sizeof(Name)-1);
+          FindEdit->SetStringW(strLastName);
+          strName = strLastName;
         }
         DrawEdit();
       }
@@ -235,16 +198,16 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void FolderTree::DrawEdit()
 {
   int FindY=Y2-2;
-  char *SearchTxt=MSG(MFoldTreeSearch);
+  wchar_t *SearchTxt=UMSG(MFoldTreeSearch);
   GotoXY(X1+1,FindY);
   SetColor(COL_PANELTEXT);
-  mprintf("%s  ",SearchTxt);
-  FindEdit->SetPosition(X1+strlen(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
+  mprintfW(L"%s  ",SearchTxt);
+  FindEdit->SetPosition(X1+wcslen(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
   FindEdit->SetObjectColor(COL_DIALOGEDIT);
   FindEdit->Show();
   if (WhereX()<X2)
   {
     SetColor(COL_PANELTEXT);
-    mprintf("%*s",X2-WhereX(),"");
+    mprintfW(L"%*s",X2-WhereX(),L"");
   }
 }

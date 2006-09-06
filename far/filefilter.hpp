@@ -7,20 +7,7 @@ filefilter.hpp
 
 */
 
-/* Revision: 1.03 23.04.2005 $ */
-
-/*
-Modify:
-  23.04.2005 KM
-    ! Модификация для запрета использования атрибута Directory из копирования
-  07.12.2003 SVS
-    ! SIZE_COUNT удален - будет юзаться FSIZE_IN_LAST из farconst.hpp
-  11.10.2003 KM
-    + CFileMask FilterMask - сохраним скомпилированную маску здесь
-      для ускорения операции фильтрации файлов.
-  04.10.2003 KM
-    ! Введение в строй фильтра операций. Начало новой эры :-)
-*/
+/* Revision: 1.08 06.06.2006 $ */
 
 #include "plugin.hpp"
 #include "struct.hpp"
@@ -34,11 +21,11 @@ class FileFilter
 
   private:
 
-    const char *FmtMask1;               // Маска даты для форматов DD.MM.YYYY и MM.DD.YYYY
-    const char *FmtMask2;               // Маска даты для формата YYYY.MM.DD
-    const char *FmtMask3;               // Маска времени
-    const char *DigitMask;              // Маска для ввода размеров файла
-    const char *FilterMasksHistoryName; // История для маски файлов
+    const wchar_t *FmtMask1;               // Маска даты для форматов DD.MM.YYYY и MM.DD.YYYY
+    const wchar_t *FmtMask2;               // Маска даты для формата YYYY.MM.DD
+    const wchar_t *FmtMask3;               // Маска времени
+    const wchar_t *DigitMask;              // Маска для ввода размеров файла
+    const wchar_t *FilterMasksHistoryName; // История для маски файлов
 
     FarList SizeList;                   // Лист для комбобокса: байты - килобайты
     FarListItem *TableItemSize;
@@ -46,8 +33,8 @@ class FileFilter
     FarListItem *TableItemDate;
 
     // Маски для диалога настройки
-    char DateMask[16],DateStrAfter[16],DateStrBefore[16];
-    char TimeMask[16],TimeStrAfter[16],TimeStrBefore[16];
+    string strDateMask, strDateStrAfter, strDateStrBefore;
+    string strTimeMask, strTimeStrAfter, strTimeStrBefore;
 
     int DateSeparator;                  // Разделитель даты
     int TimeSeparator;                  // Разделитель времени
@@ -57,16 +44,16 @@ class FileFilter
                                         // для того, чтобы не менять значение Opt.OpFilter
                                         // на "лету".
 
-    CFileMask FilterMask;               // Хранилище скомпилированной маски.
+    CFileMaskW FilterMask;               // Хранилище скомпилированной маски.
 
   private:
 
     // Диалоговая процедура
     static long WINAPI FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator);
+    void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
 
     // Пребразование строковых полей даты и времени в FILETIME
-    FILETIME &StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft);
+    FILETIME &StrToDateTime(const wchar_t *CDate,const wchar_t *CTime,FILETIME &ft);
 
   public:
 
@@ -80,7 +67,8 @@ class FileFilter
     // попадает ли файл fd под условие установленного фильтра.
     // Возвращает TRUE  - попадает;
     //            FALSE - не попадает.
-    int FileInFilter(WIN32_FIND_DATA *fd);
+    int FileInFilter(const FAR_FIND_DATA_EX *fd);
+    int FileInFilter(const FAR_FIND_DATA *fd);
 
     // Данный метод вызывается для настройки параметров фильтра.
     void Configure();

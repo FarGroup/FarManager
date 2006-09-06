@@ -5,61 +5,8 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.18 05.07.2006 $ */
+/* Revision: 1.21 07.07.2006 $ */
 
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  09.06.2005 SVS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  30.05.2005 SVS
-    ! Изменена IsEjectableMedia() - подправлены мозги.
-    ! Изменена EjectVolume() - "умеет" плюгнутые девайсы (когда в
-      картридере 3 устройства и нам нужно высунуть один)
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  05.05.2004 SVS
-    + Новая функция IsEjectableMedia(), возвращает TRUE, если медию можно
-      "выкинуть". Применяется не для CDROM!
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  27.11.2002 SVS
-    ! BugZ#700 - CD tray insertion: <Ins> began to work as <Del>
-      Изменения для масдая по Sergei Antonov <project@quake.ru>
-  22.11.2002 SVS
-    ! Некорректная компиляция куска кода под масдаем для Eject`а
-  22.05.2002 SVS
-    ! Откатимся обратно (про "вместо имени устройства") - есть сигнал про
-      нерабочее состояние механизмУ.
-  08.05.2002 VVM
-    - Используем вместо имени устройства его ID
-  27.02.2002 SVS
-    ! переезд #include "mmsystem.h" в headers.hpp
-  21.02.2002 SVS
-    - некомпиляция под VC.
-  21.02.2002 SVS
-    ! Юзание mci-команд для масдая (хотя, WC, падла, не юзает msiSend...)
-  13.02.2002 SVS
-    ! Уборка варнингов
-    - Упс. Потаенная бага... - проверка результата FAR_CreateFile
-  06.05.2001 DJ
-    ! перетрях #include
-  27.04.2001 SVS
-    ! Т.к. нет уверенного способа (пока нет) получить состояние устройства,
-      то убираем "шаманство" с IOCTL_STORAGE_CHECK_VERIFY
-  22.04.2001 SVS
-    ! Изменена функция EjectVolume (по мотивам функции by
-      Vadim Yegorov <zg@matrica.apollo.lv>)
-      Умеет под NT/2000 "вставлять" диск :-)
-  28.03.2001 SVS
-    - Кхе. Забыли вернуть значение из EjectVolume95 :-(
-  22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля
-*/
 #define __USE_MCI    1
 
 #include "headers.hpp"
@@ -382,21 +329,23 @@ This program ejects media from the specified drive, if the media is
 removable and the device supports software-controlled media removal.
 This code works on Windows 95 only.
 -----------------------------------------------------------------------*/
-BOOL EjectVolume95 (char Letter,DWORD Flags)
+BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
 {
    HANDLE hVWin32;
-   BYTE   bDrive;
+   wchar_t bDriveW;
+   char bDrive;
    BOOL   fDriveLocked;
-   char MsgText[200];
+   string strMsgText;
 
    // convert command line arg 1 from a drive letter to a DOS drive
    // number
-   bDrive = (toupper (Letter) - 'A') + 1;
+   bDriveW = (LocalUpperW(Letter) - L'A') + 1;
+   WideCharToMultiByte(CP_OEMCP, 0, &bDriveW, 1, &bDrive, 1, NULL, FALSE);
 
    // OpenVWin32
    /* Opens a handle to VWIN32 that can be used to issue low-level disk I/O
      commands. */
-   hVWin32 = FAR_CreateFile ("\\\\.\\vwin32", 0, 0, NULL, 0,
+   hVWin32 = FAR_CreateFileW (L"\\\\.\\vwin32", 0, 0, NULL, 0,
                       FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
    if(hVWin32 == INVALID_HANDLE_VALUE)
@@ -413,8 +362,8 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
          if(!(Flags&EJECT_NO_MESSAGE))
          {
            // printf("volume %c is in use by another application; therefore, it cannot be ejected\n", 'A' + bDrive - 1);
-           sprintf(MsgText,MSG(MChangeVolumeInUse),Letter);
-           Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MChangeVolumeInUse2),MSG(MOk));
+           strMsgText.Format (UMSG(MChangeVolumeInUse),Letter);
+           MessageW(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MChangeVolumeInUse2),UMSG(MOk));
          }
          goto CLEANUP_AND_EXIT_APP;
       }
@@ -425,8 +374,8 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
          if(!(Flags&EJECT_NO_MESSAGE))
          {
            // printf("could not unlock media from drive %c:\n", 'A' + bDrive - 1);
-           sprintf(MsgText,MSG(MChangeCouldNotUnlockMedia),Letter);
-           Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
+           strMsgText.Format (UMSG(MChangeCouldNotUnlockMedia),Letter);
+           MessageW(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
          }
          goto CLEANUP_AND_EXIT_APP;
       }
@@ -437,8 +386,8 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
          if(!(Flags&EJECT_NO_MESSAGE))
          {
            // printf("could not eject media from drive %c:\n", 'A' + bDrive - 1);
-           sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
-           Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
+           strMsgText.Format (UMSG(MChangeCouldNotEjectMedia),Letter);
+           MessageW(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
          }
       }
 
@@ -482,11 +431,11 @@ static BOOL DismountVolume(HANDLE hVolume)
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет под NT/2000 "вставлять" диск :-)
 */
-BOOL EjectVolume(char Letter,DWORD Flags)
+BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 {
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
   {
-    return EjectVolume95(Letter,Flags);
+    return EjectVolume95((BYTE)Letter,Flags);
   }
 
   HANDLE DiskHandle;
@@ -498,12 +447,12 @@ BOOL EjectVolume(char Letter,DWORD Flags)
   DWORD dwAccessFlags;
   BOOL fRemoveSafely = FALSE;
   BOOL foundError=FALSE;
-  char szRootName[8]="\\\\.\\ :\\";
+  wchar_t szRootName[8]=L"\\\\.\\ :\\";
 
   szRootName[4]=Letter;
 
   // OpenVolume
-  uDriveType = FAR_GetDriveType(szRootName+4);
+  uDriveType = FAR_GetDriveTypeW(szRootName+4);
   szRootName[6]=0;
   switch(uDriveType)
   {
@@ -519,12 +468,12 @@ BOOL EjectVolume(char Letter,DWORD Flags)
       return FALSE;
   }
 
-  DiskHandle=FAR_CreateFile(szRootName,dwAccessFlags,
+  DiskHandle=FAR_CreateFileW(szRootName,dwAccessFlags,
                         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                         0,0);
   if((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
   {
-    DiskHandle=FAR_CreateFile(szRootName,GENERIC_READ,
+    DiskHandle=FAR_CreateFileW(szRootName,GENERIC_READ,
                           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                           0,0);
     ReadOnly=FALSE;
@@ -592,9 +541,9 @@ BOOL EjectVolume(char Letter,DWORD Flags)
       {
         if(!(Flags&EJECT_NO_MESSAGE))
         {
-          char MsgText[200];
-          sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
-          if(Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel)))
+          string strMsgText;
+          strMsgText.Format (UMSG(MChangeCouldNotEjectMedia),Letter);
+          if(MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,UMSG(MRetry),UMSG(MCancel)))
             Retry=FALSE;
         }
         else
@@ -604,7 +553,7 @@ BOOL EjectVolume(char Letter,DWORD Flags)
       {
         //printf("Media in Drive %c can be safely removed.\n",cDriveLetter);
         //if(Flags&EJECT_NOTIFY_AFTERREMOVE)
-          ; // Message(0,1,MSG(MChangeUSBDisconnectDriveTitle),MSG(MChangeUSBSafelyRemoved),MSG(MOk));
+          ;
       }
     } // END: while(Retry)
 
@@ -615,7 +564,7 @@ BOOL EjectVolume(char Letter,DWORD Flags)
   return fAutoEject||fRemoveSafely; //???
 }
 
-BOOL IsEjectableMedia(char Letter,UINT DriveType,BOOL ForceCDROM)
+BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 {
   BOOL IsEjectable=FALSE;
 
@@ -625,10 +574,10 @@ BOOL IsEjectableMedia(char Letter,UINT DriveType,BOOL ForceCDROM)
   }
   else
   {
-    char win_name[]="\\\\.\\?:";
+    wchar_t win_name[]=L"\\\\.\\?:";
     win_name[4]=Letter;
 
-    HANDLE h=FAR_CreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    HANDLE h=FAR_CreateFileW(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 
     if (h==INVALID_HANDLE_VALUE)
      return FALSE;

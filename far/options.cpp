@@ -5,73 +5,7 @@ options.cpp
 
 */
 
-/* Revision: 1.26 29.05.2006 $ */
-
-/*
-Modify:
-  29.05.2006 SVS
-    ! Меню про хотплюг задисаблим, если CheckInitSetupAPI() вернул "неа".
-  25.05.2006 SVS
-    + новый пункт в командах "HotPlug list"
-  02.03.2006 SVS
-    ! Отображаем ком.строку, только если ЭТО не редактор и вьювер!
-  14.12.2004 SVS
-    ! Alt-Del в терминальном сеансе Win2K AS перехватывается самим терминалом.
-      Добавим в меню "Файлы" команду "Уничтожение".
-  08.12.2004 SVS
-    - BugZ#1197 - Открытие главного меню мышкой
-  11.07.2003 SVS
-    ! переинициализируем массив KMGTbStr (обозначение килобайт, мегабайт,...) вызовом __PrepareKMGTbStr()
-  19.05.2003 SVS
-    ! Диалоговые настройки вынесены в отдельный диалог
-    ! Уточнение для полиции - диалоги имеют номер 5
-  12.05.2003 SVS
-    ! EditFileTypes() теперь без параметра.
-  15.05.2002 SVS
-    ! При изменении языка вызовем Manager::InitKeyBar, который "изменит" язык
-      ранее открытых фреймов.
-  18.03.2002 SVS
-    ! После смены языка интерфейса апдейтим так же титлы истории редактирования
-  11.02.2002 SVS
-    + Добавка в меню - акселератор - решение BugZ#299
-  24.01.2002 SVS
-    ! Косметика. Наконец то руки добрались до "красоты" :-)
-  19.07.2001 OT
-    ! Замена CtrlObject->Cp()->ProcessKey на FrameManager->ProcessKey
-  19.07.2001 SVS
-    - Не работала смена видеорежима из меню
-  11.07.2001 SVS
-    + переменные среды: FARLANG
-  22.06.2001 SVS
-    ! Позаботимся о StrFTime :-)
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! OptionsDisabled убрана. Пункты дизаблятся перед показом.
-  12.05.2001 DJ
-    * нажатие Shift-F10 перед тем, как нажималось F9, показывает меню для
-      активной панели, а не всегда для левой
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  30.03.2001 SVS
-    ! В OptionsDisabled() задействуем Opt.Policies.DisabledOptions, которая
-      централизовано и успешно считывается в config.cpp
-  29.03.2001 IS
-    + ViewerConfig вызывается с Opt.ViOpt
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  21.02.2001 IS
-    + EditorConfig вызывается с Opt.EdOpt
-  05.09.2000 tran
-    + OptionsEnabled - reg:Policies/DisabledOptions
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.30 04.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -96,137 +30,137 @@ Modify:
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
   int I;
-  struct MenuData LeftMenu[]=
+  struct MenuDataEx LeftMenu[]=
   {
-    (char *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
-    (char *)MMenuMediumView,0,KEY_CTRL2,
-    (char *)MMenuFullView,0,KEY_CTRL3,
-    (char *)MMenuWideView,0,KEY_CTRL4,
-    (char *)MMenuDetailedView,0,KEY_CTRL5,
-    (char *)MMenuDizView,0,KEY_CTRL6,
-    (char *)MMenuLongDizView,0,KEY_CTRL7,
-    (char *)MMenuOwnersView,0,KEY_CTRL8,
-    (char *)MMenuLinksView,0,KEY_CTRL9,
-    (char *)MMenuAlternativeView,0,KEY_CTRL0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuInfoPanel,0,KEY_CTRLL,
-    (char *)MMenuTreePanel,0,KEY_CTRLT,
-    (char *)MMenuQuickView,0,KEY_CTRLQ,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuSortModes,0,KEY_CTRLF12,
-    (char *)MMenuLongNames,0,KEY_CTRLN,
-    (char *)MMenuTogglePanel,0,KEY_CTRLF1,
-    (char *)MMenuReread,0,KEY_CTRLR,
-    (char *)MMenuChangeDrive,0,KEY_ALTF1,
+    (const wchar_t *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
+    (const wchar_t *)MMenuMediumView,0,KEY_CTRL2,
+    (const wchar_t *)MMenuFullView,0,KEY_CTRL3,
+    (const wchar_t *)MMenuWideView,0,KEY_CTRL4,
+    (const wchar_t *)MMenuDetailedView,0,KEY_CTRL5,
+    (const wchar_t *)MMenuDizView,0,KEY_CTRL6,
+    (const wchar_t *)MMenuLongDizView,0,KEY_CTRL7,
+    (const wchar_t *)MMenuOwnersView,0,KEY_CTRL8,
+    (const wchar_t *)MMenuLinksView,0,KEY_CTRL9,
+    (const wchar_t *)MMenuAlternativeView,0,KEY_CTRL0,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuInfoPanel,0,KEY_CTRLL,
+    (const wchar_t *)MMenuTreePanel,0,KEY_CTRLT,
+    (const wchar_t *)MMenuQuickView,0,KEY_CTRLQ,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuSortModes,0,KEY_CTRLF12,
+    (const wchar_t *)MMenuLongNames,0,KEY_CTRLN,
+    (const wchar_t *)MMenuTogglePanel,0,KEY_CTRLF1,
+    (const wchar_t *)MMenuReread,0,KEY_CTRLR,
+    (const wchar_t *)MMenuChangeDrive,0,KEY_ALTF1,
   };
 
-  struct MenuData FilesMenu[]=
+  struct MenuDataEx FilesMenu[]=
   {
-    (char *)MMenuView,LIF_SELECTED,KEY_F3,
-    (char *)MMenuEdit,0,KEY_F4,
-    (char *)MMenuCopy,0,KEY_F5,
-    (char *)MMenuMove,0,KEY_F6,
-    (char *)MMenuCreateFolder,0,KEY_F7,
-    (char *)MMenuDelete,0,KEY_F8,
-    (char *)MMenuWipe,0,KEY_ALTDEL,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuAdd,0,KEY_SHIFTF1,
-    (char *)MMenuExtract,0,KEY_SHIFTF2,
-    (char *)MMenuArchiveCommands,0,KEY_SHIFTF3,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuAttributes,0,KEY_CTRLA,
-    (char *)MMenuApplyCommand,0,KEY_CTRLG,
-    (char *)MMenuDescribe,0,KEY_CTRLZ,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuSelectGroup,0,KEY_ADD,
-    (char *)MMenuUnselectGroup,0,KEY_SUBTRACT,
-    (char *)MMenuInvertSelection,0,KEY_MULTIPLY,
-    (char *)MMenuRestoreSelection,0,KEY_CTRLM,
-  };
-
-
-  struct MenuData CmdMenu[]=
-  {
-  /* 00 */(char *)MMenuFindFile,LIF_SELECTED,KEY_ALTF7,
-  /* 01 */(char *)MMenuHistory,0,KEY_ALTF8,
-  /* 02 */(char *)MMenuVideoMode,0,KEY_ALTF9,
-  /* 03 */(char *)MMenuFindFolder,0,KEY_ALTF10,
-  /* 04 */(char *)MMenuViewHistory,0,KEY_ALTF11,
-  /* 05 */(char *)MMenuFoldersHistory,0,KEY_ALTF12,
-  /* 06 */"",LIF_SEPARATOR,0,
-  /* 07 */(char *)MMenuSwapPanels,0,KEY_CTRLU,
-  /* 08 */(char *)MMenuTogglePanels,0,KEY_CTRLO,
-  /* 09 */(char *)MMenuCompareFolders,0,0,
-  /* 10 */"",LIF_SEPARATOR,0,
-  /* 11 */(char *)MMenuUserMenu,0,0,
-  /* 12 */(char *)MMenuFileAssociations,0,0,
-  /* 13 */(char *)MMenuFolderShortcuts,0,0,
-  /* 14 */(char *)MMenuEditSortGroups,0,0,
-  /* 15 */(char *)MMenuFilter,0,KEY_CTRLI,
-  /* 16 */"",LIF_SEPARATOR,0,
-  /* 17 */(char *)MMenuPluginCommands,0,KEY_F11,
-  /* 18 */(char *)MMenuWindowsList,0,KEY_F12,
-  /* 19 */(char *)MMenuProcessList,0,KEY_CTRLW,
-  /* 20 */(char *)MMenuHotPlugList,0,0,
+    (const wchar_t *)MMenuView,LIF_SELECTED,KEY_F3,
+    (const wchar_t *)MMenuEdit,0,KEY_F4,
+    (const wchar_t *)MMenuCopy,0,KEY_F5,
+    (const wchar_t *)MMenuMove,0,KEY_F6,
+    (const wchar_t *)MMenuCreateFolder,0,KEY_F7,
+    (const wchar_t *)MMenuDelete,0,KEY_F8,
+    (const wchar_t *)MMenuWipe,0,KEY_ALTDEL,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuAdd,0,KEY_SHIFTF1,
+    (const wchar_t *)MMenuExtract,0,KEY_SHIFTF2,
+    (const wchar_t *)MMenuArchiveCommands,0,KEY_SHIFTF3,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuAttributes,0,KEY_CTRLA,
+    (const wchar_t *)MMenuApplyCommand,0,KEY_CTRLG,
+    (const wchar_t *)MMenuDescribe,0,KEY_CTRLZ,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuSelectGroup,0,KEY_ADD,
+    (const wchar_t *)MMenuUnselectGroup,0,KEY_SUBTRACT,
+    (const wchar_t *)MMenuInvertSelection,0,KEY_MULTIPLY,
+    (const wchar_t *)MMenuRestoreSelection,0,KEY_CTRLM,
   };
 
 
-  struct MenuData OptionsMenu[]=
+  struct MenuDataEx CmdMenu[]=
   {
-   /* 00 */(char *)MMenuSystemSettings,LIF_SELECTED,0,
-   /* 01 */(char *)MMenuPanelSettings,0,0,
-   /* 02 */(char *)MMenuInterface,0,0,
-   /* 03 */(char *)MMenuLanguages,0,0,
-   /* 04 */(char *)MMenuPluginsConfig,0,0,
-   /* 05 */(char *)MMenuDialogSettings,0,0,
-   /* 06 */"",LIF_SEPARATOR,0,
-   /* 07 */(char *)MMenuConfirmation,0,0,
-   /* 08 */(char *)MMenuFilePanelModes,0,0,
-   /* 09 */(char *)MMenuFileDescriptions,0,0,
-   /* 10 */(char *)MMenuFolderInfoFiles,0,0,
-   /* 11 */"",LIF_SEPARATOR,0,
-   /* 12 */(char *)MMenuViewer,0,0,
-   /* 13 */(char *)MMenuEditor,0,0,
-   /* 14 */"",LIF_SEPARATOR,0,
-   /* 15 */(char *)MMenuColors,0,0,
-   /* 16 */(char *)MMenuFilesHighlighting,0,0,
-   /* 17 */"",LIF_SEPARATOR,0,
-   /* 18 */(char *)MMenuSaveSetup,0,KEY_SHIFTF9,
+  /* 00 */(const wchar_t *)MMenuFindFile,LIF_SELECTED,KEY_ALTF7,
+  /* 01 */(const wchar_t *)MMenuHistory,0,KEY_ALTF8,
+  /* 02 */(const wchar_t *)MMenuVideoMode,0,KEY_ALTF9,
+  /* 03 */(const wchar_t *)MMenuFindFolder,0,KEY_ALTF10,
+  /* 04 */(const wchar_t *)MMenuViewHistory,0,KEY_ALTF11,
+  /* 05 */(const wchar_t *)MMenuFoldersHistory,0,KEY_ALTF12,
+  /* 06 */L"",LIF_SEPARATOR,0,
+  /* 07 */(const wchar_t *)MMenuSwapPanels,0,KEY_CTRLU,
+  /* 08 */(const wchar_t *)MMenuTogglePanels,0,KEY_CTRLO,
+  /* 09 */(const wchar_t *)MMenuCompareFolders,0,0,
+  /* 10 */L"",LIF_SEPARATOR,0,
+  /* 11 */(const wchar_t *)MMenuUserMenu,0,0,
+  /* 12 */(const wchar_t *)MMenuFileAssociations,0,0,
+  /* 13 */(const wchar_t *)MMenuFolderShortcuts,0,0,
+  /* 14 */(const wchar_t *)MMenuEditSortGroups,0,0,
+  /* 15 */(const wchar_t *)MMenuFilter,0,KEY_CTRLI,
+  /* 16 */L"",LIF_SEPARATOR,0,
+  /* 17 */(const wchar_t *)MMenuPluginCommands,0,KEY_F11,
+  /* 18 */(const wchar_t *)MMenuWindowsList,0,KEY_F12,
+  /* 19 */(const wchar_t *)MMenuProcessList,0,KEY_CTRLW,
+  /* 20 */(const wchar_t *)MMenuHotPlugList,0,0,
   };
 
 
-  struct MenuData RightMenu[]=
+  struct MenuDataEx OptionsMenu[]=
   {
-    (char *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
-    (char *)MMenuMediumView,0,KEY_CTRL2,
-    (char *)MMenuFullView,0,KEY_CTRL3,
-    (char *)MMenuWideView,0,KEY_CTRL4,
-    (char *)MMenuDetailedView,0,KEY_CTRL5,
-    (char *)MMenuDizView,0,KEY_CTRL6,
-    (char *)MMenuLongDizView,0,KEY_CTRL7,
-    (char *)MMenuOwnersView,0,KEY_CTRL8,
-    (char *)MMenuLinksView,0,KEY_CTRL9,
-    (char *)MMenuAlternativeView,0,KEY_CTRL0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuInfoPanel,0,KEY_CTRLL,
-    (char *)MMenuTreePanel,0,KEY_CTRLT,
-    (char *)MMenuQuickView,0,KEY_CTRLQ,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuSortModes,0,KEY_CTRLF12,
-    (char *)MMenuLongNames,0,KEY_CTRLN,
-    (char *)MMenuTogglePanelRight,0,KEY_CTRLF2,
-    (char *)MMenuReread,0,KEY_CTRLR,
-    (char *)MMenuChangeDriveRight,0,KEY_ALTF2,
+   /* 00 */(const wchar_t *)MMenuSystemSettings,LIF_SELECTED,0,
+   /* 01 */(const wchar_t *)MMenuPanelSettings,0,0,
+   /* 02 */(const wchar_t *)MMenuInterface,0,0,
+   /* 03 */(const wchar_t *)MMenuLanguages,0,0,
+   /* 04 */(const wchar_t *)MMenuPluginsConfig,0,0,
+   /* 05 */(const wchar_t *)MMenuDialogSettings,0,0,
+   /* 06 */L"",LIF_SEPARATOR,0,
+   /* 07 */(const wchar_t *)MMenuConfirmation,0,0,
+   /* 08 */(const wchar_t *)MMenuFilePanelModes,0,0,
+   /* 09 */(const wchar_t *)MMenuFileDescriptions,0,0,
+   /* 10 */(const wchar_t *)MMenuFolderInfoFiles,0,0,
+   /* 11 */L"",LIF_SEPARATOR,0,
+   /* 12 */(const wchar_t *)MMenuViewer,0,0,
+   /* 13 */(const wchar_t *)MMenuEditor,0,0,
+   /* 14 */L"",LIF_SEPARATOR,0,
+   /* 15 */(const wchar_t *)MMenuColors,0,0,
+   /* 16 */(const wchar_t *)MMenuFilesHighlighting,0,0,
+   /* 17 */L"",LIF_SEPARATOR,0,
+   /* 18 */(const wchar_t *)MMenuSaveSetup,0,KEY_SHIFTF9,
+  };
+
+
+  struct MenuDataEx RightMenu[]=
+  {
+    (const wchar_t *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
+    (const wchar_t *)MMenuMediumView,0,KEY_CTRL2,
+    (const wchar_t *)MMenuFullView,0,KEY_CTRL3,
+    (const wchar_t *)MMenuWideView,0,KEY_CTRL4,
+    (const wchar_t *)MMenuDetailedView,0,KEY_CTRL5,
+    (const wchar_t *)MMenuDizView,0,KEY_CTRL6,
+    (const wchar_t *)MMenuLongDizView,0,KEY_CTRL7,
+    (const wchar_t *)MMenuOwnersView,0,KEY_CTRL8,
+    (const wchar_t *)MMenuLinksView,0,KEY_CTRL9,
+    (const wchar_t *)MMenuAlternativeView,0,KEY_CTRL0,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuInfoPanel,0,KEY_CTRLL,
+    (const wchar_t *)MMenuTreePanel,0,KEY_CTRLT,
+    (const wchar_t *)MMenuQuickView,0,KEY_CTRLQ,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MMenuSortModes,0,KEY_CTRLF12,
+    (const wchar_t *)MMenuLongNames,0,KEY_CTRLN,
+    (const wchar_t *)MMenuTogglePanelRight,0,KEY_CTRLF2,
+    (const wchar_t *)MMenuReread,0,KEY_CTRLR,
+    (const wchar_t *)MMenuChangeDriveRight,0,KEY_ALTF2,
   };
 
 
   struct HMenuData MainMenu[]=
   {
-    MSG(MMenuLeftTitle),1,LeftMenu,sizeof(LeftMenu)/sizeof(LeftMenu[0]),"LeftRightMenu",
-    MSG(MMenuFilesTitle),0,FilesMenu,sizeof(FilesMenu)/sizeof(FilesMenu[0]),"FilesMenu",
-    MSG(MMenuCommandsTitle),0,CmdMenu,sizeof(CmdMenu)/sizeof(CmdMenu[0]),"CmdMenu",
-    MSG(MMenuOptionsTitle),0,OptionsMenu,sizeof(OptionsMenu)/sizeof(OptionsMenu[0]),"OptMenu",
-    MSG(MMenuRightTitle),0,RightMenu,sizeof(RightMenu)/sizeof(RightMenu[0]),"LeftRightMenu"
+    UMSG(MMenuLeftTitle),1,LeftMenu,sizeof(LeftMenu)/sizeof(LeftMenu[0]),L"LeftRightMenu",
+    UMSG(MMenuFilesTitle),0,FilesMenu,sizeof(FilesMenu)/sizeof(FilesMenu[0]),L"FilesMenu",
+    UMSG(MMenuCommandsTitle),0,CmdMenu,sizeof(CmdMenu)/sizeof(CmdMenu[0]),L"CmdMenu",
+    UMSG(MMenuOptionsTitle),0,OptionsMenu,sizeof(OptionsMenu)/sizeof(OptionsMenu[0]),L"OptMenu",
+    UMSG(MMenuRightTitle),0,RightMenu,sizeof(RightMenu)/sizeof(RightMenu[0]),L"LeftRightMenu"
   };
 
   static int LastHItem=-1,LastVItem=0;
@@ -299,11 +233,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   // Навигация по меню
   {
     HMenu HOptMenu(MainMenu,sizeof(MainMenu)/sizeof(MainMenu[0]));
-    HOptMenu.SetHelp("Menus");
+    HOptMenu.SetHelp(L"Menus");
     HOptMenu.SetPosition(0,0,ScrX,0);
     if (LastCommand)
     {
-      struct MenuData *VMenuTable[]={LeftMenu,FilesMenu,CmdMenu,OptionsMenu,RightMenu};
+      MenuDataEx *VMenuTable[]={LeftMenu,FilesMenu,CmdMenu,OptionsMenu,RightMenu};
       /* $ 12.05.2001 DJ
          корректно обрабатываем нажатие Shift-F10 до того, как нажимали F9
       */
@@ -538,9 +472,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             if (Language::Select(FALSE,&LangMenu))
             {
               Lang.Close();
-              if (!Lang.Init(FarPath,MListEval))
+              if (!Lang.Init(g_strFarPath,MListEval))
               {
-                Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
+                MessageW(MSG_WARNING,1,L"Error",L"Cannot load language data",L"Ok");
                 exit(0);
               }
               Language::Select(TRUE,&HelpMenu);
@@ -548,7 +482,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
               CtrlObject->ViewHistory->ReloadTitle();
-              SetEnvironmentVariable("FARLANG",Opt.Language);
+              SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
               PrepareStrFTime();
               __PrepareKMGTbStr();
               FrameManager->InitKeyBar();

@@ -5,54 +5,7 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.16 24.07.2006 $ */
-
-/*
-Modify:
-  24.07.2006 SVS
-    ! уточнение RawConvertShortNameToLongName()
-  20.02.2006 SVS
-    ! У ConvertNameToShort новый параметр - размер для Dest
-  05.12.2005 AY
-    + RawConvertShortNameToLongName понимает UNC пути (\\computer\share)
-  25.03.2005 SVS
-    - BugZ#1304 - Падения с длинными путями.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  12.09.2003 SVS
-    ! Немного увеличим буфер для GetPathRootOne
-  14.06.2003 IS
-    ! ConvertNameToReal - для нелокальных дисков даже и не пытаемся анализировать
-      симлинки, т.к. это все равно бесполезно
-  05.03.2003 SVS
-    + немного логов
-    ! наработки по вопросу о символических связях
-  25.02.2003 SVS
-    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  07.01.2003 IS
-    - ошибка в ConvertNameToReal: зачем-то обрабатывали путь "буква:" - он
-      равен текущему каталогу на диске "буква", что ведет к непредсказуемым
-      результатам
-  21.06.2002 VVM
-    ! При поиске линков учтем UNC пути и не работаем с именем сервера как с диском
-  28.05.2002 SVS
-    ! применим функцию  IsLocalPath()
-    ! Номер ревизии приведен в порядок (кто-то когда то забыл подправить)
-  22.03.2002 SVS
-    ! Выделение в качестве самостоятельного модуля
-    ! Функции CharBufferToSmallWarn, RawConvertShortNameToLongName,
-      ConvertNameToFull, ConvertNameToReal, ConvertNameToShort перехали
-      из mix.cpp в cvtname.cpp (выделение в отдельный бомонд ;-))
-*/
+/* Revision: 1.23 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -63,17 +16,6 @@ Modify:
 #include "fn.hpp"
 #include "flink.hpp"
 
-/* $ 01.11.2000 OT
-  Исправление логики. Теперь функция должна в обязательном порядке
-  получить размер буфера и выдать длину полученного имени файла.
-  Если размер буфера мал, то копирование не происходит
-*/
-void CharBufferTooSmallWarn(int BufSize, int FileNameSize)
-{
-  char Buf2 [80];
-  sprintf (Buf2,MSG(MBuffSizeTooSmall_2), FileNameSize, BufSize);
-  Message(MSG_WARNING,1,MSG(MError),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
-}
 
 /* $ 02.07.2001 IS
    Получение длинного имени на основе известного короткого. Медленно, зато с
@@ -86,57 +28,59 @@ void CharBufferTooSmallWarn(int BufSize, int FileNameSize)
    недостаточен, то возвращается требуемый размер.
    Примечание: разрешено перекрытие src и dest
 */
-DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
+
+
+DWORD RawConvertShortNameToLongNameW(const wchar_t *src, string &strDest)
 {
-  if(!src || !dest)
+  if(!src)
      return 0;
 
   if(!*src)
   {
-     *dest=0;
+     strDest=L"";
      return 1;
   }
 
-  char BuffSrc[2048];
-  char *NamePtr;
-  GetFullPathName(src,sizeof(BuffSrc)-1,BuffSrc,&NamePtr);
-  DWORD SrcSize=strlen(BuffSrc);
+  DWORD SrcSize=wcslen(src);
 
-  if(SrcSize == 3 && BuffSrc[1] == ':' && (BuffSrc[2] == '\\' || BuffSrc[2] == '/'))
+  string strBuffSrc;
+  int nLength = GetFullPathNameW (src, 0, NULL, NULL)+1;
+  wchar_t *lpwszBuffSrc = strBuffSrc.GetBuffer (nLength);
+  GetFullPathNameW (src, nLength, lpwszBuffSrc, NULL);
+
+  if(SrcSize == 3 && lpwszBuffSrc[1] == L':' && (lpwszBuffSrc[2] == L'\\' || lpwszBuffSrc[2] == L'/'))
   {
-    SrcSize=Min((DWORD)SrcSize,(DWORD)maxsize);
-    memmove(dest,BuffSrc,SrcSize);
-    dest[SrcSize]=0;
-    *dest=toupper(*dest);
-    return SrcSize;
+    strDest = strBuffSrc;
+    strDest.Upper ();
+    return strDest.GetLength();
   }
 
 
   DWORD DestSize=0, FinalSize=0, AddSize;
   BOOL Error=FALSE;
 
-  char *Src, *Dest=0, *DestBuf=NULL,
-       *SrcBuf=(char *)xf_malloc(SrcSize+1);
+  wchar_t *Src, *Dest=0, *DestBuf=NULL,
+       *SrcBuf=(wchar_t *)xf_malloc((SrcSize+1)*sizeof(wchar_t));
 
   while(SrcBuf)
   {
-     strcpy(SrcBuf, BuffSrc);
+     wcscpy(SrcBuf, lpwszBuffSrc);
      Src=SrcBuf;
 
-     WIN32_FIND_DATA wfd;
+     WIN32_FIND_DATAW wfd;
      HANDLE hFile;
 
-     char *Slash, *Dots=strchr(Src, ':');
+     wchar_t *Slash, *Dots=wcschr(Src, L':');
 
      if(Dots)
      {
        ++Dots;
-       if('\\'==*Dots) ++Dots;
-       char tmp=*Dots;
+       if(L'\\'==*Dots) ++Dots;
+       wchar_t tmp=*Dots;
        *Dots=0;
-       AddSize=strlen(Src);
+       AddSize=wcslen(Src);
        FinalSize=AddSize;
-       DestBuf=(char *)xf_malloc(AddSize+64);
+       DestBuf=(wchar_t *)xf_malloc((AddSize+64)*sizeof(wchar_t));
        if(DestBuf)
        {
          DestSize=AddSize+64;
@@ -148,33 +92,31 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
          FinalSize=0;
          break;
        }
-       strcpy(Dest, Src);
+       wcscpy(Dest, Src);
        Dest+=AddSize;
 
        *Dots=tmp;
        Src=Dots; // +1 ??? зачем ???
      }
-     else if (Src[0]=='\\' && Src[1]=='\\')
+     else if (Src[0]==L'\\' && Src[1]==L'\\')
      {
        Dots=Src+2;
-       while(*Dots && '\\'!=*Dots) ++Dots;
-       if('\\'==*Dots)
+       while(*Dots && L'\\'!=*Dots) ++Dots;
+       if(L'\\'==*Dots)
          ++Dots;
        else
        {
-          SrcSize=Min((DWORD)SrcSize,(DWORD)maxsize);
-          memmove(dest,BuffSrc,SrcSize);
-          dest[SrcSize]=0;
+          strDest = strBuffSrc;
           if(SrcBuf) xf_free(SrcBuf);
-          return SrcSize;
+          return strDest.GetLength();
        }
-       while(*Dots && '\\'!=*Dots) ++Dots;
-       if('\\'==*Dots) ++Dots;
-       char tmp=*Dots;
+       while(*Dots && L'\\'!=*Dots) ++Dots;
+       if(L'\\'==*Dots) ++Dots;
+       wchar_t tmp=*Dots;
        *Dots=0;
-       AddSize=strlen(Src);
+       AddSize=wcslen(Src);
        FinalSize=AddSize;
-       DestBuf=(char *)xf_malloc(AddSize+64);
+       DestBuf=(wchar_t *)xf_malloc((AddSize+64)*sizeof(wchar_t));
        if(DestBuf)
        {
          DestSize=AddSize+64;
@@ -186,7 +128,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
          FinalSize=0;
          break;
        }
-       strcpy(Dest, Src);
+       wcscpy(Dest, Src);
        Dest+=AddSize;
 
        *Dots=tmp;
@@ -198,17 +140,17 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
      */
      while(!Error && *Src)   /* DJ $ */
      {
-       Slash=strchr(Src, '\\');
+       Slash=wcschr(Src, L'\\');
        if(Slash) *Slash=0;
-       hFile=FindFirstFile(SrcBuf, &wfd);
+       hFile=FindFirstFileW(SrcBuf, &wfd);
        if(hFile!=INVALID_HANDLE_VALUE)
        {
          FindClose(hFile);
-         AddSize=strlen(wfd.cFileName);
+         AddSize=wcslen(wfd.cFileName);
          FinalSize+=AddSize;
          if(FinalSize>=DestSize)
          {
-           DestBuf=(char *)xf_realloc(DestBuf, FinalSize+64);
+           DestBuf=(wchar_t *)xf_realloc(DestBuf, (FinalSize+64)*sizeof(wchar_t));
            if(DestBuf)
            {
              DestSize+=64;
@@ -221,20 +163,20 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
              break;
            }
          }
-         strcpy(Dest, wfd.cFileName);
+         wcscpy(Dest, wfd.cFileName);
          Dest+=AddSize;
          if(Slash)
          {
-           *Dest=*Slash='\\';
+           *Dest=*Slash=L'\\';
            ++Dest;
            /* $ 03.12.2001 DJ
               если после слэша ничего нету - надо добавить '\0'
            */
-           *Dest = '\0';
+           *Dest = L'\0';
            /* DJ $ */
            ++FinalSize;
            ++Slash;
-           Slash=strchr(Src=Slash, '\\');
+           Slash=wcschr(Src=Slash, L'\\');
          }
          else
            break;
@@ -249,105 +191,82 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
   }
 
   if(!Error)
-  {
-    if(FinalSize<maxsize)
-       strcpy(dest, DestBuf);
-    else
-    {
-       *dest=0;
-       ++FinalSize;
-    }
-  }
+    strDest = DestBuf;
 
   if(SrcBuf)  xf_free(SrcBuf);
   if(DestBuf) xf_free(DestBuf);
 
   return FinalSize;
 }
-/* IS $ */
 
-int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
+int ConvertNameToFullW (
+        const wchar_t *lpwszSrc,
+        string &strDest
+        )
 {
-  int Result = 0;
-//  char *FullName = (char *) xf_malloc (DestSize);
-//  char *AnsiName = (char *) xf_malloc (DestSize);
-  char *FullName = (char *) alloca (DestSize);
-  char *AnsiName = (char *) alloca (DestSize);
-  *FullName = 0;
-  *AnsiName = 0;
+    int Result = wcslen (lpwszSrc);
 
-//  char FullName[NM],AnsiName[NM],
-  char *NamePtr=PointToName(const_cast<char *>(Src));
-  Result+=strlen(Src);
+    const wchar_t *lpwszName = PointToNameW (lpwszSrc);
 
-  if (NamePtr==Src && (NamePtr[0]!='.' || NamePtr[1]!=0))
-  {
-    Result+=FarGetCurDir(DestSize,FullName);
-    Result+=AddEndSlash(FullName);
-    if (Result < DestSize)
+    if ( (lpwszName == lpwszSrc) &&
+         (lpwszName[0] != L'.' || lpwszName[1] != 0) )
     {
-      strncat(FullName,Src,Result);
-      xstrncpy(Dest,FullName,Result);
-      Dest [Result] = '\0';
+        FarGetCurDirW (strDest);
+        AddEndSlashW (strDest);
+
+        strDest += lpwszSrc;
+
+        return strDest.GetLength ();
     }
-    else
+
+    if ( PathMayBeAbsoluteW (lpwszSrc) )
     {
-      CharBufferTooSmallWarn(DestSize,Result+1);
+        if ( *lpwszName &&
+            (*lpwszName != L'.' || lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0) ) &&
+            (wcsstr (lpwszSrc, L"\\..\\") == NULL && wcsstr (lpwszSrc, L"\\.\\") == NULL) )
+        {
+            strDest = lpwszSrc;
+
+            return strDest.GetLength ();
+        }
     }
-    return Result;
-  }
 
-  if (PathMayBeAbsolute(Src)) //  (isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\') //????
-  {
-    if (*NamePtr &&
-        (*NamePtr!='.' || NamePtr[1]!=0 && (NamePtr[1]!='.' || NamePtr[2]!=0)) &&
-        (strstr(Src,"\\..\\")==NULL && strstr(Src,"\\.\\")==NULL)
-       )
-    {
-      if (Dest!=Src)
-        strcpy(Dest,Src);
-      return Result;
-    }
-  }
+    int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL)+1;
 
-  SetFileApisTo(APIS2ANSI);
-  FAR_OemToChar(Src,AnsiName);
-  /* $ 08.11.2000 SVS
-     Вместо DestSize использовался sizeof(FullName)...
-  */
-  if(GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
-    FAR_CharToOem(FullName,Dest);
-  else
-    strcpy(Dest,Src);
+    wchar_t *lpwszDest = strDest.GetBuffer (nLength);
+    GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
 
-  // это когда ввели в масдае cd //host/share
-  // а масдай выдал на гора c:\\host\share
-  if(Src[0] == '/' && Src[1] == '/' && Dest[1] == ':' && Dest[3] == '\\')
-    memmove(Dest,Dest+2,strlen(Dest+2)+1);
 
-  /* SVS $*/
-  SetFileApisTo(APIS2OEM);
+    // это когда ввели в масдае cd //host/share
+    // а масдай выдал на гора c:\\host\share
 
-  return Result;
+    if ( lpwszSrc[0] == L'/' &&
+         lpwszSrc[1] == L'/' &&
+         lpwszDest[1] == L':' &&
+         lpwszDest[3] == L'\\' )
+         memmove (lpwszDest, lpwszDest+2, (wcslen (lpwszDest+2)+1)*sizeof (wchar_t));
+
+    strDest.ReleaseBuffer (nLength);
+
+    return strDest.GetLength ();
 }
 
 /*
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point в Win2K
   Если OS ниже, то вызывается обычный ConvertNameToFull()
 */
-int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
+int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
 {
-  _SVS(CleverSysLog Clev("ConvertNameToReal()"));
-  _SVS(SysLog("Params: Src='%s'",Src));
-  char TempDest[2048];
+  string strTempDest;
   BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавляли самостоятельно
                             // в конце мы его того... удавим.
 
   // Получим сначала полный путь до объекта обычным способом
-  int Ret=ConvertNameToFull(Src,TempDest,sizeof(TempDest));
+  int Ret=ConvertNameToFullW(Src, strTempDest);
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
-  _SVS(SysLog("ConvertNameToFull('%s') -> '%s'",Src,TempDest));
+  _SVS(SysLog("ConvertNameToFull('%S') -> '%S'",Src,(const wchar_t*)strTempDest));
 
+  wchar_t *TempDest;
   /* $ 14.06.2003 IS
      Для нелокальных дисков даже и не пытаемся анализировать симлинки
   */
@@ -356,39 +275,31 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   // также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
   // корректную информацию про объект, на который указывает симлинк (т.е. невозможно
   // "разыменовать симлинк")
-  if (IsLocalDrive(TempDest) &&
+  if (IsLocalDriveW(strTempDest) &&
       WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
-  /* IS $ */
   {
-    _SVS(CleverSysLog Clev("VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5"));
     DWORD FileAttr;
-    char *Ptr, Chr;
 
-    Ptr=TempDest+strlen(TempDest);
-
-    _SVS(SysLog("%d FileAttr=0x%08X",__LINE__,GetFileAttributes(TempDest)));
-    // немного интелектуальности не помешает - корректную инфу мы
-    // можем получить только если каталог будет завершен слешем!
-    if((FileAttr=GetFileAttributes(TempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+    if((FileAttr=GetFileAttributesW(strTempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
     {
-      if(Ptr[-1] != '\\')
-      {
-        AddEndSlash(TempDest);
-        IsAddEndSlash=TRUE;
-        ++Ptr;
-      }
+      AddEndSlashW (strTempDest);
+      IsAddEndSlash=TRUE;
     }
 
-    /* $ 21.06.2002 VVM
-      ! Учтем UNC пути */
-    char *CtrlChar = TempDest;
-    if (strlen(TempDest) > 2 && TempDest[0]=='\\' && TempDest[1]=='\\')
-      CtrlChar= strchr(TempDest+2, '\\');
-    /* VVM $ */
+    TempDest = strTempDest.GetBuffer (2048); //BUGBUGBUG!!!!
+    wchar_t *Ptr, Chr;
+
+    Ptr = TempDest+wcslen(TempDest);
+
+    const wchar_t *CtrlChar = TempDest;
+
+    if (wcslen(TempDest) > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
+      CtrlChar= wcschr(TempDest+2, L'\\');
+
     // обычный цикл прохода имени от корня
     while(CtrlChar)
     {
-      while(Ptr > TempDest && *Ptr != '\\')
+      while(Ptr > TempDest && *Ptr != L'\\')
         --Ptr;
       /* $ 07.01.2003 IS
          - ошибка: зачем-то обрабатывали путь "буква:" - он равен
@@ -396,46 +307,41 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
            непредсказуемым результатам
       */
       // Если имя UNC, то работаем до имени сервера, не дальше...
-      if(*Ptr != '\\' || Ptr == CtrlChar
+      if(*Ptr != L'\\' || Ptr == CtrlChar
         // если дошли до "буква:", то тоже остановимся
-        || *(Ptr-1)==':')
+        || *(Ptr-1)==L':')
         break;
       /* IS $ */
 
       Chr=*Ptr;
       *Ptr=0;
-      FileAttr=GetFileAttributes(TempDest);
-      _SVS(SysLog("%d FileAttr=0x%08X ('%s')",__LINE__,FileAttr,TempDest));
-
+      FileAttr=GetFileAttributesW(TempDest);
       // О! Это наш клиент - одна из "компонент" пути - симлинк
       if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
       {
-        char TempDest2[1024];
+        string strTempDest2;
 
 //        if(CheckParseJunction(TempDest,sizeof(TempDest)))
         {
-          _SVS(SysLog("%d Parse Junction",__LINE__));
           // Получим инфу симлинке
-          if(GetJunctionPointInfo(TempDest,TempDest2,sizeof(TempDest2)))
+          if(GetJunctionPointInfoW(TempDest, strTempDest2))
           {
+            strTempDest.LShift (4); //???
             // для случая монтированного диска (не имеющего букву)...
-            if(!strncmp(TempDest2+4,"Volume{",7))
+            if(!wcsncmp(strTempDest2,L"Volume{",7))
             {
-              char JuncRoot[NM*2];
-              JuncRoot[0]=JuncRoot[1]=0;
+              string strJuncRoot;
               // получим либо букву диска, либо...
-              GetPathRootOne(TempDest2+4,JuncRoot);
+              GetPathRootOneW(strTempDest2, strJuncRoot);
               // ...но в любом случае пишем полностью.
-              strcpy(TempDest2+4,JuncRoot);
+              strTempDest2 = strJuncRoot;
             }
-            // небольшая метаморфоза с именем, дабы удалить ведущие "\\?\"
-            // но для "Volume{" начало всегда будет корректным!
-            memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
+
             *Ptr=Chr; // восстановим символ
-            DeleteEndSlash(TempDest2);
-            strcat(TempDest2,Ptr);
-            strcpy(TempDest,TempDest2);
-            Ret=strlen(TempDest);
+            DeleteEndSlashW(strTempDest2);
+            strTempDest2 = Ptr;
+            wcscpy(TempDest,strTempDest2); //BUGBUG
+            Ret=wcslen(TempDest);
             // ВСЕ. Реальный путь у нас в кармане...
             break;
           }
@@ -444,31 +350,39 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
       *Ptr=Chr;
       --Ptr;
     }
-  }
-  if(IsAddEndSlash) // если не просили - удалим.
-    TempDest[strlen(TempDest)-1]=0;
 
-  if(Dest && DestSize)
-    xstrncpy(Dest,TempDest,DestSize-1);
-  _SVS(SysLog("return Dest='%s'",Dest));
+    strTempDest.ReleaseBuffer ();
+  }
+
+  TempDest = strTempDest.GetBuffer ();
+
+  if(IsAddEndSlash) // если не просили - удалим.
+    TempDest[wcslen(TempDest)-1]=0;
+
+  strTempDest.ReleaseBuffer ();
+
+  strDest = strTempDest;
+
   return Ret;
 }
 
-void ConvertNameToShort(const char *Src,char *Dest,int DestSize)
+
+void ConvertNameToShortW(const wchar_t *Src, string &strDest)
 {
-  char *AnsiName=(char*)alloca(strlen(Src)+8);
-  if(!AnsiName)
+  string strCopy = Src;
+
+  int nSize = GetShortPathNameW (strCopy, NULL, 0);
+
+  if ( nSize )
   {
-    xstrncpy(Dest,Src,DestSize);
-    return;
+    wchar_t *lpwszDest = strDest.GetBuffer (nSize);
+
+    GetShortPathNameW (strCopy, lpwszDest, nSize);
+
+    strDest.ReleaseBuffer ();
   }
-  SetFileApisTo(APIS2ANSI);
-  FAR_OemToChar(Src,AnsiName);
-  char ShortName[NM];
-  if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)))
-    FAR_CharToOemBuff(ShortName,Dest,DestSize);
   else
-    xstrncpy(Dest,Src,DestSize);
-  SetFileApisTo(APIS2OEM);
-  LocalUpperBuf(Dest,strlen(Dest));
+    strDest = strCopy;
+
+  strDest.Upper ();
 }

@@ -7,53 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.15 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  03.06.2004 SVS
-    ! Часть кода вынесена в отдельные функции:
-       a) Установить фокус на противоположную панель (Tab)
-          FilePanels::SetAnhoterPanelFocus()
-       b) поменять панели местами (Ctrl-U)
-          FilePanels::SwapPanels()
-       c) сменить режим панели
-          FilePanels::ChangePanelViewMode()
-  08.04.2002 IS
-    ! Немного const
-  16.01.2002 OT
-    Испраление поведения макросов в инфо-, квик- и три-панелей
-  28.12.2001 DJ
-    + единый метод GoToFile()
-  02.11.2001 SVS
-    ! возвращаемое значение у GetTypeName() - модификатор const
-  18.07.2001 OT
-    ! VFMenu
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  21.05.2001 OT
-    + Реакция на изменение размеров консоли virtual void ResizeConsole();
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  11.05.2001 OT
-    ! Отрисовка Background
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  01.01.2001 tran
-      created
-*/
+/* Revision: 1.17 15.03.2006 $ */
 
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"
+#include "UnicodeString.hpp"
 
 class Panel;
 class CommandLine;
@@ -107,9 +66,9 @@ class FilePanels:public virtual Frame
 
     void Update();
 
-    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_PANELS; }
-    virtual const char *GetTypeName(){return "[FilePanels]";};
+    virtual const wchar_t *GetTypeName(){return L"[FilePanels]";};
 
     virtual void OnChangeFocus(int focus);
 
@@ -123,12 +82,12 @@ class FilePanels:public virtual Frame
        единый метод для обработки Ctrl-F10 из вьюера и редактора
     */
     void GoToFile (const char *FileName);
-    /* DJ $ */
+    void GoToFileW (const wchar_t *FileName);
 
     /* $ 16.01.2002 OT
        переопределенный виртуальный метод от Frame
     */
-  int GetMacroMode();
+    int GetMacroMode();
     /* OT $ */
 };
 

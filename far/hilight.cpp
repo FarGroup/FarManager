@@ -5,146 +5,7 @@ Files highlighting
 
 */
 
-/* Revision: 1.49 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  24.02.2006 AY
-    - Опечатка
-  09.02.2006 AY
-    - Добавил атрибуты I, T, $ в диалог и меню раскраски.
-    - Диалог настроек раскраски немного переделан.
-    - Внутренняя переделка диалога раскраски чтоб было легко обновлять в будущем.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  22.09.2003 SVS
-    - В раскрасках файлов если нажать CtrlUp на самой верхней
-      раскраске она становится второй! (по крайней мере нелогично)
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  22.01.2003 IS
-    ! В меню символ для пометки файлов показываем в кавычках, чтобы можно
-      было отличить пробел от пустоты
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  27.11.2002 SVS
-    - BugZ#771 - Подсветка файлов по умолчанию
-  17.09.2002 SVS
-    - Bug#639 - Фар падает при создании дефолтных настроек
-  06.09.2002 SVS
-    ! Изменены и упорядочены маски расширений для архиваторов (добавлен 7z)
-  11.06.2002 SVS
-    - Крупные проблемы с раскраской (см. описание в 01439.Hilight.txt)
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  14.12.2001 SVS
-    - BugZ#178 - При вызове SaveHiData() учтем  Opt.AutoSaveSetup
-  23.11.2001 SVS
-    + GetHiColor(), работающая с кипой структур FileListItem
-  21.11.2001 SVS
-    - Бага в обработчике - если стоять на чекбоксе, например про RO и жмакать
-      пробел, то после второго такого нажатия появляется... диалог выбора
-      цвета :-(
-    ! Внедрение DIF_AUTOMATION
-  25.09.2001 IS
-    ! Строковые константы собраны для удобства в одну кучу.
-    + Можно исключать анализ масок для конкретной группы раскраски
-      (обработка IgnoreMask)
-    ! Узаконим следующее положение при проверке на совпадение с группой
-      раскраски (GetHiColor): если параметр Path равен NULL, то маски в
-      анализе не используются, проверяются только атрибуты, причем в этом
-      случае выбор происходит среди тех групп, у которых маски исключены
-      из анализа.
-  05.08.2001 SVS
-    ! немного оптимизации с учетом стуктуры новой HighlightDataColor
-    + функция ReWriteWorkColor - задел на будущее (когда цвет 0x00 потеряет
-      "право на лево" :-), т.е. не будет означать цвет по умолчанию)
-    ! SetHighlighting() переехала из main.cpp
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  22.07.2001 SVS
-    ! Избавляемся от варнингов
-  18.07.2001 OT
-    VFMenu
-  13.07.2001 SVS
-    + Ctrl-Up/Ctrl-Down в списке - движение групп в меню выбора.
-  12.07.2001 SVS
-    + F5 - дублировать текущую группу
-    + Функция дублирования - DupHighlightData()
-  06.07.2001 IS
-    + Теперь в раскраске файлов можно использовать маски исключения, маски
-      файлов можно брать в кавычки, маски файлов проверяются на корректность,
-      можно использовать точку с запятой в качестве разделителя масок.
-  04.06.2001 SVS
-    ! корректно обработаем DN_BTNCLICK
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  18.05.2001 DJ
-    ! HighlightFiles::EditRecord() переписан с использованием функции-
-      обработчика диалога
-  07.05.2001 DJ
-    ! оптимизация
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  23.04.2001 SVS
-    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
-      юзаем - разные сущности.
-  08.04.2001 SVS
-    ! Раскраска не поддерживает переменные среды. В морг! Ставим скорость
-      во главу угла.
-  06.04.2001 SVS
-    ! Код по анализу PATHEXT вынесен в отдельную функцию ExpandPATHEXT()
-  04.04.2001 SVS
-    - Не инициализировался массив Mask в HighlightFiles::EditRecord()
-      поэтому иногда наблюдался мусор в строке ввода для маски.
-    ! Немного опитимизации кода в HighlightFiles::HiEdit()
-  03.04.2001 SVS
-    ! Из-за галимого формата переменной %pathext% - немного коррекции кода.
-    + Показ символа пометки в меню
-  02.04.2001 VVM
-    + В масках можно задавать переменные окружения
-  01.03.2001 SVS
-    ! Переезд ветки "Highlight" в "Colors\Highlight"
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  26.02.2001 SVS
-    - Забыл при редактировании инициализировать данные...
-  12.02.2001 SVS
-    + Функция ClearData - очистка HiData
-    - устранение утечки памяти (после 440-го)
-  11.02.2001 SVS
-    ! Введение DIF_VAREDIT позволило расширить размер под маски до
-      HIGHLIGHT_MASK_SIZE символов
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  14.01.2001 SVS
-    + Маска для reparse point
-  24.11.2000 SVS
-    - Для Encrypted вместо EditData.ExcludeAttr стоял IncludeAttr :-(
-  30.10.2000 SVS
-    - Не редактируются маски файлов в Files Highlighting!
-  20.10.2000 SVS
-    ! Добавлен атрибут Enctripted и введена логика взаимоисключений
-      для Include & Exclude атрибутов.
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  07.07.2000 IS
-    + Если нажали ctrl+r в меню, то восстановить значения по умолчанию.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.59 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -174,15 +35,15 @@ static struct HighlightDataColor WorkColor;
 */
 struct HighlightStrings
 {
-  char *IncludeAttributes,*ExcludeAttributes,*Mask,*IgnoreMask,
+  wchar_t *IncludeAttributes,*ExcludeAttributes,*Mask,*IgnoreMask,
        *NormalColor,*SelectedColor,*CursorColor,*SelectedCursorColor,
        *MarkChar,*HighlightEdit,*HighlightList;
 };
 const HighlightStrings HLS=
 {
-  "IncludeAttributes","ExcludeAttributes","Mask","IgnoreMask",
-  "NormalColor","SelectedColor","CursorColor","SelectedCursorColor",
-  "MarkChar","HighlightEdit","HighlightList"
+  L"IncludeAttributes",L"ExcludeAttributes",L"Mask",L"IgnoreMask",
+  L"NormalColor",L"SelectedColor",L"CursorColor",L"SelectedCursorColor",
+  L"MarkChar",L"HighlightEdit",L"HighlightList"
 };
 /* IS $ */
 
@@ -199,35 +60,49 @@ HighlightFiles::HighlightFiles()
 
 void HighlightFiles::InitHighlightFiles()
 {
-  if(HiData) xf_free(HiData); HiData=NULL;
+  if(HiData)
+  {
+    for (int i = 0; i < HiDataCount; i++)
+        delete HiData[i];
+
+    xf_free(HiData);
+  }
+
+  HiData=NULL;
   HiDataCount=0;
-  char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE];
-  char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr указывает на нужное место :-)
+  string strRegKey, strMask;
+
   ReWriteWorkColor();
   while (1)
   {
-    itoa(HiDataCount,Ptr,10);
-    if (!GetRegKey(RegKey,HLS.Mask,Mask,"",sizeof(Mask)))
+    strRegKey.Format (L"%s\\Group%d", RegColorsHighlight, HiDataCount);
+
+    if (!GetRegKeyW(strRegKey,HLS.Mask,strMask,L""))
       break;
-    struct HighlightData *NewHiData;
-    struct HighlightData HData={0};
-    HData.IgnoreMask=GetRegKey(RegKey,HLS.IgnoreMask,FALSE);
-    if(AddMask(&HData,Mask,HData.IgnoreMask))
+    HighlightData **NewHiData;
+    HighlightData *HData=new HighlightData;
+
+    memset (HData, 0, sizeof (HighlightData));
+
+    HData->IgnoreMask=GetRegKeyW(strRegKey,HLS.IgnoreMask,FALSE);
+
+    if(AddMask(HData,strMask,HData->IgnoreMask))
     {
-      if ((NewHiData=(struct HighlightData *)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+      if ((NewHiData=(HighlightData **)xf_realloc(HiData,4*(HiDataCount+1)))==NULL)
       {
-        DeleteMask(&HData);
+        DeleteMask(HData);
+        delete HData;
         break;
       }
       HiData=NewHiData;
-      HData.IncludeAttr=GetRegKey(RegKey,HLS.IncludeAttributes,0);
-      HData.ExcludeAttr=GetRegKey(RegKey,HLS.ExcludeAttributes,0)&(~HData.IncludeAttr);
-      HData.Colors.Color=(BYTE)GetRegKey(RegKey,HLS.NormalColor,(DWORD)WorkColor.Color);
-      HData.Colors.SelColor=(BYTE)GetRegKey(RegKey,HLS.SelectedColor,(DWORD)WorkColor.SelColor);
-      HData.Colors.CursorColor=(BYTE)GetRegKey(RegKey,HLS.CursorColor,(DWORD)WorkColor.CursorColor);
-      HData.Colors.CursorSelColor=(BYTE)GetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)WorkColor.CursorSelColor);
-      HData.Colors.MarkChar=(BYTE)GetRegKey(RegKey,HLS.MarkChar,0);
-      memcpy(HiData+HiDataCount,&HData,sizeof(struct HighlightData));
+      HData->IncludeAttr=GetRegKeyW(strRegKey,HLS.IncludeAttributes,0);
+      HData->ExcludeAttr=GetRegKeyW(strRegKey,HLS.ExcludeAttributes,0)&(~HData->IncludeAttr);
+      HData->Colors.Color=(BYTE)GetRegKeyW(strRegKey,HLS.NormalColor,(DWORD)WorkColor.Color);
+      HData->Colors.SelColor=(BYTE)GetRegKeyW(strRegKey,HLS.SelectedColor,(DWORD)WorkColor.SelColor);
+      HData->Colors.CursorColor=(BYTE)GetRegKeyW(strRegKey,HLS.CursorColor,(DWORD)WorkColor.CursorColor);
+      HData->Colors.CursorSelColor=(BYTE)GetRegKeyW(strRegKey,HLS.SelectedCursorColor,(DWORD)WorkColor.CursorSelColor);
+      HData->Colors.MarkChar=GetRegKeyW(strRegKey,HLS.MarkChar,0);
+      HiData[HiDataCount] = HData;
       HiDataCount++;
     }
     else
@@ -244,9 +119,9 @@ HighlightFiles::~HighlightFiles()
 
 /* $ 06.07.2001 IS "рабочей" маски теперь у нас нет */
 // вернуть шоумаску - маску, которая редактируется и отображается на экране
-char *HighlightFiles::GetMask(int Idx)
+const wchar_t *HighlightFiles::GetMask(int Idx)
 {
-  return (HiData+Idx)->OriginalMasks;
+  return HiData[Idx]->strOriginalMasks;
 }
 /* IS $ */
 
@@ -256,70 +131,75 @@ char *HighlightFiles::GetMask(int Idx)
 /* $ 06.07.2001 IS
    вместо "рабочей" маски используем соответствующий класс
 */
-BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMask,struct HighlightData *Src)
+BOOL HighlightFiles::AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL IgnoreMask,struct HighlightData *Src)
 {
-  char *Ptr, *OPtr;
+  wchar_t *Ptr;
+  string strMask;
 
   if(Src)
-  {
-    // память под оригинал - OriginalMasks
-    if((OPtr=(char *)xf_malloc(strlen(Mask)+1)) == NULL)
-      return FALSE;
     memmove(Dest,Src,sizeof(struct HighlightData));
-  }
-  else
-  {
-    // память под оригинал - OriginalMasks
-    if((OPtr=(char *)xf_realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
-      return FALSE;
-  }
-  /* Обработка %PATHEXT% */
-  strcpy(OPtr,Mask); // сохраняем оригинал.
-  // проверим
-  if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
-  {
-    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-Mask;
-    // Если встречается %pathext%, то допишем в конец...
-    memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
 
-    char Tmp1[HIGHLIGHT_MASK_SIZE], *pSeparator;
-    xstrncpy(Tmp1, Mask,sizeof(Tmp1)-1);
-    pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
+  strMask = Mask;
+
+  Ptr = strMask.GetBuffer();
+  // проверим
+  if((Ptr=wcschr(Ptr, L'%')) != NULL && !LocalStrnicmpW(Ptr,L"%PATHEXT%",9))
+  {
+    int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(Ptr-Mask)/sizeof (wchar_t);
+    // Если встречается %pathext%, то допишем в конец...
+    memmove(Ptr,Ptr+IQ1,(wcslen(Ptr+IQ1)+1)*sizeof (wchar_t));
+
+  strMask.ReleaseBuffer();
+
+    string strTmp1 = strMask;
+
+  wchar_t *pSeparator, *lpwszTmp1;
+
+  lpwszTmp1 = strTmp1.GetBuffer();
+
+    pSeparator=wcschr(lpwszTmp1, EXCLUDEMASKSEPARATOR);
+
     if(pSeparator)
     {
-      Ptr=Tmp1+offsetPtr;
+      Ptr=lpwszTmp1+offsetPtr;
       if(Ptr>pSeparator) // PATHEXT находится в масках исключения
-        Add_PATHEXT(Mask); // добавляем то, чего нету.
+        Add_PATHEXT(strMask); // добавляем то, чего нету.
       else
       {
-        char Tmp2[HIGHLIGHT_MASK_SIZE];
-        xstrncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
+        string strTmp2;
+        strTmp2 = (pSeparator+1);
         *pSeparator=0;
-        Add_PATHEXT(Tmp1);
-        sprintf(Mask, "%s|%s", Tmp1, Tmp2);
+
+      strTmp1.ReleaseBuffer();
+
+        Add_PATHEXT(strTmp1);
+        strMask.Format (L"%s|%s", (const wchar_t*)strTmp1, (const wchar_t*)strTmp2);
       }
+
+
     }
     else
-      Add_PATHEXT(Mask); // добавляем то, чего нету.
+  {
+      Add_PATHEXT(strMask); // добавляем то, чего нету.
+    strTmp1.ReleaseBuffer();
+  }
   }
   /* $ 25.09.2001 IS
      Если IgnoreMask, то не выделяем память под класс CFileMask, т.к. он нам
      не нужен.
   */
   // память под рабочую маску
-  CFileMask *FMasks=NULL;
+  CFileMaskW *FMasks=NULL;
   if(!IgnoreMask)
   {
-    if((FMasks=new CFileMask) == NULL)
-    {
-      xf_free(OPtr);
-      return FALSE;
-    }
+    FMasks=new CFileMaskW;
 
-    if(!FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
+  if ( !FMasks )
+      return FALSE;
+
+    if(!FMasks->Set(strMask, FMF_SILENT)) // проверим корректность маски
     {
       delete FMasks;
-      xf_free(OPtr);
       return FALSE;
     }
   }
@@ -328,7 +208,7 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
 
   // корректирем ссылки на маски.
   Dest->FMasks=FMasks;
-  Dest->OriginalMasks=OPtr;
+  Dest->strOriginalMasks=Mask;
   return TRUE;
 }
 /* IS $ */
@@ -342,11 +222,8 @@ void HighlightFiles::DeleteMask(struct HighlightData *CurHighlightData)
     delete CurHighlightData->FMasks;
     CurHighlightData->FMasks=NULL;
   }
-  if(CurHighlightData->OriginalMasks)
-  {
-    xf_free(CurHighlightData->OriginalMasks);
-    CurHighlightData->OriginalMasks=NULL;
-  }
+
+  CurHighlightData->strOriginalMasks=L"";
 }
 /* IS $ */
 
@@ -355,7 +232,11 @@ void HighlightFiles::ClearData()
   if(HiData)
   {
     for(int I=0; I < HiDataCount; ++I)
-      DeleteMask(HiData+I);
+    {
+      DeleteMask(HiData[I]);
+      delete HiData[I];
+    }
+
     xf_free(HiData);
   }
   HiData=NULL;
@@ -372,46 +253,50 @@ void HighlightFiles::ClearData()
    используются, проверяются только атрибуты, причем в этом случае выбор
    происходит среди тех групп, у которых маски исключены из анализа.
 */
-void HighlightFiles::GetHiColor(char *Path,int Attr,
+void HighlightFiles::GetHiColor(const wchar_t *Path,int Attr,
                                 struct HighlightDataColor *Colors)
 {
-  struct FileListItem FileItem;
+  struct FileListItem *FileItem = new FileListItem;
   if(Path)
-    xstrncpy(FileItem.Name,Path,sizeof(FileItem.Name)-1);
+    FileItem->strName = Path;
   else
-    *FileItem.Name=0;
-  FileItem.FileAttr=Attr;
+    FileItem->strName=L"";
+  FileItem->FileAttr=Attr;
   GetHiColor(&FileItem,1);
-  memcpy(Colors,&FileItem.Colors,sizeof(struct HighlightDataColor));
+  memcpy(Colors,&FileItem->Colors,sizeof(struct HighlightDataColor));
+
+  delete FileItem;
 }
 /* IS $ */
 /* IS $ */
 /* DJ $ */
 
-void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount)
+void HighlightFiles::GetHiColor(struct FileListItem **FileItemEx,int FileCount)
 {
-  if(!FileItem || !FileCount)
+  if(!FileItemEx || !FileCount)
     return;
 
-  struct HighlightData *CurHiData;
+  HighlightData *CurHiData;
   struct HighlightDataColor Colors;
   int I, FCnt;
   ReWriteWorkColor(&Colors);
+
+  FileListItem *FileItem;
   //Path=Path?Path:""; // если Path==NULL, то считаем, что это пустая строка
 
-  for(FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
+  for(FCnt=0; FCnt < FileCount; ++FCnt)
   {
+    FileItem = FileItemEx[FCnt];
     DWORD Attr=FileItem->FileAttr;
-
-    char *Path=FileItem->Name;
-    if(!*Path) Path=NULL;
+    string strPath = FileItem->strName;
     memcpy(&FileItem->Colors,&Colors,sizeof(struct HighlightDataColor));
-    for (CurHiData=HiData,I=0; I < HiDataCount;I++, ++CurHiData)
+    for (I=0; I < HiDataCount;I++)
     {
+        CurHiData = HiData[I];
       if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
           (Attr & CurHiData->ExcludeAttr)==0)
       {
-        if(CurHiData->IgnoreMask || (Path && CurHiData->FMasks->Compare(Path)))
+        if(CurHiData->IgnoreMask || (!strPath.IsEmpty() && CurHiData->FMasks->Compare(strPath)))
         {
           memcpy(&FileItem->Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
           break;
@@ -439,85 +324,85 @@ void HighlightFiles::ReWriteWorkColor(struct HighlightDataColor *Colors)
 
 void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
 {
-  struct MenuItem HiMenuItem;
-  unsigned char VerticalLine=0x0B3;
+  MenuItemEx HiMenuItem;
 
   HiMenu->DeleteItems();
-  memset(&HiMenuItem,0,sizeof(HiMenuItem));
 
   /* $ 22.01.2003 IS
      Символ для пометки файлов показываем в кавычках, чтобы можно было
      отличить пробел от пустоты
   */
-  char MarkChar[]="\" \"";
+  wchar_t MarkChar[]=L"\" \"";
   int I, Short=1;
   // сначала проверим - а есть ли символы пометки файлов в меню вообще?
   for (I=0;I<HiDataCount;I++)
   {
-    if(HiData[I].Colors.MarkChar)
+    if(HiData[I]->Colors.MarkChar)
     {
       Short=0;
       break;
     }
   }
   // если символов пометки в меню нет, то отводим под это поле только 1 знакоместо
-  const char *emptyMarkChar=Short?" ":"   ";
+  const wchar_t *emptyMarkChar=Short?L" ":L"   ";
   for (I=0;I<HiDataCount;I++)
   {
-    struct HighlightData *CurHiData=&HiData[I];
+    HighlightData *CurHiData=HiData[I];
     MarkChar[1]=CurHiData->Colors.MarkChar;
-    sprintf(HiMenuItem.Name,"%s %c %c%c%c%c%c%c%c%c%c%c %c %c%c%c%c%c%c%c%c%c%c %c %.54s",
+
+    HiMenuItem.Clear ();
+    HiMenuItem.strName.Format (L"%s %c %c%c%c%c%c%c%c%c%c%c %c %c%c%c%c%c%c%c%c%c%c %c %.54s",
       // добавим показ символа в кавычках
       (CurHiData->Colors.MarkChar?MarkChar:emptyMarkChar),
   /* IS $ */
       VerticalLine,
 
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
-        ((CurHiData->IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':'.',
-      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':'.',
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L'.',
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L'.',
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L'.',
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L'.',
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':
+         ((CurHiData->IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L'.'),
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? L'F':L'.',
+       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L':L'.',
+      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L'.',
+      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L'.',
+      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L'.',
 
-      VerticalLine,
+        VerticalLine,
 
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
-        ((CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':'.',
-      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':'.',
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L'.',
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L'.',
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L'.',
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L'.',
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':
+         ((CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L'.'),
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? L'F':L'.',
+       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L':L'.',
+      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L'.',
+      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L'.',
+      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L'.',
 
       VerticalLine,
 
       /* $ 25.09.2001 IS не рисуем маски, если они игнорируются */
-      CurHiData->IgnoreMask?" ":GetMask(I));
+      CurHiData->IgnoreMask?L" ":GetMask(I));
       /* IS $ */
     HiMenuItem.SetSelect(I==MenuPos);
-    HiMenu->AddItem(&HiMenuItem);
+    HiMenu->AddItemW(&HiMenuItem);
   }
-  *HiMenuItem.Name=0;
+  HiMenuItem.strName=L"";
   HiMenuItem.SetSelect(HiDataCount==MenuPos);
-  HiMenu->AddItem(&HiMenuItem);
+  HiMenu->AddItemW(&HiMenuItem);
 }
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-  VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
+  VMenu HiMenu(UMSG(MHighlightTitle),NULL,0, TRUE,ScrY-4);
   HiMenu.SetHelp(HLS.HighlightList);
   HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
   HiMenu.SetPosition(-1,-1,0,0);
-  HiMenu.SetBottomTitle(MSG(MHighlightBottom));
+  HiMenu.SetBottomTitle(UMSG(MHighlightBottom));
 
   FillMenu(&HiMenu,MenuPos);
 
@@ -542,11 +427,11 @@ void HighlightFiles::HiEdit(int MenuPos)
           Если нажали ctrl+r, то восстановить значения по умолчанию.
         */
         case KEY_CTRLR:
-          if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
-                        MSG(MHighlightWarning),MSG(MHighlightAskRestore),
-                        MSG(MYes),MSG(MCancel))!=0)
+          if (MessageW(MSG_WARNING,2,UMSG(MHighlightTitle),
+                        UMSG(MHighlightWarning),UMSG(MHighlightAskRestore),
+                        UMSG(MYes),UMSG(MCancel))!=0)
              break;
-          DeleteKeyTree(RegColorsHighlight);
+          DeleteKeyTreeW(RegColorsHighlight);
           SetHighlighting();
           HiMenu.Hide();
           ClearData();
@@ -557,15 +442,15 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_DEL:
           if (SelectPos<HiMenu.GetItemCount()-1)
           {
-            if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
-                        MSG(MHighlightAskDel),GetMask(SelectPos),
-                        MSG(MDelete),MSG(MCancel))!=0)
+            if (MessageW(MSG_WARNING,2,UMSG(MHighlightTitle),
+                        UMSG(MHighlightAskDel),GetMask(SelectPos),
+                        UMSG(MDelete),UMSG(MCancel))!=0)
               break;
-            DeleteMask(HiData+SelectPos);
+            DeleteMask(HiData[SelectPos]);
             for (int I=SelectPos+1;I<ItemCount;I++)
               HiData[I-1]=HiData[I];
             HiDataCount--;
-            HiData=(struct HighlightData *)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1));
+            HiData=(HighlightData **)xf_realloc(HiData,4*(HiDataCount+1));
             NeedUpdate=TRUE;
           }
           break;
@@ -580,17 +465,17 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_F5:
           if (SelectPos < HiMenu.GetItemCount()-1)
           {
-            if(DupHighlightData(HiData+SelectPos,GetMask(SelectPos),HiData[SelectPos].IgnoreMask,SelectPos))
+            if(DupHighlightData(HiData[SelectPos],GetMask(SelectPos),HiData[SelectPos]->IgnoreMask,SelectPos))
               NeedUpdate=TRUE;
           }
           break;
         case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
           if (SelectPos > 0 && SelectPos < HiMenu.GetItemCount()-1)
           {
-            struct HighlightData HData;
-            memcpy(&HData,HiData+SelectPos,sizeof(struct HighlightData));
-            memcpy(HiData+SelectPos,HiData+SelectPos-1,sizeof(struct HighlightData));
-            memcpy(HiData+SelectPos-1,&HData,sizeof(struct HighlightData));
+            HighlightData HData;
+            memcpy(&HData,HiData[SelectPos],sizeof(struct HighlightData));
+            memcpy(HiData[SelectPos],HiData[SelectPos-1],sizeof(struct HighlightData));
+            memcpy(HiData[SelectPos-1],&HData,sizeof(struct HighlightData));
             HiMenu.SetSelection(--SelectPos);
             NeedUpdate=TRUE;
             break;
@@ -601,10 +486,10 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
           if (SelectPos < HiMenu.GetItemCount()-2)
           {
-            struct HighlightData HData;
-            memcpy(&HData,HiData+SelectPos,sizeof(struct HighlightData));
-            memcpy(HiData+SelectPos,HiData+SelectPos+1,sizeof(struct HighlightData));
-            memcpy(HiData+SelectPos+1,&HData,sizeof(struct HighlightData));
+            HighlightData HData;
+            memcpy(&HData,HiData[SelectPos],sizeof(struct HighlightData));
+            memcpy(HiData[SelectPos],HiData[SelectPos+1],sizeof(struct HighlightData));
+            memcpy(HiData[SelectPos+1],&HData,sizeof(struct HighlightData));
             HiMenu.SetSelection(++SelectPos);
             NeedUpdate=TRUE;
           }
@@ -648,26 +533,25 @@ void HighlightFiles::HiEdit(int MenuPos)
 void HighlightFiles::SaveHiData()
 {
   int I;
-  char RegKey[80];
-  char *Ptr=MkRegKeyHighlightName(RegKey);
+  string strRegKey;
   for (I=0;I<HiDataCount;I++)
   {
-    struct HighlightData *CurHiData=&HiData[I];
-    itoa(I,Ptr,10);
-    SetRegKey(RegKey,HLS.Mask,GetMask(I));
-    SetRegKey(RegKey,HLS.IgnoreMask,CurHiData->IgnoreMask);
-    SetRegKey(RegKey,HLS.IncludeAttributes,CurHiData->IncludeAttr);
-    SetRegKey(RegKey,HLS.ExcludeAttributes,CurHiData->ExcludeAttr);
-    SetRegKey(RegKey,HLS.NormalColor,(DWORD)CurHiData->Colors.Color);
-    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)CurHiData->Colors.SelColor);
-    SetRegKey(RegKey,HLS.CursorColor,(DWORD)CurHiData->Colors.CursorColor);
-    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)CurHiData->Colors.CursorSelColor);
-    SetRegKey(RegKey,HLS.MarkChar,(DWORD)CurHiData->Colors.MarkChar);
+    struct HighlightData *CurHiData=HiData[I];
+    strRegKey.Format (L"%s\\Group%d", RegColorsHighlight, I);
+    SetRegKeyW(strRegKey,HLS.Mask,GetMask(I));
+    SetRegKeyW(strRegKey,HLS.IgnoreMask,CurHiData->IgnoreMask);
+    SetRegKeyW(strRegKey,HLS.IncludeAttributes,CurHiData->IncludeAttr);
+    SetRegKeyW(strRegKey,HLS.ExcludeAttributes,CurHiData->ExcludeAttr);
+    SetRegKeyW(strRegKey,HLS.NormalColor,(DWORD)CurHiData->Colors.Color);
+    SetRegKeyW(strRegKey,HLS.SelectedColor,(DWORD)CurHiData->Colors.SelColor);
+    SetRegKeyW(strRegKey,HLS.CursorColor,(DWORD)CurHiData->Colors.CursorColor);
+    SetRegKeyW(strRegKey,HLS.SelectedCursorColor,(DWORD)CurHiData->Colors.CursorSelColor);
+    SetRegKeyW(strRegKey,HLS.MarkChar,CurHiData->Colors.MarkChar);
   }
   for (I=HiDataCount;I<StartHiDataCount;I++)
   {
-    itoa(I,Ptr,10);
-    DeleteRegKey(RegKey);
+    strRegKey.Format (L"%s\\Group%d", RegColorsHighlight, I);
+    DeleteRegKeyW(strRegKey);
   }
 }
 
@@ -704,7 +588,7 @@ enum enumHighlightEditRecords
 
 void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct HighlightDataColor &Colors)
 {
-  const char *ptr;
+  const wchar_t *ptr;
   DWORD Color;
   DWORD Default=F_BLACK|B_BLACK;
   for (int j=0; j<4; j++)
@@ -733,16 +617,16 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
         break;
     }
     if (Colors.MarkChar)
-      ptr=MSG(MHighlightExample2);
+      ptr=UMSG(MHighlightExample2);
     else
-      ptr=MSG(MHighlightExample1);
+      ptr=UMSG(MHighlightExample1);
     for (int k=0; k<15; k++)
     {
-      VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
+      VBufColorExample[15*j+k].Char.UnicodeChar=ptr[k];
       VBufColorExample[15*j+k].Attributes=static_cast<WORD>(Color);
     }
     if (Colors.MarkChar)
-      VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar;
+      VBufColorExample[15*j+1].Char.UnicodeChar=Colors.MarkChar;
     VBufColorExample[15*j].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
     VBufColorExample[15*j+14].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
   }
@@ -780,7 +664,7 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
             Color=(DWORD)EditData->Colors.CursorSelColor;
             break;
         }
-        GetColorDialog(Color,true);
+        GetColorDialog(Color);
         switch (Param1)
         {
           case ID_HER_NORMAL:
@@ -799,7 +683,9 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
         FarDialogItem MarkChar, ColorExample;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(long)&MarkChar);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
-        EditData->Colors.MarkChar=*MarkChar.Data.Data;
+
+        if ( MarkChar.PtrData )
+            EditData->Colors.MarkChar=*(MarkChar.PtrData);
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
         return TRUE;
@@ -813,7 +699,9 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
         FarDialogItem *MarkChar, ColorExample;
         MarkChar=(FarDialogItem *)Param2;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
-        EditData->Colors.MarkChar=*(MarkChar->Data.Data);
+
+        if ( MarkChar->PtrData )
+            EditData->Colors.MarkChar=*(MarkChar->PtrData);
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
         return TRUE;
@@ -829,124 +717,133 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
 */
 int HighlightFiles::EditRecord(int RecPos,int New)
 {
-  const char *HistoryName="Masks";
-  static struct DialogData HiEditDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(char *)MHighlightEditTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,DIF_AUTOMATION,0,(char *)MHighlightMasks,
-  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-  /* 03 */DI_TEXT,-1,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightIncExcTitle,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_3STATE,0,(char *)MHighlightRO,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,DIF_3STATE,0,(char *)MHighlightHidden,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_3STATE,0,(char *)MHighlightSystem,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_3STATE,0,(char *)MHighlightArchive,
-  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,DIF_3STATE,0,(char *)MHighlightCompressed,
-  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,DIF_3STATE,0,(char *)MHighlightEncrypted,
-  /* 10 */DI_CHECKBOX,35,5,0,0,0,0,DIF_3STATE,0,(char *)MHighlightFolder,
-  /* 11 */DI_CHECKBOX,35,6,0,0,0,0,DIF_3STATE,0,(char *)MHighlightJunction,
-  /* 12 */DI_CHECKBOX,35,7,0,0,0,0,DIF_3STATE,0,(char *)MHighlightSparse,
-  /* 13 */DI_CHECKBOX,35,8,0,0,0,0,DIF_3STATE,0,(char *)MHighlightTemporary,
-  /* 14 */DI_CHECKBOX,35,9,0,0,0,0,DIF_3STATE,0,(char *)MHighlightNotIndexed,
-  /* 15 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 16 */DI_TEXT,7,12,0,0,0,0,0,0,(char *)MHighlightMarkChar,
-  /* 17 */DI_FIXEDIT,5,12,5,12,0,0,0,0,"",
-  /* 18 */DI_TEXT,-1,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-  /* 19 */DI_BUTTON,5,14,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
-  /* 20 */DI_BUTTON,5,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,
-  /* 21 */DI_BUTTON,5,16,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightCursor,
-  /* 22 */DI_BUTTON,5,17,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelectedCursor,
-  /* 23 */DI_USERCONTROL,65-15-1,14,65-2,17,0,0,DIF_NOFOCUS,0,"",
-  /* 24 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 25 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 26 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  const wchar_t *HistoryName=L"Masks";
+  static struct DialogDataEx HiEditDlgData[]={
+  /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(const wchar_t *)MHighlightEditTitle,
+  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MHighlightMasks,
+  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD)HistoryName,DIF_HISTORY,0,L"",
+  /* 03 */DI_TEXT,-1,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightIncExcTitle,
+  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightRO,
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightHidden,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightSystem,
+  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightArchive,
+  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightCompressed,
+  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightEncrypted,
+  /* 10 */DI_CHECKBOX,35,5,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightFolder,
+  /* 11 */DI_CHECKBOX,35,6,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightJunction,
+  /* 12 */DI_CHECKBOX,35,7,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightSparse,
+  /* 13 */DI_CHECKBOX,35,8,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightTemporary,
+  /* 14 */DI_CHECKBOX,35,9,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightNotIndexed,
+  /* 15 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */DI_TEXT,7,12,0,0,0,0,0,0,(const wchar_t *)MHighlightMarkChar,
+  /* 17 */DI_FIXEDIT,5,12,5,12,0,0,0,0,L"",
+  /* 18 */DI_TEXT,-1,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightColors,
+  /* 19 */DI_BUTTON,5,14,0,0,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MHighlightNormal,
+  /* 20 */DI_BUTTON,5,15,0,0,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MHighlightSelected,
+  /* 21 */DI_BUTTON,5,16,0,0,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MHighlightCursor,
+  /* 22 */DI_BUTTON,5,17,0,0,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MHighlightSelectedCursor,
+  /* 23 */DI_USERCONTROL,65-15-1,14,65-2,17,0,0,DIF_NOFOCUS,0,L"",
+  /* 24 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 25 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 26 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
-  MakeDialogItems(HiEditDlgData,HiEditDlg);
-  struct HighlightData EditData;
-  char Mask[HIGHLIGHT_MASK_SIZE], *Ptr;
+  MakeDialogItemsEx(HiEditDlgData,HiEditDlg);
+  HighlightData *EditData;
   CHAR_INFO VBufColorExample[15*4];
 
-  *Mask=0;
+  string strMask;
+  const wchar_t *Ptr;
+  bool bNew = false;
 
   if (!New && RecPos<HiDataCount)
   {
     EditData=HiData[RecPos];
     if((Ptr=GetMask(RecPos)) != NULL)
-      strcpy(Mask,Ptr);
+      strMask = Ptr;
   }
   else
-    memset(&EditData,0,sizeof(EditData));
+  {
+    bNew = true;
+    EditData = new HighlightData;
+      memset(EditData,0,sizeof(HighlightData));
+  }
 
   memset(VBufColorExample,0,sizeof(VBufColorExample));
-  HighlightDlgUpdateUserControl(VBufColorExample,EditData.Colors);
+  HighlightDlgUpdateUserControl(VBufColorExample,EditData->Colors);
   HiEditDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
 
-  if(FALSE==(HiEditDlg[ID_HER_MATCHMASK].Selected=!EditData.IgnoreMask))
+  if(FALSE==(HiEditDlg[ID_HER_MATCHMASK].Selected=!EditData->IgnoreMask))
      HiEditDlg[ID_HER_MASKEDIT].Flags|=DIF_DISABLE;
 
-  HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrData=Mask;
-  HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrLength=sizeof(Mask);
+  HiEditDlg[ID_HER_MASKEDIT].strData = strMask;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_READONLY)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_READONLY)!=0)
     HiEditDlg[ID_HER_ATTRBR].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_READONLY)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_READONLY)==0)
     HiEditDlg[ID_HER_ATTRBR].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0)
     HiEditDlg[ID_HER_ATTRBH].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_HIDDEN)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_HIDDEN)==0)
     HiEditDlg[ID_HER_ATTRBH].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0)
     HiEditDlg[ID_HER_ATTRBS].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)==0)
     HiEditDlg[ID_HER_ATTRBS].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0)
     HiEditDlg[ID_HER_ATTRBA].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)==0)
     HiEditDlg[ID_HER_ATTRBA].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0)
     HiEditDlg[ID_HER_ATTRBC].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)==0)
     HiEditDlg[ID_HER_ATTRBC].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0)
     HiEditDlg[ID_HER_ATTRBE].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)==0)
     HiEditDlg[ID_HER_ATTRBE].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0)
     HiEditDlg[ID_HER_ATTRBF].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     HiEditDlg[ID_HER_ATTRBF].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0)
     HiEditDlg[ID_HER_ATTRBL].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)==0)
     HiEditDlg[ID_HER_ATTRBL].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0)
     HiEditDlg[ID_HER_ATTRBSP].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE)==0)
     HiEditDlg[ID_HER_ATTRBSP].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_TEMPORARY)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_TEMPORARY)!=0)
     HiEditDlg[ID_HER_ATTRBT].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY)==0)
     HiEditDlg[ID_HER_ATTRBT].Selected=2;
 
-  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0)
+  if ((EditData->IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0)
     HiEditDlg[ID_HER_ATTRBNI].Selected=1;
-  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)==0)
+  else if ((EditData->ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)==0)
     HiEditDlg[ID_HER_ATTRBNI].Selected=2;
 
-  *HiEditDlg[ID_HER_MARKEDIT].Data=EditData.Colors.MarkChar;
+  wchar_t *lpwszData = HiEditDlg[ID_HER_MARKEDIT].strData.GetBuffer (2);
+
+  *lpwszData = EditData->Colors.MarkChar;
+
+  HiEditDlg[ID_HER_MARKEDIT].strData.ReleaseBuffer ();
 
   /* $ 18.05.2001 DJ
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
   */
   {
     Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
+
     Dlg.SetHelp(HLS.HighlightEdit);
     Dlg.SetPosition(-1,-1,69,22);
     Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -955,116 +852,136 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     /* $ 06.07.2001 IS
        Проверим маску на корректность
     */
-    CFileMask FMask;
+    CFileMaskW FMask;
     for(;;)
     {
       Dlg.ClearDone();
       Dlg.Process();
       if (Dlg.GetExitCode() != ID_HER_OK)
-        return(FALSE);
-      if((FALSE!=(EditData.IgnoreMask=!HiEditDlg[ID_HER_MATCHMASK].Selected)))
       {
-        if (!*Mask)
-          strcpy(Mask, "*"); // для красоты и во избежание неприятностей
+        if ( bNew )
+          delete EditData;
+        return(FALSE);
+      }
+
+      strMask = HiEditDlg[ID_HER_MASKEDIT].strData;
+
+      if((FALSE!=(EditData->IgnoreMask=!HiEditDlg[ID_HER_MATCHMASK].Selected)))
+      {
+        if ( strMask.IsEmpty())
+          strMask = L"*"; // для красоты и во избежание неприятностей
         break; // не проверяем маску лишний раз
       }
-      if (*(char *)HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrData==0)
+      if ( HiEditDlg[ID_HER_MASKEDIT].strData.IsEmpty() )
+      {
+        if ( bNew )
+          delete EditData;
         return(FALSE);
-      if(FMask.Set(static_cast<char *>(HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrData), 0))
+      }
+      if(FMask.Set(HiEditDlg[ID_HER_MASKEDIT].strData, 0))
         break;
     }
     /* IS $ */
   }
   /* DJ $ */
-  EditData.IncludeAttr=EditData.ExcludeAttr=0;
+  EditData->IncludeAttr=EditData->ExcludeAttr=0;
 
   if (HiEditDlg[ID_HER_ATTRBR].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_READONLY;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_READONLY;
   else if (HiEditDlg[ID_HER_ATTRBR].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_READONLY;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_READONLY;
 
   if (HiEditDlg[ID_HER_ATTRBH].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_HIDDEN;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_HIDDEN;
   else if (HiEditDlg[ID_HER_ATTRBH].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_HIDDEN;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_HIDDEN;
 
   if (HiEditDlg[ID_HER_ATTRBS].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_SYSTEM;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_SYSTEM;
   else if (HiEditDlg[ID_HER_ATTRBS].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SYSTEM;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_SYSTEM;
 
   if (HiEditDlg[ID_HER_ATTRBA].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
   else if (HiEditDlg[ID_HER_ATTRBA].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
-
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
 
   if (HiEditDlg[ID_HER_ATTRBE].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
   else if (HiEditDlg[ID_HER_ATTRBE].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
   if (HiEditDlg[ID_HER_ATTRBC].Selected==1)
   {
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
-    EditData.IncludeAttr&=~FILE_ATTRIBUTE_ENCRYPTED;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
+    EditData->IncludeAttr&=~FILE_ATTRIBUTE_ENCRYPTED;
   }
   else if (HiEditDlg[ID_HER_ATTRBC].Selected==0)
   {
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
-    EditData.ExcludeAttr&=~FILE_ATTRIBUTE_COMPRESSED;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
+    EditData->ExcludeAttr&=~FILE_ATTRIBUTE_COMPRESSED;
   }
 
   if (HiEditDlg[ID_HER_ATTRBF].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
   else if (HiEditDlg[ID_HER_ATTRBF].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
 
   if (HiEditDlg[ID_HER_ATTRBL].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
   else if (HiEditDlg[ID_HER_ATTRBL].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
 
   if (HiEditDlg[ID_HER_ATTRBSP].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
   else if (HiEditDlg[ID_HER_ATTRBSP].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
 
   if (HiEditDlg[ID_HER_ATTRBT].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_TEMPORARY;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_TEMPORARY;
   else if (HiEditDlg[ID_HER_ATTRBT].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_TEMPORARY;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_TEMPORARY;
 
   if (HiEditDlg[ID_HER_ATTRBNI].Selected==1)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+    EditData->IncludeAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
   else if (HiEditDlg[ID_HER_ATTRBNI].Selected==0)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+    EditData->ExcludeAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
 
-  EditData.Colors.MarkChar=*HiEditDlg[ID_HER_MARKEDIT].Data;
+  EditData->Colors.MarkChar=HiEditDlg[ID_HER_MARKEDIT].strData.At(0);
 
   if (!New && RecPos<HiDataCount)
   {
-    if(!AddMask(HiData+RecPos,Mask,EditData.IgnoreMask,&EditData))
-      return FALSE;
+    if(!AddMask(HiData[RecPos],strMask,EditData->IgnoreMask,EditData))
+    {
+      if ( bNew )
+          delete EditData;
+        return FALSE;
+    }
   }
   if (New)
-    DupHighlightData(&EditData,Mask,EditData.IgnoreMask,RecPos);
+    DupHighlightData(EditData,strMask,EditData->IgnoreMask,RecPos);
+
+  if ( bNew )
+    delete EditData;
   return(TRUE);
 }
 /* IS $ */
 
-int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,BOOL IgnoreMask,int RecPos)
+int HighlightFiles::DupHighlightData(struct HighlightData *EditData,const wchar_t *Mask,BOOL IgnoreMask,int RecPos)
 {
-  struct HighlightData *NewHiData;
-  struct HighlightData HData={0};
-  char TmpMask[HIGHLIGHT_MASK_SIZE];
+  HighlightData **NewHiData;
+  HighlightData *HData= new HighlightData;
+  memset (HData, 0, sizeof (HighlightData));
+  string strTmpMask;
 
-  xstrncpy(TmpMask,Mask,sizeof(TmpMask)-1);
-  if(!AddMask(&HData,TmpMask,IgnoreMask,EditData))
+  strTmpMask = Mask;
+  if(!AddMask(HData,strTmpMask,IgnoreMask,EditData))
     return FALSE;
 
-  if ((NewHiData=(struct HighlightData *)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+  if ((NewHiData=(HighlightData **)xf_realloc(HiData,4*(HiDataCount+1)))==NULL)
   {
-    DeleteMask(&HData);
+    DeleteMask(HData);
+    delete HData;
+
     return(FALSE);
   }
 
@@ -1072,47 +989,32 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,B
   HiData=NewHiData;
   for (int I=HiDataCount-1;I>RecPos;I--)
     HiData[I]=HiData[I-1];
-  memcpy(HiData+RecPos,&HData,sizeof(struct HighlightData));
+  memcpy(HiData[RecPos],HData,sizeof(struct HighlightData));
   return TRUE;
-}
-
-/*
- Формирует имя ключа в реестре;  возвращает указатель на конец строки
- Применение:
-  char RegKey[80];
-  char *Ptr=MkRegKeyHighlightName(RegKey);
-  for(I=0;...)
-  {
-    itoa(I,Ptr,10);
-  }
-*/
-char *MkRegKeyHighlightName(char *RegKey)
-{
-  return RegKey+strlen(strcat(strcpy(RegKey,RegColorsHighlight),"\\Group"));
 }
 
 
 void SetHighlighting()
 {
-  if (CheckRegKey(RegColorsHighlight))
+  if (CheckRegKeyW(RegColorsHighlight))
     return;
 
   int I;
-  char RegKey[80], *Ptr;
+  string strRegKey;
   // сразу пропишем %PATHEXT%, а HighlightFiles::GetHiColor() сам подстановку
   // сделает.
-  char CmdExt[512]="*.exe,*.com,*.bat,%PATHEXT%";
-  static char *Masks[]={
-  /* 0 */ "*.*",
-  /* 1 */ "",
-  /* 2 */ "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
-  /* 3 */ "*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  string strCmdExt=L"*.exe,*.com,*.bat,%PATHEXT%";
+  static wchar_t *Masks[]={
+  /* 0 */ L"*.*",
+  /* 1 */ L"",
+  /* 2 */ L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
+  /* 3 */ L"*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
           /* $ 25.09.2001  IS
               Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
               являются родительскими (их имена - две точки).
           */
-  /* 4 */ "*.*|..", // маска для каталогов
-  /* 5 */ "..",     // такие каталоги окрашивать как простые файлы
+  /* 4 */ L"*.*|..", // маска для каталогов
+  /* 5 */ L"..",     // такие каталоги окрашивать как простые файлы
           /* IS $ */
   };
   /* $ 06.07.2001 IS
@@ -1127,7 +1029,7 @@ void SetHighlighting()
      /* 1 */{Masks[0], NULL, 0, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 2 */{Masks[4], NULL, 0, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 3 */{Masks[5], NULL, 0, 0x0010, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 4 */{CmdExt,   NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 4 */{strCmdExt,   NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 5 */{Masks[2], NULL, 0, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 6 */{Masks[3], NULL, 0, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
             // это настройка для каталогов на тех панелях, которые должны раскрашиваться
@@ -1137,27 +1039,26 @@ void SetHighlighting()
 
   // для NT добавляем CMD
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-    strcat(CmdExt,",*.cmd");
+    strCmdExt += L",*.cmd";
 
-  Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
   {
-    itoa(I,Ptr,10);
-    SetRegKey(RegKey,HLS.Mask,StdHighlightData[I].OriginalMasks);
-    SetRegKey(RegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
+    strRegKey.Format (L"%s\\Group%d", RegColorsHighlight, I);
+    SetRegKeyW(strRegKey,HLS.Mask,StdHighlightData[I].strOriginalMasks);
+    SetRegKeyW(strRegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
     if(StdHighlightData[I].IncludeAttr)
-      SetRegKey(RegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
+      SetRegKeyW(strRegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
     if(StdHighlightData[I].ExcludeAttr)
-      SetRegKey(RegKey,HLS.ExcludeAttributes,StdHighlightData[I].ExcludeAttr);
+      SetRegKeyW(strRegKey,HLS.ExcludeAttributes,StdHighlightData[I].ExcludeAttr);
     if(StdHighlightData[I].Colors.Color)
-      SetRegKey(RegKey,HLS.NormalColor,StdHighlightData[I].Colors.Color);
+      SetRegKeyW(strRegKey,HLS.NormalColor,StdHighlightData[I].Colors.Color);
     if(StdHighlightData[I].Colors.SelColor)
-      SetRegKey(RegKey,HLS.SelectedColor,StdHighlightData[I].Colors.SelColor);
+      SetRegKeyW(strRegKey,HLS.SelectedColor,StdHighlightData[I].Colors.SelColor);
     if(StdHighlightData[I].Colors.CursorColor)
-      SetRegKey(RegKey,HLS.CursorColor,StdHighlightData[I].Colors.CursorColor);
+      SetRegKeyW(strRegKey,HLS.CursorColor,StdHighlightData[I].Colors.CursorColor);
     if(StdHighlightData[I].Colors.CursorSelColor)
-      SetRegKey(RegKey,HLS.SelectedCursorColor,StdHighlightData[I].Colors.CursorSelColor);
+      SetRegKeyW(strRegKey,HLS.SelectedCursorColor,StdHighlightData[I].Colors.CursorSelColor);
     if(StdHighlightData[I].Colors.MarkChar)
-      SetRegKey(RegKey,HLS.MarkChar,StdHighlightData[I].Colors.MarkChar);
+      SetRegKeyW(strRegKey,HLS.MarkChar,StdHighlightData[I].Colors.MarkChar);
   }
 }

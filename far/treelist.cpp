@@ -5,202 +5,7 @@ Tree panel
 
 */
 
-/* Revision: 1.76 28.08.2006 $ */
-
-/*
-Modify:
-  28.08.2006 SVS
-    + FindFirst() и FindNext()
-  05.07.2006 IS
-    - warnings
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  07.07.2005 SVS
-    + GetCurrentPos
-  14.06.2005 SVS
-    ! вызов ShellCopy "обволокем" скобками...
-  06.05.2005 SVS
-    ! ???::GetCurDir() теперь возвращает размер пути, при этом
-      его параметр может быть равен NULL. Сделано для того, чтобы
-      как то получить этот размер.
-  26.04.2005 SVS
-    ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
-  23.04.2005 KM
-    ! Использование фильтра в GetSelName
-  01.04.2005 SVS
-    + GetItem()
-  10.03.2005 SVS
-    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
-    + CreateTreeFileName() - заготовка для проекта Tree.far
-  03.03.2005 SVS
-    ! У функции FindPartName() добавлен третий параметр - направление поиска.
-    ! Так же в TreeList::AddTreeName() добавлено условие точного совпадения
-      добавляемого имени с тем, что в кеше (иначе идет дубляж).
-  01.03.2005 SVS
-    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
-  14.02.2005 SVS
-    + В TreeList добавлены функции GetFileName(), FindFile()
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  10.11.2004 SVS
-    + В HMenu и TreeList добавлена обработка MCODE_*
-  01.11.2004 SVS
-    - Gray+ и Gray- - не было автосмены папок
-  28.10.2004 SVS
-    + "Конструкторы" имен - TreeFileName() и TreeCacheFolderName()
-      В дальнейшем нужно осуществить TODO по этим функциям!
-    ! некоторые переменные вогнаны в константы
-  16.10.2004 SVS
-    + Gray+ и Gray- используются для быстрого перемещения вверх или вниз по папкам одного уровня.
-    + GetNextNavPos() и GetPrevNavPos()
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  20.05.2004 SVS
-    ! NumericSort - свойство конкретной панели, а не режима отображения
-    - Bug#695 - Не работает прерывание по Esc
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  11.07.2003 SVS
-    + NumericSort
-  06.05.2003 SVS
-    ! Учтем Opt.UseUnicodeConsole при рисовании дерева
-  22.04.2003 SVS
-    ! strcpy -> strNcpy
-  26.02.2003 SVS
-    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
-  24.02.2003 SVS
-    + для пассивной панели типа QVIEW_PANEL добавим LockScreen, дабы исключить
-      лишнюю прорисовку.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  04.01.2003 VVM
-    - При изменении размера консоли прогресс начинал глючить.
-  27.12.2002 VVM
-    + Показывать индикатор сканирования раз в секунду.
-    + Выделять память блоками по 255 итемов.
-    + Сканировать каталоги за один проход.
-  04.12.2002 SVS
-    - BugZ#695 - Не работает прерывание по Esc
-  29.05.2002 SKV
-    ! Оптимизация TreeCache
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  27.04.2002 SVS
-    ! 8192 -> MAXSIZE_SHORTCUTDATA
-  12.04.2002 IS
-    + Учтем то, что Plugin.PutFiles может вернуть 2
-  08.04.2002 IS
-    ! внедрение const
-  26.03.2002 KM
-    - Падало в SetTitle на конструкции:
-      ===
-      sprintf(TitleDir,"{%s - Tree}",NM-1,Ptr);
-      ===
-      Так как %s был указан без модификатора ".*"
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  21.02.2002 SVS
-    - BugZ#316 - Нет разделителя.
-  12.02.2002 SVS
-    - BugZ#303 - Колёсико мыши в дереве
-      Сделаем по аналогии с наФигацией в обычной панели.
-  16.01.2002 SVS
-    - BugZ#249 - Непрорисовка при создании дерева
-    - Бага - не отрисовывалась текущий каталог в поз. (Y2-1)
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  28.12.2001 DJ
-    - нафиг такую оптимизацию, после которой VC++ билд трапается!
-  26.12.2001 SVS
-    ! немного оптимизации.
-    - Бага - после выделения памяти начинаем рисовать без предварительной
-      инициализации нулевого итема в нужное значение. В итоге налицо -
-      бага с прорисовкой в заголовке консольного окна.
-  11.12.2001 SVS
-    + Свой кейбар в деревяхе
-    - не обновлась пассивная панель при удалении каталога из деревяхи
-  08.12.2001 IS
-    - баг: показывали левую справку по F1
-    ! небольшая оптимизация по размеру - вместо "define строка"
-      используем "const char[]"
-  24.10.2001 SVS
-    - бага с прорисовкой при вызове дерева из диалога копирования
-  24.10.2001 VVM
-    ! После сканирования диска перерисовать другую панель.
-  24.10.2001 VVM
-    ! Рисуем ветки дерева только при установленном TreeIsPrepared.
-  23.10.2001 SVS
-    ! немного оптимизации - sprintf для "%d" - это жирно.
-  22.10.2001 SVS
-    - Забыл прибить CALLBACK-функцию при выходе :-(
-    ! исправление отрисовки после CALLBACK
-    ! ReadTree() возвращает TRUE/FALSE
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 VVM
-    ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек.
-  07.08.2001 SVS
-    ! Численное значение дельты (31) заменено на DELTA_TREECOUNT
-    ! сделаем внешний вид дерева на 1 символ уже.
-    - бага (со времен 1.64) в функции чтения кэша. Из-за этого не работало
-      обновление дерева при создании каталога
-  23.07.2001 SVS
-    + Для полноты картины: Shift-Enter дереве вызывает проводник
-  18.06.2001 SVS
-    - Вот же елы палы :-( Вместо MACRO_TREEPANEL макромода стояла
-      MACRO_INFOPANEL. К чему бы это?
-    + F4 в дереве работает так же как и Ctrl-A
-  14.06.2001 SVS
-    + KEY_CTRLALTINS - вставляет в клипборд полное имя каталога
-  25.05.2001 SVS
-    + Добавим возможность создавать линк с дерева
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  25.04.2001 SVS
-    ! Добавка для MODALTREE_FREE
-  23.04.2001 SVS
-    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
-      Часть вторая, т.с. - в прошлый раз забыл еще в одном месте выставить...
-  06.04.2001 SVS
-    ! Корректный вызов удаления папки по F8 и Shift-F8
-  05.04.2001 VVM
-    + Переключение макросов в режим MACRO_TREEPANEL
-  26.03.2001 SVS
-    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  16.10.2000 tran
-    + MustBeCached(Root) - функция, определяющая необходимость кеширования
-      дерева
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.94 01.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -226,6 +31,8 @@ Modify:
 #include "lockscrn.hpp"
 #include "macroopcode.hpp"
 #include "RefreshFrameManager.hpp"
+#include "ScrBuf.hpp"
+
 
 #define DELTA_TREECOUNT 31
 
@@ -233,7 +40,7 @@ static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
 static int StaticSortNumeric;
-static int TreeCmp(char *Str1,char *Str2);
+static int TreeCmp(const wchar_t *Str1, const wchar_t *Str2);
 static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
@@ -251,8 +58,8 @@ static WCHAR TreeLineSymbolW[4][3]={0};
 
 static struct TreeListCache
 {
-  char TreeName[NM];
-  char **ListName;
+    string strTreeName;
+    wchar_t **ListName;
   int TreeCount;
   int TreeSize;
 
@@ -267,27 +74,28 @@ static struct TreeListCache
     if(TreeCount==TreeSize)
     {
       TreeSize+=TreeSize?TreeSize>>2:32;
-      char **NewPtr=(char**)xf_realloc(ListName,sizeof(char*)*TreeSize);
-      if(!NewPtr)return;
+      wchar_t **NewPtr=(wchar_t**)xf_realloc(ListName,sizeof(wchar_t*)*TreeSize);
+      if(!NewPtr)
+        return;
       ListName=NewPtr;
     }
   }
-  void Add(const char* name)
+  void Add(const wchar_t* name)
   {
     Resize();
-    ListName[TreeCount++]=xf_strdup(name);
+    ListName[TreeCount++]=_wcsdup(name);
   }
-  void Insert(int idx,const char* name)
+  void Insert(int idx,const wchar_t* name)
   {
     Resize();
-    memmove(ListName+idx+1,ListName+idx,sizeof(char*)*(TreeCount-idx));
-    ListName[idx]=xf_strdup(name);
+    memmove(ListName+idx+1,ListName+idx,sizeof(wchar_t*)*(TreeCount-idx));
+    ListName[idx]=_wcsdup(name);
     TreeCount++;
   }
   void Delete(int idx)
   {
     xf_free(ListName[idx]);
-    memmove(ListName+idx,ListName+idx+1,sizeof(char*)*(TreeCount-idx-1));
+    memmove(ListName+idx,ListName+idx+1,sizeof(wchar_t*)*(TreeCount-idx-1));
     TreeCount--;
   }
 
@@ -302,7 +110,7 @@ static struct TreeListCache
     ListName=NULL;
     TreeCount=0;
     TreeSize=0;
-    TreeName[0]=0;
+    strTreeName = L"";
   }
 } TreeCache;
 
@@ -314,7 +122,7 @@ TreeList::TreeList(int IsPanel)
   TreeCount=0;
   WorkDir=CurFile=CurTopFile=0;
   GetSelPosition=0;
-  *Root=0;
+//  *Root=0;
   Flags.Set(FTREELIST_UPDATEREQUIRED);
   CaseSensitiveSort=FALSE;
   NumericSort=FALSE;
@@ -332,11 +140,12 @@ TreeList::~TreeList()
   SetMacroMode(TRUE);
 }
 
-void TreeList::SetRootDir(char *NewRootDir)
+void TreeList::SetRootDirW(const wchar_t *NewRootDir)
 {
-  xstrncpy(Root,NewRootDir,sizeof(Root)-1);
-  xstrncpy(CurDir,NewRootDir,sizeof(CurDir)-1);
+    strRoot = NewRootDir;
+    strCurDir = NewRootDir;
 }
+
 
 void TreeList::DisplayObject()
 {
@@ -370,19 +179,18 @@ void TreeList::DisplayObject()
 }
 
 
-void TreeList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+void TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  char Title[512];
-  sprintf(Title," %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));
-  TruncStr(Title,X2-X1-3);
-  xstrncpy(lTitle,Title,LenTitle);
+  strTitle.Format (L" %s ",ModalMode ? UMSG(MFindFolderTitle):UMSG(MTreeTitle));
+  TruncStrW(strTitle,X2-X1-3);
 }
 
 void TreeList::DisplayTree(int Fast)
 {
   int I,J,K;
   struct TreeItem *CurPtr;
-  char Title[100];
+
+  string strTitle;
   LockScreen *LckScreen=NULL;
 
   if(CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
@@ -390,17 +198,18 @@ void TreeList::DisplayTree(int Fast)
 
   CorrectPosition();
   if (TreeCount>0)
-    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
+    strCurDir = ListData[CurFile].strName; //BUGBUG
+//    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
   if (!Fast)
   {
     Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
     DrawSeparator(Y2-2-(ModalMode!=0));
-    GetTitle(Title,sizeof(Title)-1);
-    if (*Title)
+    GetTitle(strTitle);
+    if ( !strTitle.IsEmpty() )
     {
       SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-      GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);
-      Text(Title);
+      GotoXY(X1+(X2-X1+1-strTitle.GetLength())/2,Y1);
+      TextW(strTitle);
     }
   }
   for (I=Y1+1,J=CurTopFile;I<Y2-2-(ModalMode!=0);I++,J++)
@@ -408,11 +217,11 @@ void TreeList::DisplayTree(int Fast)
     CurPtr=&ListData[J];
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
-    Text(" ");
+    TextW(L" ");
     if (J<TreeCount && Flags.Check(FTREELIST_TREEISPREPARED))
     {
       if (J==0)
-        DisplayTreeName("\\",J);
+        DisplayTreeName(L"\\",J);
       else
       {
 #if defined(USE_WFUNC)
@@ -475,7 +284,7 @@ void TreeList::DisplayTree(int Fast)
 #endif
           Text(OutStr);
 
-        char *ChPtr=strrchr(CurPtr->Name,'\\');
+        const wchar_t *ChPtr=wcsrchr(CurPtr->strName,L'\\');
         if (ChPtr!=NULL)
           DisplayTreeName(ChPtr+1,J);
       }
@@ -491,11 +300,11 @@ void TreeList::DisplayTree(int Fast)
   }
   SetColor(COL_PANELTEXT);
 
-  SetScreen(X1+1,Y2-(ModalMode?2:1),X2-1,Y2-1,' ',COL_PANELTEXT);
+  SetScreen(X1+1,Y2-(ModalMode?2:1),X2-1,Y2-1,L' ',COL_PANELTEXT);
   if (TreeCount>0)
   {
     GotoXY(X1+1,Y2-1);
-    mprintf("%-*.*s",X2-X1-1,X2-X1-1,ListData[CurFile].Name);
+    mprintfW(L"%-*.*s",X2-X1-1,X2-X1-1,(const wchar_t*)ListData[CurFile].strName);
   }
 
   UpdateViewPanel();
@@ -505,7 +314,7 @@ void TreeList::DisplayTree(int Fast)
 }
 
 
-void TreeList::DisplayTreeName(char *Name,int Pos)
+void TreeList::DisplayTreeName(const wchar_t *Name,int Pos)
 {
   if (WhereX()>X2-4)
     GotoXY(X2-4,WhereY());
@@ -515,18 +324,18 @@ void TreeList::DisplayTreeName(char *Name,int Pos)
     if (Focus || ModalMode)
     {
       SetColor((Pos==WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
-      mprintf(" %.*s ",X2-WhereX()-3,Name);
+      mprintfW(L" %.*s ",X2-WhereX()-3,Name);
     }
     else
     {
       SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-      mprintf("[%.*s]",X2-WhereX()-3,Name);
+      mprintfW(L"[%.*s]",X2-WhereX()-3,Name);
     }
   }
   else
   {
     SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-    mprintf("%.*s",X2-WhereX()-1,Name);
+    mprintfW(L"%.*s",X2-WhereX()-1,Name);
   }
 }
 
@@ -562,9 +371,9 @@ void TreeList::Update(int Mode)
     SyncDir();
 
     struct TreeItem *CurPtr=ListData+CurFile;
-    if (GetFileAttributes(CurPtr->Name)==(DWORD)-1)
+    if (GetFileAttributesW(CurPtr->strName)==(DWORD)-1)
     {
-      DelTreeName(CurPtr->Name);
+      DelTreeName(CurPtr->strName);
       Update(UPDATE_KEEP_SELECTION);
       Show();
     }
@@ -584,13 +393,13 @@ int TreeList::ReadTree()
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
   ScanTree ScTree(FALSE);
-  WIN32_FIND_DATA fdata;
-  char FullName[NM];
+  FAR_FIND_DATA_EX fdata;
+  string strFullName;
 
   FlushCache();
   GetRoot();
 
-  int RootLength=strlen(Root)-1;
+  int RootLength=strRoot.GetLength ()-1;
   if (RootLength<0)
     RootLength=0;
 
@@ -605,7 +414,8 @@ int TreeList::ReadTree()
   /* SVS $ */
 
   memset(&ListData[0], 0, sizeof(ListData[0]));
-  strcpy(ListData->Name,Root);
+
+  ListData->strName = strRoot;
 
   SaveScreen SaveScrTree;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
@@ -614,8 +424,12 @@ int TreeList::ReadTree()
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
   Redraw();
 
-  if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
-    ListData->Name[RootLength]=0;
+  if (RootLength>0 && strRoot.At (RootLength-1) != L':' && strRoot.At (RootLength)==L'\\')
+  {
+    ListData->strName.GetBuffer (); //BUGBUG
+    ListData->strName.ReleaseBuffer (RootLength);
+  }
+
   TreeCount=1;
 
   int FirstCall=TRUE, AscAbort=FALSE;
@@ -624,10 +438,10 @@ int TreeList::ReadTree()
 
   RefreshFrameManager frref(ScrX,ScrY,TreeStartTime,FALSE);//DontRedrawFrame);
 
-  ScTree.SetFindPath(Root,"*.*",0);
+  ScTree.SetFindPathW(strRoot, L"*.*", 0);
   LastScrX = ScrX;
   LastScrY = ScrY;
-  while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
+  while (ScTree.GetNextNameW(&fdata,strFullName))
   {
 //    if(TreeCount > 3)
     TreeList::MsgReadTree(TreeCount,FirstCall);
@@ -638,18 +452,29 @@ int TreeList::ReadTree()
     }
     if(AscAbort)
       break;
-    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
-//    if ((ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
+    if ((TreeCount & 255)==0 )
     {
-      AscAbort=TRUE;
-      break;
+      int OldCount = TreeCount;
+
+      ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem));
+
+      if ( ListData )
+        memset (ListData+OldCount, 0, (TreeCount+256+1-OldCount)*sizeof (TreeItem));
+      else
+      {
+        AscAbort=TRUE;
+        break;
+      }
     }
 
     if (!(fdata.dwFileAttributes & FA_DIREC))
       continue;
 
     memset(&ListData[TreeCount], 0, sizeof(ListData[0]));
-    strcpy(ListData[TreeCount++].Name,FullName);
+
+    ListData[TreeCount].strName = strFullName;
+
+    TreeCount++;
   }
 
   if(AscAbort)
@@ -678,91 +503,131 @@ int TreeList::ReadTree()
 #ifdef _MSC_VER
 #pragma warning(disable:4018)
 #endif
+
+extern FILE *_wfopen(const wchar_t *filename, const wchar_t *mode);
+
 void TreeList::SaveTreeFile()
 {
   if (TreeCount<4)
     return;
-  char Name[NM];
+
+  string strName;
+
   FILE *TreeFile;
   long I;
-  int RootLength=strlen(Root)-1;
+  int RootLength = strRoot.GetLength()-1;
   if (RootLength<0)
     RootLength=0;
-  MkTreeFileName(Root,Name,sizeof(Name)-1);
+
+  MkTreeFileName(strRoot, strName);
   // получим и сразу сбросим атрибуты (если получится)
-  DWORD FileAttributes=GetFileAttributes(Name);
+  DWORD FileAttributes=GetFileAttributesW(strName);
   if(FileAttributes != -1)
-    SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-  if ((TreeFile=fopen(Name,"wb"))==NULL)
+    SetFileAttributesW(strName,FILE_ATTRIBUTE_NORMAL);
+  if ((TreeFile=_wfopen(strName,L"wb"))==NULL)
   {
     /* $ 16.10.2000 tran
        если диск должен кешироваться, то и пытаться не стоит */
-    if (MustBeCached(Root) || (TreeFile=fopen(Name,"wb"))==NULL)
-      if (!GetCacheTreeName(Root,Name,TRUE) || (TreeFile=fopen(Name,"wb"))==NULL)
+    if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"wb"))==NULL)
+      if (!GetCacheTreeName(strRoot,strName,TRUE) || (TreeFile=_wfopen(strName,L"wb"))==NULL)
         return;
     /* tran $ */
   }
   for (I=0;I<TreeCount;I++)
-    if (RootLength>=strlen(ListData[I].Name))
-      fprintf(TreeFile,"\\\n");
+    if (RootLength>=ListData[I].strName.GetLength())
+      fwprintf(TreeFile,L"\\\n");
     else
-      fprintf(TreeFile,"%s\n",ListData[I].Name+RootLength);
+      fwprintf(TreeFile,L"%s\n",(const wchar_t*)ListData[I].strName+RootLength);
   if (fclose(TreeFile)==EOF)
   {
     clearerr(TreeFile);
     fclose(TreeFile);
-    remove(Name);
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),Name,MSG(MOk));
+
+    //wremove(strName); BUGBUG
+    DeleteFileW (strName);
+
+    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),strName,UMSG(MOk));
   }
   else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
-    SetFileAttributes(Name,FileAttributes);
+    SetFileAttributesW(strName,FileAttributes);
 }
 
 
-int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
+int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDir)
 {
-  char VolumeName[NM],FileSystemName[NM];
-  DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-  if (!GetVolumeInformation(Root,VolumeName,sizeof(VolumeName),&VolumeNumber,
-                            &MaxNameLength,&FileSystemFlags,
-                            FileSystemName,sizeof(FileSystemName)))
+  string strVolumeName, strFileSystemName;
+  DWORD dwVolumeSerialNumber;
+
+  if ( !apiGetVolumeInformation (
+        Root,
+        &strVolumeName,
+        &dwVolumeSerialNumber,
+        NULL,
+        NULL,
+        &strFileSystemName
+        ) )
     return(FALSE);
-  char FolderName[NM];
-  MkTreeCacheFolderName(FarPath,FolderName,sizeof(FolderName)-1);
+
+  string strFolderName;
+
+  string strFarPath;
+
+  MkTreeCacheFolderName(strFarPath, strFolderName);
+
   if (CreateDir)
   {
-    mkdir(FolderName);
-    SetFileAttributes(FolderName,FA_HIDDEN);
+    CreateDirectoryW (strFolderName, NULL);
+    SetFileAttributesW (strFolderName,FA_HIDDEN);
   }
-  char RemoteName[NM*3];
-  *RemoteName=0;
-  if (*Root=='\\')
-    strcpy(RemoteName,Root);
+
+  string strRemoteName;
+  wchar_t *lpwszRemoteName;
+//  char RemoteName[NM*3];
+//  *RemoteName=0;
+  if ( *Root == L'\\')
+    strRemoteName = Root;
   else
   {
-    char LocalName [8];
-    strcpy (LocalName, "A:");
-    *LocalName=*Root;
-    DWORD RemoteNameSize=sizeof(RemoteName);
-    WNetGetConnection(LocalName,RemoteName,&RemoteNameSize);
-    if (*RemoteName)
-      AddEndSlash(RemoteName);
+    wchar_t wszLocalName [10];
+
+    wcscpy (wszLocalName, L"A:");
+
+    *wszLocalName=*Root;
+
+    apiWNetGetConnection (wszLocalName, strRemoteName);
+
+    if ( !strRemoteName.IsEmpty () )
+      AddEndSlashW (strRemoteName);
   }
-  for (int I=0;RemoteName[I]!=0;I++)
-    if (RemoteName[I]=='\\')
-      RemoteName[I]='_';
-  sprintf(Name,"%s\\%s.%x.%s.%s",FolderName,VolumeName,VolumeNumber,
-          FileSystemName,RemoteName);
+
+  lpwszRemoteName = strRemoteName.GetBuffer ();
+
+  for (int I=0; lpwszRemoteName[I] != 0;I++)
+    if ( lpwszRemoteName[I]==L'\\' )
+      lpwszRemoteName[I]=L'_';
+
+  strRemoteName.ReleaseBuffer ();
+
+  strName.Format (
+        L"%s\\%s.%x.%s.%s",
+        (const wchar_t*)strFolderName,
+        (const wchar_t*)strVolumeName,
+        dwVolumeSerialNumber,
+        (const wchar_t*)strFileSystemName,
+        (const wchar_t*)strRemoteName
+        );
+
   return(TRUE);
 }
 
 
 void TreeList::GetRoot()
 {
-  char PanelDir[NM];
+  string strPanelDir;
   Panel *RootPanel=GetRootPanel();
-  RootPanel->GetCurDir(PanelDir);
-  GetPathRoot(PanelDir,Root);
+  RootPanel->GetCurDirW(strPanelDir);
+
+  GetPathRootW(strPanelDir, strRoot);
 }
 
 
@@ -790,21 +655,22 @@ Panel* TreeList::GetRootPanel()
 
 void TreeList::SyncDir()
 {
-  char PanelDir[NM];
+  string strPanelDir;
   Panel *AnotherPanel=GetRootPanel();
-  AnotherPanel->GetCurDir(PanelDir);
-  if (*PanelDir)
+  AnotherPanel->GetCurDirW(strPanelDir);
+
+  if ( !strPanelDir.IsEmpty() )
     if (AnotherPanel->GetType()==FILE_PANEL)
     {
-      if (!SetDirPosition(PanelDir))
+      if (!SetDirPosition(strPanelDir))
       {
-        ReadSubTree(PanelDir);
+        ReadSubTree(strPanelDir);
         ReadTreeFile();
-        SetDirPosition(PanelDir);
+        SetDirPosition(strPanelDir);
       }
     }
     else
-      SetDirPosition(PanelDir);
+      SetDirPosition(strPanelDir);
 }
 
 
@@ -827,10 +693,10 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 
   if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
   {
-    char NumStr[32];
-    itoa(TreeCount,NumStr,10);
-    Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
-            MSG(MReadingTree),NumStr);
+    wchar_t NumStr[32];
+    _itow(TreeCount,NumStr,10); //BUGBUG
+    MessageW((FirstCall ? 0:MSG_KEEPBACKGROUND),0,UMSG(MTreeTitle),
+            UMSG(MReadingTree),NumStr);
     PreRedrawParam.Flags=TreeCount;
     TreeStartTime = clock();
   }
@@ -842,22 +708,22 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 void TreeList::FillLastData()
 {
   long Last,Depth,PathLength,SubDirPos,I,J;
-  int RootLength=strlen(Root)-1;
+  int RootLength = strRoot.GetLength()-1;
   if (RootLength<0)
     RootLength=0;
   for (I=1;I<TreeCount;I++)
   {
-    PathLength=strrchr(ListData[I].Name,'\\')-ListData[I].Name+1;
-    Depth=ListData[I].Depth=CountSlash(ListData[I].Name+RootLength);
+    PathLength=wcsrchr(ListData[I].strName,L'\\')-(const wchar_t*)ListData[I].strName+1;
+    Depth=ListData[I].Depth=CountSlash((const wchar_t*)ListData[I].strName+RootLength);
     for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
-      if (CountSlash(ListData[J].Name+RootLength)>Depth)
+      if (CountSlash((const wchar_t*)ListData[J].strName+RootLength)>Depth)
       {
         SubDirPos=J;
         continue;
       }
       else
       {
-        if (LocalStrnicmp(ListData[I].Name,ListData[J].Name,PathLength)==0)
+        if ( LocalStrnicmpW(ListData[I].strName,ListData[J].strName,PathLength)==0 )
           Last=0;
         break;
       }
@@ -867,10 +733,10 @@ void TreeList::FillLastData()
 }
 
 
-int TreeList::CountSlash(char *Str)
+int TreeList::CountSlash(const wchar_t *Str)
 {
   int Count=0;
-  while ((Str=strchr(Str,'\\'))!=NULL)
+  while ((Str=wcschr(Str,L'\\'))!=NULL)
   {
     Str++;
     Count++;
@@ -888,7 +754,8 @@ int TreeList::ProcessKey(int Key)
   if (TreeCount==0 && Key!=KEY_CTRLR)
     return(FALSE);
 
-  if (SaveFolderShortcut(Key,CurDir,"","",""))
+  string strTemp = L"";
+  if (SaveFolderShortcut(Key,&strCurDir,&strTemp,&strTemp,&strTemp))
     return(TRUE);
   if(ProcessShortcutFolder(Key,TRUE))
     return(TRUE);
@@ -935,7 +802,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_F1:
     {
       {
-         Help Hlp ("TreePanel");
+         Help Hlp (L"TreePanel");
       }
       return TRUE;
     }
@@ -947,20 +814,22 @@ int TreeList::ProcessKey(int Key)
     case KEY_CTRLALTINS:  case KEY_CTRLALTNUMPAD0:
     {
       {
-        char QuotedName[NM+2];
+        string strQuotedName;
         int CAIns=(Key == KEY_CTRLALTINS || Key == KEY_CTRLALTNUMPAD0);
 
         CurPtr=ListData+CurFile;
-        if (strchr(CurPtr->Name,' ')!=NULL)
-          sprintf(QuotedName,"\"%s\"%s",CurPtr->Name,(CAIns?"":" "));
+        if (wcschr(CurPtr->strName,L' ')!=NULL)
+          strQuotedName.Format (L"\"%s\"%s",(const wchar_t *)CurPtr->strName,(CAIns?L"":L" "));
         else
-          sprintf(QuotedName,"%s%s",CurPtr->Name,(CAIns?"":" "));
+          strQuotedName.Format (L"%s%s",(const wchar_t *)CurPtr->strName,(CAIns?L"":L" "));
+
         if(CAIns)
-          CopyToClipboard(QuotedName);
+          CopyToClipboardW(strQuotedName);
+
         else if(Key == KEY_SHIFTENTER)
-          Execute(QuotedName,FALSE,TRUE,TRUE);
+          Execute(strQuotedName,FALSE,TRUE,TRUE);
         else
-          CtrlObject->CmdLine->InsertString(QuotedName);
+          CtrlObject->CmdLine->InsertStringW(strQuotedName);
       }
       return(TRUE);
     }
@@ -1003,7 +872,7 @@ int TreeList::ProcessKey(int Key)
       if (SetCurPath())
       {
         int ToPlugin=0;
-        ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL);
+        ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL, TRUE); //UNICODE!!!
       }
       return(TRUE);
     }
@@ -1027,15 +896,16 @@ int TreeList::ProcessKey(int Key)
           return TRUE;
 
         {
-          ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL);
+          ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL, TRUE); //UNICODE!!!
         }
 
         if (ToPlugin==1)
         {
-          struct PluginPanelItem *ItemList=new PluginPanelItem[1];
+          struct PluginPanelItemW *ItemList=new PluginPanelItemW[1];
           int ItemNumber=1;
           HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-          FileList::FileNameToPluginItem(ListData[CurFile].Name,ItemList);
+
+          FileList::FileNameToPluginItem(ListData[CurFile].strName,ItemList);
           int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0);
           if (PutCode==1 || PutCode==2)
             AnotherPanel->SetPluginModified();
@@ -1045,7 +915,7 @@ int TreeList::ProcessKey(int Key)
           xf_free(ItemList);
           /* SVS $ */
           if (Move)
-            ReadSubTree(ListData[CurFile].Name);
+            ReadSubTree(ListData[CurFile].strName);
           Update(0);
           Redraw();
           AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1276,59 +1146,60 @@ void TreeList::CorrectPosition()
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
+void TreeList::SetCurDirW(const wchar_t *NewDir,int ClosePlugin)
 {
-  char SetDir[NM];
-  xstrncpy(SetDir,NewDir,sizeof(SetDir)-1);
   if (TreeCount==0)
     Update(0);
-  if (TreeCount>0 && !SetDirPosition(SetDir))
+  if (TreeCount>0 && !SetDirPosition(NewDir))
   {
     Update(0);
-    SetDirPosition(SetDir);
+    SetDirPosition(NewDir);
   }
   if (GetFocus())
   {
-    CtrlObject->CmdLine->SetCurDir(SetDir);
+    CtrlObject->CmdLine->SetCurDirW(NewDir);
     CtrlObject->CmdLine->Show();
   }
 }
+
+
 #if defined(__BORLANDC__)
 #pragma warn +par
 #endif
 
 
-int TreeList::SetDirPosition(char *NewDir)
+int TreeList::SetDirPosition(const wchar_t *NewDir)
 {
   long I;
   for (I=0;I<TreeCount;I++)
-    if (LocalStricmp(NewDir,ListData[I].Name)==0)
+  {
+    if (LocalStricmpW(NewDir,ListData[I].strName)==0)
     {
       WorkDir=CurFile=I;
       CurTopFile=CurFile-(Y2-Y1-1)/2;
       CorrectPosition();
       return(TRUE);
     }
+  }
   return(FALSE);
 }
 
 
-int TreeList::GetCurDir(char *CurDir)
+int TreeList::GetCurDirW (string &strCurDir)
 {
-  if(CurDir)
+  if (TreeCount==0)
   {
-    if (TreeCount==0)
-    {
-      if (ModalMode==MODALTREE_FREE)
-        strcpy(CurDir,Root); // TODO: ОПАСНО!!!
-      else
-        *CurDir=0;
-    }
+    if (ModalMode==MODALTREE_FREE)
+      strCurDir = strRoot;
     else
-      strcpy(CurDir,ListData[CurFile].Name); // TODO: ОПАСНО!!!
+      strCurDir = L"";
   }
-  return strlen(NullToEmpty(CurDir));
+  else
+    strCurDir = ListData[CurFile].strName; //BUGBUG
+
+  return strCurDir.GetLength();
 }
+
 
 
 int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -1428,20 +1299,21 @@ void TreeList::ProcessEnter()
   struct TreeItem *CurPtr;
   DWORD Attr;
   CurPtr=ListData+CurFile;
-  if ((Attr=GetFileAttributes(CurPtr->Name))!=(DWORD)-1 && (Attr & FA_DIREC))
+  if ((Attr=GetFileAttributesW(CurPtr->strName))!=(DWORD)-1 && (Attr & FA_DIREC))
   {
-    if (!ModalMode && FarChDir(CurPtr->Name))
+    if (!ModalMode && FarChDirW(CurPtr->strName))
     {
       Panel *AnotherPanel=GetRootPanel();
-      SetCurDir(CurPtr->Name,TRUE);
+      SetCurDirW(CurPtr->strName,TRUE);
       Show();
-      AnotherPanel->SetCurDir(CurPtr->Name,TRUE);
+
+      AnotherPanel->SetCurDirW(CurPtr->strName,TRUE);
       AnotherPanel->Redraw();
     }
   }
   else
   {
-    DelTreeName(CurPtr->Name);
+    DelTreeName(CurPtr->strName);
     Update(UPDATE_KEEP_SELECTION);
     Show();
   }
@@ -1450,16 +1322,21 @@ void TreeList::ProcessEnter()
 
 int TreeList::ReadTreeFile()
 {
-  char Name[NM],DirName[NM],LastDirName[NM],*ChPtr;
+  wchar_t DirName[NM]; //BUGBUG, todo better!!!
+  wchar_t LastDirName[NM],*ChPtr;
+
   FILE *TreeFile=NULL;
-  int RootLength=strlen(Root)-1;
+  int RootLength=strRoot.GetLength()-1;
   if (RootLength<0)
     RootLength=0;
 
+  string strName;
+
   FlushCache();
-  MkTreeFileName(Root,Name,sizeof(Name)-1);
-  if (MustBeCached(Root) || (TreeFile=fopen(Name,"rb"))==NULL)
-    if (!GetCacheTreeName(Root,Name,FALSE) || (TreeFile=fopen(Name,"rb"))==NULL)
+  MkTreeFileName(strRoot,strName);
+
+  if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"rb"))==NULL)
+    if (!GetCacheTreeName(strRoot,strName,FALSE) || (TreeFile=_wfopen(strName,L"rb"))==NULL)
       return(FALSE);
   /* $ 13.07.2000 SVS
      не надо смешивать new/delete с realloc
@@ -1469,30 +1346,46 @@ int TreeList::ReadTreeFile()
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
-  xstrncpy(DirName,Root,sizeof(DirName)-1);
-  while (fgets(DirName+RootLength,sizeof(DirName)-RootLength,TreeFile)!=NULL)
+
+  wcscpy (DirName, strRoot);//BUGBUG
+
+  while (fgetws(DirName+RootLength, NM-RootLength,TreeFile)!=NULL)
   {
-   if (LocalStricmp(DirName,LastDirName)==0)
+    if ( LocalStricmpW (DirName,LastDirName)==0)
       continue;
-    strcpy(LastDirName,DirName);
-    if ((ChPtr=strchr(DirName,'\n'))!=NULL)
+
+    wcscpy (LastDirName,DirName);
+
+    if ((ChPtr=wcschr(DirName,L'\n'))!=NULL)
       *ChPtr=0;
-    if (RootLength>0 && DirName[RootLength-1]!=':' &&
-        DirName[RootLength]=='\\' && DirName[RootLength+1]==0)
+    if (RootLength>0 && DirName[RootLength-1]!=L':' &&
+        DirName[RootLength]==L'\\' && DirName[RootLength+1]==0)
       DirName[RootLength]=0;
-    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
+
+    if ((TreeCount & 255)==0 )
     {
-      /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
-      */
-      xf_free(ListData);
+      int OldCount = TreeCount;
+
+      ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem));
+
+      if ( ListData )
+        memset (ListData+OldCount, 0, (TreeCount+256+1-OldCount)*sizeof (TreeItem));
+      else
+      {
+        xf_free(ListData);
       /* SVS $ */
-      ListData=NULL;
-      TreeCount=0;
-      fclose(TreeFile);
-      return(FALSE);
+        ListData=NULL;
+        TreeCount=0;
+        fclose(TreeFile);
+        return(FALSE);
+      }
     }
-    xstrncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name)-1);
+
+    ListData[TreeCount].strName = DirName;
+
+    //UnicodeToAnsi (DirName, ListData[TreeCount].Name);
+
+    TreeCount++;
   }
   fclose(TreeFile);
 
@@ -1506,16 +1399,19 @@ int TreeList::ReadTreeFile()
 }
 
 
-int TreeList::FindPartName(char *Name,int Next,int Direct)
+int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
 {
-  char Mask[NM*2];
-  xstrncpy(Mask,Name,sizeof(Mask)-1);
-  strncat(Mask,"*",sizeof(Mask)-1);
+  string strMask;
+
+  strMask = Name;
+  strMask += L"*";
+
   int I;
   for (I=CurFile+(Next?Direct:0); I >= 0 && I < TreeCount; I+=Direct)
   {
     CmpNameSearchMode=(I==CurFile);
-    if (CmpName(Mask,ListData[I].Name,TRUE))
+
+    if (CmpNameW(strMask,ListData[I].strName,TRUE))
     {
       CmpNameSearchMode=FALSE;
       CurFile=I;
@@ -1532,7 +1428,7 @@ int TreeList::FindPartName(char *Name,int Next,int Direct)
       I+=Direct
      )
   {
-    if (CmpName(Mask,ListData[I].Name,TRUE))
+    if (CmpNameW(strMask,ListData[I].strName,TRUE))
     {
       CurFile=I;
       CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1550,9 +1446,9 @@ int TreeList::GetSelCount()
 }
 
 
-int TreeList::GetSelName(char *Name,int &FileAttr,char *ShortName,WIN32_FIND_DATA *fd)
+int TreeList::GetSelNameW (string *strName,int &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
 {
-  if (Name==NULL)
+  if ( strName==NULL)
   {
     GetSelPosition=0;
     return(TRUE);
@@ -1560,9 +1456,9 @@ int TreeList::GetSelName(char *Name,int &FileAttr,char *ShortName,WIN32_FIND_DAT
 
   if (GetSelPosition==0)
   {
-    GetCurDir(Name);
-    if (ShortName!=NULL)
-      strcpy(ShortName,Name);
+    GetCurDirW(*strName);
+    if ( strShortName != NULL)
+      *strShortName = *strName;
     FileAttr=FA_DIREC;
     GetSelPosition++;
     return(TRUE);
@@ -1572,36 +1468,48 @@ int TreeList::GetSelName(char *Name,int &FileAttr,char *ShortName,WIN32_FIND_DAT
 }
 
 
-int TreeList::GetCurName(char *Name,char *ShortName)
+int TreeList::GetCurNameW(string &strName, string &strShortName)
 {
   if (TreeCount==0)
   {
-    *Name=*ShortName=0;
+    strName = L"";
+    strShortName = L"";
     return(FALSE);
   }
-  strcpy(Name,ListData[CurFile].Name);
-  strcpy(ShortName,Name);
+
+  strName = ListData[CurFile].strName;
+  strShortName = strName;
   return(TRUE);
 }
 
 
-void TreeList::AddTreeName(char *Name)
+void TreeList::AddTreeName(const wchar_t *Name)
 {
-  char FullName[NM],Root[NM],*ChPtr;
+  string strRoot;
+
+  const wchar_t *ChPtr;
   long CachePos;
 
   if (*Name==0)
     return;
-  ConvertNameToFull(Name,FullName, sizeof(FullName));
-  Name=FullName;
-  GetPathRoot(Name,Root);
-  Name+=strlen(Root)-1;
-  if ((ChPtr=strrchr(Name,'\\'))==NULL)
+
+  string strFullName;
+
+  ConvertNameToFullW(Name, strFullName);
+
+  Name = strFullName;
+
+  GetPathRootW(Name, strRoot);
+
+  Name += strRoot.GetLength ()-1;
+
+  if ((ChPtr=wcsrchr(Name,L'\\'))==NULL)
     return;
-  ReadCache(Root);
+
+  ReadCache(strRoot);
   for(CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    int Result=LCStricmp(TreeCache.ListName[CachePos],Name);
+    int Result=LocalStricmpW(TreeCache.ListName[CachePos],Name);
     if(!Result)
       break;
     if(Result > 0)
@@ -1613,26 +1521,32 @@ void TreeList::AddTreeName(char *Name)
 }
 
 
-void TreeList::DelTreeName(char *Name)
+void TreeList::DelTreeName(const wchar_t *Name)
 {
-  char FullName[NM],*DirName,Root[NM];
+  string strFullName;
+  string strRoot;
+
+  const wchar_t *wszDirName;
+
   long CachePos;
   int Length,DirLength;
   if (*Name==0)
     return;
-  ConvertNameToFull(Name,FullName, sizeof(FullName));
-  Name=FullName;
-  GetPathRoot(Name,Root);
-  Name+=strlen(Root)-1;
-  ReadCache(Root);
+  ConvertNameToFullW(Name,strFullName);
+  Name=strFullName;
+
+  GetPathRootW(Name, strRoot);
+
+  Name += strRoot.GetLength()-1;
+  ReadCache(strRoot);
   for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    DirName=TreeCache.ListName[CachePos];
-    Length=strlen(Name);
-    DirLength=strlen(DirName);
+    wszDirName=TreeCache.ListName[CachePos];
+    Length=wcslen(Name);
+    DirLength=wcslen(wszDirName);
     if(DirLength<Length)continue;
-    if (LocalStrnicmp(Name,DirName,Length)==0 &&
-        (DirName[Length]==0 || DirName[Length]=='\\'))
+    if (LocalStrnicmpW(Name,wszDirName,Length)==0 &&
+        (wszDirName[Length]==0 || wszDirName[Length]==L'\\'))
     {
       TreeCache.Delete(CachePos);
       CachePos--;
@@ -1641,61 +1555,75 @@ void TreeList::DelTreeName(char *Name)
 }
 
 
-void TreeList::RenTreeName(char *SrcName,char *DestName)
+void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 {
   if (*SrcName==0 || *DestName==0)
     return;
-  char SrcRoot[NM],DestRoot[NM];
-  GetPathRoot(SrcName,SrcRoot);
-  GetPathRoot(DestName,DestRoot);
-  if (LocalStricmp(SrcRoot,DestRoot)!=0)
+
+  string strSrcRoot, strDestRoot;
+  GetPathRootW(SrcName,strSrcRoot);
+  GetPathRootW(DestName,strDestRoot);
+
+  if ( LocalStricmpW (strSrcRoot,strDestRoot)!=0)
   {
     DelTreeName(SrcName);
     ReadSubTree(SrcName);
   }
-  SrcName+=strlen(SrcRoot)-1;
-  DestName+=strlen(DestRoot)-1;
 
-  ReadCache(SrcRoot);
+  SrcName+=strSrcRoot.GetLength()-1;
+  DestName+=strDestRoot.GetLength()-1;
 
-  int SrcLength=strlen(SrcName);
+  ReadCache(strSrcRoot);
+
+  int SrcLength=wcslen(SrcName);
+
   for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    char *DirName=TreeCache.ListName[CachePos];
-    if (LocalStrnicmp(SrcName,DirName,SrcLength)==0 &&
-        (DirName[SrcLength]==0 || DirName[SrcLength]=='\\'))
+    const wchar_t *DirName=TreeCache.ListName[CachePos];
+    if (LocalStrnicmpW(SrcName,DirName,SrcLength)==0 &&
+        (DirName[SrcLength]==0 || DirName[SrcLength]==L'\\'))
     {
-      char NewName[2*NM];
-      strcpy(NewName,DestName);
-      strcat(NewName,DirName+SrcLength);
-      //xstrncpy(DirName,NewName,NM-1);
+      string strNewName = DestName;
+
+      strNewName += (const wchar_t*)(DirName+SrcLength);
+
       xf_free(TreeCache.ListName[CachePos]);
-      TreeCache.ListName[CachePos]=xf_strdup(NewName);
+
+      TreeCache.ListName[CachePos]=_wcsdup(strNewName);
     }
   }
 }
 
 
-void TreeList::ReadSubTree(char *Path)
+void TreeList::ReadSubTree(const wchar_t *Path)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
   ScanTree ScTree(FALSE);
-  WIN32_FIND_DATA fdata;
-  char FullName[NM],DirName[NM];
+  FAR_FIND_DATA_EX fdata;
+
+  string strDirName;
+  string strFullName;
+
   int Count=0,FileAttr;
 
-  if ((FileAttr=GetFileAttributes(Path))==-1 || (FileAttr & FA_DIREC)==0)
+  if ((FileAttr=GetFileAttributesW(Path))==-1 || (FileAttr & FA_DIREC)==0)
     return;
-  ConvertNameToFull(Path,DirName, sizeof(DirName));
-  AddTreeName(DirName);
+
+  ConvertNameToFullW(Path, strDirName);
+
+  AddTreeName(strDirName);
 
   int FirstCall=TRUE, AscAbort=FALSE;
-  ScTree.SetFindPath(DirName,"*.*",0);
+
+  ScTree.SetFindPathW(strDirName,L"*.*",0);
+
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
+
   LastScrX = ScrX;
   LastScrY = ScrY;
-  while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
+
+  while (ScTree.GetNextNameW(&fdata, strFullName))
   {
     if (fdata.dwFileAttributes & FA_DIREC)
     {
@@ -1707,7 +1635,7 @@ void TreeList::ReadSubTree(char *Path)
       }
       if(AscAbort)
         break;
-      AddTreeName(FullName);
+      AddTreeName(strFullName);
       ++Count;
     }
   }
@@ -1721,26 +1649,34 @@ void TreeList::ClearCache(int EnableFreeMem)
 }
 
 
-void TreeList::ReadCache(char *TreeRoot)
+void TreeList::ReadCache(const wchar_t *TreeRoot)
 {
-  char TreeName[NM],DirName[NM],*ChPtr;
+  string strTreeName;
+  wchar_t DirName[NM]; //BUGBUG, to do better!!!
+
+  wchar_t *ChPtr;
   FILE *TreeFile=NULL;
-  if (strcmp(MkTreeFileName(TreeRoot,TreeName,sizeof(TreeName)-1),TreeCache.TreeName)==0)
+
+  if (wcscmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName)==0)
     return;
+
   if (TreeCache.TreeCount!=0)
     FlushCache();
 
-  if (MustBeCached(TreeRoot) || (TreeFile=fopen(TreeName,"rb"))==NULL)
-    if (!GetCacheTreeName(TreeRoot,TreeName,FALSE) || (TreeFile=fopen(TreeName,"rb"))==NULL)
+  if (MustBeCached(TreeRoot) || (TreeFile=_wfopen(strTreeName,L"rb"))==NULL)
+    if (!GetCacheTreeName(TreeRoot,strTreeName,FALSE) || (TreeFile=_wfopen(strTreeName,L"rb"))==NULL)
     {
       ClearCache(1);
       return;
     }
-  strcpy(TreeCache.TreeName,TreeName);
-  while (fgets(DirName,sizeof(DirName),TreeFile)!=NULL)
+
+  TreeCache.strTreeName = strTreeName;
+
+  while (fgetws(DirName, NM, TreeFile)!=NULL)
   {
-    if ((ChPtr=strchr(DirName,'\n'))!=NULL)
+    if ((ChPtr=wcschr(DirName,L'\n'))!=NULL)
       *ChPtr=0;
+
     TreeCache.Add(DirName);
   }
   fclose(TreeFile);
@@ -1751,29 +1687,33 @@ void TreeList::FlushCache()
 {
   FILE *TreeFile;
   int I;
-  if (*TreeCache.TreeName)
+  if ( !TreeCache.strTreeName.IsEmpty() )
   {
-    DWORD FileAttributes=GetFileAttributes(TreeCache.TreeName);
+    DWORD FileAttributes=GetFileAttributesW(TreeCache.strTreeName);
     if(FileAttributes != -1)
-      SetFileAttributes(TreeCache.TreeName,FILE_ATTRIBUTE_NORMAL);
-    if ((TreeFile=fopen(TreeCache.TreeName,"wb"))==NULL)
+      SetFileAttributesW(TreeCache.strTreeName,FILE_ATTRIBUTE_NORMAL);
+    if ((TreeFile=_wfopen(TreeCache.strTreeName,L"wb"))==NULL)
     {
       ClearCache(1);
       return;
     }
-    far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(char*),SortCacheList);
+    far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(wchar_t*),SortCacheList);
     for (I=0;I<TreeCache.TreeCount;I++)
-      fprintf(TreeFile,"%s\n",TreeCache.ListName[I]);
+      fwprintf(TreeFile,L"%s\n",TreeCache.ListName[I]);
     if (fclose(TreeFile)==EOF)
     {
       clearerr(TreeFile);
       fclose(TreeFile);
-      remove(TreeCache.TreeName);
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),
-              TreeCache.TreeName,MSG(MOk));
+
+      DeleteFileW (TreeCache.strTreeName);
+
+      //remove(TreeCache.TreeName); BUGBUG
+
+      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),
+              TreeCache.strTreeName,UMSG(MOk));
     }
     else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
-      SetFileAttributes(TreeCache.TreeName,FileAttributes);
+      SetFileAttributesW(TreeCache.strTreeName,FileAttributes);
   }
   ClearCache(1);
 }
@@ -1784,17 +1724,19 @@ void TreeList::UpdateViewPanel()
   if (!ModalMode)
   {
     Panel *AnotherPanel=GetRootPanel();
-    char CurName[NM];
-    GetCurDir(CurName);
+
+    string strCurName;
+    GetCurDirW(strCurName);
+
     if (AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
-      ((QuickView *)AnotherPanel)->ShowFile(CurName,FALSE,NULL);
+      ((QuickView *)AnotherPanel)->ShowFile(strCurName,FALSE,NULL);
   }
 }
 
 
-int TreeList::GoToFile(const char *Name,BOOL OnlyPartName)
+int TreeList::GoToFileW(const wchar_t *Name,BOOL OnlyPartName)
 {
-  long Pos=FindFile(Name,OnlyPartName);
+  long Pos=FindFileW(Name,OnlyPartName);
   if (Pos!=-1)
   {
     CurFile=Pos;
@@ -1805,31 +1747,33 @@ int TreeList::GoToFile(const char *Name,BOOL OnlyPartName)
 
 }
 
-int TreeList::FindFile(const char *Name,BOOL OnlyPartName)
+int TreeList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
 {
   long I;
   struct TreeItem *CurPtr;
 
   for (CurPtr=ListData, I=0; I < TreeCount; I++, CurPtr++)
   {
-    char *CurPtrName=CurPtr->Name;
+    const wchar_t *CurPtrName=CurPtr->strName;
     if(OnlyPartName)
-      CurPtrName=PointToName(CurPtr->Name);
+      CurPtrName=PointToNameW(CurPtr->strName);
 
-    if (strcmp(Name,CurPtrName)==0)
+    if (wcscmp(Name,CurPtrName)==0)
       return I;
-    if (LocalStricmp(Name,CurPtrName)==0)
+
+    if (LocalStricmpW(Name,CurPtrName)==0)
       return I;
   }
   return -1;
 }
 
-int TreeList::FindFirst(const char *Name)
+
+int TreeList::FindFirstW(const wchar_t *Name)
 {
-  return FindNext(0,Name);
+  return FindNextW(0,Name);
 }
 
-int TreeList::FindNext(int StartPos, const char *Name)
+int TreeList::FindNextW(int StartPos, const wchar_t *Name)
 {
   int I;
   struct TreeItem *CurPtr;
@@ -1837,43 +1781,47 @@ int TreeList::FindNext(int StartPos, const char *Name)
   if((DWORD)StartPos < (DWORD)TreeCount)
     for( CurPtr=ListData+StartPos, I=StartPos; I < TreeCount; I++, CurPtr++ )
     {
-      if (CmpName(Name,CurPtr->Name,TRUE))
-        if (!TestParentFolderName(CurPtr->Name))
+      const wchar_t *CurPtrName=CurPtr->strName;
+      if (CmpNameW(Name,CurPtrName,TRUE))
+        if (!TestParentFolderNameW(CurPtrName))
           return I;
     }
   return -1;
 }
 
-int TreeList::GetFileName(char *Name,int Pos,int &FileAttr)
+int TreeList::GetFileNameW(string &strName,int Pos,int &FileAttr)
 {
   if (Pos < 0 || Pos >= TreeCount)
     return FALSE;
-  if(Name)
-    strcpy(Name,ListData[Pos].Name);
-  FileAttr=FA_DIREC|GetFileAttributes(ListData[Pos].Name);
+
+  strName = ListData[Pos].strName;
+
+  FileAttr=FA_DIREC|GetFileAttributesW(ListData[Pos].strName);
+
   return TRUE;
 }
 
+
 int _cdecl SortList(const void *el1,const void *el2)
 {
-  char *NamePtr1=((struct TreeItem *)el1)->Name;
-  char *NamePtr2=((struct TreeItem *)el2)->Name;
-  if(!StaticSortNumeric)
-    return(StaticSortCaseSensitive ? TreeCmp(NamePtr1,NamePtr2):LCStricmp(NamePtr1,NamePtr2));
-  else
-    return(StaticSortCaseSensitive ? TreeCmp(NamePtr1,NamePtr2):LCNumStricmp(NamePtr1,NamePtr2));
+  string strName1=((struct TreeItem *)el1)->strName;
+  string strName2=((struct TreeItem *)el2)->strName;
+  //if(!StaticSortNumeric) BUGBUG
+    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LocalStricmpW(strName1,strName2));
+  //else
+   // return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LCNumStricmp(NamePtr1,NamePtr2));
 }
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
 //  if(!StaticSortNumeric)
-    return(LCStricmp(*(char **)el1,*(char **)el2));
+    return(LocalStricmpW(*(wchar_t **)el1,*(wchar_t **)el2));
 //  else
 //    return(LCNumStricmp(*(char **)el1,*(char **)el2));
 }
 
 
-int TreeCmp(char *Str1,char *Str2)
+int TreeCmp(const wchar_t *Str1,const wchar_t *Str2)
 {
   while (1)
   {
@@ -1883,9 +1831,9 @@ int TreeCmp(char *Str1,char *Str2)
         return(-1);
       if (*Str2==0)
         return(1);
-      if (*Str1=='\\')
+      if (*Str1==L'\\')
         return(-1);
-      if (*Str2=='\\')
+      if (*Str2==L'\\')
         return(1);
       return(*Str1<*Str2 ? -1:1);
     }
@@ -1899,11 +1847,11 @@ int TreeCmp(char *Str1,char *Str2)
 /* $ 16.10.2000 tran
  функция, определяющаяя необходимость кеширования
  файла */
-int TreeList::MustBeCached(char *Root)
+int TreeList::MustBeCached(const wchar_t *Root)
 {
     UINT type;
 
-    type=FAR_GetDriveType(Root);
+    type=FAR_GetDriveTypeW (Root);
     if ( type==DRIVE_UNKNOWN ||
          type==DRIVE_NO_ROOT_DIR ||
          type==DRIVE_REMOVABLE ||
@@ -1912,10 +1860,8 @@ int TreeList::MustBeCached(char *Root)
     {
         if ( type==DRIVE_REMOVABLE )
         {
-            if ( toupper(Root[0])=='A' || toupper(Root[0])=='B')
-            {
+            if ( LocalUpperW(Root[0])==L'A' || LocalUpperW(Root[0])==L'B')
                 return FALSE; // это дискеты
-            }
         }
         return TRUE;
         // кешируются CD, removable и неизвестно что :)
@@ -1925,6 +1871,7 @@ int TreeList::MustBeCached(char *Root)
         DRIVE_RAMDISK
         DRIVE_FIXED
     */
+
     return FALSE;
 }
 
@@ -1940,9 +1887,9 @@ void TreeList::KillFocus()
   if (CurFile<TreeCount)
   {
     struct TreeItem *CurPtr=ListData+CurFile;
-    if (GetFileAttributes(CurPtr->Name)==(DWORD)-1)
+    if (GetFileAttributesW(CurPtr->strName)==(DWORD)-1)
     {
-      DelTreeName(CurPtr->Name);
+      DelTreeName(CurPtr->strName);
       Update(UPDATE_KEEP_SELECTION);
     }
   }
@@ -1984,21 +1931,20 @@ void TreeList::SetTitle()
 {
   if (GetFocus())
   {
-    char TitleDir[NM+30];
-    char *Ptr="";
+    string strTitleDir; //BUGBUG
+    const wchar_t *Ptr=L"";
     if(ListData)
     {
       struct TreeItem *CurPtr=ListData+CurFile;
-      Ptr=CurPtr->Name;
+      Ptr=CurPtr->strName;
     }
     if (*Ptr)
-      sprintf(TitleDir,"{%.*s - Tree}",NM-1,Ptr);
+      strTitleDir.Format (L"{%s - Tree}",Ptr);
     else
-    {
-      sprintf(TitleDir,"{Tree}");
-    }
-    strcpy(LastFarTitle,TitleDir);
-    SetFarTitle(TitleDir);
+      strTitleDir = L"{Tree}";
+
+    strLastFarTitle = strTitleDir;
+    SetFarTitleW(strTitleDir);
   }
 }
 
@@ -2013,21 +1959,25 @@ void TreeList::SetTitle()
 //                        если эти переменные среды не определены, то "%APPDATA%\Far"
 // хpаним "X.tree" (где 'X'  - буква диска, если не сетевой путь)
 // хpаним "server.share.tree" - для сетевого диска без буквы
-char *TreeList::MkTreeFileName(const char *RootDir,char *Dest,int DestSize)
+string &TreeList::MkTreeFileName(const wchar_t *RootDir,string &strDest)
 {
-  xstrncpy(Dest,RootDir,DestSize-1);
-  AddEndSlash(Dest);
-  strncat(Dest,"Tree.Far",DestSize);
-  return Dest;
+    strDest = RootDir;
+    AddEndSlashW (strDest);
+
+    strDest += L"tree2.far";
+
+    return strDest;
 }
 
 // TODO: этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
-char *TreeList::MkTreeCacheFolderName(const char *RootDir,char *Dest,int DestSize)
+string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
 {
-  xstrncpy(Dest,RootDir,DestSize-1);
-  AddEndSlash(Dest);
-  strncat(Dest,"Tree.Cache",DestSize);
-  return Dest;
+    strDest = RootDir;
+    AddEndSlashW (strDest);
+
+    strDest += L"tree2.cache";
+
+    return strDest;
 }
 
 
@@ -2046,7 +1996,7 @@ char *TreeList::MkTreeCacheFolderName(const char *RootDir,char *Dest,int DestSiz
    сменных дисков(CD) - "Label.nnnnnnnn.tree"
 
 */
-char * TreeList::CreateTreeFileName(const char *Path,char *Dest,int DestSize)
+string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 {
 #if 0
   char RootPath[NM];
@@ -2061,7 +2011,7 @@ char * TreeList::CreateTreeFileName(const char *Path,char *Dest,int DestSize)
                             FileSystemName,sizeof(FileSystemName)))
   Opt.Tree.SavedTreePath
 #endif
-  return Dest;
+  return strDest;
 }
 
 BOOL TreeList::GetItem(int Index,void *Dest)

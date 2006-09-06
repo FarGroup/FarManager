@@ -5,83 +5,7 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.22 02.11.2004 $ */
-
-/*
-Modify:
-  02.11.2004 SVS
-    ! Поддержка EXCEPTION_ACCESS_VIOLATION (execute) для WinXP SP2
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.05.2004 SVS
-    - Для STATUS_STACK_OVERFLOW не вызываем внешний модуль, а выдаем (пытаемся)
-      сообщение средствами ФАР, после чего падаем.
-      Без этого ФАР молча схлопывается.
-  13.01.2003 SVS
-    ! Переименование ren exception.?pp farexcpt.?pp
-    ! Научим исключатор понимать (и реагировать предсмертным воплем) исключения
-      в самом ФАРе.
-  04.11.2002 SVS
-    ! Дадим возможность вызова внешнего обработчика исключений ("FarEvent.svc")
-    + Попытка корректно обработать переполнение стека!
-  10.09.2002 SVS
-    ! strcpy -> strncpy
-  02.07.2002 SVS
-    - BugZ#374 - Исключение плагина при выходе из фара
-      Ха! А манагер то уже зашутдовен. А в это время вылазит месагбокс...
-      В общем... раз вываливаем, то вывалим молча ;-)
-  21.02.2002 SVS
-    + В обработчике исключений выставляем флаг процесса обработки этого
-      самого исключения (ProcessException) и блокируем некоторые клавиши.
-  19.02.2002 SVS
-    ! Из четверки удаляем писателя. Кода подсократим, да и выглядеть
-      (фунциклировать) он будет совсем по другой схеме.
-      Тем более, что багов в нем - уйма была, блин :-(
-  25.01.2002 SVS
-    - Блин, с вашим сраным долбанных MSVC... :-((
-  25.01.2002 SVS
-    ! Уточнения в писателе (WriteEvent) с учетом изменений в структурах дампа.
-    - ошибка в farexcpt.cpp::GetLogicalAddress()
-    ! вместо pXXXXXX выставим нужные флаги (FuncFlags)
-    ! Куча разных уточнений ;-)
-  24.01.2002 SVS
-    ! Все же вызовим писателя (WriteEvent) - а уже в нем есть проверка на
-      запись
-  22.01.2002 SVS
-    ! Уточнение в PLUGINRECORD
-    + System/UseFarevent:DWORD = 1 писать в дамп, по умолчанию отключено
-  02.11.2001 SVS
-    ! НЕЛЬЗЯ ИЗ ОБРАБОТЧИКА ВЫГРУЖАТЬ ПЛАГИН!
-    ! Временно, до точной отработки формата файла дампа, отключим вызов
-      WriteEvent()
-  03.10.2001 SVS
-    ! добавим некоторое бестыдное количество проверок в "писателя" событий!
-  18.09.2001 SVS
-    + EXCEPTION_FLT_* - немного обработки плавающей точки
-  16.09.2001 SVS
-    ! Отключаемые исключения
-    ! Удалена кнопка "Debug" за ненадобностью
-  10.07.2001 SVS
-    + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
-  26.06.2001 SVS
-    + IsDebuggerPresent() - первая попытка (закомментированная)
-  06.06.2001 SVS
-    ! Mix/Max
-  17.05.2001 SVS
-    -  local variable 'xpn' used without having been initialized
-  16.05.2001 SVS
-    ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
-    ! Запись рекорда PLUGINRECORD вынесена в отдельную функцию WritePLUGINRECORD()
-  16.05.2001 SVS
-    + Created
-    ! "farexcpt.dmp" переименован в более общее -  "farevent.dmp"
-      А если дать плагинам возможность в него писать, то получим то,
-      чем является EventLog для виндов :-)))
-    ! DumpExceptionInfo from syslog.cpp
-    ! DumpExceptionInfo переименован в WriteEvent
-    ! xfilter from exception.cpp
-    ! Уточнение структуры дампа
-*/
+/* Revision: 1.25 21.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -115,14 +39,14 @@ int WriteEvent(DWORD DumpType, // FLOG_*
    $ 16.10.2000 SVS
    Простенький обработчик исключений.
 */
-static char* xFromMSGTitle(int From)
+static const wchar_t* xFromMSGTitle(int From)
 {
   if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
-    return MSG(MExceptTitleLoad);
+    return UMSG(MExceptTitleLoad);
   else if(From == (int)INVALID_HANDLE_VALUE)
-    return MSG(MExceptTitleFAR);
+    return UMSG(MExceptTitleFAR);
   else
-    return MSG(MExceptTitle);
+    return UMSG(MExceptTitle);
 }
 
 static BOOL Is_STACK_OVERFLOW=FALSE;
@@ -169,12 +93,12 @@ static DWORD _xfilter(
 //   if(From == (int)INVALID_HANDLE_VALUE)
 //     CriticalInternalError=TRUE;
 
-   if(!Is_STACK_OVERFLOW && GetRegKey("System\\Exception","Used",0))
+   if(!Is_STACK_OVERFLOW && GetRegKeyW(L"System\\Exception",L"Used",0))
    {
-     static char FarEventSvc[512];
-     if(GetRegKey("System\\Exception","FarEvent.svc",FarEventSvc,"",sizeof(FarEventSvc)-1) && FarEventSvc[0])
+     static string strFarEventSvc;
+     if(GetRegKeyW(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
      {
-       HMODULE m = LoadLibrary(FarEventSvc);
+       HMODULE m = LoadLibraryW(strFarEventSvc);
        if (m)
        {
          typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
@@ -193,11 +117,11 @@ static DWORD _xfilter(
 
            CtrlObject->Plugins.CreatePluginStartupInfo(&LocalStartupInfo,
                                            &LocalStandardFunctions,
-                                           FarEventSvc,
+                                           strFarEventSvc,
                                            -1);
-           static char RootKey[NM];
-           xstrncpy(RootKey,Opt.RegRoot,sizeof(RootKey)-1);
-           LocalStartupInfo.RootKey=RootKey;
+           static string strRootKey;
+           strRootKey = Opt.strRegRoot;
+           LocalStartupInfo.RootKey=strRootKey;
 
            static struct PLUGINRECORD PlugRec;
            if(Module)
@@ -277,11 +201,12 @@ static DWORD _xfilter(
      // сюды добавляем.
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
-   char *pName;
+   const wchar_t *pName;
    int  I, Ret=1;
    DWORD rc;
-   char Buf[2][NM];
-   char TruncFileName[2*NM];
+   string strBuf1, strBuf2;
+
+   string strTruncFileName;
    BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
    BOOL ShowMessages=FALSE;
 
@@ -303,9 +228,9 @@ static DWORD _xfilter(
    */
    pName=NULL;
    if(From == (int)INVALID_HANDLE_VALUE || !Module)
-     GetModuleFileName(NULL,TruncFileName,sizeof(TruncFileName));
+     apiGetModuleFileName (NULL, strTruncFileName);
    else
-     xstrncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
+     strTruncFileName = Module->strModuleName;
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */
@@ -313,17 +238,17 @@ static DWORD _xfilter(
    if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
    {
      I = 0;
-     static const char *NameField[2][3]={
-       {"DiskMenuStrings","PluginMenuStrings","PluginConfigStrings"},
-       {"InfoLines","DescrFiles","PanelModesArray"},};
+     static const wchar_t *NameField[2][3]={
+       {L"DiskMenuStrings",L"PluginMenuStrings",L"PluginConfigStrings"},
+       {L"InfoLines",L"DescrFiles",L"PanelModesArray"},};
      switch(From)
      {
        case EXCEPT_GETPLUGININFO_DATA:
-         pName = "PluginInfo";
+         pName = L"PluginInfo";
          I = 0;
          break;
        case EXCEPT_GETOPENPLUGININFO_DATA:
-         pName = "OpenPluginInfo";
+         pName = L"OpenPluginInfo";
          I = 1;
          break;
      }
@@ -331,25 +256,27 @@ static DWORD _xfilter(
      if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
         xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
      {
-       sprintf(Buf[0],
-           MSG(MExcStructField),
+       strBuf1.Format (
+           UMSG(MExcStructField),
            pName,
            NameField[I][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
      }
      else
-       sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
+       strBuf1.Format (UMSG(MExcStructWrongFilled),pName);
 
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       Message(MSG_WARNING,1,
+       TruncPathStrW(strTruncFileName,40);
+
+       MessageW(MSG_WARNING,1,
             xFromMSGTitle(From),
-            MSG(MExcTrappedException),
-            MSG(MExcCheckOnLousys),
-            TruncPathStr(TruncFileName,40),
-            Buf[0],
-            "\1",
-            MSG(MExcUnloadYes),
-            MSG(MOk));
+            UMSG(MExcTrappedException),
+            UMSG(MExcCheckOnLousys),
+            strTruncFileName,
+            strBuf1,
+            L"\1",
+            UMSG(MExcUnloadYes),
+            UMSG(MOk));
        ShowMessages=TRUE;
      }
    } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
@@ -361,31 +288,33 @@ static DWORD _xfilter(
      switch (From)
      {
        case EXCEPT_OPENPLUGIN:
-         pName="OpenPlugin";
+         pName=L"OpenPlugin";
          break;
        case EXCEPT_OPENFILEPLUGIN:
-         pName="OpenFilePlugin";
+         pName=L"OpenFilePlugin";
          break;
        case EXCEPT_OPENPLUGIN_FINDLIST:
-         pName="OpenPlugin(OPEN_FINDLIST)";
+         pName=L"OpenPlugin(OPEN_FINDLIST)";
          break;
        default:
-         pName="???";
+         pName=L"???";
          break;
      }
 
-     sprintf(Buf[0],MSG(MExcInvalidFuncResult),pName);
+     strBuf1.Format (UMSG(MExcInvalidFuncResult),pName);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       Message(MSG_WARNING, 1,
+       TruncPathStrW(strTruncFileName,40);
+
+       MessageW(MSG_WARNING, 1,
                  xFromMSGTitle(From),
-                 MSG(MExcTrappedException),
-                 MSG(MExcCheckOnLousys),
-                 TruncPathStr(TruncFileName,40),
-                 Buf[0],
-                 "\1",
-                 MSG(MExcUnloadYes),
-                 MSG(MOk));
+                 UMSG(MExcTrappedException),
+                 UMSG(MExcCheckOnLousys),
+                 strTruncFileName,
+                 strBuf1,
+                 L"\1",
+                 UMSG(MExcUnloadYes),
+                 UMSG(MOk));
        ShowMessages=TRUE;
      }
    }
@@ -396,7 +325,7 @@ static DWORD _xfilter(
      for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
        if(ECode[I].Code == xr->ExceptionCode)
        {
-         pName=MSG(ECode[I].IdMsg);
+         pName=UMSG(ECode[I].IdMsg);
          rc=ECode[I].RetCode;
          if(xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
          {
@@ -421,25 +350,27 @@ static DWORD _xfilter(
                break;
            }
 
-           sprintf(Buf[1],MSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
-           pName=Buf[1];
+           strBuf2.Format (UMSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
+           pName=strBuf2;
          }
          break;
        }
 
-     if (!pName) pName=MSG(MExcUnknown);
+     if (!pName) pName=UMSG(MExcUnknown);
 
-     sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
+     strBuf1.Format (UMSG(MExcAddress),xr->ExceptionAddress);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       Message(MSG_WARNING,1,
+       TruncPathStrW(strTruncFileName, 40);
+
+       MessageW(MSG_WARNING,1,
                xFromMSGTitle(From),
-               MSG(MExcTrappedException),
+               UMSG(MExcTrappedException),
                pName,
-               Buf[0],
-               TruncPathStr(TruncFileName,40),"\1",
-               MSG((From == (int)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
-               MSG(MOk));
+               strBuf1,
+               strTruncFileName, L"\1",
+               UMSG((From == (int)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
+               UMSG(MOk));
        ShowMessages=TRUE;
      }
    } /* else */

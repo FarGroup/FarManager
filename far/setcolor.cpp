@@ -5,78 +5,7 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.26 09.02.2006 $ */
-
-/*
-Modify:
-  09.02.2006 AY
-    - Диалогу настройки цвета можно задавать центрирование.
-  05.03.2003 SVS
-    - Правим цвета для меню... а меню то и не прорисовалось!
-      Сделать Hide/Show мало. Нужно еще и апдейтить локальные копии палитр меню.
-  10.02.2003 SVS
-    - ШК> При настройке цветов интерфейса после изменения цвета для любого элемента
-      ШК> часы исчезают и не появляются до выхода из настройки.
-  07.10.2002 SVS
-    ! Обработка настройки новых цветов
-    ! SetItemColors() обрабатывает вложенность! (про листбоксы и комбобоксы)
-  26.09.2002 SVS
-    - ФАР в режиме 80x25. на правой панели штук 15 файлов, кое-какие
-      выделены. идем в настройку цветов и меняем цвет выделения и цвет
-      обычного текста. после закрытия диалога и меню цвета под ними
-      восстанавливаются старые
-  20.09.2002 SVS
-    - BugZ#645 - Не подряд ооднотипные настройки цветов
-  13.04.2002 KM
-    - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
-      меню по экрану при AltF9 в диалоге редактирования цветов.
-      Убран SaveScreen.
-  11.02.2002 SVS
-    + Добавка в меню - акселератор - решение BugZ#299
-  07.08.2001 SVS
-    ! Уточнение принудительного рефреша
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  25.07.2001 OT
-    + Разрезервируем "резерв" для "цветных часов" :-)
-    - принудительно рефрешим активный фрейм после выбора цвета.
-  18.07.2001 OT
-    ! VFMenu
-  16.06.2001 KM
-    ! Добавление WRAPMODE в меню.
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  07.06.2001 SVS
-    + Резерв для "цветных часов"
-  04.06.2001 SVS
-    ! Упростим функцию обработчик и корректно обработаем DN_BTNCLICK
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-  18.05.2001 DJ
-    ! GetColorDialog() переписан с использованием функции-обработчика диалога
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  04.12.2000 SVS
-    + пункты в меню - COL_DIALOG*DISABLED и COL_WARNDIALOG*DISABLED
-  22.11.2000 SVS
-    + пункт в меню - COL_DIALOGMENUSCROLLBAR - полоса прокрутки для списка
-  13.09.2000 tran 1.04
-    + COL_COMMANDLINEPREFIX
-  18.03.2000 tran 1.03
-    + COL_VIEWERSCROLLBAR
-  06.07.2000 SVS
-    + Новый пункт для настройки цветов
-        COL_DIALOGMENUHIGHLIGHT
-        COL_DIALOGMENUSELECTEDHIGHLIGHT
-  29.06.2000 SVS
-    + Новый пункт для настройки цветов Menu для Menu Scrollbar
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.28 15.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -93,20 +22,20 @@ Modify:
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 
-static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int TypeSub);
+static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
 static VMenu *MenuToRedraw1=NULL,*MenuToRedraw2=NULL,*MenuToRedraw3=NULL;
 
-static struct MenuData ListItems[]=
+static struct MenuDataEx ListItems[]=
 {
-  (char *)MSetColorDialogListText,LIF_SELECTED,0,
-  (char *)MSetColorDialogListHighLight,0,0,
-  (char *)MSetColorDialogListSelectedText,0,0,
-  (char *)MSetColorDialogListSelectedHighLight,0,0,
-  (char *)MSetColorDialogListDisabled,0,0,
-  (char *)MSetColorDialogListBox,0,0,
-  (char *)MSetColorDialogListTitle,0,0,
-  (char *)MSetColorDialogListScrollBar,0,0,
+  (const wchar_t *)MSetColorDialogListText,LIF_SELECTED,0,
+  (const wchar_t *)MSetColorDialogListHighLight,0,0,
+  (const wchar_t *)MSetColorDialogListSelectedText,0,0,
+  (const wchar_t *)MSetColorDialogListSelectedHighLight,0,0,
+  (const wchar_t *)MSetColorDialogListDisabled,0,0,
+  (const wchar_t *)MSetColorDialogListBox,0,0,
+  (const wchar_t *)MSetColorDialogListTitle,0,0,
+  (const wchar_t *)MSetColorDialogListScrollBar,0,0,
 };
 
 // 0,1 - dialog,warn List
@@ -159,40 +88,40 @@ static int ListPaletteItems[4][8]=
 
 void SetColors()
 {
-  struct MenuData Groups[]=
+  struct MenuDataEx Groups[]=
   {
-    (char *)MSetColorPanel,LIF_SELECTED,0,
-    (char *)MSetColorDialog,0,0,
-    (char *)MSetColorWarning,0,0,
-    (char *)MSetColorMenu,0,0,
-    (char *)MSetColorHMenu,0,0,
-    (char *)MSetColorKeyBar,0,0,
-    (char *)MSetColorCommandLine,0,0,
-    (char *)MSetColorClock,0,0,
-    (char *)MSetColorViewer,0,0,
-    (char *)MSetColorEditor,0,0,
-    (char *)MSetColorHelp,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MSetDefaultColors,0,0,
-    (char *)MSetBW,0,0,
+    (const wchar_t *)MSetColorPanel,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorDialog,0,0,
+    (const wchar_t *)MSetColorWarning,0,0,
+    (const wchar_t *)MSetColorMenu,0,0,
+    (const wchar_t *)MSetColorHMenu,0,0,
+    (const wchar_t *)MSetColorKeyBar,0,0,
+    (const wchar_t *)MSetColorCommandLine,0,0,
+    (const wchar_t *)MSetColorClock,0,0,
+    (const wchar_t *)MSetColorViewer,0,0,
+    (const wchar_t *)MSetColorEditor,0,0,
+    (const wchar_t *)MSetColorHelp,0,0,
+    L"",LIF_SEPARATOR,0,
+    (const wchar_t *)MSetDefaultColors,0,0,
+    (const wchar_t *)MSetBW,0,0,
   };
 
-  struct MenuData PanelItems[]=
+  struct MenuDataEx PanelItems[]=
   {
-    (char *)MSetColorPanelNormal,LIF_SELECTED,0,
-    (char *)MSetColorPanelSelected,0,0,
-    (char *)MSetColorPanelHighlightedInfo,0,0,
-    (char *)MSetColorPanelDragging,0,0,
-    (char *)MSetColorPanelBox,0,0,
-    (char *)MSetColorPanelNormalCursor,0,0,
-    (char *)MSetColorPanelSelectedCursor,0,0,
-    (char *)MSetColorPanelNormalTitle,0,0,
-    (char *)MSetColorPanelSelectedTitle,0,0,
-    (char *)MSetColorPanelColumnTitle,0,0,
-    (char *)MSetColorPanelTotalInfo,0,0,
-    (char *)MSetColorPanelSelectedInfo,0,0,
-    (char *)MSetColorPanelScrollbar,0,0,
-    (char *)MSetColorPanelScreensNumber,0,0,
+    (const wchar_t *)MSetColorPanelNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorPanelSelected,0,0,
+    (const wchar_t *)MSetColorPanelHighlightedInfo,0,0,
+    (const wchar_t *)MSetColorPanelDragging,0,0,
+    (const wchar_t *)MSetColorPanelBox,0,0,
+    (const wchar_t *)MSetColorPanelNormalCursor,0,0,
+    (const wchar_t *)MSetColorPanelSelectedCursor,0,0,
+    (const wchar_t *)MSetColorPanelNormalTitle,0,0,
+    (const wchar_t *)MSetColorPanelSelectedTitle,0,0,
+    (const wchar_t *)MSetColorPanelColumnTitle,0,0,
+    (const wchar_t *)MSetColorPanelTotalInfo,0,0,
+    (const wchar_t *)MSetColorPanelSelectedInfo,0,0,
+    (const wchar_t *)MSetColorPanelScrollbar,0,0,
+    (const wchar_t *)MSetColorPanelScreensNumber,0,0,
   };
   int PanelPaletteItems[]={
     COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELINFOTEXT,
@@ -202,24 +131,24 @@ void SetColors()
     COL_PANELSCREENSNUMBER
   };
 
-  struct MenuData DialogItems[]=
+  struct MenuDataEx DialogItems[]=
   {
-    (char *)MSetColorDialogNormal,LIF_SELECTED,0,
-    (char *)MSetColorDialogHighlighted,0,0,
-    (char *)MSetColorDialogDisabled,0,0,
-    (char *)MSetColorDialogBox,0,0,
-    (char *)MSetColorDialogBoxTitle,0,0,
-    (char *)MSetColorDialogHighlightedBoxTitle,0,0,
-    (char *)MSetColorDialogTextInput,0,0,
-    (char *)MSetColorDialogUnchangedTextInput,0,0,
-    (char *)MSetColorDialogSelectedTextInput,0,0,
-    (char *)MSetColorDialogEditDisabled,0,0,
-    (char *)MSetColorDialogButtons,0,0,
-    (char *)MSetColorDialogSelectedButtons,0,0,
-    (char *)MSetColorDialogHighlightedButtons,0,0,
-    (char *)MSetColorDialogSelectedHighlightedButtons,0,0,
-    (char *)MSetColorDialogListBoxControl,0,0,
-    (char *)MSetColorDialogComboBoxControl,0,0,
+    (const wchar_t *)MSetColorDialogNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorDialogHighlighted,0,0,
+    (const wchar_t *)MSetColorDialogDisabled,0,0,
+    (const wchar_t *)MSetColorDialogBox,0,0,
+    (const wchar_t *)MSetColorDialogBoxTitle,0,0,
+    (const wchar_t *)MSetColorDialogHighlightedBoxTitle,0,0,
+    (const wchar_t *)MSetColorDialogTextInput,0,0,
+    (const wchar_t *)MSetColorDialogUnchangedTextInput,0,0,
+    (const wchar_t *)MSetColorDialogSelectedTextInput,0,0,
+    (const wchar_t *)MSetColorDialogEditDisabled,0,0,
+    (const wchar_t *)MSetColorDialogButtons,0,0,
+    (const wchar_t *)MSetColorDialogSelectedButtons,0,0,
+    (const wchar_t *)MSetColorDialogHighlightedButtons,0,0,
+    (const wchar_t *)MSetColorDialogSelectedHighlightedButtons,0,0,
+    (const wchar_t *)MSetColorDialogListBoxControl,0,0,
+    (const wchar_t *)MSetColorDialogComboBoxControl,0,0,
   };
   int DialogPaletteItems[]={
     COL_DIALOGTEXT,
@@ -240,24 +169,24 @@ void SetColors()
     2,
   };
 
-  struct MenuData WarnDialogItems[]=
+  struct MenuDataEx WarnDialogItems[]=
   {
-    (char *)MSetColorDialogNormal,LIF_SELECTED,0,
-    (char *)MSetColorDialogHighlighted,0,0,
-    (char *)MSetColorDialogDisabled,0,0,
-    (char *)MSetColorDialogBox,0,0,
-    (char *)MSetColorDialogBoxTitle,0,0,
-    (char *)MSetColorDialogHighlightedBoxTitle,0,0,
-    (char *)MSetColorDialogTextInput,0,0,
-    (char *)MSetColorDialogUnchangedTextInput,0,0,
-    (char *)MSetColorDialogSelectedTextInput,0,0,
-    (char *)MSetColorDialogEditDisabled,0,0,
-    (char *)MSetColorDialogButtons,0,0,
-    (char *)MSetColorDialogSelectedButtons,0,0,
-    (char *)MSetColorDialogHighlightedButtons,0,0,
-    (char *)MSetColorDialogSelectedHighlightedButtons,0,0,
-    (char *)MSetColorDialogListBoxControl,0,0,
-    (char *)MSetColorDialogComboBoxControl,0,0,
+    (const wchar_t *)MSetColorDialogNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorDialogHighlighted,0,0,
+    (const wchar_t *)MSetColorDialogDisabled,0,0,
+    (const wchar_t *)MSetColorDialogBox,0,0,
+    (const wchar_t *)MSetColorDialogBoxTitle,0,0,
+    (const wchar_t *)MSetColorDialogHighlightedBoxTitle,0,0,
+    (const wchar_t *)MSetColorDialogTextInput,0,0,
+    (const wchar_t *)MSetColorDialogUnchangedTextInput,0,0,
+    (const wchar_t *)MSetColorDialogSelectedTextInput,0,0,
+    (const wchar_t *)MSetColorDialogEditDisabled,0,0,
+    (const wchar_t *)MSetColorDialogButtons,0,0,
+    (const wchar_t *)MSetColorDialogSelectedButtons,0,0,
+    (const wchar_t *)MSetColorDialogHighlightedButtons,0,0,
+    (const wchar_t *)MSetColorDialogSelectedHighlightedButtons,0,0,
+    (const wchar_t *)MSetColorDialogListBoxControl,0,0,
+    (const wchar_t *)MSetColorDialogComboBoxControl,0,0,
   };
   int WarnDialogPaletteItems[]={
     COL_WARNDIALOGTEXT,
@@ -281,16 +210,16 @@ void SetColors()
     /* $ 29.06.2000 SVS
       Новый пункт для настройки цветов Menu Scrollbar
     */
-  struct MenuData MenuItems[]=
+  struct MenuDataEx MenuItems[]=
   {
-    (char *)MSetColorMenuNormal,LIF_SELECTED,0,
-    (char *)MSetColorMenuSelected,0,0,
-    (char *)MSetColorMenuHighlighted,0,0,
-    (char *)MSetColorMenuSelectedHighlighted,0,0,
-    (char *)MSetColorMenuDisabled,0,0,
-    (char *)MSetColorMenuBox,0,0,
-    (char *)MSetColorMenuTitle,0,0,
-    (char *)MSetColorMenuScrollBar,0,0,
+    (const wchar_t *)MSetColorMenuNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorMenuSelected,0,0,
+    (const wchar_t *)MSetColorMenuHighlighted,0,0,
+    (const wchar_t *)MSetColorMenuSelectedHighlighted,0,0,
+    (const wchar_t *)MSetColorMenuDisabled,0,0,
+    (const wchar_t *)MSetColorMenuBox,0,0,
+    (const wchar_t *)MSetColorMenuTitle,0,0,
+    (const wchar_t *)MSetColorMenuScrollBar,0,0,
   };
   int MenuPaletteItems[]={
     COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
@@ -299,43 +228,43 @@ void SetColors()
     /* SVS $ */
   };
 
-  struct MenuData HMenuItems[]=
+  struct MenuDataEx HMenuItems[]=
   {
-    (char *)MSetColorHMenuNormal,LIF_SELECTED,0,
-    (char *)MSetColorHMenuSelected,0,0,
-    (char *)MSetColorHMenuHighlighted,0,0,
-    (char *)MSetColorHMenuSelectedHighlighted,0,0,
+    (const wchar_t *)MSetColorHMenuNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorHMenuSelected,0,0,
+    (const wchar_t *)MSetColorHMenuHighlighted,0,0,
+    (const wchar_t *)MSetColorHMenuSelectedHighlighted,0,0,
   };
   int HMenuPaletteItems[]={
     COL_HMENUTEXT,COL_HMENUSELECTEDTEXT,COL_HMENUHIGHLIGHT,
     COL_HMENUSELECTEDHIGHLIGHT
   };
 
-  struct MenuData KeyBarItems[]=
+  struct MenuDataEx KeyBarItems[]=
   {
-    (char *)MSetColorKeyBarNumbers,LIF_SELECTED,0,
-    (char *)MSetColorKeyBarNames,0,0,
-    (char *)MSetColorKeyBarBackground,0,0,
+    (const wchar_t *)MSetColorKeyBarNumbers,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorKeyBarNames,0,0,
+    (const wchar_t *)MSetColorKeyBarBackground,0,0,
   };
   int KeyBarPaletteItems[]={
     COL_KEYBARNUM,COL_KEYBARTEXT,COL_KEYBARBACKGROUND
   };
 
-  struct MenuData CommandLineItems[]=
+  struct MenuDataEx CommandLineItems[]=
   {
-    (char *)MSetColorCommandLineNormal,LIF_SELECTED,0,
-    (char *)MSetColorCommandLineSelected,0,0,
-    (char *)MSetColorCommandLinePrefix,0,0
+    (const wchar_t *)MSetColorCommandLineNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorCommandLineSelected,0,0,
+    (const wchar_t *)MSetColorCommandLinePrefix,0,0
   };
   int CommandLinePaletteItems[]={
     COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX
   };
 
-  struct MenuData ClockItems[]=
+  struct MenuDataEx ClockItems[]=
   {
-    (char *)MSetColorClockNormal,LIF_SELECTED,0,
-    (char *)MSetColorClockNormalEditor,0,0,
-    (char *)MSetColorClockNormalViewer,0,0,
+    (const wchar_t *)MSetColorClockNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorClockNormalEditor,0,0,
+    (const wchar_t *)MSetColorClockNormalViewer,0,0,
   };
   int ClockPaletteItems[]={
     COL_CLOCK,
@@ -344,13 +273,13 @@ void SetColors()
 
   /* $ 18.07.2000 tran
      новый пунт для MenuScrollbar*/
-  struct MenuData ViewerItems[]=
+  struct MenuDataEx ViewerItems[]=
   {
-    (char *)MSetColorViewerNormal,LIF_SELECTED,0,
-    (char *)MSetColorViewerSelected,0,0,
-    (char *)MSetColorViewerStatus,0,0,
-    (char *)MSetColorViewerArrows,0,0,
-    (char *)MSetColorViewerScrollbar,0,0
+    (const wchar_t *)MSetColorViewerNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorViewerSelected,0,0,
+    (const wchar_t *)MSetColorViewerStatus,0,0,
+    (const wchar_t *)MSetColorViewerArrows,0,0,
+    (const wchar_t *)MSetColorViewerScrollbar,0,0
   };
   int ViewerPaletteItems[]={
     COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS,COL_VIEWERSCROLLBAR
@@ -358,25 +287,25 @@ void SetColors()
   /* tran 18.07.2000 $ */
 
 
-  struct MenuData EditorItems[]=
+  struct MenuDataEx EditorItems[]=
   {
-    (char *)MSetColorEditorNormal,LIF_SELECTED,0,
-    (char *)MSetColorEditorSelected,0,0,
-    (char *)MSetColorEditorStatus,0,0,
+    (const wchar_t *)MSetColorEditorNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorEditorSelected,0,0,
+    (const wchar_t *)MSetColorEditorStatus,0,0,
   };
   int EditorPaletteItems[]={
     COL_EDITORTEXT,COL_EDITORSELECTEDTEXT,COL_EDITORSTATUS
   };
 
-  struct MenuData HelpItems[]=
+  struct MenuDataEx HelpItems[]=
   {
-    (char *)MSetColorHelpNormal,LIF_SELECTED,0,
-    (char *)MSetColorHelpHighlighted,0,0,
-    (char *)MSetColorHelpReference,0,0,
-    (char *)MSetColorHelpSelectedReference,0,0,
-    (char *)MSetColorHelpBox,0,0,
-    (char *)MSetColorHelpBoxTitle,0,0,
-    (char *)MSetColorHelpScrollbar,0,0,
+    (const wchar_t *)MSetColorHelpNormal,LIF_SELECTED,0,
+    (const wchar_t *)MSetColorHelpHighlighted,0,0,
+    (const wchar_t *)MSetColorHelpReference,0,0,
+    (const wchar_t *)MSetColorHelpSelectedReference,0,0,
+    (const wchar_t *)MSetColorHelpBox,0,0,
+    (const wchar_t *)MSetColorHelpBoxTitle,0,0,
+    (const wchar_t *)MSetColorHelpScrollbar,0,0,
   };
   int HelpPaletteItems[]={
     COL_HELPTEXT,COL_HELPHIGHLIGHTTEXT,COL_HELPTOPIC,COL_HELPSELECTEDTOPIC,
@@ -385,7 +314,7 @@ void SetColors()
 
   {
     int GroupsCode;
-    VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
+    VMenu GroupsMenu(UMSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),TRUE,0);
     MenuToRedraw1=&GroupsMenu;
     while (1)
     {
@@ -458,11 +387,11 @@ void SetColors()
 }
 
 
-static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int TypeSub)
+static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
 {
   int ItemsCode;
 
-  VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
+  VMenu ItemsMenu(UMSG(MSetColorItemsTitle),Items,Size,TRUE,0);
   if(TypeSub == 2)
     MenuToRedraw3=&ItemsMenu;
   else
@@ -574,51 +503,51 @@ static long WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2
 
 int GetColorDialog(unsigned int &Color,bool bCentered)
 {
-  static struct DialogData ColorDlgData[]={
-    /*   0 */ DI_DOUBLEBOX,3,1,35,13,0,0,0,0,(char *)MSetColorTitle,
-    /*   1 */ DI_SINGLEBOX,5,2,18,7,0,0,0,0,(char *)MSetColorForeground,
-    /*   2 */ DI_RADIOBUTTON,6,3,0,0,0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   3 */ DI_RADIOBUTTON,6,4,0,0,0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   4 */ DI_RADIOBUTTON,6,5,0,0,0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   5 */ DI_RADIOBUTTON,6,6,0,0,0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   6 */ DI_RADIOBUTTON,9,3,0,0,0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   7 */ DI_RADIOBUTTON,9,4,0,0,0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   8 */ DI_RADIOBUTTON,9,5,0,0,0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*   9 */ DI_RADIOBUTTON,9,6,0,0,0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  10 */ DI_RADIOBUTTON,12,3,0,0,0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  11 */ DI_RADIOBUTTON,12,4,0,0,0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  12 */ DI_RADIOBUTTON,12,5,0,0,0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  13 */ DI_RADIOBUTTON,12,6,0,0,0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  14 */ DI_RADIOBUTTON,15,3,0,0,0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  15 */ DI_RADIOBUTTON,15,4,0,0,0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  16 */ DI_RADIOBUTTON,15,5,0,0,0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  17 */ DI_RADIOBUTTON,15,6,0,0,0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  18 */ DI_SINGLEBOX,20,2,33,7,0,0,0,0,(char *)MSetColorBackground,
-    /*  19 */ DI_RADIOBUTTON,21,3,0,0,0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  20 */ DI_RADIOBUTTON,21,4,0,0,0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  21 */ DI_RADIOBUTTON,21,5,0,0,0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  22 */ DI_RADIOBUTTON,21,6,0,0,0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  23 */ DI_RADIOBUTTON,24,3,0,0,0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  24 */ DI_RADIOBUTTON,24,4,0,0,0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  25 */ DI_RADIOBUTTON,24,5,0,0,0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  26 */ DI_RADIOBUTTON,24,6,0,0,0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  27 */ DI_RADIOBUTTON,27,3,0,0,0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  28 */ DI_RADIOBUTTON,27,4,0,0,0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  29 */ DI_RADIOBUTTON,27,5,0,0,0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  30 */ DI_RADIOBUTTON,27,6,0,0,0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  31 */ DI_RADIOBUTTON,30,3,0,0,0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  32 */ DI_RADIOBUTTON,30,4,0,0,0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  33 */ DI_RADIOBUTTON,30,5,0,0,0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  34 */ DI_RADIOBUTTON,30,6,0,0,0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  35 */ DI_TEXT,5,8,0,0,0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  36 */ DI_TEXT,5,9,0,0,0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  37 */ DI_TEXT,5,10,0,0,0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  38 */ DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  39 */ DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetColorSet,
-    /*  40 */ DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MSetColorCancel,
+  static struct DialogDataEx ColorDlgData[]={
+    /*   0 */ DI_DOUBLEBOX,3,1,35,13,0,0,0,0,(const wchar_t *)MSetColorTitle,
+    /*   1 */ DI_SINGLEBOX,5,2,18,7,0,0,0,0,(const wchar_t *)MSetColorForeground,
+    /*   2 */ DI_RADIOBUTTON,6,3,0,0,0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   3 */ DI_RADIOBUTTON,6,4,0,0,0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   4 */ DI_RADIOBUTTON,6,5,0,0,0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   5 */ DI_RADIOBUTTON,6,6,0,0,0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   6 */ DI_RADIOBUTTON,9,3,0,0,0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   7 */ DI_RADIOBUTTON,9,4,0,0,0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   8 */ DI_RADIOBUTTON,9,5,0,0,0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   9 */ DI_RADIOBUTTON,9,6,0,0,0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  10 */ DI_RADIOBUTTON,12,3,0,0,0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  11 */ DI_RADIOBUTTON,12,4,0,0,0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  12 */ DI_RADIOBUTTON,12,5,0,0,0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  13 */ DI_RADIOBUTTON,12,6,0,0,0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  14 */ DI_RADIOBUTTON,15,3,0,0,0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  15 */ DI_RADIOBUTTON,15,4,0,0,0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  16 */ DI_RADIOBUTTON,15,5,0,0,0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  17 */ DI_RADIOBUTTON,15,6,0,0,0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  18 */ DI_SINGLEBOX,20,2,33,7,0,0,0,0,(const wchar_t *)MSetColorBackground,
+    /*  19 */ DI_RADIOBUTTON,21,3,0,0,0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  20 */ DI_RADIOBUTTON,21,4,0,0,0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  21 */ DI_RADIOBUTTON,21,5,0,0,0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  22 */ DI_RADIOBUTTON,21,6,0,0,0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  23 */ DI_RADIOBUTTON,24,3,0,0,0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  24 */ DI_RADIOBUTTON,24,4,0,0,0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  25 */ DI_RADIOBUTTON,24,5,0,0,0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  26 */ DI_RADIOBUTTON,24,6,0,0,0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  27 */ DI_RADIOBUTTON,27,3,0,0,0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  28 */ DI_RADIOBUTTON,27,4,0,0,0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  29 */ DI_RADIOBUTTON,27,5,0,0,0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  30 */ DI_RADIOBUTTON,27,6,0,0,0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  31 */ DI_RADIOBUTTON,30,3,0,0,0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  32 */ DI_RADIOBUTTON,30,4,0,0,0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  33 */ DI_RADIOBUTTON,30,5,0,0,0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  34 */ DI_RADIOBUTTON,30,6,0,0,0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  35 */ DI_TEXT,5,8,0,0,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
+    /*  36 */ DI_TEXT,5,9,0,0,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
+    /*  37 */ DI_TEXT,5,10,0,0,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
+    /*  38 */ DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  39 */ DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MSetColorSet,
+    /*  40 */ DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MSetColorCancel,
 
   };
-  MakeDialogItems(ColorDlgData,ColorDlg);
+  MakeDialogItemsEx(ColorDlgData,ColorDlg);
   int ExitCode,I,CurColor=Color;
 
   for (I=2;I<18;I++)

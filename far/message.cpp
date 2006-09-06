@@ -5,121 +5,7 @@ message.cpp
 
 */
 
-/* Revision: 1.41 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  19.02.2004 SVS
-    ! очередное уточнение MaxLe... На сверхбольших строках глючит.
-  07.01.2004 SVS
-    ! очередное уточнение MaxLe...
-  05.01.2004 SVS
-    ! очередная корректировка MaxLength
-  16.10.2003 SVS
-    + ERROR_NO_ASSOCIATION
-  10.10.2003 SVS
-    - BugZ#516 - Message() in editor after Dialog()
-  25.08.2003 SVS
-    ! Блин, задолбало это обрезание в месагах...
-      (по поводу BugZ#926)
-  22.08.2003 SVS
-    ! Небольшое уточнение... иначе на коротких сообщениях получается вот так:
-      г==== Error ====¬          г==== Error ====¬
-      ¦    Access     ¦  вместо  ¦ Access denied ¦
-      ¦    denied     ¦          ¦      Ok       ¦
-      ¦      Ok       ¦          L===============-
-      L===============-
-  20.06.2003 SVS
-    + При форматировании ErrStr (FarFormatText) укажим MaxLength-1, т.к.
-      замечено обрезание системных сообщений при выводе Message
-  06.05.2003 SVS
-    ! W-Console: в Message() вместо MakeSeparator() применен другой трюк с
-      использованием DrawLine(). В vmenu... там такое пока не прет :-(
-  21.04.2003 SVS
-    + CheckErrorForProcessed() - Проверка на "продолжаемость" экспериментов
-      по... например, удалению файла с разными именами!
-  31.03.2003 SVS
-    - BugZ#827 - перекрытие кнопок и рамки диалога
-      Попробуем уточнить за счет увелечения допустимой ширины месага
-      Введена MAX_WIDTH_MESSAGE и 15 заменено на 13
-  25.02.2003 SVS
-    + Выставим DMODE_MSGINTERNAL перед показом месага (как вариант решения
-      разногласий между BugZ#811 и BugZ#806)
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  13.01.2003 IS
-    - Принудительно уберем запрет отрисовки экрана, если количество кнопок
-      в сообщении равно нулю и макрос закончил выполняться. Это необходимо,
-      чтобы заработал прогресс-бар от плагина, который был запущен при помощи
-      макроса запретом отрисовки (bugz#533).
-  10.12.2002 SVS
-    ! Применим MSG_KILLSAVESCREEN
-  11.05.2002 SVS
-    - BugZ#503 - Info.Message()
-  03.04.2002 SVS
-    ! WordWrap -> FarFormatText
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  12.03.2002 VVM
-    + Новая функция - пользователь попытался прервать операцию.
-      Зададим вопрос.
-  27.02.2002 SVS
-    ! Косметика для компиляции с debug-инфой под BC
-  26.10.2001 SVS
-    ! небольшие уточнения размеров
-  23.10.2001 SVS
-    ! неверное(!) применение strncpy
-  22.10.2001 SVS
-    + "Новый знания" о системных ошибках - по поводу шифрования в Win2K
-  22.10.2001 SVS
-    - Не проинициализированная переменная
-    ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
-    - strncpy
-  18.10.2001 SVS
-    ! У функций Message параметр Flags имеет суть "DWORD"
-    + Новый вариант Message - без ограничения на количество строк
-    ! "немног" оптимизации кода.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 SVS
-    ! немного оптимизации (сокращение кода)
-  20.09.2001 SVS
-    - не компилится под VC, тем более, что I уже определена!
-  19.09.2001 VVM
-    + Если сообщение об ошибке слишком длинное - перенесем его...
-  25.06.2001 IS
-    ! Внедрение const
-    - Устранение бага (порча стека) в SetMessageHelp
-  18.05.2001 DJ
-    + #include "colors.hpp"
-  10.05.2001 SVS
-    ! Вызываем SetDialogMode(DMODE_WARNINGSTYLE) влоб, т.к. функция
-      Dialog::SetWarningStyle() удалена.
-  06.05.2001 DJ
-    ! перетрях #include
-  14.03.2001 SVS
-    ! Если GetLastError() вернул ERROR_SUCCESS, то нефига показывать
-      инфу про успешное выполнение в сообщении об ошибке.
-  27.02.2001 VVM
-    ! Отрисовка сепаратора - функцией MakeSeparator()
-  02.02.2001 IS
-    + Заменим cr и lf на пробелы в GetErrorString
-  02.02.2001 SVS
-    ! Забыли сделать CharToOem в GetErrorString...
-  27.01.2001 VVM
-    + Если GetErrorString не распознает ошибку - пытается узнать у системы
-  29.08.2000 SVS
-    + Дополнительный параметр у Message* - номер плагина.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.47 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -135,46 +21,47 @@ Modify:
 #include "scrbuf.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
-static char MsgHelpTopic[80];
+static string strMsgHelpTopic;
 
 
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
+
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             int PluginNumber)
 {
-  return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
+  return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
-            const char *Str5,const char *Str6,const char *Str7,
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
+            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             int PluginNumber)
 {
-  return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
+  return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
-            const char *Str5,const char *Str6,const char *Str7,
-            const char *Str8,const char *Str9,const char *Str10,
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
+            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
+            const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
             int PluginNumber)
 {
-  return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
+  return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
                  Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2,const char *Str3,const char *Str4,
-            const char *Str5,const char *Str6,const char *Str7,
-            const char *Str8,const char *Str9,const char *Str10,
-            const char *Str11,const char *Str12,const char *Str13,
-            const char *Str14,int PluginNumber)
+int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
+            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
+            const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
+            const wchar_t *Str11,const wchar_t *Str12,const wchar_t *Str13,
+            const wchar_t *Str14,int PluginNumber)
 {
   int StrCount;
-  const char *Str[14];
+  const wchar_t *Str[14];
 
   Str[0]=Str1;   Str[1]=Str2;   Str[2]=Str3;   Str[3]=Str4;
   Str[4]=Str5;   Str[5]=Str6;   Str[6]=Str7;   Str[7]=Str8;
@@ -185,59 +72,67 @@ int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
   while (StrCount<sizeof(Str)/sizeof(Str[0]) && Str[StrCount]!=NULL)
     StrCount++;
 
-  return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
+  return MessageW(Flags,Buttons,Title,Str,StrCount,PluginNumber);
 }
 
-int Message(DWORD Flags,int Buttons,const char *Title,
-            const char * const *Items,int ItemsNumber,
-            int PluginNumber)
-{
-  char TmpStr[256],ErrStr[2048];
-  int X1,Y1,X2,Y2;
-  int Length,MaxLength,BtnLength,I, J, StrCount;
-  BOOL ErrorSets=FALSE;
-  const char **Str;
-  char *PtrStr;
-  const char *CPtrStr;
 
-  *ErrStr=0;
-  // *** Подготовка данных ***
+int MessageW (
+        DWORD Flags,
+        int Buttons,
+        const wchar_t *Title,
+        const wchar_t * const *Items,
+        int ItemsNumber,
+        int PluginNumber
+        )
+{
+  string strTempStr;
+  int X1,Y1,X2,Y2;
+  int Length, BtnLength, J;
+  DWORD I, MaxLength, StrCount;
+  BOOL ErrorSets=FALSE;
+  const wchar_t **Str;
+  wchar_t *PtrStr;
+  const wchar_t *CPtrStr;
+
+  string strErrStr;
+
   if (Flags & MSG_ERRORTYPE)
-    ErrorSets=GetErrorString(ErrStr, sizeof(ErrStr));
+    ErrorSets = GetErrorStringW (strErrStr);
 
   // выделим память под рабочий массив указателей на строки (+запас 16)
-  Str=(const char **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(char*));
-  if(!Str)
+  Str=(const wchar_t **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(wchar_t*));
+
+  if ( !Str )
     return -1;
 
   StrCount=ItemsNumber-Buttons;
 
   // предварительный обсчет максимального размера.
-  for (BtnLength=0,I=0;I<Buttons;I++) //??
-    BtnLength+=HiStrlen(Items[I+StrCount])+2;
+  for (BtnLength=0,I=0;I<static_cast<DWORD>(Buttons);I++) //??
+    BtnLength+=HiStrlenW(Items[I+StrCount])+2;
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
-    if ((Length=strlen(Items[I]))>MaxLength)
+    if (static_cast<DWORD>(Length=wcslen(Items[I]))>MaxLength)
       MaxLength=Length;
   }
 
   // учтем так же размер заголовка
   if(Title && *Title)
   {
-    I=strlen(Title)+2;
+    I=wcslen(Title)+2;
     if (MaxLength < I)
       MaxLength=I;
   }
 
-  #define MAX_WIDTH_MESSAGE (ScrX-13)
+  #define MAX_WIDTH_MESSAGE static_cast<DWORD>(ScrX-13)
 
   // певая коррекция максимального размера
   if (MaxLength > MAX_WIDTH_MESSAGE)
     MaxLength=MAX_WIDTH_MESSAGE;
 
   // теперь обработаем MSG_ERRORTYPE
-  int CountErrorLine=0;
+  DWORD CountErrorLine=0;
 
   if ((Flags & MSG_ERRORTYPE) && ErrorSets)
   {
@@ -246,7 +141,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     //InsertQuote(ErrStr); // оквочим
 
     // вычисление "красивого" размера
-    int LenErrStr=strlen(ErrStr);
+    DWORD LenErrStr=wcslen(strErrStr);
     if(LenErrStr > MAX_WIDTH_MESSAGE)
     {
       // половина меньше?
@@ -272,23 +167,29 @@ int Message(DWORD Flags,int Buttons,const char *Title,
 
     // а теперь проврапим
     //PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
-    PtrStr=FarFormatText(ErrStr,LenErrStr,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
-    while((PtrStr=strchr(PtrStr,'\n')) != NULL)
+    FarFormatTextW(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
+
+    PtrStr = strErrStr.GetBuffer ();
+
+    while((PtrStr=wcschr(PtrStr,L'\n')) != NULL)
     {
       *PtrStr++=0;
       if(*PtrStr)
         CountErrorLine++;
     }
+
+    strErrStr.ReleaseBuffer ();
+
     if(CountErrorLine > ADDSPACEFORPSTRFORMESSAGE)
       CountErrorLine=ADDSPACEFORPSTRFORMESSAGE; //??
   }
 
   // заполняем массив...
-  CPtrStr=ErrStr;
+  CPtrStr=strErrStr;
   for (I=0; I < CountErrorLine;I++)
   {
     Str[I]=CPtrStr;
-    CPtrStr+=strlen(CPtrStr)+1;
+    CPtrStr+=wcslen(CPtrStr)+1;
     if(!*CPtrStr) // два идущих подряд нуля - "хандец" всему
     {
       ++I;
@@ -314,7 +215,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   if (Flags & MSG_DOWN)
   {
     int NewY=ScrY/2-4;
-    if (Y1+StrCount+3<ScrY && NewY>Y1+2)
+    if (static_cast<int>(Y1+StrCount+3)<ScrY && NewY>Y1+2)
       Y1=NewY;
     else
       Y1+=2;
@@ -322,26 +223,26 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   }
   MessageY2=Y2=Y1+StrCount+3;
 
-  char HelpTopic[80];
-  xstrncpy(HelpTopic,MsgHelpTopic,sizeof(HelpTopic)-1);
-  *MsgHelpTopic=0;
+  string strHelpTopic;
+
+  strHelpTopic = strMsgHelpTopic;
+  strMsgHelpTopic=L"";
 
   // *** Вариант с Диалогом ***
 
   if (Buttons>0)
   {
-    int ItemCount;
-    struct DialogItem *PtrMsgDlg;
-    struct DialogItem *MsgDlg=(struct DialogItem *)
-                              xf_malloc((ItemCount=StrCount+Buttons+1)*
-                                     sizeof(struct DialogItem));
+    DWORD ItemCount;
+    struct DialogItemEx *PtrMsgDlg;
+    struct DialogItemEx *MsgDlg=(struct DialogItemEx *)xf_malloc((ItemCount=StrCount+Buttons+1)*sizeof(struct DialogItemEx));
+
     if(!MsgDlg)
     {
       xf_free(Str);
       return -1;
     }
 
-    memset(MsgDlg,0,ItemCount*sizeof(struct DialogItem));
+    memset(MsgDlg,0,ItemCount*sizeof(struct DialogItemEx));
 
     int RetCode;
     MessageY2=++Y2;
@@ -353,7 +254,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MsgDlg[0].Y2=Y2-Y1-1;
 
     if(Title && *Title)
-      xstrncpy(MsgDlg[0].Data,Title,sizeof(MsgDlg[0].Data)-1);
+        MsgDlg[0].strData = Title;
 
     int TypeItem=DI_TEXT;
     DWORD FlagsItem=DIF_SHOWAMPERSAND;
@@ -376,27 +277,28 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       if(IsButton)
       {
         PtrMsgDlg->Y1=Y2-Y1-2;
-        sprintf(PtrMsgDlg->Data," %s ",CPtrStr);
+        PtrMsgDlg->strData = string(L" ")+string(CPtrStr)+string(L" "); //BUGBUG!!!
       }
       else
       {
         PtrMsgDlg->X1=(Flags & MSG_LEFTALIGN)?5:-1;
         PtrMsgDlg->Y1=I+1;
-        char Chr=*CPtrStr;
+        wchar_t Chr=*CPtrStr;
         if(Chr == 1 || Chr == 2)
         {
           CPtrStr++;
           PtrMsgDlg->Flags|=DIF_BOXCOLOR|(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
         }
-        xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+        //xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+        PtrMsgDlg->strData = CPtrStr; //BUGBUG, wrong len
       }
     }
 
     {
       Dialog Dlg(MsgDlg,ItemCount);
       Dlg.SetPosition(X1,Y1,X2,Y2);
-      if (*HelpTopic)
-        Dlg.SetHelp(HelpTopic);
+      if ( !strHelpTopic.IsEmpty() )
+        Dlg.SetHelp(strHelpTopic);
       Dlg.SetPluginNumber(PluginNumber); // Запомним номер плагина
       if (Flags & MSG_WARNING)
         Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
@@ -418,7 +320,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
 
   if (!(Flags & MSG_KEEPBACKGROUND))
   {
-    SetScreen(X1,Y1,X2,Y2,' ',COL_DIALOGTEXT);
+    SetScreen(X1,Y1,X2,Y2,L' ',COL_DIALOGTEXT);
     MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
     MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
     Box(X1+3,Y1+1,X2-3,Y2-1,COL_DIALOGBOX,DOUBLE_BOX);
@@ -427,17 +329,23 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   SetColor(COL_DIALOGTEXT);
   if(Title && *Title)
   {
-    char TempTitle[2048];
-    xstrncpy(TempTitle,Title,min((int)sizeof(TempTitle)-1,(int)MaxLength));
-    GotoXY(X1+(X2-X1-1-strlen(TempTitle))/2,Y1+1);
-    mprintf(" %s ",TempTitle);
+    string strTempTitle = Title;
+
+    if ( strTempTitle.GetLength() > MaxLength )
+    {
+        strTempTitle.GetBuffer (); //BUGBUG, dirty hack
+        strTempTitle.ReleaseBuffer (MaxLength);
+    }
+
+    GotoXY(X1+(X2-X1-1-strTempTitle.GetLength())/2,Y1+1);
+    mprintfW(L" %s ",(const wchar_t*)strTempTitle);
   }
 
   for (I=0;I<StrCount;I++)
   {
     int PosX;
     CPtrStr=Str[I];
-    char Chr=*CPtrStr;
+    wchar_t Chr=*CPtrStr;
     if (Chr == 1 || Chr == 2)
     {
       int Length=X2-X1-5;
@@ -447,31 +355,40 @@ int Message(DWORD Flags,int Buttons,const char *Title,
         GotoXY(X1+3,Y1+I+2);
         DrawLine(Length,(Chr == 2?3:1));
         CPtrStr++;
-        int TextLength=strlen(CPtrStr);
+        int TextLength=wcslen(CPtrStr);
         if (TextLength<Length)
         {
           GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
-          Text(CPtrStr);
+          TextW(CPtrStr);
         }
         SetColor(COL_DIALOGTEXT);
       }
       continue;
     }
-    if ((Length=strlen(CPtrStr))>ScrX-15)
+    if ((Length=wcslen(CPtrStr))>ScrX-15)
       Length=ScrX-15;
     int Width=X2-X1+1;
+
+    wchar_t *lpwszTemp = NULL;
+
     if (Flags & MSG_LEFTALIGN)
     {
-      sprintf(TmpStr,"%.*s",Width-10,CPtrStr);
+      lpwszTemp = (wchar_t*)xf_malloc ((Width-10+1)*sizeof (wchar_t));
+
+      swprintf(lpwszTemp,L"%.*s",Width-10,CPtrStr);
       GotoXY(X1+5,Y1+I+2);
     }
     else
     {
       PosX=X1+(Width-Length)/2;
-      sprintf(TmpStr,"%*s%.*s%*s",PosX-X1-4,"",Length,CPtrStr,X2-PosX-Length-3,"");
+
+      lpwszTemp = (wchar_t*)xf_malloc ((PosX-X1-4+Length+X2-PosX-Length-3+1)*sizeof (wchar_t));
+      swprintf(lpwszTemp,L"%*s%.*s%*s",PosX-X1-4,L"",Length,CPtrStr,X2-PosX-Length-3,L"");
       GotoXY(X1+4,Y1+I+2);
     }
-    Text(TmpStr);
+    TextW(lpwszTemp);
+
+    xf_free (lpwszTemp);
   }
   /* $ 13.01.2003 IS
      - Принудительно уберем запрет отрисовки экрана, если количество кнопок
@@ -490,6 +407,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   return(0);
 }
 
+
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 {
   X1=MessageX1;
@@ -499,7 +417,8 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 }
 
 
-int GetErrorString(char *ErrStr, DWORD StrSize)
+
+int GetErrorStringW (string &strErrStr)
 {
   int I;
   static struct TypeErrMsgs{
@@ -558,45 +477,62 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
   };
 
   DWORD LastError = GetLastError();
-  //_SVS(SysLog("LastError=%d (%x)",LastError,LastError));
 
   for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
     if(ErrMsgs[I].WinMsg == LastError)
     {
-      xstrncpy(ErrStr,MSG(ErrMsgs[I].FarMsg),StrSize-1);
+      strErrStr = UMSG(ErrMsgs[I].FarMsg);
       break;
     }
 
   //  I = sizeof(ErrMsgs)/sizeof(ErrMsgs[0]);
   if(I >= sizeof(ErrMsgs)/sizeof(ErrMsgs[0]))
   {
-    /* $ 27.01.2001 VVM
-       + Если GetErrorString не распознает ошибку - пытается узнать у системы */
-    if (LastError != ERROR_SUCCESS && // нефига показывать лажу...
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
-                      NULL, LastError, 0, ErrStr, StrSize, NULL))
+    if ( LastError != ERROR_SUCCESS )
     {
-      // для проверки криков:
-      //strcpy(ErrStr,"Невозможно найти сетевой путь. Убедитесь, что сетевой путь указан верно, а конечный компьютер включен и не занят. Если система вновь не сможет найти путь, обратитесь к сетевому администратору.");
-      FAR_CharToOem(ErrStr,ErrStr);
-      /* $ 02.02.2001 IS
-         + Заменим cr и lf на пробелы
-      */
-      RemoveUnprintableCharacters(ErrStr);
-      //_SVS(SysLog("LastErrorMsg=%s",ErrStr));
-      /* IS $ */
-      return(TRUE);
+        int nSize = FormatMessageW (
+                FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+                NULL,
+                LastError,
+                0,
+                NULL,
+                0,
+                NULL
+                );
+
+        if ( nSize )
+        {
+            wchar_t *lpwszErrorString = strErrStr.GetBuffer (nSize+1);
+
+            FormatMessageW (
+                    FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+                    NULL,
+                    LastError,
+                    0,
+                    lpwszErrorString,
+                    nSize,
+                    NULL
+                    );
+
+            RemoveUnprintableCharactersW(strErrStr);
+
+            strErrStr.ReleaseBuffer ();
+
+            return TRUE;
+        }
     }
-    /* VVM $ */
-    *ErrStr=0;
-    return(FALSE);
+
+    strErrStr = L""; //???
+    return FALSE;
   }
-  return(TRUE);
+
+  return TRUE;
 }
 
-void SetMessageHelp(const char *Topic)
+
+void SetMessageHelp(const wchar_t *Topic)
 {
-  xstrncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic)-1);
+  strMsgHelpTopic = Topic;
 }
 
 /* $ 12.03.2002 VVM
@@ -608,9 +544,9 @@ void SetMessageHelp(const char *Topic)
 */
 int AbortMessage()
 {
-  int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
-            MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
-            MSG(MYes),MSG(MNo));
+  int Res = MessageW(MSG_WARNING|MSG_KILLSAVESCREEN,2,UMSG(MKeyESCWasPressed),
+            UMSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
+            UMSG(MYes),UMSG(MNo));
   if (Res == -1) // Set "ESC" equal to "NO" button
     Res = 1;
   if ((Opt.Confirm.EscTwiceToInterrupt && Res) ||

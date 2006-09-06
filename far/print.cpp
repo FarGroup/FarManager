@@ -5,59 +5,7 @@ print.cpp
 
 */
 
-/* Revision: 1.19 25.04.2005 $ */
-
-/*
-Modify:
-  24.04.2005 AY
-    ! GCC
-  12.04.2005 SVS
-    ! Из печати исключаем DIRs.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  26.01.2003 IS
-    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать для удаления
-      соответственно файлов и каталогов.
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  18.07.2001 OT
-    ! VFMenu
-  03.06.2001 SVS
-    ! Изменения в связи с переделкой UserData в VMenu
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  06.05.2001 DJ
-    ! перетрях #include
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
-  11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.23 17.03.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -71,24 +19,24 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 
-static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
+static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
                               int PrinterNumber);
 
 static int DefaultPrinterFound;
 
 static void PR_PrintMsg(void)
 {
-  Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
+  MessageW(0,0,UMSG(MPrintTitle),UMSG(MPreparingForPrinting));
 }
 
 void PrintFiles(Panel *SrcPanel)
 {
   _ALGO(CleverSysLog clv("Alt-F5 (PrintFiles)"));
-  char PrinterName[200];
+  string strPrinterName;
   DWORD Needed,Returned;
   int PrinterNumber;
   int FileAttr;
-  char SelName[NM];
+  string strSelName;
 
   long DirsCount=0;
   int SelCount=SrcPanel->GetSelCount();
@@ -101,25 +49,21 @@ void PrintFiles(Panel *SrcPanel)
 
   // проверка каталогов
   _ALGO(SysLog("Check for FA_DIREC"));
-  SrcPanel->GetSelName(NULL,FileAttr);
-  while (SrcPanel->GetSelName(SelName,FileAttr))
+  SrcPanel->GetSelNameW(NULL,FileAttr);
+  while (SrcPanel->GetSelNameW(&strSelName,FileAttr))
   {
-    if (TestParentFolderName(SelName) || (FileAttr & FA_DIREC))
+    if (TestParentFolderNameW(strSelName) || (FileAttr & FA_DIREC))
       DirsCount++;
   }
 
   if (DirsCount==SelCount)
-  {
-    _ALGO(SysLog("Error: DirsCount==SelCount"));
     return;
-  }
 
   DefaultPrinterFound=FALSE;
 
   const int pi_count=1024;
-  PRINTER_INFO_2 *pi=new PRINTER_INFO_2[pi_count];
+  PRINTER_INFO_2W *pi=new PRINTER_INFO_2W[pi_count];
 
-  _ALGO(SysLog("EnumPrinters"));
   if (pi==NULL || !EnumPrinters(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&Returned))
   {
     /* $ 13.07.2000 SVS
@@ -127,31 +71,30 @@ void PrintFiles(Panel *SrcPanel)
     */
     delete[] pi;
     /* SVS $ */
-    _ALGO(SysLog("Error: Printer not found"));
     return;
   }
 
   {
     _ALGO(CleverSysLog clv2("Show Menu"));
-    char Title[200];
-    char Name[NM];
+    string strTitle;
+    string strName;
 
     if (SelCount==1)
     {
-      SrcPanel->GetSelName(NULL,FileAttr);
-      SrcPanel->GetSelName(Name,FileAttr);
-      TruncStr(Name,50);
-      sprintf(SelName,"\"%s\"",Name);
-      sprintf(Title,MSG(MPrintTo),SelName);
+      SrcPanel->GetSelNameW(NULL,FileAttr);
+      SrcPanel->GetSelNameW(&strName,FileAttr);
+      TruncStrW(strName,50);
+      strSelName.Format (L"\"%s\"", (const wchar_t*)strName);
+      strTitle.Format (UMSG(MPrintTo), (const wchar_t*)strSelName);
     }
     else
     {
       _ALGO(SysLog("Correct: SelCount-=DirsCount"));
       SelCount-=DirsCount;
-      sprintf(Title,MSG(MPrintFilesTo),SelCount);
+      strTitle.Format (UMSG(MPrintFilesTo),SelCount);
     }
 
-    VMenu PrinterList(Title,NULL,0,ScrY-4);
+    VMenu PrinterList(strTitle,NULL,0, TRUE, ScrY-4);
     PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     PrinterList.SetPosition(-1,-1,0,0);
 
@@ -175,14 +118,21 @@ void PrintFiles(Panel *SrcPanel)
       _ALGO(SysLog("ESC"));
       return;
     }
-    PrinterList.GetUserData(PrinterName,sizeof(PrinterName));
+
+    int nSize = PrinterList.GetUserDataSize ();
+
+    wchar_t *PrinterName = strPrinterName.GetBuffer (nSize);
+
+    PrinterList.GetUserData(PrinterName, nSize);
+
+    strPrinterName.ReleaseBuffer ();
   }
 
   HANDLE hPrinter;
-  if (!OpenPrinter(PrinterName,&hPrinter,NULL))
+  if (!OpenPrinterW((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
   {
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
-            PrinterName,MSG(MOk));
+    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MPrintTitle),UMSG(MCannotOpenPrinter),
+            strPrinterName,UMSG(MOk));
     delete[] pi;
     _ALGO(SysLog("Error: Cannot Open Printer"));
     return;
@@ -200,43 +150,41 @@ void PrintFiles(Panel *SrcPanel)
     int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
         !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
-    SrcPanel->GetSelName(NULL,FileAttr);
-    while (SrcPanel->GetSelName(SelName,FileAttr))
+    SrcPanel->GetSelNameW(NULL,FileAttr);
+    while (SrcPanel->GetSelNameW(&strSelName,FileAttr))
     {
-      if (TestParentFolderName(SelName) || (FileAttr & FA_DIREC))
+      if (TestParentFolderNameW(strSelName) || (FileAttr & FA_DIREC))
         continue;
       int Success=FALSE;
 
-      char TempDir[NM],TempName[NM];
-      *TempName=0;
+      FILE *SrcFile;
+      string strTempDir, strTempName;
 
-      FILE *SrcFile=NULL;
       if (PluginMode)
       {
-        if (FarMkTempEx(TempDir))
+        if (FarMkTempExW(strTempDir))
         {
-          CreateDirectory(TempDir,NULL);
+          CreateDirectoryW(strTempDir,NULL);
           struct FileListItem ListItem;
           if (SrcPanel->GetLastSelectedItem(&ListItem))
           {
-            struct PluginPanelItem PanelItem;
+            struct PluginPanelItemW PanelItem;
             FileList::FileListToPluginItem(&ListItem,&PanelItem);
-            if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,TempName,OPM_SILENT))
-              SrcFile=fopen(TempName,"rb");
+            if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
+              SrcFile=_wfopen(strTempName,L"rb");
             else
-              FAR_RemoveDirectory(TempDir);
+              FAR_RemoveDirectoryW(strTempDir);
           }
         }
       }
       else
-        SrcFile=fopen(SelName,"rb");
+        SrcFile=_wfopen(strSelName, L"rb");
 
       if (SrcFile!=NULL)
       {
-        DOC_INFO_1 di1;
-        char AnsiName[NM];
-        FAR_OemToChar(SelName,AnsiName);
-        di1.pDocName=AnsiName;
+        DOC_INFO_1W di1;
+
+        di1.pDocName=(wchar_t*)(const wchar_t*)strSelName;
         di1.pOutputFile=NULL;
         di1.pDatatype=NULL;
 
@@ -255,15 +203,18 @@ void PrintFiles(Panel *SrcPanel)
         }
         fclose(SrcFile);
       }
-      if (*TempName)
-        DeleteFileWithFolder(TempName);
+      if ( !strTempName.IsEmpty() )
+      {
+        DeleteFileWithFolderW(strTempName);
+      }
+
       if (Success)
         SrcPanel->ClearLastGetSelection();
       else
       {
         SetPreRedrawFunc(NULL); //??
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-                    SelName,MSG(MSkip),MSG(MCancel))!=0)
+        if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MPrintTitle),UMSG(MCannotPrint),
+                    strSelName,UMSG(MSkip),UMSG(MCancel))!=0)
           break;
       }
     }
@@ -275,22 +226,23 @@ void PrintFiles(Panel *SrcPanel)
 }
 
 
-static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
+static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
                               int PrinterNumber)
 {
   int IDItem;
   for (int I=0;I<PrinterNumber;I++)
   {
-    char MenuText[200],PrinterName[200];
-    struct MenuItem ListItem;
-    memset(&ListItem,0,sizeof(ListItem));
-    FAR_CharToOem(NullToEmpty(pi[I].pPrinterName),PrinterName);
-    if (pi[I].pComment!=NULL)
-      FAR_CharToOem(pi[I].pComment,pi[I].pComment);
-    sprintf(MenuText,"%-22.22s %c %-10s %3d %s  %s",PrinterName,0x0B3U,
-            NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
-            NullToEmpty(pi[I].pComment));
-    xstrncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
+    string strMenuText, strPrinterName;
+    MenuItemEx ListItem;
+    ListItem.Clear ();
+
+    strPrinterName = NullToEmptyW(pi[I].pPrinterName);
+
+    strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,0x0B3U,
+            NullToEmptyW(pi[I].pPortName),pi[I].cJobs,UMSG(MJobs),
+            NullToEmptyW(pi[I].pComment));
+
+    ListItem.strName = strMenuText;
     if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
     {
       DefaultPrinterFound=TRUE;
@@ -298,8 +250,8 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     }
     else
       ListItem.SetSelect(FALSE);
-    IDItem=PrinterList->AddItem(&ListItem);
+    IDItem=PrinterList->AddItemW(&ListItem);
     // А вот теперь добавим данные для этого пункта (0 - передаем строку)
-    PrinterList->SetUserData((void *)NullToEmpty(pi[I].pPrinterName),0,IDItem);
+    PrinterList->SetUserData((void *)NullToEmptyW(pi[I].pPrinterName),0,IDItem);
   }
 }

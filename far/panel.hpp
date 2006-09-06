@@ -7,107 +7,7 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.40 28.08.2006 $ */
-
-/*
-Modify:
-  28.08.2006 SVS
-    + FindFirst() и FindNext()
-  12.07.2006 SVS
-    ! kill class int64
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  06.04.2006 AY
-    + Новые флаги для меню дисков DRIVE_SHOW_REMOTE и DRIVE_SHOW_SIZE_FLOAT
-  23.01.2006 SVS
-    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
-      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
-      флаг PKF_PREPROCESS.
-  23.10.2005 SVS
-    + virtual SendKeyToPlugin()
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  06.05.2005 SVS
-    ! ???::GetCurDir() теперь возвращает размер пути, при этом
-      его параметр может быть равен NULL. Сделано для того, чтобы
-      как то получить этот размер.
-  26.04.2005 SVS
-    + ProcessShortcutFolder()
-  23.04.2005 KM
-    ! Использование фильтра в GetSelName
-  01.04.2005 SVS
-    + GetItem()
-  10.03.2005 SVS
-    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
-  03.03.2005 SVS
-    ! У функции FindPartName() добавлен третий параметр - направление поиска.
-  14.02.2005 SVS
-    + FindFile() включен в состав Panel (виртуальная функция)
-  03.06.2004 SVS
-    ! SetPluginCommand теперь возвращает TRUE/FALSE
-  24.05.2004 SVS
-    + GetPrevNumericSort()
-  18.05.2004 SVS
-    + Set/GetNumericSort()
-    + член класса NumericSort
-    ! Из структуры PanelViewSettings удален NumericSort
-  07.01.2004 SVS
-    + FastFindProcessName() - подбор имени файла :-)
-  11.07.2003 SVS
-    + NumericSort
-  13.01.2003 SVS
-    + PanelViewSettings.FolderAlignExtensions
-  21.12.2002 SVS
-    + UPDATE_DRAW_MESSAGE - "показывать процесс сканирования в окне"
-  10.12.2002 SVS
-    + ProcessDelDisk() - поимел третий параметр, указатель на VMenu для того, чтобы патом
-      прорефрешить меню!
-  18.06.2002 SVS
-    + Panel::IfGoHome()
-  08.04.2002 IS
-    ! Немного const
-  19.03.2002 DJ
-    + UpdateIfRequired(), UPDATE_IGNORE_VISIBLE
-  14.02.2002 VVM
-    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
-  09.02.2002 VVM
-    ! ProcessDelDisk возвращает
-      enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT}
-  28.12.2001 DJ
-    ! обработка Del в меню дисков вынесена в отдельную функцию
-  27.11.2001 SVS
-    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
-      с учетом вложенности панельного плагина, т.е. имя самого верхнего
-      хост-файла в стеке.
-  26.09.2001 SVS
-    + Panel::NeedUpdatePanel() - нужно ли обновлять панели с учетом нового
-      параметра Opt.AutoUpdateLimit
-  09.08.2001 SVS
-    + virtual long GetFileCount() для нужд макросов :-)
-  22.06.2001 SKV
-    + Параметр Force у UpdateIfChanged.
-  06.05.2001 DJ
-    ! перетрях #include
-  30.04.2001 DJ
-    + UpdateKeyBar() - установка key bar titles
-  25.04.2001 SVS
-    + GetRealSelCount() - сейчас используется для макросов.
-  24.04.2001 VVM
-    + функция смены сортировки.
-  25.02.2001 VVM
-    + Доп. параметр у ReadDiz - dwFlags
-      На данном этапе флаг всего один
-      RDF_NO_UPDATE - Не выполнять GetFindData.
-  14.02.2001 SVS
-    ! Дополнительный параметр для MakeListFile - модификаторы
-  09.02.2001 IS
-    + Get(Set)SelectedFirstMode
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.50 01.09.2006 $ */
 
 #include "scrobj.hpp"
 #include "farconst.hpp"
@@ -165,7 +65,7 @@ class Edit;
 class Panel:public ScreenObject
 {
   protected:
-    char CurDir[NM];
+    string strCurDir;
     int Focus;
     int Type;
     int EnableUpdate;
@@ -191,10 +91,10 @@ class Panel:public ScreenObject
     /* $ 28.12.2001 DJ
        обработка Del в меню дисков
     */
-    int ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu);
+    int ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu);
     /* DJ $ */
     void FastFindShow(int FindX,int FindY);
-    void FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,char *Name);
+    void FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName, string &strName);
     void DragMessage(int X,int Y,int Move);
 
   protected:
@@ -210,19 +110,23 @@ class Panel:public ScreenObject
 
   public:
     virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE){return FALSE;};
-    virtual void SetCurDir(char *NewDir,int ClosePlugin);
+    virtual void SetCurDirW(const wchar_t *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
-    virtual int GetCurDir(char *CurDir);
+
+    virtual int GetCurDirW(string &strCurDir);
+
     virtual int GetSelCount() {return(0);};
     virtual int GetRealSelCount() {return(0);};
-    virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL) {return(FALSE);};
+    virtual int GetSelNameW(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};
-    virtual long GetLastSelectedSize(__int64 *Size) {return(-1);};
+    virtual unsigned __int64 GetLastSelectedSize () {return (unsigned __int64)(-1);};
     virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return(0);};
-    virtual int GetCurName(char *Name,char *ShortName);
-    virtual int GetCurBaseName(char *Name,char *ShortName);
-    virtual int GetFileName(char *Name,int Pos,int &FileAttr) {return(FALSE);};
+
+    virtual int GetCurNameW(string &strName, string &strShortName);
+    virtual int GetCurBaseNameW(string &strName, string &strShortName);
+    virtual int GetFileNameW(string strName,int Pos,int &FileAttr) {return(FALSE);};
+
     virtual int GetCurrentPos() {return(0);};
     virtual void SetFocus();
     virtual void KillFocus();
@@ -240,13 +144,15 @@ class Panel:public ScreenObject
     virtual void UpdateIfRequired() {};
     /* DJ $ */
     virtual void CloseChangeNotification() {};
-    virtual int FindPartName(char *Name,int Next,int Direct=1) {return(FALSE);}
-    virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
-    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE) {return -1;};
-    virtual int IsSelected(char *Name) {return(FALSE);};
+    virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1) {return(FALSE);}
 
-    virtual int FindFirst(const char *Name) {return -1;}
-    virtual int FindNext(int StartPos, const char *Name) {return -1;}
+    virtual int GoToFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
+    virtual int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
+
+    virtual int IsSelectedW(const wchar_t *Name) {return(FALSE);};
+
+    virtual int FindFirstW(const wchar_t *Name) {return -1;}
+    virtual int FindNextW(int StartPos, const wchar_t *Name) {return -1;}
 
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима
@@ -280,7 +186,7 @@ class Panel:public ScreenObject
     void SetSortGroups(int SortGroups) {Panel::SortGroups=SortGroups;};
     int GetShowShortNamesMode() {return(ShowShortNames);};
     void SetShowShortNamesMode(int Mode) {ShowShortNames=Mode;};
-    void InitCurDir(char *CurDir);
+    void InitCurDirW(const wchar_t *CurDir);
     virtual void CloseFile() {};
     virtual void UpdateViewPanel() {};
     virtual void CompareDir() {};
@@ -290,27 +196,27 @@ class Panel:public ScreenObject
     virtual void RestoreSelection() {};
     virtual void SortFileList(int KeepPosition) {};
     virtual void EditFilter() {};
-    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
-    virtual void DeleteDiz(char *Name,char *ShortName) {};
-    virtual void GetDizName(char *DizName) {};
+    virtual void ReadDiz(struct PluginPanelItemW *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
+    virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {};
+    virtual void GetDizName(const wchar_t *DizName) {};
     virtual void FlushDiz() {};
-    virtual void CopyDiz(char *Name,char *ShortName,char *DestName,
-                 char *DestShortName,DizList *DestDiz) {};
+    virtual void CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName,
+                 const wchar_t *DestShortName,DizList *DestDiz) {};
     virtual int IsFullScreen() {return(FALSE);};
     virtual int IsDizDisplayed() {return(FALSE);};
     virtual int IsColumnDisplayed(int Type) {return(FALSE);};
     virtual void SetReturnCurrentFile(int Mode) {};
     virtual void QViewDelTempName() {};
-    virtual void GetPluginInfo(struct PluginInfo *Info) {};
-    virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info) {};
+    virtual void GetPluginInfo(struct PluginInfoW *Info) {};
+    virtual void GetOpenPluginInfo(struct OpenPluginInfoW *Info) {};
     virtual void SetPluginMode(HANDLE hPlugin,char *PluginFile) {};
     virtual void SetPluginModified() {};
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
-    virtual void IfGoHome(char Drive){};
+    virtual void IfGoHomeW(wchar_t Drive){};
 
     /* $ 30.04.2001 DJ
        функция вызывается для обновления кейбара; если возвращает FALSE,
@@ -330,7 +236,7 @@ class Panel:public ScreenObject
     int GetFocus() {return(Focus);};
     int GetType() {return(Type);};
     void SetUpdateMode(int Mode) {EnableUpdate=Mode;};
-    int MakeListFile(char *ListFileName,int ShortNames,char *Modifers=NULL);
+    int MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Modifers=NULL);
     int SetCurPath();
 
     BOOL NeedUpdatePanel(Panel *AnotherPanel);

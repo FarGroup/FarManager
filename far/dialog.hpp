@@ -10,271 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.82 07.10.2005 $ */
-
-/*
-Modify:
-  07.10.2005 SVS
-    + Для MACRO (для "короткого" доступа к элементам класса):
-        GetAllItem()
-        GetAllItemCount()
-        GetDlgFocusPos()
-  24.04.2005 AY
-    ! GCC
-  22.03.2005 SVS
-    + DMODE_BEGINLOOP
-  29.01.2005 WARP
-    ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
-  27.12.2004 WARP
-    ! Сделал критические секции при практически всех вызовах Dialog & VMenu
-  25.12.2004 WARP
-    ! центрирование диалогов (подробнее см. 01894.DialogCenter.txt)
-  08.12.2004 WARP
-    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
-  06.07.2004 SVS
-    + CheckHighlights для Macro II
-  28.02.2004 SVS
-    ! DLGEDITLILE_ -> DLGEDITLINE_
-    + DLGITEMINTERNALFLAGS
-  19.02.2004 SVS
-    ! Флаг DMODE_MOUSELIST ненужен, т.к. это была ошибка: управление реакцией
-      должно быть на уровне элемента, а не всего диалога
-  18.12.2003 SVS
-    + DMOUSEBUTTON_??? - на какие кнопки реагировать
-  23.10.2003 SVS
-    ! Dialog::GetDialogTitle возвращает const
-    + CRITICAL_SECTION CSection
-  30.05.2003 SVS
-    + DMODE_CLICKOUTSIDE - было нажатие мыши вне диалога?
-  19.05.2003 SVS
-    + Добавка к DialogItem - SelStart, SelEnd. Отвечают за сохранение
-      параметров выделения в строках редактирования
-  25.02.2003 SVS
-    - BugZ#811 - Зависание при невозможности загрузить плуг
-      Последствия разборок с BugZ#806. Добавим флаг DMODE_MSGINTERNAL, который
-      будет выставляться в Message().
-      По хорошему здесь нужна очередь! Именно для нее и введена структура
-      FarDialogMessage. Сейчас она пока функциональной нагрузки не несет...
-      (введена, что не забыть сделать как можно быстрее, иначе таких баг-репортов
-      будет море).
-  17.10.2002 SVS
-    + Добавим в Do_ProcessNextCtrl() параметр про принудительную
-      прорисовку 2 элементов (старого и нового)
-  30.09.2002 SVS
-    ! SelectFromComboBox имеет первый параметр типа struct DialogItem
-  23.09.2002 SVS
-    + DialogItem имеет IFlags - для внутренних нужд.
-  20.09.2002 SVS
-    + флаги DMODE_NODRAWSHADOW и DMODE_NODRAWPANEL
-  10.09.2002 SVS
-    ! DialogItem приведем к FarDialogItem
-    + некоторое количество приватных функций (куски повторяющегося код
-      вынесены в отдельные функции)
-  17.08.2002 SVS
-    ! Обработка CtrlDown вынесена из обработчика клавиатуры в отдельную
-      функцию ProcessOpenComboBox, т.к. вызов ProcessKey(KEY_CTRLDOWN)
-      из мышиного обработчика приводит к побочным отрицательным эффектам
-  18.05.2002 SVS
-    ! OwnsItems -> DMODE_OWNSITEMS
-  15.05.2002 SVS
-    ! Вместо Edit юзаем новый класс DlgEdit
-  06.05.2002 SVS
-    + InitDialog() - инициализация диалога. Инициализируется в Process()
-      или самостоятельно, но до вызова Show()
-    ! InitDialogObjects() переехала в privat
-  29.04.2002 SVS
-    + ProcessRadioButton
-  26.04.2002 SVS
-    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
-  22.04.2002 KM
-    ! Удалена функция OnDestroy - потеряла актуальность.
-  08.04.2002 SVS
-   + CtlColorDlgItem()
-  11.03.2002 SVS
-   ! Немного выравнивания... с переносом полей.
-     На общей функциональности не отобразится, т.к. структура DialogItem
-     приватная и в чистом виде не юзается.
-  13.02.2002 SVS
-   ! Первый параметр у IsKeyHighlighted() - const
-  11.02.2002 SVS
-   ! OriginalListItems к терапевту... - юзаем DlgProc
-  05.02.2002 SVS
-   + DialogItem.OriginalListItems
-  21.01.2002 SVS
-   ! Изменены данные для UserControl
-  08.01.2002 SVS
-   + SetListMouseReaction()
-  21.12.2001 SVS
-   ! unsigned char -> short для координат в структурах DialogItem и DialogData
-   + LenStrItem() - выдает на гора размер с учетом флага DIF_SHOWAMPERSAND
-  09.12.2001 DJ
-   + ProcessLastHistory() - обработка DIF_USELASTHISTORY
-  04.12.2001 SVS
-   + ProcessCenterGroup() - пересчет координат элементов с флагом DIF_CENTERGROUP
-  21.11.2001 SVS
-   + Автоматизация (часть I)
-   ! Изменения в структуре DialogItem: +DialogItem.ID, +DialogItem.AutoCount
-     DialogItem.ID - пока зарезервированное поле, но потом это будет основным
-     идентификатором контрола!
-  12.11.2001 SVS
-   ! SelectFromEditHistory() возвращает значение.
-   ! SelectOnEntry() имеет доп.параметр - выделять или не выделять.
-  12.11.2001 OT
-   - VC выдает ошибку...
-  08.11.2001 SVS
-   ! Добавка в виде BitFlags - управление флагами текущего режима диалога
-  06.11.2001 SVS
-   ! Заводим доп.параметр struct DialogItem *CurItem у функции
-     SelectFromEditHistory()
-  01.11.2001 SVS
-   ! MakeDialogItems перехала в dialog.hpp из farconst.hpp
-  15.08.2001 SVS
-   + DMODE_MOUSEEVENT
-  23.07.2001 OT
-   -  Исправление отрисовки меню в новом MA в макросах
-  22.07.2001 SVS
-   ! Пересмотрены параметры функции SelectFromComboBox() - ведь и так
-     передаем указатель аж на цельный класс строки, так что...
-  21.07.2001 KM
-   ! Объявление FindFiles другом диалога для доступа к члену Item.
-  12.07.2001 OT
-   - Исправление ситуации (после 816) F11->F4->Esc-> :(
-  11.07.2001 OT
-   ! Перенос CtrlAltShift в Manager
-  09.07.2001 OT
-   - Исправление MacroMode для диалогов
-  23.06.2001 KM
-   + Функции программного открытия/закрытия комбобокса и хистори
-     и получения статуса открытости/закрытости комбобокса и хистори.
-   + Переменная DropDownOpened для хранения статуса комбобокса и хистори.
-  04.06.2001 SVS
-   ! HISTORY_COUNT -> farconst.hpp
-   ! AddToEditHistory() - параметр про размер теперь нафиг ненужен.
-  30.05.2001 KM
-   + SetItemRect - функция для изменения размеров и/или положения
-     итема в диалоге.
-  23.05.2001 SVS
-   - Проблемы с горячими клавишами в меню. Добавлен 4-й параметр в
-     IsKeyHighlighted - позиция амперсанта (по умолчанию = -1)
-  19.05.2001 DJ
-   + OwnsItems
-  17.05.2001 DJ
-   ! Dialog унаследован от Frame
-   + CloseDialog()
-  14.05.2001 SVS
-   ! DMODE_SMALLDILAOG -> DMODE_SMALLDIALOG
-  12.05.2001 SVS
-   ! Изменился второй параметр у SelectFromComboBox();
-   ! Функция SelectFromComboBox() теперь возвращает код возврата.
-   + DialogItem.ListPtr - для DI_COMBOBOX
-  10.05.2001 SVS
-   + FDLG_SMALLDILAOG - не рисовать "платформу"
-   ! SetWarningStyle удалена
-   ! Функция SetDialogMode перенесена в public секцию.
-  06.05.2001 DJ
-   + перетрях #include
-  28.04.2001 SVS
-   + GetItemRect() - получить координаты итема.
-  12.04.2001 SVS
-   ! функция AddToEditHistory теперь возвращает результат операции
-     добавления строки в историю
-  12.04.2001 SVS
-   + CheckDialogCoord() - проверка и корректировка координат диалога
-  23.03.2001 SVS
-   ! У функции ConvertItem() новый параметр InternalCall - сейчас
-     используется только для DN_EDITCHANGE
-  13.02.2001 SVS
-   + Дополнительный параметр у FindInEditForAC, SelectFromEditHistory,
-     AddToEditHistory и SelectFromComboBox - MaxLen - максимальный размер
-     строки назначения.
-  24.09.2000 SVS
-   + DMODE_ALTDRAGGED - при движении диалога по Alt-стрелка
-  08.09.2000 SVS
-   + Стиль диалога DMODE_OLDSTYLE - диалог в старом стиле.
-   + Функция SelectOnEntry - выделение строки редактирования
-     (Обработка флага DIF_SELECTONENTRY)
-  30.08.2000 SVS
-   + Режим диалога DMODE_SHOW - Диалог виден?
-   + Метод Hide()
-  29.08.2000 SVS
-   ! При подмене темы помощи из диаловой процедуры...
-     короче, нужно вновь формировать контент!
-  24.08.2000 SVS
-   + InitDialogObjects() имеет параметр - для выборочной реинициализации
-     элементов
-  23.08.2000 SVS
-   ! изменения для DataDialog.
-   + Переменная класса FocusPos - всегда известно какой элемент в фокусе
-   ! Переменные IsCanMove, InitObjects, CreateObjects, WarningStyle, Dragged
-     удалены -> битовые флаги в DialogMode
-   ! Массив LV удален за ненадобностью.
-   + CheckDialogMode - функция проверки флага DialogMode
-  22.08.2000 SVS
-   ! С моим английским вообще ни как :-((
-     IsMovedDialog -> IsCanMove
-     SetModeMoving -> SetMoveEnable
-     GetModeMoving -> GetMoveEnable
-   ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
-  18.08.2000 SVS
-   + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
-   + DialogMode - Флаги текущего режима диалога
-  11.08.2000 SVS
-   + Данные, специфические для конкретного экземпляра диалога
-   + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
-  10.08.2000 SVS
-   + переменная IsMovedDialog - можно ли двигать диалог :-)
-   + функция установки IsMovedDialog
-  09.08.2000 KM 1.09
-   + Добавление функции проверки на режим перемещения диалога.
-     Кстати новер редакции действительно 1.09 - один был пропущен.
-  01.08.2000 SVS
-   - переменная класса lastKey удалена за ненадобностью :-)
-  31.07.2000 tran & SVS
-   + переменная класса Dragged - флаг перемещения
-     а также OldX*, OldY*,
-     метод - AdjustEditPos(int dx,int dy) - подравнивает координаты Edit"ов
-   + Сохранение того, что под индикатором перемещения диалога
-  28.07.2000 SVS
-   + Переменная класса InitParam - хранит параметр, переданный
-     в диалог.
-   ! Теперь InitDialogObjects возвращает ID элемента с фокусом ввода
-   + Функция ChangeFocus2
-     Изменяет фокус ввода между двумя элементами.
-   ! Переметр Edit *EditLine в функции FindInEditForAC нафиг ненужен!
-   ! FindInEditHistory -> FindInEditForAC
-     Поиск как в истории, так и в ComboBox`е (чтобы не пладить кода)
-   ! SelectFromComboBox имеет дополнительный параметр с тем, чтобы
-     позиционировать item в меню со списком в соответсвии со строкой ввода
-   + Функция IsFocused, определяющая - "Может ли элемент диалога
-     иметь фокус ввода"
-   ! IsEdit стал Static-методом!
-   + функция посылки сообщений диалогу SendDlgMessage
-   + Функция ConvertItem - преобразования из внутреннего представления
-     в FarDialogItem и обратно
-  26.07.2000 SVS
-   + FindInEditHistory: Поиск входжение подстроки в истории
-  25.07.2000 SVS
-   + Private: lastKey - для AutoComplit последняя клавиша
-   + Дополнительный параметр в SelectFromEditHistory для выделения
-     нужной позиции в истории (если она соответствует строке ввода)
-  25.07.2000 SVS
-   ! новый параметр в конструкторе
-  23.07.2000 SVS
-   + Куча ремарок в исходниках :-)
-   + Функция обработки диалога (по умолчанию) - забито место :-)
-   ! Изменен вызов конструктора
-  18.07.2000 SVS
-    + функция SelectFromComboBox для выбора из DI_COMBOBOX
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.92 25.05.2006 $ */
 
 #include "frame.hpp"
 #include "plugin.hpp"
 #include "vmenu.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
+#include "UnicodeString.hpp"
 
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
@@ -327,10 +70,9 @@ enum DLGITEMINTERNALFLAGS {
 };
 
 
-#define MakeDialogItems(Data,Item) \
-  struct DialogItem Item[sizeof(Data)/sizeof(Data[0])]; \
-  Dialog::DataToItem(Data,Item,sizeof(Data)/sizeof(Data[0]));
-
+#define MakeDialogItemsEx(Data,Item) \
+  struct DialogItemEx Item[sizeof(Data)/sizeof(Data[0])]; \
+  Dialog::DataToItemEx(Data,Item,sizeof(Data)/sizeof(Data[0]));
 
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
 // на первом этапе - примитивная - выставление флагов у элементов для CheckBox
@@ -356,7 +98,7 @@ class DlgUserControl{
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem (за исключением ObjPtr)
 */
-struct DialogItem
+struct DialogItemEx
 {
   int Type;
   int X1,Y1,X2,Y2;
@@ -364,23 +106,17 @@ struct DialogItem
   union
   {
     int Selected;
-    char *History;
-    char *Mask;
+    const wchar_t *History;
+    const wchar_t *Mask;
     struct FarList *ListItems;
     int  ListPos;
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
   int DefaultButton;
-  union {
-    char Data[512];
-    struct {
-      DWORD PtrFlags;
-      int   PtrLength;
-      void *PtrData;
-      char  PtrTail[1];
-    } Ptr;
-  };
+
+  string strData;
+  int nMaxLength;
 
   WORD ID;
   BitFlags IFlags;
@@ -402,14 +138,15 @@ struct DialogItem
 Структура аналогичена структуре InitDialogItem (см. "Far PlugRinG
 Russian Help Encyclopedia of Developer")
 */
-struct DialogData
+
+struct DialogDataEx
 {
   WORD  Type;
   short X1,Y1,X2,Y2;
   BYTE  Focus;
   union {
     unsigned int Selected;
-    char *History;
+    const wchar_t *History;
     char *Mask;
     struct FarList *ListItems;
     int  ListPos;
@@ -417,8 +154,10 @@ struct DialogData
   };
   DWORD Flags;
   BYTE  DefaultButton;
-  char *Data;
+
+  const wchar_t *Data;
 };
+
 
 struct FarDialogMessage{
   HANDLE hDlg;
@@ -429,6 +168,8 @@ struct FarDialogMessage{
 
 class DlgEdit;
 class ConsoleTitle;
+
+typedef long (__stdcall *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,long Param2);
 
 class Dialog: public Frame
 {
@@ -462,7 +203,9 @@ class Dialog: public Frame
     long DataDialog;            // первоначально здесь параметр,
                                 //   переданный в конструктор
     /* SVS $ */
-    struct DialogItem *Item;    // массив элементов диалога
+    struct DialogItemEx **Item;    // массив элементов диалога
+    DialogItemEx *pSaveItemEx;
+
     int ItemCount;              // количество элементов диалога
 
     ConsoleTitle *OldTitle;     // предыдущий заголовок
@@ -470,6 +213,7 @@ class Dialog: public Frame
     int PrevMacroMode;          // предыдущий режим макро
 
     FARWINDOWPROC DlgProc;      // функция обработки диалога
+    SENDDLGMESSAGE pfnSendDlgMessage;
 
     /* $ 31.07.2000 tran
        переменные для перемещения диалога */
@@ -477,7 +221,7 @@ class Dialog: public Frame
     /* tran 31.07.2000 $ */
 
     /* $ 17.05.2001 DJ */
-    char *HelpTopic;
+    wchar_t *HelpTopic;
     /* DJ $ */
     /* $ 23.06.2001 KM
        + Содержит статус комбобокса и хистори:
@@ -492,7 +236,7 @@ class Dialog: public Frame
   private:
     void DisplayObject();
     void DeleteDialogObjects();
-    int  LenStrItem(int ID,char *Str=NULL);
+    int  LenStrItem(int ID, const wchar_t *lpwszStr = NULL);
     /* $ 22.08.2000 SVS
       ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
         ID=-1 - отрисовать весь диалог
@@ -518,28 +262,28 @@ class Dialog: public Frame
       + Дополнительный параметр в SelectFromEditHistory для выделения
        нужной позиции в истории (если она соответствует строке ввода)
     */
-    BOOL SelectFromEditHistory(struct DialogItem *CurItem,DlgEdit *EditLine,char *HistoryName,char *Str,int MaxLen);
+    BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr,int MaxLen);
     /* SVS $ */
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    int SelectFromComboBox(struct DialogItem *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
+    int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории
     */
-    int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen);
+    int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
     /* SVS $ */
-    int AddToEditHistory(char *AddStr,char *HistoryName);
+    int AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName);
 
     /* $ 09.12.2001 DJ
        обработка DIF_USELASTHISTORY
     */
-    void ProcessLastHistory (struct DialogItem *CurItem, int MsgIndex);
+    void ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex);
     /* DJ $ */
 
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
-    BOOL CheckHighlights(BYTE Chr);
+    BOOL CheckHighlights(WORD Chr);
 
     /* $ 08.09.2000 SVS
       Функция SelectOnEntry - выделение строки редактирования
@@ -554,7 +298,7 @@ class Dialog: public Frame
     /* $ 19.05.2001 DJ
        возвращает заголовок диалога (текст первого текста или фрейма)
     */
-    const char *GetDialogTitle();
+    const wchar_t *GetDialogTitle();
     /* DJ $ */
 
     /* $ 30.05.2000 KM
@@ -581,7 +325,7 @@ class Dialog: public Frame
     int  InitDialogObjects(int ID=-1);
     /* 24.08.2000 SVS $ */
 
-    int ProcessOpenComboBox(int Type,struct DialogItem *CurItem,int CurFocusPos);
+    int ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem,int CurFocusPos);
     int ProcessMoveDialog(DWORD Key);
 
     int Do_ProcessTab(int Next);
@@ -592,7 +336,7 @@ class Dialog: public Frame
     int CallDlgProc (int nMsg, int nParam1, int nParam2);
 
   public:
-    Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=0);
+    Dialog(struct DialogItemEx *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=0);
     ~Dialog();
 
   public:
@@ -618,12 +362,14 @@ class Dialog: public Frame
        + Функция ConvertItem - преобразования из внутреннего представления
         в FarDialogItem и обратно
     */
-    static void ConvertItem(int FromPlugin,struct FarDialogItem *Item,struct DialogItem *Data,
+    static void ConvertItemEx (int FromPlugin,struct FarDialogItem *Item,struct DialogItemEx *Data,
                            int Count,BOOL InternalCall=FALSE);
+
     /* SVS $ */
-    static void DataToItem(struct DialogData *Data,struct DialogItem *Item,
+    static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,
                            int Count);
-    static int IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos=-1);
+
+    static int IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 
     /* $ 31.07.2000 tran
        метод для перемещения диалога */
@@ -662,7 +408,7 @@ class Dialog: public Frame
     /* SVS $ */
 
     /* $ 17.05.2001 DJ */
-    void SetHelp(const char *Topic);
+    void SetHelp(const wchar_t *Topic);
     void ShowHelp();
     int Done() { return DialogMode.Check(DMODE_ENDLOOP); }
     void ClearDone();
@@ -675,9 +421,9 @@ class Dialog: public Frame
     // void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; } !!!!!!! :-)
     void SetOwnsItems (int AOwnsItems) { DialogMode.Change(DMODE_OWNSITEMS,AOwnsItems); }
 
-    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_DIALOG; }
-    virtual const char *GetTypeName() {return "[Dialog]";};
+    virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
     /* DJ $ */
 
     int GetMacroMode();
@@ -688,7 +434,7 @@ class Dialog: public Frame
 //    void OnDestroy();
 
     // For MACRO
-    const struct DialogItem *GetAllItem(){return Item;};
+    const struct DialogItemEx **GetAllItem(){return (const DialogItemEx**)Item;};
     int GetAllItemCount(){return ItemCount;};              // количество элементов диалога
     int GetDlgFocusPos(){return FocusPos;};
 
@@ -701,7 +447,14 @@ class Dialog: public Frame
     /* $ 23.07.2000 SVS: функция обработки диалога (по умолчанию) */
     static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
-    static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static long __stdcall SendDlgMessage (HANDLE hDlg,int Msg,int Param1,long Param2)
+    {
+        Dialog *D = (Dialog*)hDlg;
+        return D->pfnSendDlgMessage (hDlg, Msg, Param1, Param2);
+    }
+
+    static long __stdcall SendDlgMessageAnsi(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static long __stdcall SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,long Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };

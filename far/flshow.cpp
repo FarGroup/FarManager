@@ -5,153 +5,7 @@ flshow.cpp
 
 */
 
-/* Revision: 1.57 12.07.2006 $ */
-
-/*
-Modify:
-  12.07.2006 SVS
-    ! kill class int64
-  05.07.2006 IS
-    - warnings
-  29.05.2006 SVS
-    - В плагиновых панелях в заголовке обрезается 2 символа
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  20.02.2006 SVS
-    ! У ConvertNameToShort новый параметр - размер для Dest
-  09.02.2006 AY
-    - Порядок атрибутов RSHALCTI.
-  22.12.2005 SVS
-    + добавка индикации "выделенные вперед" - символ '^'
-    ! Колонка атрибутов изменена. Теперь порядок такой: ARSHLC, так же отображаем по ширине только то, что в начале.
-      т.е. для масдая, выставив ширину колонки A = 4 получим "ARSH"
-    + отображение FILE_ATTRIBUTE_TEMPORARY
-  07.12.2005 SVS
-    ! добавлен показ FILE_ATTRIBUTE_SPARSE_FILE ('$' на месте 'L') и уточнение FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
-  27.10.2005 SVS
-    + покажем атрибут индексирования 'I'.
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  13.07.2005 SVS
-    - BugZ#1253 - некорректная обработка PanelMode.FullScreen
-      не учитывался факт того, что размеры могли измениться
-  05.01.2005 WARP
-    - Немного зажевало раскраску скобок { и } при длинном имени.
-  18.12.2004 WARP
-    - PanelMode.CaseConversion игнорирует тип колонки "NO" (Bugz#1139)
-  08.11.2004 WARP
-    ! Исправления в раксраске и работе панелей
-  01.11.2004 SVS
-    - Неотрисовка статуса
-    - Кривизна с выбором цвета глобальной колонки
-  01.11.2004 SVS & WARP ItSelf
-    ! Новый способ разбиения на глобальные колонки
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  29.05.2004 SVS
-    - BugZ#847 - рамка слева от колонки с именем файла не подсвечивается
-      (вроде артефактов не замечено :-))
-  18.05.2004 SVS
-    ! IsNumeric() переехала из flshow.cpp в panel.hpp
-  19.02.2004 SVS
-    - неправильные функции использовались при отрисовке панелей.
-  15.01.2004 SVS
-    - BugZ#997 - падение FAR при большом выставлении высоты буфера экрана
-  15.09.2003 SVS
-    ! Корректировка на часы (X2) ведется только в том случае, если
-      Opt.ShowMenuBar == 0
-  11.07.2003 SVS
-    + FileList::IsNumeric()
-  05.07.2003 SVS
-    - под масдаем неотрисовка верхних стыковочных линий (BoxText!)
-  06.05.2003 SVS
-    ! W-console: замена вида "BoxText(209);" на  "BoxText(BoxSymbols[0xD1-0x0B0]);"
-  03.03.2003 SVS
-    ! Оформим парвильное окончание при выделении (для "21" было "файлов") с помощью __FormatEndSelectedPhrase()
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-    ! При отображении колонки ATTR_COLUMN откажимся от sprintf()
-      в пользу манипуляции байтовым массивом.
-    ! При отображении колонки NUMLINK_COLUMN вместо sprintf()
-      применим itoa().
-  13.01.2003 SVS
-    + Новая опция в настройках режимов панелей: "Выравнивать расширения
-      папок" - позволяет показывать расширения папок выравненными независимо
-      от опции "Выравнивать расширения файлов".
-  22.06.2002 SVS
-    ! Исправление исправлений в 1444 (предыдущие исправления ;-)
-  15.06.2002 VVM
-    ! Скорректировать позицию после подготовки режима панели. Т.к. колонки могут
-      измениться и надо-юы сдвинуть курсор. (bug #472)
-  25.05.2002 IS
-    ! первый параметр у ConvertDate теперь ссылка на константу
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  21.03.2002 DJ
-    ! не портим стек при отрисовке длинного заголовка панели
-  20.03.2002 IS
-    ! Косметика для предыдущего патча от SVS - вызываем
-      PointToFolderNameIfFolder
-  19.03.2002 SVS
-    - BugZ#375 - Неправильное отображение каталогов в Alt-F7.
-  02.03.2002 SVS
-    ! Подготовим "полный прямоугольник" - SetScreen
-  09.11.2001 IS
-    ! Вместо явно прописанных фигурных скобок для обозначения границ длинных
-      имен файлов используем данные из lng.
-  01.10.2001 IS
-    ! демонстрация функции TruncStrFromEnd
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  05.09.2001 SVS
-    ! Немного оптимизации ;-)
-    ! Вместо полей Color* в структе FileListItem используется
-      структура HighlightDataColor
-  23.08.2001 VVM
-    ! Убран один лишний вызов. Остаток от предыдущего патча.
-  01.08.2001 VVM
-    + TotalStr в панели обрезается справа, а не слева
-  17.06.2001 SVS
-    ! MListSymLink & MListFolder
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  22.05.2001 tran
-    ! по результам прогона на CodeGuard
-  22.05.201 OT
-    - Баг с определением, режиме панели -  на весь экран, или только на половину :)
-  16.05.2001 SVS
-    ! _D() -> _OT()  ;-)
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  20.03.2001 SVS
-    ! подсократим - весь код по форматированию размера файла из
-      FileList::ShowList() вынесен в отдельную функцию - FileSizeToStr()
-      (strmix.cpp).
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  16.02.2001 OT
-    - БАГА при очень широком столбце в панели
-  14.01.2001 SVS
-    ! 'P' - обозначающий reparse point заменен на 'L'
-  20.10.2000 SVS
-    + Добавлен Encrypted
-      Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.70 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -171,8 +25,8 @@ extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
 //static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
-static BYTE VerticalLine[2]={0x0B3,0x0BA};
-static char OutCharacter[2]={0,0};
+static BYTE VerticalLineEx[2]={0x0B3,0x0BA};
+static wchar_t OutCharacter[2]={0,0};
 
 static int __FormatEndSelectedPhrase(int Count)
 {
@@ -207,15 +61,14 @@ void FileList::DisplayObject()
 
 void FileList::ShowFileList(int Fast)
 {
-  if ( Locked () )
+  if ( Locked() )
   {
     CorrectPosition();
     return;
   }
-
-  char Title[NM];
+  string strTitle;
   int Length;
-  struct OpenPluginInfo Info;
+  struct OpenPluginInfoW Info;
 
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -234,7 +87,7 @@ void FileList::ShowFileList(int Fast)
     CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   }
 
-  SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
+  SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   if (Opt.ShowColumnTitles)
   {
@@ -249,7 +102,7 @@ void FileList::ShowFileList(int Fast)
       continue;
     if (Opt.ShowColumnTitles)
     {
-      char *Title="";
+      string strTitle;
       int IDMessage=-1;
       switch(ViewSettings.ColumnType[I] & 0xff)
       {
@@ -291,21 +144,21 @@ void FileList::ShowFileList(int Fast)
           break;
       }
       if(IDMessage != -1)
-        Title=MSG(IDMessage);
+        strTitle=UMSG(IDMessage);
 
       if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray!=NULL &&
           ViewMode<Info.PanelModesNumber &&
           Info.PanelModesArray[ViewMode].ColumnTitles!=NULL)
       {
-        char *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
+        wchar_t *NewTitle=Info.PanelModesArray[ViewMode].ColumnTitles[I];
         if (NewTitle!=NULL)
-          Title=NewTitle;
+          strTitle=NewTitle;
       }
-      char TitleMsg[256];
-      CenterStr(Title,TitleMsg,ViewSettings.ColumnWidth[I]);
+      string strTitleMsg;
+      CenterStrW(strTitle,strTitleMsg,ViewSettings.ColumnWidth[I]);
       SetColor(COL_PANELCOLUMNTITLE);
       GotoXY(ColumnPos,Y1+1);
-      mprintf("%.*s",ViewSettings.ColumnWidth[I],TitleMsg);
+      mprintfW(L"%.*s",ViewSettings.ColumnWidth[I],(const wchar_t*)strTitleMsg);
     }
     if (I>=ViewSettings.ColumnCount-1)
       break;
@@ -318,7 +171,7 @@ void FileList::ShowFileList(int Fast)
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
-      BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0]));
+      BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[0]-0x0B0]:VerticalLineEx[0]));
     }
     if (!Opt.ShowPanelStatus)
     {
@@ -341,8 +194,8 @@ void FileList::ShowFileList(int Fast)
     {
       if (SortModes[I]==SortMode)
       {
-        char *SortStr=MSG(SortStrings[I]);
-        char *Ch=strchr(SortStr,'&');
+        const wchar_t *SortStr=UMSG(SortStrings[I]);
+        wchar_t *Ch=wcschr(SortStr,L'&');
         if (Ch!=NULL)
         {
           if (Opt.ShowColumnTitles)
@@ -350,28 +203,32 @@ void FileList::ShowFileList(int Fast)
           else
             GotoXY(X1+1,Y1);
           SetColor(COL_PANELCOLUMNTITLE);
-          OutCharacter[0]=SortOrder==1 ? LocalLower(Ch[1]):LocalUpper(Ch[1]);
-          Text(OutCharacter);
+          OutCharacter[0]=SortOrder==1 ? LocalLowerW(Ch[1]):LocalUpperW(Ch[1]);
+          TextW(OutCharacter);
           if (Filter!=NULL && Filter->IsEnabled())
           {
-            OutCharacter[0]='*';
-            Text(OutCharacter);
+            OutCharacter[0]=L'*';
+            TextW(OutCharacter);
           }
         }
         break;
       }
     }
   }
-#if 0
+
   if(SelectedFirst)
   {
-    OutCharacter[0]='^';
-    Text(OutCharacter);
+    OutCharacter[0]=L'^';
+    TextW(OutCharacter);
   }
-#endif
+
   if (!Fast && GetFocus())
   {
-    CtrlObject->CmdLine->SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);
+    if ( PanelMode==PLUGIN_PANEL )
+        CtrlObject->CmdLine->SetCurDirW(Info.CurDir);
+    else
+        CtrlObject->CmdLine->SetCurDirW(strCurDir);
+
     CtrlObject->CmdLine->Show();
   }
   int TitleX2=Opt.Clock && !Opt.ShowMenuBar ? Min(ScrX-4,X2):X2;
@@ -379,9 +236,8 @@ void FileList::ShowFileList(int Fast)
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabled())
     TruncSize-=2;
 
-  GetTitle(Title,TruncSize,2);//(PanelMode==PLUGIN_PANEL?0:2));
-
-  Length=strlen(Title);
+  GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
+  Length=strTitle.GetLength();
   int ClockCorrection=FALSE;
   if ((Opt.Clock && !Opt.ShowMenuBar) && TitleX2==ScrX-4)
   {
@@ -397,29 +253,36 @@ void FileList::ShowFileList(int Fast)
   }
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
   GotoXY(TitleX,Y1);
-  Text(Title);
+  TextW(strTitle);
   if (FileCount==0)
   {
-    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
+    SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',COL_PANELTEXT);
     SetColor(COL_PANELTEXT); //???
     //GotoXY(X1+1,Y2-1);
     //mprintf("%*s",X2-X1-1,"");
   }
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
-    struct FileListItem *CurPtr=ListData+CurFile;
-    if (!TestParentFolderName(CurPtr->Name))
+    struct FileListItem *CurPtr=ListData[CurFile];
+    if (!TestParentFolderNameW(CurPtr->strName))
     {
-      strcpy(CurDir,CurPtr->Name);
-      char *NamePtr=strrchr(CurDir,'\\');
-      if (NamePtr!=NULL && NamePtr!=CurDir)
-        if (*(NamePtr-1)!=':')
+      strCurDir = CurPtr->strName;
+
+      wchar_t *NamePtr = strCurDir.GetBuffer ();
+
+      NamePtr = wcsrchr(NamePtr,L'\\');
+
+      if (NamePtr!=NULL && NamePtr!=strCurDir) //BUGBUG, bad
+        if (*(NamePtr-1)!=L':')
           *NamePtr=0;
         else
           *(NamePtr+1)=0;
+
+      strCurDir.ReleaseBuffer ();
+
       if (GetFocus())
       {
-        CtrlObject->CmdLine->SetCurDir(CurDir);
+        CtrlObject->CmdLine->SetCurDirW(strCurDir);
         CtrlObject->CmdLine->Show();
       }
     }
@@ -451,7 +314,7 @@ int FileList::GetShowColor(int Position)
 
   if (ListData && Position < FileCount)
   {
-    struct FileListItem *CurPtr=ListData+Position;
+    struct FileListItem *CurPtr=ListData[Position];
 
     if (CurFile==Position && Focus && FileCount > 0)
     {
@@ -499,7 +362,7 @@ void FileList::SetShowColor (int Position)
 void FileList::ShowSelectedSize()
 {
   int Length;
-  char SelStr[256],FormStr[20];
+  string strSelStr, strFormStr;
 
   if (Opt.ShowPanelStatus)
   {
@@ -519,131 +382,137 @@ void FileList::ShowSelectedSize()
 
   if (SelFileCount)
   {
-    InsertCommas((unsigned __int64)SelFileSize,FormStr);
-    sprintf(SelStr,MSG(__FormatEndSelectedPhrase(SelFileCount)),FormStr,SelFileCount);
+    InsertCommasW(SelFileSize,strFormStr);
+    strSelStr.Format (UMSG(__FormatEndSelectedPhrase(SelFileCount)),(const wchar_t*)strFormStr,SelFileCount);
 
-    TruncStr(SelStr,X2-X1-1);
-    Length=strlen(SelStr);
+    TruncStrW(strSelStr,X2-X1-1);
+    Length=strSelStr.GetLength();
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
-    Text(SelStr);
+    TextW(strSelStr);
   }
   else
     if (!RegVer)
     {
-      char EvalStr[256];
-      char *EvalMsg=MSG(MListEval);
+      string strEvalStr;
+      const wchar_t *EvalMsg=UMSG(MListEval);
       if (*EvalMsg==0)
-        strcpy(EvalStr," Evaluation version ");
+        strEvalStr = L" Evaluation version ";
       else
-        sprintf(EvalStr," %s ",MSG(MListEval));
-      TruncStr(EvalStr,X2-X1-1);
-      Length=strlen(EvalStr);
+        strEvalStr.Format (L" %s ",UMSG(MListEval));
+      TruncStrW(strEvalStr,X2-X1-1);
+      Length=strEvalStr.GetLength();
       SetColor(COL_PANELTEXT);
       GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
-      Text(EvalStr);
+      TextW(strEvalStr);
     }
 }
 
 
-void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
+void FileList::ShowTotalSize(struct OpenPluginInfoW &Info)
 {
   if (!Opt.ShowPanelTotals && PanelMode==PLUGIN_PANEL && (Info.Flags & OPIF_REALNAMES)==0)
     return;
-  char TotalStr[256],FormSize[20],FreeSize[20];
+  string strTotalStr, strFormSize, strFreeSize;
   int Length;
 
-  InsertCommas((unsigned __int64)TotalFileSize,FormSize);
-  *FreeSize=0;
+  InsertCommasW(TotalFileSize,strFormSize);
   if (Opt.ShowPanelFree && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
-    InsertCommas((unsigned __int64)FreeDiskSize,FreeSize);
+    InsertCommasW(FreeDiskSize,strFreeSize);
   if (Opt.ShowPanelTotals)
   {
-    if (!Opt.ShowPanelFree || *FreeSize==0)
-      sprintf(TotalStr,MSG(__FormatEndSelectedPhrase(TotalFileCount)),FormSize,TotalFileCount);
+    if (!Opt.ShowPanelFree || strFreeSize.IsEmpty())
+      strTotalStr.Format (UMSG(__FormatEndSelectedPhrase(TotalFileCount)),(const wchar_t*)strFormSize,TotalFileCount);
     else
     {
 // UNICODE!!!
-      static unsigned char DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
-      sprintf(TotalStr," %s (%d) %s %s ",FormSize,TotalFileCount,DHLine,FreeSize);
-      if ((int) strlen(TotalStr)> X2-X1-1)
+      static wchar_t DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
+      strTotalStr.Format (L" %s (%d) %s %s ",(const wchar_t*)strFormSize,TotalFileCount,DHLine,(const wchar_t*)strFreeSize);
+      if ((int)strTotalStr.GetLength()> X2-X1-1)
       {
-        InsertCommas(((unsigned __int64)FreeDiskSize)>>20,FreeSize);
-        InsertCommas(((unsigned __int64)TotalFileSize)>>20,FormSize);
-        sprintf(TotalStr," %s %s (%d) %s %s %s ",FormSize,MSG(MListMb),TotalFileCount,DHLine,FreeSize,MSG(MListMb));
+        InsertCommasW(FreeDiskSize>>20,strFreeSize);
+        InsertCommasW(TotalFileSize>>20,strFormSize);
+        strTotalStr.Format (L" %s %s (%d) %s %s %s ",(const wchar_t*)strFormSize,UMSG(MListMb),TotalFileCount,DHLine,(const wchar_t*)strFreeSize,UMSG(MListMb));
       }
     }
   }
   else
-    sprintf(TotalStr,MSG(MListFreeSize),*FreeSize ? FreeSize:"???");
+    strTotalStr.Format (UMSG(MListFreeSize), !strFreeSize.IsEmpty() ? (const wchar_t*)strFreeSize:L"???");
 
   SetColor(COL_PANELTOTALINFO);
   /* $ 01.08.2001 VVM
     + Обрезаем строчку справа, а не слева */
-  TruncStrFromEnd(TotalStr, X2-X1-1);
+  TruncStrFromEndW(strTotalStr, X2-X1-1);
   /* VVM $ */
-  Length=strlen(TotalStr);
+  Length=strTotalStr.GetLength();
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
 // UNICODE!!!
-  char *FirstBox=strchr(TotalStr,0x0CD);
-  int BoxPos=(FirstBox==NULL) ? -1:FirstBox-TotalStr;
+  wchar_t *FirstBox=wcschr(strTotalStr,0x0CD);
+  int BoxPos=(FirstBox==NULL) ? -1:FirstBox-(const wchar_t*)strTotalStr;
   int BoxLength=0;
   if (BoxPos!=-1)
 // UNICODE!!!
-    for (int I=0;TotalStr[BoxPos+I]==0x0CD;I++)
+    for (int I=0;strTotalStr.At(BoxPos+I)==0x0CD;I++) //BUGBUG
       BoxLength++;
 
   if (BoxPos==-1 || BoxLength==0)
-    Text(TotalStr);
+    TextW(strTotalStr);
   else
   {
-    mprintf("%.*s",BoxPos,TotalStr);
+    mprintfW(L"%.*s",BoxPos,(const wchar_t*)strTotalStr);
     SetColor(COL_PANELBOX);
-    mprintf("%.*s",BoxLength,TotalStr+BoxPos);
+    mprintfW(L"%.*s",BoxLength,(const wchar_t*)strTotalStr+BoxPos);
     SetColor(COL_PANELTOTALINFO);
-    Text(TotalStr+BoxPos+BoxLength);
+    TextW((const wchar_t*)strTotalStr+BoxPos+BoxLength);
   }
 }
 
-
-int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr)
+int FileList::ConvertNameW(const wchar_t *SrcName,string &strDest,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr)
 {
-  memset(DestName,' ',MaxLength);
-  int SrcLength=strlen(SrcName);
+  wchar_t *lpwszDest = strDest.GetBuffer (MaxLength+1);
+
+  wmemset(lpwszDest,L' ',MaxLength);
+
+  int SrcLength=wcslen(SrcName);
   if (RightAlign && SrcLength>MaxLength)
   {
-    memcpy(DestName,SrcName+SrcLength-MaxLength,MaxLength);
-    DestName[MaxLength]=0;
+    wmemcpy(lpwszDest,SrcName+SrcLength-MaxLength,MaxLength);
+    lpwszDest[MaxLength]=0;
+
+    strDest.ReleaseBuffer ();
     return(TRUE);
   }
-  char *DotPtr;
+  const wchar_t *DotPtr;
   if (!ShowStatus &&
       (!(FileAttr&FA_DIREC) && ViewSettings.AlignExtensions || (FileAttr&FA_DIREC) && ViewSettings.FolderAlignExtensions)
       && SrcLength<=MaxLength &&
-      (DotPtr=strrchr(SrcName,'.'))!=NULL && DotPtr!=SrcName &&
-      (SrcName[0]!='.' || SrcName[2]!=0) && strchr(DotPtr+1,' ')==NULL)
+      (DotPtr=wcsrchr(SrcName,L'.'))!=NULL && DotPtr!=SrcName &&
+      (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
   {
-    int DotLength=strlen(DotPtr+1);
+    int DotLength=wcslen(DotPtr+1);
     int NameLength=DotPtr-SrcName;
     int DotPos=MaxLength-Max(DotLength,3);
     if (DotPos<=NameLength)
       DotPos=NameLength+1;
     if (DotPos>0 && NameLength>0 && SrcName[NameLength-1]==' ')
-      DestName[NameLength]='.';
-    memcpy(DestName,SrcName,NameLength);
-    memcpy(DestName+DotPos,DotPtr+1,DotLength);
+      lpwszDest[NameLength]=L'.';
+    wmemcpy(lpwszDest,SrcName,NameLength);
+    wmemcpy(lpwszDest+DotPos,DotPtr+1,DotLength);
   }
   else
-    memcpy(DestName,SrcName,SrcLength);
-  DestName[MaxLength]=0;
+    wmemcpy(lpwszDest,SrcName,SrcLength);
+  lpwszDest[MaxLength]=0;
+
+  strDest.ReleaseBuffer ();
+
   return(SrcLength>MaxLength);
 }
 
 
-void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
+void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfoW *PlugInfo)
 {
-  struct OpenPluginInfo Info;
+  struct OpenPluginInfoW Info;
   if (PanelMode==PLUGIN_PANEL)
     if (PlugInfo==NULL)
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -839,6 +708,8 @@ extern void GetColor(int PaletteIndex);
 
 void FileList::ShowList(int ShowStatus,int StartColumn)
 {
+  string strDateStr, strTimeStr;
+
   int StatusShown=FALSE;
   int MaxLeftPos=0,MinLeftPos=FALSE;
   int ColumnCount=ShowStatus ? ViewSettings.StatusColumnCount:ViewSettings.ColumnCount;
@@ -883,13 +754,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           SetColor(COL_PANELBOX);
           GotoXY(CurX-1,CurY);
-          BoxText((WORD)(CurX-1==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[1]-0x0B0]:VerticalLine[1]):0x20));
+          BoxText((WORD)(CurX-1==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[1]-0x0B0]:VerticalLineEx[1]):0x20));
         }
         continue;
       }
       if (ListPos<FileCount)
       {
-        struct FileListItem *CurPtr=ListData+ListPos;
+        struct FileListItem *CurPtr=ListData[ListPos];
 
         if (!ShowStatus && !StatusShown && CurFile==ListPos && Opt.ShowPanelStatus)
         {
@@ -904,15 +775,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
         {
           int ColumnNumber=ColumnType-CUSTOM_COLUMN0;
-          char *ColumnData=NULL;
+          wchar_t *ColumnData=NULL;
           if (ColumnNumber<CurPtr->CustomColumnNumber)
             ColumnData=CurPtr->CustomColumnData[ColumnNumber];
           if (ColumnData==NULL)
-            ColumnData="";
+            ColumnData=L"";
           int CurLeftPos=0;
           if (!ShowStatus && LeftPos>0)
           {
-            int Length=strlen(ColumnData);
+            int Length=wcslen(ColumnData);
             if (Length>ColumnWidth)
             {
               CurLeftPos=LeftPos;
@@ -922,7 +793,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 MaxLeftPos=CurLeftPos;
             }
           }
-          mprintf("%-*.*s",ColumnWidth,ColumnWidth,ColumnData+CurLeftPos);
+          mprintfW(L"%-*.*s",ColumnWidth,ColumnWidth,ColumnData+CurLeftPos);
         }
         else
         {
@@ -930,39 +801,38 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           {
             case NAME_COLUMN:
               {
-                char NewName[NM];
                 int Width=ColumnWidth;
                 int ViewFlags=ColumnTypes[K];
                 if ((ViewFlags & COLUMN_MARK) && Width>2)
                 {
-                  static char SelectedChar[4]={0x0FB,0x20,0x00,0x00};
-                  Text(CurPtr->Selected ? SelectedChar:"  ");
+                  static wchar_t SelectedChar[4]={0x0FB,0x20,0x00,0x00};
+                  TextW(CurPtr->Selected ? SelectedChar:L"  ");
                   Width-=2;
                 }
                 if (CurPtr->Colors.MarkChar && Opt.Highlight && Width>1)
                 {
                   Width--;
                   OutCharacter[0]=CurPtr->Colors.MarkChar;
-                  Text(OutCharacter);
+                  TextW(OutCharacter);
                 }
-                char *NamePtr=ShowShortNames && *CurPtr->ShortName && !ShowStatus ?
-                              CurPtr->ShortName:CurPtr->Name;
+
+                const wchar_t *NamePtr = ShowShortNames && !CurPtr->strShortName.IsEmpty () && !ShowStatus ? CurPtr->strShortName:CurPtr->strName;
+                const wchar_t *NameCopy = NamePtr;
 
                 if (ViewFlags & COLUMN_NAMEONLY)
                 {
+                    //BUGBUG!!!
                   // !!! НЕ УВЕРЕН, но то, что отображается пустое
                   // пространство вместо названия - бага
-                  NamePtr=PointToFolderNameIfFolder(NamePtr);
+                  NamePtr=PointToFolderNameIfFolderW (NamePtr);
                 }
-
-                char *SrcNamePtr=NamePtr;
 
                 int CurLeftPos=0;
                 int RightAlign=(ViewFlags & COLUMN_RIGHTALIGN);
                 int LeftBracket=FALSE,RightBracket=FALSE;
                 if (!ShowStatus && LeftPos!=0)
                 {
-                  int Length=strlen(NamePtr);
+                  int Length = wcslen (NamePtr);
                   if (Length>Width)
                   {
                     if (LeftPos>0)
@@ -972,7 +842,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                         CurLeftPos=LeftPos;
                         if (Length-CurLeftPos<Width)
                           CurLeftPos=Length-Width;
-                        NamePtr+=CurLeftPos;
+
+                        NamePtr += CurLeftPos;
+
                         if (CurLeftPos>MaxLeftPos)
                           MaxLeftPos=CurLeftPos;
                       }
@@ -985,7 +857,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                           CurRightPos=Width-Length;
                         else
                           RightBracket=TRUE;
-                        NamePtr+=Length+CurRightPos-Width;
+
+                        NamePtr += Length+CurRightPos-Width;
+
                         RightAlign=FALSE;
                         if (CurRightPos<MinLeftPos)
                           MinLeftPos=CurRightPos;
@@ -993,9 +867,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   }
                 }
 
-                int TooLong=ConvertName(NamePtr,NewName,
-                             Min((int)Width,(int)sizeof(NewName)-1), // BugZ#997 - падение FAR при большом выставлении высоты буфера экрана
-                             RightAlign,ShowStatus,CurPtr->FileAttr);
+                string strName;
+
+                int TooLong=ConvertNameW(NamePtr, strName, Width, RightAlign,ShowStatus,CurPtr->FileAttr);
 
                 if (CurLeftPos!=0)
                   LeftBracket=TRUE;
@@ -1003,25 +877,22 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   if (RightAlign)
                     LeftBracket=TRUE;
-                  if (!RightAlign && (int) strlen(NamePtr)>Width)
+                  if (!RightAlign && wcslen(NamePtr)>static_cast<size_t>(Width))
                     RightBracket=TRUE;
                 }
 
                 if (!ShowStatus)
                 {
                   if (!ShowShortNames && ViewSettings.FileUpperToLowerCase)
-                    if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(SrcNamePtr))
-                      LocalStrlwr(NewName);
+                    if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixedW(NameCopy))
+                      strName.Lower ();
                   if ((ShowShortNames || ViewSettings.FolderUpperCase) && (CurPtr->FileAttr & FA_DIREC))
-                    LocalStrupr(NewName);
+                    strName.Upper ();
                   if ((ShowShortNames || ViewSettings.FileLowerCase) && (CurPtr->FileAttr & FA_DIREC)==0)
-                    LocalStrlwr(NewName);
+                    strName.Lower ();
                 }
-                Text(NewName);
+                TextW (strName);
                 int NameX=WhereX();
-                /* $ 09.11.2001 IS
-                     вместо фигурных скобок используем данные из lng
-                */
 
                 if ( !ShowStatus )
                 {
@@ -1032,7 +903,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                     if ( Level == 1 )
                       SetColor (COL_PANELBOX);
 
-                    Text(openBracket);
+                    TextW(openBracket);
 
                     SetShowColor(J);
                   }
@@ -1043,7 +914,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       SetColor(COL_PANELBOX);
 
                     GotoXY(NameX,CurY);
-                    Text(closeBracket);
+                    TextW(closeBracket);
                     ShowDivider=FALSE;
 
                     if ( Level == ColumnsInGlobal )
@@ -1052,58 +923,57 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       SetShowColor(J);
                   }
                 }
-                /* IS $ */
               }
               break;
             case SIZE_COLUMN:
             case PACKED_COLUMN:
               {
                 int Packed=(ColumnType==PACKED_COLUMN);
-                char Str[100];
+                string strStr;
                 int Width=ColumnWidth;
                 if (CurPtr->ShowFolderSize==2)
                 {
                   Width--;
-                  Text("~");
+                  TextW(L"~");
                 }
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
-                  char *PtrName;
-                  if (TestParentFolderName(CurPtr->Name))
-                    PtrName=MSG(MListUp);
+                  wchar_t *PtrName;
+                  if (TestParentFolderNameW(CurPtr->strName))
+                    PtrName=UMSG(MListUp);
                   else
-                    PtrName=MSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
+                    PtrName=UMSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
 
-                  if (strlen(PtrName) <= static_cast<size_t>(Width-2))
-                    sprintf(Str,"<%.*s>",sizeof(Str)-3,PtrName);
+                  if (wcslen(PtrName) <= static_cast<size_t>(Width-2))
+                    strStr.Format (L"<%s>", PtrName);
                   else
-                    xstrncpy(Str,PtrName,sizeof(Str)-1);
+                    strStr = PtrName;
 
-                  mprintf("%*.*s",Width,Width,Str);
+                  mprintfW(L"%*.*s",Width,Width, (const wchar_t*)strStr);
                 }
                 else
                 {
-                  char OutStr[64];
+                  string strOutStr;
                   // подсократим - весь код по форматированию размера
                   //   в отдельную функцию - FileSizeToStr().
-                  mprintf("%s",FileSizeToStr(OutStr,
-                           Packed?MKUINT64(CurPtr->PackSizeHigh,CurPtr->PackSize):MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize),
+                  mprintfW(L"%s", (const wchar_t*)FileSizeToStrW(strOutStr,
+                           Packed?CurPtr->PackSize:CurPtr->UnpSize,
                            Width,ColumnTypes[K]));
                 }
               }
               break;
             case DATE_COLUMN:
               {
-                char OutStr[30];
-                ConvertDate(CurPtr->WriteTime,OutStr,NULL,0,FALSE,FALSE,ColumnWidth>9);
-                mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
+                string strOutStr;
+                ConvertDateW(CurPtr->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
+                mprintfW(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strDateStr);
               }
               break;
             case TIME_COLUMN:
               {
-                char OutStr[30];
-                ConvertDate(CurPtr->WriteTime,NULL,OutStr,ColumnWidth);
-                mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
+                string strOutStr;
+                ConvertDateW(CurPtr->WriteTime,strDateStr,strTimeStr,ColumnWidth);
+                mprintfW(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strTimeStr);
               }
               break;
             case MDATE_COLUMN:
@@ -1133,31 +1003,28 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       CmpWidth==19 || CmpWidth>21)
                     FullYear=TRUE;
                 }
-                char DateStr[30],TimeStr[30],OutStr[30];
-                ConvertDate(*FileTime,DateStr,TimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
-                sprintf(OutStr,"%s %s",DateStr,TimeStr);
-                mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
+                string strDateStr, strTimeStr, strOutStr;
+                ConvertDateW(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
+                strOutStr.Format (L"%s %s", (const wchar_t*)strDateStr, (const wchar_t*)strTimeStr);
+                mprintfW(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strOutStr);
               }
               break;
             case ATTR_COLUMN:
               {
-                char OutStr[16];
+                wchar_t OutStr[16];
                 DWORD FileAttr=CurPtr->FileAttr;
-                //
-                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
-                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
-                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
-                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
-                OutStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':' ');
+                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L' ';
+                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L' ';
+                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L' ';
+                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L' ';
+                OutStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L' ');
                 // $ 20.10.2000 SVS - Encrypted NTFS/Win2K - Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
-                OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
-                OutStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':' ';
-                OutStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':' ';
+                OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
+                OutStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L' ';
+                OutStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L' ';
                 OutStr[8]=0;
-                char *OutPtr=OutStr;
-                //if (ColumnWidth<7)
-                //  OutPtr=OutStr+7-ColumnWidth;
-                mprintf("%*.*s",ColumnWidth,ColumnWidth,OutPtr);
+                wchar_t *OutPtr=OutStr;
+                mprintfW(L"%*.*s",ColumnWidth,ColumnWidth,OutPtr);
               }
               break;
             case DIZ_COLUMN:
@@ -1165,7 +1032,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=CurPtr->DizText ? strlen(CurPtr->DizText):0;
+                  int Length=CurPtr->DizText ? wcslen(CurPtr->DizText):0;
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1175,13 +1042,18 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       MaxLeftPos=CurLeftPos;
                   }
                 }
-                char DizText[1024];
-                xstrncpy(DizText,CurPtr->DizText ? CurPtr->DizText+CurLeftPos:"",sizeof(DizText)-1);
-                DizText[sizeof(DizText)-1]=0;
-                char *DizEnd=strchr(DizText,'\4');
+                string strDizText;
+                strDizText = CurPtr->DizText ? CurPtr->DizText+CurLeftPos:L"";
+
+                wchar_t *DizEnd=strDizText.GetBuffer ();
+
+                DizEnd = wcschr(DizEnd,L'\4');
                 if (DizEnd!=NULL)
                   *DizEnd=0;
-                mprintf("%-*.*s",ColumnWidth,ColumnWidth,DizText);
+
+                strDizText.ReleaseBuffer();
+
+                mprintfW(L"%-*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strDizText);
               }
               break;
             case OWNER_COLUMN:
@@ -1189,7 +1061,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=strlen(CurPtr->Owner);
+                  int Length=CurPtr->strOwner.GetLength();
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1199,7 +1071,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       MaxLeftPos=CurLeftPos;
                   }
                 }
-                mprintf("%-*.*s",ColumnWidth,ColumnWidth,CurPtr->Owner+CurLeftPos);
+                mprintfW(L"%-*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)CurPtr->strOwner+CurLeftPos);
               }
               break;
             case NUMLINK_COLUMN:
@@ -1212,7 +1084,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         }
       }
       else
-        mprintf("%*s",ColumnWidth,"");
+        mprintfW(L"%*s",ColumnWidth,L"");
 
       if (ShowDivider==FALSE)
         GotoXY(CurX+ColumnWidth+1,CurY);
@@ -1232,9 +1104,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         GotoXY(CurX+ColumnWidth,CurY);
 
         if (K==ColumnCount-1)
-          BoxText((WORD)(CurX+ColumnWidth==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[1]-0x0B0]:VerticalLine[1]):0x20));
+          BoxText((WORD)(CurX+ColumnWidth==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[1]-0x0B0]:VerticalLineEx[1]):0x20));
         else
-          BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0])));
+          BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[0]-0x0B0]:VerticalLineEx[0])));
 
         if ( !ShowStatus )
                 SetColor (COL_PANELTEXT);
@@ -1255,12 +1127,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
     if ((!ShowStatus || StatusLine) && WhereX()<X2)
     {
       SetColor(COL_PANELTEXT);
-      mprintf("%*s",X2-WhereX(),"");
+      mprintfW(L"%*s",X2-WhereX(),L"");
     }
   }
   if (!ShowStatus && !StatusShown && Opt.ShowPanelStatus)
   {
-    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
+    SetScreen(X1+1,Y2-1,X2-1,Y2-1,L' ',COL_PANELTEXT);
     SetColor(COL_PANELTEXT); //???
     //GotoXY(X1+1,Y2-1);
     //mprintf("%*s",X2-X1-1,"");

@@ -5,198 +5,7 @@ delete.cpp
 
 */
 
-/* Revision: 1.76 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  13.04.2006 SVS
-    ! Изменен текст текст диалогов для уничтожения файлов (Alt-Del)
-  22.12.2005 SVS
-    + вызов хелпа для диалога удаления
-  29.09.2005 SVS
-    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  20.06.2005 SVS
-    - лишний вызов ScTree.SkipDir(), подробнее see 02002.Delete.txt
-  12.05.2005 SVS
-    ! уберем лишний вызов FAR_GetDriveType
-  26.02.2005 WARP
-    - Запускатор отдавал удалятору имена в кавычках. Научил удалятор Unquote'у.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  14.04.2004 SVS
-    ! Добавим соответствующее сообщение для Alt-Del на файле, имеющем несколько жестких связей
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  15.10.2003 SVS
-    ! Изменение в подстановке - SE_ERR_DLLNOTFOUND имеет не ERROR_FILE_NOT_FOUND но ERROR_SHARING_VIOLATION
-    + Сохраним первый вариант кода возврата SHFileOperation() и именно его выдадим за результаты,
-      потому, как второй вызов SHFileOperation() возвращает 0x402 - ху из?
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  10.06.2003 SVS
-    - Для вложенных симлинков - получали ругань на отсутствие каталога
-  01.06.2003 SVS
-    ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
-  21.04.2003 SVS
-    + Opt.DelThreadPriority
-    ! Исключим лишние телодвижения, если LastError входит в диапазон
-      ошибок, определенных в функции: CheckErrorForProcessed
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  10.02.2003 SVS
-    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
-  26.01.2003 IS
-    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать для удаления
-      соответственно файлов и каталогов.
-    ! В RemoveToRecycleBin используем механизм FAR_DeleteFile, который
-      задействуем только после неудачи удаления файла штатным образом
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-    ! немного const
-  19.01.2003 KM
-    ! Достало. При удалении большой кучи файлов постоянно
-      жать Skip на залоченных файлах.
-  17.01.2003 VVM
-    ! При удалении первый файл рисовать всегда, а уже потом раз в секунду.
-  05.01.2003 VVM
-    ! Показывать сообщения об удалении не чаще чем раз в секунду.
-  05.12.2002 SVS
-    ! Как задел на будущее (про BugZ#702) - подсуетимся и прорисуем месагбокс
-  18.06.2002 SVS
-    ! Функция IsFolderNotEmpty переименована в CheckFolder
-  30.05.2002 SVS
-    ! ShellDeleteUpdatePanels -> ShellUpdatePanels, and...
-    ! ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
-      в самостоятельные функции в mix.cpp
-  14.05.2002 VVM
-    ! Подкорректируем механизм обновления соседней панели
-  26.04.2002 SVS
-    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
-  27.03.2002 SVS
-    + Уточнение типа ошибки (MErrorFullPathNameLong) для больших размеров
-      имен.
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  22.03.2002 SVS
-    ! переезд DeleteFileWithFolder(), DeleteDirTree() из mix.cpp в
-      delete.cpp ибо здесь им место.
-  18.03.2002 SVS
-    - "Broke link" - изменялась пассивная панель (когда ее не просили)
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  22.02.2002 SVS
-    - Bug in panels refreshing after cancelling directory delete
-  13.02.2002 SVS
-    ! Уборка варнингов
-  24.01.2002 VVM
-    ! При удалении в корзину и обломе - сказать об этом под НТ
-  19.01.2002 VVM
-    ! bug#253 - сначала спросим, а уж потом выставим функцию для сообщений SetPreredrawFunc()
-  15.01.2002 SVS
-    - Бага - при удалении каталога не учитывался факт того, что на
-      противоположной подкаталог удаляемого каталога, а ФАР перед этим просил
-      OS следить за этим подкаталогом.
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  08.11.2001 SVS
-    ! Уточнение ширины - прагала падлюка.
-  06.11.2001 SVS
-    ! Ширина месага при удалении файлов и выставлении атрибутов динамически
-      меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
-  24.10.2001 SVS
-    - Уберем флаг MSG_KEEPBACKGROUND для месага.
-  23.10.2001 SVS
-    ! немного уточнений по поводу вывода текущего обрабатываемого файла
-  22.10.2001 SVS
-    - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
-      погашена - остается кусок месагбокса)
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  01.10.2001 IS
-    ! перерисовка панелей после операции удаления, чтобы убрать все ошметки от
-      сообщений
-  26.09.2001 SVS
-    + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
-      панель (если ее содержимое не равно активной).
-  25.07.2001 IS
-    ! При удалении размер сообщения такой же как и раньше (до 820).
-  19.07.2001 SVS
-    ! отмена 826-го до лучших времен (по просьбе VVM)
-  18.07.2001 VVM
-    ! При удалении выравниваем не по ширине экрана, а по длине надписи MDeleting + 8
-  13.07.2001 SVS
-    - "Гадим в память" ;-(
-  13.07.2001 IS
-    ! Приводим сообщения, содержащие имя удаляемого файла, в божеский вид при
-      помощи TruncPathStr
-  11.07.2001 OT
-    Перенос CtrlAltShift в Manager
-  09.07.2001 SVS
-    ! Небольшой антураж вокруг имени удаляемого файла.
-  19.06.2001 SVS
-    ! Удаление в корзину только для  FIXED-дисков
-  06.06.2001 SVS
-    ! Mix/Max
-  31.05.2001 OT
-    - Отрисовка MessageBox во время удаления.
-  31.05.2001 SVS
-    - не обновлялась панель после операции Unlink
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  24.04.2001 SVS
-    ! для symlink`а не нужно дополниетльное подтверждение на удаление
-  14.03.2001 SVS
-    - Неверный анализ кода возврата функции SHFileOperation(),
-      коей файл удаляется в корзину.
-  13.03.2001 SVS
-    + Обработка "удаления" линков - Part I
-  13.03.2001 SVS
-    - удаление симлинка в корзину чревато потерей оригинала!!!!!!
-  12.03.2001 SVS
-    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
-  12.03.2001 SVS
-    + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
-  07.03.2001 SVS
-    - Падение ФАРа у Веши :-)))
-  05.01.2001 SVS
-    ! в зависимости от числа ставим нужное окончание для удаления
-  05.01.2001 IS
-    ! Косметика в сообщениях - разные сообщения в зависимости от того,
-      какие и сколько элементов выделено.
-  28.11.2000 SVS
-    + Обеспечим корректную работу с SymLink (т.н. "Directory Junctions")
-  11.11.2000 SVS
-    ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
-    - исправлен небольшой баг в функциях Wipe*
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.86 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -216,14 +25,14 @@ Modify:
 #include "constitle.hpp"
 #include "fn.hpp"
 
-static void ShellDeleteMsg(const char *Name,int Wipe);
-static int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe);
-static int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe);
-static int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe);
-static int RemoveToRecycleBin(const char *Name);
-static int WipeFile(const char *Name);
-static int WipeDirectory(const char *Name);
-static void PR_ShellDeleteMsg(void);
+static void ShellDeleteMsgW(const wchar_t *Name,int Wipe);
+static int AskDeleteReadOnlyW(const wchar_t *Name,DWORD Attr,int Wipe);
+static int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
+static int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
+static int RemoveToRecycleBinW(const wchar_t *Name);
+static int WipeFileW(const wchar_t *Name);
+static int WipeDirectoryW(const wchar_t *Name);
+static void PR_ShellDeleteMsgW(void);
 
 static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
 static clock_t DeleteStartTime;
@@ -233,9 +42,12 @@ enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
   ChangePriority ChPriority(Opt.DelThreadPriority);
-  WIN32_FIND_DATA FindData;
-  char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
-  char FullName[2058];
+  FAR_FIND_DATA_EX FindData;
+  string strDeleteFilesMsg;
+  string strSelName;
+  string strSelShortName;
+  string strDizName;
+  string strFullName;
   int SelCount,FileAttr,UpdateDiz;
   int DizPresent;
   int Ret;
@@ -260,28 +72,28 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   // Удаление в корзину только для  FIXED-дисков
   {
-    char Root[1024];
+    string strRoot;
 //    char FSysNameSrc[NM];
-    SrcPanel->GetSelName(NULL,FileAttr);
-    SrcPanel->GetSelName(SelName,FileAttr);
-    ConvertNameToFull(SelName,Root, sizeof(Root));
-    GetPathRoot(Root,Root);
+    SrcPanel->GetSelNameW(NULL,FileAttr);
+    SrcPanel->GetSelNameW(&strSelName,FileAttr);
+    ConvertNameToFullW(strSelName, strRoot);
+    GetPathRootW(strRoot,strRoot);
 //_SVS(SysLog("Del: SelName='%s' Root='%s'",SelName,Root));
-    if(Opt.DeleteToRecycleBin && FAR_GetDriveType(Root) != DRIVE_FIXED)
+    if(Opt.DeleteToRecycleBin && FAR_GetDriveTypeW(strRoot) != DRIVE_FIXED)
       Opt.DeleteToRecycleBin=0;
   }
 
   if (SelCount==1)
   {
-    SrcPanel->GetSelName(NULL,FileAttr);
-    SrcPanel->GetSelName(SelName,FileAttr);
-    if (TestParentFolderName(SelName) || *SelName==0)
+    SrcPanel->GetSelNameW(NULL,FileAttr);
+    SrcPanel->GetSelNameW(&strSelName,FileAttr);
+    if (TestParentFolderNameW(strSelName) || strSelName.IsEmpty() )
     {
       NeedUpdate=FALSE;
       goto done;
     }
-    strcpy(DeleteFilesMsg,SelName);
-    TruncPathStr(DeleteFilesMsg,Min((int)sizeof(DeleteFilesMsg),ScrX-16));
+    strDeleteFilesMsg = strSelName;
+    TruncPathStrW(strDeleteFilesMsg, ScrX-16);
   }
   else
   /* $ 05.01.2001 SVS
@@ -290,20 +102,21 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   /* $ 05.01.2001 IS
   Вместо "файлов" пишем нейтральное - "элементов"
   */
-    char *Ends;
-    char StrItems[16];
-    itoa(SelCount,StrItems,10);
-    int LenItems=strlen(StrItems);
-    if((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
-           StrItems[LenItems-1] >= '5' ||
-           StrItems[LenItems-1] == '0')
-      Ends=MSG(MAskDeleteItemsS);
-    else if(StrItems[LenItems-1] == '1')
-      Ends=MSG(MAskDeleteItems0);
+    wchar_t *Ends;
+    wchar_t StrItems[16];
+    _itow(SelCount,StrItems,10);
+    int LenItems=wcslen(StrItems);
+    if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
+           StrItems[LenItems-1] >= L'5' ||
+           StrItems[LenItems-1] == L'0')
+      Ends=UMSG(MAskDeleteItemsS);
+    else if(StrItems[LenItems-1] == L'1')
+      Ends=UMSG(MAskDeleteItems0);
     else
-      Ends=MSG(MAskDeleteItemsA);
-    sprintf(DeleteFilesMsg,MSG(MAskDeleteItems),SelCount,Ends);
-  /* IS $ */
+      Ends=UMSG(MAskDeleteItemsA);
+
+
+    strDeleteFilesMsg.Format (UMSG(MAskDeleteItems),SelCount,Ends);
   }
   /* SVS $ */
   Ret=1;
@@ -313,29 +126,31 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   */
   if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
   {
-    char JuncName[1024];
-    ConvertNameToFull(SelName,JuncName, sizeof(JuncName));
-    if(GetJunctionPointInfo(JuncName,JuncName,sizeof(JuncName))) // ? SelName ?
-    {
-      TruncPathStr(JuncName+4,sizeof(JuncName)-4);
+    string strJuncName;
+    ConvertNameToFullW(strSelName,strJuncName);
 
-      //SetMessageHelp("DeleteLink");
-      Ret=Message(0,3,MSG(MDeleteLinkTitle),
-                DeleteFilesMsg,
-                MSG(MAskDeleteLink),
-                JuncName+4,
-                MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
+    if(GetJunctionPointInfoW(strJuncName, strJuncName)) // ? SelName ?
+    {
+      strJuncName.LShift(4);
+      //TruncPathStr(strJuncName, strJuncName.GetLength()-4); //
+
+      //SetMessageHelp(L"DeleteLink");
+      Ret=MessageW(0,3,UMSG(MDeleteLinkTitle),
+                strDeleteFilesMsg,
+                UMSG(MAskDeleteLink),
+                strJuncName,
+                UMSG(MDeleteLinkDelete),UMSG(MDeleteLinkUnlink),UMSG(MCancel));
 
       if(Ret == 1)
       {
-        ConvertNameToFull(SelName, JuncName, sizeof(JuncName));
+        ConvertNameToFullW(strSelName, strJuncName);
         if(Opt.Confirm.Delete)
         {
           ; //  ;-%
         }
-        if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) != -1) //JuncName?
+        if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) != -1) //JuncName?
         {
-          DeleteJunctionPoint(JuncName);
+          DeleteJunctionPointW(strJuncName);
           ShellUpdatePanels(SrcPanel,NeedSetUpADir);
         }
         goto done;
@@ -348,8 +163,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC)))
   {
-    char *DelMsg;
-    char *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
+    const wchar_t *DelMsg;
+    const wchar_t *TitleMsg=UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
     /* $ 05.01.2001 IS
        ! Косметика в сообщениях - разные сообщения в зависимости от того,
          какие и сколько элементов выделено.
@@ -359,31 +174,31 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if (SelCount==1)
     {
       if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-      {
-        DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
-        TitleMsg=MSG(MDeleteWipeTitle);
-      }
+        DelMsg=UMSG(folder?MAskWipeFolder:MAskWipeFile);
       else
       {
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-          DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
+          DelMsg=UMSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
         else
-          DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
+          DelMsg=UMSG(folder?MAskDeleteFolder:MAskDeleteFile);
       }
     }
     else
     {
       if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-        DelMsg=MSG(MAskWipe);
+      {
+        DelMsg=UMSG(MAskWipe);
+        TitleMsg=UMSG(MDeleteWipeTitle);
+      }
       else
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-          DelMsg=MSG(MAskDeleteRecycle);
+          DelMsg=UMSG(MAskDeleteRecycle);
         else
-          DelMsg=MSG(MAskDelete);
+          DelMsg=UMSG(MAskDelete);
     }
     /* IS $ */
-    SetMessageHelp("DeleteFile");
-    if (Message(0,2,TitleMsg,DelMsg,DeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel))!=0)
+    SetMessageHelp(L"DeleteFile");
+    if (MessageW(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,UMSG(Wipe?MDeleteWipe:MDelete),UMSG(MCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
@@ -394,44 +209,44 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    SetMessageHelp("DeleteFile");
-    if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
-                DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
+    SetMessageHelp(L"DeleteFile");
+    if (MessageW(MSG_WARNING,2,UMSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),UMSG(Wipe?MAskWipe:MAskDelete),
+                strDeleteFilesMsg,UMSG(MDeleteFileAll),UMSG(MDeleteFileCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
     }
-    SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("",Wipe);
+    SetPreRedrawFunc(PR_ShellDeleteMsgW);
+    ShellDeleteMsgW(L"",Wipe);
   }
 
   if (UpdateDiz)
     SrcPanel->ReadDiz();
 
-  SrcPanel->GetDizName(DizName);
-  DizPresent=(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF);
+  SrcPanel->GetDizName(strDizName);
+  DizPresent=( !strDizName.IsEmpty() && GetFileAttributesW(strDizName)!=0xFFFFFFFF);
 
-  DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
+  DeleteTitle = new ConsoleTitle(UMSG(MDeletingTitle));
 
-  if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) == -1)
+  if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
     goto done;
 
   if (SrcPanel->GetType()==TREE_PANEL)
-    FarChDir("\\");
+    FarChDirW(L"\\");
 
   {
     int Cancel=0;
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("",Wipe);
+    SetPreRedrawFunc(PR_ShellDeleteMsgW);
+    ShellDeleteMsgW(L"",Wipe);
 
     ReadOnlyDeleteMode=-1;
     SkipMode=-1;
     SkipFoldersMode=-1;
 
-    SrcPanel->GetSelName(NULL,FileAttr);
-    while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName) && !Cancel)
+    SrcPanel->GetSelNameW(NULL,FileAttr);
+    while (SrcPanel->GetSelNameW(&strSelName,FileAttr,&strSelShortName) && !Cancel)
     {
       if(CheckForEscSilent())
       {
@@ -440,33 +255,30 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           break;
       }
 
-      int Length=strlen(SelName);
-      if (Length==0 || SelName[0]=='\\' && Length<2 ||
-          SelName[1]==':' && Length<4)
+      int Length=strSelName.GetLength();
+      if (Length==0 || strSelName.At(0)==L'\\' && Length<2 ||
+          strSelName.At(1)==L':' && Length<4)
         continue;
       if (FileAttr & FA_DIREC)
       {
         if (!DeleteAllFolders)
         {
-          if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
-            goto done;
+          ConvertNameToFullW(strSelName, strFullName);
 
-          if (CheckFolder(FullName) == CHKFLD_NOTEMPTY)
+          if (CheckFolderW(strFullName) == CHKFLD_NOTEMPTY)
           {
             int MsgCode=0;
             /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-            char MsgFullName[NM];
-            xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
-            TruncPathStr(MsgFullName, ScrX-16);
+            string strMsgFullName;
+
+            strMsgFullName = strFullName;
+            TruncPathStrW(strMsgFullName, ScrX-16);
             // для symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-            {
-              //SetMessageHelp("DeleteFile");
-              MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                  MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),MsgFullName,
-                    MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-                    MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
-            }
+               MsgCode=MessageW(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                  UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
+                    UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
+                    UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
             /* IS $ */
             if (MsgCode<0 || MsgCode==3)
             {
@@ -483,10 +295,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         bool SymLink=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
         if (!SymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {
-          char FullName[NM];
-          ScanTree ScTree(TRUE,TRUE,-1,TRUE);
-          ScTree.SetFindPath(SelName,"*.*", 0);
-          while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+          string strFullName;
+          ScanTree ScTree(TRUE,TRUE);
+          ScTree.SetFindPathW(strSelName,L"*.*", 0);
+          while (ScTree.GetNextNameW(&FindData,strFullName))
           {
             if(CheckForEscSilent())
             {
@@ -497,11 +309,23 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 break;
               }
             }
-            ShellDeleteMsg(FullName,Wipe);
-            char ShortName[NM];
-            xstrncpy(ShortName,FullName,sizeof(ShortName)-1);
-            if (*FindData.cAlternateFileName)
-              strcpy(PointToName(ShortName),FindData.cAlternateFileName); //???
+            ShellDeleteMsgW(strFullName,Wipe);
+            string strShortName;
+            strShortName = strFullName;
+            if ( !FindData.strAlternateFileName.IsEmpty() )
+            {
+                wchar_t *lpwszDot = strShortName.GetBuffer();
+
+                lpwszDot = wcsrchr (lpwszDot, L'.');
+
+                if ( lpwszDot )
+                    *(lpwszDot+1) = 0;
+
+                strShortName.ReleaseBuffer ();
+
+                strShortName += FindData.strAlternateFileName; //???
+            }
+
             if (FindData.dwFileAttributes & FA_DIREC)
             {
               /* $ 28.11.2000 SVS
@@ -511,11 +335,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
-                  SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
+                  SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
                 /* $ 19.01.2003 KM
                    Обработка кода возврата из ERemoveDirectory.
                 */
-                int MsgCode=ERemoveDirectory(FullName,ShortName,Wipe);
+                int MsgCode=ERemoveDirectoryW(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
                   Cancel=1;
@@ -526,27 +350,27 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                   ScTree.SkipDir();
                   continue;
                 }
-                TreeList::DelTreeName(FullName);
+
+                TreeList::DelTreeName(strFullName);
                 if (UpdateDiz)
-                  SrcPanel->DeleteDiz(FullName,SelShortName);
+                  SrcPanel->DeleteDiz(strFullName,strSelShortName);
                 ScTree.SkipDir(); // ??? ЭТО НУЖНО ДЛЯ ТОГО, ЧТОБЫ...
                 continue;
                 /* KM $ */
               }
               /* SVS $ */
-              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(FullName) == CHKFLD_NOTEMPTY)
+              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolderW(strFullName) == CHKFLD_NOTEMPTY)
               {
                 /* $ 13.07.2001 IS
                      усекаем имя, чтоб оно поместилось в сообщение
                 */
-                char MsgFullName[NM];
-                xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
-                TruncPathStr(MsgFullName, ScrX-16);
-                //SetMessageHelp("DeleteFile");
-                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                      MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),MsgFullName,
-                      MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-                      MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+                string strMsgFullName;
+                strMsgFullName = strFullName;
+                TruncPathStrW(strMsgFullName, ScrX-16);
+                int MsgCode=MessageW(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                      UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
+                      UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
+                      UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
                 /* IS $ */
                 if (MsgCode<0 || MsgCode==3)
                 {
@@ -565,11 +389,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if (ScTree.IsDirSearchDone())
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
-                  SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
+                  SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
                 /* $ 19.01.2003 KM
                    Обработка кода возврата из ERemoveDirectory.
                 */
-                int MsgCode=ERemoveDirectory(FullName,ShortName,Wipe);
+                int MsgCode=ERemoveDirectoryW(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
                   Cancel=1;
@@ -580,20 +404,21 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                   //ScTree.SkipDir();
                   continue;
                 }
-                TreeList::DelTreeName(FullName);
+
+                TreeList::DelTreeName(strFullName);
                 /* KM $ */
               }
             }
             else
             {
-              int AskCode=AskDeleteReadOnly(FullName,FindData.dwFileAttributes,Wipe);
+              int AskCode=AskDeleteReadOnlyW(strFullName,FindData.dwFileAttributes,Wipe);
               if (AskCode==DELETE_CANCEL)
               {
                 Cancel=1;
                 break;
               }
               if (AskCode==DELETE_YES)
-                if (ShellRemoveFile(FullName,ShortName,Wipe)==DELETE_CANCEL)
+                if (ShellRemoveFileW(strFullName,strShortName,Wipe)==DELETE_CANCEL)
                 {
                   Cancel=1;
                   break;
@@ -604,9 +429,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
         if (!Cancel)
         {
-          ShellDeleteMsg(SelName,Wipe);
+          ShellDeleteMsgW(strSelName,Wipe);
           if (FileAttr & FA_RDONLY)
-            SetFileAttributes(SelName,FILE_ATTRIBUTE_NORMAL);
+            SetFileAttributesW(strSelName,FILE_ATTRIBUTE_NORMAL);
           int DeleteCode;
           // нефига здесь выделываться, а надо учесть, что удаление
           // симлинка в корзину чревато потерей оригинала.
@@ -615,30 +440,28 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             /* $ 19.01.2003 KM
                Обработка кода возврата из ERemoveDirectory.
             */
-            DeleteCode=ERemoveDirectory(SelName,SelShortName,Wipe);
+            DeleteCode=ERemoveDirectoryW(strSelName,strSelShortName,Wipe);
             if (DeleteCode==DELETE_CANCEL)
               break;
             else if (DeleteCode==DELETE_SUCCESS)
             {
-              TreeList::DelTreeName(SelName);
+              TreeList::DelTreeName(strSelName);
+
               if (UpdateDiz)
-                SrcPanel->DeleteDiz(SelName,SelShortName);
+                SrcPanel->DeleteDiz(strSelName,strSelShortName);
             }
           }
           else
           {
-            DeleteCode=RemoveToRecycleBin(SelName);
+            DeleteCode=RemoveToRecycleBinW(strSelName);
             if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-            {
-              //SetMessageHelp("DeleteFile");
-              Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-                      MSG(MCannotDeleteFolder),SelName,MSG(MOk));
-            }
+              MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
+                      UMSG(MCannotDeleteFolder),strSelName,UMSG(MOk));
             else
             {
-              TreeList::DelTreeName(SelName);
+              TreeList::DelTreeName(strSelName);
               if (UpdateDiz)
-                SrcPanel->DeleteDiz(SelName,SelShortName);
+                SrcPanel->DeleteDiz(strSelName,strSelShortName);
             }
             /* KM $ */
           }
@@ -646,15 +469,15 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       }
       else
       {
-        ShellDeleteMsg(SelName,Wipe);
-        int AskCode=AskDeleteReadOnly(SelName,FileAttr,Wipe);
+        ShellDeleteMsgW(strSelName,Wipe);
+        int AskCode=AskDeleteReadOnlyW(strSelName,FileAttr,Wipe);
         if (AskCode==DELETE_CANCEL)
           break;
         if (AskCode==DELETE_YES)
         {
-          int DeleteCode=ShellRemoveFile(SelName,SelShortName,Wipe);
+          int DeleteCode=ShellRemoveFileW(strSelName,strSelShortName,Wipe);
           if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
-            SrcPanel->DeleteDiz(SelName,SelShortName);
+            SrcPanel->DeleteDiz(strSelName,strSelShortName);
           if (DeleteCode==DELETE_CANCEL)
             break;
         }
@@ -663,7 +486,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   }
 
   if (UpdateDiz)
-    if (DizPresent==(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF))
+    if (DizPresent==( !strDizName.IsEmpty() && GetFileAttributesW(strDizName)!=0xFFFFFFFF))
       SrcPanel->FlushDiz();
 
   delete DeleteTitle;
@@ -682,46 +505,44 @@ done:
   /* IS $ */
 }
 
-static void PR_ShellDeleteMsg(void)
+static void PR_ShellDeleteMsgW(void)
 {
-  ShellDeleteMsg(static_cast<const char*>(PreRedrawParam.Param1),(int)PreRedrawParam.Param5);
+  ShellDeleteMsgW(static_cast<const wchar_t*>(PreRedrawParam.Param1),(int)PreRedrawParam.Param5);
 }
 
-void ShellDeleteMsg(const char *Name,int Wipe)
+void ShellDeleteMsgW(const wchar_t *Name,int Wipe)
 {
   static int Width=30;
   int WidthTemp;
-  char OutFileName[NM];
+  string strOutFileName;
 
   if (Name == NULL || *Name == 0 || (static_cast<DWORD>(clock() - DeleteStartTime) > Opt.ShowTimeoutDelFiles))
   {
     if(Name && *Name)
     {
       DeleteStartTime = clock();     // Первый файл рисуется всегда
-      WidthTemp=Max((int)strlen(Name),(int)30);
+      WidthTemp=Max((int)wcslen(Name),(int)30);
     }
     else
       Width=WidthTemp=30;
 
     if(WidthTemp > WidthNameForMessage)
       WidthTemp=WidthNameForMessage; // ширина месага - 38%
-    if(WidthTemp >= sizeof(OutFileName)-4)
-      WidthTemp=sizeof(OutFileName)-5;
     if(Width < WidthTemp)
       Width=WidthTemp;
 
-    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
-    TruncPathStr(OutFileName,Width);
-    CenterStr(OutFileName,OutFileName,Width+4);
+    strOutFileName = Name;
+    TruncPathStrW(strOutFileName,Width);
+    CenterStrW(strOutFileName,strOutFileName,Width+4);
 
-    Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),MSG(Wipe?MDeletingWiping:MDeleting),OutFileName);
+    MessageW(0,0,UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle),UMSG(Wipe?MDeletingWiping:MDeleting),strOutFileName);
   }
-  PreRedrawParam.Param1=static_cast<void*>(const_cast<char*>(Name));
+  PreRedrawParam.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
   PreRedrawParam.Param5=(__int64)Wipe;
 }
 
 
-int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe)
+int AskDeleteReadOnlyW(const wchar_t *Name,DWORD Attr,int Wipe)
 {
   int MsgCode;
   if ((Attr & FA_RDONLY)==0)
@@ -731,14 +552,13 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe)
   else
   {
     /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-    char MsgName[NM];
-    xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-    TruncPathStr(MsgName, ScrX-16);
-    //SetMessageHelp("DeleteFile");
-    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
-            MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-            MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
-            MSG(MDeleteFileCancel));
+    string strMsgName;
+    strMsgName = Name;
+    TruncPathStrW(strMsgName, ScrX-16);
+    MsgCode=MessageW(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),UMSG(MDeleteRO),strMsgName,
+            UMSG(Wipe?MAskWipeRO:MAskDeleteRO),UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
+            UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),
+            UMSG(MDeleteFileCancel));
     /* IS $ */
   }
   switch(MsgCode)
@@ -756,17 +576,17 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe)
     case 4:
       return(DELETE_CANCEL);
   }
-  SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+  SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
   return(DELETE_YES);
 }
 
 
 
-int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
+int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
-  char FullName[NM*2];
-  if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
-    return DELETE_CANCEL;
+  string strFullName;
+
+  ConvertNameToFullW (Name, strFullName);
 
   int MsgCode=0;
 
@@ -778,11 +598,11 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
         MsgCode=SkipMode;
       else
       {
-        if(GetNumberOfLinks(FullName) > 1)
+        if(GetNumberOfLinksW(strFullName) > 1)
         {
-          char MsgName[NM];
-          xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-          TruncPathStr(MsgName, ScrX-16);
+          string strMsgName;
+          strMsgName = Name;
+          TruncPathStrW(strMsgName, ScrX-16);
           /*
                             Файл
                          "имя файла"
@@ -790,10 +610,9 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
   Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
                         Уничтожать файл?
           */
-          // SetMessageHelp("DeleteFile");
-          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),
-                          MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
-                          MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+          MsgCode=MessageW(MSG_DOWN|MSG_WARNING,5,UMSG(MError),
+                          UMSG(MDeleteHardLink1),UMSG(MDeleteHardLink2),UMSG(MDeleteHardLink3),
+                          UMSG(MDeleteFileWipe),UMSG(MDeleteFileAll),UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
         }
 
         switch(MsgCode)
@@ -808,7 +627,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
             SkipMode=3;
             return DELETE_SKIP;
           default:
-            if (WipeFile(Name) || WipeFile(ShortName))
+            if (WipeFileW(Name) || WipeFileW(ShortName))
               return DELETE_SUCCESS;
         }
       }
@@ -825,11 +644,11 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
             break;
         }
 */
-        if (FAR_DeleteFile(Name) || FAR_DeleteFile(ShortName))
+        if (DeleteFileW(Name) || DeleteFileW(ShortName)) //BUGBUG
           break;
       }
       else
-        if (RemoveToRecycleBin(Name))
+        if (RemoveToRecycleBinW(Name))
           break;
     /* $ 19.01.2003 KM
        Добавлен Skip all
@@ -839,20 +658,13 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
     else
     {
       /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-      char MsgName[NM];
-      xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-      TruncPathStr(MsgName, ScrX-16);
-      //SetMessageHelp("DeleteFile");
-      if(strlen(FullName) > NM-1)
-      {
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
-                      MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
-                      MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-      }
-      else
-        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                      MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
-                      MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+      string strMsgName;
+      strMsgName = Name;
+      TruncPathStrW(strMsgName, ScrX-16);
+
+      MsgCode=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
+                      UMSG(MCannotDeleteFile),strMsgName,UMSG(MDeleteRetry),
+                      UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
       /* IS */
     }
     /* KM $ */
@@ -873,21 +685,21 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
 }
 
 
-int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
+int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
-  char FullName[NM*2];
-  if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
-    return DELETE_CANCEL;
+  string strFullName;
+
+  ConvertNameToFullW(Name,strFullName);
 
   while (1)
   {
     if (Wipe)
     {
-      if (WipeDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
+      if (WipeDirectoryW(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectoryW(ShortName)))
         break;
     }
     else
-      if (FAR_RemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && FAR_RemoveDirectory(ShortName)))
+      if (FAR_RemoveDirectoryW(Name) || (_localLastError != ERROR_ACCESS_DENIED && FAR_RemoveDirectoryW(ShortName)))
         break;
     /* $ 19.01.2003 KM
        Добавлен Skip и Skip all
@@ -898,22 +710,13 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
     else
     {
       /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-      char MsgName[NM];
-      xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-      TruncPathStr(MsgName, ScrX-16);
-      //SetMessageHelp("DeleteFile");
-      if(strlen(FullName) > NM-1)
-      {
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
-                  MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
-                  MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-      }
-      else
-      {
-        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                    MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
-                    MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-      }
+      string strMsgName;
+      strMsgName = Name;
+      TruncPathStrW(strMsgName, ScrX-16);
+
+      MsgCode=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
+                  UMSG(MCannotDeleteFolder),strMsgName,UMSG(MDeleteRetry),
+                  UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
     }
     /* KM $ */
     switch(MsgCode)
@@ -936,7 +739,7 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
    Неверный анализ кода возврата функции SHFileOperation(),
    коей файл удаляется в корзину.
 */
-int RemoveToRecycleBin(const char *Name)
+int RemoveToRecycleBinW(const wchar_t *Name)
 {
   static struct {
     DWORD SHError;
@@ -953,25 +756,26 @@ int RemoveToRecycleBin(const char *Name)
     {SE_ERR_NOASSOC,ERROR_BAD_COMMAND},
   };
 
-  SHFILEOPSTRUCT fop;
-  char FullName[NM+1];
-//  ConvertNameToFull(Name,FullName, sizeof(FullName));
-  if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName)){
-    return 1;
-  }
-
-  FAR_OemToChar(FullName,FullName);
-  FullName[strlen(FullName)+1]=0;
+  SHFILEOPSTRUCTW fop;
+  string strFullName;
+  ConvertNameToFullW(Name, strFullName);
 
   memset(&fop,0,sizeof(fop)); // говорят помогает :-)
+
+  wchar_t *lpwszName = strFullName.GetBuffer (strFullName.GetLength()+1);
+
+  lpwszName[wcslen(lpwszName)+1] = 0; //dirty trick to make strFullName ends with DOUBLE zero!!!
+
   fop.wFunc=FO_DELETE;
-  fop.pFrom=FullName;
+  fop.pFrom=lpwszName;
+  fop.pTo = L"\0\0";
   fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
-  SetFileApisTo(APIS2ANSI);
-  DWORD RetCode=SHFileOperation(&fop);
+  DWORD RetCode=SHFileOperationW(&fop);
   DWORD RetCode2=RetCode;
+
+  strFullName.ReleaseBuffer();
   /* $ 26.01.2003 IS
        + Если не удалось удалить объект (например, имя имеет пробел на конце)
          и это не связано с прерыванием удаления пользователем, то попробуем
@@ -984,18 +788,19 @@ int RemoveToRecycleBin(const char *Name)
   // IS: в подобной ситуации пользователь обломится, то просто поменяете 1 на 0
   #if 1
   if(RetCode && !fop.fAnyOperationsAborted &&
-     !((FullName[0]=='/' && FullName[1]=='/') || // проверим, если слеши уже
-     (FullName[0]=='\\' && FullName[1]=='\\'))   // есть, то и рыпаться не стоит
+     !((strFullName.At(0)==L'/' && strFullName.At(1)==L'/') || // проверим, если слеши уже
+     (strFullName.At(0)==L'\\' && strFullName.At(1)==L'\\'))   // есть, то и рыпаться не стоит
     )
   {
-    char FullNameAlt[sizeof(FullName)+16];
-    sprintf(FullNameAlt,"\\\\?\\%s",FullName);
-    fop.pFrom=FullNameAlt;
-    RetCode=SHFileOperation(&fop);
+    string strFullNameAlt;
+
+    strFullNameAlt.Format (L"\\\\?\\%s",(const wchar_t*)strFullName);
+
+    fop.pFrom=strFullNameAlt;
+    RetCode=SHFileOperationW(&fop);
   }
   #endif
   /* IS $ */
-  SetFileApisTo(APIS2OEM);
   if(RetCode)
   {
     for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)
@@ -1010,12 +815,12 @@ int RemoveToRecycleBin(const char *Name)
 }
 /* SVS $ */
 
-int WipeFile(const char *Name)
+int WipeFileW(const wchar_t *Name)
 {
   DWORD FileSize;
   HANDLE WipeHandle;
-  SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-  WipeHandle=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+  SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
+  WipeHandle=FAR_CreateFileW(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
   if ((FileSize=GetFileSize(WipeHandle,NULL))==0xFFFFFFFF)
@@ -1042,43 +847,54 @@ int WipeFile(const char *Name)
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);
 
-  char TempName[NM];
-  if(MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE)))
-    return(FAR_DeleteFile(TempName));
+  string strTempName;
+
+  FarMkTempExW(strTempName,NULL,FALSE);
+
+  if(MoveFileW(Name,strTempName))
+    return(DeleteFileW(strTempName)); //BUGBUG
   SetLastError((_localLastError = GetLastError()));
   return FALSE;
 }
 
 
-int WipeDirectory(const char *Name)
+int WipeDirectoryW(const wchar_t *Name)
 {
-  char TempName[NM];
-  BOOL Ret=MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
+  string strTempName;
+
+  FarMkTempExW(strTempName,NULL,FALSE);
+
+  BOOL Ret=MoveFileW(Name, strTempName);
   if(!Ret)
   {
     SetLastError((_localLastError = GetLastError()));
     return FALSE;
   }
-  return(FAR_RemoveDirectory(TempName));
+  return(FAR_RemoveDirectoryW(strTempName));
 }
 
-int DeleteFileWithFolder(const char *FileName)
+int DeleteFileWithFolderW(const wchar_t *FileName)
 {
-  char FileOrFolderName[NM],*Slash;
+  string strFileOrFolderName;
+  wchar_t *Slash;
 
-  xstrncpy(FileOrFolderName,FileName,sizeof(FileOrFolderName)-1);
+  strFileOrFolderName = FileName;
 
-  Unquote (FileOrFolderName);
+  UnquoteW (strFileOrFolderName);
 
-  BOOL Ret=SetFileAttributes(FileOrFolderName,FILE_ATTRIBUTE_NORMAL);
+  BOOL Ret=SetFileAttributesW(strFileOrFolderName,FILE_ATTRIBUTE_NORMAL);
 
   if(Ret)
   {
-    if(!remove(FileOrFolderName))
+    if(!DeleteFileW(strFileOrFolderName)) //BUGBUG
     {
-      if ((Slash=strrchr(FileOrFolderName,'\\'))!=NULL)
+      Slash = strFileOrFolderName.GetBuffer ();
+      if ((Slash=wcsrchr(Slash,L'\\'))!=NULL)
         *Slash=0;
-      return(FAR_RemoveDirectory(FileOrFolderName));
+
+      strFileOrFolderName.ReleaseBuffer();
+
+      return(FAR_RemoveDirectoryW(strFileOrFolderName));
     }
   }
   SetLastError((_localLastError = GetLastError()));
@@ -1086,27 +902,27 @@ int DeleteFileWithFolder(const char *FileName)
 }
 
 
-void DeleteDirTree(const char *Dir)
+void DeleteDirTree(const wchar_t *Dir)
 {
-  if (*Dir==0 || (Dir[0]=='\\' || Dir[0]=='/') && Dir[1]==0 ||
-      Dir[1]==':' && (Dir[2]=='\\' || Dir[2]=='/') && Dir[3]==0)
+  if (*Dir==0 || (Dir[0]==L'\\' || Dir[0]==L'/') && Dir[1]==0 ||
+      Dir[1]==L':' && (Dir[2]==L'\\' || Dir[2]==L'/') && Dir[3]==0)
     return;
-  char FullName[NM];
-  WIN32_FIND_DATA FindData;
-  ScanTree ScTree(TRUE,TRUE,-1,TRUE);
+  string strFullName;
+  FAR_FIND_DATA_EX FindData;
+  ScanTree ScTree(TRUE,TRUE);
 
-  ScTree.SetFindPath(Dir,"*.*",0);
-  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+  ScTree.SetFindPathW(Dir,L"*.*",0);
+  while (ScTree.GetNextNameW(&FindData, strFullName))
   {
-    SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
+    SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
     if (FindData.dwFileAttributes & FA_DIREC)
     {
       if (ScTree.IsDirSearchDone())
-        FAR_RemoveDirectory(FullName);
+        FAR_RemoveDirectoryW(strFullName);
     }
     else
-      FAR_DeleteFile(FullName);
+      FAR_DeleteFileW(strFullName);
   }
-  SetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
-  FAR_RemoveDirectory(Dir);
+  SetFileAttributesW(Dir,FILE_ATTRIBUTE_NORMAL);
+  FAR_RemoveDirectoryW(Dir);
 }

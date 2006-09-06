@@ -7,26 +7,10 @@ filter.hpp
 
 */
 
-/* Revision: 1.04 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  03.04.2002 SVS
-    + ParseAndAddMasks() - выявлять и если надо добавлять очередную маску
-    ! Немного красоты ;-)
-  01.07.2001 IS
-    + #include "CFileMask.hpp"
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.06 07.07.2006 $ */
 
 #include "CFileMask.hpp"
+#include "UnicodeString.hpp"
 
 class VMenu;
 class Panel;
@@ -38,18 +22,18 @@ class PanelFilter
     /* $ 01.07.2001 IS
        Добавим классы для работы с масками
     */
-    CFileMask IncludeMask, ExcludeMask;
-    char *IncludeMaskStr, *ExcludeMaskStr;
+    CFileMaskW IncludeMask, ExcludeMask;
+    wchar_t *IncludeMaskStr, *ExcludeMaskStr;
     BOOL IncludeMaskIsOK, ExcludeMaskIsOK;
     /* IS $ */
 
   private:
     void SaveFilterFile();
     int  SaveFilterData();
-    int  EditRecord(char *Title,char *Masks);
+    int  EditRecord(string &strTitle, string &strMasks);
     int  ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate);
-    void AddMasks(const char *Masks,int Exclude);
-    int  ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount);
+    void AddMasks(const wchar_t *Masks,int Exclude);
+    int  ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount);
     void ProcessSelection(VMenu *FilterList);
     void SaveFilters();
 
@@ -59,7 +43,7 @@ class PanelFilter
 
   public:
     void FilterEdit();
-    int CheckName(const char *Name);
+    int CheckNameW(const wchar_t *Name);
     bool IsEnabled();
 
   public:

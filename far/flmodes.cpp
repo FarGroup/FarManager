@@ -5,66 +5,7 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.23 23.01.2006 $ */
-
-/*
-Modify:
-  23.01.2006 SVS
-    ! поле "A" размером 6! - доп.редко.юзаемые.атрибуты - в морг, в хелпе про это написано.
-  07.12.2005 SVS
-    ! поле "A" размером 7!
-  02.07.2005 WARP
-    - По умолчанию устанавливалось "Показывать имена строчными буквами" вместо "Показывать из заглавных строчными"
-  21.04.2005 SVS
-    ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
-    ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
-      что два последних параметра размером с NM
-    ! В FileList::ViewSettingsToText вместо strcat, применяем strNcat.
-  02.04.2005 AY
-    + Поддержка типа колонки SE в TextToViewSettings() и ViewSettingsToText()
-      С этим флагом не выводится пробел между размером и KMGT.
-  02.04.2005 AY
-    + Поддержка типа колонки SF в TextToViewSettings() и ViewSettingsToText()
-      Это новый метод показывания размера файла, как в Explorer'е.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  20.05.2004 SVS
-    ! NumericSort - свойство конкретной панели, а не режима отображения
-  11.07.2003 SVS
-    + Новая опция NumericSort
-  13.01.2003 SVS
-    + Новая опция в настройках режимов панелей: "Выравнивать расширения
-      папок" - позволяет показывать расширения папок выравненными независимо
-      от опции "Выравнивать расширения файлов".
-  07.01.2003 SVS
-    - BugZ#460 - не лучше ли поставить ширину колонок по дефолту 0,6,0,5 (вместо 0,8,0,5)
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  19.03.2002 OT
-    - Исправление #96
-  11.02.2002 SVS
-    + Добавка в меню - акселератор - решение BugZ#299
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  18.07.2001 OT
-    ! VFMenu
-  25.06.2001 IS
-   ! Внедрение const
-  16.06.2001 KM
-    ! Добавление WRAPMODE в меню.
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.25 23.01.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -80,7 +21,7 @@ Modify:
 
 int       ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
 
-static char *ColumnSymbol[]={"N","S","P","D","T","DM","DC","DA","A","Z","O","LN","C0","C1","C2","C3","C4","C5","C6","C7","C8","C9"};
+static wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
 
 struct PanelViewSettings ViewSettingsArray[]=
 {
@@ -106,25 +47,25 @@ void FileList::SetFilePanelModes()
   }
   while (1)
   {
-    struct MenuData ModeListMenu[]=
+    struct MenuDataEx ModeListMenu[]=
     {
-      (char *)MEditPanelModesBrief,0,0,
-      (char *)MEditPanelModesMedium,0,0,
-      (char *)MEditPanelModesFull,0,0,
-      (char *)MEditPanelModesWide,0,0,
-      (char *)MEditPanelModesDetailed,0,0,
-      (char *)MEditPanelModesDiz,0,0,
-      (char *)MEditPanelModesLongDiz,0,0,
-      (char *)MEditPanelModesOwners,0,0,
-      (char *)MEditPanelModesLinks,0,0,
-      (char *)MEditPanelModesAlternative,0,0,
+      (const wchar_t *)MEditPanelModesBrief,0,0,
+      (const wchar_t *)MEditPanelModesMedium,0,0,
+      (const wchar_t *)MEditPanelModesFull,0,0,
+      (const wchar_t *)MEditPanelModesWide,0,0,
+      (const wchar_t *)MEditPanelModesDetailed,0,0,
+      (const wchar_t *)MEditPanelModesDiz,0,0,
+      (const wchar_t *)MEditPanelModesLongDiz,0,0,
+      (const wchar_t *)MEditPanelModesOwners,0,0,
+      (const wchar_t *)MEditPanelModesLinks,0,0,
+      (const wchar_t *)MEditPanelModesAlternative,0,0,
     };
     int ModeNumber;
     ModeListMenu[CurMode].SetSelect(1);
     {
-      VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
+      VMenu ModeList(UMSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),TRUE,ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);
-      ModeList.SetHelp("PanelViewModes");
+      ModeList.SetHelp(L"PanelViewModes");
       /* $ 16.06.2001 KM
          ! Добавление WRAPMODE в меню.
       */
@@ -137,35 +78,35 @@ void FileList::SetFilePanelModes()
       return;
     CurMode=ModeNumber;
 
-    static struct DialogData ModeDlgData[]=
+    static struct DialogDataEx ModeDlgData[]=
     {
-    /* 00 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,"",
-    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditPanelModeTypes,
-    /* 02 */DI_EDIT,5,3,35,3,1,0,0,0,"",
-    /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditPanelModeWidths,
-    /* 04 */DI_EDIT,5,5,35,3,0,0,0,0,"",
-    /* 05 */DI_TEXT,38,2,0,0,0,0,0,0,(char *)MEditPanelModeStatusTypes,
-    /* 06 */DI_EDIT,38,3,70,3,0,0,0,0,"",
-    /* 07 */DI_TEXT,38,4,0,0,0,0,0,0,(char *)MEditPanelModeStatusWidths,
-    /* 08 */DI_EDIT,38,5,70,3,0,0,0,0,"",
-    /* 09 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 10 */DI_TEXT,-1,6,0,0,0,0,DIF_BOXCOLOR,0,(char *)MEditPanelReadHelp,
-    /* 11 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditPanelModeFullscreen,
-    /* 12 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditPanelModeAlignExtensions,
-    /* 13 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditPanelModeAlignFolderExtensions,
-    /* 14 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MEditPanelModeFoldersUpperCase,
-    /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MEditPanelModeFilesLowerCase,
-    /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MEditPanelModeUpperToLowerCase,
-    /* 17 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MEditPanelModeCaseSensitiveSort,
-    /* 19 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 20 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    /* 21 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    /* 00 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,L"",
+    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeTypes,
+    /* 02 */DI_EDIT,5,3,35,3,1,0,0,0,L"",
+    /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeWidths,
+    /* 04 */DI_EDIT,5,5,35,3,0,0,0,0,L"",
+    /* 05 */DI_TEXT,38,2,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeStatusTypes,
+    /* 06 */DI_EDIT,38,3,70,3,0,0,0,0,L"",
+    /* 07 */DI_TEXT,38,4,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeStatusWidths,
+    /* 08 */DI_EDIT,38,5,70,3,0,0,0,0,L"",
+    /* 09 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 10 */DI_TEXT,-1,6,0,0,0,0,DIF_BOXCOLOR,0,(const wchar_t *)MEditPanelReadHelp,
+    /* 11 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeFullscreen,
+    /* 12 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeAlignExtensions,
+    /* 13 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeAlignFolderExtensions,
+    /* 14 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeFoldersUpperCase,
+    /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeFilesLowerCase,
+    /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeUpperToLowerCase,
+    /* 17 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeCaseSensitiveSort,
+    /* 19 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 20 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+    /* 21 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
     };
-    MakeDialogItems(ModeDlgData,ModeDlg);
+    MakeDialogItemsEx(ModeDlgData,ModeDlg);
     int ExitCode;
 
-    strcpy(ModeDlg[0].Data,MSG((int)ModeListMenu[ModeNumber].Name));
-    RemoveHighlights(ModeDlg[0].Data);
+    ModeDlg[0].strData = UMSG((int)ModeListMenu[ModeNumber].Name);
+    RemoveHighlightsW(ModeDlg[0].strData);
 
     if (ModeNumber==9)
       ModeNumber=0;
@@ -183,14 +124,14 @@ void FileList::SetFilePanelModes()
     ModeDlg[17].Selected=NewSettings.CaseSensitiveSort;
 
     ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,
-        NewSettings.ColumnCount,ModeDlg[2].Data,ModeDlg[4].Data);
+        NewSettings.ColumnCount,ModeDlg[2].strData,ModeDlg[4].strData);
     ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,
-        NewSettings.StatusColumnCount,ModeDlg[6].Data,ModeDlg[8].Data);
+        NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
 
     {
       Dialog Dlg(ModeDlg,sizeof(ModeDlg)/sizeof(ModeDlg[0]));
       Dlg.SetPosition(-1,-1,76,18);
-      Dlg.SetHelp("PanelViewModes");
+      Dlg.SetHelp(L"PanelViewModes");
       Dlg.Process();
       ExitCode=Dlg.GetExitCode();
     }
@@ -206,9 +147,9 @@ void FileList::SetFilePanelModes()
     NewSettings.FileUpperToLowerCase=ModeDlg[16].Selected;
     NewSettings.CaseSensitiveSort=ModeDlg[17].Selected;
 
-    TextToViewSettings(ModeDlg[2].Data,ModeDlg[4].Data,NewSettings.ColumnType,
+    TextToViewSettings(ModeDlg[2].strData,ModeDlg[4].strData,NewSettings.ColumnType,
                        NewSettings.ColumnWidth,NewSettings.ColumnCount);
-    TextToViewSettings(ModeDlg[6].Data,ModeDlg[8].Data,NewSettings.StatusColumnType,
+    TextToViewSettings(ModeDlg[6].strData,ModeDlg[8].strData,NewSettings.StatusColumnType,
                        NewSettings.StatusColumnWidth,NewSettings.StatusColumnCount);
 
     ViewSettingsArray[ModeNumber]=NewSettings;
@@ -231,31 +172,32 @@ void FileList::ReadPanelModes()
 {
   for (int I=0;I<10;I++)
   {
-    char ColumnTitles[NM],ColumnWidths[NM];
-    char StatusColumnTitles[NM],StatusColumnWidths[NM],RegKey[80];
-    sprintf(RegKey,"Panel\\ViewModes\\Mode%d",I);
-    GetRegKey(RegKey,"Columns",ColumnTitles,"",sizeof(ColumnTitles));
-    GetRegKey(RegKey,"ColumnWidths",ColumnWidths,"",sizeof(ColumnWidths));
-    GetRegKey(RegKey,"StatusColumns",StatusColumnTitles,"",sizeof(StatusColumnTitles));
-    GetRegKey(RegKey,"StatusColumnWidths",StatusColumnWidths,"",sizeof(StatusColumnWidths));
-    if (*ColumnTitles==0 || *ColumnWidths==0)
+    string strColumnTitles, strColumnWidths;
+    string strStatusColumnTitles, strStatusColumnWidths, strRegKey;
+    strRegKey.Format (L"Panel\\ViewModes\\Mode%d",I);
+    GetRegKeyW(strRegKey,L"Columns",strColumnTitles,L"");
+    GetRegKeyW(strRegKey,L"ColumnWidths",strColumnWidths,L"");
+    GetRegKeyW(strRegKey,L"StatusColumns",strStatusColumnTitles,L"");
+    GetRegKeyW(strRegKey,L"StatusColumnWidths",strStatusColumnWidths,L"");
+    if ( strColumnTitles.IsEmpty() || strColumnWidths.IsEmpty() )
       continue;
+
     struct PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
 
-    if (*ColumnTitles)
-      TextToViewSettings(ColumnTitles,ColumnWidths,NewSettings.ColumnType,
+    if ( !strColumnTitles.IsEmpty() )
+      TextToViewSettings(strColumnTitles,strColumnWidths,NewSettings.ColumnType,
                          NewSettings.ColumnWidth,NewSettings.ColumnCount);
-    if (*StatusColumnTitles)
-      TextToViewSettings(StatusColumnTitles,StatusColumnWidths,NewSettings.StatusColumnType,
+    if ( !strStatusColumnTitles.IsEmpty() )
+      TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,NewSettings.StatusColumnType,
                          NewSettings.StatusColumnWidth,NewSettings.StatusColumnCount);
 
-    GetRegKey(RegKey,"FullScreen",NewSettings.FullScreen,0);
-    GetRegKey(RegKey,"AlignExtensions",NewSettings.AlignExtensions,1);
-    GetRegKey(RegKey,"FolderAlignExtensions",NewSettings.FolderAlignExtensions,0);
-    GetRegKey(RegKey,"FolderUpperCase",NewSettings.FolderUpperCase,0);
-    GetRegKey(RegKey,"FileLowerCase",NewSettings.FileLowerCase,0);
-    GetRegKey(RegKey,"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase,1);
-    GetRegKey(RegKey,"CaseSensitiveSort",NewSettings.CaseSensitiveSort,0);
+    GetRegKeyW(strRegKey,L"FullScreen",NewSettings.FullScreen,0);
+    GetRegKeyW(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions,1);
+    GetRegKeyW(strRegKey,L"FolderAlignExtensions",NewSettings.FolderAlignExtensions,0);
+    GetRegKeyW(strRegKey,L"FolderUpperCase",NewSettings.FolderUpperCase,0);
+    GetRegKeyW(strRegKey,L"FileLowerCase",NewSettings.FileLowerCase,0);
+    GetRegKeyW(strRegKey,L"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase,1);
+    GetRegKeyW(strRegKey,L"CaseSensitiveSort",NewSettings.CaseSensitiveSort,0);
 
     ViewSettingsArray[VIEW_0+I]=NewSettings;
   }
@@ -266,111 +208,132 @@ void FileList::SavePanelModes()
 {
   for (int I=0;I<10;I++)
   {
-    char ColumnTitles[NM],ColumnWidths[NM];
-    char StatusColumnTitles[NM],StatusColumnWidths[NM],RegKey[80];
-    sprintf(RegKey,"Panel\\ViewModes\\Mode%d",I);
+    string strColumnTitles, strColumnWidths;
+    string strStatusColumnTitles, strStatusColumnWidths, strRegKey;
+    strRegKey.Format (L"Panel\\ViewModes\\Mode%d",I);
     struct PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
     ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,
-        NewSettings.ColumnCount,ColumnTitles,ColumnWidths);
+        NewSettings.ColumnCount,strColumnTitles,strColumnWidths);
     ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,
-        NewSettings.StatusColumnCount,StatusColumnTitles,StatusColumnWidths);
+        NewSettings.StatusColumnCount,strStatusColumnTitles,strStatusColumnWidths);
 
-    SetRegKey(RegKey,"Columns",ColumnTitles);
-    SetRegKey(RegKey,"ColumnWidths",ColumnWidths);
-    SetRegKey(RegKey,"StatusColumns",StatusColumnTitles);
-    SetRegKey(RegKey,"StatusColumnWidths",StatusColumnWidths);
+    SetRegKeyW(strRegKey,L"Columns",strColumnTitles);
+    SetRegKeyW(strRegKey,L"ColumnWidths",strColumnWidths);
+    SetRegKeyW(strRegKey,L"StatusColumns",strStatusColumnTitles);
+    SetRegKeyW(strRegKey,L"StatusColumnWidths",strStatusColumnWidths);
 
-    SetRegKey(RegKey,"FullScreen",NewSettings.FullScreen);
-    SetRegKey(RegKey,"AlignExtensions",NewSettings.AlignExtensions);
-    SetRegKey(RegKey,"FolderAlignExtensions",NewSettings.FolderAlignExtensions);
-    SetRegKey(RegKey,"FolderUpperCase",NewSettings.FolderUpperCase);
-    SetRegKey(RegKey,"FileLowerCase",NewSettings.FileLowerCase);
-    SetRegKey(RegKey,"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase);
-    SetRegKey(RegKey,"CaseSensitiveSort",NewSettings.CaseSensitiveSort);
+    SetRegKeyW(strRegKey,L"FullScreen",NewSettings.FullScreen);
+    SetRegKeyW(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions);
+    SetRegKeyW(strRegKey,L"FolderAlignExtensions",NewSettings.FolderAlignExtensions);
+    SetRegKeyW(strRegKey,L"FolderUpperCase",NewSettings.FolderUpperCase);
+    SetRegKeyW(strRegKey,L"FileLowerCase",NewSettings.FileLowerCase);
+    SetRegKeyW(strRegKey,L"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase);
+    SetRegKeyW(strRegKey,L"CaseSensitiveSort",NewSettings.CaseSensitiveSort);
   }
 }
 
 
-void FileList::TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
+void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
      unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount)
 {
-  const char *TextPtr=ColumnTitles;
+  const wchar_t *TextPtr=ColumnTitles;
   for (ColumnCount=0;ColumnCount<sizeof(ViewSettingsArray[0].ColumnType)/sizeof(ViewSettingsArray[0].ColumnType[0]);ColumnCount++)
   {
-    char ArgName[NM];
-    if ((TextPtr=GetCommaWord(TextPtr,ArgName))==NULL)
+    string strArgName;
+    if ((TextPtr=GetCommaWordW(TextPtr,strArgName))==NULL)
       break;
-    strupr(ArgName);
-    if (*ArgName=='N')
+    strArgName.Upper();
+    if ( strArgName.At(0)==L'N')
     {
       unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
       ColumnType=NAME_COLUMN;
-      for (int I=1;ArgName[I];I++)
-        switch(ArgName[I])
+
+      const wchar_t *Ptr = (const wchar_t*)strArgName+1;
+
+      while ( *Ptr )
+      {
+        switch( *Ptr )
         {
-          case 'M':
+          case L'M':
             ColumnType|=COLUMN_MARK;
             break;
-          case 'O':
+          case L'O':
             ColumnType|=COLUMN_NAMEONLY;
             break;
-          case 'R':
+          case L'R':
             ColumnType|=COLUMN_RIGHTALIGN;
             break;
         }
+
+        Ptr++;
+      }
     }
     else
-      if (*ArgName=='S' || *ArgName=='P')
+      if ( strArgName.At(0)==L'S' || strArgName.At(0)==L'P')
       {
         unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
-        ColumnType=(*ArgName=='S') ? SIZE_COLUMN:PACKED_COLUMN;
-        for (int I=1;ArgName[I];I++)
-          switch(ArgName[I])
+        ColumnType=(strArgName.At(0)==L'S') ? SIZE_COLUMN:PACKED_COLUMN;
+
+        const wchar_t *Ptr = (const wchar_t*)strArgName+1;
+
+        while ( *Ptr )
+        {
+          switch( *Ptr )
           {
-            case 'C':
+            case L'C':
               ColumnType|=COLUMN_COMMAS;
               break;
-            case 'E':
+            case L'E':
               ColumnType|=COLUMN_ECONOMIC;
               break;
-            case 'F':
+            case L'F':
               ColumnType|=COLUMN_FLOATSIZE;
               break;
-            case 'T':
+            case L'T':
               ColumnType|=COLUMN_THOUSAND;
               break;
           }
+
+          Ptr++;
+        }
       }
       else
-        if (strncmp(ArgName,"DM",2)==0 || strncmp(ArgName,"DC",2)==0 || strncmp(ArgName,"DA",2)==0)
+        if (wcsncmp(strArgName,L"DM",2)==0 || wcsncmp(strArgName,L"DC",2)==0 || wcsncmp(strArgName,L"DA",2)==0)
         {
           unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
-          switch(ArgName[1])
+
+          switch(strArgName.At(1))
           {
-            case 'M':
+            case L'M':
               ColumnType=MDATE_COLUMN;
               break;
-            case 'C':
+            case L'C':
               ColumnType=CDATE_COLUMN;
               break;
-            case 'A':
+            case L'A':
               ColumnType=ADATE_COLUMN;
               break;
           }
-          for (int I=2;ArgName[I];I++)
-            switch(ArgName[I])
+
+          const wchar_t *Ptr = (const wchar_t*)strArgName+2;
+
+          while ( *Ptr )
+          {
+            switch( *Ptr )
             {
-              case 'B':
+              case L'B':
                 ColumnType|=COLUMN_BRIEF;
                 break;
-              case 'M':
+              case L'M':
                 ColumnType|=COLUMN_MONTH;
                 break;
             }
+            Ptr++;
+          }
         }
         else
           for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
-            if (strcmp(ArgName,ColumnSymbol[I])==0)
+            if (wcscmp(strArgName,ColumnSymbol[I])==0)
             {
               ViewColumnTypes[ColumnCount]=I;
               break;
@@ -380,65 +343,67 @@ void FileList::TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
   TextPtr=ColumnWidths;
   for (int I=0;I<ColumnCount;I++)
   {
-    char ArgName[NM];
-    if ((TextPtr=GetCommaWord(TextPtr,ArgName))==NULL)
+    string strArgName;
+    if ((TextPtr=GetCommaWordW(TextPtr,strArgName))==NULL)
       break;
-    ViewColumnWidths[I]=atoi(ArgName);
+    ViewColumnWidths[I]=_wtoi(strArgName);
   }
 }
 
 
 void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
-     int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
-     char *ColumnWidths)
+     int *ViewColumnWidths,int ColumnCount,string &strColumnTitles,
+     string &strColumnWidths)
 {
-  *ColumnTitles=0;
-  if(ColumnWidths)
-    *ColumnWidths=0;
+  strColumnTitles=L"";
+  strColumnWidths=L"";
 
   for (int I=0;I<ColumnCount;I++)
   {
-    char Type[100];
+    string strType;
     int ColumnType=ViewColumnTypes[I] & 0xff;
-    xstrncpy(Type,ColumnSymbol[ColumnType],sizeof(Type)-1);
+    strType = ColumnSymbol[ColumnType];
     if (ColumnType==NAME_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_MARK)
-        strncat(Type,"M",sizeof(Type)-1);
+        strType += L"M";
       if (ViewColumnTypes[I] & COLUMN_NAMEONLY)
-        strncat(Type,"O",sizeof(Type)-1);
+        strType += L"O";
       if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
-        strncat(Type,"R",sizeof(Type)-1);
+        strType += L"R";
     }
     if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_COMMAS)
-        strncat(Type,"C",sizeof(Type)-1);
+        strType += L"C";
       if (ViewColumnTypes[I] & COLUMN_ECONOMIC)
-        strncat(Type,"E",sizeof(Type)-1);
+          strType += L"E";
       if (ViewColumnTypes[I] & COLUMN_FLOATSIZE)
-        strncat(Type,"F",sizeof(Type)-1);
+          strType += L"F";
       if (ViewColumnTypes[I] & COLUMN_THOUSAND)
-        strncat(Type,"T",sizeof(Type)-1);
+          strType += L"T";
     }
     if (ColumnType==MDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_BRIEF)
-        strncat(Type,"B",sizeof(Type)-1);
+          strType += L"B";
       if (ViewColumnTypes[I] & COLUMN_MONTH)
-        strncat(Type,"M",sizeof(Type)-1);
+          strType += L"M";
     }
-    strncat(ColumnTitles,Type,NM-1);
-    if(ColumnWidths)
-    {
-      itoa(ViewColumnWidths[I],Type,10);
-      strncat(ColumnWidths,Type,NM-1);
-    }
+    strColumnTitles += strType;
+
+    wchar_t *lpwszWidth = strType.GetBuffer(20);
+
+    _itow (ViewColumnWidths[I],lpwszWidth,10);
+
+    strType.ReleaseBuffer();
+
+    strColumnWidths += strType;
+
     if (I<ColumnCount-1)
     {
-      strncat(ColumnTitles,",",NM-1);
-      if(ColumnWidths)
-        strncat(ColumnWidths,",",NM-1);
+      strColumnTitles += L",";
+      strColumnWidths += L",";
     }
   }
 }

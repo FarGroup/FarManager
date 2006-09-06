@@ -7,12 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.12 25.07.2005 $ */
+/* Revision: 1.12 26.07.2005 $ */
 
 /*
 Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
+  26.07.2005 WARP
+    ! see 00033.LoskUnLock.txt
   22.10.2003 SVS
     + виртуальная функция VMProcess() - для макросов. На будущее
   27.05.2003 SVS
@@ -68,7 +68,6 @@ class ScreenObject
     ScreenObject *pOwner;
 
   public:
-
     SaveScreen *SaveScr;
     static ScreenObject *CaptureMouseObject;
 

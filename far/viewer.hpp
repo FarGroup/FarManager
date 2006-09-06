@@ -7,98 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.33 06.07.2006 $ */
-
-/*
-Modify:
-  06.07.2006 SVS
-    + GetViewFilePos(), GetViewFileSize()
-  05.07.2006 IS
-    - warnings
-  29.05.2006 SVS
-    + GetTitle()
-  04.02.2005 WARP
-    ! И еще раз вьювер (см. 01924.viewer.show2.txt)
-  03.02.2005 WARP
-    ! Новая отрисовка вьювера (см. 01923.viewer.show.txt)
-  14.05.2003 VVM
-    + Обработка ViOpt.PersistentBlocks;
-  24.04.2003
-    + Новая функция ShowDown() используется при нажатии на "стрелка вниз"
-  25.02.2003 SVS
-    + SelectFlags, GetSelectedParam - что бы была возможность восстановить выделение
-  03.02.2003 VVM
-    +  Разные флаги для поиска
-  23.01.2003 VVM
-    + AdjustSelPosition - устанавливается сразу после найденного слова для
-      выравнивания показа по выделенному.
-  17.12.2002 SVS
-    ! Viewer64. Все файловые смещения и размеры приведены к __int64, что
-      позволяет существенно повысить верхний предел размерности
-      просматриваемых файлов.
-    ! SavePos??? и Undo??? загнаны в структуры в соответствии с требованиями
-      изменного класса FilePositionCache
-  14.06.2002 IS
-    + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
-      и каталог, его содержащий (если каталог пуст).
-    + BOOL DeleteFolder - см. SetTempViewName
-  08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
-  25.06.2001 IS
-   ! Внедрение const
-  25.06.2001 SVS
-    ! Юзаем SEARCHSTRINGBUFSIZE
-  07.05.2001 DJ
-    + GetNamesList()
-  06.05.2001 DJ
-    ! перетрях #include
-  30.04.2001 DJ
-    + GetAnsiMode(), GetHexMode()
-  27.04.2001 DJ
-    * DrawScrollbar(), AdjustWidth(), AdjustFilePos()
-  29.03.2001 IS
-    + структура ViOpt и Get/Set для ее обслуживания
-  20.02.2001 VVM
-    + GetWrapType()/SetWrapType()
-  06.02.2001 IS
-    + SelectPosOffSet;
-  19.01.2001 SVS
-    ! GoTo - с параметрами & public member
-    + SelectText()
-  27.09.2000 SVS
-    + ViewerControl - "Ядро" будущего Viewer API :-)
-    + FileViewer *HostFileViewer;
-    ! Переменные UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
-      введены в одну структуру ViewerMode.
-  14.06.2000 SVS
-    + Переменная FirstWord - первое слово из файла
-      (для автоопределения Unicode)
-  12.09.2000 SVS
-    + Введена переменная TypeWrap. Теперь
-      Wrap - Состояние (Wrap/UnWrap) и
-      TypeWrap - тип (Wrap/WWrap)
-  30.07.2000 KM 1.07
-    + LastSearchWholeWords
-  19.07.2000 tran 1/06
-    + Viewer::Width, ::XX2
-  18.07.2000 tran 1.05
-    * изменил тип параметра у SetFilePos()
-      на unsigned
-  12.07.2000 tran
-    ! OutStr are dynamic, new, delete,
-      and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
-  12.07.2000 SVS
-    - из-за увеличения длины строки до 0x800 вылетал FAR
-      по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
-  10.07.2000 tran
-    + увеличение длины строки - с 512 на MAX_VIEWLINE
-      MAX_VIEWLINEB = MAX_VIEWLINE + 16
-  04.07.2000 tran
-    + 'warning' parameter in OpenFile() method
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.41 07.07.2006 $ */
 
 #include "scrobj.hpp"
 #include "namelist.hpp"
@@ -131,7 +40,7 @@ class FileViewer;
 class KeyBar;
 
 struct ViewerString {
-    char *lpData /*[MAX_VIEWLINEB]*/;
+    wchar_t *lpData /*[MAX_VIEWLINEB]*/;
     __int64 nFilePos;
     bool bSelection;
     __int64 nSelStart;
@@ -170,27 +79,47 @@ class Viewer:public ScreenObject
 
     BitFlags SearchFlags;
 
-    struct ViewerOptions ViOpt;  // $ 29.03.2001 IS - Часть локальных настроек переехала в ViewerOptions
-    WORD FirstWord;              // $ 14.06.2000 SVS - + Переменная FirstWord - первое слово из файла (для автоопределения Unicode)
+    /* $ 29.03.2001 IS
+         Часть локальных настроек переехала в ViewerOptions
+    */
+    struct ViewerOptions ViOpt;
+    /* IS $ */
+    /* $ 14.06.2000 SVS
+      + Переменная FirstWord - первое слово из файла
+      (для автоопределения Unicode)
+    */
+    WORD FirstWord;
+    /* SVS $ */
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
 
-
     ViewerString *Strings[MAXSCRY+1];
 
-    char FileName[NM];
-    char FullFileName[NM];
+    string strFileName;
+    string strFullFileName;
+
     FILE *ViewFile;
-    WIN32_FIND_DATA ViewFindData;
 
-    unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
+    FAR_FIND_DATA_EX ViewFindData;
 
-    // $ 30.07.2000 KM - Новая переменная для поиска
+    string strTempViewName;
+
+    BOOL DeleteFolder;
+
+    string strLastSearchStr;
+    /* $ 30.07.2000 KM
+       Новая переменная для поиска
+    */
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex;
+    /* KM $ */
 
     struct CharTableSet TableSet;
-    struct ViewerMode VM;        // $ 27.09.2000 SVS - Переменные "mode" вогнаны под одну крышу
+    /* $ 27.09.2000 SVS
+       Переменные "mode" вогнаны под одну крышу
+    */
+    struct ViewerMode VM;
+    /* SVS $ */
 
     __int64 FilePos;
     __int64 SecondPos;
@@ -210,16 +139,10 @@ class Viewer:public ScreenObject
     /* IS $ */
     int ViewY1;
     int ShowStatusLine,HideCursor;
-    char TempViewName[NM];
-    /* $ 14.06.2002 IS
-       DeleteFolder - удалит не только файл TempViewName, но и каталог,
-       в котором он лежит
-    */
-    BOOL DeleteFolder;
-    /* IS */
 
-    char Title[512];
-    char PluginData[NM*2];
+    string strTitle;
+
+    string strPluginData;
     int TableChangedByUser;
     int ReadStdin;
     int InternalKey;
@@ -258,13 +181,13 @@ class Viewer:public ScreenObject
     void AdjustFilePos();
     /* DJ $ */
     void ReadString(ViewerString *pString, int MaxSize, int StrSize);
-    int CalcStrSize(char *Str,int Length);
+    int CalcStrSize(const wchar_t *Str,int Length);
     void ChangeViewKeyBar();
     void SetCRSym();
     void Search(int Next,int FirstChar);
     void ConvertToHex(char *SearchStr,int &SearchLength);
     int HexToNum(int Hex);
-    int vread(char *Buf,int Size,FILE *SrcFile);
+    int vread(wchar_t *Buf,int Count,FILE *SrcFile);
     int vseek(FILE *SrcFile,__int64 Offset,int Whence);
     __int64 vtell(FILE *SrcFile);
     int vgetc(FILE *SrcFile);
@@ -276,10 +199,7 @@ class Viewer:public ScreenObject
 
 
   public:
-    /* $ 04.07.2000 tran
-       + 'warning' parameter */
-    int OpenFile(const char *Name,int warning);
-    /* tran $ */
+    int OpenFile(const wchar_t *Name,int warning);
     void SetViewKeyBar(KeyBar *ViewKeyBar);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -290,22 +210,22 @@ class Viewer:public ScreenObject
     int GetWrapType();
     void SetWrapType(int TypeWrap);
     void KeepInitParameters();
-    void GetFileName(char *Name);
+    void GetFileName(string &strName);
     void ShowConsoleTitle();
     /* $ 14.06.2002 IS
        DeleteFolder - удалит не только файл, но и каталог
     */
-    void SetTempViewName(const char *Name, BOOL DeleteFolder);
+    void SetTempViewName(const wchar_t *Name, BOOL DeleteFolder);
     /* IS $ */
-    void SetTitle(const char *Title);
-    void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    void SetTitle(const wchar_t *Title);
+    void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
     void SetFilePos(__int64 Pos); // $ 18.07.2000 tran - change 'long' to 'unsigned long'
     __int64 GetFilePos() const { return FilePos; };
     __int64 GetViewFilePos() const { return FilePos; };
     __int64 GetViewFileSize() const { return FileSize; };
 
-    void SetPluginData(char *PluginData);
+    void SetPluginData(const wchar_t *PluginData);
     void SetNamesList(NamesList *List);
     /* $ 27.09.2000 SVS
        "Ядро" будущего Viewer API :-)
@@ -348,7 +268,7 @@ class Viewer:public ScreenObject
     /* $ 08.12.2001 OT
       возвращает признак того, является ли файл временным
       используется для принятия решения переходить в каталог по */
-    BOOL isTemporary() const;
+    BOOL isTemporary();
 };
 
 #endif // __VIEWER_HPP__

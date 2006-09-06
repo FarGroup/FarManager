@@ -5,70 +5,7 @@ local.cpp
 
 */
 
-/* Revision: 1.24 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  19.06.2006 WARP
-    - Неверная сортировка строк, различающихся только длиной при выборе режима "числовая сортировка".
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.07.2004 SVS
-    + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
-  22.04.2004 SVS
-    + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
-  29.03.2004 SVS
-    ! InitLCIDSort() и KeyToKey[] не совместимы!
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  11.07.2003 SVS
-    + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
-  08.04.2003 SVS
-    + IsUpperOrLower[] - в ответ на "почему LocalIsupper держит пробел за большую букву"
-  17.10.2002 SVS
-    ! Закомменчу свои _SVS() ;-)
-  10.04.2002 SVS
-    ! Технологический патч.
-  26.03.2002 IS
-    + InitLCIDSort - инициализация системозависимой сортировки строк.
-      Вызывать только после CopyGlobalSettings, потому что только тогда
-      GetRegKey считает правильные данные.
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  14.01.2002 SVS
-    ! Содержимое KeyToKey приведем к верхнему регистру
-  11.01.2002 IS
-    + void InitKeysArray()
-      Инициализация массива клавиш. Вызывать только после CopyGlobalSettings,
-      потому что только тогда GetRegKey считает правильные данные.
-  27.11.2001 DJ
-    - всякая мелочевка
-  04.07.2001 SVS
-    + Opt.LCIDSort
-  25.06.2001 IS
-    ! Приведение Local* в соответствие с "официальным" plugin.hpp
-    ! Внедрение const
-  07.05.2001 DJ
-    ! LowerToUpper/UpperToLower более не static (для оптимизированных
-      inline-функций)
-  06.05.2001 DJ
-    ! перетрях #include
-  28.12.2000 SVS
-    + добавлена обработка Opt.HotkeyRules
-  08.11.2000 SVS
-    ! Изменен массив клавиш Keys - теперь содержит сканкоды.
-  28.08.2000 SVS
-    + Добавлена функция LocalLowerBuf
-    ! Функции модифицированы под WINAPI с целью применения в FSF
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.30 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -95,27 +32,13 @@ void LocalUpperInit()
   {
     CvtStr[0]=I;
     LowerToUpper[I]=UpperToLower[I]=I;
-#if defined(FAR_ANSI)
-    OemToChar((char *)CvtStr,(char *)CvtStr);
-    CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
-#else
     FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
     FAR_CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
-#endif
     IsUpperOrLower[I]=0;
     if (IsCharAlpha(CvtStr[0]) && ReverseCvtStr[0]==I)
     {
       IsUpperOrLower[I]=IsCharLower(CvtStr[0])?1:(IsCharUpper(CvtStr[0])?2:0);
       CharUpper((char *)CvtStr);
-#if defined(FAR_ANSI)
-      CharToOem((char *)CvtStr,(char *)CvtStr);
-      LowerToUpper[I]=CvtStr[0];
-      CvtStr[0]=I;
-      OemToChar((char *)CvtStr,(char *)CvtStr);
-      CharLower((char *)CvtStr);
-      CharToOem((char *)CvtStr,(char *)CvtStr);
-      UpperToLower[I]=CvtStr[0];
-#else
       FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
       LowerToUpper[I]=CvtStr[0];
       CvtStr[0]=I;
@@ -123,7 +46,6 @@ void LocalUpperInit()
       CharLower((char *)CvtStr);
       FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
       UpperToLower[I]=CvtStr[0];
-#endif
     }
   }
 }
@@ -142,7 +64,7 @@ void InitLCIDSort()
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCSortBuffer[I]=I;
 
-  Opt.LCIDSort=GetRegKey("System","LCID",LOCALE_USER_DEFAULT);
+  Opt.LCIDSort=GetRegKeyW(L"System",L"LCID",LOCALE_USER_DEFAULT);
   far_qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
 
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
@@ -172,7 +94,7 @@ void InitLCIDSort()
 */
 void InitKeysArray()
 {
-  GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
+  GetRegKeyW(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
   unsigned char CvtStr[2];
   int I;
   CvtStr[1]=0;
@@ -182,11 +104,6 @@ void InitKeysArray()
 
   if (LayoutNumber<5)
   {
-    /* $ 08.11.2000 SVS
-       Изменен массив клавиш Keys - теперь содержит сканкоды.
-    */
-    /* 28.12.2000 SVS
-      + добавлена обработка Opt.HotkeyRules */
     if(!Opt.HotkeyRules)
     {
       for (I=0;I<=255;I++)
@@ -200,11 +117,7 @@ void InitKeysArray()
             continue;
           CvtStr[0]=AnsiKey;
           CvtStr[1]=0;
-#if defined(FAR_ANSI)
-          CharToOem((char *)CvtStr,(char *)CvtStr);
-#else
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-#endif
           Keys[J]=CvtStr[0];
         }
         if (Keys[0]!=0 && Keys[1]!=0)
@@ -227,11 +140,7 @@ void InitKeysArray()
           if (AnsiKey==0xFF)
             continue;
           CvtStr[0]=I;
-#if defined(FAR_ANSI)
-          CharToOem((char *)CvtStr,(char *)CvtStr);
-#else
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-#endif
           KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
         }
       }
@@ -239,13 +148,10 @@ void InitKeysArray()
   }
   //_SVS(SysLogDump("KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
   unsigned char KeyToKeyMap[256];
-  if(GetRegKey("System","KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
+  if(GetRegKeyW(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
     memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
   //_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
-  /* SVS $ */
-  /* SVS $ */
 }
-/* IS 11.01.2002 $ */
 
 int WINAPI LocalIslower(unsigned Ch)
 {
@@ -265,11 +171,7 @@ int WINAPI LocalIsalpha(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-#if defined(FAR_ANSI)
-  OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#else
   FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#endif
   return(IsCharAlpha(CvtStr[0]));
 }
 
@@ -280,11 +182,7 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-#if defined(FAR_ANSI)
-  OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#else
   FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#endif
   return(IsCharAlphaNumeric(CvtStr[0]));
 }
 
@@ -494,13 +392,8 @@ int _cdecl LCSort(const void *el1,const void *el2)
   Str2[0]=*(char *)el2;
   Str1[1]=Str2[1]=0;
   Str1[2]=Str2[2]=0;
-#if defined(FAR_ANSI)
-  OemToCharBuff(Str1,Str1,1);
-  OemToCharBuff(Str2,Str2,1);
-#else
   FAR_OemToCharBuff(Str1,Str1,1);
   FAR_OemToCharBuff(Str2,Str2,1);
-#endif
   return(CompareString(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }
 
@@ -508,4 +401,154 @@ int _cdecl LCSort(const void *el1,const void *el2)
 int LocalKeyToKey(int Key)
 {
   return(KeyToKey[Key]);
+}
+
+
+const wchar_t * __cdecl StrstriW(const wchar_t *str1, const wchar_t *str2)
+{
+  wchar_t *cp = (wchar_t *) str1;
+  wchar_t *s1, *s2;
+
+  if ( !*str2 )
+      return str1;
+
+  while (*cp)
+  {
+    s1 = cp;
+    s2 = (wchar_t *) str2;
+
+    while ( *s1 && *s2 && !(LocalLowerW(*s1) - LocalLowerW(*s2)) )
+    {
+      s1++;
+      s2++;
+    }
+
+    if (!*s2)
+      return (const wchar_t *)cp;
+
+    cp++;
+  }
+
+  return (const wchar_t *)NULL;
+}
+
+const wchar_t * __cdecl RevStrstriW(const wchar_t *str1, const wchar_t *str2)
+{
+  int len1 = wcslen(str1);
+  int len2 = wcslen(str2);
+
+  if (len2 > len1)
+    return (const wchar_t *)NULL;
+
+  if ( !*str2 )
+    return &str1[len1];
+
+  wchar_t *cp = (wchar_t *)&str1[len1 - len2];
+  wchar_t *s1, *s2;
+
+  while (cp >= str1)
+  {
+    s1 = cp;
+    s2 = (wchar_t *) str2;
+
+    while ( *s1 && *s2 && !(LocalLowerW(*s1) - LocalLowerW(*s2)) )
+    {
+      s1++;
+      s2++;
+    }
+
+    if (!*s2)
+      return (const wchar_t *)cp;
+
+    cp--;
+  }
+
+  return (const wchar_t *)NULL;
+}
+
+
+wchar_t WINAPI LocalUpperW (wchar_t Ch)
+{
+    wchar_t Buf = Ch;
+
+    CharUpperBuffW (&Buf, 1);
+
+    return Buf;
+}
+
+wchar_t WINAPI LocalLowerW (wchar_t Ch)
+{
+    wchar_t Buf = Ch;
+
+    CharLowerBuffW (&Buf, 1);
+
+    return Buf;
+}
+
+int WINAPI LocalStrnicmpW (const wchar_t *s1, const wchar_t *s2, int n)
+{
+    return CompareStringW (
+            0,
+            NORM_IGNORECASE,
+            s1,
+            n,
+            s2,
+            n
+            )-2;
+}
+
+int WINAPI LocalStricmpW (const wchar_t *s1, const wchar_t *s2)
+{
+    return CompareStringW (
+            0,
+            NORM_IGNORECASE,
+            s1,
+            -1,
+            s2,
+            -1
+            )-2;
+
+}
+
+int WINAPI LocalIsupperW (wchar_t Ch)
+{
+    return IsCharUpperW (Ch);
+}
+
+int WINAPI LocalIslowerW (wchar_t Ch)
+{
+    return IsCharLowerW (Ch);
+}
+
+int WINAPI LocalIsalphaW (wchar_t Ch)
+{
+    return IsCharAlphaW (Ch);
+}
+
+int WINAPI LocalIsalphanumW (wchar_t Ch)
+{
+    return IsCharAlphaNumericW (Ch);
+}
+
+
+void WINAPI LocalUpperBufW(wchar_t *Buf, int Length)
+{
+    CharUpperBuffW (Buf, Length);
+}
+
+
+void WINAPI LocalLowerBufW(wchar_t *Buf,int Length)
+{
+    CharLowerBuffW (Buf, Length);
+}
+
+void WINAPI LocalStruprW(wchar_t *s1)
+{
+    LocalUpperBufW (s1, wcslen (s1));
+}
+
+
+void WINAPI LocalStrlwrW(wchar_t *s1)
+{
+    LocalLowerBufW (s1, wcslen (s1));
 }

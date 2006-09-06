@@ -7,24 +7,7 @@ poscache.hpp
 
 */
 
-/* Revision: 1.04 17.12.2002 $ */
-
-/*
-Modify:
-  17.12.2002 SVS
-    ! класс FilePositionCache подвергся значительным переделкам,
-     т.к. позиции вьювере измеряются в терминах __int64, а редактора - DWORD
-     Т.е. класс теперь понимает 2 типа кэша - FPOSCACHE_32 и FPOSCACHE_64.
-  17.06.2001 IS
-    + include "udlist.hpp"
-  02.04.2001 VVM
-    + int FindPosition()
-  24.09.2000 SVS
-    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.05 15.12.2005 $ */
 
 #define MAX_POSITIONS 64
 
@@ -47,28 +30,28 @@ class FilePositionCache
 {
   private:
     int IsMemory;
-    char *Names;
+    wchar_t *Names;
     int SizeValue;
     int CurPos;
 
     BYTE *Param;
     BYTE *Position;
-    static char SubKeyItem[16] ,*PtrSubKeyItem;
-    static char SubKeyShort[16],*PtrSubKeyShort;
+//    static char SubKeyItem[16] ,*PtrSubKeyItem;
+//    static char SubKeyShort[16],*PtrSubKeyShort;
 
   private:
-    int FindPosition(const char *FullName);
+    int FindPosition(const wchar_t *FullName);
 
   public:
     FilePositionCache(int TypeCache);
    ~FilePositionCache();
 
   public:
-    void AddPosition(const char *Name,void *PosCache);
-    BOOL GetPosition(const char *Name,void *PosCache);
+    void AddPosition(const wchar_t *Name,void *PosCache);
+    BOOL GetPosition(const wchar_t *Name,void *PosCache);
 
-    BOOL Read(const char *Key);
-    BOOL Save(const char *Key);
+    BOOL Read(const wchar_t *Key);
+    BOOL Save(const wchar_t *Key);
 };
 
 

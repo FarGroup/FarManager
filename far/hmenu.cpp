@@ -5,44 +5,7 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.14 11.11.2004 $ */
-
-/*
-Modify:
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  10.11.2004 SVS
-    + В HMenu и TreeList добавлена обработка MCODE_*
-  11.12.2002 SVS
-    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  30.03.2002 OT
-    - После исправления бага №314 (патч 1250) отвалилось закрытие
-      фара по кресту.
-  23.02.2002 DJ
-    - косметика от BoundsChecker
-  13.08.2001 OT
-    - исправление бага в вертикальном меню
-  26.07.2001 OT
-    - Поправлен ResizeConsole()
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-    ! HMenu прикручен к фреймам - попытка "раз"
-  26.06.2001 SVS
-    + Обработка KEY_TAB на внешних менюхах - для макросов.
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  20.05.2001 SVS
-    ! Константы MENU_ - в морг
-  12.05.2001 DJ
-    - EnableRestoreScreen=TRUE
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.21 23.04.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -79,7 +42,7 @@ HMenu::HMenu(struct HMenuData *Item,int ItemCount)
 
 void HMenu::DisplayObject()
 {
-  SetScreen(X1,Y1,X2,Y2,' ',COL_HMENUTEXT);
+  SetScreen(X1,Y1,X2,Y2,L' ',COL_HMENUTEXT);
   SetCursorType(0,10);
   ShowMenu();
 }
@@ -87,7 +50,7 @@ void HMenu::DisplayObject()
 
 void HMenu::ShowMenu()
 {
-  char TmpStr[256];
+    string strTmpStr;
   int I;
   GotoXY(X1+2,Y1);
   for (I=0;I<ItemCount;I++)
@@ -97,8 +60,9 @@ void HMenu::ShowMenu()
       SetColor(COL_HMENUSELECTEDTEXT);
     else
       SetColor(COL_HMENUTEXT);
-    sprintf(TmpStr,"  %s  ",Item[I].Name);
-    HiText(TmpStr,Item[I].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
+
+    strTmpStr = L"  "+(string)Item[I].Name+L"  ";
+    HiTextW(strTmpStr,Item[I].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
   }
   ItemX[ItemCount]=WhereX();
 }
@@ -115,11 +79,13 @@ int HMenu::ProcessKey(int Key)
       break;
     }
 
+    string strName;
+
   switch(Key)
   {
     case MCODE_OP_PLAINTEXT:
     {
-      const char *str = eStackAsString();
+      const wchar_t *str = eStackAsString();
       if (!*str)
         return FALSE;
       Key=*str;
@@ -257,6 +223,7 @@ int HMenu::ProcessKey(int Key)
     default:
     {
       for (I=0;I<ItemCount;I++)
+      {
         if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE))
         {
           Item[SelectPos].Selected=0;
@@ -266,7 +233,9 @@ int HMenu::ProcessKey(int Key)
           ProcessKey(KEY_ENTER);
           return(TRUE);
         }
+      }
       for (I=0;I<ItemCount;I++)
+      {
         if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE))
         {
           Item[SelectPos].Selected=0;
@@ -276,6 +245,7 @@ int HMenu::ProcessKey(int Key)
           ProcessKey(KEY_ENTER);
           return(TRUE);
         }
+      }
       return(FALSE);
     }
   }
@@ -324,13 +294,13 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 }
 
 
-void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
-                           char *SubMenuHelp,int X,int Y,int &Position)
+void HMenu::ProcessSubMenu(struct MenuDataEx *Data,int DataCount,
+                           const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
   if (SubMenu!=NULL)
     delete SubMenu;
   Position=-1;
-  SubMenu=new VMenu("",Data,DataCount);
+  SubMenu=new VMenu(L"",Data,DataCount,TRUE);
   SubMenu->SetFlags(VMENU_NOTCHANGE);
   SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
   SubMenu->SetFlags(VMENU_WRAPMODE);

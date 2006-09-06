@@ -5,32 +5,7 @@ ScreenSaver
 
 */
 
-/* Revision: 1.07 21.01.2002 $ */
-
-/*
-Modify:
-  21.01.2002 SVS
-    - BugZ#259 - Не востанавливается размер курсора после скринсейвера.
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    - правка под NWZ: в списке окон теперь на одно окно больше (панели)
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  12.10.2000 tran
-    - trap in scrsaver
-      причина трапа - неинициализированное поле проявлялось под VC/release.
-  10.10.2000 SVS
-    ! Незначительное уточнение в строке:
-      if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.09 23.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -55,12 +30,12 @@ static struct
   int Speed;
 } Star[16];
 
-static char StarSymbol[5][2]={
-  {0xFE,0x00},
-  {0x07,0x00},
-  {0xF9,0x00},
-  {0xF8,0x00},
-  {0xFA,0x00},
+static wchar_t StarSymbol[5][2]={
+  {0x25A0,0x0000},
+  {0x2219,0x0000},
+  {0x2219,0x0000},
+  {0x00B0,0x0000},
+  {0x00B7,0x0000},
 };
 
 int ScreenSaver(int EnableExit)
@@ -86,7 +61,7 @@ int ScreenSaver(int EnableExit)
     SaveScreen SaveScr;
     SetCursorType(0,10);
     randomize();
-    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
+    SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
 
     for (int I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
     {
@@ -131,7 +106,7 @@ static void ShowSaver(int Step)
     {
       SetColor(F_LIGHTCYAN|B_BLACK);
       GotoXY(Star[I].X/100,Star[I].Y/100);
-      Text(" ");
+      TextW(L" ");
       int dx=Star[I].X/100-ScrX/2;
       Star[I].X+=dx*10+((dx<0) ? -1:1);
       int dy=Star[I].Y/100-ScrY/2;
@@ -147,12 +122,12 @@ static void ShowSaver(int Step)
           if (Star[I].Type==STAR_PLANET)
           {
             SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
-            Text(StarSymbol[0]);
+            TextW(StarSymbol[0]);
           }
           else
           {
             SetColor(F_WHITE|B_BLACK);
-            Text(StarSymbol[1]);
+            TextW(StarSymbol[1]);
           }
         }
         else
@@ -161,7 +136,7 @@ static void ShowSaver(int Step)
             if (Star[I].Type==STAR_PLANET)
             {
               SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
-              Text(StarSymbol[1]);
+              TextW(StarSymbol[1]);
             }
             else
             {
@@ -169,7 +144,7 @@ static void ShowSaver(int Step)
                 SetColor(F_LIGHTCYAN|B_BLACK);
               else
                 SetColor(F_CYAN|B_BLACK);
-              Text(StarSymbol[2]);
+              TextW(StarSymbol[2]);
             }
           }
           else
@@ -177,12 +152,12 @@ static void ShowSaver(int Step)
             if (Star[I].Type==STAR_PLANET)
             {
               SetColor(Star[I].Color|B_BLACK);
-              Text(StarSymbol[3]);
+              TextW(StarSymbol[3]);
             }
             else
             {
               SetColor(F_CYAN|B_BLACK);
-              Text(StarSymbol[4]);
+              TextW(StarSymbol[4]);
             }
           }
       }

@@ -5,82 +5,7 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.31 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  31.01.2005 SVS
-    ! В GetMenuHotKey() новый параметр - "имя плагина"
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  22.09.2003 SVS
-    - BugZ#402 - Удаление хоткея
-  04.04.2003 SVS
-    - BugZ#845 - вылазит строка за рамки диалога
-      Упс... а Prompt-то у нас может смело валить ФАР - "переполнение буфера"!!!
-  12.09.2002 SVS
-    ! Исключаем возможные симптомы by BugZ#593
-  10.06.2002 SVS
-    + DIF_EDITPATH (FIB_EDITPATH)
-  10.05.2002 SVS
-    ! Загоним в блок вызов Dialog (щоб глюков избежать)
-  29.04.2002 SVS
-    ! Убираем "Грязный Хак" в функции GetString от 12.03.2001, т.к.
-      теперь все решается на уровне диалога.
-  13.02.2002 SVS
-    + FIB_NOAMPERSAND
-  07.12.2001 IS
-    + В GetString можно добавлять CheckBox
-  05.12.2001 SVS
-    ! Временно отключаем обработку исключений на этом уровне.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  14.09.2001 SVS
-    ! Отключаемые исключения
-  09.09.2001 SVS
-    + GetMenuHotKey()
-  01.08.2001 SVS
-    ! Если хотя бы один из последних трех параметров функции
-      GetSearchReplaceString равен NULL, то произведем метаморфозы диалогов
-  26.06.2001 SVS
-    ! __except -> EXCEPT
-  25.06.2001 IS
-    ! Внедрение const
-  11.06.2001 SVS
-    ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
-  16.05.2001 SVS
-    ! DumpExceptionInfo заменен на xfilter
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  16.03.2001 SVS
-    + GetNameAndPassword();
-  13.03.2001 SVS
-    - в предыдущем патче неверно работали макросы - не была учтена ситуация
-      с макросами.
-  12.03.2001 SVS
-    ! Грязный Хак в функции GetString :-)
-  12.02.2001 SVS
-    ! Ops. Баги в GetString :-)
-  11.02.2001 SVS
-    ! Изменения в GetString с учетом флага DIF_VAREDIT
-  28.01.2001 SVS
-    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
-  23.01.2001 SVS
-    + добавим немного эксепшина :-)
-  23.01.2001 SVS
-    - Ну вот и первая бага в диалоге поиска/замены :-(
-  21.01.2001 SVS
-    ! Выделение в качестве самостоятельного модуля
-    + Функция GetString переехала из mix.cpp
-    + GetSearchReplaceString - преобразована из editor.cpp
-*/
+/* Revision: 1.35 25.05.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -140,22 +65,21 @@ Modify:
     TRUE  - пользователь подтвердил свои намериния
     FALSE - пользователь отказался от диалога (Esc)
 */
-int WINAPI GetSearchReplaceString(
+
+int WINAPI GetSearchReplaceStringW (
          int IsReplaceMode,
-         unsigned char *SearchStr,
-         int LenSearchStr,
-         unsigned char *ReplaceStr,
-         int LenReplaceStr,
-         const char *TextHistoryName,
-         const char *ReplaceHistoryName,
+         string *pSearchStr,
+         string *pReplaceStr,
+         const wchar_t *TextHistoryName,
+         const wchar_t *ReplaceHistoryName,
          int *Case,
          int *WholeWords,
          int *Reverse)
 {
-  if(!SearchStr || (IsReplaceMode && !ReplaceStr))
+  if(!pSearchStr || (IsReplaceMode && !pReplaceStr))
     return FALSE;
-  static const char *TextHistoryName0    ="SearchText",
-                    *ReplaceHistoryName0 ="ReplaceText";
+  static const wchar_t *TextHistoryName0    = L"SearchText",
+                    *ReplaceHistoryName0 = L"ReplaceText";
 
   int HeightDialog, I;
 
@@ -187,40 +111,43 @@ int WINAPI GetSearchReplaceString(
 12   +--------------------------------------------------------------------+
 13
 */
-    static struct DialogData ReplaceDlgData[]={
-    /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
-    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
-    /*  4 */DI_EDIT,5,5,70,3,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
-    /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
-    /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
-    /*  8 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    /*  9 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 10 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
-    /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    static struct DialogDataEx ReplaceDlgData[]={
+    /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(const wchar_t *)MEditReplaceTitle,
+    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSearchFor,
+    /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
+    /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MEditReplaceWith,
+    /*  4 */DI_EDIT,5,5,70,3,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,L"",
+    /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MEditSearchCase,
+    /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
+    /*  8 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(const wchar_t *)MEditSearchReverse,
+    /*  9 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 10 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditReplaceReplace,
+    /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
     };
     /* KM $ */
     HeightDialog=14;
-    MakeDialogItems(ReplaceDlgData,ReplaceDlg);
+    MakeDialogItemsEx(ReplaceDlgData,ReplaceDlg);
+
     if(!*TextHistoryName)
     {
       ReplaceDlg[2].History=0;
       ReplaceDlg[2].Flags&=~DIF_HISTORY;
     }
     else
-      ReplaceDlg[2].History=(char*)TextHistoryName;
+      ReplaceDlg[2].History=TextHistoryName;
     if(!*ReplaceHistoryName)
     {
       ReplaceDlg[4].History=0;
       ReplaceDlg[4].Flags&=~DIF_HISTORY;
     }
     else
-      ReplaceDlg[4].History=(char*)ReplaceHistoryName;
+      ReplaceDlg[4].History=ReplaceHistoryName;
 
-    xstrncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data)-1);
-    xstrncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data)-1);
+    ReplaceDlg[2].strData = *pSearchStr;
+
+    if ( *pReplaceStr )
+        ReplaceDlg[4].strData = *pReplaceStr;
 
     if(Case)
       ReplaceDlg[6].Selected=*Case;
@@ -229,7 +156,6 @@ int WINAPI GetSearchReplaceString(
       HeightDialog--;
       ReplaceDlg[0].Y2--;
       ReplaceDlg[6].Type=DI_TEXT;
-      ReplaceDlg[6].Data[0]=0;
       for(I=7; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
       {
         ReplaceDlg[I].Y1--;
@@ -244,7 +170,6 @@ int WINAPI GetSearchReplaceString(
       HeightDialog--;
       ReplaceDlg[0].Y2--;
       ReplaceDlg[7].Type=DI_TEXT;
-      ReplaceDlg[7].Data[0]=0;
       for(I=8; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
       {
         ReplaceDlg[I].Y1--;
@@ -259,7 +184,6 @@ int WINAPI GetSearchReplaceString(
       HeightDialog--;
       ReplaceDlg[0].Y2--;
       ReplaceDlg[8].Type=DI_TEXT;
-      ReplaceDlg[8].Data[0]=0;
       for(I=9; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
       {
         ReplaceDlg[I].Y1--;
@@ -283,8 +207,11 @@ int WINAPI GetSearchReplaceString(
       if (Dlg.GetExitCode()!=10)
         return FALSE;
     }
-    xstrncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr-1);
-    xstrncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr-1);
+
+    *pSearchStr = ReplaceDlg[2].strData;
+
+    if ( pReplaceStr )
+        *pReplaceStr = ReplaceDlg[4].strData;
     if(Case)       *Case=ReplaceDlg[6].Selected;
     if(WholeWords) *WholeWords=ReplaceDlg[7].Selected;
     if(Reverse)    *Reverse=ReplaceDlg[8].Selected;
@@ -306,19 +233,19 @@ int WINAPI GetSearchReplaceString(
 09   |                       [ Search ]  [ Cancel ]                       |
 10   +--------------------------------------------------------------------+
 */
-    static struct DialogData SearchDlgData[]={
-    /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
-    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
-    /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
-    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    /*  7 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  8 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
-    /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    static struct DialogDataEx SearchDlgData[]={
+    /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MEditSearchTitle,
+    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSearchFor,
+    /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
+    /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MEditSearchCase,
+    /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
+    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MEditSearchReverse,
+    /*  7 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  8 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
+    /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
     };
-    MakeDialogItems(SearchDlgData,SearchDlg);
+    MakeDialogItemsEx(SearchDlgData,SearchDlg);
     HeightDialog=12;
 
     if(!*TextHistoryName)
@@ -327,9 +254,9 @@ int WINAPI GetSearchReplaceString(
       SearchDlg[2].Flags&=~DIF_HISTORY;
     }
     else
-      SearchDlg[2].History=(char*)TextHistoryName;
+      SearchDlg[2].History=(const wchar_t*)TextHistoryName;
 
-    xstrncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
+    SearchDlg[2].strData = *pSearchStr;
 
     if(Case)
       SearchDlg[4].Selected=*Case;
@@ -338,7 +265,6 @@ int WINAPI GetSearchReplaceString(
       HeightDialog--;
       SearchDlg[0].Y2--;
       SearchDlg[4].Type=DI_TEXT;
-      SearchDlg[4].Data[0]=0;
       for(I=5; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
       {
         SearchDlg[I].Y1--;
@@ -353,7 +279,6 @@ int WINAPI GetSearchReplaceString(
       HeightDialog--;
       SearchDlg[0].Y2--;
       SearchDlg[5].Type=DI_TEXT;
-      SearchDlg[5].Data[0]=0;
       for(I=6; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
       {
         SearchDlg[I].Y1--;
@@ -368,7 +293,6 @@ int WINAPI GetSearchReplaceString(
       HeightDialog--;
       SearchDlg[0].Y2--;
       SearchDlg[6].Type=DI_TEXT;
-      SearchDlg[6].Data[0]=0;
       for(I=7; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
       {
         SearchDlg[I].Y1--;
@@ -392,14 +316,16 @@ int WINAPI GetSearchReplaceString(
       if (Dlg.GetExitCode()!=8)
         return FALSE;
     }
-    xstrncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr-1);
-    if(ReplaceStr) *ReplaceStr=0;
+
+    *pSearchStr = SearchDlg[2].strData;
+    if( pReplaceStr) *pReplaceStr=L"";
     if(Case)       *Case=SearchDlg[4].Selected;
     if(WholeWords) *WholeWords=SearchDlg[5].Selected;
     if(Reverse)    *Reverse=SearchDlg[6].Selected;
   }
   return TRUE;
 }
+
 
 /* $ 25.08.2000 SVS
    ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
@@ -431,54 +357,48 @@ static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-/* $ 07.12.2001 IS
-   + Обработка пользовательского чек-бокса
-*/
-int WINAPI GetString(const char *Title,const char *Prompt,
-                     const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags,
-    int *CheckBoxValue,const char *CheckBoxText)
+
+int WINAPI GetStringW (
+        const wchar_t *Title,
+        const wchar_t *Prompt,
+        const wchar_t *HistoryName,
+        const wchar_t *SrcText,
+        string &strDestText,
+        int DestLength,
+        const wchar_t *HelpTopic,
+        DWORD Flags,
+        int *CheckBoxValue,
+        const wchar_t *CheckBoxText
+        )
 {
   int Substract=5; // дополнительная величина :-)
   int ExitCode;
   bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
   int offset=addCheckBox?2:0;
-/*
-  0         1         2         3         4         5         6         7
-  0123456789012345678901234567890123456789012345678901234567890123456789012345
-|0                                                                             |
-|1   +------------------------------- Title -------------------------------+   |
-|2   | Prompt                                                              |   |
-|3   | *******************************************************************|   |
-|4   +---------------------------------------------------------------------+   |
-|5   + [x] CheckBox                                                        +   |
-|6   +---------------------------------------------------------------------+   |
-|7   |                         [ Ok ]   [ Cancel ]                         |   |
-|8   +---------------------------------------------------------------------+   |
-|9                                                                             |
-*/
-  static struct DialogData StrDlgData[]=
+
+  static struct DialogDataEx StrDlgData[]=
   {
 /*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
                                       Selected               Data
 */
-/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,"",
-/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,"",
-/* 3 */ DI_TEXT,      0, 4,  0, 0, 0, 0, DIF_SEPARATOR,    0,"",
-/* 4 */ DI_CHECKBOX,  5, 5,  0, 0, 0, 0, 0,                0,"",
-/* 5 */ DI_TEXT,      0, 6,  0, 0, 0, 0, DIF_SEPARATOR,    0,"",
-/* 6 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
-/* 7 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,L"",
+/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"",
+/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,L"",
+/* 3 */ DI_TEXT,      0, 4,  0, 0, 0, 0, DIF_SEPARATOR,    0,L"",
+/* 4 */ DI_CHECKBOX,  5, 5,  0, 0, 0, 0, 0,                0,L"",
+/* 5 */ DI_TEXT,      0, 6,  0, 0, 0, 0, DIF_SEPARATOR,    0,L"",
+/* 6 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,L"",
+/* 7 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,L""
   };
-  MakeDialogItems(StrDlgData,StrDlg);
+  MakeDialogItemsEx(StrDlgData,StrDlg);
 
   if(addCheckBox)
   {
     Substract-=2;
     StrDlg[0].Y2+=2;
     StrDlg[4].Selected=(*CheckBoxValue)?TRUE:FALSE;
-    strcpy(StrDlg[4].Data,CheckBoxText);
+
+    StrDlg[4].strData = CheckBoxText;
   }
 
   if(Flags&FIB_BUTTONS)
@@ -490,8 +410,9 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     StrDlg[5+offset].Y1=StrDlg[4+offset].Y1=5+offset;
     StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
     StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
-    strcpy(StrDlg[4+offset].Data,FarMSG(MOk));
-    strcpy(StrDlg[5+offset].Data,FarMSG(MCancel));
+
+    StrDlg[4+offset].strData = UMSG(MOk);
+    StrDlg[5+offset].strData = UMSG(MCancel);
   }
 
   if(Flags&FIB_EXPANDENV)
@@ -517,29 +438,18 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     StrDlg[2].Type=DI_PSWEDIT;
 
   if(Title)
-    strcpy(StrDlg[0].Data,Title);
+    StrDlg[0].strData = Title;
+
   if(Prompt)
   {
-    TruncStrFromEnd(xstrncpy(StrDlg[1].Data,Prompt,sizeof(StrDlg[1].Data)-1),66);
+    StrDlg[1].strData = Prompt;
+    TruncStrFromEndW(StrDlg[1].strData, 66);
     if(Flags&FIB_NOAMPERSAND)
       StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
   }
-  if(DestLength > 511 && !(Flags&FIB_PASSWORD))
-  {
-    StrDlg[2].Flags|=DIF_VAREDIT;
-    StrDlg[2].Ptr.PtrTail[0]=0;
-    StrDlg[2].Ptr.PtrFlags=0;
-    if(SrcText)
-      memmove(DestText,SrcText,(strlen(SrcText)+1>static_cast<size_t>(DestLength)?DestLength:strlen(SrcText)+1));
-    StrDlg[2].Ptr.PtrData=DestText;
-    StrDlg[2].Ptr.PtrLength=DestLength;
-  }
-  else
-  {
-    if(SrcText)
-      xstrncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data)-1);
-    StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
-  }
+
+  if(SrcText)
+    StrDlg[2].strData = SrcText;
 
   {
     Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract,GetStringDlgProc);
@@ -571,23 +481,18 @@ int WINAPI GetString(const char *Title,const char *Prompt,
       (addCheckBox && ExitCode == 6))
      )
   {
-    if(!(Flags&FIB_ENABLEEMPTY) &&
-       (!(StrDlg[2].Flags&DIF_VAREDIT) && *StrDlg[2].Data==0 ||
-        (StrDlg[2].Flags&DIF_VAREDIT) && *(char *)StrDlg[2].Ptr.PtrData==0
-       )
-      )
+    if(!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.IsEmpty() )
       return(FALSE);
-    if(!(StrDlg[2].Flags&DIF_VAREDIT))
-    {
-      xstrncpy(DestText,StrDlg[2].Data,DestLength-1);
-      DestText[DestLength-1]=0;
-    }
+
+    strDestText = StrDlg[2].strData;
+
     if(addCheckBox)
       *CheckBoxValue=StrDlg[4].Selected;
     return(TRUE);
   }
   return(FALSE);
 }
+
 /* IS $ */
 /* SVS $*/
 /* 01.08.2000 SVS $*/
@@ -603,9 +508,9 @@ int WINAPI GetString(const char *Title,const char *Prompt,
   HelpTopic - тема помощи (может быть NULL)
   Flags     - флаги (GNP_*)
 */
-int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags)
+int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
-  static char LastName[256],LastPassword[256];
+  static string strLastName, strLastPassword;
   int ExitCode;
 /*
   0         1         2         3         4         5         6         7
@@ -621,27 +526,29 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
 |8   +---------------------------------------------------------------------+   |
 |9                                                                             |
 */
-  static struct DialogData PassDlgData[]=
+  static struct DialogDataEx PassDlgData[]=
   {
-/* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,"",
-/* 1 */ DI_TEXT,       5, 2, 0, 0,0,0,0,0,"",
-/* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,"",
-/* 3 */ DI_TEXT,       5, 4, 0, 0,0,0,0,0,"",
-/* 4 */ DI_PSWEDIT,    5, 5,70, 3,0,0,0,0,"",
-/* 5 */ DI_TEXT,       3, 6, 0, 0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/* 6 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,1,"",
-/* 7 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,0,""
+/* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,L"",
+/* 1 */ DI_TEXT,       5, 2, 0, 0,0,0,0,0,L"",
+/* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,L"",
+/* 3 */ DI_TEXT,       5, 4, 0, 0,0,0,0,0,L"",
+/* 4 */ DI_PSWEDIT,    5, 5,70, 3,0,0,0,0,L"",
+/* 5 */ DI_TEXT,       3, 6, 0, 0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+/* 6 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,1,L"",
+/* 7 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,0,L""
   };
-  MakeDialogItems(PassDlgData,PassDlg);
+  MakeDialogItemsEx(PassDlgData,PassDlg);
 
-  strcpy(PassDlg[1].Data,MSG(MNetUserName));
-  strcpy(PassDlg[3].Data,MSG(MNetUserPassword));
-  strcpy(PassDlg[6].Data,MSG(MOk));
-  strcpy(PassDlg[7].Data,MSG(MCancel));
+  PassDlg[1].strData = UMSG(MNetUserName);
+  PassDlg[3].strData = UMSG(MNetUserPassword);
+  PassDlg[6].strData = UMSG(MOk);
+  PassDlg[7].strData = UMSG(MCancel);
+
   if (Title!=NULL)
-    xstrncpy(PassDlg[0].Data,Title,sizeof(PassDlg[0].Data)-1);
-  xstrncpy(PassDlg[2].Data,(Flags&GNP_USELAST)?LastName:UserName,sizeof(LastName)-1);
-  xstrncpy(PassDlg[4].Data,(Flags&GNP_USELAST)?LastPassword:Password,sizeof(LastPassword)-1);
+    PassDlg[0].strData = Title;
+
+  PassDlg[2].strData = (Flags&GNP_USELAST)?strLastName:strUserName;
+  PassDlg[4].strData = (Flags&GNP_USELAST)?strLastPassword:strPassword;
 
   {
     Dialog Dlg(PassDlg,sizeof(PassDlg)/sizeof(PassDlg[0]));
@@ -658,15 +565,13 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
     return(FALSE);
 
   // запоминаем всегда.
-  strcpy(LastName,xstrncpy(UserName,PassDlg[2].Data,sizeof(LastName)-1));
-  strcpy(LastPassword,xstrncpy(Password,PassDlg[4].Data,sizeof(LastPassword)-1));
 
-  // Convert Name and Password to Ansi
-  if(!(Flags&GNP_NOOEMTOCHAR))
-  {
-    FAR_OemToChar(UserName,UserName);
-    FAR_OemToChar(Password,Password);
-  }
+  strUserName = PassDlg[2].strData;
+  strLastName = strUserName;
+
+  strPassword = PassDlg[4].strData;
+  strLastPassword = strPassword;
+
   return(TRUE);
 }
 
@@ -680,14 +585,14 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
    Return: TRUE  - все ОБИ
            FALSE - отменили назначение хоткея
 */
-BOOL WINAPI GetMenuHotKey(char *HotKey,          // хоткей, может быть =NULL
+BOOL WINAPI GetMenuHotKeyW(string &strHotKey,          // хоткей, может быть =NULL
                           int LenHotKey,         // блина хоткея (мин. = 1)
-                          char *DlgHotKeyTitle,  // заголовок диалога
-                          char *DlgHotKeyText,   // prompt назначения
-                          char *DlgPluginTitle,  // заголовок
-                          char *HelpTopic,       // темя помощи, может быть =NULL
-                          char *RegKey,          // ключ, откуда берем значение, может быть =NULL
-                          char *RegValueName)    // название параметра из реестра, может быть =NULL
+                          const wchar_t *DlgHotKeyTitle,  // заголовок диалога
+                          const wchar_t *DlgHotKeyText,   // prompt назначения
+                          const wchar_t *DlgPluginTitle,  // заголовок
+                          const wchar_t *HelpTopic,       // темя помощи, может быть =NULL
+                          const wchar_t *RegKey,          // ключ, откуда берем значение, может быть =NULL
+                          const wchar_t *RegValueName)    // название параметра из реестра, может быть =NULL
 {
   int ExitCode;
 /*
@@ -696,26 +601,25 @@ BOOL WINAPI GetMenuHotKey(char *HotKey,          // хоткей, может быть =NULL
 ¦ _                                                      ¦
 L========================================================-
 */
-  static struct DialogData PluginDlgData[]=
+  static struct DialogDataEx PluginDlgData[]=
   {
-    /* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,"",
-    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,"",
-    /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,"",
-    /* 03 */DI_TEXT,8,3,58,3,0,0,0,0,"",
+    /* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,L"",
+    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,L"",
+    /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,L"",
+    /* 03 */DI_TEXT,8,3,58,3,0,0,0,0,L"",
   };
 
-  if(DlgHotKeyTitle) PluginDlgData[0].Data=(char*)DlgHotKeyTitle;
-  if(DlgHotKeyText)  PluginDlgData[1].Data=(char*)DlgHotKeyText;
+  if(DlgHotKeyTitle) PluginDlgData[0].Data=DlgHotKeyTitle;
+  if(DlgHotKeyText)  PluginDlgData[1].Data=DlgHotKeyText;
   if(DlgHotKeyText)  PluginDlgData[3].Data=DlgPluginTitle;
 
-  MakeDialogItems(PluginDlgData,PluginDlg);
+
+  MakeDialogItemsEx(PluginDlgData,PluginDlg);
 
   if(RegKey && *RegKey)
-    GetRegKey(RegKey,RegValueName,PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
-  else if(HotKey)
-    strcpy(PluginDlg[2].Data,HotKey);
+    GetRegKeyW(RegKey,RegValueName,PluginDlg[2].strData,L"");
   else
-    PluginDlg[2].Data[0]=0;
+    PluginDlg[2].strData = strHotKey;
 
   PluginDlg[2].X2+=LenHotKey-1; // расширим, если надо
 
@@ -730,18 +634,20 @@ L========================================================-
 
   if (ExitCode==2)
   {
-    PluginDlg[2].Data[LenHotKey]=0;
+    wchar_t *Data = PluginDlg[2].strData.GetBuffer (LenHotKey+1);
+    Data[LenHotKey] = 0;
+    PluginDlg[2].strData.ReleaseBuffer (); //BUGBUG
     if(RegKey && *RegKey)
     {
-      RemoveLeadingSpaces(PluginDlg[2].Data);
-      if (*PluginDlg[2].Data==0)
-        DeleteRegValue(RegKey,RegValueName);
+      RemoveLeadingSpacesW(PluginDlg[2].strData);
+      if ( PluginDlg[2].strData.IsEmpty() )
+        DeleteRegValueW(RegKey,RegValueName);
       else
-        SetRegKey(RegKey,RegValueName,PluginDlg[2].Data);
+        SetRegKeyW(RegKey,RegValueName,PluginDlg[2].strData);
     }
 
-    if(HotKey) // скопируем, если надо
-      strcpy(HotKey,PluginDlg[2].Data);
+    strHotKey = PluginDlg[2].strData;
+
     return TRUE;
   }
   return FALSE;

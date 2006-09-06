@@ -5,549 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.185 25.08.2006 $ */
-
-/*
-Modify:
-  25.08.2006 SVS
-    ! уточнение FarChDir() (Mantis#190)
-  12.07.2006 SVS
-    ! kill class int64
-  05.07.2006 IS
-    - warnings
-  03.07.2006 SVS
-    ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
-  28.04.2006 SVS
-    - облажался, блин.
-  28.04.2006 AY
-    - ExpandEnvironmentStr - ёптыть с этими OEM2ANSI и обратно.
-      Теперь эта функция перекодирует тока реальные %var% и не трогает остальной текст.
-  23.04.2006 AY
-    - FarChDir - не всегда выставлялись переменные типа =DriveLetter:
-  25.03.2006 AY
-    - %var% не обрабатывались вообще в параметрах ком строки
-  20.02.2006 SVS
-    ! У ConvertNameToShort новый параметр - размер для Dest
-  21.01.2006 AY
-    ! В прошлый раз поломал переход по коротким путям.
-  17.01.2006 SVS
-    - Mantis#69 - Падение при нестандартных настройках безапастности для сетевых папок
-  05.12.2005 AY
-    ! FarChDir - косметическая корректировка пути при переходе по относительным путям
-    + PrepareDiskPath понимает UNC пути (\\computer\share)
-  05.10.2005 SVS
-    ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
-  04.10.2005 SVS
-    ! Изменения в CheckDisksProps()
-  30.09.2005 SVS
-    + CheckDisksProps() - функция проверки 2-х файловых систем
-  29.09.2005 SVS
-    ! последние параметры GetDirInfo() => флаг
-  09.09.2005 SVS
-    ! Функционал получения имени компьютера по текущему пути вынесен в
-      отдельную функцию CurPath2ComputerName()
-  23.07.2005 SVS
-    - лажа в CreatePath
-  24.04.2005 AY
-    ! GCC
-  23.04.2005 KM
-    ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
-  06.04.2005 AY
-   ! PartCmdLine() - убираю вообще Remove*() после Unquote() так как это является
-     лишней интеллигенцией, например файл "ааа .exe" могут запустить как "ааа ".
-   ! PartCmdLine() - Меняем вызов RemoveExternalSpaces() на RemoveTrailingSpaces()
-     после того как Unquote() имя экзешника. Вполне легальное имя файла " .exe",
-     а вот в конце пробелы уже быть не могут.
-   ! PartCmdLine() - первый пробел между командой и параметрами не нужен,
-     он добавляется заново в Execute.
-   - Убрал в PartCmdLine() добавку пробела если / отделяет exe от параметров
-     это вроде как остатки прошлого, нафиг нам это надо.
-  03.03.2005 SVS
-    ! Изменен алгоритм CreatePath()
-    + Ctrl-[] формирует корректное значение пути в панели дерева
-  11.11.2004 SVS
-    + _MakePath1()
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  14.06.2004 SVS
-    + UnExpandEnvString() и PathUnExpandEnvStr().
-      Функции закомменчены, т.к. пока сейчас непотребны, а в будущем - чтобы не потерялись
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  20.05.2004 SVS
-    ! классы UndoGlobalSaveScrPtr и RefreshFrameManeger переехали в RefreshFrameManager.?pp
-  17.05.2004 SVS
-    - BugZ#1073 - "File not found" при смене директории.
-  06.05.2004 SVS
-    + PartCmdLine()
-    + ProcessOSAliases() - пока пустышка. Введена для того, чтобы потом рыть только в одном месте - здесь.
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  09.02.2004 SVS
-    + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
-  27.10.2003 SVS
-    - Падение ФАРа при запуске в случае недоступности примонтированного диска.
-  26.10.2003 KM
-    - Исправление ошибки переполнения буфера в Transform.
-    ! Изменение входных параметров и логики трансформирования в Transform.
-  20.10.2003 SVS
-    - FSF.FarRecursiveSearch, не может найти файл если в качестве маски задано
-      его короткое имя.
-      проверим так же и альтернативное имя
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  24.09.2003 KM
-    - Transform() некорректно преобразовывала из hex в строку.
-  23.09.2003 KM
-    + Transform() - преобразует строку в hex представление и обратно.
-  12.09.2003 SVS
-    ! уточнение логики CheckFolder, т.к. конструкция
-      GetPathRootOne(Path,FindPath);
-      if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
-        return CHKFLD_EMPTY;
-      предполагалась для корневого каталога, но работала в т.ч. и для
-      несушествующей папки.
-    - BugZ#951 - падает при работе с длинным(?) dns-именем
-  02.09.2003 SVS
-    ! Очередное уточнение CheckFolder() - думаю последнее :-)
-  02.09.2003 SVS
-    ! Мля, турдно быть тупорылым :-(
-      Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
-    ! У CheckFolder - параметр есть "const"
-  02.09.2003 SVS
-    ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
-    + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
-      контент каталога можно "прочитать"
-    - BugZ#743 - Переход на недоступный подмапленный диск не сообщает об ошибке
-      Перед вызовом SetCurrentDirectory() "проверим" каталог новой
-      функцией FolderContentReady()
-  21.08.2003 SVS
-    - BugZ#933 - команда CD с длинным параметром
-  15.06.2003 SVS
-    ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
-      (добавлен еще один параметр)
-  14.06.2003 SVS
-    ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
-  14.06.2003 SVS
-    ! Для FRS_SCANJUNCTION только младший байт!
-    ! Исправлена функция CheckUpdateAnotherPanel - были траблы с удалением:
-      Активная_панель         Пассивная_панель
-      D:\FAR\1                D:\FAR\170
-      Если удаляем на активной '1', то пассивная тоже обновляется :-(
-      причем становится равной активной, т.е. D:\FAR
-  06.06.2003 SVS
-    ! GetFileOwner уехала из mix.cpp в fileowner.cpp
-  01.06.2003 SVS
-    ! В FarRecursiveSearch() учтем новый параметр конструктора ScanTree - FRS_SCANJUNCTION.
-  17.04.2003 SVS
-    + IsLocalRootPath()
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  06.01.03 SVS
-    ! Восстановим в правах SaveScreen в GetDirInfo (в нужный час GlobalSaveScrPtr
-      сделает Discard буферу сохранения - в GetInputRecord при обработке эвента
-      WINDOW_BUFFER_SIZE_EVENT)
-  21.12.2002 SVS
-    - баги с прорисовкой, при вызове GetDirInfo
-    ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
-      "не рефрешить панели!"
-  17.12.2002 SVS
-    - BugZ#736 - падение фара на старте при включенном QView
-      Учтем тот факт, что манагер еще не работает!
-    - BugZ#728 - непрорисовка во время сканирования директорий при копировании
-      (дергается изображение)
-  11.12.2002 SVS
-    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
-    - В PR_DrawGetDirInfoMsg была бага - вместо Param2 стояло Param1
-    ! В ConvertDate() сократим вызов sprintf`а
-  07.11.2002 IS
-    + FarChDir: принудительно меняем все / на \ (попытка побороть bugz#568)
-  13.10.2002 IS
-    - баг в Add_PATHEXT: Переписано заново с учетом того, чтобы избавиться
-      от strstr и GetCommaWord - от них только проблемы, в частности,
-      не работала раскраска по маске "%pathext%,*.lnk,*.pif,*.awk,*.pln",
-      если %pathext% содержала ".pl", т.к. эта подстрока входила в "*.pln"
-  06.07.2002 VVM
-    ! Поправлена PathMayBeAbsolute
-  18.06.2002 SVS
-    ! Функция IsFolderNotEmpty переименована в CheckFolder и теперь умеет
-      делать больше, чем возвращать состояние FolderNotEmpty, а именно
-      константы:
-       CHKFLD_NOTACCESS = -1  - нет доступа
-       CHKFLD_EMPTY     =  0  - пусто
-       CHKFLD_NOTEMPTY  =  1  - не пусто
-      Кроме переименования функция так же упрощена - кусок, юзающий класс
-     (для данной функции "сверхэнергоемкий") ScanTree заменен на вызовы
-     обычных Win32-функций Find*File
-  30.05.2002 SVS
-    + ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
-      в самостоятельные функции в mix.cpp
-  28.05.2002 SVS
-    + IsLocalPath()
-    ! Поправлена PathMayBeAbsolute (исключен вызов функции strlen)
-  25.05.2002 IS
-    ! первый параметр у ConvertDate теперь ссылка на константу
-  22.05.2002 SVS
-    + IsDiskInDrive()
-  29.04.2002 SVS
-    - BugZ#239 - Folder shortcuts для несуществующих папок
-  26.04.2002 SVS
-    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
-  09.04.2002 SVS
-    ! Уточнение для DriveLocalToRemoteName в целях юзания не только
-      в меню выбора дисков.
-  05.04.2002 SVS
-    + CheckShortcutFolder() - стала самостоятельной
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 SVS
-    ! переезд функций FarBsearch, FarSscanf, FarSprintf, FarQsortEx,
-      FarQsort, FarAtoi64, FarAtoi, FarItoa64, FarItoa из mix.cpp
-      в farrtl.cpp
-    ! переезд DeleteFileWithFolder(), DeleteDirTree() из mix.cpp в
-      delete.cpp ибо здесь им место.
-    ! Функции CharBufferToSmallWarn, RawConvertShortNameToLongName,
-      ConvertNameToFull, ConvertNameToReal, ConvertNameToShort перехали
-      из mix.cpp в cvtname.cpp (выделение в отдельный бомонд ;-))
-  21.03.2002 DJ
-    + GetDirInfo() отображается в заголовке консоли
-  20.03.2002 SVS
-    + FarGetCurDir()
-    ! GetCurrentDirectory -> FarGetCurDir
-  20.03.2002 SVS
-    - BugZ#111 - проблемы с буквами диска.
-  20.03.2002 DJ
-    ! в GetDirInfo() вместо . покажем название того каталога, который сканируем
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  22.02.2002 SVS
-    + Добавка функций ToPercent64() и filelen64()
-  15.02.2002 IS
-    + Новый параметр ChangeDir у FarChDir, если FALSE, то не меняем текущий
-      диск, а только устанавливаем переменные окружения. По умолчанию - TRUE.
-  15.02.2002 VVM
-    ! Если строка не помещалась в буфер, то ExpandEnvironmetStr портила ее.
-  15.02.2002 VVM
-    ! Небольшие уточнения, фиксы
-  05.02.2002 SVS
-    ! У DeleteFileWithFolder параметр имеет суть const
-  22.01.2002 IS
-    ! Добавим немного интеллекта при обработке путей вида "буква:" в FarChDir.
-  14.01.2002 SVS
-    - BugZ#238 - Длинные пути
-  14.01.2002 IS
-    + FarChDir - установка нужного диска и каталога и установление
-      соответствующей переменной окружения. В случае успеха возвращается
-      не ноль.
-  26.12.2001 SVS
-    - ...когда ввели в масдае cd //host/share... получаем
-      C:\\host\share
-  06.12.2001 SVS
-    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
-  03.12.2001 SVS
-    - небольшая бага в RawConvertShortNameToLongName() - для каталогов,
-      имеющих один символ! Например, имеем "D:\1", функция возвращает "D:\"
-  03.12.2001 DJ
-    - RawConvertShortNameToLongName() возвращала ошибку, если ей был
-      передан путь, заканчивающийся на \
-  02.12.2001 SVS
-    ! Уточнение в RawConvertShortNameToLongName() для входной строки
-      "C:\\", иначе лабуда полная получатся в параметре dest
-    ! Рабочий вариант функции PrepareDiskPath() (осталось оптимизацию
-      кода сделать)
-  26.11.2001 SVS
-    + PrepareDiskPath()
-  15.11.2001 OT
-    Исправление поведения cd c:\ на активном панельном плагине
-  02.11.2001 SVS
-    ! ConvertNameToReal() аналогично GetReparsePointInfo() - параметр Dest
-      можно не указывать.
-  28.10.2001 SVS
-    ! ConvertNameToShort() - раз уж сказали короткие имена и т.к. мы сидим
-      в DOS-наследии, то преобразуем имя в верхний регистр.
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  10.10.2001 SVS
-    ! Часть кода, ответственная за "пусковик" внешних прилад вынесена
-      в отдельный модуль execute.cpp
-  05.10.2001 IS
-    - Баг: не восстанавливался курсор после запуска идиотских программ, которые
-      гасят курсор и не восстанавливают его после своего завершения.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 SVS
-    ! Немного увеличим размер временного буфера в ConvertNameToReal()
-  24.09.2001 SVS
-    - бага в ConvertNameToReal() (вот же, дятел, блин :-((
-  24.09.2001 SVS
-    - бага в ConvertNameToReal().
-      Алгоритм "вычисления" изменен - начинаем сканирование с
-      конца, а не с начала строки - так будет вернее.
-  19.09.2001 SVS
-    - Эксперимент с применением RawConvertShortNameToLongName() в
-      ConvertNameToReal() оказался неудачным :-(
-  14.09.2001 SVS
-    ! Для эксперимента в ConvertNameToReal() добавлен вызов функции
-      RawConvertShortNameToLongName().
-      Если будут сильные тормоза - отключить эту фигню
-      (но с ней результат гарантирован!!!)
-  12.09.2001 SVS
-    + ConvertNameToReal() - преобразует Src в полный РЕАЛЬНЫЙ путь с
-      учетом reparse point в Win2K; если OS ниже, то вызывается обычный
-      ConvertNameToFull()
-  07.09.2001 VVM
-    + Перед проверкой на "гуевость" обработать переменные окружения.
-  30.07.2001 IS
-    !  Усовершенствование FarRecursiveSearch
-       1. Проверяем правильность параметров.
-       2. Теперь обработка каталогов не зависит от маски файлов
-       3. Маска может быть стандартного фаровского вида (со скобками,
-          перечислением и пр.). Может быть несколько масок файлов, разделенных
-          запятыми или точкой с запятой, можно указывать маски исключения,
-          можно заключать маски в кавычки. Короче, все как и должно быть :-)
-  06.07.2001 IS
-    + Оптимизация и дополнительная проверка в Add_PATHEXT
-  04.07.2001 SVS
-    ! Кусок закомменченного кода про логи будет полезен в syslog.cpp
-  02.07.2001 IS
-    + RawConvertShortNameToLongName
-  25.06.2001 IS
-    ! Внедрение const
-  17.06.2001 IS
-    - Баг в ExpandEnvironmentStr: не учитывалось то, что
-      ExpandEnvironmentStrings возвращает значения переменных окружения в ANSI
-      Теперь происходит соответствующая перекодировка, чтобы
-      ExpandEnvironmentStr возвращала строки в OEM, а не в смешанной кодировке.
-  14.06.2001 KM
-    ! Откючение лишнего кода. Потом выкину совсем.
-  08.06.2001 SVS
-    + Напомним ФАРу после исполнения чего-то внешнего, что не плохобы учесть
-      размеры видеобуфера.
-  30.05.2001 SVS
-    ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
-  21.05.2001 OT
-    ! Задисаблено изменение размера консоли в Execute()
-  17.05.2001 SKV
-    + при detach console старое окно теперь "забывает" hotkey
-    - если при detach console нажаты "лишние" ctrl,alt,shift,
-      то срабатывать не должно.
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  01.05.2001 SVS
-    ! mktemp - создаем имена временных файлов в верхнем регистре (strupr)
-  28.04.2001 VVM
-    + GetSubstName() принимает тип носителя
-  24.04.2001 SVS
-    - Бага с кавычками (с подачи DJ)
-  13.04.2001 VVM
-    + Флаг CREATE_DEFAULT_ERROR_MODE при CreateProcess.
-  08.06.2001 SVS
-    ! В Add_PATHEXT() используем модифицированную GetCommaWord().
-    ! ExpandPATHEXT() выкинем за ненадобностью.
-    ! В ExpandEnvironmentStr(), ConvertNameToFull()
-      применяем alloca() вместо malloc().
-  06.06.2001 SVS
-    + ExpandPATHEXT() - Расширение переменных среды с учетом %PATHEXT%
-      При этом значение %PATHEXT% приводим к ФАРовскому формату.
-  03.04.2001 SVS
-    + Add_PATHEXT()
-  30.03.2001 SVS
-    + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
-      скрытых логических дисков
-  24.03.2001 tran
-    + qsortex
-  20.03.2001 tran
-    + FarRecursiveSearch - добавлен void *param
-  20.03.2001 SKV
-    - еще один фикс с размером консоли при детаче.
-  16.03.2001 SVS
-    + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
-  15.03.2001 SKV
-    - фикс с размером консоли при detach far console.
-  12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
-  02.03.2001 IS
-    ! Переписал ExpandEnvironmentStr, ибо не понравилась она мне - могла быть
-      источником багов.
-  21.02.2001 VVM
-    ! GetFileOwner()::Под НТ/2000 переменная Needed устанавливается
-      независимо от результат.
-  14.02.2001 SKV
-    ! доработка фитчи отделения консоли.
-  12.02.2001 SKV
-    + Отделение Фар-овской консоли от неинтерактивного
-       процесса в ней запущенного.
-  23.01.2001 SVS
-    ! ExpandEnvironmentStr снова динамически выделяет память...
-    ! Уточнение факта посылки VK_F16 как виртуального кода!
-  23.01.2001 SVS
-    ! Сделаем статичный массив символов временного буфера в
-      ExpandEnvironmentStr()
-  21.01.2001 SVS
-    ! Функция GetString - переехала в stddlg.cpp
-  05.01.2001 SVS
-    ! Функция GetSubstName - переехала в flink.cpp
-    ! Функции InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
-      QuoteSpace, QuoteSpaceOnly, TruncStr, TruncPathStr, Remove???Spaces,
-      HiStrlen, AddEndSlash, NullToEmpty, CenterStr, GetCommaWord,
-      RemoveHighlights, IsCaseMixed, IsCaseLower, Unquote,
-      переехали в strmix.cpp
-  03.01.2001 SVS
-    ! Функции SetFarTitle, ScrollBar, ShowSeparator
-      переехали в interf.cpp
-    ! Функции MkLink, GetNumberOfLinks
-      переехали в flink.cpp
-  03.01.2001 SVS
-    ! ConvertDate - динамически получает форматы (если ее об этом попросить)
-  22.12.2000 SVS
-    ! Немного разгрузим файл:
-      KeyNameToKey -> keyboard.cpp
-      InputRecordToKey -> keyboard.cpp
-      KeyToText -> keyboard.cpp
-      Все, что касается SysLog -> syslog.cpp
-      Eject -> eject.cpp
-      Xlat  -> xlat.cpp
-      *Clipboard* -> clipboard.cpp
-  21.12.2000 SVS
-    + KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR - небольшое дополнение к макросам :-)
-  14.12.2000 SVS
-    + Добавлен код для выполнения Eject съемных носителей для
-      Win9x & WinNT/2K
-  06.12.2000 IS
-    ! Теперь функция AddEndSlash работает с обоими видами слешей, также
-      происходит изменение уже существующего конечного слеша на такой, который
-      встречается чаще.
-  24.11.2000 SVS
-    ! XLat сделаем несколько совершенной :-))) Что бы не зависеть от размера!
-  08.11.2000 SVS
-    - Бага в функции ConvertNameToFull.
-  04.11.2000 SVS
-    + XLAT_SWITCHKEYBBEEP в XLat перекодировке.
-    ! несколько проверок в FarBsearch, InputRecordToKey, FarQsort, FarSprintf,
-      FarAtoi64, FarAtoi, FarItoa64, FarItoa, KeyNameToKey, KeyToText,
-      FarSscanf, AddEndSlash, RemoveTrailingSpaces, RemoveLeadingSpaces,
-      TruncStr, TruncPathStr, QuoteSpaceOnly
-  03.11.2000 OT
-    ! Исправление предыдущего способа проверки
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  26.10.2000 SVS
-    ! У MkTemp префикс нафиг ненужно переводить в ANSI
-  25.10.2000 SVS
-    ! Уточнения OpenLogStream
-    ! У MkTemp префикс может быть и по русски, так что переведем в ANSI
-  25.10.2000 IS
-    ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
-      вариант приводил к ошибке (заметили на Multiarc'е)
-  23.10.2000 SVS
-    ! Узаконненая версия SysLog :-)
-      Задолбался я ставить комметарии после AT ;-)
-  20.10.2000 SVS
-    ! ProcessName: Flags должен быть DWORD, а не int
-  20.10.2000 SVS
-    + SysLog
-  16.10.2000 tran
-    + PasteFromClipboardEx(int max);
-  09.10.2000 IS
-    + Новые функции для обработки имени файла: ProcessName, ConvertWildcards
-  27.09.2000 skv
-    + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
-  24.09.2000 SVS
-    + Функция KeyNameToKey - получение кода клавиши по имени
-      Если имя не верно или нет такого - возвращается -1
-  20.09.2000 SVS
-    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
-  20.09.2000 SVS
-    ! Уточнения в функции Xlat()
-  19.09.2000 SVS
-    + функция FolderPresent - "сужествует ли каталог"
-  19.09.2000 SVS
-    + IsFolderNotEmpty немного "ускорим"
-    ! Функция FarMkTemp - уточнение!
-  18.09.2000 skv
-    + в IsCommandExeGUI проверка на наличие .bat и .cmd в тек. директории
-  18.09.2000 SVS
-    ! FarRecurseSearch -> FarRecursiveSearch
-    ! Исправление ошибочки в функции FarMkTemp :-)))
-  14.09.2000 SVS
-    + Функция FarMkTemp - получение имени временного файла с полным путем.
-  10.09.2000 SVS
-    ! KeyToText возвращает BOOL
-  10.09.2000 tran
-    + FSF/FarRecurseSearch
-  10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
-  08.09.2000 SVS
-    - QWERTY - ошибочка вралась :-)))
-    ! QWERTY -> Transliterate
-    ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
-    + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL
-  07.09.2000 SVS
-    + Функция GetFileOwner тоже доступна плагинам :-)
-    + Функция GetNumberOfLinks тоже доступна плагинам :-)
-    + Оболочка FarBsearch для плагинов (функция bsearch)
-  05.09.2000 SVS 1.19
-    + QWERTY - функция перекодировки QWERTY<->ЙЦУКЕН
-  31.08.2000 tran 1.18
-    + InputRecordToKey
-  29.08.2000 SVS
-    - Неверно отрабатывала функция FarSscanf
-  28.08.2000 SVS
-    ! уточнение для FarQsort
-    ! Не FarAtoa64, но FarAtoi64
-    + FarItoa64
-  25.08.2000 SVS
-    ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
-      сепаратор и кнопки <Ok> & <Cancel>
-  24.08.2000 SVS
-    + В функции KeyToText добавлена обработка клавиш
-      KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE
-  09.08.2000 SVS
-    + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
-      истории задается отдельно!!! (int function GetString())
-  01.08.2000 SVS
-    ! Функция ввода строки GetString имеет один параметр для всех флагов
-    ! дополнительный параметра у KeyToText - размер данных
-  31.07.2000 SVS
-    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
-    ! Если в GetString указан History, то добавляется еще и DIF_USELASTHISTORY
-  25.07.2000 SVS
-    ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
-    ! Функции, попадающие в разряд FSF должны иметь WINAPI!!!
-  23.07.2000 SVS
-    ! Функция GetString имеет вызов WINAPI
-  18.07.2000 tran 1.08
-    ! изменил типа аргумента у ScrollBar
-  13.07.2000 IG
-    - в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-      делать проверку побайтово (функция IsCommandExeGUI)
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  07.07.2000 tran
-    - trap under win2000, or console height > 210
-      bug was in ScrollBar ! :)))
-  07.07.2000 SVS
-    + Дополнительная функция обработки строк: RemoveExternalSpaces
-    ! Изменен тип 2-х функций:
-        RemoveLeadingSpaces
-        RemoveTrailingSpaces
-      Возвращают char*
-  05.07.2000 SVS
-    + Добавлена функция ExpandEnvironmentStr
-  28.06.2000 IS
-    ! Функция Unquote стала универсальной
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
+/* Revision: 1.204 25.08.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -592,147 +50,167 @@ __int64 filelen64(FILE *FPtr)
 }
 
 
-UserDefinedList *SaveAllCurDir(void)
+UserDefinedListW *SaveAllCurDir(void)
 {
-  UserDefinedList *DirList=new UserDefinedList(0,0,0);
+  UserDefinedListW *DirList=new UserDefinedListW(0,0,0);
   if(!DirList)
     return NULL;
 
-  char CurDir[NM*2], Drive[4]="=A:";
-  for(int I='A'; I <= 'Z'; ++I)
+  string strCurDir;
+  wchar_t Drive[4]=L"=A:";
+  for(int I=L'A'; I <= L'Z'; ++I)
   {
     Drive[1]=I;
     DirList->AddItem(Drive);
-    char *Ptr=CurDir;
-    if(!GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружения
-      Ptr="\x01";
+
+    const wchar_t *Ptr;
+
+    if(!apiGetEnvironmentVariable(Drive,strCurDir))  // окружения
+      Ptr=L"\x01";
+    else
+      Ptr=strCurDir;
+
     DirList->AddItem(Ptr);
   }
   return DirList;
 }
 
-void RestoreAllCurDir(UserDefinedList *DirList)
+void RestoreAllCurDir(UserDefinedListW *DirList)
 {
   if(!DirList)
     return;
 
-  char Drive[NM*2];
-  const char *NamePtr;
+  string strDrive;
+  const wchar_t *NamePtr;
   while(NULL!=(NamePtr=DirList->GetNext()))
   {
-    xstrncpy(Drive,NamePtr,sizeof(Drive)-1);
+    strDrive = NamePtr;
     if((NamePtr=DirList->GetNext()) != NULL)
-      SetEnvironmentVariable(Drive,(*NamePtr == '\x1'?"":NamePtr));
+      SetEnvironmentVariableW (strDrive,(*NamePtr == L'\x1'?L"":NamePtr));
   }
   delete DirList;
 }
 
 
-/* $ 14.01.2002 IS
-   Установка нужного диска и каталога и установление соответствующей переменной
-   окружения. В случае успеха возвращается не ноль.
-*/
-/* $ 22.01.2002 IS
-   + Обработаем самостоятельно пути типа "буква:"
-*/
-/* $ 15.02.2002 IS
-   + Новый параметр ChangeDir, если FALSE, то не меняем текущий диск, а только
-     устанавливаем переменные окружения. По умолчанию - TRUE.
-*/
-/* $ 07.11.2002 IS
-   + Принудительно меняем все / на \ (попытка побороть bugz#568)
-*/
-BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
+
+BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
 {
   if(!NewDir || *NewDir == 0)
     return FALSE;
 
   BOOL rc=FALSE;
+  wchar_t Drive[4]=L"=A:";
 
-  char CurDir[NM*2], Drive[4]="=A:";
-  if(isalpha(*NewDir) && NewDir[1]==':' && NewDir[2]==0)// если указана только
+  string strCurDir;
+  wchar_t *lpwszCurDir;
+
+  if(LocalIsalphaW(*NewDir) && NewDir[1]==L':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
-    Drive[1]=toupper(*NewDir);                          // возьмем из переменной
-    if(GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружения
-      FAR_CharToOem(CurDir,CurDir);
-    else
+    Drive[1]=LocalUpperW(*NewDir);                          // возьмем из переменной
+
+    if ( !apiGetEnvironmentVariable (Drive, strCurDir) )
     {
-      sprintf(CurDir,"%s\\",NewDir); // при неудаче переключимся в корень диска
-      char *Chr=CurDir;
-      while(*Chr)
+      strCurDir = NewDir;
+      AddEndSlashW (strCurDir);
+
+      wchar_t *lpwszChr = strCurDir.GetBuffer();
+
+      while(*lpwszChr)
       {
-        if(*Chr=='/') *Chr='\\';
-        ++Chr;
+        if(*lpwszChr==L'/')
+           *lpwszChr=L'\\';
+        ++lpwszChr;
       }
+
+      strCurDir.ReleaseBuffer ();
     }
-    *CurDir=toupper(*CurDir);
+    //*CurDir=toupper(*CurDir); бред!
     if(ChangeDir)
     {
-      if(CheckFolder(CurDir) > CHKFLD_NOTACCESS)
-        rc=SetCurrentDirectory(CurDir);
+      if(CheckFolderW(strCurDir) > CHKFLD_NOTACCESS)
+        rc=SetCurrentDirectoryW(strCurDir);
     }
   }
   else
   {
-    xstrncpy(CurDir,NewDir,sizeof(CurDir)-1);
-    if(!strcmp(CurDir,"\\"))
-      FarGetCurDir(sizeof(CurDir),CurDir); // здесь берем корень
-    char *Chr=CurDir;
-    while(*Chr)
+    strCurDir = NewDir;
+
+    if(!wcscmp(strCurDir,L"\\"))
+      FarGetCurDirW(strCurDir); // здесь берем корень
+
+    wchar_t *lpwszChr = strCurDir.GetBuffer();
+
+    while(*lpwszChr)
     {
-      if(*Chr=='/') *Chr='\\';
-      ++Chr;
+      if(*lpwszChr==L'/')
+         *lpwszChr=L'\\';
+      ++lpwszChr;
     }
+
+    strCurDir.ReleaseBuffer ();
+
     if(ChangeDir)
     {
-      if(CheckFolder(NewDir) > CHKFLD_NOTACCESS)
+      wchar_t *ptr;
+
+      int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr);
+      lpwszCurDir = strCurDir.GetBuffer (nSize+1);
+      GetFullPathNameW(NewDir,nSize+1,lpwszCurDir,&ptr);
+      AddEndSlashW(strCurDir); //???????????????
+      strCurDir.ReleaseBuffer ();
+
+      if(CheckFolderW((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
       {
-        char *ptr;
-        char FullDir[sizeof(CurDir)];
-        GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
-        AddEndSlash(FullDir);
-        PrepareDiskPath(FullDir,sizeof(FullDir)-1);
-
-        DWORD att1 = GetFileAttributes(NewDir);
-        DWORD att2 = GetFileAttributes(FullDir);
-
-        if (att1 != att2 && strcmp(NewDir,".."))
-          rc=SetCurrentDirectory(NewDir);
-        else
-          rc=SetCurrentDirectory(FullDir);
+        PrepareDiskPathW(strCurDir);
+        rc=SetCurrentDirectoryW((const wchar_t*)strCurDir);
       }
+
     }
   }
 
   if(rc || !ChangeDir)
   {
-    if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
-        isalpha(*CurDir) && CurDir[1]==':')
+    int nSize = GetCurrentDirectoryW (0, NULL);
+
+    lpwszCurDir = strCurDir.GetBuffer (nSize+1);
+
+    if ((!ChangeDir || GetCurrentDirectoryW(nSize+1,lpwszCurDir)) &&
+        LocalIsalphaW(*lpwszCurDir) && lpwszCurDir[1]==L':')
     {
-      Drive[1]=toupper(*CurDir);
-      FAR_OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
-      SetEnvironmentVariable(Drive,CurDir);
-  //    rc=0;
+      Drive[1]=LocalUpperW(*lpwszCurDir);
+      SetEnvironmentVariableW(Drive,lpwszCurDir);
     }
+
+    strCurDir.ReleaseBuffer ();
   }
   return rc;
 }
-/* IS 07.11.2002 $ */
-/* IS 15.02.2002 $ */
-/* IS 22.01.2002 $ */
-/* IS 14.01.2002 $ */
 
 /* $ 20.03.2002 SVS
  обертка вокруг функции получения текущего пути.
  для локального пути переводит букву диска в uppercase
 */
-DWORD FarGetCurDir(DWORD Length,char *Buffer)
+
+DWORD FarGetCurDirW (string &strBuffer)
 {
-  DWORD Result=GetCurrentDirectory(Length,Buffer);
-  if(Result && isalpha(*Buffer) && Buffer[1]==':' && (Buffer[2]==0 || Buffer[2]== '\\'))
-    *Buffer=toupper(*Buffer);
-  return Result;
+    int nLength = GetCurrentDirectoryW (0, NULL)+1;
+
+    wchar_t *lpwszBuffer = strBuffer.GetBuffer (nLength);
+
+    DWORD Result = GetCurrentDirectoryW (nLength, lpwszBuffer);
+
+    if ( Result &&
+         LocalIsalphaW (*lpwszBuffer) &&
+         lpwszBuffer[1] == L':' &&
+         (lpwszBuffer[2] == 0 || lpwszBuffer[2] == '\\')
+         )
+         *lpwszBuffer = LocalUpperW (*lpwszBuffer);
+
+    strBuffer.ReleaseBuffer ();
+
+    return Result;
 }
+
 /* SVS 20.03.2002 $ */
 
 DWORD NTTimeToDos(FILETIME *ft)
@@ -744,8 +222,7 @@ DWORD NTTimeToDos(FILETIME *ft)
   return(((DWORD)DosDate<<16)|DosTime);
 }
 
-
-void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
+void ConvertDateW (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear,int DynInit)
 {
   static int WDateFormat,WDateSeparator,WTimeSeparator;
@@ -773,56 +250,54 @@ void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength
 
   if (ft.dwHighDateTime==0)
   {
-    if (DateText!=NULL)
-      *DateText=0;
-    if (TimeText!=NULL)
-      *TimeText=0;
+    strDateText=L"";
+    strTimeText=L"";
     return;
   }
 
   FileTimeToLocalFileTime(&ft,&ct);
   FileTimeToSystemTime(&ct,&st);
 
-  if (TimeText!=NULL)
+  //if ( !strTimeText.IsEmpty() )
   {
-    const char *Letter="";
+    const wchar_t *Letter=L"";
     if (TimeLength==6)
     {
-      Letter=(st.wHour<12) ? "a":"p";
+      Letter=(st.wHour<12) ? L"a":L"p";
       if (st.wHour>12)
         st.wHour-=12;
       if (st.wHour==0)
         st.wHour=12;
     }
     if (TimeLength<7)
-      sprintf(TimeText,"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
+      strTimeText.Format (L"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
     else
     {
-      char FullTime[100];
-      sprintf(FullTime,"%02d%c%02d%c%02d.%03d",st.wHour,TimeSeparator,
+      string strFullTime;
+      strFullTime.Format (L"%02d%c%02d%c%02d.%03d",st.wHour,TimeSeparator,
               st.wMinute,TimeSeparator,st.wSecond,st.wMilliseconds);
-      sprintf(TimeText,"%.*s",TimeLength,FullTime);
+      strTimeText.Format (L"%.*s",TimeLength, (const wchar_t*)strFullTime);
     }
   }
 
-  if (DateText!=NULL)
+  //if ( !strDateText.IsEmpty() )
   {
     int Year=st.wYear;
     if (!FullYear)
       Year%=100;
     if (TextMonth)
     {
-      char *Month=MSG(MMonthJan+st.wMonth-1);
+      const wchar_t *Month=UMSG(MMonthJan+st.wMonth-1);
       switch(CurDateFormat)
       {
         case 0:
-          sprintf(DateText,"%3.3s %2d %02d",Month,st.wDay,Year);
+          strDateText.Format (L"%3.3s %2d %02d",Month,st.wDay,Year);
           break;
         case 1:
-          sprintf(DateText,"%2d %3.3s %02d",st.wDay,Month,Year);
+          strDateText.Format (L"%2d %3.3s %02d",st.wDay,Month,Year);
           break;
         default:
-          sprintf(DateText,"%02d %3.3s %2d",Year,Month,st.wDay);
+          strDateText.Format (L"%02d %3.3s %2d",Year,Month,st.wDay);
           break;
       }
     }
@@ -845,39 +320,43 @@ void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength
           p3=st.wDay;
           break;
       }
-      sprintf(DateText,"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
+      strDateText.Format (L"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
     }
   }
 
   if (Brief)
   {
-    DateText[TextMonth ? 6:5]=0;
+    wchar_t *lpwszDateText = strDateText.GetBuffer (max (strDateText.GetLength(), 7));
+
+    lpwszDateText[TextMonth ? 6:5]=0;
+
+    strDateText.ReleaseBuffer ();
+
     if (lt.wYear!=st.wYear)
-      sprintf(TimeText,"%5d",st.wYear);
+      strTimeText.Format (L"%5d",st.wYear);
   }
 }
 
-
 int GetDateFormat()
 {
-  char Info[100];
-  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info,sizeof(Info));
-  return(atoi(Info));
+  wchar_t Info[100];
+  GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info, sizeof(Info)/sizeof (wchar_t));
+  return(_wtoi(Info));
 }
 
 
 int GetDateSeparator()
 {
-  char Info[100];
-  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,sizeof(Info));
+  wchar_t Info[100];
+  GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,sizeof(Info)/sizeof (wchar_t));
   return(*Info);
 }
 
 
 int GetTimeSeparator()
 {
-  char Info[100];
-  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,sizeof(Info));
+  wchar_t Info[100];
+  GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,sizeof(Info)/sizeof (wchar_t));
   return(*Info);
 }
 
@@ -896,18 +375,18 @@ int ToPercent(unsigned long N1,unsigned long N2)
   return((int)(N1*100/N2));
 }
 
-int ToPercent64(__int64 N1,__int64 N2)
+int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 {
-  if (N1 > _i64(10000))
+  if (N1 > _ui64(10000))
   {
-    N1/=_i64(100);
-    N2/=_i64(100);
+    N1/=_ui64(100);
+    N2/=_ui64(100);
   }
-  if (N2==_i64(0))
-    return(_i64(0));
+  if (N2==_ui64(0))
+    return(_ui64(0));
   if (N2<N1)
     return(100);
-  return((int)(N1*_i64(100)/N2));
+  return((int)(N1*_ui64(100)/N2));
 }
 
 
@@ -916,22 +395,22 @@ int ToPercent64(__int64 N1,__int64 N2)
     + Новая функция для обработки имени файла
 */
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
+int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)
 {
   int skippath=flags&PN_SKIPPATH;
 
   if(flags&PN_CMPNAME)
-    return CmpName(param1, param2, skippath);
+    return CmpNameW (param1, param2, skippath);
 
   if(flags&PN_CMPNAMELIST)
   {
     int Found=FALSE;
-    char FileMask[NM];
-    const char *MaskPtr;
+    string strFileMask;
+    const wchar_t *MaskPtr;
     MaskPtr=param1;
 
-    while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
-      if (CmpName(FileMask,param2,skippath))
+    while ((MaskPtr=GetCommaWordW(MaskPtr,strFileMask))!=NULL)
+      if (CmpNameW(strFileMask,param2,skippath))
       {
         Found=TRUE;
         break;
@@ -940,15 +419,24 @@ int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
   }
 
   if(flags&PN_GENERATENAME)
-   return ConvertWildcards(param1, param2, flags & 0xFF);
+  {
+      string strResult;
+
+      int nResult = ConvertWildcardsW(param1, strResult, flags & 0xFFFF);
+
+      xwcsncpy(param2, strResult, size);
+
+      return nResult;
+  }
 
   return FALSE;
 }
 /* IS $ */
 
-int GetFileTypeByName(const char *Name)
+
+int GetFileTypeByNameW(const wchar_t *Name)
 {
-  HANDLE hFile=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+  HANDLE hFile=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
     return(FILE_TYPE_UNKNOWN);
@@ -958,20 +446,20 @@ int GetFileTypeByName(const char *Name)
 }
 
 
-static void DrawGetDirInfoMsg(char *Title,const char *Name)
+static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name)
 {
-  Message(0,0,Title,MSG(MScanningFolder),Name);
-  PreRedrawParam.Param1=Title;
-  PreRedrawParam.Param2=Name;
+  MessageW(0,0,Title,UMSG(MScanningFolder),Name);
+  PreRedrawParam.Param1=(void*)Title;
+  PreRedrawParam.Param2=(void*)Name;
 }
 
 static void PR_DrawGetDirInfoMsg(void)
 {
-  DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param2);
+  DrawGetDirInfoMsg((const wchar_t*)PreRedrawParam.Param1,(const wchar_t *)PreRedrawParam.Param2);
 }
 
-int GetDirInfo(char *Title,
-               const char *DirName,
+int GetDirInfo(const wchar_t *Title,
+               const wchar_t *DirName,
                unsigned long &DirCount,
                unsigned long &FileCount,
                unsigned __int64 &FileSize,
@@ -980,36 +468,30 @@ int GetDirInfo(char *Title,
                unsigned long &ClusterSize,
                clock_t MsgWaitTime,
                DWORD Flags)
-               //int EnhBreak,
-               //BOOL DontRedrawFrame,
-               //int ScanSymLink,
-               //int UseFilter)
 {
-  char FullDirName[NM],DriveRoot[NM];
-  char FullName[NM],CurDirName[NM],LastDirName[NM];
-  if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
-    return -1;
+  string strFullDirName, strDriveRoot;
+  string strFullName, strCurDirName, strLastDirName;
+
+  ConvertNameToFullW(DirName, strFullDirName);
 
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
 
-  ScanTree ScTree(FALSE,TRUE,
-                  (Flags&GETDIRINFO_SCANSYMLINKDEF?-1:(Flags&GETDIRINFO_SCANSYMLINK)),
-                  Flags&GETDIRINFO_USEDALTFOLDERNAME);
-  WIN32_FIND_DATA FindData;
+  ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?-1:(Flags&GETDIRINFO_SCANSYMLINK)));
+  FAR_FIND_DATA_EX FindData;
   int MsgOut=0;
   clock_t StartTime=clock();
 
   SetCursorType(FALSE,0);
-  GetPathRoot(FullDirName,DriveRoot);
+  GetPathRootW(strFullDirName,strDriveRoot);
 
   /* $ 20.03.2002 DJ
      для . - покажем имя родительского каталога
   */
-  const char *ShowDirName = DirName;
-  if (DirName[0] == '.' && DirName[1] == 0)
+  const wchar_t *ShowDirName = DirName;
+  if (DirName[0] == L'.' && DirName[1] == 0)
   {
-    char *p = strrchr (FullDirName, '\\');
+    wchar_t *p = wcsrchr (strFullDirName, L'\\');
     if (p)
       ShowDirName = p + 1;
   }
@@ -1020,26 +502,26 @@ int GetDirInfo(char *Title,
 
   PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 
-  if ((ClusterSize=GetClusterSize(DriveRoot))==0)
+  if ((ClusterSize=GetClusterSizeW(strDriveRoot))==0)
   {
     DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-    if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+    if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
       ClusterSize=SectorsPerCluster*BytesPerSector;
   }
 
   // Временные хранилища имён каталогов
-  *LastDirName=0;
-  *CurDirName=0;
+  strLastDirName=L"";
+  strCurDirName=L"";
 
   // Создадим объект фильтра
   FileFilter Filter;
 
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
-  ScTree.SetFindPath(DirName,"*.*");
+  ScTree.SetFindPathW(DirName,L"*.*");
 
-  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+  while (ScTree.GetNextNameW(&FindData,strFullName))
   {
     if (!CtrlObject->Macro.IsExecuting())
     {
@@ -1075,7 +557,7 @@ int GetDirInfo(char *Title,
 
     if (!MsgOut && MsgWaitTime!=0xffffffff && clock()-StartTime > MsgWaitTime)
     {
-      OldTitle.Set("%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
+      OldTitle.Set(L"%s %s",UMSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
       SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
       DrawGetDirInfoMsg(Title,ShowDirName);
@@ -1105,35 +587,34 @@ int GetDirInfo(char *Title,
       // фильтра.
       if ((Flags&GETDIRINFO_USEFILTER))
       {
-        char *p1=strrchr(FullName,'\\');
-        if (p1)
-          xstrncpy(CurDirName,FullName,p1-FullName);
-        else
-          xstrncpy(CurDirName,FullName,sizeof(CurDirName)-1);
+        strCurDirName = strFullName;
 
-        if (LocalStricmp(CurDirName,LastDirName)!=0)
+        CutToSlashW (strCurDirName); //???
+
+        if (LocalStricmpW(strCurDirName,strLastDirName)!=0)
         {
           DirCount++;
-          xstrncpy(LastDirName,CurDirName,sizeof(LastDirName)-1);
+          strLastDirName = strCurDirName;
         }
       }
       /* KM $ */
 
       FileCount++;
-      unsigned __int64 CurSize=MKUINT64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
+
+      unsigned __int64 CurSize = FindData.nFileSize;
       FileSize+=CurSize;
       if (FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)
       {
         DWORD CompressedSize,CompressedSizeHigh;
-        CompressedSize=GetCompressedFileSize(FullName,&CompressedSizeHigh);
+        CompressedSize=GetCompressedFileSizeW(strFullName,&CompressedSizeHigh);
         if (CompressedSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
-          CurSize=MKUINT64(CompressedSizeHigh,CompressedSize);
+          CurSize = CompressedSizeHigh*0x100000000+CompressedSize;
       }
       CompressedFileSize+=CurSize;
       if (ClusterSize>0)
       {
         RealSize+=CurSize;
-        long Slack=(long)(CurSize%ClusterSize);
+        int Slack=(__int32)(CurSize%ClusterSize);
         if (Slack>0)
           RealSize+=ClusterSize-Slack;
       }
@@ -1145,12 +626,11 @@ int GetDirInfo(char *Title,
 }
 
 
-int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,
-               unsigned __int64 &FileSize,
+int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
+               unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize)
 {
-  struct PluginPanelItem *PanelItem=NULL;
+  struct PluginPanelItemW *PanelItem=NULL;
   int ItemsNumber,ExitCode;
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=0;
@@ -1165,20 +645,20 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
       else
       {
         FileCount++;
-        __int64 CurSize=MKUINT64(PanelItem[I].FindData.nFileSizeHigh,PanelItem[I].FindData.nFileSizeLow);
+        unsigned __int64 CurSize = PanelItem[I].FindData.nFileSize;
         FileSize+=CurSize;
-        if (PanelItem[I].PackSize==0 && PanelItem[I].PackSizeHigh==0)
+        if (PanelItem[I].FindData.nPackSize)
           CompressedFileSize+=CurSize;
         else
         {
-          __int64 AddSize=MKUINT64(PanelItem[I].PackSizeHigh,PanelItem[I].PackSize);
+          unsigned __int64 AddSize = PanelItem[I].FindData.nPackSize;
           CompressedFileSize+=AddSize;
         }
       }
     }
   }
   if (PanelItem!=NULL)
-    FarFreeDirList(PanelItem);
+    FarFreePluginDirList(PanelItem, ItemsNumber);
   return(ExitCode);
 }
 
@@ -1191,27 +671,31 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
     CHKFLD_NOTACCESS (-1) - нет доступа
     CHKFLD_ERROR     (-2) - ошибка (параметры - дерьмо или нехватило памяти для выделения промежуточных буферов)
 */
-int CheckFolder(const char *Path)
+
+int CheckFolderW(const wchar_t *Path)
 {
   if(!(Path || *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
 
-  int LenFindPath=Max((int)strlen(Path),2048)+8;
+/*  int LenFindPath=Max((int)wcslen(Path),2048)+8;
   char *FindPath=(char *)alloca(LenFindPath); // здесь alloca - чтобы _точно_ хватило на все про все.
   if(!FindPath)
-    return CHKFLD_ERROR;
+    return CHKFLD_ERROR;*/
 
   HANDLE FindHandle;
-  WIN32_FIND_DATA fdata;
+  FAR_FIND_DATA_EX fdata;
   int Done=FALSE;
 
+  string strFindPath = Path;
+
+
   // сообразим маску для поиска.
-  strcpy(FindPath,Path);
-  AddEndSlash(FindPath);
-  strcat(FindPath,"*.*");
+  AddEndSlashW(strFindPath);
+
+  strFindPath += L"*.*";
 
   // первая проверка - че-нить считать можем?
-  if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
+  if((FindHandle=apiFindFirstFile(strFindPath,&fdata)) == INVALID_HANDLE_VALUE)
   {
     GuardLastError lstError;
     if(lstError.Get() == ERROR_FILE_NOT_FOUND)
@@ -1219,33 +703,22 @@ int CheckFolder(const char *Path)
 
     // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
     // поэтому посмотрим на Root
-    GetPathRootOne(Path,FindPath);
-    if(!strcmp(Path,FindPath))
+    GetPathRootOneW(Path,strFindPath);
+
+
+    if(!wcscmp(Path,strFindPath))
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-      if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
-      {
-        if(lstError.Get() == ERROR_ACCESS_DENIED)
-          return CHKFLD_NOTACCESS;
+      if(GetFileAttributesW(strFindPath)!=0xFFFFFFFF)
         return CHKFLD_EMPTY;
-      }
     }
-    strcpy(FindPath,Path);
-    if(CheckShortcutFolder(FindPath,LenFindPath,FALSE,TRUE))
+
+    strFindPath = Path;
+
+    if(CheckShortcutFolderW(&strFindPath,FALSE,TRUE))
     {
-      if(strcmp(Path,FindPath))
+      if(wcscmp(Path,strFindPath))
         return CHKFLD_NOTFOUND;
-#if 0
-      DWORD Attr=GetFileAttributes(Path);
-      if(Attr != 0xFFFFFFFF && (Attr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
-      {
-        ConvertNameToFull(Path,FindPath,LenFindPath);
-        GetPathRoot(FindPath,FindPath);
-        // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-        if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
-          return CHKFLD_EMPTY;
-      }
-#endif
     }
 
     return CHKFLD_NOTACCESS;
@@ -1254,7 +727,7 @@ int CheckFolder(const char *Path)
   // Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
   while(!Done)
   {
-    if (fdata.cFileName[0] == '.' && (fdata.cFileName[1] == 0 || fdata.cFileName[1] == '.' && fdata.cFileName[2] == 0))
+    if (fdata.strFileName.At(0) == L'.' && (fdata.strFileName.At(1) == 0 || fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0))
       ; // игнорируем "." и ".."
     else
     {
@@ -1262,7 +735,7 @@ int CheckFolder(const char *Path)
       FindClose(FindHandle);
       return CHKFLD_NOTEMPTY;
     }
-    Done=!FindNextFile(FindHandle,&fdata);
+    Done=!apiFindNextFile(FindHandle,&fdata);
   }
 
   // однозначно каталог пуст
@@ -1270,62 +743,72 @@ int CheckFolder(const char *Path)
   return CHKFLD_EMPTY;
 }
 
-char* FarMSG(int MsgID)
+
+char* GetAnsiLanguageString (int nID)
 {
-  return(Lang.GetMsg(MsgID));
+    return Lang.GetMsg(nID);
+}
+
+wchar_t* GetUnicodeLanguageString (int nID)
+{
+    return Lang.GetMsgW(nID);
 }
 
 
-BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalFree,unsigned __int64 *UserFree)
+
+BOOL GetDiskSizeW (const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
-  typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
-    LPCTSTR lpDirectoryName,
+  typedef BOOL (WINAPI *GETDISKFREESPACEEXW)(
+    const wchar_t *lpwszDirectoryName,
     PULARGE_INTEGER lpFreeBytesAvailableToCaller,
     PULARGE_INTEGER lpTotalNumberOfBytes,
     PULARGE_INTEGER lpTotalNumberOfFreeBytes
    );
-  static GETDISKFREESPACEEX pGetDiskFreeSpaceEx=NULL;
+  static GETDISKFREESPACEEXW pGetDiskFreeSpaceExW=NULL;
   static int LoadAttempt=FALSE;
   int ExitCode=0;
 
   ULARGE_INTEGER uiTotalSize,uiTotalFree,uiUserFree;
-  uiUserFree.u.LowPart=uiUserFree.u.HighPart=0;
-  uiTotalSize.u.LowPart=uiTotalSize.u.HighPart=0;
-  uiTotalFree.u.LowPart=uiTotalFree.u.HighPart=0;
 
-  if (!LoadAttempt && pGetDiskFreeSpaceEx==NULL)
+  uiUserFree.QuadPart = 0;
+  uiTotalSize.QuadPart = 0;
+  uiTotalFree.QuadPart = 0;
+
+  if (!LoadAttempt && pGetDiskFreeSpaceExW==NULL)
   {
-    HMODULE hKernel=GetModuleHandle("kernel32.dll");
+    HMODULE hKernel=GetModuleHandleW(L"kernel32.dll");
     if (hKernel!=NULL)
-      pGetDiskFreeSpaceEx=(GETDISKFREESPACEEX)GetProcAddress(hKernel,"GetDiskFreeSpaceExA");
+      pGetDiskFreeSpaceExW=(GETDISKFREESPACEEXW)GetProcAddress(hKernel,"GetDiskFreeSpaceExW");
     LoadAttempt=TRUE;
   }
-  if (pGetDiskFreeSpaceEx!=NULL)
+  if (pGetDiskFreeSpaceExW!=NULL)
   {
-    ExitCode=pGetDiskFreeSpaceEx(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
-    if (uiUserFree.u.HighPart>uiTotalFree.u.HighPart)
-      uiUserFree.u=uiTotalFree.u;
+    ExitCode=pGetDiskFreeSpaceExW(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
+    if (uiUserFree.QuadPart > uiTotalFree.QuadPart)
+      uiUserFree.QuadPart=uiTotalFree.QuadPart;
   }
 
-  if (pGetDiskFreeSpaceEx==NULL || ExitCode==0 ||
-      uiTotalSize.u.HighPart==0 && uiTotalSize.u.LowPart==0)
+  if (pGetDiskFreeSpaceExW==NULL || ExitCode==0 || uiTotalSize.QuadPart==0)
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
-    ExitCode=GetDiskFreeSpace(Root,&SectorsPerCluster,&BytesPerSector,
+    ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,
                               &FreeClusters,&Clusters);
-    uiTotalSize.u.LowPart=SectorsPerCluster*BytesPerSector*Clusters;
-    uiTotalSize.u.HighPart=0;
-    uiTotalFree.u.LowPart=SectorsPerCluster*BytesPerSector*FreeClusters;
-    uiTotalFree.u.HighPart=0;
-    uiUserFree.u=uiTotalFree.u;
+    uiTotalSize.QuadPart=SectorsPerCluster*BytesPerSector*Clusters;
+    uiTotalFree.QuadPart=SectorsPerCluster*BytesPerSector*FreeClusters;
+    uiUserFree.QuadPart=uiTotalFree.QuadPart;
   }
-  *TotalSize=MKUINT64(uiTotalSize.u.HighPart,uiTotalSize.u.LowPart);
-  *TotalFree=MKUINT64(uiTotalFree.u.HighPart,uiTotalFree.u.LowPart);
-  *UserFree=MKUINT64(uiUserFree.u.HighPart,uiUserFree.u.LowPart);
+
+  if ( TotalSize )
+    *TotalSize = uiTotalSize.QuadPart;
+  if ( TotalFree )
+    *TotalFree = uiTotalFree.QuadPart;
+  if ( UserFree )
+    *UserFree = uiUserFree.QuadPart;
   return(ExitCode);
 }
 
-int GetClusterSize(char *Root)
+
+int GetClusterSizeW(const wchar_t *Root)
 {
   struct ExtGetDskFreSpc
   {
@@ -1360,7 +843,7 @@ int GetClusterSize(char *Root)
       WinVer.dwBuildNumber<0x04000457)
     return(0);
 
-  HANDLE hDevice = FAR_CreateFile("\\\\.\\vwin32", 0, 0, NULL, 0,
+  HANDLE hDevice = FAR_CreateFileW(L"\\\\.\\vwin32", 0, 0, NULL, 0,
                               FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
   if (hDevice==INVALID_HANDLE_VALUE)
@@ -1368,13 +851,17 @@ int GetClusterSize(char *Root)
 
   DiskInfo.ExtFree_Level=0;
 
+  char *lpRoot = UnicodeToAnsi (Root);
+
   reg.reg_EAX = 0x7303;
-  reg.reg_EDX = (DWORD)Root;
+  reg.reg_EDX = (DWORD)lpRoot;
   reg.reg_EDI = (DWORD)&DiskInfo;
   reg.reg_ECX = sizeof(DiskInfo);
   reg.reg_Flags = 0x0001;
 
   fResult=DeviceIoControl(hDevice,6,&reg,sizeof(reg),&reg,sizeof(reg),&cb,0);
+
+  xf_free (lpRoot);
 
   CloseHandle(hDevice);
   if (!fResult || (reg.reg_Flags & 0x0001))
@@ -1384,78 +871,9 @@ int GetClusterSize(char *Root)
 
 
 
-/* $ 02.03.2001 IS
-   Расширение переменных среды
-   Вынесена в качестве самостоятельной вместо прямого вызова
-     ExpandEnvironmentStrings.
-   src и dest могут быть одинаковыми
-*/
-DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
-{
-  DWORD ret=0;
-  if(size && src && dest)
-  {
-    char *tmpDest=(char *)alloca(size),
-          *tmpSrc=(char *)alloca(strlen(src)+1);
-    if(tmpDest && tmpSrc)
-    {
-      FAR_OemToChar(src, tmpSrc);
-      DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
-      if (Len && Len <= size)
-      {
-        const char *ptrsrc=src;
-        char *ptrdest=tmpDest;
 
-        //AY: Обрабатываем каждый %var% отдельно дабы не делать лишних OEM2ANSI
-        //    и назад перекодировок.
-        //    Проверки на size не нужны так как за нас это уже
-        //    проверил ExpandEnvironmentStrings().
-        while (1)
-        {
-          while (*ptrsrc && *ptrsrc!='%')
-            *(ptrdest++) = *(ptrsrc++);
 
-          if (*ptrsrc == '%')
-          {
-            const char *ptrnext=strchr(ptrsrc+1,'%');
-            if (ptrnext)
-            {
-              Len = ptrnext-ptrsrc+1;
-              FAR_OemToCharBuff(ptrsrc,tmpSrc,Len);
-              tmpSrc[Len]=0;
-              Len = ExpandEnvironmentStrings(tmpSrc,ptrdest,size-(ptrdest-tmpDest));
-
-              //AY: Был ли это реальный %var%?
-              if (Len && strcmp(tmpSrc,ptrdest))
-              {
-                FAR_CharToOem(ptrdest, ptrdest);
-                ptrdest += strlen(ptrdest);
-                ptrsrc = ptrnext+1;
-              }
-              else
-                *(ptrdest++) = *(ptrsrc++);
-            }
-            else
-              *(ptrdest++) = *(ptrsrc++);
-          }
-
-          if (!*ptrsrc)
-          {
-            *ptrdest = 0;
-            break;
-          }
-        }
-        xstrncpy(dest, tmpDest, size-1);
-      }
-      else
-      {
-        xstrncpy(dest, src, size-1);
-      }
-      ret=strlen(dest);
-    }
-  }
-  return ret;
-}
+/* IS $ */
 
 #if 0
 /*
@@ -1516,28 +934,39 @@ BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize)
         запятыми или точкой с запятой, можно указывать маски исключения,
         можно заключать маски в кавычки. Короче, все как и должно быть :-)
 */
-void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
+void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNCW Func,DWORD Flags,void *Param)
 {
   if(Func && InitDir && *InitDir && Mask && *Mask)
   {
-    CFileMask FMask;
+    CFileMaskW FMask;
     if(!FMask.Set(Mask, FMF_SILENT)) return;
 
     Flags=Flags&0x000000FF; // только младший байт!
     ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANSYMLINK);
-    WIN32_FIND_DATA FindData;
-    char FullName[NM];
+    FAR_FIND_DATA_EX FindData;
 
-    ScTree.SetFindPath(InitDir,"*");
-    while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+    string strFullName;
+
+    ScTree.SetFindPathW(InitDir,L"*");
+    while (ScTree.GetNextNameW(&FindData,strFullName))
     {
-      if ((FMask.Compare(FindData.cFileName) || FMask.Compare(FindData.cAlternateFileName)) &&
-          Func(&FindData,FullName,Param) == 0)
-          break;
+      if ( FMask.Compare(FindData.strFileName) || FMask.Compare(FindData.strAlternateFileName) )
+      {
+          FAR_FIND_DATA fdata;
+
+          apiFindDataExToData (&FindData, &fdata);
+
+          if ( Func(&fdata,strFullName,Param) == 0)
+          {
+            apiFreeFindData(&fdata);
+            break;
+          }
+
+          apiFreeFindData(&fdata);
+      }
     }
   }
 }
-/* IS $ */
 /* tran 10.09.2000 $ */
 
 /* $ 14.09.2000 SVS
@@ -1555,11 +984,14 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
    Параметр Prefix - строка, указывающая на первые символы имени временного
    файла. Используются только первые 3 символа из этой строки.
 */
+
+/*
 char* WINAPI FarMkTemp(char *Dest, const char *Prefix)
 {
   return FarMkTempEx(Dest,Prefix,TRUE);
 }
 
+*/
 /*
              v - точка
    prefXXX X X XXX
@@ -1568,6 +1000,7 @@ char* WINAPI FarMkTemp(char *Dest, const char *Prefix)
         |
         +---------- [0A-Z]
 */
+/*
 char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
 {
   if(Dest)
@@ -1589,6 +1022,39 @@ char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
   }
   return NULL;
 }
+*/
+
+wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
+{
+    string strDest;
+
+    if ( FarMkTempExW (strDest, Prefix, TRUE) )
+    {
+        xwcsncpy (Dest, strDest, size);
+        return Dest;
+    }
+
+    return NULL;
+}
+
+string& FarMkTempExW(string &strDest, const wchar_t *Prefix, BOOL WithPath)
+{
+  if(!(Prefix && *Prefix))
+    Prefix=L"FTMP";
+
+  string strPath = Opt.strTempPath;
+
+  wchar_t *lpwszDest = strDest.GetBuffer (wcslen(Prefix)+strPath.GetLength()+13);
+
+  do {
+    GetTempFileNameW (strPath, Prefix, GetCurrentProcessId(), lpwszDest);
+  } while ( GetFileAttributesW (lpwszDest) != -1 );
+
+  strDest.ReleaseBuffer ();
+
+  return strDest;
+}
+
 /* IS $ */
 /* SVS 18.09.2000 $ */
 /* SVS $ */
@@ -1603,44 +1069,43 @@ void WINAPI DeleteBuffer(char *Buffer)
 }
 /* skv$*/
 
-// Получить из имени диска RemoteName
-char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
+
+string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest)
 {
   int NetPathShown=FALSE, IsOK=FALSE;
-  char LocalName[8]=" :\0\0\0",RemoteName[NM];
-  DWORD RemoteNameSize=sizeof(RemoteName);
+  wchar_t LocalName[8]=L" :\0\0\0", RemoteName[NM]; //BUGBUG
+  DWORD RemoteNameSize=sizeof(RemoteName)/sizeof (wchar_t);
 
   *LocalName=Letter;
-  *Dest=0;
+  strDest=L"";
 
   if(DriveType == DRIVE_UNKNOWN)
   {
     LocalName[2]='\\';
-    DriveType = FAR_GetDriveType(LocalName);
+    DriveType = FAR_GetDriveTypeW(LocalName);
     LocalName[2]=0;
   }
 
   if (DriveType==DRIVE_REMOTE)
   {
-    SetFileApisTo(APIS2ANSI);
-    if (WNetGetConnection(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
+    if (WNetGetConnectionW(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
     {
       NetPathShown=TRUE;
       IsOK=TRUE;
     }
-    SetFileApisTo(APIS2OEM);
   }
+  string strRemoteName = RemoteName;
+
   if (!NetPathShown)
-    if (GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))
+    if (GetSubstNameW(DriveType,LocalName,strRemoteName))
       IsOK=TRUE;
 
   if(IsOK)
-  {
-    FAR_CharToOem(RemoteName,RemoteName);
-    strcpy(Dest,RemoteName);
-  }
-  return Dest;
+    strDest = strRemoteName;
+
+  return strDest;
 }
+
 
 /*
   FarGetLogicalDrives
@@ -1663,11 +1128,11 @@ DWORD WINAPI FarGetLogicalDrives(void)
   if(!Opt.Policies.ShowHiddenDrives)
   {
     HKEY hKey;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
+    if (RegOpenKeyExW(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
     {
       int ExitCode;
       DWORD Type,Size=sizeof(NoDrives);
-      ExitCode=RegQueryValueEx(hKey,"NoDrives",0,&Type,(BYTE *)&NoDrives,&Size);
+      ExitCode=RegQueryValueExW(hKey,L"NoDrives",0,&Type,(BYTE *)&NoDrives,&Size);
       RegCloseKey(hKey);
       if(ExitCode != ERROR_SUCCESS)
         NoDrives=0;
@@ -1688,72 +1153,65 @@ DWORD WINAPI FarGetLogicalDrives(void)
 // в %PATHEXT%
 // IS: Сравнений на совпадение очередной маски с тем, что имеется в Dest
 // IS: не делается, т.к. дубли сами уберутся при компиляции маски
-char *Add_PATHEXT(char *Dest)
+string &Add_PATHEXT(string &strDest)
 {
-  char Buf[1024];
-  int curpos=strlen(Dest)-1, l;
-  UserDefinedList MaskList(0,0,ULF_UNIQUE);
-  if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)) && MaskList.Set(Buf))
+  string strBuf;
+  int curpos=strDest.GetLength()-1;
+  UserDefinedListW MaskList(0,0,ULF_UNIQUE);
+  if( apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
   {
     /* $ 13.10.2002 IS проверка на '|' (маски исключения) */
-    if(*Dest && Dest[curpos]!=',' && Dest[curpos]!='|')
-    {
-      Dest[curpos+1]=',';
-      Dest[curpos+2]=0;
-      ++curpos;
-    }
+    if( !strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
+      strDest += L',';
     /* IS $ */
-    ++curpos;
-    const char *Ptr;
+    const wchar_t *Ptr;
     MaskList.Reset();
     while(NULL!=(Ptr=MaskList.GetNext()))
     {
-      Dest[curpos]='*';
-      ++curpos;
-      l=strlen(Ptr);
-      memcpy(Dest+curpos,Ptr,l);
-      curpos+=l;
-      Dest[curpos]=',';
-      ++curpos;
-      Dest[curpos]=0;
+      strDest += L'*';
+      strDest += Ptr;
+      strDest += L',';
     }
-    --curpos;
   }
   // лишняя запятая - в морг!
   /* $ 13.10.2002 IS Оптимизация по скорости */
-  if(Dest[curpos] == ',')
-    Dest[curpos]=0;
+  if(strDest.At(curpos) == L',')
+  {
+    wchar_t *lpwszDest = strDest.GetBuffer ();
+    lpwszDest[curpos]=0;
+    strDest.ReleaseBuffer ();
+  }
   /* IS $ */
-  return Dest;
+  return strDest;
 }
-/* IS 13.10.2002 $ */
 
-void CreatePath (char *Path)
+
+void CreatePathW (string &strPath)
 {
-  char *ChPtr = Path;
-  char *DirPart = Path;
+  wchar_t *ChPtr = strPath.GetBuffer ();
+  wchar_t *DirPart = ChPtr;
 
   BOOL bEnd = FALSE;
 
   while ( TRUE )
   {
-    if ( (*ChPtr == 0) || (*ChPtr == '\\') )
+    if ( (*ChPtr == 0) || (*ChPtr == L'\\') )
     {
       if ( *ChPtr == 0 )
         bEnd = TRUE;
 
       *ChPtr = 0;
 
-      if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributes(Path) == (DWORD)-1)
-        LocalStrupr(DirPart);
+      if ( Opt.CreateUppercaseFolders && !IsCaseMixedW(DirPart) && GetFileAttributesW(strPath) == (DWORD)-1) //BUGBUG
+        CharUpperW (DirPart);
 
-      if ( CreateDirectory(Path, NULL) )
-        TreeList::AddTreeName(Path);
+      if ( CreateDirectoryW(strPath, NULL) )
+        TreeList::AddTreeName(strPath);
 
       if ( bEnd )
         break;
 
-      *ChPtr = '\\';
+      *ChPtr = L'\\';
       DirPart = ChPtr+1;
     }
 
@@ -1761,68 +1219,68 @@ void CreatePath (char *Path)
   }
 }
 
+
 void SetPreRedrawFunc(PREREDRAWFUNC Func)
 {
   if((PreRedrawFunc=Func) == NULL)
     memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
 }
 
-int PathMayBeAbsolute(const char *Path)
+int PathMayBeAbsoluteW (const wchar_t *Path)
 {
-  return (Path &&
+    return (Path &&
            (
-//             (isalpha(*Path) && Path[1]==':' && Path[2]) ||
-//           Абсолютный путь не обязательно после ":" содержит еще что-то.
-//           Бывают случаи и "а:"
-             (isalpha(*Path) && Path[1]==':') ||
-             (Path[0]=='\\'  && Path[1]=='\\') ||
-             (Path[0]=='/'   && Path[1]=='/')
+             (LocalIsalphaW(*Path) && Path[1]==L':') ||
+             (Path[0]==L'\\'  && Path[1]==L'\\') ||
+             (Path[0]==L'/'   && Path[1]==L'/')
            )
          );
 }
 
-BOOL IsLocalPath(const char *Path)
+
+BOOL IsLocalPathW(const wchar_t *Path)
 {
-  return (Path && isalpha(*Path) && Path[1]==':' && Path[2]);
+  return (Path && LocalIsalphaW(*Path) && Path[1]==L':' && Path[2]);
 }
 
-BOOL IsLocalRootPath(const char *Path)
+BOOL IsLocalRootPathW(const wchar_t *Path)
 {
-  return (Path && isalpha(*Path) && Path[1]==':' && Path[2] == '\\' && !Path[3]);
+  return (Path && LocalIsalphaW(*Path) && Path[1]==L':' && Path[2] == L'\\' && !Path[3]);
 }
 
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
-char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
+
+string& PrepareDiskPathW(string &strPath,BOOL CheckFullPath)
 {
-  if(Path)
+  if( !strPath.IsEmpty() )
   {
-    if((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\'))
+    if((LocalIsalphaW(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
     {
       if(CheckFullPath)
       {
-        char NPath[1024];
-        *NPath=0;
-        RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
-        if(*NPath)
-          xstrncpy(Path,NPath,MaxSize);
+        string strNPath;
+        RawConvertShortNameToLongNameW(strPath,strNPath);
+        if( !strNPath.IsEmpty() )
+          strPath = strNPath;
       }
-      /* $ 03.12.2001 DJ
-         RawConvertShortNameToLongName() не апперкейсит первую букву Path
-         => уберем else
-      */
-      if (Path[0]=='\\' && Path[1]=='\\')
+
+      wchar_t *lpwszPath = strPath.GetBuffer ();
+
+      if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
       {
-        char *ptr=&Path[2];
-        while (*ptr && *ptr!='\\')
-          *(ptr++)=toupper(*ptr);
+        wchar_t *ptr=&lpwszPath[2];
+        while (*ptr && *ptr!=L'\\')
+          *(ptr++)=LocalUpperW(*ptr);
       }
       else
-        Path[0]=toupper(Path[0]);
+        lpwszPath[0]=LocalUpperW(lpwszPath[0]);
+
+      strPath.ReleaseBuffer ();
       /* DJ $ */
     }
   }
-  return Path;
+  return strPath;
 }
 
 /*
@@ -1837,46 +1295,58 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
    TestPath может быть пустым, тогда просто исполним ProcessPluginEvent()
 
 */
-int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silent)
+
+int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent)
 {
-  if(TestPath && *TestPath && GetFileAttributes(TestPath) == -1)
+  if( pTestPath && !pTestPath->IsEmpty() && GetFileAttributesW(*pTestPath) == -1)
   {
-    char Target[NM];
     int FoundPath=0;
 
-    xstrncpy(Target, TestPath, sizeof(Target)-1);
-    TruncPathStr(Target, ScrX-16);
+    string strTarget = *pTestPath;
+
+    TruncPathStrW(strTarget, ScrX-16);
 
     if(IsHostFile)
     {
       SetLastError(ERROR_FILE_NOT_FOUND);
       if(!Silent)
-        Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
+        MessageW (MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strTarget, UMSG (MOk));
     }
     else // попытка найти!
     {
       SetLastError(ERROR_PATH_NOT_FOUND);
-      if(Silent || Message (MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), Target, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
+      if(Silent || MessageW (MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strTarget, UMSG (MNeedNearPath), UMSG(MHYes),UMSG(MHNo)) == 0)
       {
-        char *Ptr;
-        char TestPathTemp[1024];
-        xstrncpy(TestPathTemp,TestPath,sizeof(TestPathTemp)-1);
-        while((Ptr=strrchr(TestPathTemp,'\\')) != NULL)
+        string strTestPathTemp = *pTestPath;
+
+        wchar_t *Ptr = strTestPathTemp.GetBuffer ();
+
+        while ( true )
         {
-          *Ptr=0;
-          if(GetFileAttributes(TestPathTemp) != -1)
-          {
-            int ChkFld=CheckFolder(TestPathTemp);
-            if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
+            if ( (Ptr=(wchar_t*)wcsrchr(strTestPathTemp,L'\\')) == NULL )
             {
-              if(!(TestPath[0] == '\\' && TestPath[1] == '\\' && TestPathTemp[1] == 0))
-              {
-                xstrncpy(TestPath,TestPathTemp,LengthPath);
-                if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-                  AddEndSlash(TestPath);
-                FoundPath=1;
-              }
-              break;
+                strTestPathTemp.ReleaseBuffer ();
+                break;
+            }
+
+            *Ptr=0;
+
+            strTestPathTemp.ReleaseBuffer ();
+
+           if(GetFileAttributesW(strTestPathTemp) != -1)
+           {
+            int ChkFld=CheckFolderW(strTestPathTemp);
+             if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
+             {
+               if(!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
+               {
+                 *pTestPath = strTestPathTemp;
+
+                 if( pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+                   AddEndSlashW(*pTestPath);
+                 FoundPath=1;
+               }
+               break;
             }
           }
         }
@@ -1890,22 +1360,25 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
   return 1;
 }
 
-BOOL IsDiskInDrive(const char *Root)
+
+BOOL IsDiskInDriveW(const wchar_t *Root)
 {
-  char   VolName[256];
-  char   Drive[NM];
+  string strVolName;
+  string strDrive;
   DWORD  MaxComSize;
   DWORD  Flags;
-  char   FS[256];
+  string strFS;
 
-  strcpy(Drive,Root);
-  AddEndSlash(Drive);
+  strDrive = Root;
+
+  AddEndSlashW(strDrive);
   UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
   //если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
-  BOOL Res = GetVolumeInformation (Drive, VolName, sizeof(VolName), NULL, &MaxComSize, &Flags, FS, sizeof(FS));
+  BOOL Res = apiGetVolumeInformation (strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
   SetErrorMode(ErrMode);
   return Res;
 }
+
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
@@ -1917,9 +1390,9 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
   {
     if(NeedSetUpADir)
     {
-      char CurDir[2048];
-      SrcPanel->GetCurDir(CurDir);
-      AnotherPanel->SetCurDir(CurDir,TRUE);
+      string strCurDir;
+      SrcPanel->GetCurDirW(strCurDir);
+      AnotherPanel->SetCurDirW(strCurDir,TRUE);
       AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     }
     else
@@ -1945,7 +1418,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
   CtrlObject->Cp()->Redraw();
 }
 
-int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
+int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 {
   if(!SrcPanel)
     SrcPanel=CtrlObject->Cp()->ActivePanel;
@@ -1953,17 +1426,16 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
   AnotherPanel->CloseFile();
   if(AnotherPanel->GetMode() == NORMAL_PANEL)
   {
-    char AnotherCurDir[2048];
-    char FullName[2058];
+    string strAnotherCurDir;
+    string strFullName;
 
-    AnotherPanel->GetCurDir(AnotherCurDir);
-    AddEndSlash(AnotherCurDir);
+    AnotherPanel->GetCurDirW(strAnotherCurDir);
+    AddEndSlashW(strAnotherCurDir);
 
-    if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
-      return -1;
-    AddEndSlash(FullName);
+    ConvertNameToFullW(SelName, strFullName);
+    AddEndSlashW(strFullName);
 
-    if(strstr(AnotherCurDir,FullName))
+    if(wcsstr(strAnotherCurDir,strFullName))
     {
       ((FileList*)AnotherPanel)->CloseChangeNotification();
       return TRUE;
@@ -2047,16 +1519,16 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 /*
  возвращает PipeFound
 */
-int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCmdPar,int SizeNewCmdPar)
+int PartCmdLineW(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
   int PipeFound = FALSE;
   int QuoteFound = FALSE;
 
-  ExpandEnvironmentStr(CmdStr, NewCmdStr, SizeNewCmdStr);
-  RemoveExternalSpaces(NewCmdStr);
+  apiExpandEnvironmentStrings (CmdStr, strNewCmdStr);
+  RemoveExternalSpacesW(strNewCmdStr);
 
-  char *CmdPtr = NewCmdStr;
-  char *ParPtr = NULL;
+  wchar_t *CmdPtr = strNewCmdStr.GetBuffer();
+  wchar_t *ParPtr = NULL;
 
   // Разделим собственно команду для исполнения и параметры.
   // При этом заодно определим наличие символов переопределения потоков
@@ -2064,19 +1536,19 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 
   while (*CmdPtr)
   {
-    if (*CmdPtr == '"')
+    if (*CmdPtr == L'"')
       QuoteFound = !QuoteFound;
     if (!QuoteFound)
     {
-      if (*CmdPtr == '>' || *CmdPtr == '<' ||
-          *CmdPtr == '|' || *CmdPtr == ' ' ||
-          *CmdPtr == '/' ||      // вариант "far.exe/?"
-          (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && *CmdPtr == '&') // Для НТ/2к обработаем разделитель команд
+      if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
+          *CmdPtr == L'|' || *CmdPtr == L' ' ||
+          *CmdPtr == L'/' ||      // вариант "far.exe/?"
+          (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && *CmdPtr == L'&') // Для НТ/2к обработаем разделитель команд
          )
       {
         if (!ParPtr)
           ParPtr = CmdPtr;
-        if (*CmdPtr != ' ' && *CmdPtr != '/')
+        if (*CmdPtr != L' ' && *CmdPtr != L'/')
           PipeFound = TRUE;
       }
     }
@@ -2089,35 +1561,22 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 
   if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
   {
-    /* $ 05.04.2005 AY: это вроде как остатки прошлого, нафиг нам это надо */
-    //if (*ParPtr=='/')
-    //{
-      //*NewCmdPar=0x20;
-      //xstrncpy(NewCmdPar+1, ParPtr, SizeNewCmdPar-2);
-    //}
-    //else
-    /* AY $ */
-
-    if (*ParPtr == 0x20) //AY: первый пробел между командой и параметрами не нужен,
+    if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
       *(ParPtr++)=0;     //    он добавляется заново в Execute.
 
-    xstrncpy(NewCmdPar, ParPtr, SizeNewCmdPar-1);
+    strNewCmdPar = ParPtr;
     *ParPtr = 0;
   }
 
-  Unquote(NewCmdStr);
-  //RemoveExternalSpaces(NewCmdStr);
-  //AY: Вполне легальное имя файла " .exe"
-  //    а вот в конце пробелы уже быть не могут.
+  strNewCmdStr.ReleaseBuffer ();
 
-  //RemoveTrailingSpaces(NewCmdStr);
-  //AY: это является лишней интеллигенцией, например файл "ааа .exe" могут запустить как "ааа ".
+  UnquoteW(strNewCmdStr);
 
   return PipeFound;
 }
 
 
-BOOL ProcessOSAliases(char *Str,int SizeStr)
+BOOL ProcessOSAliasesW(string &strStr)
 {
 #if 0
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
@@ -2143,8 +1602,8 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
 
   PartCmdLine(Str,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
 
-  char ModuleName[NM];
-  GetModuleFileName(NULL,ModuleName,sizeof(ModuleName));
+  string strModuleName;
+  apiGetModuleFileName (NULL, strModuleName);
 //  if(GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ModuleName) > 0)
   int b=GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),"cmd.exe");
   if(b > 0)
@@ -2157,15 +1616,13 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
   return FALSE;
 }
 
-/*
-  Например, код для [A|P]Panel.UNCPath
-  _MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,FileName,sizeof(FileName)-1,"")
-*/
-int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int ShortNameAsIs)
+
+int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNameAsIs)
 {
   int RetCode=FALSE;
   int NeedRealName=FALSE;
-  *PathName=0;
+
+  strPathName = L"";
   switch(Key)
   {
     case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
@@ -2207,12 +1664,12 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int
 
       if (SrcPanel!=NULL)
       {
-        char ShortFileName[NM];
         if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
         {
-          SrcPanel->GetCurName(PathName,ShortFileName);
+          string strShortFileName;
+          SrcPanel->GetCurNameW(strPathName,strShortFileName);
           if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
-            strcpy(PathName,ShortFileName);
+            strPathName = strShortFileName;
         }
         else
         {
@@ -2220,31 +1677,40 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int
           if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
             return(FALSE);
 
-          SrcPanel->GetCurDir(PathName);
+          SrcPanel->GetCurDirW(strPathName);
           if (SrcPanel->GetMode()!=PLUGIN_PANEL)
           {
             FileList *SrcFilePanel=(FileList *)SrcPanel;
-            SrcFilePanel->GetCurDir(PathName);
-            if(NeedRealName)
-              SrcFilePanel->CreateFullPathName(PathName,ShortFileName,FA_DIREC,PathName,PathNameSize,TRUE,ShortNameAsIs);
+            SrcFilePanel->GetCurDirW(strPathName);
+
+            {
+                if(NeedRealName)
+                    SrcFilePanel->CreateFullPathNameW(strPathName, strPathName,FA_DIREC, strPathName,TRUE,ShortNameAsIs);
+            }
+
+
             if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
-              ConvertNameToShort(PathName,PathName,PathNameSize-1);
+              ConvertNameToShortW(strPathName,strPathName);
           }
           else
           {
             FileList *SrcFilePanel=(FileList *)SrcPanel;
-            struct OpenPluginInfo Info;
+            struct OpenPluginInfoW Info;
+
             CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
-            FileList::AddPluginPrefix(SrcFilePanel,PathName);
-            strncat(PathName,NullToEmpty(Info.CurDir),PathNameSize);
+            FileList::AddPluginPrefix(SrcFilePanel,strPathName);
+
+            strPathName += NullToEmptyW(Info.CurDir);
 
           }
-          AddEndSlash(PathName);
+          AddEndSlashW(strPathName);
         }
 
         if(Opt.QuotedName&QUOTEDNAME_INSERT)
-          QuoteSpace(PathName);
-        strncat(PathName,NullToEmpty(Param2),PathNameSize);
+          QuoteSpaceW(strPathName);
+
+        if ( Param2 )
+            strPathName += Param2;
 
         RetCode=TRUE;
       }
@@ -2254,91 +1720,113 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int
   return RetCode;
 }
 
-const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName)
+
+string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 {
-  char NetDir[NM*3];
+  string strNetDir;
 
-  *ComputerName=0;
-  *NetDir=0;
+  strComputerName=L"";
 
-  if (CurDir[0]=='\\' && CurDir[1]=='\\')
-    strcpy(NetDir,CurDir);
+  if ( CurDir[0]==L'\\' && CurDir[1]==L'\\')
+    strNetDir = CurDir;
   else
   {
-    char LocalName[3];
-    DWORD RemoteNameSize=sizeof(NetDir);
-    xstrncpy(LocalName,CurDir,2);
-    LocalName[sizeof(LocalName)-1]=0;
+    /* $ 28.03.2002 KM
+       - Падение VC на
+         char *LocalName="A:";
+         *LocalName=*CurDir;
+         Так как память в LocalName ReadOnly.
+    */
+    wchar_t LocalName[3];
 
-    SetFileApisTo(APIS2ANSI);
-    if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
-      FAR_CharToOem(NetDir,NetDir);
-    SetFileApisTo(APIS2OEM);
+    wcsncpy (LocalName, CurDir, 2);
+    LocalName[3] = 0;
+
+    DWORD RemoteNameSize = 0;
+
+    if ( WNetGetConnectionW (LocalName, NULL, &RemoteNameSize) == NO_ERROR)
+    {
+        wchar_t *NetDir = strNetDir.GetBuffer (RemoteNameSize);
+
+        WNetGetConnectionW (LocalName, NetDir, &RemoteNameSize);
+
+        strNetDir.ReleaseBuffer ();
+    }
   }
 
-  if (NetDir[0]=='\\' && NetDir[1]=='\\')
+  if ( strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')
   {
-    strncpy(ComputerName,NetDir+2,SizeName);
-    char *EndSlash=strchr(ComputerName,'\\');
+    strComputerName = (const wchar_t*)strNetDir+2;
+
+    wchar_t *ComputerName = strComputerName.GetBuffer ();
+
+    wchar_t *EndSlash=wcschr (ComputerName, L'\\');
+
     if (EndSlash==NULL)
-      *ComputerName=0;
+    {
+      strComputerName.ReleaseBuffer ();
+      strComputerName=L"";
+    }
     else
+    {
       *EndSlash=0;
+      strComputerName.ReleaseBuffer ();
+    }
   }
 
-  return ComputerName;
+  return strComputerName;
 }
 
-int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
+int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType)
 {
-  char SrcRoot[NM],DestRoot[NM];
+  string strSrcRoot, strDestRoot;
   int SrcDriveType, DestDriveType;
 
   DWORD SrcVolumeNumber=0, DestVolumeNumber=0;
-  char SrcVolumeName[NM], DestVolumeName[NM];
-  char  SrcFileSystemName[NM], DestFileSystemName[NM];
+  string strSrcVolumeName, strDestVolumeName;
+  string strSrcFileSystemName, strDestFileSystemName;
   DWORD SrcFileSystemFlags, DestFileSystemFlags;
   DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
 
 
-  GetPathRoot(SrcPath,SrcRoot);
-  GetPathRoot(DestPath,DestRoot);
+  GetPathRootW(SrcPath,strSrcRoot);
+  GetPathRootW(DestPath,strDestRoot);
 
-  SrcDriveType=FAR_GetDriveType(SrcRoot,NULL,TRUE);
-  DestDriveType=FAR_GetDriveType(DestRoot,NULL,TRUE);
+  SrcDriveType=FAR_GetDriveTypeW(strSrcRoot,NULL,TRUE);
+  DestDriveType=FAR_GetDriveTypeW(strDestRoot,NULL,TRUE);
 
-  if (!GetVolumeInformation(SrcRoot,SrcVolumeName,sizeof(SrcVolumeName),&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,SrcFileSystemName,sizeof(SrcFileSystemName)))
+  if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
     return(FALSE);
 
-  if (!GetVolumeInformation(DestRoot,DestVolumeName,sizeof(DestVolumeName),&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,DestFileSystemName,sizeof(DestFileSystemName)))
+  if (!apiGetVolumeInformation(strDestRoot,&strDestVolumeName,&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,&strDestFileSystemName))
     return(FALSE);
 
   if(CheckedType == CHECKEDPROPS_ISSAMEDISK)
   {
-    if (strpbrk(DestPath,"\\:")==NULL)
+    if (wcspbrk(DestPath,L"\\:")==NULL)
       return TRUE;
 
-    if ((SrcRoot[0]=='\\' && SrcRoot[1]=='\\' || DestRoot[0]=='\\' && DestRoot[1]=='\\') &&
-        LocalStricmp(SrcRoot,DestRoot)!=0)
+    if ((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\' || strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\') &&
+        LocalStricmpW(strSrcRoot,strDestRoot)!=0)
       return FALSE;
 
-    if (*SrcPath==0 || *DestPath==0 || (SrcPath[1]!=':' && DestPath[1]!=':')) //????
-       return TRUE;
-
-    if (toupper(DestRoot[0])==toupper(SrcRoot[0]))
+    if ( *SrcPath == 0 || *DestPath == 0 || (SrcPath[1]!=L':' && DestPath[1]!=L':')) //????
       return TRUE;
+
+    if (LocalUpperW(strDestRoot.At(0))==LocalUpperW(strSrcRoot.At(0)))
+        return TRUE;
 
     unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
     unsigned __int64 DestTotalSize,DestTotalFree,DestUserFree;
 
-    if (!GetDiskSize(SrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
+    if (!GetDiskSizeW(strSrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
       return FALSE;
-    if (!GetDiskSize(DestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
+    if (!GetDiskSizeW(strDestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
       return FALSE;
 
     if (!(SrcVolumeNumber!=0 &&
         SrcVolumeNumber==DestVolumeNumber &&
-        strcmp(SrcVolumeName,DestVolumeName)==0 &&
+        LocalStricmpW(strSrcVolumeName, strDestVolumeName)==0 &&
         SrcTotalSize==DestTotalSize))
       return FALSE;
   }
