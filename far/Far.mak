@@ -213,7 +213,7 @@ LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /pdb:none /debu
 ALL : lng "far.release.dep" "far.debug.dep" "lang.hpp" "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 lng:
-	@lng.generator.exe -nc -i lang.ini farlang.templ
+	@tools\lng.generator.exe -nc -i lang.ini farlang.templ
 
 "$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
 	$(LINK32) @<<
@@ -223,15 +223,15 @@ lng:
 	@if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
 	@if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
 	@if exist "$(OUTDIR)\FarRus.lng" del "$(OUTDIR)\FarRus.lng"  >nul
-	@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) ".\FarEng.hlf" > "$(OUTDIR)\FarEng.hlf"
-	@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) ".\FarRus.hlf" > "$(OUTDIR)\FarRus.hlf"
+	@if exist "$(OUTDIR)\File_id.diz" del "$(OUTDIR)\File_id.diz"  >nul
+	@tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P > "$(OUTDIR)\FarEng.hlf"
+	@tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P > "$(OUTDIR)\FarRus.hlf"
 	@copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
 	@copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
-	@if exist ".\plugin.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\plugin.pas" > "$(FARINCLUDE)\plugin.pas"
-	@if exist ".\fmt.hpp" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) ".\fmt.hpp" > "$(FARINCLUDE)\fmt.hpp"
-	@if exist ".\fmt.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\fmt.pas" > "$(FARINCLUDE)\fmt.pas"
-	@if exist ".\farcolor.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\farcolor.pas" > "$(FARINCLUDE)\farcolor.pas"
-	@if exist ".\farkeys.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\farkeys.pas" > "$(FARINCLUDE)\farkeys.pas"
+	@tools\m4 -P File_id.diz.m4 > "$(OUTDIR)\File_id.diz"
+	@if exist ".\plugin.pas" tools\m4 -P -DINPUT=plugin.pas headers.m4 > "$(FARINCLUDE)\plugin.pas"
+	@if exist ".\farcolor.pas" tools\m4 -P -DINPUT=farcolor.pas headers.m4 > "$(FARINCLUDE)\farcolor.pas"
+	@if exist ".\farkeys.pas" tools\m4 -P -DINPUT=farkeys.pas headers.m4 > "$(FARINCLUDE)\farkeys.pas"
 
 
 # ************************************************************************
@@ -249,11 +249,11 @@ lng:
 
 
 "far.release.dep": mkdep.list.txt
-	@awk -f mkdep.awk -v out=Release flist.txt > far.release.dep
+	@tools\gawk -f .\scripts\mkdep.awk -v out=Release.vc mkdep.list.txt > far.release.dep
 
 
 "far.debug.dep": mkdep.list.txt
-	@awk -f mkdep.awk -v out=Debug flist.txt > far.debug.dep
+	@tools\gawk -f .\scripts\mkdep.awk -v out=Debug.vc mkdep.list.txt > far.debug.dep
 
 
 "$(OUTDIR)" :
@@ -267,17 +267,26 @@ lng:
 "$(INTDIR)\far.res" : far.rc "$(INTDIR)"
 	$(RSC) $(RSC_PROJ) far.rc
 
+".\copyright.inc": copyright.inc.m4 farversion.m4 vbuild.m4
+	@tools\m4 -P copyright.inc.m4 | tools\gawk -f .\scripts\enc.awk > copyright.inc
+
+".\farversion.inc": farversion.inc.m4 farversion.m4 vbuild.m4
+	@tools\m4 -P farversion.inc.m4 > farversion.inc
+
+"far.rc": far.rc.m4 farversion.m4 vbuild.m4
+	@tools\m4 -P far.rc.m4 > far.rc
+
 # ************************************************************************
 # Зависимости для публичных файлов
 # ************************************************************************
 "$(FARINCLUDE)\farcolor.hpp" : colors.hpp
-	@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2)  ".\colors.hpp" > "$(FARINCLUDE)\farcolor.hpp"
+	@tools\m4 -P -DINPUT=colors.hpp headers.m4 > "$(FARINCLUDE)\farcolor.hpp"
 
 "$(FARINCLUDE)\farkeys.hpp" : keys.hpp
-	@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2)  ".\keys.hpp"   > "$(FARINCLUDE)\farkeys.hpp"
+	@tools\m4 -P -DINPUT=keys.hpp headers.m4   > "$(FARINCLUDE)\farkeys.hpp"
 
 "$(FARINCLUDE)\plugin.hpp" : plugin.hpp
-	@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2)  ".\plugin.hpp" > "$(FARINCLUDE)\plugin.hpp"
+	@tools\m4 -P -DINPUT=plugin.hpp headers.m4 > "$(FARINCLUDE)\plugin.hpp"
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
