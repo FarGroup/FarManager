@@ -1652,7 +1652,7 @@ int FindFiles::FindFilesProcess()
       {
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,"");
+        NewPanel->SetPluginMode(hNewPlugin,L"");
         NewPanel->SetVisible(TRUE);
         NewPanel->Update(0);
 //        if (FindExitIndex != LIST_INDEX_NONE)

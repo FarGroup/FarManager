@@ -641,7 +641,7 @@ int FileList::ProcessKey(int Key)
                   {
                     int CurFocus=GetFocus();
                     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-                    NewPanel->SetPluginMode(hNewPlugin,"");
+                    NewPanel->SetPluginMode(hNewPlugin,L"");
 
                     if (!strShortcutFolder.IsEmpty())
                       CtrlObject->Plugins.SetDirectory(hNewPlugin,strShortcutFolder,0);
@@ -2092,7 +2092,7 @@ BOOL FileList::ChangeDirW(const wchar_t *NewDir,BOOL IsUpdated)
     string strInfoFormat;
 
     strInfoCurDir = NullToEmptyW(Info.CurDir);
-    strInfoFormat = Info.Format;
+    strInfoFormat = NullToEmptyW(Info.Format);
 
     CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,strInfoFormat,1,
                                (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
@@ -2124,7 +2124,7 @@ BOOL FileList::ChangeDirW(const wchar_t *NewDir,BOOL IsUpdated)
     else
     {
       strFindDir = NullToEmptyW(Info.CurDir);
-      SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,strFindDir,0);
+      SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,strSetDir,0);
     }
     ProcessPluginCommand();
     if (SetDirectorySuccess)

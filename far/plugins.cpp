@@ -2479,7 +2479,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
 
 
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-      NewPanel->SetPluginMode(hPlugin,"");
+      NewPanel->SetPluginMode(hPlugin,L"");
       NewPanel->Update(0);
       NewPanel->Show();
       NewPanel->SetFocus();
@@ -2803,7 +2803,7 @@ int PluginsSet::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
-    NewPanel->SetPluginMode(hPlugin,"");
+    NewPanel->SetPluginMode(hPlugin,L"");
     NewPanel->Update(0);
     NewPanel->Show();
     if(!Target || Target == ActivePanel)
@@ -2856,7 +2856,7 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
       {
         int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,"");
+        NewPanel->SetPluginMode(hNewPlugin,L"");
         if (Data && *(const wchar_t *)Data)
           SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
         /* $ 04.04.2001 SVS

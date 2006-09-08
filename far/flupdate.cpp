@@ -271,8 +271,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       }
 
       ListData[FileCount] = new FileListItem;
-
-      memset (ListData[FileCount], 0, sizeof(FileListItem)); //BUGBUG, Clear!
+      ListData[FileCount]->Clear ();
 
       NewPtr=ListData[FileCount];
 
@@ -705,7 +704,11 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   struct PluginPanelItemW *CurPanelData=PanelData;
   for (I=0; I < FileCount; I++, CurPanelData++)
   {
+    ListData[FileListCount] = new FileListItem;
+
     struct FileListItem *CurListData=ListData[FileListCount];
+
+	CurListData->Clear ();
 
     if (Info.Flags & OPIF_USEFILTER)
       if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
@@ -713,7 +716,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
           continue;
     if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM)))
       continue;
-    memset(CurListData,0,sizeof(*CurListData));
+
+
+    //memset(CurListData,0,sizeof(*CurListData));
     PluginToFileListItem(CurPanelData,CurListData);
     if(Info.Flags & OPIF_REALNAMES)
     {
@@ -749,8 +754,13 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
   {
-    struct FileListItem *CurPtr;
-    AddParentPoint((CurPtr=ListData[FileCount]),FileCount);
+    ListData[FileCount] = new FileListItem;
+
+    struct FileListItem *CurPtr = ListData[FileCount];
+
+	CurPtr->Clear ();
+
+    AddParentPoint(CurPtr,FileCount);
     /* $ 22.11.2001 VVM
       + Ќе забыть раскрасить :) */
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
@@ -903,18 +913,10 @@ void FileList::ReadSortGroups()
 // ќбнулить текущий CurPtr и занести предопределенные данные дл€ каталога ".."
 void FileList::AddParentPoint(struct FileListItem *CurPtr,long CurFilePos)
 {
-#if defined(__BORLANDC__)
-  static struct FileListItem ParentItem;
-#else
-  static struct FileListItem ParentItem={0};
-#endif
-  if(ParentItem.FileAttr == 0)
-  {
-    ParentItem.strName = L"..";
-    ParentItem.strShortName = L"..";
+	CurPtr->Clear ();
 
-    ParentItem.FileAttr=FA_DIREC;
-  }
-  ParentItem.Position=CurFilePos;
-  memcpy(CurPtr,&ParentItem,sizeof(struct FileListItem));
+	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
+	CurPtr->strName = L"..";
+	CurPtr->strShortName = L"..";
+	CurPtr->Position = CurFilePos;
 }

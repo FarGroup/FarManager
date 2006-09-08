@@ -52,9 +52,14 @@ class ChDiskPluginItem
   public:
    MenuItemEx Item;
    unsigned int HotKey;
-   ChDiskPluginItem():HotKey(0)
+   ChDiskPluginItem()
    {
-     Item.Clear ();
+     Clear ();
+   }
+   void Clear ()
+   {
+		HotKey = 0;
+		Item.Clear ();
    }
    bool operator==(const ChDiskPluginItem &rhs) const;
    int operator<(const ChDiskPluginItem &rhs) const;
@@ -502,7 +507,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       PluginMenuItemsCount=MPItems.getSize();
       if(PluginMenuItemsCount)
       {
-        memset(&ChDiskItem,0,sizeof(ChDiskItem));
+        ChDiskItem.Clear ();
         ChDiskItem.Flags|=LIF_SEPARATOR;
         ChDiskItem.UserDataSize=0;
         ChDisk.AddItemW(&ChDiskItem);
@@ -929,7 +934,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       {
         Focus=GetFocus();
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hPlugin,"");
+        NewPanel->SetPluginMode(hPlugin,L"");
         NewPanel->Update(0);
         NewPanel->Show();
         if (Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())

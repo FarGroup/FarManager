@@ -47,6 +47,46 @@ struct FileListItem
 
   string strName;
   string strShortName;
+
+  void Clear ()
+  {
+  	Selected = 0;
+  	PrevSelected = 0;
+    ShowFolderSize = 0;
+    ShortNamePresent = 0;
+    
+    memset (&Colors, 0, sizeof (HighlightDataColor));
+
+	NumberOfLinks = 0;
+	UserFlags = 0;
+    UserData = 0;
+
+	Position = 0;
+	SortGroup = 0;
+	
+	DizText = NULL;
+	DeleteDiz = 0;
+	
+	strOwner = L"";
+
+	CustomColumnData = NULL;
+	CustomColumnNumber = 0;
+	
+	CRC32 = 0;
+
+	FileAttr = 0;
+
+	memset (&CreationTime, 0, sizeof (CreationTime));
+	memset (&AccessTime, 0, sizeof (AccessTime));
+	memset (&WriteTime, 0, sizeof (WriteTime));
+	
+	UnpSize = 0;
+	PackSize = 0;
+
+	strName = L"";
+	strShortName = L"";
+  }
+
 };
 
 struct PluginsStackItem

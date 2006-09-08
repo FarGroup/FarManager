@@ -204,6 +204,10 @@ int ConvertNameToFullW (
         string &strDest
         )
 {
+	string strSrc = lpwszSrc; //копирование в другую переменную на случай dest == src
+
+	lpwszSrc = strSrc;
+
     int Result = wcslen (lpwszSrc);
 
     const wchar_t *lpwszName = PointToNameW (lpwszSrc);
