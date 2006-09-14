@@ -163,6 +163,20 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
       struct MenuItemEx ListItem;
       ListItem.Clear ();
 
+      if ( !strDescription.IsEmpty() )
+        ListItem.strName = strDescription;
+
+      if ( !strFriendlyName.IsEmpty() && LocalStricmpW(strDescription, strFriendlyName) )
+      {
+        if ( !strDescription.IsEmpty() ) 
+          ListItem.strName += L" \"";
+
+        ListItem.strName += strFriendlyName;
+
+        if ( !strDescription.IsEmpty() ) 
+          ListItem.strName += L"\"";
+      }
+
       if(LocalStricmpW(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
       {
         //TruncStr(szDescription,sizeof(ListItem.Name)-1);
