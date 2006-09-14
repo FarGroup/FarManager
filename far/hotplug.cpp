@@ -170,8 +170,8 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
       }
       else
       {
-        if(!strFriendlyName.IsEmpty ())
-          ListItem.strName = strFriendlyName;
+        if(!strDescription.IsEmpty ())
+          ListItem.strName = strDescription;
       }
 
       RemoveExternalSpacesW(ListItem.strName);
