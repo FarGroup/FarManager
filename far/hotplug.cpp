@@ -5,7 +5,7 @@ hotplug.cpp
 
 */
 
-/* Revision: 1.02 26.05.2006 $ */
+/* Revision: 1.03 14.09.2006 $ */
 
 #pragma once
 
@@ -221,15 +221,18 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
       struct MenuItem ListItem;
       memset(&ListItem,0,sizeof(ListItem));
 
-      if(stricmp(szDescription,szFriendlyName) && *szFriendlyName)
+      if ( *szDescription )
+        strcpy (ListItem.Name, szDescription);
+
+      if ( *szFriendlyName && stricmp(szDescription,szFriendlyName) )
       {
-        TruncStr(szDescription,sizeof(ListItem.Name)-1);
-        sprintf(ListItem.Name,"%s \"%s\"",szDescription,szFriendlyName);
-      }
-      else
-      {
-        if(*szFriendlyName)
-          sprintf(ListItem.Name,"%s",szFriendlyName);
+        if ( *szDescription )
+          strcat (ListItem.Name, " \"");
+
+        strcat (ListItem.Name, szFriendlyName);
+
+        if ( *szDescription )
+          strcat (ListItem.Name, "\"");
       }
 
       RemoveExternalSpaces(ListItem.Name);
