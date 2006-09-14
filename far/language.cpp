@@ -289,7 +289,7 @@ wchar_t* Language::GetMsgW (int nID)
 }
 
 
-FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, int &nType, BOOL StrongLang)
+FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, int &nCodePage, BOOL StrongLang)
 {
   strFileName=L"";
 
@@ -308,12 +308,12 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       strFileName=L"";
     else
     {
-      nType = GetFileType (LangFile);
+      nCodePage = GetFileFormat (LangFile);
 
       string strLangName;
       string strNULL;
 
-      if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nType) && LocalStricmpW(strLangName,Language)==0)
+      if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nCodePage) && LocalStricmpW(strLangName,Language)==0)
         break;
       fclose(LangFile);
       LangFile=NULL;

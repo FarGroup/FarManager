@@ -41,10 +41,8 @@ Editor::Editor()
 {
   _KEYMACRO(SysLog("Editor::Editor()"));
   _KEYMACRO(SysLog(1));
-  /* $ 26.02.2001 IS
-       »нициализируем переменные одним махом ;)
-  */
-  memcpy(&EdOpt, &Opt.EdOpt, sizeof(EditorOptions));
+
+  Opt.EdOpt.CopyTo (EdOpt);
   /* IS $ */
 
   /* $ 26.10.2003 KM
@@ -137,34 +135,22 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData()
 {
-  //_SVS(CleverSysLog Clev("Editor::FreeAllocatedData()"));
-  //_SVS(DWORD I=0;SysLog("TopList=%p, EndList=%p _heapchk() = %d",TopList, EndList,_heapchk()));
-  //_SVS(TRY)
-  {
-    while (EndList!=NULL)
-    {
-      struct EditList *Prev=EndList->Prev;
-      delete EndList;
-      EndList=Prev;
-     //_SVS(I++);
-    }
-  }
-  //_SVS(EXCEPT(EXCEPTION_EXECUTE_HANDLER){SysLog("I=%d EndList=%p{%p,%p} _heapchk() = %d",I,EndList,EndList->Next,EndList->Prev,_heapchk());});
+	while (EndList!=NULL)
+	{
+		struct EditList *Prev=EndList->Prev;
+		delete EndList;
+		EndList=Prev;
+	}
 
-  //_SVS(SysLog("I=%d) _heapchk() = %d",I,_heapchk()));
+	if ( UndoData )
+	{
+		for (int I=0;I<EdOpt.UndoSize;++I)
+			if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
+				delete UndoData[I].Str;
 
-  /* $ 03.12.2001 IS
-     UndoData - указатель
-  */
-  if(UndoData)
-  {
-    for (int I=0;I<EdOpt.UndoSize;++I)
-      if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
-        delete UndoData[I].Str;
-    xf_free(UndoData);
-    UndoData=NULL;
-  }
-  /* IS $ */
+		xf_free(UndoData);
+		UndoData=NULL;
+	}
 }
 
 void Editor::KeepInitParameters()
@@ -218,48 +204,48 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
   UserBreak=0;
   Flags.Clear(FEDITOR_OPENFAILED);
 
-/* Name уже в полном формате!!!
-  if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName))
-  {
-    Flags.Set(FEDITOR_OPENFAILED);
-    return FALSE;
-  }
-*/
+	HANDLE hEdit = FAR_CreateFileW (
+			Name,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_FLAG_SEQUENTIAL_SCAN,
+			NULL
+			);
 
-  DWORD FileFlags=FILE_FLAG_SEQUENTIAL_SCAN;
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
+	if ( hEdit == INVALID_HANDLE_VALUE )
+	{
+		int LastError=GetLastError();
+		SetLastError(LastError);
 
-  HANDLE hEdit=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
+		if ( (LastError != ERROR_FILE_NOT_FOUND) && 
+			 (LastError != ERROR_PATH_NOT_FOUND) )
+		{
+			UserBreak = -1;
+			Flags.Set(FEDITOR_OPENFAILED);
+		}
 
-  if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hEdit=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+		return FALSE;
+	}
 
-  if (hEdit==INVALID_HANDLE_VALUE)
-  {
-    int LastError=GetLastError();
-    SetLastError(LastError);
-    if (LastError!=ERROR_FILE_NOT_FOUND && LastError!=ERROR_PATH_NOT_FOUND)
-    {
-      UserBreak=-1;
-      Flags.Set(FEDITOR_OPENFAILED);
-    }
-    return(FALSE);
-  }
+	int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
 
-  int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
-  if (EditHandle==-1)
-    return(FALSE);
-  if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
-    return(FALSE);
-  if (GetFileType(hEdit)!=FILE_TYPE_DISK)
-  {
-    fclose(EditFile);
-    SetLastError(ERROR_INVALID_NAME);
-    UserBreak=-1;
-    Flags.Set(FEDITOR_OPENFAILED);
-    return(FALSE);
-  }
+	if ( EditHandle == -1 )
+		return FALSE;
+
+	if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
+		return FALSE;
+
+	if ( GetFileType(hEdit) != FILE_TYPE_DISK )
+	{
+		fclose(EditFile);
+		SetLastError(ERROR_INVALID_NAME);
+
+		UserBreak=-1;
+		Flags.Set(FEDITOR_OPENFAILED);
+		return FALSE;
+	}
 
   /* $ 29.11.2000 SVS
    + ѕроверка на минимально допустимый размер файла, после
@@ -362,7 +348,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
       AnsiText=FALSE;
     }
 
-    int nCodePage = GetFileType (EditFile);
+    int nCodePage = GetFileFormat (EditFile);
 
     while ((GetCode=GetStr.GetStringW(&Str, nCodePage, StrLength))!=0)
     {

@@ -1842,7 +1842,7 @@ int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedT
   return TRUE;
 }
 
-int GetFileType (FILE *file, bool *pSignatureFound)
+int GetFileFormat (FILE *file, bool *pSignatureFound)
 {
 	DWORD dwTemp;
 	bool bSignatureFound = false;

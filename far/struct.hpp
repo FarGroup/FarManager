@@ -144,42 +144,87 @@ struct CodeXLAT{
 };
 /* SVS $*/
 
-/* $ 21.02.2001 IS
-     Ќова€ структура: настройки редактора
-*/
 struct EditorOptions
 {
-  int TabSize;
-  int ExpandTabs;
-  int PersistentBlocks;
-  int DelRemovesBlocks;
-  int AutoIndent;
-  int AutoDetectTable;
-  int AnsiTableForNewFile;
-  int AnsiTableAsDefault;
-  int CursorBeyondEOL;
-  int BSLikeDel;
-  int CharCodeBase;
-  int SavePos;
-  int SaveShortPos;
-  int F7Rules; // $ 28.11.2000 SVS - ѕравило на счет поиска в редакторе
-  int AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
-  string strWordDiv;
+	int TabSize;
+	int ExpandTabs;
+	int PersistentBlocks;
+	int DelRemovesBlocks;
+	int AutoIndent;
+	int AutoDetectTable;
+	int AnsiTableForNewFile;
+	int AnsiTableAsDefault;
+	int CursorBeyondEOL;
+	int BSLikeDel;
+	int CharCodeBase;
+	int SavePos;
+	int SaveShortPos;
+	int F7Rules; // $ 28.11.2000 SVS - ѕравило на счет поиска в редакторе
+	int AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
+	int ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
+	int UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
+	int UseExternalEditor;
+	DWORD FileSizeLimitLo;
+	DWORD FileSizeLimitHi;
+	int ShowKeyBar;
 
-  int ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
-  int UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
-  int UseExternalEditor;
-  /* $ 29.11.2000 SVS
-   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открыти€ подобного
-     файла на редактирование
-  */
-  DWORD FileSizeLimitLo;
-  DWORD FileSizeLimitHi;
-  /* SVS $ */
-  int ShowKeyBar;
+	string strWordDiv;
+
+	void Clear ()
+	{
+		TabSize = 0;
+		ExpandTabs = 0;
+		PersistentBlocks = 0;
+		DelRemovesBlocks = 0;
+		AutoIndent = 0;
+		AutoDetectTable = 0;
+		AnsiTableForNewFile = 0;
+		AnsiTableAsDefault = 0;
+		CursorBeyondEOL = 0;
+		BSLikeDel = 0;
+		CharCodeBase = 0;
+		SavePos = 0;
+		SaveShortPos = 0;
+		F7Rules = 0;
+		AllowEmptySpaceAfterEof = 0;
+		ReadOnlyLock = 0;
+		UndoSize = 0;
+		UseExternalEditor = 0;
+		ShowKeyBar = 0;
+
+		FileSizeLimitLo = 0; 
+		FileSizeLimitHi = 0;
+
+		strWordDiv = L"";
+	}
+
+	void CopyTo (EditorOptions &dest)
+	{
+		dest.TabSize = TabSize;
+		dest.ExpandTabs = ExpandTabs;
+		dest.PersistentBlocks = PersistentBlocks;
+		dest.DelRemovesBlocks = DelRemovesBlocks;
+		dest.AutoIndent = AutoIndent;
+		dest.AutoDetectTable = AutoDetectTable;
+		dest.AnsiTableForNewFile = AnsiTableForNewFile;
+		dest.AnsiTableAsDefault = AnsiTableAsDefault;
+		dest.CursorBeyondEOL = CursorBeyondEOL;
+		dest.BSLikeDel = BSLikeDel;
+		dest.CharCodeBase = CharCodeBase;
+		dest.SavePos = SavePos;
+		dest.SaveShortPos = SaveShortPos;
+		dest.F7Rules = F7Rules;
+		dest.AllowEmptySpaceAfterEof = AllowEmptySpaceAfterEof;
+		dest.ReadOnlyLock = ReadOnlyLock;
+		dest.UndoSize = UndoSize;
+		dest.UseExternalEditor = UseExternalEditor;
+		dest.ShowKeyBar = ShowKeyBar;
+		dest.strWordDiv = strWordDiv;
+
+		dest.FileSizeLimitLo = FileSizeLimitLo;
+		dest.FileSizeLimitHi = FileSizeLimitHi;
+	}
 };
-/* IS $ */
 
 /* $ 29.03.2001 IS
      “ут следует хранить "локальные" настройки дл€ программы просмотра
