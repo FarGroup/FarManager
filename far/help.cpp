@@ -87,14 +87,14 @@ static const wchar_t *HelpContents=L"Contents";
 
 static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
 
-wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
+wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage)
 {
     char *lpDest = (char*)xf_malloc ((nDestLength+1)*3); //UTF-8, up to 3 bytes per char support
 
     memset (lpDest, 0, (nDestLength+1)*3);
     memset (lpwszDest, 0, nDestLength*sizeof (wchar_t));
 
-    if ( (nType == TYPE_UNICODE) || (nType == TYPE_REVERSEBOM) )
+    if ( (nCodePage == CP_UNICODE) || (nCodePage == CP_REVERSEBOM) )
     {
         if ( !fgetws (lpwszDest, nDestLength, file) )
         {
@@ -102,7 +102,7 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
             return NULL;
         }
 
-        if ( nType == TYPE_REVERSEBOM )
+        if ( nCodePage == CP_REVERSEBOM )
         {
             swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
 
@@ -128,7 +128,7 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
     }
     else
 
-    if ( nType == TYPE_UTF8 )
+    if ( nCodePage == CP_UTF8 )
     {
         if ( fgets (lpDest, nDestLength*3, file) )
             MultiByteToWideChar (CP_UTF8, 0, lpDest, -1, lpwszDest, nDestLength);
@@ -141,7 +141,7 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
     }
     else
 
-    if ( nType == TYPE_ANSI )
+    if ( nCodePage == CP_OEMCP )
     {
         if ( fgets (lpDest, nDestLength, file) )
             MultiByteToWideChar (CP_OEMCP, 0, lpDest, -1, lpwszDest, nDestLength);
@@ -333,9 +333,9 @@ int Help::ReadHelp(const wchar_t *Mask)
   }
 #endif
 
-  int nType = TYPE_ANSI;
+  int nCodePage = CP_OEMCP;
 
-  FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFileName, nType);
+  FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFileName, nCodePage);
 
   if (HelpFile==NULL)
   {
@@ -354,19 +354,19 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   string strReadStr;
 
-  if (Language::GetOptionsParam(HelpFile,L"TabSize",strReadStr, nType))
+  if (Language::GetOptionsParam(HelpFile,L"TabSize",strReadStr, nCodePage))
   {
     CtrlTabSize=_wtoi(strReadStr);
   }
   if(CtrlTabSize < 0 || CtrlTabSize > 16)
     CtrlTabSize=Opt.HelpTabSize;
 
-  if (Language::GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nType))
+  if (Language::GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nCodePage))
     strCtrlColorChar = strReadStr;
   else
     strCtrlColorChar=L"";
 
-  if (Language::GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nType))
+  if (Language::GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nCodePage))
     strCtrlStartPosChar = strReadStr;
   else
     strCtrlStartPosChar = L"";
@@ -375,7 +375,7 @@ int Help::ReadHelp(const wchar_t *Mask)
   /* $ 29.11.2001 DJ
      запомним, чего там написано в PluginContents
   */
-  if (!Language::GetLangParam (HelpFile,L"PluginContents",&strCurPluginContents, NULL, nType))
+  if (!Language::GetLangParam (HelpFile,L"PluginContents",&strCurPluginContents, NULL, nCodePage))
     strCurPluginContents = L"";
   /* DJ $ */
 
@@ -408,7 +408,7 @@ int Help::ReadHelp(const wchar_t *Mask)
     else
       RealMaxLength = MaxLength;
 
-    if (!RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nType)==NULL)
+    if (!RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nCodePage)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
       {
@@ -1850,14 +1850,14 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
         CutToSlashW(strPath);
 
-        int nType = TYPE_ANSI;
+        int nCodePage = CP_OEMCP;
 
-        FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nType);
+        FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
 
         if (HelpFile!=NULL)
         {
           string strEntryName, strHelpLine, strSecondParam;
-          if (Language::GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nType))
+          if (Language::GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nCodePage))
           {
             if ( !strSecondParam.IsEmpty() )
               strHelpLine.Format (L"   ~%s,%s~@" HelpFormatLink L"@", (const wchar_t*)strEntryName, (const wchar_t*)strSecondParam, (const wchar_t*)strPath,HelpContents);

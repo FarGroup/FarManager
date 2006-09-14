@@ -362,7 +362,9 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
       AnsiText=FALSE;
     }
 
-    while ((GetCode=GetStr.GetStringW(&Str, CP_OEMCP, StrLength))!=0)
+    int nCodePage = GetFileType (EditFile);
+
+    while ((GetCode=GetStr.GetStringW(&Str, nCodePage, StrLength))!=0)
     {
       if (GetCode==-1)
       {

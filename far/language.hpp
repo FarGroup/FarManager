@@ -12,10 +12,6 @@ language.hpp
 #include "farconst.hpp"
 #include "unicodestring.hpp"
 
-#define TYPE_ANSI       0
-#define TYPE_UNICODE    1
-#define TYPE_REVERSEBOM 2
-#define TYPE_UTF8       3
 
 class VMenu;
 
@@ -51,13 +47,13 @@ class Language
     char* GetMsg(int MsgId);
     wchar_t* GetMsgW (int nID);
 
-    static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nType, BOOL StrongLang=FALSE);
-    static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nType);
+    static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nCodePage, BOOL StrongLang=FALSE);
+    static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage);
     /* $ 01.09.2000 SVS
       + Ќовый метод, дл€ получени€ параметров дл€ .Options
         .Options <KeyName>=<Value>
     */
-    static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nType);
+    static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nCodePage);
     /* SVS $ */
     static int Select(int HelpLanguage,VMenu **MenuPtr);
 };

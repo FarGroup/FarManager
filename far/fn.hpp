@@ -1213,6 +1213,13 @@ BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *s
 
 int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
+
+
+#define CP_UNICODE		65535
+#define CP_REVERSEBOM	65534
+
+int GetFileType (FILE *file, bool *pSignatureFound = NULL);
+
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer);
 DWORD apiGetCurrentDirectory (string &strCurDir);
 DWORD apiGetTempPath (string &strBuffer);

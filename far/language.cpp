@@ -52,8 +52,8 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
   int LastError=GetLastError();
 
-  int nType = TYPE_ANSI;
-  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nType);
+  int nCodePage = CP_OEMCP;
+  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage);
 
   if (LangFile==NULL)
     return(FALSE);
@@ -61,7 +61,7 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   wchar_t ReadStr[1024];
   memset (&ReadStr, 0, sizeof (ReadStr));
 
-  while ( ReadString (LangFile, ReadStr, sizeof (ReadStr)/sizeof (wchar_t), nType) !=NULL )
+  while ( ReadString (LangFile, ReadStr, sizeof (ReadStr)/sizeof (wchar_t), nCodePage) !=NULL )
   {
     string strDestStr;
     RemoveExternalSpacesW(ReadStr);
@@ -308,24 +308,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       strFileName=L"";
     else
     {
-      DWORD dwTemp;
-      nType = TYPE_ANSI;
-
-      if ( fread (&dwTemp, 4, 1, LangFile) == 1 )
-      {
-          if ( LOWORD (dwTemp) == 0xFEFF )
-              nType = TYPE_UNICODE;
-          else
-
-          if ( LOWORD (dwTemp) == 0xFFFE )
-              nType = TYPE_REVERSEBOM;
-          else
-
-          if ( (dwTemp & 0x00FFFFFF) == 0xBFBBEF )
-              nType = TYPE_UTF8;
-      }
-      else
-        fseek(LangFile, 0, SEEK_SET);
+      nType = GetFileType (LangFile);
 
       string strLangName;
       string strNULL;
@@ -356,7 +339,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
 }
 
 
-int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nType)
+int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage)
 {
   wchar_t ReadStr[1024];
 
@@ -371,15 +354,7 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
   BOOL Found = FALSE;
   long OldPos = ftell (SrcFile);
 
-  if ( (nType == TYPE_UNICODE) || (nType == TYPE_REVERSEBOM) )
-    fseek(SrcFile,2,SEEK_SET);
-  else
-  if ( nType == TYPE_UTF8 )
-    fseek (SrcFile, 3, SEEK_SET);
-  else
-    fseek(SrcFile,0,SEEK_SET);
-
-  while ( ReadString (SrcFile, ReadStr, 1024, nType)!=NULL)
+  while ( ReadString (SrcFile, ReadStr, 1024, nCodePage)!=NULL)
   {
     if (LocalStrnicmpW(ReadStr,strFullParamName,Length)==0)
     {
@@ -503,7 +478,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   + Ќовый метод, дл€ получени€ параметров дл€ .Options
    .Options <KeyName>=<Value>
 */
-int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nType)
+int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nCodePage)
 {
   wchar_t ReadStr[1024];
 
@@ -515,16 +490,7 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
 
   long CurFilePos=ftell(SrcFile);
 
-  if ( (nType == TYPE_UNICODE) || (nType == TYPE_REVERSEBOM) )
-    fseek(SrcFile,2,SEEK_SET);
-  else
-
-  if ( nType == TYPE_UTF8 )
-    fseek(SrcFile,3,SEEK_SET);
-  else
-    fseek(SrcFile,0,SEEK_SET);
-
-  while ( ReadString (SrcFile, ReadStr, 1024, nType) !=NULL)
+  while ( ReadString (SrcFile, ReadStr, 1024, nCodePage) !=NULL)
   {
     if (!LocalStrnicmpW(ReadStr,L".Options",Length))
     {

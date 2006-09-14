@@ -1841,3 +1841,43 @@ int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedT
 
   return TRUE;
 }
+
+int GetFileType (FILE *file, bool *pSignatureFound)
+{
+	DWORD dwTemp;
+	bool bSignatureFound = false;
+	int nCodePage = CP_OEMCP;
+
+	if ( fread (&dwTemp, 4, 1, file) == 1 )
+	{
+		if ( LOWORD (dwTemp) == 0xFEFF )
+		{
+			nCodePage = CP_UNICODE;
+			fseek (file, 2, SEEK_SET);
+			bSignatureFound = true;
+		}
+		else
+
+		if ( LOWORD (dwTemp) == 0xFFFE )
+		{
+			nCodePage = CP_REVERSEBOM;
+			fseek (file, 2, SEEK_SET);
+			bSignatureFound = true;
+		}
+		else
+
+		if ( (dwTemp & 0x00FFFFFF) == 0xBFBBEF )
+		{
+			nCodePage = CP_UTF8;
+			fseek (file, 3, SEEK_SET);
+			bSignatureFound = true;
+		}
+	}
+	else
+		fseek (file, 0, SEEK_SET);
+
+	if ( pSignatureFound )
+		*pSignatureFound = bSignatureFound;
+
+	return nCodePage;
+}

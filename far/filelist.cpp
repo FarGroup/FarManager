@@ -4280,9 +4280,9 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 
   CutToSlashW(strPath);
 
-  int nType = TYPE_ANSI;
+  int nCodePage = CP_OEMCP;
 
-  FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nType);
+  FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
   if (HelpFile==NULL)
     return(FALSE);
   fclose(HelpFile);
