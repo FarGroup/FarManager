@@ -1872,6 +1872,8 @@ int GetFileFormat (FILE *file, bool *pSignatureFound)
 			fseek (file, 3, SEEK_SET);
 			bSignatureFound = true;
 		}
+		else
+			fseek (file, 0, SEEK_SET);
 	}
 	else
 		fseek (file, 0, SEEK_SET);
