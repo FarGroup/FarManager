@@ -38,8 +38,7 @@ static const wchar_t *EOL_TYPE_CHARS_W[]={L"",L"\r",L"\n",L"\r\n"};
 
 Edit::Edit()
 {
-  Str=(wchar_t*) xf_malloc(2);
-  /* SVS $ */
+  Str=(wchar_t*) xf_malloc(sizeof(wchar_t));
   StrSize=0;
 
   WordDiv=Opt.strWordDiv;
@@ -1777,20 +1776,9 @@ void Edit::SetBinaryStringW(const wchar_t *Str,int Length)
   /* KM $ */
 }
 
-
-void Edit::GetBinaryStringW(wchar_t *&Str,const wchar_t **EOL,int &Length)
+void Edit::GetBinaryStringW(const wchar_t **Str,const wchar_t **EOL,int &Length)
 {
-    Str=Edit::Str;
-
-    if (EOL!=NULL)
-        *EOL=EOL_TYPE_CHARS_W[EndType];
-
-    Length=StrSize; //???
-}
-
-void Edit::GetBinaryStringW(const wchar_t *&Str,const wchar_t **EOL,int &Length)
-{
-    Str=Edit::Str;
+    *Str=Edit::Str;
 
     if (EOL!=NULL)
         *EOL=EOL_TYPE_CHARS_W[EndType];

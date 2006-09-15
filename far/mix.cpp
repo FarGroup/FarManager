@@ -608,7 +608,7 @@ int GetDirInfo(const wchar_t *Title,
         DWORD CompressedSize,CompressedSizeHigh;
         CompressedSize=GetCompressedFileSizeW(strFullName,&CompressedSizeHigh);
         if (CompressedSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
-          CurSize = CompressedSizeHigh*0x100000000+CompressedSize;
+          CurSize = CompressedSizeHigh*_ui64(0x100000000)+CompressedSize;
       }
       CompressedFileSize+=CurSize;
       if (ClusterSize>0)

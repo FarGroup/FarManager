@@ -62,8 +62,8 @@ SRCS = 	cddrv.cpp \
 	hilight.cpp \
 	history.cpp \
 	hmenu.cpp \
+	hotplug.cpp \
 	infolist.cpp \
-	int64.cpp \
 	interf.cpp \
 	iswind.cpp \
 	keybar.cpp \
@@ -114,6 +114,7 @@ SRCS = 	cddrv.cpp \
 	syslog.cpp \
 	treelist.cpp \
 	udlist.cpp \
+	UnicodeString.cpp \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \
@@ -132,7 +133,7 @@ DEFINES = -D USE_WFUNC -D FAR_ALPHA_VERSION -D USE_WFUNC_ALW -D USE_WFUNC_IN
 #DEFINES = -D FAR_MSVCRT -D USE_WFUNC -D FAR_ALPHA_VERSION -D USE_WFUNC_ALW -D USE_WFUNC_IN
 CCFLAGS = -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wno-deprecated
 CFLAGS = -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions
-LNKFLAGS = -s -lmpr -lwinspool
+LNKFLAGS = -s -lmpr -lwinspool -lcfgmgr32
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/$(RES).o
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))

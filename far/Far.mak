@@ -279,13 +279,13 @@ lng:
 # ************************************************************************
 # Зависимости для публичных файлов
 # ************************************************************************
-"$(FARINCLUDE)\farcolor.hpp" : colors.hpp
+"$(FARINCLUDE)\farcolor.hpp" : colors.hpp farversion.m4 vbuild.m4
 	@tools\m4 -P -DINPUT=colors.hpp headers.m4 > "$(FARINCLUDE)\farcolor.hpp"
 
-"$(FARINCLUDE)\farkeys.hpp" : keys.hpp
+"$(FARINCLUDE)\farkeys.hpp" : keys.hpp farversion.m4 vbuild.m4
 	@tools\m4 -P -DINPUT=keys.hpp headers.m4   > "$(FARINCLUDE)\farkeys.hpp"
 
-"$(FARINCLUDE)\plugin.hpp" : plugin.hpp
+"$(FARINCLUDE)\plugin.hpp" : plugin.hpp farversion.m4 vbuild.m4
 	@tools\m4 -P -DINPUT=plugin.hpp headers.m4 > "$(FARINCLUDE)\plugin.hpp"
 
 

@@ -150,8 +150,7 @@ class Edit:public ScreenObject
 
     void  SetBinaryStringW(const wchar_t *Str,int Length);
 
-    void  GetBinaryStringW (wchar_t *&Str, const wchar_t **EOL,int &Length);
-    void  GetBinaryStringW (const wchar_t *&Str, const wchar_t **EOL,int &Length);
+    void  GetBinaryStringW (const wchar_t **Str, const wchar_t **EOL,int &Length);
 
     void  SetEOLW(const wchar_t *EOL);
 

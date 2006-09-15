@@ -7,13 +7,35 @@ hotplug.cpp
 
 /* Revision: 1.04 07.07.2006 $ */
 
-#pragma once
-
 #include "headers.hpp"
+#pragma hdrstop
 
 //Çהוסü בûכ במנכאםה. Â למנד!
 
+#ifdef __GNUC__
+
+#define __NTDDK_H
+#include <ddk/cfgmgr32.h>
+#ifdef __cplusplus
+  #define MY_EXTERN_C extern "C"
+#else
+  #define MY_EXTERN_C extern
+#endif
+#define MY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+  MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
+#define VolumeClassGuid             GUID_DEVINTERFACE_VOLUME
+MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
+#define CM_DRP_FRIENDLYNAME                (0x0000000D)
+#define CM_DRP_DEVICEDESC                  (0x00000001)
+#define CM_DRP_CAPABILITIES                (0x00000010)
+#define CM_DEVCAP_REMOVABLE         (0x00000004)
+#define CM_DEVCAP_SURPRISEREMOVALOK (0x00000080)
+#define CM_DEVCAP_DOCKDEVICE        (0x00000008)
+
+#else
 #include <cfgmgr32.h>
+#endif
+
 #include <setupapi.h>
 #pragma hdrstop
 
@@ -168,12 +190,12 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 
       if ( !strFriendlyName.IsEmpty() && LocalStricmpW(strDescription, strFriendlyName) )
       {
-        if ( !strDescription.IsEmpty() ) 
+        if ( !strDescription.IsEmpty() )
           ListItem.strName += L" \"";
 
         ListItem.strName += strFriendlyName;
 
-        if ( !strDescription.IsEmpty() ) 
+        if ( !strDescription.IsEmpty() )
           ListItem.strName += L"\"";
       }
 

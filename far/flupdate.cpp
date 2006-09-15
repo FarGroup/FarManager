@@ -300,7 +300,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
           if ( (dwLoPart != (DWORD)-1) || (GetLastError () != NO_ERROR) )
           {
-            NewPtr->PackSize = dwHighPart*0x100000000+dwLoPart;
+            NewPtr->PackSize = dwHighPart*_ui64(0x100000000)+dwLoPart;
             Compressed=TRUE;
           }
         }

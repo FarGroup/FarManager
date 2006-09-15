@@ -219,7 +219,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
 		int LastError=GetLastError();
 		SetLastError(LastError);
 
-		if ( (LastError != ERROR_FILE_NOT_FOUND) && 
+		if ( (LastError != ERROR_FILE_NOT_FOUND) &&
 			 (LastError != ERROR_PATH_NOT_FOUND) )
 		{
 			UserBreak = -1;
@@ -263,9 +263,9 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
 
     if (GetLastError() == NO_ERROR) //BUGBUG!
     {
-      RealSizeFile = dwHiPart*0x100000000+dwLoPart;
+      RealSizeFile = dwHiPart*_ui64(0x100000000)+dwLoPart;
 
-      unsigned __int64 NeedSizeFile = EdOpt.FileSizeLimitHi*0x100000000+EdOpt.FileSizeLimitLo;
+      unsigned __int64 NeedSizeFile = EdOpt.FileSizeLimitHi*_ui64(0x100000000)+EdOpt.FileSizeLimitLo;
       if(RealSizeFile > NeedSizeFile)
       {
         string strTempStr1, strTempStr2, strTempStr3, strTempStr4;
@@ -460,7 +460,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
     {
       const wchar_t *SaveStr,*EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryStringW(SaveStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(&SaveStr,&EndSeq,Length);
       TotalSize+=Length+wcslen(EndSeq);
       if (TotalSize>StartChar)
         break;
@@ -1457,7 +1457,7 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
           /* $ 12.11.2002 DJ
              обеспечим корректную работу Ctrl-Shift-Left за концом строки
           */
@@ -1526,7 +1526,7 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
           CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
@@ -1875,7 +1875,7 @@ int Editor::ProcessKey(int Key)
 
               const wchar_t *Str;
               int NextLength;
-              CurLine->Next->EditLine.GetBinaryStringW(Str,NULL,NextLength);
+              CurLine->Next->EditLine.GetBinaryStringW(&Str,NULL,NextLength);
               CurLine->EditLine.InsertBinaryStringW(Str,NextLength);
               CurLine->EditLine.SetCurPos(CurPos);
 
@@ -2457,7 +2457,7 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
           int CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>Length)
           {
@@ -2508,7 +2508,7 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
           int CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
@@ -2886,7 +2886,7 @@ int Editor::ProcessKey(int Key)
         wchar_t *CmpStr=0;
         int Length,CurPos;
 
-        CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+        CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
         CurPos=CurLine->EditLine.GetCurPos();
 
         if (Key<256 && CurPos>0 && Length==0)
@@ -2900,7 +2900,7 @@ int Editor::ProcessKey(int Key)
             CurLine->EditLine.SetCurPos(0);
             const wchar_t *PrevStr=NULL;
             int PrevLength=0;
-            PrevLine->EditLine.GetBinaryStringW(PrevStr,NULL,PrevLength);
+            PrevLine->EditLine.GetBinaryStringW(&PrevStr,NULL,PrevLength);
             for (int I=0;I<PrevLength && IsSpaceW(PrevStr[I]);I++)
             {
               int NewTabPos=CurLine->EditLine.GetTabCurPos();
@@ -2922,7 +2922,7 @@ int Editor::ProcessKey(int Key)
 
         if (!SkipCheckUndo)
         {
-          CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
           CurPos=CurLine->EditLine.GetCurPos();
           CmpStr=new wchar_t[Length+1];
           memcpy(CmpStr,Str,Length);
@@ -2977,9 +2977,9 @@ int Editor::ProcessKey(int Key)
           /* SKV $ */
           if (!SkipCheckUndo)
           {
-            wchar_t *NewCmpStr;
+            const wchar_t *NewCmpStr;
             int NewLength;
-            CurLine->EditLine.GetBinaryStringW(NewCmpStr,NULL,NewLength);
+            CurLine->EditLine.GetBinaryStringW(&NewCmpStr,NULL,NewLength);
             if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length)!=0)
             {
               AddUndoData(CmpStr,NumLine,CurPos,UNDO_EDIT);
@@ -3270,9 +3270,9 @@ void Editor::InsertString()
     CurLine->Next->Prev=NewString;
   CurLine->Next=NewString;
   int Length;
-  wchar_t *CurLineStr;
+  const wchar_t *CurLineStr;
   const wchar_t *EndSeq;
-  CurLine->EditLine.GetBinaryStringW(CurLineStr,&EndSeq,Length);
+  CurLine->EditLine.GetBinaryStringW(&CurLineStr,&EndSeq,Length);
 
   /* $ 13.01.2002 IS
      Если не был определен тип конца строки, то считаем что конец строки
@@ -3299,7 +3299,7 @@ void Editor::InsertString()
     {
       const wchar_t *Str;
       int Length,Found=FALSE;
-      PrevLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+      PrevLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
       for (int I=0;I<Length;I++)
         /* $ 24.07.2001 IS IsSpace для этого и придумали */
         if (!IsSpaceW(Str[I]))
@@ -3323,61 +3323,48 @@ void Editor::InsertString()
   {
 
 
-    /* $ 30.08.2000 tran
-       раскоментировал код, как нужный.
-    */
-    /* $ 17.07.2000 tran
-       - закоментировал код, как не нужный*/
     if (IndentPos>0)
       for (int I=0;I<CurPos;I++)
-        /* $ 24.07.2001 IS IsSpace для этого и придумали */
         if (!IsSpaceW(CurLineStr[I]))
-        /* IS $ */
         {
           SpaceOnly=FALSE;
           break;
         }
-    /* tran 30.08.2000 $ */
 
     NewString->EditLine.SetBinaryStringW(&CurLineStr[CurPos],Length-CurPos);
-    /* $ 17.07.2000 tran
-       тут мы проверяем новую строку, есть ли на ней что нибудь кроме пробелов
-    */
+
     for ( int i0=0; i0<Length-CurPos; i0++ )
     {
-        /* $ 24.07.2001 IS IsSpace для этого и придумали */
         if (!IsSpaceW(CurLineStr[i0+CurPos]))
-        /* IS $ */
         {
             NewLineEmpty=FALSE;
             break;
         }
     }
-    /* tran 17.07.2000 $ */
 
     AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
                 CurLine->EditLine.GetCurPos(),UNDO_EDIT);
     BlockUndo++;
     AddUndoData(NULL,NumLine+1,0,UNDO_INSSTR);
     BlockUndo--;
-    CurLineStr[CurPos]=0;
+
+    wchar_t *NewCurLineStr = (wchar_t *) xf_malloc((CurPos+1)*sizeof(wchar_t));
+    if (!NewCurLineStr)
+      return;
+    memcpy(NewCurLineStr,CurLineStr,CurPos);
+    NewCurLineStr[CurPos]=0;
     int StrSize=CurPos;
-    /* $ 17.07.2000 tran
-       а тут в условие добавили проверку на нашу новую переменную */
+
     if (EdOpt.AutoIndent && NewLineEmpty)
     {
-      RemoveTrailingSpacesW(CurLineStr);
-      StrSize=wcslen(CurLineStr);
+      RemoveTrailingSpacesW(NewCurLineStr);
+      StrSize=wcslen(NewCurLineStr);
     }
-    /* tran 17.07.2000 $ */
 
-    /*$ SKV 21.02.2002
-      В этом месте портится EOL строки.
-      Надо его вернуть на базу.
-    */
-    CurLine->EditLine.SetBinaryStringW(CurLineStr,StrSize);
+    CurLine->EditLine.SetBinaryStringW(NewCurLineStr,StrSize);
     CurLine->EditLine.SetEOLW(EndSeq);
-    /* skv $*/
+
+    xf_free(NewCurLineStr);
   }
   else
   {
@@ -3426,7 +3413,7 @@ void Editor::InsertString()
     int OrgIndentPos=IndentPos;
     ShowEditor(FALSE);
 
-    CurLine->EditLine.GetBinaryStringW(CurLineStr,NULL,Length);
+    CurLine->EditLine.GetBinaryStringW(&CurLineStr,NULL,Length);
 
     if (SpaceOnly)
     {
@@ -3462,7 +3449,7 @@ void Editor::InsertString()
 
         if (SrcIndent)
         {
-          SrcIndent->EditLine.GetBinaryStringW(PrevStr,NULL,PrevLength);
+          SrcIndent->EditLine.GetBinaryStringW(&PrevStr,NULL,PrevLength);
         }
 
         for (int I=0;CurLine->EditLine.GetTabCurPos()<IndentPos;I++)
@@ -3484,7 +3471,7 @@ void Editor::InsertString()
       CurLine->EditLine.SetTabCurPos(IndentPos);
     }
 
-    CurLine->EditLine.GetBinaryStringW(CurLineStr,NULL,Length);
+    CurLine->EditLine.GetBinaryStringW(&CurLineStr,NULL,Length);
     CurPos=CurLine->EditLine.GetCurPos();
     if (SpaceOnly)
     {
@@ -3845,7 +3832,7 @@ BOOL Editor::Search(int Next)
               int StrLen,NewStrLen;
               int SStrLen=strSearchStr.GetLength(),
                   RStrLen=strReplaceStr.GetLength();
-              CurLine->EditLine.GetBinaryStringW(Str,&Eol,StrLen);
+              CurLine->EditLine.GetBinaryStringW(&Str,&Eol,StrLen);
               int EolLen=wcslen(Eol);
               NewStrLen=StrLen;
               NewStrLen-=SStrLen;
@@ -3997,7 +3984,7 @@ void Editor::Paste(const wchar_t *Src)
           {
             const wchar_t *Str;
             int Length,CurPos;
-            CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+            CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
             CurPos=CurLine->EditLine.GetCurPos();
             AddUndoData(Str,NumLine,CurPos,UNDO_EDIT);
             BlockUndo=TRUE;
@@ -4154,7 +4141,7 @@ void Editor::DeleteBlock()
     }
     /* SKV $ */
     const wchar_t *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
     // дальше будет realloc, поэтому тут malloc.
     wchar_t *TmpStr=(wchar_t*)xf_malloc((Length+3)*sizeof (wchar_t));
     wmemcpy(TmpStr,CurStr,Length);
@@ -4187,7 +4174,7 @@ void Editor::DeleteBlock()
         EndSel=-1;
       else
       {
-        CurPtr->Next->EditLine.GetBinaryStringW(NextStr,&EndSeq,NextLength);
+        CurPtr->Next->EditLine.GetBinaryStringW(&NextStr,&EndSeq,NextLength);
         NextLength-=NextEndSel;
         TmpStr=(wchar_t *)xf_realloc(TmpStr,Length+NextLength+3);
         wmemcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
@@ -4650,7 +4637,7 @@ long Editor::GetCurPos()
   {
     const wchar_t *SaveStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(SaveStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&SaveStr,&EndSeq,Length);
     TotalSize+=Length+wcslen(EndSeq);
     CurPtr=CurPtr->Next;
   }
@@ -4705,7 +4692,7 @@ void Editor::BlockLeft()
     wchar_t *TmpStr=new wchar_t[Length+EdOpt.TabSize+5];
 
     const wchar_t *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
 
     Length--;
     if (*CurStr==L' ')
@@ -4788,7 +4775,7 @@ void Editor::BlockRight()
     wchar_t *TmpStr=new wchar_t[Length+5];
 
     const wchar_t *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
     *TmpStr=L' ';
     wmemcpy(TmpStr+1,CurStr,Length);
     Length++;
@@ -4868,7 +4855,7 @@ void Editor::DeleteVBlock()
 
     const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
     if (TBlockX>=Length)
       continue;
 
@@ -4933,7 +4920,7 @@ void Editor::VCopy(int Append)
                     CurPtr->EditLine.TabPosToReal(VBlockX);
     const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
 
     int AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof (wchar_t));
@@ -5097,14 +5084,14 @@ void Editor::VBlockShift(int Left)
 
     const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
     if (TBlockX>Length)
       continue;
     if (Left && CurStr[TBlockX-1]==L'\t' ||
         !Left && TBlockX+TBlockSizeX<Length && CurStr[TBlockX+TBlockSizeX]==L'\t')
     {
       CurPtr->EditLine.ReplaceTabs();
-      CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
       TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
       TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                   CurPtr->EditLine.TabPosToReal(VBlockX);
@@ -5171,10 +5158,7 @@ int Editor::EditorControl(int Command,void *Param)
           _ECTLLOG(SysLog("struct EditorGetString => GetStringByNumber(%d) return NULL",GetString->StringNumber));
           return(FALSE);
         }
-        //CurPtr->EditLine.GetBinaryString(GetString->StringText,
-        //                      &const_cast<const char*>(GetString->StringEOL),
-        //                      GetString->StringLength);
-        CurPtr->EditLine.GetBinaryStringW(GetString->StringText,
+        CurPtr->EditLine.GetBinaryStringW(const_cast<const wchar_t **>(&GetString->StringText),
                                 const_cast<const wchar_t **>(&GetString->StringEOL),
                                 GetString->StringLength);
         GetString->SelStart=-1;
@@ -5994,7 +5978,7 @@ void Editor::Xlat()
                       CurPtr->EditLine.TabPosToReal(VBlockX);
       const wchar_t *CurStr,*EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryStringW(CurStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;

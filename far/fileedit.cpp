@@ -1388,7 +1388,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
     {
       const wchar_t *SaveStr, *EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryStringW(SaveStr,&EndSeq,Length);
+      CurPtr->EditLine.GetBinaryStringW(&SaveStr,&EndSeq,Length);
       if (*EndSeq==0 && CurPtr->Next!=NULL)
         EndSeq=*FEdit->GlobalEOL ? FEdit->GlobalEOL:DOS_EOL_fmtW;
       if (TextFormat!=0 && *EndSeq!=0)
@@ -1750,7 +1750,7 @@ void FileEditor::ShowStatus()
   {
     const wchar_t *Str;
     int Length;
-    FEdit->CurLine->EditLine.GetBinaryStringW(Str,NULL,Length);
+    FEdit->CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
     int CurPos=FEdit->CurLine->EditLine.GetCurPos();
     if (CurPos<Length)
     {
