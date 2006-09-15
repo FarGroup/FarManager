@@ -20,5 +20,5 @@ BEGIN {
 }
 
 END {
-  printf "\";"
+  print "\";"
 }
