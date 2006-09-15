@@ -659,7 +659,7 @@ the main help file, that is actual for the current FAR Manager version.
    The key "System/Executor/FullTitle" of  type  DWORD  allow  to  set  the
    console window title format for file execution.
    Possible values:
-     0 - console title shows what the user typed.
+     0 - console title shows what the user has typed.
      1 - console title shows the full path of the running program.
    The default value is 0.
 
