@@ -656,12 +656,12 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System\Executor]
    "FullTitle":REG_DWORD
-   Параметр "System/Executor/FullTitle" с типом  DWORD  позволяет  задавать
-   вид заголовка консоли при запуске файла на исполнение.
-   Может быть одним из следующих значений:
-     0 - в заголовке консоли отображается то, что вводил пользователь.
-     1 - в заголовке консоли отображается полный путь к исполняемому файлу.
-   По умолчанию значение = 0 (то, что вводил пользователь).
+   The key "System/Executor/FullTitle" of  type  DWORD  allow  to  set  the
+   console window title format for file execution.
+   Possible values:
+     0 - console title shows what the user typed.
+     1 - console title shows the full path of the running program.
+   The default value is 0.
 
 
 ======================

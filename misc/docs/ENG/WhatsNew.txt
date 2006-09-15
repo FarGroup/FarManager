@@ -9,32 +9,63 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.71 (build 2120) (07.07.2006)
+FAR 1.71 alpha 3 (build 2126) (15.09.2006)
 ---------------------------------------------------------------------------
 
-[+] Добавлены метасимволы "!=\" и "!=/" для текущего пути с учетом
-    символических связей.
+[!] When setting folder attributes for FAT and FAT32 file systems, date and
+    time will not be set.
 
-[+] Новое правило TechInfo#74 позволяющее задавать вид заголовка консоли при
-    запуске файла на исполнение.
+[!] Macro: fexist() and fattr() no longer work with the panels, to work with
+    the panels new functions were added: panel.fexist() and panel.fattr().
 
-[*] "AltShift/" и "AltShift-" теперь вместо "AltShift?" (и "AltShift_",
-    соответственно) вводятся как есть.
+[+] New special symbols added "!=\" and "!=/" to represent the current path
+    considering symbolic links.
 
-[-] CtrlAltShift не гасит панель в пятом режиме.
+[+] TechInfo#74 - allows to set the console window title format for file
+    execution.
 
-[-] Переменные ItemCount и CurPos возвращали некорректные значение для
-    программы просмотра для файлов больше чем 4GB.
+[+] API: New function FSF.snprintf.
 
-[-] Некорректная обработка команды "CD" при наличие символа '/' в пути.
+[+] FindFile: Symbolic links can now be searched using the filter.
 
-[-] Не всегда выставлялся путь пассивной панели для запуска программ под Win9x.
+[*] Macro: "AltShift/" and "AltShift-" replace "AltShift?" and "AltShift_"
+    correspondingly.
+
+[*] Macro: fexist() understands file mask symbols '*' and '?'.
+
+[*] Macro: If the name contains '*' or '?' then fattr() will return the
+    attributes of the first found file.
+
+[*] API: ACTL_KEYMACRO::MCMD_SAVEALL can now work while a macro is executing
+    (FARCmds: "macro:save" now works from inside a macro command).
+
+[-] CtrlAltShift did not hide the panels in fifth panel mode.
+
+[-] Macro: The variables ItemCount and CurPos returned wrong values in the
+    Viewer for files bigger than 4GB.
+
+[-] The "CD" command was processed incorrectly if the '/' character was present
+    in the path.
+
+[-] The path for the passive panel was not always set when executing programs
+    in Windows 9x.
+
+[-] SUBST-disk info was incorrectly displayed in Windows 9x.
+
+[-] Incorrect processing of mixed relative paths (containing ".." and ".").
+
+[-] Selected files on the passive panel were not moved to the start of the list
+    after comparing folders (the "Show selected first" panel option is on).
+
+[-] Macro: Variable names starting with underscore were ignored.
+
+[-] Macro: [A|P]Panel.UNCPath added the '\' symbol to the end of the path.
 
 ---------------------------------------------------------------------------
 FAR 1.71 alpha 2 (build 2112) (29.06.2006)
 ---------------------------------------------------------------------------
 
-[!] Far.Title now returns the full console title.
+[!] Macro: Far.Title now returns the full console title.
 
 [+] Added "Del removes blocks in edit controls" to dialog settings.
 
@@ -79,7 +110,7 @@ FAR 1.71 alpha 1 (build 2104) (25.05.2006)
 
 [!] Command line prompt format has been extended with new commands.
 
-[!] The '*' and '/' keys from the numpad are now called "Multiply" and
+[!] Macro: The '*' and '/' keys from the numpad are now called "Multiply" and
     "Divide". Those names will be used in macros instead of the symbols.
 
 [+] When a non-existing file from the edit history is selected (by Enter),
@@ -139,7 +170,7 @@ FAR 1.71 alpha 1 (build 2104) (25.05.2006)
 [-] Incorrect processing of command line commands that contained non OEM
     characters.
 
-[-] [A|P]Panel.UNCPath returned '\' at the end.
+[-] Macro: [A|P]Panel.UNCPath returned '\' at the end.
 
 [-] The fsplit macro functions was adding the plugin prefix to the file name
     when called from plugin's root folder.
