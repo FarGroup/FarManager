@@ -106,7 +106,7 @@ $Text &quot;text&quot; except the situation when the &quot; character is followe
 ;create the new folder named by the current date
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
-"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!fexist(%Folder)) F7 $Text %Folder Enter $End"
+"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%Folder)) F7 $Text %Folder Enter $End"
 "DisableOutput"=dword:00000001
 "NoPluginPanels"=dword:00000001
 </pre>

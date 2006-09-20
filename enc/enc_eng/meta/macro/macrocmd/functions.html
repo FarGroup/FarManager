@@ -180,7 +180,18 @@
     <td class="cont" width="40%">N=<dfn><a name="fexist">fexist</a></dfn>(S)</td>
     <td class="cont" width="60%">Checks if the file or folder <em>S</em> exists and returns
       1 if true or 0 otherwise.<br>
-      If the path <em>S</em> is relative then function checks it relative to the path on the active panel.</td>
+      В параметр <em>S</em> допускается использование символов '*' и '?'. В этом случае функция
+      проверяет только первое вхождение файла/каталога.<br>
+      Функция не работает с панелями.
+     </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.fexist">panel.fexist</a></dfn>(panelType,S)</td>
+    <td class="cont" width="60%">Проверяет существование файла/каталога <em>S</em> из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели (возвращает 0 или 1).<br>
+      В параметр <em>S</em> допускается использование символов '*' и '?'. В этом случае функция
+      проверяет только первое вхождение файла/каталога.<br>
+      Функция работает только с панелями.
+     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="fattr">fattr</a></dfn>(S)</td>
@@ -203,7 +214,35 @@
         <tr class="cont"><td class="cont" width="10%">0x00004000</td><td class="cont" width="90%">FILE_ATTRIBUTE_ENCRYPTED. The file or folder is encrypted. For a file, this means that all data in the file is encrypted. For a folder, this means that encryption is the default for newly created files and subdirectories.</td></tr>
        </table>
        if file system object does not exist this function returns -1.<br>
-      If the path <em>S</em> is relative then function checks it relative to the path on the active panel.
+       В параметр <em>S</em> допускается использование символов '*' и '?'. В этом случае функция
+       возвращает атрибуты только для первого найденного файла/каталога.<br>
+       Функция не работает с панелями.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.fattr">panel.fattr</a></dfn>(panelType,S)</td>
+    <td class="cont" width="60%">Возвращает файловые атрибуты файла/каталога <em>S</em> из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Атрибут</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">FILE_ATTRIBUTE_READONLY. Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000002</td><td class="cont" width="90%">FILE_ATTRIBUTE_HIDDEN. Файл скрыт. Такой файл не включается в обычный листинг каталога.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000004</td><td class="cont" width="90%">FILE_ATTRIBUTE_SYSTEM. Этот файл - часть операционной системы.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">FILE_ATTRIBUTE_DIRECTORY. Это каталог.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000020</td><td class="cont" width="90%">FILE_ATTRIBUTE_ARCHIVE. Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000080</td><td class="cont" width="90%">FILE_ATTRIBUTE_NORMAL. У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000100</td><td class="cont" width="90%">FILE_ATTRIBUTE_TEMPORARY. Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удален.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. Файл является т.н. "Sparse file".</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является символической связью.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000800</td><td class="cont" width="90%">FILE_ATTRIBUTE_COMPRESSED. Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00001000</td><td class="cont" width="90%">FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00002000</td><td class="cont" width="90%">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00004000</td><td class="cont" width="90%">FILE_ATTRIBUTE_ENCRYPTED. Файл или каталог зашифрован. Для файла, это означает, что все данные в файле зашифрованы. Для директория, это означает, что шифрование является умолчанием для вновь созданных файлов и подкаталогов.</td></tr>
+
+       </table>
+       если файловый объект не существует, функция возвращает -1.<br>
+       В параметр <em>S</em> допускается использование символов '*' и '?'. В этом случае функция
+       возвращает атрибуты только для первого найденного файла/каталога.<br>
+       Функция работает только с панелями.
     </td>
   </tr>
   <tr class="cont">
