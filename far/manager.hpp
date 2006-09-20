@@ -7,7 +7,7 @@ manager.hpp
 
 */
 
-/* Revision: 1.38 15.03.2006 $ */
+/* Revision: 1.39 20.09.2006 $ */
 
 class Frame;
 
@@ -99,6 +99,7 @@ class Manager
     void DeleteFrame(Frame *Deleted=NULL);
     void DeleteFrame(int Index);
     void DeactivateFrame (Frame *Deactivated,int Direction);
+    void SwapTwoFrame (int Direction);
     void ActivateFrame (Frame *Activated);
     void ActivateFrame (int Index);
     void RefreshFrame(Frame *Refreshed=NULL);

@@ -5,7 +5,7 @@ manager.cpp
 
 */
 
-/* Revision: 1.103 12.07.2006 $ */
+/* Revision: 1.104 20.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -447,6 +447,35 @@ void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
     // Direct access from menu or (in future) from plugin
   }
   DeactivatedFrame=Deactivated;
+}
+
+void Manager::SwapTwoFrame (int Direction)
+{
+  if (Direction)
+  {
+    int OldFramePos=FramePos;
+    FramePos+=Direction;
+    if (Direction>0)
+    {
+      if (FramePos>=FrameCount)
+      {
+        FramePos=0;
+      }
+    }
+    else
+    {
+      if (FramePos<0)
+      {
+        FramePos=FrameCount-1;
+      }
+    }
+
+    Frame *TmpFrame=FrameList[OldFramePos];
+    FrameList[OldFramePos]=FrameList[FramePos];
+    FrameList[FramePos]=TmpFrame;
+    ActivateFrame(OldFramePos);
+  }
+  DeactivatedFrame=CurrentFrame;
 }
 
 void Manager::RefreshFrame(Frame *Refreshed)

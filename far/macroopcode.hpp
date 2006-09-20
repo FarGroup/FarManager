@@ -5,7 +5,7 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.21 01.09.2006 $ */
+/* Revision: 1.22 20.09.2006 $ */
 
 #ifndef __MACROOPCODE_HPP__
 #define __MACROOPCODE_HPP__
@@ -153,7 +153,7 @@ enum MACRO_OP_CODE {
   /* ************************************************************************* */
   // не булевые переменные
   MCODE_V_FAR_WIDTH=KEY_MACRO_V_BASE,// Far.Width - ширина консольного окна
-  MCODE_V_FAR_HEIGHT,               // Far.Height - ширина консольного окна
+  MCODE_V_FAR_HEIGHT,               // Far.Height - высота консольного окна
   MCODE_V_FAR_TITLE,                // Far.Title - текущий заголовок консольного окна
 
   MCODE_V_APANEL_CURRENT,           // APanel.Current - имя файла на активной панели
@@ -176,10 +176,14 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_OPIFLAGS,          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
   MCODE_V_APANEL_DRIVETYPE,         // APanel.DriveType - активная панель: тип привода
   MCODE_V_PPANEL_DRIVETYPE,         // PPanel.DriveType - пассивная панель: тип привода
+  MCODE_V_APANEL_HEIGHT,            // APanel.Height - активная панель:  высота панели
+  MCODE_V_PPANEL_HEIGHT,            // PPanel.Height - пассивная панель: высота панели
 
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте
   MCODE_V_TITLE,                    // Title - заголовок текущего объекта
+  MCODE_V_HEIGHT,                   // Height - высота текущего объекта
+  MCODE_V_WIDTH,                    // Width - ширина текущего объекта
 
   MCODE_V_EDITORFILENAME,           // Editor.FileName - имя редактируемого файла
   MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе

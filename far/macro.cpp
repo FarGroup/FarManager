@@ -5,7 +5,7 @@ macro.cpp
 
 */
 
-/* Revision: 1.188 01.09.2006 $ */
+/* Revision: 1.189 20.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -78,6 +78,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  L"ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
   {2,  L"CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
   {2,  L"Title",              MCODE_V_TITLE,0},
+  {2,  L"Height",             MCODE_V_HEIGHT,0},
+  {2,  L"Width",              MCODE_V_WIDTH,0},
 
   {2,  L"APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  L"PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
@@ -116,6 +118,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  L"PPanel.Path",        MCODE_V_PPANEL_PATH,0},
   {2,  L"APanel.UNCPath",     MCODE_V_APANEL_UNCPATH,0},
   {2,  L"PPanel.UNCPath",     MCODE_V_PPANEL_UNCPATH,0},
+  {2,  L"APanel.Height",      MCODE_V_APANEL_HEIGHT,0},
+  {2,  L"PPanel.Height",      MCODE_V_PPANEL_HEIGHT,0},
   {2,  L"APanel.Width",       MCODE_V_APANEL_WIDTH,0},
   {2,  L"PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
   {2,  L"APanel.OPIFlags",    MCODE_V_APANEL_OPIFLAGS,0},
@@ -886,13 +890,18 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
         case MCODE_V_APANEL_WIDTH: // APanel.Width
         case MCODE_V_PPANEL_WIDTH: // PPanel.Width
+        case MCODE_V_APANEL_HEIGHT: // APanel.Height
+        case MCODE_V_PPANEL_HEIGHT: // PPanel.Height
         {
-          Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH ? ActivePanel : PassivePanel;
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
           {
             int X1, Y1, X2, Y2;
             SelPanel->GetPosition(X1,Y1,X2,Y2);
-            Cond = (__int64)(X2-X1+1);
+            if(CheckCode == MCODE_V_APANEL_HEIGHT || CheckCode == MCODE_V_PPANEL_HEIGHT)
+              Cond = (__int64)(Y2-Y1+1);
+            else
+              Cond = (__int64)(X2-X1+1);
           }
           break;
         }
@@ -1014,6 +1023,21 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             Cond=(const wchar_t*)strFileName;
           }
           break;
+        }
+
+        case MCODE_V_HEIGHT:  // Height - высота текущего объекта
+        case MCODE_V_WIDTH:   // Width - ширина текущего объекта
+        {
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+          {
+            int X1, Y1, X2, Y2;
+            f->GetPosition(X1,Y1,X2,Y2);
+            if(CheckCode == MCODE_V_HEIGHT)
+              Cond = (__int64)(Y2-Y1+1);
+            else
+              Cond = (__int64)(X2-X1+1);
+          }
         }
 
         case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -1347,7 +1371,7 @@ static TVar _fattrFunc(int Type,TVar *param)
     PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     dwAttr=GetFileAttributesW(Str);
     SetErrorMode(PrevErrMode);
-    return TVar((__int64)dwAttr);
+    return TVar((__int64)(long)dwAttr);
   }
   else
   {
@@ -1374,7 +1398,7 @@ static TVar _fattrFunc(int Type,TVar *param)
         int FileAttr;
         string strFileName;
         SelPanel->GetFileNameW(strFileName,Pos,FileAttr);
-        return TVar((__int64)FileAttr);
+        return TVar((__int64)(long)FileAttr);
       }
     }
   }
@@ -1782,7 +1806,7 @@ static TVar panelitemFunc(TVar *param)
       case 1:  // ShortName
         return TVar(filelistItem.strShortName);
       case 2:  // FileAttr
-        return TVar((__int64)filelistItem.FileAttr);
+        return TVar((__int64)(long)filelistItem.FileAttr);
       case 3:  // CreationTime
         ConvertDateW(filelistItem.CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
         strDate += L" ";
