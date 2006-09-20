@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.155 12.07.2006 $ */
+/* Revision: 1.156 19.09.2006 $ */
 
 /*
 Modify:
+  19.09.2006 SVS
+    - Падение при старте ФАРа, когда каталог недоступен (например, на FS была примонтирована флешка, которой при тсрате на месте не оказалось).
   12.07.2006 SVS
     ! kill class int64
   05.07.2006 IS
@@ -1937,7 +1939,19 @@ int  Panel::SetCurPath()
         else
           break;
       }
-      ChangeDisk();
+      if(FrameManager && FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
+        ChangeDisk();                                    // если запущен - вызовем меню выбора дисков
+      else                                               // оппа...
+      {
+        char *PtrCurDir=strrchr(CurDir,'\\');            // подымаемся вверх, для очередной порции ChDir
+        if(PtrCurDir)
+          *PtrCurDir=0;
+        else                                             // здесь проблема - видимо диск недоступен
+        {
+          SetCurDir(FarPath,TRUE);                       // тогда просто сваливаем в каталог, откуда стартанул FAR.
+          break;
+        }
+      }
     }
 #else
     do{

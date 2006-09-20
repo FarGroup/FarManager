@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.124 05.07.2006 $ */
+/* Revision: 1.125 20.09.2006 $ */
 
 /*
 Modify:
+  20.09.2006 SVS
+    - Уточнение KeyNameToKey() - для переменной ала "%CtrlAltF1" отрабатывал... в общем кривизна была :-)
   05.07.2006 IS
     - warnings
   03.07.2006 SVS
@@ -1905,6 +1907,8 @@ int WINAPI KeyNameToKey(const char *Name)
    // Это макроклавиша?
    if(Name[0] == '$' && Name[1])
      return KeyNameMacroToKey(Name);
+   if(Name[0] == '%' && Name[1])
+     return -1;
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 
