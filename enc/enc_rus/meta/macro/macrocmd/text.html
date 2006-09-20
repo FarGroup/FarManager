@@ -109,7 +109,7 @@
 ;создание папки с именем = текущей дате
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
-"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!fexist(%Folder)) F7 $Text %Folder Enter $End"
+"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%Folder)) F7 $Text %Folder Enter $End"
 "DisableOutput"=dword:00000001
 "NoPluginPanels"=dword:00000001
 </pre>
