@@ -5,7 +5,7 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.129 04.07.2006 $ */
+/* Revision: 1.130 20.09.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1397,6 +1397,8 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    // Это макроклавиша?
    if(Name[0] == L'$' && Name[1])
      return KeyNameMacroToKey(Name);
+   if(Name[0] == L'%' && Name[1])
+     return -1;
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 

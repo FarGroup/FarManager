@@ -58,8 +58,8 @@ class ChDiskPluginItem
    }
    void Clear ()
    {
-		HotKey = 0;
-		Item.Clear ();
+        HotKey = 0;
+        Item.Clear ();
    }
    bool operator==(const ChDiskPluginItem &rhs) const;
    int operator<(const ChDiskPluginItem &rhs) const;
@@ -1560,7 +1560,19 @@ int  Panel::SetCurPath()
         else
           break;
       }
-      ChangeDisk();
+      if(FrameManager && FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
+        ChangeDisk();                                    // если запущен - вызовем меню выбора дисков
+      else                                               // оппа...
+      {
+        wchar_t *PtrCurDir=wcsrchr(strCurDir,L'\\');     // подымаемся вверх, для очередной порции ChDir
+        if(PtrCurDir)
+          *PtrCurDir=0;
+        else                                             // здесь проблема - видимо диск недоступен
+        {
+          SetCurDirW(g_strFarPath,TRUE);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
+          break;
+        }
+      }
     }
 #else
     do{
