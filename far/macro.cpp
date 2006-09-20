@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.169 01.09.2006 $ */
+/* Revision: 1.170 20.09.2006 $ */
 
 /*
 Modify:
+  20.09.2006 SVS
+    + Macro: первые приближения "Height" и "Width" (и "[A|P]Panel.Height")
+    - Macro: fexist fattr и еже с ними возвращаали фингню, если файла нет. (преобразования, млин)
   01.09.2006 SVS
     - Mantis#151 - [A|P]Panel.UNCPath возвращают в конце символ '\'
     - Mantis#230 - fexist() рулит по маске
@@ -609,6 +612,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
   {2,  "CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
   {2,  "Title",              MCODE_V_TITLE,0},
+  {2,  "Height",             MCODE_V_HEIGHT,0},
+  {2,  "Width",              MCODE_V_WIDTH,0},
 
   {2,  "APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  "PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
@@ -647,6 +652,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.Path",        MCODE_V_PPANEL_PATH,0},
   {2,  "APanel.UNCPath",     MCODE_V_APANEL_UNCPATH,0},
   {2,  "PPanel.UNCPath",     MCODE_V_PPANEL_UNCPATH,0},
+  {2,  "APanel.Height",      MCODE_V_APANEL_HEIGHT,0},
+  {2,  "PPanel.Height",      MCODE_V_PPANEL_HEIGHT,0},
   {2,  "APanel.Width",       MCODE_V_APANEL_WIDTH,0},
   {2,  "PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
   {2,  "APanel.OPIFlags",    MCODE_V_APANEL_OPIFLAGS,0},
@@ -1431,13 +1438,18 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
         case MCODE_V_APANEL_WIDTH: // APanel.Width
         case MCODE_V_PPANEL_WIDTH: // PPanel.Width
+        case MCODE_V_APANEL_HEIGHT: // APanel.Height
+        case MCODE_V_PPANEL_HEIGHT: // PPanel.Height
         {
-          Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH ? ActivePanel : PassivePanel;
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
           {
             int X1, Y1, X2, Y2;
             SelPanel->GetPosition(X1,Y1,X2,Y2);
-            Cond = (__int64)(X2-X1+1);
+            if(CheckCode == MCODE_V_APANEL_HEIGHT || CheckCode == MCODE_V_PPANEL_HEIGHT)
+              Cond = (__int64)(Y2-Y1+1);
+            else
+              Cond = (__int64)(X2-X1+1);
           }
           break;
         }
@@ -1555,6 +1567,21 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           RemoveExternalSpaces(FileName);
           Cond=FileName;
           break;
+        }
+
+        case MCODE_V_HEIGHT:  // Height - высота текущего объекта
+        case MCODE_V_WIDTH:   // Width - ширина текущего объекта
+        {
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+          {
+            int X1, Y1, X2, Y2;
+            f->GetPosition(X1,Y1,X2,Y2);
+            if(CheckCode == MCODE_V_HEIGHT)
+              Cond = (__int64)(Y2-Y1+1);
+            else
+              Cond = (__int64)(X2-X1+1);
+          }
         }
 
         case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -1889,7 +1916,7 @@ static TVar _fattrFunc(int Type,TVar *param)
     PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     GetFileWin32FindData(Str,&FindData);
     SetErrorMode(PrevErrMode);
-    return TVar((__int64)FindData.dwFileAttributes);
+    return TVar((__int64)(long)FindData.dwFileAttributes);
   }
   else
   {
@@ -1913,7 +1940,7 @@ static TVar _fattrFunc(int Type,TVar *param)
       {
         int FileAttr;
         SelPanel->GetFileName(NULL,Pos,FileAttr);
-        return TVar((__int64)FileAttr);
+        return TVar((__int64)(long)FileAttr);
       }
     }
   }
@@ -2327,7 +2354,7 @@ static TVar panelitemFunc(TVar *param)
       case 1:  // ShortName
         return TVar((const char*)filelistItem.ShortName);
       case 2:  // FileAttr
-        return TVar((__int64)filelistItem.FileAttr);
+        return TVar((__int64)(long)filelistItem.FileAttr);
       case 3:  // CreationTime
         ConvertDate(filelistItem.CreationTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
         strcat(Date," ");

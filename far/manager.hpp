@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.37 25.10.2005 $ */
+/* Revision: 1.38 20.09.2006 $ */
 
 /*
 Modify:
+  20.09.2006 SVS
+    + Manager::SwapTwoFrame()
   25.10.2005 SVS
     ! параметр у ProcessKey не int, а DWORD
   02.02.2005 SVS
@@ -193,6 +195,7 @@ class Manager
     void DeleteFrame(Frame *Deleted=NULL);
     void DeleteFrame(int Index);
     void DeactivateFrame (Frame *Deactivated,int Direction);
+    void SwapTwoFrame (int Direction);
     void ActivateFrame (Frame *Activated);
     void ActivateFrame (int Index);
     void RefreshFrame(Frame *Refreshed=NULL);

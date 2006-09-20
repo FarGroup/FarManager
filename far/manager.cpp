@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.100 11.07.2006 $ */
+/* Revision: 1.101 20.09.2006 $ */
 
 /*
 Modify:
+  20.09.2006 SVS
+    + Manager::SwapTwoFrame()
   11.07.2006 EL
     - Убрал варнинги
   03.07.2006 SVS
@@ -745,6 +747,35 @@ void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
   DeactivatedFrame=Deactivated;
 }
 
+void Manager::SwapTwoFrame (int Direction)
+{
+  if (Direction)
+  {
+    int OldFramePos=FramePos;
+    FramePos+=Direction;
+    if (Direction>0)
+    {
+      if (FramePos>=FrameCount)
+      {
+        FramePos=0;
+      }
+    }
+    else
+    {
+      if (FramePos<0)
+      {
+        FramePos=FrameCount-1;
+      }
+    }
+
+    Frame *TmpFrame=FrameList[OldFramePos];
+    FrameList[OldFramePos]=FrameList[FramePos];
+    FrameList[FramePos]=TmpFrame;
+    ActivateFrame(OldFramePos);
+  }
+  DeactivatedFrame=CurrentFrame;
+}
+
 void Manager::RefreshFrame(Frame *Refreshed)
 {
   _OT(SysLog("RefreshFrame(), Refreshed=%p",Refreshed));
@@ -1164,8 +1195,9 @@ int  Manager::ProcessKey(DWORD Key)
 
           case KEY_CTRLTAB:
           case KEY_CTRLSHIFTTAB:
-            if (CurrentFrame->GetCanLoseFocus()){
-              DeactivateFrame(CurrentFrame,Key==KEY_CTRLTAB?1:-1);
+            if (CurrentFrame->GetCanLoseFocus())
+            {
+               DeactivateFrame(CurrentFrame,Key==KEY_CTRLTAB?1:-1);
             }
             _OT(SysLog(-1));
             return TRUE;
