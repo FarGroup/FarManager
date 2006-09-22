@@ -4,7 +4,6 @@ EXEDIR = ./GCC
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)/$(EXENAME)
 DEF = far.def
-RES = far.rc
 
 SRCS = 	cddrv.cpp \
 	CFileMask.cpp \
@@ -62,8 +61,8 @@ SRCS = 	cddrv.cpp \
 	hilight.cpp \
 	history.cpp \
 	hmenu.cpp \
+	hotplug.cpp \
 	infolist.cpp \
-	int64.cpp \
 	interf.cpp \
 	iswind.cpp \
 	keybar.cpp \
@@ -134,14 +133,13 @@ CCFLAGS = -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -f
 CFLAGS = -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions
 LNKFLAGS = -s -lmpr -lwinspool
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/$(RES).o
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
-all: $(EXEFULLNAME)
+all: lng $(EXEFULLNAME)
 
-$(OBJS) $(DEPS): $(OBJDIR)
-$(EXEFULLNAME): $(EXEDIR)
+$(DEPS) $(OBJS): $(OBJDIR)
 
 $(OBJDIR)/%.d: %.c
 	@echo making depends for $<
@@ -161,17 +159,33 @@ $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
 	@$(CXX) $(CCFLAGS) -c -o $@ $<
 
-$(OBJDIR)/$(RES).o: $(RES) ./res.hpp ./far.ico
-	$(WINDRES) -i $< -o $@
+$(OBJDIR)/far.rc.o: far.rc res.hpp far.ico
+	@$(WINDRES) -i $< -o $@
 
-$(EXEFULLNAME): $(OBJS) $(DEF)
-	@echo linking $@
-	@$(CXX) -o $(EXENAME) $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
-	@$(MV) $(EXENAME) $(EXEDIR)
+far.rc: far.rc.m4 farversion.m4 vbuild.m4
+	@tools/m4 -P far.rc.m4 > far.rc
 
--include $(DEPS)
+copyright.inc: copyright.inc.m4 farversion.m4 vbuild.m4
+	@tools/m4 -P copyright.inc.m4 | tools/gawk -f ./scripts/enc.awk > copyright.inc
+
+farversion.inc: farversion.inc.m4 farversion.m4 vbuild.m4
+	@tools/m4 -P farversion.inc.m4 > farversion.inc
 
 $(OBJDIR):
 	@if !(test -d $@) then $(MKDIR) $@; fi
 $(EXEDIR):
 	@if !(test -d $@) then $(MKDIR) $@; fi
+
+lng: $(EXEDIR)
+	@tools/lng.generator.exe -nc -i lang.ini farlang.templ
+	@$(CP) FarEng.lng $(EXEDIR)
+	@$(CP) FarRus.lng $(EXEDIR)
+	@tools/gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | tools/m4 -P > $(EXEDIR)/FarEng.hlf
+	@tools/gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | tools/m4 -P > $(EXEDIR)/FarRus.hlf
+
+$(EXEFULLNAME): $(EXEDIR) $(OBJS) $(DEF)
+	@echo linking $@
+	@$(CXX) -o $(EXENAME) $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
+	@$(MV) $(EXENAME) $(EXEDIR)
+
+-include $(DEPS)

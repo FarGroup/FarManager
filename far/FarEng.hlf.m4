@@ -1,11 +1,12 @@
+m4_include(`farversion.m4')m4_dnl
 .Language=English,English
 .Options CtrlColorChar=\
 
 @Contents
 $^#File and archive manager#
-$^#<%FV1%>.<%FV2%><%FV3%> build <%FV4%>#
+`$^#'FULLVERSIONNOBRACES`'m4_ifelse(`1',BUILDTESTONLY,`. TEST ONLY!')`#'
 $^#Copyright (C) 1996-2000 Eugene Roshal#
-$^#Copyright (C) 2000-<%YEAR%> FAR Group#
+`$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
    ~Help file index~@Index@
    ~How to use help~@Help@
 

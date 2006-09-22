@@ -1,11 +1,12 @@
+m4_include(`farversion.m4')m4_dnl
 .Language=Russian,Russian (Русский)
 .Options CtrlColorChar=\
 
 @Contents
 $^#Программа управления файлами и архивами#
-$^#<%FV1%>.<%FV2%><%FV3%> build <%FV4%>#
+`$^#'FULLVERSIONNOBRACES`'m4_ifelse(`1',BUILDTESTONLY,`. TEST ONLY!')`#'
 $^#Copyright (C) 1996-2000 Eugene Roshal#
-$^#Copyright (C) 2000-<%YEAR%> FAR Group#
+`$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
    ~Индекс файла помощи~@Index@
    ~Как пользоваться помощью~@Help@
 
