@@ -362,6 +362,7 @@ int GetFileTypeByNameW(const wchar_t *Name);
 
 string &CutToSlashW (string &strStr, bool bInclude = false);
 string &CutToNameUNCW (string &strPath);
+string &CutToFolderNameIfFolderW (string &strPath);
 const wchar_t *PointToNameUNCW (const wchar_t *lpwszPath);
 
 void SetFarTitleW (const wchar_t *Title);
@@ -1215,8 +1216,8 @@ int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNa
 
 
 
-#define CP_UNICODE		65535
-#define CP_REVERSEBOM	65534
+#define CP_UNICODE    65535
+#define CP_REVERSEBOM 65534
 
 int GetFileFormat (FILE *file, bool *pSignatureFound = NULL);
 

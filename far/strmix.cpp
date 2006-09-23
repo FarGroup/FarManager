@@ -106,7 +106,7 @@ const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *Path)
     }
     ++Path;
   }
-  return const_cast<const wchar_t*>((*NamePtr)?NamePtr:prevNamePtr);
+  return ((*NamePtr)?NamePtr:prevNamePtr);
 }
 
 
@@ -1999,6 +1999,33 @@ string& CutToNameUNCW (string &strPath)
 
   return strPath;
 
+}
+
+string& CutToFolderNameIfFolderW (string &strPath)
+{
+  wchar_t *lpwszPath = strPath.GetBuffer ();
+
+  wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
+
+  while (*lpwszPath)
+  {
+    if (*lpwszPath==L'\\' || *lpwszPath==L'/' ||
+        *lpwszPath==L':' && lpwszPath==lpwszNamePtr+1)
+    {
+      lpwszprevNamePtr=lpwszNamePtr;
+      lpwszNamePtr=lpwszPath+1;
+    }
+    ++lpwszPath;
+  }
+
+  if (*lpwszNamePtr)
+    *lpwszNamePtr=0;
+  else
+    *lpwszprevNamePtr=0;
+
+  strPath.ReleaseBuffer ();
+
+  return strPath;
 }
 
 const wchar_t* PointToNameUNCW (const wchar_t *lpwszPath)

@@ -1564,10 +1564,9 @@ int  Panel::SetCurPath()
         ChangeDisk();                                    // если запущен - вызовем меню выбора дисков
       else                                               // оппа...
       {
-        wchar_t *PtrCurDir=wcsrchr(strCurDir,L'\\');     // подымаемся вверх, для очередной порции ChDir
-        if(PtrCurDir)
-          *PtrCurDir=0;
-        else                                             // здесь проблема - видимо диск недоступен
+        string strTemp=strCurDir;
+        CutToFolderNameIfFolderW(strCurDir);             // подымаемся вверх, для очередной порции ChDir
+        if(strTemp.GetLength()==strCurDir.GetLength())   // здесь проблема - видимо диск недоступен
         {
           SetCurDirW(g_strFarPath,TRUE);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
           break;
