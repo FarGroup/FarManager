@@ -1943,8 +1943,8 @@ int  Panel::SetCurPath()
         ChangeDisk();                                    // если запущен - вызовем меню выбора дисков
       else                                               // оппа...
       {
-        char *PtrCurDir=strrchr(CurDir,'\\');            // подымаемся вверх, для очередной порции ChDir
-        if(PtrCurDir)
+        char *PtrCurDir=PointToFolderNameIfFolder(CurDir); // подымаемся вверх, для очередной порции ChDir
+        if(PtrCurDir != CurDir)                            // есть ли ещё куда подниматся?
           *PtrCurDir=0;
         else                                             // здесь проблема - видимо диск недоступен
         {
