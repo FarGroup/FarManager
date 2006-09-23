@@ -1015,7 +1015,7 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
     {
       Sz = (OldSize=Sz) / Divider64F2;
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
-      DWORD Decimal = (DWORD)((double)(OldSize&0xFFFFFFFFi64)/(double)Divider*100.0);
+      DWORD Decimal = (DWORD)((double)(OldSize&_i64(0xFFFFFFFF))/(double)Divider*100.0);
       sprintf(Str,"%d.%02d",(int)Sz,Decimal);
     }
     if (IndexB>0 || ShowBytesIndex)

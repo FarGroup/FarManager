@@ -4538,9 +4538,9 @@ void FileList::CountDirSize(DWORD PluginFlags)
         }
       }
 
-      DoubleDotDir->UnpSize     = (DWORD)(UnpSize&0xFFFFFFFFi64);
+      DoubleDotDir->UnpSize     = (DWORD)(UnpSize&_i64(0xFFFFFFFF));
       DoubleDotDir->UnpSizeHigh = (DWORD)(UnpSize>>32);
-      DoubleDotDir->PackSize    = (DWORD)(PackSize&0xFFFFFFFFi64);
+      DoubleDotDir->PackSize    = (DWORD)(PackSize&_i64(0xFFFFFFFF));
       DoubleDotDir->PackSizeHigh= (DWORD)(PackSize>>32);
     }
   }
@@ -4563,9 +4563,9 @@ void FileList::CountDirSize(DWORD PluginFlags)
         SelFileSize-=MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
 
-        CurPtr->UnpSize=(DWORD)(FileSize&0xFFFFFFFFi64);
+        CurPtr->UnpSize=(DWORD)(FileSize&_i64(0xFFFFFFFF));
         CurPtr->UnpSizeHigh=(DWORD)(FileSize>>32);
-        CurPtr->PackSize=(DWORD)(CompressedFileSize&0xFFFFFFFFi64);
+        CurPtr->PackSize=(DWORD)(CompressedFileSize&_i64(0xFFFFFFFF));
         CurPtr->PackSizeHigh=(DWORD)(CompressedFileSize>>32);
 
         CurPtr->ShowFolderSize=1;
@@ -4590,9 +4590,9 @@ void FileList::CountDirSize(DWORD PluginFlags)
                    DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,
                    GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
     {
-      CurPtr->UnpSize=(DWORD)(FileSize&0xFFFFFFFFi64);
+      CurPtr->UnpSize=(DWORD)(FileSize&_i64(0xFFFFFFFF));
       CurPtr->UnpSizeHigh=(DWORD)(FileSize>>32);
-      CurPtr->PackSize=(DWORD)(CompressedFileSize&0xFFFFFFFFi64);
+      CurPtr->PackSize=(DWORD)(CompressedFileSize&_i64(0xFFFFFFFF));
       CurPtr->PackSizeHigh=(DWORD)(CompressedFileSize>>32);
       CurPtr->ShowFolderSize=1;
     }

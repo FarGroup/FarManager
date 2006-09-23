@@ -640,6 +640,6 @@ enum CHECKEDPROPS_TYPE{
   CHECKEDPROPS_ISDST_ENCRYPTION,
 };
 
-#define MKUINT64(Hi,Lo) ((unsigned __int64)((unsigned __int64)(Hi)*0x100000000i64+(unsigned __int64)(Lo)))
+#define MKUINT64(Hi,Lo) ((unsigned __int64)((unsigned __int64)(Hi)*_ui64(0x100000000)+(unsigned __int64)(Lo)))
 
 #endif // __FARCONST_HPP__

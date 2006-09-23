@@ -232,8 +232,7 @@ class Edit:public ScreenObject
     const char* GetStringAddr();
     void  SetString(const char *Str);
     void  SetBinaryString(const char *Str,int Length);
-    void  GetBinaryString(char *&Str,const char **EOL,int &Length);
-    void  GetBinaryString(const char *&Str,const char **EOL,int &Length);
+    void  GetBinaryString(const char **Str,const char **EOL,int &Length);
     void  SetEOL(const char *EOL);
     int   GetSelString(char *Str,int MaxSize);
     int   GetLength();

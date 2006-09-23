@@ -2186,17 +2186,9 @@ void Edit::SetBinaryString(const char *Str,int Length)
 }
 
 
-void Edit::GetBinaryString(char *&Str,const char **EOL,int &Length)
+void Edit::GetBinaryString(const char **Str,const char **EOL,int &Length)
 {
-  Str=Edit::Str;
-  if (EOL!=NULL)
-    *EOL=EOL_TYPE_CHARS[EndType];
-  Length=StrSize;
-}
-
-void Edit::GetBinaryString(const char *&Str,const char **EOL,int &Length)
-{
-  Str=Edit::Str;
+  *Str=Edit::Str;
   if (EOL!=NULL)
     *EOL=EOL_TYPE_CHARS[EndType];
   Length=StrSize;
