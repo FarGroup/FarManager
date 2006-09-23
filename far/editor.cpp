@@ -135,22 +135,22 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData()
 {
-	while (EndList!=NULL)
-	{
-		struct EditList *Prev=EndList->Prev;
-		delete EndList;
-		EndList=Prev;
-	}
+  while (EndList!=NULL)
+  {
+    struct EditList *Prev=EndList->Prev;
+    delete EndList;
+    EndList=Prev;
+  }
 
-	if ( UndoData )
-	{
-		for (int I=0;I<EdOpt.UndoSize;++I)
-			if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
-				delete UndoData[I].Str;
+  if ( UndoData )
+  {
+    for (int I=0;I<EdOpt.UndoSize;++I)
+      if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
+        delete UndoData[I].Str;
 
-		xf_free(UndoData);
-		UndoData=NULL;
-	}
+    xf_free(UndoData);
+    UndoData=NULL;
+  }
 }
 
 void Editor::KeepInitParameters()
@@ -204,48 +204,48 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
   UserBreak=0;
   Flags.Clear(FEDITOR_OPENFAILED);
 
-	HANDLE hEdit = FAR_CreateFileW (
-			Name,
-			GENERIC_READ,
-			FILE_SHARE_READ,
-			NULL,
-			OPEN_EXISTING,
-			FILE_FLAG_SEQUENTIAL_SCAN,
-			NULL
-			);
+  HANDLE hEdit = FAR_CreateFileW (
+      Name,
+      GENERIC_READ,
+      FILE_SHARE_READ,
+      NULL,
+      OPEN_EXISTING,
+      FILE_FLAG_SEQUENTIAL_SCAN,
+      NULL
+      );
 
-	if ( hEdit == INVALID_HANDLE_VALUE )
-	{
-		int LastError=GetLastError();
-		SetLastError(LastError);
+  if ( hEdit == INVALID_HANDLE_VALUE )
+  {
+    int LastError=GetLastError();
+    SetLastError(LastError);
 
-		if ( (LastError != ERROR_FILE_NOT_FOUND) &&
-			 (LastError != ERROR_PATH_NOT_FOUND) )
-		{
-			UserBreak = -1;
-			Flags.Set(FEDITOR_OPENFAILED);
-		}
+    if ( (LastError != ERROR_FILE_NOT_FOUND) &&
+       (LastError != ERROR_PATH_NOT_FOUND) )
+    {
+      UserBreak = -1;
+      Flags.Set(FEDITOR_OPENFAILED);
+    }
 
-		return FALSE;
-	}
+    return FALSE;
+  }
 
-	int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+  int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
 
-	if ( EditHandle == -1 )
-		return FALSE;
+  if ( EditHandle == -1 )
+    return FALSE;
 
-	if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
-		return FALSE;
+  if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
+    return FALSE;
 
-	if ( GetFileType(hEdit) != FILE_TYPE_DISK )
-	{
-		fclose(EditFile);
-		SetLastError(ERROR_INVALID_NAME);
+  if ( GetFileType(hEdit) != FILE_TYPE_DISK )
+  {
+    fclose(EditFile);
+    SetLastError(ERROR_INVALID_NAME);
 
-		UserBreak=-1;
-		Flags.Set(FEDITOR_OPENFAILED);
-		return FALSE;
-	}
+    UserBreak=-1;
+    Flags.Set(FEDITOR_OPENFAILED);
+    return FALSE;
+  }
 
   /* $ 29.11.2000 SVS
    + Проверка на минимально допустимый размер файла, после
@@ -3351,7 +3351,7 @@ void Editor::InsertString()
     wchar_t *NewCurLineStr = (wchar_t *) xf_malloc((CurPos+1)*sizeof(wchar_t));
     if (!NewCurLineStr)
       return;
-    memcpy(NewCurLineStr,CurLineStr,CurPos);
+    wmemcpy(NewCurLineStr,CurLineStr,CurPos);
     NewCurLineStr[CurPos]=0;
     int StrSize=CurPos;
 
