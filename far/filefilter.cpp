@@ -337,30 +337,30 @@ void FileFilter::Configure()
   int I;
 
   struct DialogData FilterDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,67,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,73,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
-  /* 02 */DI_EDIT,7,3,65,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,"",
+  /* 02 */DI_EDIT,7,3,71,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,"",
 
   /* 03 */DI_TEXT,0,4,0,0,0,0,DIF_SEPARATOR,0,"",
 
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
-  /* 05 */DI_COMBOBOX,46,5,65,5,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+  /* 05 */DI_COMBOBOX,52,5,71,5,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
   /* 06 */DI_TEXT,7,6,38,6,0,0,0,0,(char *)MFileFilterSizeFrom,
-  /* 07 */DI_FIXEDIT,46,6,65,6,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+  /* 07 */DI_FIXEDIT,52,6,71,6,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
   /* 08 */DI_TEXT,7,7,38,7,0,0,0,0,(char *)MFileFilterSizeTo,
-  /* 09 */DI_FIXEDIT,46,7,65,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+  /* 09 */DI_FIXEDIT,52,7,71,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
 
   /* 10 */DI_TEXT,0,8,0,0,0,0,DIF_SEPARATOR,0,"",
 
   /* 11 */DI_CHECKBOX,5,9,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
-  /* 12 */DI_COMBOBOX,47,9,65,9,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+  /* 12 */DI_COMBOBOX,53,9,71,9,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
   /* 13 */DI_TEXT,7,10,38,10,0,0,0,0,(char *)MFileFilterAfter,
-  /* 14 */DI_FIXEDIT,47,10,56,10,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
-  /* 15 */DI_FIXEDIT,58,10,65,10,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
+  /* 14 */DI_FIXEDIT,53,10,62,10,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
+  /* 15 */DI_FIXEDIT,64,10,71,10,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
   /* 16 */DI_TEXT,7,11,40,11,0,0,0,0,(char *)MFileFilterBefore,
-  /* 17 */DI_FIXEDIT,47,11,56,11,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
-  /* 18 */DI_FIXEDIT,58,11,65,11,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
+  /* 17 */DI_FIXEDIT,53,11,62,11,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
+  /* 18 */DI_FIXEDIT,64,11,71,11,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
   /* 19 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
   /* 20 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
@@ -371,13 +371,13 @@ void FileFilter::Configure()
   /* 24 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
   /* 25 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
   /* 26 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
-  /* 27 */DI_CHECKBOX,27,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
-  /* 28 */DI_CHECKBOX,27,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
-  /* 29 */DI_CHECKBOX,27,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
-  /* 30 */DI_CHECKBOX,27,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
-  /* 31 */DI_CHECKBOX,47,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
-  /* 32 */DI_CHECKBOX,47,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
-  /* 33 */DI_CHECKBOX,47,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
+  /* 27 */DI_CHECKBOX,29,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
+  /* 28 */DI_CHECKBOX,29,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
+  /* 29 */DI_CHECKBOX,29,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+  /* 30 */DI_CHECKBOX,29,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
+  /* 31 */DI_CHECKBOX,51,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
+  /* 32 */DI_CHECKBOX,51,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
+  /* 33 */DI_CHECKBOX,51,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
 
 
   /* 34 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
@@ -486,7 +486,7 @@ void FileFilter::Configure()
   Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FilterDlgProc);
 
   Dlg.SetHelp("OpFilter");
-  Dlg.SetPosition(-1,-1,71,23);
+  Dlg.SetPosition(-1,-1,77,23);
 
   Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
 
