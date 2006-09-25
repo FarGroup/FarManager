@@ -1460,7 +1460,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 
     // Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
     if(!Size)
-      SizeReal=strlen((const char*)Data)+1;
+      SizeReal=(wcslen((const wchar_t*)Data)+1)*sizeof(wchar_t);
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
     if(!Size ||
@@ -1517,7 +1517,8 @@ void* VMenu::_GetUserData(MenuItemEx *PItem,void *Data,int Size)
     }
     else // ... данных нет, значит лудим имя пункта!
     {
-      UnicodeToAnsi (PItem->strName, (char*)Data, Size); //BUGBUG
+      memcpy ((char*)Data,(const char *)((const wchar_t *)PItem->strName),
+              Min(Size,static_cast<int>((PItem->strName.GetLength()+1)*sizeof(wchar_t))));
     }
   }
   /* KM $ */

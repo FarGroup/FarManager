@@ -396,18 +396,18 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
 int Language::Select(int HelpLanguage,VMenu **MenuPtr)
 {
   const wchar_t *Title,*Mask;
-  string strDest;
+  string *strDest;
   if (HelpLanguage)
   {
     Title=UMSG(MHelpLangTitle);
     Mask=HelpFileMask;
-    strDest=Opt.strHelpLanguage;
+    strDest=&Opt.strHelpLanguage;
   }
   else
   {
     Title=UMSG(MLangTitle);
     Mask=LangFileMask;
-    strDest=Opt.strLanguage;
+    strDest=&Opt.strLanguage;
   }
 
   MenuItemEx LangMenuItem;
@@ -428,20 +428,14 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     if (LangFile==NULL)
       continue;
 
-    WORD wTemp;
-    bool bUnicode = false;
-
-    if ( (fread (&wTemp, 2, 1, LangFile) == 1) && (wTemp == 0xFEFF) )
-        bUnicode = true;
-    else
-        fseek(LangFile, 0, SEEK_SET);
+    int nCodePage = GetFileFormat(LangFile, NULL);
 
     string strLangName, strLangDescr;
-    if (GetLangParam(LangFile,L"Language",&strLangName,&strLangDescr,bUnicode))
+    if (GetLangParam(LangFile,L"Language",&strLangName,&strLangDescr,nCodePage))
     {
        string strEntryName;
-       if (!GetLangParam(LangFile,L"PluginContents",&strEntryName,NULL,bUnicode) &&
-           !GetLangParam(LangFile,L"DocumentContents",&strEntryName,NULL,bUnicode))
+       if (!HelpLanguage || (!GetLangParam(LangFile,L"PluginContents",&strEntryName,NULL,nCodePage) &&
+           !GetLangParam(LangFile,L"DocumentContents",&strEntryName,NULL,nCodePage)))
        {
 
          LangMenuItem.strName.Format(L"%.40s", !strLangDescr.IsEmpty() ? (const wchar_t*)strLangDescr:(const wchar_t*)strLangName);
@@ -452,7 +446,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
          */
          if(LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
          {
-           LangMenuItem.SetSelect(LocalStricmpW(strDest,strLangName)==0);
+           LangMenuItem.SetSelect(LocalStricmpW(*strDest,strLangName)==0);
            LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItemW(&LangMenuItem));
          }
          /* SVS $ */
@@ -465,11 +459,11 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   if (LangMenu->Modal::GetExitCode()<0)
     return(FALSE);
 
-  wchar_t *lpwszDest = strDest.GetBuffer(100); //BUGBUG!!!
+  wchar_t *lpwszDest = strDest->GetBuffer(LangMenu->GetUserDataSize()/sizeof(wchar_t)+1);
 
-  LangMenu->GetUserData(lpwszDest, 100*sizeof(wchar_t));
+  LangMenu->GetUserData(lpwszDest, LangMenu->GetUserDataSize());
 
-  strDest.ReleaseBuffer();
+  strDest->ReleaseBuffer();
 
   return(LangMenu->GetUserDataSize());
 }
