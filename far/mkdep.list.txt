@@ -191,3 +191,5 @@ usermenu.cpp
 viewer.cpp
 vmenu.cpp
 xlat.cpp
+copyright.inc
+farversion.inc
