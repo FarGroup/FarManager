@@ -192,3 +192,5 @@ viewer.cpp
 vmenu.cpp
 xlat.cpp
 hotplug.cpp
+copyright.inc
+farversion.inc

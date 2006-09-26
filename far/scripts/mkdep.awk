@@ -5,7 +5,9 @@ BEGIN{
 }
 {
   if($2 == "cpp" || $2 == "c")
+  {
     ext="obj";
+  }
   if($2 == "rc")
     ext="res";
   if($2 == "hpp")
@@ -18,8 +20,16 @@ BEGIN{
   }
   else
   {
-    print ".\\" out "\\obj\\" $1 "." ext " : \\";
-    print "\t\".\\" $1 "." $2 "\"\\";
+    if($2 == "inc")
+    {
+      print ".\\" $1 "." $2 " : \\";
+      print "\t\".\\" $0 ".m4\"\\";
+    }
+    else
+    {
+      print ".\\" out "\\obj\\" $1 "." ext " : \\";
+      print "\t\".\\" $1 "." $2 "\"\\";
+    }
   }
   #print "Process " $1 "." $2 > "/dev/stderr"
   while((getline lnsrc < ($1 "." $2)) > 0)
