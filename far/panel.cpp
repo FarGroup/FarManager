@@ -1571,6 +1571,14 @@ int  Panel::SetCurPath()
           SetCurDirW(g_strFarPath,TRUE);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
           break;
         }
+        else
+        {
+          if(FarChDirW(strCurDir))
+          {
+            SetCurDirW(strCurDir,TRUE);
+            break;
+          }
+        }
       }
     }
 #else
