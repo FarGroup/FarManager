@@ -1945,7 +1945,14 @@ int  Panel::SetCurPath()
       {
         char *PtrCurDir=PointToFolderNameIfFolder(CurDir); // подымаемся вверх, для очередной порции ChDir
         if(PtrCurDir != CurDir)                            // есть ли ещё куда подниматся?
+        {
           *PtrCurDir=0;
+          if (FarChDir(CurDir))
+          {
+            SetCurDir(CurDir,TRUE);
+            break;
+          }
+        }
         else                                             // здесь проблема - видимо диск недоступен
         {
           SetCurDir(FarPath,TRUE);                       // тогда просто сваливаем в каталог, откуда стартанул FAR.
