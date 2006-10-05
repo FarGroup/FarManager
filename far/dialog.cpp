@@ -2820,7 +2820,7 @@ void Dialog::ShowDialog(int ID)
           SetColor(LOBYTE(HIWORD(Attr)));
           GotoXY(X1+(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
 
-          ShowSeparator(RealWidth-1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+          ShowSeparator(RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
         }
 
         SetColor(Attr&0xFF);
