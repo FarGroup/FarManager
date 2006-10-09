@@ -2690,16 +2690,16 @@ int FindFiles::LookForString(const wchar_t *Name)
       /* $ 30.07.2000 KM
          Изменение offset при чтении нового блока с учётом WordDiv
       */
-      int NewPos;
+      __int64 NewPos;
       //При поиске по всем таблицам из за того что поиск происходит также и в Юникоде
       //поиск по примерно FileSize/sizeof(Buf)*(Length+1) байт будет повторён
       //но если так не делать то при поиске по всем таблицам в Юникоде не будут
       //находится тоже количество кусков.
       if ((UseAllTables || UnicodeSearch) && !SearchHex)
-        NewPos=ftell(SrcFile)-2*(Length+1);
+        NewPos=ftell64(SrcFile)-(__int64)(2*(Length+1));
       else
-        NewPos=ftell(SrcFile)-(Length+1);
-      fseek(SrcFile,Max(NewPos,0),SEEK_SET);
+        NewPos=ftell64(SrcFile)-(__int64)(Length+1);
+      fseek64(SrcFile,Max(NewPos,0i64),SEEK_SET);
       /* KM $ */
       /* KM $ */
     }
