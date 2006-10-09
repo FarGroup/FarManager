@@ -248,15 +248,15 @@ lang.hpp : farlang.templ
 # ************************************************************************
 $(FARINCLUDE)\farcolor.hpp : colors.hpp
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) colors.hpp > $(FARINCLUDE)\farcolor.hpp
+	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) colors.hpp > $(FARINCLUDE)\farcolor.hpp
 
 $(FARINCLUDE)\farkeys.hpp : keys.hpp
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) keys.hpp   > $(FARINCLUDE)\farkeys.hpp
+	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) keys.hpp   > $(FARINCLUDE)\farkeys.hpp
 
 $(FARINCLUDE)\plugin.hpp : plugin.hpp
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
+	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
 
 
 # ************************************************************************
@@ -301,15 +301,15 @@ Far.def
 	-@if not exist $(FINALPATH)\FarRus.hlf del $(FINALPATH)\FarRus.hlf  >nul
 	-@if not exist $(FINALPATH)\FarEng.lng del $(FINALPATH)\FarEng.lng  >nul
 	-@if not exist $(FINALPATH)\FarRus.lng del $(FINALPATH)\FarRus.lng  >nul
-	@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) FarEng.hlf > $(FINALPATH)\FarEng.hlf
-	@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) FarRus.hlf > $(FINALPATH)\FarRus.hlf
+	@tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P > "$(FINALPATH)\FarEng.hlf"
+	@tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P > "$(FINALPATH)\FarRus.hlf"
 	@copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
 	@copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
-	-@if exist plugin.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
-	-@if exist fmt.hpp awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) fmt.hpp > $(FARINCLUDE)\fmt.hpp
-	-@if exist fmt.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
-	-@if exist farcolor.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
-	-@if exist farkeys.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
+	-@if exist plugin.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
+	-@if exist fmt.hpp tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) fmt.hpp > $(FARINCLUDE)\fmt.hpp
+	-@if exist fmt.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
+	-@if exist farcolor.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
+	-@if exist farkeys.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
 
 
 # Compiler configuration file

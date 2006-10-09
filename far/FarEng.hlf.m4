@@ -382,7 +382,8 @@ the starting characters of the file name. In order to use that, hold down the
 the cursor is positioned to it.
 
     By pressing #Ctrl-Enter#, you can cycle through the files matching the part
-of the filename that you have already entered.
+of the filename that you have already entered.  #Ctrl-Shift-Enter# позволяет 
+перемещаться по элементам в обратном направлении.
 
     Besides the filename characters, you can also use the wildcard characters
 '*' and '?'.
