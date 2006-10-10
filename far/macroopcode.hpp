@@ -98,10 +98,6 @@ enum MACRO_OP_CODE {
   MCODE_OP_REP,                     // $rep - признак начала цикла
   MCODE_OP_END,                     // $end - признак конца цикла/условия
 
-  MCODE_OP_IF,                      // Вообще-то эта группа в байткод
-  MCODE_OP_ELSE,                    // не попадет никогда :)
-  MCODE_OP_WHILE,
-
   // Одноместные операции
   MCODE_OP_NEGATE,
   MCODE_OP_NOT,
@@ -125,6 +121,15 @@ enum MACRO_OP_CODE {
   MCODE_OP_BITOR,
   MCODE_OP_BITXOR,
 
+  // <TODO>
+  MCODE_OP_DISCARD,                 // убрать значение с вершины стека
+  MCODE_OP_POP,                     // присвоить значение переменной и убрать из вершины стека
+  MCODE_OP_COPY,                    // %a=%d
+  // </TODO>
+
+  MCODE_OP_IF,                      // Вообще-то эта группа в байткод
+  MCODE_OP_ELSE,                    // не попадет никогда :)
+  MCODE_OP_WHILE,
 
   /* ************************************************************************* */
   MCODE_OP_XLAT,
@@ -177,6 +182,23 @@ enum MACRO_OP_CODE {
   /* ************************************************************************* */
   // булевые переменные - различные состояния
   MCODE_C_DISABLEOUTPUT=KEY_MACRO_C_BASE,// вывод запрещен?
+
+  MCODE_C_AREA_OTHER,               // Режим копирования текста с экрана, вертикальные меню
+  MCODE_C_AREA_SHELL,               // Файловые панели
+  MCODE_C_AREA_VIEWER,              // Внутренняя программа просмотра
+  MCODE_C_AREA_EDITOR,              // Редактор
+  MCODE_C_AREA_DIALOG,              // Диалоги
+  MCODE_C_AREA_SEARCH,              // Быстрый поиск в панелях
+  MCODE_C_AREA_DISKS,               // Меню выбора дисков
+  MCODE_C_AREA_MAINMENU,            // Основное меню
+  MCODE_C_AREA_MENU,                // Прочие меню
+  MCODE_C_AREA_HELP,                // Система помощи
+  MCODE_C_AREA_INFOPANEL,           // Информационная панель
+  MCODE_C_AREA_QVIEWPANEL,          // Панель быстрого просмотра
+  MCODE_C_AREA_TREEPANEL,           // Панель дерева папок
+  MCODE_C_AREA_FINDFOLDER,          // Поиск папок
+  MCODE_C_AREA_USERMENU,            // Меню пользователя
+
   MCODE_C_WINDOWEDMODE,             // оконный режим?
   MCODE_C_BOF,                      // начало файла/активного каталога?
   MCODE_C_EOF,                      // конец файла/активного каталога?
