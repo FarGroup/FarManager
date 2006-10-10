@@ -40,12 +40,7 @@ struct DlgParam{
   int Mode;
 };
 
-/* $TODO:
-    Сейчас здесь сделано криво, в лоб.
-    Надобно немного уточнить.........
-*/
-struct TMacroKeywords MKeywords[] ={
-  // ЭТИ ВСЕГДА ДОЛЖНЫ БЫТЬ В НАЧАЛЕ МАССИВА!
+struct TMacroKeywords MKeywordsArea[] ={
   {0,  L"Other",              MACRO_OTHER,0},
   {0,  L"Shell",              MACRO_SHELL,0},
   {0,  L"Viewer",             MACRO_VIEWER,0},
@@ -62,6 +57,24 @@ struct TMacroKeywords MKeywords[] ={
   {0,  L"FindFolder",         MACRO_FINDFOLDER,0},
   {0,  L"UserMenu",           MACRO_USERMENU,0},
   {0,  L"Common",             MACRO_COMMON,0},
+};
+
+struct TMacroKeywords MKeywords[] ={
+  {0,  L"Other",              MCODE_C_AREA_OTHER,0},
+  {0,  L"Shell",              MCODE_C_AREA_SHELL,0},
+  {0,  L"Viewer",             MCODE_C_AREA_VIEWER,0},
+  {0,  L"Editor",             MCODE_C_AREA_EDITOR,0},
+  {0,  L"Dialog",             MCODE_C_AREA_DIALOG,0},
+  {0,  L"Search",             MCODE_C_AREA_SEARCH,0},
+  {0,  L"Disks",              MCODE_C_AREA_DISKS,0},
+  {0,  L"MainMenu",           MCODE_C_AREA_MAINMENU,0},
+  {0,  L"Menu",               MCODE_C_AREA_MENU,0},
+  {0,  L"Help",               MCODE_C_AREA_HELP,0},
+  {0,  L"Info",               MCODE_C_AREA_INFOPANEL,0},
+  {0,  L"QView",              MCODE_C_AREA_QVIEWPANEL,0},
+  {0,  L"Tree",               MCODE_C_AREA_TREEPANEL,0},
+  {0,  L"FindFolder",         MCODE_C_AREA_FINDFOLDER,0},
+  {0,  L"UserMenu",           MCODE_C_AREA_USERMENU,0},
 
   // ПРОЧЕЕ
   {2,  L"Bof",                MCODE_C_BOF,0},
@@ -572,7 +585,7 @@ wchar_t *KeyMacro::GetPlainText(wchar_t *Dest)
   if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
   {
     wcscpy(Dest,(wchar_t *)&MR->Buffer[Work.ExecLIBPos]); //BUGBUG
-    Work.ExecLIBPos+=(LenTextBuf+1)/4;
+    Work.ExecLIBPos+=(LenTextBuf+1)/sizeof(DWORD);
     if(((LenTextBuf+1)%sizeof(DWORD)) != 0)
       ++Work.ExecLIBPos;
     return Dest;
@@ -615,9 +628,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
     case 0: // проверка на область
     {
       if(WaitInMainLoop) // здесь надо учесть тот самый WaitInMainLoop, хотя могу и ошибаться!!!
-        Cond=CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode()?1:0;
-      else
-        Cond=CheckCode == CtrlObject->Macro.GetMode()?1:0;
+       Cond=(CheckCode-MCODE_C_AREA_OTHER+MACRO_OTHER) == FrameManager->GetCurrentFrame()->GetMacroMode()?1:0;
+     else
+       Cond=(CheckCode-MCODE_C_AREA_OTHER+MACRO_OTHER) == CtrlObject->Macro.GetMode()?1:0;
       break;
     }
 
@@ -3365,8 +3378,8 @@ static void printKeyValue(DWORD* k, int& i)
   int ii = i;
   if ( !k[i] )                                 sprint(ii, "<null>");
   else if ( k[i] == MCODE_OP_END )             sprint(ii, "END");
-  else if ( k[i] == MCODE_OP_EXPR )            sprint(ii, "expr (");
-  else if ( k[i] == MCODE_OP_DOIT )            sprint(ii, ") expr");
+  else if ( k[i] == MCODE_OP_EXPR )            sprint(ii, "<expr> (");
+  else if ( k[i] == MCODE_OP_DOIT )            sprint(ii, ") </expr>");
   else if ( k[i] == MCODE_OP_SAVE )            sprint(ii, "SAVE \"%%%s\"", printfStr(k, i));
   else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, "SAVE REP COUNT");
   else if ( k[i] == MCODE_OP_REP )             sprint(ii, "REP (*)", (char*)(i++));
@@ -3502,7 +3515,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       if ( strCurrKeyText.At(0) == L'%' && ( ( LocalIsalphaW(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) || ( strCurrKeyText.At(1) == L'%' && ( LocalIsalphaW(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' ) ) ) )
       {
         BufPtr = oldBufPtr;
-        while ( *BufPtr && IsSpaceW(*BufPtr) )
+        while ( *BufPtr && (IsSpaceW(*BufPtr) || IsEolW(*BufPtr)) )
           BufPtr++;
         memset(varName, 0, sizeof(varName));
         KeyCode = MCODE_OP_SAVE;
@@ -3523,7 +3536,9 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         BufPtr += Length;
         Size += parseExpr(BufPtr, exprBuff, L'=', L';');
         if(_macro_nErr)
+        {
           ProcError++;
+        }
       }
       else
       {
@@ -3543,12 +3558,14 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         {
           if(Brack) *Brack=Chr;
           BufPtr = oldBufPtr;
-          while ( *BufPtr && IsSpaceW(*BufPtr) )
+          while ( *BufPtr && (IsSpaceW(*BufPtr) || IsEolW(*BufPtr)) )
             BufPtr++;
           Size += parseExpr(BufPtr, exprBuff, 0, 0);
           //Size--; //???
           if(_macro_nErr)
+          {
             ProcError++;
+          }
           else
           {
             KeyCode=MCODE_OP_SAVE;
@@ -3741,8 +3758,10 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         break;
       case MCODE_OP_REP:
         memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT; // 5 ???
-        CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;               // 4 ???
+        CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT;
+        CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;
+        CurMacro_Buffer[CurMacroBufferSize+Size-4] = 0; // Initilize 0
+        CurMacro_Buffer[CurMacroBufferSize+Size-3] = 0;
         CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_WHILE:
@@ -3933,7 +3952,7 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 // получить название моды по коду
 const wchar_t* KeyMacro::GetSubKey(int Mode)
 {
-  return (const wchar_t *)((Mode >= MACRO_OTHER && Mode < MACRO_LAST)?MKeywords[Mode].Name:L"");
+  return (const wchar_t *)((Mode >= MACRO_OTHER && Mode < MACRO_LAST)?MKeywordsArea[Mode].Name:L"");
 }
 
 // получить код моды по имени
@@ -3941,7 +3960,7 @@ int KeyMacro::GetSubKey(const wchar_t *Mode)
 {
   int I;
   for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
-    if(!LocalStricmpW(MKeywords[I].Name,Mode))
+    if(!LocalStricmpW(MKeywordsArea[I].Name,Mode))
       return I;
   return -1;
 }
@@ -4299,8 +4318,13 @@ static const char* ParsePlainText(char *CurKeyText, const char *BufPtr)
 static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
 {
    // пропускаем ведущие пробельные символы
-   while (IsSpaceW(*BufPtr) || IsEolW(*BufPtr)) // удалить IsEol(*BufPtr)?
+   while (IsSpaceW(*BufPtr) || IsEolW(*BufPtr))
+   {
+     if(IsEolW(*BufPtr))
+       ; //TODO!!!
      BufPtr++;
+   }
+
    if (*BufPtr==0)
      return NULL;
 
@@ -4309,7 +4333,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
    BOOL SpecMacro=Chr==L'$' && Chr2 && !(IsSpaceW(Chr2) || IsEolW(Chr2));
 
    // ищем конец очередного названия клавиши
-   while (Chr && !(IsSpaceW(Chr) || IsEolW(Chr))) // удалить IsEol(*BufPtr)?
+   while (Chr && !(IsSpaceW(Chr) || IsEolW(Chr)))
    {
      if(SpecMacro && (Chr == L'[' || Chr == L'(' || Chr == L'{'))
        break;
