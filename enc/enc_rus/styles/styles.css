@@ -481,16 +481,7 @@ DIV.lang
 INPUT
 {
     FONT-SIZE: 10pt;
-    BORDER-LEFT-COLOR: #c0c0c0;
-    BACKGROUND: #d8d8d8;
-    BORDER-BOTTOM-COLOR: #c0c0c0;
-    BORDER-TOP-STYLE: solid;
-    BORDER-TOP-COLOR: #c0c0c0;
     FONT-FAMILY: Lucida Console, Courier New, Courier, verdana, tahoma;
-    BORDER-RIGHT-STYLE: solid;
-    BORDER-LEFT-STYLE: solid;
-    BORDER-RIGHT-COLOR: #c0c0c0;
-    BORDER-BOTTOM-STYLE: solid
 }
 TEXTAREA
 {
