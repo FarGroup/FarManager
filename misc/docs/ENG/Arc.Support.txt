@@ -53,7 +53,7 @@ The most commonly used archivers are:
        dates will be empty.
 
   - ARJ. The file arj32.exe from the archive distribution is used
-    (http://www.arjsoft.com/).
+    (http://www.arjsoftware.com/).
     By default, ARJ.FMT is configured for 32-bit arj32 3.08 and higher.
 
   - ZIP. Many ZIP archivers exist, but it is recommended to use the  32-bit
@@ -96,7 +96,7 @@ The most commonly used archivers are:
     file ace32.exe is used (Commandline Ace).
 
   - JAR (.J). Version 1.02 (32 bit) or later should be used. It can be
-    downloaded from the official homepage: http://www.arjsoft.com
+    downloaded from the official homepage: http://www.arjsoftware.com/
 
   - LZH. It is recommended to use a 32-bit Windows version of this archiver,
     that can be downloaded, for example, from this site:
