@@ -3130,49 +3130,60 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
      + Несколько префиксов у плагина, разделенных через ":"
   */
   DWORD PluginFlags = 0;
-  char PluginPrefix[512]="";
 
-  struct PluginItem *PData=PluginsData;
+  char *lpPluginPrefix = (char*)xf_malloc (0);
+  char *lpNewPrefix = NULL;
+  int size = 0;
+
+  PluginItem *PData = PluginsData;
+
   for (int I=0;I<PluginsCount;I++,PData++)
   {
     if (PData->WorkFlags.Check(PIWF_CACHED))
     {
       int RegNumber=GetCacheNumber(PData->ModuleName,NULL,PData->CachePos);
-      if (RegNumber!=-1)
-      {
-        char RegKey[100];
-        sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-        GetRegKey(RegKey,"CommandPrefix",PluginPrefix,"",sizeof(PluginPrefix));
-        /* $ 07.09.2000 SVS
-             По каким-то непонятным причинам из кэше для Flags возвращалось
-             значение равное 0 (хотя вижу что в реестре стоит 0x10) :-(
-        */
-        PluginFlags=GetRegKey(RegKey,"Flags",0);
-        /* SVS $ */
-      } /* if */
-      else
+
+      if ( RegNumber == -1 )
         continue;
-    } /* if */
+
+      char RegKey[100], *lpNewPrefix;
+      sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+
+      size = GetRegKeySize (RegKey, "CommandPrefix")+1;
+
+      lpNewPrefix = (char*)xf_realloc (lpPluginPrefix, size); 
+
+      if ( !lpNewPrefix )
+        continue;
+
+      lpPluginPrefix = lpNewPrefix;
+      GetRegKey (RegKey, "CommandPrefix", lpPluginPrefix, "", size);
+
+      PluginFlags=GetRegKey(RegKey,"Flags",0);
+    } 
     else
     {
       struct PluginInfo Info;
-      if (GetPluginInfo(I,&Info))
-      {
-        /* $ 10.09.2000 IS
-             Вай, вай, как не хорошо... Забыли проверку Info.CommandPrefix на
-             NULL сделать, соответственно фар иногда с конвульсиями помирал,
-             теперь - нет.
-        */
-        xstrncpy(PluginPrefix,NullToEmpty(Info.CommandPrefix),sizeof(PluginPrefix)-1);
-        /* IS $ */
-        PluginFlags = Info.Flags;
-      } /* if */
-      else
+
+      if ( !GetPluginInfo(I,&Info) )
         continue;
+
+      size = strlen (NullToEmpty(Info.CommandPrefix))+1;
+
+      lpNewPrefix = (char*)xf_realloc (lpPluginPrefix, size);
+
+      if ( !lpNewPrefix )
+        continue;
+
+      lpPluginPrefix = lpNewPrefix;
+
+      strcpy (lpPluginPrefix, NullToEmpty(Info.CommandPrefix));
+      PluginFlags = Info.Flags;
     } /* else */
-    if (PluginPrefix[0]==0)
+    if ( lpPluginPrefix[0]==0)
       continue;
-    char *PrStart = PluginPrefix;
+
+    char *PrStart = lpPluginPrefix;
     /*$ 10.07.2001 SKV
       префикс должен совпадать ПОЛНОСТЬЮ,
       а не начало...
@@ -3196,6 +3207,8 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
     if (PluginPos >= 0)
       break;
   } /* for */
+
+  xf_free (lpPluginPrefix);
   /* VVM $ */
 
   if (PluginPos==-1)
