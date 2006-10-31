@@ -289,6 +289,9 @@ class Editor:public ScreenObject
       + Освободить всю занятую память */
     void FreeAllocatedData();
     /* VVM $ */
+
+    bool AddString (const wchar_t *lpwszStr, int nLength);
+    EditList *CreateString (const wchar_t *lpwszStr, int nLength);
 };
 
 #endif // __EDITOR_HPP__

@@ -84,18 +84,6 @@ Editor::Editor()
   LastChangeStrPos=0;
   BlockStart=NULL;
   BlockStartLine=0;
-  TopList=EndList=TopScreen=CurLine=new struct EditList(this);
-  TopList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-  /* $ 14.02.2001 IS
-       Установим нужный размер табуляции
-  */
-  TopList->EditLine.SetTabSize(EdOpt.TabSize);
-  /* IS $ */
-  TopList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-  TopList->EditLine.SetEditorMode(TRUE);
-  TopList->EditLine.SetWordDiv(EdOpt.strWordDiv);
-  TopList->Prev=NULL;
-  TopList->Next=NULL;
   /* $ 12.01.2002 IS
      По умолчанию конец строки так или иначе равен \r\n, поэтому нечего
      пудрить мозги, пропишем его явно.
@@ -387,65 +375,13 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
         LastLineCR=1;
       }
 
-      if (NumLastLine!=0)
-      {
-        EndList->Next=new struct EditList(this);
-        if (EndList->Next==NULL)
-        {
-          fclose(EditFile);
-          SetPreRedrawFunc(NULL);
-          return(FALSE);
-        }
-        PrevPtr=EndList;
-        EndList=EndList->Next;
-        EndList->Prev=PrevPtr;
-        EndList->Next=NULL;
-      }
-
-      /* $ 14.02.2001 IS
-           Установим нужный размер табуляции
-      */
-      EndList->EditLine.SetTabSize(EdOpt.TabSize);
-      /* IS $ */
-      /* $ 24.06.2002 SKV
-        А PersistentBlocks кто будет устанавливать?
-      */
-      EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
-      /* SKV $ */
-      EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-      EndList->EditLine.SetBinaryStringW(Str,StrLength);
-      EndList->EditLine.SetCurPos(0);
-      EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-      EndList->EditLine.SetEditorMode(TRUE);
-      EndList->EditLine.SetWordDiv(EdOpt.strWordDiv);
-      NumLastLine++;
+      AddString (Str, StrLength);
     }
     SetPreRedrawFunc(NULL);
+
     if (LastLineCR)
-      if ((EndList->Next=new struct EditList(this))!=NULL)
-      {
-        PrevPtr=EndList;
-        EndList=EndList->Next;
-        EndList->Prev=PrevPtr;
-        EndList->Next=NULL;
-        /* $ 14.02.2001 IS
-           Установим нужный размер табуляции
-        */
-        EndList->EditLine.SetTabSize(EdOpt.TabSize);
-        /* IS $ */
-        /* $ 24.06.2002 SKV
-          А PersistentBlocks кто будет устанавливать?
-        */
-        EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
-        /* SKV $ */
-        EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-        EndList->EditLine.SetStringW(L"");
-        EndList->EditLine.SetCurPos(0);
-        EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-        EndList->EditLine.SetEditorMode(TRUE);
-        EndList->EditLine.SetWordDiv(EdOpt.strWordDiv);
-        NumLastLine++;
-      }
+       AddString (L"", sizeof (wchar_t));
+
   }
   if (NumLine>0)
     NumLastLine--;
@@ -3245,30 +3181,20 @@ void Editor::InsertString()
   int NewLineEmpty=TRUE;
   /* tran 17.07.2000 $ */
 
-  if ((NewString=new struct EditList(this))==NULL)
-    return;
+  NewString = CreateString (NULL, 0);
 
-  NewString->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-  /* $ 14.02.2001 IS
-       Установим нужный размер табуляции
-  */
-  NewString->EditLine.SetTabSize(EdOpt.TabSize);
-  /* IS $ */
-  /* $ 24.06.2002 SKV
-    А PersistentBlocks кто будет устанавливать?
-  */
-  NewString->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
-  /* SKV $ */
-  NewString->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-  NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
-  NewString->EditLine.SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
-  NewString->EditLine.SetEditorMode(TRUE);
-  NewString->EditLine.SetWordDiv(EdOpt.strWordDiv);
+  if ( !NewString )
+  	return;
+
+  NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL); // ??
   NewString->Prev=CurLine;
   NewString->Next=CurLine->Next;
+
   if (CurLine->Next)
     CurLine->Next->Prev=NewString;
+
   CurLine->Next=NewString;
+
   int Length;
   const wchar_t *CurLineStr;
   const wchar_t *EndSeq;
@@ -6196,4 +6122,55 @@ void Editor::PR_EditorShowMsg(void)
   Editor::EditorShowMsg((wchar_t*)PreRedrawParam.Param1,(wchar_t*)PreRedrawParam.Param2,(wchar_t*)PreRedrawParam.Param3);
 }
 
+
+EditList *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
+{
+	EditList *pEdit = new EditList (this);
+
+	if ( pEdit ) 
+	{
+		pEdit->Next = NULL;
+		pEdit->Prev = NULL;
+		pEdit->EditLine.SetTabSize (EdOpt.TabSize);
+		pEdit->EditLine.SetPersistentBlocks (EdOpt.PersistentBlocks);
+		pEdit->EditLine.SetConvertTabs (EdOpt.ExpandTabs);
+		pEdit->EditLine.SetCurPos (0);
+		pEdit->EditLine.SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+		pEdit->EditLine.SetEditorMode (TRUE);
+		pEdit->EditLine.SetWordDiv (EdOpt.strWordDiv);
+
+		if ( lpwszStr )
+			pEdit->EditLine.SetBinaryStringW (lpwszStr, nLength);
+	}
+
+	return pEdit;
+}
+
+bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
+{
+	EditList *pNewEdit = CreateString (lpwszStr, nLength);
+
+	if ( !pNewEdit )
+		return false;
+
+	if ( !TopList || !NumLastLine ) //???
+		TopList = EndList = TopScreen = CurLine = pNewEdit;
+	else
+	{
+		EditList *PrevPtr;
+
+		EndList->Next = pNewEdit;
+
+		PrevPtr = EndList;
+		EndList = EndList->Next;
+		EndList->Prev = PrevPtr;
+		EndList->Next = NULL;
+	}
+
+	NumLastLine++;
+
+	return true;
+}
+
 #endif //!defined(EDITOR2)
+
