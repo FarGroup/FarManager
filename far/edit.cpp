@@ -36,42 +36,47 @@ static const wchar_t *EOL_TYPE_CHARS_W[]={L"",L"\r",L"\n",L"\r\n"};
 #define EDMASK_HEX_W   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 
-Edit::Edit()
+Edit::Edit(ScreenObject *pOwner)
 {
-  Str=(wchar_t*) xf_malloc(sizeof(wchar_t));
-  StrSize=0;
+	SetOwner (pOwner);
 
-  WordDiv=Opt.strWordDiv;
+	m_next = NULL;
+	m_prev = NULL;
 
-  *Str=0;
+	Str=(wchar_t*) xf_malloc(sizeof(wchar_t));
+	StrSize=0;
 
-  Mask=NULL;
-  PrevCurPos=0;
+	WordDiv=Opt.strWordDiv;
 
-  CurPos=0;
-  CursorPos=0;
-  CursorSize=-1;
-  TableSet=NULL;
-  LeftPos=0;
-  MaxLength=-1;
-  SelStart=-1;
-  SelEnd=0;
-  Flags.Set(FEDITLINE_EDITBEYONDEND);
-  Color=F_LIGHTGRAY|B_BLACK;
-  SelColor=F_WHITE|B_BLACK;
+	*Str=0;
 
-  ColorUnChanged=COL_DIALOGEDITUNCHANGED;
+	Mask=NULL;
+	PrevCurPos=0;
 
-  EndType=EOL_NONE;
-  ColorList=NULL;
-  ColorCount=0;
+	CurPos=0;
+	CursorPos=0;
+	CursorSize=-1;
+	TableSet=NULL;
+	LeftPos=0;
+	MaxLength=-1;
+	SelStart=-1;
+	SelEnd=0;
+	Flags.Set(FEDITLINE_EDITBEYONDEND);
+	Color=F_LIGHTGRAY|B_BLACK;
+	SelColor=F_WHITE|B_BLACK;
 
-  TabSize=Opt.EdOpt.TabSize;
+	ColorUnChanged=COL_DIALOGEDITUNCHANGED;
 
-  TabExpandMode = EXPAND_NOTABS;
+	EndType=EOL_NONE;
+	ColorList=NULL;
+	ColorCount=0;
 
-  Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
-  Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
+	TabSize=Opt.EdOpt.TabSize;
+
+	TabExpandMode = EXPAND_NOTABS;
+
+	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
+	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
 }
 
 

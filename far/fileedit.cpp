@@ -103,8 +103,8 @@ FileEditor::~FileEditor()
   if (FEdit->EdOpt.SavePos && CtrlObject!=NULL)
   {
     int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
-    int CurPos=FEdit->CurLine->EditLine.GetTabCurPos();
-    int LeftPos=FEdit->CurLine->EditLine.GetLeftPos();
+    int CurPos=FEdit->CurLine->GetTabCurPos();
+    int LeftPos=FEdit->CurLine->GetLeftPos();
 
     string strCacheName;
 
@@ -619,7 +619,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     }
 
     if(Key == MCODE_V_EDITORCURPOS)
-      return FEdit->CurLine->EditLine.GetTabCurPos()+1;
+      return FEdit->CurLine->GetTabCurPos()+1;
     if(Key == MCODE_V_EDITORCURLINE)
       return FEdit->NumLine+1;
     if(Key == MCODE_V_ITEMCOUNT || Key == MCODE_V_EDITORLINES)
@@ -1382,14 +1382,14 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
     SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     Editor::EditorShowMsg(UMSG(MEditTitle),UMSG(MEditSaving),Name);
 
-    struct EditList *CurPtr=FEdit->TopList;
+    Edit *CurPtr=FEdit->TopList;
 
     while (CurPtr!=NULL)
     {
       const wchar_t *SaveStr, *EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryStringW(&SaveStr,&EndSeq,Length);
-      if (*EndSeq==0 && CurPtr->Next!=NULL)
+      CurPtr->GetBinaryStringW(&SaveStr,&EndSeq,Length);
+      if (*EndSeq==0 && CurPtr->m_next!=NULL)
         EndSeq=*FEdit->GlobalEOL ? FEdit->GlobalEOL:DOS_EOL_fmtW;
       if (TextFormat!=0 && *EndSeq!=0)
       {
@@ -1399,7 +1399,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
           EndSeq=UNIX_EOL_fmtW;
         else
           EndSeq=MAC_EOL_fmtW;
-        CurPtr->EditLine.SetEOLW(EndSeq);
+        CurPtr->SetEOLW(EndSeq);
       }
       int EndLength=wcslen(EndSeq);
 
@@ -1424,7 +1424,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
       delete SaveStrCopy;
       delete EndSeqCopy;
 
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
     }
     if (fflush(EditFile)==EOF)
     {
@@ -1736,7 +1736,7 @@ void FileEditor::ShowStatus()
         SizeLineStr,
         wszLineStr,
         UMSG(MEditStatusCol),
-        FEdit->CurLine->EditLine.GetTabCurPos()+1,
+        FEdit->CurLine->GetTabCurPos()+1,
         (const wchar_t*)strAttr
         );
 
@@ -1750,8 +1750,8 @@ void FileEditor::ShowStatus()
   {
     const wchar_t *Str;
     int Length;
-    FEdit->CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-    int CurPos=FEdit->CurLine->EditLine.GetCurPos();
+    FEdit->CurLine->GetBinaryStringW(&Str,NULL,Length);
+    int CurPos=FEdit->CurLine->GetCurPos();
     if (CurPos<Length)
     {
       GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 9:2),Y1);

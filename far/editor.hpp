@@ -68,7 +68,7 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_PROCESSCTRLQ          = 0x02000000, // нажата Ctrl-Q и идет процесс вставки кода символа
 };
 
-struct EditList;
+class Edit;
 
 class Editor:public ScreenObject
 {
@@ -93,10 +93,10 @@ class Editor:public ScreenObject
     };
     /* SKV $ */
 
-    struct EditList *TopList;
-    struct EditList *EndList;
-    struct EditList *TopScreen;
-    struct EditList *CurLine;
+	Edit *TopList;
+    Edit *EndList;
+    Edit *TopScreen;
+    Edit *CurLine;
 
     struct EditorUndoData *UndoData;  // $ 03.12.2001 IS: теперь указатель, т.к. размер может меняться
     int UndoDataPos;
@@ -115,9 +115,10 @@ class Editor:public ScreenObject
     int Pasting;
     wchar_t GlobalEOL[10];
 
-    struct EditList *BlockStart;
+    Edit *BlockStart;
     int BlockStartLine;
-    struct EditList *VBlockStart;
+    Edit *VBlockStart;
+
     int VBlockX;
     int VBlockSizeX;
     int VBlockY;
@@ -150,7 +151,7 @@ class Editor:public ScreenObject
   private:
     void DisplayObject();
     void ShowEditor(int CurLineOnly);
-    void DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine);
+    void DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine);
     void InsertString();
     void Up();
     void Down();
@@ -180,7 +181,7 @@ class Editor:public ScreenObject
     void TextChanged(int State);
     /* skv $*/
 
-    int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
+    int  CalcDistance(Edit *From, Edit *To,int MaxDist);
     void Paste(const wchar_t *Src=NULL);
     void Copy(int Append);
     void DeleteBlock();
@@ -200,7 +201,7 @@ class Editor:public ScreenObject
     void VCopy(int Append);
     void VPaste(const wchar_t *ClipText);
     void VBlockShift(int Left);
-    struct EditList * GetStringByNumber(int DestLine);
+    Edit* GetStringByNumber(int DestLine);
     static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name);
 
     int SetBookmark(DWORD Pos);
@@ -291,7 +292,7 @@ class Editor:public ScreenObject
     /* VVM $ */
 
     bool AddString (const wchar_t *lpwszStr, int nLength);
-    EditList *CreateString (const wchar_t *lpwszStr, int nLength);
+    Edit *CreateString (const wchar_t *lpwszStr, int nLength);
 };
 
 #endif // __EDITOR_HPP__

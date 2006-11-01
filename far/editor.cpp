@@ -125,7 +125,7 @@ void Editor::FreeAllocatedData()
 {
   while (EndList!=NULL)
   {
-    struct EditList *Prev=EndList->Prev;
+    Edit *Prev=EndList->m_prev;
     delete EndList;
     EndList=Prev;
   }
@@ -186,7 +186,7 @@ void Editor::KeepInitParameters()
 int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
 {
   FILE *EditFile;
-  struct EditList *PrevPtr;
+  Edit *PrevPtr;
   int Count=0,LastLineCR=0,MessageShown=FALSE;
 
   UserBreak=0;
@@ -390,17 +390,17 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
   fclose(EditFile);
   if (StartLine==-2)
   {
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     long TotalSize=0;
-    while (CurPtr!=NULL && CurPtr->Next!=NULL)
+    while (CurPtr!=NULL && CurPtr->m_next!=NULL)
     {
       const wchar_t *SaveStr,*EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryStringW(&SaveStr,&EndSeq,Length);
+      CurPtr->GetBinaryStringW(&SaveStr,&EndSeq,Length);
       TotalSize+=Length+wcslen(EndSeq);
       if (TotalSize>StartChar)
         break;
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
       NumLine++;
     }
     TopScreen=CurLine=CurPtr;
@@ -478,11 +478,11 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
         Lock ();
         for (DWORD I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
-        CurLine->EditLine.SetTabCurPos(LinePos);
+        CurLine->SetTabCurPos(LinePos);
         Unlock ();
       }
       //_D(SysLog("Setleftpos to %i",LeftPos));
-      CurLine->EditLine.SetLeftPos(LeftPos);
+      CurLine->SetLeftPos(LeftPos);
     }
   }
   else
@@ -574,15 +574,15 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
         TopScreen=CurLine;
         for (unsigned int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
-        CurLine->EditLine.SetTabCurPos(LinePos);
+        CurLine->SetTabCurPos(LinePos);
         //_D(SysLog("Setleftpos 2 to %i",LeftPos));
-        CurLine->EditLine.SetLeftPos(LeftPos);
+        CurLine->SetLeftPos(LeftPos);
         Unlock ();
       }
     }
   if (UseDecodeTable)
-    for (struct EditList *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->Next)
-      CurPtr->EditLine.SetTables(&TableSet);
+    for (Edit *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next)
+      CurPtr->SetTables(&TableSet);
   /* $ 25.07.2001 IS
        Принудительно сбросим номер таблицы символов, т.к. никаких таблиц
        символов не используется (UseDecodeTable==FALSE)
@@ -602,7 +602,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
 int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
-  struct EditList *PrevPtr;
+  Edit *PrevPtr;
   int Count=0,LastLineCR=0;
 
   UserBreak=0;
@@ -639,43 +639,43 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
 
       if (NumLastLine!=0)
       {
-        EndList->Next=new struct EditList(this);
-        if (EndList->Next==NULL)
+        EndList->m_next=new Edit(this);
+        if (EndList->m_next==NULL)
         {
           return(FALSE);
         }
         PrevPtr=EndList;
-        EndList=EndList->Next;
-        EndList->Prev=PrevPtr;
-        EndList->Next=NULL;
+        EndList=EndList->m_next;
+        EndList->m_prev=PrevPtr;
+        EndList->m_next=NULL;
       }
 
-      EndList->EditLine.SetTabSize(EdOpt.TabSize);
-      EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
-      EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-      EndList->EditLine.SetBinaryString(Str,StrLength);
-      EndList->EditLine.SetCurPos(0);
-      EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-      EndList->EditLine.SetEditorMode(TRUE);
-      EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
+      EndList->SetTabSize(EdOpt.TabSize);
+      EndList->SetPersistentBlocks(EdOpt.PersistentBlocks);
+      EndList->SetConvertTabs(EdOpt.ExpandTabs);
+      EndList->SetBinaryString(Str,StrLength);
+      EndList->SetCurPos(0);
+      EndList->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+      EndList->SetEditorMode(TRUE);
+      EndList->SetWordDiv(EdOpt.WordDiv);
 
       NumLastLine++;
     }
 
-    if (LastLineCR && ((EndList->Next=new struct EditList(this))!=NULL))
+    if (LastLineCR && ((EndList->m_next=new Edit(this))!=NULL))
     {
       PrevPtr=EndList;
-      EndList=EndList->Next;
-      EndList->Prev=PrevPtr;
-      EndList->Next=NULL;
-      EndList->EditLine.SetTabSize(EdOpt.TabSize);
-      EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
-      EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
-      EndList->EditLine.SetString("");
-      EndList->EditLine.SetCurPos(0);
-      EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-      EndList->EditLine.SetEditorMode(TRUE);
-      EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
+      EndList=EndList->m_next;
+      EndList->m_prev=PrevPtr;
+      EndList->m_next=NULL;
+      EndList->SetTabSize(EdOpt.TabSize);
+      EndList->SetPersistentBlocks(EdOpt.PersistentBlocks);
+      EndList->SetConvertTabs(EdOpt.ExpandTabs);
+      EndList->SetString("");
+      EndList->SetCurPos(0);
+      EndList->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+      EndList->SetEditorMode(TRUE);
+      EndList->SetWordDiv(EdOpt.WordDiv);
       NumLastLine++;
     }
   }
@@ -687,8 +687,8 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
     NumLastLine=1;
 
   if (UseDecodeTable)
-    for (struct EditList *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->Next)
-      CurPtr->EditLine.SetTables(&TableSet);
+    for (Edit *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next)
+      CurPtr->SetTables(&TableSet);
   else
     TableNum=0;
 
@@ -728,14 +728,14 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
   int Length;
 
   // посчитаем количество строк и общий размер памяти (чтобы не дергать realloc)
-  struct EditList *CurPtr=TopList;
+  Edit *CurPtr=TopList;
 
   DWORD AllLength=0;
   while (CurPtr!=NULL)
   {
-    CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
+    CurPtr->GetBinaryString(SaveStr,&EndSeq,Length);
     // выставляем концовку строк
-    if (*EndSeq==0 && CurPtr->Next!=NULL)
+    if (*EndSeq==0 && CurPtr->m_next!=NULL)
       EndSeq=*GlobalEOL ? GlobalEOL:DOS_EOL_fmt;
 
     if (TextFormat!=0 && *EndSeq!=0)
@@ -747,7 +747,7 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
       else
         EndSeq=MAC_EOL_fmt;
 
-      CurPtr->EditLine.SetEOL(EndSeq);
+      CurPtr->SetEOL(EndSeq);
     }
     AllLength+=Length+strlen(EndSeq)+16;
   }
@@ -762,13 +762,13 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
     CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
+      CurPtr->GetBinaryString(SaveStr,&EndSeq,Length);
 
       strcpy(PDest,SaveStr);
       strcat(PDest,EndSeq);
       PDest+=strlen(PDest);
 
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
     }
     SizeDestBuf=strlen(MemEditStr);
     DestBuf=&MemEditStr;
@@ -793,7 +793,7 @@ void Editor::ShowEditor(int CurLineOnly)
   if ( Locked () )
     return;
 
-  struct EditList *CurPtr;
+  Edit *CurPtr;
   int LeftPos,CurPos,Y;
 
 //_SVS(SysLog("Enter to ShowEditor, CurLineOnly=%i",CurLineOnly));
@@ -814,14 +814,10 @@ void Editor::ShowEditor(int CurLineOnly)
 
     while(CalcDistance(TopScreen,NULL,Y2-Y1-1)<Y2-Y1-1)
     {
-      if(TopScreen->Prev)
-      {
-        TopScreen=TopScreen->Prev;
-      }
+      if(TopScreen->m_prev)
+        TopScreen=TopScreen->m_prev;
       else
-      {
         break;
-      }
     }
   }
   /*
@@ -832,7 +828,7 @@ void Editor::ShowEditor(int CurLineOnly)
 
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
   {
-    TopScreen=TopScreen->Next;
+    TopScreen=TopScreen->m_next;
     //DisableOut=TRUE;
     //ProcessKey(KEY_UP);
     //DisableOut=FALSE;
@@ -841,20 +837,20 @@ void Editor::ShowEditor(int CurLineOnly)
 
   /* skv $ */
 
-  CurPos=CurLine->EditLine.GetTabCurPos();
+  CurPos=CurLine->GetTabCurPos();
   if (!EdOpt.CursorBeyondEOL)
   {
     MaxRightPos=CurPos;
-    int RealCurPos=CurLine->EditLine.GetCurPos();
-    int Length=CurLine->EditLine.GetLength();
+    int RealCurPos=CurLine->GetCurPos();
+    int Length=CurLine->GetLength();
 
     if (RealCurPos>Length)
     {
-      CurLine->EditLine.SetCurPos(Length);
-      CurLine->EditLine.SetLeftPos(0);
-      //_D(SysLog("call CurLine->EditLine.FastShow()"));
-      CurLine->EditLine.FastShow();
-      CurPos=CurLine->EditLine.GetTabCurPos();
+      CurLine->SetCurPos(Length);
+      CurLine->SetLeftPos(0);
+      //_D(SysLog("call CurLine->FastShow()"));
+      CurLine->FastShow();
+      CurPos=CurLine->GetTabCurPos();
     }
   }
 
@@ -890,20 +886,20 @@ void Editor::ShowEditor(int CurLineOnly)
 
   if (!CurLineOnly)
   {
-    LeftPos=CurLine->EditLine.GetLeftPos();
+    LeftPos=CurLine->GetLeftPos();
 
     for (CurPtr=TopScreen,Y=Y1+1;Y<=Y2;Y++)
       if (CurPtr!=NULL)
       {
-        CurPtr->EditLine.SetEditBeyondEnd(TRUE);
-        CurPtr->EditLine.SetPosition(X1,Y,X2,Y);
-        CurPtr->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
+        CurPtr->SetEditBeyondEnd(TRUE);
+        CurPtr->SetPosition(X1,Y,X2,Y);
+        CurPtr->SetTables(UseDecodeTable ? &TableSet:NULL);
         //_D(SysLog("Setleftpos 3 to %i",LeftPos));
-        CurPtr->EditLine.SetLeftPos(LeftPos);
-        CurPtr->EditLine.SetTabCurPos(CurPos);
-        CurPtr->EditLine.FastShow();
-        CurPtr->EditLine.SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
-        CurPtr=CurPtr->Next;
+        CurPtr->SetLeftPos(LeftPos);
+        CurPtr->SetTabCurPos(CurPos);
+        CurPtr->FastShow();
+        CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
+        CurPtr=CurPtr->m_next;
       }
       else
       {
@@ -914,13 +910,13 @@ void Editor::ShowEditor(int CurLineOnly)
       }
   }
 
-  CurLine->EditLine.SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
-  CurLine->EditLine.Show();
+  CurLine->SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
+  CurLine->Show();
 
   if (VBlockStart!=NULL && VBlockSizeX>0 && VBlockSizeY>0)
   {
     int CurScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
-    LeftPos=CurLine->EditLine.GetLeftPos();
+    LeftPos=CurLine->GetLeftPos();
     for (CurPtr=TopScreen,Y=Y1+1;Y<=Y2;Y++)
       if (CurPtr!=NULL)
       {
@@ -935,7 +931,7 @@ void Editor::ShowEditor(int CurLineOnly)
           if (BlockX1<=X2 && BlockX2>=X1)
             ChangeBlockColor(BlockX1,Y,BlockX2,Y,COL_EDITORSELECTEDTEXT);
         }
-        CurPtr=CurPtr->Next;
+        CurPtr=CurPtr->m_next;
         CurScreenLine++;
       }
     }
@@ -975,7 +971,7 @@ int Editor::ProcessKey(int Key)
   _KEYMACRO(SysLog("Key=%s",_FARKEY_ToName(Key)));
 
   int CurPos,CurVisPos,I;
-  CurPos=CurLine->EditLine.GetCurPos();
+  CurPos=CurLine->GetCurPos();
   CurVisPos=GetLineCurPos();
 
   int isk=IsShiftKey(Key);
@@ -1026,9 +1022,9 @@ int Editor::ProcessKey(int Key)
       else
       {
         int StartSel,EndSel;
-//        struct EditList *BStart=!BlockStart?VBlockStart:BlockStart;
-//        BStart->EditLine.GetRealSelection(StartSel,EndSel);
-        BlockStart->EditLine.GetRealSelection(StartSel,EndSel);
+//        Edit *BStart=!BlockStart?VBlockStart:BlockStart;
+//        BStart->GetRealSelection(StartSel,EndSel);
+        BlockStart->GetRealSelection(StartSel,EndSel);
         _SVS(SysLog("[%d] PersistentBlocks! StartSel=%d, EndSel=%d",__LINE__,StartSel,EndSel));
         if (StartSel==-1 || StartSel==EndSel)
           UnmarkBlock();
@@ -1039,15 +1035,15 @@ int Editor::ProcessKey(int Key)
   switch(Key)
   {
     case MCODE_C_EMPTY:
-      return !CurLine->Next && !CurLine->Prev; //??
+      return !CurLine->m_next && !CurLine->m_prev; //??
     case MCODE_C_EOF:
-      return !CurLine->Next && CurPos>=CurLine->EditLine.GetLength();
+      return !CurLine->m_next && CurPos>=CurLine->GetLength();
     case MCODE_C_BOF:
-      return !CurLine->Prev && CurPos==0;
+      return !CurLine->m_prev && CurPos==0;
     case MCODE_C_SELECTED:
       return BlockStart || VBlockStart?TRUE:FALSE;
     case MCODE_V_EDITORCURPOS:
-      return CurLine->EditLine.GetTabCurPos()+1;
+      return CurLine->GetTabCurPos()+1;
     case MCODE_V_EDITORCURLINE:
       return NumLine+1;
     case MCODE_V_ITEMCOUNT:
@@ -1090,13 +1086,13 @@ int Editor::ProcessKey(int Key)
       _SVS(SysLog("[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
       UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
       _bg.needCheckUnmark=true;
-      CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
+      CurLine->GetRealSelection(SelStart,SelEnd);
       if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
       {
         if(SelStart!=-1 && (CurPos<SelStart || // если курсор до выделения
            (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
             (CurPos>SelStart && CurPos<SelEnd)))) &&
-           CurPos<CurLine->EditLine.GetLength()) // ... внутри выдления
+           CurPos<CurLine->GetLength()) // ... внутри выдления
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
         Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
       }
@@ -1184,9 +1180,9 @@ int Editor::ProcessKey(int Key)
         ProcessKey(KEY_SHIFTUP);
         if(!EdOpt.CursorBeyondEOL)
         {
-          if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+          if(CurLine->GetCurPos()>CurLine->GetLength())
           {
-            CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+            CurLine->SetCurPos(CurLine->GetLength());
           }
         }
       }
@@ -1207,9 +1203,9 @@ int Editor::ProcessKey(int Key)
         ProcessKey(KEY_SHIFTDOWN);
         if(!EdOpt.CursorBeyondEOL)
         {
-          if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+          if(CurLine->GetCurPos()>CurLine->GetLength())
           {
-            CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+            CurLine->SetCurPos(CurLine->GetLength());
           }
         }
       }
@@ -1227,15 +1223,15 @@ int Editor::ProcessKey(int Key)
 
       if(SelAtBeginning)
       {
-        CurLine->EditLine.Select(0,SelEnd);
+        CurLine->Select(0,SelEnd);
       }else
       {
         if(SelStart==0)
         {
-          CurLine->EditLine.Select(-1,0);
+          CurLine->Select(-1,0);
         }else
         {
-          CurLine->EditLine.Select(0,SelStart);
+          CurLine->Select(0,SelStart);
         }
       }
       ProcessKey(KEY_HOME);
@@ -1246,30 +1242,31 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_SHIFTEND:    case KEY_SHIFTNUMPAD1:
+    case KEY_SHIFTEND:    
+	case KEY_SHIFTNUMPAD1:
     {
       {
-        int LeftPos=CurLine->EditLine.GetLeftPos();
+        int LeftPos=CurLine->GetLeftPos();
         Pasting++;
         Lock ();
 
-        int CurLength=CurLine->EditLine.GetLength();
+        int CurLength=CurLine->GetLength();
 
         if(!SelAtBeginning || SelFirst)
         {
-          CurLine->EditLine.Select(SelStart,CurLength);
+          CurLine->Select(SelStart,CurLength);
         }else
         {
           if(SelEnd!=-1)
-            CurLine->EditLine.Select(SelEnd,CurLength);
+            CurLine->Select(SelEnd,CurLength);
           else
-            CurLine->EditLine.Select(CurLength,-1);
+            CurLine->Select(CurLength,-1);
         }
 
         /* $ 17.01.2002 SKV
           Это что бы при FastShow LeftPos не становился в конец строки.
         */
-        CurLine->EditLine.ObjWidth=X2-X1;
+        CurLine->ObjWidth=X2-X1;
         /* SKV$*/
 
         ProcessKey(KEY_END);
@@ -1285,8 +1282,8 @@ int Editor::ProcessKey(int Key)
           Show();
         else
         {
-          CurLine->EditLine.FastShow();
-          ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
+          CurLine->FastShow();
+          ShowEditor(LeftPos==CurLine->GetLeftPos());
         }
         /* SKV$*/
       }
@@ -1296,34 +1293,34 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
     {
       _SVS(CleverSysLog SL("case KEY_SHIFTLEFT"));
-      if (CurPos==0 && CurLine->Prev==NULL)return TRUE;
+      if (CurPos==0 && CurLine->m_prev==NULL)return TRUE;
       if (CurPos==0) //курсор в начале строки
       {
         if(SelAtBeginning) //курсор в начале блока
         {
-          BlockStart=CurLine->Prev;
-          CurLine->Prev->EditLine.Select(CurLine->Prev->EditLine.GetLength(),-1);
+          BlockStart=CurLine->m_prev;
+          CurLine->m_prev->Select(CurLine->m_prev->GetLength(),-1);
         }
         else // курсор в конце блока
         {
-          CurLine->EditLine.Select(-1,0);
-          CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
-          CurLine->Prev->EditLine.Select(SelStart,CurLine->Prev->EditLine.GetLength());
+          CurLine->Select(-1,0);
+          CurLine->m_prev->GetRealSelection(SelStart,SelEnd);
+          CurLine->m_prev->Select(SelStart,CurLine->m_prev->GetLength());
         }
       }
       else
       {
         if(SelAtBeginning || SelFirst)
         {
-          CurLine->EditLine.Select(SelStart-1,SelEnd);
+          CurLine->Select(SelStart-1,SelEnd);
         }
         else
         {
-          CurLine->EditLine.Select(SelStart,SelEnd-1);
+          CurLine->Select(SelStart,SelEnd-1);
         }
       }
-      int LeftPos=CurLine->EditLine.GetLeftPos();
-      EditList *OldCur=CurLine;
+      int LeftPos=CurLine->GetLeftPos();
+      Edit *OldCur=CurLine;
       int _OldNumLine=NumLine;
       Pasting++;
       ProcessKey(KEY_LEFT);
@@ -1334,28 +1331,28 @@ int Editor::ProcessKey(int Key)
         BlockStartLine=NumLine;
       }
 
-      ShowEditor(OldCur==CurLine && LeftPos==CurLine->EditLine.GetLeftPos());
+      ShowEditor(OldCur==CurLine && LeftPos==CurLine->GetLeftPos());
       return(TRUE);
     }
 
     case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
     {
       _SVS(CleverSysLog SL("case KEY_SHIFTRIGHT"));
-      if(CurLine->Next==NULL && CurPos==CurLine->EditLine.GetLength() && !EdOpt.CursorBeyondEOL)
+      if(CurLine->m_next==NULL && CurPos==CurLine->GetLength() && !EdOpt.CursorBeyondEOL)
       {
         return TRUE;
       }
 
       if(SelAtBeginning)
       {
-        CurLine->EditLine.Select(SelStart+1,SelEnd);
+        CurLine->Select(SelStart+1,SelEnd);
       }
       else
       {
-        CurLine->EditLine.Select(SelStart,SelEnd+1);
+        CurLine->Select(SelStart,SelEnd+1);
       }
-      EditList *OldCur=CurLine;
-      int OldLeft=CurLine->EditLine.GetLeftPos();
+      Edit *OldCur=CurLine;
+      int OldLeft=CurLine->GetLeftPos();
       Pasting++;
       ProcessKey(KEY_RIGHT);
       Pasting--;
@@ -1363,16 +1360,16 @@ int Editor::ProcessKey(int Key)
       {
         if(SelAtBeginning)
         {
-          OldCur->EditLine.Select(-1,0);
+          OldCur->Select(-1,0);
           BlockStart=CurLine;
           BlockStartLine=NumLine;
         }
         else
         {
-          OldCur->EditLine.Select(SelStart,-1);
+          OldCur->Select(SelStart,-1);
         }
       }
-      ShowEditor(OldCur==CurLine && OldLeft==CurLine->EditLine.GetLeftPos());
+      ShowEditor(OldCur==CurLine && OldLeft==CurLine->GetLeftPos());
       return(TRUE);
     }
 
@@ -1393,25 +1390,25 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
+          CurLine->GetBinaryStringW(&Str,NULL,Length);
           /* $ 12.11.2002 DJ
              обеспечим корректную работу Ctrl-Shift-Left за концом строки
           */
-          CurPos=CurLine->EditLine.GetCurPos();
+          CurPos=CurLine->GetCurPos();
           if (CurPos>Length)
           {
             int SelStartPos = CurPos;
-            CurLine->EditLine.ProcessKey(KEY_END);
-            CurPos=CurLine->EditLine.GetCurPos();
-            if (CurLine->EditLine.SelStart >= 0)
+            CurLine->ProcessKey(KEY_END);
+            CurPos=CurLine->GetCurPos();
+            if (CurLine->SelStart >= 0)
             {
               if (!SelAtBeginning)
-                CurLine->EditLine.Select(CurLine->EditLine.SelStart, CurPos);
+                CurLine->Select(CurLine->SelStart, CurPos);
               else
-                CurLine->EditLine.Select(CurPos, CurLine->EditLine.SelEnd);
+                CurLine->Select(CurPos, CurLine->SelEnd);
             }
             else
-              CurLine->EditLine.Select(CurPos, SelStartPos);
+              CurLine->Select(CurPos, SelStartPos);
           }
           /* DJ $ */
           if (CurPos==0)
@@ -1462,8 +1459,8 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-          CurPos=CurLine->EditLine.GetCurPos();
+          CurLine->GetBinaryStringW(&Str,NULL,Length);
+          CurPos=CurLine->GetCurPos();
           if (CurPos>=Length)
             break;
           /* $ 03.08.2000 SVS
@@ -1497,23 +1494,23 @@ int Editor::ProcessKey(int Key)
 
     case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
     {
-      if (CurLine->Next==NULL)return TRUE;
-      CurPos=CurLine->EditLine.RealPosToTab(CurPos);
+      if (CurLine->m_next==NULL)return TRUE;
+      CurPos=CurLine->RealPosToTab(CurPos);
       if(SelAtBeginning)//Снимаем выделение
       {
         if(SelEnd==-1)
         {
-          CurLine->EditLine.Select(-1,0);
-          BlockStart=CurLine->Next;
+          CurLine->Select(-1,0);
+          BlockStart=CurLine->m_next;
           BlockStartLine=NumLine+1;
         }
         else
         {
-          CurLine->EditLine.Select(SelEnd,-1);
+          CurLine->Select(SelEnd,-1);
         }
-        CurLine->Next->EditLine.GetRealSelection(SelStart,SelEnd);
-        if(SelStart!=-1)SelStart=CurLine->Next->EditLine.RealPosToTab(SelStart);
-        if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.RealPosToTab(SelEnd);
+        CurLine->m_next->GetRealSelection(SelStart,SelEnd);
+        if(SelStart!=-1)SelStart=CurLine->m_next->RealPosToTab(SelStart);
+        if(SelEnd!=-1)SelEnd=CurLine->m_next->RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
           SelStart=0;
@@ -1531,40 +1528,40 @@ int Editor::ProcessKey(int Key)
             SelStart=CurPos;
           }
         }
-        if(SelStart!=-1)SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
-        if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
-        /*if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
+        if(SelStart!=-1)SelStart=CurLine->m_next->TabPosToReal(SelStart);
+        if(SelEnd!=-1)SelEnd=CurLine->m_next->TabPosToReal(SelEnd);
+        /*if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->m_next->GetLength())
         {
-          SelEnd=CurLine->Next->EditLine.GetLength();
+          SelEnd=CurLine->m_next->GetLength();
         }
-        if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Next->EditLine.GetLength())
+        if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->m_next->GetLength())
         {
-          SelStart=CurLine->Next->EditLine.GetLength();
+          SelStart=CurLine->m_next->GetLength();
         }*/
       }
       else //расширяем выделение
       {
-        CurLine->EditLine.Select(SelStart,-1);
+        CurLine->Select(SelStart,-1);
         SelStart=0;
         SelEnd=CurPos;
-        if(SelStart!=-1)SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
-        if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
+        if(SelStart!=-1)SelStart=CurLine->m_next->TabPosToReal(SelStart);
+        if(SelEnd!=-1)SelEnd=CurLine->m_next->TabPosToReal(SelEnd);
       }
 
-      if(!EdOpt.CursorBeyondEOL && SelEnd > CurLine->Next->EditLine.GetLength())
+      if(!EdOpt.CursorBeyondEOL && SelEnd > CurLine->m_next->GetLength())
       {
-        SelEnd=CurLine->Next->EditLine.GetLength();
+        SelEnd=CurLine->m_next->GetLength();
       }
 
-      if(!EdOpt.CursorBeyondEOL && SelStart > CurLine->Next->EditLine.GetLength())
+      if(!EdOpt.CursorBeyondEOL && SelStart > CurLine->m_next->GetLength())
       {
-        SelStart=CurLine->Next->EditLine.GetLength();
+        SelStart=CurLine->m_next->GetLength();
       }
 
 //      if(!SelStart && !SelEnd)
-//        CurLine->Next->EditLine.Select(-1,0);
+//        CurLine->m_next->Select(-1,0);
 //      else
-        CurLine->Next->EditLine.Select(SelStart,SelEnd);
+        CurLine->m_next->Select(SelStart,SelEnd);
 
       Down();
       Show();
@@ -1573,40 +1570,40 @@ int Editor::ProcessKey(int Key)
 
     case KEY_SHIFTUP: case KEY_SHIFTNUMPAD8:
     {
-      if (CurLine->Prev==NULL) return 0;
+      if (CurLine->m_prev==NULL) return 0;
       if(SelAtBeginning || SelFirst) // расширяем выделение
       {
-        CurLine->EditLine.Select(0,SelEnd);
-        SelStart=CurLine->EditLine.RealPosToTab(CurPos);
+        CurLine->Select(0,SelEnd);
+        SelStart=CurLine->RealPosToTab(CurPos);
         if(!EdOpt.CursorBeyondEOL &&
-            CurLine->Prev->EditLine.TabPosToReal(SelStart)>CurLine->Prev->EditLine.GetLength())
+            CurLine->m_prev->TabPosToReal(SelStart)>CurLine->m_prev->GetLength())
         {
-          SelStart=CurLine->Prev->EditLine.RealPosToTab(CurLine->Prev->EditLine.GetLength());
+          SelStart=CurLine->m_prev->RealPosToTab(CurLine->m_prev->GetLength());
         }
-        SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
-        CurLine->Prev->EditLine.Select(SelStart,-1);
-        BlockStart=CurLine->Prev;
+        SelStart=CurLine->m_prev->TabPosToReal(SelStart);
+        CurLine->m_prev->Select(SelStart,-1);
+        BlockStart=CurLine->m_prev;
         BlockStartLine=NumLine-1;
       }
       else // снимаем выделение
       {
-        CurPos=CurLine->EditLine.RealPosToTab(CurPos);
+        CurPos=CurLine->RealPosToTab(CurPos);
         if(SelStart==0)
         {
-          CurLine->EditLine.Select(-1,0);
+          CurLine->Select(-1,0);
         }
         else
         {
-          CurLine->EditLine.Select(0,SelStart);
+          CurLine->Select(0,SelStart);
         }
-        CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
-        if(SelStart!=-1)SelStart=CurLine->Prev->EditLine.RealPosToTab(SelStart);
-        if(SelStart!=-1)SelEnd=CurLine->Prev->EditLine.RealPosToTab(SelEnd);
+        CurLine->m_prev->GetRealSelection(SelStart,SelEnd);
+        if(SelStart!=-1)SelStart=CurLine->m_prev->RealPosToTab(SelStart);
+        if(SelStart!=-1)SelEnd=CurLine->m_prev->RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
-          BlockStart=CurLine->Prev;
+          BlockStart=CurLine->m_prev;
           BlockStartLine=NumLine-1;
-          SelStart=CurLine->Prev->EditLine.TabPosToReal(CurPos);
+          SelStart=CurLine->m_prev->TabPosToReal(CurPos);
           SelEnd=-1;
         }
         else
@@ -1621,20 +1618,20 @@ int Editor::ProcessKey(int Key)
             SelEnd=CurPos;
           }
 
-          SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
-          SelEnd=CurLine->Prev->EditLine.TabPosToReal(SelEnd);
+          SelStart=CurLine->m_prev->TabPosToReal(SelStart);
+          SelEnd=CurLine->m_prev->TabPosToReal(SelEnd);
 
-          if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Prev->EditLine.GetLength())
+          if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->m_prev->GetLength())
           {
-            SelEnd=CurLine->Prev->EditLine.GetLength();
+            SelEnd=CurLine->m_prev->GetLength();
           }
 
-          if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Prev->EditLine.GetLength())
+          if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->m_prev->GetLength())
           {
-            SelStart=CurLine->Prev->EditLine.GetLength();
+            SelStart=CurLine->m_prev->GetLength();
           }
         }
-        CurLine->Prev->EditLine.Select(SelStart,SelEnd);
+        CurLine->m_prev->Select(SelStart,SelEnd);
       }
       Up();
       Show();
@@ -1667,7 +1664,7 @@ int Editor::ProcessKey(int Key)
       {
         BlockStart=CurLine;
         BlockStartLine=NumLine;
-        CurLine->EditLine.AddSelect(0,-1);
+        CurLine->AddSelect(0,-1);
         Show();
       }
       Copy(FALSE);
@@ -1682,7 +1679,7 @@ int Editor::ProcessKey(int Key)
       if (BlockStart!=NULL || VBlockStart!=NULL)
       {
         int SelStart,SelEnd;
-        CurLine->EditLine.GetSelection(SelStart,SelEnd);
+        CurLine->GetSelection(SelStart,SelEnd);
 
         Pasting++;
         int OldUsedInternalClipboard=UsedInternalClipboard;
@@ -1695,9 +1692,9 @@ int Editor::ProcessKey(int Key)
         */
         if (Key==KEY_CTRLM && SelStart!=-1 && SelEnd!=-1)
           if (CurPos>=SelEnd)
-            CurLine->EditLine.SetCurPos(CurPos-(SelEnd-SelStart));
+            CurLine->SetCurPos(CurPos-(SelEnd-SelStart));
           else
-            CurLine->EditLine.SetCurPos(CurPos);
+            CurLine->SetCurPos(CurPos);
         /* SVS $ */
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
@@ -1756,18 +1753,18 @@ int Editor::ProcessKey(int Key)
     case KEY_LEFT: case KEY_NUMPAD4:
     {
       Flags.Set(FEDITOR_NEWUNDO);
-      if (CurPos==0 && CurLine->Prev!=NULL)
+      if (CurPos==0 && CurLine->m_prev!=NULL)
       {
         Up();
         Show();
-        CurLine->EditLine.ProcessKey(KEY_END);
+        CurLine->ProcessKey(KEY_END);
         Show();
       }
       else
       {
-        int LeftPos=CurLine->EditLine.GetLeftPos();
-        CurLine->EditLine.ProcessKey(KEY_LEFT);
-        ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
+        int LeftPos=CurLine->GetLeftPos();
+        CurLine->ProcessKey(KEY_LEFT);
+        ShowEditor(LeftPos==CurLine->GetLeftPos());
       }
       return(TRUE);
     }
@@ -1784,7 +1781,7 @@ int Editor::ProcessKey(int Key)
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         // Del в самой последней позиции ничего не удаляет, поэтому не модифицируем...
-        if(!CurLine->Next && CurPos>=CurLine->EditLine.GetLength() && BlockStart==NULL && VBlockStart==NULL)
+        if(!CurLine->m_next && CurPos>=CurLine->GetLength() && BlockStart==NULL && VBlockStart==NULL)
           return TRUE;
         /* $ 07.03.2002 IS
            Снимем выделение, если блок все равно пустой
@@ -1796,45 +1793,45 @@ int Editor::ProcessKey(int Key)
           DeleteBlock();
         else
         {
-          AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                      CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-          if (CurPos>=CurLine->EditLine.GetLength())
+          AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                      CurLine->GetCurPos(),UNDO_EDIT);
+          if (CurPos>=CurLine->GetLength())
           {
-            if (CurLine->Next==NULL)
-              CurLine->EditLine.SetEOLW(L"");
+            if (CurLine->m_next==NULL)
+              CurLine->SetEOLW(L"");
             else
             {
               int SelStart,SelEnd,NextSelStart,NextSelEnd;
-              int Length=CurLine->EditLine.GetLength();
-              CurLine->EditLine.GetSelection(SelStart,SelEnd);
-              CurLine->Next->EditLine.GetSelection(NextSelStart,NextSelEnd);
+              int Length=CurLine->GetLength();
+              CurLine->GetSelection(SelStart,SelEnd);
+              CurLine->m_next->GetSelection(NextSelStart,NextSelEnd);
 
               const wchar_t *Str;
               int NextLength;
-              CurLine->Next->EditLine.GetBinaryStringW(&Str,NULL,NextLength);
-              CurLine->EditLine.InsertBinaryStringW(Str,NextLength);
-              CurLine->EditLine.SetCurPos(CurPos);
+              CurLine->m_next->GetBinaryStringW(&Str,NULL,NextLength);
+              CurLine->InsertBinaryStringW(Str,NextLength);
+              CurLine->SetCurPos(CurPos);
 
               BlockUndo++;
-              DeleteString(CurLine->Next,TRUE,NumLine+1);
+              DeleteString(CurLine->m_next,TRUE,NumLine+1);
               BlockUndo--;
               if (NextLength==0)
-                CurLine->EditLine.SetEOLW(L"");
+                CurLine->SetEOLW(L"");
 
               if (NextSelStart!=-1)
                 if (SelStart==-1)
                 {
-                  CurLine->EditLine.Select(Length+NextSelStart,NextSelEnd==-1 ? -1:Length+NextSelEnd);
+                  CurLine->Select(Length+NextSelStart,NextSelEnd==-1 ? -1:Length+NextSelEnd);
                   BlockStart=CurLine;
                   BlockStartLine=NumLine;
                 }
                 else
-                  CurLine->EditLine.Select(SelStart,NextSelEnd==-1 ? -1:Length+NextSelEnd);
+                  CurLine->Select(SelStart,NextSelEnd==-1 ? -1:Length+NextSelEnd);
 
             }
           }
           else
-            CurLine->EditLine.ProcessKey(KEY_DEL);
+            CurLine->ProcessKey(KEY_DEL);
           /*$ 10.08.2000 skv
             Modified->TextChanged
           */
@@ -1851,7 +1848,7 @@ int Editor::ProcessKey(int Key)
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         // Bs в самом начале нихрена ничего не удаляет, посему не будем выставлять
-        if(!CurLine->Prev && !CurPos && BlockStart==NULL && VBlockStart==NULL)
+        if(!CurLine->m_prev && !CurPos && BlockStart==NULL && VBlockStart==NULL)
           return TRUE;
         /*$ 10.08.2000 skv
           Modified->TextChanged
@@ -1876,19 +1873,19 @@ int Editor::ProcessKey(int Key)
         /* SVS $ */
           DeleteBlock();
         else
-          if (CurPos==0 && CurLine->Prev!=NULL)
+          if (CurPos==0 && CurLine->m_prev!=NULL)
           {
             Pasting++;
             Up();
-            CurLine->EditLine.ProcessKey(KEY_CTRLEND);
+            CurLine->ProcessKey(KEY_CTRLEND);
             ProcessKey(KEY_DEL);
             Pasting--;
           }
           else
           {
-            AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-            CurLine->EditLine.ProcessKey(KEY_BS);
+            AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                        CurLine->GetCurPos(),UNDO_EDIT);
+            CurLine->ProcessKey(KEY_BS);
           }
 
         Show();
@@ -1908,13 +1905,13 @@ int Editor::ProcessKey(int Key)
         if (!Pasting && !EdOpt.PersistentBlocks && BlockStart!=NULL)
           DeleteBlock();
         else
-          if (CurPos==0 && CurLine->Prev!=NULL)
+          if (CurPos==0 && CurLine->m_prev!=NULL)
             ProcessKey(KEY_BS);
           else
           {
-            AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-            CurLine->EditLine.ProcessKey(KEY_CTRLBS);
+            AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                        CurLine->GetCurPos(),UNDO_EDIT);
+            CurLine->ProcessKey(KEY_CTRLBS);
           }
         Show();
       }
@@ -1926,17 +1923,17 @@ int Editor::ProcessKey(int Key)
       {
         Flags.Set(FEDITOR_NEWUNDO);
         int PrevMaxPos=MaxRightPos;
-        struct EditList *LastTopScreen=TopScreen;
+        Edit *LastTopScreen=TopScreen;
         Up();
         if (TopScreen==LastTopScreen)
           ShowEditor(TRUE);
         else
           Show();
-        if (PrevMaxPos>CurLine->EditLine.GetTabCurPos())
+        if (PrevMaxPos>CurLine->GetTabCurPos())
         {
-          CurLine->EditLine.SetTabCurPos(PrevMaxPos);
-          CurLine->EditLine.FastShow();
-          CurLine->EditLine.SetTabCurPos(PrevMaxPos);
+          CurLine->SetTabCurPos(PrevMaxPos);
+          CurLine->FastShow();
+          CurLine->SetTabCurPos(PrevMaxPos);
           Show();
         }
       }
@@ -1948,17 +1945,17 @@ int Editor::ProcessKey(int Key)
       {
         Flags.Set(FEDITOR_NEWUNDO);
         int PrevMaxPos=MaxRightPos;
-        struct EditList *LastTopScreen=TopScreen;
+        Edit *LastTopScreen=TopScreen;
         Down();
         if (TopScreen==LastTopScreen)
           ShowEditor(TRUE);
         else
           Show();
-        if (PrevMaxPos>CurLine->EditLine.GetTabCurPos())
+        if (PrevMaxPos>CurLine->GetTabCurPos())
         {
-          CurLine->EditLine.SetTabCurPos(PrevMaxPos);
-          CurLine->EditLine.FastShow();
-          CurLine->EditLine.SetTabCurPos(PrevMaxPos);
+          CurLine->SetTabCurPos(PrevMaxPos);
+          CurLine->FastShow();
+          CurLine->SetTabCurPos(PrevMaxPos);
           Show();
         }
       }
@@ -2025,13 +2022,13 @@ int Editor::ProcessKey(int Key)
     {
       {
         Flags.Set(FEDITOR_NEWUNDO);
-        int StartPos=CurLine->EditLine.GetTabCurPos();
+        int StartPos=CurLine->GetTabCurPos();
         NumLine=0;
         TopScreen=CurLine=TopList;
         if (Key==KEY_CTRLHOME)
-          CurLine->EditLine.SetCurPos(0);
+          CurLine->SetCurPos(0);
         else
-          CurLine->EditLine.SetTabCurPos(StartPos);
+          CurLine->SetTabCurPos(StartPos);
         Show();
       }
       return(TRUE);
@@ -2042,22 +2039,22 @@ int Editor::ProcessKey(int Key)
     {
       {
         Flags.Set(FEDITOR_NEWUNDO);
-        int StartPos=CurLine->EditLine.GetTabCurPos();
+        int StartPos=CurLine->GetTabCurPos();
         NumLine=NumLastLine-1;
         CurLine=EndList;
-        for (TopScreen=CurLine,I=Y1+1;I<Y2 && TopScreen->Prev!=NULL;I++)
+        for (TopScreen=CurLine,I=Y1+1;I<Y2 && TopScreen->m_prev!=NULL;I++)
         {
-          TopScreen->EditLine.SetPosition(X1,I,X2,I);
-          TopScreen=TopScreen->Prev;
+          TopScreen->SetPosition(X1,I,X2,I);
+          TopScreen=TopScreen->m_prev;
         }
-        CurLine->EditLine.SetLeftPos(0);
+        CurLine->SetLeftPos(0);
         if (Key==KEY_CTRLEND)
         {
-          CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
-          CurLine->EditLine.FastShow();
+          CurLine->SetCurPos(CurLine->GetLength());
+          CurLine->FastShow();
         }
         else
-          CurLine->EditLine.SetTabCurPos(StartPos);
+          CurLine->SetTabCurPos(StartPos);
         Show();
       }
       return(TRUE);
@@ -2071,7 +2068,7 @@ int Editor::ProcessKey(int Key)
           DeleteBlock();
         Flags.Set(FEDITOR_NEWUNDO);
         InsertString();
-        CurLine->EditLine.FastShow();
+        CurLine->FastShow();
         Show();
       }
       return(TRUE);
@@ -2082,10 +2079,10 @@ int Editor::ProcessKey(int Key)
       Flags.Set(FEDITOR_NEWUNDO);
       while (CurLine!=TopScreen)
       {
-        CurLine=CurLine->Prev;
+        CurLine=CurLine->m_prev;
         NumLine--;
       }
-      CurLine->EditLine.SetCurPos(CurPos);
+      CurLine->SetCurPos(CurPos);
       Show();
       return(TRUE);
     }
@@ -2094,20 +2091,20 @@ int Editor::ProcessKey(int Key)
     {
       {
         Flags.Set(FEDITOR_NEWUNDO);
-        struct EditList *CurPtr=TopScreen;
+        Edit *CurPtr=TopScreen;
         int CurLineFound=FALSE;
         for (I=Y1+1;I<Y2;I++)
         {
-          if (CurPtr->Next==NULL)
+          if (CurPtr->m_next==NULL)
             break;
           if (CurPtr==CurLine)
             CurLineFound=TRUE;
           if (CurLineFound)
             NumLine++;
-          CurPtr=CurPtr->Next;
+          CurPtr=CurPtr->m_next;
         }
         CurLine=CurPtr;
-        CurLine->EditLine.SetCurPos(CurPos);
+        CurLine->SetCurPos(CurPos);
         Show();
       }
       return(TRUE);
@@ -2288,8 +2285,8 @@ int Editor::ProcessKey(int Key)
       /* tran 21.07.2000 $ */
       Pasting++;
       {
-        int Delta=CurLine->EditLine.GetTabCurPos()-CurLine->EditLine.RealPosToTab(CurPos-1);
-        if (CurLine->EditLine.GetTabCurPos()>VBlockX)
+        int Delta=CurLine->GetTabCurPos()-CurLine->RealPosToTab(CurPos-1);
+        if (CurLine->GetTabCurPos()>VBlockX)
           VBlockSizeX-=Delta;
         else
         {
@@ -2320,7 +2317,7 @@ int Editor::ProcessKey(int Key)
          вместо GetTabCurPos надо вызывать GetCurPos -
          сравнивать реальную позицию с реальной длиной
          а было сравнение видимой позицией с реальной длиной*/
-      if (!EdOpt.CursorBeyondEOL && CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength())
+      if (!EdOpt.CursorBeyondEOL && CurLine->GetCurPos()>=CurLine->GetLength())
         return(TRUE);
       /* tran 23.10.2000 $ */
 
@@ -2342,16 +2339,16 @@ int Editor::ProcessKey(int Key)
              выделится блок шириной в 1 колонку, нажми еще alt-right
              выделение сбросится
         */
-        int VisPos=CurLine->EditLine.RealPosToTab(CurPos),
-            NextVisPos=CurLine->EditLine.RealPosToTab(CurPos+1);
+        int VisPos=CurLine->RealPosToTab(CurPos),
+            NextVisPos=CurLine->RealPosToTab(CurPos+1);
         //_D(SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
-        //    CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos()));
+        //    CurPos,VisPos, NextVisPos); //,CurLine->GetTabCurPos()));
 
         Delta=NextVisPos-VisPos;
          //_D(SysLog("Delta=%i",Delta));
         /* tran $ */
 
-        if (CurLine->EditLine.GetTabCurPos()>=VBlockX+VBlockSizeX)
+        if (CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)
           VBlockSizeX+=Delta;
         else
         {
@@ -2393,12 +2390,12 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-          int CurPos=CurLine->EditLine.GetCurPos();
+          CurLine->GetBinaryStringW(&Str,NULL,Length);
+          int CurPos=CurLine->GetCurPos();
           if (CurPos>Length)
           {
-            CurLine->EditLine.ProcessKey(KEY_END);
-            CurPos=CurLine->EditLine.GetCurPos();
+            CurLine->ProcessKey(KEY_END);
+            CurPos=CurLine->GetCurPos();
           }
           if (CurPos==0)
             break;
@@ -2444,8 +2441,8 @@ int Editor::ProcessKey(int Key)
         {
           const wchar_t *Str;
           int Length;
-          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-          int CurPos=CurLine->EditLine.GetCurPos();
+          CurLine->GetBinaryStringW(&Str,NULL,Length);
+          int CurPos=CurLine->GetCurPos();
           if (CurPos>=Length)
             break;
           /* $ 03.08.2000 SVS
@@ -2481,7 +2478,7 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
     case KEY_ALTUP:
     {
-      if (CurLine->Prev==NULL)
+      if (CurLine->m_prev==NULL)
         return(TRUE);
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
@@ -2489,7 +2486,7 @@ int Editor::ProcessKey(int Key)
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
 
-      if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->Prev->EditLine.GetLength())
+      if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_prev->GetLength())
         return(TRUE);
       Pasting++;
       if (NumLine>VBlockY)
@@ -2498,7 +2495,7 @@ int Editor::ProcessKey(int Key)
       {
         VBlockY--;
         VBlockSizeY++;
-        VBlockStart=VBlockStart->Prev;
+        VBlockStart=VBlockStart->m_prev;
         BlockStartLine--;
       }
       ProcessKey(KEY_UP);
@@ -2515,14 +2512,14 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
     case KEY_ALTDOWN:
     {
-      if (CurLine->Next==NULL)
+      if (CurLine->m_next==NULL)
         return(TRUE);
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
       if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
-      if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->Next->EditLine.GetLength())
+      if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_next->GetLength())
         return(TRUE);
       Pasting++;
       if (NumLine>=VBlockY+VBlockSizeY-1)
@@ -2531,7 +2528,7 @@ int Editor::ProcessKey(int Key)
       {
         VBlockY++;
         VBlockSizeY--;
-        VBlockStart=VBlockStart->Next;
+        VBlockStart=VBlockStart->m_next;
         BlockStartLine++;
       }
       ProcessKey(KEY_DOWN);
@@ -2550,7 +2547,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
-      while (CurLine->EditLine.GetCurPos()>0)
+      while (CurLine->GetCurPos()>0)
         ProcessKey(KEY_ALTSHIFTLEFT);
       Unlock ();
       Pasting--;
@@ -2563,11 +2560,11 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
-      if (CurLine->EditLine.GetCurPos()<CurLine->EditLine.GetLength())
-        while (CurLine->EditLine.GetCurPos()<CurLine->EditLine.GetLength())
+      if (CurLine->GetCurPos()<CurLine->GetLength())
+        while (CurLine->GetCurPos()<CurLine->GetLength())
           ProcessKey(KEY_ALTSHIFTRIGHT);
-      if (CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
-        while (CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+      if (CurLine->GetCurPos()>CurLine->GetLength())
+        while (CurLine->GetCurPos()>CurLine->GetLength())
           ProcessKey(KEY_ALTSHIFTLEFT);
       Unlock ();
       Pasting--;
@@ -2656,9 +2653,9 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
-        AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-        CurLine->EditLine.ProcessKey(Key);
+        AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                        CurLine->GetCurPos(),UNDO_EDIT);
+        CurLine->ProcessKey(Key);
         Pasting--;
         Show();
       }
@@ -2681,9 +2678,9 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
-        AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-        CurLine->EditLine.ProcessCtrlQ();
+        AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                        CurLine->GetCurPos(),UNDO_EDIT);
+        CurLine->ProcessCtrlQ();
         Flags.Clear(FEDITOR_PROCESSCTRLQ);
         Pasting--;
         Show();
@@ -2723,8 +2720,8 @@ int Editor::ProcessKey(int Key)
             Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             DeleteBlock();
           }
-          //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-          //              CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+          //AddUndoData(CurLine->GetStringAddr(),NumLine,
+          //              CurLine->GetCurPos(),UNDO_EDIT);
 
           Paste(strTStr);
 
@@ -2740,7 +2737,7 @@ int Editor::ProcessKey(int Key)
     default:
     {
       {
-        if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->EditLine.GetLength())
+        if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->GetLength())
         {
          /*$ 08.12.2000 skv
            - CTRL-DEL в начале строки при выделенном блоке и
@@ -2780,7 +2777,7 @@ int Editor::ProcessKey(int Key)
         if (Flags.Check(FEDITOR_LOCKMODE) && !SkipCheckUndo)
           return(TRUE);
 
-        if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLNUMPAD4) && CurLine->EditLine.GetCurPos()==0)
+        if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLNUMPAD4) && CurLine->GetCurPos()==0)
         {
           Pasting++;
           ProcessKey(KEY_LEFT);
@@ -2798,8 +2795,8 @@ int Editor::ProcessKey(int Key)
         }
 
         if ((!EdOpt.CursorBeyondEOL && Key==KEY_RIGHT || Key==KEY_NUMPAD6 || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD6) &&
-            CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength() &&
-            CurLine->Next!=NULL)
+            CurLine->GetCurPos()>=CurLine->GetLength() &&
+            CurLine->m_next!=NULL)
         {
           Pasting++;
           ProcessKey(KEY_HOME);
@@ -2822,50 +2819,50 @@ int Editor::ProcessKey(int Key)
         wchar_t *CmpStr=0;
         int Length,CurPos;
 
-        CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-        CurPos=CurLine->EditLine.GetCurPos();
+        CurLine->GetBinaryStringW(&Str,NULL,Length);
+        CurPos=CurLine->GetCurPos();
 
         if (Key<256 && CurPos>0 && Length==0)
         {
-          struct EditList *PrevLine=CurLine->Prev;
-          while (PrevLine!=NULL && PrevLine->EditLine.GetLength()==0)
-            PrevLine=PrevLine->Prev;
+          Edit *PrevLine=CurLine->m_prev;
+          while (PrevLine!=NULL && PrevLine->GetLength()==0)
+            PrevLine=PrevLine->m_prev;
           if (PrevLine!=NULL)
           {
-            int TabPos=CurLine->EditLine.GetTabCurPos();
-            CurLine->EditLine.SetCurPos(0);
+            int TabPos=CurLine->GetTabCurPos();
+            CurLine->SetCurPos(0);
             const wchar_t *PrevStr=NULL;
             int PrevLength=0;
-            PrevLine->EditLine.GetBinaryStringW(&PrevStr,NULL,PrevLength);
+            PrevLine->GetBinaryStringW(&PrevStr,NULL,PrevLength);
             for (int I=0;I<PrevLength && IsSpaceW(PrevStr[I]);I++)
             {
-              int NewTabPos=CurLine->EditLine.GetTabCurPos();
+              int NewTabPos=CurLine->GetTabCurPos();
               if (NewTabPos==TabPos)
                 break;
               if (NewTabPos>TabPos)
               {
-                CurLine->EditLine.ProcessKey(KEY_BS);
-                while (CurLine->EditLine.GetTabCurPos()<TabPos)
-                  CurLine->EditLine.ProcessKey(' ');
+                CurLine->ProcessKey(KEY_BS);
+                while (CurLine->GetTabCurPos()<TabPos)
+                  CurLine->ProcessKey(' ');
                 break;
               }
               if (NewTabPos<TabPos)
-                CurLine->EditLine.ProcessKey(PrevStr[I]);
+                CurLine->ProcessKey(PrevStr[I]);
             }
-            CurLine->EditLine.SetTabCurPos(TabPos);
+            CurLine->SetTabCurPos(TabPos);
           }
         }
 
         if (!SkipCheckUndo)
         {
-          CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-          CurPos=CurLine->EditLine.GetCurPos();
+          CurLine->GetBinaryStringW(&Str,NULL,Length);
+          CurPos=CurLine->GetCurPos();
           CmpStr=new wchar_t[Length+1];
           memcpy(CmpStr,Str,Length);
           CmpStr[Length]=0;
         }
 
-        int LeftPos=CurLine->EditLine.GetLeftPos();
+        int LeftPos=CurLine->GetLeftPos();
 
         /* $ 24.09.2000 SVS
            Вызов функции Xlat
@@ -2890,13 +2887,13 @@ int Editor::ProcessKey(int Key)
 
         // <comment> - это требуется для корректной работы логики блоков для Ctrl-K
         int PreSelStart,PreSelEnd;
-        CurLine->EditLine.GetSelection(PreSelStart,PreSelEnd);
+        CurLine->GetSelection(PreSelStart,PreSelEnd);
         // </comment>
 
         //AY: Это что бы при FastShow LeftPos не становился в конец строки.
-        CurLine->EditLine.ObjWidth=X2-X1+1;
+        CurLine->ObjWidth=X2-X1+1;
 
-        if (CurLine->EditLine.ProcessKey(Key))
+        if (CurLine->ProcessKey(Key))
         {
           int SelStart,SelEnd;
           /* $ 17.09.2002 SKV
@@ -2904,18 +2901,18 @@ int Editor::ProcessKey(int Key)
             в начале строки, и нажимаем tab, который заменяется
             на пробелы, выделение съедет. Это фикс.
           */
-          if(Key==KEY_TAB && CurLine->EditLine.GetConvertTabs() &&
+          if(Key==KEY_TAB && CurLine->GetConvertTabs() &&
              BlockStart!=NULL && BlockStart!=CurLine)
           {
-            CurLine->EditLine.GetSelection(SelStart,SelEnd);
-            CurLine->EditLine.Select(SelStart==-1?-1:0,SelEnd);
+            CurLine->GetSelection(SelStart,SelEnd);
+            CurLine->Select(SelStart==-1?-1:0,SelEnd);
           }
           /* SKV $ */
           if (!SkipCheckUndo)
           {
             const wchar_t *NewCmpStr;
             int NewLength;
-            CurLine->EditLine.GetBinaryStringW(&NewCmpStr,NULL,NewLength);
+            CurLine->GetBinaryStringW(&NewCmpStr,NULL,NewLength);
             if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length)!=0)
             {
               AddUndoData(CmpStr,NumLine,CurPos,UNDO_EDIT);
@@ -2935,7 +2932,7 @@ int Editor::ProcessKey(int Key)
              {
                if(CurPos)
                {
-                 CurLine->EditLine.GetSelection(SelStart,SelEnd);
+                 CurLine->GetSelection(SelStart,SelEnd);
                  // 1. блок за концом строки (CurPos был ближе к началу, чем SelStart)
                  if(SelEnd == -1 && PreSelStart > CurPos || SelEnd > CurPos)
                    SelStart=SelEnd=-1; // в этом случае снимаем выделение
@@ -2944,38 +2941,38 @@ int Editor::ProcessKey(int Key)
                    SelEnd=PreSelEnd;   // в этом случае усекаем блок
                  // 3. блок остался слева от CurPos или выделение нужно снять (см. выше)
                  if(SelEnd >= CurPos || SelStart==-1)
-                   CurLine->EditLine.Select(SelStart,CurPos);
+                   CurLine->Select(SelStart,CurPos);
                }
                else
                {
-                 CurLine->EditLine.Select(-1,-1);
-                 BlockStart=BlockStart->Next;
+                 CurLine->Select(-1,-1);
+                 BlockStart=BlockStart->m_next;
                }
              }
              else // ЗДЕСЬ ЗАСАДА !!! ЕСЛИ ВЫДЕЛЕННЫЙ БЛОК ДОСТАТОЧНО БОЛЬШОЙ (ПО СТРОКАМ), ТО ЦИКЛ ПЕРЕБОРА... МОЖЕТ ЗАТЯНУТЬ...
              {
                // найдем эту последнюю строку (и последняя ли она)
-               struct EditList *CurPtrBlock=BlockStart,*CurPtrBlock2=BlockStart;
+               Edit *CurPtrBlock=BlockStart,*CurPtrBlock2=BlockStart;
                while (CurPtrBlock!=NULL)
                {
-                 CurPtrBlock->EditLine.GetRealSelection(SelStart,SelEnd);
+                 CurPtrBlock->GetRealSelection(SelStart,SelEnd);
                  if (SelStart==-1)
                    break;
                  CurPtrBlock2=CurPtrBlock;
-                 CurPtrBlock=CurPtrBlock->Next;
+                 CurPtrBlock=CurPtrBlock->m_next;
                }
 
                if(CurLine==CurPtrBlock2)
                {
                  if(CurPos)
                  {
-                   CurLine->EditLine.GetSelection(SelStart,SelEnd);
-                   CurLine->EditLine.Select(SelStart,CurPos);
+                   CurLine->GetSelection(SelStart,SelEnd);
+                   CurLine->Select(SelStart,CurPos);
                  }
                  else
                  {
-                   CurLine->EditLine.Select(-1,-1);
-                   CurPtrBlock2=CurPtrBlock2->Next;
+                   CurLine->Select(-1,-1);
+                   CurPtrBlock2=CurPtrBlock2->m_next;
                  }
                }
 
@@ -2983,7 +2980,7 @@ int Editor::ProcessKey(int Key)
           }
           // </Bug 794>
 
-          ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
+          ShowEditor(LeftPos==CurLine->GetLeftPos());
           return(TRUE);
         }
         else
@@ -3000,7 +2997,7 @@ int Editor::ProcessKey(int Key)
 
 int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  struct EditList *NewPtr;
+  Edit *NewPtr;
   int NewDist,Dist;
 /* $ 28.12.2000 VVM
   + Щелчок мышкой снимает непостоянный блок всегда */
@@ -3013,7 +3010,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     } /* if */
   } /* if */
-  if (CurLine->EditLine.ProcessMouse(MouseEvent))
+  if (CurLine->ProcessMouse(MouseEvent))
   {
     if(HostFileEditor) HostFileEditor->ShowStatus();
     if (VBlockStart!=NULL)
@@ -3046,8 +3043,8 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(FALSE);
   NewDist=MouseEvent->dwMousePosition.Y-Y1-1;
   NewPtr=TopScreen;
-  while (NewDist-- && NewPtr->Next)
-    NewPtr=NewPtr->Next;
+  while (NewDist-- && NewPtr->m_next)
+    NewPtr=NewPtr->m_next;
 
   Dist=CalcDistance(TopScreen,NewPtr,-1)-CalcDistance(TopScreen,CurLine,-1);
 
@@ -3057,26 +3054,26 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   else
     while (Dist++)
       Up();
-  CurLine->EditLine.ProcessMouse(MouseEvent);
+  CurLine->ProcessMouse(MouseEvent);
   Show();
   return(TRUE);
 }
 
 
-int Editor::CalcDistance(struct EditList *From,struct EditList *To,int MaxDist)
+int Editor::CalcDistance(Edit *From, Edit *To,int MaxDist)
 {
   int Distance=0;
-  while (From!=To && From->Next!=NULL && (MaxDist==-1 || MaxDist-- > 0))
+  while (From!=To && From->m_next!=NULL && (MaxDist==-1 || MaxDist-- > 0))
   {
     Distance++;
-    From=From->Next;
+    From=From->m_next;
   }
   return(Distance);
 }
 
 
 
-void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
+void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
 {
   if (Flags.Check(FEDITOR_LOCKMODE))
     return;
@@ -3101,11 +3098,11 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   */
   TextChanged(1);
   /* skv $*/
-  if (DelPtr->Next==NULL && (!DeleteLast || DelPtr->Prev==NULL))
+  if (DelPtr->m_next==NULL && (!DeleteLast || DelPtr->m_prev==NULL))
   {
-    AddUndoData(DelPtr->EditLine.GetStringAddrW(),UndoLine,
-                DelPtr->EditLine.GetCurPos(),UNDO_EDIT);
-    DelPtr->EditLine.SetStringW(L"");
+    AddUndoData(DelPtr->GetStringAddrW(),UndoLine,
+                DelPtr->GetCurPos(),UNDO_EDIT);
+    DelPtr->SetStringW(L"");
     return;
   }
 
@@ -3118,44 +3115,44 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   if (CurLine==DelPtr)
   {
     int LeftPos,CurPos;
-    CurPos=DelPtr->EditLine.GetTabCurPos();
-    LeftPos=DelPtr->EditLine.GetLeftPos();
-    if (DelPtr->Next!=NULL)
-      CurLine=DelPtr->Next;
+    CurPos=DelPtr->GetTabCurPos();
+    LeftPos=DelPtr->GetLeftPos();
+    if (DelPtr->m_next!=NULL)
+      CurLine=DelPtr->m_next;
     else
     {
-      CurLine=DelPtr->Prev;
+      CurLine=DelPtr->m_prev;
       /* $ 04.11.2002 SKV
         Вроде как если это произошло, номер текущей строки надо изменить.
       */
       NumLine--;
       /* SKV $ */
     }
-    CurLine->EditLine.SetLeftPos(LeftPos);
-    CurLine->EditLine.SetTabCurPos(CurPos);
+    CurLine->SetLeftPos(LeftPos);
+    CurLine->SetTabCurPos(CurPos);
   }
 
-  if (DelPtr->Prev)
+  if (DelPtr->m_prev)
   {
-    DelPtr->Prev->Next=DelPtr->Next;
+    DelPtr->m_prev->m_next=DelPtr->m_next;
     if (DelPtr==EndList)
-      EndList=EndList->Prev;
+      EndList=EndList->m_prev;
   }
-  if (DelPtr->Next!=NULL)
-    DelPtr->Next->Prev=DelPtr->Prev;
+  if (DelPtr->m_next!=NULL)
+    DelPtr->m_next->m_prev=DelPtr->m_prev;
   if (DelPtr==TopScreen)
-    if (TopScreen->Next!=NULL)
-      TopScreen=TopScreen->Next;
+    if (TopScreen->m_next!=NULL)
+      TopScreen=TopScreen->m_next;
     else
-      TopScreen=TopScreen->Prev;
+      TopScreen=TopScreen->m_prev;
   if (DelPtr==TopList)
-    TopList=TopList->Next;
+    TopList=TopList->m_next;
   if (DelPtr==BlockStart)
-    BlockStart=BlockStart->Next;
+    BlockStart=BlockStart->m_next;
   if (DelPtr==VBlockStart)
-    VBlockStart=VBlockStart->Next;
+    VBlockStart=VBlockStart->m_next;
   if (UndoLine!=-1)
-    AddUndoData(DelPtr->EditLine.GetStringAddrW(),UndoLine,0,UNDO_DELSTR);
+    AddUndoData(DelPtr->GetStringAddrW(),UndoLine,0,UNDO_DELSTR);
   delete DelPtr;
 }
 
@@ -3172,8 +3169,8 @@ void Editor::InsertString()
   */
 //  TextChanged(1);
   /* skv $*/
-  struct EditList *NewString;
-  struct EditList *SrcIndent=NULL;
+  Edit *NewString;
+  Edit *SrcIndent=NULL;
   int SelStart,SelEnd;
   int CurPos;
   /* $ 17.07.2000 tran
@@ -3186,30 +3183,30 @@ void Editor::InsertString()
   if ( !NewString )
   	return;
 
-  NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL); // ??
-  NewString->Prev=CurLine;
-  NewString->Next=CurLine->Next;
+  NewString->SetTables(UseDecodeTable ? &TableSet:NULL); // ??
+  NewString->m_prev=CurLine;
+  NewString->m_next=CurLine->m_next;
 
-  if (CurLine->Next)
-    CurLine->Next->Prev=NewString;
+  if (CurLine->m_next)
+    CurLine->m_next->m_prev=NewString;
 
-  CurLine->Next=NewString;
+  CurLine->m_next=NewString;
 
   int Length;
   const wchar_t *CurLineStr;
   const wchar_t *EndSeq;
-  CurLine->EditLine.GetBinaryStringW(&CurLineStr,&EndSeq,Length);
+  CurLine->GetBinaryStringW(&CurLineStr,&EndSeq,Length);
 
   /* $ 13.01.2002 IS
      Если не был определен тип конца строки, то считаем что конец строки
      у нас равен DOS_EOL_fmt и установим его явно.
   */
   if (!*EndSeq)
-      CurLine->EditLine.SetEOLW(*GlobalEOL?GlobalEOL:DOS_EOL_fmtW);
+      CurLine->SetEOLW(*GlobalEOL?GlobalEOL:DOS_EOL_fmtW);
   /* IS $ */
 
-  CurPos=CurLine->EditLine.GetCurPos();
-  CurLine->EditLine.GetSelection(SelStart,SelEnd);
+  CurPos=CurLine->GetCurPos();
+  CurLine->GetSelection(SelStart,SelEnd);
 
   for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
     if (SavePos.Line[I]!=0xffffffff &&
@@ -3220,26 +3217,26 @@ void Editor::InsertString()
 
   if (EdOpt.AutoIndent && !Pasting)
   {
-    struct EditList *PrevLine=CurLine;
+    Edit *PrevLine=CurLine;
     while (PrevLine!=NULL)
     {
       const wchar_t *Str;
       int Length,Found=FALSE;
-      PrevLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
+      PrevLine->GetBinaryStringW(&Str,NULL,Length);
       for (int I=0;I<Length;I++)
         /* $ 24.07.2001 IS IsSpace для этого и придумали */
         if (!IsSpaceW(Str[I]))
         /* IS $ */
         {
-          PrevLine->EditLine.SetCurPos(I);
-          IndentPos=PrevLine->EditLine.GetTabCurPos();
+          PrevLine->SetCurPos(I);
+          IndentPos=PrevLine->GetTabCurPos();
           SrcIndent=PrevLine;
           Found=TRUE;
           break;
         }
       if (Found)
         break;
-      PrevLine=PrevLine->Prev;
+      PrevLine=PrevLine->m_prev;
     }
   }
 
@@ -3257,7 +3254,7 @@ void Editor::InsertString()
           break;
         }
 
-    NewString->EditLine.SetBinaryStringW(&CurLineStr[CurPos],Length-CurPos);
+    NewString->SetBinaryStringW(&CurLineStr[CurPos],Length-CurPos);
 
     for ( int i0=0; i0<Length-CurPos; i0++ )
     {
@@ -3268,8 +3265,8 @@ void Editor::InsertString()
         }
     }
 
-    AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+    AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                CurLine->GetCurPos(),UNDO_EDIT);
     BlockUndo++;
     AddUndoData(NULL,NumLine+1,0,UNDO_INSSTR);
     BlockUndo--;
@@ -3287,14 +3284,14 @@ void Editor::InsertString()
       StrSize=wcslen(NewCurLineStr);
     }
 
-    CurLine->EditLine.SetBinaryStringW(NewCurLineStr,StrSize);
-    CurLine->EditLine.SetEOLW(EndSeq);
+    CurLine->SetBinaryStringW(NewCurLineStr,StrSize);
+    CurLine->SetEOLW(EndSeq);
 
     xf_free(NewCurLineStr);
   }
   else
   {
-    NewString->EditLine.SetStringW(L"");
+    NewString->SetStringW(L"");
     AddUndoData(NULL,NumLine+1,0,UNDO_INSSTR);
   }
 
@@ -3311,13 +3308,13 @@ void Editor::InsertString()
   {
     if (CurPos>=SelStart)
     {
-      CurLine->EditLine.Select(SelStart,-1);
-      NewString->EditLine.Select(0,SelEnd==-1 ? -1:SelEnd-CurPos);
+      CurLine->Select(SelStart,-1);
+      NewString->Select(0,SelEnd==-1 ? -1:SelEnd-CurPos);
     }
     else
     {
-      CurLine->EditLine.Select(-1,0);
-      NewString->EditLine.Select(SelStart-CurPos,SelEnd==-1 ? -1:SelEnd-CurPos);
+      CurLine->Select(-1,0);
+      NewString->Select(SelStart-CurPos,SelEnd==-1 ? -1:SelEnd-CurPos);
       BlockStart=NewString;
       BlockStartLine++;
     }
@@ -3326,9 +3323,9 @@ void Editor::InsertString()
     if (BlockStart!=NULL && NumLine<BlockStartLine)
       BlockStartLine++;
 
-  NewString->EditLine.SetEOLW(EndSeq);
+  NewString->SetEOLW(EndSeq);
 
-  CurLine->EditLine.SetCurPos(0);
+  CurLine->SetCurPos(0);
   if (CurLine==EndList)
     EndList=NewString;
   NumLastLine++;
@@ -3339,7 +3336,7 @@ void Editor::InsertString()
     int OrgIndentPos=IndentPos;
     ShowEditor(FALSE);
 
-    CurLine->EditLine.GetBinaryStringW(&CurLineStr,NULL,Length);
+    CurLine->GetBinaryStringW(&CurLineStr,NULL,Length);
 
     if (SpaceOnly)
     {
@@ -3354,7 +3351,7 @@ void Editor::InsertString()
           Decrement++;
         else
         {
-          int TabPos=CurLine->EditLine.RealPosToTab(I);
+          int TabPos=CurLine->RealPosToTab(I);
           Decrement+=EdOpt.TabSize - (TabPos % EdOpt.TabSize);
         }
       }
@@ -3363,42 +3360,42 @@ void Editor::InsertString()
 
     if (IndentPos>0)
     {
-      if (CurLine->EditLine.GetLength()!=0 || !EdOpt.CursorBeyondEOL)
+      if (CurLine->GetLength()!=0 || !EdOpt.CursorBeyondEOL)
       {
-        CurLine->EditLine.ProcessKey(KEY_HOME);
+        CurLine->ProcessKey(KEY_HOME);
 
-        int SaveOvertypeMode=CurLine->EditLine.GetOvertypeMode();
-        CurLine->EditLine.SetOvertypeMode(FALSE);
+        int SaveOvertypeMode=CurLine->GetOvertypeMode();
+        CurLine->SetOvertypeMode(FALSE);
 
         const wchar_t *PrevStr=NULL;
         int PrevLength=0;
 
         if (SrcIndent)
         {
-          SrcIndent->EditLine.GetBinaryStringW(&PrevStr,NULL,PrevLength);
+          SrcIndent->GetBinaryStringW(&PrevStr,NULL,PrevLength);
         }
 
-        for (int I=0;CurLine->EditLine.GetTabCurPos()<IndentPos;I++)
+        for (int I=0;CurLine->GetTabCurPos()<IndentPos;I++)
         {
           if (SrcIndent!=NULL && I<PrevLength && IsSpaceW(PrevStr[I]))
           {
-            CurLine->EditLine.ProcessKey(PrevStr[I]);
+            CurLine->ProcessKey(PrevStr[I]);
           }
           else
           {
-            CurLine->EditLine.ProcessKey(KEY_SPACE);
+            CurLine->ProcessKey(KEY_SPACE);
           }
         }
-        while (CurLine->EditLine.GetTabCurPos()>IndentPos)
-          CurLine->EditLine.ProcessKey(KEY_BS);
+        while (CurLine->GetTabCurPos()>IndentPos)
+          CurLine->ProcessKey(KEY_BS);
 
-        CurLine->EditLine.SetOvertypeMode(SaveOvertypeMode);
+        CurLine->SetOvertypeMode(SaveOvertypeMode);
       }
-      CurLine->EditLine.SetTabCurPos(IndentPos);
+      CurLine->SetTabCurPos(IndentPos);
     }
 
-    CurLine->EditLine.GetBinaryStringW(&CurLineStr,NULL,Length);
-    CurPos=CurLine->EditLine.GetCurPos();
+    CurLine->GetBinaryStringW(&CurLineStr,NULL,Length);
+    CurPos=CurLine->GetCurPos();
     if (SpaceOnly)
     {
       int NewPos=0;
@@ -3413,7 +3410,7 @@ void Editor::InsertString()
       if (NewPos>OrgIndentPos)
         NewPos=OrgIndentPos;
       if (NewPos>CurPos)
-        CurLine->EditLine.SetCurPos(NewPos);
+        CurLine->SetCurPos(NewPos);
     }
   }
   /*$ 10.08.2000 skv
@@ -3428,79 +3425,79 @@ void Editor::InsertString()
 
 void Editor::Down()
 {
-  struct EditList *CurPtr;
+  Edit *CurPtr;
   int LeftPos,CurPos,Y;
-  if (CurLine->Next==NULL)
+  if (CurLine->m_next==NULL)
     return;
-  for (Y=0,CurPtr=TopScreen;CurPtr!=CurLine;CurPtr=CurPtr->Next)
+  for (Y=0,CurPtr=TopScreen;CurPtr!=CurLine;CurPtr=CurPtr->m_next)
     Y++;
   if (Y>=Y2-Y1-1)
-    TopScreen=TopScreen->Next;
-  CurPos=CurLine->EditLine.GetTabCurPos();
-  LeftPos=CurLine->EditLine.GetLeftPos();
-  CurLine=CurLine->Next;
+    TopScreen=TopScreen->m_next;
+  CurPos=CurLine->GetTabCurPos();
+  LeftPos=CurLine->GetLeftPos();
+  CurLine=CurLine->m_next;
   NumLine++;
-  CurLine->EditLine.SetLeftPos(LeftPos);
-  CurLine->EditLine.SetTabCurPos(CurPos);
+  CurLine->SetLeftPos(LeftPos);
+  CurLine->SetTabCurPos(CurPos);
 }
 
 
 void Editor::ScrollDown()
 {
   int LeftPos,CurPos;
-  if (CurLine->Next==NULL || TopScreen->Next==NULL)
+  if (CurLine->m_next==NULL || TopScreen->m_next==NULL)
     return;
   if (!EdOpt.AllowEmptySpaceAfterEof && CalcDistance(TopScreen,EndList,Y2-Y1)<Y2-Y1)
   {
     Down();
     return;
   }
-  TopScreen=TopScreen->Next;
-  CurPos=CurLine->EditLine.GetTabCurPos();
-  LeftPos=CurLine->EditLine.GetLeftPos();
-  CurLine=CurLine->Next;
+  TopScreen=TopScreen->m_next;
+  CurPos=CurLine->GetTabCurPos();
+  LeftPos=CurLine->GetLeftPos();
+  CurLine=CurLine->m_next;
   NumLine++;
-  CurLine->EditLine.SetLeftPos(LeftPos);
-  CurLine->EditLine.SetTabCurPos(CurPos);
+  CurLine->SetLeftPos(LeftPos);
+  CurLine->SetTabCurPos(CurPos);
 }
 
 
 void Editor::Up()
 {
   int LeftPos,CurPos;
-  if (CurLine->Prev==NULL)
+  if (CurLine->m_prev==NULL)
     return;
 
   if (CurLine==TopScreen)
-    TopScreen=TopScreen->Prev;
+    TopScreen=TopScreen->m_prev;
 
-  CurPos=CurLine->EditLine.GetTabCurPos();
-  LeftPos=CurLine->EditLine.GetLeftPos();
-  CurLine=CurLine->Prev;
+  CurPos=CurLine->GetTabCurPos();
+  LeftPos=CurLine->GetLeftPos();
+  CurLine=CurLine->m_prev;
   NumLine--;
-  CurLine->EditLine.SetLeftPos(LeftPos);
-  CurLine->EditLine.SetTabCurPos(CurPos);
+  CurLine->SetLeftPos(LeftPos);
+  CurLine->SetTabCurPos(CurPos);
 }
 
 
 void Editor::ScrollUp()
 {
   int LeftPos,CurPos;
-  if (CurLine->Prev==NULL)
+  if (CurLine->m_prev==NULL)
     return;
-  if (TopScreen->Prev==NULL)
+  if (TopScreen->m_prev==NULL)
   {
     Up();
     return;
   }
 
-  TopScreen=TopScreen->Prev;
-  CurPos=CurLine->EditLine.GetTabCurPos();
-  LeftPos=CurLine->EditLine.GetLeftPos();
-  CurLine=CurLine->Prev;
+  TopScreen=TopScreen->m_prev;
+  CurPos=CurLine->GetTabCurPos();
+  LeftPos=CurLine->GetLeftPos();
+  CurLine=CurLine->m_prev;
   NumLine--;
-  CurLine->EditLine.SetLeftPos(LeftPos);
-  CurLine->EditLine.SetTabCurPos(CurPos);
+  CurLine->SetLeftPos(LeftPos);
+  CurLine->SetTabCurPos(CurPos);
 }
 
 /* $ 21.01.2001 SVS
@@ -3510,7 +3507,7 @@ void Editor::ScrollUp()
 */
 BOOL Editor::Search(int Next)
 {
-  struct EditList *CurPtr,*TmpPtr;
+  Edit *CurPtr,*TmpPtr;
   string strSearchStr, strReplaceStr;
   static string strLastReplaceStr;
   static int LastSuccessfulReplaceMode=0;
@@ -3570,7 +3567,7 @@ BOOL Editor::Search(int Next)
     Count=0;
     Match=0;
     UserBreak=0;
-    CurPos=CurLine->EditLine.GetCurPos();
+    CurPos=CurLine->GetCurPos();
     /* $ 16.10.2000 tran
        CurPos увеличивается при следующем поиске */
     /* $ 28.11.2000 SVS
@@ -3610,7 +3607,7 @@ BOOL Editor::Search(int Next)
       /* $ 03.08.2000 KM
          Добавление нового параметра в функцию поиска
       */
-      if (CurPtr->EditLine.Search(SearchStr,CurPos,Case,WholeWords,ReverseSearch))
+      if (CurPtr->Search(SearchStr,CurPos,Case,WholeWords,ReverseSearch))
       /* KM $ */
       {
         int Skip=FALSE;
@@ -3628,8 +3625,8 @@ BOOL Editor::Search(int Next)
         TmpPtr=CurLine=CurPtr;
         for (int i=0;i<FromTop;i++)
         {
-          if (TmpPtr->Prev)
-            TmpPtr=TmpPtr->Prev;
+          if (TmpPtr->m_prev)
+            TmpPtr=TmpPtr->m_prev;
           else
             break;
         }
@@ -3638,10 +3635,10 @@ BOOL Editor::Search(int Next)
 
         NumLine=NewNumLine;
 
-        int LeftPos=CurPtr->EditLine.GetLeftPos();
-        int TabCurPos=CurPtr->EditLine.GetTabCurPos();
+        int LeftPos=CurPtr->GetLeftPos();
+        int TabCurPos=CurPtr->GetTabCurPos();
         if (ObjWidth>8 && TabCurPos-LeftPos+SearchLength>ObjWidth-8)
-          CurPtr->EditLine.SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
+          CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
 
         if (ReplaceMode)
         {
@@ -3653,7 +3650,7 @@ BOOL Editor::Search(int Next)
             GetCursorPos(CurX,CurY);
             GotoXY(CurX,CurY);
             SetColor(COL_EDITORSELECTEDTEXT);
-            const wchar_t *Str=CurPtr->EditLine.GetStringAddrW()+CurPtr->EditLine.GetCurPos();
+            const wchar_t *Str=CurPtr->GetStringAddrW()+CurPtr->GetCurPos();
             wchar_t *TmpStr=new wchar_t[SearchLength+1];
             xwcsncpy(TmpStr,Str,SearchLength);
             TmpStr[SearchLength]=0;
@@ -3692,8 +3689,8 @@ BOOL Editor::Search(int Next)
             {
               int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
               Flags.Set(FEDITOR_OVERTYPE);
-              CurLine->EditLine.SetOvertypeMode(TRUE);
-              //int CurPos=CurLine->EditLine.GetCurPos();
+              CurLine->SetOvertypeMode(TRUE);
+              //int CurPos=CurLine->GetCurPos();
               int I;
               for (I=0;SearchStr[I]!=0 && ReplaceStr[I]!=0;I++)
               {
@@ -3701,11 +3698,11 @@ BOOL Editor::Search(int Next)
                 if (Ch==KEY_TAB)
                 {
                   Flags.Clear(FEDITOR_OVERTYPE);
-                  CurLine->EditLine.SetOvertypeMode(FALSE);
+                  CurLine->SetOvertypeMode(FALSE);
                   ProcessKey(KEY_DEL);
                   ProcessKey(KEY_TAB);
                   Flags.Set(FEDITOR_OVERTYPE);
-                  CurLine->EditLine.SetOvertypeMode(TRUE);
+                  CurLine->SetOvertypeMode(TRUE);
                   continue;
                 }
                 /* $ 24.05.2002 SKV
@@ -3723,7 +3720,7 @@ BOOL Editor::Search(int Next)
               if(SearchStr[I]==0)
               {
                 Flags.Clear(FEDITOR_OVERTYPE);
-                CurLine->EditLine.SetOvertypeMode(FALSE);
+                CurLine->SetOvertypeMode(FALSE);
                 for (;ReplaceStr[I]!=0;I++)
                 {
                   int Ch=ReplaceStr[I];
@@ -3758,14 +3755,14 @@ BOOL Editor::Search(int Next)
               int StrLen,NewStrLen;
               int SStrLen=strSearchStr.GetLength(),
                   RStrLen=strReplaceStr.GetLength();
-              CurLine->EditLine.GetBinaryStringW(&Str,&Eol,StrLen);
+              CurLine->GetBinaryStringW(&Str,&Eol,StrLen);
               int EolLen=wcslen(Eol);
               NewStrLen=StrLen;
               NewStrLen-=SStrLen;
               NewStrLen+=RStrLen;
               NewStrLen+=EolLen;
               wchar_t *NewStr=new wchar_t[NewStrLen+1];
-              int CurPos=CurLine->EditLine.GetCurPos();
+              int CurPos=CurLine->GetCurPos();
               wmemcpy(NewStr,Str,CurPos);
               wmemcpy(NewStr+CurPos,ReplaceStr,RStrLen);
 
@@ -3776,10 +3773,10 @@ BOOL Editor::Search(int Next)
 
               wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
               wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
-              AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,
-                          CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-              CurLine->EditLine.SetBinaryStringW(NewStr,NewStrLen);
-              CurLine->EditLine.SetCurPos(CurPos+RStrLen);
+              AddUndoData(CurLine->GetStringAddrW(),NumLine,
+                          CurLine->GetCurPos(),UNDO_EDIT);
+              CurLine->SetBinaryStringW(NewStr,NewStrLen);
+              CurLine->SetCurPos(CurPos+RStrLen);
               delete [] NewStr;
 
               TextChanged(1);
@@ -3789,7 +3786,7 @@ BOOL Editor::Search(int Next)
             //AY: В этом нет никакой надобности и оно приводит к не правильному
             //позиционированию при Replace
             //if (ReverseSearch)
-              //CurLine->EditLine.SetCurPos(CurPos);
+              //CurLine->SetCurPos(CurPos);
 
             Pasting--;
           }
@@ -3797,7 +3794,7 @@ BOOL Editor::Search(int Next)
         Match=1;
         if (!ReplaceMode)
           break;
-        CurPos=CurLine->EditLine.GetCurPos();
+        CurPos=CurLine->GetCurPos();
         if (Skip)
           if (!ReverseSearch)
             CurPos++;
@@ -3805,16 +3802,16 @@ BOOL Editor::Search(int Next)
       else
         if (ReverseSearch)
         {
-          CurPtr=CurPtr->Prev;
+          CurPtr=CurPtr->m_prev;
           if (CurPtr==NULL)
             break;
-          CurPos=CurPtr->EditLine.GetLength();
+          CurPos=CurPtr->GetLength();
           NewNumLine--;
         }
         else
         {
           CurPos=0;
-          CurPtr=CurPtr->Next;
+          CurPtr=CurPtr->m_next;
           NewNumLine++;
         }
     }
@@ -3869,7 +3866,7 @@ void Editor::Paste(const wchar_t *Src)
     if (Flags.Check(FEDITOR_OVERTYPE))
     {
       Flags.Clear(FEDITOR_OVERTYPE);
-      CurLine->EditLine.SetOvertypeMode(FALSE);
+      CurLine->SetOvertypeMode(FALSE);
     }
     BlockStart=CurLine;
     BlockStartLine=NumLine;
@@ -3877,14 +3874,14 @@ void Editor::Paste(const wchar_t *Src)
        Решение проблемы непрошеной конвертации табуляции (которая должна быть
        добавлена в начало строки при автоотступе) в пробелы.
     */
-    int StartPos=CurLine->EditLine.GetCurPos(),
+    int StartPos=CurLine->GetCurPos(),
         oldAutoIndent=EdOpt.AutoIndent;
 
     for (int I=0;ClipText[I]!=0;)
       if (ClipText[I]!=10)
         if (ClipText[I]==13)
         {
-          CurLine->EditLine.Select(StartPos,-1);
+          CurLine->Select(StartPos,-1);
           StartPos=0;
           EdOpt.AutoIndent=FALSE;
           ProcessKey(KEY_ENTER);
@@ -3899,7 +3896,7 @@ void Editor::Paste(const wchar_t *Src)
               ProcessKey(ClipText[I]); //BUGBUG
 
             I++;
-            StartPos=CurLine->EditLine.GetCurPos();
+            StartPos=CurLine->GetCurPos();
             if(StartPos) StartPos--;
           }
 
@@ -3910,11 +3907,11 @@ void Editor::Paste(const wchar_t *Src)
           {
             const wchar_t *Str;
             int Length,CurPos;
-            CurLine->EditLine.GetBinaryStringW(&Str,NULL,Length);
-            CurPos=CurLine->EditLine.GetCurPos();
+            CurLine->GetBinaryStringW(&Str,NULL,Length);
+            CurPos=CurLine->GetCurPos();
             AddUndoData(Str,NumLine,CurPos,UNDO_EDIT);
             BlockUndo=TRUE;
-            CurLine->EditLine.InsertBinaryStringW(&ClipText[I],Pos-I);
+            CurLine->InsertBinaryStringW(&ClipText[I],Pos-I);
           }
           I=Pos;
         }
@@ -3923,13 +3920,13 @@ void Editor::Paste(const wchar_t *Src)
 
     EdOpt.AutoIndent=oldAutoIndent;
 
-    CurLine->EditLine.Select(StartPos,CurLine->EditLine.GetCurPos());
+    CurLine->Select(StartPos,CurLine->GetCurPos());
     /* IS $ */
 
     if (SaveOvertype)
     {
       Flags.Set(FEDITOR_OVERTYPE);
-      CurLine->EditLine.SetOvertypeMode(TRUE);
+      CurLine->SetOvertypeMode(TRUE);
     }
 
 
@@ -3952,7 +3949,7 @@ void Editor::Copy(int Append)
     return;
   }
 
-  struct EditList *CurPtr=BlockStart;
+  Edit *CurPtr=BlockStart;
   wchar_t *CopyData=NULL;
   long DataSize=0,PrevSize=0;
 
@@ -3966,8 +3963,8 @@ void Editor::Copy(int Append)
   while (CurPtr!=NULL)
   {
     int StartSel,EndSel;
-    int Length=CurPtr->EditLine.GetLength()+1;
-    CurPtr->EditLine.GetSelection(StartSel,EndSel);
+    int Length=CurPtr->GetLength()+1;
+    CurPtr->GetSelection(StartSel,EndSel);
     if (StartSel==-1)
       break;
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+Length+2)*sizeof (wchar_t));
@@ -3978,14 +3975,14 @@ void Editor::Copy(int Append)
       break;
     }
     CopyData=NewPtr;
-    CurPtr->EditLine.GetSelStringW(CopyData+DataSize,Length);
+    CurPtr->GetSelStringW(CopyData+DataSize,Length);
     DataSize+=wcslen(CopyData+DataSize);
     if (EndSel==-1)
     {
       wcscpy(CopyData+DataSize,DOS_EOL_fmtW);
       DataSize+=2;
     }
-    CurPtr=CurPtr->Next;
+    CurPtr=CurPtr->m_next;
   }
 
   if (CopyData!=NULL)
@@ -4010,7 +4007,7 @@ void Editor::DeleteBlock()
     return;
   }
 
-  struct EditList *CurPtr=BlockStart;
+  Edit *CurPtr=BlockStart;
 
   int UndoNext=FALSE;
 
@@ -4025,15 +4022,15 @@ void Editor::DeleteBlock()
     /* $ 17.09.2002 SKV
       меняем на Real что б ловить выделение за концом строки.
     */
-    CurPtr->EditLine.GetRealSelection(StartSel,EndSel);
-    if(EndSel!=-1 && EndSel>CurPtr->EditLine.GetLength())
+    CurPtr->GetRealSelection(StartSel,EndSel);
+    if(EndSel!=-1 && EndSel>CurPtr->GetLength())
       EndSel=-1;
     /* SKV $ */
     if (StartSel==-1)
       break;
     if (StartSel==0 && EndSel==-1)
     {
-      struct EditList *NextLine=CurPtr->Next;
+      Edit *NextLine=CurPtr->m_next;
       BlockUndo=UndoNext;
       DeleteString(CurPtr,FALSE,BlockStartLine);
       UndoNext=TRUE;
@@ -4047,12 +4044,12 @@ void Editor::DeleteBlock()
       else
         break;
     }
-    int Length=CurPtr->EditLine.GetLength();
+    int Length=CurPtr->GetLength();
     if (StartSel!=0 || EndSel!=0)
     {
       BlockUndo=UndoNext;
-      AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine,
-                  CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
+      AddUndoData(CurPtr->GetStringAddrW(),BlockStartLine,
+                  CurPtr->GetCurPos(),UNDO_EDIT);
       UndoNext=TRUE;
     }
     /* $ 17.09.2002 SKV
@@ -4062,12 +4059,12 @@ void Editor::DeleteBlock()
     if(StartSel>Length)
     {
       Length=StartSel;
-      CurPtr->EditLine.SetCurPos(Length);
-      CurPtr->EditLine.InsertBinaryStringW(L"",0);
+      CurPtr->SetCurPos(Length);
+      CurPtr->InsertBinaryStringW(L"",0);
     }
     /* SKV $ */
     const wchar_t *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
     // дальше будет realloc, поэтому тут malloc.
     wchar_t *TmpStr=(wchar_t*)xf_malloc((Length+3)*sizeof (wchar_t));
     wmemcpy(TmpStr,CurStr,Length);
@@ -4076,7 +4073,7 @@ void Editor::DeleteBlock()
     if (EndSel==-1)
     {
       EndSel=Length;
-      if (CurPtr->Next!=NULL)
+      if (CurPtr->m_next!=NULL)
         DeleteNext=TRUE;
     }
     wmemmove(TmpStr+StartSel,TmpStr+EndSel,wcslen(TmpStr+EndSel)+1);
@@ -4093,32 +4090,32 @@ void Editor::DeleteBlock()
     {
       const wchar_t *NextStr,*EndSeq;
       int NextLength,NextStartSel,NextEndSel;
-      CurPtr->Next->EditLine.GetSelection(NextStartSel,NextEndSel);
+      CurPtr->m_next->GetSelection(NextStartSel,NextEndSel);
       if (NextStartSel==-1)
         NextEndSel=0;
       if (NextEndSel==-1)
         EndSel=-1;
       else
       {
-        CurPtr->Next->EditLine.GetBinaryStringW(&NextStr,&EndSeq,NextLength);
+        CurPtr->m_next->GetBinaryStringW(&NextStr,&EndSeq,NextLength);
         NextLength-=NextEndSel;
         TmpStr=(wchar_t *)xf_realloc(TmpStr,Length+NextLength+3);
         wmemcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
         Length+=NextLength;
       }
-      if (CurLine==CurPtr->Next)
+      if (CurLine==CurPtr->m_next)
       {
         CurLine=CurPtr;
         NumLine--;
       }
 
       BlockUndo=UndoNext;
-      if (CurLine==CurPtr && CurPtr->Next!=NULL && CurPtr->Next==TopScreen)
+      if (CurLine==CurPtr && CurPtr->m_next!=NULL && CurPtr->m_next==TopScreen)
       {
-        CurLine=CurPtr->Next;
+        CurLine=CurPtr->m_next;
         NumLine++;
       }
-      DeleteString(CurPtr->Next,FALSE,BlockStartLine+1);
+      DeleteString(CurPtr->m_next,FALSE,BlockStartLine+1);
       UndoNext=TRUE;
       if (BlockStartLine+1<NumLine)
         NumLine--;
@@ -4127,21 +4124,21 @@ void Editor::DeleteBlock()
     wmemcpy(TmpStr+Length,EndSeq,EndLength);
     Length+=EndLength;
     TmpStr[Length]=0;
-    CurPtr->EditLine.SetBinaryStringW(TmpStr,Length);
+    CurPtr->SetBinaryStringW(TmpStr,Length);
     /* $ 17.09.2002 SKV
       выделяли через malloc
     */
     xf_free(TmpStr);
     /* SKV $ */
-    CurPtr->EditLine.SetCurPos(CurPos);
+    CurPtr->SetCurPos(CurPos);
     if (DeleteNext && EndSel==-1)
     {
-      CurPtr->EditLine.Select(CurPtr->EditLine.GetLength(),-1);
+      CurPtr->Select(CurPtr->GetLength(),-1);
     }
     else
     {
-      CurPtr->EditLine.Select(-1,0);
-      CurPtr=CurPtr->Next;
+      CurPtr->Select(-1,0);
+      CurPtr=CurPtr->m_next;
       BlockStartLine++;
     }
   }
@@ -4160,7 +4157,7 @@ void Editor::UnmarkBlock()
   while (BlockStart!=NULL)
   {
     int StartSel,EndSel;
-    BlockStart->EditLine.GetSelection(StartSel,EndSel);
+    BlockStart->GetSelection(StartSel,EndSel);
     if (StartSel==-1)
     {
       /* $ 24.06.2002 SKV
@@ -4168,9 +4165,9 @@ void Editor::UnmarkBlock()
         это еще не значит что мы в конце.
         Это может быть только начало :)
       */
-      if(BlockStart->Next)
+      if(BlockStart->m_next)
       {
-        BlockStart->Next->EditLine.GetSelection(StartSel,EndSel);
+        BlockStart->m_next->GetSelection(StartSel,EndSel);
         if(StartSel==-1)
         {
           break;
@@ -4178,8 +4175,8 @@ void Editor::UnmarkBlock()
       }else break;
       /* SKV $ */
     }
-    BlockStart->EditLine.Select(-1,0);
-    BlockStart=BlockStart->Next;
+    BlockStart->Select(-1,0);
+    BlockStart=BlockStart->m_next;
   }
   BlockStart=NULL;
   Show();
@@ -4197,7 +4194,7 @@ void Editor::UnmarkEmptyBlock()
   if(BlockStart || VBlockStart)  // присутствует выделение
   {
     int Lines=0,StartSel,EndSel;
-    struct EditList *Block=BlockStart;
+    Edit *Block=BlockStart;
     if(VBlockStart)
     {
       if(VBlockSizeX)
@@ -4205,7 +4202,7 @@ void Editor::UnmarkEmptyBlock()
     }
     else while(Block) // пробегаем по всем выделенным строкам
     {
-      Block->EditLine.GetRealSelection(StartSel,EndSel);
+      Block->GetRealSelection(StartSel,EndSel);
       if (StartSel==-1)
         break;
       if(StartSel!=EndSel)// выделено сколько-то символов
@@ -4213,7 +4210,7 @@ void Editor::UnmarkEmptyBlock()
         ++Lines;           // увеличим счетчик непустых строк
         break;
       }
-      Block=Block->Next;
+      Block=Block->m_next;
     }
     if(!Lines)             // если выделено ноль символов в ширину, то
       UnmarkBlock();       // перестанем морочить голову и снимем выделение
@@ -4240,9 +4237,9 @@ void Editor::GoToLine(int Line)
   int LastNumLine=NumLine;
   int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
   for (NumLine=0,CurLine=TopList;
-         NumLine<NewLine && CurLine->Next!=NULL;
+         NumLine<NewLine && CurLine->m_next!=NULL;
          NumLine++)
-    CurLine=CurLine->Next;
+    CurLine=CurLine->m_next;
   CurScrLine+=NumLine-LastNumLine;
 
   if (CurScrLine<0 || CurScrLine>=Y2-Y1)
@@ -4270,9 +4267,9 @@ void Editor::GoToLine(int Line)
 void Editor::GoToPosition()
 {
   int NewLine, NewCol;
-  int LeftPos=CurLine->EditLine.GetTabCurPos()+1;
+  int LeftPos=CurLine->GetTabCurPos()+1;
   int CurPos;
-  CurPos=CurLine->EditLine.GetCurPos();
+  CurPos=CurLine->GetCurPos();
 
   const wchar_t *LineHistoryName=L"LineNumber";
   static struct DialogDataEx GoToDlgData[]=
@@ -4311,11 +4308,11 @@ void Editor::GoToPosition()
 
   if ( NewCol == -1)
   {
-    CurLine->EditLine.SetTabCurPos(CurPos);
-    CurLine->EditLine.SetLeftPos(LeftPos);
+    CurLine->SetTabCurPos(CurPos);
+    CurLine->SetLeftPos(LeftPos);
   }
   else
-    CurLine->EditLine.SetTabCurPos(NewCol);
+    CurLine->SetTabCurPos(NewCol);
 
 // <GOTO_UNMARK:3>
 //  if (!EdOpt.PersistentBlocks)
@@ -4344,7 +4341,7 @@ void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
   int x=0xffff,y;
   size_t l;
   wchar_t *argvx=0;
-  int LeftPos=CurLine->EditLine.GetTabCurPos() + 1;
+  int LeftPos=CurLine->GetTabCurPos() + 1;
 
   string strArg = _argv;
 
@@ -4499,12 +4496,12 @@ void Editor::Undo()
       }
       Pasting--;
       if (UndoData[UndoDataPos].Str!=NULL)
-        CurLine->EditLine.SetStringW(UndoData[UndoDataPos].Str);
+        CurLine->SetStringW(UndoData[UndoDataPos].Str);
       break;
     case UNDO_EDIT:
       if (UndoData[UndoDataPos].Str!=NULL)
-        CurLine->EditLine.SetStringW(UndoData[UndoDataPos].Str);
-      CurLine->EditLine.SetCurPos(UndoData[UndoDataPos].StrPos);
+        CurLine->SetStringW(UndoData[UndoDataPos].Str);
+      CurLine->SetCurPos(UndoData[UndoDataPos].StrPos);
       break;
   }
   if (UndoData[UndoDataPos].Str!=NULL)
@@ -4524,14 +4521,14 @@ void Editor::Undo()
 
 void Editor::SelectAll()
 {
-  struct EditList *CurPtr;
+  Edit *CurPtr;
   BlockStart=TopList;
   BlockStartLine=0;
-  for (CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->Next)
-    if (CurPtr->Next!=NULL)
-      CurPtr->EditLine.Select(0,-1);
+  for (CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next)
+    if (CurPtr->m_next!=NULL)
+      CurPtr->Select(0,-1);
     else
-      CurPtr->EditLine.Select(0,CurPtr->EditLine.GetLength());
+      CurPtr->Select(0,CurPtr->GetLength());
   Show();
 }
 
@@ -4557,15 +4554,15 @@ int Editor::IsFileModified()
 // используется в FileEditor
 long Editor::GetCurPos()
 {
-  struct EditList *CurPtr=TopList;
+  Edit *CurPtr=TopList;
   long TotalSize=0;
   while (CurPtr!=TopScreen)
   {
     const wchar_t *SaveStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(&SaveStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&SaveStr,&EndSeq,Length);
     TotalSize+=Length+wcslen(EndSeq);
-    CurPtr=CurPtr->Next;
+    CurPtr=CurPtr->m_next;
   }
   return(TotalSize);
 }
@@ -4573,11 +4570,11 @@ long Editor::GetCurPos()
 
 void Editor::SetStringsTable()
 {
-  struct EditList *CurPtr=TopList;
+  Edit *CurPtr=TopList;
   while (CurPtr!=NULL)
   {
-    CurPtr->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
-    CurPtr=CurPtr->Next;
+    CurPtr->SetTables(UseDecodeTable ? &TableSet:NULL);
+    CurPtr=CurPtr->m_next;
   }
 }
 
@@ -4589,7 +4586,7 @@ void Editor::BlockLeft()
     VBlockShift(TRUE);
     return;
   }
-  struct EditList *CurPtr=BlockStart;
+  Edit *CurPtr=BlockStart;
   int LineNum=BlockStartLine;
 /* $ 14.02.2001 VVM
     + При отсутствии блока AltU/AltI сдвигают текущую строчку */
@@ -4604,7 +4601,7 @@ void Editor::BlockLeft()
   while (CurPtr!=NULL)
   {
     int StartSel,EndSel;
-    CurPtr->EditLine.GetSelection(StartSel,EndSel);
+    CurPtr->GetSelection(StartSel,EndSel);
     /* $ 14.02.2001 VVM
       + Блока нет - сделаем его искусственно */
     if (MoveLine) {
@@ -4614,11 +4611,11 @@ void Editor::BlockLeft()
     if (StartSel==-1)
       break;
 
-    int Length=CurPtr->EditLine.GetLength();
+    int Length=CurPtr->GetLength();
     wchar_t *TmpStr=new wchar_t[Length+EdOpt.TabSize+5];
 
     const wchar_t *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
 
     Length--;
     if (*CurStr==L' ')
@@ -4641,14 +4638,14 @@ void Editor::BlockLeft()
       TmpStr[Length]=0;
       AddUndoData(CurStr,LineNum,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      int CurPos=CurPtr->EditLine.GetCurPos();
-      CurPtr->EditLine.SetBinaryStringW(TmpStr,Length);
-      CurPtr->EditLine.SetCurPos(CurPos>0 ? CurPos-1:CurPos);
+      int CurPos=CurPtr->GetCurPos();
+      CurPtr->SetBinaryStringW(TmpStr,Length);
+      CurPtr->SetCurPos(CurPos>0 ? CurPos-1:CurPos);
       /* $ 14.02.2001 VVM
         + Выделить только если двигаем блок */
       if (!MoveLine)
       /* VVM $ */
-        CurPtr->EditLine.Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
+        CurPtr->Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
       /*$ 10.08.2000 skv
         Modified->TextChanged
       */
@@ -4657,7 +4654,7 @@ void Editor::BlockLeft()
     }
 
     delete[] TmpStr;
-    CurPtr=CurPtr->Next;
+    CurPtr=CurPtr->m_next;
     LineNum++;
     MoveLine = 0;
   }
@@ -4672,7 +4669,7 @@ void Editor::BlockRight()
     VBlockShift(FALSE);
     return;
   }
-  struct EditList *CurPtr=BlockStart;
+  Edit *CurPtr=BlockStart;
   int LineNum=BlockStartLine;
 /* $ 14.02.2001 VVM
     + При отсутствии блока AltU/AltI сдвигают текущую строчку */
@@ -4687,7 +4684,7 @@ void Editor::BlockRight()
   while (CurPtr!=NULL)
   {
     int StartSel,EndSel;
-    CurPtr->EditLine.GetSelection(StartSel,EndSel);
+    CurPtr->GetSelection(StartSel,EndSel);
     /* $ 14.02.2001 VVM
       + Блока нет - сделаем его искусственно */
     if (MoveLine) {
@@ -4697,11 +4694,11 @@ void Editor::BlockRight()
     if (StartSel==-1)
       break;
 
-    int Length=CurPtr->EditLine.GetLength();
+    int Length=CurPtr->GetLength();
     wchar_t *TmpStr=new wchar_t[Length+5];
 
     const wchar_t *CurStr,*EndSeq;
-    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
     *TmpStr=L' ';
     wmemcpy(TmpStr+1,CurStr,Length);
     Length++;
@@ -4713,15 +4710,15 @@ void Editor::BlockRight()
       TmpStr[Length+EndLength]=0;
       AddUndoData(CurStr,LineNum,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      int CurPos=CurPtr->EditLine.GetCurPos();
+      int CurPos=CurPtr->GetCurPos();
       if (Length>1)
-        CurPtr->EditLine.SetBinaryStringW(TmpStr,Length+EndLength);
-      CurPtr->EditLine.SetCurPos(CurPos+1);
+        CurPtr->SetBinaryStringW(TmpStr,Length+EndLength);
+      CurPtr->SetCurPos(CurPos+1);
       /* $ 14.02.2001 VVM
         + Выделить только если двигаем блок */
       if (!MoveLine)
       /* VVM $ */
-        CurPtr->EditLine.Select(StartSel>0 ? StartSel+1:StartSel,EndSel>0 ? EndSel+1:EndSel);
+        CurPtr->Select(StartSel>0 ? StartSel+1:StartSel,EndSel>0 ? EndSel+1:EndSel);
       /*$ 10.08.2000 skv
         Modified->TextChanged
       */
@@ -4730,7 +4727,7 @@ void Editor::BlockRight()
     }
 
     delete[] TmpStr;
-    CurPtr=CurPtr->Next;
+    CurPtr=CurPtr->m_next;
     LineNum++;
     MoveLine = 0;
   }
@@ -4747,27 +4744,27 @@ void Editor::DeleteVBlock()
 
   if (!EdOpt.PersistentBlocks)
   {
-    struct EditList *CurPtr=CurLine;
-    struct EditList *NewTopScreen=TopScreen;
+    Edit *CurPtr=CurLine;
+    Edit *NewTopScreen=TopScreen;
     while (CurPtr!=NULL)
     {
       if (CurPtr==VBlockStart)
       {
         TopScreen=NewTopScreen;
         CurLine=CurPtr;
-        CurPtr->EditLine.SetTabCurPos(VBlockX);
+        CurPtr->SetTabCurPos(VBlockX);
         break;
       }
       NumLine--;
-      if (NewTopScreen==CurPtr && CurPtr->Prev!=NULL)
-        NewTopScreen=CurPtr->Prev;
-      CurPtr=CurPtr->Prev;
+      if (NewTopScreen==CurPtr && CurPtr->m_prev!=NULL)
+        NewTopScreen=CurPtr->m_prev;
+      CurPtr=CurPtr->m_prev;
     }
   }
 
-  struct EditList *CurPtr=VBlockStart;
+  Edit *CurPtr=VBlockStart;
 
-  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
+  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->m_next)
   {
     /*$ 10.08.2000 skv
       Modified->TextChanged
@@ -4775,19 +4772,19 @@ void Editor::DeleteVBlock()
     TextChanged(1);
     /* skv $*/
 
-    int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
-    int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
-                    CurPtr->EditLine.TabPosToReal(VBlockX);
+    int TBlockX=CurPtr->TabPosToReal(VBlockX);
+    int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+                    CurPtr->TabPosToReal(VBlockX);
 
     const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
     if (TBlockX>=Length)
       continue;
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,
-                CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
+    AddUndoData(CurPtr->GetStringAddrW(),BlockStartLine+Line,
+                CurPtr->GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
     wchar_t *TmpStr=new wchar_t[Length+3];
@@ -4804,15 +4801,15 @@ void Editor::DeleteVBlock()
     CurLength+=EndLength;
     TmpStr[CurLength]=0;
 
-    int CurPos=CurPtr->EditLine.GetCurPos();
-    CurPtr->EditLine.SetBinaryStringW(TmpStr,CurLength);
+    int CurPos=CurPtr->GetCurPos();
+    CurPtr->SetBinaryStringW(TmpStr,CurLength);
     if (CurPos>TBlockX)
     {
       CurPos-=TBlockSizeX;
       if (CurPos<TBlockX)
         CurPos=TBlockX;
     }
-    CurPtr->EditLine.SetCurPos(CurPos);
+    CurPtr->SetCurPos(CurPos);
     delete[] TmpStr;
   }
 
@@ -4822,7 +4819,7 @@ void Editor::DeleteVBlock()
 
 void Editor::VCopy(int Append)
 {
-  struct EditList *CurPtr=VBlockStart;
+  Edit *CurPtr=VBlockStart;
   wchar_t *CopyData=NULL;
   long DataSize=0,PrevSize=0;
 
@@ -4839,14 +4836,14 @@ void Editor::VCopy(int Append)
     }
   }
 
-  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
+  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->m_next)
   {
-    int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
-    int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
-                    CurPtr->EditLine.TabPosToReal(VBlockX);
+    int TBlockX=CurPtr->TabPosToReal(VBlockX);
+    int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+                    CurPtr->TabPosToReal(VBlockX);
     const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
 
     int AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof (wchar_t));
@@ -4908,20 +4905,20 @@ void Editor::VPaste(const wchar_t *ClipText)
     if (Flags.Check(FEDITOR_OVERTYPE))
     {
       Flags.Clear(FEDITOR_OVERTYPE);
-      CurLine->EditLine.SetOvertypeMode(FALSE);
+      CurLine->SetOvertypeMode(FALSE);
     }
 
     VBlockStart=CurLine;
     BlockStartLine=NumLine;
 
-    int StartPos=CurLine->EditLine.GetTabCurPos();
+    int StartPos=CurLine->GetTabCurPos();
 
     VBlockX=StartPos;
     VBlockSizeX=0;
     VBlockY=NumLine;
     VBlockSizeY=0;
 
-    struct EditList *SavedTopScreen=TopScreen;
+    Edit *SavedTopScreen=TopScreen;
 
 
     for (int I=0;ClipText[I]!=0;I++)
@@ -4930,11 +4927,11 @@ void Editor::VPaste(const wchar_t *ClipText)
       else
       {
         BlockUndo=TRUE;
-        int CurWidth=CurLine->EditLine.GetTabCurPos()-StartPos;
+        int CurWidth=CurLine->GetTabCurPos()-StartPos;
         if (CurWidth>VBlockSizeX)
           VBlockSizeX=CurWidth;
         VBlockSizeY++;
-        if (CurLine->Next==NULL)
+        if (CurLine->m_next==NULL)
         {
           if (ClipText[I+2]!=0)
           {
@@ -4954,14 +4951,14 @@ void Editor::VPaste(const wchar_t *ClipText)
         else
         {
           ProcessKey(KEY_DOWN);
-          CurLine->EditLine.SetTabCurPos(StartPos);
-          CurLine->EditLine.SetOvertypeMode(FALSE);
+          CurLine->SetTabCurPos(StartPos);
+          CurLine->SetOvertypeMode(FALSE);
         }
         I++;
         continue;
       }
 
-    int CurWidth=CurLine->EditLine.GetTabCurPos()-StartPos;
+    int CurWidth=CurLine->GetTabCurPos()-StartPos;
     if (CurWidth>VBlockSizeX)
       VBlockSizeX=CurWidth;
     if (VBlockSizeY==0)
@@ -4970,13 +4967,13 @@ void Editor::VPaste(const wchar_t *ClipText)
     if (SaveOvertype)
     {
       Flags.Set(FEDITOR_OVERTYPE);
-      CurLine->EditLine.SetOvertypeMode(TRUE);
+      CurLine->SetOvertypeMode(TRUE);
     }
 
     TopScreen=SavedTopScreen;
     CurLine=VBlockStart;
     NumLine=BlockStartLine;
-    CurLine->EditLine.SetTabCurPos(StartPos);
+    CurLine->SetTabCurPos(StartPos);
 
 
     Pasting--;
@@ -4992,11 +4989,11 @@ void Editor::VBlockShift(int Left)
   if (Flags.Check(FEDITOR_LOCKMODE) || Left && VBlockX==0 || VBlockSizeX<=0 || VBlockSizeY<=0)
     return;
 
-  struct EditList *CurPtr=VBlockStart;
+  Edit *CurPtr=VBlockStart;
 
   int UndoNext=FALSE;
 
-  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
+  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->m_next)
   {
     /*$ 10.08.2000 skv
       Modified->TextChanged
@@ -5004,29 +5001,29 @@ void Editor::VBlockShift(int Left)
     TextChanged(1);
     /* skv $*/
 
-    int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
-    int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
-                    CurPtr->EditLine.TabPosToReal(VBlockX);
+    int TBlockX=CurPtr->TabPosToReal(VBlockX);
+    int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+                    CurPtr->TabPosToReal(VBlockX);
 
     const wchar_t *CurStr,*EndSeq;
     int Length;
-    CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+    CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
     if (TBlockX>Length)
       continue;
     if (Left && CurStr[TBlockX-1]==L'\t' ||
         !Left && TBlockX+TBlockSizeX<Length && CurStr[TBlockX+TBlockSizeX]==L'\t')
     {
-      CurPtr->EditLine.ReplaceTabs();
-      CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
-      TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
-      TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
-                  CurPtr->EditLine.TabPosToReal(VBlockX);
+      CurPtr->ReplaceTabs();
+      CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
+      TBlockX=CurPtr->TabPosToReal(VBlockX);
+      TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+                  CurPtr->TabPosToReal(VBlockX);
     }
 
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,
-                CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
+    AddUndoData(CurPtr->GetStringAddrW(),BlockStartLine+Line,
+                CurPtr->GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
     int StrLength=Max(Length,TBlockX+TBlockSizeX+!Left);
@@ -5056,11 +5053,11 @@ void Editor::VBlockShift(int Left)
     StrLength+=EndLength;
     TmpStr[StrLength]=0;
 
-    CurPtr->EditLine.SetBinaryStringW(TmpStr,StrLength);
+    CurPtr->SetBinaryStringW(TmpStr,StrLength);
     delete[] TmpStr;
   }
   VBlockX+=Left ? -1:1;
-  CurLine->EditLine.SetTabCurPos(Left ? VBlockX:VBlockX+VBlockSizeX);
+  CurLine->SetTabCurPos(Left ? VBlockX:VBlockX+VBlockSizeX);
 }
 
 
@@ -5078,13 +5075,13 @@ int Editor::EditorControl(int Command,void *Param)
       else
       {
         struct EditorGetString *GetString=(struct EditorGetString *)Param;
-        struct EditList *CurPtr=GetStringByNumber(GetString->StringNumber);
+        Edit *CurPtr=GetStringByNumber(GetString->StringNumber);
         if (!CurPtr)
         {
           _ECTLLOG(SysLog("struct EditorGetString => GetStringByNumber(%d) return NULL",GetString->StringNumber));
           return(FALSE);
         }
-        CurPtr->EditLine.GetBinaryStringW(const_cast<const wchar_t **>(&GetString->StringText),
+        CurPtr->GetBinaryStringW(const_cast<const wchar_t **>(&GetString->StringText),
                                 const_cast<const wchar_t **>(&GetString->StringEOL),
                                 GetString->StringLength);
         GetString->SelStart=-1;
@@ -5097,15 +5094,15 @@ int Editor::EditorControl(int Command,void *Param)
           /* $ 12.11.2002 DJ
              вернем настоящие координаты
           */
-          CurPtr->EditLine.GetRealSelection(GetString->SelStart,GetString->SelEnd);
+          CurPtr->GetRealSelection(GetString->SelStart,GetString->SelEnd);
           /* DJ $ */
         }
         else if (VBlockStart!=NULL && DestLine>=VBlockY && DestLine<VBlockY+VBlockSizeY)
         {
-          GetString->SelStart=CurPtr->EditLine.TabPosToReal(VBlockX);
+          GetString->SelStart=CurPtr->TabPosToReal(VBlockX);
           GetString->SelEnd=GetString->SelStart+
-                            CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
-                            CurPtr->EditLine.TabPosToReal(VBlockX);
+                            CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+                            CurPtr->TabPosToReal(VBlockX);
         }
         _ECTLLOG(char *LinDump=(GetString->StringEOL?(char *)_SysLog_LinearDump(GetString->StringEOL,strlen(GetString->StringEOL)):NULL));
         _ECTLLOG(SysLog("struct EditorGetString{"));
@@ -5199,7 +5196,7 @@ int Editor::EditorControl(int Command,void *Param)
           return(FALSE);
         }
 
-        struct EditList *CurPtr=GetStringByNumber(SetString->StringNumber);
+        Edit *CurPtr=GetStringByNumber(SetString->StringNumber);
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",SetString->StringNumber));
@@ -5222,12 +5219,12 @@ int Editor::EditorControl(int Command,void *Param)
 
         wmemcpy(NewStr,SetString->StringText,Length);
         wmemcpy(NewStr+Length,EOL,LengthEOL);
-        AddUndoData(CurPtr->EditLine.GetStringAddrW(),DestLine,
-                    CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
+        AddUndoData(CurPtr->GetStringAddrW(),DestLine,
+                    CurPtr->GetCurPos(),UNDO_EDIT);
 
-        int CurPos=CurPtr->EditLine.GetCurPos();
-        CurPtr->EditLine.SetBinaryStringW(NewStr,Length+LengthEOL);
-        CurPtr->EditLine.SetCurPos(CurPos);
+        int CurPos=CurPtr->GetCurPos();
+        CurPtr->SetBinaryStringW(NewStr,Length+LengthEOL);
+        CurPtr->SetCurPos(CurPos);
         TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
         xf_free(NewStr);
       }
@@ -5279,10 +5276,10 @@ int Editor::EditorControl(int Command,void *Param)
         Info->WindowSizeY=Y2-Y1;
         Info->TotalLines=NumLastLine;
         Info->CurLine=NumLine;
-        Info->CurPos=CurLine->EditLine.GetCurPos();
-        Info->CurTabPos=CurLine->EditLine.GetTabCurPos();
+        Info->CurPos=CurLine->GetCurPos();
+        Info->CurTabPos=CurLine->GetTabCurPos();
         Info->TopScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
-        Info->LeftPos=CurLine->EditLine.GetLeftPos();
+        Info->LeftPos=CurLine->GetLeftPos();
         Info->Overtype=Flags.Check(FEDITOR_OVERTYPE);
         Info->BlockType=BTYPE_NONE;
         if (BlockStart!=NULL)
@@ -5338,7 +5335,7 @@ int Editor::EditorControl(int Command,void *Param)
 
         Lock ();
 
-        int CurPos=CurLine->EditLine.GetCurPos();
+        int CurPos=CurLine->GetCurPos();
 
         // выставим флаг об изменении поз (если надо)
         if ((Pos->CurLine >= 0 || Pos->CurPos >= 0)&&
@@ -5360,17 +5357,17 @@ int Editor::EditorControl(int Command,void *Param)
         {
           TopScreen=CurLine;
           for (int I=NumLine;I>0 && NumLine-I<Y2-Y1+1 && I!=Pos->TopScreenLine;I--)
-            TopScreen=TopScreen->Prev;
+            TopScreen=TopScreen->m_prev;
         }
 
         if (Pos->CurPos >= 0)
-          CurLine->EditLine.SetCurPos(Pos->CurPos);
+          CurLine->SetCurPos(Pos->CurPos);
 
         if (Pos->CurTabPos >= 0)
-          CurLine->EditLine.SetTabCurPos(Pos->CurTabPos);
+          CurLine->SetTabCurPos(Pos->CurTabPos);
 
         if (Pos->LeftPos >= 0)
-          CurLine->EditLine.SetLeftPos(Pos->LeftPos);
+          CurLine->SetLeftPos(Pos->LeftPos);
 
         /* $ 30.08.2001 IS
            Изменение режима нужно выставлять сразу, в противном случае приходят
@@ -5380,7 +5377,7 @@ int Editor::EditorControl(int Command,void *Param)
         if (Pos->Overtype >= 0)
         {
           Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype);
-          CurLine->EditLine.SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
+          CurLine->SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
         }
         /* IS $ */
 
@@ -5410,7 +5407,7 @@ int Editor::EditorControl(int Command,void *Param)
         if (Sel->BlockType==BTYPE_NONE)
           return(TRUE);
 
-        struct EditList *CurPtr=GetStringByNumber(Sel->BlockStartLine);
+        Edit *CurPtr=GetStringByNumber(Sel->BlockStartLine);
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",Sel->BlockStartLine));
@@ -5425,8 +5422,8 @@ int Editor::EditorControl(int Command,void *Param)
           {
             int SelStart=(I==0) ? Sel->BlockStartPos:0;
             int SelEnd=(I<Sel->BlockHeight-1) ? -1:Sel->BlockStartPos+Sel->BlockWidth;
-            CurPtr->EditLine.Select(SelStart,SelEnd);
-            CurPtr=CurPtr->Next;
+            CurPtr->Select(SelStart,SelEnd);
+            CurPtr=CurPtr->m_next;
             if (CurPtr==NULL)
               return(FALSE);
           }
@@ -5462,13 +5459,13 @@ int Editor::EditorControl(int Command,void *Param)
       else
       {
         struct EditorConvertPos *ecp=(struct EditorConvertPos *)Param;
-        struct EditList *CurPtr=GetStringByNumber(ecp->StringNumber);
+        Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",ecp->StringNumber));
           return(FALSE);
         }
-        ecp->DestPos=CurPtr->EditLine.TabPosToReal(ecp->SrcPos);
+        ecp->DestPos=CurPtr->TabPosToReal(ecp->SrcPos);
         _ECTLLOG(SysLog("struct EditorConvertPos{"));
         _ECTLLOG(SysLog("  StringNumber =%d",ecp->StringNumber));
         _ECTLLOG(SysLog("  SrcPos       =%d",ecp->SrcPos));
@@ -5485,13 +5482,13 @@ int Editor::EditorControl(int Command,void *Param)
       else
       {
         struct EditorConvertPos *ecp=(struct EditorConvertPos *)Param;
-        struct EditList *CurPtr=GetStringByNumber(ecp->StringNumber);
+        Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",ecp->StringNumber));
           return(FALSE);
         }
-        ecp->DestPos=CurPtr->EditLine.RealPosToTab(ecp->SrcPos);
+        ecp->DestPos=CurPtr->RealPosToTab(ecp->SrcPos);
         _ECTLLOG(SysLog("struct EditorConvertPos{"));
         _ECTLLOG(SysLog("  StringNumber =%d",ecp->StringNumber));
         _ECTLLOG(SysLog("  SrcPos       =%d",ecp->SrcPos));
@@ -5511,15 +5508,15 @@ int Editor::EditorControl(int Command,void *Param)
       else
       {
         int StringNumber=*(int *)Param;
-        struct EditList *CurPtr=GetStringByNumber(StringNumber);
+        Edit *CurPtr=GetStringByNumber(StringNumber);
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",StringNumber));
           return FALSE;
         }
-        AddUndoData(CurPtr->EditLine.GetStringAddrW(),StringNumber,
-                    CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
-        CurPtr->EditLine.ReplaceTabs();
+        AddUndoData(CurPtr->GetStringAddrW(),StringNumber,
+                    CurPtr->GetCurPos(),UNDO_EDIT);
+        CurPtr->ReplaceTabs();
       }
       return TRUE;
     }
@@ -5545,15 +5542,15 @@ int Editor::EditorControl(int Command,void *Param)
         newcol.StartPos=col->StartPos+(col->StartPos!=-1?X1:0);
         newcol.EndPos=col->EndPos+X1;
         newcol.Color=col->Color;
-        struct EditList *CurPtr=GetStringByNumber(col->StringNumber);
+        Edit *CurPtr=GetStringByNumber(col->StringNumber);
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",col->StringNumber));
           return FALSE;
         }
         if (col->Color==0)
-          return(CurPtr->EditLine.DeleteColor(newcol.StartPos));
-        CurPtr->EditLine.AddColor(&newcol);
+          return(CurPtr->DeleteColor(newcol.StartPos));
+        CurPtr->AddColor(&newcol);
       }
       return TRUE;
     }
@@ -5567,14 +5564,14 @@ int Editor::EditorControl(int Command,void *Param)
       else
       {
         struct EditorColor *col=(struct EditorColor *)Param;
-        struct EditList *CurPtr=GetStringByNumber(col->StringNumber);
+        Edit *CurPtr=GetStringByNumber(col->StringNumber);
         if (!CurPtr || IsBadWritePtr(col,sizeof(struct EditorColor)))
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL or IsBadWritePtr(col,sizeof(struct EditorColor)",col->StringNumber));
           return FALSE;
         }
         struct ColorItem curcol;
-        if (!CurPtr->EditLine.GetColor(&curcol,col->ColorItem))
+        if (!CurPtr->GetColor(&curcol,col->ColorItem))
         {
           _ECTLLOG(SysLog("GetColor() return NULL"));
           return FALSE;
@@ -5748,8 +5745,8 @@ int Editor::SetBookmark(DWORD Pos)
   if(Pos < BOOKMARK_COUNT)
   {
     SavePos.Line[Pos]=NumLine;
-    SavePos.Cursor[Pos]=CurLine->EditLine.GetCurPos();
-    SavePos.LeftPos[Pos]=CurLine->EditLine.GetLeftPos();
+    SavePos.Cursor[Pos]=CurLine->GetCurPos();
+    SavePos.LeftPos[Pos]=CurLine->GetLeftPos();
     SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
     return TRUE;
   }
@@ -5763,11 +5760,11 @@ int Editor::GotoBookmark(DWORD Pos)
     if (SavePos.Line[Pos]!=0xffffffff)
     {
       GoToLine(SavePos.Line[Pos]);
-      CurLine->EditLine.SetCurPos(SavePos.Cursor[Pos]);
-      CurLine->EditLine.SetLeftPos(SavePos.LeftPos[Pos]);
+      CurLine->SetCurPos(SavePos.Cursor[Pos]);
+      CurLine->SetLeftPos(SavePos.LeftPos[Pos]);
       TopScreen=CurLine;
-      for (DWORD I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
-        TopScreen=TopScreen->Prev;
+      for (DWORD I=0;I<SavePos.ScreenLine[Pos] && TopScreen->m_prev!=NULL;I++)
+        TopScreen=TopScreen->m_prev;
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();
       Show();
@@ -5777,7 +5774,7 @@ int Editor::GotoBookmark(DWORD Pos)
   return FALSE;
 }
 
-struct EditList * Editor::GetStringByNumber(int DestLine)
+Edit * Editor::GetStringByNumber(int DestLine)
 {
   if (DestLine==NumLine || DestLine<0)
     return(CurLine);
@@ -5786,10 +5783,10 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
 
   if (DestLine>NumLine)
   {
-    struct EditList *CurPtr=CurLine;
+    Edit *CurPtr=CurLine;
     for (int Line=NumLine;Line<DestLine;Line++)
     {
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
       if (CurPtr==NULL)
         return(NULL);
     }
@@ -5798,10 +5795,10 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
 
   if (DestLine<NumLine && DestLine>NumLine/2)
   {
-    struct EditList *CurPtr=CurLine;
+    Edit *CurPtr=CurLine;
     for (int Line=NumLine;Line>DestLine;Line--)
     {
-      CurPtr=CurPtr->Prev;
+      CurPtr=CurPtr->m_prev;
       if (CurPtr==NULL)
         return(NULL);
     }
@@ -5809,10 +5806,10 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
   }
 
   {
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     for (int Line=0;Line<DestLine;Line++)
     {
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
       if (CurPtr==NULL)
         return(NULL);
     }
@@ -5827,14 +5824,14 @@ void Editor::SetReplaceMode(int Mode)
 
 int Editor::GetLineCurPos()
 {
-  return CurLine->EditLine.GetTabCurPos();
+  return CurLine->GetTabCurPos();
 }
 
 void Editor::BeginVBlockMarking()
 {
     UnmarkBlock();
     VBlockStart=CurLine;
-    VBlockX=CurLine->EditLine.GetTabCurPos();
+    VBlockX=CurLine->GetTabCurPos();
     VBlockSizeX=0;
     VBlockY=NumLine;
     VBlockSizeY=1;
@@ -5889,7 +5886,7 @@ void Editor::AdjustVBlock(int PrevX)
 */
 void Editor::Xlat()
 {
-  struct EditList *CurPtr;
+  Edit *CurPtr;
   int Line;
   BOOL DoXlat=FALSE;
 
@@ -5897,20 +5894,20 @@ void Editor::Xlat()
   {
     CurPtr=VBlockStart;
 
-    for (Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
+    for (Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->m_next)
     {
-      int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
-      int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
-                      CurPtr->EditLine.TabPosToReal(VBlockX);
+      int TBlockX=CurPtr->TabPosToReal(VBlockX);
+      int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+                      CurPtr->TabPosToReal(VBlockX);
       const wchar_t *CurStr,*EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryStringW(&CurStr,&EndSeq,Length);
+      CurPtr->GetBinaryStringW(&CurStr,&EndSeq,Length);
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;
-      AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,0,UNDO_EDIT);
+      AddUndoData(CurPtr->GetStringAddrW(),BlockStartLine+Line,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      ::XlatW(CurPtr->EditLine.Str,TBlockX,TBlockX+CopySize,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+      ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
     }
     DoXlat=TRUE;
   }
@@ -5927,23 +5924,23 @@ void Editor::Xlat()
       while (CurPtr!=NULL)
       {
         int StartSel,EndSel;
-        CurPtr->EditLine.GetSelection(StartSel,EndSel);
+        CurPtr->GetSelection(StartSel,EndSel);
         if (StartSel==-1)
           break;
         if(EndSel == -1)
-          EndSel=wcslen(CurPtr->EditLine.Str);
-        AddUndoData(CurPtr->EditLine.GetStringAddrW(),BlockStartLine+Line,0,UNDO_EDIT);
-        ::XlatW(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+          EndSel=wcslen(CurPtr->Str);
+        AddUndoData(CurPtr->GetStringAddrW(),BlockStartLine+Line,0,UNDO_EDIT);
+        ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
-        CurPtr=CurPtr->Next;
+        CurPtr=CurPtr->m_next;
       }
       DoXlat=TRUE;
     }
     else
     {
-      wchar_t *Str=CurLine->EditLine.Str;
-      int start=CurLine->EditLine.GetCurPos(), end, StrSize=wcslen(Str);
+      wchar_t *Str=CurLine->Str;
+      int start=CurLine->GetCurPos(), end, StrSize=wcslen(Str);
       /* $ 10.12.2000 IS
          Обрабатываем только то слово, на котором стоит курсор, или то слово,
          что находится левее позиции курсора на 1 символ
@@ -5968,8 +5965,8 @@ void Editor::Xlat()
         end=start+1;
         while(end<StrSize && !IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[end]))
           end++;
-        AddUndoData(CurLine->EditLine.GetStringAddrW(),NumLine,start,UNDO_EDIT);
-        ::XlatW(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
+        AddUndoData(CurLine->GetStringAddrW(),NumLine,start,UNDO_EDIT);
+        ::XlatW(Str,start,end,CurLine->TableSet,Opt.XLat.Flags);
       }
       /* 12.01.2004 IS */
      /* IS $ */
@@ -5996,11 +5993,11 @@ void Editor::SetTabSize(int NewSize)
                           на самом деле изменился */
   {
     EdOpt.TabSize=NewSize;
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->EditLine.SetTabSize(NewSize);
-      CurPtr=CurPtr->Next;
+      CurPtr->SetTabSize(NewSize);
+      CurPtr=CurPtr->m_next;
     }
   }
 }
@@ -6013,15 +6010,15 @@ void Editor::SetConvertTabs(int NewMode)
                               на самом деле изменился */
   {
     EdOpt.ExpandTabs=NewMode;
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->EditLine.SetConvertTabs(NewMode);
+      CurPtr->SetConvertTabs(NewMode);
 
       if ( NewMode == EXPAND_ALLTABS )
-        CurPtr->EditLine.ReplaceTabs();
+        CurPtr->ReplaceTabs();
 
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
     }
   }
 }
@@ -6036,11 +6033,11 @@ void Editor::SetDelRemovesBlocks(int NewMode)
   if(NewMode!=EdOpt.DelRemovesBlocks)
   {
     EdOpt.DelRemovesBlocks=NewMode;
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->EditLine.SetDelRemovesBlocks(NewMode);
-      CurPtr=CurPtr->Next;
+      CurPtr->SetDelRemovesBlocks(NewMode);
+      CurPtr=CurPtr->m_next;
     }
   }
 }
@@ -6050,11 +6047,11 @@ void Editor::SetPersistentBlocks(int NewMode)
   if(NewMode!=EdOpt.PersistentBlocks)
   {
     EdOpt.PersistentBlocks=NewMode;
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->EditLine.SetPersistentBlocks(NewMode);
-      CurPtr=CurPtr->Next;
+      CurPtr->SetPersistentBlocks(NewMode);
+      CurPtr=CurPtr->m_next;
     }
   }
 }
@@ -6068,11 +6065,11 @@ void Editor::SetCursorBeyondEOL(int NewMode)
   if(NewMode!=EdOpt.CursorBeyondEOL)
   {
     EdOpt.CursorBeyondEOL=NewMode;
-    struct EditList *CurPtr=TopList;
+    Edit *CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->EditLine.SetEditBeyondEnd(NewMode);
-      CurPtr=CurPtr->Next;
+      CurPtr->SetEditBeyondEnd(NewMode);
+      CurPtr=CurPtr->m_next;
     }
   }
   /* $ 16.10.2001 SKV
@@ -6123,24 +6120,24 @@ void Editor::PR_EditorShowMsg(void)
 }
 
 
-EditList *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
+Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 {
-	EditList *pEdit = new EditList (this);
+	Edit *pEdit = new Edit (this);
 
 	if ( pEdit ) 
 	{
-		pEdit->Next = NULL;
-		pEdit->Prev = NULL;
-		pEdit->EditLine.SetTabSize (EdOpt.TabSize);
-		pEdit->EditLine.SetPersistentBlocks (EdOpt.PersistentBlocks);
-		pEdit->EditLine.SetConvertTabs (EdOpt.ExpandTabs);
-		pEdit->EditLine.SetCurPos (0);
-		pEdit->EditLine.SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
-		pEdit->EditLine.SetEditorMode (TRUE);
-		pEdit->EditLine.SetWordDiv (EdOpt.strWordDiv);
+		pEdit->m_next = NULL;
+		pEdit->m_prev = NULL;
+		pEdit->SetTabSize (EdOpt.TabSize);
+		pEdit->SetPersistentBlocks (EdOpt.PersistentBlocks);
+		pEdit->SetConvertTabs (EdOpt.ExpandTabs);
+		pEdit->SetCurPos (0);
+		pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+		pEdit->SetEditorMode (TRUE);
+		pEdit->SetWordDiv (EdOpt.strWordDiv);
 
 		if ( lpwszStr )
-			pEdit->EditLine.SetBinaryStringW (lpwszStr, nLength);
+			pEdit->SetBinaryStringW (lpwszStr, nLength);
 	}
 
 	return pEdit;
@@ -6148,7 +6145,7 @@ EditList *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 
 bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
 {
-	EditList *pNewEdit = CreateString (lpwszStr, nLength);
+	Edit *pNewEdit = CreateString (lpwszStr, nLength);
 
 	if ( !pNewEdit )
 		return false;
@@ -6157,14 +6154,14 @@ bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
 		TopList = EndList = TopScreen = CurLine = pNewEdit;
 	else
 	{
-		EditList *PrevPtr;
+		Edit *PrevPtr;
 
-		EndList->Next = pNewEdit;
+		EndList->m_next = pNewEdit;
 
 		PrevPtr = EndList;
-		EndList = EndList->Next;
-		EndList->Prev = PrevPtr;
-		EndList->Next = NULL;
+		EndList = EndList->m_next;
+		EndList->m_prev = PrevPtr;
+		EndList->m_next = NULL;
 	}
 
 	NumLastLine++;

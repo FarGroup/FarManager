@@ -46,7 +46,11 @@ class Edit:public ScreenObject
   friend class Dialog;
   friend class Editor;
 
-  private:
+public:
+	Edit  *m_next;
+	Edit  *m_prev;
+
+private:	
 //    char  *Str;
     wchar_t *Str;
 
@@ -111,7 +115,7 @@ class Edit:public ScreenObject
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
   public:
-    Edit();
+    Edit(ScreenObject *pOwner = NULL);
     ~Edit();
 
   public:
@@ -235,16 +239,6 @@ class Edit:public ScreenObject
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
     void SetWordDiv(const wchar_t *WordDiv){Edit::WordDiv=WordDiv;}
-};
-
-
-struct EditList
-{
-  struct EditList *Prev;
-  struct EditList *Next;
-  Edit EditLine;
-
-  EditList (ScreenObject *pOwner) { EditLine.SetOwner (pOwner); }
 };
 
 #endif  // __EDIT_HPP__
