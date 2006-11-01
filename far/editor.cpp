@@ -243,16 +243,9 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
   if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
   {
     unsigned __int64 RealSizeFile;
-    DWORD dwHiPart, dwLoPart;
 
-    SetLastError(NO_ERROR);
-
-    dwLoPart = GetFileSize(hEdit, &dwHiPart);
-
-    if (GetLastError() == NO_ERROR) //BUGBUG!
+    if ( apiGetFileSize(hEdit, &RealSizeFile) )
     {
-      RealSizeFile = dwHiPart*_ui64(0x100000000)+dwLoPart;
-
       unsigned __int64 NeedSizeFile = EdOpt.FileSizeLimitHi*_ui64(0x100000000)+EdOpt.FileSizeLimitLo;
       if(RealSizeFile > NeedSizeFile)
       {

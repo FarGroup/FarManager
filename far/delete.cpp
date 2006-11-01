@@ -817,13 +817,14 @@ int RemoveToRecycleBinW(const wchar_t *Name)
 
 int WipeFileW(const wchar_t *Name)
 {
-  DWORD FileSize;
+  unsigned __int64 FileSize;
   HANDLE WipeHandle;
   SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
   WipeHandle=FAR_CreateFileW(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
-  if ((FileSize=GetFileSize(WipeHandle,NULL))==0xFFFFFFFF)
+
+  if ( !apiGetFileSize(WipeHandle, &FileSize) )
   {
     CloseHandle(WipeHandle);
     return(FALSE);
@@ -834,7 +835,7 @@ int WipeFileW(const wchar_t *Name)
   DWORD Written;
   while (FileSize>0)
   {
-    DWORD WriteSize=Min((DWORD)BufSize,FileSize);
+    DWORD WriteSize=Min((unsigned __int64)BufSize,FileSize);
     WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
     FileSize-=WriteSize;
   }

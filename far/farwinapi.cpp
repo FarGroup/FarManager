@@ -525,3 +525,23 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 
     return FALSE;
 }
+
+BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize)
+{
+	DWORD dwHi, dwLo;
+
+	dwLo = GetFileSize (hFile, &dwHi);
+
+	int nError = GetLastError();
+	SetLastError (nError);
+
+	if ( (dwLo == INVALID_FILE_SIZE) && (nError != NO_ERROR) )
+		return FALSE;
+	else
+	{
+		if ( pSize )
+			*pSize = dwHi*_ui64(0x100000000)+dwLo;
+
+		return TRUE;
+	}
+}

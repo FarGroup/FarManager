@@ -1245,6 +1245,7 @@ void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest);
 void apiFreeFindData (FAR_FIND_DATA *pData);
 
 BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData);
+BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 
