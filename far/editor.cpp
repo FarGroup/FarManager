@@ -80,7 +80,7 @@ Editor::Editor()
 
   Pasting=0;
   NumLine=0;
-  NumLastLine=1;
+  NumLastLine=0;
   LastChangeStrPos=0;
   BlockStart=NULL;
   BlockStartLine=0;
@@ -103,10 +103,10 @@ Editor::Editor()
   MaxRightPos=0;
   UndoSavePos=0;
   Editor::EditorID=::EditorID++;
-  Flags.Set(FEDITOR_OPENFAILED); // Ну, блин. Файл то еще не открыт,
-                                  // так нефига ставить признак удачного открытия
 
   HostFileEditor=NULL;
+
+  AddString (NULL, 0);
 }
 
 
@@ -139,6 +139,8 @@ void Editor::FreeAllocatedData()
     xf_free(UndoData);
     UndoData=NULL;
   }
+
+  NumLastLine = 0;
 }
 
 void Editor::KeepInitParameters()
@@ -182,8 +184,8 @@ void Editor::KeepInitParameters()
   EditorInitAnsiText=AnsiText;
 }
 
-
-int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
+/*
+int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
 {
   FILE *EditFile;
   Edit *PrevPtr;
@@ -191,6 +193,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
 
   UserBreak=0;
   Flags.Clear(FEDITOR_OPENFAILED);
+
 
   HANDLE hEdit = FAR_CreateFileW (
       Name,
@@ -234,12 +237,8 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
     Flags.Set(FEDITOR_OPENFAILED);
     return FALSE;
   }
+ 
 
-  /* $ 29.11.2000 SVS
-   + Проверка на минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открытия подобного
-     файла на редактирование
-  */
   if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
   {
     unsigned __int64 RealSizeFile;
@@ -272,52 +271,24 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
       }
     }
   }
-  /* SVS $ */
-  /* $ 29.11.2000 SVS
-     Если файл имеет атрибут ReadOnly или System или Hidden,
-     то сразу лочим файл - естественно отключаемо.
-  */
-  /* $ 03.12.2000 SVS
-     System или Hidden - задаются отдельно
-  */
-  /* $ 15.12.2000 SVS
-     Разумнее сначала проверить то, что вернула GetFileAttributes() :-)
-  */
   {
-    /* $ 12.02.2001 IS
-         Запомним атрибуты
-    */
     DWORD FileAttributes=HostFileEditor?HostFileEditor->GetFileAttributes(Name):(DWORD)-1;
     if((EdOpt.ReadOnlyLock&1) &&
        FileAttributes != -1 &&
        (FileAttributes &
           (FILE_ATTRIBUTE_READONLY|
-             /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
-                поэтому применяем маску 0110.0000 и
-                сдвигаем на свое место => 0000.0110 и получаем
-                те самые нужные атрибуты  */
              ((EdOpt.ReadOnlyLock&0x60)>>4)
           )
        )
      )
-    /* IS $ */
       Flags.Swap(FEDITOR_LOCKMODE);
   }
-  /* SVS 15.12.2000 $ */
-  /* SVS 03.12.2000 $ */
-  /* SVS $ */
-
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     GetFileString GetStr(EditFile);
     //SaveScreen SaveScr;
     NumLastLine=0;
-    /* $ 12.01.2002 IS
-       Удалось открыть файл, определим символы конца строки на основе его
-       содержания, а пока просто сбросим их.
-    */
     *GlobalEOL=0;
-    /* IS $ */
     wchar_t *Str;
     int StrLength,GetCode;
 
@@ -397,10 +368,12 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
       NumLine++;
     }
     TopScreen=CurLine=CurPtr;
+
+    ParseCacheParams (pp);
+    //LoadFromCache (Name);
+
     if (EdOpt.SavePos && CtrlObject!=NULL)
     {
-      /* $ 14.01.2001 tran
-         LeftPos надо было инициализировать... */
       unsigned int Line,ScreenLine,LinePos,LeftPos=0;
 
       string strCacheName;
@@ -481,8 +454,6 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
   else
     if (StartLine!=-1 || EdOpt.SavePos && CtrlObject!=NULL)
     {
-      /* $ 14.01.2001 tran
-         LeftPos надо было инициализировать... */
       unsigned int Line,ScreenLine,LinePos,LeftPos=0;
       if (StartLine!=-1)
       {
@@ -576,20 +547,12 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
   if (UseDecodeTable)
     for (Edit *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next)
       CurPtr->SetTables(&TableSet);
-  /* $ 25.07.2001 IS
-       Принудительно сбросим номер таблицы символов, т.к. никаких таблиц
-       символов не используется (UseDecodeTable==FALSE)
-  */
   else
     TableNum=0;
-  /* IS $ */
 
-  //CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_READ",__LINE__));
-  //CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
-  //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
 }
+*/
 
 // преобразование из буфера в список
 int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
@@ -6160,6 +6123,57 @@ bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
 	NumLastLine++;
 
 	return true;
+}
+
+void Editor::SetCacheParams (EditorCacheParams *pp)
+{
+	memcpy (&SavePos, &pp->SavePos, sizeof (InternalEditorBookMark));
+
+	m_codepage = pp->Table;
+
+	if ( pp->ScreenLine > static_cast<DWORD>(ObjHeight))//ScrY //BUGBUG
+		pp->ScreenLine=ObjHeight;//ScrY;
+
+	if ( pp->Line >= pp->ScreenLine)
+	{
+		Lock ();
+		GoToLine (pp->Line-pp->ScreenLine);
+		TopScreen = CurLine;
+
+		for (unsigned int I=0; I < pp->ScreenLine; I++)
+			ProcessKey(KEY_DOWN);
+
+		CurLine->SetTabCurPos(pp->LinePos);
+		CurLine->SetLeftPos(pp->LeftPos);
+
+		Unlock ();
+	}
+}
+
+void Editor::GetCacheParams (EditorCacheParams *pp)
+{
+	memset (pp, 0, sizeof (EditorCacheParams));
+
+	pp->Line = NumLine;
+	pp->ScreenLine = CalcDistance(TopScreen, CurLine,-1);
+	pp->LinePos = CurLine->GetTabCurPos();
+	pp->LeftPos = CurLine->GetLeftPos();
+
+	pp->Table = m_codepage; //BUGBUG
+
+	if( Opt.EdOpt.SaveShortPos )
+		memcpy (&pp->SavePos, &SavePos, sizeof (InternalEditorBookMark));
+}
+
+
+void Editor::SetCodePage (int codepage)
+{
+	m_codepage = codepage;
+}
+
+void Editor::GetCodePage (int &codepage)
+{
+	codepage = codepage;
 }
 
 #endif //!defined(EDITOR2)

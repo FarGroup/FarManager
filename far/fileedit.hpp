@@ -41,8 +41,11 @@ enum FFILEEDIT_FLAGS{
   FFILEEDIT_SAVETOSAVEAS   = 0x00200000,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
                                           //   При редактировании найденного файла из архива для
                                           //   клавиши F2 сделать вызов ShiftF2.
-  FFILEEDIT_ISNEWFILE      = 0x00400000,
-  FFILEEDIT_SAVEWQUESTIONS = 0x00800000,  // сохранить без вопросов
+  FFILEEDIT_ISNEWFILE             = 0x00400000,
+  FFILEEDIT_SAVEWQUESTIONS        = 0x00800000,  // сохранить без вопросов
+  FFILEEDIT_OPENFAILED            = 0x01000000,  // файл открыть не удалось
+  FFILEEDIT_DELETEONCLOSE         = 0x02000000,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
+  FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // удалить в деструкторе только файл
 };
 
 
@@ -194,6 +197,9 @@ class FileEditor:public Frame
 
     void GetEditorOptions(struct EditorOptions& EdOpt);
     void SetEditorOptions(struct EditorOptions& EdOpt);
+
+    bool LoadFromCache (EditorCacheParams *pp);
+    void SaveToCache ();
 };
 
 #endif  // __FILEEDITOR_HPP__

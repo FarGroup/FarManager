@@ -28,6 +28,19 @@ struct InternalEditorBookMark{
   DWORD LeftPos[BOOKMARK_COUNT];
 };
 
+
+struct EditorCacheParams {
+	int Line;
+	int LinePos;
+	int ScreenLine;
+	int LeftPos;
+	int Table; //CODEPAGE!!! //BUGBUG
+
+	InternalEditorBookMark SavePos;
+};
+
+
+
 struct EditorUndoData
 {
   int Type;
@@ -39,9 +52,6 @@ struct EditorUndoData
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 enum FLAGS_CLASS_EDITOR{
-  FEDITOR_DELETEONCLOSE         = 0x00000100,   // 10.10.2001 IS: Если TRUE, то удалить
-                                                // в деструкторе файл вместе с каталогом
-                                                // (если тот пуст)
   FEDITOR_MODIFIED              = 0x00000200,
   FEDITOR_JUSTMODIFIED          = 0x00000400,   // 10.08.2000 skv: need to send EE_REDRAW 2.
                                                 // set to 1 by TextChanged, no matter what
@@ -57,18 +67,13 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00100000,   // TRUE, если позиция в редакторе была изменена
                                                 // плагином (ECTL_SETPOSITION)
   FEDITOR_TABLECHANGEDBYUSER    = 0x00200000,
-  FEDITOR_OPENFAILED            = 0x00400000,
   FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
-
-  /* $ 14.06.2002 IS
-     Если флаг взведен и нет FEDITOR_DELETEONCLOSE, то удалить только файл
-  */
-  FEDITOR_DELETEONLYFILEONCLOSE = 0x01000000,
-  /* IS $ */
   FEDITOR_PROCESSCTRLQ          = 0x02000000, // нажата Ctrl-Q и идет процесс вставки кода символа
 };
 
 class Edit;
+
+
 
 class Editor:public ScreenObject
 {
@@ -135,9 +140,13 @@ class Editor:public ScreenObject
     /* $ KM */
 
     struct CharTableSet TableSet;
+
+
     int UseDecodeTable;
     int TableNum;
     int AnsiText;
+
+    int m_codepage; //BUGBUG
 
     int StartLine;
     int StartChar;
@@ -212,7 +221,12 @@ class Editor:public ScreenObject
     ~Editor();
 
   public:
-    int ReadFile(const wchar_t *Name,int &UserBreak);               // преобразование из файла в список
+
+    void SetCacheParams (EditorCacheParams *pp);
+    void GetCacheParams (EditorCacheParams *pp);
+
+    void SetCodePage (int codepage); //BUGBUG
+    void GetCodePage (int &codepage); //BUGBUG
 
     int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
     int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер

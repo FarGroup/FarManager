@@ -30,6 +30,8 @@ fileedit.cpp
 #include "cmdline.hpp"
 #include "scrbuf.hpp"
 #include "savescr.hpp"
+#include "chgprior.hpp"
+#include "filestr.hpp"
 
 
 FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
@@ -95,58 +97,16 @@ FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
 */
 FileEditor::~FileEditor()
 {
-  _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
-
   //AY: флаг оповещающий закрытие редактора.
   bClosing = true;
 
   if (FEdit->EdOpt.SavePos && CtrlObject!=NULL)
-  {
-    int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
-    int CurPos=FEdit->CurLine->GetTabCurPos();
-    int LeftPos=FEdit->CurLine->GetLeftPos();
-
-    string strCacheName;
-
-    if ( !strPluginData.IsEmpty() )
-      strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToNameW(strFullFileName));
-    else
-      strCacheName = strFullFileName;
-
-    unsigned int Table=0;
-    if (FEdit->Flags.Check(FEDITOR_TABLECHANGEDBYUSER))
-    {
-      Table=1;
-      if (FEdit->AnsiText)
-        Table=2;
-      else
-        if (FEdit->UseDecodeTable)
-          Table=FEdit->TableNum+2;
-    }
-
-    if (!FEdit->Flags.Check(FEDITOR_OPENFAILED)) // здесь БЯКА в кеш попадала :-(
-    {
-      struct TPosCache32 PosCache={0};
-      PosCache.Param[0]=FEdit->NumLine;
-      PosCache.Param[1]=ScreenLinePos;
-      PosCache.Param[2]=CurPos;
-      PosCache.Param[3]=LeftPos;
-      PosCache.Param[4]=Table;
-      if(Opt.EdOpt.SaveShortPos)
-      {
-        PosCache.Position[0]=FEdit->SavePos.Line;
-        PosCache.Position[1]=FEdit->SavePos.Cursor;
-        PosCache.Position[2]=FEdit->SavePos.ScreenLine;
-        PosCache.Position[3]=FEdit->SavePos.LeftPos;
-      }
-      CtrlObject->EditorPosCache->AddPosition(strCacheName,&PosCache);
-    }
-  }
+	SaveToCache ();
 
   BitFlags FEditFlags=FEdit->Flags;
   int FEditEditorID=FEdit->EditorID;
 
-  if (!FEditFlags.Check(FEDITOR_OPENFAILED))
+  if (!Flags.Check(FFILEEDIT_OPENFAILED))
   {
     FileEditor *save = CtrlObject->Plugins.CurEditor;
     CtrlObject->Plugins.CurEditor=this;
@@ -159,10 +119,10 @@ FileEditor::~FileEditor()
        Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
        FEDITOR_DELETEONCLOSE, то удаляем только файл.
     */
-    if (FEditFlags.Check(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE) &&
+    if ( Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
        !FrameManager->CountFramesWithName(strFullFileName))
     {
-       if(FEditFlags.Check(FEDITOR_DELETEONCLOSE))
+       if( Flags.Check(FFILEEDIT_DELETEONCLOSE))
          DeleteFileWithFolderW(strFullFileName);
        else
        {
@@ -182,9 +142,6 @@ FileEditor::~FileEditor()
   CurrentEditor=NULL;
   if (EditNamesList)
     delete EditNamesList;
-
-  _KEYMACRO(SysLog(-1));
-  _KEYMACRO(SysLog("FileEditor::~FileEditor()"));
 }
 
 void FileEditor::Init(const wchar_t *Name,const wchar_t *Title,int CreateNewFile,int EnableSwitch,
@@ -606,7 +563,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       DWORD MacroEditState=0;
       MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
       MacroEditState|=Flags.Flags&FFILEEDIT_ENABLEF6?0x00000002:0;
-      MacroEditState|=FEdit->Flags.Flags&FEDITOR_DELETEONCLOSE?0x00000004:0;
+      MacroEditState|=Flags.Flags&FFILEEDIT_DELETEONCLOSE?0x00000004:0;
       MacroEditState|=FEdit->Flags.Flags&FEDITOR_MODIFIED?0x00000008:0;
       MacroEditState|=FEdit->BlockStart?0x00000010:0;
       MacroEditState|=FEdit->VBlockStart?0x00000020:0;
@@ -1175,10 +1132,141 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 // сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 {
-  int Ret=FEdit->ReadFile(Name,UserBreak);
-  SysErrorCode=GetLastError();
-  apiGetFindDataEx (Name,&FileInfo);
-  return Ret;
+	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
+	int LastLineCR = 0, Count = 0, MessageShown=FALSE;;
+	EditorCacheParams cp;
+
+	UserBreak = 0;
+
+	FILE *EditFile;
+
+	HANDLE hEdit = FAR_CreateFileW (
+			Name,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_FLAG_SEQUENTIAL_SCAN,
+			NULL
+			);
+
+	if ( hEdit == INVALID_HANDLE_VALUE )
+	{
+		int LastError=GetLastError();
+		SetLastError(LastError);
+		
+		if ( (LastError != ERROR_FILE_NOT_FOUND) && (LastError != ERROR_PATH_NOT_FOUND) )
+		{
+			UserBreak = -1;
+			Flags.Set(FFILEEDIT_OPENFAILED);
+		}
+
+		return FALSE;
+	}
+
+	int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+
+	if ( EditHandle == -1 )
+		return FALSE;
+
+	if ( (EditFile=fdopen(EditHandle,"rb")) == NULL )
+		return FALSE;
+
+	if ( GetFileType(hEdit) != FILE_TYPE_DISK )
+	{
+		fclose(EditFile);
+		SetLastError(ERROR_INVALID_NAME);
+
+		UserBreak=-1;
+		Flags.Set(FFILEEDIT_OPENFAILED);
+		return FALSE;
+	}
+
+
+	FEdit->FreeAllocatedData ();
+
+	bool bCached = LoadFromCache (&cp);
+
+	GetFileString GetStr(EditFile);
+
+    //*GlobalEOL=0;
+
+	wchar_t *Str;
+	int StrLength,GetCode;
+
+	clock_t StartTime=clock();
+
+	int nCodePage;
+
+	if ( bCached )
+		nCodePage = cp.Table;
+	else
+	{
+		nCodePage = GetFileFormat (EditFile);
+		FEdit->SetCodePage (nCodePage); //BUGBUG
+	}
+
+	while ((GetCode=GetStr.GetStringW(&Str, nCodePage, StrLength))!=0)
+	{
+		if ( GetCode == -1 )
+		{
+			fclose(EditFile);
+			SetPreRedrawFunc(NULL);
+			return FALSE;
+		}
+
+		LastLineCR=0;
+
+		if ( (++Count & 0xfff) == 0 && (clock()-StartTime > 500) )
+		{
+			if ( CheckForEsc() )
+			{
+				UserBreak = 1;
+				fclose(EditFile);
+				SetPreRedrawFunc(NULL);
+
+				return FALSE;
+			}
+/*
+			if (!MessageShown)
+			{
+				SetCursorType(FALSE,0);
+				SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+				EditorShowMsg(UMSG(MEditTitle),UMSG(MEditReading),Name);
+				MessageShown=TRUE;
+			}
+			*/
+		}
+
+		const wchar_t *CurEOL;
+
+		if ( !LastLineCR && 
+			 ((CurEOL = wmemchr(Str,L'\r',StrLength)) != NULL ||
+			  (CurEOL=wmemchr(Str,L'\n',StrLength))!=NULL) )
+		{
+		//	xwcsncpy(GlobalEOL,CurEOL,(sizeof(GlobalEOL)-1)/sizeof(wchar_t));
+		//	GlobalEOL[sizeof(GlobalEOL)-1]=0;
+			LastLineCR=1;
+		}
+
+		FEdit->AddString (Str, StrLength);
+	}
+
+	SetPreRedrawFunc(NULL);
+
+	if ( LastLineCR )
+		FEdit->AddString (L"", sizeof (wchar_t));
+
+	fclose (EditFile);
+
+	if ( bCached )
+		FEdit->SetCacheParams (&cp);
+
+	SysErrorCode=GetLastError();
+	apiGetFindDataEx (Name,&FileInfo);
+
+	return TRUE;
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
@@ -1327,7 +1415,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
     /* $ 11.10.2001 IS
        Если было произведено сохранение с любым результатом, то не удалять файл
     */
-    FEdit->Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+    Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
     /* IS $ */
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_SAVE",__LINE__));
@@ -1825,11 +1913,11 @@ void FileEditor::SetPluginData(const wchar_t *PluginData)
 */
 void FileEditor::SetDeleteOnClose(int NewMode)
 {
-  FEdit->Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+  Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
   if(NewMode==1)
-    FEdit->Flags.Set(FEDITOR_DELETEONCLOSE);
+    Flags.Set(FFILEEDIT_DELETEONCLOSE);
   else if(NewMode==2)
-    FEdit->Flags.Set(FEDITOR_DELETEONLYFILEONCLOSE);
+    Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
 }
 /* IS $ */
 
@@ -1908,7 +1996,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_GETBOOKMARKS:
     {
-      if(!FEdit->Flags.Check(FEDITOR_OPENFAILED) && Param)
+      if( !Flags.Check(FFILEEDIT_OPENFAILED) && Param)
       {
         struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
         if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
@@ -2162,4 +2250,88 @@ int FileEditor::EditorControl(int Command,void *Param)
   }
 
   return FEdit->EditorControl(Command,Param);
+}
+
+bool FileEditor::LoadFromCache (EditorCacheParams *pp)
+{
+	memset (pp, 0, sizeof (EditorCacheParams));
+
+	string strCacheName;
+
+	if ( *GetPluginData())
+		strCacheName.Format (L"%s%s", GetPluginData(), (const wchar_t*)PointToNameW(strFullFileName));
+	else
+	{
+		strCacheName = strFullFileName;
+
+		wchar_t *lpwszCacheName = strCacheName.GetBuffer();
+
+		for(int i=0;lpwszCacheName[i];i++)
+		{
+			if(lpwszCacheName[i]==L'/')
+				lpwszCacheName[i]=L'\\';
+		}
+
+		strCacheName.ReleaseBuffer();
+	}
+
+
+	unsigned int Table;
+
+	TPosCache32 PosCache={0};
+
+	if ( CtrlObject->EditorPosCache->GetPosition(
+			strCacheName,
+			&PosCache
+			) )
+	{
+		pp->Line=PosCache.Param[0];
+		pp->ScreenLine=PosCache.Param[1];
+		pp->LinePos=PosCache.Param[2];
+		pp->LeftPos=PosCache.Param[3];
+		pp->Table=PosCache.Param[4];
+		
+		if((int)pp->Line < 0) pp->Line=0;
+		if((int)pp->ScreenLine < 0) pp->ScreenLine=0;
+		if((int)pp->LinePos < 0) pp->LinePos=0;
+		if((int)pp->LeftPos < 0) pp->LeftPos=0;
+		if((int)pp->Table < 0) pp->Table=0;
+
+		return true;
+	} 
+
+	return false;
+}
+
+void FileEditor::SaveToCache ()
+{
+	EditorCacheParams cp;
+
+	FEdit->GetCacheParams (&cp);
+
+	string strCacheName;
+
+	if ( !strPluginData.IsEmpty() )
+		strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToNameW(strFullFileName));
+	else
+		strCacheName = strFullFileName;
+
+    if ( !Flags.Check(FFILEEDIT_OPENFAILED) ) //????
+	{
+		TPosCache32 PosCache = {0};
+
+		PosCache.Param[0] = cp.Line;
+		PosCache.Param[1] = cp.ScreenLine;
+		PosCache.Param[2] = cp.LinePos;
+		PosCache.Param[3] = cp.LeftPos;
+		PosCache.Param[4] = cp.Table;
+
+		//if no position saved these are nulls	
+		PosCache.Position[0] = cp.SavePos.Line;
+		PosCache.Position[1] = cp.SavePos.Cursor;
+		PosCache.Position[2] = cp.SavePos.ScreenLine;
+		PosCache.Position[3] = cp.SavePos.LeftPos;
+
+		CtrlObject->EditorPosCache->AddPosition(strCacheName, &PosCache);
+	}
 }
