@@ -13,7 +13,7 @@ integrating FAR with the Windows shell.
 
    The "SetUp" folder contains quick setup options.
 
-    аталог "XLat" содержит перекодировочные Xlat-таблицы.
+   The "XLat" folder contains Xlat-tables for transliteration.
 
    To install any of the provided .reg files just press Shift-Enter from
 FAR on its name and restart FAR.
