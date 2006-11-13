@@ -242,4 +242,3 @@ TempPanel - build 28
 
 
                                      [FAR manager development group]
- 
