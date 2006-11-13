@@ -5,199 +5,6 @@ delete.cpp
 
 */
 
-/* Revision: 1.76 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  13.04.2006 SVS
-    ! Изменен текст текст диалогов для уничтожения файлов (Alt-Del)
-  22.12.2005 SVS
-    + вызов хелпа для диалога удаления
-  29.09.2005 SVS
-    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  20.06.2005 SVS
-    - лишний вызов ScTree.SkipDir(), подробнее see 02002.Delete.txt
-  12.05.2005 SVS
-    ! уберем лишний вызов FAR_GetDriveType
-  26.02.2005 WARP
-    - Запускатор отдавал удалятору имена в кавычках. Научил удалятор Unquote'у.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  14.04.2004 SVS
-    ! Добавим соответствующее сообщение для Alt-Del на файле, имеющем несколько жестких связей
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  15.10.2003 SVS
-    ! Изменение в подстановке - SE_ERR_DLLNOTFOUND имеет не ERROR_FILE_NOT_FOUND но ERROR_SHARING_VIOLATION
-    + Сохраним первый вариант кода возврата SHFileOperation() и именно его выдадим за результаты,
-      потому, как второй вызов SHFileOperation() возвращает 0x402 - ху из?
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  10.06.2003 SVS
-    - Для вложенных симлинков - получали ругань на отсутствие каталога
-  01.06.2003 SVS
-    ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
-  21.04.2003 SVS
-    + Opt.DelThreadPriority
-    ! Исключим лишние телодвижения, если LastError входит в диапазон
-      ошибок, определенных в функции: CheckErrorForProcessed
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-  10.02.2003 SVS
-    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
-  26.01.2003 IS
-    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать для удаления
-      соответственно файлов и каталогов.
-    ! В RemoveToRecycleBin используем механизм FAR_DeleteFile, который
-      задействуем только после неудачи удаления файла штатным образом
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-    ! немного const
-  19.01.2003 KM
-    ! Достало. При удалении большой кучи файлов постоянно
-      жать Skip на залоченных файлах.
-  17.01.2003 VVM
-    ! При удалении первый файл рисовать всегда, а уже потом раз в секунду.
-  05.01.2003 VVM
-    ! Показывать сообщения об удалении не чаще чем раз в секунду.
-  05.12.2002 SVS
-    ! Как задел на будущее (про BugZ#702) - подсуетимся и прорисуем месагбокс
-  18.06.2002 SVS
-    ! Функция IsFolderNotEmpty переименована в CheckFolder
-  30.05.2002 SVS
-    ! ShellDeleteUpdatePanels -> ShellUpdatePanels, and...
-    ! ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
-      в самостоятельные функции в mix.cpp
-  14.05.2002 VVM
-    ! Подкорректируем механизм обновления соседней панели
-  26.04.2002 SVS
-    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
-  27.03.2002 SVS
-    + Уточнение типа ошибки (MErrorFullPathNameLong) для больших размеров
-      имен.
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  22.03.2002 SVS
-    ! переезд DeleteFileWithFolder(), DeleteDirTree() из mix.cpp в
-      delete.cpp ибо здесь им место.
-  18.03.2002 SVS
-    - "Broke link" - изменялась пассивная панель (когда ее не просили)
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  22.02.2002 SVS
-    - Bug in panels refreshing after cancelling directory delete
-  13.02.2002 SVS
-    ! Уборка варнингов
-  24.01.2002 VVM
-    ! При удалении в корзину и обломе - сказать об этом под НТ
-  19.01.2002 VVM
-    ! bug#253 - сначала спросим, а уж потом выставим функцию для сообщений SetPreredrawFunc()
-  15.01.2002 SVS
-    - Бага - при удалении каталога не учитывался факт того, что на
-      противоположной подкаталог удаляемого каталога, а ФАР перед этим просил
-      OS следить за этим подкаталогом.
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  08.11.2001 SVS
-    ! Уточнение ширины - прагала падлюка.
-  06.11.2001 SVS
-    ! Ширина месага при удалении файлов и выставлении атрибутов динамически
-      меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
-  24.10.2001 SVS
-    - Уберем флаг MSG_KEEPBACKGROUND для месага.
-  23.10.2001 SVS
-    ! немного уточнений по поводу вывода текущего обрабатываемого файла
-  22.10.2001 SVS
-    - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
-      погашена - остается кусок месагбокса)
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  01.10.2001 IS
-    ! перерисовка панелей после операции удаления, чтобы убрать все ошметки от
-      сообщений
-  26.09.2001 SVS
-    + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
-      панель (если ее содержимое не равно активной).
-  25.07.2001 IS
-    ! При удалении размер сообщения такой же как и раньше (до 820).
-  19.07.2001 SVS
-    ! отмена 826-го до лучших времен (по просьбе VVM)
-  18.07.2001 VVM
-    ! При удалении выравниваем не по ширине экрана, а по длине надписи MDeleting + 8
-  13.07.2001 SVS
-    - "Гадим в память" ;-(
-  13.07.2001 IS
-    ! Приводим сообщения, содержащие имя удаляемого файла, в божеский вид при
-      помощи TruncPathStr
-  11.07.2001 OT
-    Перенос CtrlAltShift в Manager
-  09.07.2001 SVS
-    ! Небольшой антураж вокруг имени удаляемого файла.
-  19.06.2001 SVS
-    ! Удаление в корзину только для  FIXED-дисков
-  06.06.2001 SVS
-    ! Mix/Max
-  31.05.2001 OT
-    - Отрисовка MessageBox во время удаления.
-  31.05.2001 SVS
-    - не обновлялась панель после операции Unlink
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  24.04.2001 SVS
-    ! для symlink`а не нужно дополниетльное подтверждение на удаление
-  14.03.2001 SVS
-    - Неверный анализ кода возврата функции SHFileOperation(),
-      коей файл удаляется в корзину.
-  13.03.2001 SVS
-    + Обработка "удаления" линков - Part I
-  13.03.2001 SVS
-    - удаление симлинка в корзину чревато потерей оригинала!!!!!!
-  12.03.2001 SVS
-    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
-  12.03.2001 SVS
-    + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
-  07.03.2001 SVS
-    - Падение ФАРа у Веши :-)))
-  05.01.2001 SVS
-    ! в зависимости от числа ставим нужное окончание для удаления
-  05.01.2001 IS
-    ! Косметика в сообщениях - разные сообщения в зависимости от того,
-      какие и сколько элементов выделено.
-  28.11.2000 SVS
-    + Обеспечим корректную работу с SymLink (т.н. "Directory Junctions")
-  11.11.2000 SVS
-    ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
-    - исправлен небольшой баг в функциях Wipe*
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -1012,13 +819,13 @@ int RemoveToRecycleBin(const char *Name)
 
 int WipeFile(const char *Name)
 {
-  DWORD FileSize;
+  unsigned __int64 FileSize;
   HANDLE WipeHandle;
   SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   WipeHandle=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
-  if ((FileSize=GetFileSize(WipeHandle,NULL))==0xFFFFFFFF)
+  if ( !FAR_GetFileSize(WipeHandle, &FileSize) )
   {
     CloseHandle(WipeHandle);
     return(FALSE);
@@ -1029,7 +836,7 @@ int WipeFile(const char *Name)
   DWORD Written;
   while (FileSize>0)
   {
-    DWORD WriteSize=Min((DWORD)BufSize,FileSize);
+    DWORD WriteSize=Min((unsigned __int64)BufSize,FileSize);
     WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
     FileSize-=WriteSize;
   }

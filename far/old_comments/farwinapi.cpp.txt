@@ -1,0 +1,34 @@
+/*
+Modify:
+  28.08.2006 SVS
+    ! уточнение GetFileWin32FindData - дабы не выскакивал гуевый диалог, если диск эжектед.
+  10.04.2006 SVS
+    + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
+  19.06.2005 SVS
+    - BugZ#1348 - Ќе обновл€етс€ индикатор копировани€ при операци€х с флешкой
+  14.06.2005 SVS
+    + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
+  21.06.2004 SVS
+    ! FAR_GetDriveType и IsDriveTypeCDROM умчали в cddrv.cpp
+  14.06.2004 SVS
+    ! добавим вариант, когда не получилось определить (нехватка прав на доступ к девайсу) - в этом случае
+      максимум, что сможем определить - это DVD или нет.
+  09.06.2004 SVS
+    ! ѕопалс€ привод - DVD читает, но не писатель (не CD-RW) - изменена логика.
+    + работаем в NT-based (проверено так же на NT4 SP6a)
+  09.06.2004 SVS
+    - ¬от ить.... забыл, что у GetDriveType параметр может быть равен NULL.
+  08.06.2004 SVS
+    ! ¬место GetDriveType теперь вызываем FAR_GetDriveType().
+    ! ¬место "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
+  01.03.2004 SVS
+    + ќбертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
+    + FAR_ANSI - руками не мацать (уж больно трудно синхронизацией заниматьс€)
+      на "сейчас" вли€ни€ не окажет, зато потом...
+  09.10.2003 SVS
+    + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
+  01.06.2003 SVS
+    ! ¬ыделение в качестве самосто€тельного модул€
+    ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
+    ! FAR_CreateFile переехал из farrtl.cpp в farwinapi.cpp
+*/

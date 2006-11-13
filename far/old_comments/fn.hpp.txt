@@ -1,0 +1,608 @@
+/*
+Modify:
+  24.07.2006 SVS
+    + FarSnprintf()
+  12.07.2006 SVS
+    ! kill class int64
+    ! FileSizeToStr() вместо двух параметров DWORD`ов имеет один __int64
+  05.07.2006 IS
+    - warnings
+  03.07.2006 SVS
+    ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
+  29.06.2006 SVS
+    ! Bath -> Batch
+    ! Execute + доп параметр (Mantis#204)
+  28.06.2006 SVS
+    + IsBathExtType(), BathFileExist()
+  29.05.2006 SVS
+    + CheckInitSetupAPI()
+  25.05.2006 SVS
+    + InitializeSetupAPI (), FinalizeSetupAPI ();
+  24.05.2006 SVS
+    + ProcessRemoveHotplugDevice()
+  23.04.2006 AY
+    ! Убираем SetUpDirs из Execute().
+  10.04.2006 SVS
+    + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
+  02.03.2006 SVS
+    ! EnumRegValue - доп параметр, для переменной типа REG_QWORD.
+    + Добавлены фунцкии по работе с реестром с типом REG_QWORD: SetRegKey64, GetRegKey64 (в двух видах)
+  20.02.2006 SVS
+    ! У ConvertNameToShort новый параметр - размер для Dest
+  09.02.2006 AY
+    ! Изменения в GetColorDialog()
+  06.12.2005 AY
+    + PointToNameUNC()
+  04.10.2005 SVS
+    ! Изменения в CheckDisksProps()
+  30.09.2005 SVS
+    + CheckDisksProps() - функция проверки 2-х файловых систем
+  29.09.2005 SVS
+    ! последние параметры GetDirInfo() => флаг
+  09.09.2005 SVS
+    ! Функционал получения имени компьютера по текущему пути вынесен в
+      отдельную функцию CurPath2ComputerName()
+  13.07.2005 SVS
+    + PanelViewSettings_Dump()
+  23.06.2005 SVS
+    + WIN32_FIND_DATA_Dump()
+    + макрос для t-rex`а -> _TREX()
+  19.06.2005 SVS
+    + Init_CopyFileEx()
+  14.06.2005 SVS
+    + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
+  30.05.2005 SVS
+    ! изменены FAR_GetDriveType и IsEjectableMedia
+  06.05.2005 SVS
+    + RemoveUSBDrive(), IsDriveUsb()
+  26.04.2005 SVS
+    ! У GetShortcutFolder добавлен параметр - скока брать на грудь для пути.
+    + Функция GetShortcutFolderSize() - возвращает размер для ShortcutN
+  24.04.2005 AY
+    ! GCC
+  23.04.2005 KM
+    ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
+  05.04.2005 SVS
+    + У GetText() появился доп параметр - скока читать.
+  05.03.2005 SVS
+    ! Изменена функция EnumRegValue()
+       - добавлен параметр LPDWORD (для полечения REG_DWORD)
+       - возвращает тип значения.
+  31.01.2005 SVS
+    ! В GetMenuHotKey() новый параметр - "имя плагина"
+  21.01.2005 SVS
+    + GetVolumeInformation_Dump
+  11.11.2004 SVS
+    + _MakePath1()
+  09.11.2004 SVS
+    + макрос _WARP
+  28.10.2004 SVS
+    + UnquoteExternal() - удаление внешних кавычек
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
+  07.07.2004 SVS
+    ! Macro II
+    + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
+  06.07.2004 SVS
+    + GetMacroParseError (Macro II)
+  01.07.2004 SVS
+    ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
+  30.06.2004 SVS
+   + initMacroVarTable(), doneMacroVarTable(), eStackAsString()
+     (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
+  21.06.2004 SVS
+   + GetCDDeviceCaps(), GetCDDeviceTypeByCaps();
+   ! У FAR_GetDriveType добавился опциональный параметр - для CD
+     возвращается тип читаемых дисков - CDROM_DeviceCaps.
+  14.06.2004 SVS
+    + добавки MACRODRIVE2
+  14.06.2004 SVS
+    + UnExpandEnvString() и PathUnExpandEnvStr().
+  08.06.2004 SVS
+    + FAR_GetDriveType(), IsDriveTypeCDROM()
+  31.05.2004 SVS
+    ! ReplaceStrings - последний параметр - не различать "высоту" букв
+  07.05.2004 SVS
+    + PartCmdLine(), ProcessOSAliases()
+  05.05.2004 SVS
+    + IsEjectableMedia() - возвращает TRUE, если медию можно "выкинуть"
+    ! оконстантим параметр у конструктора CleverSysLog()
+  22.04.2004 SVS
+    + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
+  01.03.2004 SVS
+    + Обертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
+  19.02.2004 SVS
+    + BoxTextW2()
+  09.02.2004 SVS
+    ! SetRegKey возвращают значения!
+    + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
+  12.01.2004 SVS
+    ! Корректировка CalcWordFromString с учетом IsWordDiv()
+  12.01.2004 IS
+   + IsWordDiv - функция для сверки символа с разделителями слова
+     с учетом текущей кодировки
+  26.10.2003 KM
+    ! Изменение входных параметров у Transform.
+  16.10.2003 SVS
+    ! функции, возвращающие код клавиши возвращают не int, а DWORD
+  09.10.2003 SVS
+    + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
+  23.09.2003 KM
+    + Transform() - преобразует строку в hex представление и обратно.
+  02.09.2003 SVS
+    ! Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
+    ! У CheckFolder - параметр есть "const"
+  02.09.2003 SVS
+    ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
+    + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
+      контент каталога можно "прочитать"
+  11.07.2003 SVS
+    + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
+    + NumStrcmp() - "цифровое" сравнение двух строк
+    + __PrepareKMGTbStr() - переинициализация массива KMGTbStr
+  15.06.2003 SVS
+    ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
+      (добавлен еще один параметр)
+  14.06.2003 IS
+    ! CheckParseJunction -> IsLocalDrive
+  06.06.2003 SVS
+    + SIDCacheFlush()
+  05.06.2003 SVS
+    ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
+  19.05.2003 SVS
+    + DialogSettings()
+  14.05.2003 SVS
+    + GetOpenPluginInfo_Dump()
+  12.05.2003 SVS
+    ! EditFileTypes() теперь без параметра.
+    + RenumKeyRecord() делает перенумерацию итемов
+  06.05.2003 SVS
+    ! W-Console!!!
+    + SetRealColor()
+  21.04.2003 SVS
+    + IsLocalRootPath()
+    + InternalPasteFromClipboard(int AnsiMode);
+    + InternalPasteFromClipboardEx(int max,int AnsiMode)
+    + InternalCopyToClipboard(const char *Data,int AnsiMode);
+  31.03.2003 SVS
+    + _EE_ToName(), _EEREDRAW_ToName()
+    + SYSLOG_EE_REDRAW
+  05.03.2003 SVS
+    + SYSLOG_COPYR
+    + CheckParseJunction
+  20.02.2003 SVS
+    + TestParentFolderName() - вместо strcmp(Name,"..")
+    ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
+  18.02.2003 SVS
+    + _ESPT_ToName + _SysLog_LinearDump
+  26.01.2003 IS
+    + FAR_DeleteFile, FAR_RemoveDirectory просьба только их использовать
+      для удаления соответственно файлов и каталогов.
+    + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+    + INPUT_RECORD_DumpBuffer() - дамп оставшихся эвентов в консольной очереди
+  10.01.2003 SVS
+    + FAR_EmptyClipboard()
+  03.01.2003 SVS
+    + FARGetKeybLayoutName
+  21.12.2002 SVS
+    ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
+      "не рефрешить панели!"
+  10.12.2002 SVS
+    + ManagerClass_Dump()
+  05.12.2002 SVS
+    + MkStrFTime()
+  07.11.2002 SVS
+    + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
+      (доступно только под дебугинфой)
+  04.10.2002 SVS
+    + ConvertCurrentPalette()
+  18.09.2002 VVM
+    + SheckForEscSilent() - проверить на ESC безо всяких запросов пользователя
+    + CinfirmAbortOp()    - спросить у пользователя подтверждение прерывания
+  17.09.2002 SVS
+    + DrawLine()
+  23.08.2002 SVS
+    + SaveScreenDumpBuffer()
+    + _GetRealText/_PutRealText - обобщенные функции
+  21.08.2002 SVS
+    ! WaitKey теперь возвращает код нажатой клавиши
+  02.07.2002 SVS
+    + _PluginsStackItem_Dump() - дамп стека плагинов
+  18.06.2002 SVS
+    ! Функция IsFolderNotEmpty переименована в CheckFolder
+  04.06.2002 SVS
+    + TextToCharInfo
+    ! Немного const
+  31.05.2002 SVS
+    ! GetVidChar стал inline в fn.hpp, код, ответственный за юникод
+      перекочевал в GetVidCharW (из-за "for").
+    ! SetVidChar стал inline
+  30.05.2002 SVS
+    + InitRecodeOutTable()
+    ! GetVidChar и SetVidChar оперируют байтами
+  30.05.2002 SVS
+    + ShellUpdatePanels и CheckUpdateAnotherPanel
+  28.05.2002 SVS
+    + IsLocalPath()
+  25.05.2002 IS
+    ! первый параметр у ConvertDate теперь ссылка на константу
+  24.05.2002 SVS
+    + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
+    + _FCTLLOG
+    + RunGraber()
+  22.05.2002 SVS
+    + _VCTL_ToName, _VCTLLOG
+  22.05.2002 SVS
+    + IsDiskInDrive()
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
+  16.05.2002 SVS
+    ! Лишние описания функций
+  29.04.2002 SVS
+    ! немного const
+  27.04.2002 SVS
+    ! [G|S]etShortcutFolder могут теперь иметь в качестве некоторых параметров
+      значение равное NULL
+  25.04.2002 IS
+    + const вариант PointToName
+  05.04.2002 SVS
+    + CheckShortcutFolder()
+  04.04.2002 SVS
+    ! WordWrap -> FarFormatText
+    + _ACTL_ToName
+  02.04.2002 SVS
+    + SetInitialCursorType()
+  28.03.2002 SVS
+    + ClearScreen()
+  26.03.2002 IS
+    + void InitLCIDSort();
+  26.03.2002 DJ
+    ! вынесем CharBufferTooSmallWarn() на всеобщее обозрение
+  20.03.2002 SVS
+    + FarGetCurDir()
+  20.03.2002 IS
+    ! PrepareOSIfExist теперь принимает и возвращает const
+    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
+      "name\" (оканчивается на слеш) возвращает указатель на name, а не
+      на пустую строку
+  17.03.2002 IS
+    + PrepareTable: параметр UseTableName - в качестве имени таблицы
+      использовать не имя ключа реестра, а соответствующую переменную.
+      По умолчанию - FALSE (использовать имя ключа).
+  12.03.2002 VVM
+    + Новая функция - пользователь попытался прервать операцию.
+      Зададим вопрос.
+  05.03.2002 DJ
+    ! SubstFileName() получает размер буфера
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
+  03.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
+      FarMkTemp - это для плагинов
+    + ChangeBlockColor() - изменение цвета в блоке
+  22.02.2002 SVS
+    + Добавка функций ToPercent64() и filelen64()
+    ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
+  15.02.2002 IS
+    + Новый параметр ChangeDir у FarChDir, если FALSE, то не меняем текущий
+      диск, а только устанавливаем переменные окружения. По умолчанию - TRUE.
+  13.02.2002 SVS
+    + SysLogLastError()
+  11.02.2002 SVS
+    + _DLGMSG_ToName()
+  05.02.2002 SVS
+    ! У DeleteFileWithFolder параметр имеет суть const
+    + _*_ToName() - для отладочных целей
+  05.02.2002 SVS
+    + IsNavKey(), IsShiftKey()
+  25.01.2002 SVS
+    + GetRegKeySize с уже открытым ключем HKEY hKey
+  14.01.2002 IS
+    + FarChDir - установка нужного диска и каталога и установление
+      соответствующей переменной окружения. В случае успеха возвращается
+      не ноль.
+  11.01.2002 IS
+    + InitKeysArray
+  10.01.2002 SVS
+    + SYSLOG_ECTL
+  25.12.2001 SVS
+    + AddEndSlash(char *Path,char TypeSlash) - с явно заданным слешем
+  21.12.2001 SVS
+    + CalcWordFromString - "вычисление" слова
+  07.12.2001 SVS
+    ! У Execute команда (первый параметр) - const
+  07.12.2001 IS
+    ! Два дополнительных параметра у GetString, которые используются
+      при добавлении чек-бокса.
+    + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
+      функциональностью. Сделано для того, чтобы не дублировать код GetString.
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
+  02.12.2001 SVS
+    ! PrepareDiskPath() имеет второй параметр по умолчанию TRUE
+  27.11.2001 DJ
+    + параметр Local у EditorConfig и ViewerConfig
+  26.11.2001 SVS
+    + PrepareDiskPath()
+  22.11.2001 SVS
+    + У Execute() добавлен параметр - SetUpDirs "Нужно устанавливать каталоги?"
+      Это как раз про ту войну, когда Костя "отлучил" кусок кода про
+      установку каталогов. Это понадобится гораздо позже.
+  19.11.2001 SVS
+    + ReplaceStrings - замена подстроки
+  15.11.2001 OT
+    - Исправление поведения cd c:\ на активном панельном плагине
+  06.11.2001 SVS
+    + EnumRegValue() - перечисление Values у ключа
+    ! Немного const для функции работы с реестром
+  18.10.2001 SVS
+    ! У функций Message параметр Flags имеет суть "DWORD"
+    + WordWrap()
+  15.10.2001 SVS
+    + Экспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
+    + _DIALOG & SYSLOG_DIALOG
+  07.10.2001 SVS
+    + InsertString()
+  01.10.2001 IS
+    + TruncStrFromEnd
+  26.09.2001 SVS
+    + DeleteEndSlash (с подачи IS)
+  24.09.2001 SVS
+    ! CleverSysLog - параметр у конструктора - "заголовок"
+  20.09.2001 SVS
+    ! Параметр у InputRecordToKey "const"
+  18.09.2001 SVS
+    + _ALGO & SYSLOG_ALGO - для "алгоритмов работы"
+      Внимание! Лог в последствии будет большим!
+  18.09.2001 SVS
+    + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
+  12.09.2001 SVS
+    + ConvertNameToReal()
+  09.09.2001 SVS
+    + GetMenuHotKey()
+  07.08.2001 IS
+    ! FarCharTable: второй параметр теперь не const, потому что он может
+      меняться. в FarCharTable.
+  03.08.2001 IS
+    + InsertQuote
+  31.07.2001 IS
+    ! Внедрение const (FarGetMsgFn)
+  25.07.2001 SVS
+    ! Осмысленный параметр у InitConsole.
+  11.07.2001 SVS
+    ! HiStrlen и RemoveChar - дополнительный параметр - при дублях, типа '&&'
+      "удалять ли все или оставлять только один символ"
+  06.07.2001 IS
+    ! Убрал CopyMaskStr, нефиг плодить сущности
+  04.07.2001 SVS
+    ! BoxText может рисовать вертикальный сепаратор
+  04.07.2001 SVS
+    + Функции про хип
+  02.07.2001 IS
+    + RawConvertShortNameToLongName
+  25.06.2001 IS
+    ! Внедрение const
+  22.06.2001 SVS
+    + StrFTime
+  21.06.2001 SVS
+    ! Удалена функция WriteSequenceInput() за ненадобностью
+  18.06.2001 SVS
+    + ExtractIfExistCommand()
+  11.06.2001 SVS
+    ! Новые параметры у GetSearchReplaceString()
+  08.06.2001 SVS
+    + GenerateWINDOW_BUFFER_SIZE_EVENT()
+  06.06.2001 SVS
+    ! функции получения символа юзаем пока только в режиме USE_WFUNC
+  03.06.2001 SVS
+    + GetRegKeySize() - получить размер данных
+  30.05.2001 SVS
+    ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
+  21.05.2001 OT
+    - Исправление поведения AltF9
+  16.05.2001 SVS
+   + _D(x) Для Мельникова!
+    ! DumpExceptionInfo переименован в WriteEvent и переехал в farexcpt.hpp
+    ! xfilter переехал в farexcpt.hpp
+  09.05.2001 OT
+   ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
+  07.05.2001 SVS
+   ! _D(x) для SysLog
+  07.05.2001 DJ
+   + LocalUpperFast(), LocalLowerFast(), CopyMaskStr()
+  06.05.2001 DJ
+   ! перетрях #include
+  29.04.2001 ОТ
+   + Внедрение NWZ от Третьякова
+  28.04.2001 SVS
+   + xfilter
+   + Новый параметр у DumpExceptionInfo - указатель на PluginItem.
+   + Фунция печати дампа памяти SysLogDump()
+  08.04.2001 SVS
+   ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
+   ! ExpandPATHEXT() выкинуты за ненадобностью.
+  06.04.2001 SVS
+   + ExpandPATHEXT()
+  04.04.2001 SVS
+   + MkRegKeyHighlightName
+  03.04.2001 SVS
+   + Add_PATHEXT()
+  30.03.2001 SVS
+   + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
+     скрытых логических дисков
+  29.03.2001 IS
+   ! void ViewerConfig() -> void ViewerConfig(struct ViewerOptions &ViOpt);
+  24.03.2001 tran 1.69
+   + FarQsortEx, qsortex
+  20.03.2001 tran 1.67
+   + FarRecursiveSearch - добавлен void *param
+  20.03.2001 SVS
+   + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
+     вид - выдрана из FileList::ShowList()
+  16.03.2001 SVS
+   + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
+   + GetNameAndPassword();
+  13.03.2001 SVS
+   ! GetPathRoot переехала в flink.hpp :-)
+  07.03.2001 IS
+   + DeleteEmptyKey
+  06.03.2001 SVS
+   ! InsertCommas возвращает знчение на Dest
+  28.02.2001 SVS
+   ! CenterStr возвращает указатель на Dest
+  27.02.2001 SVS
+   + BoxText(Char) - вывод одного символа
+  22.02.2001 SVS
+   + RemoveChar - удаляет символ из строки
+   ! RemoveHighlights(Str) как макрос - вызывает RemoveChar(Str,'&')
+  21.02.2001 IS
+   + EditorConfig вызывается с ссылкой на EditorOptions
+  20.02.2001 SVS
+   ! ShowSeparator - дополнительный параметр - тип сепаратора
+   + MakeSeparator - создание разделителя в памяти
+  14.02.2001 SKV
+   ! Параметр setpal для InitConsole, с default значением 1.
+     Переинитить ли палитру.
+  02.02.2001 IS
+   + RemoveUnprintableCharacters
+  28.01.2001 SVS
+   ! DumpExeptionInfo -> DumpExceptionInfo ;-)
+  27.01.2001 VVM
+   + Дополнительный параметр у GetErrorString - резмер буфера
+  25.01.2001 SVS
+   ! WriteInput - имеет дополнительный параметр - флаги
+   ! TranslateKeyToVK - имеет дополнительный параметр - указатель на эвенты.
+  23.01.2001 SVS
+   + DumpExeptionInfo()
+  23.01.2001 SVS
+   ! CalcKeyCode - новый параметр.
+  22.01.2001 SVS
+   ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
+  20.01.2001 SVS
+   + GetSearchReplaceString, WriteSequenceInput
+   ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
+  14.01.2001 SVS
+   + PrepareOSIfExist
+  05.01.2001 SVS
+   ! Функция GetSubstName переехала в flink.hpp
+  04.01.2001 SVS
+   + KeyNameMacroToKey() и TranslateKeyToVK()
+  04.01.2001 SVS
+   ! Описания MkLink, GetNumberOfLinks переехали в flink.hpp
+  03.01.2001 SVS
+   ! Дополнительный параметр у ConvertDate -
+     "как взять формат даты - динамически или статически?"
+  30.12.2000 SVS
+   + Функции работы с атрибутами файлов "опубликованы"
+  26.12.2000 SVS
+   + KeyMacroToText()
+  14.12.2000 SVS
+   + EjectVolume()
+  02.11.2000 OT
+   ! Введение проверки на длину буфера, отведенного под имя файла.
+  25.10.2000 IS
+   ! Изменил имя параметра в FarMkTemp с Template на Prefix
+  23.10.2000 SVS
+   ! Узаконненая версия SysLog :-)
+  20.10.2000 SVS
+   ! ProcessName: Flags должен быть DWORD, а не int
+  20.10.2000 SVS
+   + SysLog
+  16.10.2000 tran
+   + PasteFromClipboardEx(int max);
+  09.10.2000 IS
+   + ProcessName
+  27.09.2000 SVS
+   + FarViewerControl
+  27.09.2000 skv
+   + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
+  24.09.2000 SVS
+   + Функция KeyNameToKey - получение кода клавиши по имени
+     Если имя не верно или нет такого - возвращается -1
+  20.09.2000 SVS
+   ! удалил FolderPresent (блин, совсем крышу сорвало :-(
+  19.09.2000 SVS
+   + функция FolderPresent - "сужествует ли каталог"
+  18.09.2000 SVS
+   ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
+   ! FarRecurseSearch -> FarRecursiveSearch
+  15.09.2000 IS
+   + Функция CheckRegValue - возвращает FALSE, если указанная переменная не
+     содержит данные или размер данных равен нулю.
+   + Функция DistrTableExist - проверяет, установлена ли таблица с
+     распределением частот символов, возвращает TRUE в случае успеха
+  14.09.2000 SVS
+    + Функция FarMkTemp - получение имени временного файла с полным путем.
+  12.09.2000 SVS
+    ! FarShowHelp возвращает BOOL
+  10.09.2000 SVS
+    ! KeyToText возвращает BOOL
+  10.09.2000 tran 1.23
+    + FSF/FarRecurseSearch
+  10.09.2000 SVS
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+  08.09.2000 SVS
+    ! QWERTY -> Transliterate
+  07.09.2000 SVS
+    ! Функции GetFileOwner и GetNumberOfLinks имеют вызов WINAPI
+    + FarBsearch
+  05.09.2000 SVS
+    + QWERTY-перекодировка!
+      На основе плагина EditSwap by SVS :-)))
+  31.08.2000 tran
+    + FSF/FarInputRecordToKey
+  29.08.2000 SVS
+    + Дополнительный параметр у Message* - номер плагина.
+  28.08.2000 SVS
+    + Модификация вызова под WINAPI у функций Local*
+    ! уточнение для FarQsort
+    ! Не FarAtoa64, но FarAtoi64
+    + FarItoa64
+  24.08.2000 SVS
+    + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+  23.08.2000 SVS
+    ! Все Flags приведены к одному виду -> DWORD.
+      Модифицированы:
+        * функции   FarMenuFn, FarMessageFn, FarShowHelp
+        * структуры FarListItem, FarDialogItem
+  23.08.2000 SVS
+    + Уточнения (комментарий) для IsMouseButtonPressed()
+  18.08.2000 tran
+    + Flags parameter in FarShowHelp
+  14.08.2000 SVS
+    + Функции семейства seek под __int64
+  01.08.2000 SVS
+    ! Функция ввода строки GetString имеет один параметр для всех флагов
+    ! дополнительный параметра у KeyToText - размер данных
+  31.07.2000 SVS
+    ! функция GetString имеет еще один параметр - расширение среды
+  24.07.2000 SVS
+    ! Все функции, попадающие в разряд FSF должны иметь WINAPI!!!
+  23.07.2000 SVS
+    + Функция FarDialogEx - расширенный диалог
+    + Функция FarDefDlgProc обработки диалога по умолчанию
+    + Функция FarSendDlgMessage - посылка сообщения диалогу
+    + Text(int X, int Y, int Color, char *Str);
+    + Text(int X, int Y, int Color, int MsgId);
+  18.07.2000 tran 1.06
+    ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
+      нужно для Viewer
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  07.07.2000 IS
+    + SetHighlighting из main.cpp
+  07.07.2000 SVS
+    + Дополнительная функция обработки строк: RemoveExternalSpaces
+  06.07.2000 IS
+    + Функция FarAdvControl
+  05.07.2000 SVS
+    + Функция ExpandEnvironmentStr
+  03.07.2000 IS
+    + Функция вывода помощи
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
