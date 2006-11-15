@@ -1831,10 +1831,10 @@ type
       ColumnTypes : PChar;
       ColumnWidths : PChar;
       ColumnTitles : PPCharArray;
-      FullScreen :      {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
-      DetailedStatus :  {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
+      FullScreen : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
+      DetailedStatus : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
       AlignExtensions : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
-      CaseConversion :  {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
+      CaseConversion : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
       StatusColumnTypes : PChar;
       StatusColumnWidths : PChar;
       Reserved : array [0..1] of DWORD;
