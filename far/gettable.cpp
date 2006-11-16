@@ -42,7 +42,7 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
     item.Clear ();
     item.strName = cpi.CodePageName;
 
-    tables->SetUserData(&dwCP, sizeof (DWORD), tables->AddItemW (&item));
+    tables->SetUserData((void*)dwCP, sizeof (DWORD), tables->AddItemW (&item));
 
     return TRUE;
 }

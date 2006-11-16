@@ -77,6 +77,8 @@ Edit::Edit(ScreenObject *pOwner)
 
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
+
+	m_codepage = 0; //BUGBUG
 }
 
 
@@ -88,6 +90,51 @@ Edit::~Edit()
     xf_free(Mask);
   if(Str)
     xf_free(Str);
+}
+
+
+void Edit::SetCodePage (int codepage)
+{
+	if ( codepage != m_codepage )
+    {
+    	//m_codepage = codepage;
+
+    	int length = WideCharToMultiByte (m_codepage, 0, Str, StrSize, 0, NULL, NULL, NULL);
+
+        char *decoded = (char*)xf_malloc (length);
+
+    	if ( !decoded )
+    		return;
+
+    	WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
+
+    	int length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
+
+    	wchar_t *encoded = (wchar_t*)xf_malloc ((length2+1)*sizeof (wchar_t));
+
+    	if ( !encoded )
+        {
+        	xf_free (decoded);
+        	return;
+        }
+
+        memset (encoded, 0, (length2+1)*sizeof (wchar_t));
+
+		MultiByteToWideChar (codepage, 0, decoded, length, encoded, length2);
+
+		xf_free (decoded);
+		xf_free (Str);
+
+		Str = encoded;
+		StrSize = length2;
+
+		m_codepage = codepage;
+    }
+}
+
+int Edit::GetCodePage ()
+{
+	return m_codepage;
 }
 
 
@@ -2675,4 +2722,97 @@ void Edit::SetDialogParent(DWORD Sets)
     Flags.Clear(FEDITLINE_PARENT_SINGLELINE);
     Flags.Set(FEDITLINE_PARENT_MULTILINE);
   }
+}
+
+
+SystemCPEncoder::SystemCPEncoder (int nCodePage)
+{
+	m_nCodePage = nCodePage;
+	m_nRefCount = 1;
+
+	m_strName.Format (L"codepage - %d", m_nCodePage);
+}
+
+SystemCPEncoder::~SystemCPEncoder ()
+{
+}
+
+int __stdcall SystemCPEncoder::AddRef ()
+{
+	return ++m_nRefCount;
+}
+
+int __stdcall SystemCPEncoder::Release ()
+{
+	if ( --m_nRefCount == 0 )
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_nRefCount;
+}
+
+const wchar_t* __stdcall SystemCPEncoder::GetName()
+{
+	return (const wchar_t*)m_strName;
+}
+
+int __stdcall SystemCPEncoder::Encode (
+		const char *lpString,
+		int nLength,
+		wchar_t *lpwszResult,
+		int nResultLength
+		)
+{
+	int length = MultiByteToWideChar (m_nCodePage, 0, lpString, nLength, NULL, 0);
+
+	if ( lpwszResult )
+		length = MultiByteToWideChar (m_nCodePage, 0, lpString, nLength, lpwszResult, nResultLength);
+
+	return length;
+}
+
+int __stdcall SystemCPEncoder::Decode (
+		const wchar_t *lpwszString,
+		int nLength,
+		char *lpResult,
+		int nResultLength
+		)
+{
+	int length = WideCharToMultiByte (m_nCodePage, 0, lpwszString, nLength, NULL, 0, NULL, NULL);
+
+	if ( lpResult )
+		length = WideCharToMultiByte (m_nCodePage, 0, lpwszString, nLength, lpResult, nResultLength, NULL, NULL);
+
+	return length;
+}
+
+int __stdcall SystemCPEncoder::Transcode (
+		const wchar_t *lpwszString,
+		int nLength,
+		ICPEncoder *pFrom,
+		wchar_t *lpwszResult,
+		int nResultLength
+		)
+{
+	int length = pFrom->Decode (lpwszString, nLength, NULL, 0);
+
+	char *lpDecoded = (char *)xf_malloc (length);
+
+	if ( lpDecoded )
+    {
+		pFrom->Decode (lpwszString, nLength, lpDecoded, length);
+
+		length = Encode (lpDecoded, length, NULL, 0);
+
+		if ( lpwszResult )
+			length = Encode (lpDecoded, length, lpwszResult, nResultLength);
+
+		xf_free (lpDecoded);
+
+		return length;
+	}
+
+	return -1;
 }

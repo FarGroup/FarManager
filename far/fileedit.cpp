@@ -1037,6 +1037,17 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         return(TRUE);
       }
 
+		case KEY_SHIFTF8:
+		{
+			int codepage = GetTableEx ();
+
+			FEdit->SetCodePage (codepage);
+
+			ChangeEditKeyBar(); //???
+
+			return TRUE;
+		}
+
       /* $ 19.12.2000 SVS
          Вызов диалога настроек (с подачи IS)
       */
@@ -1155,7 +1166,7 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 	{
 		int LastError=GetLastError();
 		SetLastError(LastError);
-		
+
 		if ( (LastError != ERROR_FILE_NOT_FOUND) && (LastError != ERROR_PATH_NOT_FOUND) )
 		{
 			UserBreak = -1;
@@ -1184,7 +1195,7 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 
-	FEdit->FreeAllocatedData ();
+	//FEdit->FreeAllocatedData ();
 
 	bool bCached = LoadFromCache (&cp);
 
@@ -1197,15 +1208,15 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 
 	clock_t StartTime=clock();
 
-	int nCodePage;
+	int nCodePage = 0;
 
 	if ( bCached )
 		nCodePage = cp.Table;
-	else
-	{
+
+	if ( !bCached || (nCodePage == 0) )
 		nCodePage = GetFileFormat (EditFile);
-		FEdit->SetCodePage (nCodePage); //BUGBUG
-	}
+
+	FEdit->SetCodePage (nCodePage); //BUGBUG
 
 	while ((GetCode=GetStr.GetStringW(&Str, nCodePage, StrLength))!=0)
 	{
@@ -1241,7 +1252,7 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 
 		const wchar_t *CurEOL;
 
-		if ( !LastLineCR && 
+		if ( !LastLineCR &&
 			 ((CurEOL = wmemchr(Str,L'\r',StrLength)) != NULL ||
 			  (CurEOL=wmemchr(Str,L'\n',StrLength))!=NULL) )
 		{
@@ -1812,13 +1823,13 @@ void FileEditor::ShowStatus()
 
   swprintf (
         wszStatus,
-        L"%-*s %c%c%c%10.10s %7s %*.*s %5s %-4d %3s",
+        L"%-*s %c%c%c%d %7s %*.*s %5s %-4d %3s",
         NameLength,
         (const wchar_t*)strLocalTitle,
         (FEdit->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' '),
         (FEdit->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' '),
         (FEdit->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' '),
-        (const wchar_t*)strTableName,
+        FEdit->GetCodePage (),
         UMSG(MEditStatusLine),
         SizeLineStr,
         SizeLineStr,
@@ -2290,7 +2301,7 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 		pp->LinePos=PosCache.Param[2];
 		pp->LeftPos=PosCache.Param[3];
 		pp->Table=PosCache.Param[4];
-		
+
 		if((int)pp->Line < 0) pp->Line=0;
 		if((int)pp->ScreenLine < 0) pp->ScreenLine=0;
 		if((int)pp->LinePos < 0) pp->LinePos=0;
@@ -2298,7 +2309,7 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 		if((int)pp->Table < 0) pp->Table=0;
 
 		return true;
-	} 
+	}
 
 	return false;
 }
@@ -2326,7 +2337,7 @@ void FileEditor::SaveToCache ()
 		PosCache.Param[3] = cp.LeftPos;
 		PosCache.Param[4] = cp.Table;
 
-		//if no position saved these are nulls	
+		//if no position saved these are nulls
 		PosCache.Position[0] = cp.SavePos.Line;
 		PosCache.Position[1] = cp.SavePos.Cursor;
 		PosCache.Position[2] = cp.SavePos.ScreenLine;

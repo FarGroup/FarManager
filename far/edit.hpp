@@ -38,6 +38,42 @@ enum FLAGS_CLASS_EDITLINE{
 };
 
 
+#define interface struct
+
+interface ICPEncoder {
+
+	virtual int __stdcall AddRef () = 0;
+	virtual int __stdcall Release () = 0;
+
+	virtual const wchar_t* __stdcall GetName() = 0;
+	virtual int __stdcall Encode (const char *lpString, int nLength, wchar_t *lpwszResult, int nResultLength) = 0;
+	virtual int __stdcall Decode (const wchar_t *lpwszString, int nLength, char *lpResult, int nResultLength) = 0;
+	virtual int __stdcall Transcode (const wchar_t *lpwszString, int nLength, ICPEncoder *pFrom, wchar_t *lpwszResult, int nResultLength) = 0;
+};
+
+class SystemCPEncoder : public ICPEncoder {
+
+public:
+
+	int m_nRefCount;
+	int m_nCodePage; //system single-byte codepage
+
+	string m_strName;
+
+public:
+
+	SystemCPEncoder (int nCodePage);
+	~SystemCPEncoder ();
+
+	virtual int __stdcall AddRef ();
+	virtual int __stdcall Release ();
+
+	virtual const wchar_t* __stdcall GetName();
+	virtual int __stdcall Encode (const char *lpString, int nLength, wchar_t *lpwszResult, int nResultLength);
+	virtual int __stdcall Decode (const wchar_t *lpwszString, int nLength, char *lpResult, int nResultLength);
+	virtual int __stdcall Transcode (const wchar_t *lpwszString, int nLength, ICPEncoder *pFrom, wchar_t *lpwszResult, int nResultLength);
+};
+
 class Dialog;
 class Editor;
 
@@ -50,7 +86,7 @@ public:
 	Edit  *m_next;
 	Edit  *m_prev;
 
-private:	
+private:
 //    char  *Str;
     wchar_t *Str;
 
@@ -86,6 +122,8 @@ private:
 //    const char *WordDiv;
     const wchar_t *WordDiv;
 
+    int m_codepage; //BUGBUG
+
   private:
     void   DisplayObject();
     void   ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd);
@@ -119,6 +157,10 @@ private:
     ~Edit();
 
   public:
+
+    void SetCodePage (int codepage); //BUGBUG
+    int GetCodePage (); //BUGBUG
+
     void  FastShow();
     int   ProcessKey(int Key);
     int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

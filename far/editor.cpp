@@ -107,6 +107,8 @@ Editor::Editor()
   HostFileEditor=NULL;
 
   AddString (NULL, 0);
+
+  m_codepage = 0;
 }
 
 
@@ -237,7 +239,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
     Flags.Set(FEDITOR_OPENFAILED);
     return FALSE;
   }
- 
+
 
   if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
   {
@@ -1198,7 +1200,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_SHIFTEND:    
+    case KEY_SHIFTEND:
 	case KEY_SHIFTNUMPAD1:
     {
       {
@@ -2127,7 +2129,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_F8:
+    /*case KEY_F8:
     {
       Flags.Set(FEDITOR_TABLECHANGEDBYUSER);
       if ((AnsiText=!AnsiText)!=0)
@@ -2141,9 +2143,9 @@ int Editor::ProcessKey(int Key)
       if (HostFileEditor) HostFileEditor->ChangeEditKeyBar();
       Show();
       return(TRUE);
-    }
+    } */ //BUGBUGBUG
 
-    case KEY_SHIFTF8:
+    /*case KEY_SHIFTF8:
     {
       {
         int UseUnicode=FALSE;
@@ -2158,8 +2160,8 @@ int Editor::ProcessKey(int Key)
           Show();
         }
       }
-      return(TRUE);
-    }
+      return(TRUE); //BUGBUGBUG
+    } */
 
     case KEY_F11:
     {
@@ -6080,7 +6082,7 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 {
 	Edit *pEdit = new Edit (this);
 
-	if ( pEdit ) 
+	if ( pEdit )
 	{
 		pEdit->m_next = NULL;
 		pEdit->m_prev = NULL;
@@ -6091,6 +6093,7 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 		pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
 		pEdit->SetEditorMode (TRUE);
 		pEdit->SetWordDiv (EdOpt.strWordDiv);
+		pEdit->SetCodePage (m_codepage);
 
 		if ( lpwszStr )
 			pEdit->SetBinaryStringW (lpwszStr, nLength);
@@ -6168,13 +6171,25 @@ void Editor::GetCacheParams (EditorCacheParams *pp)
 
 void Editor::SetCodePage (int codepage)
 {
-	m_codepage = codepage;
+	if ( m_codepage != codepage )
+    {
+		m_codepage = codepage;
+
+		Edit *current = TopList;
+
+		while ( current )
+        {
+			current->SetCodePage (codepage);
+			current = current->m_next;
+		}
+
+		Show ();
+	}
 }
 
-void Editor::GetCodePage (int &codepage)
+int Editor::GetCodePage ()
 {
-	codepage = codepage;
+	return m_codepage;
 }
 
 #endif //!defined(EDITOR2)
-
