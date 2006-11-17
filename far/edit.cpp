@@ -5,8 +5,6 @@ edit.cpp
 
 */
 
-/* Revision: 1.151 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -1696,27 +1694,32 @@ const wchar_t* Edit::GetStringAddrW()
 
 void Edit::SetStringW(const wchar_t *Str)
 {
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
-  /* tran 03.07.2000 $ */
   Select(-1,0);
   SetBinaryStringW(Str,wcslen(Str));
 }
 
 void Edit::SetEOLW(const wchar_t *EOL)
 {
-  if (EOL[0]==L'\r')
-    if (EOL[1]==L'\n')
-      EndType=EOL_CRLF;
+  EndType=EOL_NONE;
+  if ( EOL )
+  {
+    if (EOL[0]==L'\r')
+      if (EOL[1]==L'\n')
+        EndType=EOL_CRLF;
+      else
+        EndType=EOL_CR;
     else
-      EndType=EOL_CR;
-  else
-    if (EOL[0]==L'\n')
-      EndType=EOL_LF;
-    else
-      EndType=EOL_NONE;
+      if (EOL[0]==L'\n')
+        EndType=EOL_LF;
+  }
+
+}
+
+const wchar_t *Edit::GetEOLW(void)
+{
+  return EOL_TYPE_CHARS_W[EndType];
 }
 
 /* $ 25.07.2000 tran

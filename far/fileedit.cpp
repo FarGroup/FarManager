@@ -5,8 +5,6 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.197 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -915,19 +913,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         return(TRUE);
       }
 
-#if 1
-      /* $ 30.05.2003 SVS
-         Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
-         Пока закомментим
-      */
+      // $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
       case KEY_SHIFTF4:
       {
         if(!Opt.OnlyEditorViewerUsed && GetCanLoseFocus())
           CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
         return TRUE;
       }
-      /* $ SVS */
-#endif
 
       /*$ 21.07.2000 SKV
           + выход с позиционированием на редактируемом файле по CTRLF10
@@ -1261,13 +1253,18 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 			LastLineCR=1;
 		}
 
-		FEdit->AddString (Str, StrLength);
+		if( !FEdit->AddString (Str, StrLength) )
+		{
+			fclose(EditFile);
+			SetPreRedrawFunc(NULL);
+			return(FALSE);
+		}
 	}
 
 	SetPreRedrawFunc(NULL);
 
 	if ( LastLineCR )
-		FEdit->AddString (L"", sizeof (wchar_t));
+		FEdit->AddString (L"", 0);
 
 	fclose (EditFile);
 

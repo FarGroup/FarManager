@@ -9,8 +9,6 @@ editor.hpp
 
 */
 
-/* Revision: 1.55 25.05.2006 $ */
-
 #include "scrobj.hpp"
 #include "struct.hpp"
 #include "plugin.hpp"
@@ -47,6 +45,7 @@ struct EditorUndoData
   int UndoNext;
   int StrPos;
   int StrNum;
+  wchar_t EOL[10];
   wchar_t *Str;
 };
 
@@ -200,7 +199,7 @@ class Editor:public ScreenObject
     */
     void UnmarkEmptyBlock();
     /* IS $ */
-    void AddUndoData(const wchar_t *Str,int StrNum,int StrPos,int Type);
+    void AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
     void SetStringsTable();

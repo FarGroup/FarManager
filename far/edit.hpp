@@ -7,8 +7,6 @@ edit.hpp
 
 */
 
-/* Revision: 1.36 25.05.2006 $ */
-
 #include "scrobj.hpp"
 #include "colors.hpp"
 #include "bitflags.hpp"
@@ -199,6 +197,7 @@ private:
     void  GetBinaryStringW (const wchar_t **Str, const wchar_t **EOL,int &Length);
 
     void  SetEOLW(const wchar_t *EOL);
+    const wchar_t *GetEOLW(void);
 
     int   GetSelStringW(wchar_t *Str,int MaxSize);
     int   GetSelStringW (string &strStr);
