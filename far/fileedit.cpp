@@ -936,19 +936,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         return(TRUE);
       }
 
-#if 1
-      /* $ 30.05.2003 SVS
-         Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
-         Пока закомментим
-      */
+      // $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
       case KEY_SHIFTF4:
       {
         if(!Opt.OnlyEditorViewerUsed && GetCanLoseFocus())
           CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
         return TRUE;
       }
-      /* $ SVS */
-#endif
 
       /*$ 21.07.2000 SKV
           + выход с позиционированием на редактируемом файле по CTRLF10

@@ -1654,18 +1654,29 @@ void Edit::SetString(const char *Str)
 
 void Edit::SetEOL(const char *EOL)
 {
-  if (EOL[0]=='\r')
-    if (EOL[1]=='\n')
-      EndType=EOL_CRLF;
+  EndType=EOL_NONE;
+
+  if (EOL)
+  {
+    if (EOL[0]=='\r')
+    {
+      if (EOL[1]=='\n')
+        EndType=EOL_CRLF;
+      else
+        EndType=EOL_CR;
+    }
     else
-      EndType=EOL_CR;
-  else
-    if (EOL[0]=='\n')
-      EndType=EOL_LF;
-    else
-      EndType=EOL_NONE;
+    {
+      if (EOL[0]=='\n')
+        EndType=EOL_LF;
+    }
+  }
 }
 
+const char *Edit::GetEOL(void)
+{
+  return EOL_TYPE_CHARS[EndType];
+}
 
 /* $ 25.07.2000 tran
    примечание:

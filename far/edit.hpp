@@ -135,6 +135,7 @@ class Edit:public ScreenObject
     void  SetBinaryString(const char *Str,int Length);
     void  GetBinaryString(const char **Str,const char **EOL,int &Length);
     void  SetEOL(const char *EOL);
+    const char *GetEOL(void);
     int   GetSelString(char *Str,int MaxSize);
     int   GetLength();
     void  InsertString(const char *Str);

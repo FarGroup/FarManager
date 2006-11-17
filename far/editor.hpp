@@ -32,6 +32,7 @@ struct EditorUndoData
   int UndoNext;
   int StrPos;
   int StrNum;
+  char EOL[10];
   char *Str;
 };
 
@@ -170,7 +171,7 @@ class Editor:public ScreenObject
     // $ 07.03.2002 IS - удалить выделение, если оно пустое (выделено ноль символов в ширину)
     void UnmarkEmptyBlock();
 
-    void AddUndoData(const char *Str,int StrNum,int StrPos,int Type);
+    void AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
     void SetStringsTable();
