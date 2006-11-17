@@ -5,462 +5,6 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.177 29.05.2006 $ */
-
-/*
-Modify:
-  29.05.2006 SVS
-    + GetTitle()
-  08.05.2006 AY
-    ! Вызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
-  13.04.2006 SVS
-    - Shift-F4 Del Enter Esc - в истории имя файла как "?NewFile?"
-  02.03.2006 SVS
-    ! Явно зададит область действия макроса
-  09.02.2006 AY
-    ! Не выставлялись многие настройки текущего редактора.
-  28.10.2005 SVS
-    + Ctrl-B - показать/спрятать кейбар в редакторе
-  27.10.2005 SVS
-    - Mantis#46 - Редактор, ^O, unregistered user
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  15.07.2005 AY
-    + Открываем новые файлы в WIN/DOS в соответсвии с AnsiTableForNewFile
-  05.07.2005 SVS
-    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
-    + GetEditorOptions()/SetEditorOptions()
-  02.07.2005 AY
-    - Если редактор открывался в WIN то в keybar в F8 тоже было WIN
-  01.07.2005 AY
-    - бага с прорисовкой (подробнее в .txt)
-  14.06.2005 SVS
-    ! FileEditor::GetLastInfo() стала самостоятельной GetFileWin32FindData()
-  20.05.2005 AY
-    ! Теперь в диалоге SaveAs делаем ExpandEnvironmentStr() для введенного пути.
-  28.04.2005 AY
-    ! В EditorControl(ECTL_GETINFO) не проверялась возможность FEdit->EditorControl()==FALSE
-    + ECTL_GETBOOKMARKS и ECTL_GETINFO можно вызывать в EE_CLOSE. Теперь FEdit
-      уничтожается только после EE_CLOSE но чтоб не было проблем я добавил флаг bClosing
-      который выставляется в деструкторе и проверяется в EditorControl() чтоб разрешать
-      только эти две команды при закрытии редактора.
-  24.04.2005 AY
-    ! GCC
-  14.04.2005 SVS
-    ! Opt.UsePrintManager
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  04.11.2004 SVS
-    ! убираем *_EDITPATH
-  17.09.2004 SVS
-    ! Если файл не изменен (!FEDITOR_MODIFIED), то не производим апдейт панелей.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.07.2004 SVS
-    ! Macro II
-  06.07.2004 SVS
-    + обработка KEY_MACRO_EDITORSTATE для Macro II
-  31.05.2004 SVS
-    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  28.04.2004 SVS
-    - В FarFTN прописана замена р -> р
-        При попытке ввести "р" в VC-версии срабатывает fexcept
-        BC-версия в тех же условиях молча валится.
-  22.04.2004 SVS
-    - При вызове команды ECTL_SAVEFILE FAR не запоминал новое имя файла.
-  16.04.2004 SVS
-    - BugZ#1058 - Заголовок редактора
-  19.11.2003 IS
-    ! MoveData работает со ссылкой, а не указателем
-  11.11.2003 SVS
-    + BugZ#2 - Shift-F4: открывать редактор без имени файла
-  04.11.2003 SKV
-    ! не надо делать SetFileAttributes если мы их не меняли.
-  16.10.2003 SVS
-    - BugZ#821 - Удаление файла, редактор и вьювер
-  13.10.2003 SVS
-    ! Те плагин, кто работал по схеме
-         while (!Done)
-         {
-           Info.EditorControl(ECTL_READINPUT,&rec);
-           Info.EditorControl(ECTL_PROCESSINPUT,&rec);
-         }
-       не давали выполняться макросам, например:
-       1. Вызываем DrawLine
-       2. Вызываем макрос Ctrl-D=$Date "%d.%Y"
-       3. вылазит лишь 'Y'
-  10.10.2003 SVS
-    ! Shift-F4 только для немодалов!
-  09.10.2003 SVS
-    - BugZ#913 - Save As на существующий файл
-  26.09.2003 SVS
-    ! Изменения в названиях макроклавиш
-    + Добавлена индикация Ctrl-Q в статусной строке - символ '"'
-  15.09.2003 SVS
-    ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
-    + Если по Shift-F2 было кривое имя - то выдадим диалог и вернемся опять в диалог.
-  04.09.2003 SVS
-    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
-      приведем FILETIME к __int64
-  29.07.2003 SVS
-    ! Уточнение логики работы макросов.
-    + ECTL_PROCESSKEY _также_ выполняется в FileEditor::EditorControl()!
-  25.07.2003 SVS
-    ! выставим SetLastError в случае неудачи, чтобы корректно отобразить сообщение
-      (используется новый член класса - DWORD SysErrorCode)
-    ! Отмеченные куски "#if 0" - не трогать!!! ЭТО NT! :-)
-  15.07.2003 SVS
-    + немного логов
-  30.05.2003 SVS
-    + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
-      Пока закомментим (чтобы не потерялось)
-  19.05.2003 SVS
-    - BugZ#889 - Плагину доходят клавиши во время записи макроса.
-      Пусть доходят! Кроме того теперь доходят и те клавиши, которые не доходили :-)
-  21.04.2003 SVS
-    + Немного логов
-  14.04.2003 SVS
-    - Перестали работать некоторые функциональные клавиши (например, F1 -
-      вызов помощи) во время работы плагинов, использующих ProcessEditorInput
-      (например, AutoWrap)
-      Перенесем ECTL_PROCESSINPUT и ECTL_READINPUT из Editor в FileEditor
-  31.03.2003 SVS
-    + добавим _ECTLLOG для ECTL_GETINFO
-  05.03.2003 SVS
-    ! Закоментим _SVS
-  18.02.2003 SVS
-    ! Детализация логов для ECTL_
-  07.02.2003 SVS
-    ! В FileEditor::ShowStatus() при выводе статусной строки будем юзать
-      не координаты объекта Editor, "свои" имени FileEditor.
-  26.01.2003 IS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  26.12.2002 SVS
-    - BugZ#754 - открытие редатора с большИми у2, х2
-      Проверим координаты в Init
-  23.12.2002 SVS
-    + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
-  21.12.2002 SVS
-    - Ну...  некоторым образом облагороженная вариация BugZ#660 :-)
-      Применим новый флаг UPDATE_DRAW_MESSAGE - "показывать счетчик
-      считываемых файлов при обновлении панели в месаге"
-  17.12.2002 SVS
-    ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
-  11.12.2002 SVS
-    - BugZ#292 - CtrlF10 на новых файлах ошибается.
-    ! Некоторые переменные класса заменены на флаги
-  10.12.2002 SVS
-    - BugZ#720 - far /v file + Ctrl-O
-  10.11.2002 SKV
-    ! Слэши в имени файла должны быть только обратные, дабы избежать проблем с историей и т.д.
-  08.11.2002 SVS
-    ! Editor::PluginData уехал в FileEditor::PluginData
-    ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
-    ! Код по апдейту панелей вынесен в оттдельную функцию FileEditor::UpdateFileList()
-    - "The file was changed by an external program"
-    ! Очередная порция отучения Editor от понятия "файл"
-  07.11.2002 SVS
-    - BugZ#660 - "Reading: %d files" в заголовке окна редактора
-      Перенес код из функции сохранение в функцию выхода из редактора.
-      Поломаться ничего не должно :-))
-  01.10.2002 SVS
-    - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
-  04.09.2002 SVS
-    + "Файл был изменен внешней программой"
-    ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
-      теперь это привелегия FileEditor`а
-    ! Команда ECTL_SAVEFILE обрабатывается в FileEditor::EditorControl
-    ! Команда ECTL_QUIT обрабатывается в FileEditor::EditorControl
-    ! Команда ECTL_SETTITLE обрабатывается в FileEditor::EditorControl
-    ! Код Editor::ShowStatus() переехал в FileEditor::ShowStatus()
-  21.08.2002 SVS
-    ! Уточнение про WaitKey
-  13.07.2002 SVS
-    - До плагина не доходила клавиша F1.
-      Введем понятие пост обработка!
-  12.07.2002 SVS
-    ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
-      из Editor в FileEditor
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
-      посему ECTL_SETKEYBAR переехал из Editor в FileEditor
-  14.06.2002 IS
-    ! DeleteOnClose стал int.
-  10.06.2002 SVS
-    - BugZ#554 - bug, overwrite local memory
-    ! Загоним в блок вызов Dialog (щоб глюков избежать)
-  04.06.2002 SVS
-    - BugZ#545 - Ctrl-F10 для удалённого файла
-    - BugZ#546 - Editor валит фар
-  30.05.2002 IS
-    ! небольшая оптимизация там же - уберем лишний strlen
-  29.05.2002 SVS
-    ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
-  28.05.2002 SVS
-    ! применим функцию  IsLocalPath()
-  27.05.2002 SVS
-    ! В некоторых местах в Init() явно не стояло выставление кода возврата.
-  24.05.2002 SVS
-    ! Уточнения в FileEditor::EditorControl для логов
-  22.05.2002 SVS
-    + SetTitle()
-    ! В Init добавлен вторым параметром - Title
-    ! FEdit из объекта превращается в указатель - контроля с нашей стороны
-      поболее будет
-  18.05.2002 SVS
-    - BugZ#515 - AltF5 не приходит в ProcessEditorInput
-  18.05.2002 SVS
-    ! ФЛАГИ
-  13.05.2002 VVM
-    + Перерисуем заголовок консоли после позиционирования на файл.
-  11.05.2002 SVS
-    - BugZ#468 - File saving after, cancelation.
-  29.04.2002 SVS
-    - BugZ#488 - Shift=enter
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  21.03.2002 SVS
-    ! Запретим показ амп. в проптере диалога Save As
-  20.03.2002 SVS
-    ! GetCurrentDirectory -> FarGetCurDir
-  19.03.2002 SVS
-    - BugZ#371 - F2 -> разное поведение.
-    + Save As... "Mac format (CR)"
-  19.03.2002 SVS
-    - BugZ#373 - F4 Ctrl-O - виден курсор
-  18.03.2002 SVS
-    + SetLockEditor() - возможноть программно лочить редактор
-  26.02.2002 VVM
-    ! При поиске папки (запись файла) учтем корень диска или "текущий каталог"
-  09.02.2002 VVM
-    + Обновить панели, если писали в текущий каталог
-  05.02.2002 SVS
-    ! Технологический патч - про сислоги
-  04.02.2002 SVS
-    - проблемы с текущим каталогом
-  28.01.2002 OT
-    При неудачном открытии файла не удалялся фрейм (частичная отмена 1210)
-  28.01.2002 VVM
-    ! Если не прочитали файл - освободить память.
-  23.01.2002 SVS
-    ! MEditSavedChangedNonFile2
-  21.01.2002 SVS
-    - Bug#255 - Alt-Shift-Ins - каталог с другой панели
-  16.01.2002 SVS
-    - Вах. Забыли поставить "return TRUE" в FileEditor::SetFileName()
-  15.01.2002 SVS
-    ! Первая серия по отучиванию класса Editor слову "Файл"
-    + FileEditor::EditorControl() - первая стадия по отучению класса Editor
-      от слова File
-    + SetFileName() - установить переменные в имя редактируемого файла
-    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
-    + ReadFile() - постепенно сюды переносить код из Editor::ReadFile
-    + SaveFile() - постепенно сюды переносить код из Editor::SaveFile
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  12.01.2002 IS
-    ! ExitCode=0 -> ExitCode=XC_OPEN_ERROR
-  10.01.2002 SVS
-    - Bugz#213 - Не туда сохраняется файл
-  28.12.2001 DJ
-    ! обработка Ctrl-F10 вынесена в единую функцию
-  28.12.2001 SVS
-    - BugZ#213 Не туда сохраняется файл
-  26.12.2001 SVS
-    + внедрение FEOPMODE_*
-  25.12.2001 SVS
-    + ResizeConsole()
-  17.12.2001 KM
-    ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-  08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
-  27.11.2001 DJ
-    + Local в EditorConfig
-  26.11.2001 VVM
-    ! Использовать полное имя файла при CTRL+F10
-  14.11.2001 SVS
-    ! Ctrl-F10 не выходит, а только позиционирует
-  02.11.2001 IS
-    - отрицательные координаты левого верхнего угла заменяются на нулевые
-  29.10.2001 IS
-    + Обновим настройки "сохранять позицию файла" и "сохранять закладки" после
-      смены настроек по alt-shift-f9.
-  28.10.2001 SVS
-    - Не чистится экран после отмены открытия редактора
-  19.10.2001 OT
-    - Исправление ошибки HyperViewer
-  15.10.2001 SVS
-    + _KEYMACRO()
-  10.10.2001 IS
-    + обработка DeleteOnClose
-  04.10.2001 OT
-    - исправлен баг в fileEditor, когда на вопрос How to open this file? ответить Current не удалался созданный, уже не нужный никому пустой фрейм.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 SVS
-    - Бага с Ctrl-F10, когда указывался корень диска.
-  08.09.2001 IS
-    + Дополнительный параметр у второго конструктора: DisableHistory
-  17.08.2001 KM
-    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
-      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
-      найденного файла из архива.
-    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
-    - Убрана в KeyBar надпись на клавишу F12 при CanLoseFocus=TRUE
-  01.08.2001 tran
-    - bug с Shift-F2, существующее имя, esc. F2
-  23.07.2001 SVS
-    ! Изменен порядок кнопок  MNewOpen и MReload
-  22.07.2001 SVS
-    + Добавлен хелп для месага про "релоад"
-    ! Имя файла в месага про "релоад" усекается.
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  06.07.2001 IS
-    - При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
-      не нарушать однообразие.
-  25.06.2001 IS
-    ! Внедрение const
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  07.06.2001 IS
-    - Баг (сохранение файла): нужно сначала убирать пробелы, а только потом
-      кавычки
-  06.06.2001 IS
-    - мелкий фикс моего последнего патча
-  05.06.2001 IS
-    + посылаем подальше всех, кто пытается отредактировать каталог
-  27.05.2001 DJ
-    ! используются константы для кодов возврата
-  26.05.2001 OT
-    - Выпрямление логики вызовов в NFZ
-    - Редактор возможно запускать в модальном режиме
-  23.05.2001 OT
-    + Опция AllowReedit
-    ! Исправление бага из-за которго файл трапался по отмене ReloadAgain
-    - Выпрямление логики вызовов в NFZ
-  19.05.2001 DJ
-    ! лечим последствия NFZ
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 OT
-    - Борьба с F4 -> ReloadAgain
-  12.05.2001 DJ
-    ! отрисовка по OnChangeFocus перенесена в Frame
-  11.05.2001 OT
-    ! Отрисовка Background
-  10.05.2001 DJ
-    + OnDestroy() (не работало добавление во view/edit history)
-    + FileEditor::DisableHistory, DisableF6
-    + Alt-F11 - показать историю
-    + при Ctrl-F10 переключаемся на панели
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  07.05.2001 DJ
-    + добавлен NameList (пока только для передачи обратно во вьюер при
-      повторном нажатии F6)
-    - кейбар не обновлялся
-  06.05.2001 DJ
-    ! перетрях #include
-    + обработка F6
-  07.05.2001 ОТ
-    - Избавимся от "дублирования" УчшеСщву здесь и во Frame :)
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  04.05.2001 DJ
-    - В процессе наложения 623-го был выкинут патч 616:
-      "не передаем KEY_MACRO* в ProcessEditorInput()"
-      Вернул его обратно.
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 VVM
-    + KeyBar тоже умеет обрабатывать клавиши.
-  19.04.2001 SVS
-    ! Диалог SaveAs некорректно работал при нажатии Ctrl-Enter
-  10.04.2001 IS
-    ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
-      панелях, тем самым добиваемся того, что выделение с элементов
-      панелей не сбрасывается.
-  05.04.2001 SVS
-    + Добавлен вызов топика "FileSaveAs" для диалога SaveAs
-  28.03.2001 SVS
-    ! Передадим в SaveFile новый параметр - SaveAs?
-  22.03.2001 SVS
-    - "Залипание" кейбара после исполнения макроса
-  18.03.2001 IS
-    ! Поменял местами проверку при открытии на "только для чтения" и
-      "уже открыт", тем самым избавились от ситуации, когда задавался вопрос
-      "вы уверены, что хотите редактировать r/o файл" для ужЕ открытых файлов.
-  01.03.2001 IS
-    - Баг: не учитывалось, закрылся ли файл на самом деле по ctrl-f10
-  27.02.2001 SVS
-    + Добавки по поводу базы вывода.
-  26.02.2001 IS
-    + В прошлый раз я не все доделал :(
-      Теперь на самом деле большинство переменных, редактируемых в редакторе по
-      alt-shift-f9, локальные, кроме настроек внешнего редактора и опций
-      "Сохранять позицию файла", "Сохранять закладки"
-  21.02.2001 IS
-    + При обработке alt-shift-f9 работаем с локальными переменными
-  15.02.2001 IS
-    + Обновим "постоянные блоки" и "del удаляет блоки"
-      при смене настроек редактора по AltShiftF9
-  15.02.2001 IS
-    + Обновим размер табуляции и режим "Пробелы вместо табуляции" при смене
-      настроек редактора по AltShiftF9
-  01.02.2001 IS
-    ! Открываем по F6 вьюер с указанием длинного имени файла, а не короткого
-  03.01.2001 SVS
-    ! для KEY_ALTSHIFTF9 забыли сделать Show()
-  19.12.2000 SVS
-    + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
-  16.12.2000 tran 1.15
-    ! Ctrl-F10 смотрит на пассивную панель
-  15.12.2000 SVS
-    - Shift-F4, новый файл. Выдает сообщение :-(
-  03.12.2000 SVS
-    + "Если файл имеет атрибут ReadOnly..." здесь System и Hidden - задаются
-      отдельно.
-  29.11.2000 SVS
-    + Если файл имеет атрибут ReadOnly или System или Hidden,
-      И параметр на запрос выставлен, то сначала спросим.
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  16.10.2000 SVS
-    ! Отмена 1.08 (#229)
-  13.10.2000 tran 1.08
-    ! код возврата опредеяется по IsFileModified вместо IsFileChanged()
-  27.09.2000 SVS
-    + Печать файла/блока с использованием плагина PrintMan
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  27.09.2000 SKV
-    + Для правильного функционирования макро с Ctrl-O делается FEdit.Hide()
-  24.08.2000 SVS
-    + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
-  07.08.2000 SVS
-    + добавил названия расширенных функциональных клавиш
-    + Функция инициализации KeyBar Labels - InitKeyBar()
-  21.07.2000 SKV
-    + выход с позиционированием на редактируемом файле по CTRLF10
-  29.06.2000 tran
-    + названия всех функциональных клавиш
-  28.06.2000 tran
-    - (NT Console resize bug)
-      adding FileEditor::SetScreenPosition
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -557,8 +101,8 @@ FileEditor::~FileEditor()
   if (FEdit->EdOpt.SavePos && CtrlObject!=NULL)
   {
     int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
-    int CurPos=FEdit->CurLine->EditLine.GetTabCurPos();
-    int LeftPos=FEdit->CurLine->EditLine.GetLeftPos();
+    int CurPos=FEdit->CurLine->GetTabCurPos();
+    int LeftPos=FEdit->CurLine->GetLeftPos();
     char CacheName[NM*3];
     if (*PluginData)
       sprintf(CacheName,"%s%s",PluginData,PointToName(FullFileName));
@@ -1070,7 +614,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     }
 
     if(Key == MCODE_V_EDITORCURPOS)
-      return FEdit->CurLine->EditLine.GetTabCurPos()+1;
+      return FEdit->CurLine->GetTabCurPos()+1;
     if(Key == MCODE_V_EDITORCURLINE)
       return FEdit->NumLine+1;
     if(Key == MCODE_V_ITEMCOUNT || Key == MCODE_V_EDITORLINES)
@@ -1219,8 +763,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             FEdit->Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             FEdit->DeleteBlock();
           }
-          //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-          //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+          //AddUndoData(CurLine->GetStringAddr(),NumLine,
+          //                CurLine->GetCurPos(),UNDO_EDIT);
           char FileName0[NM];
           xstrncpy(FileName0,FullFileName,sizeof(FileName0)-1);
           FEdit->Paste(FileName0);
@@ -1820,14 +1364,14 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
-    struct EditList *CurPtr=FEdit->TopList;
+    Edit *CurPtr=FEdit->TopList;
 
     while (CurPtr!=NULL)
     {
       const char *SaveStr, *EndSeq;
       int Length;
-      CurPtr->EditLine.GetBinaryString(&SaveStr,&EndSeq,Length);
-      if (*EndSeq==0 && CurPtr->Next!=NULL)
+      CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
+      if (*EndSeq==0 && CurPtr->m_next!=NULL)
         EndSeq=*FEdit->GlobalEOL ? FEdit->GlobalEOL:DOS_EOL_fmt;
       if (TextFormat!=0 && *EndSeq!=0)
       {
@@ -1837,7 +1381,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
           EndSeq=UNIX_EOL_fmt;
         else
           EndSeq=MAC_EOL_fmt;
-        CurPtr->EditLine.SetEOL(EndSeq);
+        CurPtr->SetEOL(EndSeq);
       }
       int EndLength=strlen(EndSeq);
       if (fwrite(SaveStr,1,Length,EditFile)!=Length ||
@@ -1848,7 +1392,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
         RetCode=SAVEFILE_ERROR;
         goto end;
       }
-      CurPtr=CurPtr->Next;
+      CurPtr=CurPtr->m_next;
     }
     if (fflush(EditFile)==EOF)
     {
@@ -2143,7 +1687,7 @@ void FileEditor::ShowStatus()
           (FEdit->Flags.Check(FEDITOR_PROCESSCTRLQ) ? '"':' '),
           TableName,
           MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
-          MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);
+          MSG(MEditStatusCol),FEdit->CurLine->GetTabCurPos()+1,AttrStr);
   /* IS $ */
   /* SVS $ */
   int StatusWidth=ObjWidth - (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)?5:0);
@@ -2154,8 +1698,8 @@ void FileEditor::ShowStatus()
   {
     const char *Str;
     int Length;
-    FEdit->CurLine->EditLine.GetBinaryString(&Str,NULL,Length);
-    int CurPos=FEdit->CurLine->EditLine.GetCurPos();
+    FEdit->CurLine->GetBinaryString(&Str,NULL,Length);
+    int CurPos=FEdit->CurLine->GetCurPos();
     if (CurPos<Length)
     {
       GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 9:2),Y1);
