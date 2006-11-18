@@ -1,0 +1,98 @@
+/*
+Modify:
+  09.09.2005 SVS
+    + ƒобавлены (в т.ч. и имена) KEY_F13..KEY_F24 и несколько MM клавиш с
+      VK-кодами от A6 до B7.
+  07.07.2004 SVS
+    ! Macro II
+  06.07.2004 SVS
+    + KEY_MACRO_EDITORSTATE дл€ Macro II
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
+  18.12.2003 SVS
+    + KEY_RSHIFT, KEY_RCTRLALTSHIFTPRESS, KEY_RCTRLALTSHIFTRELEASE
+  28.10.2003 SVS
+    + KEY_MACRO_ROOTFOLDER
+  20.10.2003 SVS
+    ! переименование
+        KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
+        KEY_MACRO_CHECKEOF     -> KEY_MACRO_EOF
+    + KEY_MACRO_EMPTY и KEY_MACRO_BOF
+  04.10.2003 SVS
+    + KEY_MACRO_CHECKEOF - проверка конца файла
+  26.09.2003 SVS
+    ! »зменени€ в названи€х макроклавиш
+  08.09.2003 SVS
+    + KEY_CTRLMASK - маска дл€ Ctrl-клавиш
+    + KEY_MACROPLAINTEXT - дл€ $Text
+  02.12.2002 SVS
+    - нарушена структура FAR_USE_INTERNALS
+  09.11.2002 SVS
+    + KEY_ALTDIGIT - типа... "ввод был ал€ Alt-Num
+  24.05.2002 SVS
+    + ????KEY_NUMPAD?
+  01.04.2002 SVS
+    ! ¬место KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
+  08.01.2002 SVS
+    ! ¬место 2001 вставлен макрос "<%YEAR%>"
+  21.12.2001 SVS
+    + KEY_MACROSELWORD, KEY_MSLDBLCLICK, KEY_MSRDBLCLICK
+  25.10.2001 SVS
+    + KEY_ALTSHIFTBRACKET, KEY_ALTSHIFTBACKBRACKET, KEY_CTRLALTBRACKET
+      KEY_CTRLALTBACKBRACKET
+  09.08.2001 SVS
+    + ћаркеры про FAR_USE_INTERNALS. ѕросьба не убирать! Ёто дл€ скрипта,
+      который будет генерить одноименный файл дл€ дистрибутива. ≈сли нужно
+      исключить что либо от внешнего взгл€да - заключить вот в такие "скобки":
+      1 # ifdef FAR_USE_INTERNALS
+      2   то, что должно быть скрыто
+      3 # else // ELSE FAR_USE_INTERNALS
+      4   замена!
+      5 # endif // END FAR_USE_INTERNALS
+  10.07.2001 SVS
+    + KEY_MACROXLAT - дл€ макросов это будет $XLat
+  22.06.2001 SVS
+    ! выкинуты KEY_MACRO* (про дату) - заменены на одну - KEY_MACRODATE
+  23.05.2001 SVS
+    ! KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE перенесены ниже
+      KEY_END_FKEY
+  17.05.2001 OT
+    + KEY_CONSOLE_BUFFER_RESIZE - изменилс€ размер консоли.
+  28.04.2001 VVM
+    + KEY_FOCUS_CHANGED - посылаетс€ при получении/потере фокуса окном.
+  26.04.2001 VVM
+    + KEY_MSWHEEL_UP/KEY_MSWHEEL_DOWN - дл€ колеса мышки.
+  25.04.2001 SVS
+    + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
+      TRUE - если есть помеченный блок или FALSE - блока нету.
+  17.01.2001 SVS
+    + KEY_COLON = ':'
+    ! Ќова€ переделка (не пинать ногами).
+  04.01.2001 SVS
+    ! ѕолна€ переделка раскладки :-)
+  26.12.2000 SVS
+    + KEY_MACRO_BASE - дл€ макросов. —оответственно изменены названи€:
+      KEY_DTDAY   -> KEY_MACRODAY
+      KEY_DTMONTH -> KEY_MACROMONTH
+      KEY_DTYEAR  -> KEY_MACROYEAR
+      END_FARKEY_BASE - дальшу уже некуда :-)
+      “.о. KEY_LAST_BASE - это дл€ официального опубликовани€, а
+        END_FARKEY_BASE - это истинный предел :-)
+  21.12.2000 SVS
+    + 3 пвсевдоклавиши дл€ макросов: KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR
+      т.е. текущий день, мес€ц, год. Ёто так, в качестве полезного
+      дополнени€.
+  30.10.2000 SVS
+    - ”точнение... :-)
+  08.09.2000 SVS
+    ! √лобальна€ чистка и уточнение кодов клавиш.
+  24.08.2000 SVS
+    + KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE :-)
+  23.07.2000 SVS
+    +  лавиши:
+       Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
+       KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
+  25.06.2000 SVS
+    ! ѕодготовка Master Copy
+    ! ¬ыделение в качестве самосто€тельного модул€
+*/

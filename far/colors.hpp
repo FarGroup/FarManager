@@ -14,7 +14,7 @@ colors.hpp
 /*
   farcolor.hpp
 
-  Colors Index for FAR Manager 1.70
+  Colors Index for FAR Manager <%VERSION%>
   HKCU\Software\Far\Colors\CurrentPalette
 
   Copyright (c) 1996-2000 Eugene Roshal
@@ -22,53 +22,10 @@ colors.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.12 07.10.2002 $ */
-
 #ifdef FAR_USE_INTERNALS
 /*
   Внимание!
   Пункт COL_LASTPALETTECOLOR должен быть самым последним!!!!!!
-*/
-/*
-Modify:
-  07.10.2002 SVS
-    + Немного новых цветов, уточняющих листбокс и комбобокс.
-  30.09.2002 SVS
-    ! COL_DIALOGMENU* заменен на COL_DIALOGLIST*
-    + COL_DIALOGLISTTITLE
-  30.05.2002 SVS
-    ! По просьбе IS: COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO -> COL_PRIVATEPOSITION_FOR_DIF165ABOVE
-  08.01.2002 SVS
-    ! Вместо 2001 вставлен макрос "<%YEAR%>"
-  09.08.2001 SVS
-    + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
-      который будет генерить одноименный файл для дистрибутива. Если нужно
-      исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
-      1 # ifdef FAR_USE_INTERNALS
-      2   то, что должно быть скрыто
-      3 # else // ELSE FAR_USE_INTERNALS
-      4   замена!
-      5 # endif // END FAR_USE_INTERNALS
-  07.06.2001 SVS
-    + COL_EDITORCLOCK, COL_VIEWERCLOCK
-  21.05.2001 SVS
-    + COL_MENUDISABLEDTEXT
-  13.12.2000 SVS
-    + COL_LASTPALETTECOLOR
-  04.12.2000 SVS
-    + COL_*DIALOG*DISABLED - Недоступный элемент диалога с
-      атрибутом DIF_DISABLE
-  13.09.2000 tran 1.03
-    + COL_COMMANDLINEPREFIX
-  18.07.2000 tran 1.02
-    + COL_VIEWERSCROLLBAR
-  11.07.2000 SVS
-    + 1 Служебная позиция перед новыми цветами :-)
-  29.06.2000 SVS
-    + Цветовые атрибуты для Menu ScrollBar
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
 */
 
 // Стандартные цвета FAR Manager

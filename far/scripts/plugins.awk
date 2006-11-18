@@ -20,6 +20,9 @@ BEGIN {
   if(index($0,"<%YEAR%>"))
     $0=gensub(/<%YEAR%>/,strftime("%Y"),"g");
 
+  if(index($0,"<%VERSION%>"))
+    $0=gensub(/<%VERSION%>/,sprintf("%d.%d build %d",p1,p2,p4),"g");
+
   if(index(toupper(FILENAME),".HPP") > 0)
   {
     if(substr($1,1,3) == "#if" && $2 == "FAR_USE_INTERNALS")
