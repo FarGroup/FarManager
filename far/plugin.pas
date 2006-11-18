@@ -44,7 +44,7 @@
 
 
 // define USE_BOOL in order to be compatible with the
-// Plugin API for Far Manager 1.70 beta 5 $Revision: 1.224 09.04.2003$
+// Plugin API for Far Manager 1.70 beta 5
 // or undef USE_BOOL to use Integer instead of LongBool
 
 {$define USE_BOOL}
