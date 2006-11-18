@@ -4,7 +4,7 @@
    Plugin API for FAR Manager 1.70
 
    Copyright (c) 1996-2000 Eugene Roshal
-   Copyright (c) 2000-2006 Far Group
+   Copyright (c) 2000-<%YEAR%> Far Group
 
    Additional changes by W.Ehrhardt
 *)
@@ -410,7 +410,7 @@ type
       Focus : Integer;
 
       Param : record case Integer of
-         0 : (Selected : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF});   
+         0 : (Selected : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF});
          1 : (History : PChar);
          2 : (Mask : PChar);
          3 : (ListItems : PFarList);
@@ -419,7 +419,7 @@ type
       end;
 
       Flags : DWORD;
-      DefaultButton : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};       
+      DefaultButton : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
 
       Data : record case Integer of
          0 : (Data : array [0..511] of Char);
@@ -497,9 +497,9 @@ type
    PFarMenuItem = ^TFarMenuItem;
    TFarMenuItem = packed record
       Text : array [0..127] of Char;
-      Selected :  {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
-      Checked :   {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
-      Separator : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
+      Selected :  {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      Checked :   {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      Separator : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
    end;
 
 type
@@ -630,8 +630,8 @@ type
       SelectedItemsNumber : Integer;
       CurrentItem : Integer;
       TopPanelItem : Integer;
-      Visible : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
-      Focus :   {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
+      Visible : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      Focus :   {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
       ViewMode : Integer;
       ColumnTypes : array [0..79] of Char;
       ColumnWidths : array [0..79] of Char;
@@ -781,7 +781,7 @@ type
    TFarApiCmpName = function (
          const Pattern : PChar;
          const aString : PChar;
-         SkipPath : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF} 
+         SkipPath : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}
          ) : Integer; {$IFNDEF VP} stdcall; {$ENDIF}
 
 { FARCHARTABLE_COMMAND }
@@ -1019,8 +1019,8 @@ type
    TWindowInfo = packed record
       Pos : Integer;
       WindowType : Integer;
-      Modified : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
-      Current :  {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};  
+      Modified : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      Current :  {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
       TypeName : array [0..63] of Char;
       Name : array [0..NM-1] of Char;
    end;
@@ -1272,7 +1272,7 @@ type
       Overtype : Integer;
       BlockType : Integer;
       BlockStartLine : Integer;
-      AnsiMode : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
+      AnsiMode : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
       TableNum : Integer;
       Options : DWORD;
       TabSize : Integer;
@@ -1776,7 +1776,7 @@ type
       Text : TFarApiText;
       EditorControl : TFarApiEditorControl;
 
-      FSF : PFarStandardFunctions;  
+      FSF : PFarStandardFunctions;
 
       ShowHelp : TFarApiShowHelp;
       AdvControl : TFarApiAdvControl;
@@ -1831,10 +1831,10 @@ type
       ColumnTypes : PChar;
       ColumnWidths : PChar;
       ColumnTitles : PPCharArray;
-      FullScreen : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
-      DetailedStatus : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
-      AlignExtensions : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
-      CaseConversion : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF}; 
+      FullScreen : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      DetailedStatus : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      AlignExtensions : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
+      CaseConversion : {$IFDEF USE_BOOL} LongBool {$ELSE} Integer {$ENDIF};
       StatusColumnTypes : PChar;
       StatusColumnWidths : PChar;
       Reserved : array [0..1] of DWORD;
