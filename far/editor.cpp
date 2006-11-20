@@ -4003,7 +4003,7 @@ void Editor::DeleteBlock()
     if (StartSel!=0 || EndSel!=0)
     {
       BlockUndo=UndoNext;
-      AddUndoData(CurPtr->GetStringAddr(),CurLine->GetEOL(),BlockStartLine,
+      AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine,
                   CurPtr->GetCurPos(),UNDO_EDIT);
       UndoNext=TRUE;
     }
@@ -4593,7 +4593,7 @@ void Editor::BlockLeft()
       memcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
-      AddUndoData(CurStr,CurLine->GetEOL(),LineNum,0,UNDO_EDIT);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       CurPtr->SetBinaryString(TmpStr,Length);
@@ -4665,7 +4665,7 @@ void Editor::BlockRight()
       int EndLength=strlen(EndSeq);
       memcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
-      AddUndoData(CurStr,CurLine->GetEOL(),LineNum,0,UNDO_EDIT);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       if (Length>1)
@@ -5890,8 +5890,10 @@ void Editor::Xlat()
     }
     else
     {
-      char *Str=CurLine->Str;
-      int start=CurLine->GetCurPos(), end, StrSize=strlen(Str);
+      CurPtr=CurLine;
+
+      char *Str=CurPtr->Str;
+      int start=CurPtr->GetCurPos(), end, StrSize=strlen(Str);
       /* $ 10.12.2000 IS
          Обрабатываем только то слово, на котором стоит курсор, или то слово,
          что находится левее позиции курсора на 1 символ
@@ -5917,7 +5919,7 @@ void Editor::Xlat()
         while(end<StrSize && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[end]))
           end++;
         AddUndoData(Str,CurPtr->GetEOL(),NumLine,start,UNDO_EDIT);
-        ::Xlat(Str,start,end,CurLine->TableSet,Opt.XLat.Flags);
+        ::Xlat(Str,start,end,CurPtr->TableSet,Opt.XLat.Flags);
       }
       /* 12.01.2004 IS */
      /* IS $ */
