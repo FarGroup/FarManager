@@ -1,3 +1,7 @@
+svs 21.11.2006 00:00:11 +0300 - build 161
+
+1. Copy/Paste: "CurLine->GetEOLW" VS "CurPtr->GetEOLW"
+
 svs 18.11.2006 00:16:11 +0300 - build 160
 
 1. Mantis#139 - Нарушения с концами строк при Отмене

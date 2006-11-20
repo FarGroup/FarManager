@@ -3056,7 +3056,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
   /* skv $*/
   if (DelPtr->m_next==NULL && (!DeleteLast || DelPtr->m_prev==NULL))
   {
-    AddUndoData(DelPtr->GetStringAddrW(),CurLine->GetEOLW(),UndoLine,
+    AddUndoData(DelPtr->GetStringAddrW(),DelPtr->GetEOLW(),UndoLine,
                 DelPtr->GetCurPos(),UNDO_EDIT);
     DelPtr->SetStringW(L"");
     return;
@@ -3108,7 +3108,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
   if (DelPtr==VBlockStart)
     VBlockStart=VBlockStart->m_next;
   if (UndoLine!=-1)
-    AddUndoData(DelPtr->GetStringAddrW(),CurLine->GetEOLW(),UndoLine,0,UNDO_DELSTR);
+    AddUndoData(DelPtr->GetStringAddrW(),DelPtr->GetEOLW(),UndoLine,0,UNDO_DELSTR);
   delete DelPtr;
 }
 
@@ -4004,7 +4004,7 @@ void Editor::DeleteBlock()
     if (StartSel!=0 || EndSel!=0)
     {
       BlockUndo=UndoNext;
-      AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),BlockStartLine,
+      AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine,
                   CurPtr->GetCurPos(),UNDO_EDIT);
       UndoNext=TRUE;
     }
@@ -4594,7 +4594,7 @@ void Editor::BlockLeft()
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
-      AddUndoData(CurStr,CurLine->GetEOLW(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOLW(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       CurPtr->SetBinaryStringW(TmpStr,Length);
@@ -4661,7 +4661,7 @@ void Editor::BlockRight()
       int EndLength=wcslen(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
-      AddUndoData(CurStr,CurLine->GetEOLW(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOLW(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       if (Length>1)
@@ -4731,7 +4731,7 @@ void Editor::DeleteVBlock()
       continue;
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),BlockStartLine+Line,
+    AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,
                 CurPtr->GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
@@ -4970,7 +4970,7 @@ void Editor::VBlockShift(int Left)
 
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),BlockStartLine+Line,
+    AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,
                 CurPtr->GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
@@ -5167,7 +5167,7 @@ int Editor::EditorControl(int Command,void *Param)
 
         wmemcpy(NewStr,SetString->StringText,Length);
         wmemcpy(NewStr+Length,EOL,LengthEOL);
-        AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),DestLine,
+        AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),DestLine,
                     CurPtr->GetCurPos(),UNDO_EDIT);
 
         int CurPos=CurPtr->GetCurPos();
@@ -5462,7 +5462,7 @@ int Editor::EditorControl(int Command,void *Param)
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",StringNumber));
           return FALSE;
         }
-        AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),StringNumber,
+        AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),StringNumber,
                     CurPtr->GetCurPos(),UNDO_EDIT);
         CurPtr->ReplaceTabs();
       }
@@ -5853,7 +5853,7 @@ void Editor::Xlat()
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;
-      AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
+      AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
       BlockUndo=TRUE;
       ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
     }
@@ -5877,7 +5877,7 @@ void Editor::Xlat()
           break;
         if(EndSel == -1)
           EndSel=wcslen(CurPtr->Str);
-        AddUndoData(CurPtr->GetStringAddrW(),CurLine->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
+        AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
         ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
