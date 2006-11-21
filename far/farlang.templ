@@ -6070,8 +6070,8 @@ MExcInvalidFuncResult
 "Function <%s> has returned illegal value"
 
 MExcAddress
-"Адрес исключения - 0x%X, модуль:"
-"Exception address: 0x%X in module:"
+"Адрес исключения - 0x%p, модуль:"
+"Exception address: 0x%p in module:"
 
 MExcFARTerminateYes
 "FAR Manager завершит работу!"
@@ -6082,16 +6082,16 @@ MExcUnloadYes
 "The plugin will be Unloaded!"
 
 MExcRAccess
-"\"Попытка чтения из недоступного адреса 0x%X\""
-"\"Attempt to read from the inaccessible address 0x%X\""
+"\"Нарушение доступа (чтение из 0x%p)\""
+"\"Access violation (read from 0x%p)\""
 
 MExcWAccess
-"\"Попытка записи по недоступному адресу 0x%X\""
-"\"Attempt to write to the inaccessible address 0x%X\""
+"\"Нарушение доступа (запись в 0x%p)\""
+"\"Access violation (write to 0x%p)\""
 
 MExcEAccess
-"\"Попытка исполнения кода из неисполняемого участка памяти по адресу 0x%X\""
-"\"Attempt to execute the non executable memory at address 0x%X\""
+"\"Нарушение доступа (исполнение кода из 0x%p)\""
+"\"Access violation (execute at 0x%p)\""
 
 MExcOutOfBounds
 "\"Попытка доступа к элементу за границами массива\""
