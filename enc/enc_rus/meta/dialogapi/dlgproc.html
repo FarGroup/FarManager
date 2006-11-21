@@ -27,11 +27,11 @@
 </div>
 
 <pre class=syntax>
-long WINAPI DlgProc(
+LONG_PTR WINAPI DlgProc(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
-  long   Param2
+  LONG_PTR Param2
 );
 </pre>
 
@@ -69,7 +69,7 @@ long WINAPI DlgProc(
 <h3>Пример</h3>
 <div class=descr>
 Фрагмент обработчика диалога игры Reversi:
-<pre class=code>long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+<pre class=code>LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   struct FarDialogItem DialogItem;
   struct FarListItem *ListItems;
@@ -79,7 +79,7 @@ long WINAPI DlgProc(
   {
     case DN_INITDIALOG:
       // получим информацию об элементе
-      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(long)&amp;DialogItem);
+      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(LONG_PTR)&amp;DialogItem);
       ListItems=DialogItem.ListItems-&gt;Items;
       ...
       NewGame(hDlg);
@@ -95,7 +95,7 @@ long WINAPI DlgProc(
         i=2;
       else
         i=1;
-      return (long)(Help[i]);
+      return (LONG_PTR)(Help[i]);
     }
     ...
 

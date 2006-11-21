@@ -23,11 +23,11 @@
 </div>
 
 <pre class=syntax>
-long WINAPI SendDlgMessage(
+LONG_PTR WINAPI SendDlgMessage(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
-  long   Param2
+  LONG_PTR Param2
 );
 </pre>
 
@@ -59,12 +59,12 @@ long WINAPI SendDlgMessage(
 <h3>Пример</h3>
 <div class=descr>
 Фрагмент обработчика диалога игры Reversi:
-<pre class=code>long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+<pre class=code>LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
 ...
     case DN_INITDIALOG:
       // получим информацию об элементе
-      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(long)&amp;DialogItem);
+      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(LONG_PTR)&amp;DialogItem);
       ListItems=DialogItem.ListItems-&gt;Items;
       ...
       NewGame(hDlg);
