@@ -200,8 +200,8 @@ class KeyMacro
     DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
 
   private:
-    static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static long WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
   public:
     KeyMacro();

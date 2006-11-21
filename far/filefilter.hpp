@@ -30,7 +30,7 @@ Modify:
 
 class FileFilter
 {
-  friend long WINAPI FilterDlgProc(HANDLE hDlg, int Msg,int Param1,long Param2);
+  friend LONG_PTR WINAPI FilterDlgProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
 
   private:
 
@@ -62,7 +62,7 @@ class FileFilter
   private:
 
     // Диалоговая процедура
-    static long WINAPI FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI FilterDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator);
 
     // Пребразование строковых полей даты и времени в FILETIME

@@ -73,7 +73,11 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
         {
            DWORD signature;
            IMAGE_FILE_HEADER _head;
-           IMAGE_OPTIONAL_HEADER opt_head;
+           union
+           {
+             IMAGE_OPTIONAL_HEADER32 opt_head32;
+             IMAGE_OPTIONAL_HEADER64 opt_head64;
+           };
            // IMAGE_SECTION_HEADER section_header[];  /* actual number in NumberOfSections */
         } header, *pheader;
         #include <poppack.h>
@@ -87,7 +91,12 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
             pheader=&header;
 
             if(signature == IMAGE_NT_SIGNATURE) // PE
-               ImageSubsystem = header.opt_head.Subsystem;
+            {
+               if (header.opt_head32.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+                 ImageSubsystem = header.opt_head64.Subsystem;
+               else
+                 ImageSubsystem = header.opt_head32.Subsystem;
+            }
 //            {
 //              IsPEGUI=1;
 //              IsPEGUI|=(header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)?2:0;
@@ -732,7 +741,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
 
   SHELLEXECUTEINFO seInfo;
-  memset (&seInfo, 0, sizeof seInfo);
+  memset (&seInfo, 0, sizeof (seInfo));
 
   seInfo.cbSize = sizeof (SHELLEXECUTEINFO);
 
@@ -937,7 +946,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
           HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
           HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
 
-              INPUT_RECORD ir[256];
+          INPUT_RECORD ir[256];
           DWORD rd;
 
           int vkey=0,ctrl=0;

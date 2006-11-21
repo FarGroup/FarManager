@@ -308,11 +308,11 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   pi->Description=fi->DizText;
   if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
   {
-    DWORD Size=*(DWORD *)fi->UserData;
+    DWORD Size=*((DWORD *)fi->UserData);
     /* $ 13.07.2000 SVS
        заменим new на malloc
     */
-    pi->UserData=(DWORD)xf_malloc(Size);
+    pi->UserData=(DWORD_PTR)xf_malloc(Size);
     /* SVS $ */
     memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
   }
@@ -354,7 +354,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
     /* $ 13.07.2000 SVS
        заменим new на malloc
     */
-    fi->UserData=(DWORD)xf_malloc(Size);
+    fi->UserData=(DWORD_PTR)xf_malloc(Size);
     /* SVS $ */
     memcpy((void *)fi->UserData,(void *)pi->UserData,Size);
   }

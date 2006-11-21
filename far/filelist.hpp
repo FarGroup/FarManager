@@ -164,7 +164,7 @@ struct FileListItem
 
   DWORD NumberOfLinks;
   DWORD UserFlags;
-  DWORD UserData;
+  DWORD_PTR UserData;
 
   int Position;
   int SortGroup;

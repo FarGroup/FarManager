@@ -1,0 +1,65 @@
+/*
+Modify:
+  28.06.2006 SVS
+    - MEMORYSTATUSEX ЕСТЬ в VC > 6!!!
+  23.04.2006 AY
+    - MEMORYSTATUSEX нету в VC6.
+  13.04.2006 SVS
+    - MEMORYSTATUSEX нету в gcc. Добавим.
+  10.04.2006 SVS
+    + MEMORYSTATUSEX для Borland < 5.5
+  06.04.2006 AY
+    ! GCC
+  12.03.2006 SVS
+    ! _strtoi64 кроме борманда так же компилим в дебажной MSVC.
+  02.03.2006 SVS
+    + инфа для борманда про _strtoi64 и REG_QWORD
+  22.12.2005 SVS
+    + FILE_ATTRIBUTE_TEMPORARY
+  07.12.2005 SVS
+    + FILE_ATTRIBUTE_SPARSE_FILE
+  27.10.2005 SVS
+    + FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
+  30.09.2005 SVS
+    + несколько констант из SDK для совместимости с ранними версиями компиляторов
+  23.07.2005 SVS
+    + про vsnprintf()
+  24.04.2005 AY
+    ! GCC
+  06.05.2003 SVS
+    - Проблемы с VC после 1645
+  04.04.2002 SVS
+    - Хе... lfind видите ли им не понравился ;-((
+  27.02.2002 SVS
+    + mmsystem.h при условии, что выставлен флаг __USE_MCI, который
+      компилит ФАР с юзанием константами для mciSendCommand
+  22.10.2001 SVS
+    + По поводу шифрования в Win2K (борманд 5.02 об этих константах не ведает!)
+  25.04.2001 SVS
+    + FILE_SUPPORTS_REPARSE_POINTS
+  08.04.2001 SVS
+    ! вместо alloc.h просто вызываем malloc.h
+  24.10.2000 SVS
+    + share.h
+  20.10.2000 SVS
+    + FILE_SUPPORTS_ENCRYPTION,
+      FILE_ATTRIBUTE_ENCRYPTED,
+      FS_FILE_ENCRYPTION
+    ! FILE_ATTRIBUTE_REPARSE_POINT перенесен из farconst.hpp в headers.hpp
+  11.10.2000 SVS
+    ! В BC RAND_MAX = 0x7fffU, а не 0x7fff
+  19.09.2000 SVS
+    + выравнивание на 2 байта
+  19.07.2000 SVS
+    - Из-за различий в реализации функции getdisk в BC & VC
+      не работал AltFx если панель имела UNC путь
+  12.07.2000 OT
+    - Исправление бага, из-за которго не работал ScreenSaver после
+      компиляции VC++
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  07.07.2000 SVS
+    + stdarg.h - Для FarAdvControl
+  27.06.2000 AT
+    + Данный патч сделан для использования предкомпилированных заголовков
+*/

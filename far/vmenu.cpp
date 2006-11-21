@@ -2800,7 +2800,7 @@ int VMenu::GetTypeAndName(char *Type,char *Name)
 #pragma warn -par
 #endif
 // функция обработки меню (по умолчанию)
-long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2)
 {
   return 0;
 }
@@ -2812,7 +2812,7 @@ long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
 #pragma warn -par
 #endif
 // функция посылки сообщений меню
-long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2)
 {
   CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
 

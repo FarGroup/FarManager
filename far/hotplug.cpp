@@ -556,7 +556,7 @@ DWORD DriveMaskFromVolumeName (const char *lpVolumeName)
 
     pfnGetVolumeNameForVolumeMountPoint (szMountPoint, szCurrentVolumeName, MAX_PATH);
 
-    if ( !strcmpi (szCurrentVolumeName, lpVolumeName) )
+    if ( !lstrcmpi (szCurrentVolumeName, lpVolumeName) )
       return (1 << (Letter-'A'));
   }
 

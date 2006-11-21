@@ -811,7 +811,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
     /* $ 01.08.2000 SVS
        + .History
     */
-    DlgData[DlgSize+1].Selected=(int)HistoryName[HistoryNumber];
+    DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
     /* SVS $*/
 
     if (DlgSize==0)

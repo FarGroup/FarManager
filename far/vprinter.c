@@ -14,8 +14,6 @@
  *
  */
 
-/* $Revision: 9.8 $        */
-
 #include <stdio.h>
 //#include <_printf.h>
 #include <string.h>
@@ -105,7 +103,7 @@ typedef struct
 /*-----------------------------------------------------------------------*
 
 Name            __int64toa - converts a __int64 to a character string
-		__int64tow - converts a __int64 to a wide-character string
+                __int64tow - converts a __int64 to a wide-character string
 
 Usage           char *    __int64toa (__int64 value, char *strP, int radix,
                                       char maybeSigned, char hexStyle);

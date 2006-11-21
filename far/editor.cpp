@@ -233,7 +233,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     return(FALSE);
   }
 
-  int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+  int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
   if (EditHandle==-1)
     return(FALSE);
   if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
@@ -4230,7 +4230,7 @@ void Editor::GoToPosition()
   static struct DialogData GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
-    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,"",
+    DI_EDIT,5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,"",
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran

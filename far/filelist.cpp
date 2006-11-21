@@ -1319,7 +1319,7 @@ int FileList::ProcessKey(int Key)
               {
                 if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
                 {
-                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(int)PluginData);
+                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(INT_PTR)PluginData);
                   if (hNewPlugin!=INVALID_HANDLE_VALUE)
                   {
                     int CurFocus=GetFocus();
@@ -3635,7 +3635,7 @@ void FileList::SelectFiles(int Mode)
   static struct DialogData SelectDlgData[]=
   {
     DI_DOUBLEBOX,3,1,41,3,0,0,0,0,"",
-    DI_EDIT,5,2,39,2,1,(DWORD)HistoryName,DIF_HISTORY,1,""
+    DI_EDIT,5,2,39,2,1,(DWORD_PTR)HistoryName,DIF_HISTORY,1,""
   };
   MakeDialogItems(SelectDlgData,SelectDlg);
 

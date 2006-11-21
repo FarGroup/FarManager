@@ -704,7 +704,7 @@ int PanelFilter::EditRecord(char *Title,char *Masks)
     /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEnterFilterTitle,
     /* 2 */ DI_EDIT,5,3,70,3,1,0,0,0,"",
     /* 3 */ DI_TEXT,5,4,0,0,0,0,0,0,(char *)MFilterMasks,
-    /* 4 */ DI_EDIT,5,5,70,5,0,(DWORD)HistoryName,DIF_VAREDIT|DIF_HISTORY,0,"",
+    /* 4 */ DI_EDIT,5,5,70,5,0,(DWORD_PTR)HistoryName,DIF_VAREDIT|DIF_HISTORY,0,"",
     /* 5 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     /* 6 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
     /* 7 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
@@ -789,7 +789,7 @@ int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileA
   /* IS $ */
 
   // сначала поиск...
-  size_t Cnt=ExtCount;
+  unsigned int Cnt=ExtCount;
   if(lfind((const void *)Mask,(void *)*ExtPtr,&Cnt,NM,ExtSort))
     return -1;
 

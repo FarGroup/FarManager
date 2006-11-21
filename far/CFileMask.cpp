@@ -5,20 +5,6 @@ CFileMask.cpp
 
 */
 
-/* Revision: 1.03 24.04.2005 $ */
-
-/*
-Modify:
-  24.04.2005 AY
-    ! GCC
-  10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
-  02.07.2001 IS
-    + Обработка FMF_ADDASTERISK
-  01.07.2001 IS
-    + Впервые в эфире
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

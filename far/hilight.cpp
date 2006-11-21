@@ -752,7 +752,7 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
    обработка взаимоисключений (вместо обработки в явном цикле диалога)
 */
 
-static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+static LONG_PTR WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
   switch (Msg)
   {
@@ -797,11 +797,11 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
             break;
         }
         FarDialogItem MarkChar, ColorExample;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(long)&MarkChar);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(LONG_PTR)&MarkChar);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         EditData->Colors.MarkChar=*MarkChar.Data.Data;
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         return TRUE;
       }
       break;
@@ -812,10 +812,10 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
         HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
         FarDialogItem *MarkChar, ColorExample;
         MarkChar=(FarDialogItem *)Param2;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         EditData->Colors.MarkChar=*(MarkChar->Data.Data);
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         return TRUE;
       }
   }
@@ -833,7 +833,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   static struct DialogData HiEditDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(char *)MHighlightEditTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,0,0,DIF_AUTOMATION,0,(char *)MHighlightMasks,
-  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
   /* 03 */DI_TEXT,-1,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightIncExcTitle,
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_3STATE,0,(char *)MHighlightRO,
   /* 05 */DI_CHECKBOX,5,6,0,0,0,0,DIF_3STATE,0,(char *)MHighlightHidden,
@@ -946,7 +946,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
   */
   {
-    Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
+    Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(LONG_PTR) &EditData);
     Dlg.SetHelp(HLS.HighlightEdit);
     Dlg.SetPosition(-1,-1,69,22);
     Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);

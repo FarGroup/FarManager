@@ -4,7 +4,7 @@ CFG=far - Win32 Release
 !MESSAGE No configuration specified. Defaulting to far - Win32 Release.
 !ENDIF
 
-!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug"
+!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug" && "$(CFG)" != "far - Win64 Release" && "$(CFG)" != "far - Win64 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
@@ -46,6 +46,10 @@ FARINCLUDE=.\Include
 OUTDIR=.\Release.vc
 !ELSEIF  "$(CFG)" == "far - Win32 Debug"
 OUTDIR=.\Debug.vc
+!ELSEIF  "$(CFG)" == "far - Win64 Release"
+OUTDIR=.\Release.64.vc
+!ELSEIF  "$(CFG)" == "far - Win64 Debug"
+OUTDIR=.\Debug.64.vc
 !ENDIF
 
 INTDIR=$(OUTDIR)\obj
@@ -194,7 +198,29 @@ USEDEBUG=NDEBUG
 
 CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) /Zp4 $(MT) /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
-LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:i386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+
+!ELSEIF "$(CFG)" == "far - Win64 Release"
+!MESSAGE far - Win64 Release.
+
+USEDEBUG=NDEBUG
+
+LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
+
+CPP_PROJ=/GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) $(MT) /Zp8 /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+
+!ELSEIF "$(CFG)" == "far - Win64 Debug"
+!MESSAGE far - Win64 Debug.
+
+USEDEBUG=_DEBUG
+
+LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
+
+CPP_PROJ=/GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /pdb:none /debug /debugtype:both /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
 
 !ELSE
 !MESSAGE far - Win32 Debug.
@@ -279,7 +305,7 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
-!IF  "$(CFG)" == "far - Win32 Release"
+!IF  "$(CFG)" == "far - Win32 Release" || "$(CFG)" == "far - Win64 Release"
 !IF EXISTS("far.release.dep")
 !INCLUDE "far.release.dep"
 !ELSE

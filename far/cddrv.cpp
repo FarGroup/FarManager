@@ -5,37 +5,6 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.09 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  07.04.2006 AY
-    ! GCC
-  17.07.2005 SVS
-    ! немного gcc
-  09.06.2005 SVS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  06.05.2005 SVS
-    ! FAR_GetDriveType() теперь сам определяет что это SUBST (и USB) (т.с. сокращание кода :-)
-  24.07.2004 VVM
-    - Портились диски во время записи при включенном определении типа привода.
-      Вызов DeviceIoControl(IOCTL_SCSI_PASS_THROUGH) с параметром SCSIOP_INQUIRY
-      давал такой эффект.
-  01.07.2004 SVS
-    ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
-  28.06.2004 SVS
-    - Некомпиляция - старые версии H-файлов в BCC 5.02 :-(
-  21.06.2004 SVS
-    + добавлен в проект.
-      Исходный  - EnumCD (http://support.microsoft.com/default.aspx?scid=kb;en-us;305184)
-      Доработка - Alexander Kornienko <alexfh@mail.ru>
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -60,8 +29,8 @@ Modify:
 #define IOCTL_SCSI_PASS_THROUGH         CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 
 
-typedef long LONG_PTR, *PLONG_PTR;
-typedef unsigned long ULONG_PTR, *PULONG_PTR;
+//typedef long LONG_PTR, *PLONG_PTR;
+//typedef unsigned long ULONG_PTR, *PULONG_PTR;
 
 #undef offsetof
 #define offsetof(s,m)   (size_t)&(((s *)0)->m)

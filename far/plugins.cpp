@@ -1479,7 +1479,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
 }
 
 
-HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
+HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
 {
   _ALGO(CleverSysLog clv("PluginsSet::OpenPlugin()"));
   _ALGO(SysLog("PluginNumber=%d, OpenFrom=%d, Item=%d",PluginNumber,OpenFrom,Item));
@@ -3151,7 +3151,7 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
 
       size = GetRegKeySize (RegKey, "CommandPrefix")+1;
 
-      lpNewPrefix = (char*)xf_realloc (lpPluginPrefix, size); 
+      lpNewPrefix = (char*)xf_realloc (lpPluginPrefix, size);
 
       if ( !lpNewPrefix )
         continue;
@@ -3160,7 +3160,7 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
       GetRegKey (RegKey, "CommandPrefix", lpPluginPrefix, "", size);
 
       PluginFlags=GetRegKey(RegKey,"Flags",0);
-    } 
+    }
     else
     {
       struct PluginInfo Info;
@@ -3232,7 +3232,7 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
   /* VVM $ */
   /* DJ $ */
   RemoveTrailingSpaces(PluginCommand);
-  HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
+  HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(INT_PTR)PluginCommand);
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
@@ -3282,7 +3282,7 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
   {
     if (PluginsData[I].pOpenPlugin && !ProcessException)
     {
-      HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(int)Data);
+      HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(INT_PTR)Data);
 
       if (hNewPlugin!=INVALID_HANDLE_VALUE &&
          (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))

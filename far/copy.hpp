@@ -231,7 +231,7 @@ class ShellCopy
   public:
     static int  ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
-    static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     static int  MkSymLink(const char *SelName,const char *Dest,DWORD Flags);
     static void PR_ShellCopyMsg(void);
 };

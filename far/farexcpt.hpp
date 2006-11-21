@@ -1,47 +1,22 @@
 #ifndef __FAREXCPT_HPP__
 #define __FAREXCPT_HPP__
 /*
-exception.cpp
+farexcpt.hpp
 
 Все про исключения
 
 */
 
-/* Revision: 1.09 13.01.2003 $ */
-
-/*
-Modify:
-  13.01.2003 SVS
-    ! Начиная с 1251 нарушена нумерация билдов (один пропущен)
-  04.11.2002 SVS
-    + флаги EX_PLUGINITEMWORKFLAGS, EX_PLUGINITEMCALLFUNCFLAGS
-    ! поле PLUGINRECORD.Next сделаем пока как PLUGINRECORD.Reserved1
-  19.02.2002 SVS
-    ! ВСЕ СОВСЕМ ИНАЧЕ :-)
-  25.01.2002 SVS
-    ! Выравниванием, мать его :-((
-    ! FAULTCODERECORD.Code = 128 байт
-    ! вместо pXXXXXX выставим нужные флаги (FuncFlags)
-    ! Куча разных уточнений ;-)
-  22.01.2002 SVS
-    ! Уточнение в PLUGINRECORD
-  11.07.2001 SVS
-    + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
-  16.05.2001 SVS
-    ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
-    + PLUGINSINFORECORD
-  16.05.2001 SVS
-    ! Created
-*/
-
 #include "plugins.hpp"
 
+#if !defined(_WIN64)
 #if defined(__BORLANDC__)
   #pragma option -a2
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack(2)
 #else
   #pragma pack(push,2)
+#endif
 #endif
 
 #define FAR_LOG_VERSION  1
@@ -231,12 +206,14 @@ struct FARExceptionState {
   struct RECHEADER   *Head;
 };
 
+#if !defined(_WIN64)
 #if defined(__BORLANDC__)
   #pragma option -a.
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack()
 #else
   #pragma pack(pop)
+#endif
 #endif
 
 /* $ 17.10.2000 SVS

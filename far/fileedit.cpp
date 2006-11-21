@@ -841,7 +841,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             {
               /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
               /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
-              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,"",
+              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,"",
               /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
               /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
               /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
@@ -1328,7 +1328,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
       SysErrorCode=GetLastError();
       goto end;
     }
-    int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+    int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
     if (EditHandle==-1)
     {
       RetCode=SAVEFILE_ERROR;

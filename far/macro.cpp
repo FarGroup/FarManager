@@ -2003,7 +2003,7 @@ static TVar dlggetvalueFunc(TVar *param)
     if(Index == -1)
     {
       SMALL_RECT Rect;
-      if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(long)&Rect))
+      if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(LONG_PTR)&Rect))
       {
         switch(TypeInf)
         {
@@ -2030,7 +2030,7 @@ static TVar dlggetvalueFunc(TVar *param)
         {
           struct FarListGetItem ListItem;
           ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
-          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(long)&ListItem))
+          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(LONG_PTR)&ListItem))
           {
             Ret=(char *)ListItem.Item.Text;
           }
@@ -3341,7 +3341,7 @@ void KeyMacro::RunStartMacro()
 }
 
 // обработчик диалогового окна назначения клавиши
-long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   char KeyText[50];
   static int LastKey;
@@ -3360,7 +3360,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       "CtrlMsWheelDown","ShiftMsWheelDown","AltMsWheelDown","CtrlShiftMsWheelDown","CtrlAltMsWheelDown","AltShiftMsWheelDown"
     };
     for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
-      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)PreDefKeyName[I]);
+      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
 /*
     int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
     char *KeyStr;
@@ -3384,7 +3384,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       xf_free(KeyStr);
     }
 */
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)"");
     // </Клавиши, которые не введешь в диалоге назначения>
 
   }
@@ -3525,7 +3525,7 @@ M1:
       //  и значит очистим поле ввода.
       KeyText[0]=0;
     }
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)KeyText);
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)KeyText);
 //    if(Param2 == KEY_F1 && LastKey == KEY_F1)
 //      LastKey=-1;
 //    else
@@ -3560,7 +3560,7 @@ DWORD KeyMacro::AssignMacroKey()
 //_SVS(SysLog("StartMode=%d",StartMode));
 
   IsProcessAssignMacroKey++;
-  Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
+  Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(LONG_PTR)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp("KeyMacro");
   Dlg.Process();
@@ -3584,7 +3584,7 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
 }
 
 
-long WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   static struct DlgParam *KMParam=NULL;
 
@@ -3733,7 +3733,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[14].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
 
   struct DlgParam Param={this,0,0};
-  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(long)&Param);
+  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(LONG_PTR)&Param);
   Dlg.SetPosition(-1,-1,73,16);
   Dlg.SetHelp("KeyMacroSetting");
   FrameManager->GetBottomFrame()->Lock(); // отменим прорисовку фрейма

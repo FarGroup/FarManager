@@ -308,7 +308,7 @@ static void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
 }
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
-long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   int FocusPos,I;
   int State8, State9, State12;
@@ -409,17 +409,17 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                     {
                       if(!DlgParam->OLastWriteTime)
                       {
-                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(DWORD)&FindData.ftLastWriteTime);
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
                         DlgParam->OLastWriteTime=0;
                       }
                       if(!DlgParam->OCreationTime)
                       {
-                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_CREATION,(DWORD)&FindData.ftCreationTime);
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_CREATION,(LONG_PTR)&FindData.ftCreationTime);
                         DlgParam->OCreationTime=0;
                       }
                       if(!DlgParam->OLastAccessTime)
                       {
-                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_LASTACCESS,(DWORD)&FindData.ftLastAccessTime);
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
                         DlgParam->OLastAccessTime=0;
                       }
                     }
@@ -483,9 +483,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if ((FindHandle=FindFirstFile(DlgParam->SelName,&FindData))!=INVALID_HANDLE_VALUE)
         {
           FindClose(FindHandle);
-          Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(DWORD)&FindData.ftLastWriteTime);
-          Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_CREATION,(DWORD)&FindData.ftCreationTime);
-          Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_LASTACCESS,(DWORD)&FindData.ftLastAccessTime);
+          Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
+          Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_CREATION,(LONG_PTR)&FindData.ftCreationTime);
+          Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
           DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=0;
         }
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,SETATTR_MDATE,0);
@@ -558,9 +558,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         else { Set1=-1; Set2=Param1; }
 
         if(Set1 != -1)
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(long)Date);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(LONG_PTR)Date);
         if(Set2 != -1)
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(long)Time);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(LONG_PTR)Time);
         return TRUE;
       }
   }
@@ -1008,7 +1008,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     // <Dialog>
     {
-      Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc,(DWORD)&DlgParam);
+      Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc,(LONG_PTR)&DlgParam);
       Dlg.SetHelp("FileAttrDlg");                 //  ^ - это одиночный диалог!
       Dlg.SetPosition(-1,-1,69,JunctionPresent?23:22);
       Dlg.Process();

@@ -103,9 +103,9 @@ class FindFiles
     static void AdvancedDialog();
 
     int FindFilesProcess();
-    static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static long WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     static void SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel=FALSE);
     static void _cdecl DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* FullName, size_t cbFullName);

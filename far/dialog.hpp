@@ -386,7 +386,7 @@ struct DialogItem
   BitFlags IFlags;
   int AutoCount;   // Автоматизация
   struct DialogItemAutomation* AutoPtr;
-  DWORD UserData; // ассоциированные данные
+  DWORD_PTR UserData; // ассоциированные данные
 
   // прочее
   void *ObjPtr;
@@ -424,7 +424,7 @@ struct FarDialogMessage{
   HANDLE hDlg;
   int    Msg;
   int    Param1;
-  long   Param2;
+  LONG_PTR   Param2;
 };
 
 class DlgEdit;
@@ -589,10 +589,10 @@ class Dialog: public Frame
     int Do_ProcessFirstCtrl();
     int Do_ProcessSpace();
 
-    int CallDlgProc (int nMsg, int nParam1, int nParam2);
+    LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
 
   public:
-    Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=0);
+    Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
     ~Dialog();
 
   public:
@@ -699,9 +699,9 @@ class Dialog: public Frame
                         DWORD Checked3Set=0,DWORD Checked3Skip=0);
 
     /* $ 23.07.2000 SVS: функция обработки диалога (по умолчанию) */
-    static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
-    static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };

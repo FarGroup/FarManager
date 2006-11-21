@@ -516,9 +516,9 @@ class VMenu: virtual public Modal, virtual public Frame
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)
     */
-    static long WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
     // функция посылки сообщений меню
-    static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
     /* SVS $ */
 
 };

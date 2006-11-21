@@ -115,7 +115,7 @@ typedef void (WINAPI *PLUGINGETPLUGININFO)(struct PluginInfo *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATA)(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORY)(HANDLE hPlugin,char *Name,int OpMode);
 typedef HANDLE (WINAPI *PLUGINOPENFILEPLUGIN)(char *Name,const unsigned char *Data,int DataSize);
-typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,int Item);
+typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,INT_PTR Item);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENT)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(const INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINPROCESSEVENT)(HANDLE hPlugin,int Event,void *Param);
@@ -284,7 +284,7 @@ class PluginsSet
     void LoadPlugins();
     void LoadPluginsFromCache();
     BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
-    HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
+    HANDLE OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item);
     HANDLE OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
     HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
     void ClosePlugin(HANDLE hPlugin);

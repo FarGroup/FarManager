@@ -1,3 +1,27 @@
+t-rex 21.11.2006 18:13:55 +0200 - build 2142
+
+1. Входим в эру 64-бит (ждём юникод :)
+
+   Главные изменения: (надо будет обновить Енц.)
+     DlgProc: long Param2 -> LONG_PTR Param2 и возвращает LONG_PTR вместо long
+     SendDlgMessage: long Param2 -> LONG_PTR Param2 и возвращает LONG_PTR вместо long
+     DefDlgProc: long Param2 -> LONG_PTR Param2 и возвращает LONG_PTR вместо long
+     DialogEx: long Param -> LONG_PTR Param
+     FarMenuItemEx: DWORD UserData -> DWORD_PTR UserData
+     PluginPanelItem: DWORD UserData -> DWORD_PTR UserData
+     AdvControl: возвращает INT_PTR вместо int
+     OpenPlugin: int Item -> INT_PTR Item
+   А также в execute.cpp добавлено определение 64-bit GUI прог.
+
+   После некоторых экспериментов было выведено что выравнивание должно быть 8 для 64-bit версии.
+   Обновил Far.mak и добавил vc.build.debug.64.bat и vc.build.release.64.bat которые используют
+   custom.vc.debug.64.bat и custom.vc.release.64.bat соответственно.
+   Мой custom.vc.release.64.bat содержит следующее:
+   call "I:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd" /X64
+
+   Единственное что ещё не доделано до конца это SEH - кто у нас в этом шарит?
+
+
 svs 20.11.2006 16:37:26 +0300 - build 2141
 
 1. Editor - copy/paste, блин.
