@@ -21,11 +21,11 @@ The <dfn>DefDlgProc</dfn> function allows to call the internal dialog callback f
 </div>
 
 <pre class=syntax>
-long WINAPI DefDlgProc(
+LONG_PTR WINAPI DefDlgProc(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
-  long   Param2
+  LONG_PTR Param2
 );
 </pre>
 
@@ -52,7 +52,7 @@ long WINAPI DefDlgProc(
 <h3>Example</h3>
 <div class=descr>
 A fragment from the Reversi game dialog callback proc:
-<pre class=code>long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+<pre class=code>LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   ...
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);

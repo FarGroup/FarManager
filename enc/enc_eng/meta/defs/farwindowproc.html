@@ -15,8 +15,7 @@
 
 
 <div class=shortdescr>
-The <dfn>FARWINDOWPROC</dfn> type describes a callback function for the
-dialog window.
+The <dfn>FARWINDOWPROC</dfn> type describes a callback function for the dialog window.
 </div>
 
 <pre class=syntax>
@@ -24,7 +23,7 @@ typedef long (WINAPI *FARWINDOWPROC)(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
-  long   Param2
+  LONG_PTR Param2
 );
 </pre>
 

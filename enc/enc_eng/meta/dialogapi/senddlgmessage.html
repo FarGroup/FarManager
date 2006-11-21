@@ -21,11 +21,11 @@ The <dfn>SendDlgMessage</dfn> function is used to send a message to the dialog c
 </div>
 
 <pre class=syntax>
-long WINAPI SendDlgMessage(
+LONG_PTR WINAPI SendDlgMessage(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
-  long   Param2
+  LONG_PTR Param2
 );
 </pre>
 
@@ -53,12 +53,12 @@ Return value depends on Msg value.
 <h3>Example</h3>
 <div class=descr>
 A fragment from the Reversi game dialog callback proc:
-<pre class=code>long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+<pre class=code>LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
 ...
     case DN_INITDIALOG:
       //get element info
-      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(long)&amp;DialogItem);
+      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(LONG_PTR)&amp;DialogItem);
       ListItems=DialogItem.ListItems-&gt;Items;
       ...
       NewGame(hDlg);

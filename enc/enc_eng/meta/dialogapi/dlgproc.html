@@ -24,11 +24,11 @@ and two additional parameters.
 </div>
 
 <pre class=syntax>
-long WINAPI DlgProc(
+LONG_PTR WINAPI DlgProc(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
-  long   Param2
+  LONG_PTR   Param2
 );
 </pre>
 
@@ -64,7 +64,7 @@ They return high-order and low-order words respectively from long int 32-bit val
 <h3>Example</h3>
 <div class=descr>
 Dialog handler code fragment for Reversi game:
-<pre class=code>long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+<pre class=code>LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   struct FarDialogItem DialogItem;
   struct FarListItem *ListItems;
@@ -74,7 +74,7 @@ Dialog handler code fragment for Reversi game:
   {
     case DN_INITDIALOG:
       // Get information about the element
-      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(long)&amp;DialogItem);
+      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(LONG_PTR)&amp;DialogItem);
       ListItems=DialogItem.ListItems-&gt;Items;
       ...
       NewGame(hDlg);
@@ -90,7 +90,7 @@ Dialog handler code fragment for Reversi game:
         i=2;
       else
         i=1;
-      return (long)(Help[i]);
+      return (LONG_PTR)(Help[i]);
     }
     ...
 
