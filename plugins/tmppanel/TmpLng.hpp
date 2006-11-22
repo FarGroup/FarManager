@@ -1,3 +1,6 @@
+#ifndef __TMPLNG_HPP__
+#define __TMPLNG_HPP__
+
 enum
 {
   MOk,
@@ -50,3 +53,5 @@ enum
 
   MCopyContensMsg
 };
+
+#endif /* __TMPLNG_HPP__ */

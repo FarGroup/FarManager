@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 HKEY CreateRegKey(HKEY hRoot,const char *Key);
 HKEY OpenRegKey(HKEY hRoot,const char *Key);
 
@@ -72,9 +74,10 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,B
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     if (Default!=NULL)
-      memcpy(ValueData,Default,DataSize);
+      my_memcpy(ValueData,Default,DataSize);
     else
-      memset(ValueData,0,DataSize);
+      my_memset(ValueData,0,DataSize);
+      ;
     return(FALSE);
   }
   return(TRUE);

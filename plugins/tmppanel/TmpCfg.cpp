@@ -5,6 +5,9 @@ Temporary panel configuration
 
 */
 
+#include "stdafx.h"
+#include "TmpCfg.hpp"
+
 enum
 {
   AddToDisksMenu,
@@ -25,6 +28,8 @@ enum
   Mask,
   Prefix
 };
+
+options_t Opt;
 
 static const char REGStr[17][8]=
 {
@@ -47,13 +52,13 @@ static const struct COptionsList OptionsList[]={
   {&Opt.AddToDisksMenu    , ""         ,  1},
   {&Opt.AddToPluginsMenu  , ""         ,  4},
 
-  {&Opt.CommonPanel       , ""         ,  5},
-  {&Opt.SafeModePanel     , NULL       ,  6},
-  {&Opt.AnyInPanel        , NULL       ,  7},
-  {&Opt.CopyContents      , NULL       ,  8},
-  {&Opt.Mode              , ""         ,  9},
-  {&Opt.MenuForFilelist   , NULL       , 10},
-  {&Opt.NewPanelForSearchResults, NULL , 11},
+  {&Opt.CommonPanel       , ""         ,  6},
+  {&Opt.SafeModePanel     , NULL       ,  7},
+  {&Opt.AnyInPanel        , NULL       ,  8},
+  {&Opt.CopyContents      , NULL       ,  9},
+  {&Opt.Mode              , ""         , 10},
+  {&Opt.MenuForFilelist   , NULL       , 11},
+  {&Opt.NewPanelForSearchResults, NULL , 12},
 
   {&Opt.FullScreenPanel   , NULL       , 22},
 
@@ -66,6 +71,8 @@ static const struct COptionsList OptionsList[]={
   {Opt.Mask               , "*.temp"   , 25},
   {Opt.Prefix             , "tmp"      , 27},
 };
+
+int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
 
 void GetOptions(void)
 {
@@ -101,7 +108,7 @@ const int DC = DIALOG_WIDTH/2-1;
 
 int Config()
 {
-  static const struct MyInitDialogItem InitItems[]={
+  static const MyInitDialogItem InitItems[]={
   /* 0*/ {DI_DOUBLEBOX, 3, 1,  DIALOG_WIDTH-4,DIALOG_HEIGHT-2, 0, MConfigTitle},
 
   /* 1*/ {DI_CHECKBOX,  5, 2,  0, 0, 0, MConfigAddToDisksMenu},

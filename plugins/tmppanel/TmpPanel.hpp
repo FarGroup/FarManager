@@ -5,114 +5,49 @@ Temporary panel header file
 
 */
 
-#define REMOVE_FLAG 1
+#ifndef __TMPPANEL_HPP__
+#define __TMPPANEL_HPP__
 
-class TmpPanel
-{
-  private:
-    void SortList();
-    void RemoveDups();
-    void RemoveEmptyItems();
-    void UpdateItems(int ShowOwners,int ShowLinks);
-    int IsOwnersDisplayed (const struct PanelInfo &PInfo);
-    int IsLinksDisplayed (const struct PanelInfo &PInfo);
-    void ProcessRemoveKey();
-    void ProcessSaveListKey();
-    void ProcessPanelSwitchMenu();
-    void SwitchToPanel (int NewPanelIndex);
-    void FindSearchResultsPanel();
-    void SaveListFile (const char *Path);
-    int IsCurrentFileCorrect (char *pCurFileName);
+#define COMMONPANELSNUMBER 10
 
-    PluginPanelItem *TmpPanelItem;
-    int TmpItemsNumber;
-    int LastOwnersRead;
-    int LastLinksRead;
-    int UpdateNotNeeded;
-  public:
-    TmpPanel();
-    ~TmpPanel();
-    int PanelIndex;
-//    int OpenFrom;
-    int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-    void GetOpenPluginInfo(struct OpenPluginInfo *Info);
-    int SetDirectory(const char *Dir,int OpMode);
-
-    int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
-    HANDLE BeginPutFiles();
-    void CommitPutFiles (HANDLE hRestoreScreen, int Success);
-    int PutOneFile (PluginPanelItem &PanelItem);
-
-    int SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber);
-    int ProcessEvent(int Event,void *Param);
-    int ProcessKey(int Key,unsigned int ControlState);
-    static int CheckForCorrect(const char *Dir,FAR_FIND_DATA *FindData,int OpenFrom);
-    void IfOptCommonPanel(void);
-
-};
-
-struct InitDialogItem
+typedef struct _MyInitDialogItem
 {
   unsigned char Type;
   unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  unsigned int Selected;
-  unsigned int Flags;
-  unsigned char DefaultButton;
-  char *Data;
-};
+  DWORD Flags;
+  signed char Data;
+} MyInitDialogItem;
 
-struct Options
-{
-  int AddToDisksMenu;
-  int AddToPluginsMenu;
-  int CommonPanel;
-  int SafeModePanel;
-  int AnyInPanel;
-  int CopyContents;
-  int Mode;
-  int MenuForFilelist;
-  int NewPanelForSearchResults;
-  int FullScreenPanel;
-  int LastSearchResultsPanel;
-  int SelectedCopyContents;
-  char ColumnTypes[64];
-  char ColumnWidths[64];
-  char StatusColumnTypes[64];
-  char StatusColumnWidths[64];
-  char DisksMenuDigit[1];
-  char Mask[512];
-  char Prefix[16];
-} Opt;
-
-#define COMMONPANELSNUMBER 10
-struct PluginPanels
+typedef struct _PluginPanels
 {
   PluginPanelItem *Items;
   unsigned int ItemsNumber;
   unsigned int OpenFrom;
-} CommonPanels[COMMONPANELSNUMBER];
-unsigned int CurrentCommonPanel;
+} PluginPanels;
 
-static struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
-int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
+extern PluginPanels CommonPanels[COMMONPANELSNUMBER];
 
-static char PluginRootKey[80];
+extern unsigned int CurrentCommonPanel;
+
+extern struct PluginStartupInfo Info;
+extern struct FarStandardFunctions FSF;
+
+extern int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
+extern char PluginRootKey[80];
 
 const char *GetMsg(int MsgId);
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
-                     int ItemsNumber);
+void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
+                    int ItemsNumber);
 
 int Config();
 void GoToFile(const char *Target, BOOL AnotherPanel);
 void FreePanelItems(PluginPanelItem *Items, DWORD Total);
 
-#if defined(__BORLANDC__)
-char* __cdecl strchr(char * string,int ch);
-char* __cdecl strrchr(char * string,int ch);
-#elif !defined(_MSC_VER)
-char* __cdecl strchr(const char * string,int ch);
-char* __cdecl strrchr(const char * string,int ch);
-#endif
+char* my_strchr(const char * string,int ch);
+char* my_strrchr(const char * string,int ch);
+
 char *ParseParam(char *& str);
+void GetOptions(void);
+void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
+
+#endif /* __TMPPANEL_HPP__ */

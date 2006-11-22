@@ -5,25 +5,19 @@ Temporary panel miscellaneous utility functions
 
 */
 
+#include "stdafx.h"
+
 const char *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
-struct MyInitDialogItem
-{
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  DWORD Flags;
-  signed char Data;
-};
-
-void InitDialogItems(const struct MyInitDialogItem *Init,struct FarDialogItem *Item,
+void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
                     int ItemsNumber)
 {
   int i;
   struct FarDialogItem *PItem=Item;
-  const struct MyInitDialogItem *PInit=Init;
+  const MyInitDialogItem *PInit=Init;
   for (i=0;i<ItemsNumber;i++,PItem++,PInit++)
   {
     PItem->Type=PInit->Type;
@@ -44,16 +38,12 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total)
   if(Items){
     for (DWORD I=0;I<Total;I++)
       if (Items[I].Owner)
-        free (Items[I].Owner);
-    free (Items);
+        my_free (Items[I].Owner);
+    my_free (Items);
   }
 }
-#if !defined(_MSC_VER)
-#if defined(__BORLANDC__)
-char * __cdecl strchr (char * string,int ch)
-#else
-char * __cdecl strchr (const char * string,int ch)
-#endif
+
+char * my_strchr (const char * string,int ch)
 {
   while (*string && *string != (char)ch)
     string++;
@@ -61,14 +51,8 @@ char * __cdecl strchr (const char * string,int ch)
     return((char *)string);
   return(NULL);
 }
-#endif
 
-#if !defined(_MSC_VER)
-#if defined(__BORLANDC__)
-char * __cdecl strrchr(char * string,int ch)
-#else
-char * __cdecl strrchr(const char * string,int ch)
-#endif
+char * my_strrchr(const char * string,int ch)
 {
   char *start = (char *)string;
   while (*string++);
@@ -77,7 +61,6 @@ char * __cdecl strrchr(const char * string,int ch)
     return( (char *)string );
   return(NULL);
 }
-#endif
 
 char *ParseParam(char *& str)
 {
@@ -85,7 +68,7 @@ char *ParseParam(char *& str)
   char* parm=NULL;
   if(*p=='|'){
     parm=++p;
-    p=strchr(p,'|');
+    p=my_strchr(p,'|');
     if(p){
       *p='\0';
       str=p+1;
@@ -108,9 +91,9 @@ void GoToFile(const char *Target, BOOL AnotherPanel)
   int pathlen;
 
   lstrcpy(Name,FSF.PointToName(const_cast<char*>(Target)));
-  pathlen=FSF.PointToName(const_cast<char*>(Target))-Target;
+  pathlen=(int)(FSF.PointToName(const_cast<char*>(Target))-Target);
   if(pathlen)
-    memcpy(Dir,Target,pathlen);
+    my_memcpy(Dir,Target,pathlen);
   Dir[pathlen]=0;
 
   FSF.Trim(Name);
@@ -138,7 +121,17 @@ void GoToFile(const char *Target, BOOL AnotherPanel)
   Info.Control(INVALID_HANDLE_VALUE,FCTL_RedrawPanel,&PRI);
 }
 
-//extern "C" int __stdcall _DllMainCRTStartup (HANDLE hDllHandle, DWORD dwReason, LPVOID lpreserved)
-//{
-//  return 1;
-//}
+void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
+{
+  ffd.dwFileAttributes=wfd.dwFileAttributes;
+  ffd.ftCreationTime=wfd.ftCreationTime;
+  ffd.ftLastAccessTime=wfd.ftLastAccessTime;
+  ffd.ftLastWriteTime=wfd.ftLastWriteTime;
+  ffd.nFileSizeHigh=wfd.nFileSizeHigh;
+  ffd.nFileSizeLow=wfd.nFileSizeLow;
+  ffd.dwReserved0=wfd.dwReserved0;
+  ffd.dwReserved1=wfd.dwReserved1;
+  lstrcpy(ffd.cFileName,wfd.cFileName);
+  lstrcpy(ffd.cAlternateFileName,wfd.cAlternateFileName);
+}
+
