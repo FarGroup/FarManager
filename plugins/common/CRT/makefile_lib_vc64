@@ -29,9 +29,8 @@ $(OBJDIR)\strtok.obj \
 $(OBJDIR)\strtol.obj
 
 
-CPP_PROJ=/c /Zp8 /J /Wp64 /GS- /Gr /GR- /GX- /LD /Fo"$(OBJDIR)\\"
-
-LINK_FLAGS=/machine:amd64 /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
+CPP_PROJ=/nologo /c /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
+LINK_FLAGS=/nologo /machine:amd64 /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
 
 ALL: $(OBJDIR) $(OUTDIR)\$(DLLNAME)
 
