@@ -10,7 +10,7 @@
 #include "./CRT/realloc.hpp"
 #include "./CRT/strdup.hpp"
 
-#if defined(__GNUC__)
+//#if defined(__GNUC__)
 
 #include "./CRT/ctype.hpp"
 #include "./CRT/memchr.hpp"
@@ -30,6 +30,6 @@
 #include "./CRT/strcspn.hpp"
 #include "./CRT/strtol.hpp"
 
-#endif
+//#endif
 
 #endif

@@ -1,0 +1,75 @@
+OBJDIR = VC64
+OUTDIR = ..
+DLLNAME = libCRT64.lib
+
+LINK_OBJS = $(OBJDIR)\ctype.obj \
+$(OBJDIR)\delete.obj \
+$(OBJDIR)\delete_array.obj \
+$(OBJDIR)\free.obj \
+$(OBJDIR)\i64toa.obj \
+$(OBJDIR)\malloc.obj \
+$(OBJDIR)\memchr.obj \
+$(OBJDIR)\memcmp.obj \
+$(OBJDIR)\memcpy.obj \
+$(OBJDIR)\memicmp.obj \
+$(OBJDIR)\memmove.obj \
+$(OBJDIR)\memset.obj \
+$(OBJDIR)\new.obj \
+$(OBJDIR)\new_array.obj \
+$(OBJDIR)\realloc.obj \
+$(OBJDIR)\strchr.obj \
+$(OBJDIR)\strcspn.obj \
+$(OBJDIR)\strdup.obj \
+$(OBJDIR)\strncat.obj \
+$(OBJDIR)\strncmp.obj \
+$(OBJDIR)\strpbrk.obj \
+$(OBJDIR)\strrchr.obj \
+$(OBJDIR)\strstr.obj \
+$(OBJDIR)\strtok.obj \
+$(OBJDIR)\strtol.obj
+
+
+CPP_PROJ=/c /Zp8 /J /Wp64 /GS- /Gr /GR- /GX- /LD /Fo"$(OBJDIR)\\"
+
+LINK_FLAGS=/machine:amd64 /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
+
+ALL: $(OBJDIR) $(OUTDIR)\$(DLLNAME)
+
+$(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
+	lib @<<
+	$(LINK_FLAGS) $(LINK_OBJS)
+<<
+
+.cpp{$(OBJDIR)}.obj::
+	cl @<<
+	$(CPP_PROJ) $<
+<<
+
+$(OBJDIR)\ctype.obj: ctype.cpp ctype.hpp
+$(OBJDIR)\delete.obj: delete.cpp delete.hpp free.hpp
+$(OBJDIR)\delete_array.obj: delete_array.cpp delete_array.hpp delete.hpp
+$(OBJDIR)\free.obj: free.cpp free.hpp
+$(OBJDIR)\i64toa.obj: i64toa.cpp i64toa.hpp
+$(OBJDIR)\malloc.obj: malloc.cpp malloc.hpp
+$(OBJDIR)\memchr.obj: memchr.cpp memchr.hpp
+$(OBJDIR)\memcmp.obj: memcmp.cpp memcmp.hpp
+$(OBJDIR)\memcpy.obj: memcpy.cpp memcpy.hpp
+$(OBJDIR)\memicmp.obj: memicmp.cpp memicmp.hpp
+$(OBJDIR)\memmove.obj: memmove.cpp memmove.hpp
+$(OBJDIR)\memset.obj: memset.cpp memset.hpp
+$(OBJDIR)\new.obj: new.cpp new.hpp malloc.hpp
+$(OBJDIR)\new_array.obj: new_array.cpp new_array.hpp new.hpp
+$(OBJDIR)\realloc.obj: realloc.cpp realloc.hpp
+$(OBJDIR)\strchr.obj: strchr.cpp strchr.hpp
+$(OBJDIR)\strcspn.obj: strcspn.cpp strcspn.hpp
+$(OBJDIR)\strdup.obj: strdup.cpp strdup.hpp malloc.hpp
+$(OBJDIR)\strncat.obj: strncat.cpp strncat.hpp
+$(OBJDIR)\strncmp.obj: strncmp.cpp strncmp.hpp
+$(OBJDIR)\strpbrk.obj: strpbrk.cpp strpbrk.hpp
+$(OBJDIR)\strrchr.obj: strrchr.cpp strrchr.hpp
+$(OBJDIR)\strstr.obj: strstr.cpp strstr.hpp
+$(OBJDIR)\strtok.obj: strtok.cpp strtok.hpp
+$(OBJDIR)\strtol.obj: strtol.cpp strtol.hpp ctype.hpp
+
+$(OBJDIR):
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
