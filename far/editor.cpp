@@ -1776,13 +1776,12 @@ int Editor::ProcessKey(int Key)
               int NextLength;
               CurLine->m_next->GetBinaryString(&Str,NULL,NextLength);
               CurLine->InsertBinaryString(Str,NextLength);
+              CurLine->SetEOL(CurLine->m_next->GetEOL());
               CurLine->SetCurPos(CurPos);
 
               BlockUndo++;
               DeleteString(CurLine->m_next,TRUE,NumLine+1);
               BlockUndo--;
-              if (NextLength==0)
-                CurLine->SetEOL("");
 
               if (NextSelStart!=-1)
                 if (SelStart==-1)
