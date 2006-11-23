@@ -2245,6 +2245,10 @@
                                 </OBJECT>
                         <UL>
                                  <LI> <OBJECT type="text/sitemap">
+                                         <param name="Name" value="$AKey">
+                                         <param name="Local" value="html/macro/macrocmd/akey.html">
+                                         </OBJECT>
+                                 <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$Date">
                                          <param name="Local" value="html/macro/macrocmd/date.html">
                                          </OBJECT>
