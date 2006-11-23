@@ -925,13 +925,12 @@ int Edit::ProcessKey(int Key)
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
 
-      if(CurPos >= SelStart && CurPos <= SelEnd)
+      if(SelStart != -1 && CurPos >= SelStart && CurPos <= SelEnd)
       { // выделяем ВСЮ строку при повторном двойном клике
         Select(0,StrSize);
       }
       else
       {
-        int SStart, SEnd;
         CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv);
         Select(SStart,++SEnd);
       }

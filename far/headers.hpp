@@ -224,24 +224,101 @@ headers.hpp
   #endif
 #endif
 
+
+#if defined(__BORLANDC__)
+  #if !defined(__midl) && defined(_X86_) && (__BORLANDC__ >= 0x0550)
+  #define _W64 __w64
+  #else
+  #define _W64
+  #endif
+
+  #ifndef _INTPTR_T_DEFINED
+  #ifdef  _WIN64
+  typedef __int64             intptr_t;
+  #else
+  typedef _W64 int            intptr_t;
+  #endif
+  #define _INTPTR_T_DEFINED
+  #endif
+
+  #if (__BORLANDC__ < 0x0550)
+    #if defined(_WIN64)
+        typedef __int64 INT_PTR, *PINT_PTR;
+        typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
+
+        typedef __int64 LONG_PTR, *PLONG_PTR;
+        typedef unsigned __int64 ULONG_PTR, *PULONG_PTR;
+    #else
+        typedef _W64 int INT_PTR, *PINT_PTR;
+        typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
+
+        typedef _W64 long LONG_PTR, *PLONG_PTR;
+        typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR;
+    #endif
+    typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
+  #endif
+
+#endif
+
+
 #if defined(__GNUC__) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
+  #ifndef _DWORDLONG_
+  typedef unsigned __int64 DWORDLONG;
+  typedef DWORDLONG *PDWORDLONG;
+  #endif // !_DWORDLONG_
 
-#ifndef _DWORDLONG_
-typedef unsigned __int64 DWORDLONG;
-typedef DWORDLONG *PDWORDLONG;
-#endif // !_DWORDLONG_
+  typedef struct _MEMORYSTATUSEX {
+      DWORD dwLength;
+      DWORD dwMemoryLoad;
+      DWORDLONG ullTotalPhys;
+      DWORDLONG ullAvailPhys;
+      DWORDLONG ullTotalPageFile;
+      DWORDLONG ullAvailPageFile;
+      DWORDLONG ullTotalVirtual;
+      DWORDLONG ullAvailVirtual;
+      DWORDLONG ullAvailExtendedVirtual;
+  } MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+#endif
 
-typedef struct _MEMORYSTATUSEX {
-    DWORD dwLength;
-    DWORD dwMemoryLoad;
-    DWORDLONG ullTotalPhys;
-    DWORDLONG ullAvailPhys;
-    DWORDLONG ullTotalPageFile;
-    DWORDLONG ullAvailPageFile;
-    DWORDLONG ullTotalVirtual;
-    DWORDLONG ullAvailVirtual;
-    DWORDLONG ullAvailExtendedVirtual;
-} MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+  typedef struct _IMAGE_OPTIONAL_HEADER IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
+
+  typedef struct _IMAGE_OPTIONAL_HEADER64 {
+      WORD        Magic;
+      BYTE        MajorLinkerVersion;
+      BYTE        MinorLinkerVersion;
+      DWORD       SizeOfCode;
+      DWORD       SizeOfInitializedData;
+      DWORD       SizeOfUninitializedData;
+      DWORD       AddressOfEntryPoint;
+      DWORD       BaseOfCode;
+      ULONGLONG   ImageBase;
+      DWORD       SectionAlignment;
+      DWORD       FileAlignment;
+      WORD        MajorOperatingSystemVersion;
+      WORD        MinorOperatingSystemVersion;
+      WORD        MajorImageVersion;
+      WORD        MinorImageVersion;
+      WORD        MajorSubsystemVersion;
+      WORD        MinorSubsystemVersion;
+      DWORD       Win32VersionValue;
+      DWORD       SizeOfImage;
+      DWORD       SizeOfHeaders;
+      DWORD       CheckSum;
+      WORD        Subsystem;
+      WORD        DllCharacteristics;
+      ULONGLONG   SizeOfStackReserve;
+      ULONGLONG   SizeOfStackCommit;
+      ULONGLONG   SizeOfHeapReserve;
+      ULONGLONG   SizeOfHeapCommit;
+      DWORD       LoaderFlags;
+      DWORD       NumberOfRvaAndSizes;
+      IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+  } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
+
+  #define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
+  #define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
+  #define IMAGE_ROM_OPTIONAL_HDR_MAGIC       0x107
 #endif
 
 #endif // __HEADERS_HPP__

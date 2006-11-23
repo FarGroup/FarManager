@@ -1088,6 +1088,20 @@ int Editor::ProcessKey(int Key)
       }
       _SVS(SysLog("[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
     }
+#if defined(MOUSEKEY)
+    case MCODE_OP_SELWORD:
+    {
+/*
+      int OldCurPos=CurPos;
+
+      UnmarkBlock();
+
+      CurPos=OldCurPos; // возвращаем обратно
+      Show();
+*/
+      return TRUE;
+    }
+#endif
   }
 
   switch(Key)
