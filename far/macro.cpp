@@ -5,8 +5,6 @@ macro.cpp
 
 */
 
-/* Revision: 1.189 20.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -203,9 +201,7 @@ static struct TKeyCodeName{
   int Len;
   const wchar_t *Name;
 } KeyMacroCodes[]={
-#if defined(MOUSEKEY)
-   { MCODE_OP_SELWORD,              8, L"$SelWord" },
-#endif
+   { MCODE_OP_AKEY,                 5, L"$AKey"    }, // клавиша, которой вызвали макрос
    { MCODE_OP_DATE,                 5, L"$Date"    }, // $Date "%d-%a-%Y"
    { MCODE_OP_ELSE,                 5, L"$Else"    },
    { MCODE_OP_END,                  4, L"$End"     },
@@ -215,6 +211,9 @@ static struct TKeyCodeName{
    { MCODE_OP_SWITCHKBD,           10, L"$KbdSwitch"},
    { MCODE_OP_MACROMODE,            6, L"$MMode"   },
    { MCODE_OP_REP,                  4, L"$Rep"     },
+#if defined(MOUSEKEY)
+   { MCODE_OP_SELWORD,              8, L"$SelWord" },
+#endif
    { MCODE_OP_PLAINTEXT,            5, L"$Text"    }, // $Text "Plain Text"
    { MCODE_OP_WHILE,                6, L"$While"   },
    { MCODE_OP_XLAT,                 5, L"$XLat"    },
@@ -2004,6 +2003,11 @@ done:
   {
     case MCODE_OP_EXIT:
       goto done;
+
+    case MCODE_OP_AKEY: //$AKey
+    {
+      return MR->Key;
+    }
 
     /* $IClip
        0: MCODE_OP_ICLIP

@@ -5,8 +5,6 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.22 20.09.2006 $ */
-
 #ifndef __MACROOPCODE_HPP__
 #define __MACROOPCODE_HPP__
 
@@ -76,10 +74,8 @@ enum MACRO_OP_CODE {
   MCODE_OP_MACROMODE,               // сменить режим блокировки вывода на экран
   MCODE_OP_SWITCHKBD,               // переключить раскладку клавиатуры
   MCODE_OP_ICLIP,                   // внутренний или внешний клипборд
-
-#if defined(MOUSEKEY)
-  MCODE_OP_SELWORD,
-#endif
+  MCODE_OP_AKEY,                    // $AKey - клавиша, которой вызвали макрос
+  MCODE_OP_SELWORD,                 // $SelWord - выделить "слово"
 
 
   /* ************************************************************************* */
