@@ -1766,6 +1766,7 @@ int Editor::ProcessKey(int Key)
               int NextLength;
               CurLine->m_next->GetBinaryStringW(&Str,NULL,NextLength);
               CurLine->InsertBinaryStringW(Str,NextLength);
+              CurLine->SetEOLW(CurLine->m_next->GetEOLW());
               CurLine->SetCurPos(CurPos);
 
               BlockUndo++;
