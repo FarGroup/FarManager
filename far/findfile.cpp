@@ -2699,7 +2699,7 @@ int FindFiles::LookForString(const wchar_t *Name)
         NewPos=ftell64(SrcFile)-(__int64)(2*(Length+1));
       else
         NewPos=ftell64(SrcFile)-(__int64)(Length+1);
-      fseek64(SrcFile,Max(NewPos,0i64),SEEK_SET);
+      fseek64(SrcFile,Max(NewPos,_i64(0)),SEEK_SET);
       /* KM $ */
       /* KM $ */
     }

@@ -97,7 +97,7 @@ void Edit::SetCodePage (int codepage)
     {
     	//m_codepage = codepage;
 
-    	int length = WideCharToMultiByte (m_codepage, 0, Str, StrSize, 0, NULL, NULL, NULL);
+    	int length = WideCharToMultiByte (m_codepage, 0, Str, StrSize, NULL, 0, NULL, NULL);
 
         char *decoded = (char*)xf_malloc (length);
 
