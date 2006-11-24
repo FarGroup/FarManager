@@ -1767,55 +1767,38 @@ int Panel::SetPluginCommand(int Command,void *Param)
   switch(Command)
   {
     case FCTL_SETVIEWMODE:
-    case FCTL_SETANOTHERVIEWMODE:
-      Result=FPanels->ChangePanelViewMode(((Command==FCTL_SETVIEWMODE) ? this:AnotherPanel),(Param?*(int *)Param:0),
-                                                   FPanels->IsTopFrame());
+      Result=FPanels->ChangePanelViewMode(this, (Param?*(int *)Param:0), FPanels->IsTopFrame());
       break;
 
     case FCTL_SETSORTMODE:
-    case FCTL_SETANOTHERSORTMODE:
       if (Param!=NULL)
       {
         int Mode=*(int *)Param;
         if ((Mode>SM_DEFAULT) && (Mode<=SM_NUMLINKS))
         {
-          Panel *DestPanel=(Command==FCTL_SETSORTMODE) ? this:AnotherPanel;
-          if (DestPanel!=NULL)
-          {
-            DestPanel->SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
-            Result=TRUE;
-          }
+          SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
+          Result=TRUE;
         }
       }
       break;
 
     case FCTL_SETNUMERICSORT:
-    case FCTL_SETANOTHERNUMERICSORT:
       {
         int NumericSortOrder = (Param && (*(int *)Param)) ? 1:0;
-        Panel *DestPanel=(Command==FCTL_SETNUMERICSORT) ? this:AnotherPanel;
-        if (DestPanel!=NULL)
-        {
-          DestPanel->SetNumericSort(NumericSortOrder);
-          Result=TRUE;
-        }
+
+        SetNumericSort(NumericSortOrder);
+        Result=TRUE;
       }
       break;
 
     case FCTL_SETSORTORDER:
-    case FCTL_SETANOTHERSORTORDER:
       {
         /* $ 22.01.2001 VVM
            - Порядок сортировки задается аналогично StartSortOrder */
         int Order = (Param && (*(int *)Param)) ? -1:1;
-        /* VVM $ */
-        Panel *DestPanel=(Command==FCTL_SETSORTORDER) ? this:AnotherPanel;
-        if (DestPanel!=NULL)
-        {
-          // $ 24.04.2001 VVVM Использовать функция ChangeSortOrder()
-          DestPanel->ChangeSortOrder(Order);
-          Result=TRUE;
-        }
+
+        ChangeSortOrder(Order);
+        Result=TRUE;
       }
       break;
 
@@ -1847,23 +1830,19 @@ int Panel::SetPluginCommand(int Command,void *Param)
     }
 
     case FCTL_GETPANELINFO:
-    case FCTL_GETANOTHERPANELINFO:
     case FCTL_GETPANELSHORTINFO:
-    case FCTL_GETANOTHERPANELSHORTINFO:
     {
       if(Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
         break;
       struct PanelInfo *Info=(struct PanelInfo *)Param;
       memset(Info,0,sizeof(*Info));
-      Panel *DestPanel=(Command == FCTL_GETPANELINFO || Command == FCTL_GETPANELSHORTINFO) ? this:AnotherPanel;
-      if (DestPanel==NULL)
-        break;
+
       /* $ 19.03.2002 DJ
          обеспечим наличие данных
       */
-      DestPanel->UpdateIfRequired();
-      /* DJ $ */
-      switch(DestPanel->GetType())
+      UpdateIfRequired();
+
+      switch( GetType() )
       {
         case FILE_PANEL:
           Info->PanelType=PTYPE_FILEPANEL;
@@ -1878,21 +1857,21 @@ int Panel::SetPluginCommand(int Command,void *Param)
           Info->PanelType=PTYPE_INFOPANEL;
           break;
       }
-      Info->Plugin=DestPanel->GetMode()==PLUGIN_PANEL;
+      Info->Plugin=(GetMode()==PLUGIN_PANEL);
       int X1,Y1,X2,Y2;
-      DestPanel->GetPosition(X1,Y1,X2,Y2);
+      GetPosition(X1,Y1,X2,Y2);
       Info->PanelRect.left=X1;
       Info->PanelRect.top=Y1;
       Info->PanelRect.right=X2;
       Info->PanelRect.bottom=Y2;
-      Info->Visible=DestPanel->IsVisible();
-      Info->Focus=DestPanel->GetFocus();
-      Info->ViewMode=DestPanel->GetViewMode();
-      Info->SortMode=SM_UNSORTED-UNSORTED+DestPanel->GetSortMode();
+      Info->Visible=IsVisible();
+      Info->Focus=GetFocus();
+      Info->ViewMode=GetViewMode();
+      Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
 
       string strInfoCurDir;
 
-      DestPanel->GetCurDirW(strInfoCurDir);
+      GetCurDirW(strInfoCurDir);
 
       Info->lpwszCurDir = _wcsdup(strInfoCurDir);
       /* $ 24.04.2001 SVS
@@ -1913,18 +1892,18 @@ int Panel::SetPluginCommand(int Command,void *Param)
           if(*(PFLAGS[I].Opt) != 0)
             Flags|=PFLAGS[I].Flags;
 
-        Flags|=DestPanel->GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
-        Flags|=DestPanel->GetSortGroups()?PFLAGS_USESORTGROUPS:0;
-        Flags|=DestPanel->GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
-        Flags|=DestPanel->GetNumericSort()?PFLAGS_NUMERICSORT:0;
+        Flags|=GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
+        Flags|=GetSortGroups()?PFLAGS_USESORTGROUPS:0;
+        Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
+        Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
 
 
         Info->Flags=Flags;
       }
-      /* SVS $ */
-      if (DestPanel->GetType()==FILE_PANEL)
+
+      if (GetType()==FILE_PANEL)
       {
-        FileList *DestFilePanel=(FileList *)DestPanel;
+        FileList *DestFilePanel=(FileList *)this;
         static int Reenter=0;
         if (!Reenter && Info->Plugin)
         {
@@ -1943,7 +1922,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
           /* DJ $ */
           Reenter--;
         }
-        DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO || Command == FCTL_GETANOTHERPANELINFO)?TRUE:FALSE);
+        DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO)?TRUE:FALSE);
       }
 
       if (!Info->Plugin) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
@@ -1953,12 +1932,10 @@ int Panel::SetPluginCommand(int Command,void *Param)
     }
 
     case FCTL_SETSELECTION:
-    case FCTL_SETANOTHERSELECTION:
       {
-        Panel *DestPanel=(Command==FCTL_SETSELECTION) ? this:AnotherPanel;
-        if (DestPanel && DestPanel->GetType()==FILE_PANEL && !IsBadReadPtr(Param,sizeof(struct PanelInfo)))
+        if (GetType()==FILE_PANEL && !IsBadReadPtr(Param,sizeof(PanelInfo)))
         {
-          ((FileList *)DestPanel)->PluginSetSelection((struct PanelInfo *)Param);
+          ((FileList *)this)->PluginSetSelection((PanelInfo *)Param);
           Result=TRUE;
         }
         break;
@@ -1966,46 +1943,35 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
     case FCTL_UPDATEPANEL:
       Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
-      Result=TRUE;
-      break;
 
-    case FCTL_UPDATEANOTHERPANEL:
-      AnotherPanel->Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
-      if (AnotherPanel!=NULL && AnotherPanel->GetType()==QVIEW_PANEL)
-        UpdateViewPanel();
+      if ( GetType() == QVIEW_PANEL )
+      	UpdateViewPanel();
+
       Result=TRUE;
       break;
 
     case FCTL_REDRAWPANEL:
-    case FCTL_REDRAWANOTHERPANEL:
     {
-      Panel *DestPanel=Command==FCTL_REDRAWANOTHERPANEL?AnotherPanel:this;
-      if (DestPanel)
+      PanelRedrawInfo *Info=(PanelRedrawInfo *)Param;
+      if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
       {
-        struct PanelRedrawInfo *Info=(struct PanelRedrawInfo *)Param;
-        if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
-        {
-          DestPanel->CurFile=Info->CurrentItem;
-          DestPanel->CurTopFile=Info->TopPanelItem;
-        }
+        CurFile=Info->CurrentItem;
+        CurTopFile=Info->TopPanelItem;
+      }
         // $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
-        if (FPanels->IsTopFrame())
-        {
-          DestPanel->Redraw();
-          Result=TRUE;
-        }
+      if (FPanels->IsTopFrame())
+      {
+        Redraw();
+        Result=TRUE;
       }
       break;
     }
 
-    // $ 03.12.2001 DJ - скорректируем путь
     case FCTL_SETPANELDIR:
-    case FCTL_SETANOTHERPANELDIR:
     {
-      Panel *DestPanel=Command==FCTL_SETANOTHERPANELDIR?AnotherPanel:this;
-      if (DestPanel && Param)
+      if (Param)
       {
-        DestPanel->SetCurDirW((const wchar_t *)Param,TRUE);
+        SetCurDirW((const wchar_t *)Param,TRUE);
         Result=TRUE;
       }
       break;

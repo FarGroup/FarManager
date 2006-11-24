@@ -36,8 +36,6 @@ enum FLAGS_CLASS_EDITLINE{
 };
 
 
-#define interface struct
-
 interface ICPEncoder {
 
 	virtual int __stdcall AddRef () = 0;

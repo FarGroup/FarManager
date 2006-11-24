@@ -1210,37 +1210,30 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       g_strDirToSet = NullToEmptyW((wchar_t *)Param);
 
     case FCTL_GETPANELINFO:
-    case FCTL_GETANOTHERPANELINFO:
     case FCTL_GETPANELSHORTINFO:
-    case FCTL_GETANOTHERPANELSHORTINFO:
     case FCTL_UPDATEPANEL:
-    case FCTL_UPDATEANOTHERPANEL:
     case FCTL_REDRAWPANEL:
-    case FCTL_REDRAWANOTHERPANEL:
     case FCTL_SETPANELDIR:
-    case FCTL_SETANOTHERPANELDIR:
     case FCTL_SETSELECTION:
-    case FCTL_SETANOTHERSELECTION:
     case FCTL_SETVIEWMODE:
-    case FCTL_SETANOTHERVIEWMODE:
     case FCTL_SETSORTMODE:                 //  VVM 08.09.2000  + Смена сортировки из плагина
-    case FCTL_SETANOTHERSORTMODE:
     case FCTL_SETSORTORDER:
-    case FCTL_SETANOTHERSORTORDER:
     case FCTL_SETNUMERICSORT:
-    case FCTL_SETANOTHERNUMERICSORT:
     {
       if(!FPanels)
         return FALSE;
 
-      if (hPlugin==INVALID_HANDLE_VALUE)
+      if ( (hPlugin == CURRENT_PANEL) || (hPlugin == ANOTHER_PANEL) )
       {
-        if(FPanels->ActivePanel)
-        {
-          FPanels->ActivePanel->SetPluginCommand(Command,Param);
-          return TRUE;
-        }
-        return FALSE; //??
+         Panel *pPanel = (hPlugin == CURRENT_PANEL)?FPanels->ActivePanel:FPanels->GetAnotherPanel (FPanels->ActivePanel);
+
+         if ( pPanel )
+         {
+         	pPanel->SetPluginCommand (Command, Param);
+         	return TRUE;
+         }
+
+         return FALSE; //???
       }
 
       HANDLE hInternal;
