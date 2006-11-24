@@ -104,7 +104,7 @@ Editor::Editor()
 
   HostFileEditor=NULL;
 
-  AddString (NULL, 0);
+  InsertString (NULL, 0);
 
   m_codepage = 0;
 }
@@ -140,6 +140,7 @@ void Editor::FreeAllocatedData()
     UndoData=NULL;
   }
 
+  TopList=EndList=NULL;
   NumLastLine = 0;
 }
 
@@ -3135,19 +3136,19 @@ void Editor::InsertString()
   int NewLineEmpty=TRUE;
   /* tran 17.07.2000 $ */
 
-  NewString = CreateString (NULL, 0);
+  NewString = InsertString (NULL, 0, CurLine);
 
   if ( !NewString )
   	return;
 
   NewString->SetTables(UseDecodeTable ? &TableSet:NULL); // ??
-  NewString->m_prev=CurLine;
+/*  NewString->m_prev=CurLine;
   NewString->m_next=CurLine->m_next;
 
   if (CurLine->m_next)
     CurLine->m_next->m_prev=NewString;
 
-  CurLine->m_next=NewString;
+  CurLine->m_next=NewString;*/
 
   int Length;
   const wchar_t *CurLineStr;
@@ -6093,7 +6094,7 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 	return pEdit;
 }
 
-bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
+/*bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
 {
 	Edit *pNewEdit = CreateString (lpwszStr, nLength);
 
@@ -6117,7 +6118,40 @@ bool Editor::AddString (const wchar_t *lpwszStr, int nLength)
 	NumLastLine++;
 
 	return true;
+}*/
+
+Edit *Editor::InsertString (const wchar_t *lpwszStr, int nLength, Edit *pAfter)
+{
+	Edit *pNewEdit = CreateString (lpwszStr, nLength);
+
+	if ( pNewEdit )
+	{
+		if ( !TopList || !NumLastLine ) //???
+			TopList = EndList = TopScreen = CurLine = pNewEdit;
+		else
+		{
+			Edit *pWork = pAfter?pAfter:EndList;
+
+		   	Edit *pNext = pWork->m_next;
+
+	   		pNewEdit->m_next = pNext;
+		   	pNewEdit->m_prev = pWork;
+
+   			pWork->m_next = pNewEdit;
+
+	   		if ( pNext )
+   				pNext->m_prev = pNewEdit;
+
+		    if ( !pAfter )
+    			EndList = pNewEdit;
+		}
+
+		NumLastLine++;
+	}
+
+	return pNewEdit;
 }
+
 
 void Editor::SetCacheParams (EditorCacheParams *pp)
 {
@@ -6166,15 +6200,18 @@ void Editor::SetCodePage (int codepage)
     {
 		m_codepage = codepage;
 
-		Edit *current = TopList;
-
-		while ( current )
+		if ( NumLastLine ) //BUGBUG
         {
-			current->SetCodePage (codepage);
-			current = current->m_next;
-		}
+			Edit *current = TopList;
 
-		Show ();
+			while ( current )
+        	{
+				current->SetCodePage (codepage);
+				current = current->m_next;
+			}
+
+			Show ();
+		}
 	}
 }
 

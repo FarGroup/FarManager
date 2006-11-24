@@ -936,19 +936,7 @@ int PluginsSet::SavePluginSettings(PluginItem *CurPlugin,
   }
 
   CurPlugin->SysID=Info.SysID;
-  /* $ 12.10.2000 tran
-     при PF_PRELOAD в кеш будет записано, что плагин не кешируется
-     так будет работать -co */
-//  if (Info.Flags & PF_PRELOAD)
-//    return(FALSE);
-  /* tran $ */
 
-  /* $ 13.07.2000 IS
-    Исправлен глюк, допущенный при неправильном переводе под VC:
-    переменная I изменялась во всех циклах (внимательнее над быть,
-    вашу мать $%#...)
-    (подсказал tran)
-  */
   int I,I0;
   for (I0=0;;I0++)
   {

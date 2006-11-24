@@ -1187,7 +1187,7 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 
-	//FEdit->FreeAllocatedData ();
+	FEdit->FreeAllocatedData ();
 
 	bool bCached = LoadFromCache (&cp);
 
@@ -1253,7 +1253,7 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 			LastLineCR=1;
 		}
 
-		if( !FEdit->AddString (Str, StrLength) )
+		if( !FEdit->InsertString (Str, StrLength) )
 		{
 			fclose(EditFile);
 			SetPreRedrawFunc(NULL);
@@ -1264,7 +1264,7 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 	SetPreRedrawFunc(NULL);
 
 	if ( LastLineCR )
-		FEdit->AddString (L"", 0);
+		FEdit->InsertString (L"", 0);
 
 	fclose (EditFile);
 

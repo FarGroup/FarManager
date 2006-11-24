@@ -304,8 +304,8 @@ class Editor:public ScreenObject
     void FreeAllocatedData();
     /* VVM $ */
 
-    bool AddString (const wchar_t *lpwszStr, int nLength);
     Edit *CreateString (const wchar_t *lpwszStr, int nLength);
+    Edit *InsertString (const wchar_t *lpwszStr, int nLength, Edit *pAfter = NULL);
 };
 
 #endif // __EDITOR_HPP__

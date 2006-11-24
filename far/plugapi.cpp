@@ -70,9 +70,11 @@ int WINAPI FarInputBox (
 }
 
 /* Функция вывода помощи */
-BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
-                        const wchar_t *HelpTopic,
-                        DWORD Flags)
+BOOL WINAPI FarShowHelp (
+		const wchar_t *ModuleName,
+		const wchar_t *HelpTopic,
+		DWORD Flags
+		)
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
@@ -131,9 +133,6 @@ BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
   }
   return TRUE;
 }
-/* IS $ */
-/* tran 18.08.2000 $ */
-/* SVS 12.09.2000 $ */
 
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
@@ -657,10 +656,20 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 #endif
 /* IS $ */
 
-int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
-           const wchar_t *HelpTopic, const int *BreakKeys,int *BreakCode,
-           const struct FarMenuItem *Item, int ItemsNumber)
+int WINAPI FarMenuFn (
+		int PluginNumber,
+		int X,
+		int Y,
+		int MaxHeight,
+		DWORD Flags,
+		const wchar_t *Title,
+		const wchar_t *Bottom,
+		const wchar_t *HelpTopic,
+		const int *BreakKeys,
+		int *BreakCode,
+		const FarMenuItem *Item,
+		int ItemsNumber
+		)
 {
   int I;
 
@@ -865,10 +874,18 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 /* SVS $ */
 
-int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
-           const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
+int WINAPI FarDialogFn (
+		int PluginNumber,
+		int X1,
+		int Y1,
+		int X2,
+		int Y2,
+		const wchar_t *HelpTopic,
+		FarDialogItem *Item,
+		int ItemsNumber
+		)
 {
-  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
+	return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
 }
 
 /* $   13.12.2000 SVS
@@ -1316,14 +1333,11 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETCMDLINE:
     case FCTL_INSERTCMDLINE:
     {
-      string strParam;
-
-      strParam.SetData (NullToEmpty((char*)Param), CP_OEMCP); //BUGBUG
-
       if (Command==FCTL_SETCMDLINE)
-        CmdLine->SetStringW(strParam);
+        CmdLine->SetStringW((const wchar_t*)Param);
       else
-        CmdLine->InsertStringW(strParam);
+        CmdLine->InsertStringW((const wchar_t*)Param);
+
       CmdLine->Redraw();
       return(TRUE);
     }
@@ -1875,9 +1889,17 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 }
 
 
-int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2,
-                     int Y2,DWORD Flags,int StartLine,int StartChar)
+int WINAPI FarEditor(
+		const wchar_t *FileName,
+		const wchar_t *Title,
+		int X1,
+		int Y1,
+		int X2,
+		int Y2,
+		DWORD Flags,
+		int StartLine,
+		int StartChar
+		)
 {
   if (FrameManager->ManagerIsDown())
     return EEC_OPEN_ERROR;
@@ -2077,13 +2099,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
     ScrBuf.SetLockCount(PrevLockCount);
   }
   else
-  {
-    /* $ 22.08.2000 SVS
-       Исключаем ненужные вызовы из FarText.
-    */
     TextW(X,Y,Color,Str);
-    /* SVS $ */
-  }
 }
 
 
@@ -2094,13 +2110,9 @@ int WINAPI FarEditorControl(int Command,void *Param)
   return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
 }
 
-/* $ 27.09.2000 SVS
-  Управление вьювером
-*/
 int WINAPI FarViewerControl(int Command,void *Param)
 {
   if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurViewer)
     return(0);
   return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
 }
-/* SVS $ */
