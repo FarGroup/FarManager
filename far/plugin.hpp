@@ -1623,7 +1623,7 @@ typedef struct FarStandardFunctions
   FARSTDSNPRINTF             snprintf;
   // </C&C++>
 
-  DWORD                      Reserved[8];
+  DWORD_PTR                  Reserved[8];
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;
@@ -1697,7 +1697,7 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD                  Reserved;
+  DWORD_PTR              Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
 };
 
