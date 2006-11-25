@@ -32,13 +32,18 @@ fileedit.cpp
 #include "filestr.hpp"
 
 
-FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
-                       int StartLine,int StartChar,int DisableHistory,
-                       const wchar_t *PluginData,int ToSaveAs, int OpenModeExstFile)
+FileEditor::FileEditor(
+		const wchar_t *Name,
+		int CreateNewFile,
+		int EnableSwitch,
+		int StartLine,
+		int StartChar,
+		int DisableHistory,
+		const wchar_t *PluginData,
+		int ToSaveAs,
+		int OpenModeExstFile
+		)
 {
-  _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(1)"));
-  _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
-  _KEYMACRO(SysLog(1));
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   Flags.Set(FFILEEDIT_FULLSCREEN);
   Init(Name,NULL,CreateNewFile,EnableSwitch,StartLine,StartChar,
@@ -46,14 +51,22 @@ FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
 }
 
 
-FileEditor::FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
-            int StartLine,int StartChar,const wchar_t *Title,
-            int X1,int Y1,int X2,int Y2,int DisableHistory, int DeleteOnClose,
-            int OpenModeExstFile)
+FileEditor::FileEditor(
+		const wchar_t *Name,
+		int CreateNewFile,
+		int EnableSwitch,
+		int StartLine,
+		int StartChar,
+		const wchar_t *Title,
+		int X1,
+		int Y1,
+		int X2,
+		int Y2,
+		int DisableHistory, 
+		int DeleteOnClose,
+		int OpenModeExstFile
+		)
 {
-  _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(2)"));
-  _KEYMACRO(SysLog("FileEditor::FileEditor(2)"));
-  _KEYMACRO(SysLog(1));
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
   */
@@ -1033,9 +1046,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		{
 			int codepage = GetTableEx ();
 
-			FEdit->SetCodePage (codepage);
-
-			ChangeEditKeyBar(); //???
+			if ( codepage != -1 )
+			{
+				m_bSignatureFound = FEdit->SetCodePage (codepage); //???
+				ChangeEditKeyBar(); //???
+			}
 
 			return TRUE;
 		}
@@ -1205,8 +1220,10 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 	if ( bCached )
 		nCodePage = cp.Table;
 
+	int dcp = GetFileFormat (EditFile, &m_bSignatureFound);
+
 	if ( !bCached || (nCodePage == 0) )
-		nCodePage = GetFileFormat (EditFile);
+		nCodePage = dcp;
 
 	FEdit->SetCodePage (nCodePage); //BUGBUG
 
@@ -1276,6 +1293,10 @@ int FileEditor::ReadFile(const wchar_t *Name,int &UserBreak)
 
 	return TRUE;
 }
+
+#define SIGN_UNICODE 0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8 0xBFBBEF
 
 // сюды плавно переносить код из Editor::SaveFile()
 int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
@@ -1429,18 +1450,16 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
 //_D(SysLog("%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
-    DWORD FileFlags=FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN;
-    if (FileAttributes!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-      FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
+    HANDLE hEdit = FAR_CreateFileW (
+    		Name,
+    		GENERIC_WRITE,
+    		FILE_SHARE_READ,
+    		NULL,
+    		CREATE_ALWAYS,
+    		FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,
+    		NULL
+    		);
 
-    HANDLE hEdit=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
-                 FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,FileFlags,NULL);
-    if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
-    {
-      //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
-      hEdit=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
-                       FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-    }
     if (hEdit==INVALID_HANDLE_VALUE)
     {
       //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
@@ -1479,6 +1498,36 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
     Editor::EditorShowMsg(UMSG(MEditTitle),UMSG(MEditSaving),Name);
 
     Edit *CurPtr=FEdit->TopList;
+    int codepage = FEdit->GetCodePage ();
+
+    if ( m_bSignatureFound )
+    {
+	    bool bSignError = false;
+	    DWORD dwSignature = 0;
+
+		if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) )
+		{
+    		dwSignature = SIGN_UNICODE;
+    		if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
+    			bSignError = true;
+		}
+
+		if ( codepage == CP_UTF8 )
+		{
+    		dwSignature = SIGN_UTF8;
+    		if ( fwrite (&dwSignature, 1, 3, EditFile) != 3 )
+    			bSignError = true;
+		}
+
+		if ( bSignError )
+		{
+			fclose(EditFile);
+			_wremove(Name);
+			
+			RetCode=SAVEFILE_ERROR;
+			goto end;
+		}
+	}
 
     while (CurPtr!=NULL)
     {
@@ -1497,30 +1546,59 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs)
           EndSeq=MAC_EOL_fmtW;
         CurPtr->SetEOLW(EndSeq);
       }
+
       int EndLength=wcslen(EndSeq);
+      bool bError = false;
 
-      char *SaveStrCopy = new char[Length];
-      char *EndSeqCopy = new char[EndLength];
+		if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
+		{
+			if ( (fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
+				 (fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
+				bError = true;
+		}
+		else
+		{
+			int length = WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL);
 
-      WideCharToMultiByte(CP_OEMCP, 0, SaveStr, Length, SaveStrCopy, Length, NULL, NULL);
-      WideCharToMultiByte(CP_OEMCP, 0, EndSeq, EndLength, EndSeqCopy, EndLength, NULL, NULL);
+            char *SaveStrCopy = new char[length];
 
-      if (fwrite(SaveStrCopy,1,Length,EditFile)!=Length ||
-          fwrite(EndSeqCopy,1,EndLength,EditFile)!=EndLength)
-      {
-        delete SaveStrCopy;
-        delete EndSeqCopy;
+            if ( SaveStrCopy )
+            {
+	            int endlength = WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL);
 
-        fclose(EditFile);
-        _wremove(Name);
-        RetCode=SAVEFILE_ERROR;
-        goto end;
-      }
+				char *EndSeqCopy = new char[endlength];
+		
+				if ( EndSeqCopy )
+				{
+					WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
+					WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
 
-      delete SaveStrCopy;
-      delete EndSeqCopy;
+					if ( (fwrite (SaveStrCopy,1,length,EditFile) != length) ||
+						 (fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
+						bError = true;
 
-      CurPtr=CurPtr->m_next;
+					delete EndSeqCopy;
+				}
+				else
+					bError = true;
+
+				delete SaveStrCopy;
+			}
+			else
+				bError = true;
+		}
+
+		if ( bError )
+		{
+			fclose(EditFile);
+			_wremove(Name);
+			
+			RetCode=SAVEFILE_ERROR;
+			goto end;
+
+		}
+
+		CurPtr=CurPtr->m_next;
     }
     if (fflush(EditFile)==EOF)
     {

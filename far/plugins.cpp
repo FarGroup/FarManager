@@ -42,29 +42,14 @@ plugins.cpp
 
 static void CheckScreenLock();
 
-static const char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
-static const wchar_t FmtPluginsCache_PluginDW[]=L"PluginsCache\\Plugin%d";
-
-static const char FmtPluginsCache_PluginDExport[]="PluginsCache\\Plugin%d\\Exports";
-static const wchar_t FmtPluginsCache_PluginDExportW[]=L"PluginsCache\\Plugin%d\\Exports";
-
-static const char FmtDiskMenuStringD[]="DiskMenuString%d";
-static const wchar_t FmtDiskMenuStringDW[]=L"DiskMenuString%d";
-
-static const char FmtDiskMenuNumberD[]="DiskMenuNumber%d";
-static const wchar_t FmtDiskMenuNumberDW[]=L"DiskMenuNumber%d";
-
-static const char FmtPluginMenuStringD[]="PluginMenuString%d";
-static const wchar_t FmtPluginMenuStringDW[]=L"PluginMenuString%d";
-
-static const char FmtPluginConfigStringD[]="PluginConfigString%d";
-static const wchar_t FmtPluginConfigStringDW[]=L"PluginConfigString%d";
-
-static const char NFMP_Preload[]="Preload";
-static const wchar_t NFMP_PreloadW[]=L"Preload";
-
-static const char NFMP_SysID[]="SysID";
-static const wchar_t NFMP_SysIDW[]=L"SysID";
+static const wchar_t *FmtPluginsCache_PluginDW=L"PluginsCache\\Plugin%d";
+static const wchar_t *FmtPluginsCache_PluginDExportW=L"PluginsCache\\Plugin%d\\Exports";
+static const wchar_t *FmtDiskMenuStringDW=L"DiskMenuString%d";
+static const wchar_t *FmtDiskMenuNumberDW=L"DiskMenuNumber%d";
+static const wchar_t *FmtPluginMenuStringDW=L"PluginMenuString%d";
+static const wchar_t *FmtPluginConfigStringDW=L"PluginConfigString%d";
+static const wchar_t *NFMP_PreloadW=L"Preload";
+static const wchar_t *NFMP_SysIDW=L"SysID";
 
 static const char NFMP_OpenPlugin[]="OpenPlugin";
 static const char NFMP_OpenFilePlugin[]="OpenFilePlugin";
@@ -123,8 +108,7 @@ static const wchar_t NFMP_GetMinFarVersionW[]=L"GetMinFarVersion";
 
 
 
-static const char RKN_PluginsCache[]="PluginsCache";
-static const wchar_t RKN_PluginsCacheW[]=L"PluginsCache";
+static const wchar_t *RKN_PluginsCacheW=L"PluginsCache";
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 static BOOL PrepareModulePath(const char *ModuleName);
@@ -210,7 +194,7 @@ void PluginsSet::LoadPlugins()
     string strPluginsDir;
     string strFullName;
     FAR_FIND_DATA_EX FindData;
-    struct PluginItem *PData;
+    PluginItem *PData;
 
     PluginPathList.SetParameters(0,0,ULF_UNIQUE);
     // сначала подготовим список
@@ -702,8 +686,8 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
                                          const wchar_t *ModuleName,
                                          int ModuleNumber)
 {
-  static struct PluginStartupInfo StartupInfo={0};
-  static struct FarStandardFunctions StandardFunctions={0};
+  static PluginStartupInfo StartupInfo={0};
+  static FarStandardFunctions StandardFunctions={0};
 
   // заполняем структуру StandardFunctions один раз!!!
   if(!StandardFunctions.StructSize)
@@ -818,8 +802,8 @@ int PluginsSet::SetPluginStartupInfo(PluginItem *CurPlugin,int ModuleNumber)
   {
     // Это есть локальные копии статических структур, что бы случайно
     // како-нить урод не засрал адреса.
-    struct PluginStartupInfo LocalStartupInfo;
-    struct FarStandardFunctions LocalStandardFunctions;
+    PluginStartupInfo LocalStartupInfo;
+    FarStandardFunctions LocalStandardFunctions;
 
     CreatePluginStartupInfo(&LocalStartupInfo,&LocalStandardFunctions,CurPlugin->strModuleName,ModuleNumber);
 

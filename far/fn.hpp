@@ -1215,8 +1215,7 @@ BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *s
 int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
 
-
-#define CP_UNICODE    65535
+#define CP_UNICODE 1200 //MSDN
 #define CP_REVERSEBOM 65534
 
 int GetFileFormat (FILE *file, bool *pSignatureFound = NULL);

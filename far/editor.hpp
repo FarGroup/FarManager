@@ -224,7 +224,7 @@ class Editor:public ScreenObject
     void SetCacheParams (EditorCacheParams *pp);
     void GetCacheParams (EditorCacheParams *pp);
 
-    void SetCodePage (int codepage); //BUGBUG
+    bool SetCodePage (int codepage); //BUGBUG
     int GetCodePage (); //BUGBUG
 
     int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список

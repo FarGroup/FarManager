@@ -106,7 +106,7 @@ Editor::Editor()
 
   InsertString (NULL, 0);
 
-  m_codepage = 0;
+  m_codepage = CP_OEMCP; //BUGBUG
 }
 
 
@@ -140,7 +140,7 @@ void Editor::FreeAllocatedData()
     UndoData=NULL;
   }
 
-  TopList=EndList=NULL;
+  TopList=EndList=CurLine=NULL;
   NumLastLine = 0;
 }
 
@@ -747,7 +747,7 @@ void Editor::DisplayObject()
 
 void Editor::ShowEditor(int CurLineOnly)
 {
-  if ( Locked () )
+  if ( Locked () || !TopList )
     return;
 
   Edit *CurPtr;
@@ -6194,25 +6194,26 @@ void Editor::GetCacheParams (EditorCacheParams *pp)
 }
 
 
-void Editor::SetCodePage (int codepage)
+bool Editor::SetCodePage (int codepage)
 {
 	if ( m_codepage != codepage )
     {
 		m_codepage = codepage;
 
-		if ( NumLastLine ) //BUGBUG
-        {
-			Edit *current = TopList;
+		Edit *current = TopList;
 
-			while ( current )
-        	{
-				current->SetCodePage (codepage);
-				current = current->m_next;
-			}
-
-			Show ();
+		while ( current )
+       	{
+			current->SetCodePage (codepage);
+			current = current->m_next;
 		}
+
+		Show ();
+
+		return true;
 	}
+
+	return false;
 }
 
 int Editor::GetCodePage ()

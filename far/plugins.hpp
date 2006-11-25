@@ -162,18 +162,20 @@ enum PLUGINSETFLAGS{
 
 class PluginsSet
 {
-  public:
+public:
+
     BitFlags Flags;        // флаги манагера плагинов
     DWORD Reserved;        // в будущем это может быть второй порцией флагов
 
-    struct PluginItem **PluginsData;
+    PluginItem **PluginsData;
     int    PluginsCount;
-    struct PluginItem *CurPluginItem;
+    PluginItem *CurPluginItem;
 
     FileEditor *CurEditor;
     Viewer *CurViewer;     // 27.09.2000 SVS: ”казатель на текущий Viewer
 
-  private:
+private:
+
     int LoadPlugin(PluginItem *CurPlugin,int ModuleNumber,int Init);
     // $ 22.05.2001 DJ возвращает TRUE при успешной загрузке или FALSE, если не прошло GetMinFarVersion()
     int SetPluginStartupInfo(PluginItem *CurPlugin,int ModuleNumber);
@@ -190,38 +192,19 @@ class PluginsSet
     int  CheckMinVersion(PluginItem *CurPlg);
     void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required);
 
-  public:
+public:
+
     PluginsSet();
     ~PluginsSet();
 
-  public:
+public:
+
     void LoadPlugins();
     void LoadPluginsFromCache();
     BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
-    HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
-    HANDLE OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
-    HANDLE OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber);
-    void ClosePlugin(HANDLE hPlugin);
-    int GetPluginInfo(int PluginNumber,struct PluginInfoW *Info);
-    void GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *Info);
-    int GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,int Silent);
-    void FreeFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
-    int GetVirtualFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-    void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
-    int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
-    int GetFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
-    int GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
-    int PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
-    int DeleteFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
-    int MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode);
-    int ProcessHostFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
-    int ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
-    int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
-    int Compare(HANDLE hPlugin,const struct PluginPanelItemW *Item1,const struct PluginPanelItemW *Item2,unsigned int Mode);
-    int ProcessEditorInput(INPUT_RECORD *Rec);
-    int ProcessEditorEvent(int Event,void *Param);
-    int ProcessViewerEvent(int Event,void *Param);
+
     void SendExit();
+
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure(int StartPos=0);
     void ConfigureCurrent(int PluginNumber,int INum);
@@ -249,6 +232,34 @@ class PluginsSet
     void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
     void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
     BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
+
+//api functions
+
+public:
+
+	HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
+	HANDLE OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
+	HANDLE OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber);
+	void ClosePlugin(HANDLE hPlugin);
+	int GetPluginInfo(int PluginNumber,struct PluginInfoW *Info);
+	void GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *Info);
+	int GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,int Silent);
+	void FreeFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
+	int GetVirtualFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
+	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
+	int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
+	int GetFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
+	int GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
+	int PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
+	int DeleteFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
+	int MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode);
+	int ProcessHostFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
+	int ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
+	int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
+	int Compare(HANDLE hPlugin,const struct PluginPanelItemW *Item1,const struct PluginPanelItemW *Item2,unsigned int Mode);
+	int ProcessEditorInput(INPUT_RECORD *Rec);
+	int ProcessEditorEvent(int Event,void *Param);
+	int ProcessViewerEvent(int Event,void *Param);
 };
 
 #endif  // __PLUGINS_HPP__

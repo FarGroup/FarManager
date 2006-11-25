@@ -37,12 +37,15 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 
     GetCPInfoExW (dwCP, 0, &cpi);
 
-    MenuItemEx item;
+    if ( cpi.MaxCharSize == 1 )
+    {
+	    MenuItemEx item;
 
-    item.Clear ();
-    item.strName = cpi.CodePageName;
+    	item.Clear ();
+	    item.strName = cpi.CodePageName;
 
-    tables->SetUserData((void*)dwCP, sizeof (DWORD), tables->AddItemW (&item));
+    	tables->SetUserData((void*)dwCP, sizeof (DWORD), tables->AddItemW (&item));
+	}
 
     return TRUE;
 }
@@ -50,9 +53,35 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 
 int GetTableEx ()
 {
-    int nPos = -1;
+    int nCP = -1;
 
     tables = new VMenu (UMSG(MGetTableTitle),NULL,0,TRUE,ScrY-4);
+
+    MenuItemEx item;
+
+    //unicode
+    item.Clear ();
+    item.strName = "UNICODE";
+
+    tables->SetUserData((void*)CP_UNICODE, sizeof (DWORD), tables->AddItemW (&item));
+
+    //reversebom
+    item.Clear ();
+    item.strName = "UNICODE (reverse BOM)";
+
+    tables->SetUserData((void*)CP_REVERSEBOM, sizeof (DWORD), tables->AddItemW (&item));
+
+    //utf-8
+    item.Clear ();
+    item.strName = "UTF-8";
+
+    tables->SetUserData((void*)CP_UTF8, sizeof (DWORD), tables->AddItemW (&item));
+
+    //utf-7
+    item.Clear ();
+    item.strName = "UTF-7";
+
+    tables->SetUserData((void*)CP_UTF7, sizeof (DWORD), tables->AddItemW (&item));
 
     EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 
@@ -62,11 +91,11 @@ int GetTableEx ()
     tables->Process ();
 
     if ( tables->Modal::GetExitCode() >= 0 )
-        nPos = (int)tables->GetUserData(NULL, 0);
+        nCP = (int)tables->GetUserData(NULL, 0);
 
     delete tables;
 
-    return nPos;
+    return nCP;
 }
 
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,

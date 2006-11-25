@@ -50,10 +50,8 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 
   if((hFile=FAR_CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
-    DWORD FileSizeLow, FileSizeHigh, ReadSize;
+    DWORD ReadSize;
     IMAGE_DOS_HEADER dos_head;
-
-    FileSizeLow=GetFileSize(hFile,&FileSizeHigh);
 
     BOOL RetReadFile=ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL);
 
