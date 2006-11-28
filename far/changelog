@@ -1,3 +1,8 @@
+svs 28.11.2006 12:37:14 +0300 - build 2146
+
+1. Mantis#248: Открытие по ShiftF4 предыдущего редактируемого файла.
+
+
 t-rex 25.11.2006 10:53:30 +0200 - build 2145
 
 1. Дополнение к x64. В PluginStartupInfo и FarStandardFunctions
