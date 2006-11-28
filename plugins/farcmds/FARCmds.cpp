@@ -45,7 +45,7 @@ FARSTDRECURSIVESEARCH FarRecursiveSearch;
 FARSTDLOCALISALPHA FarIsAlpha;
 
 struct RegistryStr REGStr={"Add2PlugMenu","Add2DisksMenu","%s%s%s","Separator",
-                           "DisksMenuDigit", "ShowCmdOutput", "CatchMode", "ViewZeroFiles" };
+                           "DisksMenuDigit", "ShowCmdOutput", "CatchMode", "ViewZeroFiles", "EditNewFiles" };
 struct HELPIDS HlfId={"Contents","Config"};
 static struct PluginStartupInfo Info;
 struct PanelInfo PInfo;
@@ -98,6 +98,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *psInfo)
   Opt.ShowCmdOutput=GetRegKey(HKEY_CURRENT_USER,"",REGStr.ShowCmdOutput,0);
   Opt.CatchMode=GetRegKey(HKEY_CURRENT_USER,"",REGStr.CatchMode,0);
   Opt.ViewZeroFiles=GetRegKey(HKEY_CURRENT_USER,"",REGStr.ViewZeroFiles,1);
+  Opt.EditNewFiles=GetRegKey(HKEY_CURRENT_USER,"",REGStr.EditNewFiles,1);
 }
 
 
@@ -217,26 +218,27 @@ int WINAPI _export Configure( int /*ItemNumber*/ )
 {
   struct InitDialogItem InitItems[]=
   { //   Type           X1 Y1 X2 Y2 Fo Se Fl               DB Data
-/*00*/ { DI_DOUBLEBOX,   3, 1,69,19, 0, 0, DIF_BOXCOLOR,    0, (char *)MConfig},
+/*00*/ { DI_DOUBLEBOX,   3, 1,69,20, 0, 0, DIF_BOXCOLOR,    0, (char *)MConfig},
 /*01*/ { DI_CHECKBOX,    5, 2, 0, 0, 1, 0, 0,               0, (char *)MAddSetPassiveDir2PlugMenu},
-/*02*/ { DI_TEXT,        0, 3, 0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
+/*02*/ { DI_TEXT,        0, 3, 0, 3, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
 /*03*/ { DI_CHECKBOX,    5, 4, 0, 0, 0, 0, 0,               0, (char *)MAddToDisksMenu},
 /*04*/ { DI_FIXEDIT,     7, 5, 7, 0, 0, 0, DIF_BOXCOLOR|DIF_MASKEDIT,    0, " "},
 /*05*/ { DI_TEXT,        9, 5, 0, 0, 0, 0, 0,               0, (char *)MDisksMenuDigit},
-/*06*/ { DI_TEXT,        0, 6, 0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
+/*06*/ { DI_TEXT,        0, 6, 0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
 /*07*/ { DI_RADIOBUTTON, 5, 7, 0, 0, 0, 0, DIF_GROUP,       0, (char *)MHideCmdOutput},
 /*08*/ { DI_RADIOBUTTON, 5, 8, 0, 0, 0, 0, 0,               0, (char *)MKeepCmdOutput},
 /*09*/ { DI_RADIOBUTTON, 5, 9, 0, 0, 0, 0, 0,               0, (char *)MEchoCmdOutput},
-/*10*/ { DI_TEXT,        0,10, 0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
+/*10*/ { DI_TEXT,        0,10, 0,10, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
 /*11*/ { DI_RADIOBUTTON, 5,11, 0, 0, 0, 0, DIF_GROUP,       0, (char *)MCatchAllInOne},
 /*12*/ { DI_RADIOBUTTON, 5,12, 0, 0, 0, 0, 0,               0, (char *)MCatchStdOutput},
 /*13*/ { DI_RADIOBUTTON, 5,13, 0, 0, 0, 0, 0,               0, (char *)MCatchStdError},
 /*14*/ { DI_RADIOBUTTON, 5,14, 0, 0, 0, 0, 0,               0, (char *)MCatchSeparate},
-/*15*/ { DI_TEXT,        0,15, 0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
+/*15*/ { DI_TEXT,        0,15, 0,15, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
 /*16*/ { DI_CHECKBOX,    5,16, 0, 0, 0, 0, 0,               0, (char *)MViewZeroFiles},
-/*17*/ { DI_TEXT,        0,17, 0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
-/*18*/ { DI_BUTTON,      0,18, 0, 0, 0, 0, DIF_CENTERGROUP, 1, (char *)MOk},
-/*19*/ { DI_BUTTON,      0,18, 0, 0, 0, 0, DIF_CENTERGROUP, 0, (char *)MCancel},
+/*17*/ { DI_CHECKBOX,    5,17, 0, 0, 0, 0, 0,               0, (char *)MEditNewFiles},
+/*18*/ { DI_TEXT,        0,18, 0,18, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,   0,""},
+/*19*/ { DI_BUTTON,      0,19, 0, 0, 0, 0, DIF_CENTERGROUP, 1, (char *)MOk},
+/*20*/ { DI_BUTTON,      0,19, 0, 0, 0, 0, DIF_CENTERGROUP, 0, (char *)MCancel},
   };
   BOOL ret=FALSE;
   struct FarDialogItem DialogItems[(sizeof(InitItems)/sizeof(InitItems[0]))];
@@ -248,17 +250,19 @@ int WINAPI _export Configure( int /*ItemNumber*/ )
   DialogItems[7+Opt.ShowCmdOutput].Selected = 1;
   DialogItems[11+Opt.CatchMode].Selected = 1;
   DialogItems[16].Selected = Opt.ViewZeroFiles;
+  DialogItems[17].Selected = Opt.EditNewFiles;
   FarItoa(Opt.DisksMenuDigit,DialogItems[4].Data,10);
 
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,21,HlfId.Config,
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,22,HlfId.Config,
                        DialogItems,(sizeof(InitItems)/sizeof(InitItems[0])));
-  if(18 == ExitCode)
+  if(19 == ExitCode)
   {
     Opt.Add2PlugMenu=DialogItems[1].Selected;
     Opt.Add2DisksMenu=DialogItems[3].Selected;
     Opt.DisksMenuDigit=FarAtoi(DialogItems[4].Data);
 
     Opt.ViewZeroFiles = DialogItems[16].Selected;
+    Opt.EditNewFiles = DialogItems[17].Selected;
     Opt.CatchMode = Opt.ShowCmdOutput = 0;
     for ( int i = 0 ; i < 3 ; i++ )
       if ( DialogItems[7+i].Selected )
@@ -279,6 +283,7 @@ int WINAPI _export Configure( int /*ItemNumber*/ )
     SetRegKey(HKEY_CURRENT_USER,"",REGStr.ShowCmdOutput,Opt.ShowCmdOutput);
     SetRegKey(HKEY_CURRENT_USER,"",REGStr.CatchMode,Opt.CatchMode);
     SetRegKey(HKEY_CURRENT_USER,"",REGStr.ViewZeroFiles,Opt.ViewZeroFiles);
+    SetRegKey(HKEY_CURRENT_USER,"",REGStr.EditNewFiles,Opt.EditNewFiles);
     ret=TRUE;
   }
   return ret;

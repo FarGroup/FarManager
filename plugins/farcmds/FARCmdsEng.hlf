@@ -386,12 +386,14 @@ $^#Configuring FAR Commands#
 
  #External commands screen output# Control program screen output
 
-   #Hide external command#       Hides program output. Only a message with
-   #output#                      the size of intercepted output will be
-                               displayed. Same as using #<># instead of #<#.
+   #Hide external command#       Hides program output. Only a message
+   #output#                      with the size of intercepted output
+                               will be displayed. Same as using #<>#
+                               instead of #<#.
 
-   #Keep external command#       Saves the text output by programs directly
-   #output#                      to the console for viewing by#Ctrl-O#.
+   #Keep external command#       Saves the text output by programs
+   #output#                      directly to the console for viewing
+                               by #Ctrl-O#.
                                Same as using #<<# instead of #<#.
 
    #Duplicate intercepted#       Saves for viewing by #Ctrl-O# both the
@@ -400,11 +402,12 @@ $^#Configuring FAR Commands#
                                Same as using #<+# instead of #<#.
 
 
- #Intercepting output#           Controlling of program output interception:
+ #Intercepting output#           Controlling of program output
+                               interception:
 
-   #Intercept both#              Intercept standard output stream #stdout#
-   #stdout and stderr#           and standard error stream #stderr# as
-                               one stream.
+   #Intercept both#              Intercept standard output stream
+   #stdout and stderr#           #stdout# and standard error stream
+                               #stderr# as one stream.
                                Same as using #<*# instead of #<#.
 
 
@@ -421,5 +424,14 @@ $^#Configuring FAR Commands#
                                In other cases same as #<*#.
                                Can't be used with #<+#.
                                Same as using  #<?# instead of #<#.
+
+ #View/edit empty files#         При выключенной опции существующий
+                               файл с нулевым размером не будет
+                               открываться на просмотр или
+                               редактирование.
+
+ #Edit new files#                Позволяет открывать редактор для
+                               несуществующего файла.
+
 
    See also: ~Contents~@Contents@

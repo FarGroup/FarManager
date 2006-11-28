@@ -1,6 +1,6 @@
 struct RegistryStr {char *Add2PlugMenu; char *Add2DisksMenu; char *sss;
                     char *Separator; char *DisksMenuDigit; char *ShowCmdOutput;
-                    char *CatchMode; char *ViewZeroFiles;};
+                    char *CatchMode; char *ViewZeroFiles; char *EditNewFiles;};
 
 struct HELPIDS {char *CMD; char *Config;};
 
@@ -34,6 +34,7 @@ struct Options{
   int ShowCmdOutput;
   int CatchMode;
   int ViewZeroFiles;
+  int EditNewFiles;
   char Separator[4];
 } Opt={
  0,
@@ -41,6 +42,7 @@ struct Options{
  0,
  0,
  0,
+ 1,
  1,
  " "
 };

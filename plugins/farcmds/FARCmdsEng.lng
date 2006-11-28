@@ -15,6 +15,7 @@
 "Intercept std&err only (Standard errors stream)"
 "Intercept stdout &and stderr separately"
 "View/edit empty files"
+"Edit new files"
 "<stdout>:"
 "<stderr>:"
 

@@ -39,7 +39,7 @@ inline bool isDevice(const char* FileName, const char* dev_begin)
     return !*FileName;
 }
 
-static bool validForView(const char *FileName, int viewEmpty)
+static bool validForView(const char *FileName, int viewEmpty, int editNew)
 {
   if ( !memcmp(FileName, "\\\\.\\", 4) && // специальная обработка имен
       FarIsAlpha(FileName[4]) &&          // вида: \\.\буква:
@@ -61,6 +61,8 @@ static bool validForView(const char *FileName, int viewEmpty)
       return size && ( size != 0xFFFFFFFF );
     }
   }
+  else if ( editNew )
+    return true;
   return false;
 }
 
@@ -872,6 +874,7 @@ int OpenFromCommandLine(char *_farcmd)
             }
             else
               lstrcpy(TempFileNameOut, temp);
+
             if ( allOK )
             {
               if ( View || Edit )
@@ -886,19 +889,19 @@ int OpenFromCommandLine(char *_farcmd)
                   DWORD Flags = VF_NONMODAL|VF_ENABLE_F6|VF_IMMEDIATERETURN;
                   if ( outputtofile )
                     Flags |= VF_DISABLEHISTORY|VF_DELETEONCLOSE;
-                  if ( validForView(TempFileNameErr, Opt.ViewZeroFiles) )
+                  if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, 0) )
                   {
                     wsprintf(fullcmd, "%s%s", titleErr, cmd);
                     Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
                   }
-                  else
+                  else if(outputtofile)
                     killTemp(TempFileNameErr);
-                  if ( validForView(TempFileNameOut, Opt.ViewZeroFiles) )
+                  if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, 0) )
                   {
                     wsprintf(fullcmd, "%s%s", titleOut, cmd);
                     Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
                   }
-                  else
+                  else if(outputtofile)
                     killTemp(TempFileNameOut);
                   outputtofile=FALSE;
                 }
@@ -907,19 +910,19 @@ int OpenFromCommandLine(char *_farcmd)
                   DWORD Flags=EF_NONMODAL|EF_CREATENEW|EF_ENABLE_F6|EF_IMMEDIATERETURN;
                   if ( outputtofile )
                     Flags |= EF_DISABLEHISTORY|EF_DELETEONCLOSE;
-                  if ( validForView(TempFileNameErr, Opt.ViewZeroFiles) )
+                  if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
                     wsprintf(fullcmd, "%s%s", titleErr, cmd);
                     Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
                   }
-                  else
+                  else if(outputtofile)
                     killTemp(TempFileNameErr);
-                  if ( validForView(TempFileNameOut, Opt.ViewZeroFiles) )
+                  if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
                     wsprintf(fullcmd, "%s%s", titleOut, cmd);
                     Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
                   }
-                  else
+                  else if(outputtofile)
                     killTemp(TempFileNameOut);
                   outputtofile=FALSE;
                 }
@@ -936,11 +939,13 @@ int OpenFromCommandLine(char *_farcmd)
                 }
               }
             }
+
             if ( outputtofile )
             {
               killTemp(TempFileNameOut);
               killTemp(TempFileNameErr);
             }
+
           }
         } // </if(*pCmd && BracketsOk)>
       } // </if(pCmd)>

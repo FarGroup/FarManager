@@ -15,6 +15,7 @@ enum
   MCatchStdError,
   MCatchSeparate,
   MViewZeroFiles,
+  MEditNewFiles,
   MStdOut,
   MStdErr,
 
