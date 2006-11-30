@@ -6081,14 +6081,13 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 		pEdit->SetTabSize (EdOpt.TabSize);
 		pEdit->SetPersistentBlocks (EdOpt.PersistentBlocks);
 		pEdit->SetConvertTabs (EdOpt.ExpandTabs);
+		if ( lpwszStr )
+			pEdit->SetBinaryStringW (lpwszStr, nLength);
 		pEdit->SetCurPos (0);
 		pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
 		pEdit->SetEditorMode (TRUE);
 		pEdit->SetWordDiv (EdOpt.strWordDiv);
 		pEdit->SetCodePage (m_codepage);
-
-		if ( lpwszStr )
-			pEdit->SetBinaryStringW (lpwszStr, nLength);
 	}
 
 	return pEdit;
