@@ -59,8 +59,8 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD                  Reserved1;
-  DWORD                  Reserved2;
+  DWORD_PTR              Reserved;
+  FARAPIVIEWERCONTROL    ViewerControl;
 };
 </pre>
 <h3>Elements</h3>
@@ -74,10 +74,10 @@ struct PluginStartupInfo
     <div class=dfn>ModuleNumber</div>
     <div class=dfndescr>Number of the plugin module. Passed as parameter in some functions.</div>
     <div class=dfn>RootKey</div>
-    <div class=dfndescr>Registry root key, where plugins can save their parameters. 
+    <div class=dfndescr>Registry root key, where plugins can save their parameters.
     Valid both for <b>HKEY_CURRENT_USER</b> and <b>HKEY_LOCAL_MACHINE</b>.
-      Usually it is "<code>Software\Far\Plugins</code>", but you must not specify this 
-      string directly, because it can be changed or can become optional in future. 
+      Usually it is "<code>Software\Far\Plugins</code>", but you must not specify this
+      string directly, because it can be changed or can become optional in future.
       For example, if FAR is started with
       '<code>/u user1</code>' command line parameter, <em>RootKey</em> will
       contain "<code>Software\Far\Users\user1\Plugins</code>".
@@ -131,6 +131,8 @@ struct PluginStartupInfo
     <div class=dfndescr>Address of the <a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a>.</div>
     <div class=dfn>DefDlgProc</div>
     <div class=dfndescr>Address of the <a href="../dialogapi/defdlgproc.html">DefDlgProc</a>.</div>
+    <div class=dfn>DefDlgProc</div>
+    <div class=dfndescr>Address of the <a href="../service_functions/viewercontrol.html">ViewerControl</a>.</div>
 </div>
 
 <h3>Remarks</h3>
@@ -141,7 +143,7 @@ struct PluginStartupInfo
   <li>below 1.60 - do not contain fields after <a href="../service_functions/text.html">Text</a>;
   <li>below 1.65 - do not contain fields after <a href="../service_functions/editorcontrol.html">EditorControl</a>
   </ul>
-  So, if you intend to use 
+  So, if you intend to use
   <a href="../service_functions/viewer.html">Viewer</a> or
   <a href="../service_functions/editor.html">Editor</a> functions
   or any other function after these, you should first check the <i>StructSize</i> field,
