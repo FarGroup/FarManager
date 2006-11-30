@@ -60,8 +60,8 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD                  Reserved1;
-  DWORD                  Reserved2;
+  DWORD_PTR              Reserved;
+  FARAPIVIEWERCONTROL    ViewerControl;
 };
 </pre>
 <h3>Элементы</h3>
@@ -132,6 +132,8 @@ struct PluginStartupInfo
     <div class=dfndescr>Адрес функции <a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a>.</div>
     <div class=dfn>DefDlgProc</div>
     <div class=dfndescr>Адрес функции <a href="../dialogapi/defdlgproc.html">DefDlgProc</a>.</div>
+    <div class=dfn>DefDlgProc</div>
+    <div class=dfndescr>Адрес функции <a href="../service_functions/viewercontrol.html">ViewerControl</a>.</div>
 </div>
 
 <h3>Замечания</h3>
