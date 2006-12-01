@@ -7,99 +7,6 @@ Internal viewer
 
 */
 
-/* Revision: 1.33 06.07.2006 $ */
-
-/*
-Modify:
-  06.07.2006 SVS
-    + GetViewFilePos(), GetViewFileSize()
-  05.07.2006 IS
-    - warnings
-  29.05.2006 SVS
-    + GetTitle()
-  04.02.2005 WARP
-    ! И еще раз вьювер (см. 01924.viewer.show2.txt)
-  03.02.2005 WARP
-    ! Новая отрисовка вьювера (см. 01923.viewer.show.txt)
-  14.05.2003 VVM
-    + Обработка ViOpt.PersistentBlocks;
-  24.04.2003
-    + Новая функция ShowDown() используется при нажатии на "стрелка вниз"
-  25.02.2003 SVS
-    + SelectFlags, GetSelectedParam - что бы была возможность восстановить выделение
-  03.02.2003 VVM
-    +  Разные флаги для поиска
-  23.01.2003 VVM
-    + AdjustSelPosition - устанавливается сразу после найденного слова для
-      выравнивания показа по выделенному.
-  17.12.2002 SVS
-    ! Viewer64. Все файловые смещения и размеры приведены к __int64, что
-      позволяет существенно повысить верхний предел размерности
-      просматриваемых файлов.
-    ! SavePos??? и Undo??? загнаны в структуры в соответствии с требованиями
-      изменного класса FilePositionCache
-  14.06.2002 IS
-    + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
-      и каталог, его содержащий (если каталог пуст).
-    + BOOL DeleteFolder - см. SetTempViewName
-  08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
-  25.06.2001 IS
-   ! Внедрение const
-  25.06.2001 SVS
-    ! Юзаем SEARCHSTRINGBUFSIZE
-  07.05.2001 DJ
-    + GetNamesList()
-  06.05.2001 DJ
-    ! перетрях #include
-  30.04.2001 DJ
-    + GetAnsiMode(), GetHexMode()
-  27.04.2001 DJ
-    * DrawScrollbar(), AdjustWidth(), AdjustFilePos()
-  29.03.2001 IS
-    + структура ViOpt и Get/Set для ее обслуживания
-  20.02.2001 VVM
-    + GetWrapType()/SetWrapType()
-  06.02.2001 IS
-    + SelectPosOffSet;
-  19.01.2001 SVS
-    ! GoTo - с параметрами & public member
-    + SelectText()
-  27.09.2000 SVS
-    + ViewerControl - "Ядро" будущего Viewer API :-)
-    + FileViewer *HostFileViewer;
-    ! Переменные UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
-      введены в одну структуру ViewerMode.
-  14.06.2000 SVS
-    + Переменная FirstWord - первое слово из файла
-      (для автоопределения Unicode)
-  12.09.2000 SVS
-    + Введена переменная TypeWrap. Теперь
-      Wrap - Состояние (Wrap/UnWrap) и
-      TypeWrap - тип (Wrap/WWrap)
-  30.07.2000 KM 1.07
-    + LastSearchWholeWords
-  19.07.2000 tran 1/06
-    + Viewer::Width, ::XX2
-  18.07.2000 tran 1.05
-    * изменил тип параметра у SetFilePos()
-      на unsigned
-  12.07.2000 tran
-    ! OutStr are dynamic, new, delete,
-      and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
-  12.07.2000 SVS
-    - из-за увеличения длины строки до 0x800 вылетал FAR
-      по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
-  10.07.2000 tran
-    + увеличение длины строки - с 512 на MAX_VIEWLINE
-      MAX_VIEWLINEB = MAX_VIEWLINE + 16
-  04.07.2000 tran
-    + 'warning' parameter in OpenFile() method
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "scrobj.hpp"
 #include "namelist.hpp"
 #include "plugin.hpp"
@@ -281,8 +188,10 @@ class Viewer:public ScreenObject
     int OpenFile(const char *Name,int warning);
     /* tran $ */
     void SetViewKeyBar(KeyBar *ViewKeyBar);
+
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+
     void SetStatusMode(int Mode);
     void EnableHideCursor(int HideCursor);
     int GetWrapMode();
@@ -336,19 +245,20 @@ class Viewer:public ScreenObject
     int GetPersistentBlocks() const { return ViOpt.PersistentBlocks; }
     void SetPersistentBlocks(int newValue) { ViOpt.PersistentBlocks=newValue; }
 
-    /* $ 30.04.2001 DJ */
     int GetAnsiMode() const { return VM.AnsiMode; }
     int GetHexMode() const { return VM.Hex; }
-    /* DJ $ */
 
-    /* $ 07.05.2001 DJ */
+
     NamesList *GetNamesList() { return &ViewNamesList; }
-    /* DJ $ */
 
     /* $ 08.12.2001 OT
       возвращает признак того, является ли файл временным
       используется для принятия решения переходить в каталог по */
     BOOL isTemporary() const;
+
+    int ProcessHexMode(int newMode);
+    int ProcessWrapMode(int newMode);
+    int ProcessTypeWrapMode(int newMode);
 };
 
 #endif // __VIEWER_HPP__

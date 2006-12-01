@@ -1041,12 +1041,19 @@ const
    VCTL_SETKEYBAR   = 3;
    VCTL_SETPOSITION = 4;
    VCTL_SELECT      = 5;
+   VCTL_SETMODE     = 6;
 
 { VIEWER_OPTIONS }
 
 const
    VOPT_SAVEFILEPOSITION = 1;
    VOPT_AUTODETECTTABLE  = 2;
+
+const
+   VSMT_HEX              = 1;
+   VSMT_WRAP             = 2;
+   VSMT_WORDWRAP         = 3;
+
 
 type
    TFarInt64Part = packed record
@@ -1063,6 +1070,21 @@ type
 {$ENDIF}
          1 : (Part : TFarInt64Part);
    end;
+
+type
+   PViewerSetMode = ^TViewerSetMode;
+   TViewerSetMode = packed record
+      ParamType : Integer;
+
+      Param : record case Integer of
+         0 : (iParam : Integer);
+         1 : (cParam : PChar);
+      end;
+
+      Flags : DWORD;
+      Reserved : DWORD;
+   end;
+
 
 type
    PViewerSelect = ^TViewerSelect;
@@ -1095,7 +1117,7 @@ type
       AnsiMode : Integer;
       Unicode : Integer;
       Wrap : Integer;
-      TypeWrap : Integer;
+      WordWrap : Integer;
       Hex : Integer;
       Reserved : array [0..3] of DWORD;
    end;

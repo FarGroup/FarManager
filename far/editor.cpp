@@ -5040,11 +5040,9 @@ int Editor::EditorControl(int Command,void *Param)
   {
     case ECTL_GETSTRING:
     {
-      if(!Param)
-        return FALSE;
-      else
+      struct EditorGetString *GetString=(struct EditorGetString *)Param;
+      if(GetString && !IsBadReadPtr(GetString,sizeof(struct EditorGetString)))
       {
-        struct EditorGetString *GetString=(struct EditorGetString *)Param;
         Edit *CurPtr=GetStringByNumber(GetString->StringNumber);
         if (!CurPtr)
         {
@@ -5087,8 +5085,9 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  SelEnd          =%d",GetString->SelEnd));
         _ECTLLOG(SysLog("}"));
         _ECTLLOG(if(LinDump)xf_free(LinDump));
+        return(TRUE);
       }
-      return(TRUE);
+      break;
     }
 
     case ECTL_INSERTSTRING:
@@ -5140,10 +5139,11 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_SETSTRING:
     {
-      if(!Param)
-        return FALSE;
-
       struct EditorSetString *SetString=(struct EditorSetString *)Param;
+
+      if(!SetString || IsBadReadPtr(SetString,sizeof(struct EditorSetString)))
+        break;
+
       _ECTLLOG(SysLog("struct EditorSetString{"));
       _ECTLLOG(SysLog("  StringNumber    =%d",SetString->StringNumber));
       _ECTLLOG(SysLog("  StringText      ='%s'",SetString->StringText));
@@ -5154,7 +5154,7 @@ int Editor::EditorControl(int Command,void *Param)
       if (Flags.Check(FEDITOR_LOCKMODE))
       {
         _ECTLLOG(SysLog("FEDITOR_LOCKMODE!"));
-        return(FALSE);
+        break;
       }
       else
       {
@@ -5278,7 +5278,7 @@ int Editor::EditorControl(int Command,void *Param)
         return TRUE;
       }
       _ECTLLOG(SysLog("Error: Param == NULL or IsBadWritePtr(Param,sizeof(struct EditorInfo))"));
-      return FALSE;
+      break;
     }
 
     case ECTL_SETPOSITION:
@@ -5349,16 +5349,14 @@ int Editor::EditorControl(int Command,void *Param)
         return TRUE;
       }
       _ECTLLOG(SysLog("Error: Param == NULL or IsBadReadPtr(Param,sizeof(struct EditorSetPosition))"));
-      return FALSE;
+      break;
     }
 
     case ECTL_SELECT:
     {
-      if(!Param)
-        return FALSE;
-      else
+      struct EditorSelect *Sel=(struct EditorSelect *)Param;
+      if(Sel && !IsBadReadPtr(Sel,sizeof(struct EditorSelect)))
       {
-        struct EditorSelect *Sel=(struct EditorSelect *)Param;
         _ECTLLOG(SysLog("struct EditorSelect{"));
         _ECTLLOG(SysLog("  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?"":(Sel->BlockType==BTYPE_COLUMN?"BTYPE_COLUMN":"BTYPE_?????"))),Sel->BlockType));
         _ECTLLOG(SysLog("  BlockStartLine=%d",Sel->BlockStartLine));
@@ -5405,8 +5403,9 @@ int Editor::EditorControl(int Command,void *Param)
           VBlockSizeX=Sel->BlockWidth;
           VBlockSizeY=Sel->BlockHeight;
         }
+        return(TRUE);
       }
-      return(TRUE);
+      break;
     }
 
     case ECTL_REDRAW:
@@ -5418,9 +5417,7 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_TABTOREAL:
     {
-      if(!Param)
-        return FALSE;
-      else
+      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorConvertPos)))
       {
         struct EditorConvertPos *ecp=(struct EditorConvertPos *)Param;
         Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
@@ -5435,15 +5432,14 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  SrcPos       =%d",ecp->SrcPos));
         _ECTLLOG(SysLog("  DestPos      =%d",ecp->DestPos));
         _ECTLLOG(SysLog("}"));
+        return(TRUE);
       }
-      return(TRUE);
+      break;
     }
 
     case ECTL_REALTOTAB:
     {
-      if(!Param)
-        return FALSE;
-      else
+      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorConvertPos)))
       {
         struct EditorConvertPos *ecp=(struct EditorConvertPos *)Param;
         Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
@@ -5458,8 +5454,9 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  SrcPos       =%d",ecp->SrcPos));
         _ECTLLOG(SysLog("  DestPos      =%d",ecp->DestPos));
         _ECTLLOG(SysLog("}"));
+        return(TRUE);
       }
-      return(TRUE);
+      break;
     }
 
     case ECTL_EXPANDTABS:
@@ -5489,9 +5486,7 @@ int Editor::EditorControl(int Command,void *Param)
     // в диалоге - нафиг ненать
     case ECTL_ADDCOLOR:
     {
-      if(!Param)
-        return FALSE;
-      else
+      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorColor)))
       {
         struct EditorColor *col=(struct EditorColor *)Param;
         _ECTLLOG(SysLog("struct EditorColor{"));
@@ -5515,17 +5510,16 @@ int Editor::EditorControl(int Command,void *Param)
         if (col->Color==0)
           return(CurPtr->DeleteColor(newcol.StartPos));
         CurPtr->AddColor(&newcol);
+        return TRUE;
       }
-      return TRUE;
+      break;
     }
 
     // должно выполняется в FileEditor::EditorControl()
     // в диалоге - нафиг ненать
     case ECTL_GETCOLOR:
     {
-      if(!Param)
-        return FALSE;
-      else
+      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorColor)))
       {
         struct EditorColor *col=(struct EditorColor *)Param;
         Edit *CurPtr=GetStringByNumber(col->StringNumber);
@@ -5550,8 +5544,9 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  EndPos      =%d",col->EndPos));
         _ECTLLOG(SysLog("  Color       =%d (0x%08X)",col->Color,col->Color));
         _ECTLLOG(SysLog("}"));
+        return TRUE;
       }
-      return TRUE;
+      break;
     }
 
     /*$ 07.09.2000 skv
@@ -5572,7 +5567,7 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_SETPARAM:
     {
       struct EditorSetParameter *espar=(struct EditorSetParameter *)Param;
-      if(espar)
+      if(espar && !IsBadReadPtr(espar,sizeof(struct EditorSetParameter)))
       {
         int rc=TRUE;
         _ECTLLOG(SysLog("struct EditorSetParameter{"));

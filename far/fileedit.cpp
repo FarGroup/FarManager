@@ -1837,7 +1837,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_GETBOOKMARKS:
     {
-      if(!FEdit->Flags.Check(FEDITOR_OPENFAILED) && Param)
+      if(!FEdit->Flags.Check(FEDITOR_OPENFAILED) && Param && !IsBadReadPtr(Param,sizeof(struct EditorBookMarks)))
       {
         struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
         if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
@@ -1865,8 +1865,9 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_EDITORTOOEM:
     {
-      if(!Param)
+      if(!Param || IsBadReadPtr(Param,sizeof(struct EditorConvertText)))
         return FALSE;
+
       struct EditorConvertText *ect=(struct EditorConvertText *)Param;
       _ECTLLOG(SysLog("struct EditorConvertText{"));
       _ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
@@ -1882,7 +1883,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_OEMTOEDITOR:
     {
-      if(!Param)
+      if(!Param || IsBadReadPtr(Param,sizeof(struct EditorConvertText)))
         return FALSE;
 
       struct EditorConvertText *ect=(struct EditorConvertText *)Param;
@@ -1921,7 +1922,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       }
       else
       {
-        if((long)Param != (long)-1) // не только перерисовать?
+        if((long)Param != (long)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
         {
           for(int I=0; I < 12; ++I)
           {
@@ -1952,7 +1953,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       EditorSaveFile *esf=(EditorSaveFile *)Param;
       char *Name=FullFileName;
       int EOL=0;
-      if (esf!=NULL)
+      if (esf && !IsBadReadPtr(esf,sizeof(EditorSaveFile)))
       {
         _ECTLLOG(char *LinDump=(esf->FileEOL?(char *)_SysLog_LinearDump(esf->FileEOL,strlen(esf->FileEOL)):NULL));
         _ECTLLOG(SysLog("struct EditorSaveFile{"));
@@ -2001,7 +2002,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 //        return FALSE;
       }
 
-      if(!Param)
+      if(!Param || IsBadReadPtr(Param,sizeof(INPUT_RECORD)))
       {
         _ECTLLOG(SysLog("Param = NULL"));
         return FALSE;
@@ -2039,7 +2040,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSINPUT)"));
 
-      if(!Param)
+      if(!Param || IsBadReadPtr(Param,sizeof(INPUT_RECORD)))
       {
         _ECTLLOG(SysLog("Param = NULL"));
         return FALSE;
