@@ -708,6 +708,10 @@
                                 <param name="Name" value="ViewerSelect">
                                 <param name="Local" value="html/structures/viewerselect.html">
                                 </OBJECT>
+						<LI> <OBJECT type="text/sitemap">
+								<param name="Name" value="ViewerSetMode">
+								<param name="Local" value="html/structures/viewersetmode.html">
+								</OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="ViewerSetPosition">
                                 <param name="Local" value="html/structures/viewersetposition.html">
@@ -2011,6 +2015,10 @@
                                 <param name="Name" value="ViewerSelect">
                                 <param name="Local" value="html/structures/viewerselect.html">
                                 </OBJECT>
+						<LI> <OBJECT type="text/sitemap">
+								<param name="Name" value="ViewerSetMode">
+								<param name="Local" value="html/structures/viewersetmode.html">
+								</OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="ViewerSetPosition">
                                 <param name="Local" value="html/structures/viewersetposition.html">

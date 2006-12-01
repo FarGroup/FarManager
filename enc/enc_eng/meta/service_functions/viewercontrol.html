@@ -59,17 +59,25 @@ internal viewer.
   This command always returns <code>TRUE</code>.
 </td></tr>
 
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
+<td class="cont" width="60%">Controls selection. <var>Param</var> points to an
+  <a href="../structures/viewerselect.html">ViewerSelect</a> structure.
+  <br>Если <var>Param</var> = NULL, произойдет сброс выделения.<br>
+  If the command succeeds <code>TRUE</code> is returned..
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
+<td class="cont" width="60%">Изменить режим работы программы просмотра.<br>
+  <var>Param</var> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.
+  В случае успеха возвращается <code>TRUE</code>.
+</td></tr>
+
 <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
 <td class="cont" width="60%">Sets position in file. <var>Param</var> points to an
   <a href="../structures/viewersetposition.html">ViewerSetPosition</a> structure.
   If the command succeeds <code>TRUE</code> is returned..
 </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
-<td class="cont" width="60%">Controls selection. <var>Param</var> points to an
-  <a href="../structures/viewerselect.html">ViewerSelect</a> structure.
-  If the command succeeds <code>TRUE</code> is returned..
-</td></tr>
 </table>
 
   </div>

@@ -27,7 +27,7 @@ struct ViewerMode
    int AnsiMode;
    int Unicode;
    int Wrap;
-   int TypeWrap;
+   int WordWrap;
    int Hex;
    DWORD Reserved[4];
 };
@@ -36,26 +36,26 @@ struct ViewerMode
 <h3>Elements</h3>
 <div class=descr>
   <div class=dfn>UseDecodeTable</div>
-  <div class=dfndescr>If TRUE, then a decoding table is used.</div>
+  <div class=dfndescr>If 1, then a decoding table is used.</div>
 
   <div class=dfn>TableNum</div>
   <div class=dfndescr>The number of the user character table. Use only if
-  UseDecodeTable is TRUE.</div>
+  UseDecodeTable is 1.</div>
 
   <div class=dfn>AnsiMode</div>
-  <div class=dfndescr>If TRUE, then the current charset is ANSI.</div>
+  <div class=dfndescr>If 1, then the current charset is ANSI.</div>
 
   <div class=dfn>Unicode</div>
-  <div class=dfndescr>If TRUE, then the current charset is Unicode.</div>
+  <div class=dfndescr>If 1, then the current charset is Unicode.</div>
 
   <div class=dfn>Wrap</div>
-  <div class=dfndescr>Text wrapping is on - TRUE, off - FALSE.</div>
+  <div class=dfndescr>Text wrapping is on - 1, off - 0.</div>
 
   <div class=dfn>TypeWrap</div>
-  <div class=dfndescr>Text wrapping mode.</div>
+  <div class=dfndescr>Text wrapping mode: 1 - используется перенос строк по словам, 0 - по буквам.</div>
 
   <div class=dfn>Hex</div>
-  <div class=dfndescr>If TRUE, then the viewer is in hex-mode.</div>
+  <div class=dfndescr>If 1, then the viewer is in hex-mode.</div>
 
   <div class=dfn>Reserved</div>
   <div class=dfndescr>Reserved for future use.</div>
