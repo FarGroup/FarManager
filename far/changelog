@@ -1,3 +1,12 @@
+svs 01.12.2006 20:19:01 +0300 - build 169
+
+1. Замена в составе: ViewerMode.TypeWrap -> ViewerMode.WordWrap
+
+2. Добавка в ViewerAPI - VCTL_SETMODE, enum VIEWER_SETMODE_TYPES, struct ViewerSetMode
+
+3. В XXXControl добавлена проверка на вшивость с юзанием IsBadReadPtr()
+
+
 svs 30.11.2006 09:27:43 +0300 - build 168
 
 1. При выключенных настройках [ ] Save file position [ ] Save bookmarks 

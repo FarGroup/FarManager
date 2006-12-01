@@ -1147,11 +1147,28 @@ enum VIEWER_CONTROL_COMMANDS {
   VCTL_SETKEYBAR,
   VCTL_SETPOSITION,
   VCTL_SELECT,
+  VCTL_SETMODE,
 };
 
 enum VIEWER_OPTIONS {
   VOPT_SAVEFILEPOSITION=1,
   VOPT_AUTODETECTTABLE=2,
+};
+
+enum VIEWER_SETMODE_TYPES {
+  VSMT_HEX,
+  VSMT_WRAP,
+  VSMT_WORDWRAP,
+};
+
+struct ViewerSetMode {
+  int Type;
+  union {
+    int iParam;
+    wchar_t *cParam;
+  } Param;
+  DWORD Flags;
+  DWORD Reserved;
 };
 
 typedef union {
@@ -1188,7 +1205,7 @@ struct ViewerMode{
   int AnsiMode;
   int Unicode;
   int Wrap;
-  int TypeWrap;
+  int WordWrap;
   int Hex;
   DWORD Reserved[4];
 };

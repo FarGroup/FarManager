@@ -5,8 +5,6 @@ syslog.cpp
 
 */
 
-/* Revision: 1.58 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -1474,6 +1472,7 @@ const char *_VCTL_ToName(int Command)
     DEF_VCTL_(SETKEYBAR),
     DEF_VCTL_(SETPOSITION),
     DEF_VCTL_(SELECT),
+    DEF_VCTL_(SETMODE),
   };
   int I;
   static char Name[512];

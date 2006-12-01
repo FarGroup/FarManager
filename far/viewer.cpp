@@ -5,8 +5,6 @@ Internal viewer
 
 */
 
-/* Revision: 1.209 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -89,7 +87,7 @@ Viewer::Viewer()
     ¬спомним тип врапа
   */
   VM.Wrap=Opt.ViOpt.ViewerIsWrap;
-  VM.TypeWrap=Opt.ViOpt.ViewerWrap;
+  VM.WordWrap=Opt.ViOpt.ViewerWrap;
   /* SVS $ */
   VM.Hex=InitHex;
 
@@ -225,7 +223,7 @@ void Viewer::KeepInitParameters()
   ViewerInitTableNum=VM.TableNum;
   ViewerInitAnsiText=VM.AnsiMode;
   Opt.ViOpt.ViewerIsWrap=VM.Wrap;
-  Opt.ViOpt.ViewerWrap=VM.TypeWrap;
+  Opt.ViOpt.ViewerWrap=VM.WordWrap;
   InitHex=VM.Hex;
 }
 
@@ -1043,7 +1041,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
-          if (VM.TypeWrap && RegVer) // только дл€ зарегестрированных
+          if (VM.WordWrap && RegVer) // только дл€ зарегестрированных
           {
             if ( !IsSpaceW(Ch) && !IsSpaceW(pString->lpData[(int)OutPtr]))
             {
@@ -1114,7 +1112,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         } while ((OutPtr % ViOpt.TabSize)!=0 && ((int)OutPtr < (MAX_VIEWLINEB-1)));
         // 12.07.2000 SVS - Wrap - 3-x позиционный и если есть регистраци€ :-)
         // 22.01.2002 IS - Ќе забудем и про простую свертку не по словам
-        if ((VM.Wrap && (!VM.TypeWrap || (VM.TypeWrap && RegVer)))
+        if ((VM.Wrap && (!VM.WordWrap || (VM.WordWrap && RegVer)))
             && OutPtr>XX2-X1)
           pString->lpData[XX2-X1+1]=0;
         continue;
@@ -1202,7 +1200,7 @@ int Viewer::ProcessKey(int Key)
       MacroViewerState|=VM.AnsiMode?0x00000002:0;
       MacroViewerState|=VM.Unicode?0x00000004:0;
       MacroViewerState|=VM.Wrap?0x00000008:0;
-      MacroViewerState|=VM.TypeWrap?0x00000010:0;
+      MacroViewerState|=VM.WordWrap?0x00000010:0;
       MacroViewerState|=VM.Hex?0x00000020:0;
       return MacroViewerState;
     }
@@ -1459,52 +1457,19 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_SHIFTF2:
     {
-      if(RegVer)
-      {
-        VM.TypeWrap=!VM.TypeWrap;
-        if(!VM.Wrap)
-        {
-          VM.Wrap=!VM.Wrap;
-          LeftPos = 0;
-        }
-        ChangeViewKeyBar();
-        Show();
-        Opt.ViOpt.ViewerWrap=VM.TypeWrap;
-//        LastSelPos=FilePos;
-      }
+      ProcessTypeWrapMode(!VM.WordWrap);
       return TRUE;
     }
 
     case KEY_F2:
     {
-      /* $ 12.07.200 SVS
-        ! Wrap имеет 3 положени€ и...
-      */
-      VM.Wrap=!VM.Wrap;
-      ChangeViewKeyBar();
-      if (VM.Wrap)
-        LeftPos = 0;
-
-      if ( !VM.Wrap && LastPage )
-        Up ();
-
-      Show();
-
-      /* $ 31.08.2000 SVS
-        —охран€ем тип врапа
-      */
-      Opt.ViOpt.ViewerIsWrap=VM.Wrap;
-      /* SVS $ */
-//      LastSelPos=FilePos;
+      ProcessWrapMode(!VM.Wrap);
       return(TRUE);
     }
 
     case KEY_F4:
     {
-      VM.Hex=!VM.Hex;
-      ChangeViewKeyBar();
-      Show();
-//      LastSelPos=FilePos;
+      ProcessHexMode(!VM.Hex);
       return(TRUE);
     }
 
@@ -2181,9 +2146,9 @@ void Viewer::ChangeViewKeyBar()
     */
     ViewKeyBar->Change(
        UMSG(
-       (!VM.Wrap)?((!VM.TypeWrap)?MViewF2:MViewShiftF2)
+       (!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2)
        :MViewF2Unwrap),1);
-    ViewKeyBar->Change(KBL_SHIFT,UMSG((VM.TypeWrap)?MViewF2:MViewShiftF2),1);
+    ViewKeyBar->Change(KBL_SHIFT,UMSG((VM.WordWrap)?MViewF2:MViewShiftF2),1);
     /* SVS $ */
     /* SVS $ */
 
@@ -2770,13 +2735,13 @@ void Viewer::EnableHideCursor(int HideCursor)
 
 int Viewer::GetWrapType()
 {
-  return(VM.TypeWrap);
+  return(VM.WordWrap);
 }
 
 
 void Viewer::SetWrapType(int TypeWrap)
 {
-  Viewer::VM.TypeWrap=TypeWrap;
+  Viewer::VM.WordWrap=TypeWrap;
 }
 
 
@@ -3222,9 +3187,9 @@ int Viewer::ViewerControl(int Command,void *Param)
   {
     case VCTL_GETINFO:
     {
-      struct ViewerInfoW *Info=(struct ViewerInfoW *)Param;
-      if(Info)
+      if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerInfoW)))
       {
+        struct ViewerInfoW *Info=(struct ViewerInfoW *)Param;
         /* $ 29.01.2001 IS
           - баг - затиралс€ StructSize
         */
@@ -3259,25 +3224,25 @@ int Viewer::ViewerControl(int Command,void *Param)
     */
     case VCTL_SETPOSITION:
     {
-      if(Param)
+      if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerSetPosition)))
       {
-        struct ViewerSetPosition vsp=*(struct ViewerSetPosition*)Param;
-        bool isReShow=vsp.StartPos.i64 != FilePos;
-        if((LeftPos=vsp.LeftPos) < 0)
+        struct ViewerSetPosition *vsp=(struct ViewerSetPosition*)Param;
+        bool isReShow=vsp->StartPos.i64 != FilePos;
+        if((LeftPos=vsp->LeftPos) < 0)
           LeftPos=0;
         /* $ 20.01.2003 IS
              ≈сли кодировка - юникод, то оперируем числами, уменьшенными в
              2 раза. ѕоэтому увеличим StartPos в 2 раза, т.к. функци€
              GoTo принимает смещени€ в _байтах_.
         */
-        GoTo(FALSE, vsp.StartPos.i64*(VM.Unicode?2:1), vsp.Flags);
+        GoTo(FALSE, vsp->StartPos.i64*(VM.Unicode?2:1), vsp->Flags);
         /* IS $ */
-        if (isReShow && !(vsp.Flags&VSP_NOREDRAW))
+        if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
-        if(!(vsp.Flags&VSP_NORETNEWPOS))
+        if(!(vsp->Flags&VSP_NORETNEWPOS))
         {
-          ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos;
-          ((struct ViewerSetPosition*)Param)->LeftPos=(int)LeftPos; //???
+          vsp->StartPos.i64=FilePos;
+          vsp->LeftPos=(int)LeftPos; //???
         }
         return(TRUE);
       }
@@ -3287,10 +3252,11 @@ int Viewer::ViewerControl(int Command,void *Param)
     // Param=ViewerSelect
     case VCTL_SELECT:
     {
-      if(Param)
+      struct ViewerSelect *vs=(struct ViewerSelect *)Param;
+      if(vs && !IsBadReadPtr(vs,sizeof(struct ViewerSelect)))
       {
-        __int64 SPos=((ViewerSelect*)Param)->BlockStartPos.i64;
-        int SSize=((ViewerSelect*)Param)->BlockLen;
+        __int64 SPos=vs->BlockStartPos.i64;
+        int SSize=vs->BlockLen;
         if(SPos < FileSize)
         {
           if(SPos+SSize > FileSize)
@@ -3301,6 +3267,11 @@ int Viewer::ViewerControl(int Command,void *Param)
           ScrBuf.Flush();
           return(TRUE);
         }
+      }
+      else
+      {
+        SelectSize = 0;
+        Show();
       }
       break;
     }
@@ -3320,7 +3291,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       }
       else
       {
-        if((long)Param != (long)-1) // не только перерисовать?
+        if((long)Param != (long)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
         {
           for(I=0; I < 12; ++I)
           {
@@ -3375,6 +3346,33 @@ int Viewer::ViewerControl(int Command,void *Param)
       }
       /* IS 28.12.2002 $ */
     }
+
+    /* ‘ункци€ установки режимов
+         Param = ViewerSetMode
+    */
+    case VCTL_SETMODE:
+    {
+      struct ViewerSetMode *vsmode=(struct ViewerSetMode *)Param;
+      if(vsmode && !IsBadReadPtr(vsmode,sizeof(struct ViewerSetMode)))
+      {
+        switch(vsmode->Type)
+        {
+          case VSMT_HEX:
+            ProcessHexMode(vsmode->Param.iParam);
+            return TRUE;
+
+          case VSMT_WRAP:
+            ProcessWrapMode(vsmode->Param.iParam);
+            return TRUE;
+
+          case VSMT_WORDWRAP:
+            ProcessTypeWrapMode(vsmode->Param.iParam);
+            return TRUE;
+        }
+      }
+      return FALSE;
+    }
+
   }
   return(FALSE);
 }
@@ -3383,4 +3381,51 @@ int Viewer::ViewerControl(int Command,void *Param)
 BOOL Viewer::isTemporary()
 {
   return !strTempViewName.IsEmpty();
+}
+
+int Viewer::ProcessHexMode(int newMode)
+{
+  int oldHex=VM.Hex;
+  VM.Hex=newMode&1;
+  ChangeViewKeyBar();
+  Show();
+// LastSelPos=FilePos;
+  return oldHex;
+}
+
+int Viewer::ProcessWrapMode(int newMode)
+{
+  int oldWrap=VM.Wrap;
+  VM.Wrap=newMode&1;
+  ChangeViewKeyBar();
+  if (VM.Wrap)
+    LeftPos = 0;
+
+  if ( !VM.Wrap && LastPage )
+    Up ();
+
+  Show();
+
+  Opt.ViOpt.ViewerIsWrap=VM.Wrap;
+//  LastSelPos=FilePos;
+  return oldWrap;
+}
+
+int Viewer::ProcessTypeWrapMode(int newMode)
+{
+  int oldTypeWrap=VM.WordWrap;
+  if(RegVer)
+  {
+    VM.WordWrap=newMode&1;
+    if(!VM.Wrap)
+    {
+      VM.Wrap=!VM.Wrap;
+      LeftPos = 0;
+    }
+    ChangeViewKeyBar();
+    Show();
+    Opt.ViOpt.ViewerWrap=VM.WordWrap;
+//    LastSelPos=FilePos;
+  }
+  return oldTypeWrap;
 }

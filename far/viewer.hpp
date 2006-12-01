@@ -7,8 +7,6 @@ Internal viewer
 
 */
 
-/* Revision: 1.41 07.07.2006 $ */
-
 #include "scrobj.hpp"
 #include "namelist.hpp"
 #include "plugin.hpp"
@@ -201,8 +199,10 @@ class Viewer:public ScreenObject
   public:
     int OpenFile(const wchar_t *Name,int warning);
     void SetViewKeyBar(KeyBar *ViewKeyBar);
+
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+
     void SetStatusMode(int Mode);
     void EnableHideCursor(int HideCursor);
     int GetWrapMode();
@@ -269,6 +269,10 @@ class Viewer:public ScreenObject
       возвращает признак того, является ли файл временным
       используется для принятия решения переходить в каталог по */
     BOOL isTemporary();
+
+    int ProcessHexMode(int newMode);
+    int ProcessWrapMode(int newMode);
+    int ProcessTypeWrapMode(int newMode);
 };
 
 #endif // __VIEWER_HPP__
