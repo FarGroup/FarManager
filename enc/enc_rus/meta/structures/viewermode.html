@@ -15,9 +15,8 @@
 </div>
 
 <div class=shortdescr>
-Структура ViewerMode используется
-для получения дополнительной информации о текущем состоянии программы просмотра
-FAR.
+Структура ViewerMode используется для получения дополнительной информации о
+текущем состоянии программы просмотра FAR.
 </div>
 
 <pre class=syntax>
@@ -28,7 +27,7 @@ struct ViewerMode
    int AnsiMode;
    int Unicode;
    int Wrap;
-   int TypeWrap;
+   int WordWrap;
    int Hex;
    DWORD Reserved[4];
 };
@@ -37,26 +36,25 @@ struct ViewerMode
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>UseDecodeTable</div>
-  <div class=dfndescr>Если TRUE, то используется таблица перекодировки.</div>
+  <div class=dfndescr>Если 1, то используется таблица перекодировки.</div>
 
   <div class=dfn>TableNum</div>
-  <div class=dfndescr>Номер пользовательской таблицы перекодировки. Имеет
-  смысл, если UseDecodeTable равно TRUE.</div>
+  <div class=dfndescr>Номер пользовательской таблицы перекодировки. Имеет смысл, если UseDecodeTable равно TRUE.</div>
 
   <div class=dfn>AnsiMode</div>
-  <div class=dfndescr>Если TRUE, то текущая кодировка в программе просмотра - ANSI.</div>
+  <div class=dfndescr>Если 1, то текущая кодировка в программе просмотра - ANSI.</div>
 
   <div class=dfn>Unicode</div>
-  <div class=dfndescr>Если TRUE, то текущая кодировка в программе просмотра - Unicode.</div>
+  <div class=dfndescr>Если 1, то текущая кодировка в программе просмотра - Unicode.</div>
 
   <div class=dfn>Wrap</div>
-  <div class=dfndescr>Включена (TRUE)/выключена (FALSE) свертка.</div>
+  <div class=dfndescr>Включена (1)/выключена (0) свертка.</div>
 
-  <div class=dfn>TypeWrap</div>
-  <div class=dfndescr>Тип свертки.</div>
+  <div class=dfn>WordWrap</div>
+  <div class=dfndescr>Тип свертки: 1 - используется перенос строк по словам, 0 - по буквам.</div>
 
   <div class=dfn>Hex</div>
-  <div class=dfndescr>Если TRUE, то программа просмотра в hex-режиме.</div>
+  <div class=dfndescr>Если 1, то программа просмотра в hex-режиме.</div>
 
   <div class=dfn>Reserved</div>
   <div class=dfndescr>Зарезервировано для будущего использования.</div>

@@ -60,22 +60,30 @@
   Всегда возвращается <code>TRUE</code>.
 </td></tr>
 
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
+<td class="cont" width="60%">Управление выделением. <var>Param</var> указывает на
+  структуру <a href="../structures/viewerselect.html">ViewerSelect</a>.
+  <br>Если <var>Param</var> = NULL, произойдет сброс выделения.<br>
+  В случае успеха возвращается <code>TRUE</code>.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
+<td class="cont" width="60%">Изменить режим работы программы просмотра.<br>
+  <var>Param</var> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.
+  В случае успеха возвращается <code>TRUE</code>.
+</td></tr>
+
 <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
 <td class="cont" width="60%">Установить позицию в файле. <var>Param</var> указывает на
   структуру <a href="../structures/viewersetposition.html">ViewerSetPosition</a>.
   В случае успеха возвращается <code>TRUE</code>.
 </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
-<td class="cont" width="60%">Управление выделением. <var>Param</var> указывает на
-  структуру <a href="../structures/viewerselect.html">ViewerSelect</a>.
-  В случае успеха возвращается <code>TRUE</code>.
-</td></tr>
 </table>
 
   </div>
   <div class=dfn>Param</div>
-  <div class=dfndescr>Смотрите описание конкретной команды.</div>
+  <div class=dfndescr>Смотрите описание конкретной команды. </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
