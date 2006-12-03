@@ -5,8 +5,7 @@ Temporary panel configuration
 
 */
 
-#include "stdafx.h"
-#include "TmpCfg.hpp"
+#include "TmpPanel.hpp"
 
 enum
 {
@@ -180,7 +179,7 @@ int Config()
     {
       *((int*)OptionsList[i].Option)=DialogItems[OptionsList[i].DialogItem].Selected;
       RegSetValueEx(hKey,REGStr[i],0,REG_DWORD,(BYTE*)OptionsList[i].Option,
-        sizeof(OptionsList[i].Option));
+        sizeof(int));
     }
     else
     {

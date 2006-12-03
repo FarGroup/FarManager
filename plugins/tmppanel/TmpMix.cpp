@@ -5,7 +5,7 @@ Temporary panel miscellaneous utility functions
 
 */
 
-#include "stdafx.h"
+#include "TmpPanel.hpp"
 
 const char *GetMsg(int MsgId)
 {
@@ -38,28 +38,9 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total)
   if(Items){
     for (DWORD I=0;I<Total;I++)
       if (Items[I].Owner)
-        my_free (Items[I].Owner);
-    my_free (Items);
+        free (Items[I].Owner);
+    free (Items);
   }
-}
-
-char * my_strchr (const char * string,int ch)
-{
-  while (*string && *string != (char)ch)
-    string++;
-  if (*string == (char)ch)
-    return((char *)string);
-  return(NULL);
-}
-
-char * my_strrchr(const char * string,int ch)
-{
-  char *start = (char *)string;
-  while (*string++);
-  while (--string != start && *string != (char)ch);
-  if (*string == (char)ch)
-    return( (char *)string );
-  return(NULL);
 }
 
 char *ParseParam(char *& str)
@@ -68,7 +49,7 @@ char *ParseParam(char *& str)
   char* parm=NULL;
   if(*p=='|'){
     parm=++p;
-    p=my_strchr(p,'|');
+    p=strchr(p,'|');
     if(p){
       *p='\0';
       str=p+1;
@@ -93,7 +74,7 @@ void GoToFile(const char *Target, BOOL AnotherPanel)
   lstrcpy(Name,FSF.PointToName(const_cast<char*>(Target)));
   pathlen=(int)(FSF.PointToName(const_cast<char*>(Target))-Target);
   if(pathlen)
-    my_memcpy(Dir,Target,pathlen);
+    memcpy(Dir,Target,pathlen);
   Dir[pathlen]=0;
 
   FSF.Trim(Name);
@@ -134,4 +115,3 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
   lstrcpy(ffd.cFileName,wfd.cFileName);
   lstrcpy(ffd.cAlternateFileName,wfd.cAlternateFileName);
 }
-

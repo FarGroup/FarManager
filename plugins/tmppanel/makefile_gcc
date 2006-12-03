@@ -1,10 +1,14 @@
-OBJDIR = ./obj
-REOBJDIR = \.\/obj\/
-DLLDIR = ./final
+OBJDIR = ./final.32.gcc/obj
+REOBJDIR = \.\/final\.32\.gcc\/obj\/
+DLLDIR = ./final.32.gcc
 NAME = TmpPanel
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
-SRCS = TmpPanel.cpp
+SRCS = TmpPanel.cpp \
+TmpCfg.cpp \
+TmpClass.cpp \
+TmpMix.cpp \
+TmpReg.cpp
 DEF = $(NAME).gcc.def
 
 CXX = g++
@@ -51,5 +55,9 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 	@$(RM) $(DLLNAME).base
 	@$(RM) $(DLLNAME).exp
+	@$(CP) *.hlf $(DLLDIR)
+	@$(CP) *.lng $(DLLDIR)
+	@$(CP) *.reg $(DLLDIR)
+	@$(CP) *.temp $(DLLDIR)
 
 -include $(DEPS)

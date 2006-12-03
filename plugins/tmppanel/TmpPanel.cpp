@@ -5,7 +5,6 @@ Temporary panel main plugin code
 
 */
 
-#include "stdafx.h"
 #include "TmpPanel.hpp"
 
 char PluginRootKey[80];
@@ -61,8 +60,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     StartupOptFullScreenPanel=Opt.FullScreenPanel;
     StartupOptCommonPanel=Opt.CommonPanel;
     CurrentCommonPanel=0;
-    my_memset(CommonPanels, 0, sizeof(CommonPanels));
-    CommonPanels[0].Items=(PluginPanelItem*)my_malloc(sizeof(PluginPanelItem));
+    memset(CommonPanels, 0, sizeof(CommonPanels));
+    CommonPanels[0].Items=(PluginPanelItem*)malloc(sizeof(PluginPanelItem));
     Opt.LastSearchResultsPanel = 0;
   }
 }
@@ -160,7 +159,7 @@ HANDLE OpenPanelFromOutput (char *argv, int ANSI)
   FSF.ExpandEnvironmentStr(cmdparams,fullcmd,sizeof(fullcmd));
 
   static SECURITY_ATTRIBUTES sa;
-  my_memset(&sa, 0, sizeof(sa));
+  memset(&sa, 0, sizeof(sa));
   sa.nLength=sizeof(sa);
   sa.bInheritHandle=TRUE;
 
@@ -171,7 +170,7 @@ HANDLE OpenPanelFromOutput (char *argv, int ANSI)
   if(FileHandle!=INVALID_HANDLE_VALUE)
   {
     static STARTUPINFO si;
-    my_memset(&si,0,sizeof(si));
+    memset(&si,0,sizeof(si));
     si.cb=sizeof(si);
     si.dwFlags=STARTF_USESTDHANDLES;
     si.hStdInput=GetStdHandle(STD_INPUT_HANDLE);
@@ -179,7 +178,7 @@ HANDLE OpenPanelFromOutput (char *argv, int ANSI)
     si.hStdError=FileHandle;
 
     static PROCESS_INFORMATION pi;
-    my_memset(&pi,0,sizeof(pi));
+    memset(&pi,0,sizeof(pi));
 
     static char SaveDir[NM],workDir[NM];
 
@@ -242,7 +241,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, char **argv, char *ar
       }
 
       Len=(Len<MAX_PATH)?Len:(MAX_PATH-1);
-      my_memcpy(&TMP,FileData+Pos-Len,Len);
+      memcpy(&TMP,FileData+Pos-Len,Len);
       TMP[Len]=0;
       FSF.Trim(TMP);
       FSF.Unquote(TMP);
@@ -281,7 +280,7 @@ void ReadFileList (char *filename, int *argc, char ***argv, int ANSI)
     {
       UINT i;
       ReadFileLines (hFileMapping, FileSizeLow, NULL,NULL,(UINT *) argc,&i,ANSI);
-      *argv = (char**)my_malloc(*argc * sizeof(char*) + i * sizeof(char) + 1);
+      *argv = (char**)malloc(*argc * sizeof(char*) + i * sizeof(char) + 1);
       ReadFileLines (hFileMapping, FileSizeLow,
           *argv, ((char*)*argv) + sizeof(char*) * *argc,(UINT*)argc, &i,ANSI);
       CloseHandle(hFileMapping);
@@ -295,7 +294,7 @@ void ProcessList(HANDLE hPlugin, char *Name, int Mode, int ANSI)
   {
     FreePanelItems(CommonPanels[CurrentCommonPanel].Items,
                    CommonPanels[CurrentCommonPanel].ItemsNumber);
-    CommonPanels[CurrentCommonPanel].Items=(PluginPanelItem*)my_malloc(sizeof(PluginPanelItem));
+    CommonPanels[CurrentCommonPanel].Items=(PluginPanelItem*)malloc(sizeof(PluginPanelItem));
     CommonPanels[CurrentCommonPanel].ItemsNumber=0;
   }
   TmpPanel *Panel=(TmpPanel*)hPlugin;
@@ -307,14 +306,14 @@ void ProcessList(HANDLE hPlugin, char *Name, int Mode, int ANSI)
   HANDLE hScreen = Panel->BeginPutFiles();
 
   static struct PluginPanelItem ppi;
-  my_memset(&ppi,0,sizeof(ppi));
+  memset(&ppi,0,sizeof(ppi));
   for(UINT i=0;(int)i<argc;i++)
     if(Panel->CheckForCorrect(argv[i],&ppi.FindData,Opt.AnyInPanel))
       Panel->PutOneFile(ppi);
 
   Panel->CommitPutFiles (hScreen, TRUE);
   if (argv)
-    my_free(argv);
+    free(argv);
 }
 
 
@@ -324,7 +323,7 @@ void ShowMenuFromList(char *Name)
   char **argv;
   ReadFileList (Name, &argc, &argv, FALSE);
 
-  FarMenuItem *fmi=(FarMenuItem*)my_malloc(argc*sizeof(FarMenuItem));
+  FarMenuItem *fmi=(FarMenuItem*)malloc(argc*sizeof(FarMenuItem));
   if(fmi)
   {
     static char TMP[MAX_PATH];
@@ -348,7 +347,7 @@ void ShowMenuFromList(char *Name)
     int ExitCode=Info.Menu(Info.ModuleNumber, -1, -1, 0,
       FMENU_WRAPMODE, Title, NULL, "Contents",
       &BreakKeys[0], &BreakCode, fmi, argc);
-    my_free(fmi);
+    free(fmi);
     if(ExitCode>-1 && ExitCode<argc)
     {
       FSF.ExpandEnvironmentStr(argv[ExitCode],TMP,sizeof(TMP));
@@ -371,12 +370,11 @@ void ShowMenuFromList(char *Name)
     }
   }
   if (argv)
-    my_free(argv);
+    free(argv);
 }
 
 
-HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *,
-                                     int DataSize)
+HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *,int DataSize)
 {
   if(IsOldFAR || !DataSize || !FSF.ProcessName(Opt.Mask,Name,PN_CMPNAMELIST))
     return(INVALID_HANDLE_VALUE);

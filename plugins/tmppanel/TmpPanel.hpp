@@ -8,6 +8,14 @@ Temporary panel header file
 #ifndef __TMPPANEL_HPP__
 #define __TMPPANEL_HPP__
 
+#define _FAR_USE_FARFINDDATA
+#include "../common/plugin.hpp"
+#include <shellapi.h>
+
+#include "TmpLng.hpp"
+#include "TmpClass.hpp"
+#include "TmpCfg.hpp"
+
 #define COMMONPANELSNUMBER 10
 
 typedef struct _MyInitDialogItem
@@ -36,15 +44,11 @@ extern int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
 extern char PluginRootKey[80];
 
 const char *GetMsg(int MsgId);
-void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
-                    int ItemsNumber);
+void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 
 int Config();
 void GoToFile(const char *Target, BOOL AnotherPanel);
 void FreePanelItems(PluginPanelItem *Items, DWORD Total);
-
-char* my_strchr(const char * string,int ch);
-char* my_strrchr(const char * string,int ch);
 
 char *ParseParam(char *& str);
 void GetOptions(void);

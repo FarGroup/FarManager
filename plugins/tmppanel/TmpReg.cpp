@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "TmpPanel.hpp"
 
 HKEY CreateRegKey(HKEY hRoot,const char *Key);
 HKEY OpenRegKey(HKEY hRoot,const char *Key);
@@ -74,10 +74,9 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,B
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     if (Default!=NULL)
-      my_memcpy(ValueData,Default,DataSize);
+      memcpy(ValueData,Default,DataSize);
     else
-      my_memset(ValueData,0,DataSize);
-      ;
+      memset(ValueData,0,DataSize);
     return(FALSE);
   }
   return(TRUE);
@@ -98,8 +97,7 @@ HKEY CreateRegKey(HKEY hRoot,const char *Key)
   DWORD Disposition;
   char FullKeyName[512];
   FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
-  RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
-                 &hKey,&Disposition);
+  RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,&hKey,&Disposition);
   return(hKey);
 }
 
