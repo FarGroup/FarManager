@@ -1,6 +1,6 @@
-OBJDIR = ./obj
-REOBJDIR = \.\/obj\/
-DLLDIR = ./final
+OBJDIR = ./final.32.gcc/obj
+REOBJDIR = \.\/final\.32\.gcc\/obj\/
+DLLDIR = ./final.32.gcc
 NAME = Proclist
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
@@ -61,5 +61,7 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 	@$(RM) $(DLLNAME).base
 	@$(RM) $(DLLNAME).exp
+	@$(CP) *.hlf $(DLLDIR)
+	@$(CP) *.lng $(DLLDIR)
 
 -include $(DEPS)

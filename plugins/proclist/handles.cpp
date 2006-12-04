@@ -5,6 +5,7 @@
 #include "proclng.hpp"
 #include <stdio.h>
 
+/*
 struct SYSTEM_HANDLE {
         DWORD   ProcessID;
         WORD    HandleType;
@@ -17,6 +18,27 @@ struct SYSTEM_HANDLE_INFORMATION
         DWORD           Count;
         SYSTEM_HANDLE   Handles[1];
 };
+*/
+
+typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
+{
+    USHORT UniqueProcessId;
+    USHORT CreatorBackTraceIndex;
+    UCHAR ObjectTypeIndex;
+    UCHAR HandleAttributes;
+    USHORT HandleValue;
+    PVOID Object;
+    ULONG GrantedAccess;
+} SYSTEM_HANDLE_TABLE_ENTRY_INFO, *PSYSTEM_HANDLE_TABLE_ENTRY_INFO;
+
+typedef struct _SYSTEM_HANDLE_INFORMATION
+{
+    ULONG NumberOfHandles;
+    SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
+} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
+
+
+/*
 struct BASIC_THREAD_INFORMATION {
         DWORD u1;
         DWORD u2;
@@ -26,14 +48,39 @@ struct BASIC_THREAD_INFORMATION {
         DWORD u6;
         DWORD u7;
 };
-struct PROCESS_BASIC_INFORMATION {
-    DWORD ExitStatus;
+*/
+
+typedef struct _CLIENT_ID
+{
+     HANDLE UniqueProcess;
+     HANDLE UniqueThread;
+} CLIENT_ID, *PCLIENT_ID;
+
+typedef ULONG_PTR KAFFINITY;
+typedef LONG  KPRIORITY;
+
+typedef struct _THREAD_BASIC_INFORMATION {
+  LONG  ExitStatus;
+  PVOID  TebBaseAddress;
+  CLIENT_ID  ClientId;
+  KAFFINITY  AffinityMask;
+  KPRIORITY  Priority;
+  KPRIORITY  BasePriority;
+} BASIC_THREAD_INFORMATION, THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+
+typedef enum _PROCESSINFOCLASS {
+    ProcessBasicInformation = 0,
+    ProcessWow64Information = 26
+} PROCESSINFOCLASS;
+
+typedef struct _PROCESS_BASIC_INFORMATION {
+    PVOID Reserved1;
     PVOID PebBaseAddress;
-    DWORD AffinityMask;
-    DWORD BasePriority;
-    DWORD UniqueProcessId;
-    DWORD InheritedFromUniqueProcessId;
-};
+    PVOID Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID Reserved3;
+} PROCESS_BASIC_INFORMATION;
+
 struct UNICODE_STRING
 {
     WORD  Length;
@@ -67,10 +114,10 @@ BOOL GetProcessId( HANDLE handle, DWORD& dwPID)
     dwPID = 0;
 
     // Get the process information
-    typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,UINT,PVOID,ULONG,PULONG);
+    typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
     DYNAMIC_ENTRY(NtQueryInformationProcess,GetModuleHandle("ntdll"))
 
-    if ( pNtQueryInformationProcess( handle, 0, &pi, sizeof(pi), NULL) == 0 )
+    if ( pNtQueryInformationProcess( handle, ProcessBasicInformation, &pi, sizeof(pi), NULL) == 0 )
     {
         dwPID = pi.UniqueProcessId;
         ret = TRUE;
@@ -92,7 +139,7 @@ BOOL GetThreadId( HANDLE h, DWORD& threadID)
     // Get the thread information
     if ( pNtQueryInformationThread( handle, 0, &ti, sizeof(ti), NULL ) == 0 )
     {
-        threadID = ti.ThreadId;
+        threadID = (DWORD)ti.ClientId.UniqueThread;
         ret = TRUE;
     }
 
@@ -315,7 +362,7 @@ bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread=0)
     return ret;
 }
 
-inline bool IsSupportedHandle( SYSTEM_HANDLE& handle )
+inline bool IsSupportedHandle( SYSTEM_HANDLE_TABLE_ENTRY_INFO& handle )
 {
         //Here you can filter the handles you don't want in the Handle list
 
@@ -325,7 +372,7 @@ inline bool IsSupportedHandle( SYSTEM_HANDLE& handle )
                 return true;
 
         //NT4 System process doesn't like if we bother his internal security :)
-        if ( handle.ProcessID == 2 && handle.HandleType == 16 )
+        if ( handle.UniqueProcessId == 2 && handle.HandleAttributes == 16 )
                 return false;
 
         return true;
@@ -369,22 +416,22 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
         pUserAccountID = GetUserAccountID(); // init once
 
     // Iterating through the objects
-    for(i = 0; i < pSysHandleInformation->Count; i++)
+    for(i = 0; i < pSysHandleInformation->NumberOfHandles; i++)
     {
         if ( !IsSupportedHandle( pSysHandleInformation->Handles[i] ) )
                 continue;
 
         // ProcessId filtering check
-        if(pSysHandleInformation->Handles[i].ProcessID==dwPID || dwPID==(DWORD)-1)
+        if(pSysHandleInformation->Handles[i].UniqueProcessId==dwPID || dwPID==(DWORD)-1)
         {
-            pSysHandleInformation->Handles[i].HandleType = (WORD)(pSysHandleInformation->Handles[i].HandleType & 0xff);
+            pSysHandleInformation->Handles[i].HandleAttributes = (WORD)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
             fprintf(file, "%5X  %08X ",
-                pSysHandleInformation->Handles[i].HandleNumber,
+                pSysHandleInformation->Handles[i].HandleValue,
                 /*dwType< sizeof(constStrTypes)/sizeof(*constStrTypes) ?
                     constStrTypes[dwType] : "(Unknown)",*/
 //              pSysHandleInformation->Handles[i].KernelAddress,
-                pSysHandleInformation->Handles[i].Flags);
-            PrintNameAndType((HANDLE)pSysHandleInformation->Handles[i].HandleNumber, dwPID, file, pThread);
+                pSysHandleInformation->Handles[i].GrantedAccess);
+            PrintNameAndType((HANDLE)pSysHandleInformation->Handles[i].HandleValue, dwPID, file, pThread);
             fputc('\n', file);
         }
     }

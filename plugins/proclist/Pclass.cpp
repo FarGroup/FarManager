@@ -667,7 +667,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
             //if(!Opt.AnsiOutput)
             CharToOem(Title,Title);
             fprintf(InfoFile,"\n%s %s\n",PrintTitle(MTitleWindow), Title);
-            fprintf(InfoFile,"%-22s %08X\n","HWND:",pdata->hwnd);
+            fprintf(InfoFile,"%-22s %p\n","HWND:",pdata->hwnd);
             LONG Style=0,ExtStyle=0;
             if (pdata->hwnd!=NULL)
             {
@@ -1024,12 +1024,12 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItem Items[] = {
             { DI_DOUBLEBOX, 3,1, 44,9, 0,0,0,0, GetMsg(MSelectComputer)},
             { DI_TEXT, 5,2, 0,0, 0,0,0,0, GetMsg(MComputer)},
-            { DI_EDIT, 5,3, 42,0, 1,(int)"ProcessList.Computer",DIF_HISTORY,1,HostName},
+            { DI_EDIT, 5,3, 42,0, 1,(DWORD_PTR)"ProcessList.Computer",DIF_HISTORY,1,HostName},
             { DI_TEXT, 5,4, 0,0, 0,0,0,0, GetMsg(MEmptyForLocal)},
             { DI_TEXT, 0,5, 0,0, 0,0,DIF_SEPARATOR,0, ""},
             { DI_TEXT, 5,6, 0,0, 0,0,0,0, GetMsg(MUsername)},
             { DI_TEXT,25,6, 0,0, 0,0,0,0, GetMsg(MPaswd)},
-            { DI_EDIT, 5,7,22,0, 0,(int)"ProcessList.Username",DIF_HISTORY,0,""},
+            { DI_EDIT, 5,7,22,0, 0,(DWORD_PTR)"ProcessList.Username",DIF_HISTORY,0,""},
             { DI_PSWEDIT,26,7,42,0, 0,0, 0, 0, ""},
             { DI_TEXT, 5,8, 0,0, 0,0,0,0, GetMsg(MEmptyForCurrent)},
         };

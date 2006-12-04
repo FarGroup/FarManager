@@ -2,7 +2,15 @@
 #include "proclng.hpp"
 #include "perfthread.hpp"
 
+#ifdef _WIN64
+extern "C"
+{
+  int _fltused = 0;
+}
+#endif
+
 // obtained from PSAPI.DLL
+/*
 struct ModuleData {
     void* p1,*p2;
     char* pNext;
@@ -17,11 +25,20 @@ struct ModuleData {
     char* lpModuleBaseName; //48
     DWORD unknown[5];
 };
+*/
 
 struct UNICODE_STRING {
   USHORT  Length; USHORT  MaximumLength; PWSTR  Buffer;
 };
 
+#if 0
+typedef struct _LIST_ENTRY {
+  struct _LIST_ENTRY *Flink;
+  struct _LIST_ENTRY *Blink;
+} LIST_ENTRY, *PLIST_ENTRY;
+#endif
+
+#if 0
 struct PROCESS_PARAMETERS
 {
   ULONG          AllocationSize;
@@ -44,49 +61,194 @@ struct PROCESS_PARAMETERS
   UNICODE_STRING Unknown5;
   UNICODE_STRING Unknown6;
 } ;
+#endif
+
+typedef struct _RTL_DRIVE_LETTER_CURDIR {
+
+
+  USHORT                  Flags;
+  USHORT                  Length;
+  ULONG                   TimeStamp;
+  UNICODE_STRING          DosPath;
+
+
+
+} RTL_DRIVE_LETTER_CURDIR, *PRTL_DRIVE_LETTER_CURDIR;
+
+
+typedef struct _RTL_USER_PROCESS_PARAMETERS {
+
+
+  ULONG                   MaximumLength;
+  ULONG                   Length;
+  ULONG                   Flags;
+  ULONG                   DebugFlags;
+  PVOID                   ConsoleHandle;
+  ULONG                   ConsoleFlags;
+  HANDLE                  StdInputHandle;
+  HANDLE                  StdOutputHandle;
+  HANDLE                  StdErrorHandle;
+  UNICODE_STRING          CurrentDirectoryPath;
+  HANDLE                  CurrentDirectoryHandle;
+  UNICODE_STRING          DllPath;
+  UNICODE_STRING          ImagePathName;
+  UNICODE_STRING          CommandLine;
+  PVOID                   EnvironmentBlock;
+  ULONG                   StartingPositionLeft;
+  ULONG                   StartingPositionTop;
+  ULONG                   Width;
+  ULONG                   Height;
+  ULONG                   CharWidth;
+  ULONG                   CharHeight;
+  ULONG                   ConsoleTextAttributes;
+  ULONG                   WindowFlags;
+  ULONG                   ShowWindowFlags;
+  UNICODE_STRING          WindowTitle;
+  UNICODE_STRING          DesktopName;
+  UNICODE_STRING          ShellInfo;
+  UNICODE_STRING          RuntimeData;
+  RTL_DRIVE_LETTER_CURDIR DLCurrentDirectory[0x20];
+
+} RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS, PROCESS_PARAMETERS;
+
+
+
+typedef struct _LDR_MODULE {
+  LIST_ENTRY              InLoadOrderModuleList;
+  LIST_ENTRY              InMemoryOrderModuleList;
+  LIST_ENTRY              InInitializationOrderModuleList;
+  PVOID                   BaseAddress;
+  PVOID                   EntryPoint;
+  ULONG                   SizeOfImage;
+  UNICODE_STRING          FullDllName;
+  UNICODE_STRING          BaseDllName;
+  ULONG                   Flags;
+  SHORT                   LoadCount;
+  SHORT                   TlsIndex;
+  LIST_ENTRY              HashTableEntry;
+  ULONG                   TimeDateStamp;
+} LDR_MODULE, ModuleData, *PLDR_MODULE;
+
+
+typedef struct _PEB_LDR_DATA {
+  ULONG                   Length;
+  BOOLEAN                 Initialized;
+  PVOID                   SsHandle;
+  LIST_ENTRY              InLoadOrderModuleList;
+  LIST_ENTRY              InMemoryOrderModuleList;
+  LIST_ENTRY              InInitializationOrderModuleList;
+} PEB_LDR_DATA, *PPEB_LDR_DATA;
+
+typedef struct _PEB {
+  BOOLEAN                 InheritedAddressSpace;
+  BOOLEAN                 ReadImageFileExecOptions;
+  BOOLEAN                 BeingDebugged;
+  BOOLEAN                 Spare;
+  HANDLE                  Mutant;
+  PVOID                   ImageBaseAddress;
+  PPEB_LDR_DATA           LoaderData;
+  PROCESS_PARAMETERS      *ProcessParameters;
+  PVOID                   SubSystemData;
+  PVOID                   ProcessHeap;
+  PVOID                   FastPebLock;
+//  PPEBLOCKROUTINE         FastPebLockRoutine;
+  PVOID         FastPebLockRoutine;
+//  PPEBLOCKROUTINE         FastPebUnlockRoutine;
+  PVOID         FastPebUnlockRoutine;
+  ULONG                   EnvironmentUpdateCount;
+  PVOID                  *KernelCallbackTable;
+  PVOID                   EventLogSection;
+  PVOID                   EventLog;
+//  PPEB_FREE_BLOCK         FreeList;
+  PVOID         FreeList;
+  ULONG                   TlsExpansionCounter;
+  PVOID                   TlsBitmap;
+  ULONG                   TlsBitmapBits[0x2];
+  PVOID                   ReadOnlySharedMemoryBase;
+  PVOID                   ReadOnlySharedMemoryHeap;
+  PVOID                   *ReadOnlyStaticServerData;
+  PVOID                   AnsiCodePageData;
+  PVOID                   OemCodePageData;
+  PVOID                   UnicodeCaseTableData;
+  ULONG                   NumberOfProcessors;
+  ULONG                   NtGlobalFlag;
+  BYTE                    Spare2[0x4];
+  LARGE_INTEGER           CriticalSectionTimeout;
+  ULONG                   HeapSegmentReserve;
+  ULONG                   HeapSegmentCommit;
+  ULONG                   HeapDeCommitTotalFreeThreshold;
+  ULONG                   HeapDeCommitFreeBlockThreshold;
+  ULONG                   NumberOfHeaps;
+  ULONG                   MaximumNumberOfHeaps;
+  PVOID                  **ProcessHeaps;
+  PVOID                   GdiSharedHandleTable;
+  PVOID                   ProcessStarterHelper;
+  PVOID                   GdiDCAttributeList;
+  PVOID                   LoaderLock;
+  ULONG                   OSMajorVersion;
+  ULONG                   OSMinorVersion;
+  ULONG                   OSBuildNumber;
+  ULONG                   OSPlatformId;
+  ULONG                   ImageSubSystem;
+  ULONG                   ImageSubSystemMajorVersion;
+  ULONG                   ImageSubSystemMinorVersion;
+  ULONG                   GdiHandleBuffer[0x22];
+  ULONG                   PostProcessInitRoutine;
+  ULONG                   TlsExpansionBitmap;
+  BYTE                    TlsExpansionBitmapBits[0x80];
+  ULONG                   SessionId;
+} PEB, *PPEB;
+
+typedef enum _PROCESSINFOCLASS {
+    ProcessBasicInformation = 0,
+    ProcessWow64Information = 26
+} PROCESSINFOCLASS;
+
+typedef struct _PROCESS_BASIC_INFORMATION {
+    PVOID Reserved1;
+    PPEB PebBaseAddress;
+    PVOID Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID Reserved3;
+} PROCESS_BASIC_INFORMATION;
 
 BOOL GetInternalProcessData( HANDLE hProcess, ModuleData* Data, PROCESS_PARAMETERS* &pProcessParams, char*&pEnd, bool bFirstModule=false)
 {
     DWORD ret;
 
     // From ntddk.h
-    struct {
-     LONG ExitStatus;
-     PBYTE PebBaseAddress;
-     ULONG AffinityMask;
-     LONG BasePriority;
-     ULONG UniqueProcessId;
-     ULONG InheritedFromUniqueProcessId;
-    } processInfo;
+    PROCESS_BASIC_INFORMATION processInfo;
 
-    typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,UINT,PVOID,ULONG,PULONG);
+
+    typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
     DYNAMIC_ENTRY(NtQueryInformationProcess, GetModuleHandle( "ntdll.dll" ))
 
     if (pNtQueryInformationProcess == NULL ||
-        pNtQueryInformationProcess( hProcess, 0, &processInfo, sizeof(processInfo), &ret ) )
+        pNtQueryInformationProcess( hProcess, ProcessBasicInformation, &processInfo, sizeof(processInfo), &ret ) )
      return FALSE;
 
-    char *p4, *p8;
-    //PROCESS_PARAMETERS *pProcessParams;
+    char *p4;
 
     //FindModule, obtained from PSAPI.DLL
 
-    HMODULE hModule;
+    PVOID hModule;
+    PEB peb;
+    PEB_LDR_DATA pld;
 
-    if(ReadProcessMemory(hProcess, processInfo.PebBaseAddress+8, &hModule, 4, 0) &&
-       ReadProcessMemory(hProcess, processInfo.PebBaseAddress+16, &pProcessParams, 4, 0) &&
-       ReadProcessMemory(hProcess, processInfo.PebBaseAddress+12, &p8, sizeof(p8), 0) &&
-       p8 &&
-       ReadProcessMemory(hProcess, p8+20, &p4, sizeof(p4), 0) ) {
-       pEnd = p8+20;
+    if(ReadProcessMemory(hProcess, processInfo.PebBaseAddress, &peb, sizeof(peb), 0) &&
+       ReadProcessMemory(hProcess, peb.LoaderData, &pld, sizeof(pld), 0) ) {
+       //pEnd = (void *)((void *)peb.LoaderData+((void *)&pld.InMemoryOrderModuleList-(void *)&pld));
+       hModule = peb.ImageBaseAddress;
+       pProcessParams = peb.ProcessParameters;
+       pEnd = (char *)peb.LoaderData+sizeof(pld)-sizeof(LIST_ENTRY)*2;
+       p4 = (char *)pld.InMemoryOrderModuleList.Flink;
        while(p4) {
-           if(p4==pEnd ||
-          !ReadProcessMemory(hProcess, p4-8, Data, sizeof(*Data), 0) )
-          return FALSE;;
+           if(p4==pEnd || !ReadProcessMemory(hProcess, p4-sizeof(PVOID)*2, Data, sizeof(*Data), 0) )
+              return FALSE;
            if(bFirstModule)
-           return TRUE;
-           if(Data->hModule==hModule) break;
-           p4 = Data->pNext;
+              return TRUE;
+           if(Data->BaseAddress==hModule) break;
+           p4 = (char *)Data->InMemoryOrderModuleList.Flink;
        }
     }
     return TRUE;
@@ -155,7 +317,7 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
       }
       CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
 
-      CurItem.UserData = (DWORD) new ProcessDataNT;
+      CurItem.UserData = (DWORD_PTR) new ProcessDataNT;
       memset((void*)CurItem.UserData, 0, sizeof(ProcessDataNT));
       if(!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
         *(ULONGLONG*)&pd.ftCreation = *(ULONGLONG*)&ftSystemTime - (ULONGLONG)pd.dwElapsedTime * 10000000;
@@ -191,16 +353,16 @@ void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName, DWORD cbProcessNa
         WCHAR szProcessName[MAX_PATH];
         memset(szProcessName, 0, sizeof(szProcessName));
         if(pProcessName) {
-            SIZE_T sz = min(sizeof(szProcessName), Data.pNext - Data.lpModuleBaseName);
-            if(ReadProcessMemory(hProcess, Data.lpModuleBaseName, szProcessName, sz,0))
+            SIZE_T sz = sizeof(szProcessName);//min(sizeof(szProcessName), Data.BaseDllName.MaximumLength*2);
+            if(ReadProcessMemory(hProcess, Data.BaseDllName.Buffer, szProcessName, sz,0))
                 WideCharToMultiByte( CP_ACP, 0, szProcessName, -1,
             pProcessName, cbProcessName, NULL, NULL);
             else
                 *pProcessName = 0;
     }
         if(pFullPath) {
-            SIZE_T sz = min(sizeof(szProcessName), Data.pNext - Data.lpModuleFileName);
-            if(ReadProcessMemory(hProcess, Data.lpModuleFileName, szProcessName, sz,0))
+            SIZE_T sz = sizeof(szProcessName);//min(sizeof(szProcessName), Data.FullDllName.MaximumLength*2);
+            if(ReadProcessMemory(hProcess, Data.FullDllName.Buffer, szProcessName, sz,0))
                 WideCharToMultiByte( CP_ACP, 0, szProcessName, -1,
                 pFullPath, cbFullPath, NULL, NULL);
             else
@@ -249,7 +411,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName, DWORD cbProcessNa
     }
     if(psCurDir) {
         UNICODE_STRING CurDir;
-        if(ReadProcessMemory(hProcess, &pProcessParams->CurrentDirectory, &CurDir, sizeof(CurDir), 0)) {
+        if(ReadProcessMemory(hProcess, &pProcessParams->CurrentDirectoryPath, &CurDir, sizeof(CurDir), 0)) {
           Array<WCHAR> wsCurDir(CurDir.Length + 1);
           if(ReadProcessMemory(hProcess, CurDir.Buffer, (WCHAR*)wsCurDir, CurDir.Length,0))
             *psCurDir = new OemString((WCHAR*)wsCurDir);
@@ -467,11 +629,11 @@ void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
     if(hProcess && GetInternalProcessData( hProcess, &Data, pProcessParams, pEnd, true)) {
     char *p4;
     do {
-        int len = fprintf(InfoFile, "  %08X  %6X", Data.hModule, Data.dwSizeOfImage);
+        int len = fprintf(InfoFile, "  %p  %6X", Data.BaseAddress, Data.SizeOfImage);
         WCHAR wszModuleName[MAX_PATH];
-        SIZE_T sz = min(sizeof(wszModuleName), (char*)Data.hModule + Data.dwSizeOfImage - Data.lpModuleBaseName);
+        SIZE_T sz = sizeof(wszModuleName);//min(sizeof(wszModuleName), Data.BaseDllName.MaximumLength*2);
 
-        if(ReadProcessMemory(hProcess, Data.lpModuleFileName, wszModuleName, sz,0)) {
+        if(ReadProcessMemory(hProcess, Data.FullDllName.Buffer, wszModuleName, sz,0)) {
             len += fprintf(InfoFile, " %s", (const char *) OemString(wszModuleName));
         char *pBuf, *pVersion, *pDesc;
         if(Opt.ExportModuleVersion && Plist::GetVersionInfo((char*)wszModuleName, pBuf, pVersion, pDesc)) {
@@ -481,8 +643,8 @@ void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
         }
         fputc('\n', InfoFile);
 
-        p4 = Data.pNext;
-    } while(p4 && p4!=pEnd && ReadProcessMemory(hProcess, p4-8, &Data, sizeof(Data), 0));
+        p4 = (char *)Data.InMemoryOrderModuleList.Flink;
+    } while(p4 && p4!=pEnd && ReadProcessMemory(hProcess, p4-sizeof(PVOID)*2, &Data, sizeof(Data), 0));
     }
     fputc('\n', InfoFile);
     if(hProcess)

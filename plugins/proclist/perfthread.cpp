@@ -206,12 +206,12 @@ void PerfThread::Refresh()
 
     // set the perf_object_type pointer
     PPERF_OBJECT_TYPE pObj =
-        (PPERF_OBJECT_TYPE)((DWORD)pPerf + pPerf->HeaderLength);
+        (PPERF_OBJECT_TYPE)((DWORD_PTR)pPerf + pPerf->HeaderLength);
 
     // loop thru the performance counter definition records looking
     // for the process id counter and then save its offset
     PPERF_COUNTER_DEFINITION pCounterDef =
-        (PPERF_COUNTER_DEFINITION) ((DWORD)pObj + pObj->HeaderLength);
+        (PPERF_COUNTER_DEFINITION) ((DWORD_PTR)pObj + pObj->HeaderLength);
 
     if(!pf.CounterTypes[0] && !pf.CounterTypes[1])
     {
@@ -248,7 +248,7 @@ void PerfThread::Refresh()
     Array<ProcessPerfData> *pNewPData = new Array<ProcessPerfData>((DWORD)pObj->NumInstances);
 
     PPERF_INSTANCE_DEFINITION pInst =
-        (PPERF_INSTANCE_DEFINITION) ((DWORD)pObj + pObj->DefinitionLength);
+        (PPERF_INSTANCE_DEFINITION) ((DWORD_PTR)pObj + pObj->DefinitionLength);
 
     // loop thru the performance instance data extracting each process name
     // and process id
@@ -260,13 +260,13 @@ void PerfThread::Refresh()
 
         ProcessPerfData& Task = (*pNewPData)[i];
         // get the process id
-        PPERF_COUNTER_BLOCK pCounter = (PPERF_COUNTER_BLOCK) ((DWORD)pInst + pInst->ByteLength);
-        Task.dwProcessId = *((LPDWORD) ((DWORD)pCounter + dwProcessIdCounter));
-        Task.dwProcessPriority = *((LPDWORD) ((DWORD)pCounter + dwPriorityCounter));
-        Task.dwThreads = dwThreadCounter ? *((LPDWORD) ((DWORD)pCounter + dwThreadCounter)) : 0;
-        Task.dwCreatingPID = dwCreatingPIDCounter ? *((LPDWORD) ((DWORD)pCounter + dwCreatingPIDCounter)) : 0;
-        if(pObj->PerfFreq.QuadPart && *((LONGLONG*) ((DWORD)pCounter + dwElapsedCounter)) )
-            Task.dwElapsedTime = (DWORD)((pObj->PerfTime.QuadPart - *((LONGLONG*) ((DWORD)pCounter + dwElapsedCounter))
+        PPERF_COUNTER_BLOCK pCounter = (PPERF_COUNTER_BLOCK) ((DWORD_PTR)pInst + pInst->ByteLength);
+        Task.dwProcessId = *((LPDWORD) ((DWORD_PTR)pCounter + dwProcessIdCounter));
+        Task.dwProcessPriority = *((LPDWORD) ((DWORD_PTR)pCounter + dwPriorityCounter));
+        Task.dwThreads = dwThreadCounter ? *((LPDWORD) ((DWORD_PTR)pCounter + dwThreadCounter)) : 0;
+        Task.dwCreatingPID = dwCreatingPIDCounter ? *((LPDWORD) ((DWORD_PTR)pCounter + dwCreatingPIDCounter)) : 0;
+        if(pObj->PerfFreq.QuadPart && *((LONGLONG*) ((DWORD_PTR)pCounter + dwElapsedCounter)) )
+            Task.dwElapsedTime = (DWORD)((pObj->PerfTime.QuadPart - *((LONGLONG*) ((DWORD_PTR)pCounter + dwElapsedCounter))
                   ) / pObj->PerfFreq.QuadPart);
         else
             Task.dwElapsedTime = 0;
@@ -276,9 +276,9 @@ void PerfThread::Refresh()
             if(dwCounterOffsets[ii])
             {
                 if((pf.CounterTypes[ii]&0x300)==PERF_SIZE_LARGE)
-                    Task.qwCounters[ii] = *((LONGLONG*) ((DWORD)pCounter + dwCounterOffsets[ii]));
+                    Task.qwCounters[ii] = *((LONGLONG*) ((DWORD_PTR)pCounter + dwCounterOffsets[ii]));
                 else // PERF_SIZE_DWORD
-                    Task.qwCounters[ii] = *((DWORD*) ((DWORD)pCounter + dwCounterOffsets[ii]));
+                    Task.qwCounters[ii] = *((DWORD*) ((DWORD_PTR)pCounter + dwCounterOffsets[ii]));
             }
         //memcpy(Task.qwResults, Task.qwCounters, sizeof(Task.qwResults));
         memset(Task.qwResults, 0, sizeof(Task.qwResults));
@@ -307,7 +307,7 @@ void PerfThread::Refresh()
                 case PERF_100NSEC_TIMER:
                 // 64-bit Timer in 100 nsec units. Display suffix: "%"
                     Task.qwResults[ii] = !pOldTask ? 0 :
-                        (*(LONGLONG*)((DWORD)pCounter + dwCounterOffsets[ii]) - pOldTask->qwCounters[ii])
+                        (*(LONGLONG*)((DWORD_PTR)pCounter + dwCounterOffsets[ii]) - pOldTask->qwCounters[ii])
                          / (dwDeltaTickCount*100);
                     break;
                 case PERF_COUNTER_COUNTER:
@@ -348,14 +348,14 @@ void PerfThread::Refresh()
         if(!*Task.ProcessName) { // if after all this it's still unfilled...
             // pointer to the process name
             // convert it to ascii
-            if (WideCharToMultiByte( CP_OEMCP, 0, (LPCWSTR)((DWORD)pInst + pInst->NameOffset),
+            if (WideCharToMultiByte( CP_OEMCP, 0, (LPCWSTR)((DWORD_PTR)pInst + pInst->NameOffset),
                     -1, Task.ProcessName, sizeof(Task.ProcessName) - 5, 0, 0) == 0)
                 lstrcpy( Task.ProcessName, "unknown" );
             else
                 if(Task.dwProcessId>8)
                     lstrcat( Task.ProcessName, ".exe" );
         }
-        pInst = (PPERF_INSTANCE_DEFINITION) ((DWORD)pCounter + pCounter->ByteLength);
+        pInst = (PPERF_INSTANCE_DEFINITION) ((DWORD_PTR)pCounter + pCounter->ByteLength);
     }
     dwLastTickCount += dwDeltaTickCount;
     {

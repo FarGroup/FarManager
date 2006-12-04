@@ -85,7 +85,7 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
         PluginPanelItem &CurItem = pNewPanelItem[CurItemPos];
         memset(&CurItem,0,sizeof(CurItem));
         CurItem.Flags |= PPIF_USERDATA;
-        CurItem.UserData = (DWORD)(new ProcessData);
+        CurItem.UserData = (DWORD_PTR)(new ProcessData);
         ProcessData& pdata = *(ProcessData*)CurItem.UserData;
         CurItem.PackSize = dwTotalSize;
         CurItem.FindData.nFileSizeLow = dwTotalSize;// + GetHeapSize(pe32.th32ProcessID);
@@ -277,7 +277,7 @@ void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
     me32.dwSize = sizeof(me32);
     for(BOOL bRet = pModule32First(hModuleSnap, &me32); bRet;
              bRet = pModule32Next (hModuleSnap, &me32)) {
-        int len = fprintf(InfoFile, " %08X  %6X  %s", me32.modBaseAddr, me32.modBaseSize,(const char *)OemString(me32.szExePath));
+        int len = fprintf(InfoFile, " %p  %6X  %s", me32.modBaseAddr, me32.modBaseSize,(const char *)OemString(me32.szExePath));
         char *pBuf, *pVersion, *pDesc;
         if(Opt.ExportModuleVersion && Plist::GetVersionInfo(me32.szExePath, pBuf, pVersion, pDesc)) {
             PrintModuleVersion(InfoFile, pVersion, pDesc, len);

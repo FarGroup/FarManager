@@ -53,7 +53,7 @@ void WINAPI _export ExitFAR()
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   Opt.Read();
   Plist* hPlugin = new Plist();
