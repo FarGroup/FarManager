@@ -1050,9 +1050,9 @@ const
    VOPT_AUTODETECTTABLE  = 2;
 
 const
-   VSMT_HEX              = 1;
-   VSMT_WRAP             = 2;
-   VSMT_WORDWRAP         = 3;
+   VSMT_HEX              = 0;
+   VSMT_WRAP             = 1;
+   VSMT_WORDWRAP         = 2;
 
 
 type
