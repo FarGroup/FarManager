@@ -1,0 +1,4 @@
+EXPORTS 
+   GetPluginInfo
+   OpenPlugin
+   SetStartupInfo

@@ -35,7 +35,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   static int Reenter=FALSE;
 
@@ -43,7 +43,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
     return(INVALID_HANDLE_VALUE);
   Reenter=TRUE;
 
-  int LineWidth=1, KeyCode, /*I*/;
+  int LineWidth=1, KeyCode /*I*/;
   BOOL Done=FALSE;
   INPUT_RECORD rec;
   /*COORD MousePos={-1,-1};*/
