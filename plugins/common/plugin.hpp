@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2142
+  Plugin API for FAR Manager 1.71 build 2148
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2006 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2142)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2148)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -1038,11 +1038,28 @@ enum VIEWER_CONTROL_COMMANDS {
   VCTL_SETKEYBAR,
   VCTL_SETPOSITION,
   VCTL_SELECT,
+  VCTL_SETMODE,
 };
 
 enum VIEWER_OPTIONS {
   VOPT_SAVEFILEPOSITION=1,
   VOPT_AUTODETECTTABLE=2,
+};
+
+enum VIEWER_SETMODE_TYPES {
+  VSMT_HEX,
+  VSMT_WRAP,
+  VSMT_WORDWRAP,
+};
+
+struct ViewerSetMode {
+  int Type;
+  union {
+    int iParam;
+    char *cParam;
+  } Param;
+  DWORD Flags;
+  DWORD Reserved;
 };
 
 typedef union {
@@ -1079,7 +1096,7 @@ struct ViewerMode{
   int AnsiMode;
   int Unicode;
   int Wrap;
-  int TypeWrap;
+  int WordWrap;
   int Hex;
   DWORD Reserved[4];
 };
@@ -1455,7 +1472,7 @@ typedef struct FarStandardFunctions
   FARSTDSNPRINTF             snprintf;
   // </C&C++>
 
-  DWORD                      Reserved[8];
+  DWORD_PTR                  Reserved[8];
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;
@@ -1529,7 +1546,7 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD                  Reserved;
+  DWORD_PTR              Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
 };
 
