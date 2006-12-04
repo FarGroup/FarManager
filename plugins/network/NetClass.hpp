@@ -135,7 +135,7 @@ class NetBrowser
   //static BOOL GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent);
 };
 
-extern NetResourceList CommonRootResources;
+extern NetResourceList *CommonRootResources;
 extern BOOL SavedCommonRootResources;
 
 #endif // __NETCLASS_HPP__

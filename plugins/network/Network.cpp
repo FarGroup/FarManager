@@ -19,7 +19,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 
-HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   if(!IsOldFAR)
   {

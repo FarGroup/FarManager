@@ -4,7 +4,7 @@
 #include "NetReg.hpp"
 #include "NetCfg.hpp"
 
-NetResourceList CommonRootResources;
+NetResourceList *CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
 
 // -- NetResourceList --------------------------------------------------------
@@ -183,7 +183,7 @@ NetBrowser::NetBrowser()
   OpenFromFilePanel = FALSE;
   if (SavedCommonRootResources)
   {
-    RootResources = CommonRootResources;
+    RootResources = *CommonRootResources;
     PCurResource = RootResources.Top();
   }
   else {
@@ -425,7 +425,7 @@ int NetBrowser::ProcessEvent (int Event, void* /*Param*/)
       SavedCommonRootResources = false;
     }
     else {
-      CommonRootResources = RootResources;
+      *CommonRootResources = RootResources;
       SavedCommonRootResources = true;
     }
   }
@@ -1614,7 +1614,7 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
   struct InitDialogItem InitItems[]={
     {DI_DOUBLEBOX,3,1,72,10,0,0,0,0,""},
     {DI_TEXT,5,2,0,0,0,0,0,0,(char *)MNetUserName},
-    {DI_EDIT,5,3,70,3,1,(DWORD)"NetworkUser",DIF_HISTORY|DIF_USELASTHISTORY,0,""},
+    {DI_EDIT,5,3,70,3,1,(DWORD_PTR)"NetworkUser",DIF_HISTORY|DIF_USELASTHISTORY,0,""},
     {DI_TEXT,5,4,0,0,0,0,0,0,(char *)MNetUserPassword},
     {DI_PSWEDIT,5,5,70,3,0,0,0,0,""},
     {DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
@@ -1899,7 +1899,7 @@ void WINAPI ExitFAR()
 {
   if(!IsOldFAR)
   {
-    CommonRootResources.Clear();
+    delete CommonRootResources;
     NetResourceList::DeleteNetResource (CommonCurResource);
   }
 }

@@ -111,6 +111,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, "", StrNoRootDoublePoint, FALSE);
     Opt.NavigateToDomains=GetRegKey (HKEY_CURRENT_USER, "", StrNavigateToDomains, FALSE);
 
+    CommonRootResources = new NetResourceList;
     NetResourceList::InitNetResource (CommonCurResource);
   }
 }

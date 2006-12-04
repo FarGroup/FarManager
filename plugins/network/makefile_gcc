@@ -1,6 +1,6 @@
-OBJDIR = ./obj
-REOBJDIR = \.\/obj\/
-DLLDIR = ./final
+OBJDIR = ./final.32.gcc/obj
+REOBJDIR = \.\/final\.32\.gcc\/obj\/
+DLLDIR = ./final.32.gcc
 NAME = Network
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
@@ -47,7 +47,7 @@ $(OBJDIR)/%.o: %.cpp $(OBJDIR)/%.d
 
 $(OBJDIR)/$(NAME).res.o: $(NAME).rc ../common/farversion.hpp
 	@$(MKDIR) -p $(@D)
-	$(WINDRES) -i $< -o $@
+	@$(WINDRES) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
@@ -58,5 +58,7 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 	@$(RM) $(DLLNAME).base
 	@$(RM) $(DLLNAME).exp
+	@$(CP) *.hlf $(DLLDIR)
+	@$(CP) *.lng $(DLLDIR)
 
 -include $(DEPS)
