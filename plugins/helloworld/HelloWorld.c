@@ -72,7 +72,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *pi)
 /*
   Функция OpenPlugin вызывается при создании новой копии плагина.
 */
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR item)
 {
   const char *Msg[7];
 
