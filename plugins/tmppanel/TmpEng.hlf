@@ -152,7 +152,7 @@ the menu.
 
  #New panel for search results#
    This option works when #"Use common panel"# is enabled and allows
-to put the search results (Alt-F7 -> Panel) to a my_free temporary panel.
+to put the search results (Alt-F7 -> Panel) to a free temporary panel.
 This allows to save the results of multiple search operations and work
 with them at the same time.
 
