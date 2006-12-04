@@ -11,8 +11,7 @@ BOOL FileExists(const char* Name)
   return GetFileAttributes(Name)!=0xFFFFFFFF;
 }
 
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
-                    int ItemsNumber)
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber)
 {
   int I;
   struct FarDialogItem *PItem=Item;

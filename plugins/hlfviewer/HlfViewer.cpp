@@ -2,14 +2,12 @@
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "farkeys.hpp"
+#include "crt.hpp"
 
 #include "HlfViewer.hpp"
 #include "lang.hpp"
 
 #if defined(__GNUC__)
-
-#include "crt.hpp"
-
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -37,7 +35,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   IsOldFar=TRUE;
   lstrcpy(PluginRootKey,Info->RootKey);
   lstrcat(PluginRootKey,"\\HlfViewer");
-  if(Info->StructSize >= sizeof(struct PluginStartupInfo))
+  if(Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
   {
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
@@ -53,7 +51,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   }
 }
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   if(IsOldFar)
     return (INVALID_HANDLE_VALUE);
@@ -238,7 +236,7 @@ int WINAPI Configure(int ItemNumber)
   if(IsOldFar)
     return FALSE;
 
-  struct InitDialogItem InitItems[]=
+  static struct InitDialogItem InitItems[]=
   {
   /*00*/{DI_DOUBLEBOX,3,1,70,10,0,0,0,0,(char *)MTitle},
   /*01*/{DI_CHECKBOX,5,2,0,0,TRUE,0,0,0,(char *)MProcessEditorInput},

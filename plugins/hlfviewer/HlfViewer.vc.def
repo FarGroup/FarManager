@@ -1,0 +1,6 @@
+EXPORTS 
+   GetPluginInfo
+   OpenPlugin
+   SetStartupInfo
+   ProcessEditorInput
+   Configure

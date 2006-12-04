@@ -33,8 +33,7 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,
 
 const char *GetMsg(int MsgId);
 BOOL FileExists(const char* Name);
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
-                    int ItemsNumber);
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item, int ItemsNumber);
 BOOL CheckExtension(const char *ptrName);
 void ShowHelp(const char *fullfilename,const char *topic, bool CmdLine=false);
 void RestorePosition(void);
