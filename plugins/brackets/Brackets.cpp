@@ -85,7 +85,7 @@ int WINAPI _export Configure(int ItemNumber)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   struct EditorInfo ei;
   struct EditorGetString egs;
