@@ -35,7 +35,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   IsOldFar=TRUE;
-  if(Info->StructSize >= sizeof(struct PluginStartupInfo))
+  if(Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
   {
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
@@ -55,7 +55,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   if(!IsOldFar)
     CaseConvertion();

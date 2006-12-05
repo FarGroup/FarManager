@@ -54,25 +54,26 @@ void CaseConvertion()
   }
 
   int I, J;
-  if (DialogItems[3].Param.Selected) I = MODE_LOWER;    else
-  if (DialogItems[4].Param.Selected) I = MODE_UPPER;    else
-  if (DialogItems[5].Param.Selected) I = MODE_N_WORD;   else
-  if (DialogItems[6].Param.Selected) I = MODE_LN_WORD;  else
-  if (DialogItems[7].Param.Selected) I = MODE_NONE;  else
-    return;
-  if (DialogItems[8].Param.Selected) J = MODE_LOWER;    else
-  if (DialogItems[9].Param.Selected) J = MODE_UPPER;    else
-  if (DialogItems[10].Param.Selected) J = MODE_N_WORD;   else
-  if (DialogItems[11].Param.Selected) J = MODE_LN_WORD;  else
-  if (DialogItems[12].Param.Selected) J = MODE_NONE;  else
-    return;
+  if (DialogItems[3].Param.Selected) I = MODE_LOWER;
+  else if (DialogItems[4].Param.Selected) I = MODE_UPPER;
+  else if (DialogItems[5].Param.Selected) I = MODE_N_WORD;
+  else if (DialogItems[6].Param.Selected) I = MODE_LN_WORD;
+  else if (DialogItems[7].Param.Selected) I = MODE_NONE;
+  else return;
+
+  if (DialogItems[8].Param.Selected) J = MODE_LOWER;
+  else if (DialogItems[9].Param.Selected) J = MODE_UPPER;
+  else if (DialogItems[10].Param.Selected) J = MODE_N_WORD;
+  else if (DialogItems[11].Param.Selected) J = MODE_LN_WORD;
+  else if (DialogItems[12].Param.Selected) J = MODE_NONE;
+  else return;
 
   if (I==MODE_NONE && J==MODE_NONE)
     return;
 
   struct Options Backup;
 
-  if(DialogItems[18].Param.Selected)
+  if (DialogItems[18].Param.Selected)
     memcpy(&Backup,&Opt,sizeof(Backup));
 
   lstrcpy(Opt.WordDiv,DialogItems[21].Data.Data);
@@ -94,13 +95,11 @@ void CaseConvertion()
 
   for (I=0;I < PInfo.SelectedItemsNumber; I++)
   {
-    GetFullName(FullName,PInfo.CurDir,
-                PInfo.SelectedItems[I].FindData.cFileName);
-
+    GetFullName(FullName,PInfo.CurDir,PInfo.SelectedItems[I].FindData.cFileName);
     ProcessName(FullName,PInfo.SelectedItems[I].FindData.dwFileAttributes);
   }
 
-  if(!DialogItems[18].Param.Selected)
+  if (!DialogItems[18].Param.Selected)
   {
     SetRegKey(HKEY_CURRENT_USER,"","WordDiv",Opt.WordDiv);
     SetRegKey(HKEY_CURRENT_USER,"","ConvertMode",Opt.ConvertMode);

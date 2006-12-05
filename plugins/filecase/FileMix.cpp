@@ -3,8 +3,7 @@ const char *GetMsg(int MsgId)
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
-                    int ItemsNumber)
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber)
 {
   int I;
   struct FarDialogItem *PItem=Item;

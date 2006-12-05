@@ -29,9 +29,7 @@ struct InitDialogItem
 };
 
 const char *GetMsg(int MsgId);
-void InitDialogItems(const struct InitDialogItem *Init,
-                     struct FarDialogItem *Item,
-                     int ItemsNumber);
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 int IsCaseMixed(const char *Str);
 char *GetOnlyName(char *FullName);
 char *GetFullName(char *Dest,const char *Dir,char *Name);
