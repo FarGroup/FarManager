@@ -3,10 +3,9 @@
 #define __STD_STRING
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
+#include "crt.hpp"
 
 #if defined(__GNUC__)
-
-#include "crt.hpp"
 
 #ifdef __cplusplus
 extern "C"{
@@ -45,7 +44,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   struct InitDialogItem InitItems[]={
     {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MAlign},
@@ -103,7 +102,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   esp.CurPos=0;
   Info.EditorControl(ECTL_SETPOSITION,&esp);
 
-  char *TotalString=(char *)GlobalAlloc(GMEM_FIXED,0);
+  char *TotalString=NULL;
   int TotalLength=0,IndentSize=0x7fffffff;
 
   while (1)
@@ -133,7 +132,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       if (SpaceLength<IndentSize)
         IndentSize=SpaceLength;
 
-      TotalString=(char *)GlobalReAlloc((HGLOBAL)TotalString,TotalLength+egs.StringLength+2,GMEM_MOVEABLE);
+      TotalString=(char *)realloc(TotalString,TotalLength+egs.StringLength+2);
       if (TotalLength!=0 && TotalString[TotalLength-1]!=' ')
         TotalString[TotalLength++]=' ';
 
@@ -142,7 +141,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
     }
     if (!Info.EditorControl(ECTL_DELETESTRING,NULL))
     {
-      GlobalFree((HGLOBAL)TotalString);
+      free(TotalString);
       return;
     }
   }
@@ -261,7 +260,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
     Info.EditorControl(ECTL_INSERTTEXT,(void *)IndentBuf);
   }
 
-  GlobalFree((HGLOBAL)TotalString);
+  free(TotalString);
 
   memset(&esp,-1,sizeof(esp));
   esp.CurLine=ei.CurLine;
@@ -324,7 +323,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   int AddSize=TotalAddSize/WordCount;
   int Reminder=TotalAddSize%WordCount;
 
-  char *NewString=(char *)GlobalAlloc(GMEM_FIXED,RightMargin);
+  char *NewString=(char *)malloc(RightMargin);
   memset(NewString,' ',RightMargin);
   memcpy(NewString,ess.StringText,ess.StringLength);
 
@@ -347,7 +346,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   ess.StringText=NewString;
   ess.StringLength=RightMargin;
   Info.EditorControl(ECTL_SETSTRING,&ess);
-  GlobalFree((HGLOBAL)NewString);
+  free(NewString);
   return(TRUE);
 }
 
