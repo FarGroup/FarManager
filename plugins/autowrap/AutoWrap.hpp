@@ -23,8 +23,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DW
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
 const char *GetMsg(int MsgId);
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
-                     int ItemsNumber);
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 char *GetCommaWord(const char *Src,char *Word);
 
 

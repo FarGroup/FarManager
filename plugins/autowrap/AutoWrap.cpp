@@ -41,7 +41,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   struct InitDialogItem InitItems[]={
     {DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MAutoWrap},
@@ -63,7 +63,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
   DialogItems[1].Selected=Opt.Wrap;
   lstrcpy(DialogItems[6].Data,Opt.FileMasks);
   lstrcpy(DialogItems[8].Data,Opt.ExcludeFileMasks);
-  wsprintf(DialogItems[2].Data,"%d",Opt.RightMargin);
+  FSF.sprintf(DialogItems[2].Data,"%d",Opt.RightMargin);
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode==10)
   {
