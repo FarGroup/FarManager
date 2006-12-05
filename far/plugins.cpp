@@ -5,457 +5,6 @@ plugins.cpp
 
 */
 
-/* Revision: 1.167 24.07.2006 $ */
-
-/*
-Modify:
-  24.07.2006 SVS
-    + FSF.snprintf()
-  05.07.2006 IS
-    - warnings
-  06.05.2006 SVS
-    - В PluginsSet::ReadUserBackgound убран потенциальный баг.
-    - Mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
-  13.04.2006 SVS
-    + У функции PluginsSet::ProcessCommandLine доп параметр - указатель на панель.
-  23.01.2006 SVS
-    + _ALGO
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  24.04.2005 AY
-    ! GCC
-  04.02.2005 SVS
-    - Если в меню плагинов/конфигурации отсутствовали хоткеи, то диалог создания хоткея показывал чепуху.
-  31.01.2005 SVS
-    - BugZ#1249 - Дополнительная информативность в диалоге "Assign Hotkey"
-  11.12.2004 WARP
-    ! Разборки с FE_CLOSE, приходящим на панель плагина при
-      попытке открыть поверх панели плагин, которому новая панель
-      не нужна.
-  28.10.2004 SVS
-    - BugZ#825 - Не вызываются плагины по префиксу
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  02.08.2004 SVS
-    - если исключение проиходит где-нить в Message, то... надо бы сбросить локи.
-  26.07.2004 SVS
-    - strcpy()
-  09.07.2004 SVS
-    - far /p
-      F11 F4 - трап
-  29.05.2004 SVS
-    - BugZ#1082 - символ "&" в качестве хоткея
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  01.03.2004 SVS
-    + FSF.SetFileApisTo
-  07.01.2004 SVS
-    ! небольшая оптимизация.
-  11.11.2003 SVS
-    ! KeepUserScreen и DirToSet перенесены из plugins.cpp в global.cpp
-  29.10.2003 SVS
-    + Opt.LoadPlug.SilentLoadPlugin - тихий режим загрузки плагинов
-  06.10.2003 SVS
-    ! PluginsSet::ProcessEditorEvent() и PluginsSet::ProcessViewerEvent() возвращают значение типа int
-  31.07.2003 SVS
-    ! Оставим CurPluginItem только для OpenPlugin. Есть подозрения что...
-  22.07.2003 SVS
-    - поправим комментарии
-  15.07.2003 SVS
-    + CurPluginItem - NULL или указатель на текущий плагин
-  17.06.2003 SVS
-    - отвалились относительные пути для /p
-  06.06.2003 SVS
-    ! переделаем алгоритм обхода путей при загрузке плагинов, применив класс UserDefinedList
-  19.05.2003 SVS
-    + Добавим при загрузке плагинов проверку на ERROR_PROC_NOT_FOUND
-      (про BugZ#884)
-  14.05.2003 SVS
-    + _ALGO()
-  09.05.2003 SVS
-    - BugZ#884 - Ошибочное распознование длл-ки за плагин.
-      Пропустим "мимо ушей" ошибку ERROR_BAD_EXE_FORMAT
-  21.04.2003 SVS
-    + IsPluginsLoaded(), PSIF_PLUGINSLOADDED
-  31.03.2003 SVS
-    + _ECTLLOG для PluginsSet::ProcessEditorEvent()
-  17.03.2003 SVS
-    ! применим новые флаги FFPOL_*
-  25.02.2003 SVS
-    - помино пути нужно восстанавливать еще и переменные окружения вида "=A:"
-      (несколько криво, но...)
-  05.02.2003 VVM
-    - После загрузки плагина восстановим тот путь, что был.
-  04.02.2003 SVS
-    - BugZ#784 - Текущий каталог при загрузке плагина
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  10.01.2002 SVS
-    - BugZ#767 - Неправильно ругается на отсутствие длл
-      Сделаем, так, чтобы ругался _только 1 раз_
-  03.12.2002 SVS
-    - BugZ#713 - Не выдается сообщения об ошибке
-  09.11.2002 SVS
-    - F4 Esc в меню конфигурации и вызова плагинов: менюха становится выше
-      на 1 строку. + блокируем клавиши (AltF9), т.к. после распахивания
-      пока не в состоянии корректно отрисовать меню на нужную высоту.
-  18.09.2002 SVS
-    ! Вернем обратно сортировку модулей после сбора инфы.
-  17.09.2002 SVS
-    - Сортировка плагинов
-    ! при старте ФАРа после "сбора" плагинов стояла сортировка по имени
-      модуля. Отключил сортировку ибо все равно теперь сортируем каждый
-      раз по имени, выдаваемым модулем.
-  10.09.2002 SVS
-    ! Добавим обработку исключений про диалоги - если флаг PSIF_DIALOG
-      установлен - инициируем выгрузку плагина.
-  03.09.2002 SVS
-    - BugZ#611 - Нелепая сортировка в меню плагинов
-  21.08.2002 IS
-    + Параметр PluginTextSize в GetDiskMenuItem, чтобы знать, сколько брать
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-  21.05.2002 IS
-    + Получим реальное значение полного длинного пути с учетом
-      символических связей для PersonalPluginsPath
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  14.05.2002 SKV
-    + проверочка на существование CurEditor
-  08.05.2002 SVS
-    ! Проверка на NULL перед free()
-  28.04.2002 IS
-    ! Внедрение const
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  20.03.2002 IS
-    ! ProcessCommandLine принимает const
-  19.03.2002 OT
-    - Исправление #96
-  05.03.2002 DJ
-    ! вылет из-за переполнения буфера в PluginsSet::ProcessCommandLine()
-  21.02.2002 SVS
-    ! Вызываем функции плагинов только в случае если сейчас не идет
-      обработка исключений
-    ! класс BlockExtKey уехал в BlockExtKey.hpp
-  21.02.2002 SVS
-    - BugZ#317 - Сообщение о требуемой версии ФАРа
-      Для второй части - класс BlockExtKey, который блокирует некоторые
-      клавиши манагера, в т.ч. и Alt-F9 - блокирует до тех пор, пока
-      плагине не прогрузятся.
-  19.02.2002 SVS
-    ! Вернем обратно поведение хоткеев... до поры до времени. Заодно одну
-      багу исправим (в комментариях видно что за бага ;-)
-  12.02.2002 SVS
-    ! В ветке PluginHotkeys храним полные пути к плагинам. Это так же решает
-      (или в основном так же) проблему BugZ#302
-  28.01.2002 SVS
-    + Код, ответственный за создание и предварительного заполнения структур
-      PluginStartupInfo и FarStandardFunctions вынесен в отдельную функцию:
-      PluginsSet::CreatePluginStartupInfo()
-  25.01.2002 SVS
-    + PIWF_PRELOADED
-  23.01.2002 SVS
-    - BugZ#137 - обработка падения панельного плагина
-    - Небольшая бага в UnloadPlugin (с прощлого раза :-))
-    + RemoveTrailingSpaces в ProcessCommandLine() перед вызовом плагина
-  22.01.2002 SVS
-    ! Внедрение флагов по каждому плагину
-    ! Небольшие подготовительные операции в UnloadPlugin
-    - BugZ#52 exception handling for floating point incorrect
-  15.01.2002 SVS
-    ! Первая серия по отучиванию класса Editor слову "Файл"
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  10.01.2002 SVS
-    ! немного _KEYMACRO
-  25.12.2001 SVS
-    ! "Поправим" недоделку 1.6х по поводу попадания плагинов в кэш
-  14.12.2001 IS
-    ! stricmp -> LocalStricmp
-  07.12.2001 IS
-    ! GetString -> FarInputBox
-  05.12.2001 SVS
-    ! Небольшое уточненение по поводу исключений
-  01.11.2001 SVS
-    ! НЕЛЬЗЯ ИЗ ОБРАБОТЧИКА ВЫГРУЖАТЬ ПЛАГИН! Только после того, как
-      обработали исключения.
-  15.10.2001 SVS
-    + _KEYMACRO()
-  03.10.2001 SVS
-    - Ошибка в PluginsSet::UnloadPlugin() - зачем ВСЮ структуру затирать то?
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  26.09.2001 SVS
-    + Полиция 4 - Параметры внешних модулей
-    + Полиция 20 - Игнорировать путь к персональным плагинам
-  24.09.2001 SVS
-    + FSF.GetRepasePointInfo
-    ! немного оптимизации (сокращение кода). Вместо индексов в массиве
-      применяем указатели - и код короче и лишние вычисления реального адреса
-      элемента массива убираются :-)
-  20.09.2001 SVS
-    + Новое поле Flags у класса PluginsSet.
-  16.09.2001 SVS
-    ! Отключаемые исключения
-  14.09.2001 SVS
-    - BugZ#9 - окончание
-  13.09.2001 SKV
-    - не грузить .dll если она не экспортирует ни одной far plugin api функции.
-  12.09.2001 SVS
-    + FSF.ConvertNameToReal
-  12.09.2001 SVS
-    - BugZ#9 - кусок кода, ответственный за прорисоку редактора по окончания
-          макроса перенесен из KeyMacro::GetKey() в PluginsSet::OpenPlugin()
-  09.09.2001 SVS
-    ! В функция PluginsSet::Configure() и PluginsSet::CommandsMenu()
-      общий код назначения хоктеев вынесен в отдельную "стандартную"
-      функцию GetMenuHotKey(). Это даст возможность ввести проверку
-      на дубликаты среди хоткеев и несколько подсократит код.
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  24.07.2001 IS
-    ! Замена проверки на ' ' и '\t' на вызов isspace
-  23.07.2001 SVS
-    - бага при прорисовке меню вызова конфигруации плагинов!
-      Очередной костыль.
-  19.07.2001 OT
-    - F11->плагин с диалогом->CAS -> зачем-то появлялось меню :)
-  18.07.2001 OT
-    VFMenu
-  10.07.2001 SKV
-    - полное совпадение префикса плагина
-  26.06.2001 SVS
-    ! __except -> EXCEPT
-  25.06.2001 IS
-    ! Внедрение const
-  07.06.2001 SVS
-    + F4 - назначение хоткеев в списке конф.плагинов.
-      Дальше нужна оптимизация кода, т.е. из CommandsMenu и Configure
-      выделять подобные куски кода и сувать их в отдельные, самостоятельные
-      функции.
-  03.06.2001 SVS
-    + ConfigureCurrent() - вызов конфига конкретного плагина
-  03.06.2001 SVS
-    ! Изменения в связи с переделкой UserData в VMenu
-  03.06.2001 OT
-    - Не обновлялся StatusLine после DrawLine в редакторе
-  30.05.2001 SVS
-    + StandardFunctions.MkLink
-  29.05.2001 IS
-    - При настройке "параметров внешних модулей" не обновлялись строчки
-      плагинов в меню.
-  22.05.2001 DJ
-    - GetMinFarVersion() не вызывался в двух местах из трех нужных;
-      вызов перенесен в SetPluginStartupInfo()
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-    ! Константы MENU_ - в морг
-  16.05.2001 SVS
-    ! Метод DumpPluginsInfo - в морг. Есть "штатные" средства записи
-      информации о плагинах :-)
-  16.05.2001 SVS
-    ! xfilter -> farexcpt.cpp
-  14.05.2001 SVS
-    + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
-  06.05.2001 DJ
-    ! перетрях #include
-  04.05.2001 OT
-    + Неверно формировалось меню плагинов по F11 (NWZ)
-      Изменился PluginSet::CommandsMenu()
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 SVS
-    ! xfilter - видна в других модулях
-    ! небольшие уточнения исключений
-  08.06.2001 SVS
-    ! Небольшая оптимизация:
-      StartupInfo и StandardFunctions сделаны статическими - заполняются
-      один раз, потом копируются в локальные структуры и...
-      т.о. (локальные) передаются плагину.
-      Модифицируются только плагино-зависимые данные.
-  04.04.2001 SVS
-    ! Попытка исключить ненужные вызовы в CallPlugin()
-  26.03.2001 SVS
-    + дополнительный параметр у CommandsMenu() - HistoryName
-  24.03.2001 tran
-    + qsortex
-  20.03.2001 tran
-    + при прогонке файла через OpenFilePlugin
-      в заголовке окна показывается имя плагина
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  26.02.2001 VVM
-    ! Уточнение для обработки NULL в OpenPlugin
-    + Обработка исключения при OpenPlugin(OPEN_FINDLIST)
-  26.02.2001 VVM
-    ! Обработка NULL после OpenPlugin
-  11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
-  01.02.2001 SVS
-    ! Shift-F9 викинут из списка плагинов
-  28.01.2001 SVS
-    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
-  25.01.2001 SVS
-    ! попытка локализовать причину исключения при неверно заполненных полях
-      структур OpenPluginInfo и PluginInfo
-  23.01.2001 SVS
-    + DumpExeptionInfo(xp); - запись информации об исключении в дамп.
-  23.01.2001 skv
-    + Добавил EXCEPTION_BREAKPOINT в список известных
-    + Unknown Exception на не известные.
-  29.12.2000 IS
-    ! При настройке "параметров внешних модулей" закрывать окно с их
-      списком только при нажатии на ESC
-  19.12.2000 IS
-    + Shift-F9 в списке плагинов вызывает настройки редактора/программы
-      просмотра, если этот список был вызван соответственно из
-      редактора/программы просмотра. Эта возможность нужна для макросов, да
-      и просто удобно.
-  18.12.2000 SVS
-    + Shift-F1 в списке плагинов вызывает хелп по данному плагину
-  07.12.2000 SVS
-    + Проверка не только версии, но и номера билда в функции проверки версии.
-  27.11.2000 SVS
-    ! Введение кнопки Debug в диалоги исключений с последующим вызовом
-      системного дебагера.
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  31.10.2000 SVS
-    + Функция TestOpenPluginInfo - проверка на вшивость переданных
-      плагином данных
-    ! Уточнения в эксепшинах
-  26.10.2000 SVS
-    - ошибки с "int Ret;" :-)
-  23.10.2000 SVS
-    + Функция TestPluginInfo - проверка на вшивость переданных плагином данных
-  19.10.2000 tran
-    + /co & PF_PRELOAD = friendship forever
-      теперь верно :)
-  17.10.2000 SVS
-    + Везде, в экспортируемых функция введена спарка try-__except
-  16.10.2000 SVS
-    + Обработка исключений при вызове галимого плагина (пока только при вызове
-      двух функций - OpenPlugin и OpenFilePlugin).
-  12.10.2000 tran
-    + /co & PF_PRELOAD = friendship.
-    + PluginsSet::DumpPluginsInfo(), call by AltF11 in plugins menu
-  12.10.2000 IS
-    + Указатель на ProcessName в StandardFunctions
-  27.09.2000 SVS
-    + Указатель на текущий Viewer
-    + ProcessViewerEvent
-    + CallPlugin
-  27.09.2000 skv
-    + DeleteBuffer
-  24.09.2000 SVS
-    + Функция FarNameToKey - получение кода клавиши по имени
-      Если имя не верно или нет такого - возвращается -1
-  21.09.2000 SVS
-    + Работа с  PluginItem.SysID - системный идентификатор плагина
-  20.09.2000 SVS
-    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
-  19.09.2000 SVS
-    + функция FolderPresent - "сужествует ли каталог"
-  18.09.2000 SVS
-    ! PluginsSet::SetPluginStartupInfo - заполним стркутуру PluginStartupInfo
-      нулями.
-    ! FarRecurseSearch -> FarRecursiveSearch
-  14.09.2000 SVS
-    + FSF.MkTemp
-  10.09.2000 IS 1.21
-    - Забыли проверку Info.CommandPrefix на NULL сделать, соответственно фар
-      иногда с конвульсиями помирал, теперь - нет.
-  10.09.2000 tran 1.21
-    + FSF/FarRecurseSearch
-  10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
-  08.09.2000 SVS
-    ! QWERTY -> Transliterate
-  07.09.2000 SVS 1.20
-    - MultiPrefix
-      По каким-то непонятным причинам из кэше для Flags возвращалось
-      значение равное 0 (хотя вижу что в реестре стоит 0x10) :-(
-  07.09.2000 VVM 1.19
-    + Несколько префиксов у плагина, разделенных через ":"
-    + Если флаг PF_FULLCMDLINE - отдавать с префиксом
-  07.09.2000 SVS
-    + Функция GetFileOwner тоже доступна плагинам :-)
-    + Функция GetNumberOfLinks тоже доступна плагинам :-)
-    + Оболочка FarBsearch для плагинов (функция bsearch)
-  05.09.2000 SVS 1.17
-    + QWERTY - перекодировщик - StandardFunctions.EDQwerty
-  01.09.2000 tran 1.16
-    + PluginsSet::LoadPluginsFromCache()
-  31.08.2000 tran
-    + FSF/FarInputRecordTokey
-  31.08.2000 SVS
-    ! изменение FSF-функций
-      FSF.RemoveLeadingSpaces =FSF.LTrim
-      FSF.RemoveTrailingSpaces=FSF.RTrim
-      FSF.RemoveExternalSpaces=FSF.Trim
-  28.08.2000 SVS
-    + Добавка для Local*
-    ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
-    + FARSTDITOA64
-  25.08.2000 SVS
-    ! Удалены из FSF функции:
-      memset, memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, strpbrk
-  03.08.2000 tran 1.12
-    + GetMinFarVersion export
-      для определения минимально-неодходимой версии фара.
-  03.08.2000 SVS
-    + Учтем, что можут быть указан параметр -P в командной строке...
-  01.08.2000 SVS
-    ! Расширение дополнительного пути для поиска персональных плагином
-      происходит непосредственно перед поиском
-    + Исключаем фичу при совпадении двух путей поиска
-  23.07.2000 SVS
-    + Функции
-       - Ввод тестовой строки
-       - FSF-функция KeyToName
-       - FSF: работа с буфером обмена CopyToClipboard, PasteFromClipboard
-  23.07.2000 SVS
-    + Функции для обработчика диалога
-       - расширенная функция диалога FarDialogEx;
-       - обмен сообщениями SendDlgMessage;
-       - функция по умолчанию DefDlgProc;
-  15.07.2000 SVS
-    + Добавка в виде задания дополнительного пути для поиска плагинов
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  13.07.2000 IS
-    - Пофикшен трап при входе в редактор (PluginsSet::ProcessEditorInput)
-      Решения подсказал tran.
-    - Исправлен глюк в PluginsSet::SavePluginSettings, допущенный при
-      неправильном переводе под VC: переменная I изменялась во всех циклах
-      (внимательнее над быть, вашу мать $%#...)
-      Решения подсказал tran.
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  07.07.2000 IS
-    + Инициализация: atoi, _atoi64, itoa, RemoveLeadingSpaces,
-      RemoveTrailingSpaces, RemoveExternalSpaces, TruncStr, TruncPathStr,
-      QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
-  06.07.2000 IS
-    + Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
-      Инициализация ее членов:
-      StructSize, Unquote, ExpandEnvironmentStr, sprintf, sscanf, qsort,
-      memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, memset, strpbrk
-  05.07.2000 IS
-    + Функция AdvControl
-  01.07.2000 IS
-    + Функция вывода помощи в api
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -650,7 +199,7 @@ void PluginsSet::LoadPlugins()
       // ...и пройдемся по нему
       while (ScTree.GetNextName(&FindData,FullName,sizeof (FullName)-1))
       {
-        if ( CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0 ) 
+        if ( CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0 )
         {
           struct PluginItem CurPlugin;
           char RegKey[100];
@@ -841,165 +390,165 @@ static BOOL PrepareModulePath(const char *ModuleName)
 }
 
 unsigned long CRC32(
-		unsigned long crc,
-		const char *buf,
-		unsigned int len
-		)
+    unsigned long crc,
+    const char *buf,
+    unsigned int len
+    )
 {
-	static unsigned long crc_table[256];
+  static unsigned long crc_table[256];
 
-	if (!crc_table[1])
-	{
-		unsigned long c;
-		int n, k;
+  if (!crc_table[1])
+  {
+    unsigned long c;
+    int n, k;
 
-		for (n = 0; n < 256; n++)
-		{
-			c = (unsigned long)n;
-			for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
-				crc_table[n] = c;
-		}
-	}
+    for (n = 0; n < 256; n++)
+    {
+      c = (unsigned long)n;
+      for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
+        crc_table[n] = c;
+    }
+  }
 
-	crc = crc ^ 0xffffffffL;
-	while (len-- > 0) {
-		crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
-	}
+  crc = crc ^ 0xffffffffL;
+  while (len-- > 0) {
+    crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
+  }
 
-	return crc ^ 0xffffffffL;
+  return crc ^ 0xffffffffL;
 }
 
 
-#define CRC32_SETSTARTUPINFO	0xF537107A
-#define CRC32_GETPLUGININFO		0xDB6424B4
-#define CRC32_OPENPLUGIN		0x601AEDE8
-#define CRC32_OPENFILEPLUGIN	0xAC9FF5CD
-#define CRC32_EXITFAR			0x04419715
-#define CRC32_SETFINDLIST		0x7A74A2E5
-#define CRC32_CONFIGURE			0x4DC1BC1A
-#define CRC32_GETMINFARVERSION	0x2BBAD952
+#define CRC32_SETSTARTUPINFO  0xF537107A
+#define CRC32_GETPLUGININFO   0xDB6424B4
+#define CRC32_OPENPLUGIN    0x601AEDE8
+#define CRC32_OPENFILEPLUGIN  0xAC9FF5CD
+#define CRC32_EXITFAR     0x04419715
+#define CRC32_SETFINDLIST   0x7A74A2E5
+#define CRC32_CONFIGURE     0x4DC1BC1A
+#define CRC32_GETMINFARVERSION  0x2BBAD952
 
 DWORD ExportCRC32[7] = {
-		CRC32_SETSTARTUPINFO,
-		CRC32_GETPLUGININFO,
-		CRC32_OPENPLUGIN,
-		CRC32_OPENFILEPLUGIN,
-		CRC32_EXITFAR,
-		CRC32_SETFINDLIST,
-//		CRC32_CONFIGURE,
-		CRC32_GETMINFARVERSION
-		};
+    CRC32_SETSTARTUPINFO,
+    CRC32_GETPLUGININFO,
+    CRC32_OPENPLUGIN,
+    CRC32_OPENFILEPLUGIN,
+    CRC32_EXITFAR,
+    CRC32_SETFINDLIST,
+//    CRC32_CONFIGURE,
+    CRC32_GETMINFARVERSION
+    };
 
 BOOL IsModulePlugin2 (
-	PBYTE hModule
-	)
+  PBYTE hModule
+  )
 {
-	DWORD dwExportAddr;
+  DWORD dwExportAddr;
 
-	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
-	PIMAGE_NT_HEADERS pPEHeader;
+  PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
+  PIMAGE_NT_HEADERS pPEHeader;
 
-	__try {
+  __try {
 
-		if ( pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE )
-			return FALSE;
+    if ( pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE )
+      return FALSE;
 
-		pPEHeader = (PIMAGE_NT_HEADERS)((DWORD_PTR)hModule+pDOSHeader->e_lfanew);
-		                                     
-		if ( pPEHeader->Signature != IMAGE_NT_SIGNATURE )
-			return FALSE;
+    pPEHeader = (PIMAGE_NT_HEADERS)&hModule[pDOSHeader->e_lfanew];
 
-		if ( (pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL) == 0 )
-			return FALSE;
+    if ( pPEHeader->Signature != IMAGE_NT_SIGNATURE )
+      return FALSE;
 
-		dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
+    if ( (pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL) == 0 )
+      return FALSE;
 
-		if ( !dwExportAddr )
-			return FALSE;
+    dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
 
-		PIMAGE_SECTION_HEADER pSection = (PIMAGE_SECTION_HEADER)IMAGE_FIRST_SECTION (pPEHeader);
+    if ( !dwExportAddr )
+      return FALSE;
 
-		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
-		{
-			if ( (pSection[i].VirtualAddress == dwExportAddr) ||
+    PIMAGE_SECTION_HEADER pSection = (PIMAGE_SECTION_HEADER)IMAGE_FIRST_SECTION (pPEHeader);
+
+    for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
+    {
+      if ( (pSection[i].VirtualAddress == dwExportAddr) ||
                  ((pSection[i].VirtualAddress <= dwExportAddr ) && ((pSection[i].Misc.VirtualSize+pSection[i].VirtualAddress) > dwExportAddr)) )
-			{
-				int dwDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
+      {
+        int nDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
 
-				PIMAGE_EXPORT_DIRECTORY pExportDir = (PIMAGE_EXPORT_DIRECTORY)&hModule[dwExportAddr-dwDiff];
+        PIMAGE_EXPORT_DIRECTORY pExportDir = (PIMAGE_EXPORT_DIRECTORY)&hModule[dwExportAddr-nDiff];
 
-				DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-dwDiff];
+        DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
 
-				for (int n = 0; n < pExportDir->NumberOfNames; n++)
-				{
-					const char *lpExportName = (const char *)&hModule[pNames[n]-dwDiff];
+        for (int n = 0; n < pExportDir->NumberOfNames; n++)
+        {
+          const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
 
-					DWORD dwCRC32 = CRC32 (0, lpExportName, strlen (lpExportName));
+          DWORD dwCRC32 = CRC32 (0, lpExportName, strlen (lpExportName));
 
-					for (int j = 0; j < 7; j++)  // а это вам не фиг знает что, это вам оптимизация, типа 8-)
-						if ( dwCRC32 == ExportCRC32[j] )
-							return TRUE;
+          for (int j = 0; j < 7; j++)  // а это вам не фиг знает что, это вам оптимизация, типа 8-)
+            if ( dwCRC32 == ExportCRC32[j] )
+              return TRUE;
 
-/*					if ( !strcmp (lpExportName, "GetPluginInfo") ||
-						 !strcmp (lpExportName, "SetStartupInfo") ||
-						 !strcmp (lpExportName, "OpenPlugin") ||
-						 !strcmp (lpExportName, "OpenFilePlugin") ||
-						 !strcmp (lpExportName, "SetFindList") ||
-						 !strcmp (lpExportName, "Configure") ||
-						 !strcmp (lpExportName, "GetMinFarVersion") ||
-						 !strcmp (lpExportName, "ExitFAR") )
-						return LOAD_ERROR_SUCCESS;*/
-				}
-			}
-		}
+/*          if ( !strcmp (lpExportName, "GetPluginInfo") ||
+             !strcmp (lpExportName, "SetStartupInfo") ||
+             !strcmp (lpExportName, "OpenPlugin") ||
+             !strcmp (lpExportName, "OpenFilePlugin") ||
+             !strcmp (lpExportName, "SetFindList") ||
+             !strcmp (lpExportName, "Configure") ||
+             !strcmp (lpExportName, "GetMinFarVersion") ||
+             !strcmp (lpExportName, "ExitFAR") )
+            return LOAD_ERROR_SUCCESS;*/
+        }
+      }
+    }
 
-		return FALSE;
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return FALSE;
-	}
+    return FALSE;
+  }
+  __except (EXCEPTION_EXECUTE_HANDLER)
+  {
+    return FALSE;
+  }
 }
 
 BOOL IsModulePlugin (const char *lpModuleName)
 {
-	int bResult = FALSE;
+  int bResult = FALSE;
 
-	HANDLE hModuleFile = CreateFile (
-			lpModuleName,
-			GENERIC_READ,
-			FILE_SHARE_READ,
-			NULL,
-			OPEN_EXISTING,
-			0,
-			NULL
-			);
+  HANDLE hModuleFile = CreateFile (
+      lpModuleName,
+      GENERIC_READ,
+      FILE_SHARE_READ,
+      NULL,
+      OPEN_EXISTING,
+      0,
+      NULL
+      );
 
-	if ( hModuleFile != INVALID_HANDLE_VALUE )
-	{
-		HANDLE hModuleMapping = CreateFileMapping (
-				hModuleFile,
-				NULL,
-				PAGE_READONLY,
-				0,
-				0,
-				NULL
-				);
+  if ( hModuleFile != INVALID_HANDLE_VALUE )
+  {
+    HANDLE hModuleMapping = CreateFileMapping (
+        hModuleFile,
+        NULL,
+        PAGE_READONLY,
+        0,
+        0,
+        NULL
+        );
 
-		if ( hModuleMapping )
-		{
-			PBYTE pData = (PBYTE)MapViewOfFile (hModuleMapping, FILE_MAP_READ, 0, 0, 0);
+    if ( hModuleMapping )
+    {
+      PBYTE pData = (PBYTE)MapViewOfFile (hModuleMapping, FILE_MAP_READ, 0, 0, 0);
 
-			bResult = IsModulePlugin2 (pData);
+      bResult = IsModulePlugin2 (pData);
 
-			UnmapViewOfFile (pData);
-			CloseHandle (hModuleMapping);
-		}
+      UnmapViewOfFile (pData);
+      CloseHandle (hModuleMapping);
+    }
 
-		CloseHandle (hModuleFile);
-	}
+    CloseHandle (hModuleFile);
+  }
 
-	return bResult;
+  return bResult;
 }
 
 
