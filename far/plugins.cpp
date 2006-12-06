@@ -448,7 +448,7 @@ BOOL IsModulePlugin2 (
   PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
   PIMAGE_NT_HEADERS pPEHeader;
 
-  __try {
+  TRY {
 
     if ( pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE )
       return FALSE;
@@ -477,7 +477,11 @@ BOOL IsModulePlugin2 (
 
         PIMAGE_EXPORT_DIRECTORY pExportDir = (PIMAGE_EXPORT_DIRECTORY)&hModule[dwExportAddr-nDiff];
 
-        DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
+        #if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+        DWORD *pNames = (DWORD *)&hModule[(int)pExportDir->AddressOfNames-nDiff];
+        #else
+        DWORD *pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
+        #endif
 
         for (int n = 0; n < pExportDir->NumberOfNames; n++)
         {
@@ -504,7 +508,7 @@ BOOL IsModulePlugin2 (
 
     return FALSE;
   }
-  __except (EXCEPTION_EXECUTE_HANDLER)
+  EXCEPT (EXCEPTION_EXECUTE_HANDLER)
   {
     return FALSE;
   }

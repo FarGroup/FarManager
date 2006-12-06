@@ -226,10 +226,12 @@ headers.hpp
 
 
 #if defined(__BORLANDC__)
-  #if !defined(__midl) && defined(_X86_) && (__BORLANDC__ >= 0x0550)
-  #define _W64 __w64
-  #else
-  #define _W64
+  #if (__BORLANDC__ < 0x0550)
+    //#if !defined(__midl) && defined(_X86_)
+    //#define _W64 __w64
+    //#else
+    #define _W64
+    //#endif
   #endif
 
   #ifndef _INTPTR_T_DEFINED

@@ -7,42 +7,53 @@ foldtree.hpp
 
 */
 
-/* Revision: 1.02 24.10.2001 $ */
 
-/*
-Modify:
-  24.10.2001 SVS
-    + дополнительный параметр у FolderTree - "ЭТО НЕ ПАНЕЛЬ!"
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
-#include "modal.hpp"
+#include "frame.hpp"
 #include "farconst.hpp"
 
 class TreeList;
 class Edit;
+class SaveScreen;
 
-class FolderTree:public Modal
+class FolderTree:public Frame
 {
   private:
     TreeList *Tree;
     Edit *FindEdit;
+    SaveScreen *TopScreen;      // область сохранения под хелпом
+
+    int ModalMode;
+    int IsFullScreen;
+    int IsStandalone;
     char NewFolder[NM];
     char LastName[NM];
 
+    int  PrevMacroMode;        // предыдущий режим макроса
+
   private:
     void DrawEdit();
+    virtual void DisplayObject();
+    void SetCoords();
+
 
   public:
-    FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2,int IsPanel=TRUE);
+    FolderTree(char *ResultFolder,int ModalMode,int IsPanel=TRUE,int IsFullScreen=TRUE);
+    ~FolderTree();
 
   public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+
+    void OnChangeFocus(int focus); // вызывается при смене фокуса
+    void ResizeConsole();
+    /* $ Введена для нужд CtrlAltShift OT */
+    int  FastHide();
+    void Hide();
+
+    virtual const char *GetTypeName() {return "[FolderTree]";}
+    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetType() { return MODALTYPE_FINDFOLDER; }
+
 };
 
 
