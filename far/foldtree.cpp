@@ -5,8 +5,6 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.19 15.03.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -19,22 +17,35 @@ foldtree.cpp
 #include "edit.hpp"
 #include "ctrlobj.hpp"
 #include "help.hpp"
+#include "manager.hpp"
 #include "savescr.hpp"
 
-FolderTree::FolderTree(string &strResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2,int IsPanel)
+FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,int IsFullScreen)
 {
+  SetDynamicallyBorn(FALSE);
+
+  ModalMode=iModalMode;
+  PrevMacroMode=CtrlObject->Macro.GetMode();
   SetRestoreScreenMode(FALSE);
-  SaveScreen SaveScr;
+
   if(ModalMode != MODALTREE_FREE)
     strResultFolder=L"";
 
   strNewFolder=L"";
-  SetPosition(TX1,TY1,TX2,TY2);
-  int CurMacroMode=CtrlObject->Macro.GetMode();
 
-  if ((Tree=new TreeList(IsPanel))!=NULL)
+  FolderTree::IsFullScreen=IsFullScreen;
+  FolderTree::IsStandalone=IsStandalone;
+
+  FindEdit=NULL;
+  Tree=NULL;
+  TopScreen=new SaveScreen;
+
+  SetCoords();
+
+  if ((Tree=new TreeList(FALSE))!=NULL)
   {
     CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
+    MacroMode = MACRO_FINDFOLDER;
 
     strLastName=L"";
     Tree->SetModalMode(ModalMode);
@@ -46,35 +57,108 @@ FolderTree::FolderTree(string &strResultFolder,int ModalMode,int TX1,int TY1,int
     // если было прерывание в процессе сканирования и это было дерево копира...
     if(Tree->GetExitCode())
     {
-      if(ModalMode == MODALTREE_FREE)
+      if ((FindEdit=new Edit)==NULL)
       {
-        Tree->Update(UPDATE_KEEP_SELECTION);
-        Tree->GoToFileW(strResultFolder);
-        Tree->Redraw();
+        SetExitCode (XC_OPEN_ERROR);
+        return;
       }
-      MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
-      MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
-      {
-        if ((FindEdit=new Edit)==NULL)
-        {
-          delete Tree;
-          CtrlObject->Macro.SetMode(CurMacroMode);
-          return;
-        }
-        FindEdit->SetEditBeyondEnd(FALSE);
-        FindEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
-        DrawEdit();
-      }
+      FindEdit->SetEditBeyondEnd(FALSE);
+      FindEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
 
-      Process();
-      delete FindEdit;
-
+      FrameManager->ExecuteModal (this);//OT
     }
-    delete Tree;
-
-    CtrlObject->Macro.SetMode(CurMacroMode);
     strResultFolder = strNewFolder;
   }
+  else
+  {
+    SetExitCode (XC_OPEN_ERROR);
+  }
+}
+
+FolderTree::~FolderTree()
+{
+  CtrlObject->Macro.SetMode(PrevMacroMode);
+  SetRestoreScreenMode(FALSE);
+  if ( TopScreen )    delete TopScreen;
+  if ( FindEdit )     delete FindEdit;
+  if ( Tree )         delete Tree;
+}
+
+
+void FolderTree::DisplayObject()
+{
+  if(!TopScreen)
+    TopScreen=new SaveScreen;
+  if(ModalMode == MODALTREE_FREE)
+  {
+    string strSelFolder;
+    Tree->GetCurDirW(strSelFolder);
+    //Tree->Update(UPDATE_KEEP_SELECTION);
+    Tree->Update(0);
+    Tree->GoToFileW(strSelFolder);
+    Tree->Redraw();
+  }
+  else
+    Tree->Redraw();
+  MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
+  MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+  DrawEdit();
+}
+
+
+void FolderTree::SetCoords()
+{
+  if(IsFullScreen)
+    SetPosition(0,0,ScrX,ScrY);
+  else
+  {
+    if(IsStandalone)
+      SetPosition(4,2,ScrX-4,ScrY-4);
+    else
+      SetPosition(ScrX/3,2,ScrX-7,ScrY-5);
+  }
+}
+
+void FolderTree::Hide()
+{
+  ScreenObject::Hide();
+}
+
+void FolderTree::OnChangeFocus(int focus)
+{
+  if (focus)
+  {
+    DisplayObject();
+  }
+}
+
+void FolderTree::ResizeConsole()
+{
+  if ( TopScreen )
+     delete TopScreen;
+  TopScreen=NULL;
+
+  Hide();
+
+  SetCoords();
+  Tree->SetPosition(X1,Y1,X2,Y2);
+  //ReadHelp(StackData.HelpMask);
+  FrameManager->ImmediateHide();
+  FrameManager->RefreshFrame();
+}
+
+int FolderTree::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_DIALOG;
+}
+
+
+int FolderTree::GetTypeAndName(string &strType, string &strName)
+{
+  strType = UMSG(MFolderTreeType);
+  strName = L"";
+
+  return MODALTYPE_FINDFOLDER;
 }
 
 
@@ -99,18 +183,26 @@ int FolderTree::ProcessKey(int Key)
       break;
     case KEY_ESC:
     case KEY_F10:
-      SetExitCode(1);
+      FrameManager->DeleteFrame();
+      SetExitCode (XC_MODIFIED);
       break;
     case KEY_ENTER:
       Tree->GetCurDirW(strNewFolder);
       if (GetFileAttributesW(strNewFolder)!=0xFFFFFFFF)
-        SetExitCode(1);
+      {
+        FrameManager->DeleteFrame();
+        SetExitCode (XC_MODIFIED);
+      }
       else
       {
         Tree->ProcessKey(KEY_ENTER);
         DrawEdit();
       }
       break;
+    case KEY_F5:
+      IsFullScreen=!IsFullScreen;
+      ResizeConsole();
+      return(TRUE);
     case KEY_CTRLR:
     case KEY_F2:
       Tree->ProcessKey(KEY_CTRLR);
@@ -188,7 +280,7 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwButtonState!=1)
     return(TRUE);
   if (!Tree->ProcessMouse(MouseEvent))
-    SetExitCode(1);
+    SetExitCode (XC_MODIFIED);
   else
     DrawEdit();
   return(TRUE);

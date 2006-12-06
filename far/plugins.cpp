@@ -5,8 +5,6 @@ plugins.cpp
 
 */
 
-/* Revision: 1.186 25.08.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -237,7 +235,7 @@ void PluginsSet::LoadPlugins()
       // ...и пройдемся по нему
       while (ScTree.GetNextNameW(&FindData,strFullName))
       {
-        if ( CmpNameW(L"*.dll",FindData.strFileName,FALSE) && 
+        if ( CmpNameW(L"*.dll",FindData.strFileName,FALSE) &&
              (FindData.dwFileAttributes & FA_DIREC)==0 )
         {
           PluginItem *CurPlugin = new PluginItem;
@@ -505,7 +503,7 @@ BOOL IsModulePlugin2 (
 	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
 	PIMAGE_NT_HEADERS pPEHeader;
 
-	__try {
+	TRY {
 
 		if ( pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE )
 			return FALSE;
@@ -561,7 +559,7 @@ BOOL IsModulePlugin2 (
 
 		return FALSE;
 	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
+	EXCEPT (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return FALSE;
 	}

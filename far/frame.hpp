@@ -8,8 +8,6 @@ frame.hpp
 
 */
 
-/* Revision: 1.24 04.06.2006 $ */
-
 #include "scrobj.hpp"
 #include "UnicodeString.hpp"
 
@@ -18,7 +16,8 @@ class KeyBar;
 // ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
 // WTYPE_* (plugin.hpp) и MODALTYPE_*!!!
 // (и не надо убирать этот комментарий, пока ситуация не изменится ;)
-enum { MODALTYPE_VIRTUAL,
+enum {
+  MODALTYPE_VIRTUAL,
   MODALTYPE_PANELS=1,
   MODALTYPE_VIEWER,
   MODALTYPE_EDITOR,
@@ -26,6 +25,7 @@ enum { MODALTYPE_VIRTUAL,
   MODALTYPE_VMENU,
   MODALTYPE_HELP,
   MODALTYPE_COMBOBOX,
+  MODALTYPE_FINDFOLDER,
   MODALTYPE_USER,
 };
 

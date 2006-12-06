@@ -5,8 +5,6 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.95 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -180,7 +178,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF10:
       {
         {
-          FolderTree Tree(strStr,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4, FALSE);
+          FolderTree Tree(strStr,MODALTREE_ACTIVE,TRUE,FALSE);
           FrameManager->GetCurrentFrame()->RedrawKeyBar(); // Затычка ;-(
         }
         if ( !strStr.IsEmpty() )

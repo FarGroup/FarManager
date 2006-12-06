@@ -5,8 +5,6 @@ copy.cpp
 
 */
 
-/* Revision: 1.187 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -1169,7 +1167,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                (DlgParam->AltF10==1?MODALTREE_PASSIVE:
                   (DlgParam->AltF10==2?MODALTREE_FREE:
                      MODALTREE_ACTIVE)),
-               25,2,ScrX-7,ScrY-5,FALSE);
+               FALSE,FALSE);
 
           strNewFolder = strNewFolder2;
         }
