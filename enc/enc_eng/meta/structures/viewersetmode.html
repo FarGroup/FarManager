@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-—труктура ViewerSetMode используетс€ дл€ изменени€ режимов работы программы просмотра FAR.
+—труктура <dfn>ViewerSetMode</dfn> используетс€ дл€ изменени€ режимов работы программы просмотра FAR.
 </div>
 
 <pre class=syntax>
@@ -60,7 +60,16 @@ struct ViewerSetMode
   <div class=dfndescr>”казатель на строку, оканчивающуюс€ нулем, см. описание по конкретному типу режима.</div>
 
   <div class=dfn>Flags</div>
-  <div class=dfndescr>—одержит дополнительные услови€/данные, см. описание по конкретному типу режима.</div>
+  <div class=dfndescr>ƒополнительные флаги (перечисление <a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a>):
+    <table class="cont"><tr class="cont"><th class="cont" width="40%">–ежим</th><th class="cont" width="60%">ќписание</th></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="VSMFL_REDRAW">VSMFL_REDRAW</a></td>
+    <td class="cont" width="60%">ѕосле применени€ "режима" перерисовать экран. ¬ противном случае после установки режимов воспользоватьс€
+    командой <a href="../service_functions/viewercontrol.html#VCTL_REDRAW">VCTL_REDRAW</a>.</td></tr>
+
+   </table>
+
+  </div>
 
   <div class=dfn>Reserved</div>
   <div class=dfndescr>Ќе используетс€, зарезервировано дл€ будущего использовани€.
