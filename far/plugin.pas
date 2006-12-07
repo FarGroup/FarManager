@@ -1045,6 +1045,9 @@ const
    VSMT_WRAP             = 2;
    VSMT_WORDWRAP         = 3;
 
+const
+   VSMFL_REDRAW          = $00000001;
+
 
 type
    TFarInt64Part = packed record
