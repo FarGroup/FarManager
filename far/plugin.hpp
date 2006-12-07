@@ -1199,6 +1199,10 @@ enum VIEWER_SETMODE_TYPES {
   VSMT_WORDWRAP,
 };
 
+enum VIEWER_SETMODEFLAGS_TYPES {
+  VSMFL_REDRAW    = 0x00000001,
+};
+
 struct ViewerSetMode {
   int Type;
   union {

@@ -3327,6 +3327,7 @@ int Viewer::ViewerControl(int Command,void *Param)
     // Param=0
     case VCTL_REDRAW:
     {
+      ChangeViewKeyBar();
       Show();
       ScrBuf.Flush();
       return(TRUE);
@@ -3362,18 +3363,19 @@ int Viewer::ViewerControl(int Command,void *Param)
       struct ViewerSetMode *vsmode=(struct ViewerSetMode *)Param;
       if(vsmode && !IsBadReadPtr(vsmode,sizeof(struct ViewerSetMode)))
       {
+        bool isRedraw=vsmode->Flags&VSMFL_REDRAW?true:false;
         switch(vsmode->Type)
         {
           case VSMT_HEX:
-            ProcessHexMode(vsmode->Param.iParam);
+            ProcessHexMode(vsmode->Param.iParam,isRedraw);
             return TRUE;
 
           case VSMT_WRAP:
-            ProcessWrapMode(vsmode->Param.iParam);
+            ProcessWrapMode(vsmode->Param.iParam,isRedraw);
             return TRUE;
 
           case VSMT_WORDWRAP:
-            ProcessTypeWrapMode(vsmode->Param.iParam);
+            ProcessTypeWrapMode(vsmode->Param.iParam,isRedraw);
             return TRUE;
         }
       }
@@ -3389,35 +3391,41 @@ BOOL Viewer::isTemporary() const
   return (*TempViewName);
 }
 
-int Viewer::ProcessHexMode(int newMode)
+int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 {
   int oldHex=VM.Hex;
   VM.Hex=newMode&1;
-  ChangeViewKeyBar();
-  Show();
+  if(isRedraw)
+  {
+    ChangeViewKeyBar();
+    Show();
+  }
 // LastSelPos=FilePos;
   return oldHex;
 }
 
-int Viewer::ProcessWrapMode(int newMode)
+int Viewer::ProcessWrapMode(int newMode, bool isRedraw)
 {
   int oldWrap=VM.Wrap;
   VM.Wrap=newMode&1;
-  ChangeViewKeyBar();
   if (VM.Wrap)
     LeftPos = 0;
 
   if ( !VM.Wrap && LastPage )
     Up ();
 
-  Show();
+  if(isRedraw)
+  {
+    ChangeViewKeyBar();
+    Show();
+  }
 
   Opt.ViOpt.ViewerIsWrap=VM.Wrap;
 //  LastSelPos=FilePos;
   return oldWrap;
 }
 
-int Viewer::ProcessTypeWrapMode(int newMode)
+int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 {
   int oldTypeWrap=VM.WordWrap;
   if(RegVer)
@@ -3428,8 +3436,12 @@ int Viewer::ProcessTypeWrapMode(int newMode)
       VM.Wrap=!VM.Wrap;
       LeftPos = 0;
     }
-    ChangeViewKeyBar();
-    Show();
+
+    if(isRedraw)
+    {
+      ChangeViewKeyBar();
+      Show();
+    }
     Opt.ViOpt.ViewerWrap=VM.WordWrap;
 //    LastSelPos=FilePos;
   }

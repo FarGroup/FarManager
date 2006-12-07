@@ -256,9 +256,9 @@ class Viewer:public ScreenObject
       используется для принятия решения переходить в каталог по */
     BOOL isTemporary() const;
 
-    int ProcessHexMode(int newMode);
-    int ProcessWrapMode(int newMode);
-    int ProcessTypeWrapMode(int newMode);
+    int ProcessHexMode(int newMode, bool isRedraw=TRUE);
+    int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
+    int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
 };
 
 #endif // __VIEWER_HPP__
