@@ -104,7 +104,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *psInfo)
 
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
 //  tempFileNameOut[0]=tempFileNameErr[0]=FileNameOut[0]=FileNameErr[0]=

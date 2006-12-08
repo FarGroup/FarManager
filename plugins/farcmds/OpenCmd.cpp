@@ -159,12 +159,12 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
         }
         if ( sCheck[enStreamOut] )
           if ( sCheck[enStreamErr] )
-            wsprintf(buff, "%lu/%lu", sCheck[enStreamOut], sCheck[enStreamErr]);
+            FarSprintf(buff, "%lu/%lu", sCheck[enStreamOut], sCheck[enStreamErr]);
           else
-            wsprintf(buff, "%lu", sCheck[enStreamOut]);
+            FarSprintf(buff, "%lu", sCheck[enStreamOut]);
         else
           if ( sCheck[enStreamErr] )
-            wsprintf(buff, "%lu", sCheck[enStreamErr]);
+            FarSprintf(buff, "%lu", sCheck[enStreamErr]);
           else
             *buff = 0;
         const char *MsgItems[] = { td->title, td->cmd, buff };
@@ -460,7 +460,7 @@ int OpenFromCommandLine(char *_farcmd)
              {
                if(NULL!=(Path=(char *)malloc(Length+1+PathLength)))
                {
-                 wsprintf(Path,"%s;", cmd);
+                 FarSprintf(Path,"%s;", cmd);
                  GetEnvironmentVariable("PATH", Path+Length+1, PathLength);
                  SearchPath(Path, temp, NULL, sizeof(selectItem), selectItem, &pFile);
                  CharToOem(selectItem, selectItem);
@@ -475,7 +475,7 @@ int OpenFromCommandLine(char *_farcmd)
                size_t I;
                for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
                {
-                 wsprintf(FullKeyName,
+                 FarSprintf(FullKeyName,
                    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",
                     pCmd);
                  OemToChar(FullKeyName, FullKeyName);
@@ -733,7 +733,7 @@ int OpenFromCommandLine(char *_farcmd)
                   if ( ShowCmdOutput == 2 )
                   {
                     // данные для нитки параллельного вывода
-                    td = (TThreadData*)GlobalAlloc(GPTR,sizeof(TThreadData));
+                    td = (TThreadData*)malloc(sizeof(TThreadData));
                     if ( td )
                     {
                       td->type = enThreadShowOutput;
@@ -809,12 +809,12 @@ int OpenFromCommandLine(char *_farcmd)
                             ;
                         closeHandle(sd->hRead);
                       }
-                      GlobalFree((LPVOID)td);
+                      free(td);
                     }
                     else
                     {
                       if ( ShowCmdOutput == 0 )
-                        td = (TThreadData*)GlobalAlloc(GPTR,sizeof(TThreadData));
+                        td = (TThreadData*)malloc(sizeof(TThreadData));
                       if ( td )
                       {
                         td->type = enThreadHideOutput;
@@ -833,7 +833,7 @@ int OpenFromCommandLine(char *_farcmd)
                         td->processDone = true;
                         if ( hThread )
                           WaitForSingleObject(hThread, INFINITE);
-                        GlobalFree((LPVOID)td);
+                        free(td);
                       }
                     }
                     closeHandle(pi.hThread);
@@ -891,14 +891,14 @@ int OpenFromCommandLine(char *_farcmd)
                     Flags |= VF_DISABLEHISTORY|VF_DELETEONCLOSE;
                   if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, 0) )
                   {
-                    wsprintf(fullcmd, "%s%s", titleErr, cmd);
+                    FarSprintf(fullcmd, "%s%s", titleErr, cmd);
                     Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameErr);
                   if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, 0) )
                   {
-                    wsprintf(fullcmd, "%s%s", titleOut, cmd);
+                    FarSprintf(fullcmd, "%s%s", titleOut, cmd);
                     Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
                   }
                   else if(outputtofile)
@@ -912,14 +912,14 @@ int OpenFromCommandLine(char *_farcmd)
                     Flags |= EF_DISABLEHISTORY|EF_DELETEONCLOSE;
                   if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
-                    wsprintf(fullcmd, "%s%s", titleErr, cmd);
+                    FarSprintf(fullcmd, "%s%s", titleErr, cmd);
                     Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameErr);
                   if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
-                    wsprintf(fullcmd, "%s%s", titleOut, cmd);
+                    FarSprintf(fullcmd, "%s%s", titleOut, cmd);
                     Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
                   }
                   else if(outputtofile)
