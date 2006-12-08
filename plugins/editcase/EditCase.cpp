@@ -5,7 +5,7 @@
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined (_MSC_VER)
 #include <limits.h>
 #define MAXINT INT_MAX
 #else
@@ -40,7 +40,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   IsOldFAR=TRUE;
-  if(Info->StructSize >= sizeof(struct PluginStartupInfo))
+  if(Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
   {
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
@@ -57,7 +57,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   };
 }
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   size_t i;
   struct FarMenuItem MenuItems[5], *MenuItem;
