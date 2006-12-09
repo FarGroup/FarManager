@@ -1,5 +1,5 @@
-OBJDIR = ./GCC
-REOBJDIR = \.\/GCC\/
+OBJDIR = ./obj.32.gcc
+REOBJDIR = \.\/obj\.32\.gcc\/
 DLLDIR = ..
 DLLNAME = libCRT.a
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
