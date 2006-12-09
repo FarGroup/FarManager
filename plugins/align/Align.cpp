@@ -1,9 +1,6 @@
-#define WIN32_LEAN_AND_MEAN
-#define STRICT
-#define __STD_STRING
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
-#include "crt.hpp"
+#include "CRT/crt.hpp"
 
 #if defined(__GNUC__)
 
