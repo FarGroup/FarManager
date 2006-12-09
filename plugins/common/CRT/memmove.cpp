@@ -1,6 +1,6 @@
-#include "memmove.hpp"
+#include "crt.hpp"
 
-void *memmove(void *dst, const void *src, size_t count)
+void * __cdecl memmove(void *dst, const void *src, size_t count)
 {
   void *ret = dst;
   if (dst <= src || (char *)dst >= ((char *)src + count))

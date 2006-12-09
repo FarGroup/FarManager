@@ -1,7 +1,7 @@
-#include "malloc.hpp"
+#include "crt.hpp"
 #include <windows.h>
 
-void *malloc(size_t size)
+void * __cdecl malloc(size_t size)
 {
   return HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,size);
 }

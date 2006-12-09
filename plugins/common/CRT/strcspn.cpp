@@ -1,6 +1,6 @@
-#include "strcspn.hpp"
+#include "crt.hpp"
 
-size_t strcspn(const char *string, const char *control)
+size_t __cdecl strcspn(const char *string, const char *control)
 {
   const unsigned char *str = (const unsigned char *)string;
   const unsigned char *ctrl = (const unsigned char *)control;

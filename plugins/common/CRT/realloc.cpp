@@ -1,7 +1,7 @@
-#include "realloc.hpp"
+#include "crt.hpp"
 #include <windows.h>
 
-void *realloc(void *block, size_t size)
+void * __cdecl realloc(void *block, size_t size)
 {
   if (!size)
   {

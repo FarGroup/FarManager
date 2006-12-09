@@ -1,6 +1,6 @@
-#include "memcpy.hpp"
+#include "crt.hpp"
 
-void *memcpy(void *dst, const void *src, size_t count)
+void * __cdecl memcpy(void *dst, const void *src, size_t count)
 {
   void *ret = dst;
 

@@ -1,6 +1,6 @@
-#include "strncat.hpp"
+#include "crt.hpp"
 
-char *strncat (char *first, const char *last, size_t count)
+char * __cdecl strncat(char *first, const char *last, size_t count)
 {
   char *start = first;
 

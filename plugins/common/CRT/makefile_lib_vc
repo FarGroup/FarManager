@@ -1,6 +1,6 @@
-OBJDIR = VC64
+OBJDIR = VC
 OUTDIR = ..
-DLLNAME = libCRT64.lib
+DLLNAME = libCRT.lib
 
 LINK_OBJS = $(OBJDIR)\ctype.obj \
 $(OBJDIR)\delete.obj \
@@ -29,8 +29,8 @@ $(OBJDIR)\strtok.obj \
 $(OBJDIR)\strtol.obj
 
 
-CPP_PROJ=/nologo /c /O1 /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
-LINK_FLAGS=/nologo /machine:amd64 /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
+CPP_PROJ=/nologo /c /J /O1 /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
+LINK_FLAGS=/nologo /machine:i386 /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
 
 ALL: $(OBJDIR) $(OUTDIR)\$(DLLNAME)
 

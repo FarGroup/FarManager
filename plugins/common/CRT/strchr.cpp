@@ -1,6 +1,6 @@
-#include "strchr.hpp"
+#include "crt.hpp"
 
-char *strchr(register const char *s,int c)
+char * __cdecl strchr(register const char *s,int c)
 {
   do
   {

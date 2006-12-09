@@ -1,6 +1,6 @@
-#include "memchr.hpp"
+#include "crt.hpp"
 
-void *memchr(const void *buf, int chr, size_t cnt)
+void * __cdecl memchr(const void *buf, int chr, size_t cnt)
 {
   while (cnt && (*(unsigned char *)buf != (unsigned char)chr))
   {

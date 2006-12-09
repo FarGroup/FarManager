@@ -1,8 +1,8 @@
-#include "memicmp.hpp"
+#include "crt.hpp"
 
 #define TOLOWER(c) ( ((c) >= 'A') && ((c) <= 'Z') ? ((c) - 'A' + 'a') : (c) )
 
-int memicmp(const void *first, const void *last, size_t count)
+int __cdecl memicmp(const void *first, const void *last, size_t count)
 {
   int f = 0;
   int l = 0;

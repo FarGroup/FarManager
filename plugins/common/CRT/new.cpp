@@ -1,5 +1,4 @@
-#include "new.hpp"
-#include "malloc.hpp"
+#include "crt.hpp"
 
 #ifdef __cplusplus
 void * __cdecl operator new(size_t size)

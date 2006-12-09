@@ -1,6 +1,6 @@
-#include "strncmp.hpp"
+#include "crt.hpp"
 
-int strncmp(const char *first, const char *last, size_t count)
+int __cdecl strncmp(const char *first, const char *last, size_t count)
 {
   if (!count)
     return(0);

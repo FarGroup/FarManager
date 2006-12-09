@@ -1,6 +1,6 @@
-#include "strstr.hpp"
+#include "crt.hpp"
 
-char *strstr(const char * str1, const char * str2)
+char * __cdecl strstr(const char * str1, const char * str2)
 {
   char *cp = (char *) str1;
   char *s1, *s2;

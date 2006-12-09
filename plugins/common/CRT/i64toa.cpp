@@ -1,6 +1,6 @@
-#include "i64toa.hpp"
+#include "crt.hpp"
 
-static void x64toa(unsigned __int64 val, char *buf, unsigned radix, int is_neg)
+static void __cdecl x64toa(unsigned __int64 val, char *buf, unsigned radix, int is_neg)
 {
   char *p;
   char *firstdig;
@@ -38,13 +38,13 @@ static void x64toa(unsigned __int64 val, char *buf, unsigned radix, int is_neg)
   } while (firstdig < p);
 }
 
-char *_i64toa(__int64 val, char *buf, int radix )
+char * __cdecl _i64toa(__int64 val, char *buf, int radix )
 {
   x64toa((unsigned __int64)val, buf, radix, (radix == 10 && val < 0));
   return buf;
 }
 
-char *_ui64toa(unsigned __int64 val, char *buf, int radix)
+char * __cdecl _ui64toa(unsigned __int64 val, char *buf, int radix)
 {
   x64toa(val, buf, radix, 0);
   return buf;

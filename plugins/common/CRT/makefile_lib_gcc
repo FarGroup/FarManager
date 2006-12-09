@@ -41,15 +41,8 @@ RANLIB = ranlib
 CXXFLAGS = -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
-DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 
 all: $(DLLFULLNAME)
-
-$(OBJDIR)/%.d: %.cpp
-	@echo making depends for $<
-	@$(MKDIR) -p $(@D)
-	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
-                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
@@ -63,4 +56,4 @@ $(DLLFULLNAME): $(OBJS)
 	@$(RANLIB) $(DLLNAME)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 
--include $(DEPS)
+$(OBJS): crt.hpp

@@ -1,6 +1,6 @@
-#include "memset.hpp"
+#include "crt.hpp"
 
-void *memset(void *dst, int val, size_t count)
+void * __cdecl memset(void *dst, int val, size_t count)
 {
   void *start = dst;
 

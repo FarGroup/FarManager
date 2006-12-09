@@ -1,5 +1,4 @@
-#include "strtol.hpp"
-#include "ctype.hpp"
+#include "crt.hpp"
 #include <stddef.h>
 #include <limits.h>
 
@@ -8,7 +7,7 @@
 #define FL_OVERFLOW   4
 #define FL_READDIGIT  8
 
-static unsigned long strtoxl(const char *nptr, char **endptr, int ibase, int flags)
+static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase, int flags)
 {
   const char *p;
   char c;
@@ -109,12 +108,12 @@ static unsigned long strtoxl(const char *nptr, char **endptr, int ibase, int fla
   return number;
 }
 
-long strtol(const char *nptr, char **endptr, int ibase)
+long __cdecl strtol(const char *nptr, char **endptr, int ibase)
 {
   return (long) strtoxl(nptr, endptr, ibase, 0);
 }
 
-unsigned long strtoul(const char *nptr, char **endptr, int ibase)
+unsigned long __cdecl strtoul(const char *nptr, char **endptr, int ibase)
 {
   return strtoxl(nptr, endptr, ibase, FL_UNSIGNED);
 }

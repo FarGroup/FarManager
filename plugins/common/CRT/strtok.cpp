@@ -1,6 +1,6 @@
-#include "strtok.hpp"
+#include "crt.hpp"
 
-char *strtok(char *string, const char *control)
+char * __cdecl strtok(char *string, const char *control)
 {
   unsigned char *str;
   const unsigned char *ctrl = (const unsigned char *) control;

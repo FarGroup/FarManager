@@ -1,6 +1,6 @@
-#include "memcmp.hpp"
+#include "crt.hpp"
 
-int memcmp(const void *buf1, const void *buf2, size_t count)
+int __cdecl memcmp(const void *buf1, const void *buf2, size_t count)
 {
   if (!count)
     return(0);
