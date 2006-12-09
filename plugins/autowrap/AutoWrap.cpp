@@ -2,11 +2,9 @@
 #include "plugin.hpp"
 #include "WrapLng.hpp"
 #include "AutoWrap.hpp"
+#include "CRT/crt.hpp"
 
 #if defined(__GNUC__)
-
-#include "crt.hpp"
-
 #ifdef __cplusplus
 extern "C"{
 #endif
