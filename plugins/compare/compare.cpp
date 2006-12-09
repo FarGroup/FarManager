@@ -1,6 +1,7 @@
 #define _FAR_NO_NAMELESS_UNIONS
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
+#include "CRT/crt.hpp"
 
 #ifdef __GNUC__
 #define _i64(num) num##ll
@@ -14,8 +15,6 @@
  * Нужны для отключения генерации startup-кода при компиляции под GCC
  ****************************************************************************/
 #if defined(__GNUC__)
-#include "crt.hpp"
-
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -185,7 +184,7 @@ static void ShowMessage(const char *Name1, const char *Name2)
 /****************************************************************************
  * Обработчик диалога для ShowDialog
  ****************************************************************************/
-long WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+LONG_PTR WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
   static int CompareContents,
              CompareContentsIgnore,
@@ -1061,7 +1060,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 /****************************************************************************
  * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
  ****************************************************************************/
-HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
 {
   // Если версия ФАРа слишком стара...
   if (bOldFAR)
