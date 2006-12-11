@@ -3,14 +3,13 @@
 /*
   FMT.HPP
 
-  Archive Support API for FAR Manager 1.70 and MultiArc plugin
+  Archive Support API for FAR Manager 1.71 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2006 FAR group
 */
 
-/* Revision: 1.11 17.03.2006 $ */
-
+#if !defined(_WIN64)
 #if defined(__BORLANDC__)
   #pragma option -a2
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
@@ -26,6 +25,7 @@
     #endif
     #define _export
   #endif
+#endif
 #endif
 
 enum GETARC_CODE
@@ -90,12 +90,14 @@ BOOL  WINAPI _export GetDefaultCommands(int TypeArc,int Command,char *Dest);
 #endif
 #endif
 
+#if !defined(_WIN64)
 #if defined(__BORLANDC__)
   #pragma option -a.
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack()
 #else
   #pragma pack(pop)
+#endif
 #endif
 
 #endif /* __FARFMT_HPP__ */

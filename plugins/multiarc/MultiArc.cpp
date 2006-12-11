@@ -4,9 +4,6 @@
 #include "marclng.hpp"
 
 #if defined(__GNUC__)
-
-#include "crt.hpp"
-
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -31,9 +28,6 @@ int WINAPI _export GetMinFarVersion(void)
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
-  #ifdef __USE_OWN_RTL__
-  heapNew=GetProcessHeap();
-  #endif
   ::Info=*Info;
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
@@ -77,8 +71,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,
-                                     int DataSize)
+HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize)
 {
   if (ArcPlugin==NULL)
     return INVALID_HANDLE_VALUE;
@@ -106,7 +99,7 @@ HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,
   return hPlugin;
 }
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
 {
   if (ArcPlugin==NULL)
     return INVALID_HANDLE_VALUE;
@@ -277,9 +270,4 @@ int WINAPI _export Configure(int ItemNumber)
   }while(1);
 
   //return FALSE;
-}
-
-extern "C" int __stdcall _DllMainCRTStartup (HANDLE hDllHandle, DWORD dwReason, LPVOID lpreserved)
-{
-  return 1;
 }

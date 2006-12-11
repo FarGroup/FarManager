@@ -1,23 +1,8 @@
-/*
-  ARCCMD.CPP
-
-*/
-
-/* Revision: 1.01 13.04.2001 $ */
-
 #include "plugin.hpp"
 #include "fmt.hpp"
 #include "multiarc.hpp"
 #include "marclng.hpp"
 #include "farkeys.hpp"
-
-/*
-Modify:
-  13.04.2001 DJ
-   * вместо QuoteSpace используется FSF.QuoteSpaceOnly
-  28.11.2000 AS
-   ! правка '//' комбинаций
-*/
 
 ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                        char *FormatString,char *ArcName,char *ArcDir,

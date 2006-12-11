@@ -1,12 +1,11 @@
 /*
   RAR.CPP
 
-  Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
+  Second-level plugin module for FAR Manager and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2005 FAR group
+  Copyrigth (c) 2000-2006 FAR group
 */
-/* Revision: 1.25 07.04.2006 $ */
 
 #define STRICT
 
@@ -16,7 +15,10 @@
 #include "plugin.hpp"
 #include "fmt.hpp"
 #include "marclng.hpp"
+#ifndef _WIN64
 #include "unrar.h"
+#endif
+#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -27,7 +29,6 @@
 #endif
 
 #if defined(__GNUC__)
-#include "crt.hpp"
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -45,11 +46,13 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+#ifndef _WIN64
 typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(struct RAROpenArchiveDataEx *ArchiveData);
 typedef int (PASCAL *RARCLOSEARCHIVE)(HANDLE hArcData);
 typedef void (PASCAL *RARSETCALLBACK)(HANDLE hArcData,UNRARCALLBACK Callback,LONG UserData);
 typedef int (PASCAL *RARREADHEADEREX)(HANDLE hArcData,struct RARHeaderDataEx *HeaderData);
 typedef int (PASCAL *RARPROCESSFILE)(HANDLE hArcData,int Operation,char *DestPath,char *DestName);
+#endif
 
 const char UnRARName[]="UNRAR.DLL";
 static const char * const RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
@@ -59,6 +62,7 @@ static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
 static long NextPositionHigh;
 static int OldFormat;
 
+#ifndef _WIN64
 static BOOL UsedUnRAR_DLL=FALSE,NeedUsedUnRAR_DLL=FALSE;
 static HANDLE hArcData;
 static int RHCode,PFCode;
@@ -70,6 +74,7 @@ static RARCLOSEARCHIVE pRARCloseArchive=NULL;
 static RARSETCALLBACK pRARSetCallback=NULL;
 static RARREADHEADEREX pRARReadHeaderEx=NULL;
 static RARPROCESSFILE pRARProcessFile=NULL;
+#endif
 
 static char Password[NM/2];
 
@@ -84,6 +89,7 @@ void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
    MainModuleNumber=Info->ModuleNumber;
 }
 
+#ifndef _WIN64
 int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
 {
   switch(msg)
@@ -103,11 +109,13 @@ int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
   }
   return(0);
 }
-
+#endif
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
+  #ifndef _WIN64
   NeedUsedUnRAR_DLL=FALSE;
+  #endif
   for (int I=0;I<DataSize-7;I++)
   {
     const unsigned char *D=Data+I;
@@ -126,8 +134,10 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         D[4]==0x1a && D[5]==0x07 && D[6]==0 &&
         D[9]==0x73)                                             // next "archive header"? (Header type: 0x73)
     {
+      #ifndef _WIN64
       if(D[10]&0x80)
         NeedUsedUnRAR_DLL=TRUE;
+      #endif
       OldFormat=FALSE;
       SFXSize=I;
       return(TRUE);
@@ -141,6 +151,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   DWORD ReadSize;
 
+  #ifndef _WIN64
   UsedUnRAR_DLL=FALSE;
   if(NeedUsedUnRAR_DLL)
   {
@@ -185,6 +196,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     */
   }
   else
+  #endif
   {
     ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                          NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
@@ -245,6 +257,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
+  #ifndef _WIN64
   if(UsedUnRAR_DLL)
   {
     RHCode=pRARReadHeaderEx(hArcData,&HeaderData);
@@ -312,6 +325,7 @@ struct RARHeaderDataEx
       return GETARC_EOF;
     }
   }
+  #endif
 
   while (1)
   {
@@ -508,8 +522,10 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 
   *Password=0;
 
+  #ifndef _WIN64
   if(UsedUnRAR_DLL)
     return pRARCloseArchive(hArcData);
+  #endif
 
   return CloseHandle(ArcHandle);
 }

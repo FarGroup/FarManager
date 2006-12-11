@@ -129,7 +129,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
 }
 
 
-long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   char Buffer[512];
   PutDlgData *pdd=(struct PutDlgData*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -148,7 +148,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     //Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
 
     FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(LONG_PTR)Buffer);
 
     //Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
 
@@ -158,13 +158,13 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCCAPT, 0);
 
       FarDialogItem Item;
-      Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESCAPT, (DWORD)&Item);
+      Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESCAPT, (LONG_PTR)&Item);
       Item.X1=5;
-      Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESCAPT, (DWORD)&Item);
-      Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESEDT, (DWORD)&Item);
+      Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESCAPT, (LONG_PTR)&Item);
+      Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESEDT, (LONG_PTR)&Item);
       Item.X1=5;
       Item.X2=70;
-      Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESEDT, (DWORD)&Item);
+      Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESEDT, (LONG_PTR)&Item);
 
       Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCBTN, 1);
     }
@@ -237,11 +237,11 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       case PDI_SAVEBTN:
       {
         SetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",pdd->ArcFormat);
-        Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
+        Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_SWITCHESEDT, (LONG_PTR)Buffer);
         SetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer);
 
-        //Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
-        //Info.SendDlgMessage(hDlg, DM_ADDHISTORY, PDI_SWITCHESEDT, (long)Buffer);
+        //Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_SWITCHESEDT, (LONG_PTR)Buffer);
+        //Info.SendDlgMessage(hDlg, DM_ADDHISTORY, PDI_SWITCHESEDT, (LONG_PTR)Buffer);
 
         Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_SAVEBTN, 0);
         Info.SendDlgMessage(hDlg, DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
@@ -279,8 +279,8 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       // проверка совпадения введенного пароля и подтверждения
       char Password1[256],Password2[256];
-      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
-      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
+      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (LONG_PTR)Password1);
+      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (LONG_PTR)Password2);
       if(lstrcmp(Password1,Password2))
       {
         const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
@@ -304,20 +304,20 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     // Выставляем данные из AddSwitches
     GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (LONG_PTR)Buffer);
     if (*Buffer && Opt.UseLastHistory)
     {
-      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)"");
+      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (LONG_PTR)"");
     }
     // если AddSwitches пустой и юзается UseLastHistory, то...
     static char SwHistoryName[NM];
     FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd->ArcFormat);
     // ...следующая команда заставит выставить LastHistory
-    Info.SendDlgMessage(hDlg, DM_SETHISTORY, PDI_SWITCHESEDT, (long)SwHistoryName);
+    Info.SendDlgMessage(hDlg, DM_SETHISTORY, PDI_SWITCHESEDT, (LONG_PTR)SwHistoryName);
     //если история была пустая то всё таки надо выставить это поле из настроек
     if (*Buffer && !Info.SendDlgMessage(hDlg, DM_GETTEXTLENGTH, PDI_SWITCHESEDT, 0))
     {
-      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
+      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (LONG_PTR)Buffer);
     }
 
     //Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_SWITCHESEDT, 1);
@@ -346,7 +346,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
 
     FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(LONG_PTR)Buffer);
 
     Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
     Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
@@ -359,20 +359,20 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   else if(Msg == MAM_ADDDEFEXT)
   {
     char Name[NM]/*, *Ext*/;
-    Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+    Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (LONG_PTR)Name);
     AddExt(Name, pdd->DefExt);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (LONG_PTR)Name);
     return TRUE;
   }
   else if(Msg == MAM_DELDEFEXT)
   {
     char Name[NM]/*, *DefExt*/, *Ext;
-    Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+    Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (LONG_PTR)Name);
     if( SeekDefExtPoint(Name, pdd->DefExt, &Ext)!=NULL
         || (Ext!=NULL && !*(Ext+1)) )
     {
       *Ext=0;
-      Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+      Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, PDI_ARCNAMEEDT, (LONG_PTR)Name);
       return TRUE;
     }
     return FALSE;
@@ -478,7 +478,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     struct InitDialogItem InitItems[]={
       /* 0*/{DI_DOUBLEBOX,3,1,72,15,0,0,0,0,""},
       /* 1*/{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc},
-      /* 2*/{DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,""},
+      /* 2*/{DI_EDIT,5,3,70,3,1,(DWORD_PTR)ArcHistoryName,DIF_HISTORY,0,""},
 
       //* 3*/{DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSelect},
       //* 4*/{DI_COMBOBOX,5,5,25,3,0,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTNOAMPERSAND,0,""},
@@ -606,7 +606,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     {
       int AskCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,17,"AddToArc",
                   DialogItems,COUNT(DialogItems),
-                  0,0,PluginClass::PutDlgProc,(long)&pdd);
+                  0,0,PluginClass::PutDlgProc,(LONG_PTR)&pdd);
 
       lstrcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
       //lstrcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001

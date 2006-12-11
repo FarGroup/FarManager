@@ -163,7 +163,7 @@ int PluginClass::ReadArchive(char *Name)
       {
         memcpy(Pref,NamePtr,(int)(EndPos-NamePtr));
         Pref[(int)(EndPos-NamePtr)]=0;
-        CurArcData.UserData=(DWORD)Pref;
+        CurArcData.UserData=(DWORD_PTR)Pref;
       }
     }
 

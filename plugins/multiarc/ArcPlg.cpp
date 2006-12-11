@@ -1,9 +1,3 @@
-/*
-Modify:
-  19.02.2001 AS
-   ! правка высвобождения списка PluginsData в деструкторе ArcPlugins
-*/
-
 #include "plugin.hpp"
 #include "fmt.hpp"
 #include "multiarc.hpp"

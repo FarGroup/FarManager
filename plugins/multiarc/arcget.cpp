@@ -1,8 +1,3 @@
-/*
-  arcget.cpp
-
-*/
-
 #include "plugin.hpp"
 #include "fmt.hpp"
 #include "multiarc.hpp"
@@ -57,7 +52,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   InitDialogItem InitItems[]={
   /* 0 */{DI_DOUBLEBOX,3,1,72,13,0,0,0,0,(char *)MExtractTitle},
   /* 1 */{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo},
-  /* 2 */{DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath},
+  /* 2 */{DI_EDIT,5,3,70,3,1,(DWORD_PTR)PathHistoryName,DIF_HISTORY,0,DestPath},
   /* 3 */{DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
   /* 4 */{DI_TEXT,5,5,0,0,0,0,0,0,(char *)MExtrPassword},
   /* 5 */{DI_PSWEDIT,5,6,35,5,0,0,0,0,""},

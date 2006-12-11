@@ -1,17 +1,17 @@
 /*
   ARC.CPP
 
-  Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
+  Second-level plugin module for FAR Manager and MultiArc plugin
 
-  Copyrigth (c) 2004-2005 FAR group
+  Copyrigth (c) 2004-2006 FAR group
 */
-/* Revision: 1.03 09.04.2005 $ */
 
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
+#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -28,7 +28,6 @@
 #endif
 
 #if defined(__GNUC__)
-#include "crt.hpp"
 #ifdef __cplusplus
 extern "C"{
 #endif

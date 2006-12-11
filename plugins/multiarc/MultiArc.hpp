@@ -1,34 +1,7 @@
 #ifndef __MULTIARC_HPP__
 #define __MULTIARC_HPP__
-/*
-  MULTIARC.HPP
 
-*/
-
-/* $ Revision: x.xx 09.03.2002 $ */
-
-/*
-Modify:
-  09.03.2002 AA
-    вести дальнейшие логи нет возможности :)
-  18.05.2001 SVS
-    + Опция: "Use Last History" для диалога Shift-F1
-    + PluginItem.Flags - на будущее :-)
-  13.04.2001 DJ
-    - вместо QuoteSpace используется FSF.QuoteSpaceOnly
-    - вся необходимая механика для wincon.h уже есь в plugin.hpp
-  19.02.2001 AS
-    ! исключаем windows.h - он должен подключаться из plugin.hpp
-                            после того как будет задано выравнивание
-  28.11.2000 AS
-    ! включаем stdlib.h - нужен для realloc
-*/
-
-/* $ 19.02.2001 AS
-  windows.h - подключается из plugin.hpp после указания выравнивания
-*/
-//#  include <windows.h>
-/* AS $*/
+#include "CRT/crt.hpp"
 
 //#define _NEW_ARC_SORT_
 #define OLD_DIALOG_STYLE 1
@@ -69,51 +42,6 @@ enum {
   CMD_ALLFILESMASK,
   CMD_DEFEXT
 };
-
-#ifdef __USE_OWN_RTL__
-/* stdlib.h */
-void *malloc(size_t size);
-void *realloc(void *block, size_t size);
-void free(void *block);
-
-/* mem.h */
-void *memcpy(void *dest, const void *src, size_t n);
-void *memmove(void *dest, const void *src, size_t n);
-void *memset(void *s, int c, size_t n);
-int memcmp(const void *s1, const void *s2, size_t n);
-
-/* string.h */
-#define __STRING_H
-#define __STDC__
-#define __STDIO_H
-char *strdup(const char *s);
-char *strchr(char *s, int c);
-char *strrchr(char *s, int c);
-char *strncpy(char *dest, const char *src, size_t n);
-int strcmp(const char *s1, const char *s2);
-int stricmp(const char *s1, const char *s2);
-int strnicmp(const char *s1, const char *s2, size_t n);
-int strncmp(const char *s1, const char *s2, size_t n);
-size_t strlen(const char * str);
-char *strcat(char * dst, const char * src);
-char *strcpy(char * dst, const char * src);
-#else
-//#include <stdio.h>
-//#include <conio.h>
-
-/* $ 28.11.2000 AS
-  stdlib - нужен для realloc
-*/
-
-#include <stdlib.h>
-/* AS $*/
-/*AS 28.11.2000 $ */
-
-//#include <string.h>
-//#include <dos.h>
-//#include <direct.h>
-//#include <time.h>
-#endif // __USE_OWN_RTL__
 
 
 typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(const char *ModuleName);
@@ -216,7 +144,7 @@ class PluginClass
     int ProcessKey(int Key,unsigned int ControlState);
     static int SelectFormat(char *ArcFormat,int AddOnly=FALSE);
     static int FormatToPlugin(char *Format,int &PluginNumber,int &PluginType);
-    static long WINAPI PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 };
 
 
@@ -337,9 +265,6 @@ extern char *CmdNames[];
 extern char IniFile[];
 extern char *SortModes[];
 #endif //_NEW_ARC_SORT_
-#ifdef __USE_OWN_RTL__
-extern HANDLE heapNew;
-#endif
 
 extern DWORD PriorityProcessCode[];
 

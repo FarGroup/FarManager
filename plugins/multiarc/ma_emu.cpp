@@ -3,10 +3,8 @@
 
   MultiArc plugin emulator for debugging second-level plugin modules
 
-  Copyrigth (c) 2001-2003 FAR group
+  Copyrigth (c) 2001-2006 FAR group
 */
-
-/* Revision: 1.02 12.09.2003 $ */
 
 /*
  Example:

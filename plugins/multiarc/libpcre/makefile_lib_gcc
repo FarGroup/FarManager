@@ -1,6 +1,6 @@
-OBJDIR = ../obj
-REOBJDIR = \.\.\/obj\/
-DLLDIR = ../obj
+OBJDIR = ../final.32.gcc/obj
+REOBJDIR = \.\.\/final\.32\.gcc\/obj\/
+DLLDIR = ../final.32.gcc/obj
 DLLNAME = libPCRE.a
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = chartables.c get.c pcre.c study.c

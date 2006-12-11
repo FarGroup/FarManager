@@ -1,14 +1,3 @@
-/*
-  arcmix.cpp
-
-*/
-
-/*
-Modify:
-  13.04.2001 DJ
-   - вместо QuoteSpace используется QuoteSpaceOnly из FSF
-*/
-
 #include <dos.h>
 #include "plugin.hpp"
 #include "fmt.hpp"

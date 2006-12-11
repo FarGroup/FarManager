@@ -1,16 +1,24 @@
-OUTPUTS=..\obj\pcre.lib
-OBJS=..\obj\chartables.obj ..\obj\get.obj ..\obj\pcre.obj ..\obj\study.obj
-GARBAGE=*.pch *.ilk *.pdb
+!IF "$(CPU)" == "AMD64"
+OUTDIR = ..\final.64.vc
+!ELSE
+OUTDIR = ..\final.32.vc
+!ENDIF
 
-CC=@cl.exe
-CFLAGS=/nologo /Fo"..\\obj\\" /Fd"..\\obj\\" /c /MD /Zi /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox
-#CFLAGS=/nologo /c /MD /Zi /D WIN32 /D PCRE_STATIC /D _WIN32 /Od
+OBJDIR = $(OUTDIR)\obj
+OUTPUTS= $(OBJDIR)\pcre.lib
+OBJS=$(OBJDIR)\chartables.obj $(OBJDIR)\get.obj $(OBJDIR)\pcre.obj $(OBJDIR)\study.obj
+
+!IF "$(CPU)" == "AMD64"
+CFLAGS=/nologo /Zp8 /Wp64 /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\" /c /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox /GS- /Gr /GR- /EHs-c- /LD
+!ELSE
+CFLAGS=/nologo /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\" /c /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox /Gr /GR- /EHs-c- /LD
+!ENDIF
 
 all: $(OUTPUTS)
 
-.c{..\obj}.obj::
-   $(CC) @<<
-   $(CFLAGS) $<
+.c{$(OBJDIR)}.obj::
+	cl @<<
+	$(CFLAGS) $<
 <<
 	
 $(OUTPUTS): $(OBJS)

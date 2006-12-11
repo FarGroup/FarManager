@@ -1,18 +1,18 @@
 /*
   HA.CPP
 
-  Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
+  Second-level plugin module for FAR Manager and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2005 FAR group
+  Copyrigth (c) 2000-2006 FAR group
 */
-/* Revision: 1.15 09.04.2005 $ */
 
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
+#include "CRT/crt.hpp"
 
 #ifdef __GNUC__
 #define _i64(num) num##ll
@@ -36,7 +36,6 @@
 #endif
 
 #if defined(__GNUC__)
-#include "crt.hpp"
 #ifdef __cplusplus
 extern "C"{
 #endif

@@ -1,6 +1,7 @@
-OBJDIR = ./obj
-REOBJDIR = \.\/obj\/
-DLLDIR = ./final/Formats
+OBJDIR = ./final.32.gcc/obj
+REOBJDIR = \.\/final\.32\.gcc\/obj\/
+DLLDIR = ./final.32.gcc/Formats
+COMMON = ../common
 NAME = $(FMT)
 DLLNAME = $(NAME).fmt
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
@@ -15,8 +16,8 @@ M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir
 WINDRES=windres
-CXXFLAGS = -D_FAR_USE_FARFINDDATA -I ../common -I ./libpcre -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
-LNKFLAGS = -mdll -s -nostartfiles -L $(OBJDIR) -lpcre -L ../common -lCRT
+CXXFLAGS = -D_FAR_USE_FARFINDDATA -I $(COMMON) -I ./libpcre -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+LNKFLAGS = -mdll -s -nostartfiles -L $(OBJDIR) -lpcre -L $(COMMON) -lCRT
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
@@ -35,9 +36,9 @@ $(OBJDIR)/%.o: %.cpp
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OBJDIR)/$(NAME).res.o: $(NAME).rc ../common/farversion.hpp multiarcversion.hpp
+$(OBJDIR)/$(NAME).res.o: $(NAME).rc $(COMMON)/farversion.hpp multiarcversion.hpp
 	@$(MKDIR) -p $(@D)
-	$(WINDRES) -i $< -o $@
+	$(WINDRES) -I $(COMMON) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@

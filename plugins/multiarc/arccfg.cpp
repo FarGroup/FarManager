@@ -1,7 +1,3 @@
-/*
-  arccfg.cpp
-
-*/
 #include "plugin.hpp"
 #include "fmt.hpp"
 #include "multiarc.hpp"
@@ -95,7 +91,7 @@ typedef struct
   int PluginNumber, PluginType;
 } FORMATINFO;
 
-long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   switch(Msg)
   {
@@ -129,7 +125,7 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         //хитрый прием - передача Command в качестве дефолта для Command
         GetRegKey(FormatInfo->ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
-        Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(long)Command);
+        Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(LONG_PTR)Command);
       }
       return TRUE;
     }
@@ -210,7 +206,7 @@ int ConfigCommands(char *ArcFormat,int IDFocus,BOOL FastAccess,int PluginNumber,
 
   int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,22,"ArcSettings2",
                DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]),
-               0,0,CfgCmdProc,(long)&FormatInfo);
+               0,0,CfgCmdProc,(LONG_PTR)&FormatInfo);
 
   if(ExitCode==35 || ExitCode < 0)
     return FALSE;

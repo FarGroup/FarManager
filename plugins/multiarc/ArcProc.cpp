@@ -1,9 +1,3 @@
-/*
-Modify:
-  13.04.2001 DJ
-   - перенос сброса Opt.Background в PutFiles в более подходящее место
-*/
-
 #include "plugin.hpp"
 #include "fmt.hpp"
 #include "multiarc.hpp"
