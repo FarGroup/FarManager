@@ -34,9 +34,9 @@ $(OBJDIR)\strtok.obj \
 $(OBJDIR)\strtol.obj
 
 !IF "$(CPU)" == "AMD64"
-CPP_PROJ=/nologo /c /O1 /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
+CPP_PROJ=/nologo /c /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
 !ELSE
-CPP_PROJ=/nologo /c /J /O1 /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
+CPP_PROJ=/nologo /c /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\"
 !ENDIF
 
 LINK_FLAGS=/nologo /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
