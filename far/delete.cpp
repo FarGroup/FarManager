@@ -830,6 +830,7 @@ int WipeFile(const char *Name)
     CloseHandle(WipeHandle);
     return(FALSE);
   }
+
   const int BufSize=65536;
   char *Buf=new char[BufSize];
   memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // используем символ заполнитель
@@ -841,10 +842,8 @@ int WipeFile(const char *Name)
     FileSize-=WriteSize;
   }
   WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
-  /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
   delete[] Buf;
-  /* SVS $ */
+
   SetFilePointer(WipeHandle,0,NULL,FILE_BEGIN);
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);

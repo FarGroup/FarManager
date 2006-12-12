@@ -5,203 +5,6 @@ Tree panel
 
 */
 
-/* Revision: 1.76 28.08.2006 $ */
-
-/*
-Modify:
-  28.08.2006 SVS
-    + FindFirst() и FindNext()
-  05.07.2006 IS
-    - warnings
-  09.05.2006 SVS
-    + GetTitle + доп параметр, на сколько усеч
-  03.05.2006 SVS
-    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
-  07.07.2005 SVS
-    + GetCurrentPos
-  14.06.2005 SVS
-    ! вызов ShellCopy "обволокем" скобками...
-  06.05.2005 SVS
-    ! ???::GetCurDir() теперь возвращает размер пути, при этом
-      его параметр может быть равен NULL. Сделано для того, чтобы
-      как то получить этот размер.
-  26.04.2005 SVS
-    ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
-  23.04.2005 KM
-    ! Использование фильтра в GetSelName
-  01.04.2005 SVS
-    + GetItem()
-  10.03.2005 SVS
-    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
-    + CreateTreeFileName() - заготовка для проекта Tree.far
-  03.03.2005 SVS
-    ! У функции FindPartName() добавлен третий параметр - направление поиска.
-    ! Так же в TreeList::AddTreeName() добавлено условие точного совпадения
-      добавляемого имени с тем, что в кеше (иначе идет дубляж).
-  01.03.2005 SVS
-    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
-  14.02.2005 SVS
-    + В TreeList добавлены функции GetFileName(), FindFile()
-  11.11.2004 SVS
-    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
-  10.11.2004 SVS
-    + В HMenu и TreeList добавлена обработка MCODE_*
-  01.11.2004 SVS
-    - Gray+ и Gray- - не было автосмены папок
-  28.10.2004 SVS
-    + "Конструкторы" имен - TreeFileName() и TreeCacheFolderName()
-      В дальнейшем нужно осуществить TODO по этим функциям!
-    ! некоторые переменные вогнаны в константы
-  16.10.2004 SVS
-    + Gray+ и Gray- используются для быстрого перемещения вверх или вниз по папкам одного уровня.
-    + GetNextNavPos() и GetPrevNavPos()
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  08.06.2004 SVS
-    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
-    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
-  20.05.2004 SVS
-    ! NumericSort - свойство конкретной панели, а не режима отображения
-    - Bug#695 - Не работает прерывание по Esc
-  19.05.2004 SVS
-    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
-      пусть баундчекер не блюет.
-  11.07.2003 SVS
-    + NumericSort
-  06.05.2003 SVS
-    ! Учтем Opt.UseUnicodeConsole при рисовании дерева
-  22.04.2003 SVS
-    ! strcpy -> strNcpy
-  26.02.2003 SVS
-    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
-  24.02.2003 SVS
-    + для пассивной панели типа QVIEW_PANEL добавим LockScreen, дабы исключить
-      лишнюю прорисовку.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  04.01.2003 VVM
-    - При изменении размера консоли прогресс начинал глючить.
-  27.12.2002 VVM
-    + Показывать индикатор сканирования раз в секунду.
-    + Выделять память блоками по 255 итемов.
-    + Сканировать каталоги за один проход.
-  04.12.2002 SVS
-    - BugZ#695 - Не работает прерывание по Esc
-  29.05.2002 SKV
-    ! Оптимизация TreeCache
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  27.04.2002 SVS
-    ! 8192 -> MAXSIZE_SHORTCUTDATA
-  12.04.2002 IS
-    + Учтем то, что Plugin.PutFiles может вернуть 2
-  08.04.2002 IS
-    ! внедрение const
-  26.03.2002 KM
-    - Падало в SetTitle на конструкции:
-      ===
-      sprintf(TitleDir,"{%s - Tree}",NM-1,Ptr);
-      ===
-      Так как %s был указан без модификатора ".*"
-  26.03.2002 DJ
-    ! ScanTree::GetNextName() принимает размер буфера для имени файла
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  21.02.2002 SVS
-    - BugZ#316 - Нет разделителя.
-  12.02.2002 SVS
-    - BugZ#303 - Колёсико мыши в дереве
-      Сделаем по аналогии с наФигацией в обычной панели.
-  16.01.2002 SVS
-    - BugZ#249 - Непрорисовка при создании дерева
-    - Бага - не отрисовывалась текущий каталог в поз. (Y2-1)
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  28.12.2001 DJ
-    - нафиг такую оптимизацию, после которой VC++ билд трапается!
-  26.12.2001 SVS
-    ! немного оптимизации.
-    - Бага - после выделения памяти начинаем рисовать без предварительной
-      инициализации нулевого итема в нужное значение. В итоге налицо -
-      бага с прорисовкой в заголовке консольного окна.
-  11.12.2001 SVS
-    + Свой кейбар в деревяхе
-    - не обновлась пассивная панель при удалении каталога из деревяхи
-  08.12.2001 IS
-    - баг: показывали левую справку по F1
-    ! небольшая оптимизация по размеру - вместо "define строка"
-      используем "const char[]"
-  24.10.2001 SVS
-    - бага с прорисовкой при вызове дерева из диалога копирования
-  24.10.2001 VVM
-    ! После сканирования диска перерисовать другую панель.
-  24.10.2001 VVM
-    ! Рисуем ветки дерева только при установленном TreeIsPrepared.
-  23.10.2001 SVS
-    ! немного оптимизации - sprintf для "%d" - это жирно.
-  22.10.2001 SVS
-    - Забыл прибить CALLBACK-функцию при выходе :-(
-    ! исправление отрисовки после CALLBACK
-    ! ReadTree() возвращает TRUE/FALSE
-  21.10.2001 SVS
-    + CALLBACK-функция для избавления от BugZ#85
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 VVM
-    ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек.
-  07.08.2001 SVS
-    ! Численное значение дельты (31) заменено на DELTA_TREECOUNT
-    ! сделаем внешний вид дерева на 1 символ уже.
-    - бага (со времен 1.64) в функции чтения кэша. Из-за этого не работало
-      обновление дерева при создании каталога
-  23.07.2001 SVS
-    + Для полноты картины: Shift-Enter дереве вызывает проводник
-  18.06.2001 SVS
-    - Вот же елы палы :-( Вместо MACRO_TREEPANEL макромода стояла
-      MACRO_INFOPANEL. К чему бы это?
-    + F4 в дереве работает так же как и Ctrl-A
-  14.06.2001 SVS
-    + KEY_CTRLALTINS - вставляет в клипборд полное имя каталога
-  25.05.2001 SVS
-    + Добавим возможность создавать линк с дерева
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  25.04.2001 SVS
-    ! Добавка для MODALTREE_FREE
-  23.04.2001 SVS
-    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
-      Часть вторая, т.с. - в прошлый раз забыл еще в одном месте выставить...
-  06.04.2001 SVS
-    ! Корректный вызов удаления папки по F8 и Shift-F8
-  05.04.2001 VVM
-    + Переключение макросов в режим MACRO_TREEPANEL
-  26.03.2001 SVS
-    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
-  28.02.2001 IS
-    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
-  27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
-      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-  09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  16.10.2000 tran
-    + MustBeCached(Root) - функция, определяющая необходимость кеширования
-      дерева
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -262,6 +65,7 @@ static struct TreeListCache
     TreeCount=0;
     TreeSize=0;
   }
+
   void Resize()
   {
     if(TreeCount==TreeSize)
@@ -272,11 +76,13 @@ static struct TreeListCache
       ListName=NewPtr;
     }
   }
+
   void Add(const char* name)
   {
     Resize();
     ListName[TreeCount++]=xf_strdup(name);
   }
+
   void Insert(int idx,const char* name)
   {
     Resize();
@@ -284,9 +90,10 @@ static struct TreeListCache
     ListName[idx]=xf_strdup(name);
     TreeCount++;
   }
+
   void Delete(int idx)
   {
-    xf_free(ListName[idx]);
+    if(ListName[idx]) xf_free(ListName[idx]);
     memmove(ListName+idx,ListName+idx+1,sizeof(char*)*(TreeCount-idx-1));
     TreeCount--;
   }
@@ -296,15 +103,24 @@ static struct TreeListCache
     if(!TreeSize)return;
     for(int i=0;i<TreeCount;i++)
     {
-      xf_free(ListName[i]);
+      if(ListName[i]) xf_free(ListName[i]);
     }
-    xf_free(ListName);
+    if(ListName) xf_free(ListName);
     ListName=NULL;
     TreeCount=0;
     TreeSize=0;
     TreeName[0]=0;
   }
-} TreeCache;
+
+  //TODO: необходимо оптимизировать!
+  void Copy(struct TreeListCache *Dest)
+  {
+    Dest->Clean();
+    for(int I=0; I < TreeCount; I++)
+      Dest->Add(ListName[I]);
+  }
+
+} TreeCache, tempTreeCache;
 
 
 TreeList::TreeList(int IsPanel)
@@ -327,7 +143,10 @@ TreeList::TreeList(int IsPanel)
 
 TreeList::~TreeList()
 {
-  xf_free(ListData);
+  if(ListData)     xf_free(ListData);
+  if(SaveListData) xf_free(SaveListData);
+
+  tempTreeCache.Clean();
   FlushCache();
   SetMacroMode(TRUE);
 }
@@ -572,9 +391,12 @@ void TreeList::Update(int Mode)
   else if(!RetFromReadTree)
   {
     Show();
-    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    AnotherPanel->Redraw();
+    if(!Flags.Check(FTREELIST_ISPANEL))
+    {
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      AnotherPanel->Redraw();
+    }
   }
 }
 
@@ -587,6 +409,8 @@ int TreeList::ReadTree()
   WIN32_FIND_DATA fdata;
   char FullName[NM];
 
+  SaveState();
+
   FlushCache();
   GetRoot();
 
@@ -594,15 +418,13 @@ int TreeList::ReadTree()
   if (RootLength<0)
     RootLength=0;
 
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
-  xf_free(ListData);
+  if(ListData) xf_free(ListData);
   TreeCount=0;
   if ((ListData=(struct TreeItem*)xf_malloc((TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
-//  if ((ListData=(struct TreeItem*)xf_malloc(sizeof(struct TreeItem)))==NULL)
+  {
+    RestoreState();
     return FALSE;
-  /* SVS $ */
+  }
 
   memset(&ListData[0], 0, sizeof(ListData[0]));
   strcpy(ListData->Name,Root);
@@ -639,7 +461,6 @@ int TreeList::ReadTree()
     if(AscAbort)
       break;
     if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
-//    if ((ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
     {
       AscAbort=TRUE;
       break;
@@ -654,10 +475,11 @@ int TreeList::ReadTree()
 
   if(AscAbort)
   {
-    xf_free(ListData);
+    if(ListData) xf_free(ListData);
     ListData=NULL;
     TreeCount=0;
     SetPreRedrawFunc(NULL);
+    RestoreState();
     return FALSE;
   }
 
@@ -667,7 +489,7 @@ int TreeList::ReadTree()
 
   FillLastData();
   SaveTreeFile();
-  if (!FirstCall)
+  if (!FirstCall && !Flags.Check(FTREELIST_ISPANEL))
   { // Перерисуем другую панель - удалим следы сообщений :)
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     AnotherPanel->Redraw();
@@ -1042,7 +864,7 @@ int TreeList::ProcessKey(int Key)
           /* $ 13.07.2000 SVS
              не надо смешивать new/delete с realloc
           */
-          xf_free(ItemList);
+          if(ItemList) xf_free(ItemList);
           /* SVS $ */
           if (Move)
             ReadSubTree(ListData[CurFile].Name);
@@ -1456,16 +1278,16 @@ int TreeList::ReadTreeFile()
   if (RootLength<0)
     RootLength=0;
 
+  //SaveState();
   FlushCache();
   MkTreeFileName(Root,Name,sizeof(Name)-1);
   if (MustBeCached(Root) || (TreeFile=fopen(Name,"rb"))==NULL)
     if (!GetCacheTreeName(Root,Name,FALSE) || (TreeFile=fopen(Name,"rb"))==NULL)
+    {
+      //RestoreState();
       return(FALSE);
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
-  xf_free(ListData);
-  /* SVS $ */
+    }
+  if(ListData) xf_free(ListData);
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
@@ -1482,14 +1304,11 @@ int TreeList::ReadTreeFile()
       DirName[RootLength]=0;
     if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
     {
-      /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
-      */
-      xf_free(ListData);
-      /* SVS $ */
+      if(ListData) xf_free(ListData);
       ListData=NULL;
       TreeCount=0;
       fclose(TreeFile);
+      //RestoreState();
       return(FALSE);
     }
     xstrncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name)-1);
@@ -1669,7 +1488,7 @@ void TreeList::RenTreeName(char *SrcName,char *DestName)
       strcpy(NewName,DestName);
       strcat(NewName,DirName+SrcLength);
       //xstrncpy(DirName,NewName,NM-1);
-      xf_free(TreeCache.ListName[CachePos]);
+      if(TreeCache.ListName[CachePos]) xf_free(TreeCache.ListName[CachePos]);
       TreeCache.ListName[CachePos]=xf_strdup(NewName);
     }
   }
@@ -2077,4 +1896,37 @@ BOOL TreeList::GetItem(int Index,void *Dest)
 int TreeList::GetCurrentPos()
 {
   return CurFile;
+}
+
+bool TreeList::SaveState()
+{
+  if(SaveListData) xf_free(SaveListData);
+  SaveListData=NULL;
+  SaveTreeCount=SaveWorkDir=0;
+  if(TreeCount > 0 && (SaveListData=(struct TreeItem *)xf_realloc(SaveListData,TreeCount*sizeof(struct TreeItem))) != NULL)
+  {
+    memmove(SaveListData,ListData,TreeCount*sizeof(struct TreeItem));
+    SaveTreeCount=TreeCount;
+    SaveWorkDir=WorkDir;
+    TreeCache.Copy(&tempTreeCache);
+    return true;
+  }
+  return false;
+}
+
+bool TreeList::RestoreState()
+{
+  if(ListData) xf_free(ListData);
+  TreeCount=WorkDir=0;
+  ListData=NULL;
+  if(SaveTreeCount > 0 && (ListData=(struct TreeItem *)xf_realloc(ListData,SaveTreeCount*sizeof(struct TreeItem))) != NULL)
+  {
+    memmove(ListData,SaveListData,SaveTreeCount*sizeof(struct TreeItem));
+    TreeCount=SaveTreeCount;
+    WorkDir=SaveWorkDir;
+    tempTreeCache.Copy(&TreeCache);
+    tempTreeCache.Clean();
+    return true;
+  }
+  return false;
 }

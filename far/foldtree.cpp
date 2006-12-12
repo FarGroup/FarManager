@@ -272,12 +272,27 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ProcessKey(KEY_ENTER);
     return(TRUE);
   }
-  if (MouseEvent->dwButtonState!=1)
+
+  int MsX=MouseEvent->dwMousePosition.X;
+  int MsY=MouseEvent->dwMousePosition.Y;
+
+  if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
+  {
+    if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+      ProcessKey(KEY_ESC);
+    else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+      ProcessKey(KEY_ENTER);
     return(TRUE);
-  if (!Tree->ProcessMouse(MouseEvent))
-    SetExitCode (XC_MODIFIED);
+  }
+  if(MsY == Y2-2)
+    FindEdit->ProcessMouse(MouseEvent);
   else
-    DrawEdit();
+  {
+    if (!Tree->ProcessMouse(MouseEvent))
+      SetExitCode (XC_MODIFIED);
+    else
+      DrawEdit();
+  }
   return(TRUE);
 }
 
