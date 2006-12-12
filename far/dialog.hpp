@@ -10,8 +10,6 @@ dialog.hpp
 
 */
 
-/* Revision: 1.92 25.05.2006 $ */
-
 #include "frame.hpp"
 #include "plugin.hpp"
 #include "vmenu.hpp"
@@ -46,9 +44,6 @@ dialog.hpp
 // Флаги для функции ConvertItem
 #define CVTITEM_TOPLUGIN    0
 #define CVTITEM_FROMPLUGIN  1
-
-#define DMOUSEBUTTON_LEFT   0x00000001
-#define DMOUSEBUTTON_RIGHT  0x00000002
 
 enum DLGEDITLINEFLAGS {
   DLGEDITLINE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода

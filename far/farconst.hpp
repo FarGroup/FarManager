@@ -7,8 +7,6 @@ farconst.hpp
 
 */
 
-/* Revision: 1.102 07.07.2006 $ */
-
 const wchar_t VerticalLine=0x2502;
 
 #define HelpBeginLink L'<'
@@ -418,5 +416,8 @@ enum CHECKEDPROPS_TYPE{
   CHECKEDPROPS_ISSAMEDISK,
   CHECKEDPROPS_ISDST_ENCRYPTION,
 };
+
+#define DMOUSEBUTTON_LEFT   0x00000001
+#define DMOUSEBUTTON_RIGHT  0x00000002
 
 #endif // __FARCONST_HPP__

@@ -1,3 +1,14 @@
+svs 12.12.2006 19:06:46 +0300 - build 173
+
+1. В FolderTree не отрабатывали мышиные правила для диалога (вне диалога).
+   
+2. Mantis#253 - Пропадание содержимого дерева папок
+   Добавил TreeList::SaveState() и TreeList::RestoreState(). чтобы сохранить
+   текущие значения кеша и списка каталогов дерева.
+
+3. DMOUSEBUTTON_* перенесены из dialog.hpp в farconst.hpp
+
+
 svs 07.12.2006 15:31:40 +0300 - build 172
 
 1. Вводим VSMFL_REDRAW для ViewerSetMode.Flags, ибо так правильнее будет.

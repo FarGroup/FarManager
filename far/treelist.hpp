@@ -7,8 +7,6 @@ Tree panel
 
 */
 
-/* Revision: 1.34 01.09.2006 $ */
-
 #include "panel.hpp"
 #include "UnicodeString.hpp"
 
@@ -38,6 +36,10 @@ class TreeList: public Panel
     int NumericSort;
     int ExitCode; // актуально только для дерева, вызванного из копира!
 
+    struct TreeItem *SaveListData;
+    long SaveTreeCount;
+    long SaveWorkDir;
+
   private:
     void SetMacroMode(int Restore = FALSE);
     void DisplayObject();
@@ -62,6 +64,9 @@ class TreeList: public Panel
     static string &MkTreeFileName(const wchar_t *RootDir,string &strDest);
     static string &MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest);
     static string &CreateTreeFileName(const wchar_t *Path,string &strDest);
+
+    bool SaveState();
+    bool RestoreState();
 
   private:
     static int MsgReadTree(int TreeCount,int &FirstCall);

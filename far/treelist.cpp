@@ -5,8 +5,6 @@ Tree panel
 
 */
 
-/* Revision: 1.94 01.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -69,6 +67,7 @@ static struct TreeListCache
     TreeCount=0;
     TreeSize=0;
   }
+
   void Resize()
   {
     if(TreeCount==TreeSize)
@@ -80,11 +79,13 @@ static struct TreeListCache
       ListName=NewPtr;
     }
   }
+
   void Add(const wchar_t* name)
   {
     Resize();
     ListName[TreeCount++]=_wcsdup(name);
   }
+
   void Insert(int idx,const wchar_t* name)
   {
     Resize();
@@ -92,9 +93,10 @@ static struct TreeListCache
     ListName[idx]=_wcsdup(name);
     TreeCount++;
   }
+
   void Delete(int idx)
   {
-    xf_free(ListName[idx]);
+    if(ListName[idx]) xf_free(ListName[idx]);
     memmove(ListName+idx,ListName+idx+1,sizeof(wchar_t*)*(TreeCount-idx-1));
     TreeCount--;
   }
@@ -104,15 +106,24 @@ static struct TreeListCache
     if(!TreeSize)return;
     for(int i=0;i<TreeCount;i++)
     {
-      xf_free(ListName[i]);
+      if(ListName[i]) xf_free(ListName[i]);
     }
-    xf_free(ListName);
+    if(ListName) xf_free(ListName);
     ListName=NULL;
     TreeCount=0;
     TreeSize=0;
     strTreeName = L"";
   }
-} TreeCache;
+
+  //TODO: необходимо оптимизировать!
+  void Copy(struct TreeListCache *Dest)
+  {
+    Dest->Clean();
+    for(int I=0; I < TreeCount; I++)
+      Dest->Add(ListName[I]);
+  }
+
+} TreeCache, tempTreeCache;
 
 
 TreeList::TreeList(int IsPanel)
@@ -135,7 +146,10 @@ TreeList::TreeList(int IsPanel)
 
 TreeList::~TreeList()
 {
-  xf_free(ListData);
+  if(ListData)     xf_free(ListData);
+  if(SaveListData) xf_free(SaveListData);
+
+  tempTreeCache.Clean();
   FlushCache();
   SetMacroMode(TRUE);
 }
@@ -381,9 +395,12 @@ void TreeList::Update(int Mode)
   else if(!RetFromReadTree)
   {
     Show();
-    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    AnotherPanel->Redraw();
+    if(!Flags.Check(FTREELIST_ISPANEL))
+    {
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      AnotherPanel->Redraw();
+    }
   }
 }
 
@@ -396,6 +413,8 @@ int TreeList::ReadTree()
   FAR_FIND_DATA_EX fdata;
   string strFullName;
 
+  SaveState();
+
   FlushCache();
   GetRoot();
 
@@ -403,15 +422,13 @@ int TreeList::ReadTree()
   if (RootLength<0)
     RootLength=0;
 
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
-  xf_free(ListData);
+  if(ListData) xf_free(ListData);
   TreeCount=0;
   if ((ListData=(struct TreeItem*)xf_malloc((TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
-//  if ((ListData=(struct TreeItem*)xf_malloc(sizeof(struct TreeItem)))==NULL)
+  {
+    RestoreState();
     return FALSE;
-  /* SVS $ */
+  }
 
   memset(&ListData[0], 0, sizeof(ListData[0]));
 
@@ -479,10 +496,11 @@ int TreeList::ReadTree()
 
   if(AscAbort)
   {
-    xf_free(ListData);
+    if(ListData) xf_free(ListData);
     ListData=NULL;
     TreeCount=0;
     SetPreRedrawFunc(NULL);
+    RestoreState();
     return FALSE;
   }
 
@@ -492,7 +510,7 @@ int TreeList::ReadTree()
 
   FillLastData();
   SaveTreeFile();
-  if (!FirstCall)
+  if (!FirstCall && !Flags.Check(FTREELIST_ISPANEL))
   { // Перерисуем другую панель - удалим следы сообщений :)
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     AnotherPanel->Redraw();
@@ -909,11 +927,7 @@ int TreeList::ProcessKey(int Key)
           int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0);
           if (PutCode==1 || PutCode==2)
             AnotherPanel->SetPluginModified();
-          /* $ 13.07.2000 SVS
-             не надо смешивать new/delete с realloc
-          */
-          xf_free(ItemList);
-          /* SVS $ */
+          if(ItemList) xf_free(ItemList);
           if (Move)
             ReadSubTree(ListData[CurFile].strName);
           Update(0);
@@ -1332,17 +1346,17 @@ int TreeList::ReadTreeFile()
 
   string strName;
 
+  //SaveState();
   FlushCache();
   MkTreeFileName(strRoot,strName);
 
   if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"rb"))==NULL)
     if (!GetCacheTreeName(strRoot,strName,FALSE) || (TreeFile=_wfopen(strName,L"rb"))==NULL)
+    {
+      //RestoreState();
       return(FALSE);
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
-  xf_free(ListData);
-  /* SVS $ */
+    }
+  if(ListData) xf_free(ListData);
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
@@ -1372,11 +1386,11 @@ int TreeList::ReadTreeFile()
         memset (ListData+OldCount, 0, (TreeCount+256+1-OldCount)*sizeof (TreeItem));
       else
       {
-        xf_free(ListData);
-      /* SVS $ */
+        if(ListData) xf_free(ListData);
         ListData=NULL;
         TreeCount=0;
         fclose(TreeFile);
+        //RestoreState();
         return(FALSE);
       }
     }
@@ -1587,7 +1601,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 
       strNewName += (const wchar_t*)(DirName+SrcLength);
 
-      xf_free(TreeCache.ListName[CachePos]);
+      if(TreeCache.ListName[CachePos]) xf_free(TreeCache.ListName[CachePos]);
 
       TreeCache.ListName[CachePos]=_wcsdup(strNewName);
     }
@@ -2027,4 +2041,37 @@ BOOL TreeList::GetItem(int Index,void *Dest)
 int TreeList::GetCurrentPos()
 {
   return CurFile;
+}
+
+bool TreeList::SaveState()
+{
+  if(SaveListData) xf_free(SaveListData);
+  SaveListData=NULL;
+  SaveTreeCount=SaveWorkDir=0;
+  if(TreeCount > 0 && (SaveListData=(struct TreeItem *)xf_realloc(SaveListData,TreeCount*sizeof(struct TreeItem))) != NULL)
+  {
+    memmove(SaveListData,ListData,TreeCount*sizeof(struct TreeItem));
+    SaveTreeCount=TreeCount;
+    SaveWorkDir=WorkDir;
+    TreeCache.Copy(&tempTreeCache);
+    return true;
+  }
+  return false;
+}
+
+bool TreeList::RestoreState()
+{
+  if(ListData) xf_free(ListData);
+  TreeCount=WorkDir=0;
+  ListData=NULL;
+  if(SaveTreeCount > 0 && (ListData=(struct TreeItem *)xf_realloc(ListData,SaveTreeCount*sizeof(struct TreeItem))) != NULL)
+  {
+    memmove(ListData,SaveListData,SaveTreeCount*sizeof(struct TreeItem));
+    TreeCount=SaveTreeCount;
+    WorkDir=SaveWorkDir;
+    tempTreeCache.Copy(&TreeCache);
+    tempTreeCache.Clean();
+    return true;
+  }
+  return false;
 }
