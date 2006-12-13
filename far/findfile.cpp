@@ -5,9 +5,6 @@ findfile.cpp
 
 */
 
-/* Revision: 1.207 01.09.2006 $ */
-
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -1100,39 +1097,42 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
             {
               char *Buffer=new char[Opt.PluginMaxReadData];
-              FILE *ProcessFile=_wfopen(strFindArcName,L"rb");
-              if (ProcessFile==NULL)
+              if (Buffer)
               {
+                FILE *ProcessFile=_wfopen(strFindArcName,L"rb");
+                if (ProcessFile==NULL)
+                {
+                  delete[] Buffer;
+
+                  ffCS.Leave ();
+                  return TRUE;
+                }
+                int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+                fclose(ProcessFile);
+
+                int SavePluginsOutput=DisablePluginsOutput;
+                DisablePluginsOutput=TRUE;
+
+                WaitForSingleObject(hPluginMutex,INFINITE);
+
+                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,(unsigned char *)Buffer,ReadSize);
+
+                ReleaseMutex(hPluginMutex);
+
+                DisablePluginsOutput=SavePluginsOutput;
+
                 delete[] Buffer;
 
-                ffCS.Leave ();
-                return TRUE;
+                if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == (HANDLE)-2 ||
+                    ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
+                {
+                  ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
+
+                  ffCS.Leave ();
+                  return TRUE;
+                }
+                ClosePlugin = TRUE;
               }
-              int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
-              fclose(ProcessFile);
-
-              int SavePluginsOutput=DisablePluginsOutput;
-              DisablePluginsOutput=TRUE;
-
-              WaitForSingleObject(hPluginMutex,INFINITE);
-
-              ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,(unsigned char *)Buffer,ReadSize);
-
-              ReleaseMutex(hPluginMutex);
-
-              DisablePluginsOutput=SavePluginsOutput;
-
-              delete[] Buffer;
-
-              if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == (HANDLE)-2 ||
-                  ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
-              {
-                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
-
-                ffCS.Leave ();
-                return TRUE;
-              }
-              ClosePlugin = TRUE;
             }
 
             PluginPanelItemW FileItem;
@@ -2030,14 +2030,16 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
   _ALGO(CleverSysLog clv("FindFiles::ArchiveSearch()"));
   _ALGO(SysLog("ArcName='%s'",(ArcName?ArcName:"NULL")));
   char *Buffer=new char[Opt.PluginMaxReadData];
+  if ( !Buffer )
+  {
+    _ALGO(SysLog("ERROR: alloc buffer (size=%u)",Opt.PluginMaxReadData));
+    return;
+  }
+
   FILE *ProcessFile=_wfopen(ArcName,L"rb");
   if (ProcessFile==NULL)
   {
-    /* $ 13.07.2000 SVS
-       использовали new[]
-    */
     delete[] Buffer;
-    /* SVS $ */
     return;
   }
   int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
@@ -2053,20 +2055,20 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
   DisablePluginsOutput=SavePluginsOutput;
   /* VVM $ */
 
-
-  /* $ 13.07.2000 SVS
-     использовали new[]
-  */
   delete[] Buffer;
-  /* SVS $ */
 
   if (hArc==(HANDLE)-2)
   {
     BreakMainThread=TRUE;
+    _ALGO(SysLog("return: hArc==(HANDLE)-2"));
     return;
   }
+
   if (hArc==INVALID_HANDLE_VALUE)
+  {
+    _ALGO(SysLog("return: hArc==INVALID_HANDLE_VALUE"));
     return;
+  }
 
   int SaveSearchMode=SearchMode;
   DWORD SaveArcIndex = FindFileArcIndex;

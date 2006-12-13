@@ -5,8 +5,6 @@ config.cpp
 
 */
 
-/* Revision: 1.220 04.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -1304,7 +1302,7 @@ void ReadConfig()
 
   GetRegKeyW(NKeyConfirmationsW,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
 
-  if(Opt.PluginMaxReadData < 0x1000 || Opt.PluginMaxReadData > 0x80000)
+  if(Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
     Opt.PluginMaxReadData=0x20000;
 
   // Умолчание разное для разных платформ.
