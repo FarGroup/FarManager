@@ -1,0 +1,502 @@
+/*
+Modify:
+  01.09.2006 SVS
+    ! Пусть во время воспроизведения макроса срабатывает функция SAVE
+  11.07.2006 EL
+    - Убрал варнинги
+  06.05.2006 SVS
+    - mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
+  05.10.2005 AY
+    - Не обновлялись панели после выхода из диалога.
+  11.08.2005 WARP
+    ! see 02039.Mix.txt
+  04.08.2005 WARP
+    ! убрал из DialogEx лок. не совсем хорошее решение, но работает и дает жить MultiPanel.
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
+  12.07.2005 SVS
+    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
+  30.05.2005 SVS
+    ! временно откатим проект про USB
+  06.05.2005 SVS
+    + ACTL_GETMEDIATYPE
+    ! ACTL_EJECTMEDIA "умеет" кроме CD еще и SUBST и USB
+  12.04.2005 AY
+    + ACTL_GETSHORTWINDOWINFO - тоже самое что ACTL_GETWINDOWINFO только не вызывает
+      GetTypeAndName() и поэтому его можно вызывать из любых тредов.
+  01.03.2005 SVS
+    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
+  25.10.2004 SVS
+    - BugZ#1171 - срыв стека
+  05.10.2004 SVS
+    - Отвалился F3 на каталогах в панели плагинов
+  26.08.2004 SVS
+    - В функциях FarGetPluginDirList и FarGetDirList проверим параметры и..., если есть "траблы" - вернем FALSE
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
+  02.08.2004 SVS
+    ! принудительно выставим область действия макроса в менюхе (FarMenuFn)
+  30.07.2004 SVS
+    - BugZ#1141 Сохранение (F2) убивает пользовательский Title у редактора
+  07.07.2004 SVS
+    ! Macro II
+  06.07.2004 SVS
+    ! MCMD_CHECKMACRO для Macro II
+  03.06.2004 SVS
+    ! подсократим код... за счет CtrlObject->Cp() -> FPanels
+  24.05.2004 SVS
+    + FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
+  28.02.2004 SVS
+    + MCMD_CHECKMACRO - закомменчено
+  12.01.2004 SVS
+    - Забыл сдвинуть флаги на 8 для MCMD_POSTMACROSTRING
+  25.12.2003 SVS
+    ! принудительная инициализация структуры MRec
+  15.12.2003 SVS
+    ! Инициализация MacroRecord в ACTL_POSTKEYSEQUENCE
+  25.11.2003 SVS
+    ! принудительно выставим заголовок для меню.
+  11.11.2003 SVS
+    + FMENU_CHANGECONSOLETITLE - изменять заголовок консоли для менюх
+    + Доп проверки на вшивость в FarControl()
+  17.10.2003 SVS
+    + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
+  04.10.2003 SVS
+    ! Уточнение структуры ActlKeyMacro: добавлен член Param.PlainText -
+      указатель на строку, содержащую макропоследовательность.
+  08.09.2003 SVS
+    + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
+      в виде plain-text.
+  21.08.2003 SVS
+    - Заходим в достаточно большой архив, становимся на '..' и жмем F3.
+      Пытаемся прервать. Отказываемся от прерывания - видим багу с прорисовкой
+  15.06.2003 SVS
+    + ACTL_GETDIALOGSETTINGS
+    ! FIS_PERSISTENTBLOCKSINEDITCONTROLS -> FDIS_PERSISTENTBLOCKSINEDITCONTROLS
+    ! FIS_HISTORYINDIALOGEDITCONTROLS    -> FDIS_HISTORYINDIALOGEDITCONTROLS
+    ! FIS_AUTOCOMPLETEININPUTLINES       -> FDIS_AUTOCOMPLETEININPUTLINES
+  14.06.2003 SVS
+    + FSS_SCANSYMLINK
+  30.05.2003 SVS
+    + ACTL_GETPLUGINMAXREADDATA
+  06.05.2003 SVS
+    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
+    - траблы с макросами:
+      BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
+      BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
+  17.03.2003 SVS
+    + ACTL_GETPOLICIES + FFPOL_* - пока для внутреннего юзания
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
+  04.02.2003 SVS
+    - BugZ#788 - Криво считается ширина меню.
+      Разнесем применение флагов общих (до добавления контента) и зависимых
+      от уже существующего контента.
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
+  26.12.2002 SVS
+    ! Из FarViewer и FarEditor проверка координат вынесена в конструкторы этих объектов
+  11.12.2002 SVS
+    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
+  04.11.2002 SVS
+    ! У FarMessageFn() параметр PluginNumber может быть равен -1
+      При этом хелп недоступен!
+    - Для ACTL_GETFARHWND указатель на окно (под некоторыми прогами) == NULL
+      В этом случае продетектим по новой
+  27.10.2002 DJ
+    ! переименуем FARColor в FarSetColors (для единообразия в именовании и,
+      опять же, чтобы было понятно, что к чему)
+  23.10.2002 SVS
+    - ошибки проектирования  в FarCharTable() - забыл вернуть данные плагину ;-/
+  22.10.2002 SVS
+    ! переделана FarCharTable() - немного "обезопасим" себя, т.е. сначала все
+      сформируем в локальной переменной, а потом "вернем" результат плагину
+    ! так же добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом
+      не думать как ЭТО сделать ;-)
+  30.09.2002 SVS
+    ! немного по другому прорешрешим консоль при изменении цветов
+    ! проинициализируем ID у элементов диалога!
+  23.09.2002 SVS
+    + ACTL_SETARRAYCOLOR, FARCOLORFLAGS, FARColor пока для внутренного юзания
+      (хотя, блин, работает на ура!)
+  20.09.2002 SVS
+    + флаги FDLG_NODRAWSHADOW и FDLG_NODRAWPANEL
+  10.09.2002 SVS
+    ! Добавим обработку исключений про диалоги - если флаг PSIF_DIALOG
+      установлен - инициируем выгрузку плагина.
+  21.08.2002 SVS
+    ! ACTL_WAITKEY теперь возвращает код нажатой клавиши
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
+  21.06.2002 SVS
+    + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
+      "Сегодня ФАР рисует в окне с помощью W-функции или где?"
+  14.06.2002 IS
+    + Обработка xF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+      приоритет по сравнению с xF_DELETEONCLOSE
+  27.05.2002 SVS
+    - Блин, поспешил с BugZ#514 (что называется перебор - в одном месте проверил,
+      а самое главное - MultiArc...  :-(
+  27.05.2002 SVS
+    - BugZ#514 - Multiple selected items in menu...
+    + Автокомит для ?F_IMMEDIATERETURN (по мотивам BugZ#530 - флаг
+      EF_IMMEDIATERETURN не работает из SetStartupInfo)
+    + Проверка кода возврата создания редактора, если Editor !=0 и кон возврата != XC_OPEN_ERROR?
+      то продолжаем исполнение, иначе вернем EEC_OPEN_ERROR
+  24.05.2002 SVS
+    + Добавка в FarControl() логов для _FCTLLOG
+    ! Из FarEditorControl выкошен код для логов - перенесен в fileedit.cpp
+  22.05.2002 SKV
+    + ?F_IMMEDIATERETURN
+  18.05.2002 SVS
+    ! Удавлен жучара, из-за которого не было возможности вводить ФЛАГИ
+      Закомментим SetOwnsItems до той поры, пока не появятся немодальные
+      диалоги
+  14.05.2002 SKV
+    + запретим создание немодального viewer/editor из модального,
+      а так же переключение на другие фреймы.
+  10.05.2002 SVS
+    - BugZ#502 - вызов Info.Control для из редактора far /e
+      Запрещаем использование Control для CmdMode=1 (для /e и /v)
+    + FCTL_CHECKPANELSEXIST - работаем в командном режиме (панели доступны?)
+  30.04.2002 SVS
+    - Снова Message :-(
+  15.04.2002 SVS
+    - Message(FMSG_ALLINONE,"\n\nFoobar") приводил к падению
+  11.04.2002 SVS
+    + FCTL_GET[ANOTHER]PANELSHORTINFO
+    - Message(FMSG_ALLINONE,"\nFoobar") приводил к падению (первым '\n'
+      пытались подавить вывод заголовка месагбокса)
+  04.04.2002 SVS
+    - Если в меню указали первым итемом сепаратор, но не указали
+      selected, то получаем на экране лажу.
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
+  26.03.2002 DJ
+    ! разрешим GetMsg() при ManagerIsDown()
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
+  25.03.2002 SVS
+    ! Запрет вызовов некторых функций АПИ, если ManagerIsDown() == FALSE
+  22.03.2002 SVS
+    - strcpy - Fuck!
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
+  17.03.2002 IS
+    - FarCharTable: по возможности используем значение TableName (BugZ#331)
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
+  28.02.2002 SVS
+    - Для ACTL_CONSOLEMODE+CONSOLE_GET_MODE
+      Param=NULL - это... обычный (void*)0, так шта...
+      К тому же "*(int*)Param" - это полная хрень.
+    ! ACTL_*WINDOW* - Добавим проверку на FrameManager != NULL
+    - ACTL_GETWINDOWINFO - забыли выставить корректное значение WindowInfo.Pos
+  19.02.2002 SVS
+    ! Добавим проверку на PluginNumber в Menu, Message & Dialog
+  13.02.2002 SVS
+    + MIF_USETEXTPTR - щоб юзать TextPtr
+    ! Уборка варнингов
+  11.02.2002 SVS
+    + Добавка в меню - акселератор - решение BugZ#299
+    ! Сепаратор может иметь лэйб только для варианта с Ex
+  05.02.2002 SVS
+    ! Технологический патч про отладку
+  30.01.2002 DJ
+    + ACTL_GETDESCSETTINGS
+  22.01.2002 SVS
+    ! Включим обратно Opt.ExceptRules в диалогах, ибо теперь я точно знаю,
+      что падение было в ДИАЛОГЕ! ;-)
+    ! немного косметики в сорцах.
+  10.01.2002 SVS
+    ! Немного SYSLOG_KEYMACRO
+    ! Временная отмена новых редакторных флагов
+  26.12.2001 SVS
+    + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
+      поменяли, а плагинам обломится что ли?
+  24.12.2001 SVS
+    - Бага с прорисовкой (при заходе в битый архив выводится месаг, но потом
+      панели не обновляются, или просмотр HLF-файла - аналогично)
+    ! Для LIF_SEPARATOR обнуляем пункт меню.
+  22.12.2001 VVM
+    + ACTL_GETWINDOWINFO: Если Pos == -1 то берем текущий фрейм
+  07.12.2001 IS
+    + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
+      функциональностью. Сделано для того, чтобы не дублировать код GetString.
+  05.12.2001 SVS
+    ! Временно отключаем обработку исключений на этом уровне.
+  30.11.2001 DJ
+    - не вылетаем, если GetPluginDirList() вызывается не на плагиновой панели
+    - в GetPluginDirList() некорректно копировалась PPIF_USERDATA для каталогов
+  28.11.2001 SVS
+    + FIS_SHOWCOPYINGTIMEINFO
+    ! Немного оптимизации для ACTL_GET*SETTINGS
+  24.11.2001 IS
+    + Обработка ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS,
+      ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
+  02.11.2001 SVS
+    ! Выкинем ненужный код (а кое-где добавим :-))
+    ! FCTL_GETCMDLINESELECTION -> FCTL_GETCMDLINESELECTEDTEXT
+    + FCTL_GETCMDLINESELECTION - получить позиции выделения!
+  28.10.2001 SVS
+    ! Вернем обратно опрометчево убранный SaveScreen.
+  26.10.2001 SVS
+    - неверно инициализировался массив MsgItems в FarMessageFn()
+  22.10.2001 SVS
+    - уточнение (восстановление) поведения Message для плагинов
+  22.10.2001 SVS
+    ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
+    ! Переработанный Message для плагинов (снято ограничение на 13 строк)
+  11.10.2001 IS
+    + обработка EF_DELETEONCLOSE
+  08.10.2001 OT
+    ! Запуск немодального фрейма в модальном режиме
+  07.10.2001 SVS
+    - Нету у нас немодальных диалогов!
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
+  22.09.2001 OT
+    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
+  21.09.2001 SVS
+    - Бага. При старте ФАР, если плагин вызывает Message или Dialog, то
+      ФАРу плохеет, т.к. Frame как такового нету. В общем введена проверка
+      на NULL для Lock/Unlock
+  20.09.2001 SVS
+    ! ограничим диалоги и месагбоксы, вызванные из плагинов "скобками
+      необновления нижнего экрана"
+      А как на счет вызова меню из плагина???
+  16.09.2001 SVS
+    ! Отключаемые исключения
+  15.09.2001 tran
+    + ACTL_GETFARHWND
+  09.09.2001 IS
+    + Обработка VF_DISABLEHISTORY/EF_DISABLEHISTORY - плагин может запрещать
+      добавление имени файла в историю.
+  08.09.2001 IS
+    ! Теперь имя файла добавляется в историю просмотра/редактирования
+      при использовании функций апи Editor/Viewer
+  13.08.2001 SKV
+    + FCTL_GETCMDLINESELECTION,FCTL_SETCMDLINESELECTION
+  13.08.2001 SVS
+    - Забыл в прошлый раз проставить интернал PluginNumber в функции
+      GetPluginDirList() для случая, если hPlugin=INVALID_HANDLE_VALUE
+  07.08.2001 IS
+    + Фича в FarCharTable: при неудаче считывания настроек по определенной
+      символьной таблице структура CharTableSet заполняется данными для OEM.
+    ! FarCharTable: второй параметр теперь не const, т.к. он меняется в функции.
+  05.08.2001 SVS
+    - Бага с вызовом хелпа в диалогах из плагинов
+    ! Убираем из борланда ненужные (тупорылые) варнинги
+  01.08.2001 SVS
+    + Поменяем правила игры с новыми флагами (про тему помощи)!
+  31.07.2001 IS
+    + Изменения и новое в FarDialogEx, FarMenuFn, FarMessageFn:
+      1. Учтем флаг F*_CUSTOMNAME
+      2. Выкинем спецобработку для случая с *HelpTopic=='#'
+      3. Считается, что помощи нет, если имя темы пустое.
+  31.07.2001 IS
+    - Баг: меню плагина закрывалось в случае нажатия на
+      ctrl-key, alt-key или shift-key, даже если эти комбинации
+      вовсе не были указаны в BreakKeys, а плагину было нужно
+      отследить нажатие на просто key.
+    ! Внедрение const (FarGetMsgFn)
+  31.07.2001 SVS
+    + Обработка хелпов по шаблону: ~Text~@#Path#Topic@
+  27.07.2001 SVS
+    + кусок для тестовых выкрутасов с ACTL_POSTKEYSEQUENCE
+    + Дадим возможность плагина при вызове GetPluginDirList
+      ссылаться на активную панель, т.е. hPlugin=INVALID_HANDLE_VALUE.
+      По аналогии с Control
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
+  19.07.2001 OT
+    Мелкий баг с неотрисовкой
+  18.07.2001 OT
+    VFMenu
+  16.07.2001 SVS
+    + Обработка FarMenuItemEx в FarMenu
+  26.06.2001 SVS
+    ! __except -> EXCEPT
+  26.06.2001 SKV
+    + ACTL_COMMIT
+  25.06.2001 IS
+   ! Внедрение const
+  21.06.2001 SVS
+    ! ACTL_POSTSEQUENCEKEY -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
+    ! SequenceKey           -> KeySequence
+    ! В ACTL_GETWINDOWINFO добавим проверку Param на NULL
+  20.06.2001 SVS
+    ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY, в т.ч. механизм
+      этой команды теперь основывается на Macro API
+  19.06.2001 IS
+    - Баг: не работало автоопределение кодировки после 268.
+  06.06.2001 SVS
+    - Во время исполнения макроса в меню игнорировались BreakKeys.
+  05.06.2001 tran
+    + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
+  04.06.2001 SVS
+    ! Фигня по поводу Checked символа в меню. Исправлено.
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
+  31.05.2001 OT
+    - ExitCode в соответствии с официальной документацией plugin.hlp
+  27.05.2001 OT
+    - Исправление вызовов конструкторов FileView и FileEdit в FarViewer() и FarEditor()
+  26.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
+  21.05.2001 DJ
+    + FDLG_NONMODAL
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
+  16.05.2001 DJ
+    ! proof-of-concept
+  16.05.2001 SVS
+    + #include "farexcpt.hpp"
+  15.05.2001 OT
+    ! NWZ -> NFZ
+  14.05.2001 SVS
+    ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
+  12.05.2001 DJ
+    + EF_ENABLE_F6, VF_ENABLE_F6
+  12.05.2001 DJ
+    ! убран SaveScr при вызове редактора/вьюера из плагина
+  10.05.2001 SVS
+    + В FarDialogEx() добавлена установка флагов FDLG_WARNING и FDLG_SMALLDILAOG.
+  06.05.2001 DJ
+    ! перетрях #include
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
+  05.05.2001 DJ
+    + перетрях NWZ
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
+  01.05.2001 SVS
+    - Вместо PluginNumber в FarDialogEx() залудил ItemsNumber :-(((
+  28.04.2001 SVS
+    + Обработка исключений в FarDialogEx() - равеновский чекер валил ФАР
+      именно в диалогах, гад такой.
+  11.09.2001 SVS
+    - FarMessageFn(): если установлен флаг FMSG_ERRORTYPE, ItemsNumber равное 1,
+      тоже должно позволять показывать сообщение.
+    - FarMessageFn(): неверно сделанный патч #530 - исправляем.
+  09.04.2001 SVS
+    ! Избавимся от некоторых варнингов
+  08.04.2001 SVS
+    ! Уточнение в FarShowHelp
+  28.03.2001 SVS
+    ! ACTL_GETFARVERSION возвращает номер версии, а не TRUE - так практичнее
+    ! ACTL_KEYMACRO, ACTL_EJECTMEDIA, ACTL_WAITKEY, ACTL_CONSOLEMODE -
+      проверка Param на NULL.
+    ! FarGetMsgFn - проверка на "готовность" CtrlObject (проверка на NULL)
+  26.03.2001 SVS
+    + добавлена обработка флага FHELP_USECONTENTS
+  22.03.2001 tran 1.42
+    ! мелкий баг в FarMessageFn/FMSG_ALLINONE
+  21.03.2001 VVM
+    + Обработка флага EF_CREATENEW
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
+  11.02.2001 SVS
+    ! Сократим повторяющийся код в FarDialogEx
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+  28.01.2001 SVS
+    ! Конкретно обновим функцию FarMessageFn()
+  23.01.2001 SVS
+    ! Проверки параметров в FarDialogEx()
+  21.01.2001 SVS
+    + ACTL_PROCESSSEQUENCEKEY
+  24.12.2000 SVS
+    ! Отключаем "MCMD_PLAYSTRING"
+    ! Уточнения MCMD_LOADALL и MCMD_SAVEALL - не работать во время записи
+      или "воспроизведения макроса
+  23.12.2000 SVS
+    + MCMD_PLAYSTRING - "проиграть" строку (строка в том виде, как в реестре)
+  21.12.2000 SVS
+    + ACTL_KEYMACRO - зачатки будущего KeyMacro API
+  18.12.2000 SVS
+    ! Коррекции в FarShowHelp
+  14.12.2000 SVS
+    + ACTL_EJECTMEDIA
+  13.12.2000 SVS
+    ! FarDialogItem.Data - копирование strcpy заменено на memmove
+      (терялись данные пользователя)
+  04.12.2000 SVS
+    + ACTL_GETCOLOR - получить определенный цвет
+    + ACTL_GETARRAYCOLOR - получить весь массив цветов
+  17.11.2000 SVS
+    ! "Приколы нашего городка" - бага в функцию ShowHelp закралась :-(
+  11.11.2000 SVS
+    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
+  05.10.2000 SVS
+   - бага с вызовом хелпа (FHELP_CUSTOMFILE)
+  27.09.2000 SVS
+   + FarViewerControl
+  18.09.2000 SVS
+    ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
+  12.09.2000 SVS
+    + Реализация флагов FHELP_* для вывода помощи.
+  08.09.2000 VVM
+    + Обработка команд
+      FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
+      FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
+  30.08.2000 SVS
+    ! Пал смертью храбрых флаг FMI_GETFARMSGID
+  29.08.2000 SVS
+    + Для диалога запомним номер плагина, вызвавшего этот диалог. Сейчас
+      это для того, чтобы правильно отреагировать в Dialog API на DN_HELP
+  29.08.2000 SVS
+    ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
+      хотим использовать "месаги" из САМОГО far*.lng
+  24.08.2000 SVS
+    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
+  23.08.2000 SVS
+    ! Все Flags приведены к одному виду -> DWORD.
+      Модифицированы:
+        * функции   FarMenuFn, FarMessageFn, FarShowHelp
+        * структуры FarListItem, FarDialogItem
+  22.08.2000 SVS
+    ! Исключаем ненужные вызовы из FarText.
+  18.08.2000 tran 1.12
+    + Flags parameter in FarShowHelp
+  09.08.2000 tran 1.11
+    ! ACTL_GETSYSWORDDIV при Param==NULL просто возвращает длину строки
+  03.08.2000 SVS
+    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
+  01.08.2000 SVS
+    ! FARDIALOGPROC -> FARWINDOWPROC
+  28.07.2000 SVS
+    ! В связи с появлением SendDlgMessage в классе Dialog
+      вносим некоторые изменения!
+  25.07.2000 SVS
+    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
+  23.07.2000 SVS
+    + Функция FarDefDlgProc обработки диалога по умолчанию
+    + Функция FarSendDlgMessage - посылка сообщения диалогу
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
+  12.07.2000 IS
+    + Проверка флагов редактора в FarEditor (раньше они игнорировались) и
+      открытие _немодального_ редактора, если есть соответствующий флаг.
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  05.07.2000 IS
+    + Функция FarAdvControl
+    + Команда ACTL_GETFARVERSION (в FarAdvControl)
+  03.07.2000 IS
+    + Функция вывода помощи
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/

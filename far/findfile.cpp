@@ -1088,37 +1088,40 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
             {
               char *Buffer=new char[Opt.PluginMaxReadData];
-              FILE *ProcessFile=fopen(FindArcName,"rb");
-              if (ProcessFile==NULL)
+              if(Buffer)
               {
+                FILE *ProcessFile=fopen(FindArcName,"rb");
+                if (ProcessFile==NULL)
+                {
+                  delete[] Buffer;
+
+                  ffCS.Leave ();
+                  return TRUE;
+                }
+                int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+                fclose(ProcessFile);
+
+                int SavePluginsOutput=DisablePluginsOutput;
+                DisablePluginsOutput=TRUE;
+
+                WaitForSingleObject(hPluginMutex,INFINITE);
+                ArcList[FindList[ItemIndex].ArcIndex].hPlugin = CtrlObject->Plugins.OpenFilePlugin(FindArcName,(unsigned char *)Buffer,ReadSize);
+                ReleaseMutex(hPluginMutex);
+
+                DisablePluginsOutput=SavePluginsOutput;
+
                 delete[] Buffer;
 
-                ffCS.Leave ();
-                return TRUE;
+                if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == (HANDLE)-2 ||
+                    ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
+                {
+                  ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+
+                  ffCS.Leave ();
+                  return TRUE;
+                }
+                ClosePlugin = TRUE;
               }
-              int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
-              fclose(ProcessFile);
-
-              int SavePluginsOutput=DisablePluginsOutput;
-              DisablePluginsOutput=TRUE;
-
-              WaitForSingleObject(hPluginMutex,INFINITE);
-              ArcList[FindList[ItemIndex].ArcIndex].hPlugin = CtrlObject->Plugins.OpenFilePlugin(FindArcName,(unsigned char *)Buffer,ReadSize);
-              ReleaseMutex(hPluginMutex);
-
-              DisablePluginsOutput=SavePluginsOutput;
-
-              delete[] Buffer;
-
-              if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == (HANDLE)-2 ||
-                  ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
-              {
-                ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
-
-                ffCS.Leave ();
-                return TRUE;
-              }
-              ClosePlugin = TRUE;
             }
 
             PluginPanelItem FileItem;
@@ -1975,14 +1978,17 @@ void FindFiles::ArchiveSearch(char *ArcName)
   _ALGO(CleverSysLog clv("FindFiles::ArchiveSearch()"));
   _ALGO(SysLog("ArcName='%s'",(ArcName?ArcName:"NULL")));
   char *Buffer=new char[Opt.PluginMaxReadData];
+  if ( !Buffer )
+  {
+    _ALGO(SysLog("ERROR: alloc buffer (size=%u)",Opt.PluginMaxReadData));
+    return;
+  }
+
   FILE *ProcessFile=fopen(ArcName,"rb");
   if (ProcessFile==NULL)
   {
-    /* $ 13.07.2000 SVS
-       использовали new[]
-    */
     delete[] Buffer;
-    /* SVS $ */
+    _ALGO(SysLog("ERROR: open file '%s'",(ArcName?ArcName:"NULL")));
     return;
   }
   int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
@@ -1991,24 +1997,21 @@ void FindFiles::ArchiveSearch(char *ArcName)
   int SavePluginsOutput=DisablePluginsOutput;
   DisablePluginsOutput=TRUE;
   HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(ArcName,(unsigned char *)Buffer,ReadSize);
-  /* $ 01.10.2001 VVM */
   DisablePluginsOutput=SavePluginsOutput;
-  /* VVM $ */
 
-
-  /* $ 13.07.2000 SVS
-     использовали new[]
-  */
   delete[] Buffer;
-  /* SVS $ */
 
   if (hArc==(HANDLE)-2)
   {
     BreakMainThread=TRUE;
+    _ALGO(SysLog("return: hArc==(HANDLE)-2"));
     return;
   }
   if (hArc==INVALID_HANDLE_VALUE)
+  {
+    _ALGO(SysLog("return: hArc==INVALID_HANDLE_VALUE"));
     return;
+  }
 
   int SaveSearchMode=SearchMode;
   DWORD SaveArcIndex = FindFileArcIndex;
@@ -2043,6 +2046,7 @@ void FindFiles::ArchiveSearch(char *ArcName)
   }
   FindFileArcIndex = SaveArcIndex;
   SearchMode=SaveSearchMode;
+  _ALGO(SysLog("return: ok"));
 }
 
 /* $ 01.07.2001 IS

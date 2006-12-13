@@ -5,149 +5,6 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.53 11.08.2005 $ */
-
-/*
-Modify:
-  11.08.2005 WARP
-    ! see 02039.Mix.txt
-  04.08.2005 SVS
-    - косяки в стеке. Вроде разобрался КАК ЭТО РАБОТАЕТ!
-  28.07.2005 SVS
-    - Не восстановление режима сортировки при выходе из вложенного плагина
-  25.07.2005 SVS
-    - Забыл, что формат Info.StartPanelMode as '0'+номер режима.
-  22.07.2005 SVS
-    - нужно было уменьшать значение PluginsStackSize до вызова ClosePlugin()
-    + пока закомменчено про PluginsStackItem.PrevViewSettings
-  13.07.2005 SVS
-    - Бага со стеком (см. 02023.Mix.txt)
-    ! При удалении панели из стека вернем режимы сортировки
-  29.06.2005 SVS
-    - BugZ#1253 - некорректная обработка PanelMode.FullScreen
-  21.04.2005 SVS
-    ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
-      что два последних параметра размером с NM
-  16.11.2004 WARP
-    - FCTL_GET[ANOTHER]PANELSHORTINFO нарушали принцип "непрекосновенности" и
-      нагло херили данные, полученные предыдущим вызовом FCTL_GET[ANOTHER]PANELINFO.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  24.05.2004 SVS
-    - BugZ#1085 - сбос цифровой сортировки на панели
-  13.11.2003 SVS
-    + _ALGO()
-  06.10.2003 SVS
-    - BugZ#964 - Ложное сообщение об Access Denied
-      Не передавались атрибуты "файла"
-    ! FileList::CreatePluginItemList() имеет доп.параметр - "добавлять '..'?"
-      по умолчанию - "добавлять".
-      В FileList::PluginGetPanelInfo() этот параметр = FALSE ("не добавлять")
-  26.09.2003 SVS
-    - BugZ#886 - FAR неверно реагирует на смену типа панели на лету.
-  04.09.2003 SVS
-    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
-      приведем FILETIME к __int64
-  02.09.2003 SVS
-    - BugZ#937 - Необходимо выдача сообщения об Access Denied
-    ! у FileList::OpenPluginForFile() новый параметр - файловые атрибуты
-      (для того, чтобы сразу исключить DIR)
-  30.07.2003 SVS
-    - BugZ#856 - Сброс обратной сортировки после входа и выхода из плагина
-  08.07.2003 SVS
-    - Если текущий элемент 1 и нет более выделения и этот элемент "..",
-      то имеем багу с PI.SelectedItems[0] - здесь мусор!
-  14.05.2003 SVS
-    + _ALGO()
-  05.03.2003 SVS
-    ! Закоментим _SVS
-  20.02.2003 SVS
-    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
-    ! В FileList::PluginPutFilesToNew() вместо индексного массива
-      применим указатели.
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  02.07.2002 SVS
-    + _PluginsStackItem_Dump() - дамп стека плагинов
-  25.06.2002 SVS
-    ! При передаче плагину очередного итема (FileListToPluginItem) так же
-      передадим поле Owner (если оно конечно заполнено!)
-  08.05.2002 SVS
-    ! Временно отменим 1248 (чем исправляем ситуацию Ctrl-7 Enter в архив Ctrl-2 и выходим)
-  12.04.2002 SVS
-    - BugZ#452 - Ctrl+N на ТмпПанели
-  12.04.2002 IS
-    ! PluginPutFilesToAnother теперь int - возвращает то, что возвращает
-      PutFiles:
-      -1 - прервано пользовтелем
-       0 - неудача
-       1 - удача
-       2 - удача, курсор принудительно установлен на файл и заново его
-           устанавливать не нужно
-    + PluginPutFilesToNew учитывает код возврата PluginPutFilesToAnother
-  11.04.2002 SVS
-    ! Доп.Параметр у PluginGetPanelInfo - получать полную инфу или не полную
-  10.04.2002 SVS
-    - BugZ#353 - Команды из меню Shift-F3 не работают на нескольких выделенных архивах
-  05.04.2002 SVS
-    ! Вместо числа 0x20000 заюзаем Opt.PluginMaxReadData
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  20.03.2002 SVS
-    ! GetCurrentDirectory -> FarGetCurDir
-  01.03.2002 SVS
-    ! Есть только одна функция создания временного файла - FarMkTempEx
-  19.02.2002 SVS
-    ! Восстановим режимы панелей после выталкивания плагина из стека.
-  14.01.2002 IS
-    ! chdir -> FarChDir
-  25.12.2001 SVS
-    ! немного оптимизации (если VC сам умеет это делать, то
-      борманду нужно помочь)
-  12.12.2001 SVS
-    - Bug: после ClosePlugin переменная SortOrder по каким-то волшебным
-      причинам становится = -1 (хотя допустимы 0 или 1)...
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 SVS
-    ! немного оптимизации (сокращение кода)
-  17.08.2001 VVM
-    + Обработка PluginPanelItem.CRC32
-  06.07.2001 IS
-    + Сохраним старое выделение в PluginSetSelection и в PluginClearSelection
-  14.06.2001 SVS
-    - Коррекция по поводу: "Надоело распаковывать some.foo.rar в каталог some\"
-  17.05.2001 SVS
-    ! Немного модификации типов параметров (чтобы doxygen матом не ругался :-)
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  26.04.2001 DJ
-    - в ProcessHostFile() не передавался OPM_TOPLEVEL
-  04.01.2001 SVS
-    ! TranslateKeyToVK() -> keyboard.cpp
-  11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
-  11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
-  08.09.2000 SVS
-    + Добавка в FileList::TranslateKeyToVK для трансляции
-      KEY_SHIFTDEL, KEY_ALTSHIFTDEL, KEY_CTRLSHIFTDEL
-  23.07.2000 SVS
-    + Клавиши (FileList::TranslateKeyToVK):
-       Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
-       KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -309,11 +166,7 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
   {
     DWORD Size=*((DWORD *)fi->UserData);
-    /* $ 13.07.2000 SVS
-       заменим new на malloc
-    */
     pi->UserData=(DWORD_PTR)xf_malloc(Size);
-    /* SVS $ */
     memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
   }
   else
@@ -351,11 +204,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
   if (pi->UserData && (pi->Flags & PPIF_USERDATA))
   {
     DWORD Size=*(DWORD *)pi->UserData;
-    /* $ 13.07.2000 SVS
-       заменим new на malloc
-    */
     fi->UserData=(DWORD_PTR)xf_malloc(Size);
-    /* SVS $ */
     memcpy((void *)fi->UserData,(void *)pi->UserData,Size);
   }
   else
@@ -427,6 +276,7 @@ HANDLE FileList::OpenPluginForFile(char *FileName,DWORD FileAttr)
     else
     {
       delete[] Buffer;
+      _ALGO(SysLog("ERROR: alloc buffer (size=%u)",Opt.PluginMaxReadData));
       _ALGO(SysLogLastError());
     }
   }

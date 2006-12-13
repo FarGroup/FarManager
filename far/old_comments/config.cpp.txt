@@ -1,0 +1,569 @@
+/*
+Modify:
+  04.07.2006 SVS
+    + Opt.ExecuteFullTitle
+  29.06.2006 SVS
+    ! Bath -> Batch
+  28.06.2006 SVS
+    + Opt.ExecuteBathType
+  06.06.2006 WARP
+    + Настройка "Del removes blocks" для диалогов не вынесена в пользовательский интерфейс.
+  24.05.2006 SVS
+    + Opt.Confirm.RemoveHotPlug
+  20.04.2006 SVS
+    + Opt.UseVk_oem_x
+  13.04.2006 SVS
+    + System\SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
+  09.04.2006 AY
+    ! DriveMenu: показываем размер дисков с точкой по дефолту.
+  29.03.2006 SVS
+    ! Editor: PersistentBlocks по умолчанию выключен. (забыл. во вьювере сделал.... а здесь забыл)
+  28.10.2005 SVS
+    - Mantis#48 - Policies. Бит 17
+    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
+    + Opt.EdOpt.ShowKeyBar - Ctrl-B - показать/спрятать кейбар в редакторе
+  24.10.2005 SVS
+    - Значение Tab все же отобразим, но для неригистринной версии задисаблим
+  05.10.2005 SVS
+    ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
+  04.10.2005 SVS
+    + Opt.NetSupportEncryption
+  29.09.2005 SVS
+    + Opt.FolderDeepScan
+  22.07.2005 SVS
+    ! PersistentBlocks по умолчанию выключен. Достало.
+  15.07.2005 AY
+    - Убрал всё связанное с USE_OLDEXPANDTABS
+    ! ExpandTabs настраиваются в комбо и редезайн
+    + Настройки кодировок для редактора и вьювера
+  12.07.2005 SVS
+    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
+    + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
+  05.07.2005 SVS
+    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
+  29.06.2005 SKV
+    + Opt.AllowEmptySpaceAfterEof
+  23.06.2005 WARP
+    ! Новый внешиний вид у диалогов настройки редактора и вьювера.
+  19.06.2005 SVS
+    + FIB_BUTTONS
+  14.06.2005 SVS
+    + Opt.ShowTimeoutDACLFiles
+  30.05.2005 SVS
+    ! временно откатим проект про USB
+  06.05.2005 SVS
+    + Добавлен конфирманс про удаление SUBST-девайсов (задолбася уже
+      промахиваться, а боевой диск - как раз SUBST)
+    + Добавлен конфирманс про удаление USB-девайсов
+  18.04.2005 SVS
+    - в статическом массиве ничего не трогаем, только в динамическом!
+  14.04.2005 SVS
+    + Opt.UsePrintManager
+  12.04.2005 KM
+    ! Opt.FindOpt.FindFolders перенесём из Interface в System, давно как-то ошибся
+      теперь исправим расположение настройки
+    + Новые параметры, запоминающие тип единиц измерения и размер ограничения
+      поиска в файле (FindFiles): Opt.FindOpt.SearchInFirst и Opt.FindOpt.SearchInFirstSize
+  06.04.2005 SVS
+    ! Opt.EdOpt.ExpandTabColor свое отслужил, выкидываем :-)
+  05.04.2005 SVS
+    + Opt.EdOpt.ExpandTabColor
+  03.03.2005 SVS
+    + Opt.MsWheelDeltaHelp
+  01.03.2005 SVS
+    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
+    ! значение реестра "Panel\AutoChangeFolder" перемещено в "Panel\Tree\AutoChangeFolder"
+      Юзерам нужно это значение выставить по новой, но... так будет логичнее
+    + Opt.Tree.*
+    + XLAT_CONVERTALLCMDLINE
+  02.02.2005 SVS
+    + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
+  06.01.2005 WARP
+    ! Добавки к трехпозиционному ExpandTabs
+  25.12.2004 WARP
+    ! Конфигурация редактора не хотела лезть в 80x25, поломал ее немного.
+  23.12.2004 WARP
+    ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
+  30.08.2004 SVS
+    + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
+  20.05.2004 SVS
+    ! NumericSort - свойство конкретной панели, а не режима отображения
+  07.05.2004 SVS
+    + Opt.Dialogs.DelRemovesBlocks
+  27.02.2004 SVS
+    + Opt.AutoUpdateRemoteDrive
+    ! Вместо фразы "Evaluation copy, please register." просто задисаблим контролы,
+      типа пора воспользоваться нормальной обработкой... - раз уж такое возможно,
+      то... это лучше смотрится.
+  09.01.2004 SVS
+    + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
+    - Время бездействия в системных параметрах не меняется.
+  07.01.2004 SVS
+    + XLat.XLatFastFindKey и XLat.XLatAltFastFindKey - транслитерация для FastFind
+    + Opt.ExecuteShowErrorMessage
+  18.12.2003 SVS
+    - BugZ#997 - TechInfo. Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+    + HistoryCount
+  29.10.2003 SVS
+    - BugZ#980 - F9->Options->Folder description files - Esc == Enter
+    + Opt.LoadPlug.SilentLoadPlugin - тихий режим загрузки плагинов
+  14.10.2003 SVS
+    ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
+    + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
+  13.10.2003 SVS
+    ! переименование:
+      Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
+      Opt.KeyMacroRecord2  -> Opt.KeyMacroCtrlShiftDot
+  10.10.2003 SVS
+    + проинициализируем Opt.EdOpt.WordDiv
+  05.10.2003 KM
+    + Сохранение параметров фильтра операций (Opt.OpFilter)
+  04.10.2003 SVS
+    + KeyMacros\KeyRecord1 и KeyMacros\KeyRecord2 позволяют назначать
+      клавиши записи макросов
+  18.09.2003 KM
+    + Opt.CharTable
+  03.09.2003 SVS
+    ! Все биты у Opt.QuotedName установлены в 1 - типа, кавычим все!
+  25.08.2003 SVS
+    + Opt.QuotedName - заключать имена файлов/папок в кавычки
+  23.07.2003 SVS
+    + Opt.ScrSize.DeltaXY - уточнение размера для "распаховки" консоли
+  14.07.2003 SVS
+    - Ctrl-PgUp для выбора диска - Галка не сохраняется и, соответственно,
+      диск по Ctrl-PgUp выбирается и при снятой и при выставленной галке.
+  13.06.2003 SVS
+    + В диалог "Системные параметры" ("System settings") добавлена опция
+      "Сканировать символические связи" ("Scan symbolic links"). Позволяет
+      обрабатывать символические связи наравне с обычными подкаталогами
+      при построении дерева каталогов, определении суммарного размера
+      файлов в подкаталогах. По умолчанию включена.
+  06.06.2003 SVS
+    ! Все, что связано с загрузкой плагинов объединено в структуру LoadPluginsOptions
+  27.05.2003 SVS
+    ! Для Opt.PluginMaxReadData верхний предел вместо 0x40000 ставим в 0x80000,
+      т.к. InstallShield файлики НИХРЕНА не опознаются!
+  19.05.2003 SVS
+    ! Диалоговые настройки вынесены в отдельный диалог
+  14.05.2003 SVS
+    ! MEditConfigPersistentBlocks -> MViewConfigPersistentSelection
+  14.05.2003 VVM
+    + ViewerOptions.Persistentblocks;
+  17.04.2003 SVS
+    + Opt.DelThreadPriority
+  17.03.2003 SVS
+    + Opt.ScanJunction - сканировать так же симлинки. По умолчанию включен
+  10.02.2003 SVS
+    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
+    ! Opt.Confirm.Esc - "все подтверждения по умолчанию должны быть включены"
+  13.01.2003 SVS
+    + Новая опция: "Сортировать имена папок по расширению" - применять
+      режим сортировки по расширению не только к файлам, но и к папкам.
+      При включенной опции сортировка по расширению работает так же,
+      как и в FAR 1.65. Если опция выключена, то в режиме сортировки
+      по расширению папки будут сортироваться так же как в режиме
+      сортировки по имени.
+  14.08.2002 VVM
+    - Перепутали ShowHiddenDrives & DisabledOptions
+  12.08.2002 SVS
+    + Opt.ExecuteUseAppPath
+  13.06.2002 SVS
+    ! Из предыдущего убираем символ '~'
+  10.06.2002 KM
+    ! Новые символы, наличие которых в имени файла окавычит его:
+    " &()[]{}^=;!'+,`~"
+    Нашёл Igor A. Vyatkin 2:5032/16.0 в MSDN
+    ===
+    The special characters that require quotes are:
+         <space>
+         &()[]{}^=;!'+,`~
+    ===
+  30.05.2002 SVS
+    ! По просьбе IS: COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO -> COL_PRIVATEPOSITION_FOR_DIF165ABOVE
+  24.05.2002 SVS
+    + Opt.UseNumPad
+  22.05.2002 SVS
+    + Opt.CloseCDGate
+  05.04.2002 SVS
+    + Opt.PluginMaxReadData, по умолчанию = 0x20000
+  01.04.2002 SVS
+    + struct NowellOptions
+  26.03.2002 IS
+    ! Убрано считывание Opt.LCIDSort (оно считывается непосредственно перед
+      использованием).
+    ! внедрение const
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
+    + Opt.Dialogs.SelectedType
+  14.03.2002 IS
+    ! Когда избавлялись от двойного отрицания получилась путаница с опцией
+      "Блокировать редактирование файлов с атрибутом R/O"
+  12.03.2002 VVM
+    + Opt.Confirm.EscTwiceToInterrupt
+      Задает поведение диалога при прерывании операции.
+      Либо второй ESC прерывает операцию, либо он ее продолжает...
+  28.02.2002 SVS
+    ! RestoreCP ставим по умолчанию в 1. - уже не смешно, блин ;-\
+  26.02.2002 SVS
+    - BugZ#323 - Не создается палитра.
+  26.02.2002 SVS
+    ! RestoreCP ставим по умолчанию в 0.
+  19.02.2002 SVS
+    ! При считывании конфигурации (ReadConfig) для REG_BINARY обнулим остаток
+      считываемого буфера до нужно размера.
+    ! Для Opt.XLat сразу же уточним размер
+  24.01.2002 SVS
+    - BugZ#264 - Show hidden files
+  23.01.2002 SVS
+    ! Нафиг по умолчанию отрубим ScreenSaver ну и некоторые другие.
+  16.01.2002 SVS
+    ! SEARCH_ROOT -> SEARCH_FROM_CURRENT
+  03.01.2001 IS
+    ! Устранение "двойного отрицания" в EditorConfig
+  03.01.2002 SVS
+    - BugZ#220 - Auto save setup нельзя включить
+  27.12.2001 IS
+    ! По умолчанию CloseConsoleRule=1, т.е. если автосохранение включено, то
+      FAR попытается сохранить настройки, если его закрыли "по кресту".
+      Сделано в соответствии с мнением большинства (голосование в farbugs).
+  26.12.2001 SVS
+    + Opt.CloseConsoleRule
+    ! При закрытии окна "по кресту"... теперь настраиваемо! По умолчанию - как
+      и раньше - без сохранения!
+    + Обработка RO-файлов описаний
+    + Свой курсор для Overtype режима
+  21.12.2001 SVS
+    + Opt.RestoreCPAfterExecute
+    ! AutoSave в диалоге настройки системы перенесем ниже - так логичнее будет.
+  17.12.2001 IS
+    + Работа с PanelMiddleClickRule
+  14.12.2001 SVS
+    + Вызовем SaveHiData() в SaveConfig() для сохранения раскраски
+  10.12.2001 SVS
+    ! DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH
+  07.12.2001 IS
+    - BugZ#154 - неверно отображается диалог Option->Panel setting в
+      нерегистреном фаре.
+    - Забыли дисаблить редактор DLG_PANEL_AUTOUPDATELIMITVAL, если
+      Opt.AutoUpdateLimit = 0
+  07.12.2001 IS
+    + Работа с Opt.MultiMakeDir
+    ! Opt.MultiCopy хранится не в NKeyInterface, а в NKeySystem
+  03.12.2001 IS
+    + Считываем Opt.EditorUndoSize - размер буфера undo
+  27.11.2001 SVS
+    ! В при сохранении настроек запоминаем каталог и текущий объект в любом
+      случае, независимо от типа панели - плагин или простая панель
+  27.11.2001 DJ
+    + параметр Local у EditorConfig и ViewerConfig (при вызове настроек
+      конкретного редактора или вьюера не показываем глобальные
+      системные настройки)
+  21.11.2001 SVS
+    ! Внедрение DIF_AUTOMATION (с удаленем диалоговых процедур)
+  20.11.2001 SVS
+    ! Перетасовка в некоторых настройках
+    + Логика блокировок в диалогах (DIF_DISABLE)
+  16.11.2001 SVS
+    ! уточняем системную политику (добавлена ветка в HKLM)
+      - для дисков HKCU может только отменять показ
+      - для опций HKCU может только добавлять блокироку пунктов
+  01.11.2001 SVS
+    ! уберем Opt.CPAJHefuayor ;-(
+  30.10.2001 SVS
+    + Opt.CPAJHefuayor - по умолчанию отключено!
+  29.10.2001 IS
+    !  SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
+  24.10.2001 KM
+    + Opt.FindFolders. Запомнить флаг разрешения поиска каталогов в Alt-F7
+  15.10.2001 SVS
+    + Opt.DlgSelectFromHistory
+  12.10.2001 SVS
+    ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
+      Opt.SetAttrFolderRules!
+  11.10.2001 SVS
+    + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
+  07.10.2001 SVS
+    + Opt.HelpTabSize - размер табуляции по умолчанию.
+  02.10.2001 SVS
+    - В таблице однажды забыл для Opt.AltF9 выставить дефолт =-1
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
+  26.09.2001 SVS
+    + Opt.AutoUpdateLimit -  выше этого количество не обновлять панели.
+      По умолчанию = 0 (всегда делать автоапдейт)
+  16.09.2001 SVS
+    ! Opt.ExceptCallDebugger удален в связи со сменой статуса опции
+      Opt.ExceptRules
+  09.09.2001 IS
+    + обновим настройки ком.строки при выходе из Interface settings, чтобы
+      установился правильный режим "постоянные блоки"
+  08.09.2001 VVM
+    + Настройка для блоков в строках ввода F9/Options/Interface settings
+  09.08.2001 OT
+    - F9|Options|Panel settings|Highlight files - не перерисовывается
+  03.08.2001 IS
+    + Учтем опцию "разрешить мультикопирование/перемещение/создание связей".
+      По умолчанию она отключена.
+  24.07.2001 SVS
+    + Учтем новую опцию Opt.Confirm.HistoryClear при очистки истории
+    + Opt.PgUpChangeDisk
+  22.07.2001 SVS
+    + Опция про релоад файла в редакторе
+  19.07.2001 SVS
+    ! Про хелп. Юзаем то, что есть в Opt и не пладим сущностей.
+  19.07.2001 OT
+    ! AltF9 - к первоначальному положению :)
+  17.07.2001 SVS
+    ! Opt.AltF9 - уточнение поведения для разных платформ
+  16.07.2001 SVS
+    ! Opt.AltF9 - по умолчанию = 0, т.е. отключено (подробнее см. описалово)
+  10.07.2001 SKV
+    ! Redraw после изменения конфига.
+  04.07.2001 SVS
+    + Opt.LCIDSort
+  24.06.2001 KM
+    ! Вернулся назад дефолт открытия read-only файлов: не предупреждать и не блокировать,
+      уж слишком много копий было сломано из-за этого в последнее время.
+  22.06.2001 SVS
+    + Opt.DateFormat
+  14.06.2001 OT
+    ! "Бунт" ;-)
+  28.05.2001 SVS
+    ! Основные XLat-клавиши по умолчанию не ставятся в CtrlShiftX - дадим
+      возможность отключить эту фичу.
+  24.05.2001 SVS
+    ! Задание размера табуляции в EditorConfig перенесено ниже (так лучше
+      смотрится :-)
+  21.05.2001 OT
+    + Opt.AltF9
+    + Opt.Confirmation.AllowReedit
+  20.05.2001 IS
+    + Задаем поведение для файлов с атрибутом r/o в настройках редактора
+       лочить или нет
+       орать или нет
+    + Opt.ReadOnlyLock теперь сохраняется в реестре
+  18.05.2001 DJ
+    + #include "colors.hpp"
+  14.05.2001 SVS
+    + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
+      По умолчанию - отлючено
+  06.05.2001 DJ
+    ! перетрях #include
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
+  30.04.2001 DJ
+    * не было history в SetFolderInfoFiles; не обновлялись инфо-панели
+      после его изменения
+  28.04.2001 VVM
+    + Opt.SubstNameRule битовая маска:
+      0 - если установлен, то опрашивать сменные диски при GetSubstName()
+      1 - если установлен, то опрашивать все остальные при GetSubstName()
+  16.04.2001 VVM
+    + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
+    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
+    ! Opt.MouseWheelDelta -> Opt.MsWheelDelta
+  22.04.2001 SVS
+    + Opt.QuotedSymbols - разделители для QuoteSpace()
+    ! ConsoleDetachKey - по умолчанию назначается "CtrlAltTab"
+  16.04.2001 VVM
+    + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN
+  02.04.2001 VVM
+    + Opt.FlagPosixSemantics будет влиять на:
+        добавление файлов в историю с разным регистром
+        добавление LastPositions в редакторе и вьюере
+  30.03.2001 SVS
+    + Opt.Policies.*
+    ! ViewerConfig, EditorConfig - ограничение на размер поля ввода
+  29.03.2001 IS
+    + По аналогии с редактором часть настроек переехала в ViewerOptions,
+      соответственно произведены замены по всему файлу типа
+      Opt.ViewerTabSize -> Opt.ViOpt.TabSize и т.п.
+  28.03.2001 VVM
+    + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать
+      каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
+  26.03.2001 SVS
+    + SystemSettings() - путь к персональным плагинам - DIF_VAREDIT
+    ! Выставляем ограничение в SetDizConfig() в sizeof(DizOptions.ListNames)
+      для поля ввода.
+  20.03.2001 SVS
+    + В стандартные раздилители WordDiv0 добавлена тильда '~'
+  20.03.2001 SVS
+    ! основательная переделка SaveConfig и ReadConfig: введена структура
+      FARConfig в которой описывается ВСЕ, что проходит по линии реестра
+      (в основном все)
+  16.03.2001 SVS
+    ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
+    + Opt.ChangeDriveDisconnetMode
+  15.03.2001 SVS
+    + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
+  12.03.2001 SVS
+    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
+  12.03.2001 SVS
+    + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
+  27.02.2001 SVS
+    + Opt.EdOpt.CharCodeBase - В каком виде представлять в редакторе
+      в статусной строке код текущего символа
+  26.02.2001 IS
+    - Недочет в EditorConfig
+  26.02.2001 VVM
+    + Opt.ExceptCallDebugger
+  21.02.2001 IS
+    + Работа в EditorConfig идет со структурой EditorOptions
+    ! Opt.EditorBSLikeDel -> Opt.EdOpt.BSLikeDel
+      Opt.TabSize -> Opt.EdOpt.TabSize
+      Opt.EditorExpandTabs -> Opt.EdOpt.ExpandTabs
+      Opt.EditorCursorBeyondEOL -> Opt.EdOpt.CursorBeyondEOL
+      Opt.EditorAutoDetectTable -> Opt.EdOpt.AutoDetectTable
+      Opt.EditorAutoIndent -> Opt.EdOpt.AutoIndent
+      Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
+      Opt.EditorDelRemovesBlocks -> Opt.EdOpt.DelRemovesBlocks
+  20.02.2001 VVM
+    ! Сохранение параметра "Тип врапа"
+  12.02.2001 SKV
+    + ConsoleDetachKey
+  09.02.2001 IS
+    + сохраним/считаем состояние опции "помеченное вперед"
+    + Опция подтверждения нажатия Esc. По умолчанию отключена.
+  30.01.2001 VVM
+    + Показывает время копирования,оставшееся время и среднюю скорость.
+      Зависит от настроек в реестре CopyTimeRule
+  22.01.2001 SVS
+    + Opt.CursorSize - Размер курсора ФАРа :-)
+  19.01.2001 SVS
+    + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
+      клавиш
+  17.01.2001 SVS
+    ! Opt.ShiftsKeyRules
+  07.01.2001 SVS
+    ! Opt.EditorReadOnlyLock = 2, т.е. выдавать предупреждение.
+  16.12.2000 IS
+    - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
+  13.12.2000 SVS
+    ! Уточняем алгоритм "взятия" палитры.
+  10.12.2000 IS
+    ! Убрал из WordDivForXlat кавычки и квадратные скобки
+  29.11.2000 SVS
+    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
+      он имеет атрибуты R|S|H
+    + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+      которого будет выдан диалог о целесообразности открытия подобного
+      файла на редактирование
+  28.11.2000 SVS
+    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
+  27.11.2000 SVS
+    + Opt.ExceptRules - Правило на счет вызова исключений
+  25.11.2000 IS
+    + Стандартный набор разделителей для функции Xlat (WordDivForXlat)
+  24.11.2000 SVS
+    - Проблема с Alt* при XLat
+    + SetAttrFolderRules задает поведение Ctrl-A на каталоге:
+      1 - отображать со снятой опцией "для подкаталогов" (по умолчанию)
+      0 - как и ранее
+  16.11.2000 SVS
+    ! Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
+  05.11.2000 SVS
+    - В настройках вьювера вместо Opt.SaveViewerShortPos стоялО
+      Opt.SaveEditorShortPos :-(((
+  04.11.2000 SVS
+    + XLat - добавление альтернативных клавиш:
+        XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
+  20.10.2000 SVS
+    + Opt.PanelCtrlFRule
+      Panel/CtrlFRule в реестре - задает поведение Ctrl-F
+      Если = 0, то штампуется файл как есть, иначе - с учетом
+      отображения на панели
+  17.10.2000 SVS
+    ! WordDiv имеет размер 256;
+  16.10.2000 SVS
+    ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
+  11.10.2000 SVS
+    + Opt.EditorBSLikeDel - если = 0, то BS действует как в FAR 1.65
+  05.10.2000 SVS
+    ! Все новые фишки (из TechInfo) только читаем...
+  27.09.2000 SVS
+    + HelpURLRules
+    - XLat-таблицы только читаем.
+    ! Ctrl-Alt-Shift - реагируем, если надо.
+  24.09.2000 SVS
+    + Opt.MaxPositionCache
+    + Opt.SaveViewerShortPos & Opt.SaveEditorShortPos
+    + Opt.CmdHistoryRule задает поведение Esc для командной строки:
+       =1 - Не изменять положение в History, если после Ctrl-E/Ctrl-X
+            нажали ESC (поведение - аля VC).
+       =0 - поведение как и было - изменять положение в History
+    ! "Editor\XLat" -> "XLat" - как самостоятельный раздел.
+    + Клавиши вызывающие функцию Xlat
+      Opt.XLatEditorKey, Opt.XLatCmdLineKey, Opt.XLatDialogKey
+  20.09.2000 SVS
+    + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
+      для Ctrl-[ и ему подобные
+  19.09.2000 SVS
+    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+  15.09.2000 IS
+    + Отключение автоопределения таблицы символов, если отсутствует таблица с
+      распределением частот символов
+  15.09.2000 SVS
+    ! RightClickRule по умолчанию ставится в положение 2
+  14.09.2000 SVS
+    ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
+  12.09.2000 SVS
+    ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
+      Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
+    + Panel/RightClickRule в реестре - задает поведение правой клавиши
+      мыши (это по поводу Bug#17)
+  11.09.2000 SVS
+    + если Far\Dialog\EULBsClear = 1, то BS в диалогах для UnChanged строки
+      удаляет такую строку также, как и Del
+  10.09.2000 SVS
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+  08.09.2000 SVS
+    ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
+  07.09.2000 tran 1.14
+    + Config//Current File
+  05.09.2000 SVS 1.13
+    + QWERTY - поддержка
+  31.08.2000 SVS
+    + Теперь FAR помнит тип Wrap
+  04.08.2000 SVS
+    ! WordDiv выкинул - будет описан в TechInfo.txt
+      Но пустую строку все равно (даже в реестре) ввести нельзя!
+  03.08.2000 SVS
+    + WordDiv в случае пустого (юзвер убил, значит, случайно) ставится
+      стандартный набор
+  03.08.2000 SVS
+    + WordDiv внесен в Options|Editor settings
+  01.08.2000 SVS
+    ! Добавка в виде задания дополнительного пути для поиска плагинов
+      расширяется на месте - не имеет флаг по умолчанию!
+    + "Вспомним" путь для дополнительных плагинов по шаблону!!!
+      Сам шаблон берем из ключика в реестре!
+  27.07.2000 SVS
+    ! Opt.AutoComplete по умолчанию не активизирован,
+      дабы не шокировать публику :-)
+  26.07.2000 SVS
+    + Opt.AutoComplete & дополнение диалога настройки интерфейса
+  18.07.2000 tran 1.05
+    + Opt.ShowViewerArrows, Opt.ShowViewerScrollbar
+      изменил диалог ViewerSetting
+  15.07.2000 tran
+    + Opt.ShowKeyBarViewer
+  15.07.2000 SVS
+    + Добавка в виде задания дополнительного пути для поиска плагинов
+  11.07.2000 SVS
+    ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
+      стоят нули)
+  04.07.2000 SVS
+    ! ScrollBar Setting for Menus переехал из Options|Panel settings
+      в Options|Interface settings
+  30.06.2000 SVS
+    - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
+  29.06.2000 SVS
+    + Показывать ли ScrollBar для Menu
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
