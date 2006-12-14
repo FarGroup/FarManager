@@ -476,7 +476,9 @@ the main help file, that is actual for the current FAR Manager version.
    maximum size of the data read from a file after an attempt to  enter  it
    from the panels (Enter or Ctrl-PgDn) was made. The  data  read  will  be
    passed to plugins to determine which plugin  supports  a  file  of  this
-   type. Can be any value in the range of 0x1000 to 0x80000.
+   type.
+   Минимальное значение - 0x1000. Максимальное - 0xFFFFFFFF.
+   Не рекомендуется выставлять значение этого параметра больше 5 Mb.
    The default value is 0x20000.
 
 1.2.24.(TechInfo #68)
