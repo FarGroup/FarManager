@@ -643,7 +643,16 @@ int OpenFromCommandLine(char *_farcmd)
               if ( allOK )
               {
                 allOK = FALSE;
+
+                #if 0
                 lstrcat(lstrcpy(cmd,"%COMSPEC% /c "), temp);
+                #else
+                lstrcpy(cmd,"%COMSPEC% /c ");
+                if(*temp == '"')
+                  lstrcat(cmd, "\"");
+                lstrcat(cmd, temp);
+                #endif
+
                 ExpandEnvironmentStr(cmd, fullcmd, sizeof(fullcmd));
                 lstrcpy(cmd, temp);
                 if ( catchStdOutput && catchStdError )
