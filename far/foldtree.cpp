@@ -226,10 +226,15 @@ int FolderTree::ProcessKey(int Key)
     case KEY_PGDN:
     case KEY_HOME:
     case KEY_END:
+    case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
+    case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
       FindEdit->SetString("");
       Tree->ProcessKey(Key);
       DrawEdit();
       break;
+
     default:
       if(Key == KEY_ADD || Key == KEY_SUBTRACT) // OFM: Gray+/Gray- navigation
       {

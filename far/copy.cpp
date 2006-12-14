@@ -787,6 +787,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           strncpy(NameTmp, NamePtr,SizeBuffer-1);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
 
+          if(isalpha(NameTmp[0]) && NameTmp[1]==':' && !NameTmp[2])
+            PrepareDiskPath(NameTmp,SizeBuffer,true);
+
           if(!strcmp(NameTmp,"..") && IsLocalRootPath(SrcDir))
           {
             if(Message(MSG_WARNING,2,MSG(MError),MSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),MSG(MCannotCopyMoveToTwoDot),MSG(MCopySkip),MSG(MCopyCancel)) == 0)
