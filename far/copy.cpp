@@ -796,6 +796,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
           strNameTmp = NamePtr;
 
+          if ( (strNameTmp.GetLength() == 2) && LocalIsalphaW (strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
+            PrepareDiskPathW(strNameTmp,true);
+
           if(!wcscmp(strNameTmp,L"..") && IsLocalRootPathW(strSrcDir))
           {
             if(MessageW(MSG_WARNING,2,UMSG(MError),UMSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),UMSG(MCannotCopyMoveToTwoDot),UMSG(MCopySkip),UMSG(MCopyCancel)) == 0)

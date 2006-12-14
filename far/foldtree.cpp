@@ -208,19 +208,13 @@ int FolderTree::ProcessKey(int Key)
       Tree->ProcessKey(KEY_CTRLR);
       DrawEdit();
       break;
+
     case KEY_CTRLENTER:
-      {
-        string strName;
-        FindEdit->GetStringW(strName);
-        Tree->FindPartName(strName,TRUE);
-        DrawEdit();
-      }
-      break;
     case KEY_CTRLSHIFTENTER:
       {
         string strName;
         FindEdit->GetStringW(strName);
-        Tree->FindPartName(strName,TRUE,-1);
+        Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER?-1:1);
         DrawEdit();
       }
       break;
@@ -231,10 +225,15 @@ int FolderTree::ProcessKey(int Key)
     case KEY_PGDN:
     case KEY_HOME:
     case KEY_END:
+    case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
+    case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
       FindEdit->SetStringW(L"");
       Tree->ProcessKey(Key);
       DrawEdit();
       break;
+
     default:
       if(Key == KEY_ADD || Key == KEY_SUBTRACT) // OFM: Gray+/Gray- navigation
       {
