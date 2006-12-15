@@ -879,7 +879,7 @@ int FileList::ProcessKey(int Key)
               /* SVS $ */
               /* tran $ */
               if (*FullName)
-                AddEndSlash(FullName,'\\');
+                AddEndSlash(FullName,0); //'\\');
               /* $ 20.10.2000 SVS
                  Сделаем фичу Ctrl-F опциональной!*/
               if(Opt.PanelCtrlFRule)

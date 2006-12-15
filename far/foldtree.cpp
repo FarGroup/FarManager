@@ -176,11 +176,13 @@ int FolderTree::ProcessKey(int Key)
         /* KM $ */
       }
       break;
+
     case KEY_ESC:
     case KEY_F10:
       FrameManager->DeleteFrame();
       SetExitCode (XC_MODIFIED);
       break;
+
     case KEY_ENTER:
       Tree->GetCurDir(NewFolder);
       if (GetFileAttributes(NewFolder)!=0xFFFFFFFF)
@@ -194,28 +196,24 @@ int FolderTree::ProcessKey(int Key)
         DrawEdit();
       }
       break;
+
     case KEY_F5:
       IsFullScreen=!IsFullScreen;
       ResizeConsole();
       return(TRUE);
+
     case KEY_CTRLR:
     case KEY_F2:
       Tree->ProcessKey(KEY_CTRLR);
       DrawEdit();
       break;
+
     case KEY_CTRLENTER:
-      {
-        char Name[NM];
-        FindEdit->GetString(Name,sizeof(Name));
-        Tree->FindPartName(Name,TRUE);
-        DrawEdit();
-      }
-      break;
     case KEY_CTRLSHIFTENTER:
       {
         char Name[NM];
         FindEdit->GetString(Name,sizeof(Name));
-        Tree->FindPartName(Name,TRUE,-1);
+        Tree->FindPartName(Name,TRUE,Key == KEY_CTRLSHIFTENTER?-1:1);
         DrawEdit();
       }
       break;

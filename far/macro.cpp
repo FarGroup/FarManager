@@ -2408,7 +2408,10 @@ done:
       ;
   }
 
-  if(MR==Work.MacroWORK && ( Work.ExecLIBPos>=MR->BufferSize || Work.ExecLIBPos+1==MR->BufferSize && MR->Buffer[Work.ExecLIBPos]==KEY_NONE))
+  if(MR==Work.MacroWORK &&
+      ( Work.ExecLIBPos>=MR->BufferSize || Work.ExecLIBPos+1==MR->BufferSize && MR->Buffer[Work.ExecLIBPos]==KEY_NONE) &&
+      Mode==MACRO_DIALOG
+    )
   {
     RetKey=Key;
     goto done;
