@@ -1873,9 +1873,10 @@ const wchar_t *eStackAsString(int Pos)
 int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
+  int RetKey=0;
 //_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !FrameManager->GetCurrentFrame())
-    return(FALSE);
+    return RetKey;
 
   if(Work.Executing == MACROMODE_NOMACRO)
   {
@@ -1884,7 +1885,7 @@ int KeyMacro::GetKey()
       if(CurPCStack >= 0)
       {
         PopState();
-        return(FALSE);
+        return RetKey;
       }
       if(Mode==MACRO_EDITOR &&
          IsRedrawEditor &&
@@ -1903,7 +1904,7 @@ int KeyMacro::GetKey()
       }
       if(TitleModified) SetFarTitleW(NULL);
       UsedInternalClipboard=0; //??
-      return(FALSE);
+      return RetKey;
     }
 /*
     else if(Work.ExecLIBPos>=MR->BufferSize)
@@ -1925,7 +1926,7 @@ int KeyMacro::GetKey()
 
 initial:
   if((MR=Work.MacroWORK) == NULL)
-    return FALSE;
+    return RetKey;
 //_SVS(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
   // ÂÍÈÌÀÍÈÅ! Âîçìîæíû ãëþêè!
@@ -1980,7 +1981,7 @@ done:
       PopState();
       goto initial;
     }
-    return(FALSE);
+    return RetKey;
   }
 
   if(Work.ExecLIBPos==0)
@@ -2388,12 +2389,10 @@ done:
       ;
   }
 
-  if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
+  if(MR==Work.MacroWORK && ( Work.ExecLIBPos>=MR->BufferSize || Work.ExecLIBPos+1==MR->BufferSize && MR->Buffer[Work.ExecLIBPos]==KEY_NONE))
   {
-    ReleaseWORKBuffer();
-    Work.Executing=MACROMODE_NOMACRO;
-    if(TitleModified)
-      SetFarTitleW(NULL);
+    RetKey=Key;
+    goto done;
   }
 
   return(Key);
