@@ -15,6 +15,6 @@ rem generate/update lng files and lang.hpp
 tools\lng.generator.exe -nc -i lang.ini farlang.templ
 
 rem rebuild dependencies
-tools\gawk -f .\scripts\mkdep.awk -v out=Debug.vc mkdep.list.txt > far.debug.dep
+tools\gawk -f .\scripts\mkdep.awk -v out=Debug.vc mkdep.list > far.debug.dep
 
 nmake /f "FAR.mak" CFG="far - Win32 %CFG_0%" | tools\tee !Error.vc.%CFG_0%

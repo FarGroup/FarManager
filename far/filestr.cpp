@@ -5,32 +5,6 @@ filestr.cpp
 
 */
 
-/* Revision: 1.07 25.05.2006 $ */
-
-/*
-Modify:
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  26.02.2002 SVS
-    ! Удалим тестовый кусок.
-  25.01.2002 SVS
-    + Задаваемый размер FBufSize для буферизации чтения.
-      Явление возможно временное - тестеры покажут.
-    - Явная бага - размер StrLength увеличили, перераспределили память и
-      если запрос памяти окончился неудачно, то StrLength так и осталась
-      в новом значении.
-  06.05.2001 DJ
-    ! перетрях #include
-  20.02.2001 SVS
-    ! Заголовки - к общему виду!
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -39,13 +13,8 @@ Modify:
 
 GetFileString::GetFileString(FILE *SrcFile)
 {
-  /* $ 13.07.2000 SVS
-     Т.к. в последствии память перераспределяется через realloc, то
-     конструкция Str=new char[1024]; не применима...
-  */
   wStr = (wchar_t*)xf_malloc(1024*sizeof (wchar_t));
   Str=(char*)xf_malloc(1024);
-  /* SVS $ */
   m_nStrLength=1024;
   GetFileString::SrcFile=SrcFile;
 
@@ -55,12 +24,8 @@ GetFileString::GetFileString(FILE *SrcFile)
 
 GetFileString::~GetFileString()
 {
-  /* $ 13.07.2000 SVS
-     используем free
-  */
-  xf_free(Str);
-  xf_free(wStr);
-  /* SVS $ */
+  if ( Str ) xf_free(Str);
+  if ( wStr ) xf_free(wStr);
 }
 
 
@@ -217,4 +182,3 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 	Length=CurLength;
 	return(ExitCode);
 }
-

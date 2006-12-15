@@ -5,8 +5,6 @@ filelist.cpp
 
 */
 
-/* Revision: 1.281 01.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -873,7 +871,7 @@ int FileList::ProcessKey(int Key)
                 strFullName.Upper ();
 
               if ( !strFullName.IsEmpty() )
-                AddEndSlashW(strFullName,L'\\');
+                AddEndSlashW(strFullName,0);
 
               if(Opt.PanelCtrlFRule)
               {
