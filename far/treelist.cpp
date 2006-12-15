@@ -1137,19 +1137,19 @@ int TreeList::SetDirPosition(char *NewDir)
 
 int TreeList::GetCurDir(char *CurDir)
 {
-  if(CurDir)
+  char *Ptr="";
+  if (TreeCount==0)
   {
-    if (TreeCount==0)
-    {
-      if (ModalMode==MODALTREE_FREE)
-        strcpy(CurDir,Root); // TODO: ноюямн!!!
-      else
-        *CurDir=0;
-    }
-    else
-      strcpy(CurDir,ListData[CurFile].Name); // TODO: ноюямн!!!
+    if (ModalMode==MODALTREE_FREE)
+      Ptr=Root;
   }
-  return strlen(NullToEmpty(CurDir));
+  else
+    Ptr=ListData[CurFile].Name;
+
+  if(CurDir)
+    strcpy(CurDir,Ptr); // TODO: ноюямн!!!
+
+  return strlen(Ptr);
 }
 
 

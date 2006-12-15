@@ -1895,6 +1895,7 @@ int KeyMacro::GetKey()
   _KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
   _KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   struct MacroRecord *MR;
+  int RetKey=0;
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
@@ -1905,7 +1906,7 @@ int KeyMacro::GetKey()
       if(CurPCStack >= 0)
       {
         PopState();
-        return(FALSE);
+        return RetKey;
       }
       if(Mode==MACRO_EDITOR &&
          IsRedrawEditor &&
@@ -1924,7 +1925,7 @@ int KeyMacro::GetKey()
       }
       if(TitleModified) SetFarTitle(NULL);
       UsedInternalClipboard=0; //??
-      return(FALSE);
+      return RetKey;
     }
 /*
     else if(Work.ExecLIBPos>=MR->BufferSize)
@@ -2001,7 +2002,7 @@ done:
       PopState();
       goto initial;
     }
-    return(FALSE);
+    return RetKey;
   }
 
   if(Work.ExecLIBPos==0)
@@ -2407,12 +2408,10 @@ done:
       ;
   }
 
-  if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
+  if(MR==Work.MacroWORK && ( Work.ExecLIBPos>=MR->BufferSize || Work.ExecLIBPos+1==MR->BufferSize && MR->Buffer[Work.ExecLIBPos]==KEY_NONE))
   {
-    ReleaseWORKBuffer();
-    Work.Executing=MACROMODE_NOMACRO;
-    if(TitleModified)
-      SetFarTitle(NULL);
+    RetKey=Key;
+    goto done;
   }
 
   return(Key);
