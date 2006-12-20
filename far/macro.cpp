@@ -2389,6 +2389,7 @@ done:
       ;
   }
 
+#if 0
   if(MR==Work.MacroWORK &&
       ( Work.ExecLIBPos>=MR->BufferSize || Work.ExecLIBPos+1==MR->BufferSize && MR->Buffer[Work.ExecLIBPos]==KEY_NONE) &&
       Mode==MACRO_DIALOG
@@ -2397,6 +2398,15 @@ done:
     RetKey=Key;
     goto done;
   }
+#else
+  if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
+  {
+    ReleaseWORKBuffer();
+    Work.Executing=MACROMODE_NOMACRO;
+    if(TitleModified)
+      SetFarTitleW(NULL);
+  }
+#endif
 
   return(Key);
 }
