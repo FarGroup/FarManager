@@ -1,0 +1,38 @@
+.Language=English,English
+.PluginContents=Windows Explorer context menu
+
+@Contents
+$ #Windows Explorer context menu#
+    This plugin allows you to execute Windows Explorer context menu commands
+for the current file or folder on the FAR panel. The Explorer context menu is
+the menu that is shown when you right-click a file or folder in the Explorer.
+Therefore, this plugin allows you to continue using your favourite Explorer
+shell extensions while working with FAR.
+
+    The plugin can show a text or GUI menu, depending on its ~settings~@Config@.
+
+@Config
+$ #Windows Explorer context menu configuration#
+^#Show message after execution#
+ Enable this option if you want a message to be shown after the plugin has
+finished working. This message may be needed under Windows 95/98, where
+problems can arise if you execute some context menu commands in parallel
+to working with FAR.
+
+^#Show GUI menu#
+ In the case when some commands cannot be executed from the text menu (this
+is not a bug of the plugin but a Windows limitation), you can use the GUI menu.
+The option can have one of the following values:
+
+ #[ ]# Show the text menu
+ #[x]# Show the GUI menu
+ #[?]# Allow to choose the text or GUI menu every time when the plugin
+     is invoked.
+
+@Close
+$ #Press "OK" to continue...#
+    Some commands take a while to execute. Therefore, you should press #OK#
+only after the command has completely finished processing. If you press #OK#
+too early, some problems may arise.
+
+    This message can be disabled in the plugin ~configuration dialog~@Config@.

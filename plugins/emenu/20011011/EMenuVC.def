@@ -1,0 +1,8 @@
+LIBRARY        EMenu
+DESCRIPTION    'Explorer Context Menu Far Plugin'
+EXPORTS
+	SetStartupInfo
+	OpenPlugin
+	GetPluginInfo
+	Configure
+	ExitFAR
