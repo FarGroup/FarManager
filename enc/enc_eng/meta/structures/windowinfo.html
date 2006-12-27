@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-The <dfn>WindowInfo</dfn> structure contains information about one FAR Manager window. 
+The <dfn>WindowInfo</dfn> structure contains information about one FAR Manager window.
 A plugin can retrieve this information using the
 <a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a> command.
 </div>
@@ -68,7 +68,7 @@ struct WindowInfo{
     <div class=dfn>Name</div>
     <div class=dfndescr>Window title. For <dfn>WTYPE_VIEWER</dfn> and
        <dfn>WTYPE_EDITOR</dfn> windows this is a file name. For panels, the name of the currently selected file object.
-       For a help window - nothing. For menu and dialogs - header.
+       Для окна помощи - полный путь к просматриваемому HLF-файлу. For menu and dialogs - header.
     </div>
 </div>
 
