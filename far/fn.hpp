@@ -611,7 +611,7 @@ char* WINAPI PointToFolderNameIfFolder(const char *Path);
 BOOL  TestParentFolderName(const char *Name);
 BOOL  AddEndSlash(char *Path,char TypeSlash);
 BOOL  WINAPI AddEndSlash(char *Path);
-BOOL  WINAPI DeleteEndSlash(char *Path);
+BOOL  WINAPI DeleteEndSlash(char *Path,bool allendslash=false);
 int __cdecl NumStrcmp(const char *s1, const char *s2);
 int __digit_cnt_0(const char* s, const char** beg);
 char *WINAPI FarItoa(int value, char *string, int radix);

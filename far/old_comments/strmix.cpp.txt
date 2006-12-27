@@ -1,0 +1,179 @@
+/*
+Modify:
+  12.07.2006 SVS
+    ! kill class int64
+    ! FileSizeToStr() вместо двух параметров DWORD`ов имеет один __int64
+  05.07.2006 IS
+    - warnings
+  06.04.2006 AY
+    + Обработка новых флагов в FileSizeToStr() - COLUMN_MINSIZEINDEX, COLUMN_MINSIZEINDEX_MASK и COLUMN_SHOWBYTESINDEX
+  12.03.2006 SVS
+    ! варнинги под MSVC
+  06.12.2005 AY
+    - Мда, Network не подружидся с новыми PointToName, вернём назад.
+    + PointToNameUNC - аналог PointToName только считает \\computer\share
+      как имя диска по типу a:\ и соответственно не показывает на него
+      как на имя.
+  05.12.2005 AY
+    + PointToName понимает UNC пути (\\computer\share)
+    + PointToFolderNameIfFolder понимает UNC пути (\\computer\share)
+  24.04.2005 AY
+    ! GCC
+  02.04.2005 AY
+    + Обработка COLUMN_ECONOMIC в FileSizeToStr()
+      Т.е. вернём пробел, а кто его хочет убрать ставит SE.
+    - Если в FileSizeToStr() при COLUMN_FLOATSIZE остаток деления был меньше
+      чем 10% то размер после точки выводился не правильно.
+  02.04.2005 SVS
+    ! уберем пробел, так "интереснее"
+  02.04.2005 AY
+    + Обработка COLUMN_FLOATSIZE в FileSizeToStr()
+  23.12.2004 WARP
+    ! Все-таки нехорошо делать strcpy для пересекающихся строк.
+  28.10.2004 SVS
+    + UnquoteExternal() - удаление внешних кавычек
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
+  30.07.2004 SVS
+    - Если в функции PointToName() параметр Path == NULL происходит Access Violation.
+  31.05.2004 SVS
+    ! ReplaceStrings - последний параметр - не различать "высоту" букв
+  12.01.2004 SVS
+    ! Корректировка CalcWordFromString с учетом IsWordDiv()
+  12.01.2004 IS
+   + IsWordDiv - функция для сверки символа с разделителями слова
+     с учетом текущей кодировки
+  11.11.2003 SVS
+    ! Несколько иная реализация TruncPathStr()
+  11.07.2003 SVS
+    ! Вынесем инициализацию массива KMGTbStr в __PrepareKMGTbStr()
+      была бага: 'к' и 'k' не изменялись при переключении языка
+    + NumStrcmp() - "цифровое" сравнение двух строк
+  28.05.2003 VVM
+    - Баг в функции TruncStr - переписывали байты за пределами строки.
+  27.05.2003 SVS
+    ! Задолбал в VC варнинг про int64++
+  10.05.2003 IS
+    + Облегчим CmpName за счет выноса проверки skippath наружу
+    - Ошибка: *Name*.* не находило Name
+  28.04.2003 SVS
+    - BugZ#876 - отображение размера больших файлов
+  19.02.2003 SVS
+    + TestParentFolderName() - вместо strcmp(Name,"..")
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
+  27.06.2002 SVS
+    - В ReplaceStrings (с наводки все того же Мамаева) цикл
+      while(I <= strlen(Str)-LenFindStr) получался бесконечным, т.к. в
+      некоторых случаях результат "strlen(Str)-LenFindStr" воспринималась
+      AS unsigned ;-((
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
+  25.04.2002 IS
+    + const вариант PointToName
+  25.04.2002 SVS
+    - Ошибка в вычислении размера вставляемой строки в InsertString()
+  03.04.2002 SVS
+    ! WordWrap -> FarFormatText
+  28.03.2002 SVS
+    ! Внимание! Совершенно новая функция FileSizeToStr()
+      Корректно работает (надо проверить, конечно, но мне показалось,
+      что все ОБИ)
+  20.03.2002 IS
+    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
+      "name\" (оканчивается на слеш) возвращает указатель на name, а не
+      на пустую строку
+  05.03.2002 DJ
+    - такая вот, блин, хреновая косметика
+  23.02.2002 DJ
+    - косметика от BoundsChecker
+  23.01.2002 SVS
+    - небольшая бага в AddEndSlash()
+  19.01.2002 VVM
+    ! Небольшое уточнение в CenterStr
+  25.12.2001 SVS
+    + AddEndSlash(char *Path,char TypeSlash) - с явно заданным слешем
+    ! оптимизация в RemoveTrailingSpaces,  RemoveLeadingSpaces,
+      Unquote, DeleteEndSlash
+  19.11.2001 SVS
+    + ReplaceStrings - замена подстроки
+  26.10.2001 SVS
+    ! В HiStrlen() НУЖНО! проверить Str на NULL
+  23.10.2001 SVS
+    - Подводные камни в CenterStr()
+  22.10.2001 SVS
+    ! strncpy() ;-(
+  21.10.2001 SVS
+    + Addeded WordWrap
+  07.10.2001 SVS
+    + InsertString()
+  01.10.2001 IS
+    + TruncStrFromEnd - обрезать строку с правой стороны
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
+  26.09.2001 SVS
+    + DeleteEndSlash (с подачи IS)
+    ! AddEndSlash имеет возвращаемый тип BOOL
+  03.08.2001 IS
+    ! InsertQuote теперь не static
+  24.07.2001 IS
+    ! Замена проверки на '\r' и '\n' на вызов iseol
+  11.07.2001 SVS
+    ! HiStrlen и RemoveChar - дополнительный параметр - при дублях, типа '&&'
+      "удалять ли все или оставлять только один символ"
+  06.07.2001 IS
+    ! Убрал CopyMaskStr, нефиг плодить сущности
+  02.07.2001 IS
+    ! Убрал обработку '-' и '^' из QuoteSpace. Это разрешенные символы, не
+      нужно их брать в кавычки. Кому приспичит - настроят сами.
+  25.06.2001 IS
+    ! Внедрение const
+  06.06.2001 VVM
+    ! чуть-чуть переделаем Unquote()
+  05.06.2001 VVM
+    + переделка Unquote()
+  07.05.2001 DJ
+    * оптимизированная ветка CmpName() работает и для имен с несколькими
+      точками
+    + CopyMaskStr()
+  06.05.2001 DJ
+    ! перетрях #include
+  22.04.2001 SVS
+    + Opt.QuotedSymbols - разделители для QuoteSpace()
+    ! немного оптимизации в Unquote
+  13.04.2001 SVS
+    ! переделаны QuoteSpaceOnly & QuoteSpace - общий код вынесен во
+      вспомогательную функцию InsertQuote и добавлена проверка на присутствие
+      кавычек в начала и в конце строки.
+  08.04.2001 SVS
+    ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
+  20.03.2001 SVS
+    + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
+      вид - выдрана из FileList::ShowList()
+  13.03.2001 SVS
+    ! GetPathRoot переехала в flink.cpp :-)
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
+  06.03.2001 SVS
+    ! Немного оптимизации в TruncStr() - избавляемся от лишнего вызова new[]
+    ! Немного оптимизации в InsertCommas() - избавляемся от лишнего sprintf()
+  05.03.2001 SVS
+    ! Немного оптимизации в фунциях QuoteSpace и QuoteSpaceOnly -
+      убрал лишний malloc()
+  28.02.2001 SVS
+    ! CenterStr возвращает указатель на Dest
+  22.02.2001 IS
+    + RemoveChar - удаляет символ из строки
+    ! RemoveHighlights(Str) как макрос (в fn.hpp) - вызывает RemoveChar(Str,'&')
+  02.02.2001 IS
+    + Функция RemoveUnprintableCharacters - заменяет пробелами непечатные
+      символы в строке. В настоящий момент обрабатываются только cr и lf.
+  05.01.2001 SVS
+    ! Выделение в качестве самостоятельного модуля
+    + Функции InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
+      QuoteSpace, QuoteSpaceOnly, TruncStr, TruncPathStr, Remove???Spaces,
+      HiStrlen, AddEndSlash, NullToEmpty, CenterStr, GetCommaWord,
+      RemoveHighlights, IsCaseMixed, IsCaseLower, Unquote,
+      переехали из mix.cpp
+*/

@@ -5,251 +5,6 @@ help.cpp
 
 */
 
-/* Revision: 1.91 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  16.05.2005 WARP & AY
-    ! Исправления в отрисовке файлов помщи
-  03.03.2005 SVS
-    - BugZ#1291 - Дельта для прокрутки в поиске нет: Opt.MsWheelDelta -> Opt.MsWheelDeltaHelp
-  17.01.2005 WARP
-    ! Некоторые уточнения в спецификатор переноса строки.
-  18.12.2004 WARP
-    ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  07.06.2004 SVS
-    - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
-  04.06.2004 SVS
-    - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
-  27.05.2004 SVS
-    - BugZ#1086 - нельзя перейти на последний топик ни по end ни через PgDn
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-    ! Выкинем нафиг упоминание про DHELP2 - нет такого
-  22.10.2003 SVS
-    - лишняя добавка к пути (лишний символ '\')
-  13.10.2003 SVS
-    ! Заготовка для мультисимвольного CtrlColorChar
-  09.10.2003 SVS
-    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
-      APIS2ANSI или APIS2OEM - задел на будущее
-  15.09.2003 SVS
-    - BugZ#457 - Форматирование в Help-файлах
-      (ВНИМАНИЕ! НЕ УВЕРЕН! но бага излечилась :-))
-  03.06.2003 SVS
-    + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
-    ! Теперь в кейбар можно тыкать мышой
-  22.04.2003 SVS
-    - BugZ#851 - Wrong error message by ShowHelp
-  26.02.2003 SVS
-    + Укажем что именно не найдено в ERROR-месаге
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  14.07.2002 IS
-    ! внедрение const
-    ! '>' -> HelpEndLink
-    ! JumpTopic: при переходе по ссылкам используем всегда только
-      абсолютные пути, если это возможно.
-  02.07.2002 SVS
-    - BugZ#400 - скролбар и проблемы из-за него
-  24.05.2002 SVS
-    + Дублирование Numpad-клавиш
-  18.05.2002 SVS
-    ! Возможность компиляции под BC 5.5
-  25.04.2002 SVS
-    - BugZ#476 - Проблемы с .Options TabSize
-  15.03.2002 DJ
-    + обработка клика в середине скроллбара в хелпе
-  03.03.2002 SVS
-    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
-  15.01.2001 SVS
-    - Была бага - например, F1 выбрать "Клавиатурные команды" - курсор
-      позиционировался на второй линк. Причем, если в Far*.hlf (далее в
-      описалове)
-  28.12.2001 SVS
-    - Фар плющило при переходе в несуществующий топик - переполнение стека.
-  28.12.2001 SVS
-    - Бага с кустом-линками
-    - BugZ#62: ошибка форматирования hlf.
-  25.12.2001 SVS
-    - Работа над ошибками (Help::MkTopic для ModuleName)
-  24.12.2001 SVS
-    ! HelpMask переехала в StackHelpData.
-    ! Уточнения для "документов" (в принципе уже можно открывать!)
-    + Математика поиска в хелпе (зачатки!).
-      Не обижусь, если кто-нить поможет ;-) Все равно до релиза
-      (а может и дальше) поисковика не будет (но терять идеи надоело!!!)
-  24.12.2001 SVS
-    ! Уточнение.
-  21.12.2001 SVS
-    - Bug: не работала ссылка вида
-      "@<c:\program files\far\plugins\multiarc\multiarc.dll>"
-      Нужно было удавить "multiarc.dll". Плюс к этому теперь для
-      __PluginContents__ путь заканчивается на слеш (для унификации)
-  19.12.2001 VVM
-    ! Если JumpTopic() не выполнился, то данные из стека удалим.
-  03.12.2001 SVS
-    ! Для "обрезания" :-) есть спец-функция.
-  03.12.2001 DJ
-    - если PluginContents очень длинный, надо его обрезать
-  29.11.2001 DJ
-    + в заголовке окна хелпа показываем, чей это хелп
-  27.11.2001 DJ
-    - забыли инициализировать CtrlTabSize
-  27.11.2001 SVS
-    ! ОпЯчатка в пред. патче
-  26.11.2001 SVS
-    + DoubliClock - свернуть/развернуть хелп.
-    ! F1 в хелпе - всегда вызывать "Help"
-  26.11.2001 VVM
-    ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
-  01.11.2001 SVS
-    + немного про "типы" - GetType*()
-  26.10.2001 VVM
-    + Считать нажатие средней кнопки за ЕНТЕР
-  15.10.2001 SVS
-    ! вместо strcmp применяем LCStricmp
-  15.10.2001 SVS
-    + Сортируем индекс хелпов от плагинов перед выдачей на экран.
-  07.10.2001 SVS
-    + Opt.HelpTabSize - размер табуляции по умолчанию.
-  01.10.2001 SVS
-    ! Временно отключим "KEY_SHIFTF3"
-    + CtrlTabSize - опция! размер табуляции - резерв на будущее!
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  24.09.2001 VVM
-    ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках...
-  19.09.2001 VVM
-    + Заменить ТАБУЛЯЦИЮ на пробел.
-  21.08.2001 KM
-    - Неверно создавался топик с учётом нового правила,
-      в котором путь для топика должен заканчиваться "/".
-  20.08.2001 VVM
-    ! Обработка прокрутки с альтом.
-  07.08.2001 SVS
-    ! косметика - для собственных нужд (по поводу help2.?pp)
-  05.08.2001 SVS
-    + AddTitle() - добавить титл.
-    ! В Help::MkTopic() исключим возможность повторного формирования топика,
-      если он уже сформирован. Здесь еще нужно поковыряться, т.к. пока есть
-      непонятки:
-        К примеру, если принять как аксиому, что имя модуля всегда содержит
-        ".ext" (точку), то все решается на ура.
-  03.08.2001 SVS
-    - бага с вызовом хелпа.
-  01.08.2001 SVS
-    + Новый взгляд на линки
-    + Понятие - "Коллекция документов" (часть первая)
-  26.07.2001 VVM
-    + С альтом скролим всегда по 1
-  22.07.2001 SVS
-    ! Переделка number two - пытаемся при возврате показать привычное
-      расположение хелпа (но пока, увы)
-  20.07.2001 SVS
-    - "То-ро-пыш-ка" :-( (или увеличение номера билда)
-    ! PluginPanelHelp переехала к плагинам (не место ей здесь)
-    ! Удалены за ненадобностью Get/Set-FullScreenMode
-  20.07.2001 SVS
-    - F1 Esc - проблемы
-  20.07.2001 SVS
-    ! "Перетрях мозглей" Help API. Part I.
-  11.07.2001 SVS
-    - Исправляем ситуацию с приганием курсора на следующую позицию при
-      редраве окна хелпа
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  10.07.2001 OT
-    - Возвращены переменные static SaveScreen *TopScreen и TopLevel :)
-  20.06.2001 SVS
-    - Исправляем проблемы с Alt-F9
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  04.06.2001 OT
-    - Окончательное исправление F1->AltF9.
-      Истреблены переменные static SaveScreen *TopScreen и TopLevel за ненадобностью
-  31.05.2001 OT
-    + ResizeConsole()
-    - Исправление F1->AltF9-> ?? Остались некоторые артефакты,
-      связанные со ScreenSaveом, но... это чуть позже :)
-  26.05.2001 OT
-    - Выпрямление логики вызовов в NFZ
-    - По умолчанию хелпы создаются статически.
-  16.05.2001 DJ
-    ! proof-of-concept
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  07.05.2001 DJ
-    ! поддержка mouse wheel
-    - кейбар не обновлялся
-  06.05.2001 DJ
-    ! перетрях #include
-  26.04.2001 DJ
-    - используем сохраненный Mask при обработке F5
-  16.04.2001 SVS
-    - не поганим SelTopic, если и так в "Help on Help"
-  12.04.2001 SVS
-    + сохранение значения Mask, переданного в конструктор (для корректной
-      работы HlfViewer)
-    - не работало последовательное нажатие F1, Shift-F1, Enter
-  26.03.2001 SVS
-    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
-    ! ReadHelp возвращает TRUE/FALSE
-  21.03.2001 VVM
-    ! уточнение поведения символа '$'
-  16.03.2001 VVM
-    ! Если топик не найден - остаемся, где были
-    - В функции ReadPluginsHelp инициализировать CtrlColorChar
-  22.02.2001 SVS
-    ! в активаторе замена двойных символов ~~ и ## на одинарные эквиваленты
-  06.02.2001 SVS
-    - Исправлен(?) баг с активатором...
-      (новый кусок пока не трогать - возможно потом исключим его вообще)
-  20.01.2001 SVS
-    - Пропадал курсор при вызове справки.
-      Бяка появилась на 354-м патче, когда была введена поддержка кеёбар
-  18.12.2000 SVS
-    + Дополнительный параметр у конструктора - DWORD Flags.
-    + учитываем флаг FHELP_NOSHOWERROR
-  18.12.2000 SVS
-    - ExpandEnv забыл поставить в активаторе :-(
-  07.12.2000 SVS
-    ! Изменен механизм запуска URL приложения - были нарекания со стороны
-      владельцев оутглюка.
-  27.09.2000 SVS
-    ! Разрешения для активизации URL-ссылок.
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  19.09.2000 OT
-    - Ошибка при отрисовки хелпа
-  12.09.2000 SVS
-    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
-      файлов.
-  01.09.2000 SVS
-    + Мои любимые цветовые атрибуты - Учтем символ CtrlColorChar
-  25.08.2000 SVS
-    + CtrlAltShift - спрятать/показать помощь...
-    + URL активатор - это ведь так просто :-)))
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  28.06.2000
-    - NT Console resize
-      adding SetScreenPosition method
-  26.06.2000 IS
-    - Глюк с хелпом по f1, shift+f2, end
-      (решение предложил IG)
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -265,6 +20,7 @@ Modify:
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "BlockExtKey.hpp"
+#include "macroopcode.hpp"
 
 
 // Стек возврата
@@ -341,6 +97,7 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   CanLoseFocus=FALSE;
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_HELP);
+  FullHelpPathName[0]=0;
 
   ErrorHelp=TRUE;
   IsNewTopic=TRUE;
@@ -457,7 +214,7 @@ void Help::Hide()
 
 int Help::ReadHelp(const char *Mask)
 {
-  char FileName[NM],ReadStr[2*MAX_HELP_STRING_LENGTH];
+  char ReadStr[2*MAX_HELP_STRING_LENGTH];
   char SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
   int Formatting=TRUE,RepeatLastLine,PosTab,BreakProcess;
   const int MaxLength=X2-X1-1;
@@ -471,6 +228,8 @@ int Help::ReadHelp(const char *Mask)
       return FALSE;
     strcpy(StackData.HelpTopic,TopicPtr+1);
     *TopicPtr=0;
+    DeleteEndSlash(Path,true);
+    AddEndSlash(Path);
     strcpy(StackData.HelpPath,Path);
   }
   else
@@ -478,6 +237,7 @@ int Help::ReadHelp(const char *Mask)
 
   if (!strcmp(StackData.HelpTopic,PluginContents))
   {
+    FullHelpPathName[0]=0;
     ReadDocumentsHelp(HIDX_PLUGINS);
     return TRUE;
   }
@@ -485,12 +245,13 @@ int Help::ReadHelp(const char *Mask)
 #if defined(WORK_HELP_DOCUMS)
   if (!strcmp(StackData.HelpTopic,DocumentContents))
   {
+    FullHelpPathName[0]=0;
     ReadDocumentsHelp(HIDX_DOCUMS);
     return TRUE;
   }
 #endif
 
-  FILE *HelpFile=Language::OpenLangFile(Path,(!*Mask?HelpFileMask:Mask),Opt.HelpLanguage,FileName);
+  FILE *HelpFile=Language::OpenLangFile(Path,(!*Mask?HelpFileMask:Mask),Opt.HelpLanguage,FullHelpPathName);
 
   if (HelpFile==NULL)
   {
@@ -1268,6 +1029,17 @@ int Help::ProcessKey(int Key)
 {
   if (*StackData.SelTopic==0)
     StackData.CurX=StackData.CurY=0;
+
+  switch(Key)
+  {
+    case MCODE_V_HELPFILENAME: // Help.FileName
+       return (int)FullHelpPathName;
+    case MCODE_V_HELPTOPIC: // Help.Topic
+       return (int)StackData.HelpTopic;
+    case MCODE_V_HELPSELTOPIC: // Help.SELTopic
+       return (int)StackData.SelTopic;
+  }
+
   switch(Key)
   {
     case KEY_NONE:
@@ -1960,7 +1732,8 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       {
         strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
         if ((Slash=strrchr(Path,'\\'))!=NULL)
-          *++Slash=0;
+//          *++Slash=0;
+          *Slash=0;
         FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
         if (HelpFile!=NULL)
         {
@@ -2325,7 +2098,7 @@ int Help::GetTypeAndName(char *Type,char *Name)
   if(Type)
     strcpy(Type,MSG(MHelpType));
   if(Name)
-    strcpy(Name,"");
+    xstrncpy(Name,FullHelpPathName,NM-1);
   return(MODALTYPE_HELP);
 }
 

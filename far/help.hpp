@@ -7,89 +7,6 @@ help.hpp
 
 */
 
-/* Revision: 1.31 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  17.07.2005 SVS
-    ! долой DHELP2
-  18.12.2004 WARP
-    ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
-  13.10.2003 SVS
-    ! Заготовка для мультисимвольного CtrlColorChar
-  03.06.2003 SVS
-    + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
-  22.04.2003 SVS
-    + FHELPOBJ_ERRCANNOTOPENHELP - индикатор ошибки
-  14.07.2002 IS
-    ! внедрение const
-  24.12.2001 SVS
-    ! HelpMask переехала в StackHelpData.
-    + Математика поиска в хелпе (зачатки, серия первая)
-  29.11.2001 DJ
-    ! отрисовка рамки хелпа вытащена в отдельную функцию
-    + помним PluginContents для текущего хелпа
-  26.11.2001 VVM
-    ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
-  01.11.2001 SVS
-    + немного про "типы" - GetType*()
-  01.10.2001 SVS
-    + CtrlTabSize - опция! размер табуляции - резерв на будущее!
-  07.08.2001 SVS
-    ! косметика - для собственных нужд (по поводу help2.?pp)
-  05.08.2001 SVS
-    + AddTitle() - добавить титл.
-  01.08.2001 SVS
-    + MkTopic() - создание топика
-    ! ReadPluginsHelp() переименована в ReadDocumentsHelp, т.к.
-      предполагается отображать индекс справки не только по плагинам
-  22.07.2001 SVS
-    ! Переделка number two - пытаемся при возврате показать привычное
-      расположение хелпа (но пока, увы)
-  20.07.2001 SVS
-    ! PluginPanelHelp переехала к плагинам (не место ей здесь)
-    ! Удалены за ненадобностью Get/Set-FullScreenMode
-  20.07.2001 SVS
-    ! "Перетрях мозглей" Help API. Part I.
-  11.07.2001 OT
-    ! Перенос CtrlAltShift в Manager
-  31.05.2001 OT
-    + ResizeConsole() - как реакция на изменившийся размер консоли.
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  12.04.2001 SVS
-    + сохранение значения Mask, переданного в конструктор
-    + передача сохраненной Mask в конструктор с ShowPrev
-  26.03.2001 SVS
-    ! ReadHelp возвращает TRUE/FALSE
-  30.12.2000 SVS
-    + KeyBar в Help`е
-  18.12.2000 SVS
-    + Дополнительный параметр у конструктора - DWORD Flags.
-    + Член класса - Flags
-  12.09.2000 SVS
-    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
-      файлов.
-    + GetError() - возвращает ErrorHelp.
-  01.09.2000 SVS
-    + CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
-    + CurColor - текущий цвет отрисовки
-  28.06.2000 tran
-    - NT Console resize bug
-      adding SetScreenPosition method
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "farconst.hpp"
@@ -126,6 +43,7 @@ class Help:public Frame
     SaveScreen *TopScreen;      // область сохранения под хелпом
     KeyBar      HelpKeyBar;     // кейбар
     CallBackStack *Stack;       // стек возврата
+    char  FullHelpPathName[512];
 
     struct StackHelpData StackData;
     char *HelpData;             // "хелп" в памяти.
