@@ -22,6 +22,7 @@ help.cpp
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "BlockExtKey.hpp"
+#include "macroopcode.hpp"
 
 
 // Стек возврата
@@ -165,6 +166,8 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_HELP);
 
+  strFullHelpPathName = L"";
+
   ErrorHelp=TRUE;
   IsNewTopic=TRUE;
 
@@ -292,7 +295,6 @@ void Help::Hide()
 
 int Help::ReadHelp(const wchar_t *Mask)
 {
-  string strFileName;
   wchar_t ReadStr[2*MAX_HELP_STRING_LENGTH];
   wchar_t SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
   int Formatting=TRUE,RepeatLastLine,PosTab,BreakProcess;
@@ -312,15 +314,21 @@ int Help::ReadHelp(const wchar_t *Mask)
       return FALSE;
     StackData.strHelpTopic = TopicPtr+1;
     *TopicPtr=0;
-    StackData.strHelpPath = lpwszPath;
 
     strPath.ReleaseBuffer();
+
+    DeleteEndSlashW(strPath,true);
+    AddEndSlashW(strPath);
+
+    StackData.strHelpPath = strPath;
+
   }
   else
     strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:g_strFarPath;
 
   if (!wcscmp(StackData.strHelpTopic,PluginContents))
   {
+    strFullHelpPathName = L"";
     ReadDocumentsHelp(HIDX_PLUGINS);
     return TRUE;
   }
@@ -328,6 +336,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 #if defined(WORK_HELP_DOCUMS)
   if (!strcmp(StackData.HelpTopic,DocumentContents))
   {
+    strFullHelpPathName = L"";
     ReadDocumentsHelp(HIDX_DOCUMS);
     return TRUE;
   }
@@ -335,7 +344,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   int nCodePage = CP_OEMCP;
 
-  FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFileName, nCodePage);
+  FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
   if (HelpFile==NULL)
   {
@@ -1113,6 +1122,17 @@ int Help::ProcessKey(int Key)
 {
   if ( StackData.strSelTopic.IsEmpty() )
     StackData.CurX=StackData.CurY=0;
+
+  switch(Key)
+  {
+    case MCODE_V_HELPFILENAME: // Help.FileName
+       return (int)(const wchar_t *)strFullHelpPathName;     // ???
+    case MCODE_V_HELPTOPIC: // Help.Topic
+       return (int)(const wchar_t *)StackData.strHelpTopic;  // ???
+    case MCODE_V_HELPSELTOPIC: // Help.SELTopic
+       return (int)(const wchar_t *)StackData.strSelTopic;   // ???
+  }
+
   switch(Key)
   {
     case KEY_NONE:
@@ -2221,7 +2241,7 @@ int Help::FastHide()
 int Help::GetTypeAndName(string &strType, string &strName)
 {
   strType = UMSG(MHelpType);
-  strName = L"";
+  strName = strFullHelpPathName;
 
   return(MODALTYPE_HELP);
 }

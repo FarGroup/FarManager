@@ -889,41 +889,58 @@ BOOL AddEndSlashW (
 }
 
 
-BOOL WINAPI DeleteEndSlash(char *Path)
+BOOL WINAPI DeleteEndSlash(char *Path,bool allendslash)
 {
+  BOOL Ret=FALSE;
   if(Path)
   {
-    int Length=strlen(Path)-1;
-    if (Length >= 0)
+    char *PtrEndPath=Path+(strlen(Path)-1);
+    while(PtrEndPath >= Path)
     {
-      if(*(Path+=Length) == '\\')
+      if(*PtrEndPath == '\\')
       {
-        *Path=0;
-        return TRUE;
+        Ret=TRUE;
+        *PtrEndPath=0;
+        if(!allendslash)
+          return Ret;
       }
+      else
+        return Ret;
+      PtrEndPath--;
     }
   }
-  return FALSE;
+  return Ret;
 }
 
-BOOL WINAPI DeleteEndSlashW (string &strPath)
+BOOL WINAPI DeleteEndSlashW (string &strPath,bool allendslash)
 {
+  BOOL Ret=FALSE;
   if( !strPath.IsEmpty() )
   {
     int Length=strPath.GetLength()-1;
-    if (Length >= 0)
+    wchar_t *lpwszPath = strPath.GetBuffer ();
+    wchar_t *lpwszEndPath = lpwszPath+Length;
+    while ( lpwszEndPath >= lpwszPath )
     {
-      wchar_t *lpwszPath = strPath.GetBuffer ();
-      if(*(lpwszPath+=Length) == L'\\') //LAME!!!
+      if(*lpwszEndPath == L'\\') //LAME!!!
       {
+        Ret=TRUE;
         *lpwszPath=0;
-        strPath.ReleaseBuffer();
-        return TRUE;
+        if(!allendslash)
+        {
+          strPath.ReleaseBuffer();
+          return Ret;
+        }
       }
-      strPath.ReleaseBuffer();
+      else
+      {
+        strPath.ReleaseBuffer();
+        return Ret;
+      }
     }
+    strPath.ReleaseBuffer();
   }
-  return FALSE;
+  return Ret;
 }
 
 /*

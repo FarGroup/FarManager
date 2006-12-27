@@ -223,6 +223,10 @@ enum MACRO_OP_CODE {
 
   MCODE_V_DRVSHOWPOS,               // Drv.ShowPos - меню выбора дисков отображено: 1=слева (Alt-F1), 2=справа (Alt-F2), 0="нету его"
   MCODE_V_DRVSHOWMODE,              // Drv.ShowMode - режимы отображения меню выбора дисков
+
+  MCODE_V_HELPFILENAME,             // Help.FileName
+  MCODE_V_HELPTOPIC,                // Help.Topic
+  MCODE_V_HELPSELTOPIC,             // Help.SelTopic
 };
 
 typedef enum MACRO_OP_CODE TFunction;

@@ -157,6 +157,10 @@ struct TMacroKeywords MKeywords[] ={
   {2,  L"Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
   {2,  L"Dlg.CurPos",         MCODE_V_DLGCURPOS,0},
 
+  {2,  L"Help.FileName",      MCODE_V_HELPFILENAME, 0},
+  {2,  L"Help.Topic",         MCODE_V_HELPTOPIC, 0},
+  {2,  L"Help.SelTopic",      MCODE_V_HELPSELTOPIC, 0},
+
   {2,  L"Drv.ShowPos",        MCODE_V_DRVSHOWPOS,0},
   {2,  L"Drv.ShowMode",       MCODE_V_DRVSHOWMODE,0},
 
@@ -1097,6 +1101,17 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             }
             else
               Cond=(__int64)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
+          }
+          break;
+        }
+
+        case MCODE_V_HELPFILENAME:  // Help.FileName
+        case MCODE_V_HELPTOPIC:     // Help.Topic
+        case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
+        {
+          if(CtrlObject->Macro.GetMode() == MACRO_HELP)
+          {
+            Cond=(const wchar_t*)CurFrame->ProcessKey(CheckCode);
           }
           break;
         }

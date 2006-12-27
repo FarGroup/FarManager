@@ -46,6 +46,7 @@ class Help:public Frame
     SaveScreen *TopScreen;      // область сохранения под хелпом
     KeyBar      HelpKeyBar;     // кейбар
     CallBackStack *Stack;       // стек возврата
+    string  strFullHelpPathName;
 
     struct StackHelpData StackData;
     wchar_t *HelpData;             // "хелп" в памяти.

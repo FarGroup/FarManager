@@ -687,8 +687,8 @@ BOOL  AddEndSlashW (string &strPath);
 BOOL  AddEndSlashW (wchar_t *Path, wchar_t TypeSlash);
 BOOL  WINAPI AddEndSlashW (wchar_t *Path);
 
-BOOL  WINAPI DeleteEndSlash(char *Path);
-BOOL  WINAPI DeleteEndSlashW(string &strPath);
+BOOL  WINAPI DeleteEndSlash(char *Path,bool allendslash=false);
+BOOL  WINAPI DeleteEndSlashW(string &strPath,bool allendslash=false);
 
 int __cdecl NumStrcmp(const char *s1, const char *s2);
 int __digit_cnt_0(const char* s, const char** beg);
