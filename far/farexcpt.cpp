@@ -24,11 +24,11 @@ farexcpt.cpp
 
 #define MAX_DELTA_CODE  100
 
-static DWORD _xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,DWORD Flags);
+static DWORD _xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
-               struct PluginItem *Module,
+               Plugin *Module,
                void *RawData,DWORD RawDataSize,
                DWORD RawDataFlags,DWORD RawType)
 {
@@ -51,7 +51,7 @@ static const wchar_t* xFromMSGTitle(int From)
 
 static BOOL Is_STACK_OVERFLOW=FALSE;
 
-DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,DWORD Flags)
+DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
   static DWORD stack[1024];
   DWORD Result;
@@ -80,7 +80,7 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,D
 static DWORD _xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
-    struct PluginItem *Module,// модуль, приведший к исключению.
+    Plugin *Module,// модуль, приведший к исключению.
     DWORD Flags)              // дополнительные флаги - пока только один
                               //        0x1 - спрашивать про выгрузку?
 {

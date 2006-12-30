@@ -15,9 +15,7 @@ fileedit.hpp
 
 class NamesList;
 
-/* $ 27.05.2001 DJ
-   коды возврата Editor::SaveFile()
-*/
+/* коды возврата Editor::SaveFile() */
 enum {
     SAVEFILE_ERROR   = 0,         // пытались сохранять, не получилось
     SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохранять было не надо
@@ -49,22 +47,19 @@ enum FFILEEDIT_FLAGS{
 };
 
 
-class FileEditor:public Frame
+class FileEditor : public Frame
 {
-  private:
-    typedef class Frame inherited;
+private:
 
-    Editor *FEdit;
+    Editor *m_editor;
     KeyBar EditKeyBar;
 
-    /* $ 07.05.2001 DJ */
     NamesList *EditNamesList;
-    /* DJ $ */
+
     string strFileName;
     string strFullFileName;
 
     string strStartDir;
-    char NewTitle[NM];
 
     string strTitle;
     string strPluginTitle;
@@ -90,32 +85,13 @@ class FileEditor:public Frame
     DWORD SysErrorCode;
 
     //28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
-    bool bClosing;
+    bool m_bClosing;
 
     bool m_bSignatureFound;
 
-  public:
-    FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
-               int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
-               const wchar_t *PluginData=NULL,int ToSaveAs=FALSE,
-               int OpenModeExstFile=FEOPMODE_QUERY);
-    /* $ 14.06.2002 IS
-       DeleteOnClose стал int:
-         0 - не удалять ничего
-         1 - удалять файл и каталог
-         2 - удалять только файл
-    */
-    FileEditor(const wchar_t *Name,int CreateNewFile,int EnableSwitch,
-               int StartLine,int StartChar,const wchar_t *Title,
-               int X1,int Y1,int X2,int Y2, int DisableHistory,
-               int DeleteOnClose=0,
-               int OpenModeExstFile=FEOPMODE_QUERY);
-    /* IS $ */
-    /* $ 07.05.2001 DJ */
-    virtual ~FileEditor();
-    /* DJ $ */
+    int m_codepage; //BUGBUG
 
-  private:
+private:
     void DisplayObject();
     int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
     BOOL UpdateFileList();
@@ -127,28 +103,58 @@ class FileEditor:public Frame
           2 - удалять только файл
     */
     void SetDeleteOnClose(int NewMode);
-    /* IS 14.06.2002 */
-    /* IS 10.10.2001 */
     int ReProcessKey(int Key,int CalledFromControl=TRUE);
 
-  public:
+public:
+    FileEditor(const wchar_t *Name, int codepage, int CreateNewFile,int EnableSwitch,
+               int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
+               const wchar_t *PluginData=NULL,int ToSaveAs=FALSE,
+               int OpenModeExstFile=FEOPMODE_QUERY);
     /* $ 14.06.2002 IS
        DeleteOnClose стал int:
          0 - не удалять ничего
          1 - удалять файл и каталог
          2 - удалять только файл
     */
-    void Init(const wchar_t *Name,const wchar_t *Title,int CreateNewFile,int EnableSwitch,
-              int StartLine,int StartChar,int DisableHistory,const wchar_t *PluginData,
-              int ToSaveAs, int DeleteOnClose,int OpenModeExstFile);
+    FileEditor(const wchar_t *Name, int codepage, int CreateNewFile,int EnableSwitch,
+               int StartLine,int StartChar,const wchar_t *Title,
+               int X1,int Y1,int X2,int Y2, int DisableHistory,
+               int DeleteOnClose=0,
+               int OpenModeExstFile=FEOPMODE_QUERY);
     /* IS $ */
+    /* $ 07.05.2001 DJ */
+    virtual ~FileEditor();
+    /* DJ $ */
+
+
+public:
+    /* $ 14.06.2002 IS
+       DeleteOnClose стал int:
+         0 - не удалять ничего
+         1 - удалять файл и каталог
+         2 - удалять только файл
+    */
+	void Init(
+			const wchar_t *Name,
+			int codepage,
+			const wchar_t *Title,
+			int CreateNewFile,
+			int EnableSwitch,
+			int StartLine,
+			int StartChar,
+			int DisableHistory,
+			const wchar_t *PluginData,
+			int ToSaveAs, 
+			int DeleteOnClose,
+			int OpenModeExstFile
+			);
 
     void InitKeyBar(void);                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void ShowConsoleTitle();
-    int IsFileChanged() {return(FEdit->IsFileChanged());};
-    virtual int IsFileModified() {return(FEdit->IsFileModified());};
+    int IsFileChanged() {return(m_editor->IsFileChanged());};
+    virtual int IsFileModified() {return(m_editor->IsFileModified());};
 
     void SetScreenPosition();                         // $ 28.06.2000 tran - NT Console resize - resize editor
 
@@ -179,8 +185,11 @@ class FileEditor:public Frame
     void ResizeConsole();
     void Show();
 
-    int ReadFile(const wchar_t *Name,int &UserBreak);
-    int SaveFile(const wchar_t *Name,int Ask,int TextFormat,int SaveAs);
+    int LoadFile(const wchar_t *Name, int &UserBreak);
+
+    //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
+    int SaveFile(const wchar_t *Name, int Ask, bool bSaveAs, int TextFormat = 0, int Codepage = 0);
+
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const wchar_t *PluginTitle);
     void SetTitle(const wchar_t *Title);
@@ -202,6 +211,10 @@ class FileEditor:public Frame
 
     bool LoadFromCache (EditorCacheParams *pp);
     void SaveToCache ();
+
+    void SetCodePage (int codepage); //BUGBUG
 };
+
+bool dlgOpenEditor (string &strFileName, int &codepage);
 
 #endif  // __FILEEDITOR_HPP__

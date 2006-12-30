@@ -1129,21 +1129,25 @@ int FileList::ProcessKey(int Key)
         if(!PluginMode)
           strPluginData=L"";
 
+        int codepage = CP_AUTODETECT;
+
         if (Key==KEY_SHIFTF4)
         {
           static string strLastFileName=L"";
 
-          if (!GetStringW(UMSG(MEditTitle),
+          if ( !dlgOpenEditor (strLastFileName, codepage) )
+          	return FALSE;
+
+          /*if (!GetStringW(UMSG(MEditTitle),
                          UMSG(MFileToEdit),
                          L"NewEdit",
                          strLastFileName,
                          strLastFileName,
                          512, //BUGBUG
                          L"Editor",
-                         FIB_BUTTONS|FIB_EXPANDENV/*|FIB_EDITPATH*/|FIB_ENABLEEMPTY))
-            return(FALSE);
-          /* SVS $ */
-          /* KM $ */
+                         FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
+            return(FALSE);*/
+
           if( !strLastFileName.IsEmpty() )
           {
             strFileName = strLastFileName;
@@ -1281,7 +1285,7 @@ int FileList::ProcessKey(int Key)
               {
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
 
-                FileEditor ShellEditor (strFileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,strPluginData);
+                FileEditor ShellEditor (strFileName,codepage,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,strPluginData);
                 //FileEditor ShellEditor ((GetFileAttributes(FileName) == (DWORD)-1 && GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
                 //                        Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                 ShellEditor.SetDynamicallyBorn(false);
@@ -1309,7 +1313,7 @@ int FileList::ProcessKey(int Key)
                   EditList.SetCurName(strFileName);
                 }
 
-                FileEditor *ShellEditor=new FileEditor(strFileName,Key==KEY_SHIFTF4,TRUE);
+                FileEditor *ShellEditor=new FileEditor(strFileName,codepage,Key==KEY_SHIFTF4,TRUE);
                 ShellEditor->SetNamesList (&EditList);
                 FrameManager->ExecuteModal();//OT
               }

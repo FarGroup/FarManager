@@ -161,6 +161,8 @@ class Viewer:public ScreenObject
     /* SVS $ */
     bool AdjustSelPosition;
 
+    int m_codepage; //BUGBUG
+
   private:
     void DisplayObject();
 

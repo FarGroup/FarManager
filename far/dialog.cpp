@@ -746,6 +746,7 @@ int Dialog::InitDialogObjects(int ID)
          Если это ComBoBox и данные не установлены, то берем из списка
          при условии, что хоть один из пунктов имеет Selected != 0
       */
+
       if (Type==DI_COMBOBOX && CurItem->strData.IsEmpty () && CurItem->ListItems)
       {
         struct FarListItem *ListItems=CurItem->ListItems->Items;

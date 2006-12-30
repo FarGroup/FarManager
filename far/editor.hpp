@@ -136,14 +136,6 @@ class Editor:public ScreenObject
        Новая переменная для поиска "Whole words"
     */
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse;
-    /* $ KM */
-
-    struct CharTableSet TableSet;
-
-
-    int UseDecodeTable;
-    int TableNum;
-    int AnsiText;
 
     int m_codepage; //BUGBUG
 
@@ -202,7 +194,7 @@ class Editor:public ScreenObject
     void AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
-    void SetStringsTable();
+    //void SetStringsTable();
     void BlockLeft();
     void BlockRight();
     void DeleteVBlock();

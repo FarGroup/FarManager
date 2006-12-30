@@ -339,7 +339,7 @@ int FileViewer::ProcessKey(int Key)
            Тут косяк, замеченный при чтении warnings - FilePos теряет информацию при преобразовании __int64 -> int
            Надо бы поправить FileEditor на этот счет.
         */
-        FileEditor *ShellEditor = new FileEditor (strViewFileName, FALSE, GetCanLoseFocus(),
+        FileEditor *ShellEditor = new FileEditor (strViewFileName, -1, FALSE, GetCanLoseFocus(),
           -2, static_cast<int>(FilePos), FALSE, NULL, SaveToSaveAs);
         /* IS $ */
         ShellEditor->SetEnableF6 (TRUE);

@@ -581,7 +581,7 @@ void CommandLine::ShowViewEditHistory()
       case 4: // открытие с локом
       {
         // пусть файл создается
-        FileEditor *FEdit=new FileEditor(strStr,TRUE,TRUE);
+        FileEditor *FEdit=new FileEditor(strStr,CP_AUTODETECT, TRUE,TRUE);
         if(Type == 4)
            FEdit->SetLockEditor(TRUE);
         break;

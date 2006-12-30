@@ -47,7 +47,7 @@ typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,const struct PluginPanelI
 typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const struct PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 
-// флаги для поля PluginItem.WorkFlags
+// флаги для поля Plugin.WorkFlags
 enum PLUGINITEMWORKFLAGS{
   PIWF_CACHED        = 0x00000001, // кешируется
   PIWF_PRELOADED     = 0x00000002, //
@@ -55,7 +55,7 @@ enum PLUGINITEMWORKFLAGS{
                                    //   результате проверки требуемой версии фара
 };
 
-// флаги для поля PluginItem.FuncFlags - активности функций
+// флаги для поля Plugin.FuncFlags - активности функций
 enum PLUGINITEMCALLFUNCFLAGS{
   PICFF_LOADED               = 0x00000001, // DLL загружен ;-)
   PICFF_SETSTARTUPINFO       = 0x00000002, //
@@ -104,8 +104,10 @@ enum PLUGINITEMCALLFUNCFLAGS{
                                PICFF_GETOPENPLUGININFO,
 };
 
-struct PluginItem
+class Plugin
 {
+public:
+
   string strModuleName;
   BitFlags WorkFlags;      // рабочие флаги текущего плагина
   BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
@@ -167,29 +169,29 @@ public:
     BitFlags Flags;        // флаги манагера плагинов
     DWORD Reserved;        // в будущем это может быть второй порцией флагов
 
-    PluginItem **PluginsData;
+    Plugin **PluginsData;
     int    PluginsCount;
-    PluginItem *CurPluginItem;
+    Plugin *CurPluginItem;
 
     FileEditor *CurEditor;
     Viewer *CurViewer;     // 27.09.2000 SVS: Указатель на текущий Viewer
 
 private:
 
-    int LoadPlugin(PluginItem *CurPlugin,int ModuleNumber,int Init);
+    int LoadPlugin(Plugin *CurPlugin,int ModuleNumber,int Init);
     // $ 22.05.2001 DJ возвращает TRUE при успешной загрузке или FALSE, если не прошло GetMinFarVersion()
-    int SetPluginStartupInfo(PluginItem *CurPlugin,int ModuleNumber);
+    int SetPluginStartupInfo(Plugin *CurPlugin,int ModuleNumber);
     int PreparePlugin(int PluginNumber);
     int GetCacheNumber(const wchar_t *FullName,FAR_FIND_DATA_EX *FindData,int CachePos);
-    int SavePluginSettings(PluginItem *CurPlugin,FAR_FIND_DATA_EX &FindData);
+    int SavePluginSettings(Plugin *CurPlugin,FAR_FIND_DATA_EX &FindData);
     void LoadIfCacheAbsent();
     void ReadUserBackgound(SaveScreen *SaveScr);
     int GetHotKeyRegKey(int PluginNumber,int ItemNumber,string &strRegKey);
-    BOOL TestPluginInfo(PluginItem *Item,struct PluginInfoW *Info);
-    BOOL TestOpenPluginInfo(PluginItem *Item,struct OpenPluginInfoW *Info);
+    BOOL TestPluginInfo(Plugin *Item,struct PluginInfoW *Info);
+    BOOL TestOpenPluginInfo(Plugin *Item,struct OpenPluginInfoW *Info);
 
     // $ 03.08.2000 tran - новые методы для проверки минимальной версии
-    int  CheckMinVersion(PluginItem *CurPlg);
+    int  CheckMinVersion(Plugin *CurPlg);
     void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required);
 
 public:
@@ -218,7 +220,7 @@ public:
     void DiscardCache();
     int ProcessCommandLine(const wchar_t *Command,Panel *Target=NULL);
 
-    void UnloadPlugin(PluginItem *CurPlg,DWORD Exception);
+    void UnloadPlugin(Plugin *CurPlg,DWORD Exception);
 
     // $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);

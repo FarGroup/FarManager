@@ -275,7 +275,7 @@ char* Language::GetMsg(int MsgId)
   if(this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
     return(OldLang.MsgAddr[MsgId]);
   return(MsgAddr[MsgId]);
-}
+} 
 
 wchar_t* Language::GetMsgW (int nID)
 {

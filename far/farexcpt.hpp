@@ -281,14 +281,14 @@ typedef BOOL (WINAPI *FARPROCESSEVENT)(struct FARExceptionState * Context);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp=NULL,
-               struct PluginItem *Module=NULL,
+               Plugin *Module=NULL,
                void *RawData=NULL,DWORD RawDataSize=0,
                DWORD RawDataFlags=0,DWORD RawType=RAWTYPE_BINARY);
 
 DWORD WINAPI xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
-    struct PluginItem *Module,// модуль, приведший к исключению.
+    Plugin *Module,// модуль, приведший к исключению.
     DWORD Flags);             // дополнительные флаги - пока только один
                               //        0x1 - спрашивать про выгрузку?
 

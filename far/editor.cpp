@@ -26,8 +26,6 @@ editor.cpp
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 
-static struct CharTableSet InitTableSet;
-
 static int ReplaceMode,ReplaceAll;
 
 static int EditorID=0;
@@ -64,17 +62,6 @@ Editor::Editor()
   LastSearchWholeWords=GlobalSearchWholeWords;
   /* KM $ */
   LastSearchReverse=GlobalSearchReverse;
-  memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
-  UseDecodeTable=EditorInitUseDecodeTable;
-  TableNum=EditorInitTableNum;
-  AnsiText=EditorInitAnsiText;
-
-  if (AnsiText && TableNum==0)
-  {
-    int UseUnicode=FALSE;
-    GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-    UseDecodeTable=TRUE;
-  }
 
   Pasting=0;
   NumLine=0;
@@ -179,10 +166,6 @@ void Editor::KeepInitParameters()
   GlobalSearchWholeWords=LastSearchWholeWords;
   /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
-  memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
-  EditorInitUseDecodeTable=UseDecodeTable;
-  EditorInitTableNum=TableNum;
-  EditorInitAnsiText=AnsiText;
 }
 
 /*
@@ -850,7 +833,7 @@ void Editor::ShowEditor(int CurLineOnly)
       {
         CurPtr->SetEditBeyondEnd(TRUE);
         CurPtr->SetPosition(X1,Y,X2,Y);
-        CurPtr->SetTables(UseDecodeTable ? &TableSet:NULL);
+        //CurPtr->SetTables(UseDecodeTable ? &TableSet:NULL);
         //_D(SysLog("Setleftpos 3 to %i",LeftPos));
         CurPtr->SetLeftPos(LeftPos);
         CurPtr->SetTabCurPos(CurPos);
@@ -1377,8 +1360,8 @@ int Editor::ProcessKey(int Key)
              ƒл€ сравнени€ с WordDiv используем IsWordDiv, а не strchr, т.к.
              текуща€ кодировка может отличатьс€ от кодировки WordDiv (котора€ OEM)
           */
-          if (IsSpaceW(Str[CurPos-1]) ||
-              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1]))
+          //if (IsSpaceW(Str[CurPos-1]) ||
+          //    IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
           /* IS $ */
           /* SVS $ */
             if (SkipSpace)
@@ -1423,14 +1406,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          /* $ 12.01.2004 IS
-             ƒл€ сравнени€ с WordDiv используем IsWordDiv, а не strchr, т.к.
-             текуща€ кодировка может отличатьс€ от кодировки WordDiv (котора€ OEM)
-          */
-          if (IsSpaceW(Str[CurPos]) ||
-              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos]))
-          /* IS $ */
-          /* SVS $ */
+          //if (IsSpaceW(Str[CurPos]) ||
+            //  IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             if (SkipSpace)
             {
               ProcessKey(KEY_SHIFTRIGHT);
@@ -2360,14 +2337,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          /* $ 12.01.2004 IS
-             ƒл€ сравнени€ с WordDiv используем IsWordDiv, а не strchr, т.к.
-             текуща€ кодировка может отличатьс€ от кодировки WordDiv (котора€ OEM)
-          */
-          if (IsSpaceW(Str[CurPos-1]) ||
-              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1]))
-          /* IS $ */
-          /* SVS $ */
+          //if (IsSpaceW(Str[CurPos-1]) ||
+          //    IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
             if (SkipSpace)
             {
               ProcessKey(KEY_ALTSHIFTLEFT);
@@ -2406,14 +2377,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          /* $ 12.01.2004 IS
-             ƒл€ сравнени€ с WordDiv используем IsWordDiv, а не strchr, т.к.
-             текуща€ кодировка может отличатьс€ от кодировки WordDiv (котора€ OEM)
-          */
-          if (IsSpaceW(Str[CurPos]) ||
-              IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos]))
-          /* IS $ */
-          /* SVS $*/
+          //if (IsSpaceW(Str[CurPos]) ||
+          //    IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             if (SkipSpace)
             {
               ProcessKey(KEY_ALTSHIFTRIGHT);
@@ -3141,14 +3106,7 @@ void Editor::InsertString()
   if ( !NewString )
   	return;
 
-  NewString->SetTables(UseDecodeTable ? &TableSet:NULL); // ??
-/*  NewString->m_prev=CurLine;
-  NewString->m_next=CurLine->m_next;
-
-  if (CurLine->m_next)
-    CurLine->m_next->m_prev=NewString;
-
-  CurLine->m_next=NewString;*/
+  //NewString->SetTables(UseDecodeTable ? &TableSet:NULL); // ??
 
   int Length;
   const wchar_t *CurLineStr;
@@ -4530,6 +4488,7 @@ long Editor::GetCurPos()
 }
 
 
+/*
 void Editor::SetStringsTable()
 {
   Edit *CurPtr=TopList;
@@ -4539,6 +4498,7 @@ void Editor::SetStringsTable()
     CurPtr=CurPtr->m_next;
   }
 }
+*/
 
 
 void Editor::BlockLeft()
@@ -5239,8 +5199,6 @@ int Editor::EditorControl(int Command,void *Param)
         if (VBlockStart!=NULL)
           Info->BlockType=BTYPE_COLUMN;
         Info->BlockStartLine=Info->BlockType==BTYPE_NONE ? 0:BlockStartLine;
-        Info->AnsiMode=AnsiText;
-        Info->TableNum=UseDecodeTable ? TableNum-1:-1;
         //Info->Options=0;
         if (EdOpt.ExpandTabs == EXPAND_ALLTABS)
           Info->Options|=EOPT_EXPANDALLTABS;
@@ -5597,43 +5555,8 @@ int Editor::EditorControl(int Command,void *Param)
           /* $ 07.08.2001 IS сменить кодировку из плагина */
           case ESPT_CHARTABLE:
           {
-            _ECTLLOG(if(espar->Param.iParam <= 3)SysLog("  iParam      =%s",(espar->Param.iParam==1?"1 (OEM)":(espar->Param.iParam==2?"2 (ANSI)":"3 (table '0')"))));
-            _ECTLLOG(else SysLog("  iParam      =%d",espar->Param.iParam));
-            int UseUnicode=FALSE;
-            /*  $ 04.11.2001 IS
-                ѕри неудачной смене таблицы оставим все как есть
-                (раньше включали oem)
-            */
-            int oldAnsiText(AnsiText), oldUseDecodeTable(UseDecodeTable),
-                oldTableNum(TableNum), oldChangedByUser(Flags.Check(FEDITOR_TABLECHANGEDBYUSER));
+            //BUGBUG
 
-            AnsiText=espar->Param.iParam==2,
-            UseDecodeTable=espar->Param.iParam>1,
-            TableNum=UseDecodeTable?espar->Param.iParam-3:-1;
-            Flags.Set(FEDITOR_TABLECHANGEDBYUSER);
-
-            if(AnsiText)
-               rc=GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-            else if(UseDecodeTable)
-               rc=PrepareTable(&TableSet, TableNum);
-
-            /* $ 07.03.2002 IS
-               ƒл€ того, чтобы по Shift-F8 выдел€лс€ правильный пункт увеличим
-               счетчик таблиц на 1, т.к. там нумераци€ идет не с 0, а с 1.
-            */
-            if(rc)
-               ++TableNum;
-            else
-            /* IS $ */
-            {
-              Flags.Change(FEDITOR_TABLECHANGEDBYUSER,oldChangedByUser);
-              TableNum=oldTableNum;
-              UseDecodeTable=oldUseDecodeTable;
-              AnsiText=oldAnsiText;
-            }
-            /* IS $ */
-
-            SetStringsTable();
             if (HostFileEditor) HostFileEditor->ChangeEditKeyBar();
             Show();
           }
@@ -5834,7 +5757,7 @@ void Editor::AdjustVBlock(int PrevX)
 */
 void Editor::Xlat()
 {
-  Edit *CurPtr;
+/*  Edit *CurPtr;
   int Line;
   BOOL DoXlat=FALSE;
 
@@ -5855,7 +5778,7 @@ void Editor::Xlat()
          CopySize=TBlockSizeX;
       AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
+      ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags); 
     }
     DoXlat=TRUE;
   }
@@ -5863,10 +5786,9 @@ void Editor::Xlat()
   {
     Line=0;
     CurPtr=BlockStart;
-    /* $ 25.11.2000 IS
-         ≈сли нет выделени€, то обработаем текущее слово. —лово определ€етс€ на
-         основе специальной группы разделителей.
-    */
+    // $ 25.11.2000 IS
+    //     ≈сли нет выделени€, то обработаем текущее слово. —лово определ€етс€ на
+    //     основе специальной группы разделителей.
     if(CurPtr!=NULL)
     {
       while (CurPtr!=NULL)
@@ -5878,7 +5800,7 @@ void Editor::Xlat()
         if(EndSel == -1)
           EndSel=wcslen(CurPtr->Str);
         AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
-        ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
+        ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags); 
         BlockUndo=TRUE;
         Line++;
         CurPtr=CurPtr->m_next;
@@ -5889,16 +5811,11 @@ void Editor::Xlat()
     {
       wchar_t *Str=CurLine->Str;
       int start=CurLine->GetCurPos(), end, StrSize=wcslen(Str);
-      /* $ 10.12.2000 IS
-         ќбрабатываем только то слово, на котором стоит курсор, или то слово,
-         что находитс€ левее позиции курсора на 1 символ
-      */
+      // $ 10.12.2000 IS
+      //   ќбрабатываем только то слово, на котором стоит курсор, или то слово,
+      //   что находитс€ левее позиции курсора на 1 символ
       DoXlat=TRUE;
 
-      /* $ 12.01.2004 IS
-         ƒл€ сравнени€ с WordDiv используем IsWordDiv, а не strchr, т.к.
-         текуща€ кодировка может отличатьс€ от кодировки WordDiv (котора€ OEM)
-      */
       if(IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
       {
          if(start) start--;
@@ -5916,14 +5833,11 @@ void Editor::Xlat()
         AddUndoData(CurLine->GetStringAddrW(),CurLine->GetEOLW(),NumLine,start,UNDO_EDIT);
         ::XlatW(Str,start,end,CurLine->TableSet,Opt.XLat.Flags);
       }
-      /* 12.01.2004 IS */
-     /* IS $ */
     }
-    /* IS $ */
   }
   BlockUndo=FALSE;
   if(DoXlat)
-    TextChanged(1);
+    TextChanged(1);*/
 }
 /* SVS $ */
 
@@ -6154,7 +6068,7 @@ void Editor::SetCacheParams (EditorCacheParams *pp)
 {
 	memcpy (&SavePos, &pp->SavePos, sizeof (InternalEditorBookMark));
 
-	m_codepage = pp->Table;
+	//m_codepage = pp->Table; //BUGBUG!!!, LoadFile do it itself
 
 	if ( pp->ScreenLine > static_cast<DWORD>(ObjHeight))//ScrY //BUGBUG
 		pp->ScreenLine=ObjHeight;//ScrY;
@@ -6201,7 +6115,7 @@ bool Editor::SetCodePage (int codepage)
 
 		while ( current )
        	{
-			current->SetCodePage (codepage);
+			current->SetCodePage (m_codepage);
 			current = current->m_next;
 		}
 

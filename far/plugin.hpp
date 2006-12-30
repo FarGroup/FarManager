@@ -1381,8 +1381,6 @@ struct EditorInfo
   int Overtype;
   int BlockType;
   int BlockStartLine;
-  int AnsiMode;
-  int TableNum;
   DWORD Options;
   int TabSize;
   int BookMarkCount;

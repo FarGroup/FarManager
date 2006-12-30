@@ -13,6 +13,8 @@ fn.hpp
 #include "global.hpp"
 #include "plugin.hpp"
 
+#define countof(a) (sizeof(a)/sizeof(a[0]))
+
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength = -1);
 void UnicodeToAnsi (const wchar_t *lpwszUnicodeString, char *lpDest, int nMaxLength = -1); //BUGBUG
 /* $ 07.07.2000 IS
@@ -1217,6 +1219,7 @@ int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNa
 
 #define CP_UNICODE 1200 //MSDN
 #define CP_REVERSEBOM 65534
+#define CP_AUTODETECT -1
 
 int GetFileFormat (FILE *file, bool *pSignatureFound = NULL);
 

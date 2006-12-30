@@ -59,7 +59,7 @@ int GetTableEx ()
 
     MenuItemEx item;
 
-    //unicode
+/*    //unicode
     item.Clear ();
     item.strName = "UNICODE";
 
@@ -81,7 +81,7 @@ int GetTableEx ()
     item.Clear ();
     item.strName = "UTF-7";
 
-    tables->SetUserData((void*)CP_UTF7, sizeof (DWORD), tables->AddItemW (&item));
+    tables->SetUserData((void*)CP_UTF7, sizeof (DWORD), tables->AddItemW (&item));*/
 
     EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 

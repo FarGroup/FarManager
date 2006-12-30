@@ -1043,7 +1043,7 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
   if (PluginNumber<PluginsCount)
   {
-    struct PluginItem *CurPlugin=PluginsData[PluginNumber];
+    Plugin *CurPlugin=PluginsData[PluginNumber];
     string strPath = CurPlugin->strModuleName;
     CutToSlashW(strPath);
     if (CurPlugin->Lang.Init(strPath))
@@ -1947,7 +1947,7 @@ int WINAPI FarEditor(
   if (Flags & EF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,
+    FileEditor *Editor=new FileEditor(FileName,-1,CreateNew,TRUE,
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,DisableHistory,
                                       DeleteOnClose,OpMode);
@@ -1986,7 +1986,7 @@ int WINAPI FarEditor(
   else
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor Editor(FileName,CreateNew,FALSE,
+    FileEditor Editor(FileName,-1,CreateNew,FALSE,
                       StartLine,StartChar,Title,
                       X1,Y1,X2,Y2,DisableHistory,
                       DeleteOnClose,OpMode);
