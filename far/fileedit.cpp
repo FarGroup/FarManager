@@ -141,6 +141,8 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 
   	FarListItemData data;
 
+  	int index = bAllowAuto?0:2;
+
   	//auto
   	data.Index = 0;
   	data.DataSize = 4;
@@ -149,14 +151,14 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
   	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
 
   	//oem
-  	data.Index = 2;
+  	data.Index = 2-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_OEMCP;
 
   	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
 
   	//ansi
-  	data.Index = 3;
+  	data.Index = 3-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_ACP;
 
@@ -164,21 +166,21 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 
 
   	//utf-8
-  	data.Index = 5;
+  	data.Index = 5-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_UTF8;
 
   	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
 
   	//unicode
-  	data.Index = 6;
+  	data.Index = 6-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_UNICODE;
 
   	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
 
   	//reverse bom
-  	data.Index = 7;
+  	data.Index = 7-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_REVERSEBOM;
 
@@ -1262,15 +1264,17 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             		m_editor->FreeAllocatedData ();
 
             	SetFileName (strFullSaveAsName);
-            	SetCodePage (codepage); //
 
+            	SetCodePage (codepage); //
 
             	if ( !bInPlace )
             	{
-					MessageBox (0, "editor will be reopened with new file!", "WARNING!", MB_OK|MB_SYSTEMMODAL);
+					MessageW (MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", UMSG(MOk));
 
 					int UserBreak;
 					LoadFile (strFullSaveAsName, UserBreak);
+
+					Show();//!!! BUGBUG
 				}
             }
 

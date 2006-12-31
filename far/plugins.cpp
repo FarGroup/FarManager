@@ -111,6 +111,13 @@ static const wchar_t *RKN_PluginsCacheW=L"PluginsCache";
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 static BOOL PrepareModulePath(const char *ModuleName);
 
+Plugin::Plugin()
+{
+	hModule = NULL;
+
+	//more initialization here!!!
+}
+
 PluginsSet::PluginsSet()
 {
   PluginsData=NULL;

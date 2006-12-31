@@ -153,6 +153,9 @@ public:
   PLUGINPROCESSEDITORINPUT    pProcessEditorInput;
   PLUGINMINFARVERSION         pMinFarVersion;
   PLUGINPROCESSVIEWEREVENT    pProcessViewerEvent;
+
+public:
+  Plugin ();
 };
 
 // флаги для поля PluginsSet.Flags
