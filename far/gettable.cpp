@@ -153,7 +153,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     GetRegKey(t,"TableName",t2,ItemName,128);
     strcpy(ListItem.Name,t2);
     ListItem.SetSelect(I+1+UseUnicode == TableNum);
-    TableList.SetUserData((void*)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
+    TableList.SetUserData((void*)(INT_PTR)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
   }
 
   //TableList.SetSelectPos(1+UseUnicode == TableNum,1);
@@ -163,7 +163,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   int Pos=-1;
   if (TableList.Modal::GetExitCode()>=0)
-    Pos=(int)TableList.GetUserData(NULL,0);
+    Pos=(int)(INT_PTR)TableList.GetUserData(NULL,0);
 
   if (Pos>UseUnicode && !PrepareTable(TableSet,Pos-1-UseUnicode))
     return(FALSE);

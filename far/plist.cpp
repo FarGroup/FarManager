@@ -166,7 +166,7 @@ void ShowProcessList()
         bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
       SetForegroundWindow(ProcWnd);
       if(bSPI) // Restore old value
-        SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)dwMs, 0);
+        SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(DWORD_PTR)dwMs, 0);
 
       WINDOWPLACEMENT wp;
       wp.length=sizeof(wp);

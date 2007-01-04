@@ -3298,7 +3298,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       }
       else
       {
-        if((long)Param != (long)-1 && !IsBadReadPtr(Kbt,sizeof(struct KeyBarTitles))) // не только перерисовать?
+        if((LONG_PTR)Param != (LONG_PTR)-1 && !IsBadReadPtr(Kbt,sizeof(struct KeyBarTitles))) // не только перерисовать?
         {
           for(I=0; I < 12; ++I)
           {

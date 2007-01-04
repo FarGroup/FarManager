@@ -261,7 +261,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 
       RemoveExternalSpaces(ListItem.Name);
       if(ListItem.Name[0])
-        HotPlugList->SetUserData((void*)I,sizeof(I),HotPlugList->AddItem(&ListItem));
+        HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
 
     }
   }
@@ -326,7 +326,7 @@ void ShowHotplugDevice ()
         {
           BlockExtKey blockExtKey;
 
-          I=(int)HotPlugList.GetUserData(NULL,0);
+          I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
           if(RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE) == 1)
           {
             HotPlugList.Hide();

@@ -9,7 +9,6 @@ findfile.cpp
 #pragma hdrstop
 
 #include "findfile.hpp"
-#include "ClevMutex.hpp"
 #include "plugin.hpp"
 #include "global.hpp"
 #include "fn.hpp"
@@ -164,7 +163,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       else
         xstrncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),sizeof(DataStr)-1);
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)DataStr);
 
       W=Dlg->Item[0].X2-Dlg->Item[7].X1-3;
       if (strlen(FindCode)>W)
@@ -837,7 +836,7 @@ void FindFiles::AdvancedDialog()
   {
     /* 00 */DI_DOUBLEBOX,3,1,38,6,0,0,0,0,(char *)MFindFileAdvancedTitle,
     /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileSearchFirst,
-    /* 02 */DI_FIXEDIT,5,3,24,3,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+    /* 02 */DI_FIXEDIT,5,3,24,3,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
     /* 03 */DI_COMBOBOX,26,3,36,13,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
     /* 04 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     /* 05 */DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
@@ -1064,7 +1063,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         ffCS.Enter ();
 
-        DWORD ItemIndex = (DWORD)ListBox->GetUserData(NULL, 0);
+        DWORD ItemIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
         if (ItemIndex != LIST_INDEX_NONE)
         {
           int RemoveTemp=FALSE;
@@ -1179,7 +1178,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 DWORD Index;
                 for (int I=0;I<ListSize;I++)
                 {
-                  Index = (DWORD)ListBox->GetUserData(NULL, 0, I);
+                  Index = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0, I);
                   LPFINDLIST PtrFindList=FindList+Index;
                   if ((Index != LIST_INDEX_NONE) &&
                       ((PtrFindList->ArcIndex == LIST_INDEX_NONE) ||
@@ -1348,7 +1347,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         {
           return (TRUE);
         }
-        FindExitIndex = (DWORD)ListBox->GetUserData(NULL, 0);
+        FindExitIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
         if (FindExitIndex != LIST_INDEX_NONE)
           FindExitCode = FIND_EXIT_GOTO;
         return (FALSE);
@@ -1374,7 +1373,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           return (TRUE);
         }
         FindExitCode = FIND_EXIT_PANEL;
-        FindExitIndex = (DWORD)ListBox->GetUserData(NULL, 0);
+        FindExitIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
         return (FALSE);
       }
     }
@@ -1963,7 +1962,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
     PrepareFilesListUsed--;
   }
-  EXCEPT (xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+  EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
   {
     TerminateProcess( GetCurrentProcess(), 1);
   }
@@ -2224,7 +2223,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       */
       ListItem.Flags|=LIF_DISABLE;
       // С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
-      ListBox->SetUserData((void*)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
+      ListBox->SetUserData((void*)(DWORD_PTR)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
       ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
@@ -2264,7 +2263,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       if (FindFileArcIndex != LIST_INDEX_NONE)
         FindList[ItemIndex].ArcIndex = FindFileArcIndex;
 
-      ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
+      ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex),
                            ListBox->AddItem(&ListItem));
     }
 
@@ -2301,7 +2300,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
 //  ListItem.SetSelect(!FindFileCount);
 
   int ListPos = ListBox->AddItem(&ListItem);
-  ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex), ListPos);
+  ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex), ListPos);
   // Выделим как положено - в списке.
   if (!FindFileCount && !FindDirCount)
     ListBox->SetSelectPos(ListPos, -1);
@@ -2669,7 +2668,7 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
       statusCS.Leave();
     }
   }
-  EXCEPT (xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+  EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
   {
     TerminateProcess( GetCurrentProcess(), 1);
   }

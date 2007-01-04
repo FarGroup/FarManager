@@ -587,8 +587,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   for (I=0; I < ItemCount; I++)
   {
     memset(&NewItem,0,sizeof(NewItem));
-    if ((unsigned int)Data[I].Name < MAX_MSG)
-      xstrncpy(NewItem.Name,MSG((unsigned int)Data[I].Name),sizeof(NewItem.Name)+1);
+    if ((DWORD_PTR)Data[I].Name < MAX_MSG)
+      xstrncpy(NewItem.Name,MSG((DWORD_PTR)Data[I].Name),sizeof(NewItem.Name)+1);
     else
       xstrncpy(NewItem.Name,Data[I].Name,sizeof(NewItem.Name)+1);
     //NewItem.AmpPos=-1;
@@ -2605,8 +2605,8 @@ static int __cdecl  SortItemDataDWORD(const struct MenuItem *el1,
                            const struct SortItemParam *Param)
 {
   int Res;
-  DWORD Dw1=(DWORD)(((struct MenuItem *)el1)->UserData);
-  DWORD Dw2=(DWORD)(((struct MenuItem *)el2)->UserData);
+  DWORD Dw1=(DWORD)(DWORD_PTR)(((struct MenuItem *)el1)->UserData);
+  DWORD Dw2=(DWORD)(DWORD_PTR)(((struct MenuItem *)el2)->UserData);
   if(Dw1 == Dw2)
     Res=0;
   else if(Dw1 > Dw2)

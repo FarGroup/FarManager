@@ -552,7 +552,7 @@ int main_sehed(char *EditName,char *ViewName,char *DestName1,char *DestName2,int
   TRY{
     return MainProcess(EditName,ViewName,DestName1,DestName2,StartLine,StartChar,RegOpt);
   }
-  EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
+  EXCEPT(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
     TerminateProcess( GetCurrentProcess(), 1);
     return -1; // сюда никогда не дойдем
   }

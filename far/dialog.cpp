@@ -2747,7 +2747,7 @@ int Dialog::ProcessKey(int Key)
                    Учитываем флаг DoAutoComplete
               */
               if (DoAutoComplete &&
-                  FindInEditForAC(Item[FocusPos].Type == DI_COMBOBOX,(void *)Item[FocusPos].Selected,PStr,MaxLen))
+                  FindInEditForAC(Item[FocusPos].Type == DI_COMBOBOX,(void *)Item[FocusPos].History,PStr,MaxLen))
               /* IS $ */
               {
   //_D(SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos));
@@ -3796,8 +3796,8 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
     Item->Flags=Data->Flags;
     Item->DefaultButton=Data->DefaultButton;
     Item->SelStart=-1;
-    if ((unsigned int)Data->Data<MAX_MSG)
-      xstrncpy(Item->Data,MSG((unsigned int)Data->Data),sizeof(Item->Data)-1);
+    if ((DWORD_PTR)Data->Data<MAX_MSG)
+      xstrncpy(Item->Data,MSG((DWORD_PTR)Data->Data),sizeof(Item->Data)-1);
     else
       memcpy(Item->Data,Data->Data,sizeof(Item->Data));
   }

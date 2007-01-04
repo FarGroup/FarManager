@@ -476,7 +476,7 @@ int KeyMacro::ProcessKey(int Key)
         if(RecBufferSize > 1)
           MacroLIB[Pos].Buffer=RecBuffer;
         else if(RecBuffer)
-          MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>(*RecBuffer);
+          MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
         MacroLIB[Pos].BufferSize=RecBufferSize;
         MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
         MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
@@ -2493,13 +2493,13 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 
   if(BufferSize == 1)
   {
-    if((((DWORD)Buffer)&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (((DWORD)Buffer)&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE)
+    if((((DWORD)(DWORD_PTR)Buffer)&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (((DWORD)(DWORD_PTR)Buffer)&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE)
     {
       xf_free(TextBuffer);
       return Src?xf_strdup(Src):NULL;
     }
 
-    if(KeyToText((DWORD)Buffer,MacroKeyText))
+    if(KeyToText((DWORD)(DWORD_PTR)Buffer,MacroKeyText))
       strcpy(TextBuffer,MacroKeyText);
     return TextBuffer;
   }
@@ -2987,7 +2987,7 @@ M1:
          Mac->BufferSize == MacroDlg->RecBufferSize &&
          (
            Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)) ||
-           Mac->BufferSize == 1 && (DWORD)Mac->Buffer == (DWORD)MacroDlg->RecBuffer
+           Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer
          )
         )
         I=0;
@@ -3335,7 +3335,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL /*NeedAddSendFlag*/)
   if((MRec->BufferSize+1) > 2)
     memcpy(NewMacroWORK2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
   else if(MRec->Buffer)
-    NewMacroWORK2.Buffer[0]=(DWORD)MRec->Buffer;
+    NewMacroWORK2.Buffer[0]=(DWORD)(DWORD_PTR)MRec->Buffer;
   NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize++]=KEY_NONE; // доп.клавиша/пустышка
 
   Work.MacroWORK=NewMacroWORK;
@@ -3942,7 +3942,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     CurMacroBuffer = CurMacro_Buffer;
   else if ( CurMacro_Buffer )
   {
-    CurMacroBuffer = reinterpret_cast<DWORD*>(*CurMacro_Buffer);
+    CurMacroBuffer = reinterpret_cast<DWORD*>((DWORD_PTR)(*CurMacro_Buffer));
     xf_free(CurMacro_Buffer);
   }
   xf_free(exprBuff);
@@ -4292,7 +4292,7 @@ void KeyMacro::Sort(void)
 
 DWORD KeyMacro::GetOpCode(struct MacroRecord *MR,int PC)
 {
-  DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)MR->Buffer;
+  DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)(DWORD_PTR)MR->Buffer;
   return OpCode;
 }
 
@@ -4307,8 +4307,8 @@ DWORD KeyMacro::SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode)
   }
   else
   {
-    OldOpCode=(DWORD)MR->Buffer;
-    MR->Buffer=(DWORD*)OpCode;
+    OldOpCode=(DWORD)(DWORD_PTR)MR->Buffer;
+    MR->Buffer=(DWORD*)(DWORD_PTR)OpCode;
   }
   return OldOpCode;
 }

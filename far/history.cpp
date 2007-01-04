@@ -686,7 +686,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           xstrncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
           if(CurCmd==CurLastPtr)
               HistoryItem.SetSelect(TRUE);
-          HistoryMenu.SetUserData((void*)CurCmd,sizeof(DWORD),
+          HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),
                                  HistoryMenu.AddItem(&HistoryItem));
         }
       }
@@ -770,7 +770,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           case KEY_CTRLC:
           case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
           {
-            Code=(int)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
+            Code=(int)(INT_PTR)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
             if(Code != -1)
               CopyToClipboard(LastStr[Code].Name);
             break;
@@ -815,7 +815,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
         StrPos=-1;
       else
       {
-        StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
+        StrPos=(int)(INT_PTR)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
         if(StrPos == -1)
           return -1;
         if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)

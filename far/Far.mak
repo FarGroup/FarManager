@@ -207,9 +207,9 @@ USEDEBUG=NDEBUG
 
 LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
 
-CPP_PROJ=/GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) $(MT) /Zp8 /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=/Wp64 /GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) $(MT) /Zp8 /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
-LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
 
 !ELSEIF "$(CFG)" == "far - Win64 Debug"
 !MESSAGE far - Win64 Debug.
@@ -218,9 +218,9 @@ USEDEBUG=_DEBUG
 
 LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
 
-CPP_PROJ=/GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=/Wp64 /GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
-LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /pdb:none /debug /debugtype:both /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
 
 !ELSE
 !MESSAGE far - Win32 Debug.

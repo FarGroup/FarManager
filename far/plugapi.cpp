@@ -184,7 +184,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_CONSOLEMODE:
     {
-      return FarAltEnter((int)Param);
+      return FarAltEnter((int)(INT_PTR)Param);
     }
     /* SVS $ */
 
@@ -224,7 +224,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_WAITKEY:
     {
-      return WaitKey(Param?(DWORD)Param:(DWORD)-1);
+      return WaitKey(Param?(DWORD)(DWORD_PTR)Param:(DWORD)-1);
     }
     /* SVS $ */
 
@@ -236,8 +236,8 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_GETCOLOR:
     {
-      if((int)Param < SizeArrayPalette && (int)Param >= 0)
-        return (int)((unsigned int)Palette[(int)Param]);
+      if((int)(INT_PTR)Param < SizeArrayPalette && (int)(INT_PTR)Param >= 0)
+        return (int)((unsigned int)Palette[(int)(INT_PTR)Param]);
       return -1;
     }
     /* SVS $ */
@@ -404,7 +404,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         MRec.Flags=(((struct KeySequence*)Param)->Flags)<<8;
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)
-          MRec.Buffer=(DWORD *)((struct KeySequence*)Param)->Sequence[0];
+          MRec.Buffer=(DWORD *)(DWORD_PTR)((struct KeySequence*)Param)->Sequence[0];
         else
           MRec.Buffer=((struct KeySequence*)Param)->Sequence;
         return CtrlObject->Macro.PostNewMacro(&MRec,TRUE);
@@ -481,9 +481,9 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         если находимся в модальном редакторе/вьюере.
       */
       if (FrameManager && !FrameManager->InModalEV() &&
-          FrameManager->operator[]((int)Param)!=NULL )
+          FrameManager->operator[]((int)(INT_PTR)Param)!=NULL )
       {
-        FrameManager->ActivateFrame((int)Param);
+        FrameManager->ActivateFrame((int)(INT_PTR)Param);
         return TRUE;
       }
       return FALSE;

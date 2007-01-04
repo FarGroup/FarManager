@@ -1922,7 +1922,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       }
       else
       {
-        if((long)Param != (long)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
+        if((LONG_PTR)Param != (LONG_PTR)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
         {
           for(int I=0; I < 12; ++I)
           {
@@ -2080,7 +2080,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSKEY)"));
       _ECTLLOG(SysLog("Key = %s",_FARKEY_ToName((DWORD)Param)));
-      ReProcessKey((int)Param);
+      ReProcessKey((int)(INT_PTR)Param);
       return TRUE;
     }
 

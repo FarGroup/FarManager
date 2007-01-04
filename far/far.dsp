@@ -568,10 +568,6 @@ SOURCE=.\chgprior.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClevMutex.hpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\cmdline.hpp
 # End Source File
 # Begin Source File

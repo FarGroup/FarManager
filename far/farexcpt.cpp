@@ -119,7 +119,7 @@ static char* xFromMSGTitle(int From)
 {
   if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
     return MSG(MExceptTitleLoad);
-  else if(From == (int)INVALID_HANDLE_VALUE)
+  else if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
     return MSG(MExceptTitleFAR);
   else
     return MSG(MExceptTitle);
@@ -256,7 +256,7 @@ static DWORD _xfilter(
 
    if(Res)
    {
-     if(From == (int)INVALID_HANDLE_VALUE)
+     if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
      {
        CriticalInternalError=TRUE;
        TerminateProcess( GetCurrentProcess(), 1);
@@ -307,7 +307,7 @@ static DWORD _xfilter(
      Неизвестное исключение не стоит игнорировать.
    */
    pName=NULL;
-   if(From == (int)INVALID_HANDLE_VALUE || !Module)
+   if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
      GetModuleFileName(NULL,TruncFileName,sizeof(TruncFileName));
    else
      xstrncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
@@ -443,13 +443,13 @@ static DWORD _xfilter(
                pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
-               MSG((From == (int)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
+               MSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
                MSG(MOk));
        ShowMessages=TRUE;
      }
    } /* else */
 
-   if(From == (int)INVALID_HANDLE_VALUE && ShowMessages)
+   if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE && ShowMessages)
    {
      CriticalInternalError=TRUE;
      TerminateProcess( GetCurrentProcess(), 1);

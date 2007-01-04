@@ -5556,7 +5556,7 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_PROCESSKEY:
     {
       _ECTLLOG(SysLog("Key = %s",_FARKEY_ToName((DWORD)Param)));
-      ProcessKey((int)Param);
+      ProcessKey((int)(INT_PTR)Param);
       return TRUE;
     }
     /* skv$*/

@@ -783,6 +783,7 @@ BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalF
 
 int GetClusterSize(char *Root)
 {
+#ifndef _WIN64
   struct ExtGetDskFreSpc
   {
     WORD ExtFree_Size;
@@ -836,6 +837,9 @@ int GetClusterSize(char *Root)
   if (!fResult || (reg.reg_Flags & 0x0001))
     return(0);
   return(DiskInfo.ExtFree_SectorsPerCluster*DiskInfo.ExtFree_BytesPerSector);
+#else
+  return 0;
+#endif
 }
 
 
