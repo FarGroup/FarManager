@@ -5,8 +5,6 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.28 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

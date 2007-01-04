@@ -7,8 +7,6 @@ infolist.hpp
 
 */
 
-/* Revision: 1.14 09.05.2006 $ */
-
 #include "panel.hpp"
 #include "viewer.hpp"
 //class Viewer;

@@ -5,8 +5,6 @@ filetype.cpp
 
 */
 
-/* Revision: 1.55 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -645,7 +643,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   static struct DialogDataEx EditDlgData[]={
 /* 00 */ DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(const wchar_t *)MFileAssocTitle,
 /* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MFileAssocMasks,
-/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,L"",
+/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
 /* 03 */ DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MFileAssocDescr,
 /* 04 */ DI_EDIT,5,5,70,3,0,0,0,0,L"",
 /* 05 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",

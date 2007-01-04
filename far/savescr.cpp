@@ -5,33 +5,6 @@ savescr.cpp
 
 */
 
-/* Revision: 1.10 05.04.2005 $ */
-
-/*
-Modify:
-  05.04.2005 SVS
-    + У GetText() появился доп параметр - скока читать.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  09.03.2004 SVS
-    + CorrectRealScreenCoord() - корректировка размеров буфера
-  23.08.2002 SVS
-    + SaveScreen::DumpBuffer
-  06.06.2001 SVS
-    ! Mix/Max
-  21.05.2001 OT
-    ! Методы для работы с изменяющимся буфером экрана.
-  11.05.2001 OT
-    ! Отрисовка Background
-  06.05.2001 DJ
-    ! перетрях #include
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -5,8 +5,6 @@ FileMasksProcessor.cpp
 исключения).
 */
 
-/* Revision: 1.05 16.03.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

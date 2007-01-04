@@ -5,8 +5,6 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.25 23.01.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -105,7 +103,7 @@ void FileList::SetFilePanelModes()
     MakeDialogItemsEx(ModeDlgData,ModeDlg);
     int ExitCode;
 
-    ModeDlg[0].strData = UMSG((int)ModeListMenu[ModeNumber].Name);
+    ModeDlg[0].strData = UMSG((DWORD_PTR)ModeListMenu[ModeNumber].Name);
     RemoveHighlightsW(ModeDlg[0].strData);
 
     if (ModeNumber==9)

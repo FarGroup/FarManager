@@ -7,8 +7,6 @@ manager.hpp
 
 */
 
-/* Revision: 1.39 20.09.2006 $ */
-
 class Frame;
 
 class Manager

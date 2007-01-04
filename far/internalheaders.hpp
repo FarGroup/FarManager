@@ -8,17 +8,6 @@ internalheaders.hpp
 
 */
 
-/* Revision: 1.01 04.01.2001 $ */
-
-/*
-Modify:
-  04.01.2001 SVS
-    + flink.hpp
-  30.06.2000 IS
-    + Данный файл сделан для избавления куска файла, который встречается почти
-      в каждом *.cpp
-*/
-
 #ifndef __FARCONST_HPP__
 #include "farconst.hpp"
 #endif

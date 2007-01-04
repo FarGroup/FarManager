@@ -273,17 +273,17 @@ void PluginsSet::LoadPlugins()
             string strRegKey;
             strRegKey.Format (FmtPluginsCache_PluginDExportW,CachePos);
             CurPlugin->SysID=GetRegKeyW(strRegKey,NFMP_SysIDW,0);
-            CurPlugin->pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKeyW(strRegKey,NFMP_OpenPluginW,0);
-            CurPlugin->pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKeyW(strRegKey,NFMP_OpenFilePluginW,0);
-            CurPlugin->pSetFindList=(PLUGINSETFINDLIST)GetRegKeyW(strRegKey,NFMP_SetFindListW,0);
-            CurPlugin->pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKeyW(strRegKey,NFMP_ProcessEditorInputW,0);
-            CurPlugin->pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKeyW(strRegKey,NFMP_ProcessEditorEventW,0);
-            CurPlugin->pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKeyW(strRegKey,NFMP_ProcessViewerEventW,0);
+            CurPlugin->pOpenPlugin=(PLUGINOPENPLUGIN)(INT_PTR)GetRegKeyW(strRegKey,NFMP_OpenPluginW,0);
+            CurPlugin->pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)(INT_PTR)GetRegKeyW(strRegKey,NFMP_OpenFilePluginW,0);
+            CurPlugin->pSetFindList=(PLUGINSETFINDLIST)(INT_PTR)GetRegKeyW(strRegKey,NFMP_SetFindListW,0);
+            CurPlugin->pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessEditorInputW,0);
+            CurPlugin->pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessEditorEventW,0);
+            CurPlugin->pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessViewerEventW,0);
             CurPlugin->CachePos=CachePos;
           }
           if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
           {
-            Plugin **NewPluginsData=(Plugin**)xf_realloc(PluginsData,4*(PluginsCount+1));
+            Plugin **NewPluginsData=(Plugin**)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
             if (NewPluginsData==NULL)
             {
               delete CurPlugin;
@@ -302,7 +302,7 @@ void PluginsSet::LoadPlugins()
       } // end while
     }
 
-    far_qsort(PluginsData,PluginsCount,4,PluginsSort);
+    far_qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
 
     int NewPlugin=FALSE;
 
@@ -394,18 +394,18 @@ void PluginsSet::LoadPluginsFromCache()
       strRegKey += L"\\";
       strRegKey += L"Exports";
       CurPlugin->SysID=GetRegKeyW(strRegKey,NFMP_SysIDW,0);
-      CurPlugin->pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKeyW(strRegKey,NFMP_OpenPluginW,0);
-      CurPlugin->pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKeyW(strRegKey,NFMP_OpenFilePluginW,0);
-      CurPlugin->pSetFindList=(PLUGINSETFINDLIST)GetRegKeyW(strRegKey,NFMP_SetFindListW,0);
-      CurPlugin->pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKeyW(strRegKey,NFMP_ProcessEditorInputW,0);
-      CurPlugin->pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKeyW(strRegKey,NFMP_ProcessEditorEventW,0);
-      CurPlugin->pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKeyW(strRegKey,NFMP_ProcessViewerEventW,0);
+      CurPlugin->pOpenPlugin=(PLUGINOPENPLUGIN)(INT_PTR)GetRegKeyW(strRegKey,NFMP_OpenPluginW,0);
+      CurPlugin->pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)(INT_PTR)GetRegKeyW(strRegKey,NFMP_OpenFilePluginW,0);
+      CurPlugin->pSetFindList=(PLUGINSETFINDLIST)(INT_PTR)GetRegKeyW(strRegKey,NFMP_SetFindListW,0);
+      CurPlugin->pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessEditorInputW,0);
+      CurPlugin->pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessEditorEventW,0);
+      CurPlugin->pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessViewerEventW,0);
       CurPlugin->CachePos=_wtoi((const wchar_t*)strPlgKey+19);
       CurPlugin->WorkFlags.Set(PIWF_CACHED);
       // вот тут это поле не заполнено, надеюсь, что оно не критично
       // CurPlugin.FindData=FindData;
     }
-    Plugin **NewPluginsData=(Plugin**)xf_realloc(PluginsData,4*(PluginsCount+1));
+    Plugin **NewPluginsData=(Plugin**)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
     if (NewPluginsData==NULL)
     {
       delete CurPlugin;
@@ -416,7 +416,7 @@ void PluginsSet::LoadPluginsFromCache()
     PluginsCount++;
   }
 
-  far_qsort(PluginsData,PluginsCount,4,PluginsSort);
+  far_qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
   /* $ 19.10.2000 tran
      забыл вызвать SetStartupInfo :) */
   Plugin *PData;
@@ -1169,7 +1169,7 @@ int PluginsSet::SavePluginSettings(Plugin *CurPlugin,
 }
 
 
-HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
+HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
 {
   _ALGO(CleverSysLog clv("PluginsSet::OpenPlugin()"));
   _ALGO(SysLog("PluginNumber=%d, OpenFrom=%d, Item=%d",PluginNumber,OpenFrom,Item));
@@ -2302,7 +2302,7 @@ void PluginsSet::Configure(int StartPos)
                 //ListItem.SetSelect(MenuItemNumber++ == StartPos);
                 MenuItemNumber++;
                 Data=MAKELONG(I,J);
-                PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
+                PluginList.SetUserData((void*)(DWORD_PTR)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
               }
           }
           else
@@ -2317,7 +2317,7 @@ void PluginsSet::Configure(int StartPos)
                 GetRegKeyW(strHotRegKey,L"ConfHotkey",strHotKey,L"");
               MenuItemEx ListItem;
 
-              memset(&ListItem,0,sizeof(ListItem)); 
+              memset(&ListItem,0,sizeof(ListItem));
               string strName = NullToEmptyW(Info.PluginConfigStrings[J]);
               if (!HotKeysPresent)
                 ListItem.strName = strName;
@@ -2329,7 +2329,7 @@ void PluginsSet::Configure(int StartPos)
               //ListItem.SetSelect(MenuItemNumber++ == StartPos);
               MenuItemNumber++;
               Data=MAKELONG(I,J);
-              PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
+              PluginList.SetUserData((void*)(DWORD_PTR)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
             }
           }
         }
@@ -2352,7 +2352,7 @@ void PluginsSet::Configure(int StartPos)
       while (!PluginList.Done())
       {
         int SelPos=PluginList.GetSelectPos();
-        Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
+        Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,SelPos);
         string strRegKey;
         switch(PluginList.ReadInput())
         {
@@ -2408,7 +2408,7 @@ void PluginsSet::Configure(int StartPos)
         PluginList.Hide();
         if (StartPos<0)
           break;
-        Data=(DWORD)PluginList.GetUserData(NULL,0,StartPos);
+        Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,StartPos);
         // ќ„≈–≈ƒЌќ…  ќ—“џЋ№, »Ѕќ ¬—≈ Ќ≈ѕ–ј¬»Ћ№Ќќ!
         //  ћеню уже погашено, так зачем же его где оп€ть высвечивать,
         //  если об это не просили?
@@ -2496,7 +2496,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
                   //ListItem.SetSelect(MenuItemNumber++ == StartPos);
                   MenuItemNumber++;
                   Data=MAKELONG(I,J);
-                  PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
+                  PluginList.SetUserData((void*)(DWORD_PTR)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
               }
             }
           }
@@ -2527,7 +2527,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
                 //ListItem.SetSelect(MenuItemNumber++ == StartPos);
                 MenuItemNumber++;
                 Data=MAKELONG(I,J);
-                PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
+                PluginList.SetUserData((void*)(DWORD_PTR)Data,sizeof(Data),PluginList.AddItemW(&ListItem));
             }
           }
         }
@@ -2546,7 +2546,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
       {
         int SelPos=PluginList.GetSelectPos();
 
-        Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
+        Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,SelPos);
         switch(PluginList.ReadInput())
         {
         /* $ 18.12.2000 SVS
@@ -2604,7 +2604,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
     if (ExitCode<0)
       return(FALSE);
     ScrBuf.Flush();
-    Data=(DWORD)PluginList.GetUserData(NULL,0,ExitCode);
+    Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,ExitCode);
   }
   if (PreparePlugin(LOWORD(Data)) && PluginsData[LOWORD(Data)]->pOpenPlugin!=NULL && !ProcessException)
   {
@@ -2947,7 +2947,7 @@ int PluginsSet::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
   /* VVM $ */
   /* DJ $ */
   RemoveTrailingSpacesW(strPluginCommand);
-  HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)(const wchar_t*)strPluginCommand); //BUGBUG
+  HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
@@ -2997,7 +2997,7 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
   {
     if (PluginsData[I]->pOpenPlugin && !ProcessException)
     {
-      HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(int)Data);
+      HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(INT_PTR)Data);
 
       if (hNewPlugin!=INVALID_HANDLE_VALUE &&
          (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))

@@ -5,8 +5,6 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.25 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -43,7 +41,7 @@ static const wchar_t* xFromMSGTitle(int From)
 {
   if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
     return UMSG(MExceptTitleLoad);
-  else if(From == (int)INVALID_HANDLE_VALUE)
+  else if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
     return UMSG(MExceptTitleFAR);
   else
     return UMSG(MExceptTitle);
@@ -53,19 +51,24 @@ static BOOL Is_STACK_OVERFLOW=FALSE;
 
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
-  static DWORD stack[1024];
+  static DWORD_PTR stack[1024];
   DWORD Result;
 
   if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
   {
     Is_STACK_OVERFLOW=TRUE;
     stack[0] = 0;
-    stack[1] = (DWORD)From;
-    stack[2] = (DWORD)xp;
-    stack[3] = (DWORD)Module;
+    stack[1] = (DWORD_PTR)From;
+    stack[2] = (DWORD_PTR)xp;
+    stack[3] = (DWORD_PTR)Module;
     stack[4] = Flags;
-    xp->ContextRecord->Esp = (DWORD)(&stack);
-    xp->ContextRecord->Eip = (DWORD)(&_xfilter);
+    #ifdef _WIN64
+    xp->ContextRecord->Rsp = (DWORD_PTR)(&stack);
+    xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
+    #else
+    xp->ContextRecord->Esp = (DWORD_PTR)(&stack);
+    xp->ContextRecord->Eip = (DWORD_PTR)(&_xfilter);
+    #endif
 
     Result=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
     //Result=_xfilter(From,xp,Module,Flags);
@@ -175,7 +178,7 @@ static DWORD _xfilter(
 
    if(Res)
    {
-     if(From == (int)INVALID_HANDLE_VALUE)
+     if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
      {
        CriticalInternalError=TRUE;
        TerminateProcess( GetCurrentProcess(), 1);
@@ -227,7 +230,7 @@ static DWORD _xfilter(
      Неизвестное исключение не стоит игнорировать.
    */
    pName=NULL;
-   if(From == (int)INVALID_HANDLE_VALUE || !Module)
+   if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
      apiGetModuleFileName (NULL, strTruncFileName);
    else
      strTruncFileName = Module->strModuleName;
@@ -369,13 +372,13 @@ static DWORD _xfilter(
                pName,
                strBuf1,
                strTruncFileName, L"\1",
-               UMSG((From == (int)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
+               UMSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
                UMSG(MOk));
        ShowMessages=TRUE;
      }
    } /* else */
 
-   if(From == (int)INVALID_HANDLE_VALUE && ShowMessages)
+   if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE && ShowMessages)
    {
      CriticalInternalError=TRUE;
      TerminateProcess( GetCurrentProcess(), 1);

@@ -8,8 +8,6 @@ FileMasksWithExclude.hpp
 исключения).
 */
 
-/* Revision: 1.03 16.03.2006 $ */
-
 #include "FileMasksProcessor.hpp"
 
 class FileMasksWithExcludeW:public BaseFileMaskW

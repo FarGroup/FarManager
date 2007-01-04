@@ -7,8 +7,6 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.20 25.05.2006 $ */
-
 #include "scrobj.hpp"
 #include "edit.hpp"
 #include "farconst.hpp"

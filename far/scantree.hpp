@@ -8,8 +8,6 @@ scantree.hpp
 
 */
 
-/* Revision: 1.11 06.06.2006 $ */
-
 #include "farconst.hpp"
 #include "bitflags.hpp"
 #include "UnicodeString.hpp"

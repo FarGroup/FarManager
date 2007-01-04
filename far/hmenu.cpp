@@ -5,8 +5,6 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.21 23.04.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

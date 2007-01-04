@@ -5,8 +5,6 @@ filter.cpp
 
 */
 
-/* Revision: 1.40 06.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -300,7 +298,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
             if((Ptr=(wchar_t *)xf_malloc((strMasks.GetLength()+1)*sizeof (wchar_t))) == NULL)
               break;
 
-            if ((NewFilterData=(FilterDataRecord **)xf_realloc(FilterData,4*FilterDataCount))==NULL)
+            if ((NewFilterData=(FilterDataRecord **)xf_realloc(FilterData,sizeof(*FilterData)*FilterDataCount))==NULL)
             {
               xf_free(Ptr);
               break;
@@ -557,7 +555,7 @@ void PanelFilter::InitFilter()
       break;
 
     FilterDataRecord **NewFilterData;
-    if ((NewFilterData=(FilterDataRecord **)xf_realloc(FilterData,4*(FilterDataCount+1)))==NULL)
+    if ((NewFilterData=(FilterDataRecord **)xf_realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
     {
       xf_free(Ptr);
       break;
@@ -641,7 +639,7 @@ int PanelFilter::EditRecord(string &strTitle, string &strMasks)
     /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEnterFilterTitle,
     /* 2 */ DI_EDIT,5,3,70,3,1,0,0,0,L"",
     /* 3 */ DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MFilterMasks,
-    /* 4 */ DI_EDIT,5,5,70,5,0,(DWORD)HistoryName,DIF_HISTORY,0,L"",
+    /* 4 */ DI_EDIT,5,5,70,5,0,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
     /* 5 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
     /* 6 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
     /* 7 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
@@ -734,7 +732,7 @@ int PanelFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD
   /* IS $ */
 
   // сначала поиск...
-  size_t Cnt=ExtCount;
+  unsigned int Cnt=ExtCount;
   if(lfind((const void *)(const wchar_t*)strMask,(void *)*ExtPtr,&Cnt,NM,ExtSort))
     return -1;
 

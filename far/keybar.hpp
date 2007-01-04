@@ -7,8 +7,6 @@ Keybar
 
 */
 
-/* Revision: 1.08 11.12.2005 $ */
-
 #include "scrobj.hpp"
 
 /* $ 07.08.2000 SVS

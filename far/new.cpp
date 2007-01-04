@@ -5,18 +5,6 @@ new.cpp
 
 */
 
-/* Revision: 1.02 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  25.02.2003 SVS
-    ! применим счетчик CallNewDelete/CallMallocFree для отладки
-  24.02.2003 SVS
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -7,8 +7,6 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.09 16.12.2005 $ */
-
 #include "scrobj.hpp"
 #include "unicodestring.hpp"
 

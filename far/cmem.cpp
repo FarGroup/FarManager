@@ -25,14 +25,6 @@ C    C  M     M  E       M     M    ОБЪЕКТНО-ОРИЕНТИРОВАННЫХ
         памяти.
 */
 
-/* Revision: 1.01 27.02.2002 $ */
-
-/*
-Modify:
-  27.02.2002 SVS
-    ! Ну... можно считать новый :-)
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

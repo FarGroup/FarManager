@@ -7,8 +7,6 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.50 01.09.2006 $ */
-
 #include "scrobj.hpp"
 #include "farconst.hpp"
 #include "struct.hpp"

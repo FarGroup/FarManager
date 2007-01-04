@@ -5,8 +5,6 @@ Files highlighting
 
 */
 
-/* Revision: 1.59 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -88,7 +86,7 @@ void HighlightFiles::InitHighlightFiles()
 
     if(AddMask(HData,strMask,HData->IgnoreMask))
     {
-      if ((NewHiData=(HighlightData **)xf_realloc(HiData,4*(HiDataCount+1)))==NULL)
+      if ((NewHiData=(HighlightData **)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
       {
         DeleteMask(HData);
         delete HData;
@@ -450,7 +448,7 @@ void HighlightFiles::HiEdit(int MenuPos)
             for (int I=SelectPos+1;I<ItemCount;I++)
               HiData[I-1]=HiData[I];
             HiDataCount--;
-            HiData=(HighlightData **)xf_realloc(HiData,4*(HiDataCount+1));
+            HiData=(HighlightData **)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1));
             NeedUpdate=TRUE;
           }
           break;
@@ -636,7 +634,7 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
    обработка взаимоисключений (вместо обработки в явном цикле диалога)
 */
 
-static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+static LONG_PTR WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
   switch (Msg)
   {
@@ -681,13 +679,13 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
             break;
         }
         FarDialogItem MarkChar, ColorExample;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(long)&MarkChar);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(LONG_PTR)&MarkChar);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
 
         if ( MarkChar.PtrData )
             EditData->Colors.MarkChar=*(MarkChar.PtrData);
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         return TRUE;
       }
       break;
@@ -698,12 +696,12 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
         HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
         FarDialogItem *MarkChar, ColorExample;
         MarkChar=(FarDialogItem *)Param2;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
 
         if ( MarkChar->PtrData )
             EditData->Colors.MarkChar=*(MarkChar->PtrData);
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         return TRUE;
       }
   }
@@ -721,7 +719,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   static struct DialogDataEx HiEditDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(const wchar_t *)MHighlightEditTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MHighlightMasks,
-  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD)HistoryName,DIF_HISTORY,0,L"",
+  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
   /* 03 */DI_TEXT,-1,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightIncExcTitle,
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightRO,
   /* 05 */DI_CHECKBOX,5,6,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MHighlightHidden,
@@ -842,7 +840,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
   */
   {
-    Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
+    Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(LONG_PTR) &EditData);
 
     Dlg.SetHelp(HLS.HighlightEdit);
     Dlg.SetPosition(-1,-1,69,22);
@@ -977,7 +975,7 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,const wchar_
   if(!AddMask(HData,strTmpMask,IgnoreMask,EditData))
     return FALSE;
 
-  if ((NewHiData=(HighlightData **)xf_realloc(HiData,4*(HiDataCount+1)))==NULL)
+  if ((NewHiData=(HighlightData **)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
   {
     DeleteMask(HData);
     delete HData;

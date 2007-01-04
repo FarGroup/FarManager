@@ -7,17 +7,6 @@ filestr.hpp
 
 */
 
-/* Revision: 1.02 25.05.2006 $ */
-
-/*
-Modify:
-  09.04.2001 SVS
-    ! stdio.h уже и так включается.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 class GetFileString
 {
   private:

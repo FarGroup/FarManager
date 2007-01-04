@@ -7,8 +7,6 @@ filelist.hpp
 
 */
 
-/* Revision: 1.72 01.09.2006 $ */
-
 #include "global.hpp"
 #include "panel.hpp"
 #include "dizlist.hpp"
@@ -25,7 +23,7 @@ struct FileListItem
 
   DWORD NumberOfLinks;
   DWORD UserFlags;
-  DWORD UserData;
+  DWORD_PTR UserData;
 
   int Position;
   int SortGroup;
@@ -54,7 +52,7 @@ struct FileListItem
   	PrevSelected = 0;
     ShowFolderSize = 0;
     ShortNamePresent = 0;
-    
+
     memset (&Colors, 0, sizeof (HighlightDataColor));
 
 	NumberOfLinks = 0;
@@ -63,15 +61,15 @@ struct FileListItem
 
 	Position = 0;
 	SortGroup = 0;
-	
+
 	DizText = NULL;
 	DeleteDiz = 0;
-	
+
 	strOwner = L"";
 
 	CustomColumnData = NULL;
 	CustomColumnNumber = 0;
-	
+
 	CRC32 = 0;
 
 	FileAttr = 0;
@@ -79,7 +77,7 @@ struct FileListItem
 	memset (&CreationTime, 0, sizeof (CreationTime));
 	memset (&AccessTime, 0, sizeof (AccessTime));
 	memset (&WriteTime, 0, sizeof (WriteTime));
-	
+
 	UnpSize = 0;
 	PackSize = 0;
 

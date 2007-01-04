@@ -5,8 +5,6 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.15 16.12.2005 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

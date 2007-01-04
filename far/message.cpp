@@ -5,8 +5,6 @@ message.cpp
 
 */
 
-/* Revision: 1.47 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

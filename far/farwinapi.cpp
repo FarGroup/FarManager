@@ -5,8 +5,6 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.19 06.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

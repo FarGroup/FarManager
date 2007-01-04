@@ -5,8 +5,6 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.28 15.03.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -457,7 +455,7 @@ void GetColor(int PaletteIndex)
    обработка установки цвета вынесена в функцию-обработчик диалога
 */
 
-static long WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
   switch (Msg)
   {
@@ -476,7 +474,7 @@ static long WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2
         int NewColor;
         int *CurColor = (int *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, (long) &DlgItem);
+        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, (LONG_PTR) &DlgItem);
 
         NewColor=*CurColor;
         if(Param1 >= 2 && Param1 <= 17) // Fore
@@ -571,7 +569,7 @@ int GetColorDialog(unsigned int &Color,bool bCentered)
        обработка установки цвета вынесена в функцию-обработчик диалога
     */
     //SaveScreen SaveScr;
-    Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (long) &CurColor);
+    Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (LONG_PTR) &CurColor);
     if (bCentered)
       Dlg.SetPosition(-1,-1,39,15);
     else

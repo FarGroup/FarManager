@@ -5,8 +5,6 @@ flshow.cpp
 
 */
 
-/* Revision: 1.70 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

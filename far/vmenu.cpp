@@ -8,8 +8,6 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.162 01.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -98,8 +96,8 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   {
     NewItem.Clear ();
 
-    if ((unsigned int)Data[I].Name < MAX_MSG)
-      NewItem.strName = UMSG((unsigned int)Data[I].Name);
+    if ((DWORD_PTR)Data[I].Name < MAX_MSG)
+      NewItem.strName = UMSG((DWORD_PTR)Data[I].Name);
     else
       NewItem.strName = Data[I].Name;
     //NewItem.AmpPos=-1;
@@ -1191,7 +1189,7 @@ int VMenu::DeleteItem(int ID,int Count)
 
   // а вот теперь перемещения
   if(ItemCount > 1)
-    memmove(Item+ID,Item+ID+Count,4*(ItemCount-(ID+Count))); //BUGBUG
+    memmove(Item+ID,Item+ID+Count,sizeof(*Item)*(ItemCount-(ID+Count))); //BUGBUG
 
   // коррекция текущей позиции
   if(SelectPos >= ID && SelectPos < ID+Count)
@@ -1258,7 +1256,7 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
 
   if ((ItemCount & 255)==0)
   {
-    if ((NewPtr=(MenuItemEx **)xf_realloc(Item, 4*(ItemCount+256+1)))==NULL)
+    if ((NewPtr=(MenuItemEx **)xf_realloc(Item, sizeof(*Item)*(ItemCount+256+1)))==NULL)
       return(0);
     Item=NewPtr;
   }
@@ -1268,7 +1266,7 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
     PosAdd=0;
 
   if(PosAdd < ItemCount)
-    memmove(Item+PosAdd+1,Item+PosAdd,4*(ItemCount-PosAdd)); //??
+    memmove(Item+PosAdd+1,Item+PosAdd,sizeof(*Item)*(ItemCount-PosAdd)); //??
 
   Item[PosAdd] = new MenuItemEx;
 
@@ -2136,8 +2134,8 @@ static int __cdecl  SortItemDataDWORD(const MenuItemEx *el1,
                            const SortItemParam *Param)
 {
   int Res;
-  DWORD Dw1=(DWORD)(el1->UserData);
-  DWORD Dw2=(DWORD)(el2->UserData);
+  DWORD Dw1=(DWORD)(DWORD_PTR)(el1->UserData);
+  DWORD Dw2=(DWORD)(DWORD_PTR)(el2->UserData);
   if(Dw1 == Dw2)
     Res=0;
   else if(Dw1 > Dw2)

@@ -5,8 +5,6 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.66 06.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -34,7 +32,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
   stItem->PrevNumericSort=NumericSort;
   memmove(&stItem->PrevViewSettings,&ViewSettings,sizeof(struct PanelViewSettings));
 
-  PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,(PluginsStackSize+1)*4);
+  PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
   PluginsStack[PluginsStackSize] = stItem;
   PluginsStackSize++;
 }
@@ -115,7 +113,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
   }
 
   delete PluginsStack[PluginsStackSize];
-  PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,PluginsStackSize*4);
+  PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
 
   if (EnableRestoreViewMode)
     CtrlObject->Cp()->RedrawKeyBar();
@@ -177,7 +175,7 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
     /* $ 13.07.2000 SVS
        заменим new на malloc
     */
-    pi->UserData=(DWORD)xf_malloc(Size);
+    pi->UserData=(DWORD_PTR)xf_malloc(Size);
     /* SVS $ */
     memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
   }
@@ -220,7 +218,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItemW *pi,struct FileListI
     /* $ 13.07.2000 SVS
        заменим new на malloc
     */
-    fi->UserData=(DWORD)xf_malloc(Size);
+    fi->UserData=(DWORD_PTR)xf_malloc(Size);
     /* SVS $ */
     memcpy((void *)fi->UserData,(void *)pi->UserData,Size);
   }

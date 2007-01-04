@@ -5,8 +5,6 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.23 25.08.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -5,8 +5,6 @@ Quick view panel
 
 */
 
-/* Revision: 1.54 22.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -155,16 +155,16 @@ struct DialogDataEx
 
 
 struct FarDialogMessage{
-  HANDLE hDlg;
-  int    Msg;
-  int    Param1;
-  long   Param2;
+  HANDLE   hDlg;
+  int      Msg;
+  int      Param1;
+  LONG_PTR Param2;
 };
 
 class DlgEdit;
 class ConsoleTitle;
 
-typedef long (__stdcall *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,long Param2);
+typedef LONG_PTR (__stdcall *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
 class Dialog: public Frame
 {
@@ -195,7 +195,7 @@ class Dialog: public Frame
     /* $ 11.08.2000 SVS
       + Данные, специфические для конкретного экземпляра диалога
     */
-    long DataDialog;            // первоначально здесь параметр,
+    LONG_PTR DataDialog;        // первоначально здесь параметр,
                                 //   переданный в конструктор
     /* SVS $ */
     struct DialogItemEx **Item;    // массив элементов диалога
@@ -328,10 +328,10 @@ class Dialog: public Frame
     int Do_ProcessFirstCtrl();
     int Do_ProcessSpace();
 
-    int CallDlgProc (int nMsg, int nParam1, int nParam2);
+    LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
 
   public:
-    Dialog(struct DialogItemEx *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=0);
+    Dialog(struct DialogItemEx *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
     ~Dialog();
 
   public:
@@ -440,16 +440,16 @@ class Dialog: public Frame
                         DWORD Checked3Set=0,DWORD Checked3Skip=0);
 
     /* $ 23.07.2000 SVS: функция обработки диалога (по умолчанию) */
-    static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
-    static long __stdcall SendDlgMessage (HANDLE hDlg,int Msg,int Param1,long Param2)
+    static LONG_PTR __stdcall SendDlgMessage (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
     {
         Dialog *D = (Dialog*)hDlg;
         return D->pfnSendDlgMessage (hDlg, Msg, Param1, Param2);
     }
 
-    static long __stdcall SendDlgMessageAnsi(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static long __stdcall SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR __stdcall SendDlgMessageAnsi(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR __stdcall SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };

@@ -5,20 +5,6 @@ To implement the qsort() routine for sorting arrays.
 
 */
 
-/* Revision: 1.03 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  15.10.2003 SVS
-    ! небольшой перетрях сорцов
-  08.07.2003 SVS
-    ! ну... скажем совершенно новый файл. педелка с оптимизаций
-  07.07.2003 SVS
-    ! введен в проект для компиляции под BC
-*/
-
 #define __NEW_H
 #include "headers.hpp"
 #pragma hdrstop

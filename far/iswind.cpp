@@ -5,8 +5,6 @@ iswind.cpp
 
 */
 
-/* Revision: 1.11 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

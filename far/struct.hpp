@@ -7,8 +7,6 @@ struct.hpp
 
 */
 
-/* Revision: 1.152 07.07.2006 $ */
-
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
 
@@ -192,7 +190,7 @@ struct EditorOptions
 		UseExternalEditor = 0;
 		ShowKeyBar = 0;
 
-		FileSizeLimitLo = 0; 
+		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
 
 		strWordDiv = L"";

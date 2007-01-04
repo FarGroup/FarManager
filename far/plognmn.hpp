@@ -7,8 +7,6 @@ class PreserveLongName
 
 */
 
-/* Revision: 1.03 01.05.2006 $ */
-
 #include "farconst.hpp"
 #include "unicodestring.hpp"
 

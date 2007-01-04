@@ -8,8 +8,6 @@ FileMasksProcessor.hpp
 исключения).
 */
 
-/* Revision: 1.03 16.03.2006 $ */
-
 #include "BaseFileMask.hpp"
 #include  "udlist.hpp"
 

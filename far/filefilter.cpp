@@ -5,8 +5,6 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.18 01.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -178,7 +176,7 @@ enum enumFileFilterConfigure {
     };
 
 
-long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   switch(Msg)
   {
@@ -208,15 +206,15 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(long)(const wchar_t*)strDate);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(long)(const wchar_t*)strTime);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(long)(const wchar_t*)strDate);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(long)(const wchar_t*)strTime);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)(const wchar_t*)strDate);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)(const wchar_t*)strTime);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strDate);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strTime);
 
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,ID_FF_DATEAFTEREDIT,0);
         COORD r;
         r.X=r.Y=0;
-        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,ID_FF_DATEAFTEREDIT,(long)&r);
+        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,ID_FF_DATEAFTEREDIT,(LONG_PTR)&r);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
@@ -228,13 +226,13 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
         // очистка диалога
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(long)L"*.*");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(long)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(long)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(long)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(long)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(long)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(long)L"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(LONG_PTR)L"*.*");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)L"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)L"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)L"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)L"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)L"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)L"");
 
         /* 14.06.2004 KM
            Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
@@ -246,9 +244,9 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
         // 6, 13 - позиции в списке
         struct FarListPos LPos={0,0};
         SizeType=0;
-        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_SIZEDIVIDER,(long)&LPos);
+        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_SIZEDIVIDER,(LONG_PTR)&LPos);
         DateType=0;
-        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(long)&LPos);
+        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(LONG_PTR)&LPos);
 
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,BSTATE_UNCHECKED);
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,BSTATE_UNCHECKED);
@@ -306,27 +304,27 @@ void FileFilter::Configure()
   /* 00 */DI_DOUBLEBOX,3,1,73,21,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
 
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterMatchMask,
-  /* 02 */DI_EDIT,7,3,71,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,L"",
+  /* 02 */DI_EDIT,7,3,71,3,0,(DWORD_PTR)FilterMasksHistoryName,DIF_HISTORY,0,L"",
 
   /* 03 */DI_TEXT,0,4,0,0,0,0,DIF_SEPARATOR,0,L"",
 
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterSize,
   /* 05 */DI_COMBOBOX,52,5,71,5,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
   /* 06 */DI_TEXT,7,6,38,6,0,0,0,0,(const wchar_t *)MFileFilterSizeFrom,
-  /* 07 */DI_FIXEDIT,52,6,71,6,0,(DWORD)DigitMask,DIF_MASKEDIT,0,L"",
+  /* 07 */DI_FIXEDIT,52,6,71,6,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,L"",
   /* 08 */DI_TEXT,7,7,38,7,0,0,0,0,(const wchar_t *)MFileFilterSizeTo,
-  /* 09 */DI_FIXEDIT,52,7,71,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,L"",
+  /* 09 */DI_FIXEDIT,52,7,71,7,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,L"",
 
   /* 10 */DI_TEXT,0,8,0,0,0,0,DIF_SEPARATOR,0,L"",
 
   /* 11 */DI_CHECKBOX,5,9,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterDate,
   /* 12 */DI_COMBOBOX,53,9,71,9,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
   /* 13 */DI_TEXT,7,10,38,10,0,0,0,0,(const wchar_t *)MFileFilterAfter,
-  /* 14 */DI_FIXEDIT,53,10,62,10,0,(DWORD)(const wchar_t*)strDateMask,DIF_MASKEDIT,0,L"",
-  /* 15 */DI_FIXEDIT,64,10,71,10,0,(DWORD)(const wchar_t*)strTimeMask,DIF_MASKEDIT,0,L"",
+  /* 14 */DI_FIXEDIT,53,10,62,10,0,(DWORD_PTR)(const wchar_t*)strDateMask,DIF_MASKEDIT,0,L"",
+  /* 15 */DI_FIXEDIT,64,10,71,10,0,(DWORD_PTR)(const wchar_t*)strTimeMask,DIF_MASKEDIT,0,L"",
   /* 16 */DI_TEXT,7,11,40,11,0,0,0,0,(const wchar_t *)MFileFilterBefore,
-  /* 17 */DI_FIXEDIT,53,11,62,11,0,(DWORD)(const wchar_t*)strDateMask,DIF_MASKEDIT,0,L"",
-  /* 18 */DI_FIXEDIT,64,11,71,11,0,(DWORD)(const wchar_t*)strTimeMask,DIF_MASKEDIT,0,L"",
+  /* 17 */DI_FIXEDIT,53,11,62,11,0,(DWORD_PTR)(const wchar_t*)strDateMask,DIF_MASKEDIT,0,L"",
+  /* 18 */DI_FIXEDIT,64,11,71,11,0,(DWORD_PTR)(const wchar_t*)strTimeMask,DIF_MASKEDIT,0,L"",
   /* 19 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterCurrent,
   /* 20 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
 

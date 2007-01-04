@@ -7,8 +7,6 @@ history.hpp
 
 */
 
-/* Revision: 1.17 15.03.2006 $ */
-
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
 

@@ -5,8 +5,6 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.212 01.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -140,7 +138,7 @@ BOOL WINAPI FarShowHelp (
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
+INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 {
   struct Opt2Flags{
     int *Opt;
@@ -190,7 +188,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_CONSOLEMODE:
     {
-      return FarAltEnter((int)Param);
+      return FarAltEnter((int)(INT_PTR)Param);
     }
     /* SVS $ */
 
@@ -230,7 +228,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_WAITKEY:
     {
-      return WaitKey(Param?(DWORD)Param:(DWORD)-1);
+      return WaitKey(Param?(DWORD)(DWORD_PTR)Param:(DWORD)-1);
     }
     /* SVS $ */
 
@@ -242,8 +240,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_GETCOLOR:
     {
-      if((int)Param < SizeArrayPalette && (int)Param >= 0)
-        return (int)((unsigned int)Palette[(int)Param]);
+      if((int)(INT_PTR)Param < SizeArrayPalette && (int)(INT_PTR)Param >= 0)
+        return (int)((unsigned int)Palette[(int)(INT_PTR)Param]);
       return -1;
     }
     /* SVS $ */
@@ -410,7 +408,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         MRec.Flags=(((struct KeySequence*)Param)->Flags)<<8;
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)
-          MRec.Buffer=(DWORD *)((struct KeySequence*)Param)->Sequence[0];
+          MRec.Buffer=(DWORD *)(DWORD_PTR)((struct KeySequence*)Param)->Sequence[0];
         else
           MRec.Buffer=((struct KeySequence*)Param)->Sequence;
         return CtrlObject->Macro.PostNewMacro(&MRec,TRUE);
@@ -493,9 +491,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         если находимся в модальном редакторе/вьюере.
       */
       if (FrameManager && !FrameManager->InModalEV() &&
-          FrameManager->operator[]((int)Param)!=NULL )
+          FrameManager->operator[]((int)(INT_PTR)Param)!=NULL )
       {
-        FrameManager->ActivateFrame((int)Param);
+        FrameManager->ActivateFrame((int)(INT_PTR)Param);
         return TRUE;
       }
       return FALSE;
@@ -516,7 +514,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     {
       if(!hFarWnd)
         InitDetectWindowedMode();
-      return (int)hFarWnd;
+      return (INT_PTR)hFarWnd;
     }
     /* tran $ */
 
@@ -854,7 +852,7 @@ int WINAPI FarMenuFn (
    Функции для расширенного диалога
 */
 // Функция FarDefDlgProc обработки диалога по умолчанию
-long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   if(hDlg)  // исключаем лишний вызов для hDlg=0
     return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -866,7 +864,7 @@ long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       вносим некоторые изменения!
 */
 // Посылка сообщения диалогу
-long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   if(hDlg) // исключаем лишний вызов для hDlg=0
     return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
@@ -938,7 +936,7 @@ static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struc
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
-           FARWINDOWPROC DlgProc,long Param)
+           FARWINDOWPROC DlgProc,LONG_PTR Param)
 
 {
   if (FrameManager->ManagerIsDown())
@@ -1543,8 +1541,8 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
       /* $ 30.11.2001 DJ
          А плагиновая ли это панель?
       */
-      DWORD Handle = (DWORD) CtrlObject->Cp()->ActivePanel->GetPluginHandle();
-      if (!Handle || Handle == 0xffffffff)
+      HANDLE Handle = CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+      if (!Handle || Handle == INVALID_HANDLE_VALUE)
         return FALSE;
 
       DirListPlugin=*((struct PluginHandle *)Handle);
@@ -1647,7 +1645,7 @@ static void CopyPluginDirItem (PluginPanelItemW *CurPanelItem)
     /* $ 13.07.2000 SVS
        вместо new будем использовать malloc
     */
-    DestItem->UserData=(DWORD)xf_malloc(Size);
+    DestItem->UserData=(DWORD_PTR)xf_malloc(Size);
     /* SVS $*/
     memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
   }

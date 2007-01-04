@@ -5,8 +5,6 @@ gettable.cpp
 
 */
 
-/* Revision: 1.24 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -44,7 +42,7 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
     	item.Clear ();
 	    item.strName = cpi.CodePageName;
 
-    	tables->SetUserData((void*)dwCP, sizeof (DWORD), tables->AddItemW (&item));
+    	tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItemW (&item));
 	}
 
     return TRUE;
@@ -91,7 +89,7 @@ int GetTableEx ()
     tables->Process ();
 
     if ( tables->Modal::GetExitCode() >= 0 )
-        nCP = (int)tables->GetUserData(NULL, 0);
+        nCP = (int)(INT_PTR)tables->GetUserData(NULL, 0);
 
     delete tables;
 
@@ -162,7 +160,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     GetRegKeyW(t,L"TableName",t2,strItemName);
     ListItem.strName = t2;
     ListItem.SetSelect(I+1+UseUnicode == TableNum);
-    TableList.SetUserData((void*)(I+1+UseUnicode),sizeof(I),TableList.AddItemW(&ListItem));
+    TableList.SetUserData((void*)(INT_PTR)(I+1+UseUnicode),sizeof(I),TableList.AddItemW(&ListItem));
   }
 
   //TableList.SetSelectPos(1+UseUnicode == TableNum,1);
@@ -172,7 +170,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   int Pos=-1;
   if (TableList.Modal::GetExitCode()>=0)
-    Pos=(int)TableList.GetUserData(NULL,0);
+    Pos=(int)(INT_PTR)TableList.GetUserData(NULL,0);
 
   if (Pos>UseUnicode && !PrepareTable(TableSet,Pos-1-UseUnicode))
     return(FALSE);

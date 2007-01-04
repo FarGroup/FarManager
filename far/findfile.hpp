@@ -7,8 +7,6 @@ findfile.hpp
 
 */
 
-/* Revision: 1.24 12.07.2006 $ */
-
 #include "plugin.hpp"
 #include "unicodestring.hpp"
 #include "struct.hpp"
@@ -51,9 +49,9 @@ class FindFiles
     static void AdvancedDialog();
 
     int FindFilesProcess();
-    static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static long WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     static void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int UpdatePanel=FALSE);
     static void DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName);

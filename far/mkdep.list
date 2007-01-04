@@ -5,7 +5,6 @@ BlockExtKey.hpp
 CFileMask.hpp
 chgmmode.hpp
 chgprior.hpp
-ClevMutex.hpp
 cmdline.hpp
 colors.hpp
 constitle.hpp

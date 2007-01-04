@@ -5,8 +5,6 @@ syntax.hpp
 
 */
 
-/* Revision: 1.08 17.03.2006 $ */
-
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.

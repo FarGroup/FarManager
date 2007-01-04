@@ -5,8 +5,6 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.62 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

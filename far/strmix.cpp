@@ -5,8 +5,6 @@ strmix.cpp
 
 */
 
-/* Revision: 1.91 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

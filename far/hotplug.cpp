@@ -5,8 +5,6 @@ hotplug.cpp
 
 */
 
-/* Revision: 1.04 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -212,7 +210,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 
       RemoveExternalSpacesW(ListItem.strName);
       if(!ListItem.strName.IsEmpty ())
-        HotPlugList->SetUserData((void*)I,sizeof(I),HotPlugList->AddItemW(&ListItem));
+        HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItemW(&ListItem));
 
     }
   }
@@ -277,7 +275,7 @@ void ShowHotplugDevice ()
         {
           BlockExtKey blockExtKey;
 
-          I=(int)HotPlugList.GetUserData(NULL,0);
+          I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
           if(RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE) == 1)
           {
             HotPlugList.Hide();

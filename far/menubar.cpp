@@ -5,8 +5,6 @@ menubar.cpp
 
 */
 
-/* Revision: 1.03 29.11.2005 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

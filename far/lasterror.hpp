@@ -7,14 +7,6 @@ lasterror.hpp
 
 */
 
-/* Revision: 1.0 17.05.2004 $ */
-
-/*
-Modify:
-  17.05.2004 SVS
-    + добавлен в проект
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

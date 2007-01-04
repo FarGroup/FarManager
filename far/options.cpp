@@ -5,8 +5,6 @@ options.cpp
 
 */
 
-/* Revision: 1.30 04.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -5,8 +5,6 @@ namelist.cpp
 
 */
 
-/* Revision: 1.15 31.03.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

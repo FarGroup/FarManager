@@ -4191,7 +4191,7 @@ void Editor::GoToPosition()
   static struct DialogDataEx GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(const wchar_t *)MEditGoToLine,
-    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
+    DI_EDIT,5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
   };
   MakeDialogItemsEx(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran
@@ -5503,7 +5503,7 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_PROCESSKEY:
     {
       _ECTLLOG(SysLog("Key = %s",_FARKEY_ToName((DWORD)Param)));
-      ProcessKey((int)Param);
+      ProcessKey((int)(INT_PTR)Param);
       return TRUE;
     }
     /* skv$*/
@@ -5778,7 +5778,7 @@ void Editor::Xlat()
          CopySize=TBlockSizeX;
       AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags); 
+      ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
     }
     DoXlat=TRUE;
   }
@@ -5800,7 +5800,7 @@ void Editor::Xlat()
         if(EndSel == -1)
           EndSel=wcslen(CurPtr->Str);
         AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOLW(),BlockStartLine+Line,0,UNDO_EDIT);
-        ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags); 
+        ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
         CurPtr=CurPtr->m_next;

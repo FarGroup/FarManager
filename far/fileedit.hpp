@@ -7,8 +7,6 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.51 06.06.2006 $ */
-
 #include "frame.hpp"
 #include "editor.hpp"
 #include "keybar.hpp"
@@ -144,7 +142,7 @@ public:
 			int StartChar,
 			int DisableHistory,
 			const wchar_t *PluginData,
-			int ToSaveAs, 
+			int ToSaveAs,
 			int DeleteOnClose,
 			int OpenModeExstFile
 			);

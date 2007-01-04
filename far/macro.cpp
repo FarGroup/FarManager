@@ -464,7 +464,7 @@ int KeyMacro::ProcessKey(int Key)
         if(RecBufferSize > 1)
           MacroLIB[Pos].Buffer=RecBuffer;
         else if(RecBuffer)
-          MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>(*RecBuffer);
+          MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
         MacroLIB[Pos].BufferSize=RecBufferSize;
         MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
         MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
@@ -1474,7 +1474,7 @@ static TVar dlggetvalueFunc(TVar *param)
     if(Index == -1)
     {
       SMALL_RECT Rect;
-      if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(long)&Rect))
+      if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(LONG_PTR)&Rect))
       {
         switch(TypeInf)
         {
@@ -1501,7 +1501,7 @@ static TVar dlggetvalueFunc(TVar *param)
         {
           struct FarListGetItem ListItem;
           ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
-          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(long)&ListItem))
+          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(LONG_PTR)&ListItem))
           {
             Ret=(wchar_t *)ListItem.Item.Text;
           }
@@ -2477,13 +2477,13 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
 
   if(BufferSize == 1)
   {
-    if((((DWORD)Buffer)&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (((DWORD)Buffer)&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE)
+    if((((DWORD)(DWORD_PTR)Buffer)&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (((DWORD)(DWORD_PTR)Buffer)&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE)
     {
       xf_free(TextBuffer);
       return Src?wcsdup(Src):NULL;
     }
 
-    if(KeyToText((DWORD)Buffer,strMacroKeyText))
+    if(KeyToText((DWORD)(DWORD_PTR)Buffer,strMacroKeyText))
       wcscpy(TextBuffer,strMacroKeyText);
     return TextBuffer;
   }
@@ -2824,7 +2824,7 @@ void KeyMacro::RunStartMacro()
 }
 
 // обработчик диалогового окна назначения клавиши
-long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   string strKeyText;
   static int LastKey;
@@ -2843,7 +2843,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       L"CtrlMsWheelDown",L"ShiftMsWheelDown",L"AltMsWheelDown",L"CtrlShiftMsWheelDown",L"CtrlAltMsWheelDown",L"AltShiftMsWheelDown"
     };
     for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
-      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)PreDefKeyName[I]);
+      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
 /*
     int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
     char *KeyStr;
@@ -2867,7 +2867,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       xf_free(KeyStr);
     }
 */
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)L"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)L"");
     // </Клавиши, которые не введешь в диалоге назначения>
 
   }
@@ -2970,7 +2970,7 @@ M1:
          Mac->BufferSize == MacroDlg->RecBufferSize &&
          (
            Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)) ||
-           Mac->BufferSize == 1 && (DWORD)Mac->Buffer == (DWORD)MacroDlg->RecBuffer
+           Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer
          )
         )
         I=0;
@@ -3004,7 +3004,7 @@ M1:
       //  и значит очистим поле ввода.
       strKeyText = L"";
     }
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)(const wchar_t*)strKeyText);
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strKeyText);
 //    if(Param2 == KEY_F1 && LastKey == KEY_F1)
 //      LastKey=-1;
 //    else
@@ -3038,7 +3038,7 @@ DWORD KeyMacro::AssignMacroKey()
 //_SVS(SysLog("StartMode=%d",StartMode));
 
   IsProcessAssignMacroKey++;
-  Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
+  Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(LONG_PTR)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp(L"KeyMacro");
   Dlg.Process();
@@ -3062,7 +3062,7 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
 }
 
 
-long WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   static struct DlgParam *KMParam=NULL;
 
@@ -3210,7 +3210,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[14].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
 
   struct DlgParam Param={this,0,0};
-  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(long)&Param);
+  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(LONG_PTR)&Param);
   Dlg.SetPosition(-1,-1,73,16);
   Dlg.SetHelp(L"KeyMacroSetting");
   FrameManager->GetBottomFrame()->Lock(); // отменим прорисовку фрейма
@@ -3312,7 +3312,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL /*NeedAddSendFlag*/)
   if((MRec->BufferSize+1) > 2)
     memcpy(NewMacroWORK2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
   else if(MRec->Buffer)
-    NewMacroWORK2.Buffer[0]=(DWORD)MRec->Buffer;
+    NewMacroWORK2.Buffer[0]=(DWORD)(DWORD_PTR)MRec->Buffer;
   NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize++]=KEY_NONE; // доп.клавиша/пустышка
 
   Work.MacroWORK=NewMacroWORK;
@@ -3897,7 +3897,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     CurMacroBuffer = CurMacro_Buffer;
   else if ( CurMacro_Buffer )
   {
-    CurMacroBuffer = reinterpret_cast<DWORD*>(*CurMacro_Buffer);
+    CurMacroBuffer = reinterpret_cast<DWORD*>((DWORD_PTR)(*CurMacro_Buffer));
     xf_free(CurMacro_Buffer);
   }
   xf_free(exprBuff);
@@ -4246,7 +4246,7 @@ void KeyMacro::Sort(void)
 
 DWORD KeyMacro::GetOpCode(struct MacroRecord *MR,int PC)
 {
-  DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)MR->Buffer;
+  DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)(DWORD_PTR)MR->Buffer;
   return OpCode;
 }
 
@@ -4261,8 +4261,8 @@ DWORD KeyMacro::SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode)
   }
   else
   {
-    OldOpCode=(DWORD)MR->Buffer;
-    MR->Buffer=(DWORD*)OpCode;
+    OldOpCode=(DWORD)(DWORD_PTR)MR->Buffer;
+    MR->Buffer=(DWORD*)(DWORD_PTR)OpCode;
   }
   return OldOpCode;
 }

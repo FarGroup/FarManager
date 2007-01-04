@@ -8,14 +8,6 @@ frame.hpp
 
 */
 
-/* Revision: 1.00 05.05.2001 */
-
-/*
-  Modify:
-    05.05.2001 DJ
-      created
-*/
-
 class Frame: public ScreenObject
 {
   protected:

@@ -5,8 +5,6 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.130 20.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

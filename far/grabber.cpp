@@ -5,8 +5,6 @@ Screen grabber
 
 */
 
-/* Revision: 1.27 15.03.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

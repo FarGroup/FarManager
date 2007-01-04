@@ -5,8 +5,6 @@ User menu и есть
 
 */
 
-/* Revision: 1.83 23.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

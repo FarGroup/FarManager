@@ -7,8 +7,6 @@ plugins.hpp
 
 */
 
-/* Revision: 1.43 06.06.2006 $ */
-
 #include "language.hpp"
 #include "bitflags.hpp"
 #include "unicodestring.hpp"
@@ -35,7 +33,7 @@ typedef void (WINAPI *PLUGINGETPLUGININFO)(struct PluginInfoW *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATA)(HANDLE hPlugin,struct PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORY)(HANDLE hPlugin,const wchar_t *Name,int OpMode);
 typedef HANDLE (WINAPI *PLUGINOPENFILEPLUGIN)(const wchar_t *Name,const unsigned char *Data,int DataSize);
-typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,int Item);
+typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,INT_PTR Item);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENT)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(const INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINPROCESSEVENT)(HANDLE hPlugin,int Event,void *Param);
@@ -242,7 +240,7 @@ public:
 
 public:
 
-	HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
+	HANDLE OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item);
 	HANDLE OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
 	HANDLE OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber);
 	void ClosePlugin(HANDLE hPlugin);

@@ -7,8 +7,6 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.09 21.05.2006 $ */
-
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
 

@@ -7,33 +7,6 @@ exception.cpp
 
 */
 
-/* Revision: 1.09 13.01.2003 $ */
-
-/*
-Modify:
-  13.01.2003 SVS
-    ! Начиная с 1251 нарушена нумерация билдов (один пропущен)
-  04.11.2002 SVS
-    + флаги EX_PLUGINITEMWORKFLAGS, EX_PLUGINITEMCALLFUNCFLAGS
-    ! поле PLUGINRECORD.Next сделаем пока как PLUGINRECORD.Reserved1
-  19.02.2002 SVS
-    ! ВСЕ СОВСЕМ ИНАЧЕ :-)
-  25.01.2002 SVS
-    ! Выравниванием, мать его :-((
-    ! FAULTCODERECORD.Code = 128 байт
-    ! вместо pXXXXXX выставим нужные флаги (FuncFlags)
-    ! Куча разных уточнений ;-)
-  22.01.2002 SVS
-    ! Уточнение в PLUGINRECORD
-  11.07.2001 SVS
-    + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
-  16.05.2001 SVS
-    ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
-    + PLUGINSINFORECORD
-  16.05.2001 SVS
-    ! Created
-*/
-
 #include "plugins.hpp"
 
 #if defined(__BORLANDC__)

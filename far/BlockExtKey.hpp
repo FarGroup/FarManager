@@ -13,13 +13,6 @@ BlockExtKey.hpp
 
 */
 
-/* Revision: 1.00 21.02.2002 $ */
-
-/*
-Modify:
-  21.02.2002 SVS
-    ! Created
-*/
 #include "global.hpp"
 
 class BlockExtKey{

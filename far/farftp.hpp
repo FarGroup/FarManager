@@ -7,17 +7,6 @@ farftp.hpp
 
 */
 
-/* Revision: 1.01 25.04.2005 $ */
-
-/*
-Modify:
-  24.04.2005 AY
-    ! GCC
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 extern "C" {
 
 #define INTERNETAPI DECLSPEC_IMPORT

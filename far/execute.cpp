@@ -5,8 +5,6 @@ execute.cpp
 
 */
 
-/* Revision: 1.145 18.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -72,7 +70,11 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
         {
            DWORD signature;
            IMAGE_FILE_HEADER _head;
-           IMAGE_OPTIONAL_HEADER opt_head;
+           union
+           {
+             IMAGE_OPTIONAL_HEADER32 opt_head32;
+             IMAGE_OPTIONAL_HEADER64 opt_head64;
+           };
            // IMAGE_SECTION_HEADER section_header[];  /* actual number in NumberOfSections */
         } header, *pheader;
         #include <poppack.h>
@@ -86,7 +88,12 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
             pheader=&header;
 
             if(signature == IMAGE_NT_SIGNATURE) // PE
-               ImageSubsystem = header.opt_head.Subsystem;
+            {
+               if (header.opt_head32.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+                 ImageSubsystem = header.opt_head64.Subsystem;
+               else
+                 ImageSubsystem = header.opt_head32.Subsystem;
+            }
 //            {
 //              IsPEGUI=1;
 //              IsPEGUI|=(header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)?2:0;

@@ -7,8 +7,6 @@ hmenu.hpp
 
 */
 
-/* Revision: 1.06 23.04.2006 $ */
-
 #include "modal.hpp"
 #include "frame.hpp"
 

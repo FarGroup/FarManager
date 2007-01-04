@@ -5,8 +5,6 @@ language.cpp
 
 */
 
-/* Revision: 1.34 06.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -275,7 +273,7 @@ char* Language::GetMsg(int MsgId)
   if(this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
     return(OldLang.MsgAddr[MsgId]);
   return(MsgAddr[MsgId]);
-} 
+}
 
 wchar_t* Language::GetMsgW (int nID)
 {

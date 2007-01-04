@@ -5,8 +5,6 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.35 25.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -338,7 +336,7 @@ int WINAPI GetSearchReplaceStringW (
    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
 */
 // Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
-static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+static LONG_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
 /*
   if(Msg == DM_KEY)
@@ -426,7 +424,7 @@ int WINAPI GetStringW (
 
   if (HistoryName!=NULL)
   {
-    StrDlg[2].Selected=(int)HistoryName;
+    StrDlg[2].History=HistoryName;
     /* $ 09.08.2000 SVS
        флаг для использовании пред значения из истории задается отдельно!!!
     */

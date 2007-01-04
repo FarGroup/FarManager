@@ -267,7 +267,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     }
     else
       OutHandle=GetStdHandle(STD_INPUT_HANDLE);
-    int InpHandle=_open_osfhandle((long)OutHandle,O_BINARY);
+    int InpHandle=_open_osfhandle((intptr_t)OutHandle,O_BINARY);
     if (InpHandle!=-1)
       NewViewFile=fdopen(InpHandle,"rb");
     vseek(NewViewFile,0,SEEK_SET);
@@ -294,7 +294,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
                        NULL,OPEN_EXISTING,0,NULL);
     if (hView!=INVALID_HANDLE_VALUE)
     {
-      int ViewHandle=_open_osfhandle((long)hView,O_BINARY);
+      int ViewHandle=_open_osfhandle((intptr_t)hView,O_BINARY);
       if (ViewHandle!=-1)
         NewViewFile=fdopen(ViewHandle,"rb");
     }
@@ -2170,7 +2170,7 @@ void Viewer::ChangeViewKeyBar()
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 
-long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   /* 23.09.2003 KM */
   Dialog* Dlg=(Dialog*)hDlg;
@@ -2185,7 +2185,7 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
          Переключение видимости строки ввода искомого текста
          в зависимости от Dlg->Item[6].Selected
       */
-      Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(long)&Item);
+      Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(LONG_PTR)&Item);
 
       if (Item.Param.Selected)
       {
@@ -2222,10 +2222,10 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         int LenDataStr=sizeof(DataStr);
         if (Param1 == 6 && Param2)
         {
-          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&Item);
+          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(LONG_PTR)&Item);
 
           //Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'X'); //BUGBUG
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)DataStr);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)DataStr);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
@@ -2241,9 +2241,9 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         if (Param1 == 5 && Param2)
         {
-          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,(long)&Item);
+          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,(LONG_PTR)&Item);
           //Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'S'); //BUGBUG
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)DataStr);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)DataStr);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
@@ -2270,7 +2270,7 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (Param1==1)
       {
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(long)&Item);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(LONG_PTR)&Item);
 
         if (Item.Param.Selected)
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,3,0);
@@ -2314,8 +2314,8 @@ void Viewer::Search(int Next,int FirstChar)
   static struct DialogDataEx SearchDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MViewSearchTitle,
   /* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MViewSearchFor,
-  /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-  /* 03 */ DI_FIXEDIT,5,3,70,3,0,(DWORD)HexMask,DIF_MASKEDIT,0,L"",
+  /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
+  /* 03 */ DI_FIXEDIT,5,3,70,3,0,(DWORD_PTR)HexMask,DIF_MASKEDIT,0,L"",
   /* 04 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
   /* 05 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(const wchar_t *)MViewSearchForText,
   /* 06 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(const wchar_t *)MViewSearchForHex,
@@ -2902,7 +2902,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
   static struct DialogDataEx GoToDlgData[]=
   {
     /* 0 */ DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(const wchar_t *)MViewerGoTo,
-    /* 1 */ DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
+    /* 1 */ DI_EDIT,5,2,29,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
     /* 2 */ DI_TEXT,3,3,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
     /* 3 */ DI_RADIOBUTTON,5,4,0,0,0,0,DIF_GROUP,0,(const wchar_t *)MGoToPercent,
     /* 4 */ DI_RADIOBUTTON,5,5,0,0,0,0,0,0,(const wchar_t *)MGoToHex,
@@ -3053,7 +3053,7 @@ void Viewer::AdjustFilePos()
     if (GotoLinePos<0)
       GotoLinePos=0;
     vseek(ViewFile,GotoLinePos,SEEK_SET);
-    int ReadSize=(int)Min((__int64)sizeof(Buf)/sizeof (wchar_t),(__int64)(FilePos-GotoLinePos));
+    int ReadSize=(int)Min((__int64)(sizeof(Buf)/sizeof(wchar_t)),(__int64)(FilePos-GotoLinePos));
     ReadSize=vread(Buf,ReadSize,ViewFile);
     for (int I=ReadSize-1;I>=0;I--)
       if (Buf[I]==CRSym)
@@ -3113,7 +3113,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
   if (SearchLinePos<0)
     SearchLinePos=0;
   vseek(ViewFile,SearchLinePos,SEEK_SET);
-  int ReadSize=(int)Min((__int64)sizeof(Buf)/sizeof (wchar_t),(__int64)(MatchPos-SearchLinePos));
+  int ReadSize=(int)Min((__int64)(sizeof(Buf)/sizeof(wchar_t)),(__int64)(MatchPos-SearchLinePos));
   ReadSize=vread(Buf,ReadSize,ViewFile);
   for (int I=ReadSize-1;I>=0;I--)
     if (Buf[I]==CRSym)
@@ -3291,7 +3291,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       }
       else
       {
-        if((long)Param != (long)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
+        if((LONG_PTR)Param != (LONG_PTR)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
         {
           for(I=0; I < 12; ++I)
           {

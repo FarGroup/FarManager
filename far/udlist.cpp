@@ -8,8 +8,6 @@ udlist.cpp
 
 */
 
-/* Revision: 1.15 23.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

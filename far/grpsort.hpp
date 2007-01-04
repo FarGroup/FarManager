@@ -7,8 +7,6 @@ grpsort.hpp
 
 */
 
-/* Revision: 1.02 15.03.2006 $ */
-
 class GroupSort
 {
   private:

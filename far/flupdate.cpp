@@ -5,8 +5,6 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.74 12.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -265,7 +263,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
         FileListItem **pTemp;
 
-        if ((pTemp=(struct FileListItem **)xf_realloc(ListData,AllocatedCount*4))==NULL)
+        if ((pTemp=(struct FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
           break;
         ListData=pTemp;
       }
@@ -399,7 +397,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     if (FileCount>=AllocatedCount)
     {
         FileListItem **pTemp;
-      if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+1)*4))!=NULL)
+      if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
         ListData=pTemp;
     }
     if (CurPtr!=NULL)
@@ -421,7 +419,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
     {
         FileListItem **pTemp;
-      if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*4))!=NULL)
+      if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
       {
         ListData=pTemp;
         for (PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
@@ -576,11 +574,11 @@ void FileList::MoveSelection(struct FileListItem **ListData,long FileCount,
   struct FileListItem **OldPtr;
   SelFileCount=0;
   SelFileSize=0;
-  far_qsort((void *)OldData,OldFileCount,4,SortSearchList);
+  far_qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
   while (FileCount--)
   {
     OldPtr=(struct FileListItem **)bsearch((void *)ListData,(void *)OldData,
-                                  OldFileCount,4,SortSearchList);
+                                  OldFileCount,sizeof(*ListData),SortSearchList);
     if (OldPtr!=NULL)
     {
       if (OldPtr[0]->ShowFolderSize)
@@ -686,7 +684,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     DeleteListData(ListData,FileCount);
 
   FileCount=PluginFileCount;
-  ListData=(struct FileListItem**)xf_malloc(4*(FileCount+1));
+  ListData=(struct FileListItem**)xf_malloc(sizeof(struct FileListItem*)*(FileCount+1));
 
   if (ListData==NULL)
   {

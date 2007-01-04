@@ -5,8 +5,6 @@ print.cpp
 
 */
 
-/* Revision: 1.23 17.03.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

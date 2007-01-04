@@ -5,8 +5,6 @@ flink.cpp
 
 */
 
-/* Revision: 1.62 25.08.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

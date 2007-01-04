@@ -5,8 +5,6 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.12 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -31,8 +29,8 @@ cddrv.cpp
 #define IOCTL_SCSI_PASS_THROUGH         CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 
 
-typedef long LONG_PTR, *PLONG_PTR;
-typedef unsigned long ULONG_PTR, *PULONG_PTR;
+//typedef long LONG_PTR, *PLONG_PTR;
+//typedef unsigned long ULONG_PTR, *PULONG_PTR;
 
 #undef offsetof
 #define offsetof(s,m)   (size_t)&(((s *)0)->m)

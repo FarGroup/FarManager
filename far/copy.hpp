@@ -7,8 +7,6 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.36 06.06.2006 $ */
-
 #include "dizlist.hpp"
 #include "udlist.hpp"
 
@@ -162,7 +160,7 @@ class ShellCopy
   public:
     static int  ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
-    static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 //    static long WINAPI CopyDlgProcW(HANDLE hDlg,int Msg,int Param1,long Param2);
     static int  MkSymLinkW(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags);
     static void PR_ShellCopyMsgW(void);

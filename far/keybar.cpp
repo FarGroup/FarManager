@@ -5,8 +5,6 @@ Keybar
 
 */
 
-/* Revision: 1.16 11.12.2005 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

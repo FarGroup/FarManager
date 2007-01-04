@@ -5,8 +5,6 @@ poscache.cpp
 
 */
 
-/* Revision: 1.19 05.04.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

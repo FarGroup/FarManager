@@ -5,8 +5,6 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.25 05.04.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -66,7 +64,7 @@ GroupSort::GroupSort()
 
       if(AddMask(pNewGroup,strGroupStr,I+GroupDelta[J]))
       {
-        GroupSortData **NewGroupData=(struct GroupSortData **)xf_realloc(GroupData, 4*(GroupCount+1));
+        GroupSortData **NewGroupData=(struct GroupSortData **)xf_realloc(GroupData, sizeof(*GroupData)*(GroupCount+1));
         if (NewGroupData==NULL)
         {
           DeleteMask(pNewGroup);
@@ -390,7 +388,7 @@ int GroupSort::EditGroupsMenu(int Pos)
               pNewGroup->Clear ();
               if(AddMask(pNewGroup,strNewMasks,UpperGroup ? 0:DEFAULT_SORT_GROUP+1))
               {
-                GroupSortData **NewGroupData=(struct GroupSortData **)xf_realloc(GroupData,4*(GroupCount+1));
+                GroupSortData **NewGroupData=(struct GroupSortData **)xf_realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
                 if (NewGroupData==NULL)
                 {
                   DeleteMask(pNewGroup);

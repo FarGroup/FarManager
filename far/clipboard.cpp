@@ -5,8 +5,6 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.15 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

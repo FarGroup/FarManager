@@ -7,8 +7,6 @@ Unicode строки
 
 */
 
-/* Revision: 1.08 07.07.2006 $ */
-
 #define string UnicodeString
 
 #define __US_DELTA 512

@@ -241,7 +241,7 @@ void FileList::SortFileList(int KeepPosition)
 
     hSortPlugin=(PanelMode==PLUGIN_PANEL) ? hPlugin:NULL;
 
-    far_qsort((void *)ListData,FileCount,4,SortList);
+    far_qsort((void *)ListData,FileCount,sizeof(*ListData),SortList);
     if (KeepPosition)
       GoToFileW(strCurName);
   }
@@ -634,7 +634,7 @@ int FileList::ProcessKey(int Key)
 
                   UnicodeToAnsi (strPluginData, szPluginData, MAXSIZE_SHORTCUTDATA-1);
 
-                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(int)szPluginData);
+                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(INT_PTR)szPluginData);
                   if (hNewPlugin!=INVALID_HANDLE_VALUE)
                   {
                     int CurFocus=GetFocus();
@@ -2998,7 +2998,7 @@ void FileList::SelectFiles(int Mode)
   static struct DialogDataEx SelectDlgData[]=
   {
     DI_DOUBLEBOX,3,1,41,3,0,0,0,0,L"",
-    DI_EDIT,5,2,39,2,1,(DWORD)HistoryName,DIF_HISTORY,1,L""
+    DI_EDIT,5,2,39,2,1,(DWORD_PTR)HistoryName,DIF_HISTORY,1,L""
   };
   MakeDialogItemsEx(SelectDlgData,SelectDlg);
 
@@ -4067,7 +4067,7 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName,int PushPrev)
     if (PushPrev)
     {
 
-      PrevDataStack=(PrevDataItem **)xf_realloc(PrevDataStack,(PrevDataStackSize+1)*4);
+      PrevDataStack=(PrevDataItem **)xf_realloc(PrevDataStack,(PrevDataStackSize+1)*sizeof(PrevDataItem*));
 
       PrevDataStack[PrevDataStackSize] = new PrevDataItem;
 

@@ -7,8 +7,6 @@ filter.hpp
 
 */
 
-/* Revision: 1.06 07.07.2006 $ */
-
 #include "CFileMask.hpp"
 #include "UnicodeString.hpp"
 

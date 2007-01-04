@@ -16,20 +16,6 @@ farqueue.cpp
      }
 */
 
-/* Revision: 1.03 25.04.2005 $ */
-
-/*
-Modify:
-  24.04.2005 AY
-    ! GCC
-  06.05.2001 DJ
-   ! перетрях #include
-  31.01.2001 OT
-   -  "Explicit instantiation" для темплитов под VC++
-  24.01.2001 SVS
-   + Новый файл.
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

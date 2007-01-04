@@ -5,8 +5,6 @@ Eject סתולםûץ םמסטעוכוי
 
 */
 
-/* Revision: 1.21 07.07.2006 $ */
-
 #define __USE_MCI    1
 
 #include "headers.hpp"
@@ -88,6 +86,7 @@ Return Value:
 -----------------------------------------------------------------------*/
 static BOOL UnlockMedia (HANDLE hVWin32, BYTE bDrive)
 {
+#ifndef _WIN64
    DIOC_REGISTERS regs = {0};
    PARAMBLOCK     unlockParams = {0};
    int   i;
@@ -152,6 +151,9 @@ static BOOL UnlockMedia (HANDLE hVWin32, BYTE bDrive)
          break;
    }
    return fResult;
+#else
+   return FALSE;
+#endif
 }
 
 /*-----------------------------------------------------------------------
@@ -584,6 +586,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 
     if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     {
+      #ifndef _WIN64
       #pragma pack(1)
       typedef struct {
           TCHAR dmiAllocationLength;          // db   ?       ; length of the buffer provided by caller
@@ -620,6 +623,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 
       if(DeviceIoControl(h, VWIN32_DIOC_DOS_IOCTL, &reg, sizeof(reg), &reg, sizeof(reg), &dwRead, NULL))
         IsEjectable = !(reg.reg_Flags & 0x0001) && (dmi.dmiFlags & PROT_MODE_EJECT);
+      #endif
     }
     else
     {

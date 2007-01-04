@@ -7,8 +7,6 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.17 15.03.2006 $ */
-
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"

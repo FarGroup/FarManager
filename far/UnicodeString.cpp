@@ -5,19 +5,6 @@ Unicode строки
 
 */
 
-/* Revision: 1.03 14.09.2005 $ */
-
-/*
-Modify:
-  14.09.2005 WARP
-    ! Unicode
-  22.07.2005 WARP
-    ! see 00029.nail.txt
-  16.07.2005 WARP
-    ! уточнение UnicodeString::ReleaseBuffer()
-  04.07.2005 WARP
-    ! Выделение в качестве самостоятельного модуля
-*/
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -7,8 +7,6 @@ language.hpp
 
 */
 
-/* Revision: 1.12 05.04.2006 $ */
-
 #include "farconst.hpp"
 #include "unicodestring.hpp"
 

@@ -11,8 +11,6 @@ udlist.hpp
 
 */
 
-/* Revision: 1.09 23.05.2006 $ */
-
 #include "farconst.hpp"
 #include "array.hpp"
 

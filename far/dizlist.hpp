@@ -7,8 +7,6 @@ dizlist.hpp
 
 */
 
-/* Revision: 1.04 07.07.2006 $ */
-
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
 

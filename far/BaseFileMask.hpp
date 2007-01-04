@@ -7,18 +7,6 @@ BaseFileMask.hpp
 Абстрактный класс, заведен для удобства работы с масками.
 */
 
-/* Revision: 1.02 21.11.2005 $ */
-
-/*
-Modify:
-  21.11.2005 WARP
-    + BaseFileMaskW
-  24.04.2005 AY
-    ! GCC
-  01.07.2001 IS
-    + Впервые в эфире
-*/
-
 extern const int EXCLUDEMASKSEPARATOR;
 
 class BaseFileMask

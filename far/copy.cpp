@@ -261,7 +261,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   static struct DialogDataEx CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,0,0,(wchar_t *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(wchar_t *)MCMLTargetTO,
-  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,L"",
+  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,L"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
   /* 04 */  DI_TEXT,5,5,0,5,0,0,0,0,(wchar_t *)MCopySecurity,
   /* 05 */  DI_RADIOBUTTON,5,5,0,5,0,0,DIF_GROUP,0,(wchar_t *)MCopySecurityLeave,
@@ -593,7 +593,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   if (Ask)
   {
-    Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(long)&CDP);
+    Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(LONG_PTR)&CDP);
     Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
     Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 
@@ -980,7 +980,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 }
 
 
-long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
 #define DM_CALLTREE (DM_USER+1)
   struct CopyDlgParam *DlgParam;
@@ -1008,8 +1008,8 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         // подсократим код путем эмуляции телодвижений в строке ввода :-))
         struct FarDialogItem DItemTargetEdit;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_TARGETEDIT,(long)&DItemTargetEdit);
-        Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,(long)&DItemTargetEdit);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_TARGETEDIT,(LONG_PTR)&DItemTargetEdit);
+        Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,(LONG_PTR)&DItemTargetEdit);
       }
       else if (Param1==ID_SC_BTNFILTER) // Filter
       {
@@ -1038,11 +1038,11 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         int LenCurDirName = DlgParam->thisClass->SrcPanel->GetCurDirW(strSrcDir);
 
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,(long)&DItemACCopy);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,(long)&DItemACInherit);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,(long)&DItemACLeave);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,(long)&DItemOnlyNewer);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(long)&DItemBtnCopy);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)&DItemACCopy);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)&DItemACInherit);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)&DItemACLeave);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)&DItemOnlyNewer);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)&DItemBtnCopy);
 
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
@@ -1103,11 +1103,11 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           }
         }
 
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(long)&DItemACCopy);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(long)&DItemACInherit);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(long)&DItemACLeave);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(long)&DItemOnlyNewer);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(long)&DItemBtnCopy);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)&DItemACCopy);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)&DItemACInherit);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)&DItemACLeave);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)&DItemOnlyNewer);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)&DItemBtnCopy);
       }
       break;
 
@@ -1135,7 +1135,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       Data.PtrData = strOldFolder.GetBuffer(nLength+1);
       Data.PtrLength = nLength;
-      Dialog::SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,(long)&Data);
+      Dialog::SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,(LONG_PTR)&Data);
 
       strOldFolder.ReleaseBuffer();
 
@@ -1189,7 +1189,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             strOldFolder += strNewFolder;
             strNewFolder = strOldFolder;
           }
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_SC_TARGETEDIT,(long)(const wchar_t*)strNewFolder);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_SC_TARGETEDIT,(LONG_PTR)(const wchar_t*)strNewFolder);
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,ID_SC_TARGETEDIT,0);
         }
       }

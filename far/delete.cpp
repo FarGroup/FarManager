@@ -5,8 +5,6 @@ delete.cpp
 
 */
 
-/* Revision: 1.86 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

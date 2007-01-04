@@ -5,23 +5,6 @@ Detect & Eject USB носителей
 
 */
 
-/* Revision: 1.03 05.10.2005 $ */
-
-/*
-Modify:
-  05.10.2005 SVS
-    ! закомментим ненужный код, чтобы сейчас ФАР компилился в "среде".
-      Потом нужно будет просто расскоментить "#define USED_USB_DETECT_AND_EJECT"
-  09.06.2005 SVS
-    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-  30.05.2005 SVS
-    ! временно откатим проект про USB
-  05.05.2005 SVS
-    + Выделение в качестве самостоятельного модуля
-      Сорцы про USB from Eugene Leskinen <karbazol@mail.ru>
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

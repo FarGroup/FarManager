@@ -7,8 +7,6 @@ Files highlighting
 
 */
 
-/* Revision: 1.11 16.12.2005 $ */
-
 #include "CFileMask.hpp"
 #include "struct.hpp"
 

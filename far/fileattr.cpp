@@ -5,8 +5,6 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.19 25.08.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

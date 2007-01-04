@@ -5,8 +5,6 @@ fileview.cpp
 
 */
 
-/* Revision: 1.87 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -12,7 +12,6 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.271 25.08.2006 $ */
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
@@ -22,7 +21,7 @@
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
- #if defined(__GNUC__) || defined(_MSC_VER)
+ #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
   #if !defined(_WINCON_H) && !defined(_WINCON_)
     #define _WINCON_H
     #define _WINCON_ // to prevent including wincon.h
@@ -60,14 +59,20 @@
 #endif // END FAR_USE_INTERNALS
 
 #if defined(__BORLANDC__)
-  #pragma option -a2
+  #ifndef _WIN64
+    #pragma option -a2
+  #endif
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(2)
+  #ifndef _WIN64
+    #pragma pack(2)
+  #endif
   #if defined(__LCC__)
     #define _export __declspec(dllexport)
   #endif
 #else
-  #pragma pack(push,2)
+  #ifndef _WIN64
+    #pragma pack(push,2)
+  #endif
   #if _MSC_VER
     #ifdef _export
       #undef _export
@@ -464,32 +469,32 @@ struct FarDialogItemData
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
-#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(long)Data)
+#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(LONG_PTR)Data)
 
 #define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
-#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(long)Data)
+#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(LONG_PTR)Data)
 
 #define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
 #define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
 #define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
 #define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
 #define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
-#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(long)Str)
+#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(LONG_PTR)Str)
 
 #define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
 #define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
 
-#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(long)Str)
+#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(LONG_PTR)Str)
 
-#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(long)Str)
+#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(LONG_PTR)Str)
 #define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,&LPos);}
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(LONG_PTR)&LPos);}
 #define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)&FLDItem);}
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
 #define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(long)&FLID);}
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(LONG_PTR)&FLID);}
 
 enum FARDIALOGFLAGS{
   FDLG_WARNING             = 0x00000001,
@@ -501,25 +506,25 @@ enum FARDIALOGFLAGS{
 #endif // END FAR_USE_INTERNALS
 };
 
-typedef long (WINAPI *FARWINDOWPROC)(
-  HANDLE hDlg,
-  int    Msg,
-  int    Param1,
-  long   Param2
+typedef LONG_PTR (WINAPI *FARWINDOWPROC)(
+  HANDLE   hDlg,
+  int      Msg,
+  int      Param1,
+  LONG_PTR Param2
 );
 
-typedef long (WINAPI *FARAPISENDDLGMESSAGE)(
-  HANDLE hDlg,
-  int    Msg,
-  int    Param1,
-  long   Param2
+typedef LONG_PTR (WINAPI *FARAPISENDDLGMESSAGE)(
+  HANDLE   hDlg,
+  int      Msg,
+  int      Param1,
+  LONG_PTR Param2
 );
 
-typedef long (WINAPI *FARAPIDEFDLGPROC)(
-  HANDLE hDlg,
-  int    Msg,
-  int    Param1,
-  long   Param2
+typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
+  HANDLE   hDlg,
+  int      Msg,
+  int      Param1,
+  LONG_PTR Param2
 );
 
 typedef int (WINAPI *FARAPIDIALOG)(
@@ -545,7 +550,7 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   DWORD                 Reserved,
   DWORD                 Flags,
   FARWINDOWPROC         DlgProc,
-  long                  Param
+  LONG_PTR              Param
 );
 
 
@@ -574,7 +579,7 @@ struct FarMenuItemEx
   const wchar_t *Text;
   DWORD AccelKey;
   DWORD Reserved;
-  DWORD UserData;
+  DWORD_PTR UserData;
 };
 
 enum FARMENUFLAGS{
@@ -632,7 +637,7 @@ struct PluginPanelItemW
   wchar_t      *Owner;
   wchar_t     **CustomColumnData;
   int           CustomColumnNumber;
-  DWORD         UserData;
+  DWORD_PTR     UserData;
   DWORD         CRC32;
   DWORD         Reserved[2];
 };
@@ -1134,7 +1139,7 @@ struct WindowInfo
   char Name[NM];
 };
 
-typedef int (WINAPI *FARAPIADVCONTROL)(
+typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(
   int ModuleNumber,
   int Command,
   void *Param
@@ -1527,7 +1532,7 @@ enum PROCESSNAME_FLAGS{
  PN_SKIPPATH     = 0x01000000UL,
 };
 
-typedef int     (WINAPI *FARSTDPROCESSNAME)(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
+typedef int (WINAPI *FARSTDPROCESSNAME)(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
 
 typedef void (WINAPI *FARSTDUNQUOTE)(wchar_t *Str);
 
@@ -1591,7 +1596,7 @@ typedef struct FarStandardFunctions
   FARSTDSNPRINTF             snprintf;
   // </C&C++>
 
-  DWORD                      Reserved[8];
+  DWORD_PTR                  Reserved[8];
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;
@@ -1665,7 +1670,7 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD                  Reserved;
+  DWORD_PTR              Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
 };
 
@@ -1855,7 +1860,7 @@ void   WINAPI _export GetPluginInfo(struct PluginInfo *Info);
 int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item);
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item);
 int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
 int    WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param);
@@ -1872,12 +1877,14 @@ void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
 #endif
 #endif
 
+#ifndef _WIN64
 #if defined(__BORLANDC__)
   #pragma option -a.
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack()
 #else
   #pragma pack(pop)
+#endif
 #endif
 
 #endif /* __PLUGIN_HPP__ */

@@ -11,8 +11,6 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.69 23.04.2006 $ */
-
 #include "modal.hpp"
 #include "plugin.hpp"
 #include "manager.hpp"

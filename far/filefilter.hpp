@@ -7,8 +7,6 @@ filefilter.hpp
 
 */
 
-/* Revision: 1.08 06.06.2006 $ */
-
 #include "plugin.hpp"
 #include "struct.hpp"
 #include "CFileMask.hpp"
@@ -17,7 +15,7 @@ filefilter.hpp
 
 class FileFilter
 {
-  friend long WINAPI FilterDlgProc(HANDLE hDlg, int Msg,int Param1,long Param2);
+  friend LONG_PTR WINAPI FilterDlgProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
 
   private:
 
@@ -49,7 +47,7 @@ class FileFilter
   private:
 
     // Диалоговая процедура
-    static long WINAPI FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI FilterDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
 
     // Пребразование строковых полей даты и времени в FILETIME

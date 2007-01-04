@@ -1,4 +1,4 @@
-/*      
+/*
 fileedit.cpp
 
 Редактирование файла - надстройка над editor.cpp
@@ -60,13 +60,13 @@ BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 
     	FarListItemData data;
 
-    	int index = Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (int)name);
+    	int index = Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)name);
 
     	data.Index = index;
-    	data.DataSize = 4;
-    	data.Data = (void*)dwCP;
+    	data.DataSize = sizeof(dwCP);
+    	data.Data = (void*)(DWORD_PTR)dwCP;
 
-    	Dialog::SendDlgMessage (g_hDlg, DM_LISTSETDATA, g_nID, (int)&data);
+    	Dialog::SendDlgMessage (g_hDlg, DM_LISTSETDATA, g_nID, (LONG_PTR)&data);
 
     	if ( g_nCodepage == dwCP )
     	{
@@ -75,7 +75,7 @@ BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
     		pos.SelectPos = index;
     		pos.TopPos = -1;
 
-    		Dialog::SendDlgMessage (g_hDlg, DM_LISTSETCURPOS, g_nID, (int)&pos);
+    		Dialog::SendDlgMessage (g_hDlg, DM_LISTSETCURPOS, g_nID, (LONG_PTR)&pos);
     	}
 	}
 
@@ -137,7 +137,7 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
   	list.Items = (FarListItem*)(bAllowAuto?&items[0]:&items[2]);
   	list.ItemsNumber = bAllowAuto?countof(items):countof(items)-2;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTADD, nID, (int)&list);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTADD, nID, (LONG_PTR)&list);
 
   	FarListItemData data;
 
@@ -148,21 +148,21 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
   	data.DataSize = 4;
   	data.Data = (void*)CP_AUTODETECT;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
   	//oem
   	data.Index = 2-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_OEMCP;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
   	//ansi
   	data.Index = 3-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_ACP;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 
   	//utf-8
@@ -170,21 +170,21 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
   	data.DataSize = 4;
   	data.Data = (void*)CP_UTF8;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
   	//unicode
   	data.Index = 6-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_UNICODE;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
   	//reverse bom
   	data.Index = 7-index;
   	data.DataSize = 4;
   	data.Data = (void*)CP_REVERSEBOM;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (int)&data);
+  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
   	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePages, CP_INSTALLED);
 }
@@ -203,11 +203,11 @@ enum enumOpenEditor {
 	};
 
 
-int __stdcall hndOpenEditor (
-		HANDLE hDlg, 
-		int msg, 
-		int param1, 
-		int param2
+LONG_PTR __stdcall hndOpenEditor (
+		HANDLE hDlg,
+		int msg,
+		int param1,
+		LONG_PTR param2
 		)
 {
 	if ( msg == DN_INITDIALOG )
@@ -223,9 +223,9 @@ int __stdcall hndOpenEditor (
 		{
 			int *param = (int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-			FarListPos pos; 
+			FarListPos pos;
 
-			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (int)&pos);
+			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (LONG_PTR)&pos);
 
 			*param = Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
 
@@ -246,7 +246,7 @@ bool dlgOpenEditor (string &strFileName, int &codepage)
 	DialogDataEx EditDlgData[]=	{
 		/* 0 */ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditTitle,
 		/* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)L"Open/create file:",
-		/* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,L"",
+		/* 2 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
 		/* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,L"File codepage:",
 		        DI_COMBOBOX,25,5,70,0,0,0,DIF_DROPDOWNLIST,0,L"",
@@ -259,13 +259,13 @@ bool dlgOpenEditor (string &strFileName, int &codepage)
 
 	EditDlg[ID_OE_FILENAME].strData = strFileName;
 
-	Dialog Dlg(EditDlg, countof(EditDlg), (FARWINDOWPROC)hndOpenEditor, (long)&codepage);
+	Dialog Dlg(EditDlg, countof(EditDlg), (FARWINDOWPROC)hndOpenEditor, (LONG_PTR)&codepage);
 
 	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.SetHelp(L"FileSaveAs");
 
 	Dlg.Process();
-	
+
 	if ( Dlg.GetExitCode() == ID_OE_OK )
 	{
 		strFileName = EditDlg[ID_OE_FILENAME].strData;
@@ -293,11 +293,11 @@ enum enumSaveFileAs {
 	ID_SF_CANCEL,
 	};
 
-int __stdcall hndSaveFileAs (
-		HANDLE hDlg, 
-		int msg, 
-		int param1, 
-		int param2
+LONG_PTR __stdcall hndSaveFileAs (
+		HANDLE hDlg,
+		int msg,
+		int param1,
+		LONG_PTR param2
 		)
 {
 	if ( msg == DN_INITDIALOG )
@@ -312,9 +312,9 @@ int __stdcall hndSaveFileAs (
 		{
 			int *param = (int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-			FarListPos pos; 
+			FarListPos pos;
 
-			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (int)&pos);
+			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
 
 			*param = Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
 
@@ -335,7 +335,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
     {
       /* 0 */ DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MEditTitle,
       /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSaveAs,
-      /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
+      /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
       /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
       /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,L"File codepage:",
               DI_COMBOBOX,25,5,70,0,0,0,DIF_DROPDOWNLIST,0,L"",
@@ -364,12 +364,12 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
     EditDlg[2].strData.ReleaseBuffer();
 
     EditDlg[ID_SF_DONOTCHANGE].Selected = 0;
-    EditDlg[ID_SF_DOS].Selected = 0; 
+    EditDlg[ID_SF_DOS].Selected = 0;
     EditDlg[ID_SF_UNIX].Selected = 0;
     EditDlg[ID_SF_MAC].Selected=0;
     EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
 
-    Dialog Dlg(EditDlg, countof (EditDlg), (FARWINDOWPROC)hndSaveFileAs, (long)&codepage);
+    Dialog Dlg(EditDlg, countof (EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
     Dlg.SetPosition(-1,-1,76,16);
     Dlg.SetHelp(L"FileSaveAs");
     Dlg.Process();
@@ -1184,7 +1184,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           static int TextFormat=0;
 
-		  int codepage = m_codepage; 
+		  int codepage = m_codepage;
 
           bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 
@@ -1225,7 +1225,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
             //это не про нас, про нас ниже, все куда страшнее
 
-            /*string strFileNameTemp = strSaveAsName; 
+            /*string strFileNameTemp = strSaveAsName;
 
             if(!SetFileName(strFileNameTemp))
             {
@@ -1537,7 +1537,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		return FALSE;
 	}
 
-	int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+	int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
 
 	if ( EditHandle == -1 )
 		return FALSE;
@@ -1813,7 +1813,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       SysErrorCode=GetLastError();
       goto end;
     }
-    int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+    int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
     if (EditHandle==-1)
     {
       RetCode=SAVEFILE_ERROR;
@@ -2197,7 +2197,7 @@ void FileEditor::ShowStatus()
 
   GotoXY(X1,Y1); //??
 
-  string strStatus, strLineStr; 
+  string strStatus, strLineStr;
 
   string strLocalTitle;
   GetTitle(strLocalTitle);
@@ -2382,7 +2382,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				Info->FileName = _wcsdup(strFullFileName); //BUGBUG
 				return TRUE;
 			}
-			
+
 			return FALSE;
 		}
 
@@ -2402,7 +2402,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 				if ( ebm->Line && !IsBadWritePtr(ebm->Line, BOOKMARK_COUNT*sizeof(long)) )
 					memcpy(ebm->Line, m_editor->SavePos.Line, BOOKMARK_COUNT*sizeof(long));
-					
+
 				if ( ebm->Cursor && !IsBadWritePtr(ebm->Cursor, BOOKMARK_COUNT*sizeof(long)) )
 					memcpy(ebm->Cursor,m_editor->SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
 
@@ -2467,11 +2467,11 @@ int FileEditor::EditorControl(int Command, void *Param)
 		{
 			FileEditor::DisplayObject();
 			ScrBuf.Flush();
-			
+
 			return TRUE;
 		}
 
-		/* 
+		/*
 			Функция установки Keybar Labels
 			Param = NULL - восстановить, пред. значение
 			Param = -1   - обновить полосу (перерисовать)
@@ -2485,7 +2485,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				InitKeyBar();
 			else
 			{
-				if ( ((long)Param != (long)-1) && !IsBadReadPtr(Param, sizeof(KeyBarTitles)) ) // не только перерисовать?
+				if ( ((LONG_PTR)Param != (LONG_PTR)-1) && !IsBadReadPtr(Param, sizeof(KeyBarTitles)) ) // не только перерисовать?
 				{
 					for (int I = 0; I < 12; ++I)
 					{
@@ -2494,19 +2494,19 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 						if(Kbt->CtrlTitles[I])
 							EditKeyBar.Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
-							
+
 						if(Kbt->AltTitles[I])
 							EditKeyBar.Change(KBL_ALT,Kbt->AltTitles[I],I);
 
 						if(Kbt->ShiftTitles[I])
 							EditKeyBar.Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
-							
+
 						if(Kbt->CtrlShiftTitles[I])
 							EditKeyBar.Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
-							
+
 						if(Kbt->AltShiftTitles[I])
 							EditKeyBar.Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
-							
+
 						if(Kbt->CtrlAltTitles[I])
 							EditKeyBar.Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
 					}
@@ -2625,7 +2625,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
     case ECTL_PROCESSKEY:
     {
-      ReProcessKey((int)Param);
+      ReProcessKey((int)(INT_PTR)Param);
       return TRUE;
     }
 

@@ -5,8 +5,6 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.32 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -584,7 +582,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     /* $ 01.08.2000 SVS
        + .History
     */
-    DlgData[DlgSize+1].Selected=(int)HistoryName[HistoryNumber];
+    DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
     /* SVS $*/
 
     if (DlgSize==0)

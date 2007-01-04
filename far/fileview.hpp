@@ -7,8 +7,6 @@ fileview.hpp
 
 */
 
-/* Revision: 1.28 06.07.2006 $ */
-
 #include "frame.hpp"
 #include "viewer.hpp"
 #include "keybar.hpp"

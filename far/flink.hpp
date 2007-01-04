@@ -8,8 +8,6 @@ flink.hpp
 
 */
 
-/* Revision: 1.16 17.03.2006 $ */
-
 int   WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest);
 int   WINAPI FarMkLinkW(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 

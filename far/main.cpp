@@ -5,8 +5,6 @@ main.cpp
 
 */
 
-/* Revision: 1.101 12.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -325,7 +323,7 @@ int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string
   TRY{
     return MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar,RegOpt);
   }
-  EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
+  EXCEPT(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
      TerminateProcess( GetCurrentProcess(), 1);
   }
   return -1; // Никогда сюда не попадем

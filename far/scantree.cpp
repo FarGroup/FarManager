@@ -6,8 +6,6 @@ scantree.cpp
 
 */
 
-/* Revision: 1.15 06.06.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

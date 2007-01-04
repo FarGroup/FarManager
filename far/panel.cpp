@@ -5,8 +5,6 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.173 07.07.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -338,7 +336,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           ShowSpecial=TRUE;
 
         UserData=MAKELONG(MAKEWORD('A'+I,0),DriveType);
-        ChDisk.SetUserData((char*)UserData,sizeof(UserData),
+        ChDisk.SetUserData((char*)(DWORD_PTR)UserData,sizeof(UserData),
                  ChDisk.AddItemW(&ChDiskItem));
         MenuLine++;
       } // if (DiskMask & 1)
@@ -437,7 +435,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           {
             OneItem.Item.strName = strMenuText;
             OneItem.Item.UserDataSize=0;
-            OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
+            OneItem.Item.UserData=(char*)(LONG_PTR)MAKELONG(PluginNumber,PluginItem);
             OneItem.HotKey=HotKey;
             if(!MPItems.addItem(OneItem))
             {
@@ -449,7 +447,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           {
             OneItem.Item.strName = strMenuText;
             OneItem.Item.UserDataSize=0;
-            OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
+            OneItem.Item.UserData=(char*)(LONG_PTR)MAKELONG(PluginNumber,PluginItem);
             OneItem.HotKey=HotKey;
             if(!MPItemsNoHotkey.addItem(OneItem))
             {
@@ -556,7 +554,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_SHIFTENTER:
           if (SelPos<DiskCount)
           {
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
+            if ((UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0)) != 0)
             {
               string strDosDeviceName;
               strDosDeviceName.Format (L"%c:\\",LOWORD(UserData)); //BUGBUG
@@ -576,7 +574,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (SelPos<DiskCount)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
           {
 //            char MsgText[200], LocalName[50];
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
+            if ((UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0)) != 0)
             {
               DriveType=HIWORD(UserData);
               if(IsDriveTypeCDROM(DriveType) /* || DriveType == DRIVE_REMOVABLE*/)
@@ -595,7 +593,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             /* $ 28.12.2001 DJ
                обработка Del вынесена в отдельную функцию
             */
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
+            if ((UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0)) != 0)
             {
               if(HIWORD(UserData) == DRIVE_REMOVABLE || IsDriveTypeCDROM(HIWORD(UserData)))
               {
@@ -673,7 +671,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_SHIFTDEL:
           if (SelPos<DiskCount)
           {
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+            if ((UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0)) != 0 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
             {
               // первая попытка удалить устройство
               int Code=ProcessRemoveHotplugDevice(LOWORD(UserData),EJECT_NOTIFY_AFTERREMOVE);
@@ -782,7 +780,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (SelPos>DiskCount)
           {
             // Вызываем нужный топик, который передали в CommandsMenu()
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
+            if ((UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0)) != 0)
             {
               FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)]->strModuleName,
                     NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
@@ -845,7 +843,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       return(-1);
     {
       UserDataSize=ChDisk.Modal::GetExitCode()>DiskCount?2:3;
-      UserData=(DWORD)ChDisk.GetUserData(NULL,0);
+      UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0);
     }
   }
 

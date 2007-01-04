@@ -7,8 +7,6 @@ fn.hpp
 
 */
 
-/* Revision: 1.279 04.07.2006 $ */
-
 #include "farconst.hpp"
 #include "global.hpp"
 #include "plugin.hpp"
@@ -606,7 +604,7 @@ int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
+INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 /* IS $ */
 /* $ 23.07.2000 IS
    Функции для расширенного диалога
@@ -615,11 +613,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
       DWORD Reserved, DWORD Flags,
-      FARWINDOWPROC Proc,long Param);
+      FARWINDOWPROC Proc,LONG_PTR Param);
 //  Функция обработки диалога по умолчанию
-long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 // Посылка сообщения диалогу
-long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
+LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param2);
 
 /* SVS $ */
 #endif

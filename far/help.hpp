@@ -7,8 +7,6 @@ help.hpp
 
 */
 
-/* Revision: 1.33 15.03.2006 $ */
-
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "farconst.hpp"

@@ -7,14 +7,6 @@ farqueue.hpp
 
 */
 
-/* Revision: 1.00 24.01.2001 $ */
-
-/*
-Modify:
-  24.01.2001 SVS
-   + Новый файл.
-*/
-
 template <class Object>
 class FarQueue
 {

@@ -4,8 +4,6 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.26 21.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 #include "fn.hpp"

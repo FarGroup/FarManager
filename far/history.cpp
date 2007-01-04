@@ -5,8 +5,6 @@ history.cpp
 
 */
 
-/* Revision: 1.46 21.04.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -571,7 +569,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
 
           if(CurCmd==CurLastPtr)
               HistoryItem.SetSelect(TRUE);
-          HistoryMenu.SetUserData((void*)CurCmd,sizeof(DWORD),
+          HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),
                                  HistoryMenu.AddItemW(&HistoryItem));
         }
       }
@@ -656,7 +654,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
           case KEY_CTRLC:
           case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
           {
-            Code=(int)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
+            Code=(int)(INT_PTR)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
 
             if(Code != -1)
               CopyToClipboardW(LastStr[Code].Name);
@@ -703,7 +701,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
         StrPos=-1;
       else
       {
-        StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
+        StrPos=(int)(INT_PTR)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
         if(StrPos == -1)
           return -1;
         if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributesW(LastStr[StrPos].Name) == (DWORD)-1)

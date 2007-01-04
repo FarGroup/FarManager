@@ -5,8 +5,6 @@ fileowner.cpp
 
 */
 
-/* Revision: 1.06 23.04.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

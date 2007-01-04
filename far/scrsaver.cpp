@@ -5,8 +5,6 @@ ScreenSaver
 
 */
 
-/* Revision: 1.09 23.05.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

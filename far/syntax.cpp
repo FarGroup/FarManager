@@ -5,8 +5,6 @@ syntax.cpp
 
 */
 
-/* Revision: 1.22 01.09.2006 $ */
-
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.

@@ -5,8 +5,6 @@ manager.cpp
 
 */
 
-/* Revision: 1.104 20.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 

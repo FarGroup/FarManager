@@ -7,8 +7,6 @@ poscache.hpp
 
 */
 
-/* Revision: 1.05 15.12.2005 $ */
-
 #define MAX_POSITIONS 64
 
 enum {

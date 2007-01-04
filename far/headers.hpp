@@ -7,8 +7,6 @@ headers.hpp
 
 */
 
-/* Revision: 1.29 28.06.2006 $ */
-
 #define STRICT
 
 #if defined(__BORLANDC__)
@@ -16,7 +14,7 @@ headers.hpp
 #endif
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
- #if defined(__GNUC__) || defined(_MSC_VER)
+ #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
   #if !defined(_WINCON_H) && !defined(_WINCON_)
     #define _WINCON_H
     #define _WINCON_ // to prevent including wincon.h
