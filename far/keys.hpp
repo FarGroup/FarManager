@@ -17,7 +17,7 @@ keys.hpp
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.70
+  Inside KeyName for FAR Manager <%VERSION%>
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-<%YEAR%> FAR group

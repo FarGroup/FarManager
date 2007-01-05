@@ -7,7 +7,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.70
+  Plugin API for FAR Manager <%VERSION%>
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group

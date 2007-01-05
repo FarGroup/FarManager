@@ -1,7 +1,7 @@
 (*
   farcolor.pas
 
-  Colors Index for FAR Manager 1.70
+  Colors Index for FAR Manager <%VERSION%>
   HKCU\Software\Far\Colors\CurrentPalette
 
   Copyright (c) 1996-2000 Eugene Roshal
