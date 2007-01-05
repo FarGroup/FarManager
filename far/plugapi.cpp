@@ -1032,12 +1032,12 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 /* SVS 13.12.2000 $ */
 /* SVS $ */
 
-const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
+const wchar_t* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
 {
-  return(CtrlObject?CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId):"");
+  return(CtrlObject?CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId):L"");
 }
 
-char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
+const wchar_t* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
   if (PluginNumber<PluginsCount)
   {
@@ -1045,9 +1045,9 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
     string strPath = CurPlugin->strModuleName;
     CutToSlashW(strPath);
     if (CurPlugin->Lang.Init(strPath))
-      return(CurPlugin->Lang.GetMsg(MsgId));
+      return(CurPlugin->Lang.GetMsgW(MsgId));
   }
-  return("");
+  return L"";
 }
 
 /* $ 28.01.2001 SVS

@@ -1258,12 +1258,7 @@ string& PrepareDiskPathW(string &strPath,BOOL CheckFullPath)
     if((LocalIsalphaW(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
     {
       if(CheckFullPath)
-      {
-        string strNPath;
-        RawConvertShortNameToLongNameW(strPath,strNPath);
-        if( !strNPath.IsEmpty() )
-          strPath = strNPath;
-      }
+		  ConvertNameToLongW (strPath, strPath); //??? а почему не convert to full?
 
       wchar_t *lpwszPath = strPath.GetBuffer ();
 

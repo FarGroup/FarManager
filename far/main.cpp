@@ -398,7 +398,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   {
     CutToSlashW (g_strFarPath);
 
-    RawConvertShortNameToLongNameW (g_strFarPath, g_strFarPath);
+    ConvertNameToLongW (g_strFarPath, g_strFarPath);
     SetEnvironmentVariableW (L"FARHOME", g_strFarPath);
 
     AddEndSlashW(g_strFarPath);

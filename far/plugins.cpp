@@ -114,7 +114,7 @@ static BOOL PrepareModulePath(const char *ModuleName);
 Plugin::Plugin()
 {
 	hModule = NULL;
-
+	CachePos = 0;
 	//more initialization here!!!
 }
 
@@ -229,7 +229,7 @@ void PluginsSet::LoadPlugins()
       }
       // Получим реальное значение полного длинного пути с учетом символических связей.
       ConvertNameToRealW(strFullName,strFullName);
-      RawConvertShortNameToLongNameW(strFullName,strFullName);
+      ConvertNameToLongW(strFullName,strFullName);
 
       strPluginsDir = strFullName;
 

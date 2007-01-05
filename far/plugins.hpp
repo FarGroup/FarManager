@@ -208,7 +208,7 @@ public:
 
     void SendExit();
 
-    char* FarGetMsg(int PluginNumber,int MsgId);
+    const wchar_t* FarGetMsg(int PluginNumber,int MsgId);
     void Configure(int StartPos=0);
     void ConfigureCurrent(int PluginNumber,int INum);
     int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);

@@ -4012,10 +4012,10 @@ int ShellCopy::CmpFullNamesW(const wchar_t *Src,const wchar_t *Dest)
 
   // избавимся от коротких имен
   if(IsLocalPathW(strSrcFullName))
-    RawConvertShortNameToLongNameW (strSrcFullName, strSrcFullName);
+    ConvertNameToLongW (strSrcFullName, strSrcFullName);
 
   if(IsLocalPathW(strDestFullName))
-    RawConvertShortNameToLongNameW (strDestFullName, strDestFullName);
+    ConvertNameToLongW (strDestFullName, strDestFullName);
 
   return LocalStricmpW(strSrcFullName,strDestFullName)==0;
 }
@@ -4051,10 +4051,10 @@ int ShellCopy::CmpFullPathW(const wchar_t *Src, const wchar_t *Dest)
 
   // избавимся от коротких имен
   if(IsLocalPathW(strSrcFullName))
-    RawConvertShortNameToLongNameW (strSrcFullName, strSrcFullName);
+    ConvertNameToLongW (strSrcFullName, strSrcFullName);
 
   if(IsLocalPathW(strDestFullName))
-    RawConvertShortNameToLongNameW (strDestFullName, strDestFullName);
+    ConvertNameToLongW (strDestFullName, strDestFullName);
 
   return LocalStricmpW (strSrcFullName, strDestFullName)==0;
 }

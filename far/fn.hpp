@@ -315,11 +315,10 @@ BOOL ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
 void ProcessUserMenu(int EditMenu);
 
-DWORD RawConvertShortNameToLongNameW(const wchar_t *src, string &strDest);
-
 int ConvertNameToFullW(const wchar_t *lpwszSrc, string &strDest);
 int WINAPI ConvertNameToRealW(const wchar_t *Src, string &strDest);
-void ConvertNameToShortW(const wchar_t *Src, string &strDest);
+void ConvertNameToShortW(const wchar_t *Src, string &strDest); //BUGBUG, int
+void ConvertNameToLongW(const wchar_t *Src, string &strDest); //BUGBUG, int
 
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
@@ -557,7 +556,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
            const struct FarMenuItem *Item, int ItemsNumber);
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
-const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
+const wchar_t* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,
            const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
            int ButtonsNumber);

@@ -857,7 +857,7 @@ typedef int (WINAPI *FARAPICHARTABLE)(
   int BufferSize
 );
 
-typedef const char* (WINAPI *FARAPIGETMSG)(
+typedef const wchar_t* (WINAPI *FARAPIGETMSG)(
   int PluginNumber,
   int MsgId
 );
