@@ -1119,7 +1119,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if(CtrlObject->Macro.GetMode() == MACRO_HELP)
           {
-            Cond=(const char *)CurFrame->ProcessKey(CheckCode);
+            Cond=(const char *)(DWORD_PTR)CurFrame->ProcessKey(CheckCode);
           }
           break;
         }

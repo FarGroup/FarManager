@@ -1033,11 +1033,11 @@ int Help::ProcessKey(int Key)
   switch(Key)
   {
     case MCODE_V_HELPFILENAME: // Help.FileName
-       return (int)FullHelpPathName;
+       return (int)(DWORD_PTR)FullHelpPathName;
     case MCODE_V_HELPTOPIC: // Help.Topic
-       return (int)StackData.HelpTopic;
+       return (int)(DWORD_PTR)StackData.HelpTopic;
     case MCODE_V_HELPSELTOPIC: // Help.SELTopic
-       return (int)StackData.SelTopic;
+       return (int)(DWORD_PTR)StackData.SelTopic;
   }
 
   switch(Key)
