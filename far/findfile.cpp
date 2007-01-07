@@ -417,7 +417,7 @@ static void ShowTruncateMessage(int IDMField,int MaxSize)
 
 FindFiles::FindFiles()
 {
-  _ALGO(CleverSysLog clv("FindFiles::FindFiles()"));
+  _ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
   static string strLastFindMask=L"*.*", strLastFindStr;
   // Статической структуре и статические переменные
   static string strSearchFromRoot;
@@ -877,7 +877,7 @@ void FindFiles::AdvancedDialog()
 int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItemW *PanelItem,
                              const wchar_t *DestPath, string &strResultName)
 {
-  _ALGO(CleverSysLog clv("FindFiles::GetPluginFile()"));
+  _ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
   HANDLE hPlugin = ArcList[ArcIndex]->hPlugin;
   string strSaveDir;
   struct OpenPluginInfoW Info;
@@ -1469,7 +1469,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 int FindFiles::FindFilesProcess()
 {
-  _ALGO(CleverSysLog clv("FindFiles::FindFilesProcess()"));
+  _ALGO(CleverSysLog clv(L"FindFiles::FindFilesProcess()"));
   // В статической структуре нужны и статические переменные
   static string strTitle = L"";
   static string strSearchStr;
@@ -2030,12 +2030,12 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
 void FindFiles::ArchiveSearch(const wchar_t *ArcName)
 {
-  _ALGO(CleverSysLog clv("FindFiles::ArchiveSearch()"));
-  _ALGO(SysLog("ArcName='%s'",(ArcName?ArcName:"NULL")));
+  _ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
+  _ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:"NULL")));
   char *Buffer=new char[Opt.PluginMaxReadData];
   if ( !Buffer )
   {
-    _ALGO(SysLog("ERROR: alloc buffer (size=%u)",Opt.PluginMaxReadData));
+    _ALGO(SysLog(L"ERROR: alloc buffer (size=%u)",Opt.PluginMaxReadData));
     return;
   }
 
@@ -2063,13 +2063,13 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
   if (hArc==(HANDLE)-2)
   {
     BreakMainThread=TRUE;
-    _ALGO(SysLog("return: hArc==(HANDLE)-2"));
+    _ALGO(SysLog(L"return: hArc==(HANDLE)-2"));
     return;
   }
 
   if (hArc==INVALID_HANDLE_VALUE)
   {
-    _ALGO(SysLog("return: hArc==INVALID_HANDLE_VALUE"));
+    _ALGO(SysLog(L"return: hArc==INVALID_HANDLE_VALUE"));
     return;
   }
 

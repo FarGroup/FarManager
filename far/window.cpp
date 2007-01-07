@@ -27,7 +27,7 @@ void Frame::SetKeyBar(KeyBar *ModalKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-    SysLog("Frame::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar);
+    SysLog(L"Frame::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar);
     if ( ModalKeyBar!=NULL && KeyBarVisible )
         ModalKeyBar->RedrawIfChanged();
 }

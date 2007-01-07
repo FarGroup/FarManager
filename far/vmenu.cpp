@@ -273,7 +273,7 @@ void VMenu::Show()
 
     if(SelectPos == -1)
       SelectPos=SetSelectPos(0,1);
-//_SVS(SysLog("VMenu::Show()"));
+//_SVS(SysLog(L"VMenu::Show()"));
     if(!VMFlags.Check(VMENU_LISTBOX))
       ScreenObject::Show();
 //      Show();
@@ -292,7 +292,7 @@ void VMenu::Show()
 void VMenu::DisplayObject()
 {
   CriticalSectionLock Lock(CS);
-//_SVS(SysLog("VMFlags&VMENU_UPDATEREQUIRED=%d",VMFlags.Check(VMENU_UPDATEREQUIRED)));
+//_SVS(SysLog(L"VMFlags&VMENU_UPDATEREQUIRED=%d",VMFlags.Check(VMENU_UPDATEREQUIRED)));
 //  if (!(VMFlags&VMENU_UPDATEREQUIRED))
 //    return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -599,13 +599,13 @@ void VMenu::ShowMenu(int IsParent)
         else
         {
           short AmpPos=Item[I]->AmpPos+2;
-//_SVS(SysLog(">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
+//_SVS(SysLog(L">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
           if(AmpPos >= 2 && TmpStrW[AmpPos] != L'&')
           {
             wmemmove(TmpStrW+AmpPos+1,TmpStrW+AmpPos,wcslen(TmpStrW+AmpPos)+1);
             TmpStrW[AmpPos]='&';
           }
-//_SVS(SysLog("<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
+//_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
           HiTextW(TmpStrW,Col);
         }
 
@@ -2151,7 +2151,7 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
   Param.Offset=Offset;
 
   int I;
-  //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
+  //_SVS(for(I=0; I < ItemCount; ++I)SysLog(L"%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
   if(!SortForDataDWORD) // обычная сортировка
     qsortex((char *)Item,
           ItemCount,
@@ -2164,7 +2164,7 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
           sizeof(MenuItemEx),
           (qsortex_fn)SortItemDataDWORD,
           &Param);
-  //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
+  //_SVS(for(I=0; I < ItemCount; ++I)SysLog(L"%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
 
   // скорректируем SelectPos
   for(I=0; I < ItemCount; ++I)

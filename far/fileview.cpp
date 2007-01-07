@@ -26,7 +26,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
                        NamesList *ViewNamesList,int ToSaveAs)
 {
-  _OT(SysLog("[%p] FileViewer::FileViewer(I variant...)", this));
+  _OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
   FileViewer::DisableEdit=DisableEdit;
   SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
@@ -37,7 +37,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        const wchar_t *Title, int X1,int Y1,int X2,int Y2)
 {
-  _OT(SysLog("[%p] FileViewer::FileViewer(II variant...)", this));
+  _OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
   DisableEdit=TRUE;
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
@@ -457,12 +457,12 @@ void FileViewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
 
 FileViewer::~FileViewer()
 {
-  _OT(SysLog("[%p] ~FileViewer::FileViewer()",this));
+  _OT(SysLog(L"[%p] ~FileViewer::FileViewer()",this));
 }
 
 void FileViewer::OnDestroy()
 {
-  _OT(SysLog("[%p] FileViewer::OnDestroy()",this));
+  _OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
   if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || wcscmp (strName, L"-")!=0))
   {
     string strFullFileName;
@@ -479,8 +479,8 @@ int FileViewer::FastHide()
 
 int FileViewer::ViewerControl(int Command,void *Param)
 {
-  _VCTLLOG(CleverSysLog SL("FileViewer::ViewerControl()"));
-  _VCTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_VCTL_ToName(Command),(int)Param,Param));
+  _VCTLLOG(CleverSysLog SL(L"FileViewer::ViewerControl()"));
+  _VCTLLOG(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_VCTL_ToName(Command),(int)Param,Param));
   return View.ViewerControl(Command,Param);
 }
 

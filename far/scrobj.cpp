@@ -16,7 +16,7 @@ ScreenObject *ScreenObject::CaptureMouseObject=NULL;
 
 ScreenObject::ScreenObject()
 {
-//  _OT(SysLog("[%p] ScreenObject::ScreenObject()", this));
+//  _OT(SysLog(L"[%p] ScreenObject::ScreenObject()", this));
   ObjWidth=ObjHeight=X1=Y1=X2=Y2=0;
   SaveScr=ShadowSaveScr=NULL;
   nLockCount = 0;
@@ -26,7 +26,7 @@ ScreenObject::ScreenObject()
 
 ScreenObject::~ScreenObject()
 {
-//  _OT(SysLog("[%p] ScreenObject::~ScreenObject()", this));
+//  _OT(SysLog(L"[%p] ScreenObject::~ScreenObject()", this));
   if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
   {
     if (ShadowSaveScr)
@@ -108,7 +108,7 @@ void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2)
 
 void ScreenObject::Hide()
 {
-//  _tran(SysLog("[%p] ScreenObject::Hide()",this));
+//  _tran(SysLog(L"[%p] ScreenObject::Hide()",this));
   if (!Flags.Check(FSCROBJ_VISIBLE))
     return;
 
@@ -140,7 +140,7 @@ void ScreenObject::Show()
   if ( Locked () )
     return;
 
-//  _tran(SysLog("[%p] ScreenObject::Show()",this));
+//  _tran(SysLog(L"[%p] ScreenObject::Show()",this));
   if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
     return;
 //  if (Flags.Check(FSCROBJ_ISREDRAWING))
@@ -167,7 +167,7 @@ void ScreenObject::SavePrevScreen()
 
 void ScreenObject::Redraw()
 {
-//  _tran(SysLog("[%p] ScreenObject::Redraw()",this));
+//  _tran(SysLog(L"[%p] ScreenObject::Redraw()",this));
   if (Flags.Check(FSCROBJ_VISIBLE))
     Show();
 }

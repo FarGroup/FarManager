@@ -196,7 +196,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   sddata=new char[SDDATA_SIZE]; // Security 16000?
 
   /* $ 26.05.2001 OT Запретить перерисовку панелей во время копирования */
-  _tran(SysLog("call (*FrameManager)[0]->LockRefresh()"));
+  _tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
   (*FrameManager)[0]->Lock();
   /* OT $ */
 
@@ -904,7 +904,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         StaticCopyTitle=NULL;
         delete CopyTitle;
     }
-    _LOGCOPYR(else SysLog("Error: DestList.Set(CopyDlgValue) return FALSE"));
+    _LOGCOPYR(else SysLog(L"Error: DestList.Set(CopyDlgValue) return FALSE"));
   }
   /* IS $ */
 
@@ -1215,7 +1215,7 @@ BOOL ShellCopy::LinkRulesW(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     *Selected5=0;
     return TRUE;
   }
-//// // _SVS(SysLog("\n---"));
+//// // _SVS(SysLog(L"\n---"));
   // получаем полную инфу о источнике и приемнике
   if(CDP->IsDTSrcFixed == -1)
   {
@@ -1225,15 +1225,15 @@ BOOL ShellCopy::LinkRulesW(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     UnquoteW(strRoot);
     ConvertNameToFullW(strRoot, strRoot);
     GetPathRootW(strRoot,strRoot);
-//// // _SVS(SysLog("SrcDir=%s",SrcDir));
-//// // _SVS(SysLog("Root=%s",Root));
+//// // _SVS(SysLog(L"SrcDir=%s",SrcDir));
+//// // _SVS(SysLog(L"Root=%s",Root));
     CDP->IsDTSrcFixed=FAR_GetDriveTypeW(strRoot);
     CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED ||
                       IsDriveTypeCDROM(CDP->IsDTSrcFixed) ||
                       (NT5 && WinVer.dwMinorVersion>0?DRIVE_REMOVABLE:0);
     apiGetVolumeInformation(strRoot,NULL,NULL,NULL,&CDP->FileSystemFlagsSrc,&strFSysNameSrc);
     CDP->FSysNTFS=!LocalStricmpW(strFSysNameSrc,L"NTFS")?TRUE:FALSE;
-//// // _SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
+//// // _SVS(SysLog(L"FSysNameSrc=%s",FSysNameSrc));
   }
 
 /*
@@ -1353,12 +1353,12 @@ BOOL ShellCopy::LinkRulesW(DWORD *Flags9,DWORD* Flags5,int* Selected5,
 
 ShellCopy::~ShellCopy()
 {
-  _tran(SysLog("[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
+  _tran(SysLog(L"[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
   if ( CopyBuffer )
     delete[] CopyBuffer;
 
   // $ 26.05.2001 OT Разрешить перерисовку панелей
-  _tran(SysLog("call (*FrameManager)[0]->UnlockRefresh()"));
+  _tran(SysLog(L"call (*FrameManager)[0]->UnlockRefresh()"));
   (*FrameManager)[0]->Unlock();
   (*FrameManager)[0]->Refresh();
 
@@ -1658,10 +1658,10 @@ COPY_CODES ShellCopy::CopyFileTreeW(const wchar_t *Dest)
             // Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
             if ((!(ShellCopy::Flags&FCOPY_CURRENTONLY)) && (ShellCopy::Flags&FCOPY_COPYLASTTIME))
               SrcPanel->ClearLastGetSelection();
-            _LOGCOPYR(SysLog("%d continue;",__LINE__));
+            _LOGCOPYR(SysLog(L"%d continue;",__LINE__));
             continue;
         case 0:
-          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+          _LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d",__LINE__));
           return COPY_FAILURE;
       }
       continue;
@@ -2793,7 +2793,7 @@ void ShellCopy::ShellCopyMsgW(const wchar_t *Src,const wchar_t *Dest,int Flags)
 
   if (Src!=NULL)
   {
-    // // _LOGCOPYR(SysLog(" ******************  ShowTotalCopySize=%d",ShowTotalCopySize));
+    // // _LOGCOPYR(SysLog(L" ******************  ShowTotalCopySize=%d",ShowTotalCopySize));
     ShowBar(0,0,false);
     if (ShowTotalCopySize)
     {
@@ -2805,7 +2805,7 @@ void ShellCopy::ShellCopyMsgW(const wchar_t *Src,const wchar_t *Dest,int Flags)
   PreRedrawParam.Param1=this;
   PreRedrawParam.Param2=Src;
   PreRedrawParam.Param3=Dest;
-  // // _LOGCOPYR(SysLog("@@ShellCopyMsg 2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+  // // _LOGCOPYR(SysLog(L"@@ShellCopyMsg 2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
 }
 
 
@@ -2902,18 +2902,18 @@ int ShellCopy::ShellCopyFileW(const wchar_t *SrcName,const FAR_FIND_DATA_EX &Src
     switch(MsgCode)
     {
       case  0:
-        _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+        _LOGCOPYR(SysLog(L"return COPY_NEXT -> %d",__LINE__));
         ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
         break;//return COPY_NEXT;
       case  1:
         SkipEncMode=1;
         ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
-        _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+        _LOGCOPYR(SysLog(L"return COPY_NEXT -> %d",__LINE__));
         break;//return COPY_NEXT;
       case -1:
       case -2:
       case  2:
-        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+        _LOGCOPYR(SysLog(L"return COPY_CANCEL -> %d",__LINE__));
         return COPY_CANCEL;
     }
   }
@@ -2941,14 +2941,14 @@ int ShellCopy::ShellCopyFileW(const wchar_t *SrcName,const FAR_FIND_DATA_EX &Src
 
         if (SrcHandle==INVALID_HANDLE_VALUE)
         {
-          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+          _LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
           return COPY_FAILURE;
         }
 
         CloseHandle(SrcHandle);
       }
 
-      //_LOGCOPYR(SysLog("call ShellSystemCopy('%s','%s',%p)",SrcName,DestName,SrcData));
+      //_LOGCOPYR(SysLog(L"call ShellSystemCopy('%s','%s',%p)",SrcName,DestName,SrcData));
       return(ShellSystemCopyW(SrcName,DestName,SrcData));
     }
   }
@@ -3026,7 +3026,7 @@ int ShellCopy::ShellCopyFileW(const wchar_t *SrcName,const FAR_FIND_DATA_EX &Src
       _localLastError=GetLastError();
       CloseHandle(SrcHandle);
       SetLastError(_localLastError);
-      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
+      _LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
       return COPY_FAILURE;
     }
 
@@ -3039,7 +3039,7 @@ int ShellCopy::ShellCopyFileW(const wchar_t *SrcName,const FAR_FIND_DATA_EX &Src
         CloseHandle(SrcHandle);
         CloseHandle(DestHandle);
         SetLastError(_localLastError);
-        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
+        _LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
         return COPY_FAILURE;
       }
       SetLastError(_localLastError);
@@ -3354,8 +3354,8 @@ static void GetTimeText(int Time, string &strTimeText)
   + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE */
 int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar)
 {
-  // // _LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
-  // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
+  // // _LOGCOPYR(CleverSysLog clv(L"ShellCopy::ShowBar"));
+  // // _LOGCOPYR(SysLog(L"WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   if (!ShowTotalCopySize || TotalBar)
     LastShowTime = clock();
 /* $ 30.01.2001 VVM
@@ -3403,7 +3403,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
 
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
-  // // _LOGCOPYR(SysLog("!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
+  // // _LOGCOPYR(SysLog(L"!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
 //    CopyTime+= (clock() - CopyStartTime);
@@ -3841,8 +3841,8 @@ DWORD WINAPI CopyProgressRoutineW(LARGE_INTEGER TotalFileSize,
       DWORD dwCallbackReason,HANDLE hSourceFile,HANDLE hDestinationFile,
       LPVOID lpData)
 {
-  // // _LOGCOPYR(CleverSysLog clv("CopyProgressRoutine"));
-  // // _LOGCOPYR(SysLog("dwStreamNumber=%d",dwStreamNumber));
+  // // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
+  // // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
 
   unsigned __int64 TransferredSize = TotalBytesTransferred.QuadPart;
   unsigned __int64 TotalSize = TotalFileSize.QuadPart;
@@ -3852,7 +3852,7 @@ DWORD WINAPI CopyProgressRoutineW(LARGE_INTEGER TotalFileSize,
   if (CheckForEscSilent())
   {
     CopyTime+= (clock() - CopyStartTime);
-    // // _LOGCOPYR(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+    // // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
     AbortOp = ConfirmAbortOp();
     IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
     CopyStartTime = clock();
@@ -3860,7 +3860,7 @@ DWORD WINAPI CopyProgressRoutineW(LARGE_INTEGER TotalFileSize,
 
   if(IsChangeConsole)
   {
-    // // _LOGCOPYR(SysLog("IsChangeConsole 1"));
+    // // _LOGCOPYR(SysLog(L"IsChangeConsole 1"));
     ShellCopy::PR_ShellCopyMsgW();
     OrigScrX=ScrX;
     OrigScrY=ScrY;

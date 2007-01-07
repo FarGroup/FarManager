@@ -31,8 +31,8 @@ int _cdecl SortSearchList(const void *el1,const void *el2);
 
 void FileList::Update(int Mode)
 {
-  _ALGO(CleverSysLog clv("FileList::Update"));
-  _ALGO(SysLog("(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?"UPDATE_KEEP_SELECTION":"")));
+  _ALGO(CleverSysLog clv(L"FileList::Update"));
+  _ALGO(SysLog(L"(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?"UPDATE_KEEP_SELECTION":"")));
 
   if (EnableUpdate)
     switch(PanelMode)
@@ -486,7 +486,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 */
 int FileList::UpdateIfChanged(int UpdateMode)
 {
-  //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
+  //_SVS(SysLog(L"CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
   if(!Opt.AutoUpdateLimit || static_cast<DWORD>(FileCount) <= Opt.AutoUpdateLimit)
   {
     /* $ 19.12.2001 VVM
@@ -600,8 +600,8 @@ void FileList::MoveSelection(struct FileListItem **ListData,long FileCount,
 
 void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 {
-  _ALGO(CleverSysLog clv("FileList::UpdatePlugin"));
-  _ALGO(SysLog("(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,IgnoreVisible));
+  _ALGO(CleverSysLog clv(L"FileList::UpdatePlugin"));
+  _ALGO(SysLog(L"(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,IgnoreVisible));
   if (!IsVisible() && !IgnoreVisible)    /* DJ $ */
   {
     UpdateRequired=TRUE;

@@ -100,10 +100,10 @@ void ScreenBuf::FillBuf()
   Coord.Right=BufX-1;
   Coord.Bottom=BufY-1;
 
-  _tran(SysLog("BufX*BufY=%i",BufX*BufY));
+  _tran(SysLog(L"BufX*BufY=%i",BufX*BufY));
   if ( BufX*BufY>6000 )
   {
-    _tran(SysLog("fucked method"));
+    _tran(SysLog(L"fucked method"));
     CHAR_INFO *ci=(CHAR_INFO*)Buf;
     for ( int y=0; y<BufY; y++ )
     {
@@ -116,7 +116,7 @@ void ScreenBuf::FillBuf()
 
         ci+=BufX;
     }
-    _tran(SysLog("fucked method end"));
+    _tran(SysLog(L"fucked method end"));
   }
   else
   {

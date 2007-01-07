@@ -15,7 +15,7 @@ Parent class для немодальных объектов
 
 Frame::Frame()
 {
-  _OT(SysLog("[%p] Frame::Frame()", this));
+  _OT(SysLog(L"[%p] Frame::Frame()", this));
   CanLoseFocus=FALSE;
   ExitCode=-1;
   KeyBarVisible=MacroMode=0;
@@ -29,7 +29,7 @@ Frame::Frame()
 
 Frame::~Frame()
 {
-  _OT(SysLog("[%p] Frame::~Frame()", this));
+  _OT(SysLog(L"[%p] Frame::~Frame()", this));
   DestroyAllModal();
 //  xf_free(ModalStack);
 }

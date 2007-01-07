@@ -29,7 +29,7 @@ static void PR_PrintMsg(void)
 
 void PrintFiles(Panel *SrcPanel)
 {
-  _ALGO(CleverSysLog clv("Alt-F5 (PrintFiles)"));
+  _ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
   string strPrinterName;
   DWORD Needed,Returned;
   int PrinterNumber;
@@ -41,12 +41,12 @@ void PrintFiles(Panel *SrcPanel)
 
   if (SelCount==0)
   {
-    _ALGO(SysLog("Error: SelCount==0"));
+    _ALGO(SysLog(L"Error: SelCount==0"));
     return;
   }
 
   // проверка каталогов
-  _ALGO(SysLog("Check for FA_DIREC"));
+  _ALGO(SysLog(L"Check for FA_DIREC"));
   SrcPanel->GetSelNameW(NULL,FileAttr);
   while (SrcPanel->GetSelNameW(&strSelName,FileAttr))
   {
@@ -73,7 +73,7 @@ void PrintFiles(Panel *SrcPanel)
   }
 
   {
-    _ALGO(CleverSysLog clv2("Show Menu"));
+    _ALGO(CleverSysLog clv2(L"Show Menu"));
     string strTitle;
     string strName;
 
@@ -87,7 +87,7 @@ void PrintFiles(Panel *SrcPanel)
     }
     else
     {
-      _ALGO(SysLog("Correct: SelCount-=DirsCount"));
+      _ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
       SelCount-=DirsCount;
       strTitle.Format (UMSG(MPrintFilesTo),SelCount);
     }
@@ -113,7 +113,7 @@ void PrintFiles(Panel *SrcPanel)
     if (PrinterNumber<0)
     {
       delete[] pi;
-      _ALGO(SysLog("ESC"));
+      _ALGO(SysLog(L"ESC"));
       return;
     }
 
@@ -132,12 +132,12 @@ void PrintFiles(Panel *SrcPanel)
     MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MPrintTitle),UMSG(MCannotOpenPrinter),
             strPrinterName,UMSG(MOk));
     delete[] pi;
-    _ALGO(SysLog("Error: Cannot Open Printer"));
+    _ALGO(SysLog(L"Error: Cannot Open Printer"));
     return;
   }
 
   {
-    _ALGO(CleverSysLog clv3("Print selected Files"));
+    _ALGO(CleverSysLog clv3(L"Print selected Files"));
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
 

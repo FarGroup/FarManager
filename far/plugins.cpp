@@ -792,7 +792,7 @@ int  PluginsSet::CheckMinVersion(Plugin *CurPlugin)
 // причем без всяких ему объяснений
 void PluginsSet::UnloadPlugin(Plugin *CurPlugin,DWORD Exception)
 {
-//_SVS(SysLog("UnloadPlugin(%s)",CurPlugin.ModuleName));
+//_SVS(SysLog(L"UnloadPlugin(%s)",CurPlugin.ModuleName));
 //    if(FrameManager->GetBottomFrame() != FrameManager->GetCurrentFrame())
 //      FrameManager->DeleteFrame();
 
@@ -961,8 +961,8 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
 */
 int PluginsSet::SetPluginStartupInfo(Plugin *CurPlugin,int ModuleNumber)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::SetPluginStartupInfo()"));
-  _ALGO(SysLog("ModuleNumber=%d",ModuleNumber));
+  _ALGO(CleverSysLog clv(L"PluginsSet::SetPluginStartupInfo()"));
+  _ALGO(SysLog(L"ModuleNumber=%d",ModuleNumber));
   //PrepareModulePath(CurPlugin.ModuleName);
 
   /* $ 03.08.2000 tran
@@ -1171,8 +1171,8 @@ int PluginsSet::SavePluginSettings(Plugin *CurPlugin,
 
 HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::OpenPlugin()"));
-  _ALGO(SysLog("PluginNumber=%d, OpenFrom=%d, Item=%d",PluginNumber,OpenFrom,Item));
+  _ALGO(CleverSysLog clv(L"PluginsSet::OpenPlugin()"));
+  _ALGO(SysLog(L"PluginNumber=%d, OpenFrom=%d, Item=%d",PluginNumber,OpenFrom,Item));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   CheckScreenLock();
   string strCurDir;
@@ -1187,8 +1187,8 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
     {
       BOOL IsUnload=FALSE;
       {
-        _KEYMACRO(CleverSysLog clv("PluginsSet::OpenPlugin()"));
-        _KEYMACRO(SysLog("**** Enter to Plugin **** (%s)",PData->ModuleName));
+        _KEYMACRO(CleverSysLog clv(L"PluginsSet::OpenPlugin()"));
+        _KEYMACRO(SysLog(L"**** Enter to Plugin **** (%s)",PData->strModuleName));
         /* $ 16.10.2000 SVS
            + Обработка исключений при вызове галимого плагина.
         */
@@ -1198,11 +1198,11 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
         Flags.Set(PSIF_ENTERTOOPENPLUGIN);
         if(Opt.ExceptRules)
         {
-          _ECTLLOG(CleverSysLog SL(NFMP_OpenPlugin));
+          _ECTLLOG(CleverSysLog SL(NFMP_OpenPluginW));
           TRY {
-             _SVS(SysLog("OPENPLUGIN >>> '%s'",(char *)Item));
+             _SVS(SysLog(L"OPENPLUGIN >>> '%s'",(char *)Item));
              hInternal=PData->pOpenPlugin(OpenFrom,Item);
-             _SVS(SysLog("OPENPLUGIN <<< '%s'",(char *)Item));
+             _SVS(SysLog(L"OPENPLUGIN <<< '%s'",(char *)Item));
              /* $ 26.02.2201 VVM
                  ! Выгрузить плагин, если вернули NULL */
              if (!hInternal)
@@ -1224,7 +1224,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
         CurPluginItem=NULL;
         Flags.Clear(PSIF_ENTERTOOPENPLUGIN);
         CtrlObject->Macro.SetRedrawEditor(TRUE);
-        _KEYMACRO(SysLog("**** Leave from Plugin **** (%s)",PData->ModuleName));
+        _KEYMACRO(SysLog(L"**** Leave from Plugin **** (%s)",PData->strModuleName));
       }
       /* SVS $ */
       /*$ 10.08.2000 skv
@@ -1242,7 +1242,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
          CtrlObject->Plugins.CurEditor &&
          CtrlObject->Plugins.CurEditor->IsVisible() && !IsUnload)
       {
-//_SVS(SysLog("**** Enter to EE_REDRAW (return from Plugin)"));
+//_SVS(SysLog(L"**** Enter to EE_REDRAW (return from Plugin)"));
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
         CtrlObject->Plugins.CurEditor->Show();
@@ -1344,8 +1344,8 @@ HANDLE PluginsSet::OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,
 
 HANDLE PluginsSet::OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::OpenFindListPlugin()"));
-  _ALGO(SysLog("PanelItem=%p, ItemsNumber=%d",PanelItem,ItemsNumber));
+  _ALGO(CleverSysLog clv(L"PluginsSet::OpenFindListPlugin()"));
+  _ALGO(SysLog(L"PanelItem=%p, ItemsNumber=%d",PanelItem,ItemsNumber));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   Plugin *PData;
   for (int I=0;I<PluginsCount;I++)
@@ -1419,8 +1419,8 @@ HANDLE PluginsSet::OpenFindListPlugin(const PluginPanelItemW *PanelItem,int Item
 
 void PluginsSet::ClosePlugin(HANDLE hPlugin)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::ClosePlugin()"));
-  _ALGO(SysLog("hPlugin=0x%08X",hPlugin));
+  _ALGO(CleverSysLog clv(L"PluginsSet::ClosePlugin()"));
+  _ALGO(SysLog(L"hPlugin=0x%08X",hPlugin));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
@@ -1450,11 +1450,11 @@ void PluginsSet::ClosePlugin(HANDLE hPlugin)
 
 int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::ProcessEditorInput()"));
-  _ALGO(SysLog("Rec=%s",_INPUT_RECORD_Dump(Rec)));
+  _ALGO(CleverSysLog clv(L"PluginsSet::ProcessEditorInput()"));
+  _ALGO(SysLog(L"Rec=%s",_INPUT_RECORD_Dump(Rec)));
   //EXCEPTION_POINTERS *xp;
   Plugin *PData;
-  _KEYMACRO(CleverSysLog SL("PluginsSet::ProcessEditorInput()"));
+  _KEYMACRO(CleverSysLog SL(L"PluginsSet::ProcessEditorInput()"));
   for (int I=0;I<PluginsCount;I++)
   {
     PData = PluginsData[I];
@@ -1466,7 +1466,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
       if (PData->pProcessEditorInput)
       {
         int Ret;
-        _KEYMACRO(SysLog("CALL pProcessEditorInput(): '%s'",PData->ModuleName));
+        _KEYMACRO(SysLog(L"CALL pProcessEditorInput(): '%s'",PData->strModuleName));
 
         PData->FuncFlags.Set(PICFF_PROCESSEDITORINPUT);
         if(Opt.ExceptRules)
@@ -1485,7 +1485,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
           Ret=PData->pProcessEditorInput(Rec);
         PData->FuncFlags.Clear(PICFF_PROCESSEDITORINPUT);
 
-        _KEYMACRO(SysLog("Ret=%d",Ret));
+        _KEYMACRO(SysLog(L"Ret=%d",Ret));
         if(Ret)
           return(TRUE);
         /* IS $ */
@@ -1498,9 +1498,9 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 
 int PluginsSet::ProcessEditorEvent(int Event,void *Param)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::ProcessEditorEvent()"));
-  _ALGO(SysLog("Params: Event=%s, Param=%s",_EE_ToName(Event),_EEREDRAW_ToName((int)Param)));
-  _ECTLLOG(CleverSysLog Clev("PluginsSet::ProcessEditorEvent()"));
+  _ALGO(CleverSysLog clv(L"PluginsSet::ProcessEditorEvent()"));
+  _ALGO(SysLog(L"Params: Event=%s, Param=%s",_EE_ToName(Event),_EEREDRAW_ToName((int)Param)));
+  _ECTLLOG(CleverSysLog Clev(L"PluginsSet::ProcessEditorEvent()"));
   int Ret=0;
   //EXCEPTION_POINTERS *xp;
   if(CtrlObject->Plugins.CurEditor)
@@ -1511,9 +1511,9 @@ int PluginsSet::ProcessEditorEvent(int Event,void *Param)
       PData = PluginsData[I];
       if (PData->pProcessEditorEvent && PreparePlugin(I) && !ProcessException)
       {
-        //_ECTLLOG(CleverSysLog Clev2("Call ProcessEditorEvent()"));
-        _ECTLLOG(SysLog("Plugin: '%s'",PData->ModuleName));
-        _ECTLLOG(SysLog("Params: Event=%s, Param=%s",_EE_ToName(Event),_EEREDRAW_ToName((int)Param)));
+        //_ECTLLOG(CleverSysLog Clev2(L"Call ProcessEditorEvent()"));
+        _ECTLLOG(SysLog(L"Plugin: '%s'",PData->strModuleName));
+        _ECTLLOG(SysLog(L"Params: Event=%s, Param=%s",_EE_ToName(Event),_EEREDRAW_ToName((int)Param)));
         PData->FuncFlags.Set(PICFF_PROCESSEDITOREVENT);
         if(Opt.ExceptRules)
         {
@@ -1528,7 +1528,7 @@ int PluginsSet::ProcessEditorEvent(int Event,void *Param)
         }
         else
           Ret=PData->pProcessEditorEvent(Event,Param);
-        _ECTLLOG(SysLog("Return=%d",Ret));
+        _ECTLLOG(SysLog(L"Return=%d",Ret));
         PData->FuncFlags.Clear(PICFF_PROCESSEDITOREVENT);
       }
     }
@@ -1542,7 +1542,7 @@ int PluginsSet::ProcessEditorEvent(int Event,void *Param)
 */
 int PluginsSet::ProcessViewerEvent(int Event,void *Param)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::ProcessViewerEvent()"));
+  _ALGO(CleverSysLog clv(L"PluginsSet::ProcessViewerEvent()"));
   //EXCEPTION_POINTERS *xp;
   Plugin *PData;
   int Ret=0;
@@ -1574,8 +1574,8 @@ int PluginsSet::ProcessViewerEvent(int Event,void *Param)
 
 int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelData,int *pItemsNumber,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::GetFindData()"));
-  _ALGO(SysLog("hPlugin=%p, pPanelData=%p, pItemsNumber=%p, OpMode=%d",hPlugin,pPanelData,pItemsNumber,OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::GetFindData()"));
+  _ALGO(SysLog(L"hPlugin=%p, pPanelData=%p, pItemsNumber=%p, OpMode=%d",hPlugin,pPanelData,pItemsNumber,OpMode));
   //EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
@@ -1602,7 +1602,7 @@ int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelData,int *pI
       Ret=PData->pGetFindData(ph->InternalHandle,pPanelData,pItemsNumber,OpMode);
     //CurPluginItem=NULL;
     PData->FuncFlags.Clear(PICFF_GETFINDDATA);
-    _ALGO(SysLog("Ret=%d",Ret));
+    _ALGO(SysLog(L"Ret=%d",Ret));
     return(Ret);
   }
   return(FALSE);
@@ -1611,8 +1611,8 @@ int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelData,int *pI
 
 void PluginsSet::FreeFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::FreeFindData()"));
-  _ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d",hPlugin,PanelItem,ItemsNumber));
+  _ALGO(CleverSysLog clv(L"PluginsSet::FreeFindData()"));
+  _ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d",hPlugin,PanelItem,ItemsNumber));
   //EXCEPTION_POINTERS *xp;
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
@@ -1641,8 +1641,8 @@ void PluginsSet::FreeFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int Ite
 
 int PluginsSet::GetVirtualFindData(HANDLE hPlugin,PluginPanelItemW **pPanelData,int *pItemsNumber,const wchar_t *Path)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::GetVirtualFindData()"));
-  //_ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d",hPlugin,PanelItem,ItemsNumber));
+  _ALGO(CleverSysLog clv(L"PluginsSet::GetVirtualFindData()"));
+  //_ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d",hPlugin,PanelItem,ItemsNumber));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
@@ -1676,8 +1676,8 @@ int PluginsSet::GetVirtualFindData(HANDLE hPlugin,PluginPanelItemW **pPanelData,
 
 void PluginsSet::FreeVirtualFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::FreeVirtualFindData()"));
-  _ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d",hPlugin,PanelItem,ItemsNumber));
+  _ALGO(CleverSysLog clv(L"PluginsSet::FreeVirtualFindData()"));
+  _ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d",hPlugin,PanelItem,ItemsNumber));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
   if (PData->pFreeVirtualFindData && !ProcessException)
@@ -1705,8 +1705,8 @@ void PluginsSet::FreeVirtualFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,
 
 int PluginsSet::SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::SetDirectory()"));
-  _ALGO(SysLog("hPlugin=%p, Dir='%s', OpMode=%d",hPlugin,(Dir?Dir:"(NULL)"),OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::SetDirectory()"));
+  _ALGO(SysLog(L"hPlugin=%p, Dir='%s', OpMode=%d",hPlugin,(Dir?Dir:"(NULL)"),OpMode));
   //EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
@@ -1743,8 +1743,8 @@ int PluginsSet::SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode)
 int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,
                         const wchar_t *DestPath,string &strResultName,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::GetFile()"));
-  _ALGO(SysLog("hPlugin=%p, PanelItem=%p, DestPath='%s', ResultName='%s', OpMode=%d",hPlugin,PanelItem,(DestPath?DestPath:"(NULL)"),(ResultName?ResultName:"(NULL)"),OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::GetFile()"));
+  _ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, DestPath='%s', ResultName='%s', OpMode=%d",hPlugin,PanelItem,(DestPath?DestPath:"(NULL)"),(ResultName?ResultName:"(NULL)"),OpMode));
   //EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
@@ -1827,8 +1827,8 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,
 int PluginsSet::DeleteFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,
                             int ItemsNumber,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::DeleteFiles()"));
-  _ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::DeleteFiles()"));
+  _ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,OpMode));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
   if (PData->pDeleteFiles && !ProcessException)
@@ -1864,8 +1864,8 @@ int PluginsSet::DeleteFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,
 
 int PluginsSet::MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::MakeDirectory()"));
-  _ALGO(SysLog("hPlugin=%p, Name='%s', OpMode=%d",hPlugin,(Name?Name:"(NULL)"),OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::MakeDirectory()"));
+  _ALGO(SysLog(L"hPlugin=%p, Name='%s', OpMode=%d",hPlugin,(Name?Name:"(NULL)"),OpMode));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
   if (PData->pMakeDirectory && !ProcessException)
@@ -1905,8 +1905,8 @@ int PluginsSet::MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode)
 
 int PluginsSet::ProcessHostFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::ProcessHostFile()"));
-  _ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::ProcessHostFile()"));
+  _ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,OpMode));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
   if (PData->pProcessHostFile && !ProcessException)
@@ -1942,8 +1942,8 @@ int PluginsSet::ProcessHostFile(HANDLE hPlugin,struct PluginPanelItemW *PanelIte
 int PluginsSet::GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,
                 int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::GetFiles()"));
-  //_ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::GetFiles()"));
+  //_ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,OpMode));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   int ExitCode=FALSE;
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
@@ -1978,8 +1978,8 @@ int PluginsSet::GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,
 
 int PluginsSet::PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::PutFiles()"));
-  _ALGO(SysLog("hPlugin=%p, PanelItem=%p, ItemsNumber=%d, Move=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,Move,OpMode));
+  _ALGO(CleverSysLog clv(L"PluginsSet::PutFiles()"));
+  _ALGO(SysLog(L"hPlugin=%p, PanelItem=%p, ItemsNumber=%d, Move=%d, OpMode=%d",hPlugin,PanelItem,ItemsNumber,Move,OpMode));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
   if (PData->pPutFiles && !ProcessException)
@@ -2004,7 +2004,7 @@ int PluginsSet::PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int I
     }
     else
       Code=PData->pPutFiles(ph->InternalHandle,PanelItem,ItemsNumber,Move,OpMode);
-    _ALGO(SysLog("return Code=%d",Code));
+    _ALGO(SysLog(L"return Code=%d",Code));
     //CurPluginItem=NULL;
     PData->FuncFlags.Clear(PICFF_PUTFILES);
     ReadUserBackgound(&SaveScr);
@@ -2016,8 +2016,8 @@ int PluginsSet::PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int I
 
 int PluginsSet::GetPluginInfo(int PluginNumber,struct PluginInfoW *Info)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::GetPluginInfo()"));
-  _ALGO(SysLog("PluginNumber=%p, Info=%p",PluginNumber,Info));
+  _ALGO(CleverSysLog clv(L"PluginsSet::GetPluginInfo()"));
+  _ALGO(SysLog(L"PluginNumber=%p, Info=%p",PluginNumber,Info));
   if (PluginNumber>=PluginsCount || !Info)
     return(FALSE);
   memset(Info,0,sizeof(*Info));
@@ -2054,8 +2054,8 @@ int PluginsSet::GetPluginInfo(int PluginNumber,struct PluginInfoW *Info)
 
 void PluginsSet::GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *Info)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::GetOpenPluginInfo()"));
-  _ALGO(SysLog("hPlugin=%p, Info=%p",hPlugin,Info));
+  _ALGO(CleverSysLog clv(L"PluginsSet::GetOpenPluginInfo()"));
+  _ALGO(SysLog(L"hPlugin=%p, Info=%p",hPlugin,Info));
   if (!Info)
     return;
   memset(Info,0,sizeof(*Info));
@@ -2095,8 +2095,8 @@ void PluginsSet::GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *Info)
 
 int PluginsSet::ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
 {
-  _ALGO(CleverSysLog clv("PluginsSet::ProcessKey()"));
-  _ALGO(SysLog("hPlugin=%p, Key=%u (0x%08X) ControlState=%u (0x%08X) ",hPlugin,Key,Key,ControlState,ControlState));
+  _ALGO(CleverSysLog clv(L"PluginsSet::ProcessKey()"));
+  _ALGO(SysLog(L"hPlugin=%p, Key=%u (0x%08X) ControlState=%u (0x%08X) ",hPlugin,Key,Key,ControlState,ControlState));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   Plugin *PData=PluginsData[ph->PluginNumber];
   if (PData->pProcessKey && !ProcessException)

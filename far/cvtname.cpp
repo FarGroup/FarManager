@@ -84,7 +84,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
   // Получим сначала полный путь до объекта обычным способом
   int Ret=ConvertNameToFullW(Src, strTempDest);
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
-  _SVS(SysLog("ConvertNameToFull('%S') -> '%S'",Src,(const wchar_t*)strTempDest));
+  _SVS(SysLog(L"ConvertNameToFull('%S') -> '%S'",Src,(const wchar_t*)strTempDest));
 
   wchar_t *TempDest;
   /* $ 14.06.2003 IS

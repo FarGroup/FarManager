@@ -182,7 +182,7 @@ void SetFarTitleW (const wchar_t *Title)
     */
         SetConsoleTitleW (strFarTitle);
         TitleModified=FALSE;
-     //_SVS(SysLog("  (NULL)FarTitle='%s'",FarTitle));
+     //_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
     }
 }
 
@@ -203,7 +203,7 @@ int operator==(CONSOLE_SCREEN_BUFFER_INFO &csbi1,CONSOLE_SCREEN_BUFFER_INFO &csb
 
 #define _OT_ConsoleInfo(_hCon) \
   GetConsoleScreenBufferInfo(_hCon, &_csbi);\
-  _OT(SysLog("Current Screen Buffer info[0x%p]:\n\
+  _OT(SysLog(L"Current Screen Buffer info[0x%p]:\n\
     dwSize           = (%3i,%3i)\n\
     dwCursorPosition = (%3i,%3i)\n\
     wAttributes        =  0x%02x\n\
@@ -258,7 +258,7 @@ void ChangeVideoMode(int Maximized)
 void ChangeVideoMode(int NumLines,int NumColumns)
 {
   _OT(DWORD le);
-  _OT(SysLog("ChangeVideoMode(NumLines=%i, NumColumns=%i)",NumLines,NumColumns ));
+  _OT(SysLog(L"ChangeVideoMode(NumLines=%i, NumColumns=%i)",NumLines,NumColumns ));
 
   int retSetConsole;
   CONSOLE_SCREEN_BUFFER_INFO csbi; /* hold current console buffer info */
@@ -343,7 +343,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
         retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
         if (!retSetConsole)
         {
-          _OT(SysLog("LastError=%i, srWindowRect=(%i.%i)(%i.%i)",le=GetLastError(),srWindowRect.Left,srWindowRect.Top,srWindowRect.Right,srWindowRect.Bottom));
+          _OT(SysLog(L"LastError=%i, srWindowRect=(%i.%i)(%i.%i)",le=GetLastError(),srWindowRect.Left,srWindowRect.Top,srWindowRect.Right,srWindowRect.Bottom));
         }
         srWindowRect.Right = xSize-1;
       }
@@ -354,7 +354,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
         retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
         if (!retSetConsole)
         {
-          _OT(SysLog("LastError=%i, srWindowRect",le=GetLastError()));
+          _OT(SysLog(L"LastError=%i, srWindowRect",le=GetLastError()));
         }
         srWindowRect.Bottom = ySize-1;
       }
@@ -362,26 +362,26 @@ void ChangeVideoMode(int NumLines,int NumColumns)
       retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
       if (!retSetConsole)
       {
-        _OT(SysLog("SetConsoleScreenBufferSize failed... coordScreen=(%i,%i)\n\
+        _OT(SysLog(L"SetConsoleScreenBufferSize failed... coordScreen=(%i,%i)\n\
           LastError=%i",coordScreen.X,coordScreen.Y,le=GetLastError()));
       }
     }
     if ((retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect)) == 0)
     {
-        _OT(SysLog("LastError=%i, srWindowRect",le=GetLastError()));
+        _OT(SysLog(L"LastError=%i, srWindowRect",le=GetLastError()));
       retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
         _OT(le=GetLastError());
-        _OT(SysLog("SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
+        _OT(SysLog(L"SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
       retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
         _OT(le=GetLastError());
-        _OT(SysLog("SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect),  retSetConsole=%i",retSetConsole));
+        _OT(SysLog(L"SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect),  retSetConsole=%i",retSetConsole));
         _OT(ViewConsoleInfo());
     }
     else
     {
       retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
         _OT(le=GetLastError());
-        _OT(SysLog("SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
+        _OT(SysLog(L"SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
     }
   }
 
@@ -401,7 +401,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
   Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
   Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?csbi.dwSize.X:Sx;
   Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?csbi.dwSize.Y:Sy;
-//_SVS(SysLog("[%d:%d] = [%d:%d, %d:%d]",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left,csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom));
+//_SVS(SysLog(L"[%d:%d] = [%d:%d, %d:%d]",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left,csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom));
   WriteConsoleInputW(hConInp,&Rec,1,&Writes);
 }
 
@@ -414,7 +414,7 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
   WidthNameForMessage=(ScrX*38)/100+1;
   if(PrevScrX == -1) PrevScrX=ScrX;
   if(PrevScrY == -1) PrevScrY=ScrY;
-  _OT(SysLog("ScrX=%d ScrY=%d",ScrX,ScrY));
+  _OT(SysLog(L"ScrX=%d ScrY=%d",ScrX,ScrY));
   ScrBuf.AllocBuf(csbi.dwSize.X,csbi.dwSize.Y);
   _OT(ViewConsoleInfo());
 }

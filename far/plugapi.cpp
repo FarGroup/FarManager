@@ -1206,10 +1206,10 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
-  _FCTLLOG(CleverSysLog("Control"));
-  _FCTLLOG(SysLog("(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
-  _ALGO(CleverSysLog clv("FarControl"));
-  _ALGO(SysLog("(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
+  _FCTLLOG(CleverSysLog CSL(L"Control"));
+  _FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
+  _ALGO(CleverSysLog clv(L"FarControl"));
+  _ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
 
   if(Command == FCTL_CHECKPANELSEXIST)
     return CmdMode == FALSE?TRUE:FALSE;

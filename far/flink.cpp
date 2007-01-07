@@ -857,8 +857,8 @@ void WINAPI GetPathRootW(const wchar_t *Path,string &strRoot)
 /*
 int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
 {
-  _LOGCOPYR(CleverSysLog Clev("FarGetReparsePointInfo()"));
-  _LOGCOPYR(SysLog("Params: Src='%s'",Src));
+  _LOGCOPYR(CleverSysLog Clev(L"FarGetReparsePointInfo()"));
+  _LOGCOPYR(SysLog(L"Params: Src='%s'",Src));
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && Src && *Src)
   {
       char Src2[2048];
@@ -869,7 +869,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
       AddEndSlash(TempDest);
       DWORD Size=GetJunctionPointInfo(TempDest,TempDest,TempSize);
       // Src2='\\vr-srv002\userhome$\vskirdin\wwwroot', TempDest='\??\F:\wwwroot'
-      _LOGCOPYR(SysLog("return -> %d Src2='%s', TempDest='%s'",__LINE__,Src2,TempDest));
+      _LOGCOPYR(SysLog(L"return -> %d Src2='%s', TempDest='%s'",__LINE__,Src2,TempDest));
 #if 0
       if(Src2[0] == '\\' && Src2[1] == '\\' && IsLocalPath(TempDest+4))
       {

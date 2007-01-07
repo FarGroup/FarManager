@@ -397,7 +397,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     /* $ 27.04.2001 DJ
        позволяем использовать скроллбар, если он включен
     */
-    _tran(SysLog("InfoList::ProcessMouse() DizView = %p",DizView));
+    _tran(SysLog(L"InfoList::ProcessMouse() DizView = %p",DizView));
     /* $ 12.10.2001 SKV
       одноко аккуратно посчитаем окошко DizView,
       и оставим 2 символа на скроллинг мышой.
@@ -600,7 +600,7 @@ void InfoList::CloseFile()
 
 int InfoList::OpenDizFile(const wchar_t *DizFile)
 {
-  _tran(SysLog("InfoList::OpenDizFile([%s]",DizFile));
+  _tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
   if (DizView == NULL)
   {
     /* $ 12.10.2001 SKV
@@ -608,7 +608,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
     */
     DizView=new DizViewer;
     /* SKV$*/
-    _tran(SysLog("InfoList::OpenDizFile() create new Viewer = %p",DizView));
+    _tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
     DizView->SetRestoreScreenMode(FALSE);
     DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
     DizView->SetStatusMode(0);

@@ -39,8 +39,8 @@ static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
 static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 {
-  //_SVS(CleverSysLog clvrSLog("IsCommandPEExeGUI()"));
-  //_SVS(SysLog("Param: FileName='%s'",FileName));
+  //_SVS(CleverSysLog clvrSLog(L"IsCommandPEExeGUI()"));
+  //_SVS(SysLog(L"Param: FileName='%s'",FileName));
 //  char NameFile[NM];
   HANDLE hFile;
   int Ret=FALSE;
@@ -151,8 +151,8 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 // (чтобы не ждать завершения)
 wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
-  //_SVS(CleverSysLog clvrSLog("GetShellAction()"));
-  //_SVS(SysLog("Param: FileName='%s'",FileName));
+  //_SVS(CleverSysLog clvrSLog(L"GetShellAction()"));
+  //_SVS(SysLog(L"Param: FileName='%s'",FileName));
 
   wchar_t Value[1024]; //BUGBUG
   string strNewValue;
@@ -174,7 +174,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     return(NULL);
 
   wcscat(Value,L"\\shell");
-//_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
+//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,Value));
 
   HKEY hKey;
   if (RegOpenKeyW(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
@@ -186,7 +186,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
   ValueSize=sizeof(Action);
   LONG RetQuery = RegQueryValueExW(hKey,L"",NULL,NULL,(PBYTE)Action,(LPDWORD)&ValueSize);
   wcscat(Value,L"\\");
-//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
 
   if (RetQuery == ERROR_SUCCESS)
   {
@@ -222,7 +222,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
       wcsncat(Value,Action, (sizeof(Value) - 1)/2);
     /* VVM $ */
 
-//_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
+//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,Value));
     if(RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
       RetPtr=NULL;
   }
@@ -257,7 +257,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
       wcsncat(Value, Action, (sizeof(Value) - 1)/2);
       RetPtr = Action;
       RetEnum = ERROR_NO_MORE_ITEMS;
-//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
     } /* if */
 
     // ... а теперь все остальное, если "open" нету
@@ -280,7 +280,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
         } /* if */
       } /* if */
     } /* while */
-//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
   } /* if */
   RegCloseKey(hKey);
 
@@ -329,7 +329,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     }
   }
 
-//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
   return RetPtr;
 }
 
@@ -1292,7 +1292,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
         wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
         Cmd[PtrCmd-CmdStart]=0;
         //UnquoteW(Cmd); BUGBUG
-//_SVS(SysLog("Cmd='%s'",Cmd));
+//_SVS(SysLog(L"Cmd='%s'",Cmd));
         if (apiExpandEnvironmentStrings(Cmd,strExpandedStr)!=0)
         {
           string strFullPath;
@@ -1318,7 +1318,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
             ConvertNameToFullW(strFullPath, strFullPath);
             FileAttr=GetFileAttributesW(strFullPath);
           }
-//_SVS(SysLog("%08X FullPath=%s",FileAttr,FullPath));
+//_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
             while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;

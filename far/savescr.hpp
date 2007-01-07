@@ -39,7 +39,7 @@ class SaveScreen
     /*$ 18.05.2001 OT */
     void Resize(int ScrX,int ScrY,DWORD Corner);
 
-    void DumpBuffer(const char *Title);
+    void DumpBuffer(const wchar_t *Title);
 };
 
 #endif  // __SAVESCREEN_HPP__

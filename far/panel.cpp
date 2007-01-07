@@ -95,7 +95,7 @@ const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 
 Panel::Panel()
 {
-  _OT(SysLog("[%p] Panel::Panel()", this));
+  _OT(SysLog(L"[%p] Panel::Panel()", this));
   Focus=0;
   NumericSort=0;
   PanelMode=NORMAL_PANEL;
@@ -112,7 +112,7 @@ Panel::Panel()
 
 Panel::~Panel()
 {
-  _OT(SysLog("[%p] Panel::~Panel()", this));
+  _OT(SysLog(L"[%p] Panel::~Panel()", this));
   EndDrag();
 }
 
@@ -165,7 +165,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   ChDiskItem.Clear ();
 
-  _tran(SysLog("Panel::ChangeDiskMenu(), Pos=%i, FirstCall=%i",Pos,FirstCall));
+  _tran(SysLog(L"Panel::ChangeDiskMenu(), Pos=%i, FirstCall=%i",Pos,FirstCall));
   Mask=FarGetLogicalDrives();
 
   for (DiskMask=Mask,DiskCount=0;DiskMask!=0;DiskMask>>=1)
@@ -174,7 +174,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   int UserDataSize=0;
   DWORD UserData=0;
   {
-    _tran(SysLog("create VMenu ChDisk"));
+    _tran(SysLog(L"create VMenu ChDisk"));
     VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,TRUE,ScrY-Y1-3);
     ChDisk.SetFlags(VMENU_NOTCENTER);
     if ( this==CtrlObject->Cp()->LeftPanel){
@@ -221,7 +221,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if(DrTMsg[J].DrvType == DriveType)
             {
               strDiskType = UMSG(DrTMsg[J].FarMsg);
-              _SVS(SysLog("DriveType=%d, DiskType='%S'",DriveType,(const wchar_t*)strDiskType));
+              _SVS(SysLog(L"DriveType=%d, DiskType='%S'",DriveType,(const wchar_t*)strDiskType));
               break;
             }
 
@@ -536,12 +536,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     if (Y<3)
       ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
 
-    _tran(SysLog(" call ChDisk.Show"));
+    _tran(SysLog(L" call ChDisk.Show"));
     ChDisk.Show();
 
     while (!ChDisk.Done())
     {
-      //_D(SysLog("ExitCode=%i",ChDisk.GetExitCode()));
+      //_D(SysLog(L"ExitCode=%i",ChDisk.GetExitCode()));
       int SelPos=ChDisk.GetSelectPos();
       int Key;
       {
@@ -906,7 +906,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     string strNewCurDir;
     FarGetCurDirW (strNewCurDir);
     // BugZ#208. ≈сли пути совпадают, то ничего не делаем.
-    //_tran(SysLog("PanelMode=%i (%i), CurDir=[%s], NewCurDir=[%s]",PanelMode,GetType(),
+    //_tran(SysLog(L"PanelMode=%i (%i), CurDir=[%s], NewCurDir=[%s]",PanelMode,GetType(),
     //            CurDir,NewCurDir);)
 
     if(PanelMode == NORMAL_PANEL && GetType()==FILE_PANEL && !LocalStricmpW(strCurDir,strNewCurDir) && IsVisible())
@@ -1080,17 +1080,17 @@ static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 {
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && (Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
   {
-    // // _SVS(SysLog("_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
+    // // _SVS(SysLog(L"_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
     if(rec->Event.KeyEvent.uChar.AsciiChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
       Key=(Key&0xFFFFFF00)|rec->Event.KeyEvent.uChar.AsciiChar;   //???
-    // // _SVS(SysLog("_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
+    // // _SVS(SysLog(L"_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
   }
   return Key;
 }
 
 void Panel::FastFind(int FirstKey)
 {
-  // // _SVS(CleverSysLog Clev("Panel::FastFind"));
+  // // _SVS(CleverSysLog Clev(L"Panel::FastFind"));
   INPUT_RECORD rec;
   string strLastName, strName;
   int Key,KeyToProcess=0;
@@ -1112,13 +1112,13 @@ void Panel::FastFind(int FirstKey)
       if (FirstKey)
       {
         FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
-        // // _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
-        // // _SVS(SysLog("if (FirstKey)"));
+        // // _SVS(SysLog(L"Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
+        // // _SVS(SysLog(L"if (FirstKey)"));
         Key=FirstKey;
       }
       else
       {
-        // // _SVS(SysLog("else if (FirstKey)"));
+        // // _SVS(SysLog(L"else if (FirstKey)"));
         Key=GetInputRecord(&rec);
         if (rec.EventType==MOUSE_EVENT)
         {
@@ -1173,7 +1173,7 @@ void Panel::FastFind(int FirstKey)
         break;
       }
 
-      // // _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
+      // // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=LocalLowerW (Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
@@ -1754,8 +1754,8 @@ void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
 int Panel::SetPluginCommand(int Command,void *Param)
 {
-  _ALGO(CleverSysLog clv("Panel::SetPluginCommand"));
-  _ALGO(SysLog("(Command=%s, Param=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param,Param));
+  _ALGO(CleverSysLog clv(L"Panel::SetPluginCommand"));
+  _ALGO(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param,Param));
   int Result=FALSE;
   ProcessingPluginCommand++;
   FilePanels *FPanels=CtrlObject->Cp();

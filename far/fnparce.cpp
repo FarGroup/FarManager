@@ -68,7 +68,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   {
     CurStr+=2;
     PSubstData->PassivePanel=TRUE;
-    //_SVS(SysLog("PassivePanel=TRUE '%s'",CurStr));
+    //_SVS(SysLog(L"PassivePanel=TRUE '%s'",CurStr));
     return CurStr;
   }
 
@@ -76,7 +76,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   {
     CurStr+=2;
     PSubstData->PassivePanel=FALSE;
-    //_SVS(SysLog("PassivePanel=FALSE '%s'",CurStr));
+    //_SVS(SysLog(L"PassivePanel=FALSE '%s'",CurStr));
     return CurStr;
   }
 
@@ -85,7 +85,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   {
     wcsncat(TmpStr,L"!",MaxTempStrSize-1);
     CurStr+=2;
-    //_SVS(SysLog("!! TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!! TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -94,7 +94,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   {
     wcsncat(TmpStr,PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherName:PSubstData->Name, MaxTempStrSize-1);
     CurStr+=3;
-    //_SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!.! TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -103,7 +103,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   {
     wcsncat(TmpStr,PSubstData->PassivePanel ? PSubstData->strAnotherShortNameOnly:PSubstData->strShortNameOnly, MaxTempStrSize-1);
     CurStr+=2;
-    //_SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!~ TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -123,7 +123,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     }
     if(Ext && *Ext)
       wcsncat(TmpStr,++Ext, MaxTempStrSize-1);
-    //_SVS(SysLog("!` TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!` TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -167,7 +167,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       /* DJ $ */
     }
     CurStr+=CntSkip;
-    //_SVS(SysLog("!& TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!& TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -252,7 +252,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   {
     wcsncat(TmpStr,PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
     CurStr+=3;
-    //_SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!-! TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -263,7 +263,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     wcsncat(TmpStr,PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
     CurStr+=3;
     PSubstData->PreserveLFN=TRUE;
-    //_SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!+! TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -287,7 +287,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     DeleteEndSlashW(strRootDir);
     wcsncat(TmpStr,strRootDir, MaxTempStrSize-1);
     CurStr+=2;
-    //_SVS(SysLog("!: TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!: TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -345,7 +345,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     strCurDir.ReleaseBuffer ();
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
     wcsncat(TmpStr, strCurDir, MaxTempStrSize-1);
-    //_SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
+    //_SVS(SysLog(L"!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
     return CurStr;
   }
 
@@ -370,7 +370,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     wcsncat(TmpStr,CurStr,j);
     CurStr += j;
     //<Skeleton>
-    //_SVS(SysLog("!? TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"!? TmpStr=[%s]",TmpStr));
     return CurStr;
   }
 
@@ -380,7 +380,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
     wcsncat(TmpStr,PointToNameW(PSubstData->PassivePanel ? PSubstData->strAnotherNameOnly:PSubstData->strNameOnly), MaxTempStrSize-1);
     CurStr++;
-    //_SVS(SysLog("! TmpStr=[%s]",TmpStr));
+    //_SVS(SysLog(L"! TmpStr=[%s]",TmpStr));
   }
 
   return CurStr;
@@ -509,7 +509,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   while (*CurStr)
   {
-    //_SVS(SysLog("***** Pass=%d",Pass));
+    //_SVS(SysLog(L"***** Pass=%d",Pass));
     if(*CurStr == L'!')
       CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,sizeof(TmpStr)-wcslen(TmpStr)-1);
     else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
@@ -522,7 +522,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   strStr = TmpStr;
 
-  //_SVS(SysLog("[%s]\n",Str));
+  //_SVS(SysLog(L"[%s]\n",Str));
   return(PSubstData->PreserveLFN);
 }
 
@@ -845,7 +845,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
 
     char *lpFileName = UnicodeToAnsi (strFileName);
 
-//_D(SysLog("%s[%s] %s",__FILE__,Modifers,FileName));
+//_D(SysLog(L"%s[%s] %s",__FILE__,Modifers,FileName));
     if (fprintf(ListFile,"%s\r\n", lpFileName)==EOF)
     {
       fclose(ListFile);

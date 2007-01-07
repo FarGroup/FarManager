@@ -343,7 +343,7 @@ static LONG_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
   {
 //    char KeyText[50];
 //    KeyToText(Param2,KeyText);
-//    _D(SysLog("%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed));
+//    _D(SysLog(L"%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed));
     if(ShiftPressed && Param2 == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
     {
       DWORD Arr[1]={KEY_SHIFTENTER};

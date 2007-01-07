@@ -30,7 +30,7 @@ filepanels.cpp
 
 FilePanels::FilePanels()
 {
-  _OT(SysLog("[%p] FilePanels::FilePanels()", this));
+  _OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
   LeftPanel=CreatePanel(Opt.LeftPanel.Type);
   RightPanel=CreatePanel(Opt.RightPanel.Type);
 //  CmdLine=0;
@@ -47,7 +47,7 @@ FilePanels::FilePanels()
   KeyBarVisible = Opt.ShowKeyBar;
   /* DJ $ */
 //  SetKeyBar(&MainKeyBar);
-//  _D(SysLog("MainKeyBar=0x%p",&MainKeyBar));
+//  _D(SysLog(L"MainKeyBar=0x%p",&MainKeyBar));
 }
 
 static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
@@ -199,7 +199,7 @@ void FilePanels::Init()
 
 FilePanels::~FilePanels()
 {
-  _OT(SysLog("[%p] FilePanels::~FilePanels()", this));
+  _OT(SysLog(L"[%p] FilePanels::~FilePanels()", this));
   if (LastLeftFilePanel!=LeftPanel && LastLeftFilePanel!=RightPanel)
     DeletePanel(LastLeftFilePanel);
   if (LastRightFilePanel!=LeftPanel && LastRightFilePanel!=RightPanel)
@@ -236,7 +236,7 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 
 void FilePanels::SetScreenPosition()
 {
-  _OT(SysLog("[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+  _OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 //  RedrawDesktop Redraw;
   CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
@@ -959,7 +959,7 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
 
 void FilePanels::OnChangeFocus(int f)
 {
-  _OT(SysLog("FilePanels::OnChangeFocus(%i)",f));
+  _OT(SysLog(L"FilePanels::OnChangeFocus(%i)",f));
   /* $ 20.06.2001 tran
      баг с отрисовкой при копировании и удалении
      не учитывался LockRefreshCount */
@@ -983,7 +983,7 @@ void FilePanels::DisplayObject ()
 {
 //  if ( Focus==0 )
 //      return;
-  _OT(SysLog("[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+  _OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
   CtrlObject->CmdLine->ShowBackground();
 
   if (Opt.ShowMenuBar)
@@ -1067,7 +1067,7 @@ void FilePanels::ResizeConsole()
   MainKeyBar.ResizeConsole();
   TopMenuBar.ResizeConsole();
   SetScreenPosition();
-  _OT(SysLog("[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+  _OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
 int FilePanels::FastHide()

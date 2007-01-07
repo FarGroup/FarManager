@@ -671,7 +671,7 @@ int Edit::ProcessKey(int Key)
         PrevSelEnd=SelEnd;
         Select(-1,0);
         Show();
-//_SVS(SysLog("Edit::ProcessKey(), Select Kill"));
+//_SVS(SysLog(L"Edit::ProcessKey(), Select Kill"));
       }
       /* DJ $ */
     }
@@ -1446,7 +1446,7 @@ int Edit::ProcessKey(int Key)
     /* VVM $ */
     default:
     {
-//      _D(SysLog("Key=0x%08X",Key));
+//      _D(SysLog(L"Key=0x%08X",Key));
 
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=65536 )
         break;
@@ -1926,7 +1926,7 @@ void Edit::InsertBinaryStringW(const wchar_t *Str,int Length)
     int MaskLen=wcslen(Mask);
     if (Pos<MaskLen)
     {
-      //_SVS(SysLog("InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
+      //_SVS(SysLog(L"InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
       int StrLen=(MaskLen-Pos>Length)?Length:MaskLen-Pos;
       /* $ 15.11.2000 KM
          Внесены исправления для правильной работы PasteFromClipboard
@@ -1940,7 +1940,7 @@ void Edit::InsertBinaryStringW(const wchar_t *Str,int Length)
           if (j < Length && KeyMatchedMask(Str[j]))
           {
             InsertKey(Str[j]);
-            //_SVS(SysLog("InsertBinaryString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
+            //_SVS(SysLog(L"InsertBinaryString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
           }
           else
             goLoop=TRUE;
@@ -1957,7 +1957,7 @@ void Edit::InsertBinaryStringW(const wchar_t *Str,int Length)
       /* KM $ */
     }
     RefreshStrByMask();
-    //_SVS(SysLog("InsertBinaryString ==> Edit::Str='%s'",Edit::Str));
+    //_SVS(SysLog(L"InsertBinaryString ==> Edit::Str='%s'",Edit::Str));
   }
   else
   {

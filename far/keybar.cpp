@@ -17,7 +17,7 @@ Keybar
 
 KeyBar::KeyBar()
 {
-  _OT(SysLog("[%p] KeyBar::KeyBar()", this));
+  _OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
   DisableMask=0;
   Owner=NULL;
   AltState=CtrlState=ShiftState=0;

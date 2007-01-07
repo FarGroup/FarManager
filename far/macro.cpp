@@ -257,7 +257,6 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 
 KeyMacro::KeyMacro()
 {
-  _OT(SysLog("[%p] KeyMacro::KeyMacro()", this));
   MacroVersion=GetRegKeyW(L"KeyMacros",L"MacroVersion",0);
   CurPCStack=-1;
   Work.MacroWORKCount=0;
@@ -271,7 +270,6 @@ KeyMacro::KeyMacro()
 
 KeyMacro::~KeyMacro()
 {
-  _OT(SysLog("[%p] KeyMacro::~KeyMacro()", this));
   InitInternalVars();
 }
 
@@ -396,7 +394,7 @@ int KeyMacro::ProcessKey(int Key)
       int WaitInMainLoop0=WaitInMainLoop;
       InternalInput=TRUE;
       WaitInMainLoop=FALSE;
-//_SVS(SysLog("StartMode=%d",StartMode));
+//_SVS(SysLog(L"StartMode=%d",StartMode));
 //_SVS(SysLog(1));
       /* $ 23.11.2001 VVM
         ! Залочить _текущий_ фрейм, а не _последний немодальный_ */
@@ -406,7 +404,7 @@ int KeyMacro::ProcessKey(int Key)
       FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
       /* VVM $ */
 //_SVS(SysLog(-1));
-//_SVS(SysLog("StartMode=%d",StartMode));
+//_SVS(SysLog(L"StartMode=%d",StartMode));
 
       // выставляем флаги по умолчанию.
       DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
@@ -531,7 +529,7 @@ int KeyMacro::ProcessKey(int Key)
     if (Work.Executing == MACROMODE_NOMACRO) // Это еще не режим исполнения?
     {
       DWORD CurFlags;
-//_SVS(SysLog(">Key=%s",_FARKEY_ToName(Key)));
+//_SVS(SysLog(L">Key=%s",_FARKEY_ToName(Key)));
       if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF)
       {
 //        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
@@ -541,11 +539,11 @@ int KeyMacro::ProcessKey(int Key)
           //Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
       }
 
-//_SVS(SysLog("<Key=%s",_FARKEY_ToName(Key)));
+//_SVS(SysLog(L"<Key=%s",_FARKEY_ToName(Key)));
       int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=MacroLIB[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//_SVS(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
+//_SVS(SysLog(L"KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
         if(!CheckAll(Mode,CurFlags))
           return FALSE;
 
@@ -565,7 +563,7 @@ int KeyMacro::ProcessKey(int Key)
 
         IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 
-        _KEYMACRO(SysLog("**** Start Of Execute Macro ****"));
+        _KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
         _KEYMACRO(SysLog(1));
         doneMacroVarTable(0);
         initMacroVarTable(0);
@@ -1890,7 +1888,7 @@ int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
   int RetKey=0;
-//_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
+//_SVS(SysLog(L">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return RetKey;
 
@@ -1943,7 +1941,7 @@ int KeyMacro::GetKey()
 initial:
   if((MR=Work.MacroWORK) == NULL)
     return RetKey;
-//_SVS(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
+//_SVS(SysLog(L"KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
   // ВНИМАНИЕ! Возможны глюки!
   if(!Work.ExecLIBPos && !LockScr && (MR->Flags&MFLAGS_DISABLEOUTPUT))
@@ -1991,7 +1989,7 @@ done:
     if(TitleModified) SetFarTitleW(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-    _KEYMACRO(SysLog(-1);SysLog("**** End Of Execute Macro ****"));
+    _KEYMACRO(SysLog(-1);SysLog(L"**** End Of Execute Macro ****"));
     if(CurPCStack >= 0)
     {
       PopState();
@@ -2005,7 +2003,7 @@ done:
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
 
-  _SVS(string KeyText;KeyToText(Key,KeyText);SysLog("%S",(const wchar_t*)KeyText));
+  _SVS(SysLog(L"%s",_FARKEY_ToName(Key)));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2089,7 +2087,7 @@ done:
 
     // вычислить выражение
     case MCODE_OP_EXPR:
-      _KEYMACRO(SysLog("  --- expr %d", Work.ExecLIBPos));
+      _KEYMACRO(SysLog(L"  --- expr %d", Work.ExecLIBPos));
       ePos = 0;
       while ( ( Key=GetOpCode(MR,Work.ExecLIBPos++) ) != MCODE_OP_DOIT && Work.ExecLIBPos < MR->BufferSize )
       {
@@ -2303,12 +2301,12 @@ done:
             break;
         }
       }
-      _KEYMACRO(SysLog("  --- expr end"));
+      _KEYMACRO(SysLog(L"  --- expr end"));
       *eStack = eStack[ePos];
-      _KEYMACRO(SysLog("      ePos       =%d", ePos));
-      _KEYMACRO(SysLog("      eStack->i()=%d", eStack->i()));
-      _KEYMACRO(SysLog("      eStack->s()='%s'", eStack->s()));
-      _KEYMACRO(SysLog(" Work.ExecLIBPos =%d (%0X)",Work.ExecLIBPos,Work.ExecLIBPos));
+      _KEYMACRO(SysLog(L"      ePos       =%d", ePos));
+      _KEYMACRO(SysLog(L"      eStack->i()=%d", eStack->i()));
+      _KEYMACRO(SysLog(L"      eStack->s()='%s'", eStack->s()));
+      _KEYMACRO(SysLog(L" Work.ExecLIBPos =%d (%0X)",Work.ExecLIBPos,Work.ExecLIBPos));
       goto begin;
 
 // $Rep (expr) ... $End
@@ -2529,7 +2527,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
       continue;
 
     SetRegKey(RegKeyName,"Sequence",TextBuffer);
-    //_SVS(SysLog("%3d) %s|Sequence='%s'",I,RegKeyName,TextBuffer));
+    //_SVS(SysLog(L"%3d) %s|Sequence='%s'",I,RegKeyName,TextBuffer));
     if(TextBuffer)
       xf_free(TextBuffer);
 #endif
@@ -2885,7 +2883,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 //    if((Param2&0x00FFFFFF) >= 'A' && (Param2&0x00FFFFFF) <= 'Z' && ShiftPressed)
 //      Param2|=KEY_SHIFT;
 
-//_SVS(SysLog("Macro: Key=%s",_FARKEY_ToName(Param2)));
+//_SVS(SysLog(L"Macro: Key=%s",_FARKEY_ToName(Param2)));
     // <Обработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
     if(Param2 == KEY_ESC ||
@@ -3036,7 +3034,7 @@ DWORD KeyMacro::AssignMacroKey()
   };
   MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
   struct DlgParam Param={this,0,StartMode};
-//_SVS(SysLog("StartMode=%d",StartMode));
+//_SVS(SysLog(L"StartMode=%d",StartMode));
 
   IsProcessAssignMacroKey++;
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(LONG_PTR)&Param);
@@ -3389,96 +3387,96 @@ int TExec::del()
 
 #ifdef _DEBUG
 #ifdef SYSLOG_KEYMACRO
-static char *printfStr(DWORD* k, int& i)
+static wchar_t *printfStr(DWORD* k, int& i)
 {
   i++;
-  char *s = (char*)&k[i];
-  while ( strlen((char*)&k[i]) > 3 )
+  wchar_t *s = (wchar_t *)&k[i];
+  while ( wcslen((wchar_t*)&k[i]) > 3 )
     i++;
   return s;
 }
 
-static void sprint(int i, char *fmt, char *data = NULL)
+static void sprint(int i, const wchar_t *fmt, const wchar_t *data = NULL)
 {
-  static char tmp[256];
-  strcat(strcpy(tmp, "%08X: "), fmt);
+  static wchar_t tmp[256];
+  wcscat (wcscpy (tmp, L"%08X: "), fmt);
   SysLog(tmp, i, data);
 }
 
 static void printKeyValue(DWORD* k, int& i)
 {
   int ii = i;
-  if ( !k[i] )                                 sprint(ii, "<null>");
-  else if ( k[i] == MCODE_OP_END )             sprint(ii, "END");
-  else if ( k[i] == MCODE_OP_EXPR )            sprint(ii, "<expr> (");
-  else if ( k[i] == MCODE_OP_DOIT )            sprint(ii, ") </expr>");
-  else if ( k[i] == MCODE_OP_SAVE )            sprint(ii, "SAVE \"%%%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, "SAVE REP COUNT");
-  else if ( k[i] == MCODE_OP_REP )             sprint(ii, "REP (*)", (char*)(i++));
-  else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
+  if ( !k[i] )                                 sprint(ii, L"<null>");
+  else if ( k[i] == MCODE_OP_END )             sprint(ii, L"END");
+  else if ( k[i] == MCODE_OP_EXPR )            sprint(ii, L"<expr> (");
+  else if ( k[i] == MCODE_OP_DOIT )            sprint(ii, L") </expr>");
+  else if ( k[i] == MCODE_OP_SAVE )            sprint(ii, L"SAVE \"%%%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, L"SAVE REP COUNT");
+  else if ( k[i] == MCODE_OP_REP )             sprint(ii, L"REP (*)", (wchar_t*)(i++));
+  else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, L" PUSH VAR \"%%%s\"", printfStr(k, i));
   else if ( k[i] == MCODE_OP_PUSHINT )
   {
     FARINT64 i64;
     i64.Part.HighPart=k[++i]; //???
     i64.Part.LowPart=k[++i]; //???
-    SysLog("%08X:  PUSH INT %I64d", ii, i64.i64);
+    SysLog(L"%08X:  PUSH INT %I64d", ii, i64.i64);
   }
-  else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %08X", (char*)k[++i]);
-  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %08X", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, L" PUSH STR \"%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, L"JMP %08X", (wchar_t*)k[++i]);
+  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, L"JZ %08X", (wchar_t*)k[++i]);
 
-  else if ( k[i] == MCODE_OP_DATE )            sprint(ii, "$date ''");
-  else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, "$text ''");
+  else if ( k[i] == MCODE_OP_DATE )            sprint(ii, L"$date ''");
+  else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, L"$text ''");
 
-  else if ( k[i] == MCODE_OP_NEGATE )          sprint(ii, " /-/");
-  else if ( k[i] == MCODE_OP_ADD )             sprint(ii, " +");
-  else if ( k[i] == MCODE_OP_SUB )             sprint(ii, " -");
-  else if ( k[i] == MCODE_OP_MUL )             sprint(ii, " *");
-  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, " /");
-  else if ( k[i] == MCODE_OP_LT )              sprint(ii, " <");
-  else if ( k[i] == MCODE_OP_LE )              sprint(ii, " <=");
-  else if ( k[i] == MCODE_OP_GE )              sprint(ii, " >=");
-  else if ( k[i] == MCODE_OP_GT )              sprint(ii, " >");
-  else if ( k[i] == MCODE_OP_EQ )              sprint(ii, " ==");
-  else if ( k[i] == MCODE_OP_NE )              sprint(ii, " !=");
-  else if ( k[i] == MCODE_OP_NOT )             sprint(ii, " !");
-  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, " /");
-  else if ( k[i] == MCODE_OP_AND )             sprint(ii, " &&");
-  else if ( k[i] == MCODE_OP_OR )              sprint(ii, " ||");
-  else if ( k[i] == MCODE_OP_BITAND )          sprint(ii, " &");
-  else if ( k[i] == MCODE_OP_BITOR )           sprint(ii, " |");
-  else if ( k[i] == MCODE_OP_BITXOR )          sprint(ii, " ^");
+  else if ( k[i] == MCODE_OP_NEGATE )          sprint(ii, L" /-/");
+  else if ( k[i] == MCODE_OP_ADD )             sprint(ii, L" +");
+  else if ( k[i] == MCODE_OP_SUB )             sprint(ii, L" -");
+  else if ( k[i] == MCODE_OP_MUL )             sprint(ii, L" *");
+  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, L" /");
+  else if ( k[i] == MCODE_OP_LT )              sprint(ii, L" <");
+  else if ( k[i] == MCODE_OP_LE )              sprint(ii, L" <=");
+  else if ( k[i] == MCODE_OP_GE )              sprint(ii, L" >=");
+  else if ( k[i] == MCODE_OP_GT )              sprint(ii, L" >");
+  else if ( k[i] == MCODE_OP_EQ )              sprint(ii, L" ==");
+  else if ( k[i] == MCODE_OP_NE )              sprint(ii, L" !=");
+  else if ( k[i] == MCODE_OP_NOT )             sprint(ii, L" !");
+  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, L" /");
+  else if ( k[i] == MCODE_OP_AND )             sprint(ii, L" &&");
+  else if ( k[i] == MCODE_OP_OR )              sprint(ii, L" ||");
+  else if ( k[i] == MCODE_OP_BITAND )          sprint(ii, L" &");
+  else if ( k[i] == MCODE_OP_BITOR )           sprint(ii, L" |");
+  else if ( k[i] == MCODE_OP_BITXOR )          sprint(ii, L" ^");
 
-  else if ( k[i] == MCODE_F_ABS )              sprint(ii, " N=abs(N)");
-  else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, " N=checkhotkey(S)");
-  else if ( k[i] == MCODE_F_DATE )             sprint(ii, " S=date(S)");
-  else if ( k[i] == MCODE_F_EDITOR_SET )       sprint(ii, " N=Editor.Set(N,Var)");
-  else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, " S=env(S)");
-  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " N=fattr(S)");
-  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " S=fexist(S)");
-  else if ( k[i] == MCODE_F_FSPLIT )           sprint(ii, " S=fsplit(S,N)");
-  else if ( k[i] == MCODE_F_IIF )              sprint(ii, " V=iif(Condition,V1,V2)");
-  else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " S=index(S1,S2)");
-  else if ( k[i] == MCODE_F_INT )              sprint(ii, " N=int(V)");
-  else if ( k[i] == MCODE_F_ITOA )             sprint(ii, " S=itoa(N,radix)");
-  else if ( k[i] == MCODE_F_SLEEP )            sprint(ii, " N=Sleep(N)");
-  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " N=len(S)");
-  else if ( k[i] == MCODE_F_MAX )              sprint(ii, " N=max(N1,N2)");
-  else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, " N=msave(S)");
-  else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, " N=msgbox(\"Title\",\"Text\",flags)");
-  else if ( k[i] == MCODE_F_MIN )              sprint(ii, " N=min(N1,N2)");
-  else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, " N=panel.SetPos(panelType,fileName)");
-  else if ( k[i] == MCODE_F_PANEL_FATTR )      sprint(ii, " N=panel.fattr(panelType,S)");
-  else if ( k[i] == MCODE_F_PANEL_FEXIST )     sprint(ii, " S=panel.fexist(panelType,S)");
-  else if ( k[i] == MCODE_F_CLIP )             sprint(ii, " V=clip(N,S)");
-  else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
-  else if ( k[i] == MCODE_F_DLG_GETVALUE )     sprint(ii, " V=Dlg.GetValue(ID,N)");
-  else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " S=rindex(S1,S2)");
-  else if ( k[i] == MCODE_F_STRING )           sprint(ii, " S=string(V)");
-  else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " S=substr(S1,S2,N)");
-  else if ( k[i] == MCODE_F_UCASE )            sprint(ii, " S=ucase(S1)");
-  else if ( k[i] == MCODE_F_LCASE )            sprint(ii, " S=lcase(S1)");
-  else if ( k[i] == MCODE_F_XLAT )             sprint(ii, " S=xlat(S)");
+  else if ( k[i] == MCODE_F_ABS )              sprint(ii, L" N=abs(N)");
+  else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, L" N=checkhotkey(S)");
+  else if ( k[i] == MCODE_F_DATE )             sprint(ii, L" S=date(S)");
+  else if ( k[i] == MCODE_F_EDITOR_SET )       sprint(ii, L" N=Editor.Set(N,Var)");
+  else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, L" S=env(S)");
+  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, L" N=fattr(S)");
+  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, L" S=fexist(S)");
+  else if ( k[i] == MCODE_F_FSPLIT )           sprint(ii, L" S=fsplit(S,N)");
+  else if ( k[i] == MCODE_F_IIF )              sprint(ii, L" V=iif(Condition,V1,V2)");
+  else if ( k[i] == MCODE_F_INDEX )            sprint(ii, L" S=index(S1,S2)");
+  else if ( k[i] == MCODE_F_INT )              sprint(ii, L" N=int(V)");
+  else if ( k[i] == MCODE_F_ITOA )             sprint(ii, L" S=itoa(N,radix)");
+  else if ( k[i] == MCODE_F_SLEEP )            sprint(ii, L" N=Sleep(N)");
+  else if ( k[i] == MCODE_F_LEN )              sprint(ii, L" N=len(S)");
+  else if ( k[i] == MCODE_F_MAX )              sprint(ii, L" N=max(N1,N2)");
+  else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, L" N=msave(S)");
+  else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, L" N=msgbox(\"Title\",\"Text\",flags)");
+  else if ( k[i] == MCODE_F_MIN )              sprint(ii, L" N=min(N1,N2)");
+  else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, L" N=panel.SetPos(panelType,fileName)");
+  else if ( k[i] == MCODE_F_PANEL_FATTR )      sprint(ii, L" N=panel.fattr(panelType,S)");
+  else if ( k[i] == MCODE_F_PANEL_FEXIST )     sprint(ii, L" S=panel.fexist(panelType,S)");
+  else if ( k[i] == MCODE_F_CLIP )             sprint(ii, L" V=clip(N,S)");
+  else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, L" V=panelitem(Panel,Index,TypeInfo)");
+  else if ( k[i] == MCODE_F_DLG_GETVALUE )     sprint(ii, L" V=Dlg.GetValue(ID,N)");
+  else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, L" S=rindex(S1,S2)");
+  else if ( k[i] == MCODE_F_STRING )           sprint(ii, L" S=string(V)");
+  else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, L" S=substr(S1,S2,N)");
+  else if ( k[i] == MCODE_F_UCASE )            sprint(ii, L" S=ucase(S1)");
+  else if ( k[i] == MCODE_F_LCASE )            sprint(ii, L" S=lcase(S1)");
+  else if ( k[i] == MCODE_F_XLAT )             sprint(ii, L" S=xlat(S)");
   else
   {
     int FARFunc = 0;
@@ -3486,16 +3484,16 @@ static void printKeyValue(DWORD* k, int& i)
       if ( k[i] == MKeywords[j].Value)
       {
         FARFunc = 1;
-        sprint(ii, " %s", MKeywords[j].Name);
+        sprint(ii, L" %s", MKeywords[j].Name);
         break;
       }
     if ( !FARFunc )
     {
-      char tmp[128];
-      if ( KeyToText(k[i], tmp, sizeof(tmp)) )
-        sprint(ii, "%s", tmp);
+      string strTmp;
+      if ( KeyToText(k[i], strTmp) )
+        sprint(ii, L"%s", (const wchar_t*)strTmp);
       else
-        sprint(ii, "0x%08X", (char*)k[i]);
+        sprint(ii, L"0x%08X", (wchar_t*)k[i]);
     }
   }
 }
@@ -3877,21 +3875,21 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
   } // END for (;;)
 #ifdef _DEBUG
 #ifdef SYSLOG_KEYMACRO
-  SysLog("--- macro buffer out (%d)", CurMacroBufferSize);
-  SysLogDump("",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
+  SysLog(L"--- macro buffer out (%d)", CurMacroBufferSize);
+  SysLogDump(L"",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
   if ( CurMacro_Buffer )
   {
     int ii;
     for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
-      SysLog("%08X: %08X",ii,CurMacro_Buffer[ii]);
+      SysLog(L"%08X: %08X",ii,CurMacro_Buffer[ii]);
 
-    SysLog("------------------------");
+    SysLog(L"------------------------");
     for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
       printKeyValue(CurMacro_Buffer, ii);
   }
   else
-    SysLog("??? is NULL");
-  SysLog("--- macro buffer end");
+    SysLog(L"??? is NULL");
+  SysLog(L"--- macro buffer end");
 #endif
 #endif
   if ( CurMacroBufferSize > 1 )
@@ -3941,7 +3939,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
         Len=IndexMode[ChechMode][1];
         if(Len)
           MPtr=MacroLIB+IndexMode[ChechMode][0];
-  //_SVS(SysLog("ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
+  //_SVS(SysLog(L"ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
       }
 
       if(Len)
@@ -3951,7 +3949,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
           if (LocalUpperW(MPtr->Key)==LocalUpperW(Key) && MPtr->BufferSize > 0)
           {
     //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
-    //_SVS(SysLog("GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
+    //_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
             if(!(MPtr->Flags&MFLAGS_DISABLEMACRO))
               return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
           }
@@ -4242,7 +4240,7 @@ void KeyMacro::Sort(void)
     IndexMode[J][1]++;
   }
 
-//_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog("IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
+//_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
 
 DWORD KeyMacro::GetOpCode(struct MacroRecord *MR,int PC)

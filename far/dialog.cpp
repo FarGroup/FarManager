@@ -112,7 +112,7 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
     // макросить будет в диалогах :-)
     CtrlObject->Macro.SetMode(MACRO_DIALOG);
   }
-//_SVS(SysLog("Dialog =%d",CtrlObject->Macro.GetMode()));
+//_SVS(SysLog(L"Dialog =%d",CtrlObject->Macro.GetMode()));
 
   // запоминаем предыдущий заголовок консоли
   OldTitle=new ConsoleTitle;
@@ -125,7 +125,7 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
 */
 Dialog::~Dialog()
 {
-  _tran(SysLog("[%p] Dialog::~Dialog()",this));
+  _tran(SysLog(L"[%p] Dialog::~Dialog()",this));
 
   GetDialogObjectsData();
   DeleteDialogObjects();
@@ -159,7 +159,7 @@ Dialog::~Dialog()
   delete OldTitle;
 
 
-  _DIALOG(CleverSysLog CL("Destroy Dialog"));
+  _DIALOG(CleverSysLog CL(L"Destroy Dialog"));
 }
 
 void Dialog::CheckDialogCoord(void)
@@ -269,7 +269,7 @@ void Dialog::InitDialog(void)
 void Dialog::Show()
 {
   CriticalSectionLock Lock(CS);
-  _tran(SysLog("[%p] Dialog::Show()",this));
+  _tran(SysLog(L"[%p] Dialog::Show()",this));
 
   if(!DialogMode.Check(DMODE_INITOBJECTS))
     return;
@@ -292,7 +292,7 @@ void Dialog::Show()
 void Dialog::Hide()
 {
   CriticalSectionLock Lock(CS);
-  _tran(SysLog("[%p] Dialog::Hide()",this));
+  _tran(SysLog(L"[%p] Dialog::Hide()",this));
   if(!DialogMode.Check(DMODE_INITOBJECTS))
     return;
 
@@ -443,7 +443,7 @@ int Dialog::InitDialogObjects(int ID)
   int InitItemCount;
   DWORD ItemFlags;
 
-  _DIALOG(CleverSysLog CL("Init Dialog"));
+  _DIALOG(CleverSysLog CL(L"Init Dialog"));
 
   if(ID+1 > ItemCount)
     return -1;
@@ -2977,7 +2977,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       GetItemRect(I,Rect);
       Rect.left+=X1;  Rect.top+=Y1;
       Rect.right+=X1; Rect.bottom+=Y1;
-//_D(SysLog("? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data));
+//_D(SysLog(L"? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data));
 
       if(MsX >= Rect.left && MsY >= Rect.top && MsX <= Rect.right && MsY <= Rect.bottom)
       {
@@ -3002,7 +3002,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           MouseEvent->dwMousePosition.Y-=(short)Rect.top;
         }
 
-//_SVS(SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
+//_SVS(SysLog(L"+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
         if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
           return TRUE;
 
@@ -3685,7 +3685,7 @@ void Dialog::SelectOnEntry(int Pos,BOOL Selected)
         edt->Select(0,edt->GetLength());
       else
         edt->Select(-1,0);
-      //_SVS(SysLog("Selected=%d edt->GetLength()=%d",Selected,edt->GetLength()));
+      //_SVS(SysLog(L"Selected=%d edt->GetLength()=%d",Selected,edt->GetLength()));
     }
   }
 }
@@ -4531,7 +4531,7 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
     if(Str[AmpPos] == L'&')
       AmpPos++;
   }
-//_SVS(SysLog("'%s' (%d)",Str+AmpPos,AmpPos));
+//_SVS(SysLog(L"'%s' (%d)",Str+AmpPos,AmpPos));
   int UpperStrKey=LocalUpperW ((int)Str[AmpPos]);
   /* $ 08.11.2000 SVS
      Изменен пересчет кодов клавиш для hotkey (используются сканкоды)
@@ -4789,7 +4789,7 @@ void Dialog::CloseDialog()
     if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
       FrameManager->DeleteFrame (this);
 
-    _DIALOG(CleverSysLog CL("Close Dialog"));
+    _DIALOG(CleverSysLog CL(L"Close Dialog"));
   }
 }
 
@@ -4941,8 +4941,8 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
   struct DialogItemEx *CurItem=NULL;
   char *Ptr=NULL;
   int Type=0;
-  _DIALOG(CleverSysLog CL("Dialog.DefDlgProc()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
+  _DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
+  _DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
   if(!Dlg)
     return 0;
 
@@ -5130,8 +5130,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,LON
 
   int I;
 
-  _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
+  _DIALOG(CleverSysLog CL(L"Dialog.SendDlgMessage()"));
+  _DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
   if ( !Dlg )
     return 0;

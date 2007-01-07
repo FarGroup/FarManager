@@ -43,7 +43,7 @@ static const wchar_t BorderLine[]={0x2502,0x020,0x00};
 
 Viewer::Viewer()
 {
-  _OT(SysLog("[%p] Viewer::Viewer()", this));
+  _OT(SysLog(L"[%p] Viewer::Viewer()", this));
   /* $ 29.03.2001 IS
        "Наследуем" некоторые глобальные
   */
@@ -163,7 +163,7 @@ Viewer::~Viewer()
       }
     }
   }
-  _tran(SysLog("[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
+  _tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
   /* $ 11.10.2001 IS
      Удаляем файл только, если нет открытых фреймов с таким именем.
   */
@@ -1901,7 +1901,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       while (IsMouseButtonPressed())
       {
-//        _SVS(SysLog("Viewer/ KEY_DOWN= %i, %i",FilePos,FileSize));
+//        _SVS(SysLog(L"Viewer/ KEY_DOWN= %i, %i",FilePos,FileSize));
         ProcessKey(KEY_DOWN);
       }
     }
@@ -1932,7 +1932,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         }
         else
           Perc=ToPercent64(FilePos,FileSize);
-//_SVS(SysLog("Viewer/ ToPercent()=%i, %I64d, %I64d, Mouse=[%d:%d]",Perc,FilePos,FileSize,MsX,MsY));
+//_SVS(SysLog(L"Viewer/ ToPercent()=%i, %I64d, %I64d, Mouse=[%d:%d]",Perc,FilePos,FileSize,MsX,MsY));
         if(Perc == 100)
           ProcessKey(KEY_CTRLEND);
         else if(!Perc)
@@ -1982,7 +1982,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if (MsY!=Y1)
       return(TRUE);
 
-    //_D(SysLog("MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
+    //_D(SysLog(L"MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
     if ( MsX>=XTable && MsX<=XTable+10 )
     {
         ProcessKey(KEY_SHIFTF8);

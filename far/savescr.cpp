@@ -14,7 +14,7 @@ savescr.cpp
 
 SaveScreen::SaveScreen()
 {
-  _OT(SysLog("[%p] SaveScreen::SaveScreen()", this));
+  _OT(SysLog(L"[%p] SaveScreen::SaveScreen()", this));
   RealScreen=FALSE;
   SaveArea(0,0,ScrX,ScrY);
 }
@@ -22,7 +22,7 @@ SaveScreen::SaveScreen()
 
 SaveScreen::SaveScreen(int RealScreen)
 {
-  _OT(SysLog("[%p] SaveScreen::SaveScreen(RealScreen=%i)",this,RealScreen));
+  _OT(SysLog(L"[%p] SaveScreen::SaveScreen(RealScreen=%i)",this,RealScreen));
   SaveScreen::RealScreen=RealScreen;
   SaveArea(0,0,ScrX,ScrY);
 }
@@ -30,7 +30,7 @@ SaveScreen::SaveScreen(int RealScreen)
 
 SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2,int RealScreen)
 {
-  _OT(SysLog("[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
+  _OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
   SaveScreen::RealScreen=RealScreen;
   SaveArea(X1,Y1,X2,Y2);
 }
@@ -40,7 +40,7 @@ SaveScreen::~SaveScreen()
 {
   if (!ScreenBuf)
     return;
-  _OT(SysLog("[%p] SaveScreen::~SaveScreen()", this));
+  _OT(SysLog(L"[%p] SaveScreen::~SaveScreen()", this));
   RestoreArea();
   /* $ 13.07.2000 SVS
      раз уж вызвали new[], то и нужно delete[]
@@ -230,7 +230,7 @@ void SaveScreen::CleanupBuffer(char *Buffer, int Height, int Width)
 }
 /* 21.05.2001 OT  $ */
 
-void SaveScreen::DumpBuffer(const char *Title)
+void SaveScreen::DumpBuffer(const wchar_t *Title)
 {
   SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,RealScreen,NULL);
 }

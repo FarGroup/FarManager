@@ -46,7 +46,7 @@ static int __FormatEndSelectedPhrase(int Count)
 void FileList::DisplayObject()
 {
   Height=Y2-Y1-4+!Opt.ShowColumnTitles+(Opt.ShowPanelStatus ? 0:2);
-  _OT(SysLog("[%p] FileList::DisplayObject()",this));
+  _OT(SysLog(L"[%p] FileList::DisplayObject()",this));
   if (UpdateRequired)
   {
     UpdateRequired=FALSE;

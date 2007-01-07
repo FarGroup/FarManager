@@ -48,7 +48,7 @@ enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
 
 FileList::FileList()
 {
-  _OT(SysLog("[%p] FileList::FileList()", this));
+  _OT(SysLog(L"[%p] FileList::FileList()", this));
   /* $ 09.11.2001 IS
        Проинициализируем наши "скобки"
   */
@@ -114,7 +114,7 @@ FileList::FileList()
 
 FileList::~FileList()
 {
-  _OT(SysLog("[%p] FileList::~FileList()", this));
+  _OT(SysLog(L"[%p] FileList::~FileList()", this));
   CloseChangeNotification();
   for (int I=0;I < PrevDataStackSize; I++)
   {
@@ -420,8 +420,8 @@ void FileList::SetFocus()
 
 int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 {
-  _ALGO(CleverSysLog clv("FileList::SendKeyToPlugin()"));
-  _ALGO(SysLog("Key=%u (0x%08X) Pred=%d",Key,Key,Pred));
+  _ALGO(CleverSysLog clv(L"FileList::SendKeyToPlugin()"));
+  _ALGO(SysLog(L"Key=%u (0x%08X) Pred=%d",Key,Key,Pred));
   if (PanelMode==PLUGIN_PANEL &&
       (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
      )
@@ -429,9 +429,9 @@ int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
     int VirtKey,ControlState;
     if (TranslateKeyToVK(Key,VirtKey,ControlState))
     {
-      _ALGO(SysLog("call Plugins.ProcessKey() {"));
+      _ALGO(SysLog(L"call Plugins.ProcessKey() {"));
       int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VirtKey|(Pred?PKF_PREPROCESS:0),ControlState);
-      _ALGO(SysLog("} ProcessCode=%d",ProcessCode));
+      _ALGO(SysLog(L"} ProcessCode=%d",ProcessCode));
       ProcessPluginCommand();
       if (ProcessCode)
         return(TRUE);
@@ -694,8 +694,8 @@ int FileList::ProcessKey(int Key)
   {
     case KEY_F1:
     {
-      _ALGO(CleverSysLog clv("F1"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"F1"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (PanelMode==PLUGIN_PANEL && PluginPanelHelp(hPlugin))
         return(TRUE);
       return(FALSE);
@@ -703,8 +703,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_ALTSHIFTF9:
     {
-      _ALGO(CleverSysLog clv("Alt-Shift-F9"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"Alt-Shift-F9"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (PanelMode==PLUGIN_PANEL)
         CtrlObject->Plugins.ConfigureCurrent(((struct PluginHandle *)hPlugin)->PluginNumber,0);
       else
@@ -930,7 +930,7 @@ int FileList::ProcessKey(int Key)
 
     case KEY_CTRLA:
     {
-      _ALGO(CleverSysLog clv("Ctrl-A"));
+      _ALGO(CleverSysLog clv(L"Ctrl-A"));
       if (FileCount>0 && SetCurPath())
       {
         ShellSetFileAttributes(this);
@@ -941,7 +941,7 @@ int FileList::ProcessKey(int Key)
 
     case KEY_CTRLG:
     {
-      _ALGO(CleverSysLog clv("Ctrl-G"));
+      _ALGO(CleverSysLog clv(L"Ctrl-G"));
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
         if (FileCount>0 && SetCurPath())
@@ -1003,8 +1003,8 @@ int FileList::ProcessKey(int Key)
     case KEY_ENTER:
     case KEY_SHIFTENTER:
     {
-      _ALGO(CleverSysLog clv("Enter/Shift-Enter"));
-      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
+      _ALGO(CleverSysLog clv(L"Enter/Shift-Enter"));
+      _ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (CmdLength>0 || FileCount==0)
       {
         // Для средней клавиши мыши и не пустой строке... исполним эту строку
@@ -1021,8 +1021,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_CTRLBACKSLASH:
     {
-      _ALGO(CleverSysLog clv("Ctrl-\\"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"Ctrl-\\"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       BOOL NeedChangeDir=TRUE;
       if (PanelMode==PLUGIN_PANEL)// && *PluginsStack[PluginsStackSize-1].HostFile)
       {
@@ -1045,8 +1045,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_SHIFTF1:
     {
-      _ALGO(CleverSysLog clv("Shift-F1"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"Shift-F1"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (FileCount>0 && PanelMode!=PLUGIN_PANEL && SetCurPath())
         PluginPutFilesToNew();
       return(TRUE);
@@ -1054,8 +1054,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_SHIFTF2:
     {
-      _ALGO(CleverSysLog clv("Shift-F2"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"Shift-F2"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (FileCount>0 && SetCurPath())
       {
         if (PanelMode==PLUGIN_PANEL)
@@ -1077,8 +1077,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_SHIFTF3:
     {
-      _ALGO(CleverSysLog clv("Shift-F3"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"Shift-F3"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       ProcessHostFile();
       return(TRUE);
     }
@@ -1092,8 +1092,8 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTF4:
     case KEY_CTRLSHIFTF4:
     {
-      _ALGO(CleverSysLog clv("Edit/View"));
-      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
+      _ALGO(CleverSysLog clv(L"Edit/View"));
+      _ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
       struct OpenPluginInfoW Info;
       BOOL RefreshedPanel=TRUE;
@@ -1460,8 +1460,8 @@ int FileList::ProcessKey(int Key)
     case KEY_DRAGCOPY:
     case KEY_DRAGMOVE:
     {
-      _ALGO(CleverSysLog clv("F5/F6/Alt-F6/DragCopy/DragMove"));
-      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
+      _ALGO(CleverSysLog clv(L"F5/F6/Alt-F6/DragCopy/DragMove"));
+      _ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (FileCount>0 && SetCurPath())
         ProcessCopyKeys(Key);
       return(TRUE);
@@ -1469,8 +1469,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
     {
-      _ALGO(CleverSysLog clv("Alt-F5"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"Alt-F5"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       // $ 11.03.2001 VVM - Печать через pman только из файловых панелей.
       if ((PanelMode!=PLUGIN_PANEL) && (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
          CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
@@ -1483,8 +1483,8 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTF5:
     case KEY_SHIFTF6:
     {
-      _ALGO(CleverSysLog clv("Shift-F5/Shift-F6"));
-      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
+      _ALGO(CleverSysLog clv(L"Shift-F5/Shift-F6"));
+      _ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (FileCount>0 && SetCurPath())
       {
         int OldFileCount=FileCount,OldCurFile=CurFile;
@@ -1521,8 +1521,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_F7:
     {
-      _ALGO(CleverSysLog clv("F7"));
-      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      _ALGO(CleverSysLog clv(L"F7"));
+      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (SetCurPath())
       {
         if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
@@ -1559,8 +1559,8 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTF8:
     case KEY_ALTDEL:
     {
-      _ALGO(CleverSysLog clv("F8/Shift-F8/Shift-Del/Alt-Del"));
-      _ALGO(SysLog("%s, FileCount=%d, Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
+      _ALGO(CleverSysLog clv(L"F8/Shift-F8/Shift-Del/Alt-Del"));
+      _ALGO(SysLog(L"%s, FileCount=%d, Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (FileCount>0 && SetCurPath())
       {
         if (Key==KEY_SHIFTF8)
@@ -1850,7 +1850,7 @@ int FileList::ProcessKey(int Key)
          Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
         )
       {
-        //_SVS(SysLog(">FastFind: Key=%s",_FARKEY_ToName(Key)));
+        //_SVS(SysLog(L">FastFind: Key=%s",_FARKEY_ToName(Key)));
         // Скорректирем уже здесь нужные клавиши, т.к. WaitInFastFind
         // в это время еще равно нулю.
         static const char Code[]=")!@#$%^&*(";
@@ -1862,7 +1862,7 @@ int FileList::ProcessKey(int Key)
           Key='_';
         else if(Key == KEY_ALTSHIFT+'=')
           Key='+';
-        //_SVS(SysLog("<FastFind: Key=%s",_FARKEY_ToName(Key)));
+        //_SVS(SysLog(L"<FastFind: Key=%s",_FARKEY_ToName(Key)));
         FastFind(Key);
       }
       else

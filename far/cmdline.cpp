@@ -47,7 +47,7 @@ void CommandLine::SetPersistentBlocks(int Mode)
 
 void CommandLine::DisplayObject()
 {
-  _OT(SysLog("[%p] CommandLine::DisplayObject()",this));
+  _OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
   string strTruncDir;
   GetPrompt(strTruncDir);
   TruncPathStrW(strTruncDir,(X2-X1)/2);

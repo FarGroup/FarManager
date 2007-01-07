@@ -496,7 +496,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
       if (SubMenu)
       {
         strMenuText += SubMenuSymbol;
-//_SVS(SysLog("%2d - '%s'",HiStrlen(MenuText),MenuText));
+//_SVS(SysLog(L"%2d - '%s'",HiStrlen(MenuText),MenuText));
       }
       UserMenuItem.strName = strMenuText;
       UserMenuItem.SetSelect(NumLine==MenuPos);
@@ -817,7 +817,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
           }*/
           /* IS $ */
 //          ;
-//_SVS(SysLog("!%s!",Command));
+//_SVS(SysLog(L"!%s!",Command));
           if(ExtractIfExistCommand(strCommand))
           {
             if ( !strCommand.IsEmpty() )

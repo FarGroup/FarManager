@@ -591,7 +591,7 @@ void FileEditor::Init (
 
   SetPluginData(PluginData);
   m_editor->SetHostFileEditor(this);
-  _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
+  _OT(SysLog(L"Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
 
   FarGetCurDirW (strStartDir);
@@ -1073,12 +1073,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
   BOOL ProcessedNext=TRUE;
 
   _SVS(if(Key=='n' || Key=='m'))
-    _SVS(SysLog("%d Key='%c'",__LINE__,Key));
+    _SVS(SysLog(L"%d Key='%c'",__LINE__,Key));
 
   if(!CalledFromControl && (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO))
   {
     _SVS(if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
-      _SVS(SysLog("%d !!!! CtrlObject->Macro.GetCurRecord(NULL,NULL) != MACROMODE_NOMACRO !!!!",__LINE__));
+      _SVS(SysLog(L"%d !!!! CtrlObject->Macro.GetCurRecord(NULL,NULL) != MACROMODE_NOMACRO !!!!",__LINE__));
     ProcessedNext=!ProcessEditorInput(FrameManager->GetLastInputRecord());
   }
 
@@ -1793,7 +1793,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
     /* IS $ */
     CtrlObject->Plugins.CurEditor=this;
-//_D(SysLog("%08d EE_SAVE",__LINE__));
+//_D(SysLog(L"%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
     HANDLE hEdit = FAR_CreateFileW (
@@ -1808,7 +1808,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if (hEdit==INVALID_HANDLE_VALUE)
     {
-      //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
+      //_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
       RetCode=SAVEFILE_ERROR;
       SysErrorCode=GetLastError();
       goto end;
@@ -2055,7 +2055,7 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
-  _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
+  _OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
   if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && _wcsicmp(strFileName,UMSG(MNewFileName)))
     CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryEdit),
                   (m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
@@ -2359,14 +2359,14 @@ void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
 int FileEditor::EditorControl(int Command, void *Param)
 {
 #if defined(SYSLOG_KEYMACRO)
-  _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl()"));
+  _KEYMACRO(CleverSysLog SL(L"FileEditor::EditorControl()"));
   if(Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
   {
-    _KEYMACRO(SysLog("(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)Param,Param,CtrlObject->Macro.IsExecuting()));
+    _KEYMACRO(SysLog(L"(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)Param,Param,CtrlObject->Macro.IsExecuting()));
   }
 #else
-  _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
-  _ECTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
+  _ECTLLOG(CleverSysLog SL(L"FileEditor::EditorControl()"));
+  _ECTLLOG(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
 	if ( m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS) && (Command != ECTL_FREEINFO) )
 		return FALSE;
@@ -2433,14 +2433,14 @@ int FileEditor::EditorControl(int Command, void *Param)
 				return FALSE;
 
 			/*struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-			_ECTLLOG(SysLog("struct EditorConvertText{"));
-			_ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
-			_ECTLLOG(SysLog("  TextLength =%d",ect->TextLength));
-			_ECTLLOG(SysLog("}"));
+			_ECTLLOG(SysLog(L"struct EditorConvertText{"));
+			_ECTLLOG(SysLog(L"  Text       ='%s'",ect->Text));
+			_ECTLLOG(SysLog(L"  TextLength =%d",ect->TextLength));
+			_ECTLLOG(SysLog(L"}"));
 			if (m_editor->UseDecodeTable && ect->Text)
 			{
 				DecodeString(ect->Text,(unsigned char *)m_editor->TableSet.DecodeTable,ect->TextLength);
-				_ECTLLOG(SysLog("DecodeString -> ect->Text='%s'",ect->Text));
+				_ECTLLOG(SysLog(L"DecodeString -> ect->Text='%s'",ect->Text));
 			}*/ //BUGBUG
 			return TRUE;
 		}
@@ -2451,14 +2451,14 @@ int FileEditor::EditorControl(int Command, void *Param)
 				return FALSE;
 
 			/*struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-			_ECTLLOG(SysLog("struct EditorConvertText{"));
-			_ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
-			_ECTLLOG(SysLog("  TextLength =%d",ect->TextLength));
-			_ECTLLOG(SysLog("}"));
+			_ECTLLOG(SysLog(L"struct EditorConvertText{"));
+			_ECTLLOG(SysLog(L"  Text       ='%s'",ect->Text));
+			_ECTLLOG(SysLog(L"  TextLength =%d",ect->TextLength));
+			_ECTLLOG(SysLog(L"}"));
 			if (m_editor->UseDecodeTable && ect->Text)
 			{
 				EncodeString(ect->Text,(unsigned char *)m_editor->TableSet.EncodeTable,ect->TextLength);
-				_ECTLLOG(SysLog("EncodeString -> ect->Text='%s'",ect->Text));
+				_ECTLLOG(SysLog(L"EncodeString -> ect->Text='%s'",ect->Text));
 			}*/ //BUGBUG
 			return TRUE;
 		}
@@ -2580,7 +2580,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 #if defined(SYSLOG_KEYMACRO)
         if(rec->EventType == KEY_EVENT)
         {
-          SysLog("ECTL_READINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
+          SysLog(L"ECTL_READINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
                              (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
                              rec->Event.KeyEvent.bKeyDown,
                              rec->Event.KeyEvent.wRepeatCount,
@@ -2608,7 +2608,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 #if defined(SYSLOG_KEYMACRO)
           if(!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT)
           {
-            SysLog("ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
+            SysLog(L"ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
                              (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
                              rec->Event.KeyEvent.bKeyDown,
                              rec->Event.KeyEvent.wRepeatCount,

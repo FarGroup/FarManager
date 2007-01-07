@@ -140,7 +140,7 @@ static int MainProcess(
       Opt.OnlyEditorViewerUsed=1;
       Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
-      _tran(SysLog("create dummy panels"));
+      _tran(SysLog(L"create dummy panels"));
       CtrlObj.CreateFilePanels();
       CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
       CtrlObj.Plugins.LoadPlugins();
@@ -148,7 +148,7 @@ static int MainProcess(
       if ( *lpwszEditName )
       {
         FileEditor *ShellEditor=new FileEditor(lpwszEditName,TRUE,TRUE,StartLine,StartChar);
-        _tran(SysLog("make shelleditor %p",ShellEditor));
+        _tran(SysLog(L"make shelleditor %p",ShellEditor));
         if (!ShellEditor->GetExitCode()){ // ????????????
           FrameManager->ExitMainLoop(0);
         }
@@ -160,13 +160,13 @@ static int MainProcess(
         if (!ShellViewer->GetExitCode()){
           FrameManager->ExitMainLoop(0);
         }
-        _tran(SysLog("make shellviewer, %p",ShellViewer));
+        _tran(SysLog(L"make shellviewer, %p",ShellViewer));
       }
 
       FrameManager->EnterMainLoop();
       CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
       delete DummyPanel;
-      _tran(SysLog("editor/viewer closed, delete dummy panels"));
+      _tran(SysLog(L"editor/viewer closed, delete dummy panels"));
     }
     else
     {
@@ -320,7 +320,7 @@ int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string
 }
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
-  _OT(SysLog("[[[[[[[[New Session of FAR]]]]]]]]]"));
+  _OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 
   string strEditName;
   string strViewName;
@@ -356,7 +356,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 
 //  Opt.ExceptRules=-1;
-//_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
+//_SVS(SysLog(L"Opt.ExceptRules=%d",Opt.ExceptRules));
 
   /* $ 30.12.2000 SVS
      Проинициализируем функции работы с атрибутами Encryped сразу после
@@ -619,7 +619,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   doneMacroVarTable(1);
   doneMacroVarTable(0);
 
-  _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));
+  _OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
   return Result;
 }
 

@@ -26,7 +26,7 @@ ControlObject *CtrlObject;
 
 ControlObject::ControlObject()
 {
-  _OT(SysLog("[%p] ControlObject::ControlObject()", this));
+  _OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
   FPanels=0;
   CtrlObject=this;
   /* $ 06.05.2001 DJ
@@ -145,8 +145,8 @@ void ControlObject::Init()
   FarChDir(StartCurDir, TRUE);
 */
 
-//  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
-//  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));
+//  _SVS(SysLog(L"ActivePanel->GetCurDir='%s'",StartCurDir));
+//  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog(L"AnotherPanel->GetCurDir='%s'",PPP));
 }
 
 void ControlObject::CreateFilePanels()
@@ -159,7 +159,7 @@ ControlObject::~ControlObject()
   if(CriticalInternalError)
     return;
 
-  _OT(SysLog("[%p] ControlObject::~ControlObject()", this));
+  _OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
   if (Cp()&&Cp()->ActivePanel!=NULL)
   {
     if (Opt.AutoSaveSetup)

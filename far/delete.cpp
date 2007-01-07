@@ -76,7 +76,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SrcPanel->GetSelNameW(&strSelName,FileAttr);
     ConvertNameToFullW(strSelName, strRoot);
     GetPathRootW(strRoot,strRoot);
-//_SVS(SysLog("Del: SelName='%s' Root='%s'",SelName,Root));
+//_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
     if(Opt.DeleteToRecycleBin && FAR_GetDriveTypeW(strRoot) != DRIVE_FIXED)
       Opt.DeleteToRecycleBin=0;
   }

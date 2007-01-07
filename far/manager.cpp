@@ -142,7 +142,7 @@ BOOL Manager::IsAnyFrameModified(int Activate)
 
 void Manager::InsertFrame(Frame *Inserted, int Index)
 {
-  _OT(SysLog("InsertFrame(), Inserted=%p, Index=%i",Inserted, Index));
+  _OT(SysLog(L"InsertFrame(), Inserted=%p, Index=%i",Inserted, Index));
   if (Index==-1)
     Index=FramePos;
   InsertedFrame=Inserted;
@@ -150,7 +150,7 @@ void Manager::InsertFrame(Frame *Inserted, int Index)
 
 void Manager::DeleteFrame(Frame *Deleted)
 {
-  _OT(SysLog("DeleteFrame(), Deleted=%p",Deleted));
+  _OT(SysLog(L"DeleteFrame(), Deleted=%p",Deleted));
   for (int i=0;i<FrameCount;i++){
     Frame *iFrame=FrameList[i];
     if(iFrame->RemoveModal(Deleted)){
@@ -166,14 +166,14 @@ void Manager::DeleteFrame(Frame *Deleted)
 
 void Manager::DeleteFrame(int Index)
 {
-  _OT(SysLog("DeleteFrame(), Index=%i",Index));
+  _OT(SysLog(L"DeleteFrame(), Index=%i",Index));
   DeleteFrame(this->operator[](Index));
 }
 
 
 void Manager::ModalizeFrame (Frame *Modalized, int Mode)
 {
-  _OT(SysLog("ModalizeFrame(), Modalized=%p",Modalized));
+  _OT(SysLog(L"ModalizeFrame(), Modalized=%p",Modalized));
   ModalizedFrame=Modalized;
   ModalizeCommit();
 }
@@ -186,7 +186,7 @@ void Manager::UnmodalizeFrame (Frame *Unmodalized)
 
 void Manager::ExecuteNonModal ()
 {
-  _OT(SysLog("ExecuteNonModal(), ExecutedFrame=%p, InsertedFrame=%p, DeletedFrame=%p",ExecutedFrame, InsertedFrame, DeletedFrame));
+  _OT(SysLog(L"ExecuteNonModal(), ExecutedFrame=%p, InsertedFrame=%p, DeletedFrame=%p",ExecutedFrame, InsertedFrame, DeletedFrame));
   Frame *NonModal=InsertedFrame?InsertedFrame:(ExecutedFrame?ExecutedFrame:ActivatedFrame);
   if (!NonModal) {
     return;
@@ -226,13 +226,13 @@ void Manager::ExecuteNonModal ()
 
 void Manager::ExecuteModal (Frame *Executed)
 {
-  _OT(SysLog("ExecuteModal(), Executed=%p, ExecutedFrame=%p",Executed,ExecutedFrame));
+  _OT(SysLog(L"ExecuteModal(), Executed=%p, ExecutedFrame=%p",Executed,ExecutedFrame));
   if (!Executed && !ExecutedFrame){
     return;
   }
   if (Executed){
     if (ExecutedFrame) {
-      _OT(SysLog("Попытка в одном цикле запустить в модальном режиме два фрейма. Executed=%p, ExecitedFrame=%p",Executed, ExecutedFrame));
+      _OT(SysLog(L"Попытка в одном цикле запустить в модальном режиме два фрейма. Executed=%p, ExecitedFrame=%p",Executed, ExecutedFrame));
       return;// NULL; //?? Определить, какое значение правильно возвращать в этом случае
     } else {
       ExecutedFrame=Executed;
@@ -367,7 +367,7 @@ int Manager::GetFrameCountByType(int Type)
 
 void Manager::SetFramePos(int NewPos)
 {
-  _OT(SysLog("Manager::SetFramePos(), NewPos=%i",NewPos));
+  _OT(SysLog(L"Manager::SetFramePos(), NewPos=%i",NewPos));
   FramePos=NewPos;
 }
 
@@ -409,7 +409,7 @@ BOOL Manager::ShowBackground()
 
 void Manager::ActivateFrame(Frame *Activated)
 {
-  _OT(SysLog("ActivateFrame(), Activated=%i",Activated));
+  _OT(SysLog(L"ActivateFrame(), Activated=%i",Activated));
   if(IndexOf(Activated)==-1 && IndexOfStack(Activated)==-1)
     return;
 
@@ -421,13 +421,13 @@ void Manager::ActivateFrame(Frame *Activated)
 
 void Manager::ActivateFrame(int Index)
 {
-  _OT(SysLog("ActivateFrame(), Index=%i",Index));
+  _OT(SysLog(L"ActivateFrame(), Index=%i",Index));
   ActivateFrame((*this)[Index]);
 }
 
 void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
 {
-  _OT(SysLog("DeactivateFrame(), Deactivated=%p",Deactivated));
+  _OT(SysLog(L"DeactivateFrame(), Deactivated=%p",Deactivated));
   if (Direction) {
     FramePos+=Direction;
     if (Direction>0){
@@ -478,7 +478,7 @@ void Manager::SwapTwoFrame (int Direction)
 
 void Manager::RefreshFrame(Frame *Refreshed)
 {
-  _OT(SysLog("RefreshFrame(), Refreshed=%p",Refreshed));
+  _OT(SysLog(L"RefreshFrame(), Refreshed=%p",Refreshed));
 
   if (ActivatedFrame)
     return;
@@ -517,7 +517,7 @@ void Manager::RefreshFrame(int Index)
 
 void Manager::ExecuteFrame(Frame *Executed)
 {
-  _OT(SysLog("ExecuteFrame(), Executed=%p",Executed));
+  _OT(SysLog(L"ExecuteFrame(), Executed=%p",Executed));
   ExecutedFrame=Executed;
 }
 
@@ -622,7 +622,7 @@ int  Manager::ProcessKey(DWORD Key)
 
   if ( CurrentFrame)
   {
-    //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
+    //      _D(SysLog(L"Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
     int i=0;
 
     if((Key&(~KEY_CTRLMASK)) < KEY_MACRO_BASE) // пропустим макро-коды
@@ -631,8 +631,8 @@ int  Manager::ProcessKey(DWORD Key)
       {
         case MODALTYPE_PANELS:
         {
-          _ALGO(CleverSysLog clv("Manager::ProcessKey()"));
-          _ALGO(SysLog("Key=%u (0x%08X)",Key,Key));
+          _ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
+          _ALGO(SysLog(L"Key=%u (0x%08X)",Key,Key));
           if(CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
             return TRUE;
           break;
@@ -923,7 +923,7 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 //    _D(SysLog(1,"Manager::ProcessMouse()"));
     if ( CurrentFrame)
         ret=CurrentFrame->ProcessMouse(MouseEvent);
-//    _D(SysLog("Manager::ProcessMouse() ret=%i",ret));
+//    _D(SysLog(L"Manager::ProcessMouse() ret=%i",ret));
     _OT(SysLog(-1));
     return ret;
 }
@@ -1062,7 +1062,7 @@ BOOL Manager::Commit()
 
 void Manager::DeactivateCommit()
 {
-  _OT(SysLog("DeactivateCommit(), DeactivatedFrame=%p",DeactivatedFrame));
+  _OT(SysLog(L"DeactivateCommit(), DeactivatedFrame=%p",DeactivatedFrame));
   /*$ 18.04.2002 skv
     Если нечего активировать, то в общем-то не надо и деактивировать.
   */
@@ -1106,7 +1106,7 @@ void Manager::DeactivateCommit()
 
 void Manager::ActivateCommit()
 {
-  _OT(SysLog("ActivateCommit(), ActivatedFrame=%p",ActivatedFrame));
+  _OT(SysLog(L"ActivateCommit(), ActivatedFrame=%p",ActivatedFrame));
   if (CurrentFrame==ActivatedFrame)
   {
     RefreshedFrame=ActivatedFrame;
@@ -1141,7 +1141,7 @@ void Manager::ActivateCommit()
 
 void Manager::UpdateCommit()
 {
-  _OT(SysLog("UpdateCommit(), DeletedFrame=%p, InsertedFrame=%p, ExecutedFrame=%p",DeletedFrame,InsertedFrame, ExecutedFrame));
+  _OT(SysLog(L"UpdateCommit(), DeletedFrame=%p, InsertedFrame=%p, ExecutedFrame=%p",DeletedFrame,InsertedFrame, ExecutedFrame));
   if (ExecutedFrame){
     DeleteCommit();
     ExecuteCommit();
@@ -1153,7 +1153,7 @@ void Manager::UpdateCommit()
     ActivatedFrame->FrameToBack=CurrentFrame;
     DeleteCommit();
   } else {
-    _OT(SysLog("UpdateCommit(). ОШИБКА Не найден удаляемый фрейм"));
+    _OT(SysLog(L"UpdateCommit(). ОШИБКА Не найден удаляемый фрейм"));
   }
 }
 
@@ -1162,7 +1162,7 @@ void Manager::UpdateCommit()
 //! Но только в том случае, если активный фрейм еще не назначен заранее.
 void Manager::DeleteCommit()
 {
-  _OT(SysLog("DeleteCommit(), DeletedFrame=%p",DeletedFrame));
+  _OT(SysLog(L"DeleteCommit(), DeletedFrame=%p",DeletedFrame));
   if (!DeletedFrame)
   {
     return;
@@ -1253,7 +1253,7 @@ void Manager::DeleteCommit()
   DeletedFrame->OnDestroy();
   if (DeletedFrame->GetDynamicallyBorn())
   {
-    _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
+    _tran(SysLog(L"delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
     if ( CurrentFrame==DeletedFrame )
       CurrentFrame=0;
     /* $ 14.05.2002 SKV
@@ -1277,7 +1277,7 @@ void Manager::DeleteCommit()
 
 void Manager::InsertCommit()
 {
-  _OT(SysLog("InsertCommit(), InsertedFrame=%p",InsertedFrame));
+  _OT(SysLog(L"InsertCommit(), InsertedFrame=%p",InsertedFrame));
   if (InsertedFrame){
     if (FrameListSize <= FrameCount)
     {
@@ -1295,7 +1295,7 @@ void Manager::InsertCommit()
 
 void Manager::RefreshCommit()
 {
-  _OT(SysLog("RefreshCommit(), RefreshedFrame=%p,Refreshable()=%i",RefreshedFrame,RefreshedFrame->Refreshable()));
+  _OT(SysLog(L"RefreshCommit(), RefreshedFrame=%p,Refreshable()=%i",RefreshedFrame,RefreshedFrame->Refreshable()));
   if (!RefreshedFrame)
     return;
 
@@ -1320,7 +1320,7 @@ void Manager::RefreshCommit()
 
 void Manager::ExecuteCommit()
 {
-  _OT(SysLog("ExecuteCommit(), ExecutedFrame=%p",ExecutedFrame));
+  _OT(SysLog(L"ExecuteCommit(), ExecutedFrame=%p",ExecutedFrame));
   if (!ExecutedFrame) {
     return;
   }

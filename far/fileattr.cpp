@@ -48,7 +48,7 @@ int GetEncryptFunctions(void)
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileAttributesW(const wchar_t *Name,int Attr)
 {
-//_SVS(SysLog("Attr=0x%08X",Attr));
+//_SVS(SysLog(L"Attr=0x%08X",Attr));
   while (!SetFileAttributesW(Name,Attr))
   {
     int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),

@@ -297,7 +297,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
     case DN_MOUSECLICK:
      {
-       //_SVS(SysLog("Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
+       //_SVS(SysLog(L"Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
        if(Param1 >= SETATTR_MODIFICATION && Param1 <= SETATTR_ATIME)
        {
          if(((MOUSE_EVENT_RECORD*)Param2)->dwEventFlags == DOUBLE_CLICK)
@@ -574,7 +574,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AddEndSlashW(strCopy);
           FileAttr=GetFileAttributesW(strCopy);
         }
-        //_SVS(SysLog("SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
+        //_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
         AttrDlg[SETATTR_SUBFOLDERS].Flags&=~DIF_DISABLE;
         AttrDlg[SETATTR_SUBFOLDERS].Selected=Opt.SetAttrFolderRules == 1?0:1;
         if(Opt.SetAttrFolderRules)
@@ -822,7 +822,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
         SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
-  //_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
+  //_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
           SetWriteTimeRetCode=ESetFileTimeW(strSelName,
                                            (SetWriteTime ? &LastWriteTime:NULL),
@@ -907,7 +907,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       while (SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData) && !Cancel)
       {
-//_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
+//_SVS(SysLog(L"SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
         ShellSetFileAttributesMsg(strSelName);
 

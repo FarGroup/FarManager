@@ -754,45 +754,45 @@ void WINAPI DeleteBuffer(char* Buffer);
 /* <Логи ***************************************************
 */
 void SysLog(int l);
-void SysLog(char *fmt,...);
-void SysLog(int l,char *fmt,...); ///
+void SysLog(const wchar_t *fmt,...);
+void SysLog(int l,const wchar_t *fmt,...); ///
 void SysLogLastError(void);
 void ShowHeap();
 void CheckHeap(int NumLine);
 
 string _FARKEY_ToName(int Key);
-const char *_VK_KEY_ToName(int VkKey);
-const char *_ECTL_ToName(int Command);
-const char *_EE_ToName(int Command);
-const char *_EEREDRAW_ToName(int Command);
-const char *_ESPT_ToName(int Command);
-const char *_FCTL_ToName(int Command);
-const char *_DLGMSG_ToName(int Msg);
-const char *_ACTL_ToName(int Command);
-const char *_VCTL_ToName(int Command);
-const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
-// после вызова этой функции нужно освободить память!!!
-const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
-void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *fp);
-void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
-void PanelViewSettings_Dump(char *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=NULL);
-void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
-void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
-class Manager;
-void ManagerClass_Dump(char *Title,const Manager *m=NULL,FILE *fp=NULL);
-void GetVolumeInformation_Dump(char *Title,LPCTSTR lpRootPathName,LPTSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
-                                           DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
-                                           LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
+string _VK_KEY_ToName(int VkKey);
+string _ECTL_ToName(int Command);
+string _EE_ToName(int Command);
+string _EEREDRAW_ToName(int Command);
+string _ESPT_ToName(int Command);
+string _FCTL_ToName(int Command);
+string _DLGMSG_ToName(int Msg);
+string _ACTL_ToName(int Command);
+string _VCTL_ToName(int Command);
+string _INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+string _SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 
-void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
+void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp);
+void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
+void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=NULL);
+void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
+void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
+class Manager;
+void ManagerClass_Dump(const wchar_t *Title,const Manager *m=NULL,FILE *fp=NULL);
+void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
+                                           DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
+                                           LPCWSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
+
+void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
 extern "C" {
 #endif
-void WINAPIV _export FarSysLog(char *ModuleName,int Level,char *fmt,...);
-void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
-void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec);
+void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
+void WINAPI  _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
 #ifdef __cplusplus
 };
 #endif
@@ -941,9 +941,9 @@ struct TUserLog
     int   Level;
 };
 
-void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
+void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
 
-FILE *OpenLogStream(char *file);
+FILE *OpenLogStream(const wchar_t *file);
 
 #define L_ERR      1
 #define L_WARNING  2
@@ -954,7 +954,7 @@ FILE *OpenLogStream(char *file);
 
 class CleverSysLog{ // ;-)
   public:
-    CleverSysLog(const char *Title=NULL);
+    CleverSysLog(const wchar_t *Title=NULL);
     ~CleverSysLog();
 };
 

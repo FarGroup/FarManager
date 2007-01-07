@@ -1465,7 +1465,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     StackData.strSelTopic = strFullPath;
   }
   /* IS 14.07.2002 $ */
-//_SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
+//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData.SelTopic));
   // URL активатор - это ведь так просто :-)))
   {
     strNewTopic = StackData.strSelTopic;
@@ -1494,7 +1494,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   }
   // а вот теперь попробуем...
 
-//_SVS(SysLog("JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
+//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
   if ( !StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && wcscmp(StackData.strSelTopic,HelpOnHelpTopic)!=0)
   {
     if ( StackData.strSelTopic.At(0)==L':')
@@ -1556,7 +1556,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
   strNewTopic.ReleaseBuffer();
 
-//_SVS(SysLog("HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
+//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
   if( StackData.strSelTopic.At(0) != L':' &&
      LocalStricmpW(StackData.strSelTopic,PluginContents)
 #if defined(WORK_HELP_DOCUMS)
@@ -2298,11 +2298,11 @@ void CallBackStack::PrintStack(const wchar_t *Title)
 #if defined(SYSLOG)
   int I=0;
   ListNode *Ptr = topOfStack;
-  SysLog("Return Stack (%s)",Title);
+  SysLog(L"Return Stack (%s)",Title);
   SysLog(1);
   while(Ptr)
   {
-    SysLog("%03d HelpTopic='%S' HelpPath='%S' HelpMask='%S'",I++,(const wchar_t*)Ptr->strHelpTopic,(const wchar_t*)Ptr->strHelpPath,(const wchar_t*)Ptr->strHelpMask);
+    SysLog(L"%03d HelpTopic='%S' HelpPath='%S' HelpMask='%S'",I++,(const wchar_t*)Ptr->strHelpTopic,(const wchar_t*)Ptr->strHelpPath,(const wchar_t*)Ptr->strHelpMask);
     Ptr=Ptr->Next;
   }
   SysLog(-1);
