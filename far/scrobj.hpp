@@ -7,43 +7,6 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.12 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  22.10.2003 SVS
-    + виртуальная функция VMProcess() - для макросов. На будущее
-  27.05.2003 SVS
-    ! Зачатки каптюризации мыши :-)
-      Введен ScreenObject *ScreenObject::CaptureMouseObject, который
-      указывает на объект, захвативший мышь.
-  25.02.2003 SVS
-    + FSCROBJ_ISREDRAWING - идет процесс Show?
-  18.05.2002 SVS
-    ! Выносим некоторые переменные во флаги
-  19.11.2001 OT
-    - Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
-  11.07.2001 OT
-    ! Перенос ShadowSaveScr из приватной области в protected
-  23.06.2001
-    ! Убран член под названиес Type, который нигде не используется...
-  14.06.2001
-    + Новый метод SetScreenPosition() - без аргументов. Будет использоваться объектами,
-      которым требуется выставить свои размеры, не прямям, а косвенным образом,
-      зависяшим от состояния других объектов.
-  21.05.2001 OT
-    + Реакция на изменение размера консоли
-  06.05.2001 DJ
-    ! перетрях #include
-  15.07.2000 tran
-    + add new dirty method - Hide0(), jys set Visible to False
-      used in FileViewer, for keybar hiding
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
 #include "bitflags.hpp"
 
 class SaveScreen;
@@ -90,7 +53,8 @@ class ScreenObject
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
     virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
-    virtual int  VMProcess(int OpCode,void *Param=NULL){return 0;};
+
+    virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0){return 0;};
 
     void Lock ();
     void Unlock ();

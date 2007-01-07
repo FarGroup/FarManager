@@ -1025,20 +1025,34 @@ int Help::Search(int Next)
 }
 #endif
 
+int Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  switch(OpCode)
+  {
+    case MCODE_V_HELPFILENAME: // Help.FileName
+      xstrncpy( (char *)vParam, FullHelpPathName, (int)iParam);
+      break;
+
+    case MCODE_V_HELPTOPIC: // Help.Topic
+      xstrncpy( (char *)vParam, StackData.HelpTopic, (int)iParam);
+      break;
+
+    case MCODE_V_HELPSELTOPIC: // Help.SelTopic
+      xstrncpy( (char *)vParam, StackData.SelTopic, (int)iParam);
+      break;
+
+    default:
+      return 0;
+  }
+
+  return 1;
+}
+
+
 int Help::ProcessKey(int Key)
 {
   if (*StackData.SelTopic==0)
     StackData.CurX=StackData.CurY=0;
-
-  switch(Key)
-  {
-    case MCODE_V_HELPFILENAME: // Help.FileName
-       return (int)FullHelpPathName;
-    case MCODE_V_HELPTOPIC: // Help.Topic
-       return (int)StackData.HelpTopic;
-    case MCODE_V_HELPSELTOPIC: // Help.SELTopic
-       return (int)StackData.SelTopic;
-  }
 
   switch(Key)
   {

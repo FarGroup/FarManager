@@ -798,13 +798,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             Cond=CtrlObject->CmdLine->GetLength()==0?1:0;
           else
           {
-#if 0
-            Cond=(__int64)CurFrame->ProcessKey(MCODE_C_EMPTY);
-#else
             Frame *f=FrameManager->GetTopModal();
             if(f)
               Cond=(__int64)f->ProcessKey(CheckCode);
-#endif
           }
           break;
 
@@ -1119,7 +1115,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if(CtrlObject->Macro.GetMode() == MACRO_HELP)
           {
-            Cond=(const char *)CurFrame->ProcessKey(CheckCode);
+            CurFrame->VMProcess(CheckCode,FileName,sizeof(FileName)-1);
+            Cond=FileName;
           }
           break;
         }
