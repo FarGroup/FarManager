@@ -402,7 +402,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
   Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?csbi.dwSize.X:Sx;
   Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?csbi.dwSize.Y:Sy;
 //_SVS(SysLog("[%d:%d] = [%d:%d, %d:%d]",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left,csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom));
-  WriteConsoleInput(hConInp,&Rec,1,&Writes);
+  WriteConsoleInputW(hConInp,&Rec,1,&Writes);
 }
 
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)

@@ -91,7 +91,7 @@ void InitDetectWindowedMode()
        Там, где можно, используем для поиска окна соответствующую функцию ОС
   */
   typedef HWND WINAPI GetConsoleWindow_t(VOID);
-  static GetConsoleWindow_t *GetConsoleWindow_f=(GetConsoleWindow_t*)GetProcAddress(GetModuleHandle("kernel32.dll"),"GetConsoleWindow");
+  static GetConsoleWindow_t *GetConsoleWindow_f=(GetConsoleWindow_t*)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetConsoleWindow");
   if(GetConsoleWindow_f)
     hFarWnd=GetConsoleWindow_f();
   else
@@ -174,7 +174,7 @@ int FarAltEnter(int mode)
       COORD dwOldMode;
       if(!SetConsoleDisplayMode)
       {
-        HMODULE hKernel32 = GetModuleHandle("kernel32");
+        HMODULE hKernel32 = GetModuleHandleW(L"KERNEL32.DLL");
         SetConsoleDisplayMode = (PROCSETCONSOLEDISPLAYMODEELLWND)GetProcAddress(hKernel32,"SetConsoleDisplayMode");
         //GetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
       }

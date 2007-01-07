@@ -334,15 +334,13 @@ This code works on Windows 95 only.
 BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
 {
    HANDLE hVWin32;
-   wchar_t bDriveW;
-   char bDrive;
+   BYTE   bDrive;
    BOOL   fDriveLocked;
    string strMsgText;
 
    // convert command line arg 1 from a drive letter to a DOS drive
    // number
-   bDriveW = (LocalUpperW(Letter) - L'A') + 1;
-   WideCharToMultiByte(CP_OEMCP, 0, &bDriveW, 1, &bDrive, 1, NULL, FALSE);
+   bDrive = (LocalUpperW(Letter) - L'A') + 1;
 
    // OpenVWin32
    /* Opens a handle to VWIN32 that can be used to issue low-level disk I/O
@@ -402,12 +400,12 @@ CLEANUP_AND_EXIT_APP:
       // возврашаемые значени€ не провер€ю, по моему так лучше
       UnlockMedia (hVWin32, bDrive);
       char cmd[100];
-      sprintf(cmd, "open %c: type cdaudio alias ejcd shareable", toupper (Letter));
+      sprintf(cmd, "open %c: type cdaudio alias ejcd shareable", LocalUpperW(Letter)-L'A'+'A');
 
       typedef MCIERROR (WINAPI *PMCISENDSTRING)(LPCSTR lpstrCommand, LPSTR lpstrReturnString, UINT uReturnLength, HWND hwndCallback);
       static PMCISENDSTRING pmciSendString=NULL;
       if(!pmciSendString)
-        pmciSendString=(PMCISENDSTRING)GetProcAddress(LoadLibrary("WINMM.DLL"),"mciSendStringA");
+        pmciSendString=(PMCISENDSTRING)GetProcAddress(LoadLibraryW(L"WINMM.DLL"),"mciSendStringA");
 
       if(!pmciSendString)
         return FALSE;
@@ -437,7 +435,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 {
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
   {
-    return EjectVolume95((BYTE)Letter,Flags);
+    return EjectVolume95(Letter,Flags);
   }
 
   HANDLE DiskHandle;
@@ -615,7 +613,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 
       //  BUGBUG: this is a real hack (talking to VWIN32) on NT we can just
       //  open the device, we dont have to go through VWIN32
-      reg.reg_EBX = (toupper (Letter) - 'A') + 1;   // make 1 based drive number
+      reg.reg_EBX = (LocalUpperW(Letter) - L'A') + 1;   // make 1 based drive number
       reg.reg_EDX = (DWORD)&dmi; // out buffer
       reg.reg_ECX = 0x86F;              // device specific command code
       reg.reg_EAX = 0x440D;           // generic read ioctl

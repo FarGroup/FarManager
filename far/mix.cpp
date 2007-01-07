@@ -769,7 +769,7 @@ BOOL GetDiskSizeW (const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __i
 
   if (!LoadAttempt && pGetDiskFreeSpaceExW==NULL)
   {
-    HMODULE hKernel=GetModuleHandleW(L"kernel32.dll");
+    HMODULE hKernel=GetModuleHandleW(L"KERNEL32.DLL");
     if (hKernel!=NULL)
       pGetDiskFreeSpaceExW=(GETDISKFREESPACEEXW)GetProcAddress(hKernel,"GetDiskFreeSpaceExW");
     LoadAttempt=TRUE;

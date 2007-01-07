@@ -588,7 +588,7 @@ BOOL IsModulePlugin (const wchar_t *lpModuleName)
 
 	if ( hModuleFile != INVALID_HANDLE_VALUE )
 	{
-		HANDLE hModuleMapping = CreateFileMapping (
+		HANDLE hModuleMapping = CreateFileMappingW (
 				hModuleFile,
 				NULL,
 				PAGE_READONLY,

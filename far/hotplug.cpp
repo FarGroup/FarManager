@@ -350,7 +350,7 @@ bool InitializeSetupAPI ()
     if ( g_hSetupAPI )
     {
       pfnGetVolumeNameForVolumeMountPoint = (GETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress (
-          GetModuleHandleW (L"kernel32.dll"),
+          GetModuleHandleW (L"KERNEL32.DLL"),
           "GetVolumeNameForVolumeMountPointW"
           );
 

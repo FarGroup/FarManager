@@ -350,7 +350,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   Opt.ExceptRules=-1;
 #else
   if(!pIsDebuggerPresent)
-    pIsDebuggerPresent=(PISDEBUGGERPRESENT)GetProcAddress(GetModuleHandle("KERNEL32"),"IsDebuggerPresent");
+    pIsDebuggerPresent=(PISDEBUGGERPRESENT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"IsDebuggerPresent");
   Opt.ExceptRules=(pIsDebuggerPresent && pIsDebuggerPresent()?0:-1);
 #endif
 

@@ -300,7 +300,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_EJECTMEDIA:
     {
-      return Param?EjectVolume((char)((ActlEjectMedia*)Param)->Letter,
+      return Param?EjectVolume((wchar_t)((ActlEjectMedia*)Param)->Letter,
                                ((ActlEjectMedia*)Param)->Flags):FALSE;
 /*
       if(Param)

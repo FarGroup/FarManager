@@ -157,10 +157,10 @@ int WINAPI CreateVolumeMountPointW(const wchar_t *SrcVolume, const wchar_t *Link
    wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
 
    if(!pGetVolumeNameForVolumeMountPoint)
-      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32"),"GetVolumeNameForVolumeMountPointW");
+      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetVolumeNameForVolumeMountPointW");
 
    if(!pSetVolumeMountPoint)
-      pSetVolumeMountPoint=(PSETVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32"),"SetVolumeMountPointW");
+      pSetVolumeMountPoint=(PSETVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"SetVolumeMountPointW");
 
    if(!pGetVolumeNameForVolumeMountPoint || !pSetVolumeMountPoint)
      return(3);
@@ -419,7 +419,7 @@ int WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest)
     );
     static PCREATEHARDLINKW PCreateHardLinkW=NULL;
     if(!PCreateHardLinkW)
-      PCreateHardLinkW=(PCREATEHARDLINKW)GetProcAddress(GetModuleHandleW(L"KERNEL32"),"CreateHardLinkW");
+      PCreateHardLinkW=(PCREATEHARDLINKW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"CreateHardLinkW");
     if(PCreateHardLinkW)
     {
       bSuccess=PCreateHardLinkW(strFileDest, strFileSource, NULL) != 0;
@@ -703,7 +703,7 @@ void GetPathRootOneW(const wchar_t *Path,string &strRoot)
   {
     if(!pGetVolumeNameForVolumeMountPoint)
       // работает только под Win2000!
-      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32"),"GetVolumeNameForVolumeMountPointW");
+      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetVolumeNameForVolumeMountPointW");
 
     // обработка mounted volume
     if(pGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))

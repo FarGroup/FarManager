@@ -376,7 +376,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
           TmpRec2.EventType=WINDOW_BUFFER_SIZE_EVENT;
           TmpRec2.Event.WindowBufferSizeEvent.dwSize.X=csbi.dwSize.X;
           TmpRec2.Event.WindowBufferSizeEvent.dwSize.Y=csbi.dwSize.Y;
-          WriteConsoleInput(hConInp,&TmpRec2,1,&ReadCount2); // вернем самый первый!
+          WriteConsoleInputW(hConInp,&TmpRec2,1,&ReadCount2); // вернем самый первый!
         }
         else
           AltEnter=1;
@@ -1694,65 +1694,6 @@ int IsShiftKey(DWORD Key)
 }
 
 
-char *FARGetKeybLayoutName(char *Dest,int DestSize)
-{
-  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEA)(LPSTR);
-  static PGETCONSOLEKEYBOARDLAYOUTNAMEA pGetConsoleKeyboardLayoutNameA=NULL;
-  static int LoadedGCKLM=0;
-  static char Buffer[64];
-
-  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEW)(WCHAR*);
-  static PGETCONSOLEKEYBOARDLAYOUTNAMEW pGetConsoleKeyboardLayoutNameW=NULL;
-  static WCHAR WBuffer[100];
-
-  if(!LoadedGCKLM) // && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT
-  {
-    LoadedGCKLM=-1;
-    if(!pGetConsoleKeyboardLayoutNameA)
-    {
-      pGetConsoleKeyboardLayoutNameA = (PGETCONSOLEKEYBOARDLAYOUTNAMEA)GetProcAddress(GetModuleHandle("KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameA");
-      if(pGetConsoleKeyboardLayoutNameA)
-        LoadedGCKLM=1;
-    }
-    else if(!pGetConsoleKeyboardLayoutNameW)
-    {
-      pGetConsoleKeyboardLayoutNameW = (PGETCONSOLEKEYBOARDLAYOUTNAMEW)GetProcAddress(GetModuleHandle("KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameW");
-      if(pGetConsoleKeyboardLayoutNameW)
-        LoadedGCKLM=2;
-    }
-  }
-
-  switch(LoadedGCKLM)
-  {
-    case 1:
-    {
-      if(pGetConsoleKeyboardLayoutNameA(Buffer))
-      {
-        if(Dest)
-        {
-          xstrncpy(Dest,Buffer,DestSize);
-          return Dest;
-        }
-        else
-          return Buffer;
-      }
-      break;
-    }
-
-    case 2:
-    {
-      if(pGetConsoleKeyboardLayoutNameW(WBuffer))
-      {
-        UnicodeToOEM(WBuffer,Dest,DestSize);
-        return Dest;
-      }
-      break;
-    }
-  }
-  return NULL;
-}
-
-
 BOOL FARGetKeybLayoutNameW (string &strDest)
 {
   static int LoadedGCKLM=0;
@@ -1767,7 +1708,7 @@ BOOL FARGetKeybLayoutNameW (string &strDest)
 
     if(!pGetConsoleKeyboardLayoutNameW)
     {
-      pGetConsoleKeyboardLayoutNameW = (PGETCONSOLEKEYBOARDLAYOUTNAMEW)GetProcAddress(GetModuleHandle("KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameW");
+      pGetConsoleKeyboardLayoutNameW = (PGETCONSOLEKEYBOARDLAYOUTNAMEW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameW");
       if(pGetConsoleKeyboardLayoutNameW)
         LoadedGCKLM=1;
     }

@@ -17,14 +17,14 @@ farrtl.cpp
 int _cdecl getdisk(void)
 {
   unsigned drive;
-  char    buf[MAX_PATH];
+  wchar_t  buf[MAX_PATH];
 
   /* Use GetCurrentDirectory to get the current directory path, then
    * parse the drive name.
    */
-  GetCurrentDirectory(sizeof(buf), buf);    /* ignore errors */
-  drive = buf[0] >= 'a' ? buf[0] - 'a' + 1 : buf[0] - 'A' + 1;
-  return (int)drive - 1;
+  GetCurrentDirectoryW(sizeof(buf)/sizeof(wchar_t), buf);    /* ignore errors */
+  drive = LocalUpperW(buf[0]) - L'A';
+  return (int)drive;
 }
 /* SVS $*/
 

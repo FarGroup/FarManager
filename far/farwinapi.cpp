@@ -247,7 +247,7 @@ BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
   BOOL Ret=FALSE;
 
   if(!pGlobalMemoryStatusEx)
-    pGlobalMemoryStatusEx = (PGlobalMemoryStatusEx)GetProcAddress(GetModuleHandleW(L"KERNEL32"),"GlobalMemoryStatusEx");
+    pGlobalMemoryStatusEx = (PGlobalMemoryStatusEx)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GlobalMemoryStatusEx");
 
   if(pGlobalMemoryStatusEx)
   {
