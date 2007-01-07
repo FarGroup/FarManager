@@ -833,15 +833,14 @@ int WipeFileW(const wchar_t *Name)
   DWORD Written;
   while (FileSize>0)
   {
-    DWORD WriteSize=Min((unsigned __int64)BufSize,FileSize);
+    DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
     WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
     FileSize-=WriteSize;
   }
   WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
-  /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
+
   delete[] Buf;
-  /* SVS $ */
+
   SetFilePointer(WipeHandle,0,NULL,FILE_BEGIN);
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);

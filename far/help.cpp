@@ -1116,20 +1116,33 @@ int Help::Search(int Next)
 }
 #endif
 
+int Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  switch(OpCode)
+  {
+    case MCODE_V_HELPFILENAME: // Help.FileName
+       *(string *)vParam=strFullHelpPathName;     // ???
+       break;
+
+    case MCODE_V_HELPTOPIC: // Help.Topic
+       *(string *)vParam=StackData.strHelpTopic;  // ???
+       break;
+
+    case MCODE_V_HELPSELTOPIC: // Help.SELTopic
+       *(string *)vParam=StackData.strSelTopic;   // ???
+       break;
+
+    default:
+      return 0;
+  }
+
+  return 1;
+}
+
 int Help::ProcessKey(int Key)
 {
   if ( StackData.strSelTopic.IsEmpty() )
     StackData.CurX=StackData.CurY=0;
-
-  switch(Key)
-  {
-    case MCODE_V_HELPFILENAME: // Help.FileName
-       return (int)(const wchar_t *)strFullHelpPathName;     // ???
-    case MCODE_V_HELPTOPIC: // Help.Topic
-       return (int)(const wchar_t *)StackData.strHelpTopic;  // ???
-    case MCODE_V_HELPSELTOPIC: // Help.SELTopic
-       return (int)(const wchar_t *)StackData.strSelTopic;   // ???
-  }
 
   switch(Key)
   {

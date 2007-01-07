@@ -1111,7 +1111,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if(CtrlObject->Macro.GetMode() == MACRO_HELP)
           {
-            Cond=(const wchar_t*)CurFrame->ProcessKey(CheckCode);
+            CurFrame->VMProcess(CheckCode,&strFileName,0);
+            Cond=(const wchar_t*)strFileName;
           }
           break;
         }

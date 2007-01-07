@@ -52,7 +52,8 @@ class ScreenObject
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
     virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
-    virtual int  VMProcess(int OpCode,void *Param=NULL){return 0;};
+
+    virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0){return 0;};
 
     void Lock ();
     void Unlock ();

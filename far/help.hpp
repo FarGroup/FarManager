@@ -125,6 +125,8 @@ class Help:public Frame
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_HELP; }
 
+    virtual int VMProcess(int OpCode,void *vParam,__int64 iParam);
+
     static string &MkTopic(int PluginNumber,const wchar_t *HelpTopic,string &strTopic);
 };
 
