@@ -760,18 +760,30 @@ void SysLogLastError(void);
 void ShowHeap();
 void CheckHeap(int NumLine);
 
-string _FARKEY_ToName(int Key);
-string _VK_KEY_ToName(int VkKey);
-string _ECTL_ToName(int Command);
-string _EE_ToName(int Command);
-string _EEREDRAW_ToName(int Command);
-string _ESPT_ToName(int Command);
-string _FCTL_ToName(int Command);
-string _DLGMSG_ToName(int Msg);
-string _ACTL_ToName(int Command);
-string _VCTL_ToName(int Command);
-string _INPUT_RECORD_Dump(INPUT_RECORD *Rec);
-string _SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
+string __FARKEY_ToName(int Key);
+#define _FARKEY_ToName(K) (const wchar_t*)__FARKEY_ToName(K)
+string __VK_KEY_ToName(int VkKey);
+#define _VK_KEY_ToName(K) (const wchar_t*)__VK_KEY_ToName(K)
+string __ECTL_ToName(int Command);
+#define _ECTL_ToName(K) (const wchar_t*)__ECTL_ToName(K)
+string __EE_ToName(int Command);
+#define _EE_ToName(K) (const wchar_t*)__EE_ToName(K)
+string __EEREDRAW_ToName(int Command);
+#define _EEREDRAW_ToName(K) (const wchar_t*)__EEREDRAW_ToName(K)
+string __ESPT_ToName(int Command);
+#define _ESPT_ToName(K) (const wchar_t*)__ESPT_ToName(K)
+string __FCTL_ToName(int Command);
+#define _FCTL_ToName(K) (const wchar_t*)__FCTL_ToName(K)
+string __DLGMSG_ToName(int Msg);
+#define _DLGMSG_ToName(K) (const wchar_t*)__DLGMSG_ToName(K)
+string __ACTL_ToName(int Command);
+#define _ACTL_ToName(K) (const wchar_t*)__ACTL_ToName(K)
+string __VCTL_ToName(int Command);
+#define _VCTL_ToName(K) (const wchar_t*)__VCTL_ToName(K)
+string __INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+#define _INPUT_RECORD_Dump(K) (const wchar_t*)__INPUT_RECORD_Dump(K)
+string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
+#define _SysLog_LinearDump(B,S) (const wchar_t*)__SysLog_LinearDump((B),(S))
 
 void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);

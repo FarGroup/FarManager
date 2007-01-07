@@ -742,7 +742,7 @@ static string _XXX_ToName(int Val,const wchar_t *Pref,struct __XXX_Name *arrDef,
 #endif
 
 
-string _ECTL_ToName(int Command)
+string __ECTL_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
   #define DEF_ECTL_(m) { ECTL_##m , L#m }
@@ -769,7 +769,7 @@ string _ECTL_ToName(int Command)
 #endif
 }
 
-string _EE_ToName(int Command)
+string __EE_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_EE_(m) { EE_##m , L#m }
@@ -783,7 +783,7 @@ string _EE_ToName(int Command)
 #endif
 }
 
-string _EEREDRAW_ToName(int Command)
+string __EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_EEREDRAW_(m) { (int)EEREDRAW_##m , L#m }
@@ -797,7 +797,7 @@ string _EEREDRAW_ToName(int Command)
 #endif
 }
 
-string _ESPT_ToName(int Command)
+string __ESPT_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
   #define DEF_ESPT_(m) { ESPT_##m , L#m }
@@ -818,7 +818,7 @@ string _ESPT_ToName(int Command)
 #endif
 }
 
-string _FCTL_ToName(int Command)
+string __FCTL_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_FCTL_(m) { FCTL_##m , L#m }
@@ -844,7 +844,7 @@ string _FCTL_ToName(int Command)
 #endif
 }
 
-string _ACTL_ToName(int Command)
+string __ACTL_ToName(int Command)
 {
 #if defined(SYSLOG_ACTL)
 #define DEF_ACTL_(m) { ACTL_##m , L#m }
@@ -868,7 +868,7 @@ string _ACTL_ToName(int Command)
 }
 
 
-string _VCTL_ToName(int Command)
+string __VCTL_ToName(int Command)
 {
 #if defined(SYSLOG_VCTL)
 #define DEF_VCTL_(m) { VCTL_##m , L#m }
@@ -888,7 +888,7 @@ string _VCTL_ToName(int Command)
 }
 
 
-string _FARKEY_ToName(int Key)
+string __FARKEY_ToName(int Key)
 {
 #if defined(SYSLOG)
   string Name;
@@ -908,7 +908,7 @@ string _FARKEY_ToName(int Key)
 }
 
 
-string _DLGMSG_ToName(int Msg)
+string __DLGMSG_ToName(int Msg)
 {
 #if defined(SYSLOG)
   #define DEF_MESSAGE(m) { m , L#m }
@@ -1077,7 +1077,7 @@ string _DLGMSG_ToName(int Msg)
 #endif
 
 
-string _VK_KEY_ToName(int VkKey)
+string __VK_KEY_ToName(int VkKey)
 {
 #if defined(SYSLOG)
   #define DEF_VK(k) { VK_##k , L#k }
@@ -1172,7 +1172,7 @@ string _VK_KEY_ToName(int VkKey)
 #endif
 }
 
-string _INPUT_RECORD_Dump(INPUT_RECORD *rec)
+string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
   string Records;
@@ -1335,7 +1335,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 }
 
 // после вызова этой функции нужно освободить память!!!
-string _SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
+string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
 {
 #if defined(SYSLOG)
   string OutBuf, tmp;

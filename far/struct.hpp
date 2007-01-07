@@ -12,26 +12,26 @@ struct.hpp
 
 struct FilterParams
 {
-  struct
+  struct __FMask
   {
     DWORD Used;
     string strMask;
   } FMask;
-  struct
+  struct __FDate
   {
     DWORD Used;
     FDateType DateType;
     FILETIME DateAfter;
     FILETIME DateBefore;
   } FDate;
-  struct
+  struct __FSize
   {
     DWORD Used;
     FSizeType SizeType;
     __int64 SizeAbove;
     __int64 SizeBelow;
   } FSize;
-  struct
+  struct __FAttr
   {
     DWORD Used;
     DWORD AttrSet;
