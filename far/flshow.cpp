@@ -165,16 +165,16 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELBOX);
     ColumnPos+=ViewSettings.ColumnWidth[I];
     GotoXY(ColumnPos,Y1);
-    BoxText(Opt.UseUnicodeConsole?BoxSymbols[0xD1-0x0B0]:0xD1);
+    BoxTextW(BoxSymbols[0xD1-0x0B0]);
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
-      BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[0]-0x0B0]:VerticalLineEx[0]));
+      BoxTextW((WORD)(BoxSymbols[VerticalLineEx[0]-0x0B0]));
     }
     if (!Opt.ShowPanelStatus)
     {
       GotoXY(ColumnPos,Y2);
-      BoxText(Opt.UseUnicodeConsole?BoxSymbols[0xCF-0x0B0]:0xCF);
+      BoxTextW(BoxSymbols[0xCF-0x0B0]);
     }
     ColumnPos++;
   }
@@ -373,7 +373,7 @@ void FileList::ShowSelectedSize()
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
-      BoxText(Opt.UseUnicodeConsole?BoxSymbols[0x0C1-0x0B0]:0x0C1);
+      BoxTextW(BoxSymbols[0x0C1-0x0B0]);
       ColumnPos++;
     }
   }
@@ -752,7 +752,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           SetColor(COL_PANELBOX);
           GotoXY(CurX-1,CurY);
-          BoxText((WORD)(CurX-1==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[1]-0x0B0]:VerticalLineEx[1]):0x20));
+          BoxTextW((WORD)(CurX-1==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
         }
         continue;
       }
@@ -1074,8 +1074,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case NUMLINK_COLUMN:
               {
-                char OutStr[20];
-                mprintf("%*.*s",ColumnWidth,ColumnWidth,itoa(CurPtr->NumberOfLinks,OutStr,10));
+                wchar_t OutStr[20];
+                mprintfW(L"%*.*s",ColumnWidth,ColumnWidth,_itow(CurPtr->NumberOfLinks,OutStr,10));
               }
               break;
           }
@@ -1102,9 +1102,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         GotoXY(CurX+ColumnWidth,CurY);
 
         if (K==ColumnCount-1)
-          BoxText((WORD)(CurX+ColumnWidth==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[1]-0x0B0]:VerticalLineEx[1]):0x20));
+          BoxTextW((WORD)(CurX+ColumnWidth==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
         else
-          BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLineEx[0]-0x0B0]:VerticalLineEx[0])));
+          BoxTextW((WORD)(ShowStatus ? 0x20:(BoxSymbols[VerticalLineEx[0]-0x0B0])));
 
         if ( !ShowStatus )
                 SetColor (COL_PANELTEXT);

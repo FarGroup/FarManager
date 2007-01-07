@@ -34,36 +34,6 @@ string &InsertCommasW(unsigned __int64 li,string &strDest)
 }
 
 
-char* __stdcall PointToName (char *lpPath)
-{
-  if(!lpPath)
-    return NULL;
-
-  const char *NamePtr=lpPath;
-  while (*lpPath)
-  {
-    if (*lpPath=='\\' || *lpPath=='/' || *lpPath==':' && lpPath==NamePtr+1)
-      NamePtr=lpPath+1;
-    lpPath++;
-  }
-  return (char*)NamePtr;
-}
-
-
-const char* __stdcall PointToName (const char *lpPath)
-{
-  if(!lpPath)
-    return NULL;
-
-  const char *NamePtr=lpPath;
-  while (*lpPath)
-  {
-    if (*lpPath=='\\' || *lpPath=='/' || *lpPath==':' && lpPath==NamePtr+1)
-      NamePtr=lpPath+1;
-    lpPath++;
-  }
-  return NamePtr;
-}
 
 const wchar_t* __stdcall PointToNameW (const wchar_t *lpwszPath)
 {
@@ -116,107 +86,6 @@ const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *Path)
 // IS: это реальное тело функции сравнения с маской, но использовать
 // IS: "снаружи" нужно не эту функцию, а CmpName (ее тело расположено
 // IS: после CmpName_Body)
-int CmpName_Body(const char *pattern,const char *string)
-{
-  unsigned char stringc,patternc,rangec;
-  int match;
-
-  for (;; ++string)
-  {
-    /* $ 01.05.2001 DJ
-       используем инлайновые версии
-    */
-    stringc=LocalUpperFast(*string);
-    patternc=LocalUpperFast(*pattern++);
-    /* DJ $ */
-    switch (patternc)
-    {
-      case 0:
-        return(stringc==0);
-      case '?':
-        if (stringc == 0)
-          return(FALSE);
-
-        break;
-      case '*':
-        if (!*pattern)
-          return(TRUE);
-
-        /* $ 01.05.2001 DJ
-           оптимизированная ветка работает и для имен с несколькими
-           точками
-        */
-        if (*pattern=='.')
-        {
-          if (pattern[1]=='*' && pattern[2]==0)
-            return(TRUE);
-          if (strpbrk (pattern, "*?[") == NULL)
-          {
-            const char *dot = strrchr (string, '.');
-            if (pattern[1] == 0)
-              return (dot==NULL || dot[1]==0);
-            const char *patdot = strchr (pattern+1, '.');
-            if (patdot != NULL && dot == NULL)
-              return(FALSE);
-            if (patdot == NULL && dot != NULL)
-              return(LocalStricmp (pattern+1,dot+1) == 0);
-          }
-        }
-        /* DJ $ */
-
-        while (*string)
-        {
-          if (CmpName(pattern,string++,FALSE))
-            return(TRUE);
-        }
-        return(FALSE);
-      case '[':
-        if (strchr(pattern,']')==NULL)
-        {
-          if (patternc != stringc)
-            return (FALSE);
-          break;
-        }
-        if (*pattern && *(pattern+1)==']')
-        {
-          if (*pattern!=*string)
-            return(FALSE);
-          pattern+=2;
-          break;
-        }
-        match = 0;
-        while ((rangec = LocalUpper(*pattern++))!=0)
-        {
-          if (rangec == ']')
-            if (match)
-              break;
-            else
-              return(FALSE);
-          if (match)
-            continue;
-          if (rangec == '-' && *(pattern - 2) != '[' && *pattern != ']')
-          {
-            match = (stringc <= LocalUpper(*pattern) &&
-                     LocalUpper(*(pattern - 2)) <= stringc);
-            pattern++;
-          }
-          else
-            match = (stringc == rangec);
-        }
-        if (rangec == 0)
-          return(FALSE);
-        break;
-      default:
-        if (patternc != stringc)
-          if (patternc=='.' && stringc==0 && !CmpNameSearchMode)
-            return(*pattern!='.' && CmpName(pattern,string));
-          else
-            return(FALSE);
-        break;
-    }
-  }
-}
-
 
 int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
 {
@@ -319,14 +188,6 @@ int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
   }
 }
 
-
-// IS: функция для внешнего мира, использовать ее
-int CmpName(const char *pattern,const char *str,int skippath)
-{
-  if (skippath)
-    str=PointToName(const_cast<char*>(str));
-  return CmpName_Body(pattern,str);
-}
 
 // IS: функция для внешнего мира, использовать ее
 int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath)
@@ -1154,19 +1015,7 @@ void UnquoteExternalW(string &strStr)
    Форматирование размера файла в удобочитаемый вид.
 */
 #define MAX_KMGTBSTR_SIZE 16
-static char KMGTbStr[5][2][MAX_KMGTBSTR_SIZE]={0};
 static wchar_t KMGTbStrW[5][2][MAX_KMGTBSTR_SIZE]={0};
-
-void __PrepareKMGTbStr(void)
-{
-  for(int I=0; I < 5; ++I)
-  {
-    xstrncpy(KMGTbStr[I][0],MSG(MListBytes+I),MAX_KMGTBSTR_SIZE-1);
-    strcpy(KMGTbStr[I][1],KMGTbStr[I][0]);
-    LocalStrlwr(KMGTbStr[I][0]);
-    LocalStrupr(KMGTbStr[I][1]);
-  }
-}
 
 void __PrepareKMGTbStrW(void)
 {

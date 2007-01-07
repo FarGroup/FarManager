@@ -742,11 +742,6 @@ int CheckFolderW(const wchar_t *Path)
 }
 
 
-char* GetAnsiLanguageString (int nID)
-{
-    return Lang.GetMsg(nID);
-}
-
 wchar_t* GetUnicodeLanguageString (int nID)
 {
     return Lang.GetMsgW(nID);

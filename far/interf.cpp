@@ -32,44 +32,23 @@ BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 static const char CONOUT[]="CONOUT$";
 static const char CONIN[]="CONIN$";
-#if defined(USE_WFUNC)
 static const WCHAR LCONOUT[]=L"CONOUT$";
 static const WCHAR LCONIN[]=L"CONIN$";
-#endif
 
-#if defined(USE_WFUNC)
 WCHAR Oem2Unicode[256];
-#endif
 
 static void __Create_CONOUT()
 {
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
-    hConOut=CreateFileW(LCONOUT,GENERIC_READ|GENERIC_WRITE,
+  hConOut=CreateFileW(LCONOUT,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-  else
-    hConOut=CreateFileA(CONOUT,GENERIC_READ|GENERIC_WRITE,
-          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-#else
-  hConOut=CreateFile(CONOUT,GENERIC_READ|GENERIC_WRITE,
-          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-#endif
+
   ScrBuf.SetHandle(hConOut);
 }
 
 static void __Create_CONIN()
 {
-#if defined(USE_WFUNC_IN)
-  if(Opt.UseUnicodeConsole)
     hConInp=CreateFileW(LCONIN,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-  else
-    hConInp=CreateFileA(CONIN,GENERIC_READ|GENERIC_WRITE,
-          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-#else
-   hConInp=CreateFile(CONIN,GENERIC_READ|GENERIC_WRITE,
-          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-#endif
 }
 
 void InitConsole(int FirstInit)
@@ -476,7 +455,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 
 void ShowTime(int ShowAlways)
 {
-  char ClockText[10];
+  string strClockText;
   static SYSTEMTIME lasttm={0,0,0,0,0,0,0,0};
   SYSTEMTIME tm;
   GetLocalTime(&tm);
@@ -494,7 +473,7 @@ void ShowTime(int ShowAlways)
 
   ProcessShowClock++;
   lasttm=tm;
-  sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
+  strClockText.Format(L"%02d:%02d",tm.wHour,tm.wMinute);
   GotoXY(ScrX-4,0);
   // Здесь хрень какая-то получается с ModType - все время не верное значение!
   Frame *CurFrame=FrameManager->GetCurrentFrame();
@@ -503,7 +482,7 @@ void ShowTime(int ShowAlways)
     int ModType=CurFrame->GetType();
     SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
              (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
-    Text(ClockText);
+    TextW(strClockText);
     //ScrBuf.Flush();
   }
   static int RegChecked=FALSE;
@@ -651,8 +630,6 @@ void GetRealCursorType(int &Visible,int &Size)
   Visible=cci.bVisible;
 }
 
-#if defined(USE_WFUNC)
-
 static BOOL DetectTTFFont(void)
 {
   string strAppName, strOptRegRoot;
@@ -668,13 +645,11 @@ static BOOL DetectTTFFont(void)
     strAppName = L"Console";
   }
   int FontFamily=GetRegKeyW(strAppName,L"FontFamily",0);
-  if(FontFamily && Opt.UseUnicodeConsole == -1)
+  if(FontFamily /*&& Opt.UseUnicodeConsole == -1*/) //???
     UseTTFConsoleFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
   Opt.strRegRoot = strOptRegRoot;
   return UseTTFConsoleFont;
 }
-
-#endif
 
 void InitRecodeOutTable(UINT cp)
 {
@@ -704,8 +679,6 @@ void InitRecodeOutTable(UINT cp)
     RecodeOutTable[0xC4]='-';
     RecodeOutTable[0xCD]='=';
   }
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
   {
     static WCHAR _Oem2Unicode[256] = {
     /*00*/ 0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
@@ -799,11 +772,9 @@ void InitRecodeOutTable(UINT cp)
     }
   }
   //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
-#endif
 }
 
 
-#if defined(USE_WFUNC)
 void TextW(int X, int Y, int Color, const WCHAR *Str)
 {
   CurColor=FarColorToReal(Color);
@@ -834,67 +805,7 @@ void TextW(const WCHAR *Str)
   ScrBuf.Write(CurX,CurY,CharBuf,Length);
   CurX+=Length;
 }
-#endif
 
-/* $ 23.07.2000 SVS
-   + две полных функции Text
-*/
-/* $ 02.02.2001 VVM
-    ! Переделал функции Text(...). Т.к. они вызываются очень часто,
-      то основной вывод будет идти в Text(char *Str) */
-void Text(int X, int Y, int Color, const char *Str)
-{
-  CurColor=FarColorToReal(Color);
-  if (X<0) X=0;
-  if (Y<0) Y=0;
-  CurX=X;
-  CurY=Y;
-  Text(Str);
-}
-
-void Text(const char *Str)
-{
-  int Length=strlen(Str), I;
-  if (CurX+Length>ScrX)
-    Length=ScrX-CurX+1;
-  if (Length<=0)
-    return;
-  CHAR_INFO CharBuf[1024], *PtrCharBuf;
-  if (Length >= sizeof(CharBuf))
-    Length=sizeof(CharBuf)-1;
-
-  PtrCharBuf=CharBuf;
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
-  {
-    for (I=0; I < Length; I++, ++PtrCharBuf)
-    {
-      PtrCharBuf->Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Str[I]]];
-      PtrCharBuf->Attributes=CurColor;
-    }
-  }
-  else
-#endif
-  {
-    for (I=0; I < Length; I++, ++PtrCharBuf)
-    {
-      PtrCharBuf->Char.AsciiChar=RecodeOutTable[(BYTE)Str[I]];
-      PtrCharBuf->Attributes=CurColor;
-    }
-  }
-  ScrBuf.Write(CurX,CurY,CharBuf,Length);
-  CurX+=Length;
-}
-
-void Text(int X, int Y, int Color,int MsgId)
-{
-  Text(X,Y,Color,MSG(MsgId));
-}
-
-void Text(int MsgId)
-{
-  Text(MSG(MsgId));
-}
 
 void TextW (int MsgId)
 {
@@ -904,7 +815,6 @@ void TextW (int MsgId)
 /* VVM $ */
 /* SVS $ */
 
-#if defined(USE_WFUNC)
 void VTextW(const WCHAR *Str)
 {
   int Length=wcslen(Str);
@@ -921,74 +831,6 @@ void VTextW(const WCHAR *Str)
     TextW(ChrStr);
     CurY++;
     CurX=StartCurX;
-  }
-}
-#endif
-
-void VText(const char *Str)
-{
-  int Length=strlen(Str);
-  if (CurY+Length>ScrY)
-    Length=ScrY-CurY+1;
-  if (Length<=0)
-    return;
-  int StartCurX=CurX;
-  char ChrStr[2]={0,0};
-  for (int I=0;I<Length;I++)
-  {
-    GotoXY(CurX,CurY);
-    ChrStr[0]=Str[I];
-    Text(ChrStr);
-    CurY++;
-    CurX=StartCurX;
-  }
-}
-
-void HiText(const char *Str,int HiColor)
-{
-  char TextStr[600];
-  int SaveColor;
-  char *ChPtr;
-  xstrncpy(TextStr,Str,sizeof(TextStr)-1);
-  if ((ChPtr=strchr(TextStr,'&'))==NULL)
-    Text(TextStr);
-  else
-  {
-    /*
-       &&      = '&'
-       &&&     = '&'
-                  ^H
-       &&&&    = '&&'
-       &&&&&   = '&&'
-                  ^H
-       &&&&&&  = '&&&'
-    */
-    int I=0;
-    char *ChPtr2=ChPtr;
-    while(*ChPtr2++ == '&')
-      ++I;
-
-    if(I&1) // нечет?
-    {
-      *ChPtr=0;
-      Text(TextStr);
-      if (ChPtr[1])
-      {
-        char Chr[2];
-        SaveColor=CurColor;
-        SetColor(HiColor);
-        Chr[0]=ChPtr[1]; Chr[1]=0;
-        Text(Chr);
-        SetColor(SaveColor);
-        ReplaceStrings(ChPtr+1,"&&","&",-1);
-        Text(ChPtr+2);
-      }
-    }
-    else
-    {
-      ReplaceStrings(ChPtr,"&&","&",-1);
-      Text(TextStr);
-    }
   }
 }
 
@@ -1088,7 +930,6 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
   ScrBuf.ApplyColor(X1,Y1,X2,Y2,FarColorToReal(Color));
 }
 
-#if defined(USE_WFUNC)
 void mprintfW(WCHAR *fmt,...)
 {
   va_list argptr;
@@ -1109,68 +950,6 @@ void vmprintfW(WCHAR *fmt,...)
   va_end(argptr);
 }
 
-void mprintf(char *fmt,...)
-{
-  va_list argptr;
-  va_start(argptr,fmt);
-  char OutStr[2048];
-  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
-  Text(OutStr);
-  va_end(argptr);
-}
-
-void vmprintf(char *fmt,...)
-{
-  va_list argptr;
-  va_start(argptr,fmt);
-  char OutStr[2048];
-  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
-  VText(OutStr);
-  va_end(argptr);
-}
-
-void mprintf(int MsgId,...)
-{
-  va_list argptr;
-  va_start(argptr,MsgId);
-  char OutStr[2048];
-  vsnprintf(OutStr,sizeof(OutStr)-1,MSG(MsgId),argptr);
-  Text(OutStr);
-  va_end(argptr);
-}
-
-#else
-
-void mprintf(char *fmt,...)
-{
-  va_list argptr;
-  va_start(argptr,fmt);
-  char OutStr[2048];
-  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
-  Text(OutStr);
-  va_end(argptr);
-}
-
-void mprintf(int MsgId,...)
-{
-  va_list argptr;
-  va_start(argptr,MsgId);
-  char OutStr[2048];
-  vsnprintf(OutStr,sizeof(OutStr)-1,MSG(MsgId),argptr);
-  Text(OutStr);
-  va_end(argptr);
-}
-
-void vmprintf(char *fmt,...)
-{
-  va_list argptr;
-  va_start(argptr,fmt);
-  char OutStr[2048];
-  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
-  VText(OutStr);
-  va_end(argptr);
-}
-#endif
 
 void SetColor(int Color)
 {
@@ -1219,28 +998,15 @@ void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
     ScrBuf.Write(X1,Y,SrcPtr,Width);
 }
 
-void BoxText(WORD Chr)
+void BoxTextW(WORD Chr)
 {
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
-  {
-    WCHAR Str[2];
-    Str[0]=Chr;
-    Str[1]=0;
-    TextW(Str);
-  }
-  else
-#endif
-  {
-    char Str[2];
-    Str[0]=(char)Chr;
-    Str[1]=0;
-    BoxText(Str);
-  }
+  wchar_t Str[2];
+  Str[0]=(wchar_t)Chr;
+  Str[1]=0;
+  BoxTextW(Str);
 }
 
 
-#if defined(USE_WFUNC)
 void BoxTextW(WCHAR *Str,int IsVert)
 {
   if(IsVert)
@@ -1249,57 +1015,6 @@ void BoxTextW(WCHAR *Str,int IsVert)
     TextW(Str);
 }
 
-void BoxTextW2(const char *Str,int IsVert)
-{
-  WCHAR TmpStr[2];
-  TmpStr[1]=0;
-  for(; *Str; ++Str)
-  {
-    TmpStr[0]=BoxSymbols[((WORD)*Str)-0x0B0];
-
-    if(IsVert)
-      VTextW(TmpStr);
-    else
-      TextW(TmpStr);
-  }
-}
-
-
-#endif
-
-void BoxText(char *Str,int IsVert)
-{
-  if (OutputCP!=437 && OutputCP!=866)
-  {
-    for (int I=0;Str[I]!=0;I++)
-    {
-      switch(Str[I])
-      {
-        case 0x0C7:
-        case 0x0B6:
-          Str[I]=0x0BA;
-          break;
-        case 0x0CF:
-        case 0x0D1:
-          Str[I]=0x0CD;
-          break;
-        case 0x0C6:
-        case 0x0B5:
-          Str[I]=0x0B3;
-          break;
-        case 0x0D0:
-        case 0x0D2:
-          Str[I]=0x0C4;
-          break;
-      }
-    }
-  }
-
-  if(IsVert)
-    VText(Str);
-  else
-    Text(Str);
-}
 
 /*
    Отрисовка прямоугольника.
@@ -1322,8 +1037,6 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
   int _width=x2-x1;
   int _height=y2-y1;
 
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
   {
     WCHAR OutStr[4096];
     _wmemset(OutStr,BoxSymbols[ChrBox[Type][0]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
@@ -1351,35 +1064,6 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
     VTextW(OutStr);
     //vmprintfW(L"%.*s",y2-y1-1,OutStr);
   }
-  else
-#endif
-  {
-    char OutStr[4096];
-    memset(OutStr,ChrBox[Type][0],sizeof(OutStr));
-    OutStr[_width+1]=0;
-
-    OutStr[0]=ChrBox[Type][2];
-    OutStr[_width]=ChrBox[Type][5];
-    GotoXY(x1,y1);
-    Text(OutStr);
-    //mprintf("%.*s",x2-x1+1,OutStr);
-
-    OutStr[0]=ChrBox[Type][3];
-    OutStr[_width]=ChrBox[Type][4];
-    GotoXY(x1,y2);
-    Text(OutStr);
-    //mprintf("%.*s",x2-x1+1,OutStr);
-
-    memset(OutStr,ChrBox[Type][1],sizeof(OutStr));
-    OutStr[_height-1]=0;
-
-    GotoXY(x1,y1+1);
-    VText(OutStr);
-    //vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x2,y1+1);
-    VText(OutStr);
-    //vmprintf("%.*s",y2-y1-1,OutStr);
-  }
 }
 /* SVS $ */
 
@@ -1404,14 +1088,7 @@ void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
   Coord.Right=X2;
   Coord.Bottom=Y2;
 
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
-    WriteConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
-  else
-    WriteConsoleOutputA(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
-#else
-  WriteConsoleOutput(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
-#endif
+  WriteConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
 }
 
 
@@ -1441,14 +1118,7 @@ void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
   Coord.Right=X2;
   Coord.Bottom=Y2;
 
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
-    ReadConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
-  else
-    ReadConsoleOutputA(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
-#else
-  ReadConsoleOutput(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
-#endif
+  ReadConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
 }
 
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
@@ -1470,8 +1140,6 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
     ThumbPos=Length-1;
   GotoXY(X1,Y1);
 
-#if defined(USE_WFUNC)
-  if(Opt.UseUnicodeConsole)
   {
     WCHAR OutStr[4096];
     if(Length > sizeof(OutStr)-3)
@@ -1483,45 +1151,20 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
     OutStr[Length+2]=0;
     VTextW(OutStr);
   }
-  else
-#endif
-  {
-    char OutStr[4096];
-    if(Length > sizeof(OutStr)-3)
-       Length=sizeof(OutStr)-3;
-    memset(OutStr+1,0xB0,Length);
-    OutStr[ThumbPos+1]=0xB2;
-    OutStr[0]=0x1E;
-    OutStr[Length+1]=0x1F;
-    OutStr[Length+2]=0;
-    VText(OutStr);
-  }
 }
 
 void DrawLine(int Length,int Type)
 {
   if (Length>1)
   {
-#if defined(USE_WFUNC)
-    if(Opt.UseUnicodeConsole)
-    {
-      WCHAR Separator[4096];
-      MakeSeparatorW(Length,Separator,Type);
-      if(Type>=10)
-        VTextW(Separator);
-      else
-        TextW(Separator);
-    }
-    else
-#endif
-    {
-      char Separator[4096];
-      MakeSeparator(Length,Separator,Type);
-      if(Type>=10)
-        VText(Separator);
-      else
-        Text(Separator);
-    }
+
+     WCHAR Separator[4096];
+     MakeSeparatorW(Length,Separator,Type);
+     if(Type>=10)
+       VTextW(Separator);
+     else
+       TextW(Separator);
+
   }
 }
 
@@ -1544,7 +1187,6 @@ static BYTE __BoxType[12][8]={
 /* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||
 };
 
-#if defined(USE_WFUNC)
 WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type)
 {
   if (Length>1 && DestStr)
@@ -1561,49 +1203,15 @@ WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type)
   }
   return DestStr;
 }
-#endif
 
-char* MakeSeparator(int Length,char *DestStr,int Type)
-{
-  if (Length>1 && DestStr)
-  {
-    int I=0;
-    if (OutputCP!=437 && OutputCP!=866)
-      I=4;
-
-    Type%=(sizeof(__BoxType)/sizeof(__BoxType[0]));
-    memset(DestStr,__BoxType[Type][2+I],Length);
-
-    if ( Type )
-    {
-      DestStr[0]=__BoxType[Type][0+I];
-      DestStr[Length-1]=__BoxType[Type][1+I];
-    }
-    DestStr[Length]=0;
-  }
-  return DestStr;
-}
-
-#if defined(USE_WFUNC)
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved)
 {
   int I;
-  if(Opt.UseUnicodeConsole)
+
+  for (I=0; I < Length; I++, ++CharInfo)
   {
-    for (I=0; I < Length; I++, ++CharInfo)
-    {
-      CharInfo->Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Text[I]]];
-      CharInfo->Attributes=Attr;
-    }
-  }
-  else
-  {
-    for (I=0; I < Length; I++, ++CharInfo)
-    {
-      CharInfo->Char.AsciiChar=RecodeOutTable[(BYTE)Text[I]];
-      CharInfo->Attributes=Attr;
-    }
+    CharInfo->Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Text[I]]];
+    CharInfo->Attributes=Attr;
   }
   return TRUE;
 }
-#endif

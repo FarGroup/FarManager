@@ -367,12 +367,12 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
   if (!GetRegKeyW(strTableKey,L"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
     return(FALSE);
 
-  char *lpTableKey = UnicodeToAnsi (strTableKey);
+  char *lpTableKey = UnicodeToAnsi (PointToNameW(strTableKey));
 
   if(UseTableName)
-    GetRegKeyW(strTableKey,L"TableName",(BYTE*)TableSet->TableName,(const BYTE*)PointToName(lpTableKey),sizeof(TableSet->TableName));
+    GetRegKeyW(strTableKey,L"TableName",(BYTE*)TableSet->TableName,(const BYTE*)lpTableKey,sizeof(TableSet->TableName));
   else
-    xstrncpy(TableSet->TableName,PointToName(lpTableKey),sizeof(TableSet->TableName)-1);
+    xstrncpy(TableSet->TableName,lpTableKey,sizeof(TableSet->TableName)-1);
 
   xf_free(lpTableKey);
 

@@ -238,8 +238,8 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected=Opt.ShowPanelScrollbar;
   CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected=Opt.ShowScreensNumber;
   CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected=Opt.ShowSortMode;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=strlen(MSG(MConfigAutoUpdateLimit2))+1;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=strlen(MSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
 
   if (!RegVer)

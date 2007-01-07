@@ -51,7 +51,7 @@ void KeyBar::DisplayObject()
     if (WhereX()+LabelWidth>=X2)
       break;
     SetColor(COL_KEYBARNUM);
-    mprintf("%d",I+1);
+    mprintfW(L"%d",I+1);
     SetColor(COL_KEYBARTEXT);
     wchar_t *Label=L"";
 

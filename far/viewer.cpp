@@ -653,14 +653,14 @@ void Viewer::ShowPage (int nMode)
       {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
-        BoxText(Opt.UseUnicodeConsole?0xbb:'>');
+        BoxTextW(0xbb);
       }
 
       if (LeftPos>0 && *Strings[I]->lpData!=0  && ViOpt.ShowArrows)
       {
         GotoXY(X1,Y);
         SetColor(COL_VIEWERARROWS);
-        BoxText(Opt.UseUnicodeConsole?0xab:'<');
+        BoxTextW(0xab);
       }
     }
   }

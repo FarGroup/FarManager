@@ -16,9 +16,6 @@ class VMenu;
 class Language
 {
   private:
-    char **MsgAddr;
-    char *MsgList;
-
     wchar_t **MsgAddrW;
     wchar_t *MsgListW;
 
@@ -42,7 +39,6 @@ class Language
     int Init(const wchar_t *Path,int CountNeed=-1);
     void Close();
 
-    char* GetMsg(int MsgId);
     wchar_t* GetMsgW (int nID);
 
     static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nCodePage, BOOL StrongLang=FALSE);

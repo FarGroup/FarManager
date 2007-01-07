@@ -102,16 +102,6 @@ L" /cr  Disable check registration.\n"
 L" /do  Direct output.\n"
 #endif
 );
-#if 0
-#if defined(USE_WFUNC)
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-  {
-    wprintf(
-L" /w   Specify this if you are using a TrueType font for the console.\n"
-    );
-  }
-#endif
-#endif
 }
 
 void QueryRegistration ()
@@ -364,9 +354,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   Opt.ExceptRules=(pIsDebuggerPresent && pIsDebuggerPresent()?0:-1);
 #endif
 
-#if defined(USE_WFUNC)
-  Opt.UseUnicodeConsole=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT /* && WinVer.dwMajorVersion >= 5 */)?TRUE:FALSE;
-#endif
 
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
@@ -421,11 +408,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
               break;
           }
           break;
-#if defined(USE_WFUNC)
-        case L'8':
-          Opt.UseUnicodeConsole=FALSE;
-          break;
-#endif
         case L'E':
           if (iswdigit(Argv[I][2]))
           {

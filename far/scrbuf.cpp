@@ -30,9 +30,7 @@ enum{
 extern int DirectRT;
 #endif
 
-#if defined(USE_WFUNC)
 extern WCHAR Oem2Unicode[];
-#endif
 
 ScreenBuf ScrBuf;
 
@@ -113,29 +111,16 @@ void ScreenBuf::FillBuf()
         Coord.Top=y;
         Coord.Bottom=y;
         BOOL r;
-        #if defined(USE_WFUNC)
-        if(Opt.UseUnicodeConsole)
-          r=ReadConsoleOutputW(hScreen,ci,Size,Corner,&Coord);
-        else
-          r=ReadConsoleOutputA(hScreen,ci,Size,Corner,&Coord);
-        #else
-        r=ReadConsoleOutput(hScreen,ci,Size,Corner,&Coord);
-        #endif
-        _tran(SysLog("r=%i, le=%i",r,GetLastError()));
+
+        r=ReadConsoleOutputW(hScreen,ci,Size,Corner,&Coord);
+
         ci+=BufX;
     }
     _tran(SysLog("fucked method end"));
   }
   else
   {
-#if defined(USE_WFUNC)
-    if(Opt.UseUnicodeConsole)
-      ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
-    else
-      ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
-#else
-    ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
-#endif
+    ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
   }
 
   memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
@@ -352,17 +337,9 @@ void ScreenBuf::Flush()
       Coord.Top=WriteY1;
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
-#if defined(USE_WFUNC)
-      if(Opt.UseUnicodeConsole)
-      {
-        // Ќужно ли здесь делать перекодировку oem->unicode???
-        WriteConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
-      }
-      else
-        WriteConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
-#else
-      WriteConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
-#endif
+
+      WriteConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+
       memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
     }
   }

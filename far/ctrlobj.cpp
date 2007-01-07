@@ -72,14 +72,21 @@ void ControlObject::Init()
   ShowCopyright();
   GotoXY(0,ScrY-2);
 
-  char TruncRegName[512];
-  xstrncpy(TruncRegName,RegName,sizeof(TruncRegName)-1);
-  char *CountPtr=strstr(TruncRegName," - (");
-  if (CountPtr!=NULL && isdigit(CountPtr[4]) && strchr(CountPtr+5,'/')!=NULL &&
-      strchr(CountPtr+6,')')!=NULL)
+  string strTruncRegName; //BUGBUG
+
+  strTruncRegName.SetData (RegName, CP_OEMCP);
+
+  wchar_t *CountPtr = strTruncRegName.GetBuffer ();
+
+  CountPtr = wcsstr (CountPtr, L" - (");
+
+  if (CountPtr!=NULL && iswdigit(CountPtr[4]) && wcschr(CountPtr+5,L'/')!=NULL && wcschr(CountPtr+6,L')')!=NULL)
     *CountPtr=0;
+
+  strTruncRegName.ReleaseBuffer();
+
   if (RegVer)
-    mprintf("%s: %s",MSG(MRegistered),TruncRegName);
+    mprintfW(L"%s: %s",UMSG(MRegistered),(const wchar_t*)strTruncRegName);
   else
     TextW(MShareware);
 
@@ -219,6 +226,13 @@ void ControlObject::ShowCopyright(DWORD Flags)
       Str[I]='\0';
     }
   }
+
+  string strStr;
+  string strLine;
+
+  strStr.SetData (Str, CP_OEMCP); //BUGBUG
+  strLine.SetData (Line2, CP_OEMCP);
+
   if(Flags&1)
   {
     fprintf(stderr,"%s\n%s\n",Str,Line2);
@@ -232,12 +246,12 @@ void ControlObject::ShowCopyright(DWORD Flags)
     if(Line2)
     {
       GotoXY(0,ScrY-4);
-      Text(Str);
+      TextW(strStr);
       GotoXY(0,ScrY-3);
-      Text(Line2);
+      TextW(strLine);
     }
     else
-      Text(Str);
+      TextW(strStr);
 #endif
   }
 }

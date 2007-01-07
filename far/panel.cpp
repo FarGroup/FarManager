@@ -360,9 +360,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
            Список дополнительных хоткеев, для случая, когда плагинов,
            добавляющих пункт в меню, больше 9.
       */
-      char *AdditionalHotKey=MSG(MAdditionalHotKey);
+      const wchar_t *AdditionalHotKey=UMSG(MAdditionalHotKey);
       int AHKPos=0,                           // индекс в списке хоткеев
-          AHKSize=strlen(AdditionalHotKey);   /* для предотвращения выхода за
+          AHKSize=wcslen(AdditionalHotKey);   /* для предотвращения выхода за
                                                  границу массива */
       /* IS $ */
 
@@ -1801,7 +1801,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
       break;
 
     case FCTL_CLOSEPLUGIN:
-      xstrncpy((char *)PluginParam,NullToEmpty((char *)Param),sizeof(PluginParam)-1);
+      xstrncpy((char *)PluginParam,(char*)(Param?Param:""),sizeof(PluginParam)-1);
       Result=TRUE;
       //if(Opt.CPAJHefuayor)
       //  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);

@@ -199,7 +199,8 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
     case ACTL_GETWCHARMODE:
     {
-      return Opt.UseUnicodeConsole;
+		//BUGBUG!!!
+      return 0;//Opt.UseUnicodeConsole;
     }
 
     /* $ 03.08.2000 SVS
@@ -2075,8 +2076,10 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
       TableSet.UpperTable[i]=LocalUpper(i);
       TableSet.LowerTable[i]=LocalLower(i);
     }
-    xstrncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName));
-    // *TableSet.RFCCharset=0; // пока так!
+
+    string strTableName = UMSG(MGetTableNormalText);
+
+    UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1); //BUGBUG
     Command=-1;
   }
   memcpy(Buffer,&TableSet,BufferSize);

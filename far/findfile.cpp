@@ -187,27 +187,25 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         TableNum=0;
       /* -------------------------------------- */
 
+      string strTableName;
+
       if (UseAllTables)
-        xstrncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
+        strTableName = UMSG(MFindFileAllTables);
       else if (UseUnicode)
-        xstrncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
-      /* $ 20.09.2003 KM
-         Добавим поддержку ANSI таблицы
-      */
+        strTableName = L"Unicode";
       else if (UseANSI)
       {
         GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-        xstrncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
+        strTableName = UMSG(MGetTableWindowsText);
       }
       /* KM $ */
       else if (!UseDecodeTable)
-        xstrncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
+        strTableName = UMSG(MGetTableNormalText);
       else
         PrepareTable(&TableSet,TableNum,TRUE);
-      RemoveChar(TableSet.TableName,'&',TRUE);
+      RemoveCharW(strTableName,L'&',TRUE);
 
-      string strTableName;
-      strTableName.SetData (TableSet.TableName, CP_OEMCP); //BUGBUG
+      UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1); //BUGBUG
 
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(LONG_PTR)(const wchar_t*)strTableName);
 
@@ -233,19 +231,25 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         UseUnicode=(Param2==4);
         UseDecodeTable=(Param2>=(CHAR_TABLE_SIZE+1));
         TableNum=Param2-(CHAR_TABLE_SIZE+1);
+
+        string strTableName;
+
         if (UseAllTables)
-          xstrncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
+          strTableName = UMSG(MFindFileAllTables);
         else if (UseUnicode)
-          xstrncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
+          strTableName = L"Unicode";
         else if (UseANSI)
         {
           GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-          xstrncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
+          strTableName = UMSG(MGetTableWindowsText);
         }
         else if (!UseDecodeTable)
-          xstrncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
+          strTableName = UMSG(MGetTableNormalText);
         else
           PrepareTable(&TableSet,TableNum,TRUE);
+
+        if ( !strTableName.IsEmpty() ) // BUGBUG
+        	UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1);
         /* KM $ */
       }
       return TRUE;

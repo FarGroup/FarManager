@@ -603,7 +603,6 @@ struct Options
 #endif
   DWORD PluginMaxReadData;
   int UseNumPad;
-  int UseUnicodeConsole;
   int ScanJunction;
 
   DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)

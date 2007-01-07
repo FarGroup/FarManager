@@ -15,11 +15,8 @@ fn.hpp
 
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength = -1);
 void UnicodeToAnsi (const wchar_t *lpwszUnicodeString, char *lpDest, int nMaxLength = -1); //BUGBUG
-/* $ 07.07.2000 IS
-   Функция перешла сюда из main.cpp
-*/
+
 void SetHighlighting();
-/* IS $ */
 void _export StartFAR();
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 /*$ 14.02.2001 SKV
@@ -29,15 +26,12 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 */
 void InitConsole(int FirstInit=TRUE);
 void InitRecodeOutTable(UINT cp=0);
-/* SKV$*/
 void CloseConsole();
 void SetFarConsoleMode(BOOL SetsActiveBuffer=FALSE);
-//OT
 void ChangeVideoMode(int NumLines,int NumColumns);
 void ChangeVideoMode(int Maximized);
 void SetVideoMode(int ConsoleMode);
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi);
-//OT
 void GotoXY(int X,int Y);
 int WhereX();
 int WhereY();
@@ -50,31 +44,16 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(int& X,int& Y);
 void SetRealCursorType(int Visible,int Size);
 void GetRealCursorType(int &Visible,int &Size);
-void Text(int X, int Y, int Color, const char *Str);
-void Text(const char *Str);
-#if defined(USE_WFUNC)
 void TextW(int X, int Y, int Color, const WCHAR *Str);
 void TextW(const WCHAR *Str);
 void TextW(int MsgId);
-#endif
-void Text(int X, int Y, int Color, int MsgId);
-void Text(int MsgId);
-void VText(const char *Str);
-#if defined(USE_WFUNC)
 void VTextW(const WCHAR *Str);
-#endif
-void HiText(const char *Str,int HiColor);
-#if defined(USE_WFUNC)
 void HiTextW(const WCHAR *Str,int HiColor);
-#endif
 
 void DrawLine(int Length,int Type);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
 
-char* MakeSeparator(int Length,char *DestStr,int Type=1);
-#if defined(USE_WFUNC)
 WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type=1);
-#endif
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
@@ -89,13 +68,8 @@ void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
 void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 
-#if defined(USE_WFUNC)
 void mprintfW(WCHAR *fmt,...);
 void vmprintfW(WCHAR *fmt,...);
-#endif
-void mprintf(char *fmt,...);
-void mprintf(int MsgId,...);
-void vmprintf(char *fmt,...);
 
 inline WORD GetVidChar(CHAR_INFO CI)
 {
@@ -132,12 +106,8 @@ void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
-void BoxText(WORD Chr);
-void BoxText(char *Str,int IsVert=0);
-#if defined(USE_WFUNC)
+void BoxTextW(WORD Chr);
 void BoxTextW(WCHAR *Str,int IsVert=0);
-void BoxTextW2(const char *Str,int IsVert);
-#endif
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();
@@ -156,12 +126,8 @@ int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
 
-#if defined(USE_WFUNC)
-#if defined(__UNICODESTRING_HPP__)
 BOOL IsCaseMixedW(const string &strStr);
 BOOL IsCaseLowerW(const string &strStr);
-#endif
-#endif
 
 int DeleteFileWithFolderW(const wchar_t *FileName);
 
@@ -188,7 +154,6 @@ HANDLE WINAPI FAR_CreateFileW(
     HANDLE hTemplateFile          // handle to file with attributes to copy
    );
 
-/* IS $ */
 
 BOOL FAR_CopyFileW(
     const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
@@ -224,7 +189,6 @@ BOOL FAR_MoveFileExW(
 
 BOOL MoveFileThroughTempW(const wchar_t *Src, const wchar_t *Dest);
 
-
 void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
@@ -233,10 +197,8 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst);
 
 BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer);
 
-char* GetAnsiLanguageString (int nID);
 wchar_t* GetUnicodeLanguageString (int nID);
 
-#define MSG(ID) GetAnsiLanguageString(ID)
 #define UMSG(ID) GetUnicodeLanguageString(ID)
 
 /* $ 29.08.2000 SVS
@@ -283,7 +245,6 @@ int ToPercent(unsigned long N1,unsigned long N2);
 int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
-int CmpName(const char *pattern,const char *str,int skippath=TRUE);
 int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
 /* $ 09.10.2000 IS
     + Новая функция для обработки имени файла
@@ -434,8 +395,6 @@ void EncodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
 
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
-//char *NullToEmpty(char *Str);
-const char *NullToEmpty(const char *Str);
 #define NullToEmptyW(s) (s?s:L"")
 
 string& CenterStrW(const wchar_t *Src, string &strDest,int Length);
@@ -575,9 +534,7 @@ int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
 int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath);
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
-#if defined(USE_WFUNC)
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
-#endif
 int WINAPI FarEditorControl(int Command,void *Param);
 
 int WINAPI FarViewerControl(int Command,void *Param);
@@ -672,8 +629,8 @@ string& WINAPI QuoteSpaceOnlyW(string &strStr);
 BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr);
 BOOL IsWordDivW(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
 /* IS $ */
-char* __stdcall PointToName (char *Path);
-const char* __stdcall PointToName (const char *Path);
+//char* __stdcall PointToName (char *Path);
+//const char* __stdcall PointToName (const char *Path);
 const wchar_t* __stdcall PointToNameW (const wchar_t *lpwszPath);
 
 const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *lpwszPath);
@@ -704,21 +661,24 @@ int WINAPI CopyToClipboardW(const wchar_t *Data);
 wchar_t* WINAPI PasteFromClipboardW(void);
 
 
-char* InternalPasteFromClipboard(int AnsiMode);
 wchar_t* InternalPasteFromClipboardW(int AnsiMode);
-char* InternalPasteFromClipboardEx(int max,int AnsiMode);
 wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode);
-int InternalCopyToClipboard(const char *Data,int AnsiMode);
 int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode);
 
 
-int WINAPI GetStringW(const wchar_t *Title,const wchar_t *SubTitle,
-                     const wchar_t *HistoryName,const wchar_t *SrcText,
-    string &strDestText,int DestLength,const wchar_t *HelpTopic=NULL,DWORD Flags=0,
-    int *CheckBoxValue=NULL,const wchar_t *CheckBoxText=NULL);
+int __stdcall GetStringW(
+		const wchar_t *Title,
+		const wchar_t *SubTitle,
+		const wchar_t *HistoryName,
+		const wchar_t *SrcText,
+		string &strDestText,
+		int DestLength,
+		const wchar_t *HelpTopic = NULL,
+		DWORD Flags = 0,
+		int *CheckBoxValue = NULL,
+		const wchar_t *CheckBoxText = NULL
+		);
 
-/* IS $ */
-/* SVS $ */
 int WINAPI GetNameAndPasswordW(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
 /* Программое переключение FulScreen <-> Windowed
@@ -761,22 +721,11 @@ extern "C" {
 
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 
-// $ 10.09.2000 tran - FSF/FarRecurseSearch
 typedef int  (WINAPI *FRSUSERFUNCW)(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param);
 void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNCW func,DWORD flags,void *param);
 
-/* $ 14.09.2000 SVS
- + Функция FarMkTemp - получение имени временного файла с полным путем.
-*/
-/* $ 25.10.2000 IS
- ! Изменил имя параметра с Template на Prefix
-*/
-//char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
-
 wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 string& FarMkTempExW(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
-/* IS $*/
-/* SVS $*/
 
 void CreatePathW(string &strPath);
 
@@ -787,7 +736,6 @@ void CreatePathW(string &strPath);
    переменные окружения.
 */
 BOOL FarChDirW(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
-/* IS $ */
 
 // обертка вокруг функции получения текущего пути.
 // для локального пути делает букву диска в uppercase
@@ -797,15 +745,11 @@ class UserDefinedListW;
 UserDefinedListW *SaveAllCurDir(void);
 void RestoreAllCurDir(UserDefinedListW *DirList);
 
-/*$ 27.09.2000 skv
-*/
 void WINAPI DeleteBuffer(char* Buffer);
-/* skv$*/
 
 #ifdef __cplusplus
 };
 #endif
-/* SVS $ */
 
 /* <Логи ***************************************************
 */
@@ -1101,7 +1045,7 @@ int ConfirmAbortOp();
 // Получить из имени диска RemoteName
 string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest);
 
-void __PrepareKMGTbStr(void);
+void __PrepareKMGTbStrW(void);
 string& __stdcall FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
 

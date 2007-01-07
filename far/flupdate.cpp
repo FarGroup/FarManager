@@ -232,9 +232,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   const wchar_t *PointToName_CurDir=PointToNameW(strCurDir);
 
   // сформируем заголовок вне цикла
-  char Title[2048];
-  int TitleLength=Min((int)X2-X1-1,(int)sizeof(Title)-1);
-  memset(Title,0x0CD,TitleLength);
+  wchar_t Title[2048];
+  int TitleLength=Min((int)X2-X1-1,(int)(sizeof(Title)/sizeof(wchar_t))-1);
+  wmemset(Title,0x0CD,TitleLength); //BUGBUG
   Title[TitleLength]=0;
   BOOL IsShowTitle=FALSE;
   BOOL NeedHighlight=Opt.Highlight && PanelMode != PLUGIN_PANEL;
@@ -339,7 +339,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
               SetPreRedrawFunc(PR_ReadFileNamesMsg);
             else
             {
-              Text(X1+1,Y1,COL_PANELBOX,Title);
+              TextW(X1+1,Y1,COL_PANELBOX,Title);
               IsShowTitle=TRUE;
               SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
             }

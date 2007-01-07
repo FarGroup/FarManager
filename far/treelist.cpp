@@ -50,9 +50,7 @@ static char TreeLineSymbol[4][3]={
   {0xC3,0xC4,/*0xC4,*/0x00},
 };
 
-#if defined(USE_WFUNC)
 static WCHAR TreeLineSymbolW[4][3]={0};
-#endif
 
 static struct TreeListCache
 {
@@ -238,7 +236,6 @@ void TreeList::DisplayTree(int Fast)
         DisplayTreeName(L"\\",J);
       else
       {
-#if defined(USE_WFUNC)
         // первоначальная инициализация
         if(TreeLineSymbolW[0][0] == 0x0000)
         {
@@ -250,53 +247,29 @@ void TreeList::DisplayTree(int Fast)
         }
         WCHAR OutStrW[200];
         *OutStrW=0;
-#endif
+
         char  OutStr[200];
         for (*OutStr=0,K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
         {
           if (CurPtr->Last[K])
           {
-#if defined(USE_WFUNC)
-            if(Opt.UseUnicodeConsole)
-              wcscat(OutStrW,TreeLineSymbolW[0]);
-            else
-#endif
-              strcat(OutStr,TreeLineSymbol[0]);
+             wcscat(OutStrW,TreeLineSymbolW[0]);
           }
           else
           {
-#if defined(USE_WFUNC)
-            if(Opt.UseUnicodeConsole)
-              wcscat(OutStrW,TreeLineSymbolW[1]);
-            else
-#endif
-            strcat(OutStr,TreeLineSymbol[1]);
+             wcscat(OutStrW,TreeLineSymbolW[1]);
           }
         }
         if (CurPtr->Last[CurPtr->Depth-1])
         {
-#if defined(USE_WFUNC)
-          if(Opt.UseUnicodeConsole)
             wcscat(OutStrW,TreeLineSymbolW[2]);
-          else
-#endif
-            strcat(OutStr,TreeLineSymbol[2]);
         }
         else
         {
-#if defined(USE_WFUNC)
-          if(Opt.UseUnicodeConsole)
             wcscat(OutStrW,TreeLineSymbolW[3]);
-          else
-#endif
-            strcat(OutStr,TreeLineSymbol[3]);
         }
-#if defined(USE_WFUNC)
-        if(Opt.UseUnicodeConsole)
-          BoxTextW(OutStrW,FALSE);
-        else
-#endif
-          Text(OutStr);
+
+        BoxTextW(OutStrW,FALSE);
 
         const wchar_t *ChPtr=wcsrchr(CurPtr->strName,L'\\');
         if (ChPtr!=NULL)
@@ -305,7 +278,7 @@ void TreeList::DisplayTree(int Fast)
     }
     SetColor(COL_PANELTEXT);
     if ((K=WhereX())<X2)
-      mprintf("%*s",X2-WhereX(),"");
+      mprintfW(L"%*s",X2-WhereX(),L"");
   }
   if (Opt.ShowPanelScrollbar)
   {

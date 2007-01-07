@@ -3333,7 +3333,7 @@ int ShellCopy::ShellCopyFileW(const wchar_t *SrcName,const FAR_FIND_DATA_EX &Src
 
 /* $ 30.01.2001 VVM
     + Перевод секунд в текст */
-static void GetTimeText(int Time, char *TimeText)
+static void GetTimeText(int Time, string &strTimeText)
 {
   int Sec = Time;
   int Min = Sec/60;
@@ -3346,7 +3346,7 @@ static void GetTimeText(int Time, char *TimeText)
   int Hour = Min/60;
   Min-=(Hour*60);
   /* SKV$*/
-  sprintf(TimeText,"%02d:%02d:%02d",Hour,Min,Sec);
+  strTimeText.Format (L"%02d:%02d:%02d",Hour,Min,Sec);
 }
 /* VVM $ */
 
@@ -3395,11 +3395,11 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
 
   GotoXY(BarX+BarLength,BarY+(TotalBar ? 2:0));
 
-  char Percents[6];
+  string strPercents;
 
-  sprintf (Percents, "%4d%%", ToPercent64 (WrittenSize, TotalSize));
+  strPercents.Format (L"%4d%%", ToPercent64 (WrittenSize, TotalSize));
 
-  Text (Percents);
+  TextW (strPercents);
 
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
@@ -3414,43 +3414,43 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
       SizeLeft = 0;
 
     int TimeLeft;
-    char TimeStr[100];
-    char c[2];
+    string strTimeStr;
+    wchar_t c[2];
     c[1]=0;
 
     if (OldTotalSize == 0 || WorkTime == 0)
-      sprintf(TimeStr,MSG(MCopyTimeInfo), " ", " ", 0, " ");
+      strTimeStr.Format (UMSG(MCopyTimeInfo), L" ", L" ", 0, L" ");
     else
     {
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
       int CPS = static_cast<int>(OldWrittenSize/WorkTime);
       TimeLeft = static_cast<int>((CPS)?SizeLeft/CPS:0);
-      c[0]=' ';
+      c[0]=L' ';
       if (CPS > 99999) {
-        c[0]='K';
+        c[0]=L'K';
         CPS = CPS/1024;
       }
       if (CPS > 99999) {
-        c[0]='M';
+        c[0]=L'M';
         CPS = CPS/1024;
       }
       /* $ 06.03.2001 SVS
          А у меня и такое есть :-)
       */
       if (CPS > 99999) {
-        c[0]='G';
+        c[0]=L'G';
         CPS = CPS/1024;
       }
       /* SVS $ */
-      char WorkTimeStr[12];
-      char TimeLeftStr[12];
-      GetTimeText(WorkTime, WorkTimeStr);
-      GetTimeText(TimeLeft, TimeLeftStr);
-      sprintf(TimeStr,MSG(MCopyTimeInfo), WorkTimeStr, TimeLeftStr, CPS, c);
+      string strWorkTimeStr;
+      string strTimeLeftStr;
+      GetTimeText(WorkTime, strWorkTimeStr);
+      GetTimeText(TimeLeft, strTimeLeftStr);
+      strTimeStr.Format (UMSG(MCopyTimeInfo), (const wchar_t*)strWorkTimeStr, (const wchar_t*)strTimeLeftStr, CPS, c);
     }
     GotoXY(BarX,BarY+(TotalBar?6:4));
-    Text(TimeStr);
+    TextW(strTimeStr);
   }
   return (TRUE);
 /* VVM $ */

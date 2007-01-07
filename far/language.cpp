@@ -32,9 +32,6 @@ static Language OldLang;
 
 Language::Language()
 {
-  MsgList=NULL;
-  MsgAddr=NULL;
-
   MsgListW = NULL;
   MsgAddrW = NULL;
 
@@ -45,7 +42,7 @@ Language::Language()
 
 int Language::Init(const wchar_t *Path,int CountNeed)
 {
-  if (MsgList!=NULL)
+  if (MsgListW!=NULL)
     return(TRUE);
 
   int LastError=GetLastError();
@@ -74,24 +71,14 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
     int DestLength=pack(strDestStr.GetLength()+1);
 
-    if ((MsgList=(char *)xf_realloc(MsgList,MsgSize+DestLength))==NULL)
-    {
-      fclose(LangFile);
-      return(FALSE);
-    }
-
     if ( (MsgListW = (wchar_t*)xf_realloc(MsgListW, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
     {
-      free (MsgList);
-      MsgList = NULL;
       fclose(LangFile);
       return(FALSE);
     }
 
-    *(int*)&MsgList[MsgSize+DestLength-_PACK]=0;
     *(int*)&MsgListW[MsgSize+DestLength-_PACK] = 0;
 
-    WideCharToMultiByte(CP_OEMCP, 0, strDestStr, -1, MsgList+MsgSize, DestLength, NULL, NULL);
     wcscpy(MsgListW+MsgSize, strDestStr);
 
     MsgSize+=DestLength;
@@ -105,32 +92,21 @@ int Language::Init(const wchar_t *Path,int CountNeed)
     return(FALSE);
   }
   /* SVS $ */
-  char *CurAddr=MsgList;
   wchar_t *CurAddrW = MsgListW;
 
-  MsgAddr=new LPSTR[MsgCount];
   MsgAddrW = new wchar_t*[MsgCount];
 
-  if (MsgAddr==NULL)
-  {
-    fclose(LangFile);
-    return(FALSE);
-  }
 
   if ( MsgAddrW == NULL )
   {
-    free (MsgAddr);
     fclose(LangFile);
     return(FALSE);
   }
 
   for (int I=0;I<MsgCount;I++)
   {
-    MsgAddr[I]=CurAddr;
     MsgAddrW[I]=CurAddrW;
-
     CurAddrW+=pack(wcslen(CurAddrW)+1);
-    CurAddr+=pack(strlen(CurAddr)+1);
   }
 
   fclose(LangFile);
@@ -149,10 +125,10 @@ Language::~Language()
 
 void Language::Free()
 {
-  if(MsgList)xf_free(MsgList);
-  MsgList=NULL;
-  if(MsgAddr)delete[] MsgAddr;
-  MsgAddr=NULL;
+  if(MsgListW)xf_free(MsgListW);
+  MsgListW=NULL;
+  if(MsgAddrW)delete[] MsgAddrW;
+  MsgAddrW=NULL;
   MsgCount=0;
   MsgSize=0;
 }
@@ -163,14 +139,14 @@ void Language::Close()
   {
     if(OldLang.MsgCount)
       OldLang.Free();
-    OldLang.MsgList=MsgList;
-    OldLang.MsgAddr=MsgAddr;
+    OldLang.MsgListW=MsgListW;
+    OldLang.MsgAddrW=MsgAddrW;
     OldLang.MsgCount=MsgCount;
     OldLang.MsgSize=MsgSize;
   }
 
-  MsgList=NULL;
-  MsgAddr=NULL;
+  MsgListW=NULL;
+  MsgAddrW=NULL;
   MsgCount=0;
   MsgSize=0;
   LanguageLoaded=FALSE;
@@ -264,15 +240,6 @@ BOOL Language::CheckMsgId(int MsgId)
     return FALSE;
   }
   return TRUE;
-}
-
-char* Language::GetMsg(int MsgId)
-{
-  if(!CheckMsgId(MsgId))
-    return "";
-  if(this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
-    return(OldLang.MsgAddr[MsgId]);
-  return(MsgAddr[MsgId]);
 }
 
 wchar_t* Language::GetMsgW (int nID)

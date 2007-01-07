@@ -391,10 +391,9 @@ void VMenu::ShowMenu(int IsParent)
 {
   CriticalSectionLock Lock(CS);
 
-  char TmpStr[1024];
   wchar_t TmpStrW[1024]; //BUGBUG, dynamic
 
-  unsigned char BoxChar[2],BoxChar2[2];
+  wchar_t BoxChar[2],BoxChar2[2];
   int Y,I;
   /* $ 23.02.2002 DJ
      если в меню нету пунктов - это не значит, что не надо рисовать фон!
@@ -499,8 +498,8 @@ void VMenu::ShowMenu(int IsParent)
       if (Item[I]->Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
-        char *Ptr=TmpStr+1;
-        MakeSeparator(SepWidth,TmpStr,
+        wchar_t *Ptr=TmpStrW+1;
+        MakeSeparatorW(SepWidth,TmpStrW,
           BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
         if (I>0 && I<ItemCount-1 && SepWidth>3)
@@ -521,12 +520,7 @@ void VMenu::ShowMenu(int IsParent)
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
         SetColor(VMenu::Colors[VMenuColorSeparator]);
-#if defined(USE_WFUNC)
-        if(Opt.UseUnicodeConsole)
-          BoxTextW2(TmpStr,FALSE);
-        else
-#endif
-          BoxText(TmpStr,FALSE);
+        BoxTextW(TmpStrW,FALSE);
 
         if ( !Item[I]->strName.IsEmpty() )
         {
@@ -543,9 +537,9 @@ void VMenu::ShowMenu(int IsParent)
         if (BoxType!=NO_BOX)
         {
           SetColor(VMenu::Colors[VMenuColorBox]);
-          BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
+          BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
           GotoXY(X2,Y);
-          BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
+          BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
         }
 
         const wchar_t *Item_I_PtrName=(const wchar_t *)Item[I]->strName;
@@ -627,9 +621,9 @@ void VMenu::ShowMenu(int IsParent)
       if (BoxType!=NO_BOX)
       {
         SetColor(VMenu::Colors[VMenuColorBox]);
-        BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
+        BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
         GotoXY(X2,Y);
-        BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
+        BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
         GotoXY(X1+1,Y);
       }
       else

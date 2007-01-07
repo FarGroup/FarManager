@@ -18,9 +18,7 @@ Screen grabber
 #include "manager.hpp"
 #include "frame.hpp"
 
-#if defined(USE_WFUNC)
 extern WCHAR Oem2Unicode[];
-#endif
 
 Grabber::Grabber()
 {
