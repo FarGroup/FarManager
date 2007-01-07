@@ -2,6 +2,11 @@ BEGIN{
   FS=".";
   if(out == "")
     out="Release.vc";
+
+  if(length(ENVIRON["FARSYSLOG"]) > 0)
+    objdir="objlog";
+  else
+    objdir="obj"
 }
 {
   if($2 == "cpp" || $2 == "c")
@@ -18,7 +23,7 @@ BEGIN{
   }
   else
   {
-    print ".\\" out "\\obj\\" $1 "." ext " : \\";
+    print ".\\" out "\\" objdir "\\" $1 "." ext " : \\";
     print "\t\".\\" $1 "." $2 "\"\\";
   }
   #print "Process " $1 "." $2 > "/dev/stderr"

@@ -225,8 +225,8 @@ headers.hpp
 #endif
 
 
-#if defined(__BORLANDC__)
-  #if (__BORLANDC__ < 0x0550)
+#if defined(__BORLANDC__) || (defined(_MSC_VER) && _MSC_VER <= 1200)
+  #if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200)
     //#if !defined(__midl) && defined(_X86_)
     //#define _W64 __w64
     //#else
@@ -242,24 +242,29 @@ headers.hpp
   #endif
   #define _INTPTR_T_DEFINED
   #endif
+#endif
 
-  #if (__BORLANDC__ < 0x0550)
+
+#if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200)
+  //#if (__BORLANDC__ < 0x0550)
     #if defined(_WIN64)
+        #if defined(__BORLANDC__)
         typedef __int64 INT_PTR, *PINT_PTR;
         typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
+        #endif
 
         typedef __int64 LONG_PTR, *PLONG_PTR;
         typedef unsigned __int64 ULONG_PTR, *PULONG_PTR;
     #else
+        #if defined(__BORLANDC__)
         typedef _W64 int INT_PTR, *PINT_PTR;
         typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
+        #endif
 
         typedef _W64 long LONG_PTR, *PLONG_PTR;
         typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR;
     #endif
     typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
-  #endif
-
 #endif
 
 

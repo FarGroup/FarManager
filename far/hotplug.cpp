@@ -5,14 +5,13 @@ hotplug.cpp
 
 */
 
-/* Revision: 1.03 14.09.2006 $ */
-
 #include "headers.hpp"
 #pragma hdrstop
 
-#if defined(__BORLANDC__)
+//#if defined(__BORLANDC__)
+#if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200)
 // -----------------------------------------------------------------
-#if (__BORLANDC__ <= 0x0520)
+//#if (__BORLANDC__ <= 0x0520)
 // недостающие для BCC 5.02 данные
 
 #ifndef _BASETSD_H_
@@ -64,7 +63,7 @@ const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf
 #define DIGCF_DEVICEINTERFACE            0x00000010
 #define ERROR_INVALID_DRIVE_OBJECT       4321L
 
-#endif  /* __BORLANDC__ <= 0x0520 */
+//#endif  /* __BORLANDC__ <= 0x0520 */
 // -----------------------------------------------------------------
 #endif  /* __BORLANDC__ */
 
