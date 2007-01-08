@@ -527,6 +527,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
         ) == CR_SUCCESS )
     {
       if ( (Problem != CM_PROB_DEVICE_NOT_THERE) &&
+           (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
          (Capabilities & CM_DEVCAP_REMOVABLE) &&
          !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) &&
          !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
