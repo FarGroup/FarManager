@@ -114,9 +114,9 @@ void InitDetectWindowedMode()
     ExtractIconExW(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 
     if (hLargeIcon!=NULL)
-      hOldLargeIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+      hOldLargeIcon=(HICON)SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
     if (hSmallIcon!=NULL)
-      hOldSmallIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+      hOldSmallIcon=(HICON)SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
   }
 
   DetectWindowedMode();
@@ -148,8 +148,8 @@ void RestoreIcons()
   {
     if (hOldLargeIcon!=NULL)
     {
-      SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
-      SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
+      SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
+      SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
     }
   }
 }
@@ -186,7 +186,7 @@ int FarAltEnter(int mode)
       //Windows9X посылает сообщение WM_COMMAND со специальным идентификатором,
       //когда пользователь нажимает ALT+ENTER:
       #define ID_SWITCH_CONSOLEMODE 0xE00F
-      SendMessage(hFarWnd,WM_COMMAND,ID_SWITCH_CONSOLEMODE,
+      SendMessageW(hFarWnd,WM_COMMAND,ID_SWITCH_CONSOLEMODE,
            (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1));
     }
   }

@@ -241,14 +241,14 @@ void ChangeVideoMode(int Maximized)
   COORD coordScreen;
   if (Maximized)
   {
-    SendMessage(hFarWnd,WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
+    SendMessageW(hFarWnd,WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
     coordScreen = GetLargestConsoleWindowSize(hConOut);
     coordScreen.X+=Opt.ScrSize.DeltaXY.X;
     coordScreen.Y+=Opt.ScrSize.DeltaXY.Y;
   }
   else
   {
-    SendMessage(hFarWnd,WM_SYSCOMMAND,SC_RESTORE,(LPARAM)0);
+    SendMessageW(hFarWnd,WM_SYSCOMMAND,SC_RESTORE,(LPARAM)0);
     coordScreen = InitScreenBufferInfo.dwSize;
   }
   ChangeVideoMode(coordScreen.Y,coordScreen.X);

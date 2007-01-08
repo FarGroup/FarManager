@@ -120,12 +120,12 @@ void ShowProcessList()
       // Allow SetForegroundWindow on Win98+.
       DWORD dwMs;
       // Remember the current value.
-      BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
+      BOOL bSPI = SystemParametersInfoW(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
       if(bSPI) // Reset foreground lock timeout
-        bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
+        bSPI = SystemParametersInfoW(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
       SetForegroundWindow(ProcWnd);
       if(bSPI) // Restore old value
-        SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(DWORD_PTR)dwMs, 0);
+        SystemParametersInfoW(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(DWORD_PTR)dwMs, 0);
 
       WINDOWPLACEMENT wp;
       wp.length=sizeof(wp);

@@ -1004,8 +1004,8 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 
                     if ( hFarWnd )
                     {
-                      hSmallIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)0));
-                      hLargeIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
+                      hSmallIcon = CopyIcon((HICON)SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)0));
+                      hLargeIcon = CopyIcon((HICON)SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)0));
                     }
 
                     ReadConsoleInputW(hInput,ir,256,&rd);
@@ -1025,7 +1025,7 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
                     AllocConsole();
 
                     if ( hFarWnd ) // если окно имело HOTKEY, то старое должно его забыть.
-                      SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
+                      SendMessageW(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
 
                     SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
                     SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
@@ -1047,10 +1047,10 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
                       }
 
                       if ( hLargeIcon != NULL )
-                        SendMessage (hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+                        SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
                       if ( hSmallIcon != NULL )
-                        SendMessage (hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+                        SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
                     }
 
                     stop=1;
