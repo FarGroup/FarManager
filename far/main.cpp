@@ -377,9 +377,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
      /co - cache only, */
   Opt.LoadPlug.PluginsCacheOnly=FALSE;
   /* tran $ */
-  /* $ 09.01.2002 IS только после этого можно использовать Local* */
-  LocalUpperInit();
-  /* IS $ */
 
   if ( apiGetModuleFileName (NULL, g_strFarPath) )
   {
@@ -540,9 +537,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   }
 
   InitializeSetupAPI ();
-  //   Настройка сортировки.
-  //   Должна быть после CopyGlobalSettings и перед InitKeysArray!
-  InitLCIDSort();
 
   //Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
   InitKeysArray();

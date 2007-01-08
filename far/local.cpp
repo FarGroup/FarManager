@@ -11,79 +11,7 @@ local.cpp
 #include "global.hpp"
 #include "fn.hpp"
 
-static int _cdecl LCSort(const void *el1,const void *el2);
-
-unsigned char LowerToUpper[256];
-unsigned char UpperToLower[256];
-unsigned char IsUpperOrLower[256];
-static unsigned char LCOrder[256];
 static unsigned char KeyToKey[256];
-
-void LocalUpperInit()
-{
-  unsigned char CvtStr[2],ReverseCvtStr[2];
-  int I;
-
-  CvtStr[1]=0;
-
-  for (I=0;I<sizeof(LowerToUpper)/sizeof(LowerToUpper[0]);I++)
-  {
-    CvtStr[0]=I;
-    LowerToUpper[I]=UpperToLower[I]=I;
-    FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
-    FAR_CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
-    IsUpperOrLower[I]=0;
-    if (IsCharAlpha(CvtStr[0]) && ReverseCvtStr[0]==I)
-    {
-      IsUpperOrLower[I]=IsCharLower(CvtStr[0])?1:(IsCharUpper(CvtStr[0])?2:0);
-      CharUpper((char *)CvtStr);
-      FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-      LowerToUpper[I]=CvtStr[0];
-      CvtStr[0]=I;
-      FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
-      CharLower((char *)CvtStr);
-      FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-      UpperToLower[I]=CvtStr[0];
-    }
-  }
-}
-
-/* $ 26.03.2002 IS
-   »нициализаци€ системозависимой сортировки строк.
-   ¬ызывать только после CopyGlobalSettings (потому что только тогда GetRegKey
-   считает правильные данные) и перед InitKeysArray (потому что там уже
-   используетс€ сортировка)!
-*/
-void InitLCIDSort()
-{
-  char LCSortBuffer[256];
-  int I;
-
-  for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
-    LCSortBuffer[I]=I;
-
-  Opt.LCIDSort=GetRegKeyW(L"System",L"LCID",LOCALE_USER_DEFAULT);
-  far_qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
-
-  for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
-    LCOrder[LCSortBuffer[I]]=I;
-
-  LCOrder[0]=0;
-  LCOrder['\\']=1;
-  LCOrder['.']=2;
-
-  for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0])-1;I++)
-    if (LCSort(&LCSortBuffer[I],&LCSortBuffer[I+1])==0)
-      LCOrder[LCSortBuffer[I+1]]=LCOrder[LCSortBuffer[I]];
-
-  for (I=0;I<sizeof(LCOrder)/sizeof(LCOrder[0]);I++)
-    LCOrder[I]=LCOrder[UpperToLower[I]];
-
-/*  for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
-    KeyToKey[I]=I;
-*/
-}
-/* IS $ */
 
 /* $ 11.01.2002 IS
    »нициализаци€ массива клавиш.
@@ -153,94 +81,104 @@ void InitKeysArray()
 
 int WINAPI LocalIslower(unsigned Ch)
 {
-  return(Ch<256 && IsUpperOrLower[Ch]==1);
+	if (Ch>=256)
+		return FALSE;
+
+	char s[2];
+	s[0] = Ch; s[1] = 0;
+	string strS(s,CP_OEMCP);
+	return LocalIslowerW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
 
 
 int WINAPI LocalIsupper(unsigned Ch)
 {
-  return(Ch<256 && IsUpperOrLower[Ch]==2);
+	if (Ch>=256)
+		return FALSE;
+
+	char s[2];
+	s[0] = Ch; s[1] = 0;
+	string strS(s,CP_OEMCP);
+	return LocalIsupperW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
 
 int WINAPI LocalIsalpha(unsigned Ch)
 {
-  if (Ch>=256)
-    return(FALSE);
+	if (Ch>=256)
+		return FALSE;
 
-  unsigned char CvtStr[1];
-  CvtStr[0]=Ch;
-  FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-  return(IsCharAlpha(CvtStr[0]));
+	char s[2];
+	s[0] = Ch; s[1] = 0;
+	string strS(s,CP_OEMCP);
+	return IsCharAlphaW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
 
 int WINAPI LocalIsalphanum(unsigned Ch)
 {
-  if (Ch>=256)
-    return(FALSE);
+	if (Ch>=256)
+		return FALSE;
 
-  unsigned char CvtStr[1];
-  CvtStr[0]=Ch;
-  FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-  return(IsCharAlphaNumeric(CvtStr[0]));
+	char s[2];
+	s[0] = Ch; s[1] = 0;
+	string strS(s,CP_OEMCP);
+	return IsCharAlphaNumericW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
 
 
 unsigned WINAPI LocalUpper(unsigned LowerChar)
 {
-  return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
+	if (LowerChar>=256)
+		return LowerChar;
+
+	char s[2];
+	s[0] = LowerChar; s[1] = 0;
+	string strS(s,CP_OEMCP);
+	strS.Upper();
+	UnicodeToAnsi(strS,s,sizeof(s));
+	return s[0];
 }
 
 
 void WINAPI LocalUpperBuf(char *Buf,int Length)
 {
   for (int I=0;I<Length;I++)
-    Buf[I]=LowerToUpper[Buf[I]];
+    Buf[I]=LocalUpper(Buf[I]);
 }
 
-/* $ 28.08.2000 SVS
-   ƒобавлена функци€ LocalLowerBuf
-*/
 void WINAPI LocalLowerBuf(char *Buf,int Length)
 {
   for (int I=0;I<Length;I++)
-    Buf[I]=UpperToLower[Buf[I]];
+    Buf[I]=LocalLower(Buf[I]);
 }
-/* SVS $ */
+
 
 unsigned WINAPI LocalLower(unsigned UpperChar)
 {
-  return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
+	if (UpperChar>=256)
+		return UpperChar;
+
+	char s[2];
+	s[0] = UpperChar; s[1] = 0;
+	string strS(s,CP_OEMCP);
+	strS.Lower();
+	UnicodeToAnsi(strS,s,sizeof(s));
+	return s[0];
 }
 
-/* $ 27.11.2001 DJ
-   устран€ем неоднозначность :-)
-*/
 
 void WINAPI LocalStrupr(char *s1)
 {
-  while (*s1)
-  {
-    *s1=LowerToUpper[*s1];
-    s1++;
-  }
+	string strS(s1,CP_OEMCP);
+	strS.Upper();
+	UnicodeToAnsi(strS,s1,strlen(s1)+1);
 }
 
 
 void WINAPI LocalStrlwr(char *s1)
 {
-  while (*s1)
-  {
-  *s1=UpperToLower[*s1];
-  s1++;
-  }
-}
-
-/* DJ $ */
-
-
-int WINAPI LStricmp(const char *s1,const char *s2)
-{
-  return LocalStricmp(s1,s2);
+	string strS(s1,CP_OEMCP);
+	strS.Lower();
+	UnicodeToAnsi(strS,s1,strlen(s1)+1);
 }
 
 const char * __cdecl LocalStrstri(const char *str1, const char *str2)
@@ -256,7 +194,7 @@ const char * __cdecl LocalStrstri(const char *str1, const char *str2)
     s1 = cp;
     s2 = (char *) str2;
 
-    while ( *s1 && *s2 && !(UpperToLower[*s1] - UpperToLower[*s2]) )
+    while ( *s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)) )
     {
       s1++;
       s2++;
@@ -290,7 +228,7 @@ const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
     s1 = cp;
     s2 = (char *) str2;
 
-    while ( *s1 && *s2 && !(UpperToLower[*s1] - UpperToLower[*s2]) )
+    while ( *s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)) )
     {
       s1++;
       s2++;
@@ -307,28 +245,17 @@ const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
 
 int __cdecl LocalStricmp(const char *s1,const char *s2)
 {
-  while (1)
-  {
-    if (UpperToLower[*s1] != UpperToLower[*s2])
-      return (UpperToLower[*s1] < UpperToLower[*s2]) ? -1 : 1;
-    if (*(s1++) == 0)
-      break;
-    s2++;
-  }
-  return(0);
-}
-
-int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
-{
-  return LocalStrnicmp(s1,s2,n);
+	string strS1(s1,CP_OEMCP);
+	string strS2(s2,CP_OEMCP);
+	return LocalStricmpW(strS1,strS2);
 }
 
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 {
   while (n-- > 0)
   {
-    if (UpperToLower[*s1] != UpperToLower[*s2])
-      return (UpperToLower[*s1] < UpperToLower[*s2]) ? -1 : 1;
+    if (LocalLower(*s1) != LocalLower(*s2))
+      return (LocalLower(*s1) < LocalLower(*s2)) ? -1 : 1;
     if (*(s1++) == 0)
       break;
     s2++;
@@ -336,65 +263,15 @@ int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
   return(0);
 }
 
-
-int __cdecl LCStricmp(const char *s1,const char *s2)
+int WINAPI LStricmp(const char *s1,const char *s2)
 {
-  while (1)
-  {
-    if (LCOrder[*s1] != LCOrder[*s2])
-      return (LCOrder[*s1] < LCOrder[*s2]) ? -1 : 1;
-    if (*(s1++) == 0)
-      break;
-    s2++;
-  }
-  return(0);
+	return LocalStricmp(s1,s2);
 }
 
-int __cdecl LCNumStricmp(const char *s1,const char *s2)
+int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 {
-  const char *ts1 = s1, *ts2 = s2;
-  while(*s1 && *s2)
-  {
-    if(isdigit(*s1) && isdigit(*s2))
-    {
-       // берем длину числа без ведущих нулей
-       int dig_len1 = __digit_cnt_0(s1, &s1);
-       int dig_len2 = __digit_cnt_0(s2, &s2);
-       // если одно длиннее другого, значит они и больше! :)
-       if(dig_len1 != dig_len2)
-         return dig_len1 - dig_len2;
-       // длины одинаковы, сопоставл€ем...
-       while(isdigit(*s1) && isdigit(*s2))
-       {
-         if (LCOrder[*s1] != LCOrder[*s2])
-           return (LCOrder[*s1] < LCOrder[*s2]) ? -1 : 1;
-         s1++; s2++;
-       }
-       if(*s1 == 0)
-         break;
-   }
-    if (LCOrder[*s1] != LCOrder[*s2])
-      return (LCOrder[*s1] < LCOrder[*s2]) ? -1 : 1;
-    s1++; s2++;
-  }
-  int Ret=LCOrder[*s1] - LCOrder[*s2];
-  if(!Ret)
-    return strlen(ts1)-strlen(ts2);
-  return (Ret < 0) ? -1 : 1;
+  return LocalStrnicmp(s1,s2,n);
 }
-
-int _cdecl LCSort(const void *el1,const void *el2)
-{
-  char Str1[3],Str2[3];
-  Str1[0]=*(char *)el1;
-  Str2[0]=*(char *)el2;
-  Str1[1]=Str2[1]=0;
-  Str1[2]=Str2[2]=0;
-  FAR_OemToCharBuff(Str1,Str1,1);
-  FAR_OemToCharBuff(Str2,Str2,1);
-  return(CompareString(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
-}
-
 
 int LocalKeyToKey(int Key)
 {
@@ -506,6 +383,95 @@ int WINAPI LocalStricmpW (const wchar_t *s1, const wchar_t *s2)
             -1
             )-2;
 
+}
+
+int WINAPI LocalStrncmpW (const wchar_t *s1, const wchar_t *s2, int n)
+{
+    return CompareStringW (
+            0,
+            0,
+            s1,
+            n,
+            s2,
+            n
+            )-2;
+}
+
+int WINAPI LocalStrcmpW (const wchar_t *s1, const wchar_t *s2)
+{
+    return CompareStringW (
+            0,
+            0,
+            s1,
+            -1,
+            s2,
+            -1
+            )-2;
+
+}
+
+int __cdecl LocalNumStricmpW (const wchar_t *s1, const wchar_t *s2)
+{
+  int ret;
+  while(*s1 && *s2)
+  {
+    if(iswdigit(*s1) && iswdigit(*s2))
+    {
+       // берем длину числа без ведущих нулей
+       int dig_len1 = __digit_cnt_0(s1, &s1);
+       int dig_len2 = __digit_cnt_0(s2, &s2);
+       // если одно длиннее другого, значит они и больше! :)
+       if(dig_len1 != dig_len2)
+         return dig_len1 - dig_len2;
+       // длины одинаковы, сопоставл€ем...
+       while(iswdigit(*s1) && iswdigit(*s2))
+       {
+         ret = LocalStrnicmpW(s1,s2,1);
+         if (ret)
+           return ret;
+         s1++; s2++;
+       }
+       if(*s1 == 0)
+         break;
+    }
+    ret = LocalStrnicmpW(s1,s2,1);
+    if (ret)
+      return ret;
+    s1++; s2++;
+  }
+  return LocalStricmpW(s1,s2);
+}
+
+int __cdecl LocalNumStrcmpW (const wchar_t *s1, const wchar_t *s2)
+{
+  int ret;
+  while(*s1 && *s2)
+  {
+    if(iswdigit(*s1) && iswdigit(*s2))
+    {
+       // берем длину числа без ведущих нулей
+       int dig_len1 = __digit_cnt_0(s1, &s1);
+       int dig_len2 = __digit_cnt_0(s2, &s2);
+       // если одно длиннее другого, значит они и больше! :)
+       if(dig_len1 != dig_len2)
+         return dig_len1 - dig_len2;
+       // длины одинаковы, сопоставл€ем...
+       while(iswdigit(*s1) && iswdigit(*s2))
+       {
+         ret = LocalStrncmpW(s1,s2,1);
+         if (ret)
+           return ret;
+         s1++; s2++;
+       }
+       if(*s1 == 0)
+         break;
+    }
+    ret = LocalStrncmpW(s1,s2,1);
+    if (ret)
+      return ret;
+    s1++; s2++;
+  }
+  return LocalStrcmpW(s1,s2);
 }
 
 int WINAPI LocalIsupperW (wchar_t Ch)

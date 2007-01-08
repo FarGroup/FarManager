@@ -1471,8 +1471,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     if(r1 && r2) // Если все ОБИ, то так  и...
     {
       InitRecodeOutTable(cp);
-      LocalUpperInit();
-      InitLCIDSort();
       InitKeysArray();
       CtrlObject->Cp()->Redraw();
       ScrBuf.Flush();

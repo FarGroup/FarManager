@@ -718,7 +718,7 @@ int  Manager::ProcessKey(DWORD Key)
           break;
         case 2:
           // Чтобы компилеры на нас не ругались варнингами, воспользуемся асмом
-          #if defined(__BORLANDC__)
+          #if defined(__BORLANDC__) || defined(_WIN64)
             return i / 0; // под борландом пусть матерится
           #else
           #ifdef __GNUC__

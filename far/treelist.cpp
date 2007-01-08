@@ -1793,18 +1793,18 @@ int _cdecl SortList(const void *el1,const void *el2)
 {
   string strName1=((struct TreeItem *)el1)->strName;
   string strName2=((struct TreeItem *)el2)->strName;
-  //if(!StaticSortNumeric) BUGBUG
+  if(!StaticSortNumeric)
     return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LocalStricmpW(strName1,strName2));
-  //else
-   // return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LCNumStricmp(NamePtr1,NamePtr2));
+  else
+    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LocalNumStricmpW(strName1,strName2));
 }
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
-//  if(!StaticSortNumeric)
+  if(!StaticSortNumeric)
     return(LocalStricmpW(*(wchar_t **)el1,*(wchar_t **)el2));
-//  else
-//    return(LCNumStricmp(*(char **)el1,*(char **)el2));
+  else
+    return(LocalNumStricmpW(*(wchar_t **)el1,*(wchar_t **)el2));
 }
 
 

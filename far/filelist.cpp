@@ -379,10 +379,10 @@ int _cdecl SortList(const void *el1,const void *el2)
 
   int NameCmp;
 
-  //if(!ListNumericSort)
-    NameCmp=ListCaseSensitive?wcscmp(Name1,Name2):LocalStricmpW(Name1,Name2);
-  /*else
-    NameCmp=ListCaseSensitive?NumStrcmp(Name1,Name2):LCNumStricmp(Name1,Name2);*/ //BUGBUG
+  if(!ListNumericSort)
+    NameCmp=ListCaseSensitive?LocalStrcmpW(Name1,Name2):LocalStricmpW(Name1,Name2);
+  else
+    NameCmp=ListCaseSensitive?LocalNumStrcmpW(Name1,Name2):LocalNumStricmpW(Name1,Name2);
   NameCmp*=ListSortOrder;
   if (NameCmp==0)
     NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
@@ -397,7 +397,7 @@ int _cdecl SortSearchList(const void *el1,const void *el2)
   SPtr1=(struct FileListItem **)el1;
   SPtr2=(struct FileListItem **)el2;
 
-  return wcscmp(SPtr1[0]->strName,SPtr2[0]->strName);
+  return LocalStrcmpW(SPtr1[0]->strName,SPtr2[0]->strName);
 //  return NumStrcmp(SPtr1->Name,SPtr2->Name);
 }
 #if defined(__BORLANDC__)

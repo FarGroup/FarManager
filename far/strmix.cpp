@@ -841,36 +841,6 @@ string& CenterStrW(const wchar_t *Src, string &strDest, int Length)
 }
 
 
-/* $ 08.04.2001 SVS
-  + дополнительный параметр - разделитель, по умолчанию = ','
-*/
-const char *GetCommaWord(const char *Src,char *Word,char Separator)
-{
-  int WordPos,SkipBrackets;
-  if (*Src==0)
-    return(NULL);
-  SkipBrackets=FALSE;
-  for (WordPos=0;*Src!=0;Src++,WordPos++)
-  {
-    if (*Src=='[' && strchr(Src+1,']')!=NULL)
-      SkipBrackets=TRUE;
-    if (*Src==']')
-      SkipBrackets=FALSE;
-    if (*Src==Separator && !SkipBrackets)
-    {
-      Word[WordPos]=0;
-      Src++;
-      while (IsSpace(*Src))
-        Src++;
-      return(Src);
-    }
-    else
-      Word[WordPos]=*Src;
-  }
-  Word[WordPos]=0;
-  return(Src);
-}
-
 const wchar_t *GetCommaWordW(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
   int WordPos,SkipBrackets;
@@ -1164,34 +1134,6 @@ wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count,BOOL IgnoreCase)
-{
-  int I=0, J=0, Res;
-  int LenReplStr=strlen(ReplStr);
-  int LenFindStr=strlen(FindStr);
-  int L=strlen(Str);
-
-  while(I <= L-LenFindStr)
-  {
-    Res=IgnoreCase?memicmp(Str+I, FindStr, LenFindStr):memcmp(Str+I, FindStr, LenFindStr);
-    if(Res == 0)
-    {
-      if(LenReplStr > LenFindStr)
-        memmove(Str+I+(LenReplStr-LenFindStr),Str+I,strlen(Str+I)+1); // >>
-      else if(LenReplStr < LenFindStr)
-        memmove(Str+I,Str+I+(LenFindStr-LenReplStr),strlen(Str+I+(LenFindStr-LenReplStr))+1); //??
-      memcpy(Str+I,ReplStr,LenReplStr);
-      I += LenReplStr;
-      if(Count > 0 && ++J == Count)
-        break;
-    }
-    else
-      I++;
-    L=strlen(Str);
-  }
-  return J;
-}
-
 int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
   int I=0, J=0, Res;
@@ -1729,45 +1671,13 @@ BOOL TestParentFolderNameW(const wchar_t *Name)
 }
 
 
-int __digit_cnt_0(const char* s, const char** beg)
+int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 {
   int n = 0;
-  while(*s == '0') s++;
+  while(*s == L'0') s++;
   *beg = s;
-  while(isdigit(*s)) { s++; n++; }
+  while(iswdigit(*s)) { s++; n++; }
   return n;
-}
-
-int __cdecl NumStrcmp(const char *s1, const char *s2)
-{
-  const char *ts1 = s1, *ts2 = s2;
-  while(*s1 && *s2)
-  {
-    if(isdigit(*s1) && isdigit(*s2))
-    {
-       // берем длину числа без ведущих нулей
-       int dig_len1 = __digit_cnt_0(s1, &s1);
-       int dig_len2 = __digit_cnt_0(s2, &s2);
-       // если одно длиннее другого, значит они и больше! :)
-       if(dig_len1 != dig_len2)
-         return dig_len1 - dig_len2;
-       // длины одинаковы, сопоставляем...
-       while(isdigit(*s1) && isdigit(*s2))
-       {
-          if(*s1 != *s2)
-            return *s1 - *s2;
-          s1++; s2++;
-       }
-       if(*s1 == 0)
-         break;
-    }
-    if(*s1 != *s2)
-      return *s1 - *s2; // здесь учесть локаль
-    s1++; s2++;
-  }
-  if(*s1 == *s2)
-    return strlen(ts2)-strlen(ts1);
-  return *s1 - *s2;
 }
 
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength)

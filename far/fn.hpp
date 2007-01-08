@@ -117,7 +117,6 @@ string &RemoveCharW(string &strStr,wchar_t Target,BOOL Dup=TRUE);
 
 wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
 
-int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
 int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
 
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
@@ -326,11 +325,9 @@ string &CutToFolderNameIfFolderW (string &strPath);
 const wchar_t *PointToNameUNCW (const wchar_t *lpwszPath);
 
 void SetFarTitleW (const wchar_t *Title);
-void LocalUpperInit();
 /* $ 11.01.2002 IS инициализация массива клавиш */
 void InitKeysArray();
 /* IS $ */
-void InitLCIDSort();
 /* $ 28.08.2000 SVS
    Модификация вызова под WINAPI
 */
@@ -353,12 +350,6 @@ const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
 const wchar_t * __cdecl StrstriW(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrstriW(const wchar_t *str1, const wchar_t *str2);
 
-int __cdecl LocalStricmp(const char *s1,const char *s2);
-int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
-int __cdecl LCStricmp(const char *s1,const char *s2);
-int __cdecl LCNumStricmp(const char *s1,const char *s2);
-
-
 void WINAPI LocalUpperBufW(wchar_t *Buf,int Length);
 void WINAPI LocalLowerBufW(wchar_t *Buf,int Length);
 void WINAPI LocalStruprW(wchar_t *s1);
@@ -372,6 +363,11 @@ int WINAPI LocalIslowerW (wchar_t Ch);
 int WINAPI LocalIsupperW (wchar_t Ch);
 int WINAPI LocalIsalphaW (wchar_t Ch);
 int WINAPI LocalIsalphanumW (wchar_t Ch);
+
+int WINAPI LocalStrcmpW (const wchar_t *s1, const wchar_t *s2);
+int WINAPI LocalStrncmpW (const wchar_t *s1, const wchar_t *s2, int n);
+int __cdecl LocalNumStrcmpW (const wchar_t *s1, const wchar_t *s2);
+int __cdecl LocalNumStricmpW (const wchar_t *s1, const wchar_t *s2);
 
 int LocalKeyToKey(int Key);
 int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL,
@@ -399,7 +395,6 @@ void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
 
 string& CenterStrW(const wchar_t *Src, string &strDest,int Length);
 
-const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
 const wchar_t *GetCommaWordW(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
@@ -646,8 +641,7 @@ BOOL  WINAPI AddEndSlashW (wchar_t *Path);
 BOOL  WINAPI DeleteEndSlash(char *Path,bool allendslash=false);
 BOOL  WINAPI DeleteEndSlashW(string &strPath,bool allendslash=false);
 
-int __cdecl NumStrcmp(const char *s1, const char *s2);
-int __digit_cnt_0(const char* s, const char** beg);
+int __digit_cnt_0(const wchar_t* s, const wchar_t** beg);
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix);
 __int64 WINAPI FarAtoi64(const wchar_t *s);
 wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix);
