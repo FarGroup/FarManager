@@ -5052,7 +5052,7 @@ int Editor::EditorControl(int Command,void *Param)
       if(!Param)
         return FALSE;
 
-      _ECTLLOG(SysLog(L"(char *)Param='%s'",(char *)Param));
+      _ECTLLOG(SysLog(L"(const wchar_t *)Param='%s'",(const wchar_t *)Param));
       if (Flags.Check(FEDITOR_LOCKMODE))
       {
         _ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));

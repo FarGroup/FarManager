@@ -343,7 +343,7 @@ DWORD WINAPI GetJunctionPointInfoW (const wchar_t *szMountDir, string &strDestBu
   CloseHandle(hDir);
 
   strDestBuff = rdb.PathBuffer;
-  return rdb.SubstituteNameLength / sizeof(TCHAR);
+  return rdb.SubstituteNameLength / sizeof(TCHAR); //вроде бы BUGBUG - TCHAR
 }
 
 

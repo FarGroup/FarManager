@@ -1200,9 +1200,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
         {
           _ECTLLOG(CleverSysLog SL(NFMP_OpenPluginW));
           TRY {
-             _SVS(SysLog(L"OPENPLUGIN >>> '%s'",(char *)Item));
+             _SVS(SysLog(L"OPENPLUGIN >>> '%s'",(wchar_t *)Item));
              hInternal=PData->pOpenPlugin(OpenFrom,Item);
-             _SVS(SysLog(L"OPENPLUGIN <<< '%s'",(char *)Item));
+             _SVS(SysLog(L"OPENPLUGIN <<< '%s'",(wchar_t *)Item));
              /* $ 26.02.2201 VVM
                  ! Выгрузить плагин, если вернули NULL */
              if (!hInternal)
@@ -1287,8 +1287,6 @@ HANDLE PluginsSet::OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,
     PData = PluginsData[I];
     if (PData->pOpenFilePlugin && PreparePlugin(I) && !ProcessException)
     {
-      char *NamePtr=NULL;
-
       string strFullName;
 
 

@@ -258,17 +258,8 @@ int CommandLine::ProcessKey(int Key)
 
         ProcessOSAliasesW(strStr);
 
-        char *Str = UnicodeToAnsi (strStr);
-
-        if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)Str))
-        {
-          wchar_t *lpwszStr = strStr.GetBuffer (); //BUGBUG
-          CmdExecute(lpwszStr,FALSE,Key==KEY_SHIFTENTER,FALSE);
-
-          strStr.ReleaseBuffer ();
-        }
-
-        xf_free (Str);
+        if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)(const wchar_t *)strStr))
+          CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER,FALSE);
       }
       return(TRUE);
 

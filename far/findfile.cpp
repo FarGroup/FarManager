@@ -77,7 +77,7 @@ static volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCo
 static string strFindMessage;
 static string strLastDirName;
 static int FindMessageReady,FindCountReady,FindPositionChanged;
-static char PluginSearchPath[2*NM];
+static string strPluginSearchPath;
 static HANDLE hDlg;
 static int RecurseLevel;
 static int BreakMainThread;
@@ -510,7 +510,7 @@ FindFiles::FindFiles()
     PrepareDriveNameStr(strSearchFromRoot,PARTIAL_DLG_STR_LEN);
 
     const wchar_t *MasksHistoryName=L"Masks",*TextHistoryName=L"SearchText";
-    const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH"; // HH HH HH HH HH HH HH HH HH HH HH HH";
+    const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH"; // HH HH HH HH HH HH HH HH HH HH HH HH";
 
 /*
     000000000011111111112222222222333333333344444444445555555555666666666677777777
@@ -2085,19 +2085,18 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
       - Запомним каталог перед поиском в архиве.
         И если ничего не нашли - не рисуем его снова */
     {
-      char SaveSearchPath[2*NM];
-      string strSaveDirName;
+      string strSaveDirName, strSaveSearchPath;
       int SaveListCount = FindListCount;
       /* $ 19.01.2003 KM
          Запомним пути поиска в плагине, они могут измениться.
       */
-      xstrncpy(SaveSearchPath,PluginSearchPath,2*NM);
+      strSaveSearchPath = strPluginSearchPath;
       /* KM $ */
 
       strSaveDirName = strLastDirName;
       strLastDirName = L"";
       PreparePluginList((void *)1);
-      xstrncpy(PluginSearchPath,SaveSearchPath,2*NM);
+      strPluginSearchPath = strSaveSearchPath;
       WaitForSingleObject(hPluginMutex,INFINITE);
       CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex]->hPlugin);
       ArcList[FindFileArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
@@ -2720,7 +2719,7 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
   TRY {
 
     Sleep(200);
-    *PluginSearchPath=0;
+    strPluginSearchPath=L"";
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     /* $ 15.10.2001 VVM */
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
@@ -2818,18 +2817,14 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       string strFullName;
       if (wcscmp(strCurName,L".")==0 || TestParentFolderNameW(strCurName))
         continue;
-//      char AddPath[2*NM];
       if (Flags & OPIF_REALNAMES)
       {
         strFullName = strCurName;
-//        strcpy(AddPath,CurName);
-//        *PointToName(AddPath)=0;
       }
       else
       {
-        strFullName.SetData (PluginSearchPath, CP_OEMCP); //BUGBUG
+        strFullName = strPluginSearchPath;
         strFullName += strCurName;
-//        strcpy(AddPath,PluginSearchPath);
       }
 
       /* $ 30.09.2003 KM
@@ -2884,41 +2879,31 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         if (wcschr(strCurName,L'\x1')==NULL && CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
-          /* $ 19.01.2003 KM
-             Хотя здесь и шла проверка не переполнение
-             PluginSearchPath, но бывает дописывалась только
-             часть в пути в конец переменной, что не есть гуд.
-          */
-          int SearchPathLen=strlen(PluginSearchPath);
-          int CurNameLen=strCurName.GetLength();
-          if (SearchPathLen+CurNameLen<NM-2)
-          {
-              char szCurName[NM];
 
-              UnicodeToAnsi(strCurName, szCurName, sizeof (szCurName)-1); //BUGBUG
-
-            strcat(PluginSearchPath,szCurName);
-            strcat(PluginSearchPath,"\x1");
-            ScanPluginTree(hPlugin, Flags);
-            char *Ptr=strrchr(PluginSearchPath,'\x1');
-            if (Ptr!=NULL)
-              *Ptr=0;
-          }
-          /* KM $ */
-          char *NamePtr=strrchr(PluginSearchPath,'\x1');
-          if (NamePtr!=NULL)
-            *(NamePtr+1)=0;
-          else
-            *PluginSearchPath=0;
-          WaitForSingleObject(hPluginMutex,INFINITE);
-          if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
-            StopSearch=TRUE;
-          ReleaseMutex(hPluginMutex);
-          if (StopSearch) break;
+          strPluginSearchPath += strCurName;
+          strPluginSearchPath += L"\x1";
+          ScanPluginTree(hPlugin, Flags);
+          wchar_t *szPtr = strPluginSearchPath.GetBuffer();
+          szPtr = wcsrchr(szPtr,L'\x1');
+          if (szPtr != NULL)
+            *szPtr = 0;
+          strPluginSearchPath.ReleaseBuffer();
         }
-        else
-          ReleaseMutex(hPluginMutex);
+        wchar_t *szPtr = strPluginSearchPath.GetBuffer();
+        wchar_t *szNamePtr = wcsrchr(szPtr,L'\x1');
+        if (szNamePtr != NULL)
+		  *(szNamePtr + 1) = 0;
+		else
+		  *szPtr = 0;
+		strPluginSearchPath.ReleaseBuffer();
+        WaitForSingleObject(hPluginMutex,INFINITE);
+        if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
+          StopSearch=TRUE;
+        ReleaseMutex(hPluginMutex);
+        if (StopSearch) break;
       }
+      else
+        ReleaseMutex(hPluginMutex);
     }
   }
   CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,ItemCount);

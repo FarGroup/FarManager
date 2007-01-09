@@ -78,7 +78,7 @@ class Panel:public ScreenObject
     int NumericSort;
     int ModalMode;
     int PluginCommand;
-    BYTE PluginParam[1024];
+    string strPluginParam;
 
   public:
     struct PanelViewSettings ViewSettings;

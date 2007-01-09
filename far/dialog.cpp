@@ -5124,8 +5124,6 @@ LONG_PTR WINAPI Dialog::SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,LON
 {
   Dialog* Dlg=(Dialog*)hDlg;
 
-  static char szAnsi[512]; //BUGBUG, remove asap
-
   CriticalSectionLock Lock (Dlg->CS);
 
   int I;

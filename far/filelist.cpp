@@ -630,11 +630,7 @@ int FileList::ProcessKey(int Key)
               {
                 if (CtrlObject->Plugins.PluginsData[I]->pOpenPlugin)
                 {
-                  char szPluginData[MAXSIZE_SHORTCUTDATA];
-
-                  UnicodeToAnsi (strPluginData, szPluginData, MAXSIZE_SHORTCUTDATA-1);
-
-                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(INT_PTR)szPluginData);
+                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(INT_PTR)(const wchar_t *)strPluginData);
                   if (hNewPlugin!=INVALID_HANDLE_VALUE)
                   {
                     int CurFocus=GetFocus();
@@ -2219,10 +2215,7 @@ BOOL FileList::ChangeDirW(const wchar_t *NewDir,BOOL IsUpdated)
           const wchar_t *PtrS1=wcschr((const wchar_t*)strNewCurDir+2,L'\\');
           if(PtrS1 && !wcschr(PtrS1+1,L'\\'))
           {
-            char szNewCurDir[NM]; //BUGBUG
-            UnicodeToAnsi (strNewCurDir, szNewCurDir);
-
-            if(CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,szNewCurDir)) // NetWork Plugin :-)
+            if(CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)(const wchar_t *)strNewCurDir)) // NetWork Plugin :-)
               return(FALSE);
           }
         }

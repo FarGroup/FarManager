@@ -449,7 +449,7 @@ void VMenu::ShowMenu(int IsParent)
   switch(BoxType)
   {
     case NO_BOX:
-      *BoxChar=' ';
+      *BoxChar=L' ';
       break;
     case SINGLE_BOX:
     case SHORT_SINGLE_BOX:

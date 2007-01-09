@@ -2174,7 +2174,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 {
   /* 23.09.2003 KM */
   Dialog* Dlg=(Dialog*)hDlg;
-  char DataStr[NM*2];
+  char DataStr[NM*2]; //BUGBUG
   struct FarDialogItem Item;
 
   switch(Msg)
@@ -2307,10 +2307,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr)
 void Viewer::Search(int Next,int FirstChar)
 {
   const wchar_t *TextHistoryName=L"SearchText";
-  const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
-  /* $ 01.08.2000 KM
-     Добавлен новый checkbox для поиска "Whole words"
-  */
+  const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
   static struct DialogDataEx SearchDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MViewSearchTitle,
   /* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MViewSearchFor,
@@ -2326,22 +2323,16 @@ void Viewer::Search(int Next,int FirstChar)
   /* 11 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MViewSearchSearch,
   /* 12 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MViewSearchCancel
   };
-  /* KM $ */
   MakeDialogItemsEx(SearchDlgData,SearchDlg);
 
   string strSearchStr;
   string strMsgStr;
   __int64 MatchPos=0;
-  /* $ 01.08.2000 KM
-     Добавлена новая переменная WholeWords
-  */
   int SearchLength,Case,WholeWords,ReverseSearch,Match;
-  /* KM $ */
 
   if (ViewFile==NULL || Next && strLastSearchStr.IsEmpty())
     return;
 
-  /* 23.09.2003 KM */
   if ( !strLastSearchStr.IsEmpty() )
     strSearchStr = strLastSearchStr;
   else
@@ -2350,13 +2341,8 @@ void Viewer::Search(int Next,int FirstChar)
   SearchDlg[5].Selected=!LastSearchHex;
   SearchDlg[6].Selected=LastSearchHex;
   SearchDlg[7].Selected=LastSearchCase;
-  /* KM $ */
 
-  /* $ 01.08.2000 KM
-     Инициализация checkbox'а "Whole words"
-  */
   SearchDlg[8].Selected=LastSearchWholeWords;
-  /* KM $ */
   SearchDlg[9].Selected=LastSearchReverse;
 
   if (SearchFlags.Check(REVERSE_SEARCH))
@@ -2372,12 +2358,10 @@ void Viewer::Search(int Next,int FirstChar)
   if(SearchDlg[6].Selected)
     SearchDlg[7].Flags|=DIF_DISABLE;
 
-  /* $ 26.10.2003 KM */
   if(SearchDlg[6].Selected)
     SearchDlg[3].strData = strSearchStr;
   else
     SearchDlg[2].strData = strSearchStr;
-  /* KM $ */
 
   if (!Next)
   {
@@ -2398,14 +2382,9 @@ void Viewer::Search(int Next,int FirstChar)
 
   SearchHex=SearchDlg[6].Selected;
   Case=SearchDlg[7].Selected;
-  /* $ 01.08.2000 KM
-     Сохранение состояния checkbox'а "Whole words"
-  */
   WholeWords=SearchDlg[8].Selected;
-  /* KM $ */
   ReverseSearch=SearchDlg[9].Selected;
 
-  /* $ 26.10.2003 KM */
   if(SearchHex)
   {
     strSearchStr = SearchDlg[3].strData;
@@ -2413,16 +2392,11 @@ void Viewer::Search(int Next,int FirstChar)
   }
   else
     strSearchStr = SearchDlg[2].strData;
-  /* KM $ */
 
   strLastSearchStr = strSearchStr;
   LastSearchHex=SearchHex;
   LastSearchCase=Case;
-  /* $ 01.08.2000 KM
-     Сохранение последнего состояния WholeWords
-  */
   LastSearchWholeWords=WholeWords;
-  /* KM $ */
   if (!SearchFlags.Check(REVERSE_SEARCH))
     LastSearchReverse=ReverseSearch;
 

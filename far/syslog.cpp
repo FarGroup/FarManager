@@ -315,7 +315,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
     for(Y=0; Y < CY; ++Y)
     {
       memset(TmpBuf,' ',16);
-      fprintf(fp, " %08X: ",StartAddress+Y*16);
+      fwprintf(fp, L" %08X: ",StartAddress+Y*16);
       for(X=0; X < 16; ++X)
       {
         if((I=Y*16+X < SizeBuf) != 0)

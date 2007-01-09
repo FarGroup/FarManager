@@ -1313,16 +1313,16 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_GETCMDLINE:
     case FCTL_GETCMDLINESELECTEDTEXT:
     {
-      if(Param && !IsBadWritePtr(Param,sizeof(char) * 1024))
+      if(Param && !IsBadWritePtr(Param,sizeof(wchar_t) * 1024))
       {
-          string strParam;
+        string strParam;
 
         if (Command==FCTL_GETCMDLINE)
           CmdLine->GetStringW(strParam);
         else
           CmdLine->GetSelStringW(strParam);
 
-        UnicodeToAnsi (strParam, (char*)Param, 1024-1);
+        xwcsncpy((wchar_t*)Param, strParam, 1024-1);
 
         return TRUE;
       }
@@ -1499,7 +1499,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 
 static struct PluginPanelItemW *PluginDirList;
 static int DirListItemsNumber;
-static char PluginSearchPath[NM*16];
+static string strPluginSearchPath;
 static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
@@ -1582,9 +1582,8 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
 
         if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_FIND))
         {
-            UnicodeToAnsi(Dir, PluginSearchPath, sizeof(PluginSearchPath)-1);
-          //xstrncpy(PluginSearchPath,Dir,sizeof(PluginSearchPath)-1);
-          strncat(PluginSearchPath,"\x1",sizeof(PluginSearchPath)-1);
+          strPluginSearchPath = Dir;
+          strPluginSearchPath += L"\x1";
 
           ScanPluginDir();
 
@@ -1627,7 +1626,7 @@ static void CopyPluginDirItem (PluginPanelItemW *CurPanelItem)
 {
   string strFullName;
 
-  strFullName.SetData(PluginSearchPath, CP_OEMCP); //BUGBUG
+  strFullName = strPluginSearchPath;
   strFullName += CurPanelItem->FindData.lpwszFileName;
 
   wchar_t *lpwszFullName = strFullName.GetBuffer ();
@@ -1666,7 +1665,7 @@ void ScanPluginDir()
   int AbortOp=FALSE;
 
   string strDirName;
-  strDirName.SetData(PluginSearchPath, CP_OEMCP); //BUGBUG
+  strDirName = strPluginSearchPath;
 
   wchar_t *lpwszDirName = strDirName.GetBuffer();
 
@@ -1735,20 +1734,19 @@ void ScanPluginDir()
 
       if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
       {
-          char szFileName[NM];
-
-          UnicodeToAnsi(CurPanelItem->FindData.lpwszFileName, szFileName, sizeof (szFileName)-1);
-
-        strcat(PluginSearchPath,szFileName);
-        strcat(PluginSearchPath,"\x1");
-        if (strlen(PluginSearchPath)<sizeof(PluginSearchPath)-NM)
-          ScanPluginDir();
-        *strrchr(PluginSearchPath,'\x1')=0;
-        char *NamePtr=strrchr(PluginSearchPath,'\x1');
-        if (NamePtr!=NULL)
-          *(NamePtr+1)=0;
+        strPluginSearchPath += CurPanelItem->FindData.lpwszFileName;
+        strPluginSearchPath += L"\x1";
+        ScanPluginDir();
+		wchar_t *szPtr = strPluginSearchPath.GetBuffer();
+		wchar_t *szNamePtr = wcsrchr(szPtr,L'\x1');
+		*szNamePtr = 0;
+		szNamePtr = wcsrchr(szPtr,L'\x1');
+        if (szNamePtr != NULL)
+          *(szNamePtr + 1) = 0;
         else
-          *PluginSearchPath=0;
+          *szPtr=0;
+   	    strPluginSearchPath.ReleaseBuffer();
+
         if (!CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND))
         {
           StopSearch=TRUE;

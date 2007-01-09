@@ -102,8 +102,8 @@ struct CopyDlgParam {
   int FilesPresent;
   int OnlyNewerFiles;
   int CopySecurity;
-  char FSysNTFS;
-  char PluginFormat[32]; // € думаю этого достаточно.
+  BOOL FSysNTFS;
+  string strPluginFormat;
   DWORD FileSystemFlagsSrc;
   int IsDTSrcFixed;
   int IsDTDstFixed;
@@ -495,7 +495,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
           CopyDlg[ID_SC_TARGETEDIT].strData = strDestDir;
           AddEndSlashW(CopyDlg[ID_SC_TARGETEDIT].strData);
         }
-        CDP.PluginFormat[0]=0;
+        CDP.strPluginFormat = L"";
         /* $ 19.07.2003 IS
            ≈сли цель содержит разделители, то возьмем ее в кавычки, дабы не получить
            ерунду при F5, Enter в панел€х, когда пользователь включит MultiCopy
@@ -511,20 +511,15 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
         {
           struct OpenPluginInfoW Info;
           DestPanel->GetOpenPluginInfo(&Info);
-          /* $ 14.08.2000 SVS
-             ƒанные, усеченные до 40 символов... :-(
-             ј потом используютс€ ((char *)CopyDlg[2].Ptr.PtrData) по полной программе...
-             "%.40s:" -> "%s:"
-          */
+
           string strFormat = NullToEmptyW(Info.Format);
 
           CopyDlg[ID_SC_TARGETEDIT].strData = strFormat+L":";
-          /* SVS $ */
           while (CopyDlg[ID_SC_TARGETEDIT].strData.GetLength ()<2)
             CopyDlg[ID_SC_TARGETEDIT].strData += L":";
 
-          UnicodeToAnsi (CopyDlg[ID_SC_TARGETEDIT].strData, CDP.PluginFormat); //BUGBUG
-          strupr(CDP.PluginFormat);
+          CDP.strPluginFormat = CopyDlg[ID_SC_TARGETEDIT].strData;
+          CDP.strPluginFormat.Upper();
         }
         break;
     }
@@ -1060,10 +1055,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           string strBuf = DItemTargetEdit->strData;
           strBuf.Upper();
 
-          char szBuf[NM]; //BUGBUG
-          UnicodeToAnsi (DItemTargetEdit->strData, szBuf);
-
-          if(*DlgParam->PluginFormat && strstr(szBuf, DlgParam->PluginFormat))
+          if(!DlgParam->strPluginFormat.IsEmpty() && wcsstr(strBuf, DlgParam->strPluginFormat))
           {
             DItemACCopy.Flags|=DIF_DISABLE;
             DItemACInherit.Flags|=DIF_DISABLE;
