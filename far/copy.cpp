@@ -1848,7 +1848,7 @@ COPY_CODES ShellCopy::ShellCopyOneFileW (
   string strDestPath;
   DWORD DestAttr=(DWORD)-1;
   HANDLE FindHandle=INVALID_HANDLE_VALUE;
-  FAR_FIND_DATA_EX DestData={0};
+  FAR_FIND_DATA_EX DestData;// BUG!!! ={0};
 
   /* RenameToShortName - дополняет SameName и становится больше нуля тогда,
        когда объект переименовывается в его же _короткое_ имя.  */
@@ -1978,7 +1978,7 @@ COPY_CODES ShellCopy::ShellCopyOneFileW (
         while (p1=wcschr(path,L'\\'))
         {
           DWORD FileAttr=(DWORD)-1;
-          FAR_FIND_DATA_EX FileData={0};
+          FAR_FIND_DATA_EX FileData;// BUG!!! ={0};
 
           strOldPath = Src;
 
@@ -3475,7 +3475,7 @@ int ShellCopy::AskOverwriteW(const FAR_FIND_DATA_EX &SrcData,
                int &Append,int &RetCode)
 {
   HANDLE FindHandle;
-  FAR_FIND_DATA_EX DestData={0};
+  FAR_FIND_DATA_EX DestData;// BUG!!! ={0};
   int DestDataFilled=FALSE;
 
   int MsgCode;

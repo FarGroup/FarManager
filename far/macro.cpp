@@ -390,6 +390,7 @@ int KeyMacro::ProcessKey(int Key)
   {
     if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
     {
+      _KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
       DWORD MacroKey;
       int WaitInMainLoop0=WaitInMainLoop;
       InternalInput=TRUE;
@@ -498,6 +499,7 @@ int KeyMacro::ProcessKey(int Key)
   }
   else if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
   {
+    _KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
     // Полиция 18
     if(Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
       return FALSE;
@@ -528,22 +530,23 @@ int KeyMacro::ProcessKey(int Key)
   {
     if (Work.Executing == MACROMODE_NOMACRO) // Это еще не режим исполнения?
     {
+      //_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
+      //_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
       DWORD CurFlags;
-//_SVS(SysLog(L">Key=%s",_FARKEY_ToName(Key)));
-      if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF)
+      if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFFFF)
       {
-//        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
+//        Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
         Key=LocalUpperW(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+        //_KEYMACRO(SysLog(L"LocalUpperW(Key)=%s",_FARKEY_ToName(Key)));
 
         //if((Key&0x00FFFFFF) > 0x7F)
           //Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
       }
 
-//_SVS(SysLog(L"<Key=%s",_FARKEY_ToName(Key)));
       int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=MacroLIB[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//_SVS(SysLog(L"KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
+        _KEYMACRO(SysLog(L"[%d] Found KeyMacro (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
         if(!CheckAll(Mode,CurFlags))
           return FALSE;
 
@@ -1362,15 +1365,12 @@ static TVar msgBoxFunc(TVar *param)
 
   const wchar_t *title=NullToEmptyW(param[0].toString());
   const wchar_t *text=NullToEmptyW(param[1].toString());
-  /*char *TempBuf=(char *)alloca(strlen(title)+strlen(text)+16); BUGBUG*/
-  int Result=0;
-  /*if(TempBuf)
-  {
-    strcpy(TempBuf,title);
-    strcat(TempBuf,"\n");
-    strcat(TempBuf,text);
-    Result=FarMessageFn(-1,Flags,NULL,(const char * const *)TempBuf,0,0)+1;
-  }*/
+  //_KEYMACRO(SysLog(L"title='%s'",title));
+  //_KEYMACRO(SysLog(L"text='%s'",text));
+  string TempBuf = title;
+  TempBuf += L"\n";
+  TempBuf += text;
+  int Result=FarMessageFn(-1,Flags,NULL,(const wchar_t * const *)((const wchar_t *)TempBuf),0,0)+1;
   return TVar((__int64)Result);
 }
 
@@ -2003,7 +2003,7 @@ done:
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
 
-  _SVS(SysLog(L"%s",_FARKEY_ToName(Key)));
+  _KEYMACRO(SysLog(L"KeyMacro::GetKey() ==> (IP=%d) %s",Work.ExecLIBPos-1,_FARKEY_ToName(Key)));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2087,10 +2087,11 @@ done:
 
     // вычислить выражение
     case MCODE_OP_EXPR:
-      _KEYMACRO(SysLog(L"  --- expr %d", Work.ExecLIBPos));
+      _KEYMACRO(SysLog(L"  --- expr IP=%d", Work.ExecLIBPos));
       ePos = 0;
       while ( ( Key=GetOpCode(MR,Work.ExecLIBPos++) ) != MCODE_OP_DOIT && Work.ExecLIBPos < MR->BufferSize )
       {
+        _KEYMACRO(SysLog(L"IP=%d, OP=%s",Work.ExecLIBPos-1,_FARKEY_ToName(Key)));
         switch ( Key )
         {
           case MCODE_OP_PUSHINT: // Положить целое значение на стек.
@@ -2277,6 +2278,7 @@ done:
             break;
           case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
           {
+            //_SVS(CleverSysLog Clev(L"MCODE_F_MSGBOX"));
               DWORD Flags=MR->Flags;
               if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
               {

@@ -39,11 +39,12 @@ static BOOL IsLogON(void)
   return GetKeyState(VK_SCROLL)?TRUE:FALSE;
 }
 
-static wchar_t *MakeSpaceW(void)
+static const wchar_t *MakeSpaceW(void)
 {
   static wchar_t Buf[60]=L" ";
-  if(Indent)
-    memset(Buf+1,L'|',Indent*sizeof(wchar_t));
+  Buf[0]=L' ';
+  for(int I=1; I <= Indent; ++I)
+    Buf[I]=L'|';
   Buf[1+Indent]=0;
   return Buf;
 }
@@ -195,8 +196,7 @@ void SysLog(const wchar_t *fmt,...)
 
   va_list argptr;
   va_start( argptr, fmt );
-
-  _vsnwprintf( msg, sizeof(msg)-1,fmt, argptr );  // BUG? sizeof
+  _vsnwprintf( msg, sizeof(msg)/sizeof(msg[0])-1, fmt, argptr );
   va_end(argptr);
 
   OpenSysLog();
@@ -262,8 +262,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 
   va_list argptr;
   va_start( argptr, fmt );
-
-  _vsnwprintf( msg, sizeof(msg)-1, fmt, argptr ); // BUG? sizeof
+  _vsnwprintf( msg, sizeof(msg)/sizeof(msg[0])-1, fmt, argptr );
   va_end(argptr);
 
   OpenSysLog();
@@ -307,14 +306,16 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 
   if (fp)
   {
-    char TmpBuf[17];
-    int I;
-    TmpBuf[16]=0;
     if(!InternalLog && Title && *Title)
       fwprintf(fp,L"%s\n",Title);
+
+    wchar_t TmpBuf[17];
+    int I;
+    TmpBuf[16]=0;
+
     for(Y=0; Y < CY; ++Y)
     {
-      memset(TmpBuf,' ',16);
+      //memset(TmpBuf,' ',16);
       fwprintf(fp, L" %08X: ",StartAddress+Y*16);
       for(X=0; X < 16; ++X)
       {
@@ -326,6 +327,8 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
         if(X == 7)
           fwprintf(fp,L" ");
       }
+      //for(X < 16; ++X)
+
       fwprintf(fp,L"| %s\n",TmpBuf);
     }
     fwprintf(fp,L"\n");
@@ -408,10 +411,10 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
 
   if (fp)
   {
-    #define DEF_SORTMODE_(m) { m , #m }
+    #define DEF_SORTMODE_(m) { m , L#m }
     static struct SORTMode{
       int Mode;
-      const char *Name;
+      const wchar_t *Name;
     } __SORT[]={
       DEF_SORTMODE_(UNSORTED),  DEF_SORTMODE_(BY_NAME),  DEF_SORTMODE_(BY_EXT),
       DEF_SORTMODE_(BY_MTIME),  DEF_SORTMODE_(BY_CTIME), DEF_SORTMODE_(BY_ATIME),
@@ -434,10 +437,10 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
                   L"HostFile=%S\n",
          I,
          StackItems[I].hPlugin,
-         (StackItems[I].Modified?"True ":"False"),
+         (StackItems[I].Modified?L"True ":L"False"),
          StackItems[I].PrevViewMode,
          StackItems[I].PrevSortMode,
-           (StackItems[I].PrevSortMode<BY_NUMLINKS?__SORT[StackItems[I].PrevSortMode].Name:"<Unknown>"),
+           (StackItems[I].PrevSortMode<BY_NUMLINKS?__SORT[StackItems[I].PrevSortMode].Name:L"<Unknown>"),
          StackItems[I].PrevSortOrder,
          StackItems[I].PrevNumericSort,
          (const wchar_t*)StackItems[I].strHostFile);
@@ -522,7 +525,6 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfoW *I
 void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 {
 #if defined(SYSLOG)
-#if 0
   if(!IsLogON())
     return;
 
@@ -647,7 +649,6 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
   if(InternalLog)
     CloseSysLog();
-#endif
 #endif
 }
 
@@ -896,7 +897,7 @@ string __FARKEY_ToName(int Key)
   {
     string tmp;
     InsertQuoteW(Name);
-    tmp.Format(L"%s [%u/0x%08X]",Name,Key,Key);
+    tmp.Format(L"%s [%u/0x%08X]",(const wchar_t*)Name,Key,Key);
     Name = tmp;
     return Name;
   }
@@ -1359,7 +1360,7 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
-  wchar_t *space=MakeSpaceW();
+  const wchar_t *space=MakeSpaceW();
 
   if(InternalLog)
   {
@@ -1430,7 +1431,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
-  wchar_t *space=MakeSpaceW();
+  const wchar_t *space=MakeSpaceW();
 
   if(InternalLog)
   {
@@ -1501,7 +1502,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings 
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
-  wchar_t *space=MakeSpaceW();
+  const wchar_t *space=MakeSpaceW();
 
   if(InternalLog)
   {

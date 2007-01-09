@@ -10,10 +10,14 @@ hotplug.cpp
 
 //Çהוסü בûכ במנכאםה. Â למנד!
 
-#ifdef __GNUC__
+#if defined(__GNUC__)  || (defined(_MSC_VER) && _MSC_VER <= 1200)
 
 #define __NTDDK_H
+#if defined(__GNUC__)
 #include <ddk/cfgmgr32.h>
+#else
+#include <cfgmgr32.h>
+#endif
 #ifdef __cplusplus
   #define MY_EXTERN_C extern "C"
 #else

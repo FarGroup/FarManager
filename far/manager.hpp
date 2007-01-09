@@ -12,7 +12,7 @@ class Frame;
 class Manager
 {
 #if defined(SYSLOG)
-    friend void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp);
+    friend void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp);
 #endif
   private:
     Frame **ModalStack;     // ׁעוך למהאכüםûץ פנוילמג
