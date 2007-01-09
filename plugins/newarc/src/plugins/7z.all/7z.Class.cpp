@@ -52,7 +52,7 @@ struct FormatInfo {
 const FormatInfo signs[] = {
 	{&CLSID_CFormat7z,     (const unsigned char *)&SevenZipSig, 6, false, Is7zHeader},
 	{&CLSID_CRarHandler,   (const unsigned char *)&RarSig,      4, false, IsRarHeader},
-	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, true,  IsZipHeader},
+	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
 	{&CLSID_CRpmHandler,   (const unsigned char *)&RpmSig,      4, true,  NULL},
 	{&CLSID_CDebHandler,   (const unsigned char *)&DebSig,     21, true,  NULL},
 	{&CLSID_CCabHandler,   (const unsigned char *)&CabSig,      4, false, IsCabHeader},
