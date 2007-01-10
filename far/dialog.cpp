@@ -3738,8 +3738,8 @@ void Dialog::ConvertItem(int FromPlugin,
       memcpy(Data,Item,sizeof(struct FarDialogItem));
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && Item->Param.Selected < 0x2000)
-        Data->Selected=0;
+      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
+        Data->ListItems=NULL;
       memmove(Data->Data,Item->Data.Data,sizeof(Data->Data));
       /* Ётот кусок будет работать после тчательной проверки.
       ќн позволит мен€ть данные в ответ на DN_EDITCHANGE
@@ -3792,7 +3792,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
     if(Item->X2 < Item->X1) Item->X2=Item->X1;
     if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
     Item->Focus=Data->Focus;
-    Item->Selected=Data->Selected;
+    Item->History=Data->History;
     Item->Flags=Data->Flags;
     Item->DefaultButton=Data->DefaultButton;
     Item->SelStart=-1;

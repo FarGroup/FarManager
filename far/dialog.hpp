@@ -100,6 +100,7 @@ struct DialogItem
   int Focus;
   union
   {
+    DWORD_PTR Reserved;
     int Selected;
     char *History;
     char *Mask;
@@ -145,6 +146,7 @@ struct DialogData
   short X1,Y1,X2,Y2;
   BYTE  Focus;
   union {
+    DWORD_PTR Reserved;
     unsigned int Selected;
     char *History;
     char *Mask;
