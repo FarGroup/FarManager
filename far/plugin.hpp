@@ -442,6 +442,7 @@ struct FarDialogItem
   int Focus;
   union
   {
+  	DWORD_PTR Reserved;
     int Selected;
     const wchar_t *History;
     const wchar_t *Mask;

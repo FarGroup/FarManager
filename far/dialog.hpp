@@ -100,6 +100,7 @@ struct DialogItemEx
   int Focus;
   union
   {
+  	DWORD_PTR Reserved;
     int Selected;
     const wchar_t *History;
     const wchar_t *Mask;
@@ -169,6 +170,7 @@ struct DialogDataEx
   short X1,Y1,X2,Y2;
   BYTE  Focus;
   union {
+    DWORD_PTR Reserved;
     unsigned int Selected;
     const wchar_t *History;
     const wchar_t *Mask;

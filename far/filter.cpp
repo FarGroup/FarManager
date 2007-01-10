@@ -101,11 +101,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     FilterList.SetHelp(L"Filter");
     FilterList.SetPosition(-1,-1,0,0);
     FilterList.SetBottomTitle(UMSG(MFilterBottom));
-    /* $ 16.06.2001 KM
-       ! Добавление WRAPMODE в меню.
-    */
     FilterList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-    /* KM $ */
 
     if (Pos>FilterDataCount)
       Pos=0;
@@ -174,7 +170,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
           break;
     }
 
-    far_qsort((void *)ExtPtr,ExtCount,NM,ExtSort);
+    far_qsort((void *)ExtPtr,ExtCount,NM*sizeof(wchar_t),ExtSort);
 
     ListItem.Clear ();
 
@@ -194,11 +190,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       ListItem.Flags&=~LIF_SELECTED;
       FilterList.SetUserData(CurExtPtr,0,FilterList.AddItemW(&ListItem));
     }
-    /* $ 13.07.2000 SVS
-       ни кто не вызывал запрос памяти через new :-)
-    */
     xf_free(ExtPtr);
-    /* SVS $ */
 
     if (!FirstCall)
       ProcessSelection(&FilterList);
@@ -212,23 +204,23 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       int Key=FilterList.ReadInput();
 
       if (Key==KEY_ADD)
-        Key='+';
+        Key=L'+';
       else if (Key==KEY_SUBTRACT)
-        Key='-';
+        Key=L'-';
 
       switch(Key)
       {
         case KEY_SPACE:
-        case '+':
-        case '-':
+        case L'+':
+        case L'-':
         {
           int Check=FilterList.GetSelection(),NewCheck;
-          if (Key=='-')
-            NewCheck=(Check=='-') ? 0:'-';
-          else if (Key=='+')
-            NewCheck=(Check=='+') ? 0:'+';
+          if (Key==L'-')
+            NewCheck=(Check==L'-') ? 0:L'-';
+          else if (Key==L'+')
+            NewCheck=(Check==L'+') ? 0:L'+';
           else
-            NewCheck=Check ? 0:'+';
+            NewCheck=Check ? 0:L'+';
 
           FilterList.SetSelection(NewCheck);
           FilterList.SetUpdateRequired(TRUE);
@@ -396,8 +388,6 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
   FilterDataRecord *CurFilterData = NULL;
   for (int I=0; I < FilterList->GetItemCount(); I++)
   {
-    CurFilterData = FilterData[I];
-
     int Check=FilterList->GetSelection(I);
 
     if ( Check && FilterList->GetUserDataSize (I) )
@@ -415,13 +405,15 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
 
     if (I<FilterDataCount)
     {
+	  CurFilterData = FilterData[I];
+
       if (HostPanel==CtrlObject->Cp()->LeftPanel)
         CurFilterData->LeftPanelInclude=CurFilterData->LeftPanelExclude=0;
 
       if (HostPanel==CtrlObject->Cp()->RightPanel)
         CurFilterData->RightPanelInclude=CurFilterData->RightPanelExclude=0;
 
-      if (Check=='+')
+      if (Check==L'+')
       {
         if (HostPanel==CtrlObject->Cp()->LeftPanel)
           CurFilterData->LeftPanelInclude=TRUE;
@@ -429,7 +421,7 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
           CurFilterData->RightPanelInclude=TRUE;
       }
 
-      if (Check=='-')
+      if (Check==L'-')
       {
         if (HostPanel==CtrlObject->Cp()->LeftPanel)
           CurFilterData->LeftPanelExclude=TRUE;
@@ -441,9 +433,6 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
 }
 
 
-/* $ 01.07.2001 IS
-   Используем нормальные классы для работы с масками файлов
-*/
 void PanelFilter::AddMasks(const wchar_t *Masks,int Exclude)
 {
   if (Masks==NULL)
@@ -524,8 +513,6 @@ int PanelFilter::CheckNameW(const wchar_t *Name)
   else
     return IncludeMaskIsOK?IncludeMask.Compare(Name):TRUE;
 }
-
-/* IS $ */
 
 bool PanelFilter::IsEnabled()
 {
@@ -723,9 +710,7 @@ int PanelFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD
   */
   if (DotPtr==NULL)
     strMask = L"*.";
-  else
-
-  if (wcspbrk(DotPtr,L",;"))
+  else if (wcspbrk(DotPtr,L",;"))
     strMask.Format (L"\"*%s\"",DotPtr);
   else
     strMask.Format (L"*%s",DotPtr);
@@ -733,7 +718,7 @@ int PanelFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD
 
   // сначала поиск...
   unsigned int Cnt=ExtCount;
-  if(lfind((const void *)(const wchar_t*)strMask,(void *)*ExtPtr,&Cnt,NM,ExtSort))
+  if(lfind((const void *)(const wchar_t*)strMask,(void *)*ExtPtr,&Cnt,NM*sizeof(wchar_t),ExtSort))
     return -1;
 
   // ... а потом уже выделение памяти!
@@ -743,7 +728,7 @@ int PanelFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD
   *ExtPtr=NewPtr;
 
   NewPtr=*ExtPtr+ExtCount*NM;
-  wcsncpy(NewPtr,strMask,NM-2);
+  xwcsncpy(NewPtr,strMask,NM-2);
 
   NewPtr=NewPtr+wcslen(NewPtr)+1;
 //!!! Если нужно "решить" BugZ#413, то раскомментировать ЭТОТ кусок!!!

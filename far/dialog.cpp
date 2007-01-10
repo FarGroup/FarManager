@@ -3752,8 +3752,8 @@ void Dialog::ConvertItemEx (
 
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && Item->Param.Selected < 0x2000)
-        Data->Selected=0;
+      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
+        Data->ListItems=NULL;
 
     }
 }
