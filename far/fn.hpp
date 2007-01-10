@@ -737,6 +737,7 @@ void ShowHeap();
 void CheckHeap(int NumLine);
 
 const char *_FARKEY_ToName(int Key);
+const char *_MCODE_ToName(int OpCode);
 const char *_VK_KEY_ToName(int VkKey);
 const char *_ECTL_ToName(int Command);
 const char *_EE_ToName(int Command);

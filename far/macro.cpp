@@ -624,6 +624,7 @@ int KeyMacro::GetPlainTextSize()
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::FARPseudoVariable()"));
   int I;
   TVar Cond(_i64(0));
   char FileName[NM*2];
@@ -1904,8 +1905,8 @@ const char *eStackAsString(int Pos)
 
 int KeyMacro::GetKey()
 {
-  _KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
-  _KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
+  //_KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
+  //_KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   struct MacroRecord *MR;
   int RetKey=0;
   if (InternalInput || !FrameManager->GetCurrentFrame())
@@ -2022,7 +2023,7 @@ done:
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
 
-  _KEYMACRO(char KeyText[50]; ::KeyToText(Key,KeyText); SysLog("%s",KeyText));
+  _KEYMACRO(SysLog("IP=%d  %s",Work.ExecLIBPos-1,(Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE?_MCODE_ToName(Key):_FARKEY_ToName(Key)));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2106,10 +2107,12 @@ done:
 
     // вычислить выражение
     case MCODE_OP_EXPR:
-      _KEYMACRO(SysLog("  --- expr %d", Work.ExecLIBPos));
+    {
+      _KEYMACRO(CleverSysLog Clev("MCODE_OP_EXPR"));
       ePos = 0;
       while ( ( Key=GetOpCode(MR,Work.ExecLIBPos++) ) != MCODE_OP_DOIT && Work.ExecLIBPos < MR->BufferSize )
       {
+        _KEYMACRO(SysLog("IP=%d  %s",Work.ExecLIBPos-1,(Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE?_MCODE_ToName(Key):_FARKEY_ToName(Key)));
         switch ( Key )
         {
           case MCODE_OP_PUSHINT:  // Положить целое значение на стек.
@@ -2153,7 +2156,10 @@ done:
           case MCODE_OP_DIV:
             ePos--;
             if(eStack[ePos+1] == _i64(0)) //???
+            {
+              _KEYMACRO(SysLog("[%d] IP=%d/0x%08X Error: Divide by zero",__LINE__,Work.ExecLIBPos,Work.ExecLIBPos));
               goto done;
+            }
             eStack[ePos] = eStack[ePos] /  eStack[ePos+1];
             break;
 
@@ -2266,6 +2272,7 @@ done:
             break;
           case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
           {
+             _KEYMACRO(CleverSysLog Clev("MCODE_F_MENU_CHECKHOTKEY"));
              long Result=0;
              int CurMMode=CtrlObject->Macro.GetMode();
              if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
@@ -2294,6 +2301,7 @@ done:
             break;
           case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
           {
+              _KEYMACRO(CleverSysLog Clev("MCODE_F_MSGBOX"));
               DWORD Flags=MR->Flags;
               if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
               {
@@ -2318,13 +2326,11 @@ done:
             break;
         }
       }
-      _KEYMACRO(SysLog("  --- expr end"));
       *eStack = eStack[ePos];
-      _KEYMACRO(SysLog("      ePos       =%d", ePos));
-      _KEYMACRO(SysLog("      eStack->i()=%d", eStack->i()));
-      _KEYMACRO(SysLog("      eStack->s()='%s'", eStack->s()));
-      _KEYMACRO(SysLog(" Work.ExecLIBPos =%d (%0X)",Work.ExecLIBPos,Work.ExecLIBPos));
-      goto begin;
+      _KEYMACRO(SysLog("ePos=%d  eStack->i()=%d eStack->s()='%s'", ePos, eStack->i(), eStack->s()));
+      _KEYMACRO(SysLog("IP=%d/0x%08X",Work.ExecLIBPos,Work.ExecLIBPos));
+    }
+    goto begin;
 
 // $Rep (expr) ... $End
 // -------------------------------------
@@ -2431,6 +2437,7 @@ done:
 #else
   if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
   {
+    _KEYMACRO(SysLog(-1);SysLog("[%d] **** End Of Execute Macro ****",__LINE__));
     ReleaseWORKBuffer();
     Work.Executing=MACROMODE_NOMACRO;
     if(TitleModified)
