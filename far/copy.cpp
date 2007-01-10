@@ -1843,12 +1843,11 @@ COPY_CODES ShellCopy::ShellCopyOneFileW (
         int Rename
         )
 {
-//  char DestPath[2*NM];
-
   string strDestPath;
   DWORD DestAttr=(DWORD)-1;
   HANDLE FindHandle=INVALID_HANDLE_VALUE;
-  FAR_FIND_DATA_EX DestData;// BUG!!! ={0};
+  FAR_FIND_DATA_EX DestData;
+  DestData.Clear();
 
   /* RenameToShortName - дополняет SameName и становится больше нуля тогда,
        когда объект переименовывается в его же _короткое_ имя.  */
@@ -1978,7 +1977,8 @@ COPY_CODES ShellCopy::ShellCopyOneFileW (
         while (p1=wcschr(path,L'\\'))
         {
           DWORD FileAttr=(DWORD)-1;
-          FAR_FIND_DATA_EX FileData;// BUG!!! ={0};
+          FAR_FIND_DATA_EX FileData;
+          FileData.Clear();
 
           strOldPath = Src;
 
@@ -3427,14 +3427,10 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
         c[0]=L'M';
         CPS = CPS/1024;
       }
-      /* $ 06.03.2001 SVS
-         А у меня и такое есть :-)
-      */
       if (CPS > 99999) {
         c[0]=L'G';
         CPS = CPS/1024;
       }
-      /* SVS $ */
       string strWorkTimeStr;
       string strTimeLeftStr;
       GetTimeText(WorkTime, strWorkTimeStr);
@@ -3475,7 +3471,8 @@ int ShellCopy::AskOverwriteW(const FAR_FIND_DATA_EX &SrcData,
                int &Append,int &RetCode)
 {
   HANDLE FindHandle;
-  FAR_FIND_DATA_EX DestData;// BUG!!! ={0};
+  FAR_FIND_DATA_EX DestData;
+  DestData.Clear();
   int DestDataFilled=FALSE;
 
   int MsgCode;
@@ -3509,7 +3506,7 @@ int ShellCopy::AskOverwriteW(const FAR_FIND_DATA_EX &SrcData,
       MsgCode=1;
     else
     {
-      memset(&DestData,0,sizeof(DestData));
+      DestData.Clear();
       if ((FindHandle=apiFindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
         FindClose(FindHandle);
       DestDataFilled=TRUE;
@@ -3590,7 +3587,7 @@ int ShellCopy::AskOverwriteW(const FAR_FIND_DATA_EX &SrcData,
       {
         if (!DestDataFilled)
         {
-          memset(&DestData,0,sizeof(DestData));
+          DestData.Clear();
           if ((FindHandle=apiFindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
             FindClose(FindHandle);
         }

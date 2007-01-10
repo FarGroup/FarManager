@@ -59,7 +59,7 @@ class FileFilter
     ~FileFilter();
 
     // Получить текущие настройки фильтра.
-    FilterParams GetParams(){return FF;};
+    FilterParams *GetParams(){return &FF;};
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.

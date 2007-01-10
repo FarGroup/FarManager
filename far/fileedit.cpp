@@ -1694,7 +1694,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     if(!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
     {
       FAR_FIND_DATA_EX FInfo;
-      if( apiGetFindDataEx (Name,&FInfo) && *FileInfo.strFileName)
+      if( apiGetFindDataEx (Name,&FInfo) && !FileInfo.strFileName.IsEmpty())
       {
         __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
         if(RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
@@ -2339,7 +2339,7 @@ void FileEditor::SetDeleteOnClose(int NewMode)
 
 void FileEditor::GetEditorOptions(struct EditorOptions& EdOpt)
 {
-  memmove(&EdOpt,&m_editor->EdOpt,sizeof(struct EditorOptions));
+  m_editor->EdOpt.CopyTo(EdOpt);
 }
 
 void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)

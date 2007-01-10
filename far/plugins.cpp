@@ -2315,7 +2315,7 @@ void PluginsSet::Configure(int StartPos)
                 GetRegKeyW(strHotRegKey,L"ConfHotkey",strHotKey,L"");
               MenuItemEx ListItem;
 
-              memset(&ListItem,0,sizeof(ListItem));
+              ListItem.Clear();
               string strName = NullToEmptyW(Info.PluginConfigStrings[J]);
               if (!HotKeysPresent)
                 ListItem.strName = strName;
@@ -2478,7 +2478,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
                 if (GetHotKeyRegKey(I,J,strHotRegKey))
                   GetRegKeyW(strHotRegKey,L"Hotkey",strHotKey,L"");
                 struct MenuItemEx ListItem;
-                memset(&ListItem,0,sizeof(ListItem));
+                ListItem.Clear();
                 strValue.Format (FmtPluginMenuStringDW,J);
                 string strName;
                 GetRegKeyW(strRegKey,strValue,strName,L"");
@@ -2513,7 +2513,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
               if (GetHotKeyRegKey(I,J,strHotRegKey))
                 GetRegKeyW(strHotRegKey,L"Hotkey",strHotKey,L"");
               struct MenuItemEx ListItem;
-              memset(&ListItem,0,sizeof(ListItem));
+              ListItem.Clear();
               string strName = NullToEmptyW(Info.PluginMenuStrings[J]);
               if (!HotKeysPresent)
                 ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);

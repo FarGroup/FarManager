@@ -567,8 +567,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
           HistoryItem.Clear ();
           HistoryItem.strName = strRecord;
 
-          if(CurCmd==CurLastPtr)
-              HistoryItem.SetSelect(TRUE);
+          HistoryItem.SetSelect(CurCmd==CurLastPtr);
           HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),
                                  HistoryMenu.AddItemW(&HistoryItem));
         }

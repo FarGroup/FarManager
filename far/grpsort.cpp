@@ -273,8 +273,6 @@ int GroupSort::EditGroupsMenu(int Pos)
   struct MenuItemEx ListItem;
   struct MenuItemEx ListItem2;
 
-  ListItem.Clear ();
-
   VMenu GroupList(UMSG(MSortGroupsTitle),NULL,0,TRUE,ScrY-4);
   GroupList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
   GroupList.SetHelp(HelpSortGroups);
@@ -286,6 +284,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   {
     if (GroupData[GroupPos]->Group>DEFAULT_SORT_GROUP)
       break;
+    ListItem.Clear ();
     ListItem.strName = GetMask(GroupPos);
     ListItem.SetSelect(I == Pos);
     GroupList.AddItemW(&ListItem);
@@ -293,6 +292,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   }
   int UpperGroupCount=GroupPos;
 
+  ListItem.Clear ();
   ListItem.strName=L"";
   ListItem.SetSelect(I == Pos);
   GroupList.AddItemW(&ListItem);
@@ -302,15 +302,16 @@ int GroupSort::EditGroupsMenu(int Pos)
   ListItem.Flags&=~LIF_SEPARATOR;
   I+=2;
 
-  ListItem2.Clear ();
   for (;GroupPos<GroupCount;I++)
   {
+    ListItem2.Clear ();
     ListItem2.strName = GetMask(GroupPos);
     ListItem2.SetSelect(I == Pos);
     GroupList.AddItemW(&ListItem2);
     GroupPos++;
   }
 
+  ListItem2.Clear ();
   ListItem.strName=L"";
   ListItem.SetSelect(GroupCount+2 == Pos);
   GroupList.AddItemW(&ListItem);

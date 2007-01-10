@@ -37,6 +37,28 @@ struct FilterParams
     DWORD AttrSet;
     DWORD AttrClear;
   } FAttr;
+
+  /*
+  void Clear()
+  {
+  	FMask.Used=0;
+  	FMask.strMask=L"";
+  	memset(&FDate,0,sizeof(FDate));
+  	memset(&FSize,0,sizeof(FSize));
+  	memset(&FAttr,0,sizeof(FAttr));
+  }
+  */
+
+  FilterParams& operator=(const FilterParams &fpCopy)
+  {
+  	FMask.Used=fpCopy.FMask.Used;
+  	FMask.strMask=fpCopy.FMask.strMask;
+  	memcpy(&FDate,&fpCopy.FDate,sizeof(FDate));
+  	memcpy(&FSize,&fpCopy.FSize,sizeof(FSize));
+  	memcpy(&FAttr,&fpCopy.FAttr,sizeof(FAttr));
+  	return *this;
+  }
+
 };
 
 struct PanelOptions
@@ -105,12 +127,24 @@ struct DizOptions
   int UpdateMode;
   int SetHidden;
   int StartPos;
+
+  /*
+  void Clear()
+  {
+    strListNames=L"";
+    ROUpdate=0;
+    UpdateMode=0;
+    SetHidden=0;
+    StartPos=0;
+  }
+  */
 };
 
 /* $ 05.09.2000 SVS
    Структура CodeQWERTY, описывающая QWERTY-перекодировщик
 */
-struct CodeXLAT{
+struct CodeXLAT
+{
   DWORD Flags;       // дополнительные флаги
   /* $ 05.09.2000 SVS
      В Opt добавлены клавиши, вызывающие функцию Xlat
@@ -139,6 +173,24 @@ struct CodeXLAT{
                     //  [0] "если предыдущий символ латинский"
                     //  [1] "если предыдущий символ нелатинский символ"
                     //  [2] "если предыдущий символ не рус/lat"
+
+  /*
+  void Clear()
+  {
+    Flags=0;
+    XLatEditorKey=0;
+    XLatCmdLineKey=0;
+    XLatDialogKey=0;
+    XLatFastFindKey=0;
+    XLatAltEditorKey=0;
+    XLatAltCmdLineKey=0;
+    XLatAltDialogKey=0;
+    XLatAltFastFindKey=0;
+    strWordDivForXlat=L"";
+    memset(Table,0,sizeof(Table));
+    memset(Rules,0,sizeof(Rules));
+  }
+  */
 };
 /* SVS $*/
 
@@ -295,7 +347,8 @@ struct ScreenSizes{
 #endif
 };
 
-struct LoadPluginsOptions{
+struct LoadPluginsOptions
+{
 //  DWORD TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
   /* $ 03.08.2000 SVS
      TRUE - использовать стандартный путь к основным плагинам
@@ -312,14 +365,39 @@ struct LoadPluginsOptions{
   string strPersonalPluginsPath;
   /* SVS $*/
   int SilentLoadPlugin; // при загрузке плагина с кривым...
+
+  /*
+  void Clear()
+  {
+    MainPluginDir=0;
+    PluginsCacheOnly=0;
+    PluginsPersonal=0;
+
+    strCustomPluginsPath=L"";
+    strPersonalPluginsPath=L"";
+    SilentLoadPlugin=0;
+  }
+  */
 };
 
-struct FindFileOptions{
+struct FindFileOptions
+{
   int FindFolders;
   int CollectFiles;
   int FileSearchMode;
   int SearchInFirst;
   string strSearchInFirstSize;
+
+  /*
+  void Clear()
+  {
+    FindFolders=0;
+    CollectFiles=0;
+    FileSearchMode=0;
+    SearchInFirst=0;
+    strSearchInFirstSize=L"";
+  }
+  */
 };
 
 struct TreeOptions{
@@ -630,6 +708,179 @@ struct Options
   struct FilterParams OpFilter;
   /* KM $ */
   struct TreeOptions Tree;
+
+  /*
+  void Clear()
+  {
+    Clock=0;
+    Mouse=0;
+    ShowKeyBar=0;
+    ScreenSaver=0;
+    ScreenSaverTime=0;
+    UsePromptFormat=0;
+    strPromptFormat=L"";
+    AltGr=0;
+    UseVk_oem_x=0;
+    InactivityExit=0;
+    InactivityExitTime=0;
+    ShowHidden=0;
+    Highlight=0;
+
+    strLeftFolder=L"";
+    strRightFolder=L"";
+
+    strLeftCurFile=L"";
+    strRightCurFile=L"";
+
+    RightSelectedFirst=0;
+    LeftSelectedFirst=0;
+    SelectFolders=0;
+    ReverseSort=0;
+    ClearReadOnly=0;
+    SortFolderExt=0;
+    DeleteToRecycleBin=0;
+    WipeSymbol=0;
+
+    memset(&CMOpt,0,sizeof(CMOpt));
+
+    MultiMakeDir=0;
+    CreateUppercaseFolders=0;
+    UseRegisteredTypes=0;
+
+    ViewerEditorClock=0;
+    OnlyEditorViewerUsed=0;
+    SaveViewHistory=0;
+    ViewHistoryCount=0;
+
+    strExternalEditor=L"";
+    EdOpt.Clear();
+    strExternalViewer=L"";
+    memset(&ViOpt,0,sizeof(ViOpt));
+
+
+    strWordDiv=L"";
+    strQuotedSymbols=L"";
+    QuotedName=0;
+    AutoSaveSetup=0;
+    SetupArgv=0;
+    ChangeDriveMode=0;
+    ChangeDriveDisconnetMode=0;
+
+    SaveHistory=0;
+    HistoryCount=0;
+    SaveFoldersHistory=0;
+    SavePluginFoldersHistory=0;
+    FoldersHistoryCount=0;
+    DialogsHistoryCount=0;
+
+    FindOpt.Clear();
+
+    strTempPath=L"";
+    HeightDecrement=0;
+    WidthDecrement=0;
+
+    strPassiveFolder=L"";
+
+    ShowColumnTitles=0;
+    ShowPanelStatus=0;
+    ShowPanelTotals=0;
+    ShowPanelFree=0;
+    ShowPanelScrollbar=0;
+    ShowMenuScrollbar=0;
+    ShowScreensNumber=0;
+    ShowSortMode=0;
+    ShowMenuBar=0;
+
+    CleanAscii=0;
+    NoGraphics=0;
+    strFolderInfoFiles=L"";
+
+    memset(&Confirm,0,sizeof(Confirm));
+    Diz.Clear();
+    memset(&LeftPanel,0,sizeof(LeftPanel));
+    memset(&RightPanel,0,sizeof(RightPanel));
+
+    AutoUpdateLimit=0;
+    AutoUpdateRemoteDrive=0;
+
+    strLanguage=L"";
+    SmallIcon=0;
+    strRegRoot=L"";
+    PanelRightClickRule=0;
+    PanelMiddleClickRule=0;
+    PanelCtrlAltShiftRule=0;
+    PanelCtrlFRule=0;
+    AllCtrlAltShiftRule=0;
+    CASRule=0;
+    CmdHistoryRule=0;
+    ExcludeCmdHistory=0;
+    SubstPluginPrefix=0;
+    MaxPositionCache=0;
+    SetAttrFolderRules=0;
+    ExceptRules=0;
+    ExceptCallDebugger=0;
+    HotkeyRules=0;
+    ShiftsKeyRules=0;
+    MacroReuseRules=0;
+    IgnoreErrorBadPathName=0;
+
+    KeyMacroCtrlDot=0;
+    KeyMacroCtrlShiftDot=0;
+    memset(CursorSize,0,sizeof(CursorSize));
+    XLat.Clear();
+    ConsoleDetachKey=0;
+
+    UsePrintManager=0;
+
+    strHelpLanguage=L"";
+    FullScreenHelp=0;
+    HelpTabSize=0;
+    HelpURLRules=0;
+
+    RememberLogicalDrives=0;
+    FlagPosixSemantics=0;
+    MsWheelDelta=0;
+    MsWheelDeltaView=0;
+    MsWheelDeltaEdit=0;
+    MsWheelDeltaHelp=0;
+    SubstNameRule=0;
+
+    AltF9=0;
+    PgUpChangeDisk=0;
+    ShowCheckingFile=0;
+    CloseConsoleRule=0;
+    CloseCDGate=0;
+
+    LCIDSort=0;
+    RestoreCPAfterExecute=0;
+    ExecuteShowErrorMessage=0;
+    ExecuteUseAppPath=0;
+    ExecuteFullTitle=0;
+    strExecuteBatchType=L"";
+
+  #if defined(FAR_ANSI)
+    FarAnsi=0;
+  #endif
+    PluginMaxReadData=0;
+    UseNumPad=0;
+    ScanJunction=0;
+
+    ShowTimeoutDelFiles=0;
+    ShowTimeoutDACLFiles=0;
+    DelThreadPriority=0;
+
+    strDateFormat=L"";
+    LoadPlug.Clear();
+
+    memset(&Dialogs,0,sizeof(Dialogs));
+    memset(&Policies,0,sizeof(Policies));
+    memset(&Nowell,0,sizeof(Nowell));
+    memset(&ScrSize,0,sizeof(ScrSize));
+    memset(&CharTable,0,sizeof(CharTable));
+    OpFilter.Clear();
+    memset(&Tree,0,sizeof(Tree));
+  }
+  */
 };
 
 
@@ -672,22 +923,47 @@ struct PreRedrawParamStruct
 
 struct FAR_FIND_DATA_EX
 {
-    DWORD    dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    unsigned __int64 nFileSize;
+	DWORD    dwFileAttributes;
+	FILETIME ftCreationTime;
+	FILETIME ftLastAccessTime;
+	FILETIME ftLastWriteTime;
+	unsigned __int64 nFileSize;
 
-    union {
-        unsigned __int64 nPackSize; //same as reserved
-        struct {
-            DWORD dwReserved0;
-            DWORD dwReserved1;
-        };
-    };
+	union {
+		unsigned __int64 nPackSize; //same as reserved
+		struct {
+			DWORD dwReserved0;
+			DWORD dwReserved1;
+		};
+	};
 
-    string   strFileName;
-    string   strAlternateFileName;
+	string   strFileName;
+	string   strAlternateFileName;
+
+	void Clear()
+	{
+		dwFileAttributes=0;
+		memset(&ftCreationTime,0,sizeof(ftCreationTime));
+		memset(&ftLastAccessTime,0,sizeof(ftLastAccessTime));
+		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
+		nFileSize=_ui64(0);
+		nPackSize=_ui64(0);
+		strFileName=L"";
+		strAlternateFileName=L"";
+	}
+
+	FAR_FIND_DATA_EX& operator=(const FAR_FIND_DATA_EX &ffdexCopy)
+	{
+		dwFileAttributes=ffdexCopy.dwFileAttributes;
+		memcpy(&ftCreationTime,&ffdexCopy.ftCreationTime,sizeof(ftCreationTime));
+		memcpy(&ftLastAccessTime,&ffdexCopy.ftLastAccessTime,sizeof(ftLastAccessTime));
+		memcpy(&ftLastWriteTime,&ffdexCopy.ftLastWriteTime,sizeof(ftLastWriteTime));
+		nFileSize=ffdexCopy.nFileSize;
+		nPackSize=ffdexCopy.nPackSize;
+		strFileName=ffdexCopy.strFileName;
+		strAlternateFileName=ffdexCopy.strAlternateFileName;
+		return *this;
+	}
 };
 
 

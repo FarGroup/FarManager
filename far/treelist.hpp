@@ -15,6 +15,21 @@ struct TreeItem
   string strName;
   int Last[NM/2];        // ?
   int Depth;             // уровень вложенности
+
+  void Clear()
+  {
+    strName=L"";
+    memset(Last,0,sizeof(Last));
+    Depth=0;
+  }
+
+  TreeItem& operator=(const TreeItem &tiCopy)
+  {
+    strName=tiCopy.strName;
+    memcpy(Last,tiCopy.Last,sizeof(Last));
+    Depth=tiCopy.Depth;
+    return *this;
+  }
 };
 
 enum TREELIST_FLAGS{
@@ -27,7 +42,7 @@ class TreeList: public Panel
 {
   private:
     int PrevMacroMode;
-    struct TreeItem *ListData;
+    struct TreeItem **ListData;
     string strRoot;
     long TreeCount;
     long WorkDir;

@@ -39,7 +39,7 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
     pDest->Focus = pSrc->Focus;
 
-    pDest->Selected = pSrc->Selected;
+    pDest->History = pSrc->History;
     pDest->Flags = pSrc->Flags;
     pDest->DefaultButton = pSrc->DefaultButton;
 
@@ -3737,18 +3737,18 @@ void Dialog::ConvertItemEx (
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
     {
-        Data->Type = Item->Type;
-        Data->X1 = Item->X1;
-        Data->Y1 = Item->Y1;
-        Data->X2 = Item->X2;
-        Data->Y2 = Item->Y2;
+      Data->Type = Item->Type;
+      Data->X1 = Item->X1;
+      Data->Y1 = Item->Y1;
+      Data->X2 = Item->X2;
+      Data->Y2 = Item->Y2;
 
-        Data->Selected = Item->Param.Selected;
-        Data->Flags = Item->Flags;
-        Data->DefaultButton = Item->DefaultButton;
+      Data->History = Item->Param.History;
+      Data->Flags = Item->Flags;
+      Data->DefaultButton = Item->DefaultButton;
 
-        Data->strData = Item->PtrData;
-        Data->nMaxLength = Item->PtrLength;
+      Data->strData = Item->PtrData;
+      Data->nMaxLength = Item->PtrLength;
 
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
@@ -3767,10 +3767,9 @@ void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,in
   if(!Item || !Data)
     return;
 
-  memset(Item,0,sizeof(struct DialogItemEx)*Count);
-
   for (I=0; I < Count; I++, ++Item, ++Data)
   {
+  	Item->Clear();
     Item->ID=I;
     Item->Type=Data->Type;
     Item->X1=Data->X1;
@@ -3780,7 +3779,7 @@ void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,in
     if(Item->X2 < Item->X1) Item->X2=Item->X1;
     if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
     Item->Focus=Data->Focus;
-    Item->Selected=Data->Selected;
+    Item->History=Data->History;
     Item->Flags=Data->Flags;
     Item->DefaultButton=Data->DefaultButton;
     Item->SelStart=-1;
@@ -4112,7 +4111,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
 
       for (ItemsCount=Dest=I=0; I < Opt.DialogsHistoryCount; I++)
       {
-        memset(&HistoryItem,0,sizeof(HistoryItem));
+        HistoryItem.Clear();
 
         strLine.Format (L"Line%d", I);
         GetRegKeyW(strRegKey,strLine,strStr,L"");

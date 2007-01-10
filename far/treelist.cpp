@@ -54,8 +54,8 @@ static WCHAR TreeLineSymbolW[4][3]={0};
 
 static struct TreeListCache
 {
-    string strTreeName;
-    wchar_t **ListName;
+  string strTreeName;
+  wchar_t **ListName;
   int TreeCount;
   int TreeSize;
 
@@ -144,8 +144,13 @@ TreeList::TreeList(int IsPanel)
 
 TreeList::~TreeList()
 {
-  if(ListData)     xf_free(ListData);
-  if(SaveListData) xf_free(SaveListData);
+  if(ListData)
+  {
+  	for (long i=0; i<TreeCount; i++)
+		delete ListData[i];
+    xf_free(ListData);
+  }
+  if(SaveListData) delete [] SaveListData;
 
   tempTreeCache.Clean();
   FlushCache();
@@ -210,7 +215,7 @@ void TreeList::DisplayTree(int Fast)
 
   CorrectPosition();
   if (TreeCount>0)
-    strCurDir = ListData[CurFile].strName; //BUGBUG
+    strCurDir = ListData[CurFile]->strName; //BUGBUG
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
   if (!Fast)
   {
@@ -226,7 +231,7 @@ void TreeList::DisplayTree(int Fast)
   }
   for (I=Y1+1,J=CurTopFile;I<Y2-2-(ModalMode!=0);I++,J++)
   {
-    CurPtr=&ListData[J];
+    CurPtr=ListData[J];
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
     TextW(L" ");
@@ -291,7 +296,7 @@ void TreeList::DisplayTree(int Fast)
   if (TreeCount>0)
   {
     GotoXY(X1+1,Y2-1);
-    mprintfW(L"%-*.*s",X2-X1-1,X2-X1-1,(const wchar_t*)ListData[CurFile].strName);
+    mprintfW(L"%-*.*s",X2-X1-1,X2-X1-1,(const wchar_t*)ListData[CurFile]->strName);
   }
 
   UpdateViewPanel();
@@ -357,7 +362,7 @@ void TreeList::Update(int Mode)
   {
     SyncDir();
 
-    struct TreeItem *CurPtr=ListData+CurFile;
+    struct TreeItem *CurPtr=ListData[CurFile];
     if (GetFileAttributesW(CurPtr->strName)==(DWORD)-1)
     {
       DelTreeName(CurPtr->strName);
@@ -395,17 +400,23 @@ int TreeList::ReadTree()
   if (RootLength<0)
     RootLength=0;
 
-  if(ListData) xf_free(ListData);
+  if(ListData)
+  {
+  	for (long i=0; i<TreeCount; i++)
+		delete ListData[i];
+    xf_free(ListData);
+  }
   TreeCount=0;
-  if ((ListData=(struct TreeItem*)xf_malloc((TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
+  if ((ListData=(struct TreeItem**)xf_malloc((TreeCount+256+1)*sizeof(struct TreeItem*)))==NULL)
   {
     RestoreState();
     return FALSE;
   }
 
-  memset(&ListData[0], 0, sizeof(ListData[0]));
+  ListData[0] = new TreeItem;
+  ListData[0]->Clear();
 
-  ListData->strName = strRoot;
+  ListData[0]->strName = strRoot;
 
   SaveScreen SaveScrTree;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
@@ -416,8 +427,8 @@ int TreeList::ReadTree()
 
   if (RootLength>0 && strRoot.At (RootLength-1) != L':' && strRoot.At (RootLength)==L'\\')
   {
-    ListData->strName.GetBuffer (); //BUGBUG
-    ListData->strName.ReleaseBuffer (RootLength);
+    ListData[0]->strName.GetBuffer (); //BUGBUG
+    ListData[0]->strName.ReleaseBuffer (RootLength);
   }
 
   TreeCount=1;
@@ -446,11 +457,9 @@ int TreeList::ReadTree()
     {
       int OldCount = TreeCount;
 
-      ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem));
+      ListData=(struct TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem*));
 
-      if ( ListData )
-        memset (ListData+OldCount, 0, (TreeCount+256+1-OldCount)*sizeof (TreeItem));
-      else
+      if ( !ListData )
       {
         AscAbort=TRUE;
         break;
@@ -460,16 +469,22 @@ int TreeList::ReadTree()
     if (!(fdata.dwFileAttributes & FA_DIREC))
       continue;
 
-    memset(&ListData[TreeCount], 0, sizeof(ListData[0]));
+    ListData[TreeCount] = new TreeItem;
+    ListData[TreeCount]->Clear();
 
-    ListData[TreeCount].strName = strFullName;
+    ListData[TreeCount]->strName = strFullName;
 
     TreeCount++;
   }
 
   if(AscAbort)
   {
-    if(ListData) xf_free(ListData);
+  	if (ListData)
+  	{
+  	  for (long i=0; i<TreeCount; i++)
+        delete ListData[i];
+      xf_free(ListData);
+    }
     ListData=NULL;
     TreeCount=0;
     SetPreRedrawFunc(NULL);
@@ -525,10 +540,10 @@ void TreeList::SaveTreeFile()
     /* tran $ */
   }
   for (I=0;I<TreeCount;I++)
-    if (RootLength>=ListData[I].strName.GetLength())
+    if (RootLength>=ListData[I]->strName.GetLength())
       fwprintf(TreeFile,L"\\\n");
     else
-      fwprintf(TreeFile,L"%s\n",(const wchar_t*)ListData[I].strName+RootLength);
+      fwprintf(TreeFile,L"%s\n",(const wchar_t*)ListData[I]->strName+RootLength);
   if (fclose(TreeFile)==EOF)
   {
     clearerr(TreeFile);
@@ -704,22 +719,22 @@ void TreeList::FillLastData()
     RootLength=0;
   for (I=1;I<TreeCount;I++)
   {
-    PathLength=wcsrchr(ListData[I].strName,L'\\')-(const wchar_t*)ListData[I].strName+1;
-    Depth=ListData[I].Depth=CountSlash((const wchar_t*)ListData[I].strName+RootLength);
+    PathLength=wcsrchr(ListData[I]->strName,L'\\')-(const wchar_t*)ListData[I]->strName+1;
+    Depth=ListData[I]->Depth=CountSlash((const wchar_t*)ListData[I]->strName+RootLength);
     for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
-      if (CountSlash((const wchar_t*)ListData[J].strName+RootLength)>Depth)
+      if (CountSlash((const wchar_t*)ListData[J]->strName+RootLength)>Depth)
       {
         SubDirPos=J;
         continue;
       }
       else
       {
-        if ( LocalStrnicmpW(ListData[I].strName,ListData[J].strName,PathLength)==0 )
+        if ( LocalStrnicmpW(ListData[I]->strName,ListData[J]->strName,PathLength)==0 )
           Last=0;
         break;
       }
     for (J=I;J<=SubDirPos;J++)
-      ListData[J].Last[Depth-1]=Last;
+      ListData[J]->Last[Depth-1]=Last;
   }
 }
 
@@ -808,7 +823,7 @@ int TreeList::ProcessKey(int Key)
         string strQuotedName;
         int CAIns=(Key == KEY_CTRLALTINS || Key == KEY_CTRLALTNUMPAD0);
 
-        CurPtr=ListData+CurFile;
+        CurPtr=ListData[CurFile];
         if (wcschr(CurPtr->strName,L' ')!=NULL)
           strQuotedName.Format (L"\"%s\"%s",(const wchar_t *)CurPtr->strName,(CAIns?L"":L" "));
         else
@@ -896,13 +911,13 @@ int TreeList::ProcessKey(int Key)
           int ItemNumber=1;
           HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 
-          FileList::FileNameToPluginItem(ListData[CurFile].strName,ItemList);
+          FileList::FileNameToPluginItem(ListData[CurFile]->strName,ItemList);
           int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0);
           if (PutCode==1 || PutCode==2)
             AnotherPanel->SetPluginModified();
           if(ItemList) xf_free(ItemList);
           if (Move)
-            ReadSubTree(ListData[CurFile].strName);
+            ReadSubTree(ListData[CurFile]->strName);
           Update(0);
           Redraw();
           AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1058,9 +1073,9 @@ int TreeList::GetNextNavPos()
   int NextPos=CurFile;
   if(CurFile+1 < TreeCount)
   {
-    int CurDepth=ListData[CurFile].Depth;
+    int CurDepth=ListData[CurFile]->Depth;
     for(int I=CurFile+1; I < TreeCount; ++I)
-      if(ListData[I].Depth == CurDepth)
+      if(ListData[I]->Depth == CurDepth)
       {
         NextPos=I;
         break;
@@ -1074,9 +1089,9 @@ int TreeList::GetPrevNavPos()
   int PrevPos=CurFile;
   if(CurFile-1 > 0)
   {
-    int CurDepth=ListData[CurFile].Depth;
+    int CurDepth=ListData[CurFile]->Depth;
     for(int I=CurFile-1; I > 0; --I)
-      if(ListData[I].Depth == CurDepth)
+      if(ListData[I]->Depth == CurDepth)
       {
         PrevPos=I;
         break;
@@ -1160,7 +1175,7 @@ int TreeList::SetDirPosition(const wchar_t *NewDir)
   long I;
   for (I=0;I<TreeCount;I++)
   {
-    if (LocalStricmpW(NewDir,ListData[I].strName)==0)
+    if (LocalStricmpW(NewDir,ListData[I]->strName)==0)
     {
       WorkDir=CurFile=I;
       CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1182,7 +1197,7 @@ int TreeList::GetCurDirW (string &strCurDir)
       strCurDir = L"";
   }
   else
-    strCurDir = ListData[CurFile].strName; //BUGBUG
+    strCurDir = ListData[CurFile]->strName; //BUGBUG
 
   return strCurDir.GetLength();
 }
@@ -1285,7 +1300,7 @@ void TreeList::ProcessEnter()
 {
   struct TreeItem *CurPtr;
   DWORD Attr;
-  CurPtr=ListData+CurFile;
+  CurPtr=ListData[CurFile];
   if ((Attr=GetFileAttributesW(CurPtr->strName))!=(DWORD)-1 && (Attr & FA_DIREC))
   {
     if (!ModalMode && FarChDirW(CurPtr->strName))
@@ -1329,7 +1344,12 @@ int TreeList::ReadTreeFile()
       //RestoreState();
       return(FALSE);
     }
-  if(ListData) xf_free(ListData);
+  if(ListData)
+  {
+  	for (long i=0; i<TreeCount; i++)
+		delete ListData[i];
+    xf_free(ListData);
+  }
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
@@ -1353,13 +1373,16 @@ int TreeList::ReadTreeFile()
     {
       int OldCount = TreeCount;
 
-      ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem));
+      ListData=(struct TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem*));
 
-      if ( ListData )
-        memset (ListData+OldCount, 0, (TreeCount+256+1-OldCount)*sizeof (TreeItem));
-      else
+      if ( !ListData )
       {
-        if(ListData) xf_free(ListData);
+        if(ListData)
+        {
+          for (long i=0; i<TreeCount; i++)
+            delete ListData[i];
+          xf_free(ListData);
+        }
         ListData=NULL;
         TreeCount=0;
         fclose(TreeFile);
@@ -1368,9 +1391,9 @@ int TreeList::ReadTreeFile()
       }
     }
 
-    ListData[TreeCount].strName = DirName;
-
-    //UnicodeToAnsi (DirName, ListData[TreeCount].Name);
+    ListData[TreeCount] = new TreeItem;
+    ListData[TreeCount]->Clear();
+    ListData[TreeCount]->strName = DirName;
 
     TreeCount++;
   }
@@ -1398,7 +1421,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
   {
     CmpNameSearchMode=(I==CurFile);
 
-    if (CmpNameW(strMask,ListData[I].strName,TRUE))
+    if (CmpNameW(strMask,ListData[I]->strName,TRUE))
     {
       CmpNameSearchMode=FALSE;
       CurFile=I;
@@ -1415,7 +1438,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
       I+=Direct
      )
   {
-    if (CmpNameW(strMask,ListData[I].strName,TRUE))
+    if (CmpNameW(strMask,ListData[I]->strName,TRUE))
     {
       CurFile=I;
       CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1464,7 +1487,7 @@ int TreeList::GetCurNameW(string &strName, string &strShortName)
     return(FALSE);
   }
 
-  strName = ListData[CurFile].strName;
+  strName = ListData[CurFile]->strName;
   strShortName = strName;
   return(TRUE);
 }
@@ -1739,8 +1762,9 @@ int TreeList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
   long I;
   struct TreeItem *CurPtr;
 
-  for (CurPtr=ListData, I=0; I < TreeCount; I++, CurPtr++)
+  for (I=0; I < TreeCount; I++)
   {
+  	CurPtr=ListData[I];
     const wchar_t *CurPtrName=CurPtr->strName;
     if(OnlyPartName)
       CurPtrName=PointToNameW(CurPtr->strName);
@@ -1766,8 +1790,9 @@ int TreeList::FindNextW(int StartPos, const wchar_t *Name)
   struct TreeItem *CurPtr;
 
   if((DWORD)StartPos < (DWORD)TreeCount)
-    for( CurPtr=ListData+StartPos, I=StartPos; I < TreeCount; I++, CurPtr++ )
+    for( I=StartPos; I < TreeCount; I++)
     {
+      CurPtr=ListData[I];
       const wchar_t *CurPtrName=CurPtr->strName;
       if (CmpNameW(Name,CurPtrName,TRUE))
         if (!TestParentFolderNameW(CurPtrName))
@@ -1781,9 +1806,9 @@ int TreeList::GetFileNameW(string &strName,int Pos,int &FileAttr)
   if (Pos < 0 || Pos >= TreeCount)
     return FALSE;
 
-  strName = ListData[Pos].strName;
+  strName = ListData[Pos]->strName;
 
-  FileAttr=FA_DIREC|GetFileAttributesW(ListData[Pos].strName);
+  FileAttr=FA_DIREC|GetFileAttributesW(ListData[Pos]->strName);
 
   return TRUE;
 }
@@ -1791,8 +1816,8 @@ int TreeList::GetFileNameW(string &strName,int Pos,int &FileAttr)
 
 int _cdecl SortList(const void *el1,const void *el2)
 {
-  string strName1=((struct TreeItem *)el1)->strName;
-  string strName2=((struct TreeItem *)el2)->strName;
+  string strName1=((struct TreeItem **)el1)[0]->strName;
+  string strName2=((struct TreeItem **)el2)[0]->strName;
   if(!StaticSortNumeric)
     return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LocalStricmpW(strName1,strName2));
   else
@@ -1873,7 +1898,7 @@ void TreeList::KillFocus()
 {
   if (CurFile<TreeCount)
   {
-    struct TreeItem *CurPtr=ListData+CurFile;
+    struct TreeItem *CurPtr=ListData[CurFile];
     if (GetFileAttributesW(CurPtr->strName)==(DWORD)-1)
     {
       DelTreeName(CurPtr->strName);
@@ -1922,7 +1947,7 @@ void TreeList::SetTitle()
     const wchar_t *Ptr=L"";
     if(ListData)
     {
-      struct TreeItem *CurPtr=ListData+CurFile;
+      struct TreeItem *CurPtr=ListData[CurFile];
       Ptr=CurPtr->strName;
     }
     if (*Ptr)
@@ -2007,7 +2032,7 @@ BOOL TreeList::GetItem(int Index,void *Dest)
     Index=GetCurrentPos();
   if((DWORD)Index >= TreeCount)
     return FALSE;
-  memcpy(Dest,ListData+Index,sizeof(struct TreeItem));
+  *((TreeItem *)Dest) = *ListData[Index];
   return TRUE;
 }
 
@@ -2021,25 +2046,39 @@ bool TreeList::SaveState()
   if(SaveListData) xf_free(SaveListData);
   SaveListData=NULL;
   SaveTreeCount=SaveWorkDir=0;
-  if(TreeCount > 0 && (SaveListData=(struct TreeItem *)xf_realloc(SaveListData,TreeCount*sizeof(struct TreeItem))) != NULL)
+  if(TreeCount > 0)
   {
-    memmove(SaveListData,ListData,TreeCount*sizeof(struct TreeItem));
-    SaveTreeCount=TreeCount;
-    SaveWorkDir=WorkDir;
-    TreeCache.Copy(&tempTreeCache);
-    return true;
+    SaveListData= new TreeItem[TreeCount];
+    if (SaveListData)
+    {
+      for (int i=0; i<TreeCount; i++)
+        SaveListData[i] = *ListData[i];
+      SaveTreeCount=TreeCount;
+      SaveWorkDir=WorkDir;
+      TreeCache.Copy(&tempTreeCache);
+      return true;
+    }
   }
   return false;
 }
 
 bool TreeList::RestoreState()
 {
-  if(ListData) xf_free(ListData);
+  if(ListData)
+  {
+  	for (long i=0; i<TreeCount; i++)
+		delete ListData[i];
+    xf_free(ListData);
+  }
   TreeCount=WorkDir=0;
   ListData=NULL;
-  if(SaveTreeCount > 0 && (ListData=(struct TreeItem *)xf_realloc(ListData,SaveTreeCount*sizeof(struct TreeItem))) != NULL)
+  if(SaveTreeCount > 0 && (ListData=(struct TreeItem **)xf_realloc(ListData,SaveTreeCount*sizeof(struct TreeItem*))) != NULL)
   {
-    memmove(ListData,SaveListData,SaveTreeCount*sizeof(struct TreeItem));
+    for (int i=0; i<SaveTreeCount; i++)
+    {
+      ListData[i] = new TreeItem;
+      *ListData[i] = SaveListData[i];
+    }
     TreeCount=SaveTreeCount;
     WorkDir=SaveWorkDir;
     tempTreeCache.Copy(&TreeCache);

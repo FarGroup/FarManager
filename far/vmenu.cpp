@@ -1264,7 +1264,7 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
 
   Item[PosAdd] = new MenuItemEx;
 
-  memset (Item[PosAdd], 0, sizeof (MenuItemEx));
+  Item[PosAdd]->Clear();
 
   Item[PosAdd]->Flags = NewItem->Flags;
   Item[PosAdd]->strName = NewItem->strName;
@@ -2155,13 +2155,13 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
   if(!SortForDataDWORD) // обычная сортировка
     qsortex((char *)Item,
           ItemCount,
-          sizeof(MenuItemEx),
+          sizeof(*Item),
           (qsortex_fn)SortItem,
           &Param);
   else
     qsortex((char *)Item,
           ItemCount,
-          sizeof(MenuItemEx),
+          sizeof(*Item),
           (qsortex_fn)SortItemDataDWORD,
           &Param);
   //_SVS(for(I=0; I < ItemCount; ++I)SysLog(L"%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));

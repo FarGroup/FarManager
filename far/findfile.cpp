@@ -2236,9 +2236,9 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
      При использовании фильтра по дате будем отображать тот тип
      даты, который задан в фильтре.
   */
-  if (UseFilter && Filter->GetParams().FDate.Used)
+  if (UseFilter && Filter->GetParams()->FDate.Used)
   {
-    switch(Filter->GetParams().FDate.DateType)
+    switch(Filter->GetParams()->FDate.DateType)
     {
       case FDATE_MODIFIED:
         // Отображаем дату последнего изменения
@@ -2332,7 +2332,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
     if (ItemIndex != LIST_INDEX_NONE)
     {
       // Сбросим данные в FindData. Они там от файла
-      memset(&FindList[ItemIndex]->FindData,0,sizeof(FindList[ItemIndex]->FindData));
+      FindList[ItemIndex]->FindData.Clear();
       // Используем LastDirName, т.к. PathName уже может быть искажена
 
       FindList[ItemIndex]->FindData.strFileName = strLastDirName;

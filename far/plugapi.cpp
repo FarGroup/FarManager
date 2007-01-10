@@ -967,7 +967,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   //struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
 
-  memset(InternalItem,0,sizeof(DialogItemEx)*ItemsNumber);
+  for (int i=0; i<ItemsNumber; i++)
+    InternalItem[i].Clear();
 
   Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
 

@@ -85,6 +85,46 @@ struct FileListItem
 	strShortName = L"";
   }
 
+  FileListItem& operator=(const FileListItem &fliCopy)
+  {
+  	Selected = fliCopy.Selected;
+  	PrevSelected = fliCopy.PrevSelected;
+    ShowFolderSize = fliCopy.ShowFolderSize;
+    ShortNamePresent = fliCopy.ShortNamePresent;
+
+    memcpy (&Colors, &fliCopy.Colors, sizeof (HighlightDataColor));
+
+	NumberOfLinks = fliCopy.NumberOfLinks;
+	UserFlags = fliCopy.UserFlags;
+    UserData = fliCopy.UserData;
+
+	Position = fliCopy.Position;
+	SortGroup = fliCopy.SortGroup;
+
+	DizText = fliCopy.DizText;
+	DeleteDiz = fliCopy.DeleteDiz;
+
+	strOwner = fliCopy.strOwner;
+
+	CustomColumnData = fliCopy.CustomColumnData;
+	CustomColumnNumber = fliCopy.CustomColumnNumber;
+
+	CRC32 = fliCopy.CRC32;
+
+	FileAttr = fliCopy.FileAttr;
+
+	memcpy (&CreationTime, &fliCopy.CreationTime, sizeof (CreationTime));
+	memcpy (&AccessTime, &fliCopy.AccessTime, sizeof (AccessTime));
+	memcpy (&WriteTime, &fliCopy.WriteTime, sizeof (WriteTime));
+
+	UnpSize = fliCopy.UnpSize;
+	PackSize = fliCopy.PackSize;
+
+	strName = fliCopy.strName;
+	strShortName = fliCopy.strShortName;
+
+	return *this;
+  }
 };
 
 struct PluginsStackItem

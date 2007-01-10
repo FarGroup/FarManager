@@ -4373,6 +4373,6 @@ BOOL FileList::GetItem(int Index,void *Dest)
     Index=GetCurrentPos();
   if((DWORD)Index >= (DWORD)FileCount)
     return FALSE;
-  memcpy(Dest,ListData+Index,sizeof(struct FileListItem));
+  *((FileListItem *)Dest)=*ListData[Index];
   return TRUE;
 }

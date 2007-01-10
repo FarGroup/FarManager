@@ -28,6 +28,8 @@ class BitFlags{
     DWORD Change(DWORD NewFlags,BOOL Status){ if(Status) Flags|=NewFlags; else Flags&=~NewFlags; return Flags;}
     // инвертировать состояние флагов
     DWORD Swap(DWORD SwapedFlags){ if(Flags&SwapedFlags) Flags&=~SwapedFlags; else Flags|=SwapedFlags; return Flags;}
+    //сбросить все флаги
+    void ClearAll(){Flags=0;}
 };
 
 #endif // __BITFLAGS_HPP__

@@ -172,6 +172,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
   int nCount = GetHotplugDevicesInfo (&pInfo);
   if ( nCount )
   {
+    struct MenuItemEx ListItem;
     string strFriendlyName;
     string strDescription;
 
@@ -184,7 +185,6 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
       GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true);
       RemoveExternalSpacesW(strDescription);
 
-      struct MenuItemEx ListItem;
       ListItem.Clear ();
 
       if ( !strDescription.IsEmpty() )

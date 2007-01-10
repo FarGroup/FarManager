@@ -87,9 +87,6 @@ struct MenuItemEx
 
   int   ShowPos;
 
-  /* $ 01.12.2001 DJ
-     исправим баг, заодно нормально отформатируем код
-  */
   DWORD SetCheck(int Value)
   {
     if(Value)
@@ -102,7 +99,6 @@ struct MenuItemEx
       Flags&=~(0xFFFF|LIF_CHECKED);
     return Flags;
   }
-  /* DJ $ */
 
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
@@ -121,33 +117,6 @@ struct MenuItemEx
     ShowPos = 0;
   }
 //  char  operator[](int Pos) const;
-};
-
-
-struct MenuData
-{
-  const char *Name;
-  DWORD Flags;
-  DWORD AccelKey;
-
-  /* $ 01.12.2001 DJ
-     исправим баг, заодно нормально отформатируем код
-  */
-  DWORD SetCheck(int Value)
-  {
-    if(Value)
-    {
-      Flags &= ~0xFFFF;
-      Flags|=((Value&0xFFFF)|LIF_CHECKED);
-    }
-    else
-      Flags&=~(0xFFFF|LIF_CHECKED);
-    return Flags;
-  }
-  /* DJ $ */
-
-  DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-  DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
 struct MenuDataEx

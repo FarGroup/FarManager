@@ -508,8 +508,6 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
   int DizWidth=GetDescriptionWidth();
   MenuItemEx TypesMenuItem;
 
-  TypesMenuItem.Clear ();
-
   TypesMenu->DeleteItems();
   while (1)
   {

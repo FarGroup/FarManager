@@ -298,7 +298,6 @@ Frame *Manager::FrameMenu()
   {
     MenuItemEx ModalMenuItem;
 
-    ModalMenuItem.Clear ();
     VMenu ModalMenu(UMSG(MScreensTitle),NULL,0,TRUE, ScrY-4);
     ModalMenu.SetHelp(L"ScrSwitch");
     ModalMenu.SetFlags(VMENU_WRAPMODE);
@@ -311,6 +310,8 @@ Frame *Manager::FrameMenu()
     {
       string strType, strName, strNumText;
       FrameList[I]->GetTypeAndName(strType, strName);
+
+      ModalMenuItem.Clear ();
 
       if (I<10)
         strNumText.Format (L"&%d. ",I);

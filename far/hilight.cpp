@@ -80,7 +80,7 @@ void HighlightFiles::InitHighlightFiles()
     HighlightData **NewHiData;
     HighlightData *HData=new HighlightData;
 
-    memset (HData, 0, sizeof (HighlightData));
+    HData->Clear();
 
     HData->IgnoreMask=GetRegKeyW(strRegKey,HLS.IgnoreMask,FALSE);
 
@@ -135,7 +135,7 @@ BOOL HighlightFiles::AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL Ignore
   string strMask;
 
   if(Src)
-    memmove(Dest,Src,sizeof(struct HighlightData));
+    *Dest = *Src;
 
   strMask = Mask;
 
@@ -147,13 +147,13 @@ BOOL HighlightFiles::AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL Ignore
     // Если встречается %pathext%, то допишем в конец...
     memmove(Ptr,Ptr+IQ1,(wcslen(Ptr+IQ1)+1)*sizeof (wchar_t));
 
-  strMask.ReleaseBuffer();
+    strMask.ReleaseBuffer();
 
     string strTmp1 = strMask;
 
-  wchar_t *pSeparator, *lpwszTmp1;
+    wchar_t *pSeparator, *lpwszTmp1;
 
-  lpwszTmp1 = strTmp1.GetBuffer();
+    lpwszTmp1 = strTmp1.GetBuffer();
 
     pSeparator=wcschr(lpwszTmp1, EXCLUDEMASKSEPARATOR);
 
@@ -168,7 +168,7 @@ BOOL HighlightFiles::AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL Ignore
         strTmp2 = (pSeparator+1);
         *pSeparator=0;
 
-      strTmp1.ReleaseBuffer();
+        strTmp1.ReleaseBuffer();
 
         Add_PATHEXT(strTmp1);
         strMask.Format (L"%s|%s", (const wchar_t*)strTmp1, (const wchar_t*)strTmp2);
@@ -178,7 +178,7 @@ BOOL HighlightFiles::AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL Ignore
     }
     else
   {
-      Add_PATHEXT(strMask); // добавляем то, чего нету.
+    Add_PATHEXT(strMask); // добавляем то, чего нету.
     strTmp1.ReleaseBuffer();
   }
   }
@@ -192,7 +192,7 @@ BOOL HighlightFiles::AddMask(HighlightData *Dest,const wchar_t *Mask,BOOL Ignore
   {
     FMasks=new CFileMaskW;
 
-  if ( !FMasks )
+    if ( !FMasks )
       return FALSE;
 
     if(!FMasks->Set(strMask, FMF_SILENT)) // проверим корректность маски
@@ -290,7 +290,7 @@ void HighlightFiles::GetHiColor(struct FileListItem **FileItemEx,int FileCount)
     memcpy(&FileItem->Colors,&Colors,sizeof(struct HighlightDataColor));
     for (I=0; I < HiDataCount;I++)
     {
-        CurHiData = HiData[I];
+      CurHiData = HiData[I];
       if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
           (Attr & CurHiData->ExcludeAttr)==0)
       {
@@ -470,10 +470,10 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
           if (SelectPos > 0 && SelectPos < HiMenu.GetItemCount()-1)
           {
-            HighlightData HData;
-            memcpy(&HData,HiData[SelectPos],sizeof(struct HighlightData));
-            memcpy(HiData[SelectPos],HiData[SelectPos-1],sizeof(struct HighlightData));
-            memcpy(HiData[SelectPos-1],&HData,sizeof(struct HighlightData));
+            HighlightData *HData;
+            HData = HiData[SelectPos];
+            HiData[SelectPos] = HiData[SelectPos-1];
+            HiData[SelectPos-1] = HData;
             HiMenu.SetSelection(--SelectPos);
             NeedUpdate=TRUE;
             break;
@@ -484,10 +484,10 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
           if (SelectPos < HiMenu.GetItemCount()-2)
           {
-            HighlightData HData;
-            memcpy(&HData,HiData[SelectPos],sizeof(struct HighlightData));
-            memcpy(HiData[SelectPos],HiData[SelectPos+1],sizeof(struct HighlightData));
-            memcpy(HiData[SelectPos+1],&HData,sizeof(struct HighlightData));
+            HighlightData *HData;
+            HData = HiData[SelectPos];
+            HiData[SelectPos] = HiData[SelectPos+1];
+            HiData[SelectPos+1] = HData;
             HiMenu.SetSelection(++SelectPos);
             NeedUpdate=TRUE;
           }
@@ -763,7 +763,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   {
     bNew = true;
     EditData = new HighlightData;
-      memset(EditData,0,sizeof(HighlightData));
+    EditData->Clear();
   }
 
   memset(VBufColorExample,0,sizeof(VBufColorExample));
@@ -948,7 +948,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 
   if (!New && RecPos<HiDataCount)
   {
-    if(!AddMask(HiData[RecPos],strMask,EditData->IgnoreMask,EditData))
+    if(!AddMask(HiData[RecPos],strMask,EditData->IgnoreMask))
     {
       if ( bNew )
           delete EditData;
@@ -968,7 +968,7 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,const wchar_
 {
   HighlightData **NewHiData;
   HighlightData *HData= new HighlightData;
-  memset (HData, 0, sizeof (HighlightData));
+  HData->Clear();
   string strTmpMask;
 
   strTmpMask = Mask;
@@ -987,7 +987,7 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,const wchar_
   HiData=NewHiData;
   for (int I=HiDataCount-1;I>RecPos;I--)
     HiData[I]=HiData[I-1];
-  memcpy(HiData[RecPos],HData,sizeof(struct HighlightData));
+  *(HiData[RecPos]) = *HData;
   return TRUE;
 }
 

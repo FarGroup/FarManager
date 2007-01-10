@@ -1811,7 +1811,6 @@ static TVar panelitemFunc(TVar *param)
   int Index=(int)(param[1].toInteger())-1;
   int TypeInfo=(int)param[2].toInteger();
 
-  struct FileListItem filelistItem;
   if(TypePanel == TREE_PANEL)
   {
     struct TreeItem treeItem;
@@ -1823,6 +1822,7 @@ static TVar panelitemFunc(TVar *param)
   else
   {
     string strDate, strTime;
+    struct FileListItem filelistItem;
     if(!SelPanel->GetItem(Index,&filelistItem))
       TypeInfo=-1;
     switch(TypeInfo)

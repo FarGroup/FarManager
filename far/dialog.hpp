@@ -126,6 +126,35 @@ struct DialogItemEx
 
   int SelStart;
   int SelEnd;
+
+  void Clear()
+  {
+    Type=0;
+    X1=0;
+    Y1=0;
+    X2=0;
+    Y2=0;
+    Focus=0;
+    History=NULL;
+    Flags=0;
+    DefaultButton=0;
+
+    strData=L"";
+    nMaxLength=0;
+
+    ID=0;
+    IFlags.ClearAll();
+    AutoCount=0;
+    AutoPtr=NULL;
+    UserData=0;
+
+    ObjPtr=NULL;
+    ListPtr=NULL;
+    UCData=NULL;
+
+    SelStart=0;
+    SelEnd=0;
+  }
 };
 
 /*
@@ -142,7 +171,7 @@ struct DialogDataEx
   union {
     unsigned int Selected;
     const wchar_t *History;
-    char *Mask;
+    const wchar_t *Mask;
     struct FarList *ListItems;
     int  ListPos;
     CHAR_INFO *VBuf;

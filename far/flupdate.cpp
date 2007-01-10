@@ -418,13 +418,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     AddEndSlashW(strPath);
     if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
     {
-        FileListItem **pTemp;
+      FileListItem **pTemp;
       if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
       {
         ListData=pTemp;
         for (PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
         {
-            CurPtr = ListData[FileCount+I];
+          CurPtr = ListData[FileCount+I];
           FAR_FIND_DATA &fdata=PtrPanelData->FindData;
           PluginToFileListItem(PtrPanelData,CurPtr);
           CurPtr->Position=FileCount;

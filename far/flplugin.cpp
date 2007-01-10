@@ -189,8 +189,8 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
 
 void FileList::PluginToFileListItem(struct PluginPanelItemW *pi,struct FileListItem *fi)
 {
-  fi->strName = pi->FindData.lpwszFileName;
-  fi->strShortName = pi->FindData.lpwszAlternateFileName;
+  fi->strName = NullToEmptyW(pi->FindData.lpwszFileName);
+  fi->strShortName = NullToEmptyW(pi->FindData.lpwszAlternateFileName);
 
   fi->strOwner = NullToEmptyW(pi->Owner);
   if (pi->Description)

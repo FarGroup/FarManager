@@ -232,7 +232,7 @@ int MessageW (
   {
     DWORD ItemCount;
     struct DialogItemEx *PtrMsgDlg;
-    struct DialogItemEx *MsgDlg=(struct DialogItemEx *)xf_malloc((ItemCount=StrCount+Buttons+1)*sizeof(struct DialogItemEx));
+    struct DialogItemEx *MsgDlg = new DialogItemEx[ItemCount=StrCount+Buttons+1];
 
     if(!MsgDlg)
     {
@@ -240,7 +240,8 @@ int MessageW (
       return -1;
     }
 
-    memset(MsgDlg,0,ItemCount*sizeof(struct DialogItemEx));
+    for (int i=0; i<ItemCount; i++)
+      MsgDlg[i].Clear();
 
     int RetCode;
     MessageY2=++Y2;
@@ -307,7 +308,7 @@ int MessageW (
       Dlg.Process();
       RetCode=Dlg.GetExitCode();
     }
-    xf_free(MsgDlg);
+    delete [] MsgDlg;
     xf_free(Str);
     return(RetCode<0?RetCode:RetCode-StrCount-1);
   }

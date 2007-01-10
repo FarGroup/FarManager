@@ -536,7 +536,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     while (*Str && *Str!=L'\"')
       Str++;
 
-  struct DialogItemEx *DlgData=NULL;
+  struct DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
   int DlgSize=0;
   int StrPos[128],StrEndPos[128],StrPosSize=0;
 
@@ -556,7 +556,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     int ii = IsReplaceVariableW(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
     if (ii == -1)
     {
-      ::free(DlgData);
+      delete [] DlgData;
       *StartStr=0;
       return 0;
     }
@@ -565,11 +565,11 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     StrPos[StrPosSize++]=Str-StartStr-2;
     //<Skeleton>
 
-    DlgData=(struct DialogItemEx *)xf_realloc(DlgData,(DlgSize+2)*sizeof(*DlgData));
-    memset(&DlgData[DlgSize],0,2*sizeof(*DlgData)); //BUGBUGBUG!!!!
+    DlgData[DlgSize].Clear();
     DlgData[DlgSize].Type=DI_TEXT;
     DlgData[DlgSize].X1=5;
     DlgData[DlgSize].Y1=DlgSize+2;
+    DlgData[DlgSize+1].Clear();
     DlgData[DlgSize+1].Type=DI_EDIT;
     DlgData[DlgSize+1].X1=5;
     DlgData[DlgSize+1].X2=70;
@@ -738,9 +738,12 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     DlgSize+=2;
   }
   if (DlgSize==0)
+  {
+  	delete [] DlgData;
     return 0;
+  }
   DlgData=(struct DialogItemEx *)xf_realloc(DlgData,(DlgSize+1)*sizeof(*DlgData));
-  memset(&DlgData[DlgSize],0,sizeof(*DlgData));    //BUGBUGBUG
+  DlgData[DlgSize].Clear();
   DlgData[DlgSize].Type=DI_DOUBLEBOX;
   DlgData[DlgSize].X1=3;
   DlgData[DlgSize].Y1=1;
@@ -758,7 +761,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
 
   if (ExitCode==-1)
   {
-    xf_free(DlgData);
+    delete [] DlgData;
     *StartStr=0;
     return 0;
   }
@@ -793,7 +796,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
   wcscpy(StartStr,TmpStr);
 
   ////ExpandEnvironmentStr(TmpStr,StartStr,sizeof(DlgData[0].Data)); ///BUGBUG
-  xf_free(DlgData);
+  delete [] DlgData;
 
   return 1;
 }

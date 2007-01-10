@@ -10,9 +10,6 @@ Files highlighting
 #include "CFileMask.hpp"
 #include "struct.hpp"
 
-/* $ 06.07.2001 IS
-   вместо "рабочей" маски используем соответствующий класс
-*/
 struct HighlightData
 {
   string strOriginalMasks;
@@ -26,8 +23,28 @@ struct HighlightData
   unsigned int IncludeAttr;
   unsigned int ExcludeAttr;
   struct HighlightDataColor Colors;
+
+  void Clear()
+  {
+    strOriginalMasks=L"";
+    FMasks=NULL;
+    IgnoreMask=0;
+    IncludeAttr=0;
+    ExcludeAttr=0;
+    memset(&Colors,0,sizeof(Colors));
+  }
+
+  HighlightData& operator=(const HighlightData &hdCopy)
+  {
+    strOriginalMasks=hdCopy.strOriginalMasks;
+    FMasks=hdCopy.FMasks;
+    IgnoreMask=hdCopy.IgnoreMask;
+    IncludeAttr=hdCopy.IncludeAttr;
+    ExcludeAttr=hdCopy.ExcludeAttr;
+    memcpy(&Colors,&hdCopy.Colors,sizeof(Colors));
+    return *this;
+  }
 };
-/* IS $ */
 
 class VMenu;
 struct FileListItem;
