@@ -756,6 +756,8 @@ void CheckHeap(int NumLine);
 
 string __FARKEY_ToName(int Key);
 #define _FARKEY_ToName(K) (const wchar_t*)__FARKEY_ToName(K)
+string __MCODE_ToName(int OpCode);
+#define _MCODE_ToName(K) (const wchar_t*)__MCODE_ToName(K)
 string __VK_KEY_ToName(int VkKey);
 #define _VK_KEY_ToName(K) (const wchar_t*)__VK_KEY_ToName(K)
 string __ECTL_ToName(int Command);

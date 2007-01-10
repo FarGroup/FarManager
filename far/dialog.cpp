@@ -5975,11 +5975,19 @@ LONG_PTR WINAPI Dialog::SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,LON
     /*****************************************************************/
     case DN_EDITCHANGE:
     {
+      // <DN_EDITCHANGE>
+
+      // бмхлюмхе! еякх щрнр йсянй асдер оепедекюм (МЮОПХЛЕП, ЙЮЙ Б SendDlgMessageAnsi,
+      //           Я ОПХЛЕМЕМХЕЛ Dialog::ConvertItemEx), рн мсфмн "бепмсрэ" йсянй йндю б macro.cpp
+      //           онлерйю рюй фе - <DN_EDITCHANGE></DN_EDITCHANGE>
+
       if((I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)CurItem)) == TRUE) //TRUE UNICODE, item itself, no plugins!
       {
         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
           CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
       }
+      // </DN_EDITCHANGE>
+
       return I;
     }
 

@@ -20,6 +20,7 @@ macro.cpp
 #include "fileedit.hpp"
 #include "fileview.hpp"
 #include "dialog.hpp"
+#include "dlgedit.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -533,7 +534,7 @@ int KeyMacro::ProcessKey(int Key)
       //_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
       //_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
       DWORD CurFlags;
-      if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFFFF)
+      if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF) // 0xFFFF ??
       {
 //        Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
         Key=LocalUpperW(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
@@ -609,6 +610,7 @@ int KeyMacro::GetPlainTextSize()
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 {
+  _KEYMACRO(CleverSysLog Clev(L"KeyMacro::FARPseudoVariable()"));
   int I;
   TVar Cond(_i64(0));
 
@@ -1888,9 +1890,12 @@ int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
   int RetKey=0;
-//_SVS(SysLog(L">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
+  //_SVS(SysLog(L">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !FrameManager->GetCurrentFrame())
+  {
+    //_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
     return RetKey;
+  }
 
   if(Work.Executing == MACROMODE_NOMACRO)
   {
@@ -1898,6 +1903,7 @@ int KeyMacro::GetKey()
     {
       if(CurPCStack >= 0)
       {
+        //_KEYMACRO(SysLog(L"[%d] if(CurPCStack >= 0)",__LINE__));
         PopState();
         return RetKey;
       }
@@ -1918,6 +1924,7 @@ int KeyMacro::GetKey()
       }
       if(TitleModified) SetFarTitleW(NULL);
       UsedInternalClipboard=0; //??
+      //_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
       return RetKey;
     }
 /*
@@ -1940,7 +1947,10 @@ int KeyMacro::GetKey()
 
 initial:
   if((MR=Work.MacroWORK) == NULL)
+  {
+    //_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
     return RetKey;
+  }
 //_SVS(SysLog(L"KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
   // ВНИМАНИЕ! Возможны глюки!
@@ -1989,7 +1999,7 @@ done:
     if(TitleModified) SetFarTitleW(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-    _KEYMACRO(SysLog(-1);SysLog(L"**** End Of Execute Macro ****"));
+    _KEYMACRO(SysLog(-1);SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
     if(CurPCStack >= 0)
     {
       PopState();
@@ -2003,7 +2013,7 @@ done:
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
 
-  _KEYMACRO(SysLog(L"KeyMacro::GetKey() ==> (IP=%d) %s",Work.ExecLIBPos-1,_FARKEY_ToName(Key)));
+  _KEYMACRO(SysLog(L"IP=%d  %s",Work.ExecLIBPos-1,(Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE?_MCODE_ToName(Key):_FARKEY_ToName(Key)));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2087,11 +2097,12 @@ done:
 
     // вычислить выражение
     case MCODE_OP_EXPR:
-      _KEYMACRO(SysLog(L"  --- expr IP=%d", Work.ExecLIBPos));
+    {
+      _KEYMACRO(CleverSysLog Clev(L"MCODE_OP_EXPR"));
       ePos = 0;
       while ( ( Key=GetOpCode(MR,Work.ExecLIBPos++) ) != MCODE_OP_DOIT && Work.ExecLIBPos < MR->BufferSize )
       {
-        _KEYMACRO(SysLog(L"IP=%d, OP=%s",Work.ExecLIBPos-1,_FARKEY_ToName(Key)));
+        _KEYMACRO(SysLog(L"IP=%d  %s",Work.ExecLIBPos-1,(Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE?_MCODE_ToName(Key):_FARKEY_ToName(Key)));
         switch ( Key )
         {
           case MCODE_OP_PUSHINT: // Положить целое значение на стек.
@@ -2135,7 +2146,10 @@ done:
           case MCODE_OP_DIV:
             ePos--;
             if(eStack[ePos+1] == _i64(0)) //???
+            {
+              _KEYMACRO(SysLog(L"[%d] IP=%d/0x%08X Error: Divide by zero",__LINE__,Work.ExecLIBPos,Work.ExecLIBPos));
               goto done;
+            }
             eStack[ePos] = eStack[ePos] /  eStack[ePos+1];
             break;
 
@@ -2249,6 +2263,7 @@ done:
             break;
           case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
           {
+             _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_CHECKHOTKEY"));
              long Result=0;
              int CurMMode=CtrlObject->Macro.GetMode();
              if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
@@ -2278,6 +2293,7 @@ done:
             break;
           case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
           {
+              _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MSGBOX"));
             //_SVS(CleverSysLog Clev(L"MCODE_F_MSGBOX"));
               DWORD Flags=MR->Flags;
               if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
@@ -2303,13 +2319,11 @@ done:
             break;
         }
       }
-      _KEYMACRO(SysLog(L"  --- expr end"));
       *eStack = eStack[ePos];
-      _KEYMACRO(SysLog(L"      ePos       =%d", ePos));
-      _KEYMACRO(SysLog(L"      eStack->i()=%d", eStack->i()));
-      _KEYMACRO(SysLog(L"      eStack->s()='%s'", eStack->s()));
-      _KEYMACRO(SysLog(L" Work.ExecLIBPos =%d (%0X)",Work.ExecLIBPos,Work.ExecLIBPos));
-      goto begin;
+      _KEYMACRO(SysLog(L"ePos=%d  eStack->i()=%d eStack->s()='%s'", ePos, eStack->i(), eStack->s()));
+      _KEYMACRO(SysLog(L"IP=%d/0x%08X",Work.ExecLIBPos,Work.ExecLIBPos));
+    }
+    goto begin;
 
 // $Rep (expr) ... $End
 // -------------------------------------
@@ -2417,10 +2431,12 @@ done:
 #else
   if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
   {
+    _KEYMACRO(SysLog(-1);SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
     ReleaseWORKBuffer();
     Work.Executing=MACROMODE_NOMACRO;
     if(TitleModified)
       SetFarTitleW(NULL);
+
   }
 #endif
 
@@ -2828,10 +2844,10 @@ void KeyMacro::RunStartMacro()
 LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   string strKeyText;
-  static int LastKey;
+  static int LastKey=0;
   static struct DlgParam *KMParam=NULL;
   int Index, I;
-
+  //_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
   if(Msg == DN_INITDIALOG)
   {
     KMParam=(struct DlgParam *)Param2;
@@ -2876,7 +2892,19 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
   {
     LastKey=0;
 
-    Param2=KeyNameToKey(((FarDialogItem*)Param2)->PtrData);
+    // <DN_EDITCHANGE>
+
+    // ВНИМАНИЕ! см. замечение в REMINDER - топик про "<DN_EDITCHANGE> и </DN_EDITCHANGE>"
+    #if 1
+      DlgEdit *EditPtr=(DlgEdit *)(((DialogItemEx*)Param2)->ObjPtr);
+      Param2=KeyNameToKey(EditPtr->GetStringAddrW());
+    #else
+      _SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->PtrData));
+      Param2=KeyNameToKey(((FarDialogItem*)Param2)->PtrData);
+    #endif
+
+    // </DN_EDITCHANGE>
+
     if(Param2 != -1)
       goto M1;
   }
@@ -2907,15 +2935,18 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     }
 */
     // Было что-то уже нажато и Enter`ом подтверждаем
+    _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName(Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     if(Param2 == KEY_ENTER && LastKey && LastKey != KEY_ENTER)
       return FALSE;
     // </Обработка особых клавиш: F1 & Enter>
 M1:
+    _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName(Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     KeyMacro *MacroDlg=KMParam->Handle;
 
     if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
       Param2=LocalKeyToKey(Param2&0x0000FFFF)|(Param2&(~0x0000FFFF));
 
+    _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName(Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     KMParam->Key=(DWORD)Param2;
     KeyToText(Param2,strKeyText);
 
