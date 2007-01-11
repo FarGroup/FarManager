@@ -643,7 +643,7 @@ int EnumRegValueW(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDa
     while( TRUE )
     {
       DWORD ValSize=sizeof(ValueName);
-      DWORD Type=-1;
+      DWORD Type=(DWORD)-1;
 
       if (RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize) != ERROR_SUCCESS)
         break;
@@ -685,7 +685,7 @@ int EnumRegValueExW(const wchar_t *Key,DWORD Index, string &strDestName, string 
     while( TRUE )
     {
       DWORD ValSize=sizeof(ValueName);
-      DWORD Type=-1;
+      DWORD Type=(DWORD)-1;
       DWORD Size = 0;
 
       if (RegEnumValueW(hKey,Index,ValueName,&ValSize, NULL, &Type, NULL, &Size) != ERROR_SUCCESS)

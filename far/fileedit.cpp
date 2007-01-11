@@ -563,7 +563,7 @@ void FileEditor::Init (
   *AttrStr=0;
   /* IS $ */
   CurrentEditor=this;
-  FileAttributes=-1;
+  FileAttributes=(DWORD)-1;
   FileAttributesModified=false;
   SetTitle(Title);
   /* $ 07.05.2001 DJ */
@@ -2731,3 +2731,4 @@ void FileEditor::SetCodePage(int codepage)
 		}
 	}
 }
+

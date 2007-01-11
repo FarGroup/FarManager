@@ -1480,7 +1480,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 */
 //// // _SVS(SysLog(L"Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 
-   return (!Key || Pos < Len)? -1: Key;
+   return (!Key || Pos < Len)? -1: (int)Key;
 }
 /* SVS $*/
 

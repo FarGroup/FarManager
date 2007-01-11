@@ -39,8 +39,8 @@ lpModeFlags - [out] Display mode of the console. This parameter can be one or mo
   CONSOLE_FULLSCREEN_HARDWARE Full-screen console communicating directly with the video hardware. This mode is set after the console is in CONSOLE_FULLSCREEN mode to indicate that the transition to full-screen mode has completed.
 */
 typedef BOOL (WINAPI *PROCGETCONSOLEDISPLAYMODE)(LPDWORD lpModeFlags);
-static PROCSETCONSOLEDISPLAYMODEELLWND SetConsoleDisplayMode=NULL;
-static PROCGETCONSOLEDISPLAYMODE GetConsoleDisplayMode=NULL;
+static PROCSETCONSOLEDISPLAYMODEELLWND pfnSetConsoleDisplayMode=NULL;
+static PROCGETCONSOLEDISPLAYMODE pfnGetConsoleDisplayMode=NULL;
 
 void DetectWindowedMode()
 {
@@ -172,13 +172,13 @@ int FarAltEnter(int mode)
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
       COORD dwOldMode;
-      if(!SetConsoleDisplayMode)
+      if(!pfnSetConsoleDisplayMode)
       {
         HMODULE hKernel32 = GetModuleHandleW(L"KERNEL32.DLL");
-        SetConsoleDisplayMode = (PROCSETCONSOLEDISPLAYMODEELLWND)GetProcAddress(hKernel32,"SetConsoleDisplayMode");
-        //GetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
+        pfnSetConsoleDisplayMode = (PROCSETCONSOLEDISPLAYMODEELLWND)GetProcAddress(hKernel32,"SetConsoleDisplayMode");
+        //pfnGetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
       }
-      SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE),
+      pfnSetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE),
            (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),&dwOldMode);
     }
     else if (hFarWnd) // win9x

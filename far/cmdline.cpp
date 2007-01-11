@@ -164,7 +164,7 @@ int CommandLine::ProcessKey(int Key)
         {
           SetStringW(strStr);
           if(SelectType < 3)
-            ProcessKey(SelectType==1?KEY_ENTER:KEY_SHIFTENTER);
+            ProcessKey(SelectType==1?(int)KEY_ENTER:(int)KEY_SHIFTENTER);
         }
         /* SVS $ */
       }

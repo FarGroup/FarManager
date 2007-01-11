@@ -403,8 +403,8 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   TabSpace[(sizeof(TabSpace)-1)/sizeof (wchar_t)]=0;
 
-  StartPos = -1;
-  LastStartPos = -1;
+  StartPos = (DWORD)-1;
+  LastStartPos = (DWORD)-1;
 
   int RealMaxLength;
 
@@ -505,8 +505,8 @@ m1:
         */
         if ( NearTopicFound )
         {
-          StartPos = -1;
-          LastStartPos = -1;
+          StartPos = (DWORD)-1;
+          LastStartPos = (DWORD)-1;
         }
 
 
@@ -531,8 +531,8 @@ m1:
                 {
                   AddLine(ReadStr);
 
-                  LastStartPos = -1;
-                  StartPos = -1;
+                  LastStartPos = (DWORD)-1;
+                  StartPos = (DWORD)-1;
 
                   continue;
                 }
@@ -562,7 +562,7 @@ m1:
               if (*SplitLine)
               {
                 AddLine(SplitLine);
-                StartPos = -1;
+                StartPos = (DWORD)-1;
               }
 
               wcscpy(SplitLine,ReadStr);

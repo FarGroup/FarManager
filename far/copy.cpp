@@ -1883,7 +1883,7 @@ COPY_CODES ShellCopy::ShellCopyOneFileW (
 
   const wchar_t *NamePtr=PointToNameW(strDestPath);
 
-  DestAttr=-1;
+  DestAttr=(DWORD)-1;
 
   if (strDestPath.At(0)=='\\' && strDestPath.At(1)=='\\')
   {
@@ -2051,7 +2051,7 @@ COPY_CODES ShellCopy::ShellCopyOneFileW (
       strDestPath += PathPtr;
 
       if ((FindHandle=apiFindFirstFile(strDestPath,&DestData))==INVALID_HANDLE_VALUE)
-        DestAttr=-1;
+        DestAttr=(DWORD)-1;
       else
       {
         FindClose(FindHandle);

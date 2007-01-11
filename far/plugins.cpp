@@ -969,7 +969,7 @@ int PluginsSet::SetPluginStartupInfo(Plugin *CurPlugin,int ModuleNumber)
      проверка на минимальную версию фара */
   if (!CheckMinVersion(CurPlugin))
   {
-    UnloadPlugin(CurPlugin,-1); // тест не пройден, выгружаем его
+    UnloadPlugin(CurPlugin,(DWORD)-1); // тест не пройден, выгружаем его
     return (FALSE);
   }
 

@@ -648,7 +648,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
                 {
                   ConsoleTitle *OldTitle=new ConsoleTitle;
                   string strFileName = strMenuFileName;
-                  FileEditor ShellEditor(strFileName,FALSE,FALSE,-1,-1,TRUE,NULL);
+                  FileEditor ShellEditor(strFileName,FALSE,FALSE,-1,-1,TRUE,FALSE);
                   delete OldTitle;
                   ShellEditor.SetDynamicallyBorn(false);
                   FrameManager->EnterModalEV();

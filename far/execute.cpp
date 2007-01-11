@@ -1305,7 +1305,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
             AddEndSlashW(strFullPath);
           }
           strFullPath += strExpandedStr;
-          DWORD FileAttr=-1;
+          DWORD FileAttr=(DWORD)-1;
           if(wcspbrk(strExpandedStr,L"*?")) // это маска?
           {
             FAR_FIND_DATA_EX wfd;

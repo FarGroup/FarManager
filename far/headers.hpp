@@ -13,6 +13,10 @@ headers.hpp
   #pragma option -a2
 #endif
 
+#if defined(__GNUC__)
+	#define _WIN32_WINNT 0x0500
+#endif
+
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
  #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
   #if !defined(_WINCON_H) && !defined(_WINCON_)
@@ -283,7 +287,7 @@ headers.hpp
 #endif
 
 
-#if defined(__GNUC__) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
+#if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
 
 #ifndef _DWORDLONG_
 typedef unsigned __int64 DWORDLONG;
@@ -301,6 +305,47 @@ typedef struct _MEMORYSTATUSEX {
     DWORDLONG ullAvailVirtual;
     DWORDLONG ullAvailExtendedVirtual;
 } MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+#endif
+
+#if defined(__GNUC__)
+
+typedef struct _IMAGE_OPTIONAL_HEADER IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
+
+typedef struct _IMAGE_OPTIONAL_HEADER64 {
+	WORD        Magic;
+	BYTE        MajorLinkerVersion;
+	BYTE        MinorLinkerVersion;
+	DWORD       SizeOfCode;
+	DWORD       SizeOfInitializedData;
+	DWORD       SizeOfUninitializedData;
+	DWORD       AddressOfEntryPoint;
+	DWORD       BaseOfCode;
+	ULONGLONG   ImageBase;
+	DWORD       SectionAlignment;
+	DWORD       FileAlignment;
+	WORD        MajorOperatingSystemVersion;
+	WORD        MinorOperatingSystemVersion;
+	WORD        MajorImageVersion;
+	WORD        MinorImageVersion;
+	WORD        MajorSubsystemVersion;
+	WORD        MinorSubsystemVersion;
+	DWORD       Win32VersionValue;
+	DWORD       SizeOfImage;
+	DWORD       SizeOfHeaders;
+	DWORD       CheckSum;
+	WORD        Subsystem;
+	WORD        DllCharacteristics;
+	ULONGLONG   SizeOfStackReserve;
+	ULONGLONG   SizeOfStackCommit;
+	ULONGLONG   SizeOfHeapReserve;
+	ULONGLONG   SizeOfHeapCommit;
+	DWORD       LoaderFlags;
+	DWORD       NumberOfRvaAndSizes;
+	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+} IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
+
+#define IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b
+
 #endif
 
 #endif // __HEADERS_HPP__

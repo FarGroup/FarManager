@@ -140,7 +140,7 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 all: lng $(EXEFULLNAME)
 
-$(DEPS) $(OBJS): $(OBJDIR)
+#$(DEPS) $(OBJS): $(OBJDIR)
 
 $(OBJDIR)/%.d: %.c
 	@echo making depends for $<

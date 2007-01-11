@@ -1856,8 +1856,8 @@ void   WINAPI _export FreeVirtualFindData(HANDLE hPlugin,struct PluginPanelItemW
 int    WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
 int    WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItemW **pPanelItem,int *pItemsNumber,int OpMode);
 int    WINAPI _export GetMinFarVersion(void);
-void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);
-void   WINAPI _export GetPluginInfo(struct PluginInfo *Info);
+void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *Info);
+void   WINAPI _export GetPluginInfo(struct PluginInfoW *Info);
 int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
