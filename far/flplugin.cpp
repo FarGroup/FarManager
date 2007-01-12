@@ -876,7 +876,7 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile)
   struct OpenPluginInfoW Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   if (Info.StartPanelMode)
-    SetViewMode(VIEW_0+Info.StartPanelMode-'0');
+    SetViewMode(VIEW_0+Info.StartPanelMode-L'0');
   CtrlObject->Cp()->RedrawKeyBar();
   if (Info.StartSortMode)
   {
