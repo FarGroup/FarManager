@@ -208,6 +208,8 @@ class FileEditor:public Frame
     //28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
     bool bClosing;
 
+    bool bEE_READ_Sent;
+
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
