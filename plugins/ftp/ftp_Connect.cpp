@@ -445,20 +445,63 @@ BOOL Connection::GetExitCode()
   return TRUE;
 }
 
-void Connection::FromOEM( BYTE *Line,int _sz )
+int encode_UTF8(WCHAR *ws, int wsz, char *utf8s, int sz)
+{
+    int i = 0, iw = 0;
+    char *s;
+
+    s = utf8s;
+    while(*ws && i<sz && iw<wsz) {
+        if(*ws <= 0x007F) {                 /* 1 octet */
+            *s++ = *ws;
+            i++;
+        }
+        else if(*ws <= 0x07FF) {            /* 2 octets */
+            *s++ = 0xC0 | ((*ws >> 6) & 0x1F);
+            *s++ = 0x80 | (*ws & 0x3F);
+            i+=2;
+        }
+        else if(*ws <= 0xFFFF) {            /* 3 octets */
+            *s++ = 0xE0 | ((*ws >> 12) & 0x0F);
+            *s++ = 0x80 | ((*ws >> 6) & 0x3F);
+            *s++ = 0x80 | (*ws & 0x3F);
+            i+=3;
+        }
+        else {                              /* >= 4 octets -- not fit in UCS-2 */
+            *s++ = '_';
+            i++;
+        }
+        ++ws;
+        ++iw;
+    }
+    iw = i;
+    while (iw < sz)
+    {
+      *s++ = 0;
+      iw++;
+    }
+    return i;
+}
+
+int Connection::FromOEM( BYTE *Line,int _sz,int fsz )
   {  CharTableSet TableSet;
      int          TabNum = LastUsedTableNum;
      int          sz = _sz;
 
-     if (!Line || !sz) return;
+     if (!Line || !sz) return 0;
 
      if (sz == -1)
        sz = strLen( (char*)Line );
       else
        sz--;
 
+     if (fsz == -1)
+       fsz = sz;
+
+     int ret = sz;
+
      if ( TabNum == 2 ||
-          TabNum > 2 && FP_Info->CharTable(TabNum-3,(char*)&TableSet,sizeof(TableSet)) == -1 ) {
+          TabNum > 3 && FP_Info->CharTable(TabNum-4,(char*)&TableSet,sizeof(TableSet)) == -1 ) {
        LogCmd( Message("Not working decode table %d used !!",TabNum), ldInt );
        TabNum = 1;
      }
@@ -469,26 +512,97 @@ void Connection::FromOEM( BYTE *Line,int _sz )
 
        case 1:
                break;
-
+       case 3:
+          {
+               WCHAR *tmp = (WCHAR *)_Alloc( sz*sizeof(WCHAR) );
+               MultiByteToWideChar( CP_OEMCP, 0, Line, sz, tmp, sz);
+               ret = encode_UTF8(tmp, sz, Line, fsz);
+               _Del( tmp );
+               break;
+          }
        default: for (int I=0; I < sz;I++)
                   Line[I] = (BYTE)TableSet.EncodeTable[ Line[I] ];
            break;
      }
+
+     return ret;
 }
 
-void Connection::ToOEM( BYTE *Line,int _sz )
+int decode_UTF8(unsigned char *utf8s, int sz, WCHAR *ws, int wsz)
+{
+    int i = 0, iw = 0;
+    WCHAR     *wc;
+
+    wc = ws;
+    while(*utf8s && i<sz && iw<wsz) {
+        if(!(*utf8s & 0x80))
+        {
+          *wc = *utf8s++;                       /* 1 octet */
+          i++;
+        }
+        else if((*utf8s & 0xE0) == 0xC0) {      /* 2 octets */
+            *wc = (*utf8s++ & 0x1F) << 6;       /* 1st */
+            i++;
+            if((*utf8s & 0xC0) == 0x80)
+            {
+              *wc |= *utf8s++ & 0x3F;           /* 2nd */
+              i++;
+            }
+            else
+              *wc = *utf8s % 26 + 'a';
+        }
+        else if((*utf8s & 0xF0) == 0xE0) {      /* 3 octets */
+            *wc = (*utf8s++ & 0x0F) << 12;      /* 1st */
+            i++;
+            if((*utf8s & 0xC0) == 0x80) {       /* 2nd */
+                *wc |= (*utf8s++ & 0x3F) << 6;
+                i++;
+                if((*utf8s & 0xC0) == 0x80)
+                {
+                  *wc |= *utf8s++ & 0x3F;       /* 3d */
+                  i++;
+                }
+                else
+                  *wc = *utf8s % 26 + 'a';      /* bad UTF-8 */
+            }
+            else *wc = *utf8s % 26 + 'a';       /* bad UTF-8 */
+        }
+        else if((*utf8s * 0xF0) == 0xF0) {     /* >= 4 octets -- not fit in UCS-2 */
+            ++utf8s;
+            i++;
+            while(*utf8s && ((*utf8s & 0xC0) == 0x80) && i<sz)
+            {
+              i++;
+              ++utf8s;
+            }
+            *wc =  '_';
+        }
+        else {
+            *wc = *utf8s % 26 + 'a';
+            ++utf8s;
+            i++;
+        }
+        ++wc;
+        iw++;
+    }
+    return iw;
+}
+
+int Connection::ToOEM( BYTE *Line,int _sz )
   {  CharTableSet TableSet;
      int          TabNum  = TableNum;
      int          sz = _sz;
 
-     if (!Line || !sz) return;
+     if (!Line || !sz) return 0;
 
      if (sz == -1)
        sz = strLen( (char*)Line );
       else
        sz--;
 
-     if ( TabNum > 2 && FP_Info->CharTable(TabNum-3,(char*)&TableSet,sizeof(TableSet)) == -1 ) {
+     int ret = sz;
+
+     if ( TabNum > 3 && FP_Info->CharTable(TabNum-4,(char*)&TableSet,sizeof(TableSet)) == -1 ) {
        LogCmd( Message("Decode table set to %d, but does not exist. Switch to autodetect",TabNum), ldInt );
        TabNum = 2;
      }
@@ -498,7 +612,7 @@ void Connection::ToOEM( BYTE *Line,int _sz )
        if ( TabNum == -1 || FP_Info->CharTable(TabNum,(char*)&TableSet,sizeof(TableSet)) == -1 )
          TabNum = 1;
         else
-         TabNum = TabNum+3;
+         TabNum = TabNum+4;
        LogCmd( Message("Autodetected table: %d",TabNum), ldInt );
        TableNum = TabNum;
      }
@@ -508,9 +622,21 @@ void Connection::ToOEM( BYTE *Line,int _sz )
            break;
         case 1:
            break;
+        case 3:
+           {
+                WCHAR *tmp = (WCHAR *)_Alloc( sz*sizeof(WCHAR) );
+                ret = decode_UTF8(Line, sz, tmp, sz);
+                WideCharToMultiByte( CP_OEMCP, 0, tmp, ret, Line, ret, NULL, NULL);
+                for (int i=ret; i<sz; i++)
+                  Line[i] = 0;
+                _Del( tmp );
+                break;
+           }
        default: for (int I=0; I < sz;I++)
                   Line[I] = (BYTE)TableSet.DecodeTable[ Line[I] ];
            break;
      }
      LastUsedTableNum = TabNum;
+
+     return ret;
 }

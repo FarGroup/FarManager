@@ -524,12 +524,14 @@ int FTP::TableNameToValue(char *TableName)
     return(1);
   if (StrCmp(TableName,".auto")==0)
     return(2);
+  if (StrCmp(TableName,".utf8")==0)
+    return(3);
   for (int I=0;;I++) {
     CharTableSet TableSet;
     if (FP_Info->CharTable(I,(char*)&TableSet,sizeof(TableSet))==-1)
       break;
     if (StrCmp(TableName,TableSet.TableName)==0)
-      return(I+3);
+      return(I+4);
   }
   return(0);
 }
@@ -542,11 +544,12 @@ void FTP::SelectTable()
   StrCpy(MenuItems[0].Text,"Windows");
   StrCpy(MenuItems[1].Text,"DOS");
   StrCpy(MenuItems[2].Text,FP_GetMsg(MTableAuto));
-  int TableNum=3;
+  StrCpy(MenuItems[3].Text,"UTF-8");
+  int TableNum=4;
   while (TableNum<sizeof(MenuItems)/sizeof(MenuItems[0]))
   {
     CharTableSet TableSet;
-    if (FP_Info->CharTable(TableNum-3,(char*)&TableSet,sizeof(TableSet))==-1)
+    if (FP_Info->CharTable(TableNum-4,(char*)&TableSet,sizeof(TableSet))==-1)
       break;
     StrCpy(MenuItems[TableNum++].Text,TableSet.TableName);
   }
@@ -569,6 +572,9 @@ void FTP::SelectTable()
     case 2:
       StrCpy(TableName,".auto");
       break;
+    case 3:
+      StrCpy(TableName,".utf8");
+      break;
     default:
       StrCpy(TableName,MenuItems[ExitCode].Text);
       break;
@@ -584,17 +590,20 @@ void FTP::SelectFileTable(char *TableName)
   StrCpy(MenuItems[1].Text,"Windows");
   StrCpy(MenuItems[2].Text,"DOS");
   StrCpy(MenuItems[3].Text,FP_GetMsg(MTableAuto));
+  StrCpy(MenuItems[4].Text,"UTF-8");
   if (StrCmp(TableName,".win")==0)
     MenuItems[1].Selected=TRUE;
   if (StrCmp(TableName,".dos")==0)
     MenuItems[2].Selected=TRUE;
   if (StrCmp(TableName,".auto")==0)
     MenuItems[3].Selected=TRUE;
+  if (StrCmp(TableName,".utf8")==0)
+    MenuItems[4].Selected=TRUE;
 
-  int TableNum=4;
+  int TableNum=5;
   while( TableNum < ARRAY_SIZE(MenuItems) ) {
     CharTableSet TableSet;
-    if (FP_Info->CharTable(TableNum-4,(char*)&TableSet,sizeof(TableSet))==-1)
+    if (FP_Info->CharTable(TableNum-5,(char*)&TableSet,sizeof(TableSet))==-1)
       break;
     if (StrCmp(TableName,TableSet.TableName)==0)
       MenuItems[TableNum].Selected=TRUE;
@@ -618,6 +627,9 @@ void FTP::SelectFileTable(char *TableName)
       break;
     case 3:
       StrCpy(TableName,".auto");
+      break;
+    case 4:
+      StrCpy(TableName,".utf8");
       break;
     default:
       StrCpy(TableName,MenuItems[ExitCode].Text);

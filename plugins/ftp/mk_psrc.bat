@@ -1,1 +1,0 @@
-wrar a -r FtpP_xxxx_src @lib-src-list

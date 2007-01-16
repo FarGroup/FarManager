@@ -11,13 +11,13 @@ void SetupFileTimeNDescription( int OpMode,Connection *hConnect,CONSTSTR nm )
     if ( !SrcFile ) return;
 
     int   FileSize = (int)Fsize(SrcFile);
-    BYTE *Buf      = (BYTE*)_Alloc( sizeof(BYTE)*FileSize );
+    BYTE *Buf      = (BYTE*)_Alloc( sizeof(BYTE)*FileSize*3+1 );
     int   ReadSize = fread(Buf,1,FileSize,SrcFile);
-    hConnect->FromOEM( Buf,ReadSize );
+    int WriteSize = hConnect->FromOEM( Buf,ReadSize,sizeof(BYTE)*FileSize*3+1 );
     fflush(SrcFile);
     fseek(SrcFile,0,SEEK_SET);
     fflush(SrcFile);
-    fwrite(Buf,1,ReadSize,SrcFile);
+    fwrite(Buf,1,WriteSize,SrcFile);
     fflush(SrcFile);
     fclose(SrcFile);
     _Del( Buf );

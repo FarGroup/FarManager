@@ -268,13 +268,13 @@ STRUCT( Connection )
     void           SetTable( int Table )          { TableNum = Table; }
     int            GetTable( void )               { return TableNum; }
 
-    void           FromOEM( BYTE *Line,int sz = -1 );
-    void           FromOEM( char *Line )              { FromOEM( (LPBYTE)Line,-1 ); }
-    void           FromOEM( String& s )               { FromOEM( (LPBYTE)s.c_str(),-1 ); }
+    int            FromOEM( BYTE *Line,int sz = -1, int fsz = -1 );
+    int            FromOEM( char *Line )              { return FromOEM( (LPBYTE)Line,-1,-1 ); }
+    int            FromOEM( String& s )               { s.Alloc(s.Length()*3+1); int ret = FromOEM( (LPBYTE)s.c_str(),-1,s.Length()*3 ); s.SetLength(ret); return ret;}
 
-    void           ToOEM( BYTE *Line,int sz = -1 );
-    void           ToOEM( char *Line )                { ToOEM( (LPBYTE)Line,-1 ); }
-    void           ToOEM( String& s )                 { ToOEM( (LPBYTE)s.c_str(),-1 ); }
+    int            ToOEM( BYTE *Line,int sz = -1 );
+    int            ToOEM( char *Line )                { return ToOEM( (LPBYTE)Line,-1 ); }
+    int            ToOEM( String& s )                 { int ret = ToOEM( (LPBYTE)s.c_str(),-1 ); s.SetLength(ret); return ret; }
 
     char          *FromOEMDup( CONSTSTR str,int num = 0 );
     char          *ToOEMDup( CONSTSTR str,int num = 0 );

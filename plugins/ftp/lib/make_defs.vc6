@@ -22,7 +22,7 @@ PROJCONDEF = /DEF:$(CONDEF)
 !ENDIF
 
 # FStd lib
-FARROOT     = ..\..\..
+FARROOT     = .
 OUTDIR      = $(FARROOT)\OUTPUT
 
 # Path to base of compiller directory

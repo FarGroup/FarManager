@@ -19,9 +19,10 @@ void SetupFileTimeNDescription( int OpMode,Connection *hConnect,CONSTSTR nm,FILE
           (FileSize=GetFileSize(SrcFile,NULL)) != 0xFFFFFFFFUL ) {
        Buf      = (BYTE*)_Alloc( sizeof(BYTE)*FileSize );
        ReadFile(SrcFile,Buf,FileSize,&FileSize,NULL);
-       hConnect->ToOEM( Buf,FileSize );
+       DWORD WriteSize = hConnect->ToOEM( Buf,FileSize );
        SetFilePointer( SrcFile,0,NULL,FILE_BEGIN );
-       WriteFile( SrcFile,Buf,FileSize,&FileSize,NULL );
+       WriteFile( SrcFile,Buf,WriteSize,&WriteSize,NULL );
+       SetEndOfFile( SrcFile );
        _Del( Buf );
      }
      if ( tm )

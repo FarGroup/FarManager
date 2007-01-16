@@ -1,8 +1,8 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 7, 0, 0
-PRODUCTVERSION 1, 7, 0, 0
+FILEVERSION 1, 71, 0, 0
+PRODUCTVERSION 1, 71, 0, 0
 FILEOS 4
 FILETYPE 2 {
  BLOCK "StringFileInfo" {
@@ -12,10 +12,9 @@ FILETYPE 2 {
    VALUE "InternalName",     "FarFtp\000"
    VALUE "LegalCopyright",   "Copyright © Eugene Roshal 1996-2000, Copyright © FAR Group 2000\000\000"
    VALUE "OriginalFilename", "FarFtp.dll\000"
-   VALUE "Comments",         "Current developer: JouriM<at>uran.ru\000\000"
 
-   VALUE "ProductVersion",   "1.9\000\000"
-   VALUE "FileVersion",      "build 27.12.2005\000\000"
+   VALUE "ProductVersion",   "2.0\000\000"
+   VALUE "FileVersion",      "build 17.01.2007\000\000"
   }
  }
  BLOCK "VarFileInfo" {

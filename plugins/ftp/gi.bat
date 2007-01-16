@@ -1,1 +1,0 @@
-start injector -lcall -sex -event -l=D:\MYWIN\Far\PLUGINS\StdPlugins\FarFtp\11 ..\..\..\far.exe -params="/x /u PLGTest /pD:\MYWIN\Far\plugins\StdPlugins\FarFtp"

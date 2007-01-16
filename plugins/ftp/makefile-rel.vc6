@@ -1,4 +1,4 @@
-LIBROOT    = D:\MYWIN\Far\PLUGINS\StdPlugins
+LIBROOT    = .\FStdLib
 PNAME      = FarFtp
 PROJECT    = $(PNAME).dll
 PDEF       = ftp.def
