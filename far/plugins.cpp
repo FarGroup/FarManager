@@ -581,15 +581,17 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     }
     PrepareModulePath(CurPlugin.ModuleName);
 
-    if ( !IsModulePlugin (CurPlugin.ModuleName) )
+    if ( IsModulePlugin (CurPlugin.ModuleName) )
+    {
+      hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+      if(!hModule)
+        LstErr=GetLastError();
+      FarChDir(CurPath, TRUE);
+      if(Drive[0]) // вернем ее (переменную окружения) обратно
+        SetEnvironmentVariable(Drive,CurPlugDiskPath);
+    }
+    else
       return FALSE;
-
-    hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
-    if(!hModule)
-      LstErr=GetLastError();
-    FarChDir(CurPath, TRUE);
-    if(Drive[0]) // вернем ее (переменную окружения) обратно
-      SetEnvironmentVariable(Drive,CurPlugDiskPath);
     /* VVM $ */
   }
 
