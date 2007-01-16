@@ -329,7 +329,7 @@ void __stdcall ArchivePanel::pGetOpenPluginInfo (
 		)
 {
 	pInfo->StructSize = sizeof (OpenPluginInfo);
-	pInfo->Flags = OPIF_USEHIGHLIGHTING | OPIF_USESORTGROUPS | OPIF_ADDDOTS;
+	pInfo->Flags = OPIF_USEFILTER | OPIF_USEHIGHLIGHTING | OPIF_USESORTGROUPS | OPIF_ADDDOTS;
 	pInfo->CurDir = m_lpCurrentFolder;
 
 	if ( m_pArchive )
@@ -1501,7 +1501,7 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 			}
 
 			strcat (lpArchiveName, ".");
-			
+
 			if ( !D->m_Items[22].Selected )
 				strcat (lpArchiveName, info->lpDefaultExtention);
 

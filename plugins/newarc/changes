@@ -15,6 +15,10 @@ AY - Alex Yaroslavsky
 WI - WARP ItSelf
 TS - Tim Sobolev
 
+[16/01/2006]
+
+[*] Добавил OPIF_USEFILTER. [AY]
+
 [10/01/2007]
 
 [-] Толи лыжи не ехали, толи... Добавил определение ZIP архивов не только в начале файла. [7z.all] [WI]
