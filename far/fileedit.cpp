@@ -826,7 +826,7 @@ void FileEditor::InitKeyBar(void)
       /* CtrlAlt   */ {KBL_CTRLALT,MSingleEditCtrlAltF1,MSingleEditCtrlAltF2,MSingleEditCtrlAltF3,MSingleEditCtrlAltF4,MSingleEditCtrlAltF5,MSingleEditCtrlAltF6,MSingleEditCtrlAltF7,MSingleEditCtrlAltF8,MSingleEditCtrlAltF9,MSingleEditCtrlAltF10,MSingleEditCtrlAltF11,MSingleEditCtrlAltF12},
     }
   };
-  wchar_t *FEditKeys[12];
+  const wchar_t *FEditKeys[12];
   int I,J;
 
   for(I=0; I < 7; ++I)
@@ -854,7 +854,7 @@ void FileEditor::InitKeyBar(void)
         // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
         if(!GetCanLoseFocus())
           FEditKeys[11-1]=L"";
-        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
           FEditKeys[5-1]=L"";
         break;
     }
@@ -978,7 +978,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     */
     case KEY_ALTF5:
     {
-      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
       {
         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
         return TRUE;

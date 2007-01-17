@@ -129,7 +129,7 @@ enum FARMESSAGEFLAGS{
 };
 
 typedef int (WINAPI *FARAPIMESSAGE)(
-  int PluginNumber,
+  INT_PTR PluginNumber,
   DWORD Flags,
   const wchar_t *HelpTopic,
   const wchar_t * const *Items,
@@ -529,7 +529,7 @@ typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
 );
 
 typedef int (WINAPI *FARAPIDIALOG)(
-  int                   PluginNumber,
+  INT_PTR               PluginNumber,
   int                   X1,
   int                   Y1,
   int                   X2,
@@ -540,7 +540,7 @@ typedef int (WINAPI *FARAPIDIALOG)(
 );
 
 typedef int (WINAPI *FARAPIDIALOGEX)(
-  int                   PluginNumber,
+  INT_PTR               PluginNumber,
   int                   X1,
   int                   Y1,
   int                   X2,
@@ -596,7 +596,7 @@ enum FARMENUFLAGS{
 };
 
 typedef int (WINAPI *FARAPIMENU)(
-  int                 PluginNumber,
+  INT_PTR             PluginNumber,
   int                 X,
   int                 Y,
   int                 MaxHeight,
@@ -760,7 +760,7 @@ typedef int (WINAPI *FARAPIGETDIRLIST)(
 );
 
 typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
-  int PluginNumber,
+  INT_PTR PluginNumber,
   HANDLE hPlugin,
   const wchar_t *Dir,
   struct PluginPanelItemW **pPanelItem,
@@ -859,7 +859,7 @@ typedef int (WINAPI *FARAPICHARTABLE)(
 );
 
 typedef const wchar_t* (WINAPI *FARAPIGETMSG)(
-  int PluginNumber,
+  INT_PTR PluginNumber,
   int MsgId
 );
 
@@ -1141,7 +1141,7 @@ struct WindowInfo
 };
 
 typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(
-  int ModuleNumber,
+  INT_PTR ModuleNumber,
   int Command,
   void *Param
 );
@@ -1643,7 +1643,7 @@ struct PluginStartupInfo
 {
   int StructSize;
   const wchar_t *ModuleName;
-  int ModuleNumber;
+  INT_PTR ModuleNumber;
   const wchar_t *RootKey;
   FARAPIMENU             Menu;
   FARAPIDIALOG           Dialog;

@@ -398,10 +398,10 @@ int Help::ReadHelp(const wchar_t *Mask)
   int NearTopicFound=0;
   wchar_t PrevSymbol=0;
 
-  for (int i = 0; i < sizeof(TabSpace)/sizeof (wchar_t); i++)
+  for (int i = 0; i < countof(TabSpace); i++)
     TabSpace[i] = L' ';
 
-  TabSpace[(sizeof(TabSpace)-1)/sizeof (wchar_t)]=0;
+  TabSpace[countof(TabSpace)-1]=0;
 
   StartPos = (DWORD)-1;
   LastStartPos = (DWORD)-1;
@@ -830,7 +830,7 @@ void Help::OutString(const wchar_t *Str)
   wchar_t OutStr[512]; //BUGBUG
   const wchar_t *StartTopic=NULL;
   int OutPos=0,Highlight=0,Topic=0;
-  while (OutPos<sizeof(OutStr)/sizeof(wchar_t)-10)
+  while (OutPos<countof(OutStr)-10)
   {
     if (Str[0]==L'~' && Str[1]==L'~' ||
         Str[0]==L'#' && Str[1]==L'#' ||
@@ -1846,7 +1846,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   StackData.CurX=StackData.CurY=0;
   strCtrlColorChar=L"";
 
-  wchar_t *PtrTitle=0, *ContentsName=0;
+  const wchar_t *PtrTitle=0, *ContentsName=0;
   string strPath, strFullFileName;
   string strEntryName, strHelpLine, strSecondParam;
 
@@ -1877,7 +1877,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
     {
       for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
       {
-        strPath = CtrlObject->Plugins.PluginsData[I]->strModuleName;
+        strPath = CtrlObject->Plugins.PluginsData[I]->m_strModuleName;
 
         CutToSlashW(strPath);
 
@@ -1992,7 +1992,7 @@ string &Help::MkTopic(int PluginNumber,const wchar_t *HelpTopic,string &strTopic
       {
          strTopic.Format (
                 HelpFormatLinkModule,
-                (const wchar_t*)CtrlObject->Plugins.PluginsData[PluginNumber]->strModuleName,
+                (const wchar_t*)CtrlObject->Plugins.PluginsData[PluginNumber]->m_strModuleName,
                 HelpTopic
                 );
       }
@@ -2067,33 +2067,33 @@ void Help::SetScreenPosition()
 */
 void Help::InitKeyBar(void)
 {
-  wchar_t *FHelpKeys[]={UMSG(MHelpF1),UMSG(MHelpF2),UMSG(MHelpF3),UMSG(MHelpF4),UMSG(MHelpF5),UMSG(MHelpF6),UMSG(MHelpF7),UMSG(MHelpF8),UMSG(MHelpF9),UMSG(MHelpF10),UMSG(MHelpF11),UMSG(MHelpF12)};
-  wchar_t *FHelpShiftKeys[]={UMSG(MHelpShiftF1),UMSG(MHelpShiftF2),UMSG(MHelpShiftF3),UMSG(MHelpShiftF4),UMSG(MHelpShiftF5),UMSG(MHelpShiftF6),UMSG(MHelpShiftF7),UMSG(MHelpShiftF8),UMSG(MHelpShiftF9),UMSG(MHelpShiftF10),UMSG(MHelpShiftF11),UMSG(MHelpShiftF12)};
-  wchar_t *FHelpAltKeys[]={UMSG(MHelpAltF1),UMSG(MHelpAltF2),UMSG(MHelpAltF3),UMSG(MHelpAltF4),UMSG(MHelpAltF5),UMSG(MHelpAltF6),UMSG(MHelpAltF7),UMSG(MHelpAltF8),UMSG(MHelpAltF9),UMSG(MHelpAltF10),UMSG(MHelpAltF11),UMSG(MHelpAltF12)};
-  wchar_t *FHelpCtrlKeys[]={UMSG(MHelpCtrlF1),UMSG(MHelpCtrlF2),UMSG(MHelpCtrlF3),UMSG(MHelpCtrlF4),UMSG(MHelpCtrlF5),UMSG(MHelpCtrlF6),UMSG(MHelpCtrlF7),UMSG(MHelpCtrlF8),UMSG(MHelpCtrlF9),UMSG(MHelpCtrlF10),UMSG(MHelpCtrlF11),UMSG(MHelpCtrlF12)};
+  const wchar_t *FHelpKeys[]={UMSG(MHelpF1),UMSG(MHelpF2),UMSG(MHelpF3),UMSG(MHelpF4),UMSG(MHelpF5),UMSG(MHelpF6),UMSG(MHelpF7),UMSG(MHelpF8),UMSG(MHelpF9),UMSG(MHelpF10),UMSG(MHelpF11),UMSG(MHelpF12)};
+  const wchar_t *FHelpShiftKeys[]={UMSG(MHelpShiftF1),UMSG(MHelpShiftF2),UMSG(MHelpShiftF3),UMSG(MHelpShiftF4),UMSG(MHelpShiftF5),UMSG(MHelpShiftF6),UMSG(MHelpShiftF7),UMSG(MHelpShiftF8),UMSG(MHelpShiftF9),UMSG(MHelpShiftF10),UMSG(MHelpShiftF11),UMSG(MHelpShiftF12)};
+  const wchar_t *FHelpAltKeys[]={UMSG(MHelpAltF1),UMSG(MHelpAltF2),UMSG(MHelpAltF3),UMSG(MHelpAltF4),UMSG(MHelpAltF5),UMSG(MHelpAltF6),UMSG(MHelpAltF7),UMSG(MHelpAltF8),UMSG(MHelpAltF9),UMSG(MHelpAltF10),UMSG(MHelpAltF11),UMSG(MHelpAltF12)};
+  const wchar_t *FHelpCtrlKeys[]={UMSG(MHelpCtrlF1),UMSG(MHelpCtrlF2),UMSG(MHelpCtrlF3),UMSG(MHelpCtrlF4),UMSG(MHelpCtrlF5),UMSG(MHelpCtrlF6),UMSG(MHelpCtrlF7),UMSG(MHelpCtrlF8),UMSG(MHelpCtrlF9),UMSG(MHelpCtrlF10),UMSG(MHelpCtrlF11),UMSG(MHelpCtrlF12)};
 //  char *FHelpAltShiftKeys[]={MSG(MHelpAltShiftF1),MSG(MHelpAltShiftF2),MSG(MHelpAltShiftF3),MSG(MHelpAltShiftF4),MSG(MHelpAltShiftF5),MSG(MHelpAltShiftF6),MSG(MHelpAltShiftF7),MSG(MHelpAltShiftF8),MSG(MHelpAltShiftF9),MSG(MHelpAltShiftF10),MSG(MHelpAltShiftF11),MSG(MHelpAltShiftF12)};
 //  char *FHelpCtrlShiftKeys[]={MSG(MHelpCtrlShiftF1),MSG(MHelpCtrlShiftF2),MSG(MHelpCtrlShiftF3),MSG(MHelpCtrlShiftF4),MSG(MHelpCtrlShiftF5),MSG(MHelpCtrlShiftF6),MSG(MHelpCtrlShiftF7),MSG(MHelpCtrlShiftF8),MSG(MHelpCtrlShiftF9),MSG(MHelpCtrlShiftF10),MSG(MHelpCtrlShiftF11),MSG(MHelpCtrlShiftF12)};
 //  char *FHelpCtrlAltKeys[]={MSG(MHelpCtrlAltF1),MSG(MHelpCtrlAltF2),MSG(MHelpCtrlAltF3),MSG(MHelpCtrlAltF4),MSG(MHelpCtrlAltF5),MSG(MHelpCtrlAltF6),MSG(MHelpCtrlAltF7),MSG(MHelpCtrlAltF8),MSG(MHelpCtrlAltF9),MSG(MHelpCtrlAltF10),MSG(MHelpCtrlAltF11),MSG(MHelpCtrlAltF12)};
-  wchar_t *FHelpAltShiftKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
-  wchar_t *FHelpCtrlShiftKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
-  wchar_t *FHelpCtrlAltKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
+  const wchar_t *FHelpAltShiftKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
+  const wchar_t *FHelpCtrlShiftKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
+  const wchar_t *FHelpCtrlAltKeys[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
 
   // Уберем лишнее с глаз долой
 #if !defined(WORK_HELP_DOCUMS)
-  FHelpShiftKeys[3-1][0]=0;
+  FHelpShiftKeys[3-1]=L"";
 #endif
 #if !defined(WORK_HELP_FIND)
-  FHelpKeys[7-1][0]=0;
-  FHelpShiftKeys[7-1][0]=0;
+  FHelpKeys[7-1]=L"";
+  FHelpShiftKeys[7-1]=L"";
 #endif
 
-  HelpKeyBar.Set(FHelpKeys,sizeof(FHelpKeys)/sizeof(FHelpKeys[0]));
-  HelpKeyBar.SetShift(FHelpShiftKeys,sizeof(FHelpShiftKeys)/sizeof(FHelpShiftKeys[0]));
-  HelpKeyBar.SetAlt(FHelpAltKeys,sizeof(FHelpAltKeys)/sizeof(FHelpAltKeys[0]));
-  HelpKeyBar.SetCtrl(FHelpCtrlKeys,sizeof(FHelpCtrlKeys)/sizeof(FHelpCtrlKeys[0]));
-  HelpKeyBar.SetCtrlAlt(FHelpCtrlAltKeys,sizeof(FHelpCtrlAltKeys)/sizeof(FHelpCtrlAltKeys[0]));
-  HelpKeyBar.SetCtrlShift(FHelpCtrlShiftKeys,sizeof(FHelpCtrlShiftKeys)/sizeof(FHelpCtrlShiftKeys[0]));
-  HelpKeyBar.SetAltShift(FHelpAltShiftKeys,sizeof(FHelpAltShiftKeys)/sizeof(FHelpAltShiftKeys[0]));
+  HelpKeyBar.Set(FHelpKeys,countof(FHelpKeys));
+  HelpKeyBar.SetShift(FHelpShiftKeys,countof(FHelpShiftKeys));
+  HelpKeyBar.SetAlt(FHelpAltKeys,countof(FHelpAltKeys));
+  HelpKeyBar.SetCtrl(FHelpCtrlKeys,countof(FHelpCtrlKeys));
+  HelpKeyBar.SetCtrlAlt(FHelpCtrlAltKeys,countof(FHelpCtrlAltKeys));
+  HelpKeyBar.SetCtrlShift(FHelpCtrlShiftKeys,countof(FHelpCtrlShiftKeys));
+  HelpKeyBar.SetAltShift(FHelpAltShiftKeys,countof(FHelpAltShiftKeys));
 
   SetKeyBar(&HelpKeyBar);
 }

@@ -107,7 +107,7 @@ void Register()
     DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(RegDlgData,RegDlg);
-  Dialog Dlg(RegDlg,sizeof(RegDlg)/sizeof(RegDlg[0]));
+  Dialog Dlg(RegDlg,countof(RegDlg));
   Dlg.SetPosition(-1,-1,76,10);
   Dlg.SetHelp(L"Register");
   Dlg.SetDialogMode(DMODE_MSGINTERNAL);

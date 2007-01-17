@@ -53,7 +53,7 @@ FileList::FileList()
        Проинициализируем наши "скобки"
   */
   {
-    wchar_t *data=UMSG(MPanelBracketsForLongName);
+    const wchar_t *data=UMSG(MPanelBracketsForLongName);
     if(wcslen(data)>1)
     {
       *openBracket=data[0];
@@ -547,9 +547,8 @@ int FileList::ProcessKey(int Key)
     string strPluginModule,strPluginFile,strPluginData;
     if (PanelMode==PLUGIN_PANEL)
     {
-      int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
-
-      strPluginModule = CtrlObject->Plugins.PluginsData[PluginNumber]->strModuleName;
+      PluginHandle *ph = (PluginHandle*)hPlugin;
+      strPluginModule = ph->pPlugin->m_strModuleName;
 
       struct OpenPluginInfoW Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -626,11 +625,13 @@ int FileList::ProcessKey(int Key)
             }
             for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
             {
-              if ( LocalStricmpW(CtrlObject->Plugins.PluginsData[I]->strModuleName,strPluginModule)==0)
+              Plugin *pPlugin = CtrlObject->Plugins.PluginsData[I];
+
+              if ( LocalStricmpW(pPlugin->m_strModuleName,strPluginModule)==0)
               {
-                if (CtrlObject->Plugins.PluginsData[I]->pOpenPlugin)
+                if (pPlugin->pOpenPlugin)
                 {
-                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(INT_PTR)(const wchar_t *)strPluginData);
+                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)(const wchar_t *)strPluginData);
                   if (hNewPlugin!=INVALID_HANDLE_VALUE)
                   {
                     int CurFocus=GetFocus();
@@ -699,10 +700,10 @@ int FileList::ProcessKey(int Key)
 
     case KEY_ALTSHIFTF9:
     {
-      _ALGO(CleverSysLog clv(L"Alt-Shift-F9"));
-      _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+      PluginHandle *ph = (PluginHandle*)hPlugin;
+
       if (PanelMode==PLUGIN_PANEL)
-        CtrlObject->Plugins.ConfigureCurrent(((struct PluginHandle *)hPlugin)->PluginNumber,0);
+        CtrlObject->Plugins.ConfigureCurrent(ph->pPlugin, 0);
       else
         CtrlObject->Plugins.Configure();
       return TRUE;
@@ -1468,7 +1469,7 @@ int FileList::ProcessKey(int Key)
       _ALGO(CleverSysLog clv(L"Alt-F5"));
       _ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       // $ 11.03.2001 VVM - Печать через pman только из файловых панелей.
-      if ((PanelMode!=PLUGIN_PANEL) && (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
+      if ((PanelMode!=PLUGIN_PANEL) && (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER)))
          CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
       else
         if (FileCount>0 && SetCurPath())
@@ -2195,7 +2196,7 @@ BOOL FileList::ChangeDirW(const wchar_t *NewDir,BOOL IsUpdated)
 
         if(Opt.PgUpChangeDisk &&
           (FAR_GetDriveTypeW(strDirName) != DRIVE_REMOTE ||
-           CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) == -1))
+           CtrlObject->Plugins.FindPlugin(SYSID_NETWORK)))
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
           return TRUE;
@@ -4212,15 +4213,15 @@ BOOL FileList::UpdateKeyBar()
   if (Info.KeyBar == NULL)
     return FALSE;
 
-  wchar_t empty[] = L"";
-  wchar_t *FKeys[]={UMSG(MF1),UMSG(MF2),UMSG(MF3),UMSG(MF4),UMSG(MF5),UMSG(MF6),UMSG(MF7),UMSG(MF8),UMSG(MF9),UMSG(MF10),UMSG(MF11),UMSG(MF12)};
-  wchar_t *FAltKeys[]={UMSG(MAltF1),UMSG(MAltF2),UMSG(MAltF3),UMSG(MAltF4),UMSG(MAltF5),empty,UMSG(MAltF7),UMSG(MAltF8),UMSG(MAltF9),UMSG(MAltF10),UMSG(MAltF11),UMSG(MAltF12)};
-  wchar_t *FCtrlKeys[]={UMSG(MCtrlF1),UMSG(MCtrlF2),UMSG(MCtrlF3),UMSG(MCtrlF4),UMSG(MCtrlF5),UMSG(MCtrlF6),UMSG(MCtrlF7),UMSG(MCtrlF8),UMSG(MCtrlF9),UMSG(MCtrlF10),UMSG(MCtrlF11),UMSG(MCtrlF12)};
-  wchar_t *FShiftKeys[]={UMSG(MShiftF1),UMSG(MShiftF2),UMSG(MShiftF3),UMSG(MShiftF4),UMSG(MShiftF5),UMSG(MShiftF6),UMSG(MShiftF7),UMSG(MShiftF8),UMSG(MShiftF9),UMSG(MShiftF10),UMSG(MShiftF11),UMSG(MShiftF12)};
+  const wchar_t empty[] = L"";
+  const wchar_t *FKeys[]={UMSG(MF1),UMSG(MF2),UMSG(MF3),UMSG(MF4),UMSG(MF5),UMSG(MF6),UMSG(MF7),UMSG(MF8),UMSG(MF9),UMSG(MF10),UMSG(MF11),UMSG(MF12)};
+  const wchar_t *FAltKeys[]={UMSG(MAltF1),UMSG(MAltF2),UMSG(MAltF3),UMSG(MAltF4),UMSG(MAltF5),empty,UMSG(MAltF7),UMSG(MAltF8),UMSG(MAltF9),UMSG(MAltF10),UMSG(MAltF11),UMSG(MAltF12)};
+  const wchar_t *FCtrlKeys[]={UMSG(MCtrlF1),UMSG(MCtrlF2),UMSG(MCtrlF3),UMSG(MCtrlF4),UMSG(MCtrlF5),UMSG(MCtrlF6),UMSG(MCtrlF7),UMSG(MCtrlF8),UMSG(MCtrlF9),UMSG(MCtrlF10),UMSG(MCtrlF11),UMSG(MCtrlF12)};
+  const wchar_t *FShiftKeys[]={UMSG(MShiftF1),UMSG(MShiftF2),UMSG(MShiftF3),UMSG(MShiftF4),UMSG(MShiftF5),UMSG(MShiftF6),UMSG(MShiftF7),UMSG(MShiftF8),UMSG(MShiftF9),UMSG(MShiftF10),UMSG(MShiftF11),UMSG(MShiftF12)};
 
-  wchar_t *FAltShiftKeys[]={UMSG(MAltShiftF1),UMSG(MAltShiftF2),UMSG(MAltShiftF3),UMSG(MAltShiftF4),UMSG(MAltShiftF5),UMSG(MAltShiftF6),UMSG(MAltShiftF7),UMSG(MAltShiftF8),UMSG(MAltShiftF9),UMSG(MAltShiftF10),UMSG(MAltShiftF11),UMSG(MAltShiftF12)};
-  wchar_t *FCtrlShiftKeys[]={UMSG(MCtrlShiftF1),UMSG(MCtrlShiftF2),UMSG(MCtrlShiftF3),UMSG(MCtrlShiftF4),UMSG(MCtrlShiftF5),UMSG(MCtrlShiftF6),UMSG(MCtrlShiftF7),UMSG(MCtrlShiftF8),UMSG(MCtrlShiftF9),UMSG(MCtrlShiftF10),UMSG(MCtrlShiftF11),UMSG(MCtrlShiftF12)};
-  wchar_t *FCtrlAltKeys[]={UMSG(MCtrlAltF1),UMSG(MCtrlAltF2),UMSG(MCtrlAltF3),UMSG(MCtrlAltF4),UMSG(MCtrlAltF5),UMSG(MCtrlAltF6),UMSG(MCtrlAltF7),UMSG(MCtrlAltF8),UMSG(MCtrlAltF9),UMSG(MCtrlAltF10),UMSG(MCtrlAltF11),UMSG(MCtrlAltF12)};
+  const wchar_t *FAltShiftKeys[]={UMSG(MAltShiftF1),UMSG(MAltShiftF2),UMSG(MAltShiftF3),UMSG(MAltShiftF4),UMSG(MAltShiftF5),UMSG(MAltShiftF6),UMSG(MAltShiftF7),UMSG(MAltShiftF8),UMSG(MAltShiftF9),UMSG(MAltShiftF10),UMSG(MAltShiftF11),UMSG(MAltShiftF12)};
+  const wchar_t *FCtrlShiftKeys[]={UMSG(MCtrlShiftF1),UMSG(MCtrlShiftF2),UMSG(MCtrlShiftF3),UMSG(MCtrlShiftF4),UMSG(MCtrlShiftF5),UMSG(MCtrlShiftF6),UMSG(MCtrlShiftF7),UMSG(MCtrlShiftF8),UMSG(MCtrlShiftF9),UMSG(MCtrlShiftF10),UMSG(MCtrlShiftF11),UMSG(MCtrlShiftF12)};
+  const wchar_t *FCtrlAltKeys[]={UMSG(MCtrlAltF1),UMSG(MCtrlAltF2),UMSG(MCtrlAltF3),UMSG(MCtrlAltF4),UMSG(MCtrlAltF5),UMSG(MCtrlAltF6),UMSG(MCtrlAltF7),UMSG(MCtrlAltF8),UMSG(MCtrlAltF9),UMSG(MCtrlAltF10),UMSG(MCtrlAltF11),UMSG(MCtrlAltF12)};
 
   FAltKeys[6-1]=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?UMSG(MAltF6):empty;
 
@@ -4269,9 +4270,10 @@ BOOL FileList::UpdateKeyBar()
 int FileList::PluginPanelHelp(HANDLE hPlugin)
 {
   string strPath, strFileName, strStartTopic;
-  int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
 
-  strPath = CtrlObject->Plugins.PluginsData[PluginNumber]->strModuleName;
+  PluginHandle *ph = (PluginHandle*)hPlugin;
+
+  strPath = ph->pPlugin->m_strModuleName;
 
   CutToSlashW(strPath);
 
@@ -4295,12 +4297,16 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
   if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
   {
     OpenPluginInfoW Info;
-    PluginHandle *plugin=static_cast<PluginHandle*>(SrcPanel->hPlugin);
-    CtrlObject->Plugins.GetOpenPluginInfo(plugin,&Info);
+    PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
+
+    CtrlObject->Plugins.GetOpenPluginInfo(ph,&Info);
+
     if(!(Info.Flags & OPIF_REALNAMES))
     {
       PluginInfoW PInfo;
-      CtrlObject->Plugins.GetPluginInfo(plugin->PluginNumber,&PInfo);
+
+      CtrlObject->Plugins.GetPluginInfo(ph->pPlugin, &PInfo);
+
       if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
       {
         strPrefix = PInfo.CommandPrefix;

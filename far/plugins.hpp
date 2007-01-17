@@ -11,6 +11,7 @@ plugins.hpp
 #include "bitflags.hpp"
 #include "unicodestring.hpp"
 #include "struct.hpp"
+#include "plugin.hpp"
 
 class SaveScreen;
 class FileEditor;
@@ -18,32 +19,6 @@ class Viewer;
 class Frame;
 class Panel;
 
-typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
-typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const struct PluginPanelItemW *Item1,const struct PluginPanelItemW *Item2,unsigned int Mode);
-typedef int (WINAPI *PLUGINCONFIGURE)(int ItemNumber);
-typedef int (WINAPI *PLUGINDELETEFILES)(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
-typedef void (WINAPI *PLUGINEXITFAR)();
-typedef void (WINAPI *PLUGINFREEFINDDATA)(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber);
-typedef void (WINAPI *PLUGINFREEVIRTUALFINDDATA)(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber);
-typedef int (WINAPI *PLUGINGETFILES)(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
-typedef int (WINAPI *PLUGINGETFINDDATA)(HANDLE hPlugin,struct PluginPanelItemW **pPanelItem,int *pItemsNumber,int OpMode);
-typedef int (WINAPI *PLUGINMINFARVERSION)();
-typedef void (WINAPI *PLUGINGETOPENPLUGININFO)(HANDLE hPlugin,struct OpenPluginInfoW *Info);
-typedef void (WINAPI *PLUGINGETPLUGININFO)(struct PluginInfoW *Info);
-typedef int (WINAPI *PLUGINGETVIRTUALFINDDATA)(HANDLE hPlugin,struct PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-typedef int (WINAPI *PLUGINMAKEDIRECTORY)(HANDLE hPlugin,const wchar_t *Name,int OpMode);
-typedef HANDLE (WINAPI *PLUGINOPENFILEPLUGIN)(const wchar_t *Name,const unsigned char *Data,int DataSize);
-typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,INT_PTR Item);
-typedef int (WINAPI *PLUGINPROCESSEDITOREVENT)(int Event,void *Param);
-typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(const INPUT_RECORD *Rec);
-typedef int (WINAPI *PLUGINPROCESSEVENT)(HANDLE hPlugin,int Event,void *Param);
-typedef int (WINAPI *PLUGINPROCESSHOSTFILE)(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
-typedef int (WINAPI *PLUGINPROCESSKEY)(HANDLE hPlugin,int Key,unsigned int ControlState);
-typedef int (WINAPI *PLUGINPUTFILES)(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
-typedef int (WINAPI *PLUGINSETDIRECTORY)(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
-typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,const struct PluginPanelItemW *PanelItem,int ItemsNumber);
-typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const struct PluginStartupInfo *Info);
-typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 
 // флаги для поля Plugin.WorkFlags
 enum PLUGINITEMWORKFLAGS{
@@ -102,68 +77,18 @@ enum PLUGINITEMCALLFUNCFLAGS{
                                PICFF_GETOPENPLUGININFO,
 };
 
-class Plugin
-{
-public:
+class PluginManager;
 
-  string strModuleName;
-  BitFlags WorkFlags;      // рабочие флаги текущего плагина
-  BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
+#include "plugins.Plugin.hpp"
 
-  HMODULE hModule;
-  FAR_FIND_DATA_EX FindData;
-  Language Lang;
-  Frame* LinkedFrame;
-  /* $ 21.09.2000 SVS
-     поле - системный идентификатор плагина
-     Плагин должен сам задавать, например для
-     Network      = 0x5774654E (NetW)
-     PrintManager = 0x6E614D50 (PMan)  SYSID_PRINTMANAGER
-  */
-  DWORD SysID;
-  /* SVS $ */
-  int CachePos;
-  string strRootKey;
-
-  PLUGINSETSTARTUPINFO        pSetStartupInfo;
-  PLUGINOPENPLUGIN            pOpenPlugin;
-  PLUGINOPENFILEPLUGIN        pOpenFilePlugin;
-  PLUGINCLOSEPLUGIN           pClosePlugin;
-  PLUGINGETPLUGININFO         pGetPluginInfo;
-  PLUGINGETOPENPLUGININFO     pGetOpenPluginInfo;
-  PLUGINGETFINDDATA           pGetFindData;
-  PLUGINFREEFINDDATA          pFreeFindData;
-  PLUGINGETVIRTUALFINDDATA    pGetVirtualFindData;
-  PLUGINFREEVIRTUALFINDDATA   pFreeVirtualFindData;
-  PLUGINSETDIRECTORY          pSetDirectory;
-  PLUGINGETFILES              pGetFiles;
-  PLUGINPUTFILES              pPutFiles;
-  PLUGINDELETEFILES           pDeleteFiles;
-  PLUGINMAKEDIRECTORY         pMakeDirectory;
-  PLUGINPROCESSHOSTFILE       pProcessHostFile;
-  PLUGINSETFINDLIST           pSetFindList;
-  PLUGINCONFIGURE             pConfigure;
-  PLUGINEXITFAR               pExitFAR;
-  PLUGINPROCESSKEY            pProcessKey;
-  PLUGINPROCESSEVENT          pProcessEvent;
-  PLUGINPROCESSEDITOREVENT    pProcessEditorEvent;
-  PLUGINCOMPARE               pCompare;
-  PLUGINPROCESSEDITORINPUT    pProcessEditorInput;
-  PLUGINMINFARVERSION         pMinFarVersion;
-  PLUGINPROCESSVIEWEREVENT    pProcessViewerEvent;
-
-public:
-  Plugin ();
-};
-
-// флаги для поля PluginsSet.Flags
+// флаги для поля PluginManager.Flags
 enum PLUGINSETFLAGS{
   PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
   PSIF_DIALOG                   = 0x00000002, // была бадяга с диалогом
   PSIF_PLUGINSLOADDED           = 0x80000000, // пагины загружены
 };
 
-class PluginsSet
+class PluginManager
 {
 public:
 
@@ -172,6 +97,7 @@ public:
 
     Plugin **PluginsData;
     int    PluginsCount;
+
     Plugin *CurPluginItem;
 
     FileEditor *CurEditor;
@@ -179,41 +105,38 @@ public:
 
 private:
 
-    int LoadPlugin(Plugin *CurPlugin,int ModuleNumber,int Init);
-    // $ 22.05.2001 DJ возвращает TRUE при успешной загрузке или FALSE, если не прошло GetMinFarVersion()
-    int SetPluginStartupInfo(Plugin *CurPlugin,int ModuleNumber);
-    int PreparePlugin(int PluginNumber);
-    int GetCacheNumber(const wchar_t *FullName,FAR_FIND_DATA_EX *FindData,int CachePos);
     int SavePluginSettings(Plugin *CurPlugin,FAR_FIND_DATA_EX &FindData);
     void LoadIfCacheAbsent();
     void ReadUserBackgound(SaveScreen *SaveScr);
-    int GetHotKeyRegKey(int PluginNumber,int ItemNumber,string &strRegKey);
-    BOOL TestPluginInfo(Plugin *Item,struct PluginInfoW *Info);
-    BOOL TestOpenPluginInfo(Plugin *Item,struct OpenPluginInfoW *Info);
-
-    // $ 03.08.2000 tran - новые методы для проверки минимальной версии
-    int  CheckMinVersion(Plugin *CurPlg);
-    void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required);
+    int GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
+    BOOL TestPluginInfo(Plugin *Item,PluginInfoW *Info);
+    BOOL TestOpenPluginInfo(Plugin *Item,OpenPluginInfoW *Info);
 
 public:
 
-    PluginsSet();
-    ~PluginsSet();
+    PluginManager();
+    ~PluginManager();
 
 public:
+
+	int LoadPlugin (const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX *fdata = NULL, Plugin **pLoadedPlugin = NULL);
+	int UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemove = false);
+
+	Plugin *GetPlugin (const wchar_t *lpwszModuleName);
+
+	int AddPlugin (Plugin *pPlugin);
+	int RemovePlugin (Plugin *pPlugin);
 
     void LoadPlugins();
     void LoadPluginsFromCache();
+
     BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
 
-    void SendExit();
-
-    const wchar_t* FarGetMsg(int PluginNumber,int MsgId);
     void Configure(int StartPos=0);
-    void ConfigureCurrent(int PluginNumber,int INum);
+    void ConfigureCurrent(Plugin *pPlugin,int INum);
     int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);
     // $ 21.08.2002 IS - Параметр PluginTextSize, чтобы знать, сколько брать
-    int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,
+    int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,int &ItemPresent,
       int &PluginTextNumber, string &strPluginText);
 
     int UseFarCommand(HANDLE hPlugin,int CommandType);
@@ -221,16 +144,9 @@ public:
     void DiscardCache();
     int ProcessCommandLine(const wchar_t *Command,Panel *Target=NULL);
 
-    void UnloadPlugin(Plugin *CurPlg,DWORD Exception);
-
     // $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
-    int FindPlugin(DWORD SysID);
-
-    void CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
-                                 struct FarStandardFunctions *FSF,
-                                 const wchar_t *ModuleName,
-                                 int ModuleNumber);
+    Plugin *FindPlugin(DWORD SysID);
 
     void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
     void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
@@ -240,29 +156,31 @@ public:
 
 public:
 
-	HANDLE OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item);
+	HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item);
 	HANDLE OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
 	HANDLE OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber);
 	void ClosePlugin(HANDLE hPlugin);
-	int GetPluginInfo(int PluginNumber,struct PluginInfoW *Info);
-	void GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *Info);
+	int GetPluginInfo(Plugin *pPlugin, PluginInfoW *Info);
+	void GetOpenPluginInfo(HANDLE hPlugin,OpenPluginInfoW *Info);
 	int GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,int Silent);
 	void FreeFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
 	int GetVirtualFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
 	int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
-	int GetFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
-	int GetFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
-	int PutFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
-	int DeleteFiles(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
+	int GetFile(HANDLE hPlugin,PluginPanelItemW *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
+	int GetFiles(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
+	int PutFiles(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
+	int DeleteFiles(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
 	int MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode);
-	int ProcessHostFile(HANDLE hPlugin,struct PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
+	int ProcessHostFile(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
 	int ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
 	int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
-	int Compare(HANDLE hPlugin,const struct PluginPanelItemW *Item1,const struct PluginPanelItemW *Item2,unsigned int Mode);
+	int Compare(HANDLE hPlugin,const PluginPanelItemW *Item1,const PluginPanelItemW *Item2,unsigned int Mode);
 	int ProcessEditorInput(INPUT_RECORD *Rec);
 	int ProcessEditorEvent(int Event,void *Param);
 	int ProcessViewerEvent(int Event,void *Param);
+
+friend class Plugin;
 };
 
 #endif  // __PLUGINS_HPP__

@@ -1269,8 +1269,11 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
   Item[PosAdd]->Flags = NewItem->Flags;
   Item[PosAdd]->strName = NewItem->strName;
   Item[PosAdd]->AccelKey = NewItem->AccelKey;
-  Item[PosAdd]->UserDataSize = NewItem->UserDataSize;
-  Item[PosAdd]->UserData = NewItem->UserData;
+
+  _SetUserData (Item[PosAdd], NewItem->UserData, NewItem->UserDataSize);
+
+/*  Item[PosAdd]->UserDataSize = NewItem->UserDataSize;
+  Item[PosAdd]->UserData = NewItem->UserData;*/
   Item[PosAdd]->AmpPos = NewItem->AmpPos;
   Item[PosAdd]->Len[0] = NewItem->Len[0];
   Item[PosAdd]->Len[1] = NewItem->Len[1];

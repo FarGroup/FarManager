@@ -678,9 +678,6 @@ int WINAPI FarMenuFn (
   if (DisablePluginsOutput)
     return(-1);
 
-  if((DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
-    return(-1); // к терапевту.
-
   int ExitCode;
   {
     VMenu FarMenu(Title,NULL,0,true,MaxHeight);
@@ -949,9 +946,6 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       IsBadReadPtr(Item,sizeof(struct FarDialogItem)*ItemsNumber))
     return(-1);
 
-  if((DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
-    return(-1); // к терапевту.
-
   // ФИЧА! нельзя указывать отрицательные X2 и Y2
   if(X2 < 0 || Y2 < 0)
   {
@@ -1034,29 +1028,27 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 /* SVS 13.12.2000 $ */
 /* SVS $ */
 
-const wchar_t* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
+const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 {
-  return(CtrlObject?CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId):L"");
-}
+	//BUGBUG, надо проверять, что PluginHandle - плагин
 
-const wchar_t* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
-{
-  if (PluginNumber<PluginsCount)
-  {
-    Plugin *CurPlugin=PluginsData[PluginNumber];
-    string strPath = CurPlugin->strModuleName;
+	Plugin *pPlugin = (Plugin*)PluginHandle;
+
+    string strPath = pPlugin->m_strModuleName;
+
     CutToSlashW(strPath);
-    if (CurPlugin->Lang.Init(strPath))
-      return(CurPlugin->Lang.GetMsgW(MsgId));
-  }
-  return L"";
+
+    if ( pPlugin->Lang.Init(strPath) )
+      return pPlugin->Lang.GetMsgW(MsgId);
+
+	return L"";
 }
 
 /* $ 28.01.2001 SVS
    ! Конкретно обновим функцию FarMessageFn()
 */
 
-int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
+int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,int ItemsNumber,
                         int ButtonsNumber)
 {
@@ -1068,9 +1060,6 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
 
   if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
     return(-1);
-
-  if(PluginNumber != -1 && (DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
-    return(-1); // к терапевту.
 
   wchar_t *SingleItems=NULL;
   wchar_t *Msg;
@@ -1264,7 +1253,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
         PlHandle=(struct PluginHandle *)LeftPanel->GetPluginHandle();
         if(PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
         {
-          hInternal=PlHandle->InternalHandle;
+          hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
           {
             LeftPanel->SetPluginCommand(Command,Param);
@@ -1278,7 +1267,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
         PlHandle=(struct PluginHandle *)RightPanel->GetPluginHandle();
         if(PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
         {
-          hInternal=PlHandle->InternalHandle;
+          hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
           {
             RightPanel->SetPluginCommand(Command,Param);
@@ -1522,7 +1511,7 @@ static void PR_FarGetPluginDirListMsg(void)
   FarGetPluginDirListMsg((const wchar_t *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
-int WINAPI FarGetPluginDirList(int PluginNumber,
+int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
                                HANDLE hPlugin,
                                const wchar_t *Dir,
                                struct PluginPanelItemW **pPanelItem,
@@ -1552,8 +1541,8 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
     }
     else
     {
-      DirListPlugin.PluginNumber=PluginNumber;
-      DirListPlugin.InternalHandle=hPlugin;
+      DirListPlugin.pPlugin=(Plugin*)PluginNumber;
+      DirListPlugin.hPlugin=hPlugin;
     }
 
     {

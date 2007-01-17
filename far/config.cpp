@@ -144,7 +144,7 @@ void SystemSettings()
   CfgDlg[17].Selected=Opt.AutoSaveSetup;
 
   {
-    Dialog Dlg((DialogItemEx*)CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"SystemSettings");
     Dlg.SetPosition(-1,-1,56,22);
     Dlg.SetAutomation(7,8,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -260,7 +260,7 @@ void PanelSettings()
     CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
 
   {
-    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"PanelSettings");
     Dlg.SetPosition(-1,-1,56,23);
     Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -386,7 +386,7 @@ void InterfaceSettings()
   CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected=Opt.PgUpChangeDisk;
 
   {
-    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"InterfSettings");
     Dlg.SetPosition(-1,-1,58,20);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -464,7 +464,7 @@ void DialogSettings()
   CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected=Opt.Dialogs.MouseButton;
 
   {
-    Dialog Dlg((DialogItemEx*)CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"DialogSettings");
     Dlg.SetPosition(-1,-1,58,12);
     Dlg.Process();
@@ -524,7 +524,7 @@ void SetConfirmations()
   ConfDlg[11].Selected=Opt.Confirm.HistoryClear;
   ConfDlg[12].Selected=Opt.Confirm.Exit;
 
-  Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
+  Dialog Dlg(ConfDlg,countof(ConfDlg));
   Dlg.SetHelp(L"ConfirmDlg");
   Dlg.SetPosition(-1,-1,50,18);
   Dlg.Process();
@@ -568,7 +568,7 @@ void SetDizConfig()
   };
   MakeDialogItemsEx(DizDlgData,DizDlg);
 
-  Dialog Dlg((DialogItemEx*)DizDlg,sizeof(DizDlg)/sizeof(DizDlg[0]));
+  Dialog Dlg((DialogItemEx*)DizDlg,countof(DizDlg));
   Dlg.SetPosition(-1,-1,76,16);
   Dlg.SetHelp(L"FileDiz");
 
@@ -713,7 +713,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   }
 
   {
-    Dialog Dlg((DialogItemEx*)CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"ViewerSettings");
     Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();
@@ -890,7 +890,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   }
 
   {
-    Dialog Dlg((DialogItemEx*)CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"EditorSettings");
     Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();
@@ -1275,7 +1275,7 @@ void ReadConfig()
   //Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-  for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
+  for(I=0; I < countof(CFG); ++I)
   {
     switch(CFG[I].ValType)
     {
@@ -1508,7 +1508,7 @@ void SaveConfig(int Ask)
   CtrlObject->HiFiles->SaveHiData();
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-  for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
+  for(I=0; I < countof(CFG); ++I)
   {
     if(CFG[I].IsSave)
       switch(CFG[I].ValType)

@@ -250,15 +250,15 @@ void FilePanels::RedrawKeyBar()
 {
   if (ActivePanel->GetType()==FILE_PANEL)
   {
-    wchar_t empty[] = L"";
-    wchar_t *FKeys[]={UMSG(MF1),UMSG(MF2),UMSG(MF3),UMSG(MF4),UMSG(MF5),UMSG(MF6),UMSG(MF7),UMSG(MF8),UMSG(MF9),UMSG(MF10),UMSG(MF11),UMSG(MF12)};
-    wchar_t *FAltKeys[]={UMSG(MAltF1),UMSG(MAltF2),UMSG(MAltF3),UMSG(MAltF4),UMSG(MAltF5),empty,UMSG(MAltF7),UMSG(MAltF8),UMSG(MAltF9),UMSG(MAltF10),UMSG(MAltF11),UMSG(MAltF12)};
-    wchar_t *FCtrlKeys[]={UMSG(MCtrlF1),UMSG(MCtrlF2),UMSG(MCtrlF3),UMSG(MCtrlF4),UMSG(MCtrlF5),UMSG(MCtrlF6),UMSG(MCtrlF7),UMSG(MCtrlF8),UMSG(MCtrlF9),UMSG(MCtrlF10),UMSG(MCtrlF11),UMSG(MCtrlF12)};
-    wchar_t *FShiftKeys[]={UMSG(MShiftF1),UMSG(MShiftF2),UMSG(MShiftF3),UMSG(MShiftF4),UMSG(MShiftF5),UMSG(MShiftF6),UMSG(MShiftF7),UMSG(MShiftF8),UMSG(MShiftF9),UMSG(MShiftF10),UMSG(MShiftF11),UMSG(MShiftF12)};
+    const wchar_t empty[] = L"";
+    const wchar_t *FKeys[]={UMSG(MF1),UMSG(MF2),UMSG(MF3),UMSG(MF4),UMSG(MF5),UMSG(MF6),UMSG(MF7),UMSG(MF8),UMSG(MF9),UMSG(MF10),UMSG(MF11),UMSG(MF12)};
+    const wchar_t *FAltKeys[]={UMSG(MAltF1),UMSG(MAltF2),UMSG(MAltF3),UMSG(MAltF4),UMSG(MAltF5),empty,UMSG(MAltF7),UMSG(MAltF8),UMSG(MAltF9),UMSG(MAltF10),UMSG(MAltF11),UMSG(MAltF12)};
+    const wchar_t *FCtrlKeys[]={UMSG(MCtrlF1),UMSG(MCtrlF2),UMSG(MCtrlF3),UMSG(MCtrlF4),UMSG(MCtrlF5),UMSG(MCtrlF6),UMSG(MCtrlF7),UMSG(MCtrlF8),UMSG(MCtrlF9),UMSG(MCtrlF10),UMSG(MCtrlF11),UMSG(MCtrlF12)};
+    const wchar_t *FShiftKeys[]={UMSG(MShiftF1),UMSG(MShiftF2),UMSG(MShiftF3),UMSG(MShiftF4),UMSG(MShiftF5),UMSG(MShiftF6),UMSG(MShiftF7),UMSG(MShiftF8),UMSG(MShiftF9),UMSG(MShiftF10),UMSG(MShiftF11),UMSG(MShiftF12)};
 
-    wchar_t *FAltShiftKeys[]={UMSG(MAltShiftF1),UMSG(MAltShiftF2),UMSG(MAltShiftF3),UMSG(MAltShiftF4),UMSG(MAltShiftF5),UMSG(MAltShiftF6),UMSG(MAltShiftF7),UMSG(MAltShiftF8),UMSG(MAltShiftF9),UMSG(MAltShiftF10),UMSG(MAltShiftF11),UMSG(MAltShiftF12)};
-    wchar_t *FCtrlShiftKeys[]={UMSG(MCtrlShiftF1),UMSG(MCtrlShiftF2),UMSG(MCtrlShiftF3),UMSG(MCtrlShiftF4),UMSG(MCtrlShiftF5),UMSG(MCtrlShiftF6),UMSG(MCtrlShiftF7),UMSG(MCtrlShiftF8),UMSG(MCtrlShiftF9),UMSG(MCtrlShiftF10),UMSG(MCtrlShiftF11),UMSG(MCtrlShiftF12)};
-    wchar_t *FCtrlAltKeys[]={UMSG(MCtrlAltF1),UMSG(MCtrlAltF2),UMSG(MCtrlAltF3),UMSG(MCtrlAltF4),UMSG(MCtrlAltF5),UMSG(MCtrlAltF6),UMSG(MCtrlAltF7),UMSG(MCtrlAltF8),UMSG(MCtrlAltF9),UMSG(MCtrlAltF10),UMSG(MCtrlAltF11),UMSG(MCtrlAltF12)};
+    const wchar_t *FAltShiftKeys[]={UMSG(MAltShiftF1),UMSG(MAltShiftF2),UMSG(MAltShiftF3),UMSG(MAltShiftF4),UMSG(MAltShiftF5),UMSG(MAltShiftF6),UMSG(MAltShiftF7),UMSG(MAltShiftF8),UMSG(MAltShiftF9),UMSG(MAltShiftF10),UMSG(MAltShiftF11),UMSG(MAltShiftF12)};
+    const wchar_t *FCtrlShiftKeys[]={UMSG(MCtrlShiftF1),UMSG(MCtrlShiftF2),UMSG(MCtrlShiftF3),UMSG(MCtrlShiftF4),UMSG(MCtrlShiftF5),UMSG(MCtrlShiftF6),UMSG(MCtrlShiftF7),UMSG(MCtrlShiftF8),UMSG(MCtrlShiftF9),UMSG(MCtrlShiftF10),UMSG(MCtrlShiftF11),UMSG(MCtrlShiftF12)};
+    const wchar_t *FCtrlAltKeys[]={UMSG(MCtrlAltF1),UMSG(MCtrlAltF2),UMSG(MCtrlAltF3),UMSG(MCtrlAltF4),UMSG(MCtrlAltF5),UMSG(MCtrlAltF6),UMSG(MCtrlAltF7),UMSG(MCtrlAltF8),UMSG(MCtrlAltF9),UMSG(MCtrlAltF10),UMSG(MCtrlAltF11),UMSG(MCtrlAltF12)};
 
     FAltKeys[6-1]=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?UMSG(MAltF6):empty;
 

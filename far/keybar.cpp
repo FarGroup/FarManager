@@ -120,7 +120,7 @@ void KeyBar::DisplayObject()
 }
 /* SVS $ */
 
-void KeyBar::SetGroup(int Group,wchar_t **Key,int KeyCount)
+void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
 {
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
     xwcsncpy (KeyTitles [Group][i], Key [i], (sizeof (KeyTitles [Group][i])-1)/sizeof (wchar_t));
@@ -136,7 +136,7 @@ void KeyBar::ClearGroup(int Group)
 /* $ 07.08.2000 SVS
    Изменение любого Label
 */
-void KeyBar::Change(int Group,wchar_t *NewStr,int Pos)
+void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
   xwcsncpy (KeyTitles [Group][Pos], NewStr, (sizeof (KeyTitles [Group][Pos])-1)/sizeof (wchar_t));
 }

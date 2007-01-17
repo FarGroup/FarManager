@@ -80,6 +80,8 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 }
 
 
+extern void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
+
 static DWORD _xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
@@ -118,10 +120,8 @@ static DWORD _xfilter(
            static struct FarStandardFunctions LocalStandardFunctions;
            memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
 
-           CtrlObject->Plugins.CreatePluginStartupInfo(&LocalStartupInfo,
-                                           &LocalStandardFunctions,
-                                           strFarEventSvc,
-                                           -1);
+           CreatePluginStartupInfo (NULL, &LocalStartupInfo, &LocalStandardFunctions);
+
            static string strRootKey;
            strRootKey = Opt.strRegRoot;
            LocalStartupInfo.RootKey=strRootKey;
@@ -233,7 +233,7 @@ static DWORD _xfilter(
    if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
      apiGetModuleFileName (NULL, strTruncFileName);
    else
-     strTruncFileName = Module->strModuleName;
+     strTruncFileName = Module->m_strModuleName;
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */

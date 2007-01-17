@@ -721,14 +721,14 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 }
 
 
-void FileList::GetPluginInfo(struct PluginInfoW *Info)
+void FileList::GetPluginInfo(PluginInfoW *Info)
 {
   _ALGO(CleverSysLog clv(L"FileList::GetPluginInfo()"));
   memset(Info,0,sizeof(struct PluginInfoW));
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
-    CtrlObject->Plugins.GetPluginInfo(ph->PluginNumber,Info);
+    PluginHandle *ph = (PluginHandle*)hPlugin;
+    CtrlObject->Plugins.GetPluginInfo(ph->pPlugin,Info);
   }
 }
 

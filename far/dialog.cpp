@@ -3713,6 +3713,7 @@ void Dialog::ConvertItemEx (
   if(FromPlugin == CVTITEM_TOPLUGIN)
     for (I=0; I < Count; I++, ++Item, ++Data)
     {
+
         Item->Type = Data->Type;
         Item->X1 = Data->X1;
         Item->Y1 = Data->Y1;
@@ -3747,8 +3748,9 @@ void Dialog::ConvertItemEx (
       Data->Flags = Item->Flags;
       Data->DefaultButton = Item->DefaultButton;
 
-      Data->strData = Item->PtrData;
+      Data->strData = NullToEmptyW (Item->PtrData);
       Data->nMaxLength = Item->PtrLength;
+	  Data->ListItems = Item->Param.ListItems;
 
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;

@@ -158,7 +158,7 @@ void FileViewer::InitKeyBar(void)
       /* CtrlAlt   */ {KBL_CTRLALT,MSingleViewCtrlAltF1,MSingleViewCtrlAltF2,MSingleViewCtrlAltF3,MSingleViewCtrlAltF4,MSingleViewCtrlAltF5,MSingleViewCtrlAltF6,MSingleViewCtrlAltF7,MSingleViewCtrlAltF8,MSingleViewCtrlAltF9,MSingleViewCtrlAltF10,MSingleViewCtrlAltF11,MSingleViewCtrlAltF12},
     }
   };
-  wchar_t *FViewKeys[12];
+  const wchar_t *FViewKeys[12];
   int I,J;
 
   for(I=0; I < 7; ++I)
@@ -179,7 +179,7 @@ void FileViewer::InitKeyBar(void)
         // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
         if(!GetCanLoseFocus())
           FViewKeys[11-1]=L"";
-        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
           FViewKeys[5-1]=L"";
         break;
     }
@@ -356,7 +356,7 @@ int FileViewer::ProcessKey(int Key)
     */
     case KEY_ALTF5:
     {
-      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_VIEWER,0); // printman
       return TRUE;
     }

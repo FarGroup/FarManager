@@ -197,7 +197,9 @@ static int ShowFolderShortcutMenu(int Pos)
 
               string strTemp;
 
-              strTemp = CtrlObject->Plugins.PluginsData[((struct PluginHandle *)ActivePanel->GetPluginHandle())->PluginNumber]->strModuleName;
+              PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
+
+              strTemp = ph->pPlugin->m_strModuleName;
               ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINMODULE,SelPos,&strTemp);
 
               strTemp = Info.HostFile;

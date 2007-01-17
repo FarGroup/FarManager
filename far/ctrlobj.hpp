@@ -58,7 +58,7 @@ class ControlObject
     GroupSort *GrpSort;
     FilePositionCache *ViewerPosCache,*EditorPosCache;
     KeyMacro Macro;
-    PluginsSet Plugins;
+    PluginManager Plugins;
 
     static void ShowCopyright(DWORD Flags=0);
 };

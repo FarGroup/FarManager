@@ -196,7 +196,7 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst);
 
 BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer);
 
-wchar_t* GetUnicodeLanguageString (int nID);
+const wchar_t* GetUnicodeLanguageString (int nID);
 
 #define UMSG(ID) GetUnicodeLanguageString(ID)
 
@@ -510,8 +510,8 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
            const struct FarMenuItem *Item, int ItemsNumber);
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
-const wchar_t* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
-int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,
+const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
+int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
            const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
            int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);

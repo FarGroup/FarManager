@@ -100,7 +100,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   /* $ 05.01.2001 IS
   Вместо "файлов" пишем нейтральное - "элементов"
   */
-    wchar_t *Ends;
+    const wchar_t *Ends;
     wchar_t StrItems[16];
     _itow(SelCount,StrItems,10);
     int LenItems=wcslen(StrItems);

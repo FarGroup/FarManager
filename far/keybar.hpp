@@ -57,28 +57,28 @@ class KeyBar: public ScreenObject
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    void SetGroup(int Group,wchar_t **Key,int KeyCount);
+    void SetGroup(int Group,const wchar_t * const *Key,int KeyCount);
     void ClearGroup(int Group);
 
-    void Set(wchar_t **Key,int KeyCount)            { SetGroup (KBL_MAIN, Key, KeyCount); }
-    void SetShift(wchar_t **Key,int KeyCount)       { SetGroup (KBL_SHIFT, Key, KeyCount); }
-    void SetAlt(wchar_t **Key,int KeyCount)         { SetGroup (KBL_ALT, Key, KeyCount); }
-    void SetCtrl(wchar_t **Key,int KeyCount)        { SetGroup (KBL_CTRL, Key, KeyCount); }
+    void Set(const wchar_t * const *Key,int KeyCount)            { SetGroup (KBL_MAIN, Key, KeyCount); }
+    void SetShift(const wchar_t * const *Key,int KeyCount)       { SetGroup (KBL_SHIFT, Key, KeyCount); }
+    void SetAlt(const wchar_t * const *Key,int KeyCount)         { SetGroup (KBL_ALT, Key, KeyCount); }
+    void SetCtrl(const wchar_t * const *Key,int KeyCount)        { SetGroup (KBL_CTRL, Key, KeyCount); }
     /* $ 02.08.2000 SVS
        Дополнительные индикаторы
     */
-    void SetCtrlShift(wchar_t **Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
-    void SetAltShift(wchar_t **Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
-    void SetCtrlAlt(wchar_t **Key,int KeyCount)     { SetGroup (KBL_CTRLALT, Key, KeyCount); }
+    void SetCtrlShift(const wchar_t * const *Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
+    void SetAltShift(const wchar_t * const *Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
+    void SetCtrlAlt(const wchar_t **Key,int KeyCount)     { SetGroup (KBL_CTRLALT, Key, KeyCount); }
     /* SVS $*/
 
     void SetDisableMask(int Mask);
-    void Change(wchar_t *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
+    void Change(const wchar_t *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
 
     /* $ 07.08.2000 SVS
        Изменение любого Label
     */
-    void Change(int Group,wchar_t *NewStr,int Pos);
+    void Change(int Group,const wchar_t *NewStr,int Pos);
     /* SVS $ */
 
     /* $ 30.04.2001 DJ

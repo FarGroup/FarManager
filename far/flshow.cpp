@@ -936,7 +936,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
-                  wchar_t *PtrName;
+                  const wchar_t *PtrName;
                   if (TestParentFolderNameW(CurPtr->strName))
                     PtrName=UMSG(MListUp);
                   else

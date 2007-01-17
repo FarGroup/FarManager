@@ -632,9 +632,10 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
   int ItemsNumber,ExitCode;
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=0;
-  if ((ExitCode=FarGetPluginDirList(((struct PluginHandle *)hPlugin)->PluginNumber,
-      ((struct PluginHandle *)hPlugin)->InternalHandle,DirName,
-      &PanelItem,&ItemsNumber))==TRUE)
+
+  PluginHandle *ph = (PluginHandle*)hPlugin;
+
+  if ((ExitCode=FarGetPluginDirList((INT_PTR)ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //INT_PTR - BUGBUG
   {
     for (int I=0;I<ItemsNumber;I++)
     {
@@ -742,7 +743,7 @@ int CheckFolderW(const wchar_t *Path)
 }
 
 
-wchar_t* GetUnicodeLanguageString (int nID)
+const wchar_t* GetUnicodeLanguageString (int nID)
 {
     return Lang.GetMsgW(nID);
 }

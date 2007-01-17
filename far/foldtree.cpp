@@ -304,7 +304,7 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void FolderTree::DrawEdit()
 {
   int FindY=Y2-2;
-  wchar_t *SearchTxt=UMSG(MFoldTreeSearch);
+  const wchar_t *SearchTxt=UMSG(MFoldTreeSearch);
   GotoXY(X1+1,FindY);
   SetColor(COL_PANELTEXT);
   mprintfW(L"%s  ",SearchTxt);

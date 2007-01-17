@@ -883,11 +883,10 @@ struct Options
   */
 };
 
-
 struct PluginHandle
 {
-  HANDLE InternalHandle;
-  int PluginNumber;
+  HANDLE hPlugin;
+  class Plugin *pPlugin;
 };
 
 // for class Edit

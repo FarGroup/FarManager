@@ -109,7 +109,7 @@ int main()
     S("NamesList",NamesList);
     S("Panel",Panel);
     S("PanelFilter",PanelFilter);
-    S("PluginsSet",PluginsSet);
+    S("PluginManager",PluginManager);
     S("PreserveLongName",PreserveLongName);
     S("QuickView",QuickView);
     S("RedrawDesktop",RedrawDesktop);

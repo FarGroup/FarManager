@@ -588,7 +588,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   if (Ask)
   {
-    Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(LONG_PTR)&CDP);
+    Dialog Dlg(CopyDlg,countof(CopyDlg),CopyDlgProc,(LONG_PTR)&CDP);
     Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
     Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 

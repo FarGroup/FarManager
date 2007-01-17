@@ -319,13 +319,13 @@ int MessageW (
 
   if (!(Flags & MSG_KEEPBACKGROUND))
   {
-    SetScreen(X1,Y1,X2,Y2,L' ',COL_DIALOGTEXT);
+    SetScreen(X1,Y1,X2,Y2,L' ',(Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
     MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
     MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
-    Box(X1+3,Y1+1,X2-3,Y2-1,COL_DIALOGBOX,DOUBLE_BOX);
+    Box(X1+3,Y1+1,X2-3,Y2-1,(Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX,DOUBLE_BOX);
   }
 
-  SetColor(COL_DIALOGTEXT);
+  SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
   if(Title && *Title)
   {
     string strTempTitle = Title;
@@ -350,7 +350,7 @@ int MessageW (
       int Length=X2-X1-5;
       if (Length>1)
       {
-        SetColor(COL_DIALOGBOX);
+        SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX);
         GotoXY(X1+3,Y1+I+2);
         DrawLine(Length,(Chr == 2?3:1));
         CPtrStr++;
@@ -360,7 +360,7 @@ int MessageW (
           GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
           TextW(CPtrStr);
         }
-        SetColor(COL_DIALOGTEXT);
+        SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGTEXT);
       }
       continue;
     }

@@ -175,7 +175,6 @@ ControlObject::~ControlObject()
   FrameManager->CloseAll();
   FPanels=NULL;
 
-  Plugins.SendExit();
   PanelFilter::CloseFilter();
   delete CmdHistory;
   delete FolderHistory;

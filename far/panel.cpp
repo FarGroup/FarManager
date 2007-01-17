@@ -147,6 +147,21 @@ void Panel::ChangeDisk()
 }
 
 
+struct PanelMenuItem {
+	bool bIsPlugin;
+
+	union {
+		struct {
+			Plugin *pPlugin;
+			int nItem;
+		};
+
+		struct {
+			wchar_t cDrive;
+		};
+	};
+};
+
 int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
   class Guard_Macro_DskShowPosType{
@@ -173,7 +188,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   int UserDataSize=0;
   DWORD UserData=0;
-  {
+//  {
     _tran(SysLog(L"create VMenu ChDisk"));
     VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,TRUE,ScrY-Y1-3);
     ChDisk.SetFlags(VMENU_NOTCENTER);
@@ -366,7 +381,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                                                  границу массива */
       /* IS $ */
 
-      int PluginNumber=0, PluginItem; // IS: счетчики - плагинов и пунктов плагина
+      int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
       int PluginTextNumber, ItemPresent, HotKey, Done=FALSE;
       string strPluginText;
 
@@ -374,12 +389,22 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       {
         for (PluginItem=0;;++PluginItem)
         {
-          if (!CtrlObject->Plugins.GetDiskMenuItem(PluginNumber,PluginItem,
+           if ( PluginNumber >= CtrlObject->Plugins.PluginsCount )
+           {
+              Done=TRUE;
+              break;
+
+           }
+
+           Plugin *pPlugin = CtrlObject->Plugins.PluginsData[PluginNumber];
+
+          if (!CtrlObject->Plugins.GetDiskMenuItem(pPlugin,PluginItem,
               ItemPresent,PluginTextNumber,strPluginText))
           {
             Done=TRUE;
             break;
           }
+
           if (!ItemPresent)
             break;
 
@@ -433,9 +458,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           /* IS $ */
           if(HotKey>-1 && !strMenuText.IsEmpty()) // IS: не добавляем пустые строки!
           {
+            PanelMenuItem *item = new PanelMenuItem;
+
+            item->pPlugin = pPlugin;
+            item->nItem = PluginItem;
+
             OneItem.Item.strName = strMenuText;
-            OneItem.Item.UserDataSize=0;
-            OneItem.Item.UserData=(char*)(LONG_PTR)MAKELONG(PluginNumber,PluginItem);
+            OneItem.Item.UserDataSize=sizeof (PanelMenuItem);
+            OneItem.Item.UserData=(char*)item;
             OneItem.HotKey=HotKey;
             if(!MPItems.addItem(OneItem))
             {
@@ -445,9 +475,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           else if(HotKey<0) // IS: назначение автохоткеей отложим на потом
           {
+            PanelMenuItem *item = new PanelMenuItem;
+
+            item->pPlugin = pPlugin;
+            item->nItem = PluginItem;
+
             OneItem.Item.strName = strMenuText;
-            OneItem.Item.UserDataSize=0;
-            OneItem.Item.UserData=(char*)(LONG_PTR)MAKELONG(PluginNumber,PluginItem);
+            OneItem.Item.UserDataSize=sizeof (PanelMenuItem);
+            OneItem.Item.UserData=(char*)item;
             OneItem.HotKey=HotKey;
             if(!MPItemsNoHotkey.addItem(OneItem))
             {
@@ -456,6 +491,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             }
           }
         } // END: for (PluginItem=0;;++PluginItem)
+
 
         ++PluginNumber;
       }
@@ -520,6 +556,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               SetSelected=DiskCount+I+1==Pos;
           }
           ChDisk.AddItemW(&MPItems.getItem(I)->Item);
+
+          delete MPItems.getItem(I)->Item.UserData; //BUGBUG
         }
       }
     }
@@ -782,7 +820,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             // Вызываем нужный топик, который передали в CommandsMenu()
             if ((UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0)) != 0)
             {
-              FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)]->strModuleName,
+              FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)]->m_strModuleName,
                     NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
             }
           }
@@ -845,9 +883,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       UserDataSize=ChDisk.Modal::GetExitCode()>DiskCount?2:3;
       UserData=(DWORD)(DWORD_PTR)ChDisk.GetUserData(NULL,0);
     }
-  }
+//  }
 
-  if(Opt.CloseCDGate && UserData != 0 && IsDriveTypeCDROM(HIWORD(UserData)) && UserDataSize == 3)
+  if(Opt.CloseCDGate && UserData != 0 && UserDataSize == 3 && IsDriveTypeCDROM(HIWORD(UserData)))
   {
     strRootDir.Format (L"%c:",LOWORD(UserData));
     if(!IsDiskInDriveW(strRootDir))
@@ -925,9 +963,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     }
   }
   else
-    if (UserDataSize==2)
+    if (UserDataSize==2) //???
     {
-      HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(LOWORD(UserData),OPEN_DISKMENU,HIWORD(UserData));
+      PanelMenuItem *item = (PanelMenuItem*)UserData;
+
+    	MessageBox (0, "this is BUGBUG, do not touch!", "Error!", MB_OK);
+
+      HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(item->pPlugin,OPEN_DISKMENU,item->nItem);
       if (hPlugin!=INVALID_HANDLE_VALUE)
       {
         Focus=GetFocus();
