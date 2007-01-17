@@ -257,6 +257,7 @@ AskConnect:
       CurItem->CustomColumnData               = (LPSTR*)_Alloc( sizeof(LPSTR*)*FTP_COL_MAX );
       CurItem->CustomColumnData[FTP_COL_MODE] = StrDup(FileInfo.UnixMode);
       CurItem->CustomColumnData[FTP_COL_LINK] = StrDup(FileInfo.Link);
+      hConnect->ToOEM(CurItem->CustomColumnData[FTP_COL_LINK]);
     }
 
     (*pItemsNumber)++;

@@ -275,7 +275,7 @@ BOOL FtpGetFile( Connection *Connect,CONSTSTR lpszRemoteFile,CONSTSTR lpszNewFil
      if ( *lpszRemoteFile != '/' ) {
        full_name = Connect->ToOEMDup( Connect->CurDir.c_str() );
        AddEndSlash( full_name, '/' );
-       full_name.cat( lpszRemoteFile );
+       full_name.Add( lpszRemoteFile );
        lpszRemoteFile = full_name.c_str();
      }
 
