@@ -898,6 +898,30 @@
                                 <param name="Name" value="TWindowInfo">
                                 <param name="Local" value="html/delphi/twindowinfo.html">
                                 </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="TFarInt64">
+                                <param name="Local" value="html/delphi/tfarint64.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="TViewerInfo">
+                                <param name="Local" value="html/delphi/tviewerinfo.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="TViewerMode">
+                                <param name="Local" value="html/delphi/tviewermode.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="TViewerSelect">
+                                <param name="Local" value="html/delphi/tviewerselect.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="TViewerSetMode">
+                                <param name="Local" value="html/delphi/tviewersetmode.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="TViewerSetPosition">
+                                <param name="Local" value="html/delphi/tviewersetposition.html">
+                                </OBJECT>
                 </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
