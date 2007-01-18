@@ -16,6 +16,7 @@ foldtree.cpp
 #include "treelist.hpp"
 #include "edit.hpp"
 #include "ctrlobj.hpp"
+#include "filepanels.hpp"
 #include "help.hpp"
 #include "manager.hpp"
 #include "savescr.hpp"
@@ -36,7 +37,9 @@ FolderTree::FolderTree(char *ResultFolder,int iModalMode,int IsStandalone,int Is
 
   FindEdit=NULL;
   Tree=NULL;
-  TopScreen=new SaveScreen;
+  KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
+
+  //TopScreen=new SaveScreen;
 
   SetCoords();
 
@@ -62,6 +65,8 @@ FolderTree::FolderTree(char *ResultFolder,int iModalMode,int IsStandalone,int Is
       FindEdit->SetEditBeyondEnd(FALSE);
       FindEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
 
+      InitKeyBar();
+
       FrameManager->ExecuteModal (this);//OT
     }
     strcpy(ResultFolder,NewFolder);
@@ -76,15 +81,15 @@ FolderTree::~FolderTree()
 {
   CtrlObject->Macro.SetMode(PrevMacroMode);
   SetRestoreScreenMode(FALSE);
-  if ( TopScreen )    delete TopScreen;
+  //if ( TopScreen )    delete TopScreen;
   if ( FindEdit )     delete FindEdit;
   if ( Tree )         delete Tree;
 }
 
 void FolderTree::DisplayObject()
 {
-  if(!TopScreen)
-    TopScreen=new SaveScreen;
+  //if(!TopScreen)
+  //  TopScreen=new SaveScreen;
   if(ModalMode == MODALTREE_FREE)
   {
     char SelFolder[2*NM];
@@ -99,6 +104,13 @@ void FolderTree::DisplayObject()
   MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
   MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
   DrawEdit();
+  if (!IsFullScreen)
+  {
+    TreeKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
+    TreeKeyBar.Show();
+  }
+  else
+    TreeKeyBar.Hide();
 }
 
 void FolderTree::SetCoords()
@@ -129,9 +141,9 @@ void FolderTree::OnChangeFocus(int focus)
 
 void FolderTree::ResizeConsole()
 {
-  if ( TopScreen )
-     delete TopScreen;
-  TopScreen=NULL;
+  //if ( TopScreen )
+  //   delete TopScreen;
+  //TopScreen=NULL;
 
   Hide();
 
@@ -140,6 +152,14 @@ void FolderTree::ResizeConsole()
   //ReadHelp(StackData.HelpMask);
   FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
+}
+
+void FolderTree::SetScreenPosition()
+{
+  if(IsFullScreen)
+    TreeKeyBar.Hide();
+  SetCoords();
+  Show();
 }
 
 int FolderTree::FastHide()
@@ -165,15 +185,7 @@ int FolderTree::ProcessKey(int Key)
   {
     case KEY_F1:
       {
-        /* $ 22.04.2002 KM
-            Поставим пока запрет на AltF9 в дереве,
-            пока класс дерева не переписан на совместимость
-            с Frame.
-        */
-        IsProcessAssignMacroKey++;
         Help Hlp ("FindFolder");
-        IsProcessAssignMacroKey--;
-        /* KM $ */
       }
       break;
 
@@ -270,6 +282,9 @@ int FolderTree::ProcessKey(int Key)
 
 int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+  if (TreeKeyBar.ProcessMouse(MouseEvent))
+    return TRUE;
+
   if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {
     ProcessKey(KEY_ENTER);
@@ -315,4 +330,19 @@ void FolderTree::DrawEdit()
     SetColor(COL_PANELTEXT);
     mprintf("%*s",X2-WhereX(),"");
   }
+}
+
+void FolderTree::InitKeyBar(void)
+{
+  static const char *FTreeKeysLabel[]={"","","","","","","","","","","",""};
+  TreeKeyBar.Set(FTreeKeysLabel,sizeof(FTreeKeysLabel)/sizeof(FTreeKeysLabel[0]));
+  TreeKeyBar.SetAlt(FTreeKeysLabel,sizeof(FTreeKeysLabel)/sizeof(FTreeKeysLabel[0]));
+
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF1),1-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF2),2-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF5),5-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF10),10-1);
+  TreeKeyBar.Change(KBL_ALT,MSG(MKBFolderTreeAltF9),9-1);
+
+  SetKeyBar(&TreeKeyBar);
 }

@@ -837,7 +837,7 @@ int WipeFile(const char *Name)
   DWORD Written;
   while (FileSize>0)
   {
-    DWORD WriteSize=Min((unsigned __int64)BufSize,FileSize);
+    DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
     WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
     FileSize-=WriteSize;
   }

@@ -5,187 +5,6 @@ fileview.cpp
 
 */
 
-/* Revision: 1.77 06.07.2006 $ */
-
-/*
-Modify:
-  06.07.2006 SVS
-    + GetViewFilePos(), GetViewFileSize()
-  04.07.2006 IS
-    - warnings
-  29.05.2006 SVS
-    + GetTitle()
-  17.03.2006 SVS
-    - Если файл не удалось открыть (например C:\WINNT\system32\config\system),
-      то область макроса оставалась той же (т.е. Вьювер).
-  02.03.2006 SVS
-    ! Явно зададит область действия макроса
-  28.10.2005 SVS
-    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
-  07.07.2005 SVS
-    ! Вьюверные настройки собраны в одно место
-  14.04.2005 SVS
-    ! Opt.UsePrintManager
-  02.02.2005 SVS
-    - BugZ#1242 - Ctrl-Tab заело
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  05.06.2003 SVS
-    - "view:a:\a F6" - не работает, в тоже время "view:A:\a F6" - работает
-  30.05.2003 SVS
-    + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
-      Пока закомментим (чтобы не потерялось)
-  14.05.2003 VVM
-    + ViewerOptions.PersistentBlocks;
-  02.03.2003 SVS
-    - забыл закрыть поток, блин :-(
-  26.02.2003 SVS
-    ! Перед переключением в редактор проверим доступность файла на редактирование
-  26.12.2002
-    - BugZ#754 - открытие редатора с большИми у2, х2
-      Проверим координаты в Init
-  23.12.2002 SVS
-    + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
-  10.12.2002 SVS
-    - BugZ#720 - far /v file + Ctrl-O
-  14.06.2002 IS
-    + Дополнительный параметр у SetTempViewName - DeleteFolder
-  04.06.2002 SVS
-    - BugZ#546 - Editor валит фар (здесь такая же фигня, что и в редакторе!)
-  24.05.2002 SVS
-    ! Уточнения в FileViewer::ViewerControl для логов
-  22.05.2002 SVS
-    + ViewerControl()
-  13.05.2002 VVM
-    + Перерисуем заголовок консоли после позиционирования на файл.
-  26.03.2002 DJ
-    ! при неудаче открытия - не пишем мусор в историю
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  19.03.2002 SVS
-    - BugZ#373 - F3 Ctrl-O - виден курсор
-  28.01.2002 OT
-    - При неудачном открытии файла не удалялся фрейм
-  28.12.2001 DJ
-    ! унифицируем обработку Ctrl-F10
-  17.12.2001 KM
-    ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-  08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
-  27.11.2001 DJ
-    + Local в ViewerConfig
-  14.11.2001 SVS
-    ! Ctrl-F10 не выходит, а только позиционирует
-  02.11.2001 IS
-    - отрицательные координаты левого верхнего угла заменяются на нулевые
-  12.10.2001 VVM
-    ! Неправильно запоминалось имя файла в истории.
-  11.10.2001 IS
-    ! Если просили удалить файл при закрытии и переключаемся в редактор
-      по F6, то удалять файл уже не нужно.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  08.09.2001 IS
-    + Дополнительный параметр у второго конструктора: DisableHistory
-  17.08.2001 KM
-    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
-      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
-      найденного файла из архива.
-    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
-    - Убрана в KeyBar надпись на клавишу F12 при CanLoseFocus=TRUE
-  11.07.2001 OT
-    Перенос CtrlAltShift в Manager
-  25.06.2001 IS
-   ! Внедрение const
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.06.2001 OT
-    ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
-    + добавлен деструктор ~FileViewer()... с косметическими целями
-  05.06.2001 tran
-    + класс FileView - добавлен OnChangeFocus
-  27.05.2001 DJ
-    - Не делаем DeleteFrame() в случае ошибки открытия
-  26.05.2001 OT
-    - Вьюер возможно запускать в модальном режиме
-  20.05.2001 DJ
-    - починим макросы
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  14.05.2001 OT
-    ! Изменение порядка вызова параметров ReplaceFrame (для единообразия и удобства)
-  12.05.2001 DJ
-    ! отрисовка по OnChangeFocus перенесена в Frame
-    ! убран дублирующийся ExitCode
-  11.05.2001 OT
-    ! Отрисовка Background
-  10.05.2001 DJ
-    + Alt-F11 - view/edit history
-    + Ctrl-F10 всегда переключается на панели
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  07.05.2001 DJ
-    - кейбар не обновлялся
-  06.05.2001 DJ
-    ! перетрях #include
-    + обработка F6 под NWZ
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.04.2001 VVM
-    + KeyBar тоже умеет обрабатывать клавиши.
-  10.04.2001 IS
-    ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
-      панелях, тем самым добиваемся того, что выделение с элементов
-      панелей не сбрасывается.
-  29.03.2001 IS
-    + Работа с локальной копией ViewerOptions при KEY_ALTSHIFTF9
-  22.03.2001 SVS
-    - "Залипание" кейбара после исполнения макроса
-  03.01.2001 SVS
-    ! для KEY_ALTSHIFTF9 забыли сделать Show()
-  19.12.2000 SVS
-    + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
-    - [*] Забыли "застолбить" место в LNG-файлах под клавишу F9 :-)
-      застолбить -застолбили, но не показывает.
-  16.12.2000 tran 1.14
-    ! Ctrl-F10 смотрит на пассивную панель
-  03.11.2000 OT
-    ! Введение проверки возвращаемого значения
-  02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
-  27.09.2000 SVS
-    + Печать файла с использованием плагина PrintMan
-    ! Ctrl-Alt-Shift - реагируем, если надо.
-  15.09.2000 tran 1.09
-    - FKL bug
-  14.09.2000 SVS
-    - Bug #NN1 - Непонятки  поведением KeyBar (см. описание к Patch#191)
-  24.08.2000 SVS
-    + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
-  07.08.2000 SVS
-    + добавил названия расширенных функциональных клавиш
-  22.07.2000 tran 1.06
-    + Ctrl-F10 выходит с установкой на файл на текущей панели
-  21.07.2000 tran 1.05
-      - артефакт при CtrlO при выключенном кейбаре
-  15.07.2000 tran
-      + CtrlB выключает/включает keybar
-  04.07.2000 tran
-    + не показывать мессаг бакс при невозвожности открыть файл
-  29.06.2000 tran
-    + названия всех функциональных клавиш
-  28.06.2000 tran
-    - NT Console resize
-      adding SetScreenPosition
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -308,61 +127,27 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
 }
 
 
-/* $ 07.08.2000 SVS
-  Функция инициализации KeyBar Labels
-*/
 void FileViewer::InitKeyBar(void)
 {
-  int IKeyLabel[2][7][13]=
-  {
-    // Обычный редактор
-    {
-      /* (empty)   */ {KBL_MAIN,MViewF1,MViewF2,MViewF3,MViewF4,MViewF5,MViewF6,MViewF7,MViewF8,MViewF9,MViewF10,MViewF11,MViewF12},
-      /* Shift     */ {KBL_SHIFT,MViewShiftF1,MViewShiftF2,MViewShiftF3,MViewShiftF4,MViewShiftF5,MViewShiftF6,MViewShiftF7,MViewShiftF8,MViewShiftF9,MViewShiftF10,MViewShiftF11,MViewShiftF12},
-      /* Alt       */ {KBL_ALT,MViewAltF1,MViewAltF2,MViewAltF3,MViewAltF4,MViewAltF5,MViewAltF6,MViewAltF7,MViewAltF8,MViewAltF9,MViewAltF10,MViewAltF11,MViewAltF12},
-      /* Ctrl      */ {KBL_CTRL,MViewCtrlF1,MViewCtrlF2,MViewCtrlF3,MViewCtrlF4,MViewCtrlF5,MViewCtrlF6,MViewCtrlF7,MViewCtrlF8,MViewCtrlF9,MViewCtrlF10,MViewCtrlF11,MViewCtrlF12},
-      /* AltShift  */ {KBL_ALTSHIFT,MViewAltShiftF1,MViewAltShiftF2,MViewAltShiftF3,MViewAltShiftF4,MViewAltShiftF5,MViewAltShiftF6,MViewAltShiftF7,MViewAltShiftF8,MViewAltShiftF9,MViewAltShiftF10,MViewAltShiftF11,MViewAltShiftF12},
-      /* CtrlShift */ {KBL_CTRLSHIFT,MViewCtrlShiftF1,MViewCtrlShiftF2,MViewCtrlShiftF3,MViewCtrlShiftF4,MViewCtrlShiftF5,MViewCtrlShiftF6,MViewCtrlShiftF7,MViewCtrlShiftF8,MViewCtrlShiftF9,MViewCtrlShiftF10,MViewCtrlShiftF11,MViewCtrlShiftF12},
-      /* CtrlAlt   */ {KBL_CTRLALT,MViewCtrlAltF1,MViewCtrlAltF2,MViewCtrlAltF3,MViewCtrlAltF4,MViewCtrlAltF5,MViewCtrlAltF6,MViewCtrlAltF7,MViewCtrlAltF8,MViewCtrlAltF9,MViewCtrlAltF10,MViewCtrlAltF11,MViewCtrlAltF12},
-    },
-    // одиночный редактор
-    {
-      /* (empty)   */ {KBL_MAIN,MSingleViewF1,MSingleViewF2,MSingleViewF3,MSingleViewF4,MSingleViewF5,MSingleViewF6,MSingleViewF7,MSingleViewF8,MSingleViewF9,MSingleViewF10,MSingleViewF11,MSingleViewF12},
-      /* Shift     */ {KBL_SHIFT,MSingleViewShiftF1,MSingleViewShiftF2,MSingleViewShiftF3,MSingleViewShiftF4,MSingleViewShiftF5,MSingleViewShiftF6,MSingleViewShiftF7,MSingleViewShiftF8,MSingleViewShiftF9,MSingleViewShiftF10,MSingleViewShiftF11,MSingleViewShiftF12},
-      /* Alt       */ {KBL_ALT,MSingleViewAltF1,MSingleViewAltF2,MSingleViewAltF3,MSingleViewAltF4,MSingleViewAltF5,MSingleViewAltF6,MSingleViewAltF7,MSingleViewAltF8,MSingleViewAltF9,MSingleViewAltF10,MSingleViewAltF11,MSingleViewAltF12},
-      /* Ctrl      */ {KBL_CTRL,MSingleViewCtrlF1,MSingleViewCtrlF2,MSingleViewCtrlF3,MSingleViewCtrlF4,MSingleViewCtrlF5,MSingleViewCtrlF6,MSingleViewCtrlF7,MSingleViewCtrlF8,MSingleViewCtrlF9,MSingleViewCtrlF10,MSingleViewCtrlF11,MSingleViewCtrlF12},
-      /* AltShift  */ {KBL_ALTSHIFT,MSingleViewAltShiftF1,MSingleViewAltShiftF2,MSingleViewAltShiftF3,MSingleViewAltShiftF4,MSingleViewAltShiftF5,MSingleViewAltShiftF6,MSingleViewAltShiftF7,MSingleViewAltShiftF8,MSingleViewAltShiftF9,MSingleViewAltShiftF10,MSingleViewAltShiftF11,MSingleViewAltShiftF12},
-      /* CtrlShift */ {KBL_CTRLSHIFT,MSingleViewCtrlShiftF1,MSingleViewCtrlShiftF2,MSingleViewCtrlShiftF3,MSingleViewCtrlShiftF4,MSingleViewCtrlShiftF5,MSingleViewCtrlShiftF6,MSingleViewCtrlShiftF7,MSingleViewCtrlShiftF8,MSingleViewCtrlShiftF9,MSingleViewCtrlShiftF10,MSingleViewCtrlShiftF11,MSingleViewCtrlShiftF12},
-      /* CtrlAlt   */ {KBL_CTRLALT,MSingleViewCtrlAltF1,MSingleViewCtrlAltF2,MSingleViewCtrlAltF3,MSingleViewCtrlAltF4,MSingleViewCtrlAltF5,MSingleViewCtrlAltF6,MSingleViewCtrlAltF7,MSingleViewCtrlAltF8,MSingleViewCtrlAltF9,MSingleViewCtrlAltF10,MSingleViewCtrlAltF11,MSingleViewCtrlAltF12},
-    }
-  };
-  char *FViewKeys[12];
-  int I,J;
+  ViewKeyBar.SetAllGroup (KBL_MAIN,      Opt.OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_SHIFT,     Opt.OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_ALT,       Opt.OnlyEditorViewerUsed?MSingleViewAltF1:MViewAltF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_CTRL,      Opt.OnlyEditorViewerUsed?MSingleViewCtrlF1:MViewCtrlF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_CTRLSHIFT, Opt.OnlyEditorViewerUsed?MSingleViewCtrlShiftF1:MViewCtrlShiftF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_CTRLALT,   Opt.OnlyEditorViewerUsed?MSingleViewCtrlAltF1:MViewCtrlAltF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_ALTSHIFT,  Opt.OnlyEditorViewerUsed?MSingleViewAltShiftF1:MViewAltShiftF1, 12);
 
-  for(I=0; I < 7; ++I)
-  {
-    for(J=1; J <= 12; ++J)
-    {
-      FViewKeys[J-1]=MSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
-    }
-    switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
-    {
-      case KBL_MAIN:
-        if(DisableEdit)
-          FViewKeys[6-1]="";
-        if(!GetCanLoseFocus())
-          FViewKeys[12-1]="";
-        break;
-      case KBL_ALT:
-        // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-        if(!GetCanLoseFocus())
-          FViewKeys[11-1]="";
-        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
-          FViewKeys[5-1]="";
-        break;
-    }
-    ViewKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FViewKeys,sizeof(FViewKeys)/sizeof(FViewKeys[0]));
-  }
+  if(DisableEdit)
+    ViewKeyBar.Change(KBL_MAIN,"",6-1);
+
+  if(!GetCanLoseFocus())
+    ViewKeyBar.Change(KBL_MAIN,"",12-1);
+
+  if(!GetCanLoseFocus())
+    ViewKeyBar.Change(KBL_ALT,"",11-1);
+
+  if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+    ViewKeyBar.Change(KBL_ALT,"",5-1);
 
   SetKeyBar(&ViewKeyBar);
   // $ 15.07.2000 tran - ShowKeyBarViewer support

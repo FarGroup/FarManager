@@ -204,8 +204,8 @@ int CommandLine::ProcessKey(int Key)
       {
         {
           FolderTree Tree(Str,MODALTREE_ACTIVE,TRUE,FALSE);
-          FrameManager->GetCurrentFrame()->RedrawKeyBar(); // Затычка ;-(
         }
+        CtrlObject->Cp()->RedrawKeyBar();
         if (*Str)
         {
           Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;

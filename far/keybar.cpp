@@ -5,50 +5,6 @@ Keybar
 
 */
 
-/* Revision: 1.15 06.08.2004 $ */
-
-/*
-Modify:
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.04.2002 SVS
-    ! Вместо KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
-  03.03.2002 SVS
-    ! Зачем делать лишние телодвижения, когда все за один раз можно сделать.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  22.06.2001
-    ! ProcessMouse: Owner меняем на FrameManager.
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.05.2001 DJ
-    ! перетрях #include
-  30.04.2001 DJ
-    ! Все нафиг переделано :-) Убран (почти) весь дублирующийся код.
-      Публичный API сохранен.
-  28.04.2001 VVM
-    + ProcessKey()
-  04.04.2001 SVS
-    - Избавляемся от "залипания" :-)
-    ! убран "мусор" - ненужные новые переменные CtrlShiftState
-  17.01.2001 SVS
-    - Вернем обратно предыдущее изменение в связи с очередным уточнением клавиш
-  07.01.2001 OT
-    - После смены клавиатуры выскочил баг:
-      "Кликаю мышкой на кейбаре, например, на f10 - ноль реакции."
-  19.09.2000 SVS
-    ! При нажатии Ctrl-Alt-Shift неверно отображается KeyBar
-  07.08.2000 SVS
-    + Изменение любого Label - функция Change(Group,...)
-  02.08.2000 SVS
-    + Дополнительные индикаторы
-      CtrlShiftName, AltShiftName, CtrlAltName
-    + К этим индикаторам - функции
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -164,7 +120,7 @@ void KeyBar::DisplayObject()
 }
 /* SVS $ */
 
-void KeyBar::SetGroup(int Group,char **Key,int KeyCount)
+void KeyBar::SetGroup(int Group,const char **Key,int KeyCount)
 {
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
     xstrncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i])-1);
@@ -180,7 +136,7 @@ void KeyBar::ClearGroup(int Group)
 /* $ 07.08.2000 SVS
    Изменение любого Label
 */
-void KeyBar::Change(int Group,char *NewStr,int Pos)
+void KeyBar::Change(int Group,const char *NewStr,int Pos)
 {
   xstrncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos])-1);
 }

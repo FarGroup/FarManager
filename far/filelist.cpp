@@ -4107,75 +4107,43 @@ void FileList::ChangeSortOrder(int NewOrder)
   Show();
 }
 
-/* $ 30.04.2001 DJ
-   UpdateKeyBar() (перенесен код из CtrlObject::RedrawKeyBar())
-*/
-
 BOOL FileList::UpdateKeyBar()
 {
-  // сначала проверим, плагиновая ли у нас панель и установил ли плагин
-  // собственный кейбар
-  if (GetMode() != PLUGIN_PANEL)
-    return FALSE;
+  KeyBar *KB=CtrlObject->MainKeyBar;
 
-  struct OpenPluginInfo Info;
-  GetOpenPluginInfo(&Info);
-  if (Info.KeyBar == NULL)
-    return FALSE;
+  KB->SetAllGroup (KBL_MAIN, MF1, 12);
+  KB->SetAllGroup (KBL_SHIFT, MShiftF1, 12);
+  KB->SetAllGroup (KBL_ALT, MAltF1, 12);
+  KB->SetAllGroup (KBL_CTRL, MCtrlF1, 12);
+  KB->SetAllGroup (KBL_CTRLSHIFT, MCtrlShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALT, MCtrlAltF1, 12);
+  KB->SetAllGroup (KBL_ALTSHIFT, MAltShiftF1, 12);
 
-  char empty[] = "";
-  char *FKeys[]={MSG(MF1),MSG(MF2),MSG(MF3),MSG(MF4),MSG(MF5),MSG(MF6),MSG(MF7),MSG(MF8),MSG(MF9),MSG(MF10),MSG(MF11),MSG(MF12)};
-  char *FAltKeys[]={MSG(MAltF1),MSG(MAltF2),MSG(MAltF3),MSG(MAltF4),MSG(MAltF5),empty,MSG(MAltF7),MSG(MAltF8),MSG(MAltF9),MSG(MAltF10),MSG(MAltF11),MSG(MAltF12)};
-  char *FCtrlKeys[]={MSG(MCtrlF1),MSG(MCtrlF2),MSG(MCtrlF3),MSG(MCtrlF4),MSG(MCtrlF5),MSG(MCtrlF6),MSG(MCtrlF7),MSG(MCtrlF8),MSG(MCtrlF9),MSG(MCtrlF10),MSG(MCtrlF11),MSG(MCtrlF12)};
-  char *FShiftKeys[]={MSG(MShiftF1),MSG(MShiftF2),MSG(MShiftF3),MSG(MShiftF4),MSG(MShiftF5),MSG(MShiftF6),MSG(MShiftF7),MSG(MShiftF8),MSG(MShiftF9),MSG(MShiftF10),MSG(MShiftF11),MSG(MShiftF12)};
+  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
+    KB->Change(KBL_ALT,"",6-1);
 
-  char *FAltShiftKeys[]={MSG(MAltShiftF1),MSG(MAltShiftF2),MSG(MAltShiftF3),MSG(MAltShiftF4),MSG(MAltShiftF5),MSG(MAltShiftF6),MSG(MAltShiftF7),MSG(MAltShiftF8),MSG(MAltShiftF9),MSG(MAltShiftF10),MSG(MAltShiftF11),MSG(MAltShiftF12)};
-  char *FCtrlShiftKeys[]={MSG(MCtrlShiftF1),MSG(MCtrlShiftF2),MSG(MCtrlShiftF3),MSG(MCtrlShiftF4),MSG(MCtrlShiftF5),MSG(MCtrlShiftF6),MSG(MCtrlShiftF7),MSG(MCtrlShiftF8),MSG(MCtrlShiftF9),MSG(MCtrlShiftF10),MSG(MCtrlShiftF11),MSG(MCtrlShiftF12)};
-  char *FCtrlAltKeys[]={MSG(MCtrlAltF1),MSG(MCtrlAltF2),MSG(MCtrlAltF3),MSG(MCtrlAltF4),MSG(MCtrlAltF5),MSG(MCtrlAltF6),MSG(MCtrlAltF7),MSG(MCtrlAltF8),MSG(MCtrlAltF9),MSG(MCtrlAltF10),MSG(MCtrlAltF11),MSG(MCtrlAltF12)};
-
-  FAltKeys[6-1]=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?MSG(MAltF6):empty;
-
-  int I;
-  for (I=0;I<sizeof(Info.KeyBar->Titles)/sizeof(Info.KeyBar->Titles[0]);I++)
-    if (Info.KeyBar->Titles[I]!=NULL)
-      FKeys[I]=Info.KeyBar->Titles[I];
-  for (I=0;I<sizeof(Info.KeyBar->CtrlTitles)/sizeof(Info.KeyBar->CtrlTitles[0]);I++)
-    if (Info.KeyBar->CtrlTitles[I]!=NULL)
-      FCtrlKeys[I]=Info.KeyBar->CtrlTitles[I];
-  for (I=0;I<sizeof(Info.KeyBar->AltTitles)/sizeof(Info.KeyBar->AltTitles[0]);I++)
-    if (Info.KeyBar->AltTitles[I]!=NULL)
-      FAltKeys[I]=Info.KeyBar->AltTitles[I];
-  for (I=0;I<sizeof(Info.KeyBar->ShiftTitles)/sizeof(Info.KeyBar->ShiftTitles[0]);I++)
-    if (Info.KeyBar->ShiftTitles[I]!=NULL)
-      FShiftKeys[I]=Info.KeyBar->ShiftTitles[I];
-
-  // Ага, мы ведь недаром увеличивали размер структуры ;-)
-  if(Info.StructSize >= sizeof(struct OpenPluginInfo))
+  if (GetMode() == PLUGIN_PANEL)
   {
-    for (I=0;I<sizeof(Info.KeyBar->CtrlShiftTitles)/sizeof(Info.KeyBar->CtrlShiftTitles[0]);I++)
-      if (Info.KeyBar->CtrlShiftTitles[I]!=NULL)
-        FCtrlShiftKeys[I]=Info.KeyBar->CtrlShiftTitles[I];
-
-    for (I=0;I<sizeof(Info.KeyBar->AltShiftTitles)/sizeof(Info.KeyBar->AltShiftTitles[0]);I++)
-      if (Info.KeyBar->AltShiftTitles[I]!=NULL)
-        FAltShiftKeys[I]=Info.KeyBar->AltShiftTitles[I];
-
-    for (I=0;I<sizeof(Info.KeyBar->CtrlAltTitles)/sizeof(Info.KeyBar->CtrlAltTitles[0]);I++)
-      if (Info.KeyBar->CtrlAltTitles[I]!=NULL)
-        FCtrlAltKeys[I]=Info.KeyBar->CtrlAltTitles[I];
+    struct OpenPluginInfo Info;
+    GetOpenPluginInfo(&Info);
+    if (Info.KeyBar)
+    {
+      KB->Set((const char **)Info.KeyBar->Titles,12);
+      KB->SetShift((const char **)Info.KeyBar->ShiftTitles,12);
+      KB->SetAlt((const char **)Info.KeyBar->AltTitles,12);
+      KB->SetCtrl((const char **)Info.KeyBar->CtrlTitles,12);
+      if(Info.StructSize >= sizeof(struct OpenPluginInfo))
+      {
+        KB->SetCtrlShift((const char **)Info.KeyBar->CtrlShiftTitles,12);
+        KB->SetAltShift((const char **)Info.KeyBar->AltShiftTitles,12);
+        KB->SetCtrlAlt((const char **)Info.KeyBar->CtrlAltTitles,12);
+      }
+    }
   }
-
-  CtrlObject->MainKeyBar->Set(FKeys,sizeof(FKeys)/sizeof(FKeys[0]));
-  CtrlObject->MainKeyBar->SetAlt(FAltKeys,sizeof(FAltKeys)/sizeof(FAltKeys[0]));
-  CtrlObject->MainKeyBar->SetCtrl(FCtrlKeys,sizeof(FCtrlKeys)/sizeof(FCtrlKeys[0]));
-  CtrlObject->MainKeyBar->SetShift(FShiftKeys,sizeof(FShiftKeys)/sizeof(FShiftKeys[0]));
-
-  CtrlObject->MainKeyBar->SetCtrlAlt(FCtrlAltKeys,sizeof(FCtrlAltKeys)/sizeof(FCtrlAltKeys[0]));
-  CtrlObject->MainKeyBar->SetCtrlShift(FCtrlShiftKeys,sizeof(FCtrlShiftKeys)/sizeof(FCtrlShiftKeys[0]));
-  CtrlObject->MainKeyBar->SetAltShift(FAltShiftKeys,sizeof(FAltShiftKeys)/sizeof(FAltShiftKeys[0]));
 
   return TRUE;
 }
+
 
 int FileList::PluginPanelHelp(HANDLE hPlugin)
 {
