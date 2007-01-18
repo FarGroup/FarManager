@@ -187,26 +187,27 @@ BOOL DECLSPEC DoCreateDirectory( char *nm )
   {  char *m;
      char  ch;
      UINT  tp;
+     int   b = 0;
 
 //Skip UNC abs path
     if ( StrCmp( nm, "\\\\?\\",4 ) == 0 )
-      nm += 4;
+      b = 4;
 
 //Skip UNC share name
-    if ( nm[0] == SLASH_CHAR && nm[1] == SLASH_CHAR ) {
-      m = StrChr( nm+2,SLASH_CHAR );
-      if ( !m ) {
+    if ( nm[b] == SLASH_CHAR && nm[b + 1] == SLASH_CHAR ) {
+      b = StrPosChr( nm, SLASH_CHAR, b + 2 );
+      if ( b == -1 ) {
         Log(( "UNC does not contains resource name" ));
         return FALSE;
       }
-      m = StrChr( m+1,SLASH_CHAR );
-      if ( !m )
+      b = StrPosChr( nm, SLASH_CHAR, b + 1 );
+      if ( b == -1 )
         return TRUE;
-      nm = m+1;
+      b += 1;
     }
 
 //Normal
-    m = nm;
+    m = nm + b;
     do{
       m = StrChr( m+1,SLASH_CHAR );
       if ( m ) {
