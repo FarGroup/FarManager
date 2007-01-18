@@ -1,3 +1,14 @@
+#ifndef __PLCLASS_HPP__
+#define __PLCLASS_HPP__
+
+class PluginManager;
+
+#include "language.hpp"
+#include "bitflags.hpp"
+#include "unicodestring.hpp"
+#include "struct.hpp"
+#include "plugin.hpp"
+
 typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const PluginPanelItemW *Item1,const PluginPanelItemW *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINCONFIGURE)(int ItemNumber);
@@ -118,6 +129,9 @@ public:
 
 	int Load();
 	int LoadFromCache();
+
+	int SaveToCache ();
+
 	int Unload (bool bExitFAR = false);
 
 	int GetCacheNumber ();
@@ -162,3 +176,5 @@ private:
 
 	void ClearExports ();
 };
+
+#endif  // __PLUGINS_HPP__

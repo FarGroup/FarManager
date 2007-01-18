@@ -60,6 +60,7 @@ panel.hpp
 plognmn.hpp
 plugin.hpp
 plugins.hpp
+plclass.hpp
 poscache.hpp
 qview.hpp
 rdrwdsk.hpp
@@ -161,6 +162,7 @@ plist.cpp
 plognmn.cpp
 plugapi.cpp
 plugins.cpp
+plclass.cpp
 poscache.cpp
 print.cpp
 qsort.c

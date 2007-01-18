@@ -12,6 +12,15 @@ plugins.hpp
 #include "unicodestring.hpp"
 #include "struct.hpp"
 #include "plugin.hpp"
+#include "plclass.hpp"
+
+extern const wchar_t *FmtPluginsCache_PluginDW;
+extern const wchar_t *FmtPluginsCache_PluginDExportW;
+extern const wchar_t *FmtDiskMenuStringDW;
+extern const wchar_t *FmtDiskMenuNumberDW;
+extern const wchar_t *FmtPluginMenuStringDW;
+extern const wchar_t *FmtPluginConfigStringDW;
+
 
 class SaveScreen;
 class FileEditor;
@@ -77,10 +86,6 @@ enum PLUGINITEMCALLFUNCFLAGS{
                                PICFF_GETOPENPLUGININFO,
 };
 
-class PluginManager;
-
-#include "plugins.Plugin.hpp"
-
 // флаги для поля PluginManager.Flags
 enum PLUGINSETFLAGS{
   PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
@@ -105,7 +110,6 @@ public:
 
 private:
 
-    int SavePluginSettings(Plugin *CurPlugin,FAR_FIND_DATA_EX &FindData);
     void LoadIfCacheAbsent();
     void ReadUserBackgound(SaveScreen *SaveScr);
     int GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);

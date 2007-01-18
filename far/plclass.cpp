@@ -1,3 +1,63 @@
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "plugins.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "plugin.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "global.hpp"
+#include "scantree.hpp"
+#include "chgprior.hpp"
+#include "constitle.hpp"
+#include "cmdline.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "rdrwdsk.hpp"
+#include "savescr.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
+#include "udlist.hpp"
+#include "farexcpt.hpp"
+#include "fileedit.hpp"
+#include "RefreshFrameManager.hpp"
+#include "BlockExtKey.hpp"
+#include "plclass.hpp"
+
+static const wchar_t *NFMP_PreloadW=L"Preload";
+static const wchar_t *NFMP_SysIDW=L"SysID";
+
+static const wchar_t NFMP_OpenPluginW[]=L"OpenPlugin";
+static const wchar_t NFMP_OpenFilePluginW[]=L"OpenFilePlugin";
+static const wchar_t NFMP_SetFindListW[]=L"SetFindList";
+static const wchar_t NFMP_ProcessEditorInputW[]=L"ProcessEditorInput";
+static const wchar_t NFMP_ProcessEditorEventW[]=L"ProcessEditorEvent";
+static const wchar_t NFMP_ProcessViewerEventW[]=L"ProcessViewerEvent";
+static const wchar_t NFMP_SetStartupInfoW[]=L"SetStartupInfo";
+static const wchar_t NFMP_ClosePluginW[]=L"ClosePlugin";
+static const wchar_t NFMP_GetPluginInfoW[]=L"GetPluginInfo";
+static const wchar_t NFMP_GetOpenPluginInfoW[]=L"GetOpenPluginInfo";
+static const wchar_t NFMP_GetFindDataW[]=L"GetFindData";
+static const wchar_t NFMP_FreeFindDataW[]=L"FreeFindData";
+static const wchar_t NFMP_GetVirtualFindDataW[]=L"GetVirtualFindData";
+static const wchar_t NFMP_FreeVirtualFindDataW[]=L"FreeVirtualFindData";
+static const wchar_t NFMP_SetDirectoryW[]=L"SetDirectory";
+static const wchar_t NFMP_GetFilesW[]=L"GetFiles";
+static const wchar_t NFMP_PutFilesW[]=L"PutFiles";
+static const wchar_t NFMP_DeleteFilesW[]=L"DeleteFiles";
+static const wchar_t NFMP_MakeDirectoryW[]=L"MakeDirectory";
+static const wchar_t NFMP_ProcessHostFileW[]=L"ProcessHostFile";
+static const wchar_t NFMP_ConfigureW[]=L"Configure";
+static const wchar_t NFMP_ExitFARW[]=L"ExitFAR";
+static const wchar_t NFMP_ProcessKeyW[]=L"ProcessKey";
+static const wchar_t NFMP_ProcessEventW[]=L"ProcessEvent";
+static const wchar_t NFMP_CompareW[]=L"Compare";
+static const wchar_t NFMP_GetMinFarVersionW[]=L"GetMinFarVersion";
+
+
 static const char NFMP_OpenPlugin[]="OpenPlugin";
 static const char NFMP_OpenFilePlugin[]="OpenFilePlugin";
 static const char NFMP_SetFindList[]="SetFindList";
@@ -24,6 +84,27 @@ static const char NFMP_ProcessKey[]="ProcessKey";
 static const char NFMP_ProcessEvent[]="ProcessEvent";
 static const char NFMP_Compare[]="Compare";
 static const char NFMP_GetMinFarVersion[]="GetMinFarVersion";
+
+
+BOOL PrepareModulePathW(const wchar_t *ModuleName)
+{
+	string strModulePath;
+	strModulePath = ModuleName;
+
+	CutToSlashW (strModulePath); //??
+
+	return FarChDirW(strModulePath,TRUE);
+}
+
+void CheckScreenLock()
+{
+	if ( ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey() )
+	{
+		ScrBuf.SetLockCount(0);
+		ScrBuf.Flush();
+	}
+}
+
 
 
 Plugin::Plugin (
@@ -101,10 +182,117 @@ int Plugin::LoadFromCache ()
 		pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessEditorInputW,0);
 		pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessEditorEventW,0);
 		pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ProcessViewerEventW,0);
+		pConfigure=(PLUGINCONFIGURE)(INT_PTR)GetRegKeyW(strRegKey,NFMP_ConfigureW,0);
 
 		CachePos = cp;
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+int Plugin::SaveToCache()
+{
+	if ( pGetPluginInfo || 
+		 pOpenPlugin ||
+		 pOpenFilePlugin ||
+		 pSetFindList ||
+		 pProcessEditorInput ||
+		 pProcessEditorEvent ||
+		 pProcessViewerEvent )
+	{
+		PluginInfoW Info;
+		
+		GetPluginInfo(&Info);
+
+        SysID = Info.SysID; //LAME!!!
+
+		int j = 0;
+		
+		while ( true )
+		{
+			string strRegKey, strPluginName, strCurPluginID;
+
+            strRegKey.Format (FmtPluginsCache_PluginDW, j);
+
+            GetRegKeyW (strRegKey, L"Name", strPluginName, L"");
+            
+            if ( strPluginName.IsEmpty() || LocalStricmpW(strPluginName, m_strModuleName) == 0)
+            {
+            	DeleteKeyTreeW(strRegKey);
+            	
+            	SetRegKeyW(strRegKey, L"Name", m_strModuleName);
+            	
+            	strCurPluginID.Format (
+            			L"%I64x%x%x",
+            			FindData.nFileSize,
+            			FindData.ftCreationTime.dwLowDateTime,
+            			FindData.ftLastWriteTime.dwLowDateTime
+            			);
+
+				SetRegKeyW(strRegKey, L"ID", strCurPluginID);
+
+				bool bPreload = (Info.Flags & PF_PRELOAD);
+
+                SetRegKeyW (strRegKey, NFMP_PreloadW, bPreload?1:0);
+                WorkFlags.Change(PIWF_PRELOADED, bPreload);
+
+                if ( bPreload )
+                	break;
+
+				for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
+				{
+					string strValue;
+					
+					strValue.Format (FmtDiskMenuStringDW, i);
+					
+					SetRegKeyW(strRegKey, strValue, Info.DiskMenuStrings[i]);
+					
+					if ( Info.DiskMenuNumbers )
+					{
+						strValue.Format (FmtDiskMenuNumberDW, i);
+						SetRegKeyW(strRegKey, strValue, Info.DiskMenuNumbers[i]);
+					}
+				}
+
+                for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
+                {
+                	string strValue;
+
+                	strValue.Format (FmtPluginMenuStringDW, i);
+                	SetRegKeyW(strRegKey, strValue, Info.PluginMenuStrings[i]);
+                }
+
+                for (i = 0; i < Info.PluginConfigStringsNumber; i++)
+                {
+                	string strValue;
+
+                	strValue.Format (FmtPluginConfigStringDW, i);
+                	SetRegKeyW(strRegKey,strValue,Info.PluginConfigStrings[i]);
+                }
+
+                SetRegKeyW(strRegKey, L"CommandPrefix", NullToEmptyW(Info.CommandPrefix));
+                SetRegKeyW(strRegKey, L"Flags", Info.Flags);
+
+				strRegKey.Format (FmtPluginsCache_PluginDExportW, j);
+				
+				SetRegKeyW (strRegKey, NFMP_SysIDW, SysID);
+				SetRegKeyW (strRegKey, NFMP_OpenPluginW, pOpenPlugin!=NULL);
+				SetRegKeyW (strRegKey, NFMP_OpenFilePluginW, pOpenFilePlugin!=NULL);
+				SetRegKeyW (strRegKey, NFMP_SetFindListW, pSetFindList!=NULL);
+				SetRegKeyW (strRegKey, NFMP_ProcessEditorInputW, pProcessEditorInput!=NULL);
+				SetRegKeyW (strRegKey, NFMP_ProcessEditorEventW, pProcessEditorEvent!=NULL);
+				SetRegKeyW (strRegKey, NFMP_ProcessViewerEventW, pProcessViewerEvent!=NULL);
+				SetRegKeyW (strRegKey, NFMP_ConfigureW, pConfigure!=NULL);
+				
+				break;
+			}
+
+			j++;
+		}
 
 		return TRUE;
 	}
@@ -378,7 +566,7 @@ int Plugin::Load()
 
 	FuncFlags.Set(PICFF_LOADED);
 
-	if ( m_owner->SavePluginSettings (this, FindData) )
+	if ( SaveToCache () )
 	{
       for (int I=0;;I++)
       {
@@ -1209,11 +1397,11 @@ int Plugin::Configure(
 
 void Plugin::GetPluginInfo (PluginInfoW *pi)
 {
+	memset (pi, 0, sizeof (PluginInfoW));
+
 	if ( pGetPluginInfo && !ProcessException )
 	{
 		ExecuteStruct es;
-
-		memset (pi, 0, sizeof (PluginInfoW));
 
 		es.id = FUNCTION_GETPLUGININFO;
 

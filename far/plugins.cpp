@@ -38,43 +38,12 @@ plugins.cpp
 #endif
 
 
-static void CheckScreenLock();
-
-static const wchar_t *FmtPluginsCache_PluginDW=L"PluginsCache\\Plugin%d";
-static const wchar_t *FmtPluginsCache_PluginDExportW=L"PluginsCache\\Plugin%d\\Exports";
-static const wchar_t *FmtDiskMenuStringDW=L"DiskMenuString%d";
-static const wchar_t *FmtDiskMenuNumberDW=L"DiskMenuNumber%d";
-static const wchar_t *FmtPluginMenuStringDW=L"PluginMenuString%d";
-static const wchar_t *FmtPluginConfigStringDW=L"PluginConfigString%d";
-static const wchar_t *NFMP_PreloadW=L"Preload";
-static const wchar_t *NFMP_SysIDW=L"SysID";
-
-static const wchar_t NFMP_OpenPluginW[]=L"OpenPlugin";
-static const wchar_t NFMP_OpenFilePluginW[]=L"OpenFilePlugin";
-static const wchar_t NFMP_SetFindListW[]=L"SetFindList";
-static const wchar_t NFMP_ProcessEditorInputW[]=L"ProcessEditorInput";
-static const wchar_t NFMP_ProcessEditorEventW[]=L"ProcessEditorEvent";
-static const wchar_t NFMP_ProcessViewerEventW[]=L"ProcessViewerEvent";
-static const wchar_t NFMP_SetStartupInfoW[]=L"SetStartupInfo";
-static const wchar_t NFMP_ClosePluginW[]=L"ClosePlugin";
-static const wchar_t NFMP_GetPluginInfoW[]=L"GetPluginInfo";
-static const wchar_t NFMP_GetOpenPluginInfoW[]=L"GetOpenPluginInfo";
-static const wchar_t NFMP_GetFindDataW[]=L"GetFindData";
-static const wchar_t NFMP_FreeFindDataW[]=L"FreeFindData";
-static const wchar_t NFMP_GetVirtualFindDataW[]=L"GetVirtualFindData";
-static const wchar_t NFMP_FreeVirtualFindDataW[]=L"FreeVirtualFindData";
-static const wchar_t NFMP_SetDirectoryW[]=L"SetDirectory";
-static const wchar_t NFMP_GetFilesW[]=L"GetFiles";
-static const wchar_t NFMP_PutFilesW[]=L"PutFiles";
-static const wchar_t NFMP_DeleteFilesW[]=L"DeleteFiles";
-static const wchar_t NFMP_MakeDirectoryW[]=L"MakeDirectory";
-static const wchar_t NFMP_ProcessHostFileW[]=L"ProcessHostFile";
-static const wchar_t NFMP_ConfigureW[]=L"Configure";
-static const wchar_t NFMP_ExitFARW[]=L"ExitFAR";
-static const wchar_t NFMP_ProcessKeyW[]=L"ProcessKey";
-static const wchar_t NFMP_ProcessEventW[]=L"ProcessEvent";
-static const wchar_t NFMP_CompareW[]=L"Compare";
-static const wchar_t NFMP_GetMinFarVersionW[]=L"GetMinFarVersion";
+const wchar_t *FmtPluginsCache_PluginDW=L"PluginsCache\\Plugin%d";
+const wchar_t *FmtPluginsCache_PluginDExportW=L"PluginsCache\\Plugin%d\\Exports";
+const wchar_t *FmtDiskMenuStringDW=L"DiskMenuString%d";
+const wchar_t *FmtDiskMenuNumberDW=L"DiskMenuNumber%d";
+const wchar_t *FmtPluginMenuStringDW=L"PluginMenuString%d";
+const wchar_t *FmtPluginConfigStringDW=L"PluginConfigString%d";
 
 
 
@@ -82,18 +51,6 @@ static const wchar_t *RKN_PluginsCacheW=L"PluginsCache";
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 
-static BOOL PrepareModulePathW(const wchar_t *ModuleName)
-{
-  string strModulePath;
-  strModulePath = ModuleName;
-
-  CutToSlashW (strModulePath); //??
-
-  return FarChDirW(strModulePath,TRUE);
-}
-
-
-#include "plugins.Plugin.cpp"
 
 PluginManager::PluginManager()
 {
@@ -392,103 +349,9 @@ void PluginManager::LoadPluginsFromCache()
 
 int _cdecl PluginsSort(const void *el1,const void *el2)
 {
-  Plugin *Plugin1=*((Plugin**)el1);
-  Plugin *Plugin2=*((Plugin**)el2);
-  return(LocalStricmpW(PointToNameW(Plugin1->m_strModuleName),PointToNameW(Plugin2->m_strModuleName)));
-}
-
-
-
-
-int PluginManager::SavePluginSettings(Plugin *CurPlugin,
-                                    FAR_FIND_DATA_EX &FindData)
-{
-  if(!(CurPlugin->pGetPluginInfo     ||
-      CurPlugin->pOpenPlugin         ||
-      CurPlugin->pOpenFilePlugin     ||
-      CurPlugin->pSetFindList        ||
-      CurPlugin->pProcessEditorInput ||
-      CurPlugin->pProcessEditorEvent ||
-      CurPlugin->pProcessViewerEvent
-  // Сюда добавлять те функции, из-за которых плагин имеет место быть в кэше
-  ))
-   return FALSE;
-
-  PluginInfoW Info;
-
-  CurPlugin->GetPluginInfo(&Info);
-  CurPlugin->SysID=Info.SysID;
-
-  int I,I0;
-  for (I0=0;;I0++)
-  {
-    string strRegKey, strPluginName, strCurPluginID;
-    strRegKey.Format (FmtPluginsCache_PluginDW,I0);
-    GetRegKeyW(strRegKey,L"Name",strPluginName,L"");
-    if ( strPluginName.IsEmpty() || LocalStricmpW(strPluginName,CurPlugin->m_strModuleName)==0)
-    {
-      DeleteKeyTreeW(strRegKey);
-
-      SetRegKeyW(strRegKey,L"Name",CurPlugin->m_strModuleName);
-      strCurPluginID.Format (L"%I64x%x%x",FindData.nFileSize,
-              FindData.ftCreationTime.dwLowDateTime,
-              FindData.ftLastWriteTime.dwLowDateTime);
-      SetRegKeyW(strRegKey,L"ID",strCurPluginID);
-      /* $ 12.10.2000 tran
-         если плагин PRELOAD, в кеш пишется об этом */
-      if (Info.Flags & PF_PRELOAD)
-      {
-        SetRegKeyW(strRegKey,NFMP_PreloadW,1);
-        CurPlugin->WorkFlags.Set(PIWF_PRELOADED);
-        break;
-      }
-      else
-      {
-        SetRegKeyW(strRegKey,NFMP_PreloadW,(DWORD)0);
-        CurPlugin->WorkFlags.Clear(PIWF_PRELOADED);
-      }
-      /* tran $ */
-
-      for (I=0;I<Info.DiskMenuStringsNumber;I++)
-      {
-        string strValue;
-        strValue.Format (FmtDiskMenuStringDW,I);
-        SetRegKeyW(strRegKey,strValue,Info.DiskMenuStrings[I]);
-        if (Info.DiskMenuNumbers)
-        {
-          strValue.Format (FmtDiskMenuNumberDW,I);
-          SetRegKeyW(strRegKey,strValue,Info.DiskMenuNumbers[I]);
-        }
-      }
-      for (I=0;I<Info.PluginMenuStringsNumber;I++)
-      {
-        string strValue;
-        strValue.Format (FmtPluginMenuStringDW,I);
-        SetRegKeyW(strRegKey,strValue,Info.PluginMenuStrings[I]);
-      }
-      for (I=0;I<Info.PluginConfigStringsNumber;I++)
-      {
-        string strValue;
-        strValue.Format (FmtPluginConfigStringDW,I);
-        SetRegKeyW(strRegKey,strValue,Info.PluginConfigStrings[I]);
-      }
-      SetRegKeyW(strRegKey,L"CommandPrefix",NullToEmptyW(Info.CommandPrefix));
-      SetRegKeyW(strRegKey,L"Flags",Info.Flags);
-
-      strRegKey.Format (FmtPluginsCache_PluginDExportW,I0);
-
-      SetRegKeyW (strRegKey,NFMP_SysIDW,CurPlugin->SysID);
-      SetRegKeyW (strRegKey,NFMP_OpenPluginW,CurPlugin->pOpenPlugin!=NULL);
-      SetRegKeyW (strRegKey,NFMP_OpenFilePluginW,CurPlugin->pOpenFilePlugin!=NULL);
-      SetRegKeyW (strRegKey,NFMP_SetFindListW,CurPlugin->pSetFindList!=NULL);
-      SetRegKeyW (strRegKey,NFMP_ProcessEditorInputW,CurPlugin->pProcessEditorInput!=NULL);
-      SetRegKeyW (strRegKey,NFMP_ProcessEditorEventW,CurPlugin->pProcessEditorEvent!=NULL);
-      SetRegKeyW (strRegKey,NFMP_ProcessViewerEventW,CurPlugin->pProcessViewerEvent!=NULL);
-      break;
-    }
-  }
-  /* IS $ */
-  return(TRUE);
+	Plugin *Plugin1=*((Plugin**)el1);
+	Plugin *Plugin2=*((Plugin**)el2);
+	return (LocalStricmpW(PointToNameW(Plugin1->m_strModuleName),PointToNameW(Plugin2->m_strModuleName)));
 }
 
 
@@ -941,7 +804,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 		}
 	}
 
-    SavePluginSettings(pPlugin, pPlugin->FindData);
+    pPlugin->SaveToCache ();
 }
 
 struct PluginMenuItemData {
@@ -1397,10 +1260,10 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
         *Ptr=L'/';
 
       Ptr++;
-
-      if (ItemNumber>0)
-        swprintf(Ptr,L"%%%d",ItemNumber);
     }
+
+    if (ItemNumber>0)
+      swprintf(Ptr,L"%%%d",ItemNumber);
 
     strPluginName.ReleaseBuffer ();
 
@@ -1680,14 +1543,6 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 }
 
 
-void CheckScreenLock()
-{
-  if (ScrBuf.GetLockCount()>0 && !CtrlObject->Macro.PeekKey())
-  {
-    ScrBuf.SetLockCount(0);
-    ScrBuf.Flush();
-  }
-}
 
 /* $ 27.09.2000 SVS
   Функция CallPlugin - найти плагин по ID и запустить
