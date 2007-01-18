@@ -122,8 +122,11 @@ void KeyBar::DisplayObject()
 
 void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
 {
+  if(!Key) return;
+
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
-    xwcsncpy (KeyTitles [Group][i], Key [i], (sizeof (KeyTitles [Group][i])-1)/sizeof (wchar_t));
+    if(Key[i])
+      xwcsncpy (KeyTitles [Group][i], Key[i], (sizeof (KeyTitles [Group][i])-1)/sizeof (wchar_t));
   KeyCounts [Group]=KeyCount;
 }
 
@@ -138,7 +141,8 @@ void KeyBar::ClearGroup(int Group)
 */
 void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
-  xwcsncpy (KeyTitles [Group][Pos], NewStr, (sizeof (KeyTitles [Group][Pos])-1)/sizeof (wchar_t));
+  if(NewStr)
+    xwcsncpy (KeyTitles [Group][Pos], NewStr, (sizeof (KeyTitles [Group][Pos])-1)/sizeof (wchar_t));
 }
 /* SVS $ */
 
