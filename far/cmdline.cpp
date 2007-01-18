@@ -179,8 +179,8 @@ int CommandLine::ProcessKey(int Key)
       {
         {
           FolderTree Tree(strStr,MODALTREE_ACTIVE,TRUE,FALSE);
-          FrameManager->GetCurrentFrame()->RedrawKeyBar(); // Затычка ;-(
         }
+        CtrlObject->Cp()->RedrawKeyBar();
         if ( !strStr.IsEmpty() )
         {
           Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;

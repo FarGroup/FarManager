@@ -135,56 +135,25 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
 */
 void FileViewer::InitKeyBar(void)
 {
-  int IKeyLabel[2][7][13]=
-  {
-    // ќбычный редактор
-    {
-      /* (empty)   */ {KBL_MAIN,MViewF1,MViewF2,MViewF3,MViewF4,MViewF5,MViewF6,MViewF7,MViewF8,MViewF9,MViewF10,MViewF11,MViewF12},
-      /* Shift     */ {KBL_SHIFT,MViewShiftF1,MViewShiftF2,MViewShiftF3,MViewShiftF4,MViewShiftF5,MViewShiftF6,MViewShiftF7,MViewShiftF8,MViewShiftF9,MViewShiftF10,MViewShiftF11,MViewShiftF12},
-      /* Alt       */ {KBL_ALT,MViewAltF1,MViewAltF2,MViewAltF3,MViewAltF4,MViewAltF5,MViewAltF6,MViewAltF7,MViewAltF8,MViewAltF9,MViewAltF10,MViewAltF11,MViewAltF12},
-      /* Ctrl      */ {KBL_CTRL,MViewCtrlF1,MViewCtrlF2,MViewCtrlF3,MViewCtrlF4,MViewCtrlF5,MViewCtrlF6,MViewCtrlF7,MViewCtrlF8,MViewCtrlF9,MViewCtrlF10,MViewCtrlF11,MViewCtrlF12},
-      /* AltShift  */ {KBL_ALTSHIFT,MViewAltShiftF1,MViewAltShiftF2,MViewAltShiftF3,MViewAltShiftF4,MViewAltShiftF5,MViewAltShiftF6,MViewAltShiftF7,MViewAltShiftF8,MViewAltShiftF9,MViewAltShiftF10,MViewAltShiftF11,MViewAltShiftF12},
-      /* CtrlShift */ {KBL_CTRLSHIFT,MViewCtrlShiftF1,MViewCtrlShiftF2,MViewCtrlShiftF3,MViewCtrlShiftF4,MViewCtrlShiftF5,MViewCtrlShiftF6,MViewCtrlShiftF7,MViewCtrlShiftF8,MViewCtrlShiftF9,MViewCtrlShiftF10,MViewCtrlShiftF11,MViewCtrlShiftF12},
-      /* CtrlAlt   */ {KBL_CTRLALT,MViewCtrlAltF1,MViewCtrlAltF2,MViewCtrlAltF3,MViewCtrlAltF4,MViewCtrlAltF5,MViewCtrlAltF6,MViewCtrlAltF7,MViewCtrlAltF8,MViewCtrlAltF9,MViewCtrlAltF10,MViewCtrlAltF11,MViewCtrlAltF12},
-    },
-    // одиночный редактор
-    {
-      /* (empty)   */ {KBL_MAIN,MSingleViewF1,MSingleViewF2,MSingleViewF3,MSingleViewF4,MSingleViewF5,MSingleViewF6,MSingleViewF7,MSingleViewF8,MSingleViewF9,MSingleViewF10,MSingleViewF11,MSingleViewF12},
-      /* Shift     */ {KBL_SHIFT,MSingleViewShiftF1,MSingleViewShiftF2,MSingleViewShiftF3,MSingleViewShiftF4,MSingleViewShiftF5,MSingleViewShiftF6,MSingleViewShiftF7,MSingleViewShiftF8,MSingleViewShiftF9,MSingleViewShiftF10,MSingleViewShiftF11,MSingleViewShiftF12},
-      /* Alt       */ {KBL_ALT,MSingleViewAltF1,MSingleViewAltF2,MSingleViewAltF3,MSingleViewAltF4,MSingleViewAltF5,MSingleViewAltF6,MSingleViewAltF7,MSingleViewAltF8,MSingleViewAltF9,MSingleViewAltF10,MSingleViewAltF11,MSingleViewAltF12},
-      /* Ctrl      */ {KBL_CTRL,MSingleViewCtrlF1,MSingleViewCtrlF2,MSingleViewCtrlF3,MSingleViewCtrlF4,MSingleViewCtrlF5,MSingleViewCtrlF6,MSingleViewCtrlF7,MSingleViewCtrlF8,MSingleViewCtrlF9,MSingleViewCtrlF10,MSingleViewCtrlF11,MSingleViewCtrlF12},
-      /* AltShift  */ {KBL_ALTSHIFT,MSingleViewAltShiftF1,MSingleViewAltShiftF2,MSingleViewAltShiftF3,MSingleViewAltShiftF4,MSingleViewAltShiftF5,MSingleViewAltShiftF6,MSingleViewAltShiftF7,MSingleViewAltShiftF8,MSingleViewAltShiftF9,MSingleViewAltShiftF10,MSingleViewAltShiftF11,MSingleViewAltShiftF12},
-      /* CtrlShift */ {KBL_CTRLSHIFT,MSingleViewCtrlShiftF1,MSingleViewCtrlShiftF2,MSingleViewCtrlShiftF3,MSingleViewCtrlShiftF4,MSingleViewCtrlShiftF5,MSingleViewCtrlShiftF6,MSingleViewCtrlShiftF7,MSingleViewCtrlShiftF8,MSingleViewCtrlShiftF9,MSingleViewCtrlShiftF10,MSingleViewCtrlShiftF11,MSingleViewCtrlShiftF12},
-      /* CtrlAlt   */ {KBL_CTRLALT,MSingleViewCtrlAltF1,MSingleViewCtrlAltF2,MSingleViewCtrlAltF3,MSingleViewCtrlAltF4,MSingleViewCtrlAltF5,MSingleViewCtrlAltF6,MSingleViewCtrlAltF7,MSingleViewCtrlAltF8,MSingleViewCtrlAltF9,MSingleViewCtrlAltF10,MSingleViewCtrlAltF11,MSingleViewCtrlAltF12},
-    }
-  };
-  const wchar_t *FViewKeys[12];
-  int I,J;
+  ViewKeyBar.SetAllGroup (KBL_MAIN,      Opt.OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_SHIFT,     Opt.OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_ALT,       Opt.OnlyEditorViewerUsed?MSingleViewAltF1:MViewAltF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_CTRL,      Opt.OnlyEditorViewerUsed?MSingleViewCtrlF1:MViewCtrlF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_CTRLSHIFT, Opt.OnlyEditorViewerUsed?MSingleViewCtrlShiftF1:MViewCtrlShiftF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_CTRLALT,   Opt.OnlyEditorViewerUsed?MSingleViewCtrlAltF1:MViewCtrlAltF1, 12);
+  ViewKeyBar.SetAllGroup (KBL_ALTSHIFT,  Opt.OnlyEditorViewerUsed?MSingleViewAltShiftF1:MViewAltShiftF1, 12);
 
-  for(I=0; I < 7; ++I)
-  {
-    for(J=1; J <= 12; ++J)
-    {
-      FViewKeys[J-1]=UMSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
-    }
-    switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
-    {
-      case KBL_MAIN:
-        if(DisableEdit)
-          FViewKeys[6-1]=L"";
-        if(!GetCanLoseFocus())
-          FViewKeys[12-1]=L"";
-        break;
-      case KBL_ALT:
-        // $ 17.12.2001 KM  - ≈сли !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-        if(!GetCanLoseFocus())
-          FViewKeys[11-1]=L"";
-        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
-          FViewKeys[5-1]=L"";
-        break;
-    }
-    ViewKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FViewKeys,sizeof(FViewKeys)/sizeof(FViewKeys[0]));
-  }
+  if(DisableEdit)
+    ViewKeyBar.Change(KBL_MAIN,L"",6-1);
+
+  if(!GetCanLoseFocus())
+    ViewKeyBar.Change(KBL_MAIN,L"",12-1);
+
+  if(!GetCanLoseFocus())
+    ViewKeyBar.Change(KBL_ALT,L"",11-1);
+
+  if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
+    ViewKeyBar.Change(KBL_ALT,L"",5-1);
 
   SetKeyBar(&ViewKeyBar);
   // $ 15.07.2000 tran - ShowKeyBarViewer support

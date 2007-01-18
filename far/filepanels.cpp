@@ -248,68 +248,7 @@ void FilePanels::SetScreenPosition()
 
 void FilePanels::RedrawKeyBar()
 {
-  if (ActivePanel->GetType()==FILE_PANEL)
-  {
-    const wchar_t empty[] = L"";
-    const wchar_t *FKeys[]={UMSG(MF1),UMSG(MF2),UMSG(MF3),UMSG(MF4),UMSG(MF5),UMSG(MF6),UMSG(MF7),UMSG(MF8),UMSG(MF9),UMSG(MF10),UMSG(MF11),UMSG(MF12)};
-    const wchar_t *FAltKeys[]={UMSG(MAltF1),UMSG(MAltF2),UMSG(MAltF3),UMSG(MAltF4),UMSG(MAltF5),empty,UMSG(MAltF7),UMSG(MAltF8),UMSG(MAltF9),UMSG(MAltF10),UMSG(MAltF11),UMSG(MAltF12)};
-    const wchar_t *FCtrlKeys[]={UMSG(MCtrlF1),UMSG(MCtrlF2),UMSG(MCtrlF3),UMSG(MCtrlF4),UMSG(MCtrlF5),UMSG(MCtrlF6),UMSG(MCtrlF7),UMSG(MCtrlF8),UMSG(MCtrlF9),UMSG(MCtrlF10),UMSG(MCtrlF11),UMSG(MCtrlF12)};
-    const wchar_t *FShiftKeys[]={UMSG(MShiftF1),UMSG(MShiftF2),UMSG(MShiftF3),UMSG(MShiftF4),UMSG(MShiftF5),UMSG(MShiftF6),UMSG(MShiftF7),UMSG(MShiftF8),UMSG(MShiftF9),UMSG(MShiftF10),UMSG(MShiftF11),UMSG(MShiftF12)};
-
-    const wchar_t *FAltShiftKeys[]={UMSG(MAltShiftF1),UMSG(MAltShiftF2),UMSG(MAltShiftF3),UMSG(MAltShiftF4),UMSG(MAltShiftF5),UMSG(MAltShiftF6),UMSG(MAltShiftF7),UMSG(MAltShiftF8),UMSG(MAltShiftF9),UMSG(MAltShiftF10),UMSG(MAltShiftF11),UMSG(MAltShiftF12)};
-    const wchar_t *FCtrlShiftKeys[]={UMSG(MCtrlShiftF1),UMSG(MCtrlShiftF2),UMSG(MCtrlShiftF3),UMSG(MCtrlShiftF4),UMSG(MCtrlShiftF5),UMSG(MCtrlShiftF6),UMSG(MCtrlShiftF7),UMSG(MCtrlShiftF8),UMSG(MCtrlShiftF9),UMSG(MCtrlShiftF10),UMSG(MCtrlShiftF11),UMSG(MCtrlShiftF12)};
-    const wchar_t *FCtrlAltKeys[]={UMSG(MCtrlAltF1),UMSG(MCtrlAltF2),UMSG(MCtrlAltF3),UMSG(MCtrlAltF4),UMSG(MCtrlAltF5),UMSG(MCtrlAltF6),UMSG(MCtrlAltF7),UMSG(MCtrlAltF8),UMSG(MCtrlAltF9),UMSG(MCtrlAltF10),UMSG(MCtrlAltF11),UMSG(MCtrlAltF12)};
-
-    FAltKeys[6-1]=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?UMSG(MAltF6):empty;
-
-    if (ActivePanel!=NULL && ActivePanel->GetMode()==PLUGIN_PANEL)
-    {
-      struct OpenPluginInfoW Info;
-      ActivePanel->GetOpenPluginInfo(&Info);
-      if (Info.KeyBar!=NULL)
-      {
-        int I;
-        for (I=0;I<sizeof(Info.KeyBar->Titles)/sizeof(Info.KeyBar->Titles[0]);I++)
-          if (Info.KeyBar->Titles[I]!=NULL)
-            FKeys[I]=Info.KeyBar->Titles[I];
-        for (I=0;I<sizeof(Info.KeyBar->CtrlTitles)/sizeof(Info.KeyBar->CtrlTitles[0]);I++)
-          if (Info.KeyBar->CtrlTitles[I]!=NULL)
-            FCtrlKeys[I]=Info.KeyBar->CtrlTitles[I];
-        for (I=0;I<sizeof(Info.KeyBar->AltTitles)/sizeof(Info.KeyBar->AltTitles[0]);I++)
-          if (Info.KeyBar->AltTitles[I]!=NULL)
-            FAltKeys[I]=Info.KeyBar->AltTitles[I];
-        for (I=0;I<sizeof(Info.KeyBar->ShiftTitles)/sizeof(Info.KeyBar->ShiftTitles[0]);I++)
-          if (Info.KeyBar->ShiftTitles[I]!=NULL)
-            FShiftKeys[I]=Info.KeyBar->ShiftTitles[I];
-
-        // Ага, мы ведь недаром увеличивали размер структуры ;-)
-        if(Info.StructSize >= sizeof(struct OpenPluginInfoW))
-        {
-          for (I=0;I<sizeof(Info.KeyBar->CtrlShiftTitles)/sizeof(Info.KeyBar->CtrlShiftTitles[0]);I++)
-            if (Info.KeyBar->CtrlShiftTitles[I]!=NULL)
-              FCtrlShiftKeys[I]=Info.KeyBar->CtrlShiftTitles[I];
-
-          for (I=0;I<sizeof(Info.KeyBar->AltShiftTitles)/sizeof(Info.KeyBar->AltShiftTitles[0]);I++)
-            if (Info.KeyBar->AltShiftTitles[I]!=NULL)
-              FAltShiftKeys[I]=Info.KeyBar->AltShiftTitles[I];
-
-          for (I=0;I<sizeof(Info.KeyBar->CtrlAltTitles)/sizeof(Info.KeyBar->CtrlAltTitles[0]);I++)
-            if (Info.KeyBar->CtrlAltTitles[I]!=NULL)
-              FCtrlAltKeys[I]=Info.KeyBar->CtrlAltTitles[I];
-        }
-      }
-    }
-    MainKeyBar.Set(FKeys,sizeof(FKeys)/sizeof(FKeys[0]));
-    MainKeyBar.SetAlt(FAltKeys,sizeof(FAltKeys)/sizeof(FAltKeys[0]));
-    MainKeyBar.SetCtrl(FCtrlKeys,sizeof(FCtrlKeys)/sizeof(FCtrlKeys[0]));
-    MainKeyBar.SetShift(FShiftKeys,sizeof(FShiftKeys)/sizeof(FShiftKeys[0]));
-
-    MainKeyBar.SetCtrlAlt(FCtrlAltKeys,sizeof(FCtrlAltKeys)/sizeof(FCtrlAltKeys[0]));
-    MainKeyBar.SetCtrlShift(FCtrlShiftKeys,sizeof(FCtrlShiftKeys)/sizeof(FCtrlShiftKeys[0]));
-    MainKeyBar.SetAltShift(FAltShiftKeys,sizeof(FAltShiftKeys)/sizeof(FAltShiftKeys[0]));
-  }
-  else // для не файловой панели... коректно отобразим кейбар
-    ActivePanel->UpdateKeyBar();
+  ActivePanel->UpdateKeyBar();
   MainKeyBar.Redraw();
 }
 

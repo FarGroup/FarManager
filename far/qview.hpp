@@ -15,9 +15,6 @@ class Viewer;
 class QuickView:public Panel
 {
   private:
-    void DisplayObject();
-    void PrintTextW(const wchar_t *Str);
-
     Viewer *QView;
 
     string strCurFileName;
@@ -32,19 +29,28 @@ class QuickView:public Panel
     unsigned __int64 FileSize,CompressedFileSize,RealFileSize;
     int OldWrapMode;
     int OldWrapType;
+
+  private:
+    void DisplayObject();
+    void PrintTextW(const wchar_t *Str);
+
     void SetMacroMode(int Restore = FALSE);
     /* $ 30.04.2001 DJ */
     void DynamicUpdateKeyBar();
     /* DJ $ */
+
   public:
     QuickView();
     ~QuickView();
+
+  public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Update(int Mode);
     void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
     void CloseFile();
     void QViewDelTempName();
+
     virtual int UpdateIfChanged(int UpdateMode);
     virtual void SetTitle();
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);

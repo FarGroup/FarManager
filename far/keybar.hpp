@@ -9,9 +9,7 @@ Keybar
 
 #include "scrobj.hpp"
 
-/* $ 07.08.2000 SVS
-   Группы меток
-*/
+//   Группы меток
 enum {
   KBL_MAIN=0,
   KBL_SHIFT,
@@ -21,11 +19,8 @@ enum {
   KBL_ALTSHIFT,
   KBL_CTRLALT,
 
-  /* $ 30.04.2001 DJ */
   KBL_GROUP_COUNT
-  /* DJ $ */
 };
-/* SVS $ */
 
 const int KEY_COUNT = 12;
 
@@ -64,16 +59,12 @@ class KeyBar: public ScreenObject
     void SetShift(const wchar_t * const *Key,int KeyCount)       { SetGroup (KBL_SHIFT, Key, KeyCount); }
     void SetAlt(const wchar_t * const *Key,int KeyCount)         { SetGroup (KBL_ALT, Key, KeyCount); }
     void SetCtrl(const wchar_t * const *Key,int KeyCount)        { SetGroup (KBL_CTRL, Key, KeyCount); }
-    /* $ 02.08.2000 SVS
-       Дополнительные индикаторы
-    */
     void SetCtrlShift(const wchar_t * const *Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
     void SetAltShift(const wchar_t * const *Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
-    void SetCtrlAlt(const wchar_t **Key,int KeyCount)     { SetGroup (KBL_CTRLALT, Key, KeyCount); }
-    /* SVS $*/
+    void SetCtrlAlt(const wchar_t **Key,int KeyCount)            { SetGroup (KBL_CTRLALT, Key, KeyCount); }
 
     void SetDisableMask(int Mask);
-    void Change(const wchar_t *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
+    void Change(const wchar_t *NewStr,int Pos)                   { Change (KBL_MAIN, NewStr, Pos); }
 
     /* $ 07.08.2000 SVS
        Изменение любого Label

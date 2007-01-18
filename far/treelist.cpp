@@ -128,6 +128,7 @@ TreeList::TreeList(int IsPanel)
 {
   Type=TREE_PANEL;
   ListData=NULL;
+  SaveListData=NULL;
   TreeCount=0;
   WorkDir=CurFile=CurTopFile=0;
   GetSelPosition=0;

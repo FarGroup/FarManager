@@ -8,6 +8,7 @@ foldtree.hpp
 */
 
 #include "frame.hpp"
+#include "keybar.hpp"
 #include "farconst.hpp"
 
 class TreeList;
@@ -19,8 +20,9 @@ class FolderTree:public Frame
   private:
     TreeList *Tree;
     Edit *FindEdit;
-    SaveScreen *TopScreen;      // область сохранения под хелпом
+    //SaveScreen *TopScreen;
 
+    KeyBar TreeKeyBar;     // кейбар
     int ModalMode;
     int IsFullScreen;
     int IsStandalone;
@@ -42,7 +44,9 @@ class FolderTree:public Frame
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
+    void InitKeyBar(void);
     void OnChangeFocus(int focus); // вызывается при смене фокуса
+    virtual void SetScreenPosition();
     void ResizeConsole();
     /* $ Введена для нужд CtrlAltShift OT */
     int  FastHide();
