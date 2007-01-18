@@ -7,30 +7,6 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.07 12.05.2001 $ */
-
-/*
-Modify:
-  12.05.2001 DJ
-    ! FrameManager оторван от CtrlObject
-    ! глобальный указатель на CtrlObject переехал сюда
-  06.05.2001 DJ
-    ! перетрях #include
-  05.05.2001 DJ
-    + Перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  28.02.2001 IS
-    ! CmdLine теперь указатель
-  15.12.2000 SVS
-    ! Метод ShowCopyright - public static & параметр Flags.
-  15.07.2000 tran
-    + new method Redraw()
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "macro.hpp"
 #include "plugins.hpp"
 
@@ -70,7 +46,7 @@ class ControlObject
   public:
     FilePanels *Cp();
 
-    void CreateFilePanels(); 
+    void CreateFilePanels();
 
     CommandLine *CmdLine;
     History *CmdHistory,*FolderHistory,*ViewHistory;

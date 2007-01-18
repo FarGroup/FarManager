@@ -7,41 +7,6 @@ Files highlighting
 
 */
 
-/* Revision: 1.09 14.12.2001 $ */
-
-/*
-Modify:
-  14.12.2001 SVS
-    ! SaveHiData() private -> public для юзания в SaveConfig()
-  23.11.2001 SVS
-    + GetHiColor(), работающая с кипой структур FileListItem
-  25.09.2001 IS
-    + HighlightData.IgnoreMask
-    + Параметр IgnoreMask у AddMask и у DupHighlightData
-  12.07.2001 SVS
-    ! Вместо полей Color* в структе HighlightData используется
-      структура HighlightDataColor
-    ! Естественно, сокращено количество параметров у GetHiColor()
-    + функция ReWriteWorkColor - задел на будущее
-  12.07.2001 SVS
-    + Функция дублирования - DupHighlightData()
-  06.07.2001 IS
-    + В HighlightData используем вместо Masks (рабочая маска) соответствующий
-      класс.
-    ! В HighlightData OriginalMasks стал самым первым членом.
-  23.04.2001 SVS
-    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
-      юзаем - разные сущности.
-  12.02.2001 SVS
-    + Функция ClearData - очистка HiData
-  07.07.2000 IS
-    + Новая функция InitHighlightFiles, в которую я вынес содержимое
-      конструктора. Нужна, чтобы повторно использовать один и тот же код.
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "CFileMask.hpp"
 #include "struct.hpp"
 
