@@ -891,6 +891,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       NewPanel->Show();
       if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
         NewPanel->SetFocus();
+      if(!Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+        CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
     }
   }
   else
@@ -906,6 +908,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         NewPanel->Show();
         if (Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
           NewPanel->SetFocus();
+        if(!Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+          CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
       }
     }
   return(-1);

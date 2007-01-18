@@ -123,7 +123,7 @@ void KeyBar::DisplayObject()
 void KeyBar::SetGroup(int Group,const char **Key,int KeyCount)
 {
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
-    xstrncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i])-1);
+    xstrncpy (KeyTitles [Group][i], !Key || !Key[i]?"":Key[i], sizeof (KeyTitles [Group][i])-1);
   KeyCounts [Group]=KeyCount;
 }
 
@@ -138,7 +138,7 @@ void KeyBar::ClearGroup(int Group)
 */
 void KeyBar::Change(int Group,const char *NewStr,int Pos)
 {
-  xstrncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos])-1);
+  xstrncpy (KeyTitles [Group][Pos], NewStr?NewStr:"", sizeof (KeyTitles [Group][Pos])-1);
 }
 /* SVS $ */
 
