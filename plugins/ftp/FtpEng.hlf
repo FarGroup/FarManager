@@ -3,7 +3,6 @@
 .Options CtrlColorChar=\
 
 @Contents
-$  Version: #"v1.9"#. Developer #"JouriM<at>uran.ru"#
 
   The FAR FTP client plugin implements operations with FTP servers and files on them just as if they were located on
 local disks. The plugin supports copying, moving, deleting files and folders; creating folders; viewing and editing

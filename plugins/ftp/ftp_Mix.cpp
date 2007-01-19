@@ -183,58 +183,94 @@ BOOL DECLSPEC FRealFile( CONSTSTR nm,LPFAR_FIND_DATA fd )
 }
 
 //------------------------------------------------------------------------
-BOOL DECLSPEC DoCreateDirectory( char *nm )
-  {  char *m;
-     char  ch;
-     UINT  tp;
-     int   b = 0;
+BOOL DECLSPEC DoCreateDirectory(char *directoryPath) {
+  PROC(("DoCreateDirectory","[%s]", directoryPath));
 
-//Skip UNC abs path
-    if ( StrCmp( nm, "\\\\?\\",4 ) == 0 )
-      b = 4;
+  // Check directory
+  if (!directoryPath) {
+    Log(("Directory path is empty"));
+    return TRUE;
+  }
 
-//Skip UNC share name
-    if ( nm[b] == SLASH_CHAR && nm[b + 1] == SLASH_CHAR ) {
-      b = StrPosChr( nm, SLASH_CHAR, b + 2 );
-      if ( b == -1 ) {
-        Log(( "UNC does not contains resource name" ));
+  // Get full directory path
+  char directoryPathFull[MAX_PATH], *lpFilePart;
+  if (!GetFullPathName(directoryPath, MAX_PATH, directoryPathFull, &lpFilePart)) {
+    Log(("GetFullPathName error: %d", GetLastError()));
+    return FALSE;
+  }
+
+  // UNC network path flag
+  bool isUncPath = false;
+  // Folders only path
+  char *directoriesPath = directoryPathFull;
+  // Build folders only path
+  if (StrCmp(directoriesPath, "\\\\", 2) == 0) {
+    directoriesPath += 2;
+    if (StrCmp(directoriesPath, "?\\", 2) == 0) {
+      directoriesPath += 2;
+      if (StrCmp(directoriesPath, "UNC\\", 4) == 0) {
+        directoriesPath += 4;
+        isUncPath = true;
+      }
+      else if (StrCmp(directoriesPath, "Volume{", 7) == 0) {
+        directoriesPath += 7;
+        directoriesPath = StrChr(++directoriesPath, '}');
+        if (!directoriesPath) {
+              Log(("Volume name is not valid"));
+              return FALSE;
+        }
+        directoriesPath++;
+      }
+      else if (StrCmp(++directoriesPath, ":\\", 2) == 0) {
+        directoriesPath += 2;
+      }
+    }
+    else {
+      isUncPath = true;
+    }
+  }
+  else if (StrCmp(++directoriesPath, ":\\", 2) == 0) {
+    directoriesPath += 2;
+  }
+
+  if (isUncPath) {
+    directoriesPath = StrChr(directoriesPath, SLASH_CHAR);
+    if (!directoriesPath) {
+          Log(("UNC path does not contains resource name"));
+          return FALSE;
+    }
+    directoriesPath = StrChr(++directoriesPath, SLASH_CHAR);
+    if (!directoriesPath) {
+      return TRUE;
+    }
+    directoriesPath++;
+  }
+
+  // Root folder, no need to create
+  if (!directoriesPath)
+    return TRUE;
+
+  // Step by step create all directoriesPath structure (maybe SHCreateDirectoryEx?)
+  char ch;
+  do {
+    directoriesPath = StrChr(++directoriesPath, SLASH_CHAR);
+    if (directoriesPath) {
+      ch = *directoriesPath;
+      *directoriesPath = 0;
+    }
+    Log(("CreateDirectory: [%s]", directoryPathFull));
+    if (!CreateDirectory(directoryPathFull, NULL)) {
+      if (GetLastError() != ERROR_ALREADY_EXISTS) {
+        Log(("CreateDirectory error: %d", GetLastError()));
         return FALSE;
       }
-      b = StrPosChr( nm, SLASH_CHAR, b + 1 );
-      if ( b == -1 )
-        return TRUE;
-      b += 1;
     }
+    if (directoriesPath) {
+      *directoriesPath = ch;
+    }
+  } while(directoriesPath);
 
-//Normal
-    m = nm + b;
-    do{
-      m = StrChr( m+1,SLASH_CHAR );
-      if ( m ) {
-        ch = *m;
-        *m = 0;
-      }
-
-      tp = GetDriveType(nm);
-      if ( tp == 0 ) return FALSE;
-
-      if ( tp < DRIVE_REMOVABLE &&
-           !CreateDirectory(nm,NULL) ) {
-
-        if ( GetLastError() == ERROR_ALREADY_EXISTS ||
-             GetLastError() == ERROR_INVALID_NAME ) {
-          ;
-        } else {
-          Log(( "le: %d",GetLastError() ));
-          return FALSE;
-        }
-      }
-
-      if ( m )
-        *m = ch;
-    }while( m );
-
- return TRUE;
+  return TRUE;
 }
 
 __int64 DECLSPEC Fsize( CONSTSTR nm )

@@ -37,7 +37,7 @@ extern BOOL     DECLSPEC AskSaveList( PSaveListInfo sli );
 extern BOOL     DECLSPEC GetLoginData( char *User, char *Password, BOOL forceAsk );
 
 //[ftp_Mix.cpp]
-extern BOOL     DECLSPEC DoCreateDirectory( char *nm );         //Create all directoryes from path
+extern BOOL     DECLSPEC DoCreateDirectory( char *directoryPath );         //Create all directoryes from path
 extern void     DECLSPEC AddEndSlash( char *Path,char slash, size_t ssz );
 extern void     DECLSPEC AddEndSlash( String& p, char slash );
 extern void     DECLSPEC DelEndSlash( char *Path,char slash );
