@@ -187,7 +187,7 @@ BOOL DECLSPEC DoCreateDirectory(char *directoryPath) {
   PROC(("DoCreateDirectory","[%s]", directoryPath));
 
   // Check directory
-  if (!directoryPath) {
+  if (!directoryPath || !*directoryPath) {
     Log(("Directory path is empty"));
     return TRUE;
   }
@@ -214,23 +214,23 @@ BOOL DECLSPEC DoCreateDirectory(char *directoryPath) {
       }
       else if (StrCmp(directoriesPath, "Volume{", 7) == 0) {
         directoriesPath += 7;
-        directoriesPath = StrChr(++directoriesPath, '}');
+        directoriesPath = *directoriesPath ? StrChr(++directoriesPath, '}') : NULL;
         if (!directoriesPath) {
               Log(("Volume name is not valid"));
               return FALSE;
         }
         directoriesPath++;
       }
-      else if (StrCmp(++directoriesPath, ":\\", 2) == 0) {
-        directoriesPath += 2;
+      else if (*directoriesPath && StrCmp(directoriesPath+1, ":\\", 2) == 0) {
+        directoriesPath += 3;
       }
     }
     else {
       isUncPath = true;
     }
   }
-  else if (StrCmp(++directoriesPath, ":\\", 2) == 0) {
-    directoriesPath += 2;
+  else if (StrCmp(directoriesPath+1, ":\\", 2) == 0) {
+    directoriesPath += 3;
   }
 
   if (isUncPath) {
@@ -247,7 +247,7 @@ BOOL DECLSPEC DoCreateDirectory(char *directoryPath) {
   }
 
   // Root folder, no need to create
-  if (!directoriesPath)
+  if (!*directoriesPath)
     return TRUE;
 
   // Step by step create all directoriesPath structure (maybe SHCreateDirectoryEx?)
