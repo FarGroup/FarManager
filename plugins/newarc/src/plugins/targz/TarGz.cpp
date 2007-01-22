@@ -353,23 +353,35 @@ int OnFinalizeArchive (ArchiveBase *pArchive)
 	return NAERROR_SUCCESS;
 }
 
+MY_DEFINE_GUID (CLSID_FormatTAR, 0x40292CA4, 0xB8A7, 0x4516, 0xB3, 0xFA, 0x13, 0xBF, 0x9E, 0x0B, 0x88, 0x36);
+MY_DEFINE_GUID (CLSID_FormatCPIO, 0x6E3F270C, 0x168A, 0x4C38, 0xBC, 0x16, 0x50, 0x78, 0xF6, 0xA6, 0xD1, 0x1F);
+MY_DEFINE_GUID (CLSID_FormatGZip, 0xFCB44EEC, 0x5590, 0x4B52, 0x95, 0xDC, 0x7B, 0x9A, 0xBD, 0x80, 0xDC, 0x9C);
+MY_DEFINE_GUID (CLSID_FormatBZip, 0x16C0BE5C, 0x9781, 0x45C9, 0x9A, 0x3C, 0x74, 0xFA, 0x26, 0x37, 0xEB, 0x6C);
+MY_DEFINE_GUID (CLSID_FormatZ, 0xDDD0B294, 0x6DD9, 0x47D7, 0x9D, 0x34, 0xF0, 0x89, 0x43, 0x85, 0xD1, 0x6D);
+MY_DEFINE_GUID (CLSID_FormatTGZ, 0x8749D59A, 0x6E72, 0x4478, 0xBE, 0x58, 0x95, 0x1C, 0x2E, 0x80, 0xE4, 0x2C);
+MY_DEFINE_GUID (CLSID_FormatCPZ, 0x46B3B5E3, 0x30F7, 0x4653, 0xA1, 0xB1, 0x7D, 0x84, 0x25, 0xA0, 0x5C, 0xB8);
+MY_DEFINE_GUID (CLSID_FormatRPM, 0x43BB11A7, 0x9CF9, 0x4708, 0x95, 0x3A, 0x66, 0xD5, 0x35, 0x55, 0x9A, 0xC5);
+MY_DEFINE_GUID (CLSID_FormatTBZ2, 0x3AF211ED, 0x111A, 0x4408, 0xAB, 0xD9, 0x55, 0x9A, 0xDD, 0x18, 0x56, 0x8E);
+MY_DEFINE_GUID (CLSID_FormatCPBZ, 0x21C6E7D0, 0x2D85, 0x427D, 0xBB, 0x41, 0x03, 0xEB, 0xB2, 0xE0, 0x7D, 0xBA);
+
+ArchiveFormatInfo FormatInfo[] = {
+			{CLSID_FormatTAR, AFF_SUPPORT_INTERNAL_EXTRACT, "TAR", "tar"},
+			{CLSID_FormatCPIO, AFF_SUPPORT_INTERNAL_EXTRACT, "CPIO", "cpio"},
+			{CLSID_FormatGZip, AFF_SUPPORT_INTERNAL_EXTRACT, "GZip", "gz"},
+			{CLSID_FormatBZip, AFF_SUPPORT_INTERNAL_EXTRACT, "BZip", "bz2"},
+			{CLSID_FormatZ, AFF_SUPPORT_INTERNAL_EXTRACT, "Z(Unix)", "z"},
+			{CLSID_FormatTGZ, AFF_SUPPORT_INTERNAL_EXTRACT, "TGZ", "tgz"},
+			{CLSID_FormatCPZ, AFF_SUPPORT_INTERNAL_EXTRACT, "CPZ", "cpz"},
+			{CLSID_FormatRPM, AFF_SUPPORT_INTERNAL_EXTRACT, "RPM", "rpm"},
+			{CLSID_FormatTBZ2, AFF_SUPPORT_INTERNAL_EXTRACT, "TBZ2", "tbz2"},
+			{CLSID_FormatCPBZ, AFF_SUPPORT_INTERNAL_EXTRACT, "CPBZ", "cpbz"},
+			};
+
+
 int OnGetArchivePluginInfo (
 		ArchivePluginInfo *ai
 		)
 {
-	static ArchiveFormatInfo FormatInfo[] = {
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "TAR", "tar"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "CPIO", "cpio"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "GZip", "gz"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "BZip", "bz2"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "Z(Unix)", "z"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "TGZ", "tgz"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "CPZ", "cpz"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "RPM", "rpm"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "TBZ2", "tbz2"},
-			{AFF_SUPPORT_INTERNAL_EXTRACT, "CPBZ", "cpbz"},
-			};
-
 	ai->nFormats = sizeof(FormatInfo)/sizeof(FormatInfo[0]);
 	ai->pFormatInfo = (ArchiveFormatInfo*)&FormatInfo;
 
@@ -389,7 +401,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	//ArchiveBase *pArchive = (ArchiveBase*)pGAF->hArchive;
 
-	pGAF->nFormat = ArcType;
+	memcpy (&pGAF->uid, &FormatInfo[ArcType].uid, sizeof (GUID));
 
 	return NAERROR_SUCCESS;
 }
@@ -451,13 +463,21 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 	/*Recover archive       */"",
 	/*Add files             */"",
 	};
-	if(pGDC->nFormat>=TAR_FORMAT&&pGDC->nFormat<=RPM_FORMAT&&(unsigned int)pGDC->nCommand<sizeof(pCommands)/sizeof(pCommands[0]))
+
+	pGDC->bResult = false;
+
+	if ( pGDC->nCommand < sizeof(pCommands)/sizeof(pCommands[0]) )
 	{
-		strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
-		pGDC->bResult = true;
+		for (int i = 0; i < sizeof (FormatInfo)/sizeof (FormatInfo[0]); i++)
+		{
+			if ( FormatInfo[i].uid == pGDC->uid )
+			{
+				strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
+				pGDC->bResult = true;
+				break;
+			}
+		}
 	}
-	else
-		pGDC->bResult = false;
 
 	return NAERROR_SUCCESS;
 }

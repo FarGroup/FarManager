@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../lib.part/include"
+				AdditionalIncludeDirectories="..\..\lib.part\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TAR_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/tar.dll"
+				OutputFile="..\..\..\bin\plugins\tar.module"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/tar.pdb"
@@ -88,7 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\tar\tar.module"
+				OutputFile="..\..\..\bin\plugins\tar.module"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
 				ModuleDefinitionFile="tar.def"

@@ -19,6 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\lib.part\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -31,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/rar.dll"
+				OutputFile="..\..\..\bin\plugins\rar.module"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/rar.pdb"
@@ -87,7 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\rar\rar.module"
+				OutputFile="..\..\..\bin\plugins\rar.module"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
 				ModuleDefinitionFile="rar.def"

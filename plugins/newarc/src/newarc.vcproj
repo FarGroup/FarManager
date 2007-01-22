@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\newarc.dll"
+				OutputFile="..\bin\newarc.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile="newarc.def"
 				GenerateDebugInformation="TRUE"
@@ -88,7 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\newarc.dll"
+				OutputFile="..\bin\newarc.dll"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
 				ModuleDefinitionFile="newarc.def"

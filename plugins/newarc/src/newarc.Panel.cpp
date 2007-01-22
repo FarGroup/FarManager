@@ -100,6 +100,8 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 			m_nArrayCount*sizeof (InternalArchiveItemInfo)
 			);
 
+	memset (m_pArchiveFiles, 0, m_nArrayCount*sizeof (InternalArchiveItemInfo));
+
 	int nResult = E_SUCCESS;
 
 	while ( (nResult == E_SUCCESS) && !CheckForEsc() )
@@ -145,6 +147,9 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 						m_pArchiveFiles,
 						m_nArrayCount*sizeof (InternalArchiveItemInfo)
 						);
+
+
+				memset (&m_pArchiveFiles[m_nArchiveFilesCount], 0, (m_nArrayCount-m_nArchiveFilesCount)*sizeof (InternalArchiveItemInfo));
 			}
 		}
 
@@ -181,6 +186,8 @@ int __stdcall ArchivePanel::pGetFindData(
 			FarMenuItem *pItems = (FarMenuItem*)malloc (
 					m_nArchivesCount*sizeof (FarMenuItem)
 					);
+
+			memset (pItems, 0, m_nArchivesCount*sizeof (FarMenuItem));
 
 			for (int i = 0; i < m_nArchivesCount; i++)
 				FSF.sprintf (pItems[i].Text, "%s", m_pArchives[i]->m_pInfo->lpName);
@@ -232,6 +239,8 @@ int __stdcall ArchivePanel::pGetFindData(
 	PluginPanelItem *pPanelItems = (PluginPanelItem*)malloc (
 			nArrayCount*sizeof (PluginPanelItem)
 			);
+
+	memset (pPanelItems, 0, nArrayCount*sizeof (PluginPanelItem));
 
 	bool bAppend;
 	bool bIsFolder;
@@ -310,6 +319,8 @@ int __stdcall ArchivePanel::pGetFindData(
 								pPanelItems,
 								nArrayCount*sizeof (PluginPanelItem)
 								);
+
+					memset (&pPanelItems[nCount], 0, (nArrayCount-nCount)*sizeof (PluginPanelItem));
 				}
 			}
 		}
@@ -740,6 +751,8 @@ void GetArchiveItemsToProcess (
 			nArrayCount*sizeof (PluginPanelItem)
 			);
 
+	memset (pResult, 0, nArrayCount*sizeof (PluginPanelItem));
+
 	for (int i = 0; i < nItemsNumber; i++)
 	{
 		InternalArchiveItemInfo *pItemInfo = (InternalArchiveItemInfo*)pPanelItems[i].UserData;
@@ -783,6 +796,8 @@ void GetArchiveItemsToProcess (
 					pResult,
 					nArrayCount*sizeof (PluginPanelItem)
 					);
+
+			memset (&pResult[nCount], 0, (nArrayCount-nCount)*sizeof (PluginPanelItem));
 		}
 
 		if ( OptionIsOn(pPanelItems[i].FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
@@ -817,6 +832,8 @@ void GetArchiveItemsToProcess (
 										pResult,
 										nArrayCount*sizeof (PluginPanelItem)
 										);
+
+							memset (&pResult[nCount], 0, (nArrayCount-nCount)*sizeof (PluginPanelItem));
 						}
 					}
 				}
@@ -1587,6 +1604,8 @@ int __stdcall ScanDirectory (
 	{
 		pSS->nFilesCount += 256;
 		pSS->files = (PluginPanelItem*)realloc (pSS->files, pSS->nFilesCount*sizeof (PluginPanelItem));
+
+		memset (&pSS->files[pSS->nCurrentFile], 0, (pSS->nFilesCount-pSS->nCurrentFile)*sizeof (PluginPanelItem));
 	}
 
 	char szFileNameCopy[MAX_PATH];
@@ -1673,6 +1692,8 @@ int __stdcall ArchivePanel::pPutFiles(
 				{
 					nFilesCount += 256;
 					files = (PluginPanelItem*)realloc (files, nFilesCount*sizeof (PluginPanelItem));
+
+					memset (&files[nCurrentFile], 0, (nFilesCount-nCurrentFile)*sizeof (PluginPanelItem));
 				}
 
 				PluginPanelItem *pitem = &files[nCurrentFile++];
@@ -2011,6 +2032,8 @@ int mnuChooseOperation ()
 	FarMenuItem *pItems = (FarMenuItem*)malloc (
 			7*sizeof (FarMenuItem)
 			);
+
+	memset (pItems, 0, 7*sizeof (FarMenuItem));
 
 	strcpy (pItems[0].Text, _M(MSG_mnuCO_S_TEST_ARCHIVE));
 	strcpy (pItems[1].Text, _M(MSG_mnuCO_S_ADD_ARCHIVE_COMMENT));

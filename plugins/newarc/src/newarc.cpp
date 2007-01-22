@@ -456,6 +456,8 @@ void mnuCommandLinesAndParams ()
 			nCount*sizeof (FarMenuItemEx)
 			);
 
+	memset (pItems, 0, nCount*sizeof (FarMenuItemEx));
+
 	nCount = 0;
 
 	for (int i = 0; i < Plugins.GetCount(); i++)
@@ -514,6 +516,8 @@ int __stdcall Configure (
 	FarMenuItem *pItems = (FarMenuItem*)malloc (
 			2*sizeof (FarMenuItem)
 			);
+
+	memset (pItems, 0, 2*sizeof (FarMenuItem));
 
 	strcpy (pItems[0].Text, "Настройка");
 	strcpy (pItems[1].Text, "Командные строки архиваторов");

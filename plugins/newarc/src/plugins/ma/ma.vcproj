@@ -19,6 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\lib.part\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MA_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -31,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/ma.dll"
+				OutputFile="..\..\..\bin\plugins\ma\ma.module"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/ma.pdb"
@@ -71,6 +72,7 @@
 				GlobalOptimizations="TRUE"
 				FavorSizeOrSpeed="2"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..\..\lib.part\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MA_EXPORTS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -85,7 +87,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ma\ma.module"
+				OutputFile="..\..\..\bin\plugins\ma\ma.module"
 				LinkIncremental="1"
 				ModuleDefinitionFile="ma.def"
 				GenerateDebugInformation="TRUE"

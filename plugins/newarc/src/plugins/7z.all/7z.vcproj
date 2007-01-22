@@ -19,6 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\lib.part\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="FALSE"
@@ -33,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="&quot;G:\System Independent Files\Manager\Far\Plugins\NEWARC\plugins\7z_all\7z_all.module&quot; "
+				OutputFile="..\..\..\bin\plugins\7z.all\7z_all.module"
 				LinkIncremental="2"
 				ModuleDefinitionFile="7z.def"
 				GenerateDebugInformation="TRUE"
@@ -90,10 +91,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rtllib.core.lib libc.lib"
-				OutputFile="&quot;G:\System Independent Files\Manager\Far\Plugins\NEWARC\plugins\7z_all\7z_all.module&quot; "
+				OutputFile="..\..\..\bin\plugins\7z.all\7z_all.module"
 				LinkIncremental="1"
-				IgnoreAllDefaultLibraries="TRUE"
 				ModuleDefinitionFile="7z.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
