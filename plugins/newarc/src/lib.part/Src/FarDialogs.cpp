@@ -232,12 +232,12 @@ LONG_PTR __stdcall DialogHandler (
 	if (Msg == DN_INITDIALOG)
 	{
 		D = (FarDialogHandler*)Param2;
-		D->hDlg = hDlg;
-		return D->DlgProc (Msg, Param1, (LONG_PTR)D->Data);
+		D->SetDlg(hDlg);
+		return D->DlgProc (Msg, Param1, (LONG_PTR)D->GetDlgData());
 	}
 	else
 	{
-		D = (FarDialogHandler*)CurrentInfo->SendDlgMessage (hDlg, DM_GETDLGDATA, NULL, NULL);
+		D = (FarDialogHandler*)CurrentInfo->SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 		return D->DlgProc (Msg, Param1, Param2);
 	}
 }
@@ -245,7 +245,7 @@ LONG_PTR __stdcall DialogHandler (
 
 int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 {
-	PVOID              DialogProc;
+	PVOID             DialogProc;
 	FarDialogHandler *Handler;
 
 	CurrentInfo = m_Info;
@@ -255,7 +255,7 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 	Handler = new FarDialogHandler;
 	Handler->Create (this, (DIALOGHANDLER)DlgProc, Param);
 
-	DialogProc = DialogHandler;
+	DialogProc = (PVOID)DialogHandler;
 
 	int Result = m_Info->DialogEx (
 			m_Info->ModuleNumber,
@@ -462,4 +462,4 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 
 }
 
-#endif PAGED_DIALOGS
+#endif //PAGED_DIALOGS

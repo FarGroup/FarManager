@@ -1,7 +1,7 @@
 #ifndef _NA7Z_
 #define _NA7Z_
 
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
 #include "../../module.hpp"
 

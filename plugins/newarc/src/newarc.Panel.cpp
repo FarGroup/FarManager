@@ -1123,7 +1123,7 @@ int dlgAddEditTemplate (FarDialogHandler *DD, bool bAdd)
 
 	D.Button(-1, 8, "Отменить"); //10
 
-	if ( D.ShowEx (hndAddEditTemplate) == 9 )
+	if ( D.ShowEx ((void *)hndAddEditTemplate) == 9 )
 	{
 		if ( bAdd )
 		{
@@ -1900,7 +1900,7 @@ int __stdcall ArchivePanel::pSetDirectory (
 		{
 			PluginPanelItem *ppi = &pi.PanelItems[i];
 
-			if ( OptionIsOn (ppi->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) && 
+			if ( OptionIsOn (ppi->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) &&
 				 !FSF.LStricmp (ppi->FindData.cFileName, Dir) )
 			{
 				if ( *m_lpCurrentFolder )

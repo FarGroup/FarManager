@@ -3,8 +3,10 @@
 #include <FarPluginBase.hpp>
 #include <array.hpp>
 
+#if defined(_MSC_VER)
 #pragma warning(disable:4800) // force value to bool
 #pragma warning(disable:4018) // signed/unsigned mismatch
+#endif
 
 #define CreateList(l, items, default) \
 		l->Items = (FarListItem*)malloc(items*sizeof(FarListItem)); \
@@ -33,7 +35,7 @@ protected:
 	PluginStartupInfo *m_Info;
 
 	const char *m_lpHelpTopic;
-                      
+
 	int m_nFirstButton;
 
 public:
@@ -43,13 +45,13 @@ public:
 
 	int SetFlags (int Flags, int nCounter = CURRENT_ITEM);
 
-	void SetDialogFlags (int nFlags) 
-		{	m_nFlags = nFlags; }; 
+	void SetDialogFlags (int nFlags)
+		{	m_nFlags = nFlags; };
 
 	int GetDialogFlags ()
 		{	return m_nFlags; }
 
-	int FirstButton () 
+	int FirstButton ()
 		{	return m_nFirstButton; }
 
 	void SetFocus (int nCounter = CURRENT_ITEM);
@@ -57,7 +59,7 @@ public:
 
 	void Control (int Type, int X, int Y, int X2, int Y2, const char *Data = NULL, int DataLength = AUTO_LENGTH);
 	void SingleBox (int X, int Y, int X2, int Y2, const char *Caption = NULL, int CaptionLength = AUTO_LENGTH);
-	void DoubleBox (int X, int Y, int X2, int Y2, const char *Caption = NULL, int CaptionLength = AUTO_LENGTH); 
+	void DoubleBox (int X, int Y, int X2, int Y2, const char *Caption = NULL, int CaptionLength = AUTO_LENGTH);
 	void Edit (int X, int Y, int Length, const char *Data = NULL, int DataLength = AUTO_LENGTH, const char *History = NULL);
 	void FixEdit (int X, int Y, int Length, const char *Data = NULL, int DataLength = AUTO_LENGTH, const char *History = NULL, const char *Mask =NULL);
 	void PswEdit (int X, int Y, int Length, const char *Data = NULL, int DataLength = AUTO_LENGTH);
@@ -68,7 +70,7 @@ public:
 
 	void TextEx (int X, int Y, const char *lpFormat, ...);
 	void CheckBox (int X, int Y, bool Checked = false, const char *Caption = NULL, int CaptionLength = AUTO_LENGTH);
-	void RadioButton (int X, int Y, bool Selected = false, const char *Caption = NULL, bool First = false, int CaptionLength = AUTO_LENGTH); 
+	void RadioButton (int X, int Y, bool Selected = false, const char *Caption = NULL, bool First = false, int CaptionLength = AUTO_LENGTH);
 	void ListBox (int X, int Y, int X2, int Y2, FarList *ListItems, int ListPos = 0);
 	void ComboBox (int X, int Y, int Length, FarList *ListItems, int ListPos = 0, const char *Data = NULL, int DataLength = AUTO_LENGTH);
 	void Separator (int Y, const char *lpCaption = NULL) {	Text (-1, Y, lpCaption); SetFlags (DIF_SEPARATOR); }
@@ -79,7 +81,7 @@ public:
 friend class FarDialogHandler;
 };
 
-#ifdef PAGED_DIALOGS 
+#ifdef PAGED_DIALOGS
 // PAGED FAR DIALOG (remove, if not used!)
 
 struct PageInfo {
@@ -96,7 +98,7 @@ private:
 
 public:
 
-	int m_CurrentPage; 
+	int m_CurrentPage;
 
 	FarPagedDialog (int X1, int Y1, int X2, int Y2);
 	~FarPagedDialog ();
@@ -109,7 +111,7 @@ friend class FarPagedDialogHandler;
 friend class FarDialogHandler;
 };
 
-#endif PAGED_DIALOGS
+#endif //PAGED_DIALOGS
 
 typedef LONG_PTR (__stdcall *DIALOGHANDLER) (FarDialogHandler*, int, int, LONG_PTR);
 
@@ -123,21 +125,17 @@ public:
 	void Create (FarDialog *Owner, DIALOGHANDLER Handler, PVOID Param)
 		{ m_Owner = Owner; m_DlgHandler = Handler; m_Param = Param; }
 
-	HANDLE GetDlg ()           
+	HANDLE GetDlg ()
 		{ return m_hDlg;  }
 
 	void SetDlg (HANDLE hDlg)
 		{ m_hDlg = hDlg;  }
-
-__declspec (property (get=GetDlg, put=SetDlg)) HANDLE hDlg;
 
 	void* GetDlgData ()
 		{	return m_Param; }
 
 	void* SetDlgData (void *pData)
    		{	void *pResult = m_Param; m_Param = pData; return pResult; }
-
-__declspec (property (get=GetDlgData, put=SetDlgData)) void* Data;
 
    	LONG_PTR Message (int Msg, int Param1, LONG_PTR Param2)
    		{ return m_Owner->m_Info->SendDlgMessage (m_hDlg, Msg, Param1, Param2); }
@@ -146,12 +144,12 @@ __declspec (property (get=GetDlgData, put=SetDlgData)) void* Data;
 		{ return m_Owner->m_Info->DefDlgProc (m_hDlg, Msg, Param1, Param2); }
 
 	LONG_PTR DlgProc (int Msg, int Param1, LONG_PTR Param2)
-		{ 
+		{
 			if (m_DlgHandler)
 				return m_DlgHandler (this, Msg, Param1, Param2);
 			else
-				return m_Owner->m_Info->DefDlgProc (m_hDlg, Msg, Param1, Param2); 
-		} 
+				return m_Owner->m_Info->DefDlgProc (m_hDlg, Msg, Param1, Param2);
+		}
 
 	bool AddHistory (int ID, const char *History)
 		{ return Message (DM_ADDHISTORY, ID, (LONG_PTR)History); }
@@ -179,7 +177,7 @@ __declspec (property (get=GetDlgData, put=SetDlgData)) void* Data;
 
 	bool GetDlgItem (int ID, FarDialogItem *Item)
 		{ return (bool)Message (DM_GETDLGITEM, ID, (LONG_PTR)Item); }
-		
+
 	bool GetDlgRect (SMALL_RECT *Rect)
 		{ return (bool)Message (DM_GETDLGRECT, 0, (LONG_PTR)Rect); }
 
@@ -247,7 +245,7 @@ __declspec (property (get=GetDlgData, put=SetDlgData)) void* Data;
 		{ return (int)Message (DM_LISTSETDATA, ID, (LONG_PTR)Data); }
 
 	int ListSetDataEx (int ID, int Index, void *pData, dword dwDataSize)
-		{	FarListItemData Data = {Index, dwDataSize, pData, 0}; 
+		{	FarListItemData Data = {Index, dwDataSize, pData, 0};
 			return (int)Message (DM_LISTSETDATA, ID, (LONG_PTR)&Data); }
 
 	bool ListSetMouseReaction (int ID, int bReaction)
@@ -321,9 +319,6 @@ __declspec (property (get=GetDlgData, put=SetDlgData)) void* Data;
 
 	int ShowItem (int ID, int State)
 		{ return (int)Message (DM_SHOWITEM, ID, State); }
-
-__declspec (property (get=GetFocus, put=SetFocus)) int Focus; 
-
 };
 
 #ifdef PAGED_DIALOGS
@@ -346,4 +341,4 @@ public:
 
 };
 
-#endif PAGED_DIALOGS
+#endif //PAGED_DIALOGS
