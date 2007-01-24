@@ -69,9 +69,9 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				GlobalOptimizations="TRUE"
-				FavorSizeOrSpeed="1"
+				FavorSizeOrSpeed="2"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="lib.part\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
@@ -90,12 +90,12 @@
 				Name="VCLinkerTool"
 				OutputFile="..\bin\newarc.dll"
 				LinkIncremental="1"
-				IgnoreAllDefaultLibraries="FALSE"
 				ModuleDefinitionFile="newarc.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				EntryPointSymbol=""
 				BaseAddress=""
 				ImportLibrary="$(OutDir)/newarc.lib"
@@ -158,9 +158,6 @@
 			</File>
 			<File
 				RelativePath=".\lib.part\Src\Rtl.Kernel.cpp">
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Memory.cpp">
 			</File>
 			<File
 				RelativePath=".\lib.part\Src\Rtl.Misc.cpp">

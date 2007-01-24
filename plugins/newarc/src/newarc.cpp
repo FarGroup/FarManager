@@ -541,7 +541,7 @@ int __stdcall Configure (
 	return FALSE;
 }
 
-/*
+
 BOOL __stdcall DllMain (
 		HINSTANCE hinstDLL,
 		DWORD fdwReason,
@@ -549,4 +549,4 @@ BOOL __stdcall DllMain (
 		)
 {
 	return true;
-}*/
+}
