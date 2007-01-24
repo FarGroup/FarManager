@@ -488,3 +488,63 @@ BitFlags& DlgEdit::Flags()
 #endif
     return lineEdit->Flags;
 }
+
+void DlgEdit::Hide()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->Hide();
+  else
+#endif
+    lineEdit->Hide();
+}
+
+void DlgEdit::Hide0()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->Hide0();
+  else
+#endif
+    lineEdit->Hide0();
+}
+
+void DlgEdit::ShowConsoleTitle()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->ShowConsoleTitle();
+  else
+#endif
+    lineEdit->ShowConsoleTitle();
+}
+
+void DlgEdit::SetScreenPosition()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->SetScreenPosition();
+  else
+#endif
+    lineEdit->SetScreenPosition();
+}
+
+void DlgEdit::ResizeConsole()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->ResizeConsole();
+  else
+#endif
+    lineEdit->ResizeConsole();
+}
+
+int  DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    return multiEdit->VMProcess(OpCode,vParam,iParam);
+  else
+#endif
+    return lineEdit->VMProcess(OpCode,vParam,iParam);
+}

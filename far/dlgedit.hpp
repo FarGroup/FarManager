@@ -24,7 +24,7 @@ enum DLGEDITTYPE{
   DLGEDIT_SINGLELINE,
 };
 
-class DlgEdit//: public ScreenObject
+class DlgEdit: public ScreenObject
 {
   friend class Dialog;
 
@@ -40,19 +40,26 @@ class DlgEdit//: public ScreenObject
     BitFlags& Flags();
 
   private: // приватные методы
-    void   DisplayObject();
+    virtual void DisplayObject();
 
   public:
     DlgEdit(ScreenObject *pOwner,DLGEDITTYPE Type);
-    ~DlgEdit();
+    virtual ~DlgEdit();
 
   public: // публичные методы
     int   ProcessKey(int Key);
     int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    void SetPosition(int X1,int Y1,int X2,int Y2);
-    void Show();
-    void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
+    virtual void Show();
+    virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+    virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
+
+    virtual void Hide();
+    virtual void Hide0();
+    virtual void ShowConsoleTitle();
+    virtual void SetScreenPosition();
+    virtual void ResizeConsole();
+    virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     void  SetDialogParent(DWORD Sets);
     void  SetDropDownBox(int NewDropDownBox);
