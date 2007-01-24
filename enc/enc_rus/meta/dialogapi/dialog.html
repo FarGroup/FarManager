@@ -85,14 +85,14 @@ int Config()
 {
   struct <a href="../addons/structures/initdialogitem.html">InitDialogItem</a> InitItems []={
     DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MConfigTitle,
-    DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigAddToDisksMenu,
+    DI_CHECKBOX,5,2,0,2,0,0,0,0,(char *)MConfigAddToDisksMenu,
     DI_FIXEDIT,7,3,7,3,1,0,0,0,&quot;&quot;,
-    DI_TEXT,9,3,0,0,0,0,0,0,(char *)MConfigDisksMenuDigit,
-    DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,&quot;&quot;,
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCommonPanel,
-    DI_TEXT,5,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,&quot;&quot;,
-    <b>DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,</b>
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_TEXT,9,3,0,3,0,0,0,0,(char *)MConfigDisksMenuDigit,
+    DI_TEXT,5,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,&quot;&quot;,
+    DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MConfigCommonPanel,
+    DI_TEXT,5,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,&quot;&quot;,
+    <b>DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,1,(char *)MOk,</b>
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
   . . .
