@@ -3,15 +3,15 @@
 /*
 dlgedit.hpp
 
-Одиночная строка редактирования для диалога (как наследник класса Edit)
-Мультиредактор
+╬фшэюўэр  ёЄЁюър ЁхфръЄшЁютрэш  фы  фшрыюур (ъръ эрёыхфэшъ ъырёёр Edit)
+╠єы№ЄшЁхфръЄюЁ
 
 */
 
 /*
-  Сюда нужно перетащить из edit.hpp и editor.hpp все вещи,
-  касаемые масок и.. все что относится только к диалогам
-  Это пока только шаблон, заготовка для будущего перехода
+  ╤■фр эєцэю яхЁхЄр∙шЄ№ шч edit.hpp ш editor.hpp тёх тх∙ш,
+  ърёрхь√х ьрёюъ ш.. тёх ўЄю юЄэюёшЄё  Єюы№ъю ъ фшрыюурь
+  ▌Єю яюър Єюы№ъю °рсыюэ, чруюЄютър фы  сєфє∙хую яхЁхїюфр
 */
 
 #include "scrobj.hpp"
@@ -24,11 +24,11 @@ enum DLGEDITTYPE{
   DLGEDIT_SINGLELINE,
 };
 
-class DlgEdit//: public ScreenObject
+class DlgEdit: public ScreenObject
 {
   friend class Dialog;
 
-  private: // приватные данные
+  private: // яЁштрЄэ√х фрээ√х
     DLGEDITTYPE Type;
 
     Edit   *lineEdit;
@@ -36,22 +36,30 @@ class DlgEdit//: public ScreenObject
     Editor *multiEdit;
 #endif
 
-  public:  // публичные данные
+  public:  // яєсышўэ√х фрээ√х
     BitFlags& Flags();
 
-  private: // приватные методы
-    void   DisplayObject();
+  private: // яЁштрЄэ√х ьхЄюф√
+    virtual void DisplayObject();
 
   public:
     DlgEdit(ScreenObject *pOwner,DLGEDITTYPE Type);
-    ~DlgEdit();
+    virtual ~DlgEdit();
 
-  public: // публичные методы
+  public: // яєсышўэ√х ьхЄюф√
     int   ProcessKey(int Key);
     int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    void SetPosition(int X1,int Y1,int X2,int Y2);
-    void Show();
+    virtual void Show();
+    virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+
+    virtual void Hide();
+    virtual void Hide0();
+    virtual void ShowConsoleTitle();
+    virtual void SetScreenPosition();
+    virtual void ResizeConsole();
+    virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+
     void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
 
     void  SetDialogParent(DWORD Sets);
@@ -97,8 +105,8 @@ class DlgEdit//: public ScreenObject
 
     void  DeleteBlock();
 
-    void  Select(int Start,int End);           // TODO: не учтено для multiline!
-    void  GetSelection(int &Start,int &End);   // TODO: не учтено для multiline!
+    void  Select(int Start,int End);           // TODO: эх єўЄхэю фы  multiline!
+    void  GetSelection(int &Start,int &End);   // TODO: эх єўЄхэю фы  multiline!
 
     void Xlat(BOOL All=FALSE);
 

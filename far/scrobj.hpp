@@ -51,6 +51,7 @@ class ScreenObject
     virtual void Show();
     virtual void ShowConsoleTitle() {};
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+    virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
     virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
 
@@ -65,7 +66,6 @@ class ScreenObject
 
     void SavePrevScreen();
     void Redraw();
-    void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
     int  IsVisible() { return Flags.Check(FSCROBJ_VISIBLE); };
     void SetVisible(int Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
     void SetRestoreScreenMode(int Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
