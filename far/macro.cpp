@@ -3062,7 +3062,7 @@ DWORD KeyMacro::AssignMacroKey()
 */
   static struct DialogDataEx MacroAssignDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,30,4,0,0,0,0,(const wchar_t *)MDefineMacroTitle,
-  /* 01 */ DI_TEXT,-1,2,0,0,0,0,DIF_BOXCOLOR|DIF_READONLY,0,(const wchar_t *)MDefineMacro,
+  /* 01 */ DI_TEXT,-1,2,0,2,0,0,DIF_BOXCOLOR|DIF_READONLY,0,(const wchar_t *)MDefineMacro,
   /* 02 */ DI_COMBOBOX,5,3,28,3,1,0,0,1,L"",
   };
   MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
@@ -3200,23 +3200,23 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 */
   static struct DialogDataEx MacroSettingsDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,69,14,0,0,0,0,L"",
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(const wchar_t *)MMacroSettingsEnableOutput,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(const wchar_t *)MMacroSettingsRunAfterStart,
-  /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MMacroSettingsActivePanel,
-  /* 05 */DI_CHECKBOX,7,6,0,0,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
-  /* 06 */DI_CHECKBOX,7,7,0,0,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
-  /* 07 */DI_CHECKBOX,7,8,0,0,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
-  /* 08 */DI_CHECKBOX,37,5,0,0,0,0,0,0,(const wchar_t *)MMacroSettingsPassivePanel,
-  /* 09 */DI_CHECKBOX,39,6,0,0,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
-  /* 10 */DI_CHECKBOX,39,7,0,0,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
-  /* 11 */DI_CHECKBOX,39,8,0,0,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
-  /* 12 */DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 13 */DI_CHECKBOX,5,10,0,0,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsCommandLine,
-  /* 14 */DI_CHECKBOX,5,11,0,0,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsSelectionBlockPresent,
-  /* 15 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 16 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 17 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 01 */DI_CHECKBOX,5,2,0,2,1,0,0,0,(const wchar_t *)MMacroSettingsEnableOutput,
+  /* 02 */DI_CHECKBOX,5,3,0,3,0,0,0,0,(const wchar_t *)MMacroSettingsRunAfterStart,
+  /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MMacroSettingsActivePanel,
+  /* 05 */DI_CHECKBOX,7,6,0,6,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
+  /* 06 */DI_CHECKBOX,7,7,0,7,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
+  /* 07 */DI_CHECKBOX,7,8,0,8,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
+  /* 08 */DI_CHECKBOX,37,5,0,5,0,0,0,0,(const wchar_t *)MMacroSettingsPassivePanel,
+  /* 09 */DI_CHECKBOX,39,6,0,6,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
+  /* 10 */DI_CHECKBOX,39,7,0,7,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
+  /* 11 */DI_CHECKBOX,39,8,0,8,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
+  /* 12 */DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 13 */DI_CHECKBOX,5,10,0,10,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsCommandLine,
+  /* 14 */DI_CHECKBOX,5,11,0,11,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsSelectionBlockPresent,
+  /* 15 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 17 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
 

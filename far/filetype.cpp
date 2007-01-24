@@ -639,27 +639,27 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   const wchar_t *HistoryName=L"Masks";
 
   static struct DialogDataEx EditDlgData[]={
-/* 00 */ DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(const wchar_t *)MFileAssocTitle,
-/* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MFileAssocMasks,
-/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-/* 03 */ DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MFileAssocDescr,
-/* 04 */ DI_EDIT,5,5,70,3,0,0,0,0,L"",
-/* 05 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-/* 06 */ DI_TEXT,5,7,0,0,0,0,0,0,(const wchar_t *)MFileAssocExec,
-/* 07 */ DI_EDIT,5,8,70,3,0,0,0,0,L"",
-/* 08 */ DI_TEXT,5,9,0,0,0,0,0,0,(const wchar_t *)MFileAssocAltExec,
-/* 09 */ DI_EDIT,5,10,70,3,0,0,0,0,L"",
-/* 10 */ DI_TEXT,5,11,0,0,0,0,0,0,(const wchar_t *)MFileAssocView,
-/* 11 */ DI_EDIT,5,12,70,3,0,0,0,0,L"",
-/* 12 */ DI_TEXT,5,13,0,0,0,0,0,0,(const wchar_t *)MFileAssocAltView,
-/* 13 */ DI_EDIT,5,14,70,3,0,0,0,0,L"",
-/* 14 */ DI_TEXT,5,15,0,0,0,0,0,0,(const wchar_t *)MFileAssocEdit,
-/* 15 */ DI_EDIT,5,16,70,3,0,0,0,0,L"",
-/* 16 */ DI_TEXT,5,17,0,0,0,0,0,0,(const wchar_t *)MFileAssocAltEdit,
-/* 17 */ DI_EDIT,5,18,70,3,0,0,0,0,L"",
-/* 18 */ DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-/* 19 */ DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-/* 20 */ DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+/* 00 */ DI_DOUBLEBOX,3, 1,72,21,0,0,0,0,(const wchar_t *)MFileAssocTitle,
+/* 01 */ DI_TEXT,     5, 2, 0, 2,0,0,0,0,(const wchar_t *)MFileAssocMasks,
+/* 02 */ DI_EDIT,     5, 3,70, 3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
+/* 03 */ DI_TEXT,     5, 4, 0, 4,0,0,0,0,(const wchar_t *)MFileAssocDescr,
+/* 04 */ DI_EDIT,     5, 5,70, 5,0,0,0,0,L"",
+/* 05 */ DI_TEXT,     3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+/* 06 */ DI_TEXT,     5, 7, 0, 7,0,0,0,0,(const wchar_t *)MFileAssocExec,
+/* 07 */ DI_EDIT,     5, 8,70, 8,0,0,0,0,L"",
+/* 08 */ DI_TEXT,     5, 9, 0, 9,0,0,0,0,(const wchar_t *)MFileAssocAltExec,
+/* 09 */ DI_EDIT,     5,10,70,10,0,0,0,0,L"",
+/* 10 */ DI_TEXT,     5,11, 0,11,0,0,0,0,(const wchar_t *)MFileAssocView,
+/* 11 */ DI_EDIT,     5,12,70,12,0,0,0,0,L"",
+/* 12 */ DI_TEXT,     5,13, 0,13,0,0,0,0,(const wchar_t *)MFileAssocAltView,
+/* 13 */ DI_EDIT,     5,14,70,14,0,0,0,0,L"",
+/* 14 */ DI_TEXT,     5,15, 0,15,0,0,0,0,(const wchar_t *)MFileAssocEdit,
+/* 15 */ DI_EDIT,     5,16,70,16,0,0,0,0,L"",
+/* 16 */ DI_TEXT,     5,17, 0,17,0,0,0,0,(const wchar_t *)MFileAssocAltEdit,
+/* 17 */ DI_EDIT,     5,18,70,18,0,0,0,0,L"",
+/* 18 */ DI_TEXT,     3,19, 0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+/* 19 */ DI_BUTTON,   0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+/* 20 */ DI_BUTTON,   0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(EditDlgData,EditDlg);
 

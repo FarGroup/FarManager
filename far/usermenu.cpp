@@ -24,6 +24,14 @@ User menu и есть
 #include "manager.hpp"
 #include "constitle.hpp"
 
+#if defined(PROJECT_DI_MEMOEDIT)
+/*
+  Идея в следующем.
+  1. Строки в реестре храняться как и раньше, т.к. CommandXXX
+  2. Для DI_MEMOEDIT мы из только преобразовываем в один массив
+*/
+#endif
+
 static int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title=NULL);
 static int FillUserMenu(VMenu& UserMenu, const wchar_t *MenuKey,int MenuPos,int *FuncPos,const wchar_t *Name,const wchar_t *ShortName);
 static int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos);
@@ -409,7 +417,12 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
       if(HotKeyPresent)
       {
         int AddHotKey = ( !strHotKey.IsEmpty() ) && (!FuncNum);
-        strMenuText.Format (L"%s%-*.*s %-20.*s%s",(AddHotKey?L"&":L""),( strHotKey.At(0)==L'&'?4:3),( strHotKey.At(0)==L'&'?4:3), (const wchar_t*)strHotKey,ScrX-12,(const wchar_t*)strLabel,((wcschr(strLabel, L'&')==NULL)||(AddHotKey))?L"":L" ");
+        strMenuText.Format (L"%s%-*.*s %-20.*s%s",
+                             (AddHotKey?L"&":L""),
+                             ( strHotKey.At(0)==L'&'?4:3),( strHotKey.At(0)==L'&'?4:3), (const wchar_t*)strHotKey,
+                             ScrX-12,
+                             (const wchar_t*)strLabel,
+                             ((wcschr(strLabel, L'&')==NULL)||(AddHotKey))?L"":L" ");
       }
       else
       {
@@ -483,7 +496,11 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
       if(HotKeyPresent)
       {
         int AddHotKey = ( !strHotKey.IsEmpty() ) && (!FuncNum);
-        strMenuText.Format (L"%s%-*.*s %-*.*s%s",(AddHotKey?L"&":L""),( strHotKey.At(0)==L'&'?4:3),( strHotKey.At(0)==L'&'?4:3),(const wchar_t*)strHotKey,MaxLen,MaxLen,(const wchar_t*)strLabel,((wcschr(strLabel, L'&')==NULL)||(AddHotKey))?L"":L" ");
+        strMenuText.Format (L"%s%-*.*s %-*.*s%s",
+                             (AddHotKey?L"&":L""),
+                             ( strHotKey.At(0)==L'&'?4:3),( strHotKey.At(0)==L'&'?4:3),(const wchar_t*)strHotKey,
+                             MaxLen,MaxLen,(const wchar_t*)strLabel,
+                             ((wcschr(strLabel, L'&')==NULL)||(AddHotKey))?L"":L" ");
       }
       else
       {
@@ -912,29 +929,51 @@ int CanCloseDialog(const wchar_t *Hotkey, const wchar_t *Label)
 }
 /* VVM $ */
 
+static LONG_PTR WINAPI UserMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  Dialog* Dlg=(Dialog*)hDlg;
+  switch(Msg)
+  {
+    case DN_INITDIALOG:
+    {
+      break;
+    }
+  }
+#endif
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
 int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
 {
   static struct DialogDataEx EditDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(const wchar_t *)MEditMenuTitle,
-  /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditMenuHotKey,
+  /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditMenuHotKey,
   /* 02 */DI_FIXEDIT,5,3,7,3,1,0,0,0,L"",
-  /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MEditMenuLabel,
-  /* 04 */DI_EDIT,5,5,70,3,0,0,0,0,L"",
-  /* 05 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 06 */DI_TEXT,5,7,0,0,0,0,0,0,(const wchar_t *)MEditMenuCommands,
-  /* 07 */DI_EDIT,5, 8,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 08 */DI_EDIT,5, 9,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 09 */DI_EDIT,5,10,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 10 */DI_EDIT,5,11,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 11 */DI_EDIT,5,12,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 12 */DI_EDIT,5,13,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 13 */DI_EDIT,5,14,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 14 */DI_EDIT,5,15,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 15 */DI_EDIT,5,16,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 16 */DI_EDIT,5,17,70,3,0,0,DIF_EDITOR,0,L"",
-  /* 17 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 18 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 03 */DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MEditMenuLabel,
+  /* 04 */DI_EDIT,5,5,70,5,0,0,0,0,L"",
+  /* 05 */DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 06 */DI_TEXT,5,7,0,7,0,0,0,0,(const wchar_t *)MEditMenuCommands,
+#if defined(PROJECT_DI_MEMOEDIT)
+  /* 07 */DI_MEMOEDIT,5, 8,70,17,0,0,0,0,L"",
+  /* 08 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 09 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 10 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+#else
+  /* 07 */DI_EDIT,5, 8,70,8,0,0,DIF_EDITOR,0,L"",
+  /* 08 */DI_EDIT,5, 9,70,9,0,0,DIF_EDITOR,0,L"",
+  /* 09 */DI_EDIT,5,10,70,10,0,0,DIF_EDITOR,0,L"",
+  /* 10 */DI_EDIT,5,11,70,11,0,0,DIF_EDITOR,0,L"",
+  /* 11 */DI_EDIT,5,12,70,12,0,0,DIF_EDITOR,0,L"",
+  /* 12 */DI_EDIT,5,13,70,13,0,0,DIF_EDITOR,0,L"",
+  /* 13 */DI_EDIT,5,14,70,14,0,0,DIF_EDITOR,0,L"",
+  /* 14 */DI_EDIT,5,15,70,15,0,0,DIF_EDITOR,0,L"",
+  /* 15 */DI_EDIT,5,16,70,16,0,0,DIF_EDITOR,0,L"",
+  /* 16 */DI_EDIT,5,17,70,17,0,0,DIF_EDITOR,0,L"",
+  /* 17 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 18 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 19 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+#endif
 
   };
   MakeDialogItemsEx(EditDlgData,EditDlg);
@@ -965,6 +1004,27 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
       return(EditSubMenu(MenuKey,EditPos,TotalRecords,FALSE));
     GetRegKeyW(strItemKey,L"HotKey",EditDlg[2].strData,L"");
     GetRegKeyW(strItemKey,L"Label",EditDlg[4].strData,L"");
+#if defined(PROJECT_DI_MEMOEDIT)
+    /*
+      ...
+      здесь добавка строк из "Command%d" в 7-й итем
+      ...
+    */
+    string strBuffer7;
+    int CommandNumber=0;
+    while (1)
+    {
+      string strCommandName, strCommand;
+      strCommandName.Format (L"Command%d",CommandNumber);
+      if (!GetRegKeyW(strItemKey,strCommandName,strCommand,L""))
+        break;
+      strBuffer7+=strCommand;
+      strBuffer7+=L"\n";    //??? "\n\r"
+      CommandNumber++;
+    }
+    EditDlg[7].strData = strBuffer7; //???
+
+#else
     int CommandNumber=0;
     while (CommandNumber<10)
     {
@@ -975,10 +1035,11 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
       EditDlg[7+CommandNumber].strData = strCommand;
       CommandNumber++;
     }
+#endif
   }
 
   {
-    Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
+    Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]),UserMenuDlgProc);
     Dlg.SetHelp(L"UserMenu");
     Dlg.SetPosition(-1,-1,76,22);
     /* $ 22.12.2000 IS
@@ -989,7 +1050,12 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
     while(1)
     {
       Dlg.Process();
-      if(18==Dlg.GetExitCode())
+#if defined(PROJECT_DI_MEMOEDIT)
+  #define DLGOK_CONTROL	9
+#else
+  #define DLGOK_CONTROL	18
+#endif
+      if(DLGOK_CONTROL==Dlg.GetExitCode())
       {
          if ((I=CanCloseDialog(EditDlg[2].strData, EditDlg[4].strData)) == 0)
            break;
@@ -1014,6 +1080,13 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
   SetRegKeyW(strItemKey,L"Label",EditDlg[4].strData);
   SetRegKeyW(strItemKey,L"Submenu",(DWORD)0);
 
+#if defined(PROJECT_DI_MEMOEDIT)
+  /*
+    ...
+    здесь преобразование содержимого 7-го итема в "Command%d"
+    ...
+  */
+#else
   int CommandNumber=0;
   for (I=0;I<10;I++)
     if ( !EditDlg[I+7].strData.IsEmpty() )
@@ -1027,6 +1100,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
     else
       SetRegKeyW(strItemKey,strCommandName,EditDlg[I+7].strData);
   }
+#endif
   return(TRUE);
 }
 
@@ -1036,13 +1110,13 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
   static struct DialogDataEx EditDlgData[]=
   {
     DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditSubmenuTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSubmenuHotKey,
+    DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSubmenuHotKey,
     DI_FIXEDIT,5,3,7,3,1,0,0,0,L"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MEditSubmenuLabel,
-    DI_EDIT,5,5,70,3,0,0,0,0,L"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+    DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MEditSubmenuLabel,
+    DI_EDIT,5,5,70,5,0,0,0,0,L"",
+    DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(EditDlgData,EditDlg);
 

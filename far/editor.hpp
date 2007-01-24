@@ -1,5 +1,3 @@
-#if !defined(EDITOR2)
-
 #ifndef __EDITOR_HPP__
 #define __EDITOR_HPP__
 /*
@@ -67,7 +65,8 @@ enum FLAGS_CLASS_EDITOR{
                                                 // плагином (ECTL_SETPOSITION)
   FEDITOR_TABLECHANGEDBYUSER    = 0x00200000,
   FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
-  FEDITOR_PROCESSCTRLQ          = 0x02000000, // нажата Ctrl-Q и идет процесс вставки кода символа
+  FEDITOR_PROCESSCTRLQ          = 0x02000000,   // нажата Ctrl-Q и идет процесс вставки кода символа
+  FEDITOR_DIALOGMEMOEDIT        = 0x80000000,   // Editor используется в диалоге в качестве DI_MEMOEDIT
 };
 
 class Edit;
@@ -76,6 +75,7 @@ class Edit;
 
 class Editor:public ScreenObject
 {
+  friend class DlgEdit;
   friend class FileEditor;
   private:
 
@@ -208,7 +208,7 @@ class Editor:public ScreenObject
     int GotoBookmark(DWORD Pos);
 
   public:
-    Editor();
+    Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);
     ~Editor();
 
   public:
@@ -282,23 +282,33 @@ class Editor:public ScreenObject
 
     void GetRowCol(const wchar_t *argv,int *row,int *col);
 
-    /* $ 21.07.2000 tran
-       три новых метода*/
     int  GetLineCurPos();
     void BeginVBlockMarking();
     void AdjustVBlock(int PrevX);
-    /* tran 21.07.2000 $ */
+
     void Xlat();
     static void PR_EditorShowMsg(void);
 
-    /* $ 28.01.2002 VVM
-      + Освободить всю занятую память */
-    void FreeAllocatedData();
-    /* VVM $ */
+    void FreeAllocatedData();  // $ 28.01.2002 VVM + Освободить всю занятую память
 
     Edit *CreateString (const wchar_t *lpwszStr, int nLength);
     Edit *InsertString (const wchar_t *lpwszStr, int nLength, Edit *pAfter = NULL);
+
+    void SetDialogParent(DWORD Sets);
+    void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};
+    int  GetReadOnly() {return Flags.Check(FEDITOR_LOCKMODE);};
+    void SetOvertypeMode(int Mode);
+    int  GetOvertypeMode();
+    void SetEditBeyondEnd(int Mode);
+    void SetClearFlag(int Flag);
+    int  GetClearFlag(void);
+
+    int  GetCurCol();
+    int  GetCurRow(){return NumLine;};
+    void SetCurPos(int NewCol, int NewRow=-1);
+    void SetCursorType(int Visible,int Size);
+    void GetCursorType(int &Visible,int &Size);
+    void SetObjectColor(int Color,int SelColor,int ColorUnChanged);
 };
 
 #endif // __EDITOR_HPP__
-#endif //defined(EDITOR2)

@@ -244,15 +244,15 @@ bool dlgOpenEditor (string &strFileName, int &codepage)
 	const wchar_t *HistoryName=L"NewEdit";
 
 	DialogDataEx EditDlgData[]=	{
-		/* 0 */ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditTitle,
-		/* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)L"Open/create file:",
-		/* 2 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-		/* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,L"File codepage:",
-		        DI_COMBOBOX,25,5,70,0,0,0,DIF_DROPDOWNLIST,0,L"",
-		/* 5 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/*6 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/*7 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+		/* 00 */DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditTitle,
+		/* 01 */DI_TEXT,     5,2, 0,2,0,0,0,0,(const wchar_t *)L"Open/create file:",
+		/* 02 */DI_EDIT,     5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
+		/* 03 */DI_TEXT,     3,4, 0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 04 */DI_TEXT,     5,5, 0,5,0,0,0,0,L"File codepage:",
+		/* 05 */DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST,0,L"",
+		/* 06 */DI_TEXT,     3,6, 0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 07 */DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+		/* 08 */DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
 	};
 
 	MakeDialogItemsEx(EditDlgData,EditDlg);
@@ -333,21 +333,21 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 
     DialogDataEx EditDlgData[]=
     {
-      /* 0 */ DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MEditTitle,
-      /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSaveAs,
-      /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
-      /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,L"File codepage:",
-              DI_COMBOBOX,25,5,70,0,0,0,DIF_DROPDOWNLIST,0,L"",
-              DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 4 */ DI_TEXT,5,7,0,0,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
-      /* 5 */ DI_RADIOBUTTON,5,8,0,0,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
-      /* 6 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(const wchar_t *)MEditSaveDOS,
-      /* 7 */ DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(const wchar_t *)MEditSaveUnix,
-      /* 8 */ DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(const wchar_t *)MEditSaveMac,
-      /* 9 */ DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /*10 */ DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-      /*11 */ DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+      /* 00 */ DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MEditTitle,
+      /* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSaveAs,
+      /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
+      /* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+      /* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,L"File codepage:",
+      /* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST,0,L"",
+      /* 06 */ DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+      /* 07 */ DI_TEXT,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
+      /* 08 */ DI_RADIOBUTTON,5,8,0,8,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
+      /* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSaveDOS,
+      /* 10 */ DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MEditSaveUnix,
+      /* 11 */ DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MEditSaveMac,
+      /* 12 */ DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+      /* 13 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+      /* 14 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
     };
 
     MakeDialogItemsEx(EditDlgData,EditDlg);

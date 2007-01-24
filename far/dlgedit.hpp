@@ -3,28 +3,111 @@
 /*
 dlgedit.hpp
 
-Ћ¤Ё­®з­ п бва®Є  аҐ¤ ЄвЁа®ў ­Ёп ¤«п ¤Ё «®Ј 
-(Є Є ­ б«Ґ¤­ЁЄ Є« бб  Edit)
+Одиночная строка редактирования для диалога (как наследник класса Edit)
+Мультиредактор
 
 */
 
-#include "edit.hpp"
+/*
+  Сюда нужно перетащить из edit.hpp и editor.hpp все вещи,
+  касаемые масок и.. все что относится только к диалогам
+  Это пока только шаблон, заготовка для будущего перехода
+*/
 
-class DlgEdit:public Edit
+#include "scrobj.hpp"
+#include "bitflags.hpp"
+#include "edit.hpp"
+#include "editor.hpp"
+
+enum DLGEDITTYPE{
+  DLGEDIT_MULTILINE,
+  DLGEDIT_SINGLELINE,
+};
+
+class DlgEdit//: public ScreenObject
 {
   friend class Dialog;
 
-  private: // ЇаЁў в­лҐ ¤ ­­лҐ
+  private: // приватные данные
+    DLGEDITTYPE Type;
 
-  public:  // ЇгЎ«Ёз­лҐ ¤ ­­лҐ
+    Edit   *lineEdit;
+#if defined(PROJECT_DI_MEMOEDIT)
+    Editor *multiEdit;
+#endif
 
-  private: // ЇаЁў в­лҐ ¬Ґв®¤л
+  public:  // публичные данные
+    BitFlags& Flags();
+
+  private: // приватные методы
+    void   DisplayObject();
 
   public:
-    DlgEdit();
+    DlgEdit(ScreenObject *pOwner,DLGEDITTYPE Type);
     ~DlgEdit();
 
-  public: // ЇгЎ«Ёз­лҐ ¬Ґв®¤л
+  public: // публичные методы
+    int   ProcessKey(int Key);
+    int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+
+    void SetPosition(int X1,int Y1,int X2,int Y2);
+    void Show();
+    void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
+
+    void  SetDialogParent(DWORD Sets);
+    void  SetDropDownBox(int NewDropDownBox);
+    void  SetPasswordMode(int Mode);
+
+    int   GetMaxLength();
+    void  SetMaxLength(int Length);
+    int   GetLength();
+    int   GetStrSize(int Row=-1);
+
+    void  SetInputMaskW(const wchar_t *InputMask);
+    const wchar_t* GetInputMaskW();
+
+    void  SetOvertypeMode(int Mode);
+    int   GetOvertypeMode();
+
+    void  SetEditBeyondEnd(int Mode);
+
+    void  SetClearFlag(int Flag);
+    int   GetClearFlag(void);
+
+    void  SetStringW(const wchar_t *Str);
+    void  GetStringW(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
+    void  GetStringW(string &strStr,int Row=-1);            // Row==-1 - current line
+    const wchar_t* GetStringAddrW();
+
+    void  SetCurPos(int NewCol, int NewRow=-1); // Row==-1 - current line
+    int   GetCurPos();
+    int   GetCurRow();
+
+    void  SetPersistentBlocks(int Mode);
+    int   GetPersistentBlocks(void);
+    void  SetDelRemovesBlocks(int NewMode);
+    int   GetDelRemovesBlocks(void);
+
+    void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+    long  GetObjectColor();
+    int   GetObjectColorUnChanged();
+
+    void  FastShow();
+    int   GetLeftPos();
+    void  SetLeftPos(int NewPos,int Row=-1); // Row==-1 - current line
+
+    void  DeleteBlock();
+
+    void  Select(int Start,int End);           // TODO: не учтено для multiline!
+    void  GetSelection(int &Start,int &End);   // TODO: не учтено для multiline!
+
+    void Xlat(BOOL All=FALSE);
+
+    void SetCursorType(int Visible,int Size);
+    void GetCursorType(int &Visible,int &Size);
+
+    int  GetReadOnly();
+    void SetReadOnly(int NewReadOnly);
 };
 
 #endif  // __DLGEDIT_HPP__

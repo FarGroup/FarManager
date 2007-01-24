@@ -303,21 +303,21 @@ void FileFilter::Configure()
   struct DialogDataEx FilterDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,73,21,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
 
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterMatchMask,
+  /* 01 */DI_CHECKBOX,5,2,0,2,1,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterMatchMask,
   /* 02 */DI_EDIT,7,3,71,3,0,(DWORD_PTR)FilterMasksHistoryName,DIF_HISTORY,0,L"",
 
-  /* 03 */DI_TEXT,0,4,0,0,0,0,DIF_SEPARATOR,0,L"",
+  /* 03 */DI_TEXT,0,4,0,4,0,0,DIF_SEPARATOR,0,L"",
 
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterSize,
+  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterSize,
   /* 05 */DI_COMBOBOX,52,5,71,5,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
   /* 06 */DI_TEXT,7,6,38,6,0,0,0,0,(const wchar_t *)MFileFilterSizeFrom,
   /* 07 */DI_FIXEDIT,52,6,71,6,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,L"",
   /* 08 */DI_TEXT,7,7,38,7,0,0,0,0,(const wchar_t *)MFileFilterSizeTo,
   /* 09 */DI_FIXEDIT,52,7,71,7,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,L"",
 
-  /* 10 */DI_TEXT,0,8,0,0,0,0,DIF_SEPARATOR,0,L"",
+  /* 10 */DI_TEXT,0,8,0,8,0,0,DIF_SEPARATOR,0,L"",
 
-  /* 11 */DI_CHECKBOX,5,9,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterDate,
+  /* 11 */DI_CHECKBOX,5,9,0,9,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterDate,
   /* 12 */DI_COMBOBOX,53,9,71,9,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
   /* 13 */DI_TEXT,7,10,38,10,0,0,0,0,(const wchar_t *)MFileFilterAfter,
   /* 14 */DI_FIXEDIT,53,10,62,10,0,(DWORD_PTR)(const wchar_t*)strDateMask,DIF_MASKEDIT,0,L"",
@@ -328,22 +328,22 @@ void FileFilter::Configure()
   /* 19 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterCurrent,
   /* 20 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
 
-  /* 21 */DI_TEXT,0,13,0,0,0,0,DIF_SEPARATOR,0,L"",
+  /* 21 */DI_TEXT,0,13,0,13,0,0,DIF_SEPARATOR,0,L"",
 
-  /* 22 */DI_CHECKBOX, 5,14,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterAttr,
-  /* 23 */DI_CHECKBOX, 7,15,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrR,
-  /* 24 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrA,
-  /* 25 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrH,
-  /* 26 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrS,
-  /* 27 */DI_CHECKBOX,29,15,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrD,
-  /* 28 */DI_CHECKBOX,29,16,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrC,
-  /* 29 */DI_CHECKBOX,29,17,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrE,
-  /* 30 */DI_CHECKBOX,29,18,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrNI,
-  /* 31 */DI_CHECKBOX,51,15,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrSparse,
-  /* 32 */DI_CHECKBOX,51,16,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrT,
-  /* 33 */DI_CHECKBOX,51,17,0,0,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrReparse,
+  /* 22 */DI_CHECKBOX, 5,14,0,14,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterAttr,
+  /* 23 */DI_CHECKBOX, 7,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrR,
+  /* 24 */DI_CHECKBOX, 7,16,0,16,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrA,
+  /* 25 */DI_CHECKBOX, 7,17,0,17,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrH,
+  /* 26 */DI_CHECKBOX, 7,18,0,18,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrS,
+  /* 27 */DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrD,
+  /* 28 */DI_CHECKBOX,29,16,0,16,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrC,
+  /* 29 */DI_CHECKBOX,29,17,0,17,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrE,
+  /* 30 */DI_CHECKBOX,29,18,0,18,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrNI,
+  /* 31 */DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrSparse,
+  /* 32 */DI_CHECKBOX,51,16,0,16,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrT,
+  /* 33 */DI_CHECKBOX,51,17,0,17,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrReparse,
 
-  /* 34 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
+  /* 34 */DI_TEXT, 0, 19, 0, 19, 0, 0, DIF_SEPARATOR, 0, L"",
 
   /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFileFilterOk,
   /* 36 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterReset,

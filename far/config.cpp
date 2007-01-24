@@ -83,27 +83,27 @@ void SystemSettings()
      + Добавка в виде задания дополнительного пути для поиска плагинов
   */
   struct DialogDataEx CfgDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(const wchar_t *)MConfigSystemTitle,
-  /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(const wchar_t *)MConfigRO,
-  /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(const wchar_t *)MConfigRecycleBin,
-  /* 03 */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(const wchar_t *)MConfigSystemCopy,
-  /* 04 */ DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MConfigCopySharing,
-  /* 05 */ DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MConfigScanJunction,
-  /* 06 */ DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MConfigCreateUppercaseFolders,
-  /* 07 */ DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigInactivity,
-  /* 08 */ DI_FIXEDIT,9,9,11,9,0,0,0,0,L"",
-  /* 09 */ DI_TEXT,13,9,0,0,0,0,0,0,(const wchar_t *)MConfigInactivityMinutes,
-  /* 10 */ DI_CHECKBOX,5,10,0,0,0,0,0,0,(const wchar_t *)MConfigSaveHistory,
-  /* 11 */ DI_CHECKBOX,5,11,0,0,0,0,0,0,(const wchar_t *)MConfigSaveFoldersHistory,
-  /* 12 */ DI_CHECKBOX,5,12,0,0,0,0,0,0,(const wchar_t *)MConfigSaveViewHistory,
-  /* 13 */ DI_CHECKBOX,5,13,0,0,0,0,0,0,(const wchar_t *)MConfigRegisteredTypes,
-  /* 14 */ DI_CHECKBOX,5,14,0,0,0,0,0,0,(const wchar_t *)MConfigCloseCDGate,
-  /* 15 */ DI_TEXT,5,15,0,0,0,0,0,0,(const wchar_t *)MConfigPersonalPath,
-  /* 16 */ DI_EDIT,5,16,50,16,0,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-  /* 17 */ DI_CHECKBOX,5,17,0,0,0,0,0,0,(const wchar_t *)MConfigAutoSave,
-  /* 18 */ DI_TEXT,5,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 19 */ DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 20 */ DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 00 */ DI_DOUBLEBOX,3, 1,52,20,0,0,0,0,(const wchar_t *)MConfigSystemTitle,
+  /* 01 */ DI_CHECKBOX, 5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigRO,
+  /* 02 */ DI_CHECKBOX, 5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigRecycleBin,
+  /* 03 */ DI_CHECKBOX, 5, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigSystemCopy,
+  /* 04 */ DI_CHECKBOX, 5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigCopySharing,
+  /* 05 */ DI_CHECKBOX, 5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigScanJunction,
+  /* 06 */ DI_CHECKBOX, 5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigCreateUppercaseFolders,
+  /* 07 */ DI_CHECKBOX, 5, 8, 0, 8,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigInactivity,
+  /* 08 */ DI_FIXEDIT,  9, 9,11, 9,0,0,0,0,L"",
+  /* 09 */ DI_TEXT,    13, 9, 0, 9,0,0,0,0,(const wchar_t *)MConfigInactivityMinutes,
+  /* 10 */ DI_CHECKBOX, 5,10, 0,10,0,0,0,0,(const wchar_t *)MConfigSaveHistory,
+  /* 11 */ DI_CHECKBOX, 5,11, 0,11,0,0,0,0,(const wchar_t *)MConfigSaveFoldersHistory,
+  /* 12 */ DI_CHECKBOX, 5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigSaveViewHistory,
+  /* 13 */ DI_CHECKBOX, 5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigRegisteredTypes,
+  /* 14 */ DI_CHECKBOX, 5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigCloseCDGate,
+  /* 15 */ DI_TEXT,     5,15, 0,15,0,0,0,0,(const wchar_t *)MConfigPersonalPath,
+  /* 16 */ DI_EDIT,     5,16,50,16,0,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
+  /* 17 */ DI_CHECKBOX, 5,17, 0,17,0,0,0,0,(const wchar_t *)MConfigAutoSave,
+  /* 18 */ DI_TEXT,     5,18, 0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 19 */ DI_BUTTON,   0,19, 0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 20 */ DI_BUTTON,   0,19, 0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -176,6 +176,8 @@ void SystemSettings()
 }
 
 
+void PanelSettings()
+{
 #define DLG_PANEL_HIDDEN              1
 #define DLG_PANEL_HIGHLIGHT           2
 #define DLG_PANEL_CHANGEFOLDER        3
@@ -196,31 +198,29 @@ void SystemSettings()
 #define DLG_PANEL_SHOWSORTMODE       18
 #define DLG_PANEL_OK                 20
 
-void PanelSettings()
-{
   static struct DialogDataEx CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,52,21,0,0,0,0,(const wchar_t *)MConfigPanelTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(const wchar_t *)MConfigHidden,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(const wchar_t *)MConfigHighlight,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(const wchar_t *)MConfigAutoChange,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MConfigSelectFolders,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MConfigSortFolderExt,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MConfigReverseSort,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigAutoUpdateLimit,
-  /* 08 */DI_TEXT,9,9,0,0,0,0,0,0,(const wchar_t *)MConfigAutoUpdateLimit2,
-  /* 09 */DI_EDIT,9,9,15,8,0,0,0,0,L"",
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(const wchar_t *)MConfigAutoUpdateRemoteDrive,
-  /* 11 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(const wchar_t *)MConfigShowColumns,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(const wchar_t *)MConfigShowStatus,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(const wchar_t *)MConfigShowTotal,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(const wchar_t *)MConfigShowFree,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(const wchar_t *)MConfigShowScrollbar,
-  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(const wchar_t *)MConfigShowScreensNumber,
-  /* 18 */DI_CHECKBOX,5,18,0,0,0,0,0,0,(const wchar_t *)MConfigShowSortMode,
-  /* 19 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 20 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 21 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 00 */DI_DOUBLEBOX, 3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigPanelTitle,
+  /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigHidden,
+  /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigHighlight,
+  /* 03 */DI_CHECKBOX,  5, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigAutoChange,
+  /* 04 */DI_CHECKBOX,  5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigSelectFolders,
+  /* 05 */DI_CHECKBOX,  5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigSortFolderExt,
+  /* 06 */DI_CHECKBOX,  5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigReverseSort,
+  /* 07 */DI_CHECKBOX,  5, 8, 0, 8,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigAutoUpdateLimit,
+  /* 08 */DI_TEXT,      9, 9, 0, 9,0,0,0,0,(const wchar_t *)MConfigAutoUpdateLimit2,
+  /* 09 */DI_EDIT,      9, 9,15, 9,0,0,0,0,L"",
+  /* 10 */DI_CHECKBOX,  5,10, 0,10,0,0,0,0,(const wchar_t *)MConfigAutoUpdateRemoteDrive,
+  /* 11 */DI_TEXT,      3,11, 0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 12 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigShowColumns,
+  /* 13 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigShowStatus,
+  /* 14 */DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigShowTotal,
+  /* 15 */DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MConfigShowFree,
+  /* 16 */DI_CHECKBOX,  5,16, 0,16,0,0,0,0,(const wchar_t *)MConfigShowScrollbar,
+  /* 17 */DI_CHECKBOX,  5,17, 0,17,0,0,0,0,(const wchar_t *)MConfigShowScreensNumber,
+  /* 18 */DI_CHECKBOX,  5,18, 0,18,0,0,0,0,(const wchar_t *)MConfigShowSortMode,
+  /* 19 */DI_TEXT,      3,19, 0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 20 */DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 21 */DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -298,6 +298,12 @@ void PanelSettings()
 }
 
 
+/* $ 17.12.2001 IS
+   Настройка средней кнопки мыши для панелей. Воткнем пока сюда, потом надо
+   переехать в специальный диалог по программированию мыши.
+*/
+void InterfaceSettings()
+{
 #define DLG_INTERF_CLOCK                1
 #define DLG_INTERF_VIEWEREDITORCLOCK    2
 #define DLG_INTERF_MOUSE                3
@@ -315,12 +321,6 @@ void PanelSettings()
 #define DLG_INTERF_PGUPCHANGEDISK      15
 #define DLG_INTERF_OK                  17
 
-/* $ 17.12.2001 IS
-   Настройка средней кнопки мыши для панелей. Воткнем пока сюда, потом надо
-   переехать в специальный диалог по программированию мыши.
-*/
-void InterfaceSettings()
-{
   static struct DialogDataEx CfgDlgData[]={
     /* $ 04.07.2000 SVS
        + Показывать ли ScrollBar для Menu|Options|Interface settings
@@ -328,25 +328,25 @@ void InterfaceSettings()
     /* $ 26.07.2000 SVS
        + Разрешить ли автодополнение в строках ввода
     */
-  /* 00 */DI_DOUBLEBOX,3,1,54,18,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(const wchar_t *)MConfigClock,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(const wchar_t *)MConfigViewerEditorClock,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigMouse,
-  /* 04 */DI_CHECKBOX,9,5,0,0,0,0,0,0,(const wchar_t *)MConfigMousePanelMClickRule,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MConfigKeyBar,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MConfigMenuBar,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigSaver,
-  /* 08 */DI_FIXEDIT,9,9,11,8,0,0,0,0,L"",
-  /* 09 */DI_TEXT,13,9,0,0,0,0,0,0,(const wchar_t *)MConfigSaverMinutes,
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigUsePromptFormat,
-  /* 11 */DI_EDIT,9,11,24,12,0,0,0,0,L"",
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(const wchar_t *)MConfigAltGr,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(const wchar_t *)MConfigCopyTotal,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(const wchar_t *)MConfigCopyTimeRule,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(const wchar_t *)MConfigPgUpChangeDisk,
-  /* 16 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 17 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 18 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 00 */DI_DOUBLEBOX, 3, 1,54,18,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
+  /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigClock,
+  /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigViewerEditorClock,
+  /* 03 */DI_CHECKBOX,  5, 4, 0, 4,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigMouse,
+  /* 04 */DI_CHECKBOX,  9, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigMousePanelMClickRule,
+  /* 05 */DI_CHECKBOX,  5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigKeyBar,
+  /* 06 */DI_CHECKBOX,  5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigMenuBar,
+  /* 07 */DI_CHECKBOX,  5, 8, 0, 8,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigSaver,
+  /* 08 */DI_FIXEDIT,   9, 9,11, 9,0,0,0,0,L"",
+  /* 09 */DI_TEXT,     13, 9, 0, 9,0,0,0,0,(const wchar_t *)MConfigSaverMinutes,
+  /* 10 */DI_CHECKBOX,  5,10, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigUsePromptFormat,
+  /* 11 */DI_EDIT,      9,11,24,11,0,0,0,0,L"",
+  /* 12 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigAltGr,
+  /* 13 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigCopyTotal,
+  /* 14 */DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigCopyTimeRule,
+  /* 15 */DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MConfigPgUpChangeDisk,
+  /* 16 */DI_TEXT,      3,16, 0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 17 */DI_BUTTON,    0,17, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 18 */DI_BUTTON,    0,17, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -443,16 +443,16 @@ void DialogSettings()
   #define DLG_DIALOGS_OK                    8
 
   static DialogDataEx CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,54,9,0,0,0,0,(const wchar_t *)MConfigDlgSetsTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(const wchar_t *)MConfigDialogsEditHistory,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(const wchar_t *)MConfigDialogsEditBlock,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(const wchar_t *)MConfigDialogsDelRemovesBlocks,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MConfigDialogsAutoComplete,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MConfigDialogsEULBsClear,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MConfigDialogsMouseButton,
-  /* 07 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 08 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 09 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 00 */DI_DOUBLEBOX,3, 1,54, 9,0,0,0,0,(const wchar_t *)MConfigDlgSetsTitle,
+  /* 01 */DI_CHECKBOX, 5, 2, 0, 2,0,0,0,0,(const wchar_t *)MConfigDialogsEditHistory,
+  /* 02 */DI_CHECKBOX, 5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigDialogsEditBlock,
+  /* 03 */DI_CHECKBOX, 5, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigDialogsDelRemovesBlocks,
+  /* 04 */DI_CHECKBOX, 5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigDialogsAutoComplete,
+  /* 05 */DI_CHECKBOX, 5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigDialogsEULBsClear,
+  /* 06 */DI_CHECKBOX, 5, 7, 0, 7,0,0,0,0,(const wchar_t *)MConfigDialogsMouseButton,
+  /* 07 */DI_TEXT,     3, 8, 0, 8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 08 */DI_BUTTON,   0, 9, 0, 9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 09 */DI_BUTTON,   0, 9, 0, 9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -492,22 +492,22 @@ void DialogSettings()
 void SetConfirmations()
 {
   static struct DialogDataEx ConfDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,46,16,0,0,0,0,(const wchar_t *)MSetConfirmTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(const wchar_t *)MSetConfirmCopy,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(const wchar_t *)MSetConfirmMove,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(const wchar_t *)MSetConfirmDrag,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MSetConfirmDelete,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MSetConfirmDeleteFolders,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MSetConfirmEsc,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(const wchar_t *)MSetConfirmRemoveConnection,
-  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(const wchar_t *)MSetConfirmRemoveSUBST,
-  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(const wchar_t *)MSetConfirmRemoveHotPlug,
-  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(const wchar_t *)MSetConfirmAllowReedit,
-  /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(const wchar_t *)MSetConfirmHistoryClear,
-  /* 12 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(const wchar_t *)MSetConfirmExit,
-  /* 13 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 14 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 15 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 00 */DI_DOUBLEBOX,  3, 1,46,16,0,0,0,0,(const wchar_t *)MSetConfirmTitle,
+  /* 01 */DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MSetConfirmCopy,
+  /* 02 */DI_CHECKBOX,   5, 3, 0, 3,0,0,0,0,(const wchar_t *)MSetConfirmMove,
+  /* 03 */DI_CHECKBOX,   5, 4, 0, 4,0,0,0,0,(const wchar_t *)MSetConfirmDrag,
+  /* 04 */DI_CHECKBOX,   5, 5, 0, 5,0,0,0,0,(const wchar_t *)MSetConfirmDelete,
+  /* 05 */DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,(const wchar_t *)MSetConfirmDeleteFolders,
+  /* 06 */DI_CHECKBOX,   5, 7, 0, 7,0,0,0,0,(const wchar_t *)MSetConfirmEsc,
+  /* 07 */DI_CHECKBOX,   5, 8, 0, 8,0,0,0,0,(const wchar_t *)MSetConfirmRemoveConnection,
+  /* 08 */DI_CHECKBOX,   5, 9, 0, 9,0,0,0,0,(const wchar_t *)MSetConfirmRemoveSUBST,
+  /* 09 */DI_CHECKBOX,   5,10, 0,10,0,0,0,0,(const wchar_t *)MSetConfirmRemoveHotPlug,
+  /* 10 */DI_CHECKBOX,   5,11, 0,11,0,0,0,0,(const wchar_t *)MSetConfirmAllowReedit,
+  /* 11 */DI_CHECKBOX,   5,12, 0,12,0,0,0,0,(const wchar_t *)MSetConfirmHistoryClear,
+  /* 12 */DI_CHECKBOX,   5,13, 0,13,0,0,0,0,(const wchar_t *)MSetConfirmExit,
+  /* 13 */DI_TEXT,       3,14, 0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 14 */DI_BUTTON,     0,15, 0,15,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 15 */DI_BUTTON,     0,15, 0,15,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
 
   };
   MakeDialogItemsEx(ConfDlgData,ConfDlg);
@@ -551,20 +551,20 @@ void SetDizConfig()
   static struct DialogDataEx DizDlgData[]=
   {
   /* 00 */DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MCfgDizTitle,
-  /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MCfgDizListNames,
+  /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MCfgDizListNames,
   /* 02 */DI_EDIT,5,3,70,3,1,0,0,0,L"",
-  /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MCfgDizSetHidden,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MCfgDizROUpdate,
+  /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MCfgDizSetHidden,
+  /* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MCfgDizROUpdate,
   /* 06 */DI_FIXEDIT,5,7,7,7,0,0,0,0,L"",
-  /* 07 */DI_TEXT,9,7,0,0,0,0,0,0,(const wchar_t *)MCfgDizStartPos,
-  /* 08 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 09 */DI_RADIOBUTTON,5,9,0,0,0,0,DIF_GROUP,0,(const wchar_t *)MCfgDizNotUpdate,
-  /* 10 */DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(const wchar_t *)MCfgDizUpdateIfDisplayed,
-  /* 11 */DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(const wchar_t *)MCfgDizAlwaysUpdate,
-  /* 12 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 13 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 14 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 07 */DI_TEXT,9,7,0,7,0,0,0,0,(const wchar_t *)MCfgDizStartPos,
+  /* 08 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 09 */DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,(const wchar_t *)MCfgDizNotUpdate,
+  /* 10 */DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MCfgDizUpdateIfDisplayed,
+  /* 11 */DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MCfgDizAlwaysUpdate,
+  /* 12 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 13 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 14 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(DizDlgData,DizDlg);
 
@@ -653,26 +653,26 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   };
 
   static struct DialogDataEx CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX , 3, 1,70,19,0,0,0,0,(const wchar_t *)MViewConfigTitle,
-  /*  1 */  DI_TEXT, 5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigExternal,
-  /*  2 */  DI_RADIOBUTTON,6, 3, 0, 0,1,0,DIF_GROUP,0,(const wchar_t *)MViewConfigExternalF3,
-  /*  3 */  DI_RADIOBUTTON,6, 4, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigExternalAltF3,
-  /*  4 */  DI_TEXT      , 6, 5, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
-  /*  5 */  DI_EDIT      , 6, 6,68, 6,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
-  /*  6 */  DI_TEXT, 0, 7, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
-  /*  7 */  DI_TEXT, 5, 8,68,16,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigInternal,
-  /*  8 */  DI_CHECKBOX  , 6, 9, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigSavePos,
-  /*  9 */  DI_CHECKBOX  , 6,10, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
-  /* 10 */  DI_CHECKBOX  , 6,11, 0, 0,0,0,0,0,(const wchar_t *)MViewAutoDetectTable,
-  /* 11 */  DI_FIXEDIT   , 6,12, 9,15,0,0,0,0,L"",
-  /* 12 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
-  /* 13 */  DI_CHECKBOX  , 6,13, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
-  /* 14 */  DI_CHECKBOX  , 6,14, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigArrows,
-  /* 15 */  DI_CHECKBOX  , 6,15, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
-  /* 16 */  DI_CHECKBOX  , 6,16, 0, 0,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
-  /* 17 */  DI_TEXT, 0, 17, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
-  /* 18 */  DI_BUTTON    , 0,18, 0, 0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 19 */  DI_BUTTON    , 0,18, 0, 0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /*  0 */  DI_DOUBLEBOX,   3, 1,70,19,0,0,0,0,(const wchar_t *)MViewConfigTitle,
+  /*  1 */  DI_TEXT,        5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigExternal,
+  /*  2 */  DI_RADIOBUTTON, 6, 3, 0, 3,1,0,DIF_GROUP,0,(const wchar_t *)MViewConfigExternalF3,
+  /*  3 */  DI_RADIOBUTTON, 6, 4, 0, 4,0,0,0,0,(const wchar_t *)MViewConfigExternalAltF3,
+  /*  4 */  DI_TEXT,        6, 5, 0, 5,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
+  /*  5 */  DI_EDIT,        6, 6,68, 6,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
+  /*  6 */  DI_TEXT,        0, 7, 0, 7, 0, 0, DIF_SEPARATOR, 0, L"",
+  /*  7 */  DI_TEXT,        5, 8,68,16,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigInternal,
+  /*  8 */  DI_CHECKBOX,    6, 9, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigSavePos,
+  /*  9 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
+  /* 10 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectTable,
+  /* 11 */  DI_FIXEDIT,     6,12, 9,12,0,0,0,0,L"",
+  /* 12 */  DI_TEXT,       11,12, 0,12,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
+  /* 13 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
+  /* 14 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MViewConfigArrows,
+  /* 15 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
+  /* 16 */  DI_CHECKBOX,    6,16, 0,16,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
+  /* 17 */  DI_TEXT,        0,17, 0,17, 0, 0, DIF_SEPARATOR, 0, L"",
+  /* 18 */  DI_BUTTON,      0,18, 0,18,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 19 */  DI_BUTTON,      0,18, 0,18,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
 
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
@@ -780,32 +780,32 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   };
 
   static struct DialogDataEx CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,70,22,0,0,0,0,(const wchar_t *)MEditConfigTitle,
-  /*  1 */  DI_TEXT,5,2,0,0,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigExternal,
-  /*  2 */  DI_RADIOBUTTON,6,3,0,0,1,0,DIF_GROUP,0,(const wchar_t *)MEditConfigEditorF4,
-  /*  3 */  DI_RADIOBUTTON,6,3,0,0,0,0,0,0,(const wchar_t *)MEditConfigEditorAltF4,
-  /*  4 */  DI_TEXT,6,4,0,0,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
-  /*  5 */  DI_EDIT,6,5,68,5,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY,0,L"",
-  /*  6 */  DI_TEXT, 0, 6, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
-  /*  7 */  DI_TEXT,5,7,0,0,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigInternal,
-  /*  8 */  DI_TEXT,6,8,0,0,0,0,0,0,(const wchar_t *)MEditConfigExpandTabsTitle,
-  /*  9 */  DI_COMBOBOX,6,9,68,0,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
-  /* 10 */  DI_CHECKBOX,6,10,0,0,0,0,0,0,(const wchar_t *)MEditConfigPersistentBlocks,
-  /* 11 */  DI_CHECKBOX,6,10,0,0,0,0,0,0,(const wchar_t *)MEditConfigDelRemovesBlocks,
-  /* 12 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(const wchar_t *)MEditConfigSavePos,
-  /* 13 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
-  /* 14 */  DI_CHECKBOX,6,12,0,0,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
-  /* 15 */  DI_CHECKBOX,6,13,0,0,0,0,0,0,(const wchar_t *)MEditAutoDetectTable,
-  /* 16 */  DI_CHECKBOX,6,14,0,0,0,0,0,0,(const wchar_t *)MEditCursorBeyondEnd,
-  /* 17 */  DI_CHECKBOX,6,15,0,0,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
-  /* 18 */  DI_CHECKBOX,6,16,0,0,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
-  /* 19 */  DI_FIXEDIT,6,17,9,20,0,0,0,0,L"",
-  /* 20 */  DI_TEXT,11,17,0,0,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
-  /* 21 */  DI_CHECKBOX,6,18,0,0,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableAsDefault,
-  /* 22 */  DI_CHECKBOX,6,19,0,0,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableForNewFile,
-  /* 23 */  DI_TEXT, 0, 20, 0, 0, 0, 0, DIF_SEPARATOR, 0, L"",
-  /* 24 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 25 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+  /*  0 */  DI_DOUBLEBOX,   3, 1,70,22,0,0,0,0,(const wchar_t *)MEditConfigTitle,
+  /*  1 */  DI_TEXT,        5, 2, 0, 2,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigExternal,
+  /*  2 */  DI_RADIOBUTTON, 6, 3, 0, 3,1,0,DIF_GROUP,0,(const wchar_t *)MEditConfigEditorF4,
+  /*  3 */  DI_RADIOBUTTON, 6, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorAltF4,
+  /*  4 */  DI_TEXT,        6, 4, 0, 4,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
+  /*  5 */  DI_EDIT,        6, 5,68, 5,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY,0,L"",
+  /*  6 */  DI_TEXT,        0, 6, 0, 6,0,0,DIF_SEPARATOR, 0, L"",
+  /*  7 */  DI_TEXT,        5, 7, 0, 7,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigInternal,
+  /*  8 */  DI_TEXT,        6, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditConfigExpandTabsTitle,
+  /*  9 */  DI_COMBOBOX,    6, 9,68, 9,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
+  /* 10 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigPersistentBlocks,
+  /* 11 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigDelRemovesBlocks,
+  /* 12 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigSavePos,
+  /* 13 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
+  /* 14 */  DI_CHECKBOX,    6,12, 0,12,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
+  /* 15 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MEditAutoDetectTable,
+  /* 16 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MEditCursorBeyondEnd,
+  /* 17 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
+  /* 18 */  DI_CHECKBOX,    6,16, 0,16,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
+  /* 19 */  DI_FIXEDIT,     6,17, 9,17,0,0,0,0,L"",
+  /* 20 */  DI_TEXT,       11,17, 0,17,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
+  /* 21 */  DI_CHECKBOX,    6,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableAsDefault,
+  /* 22 */  DI_CHECKBOX,    6,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableForNewFile,
+  /* 23 */  DI_TEXT,        0,20, 0,20,0,0, DIF_SEPARATOR, 0, L"",
+  /* 24 */  DI_BUTTON,      0,21, 0,21,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 25 */  DI_BUTTON,      0,21, 0,21,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 

@@ -623,13 +623,13 @@ int PanelFilter::EditRecord(string &strTitle, string &strMasks)
   static struct DialogDataEx EditDlgData[]=
   {
     /* 0 */ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MFilterTitle,
-    /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEnterFilterTitle,
+    /* 1 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEnterFilterTitle,
     /* 2 */ DI_EDIT,5,3,70,3,1,0,0,0,L"",
-    /* 3 */ DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MFilterMasks,
+    /* 3 */ DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MFilterMasks,
     /* 4 */ DI_EDIT,5,5,70,5,0,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-    /* 5 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /* 6 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-    /* 7 */ DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+    /* 5 */ DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 6 */ DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+    /* 7 */ DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
    };
 
   MakeDialogItemsEx(EditDlgData,EditDlg);

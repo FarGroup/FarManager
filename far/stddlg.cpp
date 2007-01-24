@@ -111,17 +111,17 @@ int WINAPI GetSearchReplaceStringW (
 */
     static struct DialogDataEx ReplaceDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(const wchar_t *)MEditReplaceTitle,
-    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSearchFor,
+    /*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
     /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-    /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MEditReplaceWith,
-    /*  4 */DI_EDIT,5,5,70,3,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,L"",
-    /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MEditSearchCase,
-    /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
-    /*  8 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(const wchar_t *)MEditSearchReverse,
-    /*  9 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /* 10 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditReplaceReplace,
-    /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
+    /*  3 */DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MEditReplaceWith,
+    /*  4 */DI_EDIT,5,5,70,5,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,L"",
+    /*  5 */DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchCase,
+    /*  7 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
+    /*  8 */DI_CHECKBOX,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSearchReverse,
+    /*  9 */DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 10 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditReplaceReplace,
+    /* 11 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
     };
     /* KM $ */
     HeightDialog=14;
@@ -233,15 +233,15 @@ int WINAPI GetSearchReplaceStringW (
 */
     static struct DialogDataEx SearchDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MEditSearchTitle,
-    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditSearchFor,
+    /*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
     /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-    /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(const wchar_t *)MEditSearchCase,
-    /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
-    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MEditSearchReverse,
-    /*  7 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /*  8 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
-    /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
+    /*  3 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  4 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchCase,
+    /*  5 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
+    /*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchReverse,
+    /*  7 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  8 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
+    /*  9 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
     };
     MakeDialogItemsEx(SearchDlgData,SearchDlg);
     HeightDialog=12;
@@ -380,13 +380,13 @@ int WINAPI GetStringW (
                                       Selected               Data
 */
 /* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,L"",
-/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,L"",
+/* 1 */ DI_TEXT,      5, 2,  0, 2, 0, 0, DIF_SHOWAMPERSAND,0,L"",
 /* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,L"",
-/* 3 */ DI_TEXT,      0, 4,  0, 0, 0, 0, DIF_SEPARATOR,    0,L"",
-/* 4 */ DI_CHECKBOX,  5, 5,  0, 0, 0, 0, 0,                0,L"",
-/* 5 */ DI_TEXT,      0, 6,  0, 0, 0, 0, DIF_SEPARATOR,    0,L"",
-/* 6 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,L"",
-/* 7 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,L""
+/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,L"",
+/* 4 */ DI_CHECKBOX,  5, 5,  0, 5, 0, 0, 0,                0,L"",
+/* 5 */ DI_TEXT,      0, 6,  0, 6, 0, 0, DIF_SEPARATOR,    0,L"",
+/* 6 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,  0,L"",
+/* 7 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,  0,L""
   };
   MakeDialogItemsEx(StrDlgData,StrDlg);
 
@@ -527,13 +527,13 @@ int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string
   static struct DialogDataEx PassDlgData[]=
   {
 /* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,L"",
-/* 1 */ DI_TEXT,       5, 2, 0, 0,0,0,0,0,L"",
+/* 1 */ DI_TEXT,       5, 2, 0, 2,0,0,0,0,L"",
 /* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,L"",
-/* 3 */ DI_TEXT,       5, 4, 0, 0,0,0,0,0,L"",
-/* 4 */ DI_PSWEDIT,    5, 5,70, 3,0,0,0,0,L"",
-/* 5 */ DI_TEXT,       3, 6, 0, 0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-/* 6 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,1,L"",
-/* 7 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,0,L""
+/* 3 */ DI_TEXT,       5, 4, 0, 4,0,0,0,0,L"",
+/* 4 */ DI_PSWEDIT,    5, 5,70, 5,0,0,0,0,L"",
+/* 5 */ DI_TEXT,       3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+/* 6 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,1,L"",
+/* 7 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,0,L""
   };
   MakeDialogItemsEx(PassDlgData,PassDlg);
 
@@ -602,7 +602,7 @@ L========================================================-
   static struct DialogDataEx PluginDlgData[]=
   {
     /* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,L"",
-    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,L"",
+    /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,L"",
     /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,L"",
     /* 03 */DI_TEXT,8,3,58,3,0,0,0,0,L"",
   };

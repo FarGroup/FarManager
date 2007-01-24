@@ -98,13 +98,13 @@ void Register()
   static struct DialogDataEx RegDlgData[]=
   {
     DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MRegTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MRegUser,
+    DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MRegUser,
     DI_EDIT,5,3,70,3,1,0,0,0,L"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MRegCode,
+    DI_TEXT,5,4,0,4,0,0,0,0,(const wchar_t *)MRegCode,
     DI_EDIT,5,5,70,5,0,0,0,0,L"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+    DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(RegDlgData,RegDlg);
   Dialog Dlg(RegDlg,countof(RegDlg));

@@ -1,4 +1,3 @@
-#if !defined(EDITOR2)
 /*
 editor.cpp
 
@@ -33,13 +32,16 @@ static int EditorID=0;
 // struct EditorUndoData
 enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 
-Editor::Editor()
+Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
 {
   _KEYMACRO(SysLog(L"Editor::Editor()"));
   _KEYMACRO(SysLog(1));
 
   Opt.EdOpt.CopyTo (EdOpt);
-  /* IS $ */
+  SetOwner (pOwner);
+
+  if(DialogUsed)
+    Flags.Set(FEDITOR_DIALOGMEMOEDIT);
 
   /* $ 26.10.2003 KM
      ≈сли установлен глобальный режим поиска 16-ричных кодов, тогда
@@ -740,7 +742,8 @@ void Editor::ShowEditor(int CurLineOnly)
   /*$ 10.08.2000 skv
     To make sure that CurEditor is set to required value.
   */
-  CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
+  if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+    CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
   /* skv$*/
 
   /* 17.04.2002 skv
@@ -810,13 +813,19 @@ void Editor::ShowEditor(int CurLineOnly)
       if(Flags.Check(FEDITOR_JUSTMODIFIED))
       {
         Flags.Clear(FEDITOR_JUSTMODIFIED);
-        _SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE)"));
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+        if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+        {
+          _SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE)"));
+          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+        }
       }
       else
       {
-        _SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,%s)",(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL")));
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
+        if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+        {
+          _SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,%s)",(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL")));
+          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
+        }
       }
       /* skv$*/
     }
@@ -2143,10 +2152,13 @@ int Editor::ProcessKey(int Key)
     case KEY_F11:
     {
 /*
-      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-      if (CtrlObject->Plugins.CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
-        *PluginTitle=0;
-      Show();
+      if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+      {
+        CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
+        if (CtrlObject->Plugins.CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
+          *PluginTitle=0;
+        Show();
+      }
 */
       return(TRUE);
     }
@@ -2710,9 +2722,11 @@ int Editor::ProcessKey(int Key)
             в блоке с переопределЄнным плагином фоном.
           */
           ShowEditor(FALSE);
+          //if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT)){
           //CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
           //_D(SysLog(L"%08d EE_REDRAW",__LINE__));
           //CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          //}
           /* SKV$*/
           return(TRUE);
         }
@@ -2725,10 +2739,13 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_HOME);
           ProcessKey(KEY_DOWN);
           Pasting--;
-          CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-          //_D(SysLog(L"%08d EE_REDRAW",__LINE__));
-          _SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
-          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+          {
+            CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
+            //_D(SysLog(L"%08d EE_REDRAW",__LINE__));
+            _SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
+            CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          }
           /*$ 03.02.2001 SKV
             ј то EEREDRAW_ALL то уходит, а на самом деле
             только текуща€ лини€ перерисовываетс€.
@@ -2940,9 +2957,12 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     else
     {
-      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-      _SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE)",__LINE__));
-      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
+      if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+      {
+        CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
+        _SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE)",__LINE__));
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
+      }
     }
     return(TRUE);
   }
@@ -3341,6 +3361,7 @@ void Editor::InsertString()
 
 void Editor::Down()
 {
+  //TODO: "—вертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
   Edit *CurPtr;
   int LeftPos,CurPos,Y;
   if (CurLine->m_next==NULL)
@@ -3360,6 +3381,7 @@ void Editor::Down()
 
 void Editor::ScrollDown()
 {
+  //TODO: "—вертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
   int LeftPos,CurPos;
   if (CurLine->m_next==NULL || TopScreen->m_next==NULL)
     return;
@@ -3380,6 +3402,7 @@ void Editor::ScrollDown()
 
 void Editor::Up()
 {
+  //TODO: "—вертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
   int LeftPos,CurPos;
   if (CurLine->m_prev==NULL)
     return;
@@ -3398,6 +3421,7 @@ void Editor::Up()
 
 void Editor::ScrollUp()
 {
+  //TODO: "—вертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
   int LeftPos,CurPos;
   if (CurLine->m_prev==NULL)
     return;
@@ -4191,7 +4215,7 @@ void Editor::GoToPosition()
   static struct DialogDataEx GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(const wchar_t *)MEditGoToLine,
-    DI_EDIT,5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
+    DI_EDIT,     5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
   };
   MakeDialogItemsEx(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran
@@ -5427,8 +5451,7 @@ int Editor::EditorControl(int Command,void *Param)
       return TRUE;
     }
 
-    // должно выполн€етс€ в FileEditor::EditorControl()
-    // в диалоге - нафиг ненать
+    // TODO: ≈сли DI_MEMOEDIT не будет юзать раскаску, то должно выполн€етс€ в FileEditor::EditorControl(), в диалоге - нафиг ненать
     case ECTL_ADDCOLOR:
     {
       if(Param && !IsBadReadPtr(Param,sizeof(struct EditorColor)))
@@ -5460,8 +5483,7 @@ int Editor::EditorControl(int Command,void *Param)
       break;
     }
 
-    // должно выполн€етс€ в FileEditor::EditorControl()
-    // в диалоге - нафиг ненать
+    // TODO: ≈сли DI_MEMOEDIT не будет юзать раскаску, то должно выполн€етс€ в FileEditor::EditorControl(), в диалоге - нафиг ненать
     case ECTL_GETCOLOR:
     {
       if(Param && !IsBadReadPtr(Param,sizeof(struct EditorColor)))
@@ -6130,4 +6152,59 @@ int Editor::GetCodePage ()
 	return m_codepage;
 }
 
-#endif //!defined(EDITOR2)
+
+void Editor::SetDialogParent(DWORD Sets)
+{
+}
+
+void Editor::SetOvertypeMode(int Mode)
+{
+}
+
+int Editor::GetOvertypeMode()
+{
+	return 0;
+}
+
+void Editor::SetEditBeyondEnd(int Mode)
+{
+}
+
+void Editor::SetClearFlag(int Flag)
+{
+}
+
+int Editor::GetClearFlag(void)
+{
+	return 0;
+}
+
+int Editor::GetCurCol()
+{
+	return CurLine->GetCurPos();
+}
+
+void Editor::SetCurPos(int NewCol, int NewRow)
+{
+	Lock ();
+	GoToLine(NewRow);
+	CurLine->SetTabCurPos(NewCol);
+	//CurLine->SetLeftPos(LeftPos); ???
+	Unlock ();
+}
+
+void Editor::SetCursorType(int Visible,int Size)
+{
+	CurLine->SetCursorType(Visible,Size); //???
+}
+
+void Editor::GetCursorType(int &Visible,int &Size)
+{
+	CurLine->GetCursorType(Visible,Size); //???
+}
+
+void Editor::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
+{
+	for (Edit *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next) //???
+		CurPtr->SetObjectColor (Color,SelColor,ColorUnChanged);
+}

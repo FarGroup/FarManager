@@ -78,27 +78,27 @@ void FileList::SetFilePanelModes()
 
     static struct DialogDataEx ModeDlgData[]=
     {
-    /* 00 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,L"",
-    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeTypes,
-    /* 02 */DI_EDIT,5,3,35,3,1,0,0,0,L"",
-    /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeWidths,
-    /* 04 */DI_EDIT,5,5,35,3,0,0,0,0,L"",
-    /* 05 */DI_TEXT,38,2,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeStatusTypes,
-    /* 06 */DI_EDIT,38,3,70,3,0,0,0,0,L"",
-    /* 07 */DI_TEXT,38,4,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeStatusWidths,
-    /* 08 */DI_EDIT,38,5,70,3,0,0,0,0,L"",
-    /* 09 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /* 10 */DI_TEXT,-1,6,0,0,0,0,DIF_BOXCOLOR,0,(const wchar_t *)MEditPanelReadHelp,
-    /* 11 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeFullscreen,
-    /* 12 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeAlignExtensions,
-    /* 13 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeAlignFolderExtensions,
-    /* 14 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeFoldersUpperCase,
-    /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeFilesLowerCase,
-    /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeUpperToLowerCase,
-    /* 17 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(const wchar_t *)MEditPanelModeCaseSensitiveSort,
-    /* 19 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /* 20 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-    /* 21 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+    /* 00 */DI_DOUBLEBOX, 3, 1,72,16,0,0,0,0,L"",
+    /* 01 */DI_TEXT,      5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditPanelModeTypes,
+    /* 02 */DI_EDIT,      5, 3,35, 3,1,0,0,0,L"",
+    /* 03 */DI_TEXT,      5, 4, 0, 4,0,0,0,0,(const wchar_t *)MEditPanelModeWidths,
+    /* 04 */DI_EDIT,      5, 5,35, 5,0,0,0,0,L"",
+    /* 05 */DI_TEXT,     38, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditPanelModeStatusTypes,
+    /* 06 */DI_EDIT,     38, 3,70, 3,0,0,0,0,L"",
+    /* 07 */DI_TEXT,     38, 4, 0, 4,0,0,0,0,(const wchar_t *)MEditPanelModeStatusWidths,
+    /* 08 */DI_EDIT,     38, 5,70, 5,0,0,0,0,L"",
+    /* 09 */DI_TEXT,      3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 10 */DI_TEXT,     -1, 6, 0, 6,0,0,DIF_BOXCOLOR,0,(const wchar_t *)MEditPanelReadHelp,
+    /* 11 */DI_CHECKBOX,  5, 7, 0, 7,0,0,0,0,(const wchar_t *)MEditPanelModeFullscreen,
+    /* 12 */DI_CHECKBOX,  5, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditPanelModeAlignExtensions,
+    /* 13 */DI_CHECKBOX,  5, 9, 0, 9,0,0,0,0,(const wchar_t *)MEditPanelModeAlignFolderExtensions,
+    /* 14 */DI_CHECKBOX,  5,10, 0,10,0,0,0,0,(const wchar_t *)MEditPanelModeFoldersUpperCase,
+    /* 15 */DI_CHECKBOX,  5,11, 0,11,0,0,0,0,(const wchar_t *)MEditPanelModeFilesLowerCase,
+    /* 16 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MEditPanelModeUpperToLowerCase,
+    /* 17 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MEditPanelModeCaseSensitiveSort,
+    /* 19 */DI_TEXT,      3,14, 0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /* 20 */DI_BUTTON,    0,15, 0,15,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+    /* 21 */DI_BUTTON,    0,15, 0,15,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
     };
     MakeDialogItemsEx(ModeDlgData,ModeDlg);
     int ExitCode;

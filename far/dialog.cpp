@@ -603,7 +603,7 @@ int Dialog::InitDialogObjects(int ID)
 
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {
-        CurItem->ObjPtr=new DlgEdit;
+        CurItem->ObjPtr=new DlgEdit(this,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
         if(Type == DI_COMBOBOX)
         {
           CurItem->ListPtr=new VMenu(L"",NULL,0,TRUE,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
@@ -2716,7 +2716,7 @@ int Dialog::ProcessKey(int Key)
           // "только что ломанулись и начинать выделение с нуля"?
           if((Opt.Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Item[FocusPos]->SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
           {
-            edt->Flags.Clear(FEDITLINE_MARKINGBLOCK);
+            edt->Flags().Clear(FEDITLINE_MARKINGBLOCK);
             PrevFocusPos=FocusPos;
           }
 
@@ -3610,7 +3610,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
     if(IsEdit(Item[KillFocusPos]->Type) &&
        !(Item[KillFocusPos]->Type == DI_COMBOBOX && (Item[KillFocusPos]->Flags & DIF_DROPDOWNLIST)))
     {
-      Edit *EditPtr=(Edit*)Item[KillFocusPos]->ObjPtr;
+      DlgEdit *EditPtr=(DlgEdit*)Item[KillFocusPos]->ObjPtr;
       EditPtr->GetSelection(Item[KillFocusPos]->SelStart,Item[KillFocusPos]->SelEnd);
       if((Opt.Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
       {
@@ -3624,11 +3624,11 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
     if(IsEdit(Item[SetFocusPos]->Type) &&
        !(Item[SetFocusPos]->Type == DI_COMBOBOX && (Item[SetFocusPos]->Flags & DIF_DROPDOWNLIST)))
     {
-      Edit *EditPtr=(Edit*)Item[SetFocusPos]->ObjPtr;
+      DlgEdit *EditPtr=(DlgEdit*)Item[SetFocusPos]->ObjPtr;
       if(!(Opt.Dialogs.EditLine&DLGEDITLINE_NOTSELONGOTFOCUS))
       {
         if(Opt.Dialogs.EditLine&DLGEDITLINE_SELALLGOTFOCUS)
-          EditPtr->Select(0,EditPtr->StrSize);
+          EditPtr->Select(0,EditPtr->GetStrSize());
         else
           EditPtr->Select(Item[SetFocusPos]->SelStart,Item[SetFocusPos]->SelEnd);
       }
@@ -3640,7 +3640,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
       // при получении фокуса ввода переместить курсор в конец строки?
       if(Opt.Dialogs.EditLine&DLGEDITLINE_GOTOEOLGOTFOCUS)
       {
-        EditPtr->SetCurPos(EditPtr->StrSize);
+        EditPtr->SetCurPos(EditPtr->GetStrSize());
       }
     }
 
@@ -3840,6 +3840,7 @@ int Dialog::IsEdit(int Type)
   return(Type==DI_EDIT ||
          Type==DI_FIXEDIT ||
          Type==DI_PSWEDIT ||
+         Type == DI_MEMOEDIT ||
          Type == DI_COMBOBOX);
 }
 /* SVS $ */
@@ -3862,6 +3863,7 @@ int Dialog::IsFocused(int Type)
          Type==DI_CHECKBOX ||
          Type==DI_RADIOBUTTON ||
          Type==DI_LISTBOX ||
+         Type == DI_MEMOEDIT ||
          Type==DI_USERCONTROL);
 }
 /* 24.08.2000 SVS $ */
