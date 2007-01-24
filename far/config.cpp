@@ -85,26 +85,26 @@ void SystemSettings()
   */
   static struct DialogData CfgDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(char *)MConfigSystemTitle,
-  /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
-  /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
-  /* 03 */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
-  /* 04 */ DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCopySharing,
-  /* 05 */ DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigScanJunction,
-  /* 06 */ DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
-  /* 07 */ DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
+  /* 01 */ DI_CHECKBOX,5,2,0,2,1,0,0,0,(char *)MConfigRO,
+  /* 02 */ DI_CHECKBOX,5,3,0,3,0,0,0,0,(char *)MConfigRecycleBin,
+  /* 03 */ DI_CHECKBOX,5,4,0,4,0,0,0,0,(char *)MConfigSystemCopy,
+  /* 04 */ DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MConfigCopySharing,
+  /* 05 */ DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MConfigScanJunction,
+  /* 06 */ DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
+  /* 07 */ DI_CHECKBOX,5,8,0,8,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
   /* 08 */ DI_FIXEDIT,9,9,11,9,0,0,0,0,"",
-  /* 09 */ DI_TEXT,13,9,0,0,0,0,0,0,(char *)MConfigInactivityMinutes,
-  /* 10 */ DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveHistory,
-  /* 11 */ DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
-  /* 12 */ DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
-  /* 13 */ DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
-  /* 14 */ DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCloseCDGate,
-  /* 15 */ DI_TEXT,5,15,0,0,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 09 */ DI_TEXT,13,9,0,9,0,0,0,0,(char *)MConfigInactivityMinutes,
+  /* 10 */ DI_CHECKBOX,5,10,0,10,0,0,0,0,(char *)MConfigSaveHistory,
+  /* 11 */ DI_CHECKBOX,5,11,0,11,0,0,0,0,(char *)MConfigSaveFoldersHistory,
+  /* 12 */ DI_CHECKBOX,5,12,0,12,0,0,0,0,(char *)MConfigSaveViewHistory,
+  /* 13 */ DI_CHECKBOX,5,13,0,13,0,0,0,0,(char *)MConfigRegisteredTypes,
+  /* 14 */ DI_CHECKBOX,5,14,0,14,0,0,0,0,(char *)MConfigCloseCDGate,
+  /* 15 */ DI_TEXT,5,15,0,15,0,0,0,0,(char *)MConfigPersonalPath,
   /* 16 */ DI_EDIT,5,16,50,16,0,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-  /* 17 */ DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigAutoSave,
-  /* 18 */ DI_TEXT,5,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 19 */ DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 20 */ DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 17 */ DI_CHECKBOX,5,17,0,17,0,0,0,0,(char *)MConfigAutoSave,
+  /* 18 */ DI_TEXT,5,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 19 */ DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 20 */ DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -176,6 +176,8 @@ void SystemSettings()
 }
 
 
+void PanelSettings()
+{
 #define DLG_PANEL_HIDDEN              1
 #define DLG_PANEL_HIGHLIGHT           2
 #define DLG_PANEL_CHANGEFOLDER        3
@@ -196,31 +198,29 @@ void SystemSettings()
 #define DLG_PANEL_SHOWSORTMODE       18
 #define DLG_PANEL_OK                 20
 
-void PanelSettings()
-{
   static struct DialogData CfgDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,52,21,0,0,0,0,(char *)MConfigPanelTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigHidden,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigHighlight,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAutoChange,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigSelectFolders,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigSortFolderExt,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigReverseSort,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigAutoUpdateLimit,
-  /* 08 */DI_TEXT,9,9,0,0,0,0,0,0,(char *)MConfigAutoUpdateLimit2,
-  /* 09 */DI_EDIT,9,9,15,8,0,0,0,0,"",
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigAutoUpdateRemoteDrive,
-  /* 11 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowColumns,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowStatus,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowTotal,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowFree,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
-  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
-  /* 18 */DI_CHECKBOX,5,18,0,0,0,0,0,0,(char *)MConfigShowSortMode,
-  /* 19 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 20 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 21 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 01 */DI_CHECKBOX,5,2,0,2,1,0,0,0,(char *)MConfigHidden,
+  /* 02 */DI_CHECKBOX,5,3,0,3,0,0,0,0,(char *)MConfigHighlight,
+  /* 03 */DI_CHECKBOX,5,4,0,4,0,0,0,0,(char *)MConfigAutoChange,
+  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MConfigSelectFolders,
+  /* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MConfigSortFolderExt,
+  /* 06 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MConfigReverseSort,
+  /* 07 */DI_CHECKBOX,5,8,0,8,0,0,DIF_AUTOMATION,0,(char *)MConfigAutoUpdateLimit,
+  /* 08 */DI_TEXT,9,9,0,9,0,0,0,0,(char *)MConfigAutoUpdateLimit2,
+  /* 09 */DI_EDIT,9,9,15,9,0,0,0,0,"",
+  /* 10 */DI_CHECKBOX,5,10,0,10,0,0,0,0,(char *)MConfigAutoUpdateRemoteDrive,
+  /* 11 */DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 12 */DI_CHECKBOX,5,12,0,12,0,0,0,0,(char *)MConfigShowColumns,
+  /* 13 */DI_CHECKBOX,5,13,0,13,0,0,0,0,(char *)MConfigShowStatus,
+  /* 14 */DI_CHECKBOX,5,14,0,14,0,0,0,0,(char *)MConfigShowTotal,
+  /* 15 */DI_CHECKBOX,5,15,0,15,0,0,0,0,(char *)MConfigShowFree,
+  /* 16 */DI_CHECKBOX,5,16,0,16,0,0,0,0,(char *)MConfigShowScrollbar,
+  /* 17 */DI_CHECKBOX,5,17,0,17,0,0,0,0,(char *)MConfigShowScreensNumber,
+  /* 18 */DI_CHECKBOX,5,18,0,18,0,0,0,0,(char *)MConfigShowSortMode,
+  /* 19 */DI_TEXT,3,19,0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 20 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 21 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -299,6 +299,12 @@ void PanelSettings()
 }
 
 
+/* $ 17.12.2001 IS
+   Настройка средней кнопки мыши для панелей. Воткнем пока сюда, потом надо
+   переехать в специальный диалог по программированию мыши.
+*/
+void InterfaceSettings()
+{
 #define DLG_INTERF_CLOCK                1
 #define DLG_INTERF_VIEWEREDITORCLOCK    2
 #define DLG_INTERF_MOUSE                3
@@ -316,12 +322,6 @@ void PanelSettings()
 #define DLG_INTERF_PGUPCHANGEDISK      15
 #define DLG_INTERF_OK                  17
 
-/* $ 17.12.2001 IS
-   Настройка средней кнопки мыши для панелей. Воткнем пока сюда, потом надо
-   переехать в специальный диалог по программированию мыши.
-*/
-void InterfaceSettings()
-{
   static struct DialogData CfgDlgData[]={
     /* $ 04.07.2000 SVS
        + Показывать ли ScrollBar для Menu|Options|Interface settings
@@ -330,24 +330,24 @@ void InterfaceSettings()
        + Разрешить ли автодополнение в строках ввода
     */
   /* 00 */DI_DOUBLEBOX,3,1,54,18,0,0,0,0,(char *)MConfigInterfaceTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigMouse,
-  /* 04 */DI_CHECKBOX,9,5,0,0,0,0,0,0,(char *)MConfigMousePanelMClickRule,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigKeyBar,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigMenuBar,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigSaver,
-  /* 08 */DI_FIXEDIT,9,9,11,8,0,0,0,0,"",
-  /* 09 */DI_TEXT,13,9,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
-  /* 11 */DI_EDIT,9,11,24,12,0,0,0,0,"",
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCopyTimeRule,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
-  /* 16 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 17 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 01 */DI_CHECKBOX,5,2,0,2,1,0,0,0,(char *)MConfigClock,
+  /* 02 */DI_CHECKBOX,5,3,0,3,0,0,0,0,(char *)MConfigViewerEditorClock,
+  /* 03 */DI_CHECKBOX,5,4,0,4,0,0,DIF_AUTOMATION,0,(char *)MConfigMouse,
+  /* 04 */DI_CHECKBOX,9,5,0,5,0,0,0,0,(char *)MConfigMousePanelMClickRule,
+  /* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MConfigKeyBar,
+  /* 06 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MConfigMenuBar,
+  /* 07 */DI_CHECKBOX,5,8,0,8,0,0,DIF_AUTOMATION,0,(char *)MConfigSaver,
+  /* 08 */DI_FIXEDIT,9,9,11,9,0,0,0,0,"",
+  /* 09 */DI_TEXT,13,9,0,9,0,0,0,0,(char *)MConfigSaverMinutes,
+  /* 10 */DI_CHECKBOX,5,10,0,10,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
+  /* 11 */DI_EDIT,9,11,24,11,0,0,0,0,"",
+  /* 12 */DI_CHECKBOX,5,12,0,12,0,0,0,0,(char *)MConfigAltGr,
+  /* 13 */DI_CHECKBOX,5,13,0,13,0,0,0,0,(char *)MConfigCopyTotal,
+  /* 14 */DI_CHECKBOX,5,14,0,14,0,0,0,0,(char *)MConfigCopyTimeRule,
+  /* 15 */DI_CHECKBOX,5,15,0,15,0,0,0,0,(char *)MConfigPgUpChangeDisk,
+  /* 16 */DI_TEXT,3,16,0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 17 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 18 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -440,15 +440,15 @@ void DialogSettings()
 
   static struct DialogData CfgDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,54,10,0,0,0,0,(char *)MConfigDlgSetsTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigDialogsDelRemovesBlocks,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigDialogsAutoComplete,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigDialogsEULBsClear,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigDialogsMouseButton,
-  /* 07 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 08 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 09 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 01 */DI_CHECKBOX, 5,2,0,2,0,0,0,0,(char *)MConfigDialogsEditHistory,
+  /* 02 */DI_CHECKBOX, 5,3,0,3,0,0,0,0,(char *)MConfigDialogsEditBlock,
+  /* 03 */DI_CHECKBOX, 5,4,0,4,0,0,0,0,(char *)MConfigDialogsDelRemovesBlocks,
+  /* 04 */DI_CHECKBOX, 5,5,0,5,0,0,0,0,(char *)MConfigDialogsAutoComplete,
+  /* 05 */DI_CHECKBOX, 5,6,0,6,0,0,0,0,(char *)MConfigDialogsEULBsClear,
+  /* 06 */DI_CHECKBOX, 5,7,0,7,0,0,0,0,(char *)MConfigDialogsMouseButton,
+  /* 07 */DI_TEXT,     3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 08 */DI_BUTTON,   0,9,0,9,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 09 */DI_BUTTON,   0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -489,21 +489,21 @@ void SetConfirmations()
 {
   static struct DialogData ConfDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,46,16,0,0,0,0,(char *)MSetConfirmTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
-  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MSetConfirmDelete,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MSetConfirmDeleteFolders,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmEsc,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
-  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmRemoveSUBST,
-  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSetConfirmRemoveHotPlug,
-  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MSetConfirmAllowReedit,
-  /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MSetConfirmHistoryClear,
-  /* 12 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MSetConfirmExit,
-  /* 13 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 14 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 15 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 01 */DI_CHECKBOX, 5,2,0,2,1,0,0,0,(char *)MSetConfirmCopy,
+  /* 02 */DI_CHECKBOX, 5,3,0,3,0,0,0,0,(char *)MSetConfirmMove,
+  /* 03 */DI_CHECKBOX, 5,4,0,4,0,0,0,0,(char *)MSetConfirmDrag,
+  /* 04 */DI_CHECKBOX, 5,5,0,5,0,0,0,0,(char *)MSetConfirmDelete,
+  /* 05 */DI_CHECKBOX, 5,6,0,6,0,0,0,0,(char *)MSetConfirmDeleteFolders,
+  /* 06 */DI_CHECKBOX, 5,7,0,7,0,0,0,0,(char *)MSetConfirmEsc,
+  /* 07 */DI_CHECKBOX, 5,8,0,8,0,0,0,0,(char *)MSetConfirmRemoveConnection,
+  /* 08 */DI_CHECKBOX, 5,9,0,9,0,0,0,0,(char *)MSetConfirmRemoveSUBST,
+  /* 09 */DI_CHECKBOX, 5,10,0,10,0,0,0,0,(char *)MSetConfirmRemoveHotPlug,
+  /* 10 */DI_CHECKBOX, 5,11,0,11,0,0,0,0,(char *)MSetConfirmAllowReedit,
+  /* 11 */DI_CHECKBOX, 5,12,0,12,0,0,0,0,(char *)MSetConfirmHistoryClear,
+  /* 12 */DI_CHECKBOX, 5,13,0,13,0,0,0,0,(char *)MSetConfirmExit,
+  /* 13 */DI_TEXT,     3,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 14 */DI_BUTTON,   0,15,0,15,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 15 */DI_BUTTON,   0,15,0,15,0,0,DIF_CENTERGROUP,0,(char *)MCancel
 
   };
   MakeDialogItems(ConfDlgData,ConfDlg);
@@ -547,20 +547,20 @@ void SetDizConfig()
   static struct DialogData DizDlgData[]=
   {
   /* 00 */DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(char *)MCfgDizTitle,
-  /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MCfgDizListNames,
+  /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCfgDizListNames,
   /* 02 */DI_EDIT,5,3,70,3,1,0,0,0,"",
-  /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MCfgDizSetHidden,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MCfgDizROUpdate,
+  /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCfgDizSetHidden,
+  /* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCfgDizROUpdate,
   /* 06 */DI_FIXEDIT,5,7,7,7,0,0,0,0,"",
-  /* 07 */DI_TEXT,9,7,0,0,0,0,0,0,(char *)MCfgDizStartPos,
-  /* 08 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */DI_RADIOBUTTON,5,9,0,0,0,0,DIF_GROUP,0,(char *)MCfgDizNotUpdate,
-  /* 10 */DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(char *)MCfgDizUpdateIfDisplayed,
-  /* 11 */DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(char *)MCfgDizAlwaysUpdate,
-  /* 12 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 13 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 14 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 07 */DI_TEXT,9,7,0,7,0,0,0,0,(char *)MCfgDizStartPos,
+  /* 08 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 09 */DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,(char *)MCfgDizNotUpdate,
+  /* 10 */DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(char *)MCfgDizUpdateIfDisplayed,
+  /* 11 */DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(char *)MCfgDizAlwaysUpdate,
+  /* 12 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 13 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 14 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(DizDlgData,DizDlg);
   Dialog Dlg(DizDlg,sizeof(DizDlg)/sizeof(DizDlg[0]));
@@ -645,26 +645,26 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   };
 
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX , 3, 1,70,19,0,0,0,0,(char *)MViewConfigTitle,
-  /*  1 */  DI_TEXT, 5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
-  /*  2 */  DI_RADIOBUTTON,6, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,
-  /*  3 */  DI_RADIOBUTTON,6, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,
-  /*  4 */  DI_TEXT      , 6, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,
-  /*  5 */  DI_EDIT      , 6, 6,68, 6,0,(DWORD_PTR)"ExternalViewer", DIF_HISTORY,0,"",
-  /*  6 */  DI_TEXT, 0, 7, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /*  7 */  DI_TEXT, 5, 8,68,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,
-  /*  8 */  DI_CHECKBOX  , 6, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,
-  /*  9 */  DI_CHECKBOX  , 6,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,
-  /* 10 */  DI_CHECKBOX  , 6,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,
-  /* 11 */  DI_FIXEDIT   , 6,12, 9,15,0,0,0,0,"",
-  /* 12 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,
-  /* 13 */  DI_CHECKBOX  , 6,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,
-  /* 14 */  DI_CHECKBOX  , 6,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,
-  /* 15 */  DI_CHECKBOX  , 6,15, 0, 0,0,0,0,0,(char *)MViewConfigPersistentSelection,
-  /* 16 */  DI_CHECKBOX  , 6,16, 0, 0,0,0,0,0,(char *)MViewConfigAnsiTableAsDefault,
-  /* 17 */  DI_TEXT, 0, 17, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /* 18 */  DI_BUTTON    , 0,18, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 19 */  DI_BUTTON    , 0,18, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /*  0 */  DI_DOUBLEBOX,  3, 1,70,19,0,0,0,0,(char *)MViewConfigTitle,
+  /*  1 */  DI_TEXT,       5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
+  /*  2 */  DI_RADIOBUTTON,6, 3, 0, 3,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,
+  /*  3 */  DI_RADIOBUTTON,6, 4, 0, 4,0,0,0,0,(char *)MViewConfigExternalAltF3,
+  /*  4 */  DI_TEXT,       6, 5, 0, 5,0,0,0,0,(char *)MViewConfigExternalCommand,
+  /*  5 */  DI_EDIT,       6, 6,68, 6,0,(DWORD_PTR)"ExternalViewer", DIF_HISTORY,0,"",
+  /*  6 */  DI_TEXT,       0, 7, 0, 7, 0, 0, DIF_SEPARATOR, 0, "",
+  /*  7 */  DI_TEXT,       5, 8,68,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,
+  /*  8 */  DI_CHECKBOX,   6, 9, 0, 9,0,0,0,0,(char *)MViewConfigSavePos,
+  /*  9 */  DI_CHECKBOX,   6,10, 0,10,0,0,0,0,(char *)MViewConfigSaveShortPos,
+  /* 10 */  DI_CHECKBOX,   6,11, 0,11,0,0,0,0,(char *)MViewAutoDetectTable,
+  /* 11 */  DI_FIXEDIT,    6,12, 9,12,0,0,0,0,"",
+  /* 12 */  DI_TEXT,      11,12, 0,12,0,0,0,0,(char *)MViewConfigTabSize,
+  /* 13 */  DI_CHECKBOX,   6,13, 0,13,0,0,0,0,(char *)MViewConfigScrollbar,
+  /* 14 */  DI_CHECKBOX,   6,14, 0,14,0,0,0,0,(char *)MViewConfigArrows,
+  /* 15 */  DI_CHECKBOX,   6,15, 0,15,0,0,0,0,(char *)MViewConfigPersistentSelection,
+  /* 16 */  DI_CHECKBOX,   6,16, 0,16,0,0,0,0,(char *)MViewConfigAnsiTableAsDefault,
+  /* 17 */  DI_TEXT,       0,17, 0,17,0,0,DIF_SEPARATOR, 0, "",
+  /* 18 */  DI_BUTTON,     0,18, 0,18,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */  DI_BUTTON,     0,18, 0,18,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
 
   MakeDialogItems(CfgDlgData,CfgDlg);
@@ -780,31 +780,31 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,70,22,0,0,0,0,(char *)MEditConfigTitle,
-  /*  1 */  DI_TEXT,5,2,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
-  /*  2 */  DI_RADIOBUTTON,6,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
-  /*  3 */  DI_RADIOBUTTON,6,3,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
-  /*  4 */  DI_TEXT,6,4,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
+  /*  1 */  DI_TEXT,5,2,0,2,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
+  /*  2 */  DI_RADIOBUTTON,6,3,0,3,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
+  /*  3 */  DI_RADIOBUTTON,6,3,0,3,0,0,0,0,(char *)MEditConfigEditorAltF4,
+  /*  4 */  DI_TEXT,6,4,0,4,0,0,0,0,(char *)MEditConfigEditorCommand,
   /*  5 */  DI_EDIT,6,5,68,5,0,(DWORD_PTR)"ExternalEditor",DIF_HISTORY,0,"",
-  /*  6 */  DI_TEXT, 0, 6, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /*  7 */  DI_TEXT,5,7,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
-  /*  8 */  DI_TEXT,6,8,0,0,0,0,0,0,(char *)MEditConfigExpandTabsTitle,
+  /*  6 */  DI_TEXT, 0, 6, 0, 6, 0, 0, DIF_SEPARATOR, 0, "",
+  /*  7 */  DI_TEXT,5,7,0,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
+  /*  8 */  DI_TEXT,6,8,0,8,0,0,0,0,(char *)MEditConfigExpandTabsTitle,
   /*  9 */  DI_COMBOBOX,6,9,68,0,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,"",
-  /* 10 */  DI_CHECKBOX,6,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
-  /* 11 */  DI_CHECKBOX,6,10,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
-  /* 12 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(char *)MEditConfigSavePos,
-  /* 13 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
-  /* 14 */  DI_CHECKBOX,6,12,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
-  /* 15 */  DI_CHECKBOX,6,13,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-  /* 16 */  DI_CHECKBOX,6,14,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 17 */  DI_CHECKBOX,6,15,0,0,0,0,0,0,(char *)MEditLockROFileModification,
-  /* 18 */  DI_CHECKBOX,6,16,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
-  /* 19 */  DI_FIXEDIT,6,17,9,20,0,0,0,0,"",
-  /* 20 */  DI_TEXT,11,17,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-  /* 21 */  DI_CHECKBOX,6,18,0,0,0,0,0,0,(char *)MEditConfigAnsiTableAsDefault,
-  /* 22 */  DI_CHECKBOX,6,19,0,0,0,0,0,0,(char *)MEditConfigAnsiTableForNewFile,
-  /* 23 */  DI_TEXT, 0, 20, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /* 24 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 25 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /* 10 */  DI_CHECKBOX,6,10,0,10,0,0,0,0,(char *)MEditConfigPersistentBlocks,
+  /* 11 */  DI_CHECKBOX,6,10,0,10,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
+  /* 12 */  DI_CHECKBOX,6,11,0,11,0,0,0,0,(char *)MEditConfigSavePos,
+  /* 13 */  DI_CHECKBOX,6,11,0,11,0,0,0,0,(char *)MEditConfigSaveShortPos,
+  /* 14 */  DI_CHECKBOX,6,12,0,12,0,0,0,0,(char *)MEditConfigAutoIndent,
+  /* 15 */  DI_CHECKBOX,6,13,0,13,0,0,0,0,(char *)MEditAutoDetectTable,
+  /* 16 */  DI_CHECKBOX,6,14,0,14,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 17 */  DI_CHECKBOX,6,15,0,15,0,0,0,0,(char *)MEditLockROFileModification,
+  /* 18 */  DI_CHECKBOX,6,16,0,16,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 19 */  DI_FIXEDIT,6,17,9,17,0,0,0,0,"",
+  /* 20 */  DI_TEXT,11,17,0,17,0,0,0,0,(char *)MEditConfigTabSize,
+  /* 21 */  DI_CHECKBOX,6,18,0,18,0,0,0,0,(char *)MEditConfigAnsiTableAsDefault,
+  /* 22 */  DI_CHECKBOX,6,19,0,19,0,0,0,0,(char *)MEditConfigAnsiTableForNewFile,
+  /* 23 */  DI_TEXT, 0, 20, 0, 20, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 24 */  DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 25 */  DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 

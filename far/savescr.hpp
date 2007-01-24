@@ -7,23 +7,6 @@ savescr.hpp
 
 */
 
-/* Revision: 1.04 09.03.2004 $ */
-
-/*
-Modify:
-  09.03.2004 SVS
-    + CorrectRealScreenCoord() - корректировка размеров буфера
-  23.08.2002 SVS
-    + SaveScreen::DumpBuffer
-  21.05.2001 OT
-    ! Методы для работы с изменяющимся буфером экрана.
-  11.05.2001 OT
-    ! Отрисовка Background
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 class SaveScreen
 {
   friend class Grabber;

@@ -114,12 +114,7 @@ void Manager::CloseAll()
     DeleteCommit();
     DeletedFrame=NULL;
   }
-  /* $ 13.07.2000 SVS
-     Здесь было "delete ModalList;", но перераспределение массива ссылок
-     идет через realloc...
-  */
   xf_free(FrameList);
-  /* SVS $ */
   FrameList=NULL;
   FrameCount=FramePos=0;
 }

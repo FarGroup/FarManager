@@ -7,68 +7,6 @@ fileview.hpp
 
 */
 
-/* Revision: 1.22 06.07.2006 $ */
-
-/*
-Modify:
-  06.07.2006 SVS
-    + GetViewFilePos(), GetViewFileSize()
-  29.05.2006 SVS
-    + GetTitle()
-  25.06.2002 SVS
-    + IsFullScreen()
-  14.06.2002 IS
-    + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
-      и каталог, его содержащий (если каталог пуст). По умолчанию - TRUE
-      (получаем поведение SetTempViewName такое же, как и раньше)
-  22.05.2002 SVS
-    + ViewerControl()
-  13.05.2002 VVM
-    + Перерисуем заголовок консоли после позиционирования на файл.
-  02.11.2001 SVS
-    ! возвращаемое значение у GetTypeName() - модификатор const
-  08.09.2001 IS
-    + Дополнительный параметр у второго конструктора: DisableHistory
-  17.08.2001 KM
-    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
-      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
-      найденного файла из архива.
-    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
-  11.07.2001 OT
-    Перенос CtrlAltShift в Manager
-  25.06.2001 IS
-   ! Внедрение const
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  06.06.2001 OT
-    ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
-    + добавлен деструктор ~FileViewer()... с косметическими целями
-  05.06.2001 tran
-    + класс FileView - добавлен OnChangeFocus
-  15.05.2001 OT
-    ! NWZ -> NFZ
-  12.05.2001 DJ
-    ! отрисовка по OnChangeFocus перенесена в Frame
-    ! убран дублирующийся ExitCode
-    + SetEnableF6()
-  06.05.2001 DJ
-    ! перетрях #include
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
-  05.05.2001 DJ
-    + Перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  07.08.2000 SVS
-    + Функция инициализации KeyBar Labels - InitKeyBar()
-  28.06.2000 tran
-    - NT Console resize bug
-      adding SetScreenPosition method
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "frame.hpp"
 #include "viewer.hpp"
 #include "keybar.hpp"

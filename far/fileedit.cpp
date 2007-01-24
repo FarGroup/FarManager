@@ -810,17 +810,17 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             static struct DialogData EditDlgData[]=
             {
               /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
-              /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
+              /* 1 */ DI_TEXT,5,2,0,2,0,0,0,0,(char *)MEditSaveAs,
               /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,"",
-              /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-              /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
-              /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
-              /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveDOS,
-              /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MEditSaveUnix,
-              /* 8 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(char *)MEditSaveMac,
-              /* 9 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-              /*10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-              /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+              /* 3 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+              /* 4 */ DI_TEXT,5,5,0,5,0,0,0,0,(char *)MEditSaveAsFormatTitle,
+              /* 5 */ DI_RADIOBUTTON,5,6,0,6,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
+              /* 6 */ DI_RADIOBUTTON,5,7,0,7,0,0,0,0,(char *)MEditSaveDOS,
+              /* 7 */ DI_RADIOBUTTON,5,8,0,8,0,0,0,0,(char *)MEditSaveUnix,
+              /* 8 */ DI_RADIOBUTTON,5,9,0,9,0,0,0,0,(char *)MEditSaveMac,
+              /* 9 */ DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+              /*10 */ DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+              /*11 */ DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
             };
             MakeDialogItems(EditDlgData,EditDlg);
             xstrncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);

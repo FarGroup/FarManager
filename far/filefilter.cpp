@@ -5,42 +5,6 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.12 25.08.2006 $ */
-
-/*
-Modify:
-  25.08.2006 SVS
-    - Mantis#233 - не хватает атрибута для поиска симлинков
-  24.02.2006 AY
-    ! Центрирование кнопок сброса.
-  09.02.2006 AY
-    - Добавил новые атрибутты I, T, $ в диалог фильтра.
-    ! Баг с автомацией чекбоксов атрибутов - открывались атрибуты которые не должны.
-  24.06.2005 WARP
-    ! Новый дизайн диалога фильтра.
-  24.04.2005 AY
-    ! GCC
-  23.04.2005 KM
-    ! Модификация для запрета использования атрибута Directory из копирования
-  01.11.2004 SVS
-    - две дефолтовые кнопки
-  25.10.2004 SVS
-    - "Вместо 0 - ограничитель диапазона - использовать "пусто"."
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  14.06.2004 KM
-    + Добавлена обработка атрибута FILE_ATTRIBUTE_DIRECTORY
-    ! Заменим BSTATE_UNCHECKED на BSTATE_3STATE при сбросе значений.
-  08.12.2003 SVS
-    + размеры в Mb, Gb
-    + кнопка Reset
-    ! введение автоматизации (часть кода снесена нафиг :-)
-  11.10.2003 KM
-    ! Ускорение операции фильтрации файлов.
-  04.10.2003 KM
-    ! Введение в строй фильтра операций. Начало новой эры :-)
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -339,12 +303,12 @@ void FileFilter::Configure()
   struct DialogData FilterDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,73,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
-  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
+  /* 01 */DI_CHECKBOX,5,2,0,2,1,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
   /* 02 */DI_EDIT,7,3,71,3,0,(DWORD_PTR)FilterMasksHistoryName,DIF_HISTORY,0,"",
 
-  /* 03 */DI_TEXT,0,4,0,0,0,0,DIF_SEPARATOR,0,"",
+  /* 03 */DI_TEXT,0,4,0,4,0,0,DIF_SEPARATOR,0,"",
 
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
+  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
   /* 05 */DI_COMBOBOX,52,5,71,5,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
   /* 06 */DI_TEXT,7,6,38,6,0,0,0,0,(char *)MFileFilterSizeFrom,
   /* 07 */DI_FIXEDIT,52,6,71,6,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
@@ -353,7 +317,7 @@ void FileFilter::Configure()
 
   /* 10 */DI_TEXT,0,8,0,0,0,0,DIF_SEPARATOR,0,"",
 
-  /* 11 */DI_CHECKBOX,5,9,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
+  /* 11 */DI_CHECKBOX,5,9,0,9,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
   /* 12 */DI_COMBOBOX,53,9,71,9,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
   /* 13 */DI_TEXT,7,10,38,10,0,0,0,0,(char *)MFileFilterAfter,
   /* 14 */DI_FIXEDIT,53,10,62,10,0,(DWORD_PTR)DateMask,DIF_MASKEDIT,0,"",
@@ -364,23 +328,23 @@ void FileFilter::Configure()
   /* 19 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
   /* 20 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
-  /* 21 */DI_TEXT,0,13,0,0,0,0,DIF_SEPARATOR,0,"",
+  /* 21 */DI_TEXT,0,13,0,13,0,0,DIF_SEPARATOR,0,"",
 
-  /* 22 */DI_CHECKBOX, 5,14,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
-  /* 23 */DI_CHECKBOX, 7,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
-  /* 24 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
-  /* 25 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
-  /* 26 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
-  /* 27 */DI_CHECKBOX,29,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
-  /* 28 */DI_CHECKBOX,29,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
-  /* 29 */DI_CHECKBOX,29,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
-  /* 30 */DI_CHECKBOX,29,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
-  /* 31 */DI_CHECKBOX,51,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
-  /* 32 */DI_CHECKBOX,51,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
-  /* 33 */DI_CHECKBOX,51,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
+  /* 22 */DI_CHECKBOX, 5,14,0,14,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
+  /* 23 */DI_CHECKBOX, 7,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
+  /* 24 */DI_CHECKBOX, 7,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
+  /* 25 */DI_CHECKBOX, 7,17,0,17,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
+  /* 26 */DI_CHECKBOX, 7,18,0,18,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
+  /* 27 */DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
+  /* 28 */DI_CHECKBOX,29,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
+  /* 29 */DI_CHECKBOX,29,17,0,17,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+  /* 30 */DI_CHECKBOX,29,18,0,18,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
+  /* 31 */DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
+  /* 32 */DI_CHECKBOX,51,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
+  /* 33 */DI_CHECKBOX,51,17,0,17,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
 
 
-  /* 34 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 34 */DI_TEXT, 0, 19, 0, 19, 0, 0, DIF_SEPARATOR, 0, "",
 
   /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
   /* 36 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,

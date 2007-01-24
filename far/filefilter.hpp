@@ -7,21 +7,6 @@ filefilter.hpp
 
 */
 
-/* Revision: 1.03 23.04.2005 $ */
-
-/*
-Modify:
-  23.04.2005 KM
-    ! Модификация для запрета использования атрибута Directory из копирования
-  07.12.2003 SVS
-    ! SIZE_COUNT удален - будет юзаться FSIZE_IN_LAST из farconst.hpp
-  11.10.2003 KM
-    + CFileMask FilterMask - сохраним скомпилированную маску здесь
-      для ускорения операции фильтрации файлов.
-  04.10.2003 KM
-    ! Введение в строй фильтра операций. Начало новой эры :-)
-*/
-
 #include "plugin.hpp"
 #include "struct.hpp"
 #include "CFileMask.hpp"

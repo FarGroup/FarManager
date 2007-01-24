@@ -7,31 +7,6 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.08 05.04.2005 $ */
-
-/*
-Modify:
-  05.04.2005 SVS
-    + У ScreenBuf::Read() появился доп параметр - скока читать.
-  08.12.2004 WARP
-    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
-  04.06.2002 SVS
-    + ScreenBuf::WriteA - с конвертацией
-  18.05.2002 SVS
-    ! Выносим некоторые переменные во флаги
-  04.03.2002 DJ
-    ! Appli -> Apply
-  03.03.2002 SVS
-    + AppliColor()
-  23.07.2001 SKV
-    + Scroll
-  12.05.2001 DJ
-    ! глобальный ScrBuf переехал сюда
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
 

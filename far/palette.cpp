@@ -5,41 +5,6 @@ palette.cpp
 
 */
 
-/* Revision: 1.12 04.10.2002 $ */
-
-/*
-Modify:
-  04.10.2002 SVS
-    + Немного новых цветов, уточняющих листбокс и комбобокс.
-    + ConvertCurrentPalette()
-  30.09.2002 SVS
-    ! Исправление цвета для COL_DIALOGLISTDISABLED
-    ! COL_DIALOGMENU* заменен на COL_DIALOGLIST*
-  19.09.2002 SVS
-    ! Немного антуража ;-)
-  07.06.2001 SVS
-    + COL_EDITORCLOCK, COL_VIEWERCLOCK
-  21.05.2001 SVS
-    + COL_MENUDISABLEDTEXT
-  06.05.2001 DJ
-    ! перетрях #include
-  04.12.2000 SVS
-    + COL_*DIALOG*DISABLED
-  06.10.2000 SVS
-    - попытка ?1 исправить падение ФАРы в ночное время :-)
-  13.09.2000 tran 1.04
-    + COL_COMMANDLINEPREFIX
-  18.07.2000 tran 1.03
-    + скролбар во вьювере
-  11.07.2000
-    + 1 Служебная позиция перед новыми цветами :-)
-  29.06.2000 SVS
-    + Цветовые атрибуты для Menu ScrollBar
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

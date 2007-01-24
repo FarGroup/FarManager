@@ -1993,14 +1993,14 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
                                       Selected               Data
 */
 /* 0 */ DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0,"",
-/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 2 */ DI_TEXT,      5, 3,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 3 */ DI_TEXT,      5, 4,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 4 */ DI_TEXT,      0, 5,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
-/* 5 */ DI_CHECKBOX,  5, 6, 70, 5, 0, 0, 0,                0,"",
-/* 6 */ DI_TEXT,      0, 7,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
-/* 7 */ DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1,"",
-/* 8 */ DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+/* 1 */ DI_TEXT,      5, 2,  0, 2, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 2 */ DI_TEXT,      5, 3,  0, 3, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 3 */ DI_TEXT,      5, 4,  0, 4, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 4 */ DI_TEXT,      0, 5,  0, 5, 0, 0, DIF_SEPARATOR,    0,"",
+/* 5 */ DI_CHECKBOX,  5, 6, 70, 6, 0, 0, 0,                0,"",
+/* 6 */ DI_TEXT,      0, 7,  0, 7, 0, 0, DIF_SEPARATOR,    0,"",
+/* 7 */ DI_BUTTON,    0, 8,  0, 8, 1, 0, DIF_CENTERGROUP,  1,"",
+/* 8 */ DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP,  0,""
   };
   MakeDialogItems(DCDlgData,DCDlg);
 

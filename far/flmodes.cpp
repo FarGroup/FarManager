@@ -5,67 +5,6 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.23 23.01.2006 $ */
-
-/*
-Modify:
-  23.01.2006 SVS
-    ! поле "A" размером 6! - доп.редко.юзаемые.атрибуты - в морг, в хелпе про это написано.
-  07.12.2005 SVS
-    ! поле "A" размером 7!
-  02.07.2005 WARP
-    - По умолчанию устанавливалось "Показывать имена строчными буквами" вместо "Показывать из заглавных строчными"
-  21.04.2005 SVS
-    ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
-    ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
-      что два последних параметра размером с NM
-    ! В FileList::ViewSettingsToText вместо strcat, применяем strNcat.
-  02.04.2005 AY
-    + Поддержка типа колонки SE в TextToViewSettings() и ViewSettingsToText()
-      С этим флагом не выводится пробел между размером и KMGT.
-  02.04.2005 AY
-    + Поддержка типа колонки SF в TextToViewSettings() и ViewSettingsToText()
-      Это новый метод показывания размера файла, как в Explorer'е.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  20.05.2004 SVS
-    ! NumericSort - свойство конкретной панели, а не режима отображения
-  11.07.2003 SVS
-    + Новая опция NumericSort
-  13.01.2003 SVS
-    + Новая опция в настройках режимов панелей: "Выравнивать расширения
-      папок" - позволяет показывать расширения папок выравненными независимо
-      от опции "Выравнивать расширения файлов".
-  07.01.2003 SVS
-    - BugZ#460 - не лучше ли поставить ширину колонок по дефолту 0,6,0,5 (вместо 0,8,0,5)
-  22.03.2002 SVS
-    - strcpy - Fuck!
-  19.03.2002 OT
-    - Исправление #96
-  11.02.2002 SVS
-    + Добавка в меню - акселератор - решение BugZ#299
-  26.07.2001 SVS
-    ! VFMenu уничтожен как класс
-  18.07.2001 OT
-    ! VFMenu
-  25.06.2001 IS
-   ! Внедрение const
-  16.06.2001 KM
-    ! Добавление WRAPMODE в меню.
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  21.05.2001 SVS
-    ! struct MenuData|MenuItem
-      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
-  06.05.2001 DJ
-    ! перетрях #include
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -140,26 +79,26 @@ void FileList::SetFilePanelModes()
     static struct DialogData ModeDlgData[]=
     {
     /* 00 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,"",
-    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditPanelModeTypes,
+    /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(char *)MEditPanelModeTypes,
     /* 02 */DI_EDIT,5,3,35,3,1,0,0,0,"",
-    /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditPanelModeWidths,
-    /* 04 */DI_EDIT,5,5,35,3,0,0,0,0,"",
-    /* 05 */DI_TEXT,38,2,0,0,0,0,0,0,(char *)MEditPanelModeStatusTypes,
+    /* 03 */DI_TEXT,5,4,0,4,0,0,0,0,(char *)MEditPanelModeWidths,
+    /* 04 */DI_EDIT,5,5,35,5,0,0,0,0,"",
+    /* 05 */DI_TEXT,38,2,0,2,0,0,0,0,(char *)MEditPanelModeStatusTypes,
     /* 06 */DI_EDIT,38,3,70,3,0,0,0,0,"",
-    /* 07 */DI_TEXT,38,4,0,0,0,0,0,0,(char *)MEditPanelModeStatusWidths,
-    /* 08 */DI_EDIT,38,5,70,3,0,0,0,0,"",
-    /* 09 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 10 */DI_TEXT,-1,6,0,0,0,0,DIF_BOXCOLOR,0,(char *)MEditPanelReadHelp,
-    /* 11 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditPanelModeFullscreen,
-    /* 12 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditPanelModeAlignExtensions,
-    /* 13 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditPanelModeAlignFolderExtensions,
-    /* 14 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MEditPanelModeFoldersUpperCase,
-    /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MEditPanelModeFilesLowerCase,
-    /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MEditPanelModeUpperToLowerCase,
-    /* 17 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MEditPanelModeCaseSensitiveSort,
-    /* 19 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 20 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    /* 21 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    /* 07 */DI_TEXT,38,4,0,4,0,0,0,0,(char *)MEditPanelModeStatusWidths,
+    /* 08 */DI_EDIT,38,5,70,5,0,0,0,0,"",
+    /* 09 */DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 10 */DI_TEXT,-1,6,0,6,0,0,DIF_BOXCOLOR,0,(char *)MEditPanelReadHelp,
+    /* 11 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MEditPanelModeFullscreen,
+    /* 12 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(char *)MEditPanelModeAlignExtensions,
+    /* 13 */DI_CHECKBOX,5,9,0,9,0,0,0,0,(char *)MEditPanelModeAlignFolderExtensions,
+    /* 14 */DI_CHECKBOX,5,10,0,10,0,0,0,0,(char *)MEditPanelModeFoldersUpperCase,
+    /* 15 */DI_CHECKBOX,5,11,0,11,0,0,0,0,(char *)MEditPanelModeFilesLowerCase,
+    /* 16 */DI_CHECKBOX,5,12,0,12,0,0,0,0,(char *)MEditPanelModeUpperToLowerCase,
+    /* 17 */DI_CHECKBOX,5,13,0,13,0,0,0,0,(char *)MEditPanelModeCaseSensitiveSort,
+    /* 19 */DI_TEXT,3,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 20 */DI_BUTTON,0,15,0,15,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    /* 21 */DI_BUTTON,0,15,0,15,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     MakeDialogItems(ModeDlgData,ModeDlg);
     int ExitCode;

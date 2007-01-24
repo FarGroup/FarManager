@@ -5,26 +5,6 @@ syntax.hpp
 
 */
 
-/* Revision: 1.06 17.03.2006 $ */
-
-/*
-Modify:
-  17.03.2006 SVS
-    ! UnrecogniSed (s -> z)
-    ! err_Unexpected_function -> err_Unrecognized_function
-  16.03.2006 SVS
-    + err_Unexpected_function
-  02.03.2006 SVS
-    ! Числа в макросах имеют суть __int64
-  24.04.2005 AY
-    ! GCC
-  05.03.2005 SVS
-    + varEnum()
-  05.08.2004 SVS
-    + funcLook()
-  14.06.2004 SVS & AN
-    + Адд
-*/
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.

@@ -1,5 +1,3 @@
-#if !defined(EDITOR2)
-
 #ifndef __EDITOR_HPP__
 #define __EDITOR_HPP__
 /*
@@ -59,18 +57,17 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_OPENFAILED            = 0x00400000,
   FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
 
-  /* $ 14.06.2002 IS
-     Если флаг взведен и нет FEDITOR_DELETEONCLOSE, то удалить только файл
-  */
-  FEDITOR_DELETEONLYFILEONCLOSE = 0x01000000,
-  /* IS $ */
-  FEDITOR_PROCESSCTRLQ          = 0x02000000, // нажата Ctrl-Q и идет процесс вставки кода символа
+  FEDITOR_DELETEONLYFILEONCLOSE = 0x01000000,   // Если флаг взведен и нет FEDITOR_DELETEONCLOSE, то удалить только файл
+  FEDITOR_PROCESSCTRLQ          = 0x02000000,   // нажата Ctrl-Q и идет процесс вставки кода символа
+
+  FEDITOR_DIALOGMEMOEDIT        = 0x80000000,   // Editor используется в диалоге в качестве DI_MEMOEDIT
 };
 
 class Edit;
 
 class Editor:public ScreenObject
 {
+  friend class DlgEdit;
   friend class FileEditor;
   private:
 
@@ -191,7 +188,7 @@ class Editor:public ScreenObject
     Edit *CreateString (const char *lpszStr, int nLength);
 
   public:
-    Editor();
+    Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);
     ~Editor();
 
   public:
@@ -264,8 +261,21 @@ class Editor:public ScreenObject
     static void PR_EditorShowMsg(void);
 
     void FreeAllocatedData();
+    void SetDialogParent(DWORD Sets);
+    void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};
+    int  GetReadOnly() {return Flags.Check(FEDITOR_LOCKMODE);};
+    void SetOvertypeMode(int Mode);
+    int  GetOvertypeMode();
+    void SetEditBeyondEnd(int Mode);
+    void SetClearFlag(int Flag);
+    int  GetClearFlag(void);
 
+    int  GetCurCol();
+    int  GetCurRow(){return NumLine;};
+    void SetCurPos(int NewCol, int NewRow=-1);
+    void SetCursorType(int Visible,int Size);
+    void GetCursorType(int &Visible,int &Size);
+    void SetObjectColor(int Color,int SelColor,int ColorUnChanged);
 };
 
 #endif // __EDITOR_HPP__
-#endif //defined(EDITOR2)

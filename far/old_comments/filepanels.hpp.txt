@@ -1,0 +1,41 @@
+/*
+Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
+  03.06.2004 SVS
+    ! Часть кода вынесена в отдельные функции:
+       a) Установить фокус на противоположную панель (Tab)
+          FilePanels::SetAnhoterPanelFocus()
+       b) поменять панели местами (Ctrl-U)
+          FilePanels::SwapPanels()
+       c) сменить режим панели
+          FilePanels::ChangePanelViewMode()
+  08.04.2002 IS
+    ! Немного const
+  16.01.2002 OT
+    Испраление поведения макросов в инфо-, квик- и три-панелей
+  28.12.2001 DJ
+    + единый метод GoToFile()
+  02.11.2001 SVS
+    ! возвращаемое значение у GetTypeName() - модификатор const
+  18.07.2001 OT
+    ! VFMenu
+  11.07.2001 OT
+    ! Перенос CtrlAltShift в Manager
+  14.06.2001 OT
+    ! "Бунт" ;-)
+  21.05.2001 OT
+    + Реакция на изменение размеров консоли virtual void ResizeConsole();
+  15.05.2001 OT
+    ! NWZ -> NFZ
+  11.05.2001 OT
+    ! Отрисовка Background
+  06.05.2001 DJ
+    ! перетрях #include
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
+  05.05.2001 DJ
+    + перетрях NWZ
+  01.01.2001 tran
+      created
+*/

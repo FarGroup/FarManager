@@ -5,83 +5,6 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.31 05.07.2006 $ */
-
-/*
-Modify:
-  05.07.2006 IS
-    - warnings
-  31.01.2005 SVS
-    ! В GetMenuHotKey() новый параметр - "имя плагина"
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  01.03.2004 SVS
-    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
-      (задел на будущее + править впоследствии только 1 файл)
-  22.09.2003 SVS
-    - BugZ#402 - Удаление хоткея
-  04.04.2003 SVS
-    - BugZ#845 - вылазит строка за рамки диалога
-      Упс... а Prompt-то у нас может смело валить ФАР - "переполнение буфера"!!!
-  12.09.2002 SVS
-    ! Исключаем возможные симптомы by BugZ#593
-  10.06.2002 SVS
-    + DIF_EDITPATH (FIB_EDITPATH)
-  10.05.2002 SVS
-    ! Загоним в блок вызов Dialog (щоб глюков избежать)
-  29.04.2002 SVS
-    ! Убираем "Грязный Хак" в функции GetString от 12.03.2001, т.к.
-      теперь все решается на уровне диалога.
-  13.02.2002 SVS
-    + FIB_NOAMPERSAND
-  07.12.2001 IS
-    + В GetString можно добавлять CheckBox
-  05.12.2001 SVS
-    ! Временно отключаем обработку исключений на этом уровне.
-  27.09.2001 IS
-    - Левый размер при использовании strncpy
-  14.09.2001 SVS
-    ! Отключаемые исключения
-  09.09.2001 SVS
-    + GetMenuHotKey()
-  01.08.2001 SVS
-    ! Если хотя бы один из последних трех параметров функции
-      GetSearchReplaceString равен NULL, то произведем метаморфозы диалогов
-  26.06.2001 SVS
-    ! __except -> EXCEPT
-  25.06.2001 IS
-    ! Внедрение const
-  11.06.2001 SVS
-    ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
-  16.05.2001 SVS
-    ! DumpExceptionInfo заменен на xfilter
-  07.05.2001 SVS
-    ! SysLog(); -> _D(SysLog());
-  06.05.2001 DJ
-    ! перетрях #include
-  16.03.2001 SVS
-    + GetNameAndPassword();
-  13.03.2001 SVS
-    - в предыдущем патче неверно работали макросы - не была учтена ситуация
-      с макросами.
-  12.03.2001 SVS
-    ! Грязный Хак в функции GetString :-)
-  12.02.2001 SVS
-    ! Ops. Баги в GetString :-)
-  11.02.2001 SVS
-    ! Изменения в GetString с учетом флага DIF_VAREDIT
-  28.01.2001 SVS
-    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
-  23.01.2001 SVS
-    + добавим немного эксепшина :-)
-  23.01.2001 SVS
-    - Ну вот и первая бага в диалоге поиска/замены :-(
-  21.01.2001 SVS
-    ! Выделение в качестве самостоятельного модуля
-    + Функция GetString переехала из mix.cpp
-    + GetSearchReplaceString - преобразована из editor.cpp
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -189,17 +112,17 @@ int WINAPI GetSearchReplaceString(
 */
     static struct DialogData ReplaceDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
-    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
+    /*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(char *)MEditSearchFor,
     /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
-    /*  4 */DI_EDIT,5,5,70,3,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
-    /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
-    /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
-    /*  8 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    /*  9 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 10 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
-    /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    /*  3 */DI_TEXT,5,4,0,4,0,0,0,0,(char *)MEditReplaceWith,
+    /*  4 */DI_EDIT,5,5,70,5,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
+    /*  5 */DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MEditSearchCase,
+    /*  7 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(char *)MEditSearchWholeWords,
+    /*  8 */DI_CHECKBOX,5,9,0,9,0,0,0,0,(char *)MEditSearchReverse,
+    /*  9 */DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 10 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
+    /* 11 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
     };
     /* KM $ */
     HeightDialog=14;
@@ -308,15 +231,15 @@ int WINAPI GetSearchReplaceString(
 */
     static struct DialogData SearchDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
-    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
+    /*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(char *)MEditSearchFor,
     /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
-    /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
-    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    /*  7 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  8 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
-    /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    /*  3 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  4 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MEditSearchCase,
+    /*  5 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MEditSearchWholeWords,
+    /*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MEditSearchReverse,
+    /*  7 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  8 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
+    /*  9 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
     };
     MakeDialogItems(SearchDlgData,SearchDlg);
     HeightDialog=12;
@@ -463,13 +386,13 @@ int WINAPI GetString(const char *Title,const char *Prompt,
                                       Selected               Data
 */
 /* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,"",
-/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 1 */ DI_TEXT,      5, 2,  0, 2, 0, 0, DIF_SHOWAMPERSAND,0,"",
 /* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,"",
-/* 3 */ DI_TEXT,      0, 4,  0, 0, 0, 0, DIF_SEPARATOR,    0,"",
-/* 4 */ DI_CHECKBOX,  5, 5,  0, 0, 0, 0, 0,                0,"",
-/* 5 */ DI_TEXT,      0, 6,  0, 0, 0, 0, DIF_SEPARATOR,    0,"",
-/* 6 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
-/* 7 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
+/* 4 */ DI_CHECKBOX,  5, 5,  0, 5, 0, 0, 0,                0,"",
+/* 5 */ DI_TEXT,      0, 6,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
+/* 6 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,  0,"",
+/* 7 */ DI_BUTTON,    0, 7,  0, 7, 0, 0, DIF_CENTERGROUP,  0,""
   };
   MakeDialogItems(StrDlgData,StrDlg);
 
@@ -624,13 +547,13 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
   static struct DialogData PassDlgData[]=
   {
 /* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,"",
-/* 1 */ DI_TEXT,       5, 2, 0, 0,0,0,0,0,"",
+/* 1 */ DI_TEXT,       5, 2, 0, 2,0,0,0,0,"",
 /* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,"",
-/* 3 */ DI_TEXT,       5, 4, 0, 0,0,0,0,0,"",
+/* 3 */ DI_TEXT,       5, 4, 0, 4,0,0,0,0,"",
 /* 4 */ DI_PSWEDIT,    5, 5,70, 3,0,0,0,0,"",
-/* 5 */ DI_TEXT,       3, 6, 0, 0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/* 6 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,1,"",
-/* 7 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,0,""
+/* 5 */ DI_TEXT,       3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+/* 6 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,1,"",
+/* 7 */ DI_BUTTON,     0, 7, 0, 7,0,0,DIF_CENTERGROUP,0,""
   };
   MakeDialogItems(PassDlgData,PassDlg);
 
@@ -699,7 +622,7 @@ L========================================================-
   static struct DialogData PluginDlgData[]=
   {
     /* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,"",
-    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,"",
+    /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,"",
     /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,"",
     /* 03 */DI_TEXT,8,3,58,3,0,0,0,0,"",
   };

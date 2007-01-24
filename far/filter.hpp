@@ -7,25 +7,6 @@ filter.hpp
 
 */
 
-/* Revision: 1.04 04.07.2006 $ */
-
-/*
-Modify:
-  04.07.2006 IS
-    - warnings
-  03.04.2002 SVS
-    + ParseAndAddMasks() - выявлять и если надо добавлять очередную маску
-    ! Немного красоты ;-)
-  01.07.2001 IS
-    + #include "CFileMask.hpp"
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "CFileMask.hpp"
 
 class VMenu;

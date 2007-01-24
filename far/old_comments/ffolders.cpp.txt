@@ -1,0 +1,44 @@
+/*
+Modify:
+  04.07.2006 IS
+    - warnings
+  19.06.2005 SVS
+    + FIB_BUTTONS
+  26.04.2005 SVS
+    ! У GetShortcutFolder добавлен параметр - скока брать на грудь для пути.
+    + Функция GetShortcutFolderSize() - возвращает размер для ShortcutN
+    ! ProcessShortcutRecord() теперь возвращает значение.
+  04.11.2004 SVS
+    ! убираем *_EDITPATH
+  07.10.2003 SVS
+    - Ошибочное сообщение об ошибке.
+  29.04.2002 SVS
+    - BugZ#482 Folder shortcuts (продолжение)
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
+    - BugZ#482 - Folder shortcuts
+    ! немного оптимизации
+    ! Корректная работа Ins в плагиновых панелях.
+  28.10.2001 SVS
+    + Folder shortcuts - горячие клавиши на цифры
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
+  17.06.2001 IS
+    ! ExpandEnvironmentStrings -> ExpandEnvironmentStr, т.к. первая некорректно
+      работает с символами, коды которых больше 0x7F
+  16.06.2001 KM
+    ! Добавление WRAPMODE в меню.
+  21.05.2001 SVS
+    ! Константы MENU_ - в морг
+  06.05.2001 DJ
+    ! перетрях #include
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/

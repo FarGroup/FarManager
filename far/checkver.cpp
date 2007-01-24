@@ -89,13 +89,13 @@ void Register()
   static struct DialogData RegDlgData[]=
   {
     DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MRegTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MRegUser,
+    DI_TEXT,5,2,0,2,0,0,0,0,(char *)MRegUser,
     DI_EDIT,5,3,70,3,1,0,0,0,"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MRegCode,
+    DI_TEXT,5,4,0,4,0,0,0,0,(char *)MRegCode,
     DI_EDIT,5,5,70,5,0,0,0,0,"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,7,0,7,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(RegDlgData,RegDlg);
   Dialog Dlg(RegDlg,sizeof(RegDlg)/sizeof(RegDlg[0]));

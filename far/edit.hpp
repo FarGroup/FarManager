@@ -40,7 +40,7 @@ class Editor;
 
 class Edit:public ScreenObject
 {
-  friend class Dialog;
+  friend class DlgEdit;
   friend class Editor;
 
   public:

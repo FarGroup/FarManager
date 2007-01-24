@@ -8,42 +8,6 @@ flink.hpp
 
 */
 
-/* Revision: 1.12 17.10.2001 $ */
-
-/*
-Modify:
-  17.10.2001 SVS
-   ! Внедрение const
-  16.10.2001 SVS
-    + EnumNTFSStreams() - получить информацию о потоках
-    ! немного const-модификаторов
-  01.10.2001 SVS
-    ! FarGetRepasePointInfo -> FarGetRepa_R_sePointInfo
-  24.09.2001 SVS
-    + FarGetRepasePointInfo - оболочка вокруг GetJunctionPointInfo() для
-      плагинов.
-  25.06.2001 IS
-   ! Внедрение const
-  30.05.2001 SVS
-    + FarMkLink()
-  29.05.2001 SVS
-    + GetPathRootOne()
-  28.04.2001 VVM
-    + GetSubstName получает тип носителя
-  25.04.2001 SVS
-    + CreateVolumeMountPoint() - монтирование диска на файловую систему
-  06.04.2001 SVS
-    + CanCreateHardLinks() - проверка на вшивость.
-  13.03.2001 SVS
-    ! GetPathRoot переехала в fn.hpp :-)
-  05.01.2001 SVS
-    + Функция DelSubstDrive - удаление Subst драйвера
-    + Функция GetSubstName переехала из fh.hpp
-  04.01.2001 SVS
-    + Создан.
-    + Описания MkLink, GetNumberOfLinks переехали из fn.hpp
-*/
-
 int   WINAPI MkLink(const char *Src,const char *Dest);
 int   WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags);
 BOOL  WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName);

@@ -1,0 +1,45 @@
+/*
+Modify:
+  01.09.2006 SVS
+    - Mantis#227 - не воспринимаются имена переменных, начинающихся с подчеркивания
+    + Panel.FAttr(), Panel.FExist()
+  06.04.2006 AY
+    ! GCC
+  04.04.2006 SVS
+    + N=sleep(N)
+  17.03.2006 AY & SVS
+    ! UnrecogniSed (s -> z)
+    ! err_Unexpected_function -> err_Unrecognized_function
+  16.03.2006 SVS
+    ! Уточнение диагностики парсера
+  04.03.2006 SVS
+    + MCODE_F_CLIP (V=clip(N,S))
+    ! Числа в макросах имеют суть __int64
+  17.01.2006 SVS
+    + Panel.SetPos
+  09.12.2005 SVS
+    + "тестовая зона"...
+  07.10.2005 SVS
+    + Macro: Функция V=Dlg.GetValue(ID,N)
+  05.07.2005 SVS
+    + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
+  24.04.2005 AY
+    ! GCC
+  06.04.2005 SVS
+    + b=msave(var)
+  01.04.2005 SVS
+    + MCODE_F_PANELITEM
+  05.03.2005 SVS
+    + varEnum()
+  15.02.2005 SVS
+    + функция "S=itoa(N,Radix)"
+  11.11.2004 SVS
+    - BugZ#1188 - тест макропоследовательности (имена макро-функций)
+  10.09.2004 SVS
+    + UCase, LCase
+  05.08.2004 SVS
+    + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX
+    ! funcLook() стала глобальной
+  14.06.2004 SVS & AN
+    + Адд
+*/

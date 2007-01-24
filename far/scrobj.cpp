@@ -5,48 +5,6 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.13 25.07.2005 $ */
-
-/*
-Modify:
-  24.07.2005 WARP
-    ! see 02033.LockUnlock.txt
-  27.05.2003 SVS
-    ! Зачатки каптюризации мыши :-)
-      Введен ScreenObject *ScreenObject::CaptureMouseObject, который
-      указывает на объект, захвативший мышь.
-  26.02.2003 SVS
-    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
-      Временно отключим схему исключения рекурсии на столь низком уровне
-  25.02.2003 SVS
-    ! В ScreenObject::Show() воспользуемся флагом FSCROBJ_ISREDRAWING с тем,
-      чтобы исключить рекурсию при прорисовке объектов!
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-  18.05.2002 SVS
-    ! Выносим некоторые переменные во флаги
-  13.04.2002 KM
-    - Раз меняем позицию объекта на экране, то тогда перед этим
-      восстановим изображение под ним для предотвращения
-      восстановления ранее сохранённого изображения в новом месте.
-  18.07.2001 OT
-    Комсетика
-  14.06.2001 OT
-    ! "Бунт" ;-)
-  12.05.2001 SVS
-    ! Немного проверок на несозданные объекты
-  09.05.2001 OT
-    - Отключние в конструкторе EnableRestoreScreen=FALSE;
-  06.05.2001 DJ
-    ! перетрях #include
-  15.07.2000 tran
-    + add new dirty method - Hide0(), jys set Visible to False
-      used in FileViewer, for keybar hiding
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

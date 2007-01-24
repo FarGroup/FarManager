@@ -8,35 +8,6 @@ scantree.hpp
 
 */
 
-/* Revision: 1.08 29.09.2005 $ */
-
-/*
-Modify:
-  29.09.2005 SVS
-    + FSCANTREE_USEDALTFOLDERNAME
-    + доп.параметр у конструктора ScanTree()
-  14.06.2003 SVS
-    ! Внедрение новых флагов
-    ! Вместо SecondPass[] и FindHandle[] вводим структуру ScanTreeData
-    + InsideJunction() - при очередном проходе скажет нам - "мы в симлинке?"
-    ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
-  01.06.2003 SVS
-    ! переходим на BitFlags
-  27.12.2002 VVM
-    + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
-  23.06.2002 SVS
-    ! Немного красоты ;-)
-  26.03.2002 DJ
-    ! GetNextName() принимает размер буфера для имени файла
-  25.06.2001 IS
-    ! Внедрение const
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "farconst.hpp"
 #include "bitflags.hpp"
 
