@@ -1982,7 +1982,7 @@ int __stdcall ArchivePanel::pSetDirectory (
 		int nOpMode
 		)
 {
-	//__debug ("dir - %s", Dir);
+	PanelInfo pi;
 
 	if ( !strcmp (Dir, "..") )
 	{
@@ -1990,24 +1990,38 @@ int __stdcall ArchivePanel::pSetDirectory (
 			CutTo (m_lpCurrentFolder, '\\', true);
 		else
 			*m_lpCurrentFolder = '\0';
+
+		return TRUE;
 	}
 	else
 
 	if ( !strcmp (Dir, "\\") )
 	{
 		*m_lpCurrentFolder = '\0';
+		return TRUE;
 	}
 	else
 	{
-		if ( *m_lpCurrentFolder )
-			strcat (m_lpCurrentFolder, "\\");
+		Info.Control (this, FCTL_GETPANELINFO, &pi);
 
-		strcat (m_lpCurrentFolder, Dir);
+		for (int i = 0; i < pi.ItemsNumber; i++)
+		{
+			PluginPanelItem *ppi = &pi.PanelItems[i];
+
+			if ( OptionIsOn (ppi->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) && 
+				 !FSF.LStricmp (ppi->FindData.cFileName, Dir) )
+			{
+				if ( *m_lpCurrentFolder )
+					strcat (m_lpCurrentFolder, "\\");
+
+				strcat (m_lpCurrentFolder, Dir);
+
+				return TRUE;
+			}
+		}
 	}
 
-	//__debug ("real dir - %s", m_lpCurrentFolder);
-
-	return TRUE;
+	return FALSE;
 }
 
 
