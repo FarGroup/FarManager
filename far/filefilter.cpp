@@ -300,8 +300,11 @@ void FileFilter::FilterEdit()
 
   for (int i=0; i<TempFilterDataCount; i++)
   {
-    const char *Mask;
-    TempFilterData[i]->GetMask(&Mask);
+    const char *FMask;
+    TempFilterData[i]->GetMask(&FMask);
+    char Mask[512];
+    xstrncpy(Mask,FMask,sizeof(Mask)-1);
+    Unquote(Mask);
     if(!ParseAndAddMasks(&ExtPtr,Mask,0,ExtCount,GetCheck(TempFilterData[i])))
       break;
 
@@ -577,6 +580,7 @@ void FileFilter::FilterEdit()
 
   if (ExitCode!=-1 || bNeedUpdate)
   {
+    SaveFilters(false);
     m_HostPanel->Update(UPDATE_KEEP_SELECTION);
     m_HostPanel->Redraw();
   }
@@ -624,16 +628,6 @@ int FileFilter::GetCheck(FileFilterParams *FFP)
 
 void FileFilter::ProcessSelection(VMenu *FilterList)
 {
-  if(TempFilterData)
-  {
-    for (int i=0; i < TempFilterDataCount; i++)
-      delete TempFilterData[i];
-
-    xf_free(TempFilterData);
-    TempFilterData=NULL;
-    TempFilterDataCount=0;
-  }
-
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
@@ -670,7 +664,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
               delete TempFilterData[j];
 
               for (int i=j+1; i<TempFilterDataCount; i++)
-                TempFilterData[i-1]=FilterData[i];
+                TempFilterData[i-1]=TempFilterData[i];
 
               TempFilterDataCount--;
            }
@@ -917,7 +911,7 @@ void FileFilter::CloseFilter()
   }
 }
 
-void FileFilter::SaveFilters()
+void FileFilter::SaveFilters(bool SaveAll)
 {
   char RegKey[80], *PtrRegKey;
 
@@ -961,25 +955,28 @@ void FileFilter::SaveFilters()
     SetRegKey(RegKey,"AttrSet",AttrSet);
     SetRegKey(RegKey,"AttrClear",AttrClear);
 
-    SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
+    SetRegKey(RegKey,"Flags",SaveAll ? CurFilterData->Flags.Flags : 0);
   }
 
-  strcpy(RegKey,"Filters\\PanelMask");
-  PtrRegKey=RegKey+strlen(RegKey);
-
-  for (int i=0; i<TempFilterDataCount; i++)
+  if (SaveAll)
   {
-    CurFilterData = TempFilterData[i];
-    itoa(i,PtrRegKey,10);
+    strcpy(RegKey,"Filters\\PanelMask");
+    PtrRegKey=RegKey+strlen(RegKey);
 
-    const char *Mask;
-    CurFilterData->GetMask(&Mask);
-    SetRegKey(RegKey,"Mask",Mask);
+    for (int i=0; i<TempFilterDataCount; i++)
+    {
+      CurFilterData = TempFilterData[i];
+      itoa(i,PtrRegKey,10);
 
-    SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
+      const char *Mask;
+      CurFilterData->GetMask(&Mask);
+      SetRegKey(RegKey,"Mask",Mask);
+
+      SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
+    }
+
+    SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
   }
-
-  SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
 }
 
 void FileFilter::SwapFilter()

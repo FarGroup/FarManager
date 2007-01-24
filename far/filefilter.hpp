@@ -121,7 +121,7 @@ class FileFilter
     static void InitFilter();
     static void CloseFilter();
     static void SwapFilter();
-    static void SaveFilters();
+    static void SaveFilters(bool SaveAll=true);
 };
 
 bool FileFilterConfig(FileFilterParams *FF);
