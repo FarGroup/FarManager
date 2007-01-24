@@ -1,4 +1,4 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <stdio.h>
 #include "zip.class.h"
 

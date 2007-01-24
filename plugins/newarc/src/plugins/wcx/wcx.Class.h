@@ -1,6 +1,6 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
-#include <Collections.h>
+#include <array.hpp>
 #include "../../module.hpp"
 #include "wcxhead.h"
 
@@ -58,7 +58,7 @@ public:
 
 class WcxModules {
 
-	Collection <WcxModule*> m_Modules;
+	pointer_array<WcxModule*> m_Modules;
 
 	ArchivePluginInfo m_PluginInfo;
 

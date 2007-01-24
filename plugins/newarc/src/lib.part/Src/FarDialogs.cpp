@@ -1,4 +1,4 @@
-#include <FarDialogs.h>
+#include <FarDialogs.hpp>
 
 int cstrlen (const char *str)
 {
@@ -11,21 +11,15 @@ FarDialog::FarDialog (
 		int Y1,
 		int X2,
 		int Y2
-		)
+		) : AutoArray<FarDialogItem> (ARRAY_OPTIONS_SKIP)
 {
 	m_X1 = X1;
 	m_Y1 = Y1;
 	m_X2 = X2;
 	m_Y2 = Y2;
 
-	m_Count = 3;
-	m_RealCount = 0;
-
-	m_Flags       = 0;
-	m_Counter     = 0;
-	m_Items = (FarDialogItem*)malloc (m_Count*sizeof (FarDialogItem));
-
-	m_Info        = &Info;
+	m_nFlags = 0;
+	m_Info = &Info;
 
 	m_nFirstButton = -1;
 	m_lpHelpTopic = NULL;
@@ -33,7 +27,6 @@ FarDialog::FarDialog (
 
 FarDialog::~FarDialog ()
 {
-	free (m_Items);
 }
 
 
@@ -41,59 +34,52 @@ FarDialog::~FarDialog ()
 int FarDialog::SetFlags (int Flags, int nCounter)
 {
 	if ( nCounter == CURRENT_ITEM )
-		nCounter = m_Counter-1;
+		nCounter = count()-1;
 
-	m_Items[nCounter].Flags |= Flags;
+	m_data[nCounter].Flags |= Flags;
 
-	return m_Items[nCounter].Flags;
+	return m_data[nCounter].Flags;
 }
 
 void FarDialog::SetFocus (int nCounter)
 {
 	if ( nCounter == CURRENT_ITEM )
-		nCounter = m_Counter-1;
+		nCounter = count()-1;
 
-	m_Items[nCounter].Focus = TRUE;
+	m_data[nCounter].Focus = TRUE;
 }
 
 void FarDialog::DefaultButton (int nCounter)
 {
 	if ( nCounter == CURRENT_ITEM )
-		nCounter = m_Counter-1;
+		nCounter = count()-1;
 
-	m_Items[nCounter].DefaultButton = TRUE;
+	m_data[nCounter].DefaultButton = TRUE;
+
+	if ( m_data[nCounter].Type == DI_BUTTON )
+		m_nFirstButton = nCounter;
 }
 
 void FarDialog::Control (int Type, int X, int Y, int X2, int Y2, const char *Data, int DataLength)
 {
-	if ( m_RealCount == m_Count )
+	FarDialogItem *item = add();
+
+	if ( item )
 	{
-		m_Count += 3;
-		m_Items = (FarDialogItem*)realloc (m_Items, m_Count*sizeof (FarDialogItem));
+		item->Type = Type;
+		item->X1   = X;
+		item->Y1   = Y;
+		item->X2   = X2;
+		item->Y2   = Y2;
+
+		if ( Data )
+		{
+			if (DataLength == -1)
+				DataLength = strlen (Data);
+
+			memcpy (item->Data, Data, DataLength);
+		}
 	}
-
-//#ifdef _DEBUG
-
-	memset (&m_Items[m_Counter], 0, sizeof (FarDialogItem));
-
-//#endif
-
-	m_Items[m_Counter].Type = Type;
-	m_Items[m_Counter].X1   = X;
-	m_Items[m_Counter].Y1   = Y;
-	m_Items[m_Counter].X2   = X2;
-	m_Items[m_Counter].Y2   = Y2;
-
-	if ( Data )
-	{
-		if (DataLength == -1)
-			DataLength = strlen (Data);
-
-		memcpy (m_Items[m_Counter].Data, Data, DataLength);
-	}
-
-	m_RealCount++;
-	m_Counter++;
 }
 
 void FarDialog::Text (int X, int Y, const char *Caption, int CaptionLength)
@@ -132,14 +118,14 @@ void FarDialog::DoubleBox (int X, int Y, int X2, int Y2, const char *Caption, in
 void FarDialog::CheckBox (int X, int Y, bool Checked, const char *Caption, int CaptionLength)
 {
 	Control (DI_CHECKBOX, X, Y, 0, 0, Caption, CaptionLength);
-	m_Items[m_Counter-1].Selected = Checked;
+	m_data[count()-1].Selected = Checked;
 }
 
 void FarDialog::RadioButton (int X, int Y, bool Selected, const char *Caption,  bool First, int CaptionLength)
 {
 	Control (DI_RADIOBUTTON, X, Y, 0, 0, Caption, CaptionLength);
 
-	m_Items[m_Counter-1].Selected = Selected;
+	m_data[count()-1].Selected = Selected;
 
 	if ( First )
 		SetFlags (DIF_GROUP);
@@ -148,7 +134,7 @@ void FarDialog::RadioButton (int X, int Y, bool Selected, const char *Caption,  
 void FarDialog::ListBox (int X, int Y, int X2, int Y2, FarList *ListItems, int ListPos)
 {
 	Control (DI_LISTBOX, X, Y, X2, Y2, NULL, -1);
-	m_Items[m_Counter-1].ListItems = ListItems;
+	m_data[count()-1].ListItems = ListItems;
 	//m_Items[m_Counter-1].ListPos = ListPos;
 
 }
@@ -156,7 +142,7 @@ void FarDialog::ListBox (int X, int Y, int X2, int Y2, FarList *ListItems, int L
 void FarDialog::ComboBox (int X, int Y, int Length, FarList *ListItems, int ListPos, const char *Data, int DataLength)
 {
 	Control (DI_COMBOBOX, X, Y, X+Length-1, Y, Data, DataLength);
-	m_Items[m_Counter-1].ListItems = ListItems;
+	m_data[count()-1].ListItems = ListItems;
 	//m_Items[m_Counter-1].ListPos = ListPos;
 }
 
@@ -173,7 +159,7 @@ int FarDialog::Button (int X, int Y, const char *Caption, int CaptionLength)
 		Length = CaptionLength;
 
 	if ( m_nFirstButton == -1 )
-		m_nFirstButton = m_Counter-1;
+		m_nFirstButton = count()-1;
 
 	if ( X == -1 ) // TO MAKE ButtonEx?
 		SetFlags (DIF_CENTERGROUP);
@@ -190,7 +176,7 @@ void FarDialog::Edit (int X, int Y, int Length, const char *Data, int DataLength
 	if ( History )
 	{
 		SetFlags (DIF_HISTORY);
-		m_Items[m_Counter-1].History = (char*)History;
+		m_data[count()-1].History = (char*)History;
 	}
 
 }
@@ -198,19 +184,19 @@ void FarDialog::Edit (int X, int Y, int Length, const char *Data, int DataLength
 void FarDialog::PswEdit (int X, int Y, int Length, const char *Data, int DataLength)
 {
 	Edit (X, Y, Length, Data, DataLength, NULL);
-	m_Items[m_Counter-1].Type = DI_PSWEDIT;
+	m_data[count()-1].Type = DI_PSWEDIT;
 }
 
 void FarDialog::FixEdit (int X, int Y, int Length, const char *Data, int DataLength, const char *History, const char *Mask)
 {
 	Edit (X, Y, Length, Data, DataLength, History);
 
-	m_Items[m_Counter-1].Type = DI_FIXEDIT;
+	m_data[count()-1].Type = DI_FIXEDIT;
 
 	if (Mask)
 	{
 		SetFlags (DIF_MASKEDIT);
-		m_Items[m_Counter-1].Mask = (char*)Mask;
+		m_data[count()-1].Mask = (char*)Mask;
 	}
 }
 
@@ -226,19 +212,19 @@ int FarDialog::Show(const char *lpHelpTopic)
 			m_X2,
 			m_Y2,
 			m_lpHelpTopic,
-			m_Items,
-			m_RealCount
+			m_data,
+			count()
 			);
 }
 
 
 PluginStartupInfo *CurrentInfo;
 
-int __stdcall DialogHandler (
+LONG_PTR __stdcall DialogHandler (
 		HANDLE hDlg,
 		int Msg,
 		int Param1,
-		int Param2
+		LONG_PTR Param2
 		)
 {
 	FarDialogHandler *D;
@@ -246,12 +232,12 @@ int __stdcall DialogHandler (
 	if (Msg == DN_INITDIALOG)
 	{
 		D = (FarDialogHandler*)Param2;
-		D->SetDlg(hDlg);
-		return D->DlgProc (Msg, Param1, (int)D->GetDlgData());
+		D->hDlg = hDlg;
+		return D->DlgProc (Msg, Param1, (LONG_PTR)D->Data);
 	}
 	else
 	{
-		D = (FarDialogHandler*)CurrentInfo->SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+		D = (FarDialogHandler*)CurrentInfo->SendDlgMessage (hDlg, DM_GETDLGDATA, NULL, NULL);
 		return D->DlgProc (Msg, Param1, Param2);
 	}
 }
@@ -269,7 +255,7 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 	Handler = new FarDialogHandler;
 	Handler->Create (this, (DIALOGHANDLER)DlgProc, Param);
 
-	DialogProc = (PVOID)DialogHandler;
+	DialogProc = DialogHandler;
 
 	int Result = m_Info->DialogEx (
 			m_Info->ModuleNumber,
@@ -278,12 +264,12 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 			m_X2,
 			m_Y2,
 			m_lpHelpTopic,
-			m_Items,
-			m_RealCount,
+			m_data,
+			count(),
 			0,
-			m_Flags,
+			m_nFlags,
 			(FARWINDOWPROC)DialogProc,
-			(int)Handler
+			(LONG_PTR)Handler
 			);
 
 	delete Handler;
@@ -298,14 +284,13 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 
 FarPagedDialog::FarPagedDialog (int X1, int Y1, int X2, int Y2) : FarDialog (X1, Y1, X2, Y2)
 {
-	m_Pages = new Collection<PageInfo*>;
-	m_Pages->Create (5);
+	m_Pages = new array<PageInfo*>(ARRAY_OPTIONS_DELETE);
 	m_CurrentPage = 0;
 }
 
 FarPagedDialog::~FarPagedDialog ()
 {
-	m_Pages->Free ();
+	m_Pages->free ();
 	delete m_Pages;
 }
 
@@ -322,11 +307,11 @@ void FarPagedDialog::NewPage (int nItems)
 void FarPagedDialogHandler::PreparePage (bool bDirect)
 {
 	Collection <PageInfo*> *Pages = m_Owner->m_Pages;
-	if ( Pages->Count > 1)
+	if ( Pages->GetCount() > 1)
 	{
 
 		char *temp = StrCreate (128);
-		FSF.sprintf (temp, "(%d/%d)", m_Owner->m_CurrentPage+1, Pages->Count);
+		FSF.sprintf (temp, "(%d/%d)", m_Owner->m_CurrentPage+1, Pages->GetCount());
 		SetTextPtr (m_Owner->m_RealCount-3, temp);
 		StrFree (temp);
 
@@ -334,7 +319,7 @@ void FarPagedDialogHandler::PreparePage (bool bDirect)
 		int btnPrev = m_Owner->m_RealCount-2;
 
 
-		if ( m_Owner->m_CurrentPage == Pages->Count-1 )
+		if ( m_Owner->m_CurrentPage == Pages->GetCount()-1 )
 		{
 			Enable  (btnPrev, true);
 
@@ -360,7 +345,7 @@ void FarPagedDialogHandler::PreparePage (bool bDirect)
 
 		EnableRedraw (false);
 
-		for (int Page = 0; Page < Pages->Count; Page++)
+		for (int Page = 0; Page < Pages->GetCount(); Page++)
 		{
 			PageInfo *Info = (*Pages)[Page];
 
@@ -382,11 +367,11 @@ void FarPagedDialogHandler::PreparePage (bool bDirect)
 }
 
 
-int __stdcall PagedDialogHandler (
+LONG_PTR __stdcall PagedDialogHandler (
 		HANDLE hDlg,
 		int Msg,
 		int Param1,
-		int Param2
+		LONG_PTR Param2
 		)
 {
 	FarPagedDialogHandler *D;
@@ -428,23 +413,25 @@ int __stdcall PagedDialogHandler (
 }
 
 
-int FarPagedDialog::ShowEx (void *DlgProc, void *Param)
+int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 {
 	PVOID              DialogProc;
 	FarPagedDialogHandler *Handler;
 
 	CurrentInfo = m_Info;
 
+	m_lpHelpTopic = lpHelpTopic;
+
 	Handler = new FarPagedDialogHandler;
 	Handler->Create (this, (DIALOGHANDLER)DlgProc, Param);
 
 	Handler->m_Owner = this;
 
-	if (m_Pages->Count > 1)
+	if (m_Pages->GetCount() > 1)
 	{
-		Text (m_X2-8, 0);
+		Text (m_X2-10, 1);
 
-		Button (Button (m_X2-15, m_Y2-1, "<<"), m_Y2-1, ">>");
+		Button (Button (m_X2-17, m_Y2-2, "<<"), m_Y2-2, ">>");
 
 		SetFlags (DIF_BTNNOCLOSE | DIF_DISABLE, GetCounter()-1);
 		SetFlags (DIF_BTNNOCLOSE | DIF_DISABLE, GetCounter()-2);
@@ -460,7 +447,7 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param)
 			m_Y1,
 			m_X2,
 			m_Y2,
-			NULL,
+			m_lpHelpTopic,
 			m_Items,
 			m_RealCount,
 			0,
@@ -475,4 +462,4 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param)
 
 }
 
-#endif //PAGED_DIALOGS
+#endif PAGED_DIALOGS

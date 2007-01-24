@@ -2,7 +2,7 @@
 #include "Guid.h"
 #include "commands.h"
 #include "detectarchive.h"
-#include <Collections.h>
+#include <array.hpp>
 #include <debug.h>
 
 const GUID FormatGUIDs[] = {
@@ -115,7 +115,7 @@ bool GetFormatCommand(const GUID &guid, int nCommand, char *lpCommand)
 }
 
 
-int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
+int FindFormats (const char *lpFileName, pointer_array<FormatPosition*> &formats)
 {
 	HANDLE hFile = CreateFile (
 			lpFileName,
@@ -151,7 +151,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 							pos->puid = info->puid;
 							pos->position = position;
 
-							formats.Add (pos);
+							formats.add (pos);
 						}
 					}
 				}
@@ -168,7 +168,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 								pos->puid = info->puid;
 								pos->position = i;
 
-								formats.Add (pos);
+								formats.add (pos);
 								break;
 							}
 							if (info->bPosZero)
@@ -203,7 +203,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 					pos->puid = &CLSID_CSplitHandler;
 					pos->position = 0;
 
-					formats.Add (pos);
+					formats.add (pos);
 				}
 			}
 		}
@@ -213,7 +213,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 		CloseHandle (hFile);
 	}
 
-	return formats.GetCount();
+	return formats.count();
 }
 
 
@@ -688,9 +688,7 @@ bool __stdcall SevenZipArchive::pDelete (
 			(void**)&outArchive
 			)) )
 	{
-		Collection <ArchiveUpdateItem*> indicies;
-
-		indicies.Create (5);
+		pointer_array<ArchiveUpdateItem*> indicies (ARRAY_OPTIONS_DELETE);
 
 		for (unsigned int i = 0; i < nArchiveItemsNumber; i++) //лажа полная написана
 		{
@@ -712,7 +710,7 @@ bool __stdcall SevenZipArchive::pDelete (
 				item->index = i;
 				item->bNewFile = false;
 
-				indicies.Add (item);
+				indicies.add (item);
 			}
 		}
 
@@ -727,7 +725,7 @@ bool __stdcall SevenZipArchive::pDelete (
 		{
 			if ( outArchive->UpdateItems (
 					(ISequentialOutStream *)file,
-					indicies.GetCount(),
+					indicies.count(),
 					pCallback
 					) == S_OK )
 				bResult = true;
@@ -752,7 +750,7 @@ bool __stdcall SevenZipArchive::pDelete (
 		delete pCallback;
 
 		outArchive->Release ();
-		indicies.Free ();
+		indicies.free ();
 	}
 
 	return bResult;
@@ -883,10 +881,8 @@ bool __stdcall SevenZipArchive::pAddFiles (
 			(void**)&outArchive
 			)) )
 	{
-		Collection <ArchiveUpdateItem*> indicies;
+		pointer_array <ArchiveUpdateItem*> indicies (ARRAY_OPTIONS_DELETE);
 		CPropVariant value;
-
-		indicies.Create (5);
 
 		if ( !m_bNewArchive )
 		{
@@ -901,7 +897,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->lpCurrentPath = lpCurrentPath;
 				item->lpSourcePath = lpSourcePath;
 
-				indicies.Add (item);
+				indicies.add (item);
 			}
 		}
 
@@ -939,7 +935,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 					{
 						bFound = true;
 
-						ArchiveUpdateItem *item = indicies.At(j);
+						ArchiveUpdateItem *item = indicies.at(j);
 
 						item->bNewFile = true;
 						item->pItem = &pItems[i];
@@ -960,7 +956,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->lpCurrentPath = lpCurrentPath;
 				item->lpSourcePath = lpSourcePath;
 
-				indicies.Add (item);
+				indicies.add (item);
 			}
 		}
 
@@ -975,7 +971,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 		{
 			if ( outArchive->UpdateItems (
 					(ISequentialOutStream *)file,
-					indicies.GetCount(),
+					indicies.count(),
 					pCallback
 					) == S_OK )
 				bResult = true;
@@ -994,7 +990,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 		delete pCallback;
 
 		outArchive->Release ();
-		indicies.Free ();
+		indicies.free ();
 	}
 
 	return bResult;

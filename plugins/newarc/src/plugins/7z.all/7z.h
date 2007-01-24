@@ -1,7 +1,7 @@
 #ifndef _NA7Z_
 #define _NA7Z_
 
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
 #include "../../module.hpp"
 
@@ -9,7 +9,7 @@
 #include "../7z.headers/7zip/Common/FileStreams.h"
 #include "../7z.headers/7zip/IPassword.h"
 #include "PropVariant.h"
-#include <Collections.h>
+#include <array.hpp>
 
 class CInFile;
 class COutFile;

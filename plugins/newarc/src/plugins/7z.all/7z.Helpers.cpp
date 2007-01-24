@@ -890,7 +890,7 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 
 
-CArchiveUpdateCallback::CArchiveUpdateCallback (SevenZipArchive *pArchive, Collection<ArchiveUpdateItem*> *indicies)
+CArchiveUpdateCallback::CArchiveUpdateCallback (SevenZipArchive *pArchive, pointer_array<ArchiveUpdateItem*> *indicies)
 {
 	m_nRefCount = 1;
 	m_indicies = indicies;
@@ -998,7 +998,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
 			unsigned int *indexInArchive // -1 if there is no in archive, or if doesn't matter
 			)
 {
-	ArchiveUpdateItem *item = m_indicies->At(index);
+	ArchiveUpdateItem *item = m_indicies->at(index);
 
 	if ( indexInArchive )
 		*indexInArchive = item->index; //-1 on new file
@@ -1024,7 +1024,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetUpdateItemInfo (
 
 HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPID propID, PROPVARIANT *value)
 {
-	ArchiveUpdateItem *item = m_indicies->At(index);
+	ArchiveUpdateItem *item = m_indicies->at(index);
 
 	if ( item->bNewFile )
 	{
@@ -1109,7 +1109,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequentialInStream **inStream)
 {
-	ArchiveUpdateItem *item = m_indicies->At(index);
+	ArchiveUpdateItem *item = m_indicies->at(index);
 
 	*inStream = NULL;
 

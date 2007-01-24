@@ -30,12 +30,13 @@ public:
 	char *m_lpCurrentFolder;
 	char *m_lpPanelTitle;
 
-	InternalArchiveItemInfo *m_pArchiveFiles;
+	array<InternalArchiveItemInfo> m_pArchiveFiles;
+//	InternalArchiveItemInfo *m_pArchiveFiles;
 
-	int m_nArchiveFilesCount;
-	int m_nArrayCount;
+//	int m_nArchiveFilesCount;
+//	int m_nArrayCount;
 
-	Collection <InternalEditorInfo*> m_Editors;
+	pointer_array <InternalEditorInfo*> m_Editors;
 
 	int m_nCurrentMode;
 

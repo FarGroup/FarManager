@@ -3,9 +3,8 @@
 FARSTANDARDFUNCTIONS FSF;
 PluginStartupInfo Info;
 
-Collection <ArchivePlugin*> Plugins;
-
-ViewCollection <ArchivePanel*> Panels;
+pointer_array<ArchivePlugin*> Plugins;
+pointer_array<ArchivePanel*> Panels;
 
 char *lpCurrentLanguage;
 
@@ -58,7 +57,7 @@ ArchivePanel *__stdcall OpenFilePlugin (
 
 	if ( lpFileName )
 	{
-		for (int i = 0; i < Plugins.GetCount(); i++)
+		for (int i = 0; i < Plugins.count(); i++)
 		{
 			Archive *pArchive = Plugins[i]->QueryArchive (
 					lpFileName,
@@ -93,7 +92,7 @@ ArchivePanel *__stdcall OpenFilePlugin (
 		free (pArchives);
 
 	if ( pPanelResult != INVALID_HANDLE_VALUE )
-		Panels.Add (pPanelResult);
+		Panels.add (pPanelResult);
 
 	return pPanelResult;
 }
@@ -109,7 +108,7 @@ int __stdcall LoadAndInitializePlugins (
 		ArchivePlugin *pPlugin = new ArchivePlugin;
 
 		if ( pPlugin->Initialize (lpFullName, lpCurrentLanguage) )
-			Plugins.Add (pPlugin);
+			Plugins.add (pPlugin);
 		else
 			delete pPlugin;
 	}
@@ -148,10 +147,7 @@ void __stdcall ClosePlugin (
 		)
 {
 	pPanel->pClosePlugin ();
-
-	Panels.Remove (pPanel);
-
-	delete pPanel;
+	Panels.remove (pPanel);
 }
 
 void __stdcall GetOpenPluginInfo (
@@ -221,7 +217,8 @@ void __stdcall SetStartupInfo (
 	lpCurrentLanguage = StrCreate (260);
 	GetEnvironmentVariable("FARLANG", lpCurrentLanguage, 260);
 
-	Plugins.Create (5);
+	Plugins.create (ARRAY_OPTIONS_DELETE);
+	Panels.create (ARRAY_OPTIONS_DELETE);
 
 	char *lpPluginsPath = StrDuplicate (Info.ModuleName, 260);
 
@@ -238,8 +235,6 @@ void __stdcall SetStartupInfo (
 			);
 
 	StrFree (lpPluginsPath);
-
-	Panels.Create (5);
 }
 
 int __stdcall ProcessHostFile(
@@ -282,12 +277,11 @@ int __stdcall ProcessKey (
 
 void __stdcall ExitFAR ()
 {
-	for (int i = 0; i < Plugins.GetCount(); i++)
+	for (int i = 0; i < Plugins.count(); i++)
 		Plugins[i]->Finalize ();
 
-	Plugins.Free ();
-
-	Panels.Free ();
+	Plugins.free ();
+	Panels.free ();
 
 	StrFree (lpCurrentLanguage);
 }
@@ -308,7 +302,7 @@ void __stdcall GetPluginInfo (
 
 	if ( FSF.LStricmp (lpLanguage, lpCurrentLanguage) )
 	{
-		for (int i = 0; i < Plugins.GetCount(); i++)
+		for (int i = 0; i < Plugins.count(); i++)
 			Plugins[i]->ReloadLanguage (lpLanguage);
 
 		lpCurrentLanguage = StrReplace (
@@ -325,34 +319,32 @@ void __stdcall GetPluginInfo (
 
 void dlgConfigure ()
 {
-	FarDialog *D = new FarDialog (-1, -1, 78, 9);
+	FarDialog D (-1, -1, 78, 9);
 
-	D->DoubleBox (3, 1, 74, 7, "Общие настройки");
+	D.DoubleBox (3, 1, 74, 7, "Общие настройки");
 
-	D->RadioButton (5, 2, false, "Всегда показывать сообщения архиваторов");
-	D->RadioButton (5, 3, false, "Не показывать сообщения архиваторов при редактировании/просмотре");
-	D->RadioButton (5, 4, false, "Не показывать сообщения архиваторов");
+	D.RadioButton (5, 2, false, "Всегда показывать сообщения архиваторов");
+	D.RadioButton (5, 3, false, "Не показывать сообщения архиваторов при редактировании/просмотре");
+	D.RadioButton (5, 4, false, "Не показывать сообщения архиваторов");
 
-	D->Separator (5);
+	D.Separator (5);
 
-	D->Button (-1, 6, "Принять");
-	D->DefaultButton ();
+	D.Button (-1, 6, "Принять");
+	D.DefaultButton ();
 
-	D->Button (-1, 6, "Отмена");
+	D.Button (-1, 6, "Отмена");
 
-	if ( D->ShowEx () == D->m_nFirstButton )
+	if ( D.ShowEx () == D.FirstButton() )
 	{
 		//do something
 	}
-
-	delete D;
 }
 
 #define DECLARE_COMMAND(string, command) \
 	{\
-		D->Text (5, Y, string); \
+		D.Text (5, Y, string); \
 		pPlugin->pGetDefaultCommand (uid, command, lpCommand); \
-		D->Edit (29, Y++, 42, lpCommand); \
+		D.Edit (29, Y++, 42, lpCommand); \
 	}
 
 void dlgCommandLinesAndParams (
@@ -365,7 +357,7 @@ void dlgCommandLinesAndParams (
 	int Y = 2;
 	char *lpCommand = StrCreate (260);
 
-	FarDialog *D = new FarDialog (-1, -1, 76, nHeight);
+	FarDialog D(-1, -1, 76, nHeight);
 
 	char *lpTitle = StrCreate (260);
 
@@ -373,28 +365,28 @@ void dlgCommandLinesAndParams (
 
 	FSF.sprintf (lpTitle, "Параметры архиватора %s", info->lpName);
 
-	D->DoubleBox (3, 1, 72, nHeight-2, lpTitle); //0
+	D.DoubleBox (3, 1, 72, nHeight-2, lpTitle); //0
 
 	for (int i = 0; i < 11; i++)
 		DECLARE_COMMAND (_M(MSG_dlgCLAP_S_EXTRACT+i), i);
 
-	D->Separator (Y++);
+	D.Separator (Y++);
 
-	D->Text (5, Y, "Расширение файлов :");
-	D->Edit (25, Y, 10, info->lpDefaultExtention);
+	D.Text (5, Y, "Расширение файлов :");
+	D.Edit (25, Y, 10, info->lpDefaultExtention);
 
-	D->Text (40, Y, "Маска \"все файлы\" :");
-	D->Edit (60, Y++, 10);
+	D.Text (40, Y, "Маска \"все файлы\" :");
+	D.Edit (60, Y++, 10);
 
-	D->Separator (Y++);
+	D.Separator (Y++);
 
-	D->Button (-1, Y, "Принять");
-	D->DefaultButton ();
+	D.Button (-1, Y, "Принять");
+	D.DefaultButton ();
 
-	D->Button (-1, Y, "Отмена");
-	D->Button (-1, Y++, "Сбросить");
+	D.Button (-1, Y, "Отмена");
+	D.Button (-1, Y++, "Сбросить");
 
-	if ( D->Show () == D->m_nFirstButton )
+	if ( D.Show () == D.FirstButton() )
 	{
 	//	SaveArchivePluginParams (pPlugin, nFormat);
 
@@ -426,7 +418,7 @@ void dlgCommandLinesAndParams (
 				RegSetStringValue (
 						hKey,
 						pCommandNames[i],
-						D->m_Items[2+i*2].Data
+						D[2+i*2].Data
 						);
 			}
 
@@ -437,8 +429,6 @@ void dlgCommandLinesAndParams (
 	}
 
 	StrFree (lpCommand);
-
-	delete D;
 }
 
 void mnuCommandLinesAndParams ()
@@ -448,7 +438,7 @@ void mnuCommandLinesAndParams ()
 
 	int nCount = 0;
 
-	for (int i = 0; i < Plugins.GetCount(); i++)
+	for (int i = 0; i < Plugins.count(); i++)
 		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			nCount++;
 
@@ -460,7 +450,7 @@ void mnuCommandLinesAndParams ()
 
 	nCount = 0;
 
-	for (int i = 0; i < Plugins.GetCount(); i++)
+	for (int i = 0; i < Plugins.count(); i++)
 	{
 		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 		{

@@ -1,4 +1,4 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
 #include "unzip.h"
 #include "../../module.hpp"

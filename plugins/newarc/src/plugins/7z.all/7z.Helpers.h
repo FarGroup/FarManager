@@ -216,7 +216,7 @@ class CArchiveUpdateCallback : public IArchiveUpdateCallback2, public ICryptoGet
 private:
 
 	int m_nRefCount;
-	Collection<ArchiveUpdateItem*> *m_indicies;
+	pointer_array<ArchiveUpdateItem*> *m_indicies;
 
 	SevenZipArchive *m_pArchive;
 
@@ -224,7 +224,7 @@ private:
 
 public:
 
-	CArchiveUpdateCallback (SevenZipArchive *pArchive, Collection <ArchiveUpdateItem*> *indicies);
+	CArchiveUpdateCallback (SevenZipArchive *pArchive, pointer_array<ArchiveUpdateItem*> *indicies);
 	~CArchiveUpdateCallback();
 
 	//IUnknown

@@ -1,4 +1,4 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include "ma.class.h"
 #include <debug.h>
 
@@ -78,7 +78,7 @@ MaModule::MaModule (
 
 	FSF.LStrupr (m_lpModuleName);
 
-	m_Info.Create (5);
+	m_Info.create (ARRAY_OPTIONS_DELETE);
 
 	const char *lpName = FSF.PointToName (m_lpModuleName);
 
@@ -136,7 +136,7 @@ MaModule::~MaModule ()
 	FreeLibrary (m_hModule);
 	StrFree (m_lpModuleName);
 
-	m_Info.Free ();
+	m_Info.free ();
 }
 
 MaModules::MaModules ()
@@ -149,7 +149,7 @@ MaModules::MaModules ()
 
 	strcat (lpPluginsPath, "Formats");
 
-	m_Modules.Create(10);
+	m_Modules.create(ARRAY_OPTIONS_DELETE);
 
 	FSF.FarRecursiveSearch(lpPluginsPath,"*.fmt",(FRSUSERFUNC)LoadFmtModules,FRS_RECUR,this);
 
@@ -160,11 +160,11 @@ MaModules::MaModules ()
 	GUID uid;
 	int index = 0;
 
-	for (int i = 0; i < m_Modules.GetCount(); i++)
+	for (int i = 0; i < m_Modules.count(); i++)
 	{
 		MaModule *pModule = m_Modules[i];
 
-		for (int j = 0; j < pModule->m_Info.GetCount(); j++)
+		for (int j = 0; j < pModule->m_Info.count(); j++)
 		{
 			GetGUIDFromModule (pModule, j, &uid);
 
@@ -182,7 +182,7 @@ MaModules::~MaModules ()
 	if ( m_PluginInfo.pFormatInfo )
 		free (m_PluginInfo.pFormatInfo);
 
-	m_Modules.Free ();
+	m_Modules.free ();
 }
 
 MaModule *MaModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
@@ -193,7 +193,7 @@ MaModule *MaModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
 
     //*nModuleNum = -1;
 
-	for (int i=0; i<m_Modules.GetCount(); i++)
+	for (int i=0; i<m_Modules.count(); i++)
 	{
 		if ( m_Modules[i]->m_pfnIsArchive (pQAS->lpFileName, (const unsigned char *)pQAS->lpBuffer, pQAS->dwBufferSize) )
 		{
@@ -246,7 +246,7 @@ int WINAPI MaModules::LoadFmtModules (const WIN32_FIND_DATA *pFindData,
 
 			if ( pModule->m_pfnGetFormatName (index, info->Name, info->DefaultExtention) )
 			{
-				pModule->m_Info.Add (info);
+				pModule->m_Info.add (info);
 				index++;
 				pModules->m_PluginInfo.nFormats++;
 			}
@@ -258,7 +258,7 @@ int WINAPI MaModules::LoadFmtModules (const WIN32_FIND_DATA *pFindData,
 		}
 	}
 
-	pModules->m_Modules.Add (pModule);
+	pModules->m_Modules.add (pModule);
 
 	return TRUE;
 }
@@ -278,7 +278,7 @@ bool MaModules::GetDefaultCommand (const GUID &uid, int nCommand, char *lpComman
 
 	MaModule *pResultModule = NULL;
 
-	for (int i = 0; i < m_Modules.GetCount(); i++)
+	for (int i = 0; i < m_Modules.count(); i++)
 	{
 		if ( m_Modules[i]->m_dwCRC == crc )
 		{

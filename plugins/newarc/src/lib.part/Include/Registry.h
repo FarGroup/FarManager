@@ -1,5 +1,5 @@
 #pragma once
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
 
 extern int  RegQueryStringArray (HKEY hKey, const char *lpPrefix, char ***Strings);

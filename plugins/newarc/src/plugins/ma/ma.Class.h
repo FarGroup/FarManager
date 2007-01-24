@@ -1,6 +1,6 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
-#include <Collections.h>
+#include <array.hpp>
 #include "../../module.hpp"
 #include "fmt.hpp"
 
@@ -25,7 +25,7 @@ class MaModule {
 public:
 
 	DWORD m_dwCRC;
-	Collection <MaPluginInfo*> m_Info;
+	pointer_array<MaPluginInfo*> m_Info;
 
 public:
 
@@ -54,7 +54,7 @@ class MaModules {
 
 public:
 
-	Collection <MaModule*> m_Modules;
+	pointer_array<MaModule*> m_Modules;
 	ArchivePluginInfo m_PluginInfo;
 
 public:

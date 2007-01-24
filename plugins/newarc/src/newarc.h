@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Rtl.Base.h>
-#include <FarPluginBase.h>
-#include <FarHelp.h>
-#include <FarDialogs.h>
+#include <FarPluginBase.hpp>
+#include <FarHelp.hpp>
+#include <FarDialogs.hpp>
 #include <FarLNG.h>
 #include <Registry.h>
-#include <Collections.h>
+#include <array.hpp>
 #include <debug.h>
 #include "module.hpp"
 #include "newarc.archive.h"
@@ -16,7 +16,7 @@
 
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)
 
-extern Collection <ArchivePlugin*> Plugins;
+extern pointer_array<ArchivePlugin*> Plugins;
 extern const char *GUID2STR (const GUID &uid);
 
 /*char *pCommandNames[11] = {

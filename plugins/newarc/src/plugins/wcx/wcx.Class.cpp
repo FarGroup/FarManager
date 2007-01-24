@@ -1,4 +1,4 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include <debug.h>
 #include "wcx.class.h"
 
@@ -144,7 +144,7 @@ WcxModules::WcxModules ()
 
 	strcat (lpPluginsPath, "Formats");
 
-	m_Modules.Create(10);
+	m_Modules.create(ARRAY_OPTIONS_DELETE);
 
 	FSF.FarRecursiveSearch(lpPluginsPath,"*.wcx",(FRSUSERFUNC)LoadWcxModules,FRS_RECUR,this);
 
@@ -155,7 +155,7 @@ WcxModules::WcxModules ()
 	GUID uid;
 	int index = 0;
 
-	for (int i = 0; i < m_Modules.GetCount(); i++)
+	for (int i = 0; i < m_Modules.count(); i++)
 	{
 		WcxModule *pModule = m_Modules[i];
 		WcxPluginInfo *info = &pModule->m_Info;
@@ -176,7 +176,7 @@ WcxModules::~WcxModules ()
 	if ( m_PluginInfo.pFormatInfo )
 		free (m_PluginInfo.pFormatInfo);
 
-	m_Modules.Free ();
+	m_Modules.free ();
 }
 
 WcxModule *WcxModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
@@ -185,7 +185,7 @@ WcxModule *WcxModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
 
     *nModuleNum = -1;
 
-	for (int i=0; i<m_Modules.GetCount(); i++)
+	for (int i=0; i<m_Modules.count(); i++)
 	{
 		if ( m_Modules[i]->m_pfnCanYouHandleThisFile )
 		{
@@ -245,7 +245,7 @@ int WINAPI WcxModules::LoadWcxModules (const WIN32_FIND_DATA *pFindData,
 	strcat(info->Name," [wcx]");
 
 	pModules->m_PluginInfo.nFormats++;
-	pModules->m_Modules.Add (pModule);
+	pModules->m_Modules.add (pModule);
 
 	return TRUE;
 }

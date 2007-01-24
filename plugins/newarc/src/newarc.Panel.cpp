@@ -13,12 +13,9 @@ ArchivePanel::ArchivePanel (
 	m_pArchive = NULL;//pArchive;
 	m_lpCurrentFolder = StrCreate (260);
 
-	m_pArchiveFiles = NULL;
-	m_nArchiveFilesCount = 0;
-
 	m_lpPanelTitle = StrCreate (260);
 
-	m_Editors.Create (5);
+	m_Editors.create (ARRAY_OPTIONS_DELETE);
 
 	m_bFirstTime = true;
 	m_nCurrentMode = 0;
@@ -34,14 +31,13 @@ ArchivePanel::~ArchivePanel ()
 	StrFree (m_lpCurrentFolder);
 	StrFree (m_lpPanelTitle);
 
-	for (int i = 0; i < m_nArchiveFilesCount; i++)
+	for (int i = 0; i < m_pArchiveFiles.count(); i++)
 		StrFree (m_pArchiveFiles[i].lpPassword);
 
-	free (m_pArchiveFiles);
-
+	m_pArchiveFiles.free ();
 	free (m_pArchives);
 
-	m_Editors.Free ();
+	m_Editors.free ();
 
 	StrFree (lpINIFileName);
 }
@@ -80,10 +76,10 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 	if ( !m_pArchive->pOpenArchive (OM_LIST) )
 		return false;
 
-	for (int i = 0; i < m_nArchiveFilesCount; i++)
+	for (int i = 0; i < m_pArchiveFiles.count(); i++)
 		StrFree (m_pArchiveFiles[i].lpPassword);
 
-	free (m_pArchiveFiles);
+	m_pArchiveFiles.free();
 
 	dword dwStartTime = GetTickCount ();
 	bool bProgressMessage = false;
@@ -93,27 +89,19 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 	if ( !bSilent )
 		hScreen = Info.SaveScreen (0, 0, -1, -1);
 
-	m_nArrayCount = 256;
-	m_nArchiveFilesCount = 0;
-
-	m_pArchiveFiles = (InternalArchiveItemInfo*)malloc (
-			m_nArrayCount*sizeof (InternalArchiveItemInfo)
-			);
-
-	memset (m_pArchiveFiles, 0, m_nArrayCount*sizeof (InternalArchiveItemInfo));
+	m_pArchiveFiles.create (ARRAY_OPTIONS_SKIP, 256);
 
 	int nResult = E_SUCCESS;
 
 	while ( (nResult == E_SUCCESS) && !CheckForEsc() )
 	{
-		nResult = m_pArchive->pGetArchiveItem (
-				&m_pArchiveFiles[m_nArchiveFilesCount].ItemInfo
-				);
+		InternalArchiveItemInfo *item = m_pArchiveFiles.add();
+
+		nResult = m_pArchive->pGetArchiveItem (&item->ItemInfo);
 
 		if ( nResult == E_SUCCESS )
 		{
-			if ( !bSilent &&
-				 ((m_nArchiveFilesCount & 0x1f) == 0) && (GetTickCount ()-dwStartTime > 500) )
+			if ( !bSilent && ((m_pArchiveFiles.count() & 0x1f) == 0) && (GetTickCount ()-dwStartTime > 500) )
 			{
 				char szFileCount[100];
 				char *pMsgs[4];
@@ -123,7 +111,7 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 				pMsgs[2] = m_pArchive->m_lpFileName;
 				pMsgs[3] = (char*)&szFileCount;
 
-				FSF.sprintf ((char*)&szFileCount, "%d файлов", m_nArchiveFilesCount);
+				FSF.sprintf ((char*)&szFileCount, "%d файлов", m_pArchiveFiles.count());
 
 				Info.Message(
 						Info.ModuleNumber,
@@ -136,22 +124,9 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 
 				bProgressMessage = true;
 			}
-
-			m_nArchiveFilesCount++;
-
-			if ( m_nArchiveFilesCount == m_nArrayCount )
-			{
-				m_nArrayCount = m_nArrayCount+256+m_nArrayCount/4;
-
-				m_pArchiveFiles	= (InternalArchiveItemInfo*)realloc (
-						m_pArchiveFiles,
-						m_nArrayCount*sizeof (InternalArchiveItemInfo)
-						);
-
-
-				memset (&m_pArchiveFiles[m_nArchiveFilesCount], 0, (m_nArrayCount-m_nArchiveFilesCount)*sizeof (InternalArchiveItemInfo));
-			}
 		}
+		//else
+		//	m_pArchiveFiles.remove();
 
 		#ifdef _DEBUG
 		if ( nResult == E_UNEXPECTED_EOF )
@@ -176,8 +151,8 @@ int __stdcall ArchivePanel::pGetFindData(
 		int OpMode
 		)
 {
-	int nArrayCount = 256;
-	int nCount = 0;
+	//int nArrayCount = 256;
+	//int nCount = 0;
 
 	if ( m_bFirstTime )
 	{
@@ -236,11 +211,7 @@ int __stdcall ArchivePanel::pGetFindData(
 			return FALSE;
 	}
 
-	PluginPanelItem *pPanelItems = (PluginPanelItem*)malloc (
-			nArrayCount*sizeof (PluginPanelItem)
-			);
-
-	memset (pPanelItems, 0, nArrayCount*sizeof (PluginPanelItem));
+	array<PluginPanelItem> pPanelItems (ARRAY_OPTIONS_KEEP, 256);
 
 	bool bAppend;
 	bool bIsFolder;
@@ -250,7 +221,7 @@ int __stdcall ArchivePanel::pGetFindData(
 	if ( *lpFoder )
 		FSF.AddEndSlash (lpFoder);
 
-	for (int i = 0; i < m_nArchiveFilesCount; i++)
+	for (int i = 0; i < m_pArchiveFiles.count(); i++)
 	{
 		PluginPanelItem *pCurrentPanelItem = &m_pArchiveFiles[i].ItemInfo.pi;
 
@@ -282,7 +253,7 @@ int __stdcall ArchivePanel::pGetFindData(
 			if ( !*lpName2 )
 				goto l_1;
 
-			for (int k = 0; k < nCount; k++)
+			for (int k = 0; k < pPanelItems.count(); k++)
 			{
 				if ( !FSF.LStricmp (
 						lpName2,
@@ -298,29 +269,19 @@ int __stdcall ArchivePanel::pGetFindData(
 
 			if ( bAppend )
 			{
-				memcpy (&pPanelItems[nCount], pCurrentPanelItem, sizeof (PluginPanelItem));
-				strcpy (pPanelItems[nCount].FindData.cFileName, lpName2);
+				PluginPanelItem *item = pPanelItems.add(*pCurrentPanelItem);
 
-				if ( bIsFolder )
+				if ( item )
 				{
-					pPanelItems[nCount].FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
-					pPanelItems[nCount].UserData = 0;
-				}
-				else
-					pPanelItems[nCount].UserData = (dword)&m_pArchiveFiles[i];
+					strcpy (item->FindData.cFileName, lpName2);
 
-				nCount++;
-
-				if ( nCount == nArrayCount )
-				{
-					nArrayCount = nArrayCount+256+nArrayCount/4;
-
-					pPanelItems = (PluginPanelItem*)realloc (
-								pPanelItems,
-								nArrayCount*sizeof (PluginPanelItem)
-								);
-
-					memset (&pPanelItems[nCount], 0, (nArrayCount-nCount)*sizeof (PluginPanelItem));
+					if ( bIsFolder )
+					{
+						item->FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
+						item->UserData = 0;
+					}
+					else
+						item->UserData = (dword)&m_pArchiveFiles[i];
 				}
 			}
 		}
@@ -329,8 +290,8 @@ l_1:
 		StrFree (lpName);
 	}
 
-	*pPanelItem = pPanelItems;
-	*pItemsNumber = nCount;
+	*pPanelItem = pPanelItems.data();
+	*pItemsNumber = pPanelItems.count();
 
 	return TRUE;
 }
@@ -742,24 +703,20 @@ void GetArchiveItemsToProcess (
 		OperationStruct *pOS
 		)
 {
-	int nArrayCount = 256;
-	int nCount = 0;
+	array<PluginPanelItem> pResult(ARRAY_OPTIONS_KEEP, 256);
 
 	memset (pOS, 0, sizeof (OperationStruct));
 
-	PluginPanelItem *pResult = (PluginPanelItem*)malloc (
-			nArrayCount*sizeof (PluginPanelItem)
-			);
-
-	memset (pResult, 0, nArrayCount*sizeof (PluginPanelItem));
+	PluginPanelItem *item = NULL;
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
 		InternalArchiveItemInfo *pItemInfo = (InternalArchiveItemInfo*)pPanelItems[i].UserData;
+		item = pResult.add();
 
 		if ( pItemInfo )
 		{
-			memcpy (&pResult[nCount++], &pItemInfo->ItemInfo.pi, sizeof (PluginPanelItem));
+			memcpy (item, &pItemInfo->ItemInfo.pi, sizeof (PluginPanelItem));
 
 		//	MessageBox (0, pItemInfo->ItemInfo.pi.FindData.cFileName, "asd", MB_OK);
 		}
@@ -775,30 +732,15 @@ void GetArchiveItemsToProcess (
 
 			strcat (lpFullName, pPanelItems[i].FindData.cFileName);
 
-			memcpy (&pResult[nCount], &pPanelItems[i], sizeof (PluginPanelItem));
+			memcpy (item, &pPanelItems[i], sizeof (PluginPanelItem));
 
-			pResult[nCount].UserData = 0;
-
-			strcpy ((char*)&pResult[nCount++].FindData.cFileName, lpFullName);
-
-			//__debug ("no data - %s", lpFullName);
+			item->UserData = 0;
+			strcpy ((char*)&item->FindData.cFileName, lpFullName);
 
 			StrFree (lpFullName);
 		}
 
         pOS->uTotalSize += pPanelItems[i].FindData.nFileSizeHigh*0x100000000ull+pPanelItems[i].FindData.nFileSizeLow;
-
-		if ( nCount == nArrayCount )
-		{
-			nArrayCount = nArrayCount+256+nArrayCount/4;
-
-        	pResult = (PluginPanelItem*)realloc (
-					pResult,
-					nArrayCount*sizeof (PluginPanelItem)
-					);
-
-			memset (&pResult[nCount], 0, (nArrayCount-nCount)*sizeof (PluginPanelItem));
-		}
 
 		if ( OptionIsOn(pPanelItems[i].FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
@@ -810,7 +752,7 @@ void GetArchiveItemsToProcess (
 			strcat (lpPath, pPanelItems[i].FindData.cFileName);
 			strcat (lpPath, "\\");
 
-			for (int k = 0; k < pPanel->m_nArchiveFilesCount; k++)
+			for (int k = 0; k < pPanel->m_pArchiveFiles.count(); k++)
 			{
 				PluginPanelItem *pCurrentPanelItem = &pPanel->m_pArchiveFiles[k].ItemInfo.pi;
 
@@ -818,23 +760,10 @@ void GetArchiveItemsToProcess (
 				{
 					if ( (pCurrentPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 )
 					{
-						//MessageBox (0, pCurrentPanelItem->FindData.cFileName, pCurrentPanelItem->FindData.cFileName, MB_OK);
-
-						memcpy (&pResult[nCount++], pCurrentPanelItem, sizeof (PluginPanelItem));
+						item = pResult.add();
+						memcpy (item, pCurrentPanelItem, sizeof (PluginPanelItem));
 
 						pOS->uTotalSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
-
-						if ( nCount == nArrayCount )
-						{
-							nArrayCount = nArrayCount+256+nArrayCount/4;
-
-							pResult = (PluginPanelItem*)realloc (
-										pResult,
-										nArrayCount*sizeof (PluginPanelItem)
-										);
-
-							memset (&pResult[nCount], 0, (nArrayCount-nCount)*sizeof (PluginPanelItem));
-						}
 					}
 				}
 			}
@@ -844,10 +773,10 @@ void GetArchiveItemsToProcess (
 
 	}
 
-	*pItemsToProcessNumber = nCount;
-	*pItemsToProcess = pResult;
+	*pItemsToProcessNumber = pResult.count();
+	*pItemsToProcess = pResult.data();
 
-	pOS->uTotalFiles = nCount;
+	pOS->uTotalFiles = pResult.count();
 
 	//__debug ("total - %I64u", pOS->uTotalSize);
 }
@@ -1053,7 +982,7 @@ struct ArchiveTemplate {
 	char *lpParams;
 };
 
-Collection <ArchiveTemplate*> Templates;
+pointer_array <ArchiveTemplate*> Templates;
 
 int __stdcall hndAddEditTemplate (
 		FarDialogHandler *D,
@@ -1062,13 +991,13 @@ int __stdcall hndAddEditTemplate (
 		int nParam2
 		)
 {
-	int iPos, *pPos = (int*) D->m_Owner->m_Items[5].Data;
+	int iPos, *pPos = (int*) D->m_Owner->at(5).Data;
 
 	iPos = *pPos; *pPos = 0;
 
 	if ( nMsg == DN_INITDIALOG )
 	{
-		for (int i = 0; i < Plugins.GetCount(); i++)
+		for (int i = 0; i < Plugins.count(); i++)
 		{
 			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 				D->ListAddStr (5, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
@@ -1095,7 +1024,7 @@ void LoadTemplates ()
 {
 	char *szNames = StrCreate (4096); //я знаю, что это ламерство, но я вообще не собираюсь хранить шаблоны в ини. ???
 
-	Templates.Create (5);
+	Templates.create (ARRAY_OPTIONS_DELETE);
 
 	if ( GetPrivateProfileSectionNames(szNames, 4096, lpINIFileName) )
 	{
@@ -1107,13 +1036,13 @@ void LoadTemplates ()
 
 			pTemplate->lpName = StrDuplicate (lpName);
 
-			Templates.Add (pTemplate);
+			Templates.add (pTemplate);
 
 			lpName += strlen (lpName)+1;
 		}
 	}
 
-	for (int i = 0; i < Templates.GetCount(); i++)
+	for (int i = 0; i < Templates.count(); i++)
 	{
 		Templates[i]->lpParams = StrCreate (260);
 
@@ -1134,7 +1063,7 @@ void LoadTemplates ()
 
 void SaveTemplates ()
 {
-	int iCount = Templates.GetCount();
+	int iCount = Templates.count();
 
 	DeleteFile (lpINIFileName);
 
@@ -1162,52 +1091,50 @@ void SaveTemplates ()
 		}
 	}
 
-	Templates.Free ();
+	Templates.free ();
 }
 
 int dlgAddEditTemplate (FarDialogHandler *DD, bool bAdd)
 {
-	int iPos = ( bAdd ) ? Templates.GetCount() : DD->ListGetCurrentPos(7,NULL);
+	int iPos = ( bAdd ) ? Templates.count() : DD->ListGetCurrentPos(7,NULL);
 
-	FarDialog *D = new FarDialog (-1, -1, 55, 11);
+	FarDialog D(-1, -1, 55, 11);
 
-	D->DoubleBox (3, 1, 51, 9, ( bAdd ) ? "Добавить шаблон" : "Изменить шаблон"); //0
+	D.DoubleBox (3, 1, 51, 9, ( bAdd ) ? "Добавить шаблон" : "Изменить шаблон"); //0
 
-	D->Text (5, 2, "Имя шаблона"); //1
-	D->Edit (5, 3, 45); //2
+	D.Text (5, 2, "Имя шаблона"); //1
+	D.Edit (5, 3, 45); //2
 
-	D->Separator (4); //3
+	D.Separator (4); //3
 
-	D->Text (5, 5, "Архиватор"); //4
-	D->ComboBox (5, 6, 15, NULL, 0); //5
-	D->SetFlags (DIF_DROPDOWNLIST);
+	D.Text (5, 5, "Архиватор"); //4
+	D.ComboBox (5, 6, 15, NULL, 0); //5
+	D.SetFlags (DIF_DROPDOWNLIST);
 
-	*(int*)D->m_Items[5].Data = ( bAdd ) ? -1 : iPos ;
+	*(int*)D[5].Data = ( bAdd ) ? -1 : iPos ;
 
-	D->Text (22, 5, "Дополнительные параметры"); //6
-	D->ComboBox (22, 6, 27, NULL, 0); //7
+	D.Text (22, 5, "Дополнительные параметры"); //6
+	D.ComboBox (22, 6, 27, NULL, 0); //7
 
-	D->Separator(7); //8
+	D.Separator(7); //8
 
-	D->Button(-1, 8, ( bAdd ) ? "Добавить" : "Применить"); //9
-	D->DefaultButton ();
+	D.Button(-1, 8, ( bAdd ) ? "Добавить" : "Применить"); //9
+	D.DefaultButton ();
 
-	D->Button(-1, 8, "Отменить"); //10
+	D.Button(-1, 8, "Отменить"); //10
 
-	if ( D->ShowEx ((void *)hndAddEditTemplate) == 9 )
+	if ( D.ShowEx (hndAddEditTemplate) == 9 )
 	{
 		if ( bAdd )
 		{
 			ArchiveTemplate *pTemplate = new ArchiveTemplate;
-			Templates.Add (pTemplate);
+			Templates.add (pTemplate);
 		}
 
-		Templates[iPos]->lpName = StrDuplicate (D->m_Items[2].Data);
-		Templates[iPos]->lpParams = StrDuplicate (D->m_Items[7].Data);
-		Templates[iPos]->nArchiver = D->m_Items[5].ListPos;
+		Templates[iPos]->lpName = StrDuplicate (D[2].Data);
+		Templates[iPos]->lpParams = StrDuplicate (D[7].Data);
+		Templates[iPos]->nArchiver = D[5].ListPos;
 	}
-
-	delete D;
 
 	return iPos;
 }
@@ -1223,7 +1150,7 @@ void SetTemplate (FarDialogHandler *D)
 		FarListPos arcPos;
 		FarListInfo li;
 
-		int iCount = Templates.GetCount();
+		int iCount = Templates.count();
 
 		D->ListInfo(7, &li);
 
@@ -1264,7 +1191,7 @@ void SetTemplate (FarDialogHandler *D)
 		bInit = false;
 	}
 
-	bool bEnable = (Templates.GetCount() > 0);
+	bool bEnable = (Templates.count() > 0);
 	int nFocus = D->GetFocus ();
 
 	D->Enable (9, bEnable);
@@ -1285,7 +1212,7 @@ int __stdcall hndModifyCreateArchive (
 {
 	if ( nMsg == DN_INITDIALOG )
 	{
-		for (int i = 0; i < Plugins.GetCount(); i++)
+		for (int i = 0; i < Plugins.count(); i++)
 		{
 			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 			{
@@ -1301,7 +1228,7 @@ int __stdcall hndModifyCreateArchive (
 
 		}
 
-		for (int i = 0; i < Templates.GetCount(); i++)
+		for (int i = 0; i < Templates.count(); i++)
 			D->ListAddStr (7, Templates[i]->lpName);
 
 		SetTemplate (D);
@@ -1325,16 +1252,16 @@ int __stdcall hndModifyCreateArchive (
 		}
 
 		if ( nParam1 == 9 )
-			if (Templates.GetCount ()>0)
+			if (Templates.count ()>0)
 			{
 				int iPos = D->ListGetCurrentPos (7, NULL);
 
-				Templates.Remove(Templates[iPos]);
+				Templates.remove(iPos);
 				SetTemplate (D);
 			}
 
 		if ( nParam1 == 10 )
-			if (Templates.GetCount ()>0)
+			if (Templates.count ()>0)
 			{
 				dlgAddEditTemplate (D, false);
 				SetTemplate (D);
@@ -1432,64 +1359,64 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 			CutTo (lpArchiveName, '.', true);
 	}
 
-	FarDialog *D = new FarDialog (-1, -1, 75, 20);
+	FarDialog D (-1, -1, 75, 20);
 
-	D->DoubleBox (3, 1, 71, 18, NULL); //0
+	D.DoubleBox (3, 1, 71, 18, NULL); //0
 
-	D->Text (5, 2, "&Добавить к архиву");//1
-	D->Edit (5, 3, 65, lpArchiveName, AUTO_LENGTH, "sdfas"); //2
+	D.Text (5, 2, "&Добавить к архиву");//1
+	D.Edit (5, 3, 65, lpArchiveName, AUTO_LENGTH, "sdfas"); //2
 
-	D->Separator (4); //3
+	D.Separator (4); //3
 
-	D->Text (5, 5, "Настройки архиватора:"); //4
+	D.Text (5, 5, "Настройки архиватора:"); //4
 
-	D->RadioButton (6, 6, true, "Шаблон:"); //5
-	D->RadioButton (6, 8, false, "Непосредственные настройки:"); //6
+	D.RadioButton (6, 6, true, "Шаблон:"); //5
+	D.RadioButton (6, 8, false, "Непосредственные настройки:"); //6
 
-	D->ComboBox (9, 7, 48, NULL, 0); //7
-	D->SetFlags (DIF_DROPDOWNLIST);
+	D.ComboBox (9, 7, 48, NULL, 0); //7
+	D.SetFlags (DIF_DROPDOWNLIST);
 
-	D->Button (59, 7, "[+]"); //8
-	D->SetFlags(DIF_BTNNOCLOSE);
+	D.Button (59, 7, "[+]"); //8
+	D.SetFlags(DIF_BTNNOCLOSE);
 
-	D->Button (63, 7, "[-]"); //9
-	D->SetFlags(DIF_BTNNOCLOSE);
+	D.Button (63, 7, "[-]"); //9
+	D.SetFlags(DIF_BTNNOCLOSE);
 
-	D->Button (67, 7, "[*]"); //10
-	D->SetFlags(DIF_BTNNOCLOSE);
+	D.Button (67, 7, "[*]"); //10
+	D.SetFlags(DIF_BTNNOCLOSE);
 
-	D->Text (9, 9, "Архиватор:");//11
-	D->ComboBox (19, 9, 15, NULL, 0, "123");//12
+	D.Text (9, 9, "Архиватор:");//11
+	D.ComboBox (19, 9, 15, NULL, 0, "123");//12
 ///	D->ListBox (50, 5, 65, 10, NULL);
-	D->SetFlags (DIF_DROPDOWNLIST);
+	D.SetFlags (DIF_DROPDOWNLIST);
 
-	D->Text (37, 9, "Д&оп. параметры:");//13
-	D->Edit (52, 9, 18, NULL, AUTO_LENGTH, "adsaf");//14
+	D.Text (37, 9, "Д&оп. параметры:");//13
+	D.Edit (52, 9, 18, NULL, AUTO_LENGTH, "adsaf");//14
 
-	D->Separator (10); //15
+	D.Separator (10); //15
 
-	D->Text (5, 11, "&Пароль"); //16
-	D->PswEdit (5, 12, 32); //17
+	D.Text (5, 11, "&Пароль"); //16
+	D.PswEdit (5, 12, 32); //17
 
-	D->Text (38, 11, "&Подтверждение пароля"); //18
-	D->PswEdit (38, 12, 32); //19
+	D.Text (38, 11, "&Подтверждение пароля"); //18
+	D.PswEdit (38, 12, 32); //19
 
-	D->Separator (13); //20
-	D->Text (48, 13); //21
+	D.Separator (13); //20
+	D.Text (48, 13); //21
 
-	D->CheckBox (5, 14, false, "Точное соответствие имени файла"); //22
-	D->CheckBox (5, 15, false, "Каждый элемент в отдельный архив"); //23
+	D.CheckBox (5, 14, false, "Точное соответствие имени файла"); //22
+	D.CheckBox (5, 15, false, "Каждый элемент в отдельный архив"); //23
 
-	D->Separator (16); //24
+	D.Separator (16); //24
 
-	D->Button (-1, 17, "Добавить"); //25
-	D->DefaultButton ();
+	D.Button (-1, 17, "Добавить"); //25
+	D.DefaultButton ();
 
-	D->Button (-1, 17, "Отменить"); //26
+	D.Button (-1, 17, "Отменить"); //26
 
 	formatStruct fs;
 
-	if ( D->ShowEx (
+	if ( D.ShowEx (
 			(PVOID)hndModifyCreateArchive,
 			&fs
 			) == 25 )
@@ -1498,14 +1425,14 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 		char *lpPassword = StrCreate (260);
 		char *lpAdditionalCommandLine = StrCreate (260);
 
-		strcpy (lpArchiveName, D->m_Items[2].Data);
-		strcpy (lpPassword, D->m_Items[17].Data);
-		strcpy (lpAdditionalCommandLine, D->m_Items[14].Data);
+		strcpy (lpArchiveName, D[2].Data);
+		strcpy (lpPassword, D[17].Data);
+		strcpy (lpAdditionalCommandLine, D[14].Data);
 
 		ArchivePlugin *pPlugin = fs.pPlugin;
 		const ArchiveFormatInfo *info = pPlugin->GetArchiveFormatInfo (fs.uid);
 
-		bool bSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);
+		bool bSeparately = D[23].Selected && (pnInfo.SelectedItemsNumber > 1);
 		int	nCount = (bSeparately)?pnInfo.SelectedItemsNumber:1;
 
 		for (int item = 0; item < nCount; item++)
@@ -1519,7 +1446,7 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 			strcat (lpArchiveName, ".");
 
-			if ( !D->m_Items[22].Selected )
+			if ( !D[22].Selected )
 				strcat (lpArchiveName, info->lpDefaultExtention);
 
 			bool bResult = false;
@@ -1581,15 +1508,11 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 	StrFree (lpArchiveName);
 
 	SaveTemplates ();
-
-	delete D;
 }
 
 struct ScanStruct {
 	const char *lpSourcePath;
-	PluginPanelItem *files;
-	int nCurrentFile;
-	int nFilesCount;
+	array<PluginPanelItem> *files;
 };
 
 
@@ -1600,14 +1523,6 @@ int __stdcall ScanDirectory (
 		ScanStruct *pSS
 		)
 {
-	if ( pSS->nCurrentFile == pSS->nFilesCount )
-	{
-		pSS->nFilesCount += 256;
-		pSS->files = (PluginPanelItem*)realloc (pSS->files, pSS->nFilesCount*sizeof (PluginPanelItem));
-
-		memset (&pSS->files[pSS->nCurrentFile], 0, (pSS->nFilesCount-pSS->nCurrentFile)*sizeof (PluginPanelItem));
-	}
-
 	char szFileNameCopy[MAX_PATH];
 	const char *lpFileName = lpFullName+strlen(pSS->lpSourcePath);
 
@@ -1616,9 +1531,8 @@ int __stdcall ScanDirectory (
 
 	strcpy (szFileNameCopy, lpFileName);
 
-	PluginPanelItem *pitem = &pSS->files[pSS->nCurrentFile++];
+	PluginPanelItem *pitem = pSS->files->add();
 
-	memset (pitem, 0, sizeof (PluginPanelItem));
 	memcpy (&pitem->FindData, fdata, sizeof (WIN32_FIND_DATA));
 	strcpy ((char*)&pitem->FindData.cFileName, szFileNameCopy); //???
 
@@ -1680,24 +1594,11 @@ int __stdcall ArchivePanel::pPutFiles(
 			char szCurDir[MAX_PATH];
 			GetCurrentDirectory (MAX_PATH, szCurDir);
 
-			int nFilesCount = 1;
-			int nCurrentFile = 0;
-
-			PluginPanelItem *files = (PluginPanelItem*)malloc (nFilesCount*sizeof (PluginPanelItem));
-			memset (files, 0, nFilesCount*sizeof (PluginPanelItem));
+			array<PluginPanelItem> files(ARRAY_OPTIONS_SKIP, 256);
 
 			for (int i = 0; i < ItemsNumber; i++)
 			{
-				if ( nCurrentFile == nFilesCount )
-				{
-					nFilesCount += 256;
-					files = (PluginPanelItem*)realloc (files, nFilesCount*sizeof (PluginPanelItem));
-
-					memset (&files[nCurrentFile], 0, (nFilesCount-nCurrentFile)*sizeof (PluginPanelItem));
-				}
-
-				PluginPanelItem *pitem = &files[nCurrentFile++];
-				memcpy (pitem, &PanelItem[i], sizeof (PluginPanelItem));
+				PluginPanelItem *pitem = files.add(PanelItem[i]);
 
 				if ( (pitem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 				{
@@ -1709,15 +1610,9 @@ int __stdcall ArchivePanel::pPutFiles(
 					ScanStruct SS;
 
 					SS.lpSourcePath = (const char*)&szCurDir;
-					SS.files = files;
-					SS.nCurrentFile = nCurrentFile;
-					SS.nFilesCount = nFilesCount;
+					SS.files = &files;
 
 					FSF.FarRecursiveSearch (lpFullName, "*.*", (FRSUSERFUNC)ScanDirectory, FRS_RECUR, &SS);
-
-					nCurrentFile = SS.nCurrentFile;
-					nFilesCount = SS.nFilesCount;
-					files = SS.files;
 
 					StrFree (lpFullName);
 				}
@@ -1730,11 +1625,11 @@ int __stdcall ArchivePanel::pPutFiles(
 			m_pArchive->pAddFiles (
 					(const char*)&szCurDir,
 					bPanel?(const char*)&pnThis.CurDir:NULL,
-					files,
-					nCurrentFile
+					files.data(),
+					files.count()
 					);
 
-			free (files);
+			files.free();
 		}
 	}
 
@@ -1752,38 +1647,35 @@ bool dlgGetArchiveFiles (
 
 	FSF.AddEndSlash (lpResultDestPath);
 
-	FarDialog *D = new FarDialog (-1, -1, 75, 13);
+	FarDialog D (-1, -1, 75, 13);
 
-	D->DoubleBox (3, 1, 71, 11, bMove?"Распаковка с удалением из архива":"Распаковка"); //0
+	D.DoubleBox (3, 1, 71, 11, bMove?"Распаковка с удалением из архива":"Распаковка"); //0
 
-	D->Text (5, 2, "&Распаковать в"); //1
-	D->Edit (5, 3, 65, lpResultDestPath, AUTO_LENGTH, "123"); //2
+	D.Text (5, 2, "&Распаковать в"); //1
+	D.Edit (5, 3, 65, lpResultDestPath, AUTO_LENGTH, "123"); //2
 
-	D->Separator (4);
+	D.Separator (4);
 
-	D->Text (5, 5, "&Пароль");
-	D->PswEdit (5, 6, 40);
+	D.Text (5, 5, "&Пароль");
+	D.PswEdit (5, 6, 40);
 
-	D->Separator (7);
+	D.Separator (7);
 
-	D->CheckBox (5, 8, false, "Распаковка без путей");
+	D.CheckBox (5, 8, false, "Распаковка без путей");
 
-	D->Separator (9);
+	D.Separator (9);
 
-	D->Button (-1, 10, "Распаковать");
-	D->DefaultButton ();
+	D.Button (-1, 10, "Распаковать");
+	D.DefaultButton ();
 
-	D->Button (-1, 10, "Отменить");
+	D.Button (-1, 10, "Отменить");
 
-	if ( D->Show () == D->m_nFirstButton )
+	if ( D.Show () == D.FirstButton() )
 	{
-		strcpy (lpResultDestPath, D->m_Items[2].Data);
+		strcpy (lpResultDestPath, D[2].Data);
 
 		bResult = true;
 	}
-
-
-	delete D;
 
 	return bResult;
 }

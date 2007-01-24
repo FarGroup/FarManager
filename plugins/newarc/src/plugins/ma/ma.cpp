@@ -1,4 +1,4 @@
-#include <FarPluginBase.h>
+#include <FarPluginBase.hpp>
 #include "ma.class.h"
 
 PluginStartupInfo Info;

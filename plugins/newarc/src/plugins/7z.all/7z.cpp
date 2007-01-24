@@ -1,10 +1,10 @@
 #include "7z.h"
-#include <Collections.h>
+#include <array.hpp>
 
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
-Collection <SevenZipModule*> Formats;
+pointer_array <SevenZipModule*> Formats;
 ArchiveFormatInfo *pFormatInfo = NULL;
 
 struct ArchiveModuleInformation {
@@ -19,7 +19,7 @@ struct ArchiveModuleInformation {
 
 const SevenZipModule *GetModuleFromGUID (const GUID &uid)
 {
-	for (int i = 0; i < Formats.GetCount(); i++)
+	for (int i = 0; i < Formats.count(); i++)
 		if ( Formats[i]->m_uid == uid )
 			return Formats[i];
 
@@ -31,7 +31,7 @@ int OnInitialize (PluginStartupInfo *pInfo)
 	Info = *pInfo;
 	FSF = *pInfo->FSF;
 
-	Formats.Create (5);
+	Formats.create (ARRAY_OPTIONS_DELETE);
 
 	WIN32_FIND_DATA fdata;
 	char *lpMask = StrDuplicate (Info.ModuleName, 260);
@@ -56,7 +56,7 @@ int OnInitialize (PluginStartupInfo *pInfo)
 				strcat (lpModuleName, fdata.cFileName);
 
 				if ( pModule->Initialize (lpModuleName) )
-					Formats.Add (pModule);
+					Formats.add (pModule);
 				else
 					delete pModule;
 
@@ -74,14 +74,13 @@ int OnInitialize (PluginStartupInfo *pInfo)
 
 int OnFinalize ()
 {
-	Formats.Free ();
-
+	Formats.free ();
 	free (pFormatInfo);
 
 	return NAERROR_SUCCESS;
 }
 
-extern int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats);
+extern int FindFormats (const char *lpFileName, pointer_array<FormatPosition*> &formats);
 
 int __cdecl SortFormats (
     FormatPosition *pos1,
@@ -161,19 +160,17 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
    	} */
 
 
-	Collection <FormatPosition*> formats;
-
-	formats.Create (5);
+	pointer_array<FormatPosition*> formats (ARRAY_OPTIONS_DELETE);
 
 	FindFormats (pQAS->lpFileName, formats);
 
-	formats.Sort ((void *)SortFormats, NULL);
+	formats.sort ((void *)SortFormats, NULL);
 
-	for (int j = 0; j < formats.GetCount(); j++)
+	for (int j = 0; j < formats.count(); j++)
 	{
 		FormatPosition *pos = formats[j];
 
-		for (int i = 0; i < Formats.GetCount (); i++)
+		for (int i = 0; i < Formats.count (); i++)
 		{
 			SevenZipModule *pModule = Formats[i];
 
@@ -189,14 +186,14 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 				pQAS->hResult = (HANDLE)pArchive;
 
-				formats.Free ();
+				formats.free ();
 
 				return NAERROR_SUCCESS;
 			}
 		}
 	}
 
-	formats.Free ();
+	formats.free ();
 
 	return NAERROR_INTERNAL;
 }
@@ -247,7 +244,7 @@ int OnGetArchivePluginInfo (
 		ArchivePluginInfo *ai
 		)
 {
-	int nCount = Formats.GetCount ();
+	int nCount = Formats.count ();
 
 	pFormatInfo = (ArchiveFormatInfo*)realloc (pFormatInfo, nCount*sizeof (ArchiveFormatInfo));
 
