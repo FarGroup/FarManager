@@ -125,8 +125,8 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 				bProgressMessage = true;
 			}
 		}
-		//else
-		//	m_pArchiveFiles.remove();
+		else
+			m_pArchiveFiles.remove();
 
 		#ifdef _DEBUG
 		if ( nResult == E_UNEXPECTED_EOF )
