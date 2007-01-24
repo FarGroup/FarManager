@@ -16,4 +16,4 @@ tools\lng.generator.exe -nc -i lang.ini farlang.templ
 rem rebuild dependencies
 tools\gawk -f .\scripts\mkdep.awk -v out=Release.64.vc mkdep.list > far.release.dep
 
-nmake /f "FAR.mak" CFG="far - Win64 %CFG_0%" | tools\tee !Error.vc.64.%CFG_0%
+nmake /f "FAR.mak" CFG="far - Win64 %CFG_0%" | tools\tee !Error_vc_64_%CFG_0%

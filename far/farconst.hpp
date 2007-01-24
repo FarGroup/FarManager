@@ -282,9 +282,6 @@ enum {
   SKEY_NOTMACROS         = 0x00000001,
 };
 
-// размеры для полей ввода
-#define PANELFILTER_MASK_SIZE    2048
-
 // для диалога GetNameAndPassword()
 enum FlagsNameAndPassword{
   GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные

@@ -435,11 +435,8 @@ int GetDirInfo(char *Title,
                unsigned __int64 &RealSize,
                unsigned long &ClusterSize,
                clock_t MsgWaitTime,
+               FileFilter *Filter,
                DWORD Flags)
-               //int EnhBreak,
-               //BOOL DontRedrawFrame,
-               //int ScanSymLink,
-               //int UseFilter)
 {
   char FullDirName[NM],DriveRoot[NM];
   char FullName[NM],CurDirName[NM],LastDirName[NM];
@@ -487,9 +484,6 @@ int GetDirInfo(char *Title,
   // Временные хранилища имён каталогов
   *LastDirName=0;
   *CurDirName=0;
-
-  // Создадим объект фильтра
-  FileFilter Filter;
 
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
@@ -552,7 +546,7 @@ int GetDirInfo(char *Title,
       */
       if ((Flags&GETDIRINFO_USEFILTER))
       {
-        if (!Filter.FileInFilter(&FindData))
+        if (!Filter->FileInFilter(&FindData))
           continue;
       }
 

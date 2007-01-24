@@ -286,7 +286,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,PluginMode?FALSE:TRUE);
       }
       else if (Param1==33) // Filter
-        Filter->Configure();
+        Filter->FilterEdit();
       else if (Param1==34) // Advanced
         AdvancedDialog();
       else if (Param1>=20 && Param1<=26)
@@ -425,7 +425,7 @@ FindFiles::FindFiles()
   int I;
 
   // Создадим объект фильтра
-  Filter=new FileFilter;
+  Filter=new FileFilter(CtrlObject->Cp()->ActivePanel,FFT_FINDFILE);
 
   CmpCase=LastCmpCase;
   WholeWords=LastWholeWords;
@@ -2156,7 +2156,11 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   /* $ 05.10.2003 KM
      При использовании фильтра по дате будем отображать тот тип
      даты, который задан в фильтре.
-  */
+
+     $ 24.01.2007 AY
+     Так как теперь есть больше чем один фильтр то этот момент я
+     пока не знаю как красиво сделать.
+
   if (UseFilter && Filter->GetParams().FDate.Used)
   {
     switch(Filter->GetParams().FDate.DateType)
@@ -2176,6 +2180,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     }
   }
   else
+  */
     // Отображаем дату последнего изменения
     ConvertDate(FindData->ftLastWriteTime,DateStr,TimeStr,5);
   /* KM $ */

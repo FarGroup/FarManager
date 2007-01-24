@@ -9,8 +9,7 @@ filelist.hpp
 
 #include "panel.hpp"
 #include "dizlist.hpp"
-
-class PanelFilter;
+#include "filefilter.hpp"
 
 struct FileListItem
 {
@@ -76,7 +75,7 @@ enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
 class FileList:public Panel
 {
   private:
-    PanelFilter *Filter;
+    FileFilter *Filter;
     DizList Diz;
     int DizRead;
     /* $ 09.11.2001 IS

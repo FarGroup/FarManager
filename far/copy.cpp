@@ -196,7 +196,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 
   // Создадим объект фильтра
-  Filter=new FileFilter(TRUE);
+  Filter=new FileFilter(SrcPanel,FFT_COPY);
 
   sddata=new char[SDDATA_SIZE]; // Security 16000?
 
@@ -523,15 +523,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   SrcPanel->GetSelName(NULL,CDP.FileAttr);
   while(SrcPanel->GetSelName(SelName,CDP.FileAttr,NULL,&fd))
   {
-    /* $ 23.04.2005 KM
-       Фильтр
-    */
     if (UseFilter)
     {
       if (!Filter->FileInFilter(&fd))
         continue;
     }
-    /* KM $ */
 
     if(CDP.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
     {
@@ -1011,7 +1007,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       else if (Param1==ID_SC_BTNFILTER) // Filter
       {
-        Filter->Configure();
+        Filter->FilterEdit();
         return TRUE;
       }
       break;
@@ -4197,6 +4193,7 @@ bool ShellCopy::CalcTotalSize()
         ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
                         RealFileSize,ClusterSize,0xffffffff,
+                        Filter,
                         (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|
                         (UseFilter?GETDIRINFO_USEFILTER:0)))
         {
@@ -4209,15 +4206,11 @@ bool ShellCopy::CalcTotalSize()
     }
     else
     {
-      /* $ 23.04.2005 KM
-        Подсчитаем количество файлов
-      */
       if (UseFilter)
       {
         if (!Filter->FileInFilter(&fd))
           continue;
       }
-      /* KM $ */
 
       unsigned __int64 FileSize;
       if (SrcPanel->GetLastSelectedSize((__int64*)&FileSize)!=-1)

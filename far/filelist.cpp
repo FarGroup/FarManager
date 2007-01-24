@@ -16,7 +16,7 @@ filelist.cpp
 #include "macroopcode.hpp"
 #include "lang.hpp"
 #include "ctrlobj.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "dialog.hpp"
 #include "vmenu.hpp"
 #include "cmdline.hpp"
@@ -3598,7 +3598,7 @@ int FileList::GetCurrentPos()
 void FileList::EditFilter()
 {
   if (Filter==NULL)
-    Filter=new PanelFilter(this);
+    Filter=new FileFilter(this,FFT_PANEL);
   Filter->FilterEdit();
 }
 
@@ -3881,7 +3881,9 @@ void FileList::CountDirSize(DWORD PluginFlags)
           GetDirInfo(MSG(MDirInfoViewTitle),
                      (Opt.FolderDeepScan && GetFileAttributes(CurPtr->Name)==(DWORD)-1 && *CurPtr->ShortName?CurPtr->ShortName:CurPtr->Name),
                      DirCount,DirFileCount,FileSize,
-                     CompressedFileSize,RealFileSize, ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
+                     CompressedFileSize,RealFileSize, ClusterSize,0,
+                     Filter,
+                     GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
       {
         SelFileSize-=MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
@@ -3911,6 +3913,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
                      (Opt.FolderDeepScan && GetFileAttributes(CurPtr->Name)==(DWORD)-1 && *CurPtr->ShortName?CurPtr->ShortName:CurPtr->Name),
                    DirCount,
                    DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,
+                   Filter,
                    GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
     {
       CurPtr->UnpSize=(DWORD)(FileSize&_i64(0xFFFFFFFF));

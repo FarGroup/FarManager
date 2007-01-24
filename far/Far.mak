@@ -106,7 +106,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
-	"$(INTDIR)\filter.obj" \
 	"$(INTDIR)\findfile.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\flmodes.obj" \

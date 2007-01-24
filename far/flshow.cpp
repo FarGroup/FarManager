@@ -14,7 +14,7 @@ flshow.cpp
 #include "plugin.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
@@ -204,7 +204,7 @@ void FileList::ShowFileList(int Fast)
           SetColor(COL_PANELCOLUMNTITLE);
           OutCharacter[0]=SortOrder==1 ? LocalLower(Ch[1]):LocalUpper(Ch[1]);
           Text(OutCharacter);
-          if (Filter!=NULL && Filter->IsEnabled())
+          if (Filter!=NULL && Filter->IsEnabledOnPanel())
           {
             OutCharacter[0]='*';
             Text(OutCharacter);
@@ -228,7 +228,7 @@ void FileList::ShowFileList(int Fast)
   }
   int TitleX2=Opt.Clock && !Opt.ShowMenuBar ? Min(ScrX-4,X2):X2;
   int TruncSize=TitleX2-X1-3;
-  if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabled())
+  if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabledOnPanel())
     TruncSize-=2;
 
   GetTitle(Title,TruncSize,2);//(PanelMode==PLUGIN_PANEL?0:2));

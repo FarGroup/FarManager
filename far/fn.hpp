@@ -9,6 +9,7 @@ fn.hpp
 
 #include "farconst.hpp"
 #include "global.hpp"
+#include "filefilter.hpp"
 
 /* $ 07.07.2000 IS
    Функция перешла сюда из main.cpp
@@ -442,6 +443,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
+               FileFilter *Filter,
                DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,

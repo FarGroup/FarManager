@@ -366,7 +366,9 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     {
       int ExitCode=GetDirInfo(MSG(MQuickViewTitle),CurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
-                   ClusterSize,500,GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF);
+                   ClusterSize,500,
+                   NULL,
+                   GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF);
       if (ExitCode==1)
         Directory=1;
       else

@@ -19,7 +19,7 @@ ctrlobj.cpp
 #include "poscache.hpp"
 #include "history.hpp"
 #include "treelist.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "filepanels.hpp"
 
 ControlObject *CtrlObject;
@@ -63,7 +63,7 @@ ControlObject::ControlObject()
 void ControlObject::Init()
 {
   TreeList::ClearCache(0);
-  PanelFilter::InitFilter();
+  FileFilter::InitFilter();
 
   SetColor(F_LIGHTGRAY|B_BLACK);
   GotoXY(0,ScrY-3);
@@ -169,7 +169,7 @@ ControlObject::~ControlObject()
   FPanels=NULL;
 
   Plugins.SendExit();
-  PanelFilter::CloseFilter();
+  FileFilter::CloseFilter();
   delete CmdHistory;
   delete FolderHistory;
   delete ViewHistory;

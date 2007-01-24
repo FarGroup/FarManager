@@ -248,10 +248,6 @@ SOURCE=.\fileview.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\filter.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\findfile.cpp
 # End Source File
 # Begin Source File
@@ -688,10 +684,6 @@ SOURCE=.\filestr.hpp
 # Begin Source File
 
 SOURCE=.\fileview.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\filter.hpp
 # End Source File
 # Begin Source File
 

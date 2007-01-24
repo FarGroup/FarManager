@@ -7,20 +7,6 @@ bitflags.hpp
 
 */
 
-/* Revision: 1.03 25.06.2002 $ */
-
-/*
-Modify:
-  25.06.2002 SVS
-    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
-  14.01.2002 SVS
-    + Новый метод - Swap()
-  10.01.2002 SVS
-    + Новый конструктор
-  08.11.2001 SVS
-    + Успешно создан (осталось везде выставить то, что надо)
-*/
-
 class BitFlags{
   public:
     DWORD Flags;
@@ -42,6 +28,8 @@ class BitFlags{
     DWORD Change(DWORD NewFlags,BOOL Status){ if(Status) Flags|=NewFlags; else Flags&=~NewFlags; return Flags;}
     // инвертировать состояние флагов
     DWORD Swap(DWORD SwapedFlags){ if(Flags&SwapedFlags) Flags&=~SwapedFlags; else Flags|=SwapedFlags; return Flags;}
+    //сбросить все флаги
+    void ClearAll(){Flags=0;}
 };
 
 #endif // __BITFLAGS_HPP__

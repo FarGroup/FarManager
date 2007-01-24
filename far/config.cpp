@@ -20,7 +20,7 @@ config.cpp
 #include "filelist.hpp"
 #include "panel.hpp"
 #include "help.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "poscache.hpp"
 #include "findfile.hpp"
 #include "hilight.hpp"
@@ -66,7 +66,6 @@ const char NKeyLayout[]="Layout";
 const char NKeyDescriptions[]="Descriptions";
 const char NKeyKeyMacros[]="KeyMacros";
 const char NKeyPolicies[]="Policies";
-const char NKeyFileFilter[]="OperationsFilter";
 const char NKeySavedHistory[]="SavedHistory";
 const char NKeySavedViewHistory[]="SavedViewHistory";
 const char NKeySavedFolderHistory[]="SavedFolderHistory";
@@ -1256,26 +1255,6 @@ static struct FARConfig{
 
   {0, REG_SZ,     NKeyKeyMacros,"DateFormat",Opt.DateFormat,sizeof(Opt.DateFormat),"%a %b %d %H:%M:%S %Z %Y"},
 
-  /* $ 05.10.2003 KM
-     Сохранение параметров фильтра операций
-  */
-  {1, REG_DWORD,  NKeyFileFilter,"UseMask",&Opt.OpFilter.FMask.Used,0,0},
-  {1, REG_SZ,     NKeyFileFilter,"Mask",Opt.OpFilter.FMask.Mask,sizeof(Opt.OpFilter.FMask.Mask),"*.*"},
-
-  {1, REG_DWORD,  NKeyFileFilter,"UseDate",&Opt.OpFilter.FDate.Used,0,0},
-  {1, REG_DWORD,  NKeyFileFilter,"DateType",&Opt.OpFilter.FDate.DateType,0,0},
-  {1, REG_BINARY, NKeyFileFilter,"DateAfter",&Opt.OpFilter.FDate.DateAfter,sizeof(Opt.OpFilter.FDate.DateAfter),0},
-  {1, REG_BINARY, NKeyFileFilter,"DateBefore",&Opt.OpFilter.FDate.DateBefore,sizeof(Opt.OpFilter.FDate.DateBefore),0},
-
-  {1, REG_DWORD,  NKeyFileFilter,"UseSize",&Opt.OpFilter.FSize.Used,0,0},
-  {1, REG_DWORD,  NKeyFileFilter,"SizeType",&Opt.OpFilter.FSize.SizeType,0,0},
-  {1, REG_BINARY, NKeyFileFilter,"SizeAbove",&Opt.OpFilter.FSize.SizeAbove,sizeof(Opt.OpFilter.FSize.SizeAbove),0},
-  {1, REG_BINARY, NKeyFileFilter,"SizeBelow",&Opt.OpFilter.FSize.SizeBelow,sizeof(Opt.OpFilter.FSize.SizeBelow),0},
-
-  {1, REG_DWORD,  NKeyFileFilter,"UseAttr",&Opt.OpFilter.FAttr.Used,0,0},
-  {1, REG_DWORD,  NKeyFileFilter,"AttrSet",&Opt.OpFilter.FAttr.AttrSet,0,0},
-  {1, REG_DWORD,  NKeyFileFilter,"AttrClear",&Opt.OpFilter.FAttr.AttrClear,0,0},
-  /* KM $ */
   {0, REG_DWORD,  NKeySystem,"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 };
 
@@ -1554,7 +1533,7 @@ void SaveConfig(int Ask)
   }
 
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
-  PanelFilter::SaveSelection();
+  FileFilter::SaveFilters();
   FileList::SavePanelModes();
   if (Ask)
     CtrlObject->Macro.SaveMacros();

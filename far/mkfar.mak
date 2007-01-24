@@ -135,7 +135,6 @@ FAROBJ=\
    $(OBJPATH)\filestr.obj\
    $(OBJPATH)\filetype.obj\
    $(OBJPATH)\fileview.obj\
-   $(OBJPATH)\filter.obj\
    $(OBJPATH)\findfile.obj\
    $(OBJPATH)\flink.obj\
    $(OBJPATH)\flmodes.obj\

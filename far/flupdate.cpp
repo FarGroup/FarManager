@@ -17,7 +17,7 @@ flupdate.cpp
 #include "lang.hpp"
 #include "filepanels.hpp"
 #include "cmdline.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "hilight.hpp"
 #include "grpsort.hpp"
 #include "ctrlobj.hpp"
@@ -145,7 +145,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   SortGroupsRead=FALSE;
 
   if (Filter==NULL)
-    Filter=new PanelFilter(this);
+    Filter=new FileFilter(this,FFT_PANEL);
 
   if (GetFocus())
     CtrlObject->CmdLine->SetCurDir(CurDir);
@@ -240,8 +240,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   {
     if ((fdata.cFileName[0]!='.' || fdata.cFileName[1]!=0) &&
         (Opt.ShowHidden || (fdata.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM))==0) &&
-        ((fdata.dwFileAttributes & FA_DIREC) ||
-        Filter->CheckName(fdata.cFileName)))
+        (/*(fdata.dwFileAttributes & FA_DIREC) ||*/
+        Filter->FileInFilter(&fdata)))
     {
       int UpperDir=FALSE;
       if (fdata.cFileName[0]=='.' && fdata.cFileName[1]=='.' && fdata.cFileName[2]==0)
@@ -673,7 +673,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   }
 
   if (Filter==NULL)
-    Filter=new PanelFilter(this);
+    Filter=new FileFilter(this,FFT_PANEL);
 
   int DotsPresent=FALSE;
 
@@ -685,8 +685,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     struct FileListItem *CurListData=ListData+FileListCount;
 
     if (Info.Flags & OPIF_USEFILTER)
-      if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
-        if (!Filter->CheckName(CurPanelData->FindData.cFileName))
+      //if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
+        if (!Filter->FileInFilter(&(CurPanelData->FindData)))
           continue;
     if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM)))
       continue;

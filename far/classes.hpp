@@ -45,7 +45,7 @@ class History;
 #include "macro.hpp"
 #include "dizlist.hpp"
 #include "grpsort.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "panel.hpp"
 #include "filelist.hpp"
 #include "treelist.hpp"
@@ -92,4 +92,4 @@ class History;
 #include "chgmmode.hpp"
 #include "constitle.hpp"
 
-#endif	// __CLASSES_HPP__
+#endif  // __CLASSES_HPP__

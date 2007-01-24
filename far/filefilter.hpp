@@ -10,65 +10,120 @@ filefilter.hpp
 #include "plugin.hpp"
 #include "struct.hpp"
 #include "CFileMask.hpp"
+#include "bitflags.hpp"
 
 #define DATE_COUNT  3
 
-class FileFilter
+enum FileFilterFlags {
+  FFF_RPANELINCLUDE = 1,
+  FFF_RPANELEXCLUDE = 2,
+  FFF_LPANELINCLUDE = 4,
+  FFF_LPANELEXCLUDE = 8,
+  FFF_FINDFILEINCLUDE = 16,
+  FFF_FINDFILEEXCLUDE = 32,
+  FFF_COPYINCLUDE = 64,
+  FFF_COPYEXCLUDE = 128,
+};
+
+class FileFilterParams
 {
-  friend LONG_PTR WINAPI FilterDlgProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
-
   private:
 
-    const char *FmtMask1;               // Маска даты для форматов DD.MM.YYYY и MM.DD.YYYY
-    const char *FmtMask2;               // Маска даты для формата YYYY.MM.DD
-    const char *FmtMask3;               // Маска времени
-    const char *DigitMask;              // Маска для ввода размеров файла
-    const char *FilterMasksHistoryName; // История для маски файлов
+    char m_Title[512];
 
-    FarList SizeList;                   // Лист для комбобокса: байты - килобайты
-    FarListItem *TableItemSize;
-    FarList DateList;                   // Лист для комбобокса времени файла
-    FarListItem *TableItemDate;
+    struct
+    {
+      DWORD Used;
+      char Mask[512];
+      CFileMask FilterMask; // Хранилище скомпилированной маски.
+    } FMask;
 
-    // Маски для диалога настройки
-    char DateMask[16],DateStrAfter[16],DateStrBefore[16];
-    char TimeMask[16],TimeStrAfter[16],TimeStrBefore[16];
+    struct
+    {
+      DWORD Used;
+      FDateType DateType;
+      FILETIME DateAfter;
+      FILETIME DateBefore;
+    } FDate;
 
-    int DateSeparator;                  // Разделитель даты
-    int TimeSeparator;                  // Разделитель времени
-    int DateFormat;                     // Формат даты в системе
+    struct
+    {
+      DWORD Used;
+      FSizeType SizeType;
+      __int64 SizeAbove; // Здесь всегда будет размер в SizeType или -1 для игнор
+      __int64 SizeBelow; // Здесь всегда будет размер в SizeType или -1 для игнор
+      unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
+      unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
+    } FSize;
 
-    FilterParams FF;                    // Внутреннее хранилище параметров используется
-                                        // для того, чтобы не менять значение Opt.OpFilter
-                                        // на "лету".
-
-    CFileMask FilterMask;               // Хранилище скомпилированной маски.
-
-  private:
-
-    // Диалоговая процедура
-    static LONG_PTR WINAPI FilterDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-    void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator);
-
-    // Пребразование строковых полей даты и времени в FILETIME
-    FILETIME &StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft);
+    struct
+    {
+      DWORD Used;
+      DWORD AttrSet;
+      DWORD AttrClear;
+    } FAttr;
 
   public:
 
-    FileFilter(int DisableDirAttr=FALSE);
-    ~FileFilter();
+    BitFlags Flags; // Флаги фильтра
 
-    // Получить текущие настройки фильтра.
-    FilterParams GetParams(){return FF;};
+  public:
+
+    FileFilterParams();
+
+    void SetTitle(const char *Title);
+    void SetMask(DWORD Used, const char *Mask);
+    void SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore);
+    void SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow);
+    void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
+
+    const char *GetTitle();
+    DWORD GetMask(const char **Mask);
+    DWORD GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore);
+    DWORD GetSize(DWORD *SizeType, __int64 *SizeAbove, __int64 *SizeBelow);
+    DWORD GetAttr(DWORD *AttrSet, DWORD *AttrClear);
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.
-    // Возвращает TRUE  - попадает;
-    //            FALSE - не попадает.
-    int FileInFilter(WIN32_FIND_DATA *fd);
-
-    // Данный метод вызывается для настройки параметров фильтра.
-    void Configure();
+    // Возвращает true  - попадает;
+    //            false - не попадает.
+    bool FileInFilter(WIN32_FIND_DATA *fd);
 };
+
+class VMenu;
+class Panel;
+
+enum enumFileFilterType {
+  FFT_PANEL = 0,
+  FFT_FINDFILE,
+  FFT_COPY,
+};
+
+class FileFilter
+{
+  private:
+    Panel *m_HostPanel;
+    enumFileFilterType m_FilterType;
+
+    int  ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount,int Check);
+    void ProcessSelection(VMenu *FilterList);
+    void GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc);
+    int  GetCheck(FileFilterParams *FFP);
+
+  public:
+    FileFilter(Panel *HostPanel, enumFileFilterType FilterType);
+    ~FileFilter();
+
+    void FilterEdit();
+    bool FileInFilter(WIN32_FIND_DATA *fd);
+    bool IsEnabledOnPanel();
+
+    static void InitFilter();
+    static void CloseFilter();
+    static void SwapFilter();
+    static void SaveFilters();
+};
+
+bool FileFilterConfig(FileFilterParams *FF);
 
 #endif  // __FINDFILES_HPP__

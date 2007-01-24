@@ -43,7 +43,6 @@ SRCS = 	cddrv.cpp \
 	filestr.cpp \
 	filetype.cpp \
 	fileview.cpp \
-	filter.cpp \
 	findfile.cpp \
 	flink.cpp \
 	flmodes.cpp \

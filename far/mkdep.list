@@ -27,7 +27,6 @@ FileMasksWithExclude.hpp
 filepanels.hpp
 filestr.hpp
 fileview.hpp
-filter.hpp
 findfile.hpp
 flink.hpp
 fn.hpp
@@ -116,7 +115,6 @@ filepanels.cpp
 filestr.cpp
 filetype.cpp
 fileview.cpp
-filter.cpp
 findfile.cpp
 flink.cpp
 flmodes.cpp

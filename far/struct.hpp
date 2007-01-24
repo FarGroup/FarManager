@@ -9,35 +9,6 @@ struct.hpp
 
 #include "farconst.hpp"
 
-struct FilterParams
-{
-  struct
-  {
-    DWORD Used;
-    char Mask[NM*2];
-  } FMask;
-  struct
-  {
-    DWORD Used;
-    FDateType DateType;
-    FILETIME DateAfter;
-    FILETIME DateBefore;
-  } FDate;
-  struct
-  {
-    DWORD Used;
-    FSizeType SizeType;
-    __int64 SizeAbove;
-    __int64 SizeBelow;
-  } FSize;
-  struct
-  {
-    DWORD Used;
-    DWORD AttrSet;
-    DWORD AttrClear;
-  } FAttr;
-};
-
 struct PanelOptions
 {
   int Type;
@@ -585,11 +556,6 @@ struct Options
        Структура для запоминания параметров таблиц символов в поиске
   */
   struct FindCharTable CharTable;
-  /* KM $ */
-  /* $ 28.09.2003 KM
-     OpFilter - параметр для запоминания свойств файлового фильтра
-  */
-  struct FilterParams OpFilter;
   /* KM $ */
   struct TreeOptions Tree;
 };
