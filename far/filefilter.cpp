@@ -689,6 +689,8 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
           }
 
           NewFilter->SetMask(1,Mask);
+          //Авто фильтры они только для файлов, папки не должны к ним подходить
+          NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 
           TempFilterData=NewFilterData;
 
@@ -874,6 +876,8 @@ void FileFilter::InitFilter()
       TempFilterData=NewFilterData;
 
       NewFilter->SetMask(1, Mask);
+      //Авто фильтры они только для файлов, папки не должны к ним подходить
+      NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 
       NewFilter->Flags.Set((DWORD)GetRegKey(RegKey,"Flags",0));
 
