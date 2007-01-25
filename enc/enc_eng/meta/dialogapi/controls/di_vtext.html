@@ -51,6 +51,29 @@ There are several flags applicable to the <dfn>DI_VTEXT</dfn> control:<br>
  <td class="cont" width="60%">The text item will be displayed using box colors (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> or <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>) </td>
  </tr>
 
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+ <td class="cont" width="60%">
+ центрирование двух текстовых строк с одинаковой горизонтальной позицией (параметр <dfn>Y1</dfn> игнорируется)
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator.html">DIF_SEPARATOR</a></td>
+ <td class="cont" width="60%">
+ вертикальный разделитель диалога (одинарная линия); координата <dfn>Y1</dfn> не используется для
+ случая, когда <dfn>Data</dfn> пустая строка;<br>
+ если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для
+ вывода строки будет использована координата <dfn>Y1</dfn>);<br>
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
+ <td class="cont" width="60%">
+ вертикальный разделитель диалога (двойная линия); координата <dfn>Y1</dfn> не
+ используется для случая, когда <dfn>Data</dfn> пустая строка;<br>
+ если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для
+ вывода строки будет использована координата <dfn>Y1</dfn>);<br>
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+ <td class="cont" width="60%">
+ Show ampersand symbol in caption instead of using it for defining hotkeys.</td>
+ </tr>
+
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
  <td class="cont" width="60%">Centers the text between the Y1 and Y2 coordinates.</td>
  </tr>
@@ -73,7 +96,9 @@ There are several flags applicable to the <dfn>DI_VTEXT</dfn> control:<br>
                 If <a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a> flag is set:
                  <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> or
                  <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>
-LoWord HiByte - 0 (not used)
+LoWord HiByte - color of highlighted text
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> or
+                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
 HiWord LoByte - 0 (not used)
 HiWord HiByte - 0 (not used)</pre>
   If a special attribute is used (<a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a> flag), the text (LoWord LoByte) will be drawn according to the parameters.</td>
@@ -94,6 +119,8 @@ API 1.0. Just set it equal to the <var>X1</var> coordinate.
 must have an adequate value for the correct text centering.
 <li>If the <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a> flag is not set, FAR will
 calculate the <var>X2</var> and <var>Y2</var> coordinates automatically.
+<li>If the text of the <dfn>DI_TEXT</dfn> item has a hotkey and <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> flag isn't set,
+then pressing <b>Alt-Letter</b> causes the <a href="../keybfocus.html">keyboard focus</a> to move to the next available dialog item.
 </ol>
 </div>
 
