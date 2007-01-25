@@ -79,20 +79,20 @@ void FileFilterParams::SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __
     case FSIZE_INKBYTES:
       // Размер введён в килобайтах, переведём его в байты.
       // !!! Проверки на превышение максимального значения не делаются !!!
-      FSize.SizeAboveReal>>=10;
-      FSize.SizeBelowReal>>=10;
+      FSize.SizeAboveReal<<=10;
+      FSize.SizeBelowReal<<=10;
       break;
     case FSIZE_INMBYTES:
       // Задел // Размер введён в мегабайтах, переведём его в байты.
       // !!! Проверки на превышение максимального значения не делаются !!!
-      FSize.SizeAboveReal>>=20;
-      FSize.SizeBelowReal>>=20;
+      FSize.SizeAboveReal<<=20;
+      FSize.SizeBelowReal<<=20;
       break;
     case FSIZE_INGBYTES:
       // Задел // Размер введён в гигабайтах, переведём его в байты.
       // !!! Проверки на превышение максимального значения не делаются !!!
-      FSize.SizeAboveReal>>=30;
-      FSize.SizeBelowReal>>=30;
+      FSize.SizeAboveReal<<=30;
+      FSize.SizeBelowReal<<=30;
       break;
   }
 }
@@ -473,7 +473,7 @@ void FileFilter::FilterEdit()
 
           FilterList.AdjustSelectPos();
           FilterList.SetSelectPos(SelPos,1);
-          FilterList.SetPosition(-1,-1,-1,-1);
+          FilterList.SetPosition(-1,-1,0,0);
           FilterList.Show();
           bNeedUpdate=true;
         }
@@ -515,7 +515,7 @@ void FileFilter::FilterEdit()
 
             FilterList.AdjustSelectPos();
             FilterList.SetSelectPos(SelPos,1);
-            FilterList.SetPosition(-1,-1,-1,-1);
+            FilterList.SetPosition(-1,-1,0,0);
             FilterList.Show();
             bNeedUpdate=true;
           }
@@ -737,6 +737,13 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
     }
   }
 
+  if (FoldersFilter.Flags.Check(Inc|Exc))
+  {
+    flag = flag || FoldersFilter.Flags.Check(Inc);
+    if (FoldersFilter.FileInFilter(fd))
+      return FoldersFilter.Flags.Check(Inc)?true:false;
+  }
+
   for (int i=0; i<TempFilterDataCount; i++)
   {
     CurFilterData = TempFilterData[i];
@@ -747,13 +754,6 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
       if (CurFilterData->FileInFilter(fd))
         return CurFilterData->Flags.Check(Inc)?true:false;
     }
-  }
-
-  if (FoldersFilter.Flags.Check(Inc|Exc))
-  {
-    flag = flag || FoldersFilter.Flags.Check(Inc);
-    if (FoldersFilter.FileInFilter(fd))
-      return FoldersFilter.Flags.Check(Inc)?true:false;
   }
 
   return !flag;
@@ -773,14 +773,14 @@ bool FileFilter::IsEnabledOnPanel()
       return true;
   }
 
+  if (FoldersFilter.Flags.Check(Inc|Exc))
+    return true;
+
   for (int i=0; i<TempFilterDataCount; i++)
   {
     if (TempFilterData[i]->Flags.Check(Inc|Exc))
       return true;
   }
-
-  if (FoldersFilter.Flags.Check(Inc|Exc))
-    return true;
 
   return false;
 }
