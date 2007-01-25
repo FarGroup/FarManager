@@ -834,7 +834,7 @@ void VTextW(const WCHAR *Str)
   }
 }
 
-void HiTextW(const wchar_t *Str,int HiColor)
+void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
 {
   string strTextStr;
   int SaveColor;
@@ -847,7 +847,10 @@ void HiTextW(const wchar_t *Str,int HiColor)
   if ((ChPtr=wcschr(ChPtr,L'&'))==NULL)
   {
     strTextStr.ReleaseBuffer ();
-    TextW(strTextStr);
+    if(isVertText)
+      VTextW(strTextStr);
+    else
+      TextW(strTextStr);
   }
   else
   {
@@ -869,14 +872,20 @@ void HiTextW(const wchar_t *Str,int HiColor)
     {
       *ChPtr=0;
 
-      TextW(strTextStr); //BUGBUG BAD!!!
+      if(isVertText)
+        VTextW(strTextStr);
+      else
+        TextW(strTextStr); //BUGBUG BAD!!!
       if (ChPtr[1])
       {
         wchar_t Chr[2];
         SaveColor=CurColor;
         SetColor(HiColor);
         Chr[0]=ChPtr[1]; Chr[1]=0;
-        TextW(Chr);
+        if(isVertText)
+          VTextW(Chr);
+        else
+          TextW(Chr);
         SetColor(SaveColor);
 
         string strText = (ChPtr+1);
@@ -884,7 +893,10 @@ void HiTextW(const wchar_t *Str,int HiColor)
         strTextStr.ReleaseBuffer ();
 
         ReplaceStringsW(strText,L"&&",L"&",-1);
-        TextW((const wchar_t*)strText+1);
+        if(isVertText)
+          VTextW((const wchar_t*)strText+1);
+        else
+          TextW((const wchar_t*)strText+1);
       }
     }
     else
@@ -892,7 +904,10 @@ void HiTextW(const wchar_t *Str,int HiColor)
       strTextStr.ReleaseBuffer ();
 
       ReplaceStringsW(strTextStr,L"&&",L"&",-1);
-      TextW(strTextStr); //BUGBUG BAD!!!
+      if(isVertText)
+        VTextW(strTextStr);
+      else
+        TextW(strTextStr); //BUGBUG BAD!!!
     }
   }
 }
@@ -1160,7 +1175,7 @@ void DrawLine(int Length,int Type)
 
      WCHAR Separator[4096];
      MakeSeparatorW(Length,Separator,Type);
-     if(Type>=10)
+     if( ( Type >= 4 && Type <= 7 ) || ( Type >= 10 && Type <= 11) )
        VTextW(Separator);
      else
        TextW(Separator);
@@ -1170,21 +1185,21 @@ void DrawLine(int Length,int Type)
 
 // "Нарисовать" сепаратор в памяти.
 static BYTE __BoxType[12][8]={
-//       cp866, 437           cp other!
-/* 00 */{0x20,0x20,0xC4,0x00, 0x20,0x20,0xC4,0x00}, // -
-/* 01 */{0xC7,0xB6,0xC4,0x00, 0xBA,0xBA,0xC4,0x00}, // ||-||
-/* 02 */{0xC3,0xB4,0xC4,0x00, 0xC3,0xB4,0xC4,0x00}, // |-|
-/* 03 */{0xCC,0xB9,0xCD,0x00, 0xCC,0xB9,0xCD,0x00}, // ||=||
+//       cp866, 437           cp other!                       h-horiz, s-space, v-vert, b-border, 1-one line, 2-two line
+/* 00 */{0x20,0x20,0xC4,0x00, 0x20,0x20,0xC4,0x00}, // -      h1s
+/* 01 */{0xC7,0xB6,0xC4,0x00, 0xBA,0xBA,0xC4,0x00}, // ||-||  h1b2
+/* 02 */{0xC3,0xB4,0xC4,0x00, 0xC3,0xB4,0xC4,0x00}, // |-|    h1b1
+/* 03 */{0xCC,0xB9,0xCD,0x00, 0xCC,0xB9,0xCD,0x00}, // ||=||  h2b2
 
-/* 04 */{0x20,0x20,0xB3,0x00, 0x20,0x20,0xB3,0x00}, //  |
-/* 05 */{0xD1,0xCF,0xB3,0x00, 0xCD,0xCD,0xB3,0x00}, // =|=
-/* 06 */{0xC2,0xC1,0xB3,0x00, 0xC2,0xC1,0xB3,0x00}, //
-/* 07 */{0xCB,0xCA,0xBA,0x00, 0xCB,0xCA,0xBA,0x00}, //
+/* 04 */{0x20,0x20,0xB3,0x00, 0x20,0x20,0xB3,0x00}, //  |     v1s
+/* 05 */{0xD1,0xCF,0xB3,0x00, 0xCD,0xCD,0xB3,0x00}, // =|=    v1b2
+/* 06 */{0xC2,0xC1,0xB3,0x00, 0xC2,0xC1,0xB3,0x00}, //        v1b1
+/* 07 */{0xCB,0xCA,0xBA,0x00, 0xCB,0xCA,0xBA,0x00}, //        v2b2
 
-/* 08 */{0xC4,0xC4,0xC4,0x00, 0xC4,0xC4,0xC4,0x00}, // -
-/* 09 */{0xCD,0xCD,0xCD,0x00, 0xCD,0xCD,0xCD,0x00}, // =
-/* 10 */{0xB3,0xB3,0xB3,0x00, 0xB3,0xB3,0xB3,0x00}, // |
-/* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||
+/* 08 */{0xC4,0xC4,0xC4,0x00, 0xC4,0xC4,0xC4,0x00}, // -      h1
+/* 09 */{0xCD,0xCD,0xCD,0x00, 0xCD,0xCD,0xCD,0x00}, // =      h2
+/* 10 */{0xB3,0xB3,0xB3,0x00, 0xB3,0xB3,0xB3,0x00}, // |      v1
+/* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||     v2
 };
 
 WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type)

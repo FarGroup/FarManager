@@ -48,7 +48,8 @@ void TextW(int X, int Y, int Color, const WCHAR *Str);
 void TextW(const WCHAR *Str);
 void TextW(int MsgId);
 void VTextW(const WCHAR *Str);
-void HiTextW(const WCHAR *Str,int HiColor);
+void HiTextW(const WCHAR *Str,int HiColor,int isVertText=0);
+#define HiVTextW(Str,HiColor) HiTextW(Str,HiColor,1)
 
 void DrawLine(int Length,int Type);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
