@@ -58,9 +58,11 @@ void VText(const char *Str);
 #if defined(USE_WFUNC)
 void VTextW(const WCHAR *Str);
 #endif
-void HiText(const char *Str,int HiColor);
+void HiText(const char *Str,int HiColor,int isVertText=0);
+#define HiVText(Str,HiColor) HiText(Str,HiColor,1)
 #if defined(USE_WFUNC)
-void HiTextW(const WCHAR *Str,int HiColor);
+void HiTextW(const WCHAR *Str,int HiColor,int isVertText=0);
+#define HiVTextW(Str,HiColor) HiTextW(Str,HiColor,1)
 #endif
 
 void DrawLine(int Length,int Type);

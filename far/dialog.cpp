@@ -26,6 +26,8 @@ dialog.cpp
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 
+#define VTEXT_ADN_SEPARATORS	1
+
 static char HisLocked[16]="Locked", *PHisLocked=NULL;
 static char HisLine[16]  ="Line", *PHisLine=NULL;
 static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
@@ -476,6 +478,7 @@ int Dialog::InitDialogObjects(int ID)
        case DI_CHECKBOX:
        case DI_RADIOBUTTON:
        case DI_TEXT:
+       case DI_VTEXT: //???
          break;
        default:
          if(ItemFlags&DIF_CENTERGROUP)
@@ -885,7 +888,7 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
   {
       DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
       CurItem->X2=(short)Rect->Right;
-      CurItem->Y2=0;
+      CurItem->Y2=(short)(Type == DI_MEMOEDIT?Rect->Bottom:0);
       DialogEdit->SetPosition(X1+Rect->Left, Y1+Rect->Top,
                                    X1+Rect->Right,Y1+Rect->Top);
   }
@@ -901,7 +904,12 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
   {
     case DI_TEXT:
       CurItem->X2=(short)Rect->Right;
-      CurItem->Y2=0;
+      CurItem->Y2=0;                    // ???
+      break;
+
+    case DI_VTEXT:
+      CurItem->X2=0;                    // ???
+      CurItem->Y2=(short)Rect->Bottom;
       break;
 
     case DI_DOUBLEBOX:
@@ -945,6 +953,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
     case DI_FIXEDIT:
     case DI_PSWEDIT:
     case DI_LISTBOX:
+    case DI_MEMOEDIT:
       break;
     default:
       Len=((ItemFlags & DIF_SHOWAMPERSAND)?strlen(CurItem->Data):HiStrlen(CurItem->Data));
@@ -961,7 +970,6 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
 
       if (CurItem->Y1==(short)-1)
         Rect.top=(Y2-Y1+1)/2;
-
       if(Rect.top < 0)
         Rect.top=0;
 
@@ -985,22 +993,25 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
         Rect.left=0;
 
       if (CurItem->Y1==(short)-1)
-        Rect.top=(Y2-Y1+1-strlen(CurItem->Data))/2;
-
+        Rect.top=(Y2-Y1+1-Len)/2;
       if(Rect.top < 0)
         Rect.top=0;
 
       Rect.right=Rect.left;
-      Rect.bottom=Rect.top+Len;
-      /* Закроем до поры до времени.
+      //Rect.bottom=Rect.top+Len;
+
+      if ( Rect.bottom == 0 || Rect.bottom == Rect.top)
+        Rect.bottom=Rect.top+Len-(Len==0?0:1);
+
+#if defined(VTEXT_ADN_SEPARATORS)
       if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
         Rect.right=Rect.left;
         Rect.top=(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
-        Rect.bottom=Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
+        Rect.bottom=Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
         break;
       }
-      */
+#endif
       break;
 
     case DI_BUTTON:
@@ -1042,6 +1053,7 @@ void Dialog::DeleteDialogObjects()
   {
     switch(CurItem->Type)
     {
+      case DI_MEMOEDIT:
       case DI_EDIT:
       case DI_FIXEDIT:
       case DI_PSWEDIT:
@@ -1082,6 +1094,8 @@ void Dialog::GetDialogObjectsData()
     DWORD IFlags=CurItem->Flags;
     switch(Type=CurItem->Type)
     {
+      case DI_MEMOEDIT:
+        break; //????
       case DI_EDIT:
       case DI_FIXEDIT:
       case DI_PSWEDIT:
@@ -1207,6 +1221,9 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
       break;
     }
 
+#if defined(VTEXT_ADN_SEPARATORS)
+    case DI_VTEXT:
+#endif
     case DI_TEXT:
     {
       if (Flags & DIF_SETCOLOR)
@@ -1238,6 +1255,7 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
       break;
     }
 
+#if !defined(VTEXT_ADN_SEPARATORS)
     case DI_VTEXT:
     {
       if (Flags & DIF_BOXCOLOR)
@@ -1253,6 +1271,7 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
       Attr=MAKEWORD(MAKEWORD(FarColorToReal(Attr),0),MAKEWORD(0,0));
       break;
     }
+#endif
 
     case DI_CHECKBOX:
     case DI_RADIOBUTTON:
@@ -1303,6 +1322,7 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
     case DI_FIXEDIT:
     case DI_PSWEDIT:
     case DI_COMBOBOX:
+    case DI_MEMOEDIT:
     {
       /* $ 15.08.2000 SVS
          ! Для DropDownList цвета обрабатываем по иному
@@ -1415,16 +1435,13 @@ void Dialog::ShowDialog(int ID)
   int I,DrawItemCount;
   unsigned long Attr;
 
-  /* $ 18.08.2000 SVS
-     Если не разрешена отрисовка, то вываливаем.
-  */
+  //   Если не разрешена отрисовка, то вываливаем.
   if(IsEnableRedraw ||                 // разрешена прорисовка ?
      (ID+1 > ItemCount) ||             // а номер в рамках дозволенного?
      DialogMode.Check(DMODE_DRAWING) || // диалог рисуется?
      !DialogMode.Check(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
      !DialogMode.Check(DMODE_INITOBJECTS))
     return;
-  /* SVS $ */
 
   DialogMode.Set(DMODE_DRAWING);  // диалог рисуется!!!
 
@@ -1432,21 +1449,16 @@ void Dialog::ShowDialog(int ID)
 
   if(ID == -1) // рисуем все?
   {
-    /* $ 28.07.2000 SVS
-       Перед прорисовкой диалога посылаем сообщение в обработчик
-    */
+    //   Перед прорисовкой диалога посылаем сообщение в обработчик
     if(!DlgProc((HANDLE)this,DN_DRAWDIALOG,0,0))
     {
       DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
       return;
     }
-    /* SVS $ */
 
-    /* $ 28.07.2000 SVS
-       перед прорисовкой подложки окна диалога...
-    */
+    //   перед прорисовкой подложки окна диалога...
     if(!DialogMode.Check(DMODE_SMALLDIALOG|DMODE_NODRAWSHADOW))
-      Shadow();              // "наводим" тень
+      Shadow();              // ... "наводим" тень
 
     if(!DialogMode.Check(DMODE_NODRAWPANEL))
     {
@@ -1454,7 +1466,6 @@ void Dialog::ShowDialog(int ID)
           DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
       SetScreen(X1,Y1,X2,Y2,' ',Attr);
     }
-    /* SVS $ */
 
     ID=0;
     DrawItemCount=ItemCount;
@@ -1508,16 +1519,17 @@ void Dialog::ShowDialog(int ID)
       CY2 = Y2-Y1;
 
     short CW=CX2-CX1+1;
+    short CH=CY2-CY1+1;
     BOOL DisabledItem=CurItem->Flags&DIF_DISABLE?TRUE:FALSE;
 
     Attr=CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->Flags);
 
+#if 0
     // TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
-/*
     if ( ((CX1 > -1) && (CX2 > 0) && (CX2 > CX1)) &&
        ((CY1 > -1) && (CY2 > 0) && (CY2 > CY1)) )
       SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
-*/
+#endif
 
     switch(CurItem->Type)
     {
@@ -1576,10 +1588,12 @@ void Dialog::ShowDialog(int ID)
       {
         xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str);
-        if ((CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
+        if (!(CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
           LenText=LenStrItem(I,CenterStr(Str,Str,CX2-CX1+1));
+
+        X=(CX1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(X2-X1+1-LenText)/2:CX1;
         Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
-        X=(CX1==-1)?(X2-X1+1-LenText)/2:CX1;
+
         if(X < 0)
           X=0;
 
@@ -1626,32 +1640,54 @@ void Dialog::ShowDialog(int ID)
       case DI_VTEXT:
       {
         xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
-        LenText=strlen(Str);//LenStrItem(I,Str);
-        if ((CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
+        LenText=LenStrItem(I,Str); // strlen(Str); ???
+        if (!(CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
           LenText=strlen(CenterStr(Str,Str,CY2-CY1+1));
+
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
-        Y=(CY1==-1)?(Y2-Y1+1-LenText)/2:CY1;
+        Y=(CY1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(Y2-Y1+1-LenText)/2:CY1;
+
         if(Y < 0)
           Y=0;
 
+        if ( (CY2 <= 0) || (CY2 < CY1) )
+          CH = LenStrItem(I,Str);
+
         if(Y1+Y+LenText > Y2)
-          Str[ObjHeight-1]=0;
+        {
+          int tmpCH=ObjHeight;
+          if(CH < ObjHeight)
+            tmpCH=CH+1;
+          Str[tmpCH-1]=0;
+        }
 
-        SetColor(Attr&0xFF);
+        // нужно ЭТО
+        //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
+        // вместо этого:
+        if(CY1 > -1 && CY2 > 0 && CY2 > CY1) //половинчатое решение
+        {
+          SetColor(Attr&0xFF);
+          GotoXY(X1+X,Y1+Y);
+          vmprintf("%*s",CY2-CY1+1,"");
+        }
 
-        /* Закроем до поры до времени.
+
+#if defined(VTEXT_ADN_SEPARATORS)
         if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
+          SetColor(LOBYTE(HIWORD(Attr)));
           GotoXY(X1+X,Y1+(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)); //????
-          if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0),5);
-          else
-            ShowSeparator(Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0),5);
-        }
-        */
 
+          ShowSeparator(RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),(CurItem->Flags&DIF_SEPARATOR2?7:5));
+        }
+#endif
+
+        SetColor(Attr&0xFF);
         GotoXY(X1+X,Y1+Y);
-        VText(Str);
+        if (CurItem->Flags & DIF_SHOWAMPERSAND)
+          VText(Str);
+        else
+          HiVText(Str,HIBYTE(LOWORD(Attr)));
         break;
       }
 
@@ -1731,6 +1767,7 @@ void Dialog::ShowDialog(int ID)
       case DI_EDIT:
       case DI_FIXEDIT:
       case DI_PSWEDIT:
+      case DI_MEMOEDIT:
       case DI_COMBOBOX:
       {
         DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
@@ -5015,7 +5052,7 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
       return TRUE;
 
     case DN_BTNCLICK:
-      return ((Type==DI_BUTTON)?FALSE:TRUE);
+      return ((Type==DI_BUTTON && !(CurItem->Flags&DIF_BTNNOCLOSE))?FALSE:TRUE);
 
     case DN_LISTCHANGE:
       return TRUE;
@@ -6056,6 +6093,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Len=0;
         switch(Type)
         {
+          case DI_MEMOEDIT:
+            break;
           case DI_COMBOBOX:
           case DI_EDIT:
           case DI_PSWEDIT:
@@ -6146,6 +6185,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         case DI_EDIT:
         case DI_PSWEDIT:
         case DI_FIXEDIT:
+        case DI_MEMOEDIT:
           if(CurItem->ObjPtr)
           {
             Len=((DlgEdit *)(CurItem->ObjPtr))->GetLength()+1;
@@ -6191,6 +6231,9 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
         switch(Type)
         {
+          case DI_MEMOEDIT:
+            break;
+
           case DI_COMBOBOX:
           case DI_EDIT:
             if(CurItem->Flags&DIF_VAREDIT)
@@ -6253,6 +6296,9 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           case DI_BUTTON:
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
+            break;
+
+          case DI_MEMOEDIT:
             break;
 
           case DI_COMBOBOX:

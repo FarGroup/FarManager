@@ -531,8 +531,8 @@ int  DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
-    return multiEdit->VMProcess(OpCode,NULL,iParam);
+    return multiEdit->VMProcess(OpCode,vParam,iParam);
   else
 #endif
-    return lineEdit->VMProcess(OpCode,NULL,iParam);
+    return lineEdit->VMProcess(OpCode,vParam,iParam);
 }
