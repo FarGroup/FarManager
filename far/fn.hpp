@@ -51,10 +51,11 @@ void VTextW(const WCHAR *Str);
 void HiTextW(const WCHAR *Str,int HiColor,int isVertText=0);
 #define HiVTextW(Str,HiColor) HiTextW(Str,HiColor,1)
 
-void DrawLine(int Length,int Type);
+void DrawLine(int Length,int Type, const wchar_t* UserSep=NULL);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
+#define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
 
-WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type=1);
+WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=NULL);
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);

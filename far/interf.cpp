@@ -1168,13 +1168,13 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
   }
 }
 
-void DrawLine(int Length,int Type)
+void DrawLine(int Length,int Type, const wchar_t* UserSep)
 {
   if (Length>1)
   {
 
      WCHAR Separator[4096];
-     MakeSeparatorW(Length,Separator,Type);
+     MakeSeparatorW(Length,Separator,Type,UserSep);
      if( ( Type >= 4 && Type <= 7 ) || ( Type >= 10 && Type <= 11) )
        VTextW(Separator);
      else
@@ -1202,7 +1202,7 @@ static BYTE __BoxType[12][8]={
 /* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||     v2
 };
 
-WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type)
+WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 {
   if (Length>1 && DestStr)
   {
