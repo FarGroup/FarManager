@@ -202,7 +202,6 @@ void Editor::KeepInitParameters()
 int Editor::ReadFile(const char *Name,int &UserBreak)
 {
   FILE *EditFile;
-  Edit *PrevPtr;
   int Count=0,LastLineCR=0,MessageShown=FALSE;
 
   UserBreak=0;
@@ -622,7 +621,6 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
-  Edit *PrevPtr;
   int Count=0,LastLineCR=0;
 
   {

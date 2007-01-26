@@ -160,6 +160,7 @@ extern int PrevFarAltEnterMode;
 #endif
 
 extern WCHAR BoxSymbols[];
+extern BYTE  BoxSymbolsA[];
 
 extern int _localLastError;
 

@@ -11,34 +11,6 @@ udlist.hpp
 
 */
 
-/* Revision: 1.07 15.08.2002 $ */
-
-/*
-Modify:
-  15.08.2002 IS
-    + Использование TArray
-    + ULF_UNIQUE,  ULF_SORT
-    + BOOL AddItem(const char *NewItem)
-  11.07.2002 IS
-    ! Изменился комментарий ULF_PACKASTERISKS
-  11.08.2001 IS
-    + UDL_FLAGS
-    ! SetSeparators -> SetParameters
-  01.08.2001 IS
-    + GetTotal
-  02.07.2001 IS
-    + AddAsterisk
-    ! Метод Free стал public
-  12.06.2001 IS
-    + Добавлено связанное с обработкой квадратных скобок
-    + Функция для проверки корректности разделителей.
-  09.06.2001 IS
-    + Переписано с учетом второго разделителя. Теперь разделителей два. По
-      умолчанию они равны ';' и ','
-  02.06.2001 IS
-    + Впервые в эфире
-*/
-
 #include "farconst.hpp"
 #include "array.hpp"
 

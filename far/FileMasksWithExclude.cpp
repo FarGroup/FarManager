@@ -5,21 +5,6 @@ FileMasksWithExclude.cpp
 исключения).
 */
 
-/* Revision: 1.03 21.01.2003 $ */
-
-/*
-Modify:
-  21.01.2003 SVS
-    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
-      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
-  10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
-  02.07.2001 IS
-    ! Воспользуемся тем, что доступен FileMasksProcessor.Free()
-  01.07.2001 IS
-    + Впервые в эфире
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

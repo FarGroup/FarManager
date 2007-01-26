@@ -8,16 +8,6 @@ FileMasksWithExclude.hpp
 исключения).
 */
 
-/* Revision: 1.01 02.07.2001 $ */
-
-/*
-Modify:
-  02.07.2001 IS
-    ! Не вызываем Free из деструктора, нечего сущности плодить
-  01.07.2001 IS
-    + Впервые в эфире
-*/
-
 #include "FileMasksProcessor.hpp"
 
 class FileMasksWithExclude:public BaseFileMask

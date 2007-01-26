@@ -49,7 +49,7 @@ static char *MakeSpace(void)
 {
   static char Buf[60]=" ";
   if(Indent)
-    memset(Buf+1,0xB3,Indent);
+    memset(Buf+1,'|',Indent);
   Buf[1+Indent]=0;
   return Buf;
 }

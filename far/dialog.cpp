@@ -1245,7 +1245,7 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
                  FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                     (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
                     (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))), // HIBYTE HiText
-           ((Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))?
+           ((Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))?
              (MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                 (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
                 (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)), // Box LOBYTE
@@ -1588,7 +1588,7 @@ void Dialog::ShowDialog(int ID)
       {
         xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str);
-        if (!(CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
+        if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
           LenText=LenStrItem(I,CenterStr(Str,Str,CX2-CX1+1));
 
         X=(CX1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(X2-X1+1-LenText)/2:CX1;
@@ -1611,19 +1611,25 @@ void Dialog::ShowDialog(int ID)
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
         // вместо этого:
-        if(CX1 > -1 && CX2 > 0 && CX2 > CX1) //половинчатое решение
+        if(CX1 > -1 && CX2 > 0 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
         {
+          int CntChr=CX2-CX1+1;
           SetColor(Attr&0xFF);
           GotoXY(X1+X,Y1+Y);
-          mprintf("%*s",CX2-CX1+1,"");
+          if(X1+X+CntChr-1 > X2)
+            CntChr=X2-(X1+X)+1;
+          mprintf("%*s",CntChr,"");
         }
 
-        if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
+        if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
         {
           SetColor(LOBYTE(HIWORD(Attr)));
-          GotoXY(X1+(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
+          GotoXY(X1+((CurItem->Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),Y1+Y); //????
 
-          ShowSeparator(RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+          ShowUserSeparator((CurItem->Flags&DIF_SEPARATORUSER)?X2-X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
+                            (CurItem->Flags&DIF_SEPARATORUSER)?12:(CurItem->Flags&DIF_SEPARATOR2?3:1),
+                             CurItem->Mask
+                           );
         }
 
         SetColor(Attr&0xFF);
@@ -1641,7 +1647,7 @@ void Dialog::ShowDialog(int ID)
       {
         xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str); // strlen(Str); ???
-        if (!(CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
+        if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
           LenText=strlen(CenterStr(Str,Str,CY2-CY1+1));
 
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
@@ -1664,21 +1670,27 @@ void Dialog::ShowDialog(int ID)
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
         // вместо этого:
-        if(CY1 > -1 && CY2 > 0 && CY2 > CY1) //половинчатое решение
+        if(CY1 > -1 && CY2 > 0 && CY2 > CY1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
         {
+          int CntChr=CY2-CY1+1;
           SetColor(Attr&0xFF);
           GotoXY(X1+X,Y1+Y);
-          vmprintf("%*s",CY2-CY1+1,"");
+          if(Y1+Y+CntChr-1 > Y2)
+            CntChr=Y2-(Y1+Y)+1;
+          vmprintf("%*s",CntChr,"");
         }
 
 
 #if defined(VTEXT_ADN_SEPARATORS)
-        if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
+        if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
         {
           SetColor(LOBYTE(HIWORD(Attr)));
-          GotoXY(X1+X,Y1+(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)); //????
+          GotoXY(X1+X,Y1+ ((CurItem->Flags&DIF_SEPARATORUSER)?Y:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)) ); //????
 
-          ShowSeparator(RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),(CurItem->Flags&DIF_SEPARATOR2?7:5));
+          ShowUserSeparator((CurItem->Flags&DIF_SEPARATORUSER)?Y2-Y1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
+                        (CurItem->Flags&DIF_SEPARATORUSER)?13:(CurItem->Flags&DIF_SEPARATOR2?7:5),
+                        CurItem->Mask
+                       );
         }
 #endif
 

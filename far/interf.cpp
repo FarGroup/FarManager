@@ -791,6 +791,7 @@ void InitRecodeOutTable(UINT cp)
       BoxSymbols[0xC4-0xB0]='-';
       BoxSymbols[0xCD-0xB0]='=';
     }
+    WideCharToMultiByte(CP_OEMCP,0 /* MB_USEGLYPHCHARS */, BoxSymbols,sizeof(_BoxSymbols)/sizeof(WCHAR),(LPSTR)BoxSymbolsA, sizeof(_BoxSymbols)/sizeof(WCHAR),  NULL, NULL);
   }
   //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
 #endif

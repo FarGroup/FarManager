@@ -7,14 +7,6 @@ RefreshFrameManager.hpp
 
 */
 
-/* Revision: 1.0 20.05.2004 $ */
-
-/*
-Modify:
-  20.05.2004 SVS
-    ! Типа... сделано
-*/
-
 class SaveScreen;
 
 class UndoGlobalSaveScrPtr{

@@ -8,17 +8,6 @@ CFileMask.hpp
 
 */
 
-/* Revision: 1.01 02.07.2001 $ */
-
-/*
-Modify:
-  02.07.2001 IS
-    ! Free переехал в public
-    + FMF_ADDASTERISK
-  01.07.2001 IS
-    + Впервые в эфире
-*/
-
 #include "BaseFileMask.hpp"
 
 enum FM_FLAGS

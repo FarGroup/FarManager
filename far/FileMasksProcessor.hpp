@@ -8,17 +8,6 @@ FileMasksProcessor.hpp
 исключения).
 */
 
-/* Revision: 1.01 02.07.2001 $ */
-
-/*
-Modify:
-  02.07.2001 IS
-    ! Метод Free стал public
-    + FMPF_ADDASTERISK
-  01.07.2001 IS
-    + Впервые в эфире
-*/
-
 #include "BaseFileMask.hpp"
 #include  "udlist.hpp"
 

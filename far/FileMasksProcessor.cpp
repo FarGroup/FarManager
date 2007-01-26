@@ -5,20 +5,6 @@ FileMasksProcessor.cpp
 исключения).
 */
 
-/* Revision: 1.03 15.08.2002 $ */
-
-/*
-Modify:
-  15.08.2002 IS
-    ! Masks.Start -> Masks.Reset
-    + Маски файлов: перед использованием сортируем и удаляем дубликаты
-  11.08.2001 IS
-    + Используем UDL_FLAGS:
-  10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
-  01.07.2001 IS
-    + Впервые в эфире
-*/
 #include "headers.hpp"
 #pragma hdrstop
 

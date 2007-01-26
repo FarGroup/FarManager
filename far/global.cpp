@@ -157,6 +157,7 @@ int PrevFarAltEnterMode=-1;
 #endif
 
 WCHAR BoxSymbols[64];
+BYTE  BoxSymbolsA[64];
 
 int _localLastError=0;
 

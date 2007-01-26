@@ -7,31 +7,6 @@ namelist.hpp
 
 */
 
-/* Revision: 1.05 13.07.2005 $ */
-
-/*
-Modify:
-  13.07.2005 SVS
-    ! Изменен класс NamesList. Теперь он управляет двумя именами.
-  06.08.2004 SKV
-    ! see 01825.MSVCRT.txt
-  19.11.2003 IS
-    + Работа со списком (TList) на основе кода, созданного KS, чтобы
-      собиралось под борманом.
-    ! внедрение const
-    + защита от переполнения буфера в GetNextName/GetPrevName
-    ! MoveData работает со ссылкой, а не указателем
-  14.10.2003 SVS
-    ! Перетрях в NamesList.
-    ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
-    + NamesList::Init()
-  06.05.2001 DJ
-    ! перетрях #include
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "farconst.hpp"
 #include "TList.hpp"
 #include "plugin.hpp"

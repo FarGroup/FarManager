@@ -5,14 +5,6 @@ RefreshFrameManager.cpp
 
 */
 
-/* Revision: 1.0 20.05.2004 $ */
-
-/*
-Modify:
-  20.05.2004 SVS
-    ! Типа... сделано
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

@@ -67,6 +67,7 @@ void HiTextW(const WCHAR *Str,int HiColor,int isVertText=0);
 
 void DrawLine(int Length,int Type);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
+#define ShowUserSeparator(Length,Type,BoxSymbols) DrawLine(Length,Type)
 
 char* MakeSeparator(int Length,char *DestStr,int Type=1);
 #if defined(USE_WFUNC)
