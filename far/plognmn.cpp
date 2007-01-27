@@ -5,19 +5,6 @@ class PreserveLongName
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
-
-/*
-Modify:
-  06.05.2001 DJ
-    ! перетрях #include
-  20.02.2001 SVS
-    ! Заголовки - к общему виду!
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 

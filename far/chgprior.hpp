@@ -7,15 +7,6 @@ class ChangePriority
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
-
-/*
-Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 class ChangePriority
 {
   private:
@@ -25,4 +16,4 @@ class ChangePriority
     ~ChangePriority();
 };
 
-#endif	// __CHANGEPRIORITY_HPP__
+#endif  // __CHANGEPRIORITY_HPP__

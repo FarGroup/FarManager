@@ -7,14 +7,6 @@ CriticalSections.hpp
 
 */
 
-/* Revision: 1.00 08.12.2004 $ */
-
-/*
-Modify:
-  08.12.2004 WARP
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 #pragma once
 
 class CriticalSection

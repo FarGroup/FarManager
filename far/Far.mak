@@ -98,6 +98,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filefilter.obj" \
+	"$(INTDIR)\filefilterparams.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\FileMasksProcessor.obj" \
 	"$(INTDIR)\FileMasksWithExclude.obj" \

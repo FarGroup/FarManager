@@ -7,15 +7,6 @@ baseinp.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
-
-/*
-Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-*/
-
 class BaseInput
 {
   public:
@@ -24,4 +15,4 @@ class BaseInput
 };
 
 
-#endif	// __BASEINPUT_HPP__
+#endif  // __BASEINPUT_HPP__

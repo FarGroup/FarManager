@@ -7,13 +7,6 @@
       const Object& operator=(const Object &)
 */
 
-/* Revision: 1.0 19.11.2003 $ */
-/*
-Modify:
-  19.11.2003 IS
-    + добавлен в проект
-*/
-
 #if defined(__BORLANDC__)
   #pragma warn -inl
 #endif

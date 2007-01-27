@@ -35,6 +35,7 @@ SRCS = 	cddrv.cpp \
 	fileattr.cpp \
 	fileedit.cpp \
 	filefilter.cpp \
+	filefilterparams.cpp \
 	filelist.cpp \
 	FileMasksProcessor.cpp \
 	FileMasksWithExclude.cpp \
@@ -138,24 +139,26 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 all: lng $(EXEFULLNAME)
 
-$(DEPS) $(OBJS): $(OBJDIR)
-
 $(OBJDIR)/%.d: %.c
 	@echo making depends for $<
+	@$(MKDIR) $(OBJDIR)
 	@$(SHELL) -ec '$(CC) -c -MM $(CFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
+	@$(MKDIR) $(OBJDIR)
 	@$(SHELL) -ec '$(CXX) -c -MM $(CCFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
+	@$(MKDIR) $(OBJDIR)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
+	@$(MKDIR) $(OBJDIR)
 	@$(CXX) $(CCFLAGS) -c -o $@ $<
 
 $(OBJDIR)/far.rc.o: far.rc res.hpp far.ico
@@ -170,20 +173,17 @@ copyright.inc: copyright.inc.m4 farversion.m4 vbuild.m4
 farversion.inc: farversion.inc.m4 farversion.m4 vbuild.m4
 	@tools/m4 -P farversion.inc.m4 > farversion.inc
 
-$(OBJDIR):
-	@if !(test -d $@) then $(MKDIR) $@; fi
-$(EXEDIR):
-	@if !(test -d $@) then $(MKDIR) $@; fi
-
-lng: $(EXEDIR)
+lng:
 	@tools/lng.generator.exe -nc -i lang.ini farlang.templ
+	@$(MKDIR) $(EXEDIR)
 	@$(CP) FarEng.lng $(EXEDIR)
 	@$(CP) FarRus.lng $(EXEDIR)
 	@tools/gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | tools/m4 -P > $(EXEDIR)/FarEng.hlf
 	@tools/gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | tools/m4 -P > $(EXEDIR)/FarRus.hlf
 
-$(EXEFULLNAME): $(EXEDIR) $(OBJS) $(DEF)
+$(EXEFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
+	@$(MKDIR) $(EXEDIR)
 	@$(CXX) -o $(EXENAME) $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 	@$(MV) $(EXENAME) $(EXEDIR)
 

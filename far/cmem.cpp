@@ -25,14 +25,6 @@ C    C  M     M  E       M     M    ОБЪЕКТНО-ОРИЕНТИРОВАННЫХ
         памяти.
 */
 
-/* Revision: 1.01 27.02.2002 $ */
-
-/*
-Modify:
-  27.02.2002 SVS
-    ! Ну... можно считать новый :-)
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -53,7 +45,7 @@ void free(void *block);
 }
 #endif
 
-#define MEM_DELTA	4095
+#define MEM_DELTA 4095
 
 static HANDLE FARHeapForNew=NULL;
 
@@ -453,7 +445,7 @@ void  *o_NEW( size_t s )
 // Принцип работы:
 //   если класс обработки отсутствует, работает как обыкновенный new
 //-------------------------------------------------------------------
-#define coreleft()	0x7FFF8
+#define coreleft()  0x7FFF8
 void  *operator new( size_t size_block )
 {
     int        i;
@@ -571,7 +563,7 @@ void operator delete[]( void *ptr )
 /*
 VOID GlobalMemoryStatus(
 
-    LPMEMORYSTATUS lpBuffer 	// pointer to the memory status structure
+    LPMEMORYSTATUS lpBuffer   // pointer to the memory status structure
    );
 
 typedef struct _MEMORYSTATUS { // mst

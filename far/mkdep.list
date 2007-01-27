@@ -21,6 +21,7 @@ farexcpt.hpp
 farqueue.hpp
 fileedit.hpp
 filefilter.hpp
+filefilterparams.hpp
 filelist.hpp
 FileMasksProcessor.hpp
 FileMasksWithExclude.hpp
@@ -107,6 +108,7 @@ ffolders.cpp
 fileattr.cpp
 fileedit.cpp
 filefilter.cpp
+filefilterparams.cpp
 filelist.cpp
 FileMasksProcessor.cpp
 FileMasksWithExclude.cpp

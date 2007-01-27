@@ -1,5 +1,5 @@
-#ifndef __TArray_hpp
-#define __TArray_hpp
+#ifndef __ARRAY_HPP__
+#define __ARRAY_HPP__
 
 /*
 array.hpp
@@ -11,6 +11,10 @@ array.hpp
  //  bool operator==(const Object &) const
  //  bool operator<(const Object &) const
  //  const Object& operator=(const Object &)
+
+ TPointerArray<Object> Array;
+ Object должен иметь конструктор по умолчанию.
+ Класс для тупой но прозрачной работы с массивом понтеров на класс Object
 */
 
 #include "fn.hpp"
@@ -268,4 +272,113 @@ int TArray<Object>::getIndex(const Object &item, int start)
   return rc;
 }
 
-#endif // __TArray_hpp
+template <class Object>
+class TPointerArray
+{
+  private:
+    unsigned int internalCount, Count, Delta;
+    Object **items;
+
+  private:
+    bool setSize(unsigned int newSize)
+    {
+      bool rc=false;
+      unsigned int i;
+      if(newSize < Count)               // уменьшение размера
+      {
+        Count=newSize;
+        rc=true;
+      }
+      else if (newSize < internalCount) // увеличение, но в рамках имеющегося
+      {
+        for(i=Count;i<newSize;++i)
+          items[i]=NULL;
+        Count=newSize;
+        rc=true;
+      }
+      else                              // увеличение размера
+      {
+        unsigned int Remainder=newSize%Delta;
+        unsigned int newCount=Remainder?(newSize+Delta)-Remainder:(newSize?newSize:Delta);
+        Object **newItems=static_cast<Object**>(xf_realloc(items,newCount*sizeof(Object*)));
+        if(newItems)
+        {
+          items=newItems;
+          internalCount=newCount;
+          for(i=Count;i<newSize;++i)
+            items[i]=NULL;
+          Count=newSize;
+          rc=true;
+        }
+      }
+      return rc;
+    }
+
+  public:
+    TPointerArray(unsigned int delta=1) { items=NULL; Count=internalCount=0; setDelta(delta); }
+    ~TPointerArray() { Free(); }
+
+    void Free()
+    {
+      if(items)
+      {
+        for(unsigned i=0;i<Count;++i)
+          delete items[i];
+        xf_free(items);
+        items=NULL;
+      }
+      Count=internalCount=0;
+    }
+
+    void setDelta(unsigned int newDelta) { if(newDelta<1) newDelta=1; Delta=newDelta; }
+
+    Object *getItem(unsigned int index) { return (index<Count)?items[index]:NULL; }
+
+    Object *addItem() { return insertItem(Count); }
+
+    Object *insertItem(unsigned int index)
+    {
+      if (index>Count)
+        return NULL;
+      Object *newItem = new Object;
+      if (newItem && setSize(Count+1))
+      {
+        for (unsigned int i=Count-1; i>index; i--)
+          items[i]=items[i-1];
+        items[index]= newItem;
+        return items[index];
+      }
+      if (newItem)
+        delete newItem;
+      return NULL;
+    }
+
+    bool deleteItem(unsigned int index)
+    {
+      if(index<Count)
+      {
+        delete items[index];
+        for (unsigned int i=index+1; i<Count; i++)
+          items[i-1]=items[i];
+        setSize(Count-1);
+        return true;
+      }
+      return false;
+    }
+
+    bool swapItems(unsigned int index1, unsigned int index2)
+    {
+      if (index1<Count && index2<Count)
+      {
+        Object *temp = items[index1];
+        items[index1] = items[index2];
+        items[index2] = temp;
+        return true;
+      }
+      return false;
+    }
+
+    unsigned int getCount() const { return Count; }
+};
+
+#endif // __ARRAY_HPP__

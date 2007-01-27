@@ -698,9 +698,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(
-          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurListData->Name,
-          CurListData->FileAttr,&CurListData->Colors);
+      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,Info.Flags&OPIF_USEATTRHIGHLIGHTING);
     if ((Info.Flags & OPIF_USESORTGROUPS) && (CurListData->FileAttr & FA_DIREC)==0)
       CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(CurListData->Name);
     else
@@ -728,13 +726,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   {
     struct FileListItem *CurPtr;
     AddParentPoint((CurPtr=ListData+FileCount),FileCount);
-    /* $ 22.11.2001 VVM
-      + Не забыть раскрасить :) */
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(
-          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurPtr->Name,
-          CurPtr->FileAttr,&CurPtr->Colors);
-    /* VVM $ */
+      CtrlObject->HiFiles->GetHiColor(CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING));
     if (Info.HostFile && *Info.HostFile)
     {
       WIN32_FIND_DATA FindData;

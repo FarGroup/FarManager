@@ -163,6 +163,7 @@ FAROBJ=\
    $(OBJPATH)\macro.obj\
    $(OBJPATH)\manager.obj\
    $(OBJPATH)\filefilter.obj\
+   $(OBJPATH)\filefilterparams.obj\
    $(OBJPATH)\menubar.obj\
    $(OBJPATH)\message.obj\
    $(OBJPATH)\strftime.obj\

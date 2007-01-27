@@ -1,26 +1,14 @@
 /*
-frame.cpp
+window.cpp
 
 Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.00 05.05.2001 $ */
-
-/*
-Modify:
-  05.05.2001 DJ
-    + created
-*/
-
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
 #include "internalheaders.hpp"
-/* IS $ */
 
 Frame::Frame()
 {

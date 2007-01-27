@@ -216,6 +216,10 @@ SOURCE=.\filefilter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\filefilterparams.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\filelist.cpp
 # End Source File
 # Begin Source File
@@ -660,6 +664,10 @@ SOURCE=.\fileedit.hpp
 # Begin Source File
 
 SOURCE=.\filefilter.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\filefilterparams.hpp
 # End Source File
 # Begin Source File
 
