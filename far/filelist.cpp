@@ -281,15 +281,26 @@ int _cdecl SortList(const void *el1,const void *el2)
     return((SPtr1->Position>SPtr2->Position) ? ListSortOrder:-ListSortOrder);
   }
 
-  if ((SPtr1->FileAttr & FA_DIREC) < (SPtr2->FileAttr & FA_DIREC))
-    return(1);
-  if ((SPtr1->FileAttr & FA_DIREC) > (SPtr2->FileAttr & FA_DIREC))
-    return(-1);
-  if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
-    return(SPtr1->Selected>SPtr2->Selected ? -1:1);
-  if (ListSortGroups && (ListSortMode==BY_NAME || ListSortMode==BY_EXT) &&
-      SPtr1->SortGroup!=SPtr2->SortGroup)
-    return(SPtr1->SortGroup<SPtr2->SortGroup ? -1:1);
+  if ((SPtr1->FileAttr & FA_DIREC) && (SPtr2->FileAttr & FA_DIREC))
+  {
+    if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
+      return(SPtr1->Selected>SPtr2->Selected ? -1:1);
+    if (ListSortGroups && (ListSortMode==BY_NAME || ListSortMode==BY_EXT) &&
+        SPtr1->SortGroup!=SPtr2->SortGroup)
+      return(SPtr1->SortGroup<SPtr2->SortGroup ? -1:1);
+  }
+  else
+  {
+    if ((SPtr1->FileAttr & FA_DIREC) < (SPtr2->FileAttr & FA_DIREC))
+      return(1);
+    if ((SPtr1->FileAttr & FA_DIREC) > (SPtr2->FileAttr & FA_DIREC))
+      return(-1);
+    if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
+      return(SPtr1->Selected>SPtr2->Selected ? -1:1);
+    if (ListSortGroups && (ListSortMode==BY_NAME || ListSortMode==BY_EXT) &&
+        SPtr1->SortGroup!=SPtr2->SortGroup)
+      return(SPtr1->SortGroup<SPtr2->SortGroup ? -1:1);
+  }
 
   if (hSortPlugin!=NULL)
   {

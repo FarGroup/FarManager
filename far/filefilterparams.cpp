@@ -27,6 +27,7 @@ FileFilterParams::FileFilterParams()
   memset(&FDate,0,sizeof(FDate));
   memset(&FAttr,0,sizeof(FAttr));
   memset(&m_Colors,0,sizeof(m_Colors));
+  m_SortGroup=DEFAULT_SORT_GROUP;
   Flags.ClearAll();
 }
 
@@ -40,6 +41,7 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
   memcpy(&FDate,&FF.FDate,sizeof(FDate));
   memcpy(&FAttr,&FF.FAttr,sizeof(FAttr));
   FF.GetColors(&m_Colors);
+  m_SortGroup=FF.GetSortGroup();
   Flags.Flags=FF.Flags.Flags;
   return *this;
 }
@@ -53,6 +55,40 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
 {
   FMask.Used = Used;
   xstrncpy(FMask.Mask,Mask,sizeof(FMask.Mask)-1);
+
+  #if 0
+  /* Обработка %PATHEXT% */
+  char CheckMask[FILEFILTER_MASK_SIZE]
+  xstrncpy(CheckMask,Mask,sizeof(CheckMask)-1);
+  // проверим
+  if((Ptr=strchr(CheckMask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
+  {
+    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-CheckMask;
+    // Если встречается %pathext%, то допишем в конец...
+    memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
+
+    char Tmp1[FILEFILTER_MASK_SIZE], *pSeparator;
+    xstrncpy(Tmp1, CheckMask, sizeof(Tmp1)-1);
+    pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
+    if(pSeparator)
+    {
+      Ptr=Tmp1+offsetPtr;
+      if(Ptr>pSeparator) // PATHEXT находится в масках исключения
+        Add_PATHEXT(CheckMask); // добавляем то, чего нету.
+      else
+      {
+        char Tmp2[FILEFILTER_MASK_SIZE];
+        xstrncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
+        *pSeparator=0;
+        Add_PATHEXT(Tmp1);
+        sprintf(CheckMask, "%s|%s", Tmp1, Tmp2);
+      }
+    }
+    else
+      Add_PATHEXT(CheckMask); // добавляем то, чего нету.
+  }
+  #endif
+
   // Проверка на валидность текущих настроек фильтра
   if ((*FMask.Mask==0) || (!FMask.FilterMask.Set(FMask.Mask,FMF_SILENT)))
   {
@@ -408,6 +444,7 @@ enum enumFileFilterConfig {
     ID_HER_SEPARATOR3,
     ID_HER_MARKEDIT,
     ID_HER_MARK_TITLE,
+    ID_HER_MARKTRANSPARENT,
     ID_HER_NORMAL,
     ID_HER_SELECTED,
     ID_HER_CURSOR,
@@ -451,14 +488,14 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
           Color=(DWORD)Palette[COL_PANELSELECTEDCURSOR-COL_FIRSTPALETTECOLOR];
         break;
     }
-    if (Colors.MarkChar)
+    if (Colors.MarkChar&0x00FF)
       ptr=MSG(MHighlightExample2);
     else
       ptr=MSG(MHighlightExample1);
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
-      VBufColorExample[15*j+k].Attributes=static_cast<WORD>(Color);
+      VBufColorExample[15*j+k].Attributes=Color&0x00FF;
     }
     if (Colors.MarkChar)
       VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar;
@@ -556,20 +593,20 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
             Color=(DWORD)EditData->CursorSelColor;
             break;
         }
-        GetColorDialog(Color,true);
+        GetColorDialog(Color,true,true);
         switch (Param1)
         {
           case ID_HER_NORMAL:
-            EditData->Color=(BYTE)Color;
+            EditData->Color=(WORD)Color;
             break;
           case ID_HER_SELECTED:
-            EditData->SelColor=(BYTE)Color;
+            EditData->SelColor=(WORD)Color;
             break;
           case ID_HER_CURSOR:
-            EditData->CursorColor=(BYTE)Color;
+            EditData->CursorColor=(WORD)Color;
             break;
           case ID_HER_SELECTEDCURSOR:
-            EditData->CursorSelColor=(BYTE)Color;
+            EditData->CursorSelColor=(WORD)Color;
             break;
         }
         FarDialogItem MarkChar, ColorExample;
@@ -718,11 +755,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_TEXT,-1,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
     DI_FIXEDIT,5,16,5,16,0,0,0,0,"",
     DI_TEXT,7,16,0,16,0,0,0,0,(char *)MHighlightMarkChar,
+    DI_CHECKBOX,0,16,0,16,0,0,0,0,(char *)MHighlightTransparentMarkChar,
     DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
     DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,
     DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightCursor,
     DI_BUTTON,5,20,0,20,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelectedCursor,
-    DI_USERCONTROL,72-15-1,17,72-2,20,0,0,DIF_NOFOCUS,0,"",
+    DI_USERCONTROL,73-15-1,17,73-2,20,0,0,DIF_NOFOCUS,0,"",
 
     DI_TEXT,0,18,0,18,0,0,DIF_SEPARATOR,0,"",
 
@@ -767,6 +805,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   FilterDlg[ID_FF_CURRENT].X2=FilterDlg[ID_FF_BLANK].X1-2;
   FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-strlen(FilterDlg[ID_FF_CURRENT].Data)+(strchr(FilterDlg[ID_FF_CURRENT].Data,'&')?1:0)-3;
 
+  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+strlen(FilterDlg[ID_HER_MARK_TITLE].Data)-(strchr(FilterDlg[ID_HER_MARK_TITLE].Data,'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];
   HighlightDataColor Colors;
@@ -776,8 +815,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   HighlightDlgUpdateUserControl(VBufColorExample,Colors);
   FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
 
-  *FilterDlg[ID_HER_MARKEDIT].Data=Colors.MarkChar;
-
+  *FilterDlg[ID_HER_MARKEDIT].Data=Colors.MarkChar&0x00FF;
+  FilterDlg[ID_HER_MARKTRANSPARENT].Selected=(Colors.MarkChar&0xFF00?1:0);
 
   xstrncpy(FilterDlg[ID_FF_NAMEEDIT].Data,FF->GetTitle(),sizeof(FilterDlg[ID_FF_NAMEEDIT].Data));
 
@@ -911,6 +950,11 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       // Если введённая пользователем маска не корректна, тогда вернёмся в диалог
       if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.Set((char *)FilterDlg[ID_FF_MASKEDIT].Ptr.PtrData,0))
         continue;
+
+      if (FilterDlg[ID_HER_MARKTRANSPARENT].Selected)
+        Colors.MarkChar|=0xFF00;
+      else
+        Colors.MarkChar&=0x00FF;
 
       FF->SetColors(&Colors);
 

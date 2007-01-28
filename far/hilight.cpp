@@ -70,6 +70,9 @@ void HighlightFiles::InitHighlightFiles()
 
     if(HData)
     {
+      //ƒефолтные значени€ выбраны так чтоб как можно правильней загрузить
+      //настройки старых версий фара.
+
       HData->SetMask((DWORD)(GetRegKey(RegKey,HLS.IgnoreMask,0)?0:1),
                      Mask);
 
@@ -92,11 +95,11 @@ void HighlightFiles::InitHighlightFiles()
 
       HighlightDataColor Colors;
       ReWriteWorkColor(&Colors);
-      Colors.Color=(BYTE)GetRegKey(RegKey,HLS.NormalColor,Colors.Color);
-      Colors.SelColor=(BYTE)GetRegKey(RegKey,HLS.SelectedColor,Colors.SelColor);
-      Colors.CursorColor=(BYTE)GetRegKey(RegKey,HLS.CursorColor,Colors.CursorColor);
-      Colors.CursorSelColor=(BYTE)GetRegKey(RegKey,HLS.SelectedCursorColor,Colors.CursorSelColor);
-      Colors.MarkChar=(BYTE)GetRegKey(RegKey,HLS.MarkChar,Colors.MarkChar);
+      Colors.Color=(WORD)GetRegKey(RegKey,HLS.NormalColor,Colors.Color);
+      Colors.SelColor=(WORD)GetRegKey(RegKey,HLS.SelectedColor,Colors.SelColor);
+      Colors.CursorColor=(WORD)GetRegKey(RegKey,HLS.CursorColor,Colors.CursorColor);
+      Colors.CursorSelColor=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,Colors.CursorSelColor);
+      Colors.MarkChar=(WORD)GetRegKey(RegKey,HLS.MarkChar,Colors.MarkChar);
 
       HData->SetColors(&Colors);
     }
@@ -113,87 +116,73 @@ HighlightFiles::~HighlightFiles()
   ClearData();
 }
 
-#if 0
-BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMask,struct HighlightData *Src)
-{
-  char *Ptr, *OPtr;
-
-  if(Src)
-  {
-    // пам€ть под оригинал - OriginalMasks
-    if((OPtr=(char *)xf_malloc(strlen(Mask)+1)) == NULL)
-      return FALSE;
-    memmove(Dest,Src,sizeof(struct HighlightData));
-  }
-  else
-  {
-    // пам€ть под оригинал - OriginalMasks
-    if((OPtr=(char *)xf_realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
-      return FALSE;
-  }
-  /* ќбработка %PATHEXT% */
-  strcpy(OPtr,Mask); // сохран€ем оригинал.
-  // проверим
-  if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
-  {
-    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-Mask;
-    // ≈сли встречаетс€ %pathext%, то допишем в конец...
-    memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-
-    char Tmp1[HIGHLIGHT_MASK_SIZE], *pSeparator;
-    xstrncpy(Tmp1, Mask,sizeof(Tmp1)-1);
-    pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
-    if(pSeparator)
-    {
-      Ptr=Tmp1+offsetPtr;
-      if(Ptr>pSeparator) // PATHEXT находитс€ в масках исключени€
-        Add_PATHEXT(Mask); // добавл€ем то, чего нету.
-      else
-      {
-        char Tmp2[HIGHLIGHT_MASK_SIZE];
-        xstrncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
-        *pSeparator=0;
-        Add_PATHEXT(Tmp1);
-        sprintf(Mask, "%s|%s", Tmp1, Tmp2);
-      }
-    }
-    else
-      Add_PATHEXT(Mask); // добавл€ем то, чего нету.
-  }
-  /* $ 25.09.2001 IS
-     ≈сли IgnoreMask, то не выдел€ем пам€ть под класс CFileMask, т.к. он нам
-     не нужен.
-  */
-  // пам€ть под рабочую маску
-  CFileMask *FMasks=NULL;
-  if(!IgnoreMask)
-  {
-    if((FMasks=new CFileMask) == NULL)
-    {
-      xf_free(OPtr);
-      return FALSE;
-    }
-
-    if(!FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
-    {
-      delete FMasks;
-      xf_free(OPtr);
-      return FALSE;
-    }
-  }
-  Dest->IgnoreMask=IgnoreMask;
-  /* IS $ */
-
-  // корректирем ссылки на маски.
-  Dest->FMasks=FMasks;
-  Dest->OriginalMasks=OPtr;
-  return TRUE;
-}
-#endif
-
 void HighlightFiles::ClearData()
 {
   HiData.Free();
+}
+
+void MakeTransparent(HighlightDataColor *Colors)
+{
+  Colors->Color|=0xFF00;
+  Colors->SelColor|=0xFF00;
+  Colors->CursorColor|=0xFF00;
+  Colors->CursorSelColor|=0xFF00;
+  Colors->MarkChar|=0xFF00;
+}
+
+void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
+{
+  if (DestColors->Color&0xF000)
+    DestColors->Color=(DestColors->Color&0x0F0F)|(SrcColors->Color&0xF0F0);
+  if (DestColors->Color&0x0F00)
+    DestColors->Color=(DestColors->Color&0xF0F0)|(SrcColors->Color&0x0F0F);
+
+  if (DestColors->SelColor&0xF000)
+    DestColors->SelColor=(DestColors->SelColor&0x0F0F)|(SrcColors->SelColor&0xF0F0);
+  if (DestColors->SelColor&0x0F00)
+    DestColors->SelColor=(DestColors->SelColor&0xF0F0)|(SrcColors->SelColor&0x0F0F);
+
+  if (DestColors->CursorColor&0xF000)
+    DestColors->CursorColor=(DestColors->CursorColor&0x0F0F)|(SrcColors->CursorColor&0xF0F0);
+  if (DestColors->CursorColor&0x0F00)
+    DestColors->CursorColor=(DestColors->CursorColor&0xF0F0)|(SrcColors->CursorColor&0x0F0F);
+
+  if (DestColors->CursorSelColor&0xF000)
+    DestColors->CursorSelColor=(DestColors->CursorSelColor&0x0F0F)|(SrcColors->CursorSelColor&0xF0F0);
+  if (DestColors->CursorSelColor&0x0F00)
+    DestColors->CursorSelColor=(DestColors->CursorSelColor&0xF0F0)|(SrcColors->CursorSelColor&0x0F0F);
+
+  if (DestColors->MarkChar&0xFF00)
+    DestColors->MarkChar=SrcColors->MarkChar;
+}
+
+bool HasTransparent(HighlightDataColor *Colors)
+{
+  if (Colors->Color&0xFF00)
+    return true;
+
+  if (Colors->SelColor&0xFF00)
+    return true;
+
+  if (Colors->CursorColor&0xFF00)
+    return true;
+
+  if (Colors->CursorSelColor&0xFF00)
+    return true;
+
+  if (Colors->MarkChar&0xFF00)
+    return true;
+
+  return false;
+}
+
+void RewriteTransparent(HighlightDataColor *Colors)
+{
+  Colors->Color&=0x00FF;
+  Colors->SelColor&=0x00FF;
+  Colors->CursorColor&=0x00FF;
+  Colors->CursorSelColor&=0x00FF;
+  Colors->MarkChar&=0x00FF;
 }
 
 void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *Colors,bool UseAttrHighlighting)
@@ -201,6 +190,8 @@ void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *C
   FileFilterParams *CurHiData;
 
   ReWriteWorkColor(Colors);
+  MakeTransparent(Colors);
+
   for (int i=0; i < HiData.getCount(); i++)
   {
     CurHiData = HiData.getItem(i);
@@ -208,10 +199,15 @@ void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *C
       continue;
     if (CurHiData->FileInFilter(fd))
     {
-      CurHiData->GetColors(Colors);
-      break;
+      HighlightDataColor TempColors;
+      CurHiData->GetColors(&TempColors);
+      ApplyColors(Colors,&TempColors);
+      if (!HasTransparent(Colors))
+        break;
     }
   }
+
+  RewriteTransparent(Colors);
 }
 
 void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool UseAttrHighlighting)
@@ -224,6 +220,7 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
   for(int FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
   {
     ReWriteWorkColor(&FileItem->Colors);
+    MakeTransparent(&FileItem->Colors);
     for (int i=0; i < HiData.getCount(); i++)
     {
       CurHiData = HiData.getItem(i);
@@ -231,10 +228,14 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
         continue;
       if (CurHiData->FileInFilter(FileItem))
       {
-        CurHiData->GetColors(&FileItem->Colors);
-        break;
+        HighlightDataColor TempColors;
+        CurHiData->GetColors(&TempColors);
+        ApplyColors(&FileItem->Colors,&TempColors);
+        if (!HasTransparent(&FileItem->Colors))
+          break;
       }
     }
+    RewriteTransparent(&FileItem->Colors);
   }
 }
 
@@ -477,30 +478,49 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 void HighlightFiles::SaveHiData()
 {
-/*
-  int I;
   char RegKey[80];
   char *Ptr=MkRegKeyHighlightName(RegKey);
-  for (I=0;I<HiDataCount;I++)
+  for (int i=0; i<HiData.getCount(); i++)
   {
-    struct HighlightData *CurHiData=&HiData[I];
-    itoa(I,Ptr,10);
-    SetRegKey(RegKey,HLS.Mask,GetMask(I));
-    SetRegKey(RegKey,HLS.IgnoreMask,CurHiData->IgnoreMask);
-    SetRegKey(RegKey,HLS.IncludeAttributes,CurHiData->IncludeAttr);
-    SetRegKey(RegKey,HLS.ExcludeAttributes,CurHiData->ExcludeAttr);
-    SetRegKey(RegKey,HLS.NormalColor,(DWORD)CurHiData->Colors.Color);
-    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)CurHiData->Colors.SelColor);
-    SetRegKey(RegKey,HLS.CursorColor,(DWORD)CurHiData->Colors.CursorColor);
-    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)CurHiData->Colors.CursorSelColor);
-    SetRegKey(RegKey,HLS.MarkChar,(DWORD)CurHiData->Colors.MarkChar);
+    FileFilterParams *CurHiData=HiData.getItem(i);
+    itoa(i,Ptr,10);
+
+    const char *Mask;
+    SetRegKey(RegKey,HLS.IgnoreMask,(CurHiData->GetMask(&Mask) ? 0 : 1));
+    SetRegKey(RegKey,HLS.Mask,Mask);
+
+    DWORD DateType;
+    FILETIME DateAfter, DateBefore;
+    SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
+    SetRegKey(RegKey,HLS.DateType,DateType);
+    SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
+    SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
+
+    DWORD SizeType;
+    __int64 SizeAbove, SizeBelow;
+    SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
+    SetRegKey(RegKey,HLS.SizeType,SizeType);
+    SetRegKey64(RegKey,HLS.SizeAbove,SizeAbove);
+    SetRegKey64(RegKey,HLS.SizeBelow,SizeBelow);
+
+    DWORD AttrSet, AttrClear;
+    SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
+    SetRegKey(RegKey,HLS.IncludeAttributes,AttrSet);
+    SetRegKey(RegKey,HLS.ExcludeAttributes,AttrClear);
+
+    HighlightDataColor Colors;
+    CurHiData->GetColors(&Colors);
+    SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color);
+    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.SelColor);
+    SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.CursorColor);
+    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.CursorSelColor);
+    SetRegKey(RegKey,HLS.MarkChar,(DWORD)Colors.MarkChar);
   }
-  for (I=HiDataCount;I<StartHiDataCount;I++)
+  for (int i=HiData.getCount(); i<StartHiDataCount; i++)
   {
-    itoa(I,Ptr,10);
+    itoa(i,Ptr,10);
     DeleteRegKey(RegKey);
   }
-*/
 }
 
 /*

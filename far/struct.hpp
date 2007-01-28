@@ -580,12 +580,12 @@ struct ColorItem
 */
 struct HighlightDataColor
 {
-  BYTE Color;
-  BYTE SelColor;
-  BYTE CursorColor;
-  BYTE CursorSelColor;
-  BYTE MarkChar;
-  BYTE Reserved[11];
+  WORD Color;
+  WORD SelColor;
+  WORD CursorColor;
+  WORD CursorSelColor;
+  WORD MarkChar;
+  BYTE Reserved[6];
 };
 
 struct PreRedrawParamStruct

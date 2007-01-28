@@ -460,7 +460,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
   switch (Msg)
   {
     case DN_CTLCOLORDLGITEM:
-      if(Param1 >= 35 && Param1 <= 37)
+      if(Param1 >= 37 && Param1 <= 39)
       {
         int *CurColor=(int *)Dialog::SendDlgMessage (hDlg,DM_GETDLGDATA,0,0);
         return (Param2&0xFFFFFF00U)|((*CurColor)&0xFF);
@@ -499,7 +499,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
 
 /* DJ $ */
 
-int GetColorDialog(unsigned int &Color,bool bCentered)
+int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
 {
   static struct DialogData ColorDlgData[]={
     /*   0 */ DI_DOUBLEBOX,   3, 1,35,13, 0,0,0,0,(char *)MSetColorTitle,
@@ -537,12 +537,16 @@ int GetColorDialog(unsigned int &Color,bool bCentered)
     /*  32 */ DI_RADIOBUTTON,30, 4, 0, 4, 0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
     /*  33 */ DI_RADIOBUTTON,30, 5, 0, 5, 0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
     /*  34 */ DI_RADIOBUTTON,30, 6, 0, 6, 0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
-    /*  35 */ DI_TEXT,        5, 8, 0, 8, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  36 */ DI_TEXT,        5, 9, 0, 9, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  37 */ DI_TEXT,        5,10, 0,10, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  38 */ DI_TEXT,        3,11, 0,11, 0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  39 */ DI_BUTTON,      0,12, 0,12, 0,0,DIF_CENTERGROUP,1,(char *)MSetColorSet,
-    /*  40 */ DI_BUTTON,      0,12, 0,12, 0,0,DIF_CENTERGROUP,0,(char *)MSetColorCancel,
+
+    /*  35 */ DI_CHECKBOX,    5, 8, 0, 8, 0,0,0,0,(char *)MSetColorForeTransparent,
+    /*  36 */ DI_CHECKBOX,   20, 8, 0, 8, 0,0,0,0,(char *)MSetColorBackTransparent,
+
+    /*  37 */ DI_TEXT,        5, 8, 0, 8, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
+    /*  38 */ DI_TEXT,        5, 9, 0, 9, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
+    /*  39 */ DI_TEXT,        5,10, 0,10, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
+    /*  40 */ DI_TEXT,        3,11, 0,11, 0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  41 */ DI_BUTTON,      0,12, 0,12, 0,0,DIF_CENTERGROUP,1,(char *)MSetColorSet,
+    /*  42 */ DI_BUTTON,      0,12, 0,12, 0,0,DIF_CENTERGROUP,0,(char *)MSetColorCancel,
 
   };
   MakeDialogItems(ColorDlgData,ColorDlg);
@@ -561,8 +565,25 @@ int GetColorDialog(unsigned int &Color,bool bCentered)
       break;
     }
 
-  for (I=35;I<38;I++)
+  for (I=37;I<40;I++)
     ColorDlg[I].Flags=(ColorDlg[I].Flags & ~DIF_COLORMASK) | Color;
+
+  if (bAddTransparent)
+  {
+    ColorDlg[0].Y2++;
+    for (I=37;I<=42;I++)
+    {
+      ColorDlg[I].Y1++;
+      ColorDlg[I].Y2++;
+    }
+    ColorDlg[35].Selected=(Color&0x0F00?1:0);
+    ColorDlg[36].Selected=(Color&0xF000?1:0);
+  }
+  else
+  {
+    ColorDlg[35].Flags|=DIF_HIDDEN;
+    ColorDlg[36].Flags|=DIF_HIDDEN;
+  }
 
   {
     /* $ 18.05.2001 DJ
@@ -571,17 +592,25 @@ int GetColorDialog(unsigned int &Color,bool bCentered)
     //SaveScreen SaveScr;
     Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (LONG_PTR) &CurColor);
     if (bCentered)
-      Dlg.SetPosition(-1,-1,39,15);
+      Dlg.SetPosition(-1,-1,39,15+(bAddTransparent?1:0));
     else
-      Dlg.SetPosition(37,2,75,16);
+      Dlg.SetPosition(37,2,75,16+(bAddTransparent?1:0));
     Dlg.Process();
     /* DJ $ */
     ExitCode=Dlg.GetExitCode();
   }
 
-  if (ExitCode==39)
+  if (ExitCode==41)
   {
     Color=CurColor;
+    if (ColorDlg[35].Selected)
+      Color|=0x0F00;
+    else
+      Color&=0xF0FF;
+    if (ColorDlg[36].Selected)
+      Color|=0xF000;
+    else
+      Color&=0x0FFF;
     return(TRUE);
   }
   return(FALSE);

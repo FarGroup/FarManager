@@ -91,3 +91,74 @@ SetConsoleTitle & Macro
    и если выполняется макрос - то...
 
    svs 26.01.2007 16:02:00 +0300
+
+Наброски API для фильтров
+
+   DWORD_PTR Filter(DWORD action, DWORD_PTR param1, DWORD_PTR param2)
+
+   action:get filter count
+   param1:from where - panel, highlight, groups sort, association, etc.
+   param2:0
+   returns filter count
+
+   action:get filter
+   param1:from where - panel, highlight, groups sort, association, etc.
+   param2:filter number
+   returns HANDLE to filter
+
+   action:set/get filter param (different action for every parameter)
+   param1:HANDLE to filter
+   param2:the value to set or pointer where to save the value
+   returns true or false
+
+   action:add filter
+   param1:to where - panel, highlight, groups sort, association, etc.
+   param2:position to add at
+   returns HANDLE to the new filter
+
+   action:delete filter
+   param1:from where - panel, highlight, groups sort, association, etc.
+   param2:position to delete from
+   returns true or false
+
+   action:get settings from other filter
+   param1:HANDLE to filter that you want to set
+   param2:HANDLE to filter from where to get the settings
+   returns true or false
+
+   action:write filter settings to registry
+   param1:what settings - panel, highlight, groups sort, association, etc.
+   param2:0
+   returns true or false
+
+   action:create filter
+   param1:0
+   param2:0
+   returns HANDLE to the new filter
+
+   action:delete filter
+   param1:HANDLE to filter from "create filter"
+   param2:0
+   returns true or false
+
+   action:is file in filters
+   param1:where - panel, highlight, groups sort, association, etc.
+   param2:pointer to win32_find_data
+   returns HANDLE to the filter that matched the file
+
+   action:is file in filter
+   param1:HANDLE to filter
+   param2:pointer to win32_find_data
+   returns true or false
+
+   action:Are filters enabled?
+   param1:where - panel, highlight, groups sort, association, etc.
+   param2:0
+   returns true or false (false can be only for sort groups and panel)
+
+   action:config filter (far standard dialog)
+   param1:how - panel, highlight, groups sort, association, etc.
+   param2:HANDLE to filter
+   returns true or false
+
+   t-rex 27.01.2007 21:35:24 +0200

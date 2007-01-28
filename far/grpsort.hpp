@@ -7,25 +7,25 @@ grpsort.hpp
 
 */
 
+#include "filefilterparams.hpp"
+#include "array.hpp"
+
 class GroupSort
 {
   private:
-    struct GroupSortData *GroupData;
-    int GroupCount;
+    TPointerArray<FileFilterParams> GroupData;
 
   private:
     int EditGroupsMenu(int Pos);
-    char *GetMask(int Idx);
-    BOOL AddMask(struct GroupSortData *Dest,char *Mask,int Group);
-    void DeleteMask(struct GroupSortData *CurGroupData);
 
   public:
     GroupSort();
     ~GroupSort();
 
   public:
-    int GetGroup(char *Path);
+    int GetGroup(WIN32_FIND_DATA *fd);
+    int GetGroup(FileListItem *fli);
     void EditGroups();
 };
 
-#endif	// __GROUPSORT_HPP__
+#endif  // __GROUPSORT_HPP__

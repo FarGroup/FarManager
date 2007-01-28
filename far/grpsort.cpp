@@ -17,19 +17,6 @@ grpsort.cpp
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "ctrlobj.hpp"
-#include "CFileMask.hpp"
-
-/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
-struct GroupSortData
-{
-  CFileMask *FMasks;
-  char *OriginalMasks;
-  int Group;
-  int reserved; // дл€ выравнивани€ на 16 :-)
-};
-/* IS $ */
-
-#define GROUPSORT_MASK_SIZE      2048
 
 static char fmtUpperGroup[]="UpperGroup%d";
 static char fmtLowerGroup[]="LowerGroup%d";
@@ -37,185 +24,154 @@ static char SortGroupsKeyName[]="SortGroups";
 
 GroupSort::GroupSort()
 {
-  int I, J;
-  char GroupName[80],GroupStr[GROUPSORT_MASK_SIZE];
+  char GroupName[80],GroupMask[FILEFILTER_MASK_SIZE];
   static char *GroupFMT[2]={fmtUpperGroup,fmtLowerGroup};
   int  GroupDelta[2]={0,DEFAULT_SORT_GROUP+1};
 
-  GroupData=NULL;
-  GroupCount=0;
-  for (J=0; J < 2; ++J)
-    for (I=0;;I++)
+  GroupData.Free();
+
+  for (int J=0; J < 2; ++J)
+  {
+    for (int I=0;;I++)
     {
       sprintf(GroupName,GroupFMT[J],I);
-      GetRegKey(SortGroupsKeyName,GroupName,GroupStr,"",sizeof(GroupStr));
-      if (*GroupStr==0)
+
+      if (!GetRegKey(SortGroupsKeyName,GroupName,GroupMask,"",sizeof(GroupMask)))
         break;
-      struct GroupSortData NewGroup={0}; // об€зательно проинициализируем
-      if(AddMask(&NewGroup,GroupStr,I+GroupDelta[J]))
+
+      FileFilterParams *NewGroup = GroupData.addItem();
+
+      if(NewGroup)
       {
-        struct GroupSortData *NewGroupData=(struct GroupSortData *)xf_realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
-        if (NewGroupData==NULL)
-        {
-          DeleteMask(&NewGroup);
-          break;
-        }
-        GroupData=NewGroupData;
-        memcpy(GroupData+GroupCount,&NewGroup,sizeof(struct GroupSortData));
-        GroupCount++;
+        //ƒефолтные значени€ выбраны так чтоб как можно правильней загрузить
+        //настройки старых версий фара.
+
+        char RegKey[80];
+
+        sprintf(RegKey,"%s\\%s",SortGroupsKeyName,GroupName);
+
+        NewGroup->SetMask((DWORD)GetRegKey(RegKey,"UseMask",1),
+                           GroupMask);
+
+        FILETIME DateAfter, DateBefore;
+        GetRegKey(RegKey,"DateAfter",(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
+        GetRegKey(RegKey,"DateBefore",(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
+        NewGroup->SetDate((DWORD)GetRegKey(RegKey,"UseDate",0),
+                          (DWORD)GetRegKey(RegKey,"DateType",0),
+                          DateAfter,
+                          DateBefore);
+
+        NewGroup->SetSize((DWORD)GetRegKey(RegKey,"UseSize",0),
+                          (DWORD)GetRegKey(RegKey,"SizeType",0),
+                          GetRegKey64(RegKey,"SizeAbove",_i64(-1)),
+                          GetRegKey64(RegKey,"SizeBelow",_i64(-1)));
+
+        NewGroup->SetAttr((DWORD)GetRegKey(RegKey,"UseAttr",1),
+                          (DWORD)GetRegKey(RegKey,"AttrSet",0),
+                          (DWORD)GetRegKey(RegKey,"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
+
+        NewGroup->SetSortGroup(I+GroupDelta[J]);
       }
       else
         break;
     }
+  }
 }
-
 
 GroupSort::~GroupSort()
 {
-  if(GroupData)
-  {
-    for(int I=0; I < GroupCount; ++I)
-      DeleteMask(GroupData+I);
-    xf_free(GroupData);
-  }
+  GroupData.Free();
 }
 
-/* $ 01.05.2001 DJ
-   оптимизированный формат хранени€ в Masks
-*/
-/* $ 06.07.2001 IS
-   + вместо "рабочей" маски используем соответствующий класс
-   ! не использую Add_PATHEXT
-*/
-BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
+int GroupSort::GetGroup(WIN32_FIND_DATA *fd)
 {
-  char *Ptr, *OPtr;
-  /* ќбработка %PATHEXT% */
-  // пам€ть под оригинал - OriginalMasks
-  if((OPtr=(char *)xf_realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
-    return FALSE;
-  strcpy(OPtr,Mask); // сохран€ем оригинал.
-  // проверим
-  if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
+  for (int i=0; i<GroupData.getCount(); i++)
   {
-    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-Mask;
-    // ≈сли встречаетс€ %pathext%, то допишем в конец...
-    memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-
-    char Tmp1[GROUPSORT_MASK_SIZE], *pSeparator;
-    xstrncpy(Tmp1, Mask,sizeof(Tmp1)-1);
-    pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
-    if(pSeparator)
-    {
-      Ptr=Tmp1+offsetPtr;
-      if(Ptr>pSeparator) // PATHEXT находитс€ в масках исключени€
-        Add_PATHEXT(Mask); // добавл€ем то, чего нету.
-      else
-      {
-        char Tmp2[GROUPSORT_MASK_SIZE];
-        xstrncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
-        *pSeparator=0;
-        Add_PATHEXT(Tmp1);
-        sprintf(Mask, "%s|%s", Tmp1, Tmp2);
-      }
-    }
-    else
-      Add_PATHEXT(Mask); // добавл€ем то, чего нету.
+    FileFilterParams *CurGroupData=GroupData.getItem(i);
+    if(CurGroupData->FileInFilter(fd))
+       return(CurGroupData->GetSortGroup());
   }
-  // пам€ть под рабочую маску
-  if((Dest->FMasks=new CFileMask) == NULL)
-  {
-    xf_free(OPtr);
-    return FALSE;
-  }
-
-  if(!Dest->FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
-  {
-    delete Dest->FMasks;
-    Dest->FMasks=NULL;
-    xf_free(OPtr);
-    return FALSE;
-  }
-
-  Dest->OriginalMasks=OPtr;
-  Dest->Group=Group;
-  return TRUE;
+  return DEFAULT_SORT_GROUP;
 }
-/* IS $ */
-/* DJ $ */
 
-/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
-void GroupSort::DeleteMask(struct GroupSortData *CurGroupData)
+int GroupSort::GetGroup(FileListItem *fli)
 {
-  if(CurGroupData->FMasks)
+  for (int i=0; i<GroupData.getCount(); i++)
   {
-    delete CurGroupData->FMasks;
-    CurGroupData->FMasks=NULL;
+    FileFilterParams *CurGroupData=GroupData.getItem(i);
+    if(CurGroupData->FileInFilter(fli))
+       return(CurGroupData->GetSortGroup());
   }
-  if(CurGroupData->OriginalMasks)
-  {
-    xf_free(CurGroupData->OriginalMasks);
-    CurGroupData->OriginalMasks=NULL;
-  }
+  return DEFAULT_SORT_GROUP;
 }
-/* IS $ */
-
-/* $ 06.07.2001 IS "рабочей" маски теперь у нас нет */
-char *GroupSort::GetMask(int Idx)
-{
-  return (GroupData+Idx)->OriginalMasks;
-}
-/* IS $ */
-
-/* $ 01.05.2001 DJ
-   оптимизированный формат хранени€ в Masks
-*/
-/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
-int GroupSort::GetGroup(char *Path)
-{
-  for (int I=0;I<GroupCount;I++)
-  {
-    struct GroupSortData *CurGroupData=&GroupData[I];
-    if(CurGroupData->FMasks->Compare(Path))
-       return(CurGroupData->Group);
-  }
-  return(DEFAULT_SORT_GROUP);
-}
-/* IS $ */
-/* DJ $ */
 
 void GroupSort::EditGroups()
 {
-  int UpperGroup,LowerGroup,I,Pos=0,StartGroupCount=GroupCount;
+  int Pos=0, StartGroupCount=GroupData.getCount();
 
   while (Pos!=-1)
     Pos=EditGroupsMenu(Pos);
 
-  for (UpperGroup=LowerGroup=I=0;I<Max(GroupCount,StartGroupCount);I++)
+  for (int UpperGroup=0, LowerGroup=0, i=0; i< Max((int)GroupData.getCount(),StartGroupCount); i++)
   {
-    char GroupName[100];
-    if (I<GroupCount)
+    char GroupName[80];
+    char RegKey[80];
+    if (i<GroupData.getCount())
     {
-      if (GroupData[I].Group<DEFAULT_SORT_GROUP)
+      if (GroupData.getItem(i)->GetSortGroup()<DEFAULT_SORT_GROUP)
       {
         sprintf(GroupName,fmtUpperGroup,UpperGroup);
-        GroupData[I].Group=UpperGroup++;
+        GroupData.getItem(i)->SetSortGroup(UpperGroup++);
       }
       else
       {
         sprintf(GroupName,fmtLowerGroup,LowerGroup);
-        GroupData[I].Group=DEFAULT_SORT_GROUP+1+LowerGroup++;
+        GroupData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP+1+LowerGroup++);
       }
-      SetRegKey(SortGroupsKeyName,GroupName,GetMask(I));
+
+      sprintf(RegKey,"%s\\%s",SortGroupsKeyName,GroupName);
+
+      FileFilterParams *CurGroup = GroupData.getItem(i);
+
+      const char *Mask;
+      SetRegKey(RegKey,"UseMask",CurGroup->GetMask(&Mask));
+      SetRegKey(SortGroupsKeyName,GroupName,Mask);
+
+
+      DWORD DateType;
+      FILETIME DateAfter, DateBefore;
+      SetRegKey(RegKey,"UseDate",CurGroup->GetDate(&DateType, &DateAfter, &DateBefore));
+      SetRegKey(RegKey,"DateType",DateType);
+      SetRegKey(RegKey,"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
+      SetRegKey(RegKey,"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
+
+
+      DWORD SizeType;
+      __int64 SizeAbove, SizeBelow;
+      SetRegKey(RegKey,"UseSize",CurGroup->GetSize(&SizeType, &SizeAbove, &SizeBelow));
+      SetRegKey(RegKey,"SizeType",SizeType);
+      SetRegKey64(RegKey,"SizeAbove",SizeAbove);
+      SetRegKey64(RegKey,"SizeBelow",SizeBelow);
+
+
+      DWORD AttrSet, AttrClear;
+      SetRegKey(RegKey,"UseAttr",CurGroup->GetAttr(&AttrSet, &AttrClear));
+      SetRegKey(RegKey,"AttrSet",AttrSet);
+      SetRegKey(RegKey,"AttrClear",AttrClear);
     }
     else
     {
       sprintf(GroupName,fmtUpperGroup,UpperGroup++);
+      sprintf(RegKey,"%s\\%s",SortGroupsKeyName,GroupName);
       DeleteRegValue(SortGroupsKeyName,GroupName);
+      DeleteKeyTree(RegKey);
       sprintf(GroupName,fmtLowerGroup,LowerGroup++);
+      sprintf(RegKey,"%s\\%s",SortGroupsKeyName,GroupName);
       DeleteRegValue(SortGroupsKeyName,GroupName);
+      DeleteKeyTree(RegKey);
     }
   }
+
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->LeftPanel->Redraw();
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -225,8 +181,6 @@ void GroupSort::EditGroups()
 
 int GroupSort::EditGroupsMenu(int Pos)
 {
-  struct GroupSortData NewGroup;
-  char NewMasks[GROUPSORT_MASK_SIZE];
   char *HelpSortGroups="SortGroups";
   struct MenuItem ListItem;
   struct MenuItem ListItem2;
@@ -239,11 +193,13 @@ int GroupSort::EditGroupsMenu(int Pos)
   GroupList.SetBottomTitle(MSG(MSortGroupsBottom));
 
   int GroupPos=0,I;
-  for (I=0;GroupPos<GroupCount;I++)
+  for (I=0;GroupPos<GroupData.getCount();I++)
   {
-    if (GroupData[GroupPos].Group>DEFAULT_SORT_GROUP)
+    if (GroupData.getItem(GroupPos)->GetSortGroup()>DEFAULT_SORT_GROUP)
       break;
-    xstrncpy(ListItem.Name,GetMask(GroupPos),sizeof(ListItem.Name)-1);
+    const char *Mask;
+    GroupData.getItem(GroupPos)->GetMask(&Mask);
+    xstrncpy(ListItem.Name,Mask,sizeof(ListItem.Name)-1);
     ListItem.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem);
     GroupPos++;
@@ -260,16 +216,18 @@ int GroupSort::EditGroupsMenu(int Pos)
   I+=2;
 
   memset(&ListItem2,0,sizeof(ListItem2));
-  for (;GroupPos<GroupCount;I++)
+  for (;GroupPos<GroupData.getCount();I++)
   {
-    xstrncpy(ListItem2.Name,GetMask(GroupPos),sizeof(ListItem2.Name)-1);
+    const char *Mask;
+    GroupData.getItem(GroupPos)->GetMask(&Mask);
+    xstrncpy(ListItem2.Name,Mask,sizeof(ListItem2.Name)-1);
     ListItem2.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem2);
     GroupPos++;
   }
 
   *ListItem.Name=0;
-  ListItem.SetSelect(GroupCount+2 == Pos);
+  ListItem.SetSelect(GroupData.getCount()+2 == Pos);
   GroupList.AddItem(&ListItem);
 
   GroupList.Show();
@@ -299,90 +257,49 @@ int GroupSort::EditGroupsMenu(int Pos)
       switch(Key)
       {
         case KEY_DEL:
-          if (ListPos<GroupCount)
+          if (ListPos<GroupData.getCount())
           {
             char GroupName[72]="\"";
-            xstrncpy(GroupName+1,GetMask(ListPos),sizeof(GroupName)-4);
+            const char *Mask;
+            GroupData.getItem(ListPos)->GetMask(&Mask);
+            xstrncpy(GroupName+1,Mask,sizeof(GroupName)-4);
             strcat(GroupName,"\"");
             if (Message(MSG_WARNING,2,MSG(MSortGroupsTitle),
                         MSG(MSortGroupsAskDel),GroupName,
                         MSG(MDelete),MSG(MCancel))!=0)
               break;
-            DeleteMask(GroupData+ListPos);
-            for (int I=ListPos+1;I<GroupCount;I++)
-              GroupData[I-1]=GroupData[I];
-            GroupCount--;
+            GroupData.deleteItem(ListPos);
             return(SelPos);
           }
           break;
         case KEY_INS:
           {
-            /* $ 06.07.2001 IS
-               провер€ем маску на корректность
-            */
-            *NewMasks=0;
-            CFileMask FMasks;
-            int ExitCode;
-            for(;;)
+            FileFilterParams *NewGroup = GroupData.insertItem(ListPos);
+
+            if (NewGroup)
             {
-               ExitCode=GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),
-                         "Masks","",NewMasks,sizeof(NewMasks),HelpSortGroups,FIB_BUTTONS);
-               if(!ExitCode)
-                  break;
-               if(FMasks.Set(NewMasks, 0))
-                  break;
-            }
-            if (ExitCode)
-            /* IS $ */
-            {
-              memset(&NewGroup,0,sizeof(struct GroupSortData));
-              if(AddMask(&NewGroup,NewMasks,UpperGroup ? 0:DEFAULT_SORT_GROUP+1))
+              //AY: –аз создаЄм новый фильтр то думаю будет логично если он будет только дл€ файлов
+              NewGroup->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
+
+              if(FileFilterConfig(NewGroup))
               {
-                struct GroupSortData *NewGroupData=(struct GroupSortData *)xf_realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
-                if (NewGroupData==NULL)
-                {
-                  DeleteMask(&NewGroup);
-                  break;
-                }
-                GroupData=NewGroupData;
-                GroupCount++;
-                for (int I=GroupCount-1;I>ListPos;I--)
-                  GroupData[I]=GroupData[I-1];
-                memcpy(GroupData+ListPos,&NewGroup,sizeof(struct GroupSortData));
+                NewGroup->SetSortGroup(UpperGroup ? 0 : DEFAULT_SORT_GROUP+1);
                 return(SelPos);
               }
+              else
+                GroupData.deleteItem(ListPos);
             }
           }
           break;
         case KEY_F4:
         case KEY_ENTER:
-          if (ListPos<GroupCount)
+          if (ListPos<GroupData.getCount())
           {
-            memcpy(&NewGroup,GroupData+ListPos,sizeof(struct GroupSortData));
-            strcpy(NewMasks,GetMask(ListPos));
-            /* $ 06.07.2001 IS
-               провер€ем маску на корректность
-            */
-            CFileMask FMasks;
-            int ExitCode;
-            for(;;)
+            FileFilterParams *NewGroup = GroupData.getItem(ListPos);
+            if(FileFilterConfig(NewGroup))
             {
-               ExitCode=GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),
-                                  "Masks",NewMasks,NewMasks,sizeof(NewMasks),
-                                  HelpSortGroups,FIB_BUTTONS);
-               if(!ExitCode)
-                  break;
-               if(FMasks.Set(NewMasks, 0))
-                  break;
-            }
-            if (ExitCode)
-            /* IS $ */
-            {
-              if(AddMask(&NewGroup,NewMasks,UpperGroup ? 0:DEFAULT_SORT_GROUP+1))
-              {
-                memcpy(GroupData+ListPos,&NewGroup,sizeof(struct GroupSortData));
-                return(SelPos);
-              }
+              NewGroup->SetSortGroup(UpperGroup ? 0 : DEFAULT_SORT_GROUP+1);
+              return(SelPos);
             }
           }
           break;

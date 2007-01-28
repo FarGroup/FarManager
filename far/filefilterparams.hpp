@@ -68,6 +68,8 @@ class FileFilterParams
 
     HighlightDataColor m_Colors;
 
+    int m_SortGroup;
+
   public:
 
     BitFlags Flags; // Флаги фильтра
@@ -84,6 +86,7 @@ class FileFilterParams
     void SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow);
     void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
     void SetColors(HighlightDataColor *Colors);
+    void SetSortGroup(int SortGroup) { m_SortGroup = SortGroup; }
 
     const char *GetTitle() const;
     DWORD GetMask(const char **Mask) const;
@@ -92,6 +95,7 @@ class FileFilterParams
     DWORD GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
     void  GetColors(HighlightDataColor *Colors) const;
     int   GetMarkChar() const;
+    int   GetSortGroup() const { return m_SortGroup; }
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.

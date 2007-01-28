@@ -307,7 +307,7 @@ void SetFolderInfoFiles();
 void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
-int GetColorDialog(unsigned int &Color,bool bCentered=false);
+int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
 int HiStrlen(const char *Str,BOOL Dup=TRUE);
 /* $ 27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера */

@@ -271,6 +271,11 @@ void FileFilter::FilterEdit()
             break;
           }
         }
+        else
+        {
+          //AY: Раз создаём новый фильтр то думаю будет логично если он будет только для файлов
+          NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
+        }
 
         if (FileFilterConfig(NewFilter))
         {
@@ -596,11 +601,14 @@ void FileFilter::InitFilter()
 
     if (NewFilter)
     {
+      //Дефолтные значения выбраны так чтоб как можно правильней загрузить
+      //настройки старых версий фара.
+
       NewFilter->SetTitle(Title);
 
       char Mask[FILEFILTER_MASK_SIZE];
       GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask));
-      NewFilter->SetMask((DWORD)GetRegKey(RegKey,"UseMask",0),
+      NewFilter->SetMask((DWORD)GetRegKey(RegKey,"UseMask",1),
                          Mask);
 
       FILETIME DateAfter, DateBefore;
@@ -616,9 +624,9 @@ void FileFilter::InitFilter()
                          GetRegKey64(RegKey,"SizeAbove",_i64(-1)),
                          GetRegKey64(RegKey,"SizeBelow",_i64(-1)));
 
-      NewFilter->SetAttr((DWORD)GetRegKey(RegKey,"UseAttr",0),
+      NewFilter->SetAttr((DWORD)GetRegKey(RegKey,"UseAttr",1),
                          (DWORD)GetRegKey(RegKey,"AttrSet",0),
-                         (DWORD)GetRegKey(RegKey,"AttrClear",0));
+                         (DWORD)GetRegKey(RegKey,"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
 
       NewFilter->Flags.Set((DWORD)GetRegKey(RegKey,"Flags",0));
     }
