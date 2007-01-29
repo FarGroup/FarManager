@@ -35,9 +35,73 @@ FileFilter::~FileFilter()
 {
 }
 
+void MenuString(char *dest, FileFilterParams *FF, const char *FMask=NULL, bool bPanelType=false)
+{
+  const char  AttrC[] = "RAHSDCEI$TL";
+  const DWORD AttrF[] = {
+                          FILE_ATTRIBUTE_READONLY,
+                          FILE_ATTRIBUTE_ARCHIVE,
+                          FILE_ATTRIBUTE_HIDDEN,
+                          FILE_ATTRIBUTE_SYSTEM,
+                          FILE_ATTRIBUTE_DIRECTORY,
+                          FILE_ATTRIBUTE_COMPRESSED,
+                          FILE_ATTRIBUTE_ENCRYPTED,
+                          FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,
+                          FILE_ATTRIBUTE_SPARSE_FILE,
+                          FILE_ATTRIBUTE_TEMPORARY,
+                          FILE_ATTRIBUTE_REPARSE_POINT
+                        };
+
+  const unsigned char VerticalLine=0x0B3;
+  const char Format[] = "%-21.21s %c %-22.22s %-2.2s %c %-60.60s";
+
+  const char *Name, *Mask;
+  DWORD IncludeAttr, ExcludeAttr;
+  DWORD UseMask, UseSize, UseDate;
+
+  if (bPanelType)
+  {
+    Name=MSG(MPanelFileType);
+    UseMask=1;
+    Mask=FMask;
+    IncludeAttr=0;
+    ExcludeAttr=FILE_ATTRIBUTE_DIRECTORY;
+    UseDate=UseSize=0;
+  }
+  else
+  {
+    Name=FF->GetTitle();
+    UseMask=FF->GetMask(&Mask);
+    if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
+      IncludeAttr=ExcludeAttr=0;
+    UseSize=FF->GetSize(NULL,NULL,NULL);
+    UseDate=FF->GetDate(NULL,NULL,NULL);
+  }
+
+  char Attr[sizeof(AttrC)*2] = {0};
+  for (int i=0; i<sizeof(AttrF)/sizeof(AttrF[0]); i++)
+  {
+    char *Ptr=Attr+i*2;
+    *Ptr=AttrC[i];
+    if (IncludeAttr&AttrF[i])
+      *(Ptr+1)='+';
+    else if (ExcludeAttr&AttrF[i])
+      *(Ptr+1)='-';
+    else
+      *Ptr=*(Ptr+1)='.';
+  }
+
+  char SizeDate[3] = "..";
+  if (UseSize)
+    SizeDate[0]='S';
+  if (UseDate)
+    SizeDate[1]='D';
+
+  sprintf(dest, Format, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+}
+
 void FileFilter::FilterEdit()
 {
-  const unsigned char VerticalLine=0x0B3;
   struct MenuItem ListItem;
   int ExitCode;
   bool bNeedUpdate=false;
@@ -51,9 +115,7 @@ void FileFilter::FilterEdit()
   for (int i=0; i<FilterData.getCount(); i++)
   {
     memset(&ListItem,0,sizeof(ListItem));
-    const char *Mask;
-    DWORD MaskUsed=FilterData.getItem(i)->GetMask(&Mask);
-    sprintf(ListItem.Name,"%-30.30s %c %-30.30s",FilterData.getItem(i)->GetTitle(),VerticalLine,MaskUsed?Mask:"");
+    MenuString(ListItem.Name,FilterData.getItem(i));
 
     if(i == 0)
       ListItem.Flags|=LIF_SELECTED;
@@ -75,9 +137,8 @@ void FileFilter::FilterEdit()
     FilterList.AddItem(&ListItem);
   }
 
-  char FileName[NM],*ExtPtr=NULL;
-  WIN32_FIND_DATA fdata;
-  int FileAttr,ExtCount=0;
+  char *ExtPtr=NULL;
+  int ExtCount=0;
 
   for (int i=0; i<TempFilterData.getCount(); i++)
   {
@@ -88,7 +149,6 @@ void FileFilter::FilterEdit()
     Unquote(Mask);
     if(!ParseAndAddMasks(&ExtPtr,Mask,0,ExtCount,GetCheck(TempFilterData.getItem(i))))
       break;
-
   }
 
   memset(&ListItem,0,sizeof(ListItem));
@@ -96,7 +156,8 @@ void FileFilter::FilterEdit()
   FilterList.AddItem(&ListItem);
 
   memset(&ListItem,0,sizeof(ListItem));
-  sprintf(ListItem.Name,"%-30.30s %c %-30.30s",MSG(MFolderFileType),VerticalLine,"");
+  FoldersFilter.SetTitle(MSG(MFolderFileType));
+  MenuString(ListItem.Name,&FoldersFilter);
   int Check = GetCheck(&FoldersFilter);
   if (Check)
     ListItem.SetCheck(Check);
@@ -105,6 +166,8 @@ void FileFilter::FilterEdit()
   if (m_HostPanel->GetMode()==NORMAL_PANEL)
   {
     char CurDir[NM];
+    char FileName[NM];
+    WIN32_FIND_DATA fdata;
     m_HostPanel->GetCurDir(CurDir);
 
     ScanTree ScTree(FALSE,FALSE);
@@ -115,6 +178,8 @@ void FileFilter::FilterEdit()
   }
   else
   {
+    char FileName[NM];
+    int FileAttr;
     for (int i=0; m_HostPanel->GetFileName(FileName,i,FileAttr); i++)
       if(!ParseAndAddMasks(&ExtPtr,FileName,FileAttr,ExtCount,0))
         break;
@@ -127,7 +192,7 @@ void FileFilter::FilterEdit()
   for (int i=0; i<ExtCount; i++)
   {
     char *CurExtPtr=ExtPtr+i*NM;
-    sprintf(ListItem.Name,"%-30.30s %c %-30.30s",MSG(MPanelFileType),VerticalLine,CurExtPtr);
+    MenuString(ListItem.Name,NULL,CurExtPtr,true);
     ListItem.SetCheck(CurExtPtr[strlen(CurExtPtr)+1]);
     FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
   }
@@ -202,9 +267,7 @@ void FileFilter::FilterEdit()
           if (FileFilterConfig(FilterData.getItem(SelPos)))
           {
             memset(&ListItem,0,sizeof(ListItem));
-            const char *Mask;
-            DWORD MaskUsed=FilterData.getItem(SelPos)->GetMask(&Mask);
-            sprintf(ListItem.Name,"%-30.30s %c %-30.30s",FilterData.getItem(SelPos)->GetTitle(),VerticalLine,MaskUsed?Mask:"");
+            MenuString(ListItem.Name,FilterData.getItem(SelPos));
             int Check = GetCheck(FilterData.getItem(SelPos));
             if (Check)
               ListItem.SetCheck(Check);
@@ -283,9 +346,7 @@ void FileFilter::FilterEdit()
             FilterList.DeleteItem(0);
 
           memset(&ListItem,0,sizeof(ListItem));
-          const char *Mask;
-          DWORD MaskUsed=NewFilter->GetMask(&Mask);
-          sprintf(ListItem.Name,"%-30.30s %c %-30.30s",NewFilter->GetTitle(),VerticalLine,MaskUsed?Mask:"");
+          MenuString(ListItem.Name,NewFilter);
 
           FilterList.AddItem(&ListItem,SelPos);
 

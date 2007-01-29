@@ -37,8 +37,6 @@ class HighlightFiles
     void HiEdit(int MenuPos);
 
     void SaveHiData();
-
-    void ReWriteWorkColor(struct HighlightDataColor *Colors);
 };
 
 // сама функция в hilight.cpp

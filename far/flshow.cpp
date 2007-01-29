@@ -300,43 +300,29 @@ void FileList::ShowFileList(int Fast)
 int FileList::GetShowColor(int Position)
 {
   DWORD ColorAttr=COL_PANELTEXT;
+  const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
   if (ListData && Position < FileCount)
   {
     struct FileListItem *CurPtr=ListData+Position;
 
+    int Pos = HIGHLIGHTCOLOR_NORMAL;
+
     if (CurFile==Position && Focus && FileCount > 0)
     {
       if (CurPtr->Selected)
-      {
-        if (CurPtr->Colors.CursorSelColor && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.CursorSelColor;
-        else
-          ColorAttr=COL_PANELSELECTEDCURSOR;
-      }
+        Pos = HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR;
       else
-      {
-        if (CurPtr->Colors.CursorColor && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.CursorColor;
-        else
-          ColorAttr=COL_PANELCURSOR;
-      }
+        Pos = HIGHLIGHTCOLOR_UNDERCURSOR;
     }
     else
-    {
       if (CurPtr->Selected)
-      {
-        if (CurPtr->Colors.SelColor && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.SelColor;
-        else
-          ColorAttr=COL_PANELSELECTEDTEXT;
-      }
-      else
-      {
-        if (CurPtr->Colors.Color && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.Color;
-      }
-    }
+        Pos = HIGHLIGHTCOLOR_SELECTED;
+
+    if (CurPtr->Colors.Color[Pos] && Opt.Highlight)
+      ColorAttr=CurPtr->Colors.Color[Pos];
+    else
+      ColorAttr=FarColor[Pos];
   }
 
   return ColorAttr;
@@ -345,7 +331,7 @@ int FileList::GetShowColor(int Position)
 
 void FileList::SetShowColor (int Position)
 {
-        SetColor (GetShowColor(Position));
+  SetColor (GetShowColor(Position));
 }
 
 void FileList::ShowSelectedSize()
@@ -1072,13 +1058,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
       {
         if ( !ShowStatus )
         {
-          SetColor (GetShowColor (ListPos));
+          SetShowColor (ListPos);
 
           if ( Level == ColumnsInGlobal )
-             SetColor (COL_PANELBOX);
-                }
+            SetColor (COL_PANELBOX);
+        }
 
-                if ( K == ColumnCount-1 )
+        if ( K == ColumnCount-1 )
           SetColor(COL_PANELBOX);
 
         GotoXY(CurX+ColumnWidth,CurY);
@@ -1089,7 +1075,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0])));
 
         if ( !ShowStatus )
-                SetColor (COL_PANELTEXT);
+          SetColor (COL_PANELTEXT);
       }
 
       if(!ShowStatus)

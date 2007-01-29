@@ -575,17 +575,19 @@ struct ColorItem
   int Color;
 };
 
-/* ВРЕМЕННОЕ!!! воплощение будущих надежд :-))
-   Структура должна быть 16 байт!
-*/
+enum enumHighlightDataColor
+{
+  HIGHLIGHTCOLOR_NORMAL = 0,
+  HIGHLIGHTCOLOR_SELECTED,
+  HIGHLIGHTCOLOR_UNDERCURSOR,
+  HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR,
+};
+
 struct HighlightDataColor
 {
-  WORD Color;
-  WORD SelColor;
-  WORD CursorColor;
-  WORD CursorSelColor;
+  WORD Color[4];
+  WORD MarkCharColor[4];
   WORD MarkChar;
-  BYTE Reserved[6];
 };
 
 struct PreRedrawParamStruct

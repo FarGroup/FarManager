@@ -56,10 +56,10 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
   FMask.Used = Used;
   xstrncpy(FMask.Mask,Mask,sizeof(FMask.Mask)-1);
 
-  #if 0
   /* Обработка %PATHEXT% */
-  char CheckMask[FILEFILTER_MASK_SIZE]
+  char CheckMask[FILEFILTER_MASK_SIZE];
   xstrncpy(CheckMask,Mask,sizeof(CheckMask)-1);
+  char *Ptr;
   // проверим
   if((Ptr=strchr(CheckMask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
   {
@@ -87,10 +87,9 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
     else
       Add_PATHEXT(CheckMask); // добавляем то, чего нету.
   }
-  #endif
 
   // Проверка на валидность текущих настроек фильтра
-  if ((*FMask.Mask==0) || (!FMask.FilterMask.Set(FMask.Mask,FMF_SILENT)))
+  if ((*CheckMask==0) || (!FMask.FilterMask.Set(CheckMask,FMF_SILENT)))
   {
     xstrncpy(FMask.Mask,"*",sizeof(FMask.Mask)-1);
     FMask.FilterMask.Set(FMask.Mask,FMF_SILENT);
@@ -462,32 +461,12 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
 {
   const char *ptr;
   DWORD Color;
-  DWORD Default=F_BLACK|B_BLACK;
+  const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
   for (int j=0; j<4; j++)
   {
-    switch (j)
-    {
-      case 0:
-        Color=(DWORD)Colors.Color;
-        if (Color==Default)
-          Color=(DWORD)Palette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR];
-        break;
-      case 1:
-        Color=(DWORD)Colors.SelColor;
-        if (Color==Default)
-          Color=(DWORD)Palette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR];
-        break;
-      case 2:
-        Color=(DWORD)Colors.CursorColor;
-        if (Color==Default)
-          Color=(DWORD)Palette[COL_PANELCURSOR-COL_FIRSTPALETTECOLOR];
-        break;
-      case 3:
-        Color=(DWORD)Colors.CursorSelColor;
-        if (Color==Default)
-          Color=(DWORD)Palette[COL_PANELSELECTEDCURSOR-COL_FIRSTPALETTECOLOR];
-        break;
-    }
+    Color=(DWORD)(Colors.Color[j]&0x00FF);
+    if (!Color)
+      Color=FarColorToReal(FarColor[j]);
     if (Colors.MarkChar&0x00FF)
       ptr=MSG(MHighlightExample2);
     else
@@ -495,12 +474,12 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
-      VBufColorExample[15*j+k].Attributes=Color&0x00FF;
+      VBufColorExample[15*j+k].Attributes=Color;
     }
     if (Colors.MarkChar)
-      VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar;
-    VBufColorExample[15*j].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
-    VBufColorExample[15*j+14].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+      VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar&0x00FF;
+    VBufColorExample[15*j].Attributes=FarColorToReal(COL_PANELBOX);
+    VBufColorExample[15*j+14].Attributes=FarColorToReal(COL_PANELBOX);
   }
 }
 
@@ -574,41 +553,15 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       if((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMAL && Param1 <= ID_HER_SELECTEDCURSOR)
          || (Msg==DN_MOUSECLICK && Param1==ID_HER_COLOREXAMPLE && ((MOUSE_EVENT_RECORD *)Param2)->dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
       {
-        HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-        unsigned int Color;
         if (Msg==DN_MOUSECLICK)
           Param1 = ID_HER_NORMAL + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
-        switch (Param1)
-        {
-          case ID_HER_NORMAL:
-            Color=(DWORD)EditData->Color;
-            break;
-          case ID_HER_SELECTED:
-            Color=(DWORD)EditData->SelColor;
-            break;
-          case ID_HER_CURSOR:
-            Color=(DWORD)EditData->CursorColor;
-            break;
-          case ID_HER_SELECTEDCURSOR:
-            Color=(DWORD)EditData->CursorSelColor;
-            break;
-        }
+
+        HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+
+        unsigned int Color=(unsigned int)EditData->Color[Param1-ID_HER_NORMAL];
         GetColorDialog(Color,true,true);
-        switch (Param1)
-        {
-          case ID_HER_NORMAL:
-            EditData->Color=(WORD)Color;
-            break;
-          case ID_HER_SELECTED:
-            EditData->SelColor=(WORD)Color;
-            break;
-          case ID_HER_CURSOR:
-            EditData->CursorColor=(WORD)Color;
-            break;
-          case ID_HER_SELECTEDCURSOR:
-            EditData->CursorSelColor=(WORD)Color;
-            break;
-        }
+        EditData->Color[Param1-ID_HER_NORMAL]=(WORD)Color;
+
         FarDialogItem MarkChar, ColorExample;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(LONG_PTR)&MarkChar);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);

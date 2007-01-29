@@ -94,12 +94,11 @@ void HighlightFiles::InitHighlightFiles()
                      (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
 
       HighlightDataColor Colors;
-      ReWriteWorkColor(&Colors);
-      Colors.Color=(WORD)GetRegKey(RegKey,HLS.NormalColor,Colors.Color);
-      Colors.SelColor=(WORD)GetRegKey(RegKey,HLS.SelectedColor,Colors.SelColor);
-      Colors.CursorColor=(WORD)GetRegKey(RegKey,HLS.CursorColor,Colors.CursorColor);
-      Colors.CursorSelColor=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,Colors.CursorSelColor);
-      Colors.MarkChar=(WORD)GetRegKey(RegKey,HLS.MarkChar,Colors.MarkChar);
+      Colors.Color[HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.NormalColor,0);
+      Colors.Color[HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.SelectedColor,0);
+      Colors.Color[HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.CursorColor,0);
+      Colors.Color[HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,0);
+      Colors.MarkChar=(WORD)GetRegKey(RegKey,HLS.MarkChar,0);
 
       HData->SetColors(&Colors);
     }
@@ -123,34 +122,30 @@ void HighlightFiles::ClearData()
 
 void MakeTransparent(HighlightDataColor *Colors)
 {
-  Colors->Color|=0xFF00;
-  Colors->SelColor|=0xFF00;
-  Colors->CursorColor|=0xFF00;
-  Colors->CursorSelColor|=0xFF00;
+  for (int i=0; i<4; i++)
+    Colors->Color[i]|=0xFF00;
   Colors->MarkChar|=0xFF00;
 }
 
+static const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+
 void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 {
-  if (DestColors->Color&0xF000)
-    DestColors->Color=(DestColors->Color&0x0F0F)|(SrcColors->Color&0xF0F0);
-  if (DestColors->Color&0x0F00)
-    DestColors->Color=(DestColors->Color&0xF0F0)|(SrcColors->Color&0x0F0F);
-
-  if (DestColors->SelColor&0xF000)
-    DestColors->SelColor=(DestColors->SelColor&0x0F0F)|(SrcColors->SelColor&0xF0F0);
-  if (DestColors->SelColor&0x0F00)
-    DestColors->SelColor=(DestColors->SelColor&0xF0F0)|(SrcColors->SelColor&0x0F0F);
-
-  if (DestColors->CursorColor&0xF000)
-    DestColors->CursorColor=(DestColors->CursorColor&0x0F0F)|(SrcColors->CursorColor&0xF0F0);
-  if (DestColors->CursorColor&0x0F00)
-    DestColors->CursorColor=(DestColors->CursorColor&0xF0F0)|(SrcColors->CursorColor&0x0F0F);
-
-  if (DestColors->CursorSelColor&0xF000)
-    DestColors->CursorSelColor=(DestColors->CursorSelColor&0x0F0F)|(SrcColors->CursorSelColor&0xF0F0);
-  if (DestColors->CursorSelColor&0x0F00)
-    DestColors->CursorSelColor=(DestColors->CursorSelColor&0xF0F0)|(SrcColors->CursorSelColor&0x0F0F);
+  for (int i=0; i<4; i++)
+  {
+    //AY: Немного сумбурно но смысл такой,
+    //    если текущий цвет (fore или back) прозрачный
+    //    то унаследуем соответствующие цвета не забыв
+    //    что в Src может быть black on black и надо
+    //    унаследовать правильный цвет а не чёрный.
+    WORD temp=SrcColors->Color[i];
+    if (!(temp&0x00FF))
+      temp=(temp&0xFF00)|(0x00FF&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
+    if (DestColors->Color[i]&0xF000)
+      DestColors->Color[i]=(DestColors->Color[i]&0x0F0F)|(temp&0xF0F0);
+    if (DestColors->Color[i]&0x0F00)
+      DestColors->Color[i]=(DestColors->Color[i]&0xF0F0)|(temp&0x0F0F);
+  }
 
   if (DestColors->MarkChar&0xFF00)
     DestColors->MarkChar=SrcColors->MarkChar;
@@ -158,17 +153,9 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 
 bool HasTransparent(HighlightDataColor *Colors)
 {
-  if (Colors->Color&0xFF00)
-    return true;
-
-  if (Colors->SelColor&0xFF00)
-    return true;
-
-  if (Colors->CursorColor&0xFF00)
-    return true;
-
-  if (Colors->CursorSelColor&0xFF00)
-    return true;
+  for (int i=0; i<4; i++)
+    if (Colors->Color[i]&0xFF00)
+      return true;
 
   if (Colors->MarkChar&0xFF00)
     return true;
@@ -178,18 +165,24 @@ bool HasTransparent(HighlightDataColor *Colors)
 
 void RewriteTransparent(HighlightDataColor *Colors)
 {
-  Colors->Color&=0x00FF;
-  Colors->SelColor&=0x00FF;
-  Colors->CursorColor&=0x00FF;
-  Colors->CursorSelColor&=0x00FF;
-  Colors->MarkChar&=0x00FF;
+  for (int i=0; i<4; i++)
+  {
+    //AY: Если какой то из текущих цветов (fore или back) прозрачный
+    //    то унаследуем соответствующий цвет с панелей.
+    BYTE temp=(BYTE)((Colors->Color[i]&0xFF00)>>8);
+    Colors->Color[i]=((~temp)&(BYTE)Colors->Color[i])|(temp&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
+  }
+
+  //AY: Если символ пометки прозрачный то его как бы и нет вообще
+  if (Colors->MarkChar&0xFF00)
+    Colors->MarkChar=0;
 }
 
 void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *Colors,bool UseAttrHighlighting)
 {
   FileFilterParams *CurHiData;
 
-  ReWriteWorkColor(Colors);
+  memset(Colors,0,sizeof(*Colors));
   MakeTransparent(Colors);
 
   for (int i=0; i < HiData.getCount(); i++)
@@ -219,7 +212,7 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
 
   for(int FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
   {
-    ReWriteWorkColor(&FileItem->Colors);
+    memset(&FileItem->Colors,0,sizeof(FileItem->Colors));
     MakeTransparent(&FileItem->Colors);
     for (int i=0; i < HiData.getCount(); i++)
     {
@@ -237,11 +230,6 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
     }
     RewriteTransparent(&FileItem->Colors);
   }
-}
-
-void HighlightFiles::ReWriteWorkColor(struct HighlightDataColor *Colors)
-{
-  memset(Colors,0,sizeof(struct HighlightDataColor));
 }
 
 void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
@@ -510,10 +498,10 @@ void HighlightFiles::SaveHiData()
 
     HighlightDataColor Colors;
     CurHiData->GetColors(&Colors);
-    SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color);
-    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.SelColor);
-    SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.CursorColor);
-    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.CursorSelColor);
+    SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_NORMAL]);
+    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_SELECTED]);
+    SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_UNDERCURSOR]);
+    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
     SetRegKey(RegKey,HLS.MarkChar,(DWORD)Colors.MarkChar);
   }
   for (int i=HiData.getCount(); i<StartHiDataCount; i++)
@@ -541,46 +529,48 @@ char *MkRegKeyHighlightName(char *RegKey)
 
 void SetHighlighting()
 {
-#if 0
   if (CheckRegKey(RegColorsHighlight))
     return;
 
-  int I;
   char RegKey[80], *Ptr;
-  // сразу пропишем %PATHEXT%, а HighlightFiles::GetHiColor() сам подстановку
+  // сразу пропишем %PATHEXT%, а FileFilterParams::SetMask() сам подстановку
   // сделает.
   char CmdExt[512]="*.exe,*.com,*.bat,%PATHEXT%";
-  static char *Masks[]={
+  static const char *Masks[]={
   /* 0 */ "*.*",
-  /* 1 */ "",
-  /* 2 */ "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
-  /* 3 */ "*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  /* 1 */ "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
+  /* 2 */ "*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
           /* $ 25.09.2001  IS
               Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
               являются родительскими (их имена - две точки).
           */
-  /* 4 */ "*.*|..", // маска для каталогов
-  /* 5 */ "..",     // такие каталоги окрашивать как простые файлы
-          /* IS $ */
+  /* 3 */ "*.*|..", // маска для каталогов
+  /* 4 */ "..",     // такие каталоги окрашивать как простые файлы
   };
-  /* $ 06.07.2001 IS
-     Нечего дразнить судьбу - используем только OriginalMasks
-  */
-  struct HighlightData  StdHighlightData[]=
+
+  static struct DefaultData
+  {
+    const char *Mask;
+    int IgnoreMask;
+    DWORD IncludeAttr;
+    BYTE NormalColor;
+    BYTE CursorColor;
+  }
+  StdHighlightData[]=
   { /*
-             OriginalMask                        NormalColor       SelectedCursorColor
-                                IncludeAttributes       SelectedColor     MarkChar
-                       FMasks           ExcludeAttributes     CursorColor             */
-     /* 0 */{Masks[0], NULL, 0, 0x0002, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 1 */{Masks[0], NULL, 0, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 2 */{Masks[4], NULL, 0, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 3 */{Masks[5], NULL, 0, 0x0010, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 4 */{CmdExt,   NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 5 */{Masks[2], NULL, 0, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 6 */{Masks[3], NULL, 0, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
+             Mask                NormalColor
+                          IncludeAttributes
+                       IgnoreMask       CursorColor             */
+     /* 0 */{Masks[0], 0, 0x0002, 0x13, 0x38},
+     /* 1 */{Masks[0], 0, 0x0004, 0x13, 0x38},
+     /* 2 */{Masks[3], 0, 0x0010, 0x1F, 0x3F},
+     /* 3 */{Masks[4], 0, 0x0010, 0x00, 0x00},
+     /* 4 */{CmdExt,   0, 0x0000, 0x1A, 0x3A},
+     /* 5 */{Masks[1], 0, 0x0000, 0x1D, 0x3D},
+     /* 6 */{Masks[2], 0, 0x0000, 0x16, 0x36},
             // это настройка для каталогов на тех панелях, которые должны раскрашиваться
             // без учета масок (например, список хостов в "far navigator")
-     /* 7 */{Masks[0], NULL, 1, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
   };
 
   // для NT добавляем CMD
@@ -588,25 +578,13 @@ void SetHighlighting()
     strcat(CmdExt,",*.cmd");
 
   Ptr=MkRegKeyHighlightName(RegKey);
-  for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
+  for(int I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); I++)
   {
     itoa(I,Ptr,10);
-    SetRegKey(RegKey,HLS.Mask,StdHighlightData[I].OriginalMasks);
+    SetRegKey(RegKey,HLS.Mask,StdHighlightData[I].Mask);
     SetRegKey(RegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
-    if(StdHighlightData[I].IncludeAttr)
-      SetRegKey(RegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
-    if(StdHighlightData[I].ExcludeAttr)
-      SetRegKey(RegKey,HLS.ExcludeAttributes,StdHighlightData[I].ExcludeAttr);
-    if(StdHighlightData[I].Colors.Color)
-      SetRegKey(RegKey,HLS.NormalColor,StdHighlightData[I].Colors.Color);
-    if(StdHighlightData[I].Colors.SelColor)
-      SetRegKey(RegKey,HLS.SelectedColor,StdHighlightData[I].Colors.SelColor);
-    if(StdHighlightData[I].Colors.CursorColor)
-      SetRegKey(RegKey,HLS.CursorColor,StdHighlightData[I].Colors.CursorColor);
-    if(StdHighlightData[I].Colors.CursorSelColor)
-      SetRegKey(RegKey,HLS.SelectedCursorColor,StdHighlightData[I].Colors.CursorSelColor);
-    if(StdHighlightData[I].Colors.MarkChar)
-      SetRegKey(RegKey,HLS.MarkChar,StdHighlightData[I].Colors.MarkChar);
+    SetRegKey(RegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
+    SetRegKey(RegKey,HLS.NormalColor,StdHighlightData[I].NormalColor);
+    SetRegKey(RegKey,HLS.CursorColor,StdHighlightData[I].CursorColor);
   }
-#endif
 }
