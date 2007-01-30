@@ -32,6 +32,7 @@ struct HighlightStrings
   char *UseAttr,*IncludeAttributes,*ExcludeAttributes,
        *IgnoreMask,*Mask,
        *NormalColor,*SelectedColor,*CursorColor,*SelectedCursorColor,
+       *MarkCharNormalColor,*MarkCharSelectedColor,*MarkCharCursorColor,*MarkCharSelectedCursorColor,
        *MarkChar,
        *UseDate,*DateType,*DateAfter,*DateBefore,
        *UseSize,*SizeType,*SizeAbove,*SizeBelow,
@@ -42,6 +43,7 @@ const HighlightStrings HLS=
   "UseAttr","IncludeAttributes","ExcludeAttributes",
   "IgnoreMask","Mask",
   "NormalColor","SelectedColor","CursorColor","SelectedCursorColor",
+  "MarkCharNormalColor","MarkCharSelectedColor","MarkCharCursorColor","MarkCharSelectedCursorColor",
   "MarkChar",
   "UseDate","DateType","DateAfter","DateBefore",
   "UseSize","SizeType","SizeAbove","SizeBelow",
@@ -94,10 +96,14 @@ void HighlightFiles::InitHighlightFiles()
                      (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
 
       HighlightDataColor Colors;
-      Colors.Color[HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.NormalColor,0);
-      Colors.Color[HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.SelectedColor,0);
-      Colors.Color[HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.CursorColor,0);
-      Colors.Color[HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.NormalColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.SelectedColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.CursorColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.MarkCharNormalColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharCursorColor,0);
+      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,0);
       Colors.MarkChar=(WORD)GetRegKey(RegKey,HLS.MarkChar,0);
 
       HData->SetColors(&Colors);
@@ -120,14 +126,15 @@ void HighlightFiles::ClearData()
   HiData.Free();
 }
 
+static const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+
 void MakeTransparent(HighlightDataColor *Colors)
 {
-  for (int i=0; i<4; i++)
-    Colors->Color[i]|=0xFF00;
+  for (int j=0; j<2; j++)
+    for (int i=0; i<4; i++)
+      Colors->Color[j][i]|=0xFF00;
   Colors->MarkChar|=0xFF00;
 }
-
-static const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
 void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 {
@@ -138,13 +145,23 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
     //    то унаследуем соответствующие цвета не забыв
     //    что в Src может быть black on black и надо
     //    унаследовать правильный цвет а не чёрный.
-    WORD temp=SrcColors->Color[i];
+    //    Для цветов mark char black on black берёт цвет файла.
+
+    WORD temp=SrcColors->Color[HIGHLIGHTCOLORTYPE_FILE][i];
     if (!(temp&0x00FF))
       temp=(temp&0xFF00)|(0x00FF&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
-    if (DestColors->Color[i]&0xF000)
-      DestColors->Color[i]=(DestColors->Color[i]&0x0F0F)|(temp&0xF0F0);
-    if (DestColors->Color[i]&0x0F00)
-      DestColors->Color[i]=(DestColors->Color[i]&0xF0F0)|(temp&0x0F0F);
+    if (DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xF000)
+      DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0x0F0F)|(temp&0xF0F0);
+    if (DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0x0F00)
+      DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xF0F0)|(temp&0x0F0F);
+
+    WORD temp2=SrcColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i];
+    if (!(temp2&0x00FF))
+      temp2=(temp2&0xFF00)|(0x00FF&temp);
+    if (DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0xF000)
+      DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0x0F0F)|(temp2&0xF0F0);
+    if (DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0x0F00)
+      DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0xF0F0)|(temp2&0x0F0F);
   }
 
   if (DestColors->MarkChar&0xFF00)
@@ -153,9 +170,10 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 
 bool HasTransparent(HighlightDataColor *Colors)
 {
-  for (int i=0; i<4; i++)
-    if (Colors->Color[i]&0xFF00)
-      return true;
+  for (int j=0; j<2; j++)
+    for (int i=0; i<4; i++)
+      if (Colors->Color[j][i]&0xFF00)
+        return true;
 
   if (Colors->MarkChar&0xFF00)
     return true;
@@ -169,8 +187,9 @@ void RewriteTransparent(HighlightDataColor *Colors)
   {
     //AY: Если какой то из текущих цветов (fore или back) прозрачный
     //    то унаследуем соответствующий цвет с панелей.
-    BYTE temp=(BYTE)((Colors->Color[i]&0xFF00)>>8);
-    Colors->Color[i]=((~temp)&(BYTE)Colors->Color[i])|(temp&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
+    //    Для mark char унаследуем цвета файла.
+    BYTE temp=(BYTE)((Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xFF00)>>8);
+    Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=((~temp)&(BYTE)Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i])|(temp&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
   }
 
   //AY: Если символ пометки прозрачный то его как бы и нет вообще
@@ -396,17 +415,17 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_F5:
           if (SelectPos < HiData.getCount())
           {
-              FileFilterParams *HData = HiData.insertItem(SelectPos);
+            FileFilterParams *HData = HiData.insertItem(SelectPos);
 
-              if (HData)
-              {
-                *HData = *HiData.getItem(SelectPos+1);
-                HData->SetTitle("");
-                if (FileFilterConfig(HData,true))
-                  NeedUpdate=TRUE;
-                else
-                  HiData.deleteItem(SelectPos);
-             }
+            if (HData)
+            {
+              *HData = *HiData.getItem(SelectPos+1);
+              HData->SetTitle("");
+              if (FileFilterConfig(HData,true))
+                NeedUpdate=TRUE;
+              else
+                HiData.deleteItem(SelectPos);
+            }
           }
           break;
         case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
@@ -437,20 +456,20 @@ void HighlightFiles::HiEdit(int MenuPos)
       // повторяющийся кусок!
       if(NeedUpdate)
       {
-         ScrBuf.Lock(); // отменяем всякую прорисовку
-         HiMenu.Hide();
-         if(Opt.AutoSaveSetup)
-           SaveHiData();
-         //FrameManager->RefreshFrame(); // рефрешим
+        ScrBuf.Lock(); // отменяем всякую прорисовку
+        HiMenu.Hide();
+        if(Opt.AutoSaveSetup)
+          SaveHiData();
+        //FrameManager->RefreshFrame(); // рефрешим
 
-         LeftPanel->Update(UPDATE_KEEP_SELECTION);
-         LeftPanel->Redraw();
-         RightPanel->Update(UPDATE_KEEP_SELECTION);
-         RightPanel->Redraw();
+        LeftPanel->Update(UPDATE_KEEP_SELECTION);
+        LeftPanel->Redraw();
+        RightPanel->Update(UPDATE_KEEP_SELECTION);
+        RightPanel->Redraw();
 
-         FillMenu(&HiMenu,MenuPos=SelectPos);
-         HiMenu.Show();
-         ScrBuf.Unlock(); // разрешаем прорисовку
+        FillMenu(&HiMenu,MenuPos=SelectPos);
+        HiMenu.Show();
+        ScrBuf.Unlock(); // разрешаем прорисовку
       }
     }
     if (HiMenu.Modal::GetExitCode()!=-1)
@@ -498,10 +517,10 @@ void HighlightFiles::SaveHiData()
 
     HighlightDataColor Colors;
     CurHiData->GetColors(&Colors);
-    SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_NORMAL]);
-    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_SELECTED]);
-    SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_UNDERCURSOR]);
-    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
+    SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]);
+    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]);
+    SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]);
+    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
     SetRegKey(RegKey,HLS.MarkChar,(DWORD)Colors.MarkChar);
   }
   for (int i=HiData.getCount(); i<StartHiDataCount; i++)

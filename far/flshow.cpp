@@ -319,9 +319,8 @@ int FileList::GetShowColor(int Position)
       if (CurPtr->Selected)
         Pos = HIGHLIGHTCOLOR_SELECTED;
 
-    if (CurPtr->Colors.Color[Pos] && Opt.Highlight)
-      ColorAttr=CurPtr->Colors.Color[Pos];
-    else
+    ColorAttr=CurPtr->Colors.Color[HIGHLIGHTCOLORTYPE_FILE][Pos];
+    if (!ColorAttr || !Opt.Highlight)
       ColorAttr=FarColor[Pos];
   }
 

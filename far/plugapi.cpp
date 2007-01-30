@@ -1281,6 +1281,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       FPanels->LeftPanel->ProcessingPluginCommand++;
       FPanels->RightPanel->ProcessingPluginCommand++;
       ScrBuf.FillBuf();
+      ScrollScreen(1);
       SaveScreen SaveScr;
       {
         RedrawDesktop Redraw;
@@ -1291,6 +1292,18 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       FPanels->LeftPanel->ProcessingPluginCommand--;
       FPanels->RightPanel->ProcessingPluginCommand--;
       return(TRUE);
+    }
+
+    case FCTL_GETUSERSCREEN:
+    {
+      FrameManager->ShowBackground();
+      int Lock=ScrBuf.GetLockCount();
+      ScrBuf.SetLockCount(0);
+      MoveCursor(0,ScrY-1);
+      SetInitialCursorType();
+      ScrBuf.Flush();
+      ScrBuf.SetLockCount(Lock);
+      return TRUE;
     }
 
     case FCTL_GETCMDLINE:

@@ -83,6 +83,7 @@ void ControlObject::Init()
   else
     Text(MShareware);
 
+  MoveCursor(0,ScrY-1);
   CmdLine->SaveBackground(0,0,ScrX,ScrY);
 
   FPanels=new FilePanels();

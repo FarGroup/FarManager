@@ -14,10 +14,10 @@ filefilterparams.hpp
 
 struct FileListItem;
 
-#define DATE_COUNT  3
 #define FILEFILTER_MASK_SIZE 2048
 
-enum FileFilterFlags {
+enum FileFilterFlags
+{
   FFF_RPANELINCLUDE = 1,
   FFF_RPANELEXCLUDE = 2,
   FFF_LPANELINCLUDE = 4,
@@ -26,6 +26,25 @@ enum FileFilterFlags {
   FFF_FINDFILEEXCLUDE = 32,
   FFF_COPYINCLUDE = 64,
   FFF_COPYEXCLUDE = 128,
+};
+
+enum FDateType
+{
+  FDATE_MODIFIED=0,
+  FDATE_CREATED,
+  FDATE_OPENED,
+
+  FDATE_COUNT, // всегда последний !!!
+};
+
+enum FSizeType
+{
+  FSIZE_INBYTES=0,
+  FSIZE_INKBYTES,
+  FSIZE_INMBYTES,
+  FSIZE_INGBYTES,
+
+  FSIZE_COUNT, // всегда последний !!!
 };
 
 class FileFilterParams

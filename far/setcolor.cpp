@@ -19,6 +19,7 @@ setcolor.cpp
 #include "ctrlobj.hpp"
 #include "savescr.hpp"
 #include "scrbuf.hpp"
+#include "panel.hpp"
 
 static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
@@ -382,6 +383,10 @@ void SetColors()
     }
   }
   CtrlObject->Cp()->SetScreenPosition();
+  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->LeftPanel->Redraw();
+  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->RightPanel->Redraw();
 }
 
 
@@ -429,6 +434,10 @@ void GetColor(int PaletteIndex)
   {
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
     ScrBuf.Lock(); // отменяем всякую прорисовку
+    CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->LeftPanel->Redraw();
+    CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->RightPanel->Redraw();
     if(MenuToRedraw3)
       MenuToRedraw3->Hide();
     MenuToRedraw2->Hide(); // гасим

@@ -100,10 +100,8 @@ void FileFilterParams::SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, F
 {
   FDate.Used=Used;
   FDate.DateType=(FDateType)DateType;
-  if (DateType>FDATE_OPENED || DateType<FDATE_MODIFIED)
-  {
+  if (DateType>=FDATE_COUNT)
     FDate.DateType=FDATE_MODIFIED;
-  }
   FDate.DateAfter=DateAfter;
   FDate.DateBefore=DateBefore;
 }
@@ -112,10 +110,8 @@ void FileFilterParams::SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __
 {
   FSize.Used=Used;
   FSize.SizeType=(FSizeType)SizeType;
-  if (SizeType>=FSIZE_IN_LAST || SizeType<FSIZE_INBYTES)
-  {
+  if (SizeType>=FSIZE_COUNT)
     FSize.SizeType=FSIZE_INBYTES;
-  }
   FSize.SizeAbove=SizeAbove;
   FSize.SizeBelow=SizeBelow;
   FSize.SizeAboveReal=SizeAbove;
@@ -464,7 +460,7 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
   const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
   for (int j=0; j<4; j++)
   {
-    Color=(DWORD)(Colors.Color[j]&0x00FF);
+    Color=(DWORD)(Colors.Color[HIGHLIGHTCOLORTYPE_FILE][j]&0x00FF);
     if (!Color)
       Color=FarColorToReal(FarColor[j]);
     if (Colors.MarkChar&0x00FF)
@@ -560,7 +556,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
         unsigned int Color=(unsigned int)EditData->Color[Param1-ID_HER_NORMAL];
         GetColorDialog(Color,true,true);
-        EditData->Color[Param1-ID_HER_NORMAL]=(WORD)Color;
+        EditData->Color[HIGHLIGHTCOLORTYPE_FILE][Param1-ID_HER_NORMAL]=(WORD)Color;
 
         FarDialogItem MarkChar, ColorExample;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(LONG_PTR)&MarkChar);
@@ -785,21 +781,20 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   // Лист для комбобокса: байты - килобайты
   FarList SizeList;
-  FarListItem TableItemSize[FSIZE_IN_LAST];
+  FarListItem TableItemSize[FSIZE_COUNT];
   // Настройка списка множителей для типа размера
   SizeList.Items=TableItemSize;
-  SizeList.ItemsNumber=FSIZE_IN_LAST;
+  SizeList.ItemsNumber=FSIZE_COUNT;
 
-  memset(TableItemSize,0,sizeof(FarListItem)*FSIZE_IN_LAST);
-  for(int i=0; i < FSIZE_IN_LAST; ++i)
+  memset(TableItemSize,0,sizeof(TableItemSize));
+  for(int i=0; i < FSIZE_COUNT; ++i)
     xstrncpy(TableItemSize[i].Text,MSG(MFileFilterSizeInBytes+i),sizeof(TableItemSize[i].Text)-1);
 
   DWORD SizeType;
   __int64 SizeAbove, SizeBelow;
   FilterDlg[ID_FF_MATCHSIZE].Selected=FF->GetSize(&SizeType,&SizeAbove,&SizeBelow);
   FilterDlg[ID_FF_SIZEDIVIDER].ListItems=&SizeList;
-
-  xstrncpy(FilterDlg[ID_FF_SIZEDIVIDER].Data,TableItemSize[SizeType].Text,sizeof(FilterDlg[ID_FF_SIZEDIVIDER].Data));
+  TableItemSize[SizeType].Flags=LIF_SELECTED;
 
   if (SizeAbove != _i64(-1))
     _ui64toa(SizeAbove,FilterDlg[ID_FF_SIZEFROMEDIT].Data,10);
@@ -813,22 +808,20 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   // Лист для комбобокса времени файла
   FarList DateList;
-  FarListItem TableItemDate[DATE_COUNT];
+  FarListItem TableItemDate[FDATE_COUNT];
   // Настройка списка типов дат файла
   DateList.Items=TableItemDate;
-  DateList.ItemsNumber=DATE_COUNT;
+  DateList.ItemsNumber=FDATE_COUNT;
 
-  memset(TableItemDate,0,sizeof(FarListItem)*DATE_COUNT);
-  xstrncpy(TableItemDate[0].Text,MSG(MFileFilterModified),sizeof(TableItemDate[0].Text)-1);
-  xstrncpy(TableItemDate[1].Text,MSG(MFileFilterCreated),sizeof(TableItemDate[1].Text)-1);
-  xstrncpy(TableItemDate[2].Text,MSG(MFileFilterOpened),sizeof(TableItemDate[2].Text)-1);
+  memset(TableItemDate,0,sizeof(TableItemDate));
+  for(int i=0; i < FDATE_COUNT; ++i)
+    xstrncpy(TableItemDate[i].Text,MSG(MFileFilterModified+i),sizeof(TableItemDate[i].Text)-1);
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
   FilterDlg[ID_FF_MATCHDATE].Selected=FF->GetDate(&DateType,&DateAfter,&DateBefore);
   FilterDlg[ID_FF_DATETYPE].ListItems=&DateList;
-
-  xstrncpy(FilterDlg[ID_FF_DATETYPE].Data,TableItemDate[DateType].Text,sizeof(FilterDlg[ID_FF_DATETYPE].Data));
+  TableItemDate[DateType].Flags=LIF_SELECTED;
 
   ConvertDate(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].Data,FilterDlg[ID_FF_TIMEAFTEREDIT].Data,8,FALSE,FALSE,TRUE);
   ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].Data,FilterDlg[ID_FF_TIMEBEFOREEDIT].Data,8,FALSE,FALSE,TRUE);

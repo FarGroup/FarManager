@@ -364,24 +364,6 @@ enum{
   APIS2ANSI,
 };
 
-// for FileFilter
-enum FDateType
-{
-  FDATE_MODIFIED=0,
-  FDATE_CREATED,
-  FDATE_OPENED,
-};
-
-enum FSizeType
-{
-  FSIZE_INBYTES=0,
-  FSIZE_INKBYTES,
-  FSIZE_INMBYTES,
-  FSIZE_INGBYTES,
-
-  FSIZE_IN_LAST, // всегда последний !!!
-};
-
 enum ExcludeCmdHistoryType{
   EXCLUDECMDHISTORY_NOTWINASS    = 0x00000001,  // не помещать в историю команды ассоциаций Windows
   EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // не помещать в историю команды выполнения ассоциаций файлов
