@@ -21,7 +21,7 @@ struct HMenuData
 
 class VMenu;
 
-class HMenu:virtual public Modal, virtual public Frame
+class HMenu: public Modal
 {
   private:
     void DisplayObject();

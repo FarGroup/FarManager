@@ -28,7 +28,7 @@ enum {
   MODALTYPE_USER,
 };
 
-class Frame: public virtual ScreenObject
+class Frame: public ScreenObject
 {
   friend class Manager;
   private:

@@ -140,7 +140,7 @@ struct MenuData
 
 class ConsoleTitle;
 
-class VMenu: virtual public Modal, virtual public Frame
+class VMenu: public Modal
 {
 #ifdef _MSC_VER
 #pragma warning(disable:4250)
