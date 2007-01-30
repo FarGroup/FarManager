@@ -554,7 +554,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
         HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        unsigned int Color=(unsigned int)EditData->Color[Param1-ID_HER_NORMAL];
+        unsigned int Color=(unsigned int)EditData->Color[HIGHLIGHTCOLORTYPE_FILE][Param1-ID_HER_NORMAL];
         GetColorDialog(Color,true,true);
         EditData->Color[HIGHLIGHTCOLORTYPE_FILE][Param1-ID_HER_NORMAL]=(WORD)Color;
 
