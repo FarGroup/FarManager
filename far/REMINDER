@@ -162,3 +162,34 @@ SetConsoleTitle & Macro
    returns true or false
 
    t-rex 27.01.2007 21:35:24 +0200
+
+
+SetCursorType  (interf.cpp)
+   http://forum.farmanager.com/viewtopic.php?t=2399
+   Открываем на редактирование файл и начинаем искать некоторую существующую строку. 
+   На начале найденной строки курсор мигает. Жму Shift-F7. Больше строка не встречается 
+   и Far об этом сообщает в красном окне. После нажатия ok пропадает курсор в редакторе.
+   Это баг ? 
+   Что бы курсор появился, необходимо проделывать дополнительные действия, например, 
+   жать MoveLeft.
+   
+   Внимание.  Есть кусок:
+
+   void SetCursorType(int Visible,int Size)
+   {
+     if (Size==-1 || !Visible)
+       Size=IsWindowed()?
+          (Opt.CursorSize[0]?Opt.CursorSize[0]:InitCurSize):
+          (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize);
+
+     ScrBuf.SetCursorType(Visible,Size);
+   }
+
+   НО! по коду везде идет "SetCursorType(FALSE,0)".
+   Именно "0" - считаю багом, нужен -1.
+   Вернее нужно пересмотреть весь код на эту тему.
+
+   Исправлять ТАКЖЕ и в 1.80!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   (после полного исправления ЗДЕСЬ)
+
+   svs 31.01.2007 19:17:51 +0300

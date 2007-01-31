@@ -3554,7 +3554,7 @@ BOOL Editor::Search(int Next)
     int SearchLength=strlen((char *)SearchStr);
 
     sprintf(MsgStr,"\"%s\"",SearchStr);
-    SetCursorType(FALSE,0);
+    SetCursorType(FALSE,-1);
     //SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
 

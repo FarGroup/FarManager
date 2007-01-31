@@ -143,7 +143,12 @@ void Edit::DisplayObject()
       ::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
     }
     else
-      ::SetCursorType(1,CursorSize);
+    {
+      int NewCursorSize=IsWindowed()?
+       (Opt.CursorSize[0]?Opt.CursorSize[0]:10):
+       (Opt.CursorSize[1]?Opt.CursorSize[1]:10);
+      ::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
+    }
   }
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
