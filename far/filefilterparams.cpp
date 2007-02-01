@@ -231,12 +231,15 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
   //if (fd==NULL)
     //return false;
 
-  // Режим проверки маски файла включен?
-  if (FMask.Used)
+  // Режим проверки атрибутов файла включен?
+  if (FAttr.Used)
   {
-    // Файл не попадает под маску введённую в фильтре?
-    if (!FMask.FilterMask.Compare(fd->cFileName))
-      // Не пропускаем этот файл
+    // Проверка попадания файла по установленным атрибутам
+    if ((fd->dwFileAttributes & FAttr.AttrSet) != FAttr.AttrSet)
+      return false;
+
+    // Проверка попадания файла по отсутствующим атрибутам
+    if (fd->dwFileAttributes & FAttr.AttrClear)
       return false;
   }
 
@@ -299,15 +302,12 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
     }
   }
 
-  // Режим проверки атрибутов файла включен?
-  if (FAttr.Used)
+  // Режим проверки маски файла включен?
+  if (FMask.Used)
   {
-    // Проверка попадания файла по установленным атрибутам
-    if ((fd->dwFileAttributes & FAttr.AttrSet) != FAttr.AttrSet)
-      return false;
-
-    // Проверка попадания файла по отсутствующим атрибутам
-    if (fd->dwFileAttributes & FAttr.AttrClear)
+    // Файл не попадает под маску введённую в фильтре?
+    if (!FMask.FilterMask.Compare(fd->cFileName))
+      // Не пропускаем этот файл
       return false;
   }
 

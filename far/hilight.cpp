@@ -132,8 +132,8 @@ void MakeTransparent(HighlightDataColor *Colors)
 {
   for (int j=0; j<2; j++)
     for (int i=0; i<4; i++)
-      Colors->Color[j][i]|=0xFF00;
-  Colors->MarkChar|=0xFF00;
+      Colors->Color[j][i]=0xFF00;
+  Colors->MarkChar=0xFF00;
 }
 
 void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
@@ -170,9 +170,9 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 
 bool HasTransparent(HighlightDataColor *Colors)
 {
-  for (int j=0; j<2; j++)
+  //for (int j=0; j<2; j++)
     for (int i=0; i<4; i++)
-      if (Colors->Color[j][i]&0xFF00)
+      if (Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xFF00)
         return true;
 
   if (Colors->MarkChar&0xFF00)
@@ -201,7 +201,6 @@ void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *C
 {
   FileFilterParams *CurHiData;
 
-  memset(Colors,0,sizeof(*Colors));
   MakeTransparent(Colors);
 
   for (int i=0; i < HiData.getCount(); i++)
@@ -231,7 +230,6 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
 
   for(int FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
   {
-    memset(&FileItem->Colors,0,sizeof(FileItem->Colors));
     MakeTransparent(&FileItem->Colors);
     for (int i=0; i < HiData.getCount(); i++)
     {
