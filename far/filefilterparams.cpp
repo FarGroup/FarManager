@@ -437,8 +437,8 @@ enum enumFileFilterConfig {
     ID_FF_REPARSEPOINT,
 
     ID_HER_SEPARATOR3,
-    ID_HER_MARKEDIT,
     ID_HER_MARK_TITLE,
+    ID_HER_MARKEDIT,
     ID_HER_MARKTRANSPARENT,
     ID_HER_NORMAL,
     ID_HER_SELECTED,
@@ -702,8 +702,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_CHECKBOX,51,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
 
     DI_TEXT,-1,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-    DI_FIXEDIT,5,16,5,16,0,0,0,0,"",
     DI_TEXT,7,16,0,16,0,0,0,0,(char *)MHighlightMarkChar,
+    DI_FIXEDIT,5,16,5,16,0,0,0,0,"",
     DI_CHECKBOX,0,16,0,16,0,0,0,0,(char *)MHighlightTransparentMarkChar,
     DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
     DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,

@@ -26,7 +26,7 @@ dialog.cpp
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 
-#define VTEXT_ADN_SEPARATORS	1
+#define VTEXT_ADN_SEPARATORS  1
 
 static char HisLocked[16]="Locked", *PHisLocked=NULL;
 static char HisLine[16]  ="Line", *PHisLine=NULL;
@@ -1598,7 +1598,7 @@ void Dialog::ShowDialog(int ID)
           X=0;
 
         if ( (CX2 <= 0) || (CX2 < CX1) )
-          CW = LenStrItem(I,Str);
+          CW = LenText;
 
         if(X1+X+LenText > X2)
         {
@@ -1611,7 +1611,7 @@ void Dialog::ShowDialog(int ID)
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
         // вместо этого:
-        if(CX1 > -1 && CX2 > 0 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
+        if(CX1 > -1 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
         {
           int CntChr=CX2-CX1+1;
           SetColor(Attr&0xFF);
@@ -1619,6 +1619,8 @@ void Dialog::ShowDialog(int ID)
           if(X1+X+CntChr-1 > X2)
             CntChr=X2-(X1+X)+1;
           mprintf("%*s",CntChr,"");
+          if (CntChr < LenText)
+            Str[CntChr]=0;
         }
 
         if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))

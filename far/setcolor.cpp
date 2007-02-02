@@ -460,9 +460,6 @@ void GetColor(int PaletteIndex)
   }
 }
 
-/* $ 18.05.2001 DJ
-   обработка установки цвета вынесена в функцию-обработчик диалога
-*/
 
 static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
@@ -506,8 +503,6 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
   return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
 }
 
-/* DJ $ */
-
 int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
 {
   static struct DialogData ColorDlgData[]={
@@ -547,15 +542,15 @@ int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
     /*  33 */ DI_RADIOBUTTON,30, 5, 0, 5, 0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
     /*  34 */ DI_RADIOBUTTON,30, 6, 0, 6, 0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,"",
 
-    /*  35 */ DI_CHECKBOX,    5, 8, 0, 8, 0,0,0,0,(char *)MSetColorForeTransparent,
-    /*  36 */ DI_CHECKBOX,   20, 8, 0, 8, 0,0,0,0,(char *)MSetColorBackTransparent,
+    /*  35 */ DI_CHECKBOX,    5, 10,0, 10,0,0,0,0,(char *)MSetColorForeTransparent,
+    /*  36 */ DI_CHECKBOX,   22, 10,0, 10,0,0,0,0,(char *)MSetColorBackTransparent,
 
-    /*  37 */ DI_TEXT,        5, 8, 0, 8, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  38 */ DI_TEXT,        5, 9, 0, 9, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  39 */ DI_TEXT,        5,10, 0,10, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
-    /*  40 */ DI_TEXT,        3,11, 0,11, 0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /*  41 */ DI_BUTTON,      0,12, 0,12, 0,0,DIF_CENTERGROUP,1,(char *)MSetColorSet,
-    /*  42 */ DI_BUTTON,      0,12, 0,12, 0,0,DIF_CENTERGROUP,0,(char *)MSetColorCancel,
+    /*  37 */ DI_TEXT,        5, 8, 33,8, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
+    /*  38 */ DI_TEXT,        5, 9, 33,9, 0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
+    /*  39 */ DI_TEXT,        5,10, 33,10,0,0,DIF_SETCOLOR,0,(char *)MSetColorSample,
+    /*  40 */ DI_TEXT,        0,11, 0, 11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  41 */ DI_BUTTON,      0,12, 0, 12,0,0,DIF_CENTERGROUP,1,(char *)MSetColorSet,
+    /*  42 */ DI_BUTTON,      0,12, 0, 12,0,0,DIF_CENTERGROUP,0,(char *)MSetColorCancel,
 
   };
   MakeDialogItems(ColorDlgData,ColorDlg);
@@ -582,9 +577,30 @@ int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
     ColorDlg[0].Y2++;
     for (I=37;I<=42;I++)
     {
-      ColorDlg[I].Y1++;
-      ColorDlg[I].Y2++;
+      ColorDlg[I].Y1+=3;
+      ColorDlg[I].Y2+=3;
     }
+    ColorDlg[0].X2+=4;
+    ColorDlg[0].Y2+=2;
+    ColorDlg[1].X2+=2;
+    ColorDlg[1].Y2+=2;
+    ColorDlg[18].X1+=2;
+    ColorDlg[18].X2+=4;
+    ColorDlg[18].Y2+=2;
+    for (I=2; I<=17; I++)
+    {
+      ColorDlg[I].X1+=1;
+      ColorDlg[I].Y1+=1;
+      ColorDlg[I].Y2+=1;
+    }
+    for (I=19; I<=34; I++)
+    {
+      ColorDlg[I].X1+=3;
+      ColorDlg[I].Y1+=1;
+      ColorDlg[I].Y2+=1;
+    }
+    for (I=37; I<=39; I++)
+      ColorDlg[I].X2+=4;
     ColorDlg[35].Selected=(Color&0x0F00?1:0);
     ColorDlg[36].Selected=(Color&0xF000?1:0);
   }
@@ -595,17 +611,12 @@ int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
   }
 
   {
-    /* $ 18.05.2001 DJ
-       обработка установки цвета вынесена в функцию-обработчик диалога
-    */
-    //SaveScreen SaveScr;
     Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (LONG_PTR) &CurColor);
     if (bCentered)
-      Dlg.SetPosition(-1,-1,39,15+(bAddTransparent?1:0));
+      Dlg.SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));
     else
-      Dlg.SetPosition(37,2,75,16+(bAddTransparent?1:0));
+      Dlg.SetPosition(37,2,75+(bAddTransparent?4:0),16+(bAddTransparent?3:0));
     Dlg.Process();
-    /* DJ $ */
     ExitCode=Dlg.GetExitCode();
   }
 
