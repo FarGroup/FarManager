@@ -92,13 +92,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   /* 11 */(char *)MMenuUserMenu,0,0,
   /* 12 */(char *)MMenuFileAssociations,0,0,
   /* 13 */(char *)MMenuFolderShortcuts,0,0,
-  /* 14 */(char *)MMenuEditSortGroups,0,0,
-  /* 15 */(char *)MMenuFilter,0,KEY_CTRLI,
-  /* 16 */"",LIF_SEPARATOR,0,
-  /* 17 */(char *)MMenuPluginCommands,0,KEY_F11,
-  /* 18 */(char *)MMenuWindowsList,0,KEY_F12,
-  /* 19 */(char *)MMenuProcessList,0,KEY_CTRLW,
-  /* 20 */(char *)MMenuHotPlugList,0,0,
+  /* 14 */(char *)MMenuFilter,0,KEY_CTRLI,
+  /* 15 */"",LIF_SEPARATOR,0,
+  /* 16 */(char *)MMenuPluginCommands,0,KEY_F11,
+  /* 17 */(char *)MMenuWindowsList,0,KEY_F12,
+  /* 18 */(char *)MMenuProcessList,0,KEY_CTRLW,
+  /* 19 */(char *)MMenuHotPlugList,0,0,
   };
 
 
@@ -427,22 +426,19 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         case 13: // Folder shortcuts
           ShowFolderShortcut();
           break;
-        case 14: // Edit sort groups
-          CtrlObject->HiFiles->HiEdit(0);
-          break;
-        case 15: // File panel filter
+        case 14: // File panel filter
           CtrlObject->Cp()->ActivePanel->EditFilter();
           break;
-        case 17: // Plugin commands
+        case 16: // Plugin commands
           FrameManager->ProcessKey(KEY_F11);
           break;
-        case 18: // Screens list
+        case 17: // Screens list
           FrameManager->ProcessKey(KEY_F12);
           break;
-        case 19: // Task list
+        case 18: // Task list
           ShowProcessList();
           break;
-        case 20: // HotPlug list
+        case 19: // HotPlug list
           ShowHotplugDevice();
           break;
       }

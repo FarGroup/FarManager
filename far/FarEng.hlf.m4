@@ -41,7 +41,6 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~File associations~@FileAssoc@
    ~Operating system commands~@OSCommands@
    ~Folder shortcuts~@FolderShortcuts@
-   ~Sort groups~@SortGroups@
    ~File panel filter~@Filter@
    ~Screens switching~@ScrSwitch@
    ~Task list~@TaskList@
@@ -52,7 +51,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
 
-   ~Files highlighting~@Highlight@
+   ~Files highlighting and sort groups~@Highlight@
    ~File descriptions~@FileDiz@
    ~Viewer settings~@ViewerSettings@
    ~Editor settings~@EditorSettings@
@@ -1181,8 +1180,6 @@ $ #Menus: commands menu#
 
    #Folder shortcuts#     Displays current ~folder shortcuts~@FolderShortcuts@.
 
-   #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
-
    #File panel filter#    Allows to control file panel contents.
                         See ~File panel filter~@Filter@ for the detailed
                         description.
@@ -1232,7 +1229,8 @@ $ #Menus: options menu#
                         colors palette to black and white or to set
                         the colors to default.
 
-   #Files highlighting#   Change ~files highlighting~@Highlight@ settings.
+   #Files highlighting#   Change ~files highlighting and sort groups~@Highlight@
+   #and sort groups#      settings.
 
    #Save setup#           Save current configuration, colors and
                         screen layout.
@@ -1352,8 +1350,7 @@ folders.
     The search parameters is saved in the configuration.
 
     Check the #Use filter# checkbox to search for files according to user
-defined conditions. Press the #Filter# button to open the conditions
-configuration ~dialog~@OpFilter@.
+defined conditions. Press the #Filter# button to open the filters ~menu~@OpFilter@.
 
     The #Advanced# button invokes the ~find file advanced options~@FindFileAdvanced@
 dialog that can be used to specify extended set of search properties. To quickly
@@ -1415,13 +1412,12 @@ the folder.
     #Gray +# and #Gray -# should move up and down the tree to the next branch
 on the same level.
 
-    #F5# позволяет развернуть окно на весь экран, повторное нажатие #F5# вернет 
-размер окна в первоначальное состояние.
+    #F5# allows to maximize the window, pressing #F5# again will restore the
+window to the previous size.
 
-    С помощью #Ctrl-Enter# можно циклически перемещаться по элементам дерева в
-соответствии с введенной в строке файловой маской. #Ctrl-Shift-Enter# позволяет 
-перемещаться по элементам в обратном направлении.
-
+    By pressing #Ctrl-Enter#, you can cycle through the folders matching the
+part of the filename that you have already entered. #Ctrl-Shift-Enter# allows
+to cycle backwards.
 
 @OpFilter
 $ #Operations filter#
@@ -2577,7 +2573,7 @@ connected network drives.
 
 
 @Highlight
-$ #Files highlighting #
+$ #Files highlighting and sort groups#
     For more convenient and obvious display of files and directories in the
 panels, FAR Manager has the possibility of color highlighting for file objects.
 You can group file objects by different criteria (~file masks~@FileMasks@, file
@@ -2587,14 +2583,14 @@ attributes) and assign colors to those groups.
 dialog (menu item Options | Panel settings).
 
     You can ~edit~@HighlightEdit@ the parameters of any highlight group through
-the "~Options~@OptMenu@" menu (item "Files highlighting").
+the "~Options~@OptMenu@" menu (item "Files highlighting and sort groups").
 
 
 @HighlightList
-$ #Files highlighting: control keys#
-    The ~file highlighting~@Highlight@ groups menu allows you to perform
-various operations with the list of the groups. The following key combinations
-are available:
+$ #Files highlighting and sort groups: control keys#
+    The ~file highlighting and sort groups~@Highlight@ menu allows you to
+perform various operations with the list of the groups. The following key
+combinations are available:
 
   #Ins#          - Add a new highlighting group
 
@@ -2615,7 +2611,7 @@ that a file belongs to a group, no further groups are checked.
 
 
 @HighlightEdit
-$ #Files highlighting: editing#
+$ #Files highlighting and sort groups: editing#
     The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
 define file highlighting groups. Each group definition includes:
 
@@ -2900,10 +2896,12 @@ $ #File panel filter#
     Using the filter you may control which files will be displayed in the file
 panel.
 
-    The filter menu contains two parts. In the upper part custom filters are
-shown. Use #Ins#, #Del# and #F4# keys to add, delete and edit these filters.
-Each custom filter consists of an optional title and a file mask or several
-~file masks~@FileMasks@ delimited by commas.
+    The filter menu contains two parts. In the upper part custom
+~filters~@OpFilter@ are shown.
+
+    Use #Ins#, #Del#, #F5# and #F4# keys to add, delete, copy and edit these
+filters. #Ctrl-Up# and #Ctrl-Down# can be used to reorder the custom filters
+changing respectively their priority.
 
     The lower part of the filter menu contains masks of all files from the
 active file panel.
@@ -2912,9 +2910,15 @@ active file panel.
 items will be indicated by '+' marks. If filters are present, only files which
 are filtered will be shown. Items selected with '#-#' will be indicated by '-'
 mark, and all files matching these items will be excluded from the file panel.
-#Shift-<Gray Minus># combination will clear all marks.
+    #Ctrl-F# works as a trigger for allowing or disabling the filtration of
+folders. If folder filtration is allowed then the menu title will contain the
+string "D?", otherwise it will contain "D+".
+    Use #BS# to clear selection from the current item, #Shift-BS# will clear
+selection from all the items.
+    #Shift-<Gray Minus># clears selection from all the items and disables the
+filtration of folders.
 
-    Custom filters selection is stored in the FAR configuration.
+    Filters selection is stored in the FAR configuration.
 
     When a filter is used in a panel, it is indicated by '*' after the sort
 mode letter in the upper left corner of the panel.
@@ -2922,7 +2926,8 @@ mode letter in the upper left corner of the panel.
     To remove the filter from the panel it is necessary to remove all "+" or
 "-" marks from user's filters and from file masks of the current panel, and
 press #Enter#.
-
+    To remove the filter from the panel it is necessary to press #Shift-BS#
+(i.e. to clear selection from all the items) and then to press #Enter#.
 
 @FileDiz
 $ #File descriptions#
@@ -3128,10 +3133,10 @@ a list.
 
     In some commands (~find files~@FindFile@, ~operations filter~@OpFilter@,
 ~file panel filter~@Filter@, file ~selection~@SelectFiles@,
-file ~associations~@FileAssoc@, ~sort groups~@SortGroups@ and
-~file highlighting~@Highlight@) you may use exclude masks. An #exclude mask#
-is one or multiple file masks that must not be matched by the files
-matching the mask. The exclude mask is delimited from the main mask by
+file ~associations~@FileAssoc@ and
+~file highlighting and sort groups~@Highlight@) you may use exclude masks. An
+#exclude mask# is one or multiple file masks that must not be matched by the
+files matching the mask. The exclude mask is delimited from the main mask by
 the character '#|#'.
 
 ^Usage examples of exclude masks:
@@ -3269,10 +3274,10 @@ from the disk.
 copy session and are not saved for later copy operations.
 
     Check the #Use filter# checkbox to copy the files that meet the user
-defined conditions. Press the #Filter# button to open the conditions
-configuration ~dialog~@OpFilter@. Consider, that if you copy the folder
-with files and all of them does not meet the filter conditions, then the empty
-folder will not be copied to the destination.
+defined conditions. Press the #Filter# button to open the filters
+~menu~@OpFilter@. Consider, that if you copy the folder with files and all of
+them does not meet the filter conditions, then the empty folder will not be
+copied to the destination.
 
 
 @CopyRule
