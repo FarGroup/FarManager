@@ -18,7 +18,6 @@ options.cpp
 #include "panel.hpp"
 #include "chgmmode.hpp"
 #include "filelist.hpp"
-#include "grpsort.hpp"
 #include "hilight.hpp"
 #include "cmdline.hpp"
 #include "manager.hpp"
@@ -429,7 +428,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           ShowFolderShortcut();
           break;
         case 14: // Edit sort groups
-          CtrlObject->GrpSort->EditGroups();
+          CtrlObject->HiFiles->HiEdit(0);
           break;
         case 15: // File panel filter
           CtrlObject->Cp()->ActivePanel->EditFilter();

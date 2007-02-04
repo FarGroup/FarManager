@@ -89,6 +89,8 @@ class FileFilterParams
 
     int m_SortGroup;
 
+    bool m_bContinueProcessing;
+
   public:
 
     BitFlags Flags; // Флаги фильтра
@@ -106,6 +108,7 @@ class FileFilterParams
     void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
     void SetColors(HighlightDataColor *Colors);
     void SetSortGroup(int SortGroup) { m_SortGroup = SortGroup; }
+    void SetContinueProcessing(bool bContinueProcessing) { m_bContinueProcessing = bContinueProcessing; }
 
     const char *GetTitle() const;
     DWORD GetMask(const char **Mask) const;
@@ -115,6 +118,7 @@ class FileFilterParams
     void  GetColors(HighlightDataColor *Colors) const;
     int   GetMarkChar() const;
     int   GetSortGroup() const { return m_SortGroup; }
+    bool  GetContinueProcessing() const { return m_bContinueProcessing; }
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.
@@ -125,5 +129,8 @@ class FileFilterParams
 };
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
+
+//Централизованная функция для создания строк меню различных фильтров.
+void MenuString(char *dest, FileFilterParams *FF, bool bHighightType=false, bool bPanelType=false, const char *FMask=NULL, const char *Title=NULL);
 
 #endif //__FILEFILTERPARAMS_HPP__

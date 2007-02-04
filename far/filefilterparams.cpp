@@ -28,6 +28,7 @@ FileFilterParams::FileFilterParams()
   memset(&FAttr,0,sizeof(FAttr));
   memset(&m_Colors,0,sizeof(m_Colors));
   m_SortGroup=DEFAULT_SORT_GROUP;
+  m_bContinueProcessing=false;
   Flags.ClearAll();
 }
 
@@ -42,6 +43,7 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
   memcpy(&FAttr,&FF.FAttr,sizeof(FAttr));
   FF.GetColors(&m_Colors);
   m_SortGroup=FF.GetSortGroup();
+  m_bContinueProcessing=FF.GetContinueProcessing();
   Flags.Flags=FF.Flags.Flags;
   return *this;
 }
@@ -199,7 +201,7 @@ DWORD FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 
 void FileFilterParams::GetColors(HighlightDataColor *Colors) const
 {
-  memcpy(Colors,&m_Colors,sizeof(m_Colors));
+  memcpy(Colors,&m_Colors,sizeof(*Colors));
 }
 
 int FileFilterParams::GetMarkChar() const
@@ -314,6 +316,80 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
   // Да! Файл выдержал все испытания и будет допущен к использованию
   // в вызвавшей эту функцию операции.
   return true;
+}
+
+//Централизованная функция для создания строк меню различных фильтров.
+void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPanelType, const char *FMask, const char *Title)
+{
+  const char  AttrC[] = "RAHSDCEI$TL";
+  const DWORD AttrF[] = {
+                          FILE_ATTRIBUTE_READONLY,
+                          FILE_ATTRIBUTE_ARCHIVE,
+                          FILE_ATTRIBUTE_HIDDEN,
+                          FILE_ATTRIBUTE_SYSTEM,
+                          FILE_ATTRIBUTE_DIRECTORY,
+                          FILE_ATTRIBUTE_COMPRESSED,
+                          FILE_ATTRIBUTE_ENCRYPTED,
+                          FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,
+                          FILE_ATTRIBUTE_SPARSE_FILE,
+                          FILE_ATTRIBUTE_TEMPORARY,
+                          FILE_ATTRIBUTE_REPARSE_POINT
+                        };
+
+  const unsigned char VerticalLine=0x0B3;
+  const char Format1[] = "%-21.21s %c %-22.22s %-2.2s %c %-60.60s";
+  const char Format2[] = "%-3.3s %c %-22.22s %-2.2s %c %-78.78s";
+
+  const char *Name, *Mask;
+  char MarkChar[]="\" \"";
+  DWORD IncludeAttr, ExcludeAttr;
+  DWORD UseMask, UseSize, UseDate;
+
+  if (bPanelType)
+  {
+    Name=Title;
+    UseMask=1;
+    Mask=FMask;
+    IncludeAttr=0;
+    ExcludeAttr=FILE_ATTRIBUTE_DIRECTORY;
+    UseDate=UseSize=0;
+  }
+  else
+  {
+    MarkChar[1]=(char)FF->GetMarkChar();
+    if (MarkChar[1]==0)
+      *MarkChar=0;
+    Name=FF->GetTitle();
+    UseMask=FF->GetMask(&Mask);
+    if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
+      IncludeAttr=ExcludeAttr=0;
+    UseSize=FF->GetSize(NULL,NULL,NULL);
+    UseDate=FF->GetDate(NULL,NULL,NULL);
+  }
+
+  char Attr[sizeof(AttrC)*2] = {0};
+  for (int i=0; i<sizeof(AttrF)/sizeof(AttrF[0]); i++)
+  {
+    char *Ptr=Attr+i*2;
+    *Ptr=AttrC[i];
+    if (IncludeAttr&AttrF[i])
+      *(Ptr+1)='+';
+    else if (ExcludeAttr&AttrF[i])
+      *(Ptr+1)='-';
+    else
+      *Ptr=*(Ptr+1)='.';
+  }
+
+  char SizeDate[3] = "..";
+  if (UseSize)
+    SizeDate[0]='S';
+  if (UseDate)
+    SizeDate[1]='D';
+
+  if (bHighightType)
+    sprintf(dest, Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+  else
+    sprintf(dest, Format1, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
 }
 
 void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
@@ -440,11 +516,16 @@ enum enumFileFilterConfig {
     ID_HER_MARK_TITLE,
     ID_HER_MARKEDIT,
     ID_HER_MARKTRANSPARENT,
-    ID_HER_NORMAL,
-    ID_HER_SELECTED,
-    ID_HER_CURSOR,
-    ID_HER_SELECTEDCURSOR,
+    ID_HER_NORMALFILE,
+    ID_HER_SELECTEDFILE,
+    ID_HER_CURSORFILE,
+    ID_HER_SELECTEDCURSORFILE,
+    ID_HER_NORMALMARKING,
+    ID_HER_SELECTEDMARKING,
+    ID_HER_CURSORMARKING,
+    ID_HER_SELECTEDCURSORMARKING,
     ID_HER_COLOREXAMPLE,
+    ID_HER_CONTINUEPROCESSING,
 
     ID_FF_SEPARATOR4,
 
@@ -472,8 +553,12 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
       VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
       VBufColorExample[15*j+k].Attributes=Color;
     }
-    if (Colors.MarkChar)
+    if (Colors.MarkChar&0x00FF)
+    {
       VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar&0x00FF;
+      if (Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][j]&0x00FF)
+        VBufColorExample[15*j+1].Attributes=Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][j]&0x00FF;
+    }
     VBufColorExample[15*j].Attributes=FarColorToReal(COL_PANELBOX);
     VBufColorExample[15*j+14].Attributes=FarColorToReal(COL_PANELBOX);
   }
@@ -546,17 +631,21 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       }
     }
     case DN_MOUSECLICK:
-      if((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMAL && Param1 <= ID_HER_SELECTEDCURSOR)
+      if((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
          || (Msg==DN_MOUSECLICK && Param1==ID_HER_COLOREXAMPLE && ((MOUSE_EVENT_RECORD *)Param2)->dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
       {
-        if (Msg==DN_MOUSECLICK)
-          Param1 = ID_HER_NORMAL + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
-
         HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        unsigned int Color=(unsigned int)EditData->Color[HIGHLIGHTCOLORTYPE_FILE][Param1-ID_HER_NORMAL];
+        if (Msg==DN_MOUSECLICK)
+        {
+          Param1 = ID_HER_NORMALFILE + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
+          if (((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.X==1 && (EditData->MarkChar&0x00FF))
+            Param1 = ID_HER_NORMALMARKING + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
+        }
+
+        unsigned int Color=(unsigned int)EditData->Color[(Param1-ID_HER_NORMALFILE)/4][(Param1-ID_HER_NORMALFILE)%4];
         GetColorDialog(Color,true,true);
-        EditData->Color[HIGHLIGHTCOLORTYPE_FILE][Param1-ID_HER_NORMAL]=(WORD)Color;
+        EditData->Color[(Param1-ID_HER_NORMALFILE)/4][(Param1-ID_HER_NORMALFILE)%4]=(WORD)Color;
 
         FarDialogItem MarkChar, ColorExample;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(LONG_PTR)&MarkChar);
@@ -619,7 +708,6 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   // Временная маска.
   CFileMask FileMask;
-  int I;
   const char VerticalLine[] = {0x0C2,0x0B3,0x0B3,0x0B3,0x0B3,0x0C1,0};
   // Маска для ввода размеров файла
   const char DigitMask[] = "99999999999999999999";
@@ -654,94 +742,99 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   struct DialogData FilterDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,73,20,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
+    DI_DOUBLEBOX,3,1,73,18,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
     DI_TEXT,5,2,0,2,1,0,0,0,(char *)MFileFilterName,
-    DI_EDIT,5,3,71,3,0,0,0,0,"",
+    DI_EDIT,5,2,71,2,0,0,0,0,"",
 
-    DI_TEXT,0,4,0,4,0,0,DIF_SEPARATOR,0,"",
+    DI_TEXT,0,3,0,3,0,0,DIF_SEPARATOR,0,"",
 
-    DI_CHECKBOX,5,5,0,5,0,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
-    DI_EDIT,7,6,71,6,0,(DWORD_PTR)FilterMasksHistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+    DI_CHECKBOX,5,4,0,4,0,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
+    DI_EDIT,5,4,71,4,0,(DWORD_PTR)FilterMasksHistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
 
-    DI_TEXT,0,7,0,7,0,0,DIF_SEPARATOR,0,"",
+    DI_TEXT,0,5,0,5,0,0,DIF_SEPARATOR,0,"",
 
-    DI_CHECKBOX,5,8,0,8,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
-    DI_COMBOBOX,20,8,36,8,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-    DI_TEXT,7,9,11,9,0,0,0,0,(char *)MFileFilterSizeFrom,
-    DI_FIXEDIT,20,9,36,9,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
-    DI_TEXT,7,10,11,10,0,0,0,0,(char *)MFileFilterSizeTo,
-    DI_FIXEDIT,20,10,36,10,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
+    DI_CHECKBOX,5,6,0,6,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
+    DI_COMBOBOX,20,6,36,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+    DI_TEXT,7,7,11,7,0,0,0,0,(char *)MFileFilterSizeFrom,
+    DI_FIXEDIT,20,7,36,7,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
+    DI_TEXT,7,8,11,8,0,0,0,0,(char *)MFileFilterSizeTo,
+    DI_FIXEDIT,20,8,36,8,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
 
-    DI_CHECKBOX,40,8,0,8,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
-    DI_COMBOBOX,58,8,71,8,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-    DI_TEXT,42,9,48,9,0,0,0,0,(char *)MFileFilterAfter,
-    DI_FIXEDIT,53,9,62,9,0,(DWORD_PTR)DateMask,DIF_MASKEDIT,0,"",
-    DI_FIXEDIT,64,9,71,9,0,(DWORD_PTR)TimeMask,DIF_MASKEDIT,0,"",
-    DI_TEXT,42,10,48,10,0,0,0,0,(char *)MFileFilterBefore,
-    DI_FIXEDIT,53,10,62,10,0,(DWORD_PTR)DateMask,DIF_MASKEDIT,0,"",
-    DI_FIXEDIT,64,10,71,10,0,(DWORD_PTR)TimeMask,DIF_MASKEDIT,0,"",
-    DI_BUTTON,0,11,0,11,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
-    DI_BUTTON,0,11,71,11,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
+    DI_CHECKBOX,40,6,0,6,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
+    DI_COMBOBOX,58,6,71,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+    DI_TEXT,42,7,48,7,0,0,0,0,(char *)MFileFilterAfter,
+    DI_FIXEDIT,53,7,62,7,0,(DWORD_PTR)DateMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,64,7,71,7,0,(DWORD_PTR)TimeMask,DIF_MASKEDIT,0,"",
+    DI_TEXT,42,8,48,8,0,0,0,0,(char *)MFileFilterBefore,
+    DI_FIXEDIT,53,8,62,8,0,(DWORD_PTR)DateMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,64,8,71,8,0,(DWORD_PTR)TimeMask,DIF_MASKEDIT,0,"",
+    DI_BUTTON,0,9,0,9,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
+    DI_BUTTON,0,9,71,9,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
-    DI_TEXT,0,12,0,12,0,0,DIF_SEPARATOR,0,"",
+    DI_TEXT,0,10,0,10,0,0,DIF_SEPARATOR,0,"",
 
-    DI_VTEXT,38,7,38,12,0,0,0,0,(char *)VerticalLine,
+    DI_VTEXT,38,5,38,10,0,0,0,0,(char *)VerticalLine,
 
-    DI_CHECKBOX, 5,13,0,13,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
-    DI_CHECKBOX, 7,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
-    DI_CHECKBOX, 7,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
-    DI_CHECKBOX, 7,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
-    DI_CHECKBOX, 7,17,0,17,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
-    DI_CHECKBOX,29,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
-    DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
-    DI_CHECKBOX,29,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
-    DI_CHECKBOX,29,17,0,17,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
-    DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
-    DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
-    DI_CHECKBOX,51,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
+    DI_CHECKBOX, 5,11,0,11,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
+    DI_CHECKBOX, 7,12,0,12,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
+    DI_CHECKBOX, 7,13,0,13,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
+    DI_CHECKBOX, 7,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
+    DI_CHECKBOX, 7,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
+    DI_CHECKBOX,29,12,0,12,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
+    DI_CHECKBOX,29,13,0,13,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
+    DI_CHECKBOX,29,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+    DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
+    DI_CHECKBOX,51,12,0,12,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
+    DI_CHECKBOX,51,13,0,13,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
+    DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
 
-    DI_TEXT,-1,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-    DI_TEXT,7,16,0,16,0,0,0,0,(char *)MHighlightMarkChar,
-    DI_FIXEDIT,5,16,5,16,0,0,0,0,"",
-    DI_CHECKBOX,0,16,0,16,0,0,0,0,(char *)MHighlightTransparentMarkChar,
-    DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
-    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,
-    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightCursor,
-    DI_BUTTON,5,20,0,20,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelectedCursor,
-    DI_USERCONTROL,73-15-1,17,73-2,20,0,0,DIF_NOFOCUS,0,"",
+    DI_TEXT,-1,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
+    DI_TEXT,7,15,0,15,0,0,0,0,(char *)MHighlightMarkChar,
+    DI_FIXEDIT,5,15,5,15,0,0,0,0,"",
+    DI_CHECKBOX,0,15,0,15,0,0,0,0,(char *)MHighlightTransparentMarkChar,
+    DI_BUTTON,5,16,0,16,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName1,
+    DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName2,
+    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName3,
+    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName4,
+    DI_BUTTON,0,16,0,16,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking1,
+    DI_BUTTON,0,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking2,
+    DI_BUTTON,0,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking3,
+    DI_BUTTON,0,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking4,
+    DI_USERCONTROL,73-15-1,16,73-2,19,0,0,DIF_NOFOCUS,0,"",
+    DI_CHECKBOX,5,20,0,20,0,0,0,0,(char *)MHighlightContinueProcessing,
 
-    DI_TEXT,0,18,0,18,0,0,DIF_SEPARATOR,0,"",
+    DI_TEXT,0,16,0,16,0,0,DIF_SEPARATOR,0,"",
 
-    DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-    DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
-    DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
   };
 
   MakeDialogItems(FilterDlgData,FilterDlg);
 
   if (ColorConfig)
   {
-    FilterDlg[ID_FF_TITLE].Y2+=3;
+    FilterDlg[ID_FF_TITLE].Y2+=5;
 
     for (int i=ID_FF_NAME; i<=ID_FF_SEPARATOR1; i++)
       FilterDlg[i].Flags|=DIF_HIDDEN;
 
     for (int i=ID_FF_MATCHMASK; i<=ID_FF_REPARSEPOINT; i++)
     {
-      FilterDlg[i].Y1-=3;
-      FilterDlg[i].Y2-=3;
+      FilterDlg[i].Y1-=2;
+      FilterDlg[i].Y2-=2;
     }
 
     for (int i=ID_FF_SEPARATOR4; i<=ID_FF_CANCEL; i++)
     {
-      FilterDlg[i].Y1+=3;
-      FilterDlg[i].Y2+=3;
+      FilterDlg[i].Y1+=5;
+      FilterDlg[i].Y2+=5;
     }
   }
   else
   {
-    for (int i=ID_HER_SEPARATOR3; i<=ID_HER_COLOREXAMPLE; i++)
+    for (int i=ID_HER_SEPARATOR3; i<=ID_HER_CONTINUEPROCESSING; i++)
       FilterDlg[i].Flags|=DIF_HIDDEN;
   }
 
@@ -750,11 +843,18 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   //FilterDlg[ID_FF_DATETYPE].X1=FilterDlg[ID_FF_MATCHDATE].X1+strlen(FilterDlg[ID_FF_MATCHDATE].Data)-(strchr(FilterDlg[ID_FF_MATCHDATE].Data,'&')?1:0)+5;
   //FilterDlg[ID_FF_DATETYPE].X2+=FilterDlg[ID_FF_DATETYPE].X1;
 
+  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+strlen(FilterDlg[ID_FF_NAME].Data)-(strchr(FilterDlg[ID_FF_NAME].Data,'&')?1:0)+1;
+
+  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+strlen(FilterDlg[ID_FF_MATCHMASK].Data)-(strchr(FilterDlg[ID_FF_MATCHMASK].Data,'&')?1:0)+5;
+
   FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-strlen(FilterDlg[ID_FF_BLANK].Data)+(strchr(FilterDlg[ID_FF_BLANK].Data,'&')?1:0)-3;
   FilterDlg[ID_FF_CURRENT].X2=FilterDlg[ID_FF_BLANK].X1-2;
   FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-strlen(FilterDlg[ID_FF_CURRENT].Data)+(strchr(FilterDlg[ID_FF_CURRENT].Data,'&')?1:0)-3;
 
   FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+strlen(FilterDlg[ID_HER_MARK_TITLE].Data)-(strchr(FilterDlg[ID_HER_MARK_TITLE].Data,'&')?1:0)+1;
+
+  for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i++)
+    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+strlen(FilterDlg[ID_HER_NORMALFILE].Data)-(strchr(FilterDlg[ID_HER_NORMALFILE].Data,'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];
   HighlightDataColor Colors;
@@ -766,6 +866,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   *FilterDlg[ID_HER_MARKEDIT].Data=Colors.MarkChar&0x00FF;
   FilterDlg[ID_HER_MARKTRANSPARENT].Selected=(Colors.MarkChar&0xFF00?1:0);
+
+  FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);
 
   xstrncpy(FilterDlg[ID_FF_NAMEEDIT].Data,FF->GetTitle(),sizeof(FilterDlg[ID_FF_NAMEEDIT].Data));
 
@@ -803,8 +905,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     _ui64toa(SizeBelow,FilterDlg[ID_FF_SIZETOEDIT].Data,10);
 
   if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
-    for(I=ID_FF_SIZEDIVIDER; I <= ID_FF_SIZETOEDIT; ++I)
-      FilterDlg[I].Flags|=DIF_DISABLE;
+    for(int i=ID_FF_SIZEDIVIDER; i <= ID_FF_SIZETOEDIT; i++)
+      FilterDlg[i].Flags|=DIF_DISABLE;
 
   // Лист для комбобокса времени файла
   FarList DateList;
@@ -827,8 +929,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].Data,FilterDlg[ID_FF_TIMEBEFOREEDIT].Data,8,FALSE,FALSE,TRUE);
 
   if (!FilterDlg[ID_FF_MATCHDATE].Selected)
-    for(I=ID_FF_DATETYPE; I <= ID_FF_BLANK; ++I)
-      FilterDlg[I].Flags|=DIF_DISABLE;
+    for(int i=ID_FF_DATETYPE; i <= ID_FF_BLANK; i++)
+      FilterDlg[i].Flags|=DIF_DISABLE;
 
   DWORD AttrSet, AttrClear;
   FilterDlg[ID_FF_MATCHATTRIBUTES].Selected=FF->GetAttr(&AttrSet,&AttrClear);
@@ -846,8 +948,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
   {
-    for(I=ID_FF_READONLY; I <= ID_FF_REPARSEPOINT; ++I)
-      FilterDlg[I].Flags|=DIF_DISABLE;
+    for(int i=ID_FF_READONLY; i <= ID_FF_REPARSEPOINT; i++)
+      FilterDlg[i].Flags|=DIF_DISABLE;
   }
 
   Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FileFilterConfigDlgProc,(LONG_PTR)&Colors);
@@ -903,6 +1005,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
         Colors.MarkChar&=0x00FF;
 
       FF->SetColors(&Colors);
+
+      FF->SetContinueProcessing(FilterDlg[ID_HER_CONTINUEPROCESSING].Selected!=0);
 
       FF->SetTitle(FilterDlg[ID_FF_NAMEEDIT].Data);
 

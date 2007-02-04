@@ -25,7 +25,6 @@ class History;
 #include "scrobj.hpp"
 #include "macro.hpp"
 #include "dizlist.hpp"
-#include "grpsort.hpp"
 #include "filefilter.hpp"
 #include "filefilterparams.hpp"
 #include "panel.hpp"

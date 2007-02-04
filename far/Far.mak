@@ -119,7 +119,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\gettable.obj" \
 	"$(INTDIR)\global.obj" \
 	"$(INTDIR)\grabber.obj" \
-	"$(INTDIR)\grpsort.obj" \
 	"$(INTDIR)\help.obj" \
 	"$(INTDIR)\hilight.obj" \
 	"$(INTDIR)\history.obj" \

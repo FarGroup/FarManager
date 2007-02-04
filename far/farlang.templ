@@ -3466,13 +3466,17 @@ l:
 "Фильтр"
 "Filter"
 
-MFilterBottom
-"'+','-',Пробел,BS,Shift-BS,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"'+','-',Space,BS,Shift-BS,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
+MFilterTitle1
+"Фильтр (D+)"
+"Filter (D+)"
 
-MNoCustomFilters
-"<пользовательские фильтры не определены>"
-"<no custom filters defined>"
+MFilterTitle2
+"Фильтр (D?)"
+"Filter (D?)"
+
+MFilterBottom
+"+,-,Пробел,BS,Shift-BS,Shift-Grey-,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Space,BS,Shift-BS,Shift-Grey-,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 
 MPanelFileType
 "Файлы панели"
@@ -3707,8 +3711,20 @@ l:
 "Files highlighting"
 
 MHighlightBottom
-"F1 - помощь"
-"F1 - Help"
+"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
+"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
+
+MHighlightUpperSortGroup
+"Верхняя группа сортировки"
+"Upper sort group"
+
+MHighlightLowerSortGroup
+"Нижняя группа сортировки"
+"Lower sort group"
+
+MHighlightLastGroup
+"Наименее приоритетная группа раскраски"
+"Last priority highlighting group"
 
 MHighlightAskDel
 "Вы хотите удалить раскраску для"
@@ -3733,27 +3749,43 @@ MHighlightMarkChar
 
 MHighlightTransparentMarkChar
 "прозра&чный"
-"&transparent"
+"tra&nsparent"
 
 MHighlightColors
 " Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
 " File name colors (\"black on black\" - default color) "
 
-MHighlightNormal
-"&Обычный                "
-"N&ormal               "
+MHighlightFileName1
+"&1. Обычное имя файла                "
+"&1. Normal file name               "
 
-MHighlightSelected
-"&Помеченный             "
-"Se&lected             "
+MHighlightFileName2
+"&3. Помеченное имя файла             "
+"&3. Selected file name             "
 
-MHighlightCursor
-"По&д курсором           "
-"&Under cursor         "
+MHighlightFileName3
+"&5. Имя файла под курсором           "
+"&5. File name under cursor         "
 
-MHighlightSelectedCursor
-"Помеченны&й под курсором"
-"Selected u&nder cursor"
+MHighlightFileName4
+"&7. Помеченное под курсором имя файла"
+"&7. File name selected under cursor"
+
+MHighlightMarking1
+"&2. Пометка"
+"&2. Marking"
+
+MHighlightMarking2
+"&4. Пометка"
+"&4. Marking"
+
+MHighlightMarking3
+"&6. Пометка"
+"&6. Marking"
+
+MHighlightMarking4
+"&8. Пометка"
+"&8. Marking"
 
 MHighlightExample1
 "║filename.ext │"
@@ -3762,6 +3794,10 @@ MHighlightExample1
 MHighlightExample2
 "║ filename.ext│"
 "║ filename.ext│"
+
+MHighlightContinueProcessing
+"Продолжать &обработку"
+"C&ontinue processing"
 
 MInfoTitle
 l:
@@ -5537,20 +5573,6 @@ MCannotPrint
 "Не удалось распечатать"
 "Cannot print"
 
-MSortGroupsTitle
-l:
-"Группы сортировки"
-"Sort groups"
-
-MSortGroupsBottom
-"Редактирование: Del,Ins,F4"
-"Edit: Del,Ins,F4"
-
-MSortGroupsAskDel
-l:
-"Вы хотите удалить группу сортировки"
-"Do you wish to delete the sort group"
-
 MDescribeFiles
 l:
 "Описание файла"
@@ -7109,8 +7131,8 @@ MFileFilterName
 "&Filter name:"
 
 MFileFilterMatchMask
-"Совпадение с &маской (масками)"
-"&Match file mask(s)"
+"&Маска:"
+"&Mask:"
 
 MFileFilterSize
 "Разм&ер в"
@@ -7166,11 +7188,11 @@ MFileFilterBefore
 
 MFileFilterCurrent
 "Тек&ущая"
-"Current"
+"C&urrent"
 
 MFileFilterBlank
 "С&брос"
-"Blank"
+"B&lank"
 
 MFileFilterAttr
 "Атрибут&ы"
@@ -7226,7 +7248,7 @@ MFileFilterOk
 
 MFileFilterReset
 "Очистит&ь"
-"Reset"
+"Rese&t"
 
 MFileFilterCancel
 "Отмена"

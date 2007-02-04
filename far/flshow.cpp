@@ -297,7 +297,7 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-int FileList::GetShowColor(int Position)
+int FileList::GetShowColor(int Position, int ColorType)
 {
   DWORD ColorAttr=COL_PANELTEXT;
   const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
@@ -319,7 +319,7 @@ int FileList::GetShowColor(int Position)
       if (CurPtr->Selected)
         Pos = HIGHLIGHTCOLOR_SELECTED;
 
-    ColorAttr=CurPtr->Colors.Color[HIGHLIGHTCOLORTYPE_FILE][Pos];
+    ColorAttr=CurPtr->Colors.Color[ColorType][Pos];
     if (!ColorAttr || !Opt.Highlight)
       ColorAttr=FarColor[Pos];
   }
@@ -328,9 +328,9 @@ int FileList::GetShowColor(int Position)
 }
 
 
-void FileList::SetShowColor (int Position)
+void FileList::SetShowColor (int Position, int ColorType)
 {
-  SetColor (GetShowColor(Position));
+  SetColor (GetShowColor(Position,ColorType));
 }
 
 void FileList::ShowSelectedSize()
@@ -780,7 +780,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   Width--;
                   OutCharacter[0]=CurPtr->Colors.MarkChar;
+                  int OldColor=GetColor();
+                  if (!ShowStatus)
+                    SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
                   Text(OutCharacter);
+                  SetColor(OldColor);
                 }
                 char *NamePtr=ShowShortNames && *CurPtr->ShortName && !ShowStatus ?
                               CurPtr->ShortName:CurPtr->Name;

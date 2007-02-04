@@ -24,6 +24,7 @@ static int _cdecl ExtSort(const void *el1,const void *el2);
 
 static TPointerArray<FileFilterParams> FilterData, TempFilterData;
 static FileFilterParams FoldersFilter;
+static BitFlags FolderFlags; //флаги для разрешения фильтрации папок
 
 FileFilter::FileFilter(Panel *HostPanel, enumFileFilterType FilterType)
 {
@@ -35,77 +36,21 @@ FileFilter::~FileFilter()
 {
 }
 
-void MenuString(char *dest, FileFilterParams *FF, const char *FMask=NULL, bool bPanelType=false)
-{
-  const char  AttrC[] = "RAHSDCEI$TL";
-  const DWORD AttrF[] = {
-                          FILE_ATTRIBUTE_READONLY,
-                          FILE_ATTRIBUTE_ARCHIVE,
-                          FILE_ATTRIBUTE_HIDDEN,
-                          FILE_ATTRIBUTE_SYSTEM,
-                          FILE_ATTRIBUTE_DIRECTORY,
-                          FILE_ATTRIBUTE_COMPRESSED,
-                          FILE_ATTRIBUTE_ENCRYPTED,
-                          FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,
-                          FILE_ATTRIBUTE_SPARSE_FILE,
-                          FILE_ATTRIBUTE_TEMPORARY,
-                          FILE_ATTRIBUTE_REPARSE_POINT
-                        };
-
-  const unsigned char VerticalLine=0x0B3;
-  const char Format[] = "%-21.21s %c %-22.22s %-2.2s %c %-60.60s";
-
-  const char *Name, *Mask;
-  DWORD IncludeAttr, ExcludeAttr;
-  DWORD UseMask, UseSize, UseDate;
-
-  if (bPanelType)
-  {
-    Name=MSG(MPanelFileType);
-    UseMask=1;
-    Mask=FMask;
-    IncludeAttr=0;
-    ExcludeAttr=FILE_ATTRIBUTE_DIRECTORY;
-    UseDate=UseSize=0;
-  }
-  else
-  {
-    Name=FF->GetTitle();
-    UseMask=FF->GetMask(&Mask);
-    if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
-      IncludeAttr=ExcludeAttr=0;
-    UseSize=FF->GetSize(NULL,NULL,NULL);
-    UseDate=FF->GetDate(NULL,NULL,NULL);
-  }
-
-  char Attr[sizeof(AttrC)*2] = {0};
-  for (int i=0; i<sizeof(AttrF)/sizeof(AttrF[0]); i++)
-  {
-    char *Ptr=Attr+i*2;
-    *Ptr=AttrC[i];
-    if (IncludeAttr&AttrF[i])
-      *(Ptr+1)='+';
-    else if (ExcludeAttr&AttrF[i])
-      *(Ptr+1)='-';
-    else
-      *Ptr=*(Ptr+1)='.';
-  }
-
-  char SizeDate[3] = "..";
-  if (UseSize)
-    SizeDate[0]='S';
-  if (UseDate)
-    SizeDate[1]='D';
-
-  sprintf(dest, Format, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
-}
-
 void FileFilter::FilterEdit()
 {
   struct MenuItem ListItem;
   int ExitCode;
   bool bNeedUpdate=false;
-  VMenu FilterList(MSG(MFilterTitle),NULL,0,ScrY-6);
+  VMenu FilterList("",NULL,0,ScrY-6);
+
+  {
+    DWORD Inc,Exc;
+    GetIncludeExcludeFlags(Inc,Exc);
+    if (FolderFlags.Check(Inc))
+      FilterList.SetTitle(MSG(MFilterTitle1));
+    else
+      FilterList.SetTitle(MSG(MFilterTitle2));
+  }
 
   FilterList.SetHelp("Filter");
   FilterList.SetPosition(-1,-1,0,0);
@@ -127,15 +72,10 @@ void FileFilter::FilterEdit()
     FilterList.AddItem(&ListItem);
   }
 
+  memset(&ListItem,0,sizeof(ListItem));
   if (FilterData.getCount()==0)
-  {
-    memset(&ListItem,0,sizeof(ListItem));
-    /* 11.10.2001 VVM
-        ! Если пользовательских фильтров нет, то надпись во всю ширину меню */
-    sprintf(ListItem.Name,"%-60.60s",MSG(MNoCustomFilters));
     ListItem.Flags|=LIF_SELECTED;
-    FilterList.AddItem(&ListItem);
-  }
+  FilterList.AddItem(&ListItem);
 
   char *ExtPtr=NULL;
   int ExtCount=0;
@@ -192,7 +132,7 @@ void FileFilter::FilterEdit()
   for (int i=0; i<ExtCount; i++)
   {
     char *CurExtPtr=ExtPtr+i*NM;
-    MenuString(ListItem.Name,NULL,CurExtPtr,true);
+    MenuString(ListItem.Name,NULL,false,true,CurExtPtr,MSG(MPanelFileType));
     ListItem.SetCheck(CurExtPtr[strlen(CurExtPtr)+1]);
     FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
   }
@@ -214,16 +154,19 @@ void FileFilter::FilterEdit()
       case KEY_SPACE:
       case '+':
       case '-':
-      case KEY_CTRLF:
+      //case KEY_CTRLF:
       case KEY_BS:
       {
-        if (Key!=KEY_CTRLF && !FilterList.GetSelectPos() && !FilterData.getCount())
-          break;
+        //if (Key!=KEY_CTRLF && !FilterList.GetSelectPos() && !FilterData.getCount())
+          //break;
 
         int SelPos=FilterList.GetSelectPos();
 
-        if (Key==KEY_CTRLF) //Работает как Space но для Folders
-          SelPos=(FilterData.getCount() + (FilterData.getCount() > 0 ? 0 : 1) + 1);
+        //if (Key==KEY_CTRLF) //Работает как Space но для Folders
+          //SelPos=(FilterData.getCount() + 2);
+
+        if (SelPos==FilterData.getCount())
+          break;
 
         int Check=FilterList.GetSelection(SelPos),NewCheck;
         if (Key=='-')
@@ -244,8 +187,6 @@ void FileFilter::FilterEdit()
         break;
       }
 
-      /* $ 11.09.2003 VVM
-          + SHIFT-<GREY MINUS> сбрасывает все пометки фильтра */
       case KEY_SHIFTSUBTRACT:
       case KEY_SHIFTBS:
       {
@@ -255,9 +196,27 @@ void FileFilter::FilterEdit()
         }
         FilterList.SetUpdateRequired(TRUE);
         FilterList.FastShow();
+        if (Key!=KEY_SHIFTSUBTRACT)
+          break;
+      }
+      case KEY_CTRLF:
+      {
+        DWORD Inc,Exc;
+        GetIncludeExcludeFlags(Inc,Exc);
+        if (Key==KEY_CTRLF)
+          FolderFlags.Swap(Inc);
+        else
+          FolderFlags.Set(Inc);
+        if (FolderFlags.Check(Inc))
+          FilterList.SetTitle(MSG(MFilterTitle1));
+        else
+          FilterList.SetTitle(MSG(MFilterTitle2));
+        FilterList.SetUpdateRequired(TRUE);
+        FilterList.SetPosition(-1,-1,0,0);
+        FilterList.Show();
+        bNeedUpdate=true;
         break;
       }
-      /* VVM $ */
 
       case KEY_F4:
       {
@@ -282,10 +241,9 @@ void FileFilter::FilterEdit()
             bNeedUpdate=true;
           }
         }
-        else
+        else if (SelPos>FilterData.getCount())
         {
           Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanEditCustomFilterOnly),MSG(MOk));
-          continue;
         }
         break;
       }
@@ -312,14 +270,14 @@ void FileFilter::FilterEdit()
             NewFilter->SetTitle("");
             NewFilter->Flags.ClearAll();
           }
-          else if (SelPos2 == (FilterData.getCount()+1))
+          else if (SelPos2 == (FilterData.getCount()+2))
           {
             *NewFilter = FoldersFilter;
 
             NewFilter->SetTitle("");
             NewFilter->Flags.ClearAll();
           }
-          else if (SelPos2 > (FilterData.getCount()+1))
+          else if (SelPos2 > (FilterData.getCount()+2))
           {
             char Mask[NM];
             FilterList.GetUserData(Mask,sizeof(Mask),SelPos2-1);
@@ -342,9 +300,6 @@ void FileFilter::FilterEdit()
 
         if (FileFilterConfig(NewFilter))
         {
-          if (FilterData.getCount() == 1)
-            FilterList.DeleteItem(0);
-
           memset(&ListItem,0,sizeof(ListItem));
           MenuString(ListItem.Name,NewFilter);
 
@@ -376,18 +331,6 @@ void FileFilter::FilterEdit()
 
             FilterList.DeleteItem(SelPos);
 
-            if (FilterData.getCount()==0)
-            {
-              memset(&ListItem,0,sizeof(ListItem));
-              /* 11.10.2001 VVM
-                  ! Если пользовательских фильтров нет, то надпись во всю ширину меню */
-              sprintf(ListItem.Name,"%-60.60s",MSG(MNoCustomFilters));
-              FilterList.AddItem(&ListItem,0);
-            }
-
-            if (SelPos>=FilterData.getCount() && SelPos>0)
-              SelPos--;
-
             FilterList.AdjustSelectPos();
             FilterList.SetSelectPos(SelPos,1);
             FilterList.SetPosition(-1,-1,0,0);
@@ -395,10 +338,9 @@ void FileFilter::FilterEdit()
             bNeedUpdate=true;
           }
         }
-        else
+        else if (SelPos>FilterData.getCount())
         {
           Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanDeleteCustomFilterOnly),MSG(MOk));
-          continue;
         }
         break;
       }
@@ -514,11 +456,11 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
     {
       CurFilterData = FilterData.getItem(i);
     }
-    else if (i == (FilterData.getCount() + (FilterData.getCount() > 0 ? 0 : 1) + 1))
+    else if (i == (FilterData.getCount() + 2))
     {
       CurFilterData = &FoldersFilter;
     }
-    else if (i > (FilterData.getCount() + (FilterData.getCount() > 0 ? 0 : 1) + 1))
+    else if (i > (FilterData.getCount() + 2))
     {
       char Mask[NM];
       FilterList->GetUserData(Mask,sizeof(Mask),i);
@@ -576,6 +518,9 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
 {
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
+
+  if (FolderFlags.Check(Inc) && (fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+    return true;
 
   bool flag=false;
   FileFilterParams *CurFilterData;
@@ -723,6 +668,8 @@ void FileFilter::InitFilter()
   FoldersFilter.SetMask(0,"");
   FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
   FoldersFilter.Flags.Set((DWORD)GetRegKey("Filters","FoldersFilterFlags",0));
+
+  FolderFlags.Set((DWORD)GetRegKey("Filters","FolderFlags",FFF_RPANELINCLUDE|FFF_LPANELINCLUDE|FFF_FINDFILEINCLUDE|FFF_COPYINCLUDE));
 }
 
 
@@ -797,6 +744,8 @@ void FileFilter::SaveFilters(bool SaveAll)
     }
 
     SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
+
+    SetRegKey("Filters","FolderFlags",FolderFlags.Flags);
   }
 }
 
@@ -835,6 +784,17 @@ void FileFilter::SwapFilter()
   for (int i=0; i<TempFilterData.getCount(); i++)
     SwapPanelFlags(TempFilterData.getItem(i));
 
+  DWORD flags=0;
+  if (FolderFlags.Check(FFF_LPANELINCLUDE))
+  {
+    flags|=FFF_RPANELINCLUDE;
+  }
+  if (FolderFlags.Check(FFF_RPANELINCLUDE))
+  {
+    flags|=FFF_LPANELINCLUDE;
+  }
+  FolderFlags.Clear(FFF_RPANELINCLUDE|FFF_LPANELINCLUDE);
+  FolderFlags.Set(flags);
 }
 
 int FileFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount,int Check)

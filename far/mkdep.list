@@ -35,7 +35,6 @@ foldtree.hpp
 frame.hpp
 global.hpp
 grabber.hpp
-grpsort.hpp
 headers.hpp
 help.hpp
 hilight.hpp
@@ -129,7 +128,6 @@ frame.cpp
 gettable.cpp
 global.cpp
 grabber.cpp
-grpsort.cpp
 help.cpp
 hilight.cpp
 history.cpp

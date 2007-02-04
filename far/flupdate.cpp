@@ -19,7 +19,6 @@ flupdate.cpp
 #include "cmdline.hpp"
 #include "filefilter.hpp"
 #include "hilight.hpp"
-#include "grpsort.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 
@@ -407,7 +406,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
           //if ((CurPtr->FileAttr & FA_DIREC)==0)
-            CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(&fdata);
+            CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(&fdata);
           //else
             //CurPtr->SortGroup=DEFAULT_SORT_GROUP;
           if (!TestParentFolderName(fdata.cFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
@@ -700,7 +699,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,Info.Flags&OPIF_USEATTRHIGHLIGHTING);
     if ((Info.Flags & OPIF_USESORTGROUPS) /*&& (CurListData->FileAttr & FA_DIREC)==0*/)
-      CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(&(CurPanelData->FindData));
+      CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(&(CurPanelData->FindData));
     else
       CurListData->SortGroup=DEFAULT_SORT_GROUP;
     if (CurListData->DizText==NULL)
@@ -861,7 +860,7 @@ void FileList::ReadSortGroups()
   for (int I=0;I<FileCount;I++,CurPtr++)
   {
     //if ((CurPtr->FileAttr & FA_DIREC)==0)
-      CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr);
+      CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
     //else
       //CurPtr->SortGroup=DEFAULT_SORT_GROUP;
   }

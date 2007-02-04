@@ -24,95 +24,138 @@ Files highlighting
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 
-/* $ 25.09.2001 IS
-     Тут храним строковые константы для "раскраски файлов"
-*/
 struct HighlightStrings
 {
-  char *UseAttr,*IncludeAttributes,*ExcludeAttributes,
-       *IgnoreMask,*Mask,
+  char *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
+       *IgnoreMask,*UseMask,*Mask,
        *NormalColor,*SelectedColor,*CursorColor,*SelectedCursorColor,
        *MarkCharNormalColor,*MarkCharSelectedColor,*MarkCharCursorColor,*MarkCharSelectedCursorColor,
        *MarkChar,
+       *ContinueProcessing,
        *UseDate,*DateType,*DateAfter,*DateBefore,
        *UseSize,*SizeType,*SizeAbove,*SizeBelow,
        *HighlightEdit,*HighlightList;
 };
-const HighlightStrings HLS=
+static const HighlightStrings HLS=
 {
-  "UseAttr","IncludeAttributes","ExcludeAttributes",
-  "IgnoreMask","Mask",
+  "UseAttr","IncludeAttributes","ExcludeAttributes","AttrSet","AttrClear",
+  "IgnoreMask","UseMask","Mask",
   "NormalColor","SelectedColor","CursorColor","SelectedCursorColor",
   "MarkCharNormalColor","MarkCharSelectedColor","MarkCharCursorColor","MarkCharSelectedCursorColor",
   "MarkChar",
+  "ContinueProcessing",
   "UseDate","DateType","DateAfter","DateBefore",
   "UseSize","SizeType","SizeAbove","SizeBelow",
   "HighlightEdit","HighlightList"
 };
-/* IS $ */
+
+static const char fmtFirstGroup[]="Group%d";
+static const char fmtUpperGroup[]="UpperGroup%d";
+static const char fmtLowerGroup[]="LowerGroup%d";
+static const char fmtLastGroup[]="LastGroup%d";
+static const char SortGroupsKeyName[]="SortGroups";
 
 HighlightFiles::HighlightFiles()
 {
   InitHighlightFiles();
 }
 
-void HighlightFiles::InitHighlightFiles()
+void LoadFilterFromReg(FileFilterParams *HData, const char *RegKey, const char *Mask, int SortGroup, bool bSortGroup)
 {
-  HiData.Free();
-  char RegKey[80],Mask[FILEFILTER_MASK_SIZE];
-  char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr указывает на нужное место :-)
+  //Дефолтные значения выбраны так чтоб как можно правильней загрузить
+  //настройки старых версий фара.
 
-  while (1)
+  if (bSortGroup)
+    HData->SetMask((DWORD)GetRegKey(RegKey,HLS.UseMask,1), Mask);
+  else
+    HData->SetMask((DWORD)(GetRegKey(RegKey,HLS.IgnoreMask,0)?0:1), Mask);
+
+
+  FILETIME DateAfter, DateBefore;
+  GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
+  GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
+  HData->SetDate((DWORD)GetRegKey(RegKey,HLS.UseDate,0),
+                  (DWORD)GetRegKey(RegKey,HLS.DateType,0),
+                  DateAfter,
+                  DateBefore);
+
+  HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
+                  (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
+                  GetRegKey64(RegKey,HLS.SizeAbove,_i64(-1)),
+                  GetRegKey64(RegKey,HLS.SizeBelow,_i64(-1)));
+
+  if (bSortGroup)
   {
-    itoa(HiData.getCount(),Ptr,10);
-    if (!GetRegKey(RegKey,HLS.Mask,Mask,"",sizeof(Mask)))
-      break;
-
-    FileFilterParams *HData = HiData.addItem();
-
-    if(HData)
-    {
-      //Дефолтные значения выбраны так чтоб как можно правильней загрузить
-      //настройки старых версий фара.
-
-      HData->SetMask((DWORD)(GetRegKey(RegKey,HLS.IgnoreMask,0)?0:1),
-                     Mask);
-
-      FILETIME DateAfter, DateBefore;
-      GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
-      GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
-      HData->SetDate((DWORD)GetRegKey(RegKey,HLS.UseDate,0),
-                     (DWORD)GetRegKey(RegKey,HLS.DateType,0),
-                     DateAfter,
-                     DateBefore);
-
-      HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
-                     (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
-                     GetRegKey64(RegKey,HLS.SizeAbove,_i64(-1)),
-                     GetRegKey64(RegKey,HLS.SizeBelow,_i64(-1)));
-
-      HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
-                     (DWORD)GetRegKey(RegKey,HLS.IncludeAttributes,0),
-                     (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
-
-      HighlightDataColor Colors;
-      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.NormalColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.SelectedColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.CursorColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.MarkCharNormalColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharCursorColor,0);
-      Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,0);
-      Colors.MarkChar=(WORD)GetRegKey(RegKey,HLS.MarkChar,0);
-
-      HData->SetColors(&Colors);
-    }
-    else
-      break;
+    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+                   (DWORD)GetRegKey(RegKey,HLS.AttrSet,0),
+                   (DWORD)GetRegKey(RegKey,HLS.AttrClear,FILE_ATTRIBUTE_DIRECTORY));
+  }
+  else
+  {
+    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+                   (DWORD)GetRegKey(RegKey,HLS.IncludeAttributes,0),
+                   (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
   }
 
-  StartHiDataCount=HiData.getCount();
+  HData->SetSortGroup(SortGroup);
+
+  HighlightDataColor Colors;
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.NormalColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.SelectedColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.CursorColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.MarkCharNormalColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharCursorColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,0);
+  Colors.MarkChar=(WORD)GetRegKey(RegKey,HLS.MarkChar,0);
+
+  HData->SetColors(&Colors);
+
+  HData->SetContinueProcessing(GetRegKey(RegKey,HLS.ContinueProcessing,0)!=0);
+}
+
+void HighlightFiles::InitHighlightFiles()
+{
+  char RegKey[80],GroupName[80],Mask[FILEFILTER_MASK_SIZE];
+  const int GroupDelta[4]={DEFAULT_SORT_GROUP,0,DEFAULT_SORT_GROUP+1,DEFAULT_SORT_GROUP};
+  const char *KeyNames[4]={RegColorsHighlight,SortGroupsKeyName,SortGroupsKeyName,RegColorsHighlight};
+  const char *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
+  int  *Count[4] = {&FirstCount,&UpperCount,&LowerCount,&LastCount};
+
+  HiData.Free();
+
+  FirstCount=UpperCount=LowerCount=LastCount=0;
+  for (int j=0; j<4; j++)
+  {
+    for (int i=0;;i++)
+    {
+      sprintf(GroupName,GroupNames[j],i);
+      sprintf(RegKey,"%s\\%s",KeyNames[j],GroupName);
+
+      if (GroupDelta[j]!=DEFAULT_SORT_GROUP)
+      {
+        if (!GetRegKey(KeyNames[j],GroupName,Mask,"",sizeof(Mask)))
+          break;
+      }
+      else
+      {
+        if (!GetRegKey(RegKey,HLS.Mask,Mask,"",sizeof(Mask)))
+          break;
+      }
+
+      FileFilterParams *HData = HiData.addItem();
+
+      if(HData)
+      {
+        LoadFilterFromReg(HData,RegKey,Mask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),(GroupDelta[j]==DEFAULT_SORT_GROUP?false:true));
+
+        (*(Count[j]))++;
+      }
+      else
+        break;
+    }
+  }
 }
 
 
@@ -124,11 +167,12 @@ HighlightFiles::~HighlightFiles()
 void HighlightFiles::ClearData()
 {
   HiData.Free();
+  FirstCount=UpperCount=LowerCount=LastCount=0;
 }
 
 static const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
-void MakeTransparent(HighlightDataColor *Colors)
+void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 {
   for (int j=0; j<2; j++)
     for (int i=0; i<4; i++)
@@ -136,43 +180,52 @@ void MakeTransparent(HighlightDataColor *Colors)
   Colors->MarkChar=0xFF00;
 }
 
-void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
+void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 {
   for (int i=0; i<4; i++)
   {
-    //AY: Немного сумбурно но смысл такой,
-    //    если текущий цвет (fore или back) прозрачный
-    //    то унаследуем соответствующие цвета не забыв
-    //    что в Src может быть black on black и надо
-    //    унаследовать правильный цвет а не чёрный.
-    //    Для цветов mark char black on black берёт цвет файла.
+    //Применим black on black.
+    //Для файлов возьмем цвета панели не изменяя прозрачность.
+    //Для пометки возьмем цвета файла включая прозрачность.
 
-    WORD temp=SrcColors->Color[HIGHLIGHTCOLORTYPE_FILE][i];
-    if (!(temp&0x00FF))
-      temp=(temp&0xFF00)|(0x00FF&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
-    if (DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xF000)
-      DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0x0F0F)|(temp&0xF0F0);
-    if (DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0x0F00)
-      DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xF0F0)|(temp&0x0F0F);
+    if (!(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0x00FF))
+      Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xFF00)|(0x00FF&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
 
-    WORD temp2=SrcColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i];
-    if (!(temp2&0x00FF))
-      temp2=(temp2&0xFF00)|(0x00FF&temp);
-    if (DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0xF000)
-      DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0x0F0F)|(temp2&0xF0F0);
-    if (DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0x0F00)
-      DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]=(DestColors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0xF0F0)|(temp2&0x0F0F);
+    if (!(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]&0x00FF))
+      Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i]=Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i];
+  }
+}
+
+void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
+{
+  //Обработаем black on black чтоб наследовать правильные цвета
+  //и чтоб после наследования были правильные цвета.
+  ApplyBlackOnBlackColors(DestColors);
+  ApplyBlackOnBlackColors(SrcColors);
+
+  for (int j=0; j<2; j++)
+  {
+    for (int i=0; i<4; i++)
+    {
+      //Если текущие цвета в Dest (fore и/или back) прозрачные
+      //то унаследуем соответствующие цвета из Src.
+      if (DestColors->Color[j][i]&0xF000)
+        DestColors->Color[j][i]=(DestColors->Color[j][i]&0x0F0F)|(SrcColors->Color[j][i]&0xF0F0);
+      if (DestColors->Color[j][i]&0x0F00)
+        DestColors->Color[j][i]=(DestColors->Color[j][i]&0xF0F0)|(SrcColors->Color[j][i]&0x0F0F);
+    }
   }
 
+  //Унаследуем пометку из Src поверх прозрачной в Dest.
   if (DestColors->MarkChar&0xFF00)
     DestColors->MarkChar=SrcColors->MarkChar;
 }
 
 bool HasTransparent(HighlightDataColor *Colors)
 {
-  //for (int j=0; j<2; j++)
+  for (int j=0; j<2; j++)
     for (int i=0; i<4; i++)
-      if (Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xFF00)
+      if (Colors->Color[j][i]&0xFF00)
         return true;
 
   if (Colors->MarkChar&0xFF00)
@@ -181,44 +234,53 @@ bool HasTransparent(HighlightDataColor *Colors)
   return false;
 }
 
-void RewriteTransparent(HighlightDataColor *Colors)
+void ApplyFinalColors(HighlightDataColor *Colors)
 {
-  for (int i=0; i<4; i++)
-  {
-    //AY: Если какой то из текущих цветов (fore или back) прозрачный
-    //    то унаследуем соответствующий цвет с панелей.
-    //    Для mark char унаследуем цвета файла.
-    BYTE temp=(BYTE)((Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]&0xFF00)>>8);
-    Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i]=((~temp)&(BYTE)Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i])|(temp&Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
-  }
+  //Обработаем black on black чтоб после наследования были правильные цвета.
+  ApplyBlackOnBlackColors(Colors);
 
-  //AY: Если символ пометки прозрачный то его как бы и нет вообще
+  for (int j=0; j<2; j++)
+    for (int i=0; i<4; i++)
+    {
+      //Если какой то из текущих цветов (fore или back) прозрачный
+      //то унаследуем соответствующий цвет с панелей.
+      BYTE temp=(BYTE)((Colors->Color[j][i]&0xFF00)>>8);
+      Colors->Color[j][i]=((~temp)&(BYTE)Colors->Color[j][i])|(temp&(BYTE)Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);
+    }
+
+  //Если символ пометки прозрачный то его как бы и нет вообще.
   if (Colors->MarkChar&0xFF00)
     Colors->MarkChar=0;
+
+  //Параноя но случится может:
+  //Обработаем black on black снова чтоб обработались унаследованые цвета.
+  ApplyBlackOnBlackColors(Colors);
 }
 
 void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *Colors,bool UseAttrHighlighting)
 {
   FileFilterParams *CurHiData;
 
-  MakeTransparent(Colors);
+  ApplyDefaultStartingColors(Colors);
 
   for (int i=0; i < HiData.getCount(); i++)
   {
     CurHiData = HiData.getItem(i);
+
     if (UseAttrHighlighting && CurHiData->GetMask(NULL))
       continue;
+
     if (CurHiData->FileInFilter(fd))
     {
       HighlightDataColor TempColors;
       CurHiData->GetColors(&TempColors);
       ApplyColors(Colors,&TempColors);
-      if (!HasTransparent(Colors))
+      if (!CurHiData->GetContinueProcessing() || !HasTransparent(Colors))
         break;
     }
   }
 
-  RewriteTransparent(Colors);
+  ApplyFinalColors(Colors);
 }
 
 void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool UseAttrHighlighting)
@@ -230,106 +292,149 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
 
   for(int FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
   {
-    MakeTransparent(&FileItem->Colors);
+    ApplyDefaultStartingColors(&FileItem->Colors);
+
     for (int i=0; i < HiData.getCount(); i++)
     {
       CurHiData = HiData.getItem(i);
+
       if (UseAttrHighlighting && CurHiData->GetMask(NULL))
         continue;
+
       if (CurHiData->FileInFilter(FileItem))
       {
         HighlightDataColor TempColors;
         CurHiData->GetColors(&TempColors);
         ApplyColors(&FileItem->Colors,&TempColors);
-        if (!HasTransparent(&FileItem->Colors))
+        if (!CurHiData->GetContinueProcessing() || !HasTransparent(&FileItem->Colors))
           break;
       }
     }
-    RewriteTransparent(&FileItem->Colors);
+
+    ApplyFinalColors(&FileItem->Colors);
   }
+}
+
+int HighlightFiles::GetGroup(WIN32_FIND_DATA *fd)
+{
+  for (int i=FirstCount; i<FirstCount+UpperCount; i++)
+  {
+    FileFilterParams *CurGroupData=HiData.getItem(i);
+    if(CurGroupData->FileInFilter(fd))
+       return(CurGroupData->GetSortGroup());
+  }
+
+  for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
+  {
+    FileFilterParams *CurGroupData=HiData.getItem(i);
+    if(CurGroupData->FileInFilter(fd))
+       return(CurGroupData->GetSortGroup());
+  }
+  return DEFAULT_SORT_GROUP;
+}
+
+int HighlightFiles::GetGroup(FileListItem *fli)
+{
+  for (int i=FirstCount; i<FirstCount+UpperCount; i++)
+  {
+    FileFilterParams *CurGroupData=HiData.getItem(i);
+    if(CurGroupData->FileInFilter(fli))
+       return(CurGroupData->GetSortGroup());
+  }
+
+  for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
+  {
+    FileFilterParams *CurGroupData=HiData.getItem(i);
+    if(CurGroupData->FileInFilter(fli))
+       return(CurGroupData->GetSortGroup());
+  }
+
+  return DEFAULT_SORT_GROUP;
 }
 
 void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
 {
   struct MenuItem HiMenuItem;
-  unsigned char VerticalLine=0x0B3;
+  const int Count[4][2] = {
+                            {0,                               FirstCount},
+                            {FirstCount,                      FirstCount+UpperCount},
+                            {FirstCount+UpperCount,           FirstCount+UpperCount+LowerCount},
+                            {FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
+                          };
 
   HiMenu->DeleteItems();
   memset(&HiMenuItem,0,sizeof(HiMenuItem));
 
-  /* $ 22.01.2003 IS
-     Символ для пометки файлов показываем в кавычках, чтобы можно было
-     отличить пробел от пустоты
-  */
-  char MarkChar[]="\" \"";
-  int Short=1;
-  // сначала проверим - а есть ли символы пометки файлов в меню вообще?
-  for (int i=0; i<HiData.getCount(); i++)
+  for (int j=0; j<4; j++)
   {
-    if(HiData.getItem(i)->GetMarkChar())
+    for (int i=Count[j][0]; i<Count[j][1]; i++)
     {
-      Short=0;
-      break;
+      MenuString(HiMenuItem.Name,HiData.getItem(i),true);
+      HiMenu->AddItem(&HiMenuItem);
+    }
+
+    *HiMenuItem.Name=0;
+    HiMenu->AddItem(&HiMenuItem);
+    if (j<3)
+    {
+      if (j==0)
+        xstrncpy(HiMenuItem.Name,MSG(MHighlightUpperSortGroup),sizeof(HiMenuItem.Name)-1);
+      else if (j==1)
+        xstrncpy(HiMenuItem.Name,MSG(MHighlightLowerSortGroup),sizeof(HiMenuItem.Name)-1);
+      else
+        xstrncpy(HiMenuItem.Name,MSG(MHighlightLastGroup),sizeof(HiMenuItem.Name)-1);
+
+      HiMenuItem.Flags|=LIF_SEPARATOR;
+      HiMenu->AddItem(&HiMenuItem);
+      HiMenuItem.Flags=0;
     }
   }
 
-  // если символов пометки в меню нет, то отводим под это поле только 1 знакоместо
-  const char *emptyMarkChar=Short?" ":"   ";
-  for (int i=0; i<HiData.getCount(); i++)
+  HiMenu->SetSelectPos(MenuPos,1);
+}
+
+void HighlightFiles::ProcessGroups()
+{
+  for (int i=0; i<FirstCount; i++)
+    HiData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP);
+
+  for (int i=FirstCount; i<FirstCount+UpperCount; i++)
+    HiData.getItem(i)->SetSortGroup(i-FirstCount);
+
+  for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
+    HiData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP+1+i-FirstCount-UpperCount);
+
+  for (int i=FirstCount+UpperCount+LowerCount; i<FirstCount+UpperCount+LowerCount+LastCount; i++)
+    HiData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP);
+}
+
+int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
+{
+  int Pos=MenuPos;
+  *Count=NULL;
+  int x = Insert ? 1 : 0;
+
+  if (MenuPos<FirstCount+x)
   {
-    FileFilterParams *CurHiData=HiData.getItem(i);
-
-    MarkChar[1]=CurHiData->GetMarkChar();
-
-    const char *Mask;
-    DWORD MaskUsed = CurHiData->GetMask(&Mask);
-
-    DWORD IncludeAttr, ExcludeAttr;
-    if (!CurHiData->GetAttr(&IncludeAttr,&ExcludeAttr))
-      IncludeAttr = ExcludeAttr = 0;
-
-    sprintf(HiMenuItem.Name,"%s %c %c%c%c%c%c%c%c%c%c%c%c %c %c%c%c%c%c%c%c%c%c%c%c %c %.54s",
-      // добавим показ символа в кавычках
-      (MarkChar[1] ? MarkChar : emptyMarkChar),
-      VerticalLine,
-
-      (IncludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C': '.',
-      (IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED) ? 'E':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':'.',
-      (IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':'.',
-
-      VerticalLine,
-
-      (ExcludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)? 'E':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':'.',
-      (ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':'.',
-
-      VerticalLine,
-
-      MaskUsed ? Mask : " ");
-
-    HiMenuItem.SetSelect(i==MenuPos);
-    HiMenu->AddItem(&HiMenuItem);
+    *Count=&FirstCount;
+  }
+  else if (MenuPos>FirstCount+1 && MenuPos<FirstCount+UpperCount+2+x)
+  {
+    Pos=MenuPos-2;
+    *Count=&UpperCount;
+  }
+  else if (MenuPos>FirstCount+UpperCount+3 && MenuPos<FirstCount+UpperCount+LowerCount+4+x)
+  {
+    Pos=MenuPos-4;
+    *Count=&LowerCount;
+  }
+  else if (MenuPos>FirstCount+UpperCount+LowerCount+5 && MenuPos<FirstCount+UpperCount+LowerCount+LastCount+6+x)
+  {
+    Pos=MenuPos-6;
+    *Count=&LastCount;
   }
 
-  *HiMenuItem.Name=0;
-  HiMenuItem.SetSelect(HiData.getCount()==MenuPos);
-  HiMenu->AddItem(&HiMenuItem);
+  return Pos;
 }
 
 void HighlightFiles::HiEdit(int MenuPos)
@@ -352,7 +457,6 @@ void HighlightFiles::HiEdit(int MenuPos)
     while (!HiMenu.Done())
     {
       int SelectPos=HiMenu.GetSelectPos();
-      int ItemCount=HiMenu.GetItemCount();
       int Key;
 
       NeedUpdate=FALSE;
@@ -375,77 +479,143 @@ void HighlightFiles::HiEdit(int MenuPos)
           NeedUpdate=TRUE;
           break;
         case KEY_DEL:
-          if (SelectPos<HiData.getCount())
           {
-            const char *Mask;
-            HiData.getItem(SelectPos)->GetMask(&Mask);
-            if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
-                        MSG(MHighlightAskDel),Mask,
-                        MSG(MDelete),MSG(MCancel))!=0)
-              break;
+            int *Count=NULL;
+            int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+            if (Count && RealSelectPos<HiData.getCount())
+            {
+              const char *Mask;
+              HiData.getItem(RealSelectPos)->GetMask(&Mask);
+              if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
+                          MSG(MHighlightAskDel),Mask,
+                          MSG(MDelete),MSG(MCancel))!=0)
+                break;
 
-            HiData.deleteItem(SelectPos);
-            NeedUpdate=TRUE;
+              HiData.deleteItem(RealSelectPos);
+              (*Count)--;
+              NeedUpdate=TRUE;
+            }
+            break;
           }
-          break;
         case KEY_ENTER:
         case KEY_F4:
         {
-          if (SelectPos<HiData.getCount())
-            if (FileFilterConfig(HiData.getItem(SelectPos),true))
+          int *Count=NULL;
+          int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+          if (Count && RealSelectPos<HiData.getCount())
+            if (FileFilterConfig(HiData.getItem(RealSelectPos),true))
               NeedUpdate=TRUE;
           break;
         }
         case KEY_INS: case KEY_NUMPAD0:
         {
-          FileFilterParams *NewHData = HiData.insertItem(SelectPos);
+          int *Count=NULL;
+          int RealSelectPos=MenuPosToRealPos(SelectPos,&Count,true);
+          if (Count)
+          {
+            FileFilterParams *NewHData = HiData.insertItem(RealSelectPos);
 
-          if (!NewHData)
-            break;
+            if (!NewHData)
+              break;
 
-          if (FileFilterConfig(NewHData,true))
-            NeedUpdate=TRUE;
-          else
-            HiData.deleteItem(SelectPos);
-
+            if (FileFilterConfig(NewHData,true))
+            {
+              (*Count)++;
+              NeedUpdate=TRUE;
+            }
+            else
+              HiData.deleteItem(RealSelectPos);
+          }
           break;
         }
         case KEY_F5:
-          if (SelectPos < HiData.getCount())
           {
-            FileFilterParams *HData = HiData.insertItem(SelectPos);
-
-            if (HData)
+            int *Count=NULL;
+            int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+            if (Count && RealSelectPos<HiData.getCount())
             {
-              *HData = *HiData.getItem(SelectPos+1);
-              HData->SetTitle("");
-              if (FileFilterConfig(HData,true))
-                NeedUpdate=TRUE;
-              else
-                HiData.deleteItem(SelectPos);
+              FileFilterParams *HData = HiData.insertItem(RealSelectPos);
+
+              if (HData)
+              {
+                *HData = *HiData.getItem(RealSelectPos+1);
+                HData->SetTitle("");
+                if (FileFilterConfig(HData,true))
+                {
+                  NeedUpdate=TRUE;
+                  (*Count)++;
+                }
+                else
+                  HiData.deleteItem(RealSelectPos);
+              }
             }
-          }
-          break;
-        case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
-          if (SelectPos > 0 && SelectPos < HiData.getCount())
-          {
-            HiData.swapItems(SelectPos,SelectPos-1);
-            HiMenu.SetSelection(--SelectPos);
-            NeedUpdate=TRUE;
             break;
           }
-          HiMenu.ProcessInput();
-          break;
-
-        case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
-          if (SelectPos < HiData.getCount()-1)
+        case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
           {
-            HiData.swapItems(SelectPos,SelectPos+1);
-            HiMenu.SetSelection(++SelectPos);
-            NeedUpdate=TRUE;
+            int *Count=NULL;
+            int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+            if (Count && SelectPos > 0)
+            {
+              if (UpperCount && RealSelectPos==FirstCount && RealSelectPos<FirstCount+UpperCount)
+              {
+                FirstCount++;
+                UpperCount--;
+                SelectPos--;
+              }
+              else if (LowerCount && RealSelectPos==FirstCount+UpperCount && RealSelectPos<FirstCount+UpperCount+LowerCount)
+              {
+                UpperCount++;
+                LowerCount--;
+                SelectPos--;
+              }
+              else if (LastCount && RealSelectPos==FirstCount+UpperCount+LowerCount)
+              {
+                LowerCount++;
+                LastCount--;
+                SelectPos--;
+              }
+              else
+                HiData.swapItems(RealSelectPos,RealSelectPos-1);
+              HiMenu.SetSelection(--SelectPos);
+              NeedUpdate=TRUE;
+              break;
+            }
+            HiMenu.ProcessInput();
+            break;
           }
-          HiMenu.ProcessInput();
-          break;
+        case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
+          {
+            int *Count=NULL;
+            int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
+            if (Count && SelectPos < HiMenu.GetItemCount()-2)
+            {
+              if (FirstCount && RealSelectPos==FirstCount-1)
+              {
+                FirstCount--;
+                UpperCount++;
+                SelectPos++;
+              }
+              else if (UpperCount && RealSelectPos==FirstCount+UpperCount-1)
+              {
+                UpperCount--;
+                LowerCount++;
+                SelectPos++;
+              }
+              else if (LowerCount && RealSelectPos==FirstCount+UpperCount+LowerCount-1)
+              {
+                LowerCount--;
+                LastCount++;
+                SelectPos++;
+              }
+              else
+                HiData.swapItems(RealSelectPos,RealSelectPos+1);
+              HiMenu.SetSelection(++SelectPos);
+              NeedUpdate=TRUE;
+            }
+            HiMenu.ProcessInput();
+            break;
+          }
 
         default:
           HiMenu.ProcessInput();
@@ -456,6 +626,9 @@ void HighlightFiles::HiEdit(int MenuPos)
       {
         ScrBuf.Lock(); // отменяем всякую прорисовку
         HiMenu.Hide();
+
+        ProcessGroups();
+
         if(Opt.AutoSaveSetup)
           SaveHiData();
         //FrameManager->RefreshFrame(); // рефрешим
@@ -480,69 +653,92 @@ void HighlightFiles::HiEdit(int MenuPos)
   }
 }
 
-
-void HighlightFiles::SaveHiData()
+void SaveFilterToReg(FileFilterParams *CurHiData, const char *RegKey, bool bSortGroup)
 {
-  char RegKey[80];
-  char *Ptr=MkRegKeyHighlightName(RegKey);
-  for (int i=0; i<HiData.getCount(); i++)
+  if (bSortGroup)
+    SetRegKey(RegKey,HLS.UseMask,CurHiData->GetMask(NULL));
+  else
   {
-    FileFilterParams *CurHiData=HiData.getItem(i);
-    itoa(i,Ptr,10);
-
     const char *Mask;
     SetRegKey(RegKey,HLS.IgnoreMask,(CurHiData->GetMask(&Mask) ? 0 : 1));
     SetRegKey(RegKey,HLS.Mask,Mask);
-
-    DWORD DateType;
-    FILETIME DateAfter, DateBefore;
-    SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
-    SetRegKey(RegKey,HLS.DateType,DateType);
-    SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
-    SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
-
-    DWORD SizeType;
-    __int64 SizeAbove, SizeBelow;
-    SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-    SetRegKey(RegKey,HLS.SizeType,SizeType);
-    SetRegKey64(RegKey,HLS.SizeAbove,SizeAbove);
-    SetRegKey64(RegKey,HLS.SizeBelow,SizeBelow);
-
-    DWORD AttrSet, AttrClear;
-    SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
-    SetRegKey(RegKey,HLS.IncludeAttributes,AttrSet);
-    SetRegKey(RegKey,HLS.ExcludeAttributes,AttrClear);
-
-    HighlightDataColor Colors;
-    CurHiData->GetColors(&Colors);
-    SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]);
-    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]);
-    SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]);
-    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
-    SetRegKey(RegKey,HLS.MarkChar,(DWORD)Colors.MarkChar);
   }
-  for (int i=HiData.getCount(); i<StartHiDataCount; i++)
-  {
-    itoa(i,Ptr,10);
-    DeleteRegKey(RegKey);
-  }
+
+  DWORD DateType;
+  FILETIME DateAfter, DateBefore;
+  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
+  SetRegKey(RegKey,HLS.DateType,DateType);
+  SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
+  SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
+
+  DWORD SizeType;
+  __int64 SizeAbove, SizeBelow;
+  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
+  SetRegKey(RegKey,HLS.SizeType,SizeType);
+  SetRegKey64(RegKey,HLS.SizeAbove,SizeAbove);
+  SetRegKey64(RegKey,HLS.SizeBelow,SizeBelow);
+
+  DWORD AttrSet, AttrClear;
+  SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
+  SetRegKey(RegKey,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
+  SetRegKey(RegKey,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
+
+  HighlightDataColor Colors;
+  CurHiData->GetColors(&Colors);
+  SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]);
+  SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]);
+  SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]);
+  SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
+  SetRegKey(RegKey,HLS.MarkCharNormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]);
+  SetRegKey(RegKey,HLS.MarkCharSelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]);
+  SetRegKey(RegKey,HLS.MarkCharCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]);
+  SetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
+  SetRegKey(RegKey,HLS.MarkChar,(DWORD)Colors.MarkChar);
+
+  SetRegKey(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing() ? 1 : 0));
 }
 
-/*
- Формирует имя ключа в реестре;  возвращает указатель на конец строки
- Применение:
-  char RegKey[80];
-  char *Ptr=MkRegKeyHighlightName(RegKey);
-  for(I=0;...)
-  {
-    itoa(I,Ptr,10);
-  }
-*/
-char *MkRegKeyHighlightName(char *RegKey)
+void HighlightFiles::SaveHiData()
 {
-  return RegKey+strlen(strcat(strcpy(RegKey,RegColorsHighlight),"\\Group"));
-}
+  char RegKey[80],GroupName[80];
+  const char *KeyNames[4]={RegColorsHighlight,SortGroupsKeyName,SortGroupsKeyName,RegColorsHighlight};
+  const char *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
+  const int Count[4][2] = {
+                            {0,                               FirstCount},
+                            {FirstCount,                      FirstCount+UpperCount},
+                            {FirstCount+UpperCount,           FirstCount+UpperCount+LowerCount},
+                            {FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
+                          };
 
+  for (int j=0; j<4; j++)
+  {
+    for (int i=Count[j][0]; i<Count[j][1]; i++)
+    {
+      sprintf(GroupName,GroupNames[j],i-Count[j][0]);
+      sprintf(RegKey,"%s\\%s",KeyNames[j],GroupName);
+
+      FileFilterParams *CurHiData=HiData.getItem(i);
+
+      if (j!=0 && j!=3)
+      {
+        const char *Mask;
+        CurHiData->GetMask(&Mask);
+        SetRegKey(KeyNames[j],GroupName,Mask);
+      }
+
+      SaveFilterToReg(CurHiData,RegKey,(j==0 || j==3?false:true));
+    }
+
+    for (int i=0; i<5; i++)
+    {
+      sprintf(GroupName,GroupNames[j],Count[j][1]-Count[j][0]+i);
+      sprintf(RegKey,"%s\\%s",KeyNames[j],GroupName);
+      if (j!=0 && j!=3)
+        DeleteRegValue(KeyNames[j],GroupName);
+      DeleteRegKey(RegKey);
+    }
+  }
+}
 
 void SetHighlighting()
 {
@@ -594,7 +790,7 @@ void SetHighlighting()
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
 
-  Ptr=MkRegKeyHighlightName(RegKey);
+  Ptr=RegKey+strlen(strcat(strcpy(RegKey,RegColorsHighlight),"\\Group"));
   for(int I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); I++)
   {
     itoa(I,Ptr,10);

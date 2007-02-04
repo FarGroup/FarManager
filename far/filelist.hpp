@@ -143,8 +143,8 @@ class FileList:public Panel
     void CorrectPosition();
     void ShowFileList(int Fast);
     void ShowList(int ShowStatus,int StartColumn);
-    void SetShowColor(int Position);
-    int GetShowColor(int Position);
+    void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
+    int  GetShowColor(int Position, int ColorType);
     void ShowSelectedSize();
     void ShowTotalSize(struct OpenPluginInfo &Info);
     int ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr);

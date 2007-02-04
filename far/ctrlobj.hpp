@@ -53,7 +53,6 @@ class ControlObject
     KeyBar *MainKeyBar;
     MenuBar *TopMenuBar;
     HighlightFiles *HiFiles;
-    GroupSort *GrpSort;
     FilePositionCache *ViewerPosCache,*EditorPosCache;
     KeyMacro Macro;
     PluginsSet Plugins;

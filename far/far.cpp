@@ -40,7 +40,6 @@
 #include "cvtname.cpp"
 #include "global.cpp"
 #include "grabber.cpp"
-#include "grpsort.cpp"
 #include "help.cpp"
 #include "hilight.cpp"
 #include "history.cpp"

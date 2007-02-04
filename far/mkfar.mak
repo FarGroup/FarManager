@@ -146,7 +146,6 @@ FAROBJ=\
    $(OBJPATH)\cvtname.obj\
    $(OBJPATH)\global.obj\
    $(OBJPATH)\grabber.obj\
-   $(OBJPATH)\grpsort.obj\
    $(OBJPATH)\help.obj\
    $(OBJPATH)\hilight.obj\
    $(OBJPATH)\history.obj\

@@ -15,7 +15,6 @@ ctrlobj.cpp
 #include "manager.hpp"
 #include "cmdline.hpp"
 #include "hilight.hpp"
-#include "grpsort.hpp"
 #include "poscache.hpp"
 #include "history.hpp"
 #include "treelist.hpp"
@@ -33,7 +32,6 @@ ControlObject::ControlObject()
      создаем динамически (для уменьшения dependencies)
   */
   HiFiles = new HighlightFiles;
-  GrpSort = new GroupSort;
   ViewerPosCache = new FilePositionCache(FPOSCACHE_64);
   EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
@@ -179,7 +177,6 @@ ControlObject::~ControlObject()
      удаляем то, что создали динамически
   */
   delete HiFiles;
-  delete GrpSort;
 
   if (Opt.ViOpt.SaveViewerPos)
     ViewerPosCache->Save("Viewer\\LastPositions");

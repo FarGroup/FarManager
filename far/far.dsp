@@ -300,10 +300,6 @@ SOURCE=.\grabber.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\grpsort.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\help.cpp
 # End Source File
 # Begin Source File
@@ -720,10 +716,6 @@ SOURCE=.\global.hpp
 # Begin Source File
 
 SOURCE=.\grabber.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\grpsort.hpp
 # End Source File
 # Begin Source File
 
