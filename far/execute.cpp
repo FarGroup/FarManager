@@ -1136,7 +1136,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     */
     if (CtrlObject->Cp()->IsTopFrame())
     {
-      CmdStr.SetString("");
+      //CmdStr.SetString("");
       GotoXY(X1,Y1);
       mprintf("%*s",X2-X1+1,"");
       Show();
@@ -1502,7 +1502,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     // здесь PtrCmd - уже готовая команда, без IF
     if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
     {
-      CmdStr.SetString("");
+      //CmdStr.SetString("");
       GotoXY(X1,Y1);
       mprintf("%*s",X2-X1+1,"");
       Show();
@@ -1583,7 +1583,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     /*
     if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
     {
-      CmdStr.SetString("");
+      //CmdStr.SetString("");
       GotoXY(X1,Y1);
       mprintf("%*s",X2-X1+1,"");
       Show();
