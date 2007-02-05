@@ -1,0 +1,52 @@
+NAME = FARCmds
+
+!IF "$(CPU)" == "AMD64"
+OUTDIR = final.64.vc
+!ELSE
+OUTDIR = final.32.vc
+!ENDIF
+
+OBJDIR = $(OUTDIR)\obj
+COMMON = ..\common
+DLLNAME = $(NAME).dll
+DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
+DEF = $(NAME).vc.def
+MAP = $(OUTDIR)\$(NAME).map
+
+!IF "$(CPU)" == "AMD64"
+LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib
+CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+!ELSE
+LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib libcmt.lib
+CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+!ENDIF
+
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+
+LINK_OBJS = $(OBJDIR)\FARCmds.obj \
+$(OBJDIR)\$(NAME).res
+
+ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
+
+$(DLLFULLNAME) : $(LINK_OBJS)
+	link @<<
+	$(LINK_FLAGS) $(LINK_OBJS)
+<<
+	@copy /Y *.hlf $(OUTDIR) > nul
+	@copy /Y *.lng $(OUTDIR) > nul
+
+.cpp{$(OBJDIR)}.obj::
+	cl @<<
+	$(CPP_PROJ) $<
+<<
+
+$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMMON)\farversion.hpp
+	@rc /I"$(COMMON)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+
+$(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp Reg.cpp syslog.h FARCmds.hpp Lang.hpp $(COMMON)\plugin.hpp
+
+$(OBJDIR): $(OUTDIR)
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+
+$(OUTDIR):
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"

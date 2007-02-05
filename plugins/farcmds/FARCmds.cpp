@@ -2,7 +2,7 @@
 #include "plugin.hpp"
 #include "farcmds.hpp"
 #include "lang.hpp"
-#include "crt.hpp"
+#include "CRT/crt.hpp"
 
 #if defined(__GNUC__)
 
