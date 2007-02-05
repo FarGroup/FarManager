@@ -1,36 +1,75 @@
-#make file to make Network.dll
-#Note: plugins.hpp should be in $(INCLUDE) dir
-INCLUDE = $(INCLUDE);..\common
+NAME = Network
 
-CC = CL
-CCOPTS = /nologo /Zp1 /MD /W3 /GX- /Ox /Op /c /Gs10000
+!IF "$(CPU)" == "AMD64"
+OUTDIR = final.64.vc
+!ELSE
+OUTDIR = final.32.vc
+!ENDIF
 
-RCC = RC
+OBJDIR = $(OUTDIR)\obj
+COMMON = ..\common
+DLLNAME = $(NAME).dll
+DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
+DEF = $(NAME).vc.def
+MAP = $(OUTDIR)\$(NAME).map
 
-LNK = LINK
-LNK_OPTS = /nologo /dll /incremental:no /machine:I386 /def:"Network.def" /opt:nowin98
+!IF "$(CPU)" == "AMD64"
+LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib mpr.lib
+CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+!ELSE
+LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib mpr.lib libcmt.lib
+CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+!ENDIF
 
-LIBS = Mpr.lib User32.lib Advapi32.lib
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
 
-default: \
-  Network.dll
+LINK_OBJS = $(OBJDIR)\Network.obj \
+$(OBJDIR)\NetCfg.obj \
+$(OBJDIR)\NetClass.obj \
+$(OBJDIR)\NetCommon.obj \
+$(OBJDIR)\NetFavorites.obj \
+$(OBJDIR)\NetMix.obj \
+$(OBJDIR)\NetNT.obj \
+$(OBJDIR)\NetReg.obj \
+$(OBJDIR)\$(NAME).res
 
-TARGETS = \
-  Network.obj \
-  NetCfg.obj \
-  NetClass.obj \
-  NetCommon.obj \
-  NetFavorites.obj \
-  NetMix.obj \
-  NetNT.obj \
-  NetReg.obj \
-  Network.res
+ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
 
-.cpp.obj:
-  $(CC) $(CCOPTS) $<
+$(DLLFULLNAME) : $(LINK_OBJS)
+	link @<<
+	$(LINK_FLAGS) $(LINK_OBJS)
+<<
+	@copy /Y *.hlf $(OUTDIR) > nul
+	@copy /Y *.lng $(OUTDIR) > nul
 
-Network.dll: $(TARGETS) Network.def
-  $(LNK) $(LIBS) $(LNK_OPTS) $(TARGETS)
+.cpp{$(OBJDIR)}.obj::
+	cl @<<
+	$(CPP_PROJ) $<
+<<
 
-Network.res: Network.rc
- $(RCC) Network.rc
+$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMMON)\farversion.hpp
+	@rc /I"$(COMMON)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+
+$(OBJDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp $(COMMON)\plugin.hpp \
+  netlng.hpp NetMacros.hpp NetFavorites.hpp NetClass.hpp NetReg.hpp
+$(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp $(COMMON)\plugin.hpp \
+  NetFavorites.hpp NetCommon.hpp netlng.hpp NetMacros.hpp NetReg.hpp \
+  NetCfg.hpp
+$(OBJDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp $(COMMON)\plugin.hpp netlng.hpp \
+  NetMacros.hpp NetReg.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp
+$(OBJDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp \
+  $(COMMON)\plugin.hpp NetCommon.hpp netlng.hpp NetMacros.hpp NetReg.hpp
+$(OBJDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp $(COMMON)\plugin.hpp netlng.hpp \
+  NetMacros.hpp
+$(OBJDIR)\NetNT.obj : NetNT.cpp NetClass.hpp $(COMMON)\plugin.hpp NetCommon.hpp \
+  netlng.hpp NetMacros.hpp
+$(OBJDIR)\NetReg.obj : NetReg.cpp NetReg.hpp NetCommon.hpp $(COMMON)\plugin.hpp \
+  netlng.hpp NetMacros.hpp
+$(OBJDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp $(COMMON)\plugin.hpp \
+  netlng.hpp NetMacros.hpp NetClass.hpp
+
+$(OBJDIR): $(OUTDIR)
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+
+$(OUTDIR):
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
