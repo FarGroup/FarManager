@@ -40,11 +40,11 @@ class FolderTree:public Frame
 
   public:
     FolderTree(char *ResultFolder,int ModalMode,int IsPanel=TRUE,int IsFullScreen=TRUE);
-    ~FolderTree();
+    virtual ~FolderTree();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     void InitKeyBar(void);
     void OnChangeFocus(int focus); // вызывается при смене фокуса

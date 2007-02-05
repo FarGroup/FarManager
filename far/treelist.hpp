@@ -74,11 +74,11 @@ class TreeList: public Panel
 
   public:
     TreeList(int IsPanel=TRUE);
-    ~TreeList();
+    virtual ~TreeList();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 //    void KillFocus();
     void Update(int Mode);
     int  ReadTree();

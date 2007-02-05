@@ -37,7 +37,7 @@ class FilePanels:public Frame
 
   public:
     FilePanels();
-    ~FilePanels();
+    virtual ~FilePanels();
 
   public:
     void Init();
@@ -52,8 +52,8 @@ class FilePanels:public Frame
 
     void   SetupKeyBar();
 
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     int SetAnhoterPanelFocus(void);
     int SwapPanels(void);
