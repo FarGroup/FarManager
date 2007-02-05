@@ -4,15 +4,15 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2148
+  Plugin API for FAR Manager 1.71 build 2195
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyright (c) 2000-2006 FAR group
+  Copyright (c) 2000-2007 FAR group
 */
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2148)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2195)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -408,6 +408,7 @@ struct FarDialogItem
   int Focus;
   union
   {
+    DWORD_PTR Reserved;
     int Selected;
     const char *History;
     const char *Mask;
@@ -721,6 +722,7 @@ enum FILE_CONTROL_COMMANDS{
   FCTL_CHECKPANELSEXIST,
   FCTL_SETNUMERICSORT,
   FCTL_SETANOTHERNUMERICSORT,
+  FCTL_GETUSERSCREEN,
 };
 
 typedef int (WINAPI *FARAPICONTROL)(
@@ -1050,6 +1052,10 @@ enum VIEWER_SETMODE_TYPES {
   VSMT_HEX,
   VSMT_WRAP,
   VSMT_WORDWRAP,
+};
+
+enum VIEWER_SETMODEFLAGS_TYPES {
+  VSMFL_REDRAW    = 0x00000001,
 };
 
 struct ViewerSetMode {
