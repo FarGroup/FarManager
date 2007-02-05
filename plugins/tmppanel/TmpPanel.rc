@@ -1,4 +1,4 @@
-#include "../common/farversion.hpp"
+#include "farversion.hpp"
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
