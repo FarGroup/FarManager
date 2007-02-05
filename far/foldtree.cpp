@@ -124,11 +124,6 @@ void FolderTree::SetCoords()
   }
 }
 
-void FolderTree::Hide()
-{
-  ScreenObject::Hide();
-}
-
 void FolderTree::OnChangeFocus(int focus)
 {
   if (focus)

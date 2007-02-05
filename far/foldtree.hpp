@@ -52,7 +52,6 @@ class FolderTree:public Frame
     void ResizeConsole();
     /* $ ¬ведена дл€ нужд CtrlAltShift OT */
     int  FastHide();
-    void Hide();
 
     virtual const char *GetTypeName() {return "[FolderTree]";}
     virtual int GetTypeAndName(char *Type,char *Name);
