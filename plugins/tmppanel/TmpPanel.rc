@@ -2,7 +2,7 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 71, 0, 30
+FILEVERSION 1, 71, 0, 31
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEOS 4
 FILETYPE 2
@@ -13,7 +13,7 @@ FILETYPE 2
   {
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Temp Panel for FAR Manager\000"
-   VALUE "FileVersion", "1.71 build 30\000\000"
+   VALUE "FileVersion", "1.71 build 31\000\000"
    VALUE "InternalName", "TmpPanel\000"
    VALUE "LegalCopyright", FARCOPYRIGHT
    VALUE "OriginalFilename", "TmpPanel.dll\000"

@@ -9,7 +9,8 @@ Temporary panel header file
 #define __TMPPANEL_HPP__
 
 #define _FAR_USE_FARFINDDATA
-#include "../common/plugin.hpp"
+#include "plugin.hpp"
+#include "CRT/crt.hpp"
 #include <shellapi.h>
 
 #include "TmpLng.hpp"

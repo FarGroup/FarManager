@@ -143,9 +143,8 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
     return FALSE;
   TmpPanelItem=NewPanelItem;
   struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber++];
-  *CurPanelItem=PanelItem;
-  CurPanelItem->Flags&=~PPIF_SELECTED;
-  CurPanelItem->Description=NULL;
+  memset(CurPanelItem,0,sizeof(*CurPanelItem));
+  CurPanelItem->FindData=PanelItem.FindData;
 
   char *CurName=PanelItem.FindData.cFileName;
   if(CheckForCorrect(CurName,&CurPanelItem->FindData,Opt.AnyInPanel))
@@ -185,8 +184,8 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
         for(int i=0;i<DirItemsNumber;i++)
         {
           struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber++];
-          *CurPanelItem=DirPanelItem[i];
-          CurPanelItem->Flags&=~PPIF_SELECTED;
+          memset(CurPanelItem,0,sizeof(*CurPanelItem));
+          CurPanelItem->FindData=DirPanelItem[i].FindData;
           lstrcpy(CurPanelItem->FindData.cFileName,CurDir);
           lstrcat(CurPanelItem->FindData.cFileName,DirPanelItem[i].FindData.cFileName);
         }
@@ -719,27 +718,27 @@ int TmpPanel::CheckForCorrect(const char *Dir,FAR_FIND_DATA *FindData,int Any)
 
   if (!FSF.LStrnicmp(p, "\\\\.\\", 4) && FSF.LIsAlpha(p[4]) && p[5]==':' && p[6]==0)
   {
-    lstrcpy((*FindData).cFileName,p);
-    (*FindData).dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
+    lstrcpy(FindData->cFileName,p);
+    FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
     return(TRUE);
   }
 
   if (isDevice(p, "\\\\.\\PhysicalDrive") || isDevice(p, "\\\\.\\cdrom"))
   {
-    lstrcpy((*FindData).cFileName,p);
-    (*FindData).dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
+    lstrcpy(FindData->cFileName,p);
+    FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
     return(TRUE);
   }
 
   if(lstrlen(p) && lstrcmp(p,"\\")!=0 && lstrcmp(p,"..")!=0)
   {
     HANDLE fff=FindFirstFile(p,&wfd);
-    WFD2FFD(wfd,*FindData);
 
     if(fff != INVALID_HANDLE_VALUE)
     {
+      WFD2FFD(wfd,*FindData);
       FindClose(fff);
-      lstrcpy((*FindData).cFileName,p);
+      lstrcpy(FindData->cFileName,p);
       return(TRUE);
     }
     else
@@ -748,19 +747,19 @@ int TmpPanel::CheckForCorrect(const char *Dir,FAR_FIND_DATA *FindData,int Any)
       if (*t == '\\') *t = 0;
       static char TMP[MAX_PATH];
       fff=FindFirstFile(lstrcat(lstrcpy(TMP, p),"\\*.*"),&wfd);
-      WFD2FFD(wfd,*FindData);
       if(fff != INVALID_HANDLE_VALUE)
       {
+        WFD2FFD(wfd,*FindData);
         FindClose(fff);
-        (*FindData).dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-        lstrcpy((*FindData).cFileName,SavedDir);
+        FindData->dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+        lstrcpy(FindData->cFileName,SavedDir);
         return(TRUE);
       }
     }
     if(Any)
     {
-      (*FindData).dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
-      lstrcpy((*FindData).cFileName,p);
+      FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
+      lstrcpy(FindData->cFileName,p);
       return(TRUE);
     }
   }
