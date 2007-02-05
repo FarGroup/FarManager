@@ -1,0 +1,33 @@
+REGEDIT4
+
+;Hotkeys Apps, Shift-Apps and Ctrl-Apps to show context menu
+
+[HKEY_CURRENT_USER\Software\Far\PluginHotkeys\Plugins/EMenu/emenu.dll]
+"Hotkey"="x"
+
+[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\RightClick]
+"UseGUI"=dword:00000002
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Apps]
+"Sequence"="F11 x Enter 2"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\ShiftApps]
+"Sequence"="F11 x Enter 1"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlApps]
+"Sequence"="F11 x Enter"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\Apps]
+"Sequence"="F11 x Enter 2"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\ShiftApps]
+"Sequence"="F11 x Enter 1"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\CtrlApps]
+"Sequence"="F11 x Enter"
+"DisableOutput"=dword:00000001

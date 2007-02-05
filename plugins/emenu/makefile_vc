@@ -1,0 +1,59 @@
+NAME = EMenu
+
+!IF "$(CPU)" == "AMD64"
+OUTDIR = final.64.vc
+!ELSE
+OUTDIR = final.32.vc
+!ENDIF
+
+OBJDIR = $(OUTDIR)\obj
+COMMON = ..\common
+DLLNAME = $(NAME).dll
+DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
+DEF = $(NAME).vc.def
+MAP = $(OUTDIR)\$(NAME).map
+
+!IF "$(CPU)" == "AMD64"
+#LIBS =  libcmt.lib bufferoverflowu.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib
+LIBS =  $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib
+CPP_PROJ=/nologo /c /DNDEBUG /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+!ELSE
+LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib libcmt.lib
+CPP_PROJ=/nologo /c /DNDEBUG /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+!ENDIF
+
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+#LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+
+LINK_OBJS = $(OBJDIR)\EMenu.obj \
+$(OBJDIR)\auto_sz.obj \
+$(OBJDIR)\FarMenu.obj \
+$(OBJDIR)\MenuDlg.obj \
+$(OBJDIR)\OleThread.obj \
+$(OBJDIR)\Pidl.obj \
+$(OBJDIR)\Plugin.obj \
+$(OBJDIR)\$(NAME).res
+
+ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
+
+$(DLLFULLNAME) : $(LINK_OBJS)
+	link @<<
+	$(LINK_FLAGS) $(LINK_OBJS)
+<<
+	@copy /Y *.hlf $(OUTDIR) > nul
+	@copy /Y *.lng $(OUTDIR) > nul
+	@copy /Y *.reg $(OUTDIR) > nul
+
+.cpp{$(OBJDIR)}.obj::
+	cl @<<
+	$(CPP_PROJ) $<
+<<
+
+$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMMON)\farversion.hpp resource.h
+	@rc /I"$(COMMON)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+
+$(OBJDIR): $(OUTDIR)
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+
+$(OUTDIR):
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"

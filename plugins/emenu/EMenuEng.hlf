@@ -1,0 +1,162 @@
+.Language=English,English
+.PluginContents=EMenu
+
+@Contents
+$ #EMenu#
+^#Description#
+
+    This plugin shows the explorer context menu for current or selected
+files and/or folders. Plugin can operate in the file panel, tree panel,
+temporary panel or network browser panel.
+
+    The plugin can show a text or GUI context menu, depending on its
+settings in the ~configuration dialog~@Config@.
+
+
+^#How to use EMenu#
+
+    EMenu can be launched in two ways:
+
+    #From the plugin commands menu.#
+
+    Set panel mark on a file, folder or .. line, press F11 and select the
+EMenu item. You can also select multiple files or folders and get a
+menu for all of them just like in Explorer. Context menu for .. line is
+the menu for the current folder.
+    For you convenience plugin is supplied with three keyboard macros to
+show the menu:
+
+ #Apps#       Show text menu
+ #Shift-Apps# Show GUI menu
+ #Ctrl-Apps#  Show the menu to choose between text and GUI menu
+
+    To install the macros just execute Hotkey.reg and restart FAR.
+
+    #By using command line prefixes#
+
+ #rclk:      [files]#           Show context menu.
+ #rclk_txt:  [files]#           Show text context menu.
+ #rclk_gui:  [files]#           Show GUI context menu.
+ #rclk_cmd:  <command> [files]# Invoke specified menu command.
+ #rclk_item: <item> [files]#    Invoke specified menu item.
+
+    Files are delimited by space. Files can contain full paths or
+filenames (current folder is assumed then). If files omitted current panel
+selection is used.
+    If any part of command line contains spaces put it in quotes.
+    Command line can contain environment variables put between %. Variables
+will be expanded into their values.
+
+@Config
+$ #EMenu configuration dialog#
+^#Show message after execution#
+
+    Enable this option if you want a message to be shown after the plugin
+has finished working. This message may be needed under Windows 9x where
+problems can arise if you execute some context menu commands in parallel
+to working with FAR.
+
+    Default value: #enabled#.
+
+^#Show GUI menu#
+
+    There may be some context menu items that are not just a text strings.
+Such items can't be displayed correctly in FAR menu (though you will see them
+and be able to execute). To see the menu as it is shown in explorer you can
+use GUI menu.
+    The option can have one of the following values:
+
+ #[ ]# Show text menu
+ #[x]# Show GUI menu
+ #[?]# Allow to choose between text or GUI menu every time when the plugin
+is invoked.
+
+    Default value: #[?]#.
+
+^#Delete using FAR#
+
+    When this option is enabled the "delete" menu command acts like the F8
+key in FAR.
+
+    Default value: #disabled#.
+
+^#Clear selection if command executed#
+
+    When this option is enabled the selection on the panel is cleared
+after exiting the menu if any menu command has been executed.
+
+    Default value: #enabled#.
+
+^#Silent mode (never show messages)#
+
+    When this option is enabled plugin never shows any messages.
+
+    Default value: #disabled#.
+
+^#Additional information in text menu#
+
+    This group controls an additional menu item information that can be
+displayed in the text menu in brackets next to item.
+
+ #( ) None#             No additional information is displayed.
+ #( ) Show helptext#    Helptext is displayed. Helptext is the text
+                      that Explorer shows in its status bar for
+                      currently selected context menu command.
+ #( ) Show commands#    Commands are displayed. Useful if you want
+                      to know the command to write a "rclk_cmd:"
+                      prefix command line.
+ #[ ] Hide if the same# Hide additional information if it is the
+                      same as menu item.
+
+^#GUI menu position#
+
+    It's easy.
+
+ #( ) At the mouse cursor#
+ #( ) In the center of FAR window#
+
+@Main
+$ #Main EMenu menu#
+    In the main menu you can choose whether to show the context menu for
+the items on the panel or select an item from "My computer" for which you
+want to show the context menu.
+
+    #Context menu# Show the context menu for the items on the panel.
+
+    #My Computer# Select for which item in "My computer" explorer branch you
+want to show the context menu.
+
+@ChooseMenuType
+$ #Choosing menu type#
+    Choose between text context menu and GUI context menu. This behaviour
+can be changed in the ~configuration dialog~@Config@.
+
+@MyComp
+$ #My Computer#
+    Select an item for which you want to get the context menu.
+
+@ContextMenu
+$ #Context Menu#
+    This is a context menu shown by the ~EMenu~@Contents@ plugin.
+
+@Error0
+$ #Can't show the menu if files are from different folders.#
+    This message appears when selected files are placed in different
+folders.
+
+@Error1
+$ #Can't show the menu.#
+    This message appears when EMenu is unable to show the context menu.
+
+@Error2
+$ #Can't invoke menu command.#
+    This message appears when error occurred during invoking of menu command.
+
+@Close
+$ #Press "OK" to continue...#
+    There are some cases when you have to wait until the execution of the menu
+command finishes, and only after that continue working with FAR. One of
+such commands is "paste" in Windows 9x for files with paths containing
+national letters. Under Windows NT/2000/XP you may disable this message.
+
+    This message can be disabled in the ~configuration dialog~@Config@.
