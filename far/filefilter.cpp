@@ -52,7 +52,7 @@ void FileFilter::FilterEdit()
       FilterList.SetTitle(MSG(MFilterTitle2));
   }
 
-  FilterList.SetHelp("Filter");
+  FilterList.SetHelp("FiltersMenu");
   FilterList.SetPosition(-1,-1,0,0);
   FilterList.SetBottomTitle(MSG(MFilterBottom));
   FilterList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -80,15 +80,23 @@ void FileFilter::FilterEdit()
   char *ExtPtr=NULL;
   int ExtCount=0;
 
-  for (int i=0; i<TempFilterData.getCount(); i++)
   {
-    const char *FMask;
-    TempFilterData.getItem(i)->GetMask(&FMask);
-    char Mask[FILEFILTER_MASK_SIZE];
-    xstrncpy(Mask,FMask,sizeof(Mask)-1);
-    Unquote(Mask);
-    if(!ParseAndAddMasks(&ExtPtr,Mask,0,ExtCount,GetCheck(TempFilterData.getItem(i))))
-      break;
+    DWORD Inc,Exc;
+    GetIncludeExcludeFlags(Inc,Exc);
+    for (int i=0; i<TempFilterData.getCount(); i++)
+    {
+      //AY: Будем показывать только те выбранные авто фильтры
+      //(для которых нету файлов на панели) которые выбраны в области данного меню
+      if (!TempFilterData.getItem(i)->Flags.Check(Inc|Exc))
+        continue;
+      const char *FMask;
+      TempFilterData.getItem(i)->GetMask(&FMask);
+      char Mask[FILEFILTER_MASK_SIZE];
+      xstrncpy(Mask,FMask,sizeof(Mask)-1);
+      Unquote(Mask);
+      if(!ParseAndAddMasks(&ExtPtr,Mask,0,ExtCount,GetCheck(TempFilterData.getItem(i))))
+        break;
+    }
   }
 
   memset(&ListItem,0,sizeof(ListItem));
@@ -154,16 +162,9 @@ void FileFilter::FilterEdit()
       case KEY_SPACE:
       case '+':
       case '-':
-      //case KEY_CTRLF:
       case KEY_BS:
       {
-        //if (Key!=KEY_CTRLF && !FilterList.GetSelectPos() && !FilterData.getCount())
-          //break;
-
         int SelPos=FilterList.GetSelectPos();
-
-        //if (Key==KEY_CTRLF) //Работает как Space но для Folders
-          //SelPos=(FilterData.getCount() + 2);
 
         if (SelPos==FilterData.getCount())
           break;
@@ -182,8 +183,7 @@ void FileFilter::FilterEdit()
         FilterList.SetSelectPos(SelPos,1);
         FilterList.SetUpdateRequired(TRUE);
         FilterList.FastShow();
-        if (Key!=KEY_CTRLF)
-          FilterList.ProcessKey(KEY_DOWN);
+        FilterList.ProcessKey(KEY_DOWN);
         break;
       }
 
@@ -462,29 +462,45 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
     }
     else if (i > (FilterData.getCount() + 2))
     {
-      char Mask[NM];
+      const char *FMask;
+      char Mask[NM], Mask1[NM];
       FilterList->GetUserData(Mask,sizeof(Mask),i);
 
-      if (j < TempFilterData.getCount())
+      //AY: Так как в меню мы показываем только те выбранные авто фильтры
+      //которые выбраны в области данного меню и TempFilterData вполне
+      //может содержать маску которую тока что выбрали в этом меню но
+      //она уже была выбрана в другом и так как TempFilterData
+      //и авто фильтры в меню отсортированы по алфавиту то немного
+      //поколдуем чтоб не было дубликатов в памяти.
+      xstrncpy(Mask1,Mask,sizeof(Mask1)-1);
+      Unquote(Mask1);
+      while ((CurFilterData=TempFilterData.getItem(j))!=NULL)
       {
-         CurFilterData = TempFilterData.getItem(j);
-
-         const char *FMask;
-         CurFilterData->GetMask(&FMask);
-         if (!strcmp(Mask,FMask))
-         {
-           if (!Check && !CurFilterData->Flags.Check(~(Inc|Exc)))
-           {
-              TempFilterData.deleteItem(j);
-              continue;
-           }
-           else
-             j++;
-         }
-         else
-           CurFilterData=NULL;
-
+        char Mask2[FILEFILTER_MASK_SIZE];
+        CurFilterData->GetMask(&FMask);
+        xstrncpy(Mask2,FMask,sizeof(Mask2)-1);
+        Unquote(Mask2);
+        if (LocalStricmp(Mask1,Mask2)<1)
+          break;
+        j++;
       }
+
+      if (CurFilterData)
+      {
+        if (!LocalStricmp(Mask,FMask))
+        {
+          if (!Check && !CurFilterData->Flags.Check(~(Inc|Exc)))
+          {
+            TempFilterData.deleteItem(j);
+            continue;
+          }
+          else
+            j++;
+        }
+        else
+          CurFilterData=NULL;
+      }
+
       if (Check && !CurFilterData)
       {
         FileFilterParams *NewFilter = TempFilterData.insertItem(j);

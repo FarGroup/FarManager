@@ -26,9 +26,9 @@ FileFilterParams::FileFilterParams()
   SetSize(0,FSIZE_INBYTES,_i64(-1),_i64(-1));
   memset(&FDate,0,sizeof(FDate));
   memset(&FAttr,0,sizeof(FAttr));
-  memset(&m_Colors,0,sizeof(m_Colors));
-  m_SortGroup=DEFAULT_SORT_GROUP;
-  m_bContinueProcessing=false;
+  memset(&FHighlight.Colors,0,sizeof(FHighlight.Colors));
+  FHighlight.SortGroup=DEFAULT_SORT_GROUP;
+  FHighlight.bContinueProcessing=false;
   Flags.ClearAll();
 }
 
@@ -41,9 +41,9 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
   memcpy(&FSize,&FF.FSize,sizeof(FSize));
   memcpy(&FDate,&FF.FDate,sizeof(FDate));
   memcpy(&FAttr,&FF.FAttr,sizeof(FAttr));
-  FF.GetColors(&m_Colors);
-  m_SortGroup=FF.GetSortGroup();
-  m_bContinueProcessing=FF.GetContinueProcessing();
+  FF.GetColors(&FHighlight.Colors);
+  FHighlight.SortGroup=FF.GetSortGroup();
+  FHighlight.bContinueProcessing=FF.GetContinueProcessing();
   Flags.Flags=FF.Flags.Flags;
   return *this;
 }
@@ -153,7 +153,7 @@ void FileFilterParams::SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear)
 
 void FileFilterParams::SetColors(HighlightDataColor *Colors)
 {
-  memcpy(&m_Colors,Colors,sizeof(m_Colors));
+  memcpy(&FHighlight.Colors,Colors,sizeof(FHighlight.Colors));
 }
 
 const char *FileFilterParams::GetTitle() const
@@ -201,12 +201,12 @@ DWORD FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 
 void FileFilterParams::GetColors(HighlightDataColor *Colors) const
 {
-  memcpy(Colors,&m_Colors,sizeof(*Colors));
+  memcpy(Colors,&FHighlight.Colors,sizeof(*Colors));
 }
 
 int FileFilterParams::GetMarkChar() const
 {
-  return m_Colors.MarkChar;
+  return FHighlight.Colors.MarkChar;
 }
 
 bool FileFilterParams::FileInFilter(FileListItem *fli)
@@ -954,7 +954,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FileFilterConfigDlgProc,(LONG_PTR)&Colors);
 
-  Dlg.SetHelp("OpFilter");
+  Dlg.SetHelp("Filter");
   Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 
   Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,0,0,DIF_DISABLE);

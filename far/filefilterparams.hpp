@@ -85,11 +85,12 @@ class FileFilterParams
       DWORD AttrClear;
     } FAttr;
 
-    HighlightDataColor m_Colors;
-
-    int m_SortGroup;
-
-    bool m_bContinueProcessing;
+    struct
+    {
+      HighlightDataColor Colors;
+      int SortGroup;
+      bool bContinueProcessing;
+    } FHighlight;
 
   public:
 
@@ -107,8 +108,8 @@ class FileFilterParams
     void SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow);
     void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
     void SetColors(HighlightDataColor *Colors);
-    void SetSortGroup(int SortGroup) { m_SortGroup = SortGroup; }
-    void SetContinueProcessing(bool bContinueProcessing) { m_bContinueProcessing = bContinueProcessing; }
+    void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
+    void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
 
     const char *GetTitle() const;
     DWORD GetMask(const char **Mask) const;
@@ -117,8 +118,8 @@ class FileFilterParams
     DWORD GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
     void  GetColors(HighlightDataColor *Colors) const;
     int   GetMarkChar() const;
-    int   GetSortGroup() const { return m_SortGroup; }
-    bool  GetContinueProcessing() const { return m_bContinueProcessing; }
+    int   GetSortGroup() const { return FHighlight.SortGroup; }
+    bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.
