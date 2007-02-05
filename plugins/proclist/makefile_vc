@@ -1,0 +1,64 @@
+NAME = Proclist
+
+!IF "$(CPU)" == "AMD64"
+OUTDIR = final.64.vc
+!ELSE
+OUTDIR = final.32.vc
+!ENDIF
+
+OBJDIR = $(OUTDIR)\obj
+COMMON = ..\common
+DLLNAME = $(NAME).dll
+DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
+DEF = $(NAME).vc.def
+MAP = $(OUTDIR)\$(NAME).map
+
+!IF "$(CPU)" == "AMD64"
+LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
+CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I".\WMI" -D"_WIN32_DCOM"
+!ELSE
+LIBS = kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
+CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I".\WMI" -D"_WIN32_DCOM"
+!ENDIF
+
+!IF "$(CPU)" == "AMD64"
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+!ELSE
+LINK_FLAGS=/STUB:$(COMMON)\minstub.exe /nologo /dll /release /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+!ENDIF
+
+LINK_OBJS = $(OBJDIR)\fileio.obj \
+$(OBJDIR)\handles.obj \
+$(OBJDIR)\PCFG.OBJ \
+$(OBJDIR)\Pclass.obj \
+$(OBJDIR)\perfthread.obj \
+$(OBJDIR)\PLIST95.OBJ \
+$(OBJDIR)\Plistnt.obj \
+$(OBJDIR)\Pmix.obj \
+$(OBJDIR)\preg.obj \
+$(OBJDIR)\WMI.obj \
+$(OBJDIR)\Proclist.obj \
+$(OBJDIR)\$(NAME).res
+
+ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
+
+$(DLLFULLNAME) : $(LINK_OBJS)
+	link @<<
+	$(LINK_FLAGS) $(LINK_OBJS)
+<<
+	@copy /Y *.hlf $(OUTDIR) > nul
+	@copy /Y *.lng $(OUTDIR) > nul
+
+.cpp{$(OBJDIR)}.obj::
+	cl @<<
+	$(CPP_PROJ) $<
+<<
+
+$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMMON)\farversion.hpp
+	@rc /I"$(COMMON)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+
+$(OBJDIR): $(OUTDIR)
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+
+$(OUTDIR):
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"

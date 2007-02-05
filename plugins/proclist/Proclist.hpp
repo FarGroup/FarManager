@@ -5,7 +5,7 @@
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #ifdef __GNUC__
-#include "crt.hpp"
+#include "CRT/crt.hpp"
 #endif
 
 #ifdef _MSC_VER
