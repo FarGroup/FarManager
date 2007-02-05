@@ -1,8 +1,8 @@
-#include "../common/farversion.hpp"
+#include "farversion.hpp"
 #define VERSIONINFO_1   1
 VERSIONINFO_1 VERSIONINFO
 
-FILEVERSION    1,70,0,15
+FILEVERSION    FAR_MAJOR_VER, FAR_MINOR_VER, 0, 15
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEFLAGSMASK  0x0
 FILEFLAGS      0x0
@@ -16,7 +16,7 @@ FILESUBTYPE    0x0
     {
       VALUE "CompanyName", FARCOMPANYNAME
       VALUE "FileDescription",   "Hlf-file Viewer for FAR Manager\0"
-      VALUE "FileVersion",       "1.70 build 15\0"
+      VALUE "FileVersion",       "1.71 build 15\0"
       VALUE "InternalName",      "HlfViewer\0"
       VALUE "LegalCopyright", FARCOPYRIGHT
       VALUE "OriginalFilename",  "HlfViewer.dll\0"

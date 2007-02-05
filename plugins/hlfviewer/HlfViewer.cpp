@@ -2,7 +2,7 @@
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "farkeys.hpp"
-#include "crt.hpp"
+#include "CRT/crt.hpp"
 
 #include "HlfViewer.hpp"
 #include "lang.hpp"
