@@ -1,13 +1,14 @@
 NAME = HelloWorld
 DLLNAME = $(NAME).dll
 SRCS = HelloWorld.c
+COMMON = ../common
 DEF = $(NAME).gcc.def
 
 CC = gcc
 DLLTOOL = dlltool
 RM = rm -f
-CCFLAGS = -I ../common -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
-LNKFLAGS = -mdll -s -nostartfiles -L ../common -lCRT
+CCFLAGS = -I $(COMMON) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
+LNKFLAGS = -mdll -s -nostartfiles -L $(COMMON) -lCRT
 
 OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLNAME))
@@ -15,7 +16,7 @@ MAP = $(patsubst %.dll,%.map,$(DLLNAME))
 all: crt $(DLLNAME)
 
 crt:
-	$(MAKE) -C ../common/CRT -f makefile_lib_gcc
+	$(MAKE) -C $(COMMON)/CRT -f makefile_lib_gcc
 
 %.o: %.c
 	@echo compiling $<
