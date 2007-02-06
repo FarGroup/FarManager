@@ -20,7 +20,7 @@ config.cpp
 #include "filelist.hpp"
 #include "panel.hpp"
 #include "help.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "poscache.hpp"
 #include "findfile.hpp"
 #include "hilight.hpp"
@@ -1232,26 +1232,6 @@ static struct FARConfig{
 
   {0, REG_SZ,     NKeyKeyMacrosW,L"DateFormat",&Opt.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
 
-  /* $ 05.10.2003 KM
-     Сохранение параметров фильтра операций
-  */
-  {1, REG_DWORD,  NKeyFileFilterW,L"UseMask",&Opt.OpFilter.FMask.Used,0,0},
-  {1, REG_SZ,     NKeyFileFilterW,L"Mask",&Opt.OpFilter.FMask.strMask, 0, L"*.*"},
-
-  {1, REG_DWORD,  NKeyFileFilterW,L"UseDate",&Opt.OpFilter.FDate.Used,0,0},
-  {1, REG_DWORD,  NKeyFileFilterW,L"DateType",&Opt.OpFilter.FDate.DateType,0,0},
-  {1, REG_BINARY, NKeyFileFilterW,L"DateAfter",&Opt.OpFilter.FDate.DateAfter,sizeof(Opt.OpFilter.FDate.DateAfter),0},
-  {1, REG_BINARY, NKeyFileFilterW,L"DateBefore",&Opt.OpFilter.FDate.DateBefore,sizeof(Opt.OpFilter.FDate.DateBefore),0},
-
-  {1, REG_DWORD,  NKeyFileFilterW,L"UseSize",&Opt.OpFilter.FSize.Used,0,0},
-  {1, REG_DWORD,  NKeyFileFilterW,L"SizeType",&Opt.OpFilter.FSize.SizeType,0,0},
-  {1, REG_BINARY, NKeyFileFilterW,L"SizeAbove",&Opt.OpFilter.FSize.SizeAbove,sizeof(Opt.OpFilter.FSize.SizeAbove),0},
-  {1, REG_BINARY, NKeyFileFilterW,L"SizeBelow",&Opt.OpFilter.FSize.SizeBelow,sizeof(Opt.OpFilter.FSize.SizeBelow),0},
-
-  {1, REG_DWORD,  NKeyFileFilterW,L"UseAttr",&Opt.OpFilter.FAttr.Used,0,0},
-  {1, REG_DWORD,  NKeyFileFilterW,L"AttrSet",&Opt.OpFilter.FAttr.AttrSet,0,0},
-  {1, REG_DWORD,  NKeyFileFilterW,L"AttrClear",&Opt.OpFilter.FAttr.AttrClear,0,0},
-  /* KM $ */
   {0, REG_DWORD,  NKeySystemW,L"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 };
 
@@ -1525,7 +1505,7 @@ void SaveConfig(int Ask)
       }
   }
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
-  PanelFilter::SaveSelection();
+  FileFilter::SaveFilters();
   FileList::SavePanelModes();
   if (Ask)
     CtrlObject->Macro.SaveMacros();

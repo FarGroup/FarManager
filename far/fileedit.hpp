@@ -85,6 +85,8 @@ private:
     //28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
     bool m_bClosing;
 
+    bool bEE_READ_Sent;
+
     bool m_bSignatureFound;
 
     int m_codepage; //BUGBUG

@@ -21,13 +21,13 @@ farexcpt.hpp
 farqueue.hpp
 fileedit.hpp
 filefilter.hpp
+filefilterparams.hpp
 filelist.hpp
 FileMasksProcessor.hpp
 FileMasksWithExclude.hpp
 filepanels.hpp
 filestr.hpp
 fileview.hpp
-filter.hpp
 findfile.hpp
 flink.hpp
 fn.hpp
@@ -35,7 +35,6 @@ foldtree.hpp
 frame.hpp
 global.hpp
 grabber.hpp
-grpsort.hpp
 headers.hpp
 help.hpp
 hilight.hpp
@@ -109,6 +108,7 @@ ffolders.cpp
 fileattr.cpp
 fileedit.cpp
 filefilter.cpp
+filefilterparams.cpp
 filelist.cpp
 FileMasksProcessor.cpp
 FileMasksWithExclude.cpp
@@ -117,7 +117,6 @@ filepanels.cpp
 filestr.cpp
 filetype.cpp
 fileview.cpp
-filter.cpp
 findfile.cpp
 flink.cpp
 flmodes.cpp
@@ -130,7 +129,6 @@ frame.cpp
 gettable.cpp
 global.cpp
 grabber.cpp
-grpsort.cpp
 help.cpp
 hilight.cpp
 history.cpp

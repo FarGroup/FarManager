@@ -10,6 +10,7 @@ fn.hpp
 #include "farconst.hpp"
 #include "global.hpp"
 #include "plugin.hpp"
+#include "filefilter.hpp"
 
 #define countof(a) (sizeof(a)/sizeof(a[0]))
 
@@ -301,7 +302,7 @@ void SetFolderInfoFiles();
 void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
-int GetColorDialog(unsigned int &Color,bool bCentered=false);
+int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
 int HiStrlenW(const wchar_t *Str,BOOL Dup=TRUE);
 /* $ 27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера */
@@ -481,6 +482,7 @@ int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCou
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
+               FileFilter *Filter,
                DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,

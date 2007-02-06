@@ -484,11 +484,16 @@ FileEditor::~FileEditor()
   BitFlags FEditFlags=m_editor->Flags;
   int FEditEditorID=m_editor->EditorID;
 
-  if (!Flags.Check(FFILEEDIT_OPENFAILED))
+  if (bEE_READ_Sent)
   {
     FileEditor *save = CtrlObject->Plugins.CurEditor;
     CtrlObject->Plugins.CurEditor=this;
     CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&FEditEditorID);
+    CtrlObject->Plugins.CurEditor = save;
+  }
+
+  if (!Flags.Check(FFILEEDIT_OPENFAILED))
+  {
     /* $ 11.10.2001 IS
        Удалим файл вместе с каталогом, если это просится и файла с таким же
        именем не открыто в других фреймах.
@@ -510,7 +515,6 @@ FileEditor::~FileEditor()
     }
     /* IS 14.06.2002 $ */
     /* IS 11.10.2001 $ */
-    CtrlObject->Plugins.CurEditor = save;
   }
 
   if( m_editor )
@@ -543,6 +547,8 @@ void FileEditor::Init (
 
   //AY: флаг оповещающий закрытие редактора.
   m_bClosing = false;
+
+  bEE_READ_Sent = false;
 
   m_editor = new Editor;
 
@@ -731,7 +737,10 @@ void FileEditor::Init (
   if (!LoadFile(strFullFileName,UserBreak))
   {
     if(BlankFileName)
+    {
+      Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
       UserBreak=0;
+    }
     if(!CreateNewFile || UserBreak)
     {
       if (UserBreak!=1)
@@ -773,6 +782,7 @@ void FileEditor::Init (
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
+  bEE_READ_Sent = true;
 
   /* IS $ */
   ShowConsoleTitle();

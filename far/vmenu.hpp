@@ -116,7 +116,22 @@ struct MenuItemEx
     Idx2 = 0;
     ShowPos = 0;
   }
-//  char  operator[](int Pos) const;
+
+  //UserData не копируется.
+  const MenuItemEx& operator=(const MenuItemEx &srcMenu)
+  {
+    Flags = srcMenu.Flags;
+    strName = srcMenu.strName;
+    AccelKey = srcMenu.AccelKey;
+    UserDataSize = 0;
+    UserData = NULL;
+    AmpPos = srcMenu.AmpPos;
+    Len[0] = srcMenu.Len[0];
+    Len[1] = srcMenu.Len[1];
+    Idx2 = srcMenu.Idx2;
+    ShowPos = srcMenu.ShowPos;
+    return *this;
+  }
 };
 
 struct MenuDataEx

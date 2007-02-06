@@ -135,7 +135,8 @@ FAROBJ=\
    $(OBJPATH)\filestr.obj\
    $(OBJPATH)\filetype.obj\
    $(OBJPATH)\fileview.obj\
-   $(OBJPATH)\filter.obj\
+   $(OBJPATH)\filefilter.obj\
+   $(OBJPATH)\filefilterparams.obj\
    $(OBJPATH)\findfile.obj\
    $(OBJPATH)\flink.obj\
    $(OBJPATH)\flmodes.obj\
@@ -147,7 +148,6 @@ FAROBJ=\
    $(OBJPATH)\cvtname.obj\
    $(OBJPATH)\global.obj\
    $(OBJPATH)\grabber.obj\
-   $(OBJPATH)\grpsort.obj\
    $(OBJPATH)\help.obj\
    $(OBJPATH)\hilight.obj\
    $(OBJPATH)\history.obj\
@@ -163,7 +163,6 @@ FAROBJ=\
    $(OBJPATH)\lockscrn.obj\
    $(OBJPATH)\macro.obj\
    $(OBJPATH)\manager.obj\
-   $(OBJPATH)\filefilter.obj\
    $(OBJPATH)\menubar.obj\
    $(OBJPATH)\message.obj\
    $(OBJPATH)\strftime.obj\

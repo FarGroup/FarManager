@@ -11,7 +11,7 @@ filelist.hpp
 #include "panel.hpp"
 #include "dizlist.hpp"
 
-class PanelFilter;
+class FileFilter;
 
 struct FileListItem
 {
@@ -157,7 +157,7 @@ enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
 class FileList:public Panel
 {
   private:
-    PanelFilter *Filter;
+    FileFilter *Filter;
     DizList Diz;
     int DizRead;
     /* $ 09.11.2001 IS
@@ -222,8 +222,8 @@ class FileList:public Panel
     void CorrectPosition();
     void ShowFileList(int Fast);
     void ShowList(int ShowStatus,int StartColumn);
-    void SetShowColor(int Position);
-    int GetShowColor(int Position);
+    void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
+    int  GetShowColor(int Position, int ColorType);
     void ShowSelectedSize();
     void ShowTotalSize(struct OpenPluginInfoW &Info);
     int ConvertNameW (const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);

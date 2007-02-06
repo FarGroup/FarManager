@@ -17,9 +17,8 @@ flupdate.cpp
 #include "lang.hpp"
 #include "filepanels.hpp"
 #include "cmdline.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "hilight.hpp"
-#include "grpsort.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 
@@ -142,7 +141,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   SortGroupsRead=FALSE;
 
   if (Filter==NULL)
-    Filter=new PanelFilter(this);
+    Filter=new FileFilter(this,FFT_PANEL);
 
   if (GetFocus())
     CtrlObject->CmdLine->SetCurDirW(strCurDir);
@@ -243,8 +242,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   {
     if ((fdata.strFileName.At(0) != L'.' || fdata.strFileName.At(1) != 0) &&
         (Opt.ShowHidden || (fdata.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM))==0) &&
-        ((fdata.dwFileAttributes & FA_DIREC) ||
-        Filter->CheckNameW(fdata.strFileName)))
+        (//(fdata.dwFileAttributes & FA_DIREC) ||
+        Filter->FileInFilter(&fdata)))
     {
       int UpperDir=FALSE;
       if (fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)
@@ -431,10 +430,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           TotalFileSize += fdata.nFileSize;
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
-          if ((CurPtr->FileAttr & FA_DIREC)==0)
-            CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->strName);
-          else
-            CurPtr->SortGroup=DEFAULT_SORT_GROUP;
+          CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(&fdata);
           if (!TestParentFolderNameW(fdata.lpwszFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
             TotalFileCount++;
         }
@@ -693,7 +689,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   }
 
   if (Filter==NULL)
-    Filter=new PanelFilter(this);
+    Filter=new FileFilter(this,FFT_PANEL);
 
   int DotsPresent=FALSE;
 
@@ -709,8 +705,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CurListData->Clear ();
 
     if (Info.Flags & OPIF_USEFILTER)
-      if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
-        if (!Filter->CheckNameW(CurPanelData->FindData.lpwszFileName))
+      //if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
+        if (!Filter->FileInFilter(&CurPanelData->FindData))
           continue;
     if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM)))
       continue;
@@ -724,11 +720,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(
-          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:(const wchar_t*)CurListData->strName,
-          CurListData->FileAttr,&CurListData->Colors);
-    if ((Info.Flags & OPIF_USESORTGROUPS) && (CurListData->FileAttr & FA_DIREC)==0)
-      CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(CurListData->strName);
+      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,(Info.Flags&OPIF_USEATTRHIGHLIGHTING));
+    if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FA_DIREC)==0*/)
+      CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(&CurPanelData->FindData);
     else
       CurListData->SortGroup=DEFAULT_SORT_GROUP;
     if (CurListData->DizText==NULL)
@@ -762,9 +756,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     /* $ 22.11.2001 VVM
       + Не забыть раскрасить :) */
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(
-          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:(const wchar_t*)CurPtr->strName,
-          CurPtr->FileAttr,&CurPtr->Colors);
+      CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING));
     /* VVM $ */
     if (Info.HostFile && *Info.HostFile)
     {
@@ -901,10 +893,10 @@ void FileList::ReadSortGroups()
   for (int I=0;I<FileCount;I++)
   {
       CurPtr = ListData[I];
-    if ((CurPtr->FileAttr & FA_DIREC)==0)
-      CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->strName);
-    else
-      CurPtr->SortGroup=DEFAULT_SORT_GROUP;
+    //if ((CurPtr->FileAttr & FA_DIREC)==0)
+      CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
+    //else
+      //CurPtr->SortGroup=DEFAULT_SORT_GROUP;
   }
 }
 

@@ -285,9 +285,6 @@ enum {
   SKEY_NOTMACROS         = 0x00000001,
 };
 
-// размеры для полей ввода
-#define PANELFILTER_MASK_SIZE    2048
-
 // для диалога GetNameAndPassword()
 enum FlagsNameAndPassword{
   GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
@@ -368,24 +365,6 @@ enum QUOTEDNAMETYPE{
 enum{
   APIS2OEM,
   APIS2ANSI,
-};
-
-// for FileFilter
-enum FDateType
-{
-  FDATE_MODIFIED=0,
-  FDATE_CREATED,
-  FDATE_OPENED,
-};
-
-enum FSizeType
-{
-  FSIZE_INBYTES=0,
-  FSIZE_INKBYTES,
-  FSIZE_INMBYTES,
-  FSIZE_INGBYTES,
-
-  FSIZE_IN_LAST, // всегда последний !!!
 };
 
 enum ExcludeCmdHistoryType{

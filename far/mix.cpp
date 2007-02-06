@@ -465,6 +465,7 @@ int GetDirInfo(const wchar_t *Title,
                unsigned __int64 &RealSize,
                unsigned long &ClusterSize,
                clock_t MsgWaitTime,
+               FileFilter *Filter,
                DWORD Flags)
 {
   string strFullDirName, strDriveRoot;
@@ -511,9 +512,6 @@ int GetDirInfo(const wchar_t *Title,
   // Временные хранилища имён каталогов
   strLastDirName=L"";
   strCurDirName=L"";
-
-  // Создадим объект фильтра
-  FileFilter Filter;
 
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
@@ -576,7 +574,7 @@ int GetDirInfo(const wchar_t *Title,
       */
       if ((Flags&GETDIRINFO_USEFILTER))
       {
-        if (!Filter.FileInFilter(&FindData))
+        if (!Filter->FileInFilter(&FindData))
           continue;
       }
 

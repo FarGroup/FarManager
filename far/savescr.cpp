@@ -32,6 +32,10 @@ SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2,int RealScreen)
 {
   _OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
   SaveScreen::RealScreen=RealScreen;
+  if (X1<0) X1=0;
+  if (Y1<0) Y1=0;
+  if (X2>ScrX) X2=ScrX;
+  if (Y2>ScrY) Y2=ScrY;
   SaveArea(X1,Y1,X2,Y2);
 }
 

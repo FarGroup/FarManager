@@ -98,6 +98,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filefilter.obj" \
+	"$(INTDIR)\filefilterparams.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\FileMasksProcessor.obj" \
 	"$(INTDIR)\FileMasksWithExclude.obj" \
@@ -106,7 +107,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
-	"$(INTDIR)\filter.obj" \
 	"$(INTDIR)\findfile.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\flmodes.obj" \
@@ -119,7 +119,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\gettable.obj" \
 	"$(INTDIR)\global.obj" \
 	"$(INTDIR)\grabber.obj" \
-	"$(INTDIR)\grpsort.obj" \
 	"$(INTDIR)\help.obj" \
 	"$(INTDIR)\hilight.obj" \
 	"$(INTDIR)\history.obj" \

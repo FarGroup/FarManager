@@ -25,8 +25,8 @@ class History;
 #include "scrobj.hpp"
 #include "macro.hpp"
 #include "dizlist.hpp"
-#include "grpsort.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
+#include "filefilterparams.hpp"
 #include "panel.hpp"
 #include "filelist.hpp"
 #include "treelist.hpp"
@@ -52,11 +52,7 @@ class History;
 #include "dialog.hpp"
 #include "scantree.hpp"
 #include "struct.hpp"
-#if defined(EDITOR2)
- #include "editor2.hpp"
-#else defined(EDITOR2)
- #include "editor.hpp"
-#endif defined(EDITOR2)
+#include "editor.hpp"
 #include "fileedit.hpp"
 #include "help.hpp"
 #include "copy.hpp"

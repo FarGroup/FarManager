@@ -10,57 +10,6 @@ struct.hpp
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
 
-struct FilterParams
-{
-  struct __FMask
-  {
-    DWORD Used;
-    string strMask;
-  } FMask;
-  struct __FDate
-  {
-    DWORD Used;
-    FDateType DateType;
-    FILETIME DateAfter;
-    FILETIME DateBefore;
-  } FDate;
-  struct __FSize
-  {
-    DWORD Used;
-    FSizeType SizeType;
-    __int64 SizeAbove;
-    __int64 SizeBelow;
-  } FSize;
-  struct __FAttr
-  {
-    DWORD Used;
-    DWORD AttrSet;
-    DWORD AttrClear;
-  } FAttr;
-
-  /*
-  void Clear()
-  {
-  	FMask.Used=0;
-  	FMask.strMask=L"";
-  	memset(&FDate,0,sizeof(FDate));
-  	memset(&FSize,0,sizeof(FSize));
-  	memset(&FAttr,0,sizeof(FAttr));
-  }
-  */
-
-  FilterParams& operator=(const FilterParams &fpCopy)
-  {
-  	FMask.Used=fpCopy.FMask.Used;
-  	FMask.strMask=fpCopy.FMask.strMask;
-  	memcpy(&FDate,&fpCopy.FDate,sizeof(FDate));
-  	memcpy(&FSize,&fpCopy.FSize,sizeof(FSize));
-  	memcpy(&FAttr,&fpCopy.FAttr,sizeof(FAttr));
-  	return *this;
-  }
-
-};
-
 struct PanelOptions
 {
   int Type;
@@ -702,11 +651,6 @@ struct Options
   */
   struct FindCharTable CharTable;
   /* KM $ */
-  /* $ 28.09.2003 KM
-     OpFilter - параметр для запоминания свойств файлового фильтра
-  */
-  struct FilterParams OpFilter;
-  /* KM $ */
   struct TreeOptions Tree;
 
   /*
@@ -877,7 +821,6 @@ struct Options
     memset(&Nowell,0,sizeof(Nowell));
     memset(&ScrSize,0,sizeof(ScrSize));
     memset(&CharTable,0,sizeof(CharTable));
-    OpFilter.Clear();
     memset(&Tree,0,sizeof(Tree));
   }
   */
@@ -897,17 +840,21 @@ struct ColorItem
   int Color;
 };
 
-/* ВРЕМЕННОЕ!!! воплощение будущих надежд :-))
-   Структура должна быть 16 байт!
-*/
+enum enumHighlightDataColor
+{
+  HIGHLIGHTCOLOR_NORMAL = 0,
+  HIGHLIGHTCOLOR_SELECTED,
+  HIGHLIGHTCOLOR_UNDERCURSOR,
+  HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR,
+
+  HIGHLIGHTCOLORTYPE_FILE = 0,
+  HIGHLIGHTCOLORTYPE_MARKCHAR = 1,
+};
+
 struct HighlightDataColor
 {
-  BYTE Color;
-  BYTE SelColor;
-  BYTE CursorColor;
-  BYTE CursorSelColor;
-  wchar_t MarkChar;
-  BYTE Reserved[10];
+  WORD Color[2][4];
+  DWORD MarkChar;
 };
 
 struct PreRedrawParamStruct

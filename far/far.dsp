@@ -216,6 +216,10 @@ SOURCE=.\filefilter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\filefilterparams.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\filelist.cpp
 # End Source File
 # Begin Source File
@@ -245,10 +249,6 @@ SOURCE=.\filetype.cpp
 # Begin Source File
 
 SOURCE=.\fileview.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\filter.cpp
 # End Source File
 # Begin Source File
 
@@ -297,10 +297,6 @@ SOURCE=.\global.cpp
 # Begin Source File
 
 SOURCE=.\grabber.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\grpsort.cpp
 # End Source File
 # Begin Source File
 
@@ -671,6 +667,10 @@ SOURCE=.\filefilter.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\filefilterparams.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\filelist.hpp
 # End Source File
 # Begin Source File
@@ -692,10 +692,6 @@ SOURCE=.\filestr.hpp
 # Begin Source File
 
 SOURCE=.\fileview.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\filter.hpp
 # End Source File
 # Begin Source File
 
@@ -724,10 +720,6 @@ SOURCE=.\global.hpp
 # Begin Source File
 
 SOURCE=.\grabber.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\grpsort.hpp
 # End Source File
 # Begin Source File
 

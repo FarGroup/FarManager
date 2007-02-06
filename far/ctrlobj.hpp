@@ -16,7 +16,6 @@ class HistoryW;
 class KeyBar;
 class MenuBar;
 class HighlightFiles;
-class GroupSort;
 class FilePositionCache;
 class FilePanels;
 
@@ -55,7 +54,6 @@ class ControlObject
     KeyBar *MainKeyBar;
     MenuBar *TopMenuBar;
     HighlightFiles *HiFiles;
-    GroupSort *GrpSort;
     FilePositionCache *ViewerPosCache,*EditorPosCache;
     KeyMacro Macro;
     PluginManager Plugins;

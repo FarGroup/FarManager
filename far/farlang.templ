@@ -3463,20 +3463,28 @@ MInEditor
 
 MFilterTitle
 l:
-"Фильтр"
-"Filter"
+"Меню фильтров"
+"Filters menu"
+
+MFilterTitle1
+"Меню фильтров (D+)"
+"Filters menu (D+)"
+
+MFilterTitle2
+"Меню фильтров (D?)"
+"Filters menu (D?)"
 
 MFilterBottom
-"Выбор: '+','-',Пробел. Редактирование: Ins,Del,F4"
-"Select: '+','-',Space. Edit: Del,Ins,F4"
-
-MNoCustomFilters
-"<пользовательские фильтры не определены>"
-"<no custom filters defined>"
+"+,-,Пробел,BS,Shift-BS,Shift-Grey-,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Space,BS,Shift-BS,Shift-Grey-,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 
 MPanelFileType
 "Файлы панели"
 "Panel file type"
+
+MFolderFileType
+"Папки"
+"Folders"
 
 MCanEditCustomFilterOnly
 "Только пользовательский фильтр можно редактировать"
@@ -3489,15 +3497,6 @@ MAskDeleteFilter
 MCanDeleteCustomFilterOnly
 "Только пользовательский фильтр может быть удален"
 "Only custom filter can be deleted"
-
-MEnterFilterTitle
-l:
-"&Заголовок:"
-"&Title:"
-
-MFilterMasks
-"&Одна или несколько масок файлов:"
-"A file &mask or several file masks:"
 
 MFindFileTitle
 l:
@@ -3712,8 +3711,20 @@ l:
 "Files highlighting"
 
 MHighlightBottom
-"F1 - помощь"
-"F1 - Help"
+"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
+"Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
+
+MHighlightUpperSortGroup
+"Верхняя группа сортировки"
+"Upper sort group"
+
+MHighlightLowerSortGroup
+"Нижняя группа сортировки"
+"Lower sort group"
+
+MHighlightLastGroup
+"Наименее приоритетная группа раскраски"
+"Lowest priority highlighting group"
 
 MHighlightAskDel
 "Вы хотите удалить раскраску для"
@@ -3732,81 +3743,49 @@ l:
 "Редактирование раскраски файлов"
 "Edit files highlighting"
 
-MHighlightMasks
-"Совпадение с &маской (масками):"
-"&Match file mask(s)"
-
-MHighlightIncExcTitle
-" Атрибуты включения/исключения "
-" Include/Exclude attributes "
-
-MHighlightRO
-"Только для чтения"
-"Read-only"
-
-MHighlightHidden
-"Скрытый"
-"Hidden"
-
-MHighlightSystem
-"Системный"
-"System"
-
-MHighlightArchive
-"Архивный"
-"Archive"
-
-MHighlightCompressed
-"Сжатый"
-"Compressed"
-
-MHighlightEncrypted
-"Зашифрованный"
-"Encrypted"
-
-MHighlightFolder
-"Папка"
-"Folder"
-
-MHighlightJunction
-"Символическая связь"
-"Symbolic link"
-
-MHighlightSparse
-"Разреженный"
-"Sparse"
-
-MHighlightTemporary
-"Временный"
-"Temporary"
-
-MHighlightNotIndexed
-"Неиндексируемый"
-"Not indexed"
-
 MHighlightMarkChar
-"Опциональный &символ для пометки указанных файлов"
-"Optional cha&racter to mark specified files"
+"Оп&циональный символ пометки,"
+"Optional markin&g character,"
+
+MHighlightTransparentMarkChar
+"прозра&чный"
+"tra&nsparent"
 
 MHighlightColors
 " Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
 " File name colors (\"black on black\" - default color) "
 
-MHighlightNormal
-"&Обычный                "
-"&Normal               "
+MHighlightFileName1
+"&1. Обычное имя файла                "
+"&1. Normal file name               "
 
-MHighlightSelected
-"&Помеченный             "
-"&Selected             "
+MHighlightFileName2
+"&3. Помеченное имя файла             "
+"&3. Selected file name             "
 
-MHighlightCursor
-"Под &курсором           "
-"Under &cursor         "
+MHighlightFileName3
+"&5. Имя файла под курсором           "
+"&5. File name under cursor         "
 
-MHighlightSelectedCursor
-"Поме&ченный под курсором"
-"Se&lected under cursor"
+MHighlightFileName4
+"&7. Помеченное под курсором имя файла"
+"&7. File name selected under cursor"
+
+MHighlightMarking1
+"&2. Пометка"
+"&2. Marking"
+
+MHighlightMarking2
+"&4. Пометка"
+"&4. Marking"
+
+MHighlightMarking3
+"&6. Пометка"
+"&6. Marking"
+
+MHighlightMarking4
+"&8. Пометка"
+"&8. Marking"
 
 MHighlightExample1
 "║filename.ext │"
@@ -3815,6 +3794,10 @@ MHighlightExample1
 MHighlightExample2
 "║ filename.ext│"
 "║ filename.ext│"
+
+MHighlightContinueProcessing
+"Продолжать &обработку"
+"C&ontinue processing"
 
 MInfoTitle
 l:
@@ -4317,10 +4300,6 @@ MMenuFolderShortcuts
 "Ссы&лки на папки"
 "Fol&der shortcuts"
 
-MMenuEditSortGroups
-"&Группы сортировки"
-"Edit sort &groups"
-
 MMenuFilter
 "&Фильтр панели файлов     Ctrl-I"
 "File panel f&ilter   Ctrl-I"
@@ -4395,8 +4374,8 @@ MMenuColors
 "Co&lors"
 
 MMenuFilesHighlighting
-"Раскраска &файлов"
-"Files &highlighting"
+"Раскраска &файлов и группы сортировки"
+"Files &highlighting and sort groups"
 
 MMenuSaveSetup
 "&Сохранить параметры      Shift-F9"
@@ -4634,9 +4613,9 @@ MChangeVolumeInUse2
 "It is used by another application"
 
 MChangeWaitingLoadDisk
-l:;"Ожидание загрузки диска..."
-l:; "Waiting for disk to load..."
+ls:;"Ожидание загрузки диска..."
 "Ожидание чтения диска..."
+ls:;"Waiting for disk to load..."
 "Waiting for disk to mount..."
 
 MChangeCouldNotUnlockMedia
@@ -5276,9 +5255,17 @@ MSetColorBackground
 "&Фон"
 "&Background"
 
+MSetColorForeTransparent
+"&Прозрачный"
+"&Transparent"
+
+MSetColorBackTransparent
+"П&розрачный"
+"T&ransparent"
+
 MSetColorSample
-"Текст Текст Текст Текст Текст"
-"Text Text Text Text Text Text"
+"Текст Текст Текст Текст Текст Текст"
+"Text Text Text Text Text Text Text"
 
 MSetColorSet
 "Установить"
@@ -5581,24 +5568,6 @@ MCannotOpenPrinter
 MCannotPrint
 "Не удалось распечатать"
 "Cannot print"
-
-MSortGroupsTitle
-l:
-"Группы сортировки"
-"Sort groups"
-
-MSortGroupsBottom
-"Редактирование: Del,Ins,F4"
-"Edit: Del,Ins,F4"
-
-MSortGroupsAskDel
-l:
-"Вы хотите удалить группу сортировки"
-"Do you wish to delete the sort group"
-
-MSortGroupsEnter
-"Одна или несколько масок файлов:"
-"A file mask or several file masks:"
 
 MDescribeFiles
 l:
@@ -6092,8 +6061,8 @@ MExcInvalidFuncResult
 "Function <%s> has returned illegal value"
 
 MExcAddress
-"Адрес исключения - 0x%X, модуль:"
-"Exception address: 0x%X in module:"
+"Адрес исключения - 0x%p, модуль:"
+"Exception address: 0x%p in module:"
 
 MExcFARTerminateYes
 "FAR Manager завершит работу!"
@@ -6104,16 +6073,16 @@ MExcUnloadYes
 "The plugin will be Unloaded!"
 
 MExcRAccess
-"\"Попытка чтения из недоступного адреса 0x%X\""
-"\"Attempt to read from the inaccessible address 0x%X\""
+"\"Нарушение доступа (чтение из 0x%p)\""
+"\"Access violation (read from 0x%p)\""
 
 MExcWAccess
-"\"Попытка записи по недоступному адресу 0x%X\""
-"\"Attempt to write to the inaccessible address 0x%X\""
+"\"Нарушение доступа (запись в 0x%p)\""
+"\"Access violation (write to 0x%p)\""
 
 MExcEAccess
-"\"Попытка исполнения кода из неисполняемого участка памяти по адресу 0x%X\""
-"\"Attempt to execute the non executable memory at address 0x%X\""
+"\"Нарушение доступа (исполнение кода из 0x%p)\""
+"\"Access violation (execute at 0x%p)\""
 
 MExcOutOfBounds
 "\"Попытка доступа к элементу за границами массива\""
@@ -7150,76 +7119,80 @@ l:
 
 MFileFilterTitle
 l:
-"Фильтр операций"
-"Operations filter"
+"Фильтр"
+"Filter"
+
+MFileFilterName
+"Имя &фильтра:"
+"&Filter name:"
 
 MFileFilterMatchMask
-"Совпадение с &маской (масками)"
-"&Match file mask(s)"
+"&Маска:"
+"&Mask:"
 
 MFileFilterSize
-"Ра&змер файла"
-"File &size"
+"Разм&ер в"
+"Si&ze in"
 
 MFileFilterSizeInBytes
-"В байтах"
-"In bytes"
+"байтах"
+"bytes"
 
 MFileFilterSizeInKBytes
-"В килобайтах"
-"In kilobytes"
+"килобайтах"
+"kilobytes"
 
 MFileFilterSizeInMBytes
-"В мегабайтах"
-"In megabytes"
+"мегабайтах"
+"megabytes"
 
 MFileFilterSizeInGBytes
-"В гигабайтах"
-"In gigabytes"
+"гигабайтах"
+"gigabytes"
 
 MFileFilterSizeFrom
-"Бо&льше или равен:"
-"&Greater than or equal to:"
+">="
+">="
 
 MFileFilterSizeTo
-"М&еньше или равен:"
-"&Less than or equal to:"
+"<="
+"<="
 
 MFileFilterDate
-"&Дата файла"
-"File &date"
+"Дата/Врем&я"
+"Date/T&ime"
 
 MFileFilterModified
-"Время модификации"
-"Modification time"
+"модификации"
+"modification"
 
 MFileFilterCreated
-"Время создания"
-"Creation time"
+"создания"
+"creation"
 
 MFileFilterOpened
-"Время доступа"
-"Access time"
+"доступа"
+"access"
 
 MFileFilterAfter
-"&Начиная с:"
-"A&fter:"
+">="
+">="
 
 MFileFilterBefore
-"Закан&чивая:"
-"&Before:"
+"<="
+"<="
 
 MFileFilterCurrent
-"Те&кущая"
+"Тек&ущая"
 "C&urrent"
 
 MFileFilterBlank
-"Сбр&ос"
-"Bla&nk"
+"С&брос"
+"B&lank"
 
 MFileFilterAttr
-"Ат&рибуты"
-"A&ttributes"
+"Атрибут&ы"
+"Attri&butes"
 
 MFileFilterAttrR
 "&Только для чтения"
@@ -7235,26 +7208,26 @@ MFileFilterAttrH
 
 MFileFilterAttrS
 "С&истемный"
-"S&ystem"
+"&System"
 
 MFileFilterAttrC
-"Сжаты&й"
+"С&жатый"
 "&Compressed"
 
 MFileFilterAttrE
-"За&шифрованный"
+"&Зашифрованный"
 "&Encrypted"
 
 MFileFilterAttrD
-"Катало&г"
-"D&irectory"
+"&Каталог"
+"&Directory"
 
 MFileFilterAttrNI
-"Неиндексир&уемый"
+"&Неиндексируемый"
 "Not inde&xed"
 
 MFileFilterAttrSparse
-"Разре&женный"
+"&Разреженный"
 "S&parse"
 
 MFileFilterAttrT
@@ -7266,12 +7239,12 @@ MFileFilterAttrReparse
 "Symbolic lin&k"
 
 MFileFilterOk
-"&Ок"
-"&Ok"
+"Продолжить"
+"Ok"
 
 MFileFilterReset
-"Очистить"
-"Reset"
+"Очистит&ь"
+"Rese&t"
 
 MFileFilterCancel
 "Отмена"

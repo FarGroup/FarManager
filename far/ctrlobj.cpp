@@ -15,11 +15,10 @@ ctrlobj.cpp
 #include "manager.hpp"
 #include "cmdline.hpp"
 #include "hilight.hpp"
-#include "grpsort.hpp"
 #include "poscache.hpp"
 #include "history.hpp"
 #include "treelist.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "filepanels.hpp"
 
 ControlObject *CtrlObject;
@@ -33,7 +32,6 @@ ControlObject::ControlObject()
      создаем динамически (для уменьшения dependencies)
   */
   HiFiles = new HighlightFiles;
-  GrpSort = new GroupSort;
   ViewerPosCache = new FilePositionCache(FPOSCACHE_64);
   EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
@@ -63,7 +61,7 @@ ControlObject::ControlObject()
 void ControlObject::Init()
 {
   TreeList::ClearCache(0);
-  PanelFilter::InitFilter();
+  FileFilter::InitFilter();
 
   SetColor(F_LIGHTGRAY|B_BLACK);
   GotoXY(0,ScrY-3);
@@ -90,6 +88,7 @@ void ControlObject::Init()
   else
     TextW(MShareware);
 
+  MoveCursor(0,ScrY-1);
   CmdLine->SaveBackground(0,0,ScrX,ScrY);
 
   FPanels=new FilePanels();
@@ -175,7 +174,7 @@ ControlObject::~ControlObject()
   FrameManager->CloseAll();
   FPanels=NULL;
 
-  PanelFilter::CloseFilter();
+  FileFilter::CloseFilter();
   delete CmdHistory;
   delete FolderHistory;
   delete ViewHistory;
@@ -184,7 +183,6 @@ ControlObject::~ControlObject()
      удаляем то, что создали динамически
   */
   delete HiFiles;
-  delete GrpSort;
 
   if (Opt.ViOpt.SaveViewerPos)
     ViewerPosCache->Save(L"Viewer\\LastPositions");

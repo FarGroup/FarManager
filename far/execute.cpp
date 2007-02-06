@@ -1149,7 +1149,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
     */
     if (CtrlObject->Cp()->IsTopFrame())
     {
-      CmdStr.SetStringW(L"");
+      //CmdStr.SetStringW(L"");
       GotoXY(X1,Y1);
       mprintfW(L"%*s",X2-X1+1,L"");
       Show();
@@ -1492,7 +1492,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
     {
-      CmdStr.SetStringW(L"");
+      //CmdStr.SetStringW(L"");
       GotoXY(X1,Y1);
       mprintfW(L"%*s",X2-X1+1,L"");
       Show();
@@ -1584,7 +1584,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     /*
     if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
     {
-      CmdStr.SetString("");
+      //CmdStr.SetString("");
       GotoXY(X1,Y1);
       mprintf("%*s",X2-X1+1,"");
       Show();

@@ -41,8 +41,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~File associations~@FileAssoc@
    ~Operating system commands~@OSCommands@
    ~Folder shortcuts~@FolderShortcuts@
-   ~Sort groups~@SortGroups@
-   ~File panel filter~@Filter@
+   ~Filters menu~@FiltersMenu@
    ~Screens switching~@ScrSwitch@
    ~Task list~@TaskList@
    ~Hotplug devices list~@HotPlugList@
@@ -52,7 +51,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
 
-   ~Files highlighting~@Highlight@
+   ~Files highlighting and sort groups~@Highlight@
    ~File descriptions~@FileDiz@
    ~Viewer settings~@ViewerSettings@
    ~Editor settings~@EditorSettings@
@@ -1181,10 +1180,8 @@ $ #Menus: commands menu#
 
    #Folder shortcuts#     Displays current ~folder shortcuts~@FolderShortcuts@.
 
-   #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
-
    #File panel filter#    Allows to control file panel contents.
-                        See ~File panel filter~@Filter@ for the detailed
+                        See ~filters menu~@FiltersMenu@ for the detailed
                         description.
 
    #Plugin commands#      Show ~plugin commands~@Plugins@ list
@@ -1232,7 +1229,8 @@ $ #Menus: options menu#
                         colors palette to black and white or to set
                         the colors to default.
 
-   #Files highlighting#   Change ~files highlighting~@Highlight@ settings.
+   #Files highlighting#   Change ~files highlighting and sort groups~@Highlight@
+   #and sort groups#      settings.
 
    #Save setup#           Save current configuration, colors and
                         screen layout.
@@ -1352,8 +1350,7 @@ folders.
     The search parameters is saved in the configuration.
 
     Check the #Use filter# checkbox to search for files according to user
-defined conditions. Press the #Filter# button to open the conditions
-configuration ~dialog~@OpFilter@.
+defined conditions. Press the #Filter# button to open the ~filters menu~@FiltersMenu@.
 
     The #Advanced# button invokes the ~find file advanced options~@FindFileAdvanced@
 dialog that can be used to specify extended set of search properties. To quickly
@@ -1415,58 +1412,87 @@ the folder.
     #Gray +# and #Gray -# should move up and down the tree to the next branch
 on the same level.
 
-    #F5# позволяет развернуть окно на весь экран, повторное нажатие #F5# вернет 
-размер окна в первоначальное состояние.
+    #F5# allows to maximize the window, pressing #F5# again will restore the
+window to the previous size.
 
-    С помощью #Ctrl-Enter# можно циклически перемещаться по элементам дерева в
-соответствии с введенной в строке файловой маской. #Ctrl-Shift-Enter# позволяет 
-перемещаться по элементам в обратном направлении.
+    By pressing #Ctrl-Enter#, you can cycle through the folders matching the
+part of the filename that you have already entered. #Ctrl-Shift-Enter# allows
+to cycle backwards.
 
-
-@OpFilter
-$ #Operations filter#
+@Filter
+$ #Filter#
     Operations filter is used to process certain file groups according to
-conditions specified by the user, if those conditions are met by some file it
-will be processed by a corresponding operation. A filter may include any of the
-following condition sets:
+rules specified by the user, if those rules are met by some file it
+will be processed by a corresponding operation. A filter may have several
+rule sets.
 
-     - one or several ~file masks~@FileMasks@;
+    The filter dialog consists of the following elements:
 
-     - min and max file size;
+   #Filter name#     A title that will be shown in the filters menu.
+                   This field can be empty.
 
-     - starting and ending file date/time, including creation,
-       last modification and last access dates/times;
+                   Filter name is not available if the filter was
+                   opened from ~Files highlighting and sort groups~@Highlight@.
 
-     - inclusion and exclusion attributes;
 
-    Filter conditions are met by a file if:
+   #Mask#            One or several ~file masks~@FileMasks@.
 
-     - file mask analysis is on and its name matches any of
-       the given file masks. If mask analysis is off, file
-       name is ignored;
+                   Filter conditions are met if file mask analysis
+                   is on and its name matches any of the given file
+                   masks. If mask analysis is off, file name is
+                   ignored.
 
-     - file size analysis is on, and it is inside the given range.
-       If nothing is specified (empty line) for one or both range
-       boundaries then file size for that boundary is not limited;
 
-     - file date/time analysis is on and its date/time is in
-       the given range and corresponds to the given type:
-       last modification date, creation date or last access
-       date. If one or both of the date/time limit fields are
-       empty then the date/time for that type is not limited.
+   #Size#            Minimum and maximum files size in #bytes#,
+                   #kilobytes#, #megabytes# or #gigabytes#.
 
-     - file attributes analysis is on and it has all of the
-       inclusion attributes and none of the exclusion attributes:
-       #[x]# - inclusion attribute - file must have this attribute.
-       #[ ]# - exclusion attribute - file must not have this attribute.
-       #[?]# - ignore this attribute.
+                   Filter conditions are met if file size analysis
+                   is on, and it is inside the given range.
+                   If nothing is specified (empty line) for one
+                   or both range boundaries then file size for that
+                   boundary is not limited.
 
-    The #Compressed#, #Encrypted#, #Not indexed#, #Sparse# and #Temporary#
-attributes are used only on disks with the NTFS file system. Although the
-#Encrypted# attribute is used only in Windows 2000/XP.
+
+   #Date/time#       Starting and ending file date/time.
+                   You can specify the date/time of last file
+                   #modification#, file #creation# and last file
+                   #access#.
+
+                   The button #Current# allows to fill the date/time
+                   fields with the current date/time after which you
+                   can change only the needed part of the date/time
+                   fields, for example only the month or minutes.
+                   The button #Blank# will clear the date/time
+                   fields.
+
+                   Filter conditions are met if file date/time
+                   analysis is on and its date/time is in the
+                   given range and corresponds to the given
+                   type. If one or both of the date/time limit
+                   fields are empty then the date/time for that
+                   type is not limited.
+
+
+   #Attributes#      Inclusion and exclusion attributes.
+
+                   Filter conditions are met if file attributes
+                   analysis is on and it has all of the inclusion
+                   attributes and none of the exclusion attributes:
+                   #[x]# - inclusion attribute - the file must have
+                         this attribute.
+                   #[ ]# - exclusion attribute - the file must
+                         not have this attribute.
+                   #[?]# - ignore this attribute.
+
+                   The #Compressed#, #Encrypted#, #Not indexed#,
+                   #Sparse# and #Temporary# attributes are used
+                   only on disks with the NTFS file system.
+                   Although the #Encrypted# attribute is used
+                   only in Windows 2000/XP/2003/Vista.
+
 
     To quickly disable one or several conditions, uncheck the corresponding
-checkboxes.
+checkboxes. The #Reset# button will clear all of the filter conditions.
 
 
 @History
@@ -2577,7 +2603,7 @@ connected network drives.
 
 
 @Highlight
-$ #Files highlighting #
+$ #Files highlighting and sort groups#
     For more convenient and obvious display of files and directories in the
 panels, FAR Manager has the possibility of color highlighting for file objects.
 You can group file objects by different criteria (~file masks~@FileMasks@, file
@@ -2587,14 +2613,14 @@ attributes) and assign colors to those groups.
 dialog (menu item Options | Panel settings).
 
     You can ~edit~@HighlightEdit@ the parameters of any highlight group through
-the "~Options~@OptMenu@" menu (item "Files highlighting").
+the "~Options~@OptMenu@" menu (item "Files highlighting and sort groups").
 
 
 @HighlightList
-$ #Files highlighting: control keys#
-    The ~file highlighting~@Highlight@ groups menu allows you to perform
-various operations with the list of the groups. The following key combinations
-are available:
+$ #Files highlighting and sort groups: control keys#
+    The ~file highlighting and sort groups~@Highlight@ menu allows you to
+perform various operations with the list of the groups. The following key
+combinations are available:
 
   #Ins#          - Add a new highlighting group
 
@@ -2615,7 +2641,7 @@ that a file belongs to a group, no further groups are checked.
 
 
 @HighlightEdit
-$ #Files highlighting: editing#
+$ #Files highlighting and sort groups: editing#
     The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
 define file highlighting groups. Each group definition includes:
 
@@ -2894,34 +2920,69 @@ used to view, set, edit and delete folder shortcuts.
     When you are editing a shortcut (#F4#), you cannot create a shortcut to a
 plugin panel.
 
+@FiltersMenu
+$ #Filters menu#
+    Using the #Filters menu# you can define a set of file types with user
+defined rules according to which files will be processed in the area of
+operation this menu was called from.
 
-@Filter
-$ #File panel filter#
-    Using the filter you may control which files will be displayed in the file
-panel.
+    The filters menu consists of two parts. In the upper part custom #User#
+#filters# are shown, the lower part contains file masks of all the files that
+exist in the current panel (including file masks that are selected in the
+current area of operation the menu was called from even if there are no files
+that match those mask in the current panel).
 
-    The filter menu contains two parts. In the upper part custom filters are
-shown. Use #Ins#, #Del# and #F4# keys to add, delete and edit these filters.
-Each custom filter consists of an optional title and a file mask or several
-~file masks~@FileMasks@ delimited by commas.
+    For the #User filters# the following commands are available:
 
-    The lower part of the filter menu contains masks of all files from the
-active file panel.
+   #Ins#        Create a new filter, an empty ~filter~@Filter@ settings
+              dialog will open for you to set.
 
-    Use #Space#, '#+#' and '#-#' keys to select filter menu items. Selected
-items will be indicated by '+' marks. If filters are present, only files which
-are filtered will be shown. Items selected with '#-#' will be indicated by '-'
-mark, and all files matching these items will be excluded from the file panel.
-#Shift-<Gray Minus># combination will clear all marks.
+   #F4#         Edit an existing ~filter~@Filter@.
 
-    Custom filters selection is stored in the FAR configuration.
+   #F5#         Duplicate an existing ~filter~@Filter@.
+
+   #Del#        Remove a filter.
+
+   #Ctrl-Up#    Move a filter one position up.
+
+   #Ctrl-Down#  Move a filter one position down.
+
+
+    To control the #User filters# and also the auto-generated filters (file
+masks) the following commands are available:
+
+   #Space#,              Items selected using #Space# or '#+#' are
+   #Plus#                marked by '+'. If such items are present
+                       then only files that match them will be
+                       processed.
+
+   #Minus#               Items selected using '#-#' are marked by '-',
+                       and files that match then will not be
+                       processed.
+
+   #Ctrl-F#              Allow or disable filtration of folders.
+                       If folder filtration is allowed then the menu
+                       title will contain the string "D?", otherwise
+                       it will contain "D+".
+
+   #Backspace#           Clear selection from the current item.
+
+   #Shift-Backspace#     Clear selection from all items.
+
+   #Shift-<Gray Minus>#  Reset the menu to default state.
+                       (disable filtration of folders and clear
+                       selection from all items).
+
+
+    Filters selection is stored in the FAR configuration.
 
     When a filter is used in a panel, it is indicated by '*' after the sort
 mode letter in the upper left corner of the panel.
 
-    To remove the filter from the panel it is necessary to remove all "+" or
-"-" marks from user's filters and from file masks of the current panel, and
-press #Enter#.
+    Filters menu is used in the following areas:
+     - ~File panel~@FilePanel@;
+     - ~Copying, moving, renaming and creating links~@CopyFiles@;
+     - ~Find file~@FindFile@.
 
 
 @FileDiz
@@ -3126,12 +3187,12 @@ example, you have to do this when a mask contains any of the delimiter
 characters (a comma or a semicolon), so that the mask doesn't get confused with
 a list.
 
-    In some commands (~find files~@FindFile@, ~operations filter~@OpFilter@,
-~file panel filter~@Filter@, file ~selection~@SelectFiles@,
-file ~associations~@FileAssoc@, ~sort groups~@SortGroups@ and
-~file highlighting~@Highlight@) you may use exclude masks. An #exclude mask#
-is one or multiple file masks that must not be matched by the files
-matching the mask. The exclude mask is delimited from the main mask by
+    In some commands (~find files~@FindFile@, ~filter~@Filter@,
+~filters menu~@FiltersMenu@, file ~selection~@SelectFiles@,
+file ~associations~@FileAssoc@ and
+~file highlighting and sort groups~@Highlight@) you may use exclude masks. An
+#exclude mask# is one or multiple file masks that must not be matched by the
+files matching the mask. The exclude mask is delimited from the main mask by
 the character '#|#'.
 
 ^Usage examples of exclude masks:
@@ -3269,10 +3330,10 @@ from the disk.
 copy session and are not saved for later copy operations.
 
     Check the #Use filter# checkbox to copy the files that meet the user
-defined conditions. Press the #Filter# button to open the conditions
-configuration ~dialog~@OpFilter@. Consider, that if you copy the folder
-with files and all of them does not meet the filter conditions, then the empty
-folder will not be copied to the destination.
+defined conditions. Press the #Filter# button to open the ~filters menu~@FiltersMenu@.
+Consider, that if you copy the folder with files and all of them does not meet
+the filter conditions, then the empty folder will not be copied to the
+destination.
 
 
 @CopyRule

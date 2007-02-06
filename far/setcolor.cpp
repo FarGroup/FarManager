@@ -19,6 +19,7 @@ setcolor.cpp
 #include "ctrlobj.hpp"
 #include "savescr.hpp"
 #include "scrbuf.hpp"
+#include "panel.hpp"
 
 static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
@@ -382,6 +383,10 @@ void SetColors()
     }
   }
   CtrlObject->Cp()->SetScreenPosition();
+  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->LeftPanel->Redraw();
+  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->RightPanel->Redraw();
 }
 
 
@@ -429,6 +434,10 @@ void GetColor(int PaletteIndex)
   {
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
     ScrBuf.Lock(); // отменяем всякую прорисовку
+    CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->LeftPanel->Redraw();
+    CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->RightPanel->Redraw();
     if(MenuToRedraw3)
       MenuToRedraw3->Hide();
     MenuToRedraw2->Hide(); // гасим
@@ -451,16 +460,13 @@ void GetColor(int PaletteIndex)
   }
 }
 
-/* $ 18.05.2001 DJ
-   обработка установки цвета вынесена в функцию-обработчик диалога
-*/
 
 static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
   switch (Msg)
   {
     case DN_CTLCOLORDLGITEM:
-      if(Param1 >= 35 && Param1 <= 37)
+      if(Param1 >= 37 && Param1 <= 39)
       {
         int *CurColor=(int *)Dialog::SendDlgMessage (hDlg,DM_GETDLGDATA,0,0);
         return (Param2&0xFFFFFF00U)|((*CurColor)&0xFF);
@@ -497,52 +503,55 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
   return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
 }
 
-/* DJ $ */
 
-int GetColorDialog(unsigned int &Color,bool bCentered)
+int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
 {
   static struct DialogDataEx ColorDlgData[]={
-    /*   0 */ DI_DOUBLEBOX,   3, 1,35,13,0,0,0,0,(const wchar_t *)MSetColorTitle,
-    /*   1 */ DI_SINGLEBOX,   5, 2,18, 7,0,0,0,0,(const wchar_t *)MSetColorForeground,
-    /*   2 */ DI_RADIOBUTTON, 6, 3, 0, 3,0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   3 */ DI_RADIOBUTTON, 6, 4, 0, 4,0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   4 */ DI_RADIOBUTTON, 6, 5, 0, 5,0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   5 */ DI_RADIOBUTTON, 6, 6, 0, 6,0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   6 */ DI_RADIOBUTTON, 9, 3, 0, 3,0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   7 */ DI_RADIOBUTTON, 9, 4, 0, 4,0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   8 */ DI_RADIOBUTTON, 9, 5, 0, 5,0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*   9 */ DI_RADIOBUTTON, 9, 6, 0, 6,0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  10 */ DI_RADIOBUTTON,12, 3, 0, 3,0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  11 */ DI_RADIOBUTTON,12, 4, 0, 4,0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  12 */ DI_RADIOBUTTON,12, 5, 0, 5,0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  13 */ DI_RADIOBUTTON,12, 6, 0, 6,0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  14 */ DI_RADIOBUTTON,15, 3, 0, 3,0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  15 */ DI_RADIOBUTTON,15, 4, 0, 4,0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  16 */ DI_RADIOBUTTON,15, 5, 0, 5,0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  17 */ DI_RADIOBUTTON,15, 6, 0, 6,0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  18 */ DI_SINGLEBOX,  20, 2,33, 7,0,0,0,0,(const wchar_t *)MSetColorBackground,
-    /*  19 */ DI_RADIOBUTTON,21, 3, 0, 3,0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  20 */ DI_RADIOBUTTON,21, 4, 0, 4,0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  21 */ DI_RADIOBUTTON,21, 5, 0, 5,0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  22 */ DI_RADIOBUTTON,21, 6, 0, 6,0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  23 */ DI_RADIOBUTTON,24, 3, 0, 3,0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  24 */ DI_RADIOBUTTON,24, 4, 0, 4,0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  25 */ DI_RADIOBUTTON,24, 5, 0, 5,0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  26 */ DI_RADIOBUTTON,24, 6, 0, 6,0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  27 */ DI_RADIOBUTTON,27, 3, 0, 3,0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  28 */ DI_RADIOBUTTON,27, 4, 0, 4,0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  29 */ DI_RADIOBUTTON,27, 5, 0, 5,0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  30 */ DI_RADIOBUTTON,27, 6, 0, 6,0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  31 */ DI_RADIOBUTTON,30, 3, 0, 3,0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  32 */ DI_RADIOBUTTON,30, 4, 0, 4,0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  33 */ DI_RADIOBUTTON,30, 5, 0, 5,0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  34 */ DI_RADIOBUTTON,30, 6, 0, 6,0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
-    /*  35 */ DI_TEXT,        5, 8, 0, 8,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
-    /*  36 */ DI_TEXT,        5, 9, 0, 9,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
-    /*  37 */ DI_TEXT,        5,10, 0,10,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
-    /*  38 */ DI_TEXT,        3,11, 0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /*  39 */ DI_BUTTON,      0,12, 0,12,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MSetColorSet,
-    /*  40 */ DI_BUTTON,      0,12, 0,12,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MSetColorCancel,
+    /*   0 */ DI_DOUBLEBOX,   3, 1,35,13, 0,0,0,0,(const wchar_t *)MSetColorTitle,
+    /*   1 */ DI_SINGLEBOX,   5, 2,18, 7, 0,0,0,0,(const wchar_t *)MSetColorForeground,
+    /*   2 */ DI_RADIOBUTTON, 6, 3, 0, 3, 0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   3 */ DI_RADIOBUTTON, 6, 4, 0, 4, 0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   4 */ DI_RADIOBUTTON, 6, 5, 0, 5, 0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   5 */ DI_RADIOBUTTON, 6, 6, 0, 6, 0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   6 */ DI_RADIOBUTTON, 9, 3, 0, 3, 0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   7 */ DI_RADIOBUTTON, 9, 4, 0, 4, 0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   8 */ DI_RADIOBUTTON, 9, 5, 0, 5, 0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*   9 */ DI_RADIOBUTTON, 9, 6, 0, 6, 0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  10 */ DI_RADIOBUTTON,12, 3, 0, 3, 0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  11 */ DI_RADIOBUTTON,12, 4, 0, 4, 0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  12 */ DI_RADIOBUTTON,12, 5, 0, 5, 0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  13 */ DI_RADIOBUTTON,12, 6, 0, 6, 0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  14 */ DI_RADIOBUTTON,15, 3, 0, 3, 0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  15 */ DI_RADIOBUTTON,15, 4, 0, 4, 0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  16 */ DI_RADIOBUTTON,15, 5, 0, 5, 0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  17 */ DI_RADIOBUTTON,15, 6, 0, 6, 0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  18 */ DI_SINGLEBOX,  20, 2,33, 7, 0,0,0,0,(const wchar_t *)MSetColorBackground,
+    /*  19 */ DI_RADIOBUTTON,21, 3, 0, 3, 0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  20 */ DI_RADIOBUTTON,21, 4, 0, 4, 0,0,F_BLACK|B_RED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  21 */ DI_RADIOBUTTON,21, 5, 0, 5, 0,0,F_LIGHTGRAY|B_DARKGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  22 */ DI_RADIOBUTTON,21, 6, 0, 6, 0,0,F_BLACK|B_LIGHTRED|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  23 */ DI_RADIOBUTTON,24, 3, 0, 3, 0,0,F_LIGHTGRAY|B_BLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  24 */ DI_RADIOBUTTON,24, 4, 0, 4, 0,0,F_BLACK|B_MAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  25 */ DI_RADIOBUTTON,24, 5, 0, 5, 0,0,F_BLACK|B_LIGHTBLUE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  26 */ DI_RADIOBUTTON,24, 6, 0, 6, 0,0,F_BLACK|B_LIGHTMAGENTA|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  27 */ DI_RADIOBUTTON,27, 3, 0, 3, 0,0,F_BLACK|B_GREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  28 */ DI_RADIOBUTTON,27, 4, 0, 4, 0,0,F_BLACK|B_BROWN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  29 */ DI_RADIOBUTTON,27, 5, 0, 5, 0,0,F_BLACK|B_LIGHTGREEN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  30 */ DI_RADIOBUTTON,27, 6, 0, 6, 0,0,F_BLACK|B_YELLOW|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  31 */ DI_RADIOBUTTON,30, 3, 0, 3, 0,0,F_BLACK|B_CYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  32 */ DI_RADIOBUTTON,30, 4, 0, 4, 0,0,F_BLACK|B_LIGHTGRAY|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  33 */ DI_RADIOBUTTON,30, 5, 0, 5, 0,0,F_BLACK|B_LIGHTCYAN|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+    /*  34 */ DI_RADIOBUTTON,30, 6, 0, 6, 0,0,F_BLACK|B_WHITE|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",
+
+    /*  35 */ DI_CHECKBOX,    5, 10,0, 10,0,0,0,0,(const wchar_t *)MSetColorForeTransparent,
+    /*  36 */ DI_CHECKBOX,   22, 10,0, 10,0,0,0,0,(const wchar_t *)MSetColorBackTransparent,
+
+    /*  37 */ DI_TEXT,        5, 8, 33,8, 0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
+    /*  38 */ DI_TEXT,        5, 9, 33,9, 0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
+    /*  39 */ DI_TEXT,        5,10, 33,10,0,0,DIF_SETCOLOR,0,(const wchar_t *)MSetColorSample,
+    /*  40 */ DI_TEXT,        0,11, 0, 11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  41 */ DI_BUTTON,      0,12, 0, 12,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MSetColorSet,
+    /*  42 */ DI_BUTTON,      0,12, 0, 12,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MSetColorCancel,
 
   };
   MakeDialogItemsEx(ColorDlgData,ColorDlg);
@@ -561,27 +570,68 @@ int GetColorDialog(unsigned int &Color,bool bCentered)
       break;
     }
 
-  for (I=35;I<38;I++)
+  for (I=37;I<40;I++)
     ColorDlg[I].Flags=(ColorDlg[I].Flags & ~DIF_COLORMASK) | Color;
 
+  if (bAddTransparent)
   {
-    /* $ 18.05.2001 DJ
-       обработка установки цвета вынесена в функцию-обработчик диалога
-    */
-    //SaveScreen SaveScr;
-    Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (LONG_PTR) &CurColor);
+    ColorDlg[0].Y2++;
+    for (I=37;I<=42;I++)
+    {
+      ColorDlg[I].Y1+=3;
+      ColorDlg[I].Y2+=3;
+    }
+    ColorDlg[0].X2+=4;
+    ColorDlg[0].Y2+=2;
+    ColorDlg[1].X2+=2;
+    ColorDlg[1].Y2+=2;
+    ColorDlg[18].X1+=2;
+    ColorDlg[18].X2+=4;
+    ColorDlg[18].Y2+=2;
+    for (I=2; I<=17; I++)
+    {
+      ColorDlg[I].X1+=1;
+      ColorDlg[I].Y1+=1;
+      ColorDlg[I].Y2+=1;
+    }
+    for (I=19; I<=34; I++)
+    {
+      ColorDlg[I].X1+=3;
+      ColorDlg[I].Y1+=1;
+      ColorDlg[I].Y2+=1;
+    }
+    for (I=37; I<=39; I++)
+      ColorDlg[I].X2+=4;
+    ColorDlg[35].Selected=(Color&0x0F00?1:0);
+    ColorDlg[36].Selected=(Color&0xF000?1:0);
+  }
+  else
+  {
+    ColorDlg[35].Flags|=DIF_HIDDEN;
+    ColorDlg[36].Flags|=DIF_HIDDEN;
+  }
+
+  {
+    Dialog Dlg(ColorDlg,countof(ColorDlg), GetColorDlgProc, (LONG_PTR) &CurColor);
     if (bCentered)
-      Dlg.SetPosition(-1,-1,39,15);
+      Dlg.SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));
     else
-      Dlg.SetPosition(37,2,75,16);
+      Dlg.SetPosition(37,2,75+(bAddTransparent?4:0),16+(bAddTransparent?3:0));
     Dlg.Process();
-    /* DJ $ */
     ExitCode=Dlg.GetExitCode();
   }
 
-  if (ExitCode==39)
+  if (ExitCode==41)
   {
     Color=CurColor;
+    if (ColorDlg[35].Selected)
+      Color|=0x0F00;
+    else
+      Color&=0xF0FF;
+    if (ColorDlg[36].Selected)
+      Color|=0xF000;
+    else
+      Color&=0x0FFF;
     return(TRUE);
   }
   return(FALSE);

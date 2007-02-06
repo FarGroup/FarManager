@@ -18,7 +18,6 @@ options.cpp
 #include "panel.hpp"
 #include "chgmmode.hpp"
 #include "filelist.hpp"
-#include "grpsort.hpp"
 #include "hilight.hpp"
 #include "cmdline.hpp"
 #include "manager.hpp"
@@ -93,13 +92,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   /* 11 */(const wchar_t *)MMenuUserMenu,0,0,
   /* 12 */(const wchar_t *)MMenuFileAssociations,0,0,
   /* 13 */(const wchar_t *)MMenuFolderShortcuts,0,0,
-  /* 14 */(const wchar_t *)MMenuEditSortGroups,0,0,
-  /* 15 */(const wchar_t *)MMenuFilter,0,KEY_CTRLI,
-  /* 16 */L"",LIF_SEPARATOR,0,
-  /* 17 */(const wchar_t *)MMenuPluginCommands,0,KEY_F11,
-  /* 18 */(const wchar_t *)MMenuWindowsList,0,KEY_F12,
-  /* 19 */(const wchar_t *)MMenuProcessList,0,KEY_CTRLW,
-  /* 20 */(const wchar_t *)MMenuHotPlugList,0,0,
+  /* 14 */(const wchar_t *)MMenuFilter,0,KEY_CTRLI,
+  /* 15 */L"",LIF_SEPARATOR,0,
+  /* 16 */(const wchar_t *)MMenuPluginCommands,0,KEY_F11,
+  /* 17 */(const wchar_t *)MMenuWindowsList,0,KEY_F12,
+  /* 18 */(const wchar_t *)MMenuProcessList,0,KEY_CTRLW,
+  /* 19 */(const wchar_t *)MMenuHotPlugList,0,0,
   };
 
 
@@ -428,22 +426,19 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         case 13: // Folder shortcuts
           ShowFolderShortcut();
           break;
-        case 14: // Edit sort groups
-          CtrlObject->GrpSort->EditGroups();
-          break;
-        case 15: // File panel filter
+        case 14: // File panel filter
           CtrlObject->Cp()->ActivePanel->EditFilter();
           break;
-        case 17: // Plugin commands
+        case 16: // Plugin commands
           FrameManager->ProcessKey(KEY_F11);
           break;
-        case 18: // Screens list
+        case 17: // Screens list
           FrameManager->ProcessKey(KEY_F12);
           break;
-        case 19: // Task list
+        case 18: // Task list
           ShowProcessList();
           break;
-        case 20: // HotPlug list
+        case 19: // HotPlug list
           ShowHotplugDevice();
           break;
       }

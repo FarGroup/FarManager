@@ -14,7 +14,7 @@ flshow.cpp
 #include "plugin.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
@@ -203,7 +203,7 @@ void FileList::ShowFileList(int Fast)
           SetColor(COL_PANELCOLUMNTITLE);
           OutCharacter[0]=SortOrder==1 ? LocalLowerW(Ch[1]):LocalUpperW(Ch[1]);
           TextW(OutCharacter);
-          if (Filter!=NULL && Filter->IsEnabled())
+          if (Filter!=NULL && Filter->IsEnabledOnPanel())
           {
             OutCharacter[0]=L'*';
             TextW(OutCharacter);
@@ -231,7 +231,7 @@ void FileList::ShowFileList(int Fast)
   }
   int TitleX2=Opt.Clock && !Opt.ShowMenuBar ? Min(ScrX-4,X2):X2;
   int TruncSize=TitleX2-X1-3;
-  if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabled())
+  if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabledOnPanel())
     TruncSize-=2;
 
   GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
@@ -306,55 +306,39 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-int FileList::GetShowColor(int Position)
+int FileList::GetShowColor(int Position, int ColorType)
 {
   DWORD ColorAttr=COL_PANELTEXT;
+  const DWORD FarColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
   if (ListData && Position < FileCount)
   {
     struct FileListItem *CurPtr=ListData[Position];
 
+    int Pos = HIGHLIGHTCOLOR_NORMAL;
+
     if (CurFile==Position && Focus && FileCount > 0)
     {
       if (CurPtr->Selected)
-      {
-        if (CurPtr->Colors.CursorSelColor && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.CursorSelColor;
-        else
-          ColorAttr=COL_PANELSELECTEDCURSOR;
-      }
+        Pos = HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR;
       else
-      {
-        if (CurPtr->Colors.CursorColor && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.CursorColor;
-        else
-          ColorAttr=COL_PANELCURSOR;
-      }
+        Pos = HIGHLIGHTCOLOR_UNDERCURSOR;
     }
     else
-    {
       if (CurPtr->Selected)
-      {
-        if (CurPtr->Colors.SelColor && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.SelColor;
-        else
-          ColorAttr=COL_PANELSELECTEDTEXT;
-      }
-      else
-      {
-        if (CurPtr->Colors.Color && Opt.Highlight)
-          ColorAttr=CurPtr->Colors.Color;
-      }
-    }
+        Pos = HIGHLIGHTCOLOR_SELECTED;
+
+    ColorAttr=CurPtr->Colors.Color[ColorType][Pos];
+    if (!ColorAttr || !Opt.Highlight)
+      ColorAttr=FarColor[Pos];
   }
 
   return ColorAttr;
 }
 
-
-void FileList::SetShowColor (int Position)
+void FileList::SetShowColor (int Position, int ColorType)
 {
-        SetColor (GetShowColor(Position));
+  SetColor (GetShowColor(Position,ColorType));
 }
 
 void FileList::ShowSelectedSize()
@@ -811,7 +795,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   Width--;
                   OutCharacter[0]=CurPtr->Colors.MarkChar;
+                  int OldColor=GetColor();
+                  if (!ShowStatus)
+                    SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
                   TextW(OutCharacter);
+                  SetColor(OldColor);
                 }
 
                 const wchar_t *NamePtr = ShowShortNames && !CurPtr->strShortName.IsEmpty () && !ShowStatus ? CurPtr->strShortName:CurPtr->strName;
@@ -1090,13 +1078,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
       {
         if ( !ShowStatus )
         {
-          SetColor (GetShowColor (ListPos));
+          SetShowColor (ListPos);
 
           if ( Level == ColumnsInGlobal )
-             SetColor (COL_PANELBOX);
-                }
+            SetColor (COL_PANELBOX);
+        }
 
-                if ( K == ColumnCount-1 )
+        if ( K == ColumnCount-1 )
           SetColor(COL_PANELBOX);
 
         GotoXY(CurX+ColumnWidth,CurY);
@@ -1107,7 +1095,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           BoxTextW((WORD)(ShowStatus ? 0x20:(BoxSymbols[VerticalLineEx[0]-0x0B0])));
 
         if ( !ShowStatus )
-                SetColor (COL_PANELTEXT);
+          SetColor (COL_PANELTEXT);
       }
 
       if(!ShowStatus)

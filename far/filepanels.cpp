@@ -23,7 +23,7 @@ filepanels.cpp
 #include "qview.hpp"
 #include "infolist.hpp"
 #include "help.hpp"
-#include "filter.hpp"
+#include "filefilter.hpp"
 #include "findfile.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
@@ -359,7 +359,7 @@ int FilePanels::SwapPanels(void)
     SwapType=LastLeftType;
     LastLeftType=LastRightType;
     LastRightType=SwapType;
-    PanelFilter::SwapFilter();
+    FileFilter::SwapFilter();
 
     Ret=TRUE;
   }

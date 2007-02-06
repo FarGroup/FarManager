@@ -1610,7 +1610,7 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_TEXT:
       {
-          strStr = CurItem->strData;
+        strStr = CurItem->strData;
 
         LenText=LenStrItem(I,strStr);
 
@@ -1624,7 +1624,7 @@ void Dialog::ShowDialog(int ID)
           X=0;
 
         if ( (CX2 <= 0) || (CX2 < CX1) )
-          CW = LenStrItem(I,strStr);
+          CW = LenText;
 
         lpwszStr = strStr.GetBuffer();
 
@@ -1641,7 +1641,7 @@ void Dialog::ShowDialog(int ID)
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
         // вместо этого:
-        if(CX1 > -1 && CX2 > 0 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
+        if(CX1 > -1 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
         {
           int CntChr=CX2-CX1+1;
           SetColor(Attr&0xFF);
@@ -1649,6 +1649,12 @@ void Dialog::ShowDialog(int ID)
           if(X1+X+CntChr-1 > X2)
             CntChr=X2-(X1+X)+1;
           mprintfW(L"%*s",CntChr,L"");
+          if (CntChr < LenText)
+          {
+          	lpwszStr = strStr.GetBuffer();
+          	lpwszStr[CntChr]=0;
+          	strStr.ReleaseBuffer();
+          }
         }
 
         if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
