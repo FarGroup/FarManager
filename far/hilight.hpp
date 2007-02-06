@@ -9,7 +9,7 @@ Files highlighting
 
 #include "CFileMask.hpp"
 #include "struct.hpp"
-#include "filefilter.hpp"
+#include "filefilterparams.hpp"
 #include "array.hpp"
 
 class VMenu;

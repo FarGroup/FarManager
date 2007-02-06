@@ -63,7 +63,7 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
   xstrncpy(CheckMask,Mask,sizeof(CheckMask)-1);
   char *Ptr;
   // проверим
-  if((Ptr=strchr(CheckMask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
+  if((Ptr=strchr(CheckMask,'%')) != NULL && !LocalStrnicmp(Ptr,"%PATHEXT%",9))
   {
     int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-CheckMask;
     // Если встречается %pathext%, то допишем в конец...
@@ -714,8 +714,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   // История для маски файлов
   const char FilterMasksHistoryName[] = "FilterMasks";
   // Маски для диалога настройки
-  char DateMask[16],DateStrAfter[16],DateStrBefore[16];
-  char TimeMask[16],TimeStrAfter[16],TimeStrBefore[16];
+  char DateMask[16];
+  char TimeMask[16];
 
   // Определение параметров даты и времени в системе.
   int DateSeparator=GetDateSeparator();

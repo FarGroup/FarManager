@@ -639,6 +639,7 @@ void HighlightFiles::HiEdit(int MenuPos)
         RightPanel->Redraw();
 
         FillMenu(&HiMenu,MenuPos=SelectPos);
+        HiMenu.SetPosition(-1,-1,0,0);
         HiMenu.Show();
         ScrBuf.Unlock(); // разрешаем прорисовку
       }
