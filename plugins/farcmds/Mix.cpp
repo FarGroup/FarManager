@@ -53,11 +53,11 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->Selected=PInit->Selected;
+    PItem->History=(const char *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    if ((unsigned int)PInit->Data<2000)
-      lstrcpy(PItem->Data,GetMsg((unsigned int)PInit->Data));
+    if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
+      lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
     else
       lstrcpy(PItem->Data,PInit->Data);
   }
