@@ -16,11 +16,11 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->Param.Selected=PInit->Selected;
+    PItem->Param.History=(const char *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    lstrcpy(PItem->Data.Data,((unsigned int)PInit->Data<2000)?
-           GetMsg((unsigned int)PInit->Data):PInit->Data);
+    lstrcpy(PItem->Data.Data,((unsigned int)(DWORD_PTR)PInit->Data<2000)?
+           GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data);
   }
 }
 
