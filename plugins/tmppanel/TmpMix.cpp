@@ -27,7 +27,7 @@ void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
     PItem->Y2=PInit->Y2;
     PItem->Flags=PInit->Flags;
     PItem->Focus=0;
-    PItem->Selected=0;
+    PItem->History=0;
     PItem->DefaultButton=0;
     lstrcpy(PItem->Data,PInit->Data!=-1 ? GetMsg(PInit->Data) : "");
   }
