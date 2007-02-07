@@ -3,16 +3,16 @@ struct InitDialogItem
   int Type;
   int X1, Y1, X2, Y2;
   int Focus;
-  int Selected;
+  DWORD_PTR Selected;
   unsigned int Flags;
   int DefaultButton;
   char *Data;
 };
 
 struct Options{
-  short IgnoreQuotes;	// Правило: "Игнорировать скобки, заключенные в кавычки"
+  short IgnoreQuotes; // Правило: "Игнорировать скобки, заключенные в кавычки"
   short IgnoreAfter;    // Правило: "Игнорировать за скобкой"
-  short BracketPrior;	// Правило: "Приоритет скобок"
+  short BracketPrior; // Правило: "Приоритет скобок"
   short JumpToPair;     // Правило: "Перейти на парную скобку при отметке блока"
   short Beep;
   short Reserved[2];
@@ -34,4 +34,3 @@ static struct PluginStartupInfo Info;
 static char PluginRootKey[80];
 
 int Config();
-
