@@ -40,7 +40,6 @@ int FTP::_FtpGetFile( CONSTSTR lpszRemoteFile,CONSTSTR lpszNewFile,BOOL Reget,in
     FtpSetRetryCount( hConnect,0 );
 
     int   rc;
-    DWORD dw;
     do{
       SetLastError( ERROR_SUCCESS );
 

@@ -453,7 +453,7 @@ int encode_UTF8(WCHAR *ws, int wsz, char *utf8s, int sz)
     s = utf8s;
     while(*ws && i<sz && iw<wsz) {
         if(*ws <= 0x007F) {                 /* 1 octet */
-            *s++ = *ws;
+            *s++ = (char)*ws;
             i++;
         }
         else if(*ws <= 0x07FF) {            /* 2 octets */
@@ -515,8 +515,8 @@ int Connection::FromOEM( BYTE *Line,int _sz,int fsz )
        case 3:
           {
                WCHAR *tmp = (WCHAR *)_Alloc( sz*sizeof(WCHAR) );
-               MultiByteToWideChar( CP_OEMCP, 0, Line, sz, tmp, sz);
-               ret = encode_UTF8(tmp, sz, Line, fsz);
+               MultiByteToWideChar( CP_OEMCP, 0, (LPCSTR)Line, sz, tmp, sz);
+               ret = encode_UTF8(tmp, sz, (char *)Line, fsz);
                _Del( tmp );
                break;
           }
@@ -626,7 +626,7 @@ int Connection::ToOEM( BYTE *Line,int _sz )
            {
                 WCHAR *tmp = (WCHAR *)_Alloc( sz*sizeof(WCHAR) );
                 ret = decode_UTF8(Line, sz, tmp, sz);
-                WideCharToMultiByte( CP_OEMCP, 0, tmp, ret, Line, ret, NULL, NULL);
+                WideCharToMultiByte( CP_OEMCP, 0, tmp, ret, (LPSTR)Line, ret, NULL, NULL);
                 for (int i=ret; i<sz; i++)
                   Line[i] = 0;
                 _Del( tmp );

@@ -24,7 +24,7 @@ void MkFileInfo( char *buff,int bsz,CONSTSTR title,LPFAR_FIND_DATA p )
 }
 
 static BOOL DlgResume;
-long WINAPI idDlgProc( HANDLE hDlg, int Msg, int id, long key )
+LONG_PTR WINAPI idDlgProc( HANDLE hDlg, int Msg, int id, LONG_PTR key )
   {  FP_Dialog d( hDlg );
 
      if ( Msg == DN_KEY && (id >= 8 && id <= 14) )

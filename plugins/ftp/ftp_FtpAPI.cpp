@@ -443,7 +443,7 @@ BOOL FtpGetFtpDirectory(Connection *Connect)
        while( *m && (isdigit(*m) || strchr("\t\b ",*m) != NULL) ) m++;
        if ( !m[0] )
          return FALSE;
-       s.Del( 0, m-s.c_str() );
+       s.Del( 0, (int)(m-s.c_str()) );
 
      //Decode FF
        if ( Connect->Host.UndupFF ) {

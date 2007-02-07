@@ -236,7 +236,7 @@ BOOL FTP::ShowFilesList( PFP_SizeItemList il )
        }
 
        nm = PointToName( FTP_FILENAME(p) );
-       for ( i = m - mi[n].Text; i < w; i++ )
+       for ( i = (int)(m - mi[n].Text); i < w; i++ )
          if ( *nm )
            *(m++) = *(nm++);
           else

@@ -199,7 +199,7 @@ char *FTPHost::MkINIFile( char *DestName,CONSTSTR Path,CONSTSTR DestPath )
      m1  = HostName[0] ? HostName : Host;  //Source to translate
      bad = TRUE;                           //Do not add `bad` an start
 
-     for ( int i = m - DestName + 1;
+     for ( int i = (int)(m - DestName + 1);
            i < FAR_MAX_PATHSIZE-4 && //Until not full Dest
            *m1;                   //And source exist
            m1++ ) {
@@ -312,7 +312,7 @@ BOOL FTPHost::SetHostName( CONSTSTR hnm,CONSTSTR usr,CONSTSTR pwd )
     if (m) {
 //xx@ftp.xx
       StrCpy( Host,m+1,sizeof(Host) );
-      StrCpy( User,mHost,Min(m-mHost+1,(int)sizeof(User)) );
+      StrCpy( User,mHost,Min((int)(m-mHost+1),(int)sizeof(User)) );
       m = FindLastBefore( User,':','/' );
       if (m) {
 //xx:xx@ftp.xx

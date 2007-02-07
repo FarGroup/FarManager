@@ -5,6 +5,10 @@
 LIBROOT = .
 !ENDIF
 
+!IF "$(FARROOT)" == ""
+FARROOT = .
+!ENDIF
+
 !IF "$(PROJECT)" == ""
 PROJECT = _dummy
 !ENDIF
@@ -22,41 +26,29 @@ PROJCONDEF = /DEF:$(CONDEF)
 !ENDIF
 
 # FStd lib
-FARROOT     = .
 OUTDIR      = $(FARROOT)\OUTPUT
 
-# Path to base of compiller directory
-CROOT       = D:\vc6
-MSROOT      = D:\vc6\Common\MSDev98
-
 # Used compiller tools
-CC          = $(CROOT)\bin\cl.exe
-LIB         = $(CROOT)\bin\lib.exe
-LINKER      = $(CROOT)\bin\link.exe
-RCC         = $(MSROOT)\bin\rc.exe
+CC          = cl.exe
+BUILDLIB    = lib.exe
+LINKER      = link.exe
+RCC         = rc.exe
 
 #--  INCLUDE  -----------------------------
-# Standart C\CPP headers directory
-#
-STDINCLUDE  = /I$(CROOT)\include
-#
 # Full headers directory list, inlude FAR specified
 #
-INCLUDE     = /I$(FARROOT) /I.. /I. $(STDINCLUDE)
+MYINCLUDE     = /I"$(FARROOT)" /I".." /I"."
 
 #--  LIB ----------------------------------
-# Standart C\CPP library directory
-STDLIBS     = $(CROOT)\lib
-
 # Full libraries directory list, inlude FAR specified
-LIBS        = /LIBPATH:$(FARROOT) /LIBPATH:$(STDLIBS)
+MYLIBS        = /LIBPATH:$(FARROOT)
 
 # Command line compiller flags
-CFLAGS      = /nologo /c /W3 $(INCLUDE) /G6 /GD /Gf /Fp$(OUTDIR)\plugin.pch \
+CFLAGS      = /nologo /c /W3 $(MYINCLUDE) /G6 /GD /Gf /Fp$(OUTDIR)\plugin.pch \
               /D "_CONSOLE" /D __USE_TRAPLOGER__=1
 
 #  LINKER FLAGS
-LBASEFLAGS  = /opt:nowin98 /stack:0x100000,0x4000 /SUBSYSTEM:WINDOWS $(LIBS)
+LBASEFLAGS  = /opt:nowin98 /stack:0x100000,0x4000 /SUBSYSTEM:WINDOWS $(MYLIBS)
 LFLAGS      = $(LBASEFLAGS) /dll
 # /nologo
 
@@ -83,13 +75,17 @@ LFLAGS   = $(LFLAGS) /MAP:NUL
 !endif
 
 #-- RESOURCE FLAGS ------------------------
-RFLAGS   = -i$(INCLUDE)
+RFLAGS   = -i$(MYINCLUDE)
 
 #-- C startup OBJECTS, LIBS ---------------
 CLIBS    = $(CLIBS) \
            advapi32.lib winmm.lib user32.lib kernel32.lib gdi32.lib \
            winspool.lib comdlg32.lib shell32.lib \
            ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+
+!IF "$(CPU)" == "AMD64"
+CLIBS    = $(CLIBS) bufferoverflowu.lib
+!ENDIF
 #############################################################################
 # Implicit source rules.                                                    #
 #############################################################################

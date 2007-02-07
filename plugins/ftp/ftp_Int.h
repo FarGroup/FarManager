@@ -110,7 +110,7 @@ extern SOCKET   DECLSPEC scAccept( SOCKET *peer, struct sockaddr FAR* addr, int*
 FAR_EXTERN void   FAR_DECLSPEC SetStartupInfo( const PluginStartupInfo *Info);
 FAR_EXTERN void   FAR_DECLSPEC GetPluginInfo( PluginInfo *Info);
 FAR_EXTERN int    FAR_DECLSPEC Configure(int ItemNumber);
-FAR_EXTERN HANDLE FAR_DECLSPEC OpenPlugin(int OpenFrom,int Item);
+FAR_EXTERN HANDLE FAR_DECLSPEC OpenPlugin(int OpenFrom,INT_PTR Item);
 FAR_EXTERN void   FAR_DECLSPEC ClosePlugin(HANDLE hPlugin);
 FAR_EXTERN int    FAR_DECLSPEC GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
 FAR_EXTERN void   FAR_DECLSPEC FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);

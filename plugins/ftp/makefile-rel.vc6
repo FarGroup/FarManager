@@ -1,3 +1,4 @@
+FARROOT    = .\FStdLib
 LIBROOT    = .\FStdLib
 PNAME      = FarFtp
 PROJECT    = $(PNAME).dll

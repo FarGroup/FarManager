@@ -21,7 +21,7 @@ int DECLSPEC FP_Message( unsigned int Flags,CONSTSTR HelpTopic,
        char *b = (char*)Items,
             *e;
        for( ItemsNumber = 0; (e=strchr(b,'\n')) != NULL; ItemsNumber++, b = e+1 )
-         width = Max( width,e-b );
+         width = Max( width,(int)(e-b) );
      } else
    //Array of lines - check if lines are message id
        for ( rc = 0; rc < ARRAY_SIZE(litems) && rc < ItemsNumber; rc++ ) {

@@ -36,7 +36,7 @@ static int  ColorFore;
 static int  ColorBk;
 static char Title[FAR_MAX_CAPTION];
 
-static long WINAPI CDLG_WndProc( HANDLE hDlg,int Msg,int Param1,long Param2 )
+static LONG_PTR WINAPI CDLG_WndProc( HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2 )
   {  FarDialogItemData id;
      char str[FAR_MAX_CAPTION+50];
 
@@ -54,7 +54,7 @@ static long WINAPI CDLG_WndProc( HANDLE hDlg,int Msg,int Param1,long Param2 )
                                //set caption
                                id.PtrLength = strLen(str);
                                id.PtrData   = str;
-                               FP_Info->SendDlgMessage( hDlg,DM_SETTEXT,0,(long)(&id) );
+                               FP_Info->SendDlgMessage( hDlg,DM_SETTEXT,0,(LONG_PTR)(&id) );
                                //Invalidate
                                FP_Info->SendDlgMessage( hDlg,DM_SETREDRAW,0,0 );
                             break;

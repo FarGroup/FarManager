@@ -65,7 +65,7 @@ BOOL FTP::SetDirectoryStepped( CONSTSTR Dir, BOOL update )
       } else {
         m = strchr( Dir, '/' );
         if ( m ) {
-          num = Min( (int)sizeof(str)-1, m-Dir );
+          num = Min( (int)sizeof(str)-1, (int)(m-Dir) );
           strncpy( str, Dir, num ); str[num] = 0;
           Dir = m+1;
         } else

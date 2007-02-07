@@ -245,7 +245,7 @@ FAR_EXTERN int FAR_DECLSPEC Configure(int ItemNumber)
   return TRUE;
 }
 
-FAR_EXTERN HANDLE FAR_DECLSPEC OpenPlugin(int OpenFrom,int Item)
+FAR_EXTERN HANDLE FAR_DECLSPEC OpenPlugin(int OpenFrom,INT_PTR Item)
   {  LastUsedPlugin = NULL;
      PROC(("OpenPlugin","%d,%d",OpenFrom,Item))
      FTP *Ftp;

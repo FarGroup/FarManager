@@ -3,14 +3,12 @@
 /*
   farcolor.hpp
 
-  Colors Index for FAR Manager 1.70
+  Colors Index for FAR Manager 1.71 build 2195
   HKCU\Software\Far\Colors\CurrentPalette
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2003 FAR group
+  Copyrigth (c) 2000-2007 FAR group
 */
-
-/* Revision: 1.12 18.09.2003 $ */
 
 
 enum PaletteColors

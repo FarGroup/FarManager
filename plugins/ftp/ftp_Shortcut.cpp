@@ -40,7 +40,7 @@ FTP
     if ( !m || strlen(m) < 4 ) return FALSE;
     m++;
     Host.Init();
-    StrCpy( Host.Host,     Line, Min( m-Line, (int)sizeof(Host.Host) ) );
+    StrCpy( Host.Host,     Line, Min((int)(m-Line), (int)sizeof(Host.Host) ) );
     StrCpy( Host.HostName, Host.Host );
 
     Host.AskLogin    = *(m++) - '\x3'; if (*m == 0) return FALSE;

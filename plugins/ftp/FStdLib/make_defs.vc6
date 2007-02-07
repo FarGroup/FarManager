@@ -5,6 +5,10 @@
 LIBROOT = .
 !ENDIF
 
+!IF "$(FARROOT)" == ""
+FARROOT = .
+!ENDIF
+
 !IF "$(PROJECT)" == ""
 PROJECT = _dummy
 !ENDIF
@@ -43,8 +47,6 @@ CPREFIX = $(CPREFIX)dy
 # Objects changes
 !IF "$(USE_ALL_LIB)" != ""
 DEF_DEFINES = $(DEF_DEFINES) /D__NOVCL__=1 /DUSE_ALL_LIB=1
-INCLUDE     = /Id:\mywin\libs
-LIBS        = /LIBPATH:d:\mywin\libs
 FARSTDLIB   = $(FARROOT)\FAR_S$(CPREFIX).lib
 CLIBS       = $(CLIBS) stds_$(CPREFIX).lib
 LIBOBJS     = $(FARROOT)\FARStdlib\fstd_Editor.obj  $(FARROOT)\FARStdlib\fstd_cDialog.obj \
@@ -66,32 +68,24 @@ LIBOBJS     = $(FARROOT)\FARStdlib\fstd_Editor.obj  $(FARROOT)\FARStdlib\fstd_cD
 FARSTDLIB   = $(FARROOT)\FARStdLib_$(CPREFIX).lib
 !ENDIF
 
-# Path to base of compiller directory
-CROOT       = D:\vc6
-MSROOT      = D:\vc6\Common\MSDev98
-
 # Used compiller tools
-RCC         = $(MSROOT)\bin\rc.exe
+RCC         = rc.exe
 !IF "$(USE_IC)" != ""
-CC          = d:\ic\bin\icl.exe
-LIB         = d:\ic\bin\xilib.exe
-LINKER      = d:\ic\bin\xilink.exe
+CC          = icl.exe
+BUILDLIB         = xilib.exe
+LINKER      = xilink.exe
 CFLAGS      = $(CFLAGS) /G7 /Ot
 !ELSE
-CC          = $(CROOT)\bin\cl.exe
-LIB         = $(CROOT)\bin\lib.exe
-LINKER      = $(CROOT)\bin\link.exe
+CC          = cl.exe
+BUILDLIB         = lib.exe
+LINKER      = link.exe
 CFLAGS      = $(CFLAGS) /Ox
 !ENDIF
 
 #--  INCLUDE  -----------------------------
-# Standart C\CPP headers directory
-#
-STDINCLUDE  = /I$(CROOT)\include
-#
 # Full headers directory list, inlude FAR specified
 #
-INCLUDE     = $(INCLUDE) /I$(FARROOT) /I. $(STDINCLUDE)
+MYINCLUDE     = /I$(FARROOT) /I.
 
 # /W3  set warning level (default n=1)
 # /Gy  separate functions for linker
@@ -106,14 +100,13 @@ INCLUDE     = $(INCLUDE) /I$(FARROOT) /I. $(STDINCLUDE)
 
 #--  LIB ----------------------------------
 # Standart C\CPP library directory
-STDLIBS     = /LIBPATH:$(CROOT)\lib /LIBPATH:d:\ic\lib
 # Full libraries directory list, inlude FAR specified
-LIBS        = $(LIBS) /LIBPATH:$(FARROOT) $(STDLIBS)
+MYLIBS        = /LIBPATH:$(FARROOT)
 # Command line compiller flags
-CFLAGS      = /nologo /c /W3 /I$(INCLUDE) /G6 /GF $(DEF_DEFINES) /YX /Fp$(PCHNAME)
+CFLAGS      = /nologo /c /W3 $(MYINCLUDE) /G6 /GF $(DEF_DEFINES) /YX /Fp$(PCHNAME)
 
 #  LINKER FLAGS
-LBASEFLAGS  = $(LBASEFLAGS) /opt:nowin98 /stack:0x100000,0x4000 /SUBSYSTEM:CONSOLE $(LIBS)
+LBASEFLAGS  = $(LBASEFLAGS) /opt:nowin98 /stack:0x100000,0x4000 /SUBSYSTEM:CONSOLE $(MYLIBS)
 LFLAGS      = $(LBASEFLAGS) /dll
 # /nologo
 
@@ -152,13 +145,17 @@ CONLFLAGS1= $(LBASEFLAGS)
 !endif
 
 #-- RESOURCE FLAGS ------------------------
-RFLAGS   = -i$(INCLUDE)
+RFLAGS   = -i$(MYINCLUDE)
 
 #-- C startup OBJECTS, LIBS ---------------
 CLIBS    = $(CLIBS) \
            advapi32.lib winmm.lib user32.lib kernel32.lib gdi32.lib \
            winspool.lib comdlg32.lib shell32.lib \
            ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+
+!IF "$(CPU)" == "AMD64"
+CLIBS    = $(CLIBS) bufferoverflowu.lib
+!ENDIF
 #############################################################################
 # Implicit source rules.                                                    #
 #############################################################################
@@ -180,7 +177,7 @@ CLIBS    = $(CLIBS) \
 FARLIB: $(FARSTDLIB)
 
 $(FARSTDLIB): $(LIBOBJS)
-    $(LIB) /NOLOGO /SUBSYSTEM:CONSOLE /OUT:"$*.lib" @<<
+    $(BUILDLIB) /NOLOGO /SUBSYSTEM:CONSOLE /OUT:"$*.lib" @<<
     $(LIBOBJS)
 <<
 

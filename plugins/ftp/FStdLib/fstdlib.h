@@ -341,21 +341,21 @@ STRUCT( FP_Dialog )
 
    void Assign( HANDLE h ) { Handle = h; }
 
-    int      Focused( void )                      const { return FP_Info->SendDlgMessage(Handle,DM_GETFOCUS,0,0); }
+    int      Focused( void )                      const { return (int)FP_Info->SendDlgMessage(Handle,DM_GETFOCUS,0,0); }
     void     Focused( int num )                   const { FP_Info->SendDlgMessage(Handle,DM_SETFOCUS,num,0); }
     int      Enabled( int num, int v = -1 )       const { return (int)FP_Info->SendDlgMessage(Handle,DM_ENABLE,num,v); }
-    BOOL     Visible( int num, int v = -1 )       const { return FP_Info->SendDlgMessage(Handle,DM_SHOWITEM,num,v); }
+    BOOL     Visible( int num, int v = -1 )       const { return (BOOL)FP_Info->SendDlgMessage(Handle,DM_SHOWITEM,num,v); }
 
     bool     Checked( int num )                   const { return FP_Info->SendDlgMessage(Handle,DM_GETCHECK,num,0) == BSTATE_CHECKED; }
     void     Checked( int num, bool v )           const { FP_Info->SendDlgMessage(Handle,DM_SETCHECK,num,v ? BSTATE_CHECKED : BSTATE_UNCHECKED); }
     void     CheckTogle( int num )                const { Checked(num,!Checked(num)); }
 
-    bool     GetItem( int num, PFarDialogItem p ) const { return FP_Info->SendDlgMessage(Handle,DM_GETDLGITEM,num,(long)p) == TRUE; }
-    bool     SetItem( int num, PFarDialogItem p ) const { return FP_Info->SendDlgMessage(Handle,DM_SETDLGITEM,num,(long)p) == TRUE; }
+    bool     GetItem( int num, PFarDialogItem p ) const { return FP_Info->SendDlgMessage(Handle,DM_GETDLGITEM,num,(LONG_PTR)p) == TRUE; }
+    bool     SetItem( int num, PFarDialogItem p ) const { return FP_Info->SendDlgMessage(Handle,DM_SETDLGITEM,num,(LONG_PTR)p) == TRUE; }
 
-    bool     DlgRect( PSRect p )                  const { return FP_Info->SendDlgMessage(Handle,DM_GETDLGRECT,0,(long)p) == TRUE; }
-    bool     ItemRect( int num,PSRect p )         const { return FP_Info->SendDlgMessage(Handle,DM_GETITEMPOSITION,num,(long)p) == TRUE; }
-    int      CursorPos( int num )                 const { COORD cp; return FP_Info->SendDlgMessage(Handle,DM_GETCURSORPOS,num,(long)&cp) == TRUE ? cp.X : 0; }
+    bool     DlgRect( PSRect p )                  const { return FP_Info->SendDlgMessage(Handle,DM_GETDLGRECT,0,(LONG_PTR)p) == TRUE; }
+    bool     ItemRect( int num,PSRect p )         const { return FP_Info->SendDlgMessage(Handle,DM_GETITEMPOSITION,num,(LONG_PTR)p) == TRUE; }
+    int      CursorPos( int num )                 const { COORD cp; return FP_Info->SendDlgMessage(Handle,DM_GETCURSORPOS,num,(LONG_PTR)&cp) == TRUE ? cp.X : 0; }
     bool     CursorPos( int num,int pos ) const;
 
     void     Lock( bool v = true );
@@ -366,7 +366,7 @@ STRUCT( FP_Dialog )
     void     Close( int id = 0 )                  const { FP_Info->SendDlgMessage(Handle,DM_CLOSE,id,0); }
     void     Invalidate( void )                   const { FP_Info->SendDlgMessage(Handle,DM_REDRAW,0,0); }
     void     Visible( bool v )                    const { FP_Info->SendDlgMessage(Handle,DM_SHOWDIALOG,(BOOL)v,0); }
-    long     User( int msg,int p=0,long p1=0 )    const { return FP_Info->SendDlgMessage(Handle,msg,p,p1); }
+    LONG_PTR User(int msg,int p=0,LONG_PTR p1=0)  const { return FP_Info->SendDlgMessage(Handle,msg,p,p1); }
 
     int      SetText( int num, CONSTSTR str,int sz = 0 ) const;
     CONSTSTR GetText( int num )                      const;

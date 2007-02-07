@@ -89,7 +89,7 @@ struct cmd *Connection::getcmd(register char *name)
 
             if (!*q) {                      /* the name was a prefix */
               if (q - name > longest) {
-                longest = q - name;
+                longest = (int)(q - name);
                 nmatches = 1;
                 found = c;
               } else

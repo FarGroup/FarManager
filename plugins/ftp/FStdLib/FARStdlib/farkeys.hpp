@@ -3,13 +3,11 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.70
+  Inside KeyName for FAR Manager 1.71 build 2195
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2003 FAR group
+  Copyrigth (c) 2000-2007 FAR group
 */
-
-/* Revision: 1.24 18.09.2003 $ */
 
 
 enum BaseDefKeyboard
@@ -37,6 +35,8 @@ enum BaseDefKeyboard
   KEY_SPACE                =0x00000020,
 
   KEY_MASKF                =0x00000FFF,
+
+  KEY_FKEY_BEGIN           =0x00000100,
 
   KEY_BREAK                =0x00000103,
 
@@ -85,11 +85,46 @@ enum BaseDefKeyboard
   KEY_F11                  =0x0000017A,
   KEY_F12                  =0x0000017B,
 
+  KEY_F13                  =0x0000017C,
+  KEY_F14                  =0x0000017D,
+  KEY_F15                  =0x0000017E,
+  KEY_F16                  =0x0000017F,
+  KEY_F17                  =0x00000180,
+  KEY_F18                  =0x00000181,
+  KEY_F19                  =0x00000182,
+  KEY_F20                  =0x00000183,
+  KEY_F21                  =0x00000184,
+  KEY_F22                  =0x00000185,
+  KEY_F23                  =0x00000186,
+  KEY_F24                  =0x00000187,
+
+  KEY_BROWSER_BACK         =0x000001A6,
+  KEY_BROWSER_FORWARD      =0x000001A7,
+  KEY_BROWSER_REFRESH      =0x000001A8,
+  KEY_BROWSER_STOP         =0x000001A9,
+  KEY_BROWSER_SEARCH       =0x000001AA,
+  KEY_BROWSER_FAVORITES    =0x000001AB,
+  KEY_BROWSER_HOME         =0x000001AC,
+  KEY_VOLUME_MUTE          =0x000001AD,
+  KEY_VOLUME_DOWN          =0x000001AE,
+  KEY_VOLUME_UP            =0x000001AF,
+  KEY_MEDIA_NEXT_TRACK     =0x000001B0,
+  KEY_MEDIA_PREV_TRACK     =0x000001B1,
+  KEY_MEDIA_STOP           =0x000001B2,
+  KEY_MEDIA_PLAY_PAUSE     =0x000001B3,
+  KEY_LAUNCH_MAIL          =0x000001B4,
+  KEY_LAUNCH_MEDIA_SELECT  =0x000001B5,
+  KEY_LAUNCH_APP1          =0x000001B6,
+  KEY_LAUNCH_APP2          =0x000001B7,
+
   KEY_CTRLALTSHIFTPRESS    =0x00000201,
   KEY_CTRLALTSHIFTRELEASE  =0x00000202,
 
   KEY_MSWHEEL_UP           =0x00000203,
   KEY_MSWHEEL_DOWN         =0x00000204,
+
+  KEY_VK_0xFF_BEGIN        =0x00000300,
+  KEY_VK_0xFF_END          =0x000003FF,
 
   KEY_END_FKEY             =0x00000FFF,
 
@@ -97,6 +132,7 @@ enum BaseDefKeyboard
   KEY_IDLE                 =0x00001002,
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
+
 };
 
 enum AddDefKeyboard

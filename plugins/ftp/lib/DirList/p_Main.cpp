@@ -71,7 +71,7 @@ WORD NET_MonthNo( CONSTSTR month )
       }
 
       while( e ) {
-        StrCpy( mn, b, Min( (int)sizeof(mn), e-b+1 ) );
+        StrCpy( mn, b, Min( (int)sizeof(mn),(int)(e-b+1) ) );
         if ( StrNCmpI( month,mn,strLen(mn) ) == 0 )
           return n+1;
         b = e+1;

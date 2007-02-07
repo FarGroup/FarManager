@@ -174,7 +174,7 @@ BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info, BOOL nLinks )
 //Owner
     e = SkipNSpace( line );
     CHECK( (*e == 0), FALSE )
-    len = Min( (int)sizeof(entry_info->FTPOwner)-1, e-line );
+    len = Min( (int)sizeof(entry_info->FTPOwner)-1, (int)(e-line) );
     StrCpy( entry_info->FTPOwner, line, len+1 );
 
 //Delimiter
@@ -189,7 +189,7 @@ BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info, BOOL nLinks )
     CHECK( (*e == 0), FALSE )
     StrCpy( entry_info->FTPOwner+len,
             line,
-            Min( (int)sizeof(entry_info->FTPOwner) - len, e-line+1 ) );
+            Min( (int)sizeof(entry_info->FTPOwner) - len, (int)(e-line+1) ) );
 
 //Size
     line = SkipSpace( e );
