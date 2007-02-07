@@ -457,6 +457,8 @@ struct Options
 
   struct Confirmation Confirm;
   struct DizOptions Diz;
+
+  int ShellRightLeftArrowsRule;
   struct PanelOptions LeftPanel;
   struct PanelOptions RightPanel;
 

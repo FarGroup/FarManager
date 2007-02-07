@@ -203,6 +203,8 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_DRIVETYPE,         // PPanel.DriveType - пассивная панель: тип привода
   MCODE_V_APANEL_HEIGHT,            // APanel.Height - активная панель:  высота панели
   MCODE_V_PPANEL_HEIGHT,            // PPanel.Height - пассивная панель: высота панели
+  MCODE_V_APANEL_COLUMNCOUNT,       // APanel.ColumnCount - активная панель:  количество колонок
+  MCODE_V_PPANEL_COLUMNCOUNT,       // PPanel.ColumnCount - пассивная панель: количество колонок
 
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте

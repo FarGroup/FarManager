@@ -1167,6 +1167,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmationsW,L"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
   {1, REG_DWORD,  NKeyConfirmationsW,L"Exit",&Opt.Confirm.Exit,1, 0},
 
+  {0, REG_DWORD,  NKeyPanelW,L"ShellRightLeftArrowsRule",&Opt.ShellRightLeftArrowsRule,0, 0},
   {1, REG_DWORD,  NKeyPanelW,L"ShowHidden",&Opt.ShowHidden,1, 0},
   {1, REG_DWORD,  NKeyPanelW,L"Highlight",&Opt.Highlight,1, 0},
   {1, REG_DWORD,  NKeyPanelW,L"SortFolderExt",&Opt.SortFolderExt,0, 0},
