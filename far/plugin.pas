@@ -690,6 +690,7 @@ const
    FCTL_CHECKPANELSEXIST         = 28;
    FCTL_SETNUMERICSORT           = 29;
    FCTL_SETANOTHERNUMERICSORT    = 30;
+   FCTL_GETUSERSCREEN            = 31;
 
 type
    TFarApiControl = function (
