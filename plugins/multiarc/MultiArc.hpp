@@ -15,7 +15,7 @@
 #define RETEXEC_ARCNOTFOUND 0x40000
 
 /* $ 26.07.2001 AA */
-#define COUNT(Msg) (sizeof(Msg)/sizeof(*Msg))
+#define COUNT(Msg) (sizeof(Msg)/sizeof(Msg[0]))
 /* 26.07.2001 AA $ */
 
 #define F_ENCRYPTED 1
@@ -196,7 +196,7 @@ struct InitDialogItem
   unsigned char Type;
   unsigned char X1,Y1,X2,Y2;
   unsigned char Focus;
-  unsigned int Selected;
+  DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
   char *Data;
