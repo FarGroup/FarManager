@@ -1639,7 +1639,7 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_LEFT:         case KEY_NUMPAD4:
-      if (Columns>1 || CmdLength==0)
+      if ( (Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || CmdLength==0 )
       {
         if (CurTopFile>=Height && CurFile-CurTopFile<Height)
           CurTopFile-=Height;
@@ -1649,7 +1649,7 @@ int FileList::ProcessKey(int Key)
       return(FALSE);
 
     case KEY_RIGHT:        case KEY_NUMPAD6:
-      if (Columns>1 || CmdLength==0)
+      if ( (Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || CmdLength==0 )
       {
         if (CurFile+Height<FileCount && CurFile-CurTopFile>=(Columns-1)*(Height))
           CurTopFile+=Height;

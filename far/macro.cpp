@@ -137,7 +137,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.OPIFlags",    MCODE_V_PPANEL_OPIFLAGS,0},
   {2,  "APanel.DriveType",   MCODE_V_APANEL_DRIVETYPE,0}, // APanel.DriveType - активная панель: тип привода
   {2,  "PPanel.DriveType",   MCODE_V_PPANEL_DRIVETYPE,0}, // PPanel.DriveType - пассивная панель: тип привода
-
+  {2,  "APanel.ColumnCount", MCODE_V_APANEL_COLUMNCOUNT,0}, // APanel.ColumnCount - активная панель:  количество колонок
+  {2,  "PPanel.ColumnCount", MCODE_V_PPANEL_COLUMNCOUNT,0}, // PPanel.ColumnCount - пассивная панель: количество колонок
 
   {2,  "CmdLine.Bof",        MCODE_C_CMDLINE_BOF,0}, // курсор в начале cmd-строки редактирования?
   {2,  "CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактирования?
@@ -914,6 +915,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             Cond = (__int64)SelPanel->GetRealSelCount();
           break;
         }
+
+        case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - активная панель:  количество колонок
+        case MCODE_V_PPANEL_COLUMNCOUNT:       // PPanel.ColumnCount - пассивная панель: количество колонок
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_COLUMNCOUNT ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond = (__int64)SelPanel->GetColumnsCount();
+          break;
+        }
+
 
         case MCODE_V_APANEL_WIDTH: // APanel.Width
         case MCODE_V_PPANEL_WIDTH: // PPanel.Width

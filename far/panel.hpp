@@ -196,6 +196,7 @@ class Panel:public ScreenObject
     virtual int IsFullScreen() {return(FALSE);};
     virtual int IsDizDisplayed() {return(FALSE);};
     virtual int IsColumnDisplayed(int Type) {return(FALSE);};
+    virtual int GetColumnsCount(){ return 1;};
     virtual void SetReturnCurrentFile(int Mode) {};
     virtual void QViewDelTempName() {};
     virtual void GetPluginInfo(struct PluginInfo *Info) {};

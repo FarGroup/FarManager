@@ -274,6 +274,7 @@ class FileList:public Panel
     int IsCaseSensitive();
     int IsDizDisplayed();
     int IsColumnDisplayed(int Type);
+    virtual int GetColumnsCount(){ return Columns;};
     void SetReturnCurrentFile(int Mode);
     void GetPluginInfo(struct PluginInfo *Info);
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);
