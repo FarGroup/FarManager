@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2179) (25.01.2007)
+FAR 1.71 alpha 4 (build 2197) (07.02.2007)
 ---------------------------------------------------------------------------
 
 [!] PluginAPI was adjusted for 64bit compatibility.
@@ -25,11 +25,17 @@ FAR 1.71 alpha 4 (build 2179) (25.01.2007)
 
 [+] Macro: Help.FileName, Help.Topic, Help.SelTopic.
 
+[+] Macro: [A|P]Panel.ColumnCount
+
 [+] Добавлена обработка области функциональных клавиш для диалога "Поиска папок"
     (Alt-F10)
 
 [+] API: Для элемента DI_VTEXT добавлена обработка флагов: DIF_CENTERGROUP,
     DIF_SEPARATOR, DIF_SEPARATOR2, DIF_SHOWAMPERSAND.
+
+[+] Добавлено правило TechInfo#75, которое позволяет управлять поведением
+    стрелок влево/вправо (как на основной, так и на дополнительной клавиатуре)
+    в панелях.
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
