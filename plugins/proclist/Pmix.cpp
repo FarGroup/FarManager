@@ -17,11 +17,11 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     Item[i].X2=Init[i].X2;
     Item[i].Y2=Init[i].Y2;
     Item[i].Focus=Init[i].Focus;
-    Item[i].Selected=Init[i].Selected;
+    Item[i].History=(const char *)Init[i].Selected;
     Item[i].Flags=Init[i].Flags;
     Item[i].DefaultButton=Init[i].DefaultButton;
-    if ((unsigned int)Init[i].Data<2000)
-      lstrcpy(Item[i].Data,GetMsg((unsigned int)Init[i].Data));
+    if ((unsigned int)(DWORD_PTR)Init[i].Data<2000)
+      lstrcpy(Item[i].Data,GetMsg((unsigned int)(DWORD_PTR)Init[i].Data));
     else
       lstrcpy(Item[i].Data,Init[i].Data);
   }
