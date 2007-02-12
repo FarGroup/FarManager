@@ -1411,17 +1411,9 @@ int Edit::ProcessKey(int Key)
         DeleteBlock();
       }
 
-      if ( Key==KEY_TAB && (TabExpandMode == EXPAND_NEWTABS) )
-      {
-         InsertTab ();
-         Show ();
-      }
-      else if (InsertKey(Key))
-      {
-        if (Key==KEY_TAB && (TabExpandMode == EXPAND_ALLTABS) )
-           ReplaceTabs();
+      if (InsertKey(Key))
         Show();
-      }
+
       return(TRUE);
     }
   }
@@ -1581,6 +1573,14 @@ int Edit::InsertKey(int Key)
       else
         if (!Flags.Check(FEDITLINE_OVERTYPE))
           StrSize++;
+
+      if (Key==KEY_TAB && (TabExpandMode==EXPAND_NEWTABS || TabExpandMode==EXPAND_ALLTABS))
+      {
+        StrSize--;
+        InsertTab();
+        return TRUE;
+      }
+
       if ((NewStr=(char *)xf_realloc(Str,StrSize+1))==NULL)
         return(TRUE);
       Str=NewStr;
@@ -2108,11 +2108,9 @@ void Edit::InsertTab()
 {
   char *TabPtr;
   int Pos,S;
-  /* $ 03.07.2000 tran
-     + юсЁрсюЄър ReadOnly */
+
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
-  /* tran 03.07.2000 $ */
 
   Pos=CurPos;
   S=TabSize-(Pos % TabSize);
@@ -2132,8 +2130,7 @@ void Edit::InsertTab()
   int PrevStrSize=StrSize;
   StrSize+=S;
 
-//  if (CurPos>Pos)
-    CurPos+=S;
+  CurPos+=S;
 
   Str=(char *)xf_realloc(Str,StrSize+1);
 
@@ -2150,11 +2147,9 @@ void Edit::ReplaceTabs()
 {
   char *TabPtr;
   int Pos,S;
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
-  /* tran 03.07.2000 $ */
 
   while ((TabPtr=(char *)memchr(Str,'\t',StrSize))!=NULL)
   {
@@ -2193,6 +2188,10 @@ void Edit::ReplaceSpaces(int i)
   char *TabPtr;
   int Pos,S;
   char a,b;
+
+  if ( Flags.Check(FEDITLINE_READONLY) )
+    return;
+
   if ( i==0 )
   {
     a=' '; b=0xFA;
@@ -2201,11 +2200,6 @@ void Edit::ReplaceSpaces(int i)
   {
     b=' '; a=0xFA;
   }
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
-  if ( Flags.Check(FEDITLINE_READONLY) )
-    return;
-  /* tran 03.07.2000 $ */
 
   while ((TabPtr=(char *)memchr(Str,a,StrSize))!=NULL)
   {

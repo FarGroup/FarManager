@@ -49,8 +49,8 @@ class Frame: public ScreenObject
     Frame();
     virtual ~Frame();
 
-//    int ProcessKey(int Key);
-//    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+//  virtual int ProcessKey(int Key);
+//  virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); };
     void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
@@ -89,7 +89,7 @@ class Frame: public ScreenObject
     virtual int FastHide();
 //    int IndexOf(Frame *aFrame);
     bool RemoveModal(Frame *aFrame);
-    void ResizeConsole();
+    virtual void ResizeConsole();
     bool HasSaveScreen();
 //    bool ifFullConsole();
     virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0){};

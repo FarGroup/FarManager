@@ -43,13 +43,14 @@ class KeyBar: public ScreenObject
     int DisableMask;
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
 
   public:
     KeyBar();
+    virtual  ~KeyBar() {};
     void SetOwner(ScreenObject *Owner);
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     void SetGroup(int Group,const char **Key,int KeyCount);
     void ClearGroup(int Group);
@@ -78,9 +79,9 @@ class KeyBar: public ScreenObject
     /* DJ $ */
 
     void RedrawIfChanged();
-    void ResizeConsole();
+    virtual void ResizeConsole();
 };
 
 /* DJ $ */
 
-#endif	// __KEYBAR_HPP__
+#endif  // __KEYBAR_HPP__

@@ -98,7 +98,7 @@ class Panel:public ScreenObject
     void FastFind(int FirstKey);
     void DrawSeparator(int Y);
     void ShowScreensCount();
-    int IsDragging();
+    int  IsDragging();
     int  ProcessShortcutFolder(int Key,BOOL ProcTreePanel=FALSE);
 
   public:
@@ -220,8 +220,8 @@ class Panel:public ScreenObject
     virtual BOOL GetItem(int,void *){return FALSE;};
 
     static void EndDrag();
-    void Hide();
-    void Show();
+    virtual void Hide();
+    virtual void Show();
     int SetPluginCommand(int Command,void *Param);
     int PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
     void ChangeDisk();

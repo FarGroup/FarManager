@@ -47,8 +47,8 @@ class DlgEdit: public ScreenObject
     virtual ~DlgEdit();
 
   public: // публичные методы
-    int   ProcessKey(int Key);
-    int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     virtual void Show();
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
@@ -60,7 +60,7 @@ class DlgEdit: public ScreenObject
     virtual void ResizeConsole();
     virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
-    void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
+    virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
 
     void  SetDialogParent(DWORD Sets);
     void  SetDropDownBox(int NewDropDownBox);

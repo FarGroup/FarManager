@@ -20,14 +20,15 @@ class DizViewer: public Viewer
 public:
   int InRecursion;
   DizViewer():InRecursion(0){}
-  int ProcessKey(int Key)
+  virtual ~DizViewer() {};
+  virtual int ProcessKey(int Key)
   {
     InRecursion=1;
     int res=Viewer::ProcessKey(Key);
     InRecursion=0;
     return res;
   }
-  int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+  virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   {
     InRecursion=1;
     int res=Viewer::ProcessMouse(MouseEvent);
@@ -48,7 +49,7 @@ class InfoList:public Panel
     char DizFileName[NM];
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     void ShowDirDescription();
     void ShowPluginDescription();
     void PrintText(const char *Str);
@@ -63,12 +64,12 @@ class InfoList:public Panel
 
   public:
     InfoList();
-    ~InfoList();
+    virtual ~InfoList();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void Update(int Mode);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void Update(int Mode);
     virtual void SetFocus();
     virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void KillFocus();

@@ -21,7 +21,6 @@ class FolderTree:public Frame
   private:
     TreeList *Tree;
     Edit *FindEdit;
-    //SaveScreen *TopScreen;
 
     KeyBar TreeKeyBar;     // кейбар
     int ModalMode;
@@ -46,17 +45,16 @@ class FolderTree:public Frame
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    void InitKeyBar(void);
-    void OnChangeFocus(int focus); // вызывается при смене фокуса
+    virtual void InitKeyBar(void);
+    virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
     virtual void SetScreenPosition();
-    void ResizeConsole();
+    virtual void ResizeConsole();
     /* $ Введена для нужд CtrlAltShift OT */
-    int  FastHide();
+    virtual int  FastHide();
 
     virtual const char *GetTypeName() {return "[FolderTree]";}
     virtual int GetTypeAndName(char *Type,char *Name);
     virtual int GetType() { return MODALTYPE_FINDFOLDER; }
-
 };
 
 

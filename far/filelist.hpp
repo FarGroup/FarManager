@@ -131,10 +131,10 @@ class FileList:public Panel
        Функции установления/считывания состояния режима
        "Помеченные файлы вперед"
     */
-    void SetSelectedFirstMode(int Mode);
-    int GetSelectedFirstMode(void) {return SelectedFirst;};
+    virtual void SetSelectedFirstMode(int Mode);
+    virtual int GetSelectedFirstMode(void) {return SelectedFirst;};
     /* IS $ */
-    void DisplayObject();
+    virtual void DisplayObject();
     void DeleteListData(struct FileListItem *(&ListData),long &FileCount);
     void DeleteAllDataToDelete();
     void Up(int Count);
@@ -165,14 +165,14 @@ class FileList:public Panel
     /* DJ $ */
     void MoveSelection(struct FileListItem *FileList,long FileCount,
                        struct FileListItem *OldList,long OldFileCount);
-    int GetSelCount();
-    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
-    void UngetSelName();
-    void ClearLastGetSelection();
-    long GetLastSelectedSize(__int64 *Size);
-    int GetLastSelectedItem(struct FileListItem *LastItem);
-    int GetCurName(char *Name,char *ShortName);
-    int GetCurBaseName(char *Name,char *ShortName);
+    virtual int GetSelCount();
+    virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
+    virtual void UngetSelName();
+    virtual void ClearLastGetSelection();
+    virtual long GetLastSelectedSize(__int64 *Size);
+    virtual int GetLastSelectedItem(struct FileListItem *LastItem);
+    virtual int GetCurName(char *Name,char *ShortName);
+    virtual int GetCurBaseName(char *Name,char *ShortName);
     void PushPlugin(HANDLE hPlugin,char *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
     void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
@@ -212,14 +212,14 @@ class FileList:public Panel
 
   public:
     FileList();
-    ~FileList();
+    virtual ~FileList();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void SetFocus();
-    void Update(int Mode);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void SetFocus();
+    virtual void Update(int Mode);
     /*$ 22.06.2001 SKV
       Параметр для игнорирования времени последнего Update.
       Используется для Update после исполнения команды.
@@ -236,57 +236,57 @@ class FileList:public Panel
 
     virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE);
     void CreateChangeNotification(int CheckTree);
-    void CloseChangeNotification();
-    void SortFileList(int KeepPosition);
-    void SetViewMode(int ViewMode);
-    void SetSortMode(int SortMode);
+    virtual void CloseChangeNotification();
+    virtual void SortFileList(int KeepPosition);
+    virtual void SetViewMode(int ViewMode);
+    virtual void SetSortMode(int SortMode);
     virtual void ChangeSortOrder(int NewOrder);
-    void SetCurDir(char *NewDir,int ClosePlugin);
-    int GetPrevSortMode();
-    int GetPrevSortOrder();
-    int GetPrevViewMode();
-    int GetPrevNumericSort();
+    virtual void SetCurDir(char *NewDir,int ClosePlugin);
+    virtual int GetPrevSortMode();
+    virtual int GetPrevSortOrder();
+    virtual int GetPrevViewMode();
+    virtual int GetPrevNumericSort();
     HANDLE OpenFilePlugin(char *FileName,int PushPrev);
-    int GetFileName(char *Name,int Pos,int &FileAttr);
-    int GetCurrentPos();
-    int FindPartName(char *Name,int Next,int Direct=1);
-    int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
-    int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
-    int IsSelected(char *Name);
+    virtual int GetFileName(char *Name,int Pos,int &FileAttr);
+    virtual int GetCurrentPos();
+    virtual int FindPartName(char *Name,int Next,int Direct=1);
+    virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
+    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
+    virtual int IsSelected(char *Name);
 
     virtual int FindFirst(const char *Name);
     virtual int FindNext(int StartPos, const char *Name);
 
     void ProcessHostFile();
-    void UpdateViewPanel();
-    void CompareDir();
-    void ClearSelection();
-    void SaveSelection();
-    void RestoreSelection();
-    void EditFilter();
-    void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
-    void DeleteDiz(char *Name,char *ShortName);
-    void FlushDiz();
-    void GetDizName(char *DizName);
-    void CopyDiz(char *Name,char *ShortName,char *DestName,
-                 char *DestShortName,DizList *DestDiz);
-    int IsFullScreen();
+    virtual void UpdateViewPanel();
+    virtual void CompareDir();
+    virtual void ClearSelection();
+    virtual void SaveSelection();
+    virtual void RestoreSelection();
+    virtual void EditFilter();
+    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
+    virtual void DeleteDiz(char *Name,char *ShortName);
+    virtual void FlushDiz();
+    virtual void GetDizName(char *DizName);
+    virtual void CopyDiz(char *Name,char *ShortName,char *DestName,
+                         char *DestShortName,DizList *DestDiz);
+    virtual int IsFullScreen();
     int IsCaseSensitive();
-    int IsDizDisplayed();
-    int IsColumnDisplayed(int Type);
+    virtual int IsDizDisplayed();
+    virtual int IsColumnDisplayed(int Type);
     virtual int GetColumnsCount(){ return Columns;};
-    void SetReturnCurrentFile(int Mode);
-    void GetPluginInfo(struct PluginInfo *Info);
-    void GetOpenPluginInfo(struct OpenPluginInfo *Info);
-    void SetPluginMode(HANDLE hPlugin,char *PluginFile);
+    virtual void SetReturnCurrentFile(int Mode);
+    virtual void GetPluginInfo(struct PluginInfo *Info);
+    virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info);
+    virtual void SetPluginMode(HANDLE hPlugin,char *PluginFile);
     void PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo=TRUE);
     void PluginSetSelection(struct PanelInfo *Info);
-    void SetPluginModified();
-    int ProcessPluginEvent(int Event,void *Param);
-    void SetTitle();
+    virtual void SetPluginModified();
+    virtual int ProcessPluginEvent(int Event,void *Param);
+    virtual void SetTitle();
     //virtual void GetTitle(char *Title,int LenTitle,int TruncSize);
     int PluginPanelHelp(HANDLE hPlugin);
-    long GetFileCount() {return FileCount;}
+    virtual long GetFileCount() {return FileCount;}
     char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,
                             char *Dest,int SizeDest,int UNC,int ShortNameAsIs=TRUE);
 
@@ -304,8 +304,8 @@ class FileList:public Panel
       + Сбросить время последнего обновления панели */
     void ResetLastUpdateTime() {LastUpdateTime = 0;}
     /* VVM $ */
-    HANDLE GetPluginHandle();
-    int GetRealSelCount();
+    virtual HANDLE GetPluginHandle();
+    virtual int GetRealSelCount();
     static void SetFilePanelModes();
     static void SavePanelModes();
     static void ReadPanelModes();

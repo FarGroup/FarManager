@@ -24,7 +24,7 @@ class VMenu;
 class HMenu: public Modal
 {
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     void ShowMenu();
     void ProcessSubMenu(struct MenuData *Data,int DataCount,char *SubMenuHelp,
                         int X,int Y,int &Position);
@@ -36,13 +36,13 @@ class HMenu: public Modal
     int ItemX[16];
   public:
     HMenu(struct HMenuData *Item,int ItemCount);
-    ~HMenu();
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual ~HMenu();
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void GetExitCode(int &ExitCode,int &VExitCode);
-    void Process();
-    void ResizeConsole();
+    virtual void Process();
+    virtual void ResizeConsole();
 };
 
 
-#endif	// __HMENU_HPP__
+#endif  // __HMENU_HPP__

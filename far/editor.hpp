@@ -140,7 +140,7 @@ class Editor:public ScreenObject
     FileEditor *HostFileEditor;
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     void ShowEditor(int CurLineOnly);
     void DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine);
     void InsertString();
@@ -189,7 +189,7 @@ class Editor:public ScreenObject
 
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);
-    ~Editor();
+    virtual ~Editor();
 
   public:
     int ReadFile(const char *Name,int &UserBreak);               // преобразование из файла в список
@@ -197,8 +197,8 @@ class Editor:public ScreenObject
     int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
     int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер
 
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void KeepInitParameters();
     void SetStartPos(int LineNum,int CharNum);
     int IsFileModified();

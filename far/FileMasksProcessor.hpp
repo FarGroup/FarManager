@@ -22,12 +22,12 @@ class FileMasksProcessor:public BaseFileMask
 {
 public:
     FileMasksProcessor();
-    ~FileMasksProcessor() {}
+    virtual ~FileMasksProcessor() {}
 
 public:
-    BOOL Set(const char *Masks, DWORD Flags);
-    BOOL Compare(const char *Name);
-    BOOL IsEmpty(void);
+    virtual BOOL Set(const char *Masks, DWORD Flags);
+    virtual BOOL Compare(const char *Name);
+    virtual BOOL IsEmpty(void);
     void Free();
 
 private:

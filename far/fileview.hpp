@@ -14,8 +14,8 @@ fileview.hpp
 class FileViewer:public Frame
 {
   private:
-    void Show();
-    void DisplayObject();
+    virtual void Show();
+    virtual void DisplayObject();
     Viewer View;
     int RedrawTitle;
     KeyBar ViewKeyBar;
@@ -39,7 +39,7 @@ class FileViewer:public Frame
                NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE);
     FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
                const char *Title,int X1,int Y1,int X2,int Y2);
-    ~FileViewer();
+    virtual ~FileViewer();
 
   public:
     void Init(const char *Name,int EnableSwitch,int DisableHistory,
@@ -47,11 +47,11 @@ class FileViewer:public Frame
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */
-    void InitKeyBar(void);
+    virtual void InitKeyBar(void);
     /* SVS $ */
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void ShowConsoleTitle();
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void ShowConsoleTitle();
     /* $ 14.06.2002 IS
        Параметр DeleteFolder - удалить не только файл, но и каталог, его
        содержащий (если каталог пуст). По умолчанию - TRUE (получаем
@@ -69,7 +69,7 @@ class FileViewer:public Frame
     void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
     /* DJ $ */
 /* $ Введена для нужд CtrlAltShift OT */
-    int FastHide();
+    virtual int FastHide();
 
     /* $ 17.08.2001 KM
       Добавлено для поиска по AltF7. При редактировании найденного файла из
@@ -79,7 +79,7 @@ class FileViewer:public Frame
     /* KM $ */
     int  ViewerControl(int Command,void *Param);
     BOOL IsFullScreen(){return FullScreen;}
-    void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     __int64 GetViewFileSize() const;
     __int64 GetViewFilePos() const;
 };

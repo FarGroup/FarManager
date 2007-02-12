@@ -84,7 +84,7 @@ class Help:public Frame
 #endif
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     int  ReadHelp(const char *Mask=NULL);
     void AddLine(const char *Line);
     void AddTitle(const char *Title);
@@ -105,20 +105,20 @@ class Help:public Frame
 
   public:
     Help(const char *Topic,const char *Mask=NULL,DWORD Flags=0);
-    ~Help();
+    virtual ~Help();
 
   public:
-    void Hide();
-    int  ProcessKey(int Key);
-    int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void InitKeyBar(void);
+    virtual void Hide();
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void InitKeyBar(void);
     BOOL GetError() {return ErrorHelp;}
     /* $ 28.06.2000 tran NT Console resize - resize help */
     virtual void SetScreenPosition();
-    void OnChangeFocus(int focus); // вызываетс€ при смене фокуса
-    void ResizeConsole();
+    virtual void OnChangeFocus(int focus); // вызываетс€ при смене фокуса
+    virtual void ResizeConsole();
     /* $ ¬ведена дл€ нужд CtrlAltShift OT */
-    int  FastHide();
+    virtual int  FastHide();
 
     virtual const char *GetTypeName() {return "[Help]";}
     virtual int GetTypeAndName(char *Type,char *Name);

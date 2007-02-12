@@ -109,7 +109,7 @@ class FileEditor:public Frame
     /* DJ $ */
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
     BOOL UpdateFileList();
     /* $ 10.10.2001 IS установка DeleteOnClose */
@@ -136,14 +136,14 @@ class FileEditor:public Frame
               int ToSaveAs, int DeleteOnClose,int OpenModeExstFile);
     /* IS $ */
 
-    void InitKeyBar(void);                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void ShowConsoleTitle();
+    virtual void InitKeyBar(void);                    // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void ShowConsoleTitle();
     int IsFileChanged() {return(FEdit->IsFileChanged());};
     virtual int IsFileModified() {return(FEdit->IsFileModified());};
 
-    void SetScreenPosition();                         // $ 28.06.2000 tran - NT Console resize - resize editor
+    virtual void SetScreenPosition();                 // $ 28.06.2000 tran - NT Console resize - resize editor
 
     virtual int GetTypeAndName(char *Type,char *Name);
     virtual const char *GetTypeName(){return "[FileEdit]";};
@@ -153,9 +153,9 @@ class FileEditor:public Frame
     virtual void OnDestroy();                         // $ 10.05.2001 DJ
     void SetNamesList (NamesList *Names);             // $ 07.05.2001 DJ
 
-    int GetCanLoseFocus(int DynamicMode=FALSE);
+    virtual int GetCanLoseFocus(int DynamicMode=FALSE);
 
-    int FastHide();                                   // $ OT - Введена для нужд CtrlAltShift
+    virtual int FastHide();                           // $ OT - Введена для нужд CtrlAltShift
 
     void SetEnableF6 (int AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6,AEnableF6); InitKeyBar(); }  // $ 10.05.2001 DJ
     /* $ 17.08.2001 KM
@@ -169,8 +169,8 @@ class FileEditor:public Frame
       возвращает признак того, является ли файл временным
       используется для принятия решения переходить в каталог по CtrlF10*/
     BOOL isTemporary();
-    void ResizeConsole();
-    void Show();
+    virtual void ResizeConsole();
+    virtual void Show();
 
     int ReadFile(const char *Name,int &UserBreak);
     int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);

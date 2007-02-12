@@ -41,7 +41,7 @@ class TreeList: public Panel
 
   private:
     void SetMacroMode(int Restore = FALSE);
-    void DisplayObject();
+    virtual void DisplayObject();
     void DisplayTree(int Fast);
     void DisplayTreeName(char *Name,int Pos);
     void Up(int Count);
@@ -56,8 +56,8 @@ class TreeList: public Panel
     void SyncDir();
     void SaveTreeFile();
     int ReadTreeFile();
-    int GetSelCount();
-    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
+    virtual int GetSelCount();
+    virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
     void DynamicUpdateKeyBar();
     int GetNextNavPos();
     int GetPrevNavPos();
@@ -79,18 +79,18 @@ class TreeList: public Panel
   public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-//    void KillFocus();
-    void Update(int Mode);
-    int  ReadTree();
-    void SetCurDir(char *NewDir,int ClosePlugin);
+//  virtual void KillFocus();
+    virtual void Update(int Mode);
+    int ReadTree();
+    virtual void SetCurDir(char *NewDir,int ClosePlugin);
     void SetRootDir(char *NewRootDir);
-    int GetCurDir(char *CurDir);
+    virtual int GetCurDir(char *CurDir);
     virtual int GetCurName(char *Name,char *ShortName);
-    void UpdateViewPanel();
-    void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    int FindPartName(char *Name,int Next,int Direct=1);
-    int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
-    int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
+    virtual void UpdateViewPanel();
+    virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int FindPartName(char *Name,int Next,int Direct=1);
+    virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
+    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     void ProcessEnter();
 
     virtual int FindFirst(const char *Name);

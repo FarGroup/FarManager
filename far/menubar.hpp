@@ -12,7 +12,11 @@ menubar.hpp
 class MenuBar:public ScreenObject
 {
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
+
+  public:
+    MenuBar() {};
+    virtual ~MenuBar() {};
 };
 
-#endif	// __MENUBAR_HPP__
+#endif  // __MENUBAR_HPP__

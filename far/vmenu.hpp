@@ -200,7 +200,7 @@ class VMenu: public Modal
     Frame *FrameFromLaunched;
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     void ShowMenu(int IsParent=0);
     void DrawTitles();
     int  GetPosition(int Position);
@@ -228,12 +228,12 @@ class VMenu: public Modal
           Dialog *ParentDialog=NULL);
     /* 01.08.2000 SVS $ */
     /* SVS $ */
-    ~VMenu();
+    virtual ~VMenu();
 
   public:
     void FastShow() {ShowMenu();}
-    void Show();
-    void Hide();
+    virtual void Show();
+    virtual void Hide();
 
     void SetTitle(const char *Title);
     char *GetTitle(char *Dest,int Size);
@@ -260,8 +260,8 @@ class VMenu: public Modal
     void SetOneColor (int Index, short Color);
     /* DJ $ */
 
-    int  ProcessKey(int Key);
-    int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     BOOL UpdateRequired(void);
 
@@ -299,8 +299,8 @@ class VMenu: public Modal
     void AdjustSelectPos();
     /* DJ $ */
 
-    void Process();
-    void ResizeConsole();
+    virtual void Process();
+    virtual void ResizeConsole();
 
     /* $ 20.09.2000 SVS
       + Функция GetItemPtr - получить указатель на нужный Item.
@@ -310,8 +310,6 @@ class VMenu: public Modal
 
     void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
     BOOL GetVMenuInfo(struct FarListInfo* Info);
-
-    void SetExitCode(int Code) {Modal::SetExitCode(Code);}
 
     virtual const char *GetTypeName() {return "[VMenu]";};
     virtual int GetTypeAndName(char *Type,char *Name);

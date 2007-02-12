@@ -80,7 +80,7 @@ class Edit:public ScreenObject
     const char *WordDiv;
 
   private:
-    void   DisplayObject();
+    virtual void   DisplayObject();
     void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
     int    InsertKey(int Key);
     int    RecurseProcessKey(int Key);
@@ -109,12 +109,12 @@ class Edit:public ScreenObject
 
   public:
     Edit(ScreenObject *pOwner = NULL);
-    ~Edit();
+    virtual ~Edit();
 
   public:
-    void  FastShow();
-    int   ProcessKey(int Key);
-    int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    void FastShow();
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
     long  GetObjectColor() {return MAKELONG(Color,SelColor);}
