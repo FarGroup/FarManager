@@ -44,6 +44,8 @@
   <li><a href="#fsf1">Возможно ли каким-то способом в FSF.ProcessName...</a>
   <li><a href="#kbd1">Как Windows "сбрасывает" имя файла из Проводника в консольное окно?</a>
   <li><a href="#panel1">Почему-то не работает ProcessKey...</a>
+  <li><a href="#panel2">Можно ли из плагина перейти на определённый файл в директории?</a>
+  <li><a href="#exec1">Как из плагина запустить что-нибудь?</a>
 
 </ol>
 
@@ -67,51 +69,80 @@
 <h3>Общие вопросы</h3>
 <ol>
   <li><span class=faqq>Q:</span> <a name="cursor1"><span class=faqqb>Как мне спрятать курсор?</span></a>
-  <br><span class=faqa>A:</span> Win32 console API: <a href="win32/setconsolecursorinfo.html">SetConsoleCursorInfo</a>, только не забудь его потом вернуть на место.<br><br>
+  <br><span class=faqa>A:</span> Win32 console API: <a href="win32/setconsolecursorinfo.html">SetConsoleCursorInfo</a>, только не забудь его потом вернуть на место.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="cursor2"><span class=faqqb>А как перевести в нужную позицию?</span></a>
-  <br><span class=faqa>A:</span> Там же: <a href="win32/setconsolecursorposition.html">SetConsoleCursorPosition</a><br><br>
+  <br><span class=faqa>A:</span> Там же: <a href="win32/setconsolecursorposition.html">SetConsoleCursorPosition</a>
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="editor1"><span class=faqqb>Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info->Flags=?????;</span></a>
-  <br><span class=faqa>A:</span> <a href="structures/plugininfo.html#PF_EDITOR">PF_EDITOR</a><br><br>
+  <br><span class=faqa>A:</span> <a href="structures/plugininfo.html#PF_EDITOR">PF_EDITOR</a>
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="start"><span class=faqqb>Возможно динамическое отключение/подключение плагина не перезапуская FAR?</span></a>
   <br><span class=faqa>A:</span> Отключение невозможно. А зачем тебе его отключать? А подключением FAR сам занимается. Другое дело, что FAR можно попросить не кэшировать
   настройки для данного плагина, а грузить его в память каждый раз вместе с самим FAR`ом, указав <a href="structures/plugininfo.html#PF_PRELOAD">PF_PRELOAD</a>.
-  Но без реальной необходимости это лучше не делать - лишние тормоза и расход памяти.<br><br>
+  Но без реальной необходимости это лучше не делать - лишние тормоза и расход памяти.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="editor2"><span class=faqqb>Плагины в редакторе срабатывают только при активизации? А можно ли сварганить такой, чтобы в фоновом режиме работал?</span></a>
-  <br><span class=faqa>A:</span> Можно. Экспортировать <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a> и ему будет приходить все нажатия клавиш в редакторе.<br><br>
+  <br><span class=faqa>A:</span> Можно. Экспортировать <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a> и ему будет приходить все нажатия клавиш в редакторе.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="many1"><span class=faqqb>А можно в одном DLL-модуле держать несколько плагинов... Несколько функций, так сказать... И чтобы каждый вызывался, как будто бы находился в отдельном DLL-файле (пусть даже с полной загрузкой всего DLL`я)...</span></a>
   <br><span class=faqa>A:</span> Да. В <a href="structures/plugininfo.html">PluginInfo</a> можно указать несколько строк, добавляемых к plugins menu. Но
-   это не является <a href="rules.html#RulesMultiMenu">"хорошим тоном"</a>.<br><br>
+   это не является <a href="rules.html#RulesMultiMenu">"хорошим тоном"</a>.
+  <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="many2"><span class=faqqb>...а потом различать что хотел пользователь по параметру Item в функции OpenPlugin?</span></a>
-  <br><span class=faqa>A:</span> Правильно.<br><br>
+  <br><span class=faqa>A:</span> Правильно.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="background1"><span class=faqqb>Возможно ли при нынешнем API сделать плагин, работающий в фоновом режиме?</span></a>
-  <br><span class=faqa>A:</span> Разве что в редакторе. В панелях такое не поддерживается.<br><br>
+  <br><span class=faqa>A:</span> Разве что в редакторе. В панелях такое не поддерживается.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="file"><span class=faqqb>Есть файл, который можно открыть плагином. Могу ли я как-то об этом узнать? Лучше всего отдать команду на cd туда и получить ответ - смогли/не смогли.</span></a>
-  <br><span class=faqa>A:</span> Нет, api для взаимодействия между плагинами в FAR отсутствует. Тут одной проверкой на принадлежность файла не обойтись.<br><br>
+  <br><span class=faqa>A:</span> Нет, api для взаимодействия между плагинами в FAR отсутствует. Тут одной проверкой на принадлежность файла не обойтись.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="path"><span class=faqqb>Как бы это из плагинового модуля получить полный путь до него самого?...</span></a>
-  <br><span class=faqa>A:</span> В функцию <a href="exported_functions/setstartupinfo.html">SetStartupInfo</a> far передает указатель на структуру <a href="structures/pluginstartupinfo.html">PluginStartupInfo</a>. Полное имя модуля содержится в поле ModuleName оной структуры.<br><br>
+  <br><span class=faqa>A:</span> В функцию <a href="exported_functions/setstartupinfo.html">SetStartupInfo</a> far передает указатель на структуру <a href="structures/pluginstartupinfo.html">PluginStartupInfo</a>. Полное имя модуля содержится в поле ModuleName оной структуры.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="background2"><span class=faqqb>Можно ли из плагина управлять переключением фоновых экранов FAR?</span></a>
-  <br><span class=faqa>A:</span> Начиная с FAR Manager 1.70 bata 4 - можно.<br><br>
+  <br><span class=faqa>A:</span> Начиная с FAR Manager 1.70 bata 4 - можно.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="clipboard"><span class=faqqb>А как FAR определяет, что в клипборде лежит именно вертикальный блок?</span></a>
-  <br><span class=faqa>A:</span> У вертикального блока clipboard format - "FAR_VerticalBlock"<br><br>
+  <br><span class=faqa>A:</span> У вертикального блока clipboard format - "FAR_VerticalBlock"
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="cpos"><span class=faqqb>Скажи, а что - никак нельзя узнать, на чем стоит курсор в текущей панели? Т.е. меня интересует - на каталоге или на файле...</span></a>
   <br><span class=faqa>A:</span><pre class=code>Control(<a href="service_functions/control.html#FCTL_GETANOTHERPANELINFO">FCTL_GETANOTHERPANELINFO</a>);
 Control(<a href="service_functions/control.html#FCTL_GETPANELINFO">FCTL_GETPANELINFO</a>);
 <a href="structures/panelinfo.html">PanelInfo</a>.PanelItems[PanelInfo.CurrentItem].<a href="./winapi/win32_find_data.html">FindData.dwFileAttributes</a>
-</pre></li>
+</pre><br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="panelcaption"><span class=faqqb>Нельзя ли пpи пеpеpисовке <u>любой</u> панели пеpеpисовывать заголовок окна? По моему, это будет пpоще и быстpее, чем плагину вызывать FCTL_REDRAWPANEL</span></a>.
-  <br><span class=faqa>A:</span> Насчет быстрее - не факт. Если заголовок не изменен плагином, как оно обычно и бывает, FAR перерисует его вхолостую.<br><br>
+  <br><span class=faqa>A:</span> Насчет быстрее - не факт. Если заголовок не изменен плагином, как оно обычно и бывает, FAR перерисует его вхолостую.
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="funcCM"><span class=faqqb>Откуда FAR берет процедуры для копирования/удаления/... файлов?</span></a>
   <br><span class=faqa>A:</span> Из Win32 API.<br>
   <u>Копирование:</u> <a href="win32/CreateFile.html">CreateFile</a>+<a href="win32/ReadFile.html">ReadFile</a>+<a href="win32/writefile.html">WriteFile</a>+<a href="win32/closehandle.html">CloseHandle</a> или <a href="win32/copyfile.html">CopyFile</a>(Ex), в зависимости от ОС и опции "Use system copy routine".<br>
-  <u>Удаление:</u> <a href="win32/DeleteFile.html">DeleteFile</a> или <a href="win32/shfileoperation.html">SHFileOperation</a> в зависимости от опции "Delete to Recycle Bin"<br><br>
+  <u>Удаление:</u> <a href="win32/DeleteFile.html">DeleteFile</a> или <a href="win32/shfileoperation.html">SHFileOperation</a> в зависимости от опции "Delete to Recycle Bin"
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="FARDir"><span class=faqqb>Как можно получить имя каталога, из которого запущен FAR?</span></a>
   <br><span class=faqa>A:</span> <pre class=code>char lpName[_MAX_PATH], lpFullPath[_MAX_PATH];
 LPTSTR lpFile;
 <a href="win32/GetModuleFileName.html">GetModuleFileName</a>(NULL,lpName,sizeof(lpName));
 <a href="win32/GetFullPathName.html">GetFullPathName</a>(lpName,sizeof(lpFullPath),lpFullPath,&amp;lpFile);
-*lpFile='\0';</pre><br>
+*lpFile='\0';</pre>
+  <br><br></li>
+
   <li><span class=faqq>Q:</span> <a name="PlReduce"><span class=faqqb>А как уменьшить размер DLL - уж больно "жирный" модуль получается?</span></a>
   <br><span class=faqa>A:</span><ol>
     <li>В разделе "<a href="articles/index.html">Статьи</a>" есть несколько
@@ -120,8 +151,8 @@ LPTSTR lpFile;
     плагинов, настоятельно рекомендуется прочитать:
     <a href="http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx">http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx</a>
     (локальная копия <a href="articles/bonus/msdnmag-issues-01-01-hood-default.aspx.html">здесь</a>)
-  </ol><br>
-  </li>
+  </ol>
+  <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="ClipDup"><span class=faqqb>А что за дупы в клипборде идут, зачем 2 раза одну и ту же в Clipboard помещать?</span></a>
   <br><span class=faqa>A:</span> Если поместить текст в clipboard в каком-то одном формате,
@@ -130,8 +161,8 @@ LPTSTR lpFile;
   иногда вместо русских букв остаются одни '?', конкретные глюки зависят
   от версии Windows и комбинации исходного и запрашиваемого форматов.
   Если же поместить все форматы сразу, то Windows находит нужный
-  и использует его без всяческих перекодировок.<br><br>
-  </li>
+  и использует его без всяческих перекодировок.
+  <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="symlink1"><span class=faqqb>Как определить что есть "символическая связь" - простая ссылка на каталог или монтированный диск.</span></a>
   <br><span class=faqa>A:</span> Основное правило - символические связи в Win2K - <b>ТОЛЬКО ДЛЯ КАТАЛОГОВ!</b>
@@ -165,8 +196,9 @@ LPTSTR lpFile;
 else
 {
   // простая ссылка на каталог
-}</pre><br><br>
-  </li>
+}</pre>
+  <br><br></li>
+
 
   <li><span class=faqq>Q:</span> <a name="symlink2"><span class=faqqb>Да. Но ведь интересно знать, что скрывается по именем '\\?\Volume{...'?</span></a>
   <br><span class=faqa>A:</span> Проще простого. Для этого вызовем функцию
@@ -178,8 +210,8 @@ else
    </ol>
    <br>второй случай - "тяжелый" :-) - здесь видимо на уровне системы (в
    менеджере дисков) для данного диска удалили буковку... Ну, что бы не
-   маячила, т.с. ;-)<br><br></li>
-
+   маячила, т.с. ;-)
+  <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="symlink3"><span class=faqqb>А еще что нить полезного про символические связи можно узнать?</span></a>
   <br><span class=faqa>A:</span> А как же :-) Правда не совсем про символические связи, но...
@@ -229,18 +261,21 @@ if (GetVolumeInformation(Root,NULL,0,NULL,NULL,
     }
   }
   return FALSE;
-}</pre><br><br></li>
+}</pre>
+  <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="editor3"><span class=faqqb>Можно ли получить для редактируемого файла флаг изменен/неизменен? Я сходу не нашел, а ведь FAR это знает, звездочку в верхней строке показывает.</span></a>
   <br><span class=faqa>A:</span> См. описание структуры <a href="structures/editorinfo.html#ECSTATE_MODIFIED">EditorInfo</a>,
-     конкретно значения поле EditorInfo.CurState.<br><br>
+     конкретно значения поле EditorInfo.CurState.
+  <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="viewer1"><span class=faqqb>Как узнать имя файла, загруженного во вьювер?</span></a>
   <br><span class=faqa>A:</span> Вот такой вот код запросто узнает текущее имя в программе просмотра:
 <pre class=code>WindowInfo wi;
 wi.Pos=-1;
 Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,&amp;wi);</pre>
-  все. в wi.Name лежит имя файла.<br><br></li>
+  все. в wi.Name лежит имя файла.
+  <br><br></li>
 
 
   <li><span class=faqq>Q:</span> <a name="fsf1"><span class=faqqb>Возможно ли каким-то способом в FSF.ProcessName, при сравнении маски "OUTBOUND\\????????.MO?" и файла
@@ -276,8 +311,69 @@ end;
     По идее должен выдаваться сигнал при любом нажатии клавиши - этого не происходит. То же самое, если делаю это для какой-то конкретной клавиши.
   <br>
   <span class=faqa>A:</span> FAR вызывает функцию <a href="exported_functions/processkey.html">ProcessKey</a> для активной плагиновой панели.
+  <br><br></li>
 
-  <br><br>
+  <li><span class=faqq>Q:</span> <a name="panel2"><span class=faqqb>Можно ли из плагина перейти на определённый файл в директории?</span></a>
+  <br><span class=faqa>A:</span>
+<pre class=code>
+{
+  struct PanelInfo PInfo;
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+
+  // установить позицию на элементе панели selectItem
+
+  struct PanelRedrawInfo PRI;
+  char Name[NM], Dir[NM*5];
+  int pathlen;
+
+  strcpy(Name,Info.FSF-&gt;PointToName(selectItem));
+  pathlen=Info.FSF-&gt;PointToName(selectItem)-selectItem;
+
+  if(pathlen)
+    memcpy(Dir,selectItem,pathlen);
+
+  Dir[pathlen]=0;
+  Info.FSF-&gt;Trim(Name);
+  Info.FSF-&gt;Trim(Dir);
+  Info.FSF-&gt;Unquote(Name);
+  Info.FSF-&gt;Unquote(Dir);
+
+  if(*Dir)
+    Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&amp;Dir);
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+
+  PRI.CurrentItem=PInfo.CurrentItem;
+  PRI.TopPanelItem=PInfo.TopPanelItem;
+
+  for(int J=0; J &lt; PInfo.ItemsNumber; J++)
+  {
+    if(!Info.FSF-&gt;LStricmp(Name,Info.FSF-&gt;PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+    {
+      PRI.CurrentItem=J;
+      PRI.TopPanelItem=J;
+      break;
+    }
+  }
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&amp;PRI);
+}
+</pre>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="exec1"><span class=faqqb>Как из плагина запустить что-нибудь?</span></a>
+  <br><span class=faqa>A:</span>
+<pre class=code>Info.Control(INVALID_HANDLE_VALUE,FCTL_GETUSERSCREEN,NULL);
+
+if (CreateProcess(NULL,"ls.exe",NULL,NULL,TRUE,0,NULL,NULL,&amp;si,&amp;pi))
+{
+  WaitForSingleObject( pi.hProcess, INFINITE );
+  CloseHandle( pi.hProcess );
+  CloseHandle( pi.hThread );
+}
+
+Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
+</pre>
+  <br><br></li>
+
 </ol>
 
 
