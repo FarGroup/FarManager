@@ -43,6 +43,8 @@
   <li><a href="#fsf1">Is it possible in FSF.ProcessName to get TRUE, when comparing...</a>
   <li><a href="#kbd1">How does Windows dump the file name from the Explorer to the console window?</a>
   <li><a href="#panel1">ProcessKey doesn't work for some reason...</a>
+  <li><a href="#panel2">Можно ли из плагина перейти на определённый файл в директории?</a>
+  <li><a href="#exec1">Как из плагина запустить что-нибудь?</a>
 
 </ol>
 
@@ -267,8 +269,68 @@ end;
     Any key pressing should be followed by a beep - but there are no beeps. The same is for any particular key.
   <br>
   <span class=faqa>A:</span> FAR calls the <a href="exported_functions/processkey.html">ProcessKey</a> function for the active plugin panel only.
+  <br><br></li>
 
-  <br><br>
+  <li><span class=faqq>Q:</span> <a name="panel2"><span class=faqqb>Можно ли из плагина перейти на определённый файл в директории?</span></a>
+  <br><span class=faqa>A:</span>
+<pre class=code>
+{
+  struct PanelInfo PInfo;
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+
+  // установить позицию на элементе панели selectItem
+
+  struct PanelRedrawInfo PRI;
+  char Name[NM], Dir[NM*5];
+  int pathlen;
+
+  strcpy(Name,Info.FSF-&gt;PointToName(selectItem));
+  pathlen=Info.FSF-&gt;PointToName(selectItem)-selectItem;
+
+  if(pathlen)
+    memcpy(Dir,selectItem,pathlen);
+
+  Dir[pathlen]=0;
+  Info.FSF-&gt;Trim(Name);
+  Info.FSF-&gt;Trim(Dir);
+  Info.FSF-&gt;Unquote(Name);
+  Info.FSF-&gt;Unquote(Dir);
+
+  if(*Dir)
+    Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&amp;Dir);
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+
+  PRI.CurrentItem=PInfo.CurrentItem;
+  PRI.TopPanelItem=PInfo.TopPanelItem;
+
+  for(int J=0; J &lt; PInfo.ItemsNumber; J++)
+  {
+    if(!Info.FSF-&gt;LStricmp(Name,Info.FSF-&gt;PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+    {
+      PRI.CurrentItem=J;
+      PRI.TopPanelItem=J;
+      break;
+    }
+  }
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&amp;PRI);
+}
+</pre>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="exec1"><span class=faqqb>Как из плагина запустить что-нибудь?</span></a>
+  <br><span class=faqa>A:</span>
+<pre class=code>Info.Control(INVALID_HANDLE_VALUE,FCTL_GETUSERSCREEN,NULL);
+
+if (CreateProcess(NULL,"ls.exe",NULL,NULL,TRUE,0,NULL,NULL,&amp;si,&amp;pi))
+{
+  WaitForSingleObject( pi.hProcess, INFINITE );
+  CloseHandle( pi.hProcess );
+  CloseHandle( pi.hThread );
+}
+
+Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
+</pre>
+  <br><br></li>
 </ol>
 
 
