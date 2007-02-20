@@ -1399,6 +1399,10 @@
                                 <param name="Local" value="html/dialogapi/flags/dif_nofocus.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DIF_NOTCVTUSERCONTROL">
+                                <param name="Local" value="html/dialogapi/flags/dif_notcvtusercontrol.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DIF_READONLY">
                                 <param name="Local" value="html/dialogapi/flags/dif_readonly.html">
                                 </OBJECT>
