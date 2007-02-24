@@ -29,7 +29,7 @@ protected:
 	int m_nOptions;
 
 	bool m_bCreated;
-
+		
 public:
 
 	AutoArray ();
@@ -40,15 +40,15 @@ public:
 	void create (int options, int delta = DEFAULT_ARRAY_DELTA);
 	void free ();
 
-	type *add (type item);
-	type *add ();
+	type *add (const type& item);
+	type *add (); 
 
-	bool remove (type item, bool freeitem = true);
+	bool remove (const type& item, bool freeitem = true);
 	bool remove (int index, bool freeitem = true);
 	bool remove (); //removes last item
 
 	type& at (int index);
-	int indexof (type item);
+	int indexof (const type& item);
 
 	type& operator [] (int index)  { return at(index); }
 
@@ -82,7 +82,7 @@ AutoPointerArray<type>::AutoPointerArray () : AutoArray<type>()
 }
 
 template <typename type>
-AutoPointerArray<type>::AutoPointerArray (int itemsmode, int delta)
+AutoPointerArray<type>::AutoPointerArray (int itemsmode, int delta) 
 {
 	this->create (itemsmode, delta);
 }
@@ -159,10 +159,10 @@ void AutoArray<type>::free ()
 
 
 template <typename type>
-type *AutoArray<type>::add (type item)
+type *AutoArray<type>::add (const type& item)
 {
     bool bResult = true;
-
+	
 	if ( m_nAllocatedCount == m_nCount )
 		bResult = SetLimit (m_nAllocatedCount+m_nDelta);
 
@@ -201,7 +201,7 @@ type* AutoArray<type>::add ()
 
 
 template <typename type>
-bool AutoArray<type>::remove (type item, bool freeitem)
+bool AutoArray<type>::remove (const type& item, bool freeitem)
 {
 	int index = indexof (item);
 	return remove(index, freeitem);
@@ -237,7 +237,7 @@ bool AutoArray<type>::remove (int index, bool freeitem)
 }
 
 template <typename type>
-int AutoArray<type>::indexof (type item)
+int AutoArray<type>::indexof (const type& item)
 {
 	for (int i = 0; i < m_nCount; i++)
 	{
@@ -261,7 +261,7 @@ type& AutoArray<type>::at (int index)
 }
 
 
-template <typename type>
+template <typename type> 
 bool AutoArray<type>::SetLimit (int limit)
 {
 	type* newdata = (type*)realloc (m_data, limit*sizeof (type));
@@ -338,10 +338,10 @@ typedef void (__cdecl *SWAP_FP) (void *, void *,unsigned int);
 
 
 static void __cdecl qsortex (
-		char *base,
-		unsigned int nel,
+		char *base, 
+		unsigned int nel, 
 		unsigned int width,
-		int (__cdecl *comp_fp)(const void *, const void *,void*),
+		int (__cdecl *comp_fp)(const void *, const void *,void*), 
 		void *user
 		)
 {
@@ -375,7 +375,7 @@ static void __cdecl qsortex (
 		while ((unsigned)(limit - base) > thresh) /* if more than _maxspan elements */
 		{
 			/*swap middle, base*/
-
+			
 			SWAP (((unsigned)(limit - base) >> 1) - ((((unsigned)(limit - base) >> 1)) % width) + base, base);
 
 			i = base + width;                /* i scans from left to right     */
@@ -399,10 +399,10 @@ static void __cdecl qsortex (
 				do {                           /* move j left until *j <= pivot  */
 					j -= width;
 				} while (COMPEX (j, base,user) > 0);
-
+				
 				if ( i > j )                    /* break loop if pointers crossed */
 					break;
-
+					
 				SWAP (i, j);                  /* else swap elements, keep scanning */
 			}
 
@@ -430,7 +430,7 @@ static void __cdecl qsortex (
 		while (i < limit)
 		{
 			j = i;
-
+		
 			while ( j > base && COMPEX (j - width, j,user) > 0 )
 			{
 				SWAP (j - width, j);

@@ -15,6 +15,10 @@ AY - Alex Yaroslavsky
 WI - WARP ItSelf
 TS - Tim Sobolev
 
+[25/01/2006]
+
+[*] Обновил немного класс array. Стырено из The Underscore. [WI]
+
 [24/01/2006]
 
 [=] Сборка GCC и ворнинги. [AY]
