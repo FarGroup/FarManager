@@ -166,6 +166,9 @@ void TreeList::DisplayObject()
 
   if (Flags.Check(FTREELIST_UPDATEREQUIRED))
     Update(0);
+
+  DisplayTree(FALSE);
+
   if(ExitCode)
   {
     Panel *RootPanel=GetRootPanel();
@@ -184,8 +187,8 @@ void TreeList::DisplayObject()
         SyncDir();
       }
     }
-    DisplayTree(FALSE);
   }
+
   Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
@@ -355,11 +358,13 @@ void TreeList::Update(int Mode)
 {
   if (!EnableUpdate)
     return;
-  if (!IsVisible())
+
+  if ( !IsVisible() )
   {
-    Flags.Set(FTREELIST_UPDATEREQUIRED);
-    return;
+  	Flags.Set(FTREELIST_UPDATEREQUIRED);
+  	return;
   }
+
   Flags.Clear(FTREELIST_UPDATEREQUIRED);
   GetRoot();
   int LastTreeCount=TreeCount;
@@ -386,12 +391,12 @@ void TreeList::Update(int Mode)
     {
       DelTreeName(CurPtr->Name);
       Update(UPDATE_KEEP_SELECTION);
-      Show();
+    //  Show();
     }
   }
   else if(!RetFromReadTree)
   {
-    Show();
+    //Show();
     if(!Flags.Check(FTREELIST_ISPANEL))
     {
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -435,7 +440,7 @@ int TreeList::ReadTree()
 
   /* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
-  Redraw();
+  //Redraw();
 
   if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
     ListData->Name[RootLength]=0;
@@ -474,7 +479,7 @@ int TreeList::ReadTree()
     strcpy(ListData[TreeCount++].Name,FullName);
   }
 
-  if(AscAbort)
+  if(AscAbort && !Flags.Check(FTREELIST_ISPANEL))
   {
     if(ListData) xf_free(ListData);
     ListData=NULL;
@@ -489,7 +494,9 @@ int TreeList::ReadTree()
   far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
   FillLastData();
-  SaveTreeFile();
+
+  if ( !AscAbort )
+    SaveTreeFile();
   if (!FirstCall && !Flags.Check(FTREELIST_ISPANEL))
   { // Перерисуем другую панель - удалим следы сообщений :)
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);

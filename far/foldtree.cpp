@@ -52,8 +52,8 @@ FolderTree::FolderTree(char *ResultFolder,int iModalMode,int IsStandalone,int Is
     Tree->SetPosition(X1,Y1,X2,Y2);
     if(ModalMode == MODALTREE_FREE)
       Tree->SetRootDir(ResultFolder);
-    Tree->Update(0);
     Tree->SetVisible(TRUE);
+    Tree->Update(0);
     // если было прерывание в процессе сканирования и это было дерево копира...
     if(Tree->GetExitCode())
     {

@@ -108,8 +108,11 @@ void ControlObject::Init()
       CheckVersion(NULL);
     }
 
-  Cp()->LeftPanel->Update(0);
-  Cp()->RightPanel->Update(0);
+  if ( Cp()->LeftPanel->GetType() != TREE_PANEL )
+    Cp()->LeftPanel->Update(0);
+
+  if ( Cp()->RightPanel->GetType() != TREE_PANEL )
+    Cp()->RightPanel->Update(0);
   /* $ 07.09.2000 tran
     + Config//Current File */
   if (Opt.AutoSaveSetup)
