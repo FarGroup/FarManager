@@ -103,7 +103,6 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
 
 
   Dialog::ItemCount = SrcItemCount;
-  Dialog::pfnSendDlgMessage = SendDlgMessageUnicode;
 
   Dialog::pSaveItemEx = SrcItem;
 
@@ -5133,55 +5132,8 @@ LONG_PTR Dialog::CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2)
      при Param1==-1.
 */
 
-//сюда плавно утекают заглушки
-LONG_PTR __stdcall Dialog::SendDlgMessageAnsi(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
-{
-    Dialog* Dlg=(Dialog*)hDlg;
-    int I;
 
-    CriticalSectionLock Lock (Dlg->CS);
-
-    struct DialogItemEx *CurItem=NULL;
-    struct FarDialogItem PluginDialogItem;
-    int Type;
-
-    switch ( Msg ) {
-
-    case DN_DRAWDLGITEM:
-
-        CurItem=Dlg->Item[Param1];
-        Type = CurItem->Type;
-
-        Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
-        I = Dlg->CallDlgProc (Msg,Param1,(LONG_PTR)&PluginDialogItem);
-
-        Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
-
-        if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-            CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
-
-        return I;
-
-    case DN_EDITCHANGE:
-
-        CurItem=Dlg->Item[Param1];
-        Type = CurItem->Type;
-
-        Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
-
-        if((I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&PluginDialogItem)) == TRUE)
-        {
-            Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
-            if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-            CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
-        }
-        return I;
-    }
-
-    return SendDlgMessageUnicode (hDlg, Msg, Param1, Param2);
-}
-
-LONG_PTR WINAPI Dialog::SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
 

@@ -456,7 +456,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
         for (int i = 0; i < PluginsCount; i++)
         {
         	pPlugin = PluginsData[i];
-        	nResult = ProcessEditorEvent(Event, Param);
+        	nResult = pPlugin->ProcessEditorEvent(Event, Param);
 		}
 	}
 

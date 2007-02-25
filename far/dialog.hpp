@@ -239,7 +239,6 @@ class Dialog: public Frame
     int PrevMacroMode;          // предыдущий режим макро
 
     FARWINDOWPROC DlgProc;      // функция обработки диалога
-    SENDDLGMESSAGE pfnSendDlgMessage;
 
     /* $ 31.07.2000 tran
        переменные для перемещения диалога */
@@ -473,14 +472,7 @@ class Dialog: public Frame
     /* $ 23.07.2000 SVS: функция обработки диалога (по умолчанию) */
     static LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
-    static LONG_PTR __stdcall SendDlgMessage (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
-    {
-        Dialog *D = (Dialog*)hDlg;
-        return D->pfnSendDlgMessage (hDlg, Msg, Param1, Param2);
-    }
-
-    static LONG_PTR __stdcall SendDlgMessageAnsi(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-    static LONG_PTR __stdcall SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR __stdcall SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };
