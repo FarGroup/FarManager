@@ -18,6 +18,7 @@ enum enumFileFilterType {
   FFT_PANEL = 0,
   FFT_FINDFILE,
   FFT_COPY,
+  FFT_SELECT,
 };
 
 class FileFilter
@@ -36,7 +37,8 @@ class FileFilter
     FileFilter(Panel *HostPanel, enumFileFilterType FilterType);
     ~FileFilter();
 
-    void FilterEdit();
+    bool FilterEdit();
+    bool FileInFilter(FileListItem *fli);
     bool FileInFilter(WIN32_FIND_DATA *fd);
     bool IsEnabledOnPanel();
 

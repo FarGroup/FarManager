@@ -2948,19 +2948,23 @@ int FileList::GetCurBaseName(char *Name,char *ShortName)
   return(TRUE);
 }
 
-/* $ 02.07.2001 IS
-   Для работы с масками используем соответствующий класс
-*/
 void FileList::SelectFiles(int Mode)
 {
   CFileMask FileMask; // Класс для работы с масками
   const char *HistoryName="Masks";
   static struct DialogData SelectDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,41,3,0,0,0,0,"",
-    DI_EDIT,5,2,39,2,1,(DWORD_PTR)HistoryName,DIF_HISTORY,1,""
+    DI_DOUBLEBOX,3,1,51,5,0,0,0,0,"",
+    DI_EDIT,5,2,49,2,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,"",
+    DI_TEXT,0,3,0,3,0,0,DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,4,0,4,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,4,0,4,0,0,DIF_CENTERGROUP,0,(char *)MSelectFilter,
+    DI_BUTTON,0,4,0,4,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
   MakeDialogItems(SelectDlgData,SelectDlg);
+
+  FileFilter Filter(this,FFT_SELECT);
+  bool bUseFilter = false;
 
   struct FileListItem *CurPtr;
   static char PrevMask[NM]="*.*";
@@ -3002,6 +3006,7 @@ void FileList::SelectFiles(int Mode)
     Mode=(Mode==SELECT_ADDEXT) ? SELECT_ADD:SELECT_REMOVE;
   }
   else
+  {
     if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
     {
       // Учтем тот момент, что имя может содержать символы-разделители
@@ -3015,6 +3020,7 @@ void FileList::SelectFiles(int Mode)
       Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
     }
     else
+    {
       if (Mode==SELECT_ADD || Mode==SELECT_REMOVE)
       {
         strcpy(SelectDlg[1].Data,PrevMask);
@@ -3025,27 +3031,35 @@ void FileList::SelectFiles(int Mode)
         {
           Dialog Dlg(SelectDlg,sizeof(SelectDlg)/sizeof(SelectDlg[0]));
           Dlg.SetHelp("SelectFiles");
-          Dlg.SetPosition(-1,-1,45,5);
+          Dlg.SetPosition(-1,-1,55,7);
           for(;;)
           {
-             Dlg.ClearDone();
-             Dlg.Process();
-             if (Dlg.GetExitCode()!=1)
-               return;
-             xstrncpy(Mask,SelectDlg[1].Data,sizeof(Mask)-1);
-             Mask[sizeof(Mask)-1]=0;
-             if(FileMask.Set(Mask, 0)) // Проверим вводимые пользователем маски
-                                       // на ошибки
-               break;
+            Dlg.ClearDone();
+            Dlg.Process();
+            if (Dlg.GetExitCode()==4 && Filter.FilterEdit())
+            {
+              bUseFilter = true;
+              break;
+            }
+            if (Dlg.GetExitCode()!=3)
+              return;
+            xstrncpy(Mask,SelectDlg[1].Data,sizeof(Mask)-1);
+            Mask[sizeof(Mask)-1]=0;
+            if(FileMask.Set(Mask, 0)) // Проверим вводимые пользователем маски на ошибки
+            {
+              // Unquote(Mask); не нужно! т.к. все делается в FileMask.Set()
+              strcpy(PrevMask,Mask);
+              break;
+            }
           }
         }
-        // Unquote(Mask); не нужно! т.к. все делается в FileMask.Set()
-        strcpy(PrevMask,Mask);
       }
+    }
+  }
   SaveSelection();
 
-  if(WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
-  {                // работоспособную маску
+  if(!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
+  {                               // работоспособную маску
      const char *src=RawMask;
      const int maxlen=sizeof(Mask)-1;
      int dest=0;
@@ -3062,37 +3076,40 @@ void FileList::SelectFiles(int Mode)
      }
      Mask[dest]=0;
   }
-  /* IS 20.05.2002 $ */
-  if(FileMask.Set(Mask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
-  {                                  // дальше в зависимости от успеха
-                                     // компиляции
-   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
-   {
-     int Match=FALSE;
-     if (Mode==SELECT_INVERT || Mode==SELECT_INVERTALL)
-       Match=TRUE;
-     else
-       Match=FileMask.Compare((ShowShortNames && *CurPtr->ShortName ?
-                              CurPtr->ShortName:CurPtr->Name));
 
-     if (Match)
-     {
-       switch(Mode)
-       {
-         case SELECT_ADD:
-           Selection=1;
-           break;
-         case SELECT_REMOVE:
-           Selection=0;
-           break;
-         case SELECT_INVERT:
-         case SELECT_INVERTALL:
-           Selection=!CurPtr->Selected;
-           break;
-       }
-       if ((CurPtr->FileAttr & FA_DIREC)==0 || Selection==0 ||
-           Opt.SelectFolders || RawSelection || Mode==SELECT_INVERTALL)
-         Select(CurPtr,Selection);
+  if(bUseFilter || FileMask.Set(Mask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
+  {                                                // дальше в зависимости от успеха компиляции
+    for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
+    {
+      int Match=FALSE;
+      if (Mode==SELECT_INVERT || Mode==SELECT_INVERTALL)
+        Match=TRUE;
+      else
+      {
+        if (bUseFilter)
+          Match=Filter.FileInFilter(CurPtr);
+        else
+          Match=FileMask.Compare((ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name));
+      }
+
+      if (Match)
+      {
+        switch(Mode)
+        {
+          case SELECT_ADD:
+            Selection=1;
+            break;
+          case SELECT_REMOVE:
+            Selection=0;
+            break;
+          case SELECT_INVERT:
+          case SELECT_INVERTALL:
+            Selection=!CurPtr->Selected;
+            break;
+        }
+        if (bUseFilter || (CurPtr->FileAttr & FA_DIREC)==0 || Opt.SelectFolders ||
+            Selection==0 || RawSelection || Mode==SELECT_INVERTALL)
+          Select(CurPtr,Selection);
       }
     }
   }
@@ -3100,7 +3117,6 @@ void FileList::SelectFiles(int Mode)
     SortFileList(TRUE);
   ShowFileList(TRUE);
 }
-/* IS $ */
 
 void FileList::UpdateViewPanel()
 {
