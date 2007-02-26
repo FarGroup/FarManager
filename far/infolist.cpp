@@ -327,7 +327,7 @@ int InfoList::ProcessKey(int Key)
         FarChDirW(strCurDir);
         if ( !strDizFileName.IsEmpty() )
         {
-          new FileEditor(strDizFileName,-1,FALSE,TRUE);
+          new FileEditor(strDizFileName,-1,FFILEEDIT_ENABLEF6);
         }
         else if ( !Opt.strFolderInfoFiles.IsEmpty() )
         {
@@ -337,7 +337,7 @@ int InfoList::ProcessKey(int Key)
           {
             if (!wcspbrk (strArgName, L"*?"))
             {
-              new FileEditor(strArgName,-1,TRUE,TRUE);
+              new FileEditor(strArgName,-1,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
               break;
             }
           }

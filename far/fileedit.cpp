@@ -400,28 +400,24 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 FileEditor::FileEditor(
 		const wchar_t *Name,
 		int codepage,
-		int CreateNewFile,
-		int EnableSwitch,
+		DWORD InitFlags,
 		int StartLine,
 		int StartChar,
-		int DisableHistory,
 		const wchar_t *PluginData,
-		int ToSaveAs,
 		int OpenModeExstFile
 		)
 {
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
+  Flags.Set(InitFlags);
   Flags.Set(FFILEEDIT_FULLSCREEN);
-  Init(Name,codepage, NULL,CreateNewFile,EnableSwitch,StartLine,StartChar,
-       DisableHistory,PluginData,ToSaveAs,FALSE,OpenModeExstFile);
+  Init(Name,codepage, NULL,InitFlags,StartLine,StartChar, PluginData,FALSE,OpenModeExstFile);
 }
 
 
 FileEditor::FileEditor(
 		const wchar_t *Name,
 		int codepage,
-		int CreateNewFile,
-		int EnableSwitch,
+		DWORD InitFlags,
 		int StartLine,
 		int StartChar,
 		const wchar_t *Title,
@@ -429,11 +425,11 @@ FileEditor::FileEditor(
 		int Y1,
 		int X2,
 		int Y2,
-		int DisableHistory,
 		int DeleteOnClose,
 		int OpenModeExstFile
 		)
 {
+  Flags.Set(InitFlags);
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
   */
@@ -459,8 +455,7 @@ FileEditor::FileEditor(
   /* IS $ */
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   Flags.Change(FFILEEDIT_FULLSCREEN,(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY));
-  Init(Name,codepage, Title,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,L"",
-       FALSE,DeleteOnClose,OpenModeExstFile);
+  Init(Name,codepage, Title,InitFlags,StartLine,StartChar,L"",DeleteOnClose,OpenModeExstFile);
 }
 
 /* $ 07.05.2001 DJ
@@ -531,13 +526,10 @@ void FileEditor::Init (
 		const wchar_t *Name,
 		int codepage,
 		const wchar_t *Title,
-		int CreateNewFile,
-		int EnableSwitch,
+		DWORD InitFlags,
 		int StartLine,
 		int StartChar,
-		int DisableHistory,
 		const wchar_t *PluginData,
-		int ToSaveAs,
 		int DeleteOnClose,
 		int OpenModeExstFile
 		)
@@ -576,17 +568,12 @@ void FileEditor::Init (
   EditNamesList = NULL;
   KeyBarVisible = Opt.EdOpt.ShowKeyBar;
   /* DJ $ */
-  /* $ 10.05.2001 DJ */
-  Flags.Change(FFILEEDIT_DISABLEHISTORY,DisableHistory);
-  Flags.Change(FFILEEDIT_ENABLEF6,EnableSwitch);
-  /* DJ $ */
+
   /* $ 17.08.2001 KM
     Добавлено для поиска по AltF7. При редактировании найденного файла из
     архива для клавиши F2 сделать вызов ShiftF2.
   */
-  if(BlankFileName)
-    CreateNewFile=1;
-  Flags.Change(FFILEEDIT_SAVETOSAVEAS,(ToSaveAs||BlankFileName?TRUE:FALSE));
+  Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
   /* KM $ */
 
   if (*Name==0)
@@ -597,8 +584,7 @@ void FileEditor::Init (
 
   SetPluginData(PluginData);
   m_editor->SetHostFileEditor(this);
-  _OT(SysLog(L"Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
-  SetCanLoseFocus(EnableSwitch);
+  SetCanLoseFocus(Flags.Check(FFILEEDIT_ENABLEF6));
 
   FarGetCurDirW (strStartDir);
 
@@ -611,9 +597,9 @@ void FileEditor::Init (
   /*$ 11.05.2001 OT */
   //int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
   //if (FramePos!=-1)
-  if (EnableSwitch)
+  if (Flags.Check(FFILEEDIT_ENABLEF6))
   {
-    //if (EnableSwitch)
+    //if (Flags.Check(FFILEEDIT_ENABLEF6))
     int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR, strFullFileName);
     if (FramePos!=-1)
     {
@@ -732,7 +718,8 @@ void FileEditor::Init (
   if(FAttr == -1)
     Flags.Set(FFILEEDIT_NEW);
 
-  Flags.Change(FFILEEDIT_ISNEWFILE,CreateNewFile);
+  if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
+    Flags.Set(FFILEEDIT_NEW);
 
   if (!LoadFile(strFullFileName,UserBreak))
   {
@@ -741,7 +728,7 @@ void FileEditor::Init (
       Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
       UserBreak=0;
     }
-    if(!CreateNewFile || UserBreak)
+    if(!Flags.Check(FFILEEDIT_NEW) || UserBreak)
     {
       if (UserBreak!=1)
       {
@@ -800,7 +787,7 @@ void FileEditor::Init (
   MacroMode=MACRO_EDITOR;
   CtrlObject->Macro.SetMode(MACRO_EDITOR);
 
-  if (EnableSwitch)
+  if (Flags.Check(FFILEEDIT_ENABLEF6))
     FrameManager->InsertFrame(this);
   else
     FrameManager->ExecuteFrame(this);
@@ -1325,7 +1312,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         int FirstSave=1, NeedQuestion=1;
         if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
         {
-          int FilePlased=::GetFileAttributesW (strFullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE);
+          int FilePlased=::GetFileAttributesW (strFullFileName) == -1 && !Flags.Check(FFILEEDIT_NEW);
           if(m_editor->IsFileChanged() ||  // в текущем сеансе были изменения?
              FilePlased) // а сам файл то еще на месте?
           {
@@ -1972,7 +1959,7 @@ end:
   Show();
 
   // ************************************
-  Flags.Clear(FFILEEDIT_ISNEWFILE);
+  Flags.Clear(FFILEEDIT_NEW);
 
   return RetCode;
 }

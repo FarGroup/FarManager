@@ -1303,7 +1303,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 else
 */
                 {
-                  FileEditor ShellEditor (strSearchFileName,CP_AUTODETECT,FALSE,FALSE);
+                  FileEditor ShellEditor (strSearchFileName,CP_AUTODETECT,0);
                   ShellEditor.SetDynamicallyBorn(FALSE);
                   ShellEditor.SetEnableF6 (TRUE);
                   // FindFileArcIndex нельзя здесь использовать

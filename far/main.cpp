@@ -147,13 +147,13 @@ static int MainProcess(
 
       if ( *lpwszEditName )
       {
-        FileEditor *ShellEditor=new FileEditor(lpwszEditName,TRUE,TRUE,StartLine,StartChar);
+        FileEditor *ShellEditor=new FileEditor(lpwszEditName,CP_AUTODETECT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
         _tran(SysLog(L"make shelleditor %p",ShellEditor));
         if (!ShellEditor->GetExitCode()){ // ????????????
           FrameManager->ExitMainLoop(0);
         }
       }
-
+      else // TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
       if ( *lpwszViewName )
       {
         FileViewer *ShellViewer=new FileViewer(lpwszViewName,FALSE);

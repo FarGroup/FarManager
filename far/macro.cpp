@@ -3141,7 +3141,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
         xf_free(TextBuffer);
         {
           //ConsoleTitle *OldTitle=new ConsoleTitle;
-          FileEditor ShellEditor(MacroFileName,FALSE,FALSE,-1,-1,TRUE,NULL);
+          FileEditor ShellEditor(MacroFileName,-1,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
           //delete OldTitle;
           ShellEditor.SetDynamicallyBorn(false);
           FrameManager->EnterModalEV();

@@ -1132,64 +1132,74 @@ int FileList::ProcessKey(int Key)
         {
           static string strLastFileName=L"";
 
-          if ( !dlgOpenEditor (strLastFileName, codepage) )
-          	return FALSE;
+          do{
 
-          /*if (!GetStringW(UMSG(MEditTitle),
-                         UMSG(MFileToEdit),
-                         L"NewEdit",
-                         strLastFileName,
-                         strLastFileName,
-                         512, //BUGBUG
-                         L"Editor",
-                         FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
-            return(FALSE);*/
+            if ( !dlgOpenEditor (strLastFileName, codepage) )
+            	return FALSE;
 
-          if( !strLastFileName.IsEmpty() )
-          {
-            strFileName = strLastFileName;
+            /*if (!GetStringW(UMSG(MEditTitle),
+                           UMSG(MFileToEdit),
+                           L"NewEdit",
+                           strLastFileName,
+                           strLastFileName,
+                           512, //BUGBUG
+                           L"Editor",
+                           FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
+              return(FALSE);*/
 
-            /* $ 07.06.2001 IS
-               - Баг: нужно сначала убирать пробелы, а только потом кавычки
-            */
-            RemoveTrailingSpacesW(strFileName);
-            UnquoteW(strFileName);
-            /* IS $ */
-            ConvertNameToShortW(strFileName,strShortFileName);
-
-            if (PathMayBeAbsoluteW(strFileName))
+            if( !strLastFileName.IsEmpty() )
             {
-              PluginMode=FALSE;
-            }
-            /* IS $ */
-            {
-              // проверим путь к файлу
-              wchar_t *lpwszStart=strFileName.GetBuffer ();
+              strFileName = strLastFileName;
 
-              wchar_t *Ptr = wcsrchr(lpwszStart, L'\\');
-              if(Ptr && Ptr != lpwszStart)
+              RemoveTrailingSpacesW(strFileName);
+              UnquoteW(strFileName);
+              ConvertNameToShortW(strFileName,strShortFileName);
+
+              if (PathMayBeAbsoluteW(strFileName))
               {
-                *Ptr=0;
-                DWORD CheckFAttr=GetFileAttributesW(lpwszStart);
-                if(CheckFAttr == (DWORD)-1)
-                {
-                  SetMessageHelp(L"WarnEditorPath");
-                  if (MessageW(MSG_WARNING,2,UMSG(MWarning),
-                              UMSG(MEditNewPath1),
-                              UMSG(MEditNewPath2),
-                              UMSG(MEditNewPath3),
-                              UMSG(MHYes),UMSG(MHNo))!=0)
-
-                    return(FALSE);
-                }
-                *Ptr=L'\\';
+                PluginMode=FALSE;
               }
+              /* IS $ */
+              {
+                // проверим путь к файлу
+                wchar_t *lpwszStart=strFileName.GetBuffer ();
 
-              strFileName.ReleaseBuffer ();
+                wchar_t *Ptr = wcsrchr(lpwszStart, L'\\');
+                if(Ptr && Ptr != lpwszStart)
+                {
+                  *Ptr=0;
+                  DWORD CheckFAttr=GetFileAttributesW(lpwszStart);
+                  if(CheckFAttr == (DWORD)-1)
+                  {
+                    SetMessageHelp(L"WarnEditorPath");
+                    if (MessageW(MSG_WARNING,2,UMSG(MWarning),
+                                UMSG(MEditNewPath1),
+                                UMSG(MEditNewPath2),
+                                UMSG(MEditNewPath3),
+                                UMSG(MHYes),UMSG(MHNo))!=0)
+
+                      return(FALSE);
+                  }
+                  *Ptr=L'\\';
+                }
+
+                strFileName.ReleaseBuffer ();
+              }
             }
-          }
-          else
-            strFileName = UMSG(MNewFileName);
+            else if(PluginMode) // пустое имя файла в панели плагина не разрешается!
+            {
+              SetMessageHelp(L"WarnEditorPluginName");
+              if (MessageW(MSG_WARNING,2,UMSG(MWarning),
+                          UMSG(MEditNewPlugin1),
+                          UMSG(MEditNewPath3),UMSG(MCancel))!=0)
+
+                return(FALSE);
+            }
+            else
+              strFileName = UMSG(MNewFileName);
+
+          } while(strFileName.IsEmpty());
+
         }
         else
         {
@@ -1282,9 +1292,7 @@ int FileList::ProcessKey(int Key)
               {
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
 
-                FileEditor ShellEditor (strFileName,codepage,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,strPluginData);
-                //FileEditor ShellEditor ((GetFileAttributes(FileName) == (DWORD)-1 && GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
-                //                        Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                FileEditor ShellEditor (strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,strPluginData);
                 ShellEditor.SetDynamicallyBorn(false);
                 FrameManager->EnterModalEV();
                 FrameManager->ExecuteModal();//OT
@@ -1310,7 +1318,7 @@ int FileList::ProcessKey(int Key)
                   EditList.SetCurName(strFileName);
                 }
 
-                FileEditor *ShellEditor=new FileEditor(strFileName,codepage,Key==KEY_SHIFTF4,TRUE);
+                FileEditor *ShellEditor=new FileEditor(strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6);
                 ShellEditor->SetNamesList (&EditList);
                 FrameManager->ExecuteModal();//OT
               }

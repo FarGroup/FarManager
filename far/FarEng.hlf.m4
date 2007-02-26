@@ -2519,6 +2519,12 @@ non-existing drive letter would not be correct) and that you have enough rights
 to create the folder.
 
 
+@WarnEditorPluginName
+$ #Предупреждение: Имя редактируемого файла не может быть пустым#
+    Для создания нового файла на активной панели плагина необходимо указать
+имя файла.
+
+
 @WarnEditorSavedEx
 $ #Warning: The file was changed by an external program#
     The modification date and time of the file on the disk are not the same as
