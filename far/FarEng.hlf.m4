@@ -2518,6 +2518,10 @@ folder, provided that the path is correct (for example, a path starting with a
 non-existing drive letter would not be correct) and that you have enough rights
 to create the folder.
 
+@WarnEditorPluginName
+$ #Предупреждение: Имя редактируемого файла не может быть пустым#
+    Для создания нового файла на активной панели плагина необходимо указать
+имя файла.
 
 @WarnEditorSavedEx
 $ #Warning: The file was changed by an external program#

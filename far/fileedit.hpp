@@ -13,16 +13,14 @@ fileedit.hpp
 
 class NamesList;
 
-/* $ 27.05.2001 DJ
-   коды возврата Editor::SaveFile()
-*/
+// коды возврата Editor::SaveFile()
 enum {
     SAVEFILE_ERROR   = 0,         // пытались сохранять, не получилось
     SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохранять было не надо
     SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
 };
-/* DJ $ */
 
+// как открывать
 enum FEOPMODEEXISTFILE{
   FEOPMODE_QUERY        =0,
   FEOPMODE_NEWIFOPEN    =1,
@@ -31,16 +29,17 @@ enum FEOPMODEEXISTFILE{
 };
 
 enum FFILEEDIT_FLAGS{
-  FFILEEDIT_NEW            = 0x00010000,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
-  FFILEEDIT_REDRAWTITLE    = 0x00020000,  // Нужно редравить заголовок?
-  FFILEEDIT_FULLSCREEN     = 0x00040000,  // Полноэкранный режим?
-  FFILEEDIT_DISABLEHISTORY = 0x00080000,  // Запретить запись в историю?
-  FFILEEDIT_ENABLEF6       = 0x00100000,  // Переключаться во вьювер можно?
-  FFILEEDIT_SAVETOSAVEAS   = 0x00200000,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
-                                          //   При редактировании найденного файла из архива для
-                                          //   клавиши F2 сделать вызов ShiftF2.
-  FFILEEDIT_ISNEWFILE      = 0x00400000,
-  FFILEEDIT_SAVEWQUESTIONS = 0x00800000,  // сохранить без вопросов
+  FFILEEDIT_NEW                   = 0x00010000,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
+  FFILEEDIT_REDRAWTITLE           = 0x00020000,  // Нужно редравить заголовок?
+  FFILEEDIT_FULLSCREEN            = 0x00040000,  // Полноэкранный режим?
+  FFILEEDIT_DISABLEHISTORY        = 0x00080000,  // Запретить запись в историю?
+  FFILEEDIT_ENABLEF6              = 0x00100000,  // Переключаться во вьювер можно?
+  FFILEEDIT_SAVETOSAVEAS          = 0x00200000,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
+                                                 //   При редактировании найденного файла из архива для
+                                                 //   клавиши F2 сделать вызов ShiftF2.
+  FFILEEDIT_SAVEWQUESTIONS        = 0x00400000,  // сохранить без вопросов
+  FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускается новый файл?
+  FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
 };
 
 
@@ -52,9 +51,8 @@ class FileEditor:public Frame
     Editor *FEdit;
     KeyBar EditKeyBar;
 
-    /* $ 07.05.2001 DJ */
     NamesList *EditNamesList;
-    /* DJ $ */
+
     char FileName[NM*2];
     char FullFileName[NM*2];
     char StartDir[NM];
@@ -65,48 +63,28 @@ class FileEditor:public Frame
     char PluginData[NM*2];
 
     WIN32_FIND_DATA FileInfo;
-    /* $ 13.02.2001 IS
-         Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
-    */
-    char AttrStr[4];
-    /* IS $ */
-    /* $ 12.02.2001 IS
-         сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
-    */
-    DWORD FileAttributes;
-    /* IS $ */
-    /* $ 04.11.2003 SKV
-      надо ли восстанавливать аттрибуты при save
-    */
-    BOOL  FileAttributesModified;
-    /* SKV $ */
+
+    char AttrStr[4];               // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
+    DWORD FileAttributes;          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
+    BOOL  FileAttributesModified;  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save
+
     DWORD SysErrorCode;
 
-    //28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
-    bool bClosing;
+    bool bClosing;                 // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
 
     bool bEE_READ_Sent;
 
   public:
-    FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
-               int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
-               char *PluginData=NULL,int ToSaveAs=FALSE,
-               int OpenModeExstFile=FEOPMODE_QUERY);
+    FileEditor(const char *Name,DWORD InitFlags,int StartLine=-1,int StartChar=-1,char *PluginData=NULL,int OpenModeExstFile=FEOPMODE_QUERY);
     /* $ 14.06.2002 IS
        DeleteOnClose стал int:
          0 - не удалять ничего
          1 - удалять файл и каталог
          2 - удалять только файл
     */
-    FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
-               int StartLine,int StartChar,const char *Title,
-               int X1,int Y1,int X2,int Y2, int DisableHistory,
-               int DeleteOnClose=0,
-               int OpenModeExstFile=FEOPMODE_QUERY);
-    /* IS $ */
-    /* $ 07.05.2001 DJ */
+    FileEditor(const char *Name,DWORD InitFlags,int StartLine,int StartChar,const char *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
+
     virtual ~FileEditor();
-    /* DJ $ */
 
   private:
     virtual void DisplayObject();
@@ -131,9 +109,7 @@ class FileEditor:public Frame
          1 - удалять файл и каталог
          2 - удалять только файл
     */
-    void Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
-              int StartLine,int StartChar,int DisableHistory,char *PluginData,
-              int ToSaveAs, int DeleteOnClose,int OpenModeExstFile);
+    void Init(const char *Name,const char *Title,DWORD InitFlags,int StartLine,int StartChar,char *PluginData,int DeleteOnClose,int OpenModeExstFile);
     /* IS $ */
 
     virtual void InitKeyBar(void);                    // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels

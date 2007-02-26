@@ -583,7 +583,7 @@ void CommandLine::ShowViewEditHistory()
       case 4: // открытие с локом
       {
         // пусть файл создается
-        FileEditor *FEdit=new FileEditor(Str,TRUE,TRUE);
+        FileEditor *FEdit=new FileEditor(Str,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
         if(Type == 4)
            FEdit->SetLockEditor(TRUE);
         break;

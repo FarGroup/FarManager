@@ -311,7 +311,7 @@ int InfoList::ProcessKey(int Key)
         AnotherPanel->GetCurDir(CurDir);
         FarChDir(CurDir);
         if (*DizFileName)
-          new FileEditor(DizFileName,FALSE,TRUE);
+          new FileEditor(DizFileName,FFILEEDIT_ENABLEF6);
         else if (*Opt.FolderInfoFiles)
         {
           char ArgName[NM];
@@ -320,7 +320,7 @@ int InfoList::ProcessKey(int Key)
           {
             if (!strpbrk (ArgName, "*?"))
             {
-              new FileEditor(ArgName,TRUE,TRUE);
+              new FileEditor(ArgName,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
               break;
             }
           }

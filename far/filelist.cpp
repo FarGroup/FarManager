@@ -1143,65 +1143,70 @@ int FileList::ProcessKey(int Key)
 
         if (Key==KEY_SHIFTF4)
         {
-          static char LastFileName[NM*2]="";
-          /* $ 02.06.2001 KM
-             + Ну уж так народ настаивает на кнопках в диалоге...
-          */
-          /* $ 18.09.2000 SVS
-             + При вызове редактора по Shift-F4 можно употреблять
-               переменные среды.
-          */
-          if (!GetString(MSG(MEditTitle),
-                         MSG(MFileToEdit),
-                         "NewEdit",
-                         LastFileName,
-                         LastFileName,
-                         sizeof(LastFileName),
-                         "Editor",
-                         FIB_BUTTONS|FIB_EXPANDENV/*|FIB_EDITPATH*/|FIB_ENABLEEMPTY))
-            return(FALSE);
-          /* SVS $ */
-          /* KM $ */
-          if(*LastFileName)
-          {
-            xstrncpy(FileName,LastFileName,sizeof(FileName)-1);
-            /* $ 07.06.2001 IS
-               - Баг: нужно сначала убирать пробелы, а только потом кавычки
-            */
-            RemoveTrailingSpaces(FileName);
-            Unquote(FileName);
-            /* IS $ */
-            ConvertNameToShort(FileName,ShortFileName,sizeof(ShortFileName)-1);
-            /* $ 24.11.2001 IS применим функцию от ОТ ;-) */
-            if (PathMayBeAbsolute(FileName))
-            {
-              PluginMode=FALSE;
-            }
-            /* IS $ */
-            {
-              // проверим путь к файлу
-              char *Ptr=strrchr(FileName,'\\');
-              if(Ptr && Ptr != FileName)
-              {
-                *Ptr=0;
-                DWORD CheckFAttr=GetFileAttributes(FileName);
-                if(CheckFAttr == (DWORD)-1)
-                {
-                  SetMessageHelp("WarnEditorPath");
-                  if (Message(MSG_WARNING,2,MSG(MWarning),
-                              MSG(MEditNewPath1),
-                              MSG(MEditNewPath2),
-                              MSG(MEditNewPath3),
-                              MSG(MHYes),MSG(MHNo))!=0)
+            static char LastFileName[NM*2]="";
 
-                    return(FALSE);
+          do{
+
+            *FileName=0;
+            if (!GetString(MSG(MEditTitle),
+                           MSG(MFileToEdit),
+                           "NewEdit",
+                           LastFileName,
+                           LastFileName,
+                           sizeof(LastFileName),
+                           "Editor",
+                           FIB_BUTTONS|FIB_EXPANDENV/*|FIB_EDITPATH*/|FIB_ENABLEEMPTY))
+              return(FALSE);
+
+            if(*LastFileName)
+            {
+              xstrncpy(FileName,LastFileName,sizeof(FileName)-1);
+
+              RemoveTrailingSpaces(FileName);
+              Unquote(FileName);
+              ConvertNameToShort(FileName,ShortFileName,sizeof(ShortFileName)-1);
+
+              if (PathMayBeAbsolute(FileName))
+              {
+                PluginMode=FALSE;
+              }
+
+              {
+                // проверим путь к файлу
+                char *Ptr=strrchr(FileName,'\\');
+                if(Ptr && Ptr != FileName)
+                {
+                  *Ptr=0;
+                  DWORD CheckFAttr=GetFileAttributes(FileName);
+                  if(CheckFAttr == (DWORD)-1)
+                  {
+                    SetMessageHelp("WarnEditorPath");
+                    if (Message(MSG_WARNING,2,MSG(MWarning),
+                                MSG(MEditNewPath1),
+                                MSG(MEditNewPath2),
+                                MSG(MEditNewPath3),
+                                MSG(MHYes),MSG(MHNo))!=0)
+
+                      return(FALSE);
+                  }
+                  *Ptr='\\';
                 }
-                *Ptr='\\';
               }
             }
-          }
-          else
-            strcpy(FileName,MSG(MNewFileName));
+            else if(PluginMode) // пустое имя файла в панели плагина не разрешается!
+            {
+              SetMessageHelp("WarnEditorPluginName");
+              if (Message(MSG_WARNING,2,MSG(MWarning),
+                          MSG(MEditNewPlugin1),
+                          MSG(MEditNewPath3),MSG(MCancel))!=0)
+
+                return(FALSE);
+            }
+            else
+              strcpy(FileName,MSG(MNewFileName));
+
+          } while(!*FileName);
+
         }
         else
         {
@@ -1209,16 +1214,9 @@ int FileList::ProcessKey(int Key)
 
           if (CurPtr->FileAttr & FA_DIREC)
           {
-            /* $ 27.11.2000 SVS
-               Для каталогов F4 вызывает диалог атрибутов
-            */
-            /* $ 21.12.2000 SVS
-               ...пусть об этом позаботится Ctrl-A :-)
-            */
             if (Edit)
               return ProcessKey(KEY_CTRLA);
-            /* SVS $ */
-            /* SVS $ */
+
             CountDirSize(Info.Flags);
             return(TRUE);
           }
@@ -1296,9 +1294,7 @@ int FileList::ProcessKey(int Key)
               else if (PluginMode)
               {
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
-                FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                //FileEditor ShellEditor ((GetFileAttributes(FileName) == (DWORD)-1 && GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
-                //                        Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                FileEditor ShellEditor (FileName,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,PluginData);
                 ShellEditor.SetDynamicallyBorn(false);
                 FrameManager->EnterModalEV();
                 FrameManager->ExecuteModal();//OT
@@ -1322,12 +1318,10 @@ int FileList::ProcessKey(int Key)
                   EditList.SetCurDir(CurDir);
                   EditList.SetCurName(FileName);
                 }
-                //FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
                 FileEditor *ShellEditor=new FileEditor((strcmp(FileName,MSG(MNewFileName)) != 0 &&
                                                         GetFileAttributes(FileName) == (DWORD)-1 &&
                                                         GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
-                                                        Key==KEY_SHIFTF4,TRUE);
-                //FileEditor *ShellEditor=new FileEditor(GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,TRUE);
+                                                        (Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6);
                 ShellEditor->SetNamesList (&EditList);
                 FrameManager->ExecuteModal();//OT
               }

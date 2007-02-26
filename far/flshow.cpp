@@ -214,13 +214,13 @@ void FileList::ShowFileList(int Fast)
       }
     }
   }
-#if 0
+
   if(SelectedFirst)
   {
     OutCharacter[0]='^';
     Text(OutCharacter);
   }
-#endif
+
   if (!Fast && GetFocus())
   {
     CtrlObject->CmdLine->SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);

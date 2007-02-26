@@ -154,12 +154,13 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
       CtrlObj.Plugins.LoadPlugins();
       if (*EditName)
       {
-        FileEditor *ShellEditor=new FileEditor(EditName,TRUE,TRUE,StartLine,StartChar);
+        FileEditor *ShellEditor=new FileEditor(EditName,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
         _tran(SysLog("make shelleditor %p",ShellEditor));
         if (!ShellEditor->GetExitCode()){ // ????????????
           FrameManager->ExitMainLoop(0);
         }
       }
+      else // TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
       if (*ViewName)
       {
         FileViewer *ShellViewer=new FileViewer(ViewName,FALSE);

@@ -1883,9 +1883,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   if (Flags & EF_NONMODAL)
   {
     /* 09.09.2001 IS ! ƒобавим им€ файла в историю, если потребуетс€ */
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,
+    FileEditor *Editor=new FileEditor(FileName,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),
                                       StartLine,StartChar,Title,
-                                      X1,Y1,X2,Y2,DisableHistory,
+                                      X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
     /* IS $ */
     // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
@@ -1922,9 +1922,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   else
   {
     /* 09.09.2001 IS ! ƒобавим им€ файла в историю, если потребуетс€ */
-    FileEditor Editor(FileName,CreateNew,FALSE,
+    FileEditor Editor(FileName,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),
                       StartLine,StartChar,Title,
-                      X1,Y1,X2,Y2,DisableHistory,
+                      X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
     /* IS $ */
 

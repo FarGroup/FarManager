@@ -30,24 +30,19 @@ fileedit.cpp
 #include "savescr.hpp"
 
 
-FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
-                       int StartLine,int StartChar,int DisableHistory,
-                       char *PluginData,int ToSaveAs, int OpenModeExstFile)
+FileEditor::FileEditor(const char *Name,DWORD InitFlags,int StartLine,int StartChar,char *PluginData,int OpenModeExstFile)
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(1)"));
   _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
   _KEYMACRO(SysLog(1));
+  Flags.Set(InitFlags);
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   Flags.Set(FFILEEDIT_FULLSCREEN);
-  Init(Name,NULL,CreateNewFile,EnableSwitch,StartLine,StartChar,
-       DisableHistory,PluginData,ToSaveAs,FALSE,OpenModeExstFile);
+  Init(Name,NULL,InitFlags,StartLine,StartChar,PluginData,FALSE,OpenModeExstFile);
 }
 
 
-FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
-            int StartLine,int StartChar,const char *Title,
-            int X1,int Y1,int X2,int Y2,int DisableHistory, int DeleteOnClose,
-            int OpenModeExstFile)
+FileEditor::FileEditor(const char *Name,DWORD InitFlags,int StartLine,int StartChar,const char *Title,int X1,int Y1,int X2,int Y2, int DeleteOnClose,int OpenModeExstFile)
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(2)"));
   _KEYMACRO(SysLog("FileEditor::FileEditor(2)"));
@@ -75,10 +70,10 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   }
 
   /* IS $ */
+  Flags.Set(InitFlags);
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   Flags.Change(FFILEEDIT_FULLSCREEN,(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY));
-  Init(Name,Title,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
-       FALSE,DeleteOnClose,OpenModeExstFile);
+  Init(Name,Title,InitFlags,StartLine,StartChar,"",DeleteOnClose,OpenModeExstFile);
 }
 
 /* $ 07.05.2001 DJ
@@ -187,10 +182,7 @@ FileEditor::~FileEditor()
   _KEYMACRO(SysLog("FileEditor::~FileEditor()"));
 }
 
-void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
-                      int StartLine,int StartChar,int DisableHistory,
-                      char *PluginData,int ToSaveAs,int DeleteOnClose,
-                      int OpenModeExstFile)
+void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int StartLine,int StartChar,char *PluginData,int DeleteOnClose,int OpenModeExstFile)
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::Init()"));
   _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
@@ -225,17 +217,11 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   EditNamesList = NULL;
   KeyBarVisible = Opt.EdOpt.ShowKeyBar;
   /* DJ $ */
-  /* $ 10.05.2001 DJ */
-  Flags.Change(FFILEEDIT_DISABLEHISTORY,DisableHistory);
-  Flags.Change(FFILEEDIT_ENABLEF6,EnableSwitch);
-  /* DJ $ */
   /* $ 17.08.2001 KM
     Добавлено для поиска по AltF7. При редактировании найденного файла из
     архива для клавиши F2 сделать вызов ShiftF2.
   */
-  if(BlankFileName)
-    CreateNewFile=1;
-  Flags.Change(FFILEEDIT_SAVETOSAVEAS,(ToSaveAs||BlankFileName?TRUE:FALSE));
+  Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
   /* KM $ */
 
   if (*Name==0)
@@ -246,8 +232,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 
   SetPluginData(PluginData);
   FEdit->SetHostFileEditor(this);
-  _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
-  SetCanLoseFocus(EnableSwitch);
+  SetCanLoseFocus(Flags.Check(FFILEEDIT_ENABLEF6));
   FarGetCurDir(sizeof(StartDir),StartDir);
 
   if(!SetFileName(Name))
@@ -259,9 +244,9 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   /*$ 11.05.2001 OT */
   //int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
   //if (FramePos!=-1)
-  if (EnableSwitch)
+  if (Flags.Check(FFILEEDIT_ENABLEF6))
   {
-    //if (EnableSwitch)
+    //if (Flags.Check(FFILEEDIT_ENABLEF6))
     int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
     if (FramePos!=-1)
     {
@@ -381,7 +366,8 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   if(FAttr == -1)
     Flags.Set(FFILEEDIT_NEW);
 
-  Flags.Change(FFILEEDIT_ISNEWFILE,CreateNewFile);
+  if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
+    Flags.Set(FFILEEDIT_NEW);
 
   if (!ReadFile(FullFileName,UserBreak))
   {
@@ -391,7 +377,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       UserBreak=0;
     }
 
-    if(!CreateNewFile || UserBreak)
+    if(!Flags.Check(FFILEEDIT_NEW) || UserBreak)
     {
       if (UserBreak!=1)
       {
@@ -449,7 +435,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   MacroMode=MACRO_EDITOR;
   CtrlObject->Macro.SetMode(MACRO_EDITOR);
 /*& OT */
-  if (EnableSwitch)
+  if (Flags.Check(FFILEEDIT_ENABLEF6))
   {
     FrameManager->InsertFrame(this);
     //FrameManager->PluginCommit(); // НАДА! иначе нифига ничего не работает
@@ -980,7 +966,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         int FirstSave=1, NeedQuestion=1;
         if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
         {
-          int FilePlased=::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE);
+          int FilePlased=::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_NEW);
           if(FEdit->IsFileChanged() ||  // в текущем сеансе были изменения?
              FilePlased) // а сам файл то еще на месте?
           {
@@ -1407,7 +1393,7 @@ end:
   /* IS $ */
 
   // ************************************
-  Flags.Clear(FFILEEDIT_ISNEWFILE);
+  Flags.Clear(FFILEEDIT_NEW);
 
   return RetCode;
 }
