@@ -24,7 +24,7 @@ AceModule::AceModule ()
 		m_pfnReadArchiveData = (ACEREADARCHIVEDATA)GetProcAddress (m_hModule, "ACEReadArchiveData");
 		m_pfnList = (ACELIST)GetProcAddress (m_hModule, "ACEList");
 		m_pfnTest = (ACETEST)GetProcAddress (m_hModule, "ACETest");
-		m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract"); 
+		m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
 	}
 }
 
@@ -69,7 +69,7 @@ AceArchive::AceArchive (const char *lpFileName)
 
 		DllData.GlobalData.Obj = (void*)this;
 
-		DllData.GlobalData.MaxArchiveTestBytes = 0x2ffFF; // search for archive 
+		DllData.GlobalData.MaxArchiveTestBytes = 0x2ffFF; // search for archive
 														  // header in first 256k of file
 		DllData.GlobalData.MaxFileBufSize = 0x2ffFF; // read/write buffer size
 													 // is 256k
@@ -214,7 +214,7 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 {
 	if ( State->StructureType == ACE_CALLBACK_TYPE_ARCHIVEDFILE )
 	{
-		if ( State->ArchivedFile.Code == ACE_CALLBACK_STATE_STARTFILE ) 
+		if ( State->ArchivedFile.Code == ACE_CALLBACK_STATE_STARTFILE )
 		{
 			if ( m_nMode == OM_LIST )
 			{
@@ -237,7 +237,7 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 				SetEvent (m_hListEventComplete);
 			}
 			else
-				m_pfnCallback (AM_PROCESS_FILE, NULL, (int)State->ArchivedFile.FileData->SourceFileName);
+				m_pfnCallback (AM_PROCESS_FILE, 0, (int)State->ArchivedFile.FileData->SourceFileName);
 
 		}
 	}
@@ -247,7 +247,7 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 		int diff = State->Progress.ProgressData->TotalProcessedSize-m_nLastProcessed;
 
 		if ( m_pfnCallback )
-			m_pfnCallback (AM_PROCESS_DATA, NULL, (int)diff);
+			m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff);
 
 		m_nLastProcessed = State->Progress.ProgressData->TotalProcessedSize;
 	}
@@ -263,7 +263,7 @@ int __stdcall AceArchive::OnRequest (pACERequestCallbackProcStruc Request)
 int __stdcall AceArchive::OnError (pACEErrorCallbackProcStruc Error)
 {
 	if ( (Error->StructureType == ACE_CALLBACK_TYPE_ARCHIVE) &&
-		 (Error->Archive.Code == ACE_CALLBACK_ERROR_ISNOTANARCHIVE) && 
+		 (Error->Archive.Code == ACE_CALLBACK_ERROR_ISNOTANARCHIVE) &&
 		 (m_nMode == -1) ) //QueryArchive
 		m_bIsArchive = false;
 

@@ -9,6 +9,7 @@ mkdir ..\o\plugins\zip
 mkdir ..\o\plugins\7z
 mkdir ..\o\plugins\7z.all
 mkdir ..\o\plugins\wcx
+mkdir ..\o\plugins\ace
 mkdir ..\o\rtl
 mkdir ..\bin
 mkdir ..\bin\plugins

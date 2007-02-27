@@ -112,8 +112,6 @@ int OnExtract (ExtractStruct *pES)
 
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
-	//RarArchive *pArchive = (RarArchive*)pGAF->hArchive;
-
 	pGAF->uid = CLSID_FormatACE;
 
 	return NAERROR_SUCCESS;
@@ -122,17 +120,17 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
     static char *pCommands[]={
-    /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
-    /*Extract without paths */"rar e {-p%%P} -y -c- -kb -- %%A @%%LNM",
-    /*Test                  */"rar t -y {-p%%P} -- %%A",
-    /*Delete                */"rar d -y {-p%%P} {-w%%W} -- %%A @%%LNM",
-    /*Comment archive       */"rar c -y {-w%%W} -- %%A",
-    /*Comment files         */"rar cf -y {-w%%W} -- %%A @%%LNM",
-    /*Convert to SFX        */"rar s -y -- %%A",
-    /*Lock archive          */"rar k -y -- %%A",
-    /*Protect archive       */"rar rr -y -- %%A",
-    /*Recover archive       */"rar r -y -- %%A",
-    /*Add files             */"rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LNM"
+    /*Extract               */"ace32 x {-p%%P} -y -c- -std {%%S} %%A @%%LN",
+    /*Extract without paths */"ace32 e -av- {-p%%P} -y -c- -std {%%S} %%A @%%LN",
+    /*Test                  */"ace32 t -y {-p%%P} -c- -std {%%S} %%A",
+    /*Delete                */"ace32 d -y -std {-t%%W} {%%S} %%A @%%LN",
+    /*Comment archive       */"ace32 cm -y -std {-t%%W} {%%S} %%A",
+    /*Comment files         */"ace32 cf -y -std {-t%%W} {%%S} %%A {@%%LN}",
+    /*Convert to SFX        */"ace32 s -y -std {%%S} %%A",
+    /*Lock archive          */"ace32 k -y -std {%%S} %%A",
+    /*Protect archive       */"ace32 rr -y -std {%%S} %%A",
+    /*Recover archive       */"ace32 r -y -std {%%S} %%A",
+    /*Add files             */"ace32 a -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
     };
 
 
