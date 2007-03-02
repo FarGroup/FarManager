@@ -206,7 +206,6 @@ int __stdcall AceArchive::pGetArchiveItem (
 
 int __stdcall AceArchive::OnInfo (pACEInfoCallbackProcStruc Info)
 {
-
 	return ACE_CALLBACK_RETURN_OK;
 }
 
@@ -237,12 +236,22 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 				SetEvent (m_hListEventComplete);
 			}
 			else
-				m_pfnCallback (AM_PROCESS_FILE, 0, (int)State->ArchivedFile.FileData->SourceFileName);
+			{
+				if ( State->ArchivedFile.Operation == ACE_CALLBACK_OPERATION_EXTRACT )
+				{
+					PluginPanelItem item;
 
+					memset (&item, 0, sizeof (item));
+					strcpy (item.FindData.cFileName, State->ArchivedFile.FileData->SourceFileName);
+
+					m_pfnCallback (AM_PROCESS_FILE, (int)&item, NULL);
+				}
+			}
 		}
 	}
 
-	if ( State->StructureType == ACE_CALLBACK_TYPE_PROGRESS )
+	if ( (State->StructureType == ACE_CALLBACK_TYPE_PROGRESS) &&
+		 (State->Progress.Operation == ACE_CALLBACK_OPERATION_EXTRACT) )
 	{
 		int diff = State->Progress.ProgressData->TotalProcessedSize-m_nLastProcessed;
 
@@ -285,13 +294,15 @@ bool __stdcall AceArchive::pExtract (
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
-		newsize += strlen(pItems[i].FindData.cFileName)+1;
+		char *name = pItems[i].FindData.cFileName+strlen(lpCurrentFolder);
+
+		newsize += strlen(name)+1;
 
 		extract.Files.FileList = (char*)realloc (extract.Files.FileList, newsize);
 
 		memset (&extract.Files.FileList[size], 0, newsize-size-1);
 
-		strcat (extract.Files.FileList, pItems[i].FindData.cFileName);
+		strcat (extract.Files.FileList, name);
 
 		if ( i != (nItemsNumber-1) )
 			extract.Files.FileList[newsize-1] = 0x0D;
@@ -300,6 +311,7 @@ bool __stdcall AceArchive::pExtract (
 	}
 
 	extract.Files.SourceDir = (char*)lpCurrentFolder;
+	extract.Files.FullMatch = TRUE;
 	extract.DestinationDir = (char*)lpDestPath;
 
 	if ( m_pfnCallback )
