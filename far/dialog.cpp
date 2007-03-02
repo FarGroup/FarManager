@@ -2944,21 +2944,24 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       }
       else
       {
-        if(I == FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONFOCUS)
-            ||
-           I != FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS)
-          )
+        if( !MouseEvent->dwButtonState || SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent) )
         {
-          List->ProcessMouse(MouseEvent);
-          int NewListPos=List->GetSelectPos();
-          if(NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))
+          if(I == FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONFOCUS)
+              ||
+             I != FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS)
+            )
           {
-            List->SetSelection(CheckedListItem,Pos);
-            if(DialogMode.Check(DMODE_SHOW) && !(Item[I].Flags&DIF_HIDDEN))
-              ShowDialog(I); // FocusPos
+            List->ProcessMouse(MouseEvent);
+            int NewListPos=List->GetSelectPos();
+            if(NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))
+            {
+              List->SetSelection(CheckedListItem,Pos);
+              if(DialogMode.Check(DMODE_SHOW) && !(Item[I].Flags&DIF_HIDDEN))
+                ShowDialog(I); // FocusPos
+            }
+            else
+              Pos=NewListPos;
           }
-          else
-            Pos=NewListPos;
         }
       }
       /* KM $ */
