@@ -232,12 +232,13 @@ void TreeList::DisplayTree(int Fast)
   }
   for (I=Y1+1,J=CurTopFile;I<Y2-2-(ModalMode!=0);I++,J++)
   {
-    CurPtr=ListData[J];
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
     TextW(L" ");
     if (J<TreeCount && Flags.Check(FTREELIST_TREEISPREPARED))
     {
+      CurPtr=ListData[J];
+
       if (J==0)
         DisplayTreeName(L"\\",J);
       else
@@ -478,7 +479,7 @@ int TreeList::ReadTree()
     TreeCount++;
   }
 
-  if(AscAbort)
+  if(AscAbort && !Flags.Check(FTREELIST_ISPANEL))
   {
   	if (ListData)
   	{
@@ -498,7 +499,10 @@ int TreeList::ReadTree()
   far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
   FillLastData();
-  SaveTreeFile();
+
+  if ( !AscAbort )
+    SaveTreeFile();
+
   if (!FirstCall && !Flags.Check(FTREELIST_ISPANEL))
   { // ѕерерисуем другую панель - удалим следы сообщений :)
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);

@@ -1592,7 +1592,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	SetPreRedrawFunc(NULL);
 
-	if ( LastLineCR )
+	if ( LastLineCR || (Count == 0) )
 		m_editor->InsertString (L"", 0);
 
 	fclose (EditFile);

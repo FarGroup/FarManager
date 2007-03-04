@@ -7,10 +7,10 @@ Parent class для модальных объектов
 
 */
 
-#include "scrobj.hpp"
 #include "unicodestring.hpp"
+#include "frame.hpp"
 
-class Modal: virtual public ScreenObject
+class Modal: public Frame
 {
   private:
     int     ReadKey,

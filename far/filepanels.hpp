@@ -15,7 +15,7 @@ filepanels.hpp
 class Panel;
 class CommandLine;
 
-class FilePanels:public virtual Frame
+class FilePanels:public Frame
 {
   private:
     void DisplayObject();
