@@ -18,7 +18,8 @@
 
 extern pointer_array<ArchivePlugin*> Plugins;
 extern const char *GUID2STR (const GUID &uid);
-
+extern const GUID& STR2GUID (const char *lpStr);
+extern ArchivePlugin *GetPluginFromUID (const GUID &uid);
 /*char *pCommandNames[11] = {
 		"Extract",
         "ExtractWithoutPath",
@@ -36,12 +37,6 @@ extern const char *GUID2STR (const GUID &uid);
 extern char *pCommandNames[11];
 
 #define FILE_ENCRYPTED 1
-
-struct formatStruct {
-	ArchivePlugin *pPlugin;
-	GUID uid;
-};
-
 
 struct ArchiveFile {
 	dword dwFlags;

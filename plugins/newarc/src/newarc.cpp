@@ -42,6 +42,36 @@ const char *GUID2STR (const GUID &uid)
 	return (const char*)&szGUID;
 }
 
+const GUID& STR2GUID (const char *lpStr)
+{
+	GUID uid;
+
+	wchar_t wszGUID[64];
+
+	memset (&wszGUID, 0, sizeof (wszGUID));
+
+	MultiByteToWideChar (CP_OEMCP, 0, lpStr, -1, (wchar_t*)&wszGUID, sizeof (wszGUID)/sizeof(wszGUID[0]));
+
+	IIDFromString ((LPOLESTR)&wszGUID, &uid);
+
+	return uid;
+}
+
+ArchivePlugin *GetPluginFromUID (const GUID &uid)
+{
+	for (int i = 0; i < Plugins.count(); i++)
+	{
+		ArchivePlugin *pPlugin = Plugins[i];
+
+		for (int j = 0; j < pPlugin->m_ArchivePluginInfo.nFormats; j++)
+		{
+			if ( uid == pPlugin->m_ArchivePluginInfo.pFormatInfo[j].uid )
+				return pPlugin;
+		}
+	}
+
+	return NULL;
+}
 
 ArchivePanel *__stdcall OpenFilePlugin (
 		const char *lpFileName,
@@ -347,11 +377,10 @@ void dlgConfigure ()
 		D.Edit (29, Y++, 42, lpCommand); \
 	}
 
-void dlgCommandLinesAndParams (
-		ArchivePlugin *pPlugin,
-		GUID &uid
-		)
+void dlgCommandLinesAndParams (GUID &uid)
 {
+	ArchivePlugin *pPlugin = GetPluginFromUID(uid);
+
 	int nHeight = 19;
 
 	int Y = 2;
@@ -454,15 +483,13 @@ void mnuCommandLinesAndParams ()
 	{
 		for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 		{
-			formatStruct *pfs = new formatStruct;
-
-			pfs->pPlugin = Plugins[i];
+			GUID *puid = new GUID;
 
 			ArchiveFormatInfo *info = &Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j];
 
-			pfs->uid = info->uid;
+			*puid = info->uid;
 
-			pItems[nCount].UserData = (DWORD)pfs;
+			pItems[nCount].UserData = (DWORD)puid;
 			pItems[nCount].Flags = MIF_USETEXTPTR;
 			pItems[nCount].Text.TextPtr = info->lpName;
 
@@ -487,12 +514,12 @@ void mnuCommandLinesAndParams ()
 
 	if ( nResult != -1 )
 	{
-		formatStruct *pfs = (formatStruct*)pItems[nResult].UserData;
-		dlgCommandLinesAndParams (pfs->pPlugin, pfs->uid);
+		GUID uid = *(GUID*)pItems[nResult].UserData;
+		dlgCommandLinesAndParams (uid);
 	}
 
 	for (int i = 0; i < nCount; i++)
-		delete (formatStruct*)pItems[i].UserData;
+		delete (GUID*)pItems[i].UserData;
 
 	free (pItems);
 }
