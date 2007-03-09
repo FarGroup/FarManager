@@ -1,6 +1,6 @@
 #include "crt.hpp"
 
-char * __cdecl strrchr(const char *string, int ch)
+_CONST_RETURN char * __cdecl strrchr(const char *string, int ch)
 {
   const char *start = string;
 

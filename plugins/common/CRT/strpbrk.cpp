@@ -1,6 +1,6 @@
 #include "crt.hpp"
 
-char * __cdecl strpbrk(const char *string, const char *control)
+_CONST_RETURN char * __cdecl strpbrk(const char *string, const char *control)
 {
   const unsigned char *str = (const unsigned char *)string;
   const unsigned char *ctrl = (const unsigned char *)control;

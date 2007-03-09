@@ -1,6 +1,6 @@
 #include "crt.hpp"
 
-void * __cdecl memchr(const void *buf, int chr, size_t cnt)
+_CONST_RETURN void * __cdecl memchr(const void *buf, int chr, size_t cnt)
 {
   while (cnt && (*(unsigned char *)buf != (unsigned char)chr))
   {
