@@ -699,7 +699,8 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
   {
     return false;
   }
-  *pstrCurDir = pi.CurDir;
+  // preserve space for AddEndSlash
+  *pstrCurDir = auto_sz(pi.CurDir, lstrlen(pi.CurDir)+1);
   if (!pi.SelectedItemsNumber ||
     (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelectedItems[0].FindData.cFileName, ".."))
     )
@@ -746,7 +747,7 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     }
   }
   return true;
-}
+}// CurDir
 
 CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
                  , LPCTSTR pFiles[], unsigned nFiles
@@ -839,9 +840,11 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
         break;
       case AI_ITEM:
         {
-          int nLen=GetMenuString(oHMenu, i, NULL, 0, MF_BYPOSITION)+1;
+          int nLen=GetMenuString(oHMenu, i, NULL, 0, MF_BYPOSITION);
+          if (!nLen) continue;
+          ++nLen;
           strAutoItem.Realloc(nLen);
-          if (!nLen || !GetMenuString(oHMenu, i, strAutoItem, nLen, MF_BYPOSITION))
+          if (!GetMenuString(oHMenu, i, strAutoItem, nLen, MF_BYPOSITION))
           {
             continue;
           }
@@ -1096,6 +1099,11 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
     {
       return false;
     }
+    if (mii.fType & (MFT_SEPARATOR | MFT_MENUBARBREAK | MFT_MENUBREAK))
+    {
+      oFarMenu.AddSeparator();
+      continue;
+    }
     CFarMenu::ECheck enCheck=CFarMenu::UNCHECKED;
     if (mii.fState&MFS_CHECKED)
     {
@@ -1109,15 +1117,47 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
       }
     }
     bool bDisabled=0!=(mii.fState&MFS_DISABLED);
+    int grphid = -1;
     if (mii.fType==MFT_STRING)
     {
-      int nLen=GetMenuString(hMenu, i, NULL, 0, MF_BYPOSITION)+1;
+      int nLen=GetMenuString(hMenu, i, NULL, 0, MF_BYPOSITION);
+      if(!nLen) return false;
+      ++nLen;
       szItem.Realloc(nLen);
       if (!GetMenuString(hMenu, i, szItem, nLen, MF_BYPOSITION))
       {
         return false;
       }
       szItem.Ansi2Oem();
+    }
+    else if (mii.fType&MFT_BITMAP)
+    {
+      grphid = LNG_MT_BITMAP;
+    }
+    else if (mii.fType&MFT_OWNERDRAW)
+    {
+      grphid = LNG_MT_OWNERDRAWN;
+    }
+    else
+    {
+      assert(0);
+      continue;
+    }
+    if (grphid != -1)
+    {
+      if (m_enHelptext != AS_HELPTEXT /*&& m_enHelptext != AS_VERB*/) {
+        auto_sz szSub;
+        if (   GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_VERB, &szSub, FALSE)
+            || GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_HELPTEXT, &szSub))
+        {
+          szItem=_T("{");
+          szItem+=szSub;
+          szItem+=_T("}");
+        }
+      }
+      if (0==szItem.Len()) szItem = GetMsg(grphid);
+    }
+    if (m_enHelptext != AS_NONE) {
       auto_sz szAddInfo;
       if (GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, m_enHelptext, &szAddInfo))
       {
@@ -1128,28 +1168,8 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
           szItem+=_T(")");
         }
       }
-      oFarMenu.AddItem(szItem, NULL!=mii.hSubMenu, enCheck, bDisabled);
     }
-    else if ((mii.fType&MFT_SEPARATOR)
-      || (mii.fType&MFT_MENUBARBREAK)
-      || (mii.fType&MFT_MENUBREAK))
-    {
-      oFarMenu.AddSeparator();
-    }
-    else if (mii.fType&MFT_BITMAP)
-    {
-      oFarMenu.AddItem(GetMsg(LNG_MT_BITMAP), NULL!=mii.hSubMenu
-        , enCheck, bDisabled);
-    }
-    else if (mii.fType&MFT_OWNERDRAW)
-    {
-      oFarMenu.AddItem(GetMsg(LNG_MT_OWNERDRAWN), NULL!=mii.hSubMenu
-        , enCheck);
-    }
-    else
-    {
-      assert(0);
-    }
+    oFarMenu.AddItem(szItem, NULL!=mii.hSubMenu, enCheck, bDisabled);
   }
   for(int nItem=0;;)
   {

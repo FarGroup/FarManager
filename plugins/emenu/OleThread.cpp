@@ -80,7 +80,7 @@ break;//!
     }
     pMalloc.Release();
 //    В Build950 вызывает падение
-//    OleUninitialize();
+    OleUninitialize();
     return 0;
   }
 
