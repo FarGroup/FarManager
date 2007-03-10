@@ -1151,6 +1151,28 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
             || GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_HELPTEXT, &szSub))
         {
           szItem=_T("{");
+
+          TCHAR *Buf=(TCHAR*)malloc((szSub.Len()+1)*sizeof(TCHAR));
+
+          if (Buf)
+          {
+            //ѕолучаем из shell32.dll шаблон, по которому формируютс€ эти подсказки,
+            //(строковый ресурс #5380, "Opens the document with %s."),
+            //и убираем его из сабжевых строк. ƒл€ XP/2003.
+            LoadString(GetModuleHandle("shell32.dll"),5380,Buf,szSub.Len()+1);
+            int i=0;
+            while(Buf[i] && Buf[i]!=_T('%'))
+              i++;
+            if (Buf[i] == _T('%'))
+            {
+              lstrcpy(Buf,szSub);
+              Buf+=i;
+              m_fsf.Unquote(Buf);
+              szSub=Buf;
+            }
+            free(Buf);
+          }
+
           szItem+=szSub;
           szItem+=_T("}");
         }
