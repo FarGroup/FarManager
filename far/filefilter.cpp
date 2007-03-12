@@ -587,6 +587,8 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   }
 
   bool flag=false;
+  bool bInc=false;
+  bool bExc=false;
   FileFilterParams *CurFilterData;
 
   for (int i=0; i<FilterData.getCount(); i++)
@@ -597,7 +599,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
     {
       flag = flag || CurFilterData->Flags.Check(Inc);
       if (CurFilterData->FileInFilter(fd))
-        return CurFilterData->Flags.Check(Inc)?true:false;
+        CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
 
@@ -605,7 +607,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   {
     flag = flag || FoldersFilter.Flags.Check(Inc);
     if (FoldersFilter.FileInFilter(fd))
-      return FoldersFilter.Flags.Check(Inc)?true:false;
+      FoldersFilter.Flags.Check(Inc)?bInc=true:bExc=true;
   }
 
   for (int i=0; i<TempFilterData.getCount(); i++)
@@ -616,10 +618,12 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
     {
       flag = flag || CurFilterData->Flags.Check(Inc);
       if (CurFilterData->FileInFilter(fd))
-        return CurFilterData->Flags.Check(Inc)?true:false;
+        CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
 
+  if (bExc) return false;
+  if (bInc) return true;
   return !flag;
 }
 
