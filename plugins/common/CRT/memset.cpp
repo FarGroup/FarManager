@@ -1,4 +1,7 @@
 #include "crt.hpp"
+#ifdef _MSC_VER
+#pragma function(memset)
+#endif
 
 void * __cdecl memset(void *dst, int val, size_t count)
 {

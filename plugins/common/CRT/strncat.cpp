@@ -1,8 +1,14 @@
 #include "crt.hpp"
 
-char * __cdecl strncat(char *first, const char *last, size_t count)
+TCHAR * __cdecl
+#ifndef UNICODE
+               strncat
+#else
+               wcsncat
+#endif
+                      (TCHAR *first, const TCHAR *last, size_t count)
 {
-  char *start = first;
+  TCHAR *start = first;
 
   while (*first++)
     ;

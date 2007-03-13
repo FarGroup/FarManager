@@ -25,3 +25,13 @@ _CONST_RETURN char * __cdecl strpbrk(const char *string, const char *control)
   }
   return(NULL);
 }
+
+//----------------------------------------------------------------------------
+_CONST_RETURN_W wchar_t * __cdecl wcspbrk(const wchar_t *string, const wchar_t *control)
+{
+  for ( ; *string; string++)
+    for (const wchar_t *wcset = control; *wcset; wcset++)
+      if (*wcset == *string) return((wchar_t *)string);
+  return(NULL);
+}
+

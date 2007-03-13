@@ -7,10 +7,17 @@
 #define FL_OVERFLOW   4
 #define FL_READDIGIT  8
 
-static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase, int flags)
+static unsigned long __cdecl strtoxl(const TCHAR *nptr, TCHAR **endptr, int ibase, int flags)
 {
-  const char *p;
-  char c;
+#ifndef UNICODE
+typedef unsigned char uchar_t;
+#define UCAST(c)  (int)(uchar_t)c
+#else
+typedef wchar_t   uchar_t;
+#define UCAST(c)  (wint_t)c
+#endif
+  const TCHAR *p;
+  TCHAR c;
   unsigned long number;
   unsigned digval;
   unsigned long maxval;
@@ -19,28 +26,28 @@ static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase,
   number = 0;
 
   c = *p++;
-  while ( isspace((int)(unsigned char)c) )
+  while ( _istspace(UCAST(c)) )
     c = *p++;
 
-  if (c == '-')
+  if (c == _T('-'))
   {
     flags |= FL_NEG;
     c = *p++;
   }
-  else if (c == '+')
+  else if (c == _T('+'))
     c = *p++;
 
   if (ibase < 0 || ibase == 1 || ibase > 36)
   {
     if (endptr)
-      *endptr = (char *)nptr;
+      *endptr = (TCHAR *)nptr;
     return 0L;
   }
   else if (ibase == 0)
   {
-    if (c != '0')
+    if (c != _T('0'))
       ibase = 10;
-    else if (*p == 'x' || *p == 'X')
+    else if (*p == _T('x') || *p == _T('X'))
       ibase = 16;
     else
       ibase = 8;
@@ -48,7 +55,7 @@ static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase,
 
   if (ibase == 16)
   {
-    if (c == '0' && (*p == 'x' || *p == 'X'))
+    if (c == _T('0') && (*p == _T('x') || *p == _T('X')))
     {
       ++p;
       c = *p++;
@@ -60,12 +67,12 @@ static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase,
 
   for (;;)
   {
-    if ( isdigit((int)(unsigned char)c) )
-      digval = c - '0';
-    else if ( (unsigned char)c >= 'a' )
-      digval = (unsigned char)c - 'a' + 10;
-    else if ( (unsigned char)c >= 'A' )
-      digval = (unsigned char)c - 'A' + 10;
+    if ( _istdigit(UCAST(c)) )
+      digval = c - _T('0');
+    else if ( (uchar_t)c >= _T('a') )
+      digval = (uchar_t)c - _T('a') + 10;
+    else if ( (uchar_t)c >= _T('A') )
+      digval = (uchar_t)c - _T('A') + 10;
     else
       break;
     if (digval >= (unsigned)ibase)
@@ -100,7 +107,7 @@ static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase,
   }
 
   if (endptr != NULL)
-    *endptr = (char *)p;
+    *endptr = (TCHAR *)p;
 
   if (flags & FL_NEG)
     number = (unsigned long)(-(long)number);
@@ -108,12 +115,24 @@ static unsigned long __cdecl strtoxl(const char *nptr, char **endptr, int ibase,
   return number;
 }
 
-long __cdecl strtol(const char *nptr, char **endptr, int ibase)
+long __cdecl
+#ifndef UNICODE
+             strtol
+#else
+             wcstol
+#endif
+                   (const TCHAR *nptr, TCHAR **endptr, int ibase)
 {
   return (long) strtoxl(nptr, endptr, ibase, 0);
 }
 
-unsigned long __cdecl strtoul(const char *nptr, char **endptr, int ibase)
+unsigned long __cdecl
+#ifndef UNICODE
+                      strtoul
+#else
+                      wcstoul
+#endif
+                             (const TCHAR *nptr, TCHAR **endptr, int ibase)
 {
   return strtoxl(nptr, endptr, ibase, FL_UNSIGNED);
 }

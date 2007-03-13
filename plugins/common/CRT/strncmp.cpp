@@ -1,6 +1,12 @@
 #include "crt.hpp"
 
-int __cdecl strncmp(const char *first, const char *last, size_t count)
+int __cdecl
+#ifndef UNICODE
+            strncmp
+#else
+            wcsncmp
+#endif
+                   (const TCHAR *first, const TCHAR *last, size_t count)
 {
   if (!count)
     return(0);
@@ -10,6 +16,9 @@ int __cdecl strncmp(const char *first, const char *last, size_t count)
     first++;
     last++;
   }
-
+#ifndef UNICODE
   return (*(unsigned char *)first - *(unsigned char *)last);
+#else
+  return ((int)(*first - *last));
+#endif
 }

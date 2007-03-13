@@ -1,4 +1,5 @@
 OBJDIR = ./obj.32.gcc
+OBJDIRW = $(OBJDIR)/w
 REOBJDIR = \.\/obj\.32\.gcc\/
 DLLDIR = ..
 DLLNAME = libCRT.a
@@ -14,8 +15,10 @@ strstr.cpp \
 strchr.cpp \
 strcspn.cpp \
 strdup.cpp \
+stricmp.cpp \
 strncat.cpp \
 strncmp.cpp \
+strncpy.cpp \
 strrchr.cpp \
 strtok.cpp \
 strtol.cpp \
@@ -29,6 +32,18 @@ new.cpp \
 new_array.cpp \
 realloc.cpp
 
+SRCSW = i64toa.cpp \
+strchr.cpp \
+strdup.cpp \
+stricmp.cpp \
+strncat.cpp \
+strncmp.cpp \
+strncpy.cpp \
+strrchr.cpp \
+strstr.cpp \
+strtok.cpp \
+strtol.cpp
+
 CXX = g++
 DLLTOOL = dlltool
 RM = rm -f
@@ -41,19 +56,26 @@ RANLIB = ranlib
 CXXFLAGS = -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
+OBJSW = $(patsubst %.cpp,$(OBJDIRW)/%_w.o,$(filter %.cpp,$(SRCSW)))
 
 all: $(DLLFULLNAME)
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
-	@$(MKDIR) -p $(@D)
+	@-$(MKDIR) $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(DLLFULLNAME): $(OBJS)
+$(OBJDIRW)/%_w.o: %.cpp
+	@echo compiling $<
+	@-$(MKDIR) $(@D)
+	@$(CXX) $(CXXFLAGS) -D UNICODE -D _UNICODE -c -o $@ $<
+
+
+$(DLLFULLNAME): $(OBJS) $(OBJSW)
 	@echo linking $@
-	@$(MKDIR) -p $(@D)
-	@$(AR) rc $(DLLNAME) $(OBJS)
+	@-$(MKDIR) $(@D)
+	@$(AR) rc $(DLLNAME) $(OBJS) $(OBJSW)
 	@$(RANLIB) $(DLLNAME)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 
-$(OBJS): crt.hpp
+$(OBJS) $(OBJSW): crt.hpp

@@ -1,10 +1,10 @@
 #include "crt.hpp"
 
-static void __cdecl x64toa(unsigned __int64 val, char *buf, unsigned radix, int is_neg)
+static void __cdecl x64toaw(unsigned __int64 val, TCHAR *buf, unsigned radix, int is_neg)
 {
-  char *p;
-  char *firstdig;
-  char temp;
+  TCHAR *p;
+  TCHAR *firstdig;
+  TCHAR temp;
   unsigned digval;
 
   p = buf;
@@ -22,9 +22,9 @@ static void __cdecl x64toa(unsigned __int64 val, char *buf, unsigned radix, int 
     val /= radix;
 
     if (digval > 9)
-      *p++ = (char) (digval - 10 + 'a');
+      *p++ = (TCHAR) (digval - 10 + 'a');
     else
-      *p++ = (char) (digval + '0');
+      *p++ = (TCHAR) (digval + '0');
   } while (val > 0);
 
   *p-- = '\0';
@@ -38,14 +38,30 @@ static void __cdecl x64toa(unsigned __int64 val, char *buf, unsigned radix, int 
   } while (firstdig < p);
 }
 
-char * __cdecl _i64toa(__int64 val, char *buf, int radix )
+//----------------------------------------------------------------------------
+TCHAR * __cdecl
+#ifndef UNICODE
+               _i64toa
+#else
+               _i64tow
+#endif
+                      (__int64 val, TCHAR *buf, int radix)
 {
-  x64toa((unsigned __int64)val, buf, radix, (radix == 10 && val < 0));
+  x64toaw((unsigned __int64)val, buf, radix, (radix == 10 && val < 0));
   return buf;
 }
 
-char * __cdecl _ui64toa(unsigned __int64 val, char *buf, int radix)
+//----------------------------------------------------------------------------
+TCHAR * __cdecl
+#ifndef UNICODE
+               _ui64toa
+#else
+               _ui64tow
+#endif
+                       (unsigned __int64 val, TCHAR *buf, int radix)
 {
-  x64toa(val, buf, radix, 0);
+  x64toaw(val, buf, radix, 0);
   return buf;
 }
+
+//----------------------------------------------------------------------------

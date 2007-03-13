@@ -27,3 +27,15 @@ size_t __cdecl strcspn(const char *string, const char *control)
 
   return(count);
 }
+
+//----------------------------------------------------------------------------
+size_t __cdecl wcscspn(const wchar_t *string, const wchar_t *control)
+{
+  const wchar_t *str =string;
+
+  for ( ; *str; str++)
+    for (const wchar_t *wcset = control; *wcset; wcset++)
+      if (*wcset == *str) goto done;
+done:
+  return((size_t)(str - string));
+}

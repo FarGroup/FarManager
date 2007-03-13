@@ -1,4 +1,7 @@
 #include "crt.hpp"
+#ifdef _MSC_VER
+#pragma function(memcmp)
+#endif
 
 int __cdecl memcmp(const void *buf1, const void *buf2, size_t count)
 {

@@ -1,9 +1,15 @@
 #include "crt.hpp"
 #include <windows.h>
 
-char * __cdecl strdup(const char *block)
+TCHAR * __cdecl
+#ifndef UNICODE
+               strdup
+#else
+               wcsdup
+#endif
+                     (const TCHAR *block)
 {
-  char *result = (char *)malloc(lstrlen(block)+1);
+  TCHAR *result = (TCHAR *)malloc((lstrlen(block)+1)*sizeof(TCHAR));
   if (!result)
     return NULL;
   lstrcpy(result,block);
