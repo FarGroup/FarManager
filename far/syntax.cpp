@@ -639,8 +639,10 @@ typedef struct __TMacroFunction{
   TFunction Code;               // байткод функции
 } TMacroFunction;
 
+
 static TMacroFunction macroFunction[]={
   {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
+  {"AKEY",           0,    MCODE_F_AKEY},                // S=akey()
   {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
   {"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
   {"DATE",           1,    MCODE_F_DATE},                // S=date(S)
@@ -664,11 +666,13 @@ static TMacroFunction macroFunction[]={
   {"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
   {"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
   {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
+  {"PLAYMACRO",      1,    MCODE_F_PLAYMACRO},           // N=playmacro(S)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
   {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
   {"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
+  {"WAITKEY",        1,    MCODE_F_WAITKEY},             // S=waitkey(N)
   {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
 

@@ -1007,13 +1007,13 @@ BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
    FSF/FarInputRecordToKey */
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 /* tran 31.08.2000 $ */
-DWORD GetInputRecord(INPUT_RECORD *rec);
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false);
 DWORD PeekInputRecord(INPUT_RECORD *rec);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 /* $ 24.08.2000 SVS
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
 */
-DWORD WaitKey(DWORD KeyWait=(DWORD)-1);
+DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0);
 /* SVS $ */
 char *FARGetKeybLayoutName(char *Dest,int DestSize);
 int WriteInput(int Key,DWORD Flags=0);

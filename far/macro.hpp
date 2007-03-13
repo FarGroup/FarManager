@@ -22,10 +22,11 @@ struct MacroRecord
   DWORD  Reserved[3];   // зарезервировано
 };
 
-#define STACKLEVEL      16
+#define STACKLEVEL      32
 
 struct MacroState
 {
+  int KeyProcess;
   int Executing;
   int MacroPC;
   int ExecLIBPos;
@@ -118,7 +119,7 @@ class KeyMacro
     void RunStartMacro();
 
     // Поместить временное строковое представление макроса
-    int PostNewMacro(char *PlainText,DWORD Flags=0);
+    int PostNewMacro(const char *PlainText,DWORD Flags=0);
     // Поместить временный рекорд (бинарное представление)
     int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0);
 

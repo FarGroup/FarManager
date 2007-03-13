@@ -301,7 +301,7 @@ int IsMouseButtonPressed()
   return(0);
 }
 
-DWORD GetInputRecord(INPUT_RECORD *rec)
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
   _KEYMACRO(CleverSysLog Clev("GetInputRecord - main"));
   static int LastEventIdle=FALSE;
@@ -310,7 +310,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
   DWORD ReadKey=0;
   int NotMacros=FALSE;
 
-  if (CtrlObject && CtrlObject->Cp())
+  if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
   {
     _KEYMACRO(CleverSysLog SL("Macro) Get Next MacroKey"));
     int VirtKey,ControlState;
@@ -382,7 +382,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
 #else
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
 #endif
-    _SVS(SysLog("ReadCount=%d",ReadCount));
+    //_SVS(SysLog("ReadCount=%d",ReadCount));
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
     if (ReadCount!=0)
@@ -1354,7 +1354,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
      Если KeyWait = -1 - как и раньше
 */
-DWORD WaitKey(DWORD KeyWait)
+DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
 {
   int Visible=0,Size=0;
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
@@ -1363,18 +1363,29 @@ DWORD WaitKey(DWORD KeyWait)
     SetCursorType(0,10);
   }
 
+  clock_t CheckTime=clock()+delayMS;
+
   DWORD Key;
   while (1)
   {
     INPUT_RECORD rec;
-    Key=GetInputRecord(&rec);
+    Key=KEY_NONE;
+    if (PeekInputRecord(&rec))
+      Key=GetInputRecord(&rec,true);
+
     if(KeyWait == (DWORD)-1)
     {
-      if (Key!=KEY_NONE && Key!=KEY_IDLE)
+      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
         break;
     }
     else if(Key == KeyWait)
       break;
+
+    if(delayMS && clock() >= CheckTime)
+    {
+      Key=KEY_NONE;
+      break;
+    }
   }
 
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)

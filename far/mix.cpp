@@ -737,7 +737,8 @@ BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalF
   static GETDISKFREESPACEEX pGetDiskFreeSpaceEx=NULL;
   static int LoadAttempt=FALSE;
   int ExitCode=0;
-
+#if 0
+  // пока оставим
   ULARGE_INTEGER uiTotalSize,uiTotalFree,uiUserFree;
   uiUserFree.u.LowPart=uiUserFree.u.HighPart=0;
   uiTotalSize.u.LowPart=uiTotalSize.u.HighPart=0;
@@ -772,6 +773,35 @@ BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalF
   *TotalSize=MKUINT64(uiTotalSize.u.HighPart,uiTotalSize.u.LowPart);
   *TotalFree=MKUINT64(uiTotalFree.u.HighPart,uiTotalFree.u.LowPart);
   *UserFree=MKUINT64(uiUserFree.u.HighPart,uiUserFree.u.LowPart);
+#else
+  __int64 uiTotalSize,uiTotalFree,uiUserFree;
+  uiUserFree=_i64(0);
+  uiTotalSize=_i64(0);
+  uiTotalFree=_i64(0);
+
+  if (!LoadAttempt && pGetDiskFreeSpaceEx==NULL)
+  {
+    HMODULE hKernel=GetModuleHandle("kernel32.dll");
+    if (hKernel!=NULL)
+      pGetDiskFreeSpaceEx=(GETDISKFREESPACEEX)GetProcAddress(hKernel,"GetDiskFreeSpaceExA");
+    LoadAttempt=TRUE;
+  }
+  if (pGetDiskFreeSpaceEx!=NULL)
+    ExitCode=pGetDiskFreeSpaceEx(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+
+  if (pGetDiskFreeSpaceEx==NULL || ExitCode==0 || uiTotalSize == _i64(0) && uiTotalSize == _i64(0))
+  {
+    DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
+    ExitCode=GetDiskFreeSpace(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
+    uiTotalSize=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)Clusters;
+    uiTotalFree=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)FreeClusters;
+    uiUserFree=uiTotalFree;
+  }
+
+  *TotalSize=uiTotalSize;
+  *TotalFree=uiTotalFree;
+  *UserFree=uiUserFree;
+#endif
   return(ExitCode);
 }
 

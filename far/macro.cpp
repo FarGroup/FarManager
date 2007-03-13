@@ -1343,6 +1343,74 @@ static TVar sleepFunc(TVar *param)
   return TVar(_i64(0));
 }
 
+// N=playmacro(S)
+static TVar playmacroFunc(TVar *param)
+{
+  const char *SequenceText = param[0].toString();
+  __int64 KeysSend=_i64(1);
+#if 1
+  struct MacroRecord RBuf;
+  int KeyPos;
+  CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
+  CtrlObject->Macro.PushState();
+  if(!CtrlObject->Macro.PostNewMacro(SequenceText,RBuf.Flags))
+  {
+    CtrlObject->Macro.PopState();
+    KeysSend=_i64(0);
+  }
+#else
+  DWORD KeyCode;
+  const char *NameKeyPtr;
+  UserDefinedList ArrayKey(' ','\t',0);
+  bool CompileError=false;
+
+  if(ArrayKey.Set(SequenceText))
+  {
+    ArrayKey.Reset();
+    while(NULL!=(NameKeyPtr=ArrayKey.GetNext()))
+    {
+      if ( ( KeyCode = KeyNameToKey(NameKeyPtr) ) != (DWORD)-1 )
+          KeysSend++;
+      else
+      {
+        CompileError=true;
+        break;
+      }
+    }
+    if(!CompileError)
+    {
+      KeysSend=_i64(0);
+      ArrayKey.Reset();
+      while(NULL!=(NameKeyPtr=ArrayKey.GetNext()))
+      {
+        if ( ( KeyCode = KeyNameToKey(NameKeyPtr) ) != (DWORD)-1 )
+          if( WriteInput(KeyCode,0) )
+            KeysSend++;
+      }
+    }
+    else
+    {
+      KeysSend=-KeysSend-1;
+    }
+  }
+#endif
+  return TVar(KeysSend);
+}
+
+// S=waitkey(N)
+static TVar waitkeyFunc(TVar *param)
+{
+  long Period=(long)param[0].toInteger();
+  DWORD Key=WaitKey(-1,Period);
+  char KeyName[128];
+  *KeyName=0;
+  if(Key != KEY_NONE)
+   if(!KeyToText(Key,KeyName,sizeof(KeyName)-1))
+     *KeyName=0;
+  return TVar(KeyName);
+}
+
+
 // S=rindex(S1,S2)
 static TVar rindexFunc(TVar *param)
 {
@@ -2182,6 +2250,16 @@ done:
 
 
           // Function
+          case MCODE_F_PLAYMACRO: // N=playmacro(S)
+            eStack[ePos] = playmacroFunc(eStack+ePos);
+            goto initial; // ò.ê.
+
+          case MCODE_F_AKEY: // S=akey()
+            eStack[ePos] = TVar((__int64)MR->Key); //???
+            break;
+          case MCODE_F_WAITKEY:  // S=waitkey(N)
+            eStack[ePos] = waitkeyFunc(eStack+ePos);
+            break;
           case MCODE_F_ABS: // N=abs(N)
             if ( eStack[ePos].isInteger() )
             {
@@ -3282,7 +3360,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 }
 /* IS $ */
 
-int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
+int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)"));
   _KEYMACRO(SysLog("Param: PlainText=\"%s\"",PlainText));
@@ -3515,6 +3593,7 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_UCASE )            sprint(ii, " S=ucase(S1)");
   else if ( k[i] == MCODE_F_LCASE )            sprint(ii, " S=lcase(S1)");
   else if ( k[i] == MCODE_F_XLAT )             sprint(ii, " S=xlat(S)");
+  else if ( k[i] == MCODE_F_PLAYMACRO )        sprint(ii, " N=playmacro(S)");
   else
   {
     int FARFunc = 0;
@@ -3927,7 +4006,8 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         break;
 
       default:
-
+        //MCODE_OP_KEYS
+        //MCODE_OP_ENDKEYS
         CurMacro_Buffer[CurMacroBufferSize]=KeyCode;
 
     } // end switch(KeyCode)
