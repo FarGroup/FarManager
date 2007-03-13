@@ -2,6 +2,7 @@ OBJDIR = ./final.32.gcc/obj
 REOBJDIR = \.\/final\.32\.gcc\/obj\/
 DLLDIR = ./final.32.gcc
 COMMON = ../common
+COMINC = $(COMMON)/ascii
 NAME = MultiArc
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
@@ -26,7 +27,7 @@ M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir
 WINDRES=windres
-CXXFLAGS = -D_FAR_USE_FARFINDDATA -I $(COMMON) -Wall -Os -funsigned-char -fomit-frame-pointer -fno-rtti -fno-exceptions
+CXXFLAGS = -D_FAR_USE_FARFINDDATA -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fno-rtti -fno-exceptions
 LNKFLAGS = -mdll -s -nostartfiles -L $(COMMON) -lCRT
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
@@ -49,9 +50,9 @@ $(OBJDIR)/%.o: %.cpp
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OBJDIR)/$(NAME).res.o: $(NAME).rc $(COMMON)/farversion.hpp multiarcversion.hpp
+$(OBJDIR)/$(NAME).res.o: $(NAME).rc $(COMINC)/farversion.hpp multiarcversion.hpp
 	@$(MKDIR) -p $(@D)
-	$(WINDRES) -I $(COMMON) -i $< -o $@
+	$(WINDRES) -I $(COMINC) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
