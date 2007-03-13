@@ -27,7 +27,7 @@ MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
 all: crt $(DLLFULLNAME)
 
 crt:
-	$(MAKE) -C $(COMINC)/CRT -f makefile_lib_gcc
+	$(MAKE) -C $(COMMON)/CRT -f makefile_lib_gcc
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
