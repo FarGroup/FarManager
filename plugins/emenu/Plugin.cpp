@@ -1176,7 +1176,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
 
           //На практике выходит что иногда выходят VERB'ы вида
           //AboutA&bout и т.п., вот тут немного AI чтоб это убрать.
-          if (strchr((const char*)szSub,'&'))
+          if (szSub.Len() > 3) //а просто так
           {
             auto_sz szLeft, szRight;
 
@@ -1185,9 +1185,9 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
             szRight = ((LPCTSTR)szSub)+szSub.Len()/2;
             if (szLeft.CompareExcluding(szRight, _T('&')))
             {
-              if (szLeft.Len() > szRight.Len())
-                szSub = szLeft;
-              else
+              //if (szLeft.Len() > szRight.Len())
+                //szSub = szLeft;
+              //else
                 szSub = szRight;
             }
           }
