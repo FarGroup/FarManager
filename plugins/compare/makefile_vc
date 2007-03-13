@@ -1,13 +1,23 @@
 NAME = Compare
 
+!ifdef WIDE
+DIRSUFF = W
+!endif
+
 !IF "$(CPU)" == "AMD64"
-OUTDIR = final.64.vc
+DIRBIT = 64
 !ELSE
-OUTDIR = final.32.vc
+DIRBIT = 32
 !ENDIF
+OUTDIR = final.$(DIRBIT)$(DIRSUFF).vc
 
 OBJDIR = $(OUTDIR)\obj
 COMMON = ..\common
+!ifndef WIDE
+COMINC = $(COMMON)\ascii
+!else
+COMINC = $(COMMON)\unicode
+!endif
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
 DEF = $(NAME).vc.def
@@ -15,10 +25,10 @@ MAP = $(OUTDIR)\$(NAME).map
 
 !IF "$(CPU)" == "AMD64"
 LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib
-CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"($COMINC)"
 !ELSE
 LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib libcmt.lib
-CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)"
+CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
 !ENDIF
 
 LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
@@ -40,10 +50,10 @@ $(DLLFULLNAME) : $(LINK_OBJS)
 	$(CPP_PROJ) $<
 <<
 
-$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMMON)\farversion.hpp
-	@rc /I"$(COMMON)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp
+	@rc /I"$(COMINC)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
 
-$(OBJDIR)\Compare.obj: Compare.cpp $(COMMON)\plugin.hpp
+$(OBJDIR)\Compare.obj: Compare.cpp $(COMINC)\plugin.hpp
 
 $(OBJDIR): $(OUTDIR)
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
