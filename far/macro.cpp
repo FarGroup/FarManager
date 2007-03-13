@@ -1342,6 +1342,39 @@ static TVar sleepFunc(TVar *param)
   return TVar(_i64(0));
 }
 
+// N=playmacro(S)
+static TVar playmacroFunc(TVar *param)
+{
+  const wchar_t *SequenceText = param[0].toString();
+  __int64 KeysSend=_i64(1);
+
+  struct MacroRecord RBuf;
+  int KeyPos;
+
+  CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
+  CtrlObject->Macro.PushState();
+  if(!CtrlObject->Macro.PostNewMacro(SequenceText,RBuf.Flags))
+  {
+    CtrlObject->Macro.PopState();
+    KeysSend=_i64(0);
+  }
+
+  return TVar(KeysSend);
+}
+
+// S=waitkey(N)
+static TVar waitkeyFunc(TVar *param)
+{
+  long Period=(long)param[0].toInteger();
+  DWORD Key=WaitKey(-1,Period);
+  string strKeyText;
+  if(Key != KEY_NONE)
+   if(!KeyToText(Key,strKeyText))
+     strKeyText = L"";
+  return TVar(strKeyText);
+}
+
+
 // S=rindex(S1,S2)
 static TVar rindexFunc(TVar *param)
 {
@@ -2172,6 +2205,17 @@ done:
           case MCODE_OP_BITXOR: ePos--; eStack[ePos] = eStack[ePos] ^  eStack[ePos+1]; break;
 
           // Function
+          case MCODE_F_PLAYMACRO: // N=playmacro(S)
+            eStack[ePos] = playmacroFunc(eStack+ePos);
+            goto initial; // ò.ê.
+
+          case MCODE_F_AKEY: // S=akey()
+            eStack[ePos] = TVar((__int64)MR->Key); //???
+            break;
+          case MCODE_F_WAITKEY:  // S=waitkey(N)
+            eStack[ePos] = waitkeyFunc(eStack+ePos);
+            break;
+
           case MCODE_F_ABS:   // N=abs(N)
             if ( eStack[ePos].isInteger() )
             {
@@ -3522,6 +3566,7 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_UCASE )            sprint(ii, L" S=ucase(S1)");
   else if ( k[i] == MCODE_F_LCASE )            sprint(ii, L" S=lcase(S1)");
   else if ( k[i] == MCODE_F_XLAT )             sprint(ii, L" S=xlat(S)");
+  else if ( k[i] == MCODE_F_PLAYMACRO )        sprint(ii, L" N=playmacro(S)");
   else
   {
     int FARFunc = 0;

@@ -73,6 +73,11 @@ enum MACRO_OP_CODE {
   MCODE_OP_ELSE,                    // не попадет никогда :)
   MCODE_OP_WHILE,
 
+  // <TODO>
+  MCODE_OP_KEYS,                    // за этим кодом следуют ФАРовы коды клавиш
+  MCODE_OP_ENDKEYS,                 // ФАРовы коды закончились.
+  // </TODO>
+
   /* ************************************************************************* */
   MCODE_OP_XLAT,
   MCODE_OP_DATE,
@@ -88,17 +93,17 @@ enum MACRO_OP_CODE {
   /* ************************************************************************* */
   // функции
   MCODE_F_NOFUNC=KEY_MACRO_F_BASE,
-  MCODE_F_ABS,
-  MCODE_F_MIN,
-  MCODE_F_MAX,
-  MCODE_F_IIF,
-  MCODE_F_SUBSTR,
-  MCODE_F_INDEX,
-  MCODE_F_RINDEX,
-  MCODE_F_LEN,
-  MCODE_F_STRING,
-  MCODE_F_INT,
-  MCODE_F_DATE,
+  MCODE_F_ABS,                      //
+  MCODE_F_MIN,                      //
+  MCODE_F_MAX,                      //
+  MCODE_F_IIF,                      //
+  MCODE_F_SUBSTR,                   //
+  MCODE_F_INDEX,                    //
+  MCODE_F_RINDEX,                   //
+  MCODE_F_LEN,                      //
+  MCODE_F_STRING,                   //
+  MCODE_F_INT,                      //
+  MCODE_F_DATE,                     //
   MCODE_F_XLAT,                     // вызывать XLat: Param=0 или 1
   MCODE_F_MENU_CHECKHOTKEY,         // есть такой сивол?
   MCODE_F_ENVIRON,                  // получить значение переменной среды
@@ -118,6 +123,9 @@ enum MACRO_OP_CODE {
   MCODE_F_SLEEP,                    // Sleep(N)
   MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
   MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)
+  MCODE_F_AKEY,                     // S=akey()
+  MCODE_F_WAITKEY,                  // S=waitkey(N)
+  MCODE_F_PLAYMACRO,                // N=playmacro(S)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

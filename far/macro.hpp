@@ -23,10 +23,11 @@ struct MacroRecord
   DWORD  Reserved[3];   // зарезервировано
 };
 
-#define STACKLEVEL      16
+#define STACKLEVEL      32
 
 struct MacroState
 {
+  int KeyProcess;
   int Executing;
   int MacroPC;
   int ExecLIBPos;
