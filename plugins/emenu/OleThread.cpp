@@ -9,6 +9,7 @@ namespace OleThread
   CHandle *hNeedInvoke=NULL;
   CHandle *hInvokeDone=NULL;
   CHandle *hStop=NULL;
+  CThreadTerminator *hTerminator;
 
   namespace OpenPluginArgs
   {
@@ -45,12 +46,11 @@ namespace OleThread
           }
         }
         OpenPluginArgs::enRes=thePlug->OpenPluginBkg(OpenPluginArgs::nOpenFrom, OpenPluginArgs::nItem);
-//return 0;//!
         if (!SetEvent(*hInvokeDone))
         {
           assert(0);
         }
-break;//!
+//break;//!
       }
 
       // * ќбъ€сн€ю зачем  здесь ловить собщени€ *
@@ -59,7 +59,7 @@ break;//!
       // контекстное меню дл€ какой-нибудь папки в эксплорере
       // , то FARу бедет послано сообщение и до тех пор пока оно
       // не обработаетс€ меню не покажетс€.
-      /*MSG msg;
+      MSG msg;
       if (PeekMessage(&msg, (HWND)NULL, 0, 0, PM_NOREMOVE))
       {
         GetMessage(&msg, (HWND)NULL, 0, 0);
@@ -76,11 +76,11 @@ break;//!
       else
       {
         if (nWaitTime<100) nWaitTime+=1;
-      }*/
+      }
     }
     pMalloc.Release();
 //    ¬ Build950 вызывает падение
-    OleUninitialize();
+//    OleUninitialize();
     return 0;
   }
 
@@ -124,7 +124,6 @@ break;//!
     {
       assert(0);
     }
-//ThreadProc(0);//!
     return OpenPluginArgs::enRes;
   }
 
@@ -137,25 +136,19 @@ break;//!
     }
   }
 
-#if 0
-  class CThreadTerminator
+  CThreadTerminator::~CThreadTerminator()
   {
-  public:
-    ~CThreadTerminator()
+    if (!hThread) return;
+    if (WaitForSingleObject(hThread, 100)==WAIT_TIMEOUT)
     {
-/*      if (!hThread) return;
-      if (WaitForSingleObject(hThread, 100)==WAIT_TIMEOUT)
-      {
-        if (!TerminateThread(hThread, 0))
-        {
-          assert(0);
-        }
-      }
-      if (!CloseHandle(hThread))
+      if (!TerminateThread(hThread, 0))
       {
         assert(0);
-      }*/
+      }
     }
-  } oTerminator;
-#endif
+    if (!CloseHandle(hThread))
+    {
+      assert(0);
+    }
+  }
 }

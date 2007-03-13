@@ -21,13 +21,15 @@ extern "C" BOOL WINAPI _DllMainCRTStartup(
     OleThread::hNeedInvoke = new CHandle;
     OleThread::hInvokeDone = new CHandle;
     OleThread::hStop = new CHandle;
+    OleThread::hTerminator = new OleThread::CThreadTerminator;
   }
   else if (dwReason==DLL_PROCESS_DETACH)
   {
-    delete thePlug;
-    delete OleThread::hNeedInvoke;
-    delete OleThread::hInvokeDone;
+    delete OleThread::hTerminator;
     delete OleThread::hStop;
+    delete OleThread::hInvokeDone;
+    delete OleThread::hNeedInvoke;
+    delete thePlug;
   }
   return TRUE;
 }

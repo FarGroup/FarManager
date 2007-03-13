@@ -1147,7 +1147,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
     {
       if (m_enHelptext != AS_HELPTEXT /*&& m_enHelptext != AS_VERB*/) {
         auto_sz szSub;
-        if (   GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_VERB, &szSub, FALSE)
+        if (GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_VERB, &szSub, FALSE)
             || GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_HELPTEXT, &szSub))
         {
           szItem=_T("{");
@@ -1159,11 +1159,12 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
             //ѕолучаем из shell32.dll шаблон, по которому формируютс€ эти подсказки,
             //(строковый ресурс #5380, "Opens the document with %s."),
             //и убираем его из сабжевых строк. ƒл€ XP/2003.
+            *Buf=0;
             LoadString(GetModuleHandle("shell32.dll"),5380,Buf,szSub.Len()+1);
             int i=0;
             while(Buf[i] && Buf[i]!=_T('%'))
               i++;
-            if (Buf[i] == _T('%'))
+            if (Buf[i] == _T('%') && !strncmp(Buf,szSub,i))
             {
               lstrcpy(Buf,szSub);
               Buf+=i;
@@ -1171,6 +1172,24 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
               szSub=Buf;
             }
             free(Buf);
+          }
+
+          //Ќа практике выходит что иногда выход€т VERB'ы вида
+          //AboutA&bout и т.п., вот тут немного AI чтоб это убрать.
+          if (strchr(szSub,'&'))
+          {
+            auto_sz szLeft, szRight;
+
+            szLeft = szSub;
+            szLeft.Trunc(szLeft.Len()/2);
+            szRight = ((LPCTSTR)szSub)+szSub.Len()/2;
+            if (szLeft.CompareExcluding(szRight, _T('&')))
+            {
+              if (szLeft.Len() > szRight.Len())
+                szSub = szLeft;
+              else
+                szSub = szRight;
+            }
           }
 
           szItem+=szSub;
