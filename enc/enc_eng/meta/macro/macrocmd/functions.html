@@ -369,6 +369,23 @@ $End</pre>
      Negative sleep time is considered and error and the function returns 0.<br>
     </td>
   </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>(N)</td>
+    <td class="cont" width="60%">ќжидает любую клавишу и возвращает ее название.
+     ≈сли врем€ ожидани€ <em>N</em> (миллисекунды) истекло, функци€ возвращает пустую строку.
+     <br>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="playmacro">playmacro</a></dfn>(S)</td>
+    <td class="cont" width="60%">"ѕроиграть" макропоследовательность <em>S</em>.
+      ≈сли <em>S</em> содежит синтаксические ошибки, то макропоследовательность исполн€тьс€ не будет.
+     <br>
+     FAR компилит последователность <em>S</em>. ≈сли нет ошибок, то состо€ние текущего макроса сохран€етс€
+     и начинает выполн€тьс€ <em>S</em>. ѕосле исполни€ <em>S</em> прерванный макрос продолжает работать.
+     <br>
+    </td>
+  </tr>
   </table>
 
 <h3>Notes</h3>
