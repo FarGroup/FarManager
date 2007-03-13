@@ -1176,7 +1176,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
 
           //На практике выходит что иногда выходят VERB'ы вида
           //AboutA&bout и т.п., вот тут немного AI чтоб это убрать.
-          if (strchr(szSub,'&'))
+          if (strchr((const char*)szSub,'&'))
           {
             auto_sz szLeft, szRight;
 
