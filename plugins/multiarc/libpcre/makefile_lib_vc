@@ -1,8 +1,13 @@
+!ifdef WIDE
+DIRSUFF = W
+!endif
+
 !IF "$(CPU)" == "AMD64"
-OUTDIR = ..\final.64.vc
+DIRBIT = 64
 !ELSE
-OUTDIR = ..\final.32.vc
+DIRBIT = 32
 !ENDIF
+OUTDIR = final.$(DIRBIT)$(DIRSUFF).vc
 
 OBJDIR = $(OUTDIR)\obj
 OUTPUTS= $(OBJDIR)\pcre.lib
