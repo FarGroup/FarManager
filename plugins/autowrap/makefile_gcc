@@ -2,6 +2,7 @@ OBJDIR = ./final.32.gcc/obj
 REOBJDIR = \.\/final\.32\.gcc\/obj\/
 DLLDIR = ./final.32.gcc
 COMMON = ../common
+COMINC = $(COMMON)/ascii
 NAME = AutoWrap
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
@@ -16,7 +17,7 @@ M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir -p
 WINDRES=windres
-CXXFLAGS = -I $(COMMON) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+CXXFLAGS = -I $(COMMON) -I$(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 LNKFLAGS = -mdll -s -nostartfiles -L $(COMMON) -lCRT
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
@@ -26,7 +27,7 @@ MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
 all: crt $(DLLFULLNAME)
 
 crt:
-	$(MAKE) -C $(COMMON)/CRT -f makefile_lib_gcc
+	$(MAKE) -C $(COMINC)/CRT -f makefile_lib_gcc
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
@@ -39,9 +40,9 @@ $(OBJDIR)/%.o: %.cpp
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OBJDIR)/$(NAME).res.o: $(NAME).rc $(COMMON)/farversion.hpp
+$(OBJDIR)/$(NAME).res.o: $(NAME).rc $(COMINC)/farversion.hpp
 	@$(MKDIR) -p $(@D)
-	$(WINDRES) -I $(COMMON) -i $< -o $@
+	$(WINDRES) -I $(COMINC) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
