@@ -5403,7 +5403,9 @@ int Editor::EditorControl(int Command,void *Param)
         if (Sel->BlockType==BTYPE_STREAM)
         {
           BlockStart=CurPtr;
-          BlockStartLine=Sel->BlockStartLine;
+          if((BlockStartLine=Sel->BlockStartLine) == -1)
+            BlockStartLine=NumLine;
+
           for (I=0;I<Sel->BlockHeight;I++)
           {
             int SelStart=(I==0) ? Sel->BlockStartPos:0;
@@ -5417,13 +5419,15 @@ int Editor::EditorControl(int Command,void *Param)
         if (Sel->BlockType==BTYPE_COLUMN)
         {
           VBlockStart=CurPtr;
-          BlockStartLine=Sel->BlockStartLine;
+          if((BlockStartLine=Sel->BlockStartLine) == -1)
+            BlockStartLine=NumLine;
 
           if (Sel->BlockWidth==-1)
             return(FALSE);
 
           VBlockX=Sel->BlockStartPos;
-          VBlockY=Sel->BlockStartLine;
+          if((VBlockY=Sel->BlockStartLine) == -1)
+             VBlockY=NumLine;
           VBlockSizeX=Sel->BlockWidth;
           VBlockSizeY=Sel->BlockHeight;
         }

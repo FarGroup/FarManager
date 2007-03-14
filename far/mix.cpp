@@ -774,7 +774,7 @@ BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalF
   *TotalFree=MKUINT64(uiTotalFree.u.HighPart,uiTotalFree.u.LowPart);
   *UserFree=MKUINT64(uiUserFree.u.HighPart,uiUserFree.u.LowPart);
 #else
-  __int64 uiTotalSize,uiTotalFree,uiUserFree;
+  unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
   uiUserFree=_i64(0);
   uiTotalSize=_i64(0);
   uiTotalFree=_i64(0);
