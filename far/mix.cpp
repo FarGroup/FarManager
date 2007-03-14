@@ -799,7 +799,7 @@ BOOL GetDiskSizeW (const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __i
   if ( UserFree )
     *UserFree = uiUserFree.QuadPart;
 #else
-  __int64 uiTotalSize,uiTotalFree,uiUserFree;
+  unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
   uiUserFree=_i64(0);
   uiTotalSize=_i64(0);
   uiTotalFree=_i64(0);

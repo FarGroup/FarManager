@@ -1,3 +1,18 @@
+svs 14.03.2007 19:08:36 +0300 - build 212
+
+1. Mantis#268: ECTL_GETINFO может вернуть BlockStartLine = -1 
+     ¬ызываю EditorControl c ECTL_SELECT и устанавливаю EditorSelect.BlockStartLine = -1 
+     (подразумеваетс€ текуща€ строка, как это часто прин€то).  онкретно дл€ этой операции
+     в энциклопедии не указано, что -1 можно употребить. Ќо это работает (внешне). 
+     Ќо это, похоже, приводит к тому, что следующий вызов EditorControl с ECTL_GETINFO 
+     дает BlockStartLine = -1, и вот это уже неожиданно дл€ остального кода, который 
+     к этому не готов.
+     ƒаже если EditorSelect.BlockStartLine = -1 недопустимо, ECTL_GETINFO не должен 
+     возвращать некорретное значение BlockStartLine. 
+
+2. ¬ mix.cpp::GetDiskSize не "__int64", но "unsigned __int64"
+
+
 svs 13.03.2007 20:33:15 +0300 - build 211
 
 1. GetDiskSize (mix.cpp) чудил на терабайтных томах. “ам вообще какой-то странный алгоритм
