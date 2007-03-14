@@ -36,20 +36,19 @@ struct EditorSelect
 
     <div class=dfn>BlockType</div>
     <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Тип блока</th><th class="cont" width="60%">Описание</th></tr>
+        <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Тип блока</th><th class="cont" width="60%">Описание</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
         <td class="cont" width="60%">снять выделение с блока, </td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
         <td class="cont" width="60%">выделить строковой блок</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
         <td class="cont" width="60%">выделить вертикальный блок.</td></tr>
-</table>
-
+        </table>
         Если <i>BlockType</i> равен BTYPE_NONE, другие поля этой структуры не важны.
     </div>
     <div class=dfn>BlockStartLine</div>
-    <div class=dfndescr>Первая строка блока.</div>
+    <div class=dfndescr>Первая строка блока. Можно установить это поле в <code>-1</code> - началом блока будет текущея строка.</div>
     <div class=dfn>BlockStartPos</div>
     <div class=dfndescr>Начальная позиция блока.
        Если <em>BlockStartPos</em> = -1, то выделение блока снимается.
