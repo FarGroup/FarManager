@@ -36,20 +36,19 @@ struct EditorSelect
 
     <div class=dfn>BlockType</div>
     <div class=dfndescr>One of the following values (the <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a> enumeration):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Block type</th><th class="cont" width="60%">Description</th></tr>
+      <table class="cont">
+      <tr class="cont"><th class="cont" width="40%">Block type</th><th class="cont" width="60%">Description</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
         <td class="cont" width="60%">deselect block, </td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
         <td class="cont" width="60%">select stream block</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
         <td class="cont" width="60%">select column (rectangular) block.</td></tr>
-</table>
-
+       </table>
         If <i>BlockType</i> is equal to BTYPE_NONE, other fields of the structure are ignored.
     </div>
     <div class=dfn>BlockStartLine</div>
-    <div class=dfndescr>First line of the selection.</div>
+    <div class=dfndescr>First line of the selection. Можно установить это поле в <code>-1</code> - началом блока будет текущея строка.</div>
     <div class=dfn>BlockStartPos</div>
     <div class=dfndescr>Start position of the selection.
        If <em>BlockStartPos</em> = -1, text is deselected.
