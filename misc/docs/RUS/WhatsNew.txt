@@ -112,9 +112,9 @@ FAR 1.71 alpha 4 (build 2206) (14.03.2007)
 
 [-] Неправильное отображение свободного места на дисках большого объема.
 
-[-] API: После вызова EditorControl(ECTL_SELECT) и устанавливленным значением
+[-] API: После вызова EditorControl(ECTL_SELECT) с установленным значением
     поля BlockStartLine = -1, последующий вызов ECTL_GETINFO так же возвращал
-    -1 в поле "BlockStartLine".
+    -1 в поле BlockStartLine.
 
 
 TempPanel - build 30
