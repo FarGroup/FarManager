@@ -723,6 +723,9 @@ void FileEditor::Init (
 
   if (!LoadFile(strFullFileName,UserBreak))
   {
+    m_codepage = CP_OEMCP; //BUGBUG
+    m_editor->SetCodePage (m_codepage);
+
     if(BlankFileName)
     {
       Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
@@ -747,24 +750,6 @@ void FileEditor::Init (
 
       return;
     }
-
-    /*
-    if (m_editor->EdOpt.AnsiTableForNewFile)
-    {
-      int UseUnicode=FALSE;
-      m_editor->AnsiText=TRUE;
-      m_editor->TableNum=0;
-      GetTable(&m_editor->TableSet,TRUE,m_editor->TableNum,UseUnicode);
-      m_editor->UseDecodeTable=TRUE;
-    }
-    else
-    {
-      m_editor->AnsiText=FALSE;
-      m_editor->TableNum=0;
-      m_editor->UseDecodeTable=FALSE;
-    }
-    */
-
   }
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;

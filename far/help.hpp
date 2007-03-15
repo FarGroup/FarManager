@@ -127,7 +127,7 @@ class Help:public Frame
 
     virtual int VMProcess(int OpCode,void *vParam,__int64 iParam);
 
-    static string &MkTopic(int PluginNumber,const wchar_t *HelpTopic,string &strTopic);
+    static string &MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strTopic);
 };
 
 #endif  // __HELP_HPP__

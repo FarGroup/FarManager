@@ -1979,20 +1979,22 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 }
 
 // ‘ормирование топика с учетом разных факторов
-string &Help::MkTopic(int PluginNumber,const wchar_t *HelpTopic,string &strTopic)
+string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strTopic)
 {
   strTopic=L"";
+  Plugin *pPlugin = (Plugin*)PluginNumber;
+
   if (HelpTopic && *HelpTopic)
   {
     if (*HelpTopic==L':')
       strTopic = (HelpTopic+1);
     else
     {
-      if(PluginNumber != -1 && *HelpTopic!=HelpBeginLink)
+      if(PluginNumber != -1 && pPlugin && *HelpTopic!=HelpBeginLink)
       {
          strTopic.Format (
                 HelpFormatLinkModule,
-                (const wchar_t*)CtrlObject->Plugins.PluginsData[PluginNumber]->m_strModuleName,
+                pPlugin->m_strModuleName,
                 HelpTopic
                 );
       }

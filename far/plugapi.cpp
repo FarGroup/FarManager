@@ -656,7 +656,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 /* IS $ */
 
 int WINAPI FarMenuFn (
-		int PluginNumber,
+		INT_PTR PluginNumber,
 		int X,
 		int Y,
 		int MaxHeight,
@@ -871,7 +871,7 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2
 /* SVS $ */
 
 int WINAPI FarDialogFn (
-		int PluginNumber,
+		INT_PTR PluginNumber,
 		int X1,
 		int Y1,
 		int X2,
@@ -931,7 +931,7 @@ static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struc
   }
 }
 
-int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
            const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
            FARWINDOWPROC DlgProc,LONG_PTR Param)
