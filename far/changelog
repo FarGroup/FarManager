@@ -1,3 +1,8 @@
+warp 15.03.2007 21:37:00 +0300 - build 213
+
+1. Не во все места еще проник свет нового типа Plugin. Поправил Help::MkTopic.
+
+
 svs 14.03.2007 19:08:36 +0300 - build 212
 
 1. Mantis#268: ECTL_GETINFO может вернуть BlockStartLine = -1 
