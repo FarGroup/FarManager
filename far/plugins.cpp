@@ -824,13 +824,9 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   if(!StandardFunctions.StructSize)
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
-    StandardFunctions.sprintf=FarSprintf;
-    StandardFunctions.snprintf=FarSnprintf;
-#ifndef FAR_MSVCRT
-    StandardFunctions.sscanf=FarSscanf;
-#else
+    StandardFunctions.sprintf=sprintf;
+    StandardFunctions.snprintf=_snprintf;
     StandardFunctions.sscanf=sscanf;
-#endif
     StandardFunctions.qsort=FarQsort;
     /* $ 24.03.2001 tran
       + qsortex */

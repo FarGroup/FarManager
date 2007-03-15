@@ -21,19 +21,18 @@ cddrv.cpp
 
 
 
-#define IOCTL_STORAGE_QUERY_PROPERTY    0x002D1400
 #define SCSI_IOCTL_DATA_IN              1
 
 #define SCSI_IOCTL_DATA_IN           1
 #define IOCTL_SCSI_BASE                 FILE_DEVICE_CONTROLLER
 #define IOCTL_SCSI_PASS_THROUGH         CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 
-
-//typedef long LONG_PTR, *PLONG_PTR;
-//typedef unsigned long ULONG_PTR, *PULONG_PTR;
-
 #undef offsetof
 #define offsetof(s,m)   (size_t)&(((s *)0)->m)
+
+#if !defined(_MSC_VER) || (_MSC_VER < 1400)
+
+#define IOCTL_STORAGE_QUERY_PROPERTY    0x002D1400
 
 typedef struct _STORAGE_DEVICE_DESCRIPTOR {
   ULONG  Version;
@@ -85,6 +84,7 @@ typedef struct _STORAGE_PROPERTY_QUERY {
   UCHAR  AdditionalParameters[1];
 } STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
 
+#endif
 
 // no pack
 typedef struct _SCSI_PASS_THROUGH {

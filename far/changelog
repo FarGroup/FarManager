@@ -1,3 +1,14 @@
+t-rex 15.03.2007 03:44:07 +0200 - build 2207
+
+1. —обираемс€ под VC8 (провер€л с WindowsSDK).
+
+2. »з за 1 и вообще убрал
+   int WINAPIV FarSprintf(char *buffer,const char *format,...);
+   int WINAPIV FarSnprintf(char *buffer,size_t sizebuf,const char *format,...);
+   int WINAPIV FarSscanf(const char *buffer, const char *format,...);
+   так как не нужны, в FSF вставл€ютс€ напр€мую сами: sprintf, _snprintf, sscanf.
+
+
 svs 14.03.2007 19:03:16 +0300 - build 2206
 
 1. Mantis#268: ECTL_GETINFO может вернуть BlockStartLine = -1 

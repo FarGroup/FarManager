@@ -625,11 +625,6 @@ char *WINAPI FarItoa64(__int64 value, char *string, int radix);
 int WINAPI FarAtoi(const char *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
-int WINAPIV FarSprintf(char *buffer,const char *format,...);
-int WINAPIV FarSnprintf(char *buffer,size_t sizebuf,const char *format,...);
-#ifndef FAR_MSVCRT
-int WINAPIV FarSscanf(const char *buffer, const char *format,...);
-#endif
 int WINAPI CopyToClipboard(const char *Data);
 char* WINAPI PasteFromClipboard(void);
 
