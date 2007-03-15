@@ -30,9 +30,3 @@ int __cdecl iswxdigit(wint_t c)
   return ((c>='0' && c<='9') || (c>='A' && c<='F'));
 }
 
-// next fuction needed for debug build in vc8
-int __cdecl isleadbyte(int c)
-{
-  (void)c;
-  return 0;
-}

@@ -99,16 +99,10 @@ extern "C"
   long __cdecl wcstol(const wchar_t *nptr, wchar_t **endptr, int ibase);
   unsigned long __cdecl strtoul(const char *nptr, char **endptr, int ibase);
   unsigned long __cdecl wcstoul(const wchar_t *nptr, wchar_t **endptr, int ibase);
-  int __cdecl atoi(const char *s);
-  int __cdecl wtoi(const char *s);
-  long __cdecl atol(const char *s);
-  long __cdecl wtol(const char *s);
   int __cdecl _stricmp(const char *first, const char *last);
   int __cdecl _wcsicmp(const wchar_t *first, const wchar_t *last);
   int __cdecl _strnicmp(const char *first, const char *last, size_t count);
   int __cdecl _wcsnicmp(const wchar_t *first, const wchar_t *last, size_t count);
-  //ATT: always return 0, needed for compatibilite with dbg wrappers in vc8 crtl
-  int __cdecl isleadbyte(int c);
 #ifdef __cplusplus
 };
 #endif

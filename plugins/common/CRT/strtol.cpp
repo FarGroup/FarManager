@@ -137,27 +137,3 @@ unsigned long __cdecl
   return strtoxl(nptr, endptr, ibase, FL_UNSIGNED);
 }
 
-// next 2 functions needed for debug build in vc8
-
-int __cdecl
-#ifndef UNICODE
-            atoi
-#else
-            wtoi
-#endif
-                (const TCHAR *s)
-{
-  return strtoxl(s, NULL, 10, 0);
-}
-
-long __cdecl
-#ifndef UNICODE
-            atol
-#else
-            wtol
-#endif
-                (const TCHAR *s)
-{
-  return strtoxl(s, NULL, 10, 0);
-}
-
