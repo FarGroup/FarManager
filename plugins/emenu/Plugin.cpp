@@ -1167,9 +1167,8 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
             if (Buf[i] == _T('%') && !strncmp(Buf,szSub,i))
             {
               lstrcpy(Buf,szSub);
-              Buf+=i;
-              m_fsf.Unquote(Buf);
-              szSub=Buf;
+              m_fsf.Unquote(Buf+i);
+              szSub=Buf+i;
             }
             free(Buf);
           }
