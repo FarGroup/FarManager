@@ -834,10 +834,8 @@ void PluginManager::Configure(int StartPos)
       BOOL Done=FALSE;
       int MenuItemNumber=0;
 
-
       string strFirstHotKey;
       int HotKeysPresent=EnumRegKeyW(L"PluginHotkeys",0,strFirstHotKey);
-
 
       if(NeedUpdateItems)
       {
@@ -937,6 +935,7 @@ void PluginManager::Configure(int StartPos)
       string strPluginModuleName;
 
       PluginList.Show();
+
       while (!PluginList.Done())
       {
         int SelPos=PluginList.GetSelectPos();

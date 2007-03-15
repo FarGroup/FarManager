@@ -630,7 +630,7 @@ struct FAR_FIND_DATA
 
 struct PluginPanelItemW
 {
-  FAR_FIND_DATA FindData;
+  struct FAR_FIND_DATA FindData;
   DWORD         Flags;
   DWORD         NumberOfLinks;
   wchar_t      *Description;
@@ -755,7 +755,7 @@ typedef void (WINAPI *FARAPIRESTORESCREEN)(HANDLE hScreen);
 
 typedef int (WINAPI *FARAPIGETDIRLIST)(
   const wchar_t *Dir,
-  FAR_FIND_DATA **pPanelItem,
+  struct FAR_FIND_DATA **pPanelItem,
   int *pItemsNumber
 );
 
@@ -767,8 +767,8 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
   int *pItemsNumber
 );
 
-typedef void (WINAPI *FARAPIFREEDIRLIST)(FAR_FIND_DATA *PanelItem, int nItemsNumber);
-typedef void (WINAPI *FARAPIFREEPLUGINDIRLIST)(PluginPanelItemW *PanelItem, int nItemsNumber);
+typedef void (WINAPI *FARAPIFREEDIRLIST)(struct FAR_FIND_DATA *PanelItem, int nItemsNumber);
+typedef void (WINAPI *FARAPIFREEPLUGINDIRLIST)(struct PluginPanelItemW *PanelItem, int nItemsNumber);
 
 enum VIEWER_FLAGS {
   VF_NONMODAL              = 0x00000001,
@@ -1566,7 +1566,7 @@ typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
 
 typedef int (WINAPI *FRSUSERFUNCW)(
-  const FAR_FIND_DATA *FData,
+  const struct FAR_FIND_DATA *FData,
   const wchar_t *FullName,
   void *Param
 );

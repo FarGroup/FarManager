@@ -2112,27 +2112,27 @@ struct SortItemParam{
   int Offset;
 };
 
-static int __cdecl  SortItem(const MenuItemEx *el1,
-                           const MenuItemEx *el2,
+static int __cdecl  SortItem(const MenuItemEx **el1,
+                           const MenuItemEx **el2,
                            const SortItemParam *Param)
 {
   string strName1, strName2;
 
-  strName1 = el1->strName;
-  strName2 = el2->strName;
+  strName1 = (*el1)->strName;
+  strName2 = (*el2)->strName;
   RemoveCharW (strName1,L'&',TRUE);
   RemoveCharW (strName2,L'&',TRUE);
   int Res=LocalStricmpW((const wchar_t*)strName1+Param->Offset,(const wchar_t*)strName2+Param->Offset);
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
 
-static int __cdecl  SortItemDataDWORD(const MenuItemEx *el1,
-                           const MenuItemEx *el2,
+static int __cdecl  SortItemDataDWORD(const MenuItemEx **el1,
+                           const MenuItemEx **el2,
                            const SortItemParam *Param)
 {
   int Res;
-  DWORD Dw1=(DWORD)(DWORD_PTR)(el1->UserData);
-  DWORD Dw2=(DWORD)(DWORD_PTR)(el2->UserData);
+  DWORD Dw1=(DWORD)(DWORD_PTR)((*el1)->UserData);
+  DWORD Dw2=(DWORD)(DWORD_PTR)((*el2)->UserData);
   if(Dw1 == Dw2)
     Res=0;
   else if(Dw1 > Dw2)
