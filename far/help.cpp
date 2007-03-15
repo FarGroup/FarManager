@@ -1994,7 +1994,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
       {
          strTopic.Format (
                 HelpFormatLinkModule,
-                pPlugin->m_strModuleName,
+                (const wchar_t*)pPlugin->m_strModuleName,
                 HelpTopic
                 );
       }
