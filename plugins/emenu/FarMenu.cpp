@@ -3,11 +3,22 @@
 #include <tchar.h>
 #include <cassert>
 
+#ifdef UNICODE
+static const wchar_t  empty_wstr;
+#define TextPtr Text
+#else
+#define TextPtr Text.Text
+#endif
+
 CFarMenu::CFarMenu(LPCTSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
   : m_szHelp(szHelp)
   , m_pfmi(NULL)
   , m_nItemCnt(0)
-  , m_szArrow(_T("  \x10"))
+#ifndef UNICODE
+  , m_szArrow("  \x10")
+#else
+  , m_szArrow(L"  \x25BA")
+#endif
   , m_bArrowsAdded(false)
   , m_nMaxItems(nMaxItems)
 {
@@ -16,23 +27,39 @@ CFarMenu::CFarMenu(LPCTSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
 
   // Это кривоватый способ вычисления макс. ширины
   // Хотелось бы от FARа получать эту инфу...
+#ifndef UNICODE
   const unsigned nArrowLen=sizeof(m_szArrow)/sizeof(m_szArrow[0]);
   m_nMaxTextLen=sizeof(m_pfmi->Text.Text)/sizeof(m_pfmi->Text.Text[0])-nArrowLen;
+#else
+  m_nMaxTextLen=14; // for assert :)
+#endif
   HANDLE hStdOutput=GetStdHandle(STD_OUTPUT_HANDLE);
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   if (INVALID_HANDLE_VALUE!=hStdOutput
     && GetConsoleScreenBufferInfo(hStdOutput, &csbi))
   {
+#ifndef UNICODE
     m_nMaxTextLen=min(m_nMaxTextLen, csbi.dwSize.X-4*2+1-nArrowLen);
+#else
+    m_nMaxTextLen=max(14u+8u,csbi.dwSize.X)-8;
+#endif
   }
   else
   {
     assert(0);
   }
+#ifdef UNICODE
+  if((int)m_nMaxTextLen < 14) m_nMaxTextLen= 14;
+#endif
 }
 
 CFarMenu::~CFarMenu()
 {
+#ifdef UNICODE
+  for(unsigned i = 0; i < m_nItemCnt; i++)
+    if(m_pfmi[i].Text != &empty_wstr)
+      delete m_pfmi[i].Text;
+#endif
   delete[] m_pfmi;
   delete[] m_pbHasSubMenu;
 }
@@ -66,11 +93,26 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCTSTR szText
   m_pfmi[nIndex].Flags=0;
   if (szText)
   {
+#ifndef UNICODE
     lstrcpyn(m_pfmi[nIndex].Text.Text, szText, m_nMaxTextLen);
+#else
+    size_t  textLen = lstrlen(szText);
+    if(!textLen)
+      m_pfmi[nIndex].Text=&empty_wstr;
+    else {
+      if(textLen > m_nMaxTextLen) textLen = m_nMaxTextLen;
+      m_pfmi[nIndex].Text = new wchar_t[textLen+1];
+      wcsncpy((wchar_t *)m_pfmi[nIndex].Text, szText, textLen);
+    }
+#endif
   }
   else
   {
+#ifndef UNICODE
     m_pfmi[nIndex].Text.Text[0]=0;
+#else
+    m_pfmi[nIndex].Text=&empty_wstr;
+#endif
     m_pfmi[nIndex].Flags|=MIF_SEPARATOR;
   }
   switch (enChecked)
@@ -100,21 +142,34 @@ void CFarMenu::AddArrows()
     m_bArrowsAdded=true;
     unsigned nMaxLen=0;
     unsigned i;
+#ifdef UNICODE
+    size_t  arrLen = lstrlen(m_szArrow);
+#endif
     for (i=0; i<m_nItemCnt; i++)
     {
-      unsigned nLen=MenuItemLen(m_pfmi[i].Text.Text);
+      unsigned nLen=MenuItemLen(m_pfmi[i].TextPtr);
       if (nLen>nMaxLen) nMaxLen=nLen;
     }
     for (i=0; i<m_nItemCnt; i++)
     {
-      unsigned nLen=MenuItemLen(m_pfmi[i].Text.Text);
+      unsigned nLen=MenuItemLen(m_pfmi[i].TextPtr);
       if (m_pbHasSubMenu[i])
       {
+#ifdef UNICODE
+        {
+          size_t  len=lstrlen(m_pfmi[i].Text)+lstrlen(m_szArrow)+(nMaxLen-nLen);
+          wchar_t *pn = new wchar_t[len+1];
+          wcscpy(pn, m_pfmi[i].Text);
+          if(m_pfmi[i].Text != &empty_wstr)  // paranoya
+            delete m_pfmi[i].Text;
+          m_pfmi[i].Text = pn;
+        }
+#endif
         for (unsigned n=0; n<nMaxLen-nLen; n++)
         {
-          lstrcat(m_pfmi[i].Text.Text, _T(" "));
+          lstrcat((TCHAR*)m_pfmi[i].TextPtr, _T(" "));
         }
-        lstrcat(m_pfmi[i].Text.Text, m_szArrow);
+        lstrcat((TCHAR*)m_pfmi[i].TextPtr, m_szArrow);
       }
     }
   }
@@ -122,7 +177,7 @@ void CFarMenu::AddArrows()
 
 LPCTSTR CFarMenu::operator[](unsigned nIndex)
 {
-  return m_pfmi[nIndex].Text.Text;
+  return m_pfmi[nIndex].TextPtr;
 }
 
 void CFarMenu::SetSelectedItem(unsigned nIndex)

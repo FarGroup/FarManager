@@ -38,7 +38,9 @@ void CPlugin::Init()
   REG_Helptext=_T("Helptext");
   REG_DifferentOnly=_T("DifferentOnly");
   REG_GuiPos=_T("GuiPos");
+#ifndef UNICODE
   auto_sz::SetOem();
+#endif
 }
 
 CPlugin::~CPlugin(void)
@@ -47,7 +49,7 @@ CPlugin::~CPlugin(void)
 
 int CPlugin::GetMinFarVersion()
 {
-  return MAKEFARVERSION(1, 70, MIN_FAR_BUILD);
+  return MAKEFARVERSION(1, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
 }
 
 void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
@@ -55,9 +57,10 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
   Init();
   const size_t nMinSize=offsetof(PluginStartupInfo, AdvControl)
     +sizeof(PluginStartupInfo::AdvControl);
-  if (Info->StructSize<nMinSize) return;
+  if (Info->StructSize<=nMinSize) return;
   *(PluginStartupInfo*)this=*Info;
   int nFARVer=AdvControl(ACTL_GETFARVERSION, NULL);
+  if (LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
   if (HIWORD(nFARVer)<MIN_FAR_BUILD) return;
   m_fsf=*Info->FSF;
   lstrcpy(g_PluginRootKey, Info->RootKey);
@@ -85,17 +88,21 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
 
 void CPlugin::ReadRegValues()
 {
-  m_WaitToContinue=GetRegKey(HKEY_CURRENT_USER, "", REG_WaitToContinue, 1);
-  m_UseGUI=GetRegKey(HKEY_CURRENT_USER, "", REG_UseGUI, 2);
-  m_DelUsingFar=GetRegKey(HKEY_CURRENT_USER, "", REG_DelUsingFar, 0);
-  m_ClearSel=GetRegKey(HKEY_CURRENT_USER, "", REG_ClearSel, 1);
-  m_Silent=GetRegKey(HKEY_CURRENT_USER, "", REG_Silent, 0);
-  m_enHelptext=(EAdditionalStr)GetRegKey(HKEY_CURRENT_USER, "", REG_Helptext, 0);
-  m_DifferentOnly=GetRegKey(HKEY_CURRENT_USER, "", REG_DifferentOnly, 0);
-  m_GuiPos=GetRegKey(HKEY_CURRENT_USER, "", REG_GuiPos, 1);
+  m_WaitToContinue=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, 1);
+  m_UseGUI=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, 2);
+  m_DelUsingFar=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, 0);
+  m_ClearSel=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_ClearSel, 1);
+  m_Silent=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_Silent, 0);
+  m_enHelptext=(EAdditionalStr)GetRegKey(HKEY_CURRENT_USER, _T(""), REG_Helptext, 0);
+  m_DifferentOnly=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_DifferentOnly, 0);
+  m_GuiPos=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, 1);
 }
 
+#ifndef UNICODE
 void CPlugin::GetPluginInfo(PluginInfo *Info)
+#else
+void CPlugin::GetPluginInfo(PluginInfoW *Info)
+#endif
 {
   if (m_bOldFARorInitErr) return;
   m_PluginMenuString=GetMsg(LNG_TITLE);
@@ -229,22 +236,28 @@ int CPlugin::Configure()
   m_nShowMessId=1;
   m_nSilentId=5;
   m_nDifferentId=10;
-  lstrcpy(DlgItems[0].Data, GetMsg(LNG_TITLE));
-  lstrcpy(DlgItems[m_nShowMessId].Data, GetMsg(LNG_SHOWMESS));
-  lstrcpy(DlgItems[2].Data, GetMsg(LNG_SHOWGUI));
-  lstrcpy(DlgItems[3].Data, GetMsg(LNG_DELETE_USING_FAR));
-  lstrcpy(DlgItems[4].Data, GetMsg(LNG_CLEAR_SELECTION));
-  lstrcpy(DlgItems[m_nSilentId].Data, GetMsg(LNG_SILENT));
-  lstrcpy(DlgItems[6].Data, GetMsg(LNG_ADDITIONAL_INFO));
-  lstrcpy(DlgItems[7].Data, GetMsg(LNG_ADDITIONAL_INFO_NONE));
-  lstrcpy(DlgItems[8].Data, GetMsg(LNG_ADDITIONAL_INFO_HELPTEXT));
-  lstrcpy(DlgItems[9].Data, GetMsg(LNG_ADDITIONAL_INFO_VERBS));
-  lstrcpy(DlgItems[10].Data, GetMsg(LNG_ADDITIONAL_DIFFERENT_ONLY));
-  lstrcpy(DlgItems[11].Data, GetMsg(LNG_GUI_POSITION));
-  lstrcpy(DlgItems[12].Data, GetMsg(LNG_GUI_MOUSE_CURSOR));
-  lstrcpy(DlgItems[13].Data, GetMsg(LNG_GUI_WINDOW_CENTER));
-  lstrcpy(DlgItems[14].Data, GetMsg(LNG_SAVE));
-  lstrcpy(DlgItems[15].Data, GetMsg(LNG_CANCEL));
+#ifndef UNICODE
+#define SET_DLGITEM(n,v)  lstrcpy(DlgItems[n].Data, v)
+#else
+#define SET_DLGITEM(n,v)  DlgItems[n].PtrData = const_cast<wchar_t*>(v)
+#endif
+  SET_DLGITEM(0, GetMsg(LNG_TITLE));
+  SET_DLGITEM(m_nShowMessId, GetMsg(LNG_SHOWMESS));
+  SET_DLGITEM(2, GetMsg(LNG_SHOWGUI));
+  SET_DLGITEM(3, GetMsg(LNG_DELETE_USING_FAR));
+  SET_DLGITEM(4, GetMsg(LNG_CLEAR_SELECTION));
+  SET_DLGITEM(m_nSilentId, GetMsg(LNG_SILENT));
+  SET_DLGITEM(6, GetMsg(LNG_ADDITIONAL_INFO));
+  SET_DLGITEM(7, GetMsg(LNG_ADDITIONAL_INFO_NONE));
+  SET_DLGITEM(8, GetMsg(LNG_ADDITIONAL_INFO_HELPTEXT));
+  SET_DLGITEM(9, GetMsg(LNG_ADDITIONAL_INFO_VERBS));
+  SET_DLGITEM(10, GetMsg(LNG_ADDITIONAL_DIFFERENT_ONLY));
+  SET_DLGITEM(11, GetMsg(LNG_GUI_POSITION));
+  SET_DLGITEM(12, GetMsg(LNG_GUI_MOUSE_CURSOR));
+  SET_DLGITEM(13, GetMsg(LNG_GUI_WINDOW_CENTER));
+  SET_DLGITEM(14, GetMsg(LNG_SAVE));
+  SET_DLGITEM(15, GetMsg(LNG_CANCEL));
+#undef SET_DLGITEM
   DlgItems[1].Selected=m_WaitToContinue;
   DlgItems[2].Selected=m_UseGUI;
   DlgItems[3].Selected=m_DelUsingFar;
@@ -272,14 +285,14 @@ int CPlugin::Configure()
   m_DifferentOnly=DlgItems[10].Selected;
   if (DlgItems[12].Selected) m_GuiPos=0;
   if (DlgItems[13].Selected) m_GuiPos=1;
-  SetRegKey(HKEY_CURRENT_USER, "", REG_WaitToContinue, m_WaitToContinue);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_UseGUI, m_UseGUI);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_DelUsingFar, m_DelUsingFar);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_ClearSel, m_ClearSel);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_Silent, m_Silent);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_Helptext, m_enHelptext);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_DifferentOnly, m_DifferentOnly);
-  SetRegKey(HKEY_CURRENT_USER, "", REG_GuiPos, m_GuiPos);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, m_WaitToContinue);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, m_UseGUI);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, m_DelUsingFar);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_ClearSel, m_ClearSel);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Silent, m_Silent);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Helptext, m_enHelptext);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DifferentOnly, m_DifferentOnly);
+  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, m_GuiPos);
   return 1;
 }
 
@@ -352,7 +365,8 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
       delete[] szCmdLine;
       nLen*=2;
       szCmdLine=new TCHAR[nLen];
-    } while (m_fsf.ExpandEnvironmentStr(sz, szCmdLine, nLen)>=nLen-1);
+//###
+    } while (/*m_fsf.*/ExpandEnvironmentStrings(sz, szCmdLine, nLen)>=nLen-1);
   }
   EDoMenu enDoMenu=DoMenu(szCmdLine);
   delete[] szCmdLine;
@@ -520,7 +534,9 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPTSTR szCmdLine/*=NULL*/
       else
       {
         strCommand=pParams[0];
+#ifndef UNICODE
         strCommand.Oem2Ansi();
+#endif
         szCommand=strCommand;
         pFiles=pParams+1;
         if (nFiles+nFolders>0)
@@ -634,6 +650,11 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPTSTR szCmdLine/*=NULL*/
   return enRet;
 }
 
+#ifndef UNICODE
+#define CurDir_PS CurDir
+#else
+#define CurDir_PS lpwszCurDir
+#endif
 bool CPlugin::GetFilesFromParams(LPTSTR szCmdLine
                  , LPCTSTR** ppFiles
                  , unsigned* pnFiles
@@ -643,7 +664,7 @@ bool CPlugin::GetFilesFromParams(LPTSTR szCmdLine
 {
   PanelInfo pi;
   if (!Control(FCTL_GETPANELINFO, &pi)) return false;
-  *pstrCurDir=auto_sz(pi.CurDir, lstrlen(pi.CurDir)+1);
+  *pstrCurDir=auto_sz(pi.CurDir_PS, lstrlen(pi.CurDir_PS)+1);
   if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
   unsigned nCnt=ParseParams(szCmdLine);
   if (!nCnt) return false;
@@ -699,10 +720,15 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
   {
     return false;
   }
+#ifndef UNICODE
+#define FileNamePtr cFileName
+#else
+#define FileNamePtr lpwszFileName
+#endif
   // preserve space for AddEndSlash
-  *pstrCurDir = auto_sz(pi.CurDir, lstrlen(pi.CurDir)+1);
+  *pstrCurDir = auto_sz(pi.CurDir_PS, lstrlen(pi.CurDir_PS)+1);
   if (!pi.SelectedItemsNumber ||
-    (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelectedItems[0].FindData.cFileName, ".."))
+    (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelectedItems[0].FindData.FileNamePtr, _T("..")))
     )
   {
     *pnFolders=1;
@@ -725,8 +751,8 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     int i;
     for (i=0; i<pi.SelectedItemsNumber; i++)
     {
-      LPCTSTR szPath=pi.SelectedItems[i].FindData.cFileName;
-      if (!lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, szPath))
+      LPCTSTR szPath=pi.SelectedItems[i].FindData.FileNamePtr;
+      if (!lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.FileNamePtr, szPath))
       {
         (*ppFiles)[i]=(*ppFiles)[0];
         (*ppFiles)[0]=szPath;
@@ -746,6 +772,7 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
       }
     }
   }
+#undef FileNamePtr
   return true;
 }// CurDir
 
@@ -955,7 +982,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
       cmici.cbSize       = sizeof(cmici);
       cmici.fMask        = 0;
       cmici.hwnd         = NULL_HWND;
-      cmici.lpVerb       = MAKEINTRESOURCE(nId);
+      cmici.lpVerb       = (LPCSTR)MAKEINTRESOURCE(nId);
       cmici.lpParameters = NULL;
       cmici.lpDirectory  = NULL;
       cmici.nShow        = SW_SHOWNORMAL;
@@ -1066,7 +1093,9 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID
   if (m_bWin9x)
   {
     *pstr=reinterpret_cast<LPCTSTR>(szwAddInfo);
+#ifndef UNICODE
     if (bToOEM) pstr->Ansi2Oem();
+#endif
   }
   else
   {
@@ -1128,7 +1157,9 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
       {
         return false;
       }
+#ifndef UNICODE
       szItem.Ansi2Oem();
+#endif
     }
     else if (mii.fType&MFT_BITMAP)
     {
@@ -1153,18 +1184,17 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
           szItem=_T("{");
 
           TCHAR *Buf=(TCHAR*)malloc((szSub.Len()+1)*sizeof(TCHAR));
-
           if (Buf)
           {
             //ѕолучаем из shell32.dll шаблон, по которому формируютс€ эти подсказки,
             //(строковый ресурс #5380, "Opens the document with %s."),
             //и убираем его из сабжевых строк. ƒл€ XP/2003.
             *Buf=0;
-            LoadString(GetModuleHandle("shell32.dll"),5380,Buf,szSub.Len()+1);
+            LoadString(GetModuleHandle(_T("shell32.dll")),5380,Buf,szSub.Len()+1);
             int i=0;
             while(Buf[i] && Buf[i]!=_T('%'))
               i++;
-            if (Buf[i] == _T('%') && !strncmp(Buf,szSub,i))
+            if (Buf[i] == _T('%') && !_tcsncmp(Buf,szSub,i))
             {
               lstrcpy(Buf,szSub);
               m_fsf.Unquote(Buf+i);

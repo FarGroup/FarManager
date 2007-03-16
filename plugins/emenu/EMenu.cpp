@@ -44,7 +44,11 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   thePlug->SetStartupInfo(Info);
 }
 
+#ifndef UNICODE
 void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+#else
+void WINAPI _export GetPluginInfo(struct PluginInfoW *Info)
+#endif
 {
   thePlug->GetPluginInfo(Info);
 }

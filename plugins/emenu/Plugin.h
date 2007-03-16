@@ -18,7 +18,11 @@ public:
   CPlugin(void);
   ~CPlugin(void);
   void SetStartupInfo(const struct PluginStartupInfo *Info);
+#ifndef UNICODE
   void GetPluginInfo(PluginInfo *Info);
+#else
+  void GetPluginInfo(PluginInfoW *Info);
+#endif
   HANDLE OpenPlugin(int nOpenFrom, INT_PTR nItem);
   enum EDoMenu
   {
@@ -119,7 +123,13 @@ protected:
   };
   enum
   {
+#ifndef UNICODE
+    MIN_FAR_VERMINOR=70,
     MIN_FAR_BUILD=1238
+#else
+    MIN_FAR_VERMINOR=80,
+    MIN_FAR_BUILD=210
+#endif
   };
   HWND NULL_HWND;
   FarStandardFunctions m_fsf;

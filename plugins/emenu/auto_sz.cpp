@@ -2,13 +2,17 @@
 #include <tchar.h>
 #include <cassert>
 
+#ifndef UNICODE
 bool auto_sz::s_bOem=false;
+#endif
 
 auto_sz::auto_sz()
   : m_sz(NULL)
   , m_bDelete(false)
   , m_nSize(0)
+#ifndef UNICODE
   , m_wsz(NULL)
+#endif
 {
 }
 
@@ -16,7 +20,9 @@ auto_sz::auto_sz(LPCTSTR sz)
   : m_sz(NULL)
   , m_bDelete(false)
   , m_nSize(0)
+#ifndef UNICODE
   , m_wsz(NULL)
+#endif
 {
   operator =(sz);
 }
@@ -25,13 +31,16 @@ auto_sz::auto_sz(LPCTSTR szBuf, size_t nBufLen)
   : m_sz(NULL)
   , m_bDelete(false)
   , m_nSize(0)
+#ifndef UNICODE
   , m_wsz(NULL)
+#endif
 {
   nBufLen++;
   Realloc(nBufLen);
   lstrcpyn(m_sz, szBuf, nBufLen);
 }
 
+#ifndef UNICODE
 auto_sz::auto_sz(LPCWSTR szw)
   : m_sz(NULL)
   , m_bDelete(false)
@@ -40,12 +49,15 @@ auto_sz::auto_sz(LPCWSTR szw)
 {
   operator=(szw);
 }
+#endif
 
 auto_sz::auto_sz(auto_sz& str)
   : m_sz(NULL)
   , m_bDelete(false)
   , m_nSize(0)
+#ifndef UNICODE
   , m_wsz(NULL)
+#endif
 {
   *this=str;
 }
@@ -54,20 +66,32 @@ auto_sz::auto_sz(const STRRET& sr, LPCITEMIDLIST piid)
   : m_sz(NULL)
   , m_bDelete(false)
   , m_nSize(0)
+#ifndef UNICODE
   , m_wsz(NULL)
+#endif
 {
   switch (sr.uType)
   {
   case STRRET_CSTR:
+#ifndef UNICODE
     operator=(sr.cStr);
     if (s_bOem) Ansi2Oem();
+#else
+    {
+      size_t len = strlen(sr.cStr)+1;
+      Realloc(len);
+      MultiByteToWideChar(CP_ACP, 0, sr.cStr, -1, *this, len);
+    }
+#endif
     break;
   case STRRET_WSTR:
     operator=(sr.pOleStr);
     break;
   case STRRET_OFFSET:
     operator=((LPCTSTR)(&piid->mkid)+sr.uOffset);
+#ifndef UNICODE
     if (s_bOem) Ansi2Oem();
+#endif
     break;
   default:
     assert(0);
@@ -102,19 +126,17 @@ auto_sz& auto_sz::operator =(LPCTSTR sz)
   return operator+=(sz);
 }
 
+#ifndef UNICODE
 auto_sz& auto_sz::operator =(LPCWSTR szw)
 {
   Clear();
   if (!szw) return *this;
   Realloc(lstrlenW(szw)+1);
-#ifdef _UNICODE
-  lstrcat(m_sz, szw);
-#else
   WideCharToMultiByte(s_bOem?CP_OEMCP:CP_ACP, 0, szw, -1, *this, Size()
     , NULL, NULL);
-#endif // _UNICODE
   return *this;
 }
+#endif
 
 auto_sz& auto_sz::operator =(const auto_sz& str)
 {
@@ -126,6 +148,7 @@ auto_sz& auto_sz::operator =(const auto_sz& str)
   return *this;
 }
 
+#ifndef UNICODE
 auto_sz& auto_sz::Ansi2Oem()
 {
   ::CharToOem(*this, *this);
@@ -137,6 +160,7 @@ auto_sz& auto_sz::Oem2Ansi()
   ::OemToChar(*this, *this);
   return *this;
 }
+#endif
 
 TCHAR auto_sz::operator[](int nPos)
 {
@@ -144,6 +168,7 @@ TCHAR auto_sz::operator[](int nPos)
   return m_sz[nPos];
 }
 
+#ifndef UNICODE
 auto_sz::operator LPOLESTR()
 {
   size_t nLen=Len()+1;
@@ -152,6 +177,7 @@ auto_sz::operator LPOLESTR()
   MultiByteToWideChar(s_bOem?CP_OEMCP:CP_ACP, 0, *this, -1, m_wsz, nLen);
   return m_wsz;
 }
+#endif
 
 auto_sz::operator void*()
 {
@@ -184,7 +210,9 @@ void auto_sz::Clear()
   m_bDelete=false;
   m_sz=NULL;
   m_nSize=0;
+#ifndef UNICODE
   delete[] m_wsz;
+#endif
 }
 
 void auto_sz::Realloc(size_t nNewSize)
