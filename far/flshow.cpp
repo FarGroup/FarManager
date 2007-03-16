@@ -193,7 +193,7 @@ void FileList::ShowFileList(int Fast)
       if (SortModes[I]==SortMode)
       {
         const wchar_t *SortStr=UMSG(SortStrings[I]);
-        wchar_t *Ch=wcschr(SortStr,L'&');
+        const wchar_t *Ch=wcschr(SortStr,L'&');
         if (Ch!=NULL)
         {
           if (Opt.ShowColumnTitles)
@@ -430,7 +430,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfoW &Info)
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
 // UNICODE!!!
-  wchar_t *FirstBox=wcschr(strTotalStr,0x0CD);
+  const wchar_t *FirstBox=wcschr(strTotalStr,0x0CD);
   int BoxPos=(FirstBox==NULL) ? -1:FirstBox-(const wchar_t*)strTotalStr;
   int BoxLength=0;
   if (BoxPos!=-1)

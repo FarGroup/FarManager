@@ -443,7 +443,7 @@ void DialogSettings()
   #define DLG_DIALOGS_OK                    8
 
   static DialogDataEx CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3, 1,54, 9,0,0,0,0,(const wchar_t *)MConfigDlgSetsTitle,
+  /* 00 */DI_DOUBLEBOX,3, 1,54,10,0,0,0,0,(const wchar_t *)MConfigDlgSetsTitle,
   /* 01 */DI_CHECKBOX, 5, 2, 0, 2,0,0,0,0,(const wchar_t *)MConfigDialogsEditHistory,
   /* 02 */DI_CHECKBOX, 5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigDialogsEditBlock,
   /* 03 */DI_CHECKBOX, 5, 4, 0, 4,0,0,0,0,(const wchar_t *)MConfigDialogsDelRemovesBlocks,

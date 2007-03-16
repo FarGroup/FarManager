@@ -255,7 +255,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 {
   int RetCode;
   __int64 RetCode64;
-  wchar_t *ChPtr1,*ChPtr2;
+  const wchar_t *ChPtr1,*ChPtr2;
   struct FileListItem *SPtr1,*SPtr2;
   SPtr1=((FileListItem **)el1)[0];
   SPtr2=((FileListItem **)el2)[0];
@@ -3490,10 +3490,12 @@ string &FileList::CreateFullPathNameW(const wchar_t *Name, const wchar_t *ShortN
 
     strTemp.ReleaseBuffer();
 
-    if((NamePtr=wcsrchr(strFileName, L'\\')) != NULL)
+    const wchar_t *NamePtr = wcsrchr(strFileName, L'\\');
+
+    if(NamePtr != NULL)
       NamePtr++;
     else
-      NamePtr=(wchar_t*)(const wchar_t*)strFileName;
+      NamePtr=strFileName;
 
     strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
     strFileName = strTemp;
@@ -3560,8 +3562,9 @@ string &FileList::CreateFullPathNameW(const wchar_t *Name, const wchar_t *ShortN
       else
       {
           wchar_t *lpwszFileName = strFileName.GetBuffer();
+          wchar_t *NamePtr=(wchar_t *)wcsrchr(lpwszFileName,L'\\');
 
-          if((NamePtr=wcsrchr(lpwszFileName,L'\\')) != NULL)
+          if(NamePtr != NULL)
           {
             Chr=*NamePtr;
             *NamePtr=0;

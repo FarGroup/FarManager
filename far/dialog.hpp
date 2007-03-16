@@ -208,7 +208,7 @@ class Dialog: public Frame
     /* $ 29.08.2000 SVS
        + Номер плагина, для формирования HelpTopic
     */
-    int PluginNumber;
+    INT_PTR PluginNumber;
     /* SVS $ */
     /* $ 23.08.2000 SVS
        + Переменная класса FocusPos
@@ -429,7 +429,7 @@ class Dialog: public Frame
     /* $ 29.08.2000 SVS
        + Установить номер плагина, для формирования HelpTopic
     */
-    void SetPluginNumber(int NewPluginNumber){PluginNumber=NewPluginNumber;}
+    void SetPluginNumber(INT_PTR NewPluginNumber){PluginNumber=NewPluginNumber;}
     /* SVS $ */
 
     /* $ 17.05.2001 DJ */

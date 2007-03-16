@@ -25,7 +25,7 @@ static string strMsgHelpTopic;
 
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            int PluginNumber)
+            INT_PTR PluginNumber)
 {
   return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
@@ -34,7 +34,7 @@ int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            int PluginNumber)
+            INT_PTR PluginNumber)
 {
   return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
@@ -45,7 +45,7 @@ int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
-            int PluginNumber)
+            INT_PTR PluginNumber)
 {
   return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
                  Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
@@ -56,7 +56,7 @@ int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
             const wchar_t *Str11,const wchar_t *Str12,const wchar_t *Str13,
-            const wchar_t *Str14,int PluginNumber)
+            const wchar_t *Str14,INT_PTR PluginNumber)
 {
   int StrCount;
   const wchar_t *Str[14];
@@ -80,7 +80,7 @@ int MessageW (
         const wchar_t *Title,
         const wchar_t * const *Items,
         int ItemsNumber,
-        int PluginNumber
+        INT_PTR PluginNumber
         )
 {
   string strTempStr;

@@ -528,7 +528,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
         strTitle = strDescription;
       else
         strTitle = L"";
-      wchar_t *PtrAmp;
+      const wchar_t *PtrAmp;
       int Ampersand=(PtrAmp=wcschr(strTitle,L'&'))!=NULL;
       if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-(const wchar_t*)strTitle > DizWidth)
         Ampersand=0;

@@ -107,6 +107,23 @@ struct CopyDlgParam {
   DWORD FileSystemFlagsSrc;
   int IsDTSrcFixed;
   int IsDTDstFixed;
+
+  void Clear()
+  {
+	thisClass=NULL;
+	AltF10=0;
+	FileAttr=0;
+	SelCount=0;
+	FolderPresent=0;
+	FilesPresent=0;
+	OnlyNewerFiles=0;
+	CopySecurity=0;
+	FSysNTFS=FALSE;
+	strPluginFormat=L"";
+	FileSystemFlagsSrc=0;
+	IsDTSrcFixed=0;
+	IsDTDstFixed=0;
+  }
 };
 
 enum enumShellCopy {
@@ -175,7 +192,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     return;
   }
 
-  memset(&CDP,0,sizeof(CDP));
+  CDP.Clear();
   CDP.IsDTSrcFixed=-1;
   CDP.IsDTDstFixed=-1;
 
@@ -495,7 +512,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           CopyDlg[ID_SC_TARGETEDIT].strData = strDestDir;
           AddEndSlashW(CopyDlg[ID_SC_TARGETEDIT].strData);
         }
-        CDP.strPluginFormat = L"";
         /* $ 19.07.2003 IS
            Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
            ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy

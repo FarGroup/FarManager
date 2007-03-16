@@ -108,8 +108,8 @@ void CheckScreenLock()
 
 
 Plugin::Plugin (
-		PluginManager *owner, 
-		const wchar_t *lpwszModuleName, 
+		PluginManager *owner,
+		const wchar_t *lpwszModuleName,
 		const FAR_FIND_DATA_EX *fdata
 		)
 {
@@ -196,7 +196,7 @@ int Plugin::LoadFromCache ()
 
 int Plugin::SaveToCache()
 {
-	if ( pGetPluginInfo || 
+	if ( pGetPluginInfo ||
 		 pOpenPlugin ||
 		 pOpenFilePlugin ||
 		 pSetFindList ||
@@ -205,13 +205,13 @@ int Plugin::SaveToCache()
 		 pProcessViewerEvent )
 	{
 		PluginInfoW Info;
-		
+
 		GetPluginInfo(&Info);
 
         SysID = Info.SysID; //LAME!!!
 
 		int j = 0;
-		
+
 		while ( true )
 		{
 			string strRegKey, strPluginName, strCurPluginID;
@@ -219,13 +219,13 @@ int Plugin::SaveToCache()
             strRegKey.Format (FmtPluginsCache_PluginDW, j);
 
             GetRegKeyW (strRegKey, L"Name", strPluginName, L"");
-            
+
             if ( strPluginName.IsEmpty() || LocalStricmpW(strPluginName, m_strModuleName) == 0)
             {
             	DeleteKeyTreeW(strRegKey);
-            	
+
             	SetRegKeyW(strRegKey, L"Name", m_strModuleName);
-            	
+
             	strCurPluginID.Format (
             			L"%I64x%x%x",
             			FindData.nFileSize,
@@ -246,11 +246,11 @@ int Plugin::SaveToCache()
 				for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
 				{
 					string strValue;
-					
+
 					strValue.Format (FmtDiskMenuStringDW, i);
-					
+
 					SetRegKeyW(strRegKey, strValue, Info.DiskMenuStrings[i]);
-					
+
 					if ( Info.DiskMenuNumbers )
 					{
 						strValue.Format (FmtDiskMenuNumberDW, i);
@@ -266,7 +266,7 @@ int Plugin::SaveToCache()
                 	SetRegKeyW(strRegKey, strValue, Info.PluginMenuStrings[i]);
                 }
 
-                for (i = 0; i < Info.PluginConfigStringsNumber; i++)
+                for (int i = 0; i < Info.PluginConfigStringsNumber; i++)
                 {
                 	string strValue;
 
@@ -278,7 +278,7 @@ int Plugin::SaveToCache()
                 SetRegKeyW(strRegKey, L"Flags", Info.Flags);
 
 				strRegKey.Format (FmtPluginsCache_PluginDExportW, j);
-				
+
 				SetRegKeyW (strRegKey, NFMP_SysIDW, SysID);
 				SetRegKeyW (strRegKey, NFMP_OpenPluginW, pOpenPlugin!=NULL);
 				SetRegKeyW (strRegKey, NFMP_OpenFilePluginW, pOpenFilePlugin!=NULL);
@@ -287,7 +287,7 @@ int Plugin::SaveToCache()
 				SetRegKeyW (strRegKey, NFMP_ProcessEditorEventW, pProcessEditorEvent!=NULL);
 				SetRegKeyW (strRegKey, NFMP_ProcessViewerEventW, pProcessViewerEvent!=NULL);
 				SetRegKeyW (strRegKey, NFMP_ConfigureW, pConfigure!=NULL);
-				
+
 				break;
 			}
 
@@ -481,25 +481,25 @@ int Plugin::Load()
 
 		Drive[0]=0; // ставим 0, как признак того, что вертать обратно ненадо!
 		FarGetCurDirW(strCurPath);
-		
+
 		if( IsLocalPathW (m_strModuleName) ) // если указан локальный путь, то...
 		{
 			wcscpy(Drive,L"= :");
 			Drive[1] = m_strModuleName.At(0);
 			apiGetEnvironmentVariable (Drive,strCurPlugDiskPath);
 		}
-		
+
 		PrepareModulePathW(m_strModuleName);
-		
+
 		if ( IsModulePlugin (m_strModuleName) )
 		{
 		    m_hModule = LoadLibraryExW(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
-		    
+
 		    if( !m_hModule )
 		    	LstErr=GetLastError();
-		    	
+
 		    FarChDirW(strCurPath, TRUE);
-		    
+
 		    if(Drive[0]) // вернем ее (переменную окружения) обратно
 		    	SetEnvironmentVariableW(Drive,strCurPlugDiskPath);
 		}
@@ -513,15 +513,15 @@ int Plugin::Load()
 		{
 			string strPlgName;
 			strPlgName = m_strModuleName;
-				
+
 			TruncPathStrW(strPlgName,ScrX-20);
 			SetMessageHelp(L"ErrLoadPlugin");
-				
+
 			MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MPlgLoadPluginError),strPlgName,UMSG(MOk));
 		}
-			
+
 		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
-			
+
 		return FALSE;
 	}
 
@@ -583,7 +583,7 @@ int Plugin::Load()
 	  }
 	}
 
-		
+
 	return TRUE;
 }
 
@@ -723,7 +723,7 @@ struct ExecuteStruct {
 		else \
 			function; \
 	}
-	
+
 
 #define EXECUTE_FUNCTION_EX(function, es) \
 	{ \
@@ -795,7 +795,7 @@ void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
 
 int Plugin::CheckMinFarVersion (bool &bUnloaded)
 {
-	if ( pMinFarVersion && !ProcessException ) 
+	if ( pMinFarVersion && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -845,9 +845,9 @@ int Plugin::Unload (bool bExitFAR)
 
 bool Plugin::IsPanelPlugin()
 {
-	return pSetFindList || 
-		pGetFindData || 
-		pGetVirtualFindData || 
+	return pSetFindList ||
+		pGetFindData ||
+		pGetVirtualFindData ||
 		pSetDirectory ||
 		pGetFiles ||
 		pPutFiles ||
@@ -1044,7 +1044,7 @@ int Plugin::GetVirtualFindData (
 	if ( pGetVirtualFindData && !ProcessException )
 	{
 		ExecuteStruct es;
-		
+
 		es.id = FUNCTION_GETVIRTUALFINDDATA;
 		es.bDefaultResult = FALSE;
 
@@ -1451,8 +1451,8 @@ int Plugin::GetCacheNumber () //ничего не понимаю....
 					FindData.nFileSize,
 					FindData.ftCreationTime.dwLowDateTime,
 					FindData.ftLastWriteTime.dwLowDateTime
-					);     
-				
+					);
+
 			if ( wcscmp(strPluginID, strCurPluginID) != 0 )
 				continue;
 		}

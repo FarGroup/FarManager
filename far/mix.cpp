@@ -490,7 +490,7 @@ int GetDirInfo(const wchar_t *Title,
   const wchar_t *ShowDirName = DirName;
   if (DirName[0] == L'.' && DirName[1] == 0)
   {
-    wchar_t *p = wcsrchr (strFullDirName, L'\\');
+    const wchar_t *p = wcsrchr (strFullDirName, L'\\');
     if (p)
       ShowDirName = p + 1;
   }

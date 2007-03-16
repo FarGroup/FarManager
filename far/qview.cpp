@@ -313,7 +313,7 @@ void QuickView::Update(int Mode)
 
 void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
-  wchar_t *ExtPtr;
+  const wchar_t *ExtPtr;
   int FileAttr;
   CloseFile();
   QView=NULL;

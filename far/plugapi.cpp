@@ -138,7 +138,7 @@ BOOL WINAPI FarShowHelp (
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
+INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 {
   struct Opt2Flags{
     int *Opt;

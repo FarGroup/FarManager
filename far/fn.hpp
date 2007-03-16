@@ -209,27 +209,27 @@ const wchar_t* GetUnicodeLanguageString (int nID);
 
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,
-            int PluginNumber=-1);
+            INT_PTR PluginNumber=-1);
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6=NULL,const wchar_t *Str7=NULL,
-            int PluginNumber=-1);
+            INT_PTR PluginNumber=-1);
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9=NULL,const wchar_t *Str10=NULL,
-            int PluginNumber=-1);
+            INT_PTR PluginNumber=-1);
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
             const wchar_t *Str11,const wchar_t *Str12=NULL,const wchar_t *Str13=NULL,
-            const wchar_t *Str14=NULL, int PluginNumber=-1);
+            const wchar_t *Str14=NULL, INT_PTR PluginNumber=-1);
 
-//int __cdecl MessageW (DWORD Flags,int Buttons,const char *Title, int PluginNumber, ...);
+//int __cdecl MessageW (DWORD Flags,int Buttons,const char *Title, INT_PTR PluginNumber, ...);
 
 int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t * const *Items,
-            int ItemsNumber,int PluginNumber=-1);
+            int ItemsNumber,INT_PTR PluginNumber=-1);
 
 /* SVS $*/
 /* $ 12.03.2002 VVM
@@ -503,16 +503,16 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FA
 
 #ifdef __PLUGIN_HPP__
 // эти функции _были_ как static
-int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
+int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                   const wchar_t *Dir,struct PluginPanelItemW **pPanelItem,
                   int *pItemsNumber);
 void WINAPI FarFreePluginDirList(PluginPanelItemW *PanelItem, int ItemsNumber);
 
-int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
+int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
            DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
            const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber);
-int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogFn(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
            const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
@@ -559,13 +559,13 @@ int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
+INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
 /* IS $ */
 /* $ 23.07.2000 IS
    Функции для расширенного диалога
 */
 //  Функция расширенного диалога
-int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
       const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
       DWORD Reserved, DWORD Flags,
       FARWINDOWPROC Proc,LONG_PTR Param);

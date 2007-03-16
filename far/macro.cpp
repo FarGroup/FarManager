@@ -3667,14 +3667,16 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         // тогда SizeVarName=1 и varName=""
         int __nParam;
 
-        wchar_t *Brack=wcspbrk(strCurrKeyText,L"( "), Chr=0;
+        wchar_t *lpwszCurrKeyText = strCurrKeyText.GetBuffer();
+
+        wchar_t *Brack=(wchar_t *)wcspbrk(lpwszCurrKeyText,L"( "), Chr=0;
         if(Brack)
         {
           Chr=*Brack;
           *Brack=0;
         }
 
-        if(funcLook(strCurrKeyText, __nParam) != MCODE_F_NOFUNC)
+        if(funcLook(lpwszCurrKeyText, __nParam) != MCODE_F_NOFUNC)
         {
           if(Brack) *Brack=Chr;
           BufPtr = oldBufPtr;
@@ -3698,6 +3700,8 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
           if(Brack) *Brack=Chr;
           ProcError++;
         }
+
+        strCurrKeyText.ReleaseBuffer();
       }
 
       if(ProcError)

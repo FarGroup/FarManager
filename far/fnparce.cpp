@@ -110,7 +110,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   // !`  Длинное расширение файла без имени
   if (wcsncmp(CurStr,L"!`",2)==0)
   {
-    wchar_t *Ext;
+    const wchar_t *Ext;
     if(CurStr[2] == L'~')
     {
       Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName),L'.');
@@ -457,7 +457,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   ChPtr = PSubstData->strNameOnly.GetBuffer ();
 
-  if ((ChPtr=wcsrchr(ChPtr,L'.'))!=NULL)
+  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr,L'.'))!=NULL)
     *ChPtr=0;
 
   PSubstData->strNameOnly.ReleaseBuffer ();
@@ -467,7 +467,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   ChPtr = PSubstData->strShortNameOnly.GetBuffer ();
 
-  if ((ChPtr=wcsrchr(ChPtr, L'.'))!=NULL)
+  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr, L'.'))!=NULL)
     *ChPtr=0;
 
   PSubstData->strShortNameOnly.ReleaseBuffer ();
@@ -481,7 +481,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   ChPtr = PSubstData->strAnotherNameOnly.GetBuffer ();
 
-  if ((ChPtr=wcsrchr(ChPtr, L'.'))!=NULL)
+  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr, L'.'))!=NULL)
     *ChPtr=0;
 
   PSubstData->strAnotherNameOnly.ReleaseBuffer ();
@@ -490,7 +490,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   ChPtr = PSubstData->strAnotherShortNameOnly.GetBuffer ();
 
-  if ((ChPtr=wcsrchr(PSubstData->strAnotherShortNameOnly, L'.'))!=NULL)
+  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr, L'.'))!=NULL)
     *ChPtr=0;
 
   PSubstData->strAnotherShortNameOnly.ReleaseBuffer ();

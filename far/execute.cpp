@@ -830,7 +830,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
     {
       DWORD Error=0, dwSubSystem2=0;
-      wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
+      const wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
 
       if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
          IsBatchExtTypeW(ExtPtr)))

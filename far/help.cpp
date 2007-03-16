@@ -1409,7 +1409,6 @@ int Help::ProcessKey(int Key)
 int Help::JumpTopic(const wchar_t *JumpTopic)
 {
   string strNewTopic;
-  wchar_t *p;
 
   Stack->PrintStack(JumpTopic);
 
@@ -1429,7 +1428,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     string strFullPath;
 
-    p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
+    const wchar_t *p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
 
     wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((p-(const wchar_t*)StackData.strSelTopic-1)*sizeof (wchar_t));
 
@@ -1472,7 +1471,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     wchar_t *lpwszNewTopic = strNewTopic.GetBuffer ();
 
-    p=wcschr(lpwszNewTopic,L':');
+    wchar_t *p=(wchar_t *)wcschr(lpwszNewTopic,L':');
     if(p && strNewTopic.At(0) != L':') // наверное подразумевается URL
     {
       *p=0;
@@ -1487,7 +1486,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
       }
       else
           StackData.strSelTopic.ReleaseBuffer ();
-      *p=':';
+      *p=L':';
     }
 
     strNewTopic.ReleaseBuffer ();
@@ -1516,12 +1515,12 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
   wchar_t *lpwszNewTopic = strNewTopic.GetBuffer();
 
-  p=wcsrchr(lpwszNewTopic,HelpEndLink);
+  wchar_t *p=(wchar_t *)wcsrchr(lpwszNewTopic,HelpEndLink);
   if(p)
   {
     if(*(p-1) != L'\\')
     {
-      wchar_t *p2=p;
+      const wchar_t *p2=p;
       while(p >= lpwszNewTopic)
       {
         if(*p == L'\\')
@@ -1539,8 +1538,8 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
             StackData.strHelpMask.ReleaseBuffer ();
           }
           memmove(p,p2,(wcslen(p2)+1)*sizeof(wchar_t));
-          p=wcsrchr(StackData.strHelpMask,L'.');
-          if(p && LocalStricmpW(p,L".hlf"))
+          const wchar_t *p3=wcsrchr(StackData.strHelpMask,L'.');
+          if(p3 && LocalStricmpW(p3,L".hlf"))
             StackData.strHelpMask=L"";
           break;
         }

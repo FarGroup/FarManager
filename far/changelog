@@ -1,3 +1,18 @@
+t-rex 16.03.2007 11:04:46 +0200 - build 215
+
+1. Не правильно обнулялся CopyDlgParam в копире что приводило к падениям.
+
+2. Диалог настроек "Dialog settings" был не того размера.
+
+3. Исправления для x64 билда. Осталась одна бага в panel.cpp
+
+      PanelMenuItem *item = (PanelMenuItem*)UserData; <--- DWORD
+
+    	MessageBox (0, "this is BUGBUG, do not touch!", "Error!", MB_OK);
+
+3. Сборка под VC8.
+
+
 warp 15.03.2007 23:37:00 +0300 - build 214
 
 1. Падало меню плагинов/меню конфигурации при наличии более чем одного плагина

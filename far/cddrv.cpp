@@ -20,8 +20,6 @@ cddrv.cpp
 #endif
 
 
-
-#define IOCTL_STORAGE_QUERY_PROPERTY    0x002D1400
 #define SCSI_IOCTL_DATA_IN              1
 
 #define SCSI_IOCTL_DATA_IN           1
@@ -34,6 +32,10 @@ cddrv.cpp
 
 #undef offsetof
 #define offsetof(s,m)   (size_t)&(((s *)0)->m)
+
+#if !defined(_MSC_VER) || (_MSC_VER < 1400)
+
+#define IOCTL_STORAGE_QUERY_PROPERTY    0x002D1400
 
 typedef struct _STORAGE_DEVICE_DESCRIPTOR {
   ULONG  Version;
@@ -85,6 +87,7 @@ typedef struct _STORAGE_PROPERTY_QUERY {
   UCHAR  AdditionalParameters[1];
 } STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
 
+#endif
 
 // no pack
 typedef struct _SCSI_PASS_THROUGH {
@@ -102,7 +105,6 @@ typedef struct _SCSI_PASS_THROUGH {
   ULONG  SenseInfoOffset;
   UCHAR  Cdb[16];
 }SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
-
 
 //
 // Command Descriptor Block constants.
