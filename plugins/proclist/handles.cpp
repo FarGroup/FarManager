@@ -298,16 +298,16 @@ bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=
 
             if(((UNICODE_STRING*)lpBuffer)->Length) {
                 wchar_t *ws = ((UNICODE_STRING*)lpBuffer)->Buffer;
-                if(type==OB_TYPE_KEY && !memicmp(ws, REGISTRY, sizeof(REGISTRY)-2) ) {
+                if(type==OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY)-2) ) {
                     wchar_t *ws1 = ws + sizeof(REGISTRY) / 2 - 1;
                     char *s0 = 0;
-                    if(!memicmp(ws1, USER, sizeof(USER)-2)) {
+                    if(!_memicmp(ws1, USER, sizeof(USER)-2)) {
                             ws1 += sizeof(USER) / 2 - 1;
                             size_t l  = lstrlenW(pUserAccountID);
-                            if(l>0 && !memicmp(ws1,pUserAccountID,l*2)) {
+                            if(l>0 && !_memicmp(ws1,pUserAccountID,l*2)) {
                                 s0 = "HKCU";
                                 ws1 += l;
-                                if(!memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2)) {
+                                if(!_memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2)) {
                                     s0 = "HKCU\\Classes";
                                     ws1 += sizeof(_CLASSES) / 2 - 1;
                                 }
@@ -315,8 +315,8 @@ bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=
                             else
                                 s0 = "HKU";
                     }
-                    else if(!memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = "HKCR"; ws1+=(sizeof(CLASSES))/2 - 1;}
-                    else if(!memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = "HKLM"; ws1+=(sizeof(MACHINE))/2 - 1;}
+                    else if(!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = "HKCR"; ws1+=(sizeof(CLASSES))/2 - 1;}
+                    else if(!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = "HKLM"; ws1+=(sizeof(MACHINE))/2 - 1;}
                     if(s0) {
                         fprintf(file, "%s", s0);
                         ws = ws1;
