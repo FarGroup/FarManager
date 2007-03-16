@@ -1,9 +1,11 @@
 !IF "$(CPU)" == "AMD64"
 OBJDIR = obj.64.vc
 DLLNAME = libCRT64.lib
+MASM = ml64
 !ELSE
 OBJDIR = obj.32.vc
 DLLNAME = libCRT.lib
+MASM = ml
 !ENDIF
 OBJDIRW = $(OBJDIR)\wide
 OUTDIR = ..
@@ -49,7 +51,8 @@ $(OBJDIRW)\strstr.obj \
 $(OBJDIR)\strtok.obj \
 $(OBJDIRW)\strtok.obj \
 $(OBJDIR)\strtol.obj \
-$(OBJDIRW)\strtol.obj
+$(OBJDIRW)\strtol.obj \
+$(OBJDIR)\aliases.obj
 
 CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3
 !IF "$(CPU)" == "AMD64"
@@ -76,6 +79,10 @@ $(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
 	cl @<<
 	$(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" $<
 <<
+
+.asm{$(OBJDIR)}.obj:
+	$(MASM) /nologo /coff /c /Fo$@ $<
+
 
 $(OBJDIR)\ctype.obj: ctype.cpp crt.hpp
 $(OBJDIR)\delete.obj: delete.cpp crt.hpp

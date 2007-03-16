@@ -71,6 +71,7 @@ extern "C"
   _CONST_RETURN_W wchar_t * __cdecl_inline wmemchr(const wchar_t *buf, wchar_t chr, size_t cnt);
   int __cdecl memcmp(const void *buf1, const void *buf2, size_t count);
   void * __cdecl memcpy(void *dst, const void *src, size_t count);
+  int __cdecl _memicmp(const void *first, const void *last, size_t count);
   int __cdecl memicmp(const void *first, const void *last, size_t count);
   void * __cdecl memmove(void *dst, const void *src, size_t count);
   void * __cdecl memset(void *dst, int val, size_t count);
