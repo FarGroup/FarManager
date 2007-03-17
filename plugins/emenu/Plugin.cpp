@@ -365,8 +365,14 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
       delete[] szCmdLine;
       nLen*=2;
       szCmdLine=new TCHAR[nLen];
-//###
-    } while (/*m_fsf.*/ExpandEnvironmentStrings(sz, szCmdLine, nLen)>=nLen-1);
+// see TODO_18.txt
+    } while (//m_fsf.ExpandEnvironmentStr(sz, szCmdLine, nLen)>=nLen-1);
+#ifndef UNICODE
+             m_fsf.ExpandEnvironmentStr
+#else
+             ExpandEnvironmentStrings
+#endif
+             (sz, szCmdLine, nLen)>=nLen-1);
   }
   EDoMenu enDoMenu=DoMenu(szCmdLine);
   delete[] szCmdLine;
