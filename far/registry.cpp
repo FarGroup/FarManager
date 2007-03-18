@@ -471,7 +471,7 @@ int CopyKeyTreeW(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 
     strDestKeyName = Dest;
     strDestKeyName += L"\\";
-    strDestKeyName = SubkeyName;
+    strDestKeyName += SubkeyName;
     if (RegCreateKeyExW(hRegRootKey,strDestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
     CopyKeyTreeW(strSrcKeyName,strDestKeyName);

@@ -869,8 +869,7 @@ void PluginManager::Configure(int StartPos)
                 strRegKey.Format (FmtPluginsCache_PluginDW,RegNumber);
                 strValue.Format (FmtPluginConfigStringDW,J);
                 string strName;
-                GetRegKeyW(strRegKey,strValue,strName,L"");
-                if ( strName.IsEmpty() )
+                if ( !GetRegKeyW(strRegKey,strValue,strName,L"") )
                   break;
                 if (!HotKeysPresent)
                   ListItem.strName = strName;
@@ -1066,8 +1065,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
                 ListItem.Clear();
                 strValue.Format (FmtPluginMenuStringDW,J);
                 string strName;
-                GetRegKeyW(strRegKey,strValue,strName,L"");
-                if ( strName.IsEmpty() )
+                if ( !GetRegKeyW(strRegKey,strValue,strName,L"") )
                   break;
                 if (!HotKeysPresent)
                   ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);

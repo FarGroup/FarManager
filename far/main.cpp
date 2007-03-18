@@ -643,9 +643,9 @@ void CopyGlobalSettings()
     return;
   // такого извера нету - перенесем данные!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  CopyKeyTreeW(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far\\Users18\0");
+  CopyKeyTreeW(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0");
   SetRegRootKey(HKEY_CURRENT_USER);
-  CopyKeyTreeW(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far\\Users18\0Software\\Far\\PluginsCache\0");
+  CopyKeyTreeW(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0Software\\Far\\PluginsCache\0");
   //  "Вспомним" путь по шаблону!!!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   GetRegKeyW(L"System",L"TemplatePluginsPath",Opt.LoadPlug.strPersonalPluginsPath,L"");
