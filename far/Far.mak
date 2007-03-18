@@ -38,6 +38,7 @@ CPP=cl.exe
 RSC=rc.exe
 LINK32=link.exe
 BSC32=bscmake.exe
+ULINK=ulink.exe
 
 # ѕути
 FARINCLUDE=.\Include
@@ -64,6 +65,9 @@ CODDIR=$(OUTDIR)\cod
 
 DEF_FILE= \
 	".\far.def"
+
+RES_FILES= \
+           "$(INTDIR)\far.res"
 
 # —юды добавл€ть то, что должно быть в проекте, в смысле сорцы
 LINK32_OBJS= \
@@ -177,10 +181,13 @@ LINK32_OBJS= \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
-	"$(INTDIR)\xlat.obj" \
-	"$(INTDIR)\far.res"
+	"$(INTDIR)\xlat.obj"
 
 
+
+!IFNDEF USE_VC8_32
+CPP_VC7=/YX /Gi
+!endif
 
 LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib
 
@@ -190,12 +197,14 @@ BSC32_SBRS= \
 
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
 
+ULINK_MODES=-q -m- -s -ap -Gz -B- -O- -o- -Gh-
+
 !IF  "$(CFG)" == "far - Win32 Release"
 !MESSAGE far - Win32 Release.
 
 USEDEBUG=NDEBUG
 
-CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) /Zp4 $(MT) /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) /Zp4 $(MT) /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\" $(CPP_VC7)
 
 LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:i386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
 
@@ -204,32 +213,33 @@ LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /incremental:no
 
 USEDEBUG=NDEBUG
 
-LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
-
 CPP_PROJ=/Wp64 /GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) $(MT) /Zp8 /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
 LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+ULINK_FLAGS=-Tpe+
 
 !ELSEIF "$(CFG)" == "far - Win64 Debug"
 !MESSAGE far - Win64 Debug.
 
 USEDEBUG=_DEBUG
 
-LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
+LINK32_LIBS=$(LINK32_LIBS)
 
-CPP_PROJ=/Wp64 /GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=/Wp64 /GS- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /Zi /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
-LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /debug /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+ULINK_FLAGS=-Tpe+ -v
 
 !ELSE
 !MESSAGE far - Win32 Debug.
 
 USEDEBUG=_DEBUG
 
-#CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
-CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+#CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\" $(CPP_VC7)
+CPP_PROJ=$(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /W3 /Gm /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\" $(CPP_VC7)
 
-LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /debug /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+ULINK_FLAGS=-v
 
 !ENDIF
 
@@ -237,10 +247,19 @@ LINK32_FLAGS=$(LINK32_LIBS) /nologo /fixed:no /subsystem:console /pdb:none /debu
 ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 
-"$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+"$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS) $(RES_FILES)
+!IFNDEF LINK_ULINK
 	$(LINK32) @<<
-	$(LINK32_FLAGS) $(LINK32_OBJS)
+	$(LINK32_FLAGS) $(LINK32_OBJS) $(RES_FILES)
 <<
+!ELSE
+        $(ULINK) +- @+<<
+        $(ULINK_MODES) $(ULINK_FLAGS) $(LINK32_OBJS)
+        ,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
+        ,$(LINK32_LIBS)
+        ,"$(DEF_FILE)","$(RES_FILES)"
+<<
+!ENDIF
 	@if exist "$(OUTDIR)\FarEng.hlf" del "$(OUTDIR)\FarEng.hlf" >nul
 	@if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
 	@if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
