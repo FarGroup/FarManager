@@ -1,2 +1,0 @@
-1.  огда Warp сделает (как собиралс€ :) ExpandEnvironmentStr в 
-   FarStadartFunctions, убрать #ifdef UNICODE в CPugin::OpenPluginBkg

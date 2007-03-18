@@ -1,3 +1,8 @@
+yjh 19.03.2007 03:19:31 +0300 - build 11
+
+1. Зафиксирована ситуация из c ExpandEnvironmentStrings для 1.8
+   (убран TODO_18.txt).
+
 yjh 17.03.2007 21:11:13 +0300 - build 10
 
 1. Добавлен "забытый" #ifdef вокруг ExpandEnvironmentStrings (пока не

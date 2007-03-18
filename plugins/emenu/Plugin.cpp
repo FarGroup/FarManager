@@ -365,10 +365,9 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
       delete[] szCmdLine;
       nLen*=2;
       szCmdLine=new TCHAR[nLen];
-// see TODO_18.txt
-    } while (//m_fsf.ExpandEnvironmentStr(sz, szCmdLine, nLen)>=nLen-1);
+    } while (
 #ifndef UNICODE
-             m_fsf.ExpandEnvironmentStr
+             m_fsf.ExpandEnvironmentStr   // in OEM
 #else
              ExpandEnvironmentStrings
 #endif
