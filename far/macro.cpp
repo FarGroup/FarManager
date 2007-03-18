@@ -4040,7 +4040,9 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
       {
         for(Pos=0; Pos < Len; ++Pos, ++MPtr)
         {
-          if (LocalUpperW(MPtr->Key)==LocalUpperW(Key) && MPtr->BufferSize > 0)
+          if ( !((MPtr->Key ^ Key) & ~0xFFFF) &&
+                (LocalUpperW(MPtr->Key)==LocalUpperW(Key)) && 
+                (MPtr->BufferSize > 0) )
           {
     //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
     //_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));

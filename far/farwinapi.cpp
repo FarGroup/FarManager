@@ -344,17 +344,22 @@ DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName)
 
 DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
 {
-  string strSrc = src;
+	string strSrc = src;
 
-  DWORD Len = ExpandEnvironmentStringsW(strSrc, NULL, 0);
+	DWORD length = ExpandEnvironmentStringsW(strSrc, NULL, 0);
 
-  wchar_t *lpwszDest = strDest.GetBuffer (Len+1);
+	if ( length )
+	{
+		wchar_t *lpwszDest = strDest.GetBuffer (length+1);
 
-  ExpandEnvironmentStringsW(strSrc, lpwszDest, Len);
+		ExpandEnvironmentStringsW(strSrc, lpwszDest, length);
 
-  strDest.ReleaseBuffer ();
+		strDest.ReleaseBuffer ();
 
-  return strDest.GetLength ();
+		length = strDest.GetLength ();
+	}
+
+	return length;
 }
 
 
