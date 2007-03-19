@@ -26,7 +26,7 @@ class CommandLine:public ScreenObject
     int  LastCmdPartLength;
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
     int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
     void GetPrompt(string &strDestStr);
@@ -34,11 +34,11 @@ class CommandLine:public ScreenObject
 
   public:
     CommandLine();
-    ~CommandLine();
+    virtual ~CommandLine();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     int GetCurDirW(string &strCurDir);
     void SetCurDirW(const wchar_t *CurDir);
@@ -68,7 +68,7 @@ class CommandLine:public ScreenObject
     void SaveBackground();
     void ShowBackground();
     void CorrectRealScreenCoord();
-    void ResizeConsole();
+    virtual void ResizeConsole();
     void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };
 

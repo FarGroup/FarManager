@@ -164,7 +164,7 @@ class Viewer:public ScreenObject
     int m_codepage; //BUGBUG
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
 
     void ShowPage (int nMode);
 
@@ -195,15 +195,15 @@ class Viewer:public ScreenObject
 
   public:
     Viewer();
-    ~Viewer();
+    virtual ~Viewer();
 
 
   public:
     int OpenFile(const wchar_t *Name,int warning);
     void SetViewKeyBar(KeyBar *ViewKeyBar);
 
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     void SetStatusMode(int Mode);
     void EnableHideCursor(int HideCursor);
@@ -213,7 +213,7 @@ class Viewer:public ScreenObject
     void SetWrapType(int TypeWrap);
     void KeepInitParameters();
     void GetFileName(string &strName);
-    void ShowConsoleTitle();
+    virtual void ShowConsoleTitle();
     /* $ 14.06.2002 IS
        DeleteFolder - удалит не только файл, но и каталог
     */

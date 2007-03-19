@@ -560,7 +560,8 @@ enum enumFileFilterConfig {
 
     ID_FF_OK,
     ID_FF_RESET,
-    ID_FF_CANCEL
+    ID_FF_CANCEL,
+    ID_FF_MAKETRANSPARENT,
 };
 
 void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct HighlightDataColor &Colors)
@@ -625,6 +626,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,ID_FF_DATEAFTEREDIT,(LONG_PTR)&r);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+        break;
       }
       else if (Param1==ID_FF_RESET) // Reset
       {
@@ -657,6 +659,16 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,BSTATE_UNCHECKED);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+        break;
+      }
+      else if (Param1==ID_FF_MAKETRANSPARENT)
+      {
+        HighlightDataColor *Colors = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+        for (int i=0; i<2; i++)
+          for (int j=0; j<4; j++)
+            Colors->Color[i][j]|=0xFF00;
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,BSTATE_CHECKED);
+        break;
       }
     }
     case DN_MOUSECLICK:
@@ -839,6 +851,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFileFilterOk,
     DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterReset,
     DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFileFilterCancel,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterMakeTransparent,
   };
 
   MakeDialogItemsEx(FilterDlgData,FilterDlg);
@@ -856,7 +869,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       FilterDlg[i].Y2-=2;
     }
 
-    for (int i=ID_FF_SEPARATOR4; i<=ID_FF_CANCEL; i++)
+    for (int i=ID_FF_SEPARATOR4; i<=ID_FF_MAKETRANSPARENT; i++)
     {
       FilterDlg[i].Y1+=5;
       FilterDlg[i].Y2+=5;
@@ -866,6 +879,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   {
     for (int i=ID_HER_SEPARATOR3; i<=ID_HER_CONTINUEPROCESSING; i++)
       FilterDlg[i].Flags|=DIF_HIDDEN;
+    FilterDlg[ID_FF_MAKETRANSPARENT].Flags=DIF_HIDDEN;
   }
 
   //FilterDlg[ID_FF_SIZEDIVIDER].X1=FilterDlg[ID_FF_MATCHSIZE].X1+strlen(FilterDlg[ID_FF_MATCHSIZE].Data)-(strchr(FilterDlg[ID_FF_MATCHSIZE].Data,'&')?1:0)+5;

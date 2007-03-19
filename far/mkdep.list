@@ -42,7 +42,6 @@ history.hpp
 hmenu.hpp
 hotplug.cpp
 infolist.hpp
-internalheaders.hpp
 keybar.hpp
 keys.hpp
 lang.hpp

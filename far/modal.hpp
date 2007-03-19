@@ -24,11 +24,12 @@ class Modal: public Frame
 
   public:
     Modal();
+    virtual ~Modal() {}
     virtual void GetDialogObjectsData() {};
     int Done();
     void ClearDone();
     int  GetExitCode();
-    void SetExitCode(int Code);
+    virtual void SetExitCode(int Code);
 
     virtual void Process();
 
@@ -38,7 +39,6 @@ class Modal: public Frame
 
     void SetHelp(const wchar_t *Topic);
     void ShowHelp();
-//    void SetScreenPosition(){inherited::SetScreenPosition();}
 
 };
 

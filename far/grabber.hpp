@@ -26,15 +26,15 @@ class Grabber:Modal
     int VerticalBlock;
 
   private:
-    void DisplayObject();
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void DisplayObject();
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void CopyGrabbedArea(int Append, int VerticalBlock);
     void Reset();
 
   public:
     Grabber();
-    ~Grabber();
+    virtual ~Grabber();
 };
 
 

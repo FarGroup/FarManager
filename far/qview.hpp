@@ -31,7 +31,7 @@ class QuickView:public Panel
     int OldWrapType;
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     void PrintTextW(const wchar_t *Str);
 
     void SetMacroMode(int Restore = FALSE);
@@ -41,15 +41,15 @@ class QuickView:public Panel
 
   public:
     QuickView();
-    ~QuickView();
+    virtual ~QuickView();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void Update(int Mode);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void Update(int Mode);
     void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
-    void CloseFile();
-    void QViewDelTempName();
+    virtual void CloseFile();
+    virtual void QViewDelTempName();
 
     virtual int UpdateIfChanged(int UpdateMode);
     virtual void SetTitle();

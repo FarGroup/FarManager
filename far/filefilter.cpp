@@ -19,6 +19,7 @@ filefilter.cpp
 #include "scantree.hpp"
 #include "filefilter.hpp"
 #include "array.hpp"
+#include "filelist.hpp"
 
 static int _cdecl ExtSort(const void *el1,const void *el2);
 
@@ -36,7 +37,7 @@ FileFilter::~FileFilter()
 {
 }
 
-void FileFilter::FilterEdit()
+bool FileFilter::FilterEdit()
 {
   struct MenuItemEx ListItem;
   int ExitCode;
@@ -47,9 +48,11 @@ void FileFilter::FilterEdit()
     DWORD Inc,Exc;
     GetIncludeExcludeFlags(Inc,Exc);
     if (FolderFlags.Check(Inc))
-      FilterList.SetTitle(UMSG(MFilterTitle1));
+      FilterList.SetTitle(UMSG(MFilterTitle_IncFolders));
+    else if (FolderFlags.Check(Exc))
+      FilterList.SetTitle(UMSG(MFilterTitle_ExcFolders));
     else
-      FilterList.SetTitle(UMSG(MFilterTitle2));
+      FilterList.SetTitle(UMSG(MFilterTitle_FilterFolders));
   }
 
   FilterList.SetHelp(L"FiltersMenu");
@@ -203,13 +206,25 @@ void FileFilter::FilterEdit()
         DWORD Inc,Exc;
         GetIncludeExcludeFlags(Inc,Exc);
         if (Key==KEY_CTRLF)
-          FolderFlags.Swap(Inc);
+        {
+          if (m_FilterType == FFT_SELECT)
+            FolderFlags.Swap(Exc);
+          else
+            FolderFlags.Swap(Inc);
+        }
         else
-          FolderFlags.Set(Inc);
+        {
+          if (m_FilterType == FFT_SELECT)
+            FolderFlags.Set(Exc);
+          else
+            FolderFlags.Set(Inc);
+        }
         if (FolderFlags.Check(Inc))
-          FilterList.SetTitle(UMSG(MFilterTitle1));
+          FilterList.SetTitle(UMSG(MFilterTitle_IncFolders));
+        else if (FolderFlags.Check(Exc))
+          FilterList.SetTitle(UMSG(MFilterTitle_ExcFolders));
         else
-          FilterList.SetTitle(UMSG(MFilterTitle2));
+          FilterList.SetTitle(UMSG(MFilterTitle_FilterFolders));
         FilterList.SetUpdateRequired(TRUE);
         FilterList.SetPosition(-1,-1,0,0);
         FilterList.Show();
@@ -394,9 +409,14 @@ void FileFilter::FilterEdit()
   if (ExitCode!=-1 || bNeedUpdate)
   {
     SaveFilters(false);
-    m_HostPanel->Update(UPDATE_KEEP_SELECTION);
-    m_HostPanel->Redraw();
+    if (m_FilterType == FFT_PANEL)
+    {
+      m_HostPanel->Update(UPDATE_KEEP_SELECTION);
+      m_HostPanel->Redraw();
+    }
   }
+
+  return (ExitCode!=-1);
 }
 
 void FileFilter::GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc)
@@ -419,10 +439,15 @@ void FileFilter::GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc)
     Inc = FFF_COPYINCLUDE;
     Exc = FFF_COPYEXCLUDE;
   }
-  else
+  else if (m_FilterType == FFT_FINDFILE)
   {
     Inc = FFF_FINDFILEINCLUDE;
     Exc = FFF_FINDFILEEXCLUDE;
+  }
+  else
+  {
+    Inc = FFF_SELECTINCLUDE;
+    Exc = FFF_SELECTEXCLUDE;
   }
 }
 
@@ -530,6 +555,22 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
   }
 }
 
+bool FileFilter::FileInFilter(FileListItem *fli)
+{
+  FAR_FIND_DATA fd;
+
+  fd.dwFileAttributes=fli->FileAttr;
+  fd.ftCreationTime=fli->CreationTime;
+  fd.ftLastAccessTime=fli->AccessTime;
+  fd.ftLastWriteTime=fli->WriteTime;
+  fd.nFileSize=fli->UnpSize;
+  fd.nPackSize=fli->PackSize;
+  fd.lpwszFileName=(wchar_t *)(const wchar_t *)fli->strName;
+  fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fli->strShortName;
+
+  return FileInFilter(&fd);
+}
+
 bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde)
 {
   FAR_FIND_DATA fd;
@@ -551,10 +592,17 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  if (FolderFlags.Check(Inc) && (fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-    return true;
+  if ((fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+  {
+    if (FolderFlags.Check(Inc))
+      return true;
+    if (FolderFlags.Check(Exc))
+      return false;
+  }
 
   bool flag=false;
+  bool bInc=false;
+  bool bExc=false;
   FileFilterParams *CurFilterData;
 
   for (int i=0; i<FilterData.getCount(); i++)
@@ -565,7 +613,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
     {
       flag = flag || CurFilterData->Flags.Check(Inc);
       if (CurFilterData->FileInFilter(fd))
-        return CurFilterData->Flags.Check(Inc)?true:false;
+        CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
 
@@ -573,7 +621,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
   {
     flag = flag || FoldersFilter.Flags.Check(Inc);
     if (FoldersFilter.FileInFilter(fd))
-      return FoldersFilter.Flags.Check(Inc)?true:false;
+      FoldersFilter.Flags.Check(Inc)?bInc=true:bExc=true;
   }
 
   for (int i=0; i<TempFilterData.getCount(); i++)
@@ -584,10 +632,12 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
     {
       flag = flag || CurFilterData->Flags.Check(Inc);
       if (CurFilterData->FileInFilter(fd))
-        return CurFilterData->Flags.Check(Inc)?true:false;
+        CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
 
+  if (bExc) return false;
+  if (bInc) return true;
   return !flag;
 }
 
@@ -693,7 +743,7 @@ void FileFilter::InitFilter()
   FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
   FoldersFilter.Flags.Set((DWORD)GetRegKeyW(L"Filters",L"FoldersFilterFlags",0));
 
-  FolderFlags.Set((DWORD)GetRegKeyW(L"Filters",L"FolderFlags",FFF_RPANELINCLUDE|FFF_LPANELINCLUDE|FFF_FINDFILEINCLUDE|FFF_COPYINCLUDE));
+  FolderFlags.Set((DWORD)GetRegKeyW(L"Filters",L"FolderFlags",FFF_RPANELINCLUDE|FFF_LPANELINCLUDE|FFF_FINDFILEINCLUDE|FFF_COPYINCLUDE|FFF_SELECTEXCLUDE));
 }
 
 

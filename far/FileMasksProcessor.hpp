@@ -22,12 +22,12 @@ class FileMasksProcessorW:public BaseFileMaskW
 {
 public:
     FileMasksProcessorW();
-    ~FileMasksProcessorW() {}
+    virtual ~FileMasksProcessorW() {}
 
 public:
-    BOOL Set(const wchar_t *Masks, DWORD Flags);
-    BOOL Compare(const wchar_t *Name);
-    BOOL IsEmpty(void);
+    virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
+    virtual BOOL Compare(const wchar_t *Name);
+    virtual BOOL IsEmpty(void);
     void Free();
 
 private:

@@ -18,7 +18,7 @@ class CommandLine;
 class FilePanels:public Frame
 {
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     typedef class Frame inherited;
 
   public:
@@ -38,7 +38,7 @@ class FilePanels:public Frame
 
   public:
     FilePanels();
-    ~FilePanels();
+    virtual ~FilePanels();
 
   public:
     void Init();
@@ -53,14 +53,14 @@ class FilePanels:public Frame
 
     void   SetupKeyBar();
 
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     int SetAnhoterPanelFocus(void);
     int SwapPanels(void);
     int ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame);
 
-    void SetScreenPosition();
+    virtual void SetScreenPosition();
 
     void Update();
 
@@ -70,12 +70,12 @@ class FilePanels:public Frame
 
     virtual void OnChangeFocus(int focus);
 
-    void RedrawKeyBar(); // virtual
+    virtual void RedrawKeyBar(); // virtual
     virtual void ShowConsoleTitle();
-    void ResizeConsole();
+    virtual void ResizeConsole();
 /* $ ¬ведена дл€ нужд CtrlAltShift OT */
-    int FastHide();
-    void Refresh();
+    virtual int FastHide();
+    virtual void Refresh();
     /* $ 28.12.2001 DJ
        единый метод дл€ обработки Ctrl-F10 из вьюера и редактора
     */
@@ -85,7 +85,7 @@ class FilePanels:public Frame
     /* $ 16.01.2002 OT
        переопределенный виртуальный метод от Frame
     */
-    int GetMacroMode();
+    virtual int GetMacroMode();
     /* OT $ */
 };
 

@@ -121,7 +121,7 @@ private:
     int m_codepage; //BUGBUG
 
   private:
-    void   DisplayObject();
+    virtual void   DisplayObject();
     void   ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd);
     int    InsertKey(int Key);
     int    RecurseProcessKey(int Key);
@@ -150,16 +150,16 @@ private:
 
   public:
     Edit(ScreenObject *pOwner = NULL);
-    ~Edit();
+    virtual ~Edit();
 
   public:
 
     void SetCodePage (int codepage); //BUGBUG
     int GetCodePage (); //BUGBUG
 
-    void  FastShow();
-    int   ProcessKey(int Key);
-    int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void  FastShow();
+    virtual int   ProcessKey(int Key);
+    virtual int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     /* $ 28.07.2000 SVS
        ! Функция установки текущих Color,SelColor и ColorUnChanged!
     */

@@ -47,8 +47,8 @@ class DlgEdit: public ScreenObject
     virtual ~DlgEdit();
 
   public: // публичные методы
-    int   ProcessKey(int Key);
-    int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int  ProcessKey(int Key);
+    virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     virtual void Show();
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);

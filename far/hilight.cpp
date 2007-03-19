@@ -207,20 +207,21 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
   {
     for (int i=0; i<4; i++)
     {
-      //Если текущие цвета в Dest (fore и/или back) прозрачные
-      //то унаследуем соответствующие цвета из Src.
-      if (DestColors->Color[j][i]&0xF000)
+      //Если текущие цвета в Src (fore и/или back) не прозрачные
+      //то унаследуем их в Dest.
+      if (!(SrcColors->Color[j][i]&0xF000))
         DestColors->Color[j][i]=(DestColors->Color[j][i]&0x0F0F)|(SrcColors->Color[j][i]&0xF0F0);
-      if (DestColors->Color[j][i]&0x0F00)
+      if (!(SrcColors->Color[j][i]&0x0F00))
         DestColors->Color[j][i]=(DestColors->Color[j][i]&0xF0F0)|(SrcColors->Color[j][i]&0x0F0F);
     }
   }
 
-  //Унаследуем пометку из Src поверх прозрачной в Dest.
-  if (DestColors->MarkChar&0x00FF0000)
+  //Унаследуем пометку из Src если она не прозрачная
+  if (!(SrcColors->MarkChar&0x00FF0000))
     DestColors->MarkChar=SrcColors->MarkChar;
 }
 
+/*
 bool HasTransparent(HighlightDataColor *Colors)
 {
   for (int j=0; j<2; j++)
@@ -233,6 +234,7 @@ bool HasTransparent(HighlightDataColor *Colors)
 
   return false;
 }
+*/
 
 void ApplyFinalColors(HighlightDataColor *Colors)
 {
@@ -275,7 +277,7 @@ void HighlightFiles::GetHiColor(const FAR_FIND_DATA *fd,HighlightDataColor *Colo
       HighlightDataColor TempColors;
       CurHiData->GetColors(&TempColors);
       ApplyColors(Colors,&TempColors);
-      if (!CurHiData->GetContinueProcessing() || !HasTransparent(Colors))
+      if (!CurHiData->GetContinueProcessing())// || !HasTransparent(Colors))
         break;
     }
   }
@@ -309,7 +311,7 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
         HighlightDataColor TempColors;
         CurHiData->GetColors(&TempColors);
         ApplyColors(&fli->Colors,&TempColors);
-        if (!CurHiData->GetContinueProcessing() || !HasTransparent(&fli->Colors))
+        if (!CurHiData->GetContinueProcessing())// || !HasTransparent(&fli->Colors))
           break;
       }
     }

@@ -259,7 +259,7 @@ class Dialog: public Frame
     int RealWidth, RealHeight;
 
   private:
-    void DisplayObject();
+    virtual void DisplayObject();
     void DeleteDialogObjects();
     int  LenStrItem(int ID, const wchar_t *lpwszStr = NULL);
     /* $ 22.08.2000 SVS
@@ -362,16 +362,16 @@ class Dialog: public Frame
 
   public:
     Dialog(struct DialogItemEx *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
-    ~Dialog();
+    virtual ~Dialog();
 
   public:
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void Show();
+    virtual int ProcessKey(int Key);
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual void Show();
     /* $ 30.08.2000 SVS
        Надобно перехватить Hide()
     */
-    void Hide();
+    virtual void Hide();
     /* SVS $ */
     void FastShow() {ShowDialog();}
     /* $ 28.07.2000 SVS
@@ -451,12 +451,12 @@ class Dialog: public Frame
     virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
     /* DJ $ */
 
-    int GetMacroMode();
+    virtual int GetMacroMode();
 
     /* $ Введена для нужд CtrlAltShift OT */
-    int FastHide();
-    void ResizeConsole();
-//    void OnDestroy();
+    virtual int FastHide();
+    virtual void ResizeConsole();
+//    virtual void OnDestroy();
 
     // For MACRO
     const struct DialogItemEx **GetAllItem(){return (const DialogItemEx**)Item;};
