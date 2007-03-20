@@ -21,6 +21,9 @@
 # Надо, иначе не будет перекомпиляция при изменении H*-файлов
 .AUTODEPEND
 
+# не показывать команд (можно коммнтировать для отладки makefile :)
+.silent
+
 # берутся из переменных среды (env)
 LIBPATH=$(FARLIB)
 INCLUDEPATH=$(FARINC)
@@ -217,20 +220,27 @@ FAROBJ=\
 
 
 # ************************************************************************
-ALL : lang.hpp BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
+All: AllDirs \
+     lang.hpp BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
 	@echo MakeNode
 
+.PHONY: AllDirs
+
+AllDirs:
+        @if not exist $(OUTPATH)\$(NULL) mkdir $(OUTPATH)
+        @if not exist $(FARINCLUDE)\$(NULL) mkdir $(FARINCLUDE)
+        @if not exist $(FINALPATH)\$(NULL) mkdir $(FINALPATH)
+        @if not exist $(OBJPATH)\$(NULL) mkdir $(OBJPATH)
+       
 # все эти зависимости не нужны
 # просто описываем одно правило и все %)
 .cpp.obj:
-	-@settitle "{$.} - Compiling..."
-	@if not exist $(OBJPATH) mkdir $(OBJPATH)
-	@$(BCC32) -c -o$@ {$. }
+	-@title "{$.} - Compiling..."
+	$(BCC32) -c -o$@ {$. }
 
 .c.obj:
-	-@settitle "{$.} - Compiling..."
-	@if not exist $(OBJPATH) mkdir $(OBJPATH)
-	@$(BCC32) -c -o$@ {$. }
+	-@title "{$.} - Compiling..."
+	$(BCC32) -c -o$@ {$. }
 
 # уточнения
 $(OBJPATH)\syslog.obj: syslog.cpp cc.bat
@@ -249,33 +259,26 @@ far.rc : far.rc.m4 farversion.m4 vbuild.m4
 # Зависимости для публичных файлов
 # ************************************************************************
 $(FARINCLUDE)\farcolor.hpp : colors.hpp
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
 	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) colors.hpp > $(FARINCLUDE)\farcolor.hpp
 
 $(FARINCLUDE)\farkeys.hpp : keys.hpp
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
 	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) keys.hpp   > $(FARINCLUDE)\farkeys.hpp
 
 $(FARINCLUDE)\plugin.hpp : plugin.hpp
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
 	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
 
 
 # ************************************************************************
 $(OBJPATH)\Far.res :  Far.rc
-	-@settitle "Compiling resource..."
-	@if not exist $(OBJPATH) mkdir $(OBJPATH)
+	-@title "Compiling resource..."
 	$(BRC32) -R @&&|
 	$(RESFLAGS)  -FO$@ Far.rc
 |
 
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
-	-@settitle "Linking..."
-	@if not exist $(OUTPATH) mkdir $(OUTPATH)
-	@if not exist $(FINALPATH) mkdir $(FINALPATH)
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	@$(TLINK32)  $(LINKFLAGS) @&&|
+	-@title "Linking..."
+	$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
@@ -284,11 +287,8 @@ $(OBJPATH)\Far.res
 |
 !else
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
-	-@settitle "Linking..."
-	@if not exist $(OUTPATH) mkdir $(OUTPATH)
-	@if not exist $(FINALPATH) mkdir $(FINALPATH)
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	@$(TLINK32)  $(LINKFLAGS) @&&|
+	-@title "Linking..."
+	$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
