@@ -22,7 +22,7 @@ farexcpt.cpp
 
 #define MAX_DELTA_CODE  100
 
-static DWORD _xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags);
+static DWORD WINAPI _xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
@@ -51,24 +51,33 @@ static BOOL Is_STACK_OVERFLOW=FALSE;
 
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
-  static DWORD_PTR stack[1024];
   DWORD Result;
 
   if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
   {
+    static struct {
+      BYTE      _space[32768];
+      DWORD_PTR ret_addr;
+      DWORD_PTR args[4];
+    }_stack;
+
     Is_STACK_OVERFLOW=TRUE;
-    stack[0] = 0;
-    stack[1] = (DWORD_PTR)From;
-    stack[2] = (DWORD_PTR)xp;
-    stack[3] = (DWORD_PTR)Module;
-    stack[4] = Flags;
-    #ifdef _WIN64
-    xp->ContextRecord->Rsp = (DWORD_PTR)(&stack);
-    xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
-    #else
-    xp->ContextRecord->Esp = (DWORD_PTR)(&stack);
+    _stack.ret_addr = 0;
+#ifndef _WIN64
+    _stack.args[0] = (DWORD_PTR)From;
+    _stack.args[1] = (DWORD_PTR)xp;
+    _stack.args[2] = (DWORD_PTR)Module;
+    _stack.args[3] = Flags;
+    xp->ContextRecord->Esp = (DWORD_PTR)(&_stack.ret_addr);
     xp->ContextRecord->Eip = (DWORD_PTR)(&_xfilter);
-    #endif
+#else
+    xp->ContextRecord->Rcx = (DWORD_PTR)From;
+    xp->ContextRecord->Rdx = (DWORD_PTR)xp;
+    xp->ContextRecord->R8  = (DWORD_PTR)Module;
+    xp->ContextRecord->R9  = Flags;
+    xp->ContextRecord->Rsp = (DWORD_PTR)(&_stack.ret_addr);
+    xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
+#endif
 
     Result=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
     //Result=_xfilter(From,xp,Module,Flags);
@@ -82,7 +91,7 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 
 extern void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-static DWORD _xfilter(
+static DWORD WINAPI _xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
     Plugin *Module,// модуль, приведший к исключению.
@@ -201,13 +210,15 @@ static DWORD _xfilter(
      {EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},
-     // сюды добавляем.
+     {EXCEPTION_ILLEGAL_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_PRIV_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+  // сюды добавляем.
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
    const wchar_t *pName;
    int  I, Ret=1;
    DWORD rc;
-   string strBuf1, strBuf2;
+   string strBuf1, strBuf2, strBuf3;
 
    string strTruncFileName;
    BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
@@ -359,7 +370,10 @@ static DWORD _xfilter(
          break;
        }
 
-     if (!pName) pName=UMSG(MExcUnknown);
+     if (!pName) {
+       strBuf2.Format(L"%s (0x%X)", UMSG(MExcUnknown), xr->ExceptionCode);
+       pName = strBuf2;
+     }
 
      strBuf1.Format (UMSG(MExcAddress),xr->ExceptionAddress);
      if(FrameManager && !FrameManager->ManagerIsDown())
@@ -378,7 +392,7 @@ static DWORD _xfilter(
      }
    } /* else */
 
-   if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE && ShowMessages)
+   if(ShowMessages && (Is_STACK_OVERFLOW || From == (int)(INT_PTR)INVALID_HANDLE_VALUE))
    {
      CriticalInternalError=TRUE;
      TerminateProcess( GetCurrentProcess(), 1);

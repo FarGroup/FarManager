@@ -601,6 +601,12 @@ void Manager::ExitMainLoop(int Ask)
 #if defined(_MSC_VER)
 #pragma warning( push )
 #pragma warning( disable : 4717)
+#ifdef _WIN64
+#ifdef __cplusplus
+extern "C"
+#endif
+          void _cdecl exec_ud2_cmd(void);
+#endif
 #endif
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
@@ -694,6 +700,12 @@ int  Manager::ProcessKey(DWORD Key)
 */
       };
 
+      static union {
+        int     i;
+        int     *iptr;
+        double  d;
+      }zero_const, refers;
+
       MenuItemEx ModalMenuItem;
 
       ModalMenuItem.Clear ();
@@ -713,41 +725,32 @@ int  Manager::ProcessKey(DWORD Key)
       switch(ExitCode)
       {
         case 0:
-          return *(int*)0;
+          return *zero_const.iptr;
         case 1:
-          *(int*)0 = 0;
+          *zero_const.iptr = 0;
           break;
         case 2:
-          // „тобы компилеры на нас не ругались варнингами, воспользуемс€ асмом
-          #if defined(__BORLANDC__) || defined(_WIN64)
-            return i / 0; // под борландом пусть материтс€
-          #else
-          #ifdef __GNUC__
-            asm ("xor %eax,%eax\ndiv %eax");
-          #else
-            __asm
-            {
-                xor eax, eax
-                div eax
-            };
-          #endif
-          #endif
-          return 0;
+          return i / zero_const.i;
         case 3:
-          #if !defined(SYSLOG)
-          // у компилера под дебаг крышу сносит от такой наглости :-)
-          ((void (*)(void))(void *)"\xF0\x0F\xC7\xC8\xCF")();
-          #endif
+#ifdef _WIN64
+          exec_ud2_cmd();
+#elif defined(__GNUC__)
+          asm("ud2");
+#elif defined(_MSC_VER)
+          _asm _emit 0xF
+          _asm _emit 0xB
+#elif defined(__BORLANDC__)
+          __emit__(0xF, 0xB);
+#else
+#error "Unsupported compiler"
+#endif
           return 0;
         case 4:
           Test_EXCEPTION_STACK_OVERFLOW(NULL);
           return 0;
         case 5:
-        {
-          double a = 0;
-          a = 1 / a;
+          refers.d = 1 / zero_const.d;
           return 0;
-        }
       }
       return TRUE;
     }

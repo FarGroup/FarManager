@@ -45,6 +45,20 @@
    vc.build.debug.64.bat --> custom.vc.debug.64.bat
    vc.build.release.64.bat --> custom.vc.release.64.bat
 
+   Если в качестве линкера хочется использовать ulink, то в custum.vc...bat
+   нужно включить строку
+   ---->8----
+   set NMAKE_OPTS=LINK_ULINK=1
+   ----8<----
+   или (для 32хбитовых версий компилируемых VC8)
+   ---->8----
+   set FARTRY=/EHs-c-
+   set NMAKE_OPTS=USE_VC8_32=1 NMAKE_OPTS=LINK_ULINK=1
+   ----8<----
+
+   Через задание NMAKE_OPTS можно передавать так же и ключи nmake
+
+
 2. Для сборки GCC есть мэйк файл который всё делает:
    makefile_gcc
 

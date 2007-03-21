@@ -462,15 +462,17 @@ static unsigned __int64 strtoxq (
     return number;            /* done. */
 }
 
+#ifndef _MSC_VER  // overload in v8
 __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
 {
     return (__int64) strtoxq(nptr, (const char **)endptr, ibase, 0);
 }
+#endif
 
 #endif
 
 //<SVS>
-#if defined(_DEBUG) && defined(_MSC_VER)
+#if defined(_DEBUG) && defined(_MSC_VER) && !defined(_WIN64)
 //</SVS>
 // && _MSC_VER < 1300)
 
@@ -613,6 +615,7 @@ static unsigned __int64 __cdecl wcstoxq (
         return number;                  /* done. */
 }
 
+#ifndef _MSC_VER  // overload in v8
 __int64 __cdecl _wcstoi64(const wchar_t *nptr,wchar_t **endptr,int ibase)
 {
     return (__int64) wcstoxq(nptr, (const wchar_t **)endptr, ibase, 0);
@@ -622,12 +625,12 @@ unsigned __int64 __cdecl _wcstoui64 (const wchar_t *nptr,wchar_t **endptr,int ib
 {
         return wcstoxq(nptr, (const wchar_t **)endptr, ibase, FL_UNSIGNED);
 }
-
+#endif
 
 #endif
 
 
-#if defined(_DEBUG) && defined(_MSC_VER) && (_MSC_VER >= 1300)
+#if defined(_DEBUG) && defined(_MSC_VER) && (_MSC_VER >= 1300) && !defined(_WIN64)
 // && (WINVER < 0x0500)
 // Борьба с месагом дебажной линковки:
 // strmix.obj : error LNK2019: unresolved external symbol __ftol2 referenced in function "char * __stdcall FileSizeToStr (char *,unsigned long,unsigned long,int,int)" (?FileSizeToStr@@YGPADPADKKHH@Z)
