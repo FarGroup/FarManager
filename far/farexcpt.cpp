@@ -58,9 +58,7 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,D
     static struct {
       BYTE      _space[32768];
       DWORD_PTR ret_addr;
-#ifndef _WIN64
       DWORD_PTR args[4];
-#endif
     }_stack;
 
     Is_STACK_OVERFLOW=TRUE;
