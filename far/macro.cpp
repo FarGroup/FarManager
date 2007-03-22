@@ -3018,7 +3018,7 @@ M1:
     KeyMacro *MacroDlg=KMParam->Handle;
 
     if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
-      Param2=LocalKeyToKey((int)((Param2&0x000000FF)|(Param2&(~0x000000FF))));
+      Param2=LocalKeyToKey((int)(Param2&0x000000FF)|(int)(Param2&(~0x000000FF)));
 
     KMParam->Key=(DWORD)Param2;
     KeyToText((int)Param2,KeyText);
