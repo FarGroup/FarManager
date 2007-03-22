@@ -439,7 +439,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
         sprintf(MenuText,"%-20.*s%s",ScrX-12,Label,Ptr);
       }
       /* VVM $ */
-      MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
+      MenuTextLen=(int)strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
     } /* else */
     /* VVM $ */
@@ -1059,9 +1059,9 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
     {
       Dlg.Process();
 #if defined(PROJECT_DI_MEMOEDIT)
-  #define DLGOK_CONTROL	9
+  #define DLGOK_CONTROL 9
 #else
-  #define DLGOK_CONTROL	18
+  #define DLGOK_CONTROL 18
 #endif
       if(DLGOK_CONTROL==Dlg.GetExitCode())
       {

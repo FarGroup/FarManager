@@ -3,7 +3,7 @@
 rem set misc far compilation options
 set FAR_MSVCRT=
 set USE_WFUNC=/D "USE_WFUNC" /D "USE_WFUNC_ALW" /D "USE_WFUNC_IN"
-set FARTRY=/GX-
+set FARTRY=/EHs-c-
 set CFG_0=Release
 
 rem call a user defined batch file for custom setting

@@ -1031,7 +1031,7 @@ char *Add_PATHEXT(char *Dest);
 extern "C" {
 #endif
 
-void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
+void __cdecl qsortex(char *base, size_t nel, size_t width,
             int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 
 char * __cdecl farmktemp(char *temp);

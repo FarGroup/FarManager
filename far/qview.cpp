@@ -83,7 +83,7 @@ void QuickView::DisplayObject()
   GetTitle(Title,sizeof(Title)-1);
   if (*Title)
   {
-    GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);
+    GotoXY(X1+(X2-X1+1-(int)strlen(Title))/2,Y1);
     Text(Title);
   }
   DrawSeparator(Y2-2);
@@ -96,7 +96,7 @@ void QuickView::DisplayObject()
     sprintf(TypeText," %s ",CurFileType);
     TruncStr(TypeText,X2-X1-1);
     SetColor(COL_PANELSELECTEDINFO);
-    GotoXY(X1+(X2-X1+1-strlen(TypeText))/2,Y2-2);
+    GotoXY(X1+(X2-X1+1-(int)strlen(TypeText))/2,Y2-2);
     Text(TypeText);
   }
   if (Directory)

@@ -665,7 +665,7 @@ int SubstFileName(char *Str,            // результирующая строка
   {
     //_SVS(SysLog("***** Pass=%d",Pass));
     if(*CurStr == '!')
-      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,sizeof(TmpStr)-strlen(TmpStr)-1);
+      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,(int)(sizeof(TmpStr)-strlen(TmpStr)-1));
     else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
     {
       strncat(TmpStr,CurStr,1);
@@ -719,8 +719,8 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
       return 0;
     }
 
-    StrEndPos[StrPosSize] = (Str - StartStr - 2) + ii ; //+1
-    StrPos[StrPosSize++]=Str-StartStr-2;
+    StrEndPos[StrPosSize] = (int)(Str - StartStr - 2) + ii ; //+1
+    StrPos[StrPosSize++]=(int)(Str-StartStr-2);
     //<Skeleton>
 
     DlgData=(struct DialogItem *)xf_realloc(DlgData,(DlgSize+2)*sizeof(*DlgData));
@@ -810,7 +810,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
     {
       int hist_correct = 0;
       if (t != Title) // Title contain name of history
-        hist_correct = t - Title; //offset for jump over history
+        hist_correct = (int)(t - Title); //offset for jump over history
 
       strncat(Title1,Title+hist_correct,beg_t-2-hist_correct);   // !?$zz$xxxx(fffff)ddddd
                                                                  //       ^  ^
@@ -824,7 +824,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
       while (*CurStr)
       {
         if (*CurStr == '!')
-          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-strlen(tmp_t)-1);
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-(int)strlen(tmp_t)-1);
         else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
         {
           strncat(tmp_t,CurStr,1);
@@ -868,7 +868,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
       while (*CurStr)
       {
         if (*CurStr == '!')
-          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-strlen(tmp_t)-1);
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-(int)strlen(tmp_t)-1);
         else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
         {
           strncat(tmp_t,CurStr,1);
@@ -998,7 +998,7 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 
       if(strchr(Modifers,'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
       {
-        int I,Len=strlen(FileName);
+        int I,Len=(int)strlen(FileName);
         for(I=0; I < Len; ++I)
           if(FileName[I] == '\\')
             FileName[I]='/';
@@ -1143,16 +1143,16 @@ static int IsReplaceVariable(char *str,int *scr,
 
   //
   if (scr != NULL)
-    *scr = scrtxt - str;
+    *scr = (int)(scrtxt - str);
   if (end != NULL)
-    *end = (s - str) - 1;
+    *end = (int)(s - str) - 1;
 
   if (in_firstpart_was_scob)
   {
     if (beg_scr_break != NULL)
-      *beg_scr_break = beg_firstpart_scob - str;
+      *beg_scr_break = (int)(beg_firstpart_scob - str);
     if (end_scr_break != NULL)
-      *end_scr_break = end_firstpart_scob - str;
+      *end_scr_break = (int)(end_firstpart_scob - str);
   }
   else
   {
@@ -1165,9 +1165,9 @@ static int IsReplaceVariable(char *str,int *scr,
   if (in_secondpart_was_scob)
   {
     if (beg_txt_break != NULL)
-      *beg_txt_break = beg_secondpart_scob - str;
+      *beg_txt_break = (int)(beg_secondpart_scob - str);
     if (end_txt_break != NULL)
-      *end_txt_break = end_secondpart_scob - str;
+      *end_txt_break = (int)(end_secondpart_scob - str);
   }
   else
   {
@@ -1177,5 +1177,5 @@ static int IsReplaceVariable(char *str,int *scr,
       *end_txt_break = -1;
   }
 
-  return ((s - str) - 1);
+  return (int)((s - str) - 1);
 }

@@ -169,7 +169,7 @@ int InternalCopyToClipboard(const char *Data,int AnsiMode)
   if (!FAR_OpenClipboard(NULL))
     return(FALSE);
   FAR_EmptyClipboard();
-  if (Data!=NULL && (DataSize=strlen(Data))!=0)
+  if (Data!=NULL && (DataSize=(long)strlen(Data))!=0)
   {
     HGLOBAL hData;
     void *GData;
@@ -211,7 +211,7 @@ int CopyFormatToClipboard(const char *Format,char *Data)
     return(FALSE);
 
   long DataSize;
-  if (Data!=NULL && (DataSize=strlen(Data))!=0)
+  if (Data!=NULL && (DataSize=(long)strlen(Data))!=0)
   {
     HGLOBAL hData;
     void *GData;
@@ -267,7 +267,7 @@ char* InternalPasteFromClipboard(int AnsiMode)
     if (Unicode)
       BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
     else
-      BufferSize=strlen(ClipAddr)+1;
+      BufferSize=(int)strlen(ClipAddr)+1;
 
     ClipText=new char[BufferSize];
     if (ClipText!=NULL)
@@ -332,7 +332,7 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
     if (Unicode)
       BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
     else
-      BufferSize=strlen(ClipAddr)+1;
+      BufferSize=(int)strlen(ClipAddr)+1;
     if ( BufferSize>max )
         BufferSize=max;
 
@@ -379,7 +379,7 @@ char* PasteFormatFromClipboard(const char *Format)
   if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
   {
     char *ClipAddr=(char *)GlobalLock(hClipData);
-    int BufferSize=strlen(ClipAddr)+1;
+    int BufferSize=(int)strlen(ClipAddr)+1;
     ClipText=new char[BufferSize];
     if (ClipText!=NULL)
       strcpy(ClipText,ClipAddr);

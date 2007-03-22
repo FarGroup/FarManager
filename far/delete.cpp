@@ -100,7 +100,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     char *Ends;
     char StrItems[16];
     itoa(SelCount,StrItems,10);
-    int LenItems=strlen(StrItems);
+    int LenItems=(int)strlen(StrItems);
     if((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
            StrItems[LenItems-1] >= '5' ||
            StrItems[LenItems-1] == '0')
@@ -247,7 +247,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           break;
       }
 
-      int Length=strlen(SelName);
+      int Length=(int)strlen(SelName);
       if (Length==0 || SelName[0]=='\\' && Length<2 ||
           SelName[1]==':' && Length<4)
         continue;

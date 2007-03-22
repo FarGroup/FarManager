@@ -222,7 +222,7 @@ void TreeList::DisplayTree(int Fast)
     if (*Title)
     {
       SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-      GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);
+      GotoXY(X1+(X2-X1+1-(int)strlen(Title))/2,Y1);
       Text(Title);
     }
   }
@@ -361,8 +361,8 @@ void TreeList::Update(int Mode)
 
   if ( !IsVisible() )
   {
-  	Flags.Set(FTREELIST_UPDATEREQUIRED);
-  	return;
+    Flags.Set(FTREELIST_UPDATEREQUIRED);
+    return;
   }
 
   Flags.Clear(FTREELIST_UPDATEREQUIRED);
@@ -420,7 +420,7 @@ int TreeList::ReadTree()
   FlushCache();
   GetRoot();
 
-  int RootLength=strlen(Root)-1;
+  int RootLength=(int)strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
 
@@ -515,7 +515,7 @@ void TreeList::SaveTreeFile()
   char Name[NM];
   FILE *TreeFile;
   long I;
-  int RootLength=strlen(Root)-1;
+  int RootLength=(int)strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
   MkTreeFileName(Root,Name,sizeof(Name)-1);
@@ -672,12 +672,12 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 void TreeList::FillLastData()
 {
   long Last,Depth,PathLength,SubDirPos,I,J;
-  int RootLength=strlen(Root)-1;
+  int RootLength=(int)strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
   for (I=1;I<TreeCount;I++)
   {
-    PathLength=strrchr(ListData[I].Name,'\\')-ListData[I].Name+1;
+    PathLength=(int)(strrchr(ListData[I].Name,'\\')-ListData[I].Name+1);
     Depth=ListData[I].Depth=CountSlash(ListData[I].Name+RootLength);
     for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
       if (CountSlash(ListData[J].Name+RootLength)>Depth)
@@ -1157,7 +1157,7 @@ int TreeList::GetCurDir(char *CurDir)
   if(CurDir)
     strcpy(CurDir,Ptr); // TODO: ноюямн!!!
 
-  return strlen(Ptr);
+  return (int)strlen(Ptr);
 }
 
 
@@ -1282,7 +1282,7 @@ int TreeList::ReadTreeFile()
 {
   char Name[NM],DirName[NM],LastDirName[NM],*ChPtr;
   FILE *TreeFile=NULL;
-  int RootLength=strlen(Root)-1;
+  int RootLength=(int)strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
 
@@ -1455,8 +1455,8 @@ void TreeList::DelTreeName(char *Name)
   for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
     DirName=TreeCache.ListName[CachePos];
-    Length=strlen(Name);
-    DirLength=strlen(DirName);
+    Length=(int)strlen(Name);
+    DirLength=(int)strlen(DirName);
     if(DirLength<Length)continue;
     if (LocalStrnicmp(Name,DirName,Length)==0 &&
         (DirName[Length]==0 || DirName[Length]=='\\'))
@@ -1485,7 +1485,7 @@ void TreeList::RenTreeName(char *SrcName,char *DestName)
 
   ReadCache(SrcRoot);
 
-  int SrcLength=strlen(SrcName);
+  int SrcLength=(int)strlen(SrcName);
   for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
     char *DirName=TreeCache.ListName[CachePos];

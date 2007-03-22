@@ -116,7 +116,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length)
 {
   if (Length==-1)
-    Length=strlen(Str);
+    Length=(int)strlen(Str);
   while (Length--)
   {
     *Str=DecodeTable[(unsigned int)*Str];
@@ -128,7 +128,7 @@ void DecodeString(char *Str,unsigned char *DecodeTable,int Length)
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length)
 {
   if (Length==-1)
-    Length=strlen(Str);
+    Length=(int)strlen(Str);
   while (Length--)
   {
     *Str=EncodeTable[(unsigned int)*Str];
@@ -153,7 +153,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   memset(FileDistr,0,sizeof(FileDistr));
   for (int Attempt=0;;Attempt++)
   {
-    if ((ReadSize=fread(FileData,1,sizeof(FileData),SrcFile))==0)
+    if ((ReadSize=(int)fread(FileData,1,sizeof(FileData),SrcFile))==0)
       break;
     int TextData=TRUE;
     for (int I=4;I<ReadSize;I++)

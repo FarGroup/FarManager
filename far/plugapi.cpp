@@ -206,7 +206,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_GETSYSWORDDIV:
     {
-      int LenWordDiv=strlen(Opt.WordDiv);
+      int LenWordDiv=(int)strlen(Opt.WordDiv);
       /* $ 09.08.2000 tran
        + if param==NULL, plugin хочет только узнать длину строки  */
       if (Param && !IsBadWritePtr(Param,LenWordDiv+1))
@@ -1055,7 +1055,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if(Flags&FMSG_ALLINONE)
   {
     ItemsNumber=0;
-    I=strlen((char *)Items)+2;
+    I=(int)strlen((char *)Items)+2;
     if((SingleItems=(char *)xf_malloc(I)) == NULL)
       return -1;
 
@@ -1434,7 +1434,7 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
 
     ScTree.SetFindPath(DirName,"*.*");
     *PointToName(DirName)=0;
-    int DirLength=strlen(DirName);
+    int DirLength=(int)strlen(DirName);
     PluginPanelItem *ItemsList=NULL;
     int ItemsNumber=0;
     while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))

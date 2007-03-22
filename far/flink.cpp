@@ -225,7 +225,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
   TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
 
-  size_t cchDest = strlen(szDestDir) + 1;
+  int cchDest = (int)strlen(szDestDir) + 1;
   if (cchDest > 512) {
     SetLastError(ERROR_NOT_ENOUGH_MEMORY);
     return FALSE;
@@ -245,7 +245,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   }
 
   //_SVS(SysLog("szDestDir ='%s'",szDestDir));
-  size_t nDestMountPointBytes = lstrlenW(wszDestMountPoint) * 2;
+  int nDestMountPointBytes    = (int)wcslen(wszDestMountPoint) * 2;
   rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
   rdb.ReparseDataLength       = nDestMountPointBytes + 12;
   rdb.Reserved                = 0;
@@ -253,7 +253,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   rdb.SubstituteNameLength    = nDestMountPointBytes;
   rdb.PrintNameOffset         = nDestMountPointBytes + 2;
   rdb.PrintNameLength         = 0;
-  lstrcpyW(rdb.PathBuffer, wszDestMountPoint);
+  wcscpy(rdb.PathBuffer, wszDestMountPoint);
   //_SVS(SysLogDump("rdb",0,szBuff,MAXIMUM_REPARSE_DATA_BUFFER_SIZE/3,0));
 
 
@@ -603,8 +603,8 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
       // WIN32_STREAM_ID structure
       memset(&sid,0,sizeof(WIN32_STREAM_ID));
       memset(wszStreamName,0,MAX_PATH);
-      DWORD dwStreamHeaderSize = (LPBYTE)&sid.cStreamName -
-           (LPBYTE)&sid+ sid.dwStreamNameSize;
+      DWORD dwStreamHeaderSize = (DWORD)((LPBYTE)&sid.cStreamName -
+           (LPBYTE)&sid+ sid.dwStreamNameSize);
 
       bContinue = BackupRead(hFile, (LPBYTE) &sid,
         dwStreamHeaderSize, &dwRead, FALSE, FALSE,
@@ -821,7 +821,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
   /* $ 06.06.2002 VVM
     ! Учтем UNC пути */
   int IsUNC = FALSE;
-  int PathLen = strlen(Path);
+  int PathLen = (int)strlen(Path);
   xstrncpy(NewPath, Path, sizeof(NewPath)-1);
   // Проверим имя на UNC
   if (PathLen > 2 && Path[0] == '\\' && Path[1] == '\\')

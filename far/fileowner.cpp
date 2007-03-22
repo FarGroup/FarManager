@@ -101,7 +101,7 @@ static const char *add_sid_cache(const char *computer,PSID sid)
       {
         if((new_rec->username=(char *)malloc(AccountLength+DomainLength+16)) != NULL)
         {
-          int Len=strlen(strcpy(new_rec->username,DomainName));
+          int Len=(int)strlen(strcpy(new_rec->username,DomainName));
           new_rec->username[Len+1]=0;
           new_rec->username[Len]='\\';
           strcat(new_rec->username,AccountName);

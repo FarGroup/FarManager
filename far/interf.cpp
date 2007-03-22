@@ -811,7 +811,7 @@ void TextW(int X, int Y, int Color, const WCHAR *Str)
 
 void TextW(const WCHAR *Str)
 {
-  int Length=wcslen(Str), I;
+  int Length=(int)wcslen(Str), I;
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
@@ -849,7 +849,7 @@ void Text(int X, int Y, int Color, const char *Str)
 
 void Text(const char *Str)
 {
-  int Length=strlen(Str), I;
+  int Length=(int)strlen(Str), I;
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
@@ -896,7 +896,7 @@ void Text(int MsgId)
 #if defined(USE_WFUNC)
 void VTextW(const WCHAR *Str)
 {
-  int Length=wcslen(Str);
+  int Length=(int)wcslen(Str);
   if (CurY+Length>ScrY)
     Length=ScrY-CurY+1;
   if (Length<=0)
@@ -916,7 +916,7 @@ void VTextW(const WCHAR *Str)
 
 void VText(const char *Str)
 {
-  int Length=strlen(Str);
+  int Length=(int)strlen(Str);
   if (CurY+Length>ScrY)
     Length=ScrY-CurY+1;
   if (Length<=0)

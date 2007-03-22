@@ -30,8 +30,8 @@ Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
 #include "headers.hpp"
 #pragma hdrstop
 
-static void iswap (int *a, int *b,unsigned int n_to_swap);      /* swap ints */
-static void cswap (char *a, char *b,unsigned int n_to_swap);    /* swap chars */
+static void iswap (int *a, int *b, size_t n_to_swap);      /* swap ints */
+static void cswap (char *a, char *b, size_t n_to_swap);    /* swap chars */
 
 //static unsigned int n_to_swap;  /* nbr of chars or ints to swap */
 int _maxspan = 7;               /* subfiles of _maxspan or fewer elements */
@@ -46,16 +46,16 @@ structures.  The default value is optimized for a high cost for compares. */
 #define COMPEX(a,b,u) (*comp_fp)(a,b,u)
 #define COMP(a,b) (*comp_fp)(a,b)
 
-typedef void (__cdecl *SWAP_FP) (void *, void *,unsigned int);
+typedef void (__cdecl *SWAP_FP) (void *, void *, size_t);
 
-void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
+void __cdecl qsortex(char *base, size_t nel, size_t width,
             int (__cdecl *comp_fp)(const void *, const void *,void*), void *user)
 {
   char *stack[40], **sp;                 /* stack and stack pointer        */
   char *i, *j, *limit;                   /* scan and limit pointers        */
-  unsigned thresh;                       /* size of _maxspan elements in   */
-  void (__cdecl  *swap_fp) (void *, void *,unsigned int );      /* bytes */
-  unsigned int n_to_swap;
+  size_t thresh;                         /* size of _maxspan elements in   */
+  void (__cdecl  *swap_fp) (void *, void *, size_t );             /* bytes */
+  size_t n_to_swap;
 
   if ((width % sizeof(int)) != 0)
   {
@@ -73,11 +73,11 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
   limit = base + nel * width;            /* pointer past end of array      */
   while (1)                              /* repeat until done then return  */
   {
-    while ((unsigned)(limit - base) > thresh) /* if more than _maxspan elements */
+    while ((size_t)(limit - base) > thresh) /* if more than _maxspan elements */
     {
       /*swap middle, base*/
-      SWAP (((unsigned)(limit - base) >> 1) -
-           ((((unsigned)(limit - base) >> 1)) % width) + base, base);
+      SWAP (((size_t)(limit - base) >> 1) -
+           ((((size_t)(limit - base) >> 1)) % width) + base, base);
 
       i = base + width;                /* i scans from left to right     */
       j = limit - width;               /* j scans from right to left     */
@@ -141,7 +141,7 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
   }
 }
 
-static void iswap (int *a, int *b,unsigned int n_to_swap)  /* swap ints */
+static void iswap (int *a, int *b, size_t n_to_swap)  /* swap ints */
 {
   int tmp;
 
@@ -154,7 +154,7 @@ static void iswap (int *a, int *b,unsigned int n_to_swap)  /* swap ints */
   } while (--n_to_swap);
 }
 
-static void cswap (char *a, char *b,unsigned int n_to_swap)    /* swap chars */
+static void cswap (char *a, char *b, size_t n_to_swap) /* swap chars */
 {
   char tmp;
   do

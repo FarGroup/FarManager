@@ -3388,7 +3388,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
     }
     if(Opt.QuotedName&QUOTEDNAME_CLIPBOARD)
       QuoteSpace(QuotedName);
-    int Length=strlen(QuotedName);
+    int Length=(int)strlen(QuotedName);
     char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+3);
     if (NewPtr==NULL)
     {

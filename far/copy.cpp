@@ -243,7 +243,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   {
     struct OpenPluginInfo Info;
     DestPanel->GetOpenPluginInfo(&Info);
-    int LenCurDir=strlen(NullToEmpty(Info.CurDir));
+    int LenCurDir=(int)strlen(NullToEmpty(Info.CurDir));
     if(SizeBuffer < LenCurDir)
       SizeBuffer=LenCurDir;
   }
@@ -298,9 +298,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   CopyDlg[ID_SC_TARGETEDIT].Ptr.PtrData=Dlg2Value;
   CopyDlg[ID_SC_TARGETEDIT].Ptr.PtrLength=SizeBuffer;
 
-  CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + strlen(CopyDlg[ID_SC_ACTITLE].Data) - (strchr(CopyDlg[ID_SC_ACTITLE].Data, '&')?1:0) + 1;
-  CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + strlen(CopyDlg[ID_SC_ACLEAVE].Data) - (strchr(CopyDlg[ID_SC_ACLEAVE].Data, '&')?1:0) + 5;
-  CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + strlen(CopyDlg[ID_SC_ACCOPY].Data) - (strchr(CopyDlg[ID_SC_ACCOPY].Data, '&')?1:0) + 5;
+  CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + (int)strlen(CopyDlg[ID_SC_ACTITLE].Data) - (strchr(CopyDlg[ID_SC_ACTITLE].Data, '&')?1:0) + 1;
+  CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + (int)strlen(CopyDlg[ID_SC_ACLEAVE].Data) - (strchr(CopyDlg[ID_SC_ACLEAVE].Data, '&')?1:0) + 5;
+  CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + (int)strlen(CopyDlg[ID_SC_ACCOPY].Data) - (strchr(CopyDlg[ID_SC_ACCOPY].Data, '&')?1:0) + 5;
 
   if(Link)
   {
@@ -414,7 +414,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     // коррекция языка - про окончания
     char StrItems[32];
     itoa(CDP.SelCount,StrItems,10);
-    int LenItems=strlen(StrItems);
+    int LenItems=(int)strlen(StrItems);
     int NItems=MCMLItemsA;
     if((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
         StrItems[LenItems-1] >= '5' ||
@@ -558,7 +558,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 
   // корректирем позицию " to"
-  CopyDlg[ID_SC_TARGETTITLE].X1=CopyDlg[ID_SC_TARGETTITLE].X2=CopyDlg[ID_SC_SOURCEFILENAME].X1+strlen(RemoveTrailingSpaces(CopyDlg[ID_SC_SOURCEFILENAME].Data));
+  CopyDlg[ID_SC_TARGETTITLE].X1=CopyDlg[ID_SC_TARGETTITLE].X2=CopyDlg[ID_SC_SOURCEFILENAME].X1+(int)strlen(RemoveTrailingSpaces(CopyDlg[ID_SC_SOURCEFILENAME].Data));
 
   /* $ 15.06.2002 IS
      Обработка копирования мышкой - в этом случае диалог не показывается,
@@ -920,7 +920,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   int LenRenamedName=0;
   if (CDP.SelCount==1 && *RenamedName)
   {
-    LenRenamedName=strlen(RenamedName);
+    LenRenamedName=(int)strlen(RenamedName);
     SrcPanel->GoToFile(RenamedName);
   }
 #if 1
@@ -986,7 +986,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       if (Param1==ID_SC_USEFILTER) // "Use filter"
       {
-        UseFilter=Param2;
+        UseFilter=(int)Param2;
         return TRUE;
       }
       if(Param1 == ID_SC_BTNTREE) // Tree
@@ -1159,7 +1159,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             if(strpbrk(NewFolder,";,"))
               InsertQuote(NewFolder);
 
-            int len=strlen(OldFolder), newlen=strlen(NewFolder), addSep=0;
+            int len=(int)strlen(OldFolder), newlen=(int)strlen(NewFolder), addSep=0;
             addSep=len>0;
             if(len+newlen+addSep < DItemTargetEdit.Data.Ptr.PtrLength)// контролируем длину строки
             {
@@ -1360,7 +1360,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   char SelName[NM],SelShortName[NM];
   int Length,FileAttr;
 
-  if ((Length=strlen(Dest))==0 || strcmp(Dest,".")==0)
+  if ((Length=(int)strlen(Dest))==0 || strcmp(Dest,".")==0)
   {
     _LOGCOPYR(SysLog("return COPY_FAILURE -> strlen('%s')=%d",Dest,Length));
     return COPY_FAILURE; //????
@@ -1470,7 +1470,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
     ShellCopy::Flags&=~FCOPY_OVERWRITENEXT;
 
-    if (*SrcDriveRoot==0 || LocalStrnicmp(SelName,SrcDriveRoot,strlen(SrcDriveRoot))!=0)
+    if (*SrcDriveRoot==0 || LocalStrnicmp(SelName,SrcDriveRoot,(int)strlen(SrcDriveRoot))!=0)
     {
       GetPathRoot(SelName,SrcDriveRoot);
       SrcDriveType=FAR_GetDriveType(strchr(SelName,'\\')!=NULL ? SrcDriveRoot:NULL);
@@ -1481,7 +1481,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     }
 
     if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
-      SelectedFolderNameLength=strlen(SelName);
+      SelectedFolderNameLength=(int)strlen(SelName);
     else
       SelectedFolderNameLength=0;
 
@@ -1489,7 +1489,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     if(DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE)
       ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
 
-    KeepPathPos=PointToName(SelName)-SelName;
+    KeepPathPos=(int)(PointToName(SelName)-SelName);
     _LOGCOPYR(SysLog("%d KeepPathPos=%d",__LINE__,KeepPathPos));
     if(!stricmp(SrcDriveRoot,SelName) && (ShellCopy::Flags&FCOPY_CREATESYMLINK)) // но сначала посмотрим на "это корень диска?"
     {
@@ -1682,7 +1682,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       strcpy(SubName,SelName);
       strcat(SubName,"\\");
       if (DestAttr==(DWORD)-1)
-        KeepPathPos=strlen(SubName);
+        KeepPathPos=(int)strlen(SubName);
 
       int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS) && (ShellCopy::Flags&FCOPY_MOVE));
 
@@ -1906,13 +1906,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   char *NamePtr=PointToName(DestPath);
 
-  DestAttr=-1;
+  DestAttr=(DWORD)-1;
 
   if (DestPath[0]=='\\' && DestPath[1]=='\\')
   {
     char Root[NM];
     GetPathRoot(DestPath,Root);
-    int RootLength=strlen(Root);
+    int RootLength=(int)strlen(Root);
 
     if (RootLength>0 && Root[RootLength-1]=='\\')
       Root[RootLength-1]=0;
@@ -1975,7 +1975,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
     if (!SameName)
     {
-      int Length=strlen(DestPath);
+      int Length=(int)strlen(DestPath);
 
       if (DestPath[Length-1]!='\\' && DestPath[Length-1]!=':')
         strcat(DestPath,"\\");
@@ -2085,7 +2085,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       strcat(DestPath,PathPtr);
 
       if ((FindHandle=FindFirstFile(DestPath,&DestData))==INVALID_HANDLE_VALUE)
-        DestAttr=-1;
+        DestAttr=(DWORD)-1;
       else
       {
         FindClose(FindHandle);
@@ -2892,7 +2892,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
       sprintf(TotalMsg," %s: %s ",MSG(MCopyDlgTotal),TotalCopySizeText);
     else
       sprintf(TotalMsg," %s ",MSG(MCopyDlgTotal));
-    int TotalLength=strlen(TotalMsg);
+    int TotalLength=(int)strlen(TotalMsg);
     memcpy(BarStr+(strlen(BarStr)-TotalLength+1)/2,TotalMsg,TotalLength);
 //    *FilesStr=0;
 
@@ -2994,7 +2994,7 @@ int ShellCopy::ShellCopyConvertWildcards(const char *SrcName,char *Dest)
 
   SrcNamePtr=PointToName(Src);
 
-  int BeforeNameLength=DestNamePtr==Dest ? SrcNamePtr-Src:0;
+  int BeforeNameLength=DestNamePtr==Dest ? (int)(SrcNamePtr-Src):0;
   xstrncpy(PartBeforeName,Src,BeforeNameLength);
   PartBeforeName[BeforeNameLength]=0;
 
@@ -4268,11 +4268,11 @@ int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
     return 2;
 
   // уберем мусор из имен
-  for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
+  for (I=(int)strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
   DeleteEndSlash(SrcFullName);
   _LOGCOPYR(SysLog("SrcFullName='%s'",SrcFullName));
-  for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
+  for (I=(int)strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
     DestFullName[I]=0;
   DeleteEndSlash(DestFullName);
   _LOGCOPYR(SysLog("DestFullName='%s'",DestFullName));
@@ -4315,11 +4315,11 @@ int ShellCopy::CmpFullPath(const char *Src,const char *Dest)
   GetParentFolder(Dest,DestFullName, sizeof(DestFullName));
 
   // уберем мусор из имен
-  for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
+  for (I=(int)strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
   DeleteEndSlash(SrcFullName);
   _LOGCOPYR(SysLog("SrcFullName='%s'",SrcFullName));
-  for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
+  for (I=(int)strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
     DestFullName[I]=0;
   DeleteEndSlash(DestFullName);
   _LOGCOPYR(SysLog("DestFullName='%s'",DestFullName));

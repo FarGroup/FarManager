@@ -118,13 +118,13 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
     case DN_BTNCLICK:
       if(Param1 >= SETATTR_RO && Param1 <= SETATTR_TEMP || Param1 == SETATTR_SUBFOLDERS)
       {
-        DlgParam->OriginalCBAttr[Param1-SETATTR_RO] = Param2;
+        DlgParam->OriginalCBAttr[Param1-SETATTR_RO] = (int)Param2;
         DlgParam->OriginalCBAttr2[Param1-SETATTR_RO] = 0;
 
-        FocusPos=Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0);
-        State8=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
-        State9=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_ENCRYPTED,0);
-        State12=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_SUBFOLDERS,0);
+        FocusPos=(int)Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0);
+        State8=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
+        State9=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_ENCRYPTED,0);
+        State12=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_SUBFOLDERS,0);
 
         if(!DlgParam->ModeDialog) // =0 - одиночный
         {

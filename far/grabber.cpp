@@ -143,7 +143,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       *PtrCopyBuf++=static_cast<char>(Chr);
       *PtrCopyBuf=0;
     }
-    for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)
+    for (int K=(int)strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)
       CopyBuf[K]=0;
     PtrCopyBuf=CopyBuf+strlen(CopyBuf);
   }
@@ -153,7 +153,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     int add=0;
     if (AppendBuf!=NULL)
     {
-      int DataSize=strlen(AppendBuf);
+      int DataSize=(int)strlen(AppendBuf);
       if ( AppendBuf[DataSize-1]!='\n' )
       {
         add=2;

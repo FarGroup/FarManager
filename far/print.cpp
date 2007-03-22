@@ -187,7 +187,7 @@ void PrintFiles(Panel *SrcPanel)
           char Buffer[8192];
           DWORD Read,Written;
           Success=TRUE;
-          while ((Read=fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
+          while ((Read=(DWORD)fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
             if (!WritePrinter(hPrinter,Buffer,Read,&Written))
             {
               Success=FALSE;

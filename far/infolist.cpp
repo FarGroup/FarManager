@@ -98,7 +98,7 @@ void InfoList::DisplayObject()
   GetTitle(Title,sizeof(Title)-1);
   if (*Title)
   {
-    GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);
+    GotoXY(X1+(X2-X1+1-(int)strlen(Title))/2,Y1);
     Text(Title);
   }
 
@@ -211,7 +211,7 @@ void InfoList::DisplayObject()
     }
 
     TruncStr(Title,X2-X1-3);
-    GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1+3);
+    GotoXY(X1+(X2-X1+1-(int)strlen(Title))/2,Y1+3);
     PrintText(Title);
 
     unsigned __int64 TotalSize,TotalFree,UserFree;
@@ -237,7 +237,7 @@ void InfoList::DisplayObject()
   }
 
   strcpy(Title,MSG(MInfoMemory));
-  GotoXY(X1+(X2-X1-strlen(Title))/2,Y1+8);
+  GotoXY(X1+(X2-X1-(int)strlen(Title))/2,Y1+8);
   PrintText(Title);
   MEMORYSTATUSEX ms;
   FAR_GlobalMemoryStatusEx(&ms);
@@ -443,7 +443,7 @@ void InfoList::PrintInfo(const char *str)
   xstrncpy(Str,str,sizeof(Str));
   /* IS $ */
   TruncStr(Str,MaxLength);
-  int Length=strlen(Str);
+  int Length=(int)strlen(Str);
   int NewX=X2-Length-1;
   if (NewX>X1 && NewX>WhereX())
   {
@@ -475,7 +475,7 @@ void InfoList::ShowDirDescription()
     return;
   }
   AnotherPanel->GetCurDir(DizDir);
-  if ((Length=strlen(DizDir))>0 && DizDir[Length-1]!='\\')
+  if ((Length=(int)strlen(DizDir))>0 && DizDir[Length-1]!='\\')
     strcat(DizDir,"\\");
 
   char ArgName[NM];
@@ -547,7 +547,7 @@ void InfoList::ShowPluginDescription()
         *Title=0;
       DrawSeparator(Y);
       TruncStr(Title,X2-X1-3);
-      GotoXY(X1+(X2-X1-strlen(Title))/2,Y);
+      GotoXY(X1+(X2-X1-(int)strlen(Title))/2,Y);
       PrintText(Title);
     }
     else
@@ -622,7 +622,7 @@ int InfoList::OpenDizFile(char *DizFile)
   char Title[NM];
   sprintf(Title," %s ",PointToName(DizFileName));
   TruncStr(Title,X2-X1-3);
-  GotoXY(X1+(X2-X1-strlen(Title))/2,Y1+14);
+  GotoXY(X1+(X2-X1-(int)strlen(Title))/2,Y1+14);
   SetColor(COL_PANELTEXT);
   PrintText(Title);
   DizPresent=TRUE;

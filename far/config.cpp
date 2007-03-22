@@ -237,8 +237,8 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected=Opt.ShowPanelScrollbar;
   CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected=Opt.ShowScreensNumber;
   CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected=Opt.ShowSortMode;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=strlen(MSG(MConfigAutoUpdateLimit2))+1;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=strlen(MSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=(int)strlen(MSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=(int)strlen(MSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
 
   if (!RegVer)
@@ -809,11 +809,11 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
   {
     char *Str = MSG(MEditConfigEditorF4);
-    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5;
+    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=(int)strlen(Str)-(strchr(Str, '&')?1:0)+5;
     Str = MSG(MEditConfigPersistentBlocks);
-    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5+3;
+    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=(int)strlen(Str)-(strchr(Str, '&')?1:0)+5+3;
     Str = MSG(MEditConfigSavePos);
-    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5+3;
+    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=(int)strlen(Str)-(strchr(Str, '&')?1:0)+5+3;
     if (CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 > CfgDlg[ID_EC_SAVEBOOKMARKS].X1)
       CfgDlg[ID_EC_SAVEBOOKMARKS].X1 = CfgDlg[ID_EC_DELREMOVESBLOCKS].X1;
     else
@@ -995,7 +995,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize3",&Opt.CursorSize[2],99, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize4",&Opt.CursorSize[3],99, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, (DWORD)-1, 0},
   {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
   {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
   {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
@@ -1148,7 +1148,7 @@ static struct FARConfig{
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
-  {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
+  {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate, (DWORD)-1, 0},
   {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
   {0, REG_DWORD,  NKeySystem,"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
   {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},

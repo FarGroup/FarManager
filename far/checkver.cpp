@@ -109,7 +109,7 @@ void Register()
   char RegName[256],RegCode[256],RegData[256];
   xstrncpy(RegName,RegDlg[2].Data,sizeof(RegName)-1);
   xstrncpy(RegCode,RegDlg[4].Data,sizeof(RegCode)-1);
-  int Length=strlen(RegName);
+  int Length=(int)strlen(RegName);
   if (*RegName==0 || *RegCode==0)
     return;
   unsigned char Xor=17;
@@ -131,8 +131,8 @@ void Register()
   }
   Dlg.Hide();
   RegData[0]=static_cast<char>(clock());
-  RegData[1]=strlen(RegName);
-  RegData[2]=strlen(RegCode);
+  RegData[1]=(char)strlen(RegName);
+  RegData[2]=(char)strlen(RegCode);
   strcpy(RegData+3,RegName);
   strcpy(RegData+RegData[1]+3,RegCode);
   int Size=RegData[1]+RegData[2]+3;

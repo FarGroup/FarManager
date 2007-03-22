@@ -588,7 +588,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     // FAR_CharToOem(FileName,FileName);
     // ReplaceStrings(TempStr,FileName,FullName);
     if(!DestSize)
-      DestSize=strlen(FullName);
+      DestSize=(int)strlen(FullName);
     // if(Dest && IsExistExt)
     if (Dest)
       xstrncpy(Dest,FullName,DestSize);
@@ -1292,7 +1292,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
             AddEndSlash(FullPath);
           }
           strcat(FullPath,ExpandedStr);
-          DWORD FileAttr=-1;
+          DWORD FileAttr=(DWORD)-1;
           if(strpbrk(ExpandedStr,"*?")) // это маска?
           {
             WIN32_FIND_DATA wfd;

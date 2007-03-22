@@ -313,7 +313,7 @@ void FolderTree::DrawEdit()
   GotoXY(X1+1,FindY);
   SetColor(COL_PANELTEXT);
   mprintf("%s  ",SearchTxt);
-  FindEdit->SetPosition(X1+strlen(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
+  FindEdit->SetPosition(X1+(int)strlen(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
   FindEdit->SetObjectColor(COL_DIALOGEDIT);
   FindEdit->Show();
   if (WhereX()<X2)

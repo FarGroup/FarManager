@@ -81,8 +81,8 @@ void LoadFilterFromReg(FileFilterParams *HData, const char *RegKey, const char *
 
   HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
                   (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
-                  GetRegKey64(RegKey,HLS.SizeAbove,_i64(-1)),
-                  GetRegKey64(RegKey,HLS.SizeBelow,_i64(-1)));
+                  GetRegKey64(RegKey,HLS.SizeAbove,(unsigned __int64)_i64(-1)),
+                  GetRegKey64(RegKey,HLS.SizeBelow,(unsigned __int64)_i64(-1)));
 
   if (bSortGroup)
   {
@@ -265,7 +265,7 @@ void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *C
 
   ApplyDefaultStartingColors(Colors);
 
-  for (int i=0; i < HiData.getCount(); i++)
+  for (unsigned int i=0; i < HiData.getCount(); i++)
   {
     CurHiData = HiData.getItem(i);
 
@@ -296,7 +296,7 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
   {
     ApplyDefaultStartingColors(&FileItem->Colors);
 
-    for (int i=0; i < HiData.getCount(); i++)
+    for (unsigned int i=0; i < HiData.getCount(); i++)
     {
       CurHiData = HiData.getItem(i);
 
@@ -484,7 +484,7 @@ void HighlightFiles::HiEdit(int MenuPos)
           {
             int *Count=NULL;
             int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
-            if (Count && RealSelectPos<HiData.getCount())
+            if (Count && RealSelectPos<(int)HiData.getCount())
             {
               const char *Mask;
               HiData.getItem(RealSelectPos)->GetMask(&Mask);
@@ -504,7 +504,7 @@ void HighlightFiles::HiEdit(int MenuPos)
         {
           int *Count=NULL;
           int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
-          if (Count && RealSelectPos<HiData.getCount())
+          if (Count && RealSelectPos<(int)HiData.getCount())
             if (FileFilterConfig(HiData.getItem(RealSelectPos),true))
               NeedUpdate=TRUE;
           break;
@@ -534,7 +534,7 @@ void HighlightFiles::HiEdit(int MenuPos)
           {
             int *Count=NULL;
             int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
-            if (Count && RealSelectPos<HiData.getCount())
+            if (Count && RealSelectPos<(int)HiData.getCount())
             {
               FileFilterParams *HData = HiData.insertItem(RealSelectPos);
 

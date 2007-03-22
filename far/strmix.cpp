@@ -16,7 +16,7 @@ strmix.cpp
 char *InsertCommas(const unsigned long &Number,char *Dest)
 {
   ultoa(Number,Dest,10);
-  for (int I=strlen(Dest)-4;I>=0;I-=3)
+  for (int I=(int)strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
       memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
@@ -28,7 +28,7 @@ char *InsertCommas(const unsigned long &Number,char *Dest)
 char* InsertCommas(const unsigned __int64  &LI,char *Dest)
 {
   _i64toa(LI,Dest,10);
-  for (int I=strlen(Dest)-4;I>=0;I-=3)
+  for (int I=(int)strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
       memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
@@ -273,7 +273,7 @@ int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
 
   SrcNamePtr=PointToName(Src);
 
-  int BeforeNameLength=DestNamePtr==Dest ? SrcNamePtr-Src:0;
+  int BeforeNameLength=DestNamePtr==Dest ? (int)(SrcNamePtr-Src):0;
   xstrncpy(PartBeforeName,Src,BeforeNameLength);
   PartBeforeName[BeforeNameLength]=0;
 
@@ -333,7 +333,7 @@ int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
 
 char *InsertQuote(char *Str)
 {
-  unsigned l = strlen(Str);
+  size_t l = strlen(Str);
   if(*Str != '"')
   {
     memmove(Str+1,Str,++l);
@@ -370,7 +370,7 @@ char* WINAPI TruncStrFromEnd(char *Str, int MaxLength)
 {
   if(Str)
   {
-    int Length = strlen(Str);
+    int Length = (int)strlen(Str);
     if (Length > MaxLength)
     {
       if(MaxLength>3) memcpy(Str+MaxLength-3,"...",3);
@@ -387,7 +387,7 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
     int Length;
     if (MaxLength<0)
       MaxLength=0;
-    if ((Length=strlen(Str))>MaxLength)
+    if ((Length=(int)strlen(Str))>MaxLength)
     {
       if (MaxLength>3)
       {
@@ -433,7 +433,7 @@ char* WINAPI TruncPathStr(char *Str, int MaxLength)
 {
   if (Str)
   {
-    int nLength = strlen (Str);
+    int nLength = (int)strlen (Str);
 
     if (nLength > MaxLength)
     {
@@ -494,7 +494,7 @@ char* WINAPI RemoveTrailingSpaces(char *Str)
   char *ChPtr;
   int I;
 
-  for (ChPtr=Str+(I=strlen((char *)Str)-1); I >= 0; I--, ChPtr--)
+  for (ChPtr=Str+(I=(int)strlen((char *)Str)-1); I >= 0; I--, ChPtr--)
     if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
     else
@@ -602,7 +602,7 @@ BOOL AddEndSlash(char *Path,char TypeSlash)
       else
         BackSlash=1;
     }
-    int Length=end-Path;
+    int Length=(int)(end-Path);
     char c=(Slash<BackSlash)?'/':'\\';
     Result=TRUE;
     if (Length==0)
@@ -665,7 +665,7 @@ char* CenterStr(char *Src,char *Dest,int Length)
 {
   char TempSrc[1024];
   xstrncpy(TempSrc,Src,sizeof(TempSrc)-1);
-  int SrcLength=strlen(Src);
+  int SrcLength=(int)strlen(Src);
   if (SrcLength >= Length)
     /* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
        и мы получали обрезанные строки */
@@ -914,7 +914,7 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
 // возвращает указатель на Str
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
 {
-  int InsLen=strlen(InsStr);
+  int InsLen=(int)strlen(InsStr);
   if(InsSize && InsSize < InsLen)
     InsLen=InsSize;
   memmove(Str+Pos+InsLen, Str+Pos, strlen(Str+Pos)+1);
@@ -928,9 +928,9 @@ char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
 int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count,BOOL IgnoreCase)
 {
   int I=0, J=0, Res;
-  int LenReplStr=strlen(ReplStr);
-  int LenFindStr=strlen(FindStr);
-  int L=strlen(Str);
+  int LenReplStr=(int)strlen(ReplStr);
+  int LenFindStr=(int)strlen(FindStr);
+  int L=(int)strlen(Str);
 
   while(I <= L-LenFindStr)
   {
@@ -948,7 +948,7 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count,B
     }
     else
       I++;
-    L=strlen(Str);
+    L=(int)strlen(Str);
   }
   return J;
 }
@@ -1019,7 +1019,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
 
   const char *text= SrcText;
   long linelength = Width;
-  int breakcharlen = strlen(breakchar);
+  int breakcharlen = (int)strlen(breakchar);
   int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 
   /* Special case for a single-character break as it needs no
@@ -1307,6 +1307,6 @@ int __cdecl NumStrcmp(const char *s1, const char *s2)
     s1++; s2++;
   }
   if(*s1 == *s2)
-    return strlen(ts2)-strlen(ts1);
+    return (int)(strlen(ts2)-strlen(ts1));
   return *s1 - *s2;
 }

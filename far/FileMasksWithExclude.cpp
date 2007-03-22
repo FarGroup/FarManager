@@ -32,7 +32,7 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
   Free();
   if(NULL==masks || !*masks) return FALSE;
 
-  int len=strlen(masks)+2, rc=FALSE;
+  int len=(int)strlen(masks)+2, rc=FALSE;
   char *MasksStr=(char *) xf_malloc(len);
   if(MasksStr)
   {

@@ -528,7 +528,7 @@ static void put64(unsigned __int64 code)
 
 static void putstr(const char *s)
 {
-  int Length = strlen(s)+1;
+  int Length = (int)strlen(s)+1;
   // строка должна быть выровнена на 4
   int nSize = Length/sizeof(unsigned long);
   if ( Length == 1 || ( Length % sizeof(unsigned long)) != 0 ) // дополнение до sizeof(DWORD) нулями.

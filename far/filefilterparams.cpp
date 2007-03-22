@@ -65,7 +65,7 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
   // проверим
   if((Ptr=strchr(CheckMask,'%')) != NULL && !LocalStrnicmp(Ptr,"%PATHEXT%",9))
   {
-    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-CheckMask;
+    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=(int)(Ptr-CheckMask);
     // ≈сли встречаетс€ %pathext%, то допишем в конец...
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
 
@@ -552,7 +552,7 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
-      VBufColorExample[15*j+k].Attributes=Color;
+      VBufColorExample[15*j+k].Attributes=(WORD)Color;
     }
     if (Colors.MarkChar&0x00FF)
     {
@@ -857,18 +857,18 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   //FilterDlg[ID_FF_DATETYPE].X1=FilterDlg[ID_FF_MATCHDATE].X1+strlen(FilterDlg[ID_FF_MATCHDATE].Data)-(strchr(FilterDlg[ID_FF_MATCHDATE].Data,'&')?1:0)+5;
   //FilterDlg[ID_FF_DATETYPE].X2+=FilterDlg[ID_FF_DATETYPE].X1;
 
-  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+strlen(FilterDlg[ID_FF_NAME].Data)-(strchr(FilterDlg[ID_FF_NAME].Data,'&')?1:0)+1;
+  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+(int)strlen(FilterDlg[ID_FF_NAME].Data)-(strchr(FilterDlg[ID_FF_NAME].Data,'&')?1:0)+1;
 
-  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+strlen(FilterDlg[ID_FF_MATCHMASK].Data)-(strchr(FilterDlg[ID_FF_MATCHMASK].Data,'&')?1:0)+5;
+  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+(int)strlen(FilterDlg[ID_FF_MATCHMASK].Data)-(strchr(FilterDlg[ID_FF_MATCHMASK].Data,'&')?1:0)+5;
 
-  FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-strlen(FilterDlg[ID_FF_BLANK].Data)+(strchr(FilterDlg[ID_FF_BLANK].Data,'&')?1:0)-3;
+  FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-(int)strlen(FilterDlg[ID_FF_BLANK].Data)+(strchr(FilterDlg[ID_FF_BLANK].Data,'&')?1:0)-3;
   FilterDlg[ID_FF_CURRENT].X2=FilterDlg[ID_FF_BLANK].X1-2;
-  FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-strlen(FilterDlg[ID_FF_CURRENT].Data)+(strchr(FilterDlg[ID_FF_CURRENT].Data,'&')?1:0)-3;
+  FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-(int)strlen(FilterDlg[ID_FF_CURRENT].Data)+(strchr(FilterDlg[ID_FF_CURRENT].Data,'&')?1:0)-3;
 
-  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+strlen(FilterDlg[ID_HER_MARK_TITLE].Data)-(strchr(FilterDlg[ID_HER_MARK_TITLE].Data,'&')?1:0)+1;
+  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+(int)strlen(FilterDlg[ID_HER_MARK_TITLE].Data)-(strchr(FilterDlg[ID_HER_MARK_TITLE].Data,'&')?1:0)+1;
 
   for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i++)
-    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+strlen(FilterDlg[ID_HER_NORMALFILE].Data)-(strchr(FilterDlg[ID_HER_NORMALFILE].Data,'&')?1:0)+1;
+    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)strlen(FilterDlg[ID_HER_NORMALFILE].Data)-(strchr(FilterDlg[ID_HER_NORMALFILE].Data,'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];
   HighlightDataColor Colors;

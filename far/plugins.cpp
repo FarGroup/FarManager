@@ -483,11 +483,11 @@ BOOL IsModulePlugin2 (
         DWORD *pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
         #endif
 
-        for (int n = 0; n < pExportDir->NumberOfNames; n++)
+        for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
         {
           const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
 
-          DWORD dwCRC32 = CRC32 (0, lpExportName, strlen (lpExportName));
+          DWORD dwCRC32 = CRC32 (0, lpExportName, (int)strlen (lpExportName));
 
           for (int j = 0; j < 7; j++)  // а это вам не фиг знает что, это вам оптимизаци€, типа 8-)
             if ( dwCRC32 == ExportCRC32[j] )
@@ -992,7 +992,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
      проверка на минимальную версию фара */
   if (!CheckMinVersion(CurPlugin))
   {
-    UnloadPlugin(CurPlugin,-1); // тест не пройден, выгружаем его
+    UnloadPlugin(CurPlugin,(DWORD)-1); // тест не пройден, выгружаем его
     return (FALSE);
   }
 
@@ -2667,7 +2667,7 @@ C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC
 C:\MultiArc\MULTIARC.DLL                            -> DLL
 ---------------------------------------------------------------------------------------
 */
-  unsigned int FarPathLength=strlen(FarPath);
+  size_t FarPathLength=strlen(FarPath);
   *RegKey=0;
   if (FarPathLength < strlen(PluginsData[PluginNumber].ModuleName))
   {
@@ -2891,7 +2891,7 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
       if ( !GetPluginInfo(I,&Info) )
         continue;
 
-      size = strlen (NullToEmpty(Info.CommandPrefix))+1;
+      size = (int)strlen (NullToEmpty(Info.CommandPrefix))+1;
 
       lpNewPrefix = (char*)xf_realloc (lpPluginPrefix, size);
 
@@ -2911,11 +2911,11 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
       префикс должен совпадать ѕќЋЌќ—“№ё,
       а не начало...
     */
-    int PrefixLength=strlen(Prefix);
+    int PrefixLength=(int)strlen(Prefix);
     while(1)
     {
       char *PrEnd = strchr(PrStart, ':');
-      int Len=PrEnd==NULL ? strlen(PrStart):(PrEnd-PrStart);
+      int Len=PrEnd==NULL ? (int)strlen(PrStart):(int)(PrEnd-PrStart);
       if(Len<PrefixLength)Len=PrefixLength;
       if (LocalStrnicmp(Prefix, PrStart, Len)==0)
       /* SKV$*/

@@ -202,7 +202,7 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
 
               if(AddAsterisk && strpbrk(item.Str,"?*.")==NULL)
               {
-                Length=strlen(item.Str);
+                Length=(int)strlen(item.Str);
                 /* $ 18.09.2002 DJ
                    выделялось на 1 байт меньше, чем надо
                 */
@@ -318,7 +318,7 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
 
    if(!InQoutes || !*cur)
     {
-      RealLength=Length=cur-Str;
+      RealLength=Length=(int)(cur-Str);
       --cur;
       while(IsSpace(*cur))
        {
@@ -341,8 +341,8 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
    while(IsSpace(*End)) ++End;
    if(!*End || *End==Separator1 || *End==Separator2)
    {
-     Length=QuoteEnd-cur;
-     RealLength=End-cur;
+     Length=(int)(QuoteEnd-cur);
+     RealLength=(int)(End-cur);
      return cur;
    }
 

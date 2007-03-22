@@ -51,7 +51,7 @@ LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueDat
   HKEY hKey;
   LONG Ret=ERROR_SUCCESS;
   if((hKey=CreateRegKey(Key)) != NULL)
-    Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
+    Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(DWORD)strlen(ValueData)+1);
   CloseRegKey(hKey);
   return Ret;
 }
@@ -620,7 +620,7 @@ int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYT
     while( TRUE )
     {
       DWORD ValSize=sizeof(ValueName);
-      DWORD Type=-1;
+      DWORD Type=(DWORD)-1;
 
       if (RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize) != ERROR_SUCCESS)
         break;

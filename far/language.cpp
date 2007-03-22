@@ -56,11 +56,11 @@ int Language::Init(char *Path,int CountNeed)
     RemoveExternalSpaces(ReadStr);
     if (*ReadStr!='\"')
       continue;
-    int SrcLength=strlen(ReadStr);
+    int SrcLength=(int)strlen(ReadStr);
     if (ReadStr[SrcLength-1]=='\"')
       ReadStr[SrcLength-1]=0;
     ConvertString(ReadStr+1,DestStr);
-    int DestLength=pack(strlen(DestStr)+1);
+    int DestLength=pack((int)strlen(DestStr)+1);
     if ((MsgList=(char *)xf_realloc(MsgList,MsgSize+DestLength))==NULL)
     {
       fclose(LangFile);
@@ -282,7 +282,7 @@ int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Para
 {
   char ReadStr[1024],FullParamName[64];
   sprintf(FullParamName,".%s",ParamName);
-  int Length=strlen(FullParamName);
+  int Length=(int)strlen(FullParamName);
   /* $ 29.11.2001 DJ
      не поганим позицию в файле; дальше @Contents не читаем
   */
@@ -398,7 +398,7 @@ int Language::GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value)
 
   memset (FullParamName, 0, 64);
 
-  int Length=strlen(".Options");
+  int Length=(int)strlen(".Options");
 
   long CurFilePos=ftell(SrcFile);
   fseek(SrcFile,0,SEEK_SET);

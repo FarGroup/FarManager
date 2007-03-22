@@ -228,7 +228,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         UseANSI=(Param2==3);
         UseUnicode=(Param2==4);
         UseDecodeTable=(Param2>=(CHAR_TABLE_SIZE+1));
-        TableNum=Param2-(CHAR_TABLE_SIZE+1);
+        TableNum=(int)Param2-(CHAR_TABLE_SIZE+1);
         if (UseAllTables)
           xstrncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
         else if (UseUnicode)
@@ -277,7 +277,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         IsRedrawFramesInProcess--;
 
         PrepareDriveNameStr(SearchFromRoot,Min((int)sizeof(SearchFromRoot),(int)PARTIAL_DLG_STR_LEN));
-        ItemData.PtrLength=strlen(SearchFromRoot);
+        ItemData.PtrLength=(int)strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,23,(LONG_PTR)&ItemData);
         PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
@@ -344,14 +344,14 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         if (strlen(DataStr)>0)
         {
-          int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,-1);
+          int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,-1);
           Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,UnchangeFlag);
         }
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
       else if (Param1==29) // [ ] Advanced options
-        EnableSearchInFirst=Param2;
+        EnableSearchInFirst=(int)Param2;
       return TRUE;
       /* KM $ */
       /* KM $ */
@@ -804,7 +804,7 @@ LONG_PTR WINAPI FindFiles::AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_P
       */
       if (Param1==3)
       {
-        SearchInFirstIndex=Param2;
+        SearchInFirstIndex=(int)Param2;
       }
       return TRUE;
     }
@@ -952,7 +952,6 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
 
 LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  int Result;
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1].ListPtr;
 
@@ -990,7 +989,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,1,(LONG_PTR)&rect);
       if (Param1==1 && ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.X<drect.Left+rect.Right)
       {
-        Ret = FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
+        Ret = (int)FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
       }
       /* VVM $ */
       return Ret;
@@ -1025,7 +1024,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
       {
         IsProcessAssignMacroKey--;
-        FrameManager->ProcessKey(Param2);
+        FrameManager->ProcessKey((DWORD)Param2);
         IsProcessAssignMacroKey++;
         return TRUE;
       }
@@ -1046,7 +1045,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {
-        ListBox->ProcessKey(Param2);
+        ListBox->ProcessKey((int)Param2);
         return TRUE;
       }
       else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5 || Param2==KEY_F4 ||
@@ -1097,7 +1096,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                   ffCS.Leave ();
                   return TRUE;
                 }
-                int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+                int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
                 fclose(ProcessFile);
 
                 int SavePluginsOutput=DisablePluginsOutput;
@@ -1313,8 +1312,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         return TRUE;
       }
-      Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-      return Result;
+      return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
     }
     case DN_BTNCLICK:
     {
@@ -1437,8 +1435,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     }
     /* KM $ */
   }
-  Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-  return Result;
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 int FindFiles::FindFilesProcess()
@@ -1620,7 +1617,7 @@ int FindFiles::FindFilesProcess()
               + Передаем имена каталогов без заключительного "\" */
             if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-              int Length = strlen(pi->FindData.cFileName);
+              int Length = (int)strlen(pi->FindData.cFileName);
               if ((Length) && (pi->FindData.cFileName[Length-1]=='\\'))
                 pi->FindData.cFileName[Length-1] = 0;
             }
@@ -1691,7 +1688,7 @@ int FindFiles::FindFilesProcess()
       {
         char SetName[NM];
         int Length;
-        if ((Length=strlen(FileName))==0)
+        if ((Length=(int)strlen(FileName))==0)
           break;
         if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
           FileName[Length-1]=0;
@@ -1706,7 +1703,7 @@ int FindFiles::FindFilesProcess()
           NamePtr=PointToName(FileName);
           xstrncpy(SetName,NamePtr,sizeof(SetName)-1);
           *NamePtr=0;
-          Length=strlen(FileName);
+          Length=(int)strlen(FileName);
           if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
             FileName[Length-1]=0;
         }
@@ -1729,7 +1726,7 @@ int FindFiles::FindFilesProcess()
         {
           char DirTmp[NM];
           FindPanel->GetCurDir(DirTmp);
-          Length=strlen(DirTmp);
+          Length=(int)strlen(DirTmp);
           if (Length>1 && DirTmp[Length-1]=='\\' && DirTmp[Length-2]!=':')
             DirTmp[Length-1]=0;
           if(0!=LocalStricmp(FileName, DirTmp))
@@ -1990,7 +1987,7 @@ void FindFiles::ArchiveSearch(char *ArcName)
     _ALGO(SysLog("ERROR: open file '%s'",(ArcName?ArcName:"NULL")));
     return;
   }
-  int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+  int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
   fclose(ProcessFile);
 
   int SavePluginsOutput=DisablePluginsOutput;
@@ -2332,7 +2329,7 @@ int FindFiles::LookForString(char *Name)
   FILE *SrcFile;
   char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
   int Length,ReadSize,SaveReadSize;
-  if ((Length=strlen(FindStr))==0)
+  if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
   HANDLE FileHandle=FAR_CreateFile(Name,GENERIC_READ|GENERIC_WRITE,
          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
@@ -2376,7 +2373,7 @@ int FindFiles::LookForString(char *Name)
   // с максимальным размером, в котором производится поиск
   __int64 AlreadyRead=_i64(0);
 
-  while (!StopSearch && (ReadSize=fread(Buf,1,sizeof(Buf),SrcFile))>0)
+  while (!StopSearch && (ReadSize=(int)fread(Buf,1,sizeof(Buf),SrcFile))>0)
   {
     /* $ 12.04.2005 KM
        Если используется ограничение по поиску на размер чтения из файла,
@@ -2795,8 +2792,8 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
              PluginSearchPath, но бывает дописывалась только
              часть в пути в конец переменной, что не есть гуд.
           */
-          int SearchPathLen=strlen(PluginSearchPath);
-          int CurNameLen=strlen(CurName);
+          int SearchPathLen=(int)strlen(PluginSearchPath);
+          int CurNameLen=(int)strlen(CurName);
           if (SearchPathLen+CurNameLen<NM-2)
           {
             strcat(PluginSearchPath,CurName);
@@ -2854,7 +2851,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
 
         sprintf(DataStr," %s: %d ",MSG(MFindFound),FindFileCount+FindDirCount);
         ItemData.PtrData=DataStr;
-        ItemData.PtrLength=strlen(DataStr);
+        ItemData.PtrLength=(int)strlen(DataStr);
 
         statusCS.Leave ();
 
@@ -2878,8 +2875,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         else
           sprintf(SearchStr,MSG(MFindSearchingIn),"");
 
-        int Wid1=strlen(SearchStr);
-        int Wid2=DlgWidth-strlen(SearchStr)-1;
+        int Wid1=(int)strlen(SearchStr);
+        int Wid2=DlgWidth-(int)strlen(SearchStr)-1;
 
         if (SearchDone)
         {
@@ -2887,21 +2884,21 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
 
           xstrncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
           ItemData.PtrData=DataStr;
-          ItemData.PtrLength=strlen(DataStr);
+          ItemData.PtrLength=(int)strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,9,(LONG_PTR)&ItemData);
 
           statusCS.Enter ();
 
           sprintf(DataStr,"%-*.*s",DlgWidth,DlgWidth,FindMessage);
           ItemData.PtrData=DataStr;
-          ItemData.PtrLength=strlen(DataStr);
+          ItemData.PtrLength=(int)strlen(DataStr);
 
           statusCS.Leave ();
 
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(LONG_PTR)&ItemData);
 
           ItemData.PtrData="";
-          ItemData.PtrLength=strlen(DataStr);
+          ItemData.PtrLength=(int)strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(LONG_PTR)&ItemData);
 
           Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -2914,7 +2911,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
 
           sprintf(DataStr,"%-*.*s %-*.*s",Wid1,Wid1,SearchStr,Wid2,Wid2,TruncPathStr(FindMessage,Wid2));
           ItemData.PtrData=DataStr;
-          ItemData.PtrLength=strlen(DataStr);
+          ItemData.PtrLength=(int)strlen(DataStr);
 
           statusCS.Leave ();
 
@@ -3030,11 +3027,11 @@ char *FindFiles::PrepareDriveNameStr(char *SearchFromRoot,size_t sz)
     xstrncpy(MsgStr1,SearchFromRoot,sizeof(MsgStr1)-1);
 
     RemoveHighlights(MsgStr1);
-    MsgLen=strlen(MsgStr1);
+    MsgLen=(int)strlen(MsgStr1);
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
     // учёта точной длины строки, без учёта '&'
-    MsgLenDiff=strlen(SearchFromRoot)-MsgLen;
+    MsgLenDiff=(int)strlen(SearchFromRoot)-MsgLen;
   }
   else
   {
@@ -3042,18 +3039,18 @@ char *FindFiles::PrepareDriveNameStr(char *SearchFromRoot,size_t sz)
     xstrncpy(MsgStr1,MsgStr,sizeof(MsgStr1)-1);
 
     RemoveHighlights(MsgStr1);
-    MsgLen=strlen(MsgStr1);
+    MsgLen=(int)strlen(MsgStr1);
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
     // учёта точной длины строки, без учёта '&'
-    MsgLenDiff=strlen(MsgStr)-MsgLen;
+    MsgLenDiff=(int)strlen(MsgStr)-MsgLen;
 
-    DrvLen=sz-MsgLen-1-MsgLenDiff; // -1 - это пробел между строкой и диском, -MsgLenDiff - это учёт символа '&'
+    DrvLen=(int)sz-MsgLen-1-MsgLenDiff; // -1 - это пробел между строкой и диском, -MsgLenDiff - это учёт символа '&'
     if (DrvLen<7)
     {
       DrvLen=7; // Сделаем минимальный размер имени диска 7 символов
                 // (учтём работу TruncPathStr с UNC, чтобы хоть что-то было видно)
-      MsgLen=sz-DrvLen-1-MsgLenDiff;
+      MsgLen=(int)sz-DrvLen-1-MsgLenDiff;
     }
 
     sprintf(SearchFromRoot,"%s %s",TruncStrFromEnd(MsgStr,MsgLen+MsgLenDiff),TruncPathStr(CurDir,DrvLen));

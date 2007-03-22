@@ -3,7 +3,7 @@
 rem set misc far compilation options
 set FAR_MSVCRT=
 set USE_WFUNC=/D "USE_WFUNC" /D "USE_WFUNC_ALW" /D "USE_WFUNC_IN" /D "FAR_ALPHA_VERSION"
-set FARTRY=/GX-
+set FARTRY=/EHs-c-
 set FARSYSLOG=-DSYSLOG_FARSYSLOG -DSYSLOG
 set CFG_0=Debug
 

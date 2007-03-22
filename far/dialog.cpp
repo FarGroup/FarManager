@@ -228,7 +228,7 @@ void Dialog::InitDialog(void)
     */
     CheckDialogCoord();
     int InitFocus=InitDialogObjects();
-    int Result=DlgProc((HANDLE)this,DN_INITDIALOG,InitFocus,DataDialog);
+    int Result=(int)DlgProc((HANDLE)this,DN_INITDIALOG,InitFocus,DataDialog);
     if(ExitCode == -1)
     {
       if(Result)
@@ -956,7 +956,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
     case DI_MEMOEDIT:
       break;
     default:
-      Len=((ItemFlags & DIF_SHOWAMPERSAND)?strlen(CurItem->Data):HiStrlen(CurItem->Data));
+      Len=((ItemFlags & DIF_SHOWAMPERSAND)?(int)strlen(CurItem->Data):HiStrlen(CurItem->Data));
       break;
   }
 
@@ -1184,7 +1184,7 @@ void Dialog::GetDialogObjectsData()
 
 
 // Функция формирования и запроса цветов.
-DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
+LONG_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1462,7 +1462,7 @@ void Dialog::ShowDialog(int ID)
 
     if(!DialogMode.Check(DMODE_NODRAWPANEL))
     {
-      Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
+      Attr=(DWORD)DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
           DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
       SetScreen(X1,Y1,X2,Y2,' ',Attr);
     }
@@ -1522,7 +1522,7 @@ void Dialog::ShowDialog(int ID)
     short CH=CY2-CY1+1;
     BOOL DisabledItem=CurItem->Flags&DIF_DISABLE?TRUE:FALSE;
 
-    Attr=CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->Flags);
+    Attr=(unsigned long)CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->Flags);
 
 #if 0
     // TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
@@ -1563,7 +1563,7 @@ void Dialog::ShowDialog(int ID)
           if(LenText < CW-2)
           {
             memmove(Str+1,Str,strlen(Str)+1);
-            LenText=strlen(Str);
+            LenText=(int)strlen(Str);
             *Str=Str[LenText]=' ';
             Str[LenText+1]=0;
             LenText=LenStrItem(I,Str);
@@ -1650,7 +1650,7 @@ void Dialog::ShowDialog(int ID)
         xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str); // strlen(Str); ???
         if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
-          LenText=strlen(CenterStr(Str,Str,CY2-CY1+1));
+          LenText=(int)strlen(CenterStr(Str,Str,CY2-CY1+1));
 
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
         Y=(CY1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(Y2-Y1+1-LenText)/2:CY1;
@@ -1944,7 +1944,7 @@ int Dialog::LenStrItem(int ID,char *Str)
 
   if(!Str)
     Str=Item[ID].Data;
-  return (Item[ID].Flags & DIF_SHOWAMPERSAND)?strlen(Str):HiStrlen(Str);
+  return (Item[ID].Flags & DIF_SHOWAMPERSAND)?(int)strlen(Str):HiStrlen(Str);
 }
 
 
@@ -2332,7 +2332,7 @@ int Dialog::ProcessKey(int Key)
           else
             CurPos=0;
           ((DlgEdit *)(Item[I-1].ObjPtr))->GetString(Str,sizeof(Str));
-          int Length=strlen(Str);
+          int Length=(int)strlen(Str);
           ((DlgEdit *)(Item[I].ObjPtr))->SetString(CurPos>=Length ? "":Str+CurPos);
           if (CurPos<Length)
             Str[CurPos]=0;
@@ -2574,7 +2574,7 @@ int Dialog::ProcessKey(int Key)
                   // добавляем к предыдущему и...
                   DlgEdit *edt_1=(DlgEdit *)Item[FocusPos-1].ObjPtr;
                   edt_1->GetString(Str,sizeof(Str));
-                  CurPos=strlen(Str);
+                  CurPos=(int)strlen(Str);
                   edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
                   edt_1->SetString(Str);
 
@@ -2646,7 +2646,7 @@ int Dialog::ProcessKey(int Key)
 
                 edt->GetSelection(SelStart, SelEnd);
                 edt->GetString(Str,sizeof(Str));
-                int LengthStr=strlen(Str);
+                int LengthStr=(int)strlen(Str);
                 if(SelStart > -1)
                 {
                   memmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
@@ -2769,7 +2769,7 @@ int Dialog::ProcessKey(int Key)
               int DoAutoComplete=TRUE;
               int CurPos=edt->GetCurPos();
               edt->GetString(PStr,MaxLen);
-              int len=strlen(PStr);
+              int len=(int)strlen(PStr);
               edt->GetSelection(SelStart,SelEnd);
               if(SelStart < 0 || SelStart==SelEnd)
                   SelStart=len;
@@ -2791,7 +2791,7 @@ int Dialog::ProcessKey(int Key)
               }
               /* IS $ */
 
-              SelEnd=strlen(PStr);
+              SelEnd=(int)strlen(PStr);
 
               //find the string in the list
               /* $ 03.12.2000 IS
@@ -3643,7 +3643,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
   if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
   {
     if(DialogMode.Check(DMODE_INITOBJECTS))
-      FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
+      FucusPosNeed=(int)DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
 
     if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
       SetFocusPos=FucusPosNeed;
@@ -3851,7 +3851,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
     Item->DefaultButton=Data->DefaultButton;
     Item->SelStart=-1;
     if ((DWORD_PTR)Data->Data<MAX_MSG)
-      xstrncpy(Item->Data,MSG((DWORD_PTR)Data->Data),sizeof(Item->Data)-1);
+      xstrncpy(Item->Data,MSG((int)(DWORD_PTR)Data->Data),sizeof(Item->Data)-1);
     else
       memcpy(Item->Data,Data->Data,sizeof(Item->Data));
   }
@@ -3945,7 +3945,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
   CriticalSectionLock Lock(CS);
 
   char *Str;
-  int I, LenFindStr=strlen(FindStr);
+  int I, LenFindStr=(int)strlen(FindStr);
 
   /* $ 26.07.2004 KM
      Сделаем проверку на HistoryName==NULL, падает.
@@ -4784,7 +4784,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
    Работа с доп. данными экземпляра диалога
    Пока простое копирование (присвоение)
 */
-void Dialog::SetDialogData(long NewDataDialog)
+void Dialog::SetDialogData(LONG_PTR NewDataDialog)
 {
   DataDialog=NewDataDialog;
 }
@@ -5370,7 +5370,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     */
     case DM_SETDLGDATA:
     {
-      long PrewDataDialog=Dlg->DataDialog;
+      LONG_PTR PrewDataDialog=Dlg->DataDialog;
       Dlg->DataDialog=Param2;
       return PrewDataDialog;
     }
@@ -5549,7 +5549,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
             {
-              ListBox->SortItems(Param2);
+              ListBox->SortItems((int)Param2);
               /* $ 23.02.2002 DJ
                  корректировка позиции нужна, чтобы не было двух выделенных элементов
               */
@@ -5645,14 +5645,14 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             case DM_LISTGETDATA: // Param1=ID Param2=Index
             {
               if(Param2 < ListBox->GetItemCount())
-                return (LONG_PTR)ListBox->GetUserData(NULL,0,Param2);
+                return (LONG_PTR)ListBox->GetUserData(NULL,0,(int)Param2);
               return 0;
             }
 
             case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
             {
               if(Param2 < ListBox->GetItemCount())
-                return ListBox->GetUserDataSize(Param2);
+                return ListBox->GetUserDataSize((int)Param2);
               return 0;
             }
 
@@ -5954,7 +5954,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DN_EDITCHANGE:
     {
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
-      if((I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&PluginDialogItem)) == TRUE)
+      if((I=(int)Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&PluginDialogItem)) == TRUE)
       {
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
@@ -5966,7 +5966,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DN_BTNCLICK:
     {
-      int Ret=Dlg->CallDlgProc(Msg,Param1,Param2);
+      int Ret=(int)Dlg->CallDlgProc(Msg,Param1,Param2);
       if(Ret && (CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
       {
         DialogItemAutomation* Auto=CurItem->AutoPtr;
@@ -6019,7 +6019,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           Param2%=3;
         else
           Param2&=1;
-        CurItem->Selected=Param2;
+        CurItem->Selected=(int)Param2;
 
         if(Selected != (int)Param2 && Dlg->DialogMode.Check(DMODE_SHOW))
         {
@@ -6061,7 +6061,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       // преобразуем данные для!
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
-      I=Dlg->CallDlgProc(Msg,Param1,(LONG_PTR)&PluginDialogItem);
+      I=(int)Dlg->CallDlgProc(Msg,Param1,(LONG_PTR)&PluginDialogItem);
       Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
       if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
         CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
@@ -6133,7 +6133,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           case DI_RADIOBUTTON:
           case DI_BUTTON:
 
-            Len=strlen(Ptr)+1;
+            Len=(int)strlen(Ptr)+1;
             if (!(CurItem->Flags & DIF_NOBRACKETS) && Type == DI_BUTTON)
             {
               Ptr+=2;
@@ -6180,7 +6180,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       switch(Type)
       {
         case DI_BUTTON:
-          Len=strlen(Ptr)+1;
+          Len=(int)strlen(Ptr)+1;
           if (!(CurItem->Flags & DIF_NOBRACKETS))
             Len-=4;
           break;
@@ -6195,7 +6195,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         case DI_DOUBLEBOX:
         case DI_CHECKBOX:
         case DI_RADIOBUTTON:
-          Len=strlen(Ptr)+1;
+          Len=(int)strlen(Ptr)+1;
           break;
 
         case DI_COMBOBOX:
@@ -6215,7 +6215,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           struct MenuItem *ListMenuItem;
           if((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) != NULL)
           {
-            Len=strlen(ListMenuItem->Name)+1;
+            Len=(int)strlen(ListMenuItem->Name)+1;
           }
           break;
         }
@@ -6235,7 +6235,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       struct FarDialogItemData IData;
       IData.PtrData=(char *)Param2;
-      IData.PtrLength=strlen(IData.PtrData);
+      IData.PtrLength=(int)strlen(IData.PtrData);
       return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(LONG_PTR)&IData);
     }
 
@@ -6275,7 +6275,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             if((Len=did->PtrLength) == 0)
             {
               xstrncpy(Ptr,(char *)did->PtrData,511);
-              Len=strlen(Ptr)+1;
+              Len=(int)strlen(Ptr)+1;
             }
             else
             {
@@ -6383,12 +6383,12 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
            (CurItem->Flags&DIF_VAREDIT))
-          CurItem->Ptr.PtrLength=Param2; //???
+          CurItem->Ptr.PtrLength=(int)Param2; //???
         else if(Param2 > 511)
           Param2=511;
 
         // BugZ#628 - Неправильная длина редактируемого текста.
-        ((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
+        ((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength((int)Param2);
 
         //if (DialogMode.Check(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
@@ -6465,7 +6465,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           if((CurItem->Flags&DIF_HIDDEN) && Dlg->FocusPos == Param1)
           {
             Param2=Dlg->ChangeFocus(Param1,1,TRUE);
-            Dlg->ChangeFocus2(Param1,Param2);
+            Dlg->ChangeFocus2(Param1,(int)Param2);
           }
           // Либо все,  либо... только 1
           Dlg->ShowDialog(Dlg->GetDropDownOpened()||(CurItem->Flags&DIF_HIDDEN)?-1:Param1);
@@ -6564,7 +6564,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_SETITEMDATA:
     {
-      long PrewDataDialog=CurItem->UserData;
+      LONG_PTR PrewDataDialog=CurItem->UserData;
       CurItem->UserData=Param2;
       return PrewDataDialog;
     }
@@ -6584,7 +6584,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         int ClearFlag=EditLine->GetClearFlag();
         if(Param2 >= 0)
         {
-          EditLine->SetClearFlag(Param2);
+          EditLine->SetClearFlag((int)Param2);
           EditLine->Select(-1,0); // снимаем выделение
           if(Dlg->DialogMode.Check(DMODE_SHOW)) //???
           {

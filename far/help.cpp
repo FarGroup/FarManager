@@ -316,8 +316,8 @@ int Help::ReadHelp(const char *Mask)
   memset(TabSpace,' ',sizeof(TabSpace)-1);
   TabSpace[sizeof(TabSpace)-1]=0;
 
-  StartPos = -1;
-  LastStartPos = -1;
+  StartPos = (DWORD)-1;
+  LastStartPos = (DWORD)-1;
 
   int RealMaxLength;
 
@@ -348,7 +348,7 @@ int Help::ReadHelp(const char *Mask)
     while((Ptr=strchr(ReadStr,'\t')) != NULL)
     {
       *Ptr=' ';
-      PosTab=Ptr-ReadStr+1;
+      PosTab=(int)(Ptr-ReadStr+1);
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
         InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
       if(strlen(ReadStr) > sizeof(ReadStr)/2)
@@ -360,7 +360,7 @@ int Help::ReadHelp(const char *Mask)
     if ( *CtrlStartPosChar && strstr (ReadStr, CtrlStartPosChar) )
     {
         char Line[MAX_HELP_STRING_LENGTH];
-        int Length = strstr (ReadStr, CtrlStartPosChar)-ReadStr;
+        int Length = (int)(strstr (ReadStr, CtrlStartPosChar)-ReadStr);
 
         xstrncpy (Line, ReadStr, Length);
         LastStartPos = StringLen (Line);;
@@ -418,8 +418,8 @@ m1:
         */
         if ( NearTopicFound )
         {
-          StartPos = -1;
-          LastStartPos = -1;
+          StartPos = (DWORD)-1;
+          LastStartPos = (DWORD)-1;
         }
 
 
@@ -444,8 +444,8 @@ m1:
                 {
                   AddLine(ReadStr);
 
-                  LastStartPos = -1;
-                  StartPos = -1;
+                  LastStartPos = (DWORD)-1;
+                  StartPos = (DWORD)-1;
 
                   continue;
                 }
@@ -475,7 +475,7 @@ m1:
               if (*SplitLine)
               {
                 AddLine(SplitLine);
-                StartPos = -1;
+                StartPos = (DWORD)-1;
               }
 
               strcpy(SplitLine,ReadStr);
@@ -503,7 +503,7 @@ m1:
 
           int Splitted=0;
 
-          for (int I=strlen(SplitLine)-1;I>0;I--)
+          for (int I=(int)strlen(SplitLine)-1;I>0;I--)
           {
             if (I>0 && SplitLine[I]=='~' && SplitLine[I-1]=='~')
             {
@@ -729,7 +729,7 @@ void Help::DrawWindowFrame()
   */
   TruncStrFromEnd(HelpTitleBuf,X2-X1-3);
   /* DJ $ */
-  GotoXY(X1+(X2-X1+1-strlen(HelpTitleBuf)-2)/2,Y1);
+  GotoXY(X1+(X2-X1+1-(int)strlen(HelpTitleBuf)-2)/2,Y1);
   mprintf(" %s ",HelpTitleBuf);
 }
 
@@ -804,7 +804,7 @@ void Help::OutString(const char *Str)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
       if (Locked())
-        GotoXY(WhereX()+strlen(OutStr),WhereY());
+        GotoXY(WhereX()+(int)strlen(OutStr),WhereY());
       else
         Text(OutStr);
       OutPos=0;
@@ -1341,7 +1341,7 @@ int Help::JumpTopic(const char *JumpTopic)
     strcpy(FullPath,StackData.HelpPath);
 
     // уберем _все_ конечные слеши и добавим один
-    int Len=strlen(FullPath)-1;
+    int Len=(int)strlen(FullPath)-1;
     while(Len>-1 && FullPath[Len]=='\\')
     {
       FullPath[Len]=0;

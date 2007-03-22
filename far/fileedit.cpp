@@ -209,7 +209,7 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   *AttrStr=0;
   /* IS $ */
   CurrentEditor=this;
-  FileAttributes=-1;
+  FileAttributes=(DWORD)-1;
   FileAttributesModified=false;
   *PluginTitle=0;
   SetTitle(Title);
@@ -1333,7 +1333,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
           EndSeq=MAC_EOL_fmt;
         CurPtr->SetEOL(EndSeq);
       }
-      int EndLength=strlen(EndSeq);
+      int EndLength=(int)strlen(EndSeq);
       if (fwrite(SaveStr,1,Length,EditFile)!=Length ||
           fwrite(EndSeq,1,EndLength,EditFile)!=EndLength)
       {
@@ -1610,7 +1610,7 @@ void FileEditor::ShowStatus()
   */
   // предварительный расчет.
   sprintf(LineStr,"%d/%d",FEdit->NumLastLine,FEdit->NumLastLine);
-  int SizeLineStr=strlen(LineStr);
+  int SizeLineStr=(int)strlen(LineStr);
   if(SizeLineStr > 12)
     NameLength-=(SizeLineStr-12);
   else

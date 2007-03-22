@@ -600,7 +600,7 @@ char *KeyMacro::GetPlainText(char *Dest)
 
   struct MacroRecord *MR=Work.MacroWORK;
 
-  int LenTextBuf=strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
+  int LenTextBuf=(int)strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
   Dest[0]=0;
   if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
   {
@@ -620,7 +620,7 @@ int KeyMacro::GetPlainTextSize()
   if(!Work.MacroWORK)
     return 0;
   struct MacroRecord *MR=Work.MacroWORK;
-  return strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
+  return (int)strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
@@ -766,7 +766,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_C_SELECTED:    // Selected?
         {
 #if 1
-          int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MACRO_SHELL));
+          int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
           if (CurFrame && CurFrame->GetType()==NeedType)
           {
             int CurSelected;
@@ -1161,12 +1161,12 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 static TVar substrFunc(TVar *param)
 {
   char *p = (char*)(param[0].toString());
-  int len = strlen(p);
+  int len = (int)strlen(p);
   int p1 = (int)(param[1].toInteger());
   if ( ( p1 >= 0 ) && ( p1 < len ) )
   {
     p += p1;
-    len = strlen(p);
+    len = (int)strlen(p);
     int p2 = (int)(param[2].toInteger());
     if ( ( p2 > 0 ) && ( p2 < len ) )
       p[p2] = 0;
@@ -1401,7 +1401,7 @@ static TVar playmacroFunc(TVar *param)
 static TVar waitkeyFunc(TVar *param)
 {
   long Period=(long)param[0].toInteger();
-  DWORD Key=WaitKey(-1,Period);
+  DWORD Key=WaitKey((DWORD)-1,Period);
   char KeyName[128];
   *KeyName=0;
   if(Key != KEY_NONE)
@@ -1424,7 +1424,7 @@ static TVar rindexFunc(TVar *param)
 static TVar dateFunc(TVar *param)
 {
   const char *s = param[0].toString();
-  int SizeMacroText = 16+(*s ? 0 : strlen(Opt.DateFormat));
+  int SizeMacroText = 16+(*s ? 0 : (int)strlen(Opt.DateFormat));
   SizeMacroText*=4;
   char *TStr=(char*)alloca(SizeMacroText);
   if(TStr && MkStrFTime(TStr,SizeMacroText,s))
@@ -1436,7 +1436,7 @@ static TVar dateFunc(TVar *param)
 static TVar xlatFunc(TVar *param)
 {
   char *Str = (char *)param[0].toString();
-  return TVar(::Xlat(Str,0,strlen(Str),NULL,Opt.XLat.Flags));
+  return TVar(::Xlat(Str,0,(int)strlen(Str),NULL,Opt.XLat.Flags));
 }
 
 // N=msgbox("Title","Text",flags)
@@ -1813,7 +1813,7 @@ static TVar clipFunc(TVar *param)
       char *CopyData=InternalPasteFromClipboard(0); // 0!  ???
       if(CopyData)
       {
-        int DataSize=strlen(CopyData);
+        int DataSize=(int)strlen(CopyData);
         char *NewPtr=(char *)xf_realloc(CopyData,DataSize+strlen(param[1].s())+2);
         if (NewPtr)
         {
@@ -3018,13 +3018,13 @@ M1:
     KeyMacro *MacroDlg=KMParam->Handle;
 
     if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
-      Param2=LocalKeyToKey(Param2&0x000000FF)|(Param2&(~0x000000FF));
+      Param2=LocalKeyToKey((int)((Param2&0x000000FF)|(Param2&(~0x000000FF))));
 
     KMParam->Key=(DWORD)Param2;
-    KeyToText(Param2,KeyText);
+    KeyToText((int)Param2,KeyText);
 
     // если УЖЕ есть такой макрос...
-    if((Index=MacroDlg->GetIndex(Param2,KMParam->Mode)) != -1)
+    if((Index=MacroDlg->GetIndex((int)Param2,KMParam->Mode)) != -1)
     {
       struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
       DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
@@ -3052,7 +3052,7 @@ M1:
       if(Mac->Src != NULL)
       {
         int F=0;
-        I=strlen(Mac->Src);
+        I=(int)strlen(Mac->Src);
         if(I > 45) { I=45; F++; }
         sprintf(Buf,"\"%*.*s%s\"",I,I,Mac->Src,(F?"...":""));
         strcpy(BufKey,Buf);
@@ -3118,7 +3118,7 @@ M1:
 //    if(Param2 == KEY_F1 && LastKey == KEY_F1)
 //      LastKey=-1;
 //    else
-      LastKey=Param2;
+      LastKey=(int)Param2;
     return TRUE;
   }
   else if(Msg == DN_CTLCOLORDLGITEM) // сбросим Unchanged
@@ -3627,7 +3627,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
   _macro_nErr = 0;
   if ( BufPtr == NULL || !*BufPtr)
     return FALSE;
-  int SizeCurKeyText = strlen(BufPtr)*2;
+  int SizeCurKeyText = (int)strlen(BufPtr)*2;
   char *CurrKeyText = (char*)xf_malloc(SizeCurKeyText);
   if ( CurrKeyText == NULL )
   {
@@ -3684,7 +3684,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         while ( ( isalnum(ch = *s++) || ( ch == '_') ) )
           *p++ = ch;
         *p = 0;
-        int Length = strlen(varName)+1;
+        int Length = (int)strlen(varName)+1;
         // строка должна быть выровнена на 4
         SizeVarName = Length/sizeof(DWORD);
         if ( Length == 1 || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
@@ -4165,7 +4165,7 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
   {
-    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MACRO_SHELL));
+    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
     Frame* CurFrame=FrameManager->GetCurrentFrame();
     if (CurFrame && CurFrame->GetType()==NeedType)
     {
@@ -4512,7 +4512,7 @@ static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
      BufPtr++;
      Chr=*BufPtr;
    }
-   int Length=BufPtr-CurBufPtr;
+   int Length=(int)(BufPtr-CurBufPtr);
 
    memcpy(CurKeyText,CurBufPtr,Length);
    CurKeyText[Length]=0;

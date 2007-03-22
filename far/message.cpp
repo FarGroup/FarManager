@@ -102,14 +102,14 @@ int Message(DWORD Flags,int Buttons,const char *Title,
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
-    if ((Length=strlen(Items[I]))>MaxLength)
+    if ((Length=(int)strlen(Items[I]))>MaxLength)
       MaxLength=Length;
   }
 
   // учтем так же размер заголовка
   if(Title && *Title)
   {
-    I=strlen(Title)+2;
+    I=(int)strlen(Title)+2;
     if (MaxLength < I)
       MaxLength=I;
   }
@@ -130,7 +130,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     //InsertQuote(ErrStr); // оквочим
 
     // вычисление "красивого" размера
-    int LenErrStr=strlen(ErrStr);
+    int LenErrStr=(int)strlen(ErrStr);
     if(LenErrStr > MAX_WIDTH_MESSAGE)
     {
       // половина меньше?
@@ -313,7 +313,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   {
     char TempTitle[2048];
     xstrncpy(TempTitle,Title,min((int)sizeof(TempTitle)-1,(int)MaxLength));
-    GotoXY(X1+(X2-X1-1-strlen(TempTitle))/2,Y1+1);
+    GotoXY(X1+(X2-X1-1-(int)strlen(TempTitle))/2,Y1+1);
     mprintf(" %s ",TempTitle);
   }
 
@@ -331,7 +331,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
         GotoXY(X1+3,Y1+I+2);
         DrawLine(Length,(Chr == 2?3:1));
         CPtrStr++;
-        int TextLength=strlen(CPtrStr);
+        int TextLength=(int)strlen(CPtrStr);
         if (TextLength<Length)
         {
           GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
@@ -341,7 +341,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       }
       continue;
     }
-    if ((Length=strlen(CPtrStr))>ScrX-15)
+    if ((Length=(int)strlen(CPtrStr))>ScrX-15)
       Length=ScrX-15;
     int Width=X2-X1+1;
     if (Flags & MSG_LEFTALIGN)

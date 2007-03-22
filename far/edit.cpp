@@ -178,7 +178,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
   {
     int i;
     int PosChanged=FALSE;
-    int MaskLen=strlen(Mask);
+    int MaskLen=(int)strlen(Mask);
     for (i=Position;i<MaskLen && i>=0;i+=Where)
     {
       if (CheckCharMask(Mask[i]))
@@ -372,13 +372,13 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
         if (ShortStr==NULL)
           return;
         xstrncpy(ShortStr,ShowStr,StrSize);
-        Len=strlen(RemoveTrailingSpaces(ShortStr));
+        Len=(int)strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         Size=Len;
       }
       else
       {
-        Len=strlen(&ShowStr[LeftPos]);
+        Len=(int)strlen(&ShowStr[LeftPos]);
         Size=StrSize;
       }
       if(Len > EditLength)
@@ -508,7 +508,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
       DeleteBlock();
 
     if(TableSet)
-       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,strlen(PathName));
+       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,(int)strlen(PathName));
     char *Ptr=PathName;
     for (;*Ptr;Ptr++)
       InsertKey(*Ptr);
@@ -819,7 +819,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         xstrncpy(ShortStr,Str,StrSize);
-        Len=strlen(RemoveTrailingSpaces(ShortStr));
+        Len=(int)strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -979,7 +979,7 @@ int Edit::ProcessKey(int Key)
            Добавим код для удаления части строки
            с учётом маски.
         */
-        int MaskLen=strlen(Mask);
+        int MaskLen=(int)strlen(Mask);
         int ptr=CurPos;
         while(ptr<MaskLen)
         {
@@ -1100,7 +1100,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         xstrncpy(ShortStr,Str,StrSize);
-        CurPos=strlen(RemoveTrailingSpaces(ShortStr));
+        CurPos=(int)strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -1141,7 +1141,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         xstrncpy(ShortStr,Str,StrSize);
-        int Len=strlen(RemoveTrailingSpaces(ShortStr));
+        int Len=(int)strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1190,7 +1190,7 @@ int Edit::ProcessKey(int Key)
       */
       if (Mask && *Mask)
       {
-        int MaskLen=strlen(Mask);
+        int MaskLen=(int)strlen(Mask);
         int i,j;
         for (i=CurPos,j=CurPos;i<MaskLen;i++)
         {
@@ -1258,7 +1258,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         xstrncpy(ShortStr,Str,StrSize);
-        Len=strlen(RemoveTrailingSpaces(ShortStr));
+        Len=(int)strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1346,7 +1346,7 @@ int Edit::ProcessKey(int Key)
           DeleteBlock();
         }
 
-        for (I=strlen(Str)-1;I>=0 && IsEol(Str[I]);I--)
+        for (I=(int)strlen(Str)-1;I>=0 && IsEol(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
           if (IsEol(ClipText[I]))
@@ -1456,7 +1456,7 @@ int Edit::ProcessCtrlQ(void)
 int Edit::ProcessInsDate(void)
 {
   const char *Fmt = eStackAsString();
-  int SizeMacroText = 16+(*Fmt ? strlen(Fmt) : strlen(Opt.DateFormat));
+  int SizeMacroText = 16+(*Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
   SizeMacroText*=4+1;
   char *TStr=(char*)alloca(SizeMacroText);
   if(!TStr)
@@ -1507,7 +1507,7 @@ int Edit::InsertKey(int Key)
   }
   if (Mask && *Mask)
   {
-    int MaskLen=strlen(Mask);
+    int MaskLen=(int)strlen(Mask);
     if (CurPos<MaskLen)
     {
       /* $ 15.11.2000 KM
@@ -1652,7 +1652,7 @@ void Edit::SetString(const char *Str)
     return;
   /* tran 03.07.2000 $ */
   Select(-1,0);
-  SetBinaryString(Str,strlen(Str));
+  SetBinaryString(Str,(int)strlen(Str));
 }
 
 
@@ -1744,7 +1744,7 @@ void Edit::SetBinaryString(const char *Str,int Length)
     /* $ 26.10.2003 KM
        ! Скорректируем вставку из клипборда с учётом маски
     */
-    int maskLen=strlen(Mask);
+    int maskLen=(int)strlen(Mask);
     for (int i=0,j=0;j<maskLen && j<Length;)
     {
       if (CheckCharMask(Mask[i]))
@@ -1832,7 +1832,7 @@ void Edit::InsertString(const char *Str)
   /* tran 25.07.2000 $ */
 
   Select(-1,0);
-  InsertBinaryString(Str,strlen(Str));
+  InsertBinaryString(Str,(int)strlen(Str));
 }
 
 
@@ -1856,7 +1856,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
   if (Mask && *Mask)
   {
     int Pos=CurPos;
-    int MaskLen=strlen(Mask);
+    int MaskLen=(int)strlen(Mask);
     if (Pos<MaskLen)
     {
       //_SVS(SysLog("InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
@@ -1982,7 +1982,7 @@ void Edit::RefreshStrByMask(int InitMode)
   int i;
   if (Mask && *Mask)
   {
-    int MaskLen=strlen(Mask);
+    int MaskLen=(int)strlen(Mask);
     /* $12.11.2000 KM
        Некоторые изменения в работе с маской.
        Теперь Str не может быть длиннее Mask и
@@ -2039,7 +2039,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 */
 int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
 {
-  int I,J,Length=strlen(Str);
+  int I,J,Length=(int)strlen(Str);
   if (Reverse)
   {
     Position--;
@@ -2153,8 +2153,8 @@ void Edit::ReplaceTabs()
 
   while ((TabPtr=(char *)memchr(Str,'\t',StrSize))!=NULL)
   {
-    Pos=TabPtr-Str;
-    S=TabSize-((TabPtr-Str) % TabSize);
+    Pos=(int)(TabPtr-Str);
+    S=TabSize-((int)(TabPtr-Str) % TabSize);
     if(SelStart!=-1)
     {
       if(Pos<=SelStart)
@@ -2228,7 +2228,7 @@ void Edit::SetTabCurPos(int NewPos)
     if (ShortStr==NULL)
       return;
     xstrncpy(ShortStr,Str,StrSize);
-    Pos=strlen(RemoveTrailingSpaces(ShortStr));
+    Pos=(int)strlen(RemoveTrailingSpaces(ShortStr));
     delete[] ShortStr;
     if (NewPos>Pos)
       NewPos=Pos;
@@ -2552,7 +2552,7 @@ void Edit::Xlat(BOOL All)
   */
   if(All && SelStart == -1 && SelEnd == 0)
   {
-    ::Xlat(Str,0,strlen(Str),TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,0,(int)strlen(Str),TableSet,Opt.XLat.Flags);
     Show();
     return;
   }
@@ -2564,7 +2564,7 @@ void Edit::Xlat(BOOL All)
   /* IS $ */
   {
     if(SelEnd == -1)
-      SelEnd=strlen(Str);
+      SelEnd=(int)strlen(Str);
     ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
     Show();
   }
@@ -2578,7 +2578,7 @@ void Edit::Xlat(BOOL All)
       Обрабатываем только то слово, на котором стоит курсор, или то слово, что
       находится левее позиции курсора на 1 символ
    */
-   int start=CurPos, end, StrSize=strlen(Str);
+   int start=CurPos, end, StrSize=(int)strlen(Str);
    BOOL DoXlat=TRUE;
 
    /* $ 12.01.2004 IS

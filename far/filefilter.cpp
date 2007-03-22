@@ -60,7 +60,7 @@ bool FileFilter::FilterEdit()
   FilterList.SetBottomTitle(MSG(MFilterBottom));
   FilterList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
-  for (int i=0; i<FilterData.getCount(); i++)
+  for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
     memset(&ListItem,0,sizeof(ListItem));
     MenuString(ListItem.Name,FilterData.getItem(i));
@@ -86,7 +86,7 @@ bool FileFilter::FilterEdit()
   {
     DWORD Inc,Exc;
     GetIncludeExcludeFlags(Inc,Exc);
-    for (int i=0; i<TempFilterData.getCount(); i++)
+    for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     {
       //AY: Будем показывать только те выбранные авто фильтры
       //(для которых нету файлов на панели) которые выбраны в области данного меню
@@ -236,7 +236,7 @@ bool FileFilter::FilterEdit()
       case KEY_F4:
       {
         int SelPos=FilterList.GetSelectPos();
-        if (SelPos<FilterData.getCount())
+        if (SelPos<(int)FilterData.getCount())
         {
           if (FileFilterConfig(FilterData.getItem(SelPos)))
           {
@@ -256,7 +256,7 @@ bool FileFilter::FilterEdit()
             bNeedUpdate=true;
           }
         }
-        else if (SelPos>FilterData.getCount())
+        else if (SelPos>(int)FilterData.getCount())
         {
           Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanEditCustomFilterOnly),MSG(MOk));
         }
@@ -269,7 +269,7 @@ bool FileFilter::FilterEdit()
         int SelPos=FilterList.GetSelectPos();
         int SelPos2=SelPos+1;
 
-        if (SelPos>FilterData.getCount())
+        if (SelPos>(int)FilterData.getCount())
           SelPos=FilterData.getCount();
 
         FileFilterParams *NewFilter = FilterData.insertItem(SelPos);
@@ -278,7 +278,7 @@ bool FileFilter::FilterEdit()
 
         if (Key==KEY_F5)
         {
-          if (SelPos2 < FilterData.getCount())
+          if (SelPos2 < (int)FilterData.getCount())
           {
             *NewFilter = *FilterData.getItem(SelPos2);
 
@@ -292,7 +292,7 @@ bool FileFilter::FilterEdit()
             NewFilter->SetTitle("");
             NewFilter->Flags.ClearAll();
           }
-          else if (SelPos2 > (FilterData.getCount()+2))
+          else if (SelPos2 > (int)(FilterData.getCount()+2))
           {
             char Mask[NM];
             FilterList.GetUserData(Mask,sizeof(Mask),SelPos2-1);
@@ -335,7 +335,7 @@ bool FileFilter::FilterEdit()
       case KEY_DEL:
       {
         int SelPos=FilterList.GetSelectPos();
-        if (SelPos<FilterData.getCount())
+        if (SelPos<(int)FilterData.getCount())
         {
           char QuotedTitle[512+2];
           sprintf(QuotedTitle,"\"%.*s\"",sizeof(QuotedTitle)-1-2,FilterData.getItem(SelPos)->GetTitle());
@@ -353,7 +353,7 @@ bool FileFilter::FilterEdit()
             bNeedUpdate=true;
           }
         }
-        else if (SelPos>FilterData.getCount())
+        else if (SelPos>(int)FilterData.getCount())
         {
           Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanDeleteCustomFilterOnly),MSG(MOk));
         }
@@ -364,7 +364,7 @@ bool FileFilter::FilterEdit()
       case KEY_CTRLDOWN:
       {
         int SelPos=FilterList.GetSelectPos();
-        if (SelPos<FilterData.getCount() && !(Key==KEY_CTRLUP && SelPos==0) && !(Key==KEY_CTRLDOWN && SelPos==FilterData.getCount()-1))
+        if (SelPos<(int)FilterData.getCount() && !(Key==KEY_CTRLUP && SelPos==0) && !(Key==KEY_CTRLDOWN && SelPos==FilterData.getCount()-1))
         {
           int NewPos = SelPos + (Key == KEY_CTRLDOWN ? 1 : -1);
           MenuItem CurItem, NextItem;
@@ -477,7 +477,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 
     CurFilterData=NULL;
 
-    if (i < FilterData.getCount())
+    if (i < (int)FilterData.getCount())
     {
       CurFilterData = FilterData.getItem(i);
     }
@@ -485,7 +485,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
     {
       CurFilterData = &FoldersFilter;
     }
-    else if (i > (FilterData.getCount() + 2))
+    else if (i > (int)(FilterData.getCount() + 2))
     {
       const char *FMask;
       char Mask[NM], Mask1[NM];
@@ -591,7 +591,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   bool bExc=false;
   FileFilterParams *CurFilterData;
 
-  for (int i=0; i<FilterData.getCount(); i++)
+  for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
     CurFilterData = FilterData.getItem(i);
 
@@ -610,7 +610,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
       FoldersFilter.Flags.Check(Inc)?bInc=true:bExc=true;
   }
 
-  for (int i=0; i<TempFilterData.getCount(); i++)
+  for (unsigned int i=0; i<TempFilterData.getCount(); i++)
   {
     CurFilterData = TempFilterData.getItem(i);
 
@@ -635,7 +635,7 @@ bool FileFilter::IsEnabledOnPanel()
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  for (int i=0; i<FilterData.getCount(); i++)
+  for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
     if (FilterData.getItem(i)->Flags.Check(Inc|Exc))
       return true;
@@ -644,7 +644,7 @@ bool FileFilter::IsEnabledOnPanel()
   if (FoldersFilter.Flags.Check(Inc|Exc))
     return true;
 
-  for (int i=0; i<TempFilterData.getCount(); i++)
+  for (unsigned int i=0; i<TempFilterData.getCount(); i++)
   {
     if (TempFilterData.getItem(i)->Flags.Check(Inc|Exc))
       return true;
@@ -695,8 +695,8 @@ void FileFilter::InitFilter()
 
       NewFilter->SetSize((DWORD)GetRegKey(RegKey,"UseSize",0),
                          (DWORD)GetRegKey(RegKey,"SizeType",0),
-                         GetRegKey64(RegKey,"SizeAbove",_i64(-1)),
-                         GetRegKey64(RegKey,"SizeBelow",_i64(-1)));
+                         GetRegKey64(RegKey,"SizeAbove",(unsigned __int64)_i64(-1)),
+                         GetRegKey64(RegKey,"SizeBelow",(unsigned __int64)_i64(-1)));
 
       NewFilter->SetAttr((DWORD)GetRegKey(RegKey,"UseAttr",1),
                          (DWORD)GetRegKey(RegKey,"AttrSet",0),
@@ -758,7 +758,7 @@ void FileFilter::SaveFilters(bool SaveAll)
 
   FileFilterParams *CurFilterData;
 
-  for (int i=0; i<FilterData.getCount(); i++)
+  for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
     CurFilterData = FilterData.getItem(i);
     itoa(i,PtrRegKey,10);
@@ -799,7 +799,7 @@ void FileFilter::SaveFilters(bool SaveAll)
     strcpy(RegKey,"Filters\\PanelMask");
     PtrRegKey=RegKey+strlen(RegKey);
 
-    for (int i=0; i<TempFilterData.getCount(); i++)
+    for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     {
       CurFilterData = TempFilterData.getItem(i);
       itoa(i,PtrRegKey,10);
@@ -844,12 +844,12 @@ void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)
 
 void FileFilter::SwapFilter()
 {
-  for (int i=0; i<FilterData.getCount(); i++)
+  for (unsigned int i=0; i<FilterData.getCount(); i++)
     SwapPanelFlags(FilterData.getItem(i));
 
   SwapPanelFlags(&FoldersFilter);
 
-  for (int i=0; i<TempFilterData.getCount(); i++)
+  for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     SwapPanelFlags(TempFilterData.getItem(i));
 
   DWORD flags=0;

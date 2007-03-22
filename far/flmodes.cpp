@@ -103,7 +103,7 @@ void FileList::SetFilePanelModes()
     MakeDialogItems(ModeDlgData,ModeDlg);
     int ExitCode;
 
-    strcpy(ModeDlg[0].Data,MSG((INT_PTR)ModeListMenu[ModeNumber].Name));
+    strcpy(ModeDlg[0].Data,MSG((int)(INT_PTR)ModeListMenu[ModeNumber].Name));
     RemoveHighlights(ModeDlg[0].Data);
 
     if (ModeNumber==9)

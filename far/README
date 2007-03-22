@@ -44,7 +44,6 @@
    Если 32хбитовые версии должны собираться VC8(VS2005), то в custum.vc...bat
    нужно включить строки
    ---->8----
-   set FARTRY=/EHs-c-
    set NMAKE_OPTS=USE_VC8_32=1
    ----8<----
 
@@ -60,7 +59,6 @@
    ----8<----
    или (для 32хбитовых версий компилируемых VC8)
    ---->8----
-   set FARTRY=/EHs-c-
    set NMAKE_OPTS=USE_VC8_32=1 NMAKE_OPTS=LINK_ULINK=1
    ----8<----
 

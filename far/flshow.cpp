@@ -33,7 +33,7 @@ static int __FormatEndSelectedPhrase(int Count)
   {
     char StrItems[32];
     itoa(Count,StrItems,10);
-    int LenItems=strlen(StrItems);
+    int LenItems=(int)strlen(StrItems);
     if(StrItems[LenItems-1] == '1' && Count != 11)
       M_Fmt=MListFilesSize1;
     else
@@ -233,7 +233,7 @@ void FileList::ShowFileList(int Fast)
 
   GetTitle(Title,TruncSize,2);//(PanelMode==PLUGIN_PANEL?0:2));
 
-  Length=strlen(Title);
+  Length=(int)strlen(Title);
   int ClockCorrection=FALSE;
   if ((Opt.Clock && !Opt.ShowMenuBar) && TitleX2==ScrX-4)
   {
@@ -360,7 +360,7 @@ void FileList::ShowSelectedSize()
     sprintf(SelStr,MSG(__FormatEndSelectedPhrase(SelFileCount)),FormStr,SelFileCount);
 
     TruncStr(SelStr,X2-X1-1);
-    Length=strlen(SelStr);
+    Length=(int)strlen(SelStr);
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
     Text(SelStr);
@@ -375,7 +375,7 @@ void FileList::ShowSelectedSize()
       else
         sprintf(EvalStr," %s ",MSG(MListEval));
       TruncStr(EvalStr,X2-X1-1);
-      Length=strlen(EvalStr);
+      Length=(int)strlen(EvalStr);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
       Text(EvalStr);
@@ -419,12 +419,12 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
     + Обрезаем строчку справа, а не слева */
   TruncStrFromEnd(TotalStr, X2-X1-1);
   /* VVM $ */
-  Length=strlen(TotalStr);
+  Length=(int)strlen(TotalStr);
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
 // UNICODE!!!
   char *FirstBox=strchr(TotalStr,0x0CD);
-  int BoxPos=(FirstBox==NULL) ? -1:FirstBox-TotalStr;
+  int BoxPos=(FirstBox==NULL) ? -1:(int)(FirstBox-TotalStr);
   int BoxLength=0;
   if (BoxPos!=-1)
 // UNICODE!!!
@@ -447,7 +447,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
 int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr)
 {
   memset(DestName,' ',MaxLength);
-  int SrcLength=strlen(SrcName);
+  int SrcLength=(int)strlen(SrcName);
   if (RightAlign && SrcLength>MaxLength)
   {
     memcpy(DestName,SrcName+SrcLength-MaxLength,MaxLength);
@@ -461,8 +461,8 @@ int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAl
       (DotPtr=strrchr(SrcName,'.'))!=NULL && DotPtr!=SrcName &&
       (SrcName[0]!='.' || SrcName[2]!=0) && strchr(DotPtr+1,' ')==NULL)
   {
-    int DotLength=strlen(DotPtr+1);
-    int NameLength=DotPtr-SrcName;
+    int DotLength=(int)strlen(DotPtr+1);
+    int NameLength=(int)(DotPtr-SrcName);
     int DotPos=MaxLength-Max(DotLength,3);
     if (DotPos<=NameLength)
       DotPos=NameLength+1;
@@ -749,7 +749,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           int CurLeftPos=0;
           if (!ShowStatus && LeftPos>0)
           {
-            int Length=strlen(ColumnData);
+            int Length=(int)strlen(ColumnData);
             if (Length>ColumnWidth)
             {
               CurLeftPos=LeftPos;
@@ -779,7 +779,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (CurPtr->Colors.MarkChar && Opt.Highlight && Width>1)
                 {
                   Width--;
-                  OutCharacter[0]=CurPtr->Colors.MarkChar;
+                  OutCharacter[0]=(char)CurPtr->Colors.MarkChar;
                   int OldColor=GetColor();
                   if (!ShowStatus)
                     SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
@@ -803,7 +803,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int LeftBracket=FALSE,RightBracket=FALSE;
                 if (!ShowStatus && LeftPos!=0)
                 {
-                  int Length=strlen(NamePtr);
+                  int Length=(int)strlen(NamePtr);
                   if (Length>Width)
                   {
                     if (LeftPos>0)
@@ -1006,7 +1006,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=CurPtr->DizText ? strlen(CurPtr->DizText):0;
+                  int Length=CurPtr->DizText ? (int)strlen(CurPtr->DizText):0;
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1030,7 +1030,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=strlen(CurPtr->Owner);
+                  int Length=(int)strlen(CurPtr->Owner);
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;

@@ -62,7 +62,7 @@ void CommandLine::DisplayObject()
   Text(TruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
   CmdStr.SetLeftPos(0);
-  CmdStr.SetPosition(X1+strlen(TruncDir),Y1,X2,Y2);
+  CmdStr.SetPosition(X1+(int)strlen(TruncDir),Y1,X2,Y2);
   CmdStr.Show();
 }
 
@@ -109,7 +109,7 @@ int CommandLine::ProcessKey(int Key)
       return TRUE;
 
     xstrncpy(Str,LastCmdStr,sizeof(Str)-1);
-    int CurCmdPartLength=strlen(Str);
+    int CurCmdPartLength=(int)strlen(Str);
     CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
@@ -189,7 +189,7 @@ int CommandLine::ProcessKey(int Key)
         {
           SetString(Str);
           if(SelectType < 3)
-            ProcessKey(SelectType==1?KEY_ENTER:KEY_SHIFTENTER);
+            ProcessKey(SelectType==1?(int)KEY_ENTER:(int)KEY_SHIFTENTER);
         }
         /* SVS $ */
       }
@@ -314,7 +314,7 @@ int CommandLine::ProcessKey(int Key)
         /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
         if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
-          LastCmdPartLength=strlen(LastCmdStr);
+          LastCmdPartLength=(int)strlen(LastCmdStr);
         /* IS $ */
         return(TRUE);
       }
@@ -375,7 +375,7 @@ int CommandLine::GetCurDir(char *CurDir)
 {
   if(CurDir)
     strcpy(CurDir,CommandLine::CurDir); // TODO: ОПАСНО!!!
-  return strlen(CommandLine::CurDir);
+  return (int)strlen(CommandLine::CurDir);
 }
 
 void CommandLine::GetString(char *Str,int MaxSize)

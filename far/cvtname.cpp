@@ -57,7 +57,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
     xstrncpy(BuffSrc,src,sizeof(BuffSrc)-1);
   }
 
-  DWORD SrcSize=strlen(BuffSrc);
+  DWORD SrcSize=(DWORD)strlen(BuffSrc);
 
   if(SrcSize == 3 && BuffSrc[1] == ':' && (BuffSrc[2] == '\\' || BuffSrc[2] == '/'))
   {
@@ -91,7 +91,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        if('\\'==*Dots) ++Dots;
        char tmp=*Dots;
        *Dots=0;
-       AddSize=strlen(Src);
+       AddSize=(DWORD)strlen(Src);
        FinalSize=AddSize;
        DestBuf=(char *)xf_malloc(AddSize+64);
        if(DestBuf)
@@ -129,7 +129,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        if('\\'==*Dots) ++Dots;
        char tmp=*Dots;
        *Dots=0;
-       AddSize=strlen(Src);
+       AddSize=(DWORD)strlen(Src);
        FinalSize=AddSize;
        DestBuf=(char *)xf_malloc(AddSize+64);
        if(DestBuf)
@@ -161,7 +161,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        if(hFile!=INVALID_HANDLE_VALUE)
        {
          FindClose(hFile);
-         AddSize=strlen(wfd.cFileName);
+         AddSize=(DWORD)strlen(wfd.cFileName);
          FinalSize+=AddSize;
          if(FinalSize>=DestSize)
          {
@@ -235,7 +235,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 
 //  char FullName[NM],AnsiName[NM],
   char *NamePtr=PointToName(const_cast<char *>(Src));
-  Result+=strlen(Src);
+  Result+=(int)strlen(Src);
 
   if (NamePtr==Src && (NamePtr[0]!='.' || NamePtr[1]!=0))
   {
@@ -392,7 +392,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
             DeleteEndSlash(TempDest2);
             strcat(TempDest2,Ptr);
             strcpy(TempDest,TempDest2);
-            Ret=strlen(TempDest);
+            Ret=(int)strlen(TempDest);
             // ВСЕ. Реальный путь у нас в кармане...
             break;
           }
@@ -427,5 +427,5 @@ void ConvertNameToShort(const char *Src,char *Dest,int DestSize)
   else
     xstrncpy(Dest,Src,DestSize);
   SetFileApisTo(APIS2OEM);
-  LocalUpperBuf(Dest,strlen(Dest));
+  LocalUpperBuf(Dest,(int)strlen(Dest));
 }

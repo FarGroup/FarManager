@@ -85,7 +85,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   /* $ 30.11.2001 DJ
      инициализируем перед тем, как добавлять айтема
   */
-  MaxLength=strlen(VMenu::Title)+2;
+  MaxLength=(int)strlen(VMenu::Title)+2;
   /* DJ $ */
   /* SVS $ */
 
@@ -96,7 +96,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   {
     memset(&NewItem,0,sizeof(NewItem));
     if ((DWORD_PTR)Data[I].Name < MAX_MSG)
-      xstrncpy(NewItem.Name,MSG((DWORD_PTR)Data[I].Name),sizeof(NewItem.Name)+1);
+      xstrncpy(NewItem.Name,MSG((int)(DWORD_PTR)Data[I].Name),sizeof(NewItem.Name)+1);
     else
       xstrncpy(NewItem.Name,Data[I].Name,sizeof(NewItem.Name)+1);
     //NewItem.AmpPos=-1;
@@ -108,7 +108,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   BoxType=DOUBLE_BOX;
   for (SelectPos=-1,I=0;I<ItemCount;I++)
   {
-    int Length=strlen(Item[I].Name);
+    int Length=(int)strlen(Item[I].Name);
     if (Length>MaxLength)
       MaxLength=Length;
     if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
@@ -365,7 +365,7 @@ void VMenu::DrawTitles()
   int WidthTitle;
   if (*Title)
   {
-    if((WidthTitle=strlen(Title)) > MaxTitleLength)
+    if((WidthTitle=(int)strlen(Title)) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[VMenuColorTitle]);
@@ -373,7 +373,7 @@ void VMenu::DrawTitles()
   }
   if (*BottomTitle)
   {
-    if((WidthTitle=strlen(BottomTitle)) > MaxTitleLength)
+    if((WidthTitle=(int)strlen(BottomTitle)) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[VMenuColorTitle]);
@@ -526,7 +526,7 @@ void VMenu::ShowMenu(int IsParent)
 
         if (*Item[I].PtrName())
         {
-          int ItemWidth=strlen(Item[I].PtrName());
+          int ItemWidth=(int)strlen(Item[I].PtrName());
           GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
           mprintf(" %*.*s ",ItemWidth,ItemWidth,Item[I].PtrName());
         }
@@ -848,7 +848,7 @@ int VMenu::ProcessKey(int Key)
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
         _len=HiStrlen(Item[SelectPos].PtrName(),TRUE);
       else
-        _len=strlen(Item[SelectPos].PtrName());
+        _len=(int)strlen(Item[SelectPos].PtrName());
 
       if(Key == KEY_ALTLEFT && ItemShowPos==0 || Key == KEY_ALTRIGHT && ItemShowPos > _len || _len < _OWidth)
         break;
@@ -1264,7 +1264,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   Item[PosAdd].ShowPos=0;
 
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-    Length=strlen(Item[PosAdd].PtrName());
+    Length=(int)strlen(Item[PosAdd].PtrName());
   else
     Length=HiStrlen(Item[PosAdd].PtrName(),TRUE);
 
@@ -1307,9 +1307,9 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     ++I;
   }
 
-  Item[PosAdd].Len[0]=strlen(NamePtr)-Item[PosAdd].Idx2; //??
+  Item[PosAdd].Len[0]=(int)strlen(NamePtr)-Item[PosAdd].Idx2; //??
   if(Item[PosAdd].Idx2)
-    Item[PosAdd].Len[1]=strlen(&NamePtr[Item[PosAdd].Idx2]);
+    Item[PosAdd].Len[1]=(int)strlen(&NamePtr[Item[PosAdd].Idx2]);
 
   // Уточнение общих размеров
   if(RLen[0] < Item[PosAdd].Len[0])
@@ -1435,7 +1435,7 @@ int VMenu::_SetUserData(struct MenuItem *PItem,
 
     // Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
     if(!Size)
-      SizeReal=strlen((const char*)Data)+1;
+      SizeReal=(int)strlen((const char*)Data)+1;
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
     if(!Size ||
@@ -1735,7 +1735,7 @@ void VMenu::SetTitle(const char *Title)
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   Title=NullToEmpty(Title);
   xstrncpy(VMenu::Title,Title,sizeof(VMenu::Title)-1);
-  Length=strlen(Title)+2;
+  Length=(int)strlen(Title)+2;
   if (Length > MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -1783,7 +1783,7 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   BottomTitle=NullToEmpty(BottomTitle);
   xstrncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle)-1);
-  Length=strlen(BottomTitle)+2;
+  Length=(int)strlen(BottomTitle)+2;
   if (Length > MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -1929,7 +1929,7 @@ void VMenu::AssignHighlights(int Reverse)
     {
       Used[LocalUpper(Ch)]++;
       Used[LocalLower(Ch)]++;
-      Item[I].AmpPos=ChPtr-Name;
+      Item[I].AmpPos=(int)(ChPtr-Name);
     }
   }
 //_SVS(SysLogDump("Used Pre",0,Used,sizeof(Used),NULL));
@@ -2176,11 +2176,11 @@ int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
   if((DWORD)StartIndex < (DWORD)ItemCount)
   {
     const char *NamePtr;
-    int LenPattern=strlen(Pattern);
+    int LenPattern=(int)strlen(Pattern);
     for(int I=StartIndex;I < ItemCount;I++)
     {
       NamePtr=Item[I].PtrName();
-      int LenNamePtr=strlen(NamePtr);
+      int LenNamePtr=(int)strlen(NamePtr);
       memcpy(TmpBuf,NamePtr,Min((int)LenNamePtr+1,(int)sizeof(TmpBuf)));
       if(Flags&LIFIND_EXACTMATCH)
       {

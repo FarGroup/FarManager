@@ -391,7 +391,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       const char *SaveStr,*EndSeq;
       int Length;
       CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-      TotalSize+=Length+strlen(EndSeq);
+      TotalSize+=Length+(int)strlen(EndSeq);
       if (TotalSize>StartChar)
         break;
       CurPtr=CurPtr->m_next;
@@ -2686,9 +2686,9 @@ int Editor::ProcessKey(int Key)
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         const char *Fmt = eStackAsString();
-        int SizeMacroText = 16+(*Fmt ? strlen(Fmt) : strlen(Opt.DateFormat));
+        int SizeMacroText = 16+(*Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
         if(Key == MCODE_OP_PLAINTEXT)
-          SizeMacroText=strlen(Fmt)+1;
+          SizeMacroText=(int)strlen(Fmt)+1;
         SizeMacroText*=4+1;
         char *TStr=(char*)alloca(SizeMacroText);
         if(!TStr)
@@ -3284,7 +3284,7 @@ void Editor::InsertString()
     if (EdOpt.AutoIndent && NewLineEmpty)
     {
       RemoveTrailingSpaces(NewCurLineStr);
-      StrSize=strlen(NewCurLineStr);
+      StrSize=(int)strlen(NewCurLineStr);
     }
 
     CurLine->SetBinaryString(NewCurLineStr,StrSize);
@@ -3551,7 +3551,7 @@ BOOL Editor::Search(int Next)
   {
     //SaveScreen SaveScr;
 
-    int SearchLength=strlen((char *)SearchStr);
+    int SearchLength=(int)strlen((char *)SearchStr);
 
     sprintf(MsgStr,"\"%s\"",SearchStr);
     SetCursorType(FALSE,-1);
@@ -3744,10 +3744,10 @@ BOOL Editor::Search(int Next)
               /* Fast method */
               const char *Str,*Eol;
               int StrLen,NewStrLen;
-              int SStrLen=strlen((char*)SearchStr),
-                  RStrLen=strlen((char*)ReplaceStr);
+              int SStrLen=(int)strlen((char*)SearchStr),
+                  RStrLen=(int)strlen((char*)ReplaceStr);
               CurLine->GetBinaryString(&Str,&Eol,StrLen);
-              int EolLen=strlen((char*)Eol);
+              int EolLen=(int)strlen((char*)Eol);
               NewStrLen=StrLen;
               NewStrLen-=SStrLen;
               NewStrLen+=RStrLen;
@@ -3950,7 +3950,7 @@ void Editor::Copy(int Append)
   {
     CopyData=PasteFromClipboard();
     if (CopyData!=NULL)
-      PrevSize=DataSize=strlen(CopyData);
+      PrevSize=DataSize=(long)strlen(CopyData);
   }
 
   while (CurPtr!=NULL)
@@ -3969,7 +3969,7 @@ void Editor::Copy(int Append)
     }
     CopyData=NewPtr;
     CurPtr->GetSelString(CopyData+DataSize,Length);
-    DataSize+=strlen(CopyData+DataSize);
+    DataSize+=(long)strlen(CopyData+DataSize);
     if (EndSel==-1)
     {
       strcpy(CopyData+DataSize,DOS_EOL_fmt);
@@ -4112,7 +4112,7 @@ void Editor::DeleteBlock()
       if (BlockStartLine+1<NumLine)
         NumLine--;
     }
-    int EndLength=strlen(EndSeq);
+    int EndLength=(int)strlen(EndSeq);
     memcpy(TmpStr+Length,EndSeq,EndLength);
     Length+=EndLength;
     TmpStr[Length]=0;
@@ -4340,7 +4340,7 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
 
   // получаем индекс вхождения любого разделителя
   // в искомой строке
-  l=strcspn(argv,",:;. ");
+  l=(int)strcspn(argv,",:;. ");
   // если разделителя нету, то l=strlen(argv)
 
   if(l < static_cast<int>(strlen(argv))) // Варианты: "row,col" или ",col"?
@@ -4555,7 +4555,7 @@ long Editor::GetCurPos()
     const char *SaveStr,*EndSeq;
     int Length;
     CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-    TotalSize+=Length+strlen(EndSeq);
+    TotalSize+=Length+(int)strlen(EndSeq);
     CurPtr=CurPtr->m_next;
   }
   return(TotalSize);
@@ -4626,7 +4626,7 @@ void Editor::BlockLeft()
     if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
     /* IS $ */
     {
-      int EndLength=strlen(EndSeq);
+      int EndLength=(int)strlen(EndSeq);
       memcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
@@ -4699,7 +4699,7 @@ void Editor::BlockRight()
 
     if (EndSel==-1 || EndSel>StartSel)
     {
-      int EndLength=strlen(EndSeq);
+      int EndLength=(int)strlen(EndSeq);
       memcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
       AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
@@ -4790,7 +4790,7 @@ void Editor::DeleteVBlock()
       memcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
       CurLength+=CopySize;
     }
-    int EndLength=strlen(EndSeq);
+    int EndLength=(int)strlen(EndSeq);
     memcpy(TmpStr+CurLength,EndSeq,EndLength);
     CurLength+=EndLength;
     TmpStr[CurLength]=0;
@@ -4821,12 +4821,12 @@ void Editor::VCopy(int Append)
   {
     CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
     if (CopyData!=NULL)
-      PrevSize=DataSize=strlen(CopyData);
+      PrevSize=DataSize=(long)strlen(CopyData);
     else
     {
       CopyData=PasteFromClipboard();
       if (CopyData!=NULL)
-        PrevSize=DataSize=strlen(CopyData);
+        PrevSize=DataSize=(long)strlen(CopyData);
     }
   }
 
@@ -5042,7 +5042,7 @@ void Editor::VBlockShift(int Left)
 
     while (StrLength>0 && TmpStr[StrLength-1]==' ')
       StrLength--;
-    int EndLength=strlen(EndSeq);
+    int EndLength=(int)strlen(EndSeq);
     memcpy(TmpStr+StrLength,EndSeq,EndLength);
     StrLength+=EndLength;
     TmpStr[StrLength]=0;
@@ -5202,7 +5202,7 @@ int Editor::EditorControl(int Command,void *Param)
 
         const char *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
         /* IS 06.08.2002 IS $ */
-        int LengthEOL=strlen(EOL);
+        int LengthEOL=(int)strlen(EOL);
         char *NewStr=(char*)xf_malloc(Length+LengthEOL+1);
         if (NewStr==NULL)
         {
@@ -5913,7 +5913,7 @@ void Editor::Xlat()
         if (StartSel==-1)
           break;
         if(EndSel == -1)
-          EndSel=strlen(CurPtr->Str);
+          EndSel=(int)strlen(CurPtr->Str);
         AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,0,UNDO_EDIT);
         ::Xlat(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
@@ -5927,7 +5927,7 @@ void Editor::Xlat()
       CurPtr=CurLine;
 
       char *Str=CurPtr->Str;
-      int start=CurPtr->GetCurPos(), end, StrSize=strlen(Str);
+      int start=CurPtr->GetCurPos(), end, StrSize=(int)strlen(Str);
       /* $ 10.12.2000 IS
          Обрабатываем только то слово, на котором стоит курсор, или то слово,
          что находится левее позиции курсора на 1 символ

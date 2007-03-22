@@ -447,7 +447,7 @@ int GetDirInfo(char *Title,
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
 
   ScanTree ScTree(FALSE,TRUE,
-                  (Flags&GETDIRINFO_SCANSYMLINKDEF?-1:(Flags&GETDIRINFO_SCANSYMLINK)),
+                  (Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)),
                   Flags&GETDIRINFO_USEDALTFOLDERNAME);
   WIN32_FIND_DATA FindData;
   int MsgOut=0;
@@ -884,7 +884,7 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
     if(tmpDest && tmpSrc)
     {
       FAR_OemToChar(src, tmpSrc);
-      DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
+      DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,(DWORD)size);
       if (Len && Len <= size)
       {
         const char *ptrsrc=src;
@@ -904,10 +904,10 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
             const char *ptrnext=strchr(ptrsrc+1,'%');
             if (ptrnext)
             {
-              Len = ptrnext-ptrsrc+1;
+              Len = (DWORD)(ptrnext-ptrsrc+1);
               FAR_OemToCharBuff(ptrsrc,tmpSrc,Len);
               tmpSrc[Len]=0;
-              Len = ExpandEnvironmentStrings(tmpSrc,ptrdest,size-(ptrdest-tmpDest));
+              Len = ExpandEnvironmentStrings(tmpSrc,ptrdest,(DWORD)(size-(ptrdest-tmpDest)));
 
               //AY: Был ли это реальный %var%?
               if (Len && strcmp(tmpSrc,ptrdest))
@@ -935,7 +935,7 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
       {
         xstrncpy(dest, src, size-1);
       }
-      ret=strlen(dest);
+      ret=(DWORD)strlen(dest);
     }
   }
   return ret;
@@ -1175,7 +1175,7 @@ DWORD WINAPI FarGetLogicalDrives(void)
 char *Add_PATHEXT(char *Dest)
 {
   char Buf[1024];
-  int curpos=strlen(Dest)-1, l;
+  int curpos=(int)strlen(Dest)-1, l;
   UserDefinedList MaskList(0,0,ULF_UNIQUE);
   if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)) && MaskList.Set(Buf))
   {
@@ -1194,7 +1194,7 @@ char *Add_PATHEXT(char *Dest)
     {
       Dest[curpos]='*';
       ++curpos;
-      l=strlen(Ptr);
+      l=(int)strlen(Ptr);
       memcpy(Dest+curpos,Ptr,l);
       curpos+=l;
       Dest[curpos]=',';
@@ -1472,7 +1472,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
     case 'X': // Convert common string to hexadecimal string representation
     {
       *(char *)Buffer=0;
-      L=strlen(ConvStr);
+      L=(int)strlen(ConvStr);
       N=min((BufLen-1)/2,L);
       for (I=0,J=0;I<N;I++,J+=2)
       {
@@ -1488,7 +1488,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
     {
       *(char *)Buffer=0;
 
-      L=strlen(ConvStr);
+      L=(int)strlen(ConvStr);
       char *NewStr=new char[L+1];
       if (NewStr==NULL)
         return;
@@ -1505,7 +1505,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
         ++J;
       }
 
-      L=strlen(NewStr);
+      L=(int)strlen(NewStr);
       N=min(BufLen-1,L);
       for (I=0,J=0;I<N;I+=2,J++)
       {

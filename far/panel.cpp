@@ -292,7 +292,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         {
           char RemoteName[NM];
           DriveLocalToRemoteName(DriveType,*RootDir,RemoteName);
-          TruncPathStr(RemoteName,ScrX-strlen(MenuText)-12);
+          TruncPathStr(RemoteName,ScrX-(int)strlen(MenuText)-12);
           if(*RemoteName)
           {
             strcat(MenuText,"  ");
@@ -344,9 +344,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
            добавл€ющих пункт в меню, больше 9.
       */
       char *AdditionalHotKey=MSG(MAdditionalHotKey);
-      int AHKPos=0,                           // индекс в списке хоткеев
-          AHKSize=strlen(AdditionalHotKey);   /* дл€ предотвращени€ выхода за
-                                                 границу массива */
+      int AHKPos=0,                             // индекс в списке хоткеев
+          AHKSize=(int)strlen(AdditionalHotKey);/* дл€ предотвращени€ выхода за
+                                                   границу массива */
       /* IS $ */
 
       int PluginNumber=0, PluginItem; // IS: счетчики - плагинов и пунктов плагина
@@ -1200,7 +1200,7 @@ void Panel::FastFind(int FirstKey)
             FindEdit.GetString(Name,sizeof(Name));
 
             // уберем двойные '**'
-            int LenName=strlen(Name);
+            int LenName=(int)strlen(Name);
             if(LenName > 1 && Name[LenName-1] == '*' && Name[LenName-2] == '*')
             {
               Name[LenName-1]=0;
@@ -1420,14 +1420,14 @@ void Panel::DragMessage(int X,int Y,int Move)
     sprintf(DragMsg,MSG(MDragMove),SelName);
   else
     sprintf(DragMsg,MSG(MDragCopy),SelName);
-  if ((Length=strlen(DragMsg))+X>ScrX)
+  if ((Length=(int)strlen(DragMsg))+X>ScrX)
   {
     MsgX=ScrX-Length;
     if (MsgX<0)
     {
       MsgX=0;
       /* $ 01.10.2001 IS усекаем с конца, иначе тер€етс€ инф.нагрузка */
-      Length=strlen(TruncStrFromEnd(DragMsg,ScrX));
+      Length=(int)strlen(TruncStrFromEnd(DragMsg,ScrX));
       /* IS $ */
     }
   }
@@ -1446,7 +1446,7 @@ int Panel::GetCurDir(char *CurDir)
 {
   if(CurDir)
     strcpy(CurDir,Panel::CurDir); // TODO: ќѕј—Ќќ!!!
-  return strlen(Panel::CurDir);
+  return (int)strlen(Panel::CurDir);
 }
 
 
@@ -2004,12 +2004,12 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   };
   MakeDialogItems(DCDlgData,DCDlg);
 
-  Len1=strlen(strcpy(DCDlg[0].Data,MSG(MChangeDriveDisconnectTitle)));
+  Len1=(int)strlen(strcpy(DCDlg[0].Data,MSG(MChangeDriveDisconnectTitle)));
   sprintf(MsgText,MSG(MChangeDriveDisconnectQuestion),Letter);
-  Len2=strlen(strcpy(DCDlg[1].Data,MsgText));
+  Len2=(int)strlen(strcpy(DCDlg[1].Data,MsgText));
   sprintf(MsgText,MSG(MChangeDriveDisconnectMapped),Letter);
-  Len4=strlen(strcpy(DCDlg[2].Data,MsgText));
-  Len3=strlen(strcpy(DCDlg[5].Data,MSG(MChangeDriveDisconnectReconnect)));
+  Len4=(int)strlen(strcpy(DCDlg[2].Data,MsgText));
+  Len3=(int)strlen(strcpy(DCDlg[5].Data,MSG(MChangeDriveDisconnectReconnect)));
 
 
   Len1=Max(Len1,Max(Len2,Max(Len3,Len4)));

@@ -76,7 +76,7 @@ void ShellMakeDir(Panel *SrcPanel)
     if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
       LocalStrupr(DirName);
 
-    int Length=strlen(DirName);
+    int Length=(int)strlen(DirName);
 
     while (Length>0 && DirName[Length-1]==' ')
       Length--;

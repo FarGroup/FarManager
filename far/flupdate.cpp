@@ -331,7 +331,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           else
           {
             TruncStr(ReadMsg,TitleLength-2);
-            int MsgLength=strlen(ReadMsg);
+            int MsgLength=(int)strlen(ReadMsg);
             GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
             mprintf(" %s ",ReadMsg);
           }
@@ -697,7 +697,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,Info.Flags&OPIF_USEATTRHIGHLIGHTING);
+      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
     if ((Info.Flags & OPIF_USESORTGROUPS) /*&& (CurListData->FileAttr & FA_DIREC)==0*/)
       CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(&(CurPanelData->FindData));
     else
@@ -726,7 +726,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     struct FileListItem *CurPtr;
     AddParentPoint((CurPtr=ListData+FileCount),FileCount);
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING));
+      CtrlObject->HiFiles->GetHiColor(CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
     if (Info.HostFile && *Info.HostFile)
     {
       WIN32_FIND_DATA FindData;

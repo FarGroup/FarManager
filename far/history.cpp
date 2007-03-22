@@ -286,7 +286,7 @@ BOOL History::SaveHistory()
   {
     if(LastStr[I].Name)
     {
-      Len=strlen(LastStr[I].Name);
+      Len=(int)strlen(LastStr[I].Name);
       if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
         Len=511;
 
@@ -315,7 +315,7 @@ BOOL History::SaveHistory()
           if(LastStr[I].Name)
           {
             strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
-            SizeTitles+=strlen(LastStr[I].Title)+1;
+            SizeTitles+=(DWORD)strlen(LastStr[I].Title)+1;
           }
         }
         BufferTitles[SizeTitles++]=0;
@@ -413,7 +413,7 @@ BOOL History::ReadHistory()
     Buf=Buffer;
     while ((int)Size > 1 && StrPos < HistoryCount)
     {
-      Length=strlen(Buf)+1;
+      Length=(int)strlen(Buf)+1;
       if((LastStr[StrPos].Name=(char*)xf_malloc(Length)) == NULL)
       {
         xf_free(Buffer);
@@ -452,7 +452,7 @@ BOOL History::ReadHistory()
       {
         xstrncpy(LastStr[StrPos].Title,Buf,sizeof(LastStr[StrPos].Title)-1);
         ++StrPos;
-        Length=strlen(Buf)+1;
+        Length=(int)strlen(Buf)+1;
         Buf+=Length;
         Size-=Length;
       }
@@ -560,7 +560,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           {
             sprintf(Record,"%s:%c",LastStr[CurCmd].Title,(LastStr[CurCmd].Type==4?'-':' '));
             Ptr=Record+strlen(Record);
-            SizeTrunc -= strlen (Record);
+            SizeTrunc -= (int)strlen (Record);
 
             strcat(Record,LastStr[CurCmd].Name);
           }
@@ -811,7 +811,7 @@ void History::GetSimilar(char *Str,int LastCmdPartLength)
   if(!LastStr)
     return;
 
-  int Length=strlen(Str);
+  int Length=(int)strlen(Str);
 
   if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
     Length=LastCmdPartLength;

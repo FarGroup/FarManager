@@ -35,7 +35,7 @@ int GetFileString::GetString(char **DestStr,int &Length)
   {
     if (ReadPos>=ReadSize)
     {
-      if ((ReadSize=fread(ReadBuf,1,sizeof(ReadBuf),SrcFile))==0)
+      if ((ReadSize=(int)fread(ReadBuf,1,sizeof(ReadBuf),SrcFile))==0)
       {
         if (CurLength==0)
           ExitCode=0;

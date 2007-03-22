@@ -1535,7 +1535,7 @@ static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
   if(Key&KEY_M_SPEC)                 strcat(Name,ModifKeyName[5].Name);
   else if(Key&KEY_M_OEM)             strcat(Name,ModifKeyName[6].Name);
 
-  Len=strlen(Name);
+  Len=(int)strlen(Name);
   return Name;
 }
 
@@ -1560,7 +1560,7 @@ int WINAPI KeyNameToKey(const char *Name)
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 
-   int I, Pos, Len=strlen(Name);
+   int I, Pos, Len=(int)strlen(Name);
    char TmpName[128];
    xstrncpy(TmpName,Name,sizeof(TmpName)-1);
 
@@ -1639,7 +1639,7 @@ int WINAPI KeyNameToKey(const char *Name)
 */
 //// // _SVS(SysLog("Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 
-   return (!Key || Pos < Len)? -1: Key;
+   return (!Key || Pos < Len)? -1: (int)Key;
 }
 /* SVS $*/
 

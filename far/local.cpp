@@ -312,8 +312,8 @@ const char * __cdecl LocalStrstri(const char *str1, const char *str2)
 
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
 {
-  int len1 = strlen(str1);
-  int len2 = strlen(str2);
+  int len1 = (int)strlen(str1);
+  int len2 = (int)strlen(str2);
 
   if (len2 > len1)
     return (const char *)NULL;
@@ -418,7 +418,7 @@ int __cdecl LCNumStricmp(const char *s1,const char *s2)
   }
   int Ret=LCOrder[*s1] - LCOrder[*s2];
   if(!Ret)
-    return strlen(ts1)-strlen(ts2);
+    return (int)(strlen(ts1)-strlen(ts2));
   return (Ret < 0) ? -1 : 1;
 }
 
