@@ -59,7 +59,7 @@
    ----8<----
    или (для 32хбитовых версий компилируемых VC8)
    ---->8----
-   set NMAKE_OPTS=USE_VC8_32=1 NMAKE_OPTS=LINK_ULINK=1
+   set NMAKE_OPTS=USE_VC8_32=1 LINK_ULINK=1
    ----8<----
 
    Через задание NMAKE_OPTS можно передавать так же и ключи nmake
