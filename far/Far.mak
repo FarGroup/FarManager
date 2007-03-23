@@ -211,7 +211,7 @@ BSC32_SBRS= \
 
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
 
-ULINK_MODES=-q -M -m- -ap -Gz -O- -o- -Gh-
+ULINK_MODES=-q -m- -ap -Gz -O- -o- -Gh-
 
 !IF  "$(CFG)" == "far - Win32 Release"
 !MESSAGE far - Win32 Release.
