@@ -795,7 +795,7 @@ const char *_EE_ToName(int Command)
 const char *_EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_EEREDRAW_(m) { (int)EEREDRAW_##m , #m }
+#define DEF_EEREDRAW_(m) { (int)(INT_PTR)EEREDRAW_##m , #m }
   static struct EEREDRAWName{
     int Msg;
     const char *Name;
