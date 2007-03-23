@@ -78,7 +78,7 @@ void QuickView::DisplayObject()
   GetTitle(strTitle);
   if ( !strTitle.IsEmpty() )
   {
-    GotoXY(X1+(X2-X1+1-strTitle.GetLength())/2,Y1);
+    GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
     TextW(strTitle);
   }
   DrawSeparator(Y2-2);
@@ -92,7 +92,7 @@ void QuickView::DisplayObject()
     strTypeText.Format (L" %s ", (const wchar_t*)strCurFileType);
     TruncStrW(strTypeText,X2-X1-1);
     SetColor(COL_PANELSELECTEDINFO);
-    GotoXY(X1+(X2-X1+1-strTypeText.GetLength())/2,Y2-2);
+    GotoXY(X1+(X2-X1+1-(int)strTypeText.GetLength())/2,Y2-2);
     TextW(strTypeText);
   }
   if (Directory)

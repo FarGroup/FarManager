@@ -24,51 +24,51 @@ int ConvertNameToFullW (
 
 	lpwszSrc = strSrc;
 
-    int Result = wcslen (lpwszSrc);
+	int Result = (int)wcslen (lpwszSrc);
 
-    const wchar_t *lpwszName = PointToNameW (lpwszSrc);
+	const wchar_t *lpwszName = PointToNameW (lpwszSrc);
 
-    if ( (lpwszName == lpwszSrc) &&
-         (lpwszName[0] != L'.' || lpwszName[1] != 0) )
-    {
-        FarGetCurDirW (strDest);
-        AddEndSlashW (strDest);
+	if ( (lpwszName == lpwszSrc) &&
+				(lpwszName[0] != L'.' || lpwszName[1] != 0) )
+	{
+		FarGetCurDirW (strDest);
+		AddEndSlashW (strDest);
 
-        strDest += lpwszSrc;
+		strDest += lpwszSrc;
 
-        return strDest.GetLength ();
-    }
+		return (int)strDest.GetLength ();
+	}
 
-    if ( PathMayBeAbsoluteW (lpwszSrc) )
-    {
-        if ( *lpwszName &&
-            (*lpwszName != L'.' || lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0) ) &&
-            (wcsstr (lpwszSrc, L"\\..\\") == NULL && wcsstr (lpwszSrc, L"\\.\\") == NULL) )
-        {
-            strDest = lpwszSrc;
+	if ( PathMayBeAbsoluteW (lpwszSrc) )
+	{
+		if ( *lpwszName &&
+				(*lpwszName != L'.' || lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0) ) &&
+				(wcsstr (lpwszSrc, L"\\..\\") == NULL && wcsstr (lpwszSrc, L"\\.\\") == NULL) )
+		{
+			strDest = lpwszSrc;
 
-            return strDest.GetLength ();
-        }
-    }
+			return (int)strDest.GetLength ();
+		}
+	}
 
-    int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL)+1;
+	int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL)+1;
 
-    wchar_t *lpwszDest = strDest.GetBuffer (nLength);
-    GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
+	wchar_t *lpwszDest = strDest.GetBuffer (nLength);
+	GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
 
 
-    // это когда ввели в масдае cd //host/share
-    // а масдай выдал на гора c:\\host\share
+	// это когда ввели в масдае cd //host/share
+	// а масдай выдал на гора c:\\host\share
 
-    if ( lpwszSrc[0] == L'/' &&
-         lpwszSrc[1] == L'/' &&
-         lpwszDest[1] == L':' &&
-         lpwszDest[3] == L'\\' )
-         memmove (lpwszDest, lpwszDest+2, (wcslen (lpwszDest+2)+1)*sizeof (wchar_t));
+	if ( lpwszSrc[0] == L'/' &&
+				lpwszSrc[1] == L'/' &&
+				lpwszDest[1] == L':' &&
+				lpwszDest[3] == L'\\' )
+				memmove (lpwszDest, lpwszDest+2, (wcslen (lpwszDest+2)+1)*sizeof (wchar_t));
 
-    strDest.ReleaseBuffer (nLength);
+	strDest.ReleaseBuffer (nLength);
 
-    return strDest.GetLength ();
+	return (int)strDest.GetLength ();
 }
 
 /*
@@ -161,7 +161,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
             DeleteEndSlashW(strTempDest2);
             strTempDest2 = Ptr;
             wcscpy(TempDest,strTempDest2); //BUGBUG
-            Ret=wcslen(TempDest);
+            Ret=(int)wcslen(TempDest);
             // ВСЕ. Реальный путь у нас в кармане...
             break;
           }

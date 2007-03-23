@@ -435,7 +435,7 @@ int Help::ReadHelp(const wchar_t *Mask)
     while((Ptr=wcschr(ReadStr,L'\t')) != NULL)
     {
       *Ptr=L' ';
-      PosTab=Ptr-ReadStr+1;
+      PosTab=(int)(Ptr-ReadStr+1);
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
         InsertStringW(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
       if(wcslen(ReadStr) > sizeof(ReadStr)/2/sizeof (wchar_t))
@@ -447,7 +447,7 @@ int Help::ReadHelp(const wchar_t *Mask)
     if ( !strCtrlStartPosChar.IsEmpty() && wcsstr (ReadStr, strCtrlStartPosChar) )
     {
         wchar_t Line[MAX_HELP_STRING_LENGTH];
-        int Length = wcsstr (ReadStr, strCtrlStartPosChar)-ReadStr;
+        int Length = (int)(wcsstr (ReadStr, strCtrlStartPosChar)-ReadStr);
 
         xwcsncpy (Line, ReadStr, Length);
         LastStartPos = StringLen (Line);
@@ -590,7 +590,7 @@ m1:
 
           int Splitted=0;
 
-          for (int I=wcslen(SplitLine)-1;I>0;I--)
+          for (int I=(int)wcslen(SplitLine)-1;I>0;I--)
           {
             if (I>0 && SplitLine[I]==L'~' && SplitLine[I-1]==L'~')
             {
@@ -816,7 +816,7 @@ void Help::DrawWindowFrame()
   */
   TruncStrFromEndW(strHelpTitleBuf,X2-X1-3);
   /* DJ $ */
-  GotoXY(X1+(X2-X1+1-strHelpTitleBuf.GetLength()-2)/2,Y1);
+  GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.GetLength()-2)/2,Y1);
   mprintfW(L" %s ", (const wchar_t*)strHelpTitleBuf);
 }
 
@@ -859,7 +859,7 @@ void Help::OutString(const wchar_t *Str)
           {
             StackData.strSelTopic = (Str+2);
 
-            wchar_t *EndPtr = StackData.strSelTopic.GetBuffer (StackData.strSelTopic.GetLength()*2);
+            wchar_t *EndPtr = StackData.strSelTopic.GetBuffer ((int)StackData.strSelTopic.GetLength()*2);
             EndPtr=wcschr(EndPtr,L'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
@@ -895,7 +895,7 @@ void Help::OutString(const wchar_t *Str)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
       if (Locked())
-        GotoXY(WhereX()+wcslen(OutStr),WhereY());
+        GotoXY(WhereX()+(int)wcslen(OutStr),WhereY());
       else
         TextW(OutStr);
       OutPos=0;
@@ -1430,7 +1430,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     const wchar_t *p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
 
-    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((p-(const wchar_t*)StackData.strSelTopic-1)*sizeof (wchar_t));
+    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((int)(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof (wchar_t));
 
     xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof(wchar_t));
 
@@ -1440,7 +1440,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     wchar_t *lpwszFullPath = strFullPath.GetBuffer();
     // уберем _все_ конечные слеши и добавим один
-    int Len=wcslen(lpwszFullPath)-1;
+    int Len=(int)wcslen(lpwszFullPath)-1;
     while(Len>-1 && lpwszFullPath[Len]==L'\\')
     {
       lpwszFullPath[Len]=0;
@@ -2004,7 +2004,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
       {
         wchar_t *Ptr, *Ptr2;
 
-        wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
+        wchar_t *lpwszTopic = strTopic.GetBuffer((int)strTopic.GetLength()*2); //BUGBUG
 
         if((Ptr=wcschr(lpwszTopic,HelpEndLink)) == NULL)
           *lpwszTopic=0;

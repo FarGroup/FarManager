@@ -19,7 +19,7 @@ string &InsertCommasW(unsigned __int64 li,string &strDest)
 
    wchar_t *lpwszDest = strDest.GetBuffer();
 
-   for (int I=wcslen(lpwszDest)-4;I>=0;I-=3)
+   for (int I=(int)wcslen(lpwszDest)-4;I>=0;I-=3)
    {
       if (lpwszDest[I])
       {
@@ -210,7 +210,7 @@ int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolde
     wchar_t *Src = _wcsdup (SrcName);
   //char PartBeforeName[NM],PartAfterFolderName[NM];
 
-    DestNamePtr = strDest.GetBuffer (strDest.GetLength()+wcslen(SrcName)+1); //???
+    DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+wcslen(SrcName)+1)); //???
     DestNamePtr = (wchar_t*)PointToNameW(DestNamePtr);
 
     strWildName = DestNamePtr;
@@ -229,7 +229,7 @@ int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolde
 
     SrcNamePtr = (wchar_t*)PointToNameW (Src);
 
-    int BeforeNameLength=DestNamePtr==(const wchar_t*)strDest ? SrcNamePtr-Src:0; //BUGBUG strDest
+    int BeforeNameLength=DestNamePtr==(const wchar_t*)strDest ? (int)(SrcNamePtr-Src):0; //BUGBUG strDest
 
     PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
 
@@ -308,10 +308,10 @@ int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolde
 
 wchar_t * WINAPI InsertQuoteW(wchar_t *Str)
 {
-  int l = wcslen(Str);
+  size_t l = wcslen(Str);
   if(*Str != L'"')
   {
-    memmove(Str+1,Str,(++l)*sizeof (wchar_t));
+    wmemmove(Str+1,Str,++l);
     *Str=L'"';
   }
   if(Str[l-1] != L'"')
@@ -333,7 +333,7 @@ wchar_t* WINAPI QuoteSpaceW (wchar_t *Str)
 
 string& InsertQuoteW(string &strStr)
 {
-  wchar_t *Str = strStr.GetBuffer (strStr.GetLength()+2);
+  wchar_t *Str = strStr.GetBuffer ((int)strStr.GetLength()+2);
 
   InsertQuoteW (Str);
 
@@ -372,7 +372,7 @@ string& __stdcall TruncStrFromEndW (string &strStr, int MaxLength)
 {
   if( !strStr.IsEmpty() )
   {
-    int Length = wcslen(strStr);
+    int Length = (int)wcslen(strStr);
 
     if (Length > MaxLength)
     {
@@ -397,7 +397,7 @@ wchar_t* WINAPI TruncStrW (wchar_t *Str,int MaxLength)
     int Length;
     if (MaxLength<0)
       MaxLength=0;
-    if ((Length=wcslen(Str))>MaxLength)
+    if ((Length=(int)wcslen(Str))>MaxLength)
     {
       if (MaxLength>3)
       {
@@ -430,7 +430,7 @@ wchar_t* WINAPI TruncPathStrW (wchar_t *Str, int MaxLength)
 {
   if (Str)
   {
-    int nLength = wcslen (Str);
+    int nLength = (int)wcslen (Str);
 
     if (nLength > MaxLength)
     {
@@ -452,8 +452,8 @@ wchar_t* WINAPI TruncPathStrW (wchar_t *Str, int MaxLength)
         return TruncStrW (Str, MaxLength);
 
       wchar_t *lpInPos = lpStart+3+(nLength-MaxLength);
-      memmove (lpStart+3, lpInPos, (wcslen (lpInPos)+1)*sizeof (wchar_t));
-      memcpy (lpStart, L"...", 6);
+      wmemmove (lpStart+3, lpInPos, (wcslen (lpInPos)+1));
+      wmemcpy (lpStart, L"...", 3);
     }
   }
 
@@ -495,7 +495,7 @@ string& WINAPI RemoveLeadingSpacesW(string &strStr)
   for (; IsSpaceW(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
-    memmove(Str,ChPtr,(wcslen(ChPtr)+1)*sizeof(wchar_t));
+    wmemmove(Str,ChPtr,(wcslen(ChPtr)+1));
 
   strStr.ReleaseBuffer ();
 
@@ -512,9 +512,9 @@ char* WINAPI RemoveTrailingSpaces(char *Str)
     return Str;
 
   char *ChPtr;
-  int I;
+  size_t I;
 
-  for (ChPtr=Str+(I=strlen((char *)Str)-1); I >= 0; I--, ChPtr--)
+  for (ChPtr=Str+(I=strlen((char *)Str))-1; I > 0; I--, ChPtr--)
     if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
     else
@@ -531,9 +531,9 @@ wchar_t* WINAPI RemoveTrailingSpacesW(wchar_t *Str)
     return Str;
 
   wchar_t *ChPtr;
-  int I;
+  size_t I;
 
-  for (ChPtr=Str+(I=wcslen((wchar_t*)Str)-1); I >= 0; I--, ChPtr--)
+  for (ChPtr=Str+(I=wcslen(Str))-1; I > 0; I--, ChPtr--)
     if (IsSpaceW(*ChPtr) || IsEolW(*ChPtr))
       *ChPtr=0;
     else
@@ -548,14 +548,7 @@ string& WINAPI RemoveTrailingSpacesW(string &strStr)
   if ( strStr.IsEmpty () )
     return strStr;
 
-  wchar_t *ChPtr = strStr.GetBuffer ();
-  int I;
-
-  for (ChPtr=ChPtr+(I=wcslen(ChPtr)-1); I >= 0; I--, ChPtr--)
-    if (IsSpaceW(*ChPtr) || IsEolW(*ChPtr))
-      *ChPtr=0;
-    else
-      break;
+  RemoveTrailingSpacesW(strStr.GetBuffer());
 
   strStr.ReleaseBuffer ();
 
@@ -695,7 +688,7 @@ BOOL AddEndSlashW (wchar_t *Path, wchar_t TypeSlash)
       else
         BackSlash=1;
     }
-    int Length=end-Path;
+    int Length=(int)(end-Path);
     char c=(Slash<BackSlash)?L'/':L'\\';
     Result=TRUE;
     if (Length==0)
@@ -736,11 +729,9 @@ BOOL AddEndSlashW (
         wchar_t TypeSlash
         )
 {
-    BOOL Result = FALSE;
+    wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+1); // +spaceforslash
 
-    wchar_t *lpwszPath = strPath.GetBuffer (strPath.GetLength()+1); // +spaceforslash
-
-    Result = AddEndSlashW (lpwszPath, TypeSlash);
+    BOOL Result = AddEndSlashW (lpwszPath, TypeSlash);
 
     strPath.ReleaseBuffer ();
 
@@ -776,7 +767,7 @@ BOOL WINAPI DeleteEndSlashW (string &strPath,bool allendslash)
   BOOL Ret=FALSE;
   if( !strPath.IsEmpty() )
   {
-    int Length=strPath.GetLength()-1;
+    int Length=(int)strPath.GetLength()-1;
     wchar_t *lpwszPath = strPath.GetBuffer ();
     wchar_t *lpwszEndPath = lpwszPath+Length;
     while ( lpwszEndPath >= lpwszPath )
@@ -817,7 +808,7 @@ const char *NullToEmpty(const char *Str)
 
 string& CenterStrW(const wchar_t *Src, string &strDest, int Length)
 {
-  int SrcLength=wcslen(Src);
+  int SrcLength=(int)wcslen(Src);
 
   string strTempStr = Src; //если Src == strDest, то надо копировать Src!
 
@@ -848,7 +839,7 @@ const wchar_t *GetCommaWordW(const wchar_t *Src, string &strWord,wchar_t Separat
     return(NULL);
   SkipBrackets=FALSE;
 
-  wchar_t *lpwszWord = strWord.GetBuffer (wcslen (Src));
+  wchar_t *lpwszWord = strWord.GetBuffer ((int)wcslen (Src));
 
   for (WordPos=0;*Src!=0;Src++,WordPos++)
   {
@@ -1122,11 +1113,11 @@ string & WINAPI FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Wi
 
 wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 {
-  int InsLen=wcslen(InsStr);
+  int InsLen=(int)wcslen(InsStr);
   if(InsSize && InsSize < InsLen)
     InsLen=InsSize;
-  memmove(Str+Pos+InsLen, Str+Pos, (wcslen(Str+Pos)+1)*sizeof (wchar_t));
-  memcpy(Str+Pos, InsStr, InsLen*sizeof (wchar_t));
+  wmemmove(Str+Pos+InsLen, Str+Pos, (wcslen(Str+Pos)+1));
+  wmemcpy(Str+Pos, InsStr, InsLen);
   return Str;
 }
 
@@ -1137,9 +1128,9 @@ wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
   int I=0, J=0, Res;
-  int LenReplStr=wcslen(ReplStr);
-  int LenFindStr=wcslen(FindStr);
-  int L=strStr.GetLength ();
+  int LenReplStr=(int)wcslen(ReplStr);
+  int LenFindStr=(int)wcslen(FindStr);
+  int L=(int)strStr.GetLength ();
 
   wchar_t *Str = strStr.GetBuffer (1024); //BUGBUG!!!
 
@@ -1149,17 +1140,17 @@ int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr
     if(Res == 0)
     {
       if(LenReplStr > LenFindStr)
-        memmove(Str+I+(LenReplStr-LenFindStr),Str+I,(wcslen(Str+I)+1)*sizeof (wchar_t)); // >>
+        wmemmove(Str+I+(LenReplStr-LenFindStr),Str+I,(wcslen(Str+I)+1)); // >>
       else if(LenReplStr < LenFindStr)
-        memmove(Str+I,Str+I+(LenFindStr-LenReplStr),(wcslen(Str+I+(LenFindStr-LenReplStr))+1)*sizeof (wchar_t)); //??
-      memcpy(Str+I,ReplStr,LenReplStr*sizeof (wchar_t));
+        wmemmove(Str+I,Str+I+(LenFindStr-LenReplStr),(wcslen(Str+I+(LenFindStr-LenReplStr))+1)); //??
+      wmemcpy(Str+I,ReplStr,LenReplStr);
       I += LenReplStr;
       if(Count > 0 && ++J == Count)
         break;
     }
     else
       I++;
-    L=wcslen(Str);
+    L=(int)wcslen(Str);
   }
 
   strStr.ReleaseBuffer ();
@@ -1233,7 +1224,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
 
   const char *text= SrcText;
   long linelength = Width;
-  int breakcharlen = strlen(breakchar);
+  int breakcharlen = (int)strlen(breakchar);
   int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 
   /* Special case for a single-character break as it needs no
@@ -1408,7 +1399,7 @@ string& WINAPI FarFormatTextW(const wchar_t *SrcText,     // источник
 
   const wchar_t *text= strSrc;
   long linelength = Width;
-  int breakcharlen = wcslen(breakchar);
+  int breakcharlen = (int)wcslen(breakchar);
   int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 
   /* Special case for a single-character break as it needs no
@@ -1682,7 +1673,7 @@ int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength)
 {
-  int nLength = wcslen (lpwszUnicodeString)+1;
+  int nLength = (int)wcslen (lpwszUnicodeString)+1;
 
   if ( (nMaxLength > 0) && (nMaxLength < nLength) )
     nLength = nMaxLength;
@@ -1711,7 +1702,7 @@ void UnicodeToAnsi (
         int nMaxLength
         ) //BUGBUG
 {
-  int nLength = wcslen (lpwszUnicodeString)+1;
+  int nLength = (int)wcslen (lpwszUnicodeString)+1;
 
   if ( (nMaxLength > 0) && (nMaxLength < nLength) )
     nLength = nMaxLength;

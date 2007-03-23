@@ -1382,7 +1382,7 @@ static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
   if(Key&KEY_M_SPEC)                 strName += ModifKeyName[5].Name;
   else if(Key&KEY_M_OEM)             strName += ModifKeyName[6].Name;
 
-  Len=strName.GetLength ();
+  Len=(int)strName.GetLength ();
   return strName;
 }
 
@@ -1410,7 +1410,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 
-   int I, Pos, Len=wcslen(Name);
+   int I, Pos, Len=(int)wcslen(Name);
 
    string strTmpName;
    strTmpName = Name;

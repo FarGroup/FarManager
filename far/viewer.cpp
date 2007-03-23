@@ -597,7 +597,7 @@ void Viewer::ShowPage (int nMode)
   {
     for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
     {
-      int StrLength = wcslen(Strings[I]->lpData);
+      int StrLength = (int)wcslen(Strings[I]->lpData);
 
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
@@ -707,7 +707,7 @@ void Viewer::ShowHex()
 
     TextPos=0;
 
-    int HexStrStart = wcslen (OutStr);
+    int HexStrStart = (int)wcslen (OutStr);
 
     SelStart = HexStrStart;
     SelEnd = SelStart;
@@ -728,7 +728,7 @@ void Viewer::ShowHex()
         if (SelectSize>0 && (SelectPos == fpos) )
         {
           bSelStartFound = true;
-          SelStart = wcslen (OutStr);
+          SelStart = (int)wcslen (OutStr);
           SelSize=SelectSize;
           /* $ 22.01.2001 IS
               Внимание! Возможно, это не совсем верное решение проблемы
@@ -742,7 +742,7 @@ void Viewer::ShowHex()
         if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)) )
         {
           bSelEndFound = true;
-          SelEnd = wcslen (OutStr)+3;
+          SelEnd = (int)wcslen (OutStr)+3;
 
           SelSize=SelectSize;
         }
@@ -803,7 +803,7 @@ void Viewer::ShowHex()
         if (SelectSize>0 && (SelectPos == fpos) )
         {
           bSelStartFound = true;
-          SelStart = wcslen (OutStr);
+          SelStart = (int)wcslen (OutStr);
           SelSize=SelectSize;
           /* $ 22.01.2001 IS
               Внимание! Возможно, это не совсем верное решение проблемы
@@ -817,7 +817,7 @@ void Viewer::ShowHex()
         if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)) )
         {
           bSelEndFound = true;
-          SelEnd = wcslen (OutStr)+1;
+          SelEnd = (int)wcslen (OutStr)+1;
 
           SelSize=SelectSize;
         }
@@ -865,12 +865,12 @@ void Viewer::ShowHex()
     wcscat(TextStr,L" ");
 
     if ( (SelEnd <= SelStart) && bSelStartFound )
-       SelEnd = wcslen (OutStr)-2;
+       SelEnd = (int)wcslen (OutStr)-2;
 
     wcscat(OutStr,L" ");
 
     wcscat(OutStr,TextStr);
-    if (wcslen(OutStr)>HexLeftPos)
+    if ((int)wcslen(OutStr)>HexLeftPos)
       mprintfW(L"%-*.*s",ObjWidth,ObjWidth,OutStr+(int)HexLeftPos);
     else
       mprintfW(L"%*s",ObjWidth,L"");
@@ -1156,7 +1156,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 
   if ( bSelStartFound )
   {
-    if ( pString->nSelStart > wcslen (pString->lpData) )
+    if ( pString->nSelStart > (__int64)wcslen (pString->lpData) )
       bSelStartFound = false;
 
     if ( bSelEndFound )
@@ -1766,7 +1766,7 @@ int Viewer::ProcessKey(int Key)
           int I, Y, Len, MaxLen = 0;
           for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
           {
-             Len = wcslen(Strings[I]->lpData);
+             Len = (int)wcslen(Strings[I]->lpData);
              if (Len > MaxLen)
                MaxLen = Len;
           } /* for */
@@ -2234,7 +2234,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
           if (strlen(DataStr)>0)
           {
-            int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
+            int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
             Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,UnchangeFlag);
           }
         }
@@ -2252,7 +2252,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
           if (strlen(DataStr)>0)
           {
-            int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,-1);
+            int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,-1);
             Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,UnchangeFlag);
           }
         }
@@ -2400,7 +2400,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (!SearchFlags.Check(REVERSE_SEARCH))
     LastSearchReverse=ReverseSearch;
 
-  if ((SearchLength=strSearchStr.GetLength ())==0)
+  if ((SearchLength=(int)strSearchStr.GetLength ())==0)
     return;
 
   {
@@ -2789,7 +2789,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
     if(!TmpBuf)
       return -1;
 
-    int ReadSize=fread(TmpBuf,1,Count*2,SrcFile);
+    int ReadSize=(int)fread(TmpBuf,1,Count*2,SrcFile);
     TmpBuf[ReadSize]=0;
     /* $ 20.10.2000 tran
        обратный порядок байтов */
@@ -2815,7 +2815,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
   {
     char *TmpBuf=(char*)alloca(Count+16);
 
-    int ReadSize=fread(TmpBuf,1,Count,SrcFile);
+    int ReadSize=(int)fread(TmpBuf,1,Count,SrcFile);
 
     MultiByteToWideChar (CP_OEMCP, 0, TmpBuf, ReadSize, Buf, Count);
 
@@ -3119,7 +3119,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
   */
 
     SelectPosOffSet=(VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
-           && (MatchPos+SelectSize<=ObjWidth && MatchPos<wcslen(Strings[0]->lpData)))?1:0;
+           && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)wcslen(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;
 

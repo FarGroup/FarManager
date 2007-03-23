@@ -29,7 +29,6 @@ vmenu.cpp
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
              int ItemCount,     // количество пунктов меню
-             bool bUnicode,
              int MaxHeight,     // максимальная высота
              DWORD Flags,       // нужен ScrollBar?
              FARWINDOWPROC Proc,    // обработчик
@@ -85,7 +84,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   /* $ 30.11.2001 DJ
      инициализируем перед тем, как добавлять айтема
   */
-  MaxLength=strTitle.GetLength ()+2;
+  MaxLength=(int)strTitle.GetLength ()+2;
   /* DJ $ */
   /* SVS $ */
 
@@ -97,7 +96,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
     NewItem.Clear ();
 
     if ((DWORD_PTR)Data[I].Name < MAX_MSG)
-      NewItem.strName = UMSG((DWORD_PTR)Data[I].Name);
+      NewItem.strName = UMSG((int)(DWORD_PTR)Data[I].Name);
     else
       NewItem.strName = Data[I].Name;
     //NewItem.AmpPos=-1;
@@ -109,7 +108,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   BoxType=DOUBLE_BOX;
   for (SelectPos=-1,I=0;I<ItemCount;I++)
   {
-    int Length=Item[I]->strName.GetLength();
+    int Length=(int)Item[I]->strName.GetLength();
     if (Length>MaxLength)
       MaxLength=Length;
     if ((Item[I]->Flags&LIF_SELECTED) && !(Item[I]->Flags&LIF_DISABLE))
@@ -367,7 +366,7 @@ void VMenu::DrawTitles()
 
   if ( !strTitle.IsEmpty() )
   {
-    if((WidthTitle=strTitle.GetLength()) > MaxTitleLength)
+    if((WidthTitle=(int)strTitle.GetLength()) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[VMenuColorTitle]);
@@ -375,7 +374,7 @@ void VMenu::DrawTitles()
   }
   if ( !strBottomTitle.IsEmpty() )
   {
-    if((WidthTitle=strBottomTitle.GetLength()) > MaxTitleLength)
+    if((WidthTitle=(int)strBottomTitle.GetLength()) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[VMenuColorTitle]);
@@ -524,7 +523,7 @@ void VMenu::ShowMenu(int IsParent)
 
         if ( !Item[I]->strName.IsEmpty() )
         {
-          int ItemWidth=Item[I]->strName.GetLength();
+          int ItemWidth=(int)Item[I]->strName.GetLength();
           GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
           mprintfW(L" %*.*s ",ItemWidth,ItemWidth,(const wchar_t*)Item[I]->strName);
         }
@@ -846,7 +845,7 @@ int VMenu::ProcessKey(int Key)
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
         _len=HiStrlenW(Item[SelectPos]->strName,TRUE);
       else
-        _len=wcslen(Item[SelectPos]->strName);
+        _len=(int)Item[SelectPos]->strName.GetLength();
 
       if(Key == KEY_ALTLEFT && ItemShowPos==0 || Key == KEY_ALTRIGHT && ItemShowPos > _len || _len < _OWidth)
         break;
@@ -1129,7 +1128,7 @@ void VMenu::DeleteItems()
   ItemCount=0;
   SelectPos=-1;
   TopPos=0;
-  MaxLength=Max(strTitle.GetLength(),strBottomTitle.GetLength())+2;
+  MaxLength=(int)Max(strTitle.GetLength(),strBottomTitle.GetLength())+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
   /* $ 23.02.2002 DJ
@@ -1283,7 +1282,7 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
   Item[PosAdd]->ShowPos = 0;
 
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-    Length=Item[PosAdd]->strName.GetLength();
+    Length=(int)Item[PosAdd]->strName.GetLength();
   else
     Length=HiStrlenW(Item[PosAdd]->strName,TRUE);
 
@@ -1326,9 +1325,9 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
     ++I;
   }
 
-  Item[PosAdd]->Len[0]=wcslen(NamePtr)-Item[PosAdd]->Idx2; //??
+  Item[PosAdd]->Len[0]=(int)wcslen(NamePtr)-Item[PosAdd]->Idx2; //??
   if(Item[PosAdd]->Idx2)
-    Item[PosAdd]->Len[1]=wcslen(&NamePtr[Item[PosAdd]->Idx2]);
+    Item[PosAdd]->Len[1]=(int)wcslen(&NamePtr[Item[PosAdd]->Idx2]);
 
   // Уточнение общих размеров
   if(RLen[0] < Item[PosAdd]->Len[0])
@@ -1455,7 +1454,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 
     // Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
     if(!Size)
-      SizeReal=(wcslen((const wchar_t*)Data)+1)*sizeof(wchar_t);
+      SizeReal=(int)((wcslen((const wchar_t*)Data)+1)*sizeof(wchar_t));
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
     if(!Size ||
@@ -1748,7 +1747,7 @@ void VMenu::SetTitle(const wchar_t *Title)
   else
     strTitle = L"";
 
-  Length=strTitle.GetLength()+2;
+  Length=(int)strTitle.GetLength()+2;
 
   if (Length > MaxLength)
     MaxLength=Length;
@@ -1800,7 +1799,7 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
     strBottomTitle  = BottomTitle;
   else
     strBottomTitle = L"";
-  Length=strBottomTitle.GetLength()+2;
+  Length=(int)strBottomTitle.GetLength()+2;
   if (Length > MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -1946,7 +1945,7 @@ void VMenu::AssignHighlights(int Reverse)
     {
       Used[LocalUpperW(Ch)]++;
       Used[LocalLowerW(Ch)]++;
-      Item[I]->AmpPos=ChPtr-Name;
+      Item[I]->AmpPos=(int)(ChPtr-Name);
     }
   }
 //_SVS(SysLogDump("Used Pre",0,Used,sizeof(Used),NULL));
@@ -2193,11 +2192,11 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
   string strTmpBuf;
   if((DWORD)StartIndex < (DWORD)ItemCount)
   {
-    int LenPattern=wcslen(Pattern);
+    int LenPattern=(int)wcslen(Pattern);
     for(int I=StartIndex;I < ItemCount;I++)
     {
       strTmpBuf = Item[I]->strName;
-      int LenNamePtr = strTmpBuf.GetLength();
+      int LenNamePtr = (int)strTmpBuf.GetLength();
 
       RemoveCharW (strTmpBuf, L'&');
 
@@ -2326,7 +2325,7 @@ int VMenu::GetTypeAndName(string &strType, string &strName)
 #pragma warn -par
 #endif
 // функция обработки меню (по умолчанию)
-long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2)
 {
   return 0;
 }
@@ -2338,7 +2337,7 @@ long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
 #pragma warn -par
 #endif
 // функция посылки сообщений меню
-long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2)
 {
   CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
 

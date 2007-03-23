@@ -33,7 +33,8 @@ BOOL FileMasksWithExcludeW::Set(const wchar_t *masks, DWORD Flags)
   Free();
   if(NULL==masks || !*masks) return FALSE;
 
-  int len=wcslen(masks)+2, rc=FALSE;
+  size_t len=wcslen(masks)+2;
+  BOOL rc=FALSE;
   wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof (wchar_t));
   if(MasksStr)
   {

@@ -226,7 +226,7 @@ void TreeList::DisplayTree(int Fast)
     if ( !strTitle.IsEmpty() )
     {
       SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-      GotoXY(X1+(X2-X1+1-strTitle.GetLength())/2,Y1);
+      GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
       TextW(strTitle);
     }
   }
@@ -398,7 +398,7 @@ int TreeList::ReadTree()
   FlushCache();
   GetRoot();
 
-  int RootLength=strRoot.GetLength ()-1;
+  int RootLength=(int)strRoot.GetLength ()-1;
   if (RootLength<0)
     RootLength=0;
 
@@ -526,7 +526,7 @@ void TreeList::SaveTreeFile()
 
   FILE *TreeFile;
   long I;
-  int RootLength = strRoot.GetLength()-1;
+  int RootLength = (int)strRoot.GetLength()-1;
   if (RootLength<0)
     RootLength=0;
 
@@ -719,12 +719,12 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 void TreeList::FillLastData()
 {
   long Last,Depth,PathLength,SubDirPos,I,J;
-  int RootLength = strRoot.GetLength()-1;
+  int RootLength = (int)strRoot.GetLength()-1;
   if (RootLength<0)
     RootLength=0;
   for (I=1;I<TreeCount;I++)
   {
-    PathLength=wcsrchr(ListData[I]->strName,L'\\')-(const wchar_t*)ListData[I]->strName+1;
+    PathLength=(long)(wcsrchr(ListData[I]->strName,L'\\')-(const wchar_t*)ListData[I]->strName+1);
     Depth=ListData[I]->Depth=CountSlash((const wchar_t*)ListData[I]->strName+RootLength);
     for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
       if (CountSlash((const wchar_t*)ListData[J]->strName+RootLength)>Depth)
@@ -1204,7 +1204,7 @@ int TreeList::GetCurDirW (string &strCurDir)
   else
     strCurDir = ListData[CurFile]->strName; //BUGBUG
 
-  return strCurDir.GetLength();
+  return (int)strCurDir.GetLength();
 }
 
 
@@ -1333,7 +1333,7 @@ int TreeList::ReadTreeFile()
   wchar_t LastDirName[NM],*ChPtr;
 
   FILE *TreeFile=NULL;
-  int RootLength=strRoot.GetLength()-1;
+  int RootLength=(int)strRoot.GetLength()-1;
   if (RootLength<0)
     RootLength=0;
 
@@ -1557,9 +1557,9 @@ void TreeList::DelTreeName(const wchar_t *Name)
   for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
     wszDirName=TreeCache.ListName[CachePos];
-    Length=wcslen(Name);
-    DirLength=wcslen(wszDirName);
-    if(DirLength<Length)continue;
+    Length=(int)wcslen(Name);
+    DirLength=(int)wcslen(wszDirName);
+    if(DirLength<Length) continue;
     if (LocalStrnicmpW(Name,wszDirName,Length)==0 &&
         (wszDirName[Length]==0 || wszDirName[Length]==L'\\'))
     {
@@ -1590,7 +1590,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 
   ReadCache(strSrcRoot);
 
-  int SrcLength=wcslen(SrcName);
+  int SrcLength=(int)wcslen(SrcName);
 
   for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {

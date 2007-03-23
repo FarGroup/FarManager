@@ -77,7 +77,7 @@ void ShellMakeDir(Panel *SrcPanel)
     if (Opt.CreateUppercaseFolders && !IsCaseMixedW(strDirName))
       strDirName.Upper();
 
-    int Length=strDirName.GetLength();
+    int Length=(int)strDirName.GetLength();
 
 
     lpwszDirName = strDirName.GetBuffer ();

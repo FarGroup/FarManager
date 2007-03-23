@@ -75,7 +75,7 @@ int GetFileString::GetAnsiString(char **DestStr,int &Length)
   {
     if (ReadPos>=ReadSize)
     {
-      if ((ReadSize=fread(ReadBuf,1,sizeof(ReadBuf),SrcFile))==0)
+      if ((ReadSize=(int)fread(ReadBuf,1,sizeof(ReadBuf),SrcFile))==0)
       {
         if (CurLength==0)
           ExitCode=0;
@@ -113,7 +113,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
   {
     if (ReadPos>=ReadSize)
     {
-      if ((ReadSize=fread(wReadBuf,1,sizeof(wReadBuf),SrcFile))==0)
+      if ((ReadSize=(int)fread(wReadBuf,1,sizeof(wReadBuf),SrcFile))==0)
       {
         if (CurLength==0)
           ExitCode=0;
@@ -151,7 +151,7 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 	{
 		if (ReadPos>=ReadSize)
 		{
-			if ((ReadSize=fread(wReadBuf,1,sizeof(wReadBuf),SrcFile))==0)
+			if ((ReadSize=(int)fread(wReadBuf,1,sizeof(wReadBuf),SrcFile))==0)
 			{
 				if (CurLength==0)
 					ExitCode=0;

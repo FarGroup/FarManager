@@ -223,7 +223,7 @@ BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFo
   wchar_t wszBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof (wchar_t)] = { 0 };
   TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)wszBuff;
 
-  size_t nDestMountPointBytes = strDestDir.GetLength()*sizeof (wchar_t);
+  WORD nDestMountPointBytes = (WORD)(strDestDir.GetLength()*sizeof (wchar_t));
   rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
   rdb.ReparseDataLength       = nDestMountPointBytes + 12;
   rdb.Reserved                = 0;
@@ -457,7 +457,7 @@ int WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest)
     return(FALSE);
 
   lpContext = NULL;
-  cbPathLen = (strFileLink.GetLength() + 1) * sizeof(WCHAR);
+  cbPathLen = (DWORD)(strFileLink.GetLength() + 1) * sizeof(WCHAR);
 
   StreamId.dwStreamId = BACKUP_LINK;
   StreamId.dwStreamAttributes = 0;
@@ -785,7 +785,7 @@ static void _GetPathRootW(const wchar_t *Path, string &strRoot, int Reenter)
   wchar_t *TmpPtr;
 
   int IsUNC = FALSE;
-  int PathLen = wcslen(Path);
+  int PathLen = (int)wcslen(Path);
 
   strNewPath = Path;
   // Проверим имя на UNC

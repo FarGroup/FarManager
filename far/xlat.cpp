@@ -36,7 +36,7 @@ char* WINAPI Xlat(
     return NULL;
   /* SVS $ */
 
-  I=strlen(Line);
+  I=(int)strlen(Line);
 
   if(EndPos > I)
     EndPos=I;

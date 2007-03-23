@@ -231,7 +231,6 @@ class VMenu: public Modal
     VMenu(const wchar_t *Title,
           MenuDataEx *Data,
           int ItemCount,
-          bool bUnicode,/*FAKE, to make ctors different*/
           int MaxHeight=0,
           DWORD Flags=0,
           FARWINDOWPROC Proc=NULL,
@@ -339,9 +338,9 @@ class VMenu: public Modal
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)
     */
-    static long WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
     // функция посылки сообщений меню
-    static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
     /* SVS $ */
 
 };

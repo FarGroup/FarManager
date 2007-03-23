@@ -55,7 +55,7 @@ LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * cons
   LONG Ret=ERROR_SUCCESS;
 
   if((hKey=CreateRegKeyW(Key)) != NULL)
-    Ret=RegSetValueExW(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(wcslen(ValueData)+1)*sizeof(wchar_t));
+    Ret=RegSetValueExW(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(wcslen(ValueData)+1)*sizeof(wchar_t));
   CloseRegKey(hKey);
   return Ret;
 }

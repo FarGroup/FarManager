@@ -41,7 +41,7 @@ Return value    If template is well-formed, _tmktemp returns the
 char* farmktemp(char *temp)
 {
     register char *cp;
-    int     len;
+    size_t  len;
     int     i, c, j, k;
     int     pid;
 

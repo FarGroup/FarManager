@@ -98,8 +98,6 @@ int PluginManager::AddPlugin (Plugin *pPlugin)
 
 int PluginManager::RemovePlugin (Plugin *pPlugin)
 {
-	Plugin *pCurrentPlugin;
-
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		if ( PluginsData[i] == pPlugin )
@@ -118,7 +116,7 @@ int PluginManager::RemovePlugin (Plugin *pPlugin)
 
 
 int PluginManager::LoadPlugin (
-		const wchar_t *lpwszModuleName, 
+		const wchar_t *lpwszModuleName,
 		const FAR_FIND_DATA_EX *fdata,
 		Plugin **pLoadedPlugin
 		)
@@ -194,7 +192,7 @@ int PluginManager::UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemov
 		if ( bPanelPlugin /*&& bUpdatePanels*/ )
 		{
 			CtrlObject->Cp()->ActivePanel->SetCurDirW(L".",TRUE);
-			
+
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			ActivePanel->Update(UPDATE_KEEP_SELECTION);
 			ActivePanel->Redraw();
@@ -294,7 +292,7 @@ void PluginManager::LoadPlugins()
       // ...и пройдемся по нему
       while (ScTree.GetNextNameW(&FindData,strFullName))
       {
-        if ( CmpNameW(L"*.dll",FindData.strFileName,FALSE) && 
+        if ( CmpNameW(L"*.dll",FindData.strFileName,FALSE) &&
         	 (FindData.dwFileAttributes & FA_DIREC)==0 )
         	LoadPlugin (strFullName, &FindData);
       } // end while
@@ -399,14 +397,14 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItemW *PanelItem, int
 
 		HANDLE hPlugin = pPlugin->OpenPlugin(OPEN_FINDLIST, 0);
 
-		if ( hPlugin != INVALID_HANDLE_VALUE ) 
+		if ( hPlugin != INVALID_HANDLE_VALUE )
 		{
 			if ( pPlugin->SetFindList (hPlugin, PanelItem, ItemsNumber) )
 			{
 		        PluginHandle *handle = new PluginHandle;
 		        handle->hPlugin = hPlugin;
 	    	    handle->pPlugin = pPlugin;
-		        
+
 	        	return (HANDLE)handle;
 			}
 
@@ -432,7 +430,7 @@ void PluginManager::ClosePlugin(HANDLE hPlugin)
 int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 {
 	Plugin *pPlugin = NULL;;
-    
+
     for (int i = 0; i < PluginsCount; i++)
     {
     	pPlugin = PluginsData[i];
@@ -481,9 +479,9 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 
 
 int PluginManager::GetFindData (
-		HANDLE hPlugin, 
-		PluginPanelItemW **pPanelData, 
-		int *pItemsNumber, 
+		HANDLE hPlugin,
+		PluginPanelItemW **pPanelData,
+		int *pItemsNumber,
 		int OpMode
 		)
 {
@@ -495,8 +493,8 @@ int PluginManager::GetFindData (
 
 
 void PluginManager::FreeFindData (
-		HANDLE hPlugin, 
-		PluginPanelItemW *PanelItem, 
+		HANDLE hPlugin,
+		PluginPanelItemW *PanelItem,
 		int ItemsNumber
 		)
 {
@@ -572,7 +570,7 @@ int PluginManager::GetFile (
 	string strFindPath;
 
 	strFindPath = DestPath;
-	
+
 	AddEndSlashW(strFindPath);
 	strFindPath += L"*.*";
 
@@ -735,7 +733,7 @@ void PluginManager::GetOpenPluginInfo (
 {
  	if ( !Info )
 		return;
-		
+
 	memset(Info, 0, sizeof(*Info));
 
 	PluginHandle *ph = (PluginHandle*)hPlugin;
@@ -788,7 +786,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 	if ( pPlugin->Configure(INum) )
 	{
 		int PMode[2];
-		
+
 		PMode[0]=CtrlObject->Cp()->LeftPanel->GetMode();
 		PMode[1]=CtrlObject->Cp()->RightPanel->GetMode();
 
@@ -823,7 +821,7 @@ void PluginManager::Configure(int StartPos)
     return;
 
   {
-    VMenu PluginList(UMSG(MPluginConfigTitle),NULL,0,TRUE,ScrY-4);
+    VMenu PluginList(UMSG(MPluginConfigTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetHelp(L"PluginsConfig");
 
@@ -882,7 +880,7 @@ void PluginManager::Configure(int StartPos)
                 MenuItemNumber++;
 
                 PluginMenuItemData item;
-                
+
                 item.pPlugin = pPlugin;
                 item.nItem = J;
 
@@ -996,7 +994,7 @@ void PluginManager::Configure(int StartPos)
           break;
 
         PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,StartPos);
-        ConfigureCurrent(item->pPlugin, item->nItem); 
+        ConfigureCurrent(item->pPlugin, item->nItem);
       }
     }
   }
@@ -1016,7 +1014,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
   string strRegKey;
 
 //  {
-    VMenu PluginList(UMSG(MPluginCommandsMenuTitle),NULL,0,TRUE,ScrY-4);
+    VMenu PluginList(UMSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetHelp(L"Plugins");
     BOOL NeedUpdateItems=TRUE;
@@ -1240,7 +1238,7 @@ C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC
 C:\MultiArc\MULTIARC.DLL                            -> DLL
 ---------------------------------------------------------------------------------------
 */
-  unsigned int FarPathLength=g_strFarPath.GetLength();
+  size_t FarPathLength=g_strFarPath.GetLength();
   strRegKey=L"";
   if (FarPathLength < pPlugin->m_strModuleName.GetLength())
   {
@@ -1249,7 +1247,7 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
 //    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
     strPluginName = (const wchar_t*)pPlugin->m_strModuleName+(wcsncmp(pPlugin->m_strModuleName,g_strFarPath,FarPathLength)?0:FarPathLength);
 
-    wchar_t *Ptr = strPluginName.GetBuffer (strPluginName.GetLength()+20);
+    wchar_t *Ptr = strPluginName.GetBuffer ((int)strPluginName.GetLength()+20);
 
     while ( *Ptr )
     {
@@ -1412,7 +1410,7 @@ void PluginManager::LoadIfCacheAbsent()
 
 int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 {
-  int PrefixLength=0;
+  size_t PrefixLength=0;
 
   string strCommand=CommandParam;
 
@@ -1433,7 +1431,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
   string strPrefix;
 
-  wchar_t *Prefix = strPrefix.GetBuffer(PrefixLength);
+  wchar_t *Prefix = strPrefix.GetBuffer((int)PrefixLength);
 
   xwcsncpy(Prefix,strCommand,PrefixLength);
 
@@ -1457,10 +1455,10 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
         strRegKey.Format (FmtPluginsCache_PluginDW, RegNumber);
         GetRegKeyW(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
         PluginFlags=GetRegKeyW(strRegKey,L"Flags",0);
-      } 
+      }
       else
         continue;
-    } 
+    }
     else
     {
       PluginInfoW Info;
@@ -1468,33 +1466,33 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
       {
         strPluginPrefix = NullToEmptyW(Info.CommandPrefix);
         PluginFlags = Info.Flags;
-      } 
+      }
       else
         continue;
-    } 
+    }
     if ( strPluginPrefix.IsEmpty() )
       continue;
 
     const wchar_t *PrStart = strPluginPrefix;
 
-    int PrefixLength=strPrefix.GetLength ();
+    PrefixLength=strPrefix.GetLength ();
     while(1)
     {
       const wchar_t *PrEnd = wcschr(PrStart, L':');
-      int Len=PrEnd==NULL ? wcslen(PrStart):(PrEnd-PrStart);
+      size_t Len=PrEnd==NULL ? wcslen(PrStart):(PrEnd-PrStart);
       if(Len<PrefixLength)Len=PrefixLength;
-      if (LocalStrnicmpW(Prefix, PrStart, Len)==0)
+      if (LocalStrnicmpW(Prefix, PrStart, (int)Len)==0)
       {
         PluginPos=PData;
         break;
-      } 
+      }
       if (PrEnd == NULL)
         break;
       PrStart = ++PrEnd;
-    } 
+    }
     if (PluginPos)
       break;
-  } 
+  }
 
   if (PluginPos==NULL)
     return(FALSE);
@@ -1519,7 +1517,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
     NewPanel->Show();
     if(!Target || Target == ActivePanel)
       NewPanel->SetFocus();
-  }            
+  }
   return(TRUE);
 }
 

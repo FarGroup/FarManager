@@ -111,14 +111,14 @@ int MessageW (
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
-    if (static_cast<DWORD>(Length=wcslen(Items[I]))>MaxLength)
+    if (static_cast<DWORD>(Length=(int)wcslen(Items[I]))>MaxLength)
       MaxLength=Length;
   }
 
   // учтем так же размер заголовка
   if(Title && *Title)
   {
-    I=wcslen(Title)+2;
+    I=(DWORD)wcslen(Title)+2;
     if (MaxLength < I)
       MaxLength=I;
   }
@@ -139,7 +139,7 @@ int MessageW (
     //InsertQuote(ErrStr); // оквочим
 
     // вычисление "красивого" размера
-    DWORD LenErrStr=wcslen(strErrStr);
+    DWORD LenErrStr=(DWORD)wcslen(strErrStr);
     if(LenErrStr > MAX_WIDTH_MESSAGE)
     {
       // половина меньше?
@@ -240,7 +240,7 @@ int MessageW (
       return -1;
     }
 
-    for (int i=0; i<ItemCount; i++)
+    for (DWORD i=0; i<ItemCount; i++)
       MsgDlg[i].Clear();
 
     int RetCode;
@@ -336,7 +336,7 @@ int MessageW (
         strTempTitle.ReleaseBuffer (MaxLength);
     }
 
-    GotoXY(X1+(X2-X1-1-strTempTitle.GetLength())/2,Y1+1);
+    GotoXY(X1+(X2-X1-1-(int)strTempTitle.GetLength())/2,Y1+1);
     mprintfW(L" %s ",(const wchar_t*)strTempTitle);
   }
 
@@ -354,7 +354,7 @@ int MessageW (
         GotoXY(X1+3,Y1+I+2);
         DrawLine(Length,(Chr == 2?3:1));
         CPtrStr++;
-        int TextLength=wcslen(CPtrStr);
+        int TextLength=(int)wcslen(CPtrStr);
         if (TextLength<Length)
         {
           GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
@@ -364,7 +364,7 @@ int MessageW (
       }
       continue;
     }
-    if ((Length=wcslen(CPtrStr))>ScrX-15)
+    if ((Length=(int)wcslen(CPtrStr))>ScrX-15)
       Length=ScrX-15;
     int Width=X2-X1+1;
 

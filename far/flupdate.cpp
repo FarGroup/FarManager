@@ -350,7 +350,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           else
           {
             TruncStrW(strReadMsg,TitleLength-2);
-            int MsgLength=strReadMsg.GetLength();
+            int MsgLength=(int)strReadMsg.GetLength();
             GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
             mprintfW(L" %s ", (const wchar_t*)strReadMsg);
           }
@@ -720,7 +720,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,(Info.Flags&OPIF_USEATTRHIGHLIGHTING));
+      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
     if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FA_DIREC)==0*/)
       CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(&CurPanelData->FindData);
     else
@@ -756,7 +756,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     /* $ 22.11.2001 VVM
       + Не забыть раскрасить :) */
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING));
+      CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
     /* VVM $ */
     if (Info.HostFile && *Info.HostFile)
     {

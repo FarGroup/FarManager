@@ -788,7 +788,7 @@ string __EE_ToName(int Command)
 string __EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
-  #define DEF_EEREDRAW_(m) { (int)EEREDRAW_##m , L#m }
+  #define DEF_EEREDRAW_(m) { (int)(INT_PTR)EEREDRAW_##m , L#m }
   struct __XXX_Name EEREDRAW[]={
     DEF_EEREDRAW_(ALL),  DEF_EEREDRAW_(CHANGE),  DEF_EEREDRAW_(LINE),
   };

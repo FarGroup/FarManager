@@ -390,11 +390,11 @@ BOOL IsModulePlugin2 (
 
 				DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
 
-				for (int n = 0; n < pExportDir->NumberOfNames; n++)
+				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
 				{
 					const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
 
-					DWORD dwCRC32 = CRC32 (0, lpExportName, strlen (lpExportName));
+					DWORD dwCRC32 = CRC32 (0, lpExportName, (unsigned int)strlen (lpExportName));
 
 					for (int j = 0; j < 7; j++)  // а это вам не фиг знает что, это вам оптимизация, типа 8-)
 						if ( dwCRC32 == ExportCRC32[j] )
@@ -865,29 +865,35 @@ bool Plugin::IsPanelPlugin()
 
 HANDLE Plugin::OpenPlugin (int OpenFrom, INT_PTR Item)
 {
-  ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+  //BUGBUG???
+  //AY - непонятно нафига нужно, в других вызовах нету,
+  //     притом ещё делает варнинги при сборке из за того что внизу есть SEH.
+  //     Если это да надо, то надо выносить вызов SEH в отдельную функцию.
+  //ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
   CheckScreenLock(); //??
 
-  string strCurDir;
-  CtrlObject->CmdLine->GetCurDirW(strCurDir);
-  FarChDirW(strCurDir);
-  g_strDirToSet=L"";
+  {
+		string strCurDir;
+		CtrlObject->CmdLine->GetCurDirW(strCurDir);
+		FarChDirW(strCurDir);
+		g_strDirToSet=L"";
+  }
 
 
   if ( pOpenPlugin && Load() && !ProcessException )
   {
-	//CurPluginItem=this; //BUGBUG
+		//CurPluginItem=this; //BUGBUG
 
-	ExecuteStruct es;
+		ExecuteStruct es;
 
-	es.id = EXCEPT_OPENPLUGIN;
-	es.hDefaultResult = INVALID_HANDLE_VALUE;
-	es.hResult = INVALID_HANDLE_VALUE;
+		es.id = EXCEPT_OPENPLUGIN;
+		es.hDefaultResult = INVALID_HANDLE_VALUE;
+		es.hResult = INVALID_HANDLE_VALUE;
 
-	EXECUTE_FUNCTION_EX(pOpenPlugin(OpenFrom,Item), es);
+		EXECUTE_FUNCTION_EX(pOpenPlugin(OpenFrom,Item), es);
 
-	return es.hResult;
+		return es.hResult;
     //CurPluginItem=NULL; //BUGBUG
 
 /*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
@@ -1094,7 +1100,7 @@ int Plugin::GetFiles (
 
 		EXECUTE_FUNCTION_EX(pGetFiles(hPlugin, PanelItem, ItemsNumber, Move, DestPath, OpMode), es);
 
-		nResult = es.nResult;
+		nResult = (int)es.nResult;
 	}
 
 	return nResult;
@@ -1120,7 +1126,7 @@ int Plugin::PutFiles (
 
 		EXECUTE_FUNCTION_EX(pPutFiles(hPlugin, PanelItem, ItemsNumber, Move, OpMode), es);
 
-		nResult = es.nResult;
+		nResult = (int)es.nResult;
 	}
 
 	return nResult;
@@ -1144,7 +1150,7 @@ int Plugin::DeleteFiles (
 
 		EXECUTE_FUNCTION_EX(pDeleteFiles(hPlugin, PanelItem, ItemsNumber, OpMode), es);
 
-		bResult = es.bResult;
+		bResult = (int)es.bResult;
 	}
 
 	return bResult;
@@ -1168,7 +1174,7 @@ int Plugin::MakeDirectory (
 
 		EXECUTE_FUNCTION_EX(pMakeDirectory(hPlugin, Name, OpMode), es);
 
-		nResult = es.nResult;
+		nResult = (int)es.nResult;
 	}
 
 	return nResult;
@@ -1242,7 +1248,7 @@ int Plugin::Compare (
 
 		EXECUTE_FUNCTION_EX(pCompare(hPlugin, Item1, Item2, Mode), es);
 
-		nResult = es.nResult;
+		nResult = (int)es.nResult;
 	}
 
 	return nResult;

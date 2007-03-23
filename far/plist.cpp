@@ -21,7 +21,7 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-  VMenu ProcList(UMSG(MProcessListTitle),NULL,0,TRUE, ScrY-4);
+  VMenu ProcList(UMSG(MProcessListTitle),NULL,0,ScrY-4);
   /* $ 31.01.2001 IS
      ! Теперь это меню более дружелюбно ;)
   */

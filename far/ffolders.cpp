@@ -134,7 +134,7 @@ static int ShowFolderShortcutMenu(int Pos)
   int ExitCode=-1;
   {
     MenuItemEx ListItem;
-    VMenu FolderList(UMSG(MFolderShortcutsTitle),NULL,0,TRUE,ScrY-4);
+    VMenu FolderList(UMSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
     /* $ 16.06.2001 KM
        ! Добавление WRAPMODE в меню.
     */

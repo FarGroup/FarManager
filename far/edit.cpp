@@ -218,7 +218,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
   {
     int i;
     int PosChanged=FALSE;
-    int MaskLen=wcslen(Mask);
+    int MaskLen=(int)wcslen(Mask);
     for (i=Position;i<MaskLen && i>=0;i+=Where)
     {
       if (CheckCharMask(Mask[i]))
@@ -417,13 +417,13 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
           return;
 
         wcsncpy(ShortStr,ShowStr,StrSize);
-        Len=wcslen(RemoveTrailingSpacesW(ShortStr));
+        Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
         delete[] ShortStr;
         Size=Len;
       }
       else
       {
-        Len=wcslen(&ShowStr[LeftPos]);
+        Len=(int)wcslen(&ShowStr[LeftPos]);
         Size=StrSize;
       }
       if(Len > EditLength)
@@ -866,7 +866,7 @@ int Edit::ProcessKey(int Key)
           return FALSE;
 
         wcsncpy(ShortStr,Str,StrSize);
-        Len=wcslen(RemoveTrailingSpacesW(ShortStr));
+        Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -1027,7 +1027,7 @@ int Edit::ProcessKey(int Key)
            Добавим код для удаления части строки
            с учётом маски.
         */
-        int MaskLen=wcslen(Mask);
+        int MaskLen=(int)wcslen(Mask);
         int ptr=CurPos;
         while(ptr<MaskLen)
         {
@@ -1148,7 +1148,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        CurPos=wcslen(RemoveTrailingSpacesW(ShortStr));
+        CurPos=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -1189,7 +1189,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        int Len=wcslen(RemoveTrailingSpacesW(ShortStr));
+        int Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1238,7 +1238,7 @@ int Edit::ProcessKey(int Key)
       */
       if (Mask && *Mask)
       {
-        int MaskLen=wcslen(Mask);
+        int MaskLen=(int)wcslen(Mask);
         int i,j;
         for (i=CurPos,j=CurPos;i<MaskLen;i++)
         {
@@ -1306,7 +1306,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        Len=wcslen(RemoveTrailingSpacesW(ShortStr));
+        Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1395,7 +1395,7 @@ int Edit::ProcessKey(int Key)
           DeleteBlock();
         }
 
-        for (I=wcslen(Str)-1;I>=0 && IsEolW(Str[I]);I--)
+        for (I=(int)wcslen(Str)-1;I>=0 && IsEolW(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
           if (IsEolW(ClipText[I]))
@@ -1553,7 +1553,7 @@ int Edit::InsertKey(int Key)
   }
   if (Mask && *Mask)
   {
-    int MaskLen=wcslen(Mask);
+    int MaskLen=(int)wcslen(Mask);
     if (CurPos<MaskLen)
     {
       /* $ 15.11.2000 KM
@@ -1698,7 +1698,7 @@ void Edit::SetStringW(const wchar_t *Str)
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   Select(-1,0);
-  SetBinaryStringW(Str,wcslen(Str));
+  SetBinaryStringW(Str,(int)wcslen(Str));
 }
 
 void Edit::SetEOLW(const wchar_t *EOL)
@@ -1785,7 +1785,7 @@ void Edit::SetBinaryStringW(const wchar_t *Str,int Length)
     /* $ 26.10.2003 KM
        ! Скорректируем вставку из клипборда с учётом маски
     */
-    int maskLen=wcslen(Mask);
+    int maskLen=(int)wcslen(Mask);
     for (int i=0,j=0;j<maskLen && j<Length;)
     {
       if (CheckCharMask(Mask[i]))
@@ -1900,7 +1900,7 @@ void Edit::InsertStringW(const wchar_t *Str)
   /* tran 25.07.2000 $ */
 
   Select(-1,0);
-  InsertBinaryStringW(Str,wcslen(Str));
+  InsertBinaryStringW(Str,(int)wcslen(Str));
 }
 
 
@@ -1924,7 +1924,7 @@ void Edit::InsertBinaryStringW(const wchar_t *Str,int Length)
   if (Mask && *Mask)
   {
     int Pos=CurPos;
-    int MaskLen=wcslen(Mask);
+    int MaskLen=(int)wcslen(Mask);
     if (Pos<MaskLen)
     {
       //_SVS(SysLog(L"InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
@@ -2050,7 +2050,7 @@ void Edit::RefreshStrByMask(int InitMode)
   int i;
   if (Mask && *Mask)
   {
-    int MaskLen=wcslen(Mask);
+    int MaskLen=(int)wcslen(Mask);
     /* $12.11.2000 KM
        Некоторые изменения в работе с маской.
        Теперь Str не может быть длиннее Mask и
@@ -2211,8 +2211,8 @@ void Edit::ReplaceTabs()
 
   while ((TabPtr=(wchar_t *)wmemchr(Str,L'\t',StrSize))!=NULL)
   {
-    Pos=TabPtr-Str;
-    S=TabSize-((TabPtr-Str) % TabSize);
+    Pos=(int)(TabPtr-Str);
+    S=TabSize-((int)(TabPtr-Str) % TabSize);
     if(SelStart!=-1)
     {
       if(Pos<=SelStart)
@@ -2286,7 +2286,7 @@ void Edit::SetTabCurPos(int NewPos)
     if (ShortStr==NULL)
       return;
     wcsncpy(ShortStr,Str,StrSize);
-    Pos=wcslen(RemoveTrailingSpacesW(ShortStr));
+    Pos=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
     delete[] ShortStr;
     if (NewPos>Pos)
       NewPos=Pos;
@@ -2610,7 +2610,7 @@ void Edit::Xlat(BOOL All)
   */
   if(All && SelStart == -1 && SelEnd == 0)
   {
-    ::XlatW(Str,0,wcslen(Str),TableSet,Opt.XLat.Flags);
+    ::XlatW(Str,0,(int)wcslen(Str),TableSet,Opt.XLat.Flags);
     Show();
     return;
   }
@@ -2622,7 +2622,7 @@ void Edit::Xlat(BOOL All)
   /* IS $ */
   {
     if(SelEnd == -1)
-      SelEnd=wcslen(Str);
+      SelEnd=(int)wcslen(Str);
     ::XlatW(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
     Show();
   }
@@ -2636,7 +2636,7 @@ void Edit::Xlat(BOOL All)
       Обрабатываем только то слово, на котором стоит курсор, или то слово, что
       находится левее позиции курсора на 1 символ
    */
-   int start=CurPos, end, StrSize=wcslen(Str);
+   int start=CurPos, end, StrSize=(int)wcslen(Str);
    BOOL DoXlat=TRUE;
 
    /* $ 12.01.2004 IS

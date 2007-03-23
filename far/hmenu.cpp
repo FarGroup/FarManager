@@ -298,7 +298,7 @@ void HMenu::ProcessSubMenu(struct MenuDataEx *Data,int DataCount,
   if (SubMenu!=NULL)
     delete SubMenu;
   Position=-1;
-  SubMenu=new VMenu(L"",Data,DataCount,TRUE);
+  SubMenu=new VMenu(L"",Data,DataCount);
   SubMenu->SetFlags(VMENU_NOTCHANGE);
   SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
   SubMenu->SetFlags(VMENU_WRAPMODE);

@@ -168,7 +168,7 @@ public:
 	int ProcessViewerEvent (int Event, PVOID Param);
 
 	void GetPluginInfo (PluginInfoW *pi);
-	int Configure (int MenuItem); 
+	int Configure (int MenuItem);
 
 	void ExitFAR();
 

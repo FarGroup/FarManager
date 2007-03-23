@@ -156,7 +156,7 @@ int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
   if (!FAR_OpenClipboard(NULL))
     return(FALSE);
   FAR_EmptyClipboard();
-  if (Data!=NULL && (DataSize=wcslen(Data))!=0)
+  if (Data!=NULL && (DataSize=(long)wcslen(Data))!=0)
   {
     HGLOBAL hData;
     void *GData;
@@ -181,7 +181,7 @@ int CopyFormatToClipboardW(const wchar_t *Format,const wchar_t *Data)
     return(FALSE);
 
   long DataSize;
-  if (Data!=NULL && (DataSize=wcslen(Data))!=0)
+  if (Data!=NULL && (DataSize=(long)wcslen(Data))!=0)
   {
     HGLOBAL hData;
     void *GData;
@@ -357,7 +357,7 @@ wchar_t* PasteFormatFromClipboardW(const wchar_t *Format)
   if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
   {
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-    int BufferSize=(wcslen(ClipAddr)+1)*sizeof (wchar_t);
+    int BufferSize=(int)(wcslen(ClipAddr)+1)*sizeof (wchar_t);
     ClipText=new wchar_t[BufferSize];
     if (ClipText!=NULL)
       wcscpy(ClipText,ClipAddr);

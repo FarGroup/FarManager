@@ -56,7 +56,7 @@ void CommandLine::DisplayObject()
   TextW(strTruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
   CmdStr.SetLeftPos(0);
-  CmdStr.SetPosition(X1+strTruncDir.GetLength(),Y1,X2,Y2);
+  CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
   CmdStr.Show();
 }
 
@@ -92,7 +92,7 @@ int CommandLine::ProcessKey(int Key)
       SetLastCmdStr(CmdStr.GetStringAddrW());
 
     strStr = strLastCmdStr;
-    int CurCmdPartLength=strStr.GetLength ();
+    int CurCmdPartLength=(int)strStr.GetLength ();
     CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
@@ -292,7 +292,7 @@ int CommandLine::ProcessKey(int Key)
         /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
         if(SetLastCmdStr(CmdStr.GetStringAddrW()))
-          LastCmdPartLength=strLastCmdStr.GetLength ();
+          LastCmdPartLength=(int)strLastCmdStr.GetLength ();
         /* IS $ */
         return(TRUE);
       }
@@ -353,7 +353,7 @@ void CommandLine::SetCurDirW(const wchar_t *CurDir)
 int CommandLine::GetCurDirW(string &strCurDir)
 {
     strCurDir = CommandLine::strCurDir;
-    return strCurDir.GetLength();
+    return (int)strCurDir.GetLength();
 }
 
 
@@ -498,7 +498,7 @@ void CommandLine::GetPrompt(string &strDestStr)
             $_ - Carriage return and linefeed
             */
             case L'H': // $H - Backspace (erases previous character)
-              strDestStr.GetBuffer (strDestStr.GetLength()-1);
+              strDestStr.GetBuffer ((int)strDestStr.GetLength()-1);
               strDestStr.ReleaseBuffer (); //BUGBUG
               break;
             case L'D': // $D - Current date

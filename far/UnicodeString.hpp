@@ -71,7 +71,7 @@ public:
     else
     {
       if (pOldData)
-        memcpy(m_pData,pOldData,m_nLength * sizeof(wchar_t));
+        wmemcpy(m_pData,pOldData,m_nLength);
       m_pData[m_nLength] = 0;
       FreeData(pOldData);
     }
@@ -105,7 +105,7 @@ public:
 
   void DecRef()
   {
-  m_nRefCount--;
+    m_nRefCount--;
     if (!m_nRefCount)
       delete this;
   }
@@ -195,7 +195,17 @@ public:
   wchar_t *GetBuffer (int nLength = -1);
   void ReleaseBuffer (int nLength = -1);
 
-  wchar_t At (int nIndex)
+  size_t SetLength(size_t nLength)
+  {
+  	if (nLength < m_pData->GetLength())
+  	{
+	  	Inflate(nLength+1);
+      m_pData->SetLength(nLength);
+    }
+    return m_pData->GetLength();
+  }
+
+  wchar_t At (size_t nIndex)
   {
     const wchar_t *lpwszData = m_pData->GetData ();
     return lpwszData[nIndex];
@@ -220,28 +230,28 @@ public:
     //_wcsupr (m_pData->GetData());
   }
 
-  void RShift (unsigned int nNewPos)
+  void RShift (size_t nNewPos)
   {
     if ( nNewPos > m_pData->GetLength () )
         nNewPos = m_pData->GetLength ();
 
     Inflate (m_pData->GetSize());
-    memmove (m_pData->GetData()+nNewPos, m_pData->GetData(), (m_pData->GetLength()-nNewPos+1)*sizeof (wchar_t));
+    wmemmove (m_pData->GetData()+nNewPos, m_pData->GetData(), (m_pData->GetLength()-nNewPos+1));
   }
 
-  void LShift (unsigned int nNewPos)
+  void LShift (size_t nNewPos)
   {
     if ( nNewPos > m_pData->GetLength () )
         nNewPos = m_pData->GetLength ();
 
     Inflate (m_pData->GetSize());
-    memmove (m_pData->GetData(), m_pData->GetData()+nNewPos, (m_pData->GetLength()-nNewPos+1)*sizeof (wchar_t));
+    wmemmove (m_pData->GetData(), m_pData->GetData()+nNewPos, (m_pData->GetLength()-nNewPos+1));
   }
 
   int __cdecl Format (const wchar_t * format, ...)
   {
     wchar_t *buffer = NULL;
-    DWORD dwSize = MAX_PATH;
+    size_t Size = MAX_PATH;
 
     int retValue;
     va_list argptr;
@@ -249,10 +259,10 @@ public:
     va_start( argptr, format );
 
     do {
-        dwSize <<= 1;
-        buffer = (wchar_t*)realloc (buffer, dwSize*sizeof (wchar_t));
+        Size <<= 1;
+        buffer = (wchar_t*)realloc (buffer, Size*sizeof (wchar_t));
 
-        retValue = _vsnwprintf ( buffer, dwSize, format, argptr );
+        retValue = _vsnwprintf ( buffer, Size, format, argptr );
     } while ( retValue == -1 );
 
     va_end( argptr );

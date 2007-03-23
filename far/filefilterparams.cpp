@@ -64,7 +64,7 @@ void FileFilterParams::SetMask(DWORD Used, const wchar_t *Mask)
   // проверим
   if((Ptr=wcschr(Ptr, L'%')) != NULL && !LocalStrnicmpW(Ptr,L"%PATHEXT%",9))
   {
-    int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(Ptr-Mask)/sizeof(wchar_t);
+    int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(int)((Ptr-Mask)/sizeof(wchar_t));
     // ≈сли встречаетс€ %pathext%, то допишем в конец...
     memmove(Ptr,Ptr+IQ1,(wcslen(Ptr+IQ1)+1)*sizeof(wchar_t));
 
@@ -581,11 +581,11 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.UnicodeChar=ptr[k];
-      VBufColorExample[15*j+k].Attributes=Color;
+      VBufColorExample[15*j+k].Attributes=(WORD)Color;
     }
     if (Colors.MarkChar&0x0000FFFF)
     {
-      VBufColorExample[15*j+1].Char.UnicodeChar=Colors.MarkChar&0x0000FFFF;
+      VBufColorExample[15*j+1].Char.UnicodeChar=(WCHAR)Colors.MarkChar&0x0000FFFF;
       if (Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][j]&0x00FF)
         VBufColorExample[15*j+1].Attributes=Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][j]&0x00FF;
     }
@@ -887,18 +887,18 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   //FilterDlg[ID_FF_DATETYPE].X1=FilterDlg[ID_FF_MATCHDATE].X1+strlen(FilterDlg[ID_FF_MATCHDATE].Data)-(strchr(FilterDlg[ID_FF_MATCHDATE].Data,'&')?1:0)+5;
   //FilterDlg[ID_FF_DATETYPE].X2+=FilterDlg[ID_FF_DATETYPE].X1;
 
-  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+wcslen(FilterDlg[ID_FF_NAME].strData)-(wcschr(FilterDlg[ID_FF_NAME].strData,L'&')?1:0)+1;
+  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+(int)wcslen(FilterDlg[ID_FF_NAME].strData)-(wcschr(FilterDlg[ID_FF_NAME].strData,L'&')?1:0)+1;
 
-  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+wcslen(FilterDlg[ID_FF_MATCHMASK].strData)-(wcschr(FilterDlg[ID_FF_MATCHMASK].strData,L'&')?1:0)+5;
+  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+(int)wcslen(FilterDlg[ID_FF_MATCHMASK].strData)-(wcschr(FilterDlg[ID_FF_MATCHMASK].strData,L'&')?1:0)+5;
 
-  FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-wcslen(FilterDlg[ID_FF_BLANK].strData)+(wcschr(FilterDlg[ID_FF_BLANK].strData,L'&')?1:0)-3;
+  FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-(int)wcslen(FilterDlg[ID_FF_BLANK].strData)+(wcschr(FilterDlg[ID_FF_BLANK].strData,L'&')?1:0)-3;
   FilterDlg[ID_FF_CURRENT].X2=FilterDlg[ID_FF_BLANK].X1-2;
-  FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-wcslen(FilterDlg[ID_FF_CURRENT].strData)+(wcschr(FilterDlg[ID_FF_CURRENT].strData,L'&')?1:0)-3;
+  FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-(int)wcslen(FilterDlg[ID_FF_CURRENT].strData)+(wcschr(FilterDlg[ID_FF_CURRENT].strData,L'&')?1:0)-3;
 
-  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+wcslen(FilterDlg[ID_HER_MARK_TITLE].strData)-(wcschr(FilterDlg[ID_HER_MARK_TITLE].strData,L'&')?1:0)+1;
+  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+(int)wcslen(FilterDlg[ID_HER_MARK_TITLE].strData)-(wcschr(FilterDlg[ID_HER_MARK_TITLE].strData,L'&')?1:0)+1;
 
   for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i++)
-    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+wcslen(FilterDlg[ID_HER_NORMALFILE].strData)-(wcschr(FilterDlg[ID_HER_NORMALFILE].strData,L'&')?1:0)+1;
+    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)wcslen(FilterDlg[ID_HER_NORMALFILE].strData)-(wcschr(FilterDlg[ID_HER_NORMALFILE].strData,L'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];
   HighlightDataColor Colors;
@@ -908,7 +908,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   HighlightDlgUpdateUserControl(VBufColorExample,Colors);
   FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
 
-  wchar_t MarkChar[] = {Colors.MarkChar&0x0000FFFF, 0};
+  wchar_t MarkChar[] = {(wchar_t)Colors.MarkChar&0x0000FFFF, 0};
   FilterDlg[ID_HER_MARKEDIT].strData=MarkChar;
   FilterDlg[ID_HER_MARKTRANSPARENT].Selected=(Colors.MarkChar&0xFF0000?1:0);
 

@@ -118,7 +118,7 @@ struct DialogItemEx
   BitFlags IFlags;
   int AutoCount;   // Автоматизация
   struct DialogItemAutomation* AutoPtr;
-  DWORD UserData; // ассоциированные данные
+  DWORD_PTR UserData; // ассоциированные данные
 
   // прочее
   void *ObjPtr;
@@ -269,7 +269,7 @@ class Dialog: public Frame
     void ShowDialog(int ID=-1);
     /* SVS $ */
 
-    DWORD CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags);
+    LONG_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags);
     /* $ 28.07.2000 SVS
        + Изменяет фокус ввода между двумя элементами.
          Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
@@ -416,8 +416,8 @@ class Dialog: public Frame
     /* $ 11.08.2000 SVS
        Работа с доп. данными экземпляра диалога
     */
-    void SetDialogData(long NewDataDialog);
-    long GetDialogData(void) {return DataDialog;};
+    void SetDialogData(LONG_PTR NewDataDialog);
+    LONG_PTR GetDialogData(void) {return DataDialog;};
     /* SVS $ */
 
     void InitDialog(void);

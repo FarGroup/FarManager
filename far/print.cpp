@@ -92,7 +92,7 @@ void PrintFiles(Panel *SrcPanel)
       strTitle.Format (UMSG(MPrintFilesTo),SelCount);
     }
 
-    VMenu PrinterList(strTitle,NULL,0, TRUE, ScrY-4);
+    VMenu PrinterList(strTitle,NULL,0,ScrY-4);
     PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     PrinterList.SetPosition(-1,-1,0,0);
 
@@ -191,7 +191,7 @@ void PrintFiles(Panel *SrcPanel)
           char Buffer[8192];
           DWORD Read,Written;
           Success=TRUE;
-          while ((Read=fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
+          while ((Read=(DWORD)fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
             if (!WritePrinter(hPrinter,Buffer,Read,&Written))
             {
               Success=FALSE;

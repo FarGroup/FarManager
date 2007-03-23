@@ -190,7 +190,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   DWORD UserData=0;
 //  {
     _tran(SysLog(L"create VMenu ChDisk"));
-    VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,TRUE,ScrY-Y1-3);
+    VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
     ChDisk.SetFlags(VMENU_NOTCENTER);
     if ( this==CtrlObject->Cp()->LeftPanel){
       ChDisk.SetFlags(VMENU_LEFTMOST);
@@ -324,7 +324,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         {
           string strRemoteName;
           DriveLocalToRemoteNameW(DriveType,strRootDir.At(0),strRemoteName);
-          TruncPathStrW(strRemoteName,ScrX-strMenuText.GetLength()-12);
+          TruncPathStrW(strRemoteName,ScrX-(int)strMenuText.GetLength()-12);
           if( !strRemoteName.IsEmpty() )
           {
             strMenuText += L"  ";
@@ -376,9 +376,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
            добавл€ющих пункт в меню, больше 9.
       */
       const wchar_t *AdditionalHotKey=UMSG(MAdditionalHotKey);
-      int AHKPos=0,                           // индекс в списке хоткеев
-          AHKSize=wcslen(AdditionalHotKey);   /* дл€ предотвращени€ выхода за
-                                                 границу массива */
+      int AHKPos=0,                              // индекс в списке хоткеев
+          AHKSize=(int)wcslen(AdditionalHotKey); /* дл€ предотвращени€ выхода за
+                                                    границу массива */
       /* IS $ */
 
       int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
@@ -1272,7 +1272,7 @@ void Panel::FastFind(int FirstKey)
 
             wchar_t *Name = strName.GetBuffer ();
 
-            int LenName=wcslen(Name);
+            size_t LenName=wcslen(Name);
             if(LenName > 1 && Name[LenName-1] == L'*' && Name[LenName-2] == L'*')
             {
               Name[LenName-1]=0;
@@ -1495,7 +1495,7 @@ void Panel::DragMessage(int X,int Y,int Move)
   else
     strDragMsg.Format (UMSG(MDragCopy), (const wchar_t*)strSelName);
 
-  if ((Length=strDragMsg.GetLength())+X>ScrX)
+  if ((Length=(int)strDragMsg.GetLength())+X>ScrX)
   {
     MsgX=ScrX-Length;
     if (MsgX<0)
@@ -1503,7 +1503,7 @@ void Panel::DragMessage(int X,int Y,int Move)
       MsgX=0;
       TruncStrFromEndW(strDragMsg,ScrX);
 
-      Length=strDragMsg.GetLength ();
+      Length=(int)strDragMsg.GetLength ();
     }
   }
   else
@@ -1521,7 +1521,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 int Panel::GetCurDirW(string &strCurDir)
 {
   strCurDir = Panel::strCurDir; // TODO: ќѕј—Ќќ!!!
-  return strCurDir.GetLength();
+  return (int)strCurDir.GetLength();
 }
 
 
@@ -2095,18 +2095,18 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 
   DCDlg[0].strData = UMSG(MChangeDriveDisconnectTitle);
-  Len1 = DCDlg[0].strData.GetLength();
+  Len1 = (int)DCDlg[0].strData.GetLength();
 
   strMsgText.Format (UMSG(MChangeDriveDisconnectQuestion),Letter);
   DCDlg[1].strData = strMsgText;
-  Len2=DCDlg[1].strData.GetLength ();
+  Len2 = (int)DCDlg[1].strData.GetLength ();
 
   strMsgText.Format (UMSG(MChangeDriveDisconnectMapped),Letter);
   DCDlg[2].strData = strMsgText;
-  Len4 = DCDlg[2].strData.GetLength();
+  Len4 = (int)DCDlg[2].strData.GetLength();
 
   DCDlg[5].strData = UMSG(MChangeDriveDisconnectReconnect);
-  Len3= DCDlg[5].strData.GetLength ();
+  Len3 = (int)DCDlg[5].strData.GetLength ();
 
 
   Len1=Max(Len1,Max(Len2,Max(Len3,Len4)));

@@ -238,8 +238,8 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected=Opt.ShowPanelScrollbar;
   CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected=Opt.ShowScreensNumber;
   CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected=Opt.ShowSortMode;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=(int)wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=(int)wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
 
   if (!RegVer)
@@ -812,14 +812,14 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   {
     const wchar_t *Str = UMSG(MEditConfigEditorF4);
 
-    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=wcslen(Str)-(wcschr(Str, L'&')?1:0)+5;
+    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=(int)wcslen(Str)-(wcschr(Str, L'&')?1:0)+5;
 
     Str = UMSG(MEditConfigPersistentBlocks);
-    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=wcslen(Str)-(wcschr(Str, L'&')?1:0)+5+3;
+    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=(int)wcslen(Str)-(wcschr(Str, L'&')?1:0)+5+3;
 
     Str = UMSG(MEditConfigSavePos);
 
-    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=wcslen(Str)-(wcschr(Str, L'&')?1:0)+5+3;
+    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=(int)wcslen(Str)-(wcschr(Str, L'&')?1:0)+5+3;
 
     if (CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 > CfgDlg[ID_EC_SAVEBOOKMARKS].X1)
       CfgDlg[ID_EC_SAVEBOOKMARKS].X1 = CfgDlg[ID_EC_DELREMOVESBLOCKS].X1;

@@ -288,7 +288,7 @@ BOOL HistoryW::SaveHistory()
   {
     if(LastStr[I].Name)
     {
-      Len=wcslen(LastStr[I].Name);
+      Len=(int)wcslen(LastStr[I].Name);
       if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
         Len=511;
 
@@ -317,7 +317,7 @@ BOOL HistoryW::SaveHistory()
           if(LastStr[I].Name)
           {
             wcscpy(BufferTitles+SizeTitles,LastStr[I].Title);
-            SizeTitles+=wcslen(LastStr[I].Title)+1;
+            SizeTitles+=(DWORD)wcslen(LastStr[I].Title)+1;
           }
         }
         BufferTitles[SizeTitles++]=0;
@@ -412,7 +412,7 @@ BOOL HistoryW::ReadHistory()
     Buf=Buffer;
     while ((int)Size > 1 && StrPos < HistoryCount)
     {
-      Length=wcslen(Buf)+1;
+      Length=(int)wcslen(Buf)+1;
       if((LastStr[StrPos].Name=(wchar_t*)xf_malloc(Length*sizeof (wchar_t))) == NULL)
       {
         xf_free(Buffer);
@@ -451,7 +451,7 @@ BOOL HistoryW::ReadHistory()
       {
         xwcsncpy(LastStr[StrPos].Title,Buf,(sizeof(LastStr[StrPos].Title)-1)*sizeof (wchar_t));
         ++StrPos;
-        Length=wcslen(Buf)+1;
+        Length=(int)wcslen(Buf)+1;
         Buf+=Length;
         Size-=Length*sizeof (wchar_t);
       }
@@ -526,7 +526,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
   int RetCode=1;
 
   {
-    VMenu HistoryMenu(Title,NULL,0,TRUE, Height);
+    VMenu HistoryMenu(Title,NULL,0,Height);
     /* $ 06.11.2001 IS
        ! Меню теперь у нас с прокруткой (Wrap)
     */
@@ -807,7 +807,7 @@ void HistoryW::GetSimilar(string &strStr,int LastCmdPartLength)
   if(!LastStr)
     return;
 
-  int Length=strStr.GetLength ();
+  int Length=(int)strStr.GetLength ();
 
   if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
     Length=LastCmdPartLength;

@@ -162,7 +162,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
   if (CommandCount>1)
   {
     MenuItemEx TypesMenuItem;
-    VMenu TypesMenu(UMSG(MSelectAssocTitle),NULL,0,TRUE,ScrY-4);
+    VMenu TypesMenu(UMSG(MSelectAssocTitle),NULL,0,ScrY-4);
 
 
     TypesMenu.SetHelp(FTSW.Help);
@@ -349,7 +349,7 @@ int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
     strExpAssocStr.ReleaseBuffer ();
 
 
-    ChPtr = strExpAssocStr.GetBuffer (strExpAssocStr.GetLength()+wcslen(Name)+1);
+    ChPtr = strExpAssocStr.GetBuffer ((int)(strExpAssocStr.GetLength()+wcslen(Name)+1));
 
     if ((ChPtr=wcsstr(ChPtr,L"%1"))!=NULL)
     {
@@ -397,7 +397,7 @@ int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
           {
             string strNewStr;
 
-            wchar_t *NewStr = strNewStr.GetBuffer (strExpAssocStr.GetLength());
+            wchar_t *NewStr = strNewStr.GetBuffer ((int)strExpAssocStr.GetLength());
 
             xwcsncpy(NewStr,strExpAssocStr,I+4);
             NewStr[I+4]=0;
@@ -556,7 +556,7 @@ void EditFileTypes()
 
   RenumKeyRecordW(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
 
-  VMenu TypesMenu(UMSG(MAssocTitle),NULL,0,TRUE,ScrY-4);
+  VMenu TypesMenu(UMSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp(FTSW.Help);
   TypesMenu.SetFlags(VMENU_WRAPMODE);
   TypesMenu.SetPosition(-1,-1,0,0);

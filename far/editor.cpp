@@ -3217,7 +3217,7 @@ void Editor::InsertString()
     if (EdOpt.AutoIndent && NewLineEmpty)
     {
       RemoveTrailingSpacesW(NewCurLineStr);
-      StrSize=wcslen(NewCurLineStr);
+      StrSize=(int)wcslen(NewCurLineStr);
     }
 
     CurLine->SetBinaryStringW(NewCurLineStr,StrSize);
@@ -3497,7 +3497,7 @@ BOOL Editor::Search(int Next)
   {
     //SaveScreen SaveScr;
 
-    int SearchLength=strSearchStr.GetLength();
+    int SearchLength=(int)strSearchStr.GetLength();
 
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,0);
@@ -3693,10 +3693,10 @@ BOOL Editor::Search(int Next)
               /* Fast method */
               const wchar_t *Str,*Eol;
               int StrLen,NewStrLen;
-              int SStrLen=strSearchStr.GetLength(),
-                  RStrLen=strReplaceStr.GetLength();
+              int SStrLen=(int)strSearchStr.GetLength(),
+                  RStrLen=(int)strReplaceStr.GetLength();
               CurLine->GetBinaryStringW(&Str,&Eol,StrLen);
-              int EolLen=wcslen(Eol);
+              int EolLen=(int)wcslen(Eol);
               NewStrLen=StrLen;
               NewStrLen-=SStrLen;
               NewStrLen+=RStrLen;
@@ -3897,7 +3897,7 @@ void Editor::Copy(int Append)
   {
     CopyData=PasteFromClipboardW();
     if (CopyData!=NULL)
-      PrevSize=DataSize=wcslen(CopyData);
+      PrevSize=DataSize=(long)wcslen(CopyData);
   }
 
   while (CurPtr!=NULL)
@@ -3916,7 +3916,7 @@ void Editor::Copy(int Append)
     }
     CopyData=NewPtr;
     CurPtr->GetSelStringW(CopyData+DataSize,Length);
-    DataSize+=wcslen(CopyData+DataSize);
+    DataSize+=(long)wcslen(CopyData+DataSize);
     if (EndSel==-1)
     {
       wcscpy(CopyData+DataSize,DOS_EOL_fmtW);
@@ -4060,7 +4060,7 @@ void Editor::DeleteBlock()
       if (BlockStartLine+1<NumLine)
         NumLine--;
     }
-    int EndLength=wcslen(EndSeq);
+    int EndLength=(int)wcslen(EndSeq);
     wmemcpy(TmpStr+Length,EndSeq,EndLength);
     Length+=EndLength;
     TmpStr[Length]=0;
@@ -4505,7 +4505,7 @@ long Editor::GetCurPos()
     const wchar_t *SaveStr,*EndSeq;
     int Length;
     CurPtr->GetBinaryStringW(&SaveStr,&EndSeq,Length);
-    TotalSize+=Length+wcslen(EndSeq);
+    TotalSize+=Length+(int)wcslen(EndSeq);
     CurPtr=CurPtr->m_next;
   }
   return(TotalSize);
@@ -4576,7 +4576,7 @@ void Editor::BlockLeft()
 
     if ((EndSel==-1 || EndSel>StartSel) && IsSpaceW(*CurStr))
     {
-      int EndLength=wcslen(EndSeq);
+      int EndLength=(int)wcslen(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
@@ -4644,7 +4644,7 @@ void Editor::BlockRight()
 
     if (EndSel==-1 || EndSel>StartSel)
     {
-      int EndLength=wcslen(EndSeq);
+      int EndLength=(int)wcslen(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
       AddUndoData(CurStr,CurPtr->GetEOLW(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
@@ -4730,7 +4730,7 @@ void Editor::DeleteVBlock()
       wmemcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
       CurLength+=CopySize;
     }
-    int EndLength=wcslen(EndSeq);
+    int EndLength=(int)wcslen(EndSeq);
     wmemcpy(TmpStr+CurLength,EndSeq,EndLength);
     CurLength+=EndLength;
     TmpStr[CurLength]=0;
@@ -4761,12 +4761,12 @@ void Editor::VCopy(int Append)
   {
     CopyData=PasteFormatFromClipboardW(FAR_VerticalBlockW);
     if (CopyData!=NULL)
-      PrevSize=DataSize=wcslen(CopyData);
+      PrevSize=DataSize=(long)wcslen(CopyData);
     else
     {
       CopyData=PasteFromClipboardW();
       if (CopyData!=NULL)
-        PrevSize=DataSize=wcslen(CopyData);
+        PrevSize=DataSize=(long)wcslen(CopyData);
     }
   }
 
@@ -4982,7 +4982,7 @@ void Editor::VBlockShift(int Left)
 
     while (StrLength>0 && TmpStr[StrLength-1]==L' ')
       StrLength--;
-    int EndLength=wcslen(EndSeq);
+    int EndLength=(int)wcslen(EndSeq);
     wmemcpy(TmpStr+StrLength,EndSeq,EndLength);
     StrLength+=EndLength;
     TmpStr[StrLength]=0;
@@ -5139,7 +5139,7 @@ int Editor::EditorControl(int Command,void *Param)
 
         const wchar_t *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
         /* IS 06.08.2002 IS $ */
-        int LengthEOL=wcslen(EOL);
+        int LengthEOL=(int)wcslen(EOL);
         wchar_t *NewStr=(wchar_t*)xf_malloc((Length+LengthEOL+1)*sizeof (wchar_t));
         if (NewStr==NULL)
         {
@@ -6095,7 +6095,7 @@ void Editor::SetCacheParams (EditorCacheParams *pp)
 
 	//m_codepage = pp->Table; //BUGBUG!!!, LoadFile do it itself
 
-	if ( pp->ScreenLine > static_cast<DWORD>(ObjHeight))//ScrY //BUGBUG
+	if ( pp->ScreenLine > ObjHeight)//ScrY //BUGBUG
 		pp->ScreenLine=ObjHeight;//ScrY;
 
 	if ( pp->Line >= pp->ScreenLine)
@@ -6104,7 +6104,7 @@ void Editor::SetCacheParams (EditorCacheParams *pp)
 		GoToLine (pp->Line-pp->ScreenLine);
 		TopScreen = CurLine;
 
-		for (unsigned int I=0; I < pp->ScreenLine; I++)
+		for (int I=0; I < pp->ScreenLine; I++)
 			ProcessKey(KEY_DOWN);
 
 		CurLine->SetTabCurPos(pp->LinePos);

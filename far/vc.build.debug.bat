@@ -3,7 +3,7 @@
 rem set misc far compilation options
 set FAR_MSVCRT=
 set USE_WFUNC=/D "USE_WFUNC" /D "USE_WFUNC_ALW" /D "USE_WFUNC_IN" /D "FAR_ALPHA_VERSION"
-set FARTRY=/GX-
+set FARTRY=/EHs-c-
 set FARSYSLOG=-DSYSLOG_FARSYSLOG -DSYSLOG
 set CFG_0=Debug
 
@@ -17,4 +17,4 @@ tools\lng.generator.exe -nc -i lang.ini farlang.templ
 rem rebuild dependencies
 tools\gawk -f .\scripts\mkdep.awk -v out=Debug.vc mkdep.list > far.debug.dep
 
-nmake /f "FAR.mak" CFG="far - Win32 %CFG_0%" | tools\tee !Error_vc_%CFG_0%
+nmake %NMAKE_OPTS% /f "FAR.mak" CFG="far - Win32 %CFG_0%" | tools\tee !Error_vc_%CFG_0%

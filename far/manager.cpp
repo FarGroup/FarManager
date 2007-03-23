@@ -298,7 +298,7 @@ Frame *Manager::FrameMenu()
   {
     MenuItemEx ModalMenuItem;
 
-    VMenu ModalMenu(UMSG(MScreensTitle),NULL,0,TRUE, ScrY-4);
+    VMenu ModalMenu(UMSG(MScreensTitle),NULL,0,ScrY-4);
     ModalMenu.SetHelp(L"ScrSwitch");
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
@@ -709,7 +709,7 @@ int  Manager::ProcessKey(DWORD Key)
       MenuItemEx ModalMenuItem;
 
       ModalMenuItem.Clear ();
-      VMenu ModalMenu(L"Test Exceptions",NULL,0,TRUE,ScrY-4);
+      VMenu ModalMenu(L"Test Exceptions",NULL,0,ScrY-4);
       ModalMenu.SetFlags(VMENU_WRAPMODE);
       ModalMenu.SetPosition(-1,-1,0,0);
 

@@ -2725,7 +2725,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
   struct FileListItem *CurPtr;
 
   int DirFind = 0;
-  int Length = wcslen(Name);
+  int Length = (int)wcslen(Name);
 
   // Mask должна указывать на буфер на 1 символ больше, чем Name, т.к. к ней еще и * надо добавить. Karbazol.
   wchar_t *Mask = (wchar_t*)xf_malloc((Length+2)*sizeof(wchar_t));
@@ -3054,7 +3054,7 @@ void FileList::SelectFiles(int Mode)
       // Учтем тот момент, что имя может содержать символы-разделители
       strRawMask.Format (L"\"%s", (const wchar_t*)strCurName);
 
-      wchar_t *DotPtr = strRawMask.GetBuffer (strRawMask.GetLength()+3);
+      wchar_t *DotPtr = strRawMask.GetBuffer ((int)strRawMask.GetLength()+3);
 
       DotPtr=wcsrchr(DotPtr,L'.');
 
@@ -3460,7 +3460,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
     }
     if(Opt.QuotedName&QUOTEDNAME_CLIPBOARD)
       QuoteSpaceW(strQuotedName);
-    int Length=strQuotedName.GetLength();
+    int Length=(int)strQuotedName.GetLength();
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData, (DataSize+Length+3)*sizeof (wchar_t));
     if (NewPtr==NULL)
     {
@@ -3481,7 +3481,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
 
 string &FileList::CreateFullPathNameW(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)
 {
-  wchar_t *NamePtr;
+  //wchar_t *NamePtr;
   wchar_t Chr=0;
 
   string strFileName;
@@ -3758,7 +3758,7 @@ void FileList::SelectSortMode()
 
   int SortCode;
   {
-    VMenu SortModeMenu(UMSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),TRUE, 0);
+    VMenu SortModeMenu(UMSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
     SortModeMenu.SetHelp(L"PanelCmdSort");
     /* $ 16.06.2001 KM
        ! Добавление WRAPMODE в меню.

@@ -322,7 +322,7 @@ class TPointerArray
     {
       if(items)
       {
-        for(unsigned i=0;i<Count;++i)
+        for(unsigned int i=0;i<Count;++i)
           delete items[i];
         xf_free(items);
         items=NULL;

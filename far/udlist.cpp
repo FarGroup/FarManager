@@ -161,7 +161,7 @@ BOOL UserDefinedListW::Set(const wchar_t *List, BOOL AddToList)
     item.index=Array.getSize();
     if(*List!=Separator1 && *List!=Separator2)
     {
-      Length=wcslen(List);
+      Length=(int)wcslen(List);
       BOOL Error=FALSE;
       const wchar_t *CurList=List;
       while(!Error &&
@@ -204,7 +204,7 @@ BOOL UserDefinedListW::Set(const wchar_t *List, BOOL AddToList)
 
               if(AddAsterisk && wcspbrk(item.Str,L"?*.")==NULL)
               {
-                Length=wcslen(item.Str);
+                Length=(int)wcslen(item.Str);
                 /* $ 18.09.2002 DJ
                    выделялось на 1 байт меньше, чем надо
                 */
@@ -320,7 +320,7 @@ const wchar_t *UserDefinedListW::Skip(const wchar_t *Str, int &Length, int &Real
 
    if(!InQoutes || !*cur)
     {
-      RealLength=Length=cur-Str;
+      RealLength=Length=(int)(cur-Str);
       --cur;
       while(IsSpaceW(*cur))
        {
@@ -343,8 +343,8 @@ const wchar_t *UserDefinedListW::Skip(const wchar_t *Str, int &Length, int &Real
    while(IsSpaceW(*End)) ++End;
    if(!*End || *End==Separator1 || *End==Separator2)
    {
-     Length=QuoteEnd-cur;
-     RealLength=End-cur;
+     Length=(int)(QuoteEnd-cur);
+     RealLength=(int)(End-cur);
      return cur;
    }
 

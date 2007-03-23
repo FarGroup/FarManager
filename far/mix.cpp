@@ -324,7 +324,7 @@ void ConvertDateW (const FILETIME &ft,string &strDateText, string &strTimeText,i
 
   if (Brief)
   {
-    wchar_t *lpwszDateText = strDateText.GetBuffer (max (strDateText.GetLength(), 7));
+    wchar_t *lpwszDateText = strDateText.GetBuffer (max ((int)strDateText.GetLength(), 7));
 
     lpwszDateText[TextMonth ? 6:5]=0;
 
@@ -1073,7 +1073,7 @@ string& FarMkTempExW(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 
   string strPath = Opt.strTempPath;
 
-  wchar_t *lpwszDest = strDest.GetBuffer (wcslen(Prefix)+strPath.GetLength()+13);
+  wchar_t *lpwszDest = strDest.GetBuffer ((int)(wcslen(Prefix)+strPath.GetLength()+13));
 
   do {
     GetTempFileNameW (strPath, Prefix, GetCurrentProcessId(), lpwszDest);
@@ -1185,7 +1185,7 @@ DWORD WINAPI FarGetLogicalDrives(void)
 string &Add_PATHEXT(string &strDest)
 {
   string strBuf;
-  int curpos=strDest.GetLength()-1;
+  size_t curpos=strDest.GetLength()-1;
   UserDefinedListW MaskList(0,0,ULF_UNIQUE);
   if( apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
   {
@@ -1205,11 +1205,7 @@ string &Add_PATHEXT(string &strDest)
   // лишн€€ зап€та€ - в морг!
   /* $ 13.10.2002 IS ќптимизаци€ по скорости */
   if(strDest.At(curpos) == L',')
-  {
-    wchar_t *lpwszDest = strDest.GetBuffer ();
-    lpwszDest[curpos]=0;
-    strDest.ReleaseBuffer ();
-  }
+    strDest.SetLength(curpos);
   /* IS $ */
   return strDest;
 }
@@ -1484,7 +1480,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
     case 'X': // Convert common string to hexadecimal string representation
     {
       *(char *)Buffer=0;
-      L=strlen(ConvStr);
+      L=(int)strlen(ConvStr);
       N=min((BufLen-1)/2,L);
       for (I=0,J=0;I<N;I++,J+=2)
       {
@@ -1500,7 +1496,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
     {
       *(char *)Buffer=0;
 
-      L=strlen(ConvStr);
+      L=(int)strlen(ConvStr);
       char *NewStr=new char[L+1];
       if (NewStr==NULL)
         return;
@@ -1517,7 +1513,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
         ++J;
       }
 
-      L=strlen(NewStr);
+      L=(int)strlen(NewStr);
       N=min(BufLen-1,L);
       for (I=0,J=0;I<N;I+=2,J++)
       {

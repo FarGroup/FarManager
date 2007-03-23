@@ -356,7 +356,7 @@ DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
 
 		strDest.ReleaseBuffer ();
 
-		length = strDest.GetLength ();
+		length = (DWORD)strDest.GetLength ();
 	}
 
 	return length;

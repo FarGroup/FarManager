@@ -511,7 +511,7 @@ int SubstFileName(string &strStr,            // результирующая строка
   {
     //_SVS(SysLog(L"***** Pass=%d",Pass));
     if(*CurStr == L'!')
-      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,sizeof(TmpStr)-wcslen(TmpStr)-1);
+      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,(int)(sizeof(TmpStr)-wcslen(TmpStr)-1));
     else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
     {
       wcsncat(TmpStr,CurStr,1);
@@ -561,8 +561,8 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
       return 0;
     }
 
-    StrEndPos[StrPosSize] = (Str - StartStr - 2) + ii ; //+1
-    StrPos[StrPosSize++]=Str-StartStr-2;
+    StrEndPos[StrPosSize] = (int)(Str - StartStr - 2) + ii ; //+1
+    StrPos[StrPosSize++]=(int)(Str-StartStr-2);
     //<Skeleton>
 
     DlgData[DlgSize].Clear();
@@ -652,7 +652,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     {
       int hist_correct = 0;
       if (t != Title) // Title contain name of history
-        hist_correct = t - Title; //offset for jump over history
+        hist_correct = (int)(t - Title); //offset for jump over history
 
       wcsncat(Title1,Title+hist_correct,beg_t-2-hist_correct);   // !?$zz$xxxx(fffff)ddddd
                                                                  //       ^  ^
@@ -666,7 +666,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
       while (*CurStr)
       {
         if (*CurStr == L'!')
-          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-wcslen(tmp_t)-1);
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-(int)wcslen(tmp_t)-1);
         else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
         {
           wcsncat(tmp_t,CurStr,1);
@@ -710,7 +710,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
       while (*CurStr)
       {
         if (*CurStr == L'!')
-          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-wcslen(tmp_t)-1);
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-(int)wcslen(tmp_t)-1);
         else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
         {
           wcsncat(tmp_t,CurStr,1);
@@ -834,7 +834,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
 
       if(wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
       {
-        int I,Len=strFileName.GetLength();
+        int I,Len=(int)strFileName.GetLength();
 
         wchar_t *Name = strFileName.GetBuffer ();
 
@@ -989,16 +989,16 @@ static int IsReplaceVariable(char *str,int *scr,
 
   //
   if (scr != NULL)
-    *scr = scrtxt - str;
+    *scr = (int)(scrtxt - str);
   if (end != NULL)
-    *end = (s - str) - 1;
+    *end = (int)(s - str) - 1;
 
   if (in_firstpart_was_scob)
   {
     if (beg_scr_break != NULL)
-      *beg_scr_break = beg_firstpart_scob - str;
+      *beg_scr_break = (int)(beg_firstpart_scob - str);
     if (end_scr_break != NULL)
-      *end_scr_break = end_firstpart_scob - str;
+      *end_scr_break = (int)(end_firstpart_scob - str);
   }
   else
   {
@@ -1011,9 +1011,9 @@ static int IsReplaceVariable(char *str,int *scr,
   if (in_secondpart_was_scob)
   {
     if (beg_txt_break != NULL)
-      *beg_txt_break = beg_secondpart_scob - str;
+      *beg_txt_break = (int)(beg_secondpart_scob - str);
     if (end_txt_break != NULL)
-      *end_txt_break = end_secondpart_scob - str;
+      *end_txt_break = (int)(end_secondpart_scob - str);
   }
   else
   {
@@ -1023,7 +1023,7 @@ static int IsReplaceVariable(char *str,int *scr,
       *end_txt_break = -1;
   }
 
-  return ((s - str) - 1);
+  return (int)((s - str) - 1);
 }
 
 static int IsReplaceVariableW(const wchar_t *str,
@@ -1146,16 +1146,16 @@ static int IsReplaceVariableW(const wchar_t *str,
 
   //
   if (scr != NULL)
-    *scr = scrtxt - str;
+    *scr = (int)(scrtxt - str);
   if (end != NULL)
-    *end = (s - str) - 1;
+    *end = (int)(s - str) - 1;
 
   if (in_firstpart_was_scob)
   {
     if (beg_scr_break != NULL)
-      *beg_scr_break = beg_firstpart_scob - str;
+      *beg_scr_break = (int)(beg_firstpart_scob - str);
     if (end_scr_break != NULL)
-      *end_scr_break = end_firstpart_scob - str;
+      *end_scr_break = (int)(end_firstpart_scob - str);
   }
   else
   {
@@ -1168,9 +1168,9 @@ static int IsReplaceVariableW(const wchar_t *str,
   if (in_secondpart_was_scob)
   {
     if (beg_txt_break != NULL)
-      *beg_txt_break = beg_secondpart_scob - str;
+      *beg_txt_break = (int)(beg_secondpart_scob - str);
     if (end_txt_break != NULL)
-      *end_txt_break = end_secondpart_scob - str;
+      *end_txt_break = (int)(end_secondpart_scob - str);
   }
   else
   {
@@ -1180,5 +1180,5 @@ static int IsReplaceVariableW(const wchar_t *str,
       *end_txt_break = -1;
   }
 
-  return ((s - str) - 1);
+  return (int)((s - str) - 1);
 }

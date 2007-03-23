@@ -211,7 +211,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     */
     case ACTL_GETSYSWORDDIV:
     {
-      int LenWordDiv=Opt.strWordDiv.GetLength ();
+      int LenWordDiv=(int)Opt.strWordDiv.GetLength ();
       /* $ 09.08.2000 tran
        + if param==NULL, plugin хочет только узнать длину строки  */
       if (Param && !IsBadWritePtr(Param,LenWordDiv+1))
@@ -680,7 +680,7 @@ int WINAPI FarMenuFn (
 
   int ExitCode;
   {
-    VMenu FarMenu(Title,NULL,0,true,MaxHeight);
+    VMenu FarMenu(Title,NULL,0,MaxHeight);
     CtrlObject->Macro.SetMode(MACRO_MENU);
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
@@ -1069,7 +1069,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
   if(Flags&FMSG_ALLINONE)
   {
     ItemsNumber=0;
-    I=wcslen((wchar_t *)Items)+2;
+    I=(int)wcslen((wchar_t *)Items)+2;
     if((SingleItems=(wchar_t *)xf_malloc(I*sizeof (wchar_t))) == NULL)
       return -1;
 
@@ -1448,7 +1448,6 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
     ScTree.SetFindPathW(strDirName,L"*.*");
 
     CutToSlashW (strDirName); //BUGBUG
-    int DirLength=strDirName.GetLength();
     FAR_FIND_DATA *ItemsList=NULL;
     int ItemsNumber=0;
     while (ScTree.GetNextNameW(&FindData,strFullName))

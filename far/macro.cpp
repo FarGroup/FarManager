@@ -588,7 +588,7 @@ wchar_t *KeyMacro::GetPlainText(wchar_t *Dest)
 
   struct MacroRecord *MR=Work.MacroWORK;
 
-  int LenTextBuf=wcslen((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
+  int LenTextBuf=(int)wcslen((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
   Dest[0]=0;
   if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
   {
@@ -608,7 +608,7 @@ int KeyMacro::GetPlainTextSize()
   if(!Work.MacroWORK)
     return 0;
   struct MacroRecord *MR=Work.MacroWORK;
-  return wcslen((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
+  return (int)wcslen((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
@@ -1160,12 +1160,12 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 static TVar substrFunc(TVar *param)
 {
   wchar_t *p = (wchar_t*)(param[0].toString());
-  int len = wcslen(p);
+  int len = (int)wcslen(p);
   int p1 = (int)(param[1].toInteger());
   if ( ( p1 >= 0 ) && ( p1 < len ) )
   {
     p += p1;
-    len = wcslen(p);
+    len = (int)wcslen(p);
     int p2 = (int)(param[2].toInteger());
     if ( ( p2 > 0 ) && ( p2 < len ) )
       p[p2] = 0;
@@ -1366,7 +1366,7 @@ static TVar playmacroFunc(TVar *param)
 static TVar waitkeyFunc(TVar *param)
 {
   long Period=(long)param[0].toInteger();
-  DWORD Key=WaitKey(-1,Period);
+  DWORD Key=WaitKey((DWORD)-1,Period);
   string strKeyText;
   if(Key != KEY_NONE)
    if(!KeyToText(Key,strKeyText))
@@ -1398,7 +1398,7 @@ static TVar dateFunc(TVar *param)
 static TVar xlatFunc(TVar *param)
 {
   wchar_t *Str = (wchar_t *)param[0].toString();
-  return TVar(::XlatW(Str,0,wcslen(Str),NULL,Opt.XLat.Flags));
+  return TVar(::XlatW(Str,0,(int)wcslen(Str),NULL,Opt.XLat.Flags));
 }
 
 // N=msgbox("Title","Text",flags)
@@ -1767,7 +1767,7 @@ static TVar clipFunc(TVar *param)
       wchar_t *CopyData=InternalPasteFromClipboardW(0); // 0!  ???
       if(CopyData)
       {
-        int DataSize=wcslen(CopyData);
+        size_t DataSize=wcslen(CopyData);
         wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+wcslen(param[1].s())+2)*sizeof (wchar_t));
         if (NewPtr)
         {
@@ -3000,14 +3000,14 @@ M1:
     KeyMacro *MacroDlg=KMParam->Handle;
 
     if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
-      Param2=LocalKeyToKey(Param2&0x0000FFFF)|(Param2&(~0x0000FFFF));
+      Param2=LocalKeyToKey((int)(Param2&0x0000FFFF))|(int)(Param2&(~0x0000FFFF));
 
     _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName(Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     KMParam->Key=(DWORD)Param2;
-    KeyToText(Param2,strKeyText);
+    KeyToText((int)Param2,strKeyText);
 
     // если УЖЕ есть такой макрос...
-    if((Index=MacroDlg->GetIndex(Param2,KMParam->Mode)) != -1)
+    if((Index=MacroDlg->GetIndex((int)Param2,KMParam->Mode)) != -1)
     {
       struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
       DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
@@ -3034,7 +3034,7 @@ M1:
       if(Mac->Src != NULL)
       {
         int F=0;
-        I=wcslen(Mac->Src);
+        I=(int)wcslen(Mac->Src);
         if(I > 45) { I=45; F++; }
         strBuf.Format (L"\"%*.*s%s\"",I,I,Mac->Src,(F?L"...":L""));
         strBufKey = strBuf;
@@ -3096,7 +3096,7 @@ M1:
 //    if(Param2 == KEY_F1 && LastKey == KEY_F1)
 //      LastKey=-1;
 //    else
-      LastKey=Param2;
+      LastKey=(int)Param2;
     return TRUE;
   }
   else if(Msg == DN_CTLCOLORDLGITEM) // сбросим Unchanged
@@ -3599,7 +3599,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
   if ( BufPtr == NULL || !*BufPtr)
     return FALSE;
 
-  int SizeCurKeyText = (wcslen(BufPtr)*2)*sizeof (wchar_t);
+  int SizeCurKeyText = (int)(wcslen(BufPtr)*2)*sizeof (wchar_t);
 
   string strCurrKeyText;
   //- AN ----------------------------------------------
@@ -3648,7 +3648,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         while ( ( iswalnum(ch = *s++) || ( ch == L'_') ) )
           *p++ = ch;
         *p = 0;
-        int Length = wcslen(varName)+1;
+        int Length = (int)wcslen(varName)+1;
         // строка должна быть выровнена на 4
         SizeVarName = Length/sizeof(DWORD);
         if ( Length == 1 || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
@@ -4041,7 +4041,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
         for(Pos=0; Pos < Len; ++Pos, ++MPtr)
         {
           if ( !((MPtr->Key ^ Key) & ~0xFFFF) &&
-                (LocalUpperW(MPtr->Key)==LocalUpperW(Key)) && 
+                (LocalUpperW(MPtr->Key)==LocalUpperW(Key)) &&
                 (MPtr->BufferSize > 0) )
           {
     //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
@@ -4466,7 +4466,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
      BufPtr++;
      Chr=*BufPtr;
    }
-   int Length=BufPtr-CurBufPtr;
+   int Length=(int)(BufPtr-CurBufPtr);
 
    wchar_t *CurKeyText = strCurKeyText.GetBuffer (Length);
 

@@ -529,7 +529,7 @@ static void put64(unsigned __int64 code)
 
 static void putstr(const wchar_t *s)
 {
-  int Length = wcslen(s)+1;
+  int Length = (int)wcslen(s)+1;
   // строка должна быть выровнена на 4
   int nSize = Length/sizeof(unsigned long);
   if ( Length == 1 || ( Length % sizeof(unsigned long)) != 0 ) // дополнение до sizeof(DWORD) нулями.
@@ -680,7 +680,7 @@ DWORD funcLook(const wchar_t *s, int& nParam)
   nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
     //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
-    if(!LocalStrnicmpW(s, macroFunction[I].Name, Max(wcslen(macroFunction[I].Name),wcslen(s))))
+    if(!LocalStrnicmpW(s, macroFunction[I].Name, (int)Max(wcslen(macroFunction[I].Name),wcslen(s))))
     {
       nParam = macroFunction[I].nParam;
       return (DWORD)macroFunction[I].Code;

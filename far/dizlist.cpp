@@ -216,8 +216,8 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
     {
       if (TextPos!=NULL)
       {
-        *TextPos=strQuotedName.GetLength()+1;
-        int DizLength=wcslen(DizRecordAddr->DizText);
+        *TextPos=(int)strQuotedName.GetLength()+1;
+        int DizLength=(int)wcslen(DizRecordAddr->DizText);
         if (*TextPos>DizLength)
           *TextPos=DizLength;
       }
@@ -235,8 +235,8 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
       {
         if (TextPos!=NULL)
         {
-          *TextPos=wcslen(ShortName)+1;
-          int DizLength=wcslen(DizRecordAddr->DizText);
+          *TextPos=(int)wcslen(ShortName)+1;
+          int DizLength=(int)wcslen(DizRecordAddr->DizText);
           if (*TextPos>DizLength)
             *TextPos=DizLength;
         }
@@ -282,7 +282,7 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 {
   const wchar_t *SearchName=(const wchar_t *)key;
   const wchar_t *TableName=SearchDizData[*(int *)elem].DizText;
-  int NameLength=wcslen(SearchName);
+  int NameLength=(int)wcslen(SearchName);
   int CmpCode=LocalStrnicmpW(SearchName,TableName,NameLength);
 
   if (CmpCode==0)
@@ -421,10 +421,10 @@ int DizList::CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t 
   strQuotedName = DestName;
   QuoteSpaceOnlyW(strQuotedName);
   int OptDizStartPos=(Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0);
-  int LenQuotedName=strQuotedName.GetLength ();
+  int LenQuotedName=(int)strQuotedName.GetLength ();
 
   if(!OptDizStartPos || OptDizStartPos < LenQuotedName)
-    OptDizStartPos=strQuotedName.GetLength();
+    OptDizStartPos=(int)strQuotedName.GetLength();
 
   strDizText.Format (L"%-*.*s %.*s",
        OptDizStartPos,OptDizStartPos,(const wchar_t*)strQuotedName,

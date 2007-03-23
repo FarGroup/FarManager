@@ -230,7 +230,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         UseANSI=(Param2==3);
         UseUnicode=(Param2==4);
         UseDecodeTable=(Param2>=(CHAR_TABLE_SIZE+1));
-        TableNum=Param2-(CHAR_TABLE_SIZE+1);
+        TableNum=(int)Param2-(CHAR_TABLE_SIZE+1);
 
         string strTableName;
 
@@ -349,14 +349,14 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         if (strDataStr.GetLength()>0)
         {
-          int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,-1);
+          int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,-1);
           Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,UnchangeFlag);
         }
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
       else if (Param1==29) // [ ] Advanced options
-        EnableSearchInFirst=Param2;
+        EnableSearchInFirst=(int)Param2;
       return TRUE;
       /* KM $ */
       /* KM $ */
@@ -798,7 +798,7 @@ LONG_PTR WINAPI FindFiles::AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_P
       */
       if (Param1==3)
       {
-        SearchInFirstIndex=Param2;
+        SearchInFirstIndex=(int)Param2;
       }
       return TRUE;
     }
@@ -965,7 +965,6 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItemW *PanelItem,
 
 LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  int Result;
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1]->ListPtr;
 
@@ -998,7 +997,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
          ! Если во время поиска выбрать найденный файл мышью - вешаемся.
          Не надо посылать сообщение на закрытие диалога. Оно ни к чему... */
       SMALL_RECT drect,rect;
-      int Ret = FALSE;
+      LONG_PTR Ret = FALSE;
       Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&drect);
       Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,1,(LONG_PTR)&rect);
       if (Param1==1 && ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.X<drect.Left+rect.Right)
@@ -1038,7 +1037,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
       {
         IsProcessAssignMacroKey--;
-        FrameManager->ProcessKey(Param2);
+        FrameManager->ProcessKey((DWORD)Param2);
         IsProcessAssignMacroKey++;
         return TRUE;
       }
@@ -1059,7 +1058,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {
-        ListBox->ProcessKey(Param2);
+        ListBox->ProcessKey((int)Param2);
         return TRUE;
       }
       else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5 || Param2==KEY_F4 ||
@@ -1110,7 +1109,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                   ffCS.Leave ();
                   return TRUE;
                 }
-                int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+                int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
                 fclose(ProcessFile);
 
                 int SavePluginsOutput=DisablePluginsOutput;
@@ -1339,8 +1338,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         return TRUE;
       }
-      Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-      return Result;
+      return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
     }
     case DN_BTNCLICK:
     {
@@ -1463,8 +1461,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     }
     /* KM $ */
   }
-  Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-  return Result;
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 int FindFiles::FindFilesProcess()
@@ -1641,7 +1638,7 @@ int FindFiles::FindFilesProcess()
               + Передаем имена каталогов без заключительного "\" */
             if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-              int Length = wcslen(pi->FindData.lpwszFileName);
+              int Length = (int)wcslen(pi->FindData.lpwszFileName);
               if ((Length) && (pi->FindData.lpwszFileName[Length-1]=='\\'))
                 pi->FindData.lpwszFileName[Length-1] = 0;
             }
@@ -1717,7 +1714,7 @@ int FindFiles::FindFilesProcess()
       {
         string strSetName;
         int Length;
-        if ((Length=strFileName.GetLength())==0)
+        if ((Length=(int)strFileName.GetLength())==0)
           break;
 
         wchar_t *lpwszFileName = strFileName.GetBuffer();
@@ -1741,7 +1738,7 @@ int FindFiles::FindFilesProcess()
 
           strFileName.ReleaseBuffer();
 
-          Length=strFileName.GetLength();
+          Length=(int)strFileName.GetLength();
 
           lpwszFileName = strFileName.GetBuffer();
 
@@ -1769,7 +1766,7 @@ int FindFiles::FindFilesProcess()
         {
           string strDirTmp;
           FindPanel->GetCurDirW(strDirTmp);
-          Length=strDirTmp.GetLength();
+          Length=(int)strDirTmp.GetLength();
 
           wchar_t *lpwszDirTmp = strDirTmp.GetBuffer();
 
@@ -2045,7 +2042,7 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
     delete[] Buffer;
     return;
   }
-  int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+  int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
   fclose(ProcessFile);
 
   int SavePluginsOutput=DisablePluginsOutput;
@@ -2421,7 +2418,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 
   char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
   int Length,ReadSize,SaveReadSize;
-  if ((Length=strlen(FindStr))==0)
+  if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
   HANDLE FileHandle=FAR_CreateFileW(Name,GENERIC_READ|GENERIC_WRITE,
          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
@@ -2465,7 +2462,7 @@ int FindFiles::LookForString(const wchar_t *Name)
   // с максимальным размером, в котором производится поиск
   __int64 AlreadyRead=_i64(0);
 
-  while (!StopSearch && (ReadSize=fread(Buf,1,sizeof(Buf),SrcFile))>0)
+  while (!StopSearch && (ReadSize=(int)fread(Buf,1,sizeof(Buf),SrcFile))>0)
   {
     /* $ 12.04.2005 KM
        Если используется ограничение по поиску на размер чтения из файла,
@@ -2965,8 +2962,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         else
           strSearchStr.Format (UMSG(MFindSearchingIn), L"");
 
-        int Wid1=strSearchStr.GetLength();
-        int Wid2=DlgWidth-strSearchStr.GetLength()-1;
+        int Wid1=(int)strSearchStr.GetLength();
+        int Wid2=DlgWidth-(int)strSearchStr.GetLength()-1;
 
         if (SearchDone)
         {
@@ -3130,11 +3127,11 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
     strMsgStr1 = strSearchFromRoot;
 
     RemoveHighlightsW(strMsgStr1);
-    MsgLen=strMsgStr1.GetLength();
+    MsgLen=(int)strMsgStr1.GetLength();
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
     // учёта точной длины строки, без учёта '&'
-    MsgLenDiff=strSearchFromRoot.GetLength()-MsgLen;
+    MsgLenDiff=(int)strSearchFromRoot.GetLength()-MsgLen;
   }
   else
   {
@@ -3142,18 +3139,18 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
     strMsgStr1 = strMsgStr;
 
     RemoveHighlightsW(strMsgStr1);
-    MsgLen=strMsgStr1.GetLength();
+    MsgLen=(int)strMsgStr1.GetLength();
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
     // учёта точной длины строки, без учёта '&'
-    MsgLenDiff=strMsgStr.GetLength()-MsgLen;
+    MsgLenDiff=(int)strMsgStr.GetLength()-MsgLen;
 
-    DrvLen=sz-MsgLen-1-MsgLenDiff; // -1 - это пробел между строкой и диском, -MsgLenDiff - это учёт символа '&'
+    DrvLen=(int)sz-MsgLen-1-MsgLenDiff; // -1 - это пробел между строкой и диском, -MsgLenDiff - это учёт символа '&'
     if (DrvLen<7)
     {
       DrvLen=7; // Сделаем минимальный размер имени диска 7 символов
                 // (учтём работу TruncPathStr с UNC, чтобы хоть что-то было видно)
-      MsgLen=sz-DrvLen-1-MsgLenDiff;
+      MsgLen=(int)sz-DrvLen-1-MsgLenDiff;
     }
 
     TruncStrFromEndW(strMsgStr,MsgLen+MsgLenDiff);

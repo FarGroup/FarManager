@@ -61,7 +61,7 @@ void FileList::SetFilePanelModes()
     int ModeNumber;
     ModeListMenu[CurMode].SetSelect(1);
     {
-      VMenu ModeList(UMSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),TRUE,ScrY-4);
+      VMenu ModeList(UMSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);
       ModeList.SetHelp(L"PanelViewModes");
       /* $ 16.06.2001 KM
@@ -103,7 +103,7 @@ void FileList::SetFilePanelModes()
     MakeDialogItemsEx(ModeDlgData,ModeDlg);
     int ExitCode;
 
-    ModeDlg[0].strData = UMSG((DWORD_PTR)ModeListMenu[ModeNumber].Name);
+    ModeDlg[0].strData = UMSG((int)(DWORD_PTR)ModeListMenu[ModeNumber].Name);
     RemoveHighlightsW(ModeDlg[0].strData);
 
     if (ModeNumber==9)

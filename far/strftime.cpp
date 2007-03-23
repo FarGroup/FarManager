@@ -310,7 +310,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
   char Buf[32];
   char chr;
   char *Ptr = Buf;
-  int I;
+  size_t I;
   size_t Len;
 
   if(!Dest || !MaxSize)
@@ -515,5 +515,5 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
 
   if(*Format)
     return(0);
-  return(Len-1);
+  return (int)(Len-1);
 } /* StrFTime */

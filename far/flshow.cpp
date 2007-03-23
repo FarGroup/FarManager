@@ -33,7 +33,7 @@ static int __FormatEndSelectedPhrase(int Count)
   {
     char StrItems[32];
     itoa(Count,StrItems,10);
-    int LenItems=strlen(StrItems);
+    int LenItems=(int)strlen(StrItems);
     if(StrItems[LenItems-1] == '1' && Count != 11)
       M_Fmt=MListFilesSize1;
     else
@@ -235,7 +235,7 @@ void FileList::ShowFileList(int Fast)
     TruncSize-=2;
 
   GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
-  Length=strTitle.GetLength();
+  Length=(int)strTitle.GetLength();
   int ClockCorrection=FALSE;
   if ((Opt.Clock && !Opt.ShowMenuBar) && TitleX2==ScrX-4)
   {
@@ -368,7 +368,7 @@ void FileList::ShowSelectedSize()
     strSelStr.Format (UMSG(__FormatEndSelectedPhrase(SelFileCount)),(const wchar_t*)strFormStr,SelFileCount);
 
     TruncStrW(strSelStr,X2-X1-1);
-    Length=strSelStr.GetLength();
+    Length=(int)strSelStr.GetLength();
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
     TextW(strSelStr);
@@ -383,7 +383,7 @@ void FileList::ShowSelectedSize()
       else
         strEvalStr.Format (L" %s ",UMSG(MListEval));
       TruncStrW(strEvalStr,X2-X1-1);
-      Length=strEvalStr.GetLength();
+      Length=(int)strEvalStr.GetLength();
       SetColor(COL_PANELTEXT);
       GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
       TextW(strEvalStr);
@@ -426,12 +426,12 @@ void FileList::ShowTotalSize(struct OpenPluginInfoW &Info)
     + Обрезаем строчку справа, а не слева */
   TruncStrFromEndW(strTotalStr, X2-X1-1);
   /* VVM $ */
-  Length=strTotalStr.GetLength();
+  Length=(int)strTotalStr.GetLength();
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
 // UNICODE!!!
   const wchar_t *FirstBox=wcschr(strTotalStr,0x0CD);
-  int BoxPos=(FirstBox==NULL) ? -1:FirstBox-(const wchar_t*)strTotalStr;
+  int BoxPos=(FirstBox==NULL) ? -1:(int)(FirstBox-(const wchar_t*)strTotalStr);
   int BoxLength=0;
   if (BoxPos!=-1)
 // UNICODE!!!
@@ -456,7 +456,7 @@ int FileList::ConvertNameW(const wchar_t *SrcName,string &strDest,int MaxLength,
 
   wmemset(lpwszDest,L' ',MaxLength);
 
-  int SrcLength=wcslen(SrcName);
+  int SrcLength=(int)wcslen(SrcName);
   if (RightAlign && SrcLength>MaxLength)
   {
     wmemcpy(lpwszDest,SrcName+SrcLength-MaxLength,MaxLength);
@@ -472,8 +472,8 @@ int FileList::ConvertNameW(const wchar_t *SrcName,string &strDest,int MaxLength,
       (DotPtr=wcsrchr(SrcName,L'.'))!=NULL && DotPtr!=SrcName &&
       (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
   {
-    int DotLength=wcslen(DotPtr+1);
-    int NameLength=DotPtr-SrcName;
+    int DotLength=(int)wcslen(DotPtr+1);
+    int NameLength=(int)(DotPtr-SrcName);
     int DotPos=MaxLength-Max(DotLength,3);
     if (DotPos<=NameLength)
       DotPos=NameLength+1;
@@ -765,7 +765,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           int CurLeftPos=0;
           if (!ShowStatus && LeftPos>0)
           {
-            int Length=wcslen(ColumnData);
+            int Length=(int)wcslen(ColumnData);
             if (Length>ColumnWidth)
             {
               CurLeftPos=LeftPos;
@@ -794,7 +794,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (CurPtr->Colors.MarkChar && Opt.Highlight && Width>1)
                 {
                   Width--;
-                  OutCharacter[0]=CurPtr->Colors.MarkChar;
+                  OutCharacter[0]=(wchar_t)CurPtr->Colors.MarkChar;
                   int OldColor=GetColor();
                   if (!ShowStatus)
                     SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
@@ -818,7 +818,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int LeftBracket=FALSE,RightBracket=FALSE;
                 if (!ShowStatus && LeftPos!=0)
                 {
-                  int Length = wcslen (NamePtr);
+                  int Length = (int)wcslen (NamePtr);
                   if (Length>Width)
                   {
                     if (LeftPos>0)
@@ -1018,7 +1018,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=CurPtr->DizText ? wcslen(CurPtr->DizText):0;
+                  int Length=CurPtr->DizText ? (int)wcslen(CurPtr->DizText):0;
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1047,7 +1047,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=CurPtr->strOwner.GetLength();
+                  int Length=(int)CurPtr->strOwner.GetLength();
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;

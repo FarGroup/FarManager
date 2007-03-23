@@ -122,7 +122,7 @@ void Register()
   if ( strRegName.IsEmpty() || strRegCode.IsEmpty() )
     return;
 
-  int Length=strRegName.GetLength ();
+  int Length=(int)strRegName.GetLength ();
 
   char RegName[256],RegCode[256],RegData[256];
 
@@ -149,8 +149,8 @@ void Register()
   }
   Dlg.Hide();
   RegData[0]=static_cast<char>(clock());
-  RegData[1]=strlen(RegName);
-  RegData[2]=strlen(RegCode);
+  RegData[1]=(char)strlen(RegName);
+  RegData[2]=(char)strlen(RegCode);
   strcpy(RegData+3,RegName);
   strcpy(RegData+RegData[1]+3,RegCode);
   int Size=RegData[1]+RegData[2]+3;

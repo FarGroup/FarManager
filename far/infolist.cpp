@@ -98,7 +98,7 @@ void InfoList::DisplayObject()
   GetTitle(strTitle);
   if ( !strTitle.IsEmpty() )
   {
-    GotoXY(X1+(X2-X1+1-strTitle.GetLength())/2,Y1);
+    GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
     TextW(strTitle);
   }
 
@@ -225,7 +225,7 @@ void InfoList::DisplayObject()
     }
 
     TruncStrW(strTitle,X2-X1-3);
-    GotoXY(X1+(X2-X1+1-strTitle.GetLength())/2,Y1+3);
+    GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+3);
     PrintTextW(strTitle);
 
     unsigned __int64 TotalSize,TotalFree,UserFree;
@@ -251,7 +251,7 @@ void InfoList::DisplayObject()
   }
 
   strTitle = UMSG(MInfoMemory);
-  GotoXY(X1+(X2-X1-strTitle.GetLength())/2,Y1+8);
+  GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
   PrintTextW(strTitle);
   MEMORYSTATUSEX ms;
   FAR_GlobalMemoryStatusEx(&ms);
@@ -455,7 +455,7 @@ void InfoList::PrintInfoW(const wchar_t *str)
 
     string strStr = str;
     TruncStrW(strStr,MaxLength);
-    int Length=strStr.GetLength();
+    int Length=(int)strStr.GetLength();
     int NewX=X2-Length-1;
     if (NewX>X1 && NewX>WhereX())
     {
@@ -487,7 +487,7 @@ void InfoList::ShowDirDescription()
     return;
   }
   AnotherPanel->GetCurDirW(strDizDir);
-  if ((Length=strDizDir.GetLength())>0 && strDizDir.At(Length-1)!=L'\\')
+  if ((Length=(int)strDizDir.GetLength())>0 && strDizDir.At(Length-1)!=L'\\')
     strDizDir += L"\\";
 
   string strArgName;
@@ -558,7 +558,7 @@ void InfoList::ShowPluginDescription()
         strTitle=L"";
       DrawSeparator(Y);
       TruncStrW(strTitle,X2-X1-3);
-      GotoXY(X1+(X2-X1-strTitle.GetLength())/2,Y);
+      GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y);
       PrintTextW(strTitle);
     }
     else
@@ -635,7 +635,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
   string strTitle;
   strTitle.Format (L" %s ", (const wchar_t*)PointToNameW(strDizFileName));
   TruncStrW(strTitle,X2-X1-3);
-  GotoXY(X1+(X2-X1-strTitle.GetLength())/2,Y1+14);
+  GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+14);
   SetColor(COL_PANELTEXT);
   PrintTextW(strTitle);
   DizPresent=TRUE;

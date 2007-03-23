@@ -430,7 +430,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
         strMenuText.Format (L"%-20.*s%s",ScrX-12,(const wchar_t*)strLabel,Ptr);
       }
       /* VVM $ */
-      MenuTextLen=strMenuText.GetLength()-(FuncNum>0?1:0);
+      MenuTextLen=(int)strMenuText.GetLength()-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
     } /* else */
     /* VVM $ */
@@ -576,7 +576,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
               strMenuTitle.Format (L"%s", UMSG(MMainMenuTitle));
           }
         } /* switch */
-      VMenu UserMenu(strMenuTitle,NULL,0,TRUE,ScrY-4);
+      VMenu UserMenu(strMenuTitle,NULL,0,ScrY-4);
       /* VVM $ */
 
       /* $ 05.06.2001 KM

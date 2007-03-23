@@ -543,7 +543,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
           {
             DWORD Type, DataSize;
 
-            DataSize = strFullName.GetLength()*2; //???
+            DataSize = (DWORD)strFullName.GetLength()*2; //???
 
             wchar_t *lpwszFullName = strFullName.GetBuffer ();
 
@@ -577,7 +577,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
               {
                 DWORD Type, DataSize;
 
-                DataSize = strFullName.GetLength()*2;
+                DataSize = (DWORD)strFullName.GetLength()*2;
 
                 wchar_t *lpwszFullName = strFullName.GetBuffer ();
 

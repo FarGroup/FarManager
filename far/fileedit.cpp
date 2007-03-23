@@ -60,7 +60,7 @@ BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 
     	FarListItemData data;
 
-    	int index = Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)name);
+    	int index = (int)Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)name);
 
     	data.Index = index;
     	data.DataSize = sizeof(dwCP);
@@ -227,7 +227,7 @@ LONG_PTR __stdcall hndOpenEditor (
 
 			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (LONG_PTR)&pos);
 
-			*param = Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
+			*param = (int)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
 
 			return TRUE;
 		}
@@ -316,7 +316,7 @@ LONG_PTR __stdcall hndSaveFileAs (
 
 			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
 
-			*param = Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
+			*param = (int)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
 
 			return TRUE;
 		}
@@ -1845,7 +1845,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
         CurPtr->SetEOLW(EndSeq);
       }
 
-      int EndLength=wcslen(EndSeq);
+      int EndLength=(int)wcslen(EndSeq);
       bool bError = false;
 
 		if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
@@ -2157,7 +2157,7 @@ void FileEditor::ShowStatus()
   //предварительный расчет
   strLineStr.Format (L"%d/%d", m_editor->NumLastLine, m_editor->NumLastLine);
 
-  int SizeLineStr = strLineStr.GetLength();
+  int SizeLineStr = (int)strLineStr.GetLength();
 
   if( SizeLineStr > 12 )
     NameLength -= (SizeLineStr-12);
@@ -2484,7 +2484,7 @@ int FileEditor::EditorControl(int Command, void *Param)
         string strOldFullFileName = strFullFileName;
 
         if(SetFileName(strName))
-          return SaveFile(strName,FALSE,EOL,!LocalStricmpW(strName, strOldFullFileName));
+          return SaveFile(strName,FALSE,!LocalStricmpW(strName, strOldFullFileName),EOL);
       }
       return FALSE;
     }
@@ -2599,8 +2599,6 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 		strCacheName.ReleaseBuffer();
 	}
 
-
-	unsigned int Table;
 
 	TPosCache32 PosCache={0};
 

@@ -62,14 +62,14 @@ int Language::Init(const wchar_t *Path,int CountNeed)
     RemoveExternalSpacesW(ReadStr);
     if ( *ReadStr != L'\"')
       continue;
-    int SrcLength=wcslen (ReadStr);
+    int SrcLength=(int)wcslen (ReadStr);
 
     if (ReadStr[SrcLength-1]==L'\"')
       ReadStr[SrcLength-1]=0;
 
     ConvertString(ReadStr+1,strDestStr);
 
-    int DestLength=pack(strDestStr.GetLength()+1);
+    int DestLength=(int)pack(strDestStr.GetLength()+1);
 
     if ( (MsgListW = (wchar_t*)xf_realloc(MsgListW, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
     {
@@ -155,7 +155,7 @@ void Language::Close()
 
 void Language::ConvertString(const wchar_t *Src,string &strDest)
 {
-  wchar_t *Dest = strDest.GetBuffer (wcslen (Src)*2);
+  wchar_t *Dest = strDest.GetBuffer ((int)wcslen (Src)*2);
 
   while (*Src)
     switch(*Src)
@@ -312,7 +312,7 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
 
   strFullParamName += ParamName;
 
-  int Length=strFullParamName.GetLength();
+  int Length=(int)strFullParamName.GetLength();
   /* $ 29.11.2001 DJ
      не поганим позицию в файле; дальше @Contents не читаем
   */
@@ -378,7 +378,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   MenuItemEx LangMenuItem;
 
   LangMenuItem.Clear ();
-  VMenu *LangMenu=new VMenu(Title,NULL,0,TRUE, ScrY-4);
+  VMenu *LangMenu=new VMenu(Title,NULL,0,ScrY-4);
   *MenuPtr=LangMenu;
   LangMenu->SetFlags(VMENU_WRAPMODE);
   LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
@@ -445,7 +445,7 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
 
   wchar_t *Ptr;
 
-  int Length=wcslen(L".Options");
+  int Length=(int)wcslen(L".Options");
 
   long CurFilePos=ftell(SrcFile);
 

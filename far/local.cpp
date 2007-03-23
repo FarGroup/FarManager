@@ -170,7 +170,7 @@ void WINAPI LocalStrupr(char *s1)
 {
 	string strS(s1,CP_OEMCP);
 	strS.Upper();
-	UnicodeToAnsi(strS,s1,strlen(s1)+1);
+	UnicodeToAnsi(strS,s1,(int)strlen(s1)+1);
 }
 
 
@@ -178,7 +178,7 @@ void WINAPI LocalStrlwr(char *s1)
 {
 	string strS(s1,CP_OEMCP);
 	strS.Lower();
-	UnicodeToAnsi(strS,s1,strlen(s1)+1);
+	UnicodeToAnsi(strS,s1,(int)strlen(s1)+1);
 }
 
 const char * __cdecl LocalStrstri(const char *str1, const char *str2)
@@ -211,8 +211,8 @@ const char * __cdecl LocalStrstri(const char *str1, const char *str2)
 
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
 {
-  int len1 = strlen(str1);
-  int len2 = strlen(str2);
+  int len1 = (int)strlen(str1);
+  int len2 = (int)strlen(str2);
 
   if (len2 > len1)
     return (const char *)NULL;
@@ -309,8 +309,8 @@ const wchar_t * __cdecl StrstriW(const wchar_t *str1, const wchar_t *str2)
 
 const wchar_t * __cdecl RevStrstriW(const wchar_t *str1, const wchar_t *str2)
 {
-  int len1 = wcslen(str1);
-  int len2 = wcslen(str2);
+  int len1 = (int)wcslen(str1);
+  int len2 = (int)wcslen(str2);
 
   if (len2 > len1)
     return (const wchar_t *)NULL;
@@ -508,11 +508,11 @@ void WINAPI LocalLowerBufW(wchar_t *Buf,int Length)
 
 void WINAPI LocalStruprW(wchar_t *s1)
 {
-    LocalUpperBufW (s1, wcslen (s1));
+    LocalUpperBufW (s1, (int)wcslen (s1));
 }
 
 
 void WINAPI LocalStrlwrW(wchar_t *s1)
 {
-    LocalLowerBufW (s1, wcslen (s1));
+    LocalLowerBufW (s1, (int)wcslen (s1));
 }

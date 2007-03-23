@@ -103,7 +103,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     const wchar_t *Ends;
     wchar_t StrItems[16];
     _itow(SelCount,StrItems,10);
-    int LenItems=wcslen(StrItems);
+    int LenItems=(int)wcslen(StrItems);
     if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
            StrItems[LenItems-1] >= L'5' ||
            StrItems[LenItems-1] == L'0')
@@ -253,7 +253,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           break;
       }
 
-      int Length=strSelName.GetLength();
+      int Length=(int)strSelName.GetLength();
       if (Length==0 || strSelName.At(0)==L'\\' && Length<2 ||
           strSelName.At(1)==L':' && Length<4)
         continue;
@@ -760,7 +760,7 @@ int RemoveToRecycleBinW(const wchar_t *Name)
 
   memset(&fop,0,sizeof(fop)); // говорят помогает :-)
 
-  wchar_t *lpwszName = strFullName.GetBuffer (strFullName.GetLength()+1);
+  wchar_t *lpwszName = strFullName.GetBuffer ((int)strFullName.GetLength()+1);
 
   lpwszName[wcslen(lpwszName)+1] = 0; //dirty trick to make strFullName ends with DOUBLE zero!!!
 

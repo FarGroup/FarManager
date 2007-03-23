@@ -19,10 +19,11 @@ size_t UnicodeString::Inflate(size_t nSize, bool bForce)
   else
   {
     UnicodeStringData *pNewData = new UnicodeStringData(nSize);
+    size_t nNewLength = min(m_pData->GetLength(),nSize-1);
 
-    memcpy(pNewData->GetData(),m_pData->GetData(),m_pData->GetLength() * sizeof(wchar_t));
+    wmemcpy(pNewData->GetData(),m_pData->GetData(),nNewLength);
 
-    pNewData->SetLength(m_pData->GetLength());
+    pNewData->SetLength(nNewLength);
 
     m_pData->DecRef();
 
@@ -34,7 +35,7 @@ size_t UnicodeString::Inflate(size_t nSize, bool bForce)
 size_t UnicodeString::GetCharString(char *lpszStr, size_t nLength, UINT CodePage)
 {
   size_t nCopyLength = (nLength <= m_pData->GetLength() ? nLength : m_pData->GetLength());
-  WideCharToMultiByte(CodePage,0,m_pData->GetData(),nCopyLength,lpszStr,nCopyLength+1,NULL,NULL);
+  WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,NULL,NULL);
   lpszStr[nCopyLength] = 0;
   return nCopyLength;
 }
@@ -60,7 +61,7 @@ const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
   wchar_t *pStr = m_pData->GetData();
   if (pStr)
   {
-    memcpy(pStr,lpwszData,(nLength + 1) * sizeof(wchar_t));
+    wmemcpy(pStr,lpwszData,nLength);
     m_pData->SetLength(nLength);
   }
   return *this;
@@ -73,7 +74,7 @@ const UnicodeString& UnicodeString::SetData(const char *lpszData, UINT CodePage)
 
   size_t nSize = MultiByteToWideChar(CodePage,0,lpszData,-1,NULL,0);
   m_pData = new UnicodeStringData(nSize);
-  MultiByteToWideChar(CodePage,0,lpszData,nSize,m_pData->GetData(),m_pData->GetSize()/sizeof(wchar_t));
+  MultiByteToWideChar(CodePage,0,lpszData,(int)nSize,m_pData->GetData(),(int)(m_pData->GetSize()/sizeof(wchar_t)));
   m_pData->SetLength(nSize - 1);
   return *this;
 }
@@ -83,7 +84,7 @@ const UnicodeString& UnicodeString::Append(const UnicodeString &strAdd)
   UnicodeStringData *pAddData = strAdd.m_pData;
   size_t nNewLength = m_pData->GetLength() + pAddData->GetLength();
   Inflate(nNewLength + 1);
-  memcpy(m_pData->GetData() + m_pData->GetLength(),pAddData->GetData(),pAddData->GetLength() * sizeof(wchar_t));
+  wmemcpy(m_pData->GetData() + m_pData->GetLength(),pAddData->GetData(),pAddData->GetLength());
   m_pData->SetLength(nNewLength);
   return *this;
 }
@@ -93,7 +94,7 @@ const UnicodeString& UnicodeString::Append(const wchar_t *lpwszAdd)
   size_t nAddLength = wcslen(lpwszAdd);
   size_t nNewLength = m_pData->GetLength() + nAddLength;
   Inflate(nNewLength + 1);
-  memcpy(m_pData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength * sizeof(wchar_t));
+  wmemcpy(m_pData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
   m_pData->SetLength(nNewLength);
   return *this;
 }
@@ -103,7 +104,7 @@ const UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)
   size_t nAddSize = MultiByteToWideChar(CodePage,0,lpszAdd,-1,NULL,0);
   size_t nNewLength = m_pData->GetLength() + nAddSize - 1;
   Inflate(nNewLength + 1);
-  MultiByteToWideChar(CodePage,0,lpszAdd,nAddSize,m_pData->GetData() + m_pData->GetLength(),m_pData->GetSize()/sizeof(wchar_t));
+  MultiByteToWideChar(CodePage,0,lpszAdd,(int)nAddSize,m_pData->GetData() + m_pData->GetLength(),(int)(m_pData->GetSize()/sizeof(wchar_t)));
   m_pData->SetLength(nNewLength);
   return *this;
 }
@@ -161,15 +162,15 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwsz
 
 wchar_t *UnicodeString::GetBuffer (int nLength)
 {
-    Inflate (nLength == -1?m_pData->GetSize():nLength); //??force??
+	Inflate (nLength == -1?m_pData->GetSize():nLength); //??force??
 
-    return m_pData->GetData ();
+	return m_pData->GetData ();
 }
 
 void UnicodeString::ReleaseBuffer (int nLength)
 {
-    if ( nLength != -1 )
-        m_pData->SetLength (nLength);
-    else
-        m_pData->SetLength (wcslen(m_pData->GetData()));
+	if ( nLength != -1 )
+		m_pData->SetLength (nLength);
+	else
+		m_pData->SetLength (wcslen(m_pData->GetData()));
 }
