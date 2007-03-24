@@ -967,7 +967,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   else
     if (UserDataSize==2) //???
     {
-      PanelMenuItem *item = (PanelMenuItem*)(DWORD_PTR)UserData;
+      PanelMenuItem *item = (PanelMenuItem*)UserData;
 
     	MessageBox (0, "this is BUGBUG, do not touch!", "Error!", MB_OK);
 
