@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 210
+  Plugin API for FAR Manager 1.80 build 221
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2007 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,210)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,221)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -1159,6 +1159,8 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_GETWORDDIV,
 };
 
+
+
 struct EditorSetParameter
 {
   int Type;
@@ -1695,7 +1697,7 @@ void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *I
 void   WINAPI _export GetPluginInfo(struct PluginInfoW *Info);
 int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
-HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
+HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpenFrom);
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item);
 int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
 int    WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec);

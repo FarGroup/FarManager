@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2198
+  Plugin API for FAR Manager 1.71 build 2210
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2007 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2198)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2210)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -162,6 +162,7 @@ enum FarDialogItemFlags {
   DIF_HISTORY               = 0x00040000UL,
   DIF_BTNNOCLOSE            = 0x00040000UL,
   DIF_CENTERTEXT            = 0x00040000UL,
+  DIF_NOTCVTUSERCONTROL     = 0x00040000UL,
   DIF_EDITEXPAND            = 0x00080000UL,
   DIF_DROPDOWNLIST          = 0x00100000UL,
   DIF_USELASTHISTORY        = 0x00200000UL,
@@ -1188,6 +1189,8 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_SETWORDDIV,
   ESPT_GETWORDDIV,
 };
+
+
 
 struct EditorSetParameter
 {
