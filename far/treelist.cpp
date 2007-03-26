@@ -227,14 +227,14 @@ void TreeList::DisplayTree(int Fast)
     {
       SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
       GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
-      TextW(strTitle);
+      Text(strTitle);
     }
   }
   for (I=Y1+1,J=CurTopFile;I<Y2-2-(ModalMode!=0);I++,J++)
   {
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
-    TextW(L" ");
+    Text(L" ");
     if (J<TreeCount && Flags.Check(FTREELIST_TREEISPREPARED))
     {
       CurPtr=ListData[J];
@@ -285,7 +285,7 @@ void TreeList::DisplayTree(int Fast)
     }
     SetColor(COL_PANELTEXT);
     if ((K=WhereX())<X2)
-      mprintfW(L"%*s",X2-WhereX(),L"");
+      mprintf(L"%*s",X2-WhereX(),L"");
   }
   if (Opt.ShowPanelScrollbar)
   {
@@ -298,7 +298,7 @@ void TreeList::DisplayTree(int Fast)
   if (TreeCount>0)
   {
     GotoXY(X1+1,Y2-1);
-    mprintfW(L"%-*.*s",X2-X1-1,X2-X1-1,(const wchar_t*)ListData[CurFile]->strName);
+    mprintf(L"%-*.*s",X2-X1-1,X2-X1-1,(const wchar_t*)ListData[CurFile]->strName);
   }
 
   UpdateViewPanel();
@@ -318,18 +318,18 @@ void TreeList::DisplayTreeName(const wchar_t *Name,int Pos)
     if (Focus || ModalMode)
     {
       SetColor((Pos==WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
-      mprintfW(L" %.*s ",X2-WhereX()-3,Name);
+      mprintf(L" %.*s ",X2-WhereX()-3,Name);
     }
     else
     {
       SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-      mprintfW(L"[%.*s]",X2-WhereX()-3,Name);
+      mprintf(L"[%.*s]",X2-WhereX()-3,Name);
     }
   }
   else
   {
     SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-    mprintfW(L"%.*s",X2-WhereX()-1,Name);
+    mprintf(L"%.*s",X2-WhereX()-1,Name);
   }
 }
 

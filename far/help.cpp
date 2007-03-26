@@ -817,7 +817,7 @@ void Help::DrawWindowFrame()
   TruncStrFromEndW(strHelpTitleBuf,X2-X1-3);
   /* DJ $ */
   GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.GetLength()-2)/2,Y1);
-  mprintfW(L" %s ", (const wchar_t*)strHelpTitleBuf);
+  mprintf(L" %s ", (const wchar_t*)strHelpTitleBuf);
 }
 
 /* DJ $ */
@@ -897,7 +897,7 @@ void Help::OutString(const wchar_t *Str)
       if (Locked())
         GotoXY(WhereX()+(int)wcslen(OutStr),WhereY());
       else
-        TextW(OutStr);
+        Text(OutStr);
       OutPos=0;
     }
 
@@ -966,7 +966,7 @@ void Help::OutString(const wchar_t *Str)
   if (!Locked() && WhereX()<X2)
   {
     SetColor(CurColor);
-    mprintfW(L"%*s",X2-WhereX(),L"");
+    mprintf(L"%*s",X2-WhereX(),L"");
   }
 }
 

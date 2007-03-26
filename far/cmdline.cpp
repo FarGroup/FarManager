@@ -53,7 +53,7 @@ void CommandLine::DisplayObject()
   TruncPathStrW(strTruncDir,(X2-X1)/2);
   GotoXY(X1,Y1);
   SetColor(COL_COMMANDLINEPREFIX);
-  TextW(strTruncDir);
+  Text(strTruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
   CmdStr.SetLeftPos(0);
   CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);

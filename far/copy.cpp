@@ -3393,7 +3393,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
 
   SetColor(COL_DIALOGTEXT);
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
-  TextW(ProgressBar);
+  Text(ProgressBar);
 
   GotoXY(BarX+BarLength,BarY+(TotalBar ? 2:0));
 
@@ -3401,7 +3401,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
 
   strPercents.Format (L"%4d%%", ToPercent64 (WrittenSize, TotalSize));
 
-  TextW (strPercents);
+  Text(strPercents);
 
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
@@ -3448,7 +3448,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
       strTimeStr.Format (UMSG(MCopyTimeInfo), (const wchar_t*)strWorkTimeStr, (const wchar_t*)strTimeLeftStr, CPS, c);
     }
     GotoXY(BarX,BarY+(TotalBar?6:4));
-    TextW(strTimeStr);
+    Text(strTimeStr);
   }
   return (TRUE);
 /* VVM $ */

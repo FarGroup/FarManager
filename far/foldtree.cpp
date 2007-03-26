@@ -316,14 +316,14 @@ void FolderTree::DrawEdit()
   const wchar_t *SearchTxt=UMSG(MFoldTreeSearch);
   GotoXY(X1+1,FindY);
   SetColor(COL_PANELTEXT);
-  mprintfW(L"%s  ",SearchTxt);
+  mprintf(L"%s  ",SearchTxt);
   FindEdit->SetPosition(X1+(int)wcslen(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
   FindEdit->SetObjectColor(COL_DIALOGEDIT);
   FindEdit->Show();
   if (WhereX()<X2)
   {
     SetColor(COL_PANELTEXT);
-    mprintfW(L"%*s",X2-WhereX(),L"");
+    mprintf(L"%*s",X2-WhereX(),L"");
   }
 }
 

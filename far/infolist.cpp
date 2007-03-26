@@ -99,7 +99,7 @@ void InfoList::DisplayObject()
   if ( !strTitle.IsEmpty() )
   {
     GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
-    TextW(strTitle);
+    Text(strTitle);
   }
 
   DrawSeparator(Y1+3);
@@ -435,7 +435,7 @@ void InfoList::PrintTextW(const wchar_t *Str)
 {
     if (WhereY()>Y2-1)
         return;
-    mprintfW(L"%.*s",X2-WhereX(),Str);
+    mprintf(L"%.*s",X2-WhereX(),Str);
 }
 
 
@@ -461,7 +461,7 @@ void InfoList::PrintInfoW(const wchar_t *str)
     {
         GotoXY(NewX,WhereY());
         SetColor(COL_PANELINFOTEXT);
-        mprintfW(L"%s ",(const wchar_t*)strStr);
+        mprintf(L"%s ",(const wchar_t*)strStr);
         SetColor(SaveColor);
     }
 }
@@ -543,11 +543,11 @@ void InfoList::ShowPluginDescription()
     const struct InfoPanelLineW *InfoLine=&Info.InfoLines[I];
     GotoXY(X1,Y);
     SetColor(COL_PANELBOX);
-    TextW(VertcalLine);
+    Text(VertcalLine);
     SetColor(COL_PANELTEXT);
-    mprintfW(L"%*s",X2-X1-1,L"");
+    mprintf(L"%*s",X2-X1-1,L"");
     SetColor(COL_PANELBOX);
-    TextW(VertcalLine);
+    Text(VertcalLine);
     GotoXY(X1+2,Y);
     if (InfoLine->Separator)
     {

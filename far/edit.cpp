@@ -429,7 +429,7 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
       if(Len > EditLength)
         Len=EditLength;
 
-      mprintfW(L"%-*.*s",Len,Len,&ShowStr[LeftPos]);
+      mprintf(L"%-*.*s",Len,Len,&ShowStr[LeftPos]);
       SetColor(Color);
 
       int BlankLength=EditLength-(Size-LeftPos);
@@ -437,11 +437,11 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
 
       if (BlankLength > 0)
       {
-        mprintfW(L"%*s",BlankLength,L"");
+        mprintf(L"%*s",BlankLength,L"");
       }
     }
     else
-      mprintfW(L"%-*.*s",EditLength,EditLength,LeftPos>StrSize ? L"":&ShowStr[LeftPos]);
+      mprintf(L"%-*.*s",EditLength,EditLength,LeftPos>StrSize ? L"":&ShowStr[LeftPos]);
   }
   else
   {
@@ -467,32 +467,32 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
       if(Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
         SetColor(SelColor);
-        mprintfW(L"%*s",X2-X1+1,OutStr);
+        mprintf(L"%*s",X2-X1+1,OutStr);
       }
       else
-        TextW(OutStr);
+        Text(OutStr);
     }
     /* SVS $ */
     else
     {
-      mprintfW(L"%.*s",TabSelStart,OutStr);
+      mprintf(L"%.*s",TabSelStart,OutStr);
       SetColor(SelColor);
       /* $ 15.08.2000 SVS
          + У DropDowList`а выделение по полной программе - на всю видимую длину
       */
       if(!Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
-        mprintfW(L"%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
+        mprintf(L"%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
         if (TabSelEnd<EditLength)
         {
           //SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
           SetColor(Color);
-          TextW(OutStr+TabSelEnd);
+          Text(OutStr+TabSelEnd);
         }
       }
       else
       {
-        mprintfW(L"%*s",X2-X1+1,OutStr);
+        mprintf(L"%*s",X2-X1+1,OutStr);
       }
       /* SVS $*/
     }

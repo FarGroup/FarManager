@@ -248,7 +248,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
     }
     else
       ListItem.SetSelect(FALSE);
-    IDItem=PrinterList->AddItemW(&ListItem);
+    IDItem=PrinterList->AddItem(&ListItem);
     // А вот теперь добавим данные для этого пункта (0 - передаем строку)
     PrinterList->SetUserData((void *)NullToEmptyW(pi[I].pPrinterName),0,IDItem);
   }

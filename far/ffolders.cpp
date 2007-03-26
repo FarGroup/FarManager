@@ -166,7 +166,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
       ListItem.strName.Format (L"%s+&%d   %s", UMSG(MRightCtrl),I,(const wchar_t*)strFolderName);
       ListItem.SetSelect(I == Pos);
-      FolderList.AddItemW(&ListItem);
+      FolderList.AddItem(&ListItem);
     }
 
     FolderList.Show();

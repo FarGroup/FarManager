@@ -482,7 +482,7 @@ void ShowTime(int ShowAlways)
     int ModType=CurFrame->GetType();
     SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
              (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
-    TextW(strClockText);
+    Text(strClockText);
     //ScrBuf.Flush();
   }
   static int RegChecked=FALSE;
@@ -775,17 +775,17 @@ void InitRecodeOutTable(UINT cp)
 }
 
 
-void TextW(int X, int Y, int Color, const WCHAR *Str)
+void Text(int X, int Y, int Color, const WCHAR *Str)
 {
   CurColor=FarColorToReal(Color);
   if (X<0) X=0;
   if (Y<0) Y=0;
   CurX=X;
   CurY=Y;
-  TextW(Str);
+  Text(Str);
 }
 
-void TextW(const WCHAR *Str)
+void Text(const WCHAR *Str)
 {
   int Length=(int)wcslen(Str), I;
   if (CurX+Length>ScrX)
@@ -807,15 +807,15 @@ void TextW(const WCHAR *Str)
 }
 
 
-void TextW (int MsgId)
+void Text(int MsgId)
 {
-  TextW(UMSG(MsgId));
+  Text(UMSG(MsgId));
 }
 
 /* VVM $ */
 /* SVS $ */
 
-void VTextW(const WCHAR *Str)
+void VText(const WCHAR *Str)
 {
   int Length=(int)wcslen(Str);
   if (CurY+Length>ScrY)
@@ -828,13 +828,13 @@ void VTextW(const WCHAR *Str)
   {
     GotoXY(CurX,CurY);
     ChrStr[0]=Str[I];
-    TextW(ChrStr);
+    Text(ChrStr);
     CurY++;
     CurX=StartCurX;
   }
 }
 
-void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
+void HiText(const wchar_t *Str,int HiColor,int isVertText)
 {
   string strTextStr;
   int SaveColor;
@@ -848,9 +848,9 @@ void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
   {
     strTextStr.ReleaseBuffer ();
     if(isVertText)
-      VTextW(strTextStr);
+      VText(strTextStr);
     else
-      TextW(strTextStr);
+      Text(strTextStr);
   }
   else
   {
@@ -873,9 +873,9 @@ void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
       *ChPtr=0;
 
       if(isVertText)
-        VTextW(strTextStr);
+        VText(strTextStr);
       else
-        TextW(strTextStr); //BUGBUG BAD!!!
+        Text(strTextStr); //BUGBUG BAD!!!
       if (ChPtr[1])
       {
         wchar_t Chr[2];
@@ -883,9 +883,9 @@ void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
         SetColor(HiColor);
         Chr[0]=ChPtr[1]; Chr[1]=0;
         if(isVertText)
-          VTextW(Chr);
+          VText(Chr);
         else
-          TextW(Chr);
+          Text(Chr);
         SetColor(SaveColor);
 
         string strText = (ChPtr+1);
@@ -894,9 +894,9 @@ void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
 
         ReplaceStringsW(strText,L"&&",L"&",-1);
         if(isVertText)
-          VTextW((const wchar_t*)strText+1);
+          VText((const wchar_t*)strText+1);
         else
-          TextW((const wchar_t*)strText+1);
+          Text((const wchar_t*)strText+1);
       }
     }
     else
@@ -905,9 +905,9 @@ void HiTextW(const wchar_t *Str,int HiColor,int isVertText)
 
       ReplaceStringsW(strTextStr,L"&&",L"&",-1);
       if(isVertText)
-        VTextW(strTextStr);
+        VText(strTextStr);
       else
-        TextW(strTextStr); //BUGBUG BAD!!!
+        Text(strTextStr); //BUGBUG BAD!!!
     }
   }
 }
@@ -945,23 +945,23 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
   ScrBuf.ApplyColor(X1,Y1,X2,Y2,FarColorToReal(Color));
 }
 
-void mprintfW(WCHAR *fmt,...)
+void mprintf(WCHAR *fmt,...)
 {
   va_list argptr;
   va_start(argptr,fmt);
   WCHAR OutStr[2048];
   vsnwprintf(OutStr,sizeof(OutStr)/sizeof(OutStr[0])-1,fmt,argptr);
-  TextW(OutStr);
+  Text(OutStr);
   va_end(argptr);
 }
 
-void vmprintfW(WCHAR *fmt,...)
+void vmprintf(WCHAR *fmt,...)
 {
   va_list argptr;
   va_start(argptr,fmt);
   WCHAR OutStr[2048];
   vsnwprintf(OutStr,sizeof(OutStr)/sizeof(OutStr[0])-1,fmt,argptr);
-  VTextW(OutStr);
+  VText(OutStr);
   va_end(argptr);
 }
 
@@ -1025,9 +1025,9 @@ void BoxTextW(WORD Chr)
 void BoxTextW(WCHAR *Str,int IsVert)
 {
   if(IsVert)
-    VTextW(Str);
+    VText(Str);
   else
-    TextW(Str);
+    Text(Str);
 }
 
 
@@ -1060,24 +1060,24 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
     OutStr[0]=BoxSymbols[ChrBox[Type][2]-0x0B0];
     OutStr[_width]=BoxSymbols[ChrBox[Type][5]-0x0B0];
     GotoXY(x1,y1);
-    TextW(OutStr);
-    //mprintfW(L"%.*s",x2-x1+1,OutStr);
+    Text(OutStr);
+    //mprintf(L"%.*s",x2-x1+1,OutStr);
 
     OutStr[0]=BoxSymbols[ChrBox[Type][3]-0x0B0];
     OutStr[_width]=BoxSymbols[ChrBox[Type][4]-0x0B0];
     GotoXY(x1,y2);
-    TextW(OutStr);
-    //mprintfW(L"%.*s",x2-x1+1,OutStr);
+    Text(OutStr);
+    //mprintf(L"%.*s",x2-x1+1,OutStr);
 
     _wmemset(OutStr,BoxSymbols[ChrBox[Type][1]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
     OutStr[_height-1]=0;
 
     GotoXY(x1,y1+1);
-    VTextW(OutStr);
-    //vmprintfW(L"%.*s",y2-y1-1,OutStr);
+    VText(OutStr);
+    //vmprintf(L"%.*s",y2-y1-1,OutStr);
     GotoXY(x2,y1+1);
-    VTextW(OutStr);
-    //vmprintfW(L"%.*s",y2-y1-1,OutStr);
+    VText(OutStr);
+    //vmprintf(L"%.*s",y2-y1-1,OutStr);
   }
 }
 /* SVS $ */
@@ -1164,7 +1164,7 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
     OutStr[0]=Oem2Unicode[0x1E];
     OutStr[Length+1]=Oem2Unicode[0x1F];
     OutStr[Length+2]=0;
-    VTextW(OutStr);
+    VText(OutStr);
   }
 }
 
@@ -1176,9 +1176,9 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
      WCHAR Separator[4096];
      MakeSeparatorW(Length,Separator,Type,UserSep);
      if( ( Type >= 4 && Type <= 7 ) || ( Type >= 10 && Type <= 11) )
-       VTextW(Separator);
+       VText(Separator);
      else
-       TextW(Separator);
+       Text(Separator);
 
   }
 }

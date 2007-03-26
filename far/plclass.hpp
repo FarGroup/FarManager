@@ -23,7 +23,7 @@ typedef void (WINAPI *PLUGINGETOPENPLUGININFO)(HANDLE hPlugin,OpenPluginInfoW *I
 typedef void (WINAPI *PLUGINGETPLUGININFO)(PluginInfoW *Info);
 typedef int (WINAPI *PLUGINGETVIRTUALFINDDATA)(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 typedef int (WINAPI *PLUGINMAKEDIRECTORY)(HANDLE hPlugin,const wchar_t *Name,int OpMode);
-typedef HANDLE (WINAPI *PLUGINOPENFILEPLUGIN)(const wchar_t *Name,const unsigned char *Data,int DataSize);
+typedef HANDLE (WINAPI *PLUGINOPENFILEPLUGIN)(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,INT_PTR Item);
 typedef int (WINAPI *PLUGINPROCESSEDITOREVENT)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(const INPUT_RECORD *Rec);
@@ -143,7 +143,7 @@ public:
 	int CheckMinFarVersion (bool &bUnloaded);
 
 	HANDLE OpenPlugin (int OpenFrom, INT_PTR Item);
-	HANDLE OpenFilePlugin (const wchar_t *Name, const unsigned char *Data, int DataSize);
+	HANDLE OpenFilePlugin (const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 
 	int SetFindList (HANDLE hPlugin, const PluginPanelItemW *PanelItem, int ItemsNumber);
 	int GetFindData (HANDLE hPlugin, PluginPanelItemW **pPanelItem, int *pItemsNumber, int OpMode);

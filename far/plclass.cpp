@@ -934,7 +934,8 @@ HANDLE Plugin::OpenPlugin (int OpenFrom, INT_PTR Item)
 HANDLE Plugin::OpenFilePlugin (
 		const wchar_t *Name,
 		const unsigned char *Data,
-		int DataSize
+		int DataSize,
+		int OpMode
 		)
 {
 //	if ( m_bCached && HAS_EXPORT(EXPORT_OPENFILEPLUGIN) )
@@ -948,7 +949,7 @@ HANDLE Plugin::OpenFilePlugin (
 		es.id = FUNCTION_OPENFILEPLUGIN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 
-		EXECUTE_FUNCTION_EX(pOpenFilePlugin(Name, Data, DataSize), es);
+		EXECUTE_FUNCTION_EX(pOpenFilePlugin(Name, Data, DataSize, OpMode), es);
 
 		hResult = es.hResult;
 	}

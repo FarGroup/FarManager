@@ -72,13 +72,13 @@ bool FileFilter::FilterEdit()
     if (Check)
       ListItem.SetCheck(Check);
 
-    FilterList.AddItemW(&ListItem);
+    FilterList.AddItem(&ListItem);
   }
 
   ListItem.Clear();
   if (FilterData.getCount()==0)
     ListItem.Flags|=LIF_SELECTED;
-  FilterList.AddItemW(&ListItem);
+  FilterList.AddItem(&ListItem);
 
   wchar_t *ExtPtr=NULL;
   int ExtCount=0;
@@ -103,7 +103,7 @@ bool FileFilter::FilterEdit()
 
   ListItem.Clear();
   ListItem.Flags|=LIF_SEPARATOR;
-  FilterList.AddItemW(&ListItem);
+  FilterList.AddItem(&ListItem);
 
   ListItem.Clear();
   FoldersFilter.SetTitle(UMSG(MFolderFileType));
@@ -111,7 +111,7 @@ bool FileFilter::FilterEdit()
   int Check = GetCheck(&FoldersFilter);
   if (Check)
     ListItem.SetCheck(Check);
-  FilterList.AddItemW(&ListItem);
+  FilterList.AddItem(&ListItem);
 
   if (m_HostPanel->GetMode()==NORMAL_PANEL)
   {
@@ -144,7 +144,7 @@ bool FileFilter::FilterEdit()
     wchar_t *CurExtPtr=ExtPtr+i*NM;
     MenuString(ListItem.strName,NULL,false,true,CurExtPtr,UMSG(MPanelFileType));
     ListItem.SetCheck(CurExtPtr[wcslen(CurExtPtr)+1]);
-    FilterList.SetUserData(CurExtPtr,0,FilterList.AddItemW(&ListItem));
+    FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
   }
   xf_free(ExtPtr);
 
@@ -246,7 +246,7 @@ bool FileFilter::FilterEdit()
               ListItem.SetCheck(Check);
 
             FilterList.DeleteItem(SelPos);
-            FilterList.AddItemW(&ListItem,SelPos);
+            FilterList.AddItem(&ListItem,SelPos);
 
             FilterList.AdjustSelectPos();
             FilterList.SetSelectPos(SelPos,1);
@@ -317,7 +317,7 @@ bool FileFilter::FilterEdit()
           ListItem.Clear();
           MenuString(ListItem.strName,NewFilter);
 
-          FilterList.AddItemW(&ListItem,SelPos);
+          FilterList.AddItem(&ListItem,SelPos);
 
           FilterList.AdjustSelectPos();
           FilterList.SetSelectPos(SelPos,1);
@@ -375,14 +375,14 @@ bool FileFilter::FilterEdit()
           if (NewPos<SelPos)
           {
             FilterList.DeleteItem(NewPos,2);
-            FilterList.AddItemW(&CurItem,NewPos);
-            FilterList.AddItemW(&NextItem,SelPos);
+            FilterList.AddItem(&CurItem,NewPos);
+            FilterList.AddItem(&NextItem,SelPos);
           }
           else
           {
             FilterList.DeleteItem(SelPos,2);
-            FilterList.AddItemW(&NextItem,SelPos);
-            FilterList.AddItemW(&CurItem,NewPos);
+            FilterList.AddItem(&NextItem,SelPos);
+            FilterList.AddItem(&CurItem,NewPos);
           }
 
           FilterList.AdjustSelectPos();

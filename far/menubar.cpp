@@ -25,5 +25,5 @@ void MenuBar::DisplayObject()
   strFullMsg.Format (L"%-*.*s", Length,Length, (const wchar_t*)strMsg);
   GotoXY(X1,Y1);
   SetColor(COL_HMENUTEXT);
-  TextW(strFullMsg);
+  Text(strFullMsg);
 }

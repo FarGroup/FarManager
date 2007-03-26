@@ -338,7 +338,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
               SetPreRedrawFunc(PR_ReadFileNamesMsg);
             else
             {
-              TextW(X1+1,Y1,COL_PANELBOX,Title);
+              Text(X1+1,Y1,COL_PANELBOX,Title);
               IsShowTitle=TRUE;
               SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
             }
@@ -352,7 +352,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
             TruncStrW(strReadMsg,TitleLength-2);
             int MsgLength=(int)strReadMsg.GetLength();
             GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
-            mprintfW(L" %s ", (const wchar_t*)strReadMsg);
+            mprintf(L" %s ", (const wchar_t*)strReadMsg);
           }
         }
         if (CheckForEsc())

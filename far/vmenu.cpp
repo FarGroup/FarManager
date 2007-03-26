@@ -102,7 +102,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
     //NewItem.AmpPos=-1;
     NewItem.AccelKey=Data[I].AccelKey;
     NewItem.Flags=Data[I].Flags;
-    AddItemW(&NewItem);
+    AddItem(&NewItem);
   }
 
   BoxType=DOUBLE_BOX;
@@ -370,7 +370,7 @@ void VMenu::DrawTitles()
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[VMenuColorTitle]);
-    mprintfW(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strTitle);
+    mprintf(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strTitle);
   }
   if ( !strBottomTitle.IsEmpty() )
   {
@@ -378,7 +378,7 @@ void VMenu::DrawTitles()
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[VMenuColorTitle]);
-    mprintfW(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strBottomTitle);
+    mprintf(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strBottomTitle);
   }
 }
 
@@ -525,7 +525,7 @@ void VMenu::ShowMenu(int IsParent)
         {
           int ItemWidth=(int)Item[I]->strName.GetLength();
           GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-          mprintfW(L" %*.*s ",ItemWidth,ItemWidth,(const wchar_t*)Item[I]->strName);
+          mprintf(L" %*.*s ",ItemWidth,ItemWidth,(const wchar_t*)Item[I]->strName);
         }
       }
       else
@@ -553,7 +553,7 @@ void VMenu::ShowMenu(int IsParent)
         {
           if(Item[I]->ShowPos > 0)
           {
-            TextW(X1,Y,VMenu::Colors[Item[I]->Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],L"{");
+            Text(X1,Y,VMenu::Colors[Item[I]->Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],L"{");
           }
           GotoXY(X1+1,Y);
         }
@@ -594,7 +594,7 @@ void VMenu::ShowMenu(int IsParent)
         else
           Col=VMenu::Colors[VMenuColorDisabled];
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-          TextW(TmpStrW);
+          Text(TmpStrW);
         else
         {
           short AmpPos=Item[I]->AmpPos+2;
@@ -605,11 +605,11 @@ void VMenu::ShowMenu(int IsParent)
             TmpStrW[AmpPos]='&';
           }
 //_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
-          HiTextW(TmpStrW,Col);
+          HiText(TmpStrW,Col);
         }
 
         // сделаем добавочку для NO_BOX
-        mprintfW(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
+        mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
       }
     }
     else
@@ -629,7 +629,7 @@ void VMenu::ShowMenu(int IsParent)
         GotoXY(X1,Y);
       SetColor(VMenu::Colors[VMenuColorText]);
                                                      // сделаем добавочку для NO_BOX
-      mprintfW(L"%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),L"");
+      mprintf(L"%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),L"");
       /* KM $ */
     }
   }
@@ -1231,7 +1231,7 @@ int VMenu::DeleteItem(int ID,int Count)
 }
 /* SVS $ */
 
-int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
+int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1340,6 +1340,7 @@ int VMenu::AddItemW(const MenuItemEx *NewItem,int PosAdd)
 //  if(VMFlags.Check(VMENU_LISTBOXSORT))
 //    SortItems(0);
   LastAddedItem = PosAdd;
+
   return ItemCount++;
 }
 
@@ -1375,7 +1376,7 @@ int VMenu::AddItem(const struct FarList *List)
     struct FarListItem *FItem=List->Items;
 
     for (int J=0; J < List->ItemsNumber; J++, ++FItem)
-      AddItemW(FarList2MenuItem(FItem,&MItem));
+      AddItem(FarList2MenuItem(FItem,&MItem));
   }
   return ItemCount;
 }
@@ -1421,7 +1422,7 @@ int VMenu::InsertItem(const struct FarListInsert *NewItem)
   if(NewItem)
   {
     MenuItemEx MItem;
-    return AddItemW(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index);
+    return AddItem(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index);
   }
   return -1;
 }

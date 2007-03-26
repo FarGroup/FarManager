@@ -161,7 +161,7 @@ public:
 public:
 
 	HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item);
-	HANDLE OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize);
+	HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 	HANDLE OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber);
 	void ClosePlugin(HANDLE hPlugin);
 	int GetPluginInfo(Plugin *pPlugin, PluginInfoW *Info);

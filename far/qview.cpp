@@ -79,12 +79,12 @@ void QuickView::DisplayObject()
   if ( !strTitle.IsEmpty() )
   {
     GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
-    TextW(strTitle);
+    Text(strTitle);
   }
   DrawSeparator(Y2-2);
   SetColor(COL_PANELTEXT);
   GotoXY(X1+1,Y2-1);
-  mprintfW(L"%-*.*s",X2-X1-1,X2-X1-1,PointToNameW(strCurFileName));
+  mprintf(L"%-*.*s",X2-X1-1,X2-X1-1,PointToNameW(strCurFileName));
 
   if ( !strCurFileType.IsEmpty() )
   {
@@ -93,7 +93,7 @@ void QuickView::DisplayObject()
     TruncStrW(strTypeText,X2-X1-1);
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-(int)strTypeText.GetLength())/2,Y2-2);
-    TextW(strTypeText);
+    Text(strTypeText);
   }
   if (Directory)
   {
@@ -456,7 +456,7 @@ void QuickView::PrintTextW(const wchar_t *Str)
   if (WhereY()>Y2-3 || WhereX()>X2-2)
     return;
 
-  mprintfW(L"%.*s",X2-2-WhereX()+1,Str);
+  mprintf(L"%.*s",X2-2-WhereX()+1,Str);
 }
 
 

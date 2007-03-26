@@ -1599,9 +1599,9 @@ void Dialog::ShowDialog(int ID)
           SetColor(Attr&0xFF);
           GotoXY(X,Y1+CY1);
           if (CurItem->Flags & DIF_SHOWAMPERSAND)
-            TextW(strStr);
+            Text(strStr);
           else
-            HiTextW(strStr,HIBYTE(LOWORD(Attr)));
+            HiText(strStr,HIBYTE(LOWORD(Attr)));
         }
         break;
       }
@@ -1647,7 +1647,7 @@ void Dialog::ShowDialog(int ID)
           GotoXY(X1+X,Y1+Y);
           if(X1+X+CntChr-1 > X2)
             CntChr=X2-(X1+X)+1;
-          mprintfW(L"%*s",CntChr,L"");
+          mprintf(L"%*s",CntChr,L"");
           if (CntChr < LenText)
           {
           	lpwszStr = strStr.GetBuffer();
@@ -1673,12 +1673,12 @@ void Dialog::ShowDialog(int ID)
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
         {
           //MessageBoxW (0, strStr, strStr, MB_OK);
-          TextW(strStr);
+          Text(strStr);
         }
         else
         {
           //MessageBoxW (0, strStr, strStr, MB_OK);
-          HiTextW(strStr,HIBYTE(LOWORD(Attr)));
+          HiText(strStr,HIBYTE(LOWORD(Attr)));
         }
         break;
       }
@@ -1720,7 +1720,7 @@ void Dialog::ShowDialog(int ID)
           GotoXY(X1+X,Y1+Y);
           if(Y1+Y+CntChr-1 > Y2)
             CntChr=Y2-(Y1+Y)+1;
-          vmprintfW(L"%*s",CntChr,L"");
+          vmprintf(L"%*s",CntChr,L"");
         }
 
 #if defined(VTEXT_ADN_SEPARATORS)
@@ -1739,9 +1739,9 @@ void Dialog::ShowDialog(int ID)
         SetColor(Attr&0xFF);
         GotoXY(X1+X,Y1+Y);
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
-          VTextW(strStr);
+          VText(strStr);
         else
-          HiVTextW(strStr,HIBYTE(LOWORD(Attr)));
+          HiVText(strStr,HIBYTE(LOWORD(Attr)));
         break;
       }
 
@@ -1781,9 +1781,9 @@ void Dialog::ShowDialog(int ID)
         strStr.ReleaseBuffer();
 
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
-          TextW(strStr);
+          Text(strStr);
         else
-          HiTextW(strStr,HIBYTE(LOWORD(Attr)));
+          HiText(strStr,HIBYTE(LOWORD(Attr)));
 
         if (CurItem->Focus)
         {
@@ -1808,9 +1808,9 @@ void Dialog::ShowDialog(int ID)
         GotoXY(X1+CX1,Y1+CY1);
 
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
-          TextW(strStr);
+          Text(strStr);
         else
-          HiTextW(strStr,HIBYTE(LOWORD(Attr)));
+          HiText(strStr,HIBYTE(LOWORD(Attr)));
         break;
       }
 
@@ -1860,7 +1860,7 @@ void Dialog::ShowDialog(int ID)
 
           EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
           //Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-          TextW(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),L"\x2193");
+          Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),L"\x2193");
         }
         break;
         /* SVS $ */
@@ -4183,7 +4183,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
         GetRegKeyW(strRegKey,strLine,Locked,0);
         HistoryItem.SetCheck(Locked);
         HistoryItem.strName = strStr;
-        HistoryMenu.SetUserData((void*)(const wchar_t*)strStr,0,HistoryMenu.AddItemW(&HistoryItem));
+        HistoryMenu.SetUserData((void*)(const wchar_t*)strStr,0,HistoryMenu.AddItem(&HistoryItem));
         ItemsCount++;
       }
       if (ItemsCount==0)
@@ -5034,10 +5034,10 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
            1) когда диалог перемещается в угол
            2) когда диалог перемещается из угла
            сделал вывод красных палочек по углам */
-        TextW(Dlg->X1,Dlg->Y1,0xCE,L"\\");
-        TextW(Dlg->X1,Dlg->Y2,0xCE,L"/");
-        TextW(Dlg->X2,Dlg->Y1,0xCE,L"/");
-        TextW(Dlg->X2,Dlg->Y2,0xCE,L"\\");
+        Text(Dlg->X1,Dlg->Y1,0xCE,L"\\");
+        Text(Dlg->X1,Dlg->Y2,0xCE,L"/");
+        Text(Dlg->X2,Dlg->Y1,0xCE,L"/");
+        Text(Dlg->X2,Dlg->Y2,0xCE,L"\\");
       }
       return TRUE;
     }

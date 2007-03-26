@@ -60,7 +60,7 @@ void HMenu::ShowMenu()
       SetColor(COL_HMENUTEXT);
 
     strTmpStr = L"  "+(string)Item[I].Name+L"  ";
-    HiTextW(strTmpStr,Item[I].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
+    HiText(strTmpStr,Item[I].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
   }
   ItemX[ItemCount]=WhereX();
 }

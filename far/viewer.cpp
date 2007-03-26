@@ -510,7 +510,7 @@ void Viewer::ShowPage (int nMode)
       SetScreen(X1,Y1,X2,Y2,L' ',COL_VIEWERTEXT);
       GotoXY(X1,Y1+ShowStatusLine);
       SetColor(COL_WARNDIALOGTEXT);
-      mprintfW(L"%.*s", XX2-X1+1, UMSG(MViewerCannotOpenFile));
+      mprintf(L"%.*s", XX2-X1+1, UMSG(MViewerCannotOpenFile));
       ShowStatus();
     }
 
@@ -605,12 +605,12 @@ void Viewer::ShowPage (int nMode)
       if ( StrLength > LeftPos )
       {
         if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !Strings[I]->nFilePos)
-           mprintfW(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
+           mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
         else
-           mprintfW(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
+           mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
       }
       else
-        mprintfW(L"%*s",Width,L"");
+        mprintf(L"%*s",Width,L"");
 
       if ( Strings[I]->bSelection )
       {
@@ -645,7 +645,7 @@ void Viewer::ShowPage (int nMode)
           if ( LeftPos > Strings[I]->nSelEnd )
             Length = 0;
 
-          mprintfW(L"%.*s",(int)Length,&Strings[I]->lpData[(int)(SelX1+LeftPos+SelectPosOffSet)]);
+          mprintf(L"%.*s",(int)Length,&Strings[I]->lpData[(int)(SelX1+LeftPos+SelectPosOffSet)]);
         }
       }
 
@@ -697,7 +697,7 @@ void Viewer::ShowHex()
     GotoXY(X1,Y);
     if (EndFile)
     {
-      mprintfW(L"%*s",ObjWidth,L"");
+      mprintf(L"%*s",ObjWidth,L"");
       continue;
     }
 
@@ -871,16 +871,16 @@ void Viewer::ShowHex()
 
     wcscat(OutStr,TextStr);
     if ((int)wcslen(OutStr)>HexLeftPos)
-      mprintfW(L"%-*.*s",ObjWidth,ObjWidth,OutStr+(int)HexLeftPos);
+      mprintf(L"%-*.*s",ObjWidth,ObjWidth,OutStr+(int)HexLeftPos);
     else
-      mprintfW(L"%*s",ObjWidth,L"");
+      mprintf(L"%*s",ObjWidth,L"");
 
     if ( bSelStartFound && bSelEndFound )
     {
       SetColor(COL_VIEWERSELECTEDTEXT);
       GotoXY((int)((__int64)X1+SelStart-HexLeftPos),Y);
 
-      mprintfW(L"%.*s",SelEnd-SelStart+1,OutStr+(int)SelStart);
+      mprintf(L"%.*s",SelEnd-SelStart+1,OutStr+(int)SelStart);
 
       SelSize = 0;
     }
@@ -983,7 +983,7 @@ void Viewer::ShowStatus()
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
 
-  mprintfW(L"%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
+  mprintf(L"%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
                    Width+(ViOpt.ShowScrollbar?1:0), (const wchar_t*)strStatus);
 
   if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())

@@ -42,7 +42,7 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
     	item.Clear ();
 	    item.strName = cpi.CodePageName;
 
-    	tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItemW (&item));
+    	tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItem(&item));
 	}
 
     return TRUE;
@@ -140,13 +140,13 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   ListItem.SetSelect(!TableNum);
   ListItem.strName = UMSG(MGetTableNormalText);
-  TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItemW(&ListItem));
+  TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItem(&ListItem));
 
   if (UseUnicode)
   {
     ListItem.SetSelect(TableNum==1);
     ListItem.strName = L"Unicode";
-    TableList.SetUserData((void*)1,sizeof(DWORD),TableList.AddItemW(&ListItem));
+    TableList.SetUserData((void*)1,sizeof(DWORD),TableList.AddItem(&ListItem));
   }
 
   for (I=0;;I++)
@@ -160,7 +160,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     GetRegKeyW(t,L"TableName",t2,strItemName);
     ListItem.strName = t2;
     ListItem.SetSelect(I+1+UseUnicode == TableNum);
-    TableList.SetUserData((void*)(INT_PTR)(I+1+UseUnicode),sizeof(I),TableList.AddItemW(&ListItem));
+    TableList.SetUserData((void*)(INT_PTR)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
   }
 
   //TableList.SetSelectPos(1+UseUnicode == TableNum,1);

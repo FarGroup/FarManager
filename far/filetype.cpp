@@ -219,7 +219,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
       strMenuText += strCommandText;
       TypesMenuItem.strName = strMenuText;
       TypesMenuItem.SetSelect(I==0);
-      TypesMenu.AddItemW(&TypesMenuItem);
+      TypesMenu.AddItem(&TypesMenuItem);
     }
 
     if(!ActualCmdCount)
@@ -538,12 +538,12 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
     strMenuText = strMask;
     TypesMenuItem.strName = strMenuText;
     TypesMenuItem.SetSelect(NumLine==MenuPos);
-    TypesMenu->AddItemW(&TypesMenuItem);
+    TypesMenu->AddItem(&TypesMenuItem);
     NumLine++;
   }
   TypesMenuItem.strName=L"";
   TypesMenuItem.SetSelect(NumLine==MenuPos);
-  TypesMenu->AddItemW(&TypesMenuItem);
+  TypesMenu->AddItem(&TypesMenuItem);
   return NumLine;
 }
 

@@ -278,7 +278,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
       CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
 
       _ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
-      HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,BytesRead);
+      HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,BytesRead,0);
       _ALGO(SysLog(L"}"));
 
       delete[] Buffer;
@@ -631,7 +631,7 @@ void FileList::PluginPutFilesToNew()
   _ALGO(CleverSysLog clv(L"FileList::PluginPutFilesToNew()"));
   //_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(NULL)")));
   _ALGO(SysLog(L"call Plugins.OpenFilePlugin(NULL,NULL,0)"));
-  HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(NULL,NULL,0);
+  HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(NULL,NULL,0,0);
   if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
   {
     _ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));

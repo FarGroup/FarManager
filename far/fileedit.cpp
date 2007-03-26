@@ -2191,7 +2191,7 @@ void FileEditor::ShowStatus()
   if (StatusWidth<0)
     StatusWidth=0;
 
-  mprintfW (L"%-*.*s", StatusWidth, StatusWidth, (const wchar_t*)strStatus);
+  mprintf(L"%-*.*s", StatusWidth, StatusWidth, (const wchar_t*)strStatus);
 
   {
     const wchar_t *Str;
@@ -2205,7 +2205,7 @@ void FileEditor::ShowStatus()
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */
       static wchar_t *FmtCharCode[3]={L"%05o",L"%5d",L"%04Xh"};
-      mprintfW(FmtCharCode[m_editor->EdOpt.CharCodeBase%3],(wchar_t)Str[CurPos]);
+      mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%3],(wchar_t)Str[CurPos]);
       /* SVS $ */
     }
   }

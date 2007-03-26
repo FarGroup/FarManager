@@ -412,7 +412,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
          if(LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
          {
            LangMenuItem.SetSelect(LocalStricmpW(*strDest,strLangName)==0);
-           LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItemW(&LangMenuItem));
+           LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItem(&LangMenuItem));
          }
          /* SVS $ */
        }

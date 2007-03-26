@@ -104,7 +104,7 @@ static void ShowSaver(int Step)
     {
       SetColor(F_LIGHTCYAN|B_BLACK);
       GotoXY(Star[I].X/100,Star[I].Y/100);
-      TextW(L" ");
+      Text(L" ");
       int dx=Star[I].X/100-ScrX/2;
       Star[I].X+=dx*10+((dx<0) ? -1:1);
       int dy=Star[I].Y/100-ScrY/2;
@@ -120,12 +120,12 @@ static void ShowSaver(int Step)
           if (Star[I].Type==STAR_PLANET)
           {
             SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
-            TextW(StarSymbol[0]);
+            Text(StarSymbol[0]);
           }
           else
           {
             SetColor(F_WHITE|B_BLACK);
-            TextW(StarSymbol[1]);
+            Text(StarSymbol[1]);
           }
         }
         else
@@ -134,7 +134,7 @@ static void ShowSaver(int Step)
             if (Star[I].Type==STAR_PLANET)
             {
               SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
-              TextW(StarSymbol[1]);
+              Text(StarSymbol[1]);
             }
             else
             {
@@ -142,7 +142,7 @@ static void ShowSaver(int Step)
                 SetColor(F_LIGHTCYAN|B_BLACK);
               else
                 SetColor(F_CYAN|B_BLACK);
-              TextW(StarSymbol[2]);
+              Text(StarSymbol[2]);
             }
           }
           else
@@ -150,12 +150,12 @@ static void ShowSaver(int Step)
             if (Star[I].Type==STAR_PLANET)
             {
               SetColor(Star[I].Color|B_BLACK);
-              TextW(StarSymbol[3]);
+              Text(StarSymbol[3]);
             }
             else
             {
               SetColor(F_CYAN|B_BLACK);
-              TextW(StarSymbol[4]);
+              Text(StarSymbol[4]);
             }
           }
       }

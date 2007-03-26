@@ -84,9 +84,9 @@ void ControlObject::Init()
   strTruncRegName.ReleaseBuffer();
 
   if (RegVer)
-    mprintfW(L"%s: %s",UMSG(MRegistered),(const wchar_t*)strTruncRegName);
+    mprintf(L"%s: %s",UMSG(MRegistered),(const wchar_t*)strTruncRegName);
   else
-    TextW(MShareware);
+    Text(MShareware);
 
   MoveCursor(0,ScrY-1);
   CmdLine->SaveBackground(0,0,ScrX,ScrY);
@@ -243,12 +243,12 @@ void ControlObject::ShowCopyright(DWORD Flags)
     if(Line2)
     {
       GotoXY(0,ScrY-4);
-      TextW(strStr);
+      Text(strStr);
       GotoXY(0,ScrY-3);
-      TextW(strLine);
+      Text(strLine);
     }
     else
-      TextW(strStr);
+      Text(strStr);
 #endif
   }
 }

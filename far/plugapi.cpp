@@ -730,7 +730,7 @@ int WINAPI FarMenuFn (
         CurItem.strName=ItemEx->Text;
 
         CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
-        FarMenu.AddItemW(&CurItem);
+        FarMenu.AddItem(&CurItem);
       }
     }
     else
@@ -752,7 +752,7 @@ int WINAPI FarMenuFn (
           CurItem.Flags|=SelCurItem;
           Selected++;
         }
-        FarMenu.AddItemW(&CurItem);
+        FarMenu.AddItem(&CurItem);
       }
     }
 
@@ -2100,7 +2100,7 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
     ScrBuf.SetLockCount(PrevLockCount);
   }
   else
-    TextW(X,Y,Color,Str);
+    Text(X,Y,Color,Str);
 }
 
 

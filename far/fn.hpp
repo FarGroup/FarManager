@@ -45,12 +45,13 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(int& X,int& Y);
 void SetRealCursorType(int Visible,int Size);
 void GetRealCursorType(int &Visible,int &Size);
-void TextW(int X, int Y, int Color, const WCHAR *Str);
-void TextW(const WCHAR *Str);
-void TextW(int MsgId);
-void VTextW(const WCHAR *Str);
-void HiTextW(const WCHAR *Str,int HiColor,int isVertText=0);
-#define HiVTextW(Str,HiColor) HiTextW(Str,HiColor,1)
+
+void Text(int X, int Y, int Color, const WCHAR *Str);
+void Text(const WCHAR *Str);
+void Text(int MsgId);
+void VText(const WCHAR *Str);
+void HiText(const WCHAR *Str,int HiColor,int isVertText=0);
+#define HiVText(Str,HiColor) HiText(Str,HiColor,1)
 
 void DrawLine(int Length,int Type, const wchar_t* UserSep=NULL);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
@@ -71,8 +72,8 @@ void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
 void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 
-void mprintfW(WCHAR *fmt,...);
-void vmprintfW(WCHAR *fmt,...);
+void mprintf(WCHAR *fmt,...);
+void vmprintf(WCHAR *fmt,...);
 
 inline WORD GetVidChar(CHAR_INFO CI)
 {

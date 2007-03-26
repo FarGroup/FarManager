@@ -214,7 +214,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 
       RemoveExternalSpacesW(ListItem.strName);
       if(!ListItem.strName.IsEmpty ())
-        HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItemW(&ListItem));
+        HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
 
     }
   }

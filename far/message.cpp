@@ -337,7 +337,7 @@ int MessageW (
     }
 
     GotoXY(X1+(X2-X1-1-(int)strTempTitle.GetLength())/2,Y1+1);
-    mprintfW(L" %s ",(const wchar_t*)strTempTitle);
+    mprintf(L" %s ",(const wchar_t*)strTempTitle);
   }
 
   for (I=0;I<StrCount;I++)
@@ -358,7 +358,7 @@ int MessageW (
         if (TextLength<Length)
         {
           GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
-          TextW(CPtrStr);
+          Text(CPtrStr);
         }
         SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGTEXT);
       }
@@ -385,7 +385,7 @@ int MessageW (
       swprintf(lpwszTemp,L"%*s%.*s%*s",PosX-X1-4,L"",Length,CPtrStr,X2-PosX-Length-3,L"");
       GotoXY(X1+4,Y1+I+2);
     }
-    TextW(lpwszTemp);
+    Text(lpwszTemp);
 
     xf_free (lpwszTemp);
   }

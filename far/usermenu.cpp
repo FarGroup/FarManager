@@ -520,7 +520,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
       UserMenuItem.Flags&=~LIF_SEPARATOR;
     }
     /* VVM $ */
-    int ItemPos=UserMenu.AddItemW(&UserMenuItem);
+    int ItemPos=UserMenu.AddItem(&UserMenuItem);
     if (FuncNum>0)
       FuncPos[FuncNum-1]=ItemPos;
     NumLine++;
@@ -529,7 +529,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
   UserMenuItem.strName=L"";
   UserMenuItem.Flags&=~LIF_SEPARATOR;
   UserMenuItem.SetSelect(NumLine==MenuPos);
-  UserMenu.AddItemW(&UserMenuItem);
+  UserMenu.AddItem(&UserMenuItem);
   return NumLine;
 }
 

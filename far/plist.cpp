@@ -178,7 +178,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 
       ListItem.Clear ();
       ListItem.strName = strTitle;
-      ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItemW(&ListItem));
+      ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
     }
   }
   return(TRUE);

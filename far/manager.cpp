@@ -326,7 +326,7 @@ Frame *Manager::FrameMenu()
       ModalMenuItem.strName.Format (L"%s%-10.10s %c %s", (const wchar_t*)strNumText, (const wchar_t*)strType,(FrameList[I]->IsFileModified()?L'*':L' '), (const wchar_t*)strName);
       /* tran 28.07.2000 $ */
       ModalMenuItem.SetSelect(I==FramePos);
-      ModalMenu.AddItemW(&ModalMenuItem);
+      ModalMenu.AddItem(&ModalMenuItem);
     }
     /* $ 28.04.2002 KM */
     AlreadyShown=TRUE;
@@ -716,7 +716,7 @@ int  Manager::ProcessKey(DWORD Key)
       for (int I=0;I<sizeof(ECode)/sizeof(ECode[0]);I++)
       {
         ModalMenuItem.strName = ECode[I].Name;
-        ModalMenu.AddItemW(&ModalMenuItem);
+        ModalMenu.AddItem(&ModalMenuItem);
       }
 
       ModalMenu.Process();

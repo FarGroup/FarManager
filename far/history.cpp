@@ -569,7 +569,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
 
           HistoryItem.SetSelect(CurCmd==CurLastPtr);
           HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),
-                                 HistoryMenu.AddItemW(&HistoryItem));
+                                 HistoryMenu.AddItem(&HistoryItem));
         }
       }
 
@@ -579,7 +579,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
       if(!SetUpMenuPos)
         HistoryItem.SetSelect(CurLastPtr==LastPtr);
       HistoryMenu.SetUserData((void*)-1,sizeof(DWORD),
-           HistoryMenu.AddItemW(&HistoryItem));
+           HistoryMenu.AddItem(&HistoryItem));
       if(SetUpMenuPos)
       {
         HistoryMenu.SetSelectPos(StrPos,0);

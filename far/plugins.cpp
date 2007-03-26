@@ -354,7 +354,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 
 
 
-HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize)
+HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -369,7 +369,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 		if ( Opt.ShowCheckingFile )
 			ct.Set(L"%s - [%s]...",UMSG(MCheckingFileInPlugin),wcsrchr(pPlugin->m_strModuleName,L'\\')+1);
 
-		HANDLE hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize);
+		HANDLE hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
 
 		if ( (hPlugin == (HANDLE)-2) || (hPlugin == INVALID_HANDLE_VALUE) )
 			return hPlugin;
@@ -884,7 +884,7 @@ void PluginManager::Configure(int StartPos)
                 item.pPlugin = pPlugin;
                 item.nItem = J;
 
-                PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItemW(&ListItem));
+                PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
               }
           }
           else
@@ -915,7 +915,7 @@ void PluginManager::Configure(int StartPos)
 
               item.pPlugin = pPlugin;
               item.nItem = J;
-              PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItemW(&ListItem));
+              PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
             }
           }
         }
@@ -1080,7 +1080,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
                   item.pPlugin = pPlugin;
                   item.nItem = J;
 
-                  PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItemW(&ListItem));
+                  PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
               }
             }
           }
@@ -1116,7 +1116,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
                 item.pPlugin = pPlugin;
                 item.nItem = J;
 
-                PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItemW(&ListItem));
+                PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
             }
           }
         }

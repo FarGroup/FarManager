@@ -1117,7 +1117,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
                 WaitForSingleObject(hPluginMutex,INFINITE);
 
-                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,(unsigned char *)Buffer,ReadSize);
+                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,(unsigned char *)Buffer,ReadSize, 0);
 
                 ReleaseMutex(hPluginMutex);
 
@@ -2050,7 +2050,7 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
 
   string strArcName = ArcName;
 
-  HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName,(unsigned char *)Buffer,ReadSize);
+  HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName,(unsigned char *)Buffer,ReadSize,OPM_FIND);
   /* $ 01.10.2001 VVM */
   DisablePluginsOutput=SavePluginsOutput;
   /* VVM $ */
@@ -2303,7 +2303,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
       */
       ListItem.Flags|=LIF_DISABLE;
       // С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
-      ListBox->SetUserData((void*)(DWORD_PTR)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItemW(&ListItem));
+      ListBox->SetUserData((void*)(DWORD_PTR)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
       ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
@@ -2350,7 +2350,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
         FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
 
       ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex),
-                           ListBox->AddItemW(&ListItem));
+                           ListBox->AddItem(&ListItem));
     }
 
     ffCS.Leave ();
@@ -2385,7 +2385,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
     ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
 //  ListItem.SetSelect(!FindFileCount);
 
-  int ListPos = ListBox->AddItemW(&ListItem);
+  int ListPos = ListBox->AddItem(&ListItem);
   ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex), ListPos);
   // Выделим как положено - в списке.
   if (!FindFileCount && !FindDirCount)

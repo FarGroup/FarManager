@@ -3598,7 +3598,7 @@ BOOL Editor::Search(int Next)
             /*
             if (UseDecodeTable)
               DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
-            TextW(TmpStr);
+            Text(TmpStr);
             delete[] TmpStr;
 
             string strQSearchStr, strQReplaceStr;

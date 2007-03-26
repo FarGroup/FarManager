@@ -281,7 +281,7 @@ class VMenu: public Modal
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
 
-    int  AddItemW(const MenuItemEx *NewItem,int PosAdd=0x7FFFFFFF);
+    int  AddItem(const MenuItemEx *NewItem,int PosAdd=0x7FFFFFFF);
     int  AddItem(const FarList *NewItem);
     int  AddItem(const wchar_t *NewStrItem);
 

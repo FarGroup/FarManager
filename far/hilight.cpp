@@ -375,11 +375,11 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
     for (int i=Count[j][0]; i<Count[j][1]; i++)
     {
       MenuString(HiMenuItem.strName,HiData.getItem(i),true);
-      HiMenu->AddItemW(&HiMenuItem);
+      HiMenu->AddItem(&HiMenuItem);
     }
 
     HiMenuItem.strName="";
-    HiMenu->AddItemW(&HiMenuItem);
+    HiMenu->AddItem(&HiMenuItem);
     if (j<3)
     {
       if (j==0)
@@ -390,7 +390,7 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
         HiMenuItem.strName = UMSG(MHighlightLastGroup);
 
       HiMenuItem.Flags|=LIF_SEPARATOR;
-      HiMenu->AddItemW(&HiMenuItem);
+      HiMenu->AddItem(&HiMenuItem);
       HiMenuItem.Flags=0;
     }
   }
