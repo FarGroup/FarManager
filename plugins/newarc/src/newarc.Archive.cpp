@@ -342,6 +342,7 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 
 	//if ( m_OS.nOperation == OPERATION_ADD )
 	//__debug ("%d %I64d %I64d", uDataSize, m_OS.uProcessedSize, m_OS.uFileSize);
+	static char szOldTitle[MAX_PATH] = {0};
 
 	//if ( m_pCurrentItem )
    	{
@@ -385,13 +386,15 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
    			Info.Text (0, 0, 0, 0);
    		}
 
-   		char *lpTitle = StrCreate (260);
+   		char szTitle[MAX_PATH];
 
-   		FSF.sprintf (lpTitle, "{%d%%} Распаковка - Far", (int)(div*100));
+   		FSF.sprintf (szTitle, "{%d%%} Распаковка - Far", (int)(div*100));
 
-   		SetConsoleTitle (lpTitle);
-
-   		StrFree (lpTitle);
+   		if ( strcmp (szTitle, szOldTitle) != 0 )
+   		{
+	   		SetConsoleTitle (szTitle);
+	   		strcpy (szOldTitle, szTitle);
+		}
    	}
 
    	if ( CheckForEsc () )
