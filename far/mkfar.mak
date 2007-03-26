@@ -327,8 +327,12 @@ BccW32.cfg : mkfar.mak cc.bat
 -RT
 -Og
 -Ot
+!ifndef USE_BCB6
 -Z
 -a8
+!else
+-a1
+!endif
 -O
 -Oe
 -Ol
