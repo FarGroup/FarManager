@@ -45,6 +45,9 @@ Archive::Archive (
 	m_nMode = 0;
 	m_pInfo = NULL;
 
+	memset (&m_ArchiveLastAccessTime, 0, sizeof (FILETIME));
+	m_dwArchiveFileSizeLow = 0;
+
 	GetArchiveFormatStruct GAF;
 
 	GAF.hArchive = m_hArchive;
@@ -77,7 +80,8 @@ Archive::~Archive ()
 //	StrFree (m_lpListPassword);
 	StrFree (m_lpLastUsedPassword);
 	StrFree (m_lpFileName);
-	free (m_pCallbackThunk);
+
+	ReleaseThunk (m_pCallbackThunk);
 
 	//for (int i = 0; i < 11; i++)
 	//	StrFree (m_pCommands[i]);
