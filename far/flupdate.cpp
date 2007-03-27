@@ -77,7 +77,7 @@ void FileList::UpdateIfRequired()
 
 void ReadFileNamesMsg(const wchar_t *Msg)
 {
-  MessageW(0,0,UMSG(MReadingTitleFiles),Msg);
+  Message(0,0,UMSG(MReadingTitleFiles),Msg);
   PreRedrawParam.Param1=(void*)Msg;
 }
 
@@ -121,7 +121,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     return;
 
   string strSaveDir;
-  FarGetCurDirW(strSaveDir);
+  FarGetCurDir(strSaveDir);
   {
     string strOldCurDir = strCurDir;
     if (!SetCurPath())
@@ -131,7 +131,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       {
         GetPathRootOneW(strOldCurDir,strOldCurDir);
         if(!IsDiskInDriveW(strOldCurDir))
-          IfGoHomeW(strOldCurDir.At(0));
+          IfGoHome(strOldCurDir.At(0));
         /* ѕри смене каталога путь не изменилс€ */
         return;
       }
@@ -144,7 +144,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     Filter=new FileFilter(this,FFT_PANEL);
 
   if (GetFocus())
-    CtrlObject->CmdLine->SetCurDirW(strCurDir);
+    CtrlObject->CmdLine->SetCurDir(strCurDir);
 
   {
     string strFileSysName;
@@ -228,7 +228,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   struct FileListItem *NewPtr;
 
   // вне цикла получим указатель.
-  const wchar_t *PointToName_CurDir=PointToNameW(strCurDir);
+  const wchar_t *PointToName_CurDir=PointToName(strCurDir);
 
   // сформируем заголовок вне цикла
   wchar_t Title[2048];
@@ -349,7 +349,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
             ReadFileNamesMsg(strReadMsg);
           else
           {
-            TruncStrW(strReadMsg,TitleLength-2);
+            TruncStr(strReadMsg,TitleLength-2);
             int MsgLength=(int)strReadMsg.GetLength();
             GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
             mprintf(L" %s ", (const wchar_t*)strReadMsg);
@@ -357,7 +357,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         }
         if (CheckForEsc())
         {
-          MessageW(MSG_WARNING,1,UMSG(MUserBreakTitle),UMSG(MOperationNotCompleted),UMSG(MOk));
+          Message(MSG_WARNING,1,UMSG(MUserBreakTitle),UMSG(MOperationNotCompleted),UMSG(MOk));
           break;
         }
       }
@@ -370,7 +370,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int ErrCode=GetLastError();
   if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND ||
         (ErrCode==ERROR_BAD_PATHNAME && WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && Opt.IgnoreErrorBadPathName)))
-    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MReadFolderError),UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MReadFolderError),UMSG(MOk));
 
   FindClose(FindHandle);
 
@@ -389,7 +389,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       NetRoot=TRUE;
   }
   // пока кусок закомментим, возможно он даже и не пригодитс€.
-  const wchar_t *lpwszName = PointToNameW(strCurDir);
+  const wchar_t *lpwszName = PointToName(strCurDir);
 
   if (!DotsPresent && *lpwszName )// && !NetRoot)
   {
@@ -414,7 +414,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     int PanelCount=0;
 
     strPath = strCurDir;
-    AddEndSlashW(strPath);
+    AddEndSlash(strPath);
     if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
     {
       FileListItem **pTemp;
@@ -431,7 +431,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
           CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(&fdata);
-          if (!TestParentFolderNameW(fdata.lpwszFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
+          if (!TestParentFolderName(fdata.lpwszFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
             TotalFileCount++;
         }
         // цветовую боевую раскраску в самом конце, за один раз
@@ -464,8 +464,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   SortFileList(FALSE);
 
   if (CurFile>=FileCount || LocalStricmpW(ListData[CurFile]->strName,strCurName)!=0)
-    if (!GoToFileW(strCurName) && !strNextCurName.IsEmpty())
-      GoToFileW(strNextCurName);
+    if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
+      GoToFile(strNextCurName);
 
   /* $ 13.02.2002 DJ
      SetTitle() - только если мы текущий фрейм!
@@ -638,7 +638,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
     // WARP> €вный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтени€ архива.
     if ( PrevDataStackSize )
-      GoToFileW (PrevDataStack[PrevDataStackSize-1]->strPrevName);
+      GoToFile(PrevDataStack[PrevDataStackSize-1]->strPrevName);
 
     return;
   }
@@ -730,7 +730,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       CurListData->DeleteDiz=FALSE;
       //CurListData->DizText=NULL;
     }
-    if (TestParentFolderNameW(CurListData->strName))
+    if (TestParentFolderName(CurListData->strName))
     {
       DotsPresent=TRUE;
       CurListData->FileAttr|=FA_DIREC;
@@ -797,8 +797,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   SortFileList(FALSE);
 
   if (CurFile>=FileCount || LocalStricmpW(ListData[CurFile]->strName,strCurName)!=0)
-      if (!GoToFileW(strCurName) && !strNextCurName.IsEmpty() )
-        GoToFileW(strNextCurName);
+      if (!GoToFile(strCurName) && !strNextCurName.IsEmpty() )
+        GoToFile(strNextCurName);
   SetTitle();
 }
 
@@ -854,7 +854,7 @@ void FileList::ReadDiz(struct PluginPanelItemW *ItemList,int ItemLength,DWORD dw
 
                 Diz.Read(L"",strDizName);
 
-                DeleteFileWithFolderW(strDizName);
+                DeleteFileWithFolder(strDizName);
                 I=Info.DescrFilesNumber;
                 break;
               }

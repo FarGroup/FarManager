@@ -163,7 +163,7 @@ int PluginManager::UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemov
 {
 	int nResult = FALSE;
 
-	if ( pPlugin && (dwException != FUNCTION_EXITFAR) ) //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
+	if ( pPlugin && (dwException != EXCEPT_EXITFAR) ) //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
 		//какие-то непонятные действия...
 
@@ -191,7 +191,7 @@ int PluginManager::UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemov
 
 		if ( bPanelPlugin /*&& bUpdatePanels*/ )
 		{
-			CtrlObject->Cp()->ActivePanel->SetCurDirW(L".",TRUE);
+			CtrlObject->Cp()->ActivePanel->SetCurDir(L".",TRUE);
 
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			ActivePanel->Update(UPDATE_KEEP_SELECTION);
@@ -270,7 +270,7 @@ void PluginManager::LoadPlugins()
     {
       // расширяем значение пути
       apiExpandEnvironmentStrings (NamePtr,strFullName);
-      UnquoteW(strFullName); //??? здесь ХЗ
+      Unquote(strFullName); //??? здесь ХЗ
       if(!PathMayBeAbsoluteW(strFullName))
       {
         strPluginsDir = g_strFarPath;
@@ -332,9 +332,9 @@ void PluginManager::LoadPluginsFromCache()
 
 	int i = 0;
 
-	while ( EnumRegKeyW(RKN_PluginsCacheW, i, strRegKey) )
+	while ( EnumRegKey(RKN_PluginsCacheW, i, strRegKey) )
 	{
-		GetRegKeyW(strRegKey, L"Name", strModuleName, L"");
+		GetRegKey(strRegKey, L"Name", strModuleName, L"");
 
 		LoadPlugin (strModuleName);
 
@@ -349,7 +349,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 {
 	Plugin *Plugin1=*((Plugin**)el1);
 	Plugin *Plugin2=*((Plugin**)el2);
-	return (LocalStricmpW(PointToNameW(Plugin1->m_strModuleName),PointToNameW(Plugin2->m_strModuleName)));
+	return (LocalStricmpW(PointToName(Plugin1->m_strModuleName),PointToName(Plugin2->m_strModuleName)));
 }
 
 
@@ -571,7 +571,7 @@ int PluginManager::GetFile (
 
 	strFindPath = DestPath;
 
-	AddEndSlashW(strFindPath);
+	AddEndSlash(strFindPath);
 	strFindPath += L"*.*";
 
 	FAR_FIND_DATA_EX fdata;
@@ -590,7 +590,7 @@ int PluginManager::GetFile (
       if (!Done)
       {
         strResultName = DestPath;
-        AddEndSlashW(strResultName);
+        AddEndSlash(strResultName);
         strResultName += fdata.strFileName;
         if (GetCode!=1)
         {
@@ -833,7 +833,7 @@ void PluginManager::Configure(int StartPos)
       int MenuItemNumber=0;
 
       string strFirstHotKey;
-      int HotKeysPresent=EnumRegKeyW(L"PluginHotkeys",0,strFirstHotKey);
+      int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
 
       if(NeedUpdateItems)
       {
@@ -861,13 +861,13 @@ void PluginManager::Configure(int StartPos)
               {
                 strHotKey=L"";
                 if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                  GetRegKeyW(strHotRegKey,L"ConfHotkey",strHotKey,L"");
+                  GetRegKey(strHotRegKey,L"ConfHotkey",strHotKey,L"");
                 MenuItemEx ListItem;
                 ListItem.Clear ();
                 strRegKey.Format (FmtPluginsCache_PluginDW,RegNumber);
                 strValue.Format (FmtPluginConfigStringDW,J);
                 string strName;
-                if ( !GetRegKeyW(strRegKey,strValue,strName,L"") )
+                if ( !GetRegKey(strRegKey,strValue,strName,L"") )
                   break;
                 if (!HotKeysPresent)
                   ListItem.strName = strName;
@@ -896,7 +896,7 @@ void PluginManager::Configure(int StartPos)
             {
               strHotKey=L"";
               if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                GetRegKeyW(strHotRegKey,L"ConfHotkey",strHotKey,L"");
+                GetRegKey(strHotRegKey,L"ConfHotkey",strHotKey,L"");
               MenuItemEx ListItem;
 
               ListItem.Clear();
@@ -1025,7 +1025,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
     {
 
       string strFirstHotKey;
-      int HotKeysPresent=EnumRegKeyW(L"PluginHotkeys",0,strFirstHotKey);
+      int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
 
       if(NeedUpdateItems)
       {
@@ -1049,7 +1049,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
             else
             {
               strRegKey.Format (FmtPluginsCache_PluginDW,RegNumber);
-              int IFlags=GetRegKeyW(strRegKey,L"Flags",0);
+              int IFlags=GetRegKey(strRegKey,L"Flags",0);
               if (Editor && (IFlags & PF_EDITOR)==0 ||
                 Viewer && (IFlags & PF_VIEWER)==0 ||
                 !Editor && !Viewer && (IFlags & PF_DISABLEPANELS))
@@ -1058,12 +1058,12 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
               {
                 strHotKey=L"";
                 if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                  GetRegKeyW(strHotRegKey,L"Hotkey",strHotKey,L"");
+                  GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
                 MenuItemEx ListItem;
                 ListItem.Clear();
                 strValue.Format (FmtPluginMenuStringDW,J);
                 string strName;
-                if ( !GetRegKeyW(strRegKey,strValue,strName,L"") )
+                if ( !GetRegKey(strRegKey,strValue,strName,L"") )
                   break;
                 if (!HotKeysPresent)
                   ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);
@@ -1097,7 +1097,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
             {
               strHotKey=L"";
               if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                GetRegKeyW(strHotRegKey,L"Hotkey",strHotKey,L"");
+                GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
               MenuItemEx ListItem;
               ListItem.Clear();
               string strName = NullToEmptyW(Info.PluginMenuStrings[J]);
@@ -1324,9 +1324,9 @@ int PluginManager::GetDiskMenuItem(Plugin *pPlugin,int PluginItem,
     {
       strRegKey.Format (FmtPluginsCache_PluginDW,RegNumber);
       strValue.Format (FmtDiskMenuStringDW,PluginItem);
-      GetRegKeyW(strRegKey,strValue,strPluginText,L"");
+      GetRegKey(strRegKey,strValue,strPluginText,L"");
       strValue.Format (FmtDiskMenuNumberDW,PluginItem);
-      GetRegKeyW(strRegKey,strValue,PluginTextNumber,0);
+      GetRegKey(strRegKey,strValue,PluginTextNumber,0);
       ItemPresent=!strPluginText.IsEmpty();
     }
     return(TRUE);
@@ -1393,13 +1393,13 @@ void PluginManager::DiscardCache()
     Plugin *pPlugin = PluginsData[I];
     pPlugin->Load();
   }
-  DeleteKeyTreeW(RKN_PluginsCacheW);
+  DeleteKeyTree(RKN_PluginsCacheW);
 }
 
 
 void PluginManager::LoadIfCacheAbsent()
 {
-  if (!CheckRegKeyW(RKN_PluginsCacheW))
+  if (!CheckRegKey(RKN_PluginsCacheW))
     for (int I=0;I<PluginsCount;I++)
     {
       Plugin *pPlugin = PluginsData[I];
@@ -1414,7 +1414,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
   string strCommand=CommandParam;
 
-  UnquoteExternalW(strCommand);
+  UnquoteExternal(strCommand);
   RemoveLeadingSpacesW(strCommand);
 
   while (1)
@@ -1453,8 +1453,8 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
       {
         string strRegKey;
         strRegKey.Format (FmtPluginsCache_PluginDW, RegNumber);
-        GetRegKeyW(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
-        PluginFlags=GetRegKeyW(strRegKey,L"Flags",0);
+        GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
+        PluginFlags=GetRegKey(strRegKey,L"Flags",0);
       }
       else
         continue;
@@ -1502,7 +1502,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
   Panel *CurPanel=(Target)?Target:ActivePanel;
   if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
     return(FALSE);
-  CtrlObject->CmdLine->SetStringW(L"");
+  CtrlObject->CmdLine->SetString(L"");
 
   string strPluginCommand;
 

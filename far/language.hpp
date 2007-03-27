@@ -16,8 +16,8 @@ class VMenu;
 class Language
 {
   private:
-    wchar_t **MsgAddrW;
-    wchar_t *MsgListW;
+    wchar_t **MsgAddr;
+    wchar_t *MsgList;
 
     long MsgSize;
     long MsgSizeW;

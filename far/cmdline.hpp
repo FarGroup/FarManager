@@ -40,25 +40,25 @@ class CommandLine:public ScreenObject
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    int GetCurDirW(string &strCurDir);
-    void SetCurDirW(const wchar_t *CurDir);
+    int GetCurDir(string &strCurDir);
+    void SetCurDir(const wchar_t *CurDir);
 
-    void GetStringW (string &strStr);
+    void GetString (string &strStr);
 
-    void SetStringW(const wchar_t *Str,BOOL Redraw=TRUE);
+    void SetString(const wchar_t *Str,BOOL Redraw=TRUE);
     int GetLength() {return(CmdStr.GetLength());};
     void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
 
     void ShowViewEditHistory();
 
-    void InsertStringW(const wchar_t *Str);
+    void InsertString(const wchar_t *Str);
 
     void SetCurPos(int Pos);
     int GetCurPos();
 
     void SetPersistentBlocks(int Mode);
 
-    void GetSelStringW (string &strStr);
+    void GetSelString(string &strStr);
 
 
     void Select(int,int);

@@ -24,7 +24,7 @@ static int DefaultPrinterFound;
 
 static void PR_PrintMsg(void)
 {
-  MessageW(0,0,UMSG(MPrintTitle),UMSG(MPreparingForPrinting));
+  Message(0,0,UMSG(MPrintTitle),UMSG(MPreparingForPrinting));
 }
 
 void PrintFiles(Panel *SrcPanel)
@@ -47,10 +47,10 @@ void PrintFiles(Panel *SrcPanel)
 
   // проверка каталогов
   _ALGO(SysLog(L"Check for FA_DIREC"));
-  SrcPanel->GetSelNameW(NULL,FileAttr);
-  while (SrcPanel->GetSelNameW(&strSelName,FileAttr))
+  SrcPanel->GetSelName(NULL,FileAttr);
+  while (SrcPanel->GetSelName(&strSelName,FileAttr))
   {
-    if (TestParentFolderNameW(strSelName) || (FileAttr & FA_DIREC))
+    if (TestParentFolderName(strSelName) || (FileAttr & FA_DIREC))
       DirsCount++;
   }
 
@@ -79,9 +79,9 @@ void PrintFiles(Panel *SrcPanel)
 
     if (SelCount==1)
     {
-      SrcPanel->GetSelNameW(NULL,FileAttr);
-      SrcPanel->GetSelNameW(&strName,FileAttr);
-      TruncStrW(strName,50);
+      SrcPanel->GetSelName(NULL,FileAttr);
+      SrcPanel->GetSelName(&strName,FileAttr);
+      TruncStr(strName,50);
       strSelName.Format (L"\"%s\"", (const wchar_t*)strName);
       strTitle.Format (UMSG(MPrintTo), (const wchar_t*)strSelName);
     }
@@ -129,7 +129,7 @@ void PrintFiles(Panel *SrcPanel)
   HANDLE hPrinter;
   if (!OpenPrinterW((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
   {
-    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MPrintTitle),UMSG(MCannotOpenPrinter),
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MPrintTitle),UMSG(MCannotOpenPrinter),
             strPrinterName,UMSG(MOk));
     delete[] pi;
     _ALGO(SysLog(L"Error: Cannot Open Printer"));
@@ -148,10 +148,10 @@ void PrintFiles(Panel *SrcPanel)
     int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
         !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
-    SrcPanel->GetSelNameW(NULL,FileAttr);
-    while (SrcPanel->GetSelNameW(&strSelName,FileAttr))
+    SrcPanel->GetSelName(NULL,FileAttr);
+    while (SrcPanel->GetSelName(&strSelName,FileAttr))
     {
-      if (TestParentFolderNameW(strSelName) || (FileAttr & FA_DIREC))
+      if (TestParentFolderName(strSelName) || (FileAttr & FA_DIREC))
         continue;
       int Success=FALSE;
 
@@ -203,7 +203,7 @@ void PrintFiles(Panel *SrcPanel)
       }
       if ( !strTempName.IsEmpty() )
       {
-        DeleteFileWithFolderW(strTempName);
+        DeleteFileWithFolder(strTempName);
       }
 
       if (Success)
@@ -211,7 +211,7 @@ void PrintFiles(Panel *SrcPanel)
       else
       {
         SetPreRedrawFunc(NULL); //??
-        if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MPrintTitle),UMSG(MCannotPrint),
+        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MPrintTitle),UMSG(MCannotPrint),
                     strSelName,UMSG(MSkip),UMSG(MCancel))!=0)
           break;
       }

@@ -23,35 +23,35 @@ static string strMsgHelpTopic;
 
 
 
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             INT_PTR PluginNumber)
 {
-  return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
+  return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             INT_PTR PluginNumber)
 {
-  return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
+  return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
             INT_PTR PluginNumber)
 {
-  return(MessageW(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
+  return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
                  Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
@@ -70,11 +70,11 @@ int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
   while (StrCount<sizeof(Str)/sizeof(Str[0]) && Str[StrCount]!=NULL)
     StrCount++;
 
-  return MessageW(Flags,Buttons,Title,Str,StrCount,PluginNumber);
+  return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
 }
 
 
-int MessageW (
+int Message(
         DWORD Flags,
         int Buttons,
         const wchar_t *Title,
@@ -165,7 +165,7 @@ int MessageW (
 
     // а теперь проврапим
     //PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
-    FarFormatTextW(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
+    FarFormatText(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
 
     PtrStr = strErrStr.GetBuffer ();
 
@@ -513,7 +513,7 @@ int GetErrorStringW (string &strErrStr)
                     NULL
                     );
 
-            RemoveUnprintableCharactersW(strErrStr);
+            RemoveUnprintableCharacters(strErrStr);
 
             strErrStr.ReleaseBuffer ();
 
@@ -543,7 +543,7 @@ void SetMessageHelp(const wchar_t *Topic)
 */
 int AbortMessage()
 {
-  int Res = MessageW(MSG_WARNING|MSG_KILLSAVESCREEN,2,UMSG(MKeyESCWasPressed),
+  int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,UMSG(MKeyESCWasPressed),
             UMSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
             UMSG(MYes),UMSG(MNo));
   if (Res == -1) // Set "ESC" equal to "NO" button

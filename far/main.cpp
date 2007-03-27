@@ -200,7 +200,7 @@ static int MainProcess(
         DeleteEndSlashW(strPath); // BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
         if( strPath.At(1)==L':' && !strPath.At(2))
-          AddEndSlashW(strPath);
+          AddEndSlash(strPath);
 
         // “а панель, котора€ имеет фокус - активна (начнем по традиции с Ћевой ѕанели ;-)
         if(Opt.LeftPanel.Focus)
@@ -228,7 +228,7 @@ static int MainProcess(
           DeleteEndSlashW(strPath); //BUGBUG
 
           if ( strPath.At(1)==L':' && !strPath.At(2))
-            AddEndSlashW(strPath);
+            AddEndSlash(strPath);
 
           // а здесь с точнотью наоборот - обрабатываем пассивную панель
           if(Opt.LeftPanel.Focus)
@@ -260,7 +260,7 @@ static int MainProcess(
 
         if ( !strPath.IsEmpty() )
         {
-          if (ActivePanel->GoToFileW(strPath))
+          if (ActivePanel->GoToFile(strPath))
             ActivePanel->ProcessKey(KEY_CTRLPGDN);
         }
 
@@ -270,7 +270,7 @@ static int MainProcess(
 
           if ( !strPath.IsEmpty() )
           {
-            if (AnotherPanel->GoToFileW(strPath))
+            if (AnotherPanel->GoToFile(strPath))
               AnotherPanel->ProcessKey(KEY_CTRLPGDN);
           }
         }
@@ -385,7 +385,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     ConvertNameToLongW (g_strFarPath, g_strFarPath);
     SetEnvironmentVariableW (L"FARHOME", g_strFarPath);
 
-    AddEndSlashW(g_strFarPath);
+    AddEndSlash(g_strFarPath);
   }
 
   for (int I=1;I<Argc;I++)
@@ -468,7 +468,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           if (Argv[I][2])
           {
             apiExpandEnvironmentStrings (&Argv[I][2], Opt.LoadPlug.strCustomPluginsPath);
-            UnquoteW(Opt.LoadPlug.strCustomPluginsPath);
+            Unquote(Opt.LoadPlug.strCustomPluginsPath);
             ConvertNameToFullW(Opt.LoadPlug.strCustomPluginsPath,Opt.LoadPlug.strCustomPluginsPath);
 /*
             if(Argv[I][2]==L'.' && (Argv[I][3]==0 || Argv[I][3]==L'\\' || Argv[I][3]==L'.'))
@@ -528,7 +528,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
       if(CntDestName < 2)
       {
         apiExpandEnvironmentStrings (Argv[I], DestNames[CntDestName]);
-        UnquoteW(DestNames[CntDestName]);
+        Unquote(DestNames[CntDestName]);
         ConvertNameToFullW(Argv[I],DestNames[CntDestName]);
         if(GetFileAttributesW(DestNames[CntDestName]) != -1)
           CntDestName++; //???
@@ -566,7 +566,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   InitDetectWindowedMode();
   InitConsole();
-  GetRegKeyW(L"Language",L"Main",Opt.strLanguage,L"English");
+  GetRegKey(L"Language",L"Main",Opt.strLanguage,L"English");
   if (!Lang.Init(g_strFarPath,MListEval))
   {
     ControlObject::ShowCopyright(1);
@@ -580,7 +580,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   SetHighlighting();
 
 
-  DeleteEmptyKeyW(HKEY_CLASSES_ROOT,L"Directory\\shellex\\CopyHookHandlers");
+  DeleteEmptyKey(HKEY_CLASSES_ROOT,L"Directory\\shellex\\CopyHookHandlers");
 
   initMacroVarTable(0);
   initMacroVarTable(1);
@@ -620,8 +620,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 void ConvertOldSettings()
 {
   //  онвертим реестр :-) Ѕывает же такое...
-  if(!CheckRegKeyW(RegColorsHighlight))
-    if(CheckRegKeyW(L"Highlight"))
+  if(!CheckRegKey(RegColorsHighlight))
+    if(CheckRegKey(L"Highlight"))
     {
       string strNameSrc, strNameDst;
       strNameSrc = Opt.strRegRoot;
@@ -629,9 +629,9 @@ void ConvertOldSettings()
       strNameDst = Opt.strRegRoot;
       strNameDst += L"\\";
       strNameDst += RegColorsHighlight;
-      CopyKeyTreeW(strNameSrc,strNameDst,L"\0");
+      CopyKeyTree(strNameSrc,strNameDst,L"\0");
     }
-  DeleteKeyTreeW(L"Highlight");
+  DeleteKeyTree(L"Highlight");
 }
 
 /* $ 03.08.2000 SVS
@@ -639,20 +639,20 @@ void ConvertOldSettings()
 */
 void CopyGlobalSettings()
 {
-  if (CheckRegKeyW(L"")) // при существующем - вываливаемс€
+  if (CheckRegKey(L"")) // при существующем - вываливаемс€
     return;
   // такого извера нету - перенесем данные!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  CopyKeyTreeW(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0");
+  CopyKeyTree(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0");
   SetRegRootKey(HKEY_CURRENT_USER);
-  CopyKeyTreeW(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0Software\\Far\\PluginsCache\0");
+  CopyKeyTree(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0Software\\Far\\PluginsCache\0");
   //  "¬спомним" путь по шаблону!!!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  GetRegKeyW(L"System",L"TemplatePluginsPath",Opt.LoadPlug.strPersonalPluginsPath,L"");
+  GetRegKey(L"System",L"TemplatePluginsPath",Opt.LoadPlug.strPersonalPluginsPath,L"");
   // удалим!!!
-  DeleteRegKeyW(L"System");
+  DeleteRegKey(L"System");
   // запишем новое значение!
   SetRegRootKey(HKEY_CURRENT_USER);
-  SetRegKeyW(L"System",L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
+  SetRegKey(L"System",L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
 }
 /* SVS $ */

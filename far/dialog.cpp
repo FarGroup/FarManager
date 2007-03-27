@@ -700,7 +700,7 @@ int Dialog::InitDialogObjects(int ID)
           const wchar_t*Ptr=CurItem->Mask;
           while(*Ptr && *Ptr == L' ') ++Ptr;
           if(*Ptr)
-            DialogEdit->SetInputMaskW(CurItem->Mask);
+            DialogEdit->SetInputMask(CurItem->Mask);
           else
           {
             CurItem->Mask=NULL;
@@ -764,7 +764,7 @@ int Dialog::InitDialogObjects(int ID)
         }
       }
 
-      DialogEdit->SetStringW(CurItem->strData);
+      DialogEdit->SetString(CurItem->strData);
 
       if (Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
@@ -854,10 +854,10 @@ void Dialog::ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex)
   {
     DWORD UseFlags;
     strRegKey.Format (fmtSavedDialogHistory,CurItem->History);
-    UseFlags=GetRegKeyW(strRegKey,L"Flags",1);
+    UseFlags=GetRegKey(strRegKey,L"Flags",1);
     if(UseFlags)
     {
-      GetRegKeyW(strRegKey, L"Line0", strData, L"");
+      GetRegKey(strRegKey, L"Line0", strData, L"");
       if (MsgIndex != -1)
       {
         // обработка DM_SETHISTORY => надо пропустить изменение текста через
@@ -1117,7 +1117,7 @@ void Dialog::GetDialogObjectsData()
           // подготовим данные
 
           // получим данные
-          EditPtr->GetStringW(strData);
+          EditPtr->GetString(strData);
 
           if (ExitCode >=0 &&
               (IFlags & DIF_HISTORY) &&
@@ -1573,7 +1573,7 @@ void Dialog::ShowDialog(int ID)
             ! ѕусть диалог сам заботитс€ о ширине собственного заголовка.
           */
           strStr = CurItem->strData;
-          TruncStrFromEndW(strStr,CW-2); // 5 ???
+          TruncStrFromEnd(strStr,CW-2); // 5 ???
           LenText=LenStrItem(I,strStr);
           if(LenText < CW-2)
           {
@@ -2369,15 +2369,15 @@ int Dialog::ProcessKey(int Key)
             CurPos=((DlgEdit *)(Item[I-1]->ObjPtr))->GetCurPos();
           else
             CurPos=0;
-          ((DlgEdit *)(Item[I-1]->ObjPtr))->GetStringW(strStr);
+          ((DlgEdit *)(Item[I-1]->ObjPtr))->GetString(strStr);
           int Length=(int)strStr.GetLength();
-          ((DlgEdit *)(Item[I]->ObjPtr))->SetStringW(CurPos>=Length ? L"":(const wchar_t*)strStr+CurPos);
+          ((DlgEdit *)(Item[I]->ObjPtr))->SetString(CurPos>=Length ? L"":(const wchar_t*)strStr+CurPos);
 
           if (CurPos<Length)
             strStr.SetLength(CurPos);
 
           ((DlgEdit *)(Item[I]->ObjPtr))->SetCurPos(0);
-          ((DlgEdit *)(Item[I-1]->ObjPtr))->SetStringW(strStr);
+          ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(strStr);
           /* $ 28.07.2000 SVS
             ѕри изменении состо€ни€ каждого элемента посылаем сообщение
             посредством функции SendDlgMessage - в ней делаетс€ все!
@@ -2612,10 +2612,10 @@ int Dialog::ProcessKey(int Key)
                 {
                   // добавл€ем к предыдущему и...
                   DlgEdit *edt_1=(DlgEdit *)Item[FocusPos-1]->ObjPtr;
-                  edt_1->GetStringW(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
+                  edt_1->GetString(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
                   CurPos=(int)wcslen(Str);
-                  edt->GetStringW(Str+CurPos,sizeof(Str)-CurPos);
-                  edt_1->SetStringW(Str);
+                  edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
+                  edt_1->SetString(Str);
 
                   for (I=FocusPos+1;I<ItemCount;I++)
                   {
@@ -2623,14 +2623,14 @@ int Dialog::ProcessKey(int Key)
                     {
                       if (I>FocusPos)
                       {
-                        ((DlgEdit *)(Item[I]->ObjPtr))->GetStringW(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
-                        ((DlgEdit *)(Item[I-1]->ObjPtr))->SetStringW(Str);
+                        ((DlgEdit *)(Item[I]->ObjPtr))->GetString(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
+                        ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(Str);
                       }
-                      ((DlgEdit *)(Item[I]->ObjPtr))->SetStringW(L"");
+                      ((DlgEdit *)(Item[I]->ObjPtr))->SetString(L"");
                     }
                     else // ага, значит  FocusPos это есть последний из DIF_EDITOR
                     {
-                      ((DlgEdit *)(Item[I-1]->ObjPtr))->SetStringW(L"");
+                      ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(L"");
                       break;
                     }
                   }
@@ -2656,10 +2656,10 @@ int Dialog::ProcessKey(int Key)
                 {
                   if (I>FocusPos)
                   {
-                    ((DlgEdit *)(Item[I]->ObjPtr))->GetStringW(Str,sizeof(Str)/sizeof (wchar_t));
-                    ((DlgEdit *)(Item[I-1]->ObjPtr))->SetStringW(Str);
+                    ((DlgEdit *)(Item[I]->ObjPtr))->GetString(Str,sizeof(Str)/sizeof (wchar_t));
+                    ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(Str);
                   }
-                  ((DlgEdit *)(Item[I]->ObjPtr))->SetStringW(L"");
+                  ((DlgEdit *)(Item[I]->ObjPtr))->SetString(L"");
                 }
                 else
                   break;
@@ -2684,12 +2684,12 @@ int Dialog::ProcessKey(int Key)
                 int SelStart, SelEnd;
 
                 edt->GetSelection(SelStart, SelEnd);
-                edt->GetStringW(Str,sizeof(Str)/sizeof (wchar_t));
+                edt->GetString(Str,sizeof(Str)/sizeof (wchar_t));
                 int LengthStr=(int)wcslen(Str);
                 if(SelStart > -1)
                 {
                   wmemmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
-                  edt->SetStringW(Str);
+                  edt->SetString(Str);
                   edt->SetCurPos(SelStart);
                   /* $ 28.07.2000 SVS
                     ѕри изменении состо€ни€ каждого элемента посылаем сообщение
@@ -2713,8 +2713,8 @@ int Dialog::ProcessKey(int Key)
                     wmemset(Str+Length,L' ',CurPos-Length);
                   }
                   /* SVS $*/
-                  edt_1->GetStringW(Str+LengthStr,sizeof(Str)-LengthStr);
-                  edt_1->SetStringW(Str);
+                  edt_1->GetString(Str+LengthStr,sizeof(Str)-LengthStr);
+                  edt_1->SetString(Str);
                   ProcessKey(KEY_CTRLY);
                   edt->SetCurPos(CurPos);
                   ShowDialog();
@@ -3357,7 +3357,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFo
   {
     int MaxLen = 512; //BUGBUG
 
-    CurEditLine->GetStringW(strStr);
+    CurEditLine->GetString(strStr);
 
     SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,strStr,MaxLen);
 
@@ -3785,7 +3785,7 @@ void Dialog::ConvertItemEx (
 
 
           if(Dialog::IsEdit(Data->Type) && (EditPtr=(DlgEdit *)(Data->ObjPtr)) != NULL)
-            EditPtr->GetStringW(Data->strData);
+            EditPtr->GetString(Data->strData);
         }
 
         Item->PtrData = _wcsdup(Data->strData); //BUGBUG
@@ -3955,7 +3955,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 
         strLine.Format (L"Line%d", I);
 
-        GetRegKeyW(strRegKey,strLine,strStr,L"");
+        GetRegKey(strRegKey,strLine,strStr,L"");
 
         if (!LocalStrnicmpW (strStr, strFindStr, LenFindStr))
           break;
@@ -4029,7 +4029,7 @@ int Dialog::SelectFromComboBox(
 
     // ¬ыставим то, что есть в строке ввода!
     // if(EditLine->GetDropDownBox()) //???
-    EditLine->GetStringW(strStr);
+    EditLine->GetString(strStr);
     ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 
     ComboBox->Show();
@@ -4093,7 +4093,7 @@ int Dialog::SelectFromComboBox(
     //ComboBox->GetUserData(Str,MaxLen,Dest);
     MenuItemEx *ItemPtr=ComboBox->GetItemPtr(Dest);
 
-    EditLine->SetStringW(ItemPtr->strName);
+    EditLine->SetString(ItemPtr->strName);
 
     EditLine->SetLeftPos(0);
     Redraw();
@@ -4174,13 +4174,13 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
         HistoryItem.Clear();
 
         strLine.Format (L"Line%d", I);
-        GetRegKeyW(strRegKey,strLine,strStr,L"");
+        GetRegKey(strRegKey,strLine,strStr,L"");
 
         if ( strStr.IsEmpty() )
           continue;
 
         strLine.Format (L"Locked%d", I);
-        GetRegKeyW(strRegKey,strLine,Locked,0);
+        GetRegKey(strRegKey,strLine,Locked,0);
         HistoryItem.SetCheck(Locked);
         HistoryItem.strName = strStr;
         HistoryMenu.SetUserData((void*)(const wchar_t*)strStr,0,HistoryMenu.AddItem(&HistoryItem));
@@ -4245,12 +4245,12 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
           if (!HistoryMenu.GetSelection())
           {
             HistoryMenu.SetSelection(TRUE);
-            SetRegKeyW(strRegKey,strLine,1);
+            SetRegKey(strRegKey,strLine,1);
           }
           else
           {
             HistoryMenu.SetSelection(FALSE);
-            DeleteRegValueW(strRegKey,strLine);
+            DeleteRegValue(strRegKey,strLine);
           }
           HistoryMenu.SetUpdateRequired(TRUE);
           HistoryMenu.Redraw();
@@ -4269,9 +4269,9 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
             for (I=0; I < Opt.DialogsHistoryCount;I++)
             {
               strLine.Format (L"Locked%d", I);
-              DeleteRegValueW(strRegKey,strLine);
+              DeleteRegValue(strRegKey,strLine);
               strLine.Format (L"Line%d", I);
-              DeleteRegValueW(strRegKey,strLine);
+              DeleteRegValue(strRegKey,strLine);
             }
             // удал€ем из списка только то, что требовали
             HistoryMenu.DeleteItem(LastSelected);
@@ -4289,11 +4289,11 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
 
                strLine.Format (L"Line%d", Dest);
 
-               SetRegKeyW(strRegKey, strLine, strStr);
+               SetRegKey(strRegKey, strLine, strStr);
                if(HistoryMenu.GetSelection(I))
                {
                  strLine.Format (L"Locked%d", Dest);
-                 SetRegKeyW(strRegKey,strLine,TRUE);
+                 SetRegKey(strRegKey,strLine,TRUE);
                }
                Dest++;
             }
@@ -4310,7 +4310,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
 
           if (!Opt.Confirm.HistoryClear ||
               (Opt.Confirm.HistoryClear &&
-               MessageW(MSG_WARNING,2,UMSG(MHistoryTitle),
+               Message(MSG_WARNING,2,UMSG(MHistoryTitle),
                        UMSG(MHistoryClear),
                        UMSG(MClear),UMSG(MCancel))==0))
           {
@@ -4321,9 +4321,9 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
             for (I=0; I < Opt.DialogsHistoryCount;I++)
             {
               strLine.Format (L"Locked%d", I);
-              DeleteRegValueW(strRegKey, strLine);
+              DeleteRegValue(strRegKey, strLine);
               strLine.Format (L"Line%d", I);
-              DeleteRegValueW(strRegKey, strLine);
+              DeleteRegValue(strRegKey, strLine);
             } /* for */
 
             // заносим в реестр
@@ -4339,9 +4339,9 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
                 strStr.ReleaseBuffer ();
 
                 strLine.Format (L"Line%d", I);
-                SetRegKeyW(strRegKey, strLine, strStr);
+                SetRegKey(strRegKey, strLine, strStr);
                 strLine.Format (L"Locked%d", I);
-                SetRegKeyW(strRegKey, strLine, TRUE);
+                SetRegKey(strRegKey, strLine, TRUE);
                 Dest++;
               } /* if */
             } /* for */
@@ -4390,7 +4390,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
 
   if(IsOk)
   {
-    EditLine->SetStringW(strStr);
+    EditLine->SetString(strStr);
     EditLine->SetLeftPos(0);
     EditLine->SetClearFlag(0);
     Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
@@ -4416,7 +4416,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 
   if (*AddStr==0)
   {
-    SetRegKeyW(strRegKey, L"Flags",(DWORD)0);
+    SetRegKey(strRegKey, L"Flags",(DWORD)0);
     return FALSE;
   }
 
@@ -4439,9 +4439,9 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
   for (HistCount=I=0; I < Opt.DialogsHistoryCount; I++)
   {
     strLocked.Format (L"Locked%d", I);
-    GetRegKeyW(strRegKey, strLocked, Locked, 0);
+    GetRegKey(strRegKey, strLocked, Locked, 0);
     strLine.Format (L"Line%d", I);
-    GetRegKeyW(strRegKey, strLine, strStr, L"");
+    GetRegKey(strRegKey, strLine, strStr, L"");
 
     if( !strStr.IsEmpty() )
     {
@@ -4449,8 +4449,8 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
       {
         His[HistCount].Locked=Locked;
         LockedCount+=Locked;
-        DeleteRegValueW(strRegKey,strLocked);
-        DeleteRegValueW(strRegKey,strLine);
+        DeleteRegValue(strRegKey,strLocked);
+        DeleteRegValue(strRegKey,strLine);
         ++HistCount;
       }
     }
@@ -4545,9 +4545,9 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
     {
       strLocked.Format (L"Locked%d", J);
       strLine.Format (L"Line%d", J);
-      SetRegKeyW(strRegKey,strLine, HisTemp[I].Str);
+      SetRegKey(strRegKey,strLine, HisTemp[I].Str);
       if(HisTemp[I].Locked)
-        SetRegKeyW(strRegKey, strLocked, HisTemp[I].Locked);
+        SetRegKey(strRegKey, strLocked, HisTemp[I].Locked);
       xf_free(HisTemp[I].Str);
       ++J;
     }
@@ -4561,7 +4561,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
       xf_free(His[I].Str);
   /* DJ $ */
 
-  SetRegKeyW(strRegKey,L"Flags",1);
+  SetRegKey(strRegKey,L"Flags",1);
   return TRUE;
 }
 
@@ -5806,7 +5806,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             MenuItemEx *ListMenuItem;
             if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
             {
-              ((DlgEdit *)(CurItem->ObjPtr))->SetStringW(ListMenuItem->strName);
+              ((DlgEdit *)(CurItem->ObjPtr))->SetString(ListMenuItem->strName);
               ((DlgEdit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
             }
           }
@@ -6352,7 +6352,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
               int ReadOnly=EditLine->GetReadOnly();
               EditLine->SetReadOnly(0);
 
-              EditLine->SetStringW(CurItem->strData);
+              EditLine->SetString(CurItem->strData);
 
               EditLine->SetReadOnly(ReadOnly);
               if(Dlg->DialogMode.Check(DMODE_INITOBJECTS)) // не мен€ем клеар-флаг, пока не проиницализировались

@@ -242,7 +242,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
       if(!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
       {
         BlockExtKey blockExtKey;
-        MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
+        Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
       }
       ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
     }
@@ -316,7 +316,7 @@ int Help::ReadHelp(const wchar_t *Mask)
     strPath.ReleaseBuffer();
 
     DeleteEndSlashW(strPath,true);
-    AddEndSlashW(strPath);
+    AddEndSlash(strPath);
 
     StackData.strHelpPath = strPath;
 
@@ -353,7 +353,7 @@ int Help::ReadHelp(const wchar_t *Mask)
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
       {
         BlockExtKey blockExtKey;
-        MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MCannotOpenHelp),Mask,UMSG(MOk));
+        Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MCannotOpenHelp),Mask,UMSG(MOk));
       }
     }
     return FALSE;
@@ -437,7 +437,7 @@ int Help::ReadHelp(const wchar_t *Mask)
       *Ptr=L' ';
       PosTab=(int)(Ptr-ReadStr+1);
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
-        InsertStringW(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
+        InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
       if(wcslen(ReadStr) > sizeof(ReadStr)/2/sizeof (wchar_t))
         break;
     }
@@ -709,7 +709,7 @@ void Help::DisplayObject()
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
       {
         BlockExtKey blockExtKey;
-        MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
+        Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
       }
       ProcessKey(KEY_ALTF1);
     }
@@ -814,7 +814,7 @@ void Help::DrawWindowFrame()
   /* $ 03.12.2001 DJ
      обрежем длинный заголовок
   */
-  TruncStrFromEndW(strHelpTitleBuf,X2-X1-3);
+  TruncStrFromEnd(strHelpTitleBuf,X2-X1-3);
   /* DJ $ */
   GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.GetLength()-2)/2,Y1);
   mprintf(L" %s ", (const wchar_t*)strHelpTitleBuf);
@@ -1605,7 +1605,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     if(!(StackData.Flags&FHELP_NOSHOWERROR))
     {
       BlockExtKey blockExtKey;
-      MessageW(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
+      Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
     }
     return FALSE;
   }
@@ -2143,7 +2143,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
           if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
           {
             BlockExtKey blockExtKey;
-            Disposition=MessageW(MSG_WARNING,2,UMSG(MHelpTitle),
+            Disposition=Message(MSG_WARNING,2,UMSG(MHelpTitle),
                         UMSG(MHelpActivatorURL),
                         Buf,
                         UMSG(MHelpActivatorFormat),

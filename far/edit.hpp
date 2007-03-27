@@ -183,27 +183,27 @@ private:
     void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
     int  GetPersistentBlocks(void) {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
     /* IS $ */
-    void  GetStringW(wchar_t *Str, int MaxSize);
-    void  GetStringW(string &strStr);
+    void  GetString(wchar_t *Str, int MaxSize);
+    void  GetString(string &strStr);
 
     const wchar_t* GetStringAddrW();
 
-    void  SetStringW(const wchar_t *Str);
+    void  SetString(const wchar_t *Str);
 
-    void  SetBinaryStringW(const wchar_t *Str,int Length);
+    void  SetBinaryString(const wchar_t *Str,int Length);
 
-    void  GetBinaryStringW (const wchar_t **Str, const wchar_t **EOL,int &Length);
+    void  GetBinaryString(const wchar_t **Str, const wchar_t **EOL,int &Length);
 
-    void  SetEOLW(const wchar_t *EOL);
-    const wchar_t *GetEOLW(void);
+    void  SetEOL(const wchar_t *EOL);
+    const wchar_t *GetEOL(void);
 
-    int   GetSelStringW(wchar_t *Str,int MaxSize);
-    int   GetSelStringW (string &strStr);
+    int   GetSelString(wchar_t *Str,int MaxSize);
+    int   GetSelString(string &strStr);
 
     int   GetLength();
 
-    void  InsertStringW(const wchar_t *Str);
-    void  InsertBinaryStringW(const wchar_t *Str,int Length);
+    void  InsertString(const wchar_t *Str);
+    void  InsertBinaryString(const wchar_t *Str,int Length);
     /* $ 03.08.2000 KM
        Добавление параметра WholeWords для поиска целых слов
        в функцию Search.
@@ -228,8 +228,8 @@ private:
     /* $ 12.08.2000 KM
        Функции установки и получения маски ввода
     */
-    void  SetInputMaskW(const wchar_t *InputMask);
-    const wchar_t* GetInputMaskW() {return Mask;}
+    void  SetInputMask(const wchar_t *InputMask);
+    const wchar_t* GetInputMask() {return Mask;}
 
     /* KM $ */
     void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};

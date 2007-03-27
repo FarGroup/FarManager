@@ -58,7 +58,7 @@ QuickView::~QuickView()
 void QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   strTitle.Format (L" %s ", UMSG(MQuickViewTitle));
-  TruncStrW(strTitle,X2-X1-3);
+  TruncStr(strTitle,X2-X1-3);
 }
 
 void QuickView::DisplayObject()
@@ -84,13 +84,13 @@ void QuickView::DisplayObject()
   DrawSeparator(Y2-2);
   SetColor(COL_PANELTEXT);
   GotoXY(X1+1,Y2-1);
-  mprintf(L"%-*.*s",X2-X1-1,X2-X1-1,PointToNameW(strCurFileName));
+  mprintf(L"%-*.*s",X2-X1-1,X2-X1-1,PointToName(strCurFileName));
 
   if ( !strCurFileType.IsEmpty() )
   {
     string strTypeText;
     strTypeText.Format (L" %s ", (const wchar_t*)strCurFileType);
-    TruncStrW(strTypeText,X2-X1-1);
+    TruncStr(strTypeText,X2-X1-1);
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-(int)strTypeText.GetLength())/2,Y2-2);
     Text(strTypeText);
@@ -101,10 +101,10 @@ void QuickView::DisplayObject()
 
     strMsg.Format (UMSG(MQuickViewFolder),(const wchar_t*)strCurFileName);
 
-    TruncStrW(strMsg,X2-X1-4);
+    TruncStr(strMsg,X2-X1-4);
     SetColor(COL_PANELTEXT);
     GotoXY(X1+2,Y1+2);
-    PrintTextW(strMsg);
+    PrintText(strMsg);
     /* $ 01.02.2001 SVS
        В панели "Quick view" добавим инфу про Junction
     */
@@ -133,13 +133,13 @@ void QuickView::DisplayObject()
           Width=9;
         }
 
-        TruncPathStrW(strJuncName,X2-X1-4-Width);
+        TruncPathStr(strJuncName,X2-X1-4-Width);
 
         strMsg.Format (UMSG(ID_Msg), (const wchar_t*)strJuncName);
-        TruncStrW(strMsg,X2-X1-4);
+        TruncStr(strMsg,X2-X1-4);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);
-        PrintTextW(strMsg);
+        PrintText(strMsg);
       }
     }
     /* SVS $ */
@@ -149,55 +149,55 @@ void QuickView::DisplayObject()
       string strSlackMsg;
 
       GotoXY(X1+2,Y1+4);
-      PrintTextW(UMSG(MQuickViewContains));
+      PrintText(UMSG(MQuickViewContains));
       GotoXY(X1+2,Y1+6);
-      PrintTextW(UMSG(MQuickViewFolders));
+      PrintText(UMSG(MQuickViewFolders));
       SetColor(COL_PANELINFOTEXT);
       strMsg.Format (L"%d",DirCount);
-      PrintTextW(strMsg);
+      PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+7);
-      PrintTextW(UMSG(MQuickViewFiles));
+      PrintText(UMSG(MQuickViewFiles));
       SetColor(COL_PANELINFOTEXT);
       strMsg.Format (L"%d",FileCount);
-      PrintTextW(strMsg);
+      PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+8);
-      PrintTextW(UMSG(MQuickViewBytes));
+      PrintText(UMSG(MQuickViewBytes));
       SetColor(COL_PANELINFOTEXT);
       InsertCommasW(FileSize,strMsg);
-      PrintTextW(strMsg);
+      PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
-      PrintTextW(UMSG(MQuickViewCompressed));
+      PrintText(UMSG(MQuickViewCompressed));
       SetColor(COL_PANELINFOTEXT);
       InsertCommasW(CompressedFileSize,strMsg);
-      PrintTextW(strMsg);
+      PrintText(strMsg);
 
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+10);
-      PrintTextW(UMSG(MQuickViewRatio));
+      PrintText(UMSG(MQuickViewRatio));
       SetColor(COL_PANELINFOTEXT);
       strSlackMsg.Format (L"%d%%",ToPercent64(CompressedFileSize,FileSize));
-      PrintTextW(strSlackMsg);
+      PrintText(strSlackMsg);
 
       if (Directory!=4 && RealFileSize>=CompressedFileSize)
       {
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+12);
-        PrintTextW(UMSG(MQuickViewCluster));
+        PrintText(UMSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
         InsertCommasW(ClusterSize,strMsg);
-        PrintTextW(strMsg);
+        PrintText(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
-        PrintTextW(UMSG(MQuickViewRealSize));
+        PrintText(UMSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
         InsertCommasW(RealFileSize,strMsg);
-        PrintTextW(strMsg);
+        PrintText(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+14);
-        PrintTextW(UMSG(MQuickViewSlack));
+        PrintText(UMSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
         InsertCommasW(RealFileSize-CompressedFileSize,strMsg);
         unsigned __int64 Size1=RealFileSize-CompressedFileSize;
@@ -209,7 +209,7 @@ void QuickView::DisplayObject()
           Size2=Size2>>1;
         }
         strSlackMsg.Format (L"%s (%d%%)",(const wchar_t*)strMsg,ToPercent((DWORD)Size1, (DWORD)Size2));
-        PrintTextW(strSlackMsg);
+        PrintText(strSlackMsg);
       }
     }
   }
@@ -451,7 +451,7 @@ void QuickView::QViewDelTempName()
 }
 
 
-void QuickView::PrintTextW(const wchar_t *Str)
+void QuickView::PrintText(const wchar_t *Str)
 {
   if (WhereY()>Y2-3 || WhereX()>X2-2)
     return;
@@ -486,7 +486,7 @@ void QuickView::SetTitle()
     else
     {
       string strCmdText;
-      CtrlObject->CmdLine->GetStringW (strCmdText);
+      CtrlObject->CmdLine->GetString(strCmdText);
 
       strTitleDir += strCmdText;
     }
@@ -541,7 +541,7 @@ BOOL QuickView::UpdateKeyBar()
   return TRUE;
 }
 
-int QuickView::GetCurNameW(string &strName, string &strShortName)
+int QuickView::GetCurName(string &strName, string &strShortName)
 {
   if ( !strCurFileName.IsEmpty() )
   {

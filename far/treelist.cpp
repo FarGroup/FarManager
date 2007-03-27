@@ -158,7 +158,7 @@ TreeList::~TreeList()
   SetMacroMode(TRUE);
 }
 
-void TreeList::SetRootDirW(const wchar_t *NewRootDir)
+void TreeList::SetRootDir(const wchar_t *NewRootDir)
 {
     strRoot = NewRootDir;
     strCurDir = NewRootDir;
@@ -200,7 +200,7 @@ void TreeList::DisplayObject()
 void TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   strTitle.Format (L" %s ",ModalMode ? UMSG(MFindFolderTitle):UMSG(MTreeTitle));
-  TruncStrW(strTitle,X2-X1-3);
+  TruncStr(strTitle,X2-X1-3);
 }
 
 void TreeList::DisplayTree(int Fast)
@@ -557,7 +557,7 @@ void TreeList::SaveTreeFile()
     //wremove(strName); BUGBUG
     DeleteFileW (strName);
 
-    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),strName,UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),strName,UMSG(MOk));
   }
   else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
     SetFileAttributesW(strName,FileAttributes);
@@ -608,7 +608,7 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
     apiWNetGetConnection (wszLocalName, strRemoteName);
 
     if ( !strRemoteName.IsEmpty () )
-      AddEndSlashW (strRemoteName);
+      AddEndSlash(strRemoteName);
   }
 
   lpwszRemoteName = strRemoteName.GetBuffer ();
@@ -636,7 +636,7 @@ void TreeList::GetRoot()
 {
   string strPanelDir;
   Panel *RootPanel=GetRootPanel();
-  RootPanel->GetCurDirW(strPanelDir);
+  RootPanel->GetCurDir(strPanelDir);
 
   GetPathRootW(strPanelDir, strRoot);
 }
@@ -668,7 +668,7 @@ void TreeList::SyncDir()
 {
   string strPanelDir;
   Panel *AnotherPanel=GetRootPanel();
-  AnotherPanel->GetCurDirW(strPanelDir);
+  AnotherPanel->GetCurDir(strPanelDir);
 
   if ( !strPanelDir.IsEmpty() )
     if (AnotherPanel->GetType()==FILE_PANEL)
@@ -706,7 +706,7 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
   {
     wchar_t NumStr[32];
     _itow(TreeCount,NumStr,10); //BUGBUG
-    MessageW((FirstCall ? 0:MSG_KEEPBACKGROUND),0,UMSG(MTreeTitle),
+    Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,UMSG(MTreeTitle),
             UMSG(MReadingTree),NumStr);
     PreRedrawParam.Flags=TreeCount;
     TreeStartTime = clock();
@@ -840,7 +840,7 @@ int TreeList::ProcessKey(int Key)
         else if(Key == KEY_SHIFTENTER)
           Execute(strQuotedName,FALSE,TRUE,TRUE);
         else
-          CtrlObject->CmdLine->InsertStringW(strQuotedName);
+          CtrlObject->CmdLine->InsertString(strQuotedName);
       }
       return(TRUE);
     }
@@ -1153,7 +1153,7 @@ void TreeList::CorrectPosition()
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-void TreeList::SetCurDirW(const wchar_t *NewDir,int ClosePlugin)
+void TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
   if (TreeCount==0)
     Update(0);
@@ -1164,7 +1164,7 @@ void TreeList::SetCurDirW(const wchar_t *NewDir,int ClosePlugin)
   }
   if (GetFocus())
   {
-    CtrlObject->CmdLine->SetCurDirW(NewDir);
+    CtrlObject->CmdLine->SetCurDir(NewDir);
     CtrlObject->CmdLine->Show();
   }
 }
@@ -1192,7 +1192,7 @@ int TreeList::SetDirPosition(const wchar_t *NewDir)
 }
 
 
-int TreeList::GetCurDirW (string &strCurDir)
+int TreeList::GetCurDir(string &strCurDir)
 {
   if (TreeCount==0)
   {
@@ -1311,10 +1311,10 @@ void TreeList::ProcessEnter()
     if (!ModalMode && FarChDirW(CurPtr->strName))
     {
       Panel *AnotherPanel=GetRootPanel();
-      SetCurDirW(CurPtr->strName,TRUE);
+      SetCurDir(CurPtr->strName,TRUE);
       Show();
 
-      AnotherPanel->SetCurDirW(CurPtr->strName,TRUE);
+      AnotherPanel->SetCurDir(CurPtr->strName,TRUE);
       AnotherPanel->Redraw();
     }
   }
@@ -1461,7 +1461,7 @@ int TreeList::GetSelCount()
 }
 
 
-int TreeList::GetSelNameW (string *strName,int &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
+int TreeList::GetSelName(string *strName,int &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
 {
   if ( strName==NULL)
   {
@@ -1471,7 +1471,7 @@ int TreeList::GetSelNameW (string *strName,int &FileAttr,string *strShortName,FA
 
   if (GetSelPosition==0)
   {
-    GetCurDirW(*strName);
+    GetCurDir(*strName);
     if ( strShortName != NULL)
       *strShortName = *strName;
     FileAttr=FA_DIREC;
@@ -1483,7 +1483,7 @@ int TreeList::GetSelNameW (string *strName,int &FileAttr,string *strShortName,FA
 }
 
 
-int TreeList::GetCurNameW(string &strName, string &strShortName)
+int TreeList::GetCurName(string &strName, string &strShortName)
 {
   if (TreeCount==0)
   {
@@ -1724,7 +1724,7 @@ void TreeList::FlushCache()
 
       //remove(TreeCache.TreeName); BUGBUG
 
-      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),
               TreeCache.strTreeName,UMSG(MOk));
     }
     else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
@@ -1741,7 +1741,7 @@ void TreeList::UpdateViewPanel()
     Panel *AnotherPanel=GetRootPanel();
 
     string strCurName;
-    GetCurDirW(strCurName);
+    GetCurDir(strCurName);
 
     if (AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
       ((QuickView *)AnotherPanel)->ShowFile(strCurName,FALSE,NULL);
@@ -1749,9 +1749,9 @@ void TreeList::UpdateViewPanel()
 }
 
 
-int TreeList::GoToFileW(const wchar_t *Name,BOOL OnlyPartName)
+int TreeList::GoToFile(const wchar_t *Name,BOOL OnlyPartName)
 {
-  long Pos=FindFileW(Name,OnlyPartName);
+  long Pos=FindFile(Name,OnlyPartName);
   if (Pos!=-1)
   {
     CurFile=Pos;
@@ -1762,7 +1762,7 @@ int TreeList::GoToFileW(const wchar_t *Name,BOOL OnlyPartName)
 
 }
 
-int TreeList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
+int TreeList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
 {
   long I;
   struct TreeItem *CurPtr;
@@ -1772,7 +1772,7 @@ int TreeList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
   	CurPtr=ListData[I];
     const wchar_t *CurPtrName=CurPtr->strName;
     if(OnlyPartName)
-      CurPtrName=PointToNameW(CurPtr->strName);
+      CurPtrName=PointToName(CurPtr->strName);
 
     if (wcscmp(Name,CurPtrName)==0)
       return I;
@@ -1784,12 +1784,12 @@ int TreeList::FindFileW(const wchar_t *Name,BOOL OnlyPartName)
 }
 
 
-int TreeList::FindFirstW(const wchar_t *Name)
+int TreeList::FindFirst(const wchar_t *Name)
 {
-  return FindNextW(0,Name);
+  return FindNext(0,Name);
 }
 
-int TreeList::FindNextW(int StartPos, const wchar_t *Name)
+int TreeList::FindNext(int StartPos, const wchar_t *Name)
 {
   int I;
   struct TreeItem *CurPtr;
@@ -1800,13 +1800,13 @@ int TreeList::FindNextW(int StartPos, const wchar_t *Name)
       CurPtr=ListData[I];
       const wchar_t *CurPtrName=CurPtr->strName;
       if (CmpNameW(Name,CurPtrName,TRUE))
-        if (!TestParentFolderNameW(CurPtrName))
+        if (!TestParentFolderName(CurPtrName))
           return I;
     }
   return -1;
 }
 
-int TreeList::GetFileNameW(string &strName,int Pos,int &FileAttr)
+int TreeList::GetFileName(string &strName,int Pos,int &FileAttr)
 {
   if (Pos < 0 || Pos >= TreeCount)
     return FALSE;
@@ -1979,7 +1979,7 @@ void TreeList::SetTitle()
 string &TreeList::MkTreeFileName(const wchar_t *RootDir,string &strDest)
 {
     strDest = RootDir;
-    AddEndSlashW (strDest);
+    AddEndSlash(strDest);
 
     strDest += L"tree2.far";
 
@@ -1990,7 +1990,7 @@ string &TreeList::MkTreeFileName(const wchar_t *RootDir,string &strDest)
 string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
 {
     strDest = RootDir;
-    AddEndSlashW (strDest);
+    AddEndSlash(strDest);
 
     strDest += L"tree2.cache";
 

@@ -59,7 +59,7 @@ void InitConsole(int FirstInit)
   SetConsoleCtrlHandler(CtrlHandler,TRUE);
   GetConsoleMode(hConInp,&InitialConsoleMode);
   GetRealCursorType(InitCurVisible,InitCurSize);
-  GetRegKeyW(L"Interface",L"Mouse",Opt.Mouse,1);
+  GetRegKey(L"Interface",L"Mouse",Opt.Mouse,1);
 
   // размер клавиатурной очереди = 1024 кода клавиши
   if(!KeyQueue)
@@ -639,12 +639,12 @@ static BOOL DetectTTFFont(void)
   strOptRegRoot = Opt.strRegRoot;
   Opt.strRegRoot = L"Console";
   ReplaceStringsW(strAppName,L"\\",L"_",-1);
-  if(!CheckRegKeyW(strAppName))
+  if(!CheckRegKey(strAppName))
   {
     Opt.strRegRoot = L"";
     strAppName = L"Console";
   }
-  int FontFamily=GetRegKeyW(strAppName,L"FontFamily",0);
+  int FontFamily=GetRegKey(strAppName,L"FontFamily",0);
   if(FontFamily /*&& Opt.UseUnicodeConsole == -1*/) //???
     UseTTFConsoleFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
   Opt.strRegRoot = strOptRegRoot;
@@ -717,7 +717,7 @@ void InitRecodeOutTable(UINT cp)
 
     // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
     Oem2Unicode[0]=0;
-    GetRegKeyW(L"System",L"Oem2Unicode",(BYTE *)Oem2Unicode,(BYTE*)_Oem2Unicode,sizeof(Oem2Unicode));
+    GetRegKey(L"System",L"Oem2Unicode",(BYTE *)Oem2Unicode,(BYTE*)_Oem2Unicode,sizeof(Oem2Unicode));
     if (Opt.CleanAscii)
     {
       for (I=0;I<0x20;I++)
@@ -761,7 +761,7 @@ void InitRecodeOutTable(UINT cp)
     };
 
     // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-    GetRegKeyW(L"System",L"BoxSymbols",(BYTE *)BoxSymbols,(BYTE*)_BoxSymbols,sizeof(_BoxSymbols));
+    GetRegKey(L"System",L"BoxSymbols",(BYTE *)BoxSymbols,(BYTE*)_BoxSymbols,sizeof(_BoxSymbols));
     if (Opt.NoGraphics)
     {
       for (I=0xB3-0xB0;I<=0xDA-0xB0;I++)

@@ -70,8 +70,8 @@ class DlgEdit: public ScreenObject
     int   GetLength();
     int   GetStrSize(int Row=-1);
 
-    void  SetInputMaskW(const wchar_t *InputMask);
-    const wchar_t* GetInputMaskW();
+    void  SetInputMask(const wchar_t *InputMask);
+    const wchar_t* GetInputMask();
 
     void  SetOvertypeMode(int Mode);
     int   GetOvertypeMode();
@@ -81,9 +81,9 @@ class DlgEdit: public ScreenObject
     void  SetClearFlag(int Flag);
     int   GetClearFlag(void);
 
-    void  SetStringW(const wchar_t *Str);
-    void  GetStringW(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
-    void  GetStringW(string &strStr,int Row=-1);            // Row==-1 - current line
+    void  SetString(const wchar_t *Str);
+    void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
+    void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line
     const wchar_t* GetStringAddrW();
 
     void  SetCurPos(int NewCol, int NewRow=-1); // Row==-1 - current line

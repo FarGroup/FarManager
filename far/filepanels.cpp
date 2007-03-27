@@ -124,9 +124,9 @@ void FilePanels::Init()
   if (Opt.AutoSaveSetup || !Opt.SetupArgv)
   {
     if (GetFileAttributesW(Opt.strLeftFolder)!=0xffffffff)
-      LeftPanel->InitCurDirW(Opt.strLeftFolder);
+      LeftPanel->InitCurDir(Opt.strLeftFolder);
     if (GetFileAttributesW(Opt.strRightFolder)!=0xffffffff)
-      RightPanel->InitCurDirW(Opt.strRightFolder);
+      RightPanel->InitCurDir(Opt.strRightFolder);
   }
 
   if (!Opt.AutoSaveSetup)
@@ -136,30 +136,30 @@ void FilePanels::Init()
       if(ActivePanel==RightPanel)
       {
         if (GetFileAttributesW(Opt.strRightFolder)!=0xffffffff)
-          RightPanel->InitCurDirW(Opt.strRightFolder);
+          RightPanel->InitCurDir(Opt.strRightFolder);
       }
       else
       {
         if (GetFileAttributesW(Opt.strLeftFolder)!=0xffffffff)
-          LeftPanel->InitCurDirW(Opt.strLeftFolder);
+          LeftPanel->InitCurDir(Opt.strLeftFolder);
       }
       if(Opt.SetupArgv == 2)
       {
         if(ActivePanel==LeftPanel)
         {
           if (GetFileAttributesW(Opt.strRightFolder)!=0xffffffff)
-            RightPanel->InitCurDirW(Opt.strRightFolder);
+            RightPanel->InitCurDir(Opt.strRightFolder);
         }
         else
         {
           if (GetFileAttributesW(Opt.strLeftFolder)!=0xffffffff)
-            LeftPanel->InitCurDirW(Opt.strLeftFolder);
+            LeftPanel->InitCurDir(Opt.strLeftFolder);
         }
       }
     }
     if (Opt.SetupArgv < 2 && !Opt.strPassiveFolder.IsEmpty() && (GetFileAttributesW(Opt.strPassiveFolder)!=0xffffffff))
     {
-      PassivePanel->InitCurDirW(Opt.strPassiveFolder);
+      PassivePanel->InitCurDir(Opt.strPassiveFolder);
     }
   }
 #if 1
@@ -190,7 +190,7 @@ void FilePanels::Init()
   // при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
   if (!Opt.RightPanel.Visible && !Opt.LeftPanel.Visible)
   {
-    CtrlObject->CmdLine->SetCurDirW(PassiveIsLeftFlag?Opt.strRightFolder:Opt.strLeftFolder);
+    CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Opt.strRightFolder:Opt.strLeftFolder);
   }
 
   SetKeyBar(&MainKeyBar);
@@ -492,8 +492,8 @@ int  FilePanels::ProcessKey(int Key)
           if (ActivePanel->GetType() == TREE_PANEL)
           {
             string strCurDir;
-            ActivePanel->GetCurDirW(strCurDir);
-            AnotherPanel->SetCurDirW(strCurDir, TRUE);
+            ActivePanel->GetCurDir(strCurDir);
+            AnotherPanel->SetCurDir(strCurDir, TRUE);
             AnotherPanel->Update(0);
           }
           else
@@ -886,7 +886,7 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
     case QVIEW_PANEL:
     case FILE_PANEL:
     case INFO_PANEL:
-        ActivePanel->GetCurNameW(strFullName, strShortName);
+        ActivePanel->GetCurName(strFullName, strShortName);
         ConvertNameToFullW(strFullName, strFullName);
         break;
   }
@@ -1025,7 +1025,7 @@ void FilePanels::Refresh()
   /* SKV$*/
 }
 
-void FilePanels::GoToFileW (const wchar_t *FileName)
+void FilePanels::GoToFile(const wchar_t *FileName)
 {
   if(wcschr(FileName,'\\') || wcschr(FileName,'/'))
   {
@@ -1034,18 +1034,18 @@ void FilePanels::GoToFileW (const wchar_t *FileName)
     int PassiveMode = PassivePanel->GetMode();
     if (PassiveMode == NORMAL_PANEL)
     {
-      PassivePanel->GetCurDirW(PDir);
-      AddEndSlashW (PDir);
+      PassivePanel->GetCurDir(PDir);
+      AddEndSlash(PDir);
     }
 
     int ActiveMode = ActivePanel->GetMode();
     if(ActiveMode==NORMAL_PANEL)
     {
-      ActivePanel->GetCurDirW(ADir);
-      AddEndSlashW (ADir);
+      ActivePanel->GetCurDir(ADir);
+      AddEndSlash(ADir);
     }
 
-    string strNameFile = PointToNameW (FileName);
+    string strNameFile = PointToName(FileName);
     string strNameDir = FileName;
 
     CutToSlashW (strNameDir);
@@ -1061,9 +1061,9 @@ void FilePanels::GoToFileW (const wchar_t *FileName)
     if (!AExist && PExist)
       ProcessKey(KEY_TAB);
     if (!AExist && !PExist)
-      ActivePanel->SetCurDirW(strNameDir,TRUE);
+      ActivePanel->SetCurDir(strNameDir,TRUE);
     /* IS */
-    ActivePanel->GoToFileW(strNameFile);
+    ActivePanel->GoToFile(strNameFile);
     // всегда обновим заголовок панели, чтобы дать обратную связь, что
     // Ctrl-F10 обработан
     ActivePanel->SetTitle();

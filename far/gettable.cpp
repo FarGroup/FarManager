@@ -22,7 +22,7 @@ static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned cha
 */
 int DistrTableExist(void)
 {
- return (CheckRegValueW(L"CodeTables",L"Distribution"));
+ return (CheckRegValue(L"CodeTables",L"Distribution"));
 }
 /* IS $ */
 
@@ -152,12 +152,12 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
   for (I=0;;I++)
   {
     string strTableKey;
-    if (!EnumRegKeyW(L"CodeTables",I,strTableKey))
+    if (!EnumRegKey(L"CodeTables",I,strTableKey))
       break;
 
-    strItemName = PointToNameW (strTableKey);
+    strItemName = PointToName(strTableKey);
     t.Format (L"CodeTables\\%s", (const wchar_t*)strItemName);
-    GetRegKeyW(t,L"TableName",t2,strItemName);
+    GetRegKey(t,L"TableName",t2,strItemName);
     ListItem.strName = t2;
     ListItem.SetSelect(I+1+UseUnicode == TableNum);
     TableList.SetUserData((void*)(INT_PTR)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
@@ -217,7 +217,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 {
   unsigned char DistrTable[256],FileDistr[256],FileData[4096];
   int ReadSize;
-  if (!GetRegKeyW(L"CodeTables",L"Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
+  if (!GetRegKey(L"CodeTables",L"Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
   {
     TableNum=0;
     return(FALSE);
@@ -287,14 +287,14 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   for (I=0;;I++)
   {
     string strTableKey;
-    if (!EnumRegKeyW(L"CodeTables",I,strTableKey))
+    if (!EnumRegKey(L"CodeTables",I,strTableKey))
       break;
 
-    if(!GetRegKeyW(strTableKey,L"AutoDetect",1))
+    if(!GetRegKey(strTableKey,L"AutoDetect",1))
       continue;
 
     unsigned char DecodeTable[256];
-    if (!GetRegKeyW(strTableKey,L"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
+    if (!GetRegKey(strTableKey,L"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
       continue; //return(FALSE);
 
     unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
@@ -362,15 +362,15 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
     TableSet->LowerTable[I]=TableSet->UpperTable[I]=I;
   }
   string strTableKey;
-  if (!EnumRegKeyW(L"CodeTables",TableNum,strTableKey))
+  if (!EnumRegKey(L"CodeTables",TableNum,strTableKey))
     return(FALSE);
-  if (!GetRegKeyW(strTableKey,L"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
+  if (!GetRegKey(strTableKey,L"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
     return(FALSE);
 
-  char *lpTableKey = UnicodeToAnsi (PointToNameW(strTableKey));
+  char *lpTableKey = UnicodeToAnsi (PointToName(strTableKey));
 
   if(UseTableName)
-    GetRegKeyW(strTableKey,L"TableName",(BYTE*)TableSet->TableName,(const BYTE*)lpTableKey,sizeof(TableSet->TableName));
+    GetRegKey(strTableKey,L"TableName",(BYTE*)TableSet->TableName,(const BYTE*)lpTableKey,sizeof(TableSet->TableName));
   else
     xstrncpy(TableSet->TableName,lpTableKey,sizeof(TableSet->TableName)-1);
 

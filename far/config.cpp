@@ -734,7 +734,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   if(!DistrTableExist() && ViOpt.AutoDetectTable)
   {
     ViOpt.AutoDetectTable=0;
-    MessageW(MSG_WARNING,1,UMSG(MWarning),
+    Message(MSG_WARNING,1,UMSG(MWarning),
               UMSG(MDistributionTableWasNotFound),UMSG(MAutoDetectWillNotWork),
               UMSG(MOk));
   }
@@ -931,7 +931,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   if(!DistrTableExist() && EdOpt.AutoDetectTable)
   {
     EdOpt.AutoDetectTable=0;
-    MessageW(MSG_WARNING,1,UMSG(MWarning),
+    Message(MSG_WARNING,1,UMSG(MWarning),
               UMSG(MDistributionTableWasNotFound),UMSG(MAutoDetectWillNotWork),
               UMSG(MOk));
   }
@@ -956,7 +956,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 void SetFolderInfoFiles()
 {
   string strFolderInfoFiles;
-  if (GetStringW(UMSG(MSetFolderInfoTitle),UMSG(MSetFolderInfoNames),L"FolderInfoFiles",
+  if (GetString(UMSG(MSetFolderInfoTitle),UMSG(MSetFolderInfoNames),L"FolderInfoFiles",
       Opt.strFolderInfoFiles,strFolderInfoFiles,260,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
   {
     Opt.strFolderInfoFiles = strFolderInfoFiles;
@@ -1246,12 +1246,12 @@ void ReadConfig()
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
   // "Вспомним" путь для дополнительного поиска плагинов
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  GetRegKeyW(NKeySystemW,L"TemplatePluginsPath",strPersonalPluginsPath,L"");
-  OptPolicies_ShowHiddenDrives=GetRegKeyW(NKeyPoliciesW,L"ShowHiddenDrives",1)&1;
-  OptPolicies_DisabledOptions=GetRegKeyW(NKeyPoliciesW,L"DisabledOptions",0);
+  GetRegKey(NKeySystemW,L"TemplatePluginsPath",strPersonalPluginsPath,L"");
+  OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPoliciesW,L"ShowHiddenDrives",1)&1;
+  OptPolicies_DisabledOptions=GetRegKey(NKeyPoliciesW,L"DisabledOptions",0);
   SetRegRootKey(HKEY_CURRENT_USER);
   if(Opt.ExceptRules == -1)
-    GetRegKeyW(L"System",L"ExceptRules",Opt.ExceptRules,1);
+    GetRegKey(L"System",L"ExceptRules",Opt.ExceptRules,1);
 
   //Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
@@ -1261,13 +1261,13 @@ void ReadConfig()
     switch(CFG[I].ValType)
     {
       case REG_DWORD:
-       GetRegKeyW(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
+       GetRegKey(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
        break;
       case REG_SZ:
-       GetRegKeyW(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
+       GetRegKey(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
        break;
       case REG_BINARY:
-       int Size=GetRegKeyW(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
+       int Size=GetRegKey(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
        if(Size && Size < (int)CFG[I].DefDWord)
          memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
        break;
@@ -1281,7 +1281,7 @@ void ReadConfig()
     Opt.FlagPosixSemantics=0;
   /* VVM $ */
 
-  GetRegKeyW(NKeyConfirmationsW,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
+  GetRegKey(NKeyConfirmationsW,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
 
   if(Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
     Opt.PluginMaxReadData=0x20000;
@@ -1354,37 +1354,37 @@ void ReadConfig()
   if (Opt.ViOpt.TabSize<1 || Opt.ViOpt.TabSize>512)
     Opt.ViOpt.TabSize=8;
 
-  GetRegKeyW(NKeyKeyMacrosW,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
+  GetRegKey(NKeyKeyMacrosW,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
   if((Opt.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.KeyMacroCtrlDot=KEY_CTRLDOT;
 
-  GetRegKeyW(NKeyKeyMacrosW,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
+  GetRegKey(NKeyKeyMacrosW,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
   if((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
-  GetRegKeyW(NKeyXLatW,L"EditorKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"EditorKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatEditorKey=0;
-  GetRegKeyW(NKeyXLatW,L"CmdLineKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"CmdLineKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatCmdLineKey=0;
-  GetRegKeyW(NKeyXLatW,L"DialogKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"DialogKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatDialogKey=0;
-  GetRegKeyW(NKeyXLatW,L"FastFindKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"FastFindKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatFastFindKey=0;
 
-  GetRegKeyW(NKeyXLatW,L"AltEditorKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"AltEditorKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltEditorKey=0;
-  GetRegKeyW(NKeyXLatW,L"AltCmdLineKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"AltCmdLineKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltCmdLineKey=0;
-  GetRegKeyW(NKeyXLatW,L"AltDialogKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"AltDialogKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltDialogKey=0;
-  GetRegKeyW(NKeyXLatW,L"AltFastFindKey",strKeyNameFromReg,szCtrlShiftX);
+  GetRegKey(NKeyXLatW,L"AltFastFindKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltFastFindKey=0;
 
@@ -1419,7 +1419,7 @@ void ReadConfig()
 
   apiGetTempPath (Opt.strTempPath);
   RemoveTrailingSpacesW(Opt.strTempPath);
-  AddEndSlashW(Opt.strTempPath);
+  AddEndSlash(Opt.strTempPath);
   CtrlObject->EditorPosCache->Read(L"Editor\\LastPositions");
   CtrlObject->ViewerPosCache->Read(L"Viewer\\LastPositions");
 
@@ -1442,7 +1442,7 @@ void SaveConfig(int Ask)
   if(Opt.Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
     return;
 
-  if (Ask && MessageW(0,2,UMSG(MSaveSetupTitle),UMSG(MSaveSetupAsk1),UMSG(MSaveSetupAsk2),UMSG(MSaveSetup),UMSG(MCancel))!=0)
+  if (Ask && Message(0,2,UMSG(MSaveSetupTitle),UMSG(MSaveSetupAsk1),UMSG(MSaveSetupAsk2),UMSG(MSaveSetup),UMSG(MCancel))!=0)
     return;
 
   string strTemp;
@@ -1457,7 +1457,7 @@ void SaveConfig(int Ask)
   Opt.RightPanel.Focus=RightPanel->GetFocus();
   Opt.RightPanel.Visible=RightPanel->IsVisible();
 
-  CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDirW(Opt.strPassiveFolder);
+  CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(Opt.strPassiveFolder);
 
   if (LeftPanel->GetMode()==NORMAL_PANEL)
   {
@@ -1470,8 +1470,8 @@ void SaveConfig(int Ask)
     Opt.LeftPanel.NumericSort=LeftPanel->GetNumericSort();
     Opt.LeftSelectedFirst=LeftPanel->GetSelectedFirstMode();
   }
-  LeftPanel->GetCurDirW(Opt.strLeftFolder);
-  LeftPanel->GetCurBaseNameW(Opt.strLeftCurFile, strTemp);
+  LeftPanel->GetCurDir(Opt.strLeftFolder);
+  LeftPanel->GetCurBaseName(Opt.strLeftCurFile, strTemp);
 
   if (RightPanel->GetMode()==NORMAL_PANEL)
   {
@@ -1484,8 +1484,8 @@ void SaveConfig(int Ask)
     Opt.RightPanel.NumericSort=RightPanel->GetNumericSort();
     Opt.RightSelectedFirst=RightPanel->GetSelectedFirstMode();
   }
-  RightPanel->GetCurDirW(Opt.strRightFolder);
-  RightPanel->GetCurBaseNameW(Opt.strRightCurFile,strTemp);
+  RightPanel->GetCurDir(Opt.strRightFolder);
+  RightPanel->GetCurBaseName(Opt.strRightCurFile,strTemp);
   CtrlObject->HiFiles->SaveHiData();
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
@@ -1495,13 +1495,13 @@ void SaveConfig(int Ask)
       switch(CFG[I].ValType)
       {
         case REG_DWORD:
-         SetRegKeyW(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);
+         SetRegKey(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);
          break;
         case REG_SZ:
-         SetRegKeyW(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
+         SetRegKey(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr);
          break;
         case REG_BINARY:
-         SetRegKeyW(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
+         SetRegKey(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
          break;
       }
   }

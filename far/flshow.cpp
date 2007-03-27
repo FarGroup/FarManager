@@ -223,9 +223,9 @@ void FileList::ShowFileList(int Fast)
   if (!Fast && GetFocus())
   {
     if ( PanelMode==PLUGIN_PANEL )
-        CtrlObject->CmdLine->SetCurDirW(Info.CurDir);
+        CtrlObject->CmdLine->SetCurDir(Info.CurDir);
     else
-        CtrlObject->CmdLine->SetCurDirW(strCurDir);
+        CtrlObject->CmdLine->SetCurDir(strCurDir);
 
     CtrlObject->CmdLine->Show();
   }
@@ -262,7 +262,7 @@ void FileList::ShowFileList(int Fast)
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
     struct FileListItem *CurPtr=ListData[CurFile];
-    if (!TestParentFolderNameW(CurPtr->strName))
+    if (!TestParentFolderName(CurPtr->strName))
     {
       strCurDir = CurPtr->strName;
 
@@ -280,7 +280,7 @@ void FileList::ShowFileList(int Fast)
 
       if (GetFocus())
       {
-        CtrlObject->CmdLine->SetCurDirW(strCurDir);
+        CtrlObject->CmdLine->SetCurDir(strCurDir);
         CtrlObject->CmdLine->Show();
       }
     }
@@ -367,7 +367,7 @@ void FileList::ShowSelectedSize()
     InsertCommasW(SelFileSize,strFormStr);
     strSelStr.Format (UMSG(__FormatEndSelectedPhrase(SelFileCount)),(const wchar_t*)strFormStr,SelFileCount);
 
-    TruncStrW(strSelStr,X2-X1-1);
+    TruncStr(strSelStr,X2-X1-1);
     Length=(int)strSelStr.GetLength();
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
@@ -382,7 +382,7 @@ void FileList::ShowSelectedSize()
         strEvalStr = L" Evaluation version ";
       else
         strEvalStr.Format (L" %s ",UMSG(MListEval));
-      TruncStrW(strEvalStr,X2-X1-1);
+      TruncStr(strEvalStr,X2-X1-1);
       Length=(int)strEvalStr.GetLength();
       SetColor(COL_PANELTEXT);
       GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
@@ -424,7 +424,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfoW &Info)
   SetColor(COL_PANELTOTALINFO);
   /* $ 01.08.2001 VVM
     + Обрезаем строчку справа, а не слева */
-  TruncStrFromEndW(strTotalStr, X2-X1-1);
+  TruncStrFromEnd(strTotalStr, X2-X1-1);
   /* VVM $ */
   Length=(int)strTotalStr.GetLength();
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
@@ -450,7 +450,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfoW &Info)
   }
 }
 
-int FileList::ConvertNameW(const wchar_t *SrcName,string &strDest,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr)
+int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr)
 {
   wchar_t *lpwszDest = strDest.GetBuffer (MaxLength+1);
 
@@ -810,7 +810,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                     //BUGBUG!!!
                   // !!! НЕ УВЕРЕН, но то, что отображается пустое
                   // пространство вместо названия - бага
-                  NamePtr=PointToFolderNameIfFolderW (NamePtr);
+                  NamePtr=PointToFolderNameIfFolder(NamePtr);
                 }
 
                 int CurLeftPos=0;
@@ -855,7 +855,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
                 string strName;
 
-                int TooLong=ConvertNameW(NamePtr, strName, Width, RightAlign,ShowStatus,CurPtr->FileAttr);
+                int TooLong=ConvertName(NamePtr, strName, Width, RightAlign,ShowStatus,CurPtr->FileAttr);
 
                 if (CurLeftPos!=0)
                   LeftBracket=TRUE;
@@ -925,7 +925,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
                   const wchar_t *PtrName;
-                  if (TestParentFolderNameW(CurPtr->strName))
+                  if (TestParentFolderName(CurPtr->strName))
                     PtrName=UMSG(MListUp);
                   else
                     PtrName=UMSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);

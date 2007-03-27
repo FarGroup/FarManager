@@ -320,7 +320,7 @@ Frame *Manager::FrameMenu()
       else
         strNumText = L"&   ";
 
-      TruncPathStrW(strName,ScrX-24);
+      TruncPathStr(strName,ScrX-24);
       ReplaceStringsW(strName,L"&",L"&&",-1);
       /*  добавляется "*" если файл изменен */
       ModalMenuItem.strName.Format (L"%s%-10.10s %c %s", (const wchar_t*)strNumText, (const wchar_t*)strType,(FrameList[I]->IsFileModified()?L'*':L' '), (const wchar_t*)strName);
@@ -380,7 +380,7 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
   if (Dir)
   {
     strBufFileName = Dir;
-    AddEndSlashW(strBufFileName);
+    AddEndSlash(strBufFileName);
     strBufFileName += FileName;
     strFullFileName = strBufFileName;
   }
@@ -400,7 +400,7 @@ BOOL Manager::ShowBackground()
 {
   if (!RegVer)
   {
-    MessageW(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
+    Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
     return FALSE;
   }
   CtrlObject->CmdLine->ShowBackground();
@@ -581,7 +581,7 @@ void Manager::ExitMainLoop(int Ask)
     CloseFAR=FALSE;
     CloseFARMenu=TRUE;
   };
-  if (!Ask || !Opt.Confirm.Exit || MessageW(0,2,UMSG(MQuit),UMSG(MAskQuit),UMSG(MYes),UMSG(MNo))==0)
+  if (!Ask || !Opt.Confirm.Exit || Message(0,2,UMSG(MQuit),UMSG(MAskQuit),UMSG(MYes),UMSG(MNo))==0)
    /* $ 29.12.2000 IS
       + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
         из фара.

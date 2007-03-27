@@ -501,7 +501,7 @@ FileEditor::~FileEditor()
        !FrameManager->CountFramesWithName(strFullFileName))
     {
        if( Flags.Check(FFILEEDIT_DELETEONCLOSE))
-         DeleteFileWithFolderW(strFullFileName);
+         DeleteFileWithFolder(strFullFileName);
        else
        {
          SetFileAttributesW(strFullFileName,FILE_ATTRIBUTE_NORMAL);
@@ -586,7 +586,7 @@ void FileEditor::Init (
   m_editor->SetHostFileEditor(this);
   SetCanLoseFocus(Flags.Check(FFILEEDIT_ENABLEF6));
 
-  FarGetCurDirW (strStartDir);
+  FarGetCurDir(strStartDir);
 
   if(!SetFileName(Name))
   {
@@ -613,8 +613,8 @@ void FileEditor::Init (
           string strMsgFullFileName;
           strMsgFullFileName = strFullFileName;
           SetMessageHelp(L"EditorReload");
-          MsgCode=MessageW(0,3,UMSG(MEditTitle),
-                TruncPathStrW(strMsgFullFileName,ScrX-16),
+          MsgCode=Message(0,3,UMSG(MEditTitle),
+                TruncPathStr(strMsgFullFileName,ScrX-16),
                 UMSG(MAskReload),
                 UMSG(MCurrent),UMSG(MNewOpen),UMSG(MReload));
         }
@@ -677,7 +677,7 @@ void FileEditor::Init (
   */
   if(FAttr!=-1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
   {
-    MessageW(MSG_WARNING,1,UMSG(MEditTitle),UMSG(MEditCanNotEditDirectory),UMSG(MOk));
+    Message(MSG_WARNING,1,UMSG(MEditTitle),UMSG(MEditCanNotEditDirectory),UMSG(MOk));
     ExitCode=XC_OPEN_ERROR;
     return;
   }
@@ -696,7 +696,7 @@ void FileEditor::Init (
   )
   /* SVS $ */
   {
-    if(MessageW(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRSH),
+    if(Message(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRSH),
                              UMSG(MEditROOpen),UMSG(MYes),UMSG(MNo)))
     {
       //SetLastError(ERROR_ACCESS_DENIED);
@@ -736,7 +736,7 @@ void FileEditor::Init (
       if (UserBreak!=1)
       {
         SetLastError(SysErrorCode);
-        MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strFileName,UMSG(MOk));
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strFileName,UMSG(MOk));
         ExitCode=XC_OPEN_ERROR;
       }
       else
@@ -943,7 +943,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         if(m_editor->IsFileChanged() &&  // в текущем сеансе были изменения?
            ::GetFileAttributesW(strFullFileName) == -1) // а файл еще существует?
         {
-          switch(MessageW(MSG_WARNING,2,UMSG(MEditTitle),
+          switch(Message(MSG_WARNING,2,UMSG(MEditTitle),
                          UMSG(MEditSavedChangedNonFile),
                          UMSG(MEditSavedChangedNonFile2),
                          UMSG(MEditSave),UMSG(MCancel)))
@@ -1089,7 +1089,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         BOOL Done=FALSE;
 
         string strOldCurDir;
-        FarGetCurDirW (strOldCurDir);
+        FarGetCurDir(strOldCurDir);
 
         wchar_t *lpwszPtr;
         wchar_t wChr;
@@ -1144,7 +1144,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             apiExpandEnvironmentStrings (strSaveAsName, strSaveAsName);
 
             RemoveTrailingSpacesW(strSaveAsName);
-            UnquoteW(strSaveAsName);
+            Unquote(strSaveAsName);
 
             NameChanged=LocalStricmpW(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
 
@@ -1154,7 +1154,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             FNAttr=::GetFileAttributesW(strSaveAsName);
             if (NameChanged && FNAttr != -1)
             {
-              if (MessageW(MSG_WARNING,2,UMSG(MEditTitle),strSaveAsName,UMSG(MEditExists),
+              if (Message(MSG_WARNING,2,UMSG(MEditTitle),strSaveAsName,UMSG(MEditExists),
                            UMSG(MEditOvr),UMSG(MYes),UMSG(MNo))!=0)
               {
                 FarChDirW(strOldCurDir);
@@ -1189,7 +1189,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           if(SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage) == SAVEFILE_ERROR)
           {
             SetLastError(SysErrorCode);
-            if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
+            if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
                         strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
             {
               Done=TRUE;
@@ -1211,7 +1211,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
             	if ( !bInPlace )
             	{
-					MessageW (MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", UMSG(MOk));
+					Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", UMSG(MOk));
 
 					int UserBreak;
 					LoadFile (strFullSaveAsName, UserBreak);
@@ -1266,7 +1266,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           {
             SaveScreen Sc;
-            CtrlObject->Cp()->GoToFileW (strFullFileNameTemp);
+            CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
             Flags.Set(FFILEEDIT_REDRAWTITLE);
           }
           /* DJ $ */
@@ -1303,12 +1303,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
             int Res;
             if(m_editor->IsFileChanged() && FilePlased)
-                Res=MessageW(MSG_WARNING,3,UMSG(MEditTitle),
+                Res=Message(MSG_WARNING,3,UMSG(MEditTitle),
                            UMSG(MEditSavedChangedNonFile),
                            UMSG(MEditSavedChangedNonFile2),
                            UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue));
             else if(!m_editor->IsFileChanged() && FilePlased)
-                Res=MessageW(MSG_WARNING,3,UMSG(MEditTitle),
+                Res=Message(MSG_WARNING,3,UMSG(MEditTitle),
                            UMSG(MEditSavedChangedNonFile1),
                            UMSG(MEditSavedChangedNonFile2),
                            UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue));
@@ -1398,7 +1398,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
   string strOldCurDir;
-  FarGetCurDirW (strOldCurDir);
+  FarGetCurDir(strOldCurDir);
   while (1)
   {
     FarChDirW(strStartDir); // ПОЧЕМУ? А нужно ли???
@@ -1432,7 +1432,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       else
         break;
     SetLastError(SysErrorCode);
-    if (MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
+    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
               strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
         break;
     FirstSave=0;
@@ -1524,7 +1524,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	m_editor->SetCodePage (m_codepage); //BUGBUG
 
-	while ((GetCode=GetStr.GetStringW(&Str, m_codepage, StrLength))!=0)
+	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
 	{
 		if ( GetCode == -1 )
 		{
@@ -1612,7 +1612,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if (Ask)
     {
-      switch (MessageW(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSave),
+      switch (Message(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSave),
               UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue)))
       {
         case -1:
@@ -1642,7 +1642,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
         if(RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
         {
           SetMessageHelp(L"WarnEditorSavedEx");
-          switch (MessageW(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSaveExt),
+          switch (Message(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSaveExt),
                   UMSG(MEditSave),UMSG(MEditBtnSaveAs),UMSG(MEditContinue)))
           {
             case -1:
@@ -1666,7 +1666,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     if (FileAttributes & FA_RDONLY)
     {
         //BUGBUG
-      int AskOverwrite=MessageW(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRO),
+      int AskOverwrite=Message(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRO),
                            UMSG(MEditOvr),UMSG(MYes),UMSG(MNo));
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
@@ -1831,7 +1831,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     {
       const wchar_t *SaveStr, *EndSeq;
       int Length;
-      CurPtr->GetBinaryStringW(&SaveStr,&EndSeq,Length);
+      CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
       if (*EndSeq==0 && CurPtr->m_next!=NULL)
         EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmtW;
       if (TextFormat!=0 && *EndSeq!=0)
@@ -1842,7 +1842,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
           EndSeq=UNIX_EOL_fmtW;
         else
           EndSeq=MAC_EOL_fmtW;
-        CurPtr->SetEOLW(EndSeq);
+        CurPtr->SetEOL(EndSeq);
       }
 
       int EndLength=(int)wcslen(EndSeq);
@@ -1972,7 +1972,7 @@ void FileEditor::ShowConsoleTitle()
 {
     string strTitle;
 
-    strTitle.Format (UMSG(MInEditor), PointToNameW (strFileName));
+    strTitle.Format (UMSG(MInEditor), PointToName(strFileName));
     SetFarTitleW (strTitle);
 
     Flags.Clear(FFILEEDIT_REDRAWTITLE);
@@ -2094,7 +2094,7 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
   else
   {
     strFullFileName = strStartDir;
-    AddEndSlashW (strFullFileName);
+    AddEndSlash(strFullFileName);
 
     strFullFileName += strFileName;
   }
@@ -2150,9 +2150,9 @@ void FileEditor::ShowStatus()
      NameLength += (X2-80);
 
   if ( !strPluginTitle.IsEmpty () || !strTitle.IsEmpty ())
-    TruncPathStrW (strLocalTitle, (ObjWidth<NameLength?ObjWidth:NameLength));
+    TruncPathStr(strLocalTitle, (ObjWidth<NameLength?ObjWidth:NameLength));
   else
-    TruncPathStrW (strLocalTitle, NameLength);
+    TruncPathStr(strLocalTitle, NameLength);
 
   //предварительный расчет
   strLineStr.Format (L"%d/%d", m_editor->NumLastLine, m_editor->NumLastLine);
@@ -2196,7 +2196,7 @@ void FileEditor::ShowStatus()
   {
     const wchar_t *Str;
     int Length;
-    m_editor->CurLine->GetBinaryStringW(&Str,NULL,Length);
+    m_editor->CurLine->GetBinaryString(&Str,NULL,Length);
     int CurPos=m_editor->CurLine->GetCurPos();
     if (CurPos<Length)
     {
@@ -2238,7 +2238,7 @@ DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
 BOOL FileEditor::UpdateFileList()
 {
   Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
-  const wchar_t *FileName = PointToNameW(strFullFileName);
+  const wchar_t *FileName = PointToName(strFullFileName);
   string strFilePath, strPanelPath;
 
   wchar_t *lpwszFilePath = strFilePath.GetBuffer();
@@ -2247,9 +2247,9 @@ BOOL FileEditor::UpdateFileList()
 
   strFilePath.ReleaseBuffer();
 
-  ActivePanel->GetCurDirW(strPanelPath);
-  AddEndSlashW(strPanelPath);
-  AddEndSlashW(strFilePath);
+  ActivePanel->GetCurDir(strPanelPath);
+  AddEndSlash(strPanelPath);
+  AddEndSlash(strFilePath);
   if (!wcscmp(strPanelPath, strFilePath))
   {
     ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
@@ -2583,7 +2583,7 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 	string strCacheName;
 
 	if ( *GetPluginData())
-		strCacheName.Format (L"%s%s", GetPluginData(), (const wchar_t*)PointToNameW(strFullFileName));
+		strCacheName.Format (L"%s%s", GetPluginData(), (const wchar_t*)PointToName(strFullFileName));
 	else
 	{
 		strCacheName = strFullFileName;
@@ -2634,7 +2634,7 @@ void FileEditor::SaveToCache ()
 	string strCacheName;
 
 	if ( !strPluginData.IsEmpty() )
-		strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToNameW(strFullFileName));
+		strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToName(strFullFileName));
 	else
 		strCacheName = strFullFileName;
 

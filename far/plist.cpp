@@ -70,7 +70,7 @@ void ShowProcessList()
           // Полиция 21
           if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
           {
-            MessageW(MSG_WARNING,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcessPerm),UMSG(MOk));
+            Message(MSG_WARNING,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcessPerm),UMSG(MOk));
             break;
           }
 
@@ -87,7 +87,7 @@ void ShowProcessList()
 
             DWORD ProcID;
             GetWindowThreadProcessId(ProcWnd,&ProcID);
-            if (MessageW(MSG_WARNING,2,UMSG(MKillProcessTitle),UMSG(MAskKillProcess),
+            if (Message(MSG_WARNING,2,UMSG(MKillProcessTitle),UMSG(MAskKillProcess),
                         strWinTitle,UMSG(MKillProcessWarning),UMSG(MKillProcessKill),UMSG(MCancel))==0)
               if (KillProcess(ProcID))
               {
@@ -97,7 +97,7 @@ void ShowProcessList()
                 return;
               }
               else
-                MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcess),UMSG(MOk));
+                Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcess),UMSG(MOk));
           }
         }
         break;

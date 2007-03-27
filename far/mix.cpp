@@ -109,7 +109,7 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
     if ( !apiGetEnvironmentVariable (Drive, strCurDir) )
     {
       strCurDir = NewDir;
-      AddEndSlashW (strCurDir);
+      AddEndSlash(strCurDir);
 
       wchar_t *lpwszChr = strCurDir.GetBuffer();
 
@@ -134,7 +134,7 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
     strCurDir = NewDir;
 
     if(!wcscmp(strCurDir,L"\\"))
-      FarGetCurDirW(strCurDir); // здесь берем корень
+      FarGetCurDir(strCurDir); // здесь берем корень
 
     wchar_t *lpwszChr = strCurDir.GetBuffer();
 
@@ -154,7 +154,7 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
       int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr);
       lpwszCurDir = strCurDir.GetBuffer (nSize+1);
       GetFullPathNameW(NewDir,nSize+1,lpwszCurDir,&ptr);
-      AddEndSlashW(strCurDir); //???????????????
+      AddEndSlash(strCurDir); //???????????????
       strCurDir.ReleaseBuffer ();
 
       if(CheckFolderW((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
@@ -189,7 +189,7 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
  для локального пути переводит букву диска в uppercase
 */
 
-DWORD FarGetCurDirW (string &strBuffer)
+DWORD FarGetCurDir(string &strBuffer)
 {
     int nLength = GetCurrentDirectoryW (0, NULL)+1;
 
@@ -446,7 +446,7 @@ int GetFileTypeByNameW(const wchar_t *Name)
 
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name)
 {
-  MessageW(0,0,Title,UMSG(MScanningFolder),Name);
+  Message(0,0,Title,UMSG(MScanningFolder),Name);
   PreRedrawParam.Param1=(void*)Title;
   PreRedrawParam.Param2=(void*)Name;
 }
@@ -687,7 +687,7 @@ int CheckFolderW(const wchar_t *Path)
 
 
   // сообразим маску для поиска.
-  AddEndSlashW(strFindPath);
+  AddEndSlash(strFindPath);
 
   strFindPath += L"*.*";
 
@@ -1324,18 +1324,18 @@ int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent)
 
     string strTarget = *pTestPath;
 
-    TruncPathStrW(strTarget, ScrX-16);
+    TruncPathStr(strTarget, ScrX-16);
 
     if(IsHostFile)
     {
       SetLastError(ERROR_FILE_NOT_FOUND);
       if(!Silent)
-        MessageW (MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strTarget, UMSG (MOk));
+        Message(MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strTarget, UMSG (MOk));
     }
     else // попытка найти!
     {
       SetLastError(ERROR_PATH_NOT_FOUND);
-      if(Silent || MessageW (MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strTarget, UMSG (MNeedNearPath), UMSG(MHYes),UMSG(MHNo)) == 0)
+      if(Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strTarget, UMSG (MNeedNearPath), UMSG(MHYes),UMSG(MHNo)) == 0)
       {
         string strTestPathTemp = *pTestPath;
 
@@ -1363,7 +1363,7 @@ int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent)
                  *pTestPath = strTestPathTemp;
 
                  if( pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-                   AddEndSlashW(*pTestPath);
+                   AddEndSlash(*pTestPath);
                  FoundPath=1;
                }
                break;
@@ -1391,7 +1391,7 @@ BOOL IsDiskInDriveW(const wchar_t *Root)
 
   strDrive = Root;
 
-  AddEndSlashW(strDrive);
+  AddEndSlash(strDrive);
   UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
   //если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
   BOOL Res = apiGetVolumeInformation (strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
@@ -1411,8 +1411,8 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
     if(NeedSetUpADir)
     {
       string strCurDir;
-      SrcPanel->GetCurDirW(strCurDir);
-      AnotherPanel->SetCurDirW(strCurDir,TRUE);
+      SrcPanel->GetCurDir(strCurDir);
+      AnotherPanel->SetCurDir(strCurDir,TRUE);
       AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     }
     else
@@ -1449,11 +1449,11 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
     string strAnotherCurDir;
     string strFullName;
 
-    AnotherPanel->GetCurDirW(strAnotherCurDir);
-    AddEndSlashW(strAnotherCurDir);
+    AnotherPanel->GetCurDir(strAnotherCurDir);
+    AddEndSlash(strAnotherCurDir);
 
     ConvertNameToFullW(SelName, strFullName);
-    AddEndSlashW(strFullName);
+    AddEndSlash(strFullName);
 
     if(wcsstr(strAnotherCurDir,strFullName))
     {
@@ -1590,7 +1590,7 @@ int PartCmdLineW(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdP
 
   strNewCmdStr.ReleaseBuffer ();
 
-  UnquoteW(strNewCmdStr);
+  Unquote(strNewCmdStr);
 
   return PipeFound;
 }
@@ -1687,7 +1687,7 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortN
         if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
         {
           string strShortFileName;
-          SrcPanel->GetCurNameW(strPathName,strShortFileName);
+          SrcPanel->GetCurName(strPathName,strShortFileName);
           if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
             strPathName = strShortFileName;
         }
@@ -1697,15 +1697,15 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortN
           if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
             return(FALSE);
 
-          SrcPanel->GetCurDirW(strPathName);
+          SrcPanel->GetCurDir(strPathName);
           if (SrcPanel->GetMode()!=PLUGIN_PANEL)
           {
             FileList *SrcFilePanel=(FileList *)SrcPanel;
-            SrcFilePanel->GetCurDirW(strPathName);
+            SrcFilePanel->GetCurDir(strPathName);
 
             {
                 if(NeedRealName)
-                    SrcFilePanel->CreateFullPathNameW(strPathName, strPathName,FA_DIREC, strPathName,TRUE,ShortNameAsIs);
+                    SrcFilePanel->CreateFullPathName(strPathName, strPathName,FA_DIREC, strPathName,TRUE,ShortNameAsIs);
             }
 
 
@@ -1723,11 +1723,11 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortN
             strPathName += NullToEmptyW(Info.CurDir);
 
           }
-          AddEndSlashW(strPathName);
+          AddEndSlash(strPathName);
         }
 
         if(Opt.QuotedName&QUOTEDNAME_INSERT)
-          QuoteSpaceW(strPathName);
+          QuoteSpace(strPathName);
 
         if ( Param2 )
             strPathName += Param2;

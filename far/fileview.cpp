@@ -224,7 +224,7 @@ int FileViewer::ProcessKey(int Key)
 
         View.GetFileName(strFileName);
 
-        CtrlObject->Cp()->GoToFileW (strFileName);
+        CtrlObject->Cp()->GoToFile(strFileName);
 
         RedrawTitle = TRUE;
         /* DJ $ */
@@ -287,7 +287,7 @@ int FileViewer::ProcessKey(int Key)
 
         if (hEdit==INVALID_HANDLE_VALUE)
         {
-          MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strViewFileName,UMSG(MOk));
+          Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strViewFileName,UMSG(MOk));
           return(TRUE);
         }
         CloseHandle(hEdit);

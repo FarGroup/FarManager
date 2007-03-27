@@ -141,14 +141,14 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       ShortN0=TRUE;
       CntSkip++;
     }
-    WPanel->GetSelNameW(NULL,FileAttrL);
+    WPanel->GetSelName(NULL,FileAttrL);
     int First = TRUE;
-    while (WPanel->GetSelNameW(&strFileNameL,FileAttrL,&strShortNameL))
+    while (WPanel->GetSelName(&strFileNameL,FileAttrL,&strShortNameL))
     {
       if (ShortN0)
         strFileNameL = strShortNameL;
       else // в список все же должно попасть им€ в кавычках.
-        QuoteSpaceOnlyW(strFileNameL);
+        QuoteSpaceOnly(strFileNameL);
 // ¬от здесь фиг его знает - нужно/ненужно...
 //   если будет нужно - раскомментируем :-)
 //          if(FileAttrL & FA_DIREC)
@@ -279,7 +279,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       strCurDir = PSubstData->Name;
     else
       if (PSubstData->PassivePanel)
-        PSubstData->AnotherPanel->GetCurDirW(strCurDir);
+        PSubstData->AnotherPanel->GetCurDir(strCurDir);
       else
         strCurDir = PSubstData->strCmdDir;
 
@@ -312,22 +312,22 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     }
     //<Skeleton>
     if (PSubstData->PassivePanel)
-      PSubstData->AnotherPanel->GetCurDirW(strCurDir);
+      PSubstData->AnotherPanel->GetCurDir(strCurDir);
     else
       strCurDir = PSubstData->strCmdDir;
 
     if(RealPath)
     {
       _MakePath1W(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
-      UnquoteW(strCurDir);
+      Unquote(strCurDir);
     }
 
     if (ShortN0)
         ConvertNameToShortW(strCurDir,strCurDir);
 
-    AddEndSlashW(strCurDir);
+    AddEndSlash(strCurDir);
     if(RealPath)
-      QuoteSpaceOnlyW(strCurDir);
+      QuoteSpaceOnly(strCurDir);
 
     CurStr+=2+RealPath;
 
@@ -378,7 +378,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   if (*CurStr==L'!')
   {
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-    wcsncat(TmpStr,PointToNameW(PSubstData->PassivePanel ? PSubstData->strAnotherNameOnly:PSubstData->strNameOnly), MaxTempStrSize-1);
+    wcsncat(TmpStr,PointToName(PSubstData->PassivePanel ? PSubstData->strAnotherNameOnly:PSubstData->strNameOnly), MaxTempStrSize-1);
     CurStr++;
     //_SVS(SysLog(L"! TmpStr=[%s]",TmpStr));
   }
@@ -449,7 +449,7 @@ int SubstFileName(string &strStr,            // результирующа€ строка
   if (CmdLineDir!=NULL)
     PSubstData->strCmdDir = CmdLineDir;
   else // ...спросим у ком.строки
-    CtrlObject->CmdLine->GetCurDirW(PSubstData->strCmdDir);
+    CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
 
 
   // ѕредварительно получим некоторые "константы" :-)
@@ -475,7 +475,7 @@ int SubstFileName(string &strStr,            // результирующа€ строка
   PSubstData->ActivePanel=CtrlObject->Cp()->ActivePanel;
   PSubstData->AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
 
-  PSubstData->AnotherPanel->GetCurNameW(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
+  PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
 
   PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
 
@@ -807,21 +807,21 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
 
   if (!FarMkTempExW(strListFileName) || (ListFile=_wfopen(strListFileName,L"wb"))==NULL)
   {
-    MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListTemp),UMSG(MOk));
+    Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListTemp),UMSG(MOk));
     return(FALSE);
   }
 
   string strFileName, strShortName;
   int FileAttr;
-  GetSelNameW(NULL,FileAttr);
-  while (GetSelNameW(&strFileName,FileAttr,&strShortName))
+  GetSelName(NULL,FileAttr);
+  while (GetSelName(&strFileName,FileAttr,&strShortName))
   {
     if (ShortNames)
       strFileName = strShortName;
 
     if(Modifers && *Modifers)
     {
-      if(wcschr(Modifers,'F') && PointToNameW((const wchar_t*)strFileName) == (const wchar_t*)strFileName) // 'F' - использовать полный путь; //BUGBUG
+      if(wcschr(Modifers,'F') && PointToName((const wchar_t*)strFileName) == (const wchar_t*)strFileName) // 'F' - использовать полный путь; //BUGBUG
       {
         string strTempFileName;
         strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(strCurDir.At(wcslen(strCurDir)-1) != L'\\'?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
@@ -830,7 +830,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
         strFileName = strTempFileName;
       }
       if(wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
-        QuoteSpaceOnlyW(strFileName);
+        QuoteSpaceOnly(strFileName);
 
       if(wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в пут€х файлов;
       {
@@ -853,7 +853,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
     {
       fclose(ListFile);
       DeleteFileW (strListFileName);
-      MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListWrite),UMSG(MOk));
+      Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListWrite),UMSG(MOk));
       return(FALSE);
     }
 
@@ -864,7 +864,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
     clearerr(ListFile);
     fclose(ListFile);
     DeleteFileW (strListFileName);
-    MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MOk));
+    Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MOk));
     return(FALSE);
   }
   return(TRUE);

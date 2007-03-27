@@ -144,7 +144,7 @@ void Register()
   }
   if (!xUSSR && (Length<4 || (Xor & 0xf)!=ToHex(RegCode[0]) || ((~(Xor>>4))&0xf)!=ToHex(RegCode[3])))
   {
-    MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MRegFailed),UMSG(MOk));
+    Message(MSG_WARNING,1,UMSG(MError),UMSG(MRegFailed),UMSG(MOk));
     return;
   }
   Dlg.Hide();
@@ -163,20 +163,20 @@ void Register()
   string strSaveKey;
   strSaveKey = Opt.strRegRoot;
   Opt.strRegRoot = L"Software\\Far18";
-  if(SetRegKeyW(KeyRegistration,L"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
+  if(SetRegKey(KeyRegistration,L"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
   {
     // в случае неудачи пишем в HKCU
     SetRegRootKey(HKEY_CURRENT_USER);
     Opt.strRegRoot = strSaveKey;
-    if(SetRegKeyW(KeyRegistration,L"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
+    if(SetRegKey(KeyRegistration,L"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
     {
-      MessageW(MSG_WARNING,1,UMSG(MError),UMSG(MRegFailed),UMSG(MOk));
+      Message(MSG_WARNING,1,UMSG(MError),UMSG(MRegFailed),UMSG(MOk));
       return;
     }
   }
   Opt.strRegRoot = strSaveKey;
   SetRegRootKey(HKEY_CURRENT_USER);
-  MessageW(0,1,UMSG(MRegTitle),UMSG(MRegThanks),UMSG(MOk));
+  Message(0,1,UMSG(MRegTitle),UMSG(MRegThanks),UMSG(MOk));
 }
 
 
@@ -188,19 +188,19 @@ void __cdecl CheckReg(void *Param)
 
   SetRegRootKey(HKEY_CURRENT_USER);
   // в первую очередь читаем из HKCU
-  if(!CheckRegKeyW(KeyRegistration))
+  if(!CheckRegKey(KeyRegistration))
   {
     // а потом из HKLM
     string strSaveKey;
     strSaveKey = Opt.strRegRoot;
     Opt.strRegRoot = L"Software\\Far18";
     SetRegRootKey(HKEY_LOCAL_MACHINE);
-    Size=GetRegKeyW(KeyRegistration,L"Data",(BYTE *)RegData,NULL,Size);
+    Size=GetRegKey(KeyRegistration,L"Data",(BYTE *)RegData,NULL,Size);
     SetRegRootKey(HKEY_CURRENT_USER);
     Opt.strRegRoot = strSaveKey;
   }
   else
-    Size=GetRegKeyW(KeyRegistration,L"Data",(BYTE *)RegData,NULL,Size);
+    Size=GetRegKey(KeyRegistration,L"Data",(BYTE *)RegData,NULL,Size);
 
   memset(Reg,0,sizeof(*Reg));
   if (Size==0)
@@ -254,7 +254,7 @@ void __cdecl ErrRegFn(void *Param)
 {
   if (RegVer!=3)
   {
-    MessageW(0,1,UMSG(MRegTitle),UMSG(MRegFailed),UMSG(MOk));
+    Message(0,1,UMSG(MRegTitle),UMSG(MRegFailed),UMSG(MOk));
     RegVer=0;
   }
   if(!RegistrationBugs)

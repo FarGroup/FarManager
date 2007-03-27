@@ -39,7 +39,7 @@ FilePositionCache::FilePositionCache(int TypeCache)
 
   if(!Opt.MaxPositionCache)
   {
-    GetRegKeyW(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
+    GetRegKey(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
     if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
       Opt.MaxPositionCache=MAX_POSITIONS;
   }
@@ -201,8 +201,8 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
     strItem.Format (L"Item%d", I);
     strShort.Format (L"Short%d", I);
 
-    GetRegKeyW(Key,strShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
-    GetRegKeyW(Key,strItem,strDataStr,EmptyPos);
+    GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
+    GetRegKey(Key,strItem,strDataStr,EmptyPos);
 
     if(!wcscmp(strDataStr,EmptyPos))
     {
@@ -286,12 +286,12 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
     // ????????
     if(!wcscmp(strDataStr,EmptyPos))
     {
-      DeleteRegValueW(Key,strItem);
+      DeleteRegValue(Key,strItem);
       continue;
     }
     // ????????
 
-    SetRegKeyW(Key,strItem,strDataStr);
+    SetRegKey(Key,strItem,strDataStr);
     if((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
@@ -311,9 +311,9 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
       }
 
       if(J < (BOOKMARK_COUNT*4))
-        SetRegKeyW(Key,strShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
+        SetRegKey(Key,strShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
       else
-        DeleteRegValueW(Key,strShort);
+        DeleteRegValue(Key,strShort);
     }
   }
   return TRUE;

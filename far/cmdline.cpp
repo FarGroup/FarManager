@@ -50,7 +50,7 @@ void CommandLine::DisplayObject()
   _OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
   string strTruncDir;
   GetPrompt(strTruncDir);
-  TruncPathStrW(strTruncDir,(X2-X1)/2);
+  TruncPathStr(strTruncDir,(X2-X1)/2);
   GotoXY(X1,Y1);
   SetColor(COL_COMMANDLINEPREFIX);
   Text(strTruncDir);
@@ -99,7 +99,7 @@ int CommandLine::ProcessKey(int Key)
       if(SetLastCmdStr(CmdStr.GetStringAddrW()))
         LastCmdPartLength=CurCmdPartLength;
     }
-    CmdStr.SetStringW(strStr);
+    CmdStr.SetString(strStr);
     Show();
     return(TRUE);
   }
@@ -148,7 +148,7 @@ int CommandLine::ProcessKey(int Key)
       }
       else
         PStr=strStr;
-      SetStringW(PStr);
+      SetString(PStr);
       return(TRUE);
     case KEY_F2:
       ProcessUserMenu(0);
@@ -162,7 +162,7 @@ int CommandLine::ProcessKey(int Key)
         int SelectType=CtrlObject->CmdHistory->Select(UMSG(MHistoryTitle),L"History",strStr,Type);
         if(SelectType > 0 && SelectType <= 3)
         {
-          SetStringW(strStr);
+          SetString(strStr);
           if(SelectType < 3)
             ProcessKey(SelectType==1?(int)KEY_ENTER:(int)KEY_SHIFTENTER);
         }
@@ -184,7 +184,7 @@ int CommandLine::ProcessKey(int Key)
         if ( !strStr.IsEmpty() )
         {
           Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-          ActivePanel->SetCurDirW(strStr,TRUE);
+          ActivePanel->SetCurDir(strStr,TRUE);
           ActivePanel->Show();
           if (ActivePanel->GetType()==TREE_PANEL)
             ActivePanel->ProcessKey(KEY_ENTER);
@@ -226,7 +226,7 @@ int CommandLine::ProcessKey(int Key)
           {
             if(Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolderW(&strStr,FALSE))
             {
-              Panel->SetCurDirW(strStr,Type==0 ? TRUE:FALSE);
+              Panel->SetCurDir(strStr,Type==0 ? TRUE:FALSE);
               Panel->Redraw();
               CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
             }
@@ -234,7 +234,7 @@ int CommandLine::ProcessKey(int Key)
         }
         else
           if (SelectType==3)
-            SetStringW(strStr);
+            SetString(strStr);
       }
       return(TRUE);
     case KEY_ENTER:
@@ -247,7 +247,7 @@ int CommandLine::ProcessKey(int Key)
         CmdStr.Select(-1,0);
         CmdStr.Show();
         /* IS $ */
-        CmdStr.GetStringW(strStr);
+        CmdStr.GetString(strStr);
         if ( strStr.IsEmpty() )
           break;
 
@@ -343,30 +343,30 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-void CommandLine::SetCurDirW(const wchar_t *CurDir)
+void CommandLine::SetCurDir(const wchar_t *CurDir)
 {
     strCurDir = CurDir;
     PrepareDiskPathW (strCurDir);
 }
 
 
-int CommandLine::GetCurDirW(string &strCurDir)
+int CommandLine::GetCurDir(string &strCurDir)
 {
     strCurDir = CommandLine::strCurDir;
     return (int)strCurDir.GetLength();
 }
 
 
-void CommandLine::GetStringW (string &strStr)
+void CommandLine::GetString(string &strStr)
 {
-  CmdStr.GetStringW(strStr);
+  CmdStr.GetString(strStr);
 }
 
 
-void CommandLine::SetStringW(const wchar_t *Str,BOOL Redraw)
+void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 {
   LastCmdPartLength=-1;
-  CmdStr.SetStringW(Str);
+  CmdStr.SetString(Str);
   CmdStr.SetLeftPos(0);
   if(Redraw)
     CmdStr.Show();
@@ -377,15 +377,15 @@ void CommandLine::SetStringW(const wchar_t *Str,BOOL Redraw)
 void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
                              int DirectRun)
 {
-  SetStringW(Str);
+  SetString(Str);
   CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun);
 }
 
 
-void CommandLine::InsertStringW(const wchar_t *Str)
+void CommandLine::InsertString(const wchar_t *Str)
 {
   LastCmdPartLength=-1;
-  CmdStr.InsertStringW(Str);
+  CmdStr.InsertString(Str);
   CmdStr.Show();
 }
 
@@ -601,7 +601,7 @@ void CommandLine::ShowViewEditHistory()
   }
   else
     if (SelectType==3) // скинуть из истории в ком.строку?
-      SetStringW(strStr);
+      SetString(strStr);
 }
 
 /* DJ $ */
@@ -646,9 +646,9 @@ void CommandLine::ResizeConsole()
 //  this->DisplayObject();
 }
 
-void CommandLine::GetSelStringW (string &strStr)
+void CommandLine::GetSelString(string &strStr)
 {
-  CmdStr.GetSelStringW(strStr);
+  CmdStr.GetSelString(strStr);
 }
 
 

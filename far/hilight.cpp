@@ -66,53 +66,53 @@ void LoadFilterFromReg(FileFilterParams *HData, const wchar_t *RegKey, const wch
   //настройки старых версий фара.
 
   if (bSortGroup)
-    HData->SetMask((DWORD)GetRegKeyW(RegKey,HLS.UseMask,1), Mask);
+    HData->SetMask((DWORD)GetRegKey(RegKey,HLS.UseMask,1), Mask);
   else
-    HData->SetMask((DWORD)(GetRegKeyW(RegKey,HLS.IgnoreMask,0)?0:1), Mask);
+    HData->SetMask((DWORD)(GetRegKey(RegKey,HLS.IgnoreMask,0)?0:1), Mask);
 
 
   FILETIME DateAfter, DateBefore;
-  GetRegKeyW(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
-  GetRegKeyW(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
-  HData->SetDate((DWORD)GetRegKeyW(RegKey,HLS.UseDate,0),
-                 (DWORD)GetRegKeyW(RegKey,HLS.DateType,0),
+  GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
+  GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
+  HData->SetDate((DWORD)GetRegKey(RegKey,HLS.UseDate,0),
+                 (DWORD)GetRegKey(RegKey,HLS.DateType,0),
                  DateAfter,
                  DateBefore);
 
-  HData->SetSize((DWORD)GetRegKeyW(RegKey,HLS.UseSize,0),
-                 (DWORD)GetRegKeyW(RegKey,HLS.SizeType,0),
-                 GetRegKey64W(RegKey,HLS.SizeAbove,(unsigned __int64)_i64(-1)),
-                 GetRegKey64W(RegKey,HLS.SizeBelow,(unsigned __int64)_i64(-1)));
+  HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
+                 (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
+                 GetRegKey64(RegKey,HLS.SizeAbove,(unsigned __int64)_i64(-1)),
+                 GetRegKey64(RegKey,HLS.SizeBelow,(unsigned __int64)_i64(-1)));
 
   if (bSortGroup)
   {
-    HData->SetAttr((DWORD)GetRegKeyW(RegKey,HLS.UseAttr,1),
-                   (DWORD)GetRegKeyW(RegKey,HLS.AttrSet,0),
-                   (DWORD)GetRegKeyW(RegKey,HLS.AttrClear,FILE_ATTRIBUTE_DIRECTORY));
+    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+                   (DWORD)GetRegKey(RegKey,HLS.AttrSet,0),
+                   (DWORD)GetRegKey(RegKey,HLS.AttrClear,FILE_ATTRIBUTE_DIRECTORY));
   }
   else
   {
-    HData->SetAttr((DWORD)GetRegKeyW(RegKey,HLS.UseAttr,1),
-                   (DWORD)GetRegKeyW(RegKey,HLS.IncludeAttributes,0),
-                   (DWORD)GetRegKeyW(RegKey,HLS.ExcludeAttributes,0));
+    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+                   (DWORD)GetRegKey(RegKey,HLS.IncludeAttributes,0),
+                   (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
   }
 
   HData->SetSortGroup(SortGroup);
 
   HighlightDataColor Colors;
-  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKeyW(RegKey,HLS.NormalColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKeyW(RegKey,HLS.SelectedColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKeyW(RegKey,HLS.CursorColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKeyW(RegKey,HLS.SelectedCursorColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKeyW(RegKey,HLS.MarkCharNormalColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKeyW(RegKey,HLS.MarkCharSelectedColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKeyW(RegKey,HLS.MarkCharCursorColor,0);
-  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKeyW(RegKey,HLS.MarkCharSelectedCursorColor,0);
-  Colors.MarkChar=GetRegKeyW(RegKey,HLS.MarkChar,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.NormalColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.SelectedColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.CursorColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.SelectedCursorColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]=(WORD)GetRegKey(RegKey,HLS.MarkCharNormalColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharCursorColor,0);
+  Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]=(WORD)GetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,0);
+  Colors.MarkChar=GetRegKey(RegKey,HLS.MarkChar,0);
 
   HData->SetColors(&Colors);
 
-  HData->SetContinueProcessing(GetRegKeyW(RegKey,HLS.ContinueProcessing,0)!=0);
+  HData->SetContinueProcessing(GetRegKey(RegKey,HLS.ContinueProcessing,0)!=0);
 }
 
 void HighlightFiles::InitHighlightFiles()
@@ -135,12 +135,12 @@ void HighlightFiles::InitHighlightFiles()
 
       if (GroupDelta[j]!=DEFAULT_SORT_GROUP)
       {
-        if (!GetRegKeyW(KeyNames[j],strGroupName,strMask,L""))
+        if (!GetRegKey(KeyNames[j],strGroupName,strMask,L""))
           break;
       }
       else
       {
-        if (!GetRegKeyW(strRegKey,HLS.Mask,strMask,L""))
+        if (!GetRegKey(strRegKey,HLS.Mask,strMask,L""))
           break;
       }
 
@@ -472,11 +472,11 @@ void HighlightFiles::HiEdit(int MenuPos)
           ≈сли нажали ctrl+r, то восстановить значени€ по умолчанию.
         */
         case KEY_CTRLR:
-          if (MessageW(MSG_WARNING,2,UMSG(MHighlightTitle),
+          if (Message(MSG_WARNING,2,UMSG(MHighlightTitle),
                         UMSG(MHighlightWarning),UMSG(MHighlightAskRestore),
                         UMSG(MYes),UMSG(MCancel))!=0)
              break;
-          DeleteKeyTreeW(RegColorsHighlight);
+          DeleteKeyTree(RegColorsHighlight);
           SetHighlighting();
           HiMenu.Hide();
           ClearData();
@@ -491,7 +491,7 @@ void HighlightFiles::HiEdit(int MenuPos)
             {
               const wchar_t *Mask;
               HiData.getItem(RealSelectPos)->GetMask(&Mask);
-              if (MessageW(MSG_WARNING,2,UMSG(MHighlightTitle),
+              if (Message(MSG_WARNING,2,UMSG(MHighlightTitle),
                           UMSG(MHighlightAskDel),Mask,
                           UMSG(MDelete),UMSG(MCancel))!=0)
                 break;
@@ -662,46 +662,46 @@ void HighlightFiles::HiEdit(int MenuPos)
 void SaveFilterToReg(FileFilterParams *CurHiData, const wchar_t *RegKey, bool bSortGroup)
 {
   if (bSortGroup)
-    SetRegKeyW(RegKey,HLS.UseMask,CurHiData->GetMask(NULL));
+    SetRegKey(RegKey,HLS.UseMask,CurHiData->GetMask(NULL));
   else
   {
     const wchar_t *Mask;
-    SetRegKeyW(RegKey,HLS.IgnoreMask,(CurHiData->GetMask(&Mask) ? 0 : 1));
-    SetRegKeyW(RegKey,HLS.Mask,Mask);
+    SetRegKey(RegKey,HLS.IgnoreMask,(CurHiData->GetMask(&Mask) ? 0 : 1));
+    SetRegKey(RegKey,HLS.Mask,Mask);
   }
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
-  SetRegKeyW(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
-  SetRegKeyW(RegKey,HLS.DateType,DateType);
-  SetRegKeyW(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
-  SetRegKeyW(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
+  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
+  SetRegKey(RegKey,HLS.DateType,DateType);
+  SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
+  SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
 
   DWORD SizeType;
   __int64 SizeAbove, SizeBelow;
-  SetRegKeyW(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-  SetRegKeyW(RegKey,HLS.SizeType,SizeType);
-  SetRegKey64W(RegKey,HLS.SizeAbove,SizeAbove);
-  SetRegKey64W(RegKey,HLS.SizeBelow,SizeBelow);
+  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
+  SetRegKey(RegKey,HLS.SizeType,SizeType);
+  SetRegKey64(RegKey,HLS.SizeAbove,SizeAbove);
+  SetRegKey64(RegKey,HLS.SizeBelow,SizeBelow);
 
   DWORD AttrSet, AttrClear;
-  SetRegKeyW(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
-  SetRegKeyW(RegKey,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
-  SetRegKeyW(RegKey,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
+  SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
+  SetRegKey(RegKey,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
+  SetRegKey(RegKey,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 
   HighlightDataColor Colors;
   CurHiData->GetColors(&Colors);
-  SetRegKeyW(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]);
-  SetRegKeyW(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]);
-  SetRegKeyW(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]);
-  SetRegKeyW(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
-  SetRegKeyW(RegKey,HLS.MarkCharNormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]);
-  SetRegKeyW(RegKey,HLS.MarkCharSelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]);
-  SetRegKeyW(RegKey,HLS.MarkCharCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]);
-  SetRegKeyW(RegKey,HLS.MarkCharSelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
-  SetRegKeyW(RegKey,HLS.MarkChar,Colors.MarkChar);
+  SetRegKey(RegKey,HLS.NormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL]);
+  SetRegKey(RegKey,HLS.SelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED]);
+  SetRegKey(RegKey,HLS.CursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR]);
+  SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
+  SetRegKey(RegKey,HLS.MarkCharNormalColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL]);
+  SetRegKey(RegKey,HLS.MarkCharSelectedColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED]);
+  SetRegKey(RegKey,HLS.MarkCharCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR]);
+  SetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
+  SetRegKey(RegKey,HLS.MarkChar,Colors.MarkChar);
 
-  SetRegKeyW(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing() ? 1 : 0));
+  SetRegKey(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing() ? 1 : 0));
 }
 
 void HighlightFiles::SaveHiData()
@@ -729,7 +729,7 @@ void HighlightFiles::SaveHiData()
       {
         const wchar_t *Mask;
         CurHiData->GetMask(&Mask);
-        SetRegKeyW(KeyNames[j],strGroupName,Mask);
+        SetRegKey(KeyNames[j],strGroupName,Mask);
       }
 
       SaveFilterToReg(CurHiData,strRegKey,(j==0 || j==3?false:true));
@@ -740,15 +740,15 @@ void HighlightFiles::SaveHiData()
       strGroupName.Format(GroupNames[j],Count[j][1]-Count[j][0]+i);
       strRegKey.Format(L"%s\\%s",KeyNames[j],(const wchar_t *)strGroupName);
       if (j!=0 && j!=3)
-        DeleteRegValueW(KeyNames[j],strGroupName);
-      DeleteRegKeyW(strRegKey);
+        DeleteRegValue(KeyNames[j],strGroupName);
+      DeleteRegKey(strRegKey);
     }
   }
 }
 
 void SetHighlighting()
 {
-  if (CheckRegKeyW(RegColorsHighlight))
+  if (CheckRegKey(RegColorsHighlight))
     return;
 
   string strRegKey;
@@ -799,10 +799,10 @@ void SetHighlighting()
   for(int I=0; I < countof(StdHighlightData); I++)
   {
   	strRegKey.Format(L"%s\\Group%d",RegColorsHighlight,I);
-    SetRegKeyW(strRegKey,HLS.Mask,StdHighlightData[I].Mask);
-    SetRegKeyW(strRegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
-    SetRegKeyW(strRegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
-    SetRegKeyW(strRegKey,HLS.NormalColor,StdHighlightData[I].NormalColor);
-    SetRegKeyW(strRegKey,HLS.CursorColor,StdHighlightData[I].CursorColor);
+    SetRegKey(strRegKey,HLS.Mask,StdHighlightData[I].Mask);
+    SetRegKey(strRegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
+    SetRegKey(strRegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
+    SetRegKey(strRegKey,HLS.NormalColor,StdHighlightData[I].NormalColor);
+    SetRegKey(strRegKey,HLS.CursorColor,StdHighlightData[I].CursorColor);
   }
 }

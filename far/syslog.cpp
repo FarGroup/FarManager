@@ -672,7 +672,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
   if ( LogStream )
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTimeW(timebuf),MakeSpaceW(),PointToNameW(ModuleName),msg);
+    fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTimeW(timebuf),MakeSpaceW(),PointToName(ModuleName),msg);
     fflush(LogStream);
   }
   CloseSysLog();

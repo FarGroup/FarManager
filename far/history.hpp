@@ -18,14 +18,14 @@ enum{
 
 #define HISTORY_TITLESIZE 32
 
-struct HistoryRecordW
+struct HistoryRecord
 {
   int   Type;
   wchar_t  Title[HISTORY_TITLESIZE]; //BUGBUG
   wchar_t *Name;
 };
 
-class HistoryW
+class History
 {
   private:
     string strRegKey;
@@ -38,7 +38,7 @@ class HistoryW
     int SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
-    struct HistoryRecordW *LastStr;
+    HistoryRecord *LastStr;
 
   private:
     void AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type);
@@ -46,8 +46,8 @@ class HistoryW
     BOOL EqualType(int Type1, int Type2);
 
   public:
-    HistoryW(int TypeHistory,int HistoryCount,const wchar_t *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
-   ~HistoryW();
+    History(int TypeHistory,int HistoryCount,const wchar_t *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
+   ~History();
 
   public:
     void AddToHistory(const wchar_t *Str,const wchar_t *Title=NULL,int Type=0,int SaveForbid=0);

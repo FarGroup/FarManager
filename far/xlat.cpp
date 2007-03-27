@@ -66,7 +66,7 @@ char* WINAPI Xlat(
   int ProcessLayoutName=FALSE;
   if((Flags & XLAT_USEKEYBLAYOUTNAME) && FARGetKeybLayoutNameW(strLayoutName))
   {
-    GetRegKeyW(L"XLat",strLayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)"",sizeof(Opt.XLat.Rules[2]));
+    GetRegKey(L"XLat",strLayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)"",sizeof(Opt.XLat.Rules[2]));
     if(Opt.XLat.Rules[2][1])
       ProcessLayoutName=TRUE;
   }

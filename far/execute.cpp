@@ -390,11 +390,11 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
   */
   static wchar_t ExcludeCmds[4096]={0};
   static int PrepareExcludeCmds=FALSE;
-  if(GetRegKeyW(strSystemExecutor,L"Type",0))
+  if(GetRegKey(strSystemExecutor,L"Type",0))
   {
     if (!PrepareExcludeCmds)
     {
-      GetRegKeyW(strSystemExecutor,L"ExcludeCmds",(PBYTE)ExcludeCmds,(PBYTE)L"",sizeof(ExcludeCmds));
+      GetRegKey(strSystemExecutor,L"ExcludeCmds",(PBYTE)ExcludeCmds,(PBYTE)L"",sizeof(ExcludeCmds));
       Ptr=wcscat(ExcludeCmds,L";"); //!!!
       ExcludeCmds[wcslen(ExcludeCmds)]=0;
       while(*Ptr)
@@ -440,7 +440,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
     strFullName = strFileName;
 
-    const wchar_t *PtrFName = PointToNameW (strFullName);
+    const wchar_t *PtrFName = PointToName(strFullName);
     PtrFName = wcsrchr (PtrFName, L'.');
 
     string strWorkName;
@@ -555,7 +555,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
             /* $ 03.10.2001 VVM Обработать переменные окружения */
             strFileName = strFullName;
             apiExpandEnvironmentStrings(strFileName, strFullName);
-            UnquoteW(strFullName);
+            Unquote(strFullName);
             Ret=TRUE;
             break;
           }
@@ -589,7 +589,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
                 /* $ 03.10.2001 VVM Обработать переменные окружения */
                 strFileName = strFullName;
                 apiExpandEnvironmentStrings(strFileName, strFullName);
-                UnquoteW(strFullName);
+                Unquote(strFullName);
                 Ret=TRUE;
                 break;
               }
@@ -693,10 +693,10 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
         string strSavePath;
         string strPanelPath;
 
-        FarGetCurDirW(strSavePath);
-        PassivePanel->GetCurDirW(strPanelPath);
+        FarGetCurDir(strSavePath);
+        PassivePanel->GetCurDir(strPanelPath);
 
-        QuoteSpaceW (strPanelPath);
+        QuoteSpace(strPanelPath);
 
         strSetPathCmd = strComspec+L" /C chdir %s"+strPanelPath;
 
@@ -787,7 +787,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   if ( strComspec.IsEmpty() && (SeparateWindow != 2) )
   {
-    MessageW(MSG_WARNING, 1, UMSG(MWarning), UMSG(MComspecNotFound), UMSG(MErrorCancelled), UMSG(MOk));
+    Message(MSG_WARNING, 1, UMSG(MWarning), UMSG(MComspecNotFound), UMSG(MErrorCancelled), UMSG(MOk));
     return -1;
   }
 
@@ -822,7 +822,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   HANDLE hProcess = NULL, hThread = NULL;
 
   if(FolderRun && SeparateWindow==2)
-    AddEndSlashW(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+    AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
   else
   {
     PrepareExecuteModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
@@ -886,7 +886,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     if (SeparateWindow)
       si.lpTitle=(wchar_t*)(const wchar_t*)strFarTitle;
 
-    QuoteSpaceW (strNewCmdStr);
+    QuoteSpace(strNewCmdStr);
 
     strExecLine = strComspec;
     strExecLine += L" /C ";
@@ -1089,17 +1089,17 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       SetMessageHelp(L"ErrCannotExecute");
 
       strOutStr = strNewCmdStr;
-      UnquoteW(strOutStr);
-      TruncPathStrW(strOutStr,ScrX-15);
+      Unquote(strOutStr);
+      TruncPathStr(strOutStr,ScrX-15);
 
-      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotExecute),strOutStr,UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotExecute),strOutStr,UMSG(MOk));
     }
     else
     {
       ScrBuf.Flush ();
 
       strOutStr.Format (UMSG(MExecuteErrorMessage),(const wchar_t *)strNewCmdStr);
-      string strPtrStr=FarFormatTextW(strOutStr,ScrX, strPtrStr,L"\n",0);
+      string strPtrStr=FarFormatText(strOutStr,ScrX, strPtrStr,L"\n",0);
 
       wprintf(strPtrStr);
 
@@ -1149,7 +1149,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
     */
     if (CtrlObject->Cp()->IsTopFrame())
     {
-      //CmdStr.SetStringW(L"");
+      //CmdStr.SetString(L"");
       GotoXY(X1,Y1);
       mprintf(L"%*s",X2-X1+1,L"");
       Show();
@@ -1171,7 +1171,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
       MoveCursor(X1,Y1);
       if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
         FarChDirW(strCurDir);
-      CmdStr.SetStringW(L"");
+      CmdStr.SetString(L"");
       if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
         Code=-1;
       else
@@ -1291,7 +1291,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
         string strExpandedStr;
         wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
         Cmd[PtrCmd-CmdStart]=0;
-        //UnquoteW(Cmd); BUGBUG
+        //Unquote(Cmd); BUGBUG
 //_SVS(SysLog(L"Cmd='%s'",Cmd));
         if (apiExpandEnvironmentStrings(Cmd,strExpandedStr)!=0)
         {
@@ -1299,10 +1299,10 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           if(!(Cmd[1] == L':' || (Cmd[0] == L'\\' && Cmd[1]==L'\\') || strExpandedStr.At(1) == L':' || (strExpandedStr.At(0) == L'\\' && strExpandedStr.At(1)==L'\\')))
           {
             if(CtrlObject)
-              CtrlObject->CmdLine->GetCurDirW(strFullPath);
+              CtrlObject->CmdLine->GetCurDir(strFullPath);
             else
-              FarGetCurDirW(strFullPath);
-            AddEndSlashW(strFullPath);
+              FarGetCurDir(strFullPath);
+            AddEndSlash(strFullPath);
           }
           strFullPath += strExpandedStr;
           DWORD FileAttr=(DWORD)-1;
@@ -1492,7 +1492,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
     {
-      //CmdStr.SetStringW(L"");
+      //CmdStr.SetString(L"");
       GotoXY(X1,Y1);
       mprintf(L"%*s",X2-X1+1,L"");
       Show();
@@ -1508,7 +1508,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   if (!SeparateWindow &&  /* DJ $ */
       (LocalStrnicmpW(strCmdLine,L"CD",Length=2)==0 || LocalStrnicmpW(strCmdLine,L"CHDIR",Length=5)==0) &&
       (IsSpaceW(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
-      TestParentFolderNameW((const wchar_t*)strCmdLine+Length)))
+      TestParentFolderName((const wchar_t*)strCmdLine+Length)))
   {
     int ChDir=(Length==5);
 
@@ -1518,7 +1518,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     string strExpandedDir;
     strExpandedDir = (const wchar_t*)strCmdLine+Length;
 
-    UnquoteW(strExpandedDir);
+    Unquote(strExpandedDir);
     apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
 
 
@@ -1528,7 +1528,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     if(SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == (DWORD)-1)
     {
-      GetRegKeyW(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
+      GetRegKey(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
       DeleteEndSlashW(strExpandedDir);
     }
 
@@ -1569,7 +1569,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsoluteW(strExpandedDir))
     {
       ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
-      SetPanel->SetCurDirW(strExpandedDir,TRUE);
+      SetPanel->SetCurDir(strExpandedDir,TRUE);
       return TRUE;
     }
     /* OT $ */
@@ -1597,7 +1597,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
     {
-      SetPanel->SetCurDirW(strExpandedDir,ChDir);
+      SetPanel->SetCurDir(strExpandedDir,ChDir);
       return(TRUE);
     }
 

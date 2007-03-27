@@ -213,7 +213,7 @@ BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFo
       if(GetSubstNameW(DRIVE_NOT_INIT,LocalName, strSubstName))
       {
         strDestDir += strSubstName;
-        AddEndSlashW(strDestDir);
+        AddEndSlash(strDestDir);
         PtrFullDir=(const wchar_t*)strFullDir+3;
       }
     }
@@ -745,8 +745,8 @@ void GetPathRootOneW(const wchar_t *Path,string &strRoot)
     if(!PathMayBeAbsoluteW(strTempRoot))
     {
       string strTemp;
-      FarGetCurDirW(strTemp);
-      AddEndSlashW(strTemp);
+      FarGetCurDir(strTemp);
+      AddEndSlash(strTemp);
       strTemp += strTempRoot; //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
       strTempRoot = strTemp;
     }

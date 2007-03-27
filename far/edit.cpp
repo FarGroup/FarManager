@@ -25,13 +25,13 @@ static int EditEncodeDisabled=0;
 static int Recurse=0;
 
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
-static const wchar_t *EOL_TYPE_CHARS_W[]={L"",L"\r",L"\n",L"\r\n"};
+static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n"};
 
-#define EDMASK_ANY_W   L'X' // позволяет вводить в строку ввода любой символ;
-#define EDMASK_DSS_W   L'#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
-#define EDMASK_DIGIT_W L'9' // позволяет вводить в строку ввода только цифры;
-#define EDMASK_ALPHA_W L'A' // позволяет вводить в строку ввода только буквы.
-#define EDMASK_HEX_W   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
+#define EDMASK_ANY   L'X' // позволяет вводить в строку ввода любой символ;
+#define EDMASK_DSS   L'#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
+#define EDMASK_DIGIT L'9' // позволяет вводить в строку ввода только цифры;
+#define EDMASK_ALPHA L'A' // позволяет вводить в строку ввода только буквы.
+#define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 
 Edit::Edit(ScreenObject *pOwner)
@@ -547,7 +547,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
     if (Flags.Check(FEDITLINE_CLEARFLAG))
     {
       LeftPos=0;
-      SetStringW(L"");
+      SetString(L"");
     }
 
     if (PrevSelStart!=-1)
@@ -562,7 +562,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 //    if(TableSet)
 //       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,strlen(PathName)); //BUGBUG
 
-    InsertStringW (strPathName);
+    InsertString(strPathName);
 
     Flags.Clear(FEDITLINE_CLEARFLAG);
   }
@@ -705,7 +705,7 @@ int Edit::ProcessKey(int Key)
       Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER))
   {
     LeftPos=0;
-    SetStringW(L"");
+    SetString(L"");
     Show();
   }
 
@@ -1411,11 +1411,11 @@ int Edit::ProcessKey(int Key)
         if (Flags.Check(FEDITLINE_CLEARFLAG))
         {
           LeftPos=0;
-          SetStringW(ClipText);
+          SetString(ClipText);
           Flags.Clear(FEDITLINE_CLEARFLAG);
         }
         else
-          InsertStringW(ClipText);
+          InsertString(ClipText);
         /* $ 13.07.2000 SVS
            в PasteFromClipboard запрос памятиче через new[]
         */
@@ -1510,7 +1510,7 @@ int Edit::ProcessInsDate(void)
 
   if(MkStrFTimeW(strTStr,Fmt))
   {
-    InsertStringW(strTStr);
+    InsertString(strTStr);
     return TRUE;
   }
   return FALSE;
@@ -1521,7 +1521,7 @@ int Edit::ProcessInsPlainText(void)
   const wchar_t *str = eStackAsString();
   if (*str)
   {
-    InsertStringW(str);
+    InsertString(str);
     return TRUE;
   }
 
@@ -1674,13 +1674,13 @@ void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 /* SVS $ */
 
 
-void Edit::GetStringW(wchar_t *Str,int MaxSize)
+void Edit::GetString(wchar_t *Str,int MaxSize)
 {
     xwcsncpy(Str, Edit::Str,MaxSize-1);
     Str[MaxSize-1]=0;
 }
 
-void Edit::GetStringW(string &strStr)
+void Edit::GetString(string &strStr)
 {
     strStr = Edit::Str;
 }
@@ -1693,15 +1693,15 @@ const wchar_t* Edit::GetStringAddrW()
 
 
 
-void Edit::SetStringW(const wchar_t *Str)
+void Edit::SetString(const wchar_t *Str)
 {
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   Select(-1,0);
-  SetBinaryStringW(Str,(int)wcslen(Str));
+  SetBinaryString(Str,(int)wcslen(Str));
 }
 
-void Edit::SetEOLW(const wchar_t *EOL)
+void Edit::SetEOL(const wchar_t *EOL)
 {
   EndType=EOL_NONE;
   if ( EOL )
@@ -1718,9 +1718,9 @@ void Edit::SetEOLW(const wchar_t *EOL)
 
 }
 
-const wchar_t *Edit::GetEOLW(void)
+const wchar_t *Edit::GetEOL(void)
 {
-  return EOL_TYPE_CHARS_W[EndType];
+  return EOL_TYPE_CHARS[EndType];
 }
 
 /* $ 25.07.2000 tran
@@ -1728,7 +1728,7 @@ const wchar_t *Edit::GetEOLW(void)
    в этом методе DropDownBox не обрабатывается
    ибо он вызывается только из SetString и из класса Editor
    в Dialog он нигде не вызывается */
-void Edit::SetBinaryStringW(const wchar_t *Str,int Length)
+void Edit::SetBinaryString(const wchar_t *Str,int Length)
 {
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
@@ -1832,17 +1832,17 @@ void Edit::SetBinaryStringW(const wchar_t *Str,int Length)
   /* KM $ */
 }
 
-void Edit::GetBinaryStringW(const wchar_t **Str,const wchar_t **EOL,int &Length)
+void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
 {
     *Str=Edit::Str;
 
     if (EOL!=NULL)
-        *EOL=EOL_TYPE_CHARS_W[EndType];
+        *EOL=EOL_TYPE_CHARS[EndType];
 
     Length=StrSize; //???
 }
 
-int Edit::GetSelStringW(wchar_t *Str, int MaxSize)
+int Edit::GetSelString(wchar_t *Str, int MaxSize)
 {
   if (SelStart==-1 || SelEnd!=-1 && SelEnd<=SelStart ||
       SelStart>=StrSize)
@@ -1863,7 +1863,7 @@ int Edit::GetSelStringW(wchar_t *Str, int MaxSize)
   return(TRUE);
 }
 
-int Edit::GetSelStringW (string &strStr)
+int Edit::GetSelString (string &strStr)
 {
   if (SelStart==-1 || SelEnd!=-1 && SelEnd<=SelStart ||
       SelStart>=StrSize)
@@ -1888,7 +1888,7 @@ int Edit::GetSelStringW (string &strStr)
 
 
 
-void Edit::InsertStringW(const wchar_t *Str)
+void Edit::InsertString(const wchar_t *Str)
 {
   /* $ 25.07.2000 tran
      + drop-down */
@@ -1900,11 +1900,11 @@ void Edit::InsertStringW(const wchar_t *Str)
   /* tran 25.07.2000 $ */
 
   Select(-1,0);
-  InsertBinaryStringW(Str,(int)wcslen(Str));
+  InsertBinaryString(Str,(int)wcslen(Str));
 }
 
 
-void Edit::InsertBinaryStringW(const wchar_t *Str,int Length)
+void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 {
   wchar_t *NewStr;
 
@@ -2028,7 +2028,7 @@ int Edit::GetLength()
 
 /* $ 12.08.2000 KM */
 // Функция установки маски ввода в объект Edit
-void Edit::SetInputMaskW(const wchar_t *InputMask)
+void Edit::SetInputMask(const wchar_t *InputMask)
 {
   if (Mask)
     xf_free(Mask);
@@ -2675,22 +2675,22 @@ void Edit::Xlat(BOOL All)
 int Edit::KeyMatchedMask(int Key)
 {
   int Inserted=FALSE;
-  if (Mask[CurPos]==EDMASK_ANY_W)
+  if (Mask[CurPos]==EDMASK_ANY)
     Inserted=TRUE;
-  else if (Mask[CurPos]==EDMASK_DSS_W && (iswdigit(Key) || Key==L' ' || Key==L'-'))
+  else if (Mask[CurPos]==EDMASK_DSS && (iswdigit(Key) || Key==L' ' || Key==L'-'))
     Inserted=TRUE;
   /* $ 15.11.2000 KM
      Убрано разрешение пробелов в цифровой маске.
   */
-  else if (Mask[CurPos]==EDMASK_DIGIT_W && (iswdigit(Key)))
+  else if (Mask[CurPos]==EDMASK_DIGIT && (iswdigit(Key)))
     Inserted=TRUE;
   /* KM $ */
-  else if (Mask[CurPos]==EDMASK_ALPHA_W && LocalIsalphaW(Key))
+  else if (Mask[CurPos]==EDMASK_ALPHA && LocalIsalphaW(Key))
     Inserted=TRUE;
   /* $ 20.09.2003 KM
      Добавлена поддержка hex-символов.
   */
-  else if (Mask[CurPos]==EDMASK_HEX_W && (iswdigit(Key) || (LocalUpperW(Key)>=L'A' && LocalUpperW(Key)<=L'F') || (LocalUpperW(Key)>=L'a' && LocalUpperW(Key)<=L'f')))
+  else if (Mask[CurPos]==EDMASK_HEX && (iswdigit(Key) || (LocalUpperW(Key)>=L'A' && LocalUpperW(Key)<=L'F') || (LocalUpperW(Key)>=L'a' && LocalUpperW(Key)<=L'f')))
     Inserted=TRUE;
   /* KM $ */
 
@@ -2700,7 +2700,7 @@ int Edit::KeyMatchedMask(int Key)
 
 int Edit::CheckCharMask(wchar_t Chr)
 {
-  return (Chr==EDMASK_ANY_W || Chr==EDMASK_DIGIT_W || Chr==EDMASK_DSS_W || Chr==EDMASK_ALPHA_W || Chr==EDMASK_HEX_W)?TRUE:FALSE;
+  return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX)?TRUE:FALSE;
 }
 
 void Edit::SetDialogParent(DWORD Sets)

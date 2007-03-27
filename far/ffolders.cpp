@@ -51,19 +51,19 @@ static int ProcessShortcutRecord(int Command,int ValType,int RecNumber, string *
   strValueName.Format (RecTypeName[ValType], RecNumber);
 
   if(Command == PSCR_CMDGET)
-    GetRegKeyW(FolderShortcuts,strValueName,*pValue,L"");
+    GetRegKey(FolderShortcuts,strValueName,*pValue,L"");
   else if(Command == PSCR_CMDSET)
-    SetRegKeyW(FolderShortcuts,strValueName,NullToEmptyW(*pValue));
+    SetRegKey(FolderShortcuts,strValueName,NullToEmptyW(*pValue));
   else if(Command == PSCR_CMDDELALL)
   {
     for(int I=0; I < sizeof(RecTypeName)/sizeof(RecTypeName[0]); ++I)
     {
       strValueName.Format (RecTypeName[I],RecNumber);
-      SetRegKeyW(FolderShortcuts,strValueName,L"");
+      SetRegKey(FolderShortcuts,strValueName,L"");
     }
   }
   else if(Command == PSCR_CMDGETFILDERSIZE)
-    return GetRegKeySizeW(FolderShortcuts,strValueName);
+    return GetRegKeySize(FolderShortcuts,strValueName);
   return 0;
 }
 
@@ -153,7 +153,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
       ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,I,&strFolderName);
 
-      TruncStrW(strFolderName,60);
+      TruncStr(strFolderName,60);
 
       if ( strFolderName.IsEmpty() )
       {
@@ -186,7 +186,7 @@ static int ShowFolderShortcutMenu(int Pos)
             Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
             string strNewDir;
-            CtrlObject->CmdLine->GetCurDirW(strNewDir);
+            CtrlObject->CmdLine->GetCurDir(strNewDir);
 
             ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,SelPos,&strNewDir);
 
@@ -225,20 +225,20 @@ static int ShowFolderShortcutMenu(int Pos)
 
           strOldNewDir = strNewDir;
 
-          if (GetStringW(UMSG(MFolderShortcutsTitle),UMSG(MEnterShortcut),NULL,
+          if (GetString(UMSG(MFolderShortcutsTitle),UMSG(MEnterShortcut),NULL,
                         strNewDir,strNewDir,1024, HelpFolderShortcuts,FIB_BUTTONS/*|FIB_EDITPATH*/) && //BUGBUG 1024
               wcscmp(strNewDir,strOldNewDir) != 0)
           {
-            UnquoteW(strNewDir);
+            Unquote(strNewDir);
             if(!(strNewDir.At(1) == L':' && strNewDir.At(2) == L'\\' && strNewDir.At(3) == 0))
               DeleteEndSlashW(strNewDir);
             BOOL Saved=TRUE;
             apiExpandEnvironmentStrings(strNewDir,strOldNewDir);
             if(GetFileAttributesW(strOldNewDir) == -1)
             {
-              TruncPathStrW(strNewDir, ScrX-16);
+              TruncPathStr(strNewDir, ScrX-16);
               SetLastError(ERROR_PATH_NOT_FOUND);
-              Saved=(MessageW(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strNewDir, UMSG(MSaveThisShortcut), UMSG(MYes), UMSG(MNo)) == 0);
+              Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strNewDir, UMSG(MSaveThisShortcut), UMSG(MYes), UMSG(MNo)) == 0);
             }
 
             if(Saved)

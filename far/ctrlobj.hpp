@@ -12,7 +12,6 @@ ctrlobj.hpp
 
 class CommandLine;
 class History;
-class HistoryW;
 class KeyBar;
 class MenuBar;
 class HighlightFiles;
@@ -37,7 +36,7 @@ class ControlObject
     void CreateFilePanels();
 
     CommandLine *CmdLine;
-    HistoryW *CmdHistory,*FolderHistory,*ViewHistory;
+    History *CmdHistory,*FolderHistory,*ViewHistory;
 
     KeyBar *MainKeyBar;
     MenuBar *TopMenuBar;

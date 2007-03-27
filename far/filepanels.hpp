@@ -79,8 +79,7 @@ class FilePanels:public Frame
     /* $ 28.12.2001 DJ
        единый метод для обработки Ctrl-F10 из вьюера и редактора
     */
-    void GoToFile (const char *FileName);
-    void GoToFileW (const wchar_t *FileName);
+    void GoToFile (const wchar_t *FileName);
 
     /* $ 16.01.2002 OT
        переопределенный виртуальный метод от Frame

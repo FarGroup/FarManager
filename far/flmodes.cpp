@@ -173,10 +173,10 @@ void FileList::ReadPanelModes()
     string strColumnTitles, strColumnWidths;
     string strStatusColumnTitles, strStatusColumnWidths, strRegKey;
     strRegKey.Format (L"Panel\\ViewModes\\Mode%d",I);
-    GetRegKeyW(strRegKey,L"Columns",strColumnTitles,L"");
-    GetRegKeyW(strRegKey,L"ColumnWidths",strColumnWidths,L"");
-    GetRegKeyW(strRegKey,L"StatusColumns",strStatusColumnTitles,L"");
-    GetRegKeyW(strRegKey,L"StatusColumnWidths",strStatusColumnWidths,L"");
+    GetRegKey(strRegKey,L"Columns",strColumnTitles,L"");
+    GetRegKey(strRegKey,L"ColumnWidths",strColumnWidths,L"");
+    GetRegKey(strRegKey,L"StatusColumns",strStatusColumnTitles,L"");
+    GetRegKey(strRegKey,L"StatusColumnWidths",strStatusColumnWidths,L"");
     if ( strColumnTitles.IsEmpty() || strColumnWidths.IsEmpty() )
       continue;
 
@@ -189,13 +189,13 @@ void FileList::ReadPanelModes()
       TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,NewSettings.StatusColumnType,
                          NewSettings.StatusColumnWidth,NewSettings.StatusColumnCount);
 
-    GetRegKeyW(strRegKey,L"FullScreen",NewSettings.FullScreen,0);
-    GetRegKeyW(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions,1);
-    GetRegKeyW(strRegKey,L"FolderAlignExtensions",NewSettings.FolderAlignExtensions,0);
-    GetRegKeyW(strRegKey,L"FolderUpperCase",NewSettings.FolderUpperCase,0);
-    GetRegKeyW(strRegKey,L"FileLowerCase",NewSettings.FileLowerCase,0);
-    GetRegKeyW(strRegKey,L"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase,1);
-    GetRegKeyW(strRegKey,L"CaseSensitiveSort",NewSettings.CaseSensitiveSort,0);
+    GetRegKey(strRegKey,L"FullScreen",NewSettings.FullScreen,0);
+    GetRegKey(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions,1);
+    GetRegKey(strRegKey,L"FolderAlignExtensions",NewSettings.FolderAlignExtensions,0);
+    GetRegKey(strRegKey,L"FolderUpperCase",NewSettings.FolderUpperCase,0);
+    GetRegKey(strRegKey,L"FileLowerCase",NewSettings.FileLowerCase,0);
+    GetRegKey(strRegKey,L"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase,1);
+    GetRegKey(strRegKey,L"CaseSensitiveSort",NewSettings.CaseSensitiveSort,0);
 
     ViewSettingsArray[VIEW_0+I]=NewSettings;
   }
@@ -215,18 +215,18 @@ void FileList::SavePanelModes()
     ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,
         NewSettings.StatusColumnCount,strStatusColumnTitles,strStatusColumnWidths);
 
-    SetRegKeyW(strRegKey,L"Columns",strColumnTitles);
-    SetRegKeyW(strRegKey,L"ColumnWidths",strColumnWidths);
-    SetRegKeyW(strRegKey,L"StatusColumns",strStatusColumnTitles);
-    SetRegKeyW(strRegKey,L"StatusColumnWidths",strStatusColumnWidths);
+    SetRegKey(strRegKey,L"Columns",strColumnTitles);
+    SetRegKey(strRegKey,L"ColumnWidths",strColumnWidths);
+    SetRegKey(strRegKey,L"StatusColumns",strStatusColumnTitles);
+    SetRegKey(strRegKey,L"StatusColumnWidths",strStatusColumnWidths);
 
-    SetRegKeyW(strRegKey,L"FullScreen",NewSettings.FullScreen);
-    SetRegKeyW(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions);
-    SetRegKeyW(strRegKey,L"FolderAlignExtensions",NewSettings.FolderAlignExtensions);
-    SetRegKeyW(strRegKey,L"FolderUpperCase",NewSettings.FolderUpperCase);
-    SetRegKeyW(strRegKey,L"FileLowerCase",NewSettings.FileLowerCase);
-    SetRegKeyW(strRegKey,L"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase);
-    SetRegKeyW(strRegKey,L"CaseSensitiveSort",NewSettings.CaseSensitiveSort);
+    SetRegKey(strRegKey,L"FullScreen",NewSettings.FullScreen);
+    SetRegKey(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions);
+    SetRegKey(strRegKey,L"FolderAlignExtensions",NewSettings.FolderAlignExtensions);
+    SetRegKey(strRegKey,L"FolderUpperCase",NewSettings.FolderUpperCase);
+    SetRegKey(strRegKey,L"FileLowerCase",NewSettings.FileLowerCase);
+    SetRegKey(strRegKey,L"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase);
+    SetRegKey(strRegKey,L"CaseSensitiveSort",NewSettings.CaseSensitiveSort);
   }
 }
 

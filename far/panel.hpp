@@ -108,22 +108,22 @@ class Panel:public ScreenObject
 
   public:
     virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE){return FALSE;};
-    virtual void SetCurDirW(const wchar_t *NewDir,int ClosePlugin);
+    virtual void SetCurDir(const wchar_t *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
 
-    virtual int GetCurDirW(string &strCurDir);
+    virtual int GetCurDir(string &strCurDir);
 
     virtual int GetSelCount() {return(0);};
     virtual int GetRealSelCount() {return(0);};
-    virtual int GetSelNameW(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL) {return(FALSE);};
+    virtual int GetSelName(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};
     virtual unsigned __int64 GetLastSelectedSize () {return (unsigned __int64)(-1);};
     virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return(0);};
 
-    virtual int GetCurNameW(string &strName, string &strShortName);
-    virtual int GetCurBaseNameW(string &strName, string &strShortName);
-    virtual int GetFileNameW(string strName,int Pos,int &FileAttr) {return(FALSE);};
+    virtual int GetCurName(string &strName, string &strShortName);
+    virtual int GetCurBaseName(string &strName, string &strShortName);
+    virtual int GetFileName(string strName,int Pos,int &FileAttr) {return(FALSE);};
 
     virtual int GetCurrentPos() {return(0);};
     virtual void SetFocus();
@@ -144,13 +144,13 @@ class Panel:public ScreenObject
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1) {return(FALSE);}
 
-    virtual int GoToFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
-    virtual int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
+    virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
+    virtual int FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
 
-    virtual int IsSelectedW(const wchar_t *Name) {return(FALSE);};
+    virtual int IsSelected(const wchar_t *Name) {return(FALSE);};
 
-    virtual int FindFirstW(const wchar_t *Name) {return -1;}
-    virtual int FindNextW(int StartPos, const wchar_t *Name) {return -1;}
+    virtual int FindFirst(const wchar_t *Name) {return -1;}
+    virtual int FindNext(int StartPos, const wchar_t *Name) {return -1;}
 
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима
@@ -184,7 +184,7 @@ class Panel:public ScreenObject
     void SetSortGroups(int SortGroups) {Panel::SortGroups=SortGroups;};
     int GetShowShortNamesMode() {return(ShowShortNames);};
     void SetShowShortNamesMode(int Mode) {ShowShortNames=Mode;};
-    void InitCurDirW(const wchar_t *CurDir);
+    void InitCurDir(const wchar_t *CurDir);
     virtual void CloseFile() {};
     virtual void UpdateViewPanel() {};
     virtual void CompareDir() {};
@@ -215,7 +215,7 @@ class Panel:public ScreenObject
     virtual void SetTitle();
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
-    virtual void IfGoHomeW(wchar_t Drive){};
+    virtual void IfGoHome(wchar_t Drive){};
 
     /* $ 30.04.2001 DJ
        функция вызывается для обновления кейбара; если возвращает FALSE,

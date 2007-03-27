@@ -32,8 +32,8 @@ static Language OldLang;
 
 Language::Language()
 {
-  MsgListW = NULL;
-  MsgAddrW = NULL;
+  MsgList = NULL;
+  MsgAddr = NULL;
 
   MsgCount=0;
   MsgSize=0;
@@ -42,7 +42,7 @@ Language::Language()
 
 int Language::Init(const wchar_t *Path,int CountNeed)
 {
-  if (MsgListW!=NULL)
+  if (MsgList!=NULL)
     return(TRUE);
 
   int LastError=GetLastError();
@@ -71,15 +71,15 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
     int DestLength=(int)pack(strDestStr.GetLength()+1);
 
-    if ( (MsgListW = (wchar_t*)xf_realloc(MsgListW, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
+    if ( (MsgList = (wchar_t*)xf_realloc(MsgList, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
     {
       fclose(LangFile);
       return(FALSE);
     }
 
-    *(int*)&MsgListW[MsgSize+DestLength-_PACK] = 0;
+    *(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
 
-    wcscpy(MsgListW+MsgSize, strDestStr);
+    wcscpy(MsgList+MsgSize, strDestStr);
 
     MsgSize+=DestLength;
     MsgCount++;
@@ -92,12 +92,12 @@ int Language::Init(const wchar_t *Path,int CountNeed)
     return(FALSE);
   }
   /* SVS $ */
-  wchar_t *CurAddrW = MsgListW;
+  wchar_t *CurAddr = MsgList;
 
-  MsgAddrW = new wchar_t*[MsgCount];
+  MsgAddr = new wchar_t*[MsgCount];
 
 
-  if ( MsgAddrW == NULL )
+  if ( MsgAddr == NULL )
   {
     fclose(LangFile);
     return(FALSE);
@@ -105,8 +105,8 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
   for (int I=0;I<MsgCount;I++)
   {
-    MsgAddrW[I]=CurAddrW;
-    CurAddrW+=pack(wcslen(CurAddrW)+1);
+    MsgAddr[I]=CurAddr;
+    CurAddr+=pack(wcslen(CurAddr)+1);
   }
 
   fclose(LangFile);
@@ -125,10 +125,10 @@ Language::~Language()
 
 void Language::Free()
 {
-  if(MsgListW)xf_free(MsgListW);
-  MsgListW=NULL;
-  if(MsgAddrW)delete[] MsgAddrW;
-  MsgAddrW=NULL;
+  if(MsgList)xf_free(MsgList);
+  MsgList=NULL;
+  if(MsgAddr)delete[] MsgAddr;
+  MsgAddr=NULL;
   MsgCount=0;
   MsgSize=0;
 }
@@ -139,14 +139,14 @@ void Language::Close()
   {
     if(OldLang.MsgCount)
       OldLang.Free();
-    OldLang.MsgListW=MsgListW;
-    OldLang.MsgAddrW=MsgAddrW;
+    OldLang.MsgList=MsgList;
+    OldLang.MsgAddr=MsgAddr;
     OldLang.MsgCount=MsgCount;
     OldLang.MsgSize=MsgSize;
   }
 
-  MsgListW=NULL;
-  MsgAddrW=NULL;
+  MsgList=NULL;
+  MsgAddr=NULL;
   MsgCount=0;
   MsgSize=0;
   LanguageLoaded=FALSE;
@@ -229,11 +229,11 @@ BOOL Language::CheckMsgId(int MsgId)
       */
       string strMsg1, strMsg2, strTmp;
       strTmp = strMessageFile;
-      TruncPathStrW(strTmp,41);
+      TruncPathStr(strTmp,41);
       strMsg1.Format(L"Incorrect or damaged %s", (const wchar_t*)strTmp);
       /* IS $ */
       strMsg2.Format(L"Message %d not found",MsgId);
-      if (MessageW(MSG_WARNING,2,L"Error",strMsg1,strMsg2,L"Ok",L"Quit")==1)
+      if (Message(MSG_WARNING,2,L"Error",strMsg1,strMsg2,L"Ok",L"Quit")==1)
         exit(0);
     }
     /* DJ $ */
@@ -248,9 +248,9 @@ wchar_t* Language::GetMsgW (int nID)
     return L"";
 
   if( this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
-    return(OldLang.MsgAddrW[nID]);
+    return(OldLang.MsgAddr[nID]);
 
-  return(MsgAddrW[nID]);
+  return(MsgAddr[nID]);
 }
 
 

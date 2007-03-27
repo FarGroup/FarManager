@@ -128,7 +128,7 @@ Viewer::~Viewer()
       string strCacheName;
 
       if ( !strPluginData.IsEmpty() )
-          strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToNameW(strFileName));
+          strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToName(strFileName));
       else
         strCacheName = strFullFileName;
 
@@ -177,7 +177,7 @@ Viewer::~Viewer()
        и каталог.
     */
     if(DeleteFolder)
-      DeleteFileWithFolderW(strTempViewName);
+      DeleteFileWithFolder(strTempViewName);
     else
     {
       SetFileAttributesW(strTempViewName,FILE_ATTRIBUTE_NORMAL);
@@ -306,7 +306,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
        + 'warning' flag processing, in QuickView it is FALSE
          so don't show red message box */
     if (warning)
-        MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MViewerTitle),
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MViewerTitle),
             UMSG(MViewerCannotOpenFile),strFileName,UMSG(MOk));
     /* tran 04.07.2000 $ */
 
@@ -356,7 +356,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     string strCacheName;
 
     if ( !strPluginData.IsEmpty() )
-      strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToNameW(strFileName));
+      strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToName(strFileName));
     else
       strCacheName = strFileName;
 
@@ -922,7 +922,7 @@ void Viewer::GetTitle(string &strName,int,int)
 
         ViewNamesList.GetCurDir (strPath);
 
-        AddEndSlashW (strPath);
+        AddEndSlash(strPath);
 
         strName = strPath+strFileName;
     }
@@ -950,7 +950,7 @@ void Viewer::ShowStatus()
   /* $ 01.10.2000 IS
      ! Показывать букву диска в статусной строке
   */
-  TruncPathStrW (strName, NameLength);
+  TruncPathStr(strName, NameLength);
   /* IS $ */
   string strTableName;
   string strTmpTableName;
@@ -1399,7 +1399,7 @@ int Viewer::ProcessKey(int Key)
             string strCacheName;
 
             if ( !strPluginData.IsEmpty() )
-              strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToNameW(strFileName));
+              strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToName(strFileName));
             else
               strCacheName = strFileName;
 
@@ -1433,7 +1433,7 @@ int Viewer::ProcessKey(int Key)
               CtrlObject->ViewerPosCache->AddPosition(strCacheName,&PosCache);
             }
           }
-          if ( PointToNameW (strName) == strName )
+          if ( PointToName(strName) == strName )
           {
               string strViewDir;
 
@@ -2293,7 +2293,7 @@ static void PR_ViewerSearchMsg(void)
 void ViewerSearchMsg(const wchar_t *MsgStr)
 {
   /* $ 23.09.2003 KM */
-  MessageW(0,0,UMSG(MViewSearchTitle),(SearchHex?UMSG(MViewSearchingHex):UMSG(MViewSearchingFor)),MsgStr);
+  Message(0,0,UMSG(MViewSearchTitle),(SearchHex?UMSG(MViewSearchingHex):UMSG(MViewSearchingFor)),MsgStr);
   /* KM $ */
   PreRedrawParam.Param1=(void*)MsgStr;
 }
@@ -2410,8 +2410,8 @@ void Viewer::Search(int Next,int FirstChar)
     strMsgStr = strSearchStr;
 
     if(strMsgStr.GetLength()+18 > static_cast<DWORD>(ObjWidth))
-      TruncStrFromEndW(strMsgStr, ObjWidth-18);
-    InsertQuoteW(strMsgStr);
+      TruncStrFromEnd(strMsgStr, ObjWidth-18);
+    InsertQuote(strMsgStr);
 
     SetPreRedrawFunc(PR_ViewerSearchMsg);
     ViewerSearchMsg(strMsgStr);
@@ -2633,11 +2633,11 @@ void Viewer::Search(int Next,int FirstChar)
     /* $ 27.01.2003 VVM
        + После окончания поиска спросим о переходе поиска в начало/конец */
     if (SearchFlags.Check(SEARCH_MODE2))
-      MessageW(MSG_DOWN|MSG_WARNING,1,UMSG(MViewSearchTitle),
+      Message(MSG_DOWN|MSG_WARNING,1,UMSG(MViewSearchTitle),
         (SearchHex?UMSG(MViewSearchCannotFindHex):UMSG(MViewSearchCannotFind)),strMsgStr,UMSG(MOk));
     else
     {
-      if (MessageW(MSG_DOWN|MSG_WARNING,2,UMSG(MViewSearchTitle),
+      if (Message(MSG_DOWN|MSG_WARNING,2,UMSG(MViewSearchTitle),
             (SearchHex?UMSG(MViewSearchCannotFindHex):UMSG(MViewSearchCannotFind)),strMsgStr,
             (ReverseSearch?UMSG(MViewSearchFromEnd):UMSG(MViewSearchFromBegin)),
              UMSG(MHYes),UMSG(MHNo)) == 0)
@@ -2728,7 +2728,7 @@ void Viewer::GetFileName(string &strName)
 void Viewer::ShowConsoleTitle()
 {
     string strTitle;
-    strTitle.Format (UMSG(MInViewer), PointToNameW (strFileName));
+    strTitle.Format (UMSG(MInViewer), PointToName(strFileName));
 
     SetFarTitleW (strTitle);
 }

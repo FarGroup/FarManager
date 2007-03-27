@@ -119,7 +119,7 @@ void ReopenConsole();
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 string &RemoveCharW(string &strStr,wchar_t Target,BOOL Dup=TRUE);
 
-wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
+wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
 
 int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
 
@@ -132,7 +132,7 @@ int IsCaseLower(char *Str);
 BOOL IsCaseMixedW(const string &strStr);
 BOOL IsCaseLowerW(const string &strStr);
 
-int DeleteFileWithFolderW(const wchar_t *FileName);
+int DeleteFileWithFolder(const wchar_t *FileName);
 
 
 /* $ 26.01.2003 IS
@@ -208,19 +208,19 @@ const wchar_t* GetUnicodeLanguageString (int nID);
    Дополнительный параметр у Message* - номер плагина.
 */
 
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,
             INT_PTR PluginNumber=-1);
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6=NULL,const wchar_t *Str7=NULL,
             INT_PTR PluginNumber=-1);
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9=NULL,const wchar_t *Str10=NULL,
             INT_PTR PluginNumber=-1);
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
@@ -229,7 +229,7 @@ int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 
 //int __cdecl MessageW (DWORD Flags,int Buttons,const char *Title, INT_PTR PluginNumber, ...);
 
-int MessageW(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t * const *Items,
+int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t * const *Items,
             int ItemsNumber,INT_PTR PluginNumber=-1);
 
 /* SVS $*/
@@ -256,12 +256,12 @@ int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
 int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
 /* IS $ */
 
-wchar_t* WINAPI QuoteSpaceW (wchar_t *Str);
-string &QuoteSpaceW(string &strStr);
+wchar_t* WINAPI QuoteSpace(wchar_t *Str);
+string &QuoteSpace(string &strStr);
 
 
-wchar_t* WINAPI InsertQuoteW (wchar_t *Str);
-string& InsertQuoteW(string& strStr);
+wchar_t* WINAPI InsertQuote(wchar_t *Str);
+string& InsertQuote(string& strStr);
 /* IS $ */
 //int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
 int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish);
@@ -426,33 +426,33 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 // Registry
 void SetRegRootKey(HKEY hRootKey);
 
-LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData);
-LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData);
-LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize);
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default);
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default);
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,DWORD Default);
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
-HKEY CreateRegKeyW(const wchar_t *Key);
-HKEY OpenRegKeyW(const wchar_t *Key);
-int GetRegKeySizeW(const wchar_t *Key,const wchar_t *ValueName);
-int GetRegKeySizeW(HKEY hKey,const wchar_t *ValueName);
-int EnumRegValueW(const wchar_t *Key,DWORD Index, string &strDestName, LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
-int EnumRegValueExW(const wchar_t *Key,DWORD Index, string &strDestName, string strData, LPDWORD IData=NULL,__int64* IData64=NULL);
-LONG SetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData);
-int GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default);
-__int64 GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default);
-void DeleteRegKeyW(const wchar_t *Key);
-void DeleteRegValueW(const wchar_t *Key,const wchar_t *Value);
-void DeleteKeyRecordW(const wchar_t *KeyMask,int Position);
-void InsertKeyRecordW(const wchar_t *KeyMask,int Position,int TotalKeys);
-void RenumKeyRecordW(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t *KeyMask0);
-void DeleteKeyTreeW(const wchar_t *KeyName);
-int CheckRegKeyW(const wchar_t *Key);
-int CheckRegValueW(const wchar_t *Key,const wchar_t *ValueName);
-int DeleteEmptyKeyW(HKEY hRoot, const wchar_t *FullKeyName);
-int EnumRegKeyW(const wchar_t *Key,DWORD Index,string &strDestName);
-int CopyKeyTreeW(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip);
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData);
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData);
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
+HKEY CreateRegKey(const wchar_t *Key);
+HKEY OpenRegKey(const wchar_t *Key);
+int GetRegKeySize(const wchar_t *Key,const wchar_t *ValueName);
+int GetRegKeySize(HKEY hKey,const wchar_t *ValueName);
+int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName, LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string strData, LPDWORD IData=NULL,__int64* IData64=NULL);
+LONG SetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData);
+int GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default);
+__int64 GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default);
+void DeleteRegKey(const wchar_t *Key);
+void DeleteRegValue(const wchar_t *Key,const wchar_t *Value);
+void DeleteKeyRecord(const wchar_t *KeyMask,int Position);
+void InsertKeyRecord(const wchar_t *KeyMask,int Position,int TotalKeys);
+void RenumKeyRecord(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t *KeyMask0);
+void DeleteKeyTree(const wchar_t *KeyName);
+int CheckRegKey(const wchar_t *Key);
+int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName);
+int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName);
+int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName);
+int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip);
 
 void UseSameRegKey();
 void CloseSameRegKey();
@@ -582,10 +582,10 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param
 BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize);
 BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize);
 
-void WINAPI UnquoteW(string &strStr);
-void WINAPI UnquoteW(wchar_t *Str);
+void WINAPI Unquote(string &strStr);
+void WINAPI Unquote(wchar_t *Str);
 
-void UnquoteExternalW(string &strStr);
+void UnquoteExternal(string &strStr);
 
 /* $ 07.07.2000 SVS
    + удалить пробелы снаружи
@@ -604,18 +604,18 @@ string & WINAPI RemoveExternalSpacesW(string &strStr);
 /* $ 02.02.2001 IS
   + Новая функция: заменяет пробелами непечатные символы в строке
 */
-string & WINAPI RemoveUnprintableCharactersW(string &strStr);
+string & WINAPI RemoveUnprintableCharacters(string &strStr);
 
-wchar_t* __stdcall TruncStrW (wchar_t *Str,int MaxLength);
-string& __stdcall TruncStrW (string &strStr,int MaxLength);
+wchar_t* __stdcall TruncStr(wchar_t *Str,int MaxLength);
+string& __stdcall TruncStr(string &strStr,int MaxLength);
 
-string& __stdcall TruncStrFromEndW (string &strStr, int MaxLength);
+string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength);
 
-wchar_t* __stdcall TruncPathStrW (wchar_t *Str, int MaxLength);
-string& __stdcall TruncPathStrW (string &strStr, int MaxLength);
+wchar_t* __stdcall TruncPathStr(wchar_t *Str, int MaxLength);
+string& __stdcall TruncPathStr(string &strStr, int MaxLength);
 
-wchar_t* WINAPI QuoteSpaceOnlyW(wchar_t *Str);
-string& WINAPI QuoteSpaceOnlyW(string &strStr);
+wchar_t* WINAPI QuoteSpaceOnly(wchar_t *Str);
+string& WINAPI QuoteSpaceOnly(string &strStr);
 /* $ 12.01.2004 IS
    + Функция для сверки символа с разделителями слова с учетом текущей
      кодировки
@@ -629,19 +629,16 @@ string& WINAPI QuoteSpaceOnlyW(string &strStr);
 BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr);
 BOOL IsWordDivW(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
 /* IS $ */
-//char* __stdcall PointToName (char *Path);
-//const char* __stdcall PointToName (const char *Path);
-const wchar_t* __stdcall PointToNameW (const wchar_t *lpwszPath);
+const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
+const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 
-const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *lpwszPath);
+BOOL  TestParentFolderName(const wchar_t *Name);
 
-BOOL  TestParentFolderNameW(const wchar_t *Name);
+BOOL  AddEndSlash(string &strPath, wchar_t TypeSlash);
+BOOL  AddEndSlash(string &strPath);
 
-BOOL  AddEndSlashW (string &strPath, wchar_t TypeSlash);
-BOOL  AddEndSlashW (string &strPath);
-
-BOOL  AddEndSlashW (wchar_t *Path, wchar_t TypeSlash);
-BOOL  WINAPI AddEndSlashW (wchar_t *Path);
+BOOL  AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
+BOOL  WINAPI AddEndSlash(wchar_t *Path);
 
 BOOL  WINAPI DeleteEndSlash(char *Path,bool allendslash=false);
 BOOL  WINAPI DeleteEndSlashW(string &strPath,bool allendslash=false);
@@ -665,7 +662,7 @@ wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode);
 int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode);
 
 
-int __stdcall GetStringW(
+int __stdcall GetString(
 		const wchar_t *Title,
 		const wchar_t *SubTitle,
 		const wchar_t *HistoryName,
@@ -738,7 +735,7 @@ BOOL FarChDirW(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 
 // обертка вокруг функции получения текущего пути.
 // для локального пути делает букву диска в uppercase
-DWORD FarGetCurDirW (string &strBuffer);
+DWORD FarGetCurDir(string &strBuffer);
 
 class UserDefinedListW;
 UserDefinedListW *SaveAllCurDir(void);
@@ -995,11 +992,11 @@ void ShowHotplugDevice ();
 */
 int GetEncryptFunctions(void);
 
-int ESetFileAttributesW(const wchar_t *Name,int Attr);
-int ESetFileCompressionW(const wchar_t *Name,int State,int FileAttr);
-int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent=0);
-#define ESetFileEncryptionSilentW(Name,State,FileAttr) ESetFileEncryptionW(Name,State,FileAttr,1)
-int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,
+int ESetFileAttributes(const wchar_t *Name,int Attr);
+int ESetFileCompression(const wchar_t *Name,int State,int FileAttr);
+int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int Silent=0);
+#define ESetFileEncryptionSilent(Name,State,FileAttr) ESetFileEncryptionW(Name,State,FileAttr,1)
+int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
                   int FileAttr);
 
@@ -1124,7 +1121,7 @@ BOOL WINAPI GetMenuHotKeyW(string &strHotKey,int LenHotKey,
                           const wchar_t *RegKey,
                           const wchar_t *RegValueName);
 
-string& WINAPI FarFormatTextW(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 
 void SetPreRedrawFunc(PREREDRAWFUNC Func);

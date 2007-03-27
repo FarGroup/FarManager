@@ -29,7 +29,7 @@ GetFileString::~GetFileString()
 }
 
 
-int GetFileString::GetStringW(wchar_t **DestStr, int nCodePage, int &Length)
+int GetFileString::GetString(wchar_t **DestStr, int nCodePage, int &Length)
 {
 	int nExitCode;
 

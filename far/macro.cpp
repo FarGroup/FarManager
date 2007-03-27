@@ -261,7 +261,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 
 KeyMacro::KeyMacro()
 {
-  MacroVersion=GetRegKeyW(L"KeyMacros",L"MacroVersion",0);
+  MacroVersion=GetRegKey(L"KeyMacros",L"MacroVersion",0);
   CurPCStack=-1;
   Work.MacroWORKCount=0;
   Work.MacroWORK=NULL;
@@ -728,7 +728,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
         case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
         {
-          CtrlObject->CmdLine->GetStringW(strFileName);
+          CtrlObject->CmdLine->GetString(strFileName);
           Cond=(const wchar_t*)strFileName;
           break;
         }
@@ -815,10 +815,10 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Panel *SelPanel=CheckCode==MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
           {
-            SelPanel->GetFileNameW(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+            SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
             int GetFileCount=SelPanel->GetFileCount();
             Cond=GetFileCount == 0 ||
-                 GetFileCount == 1 && TestParentFolderNameW(strFileName)
+                 GetFileCount == 1 && TestParentFolderName(strFileName)
                  ?1:0;
           }
           break;
@@ -866,7 +866,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Panel *SelPanel=CheckCode==MCODE_C_APANEL_FOLDER?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
           {
-            SelPanel->GetFileNameW(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+            SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
             if(FileAttr != -1)
               Cond=(FileAttr&FA_DIREC)?1:0;
           }
@@ -894,7 +894,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
           {
-            SelPanel->GetFileNameW(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+            SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
             if ( FileAttr != -1 )
               Cond = (const wchar_t*)strFileName;
           }
@@ -957,7 +957,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
           {
-            SelPanel->GetCurDirW(strFileName);
+            SelPanel->GetCurDir(strFileName);
             DeleteEndSlashW(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
             Cond = (const wchar_t*)strFileName;
           }
@@ -969,7 +969,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if(_MakePath1W(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
           {
-            UnquoteExternalW(strFileName);
+            UnquoteExternal(strFileName);
             DeleteEndSlashW(strFileName);
             Cond = (const wchar_t*)strFileName;
           }
@@ -993,7 +993,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Cond=_i64(-1);
           if ( SelPanel != NULL && SelPanel->GetMode() != PLUGIN_PANEL)
           {
-            SelPanel->GetCurDirW(strFileName);
+            SelPanel->GetCurDir(strFileName);
             GetPathRootW(strFileName, strFileName);
             UINT DriveType=FAR_GetDriveTypeW(strFileName,NULL,0);
             if(IsLocalPathW(strFileName))
@@ -1462,15 +1462,15 @@ static TVar _fattrFunc(int Type,TVar *param)
       long Pos=-1;
 
       if(wcspbrk(Str,L"\\/:") != NULL)
-        Pos=SelPanel->FindFirstW(Str);
+        Pos=SelPanel->FindFirst(Str);
       else
-        Pos=SelPanel->FindFileW(Str,wcspbrk(Str,L"\\/:")?FALSE:TRUE);
+        Pos=SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:")?FALSE:TRUE);
 
       if(Pos >= 0)
       {
         int FileAttr;
         string strFileName;
-        SelPanel->GetFileNameW(strFileName,Pos,FileAttr);
+        SelPanel->GetFileName(strFileName,Pos,FileAttr);
         return TVar((__int64)(long)FileAttr);
       }
     }
@@ -1729,12 +1729,12 @@ static TVar msaveFunc(TVar *param)
     case vtInteger:
     {
       __int64 rrr=Result.toInteger();
-      Ret=SetRegKey64W(L"KeyMacros\\Vars",strValueName,rrr);
+      Ret=SetRegKey64(L"KeyMacros\\Vars",strValueName,rrr);
       break;
     }
     case vtString:
     {
-      Ret=SetRegKeyW(L"KeyMacros\\Vars",strValueName,Result.toString());
+      Ret=SetRegKey(L"KeyMacros\\Vars",strValueName,Result.toString());
       break;
     }
   }
@@ -1828,7 +1828,7 @@ static TVar panelsetposFunc(TVar *param)
   {
     const wchar_t *fileName=param[1].s();
 
-    if(SelPanel->GoToFileW(fileName))
+    if(SelPanel->GoToFile(fileName))
     {
       SelPanel->Show();
       Ret=SelPanel->GetCurrentPos()+1;
@@ -2593,7 +2593,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 
     if (MacroLIB[I].BufferSize==0 || !MacroLIB[I].Src)
     {
-      DeleteRegKeyW (strRegKeyName);
+      DeleteRegKey(strRegKeyName);
       continue;
     }
 #if 0
@@ -2605,15 +2605,15 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
     if(TextBuffer)
       xf_free(TextBuffer);
 #endif
-    SetRegKeyW(strRegKeyName,L"Sequence",MacroLIB[I].Src);
+    SetRegKey(strRegKeyName,L"Sequence",MacroLIB[I].Src);
 
     // подсократим кодУ...
     for(int J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
     {
       if (MacroLIB[I].Flags & MKeywordsFlags[J].Value)
-        SetRegKeyW(strRegKeyName,MKeywordsFlags[J].Name,1);
+        SetRegKey(strRegKeyName,MKeywordsFlags[J].Name,1);
       else
-        DeleteRegValueW(strRegKeyName,MKeywordsFlags[J].Name);
+        DeleteRegValue(strRegKeyName,MKeywordsFlags[J].Name);
     }
   }
 }
@@ -2641,10 +2641,10 @@ int KeyMacro::WriteVarsConst(int ReadMode)
       switch(var->value.type())
       {
         case vtInteger:
-          SetRegKey64W(strUpKeyName,strValueName,var->value.i());
+          SetRegKey64(strUpKeyName,strValueName,var->value.i());
           break;
         case vtString:
-          SetRegKeyW(strUpKeyName,strValueName,var->value.s());
+          SetRegKey(strUpKeyName,strValueName,var->value.s());
           break;
       }
 
@@ -2677,7 +2677,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
     strValueName=L"";
     strSData=L"";
 
-    int Type=EnumRegValueExW(strUpKeyName,I,strValueName,strSData,(LPDWORD)&IData,(__int64*)&IData64);
+    int Type=EnumRegValueEx(strUpKeyName,I,strValueName,strSData,(LPDWORD)&IData,(__int64*)&IData64);
 
     if (Type == REG_NONE)
       break;
@@ -2720,7 +2720,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
   {
     DWORD MFlags=0;
 
-    if (!EnumRegKeyW(strUpKeyName,I,strRegKeyName))
+    if (!EnumRegKey(strUpKeyName,I,strRegKeyName))
       break;
 
     const wchar_t *KeyNamePtr=wcsrchr(strRegKeyName, L'\\');
@@ -2751,7 +2751,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
     if (KeyCode==-1)
       continue;
 
-    GetRegKeyW(strRegKeyName,L"Sequence",strBuffer,L"");
+    GetRegKey(strRegKeyName,L"Sequence",strBuffer,L"");
     RemoveExternalSpacesW(strBuffer);
 
     if( strBuffer.IsEmpty() )
@@ -2764,7 +2764,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
     CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
 
     for(J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
-      CurMacro.Flags|=GetRegKeyW(strRegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
+      CurMacro.Flags|=GetRegKey(strRegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
 
     if(ReadMode == MACRO_EDITOR || ReadMode == MACRO_DIALOG || ReadMode == MACRO_VIEWER)
     {
@@ -3063,7 +3063,7 @@ M1:
         )
         I=0;
       else
-        I=MessageW(MSG_WARNING,2,UMSG(MWarning),
+        I=Message(MSG_WARNING,2,UMSG(MWarning),
             strBuf,
             UMSG(MMacroSequence),
             strBufKey,
@@ -3079,7 +3079,7 @@ M1:
           if (Opt.AutoSaveSetup) // удаляем из реестра только в случае
           {                      // когда включен автосейв
             // удалим старую запись из реестра
-            DeleteRegKeyW(strRegKeyName);
+            DeleteRegKey(strRegKeyName);
           }
           // раздисаблим
           Mac->Flags&=~MFLAGS_DISABLEMACRO;
@@ -3223,7 +3223,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
       remove(MacroFileName);
     }
     else
-      MessageW(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
+      Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
     return TRUE;
   }
 #endif
@@ -4099,13 +4099,13 @@ int KeyMacro::GetMacroKeyInfo(int Mode,int Pos,const wchar_t *KeyName, string &s
     string strRegKeyName, strKeyText;
     strUpKeyName.Format (L"KeyMacros\\%s",GetSubKey(Mode));
 
-    if (!EnumRegKeyW(strUpKeyName,Pos,strRegKeyName))
+    if (!EnumRegKey(strUpKeyName,Pos,strRegKeyName))
       return -1;
 
     const wchar_t *KeyNamePtr=wcsrchr(strRegKeyName,L'\\');
     //if (KeyNamePtr!=NULL) BUGBUG
       //strKeyName = KeyNamePtr+1;
-    GetRegKeyW(strRegKeyName,L"Description",strDescription,L"");
+    GetRegKey(strRegKeyName,L"Description",strDescription,L"");
     return Pos+1;
   }
   return -1;
@@ -4176,7 +4176,7 @@ BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassiveP
 {
   string strFileName;
   int FileAttr=-1;
-  CheckPanel->GetFileNameW(strFileName,CheckPanel->GetCurrentPos(),FileAttr);
+  CheckPanel->GetFileName(strFileName,CheckPanel->GetCurrentPos(),FileAttr);
   if(FileAttr != -1)
   {
     if(IsPassivePanel)

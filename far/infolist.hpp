@@ -53,10 +53,10 @@ class InfoList:public Panel
     void ShowDirDescription();
     void ShowPluginDescription();
 
-    void PrintTextW(const wchar_t *Str);
-    void PrintTextW(int MsgID);
-    void PrintInfoW(const wchar_t *Str);
-    void PrintInfoW(int MsgID);
+    void PrintText(const wchar_t *Str);
+    void PrintText(int MsgID);
+    void PrintInfo(const wchar_t *Str);
+    void PrintInfo(int MsgID);
 
 
     int  OpenDizFile(const wchar_t *DizFile);
@@ -76,7 +76,7 @@ class InfoList:public Panel
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     virtual BOOL UpdateKeyBar();
     virtual void CloseFile();
-    virtual int GetCurNameW(string &strName, string &strShortName);
+    virtual int GetCurName(string &strName, string &strShortName);
 };
 
 #endif  // __INFOLIST_HPP__

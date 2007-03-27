@@ -35,7 +35,7 @@ string &InsertCommasW(unsigned __int64 li,string &strDest)
 
 
 
-const wchar_t* __stdcall PointToNameW (const wchar_t *lpwszPath)
+const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
 {
   if ( !lpwszPath )
     return NULL;
@@ -57,7 +57,7 @@ const wchar_t* __stdcall PointToNameW (const wchar_t *lpwszPath)
 //   "name\" (оканчиваетс€ на слеш) возвращает указатель на name, а не на пустую
 //   строку
 
-const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *Path)
+const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
 {
   if(!Path)
     return NULL;
@@ -193,7 +193,7 @@ int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
 int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath)
 {
   if (skippath)
-    str=PointToNameW(const_cast<wchar_t*>(str));
+    str=PointToName(const_cast<wchar_t*>(str));
   return CmpName_BodyW(pattern,str);
 }
 
@@ -211,7 +211,7 @@ int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolde
   //char PartBeforeName[NM],PartAfterFolderName[NM];
 
     DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+wcslen(SrcName)+1)); //???
-    DestNamePtr = (wchar_t*)PointToNameW(DestNamePtr);
+    DestNamePtr = (wchar_t*)PointToName(DestNamePtr);
 
     strWildName = DestNamePtr;
 
@@ -227,7 +227,7 @@ int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolde
         Src[SelectedFolderNameLength]=0;
     }
 
-    SrcNamePtr = (wchar_t*)PointToNameW (Src);
+    SrcNamePtr = (wchar_t*)PointToName(Src);
 
     int BeforeNameLength=DestNamePtr==(const wchar_t*)strDest ? (int)(SrcNamePtr-Src):0; //BUGBUG strDest
 
@@ -306,7 +306,7 @@ int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolde
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
 /* IS $ */
 
-wchar_t * WINAPI InsertQuoteW(wchar_t *Str)
+wchar_t * WINAPI InsertQuote(wchar_t *Str)
 {
   size_t l = wcslen(Str);
   if(*Str != L'"')
@@ -322,53 +322,53 @@ wchar_t * WINAPI InsertQuoteW(wchar_t *Str)
   return Str;
 }
 
-wchar_t* WINAPI QuoteSpaceW (wchar_t *Str)
+wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 {
   if ( wcspbrk(Str, Opt.strQuotedSymbols) != NULL )
-    InsertQuoteW(Str);
+    InsertQuote(Str);
 
   return Str;
 }
 
 
-string& InsertQuoteW(string &strStr)
+string& InsertQuote(string &strStr)
 {
   wchar_t *Str = strStr.GetBuffer ((int)strStr.GetLength()+2);
 
-  InsertQuoteW (Str);
+  InsertQuote(Str);
 
   strStr.ReleaseBuffer ();
 
   return strStr;
 }
 
-string &QuoteSpaceW(string &strStr)
+string &QuoteSpace(string &strStr)
 {
     if ( wcspbrk(strStr, Opt.strQuotedSymbols) != NULL)
-        InsertQuoteW(strStr);
+        InsertQuote(strStr);
 
     return strStr;
 }
 
 
-wchar_t*  WINAPI QuoteSpaceOnlyW (wchar_t *Str)
+wchar_t*  WINAPI QuoteSpaceOnly(wchar_t *Str)
 {
   if (wcschr(Str,L' ')!=NULL)
-    InsertQuoteW(Str);
+    InsertQuote(Str);
 
   return Str;
 }
 
 
-string& WINAPI QuoteSpaceOnlyW(string &strStr)
+string& WINAPI QuoteSpaceOnly(string &strStr)
 {
   if (wcschr(strStr,L' ')!=NULL)
-    InsertQuoteW(strStr);
+    InsertQuote(strStr);
   return(strStr);
 }
 
 
-string& __stdcall TruncStrFromEndW (string &strStr, int MaxLength)
+string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
 {
   if( !strStr.IsEmpty() )
   {
@@ -390,7 +390,7 @@ string& __stdcall TruncStrFromEndW (string &strStr, int MaxLength)
 }
 
 
-wchar_t* WINAPI TruncStrW (wchar_t *Str,int MaxLength)
+wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
 {
   if(Str)
   {
@@ -414,11 +414,11 @@ wchar_t* WINAPI TruncStrW (wchar_t *Str,int MaxLength)
 }
 
 
-string& __stdcall TruncStrW (string &strStr, int MaxLength)
+string& __stdcall TruncStr(string &strStr, int MaxLength)
 {
     wchar_t *lpwszBuffer = strStr.GetBuffer ();
 
-    TruncStrW (lpwszBuffer, MaxLength);
+    TruncStr(lpwszBuffer, MaxLength);
 
     strStr.ReleaseBuffer ();
 
@@ -426,7 +426,7 @@ string& __stdcall TruncStrW (string &strStr, int MaxLength)
 }
 
 
-wchar_t* WINAPI TruncPathStrW (wchar_t *Str, int MaxLength)
+wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 {
   if (Str)
   {
@@ -449,7 +449,7 @@ wchar_t* WINAPI TruncPathStrW (wchar_t *Str, int MaxLength)
       }
 
       if ( !lpStart || (lpStart-Str > MaxLength-5) )
-        return TruncStrW (Str, MaxLength);
+        return TruncStr(Str, MaxLength);
 
       wchar_t *lpInPos = lpStart+3+(nLength-MaxLength);
       wmemmove (lpStart+3, lpInPos, (wcslen (lpInPos)+1));
@@ -461,11 +461,11 @@ wchar_t* WINAPI TruncPathStrW (wchar_t *Str, int MaxLength)
 }
 
 
-string& __stdcall TruncPathStrW (string &strStr, int MaxLength)
+string& __stdcall TruncPathStr(string &strStr, int MaxLength)
 {
     wchar_t *lpwszStr= strStr.GetBuffer ();
 
-    TruncPathStrW (lpwszStr, MaxLength);
+    TruncPathStr(lpwszStr, MaxLength);
 
     strStr.ReleaseBuffer ();
 
@@ -572,7 +572,7 @@ string&  WINAPI RemoveExternalSpacesW(string &strStr)
    обрабатываютс€ только cr и lf.
 */
 
-string& WINAPI RemoveUnprintableCharactersW (string &strStr)
+string& WINAPI RemoveUnprintableCharacters(string &strStr)
 {
   wchar_t *Str = strStr.GetBuffer ();
   wchar_t *p = Str;
@@ -658,7 +658,7 @@ int HiStrlenW(const wchar_t *Str,BOOL Dup)
 }
 
 
-BOOL AddEndSlashW (wchar_t *Path, wchar_t TypeSlash)
+BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 {
   BOOL Result=FALSE;
   if(Path)
@@ -713,25 +713,25 @@ BOOL AddEndSlashW (wchar_t *Path, wchar_t TypeSlash)
 }
 
 
-BOOL WINAPI AddEndSlashW (wchar_t *Path)
+BOOL WINAPI AddEndSlash(wchar_t *Path)
 {
-    return AddEndSlashW (Path, 0);
+    return AddEndSlash(Path, 0);
 }
 
 
-BOOL AddEndSlashW (string &strPath)
+BOOL AddEndSlash(string &strPath)
 {
-    return AddEndSlashW (strPath, 0);
+    return AddEndSlash(strPath, 0);
 }
 
-BOOL AddEndSlashW (
+BOOL AddEndSlash(
         string &strPath,
         wchar_t TypeSlash
         )
 {
     wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+1); // +spaceforslash
 
-    BOOL Result = AddEndSlashW (lpwszPath, TypeSlash);
+    BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
 
     strPath.ReleaseBuffer ();
 
@@ -926,7 +926,7 @@ BOOL IsCaseLowerW (
 
 
 
-void WINAPI UnquoteW(wchar_t *Str)
+void WINAPI Unquote(wchar_t *Str)
 {
   if (!Str)
     return;
@@ -941,7 +941,7 @@ void WINAPI UnquoteW(wchar_t *Str)
 }
 
 
-void WINAPI UnquoteW(string &strStr)
+void WINAPI Unquote(string &strStr)
 {
   wchar_t *Dst = strStr.GetBuffer ();
   const wchar_t *Str = Dst;
@@ -958,7 +958,7 @@ void WINAPI UnquoteW(string &strStr)
 }
 
 
-void UnquoteExternalW(string &strStr)
+void UnquoteExternal(string &strStr)
 {
   wchar_t *lpwszStr = strStr.GetBuffer ();
 
@@ -1111,7 +1111,7 @@ string & WINAPI FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Wi
 // если InsSize = 0, то... вставл€ть все строку InsStr
 // возвращает указатель на Str
 
-wchar_t *InsertStringW(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
+wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 {
   int InsLen=(int)wcslen(InsStr);
   if(InsSize && InsSize < InsLen)
@@ -1199,179 +1199,8 @@ FarFormatText( "Ёта строка содержит оооооооооооооччччччччеееень длиное слово", 9
 ---
 
 */
-char *WINAPI FarFormatText(const char *SrcText,     // источник
-                           int Width,               // заданна€ ширина
-                           char *DestText,          // приемник
-                           int MaxLen,              // максимальнјя размера приемника
-                           const char* Break,       // брик, если = NULL, то принимаетс€ '\n'
-                           DWORD Flags)             // один из FFTM_*
-{
-  const char *breakchar;
-  breakchar = Break?Break:"\n";
 
-  if(!SrcText || !*SrcText)
-    return NULL;
-
-  if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= static_cast<size_t>(Width))
-  {
-    if(MaxLen > 0 && DestText)
-      xstrncpy(DestText,SrcText,MaxLen-1);
-    return DestText;
-  }
-
-  long i=0, l=0, pgr=0, last=0;
-  char *newtext;
-
-  const char *text= SrcText;
-  long linelength = Width;
-  int breakcharlen = (int)strlen(breakchar);
-  int docut = Flags&FFTM_BREAKLONGWORD?1:0;
-
-  /* Special case for a single-character break as it needs no
-     additional storage space */
-
-  if (breakcharlen == 1 && docut == 0)
-  {
-    newtext = xf_strdup (text);
-    if(!newtext)
-      return NULL;
-
-    while (newtext[i] != '\0')
-    {
-      /* prescan line to see if it is greater than linelength */
-      l = 0;
-      while (newtext[i+l] != breakchar[0])
-      {
-        if (newtext[i+l] == '\0')
-        {
-          l--;
-          break;
-        }
-        l++;
-      }
-      if (l >= linelength)
-      {
-        pgr = l;
-        l = linelength;
-        /* needs breaking; work backwards to find previous word */
-        while (l >= 0)
-        {
-          if (newtext[i+l] == ' ')
-          {
-            newtext[i+l] = breakchar[0];
-            break;
-          }
-          l--;
-        }
-        if (l == -1)
-        {
-          /* couldn't break is backwards, try looking forwards */
-          l = linelength;
-          while (l <= pgr)
-          {
-            if(newtext[i+l] == ' ')
-            {
-              newtext[i+l] = breakchar[0];
-              break;
-            }
-            l++;
-          }
-        }
-      }
-      i += l+1;
-    }
-  }
-  else
-  {
-    /* Multiple character line break */
-    newtext = (char*)xf_malloc(strlen(SrcText) * (breakcharlen+1)+1);
-    if(!newtext)
-      return NULL;
-
-    newtext[0] = '\0';
-
-    i = 0;
-    while (text[i] != '\0')
-    {
-      /* prescan line to see if it is greater than linelength */
-      l = 0;
-      while (text[i+l] != '\0')
-      {
-        if (text[i+l] == breakchar[0])
-        {
-          if (breakcharlen == 1 || strncmp(text+i+l, breakchar, breakcharlen)==0)
-            break;
-        }
-        l++;
-      }
-      if (l >= linelength)
-      {
-        pgr = l;
-        l = linelength;
-
-        /* needs breaking; work backwards to find previous word */
-        while (l >= 0)
-        {
-          if (text[i+l] == ' ')
-          {
-            strncat(newtext, text+last, i+l-last);
-            strcat(newtext, breakchar);
-            last = i + l + 1;
-            break;
-          }
-          l--;
-        }
-        if (l == -1)
-        {
-          /* couldn't break it backwards, try looking forwards */
-          l = linelength - 1;
-          while (l <= pgr)
-          {
-            if (docut == 0)
-            {
-              if (text[i+l] == ' ')
-              {
-                strncat(newtext, text+last, i+l-last);
-                strcat(newtext, breakchar);
-                last = i + l + 1;
-                break;
-              }
-            }
-            if (docut == 1)
-            {
-              if (text[i+l] == ' ' || l > i-last)
-              {
-                strncat(newtext, text+last, i+l-last+1);
-                strcat(newtext, breakchar);
-                last = i + l + 1;
-                break;
-              }
-            }
-            l++;
-          }
-        }
-        i += l+1;
-      }
-      else
-      {
-        i += (l ? l : 1);
-      }
-    }
-
-    if (i+l > last)
-    {
-      strcat(newtext, text+last);
-    }
-  }
-
-  if(DestText && MaxLen > 0)
-    xstrncpy(DestText,newtext,MaxLen-1);
-  xf_free(newtext);
-  return DestText;
-}
-
-
-string& WINAPI FarFormatTextW(const wchar_t *SrcText,     // источник
+string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
                            int Width,               // заданна€ ширина
                            string &strDestText,          // приемник
                            const wchar_t* Break,       // брик, если = NULL, то принимаетс€ '\n'
@@ -1656,7 +1485,7 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
 }
 #endif
 
-BOOL TestParentFolderNameW(const wchar_t *Name)
+BOOL TestParentFolderName(const wchar_t *Name)
 {
   return Name[0] == L'.' && Name[1] == L'.' && !Name[2];
 }

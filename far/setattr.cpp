@@ -385,7 +385,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
   if(Name && *Name)
   {
     strOutFileName = Name;
-    TruncPathStrW(strOutFileName,Width);
+    TruncPathStr(strOutFileName,Width);
     CenterStrW(strOutFileName,strOutFileName,Width+4);
   }
   else
@@ -393,7 +393,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
     strOutFileName=L"";
     CenterStrW(strOutFileName,strOutFileName,Width+4); // подготавливаем нужную ширину (вид!)
   }
-  MessageW(0,0,UMSG(MSetAttrTitle),UMSG(MSetAttrSetting),(const wchar_t*)strOutFileName);
+  Message(0,0,UMSG(MSetAttrTitle),UMSG(MSetAttrSetting),(const wchar_t*)strOutFileName);
   PreRedrawParam.Param1=(void*)Name;
 }
 
@@ -522,9 +522,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     //SaveScreen SaveScr;
 
-    SrcPanel->GetSelNameW(NULL,FileAttr);
-    SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData);
-    if (SelCount==0 || SelCount==1 && TestParentFolderNameW(strSelName))
+    SrcPanel->GetSelName(NULL,FileAttr);
+    SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
+    if (SelCount==0 || SelCount==1 && TestParentFolderName(strSelName))
       return 0;
 
 //    int NewAttr;
@@ -571,7 +571,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(!DlgParam.Plugin && strSelName.At(strSelName.GetLength()-1) != L'\\')
         {
           string strCopy = strSelName;
-          AddEndSlashW(strCopy);
+          AddEndSlash(strCopy);
           FileAttr=GetFileAttributesW(strCopy);
         }
         //_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
@@ -645,7 +645,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
           AttrDlg[SETATTR_TITLELINK].strData.Format (UMSG(ID_Msg),
                 (LenJunction?
-                   (const wchar_t *)TruncPathStrW(strJuncTemp,Width):
+                   (const wchar_t *)TruncPathStr(strJuncTemp,Width):
                    UMSG(MSetAttrUnknownJunction)));
 
           /* $ 11.09.2001 SVS
@@ -673,7 +673,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
 
       AttrDlg[SETATTR_NAME].strData = strSelName;
-      TruncStrW(AttrDlg[SETATTR_NAME].strData,54);
+      TruncStr(AttrDlg[SETATTR_NAME].strData,54);
 
       AttrDlg[SETATTR_RO].Selected=(FileAttr & FA_RDONLY)!=0;
       AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FA_ARCH)!=0;
@@ -720,8 +720,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       // проверка - есть ли среди выделенных - каталоги?
       // так же проверка на атрибуты
       J=0;
-      SrcPanel->GetSelNameW(NULL,FileAttr);
-      while (SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData))
+      SrcPanel->GetSelName(NULL,FileAttr);
+      while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData))
       {
         if(!J && (FileAttr & FA_DIREC))
         {
@@ -739,8 +739,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         AttrDlg[SETATTR_SPARSE].Selected+=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)?1:0;
         AttrDlg[SETATTR_TEMP].Selected+=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)?1:0;
       }
-      SrcPanel->GetSelNameW(NULL,FileAttr);
-      SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData);
+      SrcPanel->GetSelName(NULL,FileAttr);
+      SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
       // выставим "неопределенку" или то, что нужно
       for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
       {
@@ -824,7 +824,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
   //_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-          SetWriteTimeRetCode=ESetFileTimeW(strSelName,
+          SetWriteTimeRetCode=ESetFileTime(strSelName,
                                            (SetWriteTime ? &LastWriteTime:NULL),
                                            (SetCreationTime ? &CreationTime:NULL),
                                            (SetLastAccessTime ? &LastAccessTime:NULL),
@@ -836,16 +836,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(SetWriteTimeRetCode == 1) // если время удалось выставить...
         {
           if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            ESetFileCompressionW(strSelName,1,FileAttr);
+            ESetFileCompression(strSelName,1,FileAttr);
           else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            ESetFileCompressionW(strSelName,0,FileAttr);
+            ESetFileCompression(strSelName,0,FileAttr);
 
           if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            ESetFileEncryptionW(strSelName,1,FileAttr);
+            ESetFileEncryption(strSelName,1,FileAttr);
           else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            ESetFileEncryptionW(strSelName,0,FileAttr);
+            ESetFileEncryption(strSelName,0,FileAttr);
 
-          ESetFileAttributesW(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+          ESetFileAttributes(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
         }
       }
     }
@@ -903,9 +903,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       */
 
-      SrcPanel->GetSelNameW(NULL,FileAttr);
+      SrcPanel->GetSelName(NULL,FileAttr);
 
-      while (SrcPanel->GetSelNameW(&strSelName,FileAttr,NULL,&FindData) && !Cancel)
+      while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData) && !Cancel)
       {
 //_SVS(SysLog(L"SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
@@ -928,7 +928,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
             RetCode=1;
           else
-            RetCode=ESetFileTimeW(strSelName,
+            RetCode=ESetFileTime(strSelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
@@ -942,7 +942,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           if (AttrDlg[SETATTR_COMPRESSED].Selected != 2)
           {
-            RetCode=ESetFileCompressionW(strSelName,AttrDlg[SETATTR_COMPRESSED].Selected,FileAttr);
+            RetCode=ESetFileCompression(strSelName,AttrDlg[SETATTR_COMPRESSED].Selected,FileAttr);
             if(!RetCode) // неудача сжать :-(
               break;
             if(RetCode == 2)
@@ -952,14 +952,14 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           {
             if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
             {
-              RetCode=ESetFileEncryptionW(strSelName,AttrDlg[SETATTR_ENCRYPTED].Selected,FileAttr);
+              RetCode=ESetFileEncryption(strSelName,AttrDlg[SETATTR_ENCRYPTED].Selected,FileAttr);
               if(!RetCode) // неудача зашифровать :-(
                 break;
               if(RetCode == 2)
                 continue;
             }
           }
-          RetCode=ESetFileAttributesW(strSelName,((FileAttr|SetAttr)&(~ClearAttr)));
+          RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)));
           if(!RetCode)
             break;
           if(RetCode == 2)
@@ -998,7 +998,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
                 RetCode=1;
               else
-                RetCode=ESetFileTimeW(strFullName,SetWriteTime ? &LastWriteTime:NULL,
+                RetCode=ESetFileTime(strFullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
                            FindData.dwFileAttributes);
@@ -1015,7 +1015,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             {
               if (AttrDlg[SETATTR_COMPRESSED].Selected != 2)
               {
-                RetCode=ESetFileCompressionW(strFullName,AttrDlg[SETATTR_COMPRESSED].Selected,FindData.dwFileAttributes);
+                RetCode=ESetFileCompression(strFullName,AttrDlg[SETATTR_COMPRESSED].Selected,FindData.dwFileAttributes);
                 if(RetCode == 0)
                 {
                   Cancel=1;
@@ -1028,7 +1028,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               {
                 if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
                 {
-                  RetCode=ESetFileEncryptionW(strFullName,AttrDlg[SETATTR_ENCRYPTED].Selected,FindData.dwFileAttributes);
+                  RetCode=ESetFileEncryption(strFullName,AttrDlg[SETATTR_ENCRYPTED].Selected,FindData.dwFileAttributes);
                   if (RetCode == 0)
                   {
                     Cancel=1;
@@ -1038,7 +1038,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                     continue;
                 }
               }
-              RetCode=ESetFileAttributesW(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr));
+              RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr));
               if (RetCode == 0)
               {
                 Cancel=1;
@@ -1195,7 +1195,7 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
 
     int Code;
     if(IsShowErrMsg)
-        Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                      UMSG(Msg),Name,
                      UMSG(MHRetry),UMSG(MHSkip),UMSG(MHCancel));
     else

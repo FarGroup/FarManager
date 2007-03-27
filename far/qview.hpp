@@ -32,7 +32,7 @@ class QuickView:public Panel
 
   private:
     virtual void DisplayObject();
-    void PrintTextW(const wchar_t *Str);
+    void PrintText(const wchar_t *Str);
 
     void SetMacroMode(int Restore = FALSE);
     /* $ 30.04.2001 DJ */
@@ -57,7 +57,7 @@ class QuickView:public Panel
     virtual void SetFocus();
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();
-    virtual int GetCurNameW(string &strName, string &strShortName);
+    virtual int GetCurName(string &strName, string &strShortName);
 };
 
 

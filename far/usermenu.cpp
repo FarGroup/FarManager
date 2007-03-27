@@ -79,19 +79,19 @@ void ProcessUserMenu(int EditMenu)
   int  ExitCode = 0;
   int RunFirst  = 1;
 
-  CtrlObject->CmdLine->GetCurDirW(strPrevPath);
+  CtrlObject->CmdLine->GetCurDir(strPrevPath);
   strMenuFilePath = strPrevPath;
 
   strLocalMenuKey.Format (L"UserMenu\\LocalMenu%u",clock());
   MenuMode=MM_LOCAL;
 
-  DeleteKeyTreeW(strLocalMenuKey);
+  DeleteKeyTree(strLocalMenuKey);
 
   MenuModified=MenuNeedRefresh=FALSE;
 
   if (EditMenu)
   {
-    int EditChoice=MessageW(0,3,UMSG(MUserMenuTitle),UMSG(MChooseMenuType),
+    int EditChoice=Message(0,3,UMSG(MUserMenuTitle),UMSG(MChooseMenuType),
                    UMSG(MChooseMenuMain),UMSG(MChooseMenuLocal),UMSG(MCancel));
     if (EditChoice<0 || EditChoice==2)
       return;
@@ -187,7 +187,7 @@ void ProcessUserMenu(int EditMenu)
         if (FileAttr & FA_RDONLY)
         {
           int AskOverwrite;
-          AskOverwrite=MessageW(MSG_WARNING,2,UMSG(MUserMenuTitle),LocalMenuFileName,
+          AskOverwrite=Message(MSG_WARNING,2,UMSG(MUserMenuTitle),LocalMenuFileName,
                        UMSG(MEditRO),UMSG(MEditOvr),UMSG(MYes),UMSG(MNo));
           if (AskOverwrite==0)
             SetFileAttributesW(LocalMenuFileName,FileAttr & ~FA_RDONLY);
@@ -205,7 +205,7 @@ void ProcessUserMenu(int EditMenu)
       }
     }
     if (MenuMode!=MM_MAIN)
-      DeleteKeyTreeW(strLocalMenuKey);
+      DeleteKeyTree(strLocalMenuKey);
 
     switch(ExitCode)
     {
@@ -256,7 +256,7 @@ void ProcessUserMenu(int EditMenu)
 
           default: // MM_MAIN
           {
-            CtrlObject->CmdLine->GetCurDirW(strMenuFilePath);
+            CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
             MenuMode=MM_LOCAL;
           }
         } /* switch */
@@ -273,7 +273,7 @@ void ProcessUserMenu(int EditMenu)
     } /* switch */
   } /* while */
 
-  CtrlObject->CmdLine->SetCurDirW(strPrevPath);
+  CtrlObject->CmdLine->SetCurDir(strPrevPath);
   FarChDirW(strPrevPath);
 
   if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
@@ -362,7 +362,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
   {
     string strItemKey, strHotKey;
     strItemKey.Format (L"%s\\Item%d",MenuKey,NumLine);
-    if(!GetRegKeyW(strItemKey,L"HotKey",strHotKey,L""))
+    if(!GetRegKey(strItemKey,L"HotKey",strHotKey,L""))
       break;
     if( !strHotKey.IsEmpty() )
     {
@@ -378,9 +378,9 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
     int MenuTextLen;
     string strItemKey, strHotKey, strLabel, strMenuText;
     strItemKey.Format (L"%s\\Item%d", MenuKey,NumLine);
-    if (!GetRegKeyW(strItemKey,L"HotKey",strHotKey,L""))
+    if (!GetRegKey(strItemKey,L"HotKey",strHotKey,L""))
       break;
-    if (!GetRegKeyW(strItemKey,L"Label",strLabel,L""))
+    if (!GetRegKey(strItemKey,L"Label",strLabel,L""))
       break;
     SubstFileName(strLabel,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 
@@ -448,16 +448,16 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
 
     string strItemKey, strHotKey, strLabel, strMenuText;
     strItemKey.Format (L"%s\\Item%d", (const wchar_t*)MenuKey,NumLine);
-    if (!GetRegKeyW(strItemKey,L"HotKey",strHotKey,L""))
+    if (!GetRegKey(strItemKey,L"HotKey",strHotKey,L""))
       break;
-    if (!GetRegKeyW(strItemKey,L"Label",strLabel,L""))
+    if (!GetRegKey(strItemKey,L"Label",strLabel,L""))
       break;
     SubstFileName(strLabel,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 
     apiExpandEnvironmentStrings (strLabel, strLabel);
 
     int SubMenu;
-    GetRegKeyW(strItemKey,L"Submenu",SubMenu,0);
+    GetRegKey(strItemKey,L"Submenu",SubMenu,0);
 
     int FuncNum=0;
     if ( wcslen(strHotKey)>1)
@@ -550,7 +550,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
       FuncPos[I]=-1;
 
     string strName,strShortName;
-    CtrlObject->Cp()->ActivePanel->GetCurNameW(strName,strShortName);
+    CtrlObject->Cp()->ActivePanel->GetCurName(strName,strShortName);
     {
       /* $ 24.07.2000 VVM
        + При показе главного меню в заголовок добавляет тип - FAR/Registry
@@ -628,7 +628,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
               string strCurrentKey;
               int SubMenu;
               strCurrentKey.Format (L"%s\\Item%d",MenuKey,MenuPos);
-              GetRegKeyW(strCurrentKey,L"Submenu",SubMenu,0);
+              GetRegKey(strCurrentKey,L"Submenu",SubMenu,0);
               if (SubMenu)
                 UserMenu.SetExitCode(MenuPos);
               break;
@@ -678,7 +678,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
                     return(0);
                   }
                 }
-                DeleteKeyTreeW(strMenuRootKey);
+                DeleteKeyTree(strMenuRootKey);
                 MenuFileToReg(strMenuRootKey,MenuFile);
                 fclose(MenuFile);
                 DeleteFileW (strMenuFileName);
@@ -693,7 +693,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 /* VVM $ */
               }
               else
-                MessageW(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
+                Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
               break;
             /* $ 28.06.2000 tran
                выход из пользовательского меню по ShiftF10 из любого уровня
@@ -738,7 +738,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     string strCurrentKey;
     int SubMenu;
     strCurrentKey.Format (L"%s\\Item%d",MenuKey,ExitCode);
-    GetRegKeyW(strCurrentKey,L"Submenu",SubMenu,0);
+    GetRegKey(strCurrentKey,L"Submenu",SubMenu,0);
 
     if (SubMenu)
     {
@@ -747,7 +747,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
       string strSubMenuKey, strSubMenuLabel, strSubMenuTitle;
       strSubMenuKey.Format (L"%s\\Item%d",MenuKey,ExitCode);
 
-      if(GetRegKeyW(strSubMenuKey,L"Label",strSubMenuLabel,L""))
+      if(GetRegKey(strSubMenuKey,L"Label",strSubMenuLabel,L""))
       {
         SubstFileName(strSubMenuLabel,strName,strShortName,NULL,NULL,NULL,NULL,TRUE);
         apiExpandEnvironmentStrings (strSubMenuLabel, strSubMenuLabel);
@@ -787,11 +787,11 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 
     string strCmdLineDir;
 
-    CtrlObject->CmdLine->GetCurDirW(strCmdLineDir);
+    CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
 
     string strOldCmdLine;
 
-    CtrlObject->CmdLine->GetStringW(strOldCmdLine);
+    CtrlObject->CmdLine->GetString(strOldCmdLine);
     int OldCmdLineSelStart, OldCmdLineSelEnd;
     CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
     CtrlObject->CmdLine->LockUpdatePanel(TRUE);
@@ -799,7 +799,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     {
       string strLineName, strCommand;
       strLineName.Format (L"Command%d",CurLine);
-      if (!GetRegKeyW(strCurrentKey,strLineName,strCommand,L""))
+      if (!GetRegKey(strCurrentKey,strLineName,strCommand,L""))
         break;
 
       string strListName, strAnotherListName;
@@ -860,7 +860,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     {
 
 
-       CtrlObject->CmdLine->SetStringW(strOldCmdLine,FrameManager->IsPanelsActive());
+       CtrlObject->CmdLine->SetString(strOldCmdLine,FrameManager->IsPanelsActive());
        CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
     }
     /* IS $ */
@@ -897,16 +897,16 @@ int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
   string strRecText, strItemName, strRegKey;
   int SubMenu;
   strRegKey.Format (L"%s\\Item%d",MenuKey,DeletePos);
-  GetRegKeyW(strRegKey,L"Label",strRecText,L"");
-  GetRegKeyW(strRegKey,L"Submenu",SubMenu,0);
+  GetRegKey(strRegKey,L"Label",strRecText,L"");
+  GetRegKey(strRegKey,L"Submenu",SubMenu,0);
   strItemName.Format (L"\"%s\"", (const wchar_t*)strRecText);
-  if (MessageW(MSG_WARNING,2,UMSG(MUserMenuTitle),
+  if (Message(MSG_WARNING,2,UMSG(MUserMenuTitle),
           UMSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),
               strItemName,UMSG(MDelete),UMSG(MCancel))!=0)
     return(FALSE);
   MenuModified=MenuNeedRefresh=TRUE;
   strRegKey.Format (L"%s\\Item%%d", MenuKey);
-  DeleteKeyRecordW(strRegKey,DeletePos);
+  DeleteKeyRecord(strRegKey,DeletePos);
   return(TRUE);
 }
 
@@ -987,7 +987,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
 
   if (NewRec)
   {
-    switch (MessageW(0,2,UMSG(MUserMenuTitle),UMSG(MAskInsertMenuOrCommand),
+    switch (Message(0,2,UMSG(MUserMenuTitle),UMSG(MAskInsertMenuOrCommand),
                     UMSG(MMenuInsertCommand),UMSG(MMenuInsertMenu)))
     {
       case -1:
@@ -1000,11 +1000,11 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
   else
   {
     int SubMenu;
-    GetRegKeyW(strItemKey,L"Submenu",SubMenu,0);
+    GetRegKey(strItemKey,L"Submenu",SubMenu,0);
     if (SubMenu)
       return(EditSubMenu(MenuKey,EditPos,TotalRecords,FALSE));
-    GetRegKeyW(strItemKey,L"HotKey",EditDlg[2].strData,L"");
-    GetRegKeyW(strItemKey,L"Label",EditDlg[4].strData,L"");
+    GetRegKey(strItemKey,L"HotKey",EditDlg[2].strData,L"");
+    GetRegKey(strItemKey,L"Label",EditDlg[4].strData,L"");
 #if defined(PROJECT_DI_MEMOEDIT)
     /*
       ...
@@ -1017,7 +1017,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
     {
       string strCommandName, strCommand;
       strCommandName.Format (L"Command%d",CommandNumber);
-      if (!GetRegKeyW(strItemKey,strCommandName,strCommand,L""))
+      if (!GetRegKey(strItemKey,strCommandName,strCommand,L""))
         break;
       strBuffer7+=strCommand;
       strBuffer7+=L"\n";    //??? "\n\r"
@@ -1031,7 +1031,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
     {
       string strCommandName, strCommand;
       strCommandName.Format (L"Command%d",CommandNumber);
-      if (!GetRegKeyW(strItemKey,strCommandName,strCommand,L""))
+      if (!GetRegKey(strItemKey,strCommandName,strCommand,L""))
         break;
       EditDlg[7+CommandNumber].strData = strCommand;
       CommandNumber++;
@@ -1060,7 +1060,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
       {
          if ((I=CanCloseDialog(EditDlg[2].strData, EditDlg[4].strData)) == 0)
            break;
-         MessageW(MSG_WARNING,1,UMSG(MUserMenuTitle),UMSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),UMSG(MOk));
+         Message(MSG_WARNING,1,UMSG(MUserMenuTitle),UMSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),UMSG(MOk));
          Dlg.ClearDone();
          Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,I*2,0); // Здесь внимательно, если менять дизайн диалога
       }
@@ -1074,12 +1074,12 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
   {
     string strKeyMask;
     strKeyMask.Format (L"%s\\Item%%d",MenuKey);
-    InsertKeyRecordW(strKeyMask,EditPos,TotalRecords);
+    InsertKeyRecord(strKeyMask,EditPos,TotalRecords);
   }
 
-  SetRegKeyW(strItemKey,L"HotKey",EditDlg[2].strData);
-  SetRegKeyW(strItemKey,L"Label",EditDlg[4].strData);
-  SetRegKeyW(strItemKey,L"Submenu",(DWORD)0);
+  SetRegKey(strItemKey,L"HotKey",EditDlg[2].strData);
+  SetRegKey(strItemKey,L"Label",EditDlg[4].strData);
+  SetRegKey(strItemKey,L"Submenu",(DWORD)0);
 
 #if defined(PROJECT_DI_MEMOEDIT)
   /*
@@ -1097,9 +1097,9 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
     string strCommandName;
     strCommandName.Format (L"Command%d",I);
     if (I>=CommandNumber)
-      DeleteRegValueW(strItemKey,strCommandName);
+      DeleteRegValue(strItemKey,strCommandName);
     else
-      SetRegKeyW(strItemKey,strCommandName,EditDlg[I+7].strData);
+      SetRegKey(strItemKey,strCommandName,EditDlg[I+7].strData);
   }
 #endif
   return(TRUE);
@@ -1131,8 +1131,8 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
   }
   else
   {
-    GetRegKeyW(strItemKey,L"HotKey",EditDlg[2].strData,L"");
-    GetRegKeyW(strItemKey,L"Label",EditDlg[4].strData,L"");
+    GetRegKey(strItemKey,L"HotKey",EditDlg[2].strData,L"");
+    GetRegKey(strItemKey,L"Label",EditDlg[4].strData,L"");
   }
   {
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
@@ -1145,7 +1145,7 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
       {
         if ((I=CanCloseDialog(EditDlg[2].strData, EditDlg[4].strData)) == 0)
           break;
-        MessageW(MSG_WARNING,1,UMSG(MUserMenuTitle),UMSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),UMSG(MOk));
+        Message(MSG_WARNING,1,UMSG(MUserMenuTitle),UMSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),UMSG(MOk));
         Dlg.ClearDone();
         Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,I*2,0); // Здесь внимательно, если менять дизайн диалога
       }
@@ -1162,12 +1162,12 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
   {
     string strKeyMask;
     strKeyMask.Format (L"%s\\Item%%d", MenuKey);
-    InsertKeyRecordW(strKeyMask,EditPos,TotalRecords);
+    InsertKeyRecord(strKeyMask,EditPos,TotalRecords);
   }
 
-  SetRegKeyW(strItemKey,L"HotKey",EditDlg[2].strData);
-  SetRegKeyW(strItemKey,L"Label",EditDlg[4].strData);
-  SetRegKeyW(strItemKey,L"Submenu",(DWORD)1);
+  SetRegKey(strItemKey,L"HotKey",EditDlg[2].strData);
+  SetRegKey(strItemKey,L"Label",EditDlg[4].strData);
+  SetRegKey(strItemKey,L"Submenu",(DWORD)1);
   return(TRUE);
 }
 
@@ -1179,11 +1179,11 @@ void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile)
     string strItemKey, strHotKey, strLabel;
     int SubMenu;
     strItemKey.Format (L"%s\\Item%d",MenuKey,I);
-    if (!GetRegKeyW(strItemKey,L"Label",strLabel,L""))
+    if (!GetRegKey(strItemKey,L"Label",strLabel,L""))
       break;
-    GetRegKeyW(strItemKey,L"Label",strLabel,L"");
-    GetRegKeyW(strItemKey,L"HotKey",strHotKey,L"");
-    GetRegKeyW(strItemKey,L"Submenu",SubMenu,0);
+    GetRegKey(strItemKey,L"Label",strLabel,L"");
+    GetRegKey(strItemKey,L"HotKey",strHotKey,L"");
+    GetRegKey(strItemKey,L"Submenu",SubMenu,0);
     fwprintf(MenuFile,L"%s:  %s\r\n",(const wchar_t*)strHotKey,(const wchar_t*)strLabel);
     if (SubMenu)
     {
@@ -1196,7 +1196,7 @@ void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile)
       {
         string strLineName, strCommand;
         strLineName.Format (L"Command%d",J);
-        if (!GetRegKeyW(strItemKey,strLineName,strCommand,L""))
+        if (!GetRegKey(strItemKey,strLineName,strCommand,L""))
           break;
         fwprintf(MenuFile,L"    %s\r\n",(const wchar_t *)strCommand);
       }
@@ -1238,9 +1238,9 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
       SaveFilePos SavePos(MenuFile);
       SubMenu=(fgetws(MenuStr,sizeof(MenuStr)*sizeof(wchar_t),MenuFile)!=NULL && *MenuStr==L'{');
       UseSameRegKey();
-      SetRegKeyW(strItemKey,L"HotKey",strHotKey);
-      SetRegKeyW(strItemKey,L"Label",strLabel);
-      SetRegKeyW(strItemKey,L"Submenu",SubMenu);
+      SetRegKey(strItemKey,L"HotKey",strHotKey);
+      SetRegKey(strItemKey,L"Label",strLabel);
+      SetRegKey(strItemKey,L"Submenu",SubMenu);
       CloseSameRegKey();
       CommandNumber=0;
     }
@@ -1250,7 +1250,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
         string strLineName;
         strLineName.Format (L"Command%d",CommandNumber++);
         RemoveLeadingSpacesW(MenuStr);
-        SetRegKeyW(strItemKey,strLineName,MenuStr);
+        SetRegKey(strItemKey,strLineName,MenuStr);
       }
   }
 }

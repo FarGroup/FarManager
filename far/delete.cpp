@@ -72,8 +72,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     string strRoot;
 //    char FSysNameSrc[NM];
-    SrcPanel->GetSelNameW(NULL,FileAttr);
-    SrcPanel->GetSelNameW(&strSelName,FileAttr);
+    SrcPanel->GetSelName(NULL,FileAttr);
+    SrcPanel->GetSelName(&strSelName,FileAttr);
     ConvertNameToFullW(strSelName, strRoot);
     GetPathRootW(strRoot,strRoot);
 //_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
@@ -83,15 +83,15 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   if (SelCount==1)
   {
-    SrcPanel->GetSelNameW(NULL,FileAttr);
-    SrcPanel->GetSelNameW(&strSelName,FileAttr);
-    if (TestParentFolderNameW(strSelName) || strSelName.IsEmpty() )
+    SrcPanel->GetSelName(NULL,FileAttr);
+    SrcPanel->GetSelName(&strSelName,FileAttr);
+    if (TestParentFolderName(strSelName) || strSelName.IsEmpty() )
     {
       NeedUpdate=FALSE;
       goto done;
     }
     strDeleteFilesMsg = strSelName;
-    TruncPathStrW(strDeleteFilesMsg, ScrX-16);
+    TruncPathStr(strDeleteFilesMsg, ScrX-16);
   }
   else
   /* $ 05.01.2001 SVS
@@ -133,7 +133,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       //TruncPathStr(strJuncName, strJuncName.GetLength()-4); //
 
       //SetMessageHelp(L"DeleteLink");
-      Ret=MessageW(0,3,UMSG(MDeleteLinkTitle),
+      Ret=Message(0,3,UMSG(MDeleteLinkTitle),
                 strDeleteFilesMsg,
                 UMSG(MAskDeleteLink),
                 strJuncName,
@@ -196,7 +196,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     }
     /* IS $ */
     SetMessageHelp(L"DeleteFile");
-    if (MessageW(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,UMSG(Wipe?MDeleteWipe:MDelete),UMSG(MCancel))!=0)
+    if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,UMSG(Wipe?MDeleteWipe:MDelete),UMSG(MCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
@@ -208,7 +208,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     SetMessageHelp(L"DeleteFile");
-    if (MessageW(MSG_WARNING,2,UMSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),UMSG(Wipe?MAskWipe:MAskDelete),
+    if (Message(MSG_WARNING,2,UMSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),UMSG(Wipe?MAskWipe:MAskDelete),
                 strDeleteFilesMsg,UMSG(MDeleteFileAll),UMSG(MDeleteFileCancel))!=0)
     {
       NeedUpdate=FALSE;
@@ -243,8 +243,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SkipMode=-1;
     SkipFoldersMode=-1;
 
-    SrcPanel->GetSelNameW(NULL,FileAttr);
-    while (SrcPanel->GetSelNameW(&strSelName,FileAttr,&strSelShortName) && !Cancel)
+    SrcPanel->GetSelName(NULL,FileAttr);
+    while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
     {
       if(CheckForEscSilent())
       {
@@ -270,10 +270,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             string strMsgFullName;
 
             strMsgFullName = strFullName;
-            TruncPathStrW(strMsgFullName, ScrX-16);
+            TruncPathStr(strMsgFullName, ScrX-16);
             // дл€ symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-               MsgCode=MessageW(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
                   UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
                     UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
                     UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
@@ -364,8 +364,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 */
                 string strMsgFullName;
                 strMsgFullName = strFullName;
-                TruncPathStrW(strMsgFullName, ScrX-16);
-                int MsgCode=MessageW(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                TruncPathStr(strMsgFullName, ScrX-16);
+                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
                       UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
                       UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
                       UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
@@ -453,7 +453,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           {
             DeleteCode=RemoveToRecycleBinW(strSelName);
             if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-              MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
+              Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
                       UMSG(MCannotDeleteFolder),strSelName,UMSG(MOk));
             else
             {
@@ -530,10 +530,10 @@ void ShellDeleteMsgW(const wchar_t *Name,int Wipe)
       Width=WidthTemp;
 
     strOutFileName = Name;
-    TruncPathStrW(strOutFileName,Width);
+    TruncPathStr(strOutFileName,Width);
     CenterStrW(strOutFileName,strOutFileName,Width+4);
 
-    MessageW(0,0,UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle),UMSG(Wipe?MDeletingWiping:MDeleting),strOutFileName);
+    Message(0,0,UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle),UMSG(Wipe?MDeletingWiping:MDeleting),strOutFileName);
   }
   PreRedrawParam.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
   PreRedrawParam.Param5=(__int64)Wipe;
@@ -552,8 +552,8 @@ int AskDeleteReadOnlyW(const wchar_t *Name,DWORD Attr,int Wipe)
     /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
     string strMsgName;
     strMsgName = Name;
-    TruncPathStrW(strMsgName, ScrX-16);
-    MsgCode=MessageW(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),UMSG(MDeleteRO),strMsgName,
+    TruncPathStr(strMsgName, ScrX-16);
+    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),UMSG(MDeleteRO),strMsgName,
             UMSG(Wipe?MAskWipeRO:MAskDeleteRO),UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
             UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),
             UMSG(MDeleteFileCancel));
@@ -600,7 +600,7 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         {
           string strMsgName;
           strMsgName = Name;
-          TruncPathStrW(strMsgName, ScrX-16);
+          TruncPathStr(strMsgName, ScrX-16);
           /*
                             ‘айл
                          "им€ файла"
@@ -608,7 +608,7 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
   ”ничтожение файла приведет к обнулению всех ссылающихс€ на него файлов.
                         ”ничтожать файл?
           */
-          MsgCode=MessageW(MSG_DOWN|MSG_WARNING,5,UMSG(MError),
+          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MError),
                           UMSG(MDeleteHardLink1),UMSG(MDeleteHardLink2),UMSG(MDeleteHardLink3),
                           UMSG(MDeleteFileWipe),UMSG(MDeleteFileAll),UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
         }
@@ -658,9 +658,9 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
       string strMsgName;
       strMsgName = Name;
-      TruncPathStrW(strMsgName, ScrX-16);
+      TruncPathStr(strMsgName, ScrX-16);
 
-      MsgCode=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
+      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                       UMSG(MCannotDeleteFile),strMsgName,UMSG(MDeleteRetry),
                       UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
       /* IS */
@@ -710,9 +710,9 @@ int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
       string strMsgName;
       strMsgName = Name;
-      TruncPathStrW(strMsgName, ScrX-16);
+      TruncPathStr(strMsgName, ScrX-16);
 
-      MsgCode=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
+      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                   UMSG(MCannotDeleteFolder),strMsgName,UMSG(MDeleteRetry),
                   UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
     }
@@ -871,14 +871,14 @@ int WipeDirectoryW(const wchar_t *Name)
   return(FAR_RemoveDirectoryW(strTempName));
 }
 
-int DeleteFileWithFolderW(const wchar_t *FileName)
+int DeleteFileWithFolder(const wchar_t *FileName)
 {
   string strFileOrFolderName;
   wchar_t *Slash;
 
   strFileOrFolderName = FileName;
 
-  UnquoteW (strFileOrFolderName);
+  Unquote(strFileOrFolderName);
 
   BOOL Ret=SetFileAttributesW(strFileOrFolderName,FILE_ATTRIBUTE_NORMAL);
 

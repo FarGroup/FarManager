@@ -107,10 +107,10 @@ static DWORD WINAPI _xfilter(
 //   if(From == (int)INVALID_HANDLE_VALUE)
 //     CriticalInternalError=TRUE;
 
-   if(!Is_STACK_OVERFLOW && GetRegKeyW(L"System\\Exception",L"Used",0))
+   if(!Is_STACK_OVERFLOW && GetRegKey(L"System\\Exception",L"Used",0))
    {
      static string strFarEventSvc;
-     if(GetRegKeyW(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
+     if(GetRegKey(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
      {
        HMODULE m = LoadLibraryW(strFarEventSvc);
        if (m)
@@ -280,9 +280,9 @@ static DWORD WINAPI _xfilter(
 
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       TruncPathStrW(strTruncFileName,40);
+       TruncPathStr(strTruncFileName,40);
 
-       MessageW(MSG_WARNING,1,
+       Message(MSG_WARNING,1,
             xFromMSGTitle(From),
             UMSG(MExcTrappedException),
             UMSG(MExcCheckOnLousys),
@@ -318,9 +318,9 @@ static DWORD WINAPI _xfilter(
      strBuf1.Format (UMSG(MExcInvalidFuncResult),pName);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       TruncPathStrW(strTruncFileName,40);
+       TruncPathStr(strTruncFileName,40);
 
-       MessageW(MSG_WARNING, 1,
+       Message(MSG_WARNING, 1,
                  xFromMSGTitle(From),
                  UMSG(MExcTrappedException),
                  UMSG(MExcCheckOnLousys),
@@ -378,9 +378,9 @@ static DWORD WINAPI _xfilter(
      strBuf1.Format (UMSG(MExcAddress),xr->ExceptionAddress);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       TruncPathStrW(strTruncFileName, 40);
+       TruncPathStr(strTruncFileName, 40);
 
-       MessageW(MSG_WARNING,1,
+       Message(MSG_WARNING,1,
                xFromMSGTitle(From),
                UMSG(MExcTrappedException),
                pName,

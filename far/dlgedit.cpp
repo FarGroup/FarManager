@@ -158,16 +158,16 @@ int DlgEdit::GetOvertypeMode()
     return lineEdit->GetOvertypeMode();
 }
 
-void DlgEdit::SetInputMaskW(const wchar_t *InputMask)
+void DlgEdit::SetInputMask(const wchar_t *InputMask)
 {
   if(Type == DLGEDIT_SINGLELINE)
-    lineEdit->SetInputMaskW(InputMask);
+    lineEdit->SetInputMask(InputMask);
 }
 
-const wchar_t* DlgEdit::GetInputMaskW()
+const wchar_t* DlgEdit::GetInputMask()
 {
   if(Type == DLGEDIT_SINGLELINE)
-    return lineEdit->GetInputMaskW();
+    return lineEdit->GetInputMask();
   return L""; //???
 }
 
@@ -213,7 +213,7 @@ const wchar_t* DlgEdit::GetStringAddrW()
     return lineEdit->GetStringAddrW();
 }
 
-void DlgEdit::SetStringW(const wchar_t *Str)
+void DlgEdit::SetString(const wchar_t *Str)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -222,10 +222,10 @@ void DlgEdit::SetStringW(const wchar_t *Str)
   }
   else
 #endif
-    lineEdit->SetStringW(Str);
+    lineEdit->SetString(Str);
 }
 
-void DlgEdit::GetStringW(wchar_t *Str,int MaxSize,int Row)
+void DlgEdit::GetString(wchar_t *Str,int MaxSize,int Row)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -234,10 +234,10 @@ void DlgEdit::GetStringW(wchar_t *Str,int MaxSize,int Row)
   }
   else
 #endif
-    lineEdit->GetStringW(Str,MaxSize);
+    lineEdit->GetString(Str,MaxSize);
 }
 
-void DlgEdit::GetStringW(string &strStr,int Row)
+void DlgEdit::GetString(string &strStr,int Row)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -246,7 +246,7 @@ void DlgEdit::GetStringW(string &strStr,int Row)
   }
   else
 #endif
-    lineEdit->GetStringW(strStr);
+    lineEdit->GetString(strStr);
 }
 
 void DlgEdit::SetCurPos(int NewCol, int NewRow) // Row==-1 - current line

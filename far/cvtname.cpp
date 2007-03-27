@@ -26,13 +26,13 @@ int ConvertNameToFullW (
 
 	int Result = (int)wcslen (lpwszSrc);
 
-	const wchar_t *lpwszName = PointToNameW (lpwszSrc);
+	const wchar_t *lpwszName = PointToName(lpwszSrc);
 
 	if ( (lpwszName == lpwszSrc) &&
 				(lpwszName[0] != L'.' || lpwszName[1] != 0) )
 	{
-		FarGetCurDirW (strDest);
-		AddEndSlashW (strDest);
+		FarGetCurDir(strDest);
+		AddEndSlash(strDest);
 
 		strDest += lpwszSrc;
 
@@ -102,7 +102,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
 
     if((FileAttr=GetFileAttributesW(strTempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
     {
-      AddEndSlashW (strTempDest);
+      AddEndSlash(strTempDest);
       IsAddEndSlash=TRUE;
     }
 

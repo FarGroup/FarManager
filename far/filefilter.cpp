@@ -95,7 +95,7 @@ bool FileFilter::FilterEdit()
       const wchar_t *FMask;
       TempFilterData.getItem(i)->GetMask(&FMask);
       string strMask = FMask;
-      UnquoteW(strMask);
+      Unquote(strMask);
       if(!ParseAndAddMasks(&ExtPtr,strMask,0,ExtCount,GetCheck(TempFilterData.getItem(i))))
         break;
     }
@@ -118,7 +118,7 @@ bool FileFilter::FilterEdit()
     string strCurDir, strFileName;
     FAR_FIND_DATA_EX fdata;
 
-    m_HostPanel->GetCurDirW(strCurDir);
+    m_HostPanel->GetCurDir(strCurDir);
 
     ScanTree ScTree(FALSE,FALSE);
     ScTree.SetFindPathW(strCurDir,L"*.*");
@@ -130,7 +130,7 @@ bool FileFilter::FilterEdit()
   {
     string strFileName;
     int FileAttr;
-    for (int i=0; m_HostPanel->GetFileNameW(strFileName,i,FileAttr); i++)
+    for (int i=0; m_HostPanel->GetFileName(strFileName,i,FileAttr); i++)
       if(!ParseAndAddMasks(&ExtPtr,strFileName,FileAttr,ExtCount,0))
         break;
   }
@@ -257,7 +257,7 @@ bool FileFilter::FilterEdit()
         }
         else if (SelPos>(int)FilterData.getCount())
         {
-          MessageW(MSG_WARNING,1,UMSG(MFilterTitle),UMSG(MCanEditCustomFilterOnly),UMSG(MOk));
+          Message(MSG_WARNING,1,UMSG(MFilterTitle),UMSG(MCanEditCustomFilterOnly),UMSG(MOk));
         }
         break;
       }
@@ -338,7 +338,7 @@ bool FileFilter::FilterEdit()
         {
           string strQuotedTitle;
           strQuotedTitle.Format(L"\"%s\"",FilterData.getItem(SelPos)->GetTitle());
-          if (MessageW(0,2,UMSG(MFilterTitle),UMSG(MAskDeleteFilter),
+          if (Message(0,2,UMSG(MFilterTitle),UMSG(MAskDeleteFilter),
                        (const wchar_t *)strQuotedTitle,UMSG(MDelete),UMSG(MCancel))==0)
           {
             FilterData.deleteItem(SelPos);
@@ -354,7 +354,7 @@ bool FileFilter::FilterEdit()
         }
         else if (SelPos>(int)FilterData.getCount())
         {
-          MessageW(MSG_WARNING,1,UMSG(MFilterTitle),UMSG(MCanDeleteCustomFilterOnly),UMSG(MOk));
+          Message(MSG_WARNING,1,UMSG(MFilterTitle),UMSG(MCanDeleteCustomFilterOnly),UMSG(MOk));
         }
         break;
       }
@@ -498,13 +498,13 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
       //и авто фильтры в меню отсортированы по алфавиту то немного
       //поколдуем чтоб не было дубликатов в памяти.
       strMask1 = Mask;
-      UnquoteW(strMask1);
+      Unquote(strMask1);
       while ((CurFilterData=TempFilterData.getItem(j))!=NULL)
       {
         string strMask2;
         CurFilterData->GetMask(&FMask);
         strMask2 = FMask;
-        UnquoteW(strMask2);
+        Unquote(strMask2);
         if (LocalStricmpW(strMask1,strMask2)<1)
           break;
         j++;
@@ -679,7 +679,7 @@ void FileFilter::InitFilter()
   {
     strRegKey.Format(L"Filters\\Filter%d",FilterData.getCount());
 
-    if (!GetRegKeyW(strRegKey,L"Title",strTitle,L""))
+    if (!GetRegKey(strRegKey,L"Title",strTitle,L""))
       break;
 
     FileFilterParams *NewFilter = FilterData.addItem();
@@ -691,28 +691,28 @@ void FileFilter::InitFilter()
 
       NewFilter->SetTitle(strTitle);
 
-      GetRegKeyW(strRegKey,L"Mask",strMask,L"");
-      NewFilter->SetMask((DWORD)GetRegKeyW(strRegKey,L"UseMask",1),
+      GetRegKey(strRegKey,L"Mask",strMask,L"");
+      NewFilter->SetMask((DWORD)GetRegKey(strRegKey,L"UseMask",1),
                          strMask);
 
       FILETIME DateAfter, DateBefore;
-      GetRegKeyW(strRegKey,L"DateAfter",(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
-      GetRegKeyW(strRegKey,L"DateBefore",(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
-      NewFilter->SetDate((DWORD)GetRegKeyW(strRegKey,L"UseDate",0),
-                         (DWORD)GetRegKeyW(strRegKey,L"DateType",0),
+      GetRegKey(strRegKey,L"DateAfter",(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
+      GetRegKey(strRegKey,L"DateBefore",(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
+      NewFilter->SetDate((DWORD)GetRegKey(strRegKey,L"UseDate",0),
+                         (DWORD)GetRegKey(strRegKey,L"DateType",0),
                          DateAfter,
                          DateBefore);
 
-      NewFilter->SetSize((DWORD)GetRegKeyW(strRegKey,L"UseSize",0),
-                         (DWORD)GetRegKeyW(strRegKey,L"SizeType",0),
-                         GetRegKey64W(strRegKey,L"SizeAbove",(unsigned __int64)_i64(-1)),
-                         GetRegKey64W(strRegKey,L"SizeBelow",(unsigned __int64)_i64(-1)));
+      NewFilter->SetSize((DWORD)GetRegKey(strRegKey,L"UseSize",0),
+                         (DWORD)GetRegKey(strRegKey,L"SizeType",0),
+                         GetRegKey64(strRegKey,L"SizeAbove",(unsigned __int64)_i64(-1)),
+                         GetRegKey64(strRegKey,L"SizeBelow",(unsigned __int64)_i64(-1)));
 
-      NewFilter->SetAttr((DWORD)GetRegKeyW(strRegKey,L"UseAttr",1),
-                         (DWORD)GetRegKeyW(strRegKey,L"AttrSet",0),
-                         (DWORD)GetRegKeyW(strRegKey,L"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
+      NewFilter->SetAttr((DWORD)GetRegKey(strRegKey,L"UseAttr",1),
+                         (DWORD)GetRegKey(strRegKey,L"AttrSet",0),
+                         (DWORD)GetRegKey(strRegKey,L"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
 
-      NewFilter->Flags.Set((DWORD)GetRegKeyW(strRegKey,L"Flags",0));
+      NewFilter->Flags.Set((DWORD)GetRegKey(strRegKey,L"Flags",0));
     }
     else
       break;
@@ -722,7 +722,7 @@ void FileFilter::InitFilter()
   {
     strRegKey.Format(L"Filters\\PanelMask%d",TempFilterData.getCount());
 
-    if (!GetRegKeyW(strRegKey,L"Mask",strMask,L""))
+    if (!GetRegKey(strRegKey,L"Mask",strMask,L""))
       break;
 
     FileFilterParams *NewFilter = TempFilterData.addItem();
@@ -733,7 +733,7 @@ void FileFilter::InitFilter()
       //Авто фильтры они только для файлов, папки не должны к ним подходить
       NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 
-      NewFilter->Flags.Set((DWORD)GetRegKeyW(strRegKey,L"Flags",0));
+      NewFilter->Flags.Set((DWORD)GetRegKey(strRegKey,L"Flags",0));
     }
     else
       break;
@@ -741,9 +741,9 @@ void FileFilter::InitFilter()
 
   FoldersFilter.SetMask(0,L"");
   FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
-  FoldersFilter.Flags.Set((DWORD)GetRegKeyW(L"Filters",L"FoldersFilterFlags",0));
+  FoldersFilter.Flags.Set((DWORD)GetRegKey(L"Filters",L"FoldersFilterFlags",0));
 
-  FolderFlags.Set((DWORD)GetRegKeyW(L"Filters",L"FolderFlags",FFF_RPANELINCLUDE|FFF_LPANELINCLUDE|FFF_FINDFILEINCLUDE|FFF_COPYINCLUDE|FFF_SELECTEXCLUDE));
+  FolderFlags.Set((DWORD)GetRegKey(L"Filters",L"FolderFlags",FFF_RPANELINCLUDE|FFF_LPANELINCLUDE|FFF_FINDFILEINCLUDE|FFF_COPYINCLUDE|FFF_SELECTEXCLUDE));
 }
 
 
@@ -757,7 +757,7 @@ void FileFilter::SaveFilters(bool SaveAll)
 {
   string strRegKey;
 
-  DeleteKeyTreeW(L"Filters");
+  DeleteKeyTree(L"Filters");
 
   FileFilterParams *CurFilterData;
 
@@ -767,35 +767,35 @@ void FileFilter::SaveFilters(bool SaveAll)
 
     CurFilterData = FilterData.getItem(i);
 
-    SetRegKeyW(strRegKey,L"Title",CurFilterData->GetTitle());
+    SetRegKey(strRegKey,L"Title",CurFilterData->GetTitle());
 
     const wchar_t *Mask;
-    SetRegKeyW(strRegKey,L"UseMask",CurFilterData->GetMask(&Mask));
-    SetRegKeyW(strRegKey,L"Mask",Mask);
+    SetRegKey(strRegKey,L"UseMask",CurFilterData->GetMask(&Mask));
+    SetRegKey(strRegKey,L"Mask",Mask);
 
 
     DWORD DateType;
     FILETIME DateAfter, DateBefore;
-    SetRegKeyW(strRegKey,L"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore));
-    SetRegKeyW(strRegKey,L"DateType",DateType);
-    SetRegKeyW(strRegKey,L"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
-    SetRegKeyW(strRegKey,L"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
+    SetRegKey(strRegKey,L"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore));
+    SetRegKey(strRegKey,L"DateType",DateType);
+    SetRegKey(strRegKey,L"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
+    SetRegKey(strRegKey,L"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
 
 
     DWORD SizeType;
     __int64 SizeAbove, SizeBelow;
-    SetRegKeyW(strRegKey,L"UseSize",CurFilterData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-    SetRegKeyW(strRegKey,L"SizeType",SizeType);
-    SetRegKey64W(strRegKey,L"SizeAbove",SizeAbove);
-    SetRegKey64W(strRegKey,L"SizeBelow",SizeBelow);
+    SetRegKey(strRegKey,L"UseSize",CurFilterData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
+    SetRegKey(strRegKey,L"SizeType",SizeType);
+    SetRegKey64(strRegKey,L"SizeAbove",SizeAbove);
+    SetRegKey64(strRegKey,L"SizeBelow",SizeBelow);
 
 
     DWORD AttrSet, AttrClear;
-    SetRegKeyW(strRegKey,L"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear));
-    SetRegKeyW(strRegKey,L"AttrSet",AttrSet);
-    SetRegKeyW(strRegKey,L"AttrClear",AttrClear);
+    SetRegKey(strRegKey,L"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear));
+    SetRegKey(strRegKey,L"AttrSet",AttrSet);
+    SetRegKey(strRegKey,L"AttrClear",AttrClear);
 
-    SetRegKeyW(strRegKey,L"Flags",SaveAll ? CurFilterData->Flags.Flags : 0);
+    SetRegKey(strRegKey,L"Flags",SaveAll ? CurFilterData->Flags.Flags : 0);
   }
 
   if (SaveAll)
@@ -808,14 +808,14 @@ void FileFilter::SaveFilters(bool SaveAll)
 
       const wchar_t *Mask;
       CurFilterData->GetMask(&Mask);
-      SetRegKeyW(strRegKey,L"Mask",Mask);
+      SetRegKey(strRegKey,L"Mask",Mask);
 
-      SetRegKeyW(strRegKey,L"Flags",CurFilterData->Flags.Flags);
+      SetRegKey(strRegKey,L"Flags",CurFilterData->Flags.Flags);
     }
 
-    SetRegKeyW(L"Filters",L"FoldersFilterFlags",FoldersFilter.Flags.Flags);
+    SetRegKey(L"Filters",L"FoldersFilterFlags",FoldersFilter.Flags.Flags);
 
-    SetRegKeyW(L"Filters",L"FolderFlags",FolderFlags.Flags);
+    SetRegKey(L"Filters",L"FolderFlags",FolderFlags.Flags);
   }
 }
 
@@ -869,7 +869,7 @@ void FileFilter::SwapFilter()
 
 int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check)
 {
-  if (!wcscmp(FileName,L".") || TestParentFolderNameW(FileName) || (FileAttr & FA_DIREC))
+  if (!wcscmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FA_DIREC))
     return -1;
 
   const wchar_t *DotPtr=wcsrchr(FileName,L'.');

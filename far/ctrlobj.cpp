@@ -43,9 +43,9 @@ ControlObject::ControlObject()
   CmdLine=new CommandLine;
   /* IS $ */
 
-  CmdHistory=new HistoryW(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
-  FolderHistory=new HistoryW(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
-  ViewHistory=new HistoryW(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
+  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
+  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
 
   FolderHistory->SetAddMode(TRUE,2,TRUE);
   ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
@@ -121,15 +121,15 @@ void ControlObject::Init()
     + Config//Current File */
   if (Opt.AutoSaveSetup)
   {
-      Cp()->LeftPanel->GoToFileW(Opt.strLeftCurFile);
-      Cp()->RightPanel->GoToFileW(Opt.strRightCurFile);
+      Cp()->LeftPanel->GoToFile(Opt.strLeftCurFile);
+      Cp()->RightPanel->GoToFile(Opt.strRightCurFile);
   }
   /* tran 07.09.2000 $ */
 
   FrameManager->InsertFrame(FPanels);
 
   string strStartCurDir;
-  Cp()->ActivePanel->GetCurDirW(strStartCurDir);
+  Cp()->ActivePanel->GetCurDir(strStartCurDir);
   FarChDirW(strStartCurDir, TRUE);
   Cp()->ActivePanel->SetFocus();
 
@@ -166,7 +166,7 @@ ControlObject::~ControlObject()
     if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
     {
       string strCurDir;
-      Cp()->ActivePanel->GetCurDirW(strCurDir);
+      Cp()->ActivePanel->GetCurDir(strCurDir);
       FolderHistory->AddToHistory(strCurDir,NULL,0);
     }
   }

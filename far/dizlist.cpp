@@ -55,7 +55,7 @@ void DizList::Reset()
 
 void DizList::PR_ReadingMsg(void)
 {
-  MessageW(0,0,L"",UMSG(MReadingDiz));
+  Message(0,0,L"",UMSG(MReadingDiz));
 }
 
 void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
@@ -76,7 +76,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
       strDizFileName = Path;
 
-      AddEndSlashW(strDizFileName);
+      AddEndSlash(strDizFileName);
 
       strDizFileName += strArgName;
     }
@@ -199,7 +199,7 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
 
   strQuotedName = Name; // 3 - для кавычек
 
-  QuoteSpaceOnlyW (strQuotedName);
+  QuoteSpaceOnly(strQuotedName);
 
   if (DizData==NULL)
     return(-1);
@@ -330,7 +330,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
       return(FALSE);
 
     strDizFileName = Path;
-    AddEndSlashW(strDizFileName);
+    AddEndSlash(strDizFileName);
 
     string strArgName;
     GetCommaWordW(Opt.Diz.strListNames,strArgName);
@@ -353,9 +353,9 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
   if ((DizFile=_wfopen(strDizFileName,L"wb"))==NULL)
   {
     if(!Opt.Diz.ROUpdate && (FileAttr&FA_RDONLY))
-      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MCannotUpdateRODiz),UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MCannotUpdateRODiz),UMSG(MOk));
     else
-      MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
     return(FALSE);
   }
 
@@ -390,7 +390,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
     clearerr(DizFile);
     fclose(DizFile);
     DeleteFileW(strDizFileName); //BUGBUG
-    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
     return(FALSE);
   }
 
@@ -419,7 +419,7 @@ int DizList::CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t 
   string strDizText, strQuotedName;
 
   strQuotedName = DestName;
-  QuoteSpaceOnlyW(strQuotedName);
+  QuoteSpaceOnly(strQuotedName);
   int OptDizStartPos=(Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0);
   int LenQuotedName=(int)strQuotedName.GetLength ();
 

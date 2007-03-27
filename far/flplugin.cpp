@@ -75,7 +75,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
       string strSaveDir;
 
-      FarGetCurDirW (strSaveDir);
+      FarGetCurDir(strSaveDir);
 
       if (FileNameToPluginItem(PStack->strHostFile,&PanelItem))
         CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
@@ -83,7 +83,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       {
         memset(&PanelItem,0,sizeof(struct PluginPanelItemW));
 
-        PanelItem.FindData.lpwszFileName = _wcsdup(PointToNameW(PStack->strHostFile));
+        PanelItem.FindData.lpwszFileName = _wcsdup(PointToName(PStack->strHostFile));
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
 
         xf_free (PanelItem.FindData.lpwszFileName);
@@ -96,7 +96,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
-      DeleteFileWithFolderW(PStack->strHostFile);  // удаление файла от предыдущего плагина
+      DeleteFileWithFolder(PStack->strHostFile);  // удаление файла от предыдущего плагина
     }
   }
   else
@@ -260,7 +260,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
   if (hFile==INVALID_HANDLE_VALUE)
   {
     //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MCannotOpenFile),FileName,MSG(MOk));
-    MessageW(MSG_WARNING|MSG_ERRORTYPE,1,L"",UMSG(MOpenPluginCannotOpenFile),FileName,UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,L"",UMSG(MOpenPluginCannotOpenFile),FileName,UMSG(MOk));
     return(INVALID_HANDLE_VALUE);
   }
 
@@ -312,9 +312,9 @@ void FileList::CreatePluginItemList(struct PluginPanelItemW *(&ItemList),int &It
   if (ItemList!=NULL)
   {
     memset(ItemList,0,sizeof(struct PluginPanelItemW) * (SelFileCount+1));
-    GetSelNameW(NULL,FileAttr);
-    while (GetSelNameW(&strSelName,FileAttr))
-      if (((FileAttr & FA_DIREC)==0 || !TestParentFolderNameW(strSelName))
+    GetSelName(NULL,FileAttr);
+    while (GetSelName(&strSelName,FileAttr))
+      if (((FileAttr & FA_DIREC)==0 || !TestParentFolderName(strSelName))
           && LastSelPosition>=0 && LastSelPosition<FileCount)
       {
         FileListToPluginItem(ListData[LastSelPosition],ItemList+ItemNumber);
@@ -419,7 +419,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItemW *ItemL
       if (FarMkTempExW(strTempDir) && CreateDirectoryW(strTempDir,NULL))
       {
         string strSaveDir;
-        FarGetCurDirW (strSaveDir);
+        FarGetCurDir(strSaveDir);
 
         strDizName.Format (L"%s\\%s",(const wchar_t*)strTempDir, (const wchar_t*)DestPanel->strPluginDizName);
 
@@ -441,7 +441,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItemW *ItemL
             xf_free (pi.FindData.lpwszFileName);
           }
         FarChDirW (strSaveDir);
-        DeleteFileWithFolderW(strDizName);
+        DeleteFileWithFolder(strDizName);
       }
     }
   }
@@ -526,7 +526,7 @@ void FileList::PluginToPluginFiles(int Move)
     if (PutCode==1 || PutCode==2)
     {
       string strSaveDir;
-      FarGetCurDirW (strSaveDir);
+      FarGetCurDir(strSaveDir);
 
       FarChDirW(strTempDir);
       PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0);
@@ -572,15 +572,15 @@ void FileList::PluginHostGetFiles()
 
   SaveSelection();
 
-  GetSelNameW(NULL,FileAttr);
-  if (!GetSelNameW(&strSelName,FileAttr))
+  GetSelName(NULL,FileAttr);
+  if (!GetSelName(&strSelName,FileAttr))
     return;
 
-  AnotherPanel->GetCurDirW(strDestPath);
+  AnotherPanel->GetCurDir(strDestPath);
   if ((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
       SelFileCount==0 || strDestPath.IsEmpty() )
   {
-      strDestPath = PointToNameW(strSelName);
+      strDestPath = PointToName(strSelName);
     // SVS: А зачем здесь велся поиск точки с начала?
     wchar_t *lpwszDestPath = strDestPath.GetBuffer();
 
@@ -591,8 +591,8 @@ void FileList::PluginHostGetFiles()
   }
 
   int OpMode=OPM_TOPLEVEL,ExitLoop=FALSE;
-  GetSelNameW(NULL,FileAttr);
-  while (!ExitLoop && GetSelNameW(&strSelName,FileAttr))
+  GetSelName(NULL,FileAttr);
+  while (!ExitLoop && GetSelName(&strSelName,FileAttr))
   {
     HANDLE hCurPlugin;
 
@@ -959,7 +959,7 @@ void FileList::ProcessPluginCommand()
     {
       case FCTL_CLOSEPLUGIN:
         _ALGO(SysLog(L"Command=FCTL_CLOSEPLUGIN"));
-        SetCurDirW((const wchar_t *)strPluginParam,TRUE);
+        SetCurDir((const wchar_t *)strPluginParam,TRUE);
         if(!strPluginParam.IsEmpty())
           Update(UPDATE_KEEP_SELECTION);
         Redraw();

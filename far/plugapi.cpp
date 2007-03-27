@@ -59,7 +59,7 @@ int WINAPI FarInputBox (
 
   string strDest;
 
-  int nResult = GetStringW(Title,Prompt,HistoryName,SrcText,strDest,DestLength,
+  int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,DestLength,
      HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
 
   xwcsncpy (DestText, strDest, DestLength);
@@ -103,10 +103,10 @@ BOOL WINAPI FarShowHelp (
         strPath = ModuleName;
         if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
         {
-          strMask=PointToNameW(strPath);
+          strMask=PointToName(strPath);
           if(Flags&FHELP_CUSTOMFILE)
           {
-              strPath = PointToNameW(strPath);
+              strPath = PointToName(strPath);
           }
           else
           {
@@ -1179,7 +1179,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->Lock(); // отменим прорисовку фрейма
-  int MsgCode=MessageW(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
+  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
   /* $ 15.05.2002 SKV
     Однако разлочивать надо ровно то, что залочили.
   */
@@ -1321,9 +1321,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
         string strParam;
 
         if (Command==FCTL_GETCMDLINE)
-          CmdLine->GetStringW(strParam);
+          CmdLine->GetString(strParam);
         else
-          CmdLine->GetSelStringW(strParam);
+          CmdLine->GetSelString(strParam);
 
         xwcsncpy((wchar_t*)Param, strParam, 1024-1);
 
@@ -1336,9 +1336,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_INSERTCMDLINE:
     {
       if (Command==FCTL_SETCMDLINE)
-        CmdLine->SetStringW((const wchar_t*)Param);
+        CmdLine->SetString((const wchar_t*)Param);
       else
-        CmdLine->InsertStringW((const wchar_t*)Param);
+        CmdLine->InsertString((const wchar_t*)Param);
 
       CmdLine->Redraw();
       return(TRUE);
@@ -1421,7 +1421,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 
 static void PR_FarGetDirListMsg(void)
 {
-  MessageW(MSG_DOWN,0,L"",UMSG(MPreparingList));
+  Message(MSG_DOWN,0,L"",UMSG(MPreparingList));
 }
 
 int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pItemsNumber)
@@ -1513,7 +1513,7 @@ static int PluginSearchMsgOut;
 
 static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
-  MessageW(Flags,0,L"",UMSG(MPreparingList),Name);
+  Message(Flags,0,L"",UMSG(MPreparingList),Name);
   PreRedrawParam.Flags=Flags;
   PreRedrawParam.Param1=(void*)Name;
 }
@@ -1533,7 +1533,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
     return FALSE;
 
   {
-    if (wcscmp(Dir,L".")==0 || TestParentFolderNameW(Dir))
+    if (wcscmp(Dir,L".")==0 || TestParentFolderName(Dir))
       return FALSE;
 
     static struct PluginHandle DirListPlugin;
@@ -1564,7 +1564,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
       {
         string strDirName;
         strDirName = Dir;
-        TruncStrW(strDirName,30);
+        TruncStr(strDirName,30);
         CenterStrW(strDirName,strDirName,30);
         SetCursorType(FALSE,0);
 
@@ -1677,7 +1677,7 @@ void ScanPluginDir()
 
   strDirName.ReleaseBuffer();
 
-  TruncStrW(strDirName,30);
+  TruncStr(strDirName,30);
   CenterStrW(strDirName,strDirName,30);
 
   if (CheckForEscSilent())
@@ -1715,7 +1715,7 @@ void ScanPluginDir()
     PluginPanelItemW *CurPanelItem=PanelData+I;
     if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
         wcscmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&
-        !TestParentFolderNameW(CurPanelItem->FindData.lpwszFileName))
+        !TestParentFolderName(CurPanelItem->FindData.lpwszFileName))
 
     {
       struct PluginPanelItemW *NewList=(struct PluginPanelItemW *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));

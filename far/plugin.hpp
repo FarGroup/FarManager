@@ -1875,7 +1875,7 @@ void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfoW *I
 void   WINAPI _export GetPluginInfo(struct PluginInfoW *Info);
 int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
 int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
-HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpenFrom);
+HANDLE WINAPI _export OpenFilePlugin(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item);
 int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
 int    WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec);

@@ -599,7 +599,7 @@ void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar
 
     int lPos = ePos-oPos+(oPos ? 3 : 0);
 
-    InsertQuoteW(ErrMessage[1]);
+    InsertQuote(ErrMessage[1]);
     ErrMessage[2].Format (L"%*s%c", lPos+1, L"", L'^');
   }
 }

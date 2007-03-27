@@ -36,7 +36,7 @@ void ShellMakeDir(Panel *SrcPanel)
   BOOL MultiMakeDir=Opt.MultiMakeDir;
   for(;;)
   {
-    if (!GetStringW(UMSG(MMakeFolderTitle),UMSG(MCreateFolder),L"NewFolder",
+    if (!GetString(UMSG(MMakeFolderTitle),UMSG(MCreateFolder),L"NewFolder",
          L"",strDirName,NM*2,L"MakeFolder", //BUGBUG, no size!!!
          FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX/*|FIB_EDITPATH*/,&MultiMakeDir,
          UMSG(MMultiMakeDir)))
@@ -48,18 +48,18 @@ void ShellMakeDir(Panel *SrcPanel)
     // начинается с пробела! Чтобы ручками не заключать
     // такой каталог в кавычки
     if(Opt.MultiMakeDir && wcspbrk(strDirName,L";,\"") == NULL)
-       QuoteSpaceOnlyW(strDirName);
+       QuoteSpaceOnly(strDirName);
 
     if(!Opt.MultiMakeDir)   // нужно создать только ОДИН каталог
     {
-      UnquoteW(strDirName);     // уберем все лишние кавычки
-      InsertQuoteW(strDirName); // возьмем в кавычки, т.к. могут быть разделители
+      Unquote(strDirName);     // уберем все лишние кавычки
+      InsertQuote(strDirName); // возьмем в кавычки, т.к. могут быть разделители
     }
 
     if(DirList.Set(strDirName) && !wcspbrk(strDirName, ReservedFilenameSymbolsW))
       break;
     else
-      MessageW(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
+      Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
                  UMSG(MIncorrectDirList), UMSG(MOk));
   }
   /* IS $ */
@@ -116,9 +116,9 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         int ret;
         if (DirList.IsEmpty())
-          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MCancel));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MCancel));
         else
-          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MOk),UMSG(MSkip));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MOk),UMSG(MSkip));
         bSkip = ret==1;
         if (bSuccess || bSkip) break;
         else return;
@@ -127,10 +127,10 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         int ret;
         if (DirList.IsEmpty())
-          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MCancel));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MCancel));
         else
         {
-          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MSkip),UMSG(MCancel));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MSkip),UMSG(MCancel));
           bSkip = ret==1;
         }
         if (ret!=0)
@@ -155,10 +155,10 @@ void ShellMakeDir(Panel *SrcPanel)
     wchar_t *Slash=wcschr(lpwszDirName,L'\\');
     if (Slash!=NULL)
       *Slash=0;
-    if(!SrcPanel->GoToFileW(lpwszDirName) && lpwszDirName[wcslen(lpwszDirName)-1]==L'.')
+    if(!SrcPanel->GoToFile(lpwszDirName) && lpwszDirName[wcslen(lpwszDirName)-1]==L'.')
     {
       lpwszDirName[wcslen(lpwszDirName)-1]=0;
-      SrcPanel->GoToFileW(lpwszDirName);
+      SrcPanel->GoToFile(lpwszDirName);
     }
   }
 

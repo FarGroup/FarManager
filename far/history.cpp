@@ -16,47 +16,47 @@ history.cpp
 #include "lang.hpp"
 
 
-HistoryW::HistoryW(int TypeHistory,int HistoryCount,const wchar_t *RegKey,const int *EnableSave,int SaveTitle,int SaveType)
+History::History(int TypeHistory,int HistoryCount,const wchar_t *RegKey,const int *EnableSave,int SaveTitle,int SaveType)
 {
   LastStr=NULL;
   FreeHistory();
 
   strRegKey = RegKey;
 
-  HistoryW::SaveTitle=SaveTitle;
-  HistoryW::SaveType=SaveType;
-  HistoryW::EnableSave=EnableSave;
-  HistoryW::TypeHistory=TypeHistory;
-  HistoryW::HistoryCount=HistoryCount;
-  LastStr=(struct HistoryRecordW*)xf_malloc(sizeof(struct HistoryRecordW) * HistoryCount);
+  History::SaveTitle=SaveTitle;
+  History::SaveType=SaveType;
+  History::EnableSave=EnableSave;
+  History::TypeHistory=TypeHistory;
+  History::HistoryCount=HistoryCount;
+  LastStr=(HistoryRecord*)xf_malloc(sizeof(HistoryRecord)*HistoryCount);
   if(LastStr)
-    memset(LastStr,0,sizeof(struct HistoryRecordW) * HistoryCount);
+    memset(LastStr,0,sizeof(HistoryRecord)*HistoryCount);
   EnableAdd=RemoveDups=TRUE;
   KeepSelectedPos=FALSE;
   ReturnSimilarTemplate=TRUE;
 }
 
-HistoryW::~HistoryW()
+History::~History()
 {
   FreeHistory();
   if(LastStr)
     xf_free(LastStr);
 }
 
-void HistoryW::FreeHistory()
+void History::FreeHistory()
 {
   if(LastStr)
   {
     for (int I=0; I < HistoryCount;I++)
       if(LastStr[I].Name)
         xf_free(LastStr[I].Name);
-    memset(LastStr,0,sizeof(struct HistoryRecordW) * HistoryCount);
+    memset(LastStr,0,sizeof(HistoryRecord)*HistoryCount);
   }
   CurLastPtr=LastPtr=CurLastPtr0=LastPtr0=0;
   LastSimilar=0;
 }
 
-void HistoryW::ReloadTitle()
+void History::ReloadTitle()
 {
   if(!LastStr)
     return;
@@ -65,7 +65,7 @@ void HistoryW::ReloadTitle()
     return;
 
   int I;
-  struct HistoryRecordW *PtrLastStr;
+  HistoryRecord *PtrLastStr;
 
   for (PtrLastStr=LastStr,I=0; I < HistoryCount; I++, PtrLastStr++)
   {
@@ -92,7 +92,7 @@ void HistoryW::ReloadTitle()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void HistoryW::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int SaveForbid)
+void History::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int SaveForbid)
 {
   if(!LastStr)
     return;
@@ -107,13 +107,13 @@ void HistoryW::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int
                  SaveCurLastPtr=CurLastPtr,
                  SaveLastSimilar=LastSimilar;
 
-    struct HistoryRecordW *SaveLastStr;
+    HistoryRecord *SaveLastStr;
 
-    SaveLastStr=(struct HistoryRecordW *)alloca(HistoryCount*sizeof(struct HistoryRecordW));
+    SaveLastStr=(HistoryRecord *)alloca(HistoryCount*sizeof(HistoryRecord));
     if(!SaveLastStr)
       return;
 
-    memcpy(SaveLastStr,LastStr,HistoryCount*sizeof(struct HistoryRecordW));
+    memcpy(SaveLastStr,LastStr,HistoryCount*sizeof(HistoryRecord));
     for (int I=0;I < HistoryCount; I++)
       if(LastStr[I].Name && LastStr[I].Name[0])
         SaveLastStr[I].Name=wcsdup(LastStr[I].Name);
@@ -144,14 +144,14 @@ void HistoryW::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int
     LastPtr0=LastPtr=SaveLastPtr;
     CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     LastSimilar=SaveLastSimilar;
-    memcpy(LastStr,SaveLastStr,sizeof(struct HistoryRecordW) * HistoryCount);
+    memcpy(LastStr,SaveLastStr,sizeof(HistoryRecord) * HistoryCount);
   }
 
   AddToHistoryLocal(Str,Title,Type);
 }
 
 
-void HistoryW::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type)
+void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type)
 {
   if(!LastStr)
     return;
@@ -159,7 +159,7 @@ void HistoryW::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Typ
   if(!Str || *Str == 0)
     return;
 
-  HistoryRecordW AddRecord;
+  HistoryRecord AddRecord;
 
   if(TypeHistory == HISTORYTYPE_FOLDER)
     AddRecord.Name=(wchar_t *)xf_malloc((wcslen(Str)+wcslen(NullToEmptyW(Title))+2)*sizeof (wchar_t));
@@ -196,7 +196,7 @@ void HistoryW::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Typ
 
   if (RemoveDups) // удалять дубликаты?
   {
-    struct HistoryRecordW *PtrLastStr;
+    HistoryRecord *PtrLastStr;
     int I, J;
     for (PtrLastStr=LastStr,I=0; I < HistoryCount; I++, PtrLastStr++)
     {
@@ -235,11 +235,11 @@ void HistoryW::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Typ
               xf_free(LastStr[Dest].Name);
               LastStr[Dest].Name=NULL;
             }
-            memmove(LastStr+Dest,LastStr+Src,sizeof(HistoryRecordW));
-            memset(LastStr+Src,0,sizeof(HistoryRecordW));
+            memmove(LastStr+Dest,LastStr+Src,sizeof(HistoryRecord));
+            memset(LastStr+Src,0,sizeof(HistoryRecord));
           }
 
-          memcpy(LastStr+OldLastPtr, &AddRecord, sizeof(HistoryRecordW));
+          memcpy(LastStr+OldLastPtr, &AddRecord, sizeof(HistoryRecord));
 
           CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
           return;
@@ -256,7 +256,7 @@ void HistoryW::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Typ
         !EqualType(AddRecord.Type,LastStr[Pos].Type)))
     xf_free(LastStr[LastPtr].Name);
 
-  memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecordW));
+  memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
 
   if (++LastPtr==HistoryCount)
      LastPtr=0;
@@ -267,7 +267,7 @@ void HistoryW::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Typ
 /*
   Вначале разберемся с память, а потом... "все или ничего"
 */
-BOOL HistoryW::SaveHistory()
+BOOL History::SaveHistory()
 {
   if(!LastStr)
     return FALSE; //??
@@ -335,7 +335,7 @@ BOOL HistoryW::SaveHistory()
   }
 
   HKEY hKey;
-  if ((hKey=CreateRegKeyW(strRegKey))!=NULL && BufferLines && *BufferLines)
+  if ((hKey=CreateRegKey(strRegKey))!=NULL && BufferLines && *BufferLines)
   {
     if(!BufferLines)
       SizeLines=1;
@@ -368,7 +368,7 @@ BOOL HistoryW::SaveHistory()
     return TRUE;
   }
   else
-    DeleteRegKeyW(strRegKey);
+    DeleteRegKey(strRegKey);
 
   if(BufferLines)
     xf_free(BufferLines);
@@ -379,22 +379,22 @@ BOOL HistoryW::SaveHistory()
 }
 
 
-BOOL HistoryW::ReadHistory()
+BOOL History::ReadHistory()
 {
   if(!LastStr)
     return FALSE;
 
-  int NeedReadTitle=SaveTitle && CheckRegValueW(strRegKey, L"Titles");
-  int NeedReadType =SaveType  && CheckRegValueW(strRegKey, L"Types");
+  int NeedReadTitle=SaveTitle && CheckRegValue(strRegKey, L"Titles");
+  int NeedReadType =SaveType  && CheckRegValue(strRegKey, L"Types");
 
   HKEY hKey;
-  if ((hKey=OpenRegKeyW(strRegKey))==NULL)
+  if ((hKey=OpenRegKey(strRegKey))==NULL)
     return FALSE;
 
   wchar_t *Buffer=NULL,*Buf;
   DWORD Size,Type;
 
-  Size=GetRegKeySizeW(hKey, L"Lines");
+  Size=GetRegKeySize(hKey, L"Lines");
 
   if(!Size) // Нету ничерта
     return TRUE;
@@ -435,7 +435,7 @@ BOOL HistoryW::ReadHistory()
 
   if (NeedReadTitle)
   {
-    Size=GetRegKeySizeW(hKey, L"Titles");
+    Size=GetRegKeySize(hKey, L"Titles");
     if((Buf=(wchar_t*)xf_realloc(Buffer,Size*sizeof(wchar_t))) == NULL)
     {
       xf_free(Buffer);
@@ -514,7 +514,7 @@ BOOL HistoryW::ReadHistory()
    6 - Ctrl-Shift-Enter
 */
 
-int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strStr,int &Type,string *strItemTitle)
+int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strStr,int &Type,string *strItemTitle)
 {
   if(!LastStr)
     return -1;
@@ -558,7 +558,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
 
           string strRecord = LastStr[CurCmd].Name;
 
-          TruncPathStrW(strRecord,SizeTrunc);
+          TruncPathStr(strRecord,SizeTrunc);
           ReplaceStringsW(strRecord, L"&",L"&&",-1);
 
           if (*LastStr[CurCmd].Title)
@@ -668,9 +668,9 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
             if(HistoryMenu.GetItemCount() > 1 &&
                (!Opt.Confirm.HistoryClear ||
                 (Opt.Confirm.HistoryClear &&
-                MessageW(MSG_WARNING,2,
-                     UMSG((HistoryW::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
-                          (HistoryW::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
+                Message(MSG_WARNING,2,
+                     UMSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
+                          (History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
                           MViewHistoryTitle))),
                      UMSG(MHistoryClear),
                      UMSG(MClear),UMSG(MCancel))==0)))
@@ -708,17 +708,17 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
           string strTruncFileName = LastStr[StrPos].Name;
 
           if ( !strTruncFileName.IsEmpty () )
-              TruncPathStrW(strTruncFileName,ScrX-16);
+              TruncPathStr(strTruncFileName,ScrX-16);
 
           SetLastError(ERROR_FILE_NOT_FOUND);
 
           if(LastStr[StrPos].Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
           {
-            if(MessageW(MSG_WARNING|MSG_ERRORTYPE,2,Title,!strTruncFileName.IsEmpty()?strTruncFileName:LastStr[StrPos].Name,UMSG(MViewHistoryIsCreate),UMSG(MHYes),UMSG(MHNo)) == 0)
+            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,!strTruncFileName.IsEmpty()?strTruncFileName:LastStr[StrPos].Name,UMSG(MViewHistoryIsCreate),UMSG(MHYes),UMSG(MHNo)) == 0)
               break;
           }
           else
-            MessageW(MSG_WARNING|MSG_ERRORTYPE,1,Title,!strTruncFileName.IsEmpty()?strTruncFileName:LastStr[StrPos].Name,UMSG(MOk));
+            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,!strTruncFileName.IsEmpty()?strTruncFileName:LastStr[StrPos].Name,UMSG(MOk));
           Done=FALSE;
           SetUpMenuPos=TRUE;
           HistoryMenu.Modal::SetExitCode(StrPos=Code);
@@ -762,7 +762,7 @@ int HistoryW::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strS
 }
 
 
-void HistoryW::GetPrev(string &strStr)
+void History::GetPrev(string &strStr)
 {
   if(!LastStr)
     return;
@@ -783,7 +783,7 @@ void HistoryW::GetPrev(string &strStr)
 }
 
 
-void HistoryW::GetNext(string &strStr)
+void History::GetNext(string &strStr)
 {
   if(!LastStr)
     return;
@@ -802,7 +802,7 @@ void HistoryW::GetNext(string &strStr)
 }
 
 
-void HistoryW::GetSimilar(string &strStr,int LastCmdPartLength)
+void History::GetSimilar(string &strStr,int LastCmdPartLength)
 {
   if(!LastStr)
     return;
@@ -840,14 +840,14 @@ void HistoryW::GetSimilar(string &strStr,int LastCmdPartLength)
 }
 
 
-void HistoryW::SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos)
+void History::SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos)
 {
-  HistoryW::EnableAdd=EnableAdd;
-  HistoryW::RemoveDups=RemoveDups;
-  HistoryW::KeepSelectedPos=KeepSelectedPos;
+  History::EnableAdd=EnableAdd;
+  History::RemoveDups=RemoveDups;
+  History::KeepSelectedPos=KeepSelectedPos;
 }
 
-BOOL HistoryW::EqualType(int Type1, int Type2)
+BOOL History::EqualType(int Type1, int Type2)
 {
   return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && (Type1 == 4 && Type2 == 1 || (Type1 == 1 && Type2 == 4)))?TRUE:FALSE;
 }

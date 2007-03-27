@@ -42,7 +42,7 @@ class TreeList: public Panel
 {
   private:
     int PrevMacroMode;
-    struct TreeItem **ListData;
+    TreeItem **ListData;
     string strRoot;
     long TreeCount;
     long WorkDir;
@@ -98,29 +98,29 @@ class TreeList: public Panel
     virtual void Update(int Mode);
     int  ReadTree();
 
-    virtual void SetCurDirW(const wchar_t *NewDir,int ClosePlugin);
+    virtual void SetCurDir(const wchar_t *NewDir,int ClosePlugin);
 
-    void SetRootDirW(const wchar_t *NewRootDir);
+    void SetRootDir(const wchar_t *NewRootDir);
 
-    virtual int GetCurDirW(string &strCurDir);
+    virtual int GetCurDir(string &strCurDir);
 
-    virtual int GetCurNameW(string &strName, string &strShortName);
+    virtual int GetCurName(string &strName, string &strShortName);
 
     virtual void UpdateViewPanel();
     virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1);
 
-    virtual int GoToFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
-    virtual int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+    virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+    virtual int FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
 
     void ProcessEnter();
 
-    virtual int FindFirstW(const wchar_t *Name);
-    virtual int FindNextW(int StartPos, const wchar_t *Name);
+    virtual int FindFirst(const wchar_t *Name);
+    virtual int FindNext(int StartPos, const wchar_t *Name);
 
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}
-    virtual int GetFileNameW(string &strName,int Pos,int &FileAttr);
+    virtual int GetFileName(string &strName,int Pos,int &FileAttr);
 
     virtual void SetTitle();
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
@@ -130,7 +130,7 @@ class TreeList: public Panel
     virtual BOOL GetItem(int Index,void *Dest);
     virtual int GetCurrentPos();
 
-    virtual int GetSelNameW(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
+    virtual int GetSelName(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
 
   public:
     static void AddTreeName(const wchar_t *Name);

@@ -108,13 +108,13 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
   int NumCommands[32];
   int CommandCount=0;
 
-  RenumKeyRecordW(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
+  RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
 
   for (int I=0;;I++)
   {
     string strRegKey, strMask;
     strRegKey.Format (FTSW.TypeFmt,I);
-    if (!GetRegKeyW(strRegKey,FTSW.Mask,strMask,L""))
+    if (!GetRegKey(strRegKey,FTSW.Mask,strMask,L""))
       break;
     if(FMask.Set(strMask, FMF_SILENT))
     {
@@ -124,23 +124,23 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         switch(Mode)
         {
           case FILETYPE_EXEC:
-            GetRegKeyW(strRegKey,FTSW.Execute,strNewCommand,L"");
+            GetRegKey(strRegKey,FTSW.Execute,strNewCommand,L"");
             break;
           case FILETYPE_VIEW:
-            GetRegKeyW(strRegKey,FTSW.View,strNewCommand, L"");
+            GetRegKey(strRegKey,FTSW.View,strNewCommand, L"");
             break;
           case FILETYPE_EDIT:
-            GetRegKeyW(strRegKey,FTSW.Edit,strNewCommand,L"");
+            GetRegKey(strRegKey,FTSW.Edit,strNewCommand,L"");
             break;
           /* $ 02.08.2001 IS новые команды: alt-f3, alt-f4, ctrl-pgdn */
           case FILETYPE_ALTEXEC:
-            GetRegKeyW(strRegKey,FTSW.AltExec,strNewCommand,L"");
+            GetRegKey(strRegKey,FTSW.AltExec,strNewCommand,L"");
             break;
           case FILETYPE_ALTVIEW:
-            GetRegKeyW(strRegKey,FTSW.AltView,strNewCommand,L"");
+            GetRegKey(strRegKey,FTSW.AltView,strNewCommand,L"");
             break;
           case FILETYPE_ALTEDIT:
-            GetRegKeyW(strRegKey,FTSW.AltEdit,strNewCommand,L"");
+            GetRegKey(strRegKey,FTSW.AltEdit,strNewCommand,L"");
             break;
           /* IS $ */
           default:
@@ -151,7 +151,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         {
           strCommand = strNewCommand;
           Commands[CommandCount] = strCommand;
-          GetRegKeyW(strRegKey,FTSW.Desc,Descriptions[CommandCount],L"");
+          GetRegKey(strRegKey,FTSW.Desc,Descriptions[CommandCount],L"");
           CommandCount++;
         }
       }
@@ -215,7 +215,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
           Ampersand=0;
         strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,VerticalLine);
       }
-      TruncStrW(strCommandText,ScrX-DizWidth-14);
+      TruncStr(strCommandText,ScrX-DizWidth-14);
       strMenuText += strCommandText;
       TypesMenuItem.strName = strMenuText;
       TypesMenuItem.SetSelect(I==0);
@@ -373,8 +373,8 @@ int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
       string strExecStr = ExecStr;
       string strName = Name;
 
-      QuoteSpaceW (strExecStr);
-      QuoteSpaceW (strName);
+      QuoteSpace(strExecStr);
+      QuoteSpace(strName);
 
       strExpAssocStr.Format (L"%s %s", (const wchar_t*)strExecStr, (const wchar_t*)strName);
     }
@@ -404,11 +404,11 @@ int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
 
             strNewStr.ReleaseBuffer ();
 
-            QuoteSpaceW(strNewStr);
+            QuoteSpace(strNewStr);
 
             strNewStr += (const wchar_t*)strExpAssocStr+I+4;
             strExpAssocStr = strNewStr;
-            QuoteSpaceW(strExpAssocStr);
+            QuoteSpace(strExpAssocStr);
           }
           break;
         }
@@ -423,13 +423,13 @@ int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
 
     ConvertNameToFullW(Name,strFullName);
 
-    QuoteSpaceW(strFullName);
+    QuoteSpace(strFullName);
 
     CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
     if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish) //AN
     {
       string strQuotedName = Name;
-      QuoteSpaceW(strQuotedName);
+      QuoteSpace(strQuotedName);
       CtrlObject->CmdHistory->AddToHistory(strQuotedName);
     }
   }
@@ -516,14 +516,14 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 
     TypesMenuItem.Clear ();
 
-    if (!GetRegKeyW(strRegKey,FTSW.Mask,strMask,L""))
+    if (!GetRegKey(strRegKey,FTSW.Mask,strMask,L""))
       break;
     if (DizWidth==0)
       strMenuText=L"";
     else
     {
       string strTitle, strDescription;
-      GetRegKeyW(strRegKey,FTSW.Desc,strDescription,L"");
+      GetRegKey(strRegKey,FTSW.Desc,strDescription,L"");
       if ( !strDescription.IsEmpty() )
         strTitle = strDescription;
       else
@@ -534,7 +534,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
         Ampersand=0;
       strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,VerticalLine);
     }
-    TruncStrW(strMask,ScrX-DizWidth-14);
+    TruncStr(strMask,ScrX-DizWidth-14);
     strMenuText = strMask;
     TypesMenuItem.strName = strMenuText;
     TypesMenuItem.SetSelect(NumLine==MenuPos);
@@ -554,7 +554,7 @@ void EditFileTypes()
   int m;
   BOOL MenuModified;
 
-  RenumKeyRecordW(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
+  RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
 
   VMenu TypesMenu(UMSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp(FTSW.Help);
@@ -622,12 +622,12 @@ int DeleteTypeRecord(int DeletePos)
 {
   string strRecText, strItemName, strRegKey;
   strRegKey.Format (FTSW.TypeFmt,DeletePos);
-  GetRegKeyW(strRegKey,FTSW.Mask,strRecText,L"");
+  GetRegKey(strRegKey,FTSW.Mask,strRecText,L"");
   strItemName.Format (L"\"%s\"", (const wchar_t*)strRecText);
-  if (MessageW(MSG_WARNING,2,UMSG(MAssocTitle),UMSG(MAskDelAssoc),
+  if (Message(MSG_WARNING,2,UMSG(MAssocTitle),UMSG(MAskDelAssoc),
               strItemName,UMSG(MDelete),UMSG(MCancel))!=0)
     return(FALSE);
-  DeleteKeyRecordW(FTSW.TypeFmt,DeletePos);
+  DeleteKeyRecord(FTSW.TypeFmt,DeletePos);
   return(TRUE);
 }
 
@@ -667,14 +667,14 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   strRegKey.Format (FTSW.TypeFmt,EditPos);
   if (!NewRec)
   {
-    GetRegKeyW(strRegKey,FTSW.Mask,EditDlg[2].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.Desc,EditDlg[4].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.Execute,EditDlg[7].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.AltExec,EditDlg[9].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.View,EditDlg[11].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.AltView,EditDlg[13].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.Edit,EditDlg[15].strData,L"");
-    GetRegKeyW(strRegKey,FTSW.AltEdit,EditDlg[17].strData,L"");
+    GetRegKey(strRegKey,FTSW.Mask,EditDlg[2].strData,L"");
+    GetRegKey(strRegKey,FTSW.Desc,EditDlg[4].strData,L"");
+    GetRegKey(strRegKey,FTSW.Execute,EditDlg[7].strData,L"");
+    GetRegKey(strRegKey,FTSW.AltExec,EditDlg[9].strData,L"");
+    GetRegKey(strRegKey,FTSW.View,EditDlg[11].strData,L"");
+    GetRegKey(strRegKey,FTSW.AltView,EditDlg[13].strData,L"");
+    GetRegKey(strRegKey,FTSW.Edit,EditDlg[15].strData,L"");
+    GetRegKey(strRegKey,FTSW.AltEdit,EditDlg[17].strData,L"");
   }
 
   {
@@ -696,7 +696,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
         return(FALSE);
       if ( EditDlg[2].strData.IsEmpty() )
       {
-        MessageW (MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MAssocNeedMask), UMSG(MOk));
+        Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MAssocNeedMask), UMSG(MOk));
         continue;
       }
       /* DJ $ */
@@ -707,16 +707,16 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   }
 
   if (NewRec)
-    InsertKeyRecordW(FTSW.TypeFmt,EditPos,TotalRecords);
+    InsertKeyRecord(FTSW.TypeFmt,EditPos,TotalRecords);
 
-  SetRegKeyW(strRegKey,FTSW.Mask,EditDlg[2].strData);
-  SetRegKeyW(strRegKey,FTSW.Desc,EditDlg[4].strData);
-  SetRegKeyW(strRegKey,FTSW.Execute,EditDlg[7].strData);
-  SetRegKeyW(strRegKey,FTSW.AltExec,EditDlg[9].strData);
-  SetRegKeyW(strRegKey,FTSW.View,EditDlg[11].strData);
-  SetRegKeyW(strRegKey,FTSW.AltView,EditDlg[13].strData);
-  SetRegKeyW(strRegKey,FTSW.Edit,EditDlg[15].strData);
-  SetRegKeyW(strRegKey,FTSW.AltEdit,EditDlg[17].strData);
+  SetRegKey(strRegKey,FTSW.Mask,EditDlg[2].strData);
+  SetRegKey(strRegKey,FTSW.Desc,EditDlg[4].strData);
+  SetRegKey(strRegKey,FTSW.Execute,EditDlg[7].strData);
+  SetRegKey(strRegKey,FTSW.AltExec,EditDlg[9].strData);
+  SetRegKey(strRegKey,FTSW.View,EditDlg[11].strData);
+  SetRegKey(strRegKey,FTSW.AltView,EditDlg[13].strData);
+  SetRegKey(strRegKey,FTSW.Edit,EditDlg[15].strData);
+  SetRegKey(strRegKey,FTSW.AltEdit,EditDlg[17].strData);
 
   return(TRUE);
 }
@@ -729,21 +729,21 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
 {
   int Width=0,NumLine=0;
-  RenumKeyRecordW(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
+  RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
   while (1)
   {
     CFileMaskW FMask;
 
     string strRegKey, strMask, strDescription;
     strRegKey.Format (FTSW.TypeFmt, NumLine);
-    if (!GetRegKeyW(strRegKey,FTSW.Mask, strMask, L""))
+    if (!GetRegKey(strRegKey,FTSW.Mask, strMask, L""))
       break;
     NumLine++;
 
     if(!FMask.Set(strMask, FMF_SILENT))
       continue;
 
-    GetRegKeyW(strRegKey,FTSW.Desc,strDescription,L"");
+    GetRegKey(strRegKey,FTSW.Desc,strDescription,L"");
     int CurWidth;
     if (Name == NULL)
       CurWidth = HiStrlenW(strDescription);

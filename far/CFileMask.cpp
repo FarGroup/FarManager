@@ -62,7 +62,7 @@ BOOL CFileMaskW::Set(const wchar_t *Masks, DWORD Flags)
   }
 
   if(!Silent && !rc)
-    MessageW(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MIncorrectMask), UMSG(MOk));
+    Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MIncorrectMask), UMSG(MOk));
 
   return rc;
 }
@@ -79,5 +79,5 @@ BOOL CFileMaskW::IsEmpty(void)
 */
 BOOL CFileMaskW::Compare(const wchar_t *FileName)
 {
-  return FileMask?FileMask->Compare(PointToNameW((wchar_t*)FileName)):FALSE;
+  return FileMask?FileMask->Compare(PointToName((wchar_t*)FileName)):FALSE;
 }

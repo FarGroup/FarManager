@@ -45,7 +45,7 @@ void ScanTree::SetFindPathW(const wchar_t *Path,const wchar_t *Mask, const DWORD
   strFindMask = Mask;
   strFindPath = Path;
 
-  AddEndSlashW(strFindPath);
+  AddEndSlash(strFindPath);
 
   strFindPath += strFindMask;
 

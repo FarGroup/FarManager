@@ -363,7 +363,7 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
          {
            // printf("volume %c is in use by another application; therefore, it cannot be ejected\n", 'A' + bDrive - 1);
            strMsgText.Format (UMSG(MChangeVolumeInUse),Letter);
-           MessageW(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MChangeVolumeInUse2),UMSG(MOk));
+           Message(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MChangeVolumeInUse2),UMSG(MOk));
          }
          goto CLEANUP_AND_EXIT_APP;
       }
@@ -375,7 +375,7 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
          {
            // printf("could not unlock media from drive %c:\n", 'A' + bDrive - 1);
            strMsgText.Format (UMSG(MChangeCouldNotUnlockMedia),Letter);
-           MessageW(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
+           Message(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
          }
          goto CLEANUP_AND_EXIT_APP;
       }
@@ -387,7 +387,7 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
          {
            // printf("could not eject media from drive %c:\n", 'A' + bDrive - 1);
            strMsgText.Format (UMSG(MChangeCouldNotEjectMedia),Letter);
-           MessageW(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
+           Message(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
          }
       }
 
@@ -543,7 +543,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
         {
           string strMsgText;
           strMsgText.Format (UMSG(MChangeCouldNotEjectMedia),Letter);
-          if(MessageW(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,UMSG(MRetry),UMSG(MCancel)))
+          if(Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,UMSG(MRetry),UMSG(MCancel)))
             Retry=FALSE;
         }
         else

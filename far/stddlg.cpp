@@ -356,7 +356,7 @@ static LONG_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 }
 
 
-int WINAPI GetStringW (
+int WINAPI GetString(
         const wchar_t *Title,
         const wchar_t *Prompt,
         const wchar_t *HistoryName,
@@ -441,7 +441,7 @@ int WINAPI GetStringW (
   if(Prompt)
   {
     StrDlg[1].strData = Prompt;
-    TruncStrFromEndW(StrDlg[1].strData, 66);
+    TruncStrFromEnd(StrDlg[1].strData, 66);
     if(Flags&FIB_NOAMPERSAND)
       StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
   }
@@ -615,7 +615,7 @@ L========================================================-
   MakeDialogItemsEx(PluginDlgData,PluginDlg);
 
   if(RegKey && *RegKey)
-    GetRegKeyW(RegKey,RegValueName,PluginDlg[2].strData,L"");
+    GetRegKey(RegKey,RegValueName,PluginDlg[2].strData,L"");
   else
     PluginDlg[2].strData = strHotKey;
 
@@ -639,9 +639,9 @@ L========================================================-
     {
       RemoveLeadingSpacesW(PluginDlg[2].strData);
       if ( PluginDlg[2].strData.IsEmpty() )
-        DeleteRegValueW(RegKey,RegValueName);
+        DeleteRegValue(RegKey,RegValueName);
       else
-        SetRegKeyW(RegKey,RegValueName,PluginDlg[2].strData);
+        SetRegKey(RegKey,RegValueName,PluginDlg[2].strData);
     }
 
     strHotKey = PluginDlg[2].strData;

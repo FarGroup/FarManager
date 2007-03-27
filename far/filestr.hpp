@@ -25,7 +25,7 @@ class GetFileString
   public:
     GetFileString(FILE *SrcFile);
     ~GetFileString();
-    int GetStringW(wchar_t **DestStr, int nCodePage, int &Length);
+    int GetString(wchar_t **DestStr, int nCodePage, int &Length);
 };
 
 #endif  // __GETFILESTRING_HPP__

@@ -18,8 +18,8 @@ typedef BOOL (WINAPI *PDecryptFileW)(const wchar_t *lpwszFileName, DWORD dwReser
 static PEncryptFileW pEncryptFileW=NULL;
 static PDecryptFileW pDecryptFileW=NULL;
 
-static int SetFileEncryptionW(const wchar_t *Name,int State);
-static int SetFileCompressionW(const wchar_t *Name,int State);
+static int SetFileEncryption(const wchar_t *Name,int State);
+static int SetFileCompression(const wchar_t *Name,int State);
 
 // получим функции криптования
 int GetEncryptFunctions(void)
@@ -46,12 +46,12 @@ int GetEncryptFunctions(void)
 }
 
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileAttributesW(const wchar_t *Name,int Attr)
+int ESetFileAttributes(const wchar_t *Name,int Attr)
 {
 //_SVS(SysLog(L"Attr=0x%08X",Attr));
   while (!SetFileAttributesW(Name,Attr))
   {
-    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
              UMSG(MSetAttrCannotFor),Name,UMSG(MHRetry),UMSG(MHSkip),UMSG(MHCancel));
     if (Code==1 || Code<0)
       return 2;
@@ -62,7 +62,7 @@ int ESetFileAttributesW(const wchar_t *Name,int Attr)
 }
 
 
-static int SetFileCompressionW(const wchar_t *Name,int State)
+static int SetFileCompression(const wchar_t *Name,int State)
 {
   HANDLE hFile=FAR_CreateFileW(Name,FILE_READ_DATA|FILE_WRITE_DATA,
                  FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
@@ -78,7 +78,7 @@ static int SetFileCompressionW(const wchar_t *Name,int State)
 }
 
 
-int ESetFileCompressionW(const wchar_t *Name,int State,int FileAttr)
+int ESetFileCompression(const wchar_t *Name,int State,int FileAttr)
 {
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
     return 1;
@@ -89,16 +89,16 @@ int ESetFileCompressionW(const wchar_t *Name,int State,int FileAttr)
 
   // Drop Encryption
   if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-    SetFileEncryptionW(Name,0);
+    SetFileEncryption(Name,0);
 
-  while (!SetFileCompressionW(Name,State))
+  while (!SetFileCompression(Name,State))
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
     {
       Ret=1;
       break;
     }
-    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                 UMSG(MSetAttrCompressedCannotFor),Name,UMSG(MHRetry),
                 UMSG(MHSkip),UMSG(MHCancel));
     if (Code==1 || Code<0)
@@ -119,7 +119,7 @@ int ESetFileCompressionW(const wchar_t *Name,int State,int FileAttr)
 }
 
 
-static int SetFileEncryptionW(const wchar_t *Name,int State)
+static int SetFileEncryption(const wchar_t *Name,int State)
 {
   // заодно и проверяется успешность получения адреса API...
   if(State)
@@ -129,7 +129,7 @@ static int SetFileEncryptionW(const wchar_t *Name,int State)
 }
 
 
-int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent)
+int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
     return 1;
@@ -143,7 +143,7 @@ int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent)
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributesW(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
 
-  while (!SetFileEncryptionW(Name,State))
+  while (!SetFileEncryption(Name,State))
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
       break;
@@ -154,7 +154,7 @@ int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent)
       break;
     }
 
-    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                 UMSG(MSetAttrEncryptedCannotFor),Name,UMSG(MHRetry), //BUGBUG
                 UMSG(MHSkip),UMSG(MHCancel));
     if (Code==1 || Code<0)
@@ -177,7 +177,7 @@ int ESetFileEncryptionW(const wchar_t *Name,int State,int FileAttr,int Silent)
 }
 
 
-int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
+int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                   FILETIME *LastAccessTime,int FileAttr)
 {
   if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
@@ -212,7 +212,7 @@ int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *Creation
 
     if (SetTime)
       break;
-    int Code=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                 UMSG(MSetAttrTimeCannotFor),Name,UMSG(MHRetry), //BUGBUG
                 UMSG(MHSkip),UMSG(MHCancel));
     if (Code<0)

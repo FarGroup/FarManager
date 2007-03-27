@@ -873,16 +873,16 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
     if(LocalStricmpW(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
     {
       if(!strDiskMsg.IsEmpty ())
-        DoneEject=MessageW(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));
       else
-        DoneEject=MessageW(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,UMSG(MHRemove),UMSG(MHCancel));
     }
     else
     {
       if(!strDiskMsg.IsEmpty ())
-        DoneEject=MessageW(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));
       else
-        DoneEject=MessageW(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,UMSG(MHRemove),UMSG(MHCancel));
     }
   }
 
@@ -892,7 +892,7 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
     bResult = -1;
   if(bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
   {
-    MessageW(0,1,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugNotify1),strDescription,strFriendlyName,UMSG(MChangeHotPlugNotify2),UMSG(MOk));
+    Message(0,1,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugNotify1),strDescription,strFriendlyName,UMSG(MChangeHotPlugNotify2),UMSG(MOk));
   }
 
   return bResult;

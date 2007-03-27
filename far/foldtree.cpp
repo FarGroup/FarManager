@@ -54,7 +54,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
     Tree->SetModalMode(ModalMode);
     Tree->SetPosition(X1,Y1,X2,Y2);
     if(ModalMode == MODALTREE_FREE)
-      Tree->SetRootDirW(strResultFolder);
+      Tree->SetRootDir(strResultFolder);
     Tree->Update(0);
     Tree->Show();
     // если было прерывание в процессе сканирования и это было дерево копира...
@@ -96,10 +96,10 @@ void FolderTree::DisplayObject()
   if(ModalMode == MODALTREE_FREE)
   {
     string strSelFolder;
-    Tree->GetCurDirW(strSelFolder);
+    Tree->GetCurDir(strSelFolder);
     //Tree->Update(UPDATE_KEEP_SELECTION);
     Tree->Update(0);
-    Tree->GoToFileW(strSelFolder);
+    Tree->GoToFile(strSelFolder);
     Tree->Redraw();
   }
   else
@@ -193,7 +193,7 @@ int FolderTree::ProcessKey(int Key)
       SetExitCode (XC_MODIFIED);
       break;
     case KEY_ENTER:
-      Tree->GetCurDirW(strNewFolder);
+      Tree->GetCurDir(strNewFolder);
       if (GetFileAttributesW(strNewFolder)!=0xFFFFFFFF)
       {
         FrameManager->DeleteFrame();
@@ -219,7 +219,7 @@ int FolderTree::ProcessKey(int Key)
     case KEY_CTRLSHIFTENTER:
       {
         string strName;
-        FindEdit->GetStringW(strName);
+        FindEdit->GetString(strName);
         Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER?-1:1);
         DrawEdit();
       }
@@ -235,7 +235,7 @@ int FolderTree::ProcessKey(int Key)
     case (KEY_MSWHEEL_UP | KEY_ALT):
     case KEY_MSWHEEL_DOWN:
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
-      FindEdit->SetStringW(L"");
+      FindEdit->SetString(L"");
       Tree->ProcessKey(Key);
       DrawEdit();
       break;
@@ -259,12 +259,12 @@ int FolderTree::ProcessKey(int Key)
       if (FindEdit->ProcessKey(Key))
       {
         string strName;
-        FindEdit->GetStringW(strName);
+        FindEdit->GetString(strName);
         if (Tree->FindPartName(strName,FALSE))
           strLastName = strName;
         else
         {
-          FindEdit->SetStringW(strLastName);
+          FindEdit->SetString(strLastName);
           strName = strLastName;
         }
         DrawEdit();

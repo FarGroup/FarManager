@@ -71,7 +71,7 @@ void InfoList::Update (int Mode)
 void InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   strTitle.Format (L" %s ", UMSG(MInfoTitle));
-  TruncStrW(strTitle,X2-X1-3);
+  TruncStr(strTitle,X2-X1-3);
 }
 
 void InfoList::DisplayObject()
@@ -122,18 +122,18 @@ void InfoList::DisplayObject()
     strUserName.ReleaseBuffer ();
 
     GotoXY(X1+2,Y1+1);
-    PrintTextW(MInfoCompName);
-    PrintInfoW(strComputerName);
+    PrintText(MInfoCompName);
+    PrintInfo(strComputerName);
     GotoXY(X1+2,Y1+2);
-    PrintTextW(MInfoUserName);
-    PrintInfoW(strUserName);
+    PrintText(MInfoUserName);
+    PrintInfo(strUserName);
   }
 
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-  AnotherPanel->GetCurDirW(strCurDir);
+  AnotherPanel->GetCurDir(strCurDir);
 
   if ( strCurDir.IsEmpty() )
-    FarGetCurDirW(strCurDir);
+    FarGetCurDir(strCurDir);
 
   /* $ 01.02.2001 SVS
      В Win2K корректно отображать инфу при заходе в Juction каталог
@@ -224,59 +224,59 @@ void InfoList::DisplayObject()
       strTitle += L" ";
     }
 
-    TruncStrW(strTitle,X2-X1-3);
+    TruncStr(strTitle,X2-X1-3);
     GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+3);
-    PrintTextW(strTitle);
+    PrintText(strTitle);
 
     unsigned __int64 TotalSize,TotalFree,UserFree;
     if (GetDiskSizeW(strDriveRoot,&TotalSize,&TotalFree,&UserFree))
     {
       GotoXY(X1+2,Y1+4);
-      PrintTextW(MInfoDiskTotal);
+      PrintText(MInfoDiskTotal);
       InsertCommasW(TotalSize,strOutStr);
-      PrintInfoW(strOutStr);
+      PrintInfo(strOutStr);
       GotoXY(X1+2,Y1+5);
-      PrintTextW(MInfoDiskFree);
+      PrintText(MInfoDiskFree);
       InsertCommasW(UserFree,strOutStr);
-      PrintInfoW(strOutStr);
+      PrintInfo(strOutStr);
     }
 
     GotoXY(X1+2,Y1+6);
-    PrintTextW(MInfoDiskLabel);
-    PrintInfoW(strVolumeName);
+    PrintText(MInfoDiskLabel);
+    PrintInfo(strVolumeName);
     GotoXY(X1+2,Y1+7);
-    PrintTextW(MInfoDiskNumber);
+    PrintText(MInfoDiskNumber);
     strOutStr.Format (L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
-    PrintInfoW(strOutStr);
+    PrintInfo(strOutStr);
   }
 
   strTitle = UMSG(MInfoMemory);
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
-  PrintTextW(strTitle);
+  PrintText(strTitle);
   MEMORYSTATUSEX ms;
   FAR_GlobalMemoryStatusEx(&ms);
   if (ms.dwMemoryLoad==0)
     ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
   GotoXY(X1+2,Y1+9);
-  PrintTextW(MInfoMemoryLoad);
+  PrintText(MInfoMemoryLoad);
   strOutStr.Format (L"%d%%",ms.dwMemoryLoad);
-  PrintInfoW(strOutStr);
+  PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+10);
-  PrintTextW(MInfoMemoryTotal);
+  PrintText(MInfoMemoryTotal);
   InsertCommasW((__int64)ms.ullTotalPhys,strOutStr);
-  PrintInfoW(strOutStr);
+  PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+11);
-  PrintTextW(MInfoMemoryFree);
+  PrintText(MInfoMemoryFree);
   InsertCommasW((__int64)ms.ullAvailPhys,strOutStr);
-  PrintInfoW(strOutStr);
+  PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+12);
-  PrintTextW(MInfoVirtualTotal);
+  PrintText(MInfoVirtualTotal);
   InsertCommasW((__int64)ms.ullTotalPageFile,strOutStr);
-  PrintInfoW(strOutStr);
+  PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+13);
-  PrintTextW(MInfoVirtualFree);
+  PrintText(MInfoVirtualFree);
   InsertCommasW((__int64)ms.ullAvailPageFile,strOutStr);
-  PrintInfoW(strOutStr);
+  PrintInfo(strOutStr);
   ShowDirDescription();
   ShowPluginDescription();
 }
@@ -305,7 +305,7 @@ int InfoList::ProcessKey(int Key)
     case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
         if ( !strDizFileName.IsEmpty() )
       {
-        CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDirW(strCurDir);
+        CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strCurDir);
         FarChDirW(strCurDir);
 
         new FileViewer(strDizFileName,TRUE);//OT
@@ -323,7 +323,7 @@ int InfoList::ProcessKey(int Key)
       */
       {
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-        AnotherPanel->GetCurDirW(strCurDir);
+        AnotherPanel->GetCurDir(strCurDir);
         FarChDirW(strCurDir);
         if ( !strDizFileName.IsEmpty() )
         {
@@ -431,7 +431,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void InfoList::PrintTextW(const wchar_t *Str)
+void InfoList::PrintText(const wchar_t *Str)
 {
     if (WhereY()>Y2-1)
         return;
@@ -439,13 +439,13 @@ void InfoList::PrintTextW(const wchar_t *Str)
 }
 
 
-void InfoList::PrintTextW(int MsgID)
+void InfoList::PrintText(int MsgID)
 {
-    PrintTextW(UMSG(MsgID));
+    PrintText(UMSG(MsgID));
 }
 
 
-void InfoList::PrintInfoW(const wchar_t *str)
+void InfoList::PrintInfo(const wchar_t *str)
 {
     if (WhereY()>Y2-1)
         return;
@@ -454,7 +454,7 @@ void InfoList::PrintInfoW(const wchar_t *str)
         MaxLength=0;
 
     string strStr = str;
-    TruncStrW(strStr,MaxLength);
+    TruncStr(strStr,MaxLength);
     int Length=(int)strStr.GetLength();
     int NewX=X2-Length-1;
     if (NewX>X1 && NewX>WhereX())
@@ -467,9 +467,9 @@ void InfoList::PrintInfoW(const wchar_t *str)
 }
 
 
-void InfoList::PrintInfoW(int MsgID)
+void InfoList::PrintInfo(int MsgID)
 {
-    PrintInfoW(UMSG(MsgID));
+    PrintInfo(UMSG(MsgID));
 }
 
 
@@ -483,10 +483,10 @@ void InfoList::ShowDirDescription()
   {
     SetColor(COL_PANELTEXT);
     GotoXY(X1+2,Y1+15);
-    PrintTextW(MInfoDizAbsent);
+    PrintText(MInfoDizAbsent);
     return;
   }
-  AnotherPanel->GetCurDirW(strDizDir);
+  AnotherPanel->GetCurDir(strDizDir);
   if ((Length=(int)strDizDir.GetLength())>0 && strDizDir.At(Length-1)!=L'\\')
     strDizDir += L"\\";
 
@@ -517,7 +517,7 @@ void InfoList::ShowDirDescription()
   /* DJ $ */
   SetColor(COL_PANELTEXT);
   GotoXY(X1+2,Y1+15);
-  PrintTextW(MInfoDizAbsent);
+  PrintText(MInfoDizAbsent);
 }
 
 
@@ -557,14 +557,14 @@ void InfoList::ShowPluginDescription()
       else
         strTitle=L"";
       DrawSeparator(Y);
-      TruncStrW(strTitle,X2-X1-3);
+      TruncStr(strTitle,X2-X1-3);
       GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y);
-      PrintTextW(strTitle);
+      PrintText(strTitle);
     }
     else
     {
-      PrintTextW(NullToEmptyW(InfoLine->Text));
-      PrintInfoW(NullToEmptyW(InfoLine->Data));
+      PrintText(NullToEmptyW(InfoLine->Text));
+      PrintInfo(NullToEmptyW(InfoLine->Data));
     }
   }
 }
@@ -633,11 +633,11 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
 
   strDizFileName = DizFile;
   string strTitle;
-  strTitle.Format (L" %s ", (const wchar_t*)PointToNameW(strDizFileName));
-  TruncStrW(strTitle,X2-X1-3);
+  strTitle.Format (L" %s ", (const wchar_t*)PointToName(strDizFileName));
+  TruncStr(strTitle,X2-X1-3);
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+14);
   SetColor(COL_PANELTEXT);
-  PrintTextW(strTitle);
+  PrintText(strTitle);
   DizPresent=TRUE;
   return(TRUE);
 }
@@ -664,7 +664,7 @@ void InfoList::SetMacroMode(int Restore)
 }
 
 
-int InfoList::GetCurNameW(string &strName, string &strShortName)
+int InfoList::GetCurName(string &strName, string &strShortName)
 {
   strName = strDizFileName;
 

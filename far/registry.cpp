@@ -14,9 +14,9 @@ registry.cpp
 
 static LONG CloseRegKey(HKEY hKey);
 
-int CopyKeyTreeW(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip=NULL);
-void DeleteFullKeyTreeW(const wchar_t *KeyName);
-static void DeleteKeyTreePartW(const wchar_t *KeyName);
+int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip=NULL);
+void DeleteFullKeyTree(const wchar_t *KeyName);
+static void DeleteKeyTreePart(const wchar_t *KeyName);
 
 static int DeleteCount;
 
@@ -49,43 +49,43 @@ void CloseSameRegKey()
 
 
 
-LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData)
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData)
 {
   HKEY hKey;
   LONG Ret=ERROR_SUCCESS;
 
-  if((hKey=CreateRegKeyW(Key)) != NULL)
+  if((hKey=CreateRegKey(Key)) != NULL)
     Ret=RegSetValueExW(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(wcslen(ValueData)+1)*sizeof(wchar_t));
   CloseRegKey(hKey);
   return Ret;
 }
 
-LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData)
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData)
 {
   HKEY hKey;
   LONG Ret=ERROR_SUCCESS;
-  if((hKey=CreateRegKeyW(Key)) != NULL)
+  if((hKey=CreateRegKey(Key)) != NULL)
     Ret=RegSetValueExW(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
   CloseRegKey(hKey);
   return Ret;
 }
 
 
-LONG SetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData)
+LONG SetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData)
 {
   HKEY hKey;
   LONG Ret=ERROR_SUCCESS;
-  if((hKey=CreateRegKeyW(Key)) != NULL)
+  if((hKey=CreateRegKey(Key)) != NULL)
     Ret=RegSetValueExW(hKey,ValueName,0,REG_QWORD,(BYTE *)&ValueData,sizeof(ValueData));
   CloseRegKey(hKey);
   return Ret;
 }
 
-LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize)
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize)
 {
   HKEY hKey;
   LONG Ret=ERROR_SUCCESS;
-  if((hKey=CreateRegKeyW(Key)) != NULL)
+  if((hKey=CreateRegKey(Key)) != NULL)
     Ret=RegSetValueExW(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
   CloseRegKey(hKey);
   return Ret;
@@ -93,16 +93,16 @@ LONG SetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueDat
 
 
 
-int GetRegKeySizeW(const wchar_t *Key,const wchar_t *ValueName)
+int GetRegKeySize(const wchar_t *Key,const wchar_t *ValueName)
 {
-  HKEY hKey=OpenRegKeyW(Key);
-  DWORD QueryDataSize=GetRegKeySizeW(hKey,ValueName);
+  HKEY hKey=OpenRegKey(Key);
+  DWORD QueryDataSize=GetRegKeySize(hKey,ValueName);
   CloseRegKey(hKey);
   return QueryDataSize;
 }
 
 
-int GetRegKeySizeW(HKEY hKey,const wchar_t *ValueName)
+int GetRegKeySize(HKEY hKey,const wchar_t *ValueName)
 {
   if(hKey)
   {
@@ -121,10 +121,10 @@ int GetRegKeySizeW(HKEY hKey,const wchar_t *ValueName)
   ≈сли така€ ситуаци€ встретилась - получим сколько надо в любом случае
 */
 
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,const wchar_t *Default)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,const wchar_t *Default)
 {
   int ExitCode;
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   if(hKey) // надобно проверить!
   {
     DWORD Type,QueryDataSize=0;
@@ -156,10 +156,10 @@ int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,
 
 /* SVS $ */
 
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default)
 {
   int ExitCode;
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
     DWORD Type,Size=sizeof(ValueData);
@@ -174,17 +174,17 @@ int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD 
   return(TRUE);
 }
 
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,DWORD Default)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default)
 {
   int ValueData;
-  GetRegKeyW(Key,ValueName,ValueData,Default);
+  GetRegKey(Key,ValueName,ValueData,Default);
   return(ValueData);
 }
 
-int GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default)
+int GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default)
 {
   int ExitCode;
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
     DWORD Type,Size=sizeof(ValueData);
@@ -199,17 +199,17 @@ int GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,
   return(TRUE);
 }
 
-__int64 GetRegKey64W(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default)
+__int64 GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default)
 {
   __int64 ValueData;
-  GetRegKey64W(Key,ValueName,ValueData,Default);
+  GetRegKey64(Key,ValueName,ValueData,Default);
   return(ValueData);
 }
 
-int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize)
 {
   int ExitCode;
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   DWORD Required=DataSize;
   if(hKey)
   {
@@ -238,7 +238,7 @@ int GetRegKeyW(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const
   return(Required);
 }
 
-static string &MkKeyNameW(const wchar_t *Key, string &strDest)
+static string &MkKeyName(const wchar_t *Key, string &strDest)
 {
   strDest = Opt.strRegRoot;
 
@@ -252,7 +252,7 @@ static string &MkKeyNameW(const wchar_t *Key, string &strDest)
 }
 
 
-HKEY CreateRegKeyW(const wchar_t *Key)
+HKEY CreateRegKey(const wchar_t *Key)
 {
   if (hRegCurrentKey)
     return(hRegCurrentKey);
@@ -260,7 +260,7 @@ HKEY CreateRegKeyW(const wchar_t *Key)
   DWORD Disposition;
 
   string strFullKeyName;
-  MkKeyNameW(Key,strFullKeyName);
+  MkKeyName(Key,strFullKeyName);
   if(RegCreateKeyExW(hRegRootKey,strFullKeyName,0,NULL,0,KEY_WRITE,NULL,
                  &hKey,&Disposition) != ERROR_SUCCESS)
     hKey=NULL;
@@ -273,13 +273,13 @@ HKEY CreateRegKeyW(const wchar_t *Key)
 }
 
 
-HKEY OpenRegKeyW(const wchar_t *Key)
+HKEY OpenRegKey(const wchar_t *Key)
 {
   if (hRegCurrentKey)
     return(hRegCurrentKey);
   HKEY hKey;
   string strFullKeyName;
-  MkKeyNameW(Key,strFullKeyName);
+  MkKeyName(Key,strFullKeyName);
   if (RegOpenKeyExW(hRegRootKey,strFullKeyName,0,KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS,&hKey)!=ERROR_SUCCESS)
   {
     CloseSameRegKey();
@@ -294,19 +294,19 @@ HKEY OpenRegKeyW(const wchar_t *Key)
 }
 
 
-void DeleteRegKeyW(const wchar_t *Key)
+void DeleteRegKey(const wchar_t *Key)
 {
   string strFullKeyName;
-  MkKeyNameW(Key,strFullKeyName);
+  MkKeyName(Key,strFullKeyName);
   RegDeleteKeyW(hRegRootKey,strFullKeyName);
 }
 
 
-void DeleteRegValueW(const wchar_t *Key,const wchar_t *Value)
+void DeleteRegValue(const wchar_t *Key,const wchar_t *Value)
 {
   HKEY hKey;
   string strFullKeyName;
-  MkKeyNameW(Key,strFullKeyName);
+  MkKeyName(Key,strFullKeyName);
   if (RegOpenKeyExW(hRegRootKey,strFullKeyName,0,KEY_WRITE,&hKey)==ERROR_SUCCESS)
   {
     RegDeleteValueW(hKey,Value);
@@ -314,40 +314,40 @@ void DeleteRegValueW(const wchar_t *Key,const wchar_t *Value)
   }
 }
 
-void DeleteKeyRecordW(const wchar_t *KeyMask,int Position)
+void DeleteKeyRecord(const wchar_t *KeyMask,int Position)
 {
   string strFullKeyName, strNextFullKeyName;
   string strMaskKeyName;
 
-  MkKeyNameW(KeyMask, strMaskKeyName);
+  MkKeyName(KeyMask, strMaskKeyName);
 
   while (1)
   {
     strFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position++);
     strNextFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position);
-    if (!CopyKeyTreeW(strNextFullKeyName,strFullKeyName))
+    if (!CopyKeyTree(strNextFullKeyName,strFullKeyName))
     {
-      DeleteFullKeyTreeW(strFullKeyName);
+      DeleteFullKeyTree(strFullKeyName);
       break;
     }
   }
 }
 
-void InsertKeyRecordW(const wchar_t *KeyMask,int Position,int TotalKeys)
+void InsertKeyRecord(const wchar_t *KeyMask,int Position,int TotalKeys)
 {
   string strFullKeyName, strPrevFullKeyName;
   string strMaskKeyName;
 
-  MkKeyNameW(KeyMask,strMaskKeyName);
+  MkKeyName(KeyMask,strMaskKeyName);
   for (int CurPos=TotalKeys;CurPos>Position;CurPos--)
   {
     strFullKeyName.Format ((const wchar_t*)strMaskKeyName,CurPos);
     strPrevFullKeyName.Format ((const wchar_t*)strMaskKeyName,CurPos-1);
-    if (!CopyKeyTreeW(strPrevFullKeyName,strFullKeyName))
+    if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
       break;
   }
   strFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position);
-  DeleteFullKeyTreeW(strFullKeyName);
+  DeleteFullKeyTree(strFullKeyName);
 }
 
 
@@ -373,7 +373,7 @@ class KeyRecordItem
    }
 };
 
-void RenumKeyRecordW(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t *KeyMask0)
+void RenumKeyRecord(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t *KeyMask0)
 {
   TArray<KeyRecordItem> KAItems;
   KeyRecordItem KItem;
@@ -386,7 +386,7 @@ void RenumKeyRecordW(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t
   // сбор данных
   for (CurPos=0;;CurPos++)
   {
-    if(!EnumRegKeyW(KeyRoot,CurPos,strRegKey))
+    if(!EnumRegKey(KeyRoot,CurPos,strRegKey))
       break;
     KItem.ItemIdx=_wtoi((const wchar_t*)strRegKey+wcslen(KeyMask0));
     if(KItem.ItemIdx != CurPos)
@@ -398,7 +398,7 @@ void RenumKeyRecordW(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t
   {
     KAItems.Sort();
 
-    MkKeyNameW(KeyMask,strMaskKeyName);
+    MkKeyName(KeyMask,strMaskKeyName);
     for(int CurPos=0;;++CurPos)
     {
       KeyRecordItem *Item=KAItems.getItem(CurPos);
@@ -407,25 +407,25 @@ void RenumKeyRecordW(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t
 
       // провер€м существование CurPos
       strFullKeyName.Format (KeyMask,CurPos);
-      if(!CheckRegKeyW(strFullKeyName))
+      if(!CheckRegKey(strFullKeyName))
       {
         strFullKeyName.Format ((const wchar_t*)strMaskKeyName,CurPos);
         strPrevFullKeyName.Format ((const wchar_t*)strMaskKeyName,Item->ItemIdx);
-        if (!CopyKeyTreeW(strPrevFullKeyName,strFullKeyName))
+        if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
           break;
-        DeleteFullKeyTreeW(strPrevFullKeyName);
+        DeleteFullKeyTree(strPrevFullKeyName);
       }
     }
   }
 }
 
 
-int CopyKeyTreeW(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
+int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 {
   HKEY hSrcKey,hDestKey;
   if (RegOpenKeyExW(hRegRootKey,Src,0,KEY_READ,&hSrcKey)!=ERROR_SUCCESS)
     return(FALSE);
-  DeleteFullKeyTreeW(Dest);
+  DeleteFullKeyTree(Dest);
   DWORD Disposition;
   if (RegCreateKeyExW(hRegRootKey,Dest,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
   {
@@ -474,32 +474,32 @@ int CopyKeyTreeW(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
     strDestKeyName += SubkeyName;
     if (RegCreateKeyExW(hRegRootKey,strDestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
-    CopyKeyTreeW(strSrcKeyName,strDestKeyName);
+    CopyKeyTree(strSrcKeyName,strDestKeyName);
   }
   CloseRegKey(hSrcKey);
   CloseRegKey(hDestKey);
   return(TRUE);
 }
 
-void DeleteKeyTreeW(const wchar_t *KeyName)
+void DeleteKeyTree(const wchar_t *KeyName)
 {
   string strFullKeyName;
-  MkKeyNameW(KeyName,strFullKeyName);
+  MkKeyName(KeyName,strFullKeyName);
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_WINDOWS ||
       RegDeleteKeyW(hRegRootKey,strFullKeyName)!=ERROR_SUCCESS)
-    DeleteFullKeyTreeW(strFullKeyName);
+    DeleteFullKeyTree(strFullKeyName);
 }
 
-void DeleteFullKeyTreeW(const wchar_t *KeyName)
+void DeleteFullKeyTree(const wchar_t *KeyName)
 {
   do
   {
     DeleteCount=0;
-    DeleteKeyTreePartW(KeyName);
+    DeleteKeyTreePart(KeyName);
   } while (DeleteCount!=0);
 }
 
-void DeleteKeyTreePartW(const wchar_t *KeyName)
+void DeleteKeyTreePart(const wchar_t *KeyName)
 {
   HKEY hKey;
   if (RegOpenKeyExW(hRegRootKey,KeyName,0,KEY_READ,&hKey)!=ERROR_SUCCESS)
@@ -516,7 +516,7 @@ void DeleteKeyTreePartW(const wchar_t *KeyName)
     strFullKeyName = KeyName;
     strFullKeyName += L"\\";
     strFullKeyName += SubkeyName;
-    DeleteKeyTreePartW(strFullKeyName);
+    DeleteKeyTreePart(strFullKeyName);
   }
   CloseRegKey(hKey);
   if (RegDeleteKeyW(hRegRootKey,KeyName)==ERROR_SUCCESS)
@@ -529,7 +529,7 @@ void DeleteKeyTreePartW(const wchar_t *KeyName)
    и подключей. ¬озвращает TRUE при успехе.
 */
 
-int DeleteEmptyKeyW(HKEY hRoot, const wchar_t *FullKeyName)
+int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
 {
   HKEY hKey;
   int Exist=RegOpenKeyExW(hRoot,FullKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
@@ -575,11 +575,11 @@ int DeleteEmptyKeyW(HKEY hRoot, const wchar_t *FullKeyName)
 }
 /* IS $ */
 
-int CheckRegKeyW(const wchar_t *Key)
+int CheckRegKey(const wchar_t *Key)
 {
   HKEY hKey;
   string strFullKeyName;
-  MkKeyNameW(Key,strFullKeyName);
+  MkKeyName(Key,strFullKeyName);
   int Exist=RegOpenKeyExW(hRegRootKey,strFullKeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS;
   CloseRegKey(hKey);
   return(Exist);
@@ -589,11 +589,11 @@ int CheckRegKeyW(const wchar_t *Key)
    ¬озвращает FALSE, если указанна€ переменна€ не содержит данные
    или размер данных равен нулю.
 */
-int CheckRegValueW(const wchar_t *Key,const wchar_t *ValueName)
+int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName)
 {
   int ExitCode;
   DWORD DataSize=0;
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
     DWORD Type;
@@ -605,9 +605,9 @@ int CheckRegValueW(const wchar_t *Key,const wchar_t *ValueName)
   return(TRUE);
 }
 
-int EnumRegKeyW(const wchar_t *Key,DWORD Index,string &strDestName)
+int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName)
 {
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
     FILETIME LastWriteTime;
@@ -620,7 +620,7 @@ int EnumRegKeyW(const wchar_t *Key,DWORD Index,string &strDestName)
       string strTempName;
       strTempName = Key;
       if ( !strTempName.IsEmpty() )
-        AddEndSlashW(strTempName);
+        AddEndSlash(strTempName);
 
       strTempName += SubName;
 
@@ -631,9 +631,9 @@ int EnumRegKeyW(const wchar_t *Key,DWORD Index,string &strDestName)
   return(FALSE);
 }
 
-int EnumRegValueW(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SData,DWORD SDataSize,LPDWORD IData,__int64* IData64)
+int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SData,DWORD SDataSize,LPDWORD IData,__int64* IData64)
 {
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   int RetCode=REG_NONE;
 
   if(hKey)
@@ -673,9 +673,9 @@ int EnumRegValueW(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDa
   return RetCode;
 }
 
-int EnumRegValueExW(const wchar_t *Key,DWORD Index, string &strDestName, string strSData, LPDWORD IData,__int64* IData64)
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string strSData, LPDWORD IData,__int64* IData64)
 {
-  HKEY hKey=OpenRegKeyW(Key);
+  HKEY hKey=OpenRegKey(Key);
   int RetCode=REG_NONE;
 
   if(hKey)

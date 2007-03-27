@@ -226,7 +226,7 @@ class FileList:public Panel
     int  GetShowColor(int Position, int ColorType);
     void ShowSelectedSize();
     void ShowTotalSize(struct OpenPluginInfoW &Info);
-    int ConvertNameW (const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
+    int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
 
     void Select(struct FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
@@ -234,7 +234,7 @@ class FileList:public Panel
     /* $ 09.04.2001 SVS
        ChangeDir возвращает FALSE, eсли файлова€ панель была закрыта
     */
-    BOOL ChangeDirW(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
+    BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
     /* SVS $ */
     void CountDirSize(DWORD PluginFlags);
     /* $ 19.03.2002 DJ
@@ -246,15 +246,15 @@ class FileList:public Panel
     void MoveSelection(struct FileListItem **FileList,long FileCount,
                        struct FileListItem **OldList,long OldFileCount);
     virtual int GetSelCount();
-    virtual int GetSelNameW(string *strName,int &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
+    virtual int GetSelName(string *strName,int &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
     virtual void UngetSelName();
     virtual void ClearLastGetSelection();
 
     virtual unsigned __int64 GetLastSelectedSize ();
     virtual int GetLastSelectedItem(struct FileListItem *LastItem);
 
-    virtual int GetCurNameW(string &strName, string &strShortName);
-    virtual int GetCurBaseNameW(string &strName, string &strShortName);
+    virtual int GetCurName(string &strName, string &strShortName);
+    virtual int GetCurBaseName(string &strName, string &strShortName);
 
     void PushPlugin(HANDLE hPlugin,const wchar_t *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
@@ -324,25 +324,24 @@ class FileList:public Panel
     virtual void SetViewMode(int ViewMode);
     virtual void SetSortMode(int SortMode);
     virtual void ChangeSortOrder(int NewOrder);
-    virtual void SetCurDirW(const wchar_t *NewDir,int ClosePlugin);
+    virtual void SetCurDir(const wchar_t *NewDir,int ClosePlugin);
     virtual int GetPrevSortMode();
     virtual int GetPrevSortOrder();
     virtual int GetPrevViewMode();
     virtual int GetPrevNumericSort();
     HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
-    virtual int GetFileNameW(string &strName,int Pos,int &FileAttr);
+    virtual int GetFileName(string &strName,int Pos,int &FileAttr);
     virtual int GetCurrentPos();
     virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1);
     int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 
-    virtual int GoToFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
-    virtual int FindFileW(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+    virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
+    virtual int FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE);
 
-    int IsSelected(char *Name);
-    virtual int IsSelectedW(const wchar_t *Name);
+    virtual int IsSelected(const wchar_t *Name);
 
-    virtual int FindFirstW(const wchar_t *Name);
-    virtual int FindNextW(int StartPos, const wchar_t *Name);
+    virtual int FindFirst(const wchar_t *Name);
+    virtual int FindNext(int StartPos, const wchar_t *Name);
 
     void ProcessHostFile();
     virtual void UpdateViewPanel();
@@ -375,7 +374,7 @@ class FileList:public Panel
     int PluginPanelHelp(HANDLE hPlugin);
     virtual long GetFileCount() {return FileCount;}
 
-    string &CreateFullPathNameW(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
+    string &CreateFullPathName(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 
 
     virtual BOOL GetItem(int Index,void *Dest);
@@ -386,7 +385,7 @@ class FileList:public Panel
     /* DJ $ */
     void UpdateColorItems(void);
 
-    virtual void IfGoHomeW(wchar_t Drive);
+    virtual void IfGoHome(wchar_t Drive);
 
     /* 14.05.2002 VVM
       + —бросить врем€ последнего обновлени€ панели */

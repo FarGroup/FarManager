@@ -20,7 +20,7 @@ static unsigned char KeyToKey[256];
 */
 void InitKeysArray()
 {
-  GetRegKeyW(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
+  GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
   unsigned char CvtStr[2];
   int I;
   CvtStr[1]=0;
@@ -74,7 +74,7 @@ void InitKeysArray()
   }
   //_SVS(SysLogDump("KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
   unsigned char KeyToKeyMap[256];
-  if(GetRegKeyW(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
+  if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
     memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
   //_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
 }
