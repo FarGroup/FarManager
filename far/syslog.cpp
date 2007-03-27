@@ -1088,7 +1088,7 @@ string __FARKEY_ToName(int Key)
   if(KeyToText(Key,Name))
   {
     string tmp;
-    InsertQuoteW(Name);
+    InsertQuote(Name);
     tmp.Format(L"%s [%u/0x%08X]",(const wchar_t*)Name,Key,Key);
     Name = tmp;
     return Name;

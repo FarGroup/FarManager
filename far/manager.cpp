@@ -667,7 +667,7 @@ int  Manager::ProcessKey(DWORD Key)
 
 #if defined(FAR_ALPHA_VERSION)
 // сей код для проверки исключатор, просьба не трогать :-)
-    if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKeyW(L"System\\Exception",L"Used",0))
+    if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKey(L"System\\Exception",L"Used",0))
     {
       struct __ECODE {
         DWORD Code;
