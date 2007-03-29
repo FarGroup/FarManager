@@ -4493,7 +4493,9 @@ static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
    while (IsSpace(*BufPtr) || IsEol(*BufPtr))
    {
      if(IsEol(*BufPtr))
-       ; // TODO!!!
+     {
+       // TODO!!!
+     }
      BufPtr++;
    }
 

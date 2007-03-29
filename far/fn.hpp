@@ -484,17 +484,17 @@ BOOL operator >= (ULARGE_INTEGER &c1,ULARGE_INTEGER &c2);
 
 #ifdef __PLUGIN_HPP__
 // эти функции _были_ как static
-int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
+int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                   const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);
-int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
+int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
            DWORD Flags,const char *Title,const char *Bottom,
            const char *HelpTopic,const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber);
-int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogFn(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
-const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
-int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,
+const char* WINAPI FarGetMsgFn(INT_PTR PluginNumber,int MsgId);
+int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
            const char *HelpTopic,const char * const *Items,int ItemsNumber,
            int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
@@ -539,13 +539,13 @@ int WINAPI FarInputBox(const char *Title,const char *Prompt,
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
+INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
 /* IS $ */
 /* $ 23.07.2000 IS
    Функции для расширенного диалога
 */
 //  Функция расширенного диалога
-int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
       const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
       DWORD Reserved, DWORD Flags,
       FARWINDOWPROC Proc,LONG_PTR Param);

@@ -134,7 +134,7 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
+INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 {
   struct Opt2Flags{
     int *Opt;
@@ -644,7 +644,7 @@ INT_PTR WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 #endif
 /* IS $ */
 
-int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
+int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
            DWORD Flags,const char *Title,const char *Bottom,
            const char *HelpTopic, const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber)
@@ -670,7 +670,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
     {
       char Topic[512];
-      if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
+      if(Help::MkTopic((int)PluginNumber,HelpTopic,Topic))
         FarMenu.SetHelp(Topic);
     }
 
@@ -855,7 +855,7 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2
 }
 /* SVS $ */
 
-int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogFn(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
 {
   return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
@@ -909,7 +909,7 @@ static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struc
 }
 
 
-int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
+int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
            FARWINDOWPROC DlgProc,LONG_PTR Param)
@@ -971,7 +971,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     /* $ 29.08.2000 SVS
        Запомним номер плагина - сейчас в основном для формирования HelpTopic
     */
-    FarDialog.SetPluginNumber(PluginNumber);
+    FarDialog.SetPluginNumber((int)PluginNumber);
     /* SVS $ */
 
     int I;
@@ -1008,9 +1008,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 /* SVS 13.12.2000 $ */
 /* SVS $ */
 
-const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
+const char* WINAPI FarGetMsgFn(INT_PTR PluginNumber,int MsgId)
 {
-  return(CtrlObject?CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId):"");
+  return(CtrlObject?CtrlObject->Plugins.FarGetMsg((int)PluginNumber,MsgId):"");
 }
 
 char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
@@ -1031,7 +1031,7 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
    ! Конкретно обновим функцию FarMessageFn()
 */
 
-int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
+int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
                         const char * const *Items,int ItemsNumber,
                         int ButtonsNumber)
 {
@@ -1157,7 +1157,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if(PluginNumber != -1)
   {
     char Topic[512];
-    if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
+    if(Help::MkTopic((int)PluginNumber,HelpTopic,Topic))
       SetMessageHelp(Topic);
   }
 
@@ -1165,7 +1165,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->Lock(); // отменим прорисовку фрейма
-  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
+  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,(int)PluginNumber);
   /* $ 15.05.2002 SKV
     Однако разлочивать надо ровно то, что залочили.
   */
@@ -1504,7 +1504,7 @@ static void PR_FarGetPluginDirListMsg(void)
   FarGetPluginDirListMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
-int WINAPI FarGetPluginDirList(int PluginNumber,
+int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
                                HANDLE hPlugin,
                                const char *Dir,
                                struct PluginPanelItem **pPanelItem,
@@ -1534,7 +1534,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
     }
     else
     {
-      DirListPlugin.PluginNumber=PluginNumber;
+      DirListPlugin.PluginNumber=(int)PluginNumber;
       DirListPlugin.InternalHandle=hPlugin;
     }
 
