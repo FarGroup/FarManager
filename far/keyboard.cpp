@@ -588,7 +588,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
           SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
           SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT);
         }
-        SetFarTitleW(NULL);//LastFarTitle);
+        SetFarTitle(NULL);//LastFarTitle);
       }
       if (Opt.ScreenSaver && Opt.ScreenSaverTime>0 &&
           CurTime-StartIdleTime>Opt.ScreenSaverTime*60000)

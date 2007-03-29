@@ -218,7 +218,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
       /* $ 20.08.2001 VVM
          ! Ошибка при задании разделителя списка. */
 //      UserDefinedList DataList('\"', 0, 0);
-      UserDefinedListW DataList(0,0,0);
+      UserDefinedList DataList(0,0,0);
       /* VVM $ */
       int J=0;
       const wchar_t *DataPtr;

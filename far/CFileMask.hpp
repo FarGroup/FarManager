@@ -18,14 +18,14 @@ enum FM_FLAGS
 };
 
 
-class CFileMaskW
+class CFileMask
 {
 private:
-    BaseFileMaskW *FileMask;
+    BaseFileMask *FileMask;
 
 public:
-    CFileMaskW();
-    ~CFileMaskW() { Free(); }
+    CFileMask();
+    ~CFileMask() { Free(); }
 
 public:
     BOOL Set(const wchar_t *Masks, DWORD Flags);
@@ -34,8 +34,8 @@ public:
     void Free();
 
 private:
-  CFileMaskW& operator=(const CFileMaskW& rhs); /* чтобы не */
-  CFileMaskW(const CFileMaskW& rhs); /* генерировалось по умолчанию */
+  CFileMask& operator=(const CFileMask& rhs); /* чтобы не */
+  CFileMask(const CFileMask& rhs); /* генерировалось по умолчанию */
 
 };
 

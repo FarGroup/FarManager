@@ -226,12 +226,12 @@ BOOL FAR_MoveFileExW(
 }
 
 
-BOOL MoveFileThroughTempW(const wchar_t *Src, const wchar_t *Dest)
+BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 {
   string strTemp;
   BOOL rc = FALSE;
 
-  if ( FarMkTempExW (strTemp, NULL, FALSE) )
+  if ( FarMkTempEx(strTemp, NULL, FALSE) )
   {
       if ( MoveFileW (Src, strTemp) )
           rc = MoveFileW (strTemp, Dest);

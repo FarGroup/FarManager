@@ -18,7 +18,7 @@ static UINT    uInternalClipboardFormat[5]={0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 static BOOL    OppenedClipboard=FALSE;
 
 
-static UINT WINAPI FAR_RegisterClipboardFormatW(LPCWSTR lpszFormat)
+static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 {
   if(UsedInternalClipboard)
   {
@@ -145,12 +145,12 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 
 /* ------------------------------------------------------------ */
 
-int WINAPI CopyToClipboardW(const wchar_t *Data)
+int WINAPI CopyToClipboard(const wchar_t *Data)
 {
-  return InternalCopyToClipboardW(Data,0);
+  return InternalCopyToClipboard(Data,0);
 }
 
-int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
+int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
 {
   long DataSize;
   if (!FAR_OpenClipboard(NULL))
@@ -174,9 +174,9 @@ int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
 }
 
 
-int CopyFormatToClipboardW(const wchar_t *Format,const wchar_t *Data)
+int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
 {
-  int FormatType=FAR_RegisterClipboardFormatW(Format);
+  int FormatType=FAR_RegisterClipboardFormat(Format);
   if (FormatType==0)
     return(FALSE);
 
@@ -201,12 +201,12 @@ int CopyFormatToClipboardW(const wchar_t *Format,const wchar_t *Data)
 }
 
 
-wchar_t* WINAPI PasteFromClipboardW(void)
+wchar_t* WINAPI PasteFromClipboard(void)
 {
-  return InternalPasteFromClipboardW(0);
+  return InternalPasteFromClipboard(0);
 }
 
-wchar_t* InternalPasteFromClipboardW(int AnsiMode) //AnsiMode - fake!!
+wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
 {
   HANDLE hClipData;
   if (!FAR_OpenClipboard(NULL))
@@ -264,14 +264,14 @@ wchar_t* InternalPasteFromClipboardW(int AnsiMode) //AnsiMode - fake!!
 }
 
 
-wchar_t* WINAPI PasteFromClipboardExW(int max)
+wchar_t* WINAPI PasteFromClipboardEx(int max)
 {
-  return InternalPasteFromClipboardExW(max,0);
+  return InternalPasteFromClipboardEx(max,0);
 }
 
 
 // max - без учета символа конца строки!
-wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode) //AnsiMode - fake
+wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
 {
   wchar_t *ClipText=NULL;
   HANDLE hClipData;
@@ -345,9 +345,9 @@ wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode) //AnsiMode - fake
 }
 
 
-wchar_t* PasteFormatFromClipboardW(const wchar_t *Format)
+wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 {
-  int FormatType=FAR_RegisterClipboardFormatW(Format);
+  int FormatType=FAR_RegisterClipboardFormat(Format);
   if (FormatType==0)
     return(NULL);
   if (!FAR_OpenClipboard(NULL))

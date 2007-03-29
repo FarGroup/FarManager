@@ -18,11 +18,11 @@ enum FMP_FLAGS
                                 // символов: '*', '?', '.'
 };
 
-class FileMasksProcessorW:public BaseFileMaskW
+class FileMasksProcessor : public BaseFileMask
 {
 public:
-    FileMasksProcessorW();
-    virtual ~FileMasksProcessorW() {}
+    FileMasksProcessor();
+    virtual ~FileMasksProcessor() {}
 
 public:
     virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
@@ -31,12 +31,12 @@ public:
     void Free();
 
 private:
-    UserDefinedListW Masks; // список масок файлов
+    UserDefinedList Masks; // список масок файлов
     const wchar_t *MaskPtr;   // указатель на текущую маску в списке
 
 private:
-  FileMasksProcessorW& operator=(const FileMasksProcessorW& rhs); /* чтобы не */
-  FileMasksProcessorW(const FileMasksProcessorW& rhs); /* генерировалось по умолчанию */
+  FileMasksProcessor& operator=(const FileMasksProcessor& rhs); /* чтобы не */
+  FileMasksProcessor(const FileMasksProcessor& rhs); /* генерировалось по умолчанию */
 
 };
 

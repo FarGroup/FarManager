@@ -498,7 +498,7 @@ void VMenu::ShowMenu(int IsParent)
       {
         int SepWidth=X2-X1+1;
         wchar_t *Ptr=TmpStrW+1;
-        MakeSeparatorW(SepWidth,TmpStrW,
+        MakeSeparator(SepWidth,TmpStrW,
           BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
         if (I>0 && I<ItemCount-1 && SepWidth>3)
@@ -519,7 +519,7 @@ void VMenu::ShowMenu(int IsParent)
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
         SetColor(VMenu::Colors[VMenuColorSeparator]);
-        BoxTextW(TmpStrW,FALSE);
+        BoxText(TmpStrW,FALSE);
 
         if ( !Item[I]->strName.IsEmpty() )
         {
@@ -536,9 +536,9 @@ void VMenu::ShowMenu(int IsParent)
         if (BoxType!=NO_BOX)
         {
           SetColor(VMenu::Colors[VMenuColorBox]);
-          BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+          BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
           GotoXY(X2,Y);
-          BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+          BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
         }
 
         const wchar_t *Item_I_PtrName=(const wchar_t *)Item[I]->strName;
@@ -620,9 +620,9 @@ void VMenu::ShowMenu(int IsParent)
       if (BoxType!=NO_BOX)
       {
         SetColor(VMenu::Colors[VMenuColorBox]);
-        BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+        BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
         GotoXY(X2,Y);
-        BoxTextW((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+        BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
         GotoXY(X1+1,Y);
       }
       else
@@ -1762,7 +1762,7 @@ void VMenu::SetTitle(const wchar_t *Title)
       if(!OldTitle)
         OldTitle=new ConsoleTitle;
 
-      SetFarTitleW(strTitle);
+      SetFarTitle(strTitle);
     }
     else
     {

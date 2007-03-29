@@ -583,7 +583,7 @@ int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string
    Return: TRUE  - все ОБИ
            FALSE - отменили назначение хоткея
 */
-BOOL WINAPI GetMenuHotKeyW(string &strHotKey,          // хоткей, может быть =NULL
+BOOL WINAPI GetMenuHotKey(string &strHotKey,          // хоткей, может быть =NULL
                           int LenHotKey,         // блина хоткея (мин. = 1)
                           const wchar_t *DlgHotKeyTitle,  // заголовок диалога
                           const wchar_t *DlgHotKeyText,   // prompt назначения

@@ -190,7 +190,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
 
   if (RetQuery == ERROR_SUCCESS)
   {
-    UserDefinedListW ActionList(0,0,ULF_UNIQUE);
+    UserDefinedList ActionList(0,0,ULF_UNIQUE);
 
     RetPtr=(*Action==0 ? NULL:Action);
     /* $ 03.10.2002 VVM
@@ -720,7 +720,7 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
 
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
-        FarChDirW(strSavePath);
+        FarChDir(strSavePath);
         //break;
       //}
     //}
@@ -745,7 +745,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   string strExecLine;
 
 
-  PartCmdLineW (
+  PartCmdLine(
           CmdStr,
           strNewCmdStr,
           strNewCmdPar
@@ -1170,7 +1170,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
       ScrollScreen(1);
       MoveCursor(X1,Y1);
       if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
-        FarChDirW(strCurDir);
+        FarChDir(strCurDir);
       CmdStr.SetString(L"");
       if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
         Code=-1;
@@ -1382,11 +1382,11 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   {
     wchar_t NewDir[10];
     swprintf(NewDir,L"%c:",LocalUpperW(strCmdLine.At(0)));
-    FarChDirW(strCmdLine);
+    FarChDir(strCmdLine);
     if (getdisk()!=NewDir[0]-L'A')
     {
       wcscat(NewDir,L"\\");
-      FarChDirW(NewDir);
+      FarChDir(NewDir);
     }
     SetPanel->ChangeDirToCurrent();
     return(TRUE);
@@ -1566,7 +1566,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
     DWORD DirAtt=GetFileAttributesW(strExpandedDir);
-    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsoluteW(strExpandedDir))
+    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
     {
       ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
       SetPanel->SetCurDir(strExpandedDir,TRUE);
@@ -1603,10 +1603,10 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     //if (ExpandEnvironmentStrW(strExpandedDir,strExpandedDir)!=0)
     {
-      if(CheckFolderW(strExpandedDir) <= CHKFLD_NOTACCESS)
+      if(CheckFolder(strExpandedDir) <= CHKFLD_NOTACCESS)
         return -1;
 
-      if (!FarChDirW(strExpandedDir))
+      if (!FarChDir(strExpandedDir))
         return(FALSE);
     }
 

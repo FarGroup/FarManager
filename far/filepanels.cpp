@@ -75,7 +75,7 @@ static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
     strSrc.ReleaseBuffer ();
   }
   else
-    CheckShortcutFolderW(&strSrc,FALSE,TRUE);
+    CheckShortcutFolder(&strSrc,FALSE,TRUE);
 }
 
 void FilePanels::Init()
@@ -116,7 +116,7 @@ void FilePanels::Init()
   ActivePanel->SetFocus();
 
   // пытаемся избавится от зависания при запуске
-  int IsLocalPath_FarPath=IsLocalPathW(g_strFarPath);
+  int IsLocalPath_FarPath=IsLocalPath(g_strFarPath);
   PrepareOptFolderW(Opt.strLeftFolder,IsLocalPath_FarPath);
   PrepareOptFolderW(Opt.strRightFolder,IsLocalPath_FarPath);
   PrepareOptFolderW(Opt.strPassiveFolder,IsLocalPath_FarPath);
@@ -1048,7 +1048,7 @@ void FilePanels::GoToFile(const wchar_t *FileName)
     string strNameFile = PointToName(FileName);
     string strNameDir = FileName;
 
-    CutToSlashW (strNameDir);
+    CutToSlash(strNameDir);
 
     /* $ 10.04.2001 IS
          Не делаем SetCurDir, если нужный путь уже есть на открытых

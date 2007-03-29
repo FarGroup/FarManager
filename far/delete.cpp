@@ -23,14 +23,14 @@ delete.cpp
 #include "constitle.hpp"
 #include "fn.hpp"
 
-static void ShellDeleteMsgW(const wchar_t *Name,int Wipe);
-static int AskDeleteReadOnlyW(const wchar_t *Name,DWORD Attr,int Wipe);
-static int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
-static int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
-static int RemoveToRecycleBinW(const wchar_t *Name);
-static int WipeFileW(const wchar_t *Name);
-static int WipeDirectoryW(const wchar_t *Name);
-static void PR_ShellDeleteMsgW(void);
+static void ShellDeleteMsg(const wchar_t *Name,int Wipe);
+static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
+static int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
+static int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe);
+static int RemoveToRecycleBin(const wchar_t *Name);
+static int WipeFile(const wchar_t *Name);
+static int WipeDirectory(const wchar_t *Name);
+static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
 static clock_t DeleteStartTime;
@@ -75,9 +75,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(&strSelName,FileAttr);
     ConvertNameToFullW(strSelName, strRoot);
-    GetPathRootW(strRoot,strRoot);
+    GetPathRoot(strRoot,strRoot);
 //_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
-    if(Opt.DeleteToRecycleBin && FAR_GetDriveTypeW(strRoot) != DRIVE_FIXED)
+    if(Opt.DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
       Opt.DeleteToRecycleBin=0;
   }
 
@@ -127,7 +127,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     string strJuncName;
     ConvertNameToFullW(strSelName,strJuncName);
 
-    if(GetJunctionPointInfoW(strJuncName, strJuncName)) // ? SelName ?
+    if(GetJunctionPointInfo(strJuncName, strJuncName)) // ? SelName ?
     {
       strJuncName.LShift(4);
       //TruncPathStr(strJuncName, strJuncName.GetLength()-4); //
@@ -148,7 +148,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         }
         if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) != -1) //JuncName?
         {
-          DeleteJunctionPointW(strJuncName);
+          DeleteJunctionPoint(strJuncName);
           ShellUpdatePanels(SrcPanel,NeedSetUpADir);
         }
         goto done;
@@ -214,8 +214,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       NeedUpdate=FALSE;
       goto done;
     }
-    SetPreRedrawFunc(PR_ShellDeleteMsgW);
-    ShellDeleteMsgW(L"",Wipe);
+    SetPreRedrawFunc(PR_ShellDeleteMsg);
+    ShellDeleteMsg(L"",Wipe);
   }
 
   if (UpdateDiz)
@@ -230,14 +230,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     goto done;
 
   if (SrcPanel->GetType()==TREE_PANEL)
-    FarChDirW(L"\\");
+    FarChDir(L"\\");
 
   {
     int Cancel=0;
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(PR_ShellDeleteMsgW);
-    ShellDeleteMsgW(L"",Wipe);
+    SetPreRedrawFunc(PR_ShellDeleteMsg);
+    ShellDeleteMsg(L"",Wipe);
 
     ReadOnlyDeleteMode=-1;
     SkipMode=-1;
@@ -263,7 +263,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           ConvertNameToFullW(strSelName, strFullName);
 
-          if (CheckFolderW(strFullName) == CHKFLD_NOTEMPTY)
+          if (CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
           {
             int MsgCode=0;
             /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
@@ -295,8 +295,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           string strFullName;
           ScanTree ScTree(TRUE,TRUE);
-          ScTree.SetFindPathW(strSelName,L"*.*", 0);
-          while (ScTree.GetNextNameW(&FindData,strFullName))
+          ScTree.SetFindPath(strSelName,L"*.*", 0);
+          while (ScTree.GetNextName(&FindData,strFullName))
           {
             if(CheckForEscSilent())
             {
@@ -307,7 +307,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 break;
               }
             }
-            ShellDeleteMsgW(strFullName,Wipe);
+            ShellDeleteMsg(strFullName,Wipe);
             string strShortName;
             strShortName = strFullName;
             if ( !FindData.strAlternateFileName.IsEmpty() )
@@ -337,7 +337,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 /* $ 19.01.2003 KM
                    Обработка кода возврата из ERemoveDirectory.
                 */
-                int MsgCode=ERemoveDirectoryW(strFullName,strShortName,Wipe);
+                int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
                   Cancel=1;
@@ -357,7 +357,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 /* KM $ */
               }
               /* SVS $ */
-              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolderW(strFullName) == CHKFLD_NOTEMPTY)
+              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
               {
                 /* $ 13.07.2001 IS
                      усекаем имя, чтоб оно поместилось в сообщение
@@ -391,7 +391,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 /* $ 19.01.2003 KM
                    Обработка кода возврата из ERemoveDirectory.
                 */
-                int MsgCode=ERemoveDirectoryW(strFullName,strShortName,Wipe);
+                int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
                   Cancel=1;
@@ -409,14 +409,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             }
             else
             {
-              int AskCode=AskDeleteReadOnlyW(strFullName,FindData.dwFileAttributes,Wipe);
+              int AskCode=AskDeleteReadOnly(strFullName,FindData.dwFileAttributes,Wipe);
               if (AskCode==DELETE_CANCEL)
               {
                 Cancel=1;
                 break;
               }
               if (AskCode==DELETE_YES)
-                if (ShellRemoveFileW(strFullName,strShortName,Wipe)==DELETE_CANCEL)
+                if (ShellRemoveFile(strFullName,strShortName,Wipe)==DELETE_CANCEL)
                 {
                   Cancel=1;
                   break;
@@ -427,7 +427,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
         if (!Cancel)
         {
-          ShellDeleteMsgW(strSelName,Wipe);
+          ShellDeleteMsg(strSelName,Wipe);
           if (FileAttr & FA_RDONLY)
             SetFileAttributesW(strSelName,FILE_ATTRIBUTE_NORMAL);
           int DeleteCode;
@@ -438,7 +438,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             /* $ 19.01.2003 KM
                Обработка кода возврата из ERemoveDirectory.
             */
-            DeleteCode=ERemoveDirectoryW(strSelName,strSelShortName,Wipe);
+            DeleteCode=ERemoveDirectory(strSelName,strSelShortName,Wipe);
             if (DeleteCode==DELETE_CANCEL)
               break;
             else if (DeleteCode==DELETE_SUCCESS)
@@ -451,7 +451,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           }
           else
           {
-            DeleteCode=RemoveToRecycleBinW(strSelName);
+            DeleteCode=RemoveToRecycleBin(strSelName);
             if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
                       UMSG(MCannotDeleteFolder),strSelName,UMSG(MOk));
@@ -467,13 +467,13 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       }
       else
       {
-        ShellDeleteMsgW(strSelName,Wipe);
-        int AskCode=AskDeleteReadOnlyW(strSelName,FileAttr,Wipe);
+        ShellDeleteMsg(strSelName,Wipe);
+        int AskCode=AskDeleteReadOnly(strSelName,FileAttr,Wipe);
         if (AskCode==DELETE_CANCEL)
           break;
         if (AskCode==DELETE_YES)
         {
-          int DeleteCode=ShellRemoveFileW(strSelName,strSelShortName,Wipe);
+          int DeleteCode=ShellRemoveFile(strSelName,strSelShortName,Wipe);
           if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
             SrcPanel->DeleteDiz(strSelName,strSelShortName);
           if (DeleteCode==DELETE_CANCEL)
@@ -503,12 +503,12 @@ done:
   /* IS $ */
 }
 
-static void PR_ShellDeleteMsgW(void)
+static void PR_ShellDeleteMsg(void)
 {
-  ShellDeleteMsgW(static_cast<const wchar_t*>(PreRedrawParam.Param1),(int)PreRedrawParam.Param5);
+  ShellDeleteMsg(static_cast<const wchar_t*>(PreRedrawParam.Param1),(int)PreRedrawParam.Param5);
 }
 
-void ShellDeleteMsgW(const wchar_t *Name,int Wipe)
+void ShellDeleteMsg(const wchar_t *Name,int Wipe)
 {
   static int Width=30;
   int WidthTemp;
@@ -531,7 +531,7 @@ void ShellDeleteMsgW(const wchar_t *Name,int Wipe)
 
     strOutFileName = Name;
     TruncPathStr(strOutFileName,Width);
-    CenterStrW(strOutFileName,strOutFileName,Width+4);
+    CenterStr(strOutFileName,strOutFileName,Width+4);
 
     Message(0,0,UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle),UMSG(Wipe?MDeletingWiping:MDeleting),strOutFileName);
   }
@@ -540,7 +540,7 @@ void ShellDeleteMsgW(const wchar_t *Name,int Wipe)
 }
 
 
-int AskDeleteReadOnlyW(const wchar_t *Name,DWORD Attr,int Wipe)
+int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 {
   int MsgCode;
   if ((Attr & FA_RDONLY)==0)
@@ -580,7 +580,7 @@ int AskDeleteReadOnlyW(const wchar_t *Name,DWORD Attr,int Wipe)
 
 
 
-int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
+int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
   string strFullName;
 
@@ -596,7 +596,7 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         MsgCode=SkipMode;
       else
       {
-        if(GetNumberOfLinksW(strFullName) > 1)
+        if(GetNumberOfLinks(strFullName) > 1)
         {
           string strMsgName;
           strMsgName = Name;
@@ -625,7 +625,7 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
             SkipMode=3;
             return DELETE_SKIP;
           default:
-            if (WipeFileW(Name) || WipeFileW(ShortName))
+            if (WipeFile(Name) || WipeFile(ShortName))
               return DELETE_SUCCESS;
         }
       }
@@ -646,7 +646,7 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
           break;
       }
       else
-        if (RemoveToRecycleBinW(Name))
+        if (RemoveToRecycleBin(Name))
           break;
     /* $ 19.01.2003 KM
        Добавлен Skip all
@@ -683,7 +683,7 @@ int ShellRemoveFileW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 }
 
 
-int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
+int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
   string strFullName;
 
@@ -693,7 +693,7 @@ int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
   {
     if (Wipe)
     {
-      if (WipeDirectoryW(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectoryW(ShortName)))
+      if (WipeDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
         break;
     }
     else
@@ -737,7 +737,7 @@ int ERemoveDirectoryW(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
    Неверный анализ кода возврата функции SHFileOperation(),
    коей файл удаляется в корзину.
 */
-int RemoveToRecycleBinW(const wchar_t *Name)
+int RemoveToRecycleBin(const wchar_t *Name)
 {
   static struct {
     DWORD SHError;
@@ -813,7 +813,7 @@ int RemoveToRecycleBinW(const wchar_t *Name)
 }
 /* SVS $ */
 
-int WipeFileW(const wchar_t *Name)
+int WipeFile(const wchar_t *Name)
 {
   unsigned __int64 FileSize;
   HANDLE WipeHandle;
@@ -847,7 +847,7 @@ int WipeFileW(const wchar_t *Name)
 
   string strTempName;
 
-  FarMkTempExW(strTempName,NULL,FALSE);
+  FarMkTempEx(strTempName,NULL,FALSE);
 
   if(MoveFileW(Name,strTempName))
     return(DeleteFileW(strTempName)); //BUGBUG
@@ -856,11 +856,11 @@ int WipeFileW(const wchar_t *Name)
 }
 
 
-int WipeDirectoryW(const wchar_t *Name)
+int WipeDirectory(const wchar_t *Name)
 {
   string strTempName;
 
-  FarMkTempExW(strTempName,NULL,FALSE);
+  FarMkTempEx(strTempName,NULL,FALSE);
 
   BOOL Ret=MoveFileW(Name, strTempName);
   if(!Ret)
@@ -909,8 +909,8 @@ void DeleteDirTree(const wchar_t *Dir)
   FAR_FIND_DATA_EX FindData;
   ScanTree ScTree(TRUE,TRUE);
 
-  ScTree.SetFindPathW(Dir,L"*.*",0);
-  while (ScTree.GetNextNameW(&FindData, strFullName))
+  ScTree.SetFindPath(Dir,L"*.*",0);
+  while (ScTree.GetNextName(&FindData, strFullName))
   {
     SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
     if (FindData.dwFileAttributes & FA_DIREC)

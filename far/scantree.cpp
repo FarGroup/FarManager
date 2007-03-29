@@ -38,7 +38,7 @@ void ScanTree::Init()
 }
 
 
-void ScanTree::SetFindPathW(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
+void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
   Init();
 
@@ -53,7 +53,7 @@ void ScanTree::SetFindPathW(const wchar_t *Path,const wchar_t *Mask, const DWORD
 }
 
 
-int ScanTree::GetNextNameW(FAR_FIND_DATA_EX *fdata,string &strFullName)
+int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 {
   int Done;
   wchar_t *ChPtr;
@@ -135,7 +135,7 @@ int ScanTree::GetNextNameW(FAR_FIND_DATA_EX *fdata,string &strFullName)
         Flags.Set(FSCANTREE_SECONDDIRNAME);
         return(TRUE);
       }
-      return(GetNextNameW(fdata,strFullName));
+      return(GetNextName(fdata,strFullName));
     }
   }
   else

@@ -130,7 +130,7 @@ void ControlObject::Init()
 
   string strStartCurDir;
   Cp()->ActivePanel->GetCurDir(strStartCurDir);
-  FarChDirW(strStartCurDir, TRUE);
+  FarChDir(strStartCurDir, TRUE);
   Cp()->ActivePanel->SetFocus();
 
   {

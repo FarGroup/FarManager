@@ -638,7 +638,7 @@ BOOL IsDriveTypeCDROM(UINT DriveType)
 }
 
 
-UINT FAR_GetDriveTypeW(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
+UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
 {
   if(RootDir && !*RootDir)
     RootDir=NULL;
@@ -650,7 +650,7 @@ UINT FAR_GetDriveTypeW(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detec
   UINT DrvType = GetDriveTypeW(RootDir);
 
   // анализ CD-привода
-  if ((Detect&1) && RootDir && IsLocalPathW(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if ((Detect&1) && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
     wchar_t szVolumeName[20]=L"\\\\.\\ :";
     szVolumeName[4]=*RootDir;

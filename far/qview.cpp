@@ -112,14 +112,14 @@ void QuickView::DisplayObject()
     {
       string strJuncName;
       int ID_Msg, Width;
-      if(GetJunctionPointInfoW(strCurFileName, strJuncName)) //"\??\D:\Junc\Src\"
+      if(GetJunctionPointInfo(strCurFileName, strJuncName)) //"\??\D:\Junc\Src\"
       {
         strJuncName.RShift (4);
 
         if(!wcsncmp(strJuncName,L"Volume{",7))
         {
           string strJuncRoot;
-          GetPathRootOneW(strJuncName, strJuncRoot);
+          GetPathRootOne(strJuncName, strJuncRoot);
           if( strJuncRoot.At(1) == L':')
           {
               strJuncName = strJuncRoot;
@@ -443,7 +443,7 @@ void QuickView::QViewDelTempName()
     SetFileAttributesW (strTempName, FILE_ATTRIBUTE_ARCHIVE); //was chmod(TempName,S_IREAD|S_IWRITE);
     DeleteFileW (strTempName); //BUGBUG
 
-    CutToSlashW (strTempName);
+    CutToSlash(strTempName);
     FAR_RemoveDirectoryW(strTempName);
 
     strTempName=L"";
@@ -494,7 +494,7 @@ void QuickView::SetTitle()
     strTitleDir += L"}";
 
     strLastFarTitle = strTitleDir;
-    SetFarTitleW(strTitleDir);
+    SetFarTitle(strTitleDir);
   }
 }
 // и его показ в случае получения фокуса

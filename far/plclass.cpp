@@ -91,9 +91,9 @@ BOOL PrepareModulePathW(const wchar_t *ModuleName)
 	string strModulePath;
 	strModulePath = ModuleName;
 
-	CutToSlashW (strModulePath); //??
+	CutToSlash(strModulePath); //??
 
-	return FarChDirW(strModulePath,TRUE);
+	return FarChDir(strModulePath,TRUE);
 }
 
 void CheckScreenLock()
@@ -482,7 +482,7 @@ int Plugin::Load()
 		Drive[0]=0; // ставим 0, как признак того, что вертать обратно ненадо!
 		FarGetCurDir(strCurPath);
 
-		if( IsLocalPathW (m_strModuleName) ) // если указан локальный путь, то...
+		if( IsLocalPath(m_strModuleName) ) // если указан локальный путь, то...
 		{
 			wcscpy(Drive,L"= :");
 			Drive[1] = m_strModuleName.At(0);
@@ -498,7 +498,7 @@ int Plugin::Load()
 		    if( !m_hModule )
 		    	LstErr=GetLastError();
 
-		    FarChDirW(strCurPath, TRUE);
+		    FarChDir(strCurPath, TRUE);
 
 		    if(Drive[0]) // вернем ее (переменную окружения) обратно
 		    	SetEnvironmentVariableW(Drive,strCurPlugDiskPath);
@@ -630,19 +630,19 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.PointToName=PointToName;
     //StandardFunctions.GetPathRoot=GetPathRoot; BUGBUG
     StandardFunctions.AddEndSlash=AddEndSlash;
-    StandardFunctions.CopyToClipboard=CopyToClipboardW;
-    StandardFunctions.PasteFromClipboard=PasteFromClipboardW;
+    StandardFunctions.CopyToClipboard=CopyToClipboard;
+    StandardFunctions.PasteFromClipboard=PasteFromClipboard;
     //StandardFunctions.FarKeyToName=KeyToText; //BUGBUG
     ///StandardFunctions.FarNameToKey=KeyNameToKey; //BUGBUG
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
     StandardFunctions.XLat=Xlat;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
-    StandardFunctions.GetNumberOfLinks=GetNumberOfLinksW;
+    StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
     StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
     StandardFunctions.MkTemp=FarMkTemp;
     StandardFunctions.DeleteBuffer=DeleteBuffer;
     StandardFunctions.ProcessName=ProcessName;
-    StandardFunctions.MkLink=FarMkLinkW;
+    StandardFunctions.MkLink=FarMkLink;
     //StandardFunctions.ConvertNameToReal=ConvertNameToReal; //BUGBUG
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
   }
@@ -876,7 +876,7 @@ HANDLE Plugin::OpenPlugin (int OpenFrom, INT_PTR Item)
   {
 		string strCurDir;
 		CtrlObject->CmdLine->GetCurDir(strCurDir);
-		FarChDirW(strCurDir);
+		FarChDir(strCurDir);
 		g_strDirToSet=L"";
   }
 

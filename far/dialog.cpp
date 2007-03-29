@@ -252,7 +252,7 @@ void Dialog::InitDialog(void)
         // еще разок, т.к. данные могли быть изменены
         InitDialogObjects();
       }
-      SetFarTitleW (GetDialogTitle());
+      SetFarTitle(GetDialogTitle());
     }
     // все объекты проинициализированы!
     DialogMode.Set(DMODE_INITOBJECTS);
@@ -1614,7 +1614,7 @@ void Dialog::ShowDialog(int ID)
         LenText=LenStrItem(I,strStr);
 
         if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
-          LenText=LenStrItem(I,CenterStrW(strStr,strStr,CX2-CX1+1));
+          LenText=LenStrItem(I,CenterStr(strStr,strStr,CX2-CX1+1));
 
         X=(CX1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(X2-X1+1-LenText)/2:CX1;
         Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
@@ -1689,7 +1689,7 @@ void Dialog::ShowDialog(int ID)
         strStr = CurItem->strData;
         LenText=LenStrItem(I,strStr);
         if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
-          LenText=(int)wcslen(CenterStrW(strStr,strStr,CY2-CY1+1));
+          LenText=(int)wcslen(CenterStr(strStr,strStr,CY2-CY1+1));
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
         Y=(CY1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(Y2-Y1+1-LenText)/2:CY1;
         if(Y < 0)
@@ -1952,7 +1952,7 @@ void Dialog::ShowDialog(int ID)
        + При каждой перерисовке диалога, кроме режима перемещения, устанавливаем
          заголовок консоли, в противном случае он не всегда восстанавливался.
     */
-    SetFarTitleW(GetDialogTitle());
+    SetFarTitle(GetDialogTitle());
     /* KM $ */
   }
 
@@ -6327,7 +6327,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           case DI_DOUBLEBOX:
             if(Dlg->DialogMode.Check(DMODE_SHOW))
             {
-              SetFarTitleW(Dlg->GetDialogTitle());
+              SetFarTitle(Dlg->GetDialogTitle());
               Dlg->ShowDialog(Param1);
               ScrBuf.Flush();
             }
@@ -6417,7 +6417,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         //if (DialogMode.Check(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        SetFarTitleW(Dlg->GetDialogTitle());
+        SetFarTitle(Dlg->GetDialogTitle());
         return MaxLen;
       }
       return 0;
@@ -6457,7 +6457,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
         // еще разок, т.к. данные могли быть изменены
         Dlg->InitDialogObjects(Param1);
-        SetFarTitleW(Dlg->GetDialogTitle());
+        SetFarTitle(Dlg->GetDialogTitle());
         if(Dlg->DialogMode.Check(DMODE_SHOW))
         {
           Dlg->ShowDialog(Param1);

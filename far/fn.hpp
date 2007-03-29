@@ -57,7 +57,7 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep=NULL);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
 #define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
 
-WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=NULL);
+WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=NULL);
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
@@ -110,8 +110,8 @@ void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
-void BoxTextW(WORD Chr);
-void BoxTextW(WCHAR *Str,int IsVert=0);
+void BoxText(WORD Chr);
+void BoxText(WCHAR *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();
@@ -190,7 +190,7 @@ BOOL FAR_MoveFileExW(
    );
 
 
-BOOL MoveFileThroughTempW(const wchar_t *Src, const wchar_t *Dest);
+BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest);
 
 void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
@@ -292,7 +292,7 @@ void InterfaceSettings();
 void DialogSettings();
 void SetConfirmations();
 void SetDizConfig();
-int  IsLocalDriveW(const wchar_t *Path);
+int  IsLocalDrive(const wchar_t *Path);
 /* $ 27.11.2001 DJ
    параметр Local
 */
@@ -314,21 +314,21 @@ int GetErrorStringW (string &strErrStr);
 BOOL CheckErrorForProcessed(DWORD Err);
 void ShowProcessList();
 
-wchar_t* PasteFormatFromClipboardW(const wchar_t *Format);
-int CopyFormatToClipboardW(const wchar_t *Format,const wchar_t *Data);
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
-wchar_t* WINAPI PasteFromClipboardExW(int max);
+int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
+wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
+wchar_t* WINAPI PasteFromClipboardEx(int max);
 /* tran $ */
 BOOL WINAPI FAR_EmptyClipboard(VOID);
 
-int GetFileTypeByNameW(const wchar_t *Name);
+int GetFileTypeByName(const wchar_t *Name);
 
-string &CutToSlashW (string &strStr, bool bInclude = false);
-string &CutToNameUNCW (string &strPath);
-string &CutToFolderNameIfFolderW (string &strPath);
-const wchar_t *PointToNameUNCW (const wchar_t *lpwszPath);
+string &CutToSlash(string &strStr, bool bInclude = false);
+string &CutToNameUNC(string &strPath);
+string &CutToFolderNameIfFolder(string &strPath);
+const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 
-void SetFarTitleW (const wchar_t *Title);
+void SetFarTitle(const wchar_t *Title);
 /* $ 11.01.2002 IS инициализация массива клавиш */
 void InitKeysArray();
 /* IS $ */
@@ -397,13 +397,13 @@ void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
 #define NullToEmptyW(s) (s?s:L"")
 
-string& CenterStrW(const wchar_t *Src, string &strDest,int Length);
+string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
-const wchar_t *GetCommaWordW(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
+const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 
-int WINAPI GetFileOwnerW(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
+int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
 
 void SIDCacheFlush(void);
 
@@ -461,8 +461,8 @@ int RegQueryStringValueEx (HKEY hKey, const wchar_t *lpwszValueName, string &str
 int RegQueryStringValue (HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");
 
 
-int CheckFolderW(const wchar_t *Name);
-int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
+int CheckFolder(const wchar_t *Name);
+int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
 UDWORD NTTimeToDos(FILETIME *ft);
@@ -477,7 +477,7 @@ void PrintFiles(Panel *SrcPanel);
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
 
-BOOL GetDiskSizeW(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
+BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
 
 int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
@@ -650,16 +650,14 @@ wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix);
 int WINAPI FarAtoi(const wchar_t *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
-int WINAPI CopyToClipboard(const char *Data);
-char* WINAPI PasteFromClipboard(void);
 
-int WINAPI CopyToClipboardW(const wchar_t *Data);
-wchar_t* WINAPI PasteFromClipboardW(void);
+int WINAPI CopyToClipboard(const wchar_t *Data);
+wchar_t* WINAPI PasteFromClipboard(void);
 
 
-wchar_t* InternalPasteFromClipboardW(int AnsiMode);
-wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode);
-int InternalCopyToClipboardW(const wchar_t *Data,int AnsiMode);
+wchar_t* InternalPasteFromClipboard(int AnsiMode);
+wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode);
+int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode);
 
 
 int __stdcall GetString(
@@ -675,7 +673,7 @@ int __stdcall GetString(
 		const wchar_t *CheckBoxText = NULL
 		);
 
-int WINAPI GetNameAndPasswordW(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
+int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
 /* Программое переключение FulScreen <-> Windowed
    (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
@@ -721,9 +719,9 @@ typedef int  (WINAPI *FRSUSERFUNCW)(const FAR_FIND_DATA *FData,const wchar_t *Fu
 void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNCW func,DWORD flags,void *param);
 
 wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
-string& FarMkTempExW(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
+string& FarMkTempEx(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
 
-void CreatePathW(string &strPath);
+void CreatePath(string &strPath);
 
 /* $ 15.02.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
@@ -731,15 +729,15 @@ void CreatePathW(string &strPath);
    Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
    переменные окружения.
 */
-BOOL FarChDirW(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
+BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 
 // обертка вокруг функции получения текущего пути.
 // для локального пути делает букву диска в uppercase
 DWORD FarGetCurDir(string &strBuffer);
 
-class UserDefinedListW;
-UserDefinedListW *SaveAllCurDir(void);
-void RestoreAllCurDir(UserDefinedListW *DirList);
+class UserDefinedList;
+UserDefinedList *SaveAllCurDir(void);
+void RestoreAllCurDir(UserDefinedList *DirList);
 
 void WINAPI DeleteBuffer(char* Buffer);
 
@@ -1002,7 +1000,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
 
 /* SVS $ */
 //int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
-int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
+int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
 BOOL IsBatchExtTypeW(const wchar_t *ExtPtr);
@@ -1053,10 +1051,10 @@ int CheckForEscSilent();
 int ConfirmAbortOp();
 
 // Получить из имени диска RemoteName
-string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest);
+string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
 
-void __PrepareKMGTbStrW(void);
-string& __stdcall FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
+void __PrepareKMGTbStr(void);
+string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
 
 DWORD WINAPI FarGetLogicalDrives(void);
@@ -1113,7 +1111,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
 int MkStrFTime(char *Dest,int DestSize,const char *Fmt=NULL);
 int MkStrFTimeW(string &strDest, const wchar_t *Fmt=NULL);
 
-BOOL WINAPI GetMenuHotKeyW(string &strHotKey,int LenHotKey,
+BOOL WINAPI GetMenuHotKey(string &strHotKey,int LenHotKey,
                           const wchar_t *DlgHotKeyTitle,
                           const wchar_t *DlgHotKeyText,
                           const wchar_t *DlgPluginTitle,  // заголовок
@@ -1126,9 +1124,9 @@ string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestT
 
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
-int PathMayBeAbsoluteW(const wchar_t *Src);
+int PathMayBeAbsolute(const wchar_t *Src);
 
-string& PrepareDiskPathW(string &strPath, BOOL CheckFullPath=TRUE);
+string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 
 #if defined(MOUSEKEY)
 //   TableSet - указатель на таблицы перекодировки (если отсутствует,
@@ -1143,21 +1141,21 @@ __int64 filelen64(FILE *FPtr);
 __int64 ftell64(FILE *fp);
 int fseek64 (FILE *fp, __int64 offset, int whence);
 
-BOOL IsDiskInDriveW(const wchar_t *Drive);
+BOOL IsDiskInDrive(const wchar_t *Drive);
 
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 BOOL IsDriveTypeCDROM(UINT DriveType);
-UINT FAR_GetDriveTypeW(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
+UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
 
-BOOL IsLocalPathW(const wchar_t *Path);
-BOOL IsLocalRootPathW(const wchar_t *Path);
+BOOL IsLocalPath(const wchar_t *Path);
+BOOL IsLocalRootPath(const wchar_t *Path);
 
 BOOL RunGraber(void);
 
-BOOL ProcessOSAliasesW(string &strStr);
+BOOL ProcessOSAliases(string &strStr);
 
-int PartCmdLineW(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar);
+int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar);
 
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
@@ -1202,6 +1200,6 @@ BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 
-int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
+int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
 #endif  // __FARFUNC_HPP__

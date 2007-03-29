@@ -160,7 +160,7 @@ void PrintFiles(Panel *SrcPanel)
 
       if (PluginMode)
       {
-        if (FarMkTempExW(strTempDir))
+        if (FarMkTempEx(strTempDir))
         {
           CreateDirectoryW(strTempDir,NULL);
           struct FileListItem ListItem;

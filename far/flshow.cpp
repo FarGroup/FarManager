@@ -153,7 +153,7 @@ void FileList::ShowFileList(int Fast)
           strTitle=NewTitle;
       }
       string strTitleMsg;
-      CenterStrW(strTitle,strTitleMsg,ViewSettings.ColumnWidth[I]);
+      CenterStr(strTitle,strTitleMsg,ViewSettings.ColumnWidth[I]);
       SetColor(COL_PANELCOLUMNTITLE);
       GotoXY(ColumnPos,Y1+1);
       mprintf(L"%.*s",ViewSettings.ColumnWidth[I],(const wchar_t*)strTitleMsg);
@@ -165,16 +165,16 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELBOX);
     ColumnPos+=ViewSettings.ColumnWidth[I];
     GotoXY(ColumnPos,Y1);
-    BoxTextW(BoxSymbols[0xD1-0x0B0]);
+    BoxText(BoxSymbols[0xD1-0x0B0]);
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
-      BoxTextW((WORD)(BoxSymbols[VerticalLineEx[0]-0x0B0]));
+      BoxText((WORD)(BoxSymbols[VerticalLineEx[0]-0x0B0]));
     }
     if (!Opt.ShowPanelStatus)
     {
       GotoXY(ColumnPos,Y2);
-      BoxTextW(BoxSymbols[0xCF-0x0B0]);
+      BoxText(BoxSymbols[0xCF-0x0B0]);
     }
     ColumnPos++;
   }
@@ -357,7 +357,7 @@ void FileList::ShowSelectedSize()
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
-      BoxTextW(BoxSymbols[0x0C1-0x0B0]);
+      BoxText(BoxSymbols[0x0C1-0x0B0]);
       ColumnPos++;
     }
   }
@@ -736,7 +736,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           SetColor(COL_PANELBOX);
           GotoXY(CurX-1,CurY);
-          BoxTextW((WORD)(CurX-1==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
+          BoxText((WORD)(CurX-1==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
         }
         continue;
       }
@@ -942,7 +942,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   string strOutStr;
                   // подсократим - весь код по форматированию размера
                   //   в отдельную функцию - FileSizeToStr().
-                  mprintf(L"%s", (const wchar_t*)FileSizeToStrW(strOutStr,
+                  mprintf(L"%s", (const wchar_t*)FileSizeToStr(strOutStr,
                            Packed?CurPtr->PackSize:CurPtr->UnpSize,
                            Width,ColumnTypes[K]));
                 }
@@ -1090,9 +1090,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         GotoXY(CurX+ColumnWidth,CurY);
 
         if (K==ColumnCount-1)
-          BoxTextW((WORD)(CurX+ColumnWidth==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
+          BoxText((WORD)(CurX+ColumnWidth==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
         else
-          BoxTextW((WORD)(ShowStatus ? 0x20:(BoxSymbols[VerticalLineEx[0]-0x0B0])));
+          BoxText((WORD)(ShowStatus ? 0x20:(BoxSymbols[VerticalLineEx[0]-0x0B0])));
 
         if ( !ShowStatus )
           SetColor (COL_PANELTEXT);

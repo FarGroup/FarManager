@@ -1149,7 +1149,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             NameChanged=LocalStricmpW(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
 
             if( !NameChanged )
-              FarChDirW (strStartDir); // ПОЧЕМУ? А нужно ли???
+              FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
 
             FNAttr=::GetFileAttributesW(strSaveAsName);
             if (NameChanged && FNAttr != -1)
@@ -1157,7 +1157,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               if (Message(MSG_WARNING,2,UMSG(MEditTitle),strSaveAsName,UMSG(MEditExists),
                            UMSG(MEditOvr),UMSG(MYes),UMSG(MNo))!=0)
               {
-                FarChDirW(strOldCurDir);
+                FarChDir(strOldCurDir);
                 return(TRUE);
               }
               Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
@@ -1174,17 +1174,17 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               SetLastError(ERROR_INVALID_NAME);
               MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),strFileNameTemp,UMSG(MOk));
               if(!NameChanged)
-                FarChDirW(strOldCurDir);
+                FarChDir(strOldCurDir);
               continue;
               //return FALSE;
             } */
 
             if(!NameChanged)
-              FarChDirW(strOldCurDir);
+              FarChDir(strOldCurDir);
           }
           ShowConsoleTitle();
 
-          FarChDirW (strStartDir); //???
+          FarChDir(strStartDir); //???
 
           if(SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage) == SAVEFILE_ERROR)
           {
@@ -1253,7 +1253,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           */
           if(::GetFileAttributesW(strFullFileName) == -1) // а сам файл то еще на месте?
           {
-              if(!CheckShortcutFolderW(&strFullFileNameTemp,-1,FALSE))
+              if(!CheckShortcutFolder(&strFullFileNameTemp,-1,FALSE))
               return FALSE;
             strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
           }
@@ -1401,7 +1401,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
   FarGetCurDir(strOldCurDir);
   while (1)
   {
-    FarChDirW(strStartDir); // ПОЧЕМУ? А нужно ли???
+    FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
     int SaveCode=SAVEFILE_SUCCESS;
     if(NeedQuestion)
     {
@@ -1426,7 +1426,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
     if(!wcscmp(strFileName,UMSG(MNewFileName)))
       if(!ProcessKey(KEY_SHIFTF2))
       {
-        FarChDirW(strOldCurDir);
+        FarChDir(strOldCurDir);
         return FALSE;
       }
       else
@@ -1438,7 +1438,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
     FirstSave=0;
   }
 
-  FarChDirW(strOldCurDir);
+  FarChDir(strOldCurDir);
   return GetExitCode() == XC_QUIT;
 }
 
@@ -1690,13 +1690,13 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if ( Ptr )
     {
-      CutToSlashW (strCreatedPath, true);
+      CutToSlash(strCreatedPath, true);
       DWORD FAttr=0;
       if(::GetFileAttributesW(strCreatedPath) == -1)
       {
         // и попробуем создать.
         // Раз уж
-        CreatePathW(strCreatedPath);
+        CreatePath(strCreatedPath);
         FAttr=::GetFileAttributesW(strCreatedPath);
       }
 
@@ -1973,7 +1973,7 @@ void FileEditor::ShowConsoleTitle()
     string strTitle;
 
     strTitle.Format (UMSG(MInEditor), PointToName(strFileName));
-    SetFarTitleW (strTitle);
+    SetFarTitle(strTitle);
 
     Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }

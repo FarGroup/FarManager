@@ -94,7 +94,7 @@ static void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
   Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
   I=0;
   const wchar_t *Ptr=Src;
-  while((Ptr=GetCommaWordW(Ptr,strDigit,Separator)) != NULL)
+  while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
   {
     PtrDigit=strDigit;
     while (*PtrDigit && !iswdigit(*PtrDigit))
@@ -386,12 +386,12 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
   {
     strOutFileName = Name;
     TruncPathStr(strOutFileName,Width);
-    CenterStrW(strOutFileName,strOutFileName,Width+4);
+    CenterStr(strOutFileName,strOutFileName,Width+4);
   }
   else
   {
     strOutFileName=L"";
-    CenterStrW(strOutFileName,strOutFileName,Width+4); // подготавливаем нужную ширину (вид!)
+    CenterStr(strOutFileName,strOutFileName,Width+4); // подготавливаем нужную ширину (вид!)
   }
   Message(0,0,UMSG(MSetAttrTitle),UMSG(MSetAttrSetting),(const wchar_t*)strOutFileName);
   PreRedrawParam.Param1=(void*)Name;
@@ -605,7 +605,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
         {
           string strJuncName;
-          DWORD LenJunction=GetJunctionPointInfoW(strSelName, strJuncName);
+          DWORD LenJunction=GetJunctionPointInfo(strSelName, strJuncName);
           //"\??\D:\Junc\Src\" или "\\?\Volume{..."
 
           AttrDlg[SETATTR_TITLE].Y2++;
@@ -622,7 +622,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if(!wcsncmp((const wchar_t*)strJuncName+4,L"Volume{",7))
           {
             string strJuncRoot;
-            GetPathRootOneW((const wchar_t*)strJuncName+4,strJuncRoot);
+            GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
 
             wchar_t *lpwszJunc = strJuncName.GetBuffer ((int)strJuncRoot.GetLength()+4);
 
@@ -653,7 +653,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
              NTFS.
           */
           DlgParam.FileSystemFlags=0;
-          GetPathRootW(strSelName,strJuncName);
+          GetPathRoot(strSelName,strJuncName);
           if (apiGetVolumeInformation (strJuncName,NULL,NULL,NULL,&DlgParam.FileSystemFlags,NULL))
           {
             if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
@@ -971,8 +971,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           string strFullName;
           ScanTree ScTree(FALSE);
 
-          ScTree.SetFindPathW(strSelName,L"*.*");
-          while (ScTree.GetNextNameW(&FindData,strFullName))
+          ScTree.SetFindPath(strSelName,L"*.*");
+          while (ScTree.GetNextName(&FindData,strFullName))
           {
             ShellSetFileAttributesMsg(strFullName);
             if (CheckForEsc())

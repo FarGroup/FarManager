@@ -17,7 +17,7 @@ ConsoleTitle::ConsoleTitle(const wchar_t *title)
   apiGetConsoleTitle (strOldTitle);
 
   if( title )
-    SetFarTitleW (title);
+    SetFarTitle(title);
 
 }
 
@@ -36,7 +36,7 @@ ConsoleTitle::~ConsoleTitle()
 
     strOldTitle.ReleaseBuffer ();
 
-    SetFarTitleW (strOldTitle);
+    SetFarTitle(strOldTitle);
 }
 
 void ConsoleTitle::Set(const wchar_t *fmt,...)
@@ -48,5 +48,5 @@ void ConsoleTitle::Set(const wchar_t *fmt,...)
 
   vsnwprintf( msg, countof(msg)-1, fmt, argptr );
   va_end(argptr);
-  SetFarTitleW(msg);
+  SetFarTitle(msg);
 }

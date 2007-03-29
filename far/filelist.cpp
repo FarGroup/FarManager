@@ -458,10 +458,10 @@ int FileList::ProcessKey(int Key)
       }
       else
       {
-        if(!IsLocalRootPathW(strCurDir))
+        if(!IsLocalRootPath(strCurDir))
         {
           string strDriveRoot;
-          GetPathRootW(strCurDir, strDriveRoot);
+          GetPathRoot(strCurDir, strDriveRoot);
           return !LocalStricmpW(strCurDir, strDriveRoot);
         }
         return TRUE;
@@ -573,7 +573,7 @@ int FileList::ProcessKey(int Key)
         {
           if( !strPluginFile.IsEmpty() )
           {
-            switch(CheckShortcutFolderW(&strPluginFile,0,TRUE))
+            switch(CheckShortcutFolder(&strPluginFile,0,TRUE))
             {
               case 0:
   //              return FALSE;
@@ -616,7 +616,7 @@ int FileList::ProcessKey(int Key)
           }
           else
           {
-            switch(CheckShortcutFolderW(NULL,0,TRUE))
+            switch(CheckShortcutFolder(NULL,0,TRUE))
             {
               case 0:
   //              return FALSE;
@@ -661,7 +661,7 @@ int FileList::ProcessKey(int Key)
           }
           return(TRUE);
         }
-        switch(CheckShortcutFolderW(&strShortcutFolder,SizeFolderNameShortcut,FALSE))
+        switch(CheckShortcutFolder(&strShortcutFolder,SizeFolderNameShortcut,FALSE))
         {
           case 0:
   //          return FALSE;
@@ -1155,7 +1155,7 @@ int FileList::ProcessKey(int Key)
               Unquote(strFileName);
               ConvertNameToShortW(strFileName,strShortFileName);
 
-              if (PathMayBeAbsoluteW(strFileName))
+              if (PathMayBeAbsolute(strFileName))
               {
                 PluginMode=FALSE;
               }
@@ -1228,7 +1228,7 @@ int FileList::ProcessKey(int Key)
 
         if (PluginMode)
         {
-          if(!FarMkTempExW(strTempDir))
+          if(!FarMkTempEx(strTempDir))
             return(TRUE);
 
           CreateDirectoryW(strTempDir,NULL);
@@ -1338,7 +1338,7 @@ int FileList::ProcessKey(int Key)
 
                 strPath = strTempName;
 
-                CutToSlashW (strPath, false);
+                CutToSlash(strPath, false);
 
                 strFindName = strPath+L"*";
 
@@ -1367,7 +1367,7 @@ int FileList::ProcessKey(int Key)
                   UploadFailed=TRUE;
               }
 
-              FarChDirW (strSaveDir);
+              FarChDir(strSaveDir);
             }
           }
           else
@@ -1925,7 +1925,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if((PanelMode!=PLUGIN_PANEL || IsRealName) && SeparateWindow)
     {
       string strFullPath;
-      if(!PathMayBeAbsoluteW(CurPtr->strName))
+      if(!PathMayBeAbsolute(CurPtr->strName))
       {
         strFullPath = strCurDir;
         AddEndSlash(strFullPath);
@@ -1973,7 +1973,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (PluginMode)
     {
       string strTempDir;
-      if(!FarMkTempExW(strTempDir))
+      if(!FarMkTempEx(strTempDir))
         return;
       CreateDirectoryW(strTempDir,NULL);
       struct PluginPanelItemW PanelItem;
@@ -2078,7 +2078,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   string strFindDir, strSetDir;
 
   strSetDir = NewDir;
-  PrepareDiskPathW(strSetDir);
+  PrepareDiskPath(strSetDir);
 
   if ( !TestParentFolderName(strSetDir) && wcscmp(strSetDir,L"\\")!=0)
     UpperFolderTopFile=CurTopFile;
@@ -2192,7 +2192,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       strTempDir = strCurDir;
 
       AddEndSlash(strTempDir);
-      GetPathRootW(strTempDir, strRootDir);
+      GetPathRoot(strTempDir, strRootDir);
 
       if((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && wcscmp(strTempDir,strRootDir)==0) ||
          (strCurDir.At(1) == L':'  && strCurDir[2] == L'\\' && strCurDir.At(3)==0))
@@ -2203,7 +2203,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
         AddEndSlash(strDirName);
 
         if(Opt.PgUpChangeDisk &&
-          (FAR_GetDriveTypeW(strDirName) != DRIVE_REMOTE ||
+          (FAR_GetDriveType(strDirName) != DRIVE_REMOTE ||
            CtrlObject->Plugins.FindPlugin(SYSID_NETWORK)))
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
@@ -2216,7 +2216,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
         if(strNewCurDir.At(1) == L':')
         {
           wchar_t Letter=strNewCurDir.At(0);
-          DriveLocalToRemoteNameW(DRIVE_REMOTE,Letter,strNewCurDir);
+          DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strNewCurDir);
         }
 
         if( !strNewCurDir.IsEmpty() ) // проверим - может не удалось определить RemoteName
@@ -2237,7 +2237,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   strFindDir = PointToName(strCurDir);
 
   if ( strSetDir.IsEmpty() || strSetDir.At(1) != L':' || strSetDir.At(2) != L'\\')
-    FarChDirW(strCurDir);
+    FarChDir(strCurDir);
 
   /* $ 26.04.2001 DJ
      проверяем, удалось ли сменить каталог, и обновляем с KEEP_SELECTION,
@@ -2263,7 +2263,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   if(PanelMode!=PLUGIN_PANEL && !wcscmp(strSetDir,L"\\"))
   {
 #if 1    // если поставить 0, то ФАР будет выкидыват в корень того диска, который подмаплен на файловую систему
-    GetPathRootOneW(strCurDir,strSetDir);
+    GetPathRootOne(strCurDir,strSetDir);
 #else
     GetPathRoot(CurDir,SetDir);
     if(!strncmp(SetDir,"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
@@ -2271,7 +2271,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 #endif
   }
 
-  if (!FarChDirW(strSetDir))
+  if (!FarChDir(strSetDir))
   {
     /* $ 03.11.2001 IS
          Укажем имя неудачного каталога
@@ -2565,7 +2565,7 @@ void FileList::SetViewMode(int ViewMode)
 
   string strDriveRoot;
   DWORD FileSystemFlags;
-  GetPathRootW(strCurDir,strDriveRoot);
+  GetPathRoot(strCurDir,strDriveRoot);
   if (NewPacked && apiGetVolumeInformation (strDriveRoot,NULL,NULL,NULL,&FileSystemFlags,NULL))
     if ((FileSystemFlags & FS_FILE_COMPRESSION)==0)
       NewPacked=FALSE;
@@ -2992,7 +2992,7 @@ extern void add_char (string &str, wchar_t c); //BUGBUG
 
 void FileList::SelectFiles(int Mode)
 {
-  CFileMaskW FileMask; // Класс для работы с масками
+  CFileMask FileMask; // Класс для работы с масками
   const wchar_t *HistoryName=L"Masks";
   static struct DialogDataEx SelectDlgData[]=
   {
@@ -3191,7 +3191,7 @@ void FileList::UpdateViewPanel()
       {
         string strTempDir,strFileName;
         strFileName = CurPtr->strName;
-        if(!FarMkTempExW(strTempDir))
+        if(!FarMkTempEx(strTempDir))
           return;
         CreateDirectoryW(strTempDir,NULL);
         struct PluginPanelItemW PanelItem;
@@ -3277,8 +3277,8 @@ void FileList::CompareDir()
     string strFileSystemName1, strFileSystemName2;
     string strRoot1, strRoot2;
 
-    GetPathRootW(strCurDir, strRoot1);
-    GetPathRootW(Another->strCurDir, strRoot2);
+    GetPathRoot(strCurDir, strRoot1);
+    GetPathRoot(Another->strCurDir, strRoot2);
 
     if (apiGetVolumeInformation (strRoot1,NULL,NULL,NULL,NULL,&strFileSystemName1) &&
         apiGetVolumeInformation (strRoot2,NULL,NULL,NULL,NULL,&strFileSystemName2))
@@ -3475,7 +3475,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
     DataSize+=Length;
   }
 
-  CopyToClipboardW(CopyData);
+  CopyToClipboard(CopyData);
   xf_free(CopyData);
 }
 
@@ -3526,7 +3526,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
   {
     // Посмотрим на тип файловой системы
     string strFileSystemName;
-    GetPathRootW(strFileName,strTemp);
+    GetPathRoot(strFileName,strTemp);
 
     if(!apiGetVolumeInformation (strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
       strFileSystemName=L"";
@@ -3645,7 +3645,7 @@ void FileList::SetTitle()
     strTitleDir += L"}";
 
     strLastFarTitle = strTitleDir; //BUGBUG;
-    SetFarTitleW(strTitleDir);
+    SetFarTitle(strTitleDir);
   }
 }
 
@@ -4269,7 +4269,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 
   strPath = ph->pPlugin->m_strModuleName;
 
-  CutToSlashW(strPath);
+  CutToSlash(strPath);
 
   int nCodePage = CP_OEMCP;
 

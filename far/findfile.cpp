@@ -94,7 +94,7 @@ static struct CharTableSet TableSet;
    Объект "маска файлов". Именно его будем использовать для проверки имени
    файла на совпадение с искомым.
 */
-static CFileMaskW FileMaskForFindFile;
+static CFileMask FileMaskForFindFile;
 /* IS $ */
 
 /* $ 05.10.2003 KM
@@ -113,8 +113,8 @@ int _cdecl SortItems(const void *p1,const void *p2)
   if (*Item2->FindData.lpwszFileName)
     strN2 = Item2->FindData.lpwszFileName;
 
-  CutToSlashW(strN1);
-  CutToSlashW(strN2);
+  CutToSlash(strN1);
+  CutToSlash(strN2);
   return LocalStricmpW(strN2,strN1);
 }
 
@@ -1142,7 +1142,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             apiFindDataExToData(&FindList[ItemIndex]->FindData, &FileItem.FindData);
 
-            FarMkTempExW(strTempDir); // А проверка на NULL???
+            FarMkTempEx(strTempDir); // А проверка на NULL???
             CreateDirectoryW(strTempDir, NULL);
 
 //            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
@@ -1686,7 +1686,7 @@ int FindFiles::FindFilesProcess()
 
           strArcPath = strArcName;
 
-          CutToSlashW (strArcPath);
+          CutToSlash(strArcPath);
           FindPanel->SetCurDir(strArcPath,TRUE);
           hPlugin=((FileList *)FindPanel)->OpenFilePlugin(strArcName,FALSE);
           if (hPlugin==(HANDLE)-2)
@@ -1873,7 +1873,7 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
           else
             strCurRoot = strRoot;
 
-          ScTree.SetFindPathW(strCurRoot,L"*.*");
+          ScTree.SetFindPath(strCurRoot,L"*.*");
 
           statusCS.Enter ();
 
@@ -1882,7 +1882,7 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 
           statusCS.Leave ();
 
-          while (!StopSearch && ScTree.GetNextNameW(&FindData,strFullName))
+          while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
           {
             while (PauseSearch)
               Sleep(10);
@@ -1965,7 +1965,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
           continue;
 
         strRoot.Format (L"%c:\\", L'A'+CurrentDisk);
-        int DriveType=FAR_GetDriveTypeW(strRoot);
+        int DriveType=FAR_GetDriveType(strRoot);
         if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
            (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
           if (DiskMask==1)
@@ -1974,7 +1974,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
             continue;
       }
       else if (SearchMode==SEARCH_ROOT)
-        GetPathRootOneW(strRoot,strRoot);
+        GetPathRootOne(strRoot,strRoot);
       else if(SearchMode==SEARCH_INPATH)
       {
         if(!*Ptr)
@@ -1997,7 +1997,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
 
     strFindMessage.Format (UMSG(MFindDone),FindFileCount,FindDirCount);
 
-    SetFarTitleW (strFindMessage);
+    SetFarTitle(strFindMessage);
 
     SearchDone=TRUE;
     FindMessageReady=TRUE;
@@ -2143,7 +2143,7 @@ int FindFiles::IsFileIncluded(PluginPanelItemW *FileItem,const wchar_t *FullName
       if ((hPlugin != INVALID_HANDLE_VALUE) && (ArcList[FindFileArcIndex]->Flags & OPIF_REALNAMES)==0)
       {
         string strTempDir;
-        FarMkTempExW(strTempDir); // А проверка на NULL???
+        FarMkTempEx(strTempDir); // А проверка на NULL???
         CreateDirectoryW(strTempDir,NULL);
         WaitForSingleObject(hPluginMutex,INFINITE);
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND))
@@ -2287,7 +2287,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 
   RemovePseudoBackSlashW(strPathName);
 
-  CutToSlashW(strPathName);
+  CutToSlash(strPathName);
 
   if ( strPathName.IsEmpty() )
       strPathName = L".\\";
@@ -2983,7 +2983,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
 
           Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 
-          SetFarTitleW(strFindMessage);
+          SetFarTitle(strFindMessage);
           StopSearch=TRUE;
         }
         else
@@ -3112,7 +3112,7 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
 
   CtrlObject->CmdLine->GetCurDir(strCurDir);
 
-  GetPathRootOneW(strCurDir, strCurDir);
+  GetPathRootOne(strCurDir, strCurDir);
 
   wchar_t *CurDir = strCurDir.GetBuffer ();
 

@@ -147,7 +147,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   }
   if (Append)
   {
-    wchar_t *AppendBuf=PasteFromClipboardW();
+    wchar_t *AppendBuf=PasteFromClipboard();
     int add=0;
     if (AppendBuf!=NULL)
     {
@@ -166,9 +166,9 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     }
   }
   if(VerticalBlock)
-    CopyFormatToClipboardW(FAR_VerticalBlockW,CopyBuf);
+    CopyFormatToClipboard(FAR_VerticalBlockW,CopyBuf);
   else
-    CopyToClipboardW(CopyBuf);
+    CopyToClipboard(CopyBuf);
 
   if(CopyBuf)
     xf_free(CopyBuf);

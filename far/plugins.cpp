@@ -244,7 +244,7 @@ void PluginManager::LoadPlugins()
   if(Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
   {
     ScanTree ScTree(FALSE,TRUE);
-    UserDefinedListW PluginPathList;  // хранение списка каталогов
+    UserDefinedList PluginPathList;  // хранение списка каталогов
 
     string strPluginsDir;
     string strFullName;
@@ -271,7 +271,7 @@ void PluginManager::LoadPlugins()
       // расшир€ем значение пути
       apiExpandEnvironmentStrings (NamePtr,strFullName);
       Unquote(strFullName); //??? здесь ’«
-      if(!PathMayBeAbsoluteW(strFullName))
+      if(!PathMayBeAbsolute(strFullName))
       {
         strPluginsDir = g_strFarPath;
         strPluginsDir += strFullName;
@@ -287,10 +287,10 @@ void PluginManager::LoadPlugins()
         continue;
 
       // ставим на поток очередной путь из списка...
-      ScTree.SetFindPathW(strPluginsDir,L"*.*");
+      ScTree.SetFindPath(strPluginsDir,L"*.*");
 
       // ...и пройдемс€ по нему
-      while (ScTree.GetNextNameW(&FindData,strFullName))
+      while (ScTree.GetNextName(&FindData,strFullName))
       {
         if ( CmpNameW(L"*.dll",FindData.strFileName,FALSE) &&
         	 (FindData.dwFileAttributes & FA_DIREC)==0 )
@@ -964,7 +964,7 @@ void PluginManager::Configure(int StartPos)
 
               string strHotKey;
 
-              if(GetMenuHotKeyW(strHotKey,1,
+              if(GetMenuHotKey(strHotKey,1,
                         (const wchar_t *)MPluginHotKeyTitle,
                         (const wchar_t *)MPluginHotKey,
                         strName00,
@@ -1161,7 +1161,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
             string strHotKey;
 
-            if(GetMenuHotKeyW(strHotKey,1,(const wchar_t *)MPluginHotKeyTitle,(const wchar_t *)MPluginHotKey,strName00,NULL,strRegKey,L"Hotkey"))
+            if(GetMenuHotKey(strHotKey,1,(const wchar_t *)MPluginHotKeyTitle,(const wchar_t *)MPluginHotKey,strName00,NULL,strRegKey,L"Hotkey"))
             {
               PluginList.Hide();
               NeedUpdateItems=TRUE;

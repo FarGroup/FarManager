@@ -27,26 +27,26 @@ enum UDL_FLAGS
 };
 
 
-class UserDefinedListItemW
+class UserDefinedListItem
 {
   public:
    unsigned int index;
    wchar_t *Str;
-   UserDefinedListItemW():Str(NULL), index(0)
+   UserDefinedListItem():Str(NULL), index(0)
    {
    }
-   bool operator==(const UserDefinedListItemW &rhs) const;
-   int operator<(const UserDefinedListItemW &rhs) const;
-   const UserDefinedListItemW& operator=(const UserDefinedListItemW &rhs);
-   const UserDefinedListItemW& operator=(const wchar_t *rhs);
+   bool operator==(const UserDefinedListItem &rhs) const;
+   int operator<(const UserDefinedListItem &rhs) const;
+   const UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
+   const UserDefinedListItem& operator=(const wchar_t *rhs);
    wchar_t *set(const wchar_t *Src, unsigned int size);
-   ~UserDefinedListItemW();
+   ~UserDefinedListItem();
 };
 
-class UserDefinedListW
+class UserDefinedList
 {
   private:
-    TArray<UserDefinedListItemW> Array;
+    TArray<UserDefinedListItem> Array;
     unsigned int CurrentItem;
     WORD Separator1, Separator2;
     BOOL ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort;
@@ -55,22 +55,22 @@ class UserDefinedListW
     BOOL CheckSeparators() const; // проверка разделителей на корректность
     void SetDefaultSeparators();
     const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, BOOL &Error);
-    static int __cdecl CmpItems(const UserDefinedListItemW **el1,
-      const UserDefinedListItemW **el2);
+    static int __cdecl CmpItems(const UserDefinedListItem **el1,
+      const UserDefinedListItem **el2);
 
   private:
-    UserDefinedListW& operator=(const UserDefinedListW& rhs); // чтобы не
-    UserDefinedListW(const UserDefinedListW& rhs); // генерировалось по умолчанию
+    UserDefinedList& operator=(const UserDefinedList& rhs); // чтобы не
+    UserDefinedList(const UserDefinedList& rhs); // генерировалось по умолчанию
 
   public:
     // по умолчанию разделителем считается ';' и ',', а
     // ProcessBrackets=AddAsterisk=PackAsterisks=FALSE
     // Unique=Sort=FALSE
-    UserDefinedListW();
+    UserDefinedList();
 
     // Явно указываются разделители. См. описание SetParameters
-    UserDefinedListW(WORD separator1, WORD separator2, DWORD Flags);
-    ~UserDefinedListW() { Free(); }
+    UserDefinedList(WORD separator1, WORD separator2, DWORD Flags);
+    ~UserDefinedList() { Free(); }
 
   public:
     // Сменить символы-разделитель и разрешить или запретить обработку

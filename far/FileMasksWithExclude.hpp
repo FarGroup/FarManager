@@ -10,14 +10,14 @@ FileMasksWithExclude.hpp
 
 #include "FileMasksProcessor.hpp"
 
-class FileMasksWithExcludeW:public BaseFileMaskW
+class FileMasksWithExclude:public BaseFileMask
 {
 private:
     void Free();
 
 public:
-    FileMasksWithExcludeW();
-    virtual ~FileMasksWithExcludeW() {}
+    FileMasksWithExclude();
+    virtual ~FileMasksWithExclude() {}
 
 public:
     virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
@@ -25,11 +25,11 @@ public:
     virtual BOOL IsEmpty(void);
 
 private:
-    FileMasksProcessorW Include, Exclude;
+    FileMasksProcessor Include, Exclude;
 
 private:
-  FileMasksWithExcludeW& operator=(const FileMasksWithExcludeW& rhs); /* чтобы не */
-  FileMasksWithExcludeW(const FileMasksWithExcludeW& rhs); /* генерировалось по умолчанию */
+  FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
+  FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
 };
 
 #endif // __FileMasksWithExclude_HPP

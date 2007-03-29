@@ -430,7 +430,7 @@ void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
   Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
   I=0;
   const wchar_t *Ptr=Temp;
-  while((Ptr=GetCommaWordW(Ptr,strDigit,Separator)) != NULL)
+  while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
   {
     PtrDigit=strDigit;
     while (*PtrDigit && !iswdigit(*PtrDigit))
@@ -750,7 +750,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 */
 
   // Временная маска.
-  CFileMaskW FileMask;
+  CFileMask FileMask;
   const wchar_t VerticalLine[] = {0x252C,0x2502,0x2502,0x2502,0x2502,0x2534,0};
   // Маска для ввода размеров файла
   const wchar_t DigitMask[] = L"99999999999999999999";

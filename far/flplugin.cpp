@@ -89,7 +89,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
         xf_free (PanelItem.FindData.lpwszFileName);
       }
 
-      FarChDirW (strSaveDir);
+      FarChDir(strSaveDir);
     }
 
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -134,7 +134,7 @@ int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItemW *pi)
 
   strTempDir.ReleaseBuffer ();
 
-  FarChDirW(strTempDir);
+  FarChDir(strTempDir);
   memset(pi,0,sizeof(*pi));
 
   FAR_FIND_DATA_EX fdata;
@@ -416,7 +416,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItemW *ItemL
     if (DizPresent)
     {
       string strTempDir, strDizName;
-      if (FarMkTempExW(strTempDir) && CreateDirectoryW(strTempDir,NULL))
+      if (FarMkTempEx(strTempDir) && CreateDirectoryW(strTempDir,NULL))
       {
         string strSaveDir;
         FarGetCurDir(strSaveDir);
@@ -440,7 +440,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItemW *ItemL
             CtrlObject->Plugins.DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
             xf_free (pi.FindData.lpwszFileName);
           }
-        FarChDirW (strSaveDir);
+        FarChDir(strSaveDir);
         DeleteFileWithFolder(strDizName);
       }
     }
@@ -515,7 +515,7 @@ void FileList::PluginToPluginFiles(int Move)
     return;
   FileList *AnotherFilePanel=(FileList *)AnotherPanel;
 
-  if (!FarMkTempExW(strTempDir))
+  if (!FarMkTempEx(strTempDir))
     return;
   SaveSelection();
   CreateDirectoryW(strTempDir,NULL);
@@ -528,7 +528,7 @@ void FileList::PluginToPluginFiles(int Move)
       string strSaveDir;
       FarGetCurDir(strSaveDir);
 
-      FarChDirW(strTempDir);
+      FarChDir(strTempDir);
       PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0);
       if (PutCode==1 || PutCode==2)
       {
@@ -546,7 +546,7 @@ void FileList::PluginToPluginFiles(int Move)
       else
         if (!ReturnCurrentFile)
           PluginClearSelection(ItemList,ItemNumber);
-      FarChDirW(strSaveDir);
+      FarChDir(strSaveDir);
     }
     DeleteDirTree(strTempDir);
     DeletePluginItemList(ItemList,ItemNumber);

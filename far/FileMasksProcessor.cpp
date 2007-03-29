@@ -12,11 +12,11 @@ FileMasksProcessor.cpp
 #include "fn.hpp"
 
 
-FileMasksProcessorW::FileMasksProcessorW():BaseFileMaskW()
+FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 {
 }
 
-void FileMasksProcessorW::Free()
+void FileMasksProcessor::Free()
 {
     Masks.Free();
 }
@@ -27,7 +27,7 @@ void FileMasksProcessorW::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksProcessorW::Set(const wchar_t *masks, DWORD Flags)
+BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 {
   // разделителем масок является не только запятая, но и точка с запятой!
   DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
@@ -36,7 +36,7 @@ BOOL FileMasksProcessorW::Set(const wchar_t *masks, DWORD Flags)
   return Masks.Set(masks);
 }
 
-BOOL FileMasksProcessorW::IsEmpty(void)
+BOOL FileMasksProcessor::IsEmpty(void)
 {
   Masks.Reset();
   return Masks.IsEmpty();
@@ -45,7 +45,7 @@ BOOL FileMasksProcessorW::IsEmpty(void)
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-BOOL FileMasksProcessorW::Compare(const wchar_t *FileName)
+BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
 {
   Masks.Reset();
   while(NULL!=(MaskPtr=Masks.GetNext()))

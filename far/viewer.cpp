@@ -247,7 +247,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
       string strTempName;
-      if (!FarMkTempExW(strTempName))
+      if (!FarMkTempEx(strTempName))
       {
         OpenFailed=TRUE;
         return(FALSE);
@@ -653,14 +653,14 @@ void Viewer::ShowPage (int nMode)
       {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
-        BoxTextW(0xbb);
+        BoxText(0xbb);
       }
 
       if (LeftPos>0 && *Strings[I]->lpData!=0  && ViOpt.ShowArrows)
       {
         GotoXY(X1,Y);
         SetColor(COL_VIEWERARROWS);
-        BoxTextW(0xab);
+        BoxText(0xab);
       }
     }
   }
@@ -1289,7 +1289,7 @@ int Viewer::ProcessKey(int Key)
           vread(SelData, (int)SelectSize, ViewFile);
           /*if (VM.UseDecodeTable && !VM.Unicode) BUGBUG
             DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);*/
-          CopyToClipboardW(SelData);
+          CopyToClipboard(SelData);
           xf_free(SelData);
           vseek(ViewFile,CurFilePos,SEEK_SET);
         } /* if */
@@ -1318,8 +1318,8 @@ int Viewer::ProcessKey(int Key)
         if(ViewFile)
         {
           string strRoot;
-          GetPathRootW(strFullFileName, strRoot);
-          int DriveType=FAR_GetDriveTypeW(strRoot);
+          GetPathRoot(strFullFileName, strRoot);
+          int DriveType=FAR_GetDriveType(strRoot);
           if (DriveType!=DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType))
           {
             FAR_FIND_DATA_EX NewViewFindData;
@@ -1440,7 +1440,7 @@ int Viewer::ProcessKey(int Key)
               ViewNamesList.GetCurDir (strViewDir);
 
               if ( !strViewDir.IsEmpty() )
-                  FarChDirW(strViewDir);
+                  FarChDir(strViewDir);
           }
 
           if ( OpenFile(strName, TRUE) )
@@ -2730,7 +2730,7 @@ void Viewer::ShowConsoleTitle()
     string strTitle;
     strTitle.Format (UMSG(MInViewer), PointToName(strFileName));
 
-    SetFarTitleW (strTitle);
+    SetFarTitle(strTitle);
 }
 
 

@@ -103,7 +103,7 @@ BOOL ExtractIfExistCommand (string &strCommandText)
 */
 int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish)
 {
-  CFileMaskW FMask; // для работы с масками файлов
+  CFileMask FMask; // для работы с масками файлов
   string Commands[32],Descriptions[32],strCommand;
   int NumCommands[32];
   int CommandCount=0;
@@ -684,7 +684,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
     /* $ 06.07.2001 IS
        Проверяем вводимую маску файлов на корректность
     */
-    CFileMaskW FMask;
+    CFileMask FMask;
     for(;;)
     {
       Dlg.ClearDone();
@@ -732,7 +732,7 @@ int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
   RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
   while (1)
   {
-    CFileMaskW FMask;
+    CFileMask FMask;
 
     string strRegKey, strMask, strDescription;
     strRegKey.Format (FTSW.TypeFmt, NumLine);

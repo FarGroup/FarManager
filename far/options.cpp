@@ -477,7 +477,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               CtrlObject->ViewHistory->ReloadTitle();
               SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
               PrepareStrFTime();
-              __PrepareKMGTbStrW();
+              __PrepareKMGTbStr();
               FrameManager->InitKeyBar();
               CtrlObject->Cp()->RedrawKeyBar();
               CtrlObject->Cp()->SetScreenPosition();

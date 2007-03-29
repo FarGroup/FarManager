@@ -102,7 +102,7 @@ void ProcessUserMenu(int EditMenu)
     } /* if */
   }
 
-  UserDefinedListW *SavedCurDirs=SaveAllCurDir();
+  UserDefinedList *SavedCurDirs=SaveAllCurDir();
 
 /* $ 14.07.2000 VVM
    + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
@@ -118,7 +118,7 @@ void ProcessUserMenu(int EditMenu)
     if (MenuMode!=MM_MAIN)
     {
       // Пытаемся открыть файл на локальном диске
-      if (FarChDirW(strMenuFilePath) &&
+      if (FarChDir(strMenuFilePath) &&
          ((MenuFile=_wfopen(LocalMenuFileName,L"rb"))!=NULL))
       {
         MenuFileToReg(strLocalMenuKey, MenuFile);
@@ -164,7 +164,7 @@ void ProcessUserMenu(int EditMenu)
           } /* if */
         } /* else */
       } /* else */
-      FarChDirW(strPrevPath); // Вернем папку на место !
+      FarChDir(strPrevPath); // Вернем папку на место !
     } /* if */
 
 
@@ -180,7 +180,7 @@ void ProcessUserMenu(int EditMenu)
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
-      FarChDirW(strMenuFilePath);
+      FarChDir(strMenuFilePath);
       int FileAttr=GetFileAttributesW(LocalMenuFileName);
       if (FileAttr!=-1)
       {
@@ -274,7 +274,7 @@ void ProcessUserMenu(int EditMenu)
   } /* while */
 
   CtrlObject->CmdLine->SetCurDir(strPrevPath);
-  FarChDirW(strPrevPath);
+  FarChDir(strPrevPath);
 
   if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
   {
@@ -657,7 +657,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
                 (*FrameManager)[0]->Unlock();
                 FILE *MenuFile;
                 string strMenuFileName;
-                if (!FarMkTempExW(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==NULL)
+                if (!FarMkTempEx(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==NULL)
                   break;
                 MenuRegToFile(strMenuRootKey,MenuFile);
                 MenuNeedRefresh=TRUE;

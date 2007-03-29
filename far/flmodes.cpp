@@ -238,7 +238,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
   for (ColumnCount=0;ColumnCount<sizeof(ViewSettingsArray[0].ColumnType)/sizeof(ViewSettingsArray[0].ColumnType[0]);ColumnCount++)
   {
     string strArgName;
-    if ((TextPtr=GetCommaWordW(TextPtr,strArgName))==NULL)
+    if ((TextPtr=GetCommaWord(TextPtr,strArgName))==NULL)
       break;
     strArgName.Upper();
     if ( strArgName.At(0)==L'N')
@@ -342,7 +342,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
   for (int I=0;I<ColumnCount;I++)
   {
     string strArgName;
-    if ((TextPtr=GetCommaWordW(TextPtr,strArgName))==NULL)
+    if ((TextPtr=GetCommaWord(TextPtr,strArgName))==NULL)
       break;
     ViewColumnWidths[I]=_wtoi(strArgName);
   }

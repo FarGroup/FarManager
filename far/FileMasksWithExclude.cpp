@@ -12,11 +12,11 @@ FileMasksWithExclude.cpp
 #include "fn.hpp"
 
 
-FileMasksWithExcludeW::FileMasksWithExcludeW():BaseFileMaskW()
+FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
 {
 }
 
-void FileMasksWithExcludeW::Free()
+void FileMasksWithExclude::Free()
 {
     Include.Free();
     Exclude.Free();
@@ -28,7 +28,7 @@ void FileMasksWithExcludeW::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksWithExcludeW::Set(const wchar_t *masks, DWORD Flags)
+BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 {
   Free();
   if(NULL==masks || !*masks) return FALSE;
@@ -68,12 +68,12 @@ BOOL FileMasksWithExcludeW::Set(const wchar_t *masks, DWORD Flags)
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-BOOL FileMasksWithExcludeW::Compare(const wchar_t *FileName)
+BOOL FileMasksWithExclude::Compare(const wchar_t *FileName)
 {
    return (Include.Compare(FileName) && !Exclude.Compare(FileName));
 }
 
-BOOL FileMasksWithExcludeW::IsEmpty(void)
+BOOL FileMasksWithExclude::IsEmpty(void)
 {
   return Include.IsEmpty() && Exclude.IsEmpty();
 }

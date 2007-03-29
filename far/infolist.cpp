@@ -142,11 +142,11 @@ void InfoList::DisplayObject()
   if((GetFileAttributesW(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
   {
     string strJuncName;
-    if(GetJunctionPointInfoW(strCurDir, strJuncName))
-      GetPathRootW((const wchar_t*)strJuncName+4, strDriveRoot); //"\??\D:\Junc\Src\"
+    if(GetJunctionPointInfo(strCurDir, strJuncName))
+      GetPathRoot((const wchar_t*)strJuncName+4, strDriveRoot); //"\??\D:\Junc\Src\"
   }
   else
-     GetPathRootW(strCurDir, strDriveRoot);
+     GetPathRoot(strCurDir, strDriveRoot);
   /* SVS $ */
 
   if ( apiGetVolumeInformation (strDriveRoot,&strVolumeName,
@@ -155,7 +155,7 @@ void InfoList::DisplayObject()
   {
     string strLocalName, strDiskType, strRemoteName, strDiskName;
     int ShowRealPath=FALSE;
-    int DriveType=FAR_GetDriveTypeW(strDriveRoot,NULL,TRUE);
+    int DriveType=FAR_GetDriveType(strDriveRoot,NULL,TRUE);
     strLocalName.Format (L"%c:", strDriveRoot.At(0));
 
     if ( !strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')
@@ -193,7 +193,7 @@ void InfoList::DisplayObject()
       strDiskType= UMSG(IdxMsgID);
 
     {
-      if(GetSubstNameW(DriveType,strLocalName,strRemoteName))
+      if(GetSubstName(DriveType,strLocalName,strRemoteName))
       {
         strDiskType = UMSG(MInfoSUBST);
         DriveType=DRIVE_SUBSTITUTE;
@@ -229,7 +229,7 @@ void InfoList::DisplayObject()
     PrintText(strTitle);
 
     unsigned __int64 TotalSize,TotalFree,UserFree;
-    if (GetDiskSizeW(strDriveRoot,&TotalSize,&TotalFree,&UserFree))
+    if (GetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&UserFree))
     {
       GotoXY(X1+2,Y1+4);
       PrintText(MInfoDiskTotal);
@@ -306,7 +306,7 @@ int InfoList::ProcessKey(int Key)
         if ( !strDizFileName.IsEmpty() )
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strCurDir);
-        FarChDirW(strCurDir);
+        FarChDir(strCurDir);
 
         new FileViewer(strDizFileName,TRUE);//OT
       }
@@ -324,7 +324,7 @@ int InfoList::ProcessKey(int Key)
       {
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         AnotherPanel->GetCurDir(strCurDir);
-        FarChDirW(strCurDir);
+        FarChDir(strCurDir);
         if ( !strDizFileName.IsEmpty() )
         {
           new FileEditor(strDizFileName,-1,FFILEEDIT_ENABLEF6);
@@ -333,7 +333,7 @@ int InfoList::ProcessKey(int Key)
         {
           string strArgName;
           const wchar_t *p = Opt.strFolderInfoFiles;
-          while ((p = GetCommaWordW(p,strArgName)) != NULL)
+          while ((p = GetCommaWord(p,strArgName)) != NULL)
           {
             if (!wcspbrk (strArgName, L"*?"))
             {
@@ -493,7 +493,7 @@ void InfoList::ShowDirDescription()
   string strArgName;
 
   const wchar_t *NamePtr = Opt.strFolderInfoFiles;
-  while ((NamePtr=GetCommaWordW(NamePtr,strArgName))!=NULL)
+  while ((NamePtr=GetCommaWord(NamePtr,strArgName))!=NULL)
   {
     string strFullDizName;
     strFullDizName = strDizDir;
@@ -504,7 +504,7 @@ void InfoList::ShowDirDescription()
     if ( !apiGetFindDataEx (strFullDizName,&FindData) )
       continue;
 
-    CutToSlashW (strFullDizName, false);
+    CutToSlash(strFullDizName, false);
     strFullDizName += FindData.strFileName;
 
     if (OpenDizFile(strFullDizName))

@@ -232,7 +232,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		strMenuText.Format (L"&%c: ",L'A'+I);
 		strRootDir.Format (L"%c:\\",L'A'+I);
 
-		DriveType = FAR_GetDriveTypeW(strRootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+		DriveType = FAR_GetDriveType(strRootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 		if ( Opt.ChangeDriveMode & DRIVE_SHOW_TYPE )
 		{
@@ -252,7 +252,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			strLocalName.Format (L"%c:",strRootDir.At(0));
 
-			if (GetSubstNameW(DriveType, strLocalName, strSubstName) )
+			if (GetSubstName(DriveType, strLocalName, strSubstName) )
 			{
 				strDiskType = UMSG(MChangeDriveSUBST);
 				DriveType=DRIVE_SUBSTITUTE;
@@ -301,7 +301,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			string strTotalText, strFreeText;
 			unsigned __int64 TotalSize,TotalFree,UserFree;
 
-            if ( ShowDisk && GetDiskSizeW(
+            if ( ShowDisk && GetDiskSize(
             		strRootDir,
             		&TotalSize,
             		&TotalFree,
@@ -311,14 +311,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             	if ( Opt.ChangeDriveMode & DRIVE_SHOW_SIZE )
             	{
             		//размер как минимум в мегабайтах
-            		FileSizeToStrW(strTotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
-            		FileSizeToStrW(strFreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
+            		FileSizeToStr(strTotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
+            		FileSizeToStr(strFreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
             	}
             	else
             	{
             		//размер с точкой и для 0 добавляем букву размера (B)
-            		FileSizeToStrW(strTotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-            		FileSizeToStrW(strFreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+            		FileSizeToStr(strTotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+            		FileSizeToStr(strFreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
             	}
 			}
 
@@ -332,7 +332,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         {
         	string strRemoteName;
 
-        	DriveLocalToRemoteNameW(DriveType,strRootDir.At(0),strRemoteName);
+        	DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
 
             TruncPathStr(strRemoteName,ScrX-(int)strMenuText.GetLength()-12);
 
@@ -943,7 +943,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			wcsncpy(RootDir,strCurDir,3);
 			RootDir[3]=0;
 			
-			if ( FAR_GetDriveTypeW(RootDir) == DRIVE_NO_ROOT_DIR )
+			if ( FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR )
 				ChDisk.ClearDone();
 		}
 
@@ -958,7 +958,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	{
 		strRootDir.Format (L"%c:", item->cDrive);
 		
-		if ( !IsDiskInDriveW(strRootDir) )
+		if ( !IsDiskInDrive(strRootDir) )
 		{
 			if ( EjectVolume(item->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
 			{
@@ -991,13 +991,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			
 			strNewDir.Format (L"%c:", item->cDrive);
 
-			FarChDirW(strNewDir);
+			FarChDir(strNewDir);
 			CtrlObject->CmdLine->GetCurDir(strNewDir);
 			
 			strNewDir.Upper();
 
 			if ( strNewDir.At (0) == item->cDrive )
-				FarChDirW(strNewDir);
+				FarChDir(strNewDir);
 
 
 			if ( getdisk() != NumDisk )
@@ -1005,7 +1005,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				string strRootDir;
 				
 				strRootDir.Format (L"%c:\\", item->cDrive);
-				FarChDirW(strRootDir);
+				FarChDir(strRootDir);
 				
 				if ( getdisk() == NumDisk )
 					break;
@@ -1169,7 +1169,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
           return DRIVE_DEL_FAIL;
       string strRootDir;
       strRootDir.Format (L"%c:\\", *DiskLetter);
-      if (FAR_GetDriveTypeW(strRootDir)==DRIVE_REMOTE)
+      if (FAR_GetDriveType(strRootDir)==DRIVE_REMOTE)
         Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),strMsgText,UMSG(MOk));
     }
     return DRIVE_DEL_FAIL;
@@ -1273,7 +1273,7 @@ void Panel::FastFind(int FirstKey)
           // для вставки воспользуемся макродвижком...
           if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
           {
-            wchar_t *ClipText=PasteFromClipboardW();
+            wchar_t *ClipText=PasteFromClipboard();
             if(ClipText && *ClipText)
             {
               FastFindProcessName(&FindEdit,ClipText,strLastName,strName);
@@ -1446,7 +1446,7 @@ void Panel::SetFocus()
     CtrlObject->Cp()->RedrawKeyBar();
     Focus=TRUE;
     Redraw();
-    FarChDirW(strCurDir);
+    FarChDir(strCurDir);
   }
 }
 
@@ -1624,14 +1624,14 @@ int Panel::GetCurDir(string &strCurDir)
 void Panel::SetCurDir(const wchar_t *CurDir,int ClosePlugin)
 {
   strCurDir = CurDir;
-  PrepareDiskPathW (strCurDir);
+  PrepareDiskPath(strCurDir);
 }
 
 
 void Panel::InitCurDir(const wchar_t *CurDir)
 {
   strCurDir = CurDir;
-  PrepareDiskPathW (strCurDir);
+  PrepareDiskPath(strCurDir);
 }
 
 
@@ -1665,24 +1665,24 @@ int  Panel::SetCurPath()
       // сначала установим переменные окружения для пассивной панели
       // (без реальной смены пути, чтобы лишний раз пассивный каталог
       // не перечитывать)
-      FarChDirW(AnotherPanel->strCurDir,FALSE);
+      FarChDir(AnotherPanel->strCurDir,FALSE);
     }
   }
 
-  if (!FarChDirW(strCurDir) || GetFileAttributesW(strCurDir)==0xFFFFFFFF)
+  if (!FarChDir(strCurDir) || GetFileAttributesW(strCurDir)==0xFFFFFFFF)
   {
    // здесь на выбор :-)
 #if 1
-    while(!FarChDirW(strCurDir))
+    while(!FarChDir(strCurDir))
     {
       string strRoot;
-      GetPathRootW (strCurDir, strRoot);
-      if(FAR_GetDriveTypeW(strRoot) != DRIVE_REMOVABLE || IsDiskInDriveW(strRoot))
+      GetPathRoot(strCurDir, strRoot);
+      if(FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || IsDiskInDrive(strRoot))
       {
-        int Result=CheckFolderW(strCurDir);
+        int Result=CheckFolder(strCurDir);
         if(Result == CHKFLD_NOTACCESS)
         {
-          if(FarChDirW(strRoot))
+          if(FarChDir(strRoot))
           {
             SetCurDir(strRoot,TRUE);
             return TRUE;
@@ -1690,7 +1690,7 @@ int  Panel::SetCurPath()
         }
         else if(Result == CHKFLD_NOTFOUND)
         {
-          if(CheckShortcutFolderW(&strCurDir,FALSE,TRUE) && FarChDirW(strCurDir))
+          if(CheckShortcutFolder(&strCurDir,FALSE,TRUE) && FarChDir(strCurDir))
           {
             SetCurDir(strCurDir,TRUE);
             return TRUE;
@@ -1704,7 +1704,7 @@ int  Panel::SetCurPath()
       else                                               // оппа...
       {
         string strTemp=strCurDir;
-        CutToFolderNameIfFolderW(strCurDir);             // подымаемся вверх, для очередной порции ChDir
+        CutToFolderNameIfFolder(strCurDir);             // подымаемся вверх, для очередной порции ChDir
         if(strTemp.GetLength()==strCurDir.GetLength())   // здесь проблема - видимо диск недоступен
         {
           SetCurDir(g_strFarPath,TRUE);                 // тогда просто сваливаем в каталог, откуда стартанул FAR.
@@ -1712,7 +1712,7 @@ int  Panel::SetCurPath()
         }
         else
         {
-          if(FarChDirW(strCurDir))
+          if(FarChDir(strCurDir))
           {
             SetCurDir(strCurDir,TRUE);
             break;
@@ -1865,7 +1865,7 @@ void Panel::SetTitle()
     strTitleDir += L"}";
 
     strLastFarTitle = strTitleDir; //BUGBUG
-    SetFarTitleW(strTitleDir);
+    SetFarTitle(strTitleDir);
   }
 }
 
@@ -2192,7 +2192,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
   Len1=Max(Len1,Max(Len2,Max(Len3,Len4)));
 
-  DCDlg[3].strData = TruncPathStr(DriveLocalToRemoteNameW(DRIVE_REMOTE,Letter,strMsgText),Len1);
+  DCDlg[3].strData = TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText),Len1);
 
   DCDlg[7].strData = UMSG(MYes);
   DCDlg[8].strData = UMSG(MCancel);

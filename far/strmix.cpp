@@ -199,7 +199,7 @@ int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath)
 
 
 
-int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength)
+int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength)
 {
     string strWildName;
     wchar_t *DestNamePtr, *SrcNamePtr;
@@ -806,7 +806,7 @@ const char *NullToEmpty(const char *Str)
 }
 
 
-string& CenterStrW(const wchar_t *Src, string &strDest, int Length)
+string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 {
   int SrcLength=(int)wcslen(Src);
 
@@ -832,7 +832,7 @@ string& CenterStrW(const wchar_t *Src, string &strDest, int Length)
 }
 
 
-const wchar_t *GetCommaWordW(const wchar_t *Src, string &strWord,wchar_t Separator)
+const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
   int WordPos,SkipBrackets;
   if (*Src==0)
@@ -978,7 +978,7 @@ void UnquoteExternal(string &strStr)
 #define MAX_KMGTBSTR_SIZE 16
 static wchar_t KMGTbStrW[5][2][MAX_KMGTBSTR_SIZE]={0};
 
-void __PrepareKMGTbStrW(void)
+void __PrepareKMGTbStr(void)
 {
   for(int I=0; I < 5; ++I)
   {
@@ -990,7 +990,7 @@ void __PrepareKMGTbStrW(void)
 }
 
 
-string & WINAPI FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Width, int ViewFlags)
+string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, int ViewFlags)
 {
   string strStr;
   unsigned __int64 Divider;
@@ -999,7 +999,7 @@ string & WINAPI FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Wi
   // подготовительные мероприятия
   if(KMGTbStrW[0][0][0] == 0)
   {
-    __PrepareKMGTbStrW();
+    __PrepareKMGTbStr();
   }
 
   int Commas=(ViewFlags & COLUMN_COMMAS);
@@ -1541,7 +1541,7 @@ void UnicodeToAnsi (
   WideCharToMultiByte (CP_OEMCP, 0, lpwszUnicodeString, -1, lpDest, nLength, NULL, NULL); //RAVE!!!
 }
 
-string& CutToSlashW (string &strStr, bool bInclude)
+string& CutToSlash(string &strStr, bool bInclude)
 {
     wchar_t *lpwszStr = strStr.GetBuffer ();
 
@@ -1561,7 +1561,7 @@ string& CutToSlashW (string &strStr, bool bInclude)
     return strStr;
 }
 
-string& CutToNameUNCW (string &strPath)
+string& CutToNameUNC(string &strPath)
 {
   wchar_t *lpwszPath = strPath.GetBuffer ();
 
@@ -1595,7 +1595,7 @@ string& CutToNameUNCW (string &strPath)
 
 }
 
-string& CutToFolderNameIfFolderW (string &strPath)
+string& CutToFolderNameIfFolder(string &strPath)
 {
   wchar_t *lpwszPath = strPath.GetBuffer ();
 
@@ -1622,7 +1622,7 @@ string& CutToFolderNameIfFolderW (string &strPath)
   return strPath;
 }
 
-const wchar_t* PointToNameUNCW (const wchar_t *lpwszPath)
+const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
 {
   if ( !lpwszPath )
     return NULL;

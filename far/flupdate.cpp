@@ -129,8 +129,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
       if (wcscmp(strCurDir, strOldCurDir) == 0) //?? i??
       {
-        GetPathRootOneW(strOldCurDir,strOldCurDir);
-        if(!IsDiskInDriveW(strOldCurDir))
+        GetPathRootOne(strOldCurDir,strOldCurDir);
+        if(!IsDiskInDrive(strOldCurDir))
           IfGoHome(strOldCurDir.At(0));
         /* При смене каталога путь не изменился */
         return;
@@ -151,7 +151,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     string strRootDir;
 
     ConvertNameToFullW(strCurDir,strRootDir);
-    GetPathRootW(strRootDir, strRootDir);
+    GetPathRoot(strRootDir, strRootDir);
     if ( apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
       Is_FS_NTFS=!LocalStricmpW(strFileSysName,L"NTFS")?TRUE:FALSE;
   }
@@ -172,8 +172,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   {
     unsigned __int64 TotalSize,TotalFree;
     string strDriveRoot;
-    GetPathRootW(strCurDir,strDriveRoot);
-    if (!GetDiskSizeW(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+    GetPathRoot(strCurDir,strDriveRoot);
+    if (!GetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 
@@ -304,7 +304,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         if (!Compressed)
           NewPtr->PackSize = fdata.nFileSize;
         if (ReadNumLinks)
-          NewPtr->NumberOfLinks=GetNumberOfLinksW(fdata.strFileName);
+          NewPtr->NumberOfLinks=GetNumberOfLinks(fdata.strFileName);
       }
       else
         NewPtr->PackSize = 0;
@@ -313,7 +313,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       if (ReadOwners)
       {
         string strOwner;
-        GetFileOwnerW(strComputerName, NewPtr->strName,strOwner);
+        GetFileOwner(strComputerName, NewPtr->strName,strOwner);
         NewPtr->strOwner = strOwner;
       }
 
@@ -474,7 +474,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     SetTitle();
   /* DJ $ */
 
-  FarChDirW (strSaveDir); //???
+  FarChDir(strSaveDir); //???
 }
 
 /*$ 22.06.2001 SKV
@@ -536,10 +536,10 @@ void FileList::CreateChangeNotification(int CheckTree)
 
   CloseChangeNotification();
 
-  if(IsLocalPathW(strCurDir))
+  if(IsLocalPath(strCurDir))
   {
     RootDir[0]=strCurDir.At(0);
-    DriveType=FAR_GetDriveTypeW(RootDir);
+    DriveType=FAR_GetDriveType(RootDir);
   }
 
   if(Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))
@@ -622,8 +622,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   {
     unsigned __int64 TotalSize,TotalFree;
     string strDriveRoot;
-    GetPathRootW(strCurDir,strDriveRoot);
-    if (!GetDiskSizeW(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+    GetPathRoot(strCurDir,strDriveRoot);
+    if (!GetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 
@@ -846,7 +846,7 @@ void FileList::ReadDiz(struct PluginPanelItemW *ItemList,int ItemLength,DWORD dw
           if (LocalStricmpW(strFileName,Info.DescrFiles[I])==0)
           {
             string strTempDir, strDizName;
-            if (FarMkTempExW(strTempDir) && CreateDirectoryW(strTempDir,NULL))
+            if (FarMkTempEx(strTempDir) && CreateDirectoryW(strTempDir,NULL))
             {
               if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
               {

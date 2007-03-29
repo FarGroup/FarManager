@@ -224,7 +224,7 @@ int CommandLine::ProcessKey(int Key)
 
           if(!CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
           {
-            if(Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolderW(&strStr,FALSE))
+            if(Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolder(&strStr,FALSE))
             {
               Panel->SetCurDir(strStr,Type==0 ? TRUE:FALSE);
               Panel->Redraw();
@@ -256,7 +256,7 @@ int CommandLine::ProcessKey(int Key)
         if(!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
           CtrlObject->CmdHistory->AddToHistory(strStr);
 
-        ProcessOSAliasesW(strStr);
+        ProcessOSAliases(strStr);
 
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)(const wchar_t *)strStr))
           CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER,FALSE);
@@ -346,7 +346,7 @@ int CommandLine::ProcessKey(int Key)
 void CommandLine::SetCurDir(const wchar_t *CurDir)
 {
     strCurDir = CurDir;
-    PrepareDiskPathW (strCurDir);
+    PrepareDiskPath(strCurDir);
 }
 
 
@@ -439,7 +439,7 @@ void CommandLine::GetPrompt(string &strDestStr)
           strDestStr += strCurDir;
           break;
         case L'n':
-          if (IsLocalPathW(strCurDir) && strCurDir.At(2)==L'\\')
+          if (IsLocalPath(strCurDir) && strCurDir.At(2)==L'\\')
             add_char (strDestStr, LocalUpperW(strCurDir.At(0)));
           else
             add_char (strDestStr, L'?');
@@ -510,7 +510,7 @@ void CommandLine::GetPrompt(string &strDestStr)
               break;
             }
             case L'N': // $N - Current drive
-              if (IsLocalPathW(strCurDir) && strCurDir.At(2)==L'\\')
+              if (IsLocalPath(strCurDir) && strCurDir.At(2)==L'\\')
                 add_char (strDestStr, LocalUpperW(strCurDir.At(0)));
               else
                 add_char (strDestStr, L'?');

@@ -283,7 +283,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       else
         strCurDir = PSubstData->strCmdDir;
 
-    GetPathRootW(strCurDir,strRootDir);
+    GetPathRoot(strCurDir,strRootDir);
     DeleteEndSlashW(strRootDir);
     wcsncat(TmpStr,strRootDir, MaxTempStrSize-1);
     CurStr+=2;
@@ -805,7 +805,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
 {
   FILE *ListFile;
 
-  if (!FarMkTempExW(strListFileName) || (ListFile=_wfopen(strListFileName,L"wb"))==NULL)
+  if (!FarMkTempEx(strListFileName) || (ListFile=_wfopen(strListFileName,L"wb"))==NULL)
   {
     Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListTemp),UMSG(MOk));
     return(FALSE);

@@ -27,7 +27,7 @@ void ShellMakeDir(Panel *SrcPanel)
   string strOriginalDirName;
   wchar_t *lpwszDirName;
   /* $ 15.08.2002 IS запретить дубли */
-  UserDefinedListW DirList(0,0,ULF_UNIQUE);
+  UserDefinedList DirList(0,0,ULF_UNIQUE);
   /* IS $ */
 
   /* $ 07.12.2001 IS

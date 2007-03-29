@@ -236,8 +236,8 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       {
         string strTempStr1, strTempStr2, strTempStr3, strTempStr4;
         // Ўирина = 8 - это будет... в Kb и выше...
-        FileSizeToStrW(strTempStr1,RealSizeFile,8);
-        FileSizeToStrW(strTempStr2,NeedSizeFile,8);
+        FileSizeToStr(strTempStr1,RealSizeFile,8);
+        FileSizeToStr(strTempStr2,NeedSizeFile,8);
         strTempStr3.Format (UMSG(MEditFileLong),(const wchar_t *)RemoveExternalSpacesW(strTempStr1));
         strTempStr4.Format (UMSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpacesW(strTempStr2));
 
@@ -3779,12 +3779,12 @@ void Editor::Paste(const wchar_t *Src)
 
   if(!ClipText)
   {
-    if ((ClipText=PasteFormatFromClipboardW(FAR_VerticalBlockW))!=NULL)
+    if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlockW))!=NULL)
     {
       VPaste(ClipText);
       return;
     }
-    if ((ClipText=PasteFromClipboardW())==NULL)
+    if ((ClipText=PasteFromClipboard())==NULL)
       return;
     IsDeleteClipText=TRUE;
   }
@@ -3895,7 +3895,7 @@ void Editor::Copy(int Append)
 
   if (Append)
   {
-    CopyData=PasteFromClipboardW();
+    CopyData=PasteFromClipboard();
     if (CopyData!=NULL)
       PrevSize=DataSize=(long)wcslen(CopyData);
   }
@@ -3930,7 +3930,7 @@ void Editor::Copy(int Append)
     /*
     if (UseDecodeTable)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
-    CopyToClipboardW(CopyData);
+    CopyToClipboard(CopyData);
     delete CopyData;
   }
 }
@@ -4759,12 +4759,12 @@ void Editor::VCopy(int Append)
 
   if (Append)
   {
-    CopyData=PasteFormatFromClipboardW(FAR_VerticalBlockW);
+    CopyData=PasteFormatFromClipboard(FAR_VerticalBlockW);
     if (CopyData!=NULL)
       PrevSize=DataSize=(long)wcslen(CopyData);
     else
     {
-      CopyData=PasteFromClipboardW();
+      CopyData=PasteFromClipboard();
       if (CopyData!=NULL)
         PrevSize=DataSize=(long)wcslen(CopyData);
     }
@@ -4812,8 +4812,8 @@ void Editor::VCopy(int Append)
   {
     /*if (UseDecodeTable)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
-    CopyToClipboardW(CopyData);
-    CopyFormatToClipboardW(FAR_VerticalBlockW,CopyData);
+    CopyToClipboard(CopyData);
+    CopyFormatToClipboard(FAR_VerticalBlockW,CopyData);
     delete CopyData;
   }
 }

@@ -48,9 +48,9 @@ __int64 filelen64(FILE *FPtr)
 }
 
 
-UserDefinedListW *SaveAllCurDir(void)
+UserDefinedList *SaveAllCurDir(void)
 {
-  UserDefinedListW *DirList=new UserDefinedListW(0,0,0);
+  UserDefinedList *DirList=new UserDefinedList(0,0,0);
   if(!DirList)
     return NULL;
 
@@ -73,7 +73,7 @@ UserDefinedListW *SaveAllCurDir(void)
   return DirList;
 }
 
-void RestoreAllCurDir(UserDefinedListW *DirList)
+void RestoreAllCurDir(UserDefinedList *DirList)
 {
   if(!DirList)
     return;
@@ -91,7 +91,7 @@ void RestoreAllCurDir(UserDefinedListW *DirList)
 
 
 
-BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
+BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
   if(!NewDir || *NewDir == 0)
     return FALSE;
@@ -125,7 +125,7 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
     //*CurDir=toupper(*CurDir); бред!
     if(ChangeDir)
     {
-      if(CheckFolderW(strCurDir) > CHKFLD_NOTACCESS)
+      if(CheckFolder(strCurDir) > CHKFLD_NOTACCESS)
         rc=SetCurrentDirectoryW(strCurDir);
     }
   }
@@ -157,9 +157,9 @@ BOOL FarChDirW(const wchar_t *NewDir, BOOL ChangeDir)
       AddEndSlash(strCurDir); //???????????????
       strCurDir.ReleaseBuffer ();
 
-      if(CheckFolderW((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
+      if(CheckFolder((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
       {
-        PrepareDiskPathW(strCurDir);
+        PrepareDiskPath(strCurDir);
         rc=SetCurrentDirectoryW((const wchar_t*)strCurDir);
       }
 
@@ -407,7 +407,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
     const wchar_t *MaskPtr;
     MaskPtr=param1;
 
-    while ((MaskPtr=GetCommaWordW(MaskPtr,strFileMask))!=NULL)
+    while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=NULL)
       if (CmpNameW(strFileMask,param2,skippath))
       {
         Found=TRUE;
@@ -420,7 +420,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
   {
       string strResult;
 
-      int nResult = ConvertWildcardsW(param1, strResult, flags & 0xFFFF);
+      int nResult = ConvertWildcards(param1, strResult, flags & 0xFFFF);
 
       xwcsncpy(param2, strResult, size);
 
@@ -432,7 +432,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
 /* IS $ */
 
 
-int GetFileTypeByNameW(const wchar_t *Name)
+int GetFileTypeByName(const wchar_t *Name)
 {
   HANDLE hFile=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
@@ -482,7 +482,7 @@ int GetDirInfo(const wchar_t *Title,
   clock_t StartTime=clock();
 
   SetCursorType(FALSE,0);
-  GetPathRootW(strFullDirName,strDriveRoot);
+  GetPathRoot(strFullDirName,strDriveRoot);
 
   /* $ 20.03.2002 DJ
      для . - покажем имя родительского каталога
@@ -515,9 +515,9 @@ int GetDirInfo(const wchar_t *Title,
 
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
-  ScTree.SetFindPathW(DirName,L"*.*");
+  ScTree.SetFindPath(DirName,L"*.*");
 
-  while (ScTree.GetNextNameW(&FindData,strFullName))
+  while (ScTree.GetNextName(&FindData,strFullName))
   {
     if (!CtrlObject->Macro.IsExecuting())
     {
@@ -585,7 +585,7 @@ int GetDirInfo(const wchar_t *Title,
       {
         strCurDirName = strFullName;
 
-        CutToSlashW (strCurDirName); //???
+        CutToSlash(strCurDirName); //???
 
         if (LocalStricmpW(strCurDirName,strLastDirName)!=0)
         {
@@ -669,7 +669,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
     CHKFLD_ERROR     (-2) - ошибка (параметры - дерьмо или нехватило памяти для выделения промежуточных буферов)
 */
 
-int CheckFolderW(const wchar_t *Path)
+int CheckFolder(const wchar_t *Path)
 {
   if(!(Path || *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
@@ -700,7 +700,7 @@ int CheckFolderW(const wchar_t *Path)
 
     // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
     // поэтому посмотрим на Root
-    GetPathRootOneW(Path,strFindPath);
+    GetPathRootOne(Path,strFindPath);
 
 
     if(!wcscmp(Path,strFindPath))
@@ -712,7 +712,7 @@ int CheckFolderW(const wchar_t *Path)
 
     strFindPath = Path;
 
-    if(CheckShortcutFolderW(&strFindPath,FALSE,TRUE))
+    if(CheckShortcutFolder(&strFindPath,FALSE,TRUE))
     {
       if(wcscmp(Path,strFindPath))
         return CHKFLD_NOTFOUND;
@@ -748,7 +748,7 @@ const wchar_t* GetUnicodeLanguageString (int nID)
 
 
 
-BOOL GetDiskSizeW (const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
+BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
   typedef BOOL (WINAPI *GETDISKFREESPACEEXW)(
     const wchar_t *lpwszDirectoryName,
@@ -967,7 +967,7 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 {
   if(Func && InitDir && *InitDir && Mask && *Mask)
   {
-    CFileMaskW FMask;
+    CFileMask FMask;
     if(!FMask.Set(Mask, FMF_SILENT)) return;
 
     Flags=Flags&0x000000FF; // только младший байт!
@@ -976,8 +976,8 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 
     string strFullName;
 
-    ScTree.SetFindPathW(InitDir,L"*");
-    while (ScTree.GetNextNameW(&FindData,strFullName))
+    ScTree.SetFindPath(InitDir,L"*");
+    while (ScTree.GetNextName(&FindData,strFullName))
     {
       if ( FMask.Compare(FindData.strFileName) || FMask.Compare(FindData.strAlternateFileName) )
       {
@@ -1057,7 +1057,7 @@ wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 {
     string strDest;
 
-    if ( FarMkTempExW (strDest, Prefix, TRUE) )
+    if ( FarMkTempEx(strDest, Prefix, TRUE) )
     {
         xwcsncpy (Dest, strDest, size);
         return Dest;
@@ -1066,7 +1066,7 @@ wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
     return NULL;
 }
 
-string& FarMkTempExW(string &strDest, const wchar_t *Prefix, BOOL WithPath)
+string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 {
   if(!(Prefix && *Prefix))
     Prefix=L"FTMP";
@@ -1099,7 +1099,7 @@ void WINAPI DeleteBuffer(char *Buffer)
 /* skv$*/
 
 
-string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest)
+string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 {
   int NetPathShown=FALSE, IsOK=FALSE;
   wchar_t LocalName[8]=L" :\0\0\0", RemoteName[NM]; //BUGBUG
@@ -1111,7 +1111,7 @@ string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest)
   if(DriveType == DRIVE_UNKNOWN)
   {
     LocalName[2]='\\';
-    DriveType = FAR_GetDriveTypeW(LocalName);
+    DriveType = FAR_GetDriveType(LocalName);
     LocalName[2]=0;
   }
 
@@ -1126,7 +1126,7 @@ string &DriveLocalToRemoteNameW(int DriveType,wchar_t Letter,string &strDest)
   string strRemoteName = RemoteName;
 
   if (!NetPathShown)
-    if (GetSubstNameW(DriveType,LocalName,strRemoteName))
+    if (GetSubstName(DriveType,LocalName,strRemoteName))
       IsOK=TRUE;
 
   if(IsOK)
@@ -1186,7 +1186,7 @@ string &Add_PATHEXT(string &strDest)
 {
   string strBuf;
   size_t curpos=strDest.GetLength()-1;
-  UserDefinedListW MaskList(0,0,ULF_UNIQUE);
+  UserDefinedList MaskList(0,0,ULF_UNIQUE);
   if( apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
   {
     /* $ 13.10.2002 IS проверка на '|' (маски исключения) */
@@ -1211,7 +1211,7 @@ string &Add_PATHEXT(string &strDest)
 }
 
 
-void CreatePathW (string &strPath)
+void CreatePath(string &strPath)
 {
   wchar_t *ChPtr = strPath.GetBuffer ();
   wchar_t *DirPart = ChPtr;
@@ -1251,7 +1251,7 @@ void SetPreRedrawFunc(PREREDRAWFUNC Func)
     memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
 }
 
-int PathMayBeAbsoluteW (const wchar_t *Path)
+int PathMayBeAbsolute(const wchar_t *Path)
 {
     return (Path &&
            (
@@ -1263,12 +1263,12 @@ int PathMayBeAbsoluteW (const wchar_t *Path)
 }
 
 
-BOOL IsLocalPathW(const wchar_t *Path)
+BOOL IsLocalPath(const wchar_t *Path)
 {
   return (Path && LocalIsalphaW(*Path) && Path[1]==L':' && Path[2]);
 }
 
-BOOL IsLocalRootPathW(const wchar_t *Path)
+BOOL IsLocalRootPath(const wchar_t *Path)
 {
   return (Path && LocalIsalphaW(*Path) && Path[1]==L':' && Path[2] == L'\\' && !Path[3]);
 }
@@ -1276,7 +1276,7 @@ BOOL IsLocalRootPathW(const wchar_t *Path)
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 
-string& PrepareDiskPathW(string &strPath,BOOL CheckFullPath)
+string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
   if( !strPath.IsEmpty() )
   {
@@ -1316,7 +1316,7 @@ string& PrepareDiskPathW(string &strPath,BOOL CheckFullPath)
 
 */
 
-int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent)
+int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 {
   if( pTestPath && !pTestPath->IsEmpty() && GetFileAttributesW(*pTestPath) == -1)
   {
@@ -1355,7 +1355,7 @@ int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent)
 
            if(GetFileAttributesW(strTestPathTemp) != -1)
            {
-            int ChkFld=CheckFolderW(strTestPathTemp);
+            int ChkFld=CheckFolder(strTestPathTemp);
              if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
              {
                if(!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
@@ -1381,7 +1381,7 @@ int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent)
 }
 
 
-BOOL IsDiskInDriveW(const wchar_t *Root)
+BOOL IsDiskInDrive(const wchar_t *Root)
 {
   string strVolName;
   string strDrive;
@@ -1539,7 +1539,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 /*
  возвращает PipeFound
 */
-int PartCmdLineW(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar)
+int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
   int PipeFound = FALSE;
   int QuoteFound = FALSE;
@@ -1596,7 +1596,7 @@ int PartCmdLineW(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdP
 }
 
 
-BOOL ProcessOSAliasesW(string &strStr)
+BOOL ProcessOSAliases(string &strStr)
 {
 #if 0
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
@@ -1797,7 +1797,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
   return strComputerName;
 }
 
-int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType)
+int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType)
 {
   string strSrcRoot, strDestRoot;
   int SrcDriveType, DestDriveType;
@@ -1809,11 +1809,11 @@ int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedT
   DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
 
 
-  GetPathRootW(SrcPath,strSrcRoot);
-  GetPathRootW(DestPath,strDestRoot);
+  GetPathRoot(SrcPath,strSrcRoot);
+  GetPathRoot(DestPath,strDestRoot);
 
-  SrcDriveType=FAR_GetDriveTypeW(strSrcRoot,NULL,TRUE);
-  DestDriveType=FAR_GetDriveTypeW(strDestRoot,NULL,TRUE);
+  SrcDriveType=FAR_GetDriveType(strSrcRoot,NULL,TRUE);
+  DestDriveType=FAR_GetDriveType(strDestRoot,NULL,TRUE);
 
   if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
     return(FALSE);
@@ -1839,9 +1839,9 @@ int CheckDisksPropsW(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedT
     unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
     unsigned __int64 DestTotalSize,DestTotalFree,DestUserFree;
 
-    if (!GetDiskSizeW(strSrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
+    if (!GetDiskSize(strSrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
       return FALSE;
-    if (!GetDiskSizeW(strDestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
+    if (!GetDiskSize(strDestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
       return FALSE;
 
     if (!(SrcVolumeNumber!=0 &&

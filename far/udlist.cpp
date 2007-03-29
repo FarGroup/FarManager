@@ -16,18 +16,18 @@ udlist.cpp
 
 //unicode
 
-UserDefinedListItemW::~UserDefinedListItemW()
+UserDefinedListItem::~UserDefinedListItem()
 {
   if(Str)
     xf_free(Str);
 }
 
-bool UserDefinedListItemW::operator==(const UserDefinedListItemW &rhs) const
+bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
 {
   return (Str && rhs.Str)?(!LocalStricmpW(Str, rhs.Str)):false;
 }
 
-int UserDefinedListItemW::operator<(const UserDefinedListItemW &rhs) const
+int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
 {
   if(!Str)
     return 1;
@@ -37,8 +37,8 @@ int UserDefinedListItemW::operator<(const UserDefinedListItemW &rhs) const
     return LocalStricmpW(Str, rhs.Str)<0;
 }
 
-const UserDefinedListItemW& UserDefinedListItemW::operator=(const
-  UserDefinedListItemW &rhs)
+const UserDefinedListItem& UserDefinedListItem::operator=(const
+  UserDefinedListItem &rhs)
 {
   if(this!=&rhs)
   {
@@ -54,7 +54,7 @@ const UserDefinedListItemW& UserDefinedListItemW::operator=(const
   return *this;
 }
 
-const UserDefinedListItemW& UserDefinedListItemW::operator=(const wchar_t *rhs)
+const UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
 {
   if(Str!=rhs)
   {
@@ -69,7 +69,7 @@ const UserDefinedListItemW& UserDefinedListItemW::operator=(const wchar_t *rhs)
   return *this;
 }
 
-wchar_t *UserDefinedListItemW::set(const wchar_t *Src, unsigned int size)
+wchar_t *UserDefinedListItem::set(const wchar_t *Src, unsigned int size)
 {
   if(Str!=Src)
   {
@@ -88,26 +88,26 @@ wchar_t *UserDefinedListItemW::set(const wchar_t *Src, unsigned int size)
   return Str;
 }
 
-UserDefinedListW::UserDefinedListW()
+UserDefinedList::UserDefinedList()
 {
   Reset();
   SetParameters(0,0,0);
 }
 
-UserDefinedListW::UserDefinedListW(WORD separator1, WORD separator2,
+UserDefinedList::UserDefinedList(WORD separator1, WORD separator2,
                                  DWORD Flags)
 {
   Reset();
   SetParameters(separator1, separator2, Flags);
 }
 
-void UserDefinedListW::SetDefaultSeparators()
+void UserDefinedList::SetDefaultSeparators()
 {
   Separator1=L';';
   Separator2=L',';
 }
 
-BOOL UserDefinedListW::CheckSeparators() const
+BOOL UserDefinedList::CheckSeparators() const
 {
   return !((Separator1==L'\"' || Separator2==L'\"') ||
            (ProcessBrackets &&  (Separator1==L'[' || Separator2==L'[' ||
@@ -115,7 +115,7 @@ BOOL UserDefinedListW::CheckSeparators() const
           );
 }
 
-BOOL UserDefinedListW::SetParameters(WORD separator1, WORD separator2,
+BOOL UserDefinedList::SetParameters(WORD separator1, WORD separator2,
                                     DWORD Flags)
 {
   Free();
@@ -137,13 +137,13 @@ BOOL UserDefinedListW::SetParameters(WORD separator1, WORD separator2,
   return CheckSeparators();
 }
 
-void UserDefinedListW::Free()
+void UserDefinedList::Free()
 {
   Array.Free();
   Reset();
 }
 
-BOOL UserDefinedListW::Set(const wchar_t *List, BOOL AddToList)
+BOOL UserDefinedList::Set(const wchar_t *List, BOOL AddToList)
 {
   if(AddToList)
   {
@@ -157,7 +157,7 @@ BOOL UserDefinedListW::Set(const wchar_t *List, BOOL AddToList)
   if(CheckSeparators() && List && *List)
   {
     int Length, RealLength;
-    UserDefinedListItemW item;
+    UserDefinedListItem item;
     item.index=Array.getSize();
     if(*List!=Separator1 && *List!=Separator2)
     {
@@ -273,8 +273,8 @@ BOOL UserDefinedListW::Set(const wchar_t *List, BOOL AddToList)
   return rc;
 }
 
-int __cdecl UserDefinedListW::CmpItems(const UserDefinedListItemW **el1,
-  const UserDefinedListItemW **el2)
+int __cdecl UserDefinedList::CmpItems(const UserDefinedListItem **el1,
+  const UserDefinedListItem **el2)
 {
   if(el1==el2)
     return 0;
@@ -286,7 +286,7 @@ int __cdecl UserDefinedListW::CmpItems(const UserDefinedListItemW **el1,
     return 1;
 }
 
-const wchar_t *UserDefinedListW::Skip(const wchar_t *Str, int &Length, int &RealLength, BOOL &Error)
+const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealLength, BOOL &Error)
 {
    Length=RealLength=0;
    Error=FALSE;
@@ -352,20 +352,20 @@ const wchar_t *UserDefinedListW::Skip(const wchar_t *Str, int &Length, int &Real
    return NULL;
 }
 
-void UserDefinedListW::Reset(void)
+void UserDefinedList::Reset(void)
 {
   CurrentItem=0;
 }
 
-BOOL UserDefinedListW::IsEmpty()
+BOOL UserDefinedList::IsEmpty()
 {
   unsigned int Size=Array.getSize();
   return !Size || CurrentItem>=Size;
 }
 
-const wchar_t *UserDefinedListW::GetNext()
+const wchar_t *UserDefinedList::GetNext()
 {
-  UserDefinedListItemW *item=Array.getItem(CurrentItem);
+  UserDefinedListItem *item=Array.getItem(CurrentItem);
   ++CurrentItem;
   return item?item->Str:NULL;
 }

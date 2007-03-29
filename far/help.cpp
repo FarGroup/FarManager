@@ -1422,7 +1422,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   // вычислить абсолютный путь, то сделаем это
   if( StackData.strSelTopic.At(0)==HelpBeginLink &&
      NULL!=(wcschr((const wchar_t*)StackData.strSelTopic+2,HelpEndLink))&&
-     !PathMayBeAbsoluteW((const wchar_t*)StackData.strSelTopic+1) &&
+     !PathMayBeAbsolute((const wchar_t*)StackData.strSelTopic+1) &&
      !StackData.strHelpPath.IsEmpty())
   {
 
@@ -1878,7 +1878,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       {
         strPath = CtrlObject->Plugins.PluginsData[I]->m_strModuleName;
 
-        CutToSlashW(strPath);
+        CutToSlash(strPath);
 
         int nCodePage = CP_OEMCP;
 

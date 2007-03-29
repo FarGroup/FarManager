@@ -58,7 +58,7 @@ class FileFilterParams
     {
       DWORD Used;
       string strMask;
-      CFileMaskW FilterMask; // Хранилище скомпилированной маски.
+      CFileMask FilterMask; // Хранилище скомпилированной маски.
     } FMask;
 
     struct

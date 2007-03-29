@@ -263,8 +263,8 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
   FAR_FIND_DATA_EX FindData;
 
   ScanTree ScTree(FALSE,FALSE);
-  ScTree.SetFindPathW(Path,Mask);
-  while (ScTree.GetNextNameW(&FindData, strFullName))
+  ScTree.SetFindPath(Path,Mask);
+  while (ScTree.GetNextName(&FindData, strFullName))
   {
     strFileName = strFullName;
     if (Language==NULL)
@@ -386,8 +386,8 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   string strFullName;
   FAR_FIND_DATA_EX FindData;
   ScanTree ScTree(FALSE,FALSE);
-  ScTree.SetFindPathW(g_strFarPath, Mask);
-  while (ScTree.GetNextNameW(&FindData,strFullName))
+  ScTree.SetFindPath(g_strFarPath, Mask);
+  while (ScTree.GetNextName(&FindData,strFullName))
   {
     FILE *LangFile=_wfopen(strFullName,L"rb");
     if (LangFile==NULL)

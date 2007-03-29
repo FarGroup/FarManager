@@ -656,7 +656,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
             Code=(int)(INT_PTR)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
 
             if(Code != -1)
-              CopyToClipboardW(LastStr[Code].Name);
+              CopyToClipboard(LastStr[Code].Name);
 
             break;
           }

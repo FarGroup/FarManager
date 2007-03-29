@@ -110,7 +110,7 @@ BOOL WINAPI FarShowHelp (
           }
           else
           {
-              CutToSlashW(strPath);
+              CutToSlash(strPath);
               strMask = L"";
           }
         }
@@ -1036,7 +1036,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 
     string strPath = pPlugin->m_strModuleName;
 
-    CutToSlashW(strPath);
+    CutToSlash(strPath);
 
     if ( pPlugin->Lang.Init(strPath) )
       return pPlugin->Lang.GetMsgW(MsgId);
@@ -1445,12 +1445,12 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
     string strFullName;
     ScanTree ScTree(FALSE);
 
-    ScTree.SetFindPathW(strDirName,L"*.*");
+    ScTree.SetFindPath(strDirName,L"*.*");
 
-    CutToSlashW (strDirName); //BUGBUG
+    CutToSlash(strDirName); //BUGBUG
     FAR_FIND_DATA *ItemsList=NULL;
     int ItemsNumber=0;
-    while (ScTree.GetNextNameW(&FindData,strFullName))
+    while (ScTree.GetNextName(&FindData,strFullName))
     {
       if ((ItemsNumber & 31)==0)
       {
@@ -1565,7 +1565,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         string strDirName;
         strDirName = Dir;
         TruncStr(strDirName,30);
-        CenterStrW(strDirName,strDirName,30);
+        CenterStr(strDirName,strDirName,30);
         SetCursorType(FALSE,0);
 
         SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
@@ -1678,7 +1678,7 @@ void ScanPluginDir()
   strDirName.ReleaseBuffer();
 
   TruncStr(strDirName,30);
-  CenterStrW(strDirName,strDirName,30);
+  CenterStr(strDirName,strDirName,30);
 
   if (CheckForEscSilent())
   {
@@ -2047,7 +2047,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
        - Баг: не работало автоопределение.
          Эх, Валя, зачем же ты return -1 закомментарил в 268??
     */
-    if (!FarMkTempExW(strDataFileName) || (DataFile=_wfopen(strDataFileName,L"w+b"))==NULL)
+    if (!FarMkTempEx(strDataFileName) || (DataFile=_wfopen(strDataFileName,L"w+b"))==NULL)
       return(-1);
     /* IS $ */
     fwrite(Buffer,1,BufferSize,DataFile);

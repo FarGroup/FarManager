@@ -71,7 +71,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
     else
     {
       string strArgName;
-      if ((NamePtr=GetCommaWordW(NamePtr,strArgName))==NULL)
+      if ((NamePtr=GetCommaWord(NamePtr,strArgName))==NULL)
         break;
 
       strDizFileName = Path;
@@ -333,7 +333,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
     AddEndSlash(strDizFileName);
 
     string strArgName;
-    GetCommaWordW(Opt.Diz.strListNames,strArgName);
+    GetCommaWord(Opt.Diz.strListNames,strArgName);
 
     strDizFileName += strArgName;
   }

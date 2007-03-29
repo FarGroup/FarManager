@@ -152,7 +152,7 @@ static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
    backslash ('\').
 */
 
-int WINAPI CreateVolumeMountPointW(const wchar_t *SrcVolume, const wchar_t *LinkFolder)
+int WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkFolder)
 {
    wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
 
@@ -177,7 +177,7 @@ int WINAPI CreateVolumeMountPointW(const wchar_t *SrcVolume, const wchar_t *Link
 }
 
 
-BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFolder)
+BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFolder)
 {
   if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
     return FALSE;
@@ -202,7 +202,7 @@ BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFo
 
     const wchar_t *PtrFullDir=(const wchar_t*)strFullDir;
     // проверка на subst
-    if(IsLocalPathW (strFullDir))
+    if(IsLocalPath(strFullDir))
     {
       wchar_t LocalName[8];
 
@@ -210,7 +210,7 @@ BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFo
 
       swprintf (LocalName,L"%c:",*(const wchar_t*)strFullDir);
 
-      if(GetSubstNameW(DRIVE_NOT_INIT,LocalName, strSubstName))
+      if(GetSubstName(DRIVE_NOT_INIT,LocalName, strSubstName))
       {
         strDestDir += strSubstName;
         AddEndSlash(strDestDir);
@@ -265,7 +265,7 @@ BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFo
 }
 
 
-BOOL WINAPI DeleteJunctionPointW(const wchar_t *szDir)
+BOOL WINAPI DeleteJunctionPoint(const wchar_t *szDir)
 {
   HANDLE hDir=FAR_CreateFileW(szDir,
           GENERIC_READ | GENERIC_WRITE,
@@ -298,7 +298,7 @@ BOOL WINAPI DeleteJunctionPointW(const wchar_t *szDir)
 
 
 
-DWORD WINAPI GetJunctionPointInfoW (const wchar_t *szMountDir, string &strDestBuff)
+DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff)
 {
   const DWORD FileAttr = GetFileAttributesW(szMountDir);
   /* $ 14.06.2003 IS
@@ -306,7 +306,7 @@ DWORD WINAPI GetJunctionPointInfoW (const wchar_t *szMountDir, string &strDestBu
      не представляется возможным
   */
   if (FileAttr == 0xffffffff || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
-      || !IsLocalDriveW(szMountDir))
+      || !IsLocalDrive(szMountDir))
   /* IS $ */
   {
     SetLastError(ERROR_PATH_NOT_FOUND);
@@ -348,30 +348,30 @@ DWORD WINAPI GetJunctionPointInfoW (const wchar_t *szMountDir, string &strDestBu
 
 
 
-int IsLocalDriveW(const wchar_t *Path)
+int IsLocalDrive(const wchar_t *Path)
 {
   DWORD DriveType = 0;
   wchar_t *lpwszRootDir,wszRootDir[8]=L"A:\\";
 
-  if(IsLocalPathW(Path))
+  if(IsLocalPath(Path))
   {
     lpwszRootDir = wszRootDir;
     lpwszRootDir[0] = Path[0];
 
-    DriveType = FAR_GetDriveTypeW(lpwszRootDir);
+    DriveType = FAR_GetDriveType(lpwszRootDir);
   }
   else
   {
     string strRootDir;
     ConvertNameToFullW(Path, strRootDir);
 
-    if(IsLocalPathW(strRootDir))
+    if(IsLocalPath(strRootDir))
     {
         lpwszRootDir = strRootDir.GetBuffer ();
         lpwszRootDir[3] = 0;
         strRootDir.ReleaseBuffer ();
 
-      DriveType = FAR_GetDriveTypeW(lpwszRootDir);
+      DriveType = FAR_GetDriveType(lpwszRootDir);
     }
   }
 
@@ -381,7 +381,7 @@ int IsLocalDriveW(const wchar_t *Path)
 
 
 
-int WINAPI GetNumberOfLinksW(const wchar_t *Name)
+int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
   HANDLE hFile=FAR_CreateFileW(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
@@ -397,7 +397,7 @@ int WINAPI GetNumberOfLinksW(const wchar_t *Name)
 
 
 
-int WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest)
+int WINAPI MkLink(const wchar_t *Src,const wchar_t *Dest)
 {
   string strFileSource,strFileDest;
 
@@ -618,7 +618,7 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
 int DelSubstDrive(const wchar_t *DosDeviceName)
 {
   string strNtDeviceName;
-  if(GetSubstNameW(DRIVE_NOT_INIT, DosDeviceName, strNtDeviceName))
+  if(GetSubstName(DRIVE_NOT_INIT, DosDeviceName, strNtDeviceName))
   {
       if ( WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT )
           strNtDeviceName = (string)L"\\??\\"+strNtDeviceName;
@@ -632,7 +632,7 @@ int DelSubstDrive(const wchar_t *DosDeviceName)
 }
 /* SVS $ */
 
-BOOL GetSubstNameW (int DriveType,const wchar_t *LocalName, string &strSubstName)
+BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 {
   /* $28.04.2001 VVM
     + Обработка в зависимости от Opt.SubstNameRule
@@ -692,7 +692,7 @@ BOOL GetSubstNameW (int DriveType,const wchar_t *LocalName, string &strSubstName
   return FALSE;
 }
 
-void GetPathRootOneW(const wchar_t *Path,string &strRoot)
+void GetPathRootOne(const wchar_t *Path,string &strRoot)
 {
   string strTempRoot;
   wchar_t *ChPtr;
@@ -742,7 +742,7 @@ void GetPathRootOneW(const wchar_t *Path,string &strRoot)
   else
   {
     // ..2 <> ...\2
-    if(!PathMayBeAbsoluteW(strTempRoot))
+    if(!PathMayBeAbsolute(strTempRoot))
     {
       string strTemp;
       FarGetCurDir(strTemp);
@@ -777,7 +777,7 @@ void GetPathRootOneW(const wchar_t *Path,string &strRoot)
 
 
 // полный проход ПО!!!
-static void _GetPathRootW(const wchar_t *Path, string &strRoot, int Reenter)
+static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
 {
   string strTempRoot;
   string strNewPath;
@@ -827,12 +827,12 @@ static void _GetPathRootW(const wchar_t *Path, string &strRoot, int Reenter)
 
         if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          if(GetJunctionPointInfoW(TempRoot,strJuncName))
+          if(GetJunctionPointInfo(TempRoot,strJuncName))
           {
              if(!Reenter)
-               _GetPathRootW((const wchar_t*)strJuncName+4,strRoot,TRUE);
+               _GetPathRoot((const wchar_t*)strJuncName+4,strRoot,TRUE);
              else
-               GetPathRootOneW((const wchar_t*)strJuncName+4,strRoot);
+               GetPathRootOne((const wchar_t*)strJuncName+4,strRoot);
 
              strTempRoot.ReleaseBuffer ();
              return;
@@ -845,13 +845,13 @@ static void _GetPathRootW(const wchar_t *Path, string &strRoot, int Reenter)
 
     strTempRoot.ReleaseBuffer ();
   } /* if */
-  GetPathRootOneW(strNewPath, strRoot);
+  GetPathRootOne(strNewPath, strRoot);
 }
 
 
-void WINAPI GetPathRootW(const wchar_t *Path,string &strRoot)
+void WINAPI GetPathRoot(const wchar_t *Path,string &strRoot)
 {
-  _GetPathRootW(Path,strRoot,0);
+  _GetPathRoot(Path,strRoot,0);
 }
 
 /*
@@ -893,7 +893,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
 
 
 
-BOOL WINAPI CanCreateHardLinksW(const wchar_t *TargetFile,const wchar_t *HardLinkName)
+BOOL WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLinkName)
 {
   if(!TargetFile)
     return FALSE;
@@ -902,10 +902,10 @@ BOOL WINAPI CanCreateHardLinksW(const wchar_t *TargetFile,const wchar_t *HardLin
   string strRoot2;
   string strFSysName;
 
-  GetPathRootW(TargetFile,strRoot1);
+  GetPathRoot(TargetFile,strRoot1);
 
   if(HardLinkName)
-    GetPathRootW(HardLinkName,strRoot2);
+    GetPathRoot(HardLinkName,strRoot2);
   else
     strRoot2 = strRoot1;
 
@@ -924,7 +924,7 @@ BOOL WINAPI CanCreateHardLinksW(const wchar_t *TargetFile,const wchar_t *HardLin
 }
 
 
-int WINAPI FarMkLinkW(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
+int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 {
   int RetCode=0;
 
@@ -939,8 +939,8 @@ int WINAPI FarMkLinkW(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 //        if(Delete)
 //          RetCode=FAR_DeleteFile(Src);
 //        else
-          if(CanCreateHardLinksW(Src,Dest))
-            RetCode=MkLinkW(Src,Dest);
+          if(CanCreateHardLinks(Src,Dest))
+            RetCode=MkLink(Src,Dest);
         break;
 
       case FLINK_SYMLINK:
@@ -948,7 +948,7 @@ int WINAPI FarMkLinkW(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 //        if(Delete)
 //          RetCode=FAR_RemoveDirectory(Src);
 //        else
-          RetCode=ShellCopy::MkSymLinkW(Src,Dest,
+          RetCode=ShellCopy::MkSymLink(Src,Dest,
              (Op==FLINK_VOLMOUNT?FCOPY_VOLMOUNT:FCOPY_LINK)|
              (Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
     }

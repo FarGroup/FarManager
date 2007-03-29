@@ -18,12 +18,12 @@ const int EXCLUDEMASKSEPARATOR=0x7C; // '|'
 
 ////////////////////////
 
-CFileMaskW::CFileMaskW()
+CFileMask::CFileMask()
 {
     FileMask=NULL;
 }
 
-void CFileMaskW::Free()
+void CFileMask::Free()
 {
     if(FileMask)
        delete FileMask;
@@ -37,7 +37,7 @@ void CFileMaskW::Free()
  масок равна 0).
 */
 
-BOOL CFileMaskW::Set(const wchar_t *Masks, DWORD Flags)
+BOOL CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 {
   Free();
   BOOL rc=FALSE;
@@ -49,10 +49,10 @@ BOOL CFileMaskW::Set(const wchar_t *Masks, DWORD Flags)
     if(wcschr(Masks, EXCLUDEMASKSEPARATOR))
     {
       if(!(Flags&FMF_FORBIDEXCLUDE))
-        FileMask=new FileMasksWithExcludeW;
+        FileMask=new FileMasksWithExclude;
     }
     else
-      FileMask=new FileMasksProcessorW;
+      FileMask=new FileMasksProcessor;
 
     if(FileMask)
        rc=FileMask->Set(Masks, flags);
@@ -68,7 +68,7 @@ BOOL CFileMaskW::Set(const wchar_t *Masks, DWORD Flags)
 }
 
 // Возвращает TRUE, если список масок пустой
-BOOL CFileMaskW::IsEmpty(void)
+BOOL CFileMask::IsEmpty(void)
 {
   return FileMask?FileMask->IsEmpty():TRUE;
 }
@@ -77,7 +77,7 @@ BOOL CFileMaskW::IsEmpty(void)
    Возвращает TRUE в случае успеха.
    Путь в имени файла игнорируется.
 */
-BOOL CFileMaskW::Compare(const wchar_t *FileName)
+BOOL CFileMask::Compare(const wchar_t *FileName)
 {
   return FileMask?FileMask->Compare(PointToName((wchar_t*)FileName)):FALSE;
 }

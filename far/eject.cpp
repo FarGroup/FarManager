@@ -452,7 +452,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
   szRootName[4]=Letter;
 
   // OpenVolume
-  uDriveType = FAR_GetDriveTypeW(szRootName+4);
+  uDriveType = FAR_GetDriveType(szRootName+4);
   szRootName[6]=0;
   switch(uDriveType)
   {

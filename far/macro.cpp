@@ -994,15 +994,15 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           if ( SelPanel != NULL && SelPanel->GetMode() != PLUGIN_PANEL)
           {
             SelPanel->GetCurDir(strFileName);
-            GetPathRootW(strFileName, strFileName);
-            UINT DriveType=FAR_GetDriveTypeW(strFileName,NULL,0);
-            if(IsLocalPathW(strFileName))
+            GetPathRoot(strFileName, strFileName);
+            UINT DriveType=FAR_GetDriveType(strFileName,NULL,0);
+            if(IsLocalPath(strFileName))
             {
               string strRemoteName;
               wchar_t *FileName = strFileName.GetBuffer ();
               FileName[2]=0;
               strFileName.ReleaseBuffer ();
-              if(GetSubstNameW(DriveType,strFileName,strRemoteName))
+              if(GetSubstName(DriveType,strFileName,strRemoteName))
                 DriveType=DRIVE_SUBSTITUTE;
             }
             Cond=TVar((__int64)DriveType);
@@ -1750,7 +1750,7 @@ static TVar clipFunc(TVar *param)
   {
     case 0: // Get from Clipboard, "S" - ignore
     {
-      wchar_t *ClipText=InternalPasteFromClipboardW(0); // 0!  ???
+      wchar_t *ClipText=InternalPasteFromClipboard(0); // 0!  ???
       if(ClipText)
       {
         TVar varClip(ClipText);
@@ -1760,11 +1760,11 @@ static TVar clipFunc(TVar *param)
       break;
     }
     case 1: // Put "S" into Clipboard
-      return TVar((__int64)InternalCopyToClipboardW(param[1].s(),0)); // 0!  ???
+      return TVar((__int64)InternalCopyToClipboard(param[1].s(),0)); // 0!  ???
     case 2: // Add "S" into Clipboard
     {
       TVar varClip(param[1].s());
-      wchar_t *CopyData=InternalPasteFromClipboardW(0); // 0!  ???
+      wchar_t *CopyData=InternalPasteFromClipboard(0); // 0!  ???
       if(CopyData)
       {
         size_t DataSize=wcslen(CopyData);
@@ -1779,7 +1779,7 @@ static TVar clipFunc(TVar *param)
         else
           delete CopyData;
       }
-      return TVar((__int64)InternalCopyToClipboardW(varClip.s(),0)); // 0!  ???
+      return TVar((__int64)InternalCopyToClipboard(varClip.s(),0)); // 0!  ???
     }
     case 3: // Copy Win to internal, "S" - ignore
     case 4: // Copy internal to Win, "S" - ignore
@@ -1790,14 +1790,14 @@ static TVar clipFunc(TVar *param)
       {
         TVar varClip(L"");
         UsedInternalClipboard=cmdType-3;
-        wchar_t *ClipText=InternalPasteFromClipboardW(0); // 0!  ???
+        wchar_t *ClipText=InternalPasteFromClipboard(0); // 0!  ???
         if(ClipText)
         {
           varClip=ClipText;
           delete [] ClipText;
         }
         UsedInternalClipboard=UsedInternalClipboard==0?1:0;
-        Ret=InternalCopyToClipboardW(varClip.s(),0); // 0!  ???
+        Ret=InternalCopyToClipboard(varClip.s(),0); // 0!  ???
       }
 
       UsedInternalClipboard=_UsedInternalClipboard;
@@ -1967,7 +1967,7 @@ int KeyMacro::GetKey()
         if(LockScr) delete LockScr;
         LockScr=NULL;
       }
-      if(TitleModified) SetFarTitleW(NULL);
+      if(TitleModified) SetFarTitle(NULL);
       UsedInternalClipboard=0; //??
       //_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
       return RetKey;
@@ -2041,7 +2041,7 @@ done:
       // нашлось, запустим механизму по новой
       Work.ExecLIBPos=0;
     }
-    if(TitleModified) SetFarTitleW(NULL); // выставим нужный заголовок по завершению макроса
+    if(TitleModified) SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
     _KEYMACRO(SysLog(-1);SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
@@ -2491,7 +2491,7 @@ done:
     ReleaseWORKBuffer();
     Work.Executing=MACROMODE_NOMACRO;
     if(TitleModified)
-      SetFarTitleW(NULL);
+      SetFarTitle(NULL);
 
   }
 #endif

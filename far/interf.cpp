@@ -152,7 +152,7 @@ void ChangeConsoleMode(int Mode)
 }
 
 
-void SetFarTitleW (const wchar_t *Title)
+void SetFarTitle(const wchar_t *Title)
 {
     static string strFarTitle;
     string strOldFarTitle;
@@ -1013,16 +1013,16 @@ void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
     ScrBuf.Write(X1,Y,SrcPtr,Width);
 }
 
-void BoxTextW(WORD Chr)
+void BoxText(WORD Chr)
 {
   wchar_t Str[2];
   Str[0]=(wchar_t)Chr;
   Str[1]=0;
-  BoxTextW(Str);
+  BoxText(Str);
 }
 
 
-void BoxTextW(WCHAR *Str,int IsVert)
+void BoxText(WCHAR *Str,int IsVert)
 {
   if(IsVert)
     VText(Str);
@@ -1174,7 +1174,7 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
   {
 
      WCHAR Separator[4096];
-     MakeSeparatorW(Length,Separator,Type,UserSep);
+     MakeSeparator(Length,Separator,Type,UserSep);
      if( ( Type >= 4 && Type <= 7 ) || ( Type >= 10 && Type <= 11) )
        VText(Separator);
      else
@@ -1202,7 +1202,7 @@ static BYTE __BoxType[12][8]={
 /* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||     v2
 };
 
-WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
+WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 {
   if (Length>1 && DestStr)
   {

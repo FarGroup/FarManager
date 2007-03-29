@@ -97,59 +97,59 @@ class ShellCopy
     long TotalFiles;
     int SelectedFolderNameLength;
 
-    UserDefinedListW DestListW;
+    UserDefinedList DestList;
     ConsoleTitle *CopyTitle;   // заголовок
 
   private:
-    COPY_CODES CopyFileTreeW(const wchar_t *Dest);
+    COPY_CODES CopyFileTree(const wchar_t *Dest);
 
-    COPY_CODES ShellCopyOneFileW(const wchar_t *Src,
+    COPY_CODES ShellCopyOneFile(const wchar_t *Src,
                                 const FAR_FIND_DATA_EX &SrcData,
                                 const wchar_t *Dest,
                                 int KeepPathPos, int Rename);
 
 
-    COPY_CODES CheckStreamsW(const wchar_t *Src,const wchar_t *DestPath);
+    COPY_CODES CheckStreams(const wchar_t *Src,const wchar_t *DestPath);
 
 
-    int  ShellCopyFileW(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcData,
+    int  ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcData,
                        const wchar_t *DestName, DWORD DestAttr,int Append);
 
 
-    int  ShellSystemCopyW(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData);
+    int  ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData);
 
-    int  DeleteAfterMoveW(const wchar_t *Name,int Attr);
+    int  DeleteAfterMove(const wchar_t *Name,int Attr);
 
-    void SetDestDizPathW(const wchar_t *DestPath);
+    void SetDestDizPath(const wchar_t *DestPath);
 
-    int  AskOverwriteW(const FAR_FIND_DATA_EX &SrcData,const wchar_t *DestName,
+    int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const wchar_t *DestName,
                       DWORD DestAttr,int SameName,int Rename,int AskAppend,
                       int &Append,int &RetCode);
 
 
-    int  GetSecurityW(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa);
-    int  SetSecurityW(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
-    int  SetRecursiveSecurityW(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
+    int  GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa);
+    int  SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
+    int  SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
 
-    int  IsSameDiskW(const wchar_t *SrcPath,const wchar_t *DestPath);
+    int  IsSameDisk(const wchar_t *SrcPath,const wchar_t *DestPath);
 
     bool CalcTotalSize();
 
-    string& GetParentFolderW(const wchar_t *Src, string &strDest);
+    string& GetParentFolder(const wchar_t *Src, string &strDest);
 
-    int  CmpFullNamesW(const wchar_t *Src,const wchar_t *Dest);
+    int  CmpFullNames(const wchar_t *Src,const wchar_t *Dest);
 
-    int  CmpFullPathW(const wchar_t *Src,const wchar_t *Dest);
+    int  CmpFullPath(const wchar_t *Src,const wchar_t *Dest);
 
-    BOOL LinkRulesW(DWORD *Flags7,DWORD* Flags5,int* Selected5,const wchar_t *SrcDir,const wchar_t *DstDir,struct CopyDlgParam *CDP);
+    BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,const wchar_t *SrcDir,const wchar_t *DstDir,struct CopyDlgParam *CDP);
 
-    int  ShellSetAttrW(const wchar_t *Dest,DWORD Attr);
+    int  ShellSetAttr(const wchar_t *Dest,DWORD Attr);
 
-    BOOL CheckNulOrConW(const wchar_t *Src);
+    BOOL CheckNulOrCon(const wchar_t *Src);
 
     void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL
 
-    void ShellCopyMsgW(const wchar_t *Src,const wchar_t *Dest,int Flags);
+    void ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
@@ -161,9 +161,8 @@ class ShellCopy
     static int  ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
     static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-//    static long WINAPI CopyDlgProcW(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static int  MkSymLinkW(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags);
-    static void PR_ShellCopyMsgW(void);
+    static int  MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags);
+    static void PR_ShellCopyMsg(void);
 };
 
 

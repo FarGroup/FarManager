@@ -1359,11 +1359,11 @@ int Edit::ProcessKey(int Key)
               return FALSE;
             wcsncpy(ShortStr,Str,StrSize);
             RemoveTrailingSpacesW(ShortStr);
-            CopyToClipboardW(ShortStr);
+            CopyToClipboard(ShortStr);
             delete[] ShortStr;
           }
           else
-            CopyToClipboardW(Str);
+            CopyToClipboard(Str);
           /* KM $ */
         }
         else
@@ -1371,7 +1371,7 @@ int Edit::ProcessKey(int Key)
           {
             int Ch=Str[SelEnd];
             Str[SelEnd]=0;
-            CopyToClipboardW(Str+SelStart);
+            CopyToClipboard(Str+SelStart);
             Str[SelEnd]=Ch;
           }
       return(TRUE);
@@ -1385,9 +1385,9 @@ int Edit::ProcessKey(int Key)
         wchar_t *ClipText=NULL;
 
         if (MaxLength==-1)
-            ClipText=PasteFromClipboardW();
+            ClipText=PasteFromClipboard();
         else
-            ClipText=PasteFromClipboardExW(MaxLength);
+            ClipText=PasteFromClipboardEx(MaxLength);
         /* tran $ */
         if (ClipText==NULL)
           return(TRUE);

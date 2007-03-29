@@ -39,7 +39,7 @@ int ConvertNameToFullW (
 		return (int)strDest.GetLength ();
 	}
 
-	if ( PathMayBeAbsoluteW (lpwszSrc) )
+	if ( PathMayBeAbsolute(lpwszSrc) )
 	{
 		if ( *lpwszName &&
 				(*lpwszName != L'.' || lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0) ) &&
@@ -95,7 +95,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
   // также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
   // корректную информацию про объект, на который указывает симлинк (т.е. невозможно
   // "разыменовать симлинк")
-  if (IsLocalDriveW(strTempDest) &&
+  if (IsLocalDrive(strTempDest) &&
       WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
     DWORD FileAttr;
@@ -144,7 +144,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
 //        if(CheckParseJunction(TempDest,sizeof(TempDest)))
         {
           // Получим инфу симлинке
-          if(GetJunctionPointInfoW(TempDest, strTempDest2))
+          if(GetJunctionPointInfo(TempDest, strTempDest2))
           {
             strTempDest.LShift (4); //???
             // для случая монтированного диска (не имеющего букву)...
@@ -152,7 +152,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
             {
               string strJuncRoot;
               // получим либо букву диска, либо...
-              GetPathRootOneW(strTempDest2, strJuncRoot);
+              GetPathRootOne(strTempDest2, strJuncRoot);
               // ...но в любом случае пишем полностью.
               strTempDest2 = strJuncRoot;
             }

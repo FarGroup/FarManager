@@ -196,7 +196,7 @@ static int MainProcess(
 
         strPath = lpwszDestName1;
 
-        CutToNameUNCW (strPath);
+        CutToNameUNC(strPath);
         DeleteEndSlashW(strPath); // BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
         if( strPath.At(1)==L':' && !strPath.At(2))
@@ -224,7 +224,7 @@ static int MainProcess(
 
           strPath = lpwszDestName2;
 
-          CutToNameUNCW (strPath);
+          CutToNameUNC(strPath);
           DeleteEndSlashW(strPath); //BUGBUG
 
           if ( strPath.At(1)==L':' && !strPath.At(2))
@@ -256,7 +256,7 @@ static int MainProcess(
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-        strPath = PointToNameUNCW (lpwszDestName1);
+        strPath = PointToNameUNC(lpwszDestName1);
 
         if ( !strPath.IsEmpty() )
         {
@@ -266,7 +266,7 @@ static int MainProcess(
 
         if( *lpwszDestName2 ) // пассивная панель
         {
-          strPath = PointToNameUNCW (lpwszDestName2);
+          strPath = PointToNameUNC(lpwszDestName2);
 
           if ( !strPath.IsEmpty() )
           {
@@ -380,7 +380,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   if ( apiGetModuleFileName (NULL, g_strFarPath) )
   {
-    CutToSlashW (g_strFarPath);
+    CutToSlash(g_strFarPath);
 
     ConvertNameToLongW (g_strFarPath, g_strFarPath);
     SetEnvironmentVariableW (L"FARHOME", g_strFarPath);

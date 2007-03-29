@@ -121,8 +121,8 @@ bool FileFilter::FilterEdit()
     m_HostPanel->GetCurDir(strCurDir);
 
     ScanTree ScTree(FALSE,FALSE);
-    ScTree.SetFindPathW(strCurDir,L"*.*");
-    while (ScTree.GetNextNameW(&fdata,strFileName))
+    ScTree.SetFindPath(strCurDir,L"*.*");
+    while (ScTree.GetNextName(&fdata,strFileName))
       if(!ParseAndAddMasks(&ExtPtr,fdata.strFileName,fdata.dwFileAttributes,ExtCount,0))
         break;
   }

@@ -94,7 +94,7 @@ void NamesList::GetCurDir (string &strDir)
 void NamesList::SetCurDir (const wchar_t *Dir)
 {
   strCurrentDir = Dir;
-  PrepareDiskPathW(strCurrentDir);
+  PrepareDiskPath(strCurrentDir);
 }
 
 void NamesList::Init()

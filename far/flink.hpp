@@ -8,26 +8,25 @@ flink.hpp
 
 */
 
-int   WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest);
-int   WINAPI FarMkLinkW(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
+int   WINAPI MkLink(const wchar_t *Src,const wchar_t *Dest);
+int   WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 
-BOOL  WINAPI CanCreateHardLinksW(const wchar_t *TargetFile,const wchar_t *HardLinkName);
-int   WINAPI GetNumberOfLinksW(const wchar_t *Name);
-int   WINAPI CreateVolumeMountPointW(const wchar_t *SrcVolume, const wchar_t *LinkFolder);
+BOOL  WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLinkName);
+int   WINAPI GetNumberOfLinks(const wchar_t *Name);
+int   WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkFolder);
 
-BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
-BOOL  WINAPI CreateJunctionPointW(const wchar_t *szMountDir, const wchar_t *szDestDir);
-BOOL  WINAPI DeleteJunctionPointW(const wchar_t *szMountDir);
+BOOL  WINAPI CreateJunctionPoint(const wchar_t *szMountDir, const wchar_t *szDestDir);
+BOOL  WINAPI DeleteJunctionPoint(const wchar_t *szMountDir);
 
-DWORD WINAPI GetJunctionPointInfoW(const wchar_t *szMountDir, string &szDestBuff);
+DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &szDestBuff);
 
 //int   WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize);
 
-BOOL GetSubstNameW(int DriveType,const wchar_t *LocalName,string &strSubstName);
+BOOL GetSubstName(int DriveType,const wchar_t *LocalName,string &strSubstName);
 
 int DelSubstDrive(const wchar_t *DosDeviceName);
-void  WINAPI GetPathRootW(const wchar_t *Path, string &strRoot);
-void GetPathRootOneW(const wchar_t *Path, string &strRoot);
+void  WINAPI GetPathRoot(const wchar_t *Path, string &strRoot);
+void GetPathRootOne(const wchar_t *Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока
