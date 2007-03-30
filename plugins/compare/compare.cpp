@@ -1,7 +1,7 @@
 #define _FAR_NO_NAMELESS_UNIONS
 #define _FAR_USE_FARFINDDATA
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
+#include <plugin.hpp>
+#include <CRT/crt.hpp>
 
 #ifdef __GNUC__
 #define _i64(num) num##ll
@@ -9,6 +9,18 @@
 #else
 #define _i64(num) num##i64
 #define _ui64(num) num##ui64
+#endif
+
+#ifndef UNICODE
+#define EXP_NAME(p) _export p
+#else
+#define EXP_NAME(p) _export p ## W
+#endif
+
+#ifndef UNICODE
+#define _cFileName            cFileName
+#else
+#define _cFileName            lpwszFileName
 #endif
 
 /****************************************************************************
@@ -104,7 +116,7 @@ struct Options {
  ****************************************************************************/
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-static char  *PluginRootKey = NULL;
+static TCHAR  *PluginRootKey = NULL;
 
 static void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
 {
@@ -112,19 +124,25 @@ static void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
   ffd.ftCreationTime   = wfd.ftCreationTime;
   ffd.ftLastAccessTime = wfd.ftLastAccessTime;
   ffd.ftLastWriteTime  = wfd.ftLastWriteTime;
+#ifndef UNICODE
   ffd.nFileSizeHigh    = wfd.nFileSizeHigh;
   ffd.nFileSizeLow     = wfd.nFileSizeLow;
   ffd.dwReserved0      = wfd.dwReserved0;
   ffd.dwReserved1      = wfd.dwReserved1;
-
   lstrcpy(ffd.cFileName, wfd.cFileName);
   lstrcpy(ffd.cAlternateFileName, wfd.cAlternateFileName);
+#else
+  ffd.nFileSize               = ((__int64)wfd.nFileSizeHigh << 32) | wfd.nFileSizeLow;
+  ffd.nPackSize               = 0;
+  ffd.lpwszFileName           = wcsdup(wfd.cFileName);
+  ffd.lpwszAlternateFileName  = wcsdup(wfd.cAlternateFileName);
+#endif
 }
 
 /****************************************************************************
  * Обёртка сервисной функции FAR: получение строки из .lng-файла
  ****************************************************************************/
-static const char *GetMsg(int CompareLng)
+static const TCHAR *GetMsg(int CompareLng)
 {
   return Info.GetMsg(Info.ModuleNumber, CompareLng);
 }
@@ -136,14 +154,18 @@ static int iTruncLen;
  * Усекает начало длинных имен файлов (или дополняет короткие имена)
  * для правильного показа в сообщении сравнения
  ****************************************************************************/
-static void TrunCopy(char *cpDest, const char *cpSrc)
+static void TrunCopy(TCHAR *cpDest, const TCHAR *cpSrc)
 {
-  int iLen = lstrlen(FSF.TruncStr(lstrcpy(cpDest, cpSrc), iTruncLen));
+  int iLen = (int)lstrlen(FSF.TruncStr(lstrcpy(cpDest, cpSrc), iTruncLen));
 
   if (iLen < iTruncLen)
   {
+#ifndef UNICODE
     memset(&cpDest[iLen], ' ', iTruncLen - iLen);
-    cpDest[iTruncLen] = '\0';
+#else
+    do cpDest[iLen] = _T(' '); while(++iLen < iTruncLen);
+#endif
+    cpDest[iTruncLen] = _T('\0');
   }
 }
 
@@ -152,7 +174,7 @@ static bool bStart;
 /****************************************************************************
  * Показывает сообщение о сравнении двух файлов
  ****************************************************************************/
-static void ShowMessage(const char *Name1, const char *Name2)
+static void ShowMessage(const TCHAR *Name1, const TCHAR *Name2)
 {
   static DWORD dwTicks;
   DWORD dwNewTicks = GetTickCount();
@@ -160,11 +182,11 @@ static void ShowMessage(const char *Name1, const char *Name2)
     return;
   dwTicks = dwNewTicks;
 
-  char TruncName1[NM], TruncName2[NM];
+  TCHAR TruncName1[NM], TruncName2[NM];
   TrunCopy(TruncName1, Name1);
   TrunCopy(TruncName2, Name2);
 
-  const char *MsgItems[] = {
+  const TCHAR *MsgItems[] = {
     GetMsg(MCmpTitle),
     GetMsg(MComparing),
     TruncName1,
@@ -239,34 +261,37 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     unsigned char X1, Y1, X2, Y2;
     int           Data;
     int           DefaultRegValue;
-    char         *SelectedRegValue;
+    TCHAR         *SelectedRegValue;
     unsigned int  Flags;
     int          *StoreTo;
   } InitItems[] = {
-    /* 0*/ { DI_DOUBLEBOX,    3,  1, 62, 20, MCmpTitle,                0, NULL,                                   0, NULL },
-    /* 1*/ { DI_TEXT,         5,  2,  0,  0, MProcessBox,              0, NULL,                                   0, NULL },
-    /* 2*/ { DI_CHECKBOX,     5,  3,  0,  0, MProcessSubfolders,       0, "ProcessSubfolders",                    0, &Opt.ProcessSubfolders },
-    /* 3*/ { DI_CHECKBOX,     9,  4,  0,  0, MUseMaxScanDepth,         0, "UseMaxScanDepth",                      0, &Opt.UseMaxScanDepth },
-    /* 4*/ { DI_FIXEDIT,      0,  4,  4,  0, MNoLngStringDefined,     99, "MaxScanDepth",              DIF_MASKEDIT, &Opt.MaxScanDepth },
-    /* 5*/ { DI_CHECKBOX,     5,  5,  0,  0, MProcessSelected,         0, "ProcessSelected",                      0, &Opt.ProcessSelected },
-    /* 6*/ { DI_TEXT,         0,  6,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
-    /* 7*/ { DI_TEXT,         5,  7,  0,  0, MCompareBox,              0, NULL,                                   0, NULL },
-    /* 8*/ { DI_CHECKBOX,     5,  8,  0,  0, MCompareTime,             1, "CompareTime",                          0, &Opt.CompareTime },
-    /* 9*/ { DI_CHECKBOX,     9,  9,  0,  0, MCompareLowPrecision,     1, "LowPrecisionTime",                     0, &Opt.LowPrecisionTime },
-    /*10*/ { DI_CHECKBOX,     9, 10,  0,  0, MCompareIgnoreTimeZone,   1, "IgnorePossibleTimeZoneDifferences",    0, &Opt.IgnorePossibleTimeZoneDifferences },
-    /*11*/ { DI_CHECKBOX,     5, 11,  0,  0, MCompareSize,             1, "CompareSize",                          0, &Opt.CompareSize },
-    /*12*/ { DI_CHECKBOX,     5, 12,  0,  0, MCompareContents,         0, "CompareContents",                      0, &Opt.CompareContents },
-    /*13*/ { DI_CHECKBOX,     9, 13,  0,  0, MCompareContentsIgnore,   0, "CompareContentsIgnore",                0, &Opt.CompareContentsIgnore },
-    /*14*/ { DI_RADIOBUTTON, 13, 14,  0,  0, MCompareIgnoreNewLines,   1, "IgnoreNewLines",               DIF_GROUP, &Opt.IgnoreNewLines },
-    /*15*/ { DI_RADIOBUTTON, 13, 15,  0,  0, MCompareIgnoreWhitespace, 0, "IgnoreWhitespace",                     0, &Opt.IgnoreWhitespace },
-    /*16*/ { DI_TEXT,         0, 16,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
-    /*17*/ { DI_CHECKBOX,     5, 17,  0,  0, MMessageWhenNoDiff,       0, "MessageWhenNoDiff",                    0, &Opt.MessageWhenNoDiff },
-    /*18*/ { DI_TEXT,         0, 18,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
-    /*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, NULL,                     DIF_CENTERGROUP, NULL },
-    /*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, NULL,                     DIF_CENTERGROUP, NULL }
+    /* 0*/ { DI_DOUBLEBOX,    3,  1, 62, 20, MCmpTitle,                0, NULL,                                    0, NULL },
+    /* 1*/ { DI_TEXT,         5,  2,  0,  0, MProcessBox,              0, NULL,                                    0, NULL },
+    /* 2*/ { DI_CHECKBOX,     5,  3,  0,  0, MProcessSubfolders,       0, _T("ProcessSubfolders"),                 0, &Opt.ProcessSubfolders },
+    /* 3*/ { DI_CHECKBOX,     9,  4,  0,  0, MUseMaxScanDepth,         0, _T("UseMaxScanDepth"),                   0, &Opt.UseMaxScanDepth },
+    /* 4*/ { DI_FIXEDIT,      0,  4,  4,  0, MNoLngStringDefined,     99, _T("MaxScanDepth"),           DIF_MASKEDIT, &Opt.MaxScanDepth },
+    /* 5*/ { DI_CHECKBOX,     5,  5,  0,  0, MProcessSelected,         0, _T("ProcessSelected"),                   0, &Opt.ProcessSelected },
+    /* 6*/ { DI_TEXT,         0,  6,  0,  0, MNoLngStringDefined,      0, NULL,                        DIF_SEPARATOR, NULL },
+    /* 7*/ { DI_TEXT,         5,  7,  0,  0, MCompareBox,              0, NULL,                                    0, NULL },
+    /* 8*/ { DI_CHECKBOX,     5,  8,  0,  0, MCompareTime,             1, _T("CompareTime"),                       0, &Opt.CompareTime },
+    /* 9*/ { DI_CHECKBOX,     9,  9,  0,  0, MCompareLowPrecision,     1, _T("LowPrecisionTime"),                  0, &Opt.LowPrecisionTime },
+    /*10*/ { DI_CHECKBOX,     9, 10,  0,  0, MCompareIgnoreTimeZone,   1, _T("IgnorePossibleTimeZoneDifferences"), 0, &Opt.IgnorePossibleTimeZoneDifferences },
+    /*11*/ { DI_CHECKBOX,     5, 11,  0,  0, MCompareSize,             1, _T("CompareSize"),                       0, &Opt.CompareSize },
+    /*12*/ { DI_CHECKBOX,     5, 12,  0,  0, MCompareContents,         0, _T("CompareContents"),                   0, &Opt.CompareContents },
+    /*13*/ { DI_CHECKBOX,     9, 13,  0,  0, MCompareContentsIgnore,   0, _T("CompareContentsIgnore"),             0, &Opt.CompareContentsIgnore },
+    /*14*/ { DI_RADIOBUTTON, 13, 14,  0,  0, MCompareIgnoreNewLines,   1, _T("IgnoreNewLines"),            DIF_GROUP, &Opt.IgnoreNewLines },
+    /*15*/ { DI_RADIOBUTTON, 13, 15,  0,  0, MCompareIgnoreWhitespace, 0, _T("IgnoreWhitespace"),                  0, &Opt.IgnoreWhitespace },
+    /*16*/ { DI_TEXT,         0, 16,  0,  0, MNoLngStringDefined,      0, NULL,                        DIF_SEPARATOR, NULL },
+    /*17*/ { DI_CHECKBOX,     5, 17,  0,  0, MMessageWhenNoDiff,       0, _T("MessageWhenNoDiff"),                 0, &Opt.MessageWhenNoDiff },
+    /*18*/ { DI_TEXT,         0, 18,  0,  0, MNoLngStringDefined,      0, NULL,                        DIF_SEPARATOR, NULL },
+    /*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, NULL,                      DIF_CENTERGROUP, NULL },
+    /*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, NULL,                      DIF_CENTERGROUP, NULL }
   };
   struct FarDialogItem DialogItems[sizeof(InitItems) / sizeof(InitItems[0])];
-  char Mask[] = "99999";
+  TCHAR Mask[] = _T("99999");
+#ifdef UNICODE
+  wchar_t tmpnum[sizeof(InitItems)/sizeof(InitItems[0])][32];
+#endif
 
   memset(DialogItems,0,sizeof(DialogItems));
 
@@ -275,7 +300,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
        RegOpenKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
     hKey = 0;
 
-  int DlgData=0;
+  size_t DlgData=0;
   bool bNoFocus = true;
   size_t i;
   for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
@@ -289,21 +314,31 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     DialogItems[i].Y2             = InitItems[i].Y2;
     DialogItems[i].Focus          = FALSE;
     DialogItems[i].Flags          = InitItems[i].Flags;
+#ifndef UNICODE
     lstrcpy(DialogItems[i].Data.Data, (InitItems[i].Data == MNoLngStringDefined)
-            ? "" : GetMsg(InitItems[i].Data));
-
+            ? _T("") : GetMsg(InitItems[i].Data));
+#else
+    DialogItems[i].PtrData = (InitItems[i].Data == MNoLngStringDefined)
+            ? _T("") : GetMsg(InitItems[i].Data);
+#endif
     dwRegValue = (hKey && InitItems[i].SelectedRegValue &&
                   RegQueryValueEx(hKey, InitItems[i].SelectedRegValue, NULL,
-                  NULL, (unsigned char *)&dwRegValue, &dwSize)
+                  NULL, (LPBYTE)&dwRegValue, &dwSize)
                   == ERROR_SUCCESS ) ? dwRegValue : InitItems[i].DefaultRegValue;
     if (DialogItems[i].Type == DI_CHECKBOX || DialogItems[i].Type == DI_RADIOBUTTON)
       DialogItems[i].Param.Selected = dwRegValue;
     else if (DialogItems[i].Type == DI_FIXEDIT)
     {
-      FSF.itoa(dwRegValue, DialogItems[i].Data.Data, 10);
+#ifndef UNICODE
+#define _DD Data.Data
+#else
+      DialogItems[i].PtrData = tmpnum[i];
+#define _DD PtrData
+#endif
+      FSF.itoa(dwRegValue, DialogItems[i]._DD, 10);
       DialogItems[i].Param.Mask = Mask;
-      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].Data.Data)
-                          - (strchr(DialogItems[i-1].Data.Data, '&')?1:0) + 5;
+      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1]._DD)
+                          - (_tcschr(DialogItems[i-1]._DD, _T('&'))?1:0) + 5;
       DialogItems[i].X2 += DialogItems[i].X1;
     }
 
@@ -401,7 +436,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   if (hKey)
     RegCloseKey(hKey);
 
-  int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 22, "Contents",
+  int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 22, _T("Contents"),
                                DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]),
                                0, 0, ShowDialogProc, DlgData);
   if (ExitCode == (sizeof(InitItems) / sizeof(InitItems[0]) - 1) || ExitCode == -1)
@@ -412,7 +447,8 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
       if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
         *InitItems[i].StoreTo = (DWORD)DialogItems[i].Param.Selected;
       else if (InitItems[i].Type == DI_FIXEDIT)
-        *InitItems[i].StoreTo = FSF.atoi(DialogItems[i].Data.Data);
+        *InitItems[i].StoreTo = FSF.atoi(DialogItems[i]._DD);
+#undef _DD
 
   DWORD dwDisposition;
   if (PluginRootKey &&
@@ -466,7 +502,7 @@ static bool CheckForEsc(void)
       // Опциональное подтверждение прерывания по Esc
       if ( Info.AdvControl(Info.ModuleNumber, ACTL_GETCONFIRMATIONS, NULL) & FCS_INTERRUPTOPERATION )
       {
-        const char *MsgItems[] = {
+        const TCHAR *MsgItems[] = {
           GetMsg(MEscTitle),
           GetMsg(MEscBody),
           GetMsg(MOK),
@@ -490,9 +526,9 @@ static bool CheckForEsc(void)
 /****************************************************************************
  * Строит полное имя файла из пути и имени
  ****************************************************************************/
-static char *BuildFullFilename(const char *cpDir, const char *cpFileName)
+static TCHAR *BuildFullFilename(const TCHAR *cpDir, const TCHAR *cpFileName)
 {
-  static char cName[NM];
+  static TCHAR cName[NM];
   FSF.AddEndSlash(lstrcpy(cName, cpDir));
 
   return lstrcat(cName, cpFileName);
@@ -522,7 +558,7 @@ static int __cdecl PICompare(const void *el1, const void *el2)
       return 1;
   }
 
-  return -FSF.LStricmp(ppi1->FindData.cFileName, ppi2->FindData.cFileName);
+  return -FSF.LStricmp(ppi1->FindData._cFileName, ppi2->FindData._cFileName);
 }
 
 /****************************************************************************
@@ -537,24 +573,24 @@ static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIn
                      pInfo->ItemsNumber;
   if (!pIndex->iCount)
     return true;
-  if (!(pIndex->ppi = (PluginPanelItem **)malloc(pIndex->iCount * sizeof(pIndex->ppi[0]))))
+  if (!(pIndex->ppi = (PluginPanelItem **)malloc(pIndex->iCount*sizeof(pIndex->ppi[0]))))
     return false;
   int j = 0;
   for (int i = pInfo->ItemsNumber - 1; i >= 0 && j < pIndex->iCount; i--)
     if ( (Opt.ProcessSubfolders ||
          !(pInfo->PanelItems[i].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) &&
          (!bProcessSelected || (pInfo->PanelItems[i].Flags & PPIF_SELECTED)) &&
-         lstrcmp(pInfo->PanelItems[i].FindData.cFileName, "..") &&
-         lstrcmp(pInfo->PanelItems[i].FindData.cFileName, ".") )
+         lstrcmp(pInfo->PanelItems[i].FindData._cFileName, _T("..")) &&
+         lstrcmp(pInfo->PanelItems[i].FindData._cFileName, _T(".")) )
       {
         pIndex->ppi[j++] = &pInfo->PanelItems[i];
       }
-  if (pIndex->iCount = j)
+  if ((pIndex->iCount = j) != 0)
     FSF.qsort(pIndex->ppi, j, sizeof(pIndex->ppi[0]), PICompare);
-  else
-  {
+  else {
     free(pIndex->ppi);
     pIndex->ppi = NULL;
+    pIndex->iCount = 0;
   }
 
   return true;
@@ -575,29 +611,35 @@ static void FreePanelIndex(struct FileIndex *pIndex)
  * Замена сервисной функции Info.GetDirList(). В отличие от оной возвращает
  * список файлов только в каталоге Dir, без подкаталогов.
  ****************************************************************************/
-static int GetDirList(const char *Dir, struct PluginPanelItem **pPanelItem, int *pItemsNumber)
+static int GetDirList(PanelInfo *PInfo, const TCHAR *Dir)
 {
-  *pPanelItem = NULL;
-  *pItemsNumber = 0;
-  char cPathMask[MAX_PATH];
+  TCHAR cPathMask[MAX_PATH];
   WIN32_FIND_DATA wfdFindData;
   HANDLE hFind;
-  if ( (hFind = FindFirstFile(lstrcat(lstrcpy(cPathMask, Dir), "\\*"), &wfdFindData)) ==
+  struct PluginPanelItem **pPanelItem = &PInfo->PanelItems;
+  int *pItemsNumber = &PInfo->ItemsNumber;
+#ifndef UNICODE
+  lstrcpy(PInfo->CurDir, Dir);
+#else
+  PInfo->lpwszCurDir = wcsdup(Dir);
+#endif
+  *pPanelItem = NULL;
+  *pItemsNumber = 0;
+
+  if ( (hFind = FindFirstFile(lstrcat(lstrcpy(cPathMask, Dir), _T("\\*")), &wfdFindData)) ==
        INVALID_HANDLE_VALUE )
     return TRUE;
 
   int iRet = TRUE;
   do
   {
-    if (!lstrcmp(wfdFindData.cFileName, ".") || !lstrcmp(wfdFindData.cFileName, ".."))
+    if (!lstrcmp(wfdFindData.cFileName, _T(".")) || !lstrcmp(wfdFindData.cFileName, _T("..")))
       continue;
     if ((wfdFindData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) && !Opt.ProcessHidden)
       continue;
     struct PluginPanelItem *pPPI;
     if (!(pPPI = (struct PluginPanelItem *)realloc(*pPanelItem, (*pItemsNumber + 1) * sizeof(*pPPI))))
     {
-      free(*pPanelItem);
-      *pItemsNumber = 0;
       iRet = FALSE;
       break;
     }
@@ -611,14 +653,24 @@ static int GetDirList(const char *Dir, struct PluginPanelItem **pPanelItem, int 
 /****************************************************************************
  * Замена сервисной функции Info.FreeDirList().
  ****************************************************************************/
-static void FreeDirList(struct PluginPanelItem *PanelItem)
+static void FreeDirList(struct PanelInfo *AInfo)
 {
-  if (PanelItem)
-    free(PanelItem);
+  if (AInfo->PanelItems) {
+#ifdef UNICODE
+    for ( int i = 0; i < AInfo->ItemsNumber; i++ ) {
+      free(AInfo->PanelItems[i].FindData.lpwszAlternateFileName);
+      free(AInfo->PanelItems[i].FindData.lpwszFileName);
+    }
+#endif
+    free(AInfo->PanelItems);
+  }
 }
 
 static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll, int ScanDepth);
 static DWORD bufSize;
+
+//TODO: эта часть (до конца CompareFiles) НЕ адоптировано к unicode/locale
+//      и, тем паче, к автоопознованию файлов
 static char *ABuf, *PBuf;
 
 bool isnewline(int c)
@@ -632,7 +684,7 @@ bool isnewline(int c)
  * Возвращает true, если они совпадают.
  ****************************************************************************/
 static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData,
-                          const char *ACurDir, const char *PCurDir, int ScanDepth )
+                          const TCHAR *ACurDir, const TCHAR *PCurDir, int ScanDepth )
 {
   if (AData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
   {
@@ -646,18 +698,20 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
       memset(&AInfo, 0, sizeof(AInfo));
       memset(&PInfo, 0, sizeof(PInfo));
       bool bEqual;
-      if (!GetDirList(lstrcpy(AInfo.CurDir, BuildFullFilename(ACurDir, AData->cFileName)),
-                              &AInfo.PanelItems, &AInfo.ItemsNumber)
-          || !GetDirList(lstrcpy(PInfo.CurDir, BuildFullFilename(PCurDir, PData->cFileName)),
-                              &PInfo.PanelItems, &PInfo.ItemsNumber))
+      if(   !GetDirList(&AInfo, BuildFullFilename(ACurDir, AData->_cFileName))
+         || !GetDirList(&PInfo, BuildFullFilename(PCurDir, PData->_cFileName)))
       {
         bBrokenByEsc = true; // То ли юзер прервал, то ли ошибка чтения
         bEqual = false; // Остановим сравнение
       }
       else
         bEqual = CompareDirs(&AInfo, &PInfo, false, ScanDepth+1);
-      FreeDirList(AInfo.PanelItems);
-      FreeDirList(PInfo.PanelItems);
+      FreeDirList(&AInfo);
+      FreeDirList(&PInfo);
+#ifdef UNICODE
+      free(AInfo.lpwszCurDir);
+      free(PInfo.lpwszCurDir);
+#endif
       return bEqual;
     }
   }
@@ -665,7 +719,11 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
   {
     // Здесь сравниваем два файла
     if (Opt.CompareSize)
+#ifndef UNICODE
       if (AData->nFileSizeLow != PData->nFileSizeLow || AData->nFileSizeHigh != PData->nFileSizeHigh)
+#else
+      if (AData->nFileSize != PData->nFileSize)
+#endif
         return false;
     if (Opt.CompareTime)
     {
@@ -740,9 +798,9 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
     if (Opt.CompareContents)
     {
       HANDLE hFileA, hFileP;
-      char cpFileA[MAX_PATH], cpFileP[MAX_PATH];
-      ShowMessage(lstrcpy(cpFileA, BuildFullFilename(ACurDir, AData->cFileName)),
-                  lstrcpy(cpFileP, BuildFullFilename(PCurDir, PData->cFileName)));
+      TCHAR cpFileA[MAX_PATH], cpFileP[MAX_PATH];
+      ShowMessage(lstrcpy(cpFileA, BuildFullFilename(ACurDir, AData->_cFileName)),
+                  lstrcpy(cpFileP, BuildFullFilename(PCurDir, PData->_cFileName)));
       if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                                OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
         return false;
@@ -759,15 +817,12 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
       {
         do
         {
-          if (CheckForEsc() || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, NULL) ||
-              !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, NULL) || (ReadSizeA != ReadSizeP))
-          {
-            bEqual = false;
-            break;
-          }
-          if (!ReadSizeA)
-            break;
-          if (memcmp(ABuf, PBuf, ReadSizeA))
+          if (   CheckForEsc()
+              || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, NULL)
+              || !ReadSizeA
+              || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, NULL)
+              || ReadSizeA != ReadSizeP
+              || memcmp(ABuf, PBuf, ReadSizeA) )
           {
             bEqual = false;
             break;
@@ -781,7 +836,7 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
         char *PtrA=ABuf+ReadSizeA, *PtrP=PBuf+ReadSizeP;
         bool bExpectNewLineA = false;
         bool bExpectNewLineP = false;
-        while (1)
+        while (true)
         {
           while (PtrA >= ABuf+ReadSizeA && ReadSizeA)
           {
@@ -911,14 +966,19 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
  ****************************************************************************/
 static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll, int ScanDepth)
 {
+#ifndef _UNICODE
+#define _CurDir     CurDir
+#else
+#define _CurDir     lpwszCurDir
+#endif
   // Строим индексы файлов для быстрого сравнения
   struct FileIndex sfiA, sfiP;
-  char DirA[MAX_PATH], DirP[MAX_PATH];
-  ShowMessage(lstrcpy(DirA, BuildFullFilename(AInfo->CurDir, "*")),
-              lstrcpy(DirP, BuildFullFilename(PInfo->CurDir, "*")));
+  TCHAR DirA[MAX_PATH], DirP[MAX_PATH];
+  ShowMessage(lstrcpy(DirA, BuildFullFilename(AInfo->_CurDir, _T("*"))),
+              lstrcpy(DirP, BuildFullFilename(PInfo->_CurDir, _T("*"))));
   if (!BuildPanelIndex(AInfo, &sfiA) || !BuildPanelIndex(PInfo, &sfiP))
   {
-    const char *MsgItems[] = {
+    const TCHAR *MsgItems[] = {
       GetMsg(MNoMemTitle),
       GetMsg(MNoMemBody),
       GetMsg(MOK)
@@ -949,7 +1009,7 @@ static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *P
     switch (PICompare(&sfiA.ppi[i], &sfiP.ppi[j]))
     {
       case 0: // Имена совпали - проверяем всё остальное
-        if (CompareFiles(&sfiA.ppi[i]->FindData, &sfiP.ppi[j]->FindData, AInfo->CurDir, PInfo->CurDir, ScanDepth))
+        if (CompareFiles(&sfiA.ppi[i]->FindData, &sfiP.ppi[j]->FindData, AInfo->_CurDir, PInfo->_CurDir, ScanDepth))
         { // И остальное совпало
           sfiA.ppi[i--]->Flags &= ~PPIF_SELECTED;
           sfiP.ppi[j--]->Flags &= ~PPIF_SELECTED;
@@ -992,6 +1052,7 @@ static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *P
   FreePanelIndex(&sfiA);
   FreePanelIndex(&sfiP);
   return bDifferenceNotFound;
+#undef _CurDir
 }
 
 /****************************************************************************
@@ -1003,9 +1064,9 @@ static bool bOldFAR = false;
 /****************************************************************************
  * Эту функцию плагина FAR вызывает в первую очередь
  ****************************************************************************/
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
-  const char *cpPlugRegKey = "\\AdvCompare";
+  const TCHAR *cpPlugRegKey = _T("\\AdvCompare");
   ::Info = *Info;
 
   if (Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
@@ -1019,14 +1080,14 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     PluginRootKey = NULL;
   }
 
-  if (PluginRootKey = (char *)malloc(lstrlen(Info->RootKey) + lstrlen(cpPlugRegKey) + 1))
+  if (PluginRootKey = (TCHAR*)malloc(sizeof(TCHAR)*(lstrlen(Info->RootKey) + lstrlen(cpPlugRegKey) + 1)))
   {
     lstrcpy(PluginRootKey, Info->RootKey);
     lstrcat(PluginRootKey, cpPlugRegKey);
   }
   else
   {
-    const char *MsgItems[] = {
+    const TCHAR *MsgItems[] = {
       GetMsg(MNoMemTitle),
       GetMsg(MNoMemBody),
       GetMsg(MOK)
@@ -1043,9 +1104,9 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 /****************************************************************************
  * Эту функцию плагина FAR вызывает во вторую очередь
  ****************************************************************************/
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
-  static const char *PluginMenuStrings[1];
+  static const TCHAR *PluginMenuStrings[1];
 
   Info->StructSize              = (int)sizeof(*Info);
   Info->Flags                   = 0;
@@ -1060,12 +1121,12 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 /****************************************************************************
  * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
  ****************************************************************************/
-HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
 {
   // Если версия ФАРа слишком стара...
   if (bOldFAR)
   {
-    const char *MsgItems[] = {
+    const TCHAR *MsgItems[] = {
       GetMsg(MOldFARTitle),
       GetMsg(MOldFARBody),
       GetMsg(MOK)
@@ -1083,8 +1144,13 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
   struct PanelInfo AInfo, PInfo;
 
   // Если не удалось запросить информацию о панелях...
-  if ( !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &AInfo) ||
-       !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELINFO, &PInfo) )
+#ifndef UNICODE
+  if (   !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &AInfo)
+      || !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELINFO, &PInfo) )
+#else
+  if (   !Info.Control(CURRENT_PANEL, FCTL_GETPANELINFO, &AInfo)
+      || !Info.Control(ANOTHER_PANEL, FCTL_GETPANELINFO, &PInfo) )
+#endif
   {
     return INVALID_HANDLE_VALUE;
   }
@@ -1092,7 +1158,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
   // Если панели нефайловые...
   if (AInfo.PanelType != PTYPE_FILEPANEL || PInfo.PanelType != PTYPE_FILEPANEL)
   {
-    const char *MsgItems[] = {
+    const TCHAR *MsgItems[] = {
       GetMsg(MCmpTitle),
       GetMsg(MFilePanelsRequired),
       GetMsg(MOK)
@@ -1117,10 +1183,10 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
 
   // Откроем консольный ввод для проверок на Esc...
   HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
-  hConInp = CreateFile("CONIN$", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+  hConInp = CreateFile(_T("CONIN$"), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
   // Определим оптимальную ширину диалога сравнения...
-  HANDLE hConOut = CreateFile("CONOUT$", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+  HANDLE hConOut = CreateFile(_T("CONOUT$"), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
   CONSOLE_SCREEN_BUFFER_INFO csbiNfo;
   if (GetConsoleScreenBufferInfo(hConOut, &csbiNfo))
   {
@@ -1134,13 +1200,15 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
   CloseHandle(hConOut);
 
   // На время сравнения изменим заголовок консоли ФАРа...
-  char cConsoleTitle[MAX_PATH], cBuffer[MAX_PATH];
+  TCHAR cConsoleTitle[MAX_PATH], cBuffer[MAX_PATH];
   DWORD dwTitleSaved = GetConsoleTitle(cConsoleTitle, sizeof(cConsoleTitle));
+#ifndef UNICODE
   OSVERSIONINFO ovi;
   ovi.dwOSVersionInfoSize = sizeof(ovi);
   if (GetVersionEx(&ovi) && ovi.dwPlatformId != VER_PLATFORM_WIN32_NT)
     OemToChar(GetMsg(MComparingFiles), cBuffer);
   else
+#endif
     lstrcpy(cBuffer, GetMsg(MComparingFiles));
   SetConsoleTitle(cBuffer);
 
@@ -1150,7 +1218,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
        ERROR_SUCCESS )
     hKey = 0;
   DWORD dwSize = sizeof(DWORD);
-  bufSize = ( hKey && (RegQueryValueEx(hKey, "CompareBufferSize", NULL, NULL, (unsigned char *)&bufSize,
+  bufSize = ( hKey && (RegQueryValueEx(hKey, _T("CompareBufferSize"), NULL, NULL, (LPBYTE)&bufSize,
               &dwSize) == ERROR_SUCCESS) && (bufSize > 32767) ) ? bufSize : 32768;
   if (hKey)
     RegCloseKey(hKey);
@@ -1173,13 +1241,20 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
   // Отмечаем файлы и перерисовываем панели. Если нужно показываем сообщение...
   if (!bBrokenByEsc)
   {
+#ifndef UNICODE
     Info.Control(INVALID_HANDLE_VALUE, FCTL_SETSELECTION, &AInfo);
     Info.Control(INVALID_HANDLE_VALUE, FCTL_SETANOTHERSELECTION, &PInfo);
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWPANEL, NULL);
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWANOTHERPANEL, NULL);
+#else
+    Info.Control(CURRENT_PANEL, FCTL_SETSELECTION, &AInfo);
+    Info.Control(ANOTHER_PANEL, FCTL_SETSELECTION, &PInfo);
+    Info.Control(CURRENT_PANEL, FCTL_REDRAWPANEL, NULL);
+    Info.Control(ANOTHER_PANEL, FCTL_REDRAWPANEL, NULL);
+#endif
     if (bDifferenceNotFound && Opt.MessageWhenNoDiff)
     {
-      const char *MsgItems[] = {
+      const TCHAR *MsgItems[] = {
         GetMsg(MNoDiffTitle),
         GetMsg(MNoDiffBody),
         GetMsg(MOK)
@@ -1202,7 +1277,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
 /****************************************************************************
  * Эту функцию FAR вызывает перед выгрузкой плагина
  ****************************************************************************/
-void WINAPI _export ExitFAR(void)
+void WINAPI EXP_NAME(ExitFAR)(void)
 {
   if (PluginRootKey)
   {
