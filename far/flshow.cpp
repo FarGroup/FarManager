@@ -66,7 +66,7 @@ void FileList::ShowFileList(int Fast)
   }
   string strTitle;
   int Length;
-  struct OpenPluginInfoW Info;
+  struct OpenPluginInfo Info;
 
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -391,7 +391,7 @@ void FileList::ShowSelectedSize()
 }
 
 
-void FileList::ShowTotalSize(struct OpenPluginInfoW &Info)
+void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
 {
   if (!Opt.ShowPanelTotals && PanelMode==PLUGIN_PANEL && (Info.Flags & OPIF_REALNAMES)==0)
     return;
@@ -492,9 +492,9 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 }
 
 
-void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfoW *PlugInfo)
+void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
 {
-  struct OpenPluginInfoW Info;
+  struct OpenPluginInfo Info;
   if (PanelMode==PLUGIN_PANEL)
     if (PlugInfo==NULL)
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);

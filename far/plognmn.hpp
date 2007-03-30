@@ -13,13 +13,13 @@ class PreserveLongName
 
 class PreserveLongNameW
 {
-  private:
-    string strSaveLongName;
-    string strSaveShortName;
-    int Preserve;
-  public:
-    PreserveLongNameW(const wchar_t *ShortName,int Preserve);
-    ~PreserveLongNameW();
+	private:
+		string strSaveLongName;
+		string strSaveShortName;
+		int Preserve;
+	public:
+		PreserveLongNameW(const wchar_t *ShortName,int Preserve);
+		~PreserveLongNameW();
 };
 
 

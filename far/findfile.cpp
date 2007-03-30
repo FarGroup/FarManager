@@ -105,8 +105,8 @@ static FileFilter *Filter;
 
 int _cdecl SortItems(const void *p1,const void *p2)
 {
-  PluginPanelItemW *Item1=(PluginPanelItemW *)p1;
-  PluginPanelItemW *Item2=(PluginPanelItemW *)p2;
+  PluginPanelItem *Item1=(PluginPanelItem *)p1;
+  PluginPanelItem *Item2=(PluginPanelItem *)p2;
   string strN1, strN2;
   if (*Item1->FindData.lpwszFileName)
     strN1 = Item1->FindData.lpwszFileName;
@@ -599,7 +599,7 @@ FindFiles::FindFiles()
     {
       if (PluginMode)
       {
-        struct OpenPluginInfoW Info;
+        struct OpenPluginInfo Info;
         HANDLE hPlugin=ActivePanel->GetPluginHandle();
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
         /* $ 14.05.2001 DJ
@@ -874,13 +874,13 @@ void FindFiles::AdvancedDialog()
   xf_free(SizeItem);
 }
 
-int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItemW *PanelItem,
+int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              const wchar_t *DestPath, string &strResultName)
 {
   _ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
   HANDLE hPlugin = ArcList[ArcIndex]->hPlugin;
   string strSaveDir;
-  struct OpenPluginInfoW Info;
+  struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
   strSaveDir = Info.CurDir;
@@ -897,7 +897,7 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItemW *PanelItem,
   SetPluginDirectory(strFileName,hPlugin);
 
   int nItemsNumber;
-  struct PluginPanelItemW *pItems;
+  struct PluginPanelItem *pItems;
   int nResult = 0;
 
   wchar_t *lpFileNameToFind = _wcsdup (PanelItem->FindData.lpwszFileName);
@@ -915,7 +915,7 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItemW *PanelItem,
   {
     for (int i = 0; i < nItemsNumber; i++)
     {
-      struct PluginPanelItemW *pItem = &pItems[i];
+      struct PluginPanelItem *pItem = &pItems[i];
 
       wchar_t *lpwszFileName = _wcsdup(pItem->FindData.lpwszFileName);
       xf_free (pItem->FindData.lpwszFileName);
@@ -1137,7 +1137,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
               }
             }
 
-            PluginPanelItemW FileItem;
+            PluginPanelItem FileItem;
             memset(&FileItem,0,sizeof(FileItem));
 
             apiFindDataExToData(&FindList[ItemIndex]->FindData, &FileItem.FindData);
@@ -1536,7 +1536,7 @@ int FindFiles::FindFilesProcess()
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     HANDLE hPlugin=ActivePanel->GetPluginHandle();
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     FindFileArcIndex = AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir);
@@ -1606,7 +1606,7 @@ int FindFiles::FindFilesProcess()
     // Отработаем переброску на временную панель
     {
       int ListSize = FindListCount;
-      PluginPanelItemW *PanelItems=new PluginPanelItemW[ListSize];
+      PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
       if (PanelItems==NULL)
         ListSize=0;
       int ItemsNumber=0;
@@ -1627,7 +1627,7 @@ int FindFiles::FindFilesProcess()
             if (IsArchive)
               FindList[i]->FindData.strFileName = ArcList[FindList[i]->ArcIndex]->strArcName;
 
-            PluginPanelItemW *pi=&PanelItems[ItemsNumber++];
+            PluginPanelItem *pi=&PanelItems[ItemsNumber++];
             memset(pi,0,sizeof(*pi));
 
             apiFindDataExToData (&FindList[i]->FindData, &pi->FindData);
@@ -1694,7 +1694,7 @@ int FindFiles::FindFilesProcess()
         } /* if */
         if (hPlugin != INVALID_HANDLE_VALUE)
         {
-          struct OpenPluginInfoW Info;
+          struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
           /* $ 19.01.2003 KM
@@ -1818,7 +1818,7 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
     // RereadPlugin
     {
       int FileCount=0;
-      PluginPanelItemW *PanelData=NULL;
+      PluginPanelItem *PanelData=NULL;
       if (CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&FileCount,OPM_FIND))
         CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,FileCount);
     }
@@ -2074,7 +2074,7 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
   DWORD SaveArcIndex = FindFileArcIndex;
   {
     SearchMode=SEARCH_FROM_CURRENT;
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hArc,&Info);
 
     FindFileArcIndex = AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir);
@@ -2110,7 +2110,7 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
 /* $ 01.07.2001 IS
    Используем FileMaskForFindFile вместо GetCommaWord
 */
-int FindFiles::IsFileIncluded(PluginPanelItemW *FileItem,const wchar_t *FullName,DWORD FileAttr)
+int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD FileAttr)
 {
   CriticalSectionLock Lock (ffCS);
 
@@ -2724,7 +2724,7 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     /* $ 15.10.2001 VVM */
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     strSaveDir = Info.CurDir;
     WaitForSingleObject(hPluginMutex,INFINITE);
@@ -2777,7 +2777,7 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
 
 void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 {
-  PluginPanelItemW *PanelData=NULL;
+  PluginPanelItem *PanelData=NULL;
   int ItemCount=0;
 
   WaitForSingleObject(hPluginMutex,INFINITE);
@@ -2813,7 +2813,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       while (PauseSearch)
         Sleep(10);
 
-      PluginPanelItemW *CurPanelItem=PanelData+I;
+      PluginPanelItem *CurPanelItem=PanelData+I;
       string strCurName=CurPanelItem->FindData.lpwszFileName;
       string strFullName;
       if (wcscmp(strCurName,L".")==0 || TestParentFolderName(strCurName))
@@ -2868,7 +2868,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
   {
     for (int I=0;I<ItemCount && !StopSearch;I++)
     {
-      PluginPanelItemW *CurPanelItem=PanelData+I;
+      PluginPanelItem *CurPanelItem=PanelData+I;
       string strCurName=CurPanelItem->FindData.lpwszFileName;
       if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
           wcscmp(strCurName,L".")!=0 && !TestParentFolderName(strCurName) &&

@@ -247,7 +247,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   int SizeBuffer=2048;
   if(DestPanelMode == PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     DestPanel->GetOpenPluginInfo(&Info);
     int LenCurDir=(int)wcslen(NullToEmptyW(Info.CurDir));
     if(SizeBuffer < LenCurDir)
@@ -519,7 +519,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         break;
       case PLUGIN_PANEL:
         {
-          struct OpenPluginInfoW Info;
+          struct OpenPluginInfo Info;
           DestPanel->GetOpenPluginInfo(&Info);
 
           string strFormat = NullToEmptyW(Info.Format);

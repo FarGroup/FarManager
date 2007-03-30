@@ -455,7 +455,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
 #endif
 }
 
-void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfoW *Info,FILE *fp)
+void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp)
 {
 #if defined(SYSLOG)
   if(!IsLogON())

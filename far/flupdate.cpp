@@ -41,7 +41,7 @@ void FileList::Update(int Mode)
         break;
       case PLUGIN_PANEL:
         {
-          struct OpenPluginInfoW Info;
+          struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           ProcessPluginCommand();
           if (PanelMode!=PLUGIN_PANEL)
@@ -409,7 +409,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (AnotherPanel->GetMode()==PLUGIN_PANEL)
   {
     HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-    PluginPanelItemW *PanelData=NULL, *PtrPanelData;
+    PluginPanelItem *PanelData=NULL, *PtrPanelData;
     string strPath;
     int PanelCount=0;
 
@@ -615,7 +615,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   LastCurFile=-1;
 
-  struct OpenPluginInfoW Info;
+  struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
   if (Opt.ShowPanelFree && (Info.Flags & OPIF_REALNAMES))
@@ -627,7 +627,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       FreeDiskSize=0;
   }
 
-  PluginPanelItemW *PanelData=NULL;
+  PluginPanelItem *PanelData=NULL;
   int PluginFileCount;
 
   if (!CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
@@ -695,7 +695,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   int FileListCount=0;
 
-  struct PluginPanelItemW *CurPanelData=PanelData;
+  struct PluginPanelItem *CurPanelData=PanelData;
   for (I=0; I < FileCount; I++, CurPanelData++)
   {
     ListData[FileListCount] = new FileListItem;
@@ -803,7 +803,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 }
 
 
-void FileList::ReadDiz(struct PluginPanelItemW *ItemList,int ItemLength,DWORD dwFlags)
+void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 {
   if (DizRead)
     return;
@@ -814,10 +814,10 @@ void FileList::ReadDiz(struct PluginPanelItemW *ItemList,int ItemLength,DWORD dw
     Diz.Read(strCurDir);
   else
   {
-    PluginPanelItemW *PanelData=NULL;
+    PluginPanelItem *PanelData=NULL;
     int PluginFileCount=0;
 
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     if (Info.DescrFilesNumber==0)
@@ -838,7 +838,7 @@ void FileList::ReadDiz(struct PluginPanelItemW *ItemList,int ItemLength,DWORD dw
     {
       for (int I=0;I<Info.DescrFilesNumber;I++)
       {
-        PluginPanelItemW *CurPanelData=PanelData;
+        PluginPanelItem *CurPanelData=PanelData;
         for (int J=0; J < PluginFileCount; J++, CurPanelData++)
         {
             string strFileName = CurPanelData->FindData.lpwszFileName;

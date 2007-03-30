@@ -166,7 +166,7 @@ void PrintFiles(Panel *SrcPanel)
           struct FileListItem ListItem;
           if (SrcPanel->GetLastSelectedItem(&ListItem))
           {
-            struct PluginPanelItemW PanelItem;
+            struct PluginPanelItem PanelItem;
             FileList::FileListToPluginItem(&ListItem,&PanelItem);
             if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
               SrcFile=_wfopen(strTempName,L"rb");

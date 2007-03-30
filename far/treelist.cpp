@@ -912,7 +912,7 @@ int TreeList::ProcessKey(int Key)
 
         if (ToPlugin==1)
         {
-          struct PluginPanelItemW *ItemList=new PluginPanelItemW[1];
+          struct PluginPanelItem *ItemList=new PluginPanelItem[1];
           int ItemNumber=1;
           HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 

@@ -97,29 +97,29 @@ class PluginManager
 {
 public:
 
-    BitFlags Flags;        // флаги манагера плагинов
-    DWORD Reserved;        // в будущем это может быть второй порцией флагов
+	BitFlags Flags;        // флаги манагера плагинов
+	DWORD Reserved;        // в будущем это может быть второй порцией флагов
 
-    Plugin **PluginsData;
-    int    PluginsCount;
+	Plugin **PluginsData;
+	int    PluginsCount;
 
-    Plugin *CurPluginItem;
+	Plugin *CurPluginItem;
 
-    FileEditor *CurEditor;
-    Viewer *CurViewer;     // 27.09.2000 SVS: Указатель на текущий Viewer
+	FileEditor *CurEditor;
+	Viewer *CurViewer;     // 27.09.2000 SVS: Указатель на текущий Viewer
 
 private:
 
-    void LoadIfCacheAbsent();
-    void ReadUserBackgound(SaveScreen *SaveScr);
-    int GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
-    BOOL TestPluginInfo(Plugin *Item,PluginInfoW *Info);
-    BOOL TestOpenPluginInfo(Plugin *Item,OpenPluginInfoW *Info);
+	void LoadIfCacheAbsent();
+	void ReadUserBackgound(SaveScreen *SaveScr);
+	int GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
+	BOOL TestPluginInfo(Plugin *Item,PluginInfo *Info);
+	BOOL TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
 
 public:
 
-    PluginManager();
-    ~PluginManager();
+	PluginManager();
+	~PluginManager();
 
 public:
 
@@ -131,30 +131,30 @@ public:
 	int AddPlugin (Plugin *pPlugin);
 	int RemovePlugin (Plugin *pPlugin);
 
-    void LoadPlugins();
-    void LoadPluginsFromCache();
+	void LoadPlugins();
+	void LoadPluginsFromCache();
 
-    BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
+	BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
 
-    void Configure(int StartPos=0);
-    void ConfigureCurrent(Plugin *pPlugin,int INum);
-    int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);
-    // $ 21.08.2002 IS - Параметр PluginTextSize, чтобы знать, сколько брать
-    int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,int &ItemPresent,
-      int &PluginTextNumber, string &strPluginText);
+	void Configure(int StartPos=0);
+	void ConfigureCurrent(Plugin *pPlugin,int INum);
+	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);
+	// $ 21.08.2002 IS - Параметр PluginTextSize, чтобы знать, сколько брать
+	int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,int &ItemPresent,
+	int &PluginTextNumber, string &strPluginText);
 
-    int UseFarCommand(HANDLE hPlugin,int CommandType);
-    void ReloadLanguage();
-    void DiscardCache();
-    int ProcessCommandLine(const wchar_t *Command,Panel *Target=NULL);
+	int UseFarCommand(HANDLE hPlugin,int CommandType);
+	void ReloadLanguage();
+	void DiscardCache();
+	int ProcessCommandLine(const wchar_t *Command,Panel *Target=NULL);
 
-    // $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-    int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
-    Plugin *FindPlugin(DWORD SysID);
+	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
+	int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
+	Plugin *FindPlugin(DWORD SysID);
 
-    void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
-    void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
-    BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
+	void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
+	void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
+	BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
 
 //api functions
 
@@ -162,24 +162,24 @@ public:
 
 	HANDLE OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item);
 	HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
-	HANDLE OpenFindListPlugin(const PluginPanelItemW *PanelItem,int ItemsNumber);
+	HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
 	void ClosePlugin(HANDLE hPlugin);
-	int GetPluginInfo(Plugin *pPlugin, PluginInfoW *Info);
-	void GetOpenPluginInfo(HANDLE hPlugin,OpenPluginInfoW *Info);
-	int GetFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,int Silent);
-	void FreeFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
-	int GetVirtualFindData(HANDLE hPlugin,PluginPanelItemW **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber);
+	int GetPluginInfo(Plugin *pPlugin, PluginInfo *Info);
+	void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
+	int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int Silent);
+	void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
+	int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
+	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
 	int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
-	int GetFile(HANDLE hPlugin,PluginPanelItemW *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
-	int GetFiles(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
-	int PutFiles(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int Move,int OpMode);
-	int DeleteFiles(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
+	int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
+	int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
+	int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+	int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 	int MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode);
-	int ProcessHostFile(HANDLE hPlugin,PluginPanelItemW *PanelItem,int ItemsNumber,int OpMode);
+	int ProcessHostFile(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 	int ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
 	int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
-	int Compare(HANDLE hPlugin,const PluginPanelItemW *Item1,const PluginPanelItemW *Item2,unsigned int Mode);
+	int Compare(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(INPUT_RECORD *Rec);
 	int ProcessEditorEvent(int Event,void *Param);
 	int ProcessViewerEvent(int Event,void *Param);

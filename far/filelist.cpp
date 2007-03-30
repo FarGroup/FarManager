@@ -291,7 +291,7 @@ int _cdecl SortList(const void *el1,const void *el2)
     SaveFlags1=SPtr1->UserFlags;
     SaveFlags2=SPtr2->UserFlags;
     SPtr1->UserFlags=SPtr2->UserFlags=0;
-    PluginPanelItemW pi1,pi2;
+    PluginPanelItem pi1,pi2;
     FileList::FileListToPluginItem(SPtr1,&pi1);
     FileList::FileListToPluginItem(SPtr2,&pi2);
     SPtr1->UserFlags=SaveFlags1;
@@ -452,7 +452,7 @@ int FileList::ProcessKey(int Key)
     {
       if (PanelMode==PLUGIN_PANEL)
       {
-        struct OpenPluginInfoW Info;
+        struct OpenPluginInfo Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
         return *NullToEmptyW(Info.CurDir)==0;
       }
@@ -550,7 +550,7 @@ int FileList::ProcessKey(int Key)
       PluginHandle *ph = (PluginHandle*)hPlugin;
       strPluginModule = ph->pPlugin->m_strModuleName;
 
-      struct OpenPluginInfoW Info;
+      struct OpenPluginInfo Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
       strPluginFile = NullToEmptyW(Info.HostFile);
@@ -629,7 +629,7 @@ int FileList::ProcessKey(int Key)
 
               if ( LocalStricmpW(pPlugin->m_strModuleName,strPluginModule)==0)
               {
-                if (pPlugin->pOpenPlugin)
+                if (pPlugin->pOpenPluginW)
                 {
                   HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)(const wchar_t *)strPluginData);
                   if (hNewPlugin!=INVALID_HANDLE_VALUE)
@@ -853,7 +853,7 @@ int FileList::ProcessKey(int Key)
           if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
           {
             bool realName=PanelMode!=PLUGIN_PANEL;
-            struct OpenPluginInfoW Info={0};
+            struct OpenPluginInfo Info={0};
             if (PanelMode==PLUGIN_PANEL)
             {
               CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -1024,7 +1024,7 @@ int FileList::ProcessKey(int Key)
       if (PanelMode==PLUGIN_PANEL)// && *PluginsStack[PluginsStackSize-1].HostFile)
       {
         int CheckFullScreen=IsFullScreen();
-        struct OpenPluginInfoW Info;
+        struct OpenPluginInfo Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
         if (!Info.CurDir || *Info.CurDir == 0)
         {
@@ -1057,7 +1057,7 @@ int FileList::ProcessKey(int Key)
       {
         if (PanelMode==PLUGIN_PANEL)
         {
-          struct OpenPluginInfoW Info;
+          struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           if (Info.HostFile!=NULL && *Info.HostFile!=0)
             ProcessKey(KEY_F5);
@@ -1092,13 +1092,13 @@ int FileList::ProcessKey(int Key)
       _ALGO(CleverSysLog clv(L"Edit/View"));
       _ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
-      struct OpenPluginInfoW Info;
+      struct OpenPluginInfo Info;
       BOOL RefreshedPanel=TRUE;
 
       if(PanelMode==PLUGIN_PANEL)
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
       else
-        memset(&Info,0,sizeof(struct OpenPluginInfoW));
+        memset(&Info,0,sizeof(Info));
 
 
       if (Key == KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
@@ -1247,7 +1247,7 @@ int FileList::ProcessKey(int Key)
 
           if (!NewFile)
           {
-            struct PluginPanelItemW PanelItem;
+            struct PluginPanelItem PanelItem;
             FileListToPluginItem(CurPtr,&PanelItem);
             if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW)))
             {
@@ -1326,7 +1326,7 @@ int FileList::ProcessKey(int Key)
 
             if (PluginMode && UploadFile)
             {
-              struct PluginPanelItemW PanelItem;
+              struct PluginPanelItem PanelItem;
               string strSaveDir;
 
               FarGetCurDir(strSaveDir);
@@ -1500,7 +1500,7 @@ int FileList::ProcessKey(int Key)
 
         if (PanelMode==PLUGIN_PANEL)
         {
-          struct OpenPluginInfoW Info;
+          struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           RealName=Info.Flags&OPIF_REALNAMES;
         }
@@ -1916,7 +1916,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     BOOL IsRealName=FALSE;
     if(PanelMode==PLUGIN_PANEL)
     {
-      struct OpenPluginInfoW Info;
+      struct OpenPluginInfo Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
       IsRealName=Info.Flags&OPIF_REALNAMES;
     }
@@ -1976,7 +1976,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       if(!FarMkTempEx(strTempDir))
         return;
       CreateDirectoryW(strTempDir,NULL);
-      struct PluginPanelItemW PanelItem;
+      struct PluginPanelItem PanelItem;
       FileListToPluginItem(CurPtr,&PanelItem);
 
       if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW))
@@ -2089,7 +2089,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   int PluginClosed=FALSE,GoToPanelFile=FALSE;
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     /* $ 16.01.2002 VVM
@@ -3026,7 +3026,7 @@ void FileList::SelectFiles(int Mode)
   int RawSelection=FALSE;
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     RawSelection=(Info.Flags & OPIF_RAWSELECTION);
   }
@@ -3194,7 +3194,7 @@ void FileList::UpdateViewPanel()
         if(!FarMkTempEx(strTempDir))
           return;
         CreateDirectoryW(strTempDir,NULL);
-        struct PluginPanelItemW PanelItem;
+        struct PluginPanelItem PanelItem;
         FileListToPluginItem(CurPtr,&PanelItem);
         if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW))
         {
@@ -3257,7 +3257,7 @@ void FileList::CompareDir()
   int CompareFatTime=FALSE;
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if (Info.Flags & OPIF_COMPAREFATTIME)
       CompareFatTime=TRUE;
@@ -3265,7 +3265,7 @@ void FileList::CompareDir()
   }
   if (Another->PanelMode==PLUGIN_PANEL && !CompareFatTime)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(Another->hPlugin,&Info);
     if (Info.Flags & OPIF_COMPAREFATTIME)
       CompareFatTime=TRUE;
@@ -3377,7 +3377,7 @@ void FileList::CompareDir()
 
 void FileList::CopyNames(int FillPathName,int UNC)
 {
-  struct OpenPluginInfoW Info;
+  struct OpenPluginInfo Info;
   wchar_t *CopyData=NULL;
   long DataSize=0;
   string strSelName, strSelShortName, strQuotedName;
@@ -3628,7 +3628,7 @@ void FileList::SetTitle()
     string strTitleDir = L"{";
     if (PanelMode==PLUGIN_PANEL)
     {
-      struct OpenPluginInfoW Info;
+      struct OpenPluginInfo Info;
 
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
@@ -4166,7 +4166,7 @@ void FileList::ProcessCopyKeys(int Key)
               AnotherPanel->GetCurDir(strDestPath);
               if(!AnotherPanel->IsVisible())
               {
-                struct OpenPluginInfoW Info;
+                struct OpenPluginInfo Info;
                 CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
                 if (Info.HostFile!=NULL && *Info.HostFile!=0)
                 {
@@ -4241,7 +4241,7 @@ BOOL FileList::UpdateKeyBar()
 
   if (GetMode() == PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     GetOpenPluginInfo(&Info);
     if (Info.KeyBar)
     {
@@ -4249,7 +4249,7 @@ BOOL FileList::UpdateKeyBar()
       KB->SetShift((const wchar_t **)Info.KeyBar->ShiftTitles,12);
       KB->SetAlt((const wchar_t **)Info.KeyBar->AltTitles,12);
       KB->SetCtrl((const wchar_t **)Info.KeyBar->CtrlTitles,12);
-      if(Info.StructSize >= sizeof(struct OpenPluginInfoW))
+      if(Info.StructSize >= sizeof(struct OpenPluginInfo))
       {
         KB->SetCtrlShift((const wchar_t **)Info.KeyBar->CtrlShiftTitles,12);
         KB->SetAltShift((const wchar_t **)Info.KeyBar->AltShiftTitles,12);
@@ -4290,14 +4290,14 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
   strPrefix = L"";
   if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
   {
-    OpenPluginInfoW Info;
+    OpenPluginInfo Info;
     PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
 
     CtrlObject->Plugins.GetOpenPluginInfo(ph,&Info);
 
     if(!(Info.Flags & OPIF_REALNAMES))
     {
-      PluginInfoW PInfo;
+      PluginInfo PInfo;
 
       CtrlObject->Plugins.GetPluginInfo(ph->pPlugin, &PInfo);
 

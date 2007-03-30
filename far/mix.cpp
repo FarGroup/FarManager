@@ -626,7 +626,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize)
 {
-  struct PluginPanelItemW *PanelItem=NULL;
+  struct PluginPanelItem *PanelItem=NULL;
   int ItemsNumber,ExitCode;
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=0;
@@ -1715,7 +1715,7 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortN
           else
           {
             FileList *SrcFilePanel=(FileList *)SrcPanel;
-            struct OpenPluginInfoW Info;
+            struct OpenPluginInfo Info;
 
             CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
             FileList::AddPluginPrefix(SrcFilePanel,strPathName);

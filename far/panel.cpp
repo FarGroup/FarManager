@@ -47,24 +47,22 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
 */
 class ChDiskPluginItem
 {
-  public:
-   MenuItemEx Item;
-   unsigned int HotKey;
-   ChDiskPluginItem()
-   {
-     Clear ();
-   }
-   void Clear ()
-   {
-        HotKey = 0;
-        Item.Clear ();
-   }
-   bool operator==(const ChDiskPluginItem &rhs) const;
-   int operator<(const ChDiskPluginItem &rhs) const;
-   const ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
-   ~ChDiskPluginItem()
-   {
-   }
+public:
+	MenuItemEx Item;
+	unsigned int HotKey;
+	ChDiskPluginItem()
+	{
+		Clear ();
+	}
+	void Clear ()
+	{
+		HotKey = 0;
+		Item.Clear ();
+	}
+	bool operator==(const ChDiskPluginItem &rhs) const;
+	int operator<(const ChDiskPluginItem &rhs) const;
+	const ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
+	~ChDiskPluginItem()	{}
 };
 
 bool ChDiskPluginItem::operator==(const ChDiskPluginItem &rhs) const
@@ -268,7 +266,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ( Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM) )
 		{
 			string strVolumeName, strFileSystemName;
-			
+
 			if ( ShowDisk && !apiGetVolumeInformation (
 					strRootDir,
 					&strVolumeName,
@@ -350,23 +348,23 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ( FirstCall )
 		{
 			ChDiskItem.SetSelect(I==Pos);
-			
+
 			if ( !SetSelected )
 				SetSelected=(I==Pos);
 		}
 		else
-		{ 
+		{
 			if ( Pos < DiskCount )
 			{
 				ChDiskItem.SetSelect(MenuLine==Pos);
-				
+
 				if( !SetSelected )
 					SetSelected=(MenuLine==Pos);
 			}
 		}
 
 		ChDiskItem.strName = strMenuText;
-		
+
 		if ( strMenuText.GetLength()>4 )
 			ShowSpecial=TRUE;
 
@@ -378,29 +376,29 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		ChDisk.SetUserData (&item, sizeof(item), ChDisk.AddItem(&ChDiskItem));
 		MenuLine++;
-	} 
-	
+	}
+
 	int PluginMenuItemsCount=0;
 
 	if ( Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS )
 	{
 		int UsedNumbers[10];
-		
+
 		memset(UsedNumbers,0,sizeof(UsedNumbers));
-		
+
 		TArray<ChDiskPluginItem> MPItems, MPItemsNoHotkey;
 		ChDiskPluginItem OneItem;
-		
+
 		// Список дополнительных хоткеев, для случая, когда плагинов, добавляющих пункт в меню, больше 9.
-		
+
 		const wchar_t *AdditionalHotKey=UMSG(MAdditionalHotKey);
 
 		int AHKPos = 0; // индекс в списке хоткеев
 		int AHKSize = (int)wcslen(AdditionalHotKey); // для предотвращения выхода за границу массива
-		
+
 		int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
 		int PluginTextNumber, ItemPresent, HotKey, Done=FALSE;
-		
+
 		string strPluginText;
 
 		while ( !Done )
@@ -412,9 +410,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					Done=TRUE;
 					break;
 				}
-				
+
 				Plugin *pPlugin = CtrlObject->Plugins.PluginsData[PluginNumber];
-				
+
 				if ( !CtrlObject->Plugins.GetDiskMenuItem(
 						pPlugin,
 						PluginItem,
@@ -426,7 +424,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					Done=TRUE;
 					break;
 				}
-				
+
 				if ( !ItemPresent )
 					break;
 
@@ -451,7 +449,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 					if ( PluginTextNumber < 10 )
 						HotKey = PluginTextNumber+L'0';
-					else 
+					else
 					{
 						if ( AHKPos < AHKSize )
 							HotKey = AdditionalHotKey[AHKPos];
@@ -459,23 +457,23 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							HotKey = 0;
 					}
 				}
-				
+
 				strMenuText=L"";
 
                 if ( HotKey < 0 )
                 	strMenuText = ShowSpecial?strPluginText:L"";
-                else 
+                else
                 {
                 	if ( PluginTextNumber < 10 )
                 		strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
-                	else 
+                	else
                 	{
                 		if ( AHKPos<AHKSize )
                 		{
                 			strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
                 			++AHKPos;
                 		}
-                		else 
+                		else
                 		{
                 			if ( ShowSpecial ) // IS: не добавляем пустые строки!
                 			{
@@ -497,7 +495,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					item->nItem = PluginItem;
 
 					OneItem.Item.strName = strMenuText;
-					
+
 					OneItem.Item.UserDataSize=sizeof (PanelMenuItem);
 					OneItem.Item.UserData=(char*)item;
 
@@ -522,13 +520,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		}
 
 		// IS: теперь произведем назначение автохоткеев
-		
+
 		PluginTextNumber=0;
-		
+
 		for (int i=0;;++i)
 		{
 			ChDiskPluginItem *item = MPItemsNoHotkey.getItem(i);
-			
+
 			if ( !item )
 				break;
 
@@ -537,17 +535,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				while (PluginTextNumber < 10 && UsedNumbers[PluginTextNumber])
 					PluginTextNumber++;
 			}
-				
+
 			UsedNumbers[PluginTextNumber%10]=1;
 
 			strMenuText=L"";
-				
+
 			if ( PluginTextNumber<10 )
 			{
 				item->HotKey=PluginTextNumber+'0';
 				strMenuText.Format (L"&%c: %s", item->HotKey, (const wchar_t*)item->Item.strName);
 			}
-			else 
+			else
 			{
 				if( AHKPos < AHKSize )
 				{
@@ -555,7 +553,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					strMenuText.Format (L"&%c: %s", item->HotKey, (const wchar_t*)item->Item.strName);
 					++AHKPos;
 				}
-				else 
+				else
 				{
 					if ( ShowSpecial ) // IS: не добавляем пустые строки!
 					{
@@ -564,7 +562,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					}
 				}
 			}
-				
+
 			item->Item.strName = strMenuText;
 
 			ChDiskPluginItem *pResult = NULL;
@@ -579,7 +577,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		MPItems.Sort();
 		MPItems.Pack(); // выкинем дубли
-        
+
         PluginMenuItemsCount=MPItems.getSize();
 
 		if ( PluginMenuItemsCount )
@@ -588,9 +586,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			ChDiskItem.Flags|=LIF_SEPARATOR;
 			ChDiskItem.UserDataSize=0;
 			ChDisk.AddItem(&ChDiskItem);
-            
+
             ChDiskItem.Flags&=~LIF_SEPARATOR;
-            
+
             for (int I=0; I < PluginMenuItemsCount; ++I)
             {
             	if(Pos > DiskCount && !SetSelected)
@@ -602,20 +600,20 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             	}
 
             	ChDisk.AddItem(&MPItems.getItem(I)->Item);
-            	
+
             	delete (PanelMenuItem*)MPItems.getItem(I)->Item.UserData; //ммда...
 			}
 		}
 	}
 
 	int X=X1+5;
-	
+
 	if ( (this == CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40) )
 		X = (X2-X1+1)/2+5;
-		
+
 	int Y = (ScrY+1-(DiskCount+PluginMenuItemsCount+5))/2;
-	
-	if (Y < 1) 
+
+	if (Y < 1)
 		Y=1;
 
     ChDisk.SetPosition(X,Y,0,0);
@@ -645,14 +643,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				if ( item && !item->bIsPlugin )
 				{
 					string strDosDeviceName;
-					
+
 					strDosDeviceName.Format (L"%c:\\", item->cDrive);
 					Execute(strDosDeviceName,FALSE,TRUE,TRUE);
 				}
 			}
 			break;
 
-			case KEY_CTRLPGUP:  
+			case KEY_CTRLPGUP:
 			case KEY_CTRLNUMPAD9:
 			{
 				if ( Opt.PgUpChangeDisk )
@@ -686,44 +684,44 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if ( (item->nDriveType == DRIVE_REMOVABLE) || IsDriveTypeCDROM(item->nDriveType) )
 					{
-						if ( (item->nDriveType == DRIVE_REMOVABLE) && 
-							 (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT) && 
+						if ( (item->nDriveType == DRIVE_REMOVABLE) &&
+							 (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
 							 !IsEjectableMedia(item->cDrive) )
 							break;
-							
+
 						// первая попытка извлечь диск
-						
+
 						if ( !EjectVolume(item->cDrive, EJECT_NO_MESSAGE) )
 						{
 							// запоминаем состояние панелей
 							int CMode=GetMode();
 							int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
-							
+
 							string strTmpCDir, strTmpADir;
 							GetCurDir(strTmpCDir);
 
 							CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir(strTmpADir);
-                            
+
                             // отключим меню, иначе бага с прорисовкой этой самой меню
                             // (если меню поболее высоты экрана)
-                            
+
                             ChDisk.Hide();
                             ChDisk.Lock(); // ... и запретим ее перерисовку.
-                            
+
                             // "цикл до умопомрачения"
                             int DoneEject=FALSE;
-                            
+
                             while ( !DoneEject )
                             {
                             	// "освободим диск" - перейдем при необходимости в домашний каталог
                             	// TODO: А если домашний каталог - CD? ;-)
 
                                 IfGoHome(item->cDrive);
-                                
+
                                 // очередная попытка извлечения без вывода сообщения
-                                
+
                                 int ResEject = EjectVolume(item->cDrive, EJECT_NO_MESSAGE);
-                                
+
                                 if ( !ResEject )
                                 {
                                 	// восстановим пути - это избавит нас от левых данных в панели.
@@ -732,12 +730,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
                                 	if ( CMode != PLUGIN_PANEL )
                                 		SetCurDir(strTmpCDir, FALSE);
-							
+
 									// ... и выведем месаг о...
-							
+
 									string strMsgText;
 									strMsgText.Format (UMSG(MChangeCouldNotEjectMedia), item->cDrive);
-							
+
 									SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 									DoneEject = Message(
 											MSG_WARNING|MSG_ERRORTYPE,
@@ -767,65 +765,65 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                         	FrameManager->ResizeAllFrame();
                         	FrameManager->PluginCommit(); // коммитим.
                         	ScrBuf.Unlock(); // разрешаем прорисовку
-                        	
+
                         	return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
 						}
 					}
 				}
 			}
-			
+
 			break;
-			
+
 			case KEY_SHIFTDEL:
 			{
 				if ( item && !item->bIsPlugin )
 				{
 					int Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
-					
+
 					if ( Code == 0 )
 					{
 						// запоминаем состояние панелей
 						int CMode=GetMode();
 						int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
-						
+
 						string strTmpCDir, strTmpADir;
-						
+
 						GetCurDir(strTmpCDir);
 						CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir(strTmpADir);
 
                         // отключим меню, иначе бага с прорисовкой этой самой меню
                         // (если меню поболее высоты экрана)
-                        
+
                         ChDisk.Hide();
                         ChDisk.Lock(); // ... и запретим ее перерисовку.
-                        
+
                         // "цикл до умопомрачения"
                         int DoneEject=FALSE;
-                        
+
                         while ( !DoneEject )
                         {
                         	// "освободим диск" - перейдем при необходимости в домашний каталог
                         	// TODO: А если домашний каталог - USB? ;-)
                         	IfGoHome(item->cDrive);
-                        	
+
                         	// очередная попытка извлечения без вывода сообщения
-                        	
+
                         	Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
-                        	
+
                         	if ( Code == 0 )
                         	{
                         		// восстановим пути - это избавит нас от левых данных в панели.
                         		if ( AMode != PLUGIN_PANEL )
                         			CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
-                        			
+
                         		if ( CMode != PLUGIN_PANEL )
                         			SetCurDir(strTmpCDir, FALSE);
 
 								// ... и выведем месаг о...
-								
+
 								string strMsgText;
 								strMsgText.Format (UMSG(MChangeCouldNotEjectHotPlugMedia), item->cDrive);
-								
+
 								SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 								DoneEject = Message(
 										MSG_WARNING|MSG_ERRORTYPE,
@@ -839,18 +837,18 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							else
 								DoneEject=TRUE;
 						}
-						
+
 						// "отпустим" менюху выбора дисков
 						ChDisk.Unlock();
 						ChDisk.Show();
 					}
-				
+
 					return SelPos;
 				}
 			}
-			
+
 			break;
-			
+
 			case KEY_CTRL1:
 			case KEY_RCTRL1:
 				Opt.ChangeDriveMode ^= DRIVE_SHOW_TYPE;
@@ -870,7 +868,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			case KEY_RCTRL4:
 				Opt.ChangeDriveMode ^= DRIVE_SHOW_FILESYSTEM;
 				return SelPos;
-				
+
 			case KEY_CTRL5:
 			case KEY_RCTRL5:
 			{
@@ -879,14 +877,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_SIZE;
 					Opt.ChangeDriveMode |= DRIVE_SHOW_SIZE_FLOAT;
 				}
-				else 
+				else
 				{
 					if ( Opt.ChangeDriveMode & DRIVE_SHOW_SIZE_FLOAT )
 						Opt.ChangeDriveMode ^= DRIVE_SHOW_SIZE_FLOAT;
 					else
 						Opt.ChangeDriveMode ^= DRIVE_SHOW_SIZE;
 				}
-				
+
 				return SelPos;
 			}
 
@@ -894,7 +892,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			case KEY_RCTRL6:
 				Opt.ChangeDriveMode ^= DRIVE_SHOW_REMOVABLE;
 				return SelPos;
-				
+
 			case KEY_CTRL7:
 			case KEY_RCTRL7:
 				Opt.ChangeDriveMode ^= DRIVE_SHOW_PLUGINS;
@@ -904,7 +902,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			case KEY_RCTRL8:
 				Opt.ChangeDriveMode ^= DRIVE_SHOW_CDROM;
 				return SelPos;
-				
+
 			case KEY_CTRL9:
 			case KEY_RCTRL9:
 				Opt.ChangeDriveMode ^= DRIVE_SHOW_REMOTE;
@@ -924,7 +922,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			}
 
 			break;
-			
+
 			case KEY_CTRLR:
 				return SelPos;
 
@@ -932,17 +930,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				ChDisk.ProcessInput();
 				break;
 		}
-		
-		if ( ChDisk.Done() && 
-			 (ChDisk.Modal::GetExitCode() < 0) && 
-			 !strCurDir.IsEmpty() && 
+
+		if ( ChDisk.Done() &&
+			 (ChDisk.Modal::GetExitCode() < 0) &&
+			 !strCurDir.IsEmpty() &&
 			 (wcsncmp(strCurDir,L"\\\\",2) != 0) )
 		{
 			wchar_t RootDir[10]; //BUGBUG
-			
+
 			wcsncpy(RootDir,strCurDir,3);
 			RootDir[3]=0;
-			
+
 			if ( FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR )
 				ChDisk.ClearDone();
 		}
@@ -957,7 +955,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     if (Opt.CloseCDGate && item && !item->bIsPlugin && IsDriveTypeCDROM(item->nDriveType) )
 	{
 		strRootDir.Format (L"%c:", item->cDrive);
-		
+
 		if ( !IsDiskInDrive(strRootDir) )
 		{
 			if ( EjectVolume(item->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
@@ -968,7 +966,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			}
 		}
 	}
-	
+
 	if ( ProcessPluginEvent(FE_CLOSE,NULL) )
 		return -1;
 
@@ -988,12 +986,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			string strMsgStr;
 			string strNewDir;
-			
+
 			strNewDir.Format (L"%c:", item->cDrive);
 
 			FarChDir(strNewDir);
 			CtrlObject->CmdLine->GetCurDir(strNewDir);
-			
+
 			strNewDir.Upper();
 
 			if ( strNewDir.At (0) == item->cDrive )
@@ -1003,10 +1001,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ( getdisk() != NumDisk )
 			{
 				string strRootDir;
-				
+
 				strRootDir.Format (L"%c:\\", item->cDrive);
 				FarChDir(strRootDir);
-				
+
 				if ( getdisk() == NumDisk )
 					break;
 			}
@@ -1014,7 +1012,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				break;
 
 			strMsgStr.Format (UMSG(MChangeDriveCannotReadDisk), item->cDrive);
-			
+
 			if ( Message(
 					MSG_WARNING,
 					2,
@@ -1030,9 +1028,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		string strNewCurDir;
 		FarGetCurDir(strNewCurDir);
 
-		if ( (PanelMode == NORMAL_PANEL) && 
-			 (GetType() == FILE_PANEL) && 
-			 !LocalStricmpW(strCurDir,strNewCurDir) && 
+		if ( (PanelMode == NORMAL_PANEL) &&
+			 (GetType() == FILE_PANEL) &&
+			 !LocalStricmpW(strCurDir,strNewCurDir) &&
 			 IsVisible() )
 		{
 			// А нужно ли делать здесь Update????
@@ -1041,15 +1039,15 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		else
 		{
 			Focus=GetFocus();
-			
+
 			Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
-			
+
 			NewPanel->SetCurDir(strNewCurDir,TRUE);
 			NewPanel->Show();
-			
+
 			if ( Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible() )
 				NewPanel->SetFocus();
-				
+
 			if ( !Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL )
 				CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
 		}
@@ -1065,21 +1063,21 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ( hPlugin != INVALID_HANDLE_VALUE )
 		{
 			Focus=GetFocus();
-			
+
 			Panel *NewPanel = CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-			
+
 			NewPanel->SetPluginMode(hPlugin,L"");
 			NewPanel->Update(0);
 			NewPanel->Show();
-			
+
 			if ( Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible() )
 				NewPanel->SetFocus();
-				
+
 			if ( !Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL )
 				CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -1875,7 +1873,7 @@ void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     GetOpenPluginInfo(&Info);
     strTitleDir = NullToEmptyW(Info.PanelTitle);
     RemoveExternalSpacesW(strTitleDir);
@@ -2047,7 +2045,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
         if (!Reenter && Info->Plugin)
         {
           Reenter++;
-          struct OpenPluginInfoW PInfo;
+          struct OpenPluginInfo PInfo;
           DestFilePanel->GetOpenPluginInfo(&PInfo);
 
           Info->lpwszCurDir = _wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup

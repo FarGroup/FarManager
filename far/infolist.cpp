@@ -533,14 +533,14 @@ void InfoList::ShowPluginDescription()
   */
   CloseFile();
   /* DJ $ */
-  struct OpenPluginInfoW Info;
+  struct OpenPluginInfo Info;
   AnotherPanel->GetOpenPluginInfo(&Info);
   for (int I=0;I<Info.InfoLinesNumber;I++)
   {
     int Y=Y2-Info.InfoLinesNumber+I;
     if (Y<=Y1)
       continue;
-    const struct InfoPanelLineW *InfoLine=&Info.InfoLines[I];
+    const struct InfoPanelLine *InfoLine=&Info.InfoLines[I];
     GotoXY(X1,Y);
     SetColor(COL_PANELBOX);
     Text(VertcalLine);

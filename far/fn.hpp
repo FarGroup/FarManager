@@ -505,9 +505,9 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FA
 #ifdef __PLUGIN_HPP__
 // эти функции _были_ как static
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
-                  const wchar_t *Dir,struct PluginPanelItemW **pPanelItem,
+                  const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);
-void WINAPI FarFreePluginDirList(PluginPanelItemW *PanelItem, int ItemsNumber);
+void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber);
 
 int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
            DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,

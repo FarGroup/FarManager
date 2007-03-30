@@ -194,7 +194,7 @@ class Panel:public ScreenObject
     virtual void RestoreSelection() {};
     virtual void SortFileList(int KeepPosition) {};
     virtual void EditFilter() {};
-    virtual void ReadDiz(struct PluginPanelItemW *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
+    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
     virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {};
     virtual void GetDizName(const wchar_t *DizName) {};
     virtual void FlushDiz() {};
@@ -206,8 +206,8 @@ class Panel:public ScreenObject
     virtual int GetColumnsCount(){ return 1;};
     virtual void SetReturnCurrentFile(int Mode) {};
     virtual void QViewDelTempName() {};
-    virtual void GetPluginInfo(struct PluginInfoW *Info) {};
-    virtual void GetOpenPluginInfo(struct OpenPluginInfoW *Info) {};
+    virtual void GetPluginInfo(struct PluginInfo *Info) {};
+    virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info) {};
     virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile) {};
     virtual void SetPluginModified() {};
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};

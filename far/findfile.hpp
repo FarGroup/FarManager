@@ -62,13 +62,13 @@ class FindFiles
     static void _cdecl WriteDialogData(void *Param);
     static void ScanPluginTree(HANDLE hPlugin, DWORD Flags);
     static int LookForString(const wchar_t *Name);
-    static int IsFileIncluded(PluginPanelItemW *FileItem,const wchar_t *FullName,DWORD FileAttr);
+    static int IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD FileAttr);
     static void ArchiveSearch(const wchar_t *ArcName);
 //    static void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData);
     static void AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindData);
     static void AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA *FindData);
 //    static void RereadPlugin(HANDLE hPlugin);
-    static int GetPluginFile(DWORD ArcIndex, struct PluginPanelItemW *PanelItem,
+    static int GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              const wchar_t *DestPath, string &strResultName);
     static string &PrepareDriveNameStr(string &strSearchFromRoot,size_t sz);
     static char *RemovePseudoBackSlash(char *FileName);

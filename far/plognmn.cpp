@@ -13,46 +13,46 @@ class PreserveLongName
 
 PreserveLongNameW::PreserveLongNameW(const wchar_t *ShortName,int Preserve)
 {
-  PreserveLongNameW::Preserve=Preserve;
-  if (Preserve)
-  {
-    FAR_FIND_DATA_EX FindData;
+	PreserveLongNameW::Preserve=Preserve;
+	if (Preserve)
+	{
+		FAR_FIND_DATA_EX FindData;
 
-    if ( apiGetFindDataEx(ShortName, &FindData) )
-        strSaveLongName = FindData.strFileName;
-    else
-        strSaveLongName = L"";
+		if ( apiGetFindDataEx(ShortName, &FindData) )
+			strSaveLongName = FindData.strFileName;
+		else
+			strSaveLongName = L"";
 
-    strSaveShortName = ShortName;
-  }
+		strSaveShortName = ShortName;
+	}
 }
 
 
 PreserveLongNameW::~PreserveLongNameW()
 {
-  if (Preserve && GetFileAttributesW(strSaveShortName)!=0xFFFFFFFF)
-  {
-    FAR_FIND_DATA_EX FindData;
+	if (Preserve && GetFileAttributesW(strSaveShortName)!=0xFFFFFFFF)
+	{
+		FAR_FIND_DATA_EX FindData;
 
-    if ( !apiGetFindDataEx (strSaveShortName, &FindData) || wcscmp(strSaveLongName,FindData.strFileName)!=0)
-    {
-      string strNewName;
+		if ( !apiGetFindDataEx (strSaveShortName, &FindData) || wcscmp(strSaveLongName,FindData.strFileName)!=0)
+		{
+			string strNewName;
 
-      strNewName = strSaveShortName;
+			strNewName = strSaveShortName;
 
-      wchar_t *lpwszNewName = strNewName.GetBuffer ();
+			wchar_t *lpwszNewName = strNewName.GetBuffer ();
 
-      lpwszNewName = wcsrchr (lpwszNewName, '\\'); //BUGBUG
+			lpwszNewName = wcsrchr (lpwszNewName, '\\'); //BUGBUG
 
-      if ( lpwszNewName )
-        *lpwszNewName = 0;
+			if ( lpwszNewName )
+				*lpwszNewName = 0;
 
-      strNewName.ReleaseBuffer ();
+			strNewName.ReleaseBuffer ();
 
-      strNewName += "\\";
-      strNewName += strSaveLongName;
+			strNewName += "\\";
+			strNewName += strSaveLongName;
 
-      MoveFileW (strSaveShortName, strNewName);
-    }
-  }
+			MoveFileW (strSaveShortName, strNewName);
+		}
+	}
 }

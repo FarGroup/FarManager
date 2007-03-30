@@ -943,7 +943,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
           {
-            struct OpenPluginInfoW Info;
+            struct OpenPluginInfo Info;
             SelPanel->GetOpenPluginInfo(&Info);
             Cond = (__int64)Info.Flags;
           }
@@ -4447,7 +4447,9 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
    while (IsSpaceW(*BufPtr) || IsEolW(*BufPtr))
    {
      if(IsEolW(*BufPtr))
-       ; //TODO!!!
+     {
+       //TODO!!!
+     }
      BufPtr++;
    }
 

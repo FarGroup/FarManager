@@ -15,116 +15,116 @@ class FileFilter;
 
 struct FileListItem
 {
-  char Selected;
-  char PrevSelected;
-  char ShowFolderSize;
-  char ShortNamePresent;
-  struct HighlightDataColor Colors;
+	char Selected;
+	char PrevSelected;
+	char ShowFolderSize;
+	char ShortNamePresent;
+	struct HighlightDataColor Colors;
 
-  DWORD NumberOfLinks;
-  DWORD UserFlags;
-  DWORD_PTR UserData;
+	DWORD NumberOfLinks;
+	DWORD UserFlags;
+	DWORD_PTR UserData;
 
-  int Position;
-  int SortGroup;
-  wchar_t *DizText;
-  char DeleteDiz;
-  string strOwner;
-  wchar_t **CustomColumnData;
-  int CustomColumnNumber;
-  DWORD CRC32;
+	int Position;
+	int SortGroup;
+	wchar_t *DizText;
+	char DeleteDiz;
+	string strOwner;
+	wchar_t **CustomColumnData;
+	int CustomColumnNumber;
+	DWORD CRC32;
 
-  //BUGBUG!!
-  DWORD FileAttr;
-  FILETIME CreationTime;
-  FILETIME AccessTime;
-  FILETIME WriteTime;
+	//BUGBUG!!
+	DWORD FileAttr;
+	FILETIME CreationTime;
+	FILETIME AccessTime;
+	FILETIME WriteTime;
 
-  unsigned __int64 UnpSize;
-  unsigned __int64 PackSize;
+	unsigned __int64 UnpSize;
+	unsigned __int64 PackSize;
 
-  string strName;
-  string strShortName;
+	string strName;
+	string strShortName;
 
-  void Clear ()
-  {
-  	Selected = 0;
-  	PrevSelected = 0;
-    ShowFolderSize = 0;
-    ShortNamePresent = 0;
+	void Clear ()
+	{
+		Selected = 0;
+		PrevSelected = 0;
+		ShowFolderSize = 0;
+		ShortNamePresent = 0;
 
-    memset (&Colors, 0, sizeof (HighlightDataColor));
+		memset (&Colors, 0, sizeof (HighlightDataColor));
 
-	NumberOfLinks = 0;
-	UserFlags = 0;
-    UserData = 0;
+		NumberOfLinks = 0;
+		UserFlags = 0;
+		UserData = 0;
 
-	Position = 0;
-	SortGroup = 0;
+		Position = 0;
+		SortGroup = 0;
 
-	DizText = NULL;
-	DeleteDiz = 0;
+		DizText = NULL;
+		DeleteDiz = 0;
 
-	strOwner = L"";
+		strOwner = L"";
 
-	CustomColumnData = NULL;
-	CustomColumnNumber = 0;
+		CustomColumnData = NULL;
+		CustomColumnNumber = 0;
 
-	CRC32 = 0;
+		CRC32 = 0;
 
-	FileAttr = 0;
+		FileAttr = 0;
 
-	memset (&CreationTime, 0, sizeof (CreationTime));
-	memset (&AccessTime, 0, sizeof (AccessTime));
-	memset (&WriteTime, 0, sizeof (WriteTime));
+		memset (&CreationTime, 0, sizeof (CreationTime));
+		memset (&AccessTime, 0, sizeof (AccessTime));
+		memset (&WriteTime, 0, sizeof (WriteTime));
 
-	UnpSize = 0;
-	PackSize = 0;
+		UnpSize = 0;
+		PackSize = 0;
 
-	strName = L"";
-	strShortName = L"";
-  }
+		strName = L"";
+		strShortName = L"";
+	}
 
-  FileListItem& operator=(const FileListItem &fliCopy)
-  {
-  	Selected = fliCopy.Selected;
-  	PrevSelected = fliCopy.PrevSelected;
-    ShowFolderSize = fliCopy.ShowFolderSize;
-    ShortNamePresent = fliCopy.ShortNamePresent;
+	FileListItem& operator=(const FileListItem &fliCopy)
+	{
+		Selected = fliCopy.Selected;
+		PrevSelected = fliCopy.PrevSelected;
+		ShowFolderSize = fliCopy.ShowFolderSize;
+		ShortNamePresent = fliCopy.ShortNamePresent;
 
-    memcpy (&Colors, &fliCopy.Colors, sizeof (HighlightDataColor));
+		memcpy (&Colors, &fliCopy.Colors, sizeof (HighlightDataColor));
 
-	NumberOfLinks = fliCopy.NumberOfLinks;
-	UserFlags = fliCopy.UserFlags;
-    UserData = fliCopy.UserData;
+		NumberOfLinks = fliCopy.NumberOfLinks;
+		UserFlags = fliCopy.UserFlags;
+		UserData = fliCopy.UserData;
 
-	Position = fliCopy.Position;
-	SortGroup = fliCopy.SortGroup;
+		Position = fliCopy.Position;
+		SortGroup = fliCopy.SortGroup;
 
-	DizText = fliCopy.DizText;
-	DeleteDiz = fliCopy.DeleteDiz;
+		DizText = fliCopy.DizText;
+		DeleteDiz = fliCopy.DeleteDiz;
 
-	strOwner = fliCopy.strOwner;
+		strOwner = fliCopy.strOwner;
 
-	CustomColumnData = fliCopy.CustomColumnData;
-	CustomColumnNumber = fliCopy.CustomColumnNumber;
+		CustomColumnData = fliCopy.CustomColumnData;
+		CustomColumnNumber = fliCopy.CustomColumnNumber;
 
-	CRC32 = fliCopy.CRC32;
+		CRC32 = fliCopy.CRC32;
 
-	FileAttr = fliCopy.FileAttr;
+		FileAttr = fliCopy.FileAttr;
 
-	memcpy (&CreationTime, &fliCopy.CreationTime, sizeof (CreationTime));
-	memcpy (&AccessTime, &fliCopy.AccessTime, sizeof (AccessTime));
-	memcpy (&WriteTime, &fliCopy.WriteTime, sizeof (WriteTime));
+		memcpy (&CreationTime, &fliCopy.CreationTime, sizeof (CreationTime));
+		memcpy (&AccessTime, &fliCopy.AccessTime, sizeof (AccessTime));
+		memcpy (&WriteTime, &fliCopy.WriteTime, sizeof (WriteTime));
 
-	UnpSize = fliCopy.UnpSize;
-	PackSize = fliCopy.PackSize;
+		UnpSize = fliCopy.UnpSize;
+		PackSize = fliCopy.PackSize;
 
-	strName = fliCopy.strName;
-	strShortName = fliCopy.strShortName;
+		strName = fliCopy.strName;
+		strShortName = fliCopy.strShortName;
 
-	return *this;
-  }
+		return *this;
+	}
 };
 
 struct PluginsStackItem
@@ -225,7 +225,7 @@ class FileList:public Panel
     void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
     int  GetShowColor(int Position, int ColorType);
     void ShowSelectedSize();
-    void ShowTotalSize(struct OpenPluginInfoW &Info);
+    void ShowTotalSize(struct OpenPluginInfo &Info);
     int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
 
     void Select(struct FileListItem *SelPtr,int Selection);
@@ -262,16 +262,16 @@ class FileList:public Panel
     void SelectSortMode();
     void ApplyCommand();
     void DescribeFiles();
-    void CreatePluginItemList(struct PluginPanelItemW *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
-    void DeletePluginItemList(struct PluginPanelItemW *(&ItemList),int &ItemNumber);
+    void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
+    void DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
     HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr=0);
     int PreparePanelView(struct PanelViewSettings *PanelView);
     int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
                             int &ColumnCount,int FullScreen);
-    void PrepareViewSettings(int ViewMode,struct OpenPluginInfoW *PlugInfo);
+    void PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo);
 
     void PluginDelete();
-    void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItemW *ItemList,
+    void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemList,
                         int ItemNumber,int Delete,int Move,DizList *SrcDiz,
                         DizList *DestDiz);
     void PluginGetFiles(const wchar_t *DestPath,int Move);
@@ -281,7 +281,7 @@ class FileList:public Panel
     // возвращает то, что возвращает PutFiles
     int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
     void ProcessPluginCommand();
-    void PluginClearSelection(struct PluginPanelItemW *ItemList,int ItemNumber);
+    void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
     void ReadSortGroups();
     void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
@@ -350,7 +350,7 @@ class FileList:public Panel
     virtual void SaveSelection();
     virtual void RestoreSelection();
     virtual void EditFilter();
-    virtual void ReadDiz(struct PluginPanelItemW *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
+    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
     virtual void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
     virtual void FlushDiz();
     virtual void GetDizName(string &strDizName);
@@ -362,8 +362,8 @@ class FileList:public Panel
     virtual int IsColumnDisplayed(int Type);
     virtual int GetColumnsCount(){ return Columns;};
     virtual void SetReturnCurrentFile(int Mode);
-    virtual void GetPluginInfo(struct PluginInfoW *Info);
-    virtual void GetOpenPluginInfo(struct OpenPluginInfoW *Info);
+    virtual void GetPluginInfo(struct PluginInfo *Info);
+    virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info);
     virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile);
     void PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo=TRUE);
     void PluginSetSelection(struct PanelInfo *Info);
@@ -396,9 +396,9 @@ class FileList:public Panel
     static void SetFilePanelModes();
     static void SavePanelModes();
     static void ReadPanelModes();
-    static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItemW *pi);
-    static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItemW *pi);
-    static void PluginToFileListItem(struct PluginPanelItemW *pi,struct FileListItem *fi);
+    static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi);
+    static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
+    static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
     static int IsModeFullScreen(int Mode);
     static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
 };

@@ -475,7 +475,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   if (SrcPanel->GetMode()==PLUGIN_PANEL)
   {
-    struct OpenPluginInfoW Info;
+    struct OpenPluginInfo Info;
     HANDLE hPlugin=SrcPanel->GetPluginHandle();
     if(hPlugin == INVALID_HANDLE_VALUE)
       return 0;
