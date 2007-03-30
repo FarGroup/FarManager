@@ -37,7 +37,7 @@ auto_sz::auto_sz(LPCTSTR szBuf, size_t nBufLen)
 {
   nBufLen++;
   Realloc(nBufLen);
-  lstrcpyn(m_sz, szBuf, nBufLen);
+  lstrcpyn(m_sz, szBuf, (int)nBufLen);
 }
 
 #ifndef UNICODE
@@ -80,7 +80,7 @@ auto_sz::auto_sz(const STRRET& sr, LPCITEMIDLIST piid)
     {
       size_t len = strlen(sr.cStr)+1;
       Realloc(len);
-      MultiByteToWideChar(CP_ACP, 0, sr.cStr, -1, *this, len);
+      MultiByteToWideChar(CP_ACP, 0, sr.cStr, -1, *this, (int)len);
     }
 #endif
     break;
@@ -132,7 +132,7 @@ auto_sz& auto_sz::operator =(LPCWSTR szw)
   Clear();
   if (!szw) return *this;
   Realloc(lstrlenW(szw)+1);
-  WideCharToMultiByte(s_bOem?CP_OEMCP:CP_ACP, 0, szw, -1, *this, Size()
+  WideCharToMultiByte(s_bOem?CP_OEMCP:CP_ACP, 0, szw, -1, *this, (int)Size()
     , NULL, NULL);
   return *this;
 }
@@ -174,7 +174,7 @@ auto_sz::operator LPOLESTR()
   size_t nLen=Len()+1;
   delete[] m_wsz;
   m_wsz=new WCHAR[nLen];
-  MultiByteToWideChar(s_bOem?CP_OEMCP:CP_ACP, 0, *this, -1, m_wsz, nLen);
+  MultiByteToWideChar(s_bOem?CP_OEMCP:CP_ACP, 0, *this, -1, m_wsz, (int)nLen);
   return m_wsz;
 }
 #endif
@@ -225,7 +225,7 @@ void auto_sz::Realloc(size_t nNewSize)
   LPTSTR sz=new TCHAR[nNewSize];
   if (m_sz)
   {
-    lstrcpyn(sz, m_sz, nNewSize);
+    lstrcpyn(sz, m_sz, (int)nNewSize);
     Clear();
   }
   else

@@ -18,11 +18,7 @@ public:
   CPlugin(void);
   ~CPlugin(void);
   void SetStartupInfo(const struct PluginStartupInfo *Info);
-#ifndef UNICODE
   void GetPluginInfo(PluginInfo *Info);
-#else
-  void GetPluginInfo(PluginInfoW *Info);
-#endif
   HANDLE OpenPlugin(int nOpenFrom, INT_PTR nItem);
   enum EDoMenu
   {

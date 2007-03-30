@@ -37,7 +37,7 @@ BOOL CALLBACK MenuDlgProc(HWND hDlg, UINT nMsg
       {
         //assert(0);
       }
-      if (res) return res;
+      if (res) return res != 0;
     }
     break;
   }

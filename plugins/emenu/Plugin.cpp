@@ -14,10 +14,16 @@
 
 #define BOUNDS( x )  (sizeof( (x) ) / sizeof( (x)[0] ))
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4290)
+#endif
 void __stdcall _com_issue_error(HRESULT) throw(_com_error)
 {
   assert(0);
 }
+#ifdef _MSC_VER
+#pragma warning(default : 4290)
+#endif
 
 CPlugin::CPlugin(void)
 {
@@ -59,7 +65,7 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
     +sizeof(PluginStartupInfo::AdvControl);
   if (Info->StructSize<=nMinSize) return;
   *(PluginStartupInfo*)this=*Info;
-  int nFARVer=AdvControl(ACTL_GETFARVERSION, NULL);
+  DWORD nFARVer=(DWORD)AdvControl(ACTL_GETFARVERSION, NULL);
   if (LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
   if (HIWORD(nFARVer)<MIN_FAR_BUILD) return;
   m_fsf=*Info->FSF;
@@ -98,11 +104,7 @@ void CPlugin::ReadRegValues()
   m_GuiPos=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, 1);
 }
 
-#ifndef UNICODE
 void CPlugin::GetPluginInfo(PluginInfo *Info)
-#else
-void CPlugin::GetPluginInfo(PluginInfoW *Info)
-#endif
 {
   if (m_bOldFARorInitErr) return;
   m_PluginMenuString=GetMsg(LNG_TITLE);
@@ -306,7 +308,7 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
   LPCTSTR MsgItems[2]={GetMsg(LNG_TITLE)};
   bool bSuccess=false;
   SetFileApisToANSI();
-  switch (OleThread::OpenPlugin(nOpenFrom, nItem))
+  switch (OleThread::OpenPlugin(nOpenFrom, (int)nItem))
   {
   case DOMNU_ERR_DIFFERENT_FOLDERS:
     {
@@ -371,7 +373,11 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
 #else
              ExpandEnvironmentStrings
 #endif
-             (sz, szCmdLine, nLen)>=nLen-1);
+             (sz, szCmdLine,
+#ifdef UNICODE
+                             (DWORD)
+#endif
+                                     nLen) >= nLen-1);
   }
   EDoMenu enDoMenu=DoMenu(szCmdLine);
   delete[] szCmdLine;
@@ -1195,7 +1201,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
             //(строковый ресурс #5380, "Opens the document with %s."),
             //и убираем его из сабжевых строк. Для XP/2003.
             *Buf=0;
-            LoadString(GetModuleHandle(_T("shell32.dll")),5380,Buf,szSub.Len()+1);
+            LoadString(GetModuleHandle(_T("shell32.dll")),5380,Buf,int(szSub.Len()+1));
             int i=0;
             while(Buf[i] && Buf[i]!=_T('%'))
               i++;
