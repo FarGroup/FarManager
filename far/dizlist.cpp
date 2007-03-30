@@ -105,7 +105,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
         }
 
         strDizText.SetData (DizText, CP_OEMCP); //BUGBUG
-        RemoveTrailingSpacesW(strDizText);
+        RemoveTrailingSpaces(strDizText);
         AddRecord(strDizText);
       }
       SetPreRedrawFunc(NULL);
@@ -148,7 +148,7 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortN
   if (DizPos!=-1)
   {
     DizText=DizData[DizPos].DizText+TextPos;
-    while (*DizText && IsSpaceW(*DizText))
+    while (*DizText && IsSpace(*DizText))
       DizText++;
     if (iswdigit(*DizText))
     {
@@ -166,10 +166,10 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortN
             SkipSize=FALSE;
             break;
           }
-      if (SkipSize && IsSpaceW(*DizPtr))
+      if (SkipSize && IsSpace(*DizPtr))
       {
         DizText=DizPtr;
-        while (*DizText && IsSpaceW(*DizText))
+        while (*DizText && IsSpace(*DizText))
           DizText++;
       }
     }
@@ -288,12 +288,12 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
   if (CmpCode==0)
   {
     int Ch=TableName[NameLength];
-    if (Ch==0 || IsSpaceW(Ch))
+    if (Ch==0 || IsSpace(Ch))
       return(0);
     if (Ch==L'.')
     {
       int Ch1=TableName[NameLength+1];
-      if (Ch1==0 || IsSpaceW(Ch1))
+      if (Ch1==0 || IsSpace(Ch1))
         return(0);
     }
     return(-1);
@@ -311,7 +311,7 @@ int DizList::DeleteDiz(const wchar_t *Name,const wchar_t *ShortName)
   DizData[DizPos++].Deleted=TRUE;
   while (DizPos<DizCount)
   {
-    if (*DizData[DizPos].DizText && !IsSpaceW(DizData[DizPos].DizText[0]))
+    if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
       break;
     DizData[DizPos].Deleted=TRUE;
     DizPos++;
@@ -413,7 +413,7 @@ int DizList::CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t 
   if (DizPos==-1)
     return(FALSE);
 
-  while (IsSpaceW(DizData[DizPos].DizText[TextPos]))
+  while (IsSpace(DizData[DizPos].DizText[TextPos]))
     TextPos++;
 
   string strDizText, strQuotedName;
@@ -433,7 +433,7 @@ int DizList::CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t 
   DestDiz->AddDiz(DestName,DestShortName,strDizText);
   while (++DizPos<DizCount)
   {
-    if (*DizData[DizPos].DizText && !IsSpaceW(DizData[DizPos].DizText[0]))
+    if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
       break;
     DestDiz->AddDiz(DestName,DestShortName,DizData[DizPos].DizText);
   }

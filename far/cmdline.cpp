@@ -505,7 +505,7 @@ void CommandLine::GetPrompt(string &strDestStr)
             case L'T': // $T - Current time
             {
               string strDateTime;
-              MkStrFTimeW(strDateTime,(Chr==L'D'?L"%D":L"%T"));
+              MkStrFTime(strDateTime,(Chr==L'D'?L"%D":L"%T"));
               strDestStr += strDateTime;
               break;
             }

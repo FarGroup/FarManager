@@ -75,7 +75,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
      По умолчанию конец строки так или иначе равен \r\n, поэтому нечего
      пудрить мозги, пропишем его явно.
   */
-  wcscpy(GlobalEOL,DOS_EOL_fmtW);
+  wcscpy(GlobalEOL,DOS_EOL_fmt);
   /* IS $ */
   /* $ 03.12.2001 IS размер буфера undo теперь может меняться */
   UndoData=static_cast<EditorUndoData*>(xf_malloc(EdOpt.UndoSize*sizeof(EditorUndoData)));
@@ -238,8 +238,8 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
         // Ширина = 8 - это будет... в Kb и выше...
         FileSizeToStr(strTempStr1,RealSizeFile,8);
         FileSizeToStr(strTempStr2,NeedSizeFile,8);
-        strTempStr3.Format (UMSG(MEditFileLong),(const wchar_t *)RemoveExternalSpacesW(strTempStr1));
-        strTempStr4.Format (UMSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpacesW(strTempStr2));
+        strTempStr3.Format (UMSG(MEditFileLong),(const wchar_t *)RemoveExternalSpaces(strTempStr1));
+        strTempStr4.Format (UMSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpaces(strTempStr2));
 
         if(Message(MSG_WARNING,2,UMSG(MEditTitle),
                     Name,
@@ -1369,8 +1369,8 @@ int Editor::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          //if (IsSpaceW(Str[CurPos-1]) ||
-          //    IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+          //if (IsSpace(Str[CurPos-1]) ||
+          //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
           /* IS $ */
           /* SVS $ */
             if (SkipSpace)
@@ -1415,8 +1415,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          //if (IsSpaceW(Str[CurPos]) ||
-            //  IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
+          //if (IsSpace(Str[CurPos]) ||
+            //  IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             if (SkipSpace)
             {
               ProcessKey(KEY_SHIFTRIGHT);
@@ -2349,8 +2349,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          //if (IsSpaceW(Str[CurPos-1]) ||
-          //    IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+          //if (IsSpace(Str[CurPos-1]) ||
+          //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
             if (SkipSpace)
             {
               ProcessKey(KEY_ALTSHIFTLEFT);
@@ -2389,8 +2389,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          //if (IsSpaceW(Str[CurPos]) ||
-          //    IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
+          //if (IsSpace(Str[CurPos]) ||
+          //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             if (SkipSpace)
             {
               ProcessKey(KEY_ALTSHIFTRIGHT);
@@ -2634,7 +2634,7 @@ int Editor::ProcessKey(int Key)
 
         if(Key == MCODE_OP_PLAINTEXT)
           strTStr = Fmt;
-        if(Key == MCODE_OP_PLAINTEXT || MkStrFTimeW(strTStr, Fmt))
+        if(Key == MCODE_OP_PLAINTEXT || MkStrFTime(strTStr, Fmt))
         {
           wchar_t *Ptr=strTStr.GetBuffer();
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
@@ -2774,7 +2774,7 @@ int Editor::ProcessKey(int Key)
             const wchar_t *PrevStr=NULL;
             int PrevLength=0;
             PrevLine->GetBinaryString(&PrevStr,NULL,PrevLength);
-            for (int I=0;I<PrevLength && IsSpaceW(PrevStr[I]);I++)
+            for (int I=0;I<PrevLength && IsSpace(PrevStr[I]);I++)
             {
               int NewTabPos=CurLine->GetTabCurPos();
               if (NewTabPos==TabPos)
@@ -3138,7 +3138,7 @@ void Editor::InsertString()
      у нас равен DOS_EOL_fmt и установим его явно.
   */
   if (!*EndSeq)
-      CurLine->SetEOL(*GlobalEOL?GlobalEOL:DOS_EOL_fmtW);
+      CurLine->SetEOL(*GlobalEOL?GlobalEOL:DOS_EOL_fmt);
   /* IS $ */
 
   CurPos=CurLine->GetCurPos();
@@ -3161,7 +3161,7 @@ void Editor::InsertString()
       PrevLine->GetBinaryString(&Str,NULL,Length);
       for (int I=0;I<Length;I++)
         /* $ 24.07.2001 IS IsSpace для этого и придумали */
-        if (!IsSpaceW(Str[I]))
+        if (!IsSpace(Str[I]))
         /* IS $ */
         {
           PrevLine->SetCurPos(I);
@@ -3184,7 +3184,7 @@ void Editor::InsertString()
 
     if (IndentPos>0)
       for (int I=0;I<CurPos;I++)
-        if (!IsSpaceW(CurLineStr[I]))
+        if (!IsSpace(CurLineStr[I]))
         {
           SpaceOnly=FALSE;
           break;
@@ -3194,7 +3194,7 @@ void Editor::InsertString()
 
     for ( int i0=0; i0<Length-CurPos; i0++ )
     {
-        if (!IsSpaceW(CurLineStr[i0+CurPos]))
+        if (!IsSpace(CurLineStr[i0+CurPos]))
         {
             NewLineEmpty=FALSE;
             break;
@@ -3216,7 +3216,7 @@ void Editor::InsertString()
 
     if (EdOpt.AutoIndent && NewLineEmpty)
     {
-      RemoveTrailingSpacesW(NewCurLineStr);
+      RemoveTrailingSpaces(NewCurLineStr);
       StrSize=(int)wcslen(NewCurLineStr);
     }
 
@@ -3283,7 +3283,7 @@ void Editor::InsertString()
         if (!IsSpace(CurLineStr[I]))
         /* IS $ */
           break;
-        if (CurLineStr[I]==' ')
+        if (CurLineStr[I]==L' ')
           Decrement++;
         else
         {
@@ -3313,7 +3313,7 @@ void Editor::InsertString()
 
         for (int I=0;CurLine->GetTabCurPos()<IndentPos;I++)
         {
-          if (SrcIndent!=NULL && I<PrevLength && IsSpaceW(PrevStr[I]))
+          if (SrcIndent!=NULL && I<PrevLength && IsSpace(PrevStr[I]))
           {
             CurLine->ProcessKey(PrevStr[I]);
           }
@@ -3469,7 +3469,7 @@ BOOL Editor::Search(int Next)
   ReverseSearch=LastSearchReverse;
 
   if (!Next)
-    if(!GetSearchReplaceStringW(ReplaceMode,&strSearchStr,
+    if(!GetSearchReplaceString(ReplaceMode,&strSearchStr,
                    &strReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
                    &Case,&WholeWords,&ReverseSearch))
@@ -3779,7 +3779,7 @@ void Editor::Paste(const wchar_t *Src)
 
   if(!ClipText)
   {
-    if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlockW))!=NULL)
+    if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlock))!=NULL)
     {
       VPaste(ClipText);
       return;
@@ -3919,7 +3919,7 @@ void Editor::Copy(int Append)
     DataSize+=(long)wcslen(CopyData+DataSize);
     if (EndSel==-1)
     {
-      wcscpy(CopyData+DataSize,DOS_EOL_fmtW);
+      wcscpy(CopyData+DataSize,DOS_EOL_fmt);
       DataSize+=2;
     }
     CurPtr=CurPtr->m_next;
@@ -4287,7 +4287,7 @@ void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
 
   // что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
   // "прибьем" все внешние пробелы.
-  RemoveExternalSpacesW(strArg);
+  RemoveExternalSpaces(strArg);
 
   wchar_t *argv = strArg.GetBuffer ();
   // получаем индекс вхождения любого разделителя
@@ -4574,7 +4574,7 @@ void Editor::BlockLeft()
         Length+=EdOpt.TabSize-1;
       }
 
-    if ((EndSel==-1 || EndSel>StartSel) && IsSpaceW(*CurStr))
+    if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
     {
       int EndLength=(int)wcslen(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
@@ -4759,7 +4759,7 @@ void Editor::VCopy(int Append)
 
   if (Append)
   {
-    CopyData=PasteFormatFromClipboard(FAR_VerticalBlockW);
+    CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
     if (CopyData!=NULL)
       PrevSize=DataSize=(long)wcslen(CopyData);
     else
@@ -4804,7 +4804,7 @@ void Editor::VCopy(int Append)
     DataSize+=TBlockSizeX;
 
 
-    wcscpy(CopyData+DataSize,DOS_EOL_fmtW);
+    wcscpy(CopyData+DataSize,DOS_EOL_fmt);
     DataSize+=2;
   }
 
@@ -4813,7 +4813,7 @@ void Editor::VCopy(int Append)
     /*if (UseDecodeTable)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
     CopyToClipboard(CopyData);
-    CopyFormatToClipboard(FAR_VerticalBlockW,CopyData);
+    CopyFormatToClipboard(FAR_VerticalBlock,CopyData);
     delete CopyData;
   }
 }
@@ -5803,7 +5803,7 @@ void Editor::Xlat()
          CopySize=TBlockSizeX;
       AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,0,UNDO_EDIT);
       BlockUndo=TRUE;
-      ::XlatW(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
+      ::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
     }
     DoXlat=TRUE;
   }
@@ -5825,7 +5825,7 @@ void Editor::Xlat()
         if(EndSel == -1)
           EndSel=wcslen(CurPtr->Str);
         AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,0,UNDO_EDIT);
-        ::XlatW(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
+        ::Xlat(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
         CurPtr=CurPtr->m_next;
@@ -5841,22 +5841,22 @@ void Editor::Xlat()
       //   что находится левее позиции курсора на 1 символ
       DoXlat=TRUE;
 
-      if(IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
+      if(IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
       {
          if(start) start--;
-         DoXlat=(!IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]));
+         DoXlat=(!IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]));
       }
 
       if(DoXlat)
       {
-        while(start>=0 && !IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
+        while(start>=0 && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[start]))
           start--;
         start++;
         end=start+1;
-        while(end<StrSize && !IsWordDivW((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[end]))
+        while(end<StrSize && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.strWordDivForXlat,Str[end]))
           end++;
         AddUndoData(CurLine->GetStringAddrW(),CurLine->GetEOL(),NumLine,start,UNDO_EDIT);
-        ::XlatW(Str,start,end,CurLine->TableSet,Opt.XLat.Flags);
+        ::Xlat(Str,start,end,CurLine->TableSet,Opt.XLat.Flags);
       }
     }
   }

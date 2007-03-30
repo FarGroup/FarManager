@@ -1420,7 +1420,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    {
      if(StrstriW(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
-       ReplaceStringsW(strTmpName,ModifKeyName[I].Name,L"",-1,TRUE);
+       ReplaceStrings(strTmpName,ModifKeyName[I].Name,L"",-1,TRUE);
        Key|=ModifKeyName[I].Key;
        Pos+=ModifKeyName[I].Len;
      }

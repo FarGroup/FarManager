@@ -192,7 +192,7 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
 
     strDestDir = L"\\??\\";
 
-    ConvertNameToFullW (SrcFolder, strFullDir); //??? было GetFullPathName
+    ConvertNameToFull (SrcFolder, strFullDir); //??? было GetFullPathName
 
     if ( GetFileAttributesW (strFullDir) == -1 )
     {
@@ -363,7 +363,7 @@ int IsLocalDrive(const wchar_t *Path)
   else
   {
     string strRootDir;
-    ConvertNameToFullW(Path, strRootDir);
+    ConvertNameToFull(Path, strRootDir);
 
     if(IsLocalPath(strRootDir))
     {
@@ -401,8 +401,8 @@ int WINAPI MkLink(const wchar_t *Src,const wchar_t *Dest)
 {
   string strFileSource,strFileDest;
 
-  ConvertNameToFullW(Src,strFileSource);
-  ConvertNameToFullW(Dest,strFileDest);
+  ConvertNameToFull(Src,strFileSource);
+  ConvertNameToFull(Dest,strFileDest);
 
   BOOL bSuccess=FALSE;
 

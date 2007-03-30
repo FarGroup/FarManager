@@ -165,13 +165,13 @@ void QuickView::DisplayObject()
       GotoXY(X1+2,Y1+8);
       PrintText(UMSG(MQuickViewBytes));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommasW(FileSize,strMsg);
+      InsertCommas(FileSize,strMsg);
       PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
       PrintText(UMSG(MQuickViewCompressed));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommasW(CompressedFileSize,strMsg);
+      InsertCommas(CompressedFileSize,strMsg);
       PrintText(strMsg);
 
       SetColor(COL_PANELTEXT);
@@ -187,19 +187,19 @@ void QuickView::DisplayObject()
         GotoXY(X1+2,Y1+12);
         PrintText(UMSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommasW(ClusterSize,strMsg);
+        InsertCommas(ClusterSize,strMsg);
         PrintText(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
         PrintText(UMSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommasW(RealFileSize,strMsg);
+        InsertCommas(RealFileSize,strMsg);
         PrintText(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+14);
         PrintText(UMSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommasW(RealFileSize-CompressedFileSize,strMsg);
+        InsertCommas(RealFileSize-CompressedFileSize,strMsg);
         unsigned __int64 Size1=RealFileSize-CompressedFileSize;
         unsigned __int64 Size2=RealFileSize;
 
@@ -389,7 +389,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
       QView->OpenFile(strCurFileName,FALSE);
 
   if (TempFile)
-    ConvertNameToFullW (strCurFileName, strTempName);
+    ConvertNameToFull (strCurFileName, strTempName);
 
   Redraw();
 

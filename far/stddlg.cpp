@@ -64,7 +64,7 @@ stddlg.cpp
     FALSE - пользователь отказался от диалога (Esc)
 */
 
-int WINAPI GetSearchReplaceStringW (
+int WINAPI GetSearchReplaceString (
          int IsReplaceMode,
          string *pSearchStr,
          string *pReplaceStr,
@@ -637,7 +637,7 @@ L========================================================-
     PluginDlg[2].strData.ReleaseBuffer (); //BUGBUG
     if(RegKey && *RegKey)
     {
-      RemoveLeadingSpacesW(PluginDlg[2].strData);
+      RemoveLeadingSpaces(PluginDlg[2].strData);
       if ( PluginDlg[2].strData.IsEmpty() )
         DeleteRegValue(RegKey,RegValueName);
       else

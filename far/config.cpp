@@ -1418,7 +1418,7 @@ void ReadConfig()
   FileList::ReadPanelModes();
 
   apiGetTempPath (Opt.strTempPath);
-  RemoveTrailingSpacesW(Opt.strTempPath);
+  RemoveTrailingSpaces(Opt.strTempPath);
   AddEndSlash(Opt.strTempPath);
   CtrlObject->EditorPosCache->Read(L"Editor\\LastPositions");
   CtrlObject->ViewerPosCache->Read(L"Viewer\\LastPositions");
@@ -1431,7 +1431,7 @@ void ReadConfig()
 
   if(Opt.strExecuteBatchType.IsEmpty()) // предохраняемся
     Opt.strExecuteBatchType=constBatchExtW;
-  ReplaceStringsW(Opt.strExecuteBatchType,L";",L"",-1);
+  ReplaceStrings(Opt.strExecuteBatchType,L";",L"",-1);
   Opt.strExecuteBatchType+=L""; //???
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }

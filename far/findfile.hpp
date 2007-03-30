@@ -71,10 +71,9 @@ class FindFiles
     static int GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              const wchar_t *DestPath, string &strResultName);
     static string &PrepareDriveNameStr(string &strSearchFromRoot,size_t sz);
-    static char *RemovePseudoBackSlash(char *FileName);
-    static wchar_t *RemovePseudoBackSlashW(wchar_t *FileName);
-    static string &RemovePseudoBackSlashW(string &strFileName);
-    static __int64 __fastcall GetSearchInFirstW(const wchar_t *DigitStr);
+    static wchar_t *RemovePseudoBackSlash(wchar_t *FileName);
+    static string &RemovePseudoBackSlash(string &strFileName);
+    static __int64 __fastcall GetSearchInFirst(const wchar_t *DigitStr);
 
   public:
 

@@ -150,7 +150,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     string strFileSysName;
     string strRootDir;
 
-    ConvertNameToFullW(strCurDir,strRootDir);
+    ConvertNameToFull(strCurDir,strRootDir);
     GetPathRoot(strRootDir, strRootDir);
     if ( apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
       Is_FS_NTFS=!LocalStricmpW(strFileSysName,L"NTFS")?TRUE:FALSE;
@@ -716,7 +716,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     PluginToFileListItem(CurPanelData,CurListData);
     if(Info.Flags & OPIF_REALNAMES)
     {
-        ConvertNameToShortW (CurListData->strName, CurListData->strShortName);
+        ConvertNameToShort (CurListData->strName, CurListData->strShortName);
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))

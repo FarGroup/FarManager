@@ -26,7 +26,7 @@ static int   CurLang=-1;
 static char  Word[80];
 static int  WeekFirst=0;
 
-void PrepareStrFTime(void)
+void PrepareStrFTimeA(void)
 {
   DWORD Loc[2]={LANG_ENGLISH,LANG_NEUTRAL}, ID;
   char TempBuf[100];
@@ -257,7 +257,7 @@ static int iso8601wknum(const struct tm *timeptr)
     return weeknum;
 }
 
-int MkStrFTime(char *Dest,int DestSize,const char *Fmt)
+int MkStrFTimeA(char *Dest,int DestSize,const char *Fmt)
 {
   struct tm *time_now;
   time_t secs_now;
@@ -272,10 +272,10 @@ int MkStrFTime(char *Dest,int DestSize,const char *Fmt)
   UnicodeToAnsi (Opt.strDateFormat, szDateFormat, NM-1); //BUGBUG
 
   xstrncpy(Fmt0,!Fmt || !Fmt[0]?szDateFormat:Fmt,sizeof(Fmt0));
-  return StrFTime(Dest, DestSize, Fmt0, time_now);
+  return StrFTimeA(Dest, DestSize, Fmt0, time_now);
 }
 
-int MkStrFTimeW(string &strDest, const wchar_t *Fmt)
+int MkStrFTime(string &strDest, const wchar_t *Fmt)
 {
     char szDest[NM]; //BUGBUG
 
@@ -283,7 +283,7 @@ int MkStrFTimeW(string &strDest, const wchar_t *Fmt)
 
     char *lpFmt = UnicodeToAnsi (Fmt);
 
-    int nResult = MkStrFTime (szDest, NM-1, lpFmt);
+    int nResult = MkStrFTimeA (szDest, NM-1, lpFmt);
 
     xf_free (lpFmt);
 
@@ -305,7 +305,7 @@ StrFTime(str, 80,
 
 $Date(%d-%a-%Y)
 */
-int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t)
+int WINAPI StrFTimeA(char *Dest, size_t MaxSize, const char *Format,const struct tm *t)
 {
   char Buf[32];
   char chr;
@@ -317,7 +317,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
     return 0;
 
   if(CurLang == -1 && LanguageLoaded)
-    PrepareStrFTime();
+    PrepareStrFTimeA();
 
   int TimeSeparator=GetTimeSeparator();
 
@@ -495,10 +495,10 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
 
         // time as %I:%M:%S %p
         case 'r':
-          StrFTime(Buf, sizeof(Buf), "%I:%M:%S %p", t); break;
+          StrFTimeA(Buf, sizeof(Buf), "%I:%M:%S %p", t); break;
         // time as %H:%M
         case 'R':
-          StrFTime(Buf, sizeof(Buf), "%H:%M", t); break;
+          StrFTimeA(Buf, sizeof(Buf), "%H:%M", t); break;
         case 'V':  /* week of year according ISO 8601 */
           sprintf(Buf, "%02d", iso8601wknum(t));
           break;

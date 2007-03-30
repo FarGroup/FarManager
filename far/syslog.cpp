@@ -32,7 +32,7 @@ syslog.cpp
 wchar_t      LogFileName[MAX_FILE];
 static FILE *LogStream=0;
 static int   Indent=0;
-static wchar_t *PrintTimeW(wchar_t *timebuf);
+static wchar_t *PrintTime(wchar_t *timebuf);
 
 
 static BOOL IsLogON(void)
@@ -40,7 +40,7 @@ static BOOL IsLogON(void)
   return GetKeyState(VK_SCROLL)?TRUE:FALSE;
 }
 
-static const wchar_t *MakeSpaceW(void)
+static const wchar_t *MakeSpace(void)
 {
   static wchar_t Buf[60]=L" ";
   Buf[0]=L' ';
@@ -50,7 +50,7 @@ static const wchar_t *MakeSpaceW(void)
   return Buf;
 }
 
-static wchar_t *PrintTimeW(wchar_t *timebuf)
+static wchar_t *PrintTime(wchar_t *timebuf)
 {
   SYSTEMTIME st;
   GetLocalTime(&st);
@@ -60,20 +60,20 @@ static wchar_t *PrintTimeW(wchar_t *timebuf)
   return timebuf;
 }
 
-static FILE* PrintBanerW(FILE *fp,const wchar_t *Category,const wchar_t *Title)
+static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
 {
   fp=LogStream;
   if(fp)
   {
     static wchar_t timebuf[64];
-    fwprintf(fp,L"%s %s(%s) %s\n",PrintTimeW(timebuf),MakeSpaceW(),NullToEmptyW(Title),NullToEmptyW(Category));
+    fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
   }
   return fp;
 }
 
 #endif
 
-FILE * OpenLogStreamW(const wchar_t *file)
+FILE * OpenLogStream(const wchar_t *file)
 {
 #if defined(SYSLOG)
   wchar_t RealLogName[NM*2];
@@ -106,7 +106,7 @@ void OpenSysLog()
   }
   else if(!(Attr&FILE_ATTRIBUTE_DIRECTORY))
     *Ptr=0;
-  LogStream=OpenLogStreamW(LogFileName);
+  LogStream=OpenLogStream(LogFileName);
   //if ( !LogStream )
   //{
   //    fprintf(stderr,"Can't open log file '%s'\n",LogFileName);
@@ -132,7 +132,7 @@ void ShowHeap()
   if ( LogStream)
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s\n",PrintTimeW(timebuf),MakeSpaceW(),L"Heap Status");
+    fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf),MakeSpace(),L"Heap Status");
 
     fwprintf(LogStream,L"   Size   Status\n");
     fwprintf(LogStream,L"   ----   ------\n");
@@ -204,7 +204,7 @@ void SysLog(const wchar_t *fmt,...)
   if ( LogStream )
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s\n",PrintTimeW(timebuf),MakeSpaceW(),msg);
+    fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -236,7 +236,7 @@ void SysLogLastError(void)
   {
     wchar_t timebuf[64];
     // RemoveUnprintableCharactersW(lpMsgBuf);
-    fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTimeW(timebuf),MakeSpaceW(),LastErr,LastErr,lpMsgBuf);
+    fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf),MakeSpace(),LastErr,LastErr,lpMsgBuf);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -271,7 +271,7 @@ void SysLog(int l,const wchar_t *fmt,...)
   {
     if(l < 0) SysLog(l);
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s\n",PrintTimeW(timebuf),MakeSpaceW(),msg);
+    fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
     fflush(LogStream);
     if(l > 0) SysLog(l);
   }
@@ -302,7 +302,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"",Title);
+    fp=PrintBaner(fp,L"",Title);
   }
 
   if (fp)
@@ -357,7 +357,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
     if(fp)
     {
       wchar_t timebuf[64];
-      fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTimeW(timebuf),MakeSpaceW(),NullToEmptyW(Title));
+      fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
     }
   }
 
@@ -407,7 +407,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"",Title);
+    fp=PrintBaner(fp,L"",Title);
   }
 
   if (fp)
@@ -466,17 +466,17 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *In
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"OpenPluginInfo",Title);
+    fp=PrintBaner(fp,L"OpenPluginInfo",Title);
   }
 
   if (fp)
   {
     fwprintf(fp,L"\tStructSize      =%d\n",Info->StructSize);
     fwprintf(fp,L"\tFlags           =0x%08X\n",Info->Flags);
-    fwprintf(fp,L"\tHostFile        ='%S'\n",NullToEmptyW(Info->HostFile));
-    fwprintf(fp,L"\tCurDir          ='%S'\n",NullToEmptyW(Info->CurDir));
-    fwprintf(fp,L"\tFormat          ='%S'\n",NullToEmptyW(Info->Format));
-    fwprintf(fp,L"\tPanelTitle      ='%S'\n",NullToEmptyW(Info->PanelTitle));
+    fwprintf(fp,L"\tHostFile        ='%S'\n",NullToEmpty(Info->HostFile));
+    fwprintf(fp,L"\tCurDir          ='%S'\n",NullToEmpty(Info->CurDir));
+    fwprintf(fp,L"\tFormat          ='%S'\n",NullToEmpty(Info->Format));
+    fwprintf(fp,L"\tPanelTitle      ='%S'\n",NullToEmpty(Info->PanelTitle));
     fwprintf(fp,L"\tInfoLines       =%p\n",Info->InfoLines);
     fwprintf(fp,L"\tInfoLinesNumber =%d\n",Info->InfoLinesNumber);
     if(Info->InfoLines)
@@ -484,7 +484,7 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *In
       for(int I=0;I<Info->InfoLinesNumber;++I)
       {
         fwprintf(fp,L"\t\t%d) Text=[%s], Data=[%s], Separator=[%d]\n",I,
-           NullToEmptyW(Info->InfoLines[I].Text),NullToEmptyW(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
+           NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
       }
     }
     fwprintf(fp,L"\tDescrFiles      =%p\n",Info->DescrFiles);
@@ -496,15 +496,15 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *In
       for(int I=0;I<Info->PanelModesNumber;++I)
       {
         fwprintf(fp,L"\t%d) ------------------\n",I);
-        fwprintf(fp,L"\t\tColumnTypes       ='%S'\n",NullToEmptyW(Info->PanelModesArray[I].ColumnTypes));
-        fwprintf(fp,L"\t\tColumnWidths      ='%S'\n",NullToEmptyW(Info->PanelModesArray[I].ColumnWidths));
+        fwprintf(fp,L"\t\tColumnTypes       ='%S'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
+        fwprintf(fp,L"\t\tColumnWidths      ='%S'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
         fwprintf(fp,L"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
         fwprintf(fp,L"\t\tFullScreen        =%d\n",Info->PanelModesArray[I].FullScreen);
         fwprintf(fp,L"\t\tDetailedStatus    =%d\n",Info->PanelModesArray[I].DetailedStatus);
         fwprintf(fp,L"\t\tAlignExtensions   =%d\n",Info->PanelModesArray[I].AlignExtensions);
         fwprintf(fp,L"\t\tCaseConversion    =%d\n",Info->PanelModesArray[I].CaseConversion);
-        fwprintf(fp,L"\t\tStatusColumnTypes ='%S'\n",NullToEmptyW(Info->PanelModesArray[I].StatusColumnTypes));
-        fwprintf(fp,L"\t\tStatusColumnWidths='%S'\n",NullToEmptyW(Info->PanelModesArray[I].StatusColumnWidths));
+        fwprintf(fp,L"\t\tStatusColumnTypes ='%S'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnTypes));
+        fwprintf(fp,L"\t\tStatusColumnWidths='%S'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnWidths));
       }
     }
     fwprintf(fp,L"\tStartPanelMode  =%d\n",Info->StartPanelMode);
@@ -534,7 +534,7 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"",Title);
+    fp=PrintBaner(fp,L"",Title);
   }
 
   if (fp)
@@ -672,7 +672,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
   if ( LogStream )
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTimeW(timebuf),MakeSpaceW(),PointToName(ModuleName),msg);
+    fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf),MakeSpace(),PointToName(ModuleName),msg);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -1489,7 +1489,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
     if(fp)
     {
       wchar_t timebuf[64];
-      fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTimeW(timebuf),MakeSpaceW(),ReadCount2);
+      fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf),MakeSpace(),ReadCount2);
     }
   }
 
@@ -1513,7 +1513,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 
         for(DWORD I=0; I < ReadCount2; ++I)
         {
-          fwprintf(fp,L"             %s%04d: %s\n",MakeSpaceW(),I,_INPUT_RECORD_Dump(TmpRec+I));
+          fwprintf(fp,L"             %s%04d: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
         }
         // освободим память
         xf_free(TmpRec);
@@ -1552,12 +1552,12 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
-  const wchar_t *space=MakeSpaceW();
+  const wchar_t *space=MakeSpace();
 
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"",Title);
+    fp=PrintBaner(fp,L"",Title);
   }
 
   if (fp)
@@ -1623,12 +1623,12 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
-  const wchar_t *space=MakeSpaceW();
+  const wchar_t *space=MakeSpace();
 
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"WIN32_FIND_DATA",Title);
+    fp=PrintBaner(fp,L"WIN32_FIND_DATA",Title);
   }
 
   if (fp)
@@ -1661,11 +1661,11 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
       fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_TEMPORARY\n",12,"",space);
 
     string D="", T="";
-    ConvertDateW(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
+    ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
     fwprintf(fp,L"%*s %s  ftCreationTime        =0x%08X 0x%08X\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
-    ConvertDateW(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
+    ConvertDate(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
     fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
-    ConvertDateW(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
+    ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
     fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 
     FAR_INT64 Number;
@@ -1694,12 +1694,12 @@ void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings 
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
-  const wchar_t *space=MakeSpaceW();
+  const wchar_t *space=MakeSpace();
 
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBanerW(fp,L"PanelViewSettings",Title);
+    fp=PrintBaner(fp,L"PanelViewSettings",Title);
   }
 
   if (fp)

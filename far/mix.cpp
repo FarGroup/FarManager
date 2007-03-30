@@ -220,7 +220,7 @@ DWORD NTTimeToDos(FILETIME *ft)
   return(((DWORD)DosDate<<16)|DosTime);
 }
 
-void ConvertDateW (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
+void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear,int DynInit)
 {
   static int WDateFormat,WDateSeparator,WTimeSeparator;
@@ -398,7 +398,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
   int skippath=flags&PN_SKIPPATH;
 
   if(flags&PN_CMPNAME)
-    return CmpNameW (param1, param2, skippath);
+    return CmpName (param1, param2, skippath);
 
   if(flags&PN_CMPNAMELIST)
   {
@@ -408,7 +408,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
     MaskPtr=param1;
 
     while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=NULL)
-      if (CmpNameW(strFileMask,param2,skippath))
+      if (CmpName(strFileMask,param2,skippath))
       {
         Found=TRUE;
         break;
@@ -471,7 +471,7 @@ int GetDirInfo(const wchar_t *Title,
   string strFullDirName, strDriveRoot;
   string strFullName, strCurDirName, strLastDirName;
 
-  ConvertNameToFullW(DirName, strFullDirName);
+  ConvertNameToFull(DirName, strFullDirName);
 
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
@@ -501,7 +501,7 @@ int GetDirInfo(const wchar_t *Title,
 
   PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 
-  if ((ClusterSize=GetClusterSizeW(strDriveRoot))==0)
+  if ((ClusterSize=GetClusterSize(strDriveRoot))==0)
   {
     DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
@@ -740,13 +740,10 @@ int CheckFolder(const wchar_t *Path)
   return CHKFLD_EMPTY;
 }
 
-
 const wchar_t* GetUnicodeLanguageString (int nID)
 {
-    return Lang.GetMsgW(nID);
+	return Lang.GetMsg(nID);
 }
-
-
 
 BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
@@ -834,7 +831,7 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
   return(ExitCode);
 }
 
-int GetClusterSizeW(const wchar_t *Root)
+int GetClusterSize(const wchar_t *Root)
 {
 #ifndef _WIN64
   struct ExtGetDskFreSpc
@@ -1227,7 +1224,7 @@ void CreatePath(string &strPath)
 
       *ChPtr = 0;
 
-      if ( Opt.CreateUppercaseFolders && !IsCaseMixedW(DirPart) && GetFileAttributesW(strPath) == (DWORD)-1) //BUGBUG
+      if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributesW(strPath) == (DWORD)-1) //BUGBUG
         CharUpperW (DirPart);
 
       if ( CreateDirectoryW(strPath, NULL) )
@@ -1283,7 +1280,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
     if((LocalIsalphaW(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
     {
       if(CheckFullPath)
-		  ConvertNameToLongW (strPath, strPath); //??? а почему не convert to full?
+		  ConvertNameToLong (strPath, strPath); //??? а почему не convert to full?
 
       wchar_t *lpwszPath = strPath.GetBuffer ();
 
@@ -1452,7 +1449,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
     AnotherPanel->GetCurDir(strAnotherCurDir);
     AddEndSlash(strAnotherCurDir);
 
-    ConvertNameToFullW(SelName, strFullName);
+    ConvertNameToFull(SelName, strFullName);
     AddEndSlash(strFullName);
 
     if(wcsstr(strAnotherCurDir,strFullName))
@@ -1489,7 +1486,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
         BufLen=J+1;
       }
 
-      RemoveTrailingSpaces((char *)Buffer);
+      RemoveTrailingSpacesA((char *)Buffer);
       break;
     }
     case 'S': // Convert hexadecimal string representation to common string
@@ -1545,7 +1542,7 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
   int QuoteFound = FALSE;
 
   apiExpandEnvironmentStrings (CmdStr, strNewCmdStr);
-  RemoveExternalSpacesW(strNewCmdStr);
+  RemoveExternalSpaces(strNewCmdStr);
 
   wchar_t *CmdPtr = strNewCmdStr.GetBuffer();
   wchar_t *ParPtr = NULL;
@@ -1637,7 +1634,7 @@ BOOL ProcessOSAliases(string &strStr)
 }
 
 
-int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNameAsIs)
+int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNameAsIs)
 {
   int RetCode=FALSE;
   int NeedRealName=FALSE;
@@ -1710,7 +1707,7 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortN
 
 
             if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
-              ConvertNameToShortW(strPathName,strPathName);
+              ConvertNameToShort(strPathName,strPathName);
           }
           else
           {
@@ -1720,7 +1717,7 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortN
             CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
             FileList::AddPluginPrefix(SrcFilePanel,strPathName);
 
-            strPathName += NullToEmptyW(Info.CurDir);
+            strPathName += NullToEmpty(Info.CurDir);
 
           }
           AddEndSlash(strPathName);

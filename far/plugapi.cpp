@@ -1039,7 +1039,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
     CutToSlash(strPath);
 
     if ( pPlugin->Lang.Init(strPath) )
-      return pPlugin->Lang.GetMsgW(MsgId);
+      return pPlugin->Lang.GetMsg(MsgId);
 
 	return L"";
 }
@@ -1213,7 +1213,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
-      g_strDirToSet = NullToEmptyW((wchar_t *)Param);
+      g_strDirToSet = NullToEmpty((wchar_t *)Param);
 
     case FCTL_GETPANELINFO:
     case FCTL_GETPANELSHORTINFO:
@@ -1431,7 +1431,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 
   string strDirName;
 
-  ConvertNameToFullW(Dir, strDirName);
+  ConvertNameToFull(Dir, strDirName);
 
   {
     SaveScreen SaveScr;
@@ -2027,7 +2027,7 @@ int WINAPI FarEditor(
 
 int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
 {
-  return(CmpNameW(pattern,string,skippath));
+  return(CmpName(pattern,string,skippath));
 }
 
 

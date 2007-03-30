@@ -28,9 +28,9 @@ ConsoleTitle::~ConsoleTitle()
     if ( *lpwszTitle )
     {
         lpwszTitle += wcslen (lpwszTitle);
-        lpwszTitle -= wcslen (FarTitleAddonsW);
+        lpwszTitle -= wcslen (FarTitleAddons);
 
-        if ( !LocalStricmpW (lpwszTitle, FarTitleAddonsW) )
+        if ( !LocalStricmpW (lpwszTitle, FarTitleAddons) )
             *lpwszTitle = 0;
     }
 

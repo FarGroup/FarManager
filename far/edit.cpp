@@ -417,7 +417,7 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
           return;
 
         wcsncpy(ShortStr,ShowStr,StrSize);
-        Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
+        Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         Size=Len;
       }
@@ -538,7 +538,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
   }
   else // Пути/имена?
   {
-    RetCode=_MakePath1W(Key,strPathName,L"");
+    RetCode=_MakePath1(Key,strPathName,L"");
   }
 
   // Если что-нить получилось, именно его и вставим (PathName)
@@ -792,16 +792,15 @@ int Edit::ProcessKey(int Key)
          Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
          текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
       */
-      while (CurPos>0 && !(!IsWordDivW(TableSet, WordDiv, Str[CurPos]) &&
-             IsWordDivW(TableSet, WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
+      while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
+             IsWordDiv(TableSet, WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
         /* $ 18.08.2000 KM
            Добавим выход из цикла проверив CurPos-1 на присутствие
            в WordDiv.
         */
-//        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
-        if (!IsSpaceW(Str[CurPos]) && (IsSpaceW(Str[CurPos-1]) ||
-             IsWordDivW(TableSet, WordDiv, Str[CurPos-1])))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
+             IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
           break;
         /* KM $ */
         RecurseProcessKey(KEY_SHIFTLEFT);
@@ -820,15 +819,14 @@ int Edit::ProcessKey(int Key)
          Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
          текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
       */
-      while (CurPos<StrSize && !(IsWordDivW(TableSet, WordDiv, Str[CurPos]) &&
-             !IsWordDivW(TableSet, WordDiv, Str[CurPos-1])))
+      while (CurPos<StrSize && !(IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
+             !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
       {
         /* $ 18.08.2000 KM
            Добавим выход из цикла проверив CurPos-1 на присутствие
            в WordDiv.
         */
-//        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
-        if (!IsSpaceW(Str[CurPos]) && (IsSpaceW(Str[CurPos-1]) || IsWordDivW(TableSet, WordDiv, Str[CurPos-1])))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
           break;
         /* KM $ */
         RecurseProcessKey(KEY_SHIFTRIGHT);
@@ -866,7 +864,7 @@ int Edit::ProcessKey(int Key)
           return FALSE;
 
         wcsncpy(ShortStr,Str,StrSize);
-        Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
+        Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -940,7 +938,7 @@ int Edit::ProcessKey(int Key)
       while (1)
       {
         int StopDelete=FALSE;
-        if (CurPos>1 && IsSpaceW(Str[CurPos-1])!=IsSpaceW(Str[CurPos-2]))
+        if (CurPos>1 && IsSpace(Str[CurPos-1])!=IsSpace(Str[CurPos-2]))
           StopDelete=TRUE;
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
@@ -949,7 +947,7 @@ int Edit::ProcessKey(int Key)
            Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
            текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
         */
-        if (IsWordDivW(TableSet, WordDiv,Str[CurPos-1]))
+        if (IsWordDiv(TableSet, WordDiv,Str[CurPos-1]))
         /* IS $ */
           break;
       }
@@ -1037,8 +1035,8 @@ int Edit::ProcessKey(int Key)
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
           if (!CheckCharMask(Mask[ptr]) ||
-             (IsSpaceW(Str[ptr]) && !IsSpaceW(Str[ptr+1])) ||
-             (IsWordDivW(TableSet, WordDiv, Str[ptr])))
+             (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
+             (IsWordDiv(TableSet, WordDiv, Str[ptr])))
           /* IS $ */
             break;
         }
@@ -1060,7 +1058,7 @@ int Edit::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          if (IsWordDivW(TableSet, WordDiv, Str[CurPos]))
+          if (IsWordDiv(TableSet, WordDiv, Str[CurPos]))
           /* IS $ */
             break;
         }
@@ -1148,7 +1146,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        CurPos=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
+        CurPos=(int)wcslen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -1189,7 +1187,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        int Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
+        int Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1276,11 +1274,11 @@ int Edit::ProcessKey(int Key)
          Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
          текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
       */
-      while (CurPos>0 && !(!IsWordDivW(TableSet, WordDiv, Str[CurPos]) &&
-             IsWordDivW(TableSet, WordDiv, Str[CurPos-1]) && !IsSpaceW(Str[CurPos])))
+      while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
+             IsWordDiv(TableSet, WordDiv, Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       /* IS $ */
       {
-        if (!IsSpaceW(Str[CurPos]) && IsSpaceW(Str[CurPos-1]))
+        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
         CurPos--;
       }
@@ -1306,7 +1304,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        Len=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
+        Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1321,12 +1319,12 @@ int Edit::ProcessKey(int Key)
          Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
          текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
       */
-      while (CurPos<Len/*StrSize*/ && !(IsWordDivW(TableSet, WordDiv,Str[CurPos]) &&
-             !IsWordDivW(TableSet, WordDiv, Str[CurPos-1])))
+      while (CurPos<Len/*StrSize*/ && !(IsWordDiv(TableSet, WordDiv,Str[CurPos]) &&
+             !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
       /* IS $ */
       /* KM $ */
       {
-        if (!IsSpaceW(Str[CurPos]) && IsSpaceW(Str[CurPos-1]))
+        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
         CurPos++;
       }
@@ -1358,7 +1356,7 @@ int Edit::ProcessKey(int Key)
             if (ShortStr==NULL)
               return FALSE;
             wcsncpy(ShortStr,Str,StrSize);
-            RemoveTrailingSpacesW(ShortStr);
+            RemoveTrailingSpaces(ShortStr);
             CopyToClipboard(ShortStr);
             delete[] ShortStr;
           }
@@ -1395,12 +1393,12 @@ int Edit::ProcessKey(int Key)
           DeleteBlock();
         }
 
-        for (I=(int)wcslen(Str)-1;I>=0 && IsEolW(Str[I]);I--)
+        for (I=(int)wcslen(Str)-1;I>=0 && IsEol(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
-          if (IsEolW(ClipText[I]))
+          if (IsEol(ClipText[I]))
           {
-            if (IsEolW(ClipText[I+1]))
+            if (IsEol(ClipText[I+1]))
               wmemmove(&ClipText[I],&ClipText[I+1],wcslen(&ClipText[I+1])+1);
             if (ClipText[I+1]==0)
               ClipText[I]=0;
@@ -1508,7 +1506,7 @@ int Edit::ProcessInsDate(void)
 
   string strTStr;
 
-  if(MkStrFTimeW(strTStr,Fmt))
+  if(MkStrFTime(strTStr,Fmt))
   {
     InsertString(strTStr);
     return TRUE;
@@ -2286,7 +2284,7 @@ void Edit::SetTabCurPos(int NewPos)
     if (ShortStr==NULL)
       return;
     wcsncpy(ShortStr,Str,StrSize);
-    Pos=(int)wcslen(RemoveTrailingSpacesW(ShortStr));
+    Pos=(int)wcslen(RemoveTrailingSpaces(ShortStr));
     delete[] ShortStr;
     if (NewPos>Pos)
       NewPos=Pos;
@@ -2610,7 +2608,7 @@ void Edit::Xlat(BOOL All)
   */
   if(All && SelStart == -1 && SelEnd == 0)
   {
-    ::XlatW(Str,0,(int)wcslen(Str),TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,0,(int)wcslen(Str),TableSet,Opt.XLat.Flags);
     Show();
     return;
   }
@@ -2623,7 +2621,7 @@ void Edit::Xlat(BOOL All)
   {
     if(SelEnd == -1)
       SelEnd=(int)wcslen(Str);
-    ::XlatW(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
     Show();
   }
 /* $ 25.11.2000 IS
@@ -2643,21 +2641,21 @@ void Edit::Xlat(BOOL All)
       Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
       текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
    */
-   if(IsWordDivW(TableSet,Opt.XLat.strWordDivForXlat,Str[start]))
+   if(IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[start]))
    {
       if(start) start--;
-      DoXlat=(!IsWordDivW(TableSet,Opt.XLat.strWordDivForXlat,Str[start]));
+      DoXlat=(!IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[start]));
    }
 
    if(DoXlat)
    {
-    while(start>=0 && !IsWordDivW(TableSet,Opt.XLat.strWordDivForXlat,Str[start]))
+    while(start>=0 && !IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[start]))
       start--;
     start++;
     end=start+1;
-    while(end<StrSize && !IsWordDivW(TableSet,Opt.XLat.strWordDivForXlat,Str[end]))
+    while(end<StrSize && !IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[end]))
       end++;
-    ::XlatW(Str,start,end,TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
     Show();
    }
    /* 12.01.2004 IS $*/

@@ -1875,14 +1875,14 @@ void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
   {
     struct OpenPluginInfo Info;
     GetOpenPluginInfo(&Info);
-    strTitleDir = NullToEmptyW(Info.PanelTitle);
-    RemoveExternalSpacesW(strTitleDir);
+    strTitleDir = NullToEmpty(Info.PanelTitle);
+    RemoveExternalSpaces(strTitleDir);
     TruncStr(strTitleDir,SubLen-TruncSize);
   }
   else
   {
     if (ShowShortNames)
-      ConvertNameToShortW(strCurDir,strTitleDir);
+      ConvertNameToShort(strCurDir,strTitleDir);
     else
       strTitleDir = strCurDir;
     TruncPathStr(strTitleDir,SubLen-TruncSize);
@@ -1940,7 +1940,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
       break;
 
     case FCTL_CLOSEPLUGIN:
-      strPluginParam = NullToEmptyW((const wchar_t *)Param);
+      strPluginParam = NullToEmpty((const wchar_t *)Param);
       Result=TRUE;
       //if(Opt.CPAJHefuayor)
       //  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);

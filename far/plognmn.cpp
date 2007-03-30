@@ -11,9 +11,9 @@ class PreserveLongName
 #include "plognmn.hpp"
 #include "fn.hpp"
 
-PreserveLongNameW::PreserveLongNameW(const wchar_t *ShortName,int Preserve)
+PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve)
 {
-	PreserveLongNameW::Preserve=Preserve;
+	PreserveLongName::Preserve=Preserve;
 	if (Preserve)
 	{
 		FAR_FIND_DATA_EX FindData;
@@ -28,7 +28,7 @@ PreserveLongNameW::PreserveLongNameW(const wchar_t *ShortName,int Preserve)
 }
 
 
-PreserveLongNameW::~PreserveLongNameW()
+PreserveLongName::~PreserveLongName()
 {
 	if (Preserve && GetFileAttributesW(strSaveShortName)!=0xFFFFFFFF)
 	{

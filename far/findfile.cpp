@@ -203,7 +203,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         strTableName = UMSG(MGetTableNormalText);
       else
         PrepareTable(&TableSet,TableNum,TRUE);
-      RemoveCharW(strTableName,L'&',TRUE);
+      RemoveChar(strTableName,L'&',TRUE);
 
       UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1); //BUGBUG
 
@@ -409,7 +409,7 @@ static void ShowTruncateMessage(int IDMField,int MaxSize)
   strBuf1 = L"\'";
   strBuf1 += UMSG(IDMField);
   strBuf1 += L"\'";
-  RemoveHighlightsW(strBuf1);
+  RemoveHighlights(strBuf1);
   strBuf2.Format (UMSG(MEditInputSize2), MaxSize);
   Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MEditInputSize1),strBuf1,strBuf2,UMSG(MOk));
 }
@@ -491,7 +491,7 @@ FindFiles::FindFiles()
 
     MultiByteToWideChar(CP_OEMCP, 0, cts.TableName, -1, TableItem[I+CHAR_TABLE_SIZE+1].Text, (sizeof(TableItem[I+CHAR_TABLE_SIZE+1].Text)-1)/sizeof (wchar_t)); //BUGBUG
 
-    ///RemoveCharW(TableItem[I+CHAR_TABLE_SIZE+1].Text,L'&',TRUE); //BUGBUG!!!
+    ///RemoveChar(TableItem[I+CHAR_TABLE_SIZE+1].Text,L'&',TRUE); //BUGBUG!!!
     TableList.Items=TableItem;
     TableList.ItemsNumber++;
   }
@@ -715,7 +715,7 @@ FindFiles::FindFiles()
     if (SearchHex)
     {
       strFindStr = FindAskDlg[6].strData;
-      RemoveTrailingSpacesW(strFindStr);
+      RemoveTrailingSpaces(strFindStr);
     }
     else
       strFindStr = FindAskDlg[5].strData;
@@ -867,7 +867,7 @@ void FindFiles::AdvancedDialog()
     Opt.FindOpt.strSearchInFirstSize = AdvancedDlg[2].strData;
 
     // Получим максимальный размер чтения из файла при поиске
-    SearchInFirst=GetSearchInFirstW(AdvancedDlg[2].strData);
+    SearchInFirst=GetSearchInFirst(AdvancedDlg[2].strData);
     /* KM $ */
   }
 
@@ -903,8 +903,8 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   wchar_t *lpFileNameToFind = _wcsdup (PanelItem->FindData.lpwszFileName);
   wchar_t *lpFileNameToFindShort = _wcsdup (PanelItem->FindData.lpwszAlternateFileName);
 
-  lpFileNameToFind = (wchar_t*)PointToName(RemovePseudoBackSlashW(lpFileNameToFind));
-  lpFileNameToFindShort = (wchar_t*)PointToName(RemovePseudoBackSlashW(lpFileNameToFindShort));
+  lpFileNameToFind = (wchar_t*)PointToName(RemovePseudoBackSlash(lpFileNameToFind));
+  lpFileNameToFindShort = (wchar_t*)PointToName(RemovePseudoBackSlash(lpFileNameToFindShort));
 
   if ( CtrlObject->Plugins.GetFindData (
       hPlugin,
@@ -920,13 +920,13 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
       wchar_t *lpwszFileName = _wcsdup(pItem->FindData.lpwszFileName);
       xf_free (pItem->FindData.lpwszFileName);
 
-      pItem->FindData.lpwszFileName = _wcsdup (PointToName(RemovePseudoBackSlashW(lpwszFileName)));
+      pItem->FindData.lpwszFileName = _wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
       lpwszFileName = _wcsdup(pItem->FindData.lpwszAlternateFileName);
       xf_free (pItem->FindData.lpwszAlternateFileName);
 
-      pItem->FindData.lpwszAlternateFileName = _wcsdup (PointToName(RemovePseudoBackSlashW(lpwszFileName)));
+      pItem->FindData.lpwszAlternateFileName = _wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
       if ( !wcscmp (lpFileNameToFind, pItem->FindData.lpwszFileName) &&
@@ -2243,22 +2243,22 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
     {
       case FDATE_MODIFIED:
         // Отображаем дату последнего изменения
-        ConvertDateW(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
+        ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
         break;
       case FDATE_CREATED:
         // Отображаем дату создания
-        ConvertDateW(FindData->ftCreationTime,strDateStr,strTimeStr,5);
+        ConvertDate(FindData->ftCreationTime,strDateStr,strTimeStr,5);
         break;
       case FDATE_OPENED:
         // Отображаем дату последнего доступа
-        ConvertDateW(FindData->ftLastAccessTime,strDateStr,strTimeStr,5);
+        ConvertDate(FindData->ftLastAccessTime,strDateStr,strTimeStr,5);
         break;
     }
   }
   else
   */
     // Отображаем дату последнего изменения
-    ConvertDateW(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
+    ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
   strDate.Format (L"  %s  %s", (const wchar_t*)strDateStr, (const wchar_t*)strTimeStr);
   strFileText += strDate;
 
@@ -2285,7 +2285,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   string strPathName;
   strPathName = FullName;
 
-  RemovePseudoBackSlashW(strPathName);
+  RemovePseudoBackSlash(strPathName);
 
   CutToSlash(strPathName);
 
@@ -2600,7 +2600,7 @@ int FindFiles::LookForString(const wchar_t *Name)
         {
           if (!FirstIteration)
           {
-            if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) ||
+            if (IsSpaceA(Buf[I-1]) || IsEolA(Buf[I-1]) ||
                (strchr(lpWordDiv,Buf[I-1])!=NULL))
               locResultLeft=TRUE;
           }
@@ -2614,7 +2614,7 @@ int FindFiles::LookForString(const wchar_t *Name)
             locResultRight=TRUE;
           else
             if (I+Length<RealReadSize &&
-               (IsSpace(Buf[I+Length]) || IsEol(Buf[I+Length]) ||
+               (IsSpaceA(Buf[I+Length]) || IsEolA(Buf[I+Length]) ||
                (strchr(lpWordDiv,Buf[I+Length])!=NULL)))
               locResultRight=TRUE;
         }
@@ -2847,7 +2847,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
           statusCS.Enter();
 
           strFindMessage = strFullName;
-          RemovePseudoBackSlashW(strFindMessage);
+          RemovePseudoBackSlash(strFindMessage);
           FindMessageReady=TRUE;
 
           statusCS.Leave();
@@ -3067,10 +3067,10 @@ DWORD FindFiles::AddArcListItem(const wchar_t *ArcName, HANDLE hPlugin,
 
   ArcList[ArcListCount] = new _ARCLIST;
 
-  ArcList[ArcListCount]->strArcName = NullToEmptyW(ArcName);
+  ArcList[ArcListCount]->strArcName = NullToEmpty(ArcName);
   ArcList[ArcListCount]->hPlugin = hPlugin;
   ArcList[ArcListCount]->Flags = dwFlags;
-  ArcList[ArcListCount]->strRootPath =  NullToEmptyW(RootPath);
+  ArcList[ArcListCount]->strRootPath =  NullToEmpty(RootPath);
   AddEndSlash(ArcList[ArcListCount]->strRootPath);
   return(ArcListCount++);
 }
@@ -3126,7 +3126,7 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
     strSearchFromRoot = UMSG(MSearchFromRootFolder);
     strMsgStr1 = strSearchFromRoot;
 
-    RemoveHighlightsW(strMsgStr1);
+    RemoveHighlights(strMsgStr1);
     MsgLen=(int)strMsgStr1.GetLength();
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
@@ -3138,7 +3138,7 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
     strMsgStr = UMSG(MSearchFromRootOfDrive);
     strMsgStr1 = strMsgStr;
 
-    RemoveHighlightsW(strMsgStr1);
+    RemoveHighlights(strMsgStr1);
     MsgLen=(int)strMsgStr1.GetLength();
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
@@ -3164,71 +3164,59 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
   return strSearchFromRoot;
 }
 
-char *FindFiles::RemovePseudoBackSlash(char *FileName)
+wchar_t *FindFiles::RemovePseudoBackSlash(wchar_t *FileName)
 {
-  for (int i=0;FileName[i]!=0;i++)
-  {
-    if (FileName[i]=='\x1')
-      FileName[i]='\\';
-  }
-  return FileName;
+	for (int i=0;FileName[i]!=0;i++)
+	{
+		if (FileName[i]==L'\x1')
+			FileName[i]=L'\\';
+	}
+	return FileName;
 }
 
-wchar_t *FindFiles::RemovePseudoBackSlashW(wchar_t *FileName)
+string &FindFiles::RemovePseudoBackSlash(string &strFileName)
 {
-  for (int i=0;FileName[i]!=0;i++)
-  {
-    if (FileName[i]==L'\x1')
-      FileName[i]=L'\\';
-  }
-  return FileName;
-}
+	wchar_t *lpwszFileName = strFileName.GetBuffer ();
 
-string &FindFiles::RemovePseudoBackSlashW(string &strFileName)
-{
-    wchar_t *lpwszFileName = strFileName.GetBuffer ();
+	RemovePseudoBackSlash (lpwszFileName);
 
-    RemovePseudoBackSlashW (lpwszFileName);
+	strFileName.ReleaseBuffer ();
 
-    strFileName.ReleaseBuffer ();
-
-    return strFileName;
+	return strFileName;
 }
 
 
-__int64 __fastcall FindFiles::GetSearchInFirstW (const wchar_t *DigitStr)
+__int64 __fastcall FindFiles::GetSearchInFirst (const wchar_t *DigitStr)
 {
-    __int64 LocalSize=_i64(0);
+	__int64 LocalSize=_i64(0);
 
-  if (*DigitStr)
-  {
-    switch(SearchInFirstIndex)
-    {
-      case FSIZE_INBYTES:
-        LocalSize=_wtoi64(DigitStr);
-        break;
-      case FSIZE_INKBYTES:
-        // Размер введён в килобайтах, переведём его в байты.
-        LocalSize=_wtoi64(DigitStr)*_i64(1024);
-        break;
-      case FSIZE_INMBYTES:
-        // Размер введён в мегабайтах, переведём его в байты.
-        LocalSize=_wtoi64(DigitStr)*_i64(1024)*_i64(1024);
-        break;
-      case FSIZE_INGBYTES:
-        // Размер введён в гигабайтах, переведём его в байты.
-        LocalSize=_wtoi64(DigitStr)*_i64(1024)*_i64(1024)*_i64(1024);
-        break;
-      default:
-        break;
-    }
-  }
-  else
-  {
-    LocalSize=_i64(0);
-  }
+	if (*DigitStr)
+	{
+		switch(SearchInFirstIndex)
+		{
+			case FSIZE_INBYTES:
+				LocalSize=_wtoi64(DigitStr);
+				break;
+			case FSIZE_INKBYTES:
+				// Размер введён в килобайтах, переведём его в байты.
+				LocalSize=_wtoi64(DigitStr)*_i64(1024);
+				break;
+			case FSIZE_INMBYTES:
+				// Размер введён в мегабайтах, переведём его в байты.
+				LocalSize=_wtoi64(DigitStr)*_i64(1024)*_i64(1024);
+				break;
+			case FSIZE_INGBYTES:
+				// Размер введён в гигабайтах, переведём его в байты.
+				LocalSize=_wtoi64(DigitStr)*_i64(1024)*_i64(1024)*_i64(1024);
+				break;
+			default:
+				break;
+		}
+	}
+	else
+	{
+		LocalSize=_i64(0);
+	}
 
-  return LocalSize;
+	return LocalSize;
 }
-
-/* KM $ */

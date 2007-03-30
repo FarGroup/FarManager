@@ -21,22 +21,22 @@ enum FMP_FLAGS
 class FileMasksProcessor : public BaseFileMask
 {
 public:
-    FileMasksProcessor();
-    virtual ~FileMasksProcessor() {}
+	FileMasksProcessor();
+	virtual ~FileMasksProcessor() {}
 
 public:
-    virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-    virtual BOOL Compare(const wchar_t *Name);
-    virtual BOOL IsEmpty(void);
-    void Free();
+	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
+	virtual BOOL Compare(const wchar_t *Name);
+	virtual BOOL IsEmpty(void);
+	void Free();
 
 private:
-    UserDefinedList Masks; // список масок файлов
-    const wchar_t *MaskPtr;   // указатель на текущую маску в списке
+	UserDefinedList Masks; // список масок файлов
+	const wchar_t *MaskPtr;   // указатель на текущую маску в списке
 
 private:
-  FileMasksProcessor& operator=(const FileMasksProcessor& rhs); /* чтобы не */
-  FileMasksProcessor(const FileMasksProcessor& rhs); /* генерировалось по умолчанию */
+	FileMasksProcessor& operator=(const FileMasksProcessor& rhs); /* чтобы не */
+	FileMasksProcessor(const FileMasksProcessor& rhs); /* генерировалось по умолчанию */
 
 };
 

@@ -13,7 +13,7 @@ strmix.cpp
 #include "plugin.hpp"
 #include "lang.hpp"
 
-string &InsertCommasW(unsigned __int64 li,string &strDest)
+string &InsertCommas(unsigned __int64 li,string &strDest)
 {
    strDest.Format (L"%I64u", li);
 
@@ -87,7 +87,7 @@ const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
 // IS: "снаружи" нужно не эту функцию, а CmpName (ее тело расположено
 // IS: после CmpName_Body)
 
-int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
+int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 {
   wchar_t stringc,patternc,rangec;
   int match;
@@ -137,7 +137,7 @@ int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
 
         while (*str)
         {
-          if (CmpNameW(pattern,str++,FALSE))
+          if (CmpName(pattern,str++,FALSE))
             return(TRUE);
         }
         return(FALSE);
@@ -180,7 +180,7 @@ int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
       default:
         if (patternc != stringc)
           if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
-            return(*pattern!=L'.' && CmpNameW(pattern,str));
+            return(*pattern!=L'.' && CmpName(pattern,str));
           else
             return(FALSE);
         break;
@@ -190,11 +190,11 @@ int CmpName_BodyW(const wchar_t *pattern,const wchar_t *str)
 
 
 // IS: функция для внешнего мира, использовать ее
-int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath)
+int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
 {
   if (skippath)
     str=PointToName(const_cast<wchar_t*>(str));
-  return CmpName_BodyW(pattern,str);
+  return CmpName_Body(pattern,str);
 }
 
 
@@ -473,13 +473,13 @@ string& __stdcall TruncPathStr(string &strStr, int MaxLength)
 }
 
 
-wchar_t* WINAPI RemoveLeadingSpacesW(wchar_t *Str)
+wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
 {
   wchar_t *ChPtr;
   if((ChPtr=Str) == 0)
     return NULL;
 
-  for (; IsSpaceW(*ChPtr); ChPtr++)
+  for (; IsSpace(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
     wmemmove(Str,ChPtr,wcslen(ChPtr)+1);
@@ -487,12 +487,12 @@ wchar_t* WINAPI RemoveLeadingSpacesW(wchar_t *Str)
 }
 
 
-string& WINAPI RemoveLeadingSpacesW(string &strStr)
+string& WINAPI RemoveLeadingSpaces(string &strStr)
 {
   wchar_t *ChPtr = strStr.GetBuffer ();
   wchar_t *Str = ChPtr;
 
-  for (; IsSpaceW(*ChPtr); ChPtr++)
+  for (; IsSpace(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
     wmemmove(Str,ChPtr,(wcslen(ChPtr)+1));
@@ -504,7 +504,7 @@ string& WINAPI RemoveLeadingSpacesW(string &strStr)
 
 
 // удалить конечные пробелы
-char* WINAPI RemoveTrailingSpaces(char *Str)
+char* WINAPI RemoveTrailingSpacesA(char *Str)
 {
   if(!Str)
     return NULL;
@@ -515,7 +515,7 @@ char* WINAPI RemoveTrailingSpaces(char *Str)
   size_t I;
 
   for (ChPtr=Str+(I=strlen((char *)Str))-1; I > 0; I--, ChPtr--)
-    if (IsSpace(*ChPtr) || IsEol(*ChPtr))
+    if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
       *ChPtr=0;
     else
       break;
@@ -523,7 +523,7 @@ char* WINAPI RemoveTrailingSpaces(char *Str)
   return Str;
 }
 
-wchar_t* WINAPI RemoveTrailingSpacesW(wchar_t *Str)
+wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 {
   if(!Str)
     return NULL;
@@ -534,7 +534,7 @@ wchar_t* WINAPI RemoveTrailingSpacesW(wchar_t *Str)
   size_t I;
 
   for (ChPtr=Str+(I=wcslen(Str))-1; I > 0; I--, ChPtr--)
-    if (IsSpaceW(*ChPtr) || IsEolW(*ChPtr))
+    if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
     else
       break;
@@ -543,12 +543,12 @@ wchar_t* WINAPI RemoveTrailingSpacesW(wchar_t *Str)
 }
 
 
-string& WINAPI RemoveTrailingSpacesW(string &strStr)
+string& WINAPI RemoveTrailingSpaces(string &strStr)
 {
   if ( strStr.IsEmpty () )
     return strStr;
 
-  RemoveTrailingSpacesW(strStr.GetBuffer());
+  RemoveTrailingSpaces(strStr.GetBuffer());
 
   strStr.ReleaseBuffer ();
 
@@ -556,14 +556,14 @@ string& WINAPI RemoveTrailingSpacesW(string &strStr)
 }
 
 
-wchar_t* WINAPI RemoveExternalSpacesW(wchar_t *Str)
+wchar_t* WINAPI RemoveExternalSpaces(wchar_t *Str)
 {
-  return RemoveTrailingSpacesW(RemoveLeadingSpacesW(Str));
+  return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
 }
 
-string&  WINAPI RemoveExternalSpacesW(string &strStr)
+string&  WINAPI RemoveExternalSpaces(string &strStr)
 {
-  return RemoveTrailingSpacesW(RemoveLeadingSpacesW(strStr));
+  return RemoveTrailingSpaces(RemoveLeadingSpaces(strStr));
 }
 
 
@@ -579,40 +579,20 @@ string& WINAPI RemoveUnprintableCharacters(string &strStr)
 
   while(*p)
   {
-     if ( IsEolW(*p) )
+     if ( IsEol(*p) )
        *p=L' ';
      p++;
   }
 
   strStr.ReleaseBuffer();
 
-  return RemoveExternalSpacesW(strStr);
+  return RemoveExternalSpaces(strStr);
 }
 
 /* IS $ */
 
 // Удалить символ Target из строки Str (везде!)
-char *RemoveChar(char *Str,char Target,BOOL Dup)
-{
-  char *Ptr = Str, *StrBegin = Str, Chr;
-  while((Chr=*Str++) != 0)
-  {
-    if(Chr == Target)
-    {
-      if(Dup && *Str == Target)
-      {
-        *Ptr++ = Chr;
-        ++Str;
-      }
-      continue;
-    }
-    *Ptr++ = Chr;
-  }
-  *Ptr = '\0';
-  return StrBegin;
-}
-
-string &RemoveCharW(string &strStr,wchar_t Target,BOOL Dup)
+string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
 {
   wchar_t *Ptr = strStr.GetBuffer ();
   wchar_t *Str = Ptr, *StrBegin = Ptr, Chr;
@@ -637,7 +617,7 @@ string &RemoveCharW(string &strStr,wchar_t Target,BOOL Dup)
 }
 
 
-int HiStrlenW(const wchar_t *Str,BOOL Dup)
+int HiStrlen(const wchar_t *Str,BOOL Dup)
 {
   int Length=0;
 
@@ -721,48 +701,25 @@ BOOL WINAPI AddEndSlash(wchar_t *Path)
 
 BOOL AddEndSlash(string &strPath)
 {
-    return AddEndSlash(strPath, 0);
+	return AddEndSlash(strPath, 0);
 }
 
 BOOL AddEndSlash(
-        string &strPath,
-        wchar_t TypeSlash
-        )
+		string &strPath,
+		wchar_t TypeSlash
+		)
 {
-    wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+1); // +spaceforslash
+	wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+1); // +spaceforslash
 
-    BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
+	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
 
-    strPath.ReleaseBuffer ();
+	strPath.ReleaseBuffer ();
 
-    return Result;
+	return Result;
 }
 
 
-BOOL WINAPI DeleteEndSlash(char *Path,bool allendslash)
-{
-  BOOL Ret=FALSE;
-  if(Path)
-  {
-    char *PtrEndPath=Path+(strlen(Path)-1);
-    while(PtrEndPath >= Path)
-    {
-      if(*PtrEndPath == '\\')
-      {
-        Ret=TRUE;
-        *PtrEndPath=0;
-        if(!allendslash)
-          return Ret;
-      }
-      else
-        return Ret;
-      PtrEndPath--;
-    }
-  }
-  return Ret;
-}
-
-BOOL WINAPI DeleteEndSlashW (string &strPath,bool allendslash)
+BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
 {
   BOOL Ret=FALSE;
   if( !strPath.IsEmpty() )
@@ -792,19 +749,6 @@ BOOL WINAPI DeleteEndSlashW (string &strPath,bool allendslash)
   }
   return Ret;
 }
-
-/*
-char *NullToEmpty(char *Str)
-{
-  return (Str==NULL) ? "":Str;
-}
-*/
-
-const char *NullToEmpty(const char *Str)
-{
-  return (Str==NULL) ? "":Str;
-}
-
 
 string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 {
@@ -851,7 +795,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
     {
       lpwszWord[WordPos]=0;
       Src++;
-      while (IsSpaceW(*Src))
+      while (IsSpace(*Src))
         Src++;
 
       strWord.ReleaseBuffer ();
@@ -869,59 +813,39 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 
 /* SVS $ */
 
-int IsCaseMixed(char *Str)
+BOOL IsCaseMixed (
+	const string &strSrc
+	)
 {
-  while (*Str && !LocalIsalpha(*Str))
-    Str++;
-  int Case=LocalIslower(*Str);
-  while (*(Str++))
-    if (LocalIsalpha(*Str) && LocalIslower(*Str)!=Case)
-      return(TRUE);
-  return(FALSE);
+	const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
+
+	while ( *lpwszSrc && !LocalIsalphaW (*lpwszSrc) )
+		lpwszSrc++;
+
+	int Case = LocalIslowerW (*lpwszSrc);
+
+	while ( *(lpwszSrc++) )
+		if ( LocalIsalphaW(*lpwszSrc) && (LocalIslowerW(*lpwszSrc) != Case) )
+			return TRUE;
+
+	return FALSE;
 }
 
-
-int IsCaseLower(char *Str)
+BOOL IsCaseLower (
+	const string &strSrc
+	)
 {
-  for (;*Str!=0;Str++)
-    if (LocalIsalpha(*Str) && !LocalIslower(*Str))
-      return(FALSE);
-  return(TRUE);
-}
+	const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
 
-BOOL IsCaseMixedW (
-        const string &strSrc
-        )
-{
-    const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
+	while ( *lpwszSrc )
+	{
+		if ( !LocalIslowerW (*lpwszSrc) )
+			return FALSE;
 
-    while ( *lpwszSrc && !LocalIsalphaW (*lpwszSrc) )
-        lpwszSrc++;
+		lpwszSrc++;
+	}
 
-    int Case = LocalIslowerW (*lpwszSrc);
-
-    while ( *(lpwszSrc++) )
-        if ( LocalIsalphaW(*lpwszSrc) && (LocalIslowerW(*lpwszSrc) != Case) )
-            return TRUE;
-
-    return FALSE;
-}
-
-BOOL IsCaseLowerW (
-    const string &strSrc
-    )
-{
-    const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
-
-    while ( *lpwszSrc )
-    {
-        if ( !LocalIslowerW (*lpwszSrc) )
-            return FALSE;
-
-        lpwszSrc++;
-    }
-
-    return TRUE;
+	return TRUE;
 }
 
 
@@ -1060,7 +984,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
   }
 
   if (Commas)
-    InsertCommasW(Sz,strStr);
+    InsertCommas(Sz,strStr);
   else
     strStr.Format (L"%I64u", Sz);
 
@@ -1092,7 +1016,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
       IndexB++;
 
       if (Commas)
-        InsertCommasW(Sz,strStr);
+        InsertCommas(Sz,strStr);
       else
         strStr.Format (L"%I64u",Sz);
     } while((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > static_cast<size_t>(Width));
@@ -1125,7 +1049,7 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
+int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
   int I=0, J=0, Res;
   int LenReplStr=(int)wcslen(ReplStr);
@@ -1389,12 +1313,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 //              то кодировка - OEM)
 //   WordDiv  - набор разделителей слова в кодировке OEM
 //   Chr      - проверяемый символ
-BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr)
-{
-  return NULL!=strchr(WordDiv, TableSet?TableSet->DecodeTable[Chr]:Chr);
-}
-
-BOOL IsWordDivW(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr)
+BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr)
 {
     return FALSE; //BUGBUG
 //  return NULL!=strchr(WordDiv, TableSet?TableSet->DecodeTable[Chr]:Chr);

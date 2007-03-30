@@ -237,7 +237,7 @@ BOOL UserDefinedList::Set(const wchar_t *List, BOOL AddToList)
     else
     {
       const wchar_t *End=List+1;
-      while(IsSpaceW(*End)) ++End; // пропустим мусор
+      while(IsSpace(*End)) ++End; // пропустим мусор
       if(!*End) // Если кроме разделителя ничего больше в строке нет,
       {         // то считается, что это не разделитель, а простой символ
         item=L" ";
@@ -291,9 +291,9 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
    Length=RealLength=0;
    Error=FALSE;
 
-   while(IsSpaceW(*Str)) ++Str;
+   while(IsSpace(*Str)) ++Str;
    if(*Str==Separator1 || *Str==Separator2) ++Str;
-   while(IsSpaceW(*Str)) ++Str;
+   while(IsSpace(*Str)) ++Str;
    if(!*Str) return NULL;
 
    const wchar_t *cur=Str;
@@ -322,7 +322,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
     {
       RealLength=Length=(int)(cur-Str);
       --cur;
-      while(IsSpaceW(*cur))
+      while(IsSpace(*cur))
        {
          --Length;
          --cur;
@@ -340,7 +340,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
     }
 
    const wchar_t *End=QuoteEnd+1;
-   while(IsSpaceW(*End)) ++End;
+   while(IsSpace(*End)) ++End;
    if(!*End || *End==Separator1 || *End==Separator2)
    {
      Length=(int)(QuoteEnd-cur);

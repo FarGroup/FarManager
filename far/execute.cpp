@@ -368,7 +368,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
     {
       static wchar_t const * const StdExecuteExt0[4]={L".BAT;",L".CMD;",L".EXE;",L".COM;"};
       for(I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
-        ReplaceStringsW(strFullName,StdExecuteExt0[I],L"",-1);
+        ReplaceStrings(strFullName,StdExecuteExt0[I],L"",-1);
     }
 
 
@@ -455,7 +455,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
       if(GetFileAttributesW(strFullName) != -1)
       {
-        ConvertNameToFullW (strFullName, strFullName);
+        ConvertNameToFull (strFullName, strFullName);
         Ret=TRUE;
         break;
       }
@@ -763,7 +763,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   {
       if ( strNewCmdPar.IsEmpty() && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
       {
-          ConvertNameToFullW(strNewCmdStr, strNewCmdStr);
+          ConvertNameToFull(strNewCmdStr, strNewCmdStr);
           SeparateWindow=2;
           FolderRun=TRUE;
       }
@@ -833,7 +833,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       const wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
 
       if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
-         IsBatchExtTypeW(ExtPtr)))
+         IsBatchExtType(ExtPtr)))
         if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
           dwSubSystem=dwSubSystem2;
     }
@@ -1179,7 +1179,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
         string strTempStr;
         strTempStr = CmdLine;
         if(Code == -1)
-          ReplaceStringsW(strTempStr,L"/",L"\\",-1);
+          ReplaceStrings(strTempStr,L"/",L"\\",-1);
         Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
       }
 
@@ -1252,7 +1252,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
     // здесь @ игнорируется; ее вставит в правильное место функция
     // ExtractIfExistCommand в filetype.cpp
     PtrCmd++;
-    while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;
+    while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
   }
   /* DJ $ */
   while(1)
@@ -1270,7 +1270,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
 
     if (*PtrCmd && !LocalStrnicmpW(PtrCmd,L"EXIST ",6))
     {
-      PtrCmd+=6; while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=6; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
 
       /* $ 25.04.01 DJ
@@ -1315,13 +1315,13 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           }
           else
           {
-            ConvertNameToFullW(strFullPath, strFullPath);
+            ConvertNameToFull(strFullPath, strFullPath);
             FileAttr=GetFileAttributesW(strFullPath);
           }
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
-            while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;
+            while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
             Exist++;
           }
           else
@@ -1333,7 +1333,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
     // "IF [NOT] DEFINED variable command"
     else if (*PtrCmd && !LocalStrnicmpW(PtrCmd,L"DEFINED ",8))
     {
-      PtrCmd+=8; while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=8; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
       if(*PtrCmd == L'"')
         PtrCmd=wcschr(PtrCmd+1,L'"');
@@ -1350,7 +1350,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
 //_SVS(SysLog(Cmd));
           if(ERet && !Not || !ERet && Not)
           {
-            while(*PtrCmd && IsSpaceW(*PtrCmd)) ++PtrCmd;
+            while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
             Exist++;
           }
           else
@@ -1376,7 +1376,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
     SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-  RemoveTrailingSpacesW(strCmdLine);
+  RemoveTrailingSpaces(strCmdLine);
 
   if (!SeparateWindow && LocalIsalphaW(strCmdLine.At(0)) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
   {
@@ -1450,7 +1450,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     strCmdLine = (const wchar_t*)strCmdLine+5;
 
-    const wchar_t *Ptr=RemoveExternalSpacesW(strCmdLine);
+    const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
     wchar_t Chr;
 
     if(!iswdigit(*Ptr))
@@ -1507,12 +1507,12 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   */
   if (!SeparateWindow &&  /* DJ $ */
       (LocalStrnicmpW(strCmdLine,L"CD",Length=2)==0 || LocalStrnicmpW(strCmdLine,L"CHDIR",Length=5)==0) &&
-      (IsSpaceW(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
+      (IsSpace(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
       TestParentFolderName((const wchar_t*)strCmdLine+Length)))
   {
     int ChDir=(Length==5);
 
-    while (IsSpaceW(strCmdLine.At(Length)))
+    while (IsSpace(strCmdLine.At(Length)))
       Length++;
 
     string strExpandedDir;
@@ -1529,7 +1529,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     if(SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == (DWORD)-1)
     {
       GetRegKey(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
-      DeleteEndSlashW(strExpandedDir);
+      DeleteEndSlash(strExpandedDir);
     }
 
     if(wcspbrk(strExpandedDir,L"?*")) // это маска?
@@ -1568,7 +1568,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     DWORD DirAtt=GetFileAttributesW(strExpandedDir);
     if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
     {
-      ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
+      ReplaceStrings(strExpandedDir,L"/",L"\\",-1);
       SetPanel->SetCurDir(strExpandedDir,TRUE);
       return TRUE;
     }
@@ -1620,7 +1620,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 }
 
 // Проверить "Это батник?"
-BOOL IsBatchExtTypeW(const wchar_t *ExtPtr)
+BOOL IsBatchExtType(const wchar_t *ExtPtr)
 {
   const wchar_t *PtrBatchType=Opt.strExecuteBatchType;
   while(*PtrBatchType)

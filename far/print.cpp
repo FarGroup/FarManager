@@ -234,11 +234,11 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
     MenuItemEx ListItem;
     ListItem.Clear ();
 
-    strPrinterName = NullToEmptyW(pi[I].pPrinterName);
+    strPrinterName = NullToEmpty(pi[I].pPrinterName);
 
     strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,0x0B3U,
-            NullToEmptyW(pi[I].pPortName),pi[I].cJobs,UMSG(MJobs),
-            NullToEmptyW(pi[I].pComment));
+            NullToEmpty(pi[I].pPortName),pi[I].cJobs,UMSG(MJobs),
+            NullToEmpty(pi[I].pComment));
 
     ListItem.strName = strMenuText;
     if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
@@ -250,6 +250,6 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
       ListItem.SetSelect(FALSE);
     IDItem=PrinterList->AddItem(&ListItem);
     // А вот теперь добавим данные для этого пункта (0 - передаем строку)
-    PrinterList->SetUserData((void *)NullToEmptyW(pi[I].pPrinterName),0,IDItem);
+    PrinterList->SetUserData((void *)NullToEmpty(pi[I].pPrinterName),0,IDItem);
   }
 }

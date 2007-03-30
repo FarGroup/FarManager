@@ -181,9 +181,9 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
       DEVINST hDevInst=pInfo[I].hDevInst;
 
       GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true);
-      RemoveExternalSpacesW(strFriendlyName);
+      RemoveExternalSpaces(strFriendlyName);
       GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true);
-      RemoveExternalSpacesW(strDescription);
+      RemoveExternalSpaces(strDescription);
 
       ListItem.Clear ();
 
@@ -212,7 +212,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
           ListItem.strName = strDescription;
       }
 
-      RemoveExternalSpacesW(ListItem.strName);
+      RemoveExternalSpaces(ListItem.strName);
       if(!ListItem.strName.IsEmpty ())
         HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
 
@@ -842,9 +842,9 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
   string strDescription;
 
   GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true);
-  RemoveExternalSpacesW(strFriendlyName);
+  RemoveExternalSpaces(strFriendlyName);
   GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true);
-  RemoveExternalSpacesW(strDescription);
+  RemoveExternalSpaces(strDescription);
 
   int DoneEject=0;
   if(!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)

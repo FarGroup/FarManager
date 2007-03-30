@@ -162,7 +162,7 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
   HistoryRecord AddRecord;
 
   if(TypeHistory == HISTORYTYPE_FOLDER)
-    AddRecord.Name=(wchar_t *)xf_malloc((wcslen(Str)+wcslen(NullToEmptyW(Title))+2)*sizeof (wchar_t));
+    AddRecord.Name=(wchar_t *)xf_malloc((wcslen(Str)+wcslen(NullToEmpty(Title))+2)*sizeof (wchar_t));
   else
     AddRecord.Name=wcsdup(Str);
 
@@ -183,11 +183,11 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
   }
   else
   {
-    xwcsncpy(AddRecord.Title,NullToEmptyW(Title),(sizeof(AddRecord.Title)-1)*sizeof (wchar_t));
-    RemoveTrailingSpacesW(AddRecord.Title);
+    xwcsncpy(AddRecord.Title,NullToEmpty(Title),(sizeof(AddRecord.Title)-1)*sizeof (wchar_t));
+    RemoveTrailingSpaces(AddRecord.Title);
   }
 
-  RemoveTrailingSpacesW(AddRecord.Name);
+  RemoveTrailingSpaces(AddRecord.Name);
   AddRecord.Type=Type;
 
   int OldLastPtr=LastPtr-1;
@@ -559,7 +559,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
           string strRecord = LastStr[CurCmd].Name;
 
           TruncPathStr(strRecord,SizeTrunc);
-          ReplaceStringsW(strRecord, L"&",L"&&",-1);
+          ReplaceStrings(strRecord, L"&",L"&&",-1);
 
           if (*LastStr[CurCmd].Title)
               strRecord = (string)LastStr[CurCmd].Title+L":"+(LastStr[CurCmd].Type==4?L"-":L" ")+strRecord;

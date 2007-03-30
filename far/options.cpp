@@ -476,7 +476,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               CtrlObject->Plugins.ReloadLanguage();
               CtrlObject->ViewHistory->ReloadTitle();
               SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
-              PrepareStrFTime();
+              PrepareStrFTimeA();
               __PrepareKMGTbStr();
               FrameManager->InitKeyBar();
               CtrlObject->Cp()->RedrawKeyBar();

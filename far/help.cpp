@@ -193,7 +193,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
   CtrlTabSize = 8;
   /* DJ $ */
 
-  StackData.strHelpMask = NullToEmptyW(Mask); // сохраним маску файла
+  StackData.strHelpMask = NullToEmpty(Mask); // сохраним маску файла
 
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
   TopScreen=new SaveScreen;
@@ -315,7 +315,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
     strPath.ReleaseBuffer();
 
-    DeleteEndSlashW(strPath,true);
+    DeleteEndSlash(strPath,true);
     AddEndSlash(strPath);
 
     StackData.strHelpPath = strPath;
@@ -442,7 +442,7 @@ int Help::ReadHelp(const wchar_t *Mask)
         break;
     }
 
-    RemoveTrailingSpacesW(ReadStr);
+    RemoveTrailingSpaces(ReadStr);
 
     if ( !strCtrlStartPosChar.IsEmpty() && wcsstr (ReadStr, strCtrlStartPosChar) )
     {
@@ -555,7 +555,7 @@ m1:
             }
           }
 
-          if (*ReadStr && IsSpaceW(*ReadStr) && Formatting)
+          if (*ReadStr && IsSpace(*ReadStr) && Formatting)
           {
             if (StringLen(SplitLine)<RealMaxLength)
             {
@@ -1456,9 +1456,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     strFullPath.ReleaseBuffer();
 
     strFullPath += (const wchar_t*)strNewTopic+((strNewTopic.At(0)==L'\\' || strNewTopic.At(0)==L'/')?1:0);
-    BOOL addSlash=DeleteEndSlashW(strFullPath);
+    BOOL addSlash=DeleteEndSlash(strFullPath);
 
-    ConvertNameToFullW(strFullPath,strNewTopic);
+    ConvertNameToFull(strFullPath,strNewTopic);
 
     strFullPath.Format (addSlash?HelpFormatLink:HelpFormatLinkModule, (const wchar_t*)strNewTopic, wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink)+1);
     StackData.strSelTopic = strFullPath;
@@ -2176,7 +2176,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
               SetFileApisTo(APIS2OEM);
 #else
               wcscpy (Buf, URLPath);
-              EditCode=ShellExecuteW(0, 0, RemoveExternalSpacesW(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
+              EditCode=ShellExecuteW(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
 #endif
             }
             else

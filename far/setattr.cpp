@@ -336,7 +336,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
             GetSystemTimeAsFileTime(&ft);
           else
             ft=*(FILETIME *)Param2;
-          ConvertDateW(ft,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(ft,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
         }
         else if(!Param2) // Clear
         {
@@ -581,9 +581,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           if ( apiGetFindDataEx (strSelName,&FindData) )
           {
-            ConvertDateW(FindData.ftLastWriteTime, AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDateW(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDateW(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftLastWriteTime, AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
           }
           AttrDlg[SETATTR_RO].Selected=(FileAttr & FA_RDONLY)!=0;
           AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FA_ARCH)!=0;
@@ -687,17 +687,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       if(DlgParam.Plugin)
       {
-        ConvertDateW(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-        ConvertDateW(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-        ConvertDateW(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
       }
       else
       {
         if ( apiGetFindDataEx (strSelName,&FindData))
         {
-          ConvertDateW(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDateW(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDateW(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
         }
       }
     }

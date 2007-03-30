@@ -197,7 +197,7 @@ static int MainProcess(
         strPath = lpwszDestName1;
 
         CutToNameUNC(strPath);
-        DeleteEndSlashW(strPath); // BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+        DeleteEndSlash(strPath); // BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
         if( strPath.At(1)==L':' && !strPath.At(2))
           AddEndSlash(strPath);
@@ -225,7 +225,7 @@ static int MainProcess(
           strPath = lpwszDestName2;
 
           CutToNameUNC(strPath);
-          DeleteEndSlashW(strPath); //BUGBUG
+          DeleteEndSlash(strPath); //BUGBUG
 
           if ( strPath.At(1)==L':' && !strPath.At(2))
             AddEndSlash(strPath);
@@ -382,7 +382,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   {
     CutToSlash(g_strFarPath);
 
-    ConvertNameToLongW (g_strFarPath, g_strFarPath);
+    ConvertNameToLong (g_strFarPath, g_strFarPath);
     SetEnvironmentVariableW (L"FARHOME", g_strFarPath);
 
     AddEndSlash(g_strFarPath);
@@ -469,7 +469,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           {
             apiExpandEnvironmentStrings (&Argv[I][2], Opt.LoadPlug.strCustomPluginsPath);
             Unquote(Opt.LoadPlug.strCustomPluginsPath);
-            ConvertNameToFullW(Opt.LoadPlug.strCustomPluginsPath,Opt.LoadPlug.strCustomPluginsPath);
+            ConvertNameToFull(Opt.LoadPlug.strCustomPluginsPath,Opt.LoadPlug.strCustomPluginsPath);
 /*
             if(Argv[I][2]==L'.' && (Argv[I][3]==0 || Argv[I][3]==L'\\' || Argv[I][3]==L'.'))
             {
@@ -529,7 +529,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
       {
         apiExpandEnvironmentStrings (Argv[I], DestNames[CntDestName]);
         Unquote(DestNames[CntDestName]);
-        ConvertNameToFullW(Argv[I],DestNames[CntDestName]);
+        ConvertNameToFull(Argv[I],DestNames[CntDestName]);
         if(GetFileAttributesW(DestNames[CntDestName]) != -1)
           CntDestName++; //???
       }

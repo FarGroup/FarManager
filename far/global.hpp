@@ -121,24 +121,17 @@ extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
 extern int WidthNameForMessage;
 
-extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
-extern const wchar_t DOS_EOL_fmtW[], UNIX_EOL_fmtW[], MAC_EOL_fmtW[];
+extern const wchar_t DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
 
 extern BOOL ProcessException;
 
 extern BOOL ProcessShowClock;
 
-extern const char *FarTitleAddons;
-extern const wchar_t *FarTitleAddonsW;
+extern const wchar_t *FarTitleAddons;
 
-extern const char FAR_VerticalBlock[];
-extern const wchar_t FAR_VerticalBlockW[];
+extern const wchar_t FAR_VerticalBlock[];
 
 extern int InGrabber;    // Мы сейчас в грабере?
-
-extern const char *PluginsFolderName;
-
-extern const wchar_t *PluginsFolderNameW;
 
 extern const wchar_t *HelpFileMask;
 extern const wchar_t *HelpFormatLinkModule;
@@ -170,8 +163,7 @@ extern WCHAR BoxSymbols[];
 
 extern int _localLastError;
 
-extern const char *ReservedFilenameSymbols;
-extern const wchar_t *ReservedFilenameSymbolsW;
+extern const wchar_t *ReservedFilenameSymbols;
 
 extern int KeepUserScreen;
 extern string g_strDirToSet; //RAVE!!!

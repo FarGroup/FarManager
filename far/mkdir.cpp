@@ -56,7 +56,7 @@ void ShellMakeDir(Panel *SrcPanel)
       InsertQuote(strDirName); // возьмем в кавычки, т.к. могут быть разделители
     }
 
-    if(DirList.Set(strDirName) && !wcspbrk(strDirName, ReservedFilenameSymbolsW))
+    if(DirList.Set(strDirName) && !wcspbrk(strDirName, ReservedFilenameSymbols))
       break;
     else
       Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
@@ -74,7 +74,7 @@ void ShellMakeDir(Panel *SrcPanel)
     strOriginalDirName = strDirName;
 
     //Unquote(DirName);
-    if (Opt.CreateUppercaseFolders && !IsCaseMixedW(strDirName))
+    if (Opt.CreateUppercaseFolders && !IsCaseMixed(strDirName))
       strDirName.Upper();
 
     int Length=(int)strDirName.GetLength();

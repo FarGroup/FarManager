@@ -454,7 +454,7 @@ int FileList::ProcessKey(int Key)
       {
         struct OpenPluginInfo Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-        return *NullToEmptyW(Info.CurDir)==0;
+        return *NullToEmpty(Info.CurDir)==0;
       }
       else
       {
@@ -553,9 +553,9 @@ int FileList::ProcessKey(int Key)
       struct OpenPluginInfo Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-      strPluginFile = NullToEmptyW(Info.HostFile);
-      strShortcutFolder = NullToEmptyW(Info.CurDir);
-      strPluginData = NullToEmptyW(Info.ShortcutData);
+      strPluginFile = NullToEmpty(Info.HostFile);
+      strShortcutFolder = NullToEmpty(Info.CurDir);
+      strPluginData = NullToEmpty(Info.ShortcutData);
     }
     else
     {
@@ -824,7 +824,7 @@ int FileList::ProcessKey(int Key)
       {
         string strFileName;
         if(Key==KEY_CTRLSHIFTENTER)
-          _MakePath1W(Key,strFileName, L" ");
+          _MakePath1(Key,strFileName, L" ");
         else
         {
           int CurrentPath=FALSE;
@@ -862,7 +862,7 @@ int FileList::ProcessKey(int Key)
               CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF);
             else
             {
-              string strFullName = NullToEmptyW(Info.CurDir);
+              string strFullName = NullToEmpty(Info.CurDir);
 
               if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
                 strFullName.Upper ();
@@ -877,7 +877,7 @@ int FileList::ProcessKey(int Key)
                 if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
                   strFileName.Lower ();
                 if (ViewSettings.FileUpperToLowerCase)
-                  if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixedW(strFileName))
+                  if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(strFileName))
                      strFileName.Lower();
                 /* tran $ */
               }
@@ -920,7 +920,7 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
     {
       string strPanelDir;
-      if(_MakePath1W(Key,strPanelDir, L""))
+      if(_MakePath1(Key,strPanelDir, L""))
         CtrlObject->CmdLine->InsertString(strPanelDir);
       return(TRUE);
     }
@@ -1120,7 +1120,7 @@ int FileList::ProcessKey(int Key)
           if(Info.Flags & OPIF_REALNAMES)
             PluginMode=FALSE;
           else
-            strPluginData.Format (L"<%s:%s>",NullToEmptyW(Info.HostFile),NullToEmptyW(Info.CurDir));
+            strPluginData.Format (L"<%s:%s>",NullToEmpty(Info.HostFile),NullToEmpty(Info.CurDir));
         }
 
         if(!PluginMode)
@@ -1151,9 +1151,9 @@ int FileList::ProcessKey(int Key)
             {
               strFileName = strLastFileName;
 
-              RemoveTrailingSpacesW(strFileName);
+              RemoveTrailingSpaces(strFileName);
               Unquote(strFileName);
-              ConvertNameToShortW(strFileName,strShortFileName);
+              ConvertNameToShort(strFileName,strShortFileName);
 
               if (PathMayBeAbsolute(strFileName))
               {
@@ -1256,7 +1256,7 @@ int FileList::ProcessKey(int Key)
             }
           }
 
-          ConvertNameToShortW(strFileName,strShortFileName);
+          ConvertNameToShort(strFileName,strShortFileName);
         }
 
         /* $ 08.04.2002 IS
@@ -1507,7 +1507,7 @@ int FileList::ProcessKey(int Key)
 
         if (RealName)
         {
-          ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL, TRUE); //UNICODE!!!
+          ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL);
         }
         else
         {
@@ -1985,7 +1985,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         return;
       }
 
-      ConvertNameToShortW(strFileName,strShortFileName);
+      ConvertNameToShort(strFileName,strShortFileName);
     }
 
     if (EnableExec && SetCurPath() && !SeparateWindow &&
@@ -2001,7 +2001,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (ExtPtr!=NULL)
     {
       ExeType=LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0;
-      BatType=IsBatchExtTypeW(ExtPtr);
+      BatType=IsBatchExtType(ExtPtr);
     }
     if (EnableExec && (ExeType || BatType))
     {
@@ -2039,7 +2039,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         {
           if (EnableExec && hOpen!=(HANDLE)-2)
             if (SeparateWindow || Opt.UseRegisteredTypes)
-              ProcessGlobalFileTypesW(strFileName,PluginMode);
+              ProcessGlobalFileTypes(strFileName,PluginMode);
           if (PluginMode)
           {
             DeleteFileWithFolder(strFileName);
@@ -2098,8 +2098,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     string strInfoCurDir;
     string strInfoFormat;
 
-    strInfoCurDir = NullToEmptyW(Info.CurDir);
-    strInfoFormat = NullToEmptyW(Info.Format);
+    strInfoCurDir = NullToEmpty(Info.CurDir);
+    strInfoFormat = NullToEmpty(Info.Format);
 
     CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,strInfoFormat,1,
                                (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
@@ -2111,13 +2111,13 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     BOOL SetDirectorySuccess = TRUE;
     /* DJ $ */
     int UpperFolder=TestParentFolderName(strSetDir);
-    if (UpperFolder && *NullToEmptyW(Info.CurDir)==0)
+    if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return(TRUE);
       PluginClosed=TRUE;
 
-      strFindDir = NullToEmptyW(Info.HostFile);
+      strFindDir = NullToEmpty(Info.HostFile);
       if ( strFindDir.IsEmpty() && (Info.Flags & OPIF_REALNAMES) && CurFile<FileCount)
       {
         strFindDir = ListData[CurFile]->strName;
@@ -2130,7 +2130,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     }
     else
     {
-      strFindDir = NullToEmptyW(Info.CurDir);
+      strFindDir = NullToEmpty(Info.CurDir);
       SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,strSetDir,0);
     }
     ProcessPluginCommand();
@@ -2180,7 +2180,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   {
     string strFullNewDir;
 
-    ConvertNameToFullW(strSetDir, strFullNewDir);
+    ConvertNameToFull(strSetDir, strFullNewDir);
 
     if ( LocalStricmpW(strFullNewDir, strCurDir)!=0)
       CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
@@ -2703,7 +2703,7 @@ int FileList::FindNext(int StartPos, const wchar_t *Name)
     {
       CurPtr = ListData[I];
       const wchar_t *CurPtrName=CurPtr->strName;
-      if (CmpNameW(Name,CurPtrName,TRUE))
+      if (CmpName(Name,CurPtrName,TRUE))
         if (!TestParentFolderName(CurPtrName))
           return I;
     }
@@ -2745,7 +2745,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
   {
     CurPtr = ListData[I];
     CmpNameSearchMode=(I==CurFile);
-    if (CmpNameW(Mask,CurPtr->strName,TRUE))
+    if (CmpName(Mask,CurPtr->strName,TRUE))
       if (!TestParentFolderName(CurPtr->strName))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
@@ -2764,7 +2764,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
   for(I=(Direct > 0)?0:FileCount-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
   {
     CurPtr = ListData[I];
-    if (CmpNameW(Mask,CurPtr->strName,TRUE))
+    if (CmpName(Mask,CurPtr->strName,TRUE))
       if (!TestParentFolderName(CurPtr->strName))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
@@ -3425,7 +3425,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
       }
       else
       {
-        string strFullName = NullToEmptyW(Info.CurDir);
+        string strFullName = NullToEmpty(Info.CurDir);
 
         if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
           strFullName.Upper();
@@ -3439,7 +3439,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
           if (ViewSettings.FileLowerCase && !(FileAttr & FA_DIREC))
             strQuotedName.Lower();
           if (ViewSettings.FileUpperToLowerCase)
-            if (!(FileAttr & FA_DIREC) && !IsCaseMixedW(strQuotedName))
+            if (!(FileAttr & FA_DIREC) && !IsCaseMixed(strQuotedName))
                strQuotedName.Lower();
         }
         strFullName += strQuotedName;
@@ -3492,7 +3492,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
   const wchar_t *ShortNameLastSlash=wcsrchr(ShortName, L'\\'), *NameLastSlash=wcsrchr(Name, L'\\');
 
   if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
-    ConvertNameToFullW(strFileName, strFileName);
+    ConvertNameToFull(strFileName, strFileName);
   else
 
   if(ShowShortNames)
@@ -3518,7 +3518,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
   }
   /* IS $ */
   if (ShowShortNames && ShortNameAsIs)
-    ConvertNameToShortW(strFileName,strFileName);
+    ConvertNameToShort(strFileName,strFileName);
 
   /* $ 29.01.2001 VVM
     + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
@@ -3563,7 +3563,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
       }*/ //BUGBUG
     }
 
-    ConvertNameToRealW(strFileName,strFileName);
+    ConvertNameToReal(strFileName,strFileName);
   } /* if */
   /* VVM $ */
   // $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
@@ -3595,7 +3595,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
       }
     }
     if (ViewSettings.FileUpperToLowerCase)
-      if (!(FileAttr & FA_DIREC) && wcsrchr(strFileName,L'\\') && !IsCaseMixedW(wcsrchr(strFileName,L'\\')))
+      if (!(FileAttr & FA_DIREC) && wcsrchr(strFileName,L'\\') && !IsCaseMixed(wcsrchr(strFileName,L'\\')))
       {
           wchar_t *lpwszFileName = strFileName.GetBuffer();
 
@@ -3632,10 +3632,9 @@ void FileList::SetTitle()
 
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-      string strPluginTitle = NullToEmptyW(Info.PanelTitle);
+      string strPluginTitle = NullToEmpty(Info.PanelTitle);
 
-      RemoveLeadingSpacesW(strPluginTitle);
-      RemoveTrailingSpacesW(strPluginTitle);
+      RemoveExternalSpaces(strPluginTitle);
 
       strTitleDir += strPluginTitle;
     }
@@ -3908,7 +3907,7 @@ void FileList::ApplyCommand()
 
     {
       int PreserveLFN=SubstFileName(strConvertedCommand,strSelName,strSelShortName,&strListName,&strAnotherListName,&strShortListName, &strAnotherShortListName);
-      PreserveLongNameW PreserveName(strSelShortName,PreserveLFN);
+      PreserveLongName PreserveName(strSelShortName,PreserveLFN);
 
       Execute(strConvertedCommand,FALSE,FALSE);
 
@@ -4151,7 +4150,7 @@ void FileList::ProcessCopyKeys(int Key)
             !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
         {
           ToPlugin=2;
-          ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath, TRUE); //UNICODE!!!
+          ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath);
         }
         if (ToPlugin!=-1)
           if (ToPlugin)
@@ -4196,7 +4195,7 @@ void FileList::ProcessCopyKeys(int Key)
       if(Key != KEY_ALTF6 ||
         (Key == KEY_ALTF6 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT))
       {
-         ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,NULL, TRUE); //UNICODE!!!
+         ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,NULL);
       }
 
       if (ToPlugin==1)

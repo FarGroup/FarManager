@@ -219,7 +219,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
           if ( PSubstData->PassivePanel && ( !pAnotherListName->IsEmpty() || PSubstData->AnotherPanel->MakeListFile(*pAnotherListName,ShortN0,Modifers)))
           {
             if (ShortN0)
-              ConvertNameToShortW(*pAnotherListName, *pAnotherListName);
+              ConvertNameToShort(*pAnotherListName, *pAnotherListName);
 
             wcsncat(TmpStr,*pAnotherListName, MaxTempStrSize-1);
 
@@ -228,7 +228,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
           if ( !PSubstData->PassivePanel && ( !pListName->IsEmpty() || PSubstData->ActivePanel->MakeListFile(*pListName,ShortN0,Modifers)))
           {
             if (ShortN0)
-              ConvertNameToShortW(*pListName,*pListName);
+              ConvertNameToShort(*pListName,*pListName);
 
             wcsncat(TmpStr,*pListName, MaxTempStrSize-1);
           }
@@ -284,7 +284,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
         strCurDir = PSubstData->strCmdDir;
 
     GetPathRoot(strCurDir,strRootDir);
-    DeleteEndSlashW(strRootDir);
+    DeleteEndSlash(strRootDir);
     wcsncat(TmpStr,strRootDir, MaxTempStrSize-1);
     CurStr+=2;
     //_SVS(SysLog(L"!: TmpStr=[%s]",TmpStr));
@@ -318,12 +318,12 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
 
     if(RealPath)
     {
-      _MakePath1W(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
+      _MakePath1(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
       Unquote(strCurDir);
     }
 
     if (ShortN0)
-        ConvertNameToShortW(strCurDir,strCurDir);
+        ConvertNameToShort(strCurDir,strCurDir);
 
     AddEndSlash(strCurDir);
     if(RealPath)
@@ -826,7 +826,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
         string strTempFileName;
         strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(strCurDir.At(wcslen(strCurDir)-1) != L'\\'?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
         if (ShortNames)
-          ConvertNameToShortW(strTempFileName, strTempFileName);
+          ConvertNameToShort(strTempFileName, strTempFileName);
         strFileName = strTempFileName;
       }
       if(wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;

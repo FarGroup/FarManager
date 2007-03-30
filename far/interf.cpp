@@ -154,36 +154,36 @@ void ChangeConsoleMode(int Mode)
 
 void SetFarTitle(const wchar_t *Title)
 {
-    static string strFarTitle;
-    string strOldFarTitle;
+	static string strFarTitle;
+	string strOldFarTitle;
 
-    if ( Title )
-    {
-        apiGetConsoleTitle (strOldFarTitle);
+	if ( Title )
+	{
+		apiGetConsoleTitle (strOldFarTitle);
 
-        strFarTitle.Format (L"%.256s%s", Title, FarTitleAddonsW);
+		strFarTitle.Format (L"%.256s%s", Title, FarTitleAddons);
 
-        TitleModified=TRUE;
+		TitleModified=TRUE;
 
-        if ( wcscmp (strOldFarTitle, strFarTitle) &&
-            (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
-            !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()) )
-        {
-            SetConsoleTitleW (strFarTitle);
-            TitleModified=FALSE;
-        }
-    }
-    else
-    {
-    /*
-      Title=NULL для случая, когда нужно выставить пред.заголовок
-      SetFarTitle(NULL) - это не для всех!
-      Этот вызов имеет право делать только макро-движок!
-    */
-        SetConsoleTitleW (strFarTitle);
-        TitleModified=FALSE;
-     //_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
-    }
+		if ( wcscmp (strOldFarTitle, strFarTitle) &&
+				(CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
+				!CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()) )
+		{
+			SetConsoleTitleW (strFarTitle);
+			TitleModified=FALSE;
+		}
+	}
+	else
+	{
+		/*
+			Title=NULL для случая, когда нужно выставить пред.заголовок
+			SetFarTitle(NULL) - это не для всех!
+			Этот вызов имеет право делать только макро-движок!
+		*/
+		SetConsoleTitleW (strFarTitle);
+		TitleModified=FALSE;
+		//_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
+	}
 }
 
 
@@ -638,7 +638,7 @@ static BOOL DetectTTFFont(void)
   SetRegRootKey(HKEY_CURRENT_USER);
   strOptRegRoot = Opt.strRegRoot;
   Opt.strRegRoot = L"Console";
-  ReplaceStringsW(strAppName,L"\\",L"_",-1);
+  ReplaceStrings(strAppName,L"\\",L"_",-1);
   if(!CheckRegKey(strAppName))
   {
     Opt.strRegRoot = L"";
@@ -892,7 +892,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
 
         strTextStr.ReleaseBuffer ();
 
-        ReplaceStringsW(strText,L"&&",L"&",-1);
+        ReplaceStrings(strText,L"&&",L"&",-1);
         if(isVertText)
           VText((const wchar_t*)strText+1);
         else
@@ -903,7 +903,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
     {
       strTextStr.ReleaseBuffer ();
 
-      ReplaceStringsW(strTextStr,L"&&",L"&",-1);
+      ReplaceStrings(strTextStr,L"&&",L"&",-1);
       if(isVertText)
         VText(strTextStr);
       else

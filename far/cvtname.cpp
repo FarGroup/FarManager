@@ -15,7 +15,7 @@ cvtname.cpp
 #include "flink.hpp"
 
 
-int ConvertNameToFullW (
+int ConvertNameToFull (
         const wchar_t *lpwszSrc,
         string &strDest
         )
@@ -75,14 +75,14 @@ int ConvertNameToFullW (
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point в Win2K
   Если OS ниже, то вызывается обычный ConvertNameToFull()
 */
-int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
+int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
 {
   string strTempDest;
   BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавляли самостоятельно
                             // в конце мы его того... удавим.
 
   // Получим сначала полный путь до объекта обычным способом
-  int Ret=ConvertNameToFullW(Src, strTempDest);
+  int Ret=ConvertNameToFull(Src, strTempDest);
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
   _SVS(SysLog(L"ConvertNameToFull('%S') -> '%S'",Src,(const wchar_t*)strTempDest));
 
@@ -158,7 +158,7 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
             }
 
             *Ptr=Chr; // восстановим символ
-            DeleteEndSlashW(strTempDest2);
+            DeleteEndSlash(strTempDest2);
             strTempDest2 = Ptr;
             wcscpy(TempDest,strTempDest2); //BUGBUG
             Ret=(int)wcslen(TempDest);
@@ -187,9 +187,9 @@ int WINAPI ConvertNameToRealW (const wchar_t *Src, string &strDest)
 }
 
 
-void ConvertNameToShortW(const wchar_t *Src, string &strDest)
+void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
-	string strCopy = NullToEmptyW(Src);
+	string strCopy = NullToEmpty(Src);
 
 	int nSize = GetShortPathNameW (strCopy, NULL, 0);
 
@@ -207,9 +207,9 @@ void ConvertNameToShortW(const wchar_t *Src, string &strDest)
 	strDest.Upper ();
 }
 
-void ConvertNameToLongW(const wchar_t *Src, string &strDest)
+void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
-	string strCopy = NullToEmptyW(Src);
+	string strCopy = NullToEmpty(Src);
 
 	int nSize = GetLongPathNameW (strCopy, NULL, 0);
 

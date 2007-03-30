@@ -74,7 +74,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 //    char FSysNameSrc[NM];
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(&strSelName,FileAttr);
-    ConvertNameToFullW(strSelName, strRoot);
+    ConvertNameToFull(strSelName, strRoot);
     GetPathRoot(strRoot,strRoot);
 //_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
     if(Opt.DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
@@ -125,7 +125,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
   {
     string strJuncName;
-    ConvertNameToFullW(strSelName,strJuncName);
+    ConvertNameToFull(strSelName,strJuncName);
 
     if(GetJunctionPointInfo(strJuncName, strJuncName)) // ? SelName ?
     {
@@ -141,7 +141,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
       if(Ret == 1)
       {
-        ConvertNameToFullW(strSelName, strJuncName);
+        ConvertNameToFull(strSelName, strJuncName);
         if(Opt.Confirm.Delete)
         {
           ; //  ;-%
@@ -261,7 +261,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       {
         if (!DeleteAllFolders)
         {
-          ConvertNameToFullW(strSelName, strFullName);
+          ConvertNameToFull(strSelName, strFullName);
 
           if (CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
           {
@@ -584,7 +584,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
   string strFullName;
 
-  ConvertNameToFullW (Name, strFullName);
+  ConvertNameToFull (Name, strFullName);
 
   int MsgCode=0;
 
@@ -687,7 +687,7 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
   string strFullName;
 
-  ConvertNameToFullW(Name,strFullName);
+  ConvertNameToFull(Name,strFullName);
 
   while (1)
   {
@@ -756,7 +756,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 
   SHFILEOPSTRUCTW fop;
   string strFullName;
-  ConvertNameToFullW(Name, strFullName);
+  ConvertNameToFull(Name, strFullName);
 
   memset(&fop,0,sizeof(fop)); // говорят помогает :-)
 

@@ -819,7 +819,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
         //if(ExtractIfExistCommand(Command))
         {
           int PreserveLFN=SubstFileName(strCommand,strName,strShortName,&strListName,&strAnotherListName, &strShortListName,&strAnotherShortListName, FALSE, strCmdLineDir);
-          PreserveLongNameW PreserveName(strShortName,PreserveLFN);
+          PreserveLongName PreserveName(strShortName,PreserveLFN);
           /* $ 01.05.2001 IS
              Отключим до лучших времен
           */
@@ -1212,7 +1212,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
   {
     string strItemKey;
     strItemKey.Format (L"%s\\Item%d",MenuKey,KeyNumber);
-    RemoveTrailingSpacesW(MenuStr);
+    RemoveTrailingSpaces(MenuStr);
     if (*MenuStr==0)
       continue;
     if (*MenuStr==L'{' && KeyNumber>=0)
@@ -1222,7 +1222,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
     }
     if (*MenuStr==L'}')
       break;
-    if (!IsSpaceW(*MenuStr))
+    if (!IsSpace(*MenuStr))
     {
       string strHotKey, strLabel;
 
@@ -1234,7 +1234,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
       *ChPtr=0;
       strHotKey = MenuStr;
       strLabel = ChPtr+1;
-      RemoveLeadingSpacesW(strLabel);
+      RemoveLeadingSpaces(strLabel);
       SaveFilePos SavePos(MenuFile);
       SubMenu=(fgetws(MenuStr,sizeof(MenuStr)*sizeof(wchar_t),MenuFile)!=NULL && *MenuStr==L'{');
       UseSameRegKey();
@@ -1249,7 +1249,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
       {
         string strLineName;
         strLineName.Format (L"Command%d",CommandNumber++);
-        RemoveLeadingSpacesW(MenuStr);
+        RemoveLeadingSpaces(MenuStr);
         SetRegKey(strItemKey,strLineName,MenuStr);
       }
   }

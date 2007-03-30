@@ -50,7 +50,7 @@ BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
   Masks.Reset();
   while(NULL!=(MaskPtr=Masks.GetNext()))
   {
-    if (CmpNameW(MaskPtr,FileName, FALSE))
+    if (CmpName(MaskPtr,FileName, FALSE))
     // SkipPath=FALSE, ע.ך. ג CFileMask גûחûגאועסÿ PointToName
        return TRUE;
   }

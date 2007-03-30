@@ -321,7 +321,7 @@ Frame *Manager::FrameMenu()
         strNumText = L"&   ";
 
       TruncPathStr(strName,ScrX-24);
-      ReplaceStringsW(strName,L"&",L"&&",-1);
+      ReplaceStrings(strName,L"&",L"&&",-1);
       /*  добавляется "*" если файл изменен */
       ModalMenuItem.strName.Format (L"%s%-10.10s %c %s", (const wchar_t*)strNumText, (const wchar_t*)strType,(FrameList[I]->IsFileModified()?L'*':L' '), (const wchar_t*)strName);
       /* tran 28.07.2000 $ */

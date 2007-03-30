@@ -55,7 +55,7 @@ static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
   if ( strSrc.IsEmpty() )
   {
     strSrc = g_strFarPath;
-    DeleteEndSlashW(strSrc);
+    DeleteEndSlash(strSrc);
   }
   else
     apiExpandEnvironmentStrings(strSrc, strSrc);
@@ -887,7 +887,7 @@ int  FilePanels::GetTypeAndName(string &strType, string &strName)
     case FILE_PANEL:
     case INFO_PANEL:
         ActivePanel->GetCurName(strFullName, strShortName);
-        ConvertNameToFullW(strFullName, strFullName);
+        ConvertNameToFull(strFullName, strFullName);
         break;
   }
 

@@ -104,7 +104,7 @@ void FileList::SetFilePanelModes()
     int ExitCode;
 
     ModeDlg[0].strData = UMSG((int)(DWORD_PTR)ModeListMenu[ModeNumber].Name);
-    RemoveHighlightsW(ModeDlg[0].strData);
+    RemoveHighlights(ModeDlg[0].strData);
 
     if (ModeNumber==9)
       ModeNumber=0;

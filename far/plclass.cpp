@@ -168,12 +168,12 @@ int Plugin::LoadFromCache ()
 
 	if ( cp != -1 )
 	{
-		strRegKey.Format (FmtPluginsCache_PluginDW, cp);
+		strRegKey.Format (FmtPluginsCache_PluginD, cp);
 
 		if ( GetRegKey(strRegKey,NFMP_PreloadW,0) == 1 ) //PF_PRELOAD plugin, skip cache
 			return Load ();
 
-		strRegKey.Format (FmtPluginsCache_PluginDExportW,CachePos);
+		strRegKey.Format (FmtPluginsCache_PluginDExport,CachePos);
 		SysID=GetRegKey(strRegKey,NFMP_SysIDW,0);
 
 		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,NFMP_OpenPluginW,0);
@@ -216,7 +216,7 @@ int Plugin::SaveToCache()
 		{
 			string strRegKey, strPluginName, strCurPluginID;
 
-			strRegKey.Format (FmtPluginsCache_PluginDW, j);
+			strRegKey.Format (FmtPluginsCache_PluginD, j);
 
 			GetRegKey(strRegKey, L"Name", strPluginName, L"");
 
@@ -247,13 +247,13 @@ int Plugin::SaveToCache()
 				{
 					string strValue;
 
-					strValue.Format (FmtDiskMenuStringDW, i);
+					strValue.Format (FmtDiskMenuStringD, i);
 
 					SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
 
 					if ( Info.DiskMenuNumbers )
 					{
-						strValue.Format (FmtDiskMenuNumberDW, i);
+						strValue.Format (FmtDiskMenuNumberD, i);
 						SetRegKey(strRegKey, strValue, Info.DiskMenuNumbers[i]);
 					}
 				}
@@ -262,7 +262,7 @@ int Plugin::SaveToCache()
 				{
 					string strValue;
 
-					strValue.Format (FmtPluginMenuStringDW, i);
+					strValue.Format (FmtPluginMenuStringD, i);
 					SetRegKey(strRegKey, strValue, Info.PluginMenuStrings[i]);
 				}
 
@@ -270,14 +270,14 @@ int Plugin::SaveToCache()
 				{
 					string strValue;
 
-					strValue.Format (FmtPluginConfigStringDW, i);
+					strValue.Format (FmtPluginConfigStringD, i);
 					SetRegKey(strRegKey,strValue,Info.PluginConfigStrings[i]);
 				}
 
-				SetRegKey(strRegKey, L"CommandPrefix", NullToEmptyW(Info.CommandPrefix));
+				SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 				SetRegKey(strRegKey, L"Flags", Info.Flags);
 
-				strRegKey.Format (FmtPluginsCache_PluginDExportW, j);
+				strRegKey.Format (FmtPluginsCache_PluginDExport, j);
 
 				SetRegKey(strRegKey, NFMP_SysIDW, SysID);
 				SetRegKey(strRegKey, NFMP_OpenPluginW, pOpenPluginW!=NULL);
@@ -574,13 +574,13 @@ int Plugin::Load()
 		for (int I=0;;I++)
 		{
 			string strRegKey, strPluginName;
-			strRegKey.Format (FmtPluginsCache_PluginDW,I);
+			strRegKey.Format (FmtPluginsCache_PluginD,I);
 			GetRegKey(strRegKey,L"Name",strPluginName,L"");
 			if ( strPluginName.IsEmpty() )
 				break;
 			if (GetFileAttributesW(strPluginName)==0xFFFFFFFF)
 			{
-				DeleteKeyRecord(FmtPluginsCache_PluginDW,I);
+				DeleteKeyRecord(FmtPluginsCache_PluginD,I);
 				I--;
 			}
 	  }
@@ -624,9 +624,9 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     /* SVS $ */
 
     StandardFunctions.Unquote=Unquote;
-    StandardFunctions.LTrim=RemoveLeadingSpacesW;
-    StandardFunctions.RTrim=RemoveTrailingSpacesW;
-    StandardFunctions.Trim=RemoveExternalSpacesW;
+    StandardFunctions.LTrim=RemoveLeadingSpaces;
+    StandardFunctions.RTrim=RemoveTrailingSpaces;
+    StandardFunctions.Trim=RemoveExternalSpaces;
     StandardFunctions.TruncStr=TruncStr;
     StandardFunctions.TruncPathStr=TruncPathStr;
     StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
@@ -638,7 +638,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     //StandardFunctions.FarKeyToName=KeyToText; //BUGBUG
     ///StandardFunctions.FarNameToKey=KeyNameToKey; //BUGBUG
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
-    StandardFunctions.XLat=Xlat;
+    StandardFunctions.XLat=XlatA;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
     StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
@@ -1442,7 +1442,7 @@ int Plugin::GetCacheNumber () //ничего не понимаю....
 
 		string strRegKey, strPluginName, strPluginID, strCurPluginID;
 
-		strRegKey.Format (FmtPluginsCache_PluginDW, Pos);
+		strRegKey.Format (FmtPluginsCache_PluginD, Pos);
 
 		GetRegKey(strRegKey, L"Name", strPluginName, L"");
 

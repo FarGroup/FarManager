@@ -364,7 +364,7 @@ void FileList::ShowSelectedSize()
 
   if (SelFileCount)
   {
-    InsertCommasW(SelFileSize,strFormStr);
+    InsertCommas(SelFileSize,strFormStr);
     strSelStr.Format (UMSG(__FormatEndSelectedPhrase(SelFileCount)),(const wchar_t*)strFormStr,SelFileCount);
 
     TruncStr(strSelStr,X2-X1-1);
@@ -398,9 +398,9 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   string strTotalStr, strFormSize, strFreeSize;
   int Length;
 
-  InsertCommasW(TotalFileSize,strFormSize);
+  InsertCommas(TotalFileSize,strFormSize);
   if (Opt.ShowPanelFree && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
-    InsertCommasW(FreeDiskSize,strFreeSize);
+    InsertCommas(FreeDiskSize,strFreeSize);
   if (Opt.ShowPanelTotals)
   {
     if (!Opt.ShowPanelFree || strFreeSize.IsEmpty())
@@ -412,8 +412,8 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       strTotalStr.Format (L" %s (%d) %s %s ",(const wchar_t*)strFormSize,TotalFileCount,DHLine,(const wchar_t*)strFreeSize);
       if ((int)strTotalStr.GetLength()> X2-X1-1)
       {
-        InsertCommasW(FreeDiskSize>>20,strFreeSize);
-        InsertCommasW(TotalFileSize>>20,strFormSize);
+        InsertCommas(FreeDiskSize>>20,strFreeSize);
+        InsertCommas(TotalFileSize>>20,strFormSize);
         strTotalStr.Format (L" %s %s (%d) %s %s %s ",(const wchar_t*)strFormSize,UMSG(MListMb),TotalFileCount,DHLine,(const wchar_t*)strFreeSize,UMSG(MListMb));
       }
     }
@@ -870,7 +870,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!ShowStatus)
                 {
                   if (!ShowShortNames && ViewSettings.FileUpperToLowerCase)
-                    if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixedW(NameCopy))
+                    if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(NameCopy))
                       strName.Lower ();
                   if ((ShowShortNames || ViewSettings.FolderUpperCase) && (CurPtr->FileAttr & FA_DIREC))
                     strName.Upper ();
@@ -951,14 +951,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case DATE_COLUMN:
               {
                 string strOutStr;
-                ConvertDateW(CurPtr->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
+                ConvertDate(CurPtr->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
                 mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strDateStr);
               }
               break;
             case TIME_COLUMN:
               {
                 string strOutStr;
-                ConvertDateW(CurPtr->WriteTime,strDateStr,strTimeStr,ColumnWidth);
+                ConvertDate(CurPtr->WriteTime,strDateStr,strTimeStr,ColumnWidth);
                 mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strTimeStr);
               }
               break;
@@ -990,7 +990,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                     FullYear=TRUE;
                 }
                 string strDateStr, strTimeStr, strOutStr;
-                ConvertDateW(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
+                ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
                 strOutStr.Format (L"%s %s", (const wchar_t*)strDateStr, (const wchar_t*)strTimeStr);
                 mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strOutStr);
               }

@@ -94,10 +94,10 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 
-string &InsertCommasW(unsigned __int64 li, string &strDest);
+string &InsertCommas(unsigned __int64 li, string &strDest);
 
 void DeleteDirTree(const wchar_t *Dir);
-int GetClusterSizeW(const wchar_t *Root);
+int GetClusterSize(const wchar_t *Root);
 
 void __cdecl CheckVersion(void *Param);
 void __cdecl ErrRegFn(void *Param);
@@ -116,21 +116,16 @@ int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();
 
-char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
-string &RemoveCharW(string &strStr,wchar_t Target,BOOL Dup=TRUE);
+string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup=TRUE);
 
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
 
-int ReplaceStringsW(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
+int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
 
-#define RemoveHighlights(Str) RemoveChar(Str,'&')
-#define RemoveHighlightsW(Str) RemoveCharW(Str,L'&')
+#define RemoveHighlights(Str) RemoveChar(Str,L'&')
 
-int IsCaseMixed(char *Str);
-int IsCaseLower(char *Str);
-
-BOOL IsCaseMixedW(const string &strStr);
-BOOL IsCaseLowerW(const string &strStr);
+BOOL IsCaseMixed(const string &strStr);
+BOOL IsCaseLower(const string &strStr);
 
 int DeleteFileWithFolder(const wchar_t *FileName);
 
@@ -248,7 +243,7 @@ int ToPercent(unsigned long N1,unsigned long N2);
 int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
-int CmpNameW(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
+int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
 /* $ 09.10.2000 IS
     + Новая функция для обработки имени файла
 */
@@ -262,10 +257,8 @@ string &QuoteSpace(string &strStr);
 
 wchar_t* WINAPI InsertQuote(wchar_t *Str);
 string& InsertQuote(string& strStr);
-/* IS $ */
-//int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
-int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish);
 
+int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish);
 int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish);
 void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish);
 
@@ -279,10 +272,10 @@ BOOL ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
 void ProcessUserMenu(int EditMenu);
 
-int ConvertNameToFullW(const wchar_t *lpwszSrc, string &strDest);
-int WINAPI ConvertNameToRealW(const wchar_t *Src, string &strDest);
-void ConvertNameToShortW(const wchar_t *Src, string &strDest); //BUGBUG, int
-void ConvertNameToLongW(const wchar_t *Src, string &strDest); //BUGBUG, int
+int ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest);
+int WINAPI ConvertNameToReal(const wchar_t *Src, string &strDest);
+void ConvertNameToShort(const wchar_t *Src, string &strDest); //BUGBUG, int
+void ConvertNameToLong(const wchar_t *Src, string &strDest); //BUGBUG, int
 
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
@@ -304,12 +297,8 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
-int HiStrlenW(const wchar_t *Str,BOOL Dup=TRUE);
-/* $ 27.01.2001 VVM
-   + Дополнительный параметр у GetErrorString - резмер буфера */
-int GetErrorString(char *ErrStr, DWORD StrSize);
-int GetErrorStringW (string &strErrStr);
-/* VVM $ */
+int HiStrlen(const wchar_t *Str,BOOL Dup=TRUE);
+int GetErrorString (string &strErrStr);
 // Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
 BOOL CheckErrorForProcessed(DWORD Err);
 void ShowProcessList();
@@ -395,7 +384,7 @@ void EncodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
 
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
-#define NullToEmptyW(s) (s?s:L"")
+#define NullToEmpty(s) (s?s:L"")
 
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
@@ -417,7 +406,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 /* KM $ */
 /* KM $ */
 
-void ConvertDateW(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
+void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 
 
@@ -591,15 +580,15 @@ void UnquoteExternal(string &strStr);
    + удалить пробелы снаружи
    ! изменен тип возврата
 */
-wchar_t* WINAPI RemoveLeadingSpacesW(wchar_t *Str);
-string& WINAPI RemoveLeadingSpacesW(string &strStr);
+wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str);
+string& WINAPI RemoveLeadingSpaces(string &strStr);
 
-char* WINAPI RemoveTrailingSpaces(char *Str);
-wchar_t *WINAPI RemoveTrailingSpacesW(wchar_t *Str);
-string& WINAPI RemoveTrailingSpacesW(string &strStr);
+char* WINAPI RemoveTrailingSpacesA(char *Str);
+wchar_t *WINAPI RemoveTrailingSpaces(wchar_t *Str);
+string& WINAPI RemoveTrailingSpaces(string &strStr);
 
-wchar_t* WINAPI RemoveExternalSpacesW(wchar_t *Str);
-string & WINAPI RemoveExternalSpacesW(string &strStr);
+wchar_t* WINAPI RemoveExternalSpaces(wchar_t *Str);
+string & WINAPI RemoveExternalSpaces(string &strStr);
 /* SVS $ */
 /* $ 02.02.2001 IS
   + Новая функция: заменяет пробелами непечатные символы в строке
@@ -626,8 +615,7 @@ string& WINAPI QuoteSpaceOnly(string &strStr);
 //              то кодировка - OEM)
 //   WordDiv  - набор разделителей слова в кодировке OEM
 //   Chr      - проверяемый символ
-BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr);
-BOOL IsWordDivW(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
+BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
 /* IS $ */
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
@@ -640,8 +628,7 @@ BOOL  AddEndSlash(string &strPath);
 BOOL  AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 BOOL  WINAPI AddEndSlash(wchar_t *Path);
 
-BOOL  WINAPI DeleteEndSlash(char *Path,bool allendslash=false);
-BOOL  WINAPI DeleteEndSlashW(string &strPath,bool allendslash=false);
+BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
 
 int __digit_cnt_0(const wchar_t* s, const wchar_t** beg);
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix);
@@ -692,13 +679,13 @@ int FarAltEnter(int mode);
   XLat-перекодировка!
   На основе плагина EditSwap by SVS :-)))
 */
-char* WINAPI Xlat(char *Line,
+char* WINAPI XlatA(char *Line,
                     int StartPos,
                     int EndPos,
                     const struct CharTableSet *TableSet,
                     DWORD Flags);
 
-wchar_t* WINAPI XlatW(wchar_t *Line,
+wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,
                     int EndPos,
                     const struct CharTableSet *TableSet,
@@ -1003,12 +990,12 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
-BOOL IsBatchExtTypeW(const wchar_t *ExtPtr);
+BOOL IsBatchExtType(const wchar_t *ExtPtr);
 #ifdef ADD_GUI_CHECK
 BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName);
 #endif
 
-int WINAPI GetSearchReplaceStringW (
+int WINAPI GetSearchReplaceString (
          int IsReplaceMode,
          string *pSearchStr,
          string *pReplaceStr,
@@ -1087,29 +1074,12 @@ void *__cdecl xf_realloc(void *__block, size_t __size);
 }
 #endif
 
-/* $ 01.05.2001 DJ
-   inline-функции для быстрой конвертации
-*/
-
-inline char LocalUpperFast (char c)
-{
-  extern unsigned char LowerToUpper[256];  // in local.cpp
-  return LowerToUpper [c];
-}
-
-inline char LocalLowerFast (char c)
-{
-  extern unsigned char UpperToLower[256];  // in local.cpp
-  return UpperToLower [c];
-}
-/* DJ $ */
-
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 
-void PrepareStrFTime(void);
-int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
-int MkStrFTime(char *Dest,int DestSize,const char *Fmt=NULL);
-int MkStrFTimeW(string &strDest, const wchar_t *Fmt=NULL);
+void PrepareStrFTimeA(void);
+int WINAPI StrFTimeA(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
+int MkStrFTimeA(char *Dest,int DestSize,const char *Fmt=NULL);
+int MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
 
 BOOL WINAPI GetMenuHotKey(string &strHotKey,int LenHotKey,
                           const wchar_t *DlgHotKeyTitle,
@@ -1163,7 +1133,7 @@ const wchar_t *eStackAsString(int Pos=0);
 
 BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
 
-int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
+int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
 
 #define CP_UNICODE 1200 //MSDN

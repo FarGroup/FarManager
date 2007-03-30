@@ -153,7 +153,7 @@ class ShellCopy
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
-              int &ToPlugin, const wchar_t *PluginDestPath, bool bUnicode /*=FAKE!! for overload*/);
+              int &ToPlugin, const wchar_t *PluginDestPath);
 
     ~ShellCopy();
 

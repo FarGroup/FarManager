@@ -958,7 +958,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           if ( SelPanel != NULL )
           {
             SelPanel->GetCurDir(strFileName);
-            DeleteEndSlashW(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
+            DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
             Cond = (const wchar_t*)strFileName;
           }
           break;
@@ -967,10 +967,10 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
         case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
         {
-          if(_MakePath1W(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
+          if(_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
           {
             UnquoteExternal(strFileName);
-            DeleteEndSlashW(strFileName);
+            DeleteEndSlash(strFileName);
             Cond = (const wchar_t*)strFileName;
           }
           break;
@@ -1050,7 +1050,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
                   break;
               }
             }
-            RemoveExternalSpacesW(strFileName);
+            RemoveExternalSpaces(strFileName);
             Cond=(const wchar_t*)strFileName;
           }
           break;
@@ -1389,7 +1389,7 @@ static TVar dateFunc(TVar *param)
 {
   const wchar_t *s = param[0].toString();
   string strTStr;
-  if(MkStrFTimeW(strTStr,s))
+  if(MkStrFTime(strTStr,s))
     return TVar(strTStr);
   return TVar(L"");
 }
@@ -1398,7 +1398,7 @@ static TVar dateFunc(TVar *param)
 static TVar xlatFunc(TVar *param)
 {
   wchar_t *Str = (wchar_t *)param[0].toString();
-  return TVar(::XlatW(Str,0,(int)wcslen(Str),NULL,Opt.XLat.Flags));
+  return TVar(::Xlat(Str,0,(int)wcslen(Str),NULL,Opt.XLat.Flags));
 }
 
 // N=msgbox("Title","Text",flags)
@@ -1410,8 +1410,8 @@ static TVar msgBoxFunc(TVar *param)
   if(HIWORD(Flags) == 0 || HIWORD(Flags) > HIWORD(FMSG_MB_RETRYCANCEL))
     Flags|=FMSG_MB_OK;
 
-  const wchar_t *title=NullToEmptyW(param[0].toString());
-  const wchar_t *text=NullToEmptyW(param[1].toString());
+  const wchar_t *title=NullToEmpty(param[0].toString());
+  const wchar_t *text=NullToEmpty(param[1].toString());
   //_KEYMACRO(SysLog(L"title='%s'",title));
   //_KEYMACRO(SysLog(L"text='%s'",text));
   string TempBuf = title;
@@ -1881,17 +1881,17 @@ static TVar panelitemFunc(TVar *param)
       case 2:  // FileAttr
         return TVar((__int64)(long)filelistItem.FileAttr);
       case 3:  // CreationTime
-        ConvertDateW(filelistItem.CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(filelistItem.CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
         strDate += L" ";
         strDate += strTime;
         return TVar((const wchar_t*)strDate);
       case 4:  // AccessTime
-        ConvertDateW(filelistItem.AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(filelistItem.AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
         strDate += L" ";
         strDate += strTime;
         return TVar((const wchar_t*)strDate);
       case 5:  // WriteTime
-        ConvertDateW(filelistItem.WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(filelistItem.WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
         strDate += L" ";
         strDate += strTime;
         return TVar((const wchar_t*)strDate);
@@ -2752,7 +2752,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
       continue;
 
     GetRegKey(strRegKeyName,L"Sequence",strBuffer,L"");
-    RemoveExternalSpacesW(strBuffer);
+    RemoveExternalSpaces(strBuffer);
 
     if( strBuffer.IsEmpty() )
       continue;
@@ -3635,7 +3635,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       if ( strCurrKeyText.At(0) == L'%' && ( ( LocalIsalphaW(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) || ( strCurrKeyText.At(1) == L'%' && ( LocalIsalphaW(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' ) ) ) )
       {
         BufPtr = oldBufPtr;
-        while ( *BufPtr && (IsSpaceW(*BufPtr) || IsEolW(*BufPtr)) )
+        while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
           BufPtr++;
         memset(varName, 0, sizeof(varName));
         KeyCode = MCODE_OP_SAVE;
@@ -3680,7 +3680,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         {
           if(Brack) *Brack=Chr;
           BufPtr = oldBufPtr;
-          while ( *BufPtr && (IsSpaceW(*BufPtr) || IsEolW(*BufPtr)) )
+          while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
             BufPtr++;
           Size += parseExpr(BufPtr, exprBuff, 0, 0);
           //Size--; //???
@@ -3727,7 +3727,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       //  Опциональность аргумента
       //- AN ----------------------------------------------
       case MCODE_OP_DATE:
-        while ( *BufPtr && IsSpaceW(*BufPtr) )
+        while ( *BufPtr && IsSpace(*BufPtr) )
           BufPtr++;
         if ( *BufPtr == L'\"' && BufPtr[1] )
           Size += parseExpr(BufPtr, exprBuff, 0, 0);
@@ -4444,9 +4444,9 @@ static const char* ParsePlainText(char *CurKeyText, const char *BufPtr)
 static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
 {
    // пропускаем ведущие пробельные символы
-   while (IsSpaceW(*BufPtr) || IsEolW(*BufPtr))
+   while (IsSpace(*BufPtr) || IsEol(*BufPtr))
    {
-     if(IsEolW(*BufPtr))
+     if(IsEol(*BufPtr))
      {
        //TODO!!!
      }
@@ -4458,10 +4458,10 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
 
    const wchar_t *CurBufPtr=BufPtr;
    wchar_t Chr=*BufPtr, Chr2=BufPtr[1];
-   BOOL SpecMacro=Chr==L'$' && Chr2 && !(IsSpaceW(Chr2) || IsEolW(Chr2));
+   BOOL SpecMacro=Chr==L'$' && Chr2 && !(IsSpace(Chr2) || IsEol(Chr2));
 
    // ищем конец очередного названия клавиши
-   while (Chr && !(IsSpaceW(Chr) || IsEolW(Chr)))
+   while (Chr && !(IsSpace(Chr) || IsEol(Chr)))
    {
      if(SpecMacro && (Chr == L'[' || Chr == L'(' || Chr == L'{'))
        break;

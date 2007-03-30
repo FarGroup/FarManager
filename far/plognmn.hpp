@@ -11,15 +11,15 @@ class PreserveLongName
 #include "unicodestring.hpp"
 
 
-class PreserveLongNameW
+class PreserveLongName
 {
 	private:
 		string strSaveLongName;
 		string strSaveShortName;
 		int Preserve;
 	public:
-		PreserveLongNameW(const wchar_t *ShortName,int Preserve);
-		~PreserveLongNameW();
+		PreserveLongName(const wchar_t *ShortName,int Preserve);
+		~PreserveLongName();
 };
 
 

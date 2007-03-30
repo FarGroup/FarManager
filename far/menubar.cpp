@@ -18,7 +18,7 @@ void MenuBar::DisplayObject()
   string strMsg, strFullMsg;
 
   strMsg.Format (L"    %s    %s    %s    %s    %s  ", UMSG(MMenuLeftTitle), UMSG(MMenuFilesTitle), UMSG(MMenuCommandsTitle), UMSG(MMenuOptionsTitle),UMSG(MMenuRightTitle));
-  RemoveHighlightsW(strMsg);
+  RemoveHighlights(strMsg);
 
   int Length=X2-X1+1;
 

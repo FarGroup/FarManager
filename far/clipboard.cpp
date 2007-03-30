@@ -22,7 +22,7 @@ static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 {
   if(UsedInternalClipboard)
   {
-    if(!wcscmp(lpszFormat,FAR_VerticalBlockW))
+    if(!wcscmp(lpszFormat,FAR_VerticalBlock))
     {
       return 0xFEB0;
     }

@@ -149,8 +149,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
                      int CurrentOnly,        // =1 - только текущий файл, под курсором
                      int Ask,                // =1 - выводить диалог?
                      int &ToPlugin,          // =?
-                     const wchar_t *PluginDestPath,
-                     bool bUnicode)   // =?
+                     const wchar_t *PluginDestPath)
 {
   DestList.SetParameters(0,0,ULF_UNIQUE);
   /* IS $ */
@@ -249,7 +248,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
   {
     struct OpenPluginInfo Info;
     DestPanel->GetOpenPluginInfo(&Info);
-    int LenCurDir=(int)wcslen(NullToEmptyW(Info.CurDir));
+    int LenCurDir=(int)wcslen(NullToEmpty(Info.CurDir));
     if(SizeBuffer < LenCurDir)
       SizeBuffer=LenCurDir;
   }
@@ -522,7 +521,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
           struct OpenPluginInfo Info;
           DestPanel->GetOpenPluginInfo(&Info);
 
-          string strFormat = NullToEmptyW(Info.Format);
+          string strFormat = NullToEmpty(Info.Format);
 
           CopyDlg[ID_SC_TARGETEDIT].strData = strFormat+L":";
           while (CopyDlg[ID_SC_TARGETEDIT].strData.GetLength ()<2)
@@ -575,7 +574,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
     CopyDlg[ID_SC_ONLYNEWER].Selected=SelectedSymLink;
   }
 
-  RemoveTrailingSpacesW(CopyDlg[ID_SC_SOURCEFILENAME].strData);
+  RemoveTrailingSpaces(CopyDlg[ID_SC_SOURCEFILENAME].strData);
   // корректирем позицию " to"
   CopyDlg[ID_SC_TARGETTITLE].X1=CopyDlg[ID_SC_TARGETTITLE].X2=CopyDlg[ID_SC_SOURCEFILENAME].X1+(int)CopyDlg[ID_SC_SOURCEFILENAME].strData.GetLength();
 
@@ -624,9 +623,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
         if(!Opt.CMOpt.MultiCopy || !wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData,L",;")) // отключено multi*
         {
            // уберем пробелы, лишние кавычки
-           RemoveTrailingSpacesW(CopyDlg[ID_SC_TARGETEDIT].strData);
+           RemoveTrailingSpaces(CopyDlg[ID_SC_TARGETEDIT].strData);
            Unquote(CopyDlg[ID_SC_TARGETEDIT].strData);
-           RemoveTrailingSpacesW(strCopyDlgValue);
+           RemoveTrailingSpaces(strCopyDlgValue);
            Unquote(strCopyDlgValue);
 
            // добавим кавычки, чтобы "список" удачно скомпилировалс€ вне
@@ -634,7 +633,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
            InsertQuote(strCopyDlgValue);
         }
         /* IS $ */
-        if(DestList.Set(strCopyDlgValue) && !wcspbrk(strCopyDlgValue,ReservedFilenameSymbolsW))
+        if(DestList.Set(strCopyDlgValue) && !wcspbrk(strCopyDlgValue,ReservedFilenameSymbols))
         {
           // «апомнить признак использовани€ фильтра. KM
           UseFilter=CopyDlg[ID_SC_USEFILTER].Selected;
@@ -869,7 +868,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
           {
             string strFileSysName;
             string strRootDir;
-            ConvertNameToFullW(strNameTmp,strRootDir);
+            ConvertNameToFull(strNameTmp,strRootDir);
             GetPathRoot(strRootDir, strRootDir);
             if (apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
               if(LocalStricmpW(strFileSysName,L"NTFS"))
@@ -1160,7 +1159,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         if( strNewFolder.IsEmpty() )
           DlgParam->AltF10=-1;
         else // убираем лишний слеш
-          DeleteEndSlashW(strNewFolder);
+          DeleteEndSlash(strNewFolder);
       }
 
       if(DlgParam->AltF10 != -1)
@@ -1225,7 +1224,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     strRoot = SrcDir;
 
     Unquote(strRoot);
-    ConvertNameToFullW(strRoot, strRoot);
+    ConvertNameToFull(strRoot, strRoot);
     GetPathRoot(strRoot,strRoot);
 //// // _SVS(SysLog(L"SrcDir=%s",SrcDir));
 //// // _SVS(SysLog(L"Root=%s",Root));
@@ -1251,7 +1250,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     strRoot = DstDir;
     Unquote(strRoot);
 
-    ConvertNameToFullW(strRoot,strRoot);
+    ConvertNameToFull(strRoot,strRoot);
     GetPathRoot(strRoot,strRoot);
     if(GetFileAttributesW(strRoot) == -1)
       return TRUE;
@@ -1427,7 +1426,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
         strNewPath.ReleaseBuffer ();
 
-        if (Opt.CreateUppercaseFolders && !IsCaseMixedW(strNewPath))
+        if (Opt.CreateUppercaseFolders && !IsCaseMixed(strNewPath))
           strNewPath.Upper ();
 
         DWORD Attr=GetFileAttributesW(strNewPath);
@@ -2099,7 +2098,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
           string strSrcFullName;
 
-          ConvertNameToFullW(Src,strSrcFullName);
+          ConvertNameToFull(Src,strSrcFullName);
 
           return(wcscmp(strDestPath,strSrcFullName)==0 ? COPY_NEXT:COPY_SUCCESS);
         }
@@ -2113,7 +2112,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       {
         string strSrcFullName,strDestFullName;
 
-        ConvertNameToFullW (Src,strSrcFullName);
+        ConvertNameToFull (Src,strSrcFullName);
 
         SECURITY_ATTRIBUTES sa;
 
@@ -2149,7 +2148,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             else
               strCopiedName = PointToName(strDestPath);
 
-            ConvertNameToFullW (Dest, strDestFullName);
+            ConvertNameToFull (Dest, strDestFullName);
 
             TreeList::RenTreeName(strSrcFullName,strDestFullName);
 
@@ -2298,7 +2297,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
       {
         string strSrcRealName;
-        ConvertNameToFullW (Src,strSrcRealName);
+        ConvertNameToFull (Src,strSrcRealName);
         switch(MkSymLink(strSrcRealName, strDestPath,FCOPY_LINK))
         {
           case 2:
@@ -2389,7 +2388,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       if (!Append)
       {
         string strSrcFullName;
-        ConvertNameToFullW(Src,strSrcFullName);
+        ConvertNameToFull(Src,strSrcFullName);
 
         if (NWFS_Attr)
           SetFileAttributesW(strSrcFullName,SrcData.dwFileAttributes&(~FA_RDONLY));
@@ -3539,9 +3538,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
         strDestSizeText.Format(L"%I64u", DestSize);
 
         string strDateText, strTimeText;
-        ConvertDateW(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
         strSrcFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
-        ConvertDateW(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
         strDestFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
 
         SetMessageHelp(L"CopyFiles");
@@ -3605,9 +3604,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
         string strDestSizeText;
         strDestSizeText.Format(L"%I64u", DestSize);
 
-        ConvertDateW(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
         strSrcFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
-        ConvertDateW(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
+        ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
         strDestFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
 
         SetMessageHelp(L"CopyFiles");
@@ -3945,7 +3944,7 @@ bool ShellCopy::CalcTotalSize()
   // TODO: Ёто дл€ варианта, когда "¬—≈√ќ = общий размер * количество целей"
   TotalCopySize=TotalCopySize*(__int64)CountTarget;
 
-  InsertCommasW(TotalCopySize,strTotalCopySizeText);
+  InsertCommas(TotalCopySize,strTotalCopySizeText);
   return(true);
 }
 
@@ -3983,8 +3982,8 @@ int ShellCopy::CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
   int I;
 
   // получим полные пути с учетом символических св€зей
-  ConvertNameToRealW(Src, strSrcFullName);
-  ConvertNameToRealW(Dest, strDestFullName);
+  ConvertNameToReal(Src, strSrcFullName);
+  ConvertNameToReal(Dest, strDestFullName);
 
   wchar_t *lpwszSrc = strSrcFullName.GetBuffer ();
   // уберем мусор из имен
@@ -3993,7 +3992,7 @@ int ShellCopy::CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 
   strSrcFullName.ReleaseBuffer ();
 
-  DeleteEndSlashW(strSrcFullName);
+  DeleteEndSlash(strSrcFullName);
 
   wchar_t *lpwszDest = strDestFullName.GetBuffer ();
 
@@ -4002,14 +4001,14 @@ int ShellCopy::CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 
   strDestFullName.ReleaseBuffer ();
 
-  DeleteEndSlashW(strDestFullName);
+  DeleteEndSlash(strDestFullName);
 
   // избавимс€ от коротких имен
   if(IsLocalPath(strSrcFullName))
-    ConvertNameToLongW (strSrcFullName, strSrcFullName);
+    ConvertNameToLong (strSrcFullName, strSrcFullName);
 
   if(IsLocalPath(strDestFullName))
-    ConvertNameToLongW (strDestFullName, strDestFullName);
+    ConvertNameToLong (strDestFullName, strDestFullName);
 
   return LocalStricmpW(strSrcFullName,strDestFullName)==0;
 }
@@ -4032,7 +4031,7 @@ int ShellCopy::CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 
   strSrcFullName.ReleaseBuffer ();
 
-  DeleteEndSlashW(strSrcFullName);
+  DeleteEndSlash(strSrcFullName);
 
   wchar_t *lpwszDest = strDestFullName.GetBuffer ();
 
@@ -4041,14 +4040,14 @@ int ShellCopy::CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 
   strDestFullName.ReleaseBuffer ();
 
-  DeleteEndSlashW(strDestFullName);
+  DeleteEndSlash(strDestFullName);
 
   // избавимс€ от коротких имен
   if(IsLocalPath(strSrcFullName))
-    ConvertNameToLongW (strSrcFullName, strSrcFullName);
+    ConvertNameToLong (strSrcFullName, strSrcFullName);
 
   if(IsLocalPath(strDestFullName))
-    ConvertNameToLongW (strDestFullName, strDestFullName);
+    ConvertNameToLong (strDestFullName, strDestFullName);
 
   return LocalStricmpW (strSrcFullName, strDestFullName)==0;
 }
@@ -4060,7 +4059,7 @@ string &ShellCopy::GetParentFolder(const wchar_t *Src, string &strDest)
 {
   string strDestFullName;
 
-  if (ConvertNameToRealW (Src,strDestFullName))
+  if (ConvertNameToReal (Src,strDestFullName))
   {
     strDest = L"";
     return strDest;
@@ -4121,9 +4120,9 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags)
       Flags|=FCOPY_VOLMOUNT;
     }
     else
-      ConvertNameToFullW(SelName,strSrcFullName);
+      ConvertNameToFull(SelName,strSrcFullName);
 
-    ConvertNameToFullW(Dest,strDestFullName);
+    ConvertNameToFull(Dest,strDestFullName);
 
     if(strDestFullName.At(strDestFullName.GetLength()-1) == L'\\')
     {
@@ -4309,13 +4308,13 @@ int ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
 
   DWORD FileSystemFlagsDst;
 
-  ConvertNameToFullW(Dest, strRoot);
+  ConvertNameToFull(Dest, strRoot);
 
   GetPathRoot(strRoot,strRoot);
 
   if(GetFileAttributesW(strRoot) == -1) // Ќеудача, когда сетевой путь, да еще и симлинк
   { // ... в этом случае проверим AS IS
-    ConvertNameToFullW(Dest,strRoot);
+    ConvertNameToFull(Dest,strRoot);
     GetPathRootOne(strRoot,strRoot);
     if(GetFileAttributesW(strRoot) == -1)
       return FALSE;

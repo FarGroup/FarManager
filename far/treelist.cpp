@@ -883,7 +883,7 @@ int TreeList::ProcessKey(int Key)
       if (SetCurPath())
       {
         int ToPlugin=0;
-        ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL, TRUE); //UNICODE!!!
+        ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL);
       }
       return(TRUE);
     }
@@ -907,7 +907,7 @@ int TreeList::ProcessKey(int Key)
           return TRUE;
 
         {
-          ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL, TRUE); //UNICODE!!!
+          ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL);
         }
 
         if (ToPlugin==1)
@@ -1426,7 +1426,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
   {
     CmpNameSearchMode=(I==CurFile);
 
-    if (CmpNameW(strMask,ListData[I]->strName,TRUE))
+    if (CmpName(strMask,ListData[I]->strName,TRUE))
     {
       CmpNameSearchMode=FALSE;
       CurFile=I;
@@ -1443,7 +1443,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
       I+=Direct
      )
   {
-    if (CmpNameW(strMask,ListData[I]->strName,TRUE))
+    if (CmpName(strMask,ListData[I]->strName,TRUE))
     {
       CurFile=I;
       CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1510,7 +1510,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
   string strFullName;
 
-  ConvertNameToFullW(Name, strFullName);
+  ConvertNameToFull(Name, strFullName);
 
   Name = strFullName;
 
@@ -1547,7 +1547,7 @@ void TreeList::DelTreeName(const wchar_t *Name)
   int Length,DirLength;
   if (*Name==0)
     return;
-  ConvertNameToFullW(Name,strFullName);
+  ConvertNameToFull(Name,strFullName);
   Name=strFullName;
 
   GetPathRoot(Name, strRoot);
@@ -1625,7 +1625,7 @@ void TreeList::ReadSubTree(const wchar_t *Path)
   if ((FileAttr=GetFileAttributesW(Path))==-1 || (FileAttr & FA_DIREC)==0)
     return;
 
-  ConvertNameToFullW(Path, strDirName);
+  ConvertNameToFull(Path, strDirName);
 
   AddTreeName(strDirName);
 
@@ -1799,7 +1799,7 @@ int TreeList::FindNext(int StartPos, const wchar_t *Name)
     {
       CurPtr=ListData[I];
       const wchar_t *CurPtrName=CurPtr->strName;
-      if (CmpNameW(Name,CurPtrName,TRUE))
+      if (CmpName(Name,CurPtrName,TRUE))
         if (!TestParentFolderName(CurPtrName))
           return I;
     }

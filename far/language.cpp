@@ -59,7 +59,7 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   while ( ReadString (LangFile, ReadStr, sizeof (ReadStr)/sizeof (wchar_t), nCodePage) !=NULL )
   {
     string strDestStr;
-    RemoveExternalSpacesW(ReadStr);
+    RemoveExternalSpaces(ReadStr);
     if ( *ReadStr != L'\"')
       continue;
     int SrcLength=(int)wcslen (ReadStr);
@@ -242,7 +242,7 @@ BOOL Language::CheckMsgId(int MsgId)
   return TRUE;
 }
 
-wchar_t* Language::GetMsgW (int nID)
+wchar_t* Language::GetMsg (int nID)
 {
   if( !CheckMsgId (nID) )
     return L"";
@@ -337,14 +337,14 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
           if (strParam2)
           {
             *strParam2 = EndPtr+1;
-            RemoveTrailingSpacesW(*strParam2);
+            RemoveTrailingSpaces(*strParam2);
           }
           *EndPtr=0;
         }
 
         strParam1->ReleaseBuffer();
 
-        RemoveTrailingSpacesW(*strParam1);
+        RemoveTrailingSpaces(*strParam1);
         Found = TRUE;
         break;
       }
@@ -453,7 +453,7 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
   {
     if (!LocalStrnicmpW(ReadStr,L".Options",Length))
     {
-      strFullParamName = RemoveExternalSpacesW(ReadStr+Length);
+      strFullParamName = RemoveExternalSpaces(ReadStr+Length);
 
       Ptr = strFullParamName.GetBuffer ();
 
@@ -466,11 +466,11 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
 
       *Ptr++=0;
 
-      strValue = RemoveExternalSpacesW(Ptr);
+      strValue = RemoveExternalSpaces(Ptr);
 
       strFullParamName.ReleaseBuffer ();
 
-      RemoveExternalSpacesW (strFullParamName);
+      RemoveExternalSpaces (strFullParamName);
 
       if (!LocalStricmpW(strFullParamName,KeyName))
         return(TRUE);

@@ -24,7 +24,7 @@ BOOL WINAPI FAR_DeleteFileW(const wchar_t *FileName)
       string strFullName;
       //char FullName[NM*2]="\\\\?\\";
 
-      ConvertNameToFullW (FileName, strFullName);
+      ConvertNameToFull (FileName, strFullName);
 
       strFullName = L"\\\\?\\"+strFullName;
 

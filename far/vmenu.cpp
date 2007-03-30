@@ -572,7 +572,7 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=(char)Item[I]->Flags&0x0000FFFF;
 
-        if(HiStrlenW(_MItemPtr,TRUE) > X2-X1-3)
+        if(HiStrlen(_MItemPtr,TRUE) > X2-X1-3)
           swprintf(TmpStrW,L"%c %.*s",Check,X2-X1-3,(const wchar_t*)_MItemPtr);
         else
           swprintf(TmpStrW,L"%c %s",Check,(const wchar_t*)_MItemPtr);
@@ -843,7 +843,7 @@ int VMenu::ProcessKey(int Key)
       int _OWidth=X2-X1-3;
 
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-        _len=HiStrlenW(Item[SelectPos]->strName,TRUE);
+        _len=HiStrlen(Item[SelectPos]->strName,TRUE);
       else
         _len=(int)Item[SelectPos]->strName.GetLength();
 
@@ -1284,7 +1284,7 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
     Length=(int)Item[PosAdd]->strName.GetLength();
   else
-    Length=HiStrlenW(Item[PosAdd]->strName,TRUE);
+    Length=HiStrlen(Item[PosAdd]->strName,TRUE);
 
   if (Length>MaxLength)
     MaxLength=Length;
@@ -2120,8 +2120,8 @@ static int __cdecl  SortItem(const MenuItemEx **el1,
 
   strName1 = (*el1)->strName;
   strName2 = (*el2)->strName;
-  RemoveCharW (strName1,L'&',TRUE);
-  RemoveCharW (strName2,L'&',TRUE);
+  RemoveChar (strName1,L'&',TRUE);
+  RemoveChar (strName2,L'&',TRUE);
   int Res=LocalStricmpW((const wchar_t*)strName1+Param->Offset,(const wchar_t*)strName2+Param->Offset);
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
@@ -2199,7 +2199,7 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
       strTmpBuf = Item[I]->strName;
       int LenNamePtr = (int)strTmpBuf.GetLength();
 
-      RemoveCharW (strTmpBuf, L'&');
+      RemoveChar (strTmpBuf, L'&');
 
       if(Flags&LIFIND_EXACTMATCH)
       {
@@ -2208,7 +2208,7 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
       }
       else
       {
-        if(CmpNameW(Pattern,strTmpBuf,1))
+        if(CmpName(Pattern,strTmpBuf,1))
           return I;
       }
     }

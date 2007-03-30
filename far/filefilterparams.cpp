@@ -608,7 +608,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         if (Param1==ID_FF_CURRENT)
         {
           GetSystemTimeAsFileTime(&ft);
-          ConvertDateW(ft,strDate,strTime,8,FALSE,FALSE,TRUE);
+          ConvertDate(ft,strDate,strTime,8,FALSE,FALSE,TRUE);
         }
         else
           strDate=strTime=L"";
@@ -974,8 +974,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   FilterDlg[ID_FF_DATETYPE].ListItems=&DateList;
   TableItemDate[DateType].Flags=LIF_SELECTED;
 
-  ConvertDateW(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,8,FALSE,FALSE,TRUE);
-  ConvertDateW(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,8,FALSE,FALSE,TRUE);
+  ConvertDate(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,8,FALSE,FALSE,TRUE);
+  ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,8,FALSE,FALSE,TRUE);
 
   if (!FilterDlg[ID_FF_MATCHDATE].Selected)
     for(int i=ID_FF_DATETYPE; i <= ID_FF_BLANK; i++)
@@ -1062,14 +1062,14 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       FF->SetMask(FilterDlg[ID_FF_MATCHMASK].Selected,
                   FilterDlg[ID_FF_MASKEDIT].strData);
 
-      RemoveExternalSpacesW(FilterDlg[ID_FF_SIZEFROMEDIT].strData);
+      RemoveExternalSpaces(FilterDlg[ID_FF_SIZEFROMEDIT].strData);
 
       if( FilterDlg[ID_FF_SIZEFROMEDIT].strData.IsEmpty() )
         SizeAbove=_i64(-1);
       else
         SizeAbove=_wtoi64(FilterDlg[ID_FF_SIZEFROMEDIT].strData);
 
-      RemoveExternalSpacesW(FilterDlg[ID_FF_SIZETOEDIT].strData);
+      RemoveExternalSpaces(FilterDlg[ID_FF_SIZETOEDIT].strData);
 
       if ( FilterDlg[ID_FF_SIZETOEDIT].strData.IsEmpty() )
         SizeBelow=_i64(-1);

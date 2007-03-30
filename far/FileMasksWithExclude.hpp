@@ -13,23 +13,23 @@ FileMasksWithExclude.hpp
 class FileMasksWithExclude:public BaseFileMask
 {
 private:
-    void Free();
+	void Free();
 
 public:
-    FileMasksWithExclude();
-    virtual ~FileMasksWithExclude() {}
+	FileMasksWithExclude();
+	virtual ~FileMasksWithExclude() {}
 
 public:
-    virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-    virtual BOOL Compare(const wchar_t *Name);
-    virtual BOOL IsEmpty(void);
+	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
+	virtual BOOL Compare(const wchar_t *Name);
+	virtual BOOL IsEmpty(void);
 
 private:
-    FileMasksProcessor Include, Exclude;
+	FileMasksProcessor Include, Exclude;
 
 private:
-  FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
-  FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
+	FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
+	FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
 };
 
 #endif // __FileMasksWithExclude_HPP

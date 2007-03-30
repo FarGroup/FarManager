@@ -116,28 +116,18 @@ struct PreRedrawParamStruct PreRedrawParam={0};
 
 int WidthNameForMessage=0;
 
-const char DOS_EOL_fmt[]  ="\r\n",
-           UNIX_EOL_fmt[] ="\n",
-           MAC_EOL_fmt[]  ="\r";
-
-const wchar_t DOS_EOL_fmtW[]  =L"\r\n",
-           UNIX_EOL_fmtW[] =L"\n",
-           MAC_EOL_fmtW[]  =L"\r";
-
+const wchar_t DOS_EOL_fmt[]  = L"\r\n",
+              UNIX_EOL_fmt[] = L"\n",
+              MAC_EOL_fmt[]  = L"\r";
 
 BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;
 
-const char *FarTitleAddons=" - Far";
-const wchar_t *FarTitleAddonsW=L" - Far";
+const wchar_t *FarTitleAddons=L" - Far";
 
-const char FAR_VerticalBlock[]= "FAR_VerticalBlock";
-const wchar_t FAR_VerticalBlockW[]= L"FAR_VerticalBlock";
+const wchar_t FAR_VerticalBlock[]= L"FAR_VerticalBlock";
 
 int InGrabber=FALSE;
-
-const char *PluginsFolderName="Plugins";
-const wchar_t *PluginsFolderNameW=L"Plugins";
 
 const wchar_t *HelpFileMask=L"*.hlf";
 const wchar_t *HelpFormatLinkModule=L"<%s>%s";
@@ -169,8 +159,7 @@ WCHAR BoxSymbols[64];
 
 int _localLastError=0;
 
-const char *ReservedFilenameSymbols="<>|";
-const wchar_t *ReservedFilenameSymbolsW=L"<>|";
+const wchar_t *ReservedFilenameSymbols=L"<>|";
 
 int KeepUserScreen;
 string g_strDirToSet;

@@ -961,7 +961,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
     case DI_MEMOEDIT:
       break;
     default:
-      Len=((ItemFlags & DIF_SHOWAMPERSAND)?(int)CurItem->strData.GetLength():HiStrlenW(CurItem->strData));
+      Len=((ItemFlags & DIF_SHOWAMPERSAND)?(int)CurItem->strData.GetLength():HiStrlen(CurItem->strData));
       break;
   }
 
@@ -1981,7 +1981,7 @@ int Dialog::LenStrItem(int ID, const wchar_t *lpwszStr)
   if ( !lpwszStr )
       lpwszStr = Item[ID]->strData;
 
-  return (Item[ID]->Flags & DIF_SHOWAMPERSAND)?(int)wcslen(lpwszStr):HiStrlenW(lpwszStr);
+  return (Item[ID]->Flags & DIF_SHOWAMPERSAND)?(int)wcslen(lpwszStr):HiStrlen(lpwszStr);
 }
 
 
@@ -3172,7 +3172,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           /* ********************************************************** */
           if (Type==DI_BUTTON &&
               MsY==Y1+Item[I]->Y1 &&
-              MsX < X1+Item[I]->X1+HiStrlenW(Item[I]->strData))
+              MsX < X1+Item[I]->X1+HiStrlen(Item[I]->strData))
           {
             if(!(Item[I]->Flags&DIF_NOFOCUS))
             {
@@ -3187,7 +3187,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             while (IsMouseButtonPressed())
               ;
             if (MouseX <  X1 ||
-                MouseX >  X1+Item[I]->X1+HiStrlenW(Item[I]->strData)+4 ||
+                MouseX >  X1+Item[I]->X1+HiStrlen(Item[I]->strData)+4 ||
                 MouseY != Y1+Item[I]->Y1)
             {
               if(!(Item[I]->Flags&DIF_NOFOCUS))
@@ -3205,7 +3205,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           if ((Type == DI_CHECKBOX ||
                Type == DI_RADIOBUTTON) &&
               MsY==Y1+Item[I]->Y1 &&
-              MsX < (X1+Item[I]->X1+HiStrlenW(Item[I]->strData)+4-((Item[I]->Flags & DIF_MOVESELECT)!=0)))
+              MsX < (X1+Item[I]->X1+HiStrlen(Item[I]->strData)+4-((Item[I]->Flags & DIF_MOVESELECT)!=0)))
           {
             if(!(Item[I]->Flags&DIF_NOFOCUS))
               ChangeFocus2(FocusPos,I);
@@ -3804,7 +3804,7 @@ void Dialog::ConvertItemEx (
       Data->Flags = Item->Flags;
       Data->DefaultButton = Item->DefaultButton;
 
-      Data->strData = NullToEmptyW (Item->PtrData);
+      Data->strData = NullToEmpty (Item->PtrData);
       Data->nMaxLength = Item->PtrLength;
 	  Data->ListItems = Item->Param.ListItems;
 

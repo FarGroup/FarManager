@@ -1143,7 +1143,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
             apiExpandEnvironmentStrings (strSaveAsName, strSaveAsName);
 
-            RemoveTrailingSpacesW(strSaveAsName);
+            RemoveTrailingSpaces(strSaveAsName);
             Unquote(strSaveAsName);
 
             NameChanged=LocalStricmpW(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
@@ -1163,7 +1163,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
             }
 
-            ConvertNameToFullW (strSaveAsName, strFullSaveAsName); //BUGBUG, не проверяем имя на правильность
+            ConvertNameToFull (strSaveAsName, strFullSaveAsName); //BUGBUG, не проверяем имя на правильность
 
             //это не про нас, про нас ниже, все куда страшнее
 
@@ -1713,13 +1713,13 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
   switch(TextFormat)
   {
     case 1:
-      wcscpy(m_editor->GlobalEOL,DOS_EOL_fmtW);
+      wcscpy(m_editor->GlobalEOL,DOS_EOL_fmt);
       break;
     case 2:
-      wcscpy(m_editor->GlobalEOL,UNIX_EOL_fmtW);
+      wcscpy(m_editor->GlobalEOL,UNIX_EOL_fmt);
       break;
     case 3:
-      wcscpy(m_editor->GlobalEOL,MAC_EOL_fmtW);
+      wcscpy(m_editor->GlobalEOL,MAC_EOL_fmt);
       break;
   }
 
@@ -1833,15 +1833,15 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       int Length;
       CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
       if (*EndSeq==0 && CurPtr->m_next!=NULL)
-        EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmtW;
+        EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmt;
       if (TextFormat!=0 && *EndSeq!=0)
       {
         if (TextFormat==1)
-          EndSeq=DOS_EOL_fmtW;
+          EndSeq=DOS_EOL_fmt;
         else if (TextFormat==2)
-          EndSeq=UNIX_EOL_fmtW;
+          EndSeq=UNIX_EOL_fmt;
         else
-          EndSeq=MAC_EOL_fmtW;
+          EndSeq=MAC_EOL_fmt;
         CurPtr->SetEOL(EndSeq);
       }
 
@@ -2072,10 +2072,10 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 
   if( wcscmp (strFileName,UMSG(MNewFileName)))
   {
-    if ( wcspbrk (strFileName, ReservedFilenameSymbolsW) )
+    if ( wcspbrk (strFileName, ReservedFilenameSymbols) )
         return FALSE;
 
-    ConvertNameToFullW (strFileName, strFullFileName);
+    ConvertNameToFull (strFileName, strFullFileName);
 
     //Дабы избежать бардака, развернём слэшики...
 
@@ -2104,7 +2104,7 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 
 void FileEditor::SetTitle(const wchar_t *Title)
 {
-	strTitle = NullToEmptyW(Title);
+	strTitle = NullToEmpty(Title);
 }
 
 void FileEditor::ChangeEditKeyBar()
@@ -2260,7 +2260,7 @@ BOOL FileEditor::UpdateFileList()
 
 void FileEditor::SetPluginData(const wchar_t *PluginData)
 {
-  FileEditor::strPluginData = NullToEmptyW(PluginData);
+  FileEditor::strPluginData = NullToEmpty(PluginData);
 }
 
 /* $ 14.06.2002 IS
@@ -2362,7 +2362,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 		case ECTL_SETTITLE:
 		{
-			strPluginTitle = NullToEmptyW((const wchar_t*)Param);
+			strPluginTitle = NullToEmpty((const wchar_t*)Param);
 
 			ShowStatus();
 			ScrBuf.Flush(); //???
@@ -2471,11 +2471,11 @@ int FileEditor::EditorControl(int Command, void *Param)
           strName=esf->FileName;
         if (esf->FileEOL!=NULL)
         {
-          if (wcscmp(esf->FileEOL,DOS_EOL_fmtW)==0)
+          if (wcscmp(esf->FileEOL,DOS_EOL_fmt)==0)
             EOL=1;
-          if (wcscmp(esf->FileEOL,UNIX_EOL_fmtW)==0)
+          if (wcscmp(esf->FileEOL,UNIX_EOL_fmt)==0)
             EOL=2;
-          if (wcscmp(esf->FileEOL,MAC_EOL_fmtW)==0)
+          if (wcscmp(esf->FileEOL,MAC_EOL_fmt)==0)
             EOL=3;
         }
       }

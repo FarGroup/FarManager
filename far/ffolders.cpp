@@ -53,7 +53,7 @@ static int ProcessShortcutRecord(int Command,int ValType,int RecNumber, string *
   if(Command == PSCR_CMDGET)
     GetRegKey(FolderShortcuts,strValueName,*pValue,L"");
   else if(Command == PSCR_CMDSET)
-    SetRegKey(FolderShortcuts,strValueName,NullToEmptyW(*pValue));
+    SetRegKey(FolderShortcuts,strValueName,NullToEmpty(*pValue));
   else if(Command == PSCR_CMDDELALL)
   {
     for(int I=0; I < sizeof(RecTypeName)/sizeof(RecTypeName[0]); ++I)
@@ -231,7 +231,7 @@ static int ShowFolderShortcutMenu(int Pos)
           {
             Unquote(strNewDir);
             if(!(strNewDir.At(1) == L':' && strNewDir.At(2) == L'\\' && strNewDir.At(3) == 0))
-              DeleteEndSlashW(strNewDir);
+              DeleteEndSlash(strNewDir);
             BOOL Saved=TRUE;
             apiExpandEnvironmentStrings(strNewDir,strOldNewDir);
             if(GetFileAttributesW(strOldNewDir) == -1)

@@ -317,7 +317,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   TableChangedByUser=FALSE;
   ViewFile=NewViewFile;
 
-  ConvertNameToFullW (strFileName,strFullFileName);
+  ConvertNameToFull (strFileName,strFullFileName);
 
   apiGetFindDataEx (strFileName, &ViewFindData);
 
@@ -959,7 +959,7 @@ void Viewer::ShowStatus()
   else if (VM.UseDecodeTable)
   {
     strTmpTableName.SetData (TableSet.TableName, CP_OEMCP);
-    strTableName=RemoveCharW(strTmpTableName,L'&',TRUE);
+    strTableName=RemoveChar(strTmpTableName,L'&',TRUE);
   }
   else if (VM.AnsiMode)
     strTableName=L"Win";
@@ -1043,7 +1043,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.WordWrap && RegVer) // только для зарегестрированных
           {
-            if ( !IsSpaceW(Ch) && !IsSpaceW(pString->lpData[(int)OutPtr]))
+            if ( !IsSpace(Ch) && !IsSpace(pString->lpData[(int)OutPtr]))
             {
                __int64 SavePtr=OutPtr;
                /* $ 18.07.2000 tran
@@ -1051,7 +1051,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
                while (OutPtr)
                {
                   Ch2=pString->lpData[(int)OutPtr];
-                  if(IsSpaceW(Ch2) || Ch2==L',' || Ch2==L';' || Ch2==L'>'|| Ch2==L')')
+                  if(IsSpace(Ch2) || Ch2==L',' || Ch2==L';' || Ch2==L'>'|| Ch2==L')')
                     break;
                   OutPtr--;
                }
@@ -1060,7 +1060,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
                if (Ch2==L',' || Ch2==L';' || Ch2==L')' || Ch2==L'>')
                    OutPtr++;
                else
-                   while (IsSpaceW(pString->lpData[(int)OutPtr]) && OutPtr<=SavePtr)
+                   while (IsSpace(pString->lpData[(int)OutPtr]) && OutPtr<=SavePtr)
                       OutPtr++;
 
                if (OutPtr)
@@ -1075,7 +1075,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
             /* $ 13.09.2000 tran
                remove space at WWrap */
             __int64 savepos=vtell(ViewFile);
-            while (IsSpaceW(Ch))
+            while (IsSpace(Ch))
                 Ch=vgetc(ViewFile);
             if ( vtell(ViewFile)!=savepos)
                 vseek(ViewFile,-1,SEEK_CUR);
@@ -2388,7 +2388,7 @@ void Viewer::Search(int Next,int FirstChar)
   if(SearchHex)
   {
     strSearchStr = SearchDlg[3].strData;
-    RemoveTrailingSpacesW(strSearchStr);
+    RemoveTrailingSpaces(strSearchStr);
   }
   else
     strSearchStr = SearchDlg[2].strData;
@@ -2543,7 +2543,7 @@ void Viewer::Search(int Next,int FirstChar)
           {
             if (I!=0)
             {
-              if (IsSpaceW(Buf[I-1]) || IsEolW(Buf[I-1]) ||
+              if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) ||
                  (wcschr(Opt.strWordDiv,Buf[I-1])!=NULL))
                 locResultLeft=TRUE;
             }
@@ -2556,7 +2556,7 @@ void Viewer::Search(int Next,int FirstChar)
               locResultRight=TRUE;
             else
               if (I+SearchLength<ReadSize &&
-                 (IsSpaceW(Buf[I+SearchLength]) || IsEolW(Buf[I+SearchLength]) ||
+                 (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]) ||
                  (wcschr(Opt.strWordDiv,Buf[I+SearchLength])!=NULL)))
                 locResultRight=TRUE;
           }
@@ -2655,10 +2655,10 @@ void Viewer::Search(int Next,int FirstChar)
   SrcPtr=SearchStr;
   while (*SrcPtr)
   {
-    while (IsSpace(*SrcPtr))
+    while (IsSpaceA(*SrcPtr))
       SrcPtr++;
     if (SrcPtr[0])
-      if (SrcPtr[1]==0 || IsSpace(SrcPtr[1]))
+      if (SrcPtr[1]==0 || IsSpaceA(SrcPtr[1]))
       {
         N=HexToNum(SrcPtr[0]);
         SrcPtr++;
@@ -2737,7 +2737,7 @@ void Viewer::ShowConsoleTitle()
 void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
 {
   if(Name && *Name)
-    ConvertNameToFullW(Name,strTempViewName);
+    ConvertNameToFull(Name,strTempViewName);
   else
   {
     strTempViewName = L"";
@@ -2766,7 +2766,7 @@ void Viewer::SetFilePos(__int64 Pos)
 
 void Viewer::SetPluginData(const wchar_t *PluginData)
 {
-  Viewer::strPluginData = NullToEmptyW(PluginData);
+  Viewer::strPluginData = NullToEmpty(PluginData);
 }
 
 

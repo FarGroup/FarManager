@@ -16,7 +16,7 @@ XLat - перекодировка
   XLat-перекодировка!
   Ќа основе плагина EditSwap by SVS :-)))
 */
-char* WINAPI Xlat(
+char* WINAPI XlatA(
    char *Line,                    // исходна€ строка
    int StartPos,                  // начало переконвертировани€
    int EndPos,                    // конец переконвертировани€
@@ -185,7 +185,7 @@ char* WINAPI Xlat(
 }
 /* SVS $ */
 
-wchar_t* WINAPI XlatW(wchar_t *Line,
+wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,
                     int EndPos,
                     const struct CharTableSet *TableSet,

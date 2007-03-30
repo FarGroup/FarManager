@@ -34,10 +34,10 @@ inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
-inline int IsSpace(int x) { return x==' ' || x=='\t'; }
-inline int IsSpaceW(int x) { return x==L' ' || x==L'\t'; }
-inline int IsEol(int x)  { return x=='\r' || x=='\n'; }
-inline int IsEolW(int x)  { return x==L'\r' || x==L'\n'; }
+inline int IsSpaceA(int x) { return x==' ' || x=='\t'; }
+inline int IsSpace(int x) { return x==L' ' || x==L'\t'; }
+inline int IsEolA(int x)  { return x=='\r' || x=='\n'; }
+inline int IsEol(int x)  { return x==L'\r' || x==L'\n'; }
 
 #define  FALSE        0
 #define  TRUE         1

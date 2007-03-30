@@ -87,7 +87,7 @@ void FilePositionCache::AddPosition(const wchar_t *Name,void *PosCache)
   if (*Name==L'<')
     strFullName = Name;
   else
-    ConvertNameToFullW(Name,strFullName);
+    ConvertNameToFull(Name,strFullName);
   /* $ 06.04.2001 VVM
     - Неправильное позиционирование в открытых файлах
       Имена копировал до поиска, а не после :) */
@@ -132,7 +132,7 @@ BOOL FilePositionCache::GetPosition(const wchar_t *Name,void *PosCache)
   if (*Name==L'<')
     strFullName = Name;
   else
-    ConvertNameToFullW(Name, strFullName);
+    ConvertNameToFull(Name, strFullName);
 
   int Pos = FindPosition(strFullName);
 

@@ -233,11 +233,11 @@ void InfoList::DisplayObject()
     {
       GotoXY(X1+2,Y1+4);
       PrintText(MInfoDiskTotal);
-      InsertCommasW(TotalSize,strOutStr);
+      InsertCommas(TotalSize,strOutStr);
       PrintInfo(strOutStr);
       GotoXY(X1+2,Y1+5);
       PrintText(MInfoDiskFree);
-      InsertCommasW(UserFree,strOutStr);
+      InsertCommas(UserFree,strOutStr);
       PrintInfo(strOutStr);
     }
 
@@ -263,19 +263,19 @@ void InfoList::DisplayObject()
   PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+10);
   PrintText(MInfoMemoryTotal);
-  InsertCommasW((__int64)ms.ullTotalPhys,strOutStr);
+  InsertCommas((__int64)ms.ullTotalPhys,strOutStr);
   PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+11);
   PrintText(MInfoMemoryFree);
-  InsertCommasW((__int64)ms.ullAvailPhys,strOutStr);
+  InsertCommas((__int64)ms.ullAvailPhys,strOutStr);
   PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+12);
   PrintText(MInfoVirtualTotal);
-  InsertCommasW((__int64)ms.ullTotalPageFile,strOutStr);
+  InsertCommas((__int64)ms.ullTotalPageFile,strOutStr);
   PrintInfo(strOutStr);
   GotoXY(X1+2,Y1+13);
   PrintText(MInfoVirtualFree);
-  InsertCommasW((__int64)ms.ullAvailPageFile,strOutStr);
+  InsertCommas((__int64)ms.ullAvailPageFile,strOutStr);
   PrintInfo(strOutStr);
   ShowDirDescription();
   ShowPluginDescription();
@@ -563,8 +563,8 @@ void InfoList::ShowPluginDescription()
     }
     else
     {
-      PrintText(NullToEmptyW(InfoLine->Text));
-      PrintInfo(NullToEmptyW(InfoLine->Data));
+      PrintText(NullToEmpty(InfoLine->Text));
+      PrintInfo(NullToEmpty(InfoLine->Data));
     }
   }
 }
@@ -668,7 +668,7 @@ int InfoList::GetCurName(string &strName, string &strShortName)
 {
   strName = strDizFileName;
 
-  ConvertNameToShortW(strName, strShortName);
+  ConvertNameToShort(strName, strShortName);
 
   return (TRUE);
 }

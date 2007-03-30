@@ -252,7 +252,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
     if (!ExtractIfExistCommand (strCommand))
       return TRUE;
     /* DJ $ */
-    PreserveLongNameW PreserveName(ShortName,PreserveLFN);
+    PreserveLongName PreserveName(ShortName,PreserveLFN);
     if ( !strCommand.IsEmpty() )
       if ( strCommand.At(0) != L'@')
       {
@@ -304,7 +304,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 /* SVS $ */
 
 
-int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
+int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
   string strValue;
   const wchar_t *ExtPtr;
@@ -421,7 +421,7 @@ int ProcessGlobalFileTypesW(const wchar_t *Name,int AlwaysWaitFinish)
   {
     string strFullName;
 
-    ConvertNameToFullW(Name,strFullName);
+    ConvertNameToFull(Name,strFullName);
 
     QuoteSpace(strFullName);
 
@@ -460,10 +460,10 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
       return;
     /* DJ $ */
 
-    PreserveLongNameW PreserveName(ShortName,PreserveLFN);
+    PreserveLongName PreserveName(ShortName,PreserveLFN);
 
-    ConvertNameToFullW(Name,strFullName);
-    ConvertNameToShortW(strFullName,strFullShortName);
+    ConvertNameToFull(Name,strFullName);
+    ConvertNameToShort(strFullName,strFullShortName);
 
     //BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
     SubstFileName(strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
@@ -746,7 +746,7 @@ int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
     GetRegKey(strRegKey,FTSW.Desc,strDescription,L"");
     int CurWidth;
     if (Name == NULL)
-      CurWidth = HiStrlenW(strDescription);
+      CurWidth = HiStrlen(strDescription);
     else
     {
       if(!FMask.Compare(Name))
@@ -755,7 +755,7 @@ int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
 
       strExpandedDesc = strDescription;
       SubstFileName(strExpandedDesc,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
-      CurWidth = HiStrlenW (strExpandedDesc);
+      CurWidth = HiStrlen (strExpandedDesc);
     }
     if (CurWidth>Width)
       Width=CurWidth;

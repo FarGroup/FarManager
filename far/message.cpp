@@ -95,7 +95,7 @@ int Message(
   string strErrStr;
 
   if (Flags & MSG_ERRORTYPE)
-    ErrorSets = GetErrorStringW (strErrStr);
+    ErrorSets = GetErrorString (strErrStr);
 
   // выделим память под рабочий массив указателей на строки (+запас 16)
   Str=(const wchar_t **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(wchar_t*));
@@ -107,7 +107,7 @@ int Message(
 
   // предварительный обсчет максимального размера.
   for (BtnLength=0,I=0;I<static_cast<DWORD>(Buttons);I++) //??
-    BtnLength+=HiStrlenW(Items[I+StrCount])+2;
+    BtnLength+=HiStrlen(Items[I+StrCount])+2;
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
@@ -417,7 +417,7 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 
 
 
-int GetErrorStringW (string &strErrStr)
+int GetErrorString (string &strErrStr)
 {
   int I;
   static struct TypeErrMsgs{

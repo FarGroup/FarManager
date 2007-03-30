@@ -14,12 +14,12 @@ plugins.hpp
 #include "plugin.hpp"
 #include "plclass.hpp"
 
-extern const wchar_t *FmtPluginsCache_PluginDW;
-extern const wchar_t *FmtPluginsCache_PluginDExportW;
-extern const wchar_t *FmtDiskMenuStringDW;
-extern const wchar_t *FmtDiskMenuNumberDW;
-extern const wchar_t *FmtPluginMenuStringDW;
-extern const wchar_t *FmtPluginConfigStringDW;
+extern const wchar_t *FmtPluginsCache_PluginD;
+extern const wchar_t *FmtPluginsCache_PluginDExport;
+extern const wchar_t *FmtDiskMenuStringD;
+extern const wchar_t *FmtDiskMenuNumberD;
+extern const wchar_t *FmtPluginMenuStringD;
+extern const wchar_t *FmtPluginConfigStringD;
 
 
 class SaveScreen;
