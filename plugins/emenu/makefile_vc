@@ -18,6 +18,7 @@ COMINC = $(COMMON)\ascii
 !else
 COMINC = $(COMMON)\unicode
 CPP_WIDE = /DUNICODE /D_UNICODE
+RC_WIDE = /dUNICODE
 !endif
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
@@ -83,7 +84,7 @@ $(LINK_OBJS)
 <<
 
 $(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp resource.h
-	@rc /I"$(COMINC)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+        @rc /I"$(COMINC)" $(RC_WIDE) /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
 
 $(OBJDIR): $(OUTDIR)
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"

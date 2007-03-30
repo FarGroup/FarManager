@@ -16,7 +16,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", FARCOMPANYNAME
             VALUE "FileDescription", "EMenu Plugin for FAR Manager\000"
+#ifndef UNICODE
             VALUE "FileVersion", "1.71 build 7\0"
+#else
+            VALUE "FileVersion", "1.80 build 7\0"
+#endif
             VALUE "InternalName", "EMenu\0"
             VALUE "LegalCopyright", FARCOPYRIGHT
             VALUE "OriginalFilename", "EMenu.dll\000"
