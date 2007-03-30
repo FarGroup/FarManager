@@ -27,35 +27,35 @@
 #include "BlockExtKey.hpp"
 #include "plclass.hpp"
 
-static const wchar_t *NFMP_PreloadW=L"Preload";
-static const wchar_t *NFMP_SysIDW=L"SysID";
+static const wchar_t *wszReg_Preload=L"Preload";
+static const wchar_t *wszReg_SysID=L"SysID";
 
-static const wchar_t NFMP_OpenPluginW[]=L"OpenPluginW";
-static const wchar_t NFMP_OpenFilePluginW[]=L"OpenFilePluginW";
-static const wchar_t NFMP_SetFindListW[]=L"SetFindListW";
-static const wchar_t NFMP_ProcessEditorInputW[]=L"ProcessEditorInputW";
-static const wchar_t NFMP_ProcessEditorEventW[]=L"ProcessEditorEventW";
-static const wchar_t NFMP_ProcessViewerEventW[]=L"ProcessViewerEventW";
-static const wchar_t NFMP_SetStartupInfoW[]=L"SetStartupInfoW";
-static const wchar_t NFMP_ClosePluginW[]=L"ClosePluginW";
-static const wchar_t NFMP_GetPluginInfoW[]=L"GetPluginInfoW";
-static const wchar_t NFMP_GetOpenPluginInfoW[]=L"GetOpenPluginInfoW";
-static const wchar_t NFMP_GetFindDataW[]=L"GetFindDataW";
-static const wchar_t NFMP_FreeFindDataW[]=L"FreeFindDataW";
-static const wchar_t NFMP_GetVirtualFindDataW[]=L"GetVirtualFindDataW";
-static const wchar_t NFMP_FreeVirtualFindDataW[]=L"FreeVirtualFindDataW";
-static const wchar_t NFMP_SetDirectoryW[]=L"SetDirectoryW";
-static const wchar_t NFMP_GetFilesW[]=L"GetFilesW";
-static const wchar_t NFMP_PutFilesW[]=L"PutFilesW";
-static const wchar_t NFMP_DeleteFilesW[]=L"DeleteFilesW";
-static const wchar_t NFMP_MakeDirectoryW[]=L"MakeDirectoryW";
-static const wchar_t NFMP_ProcessHostFileW[]=L"ProcessHostFileW";
-static const wchar_t NFMP_ConfigureW[]=L"ConfigureW";
-static const wchar_t NFMP_ExitFARW[]=L"ExitFARW";
-static const wchar_t NFMP_ProcessKeyW[]=L"ProcessKeyW";
-static const wchar_t NFMP_ProcessEventW[]=L"ProcessEventW";
-static const wchar_t NFMP_CompareW[]=L"CompareW";
-static const wchar_t NFMP_GetMinFarVersionW[]=L"GetMinFarVersionW";
+static const wchar_t wszReg_OpenPlugin[]=L"OpenPluginW";
+static const wchar_t wszReg_OpenFilePlugin[]=L"OpenFilePluginW";
+static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
+static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
+static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
+static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEventW";
+static const wchar_t wszReg_SetStartupInfo[]=L"SetStartupInfoW";
+static const wchar_t wszReg_ClosePlugin[]=L"ClosePluginW";
+static const wchar_t wszReg_GetPluginInfo[]=L"GetPluginInfoW";
+static const wchar_t wszReg_GetOpenPluginInfo[]=L"GetOpenPluginInfoW";
+static const wchar_t wszReg_GetFindData[]=L"GetFindDataW";
+static const wchar_t wszReg_FreeFindData[]=L"FreeFindDataW";
+static const wchar_t wszReg_GetVirtualFindData[]=L"GetVirtualFindDataW";
+static const wchar_t wszReg_FreeVirtualFindData[]=L"FreeVirtualFindDataW";
+static const wchar_t wszReg_SetDirectory[]=L"SetDirectoryW";
+static const wchar_t wszReg_GetFiles[]=L"GetFilesW";
+static const wchar_t wszReg_PutFiles[]=L"PutFilesW";
+static const wchar_t wszReg_DeleteFiles[]=L"DeleteFilesW";
+static const wchar_t wszReg_MakeDirectory[]=L"MakeDirectoryW";
+static const wchar_t wszReg_ProcessHostFile[]=L"ProcessHostFileW";
+static const wchar_t wszReg_Configure[]=L"ConfigureW";
+static const wchar_t wszReg_ExitFAR[]=L"ExitFARW";
+static const wchar_t wszReg_ProcessKey[]=L"ProcessKeyW";
+static const wchar_t wszReg_ProcessEvent[]=L"ProcessEventW";
+static const wchar_t wszReg_Compare[]=L"CompareW";
+static const wchar_t wszReg_GetMinFarVersion[]=L"GetMinFarVersionW";
 
 
 static const char NFMP_OpenPlugin[]="OpenPluginW";
@@ -170,19 +170,19 @@ int Plugin::LoadFromCache ()
 	{
 		strRegKey.Format (FmtPluginsCache_PluginD, cp);
 
-		if ( GetRegKey(strRegKey,NFMP_PreloadW,0) == 1 ) //PF_PRELOAD plugin, skip cache
+		if ( GetRegKey(strRegKey,wszReg_Preload,0) == 1 ) //PF_PRELOAD plugin, skip cache
 			return Load ();
 
 		strRegKey.Format (FmtPluginsCache_PluginDExport,CachePos);
-		SysID=GetRegKey(strRegKey,NFMP_SysIDW,0);
+		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
 
-		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,NFMP_OpenPluginW,0);
-		pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)(INT_PTR)GetRegKey(strRegKey,NFMP_OpenFilePluginW,0);
-		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,NFMP_SetFindListW,0);
-		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)(INT_PTR)GetRegKey(strRegKey,NFMP_ProcessEditorInputW,0);
-		pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)(INT_PTR)GetRegKey(strRegKey,NFMP_ProcessEditorEventW,0);
-		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)(INT_PTR)GetRegKey(strRegKey,NFMP_ProcessViewerEventW,0);
-		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,NFMP_ConfigureW,0);
+		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
+		pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenFilePlugin,0);
+		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
+		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorInput,0);
+		pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorEvent,0);
+		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessViewerEvent,0);
+		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
 
 		CachePos = cp;
 
@@ -237,7 +237,7 @@ int Plugin::SaveToCache()
 
 				bool bPreload = (Info.Flags & PF_PRELOAD);
 
-				SetRegKey(strRegKey, NFMP_PreloadW, bPreload?1:0);
+				SetRegKey(strRegKey, wszReg_Preload, bPreload?1:0);
 				WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
 				if ( bPreload )
@@ -279,14 +279,14 @@ int Plugin::SaveToCache()
 
 				strRegKey.Format (FmtPluginsCache_PluginDExport, j);
 
-				SetRegKey(strRegKey, NFMP_SysIDW, SysID);
-				SetRegKey(strRegKey, NFMP_OpenPluginW, pOpenPluginW!=NULL);
-				SetRegKey(strRegKey, NFMP_OpenFilePluginW, pOpenFilePluginW!=NULL);
-				SetRegKey(strRegKey, NFMP_SetFindListW, pSetFindListW!=NULL);
-				SetRegKey(strRegKey, NFMP_ProcessEditorInputW, pProcessEditorInputW!=NULL);
-				SetRegKey(strRegKey, NFMP_ProcessEditorEventW, pProcessEditorEventW!=NULL);
-				SetRegKey(strRegKey, NFMP_ProcessViewerEventW, pProcessViewerEventW!=NULL);
-				SetRegKey(strRegKey, NFMP_ConfigureW, pConfigureW!=NULL);
+				SetRegKey(strRegKey, wszReg_SysID, SysID);
+				SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPluginW!=NULL);
+				SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePluginW!=NULL);
+				SetRegKey(strRegKey, wszReg_SetFindList, pSetFindListW!=NULL);
+				SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInputW!=NULL);
+				SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEventW!=NULL);
+				SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEventW!=NULL);
+				SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=NULL);
 
 				break;
 			}
