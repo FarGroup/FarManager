@@ -588,8 +588,12 @@ void Manager::ExitMainLoop(int Ask)
    */
    if(ExitAll())
    {
+   //TODO: при закрытии по x нужно делать форсированный выход. Иначе могут быть
+   //      глюки, например, при перезагрузке
    /* IS $ */
-     if (!CtrlObject->Cp()->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !CtrlObject->Cp()->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+     FilePanels *cp;
+     if ( (cp = CtrlObject->Cp()) == NULL
+        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL)) )
        EndLoop=TRUE;
    } else {
      CloseFARMenu=FALSE;
