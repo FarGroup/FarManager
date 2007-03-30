@@ -37,7 +37,6 @@ NODEFAULTLIB=
 CPP=cl.exe
 RSC=rc.exe
 LINK32=link.exe
-BSC32=bscmake.exe
 ULINK=ulink.exe
 
 # Пути
@@ -206,10 +205,6 @@ CPP_ADD_32=/GS- /GR-
 !endif
 
 LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib
-
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
-
-BSC32_SBRS= \
 
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
 
