@@ -142,17 +142,24 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
         *(ChPtr+1)=0;
-      if(Opt.FolderDeepScan && Flags.Check(FSCANTREE_USEDALTFOLDERNAME))
-        strcat(FindPath,GetFileAttributes(fdata->cFileName)==(DWORD)-1 && *fdata->cAlternateFileName?fdata->cAlternateFileName:fdata->cFileName);
-      else
-        strcat(FindPath,fdata->cFileName);
+      // предвычисление длины строки - прямое использование xstrncpy может приводить
+      // к "странным" результатам, а без проверки происходило переполнение при
+      // слишком длинных именах (поученных через subst).
+      const char *pm = fdata->cFileName;
+      if(   Opt.FolderDeepScan
+         && Flags.Check(FSCANTREE_USEDALTFOLDERNAME)
+         && GetFileAttributes(pm)==(DWORD)-1
+         && *fdata->cAlternateFileName) pm = fdata->cAlternateFileName;
+      if(strlen(FindPath)+strlen(pm)+1+strlen(FindMask)>=NM) {
+        _SVS(SysLog("2! FullName EXCEED(%s%s\\%s)",FindPath,pm,FindMask));
+        return FALSE;
+      }
+      strcat(FindPath,pm);
       strcpy(FullName,FindPath);
       strcat(FindPath,"\\");
       strcat(FindPath,FindMask);
 
       _SVS(SysLog("2. FullName='%s'",FullName));
-      if (strlen(FindPath)>NM)
-        return(FALSE);
 
       Data[++FindHandleCount].FindHandle=0;
       Data[FindHandleCount].Flags=Data[FindHandleCount-1].Flags; // наследуем флаг
