@@ -618,6 +618,15 @@ static int GetDirList(PanelInfo *PInfo, const TCHAR *Dir)
   HANDLE hFind;
   struct PluginPanelItem **pPanelItem = &PInfo->PanelItems;
   int *pItemsNumber = &PInfo->ItemsNumber;
+  {
+    size_t dirLen = lstrlen(Dir);
+    if(   dirLen > sizeof(cPathMask)/sizeof(cPathMask[0]) - sizeof("\\*")
+#ifndef UNICODE
+       || dirLen >= NM
+#endif
+      )
+      return FALSE;
+  }
 #ifndef UNICODE
   lstrcpy(PInfo->CurDir, Dir);
 #else
