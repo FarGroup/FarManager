@@ -68,8 +68,8 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
     _stack.args[1] = (DWORD_PTR)xp;
     _stack.args[2] = (DWORD_PTR)Module;
     _stack.args[3] = Flags;
-    xp->ContextRecord->Esp = (DWORD_PTR)(&_stack.ret_addr);
-    xp->ContextRecord->Eip = (DWORD_PTR)(&_xfilter);
+    xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
+    xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
 #else
     xp->ContextRecord->Rcx = (DWORD_PTR)From;
     xp->ContextRecord->Rdx = (DWORD_PTR)xp;
@@ -143,39 +143,39 @@ static DWORD WINAPI _xfilter(
              PlugRec.TypeRec=RTYPE_PLUGIN;
              PlugRec.SizeRec=sizeof(struct PLUGINRECORD);
 
-             memcpy(&PlugRec.FindData,&Module->FindData,sizeof(PlugRec.FindData));
-             PlugRec.SysID=Module->SysID;
-             PlugRec.WorkFlags=Module->WorkFlags.Flags;
-             PlugRec.CallFlags=Module->FuncFlags.Flags;
+             memcpy(&PlugRec.FindData,&Module->GetFindData(),sizeof(PlugRec.FindData)); //major BUGBUG!!!
+             PlugRec.SysID=Module->GetSysID();
+             PlugRec.WorkFlags=Module->GetWorkFlags();
+             PlugRec.CallFlags=Module->GetFuncFlags();
 
              PlugRec.FuncFlags=0;
-             PlugRec.FuncFlags|=Module->pSetStartupInfoW?PICFF_SETSTARTUPINFO:0;
-             PlugRec.FuncFlags|=Module->pOpenPluginW?PICFF_OPENPLUGIN:0;
-             PlugRec.FuncFlags|=Module->pOpenFilePluginW?PICFF_OPENFILEPLUGIN:0;
-             PlugRec.FuncFlags|=Module->pClosePluginW?PICFF_CLOSEPLUGIN:0;
-             PlugRec.FuncFlags|=Module->pGetPluginInfoW?PICFF_GETPLUGININFO:0;
-             PlugRec.FuncFlags|=Module->pGetOpenPluginInfoW?PICFF_GETOPENPLUGININFO:0;
-             PlugRec.FuncFlags|=Module->pGetFindDataW?PICFF_GETFINDDATA:0;
-             PlugRec.FuncFlags|=Module->pFreeFindDataW?PICFF_FREEFINDDATA:0;
-             PlugRec.FuncFlags|=Module->pGetVirtualFindDataW?PICFF_GETVIRTUALFINDDATA:0;
-             PlugRec.FuncFlags|=Module->pFreeVirtualFindDataW?PICFF_FREEVIRTUALFINDDATA:0;
-             PlugRec.FuncFlags|=Module->pSetDirectoryW?PICFF_SETDIRECTORY:0;
-             PlugRec.FuncFlags|=Module->pGetFilesW?PICFF_GETFILES:0;
-             PlugRec.FuncFlags|=Module->pPutFilesW?PICFF_PUTFILES:0;
-             PlugRec.FuncFlags|=Module->pDeleteFilesW?PICFF_DELETEFILES:0;
-             PlugRec.FuncFlags|=Module->pMakeDirectoryW?PICFF_MAKEDIRECTORY:0;
-             PlugRec.FuncFlags|=Module->pProcessHostFileW?PICFF_PROCESSHOSTFILE:0;
-             PlugRec.FuncFlags|=Module->pSetFindListW?PICFF_SETFINDLIST:0;
-             PlugRec.FuncFlags|=Module->pConfigureW?PICFF_CONFIGURE:0;
-             PlugRec.FuncFlags|=Module->pExitFARW?PICFF_EXITFAR:0;
-             PlugRec.FuncFlags|=Module->pProcessKeyW?PICFF_PROCESSKEY:0;
-             PlugRec.FuncFlags|=Module->pProcessEventW?PICFF_PROCESSEVENT:0;
-             PlugRec.FuncFlags|=Module->pProcessEditorEventW?PICFF_PROCESSEDITOREVENT:0;
-             PlugRec.FuncFlags|=Module->pCompareW?PICFF_COMPARE:0;
-             PlugRec.FuncFlags|=Module->pProcessEditorInputW?PICFF_PROCESSEDITORINPUT:0;
-             PlugRec.FuncFlags|=Module->pMinFarVersionW?PICFF_MINFARVERSION:0;
-             PlugRec.FuncFlags|=Module->pProcessViewerEventW?PICFF_PROCESSVIEWEREVENT:0;
-             PlugRec.CachePos=Module->CachePos;
+             PlugRec.FuncFlags|=Module->HasSetStartupInfo()?PICFF_SETSTARTUPINFO:0;
+             PlugRec.FuncFlags|=Module->HasOpenPlugin()?PICFF_OPENPLUGIN:0;
+             PlugRec.FuncFlags|=Module->HasOpenFilePlugin()?PICFF_OPENFILEPLUGIN:0;
+             PlugRec.FuncFlags|=Module->HasClosePlugin()?PICFF_CLOSEPLUGIN:0;
+             PlugRec.FuncFlags|=Module->HasGetPluginInfo()?PICFF_GETPLUGININFO:0;
+             PlugRec.FuncFlags|=Module->HasGetOpenPluginInfo()?PICFF_GETOPENPLUGININFO:0;
+             PlugRec.FuncFlags|=Module->HasGetFindData()?PICFF_GETFINDDATA:0;
+             PlugRec.FuncFlags|=Module->HasFreeFindData()?PICFF_FREEFINDDATA:0;
+             PlugRec.FuncFlags|=Module->HasGetVirtualFindData()?PICFF_GETVIRTUALFINDDATA:0;
+             PlugRec.FuncFlags|=Module->HasFreeVirtualFindData()?PICFF_FREEVIRTUALFINDDATA:0;
+             PlugRec.FuncFlags|=Module->HasSetDirectory()?PICFF_SETDIRECTORY:0;
+             PlugRec.FuncFlags|=Module->HasGetFiles()?PICFF_GETFILES:0;
+             PlugRec.FuncFlags|=Module->HasPutFiles()?PICFF_PUTFILES:0;
+             PlugRec.FuncFlags|=Module->HasDeleteFiles()?PICFF_DELETEFILES:0;
+             PlugRec.FuncFlags|=Module->HasMakeDirectory()?PICFF_MAKEDIRECTORY:0;
+             PlugRec.FuncFlags|=Module->HasProcessHostFile()?PICFF_PROCESSHOSTFILE:0;
+             PlugRec.FuncFlags|=Module->HasSetFindList()?PICFF_SETFINDLIST:0;
+             PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
+             PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
+             PlugRec.FuncFlags|=Module->HasProcessKey()?PICFF_PROCESSKEY:0;
+             PlugRec.FuncFlags|=Module->HasProcessEvent()?PICFF_PROCESSEVENT:0;
+             PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
+             PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
+             PlugRec.FuncFlags|=Module->HasProcessEditorInput()?PICFF_PROCESSEDITORINPUT:0;
+             PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
+             PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
+             PlugRec.CachePos=Module->GetCachePos();
            }
 
            Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
@@ -244,7 +244,7 @@ static DWORD WINAPI _xfilter(
    if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
      apiGetModuleFileName (NULL, strTruncFileName);
    else
-     strTruncFileName = Module->m_strModuleName;
+     strTruncFileName = Module->GetModuleName();
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */

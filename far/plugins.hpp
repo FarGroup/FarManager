@@ -13,6 +13,8 @@ plugins.hpp
 #include "struct.hpp"
 #include "plugin.hpp"
 #include "plclass.hpp"
+#include "PluginA.hpp"
+#include "PluginW.hpp"
 
 extern const wchar_t *FmtPluginsCache_PluginD;
 extern const wchar_t *FmtPluginsCache_PluginDExport;

@@ -169,7 +169,7 @@ public:
     return m_pData->GetLength();
   }
 
-  size_t GetCharString(char *lpszStr, size_t nLength, UINT CodePage=CP_OEMCP);
+  size_t GetCharString(char *lpszStr, size_t nLength, UINT CodePage=CP_OEMCP) const;
 
   const UnicodeString& Append(const UnicodeString &strAdd);
   const UnicodeString& Append(const wchar_t *lpwszAdd);

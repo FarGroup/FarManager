@@ -914,7 +914,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					// Вызываем нужный топик, который передали в CommandsMenu()
 					FarShowHelp (
-							item->pPlugin->m_strModuleName,
+							item->pPlugin->GetModuleName(),
 							NULL,
 							FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS
 							);

@@ -164,7 +164,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\plognmn.obj" \
 	"$(INTDIR)\plugapi.obj" \
 	"$(INTDIR)\plugins.obj" \
-	"$(INTDIR)\plclass.obj" \
+	"$(INTDIR)\PluginA.obj" \
+	"$(INTDIR)\PluginW.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\print.obj" \
 	"$(INTDIR)\qsortex.obj" \

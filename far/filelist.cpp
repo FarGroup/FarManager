@@ -548,7 +548,7 @@ int FileList::ProcessKey(int Key)
     if (PanelMode==PLUGIN_PANEL)
     {
       PluginHandle *ph = (PluginHandle*)hPlugin;
-      strPluginModule = ph->pPlugin->m_strModuleName;
+      strPluginModule = ph->pPlugin->GetModuleName();
 
       struct OpenPluginInfo Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -627,9 +627,9 @@ int FileList::ProcessKey(int Key)
             {
               Plugin *pPlugin = CtrlObject->Plugins.PluginsData[I];
 
-              if ( LocalStricmpW(pPlugin->m_strModuleName,strPluginModule)==0)
+              if ( LocalStricmpW(pPlugin->GetModuleName(),strPluginModule)==0)
               {
-                if (pPlugin->pOpenPluginW)
+                if (pPlugin->HasOpenPlugin())
                 {
                   HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(pPlugin,OPEN_SHORTCUT,(INT_PTR)(const wchar_t *)strPluginData);
                   if (hNewPlugin!=INVALID_HANDLE_VALUE)
@@ -4266,7 +4266,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 
   PluginHandle *ph = (PluginHandle*)hPlugin;
 
-  strPath = ph->pPlugin->m_strModuleName;
+  strPath = ph->pPlugin->GetModuleName();
 
   CutToSlash(strPath);
 

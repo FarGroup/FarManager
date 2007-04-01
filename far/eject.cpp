@@ -101,7 +101,7 @@ static BOOL UnlockMedia (HANDLE hVWin32, BYTE bDrive)
    regs.reg_EAX = 0x440D;
    regs.reg_EBX = bDrive;
    regs.reg_ECX = MAKEWORD(0x48, 0x08);
-   regs.reg_EDX = (DWORD)&unlockParams;
+   regs.reg_EDX = (DWORD)(DWORD_PTR)&unlockParams;
 
    fResult = DeviceIoControl (hVWin32, VWIN32_DIOC_DOS_IOCTL,
                               &regs, sizeof(regs), &regs, sizeof(regs),
@@ -139,7 +139,7 @@ static BOOL UnlockMedia (HANDLE hVWin32, BYTE bDrive)
       regs.reg_EAX = 0x440D;
       regs.reg_EBX = bDrive;
       regs.reg_ECX = MAKEWORD(0x48, 0x08);
-      regs.reg_EDX = (DWORD)&unlockParams;
+      regs.reg_EDX = (DWORD)(DWORD_PTR)&unlockParams;
 
       fResult = DeviceIoControl (hVWin32, VWIN32_DIOC_DOS_IOCTL,
                                  &regs, sizeof(regs), &regs, sizeof(regs),
@@ -614,7 +614,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
       //  BUGBUG: this is a real hack (talking to VWIN32) on NT we can just
       //  open the device, we dont have to go through VWIN32
       reg.reg_EBX = (LocalUpperW(Letter) - L'A') + 1;   // make 1 based drive number
-      reg.reg_EDX = (DWORD)&dmi; // out buffer
+      reg.reg_EDX = (DWORD)(DWORD_PTR)&dmi; // out buffer
       reg.reg_ECX = 0x86F;              // device specific command code
       reg.reg_EAX = 0x440D;           // generic read ioctl
       reg.reg_Flags = 0x0001;     // flags, assume error (carry)

@@ -179,7 +179,8 @@ FAROBJ=\
    $(OBJPATH)\plognmn.obj\
    $(OBJPATH)\plugapi.obj\
    $(OBJPATH)\plugins.obj\
-   $(OBJPATH)\plclass.obj\
+   $(OBJPATH)\PluginA.obj\
+   $(OBJPATH)\PluginW.obj\
    $(OBJPATH)\poscache.obj\
    $(OBJPATH)\UnicodeString.obj\
    $(OBJPATH)\print.obj\

@@ -1034,12 +1034,12 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 
 	Plugin *pPlugin = (Plugin*)PluginHandle;
 
-    string strPath = pPlugin->m_strModuleName;
+	string strPath = pPlugin->GetModuleName();
 
-    CutToSlash(strPath);
+	CutToSlash(strPath);
 
-    if ( pPlugin->Lang.Init(strPath) )
-      return pPlugin->Lang.GetMsg(MsgId);
+	if ( pPlugin->InitLang(strPath) )
+		return pPlugin->GetMsg(MsgId);
 
 	return L"";
 }

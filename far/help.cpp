@@ -1876,7 +1876,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
     {
       for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
       {
-        strPath = CtrlObject->Plugins.PluginsData[I]->m_strModuleName;
+        strPath = CtrlObject->Plugins.PluginsData[I]->GetModuleName();
 
         CutToSlash(strPath);
 
@@ -1993,7 +1993,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
       {
          strTopic.Format (
                 HelpFormatLinkModule,
-                (const wchar_t*)pPlugin->m_strModuleName,
+                (const wchar_t*)pPlugin->GetModuleName(),
                 HelpTopic
                 );
       }

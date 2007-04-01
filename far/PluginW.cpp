@@ -26,6 +26,7 @@
 #include "RefreshFrameManager.hpp"
 #include "BlockExtKey.hpp"
 #include "plclass.hpp"
+#include "PluginW.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_SysID=L"SysID";
@@ -86,7 +87,7 @@ static const char NFMP_Compare[]="CompareW";
 static const char NFMP_GetMinFarVersion[]="GetMinFarVersionW";
 
 
-BOOL PrepareModulePathW(const wchar_t *ModuleName)
+static BOOL PrepareModulePath(const wchar_t *ModuleName)
 {
 	string strModulePath;
 	strModulePath = ModuleName;
@@ -96,7 +97,7 @@ BOOL PrepareModulePathW(const wchar_t *ModuleName)
 	return FarChDir(strModulePath,TRUE);
 }
 
-void CheckScreenLock()
+static void CheckScreenLock()
 {
 	if ( ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey() )
 	{
@@ -107,7 +108,7 @@ void CheckScreenLock()
 
 
 
-Plugin::Plugin (
+PluginW::PluginW (
 		PluginManager *owner,
 		const wchar_t *lpwszModuleName,
 		const FAR_FIND_DATA_EX *fdata
@@ -126,41 +127,16 @@ Plugin::Plugin (
 
 	m_strModuleName = lpwszModuleName;
 
-	pSetStartupInfoW=0;
-	pOpenPluginW=0;
-	pOpenFilePluginW=0;
-	pClosePluginW=0;
-	pGetPluginInfoW=0;
-	pGetOpenPluginInfoW=0;
-	pGetFindDataW=0;
-	pFreeFindDataW=0;
-	pGetVirtualFindDataW=0;
-	pFreeVirtualFindDataW=0;
-	pSetDirectoryW=0;
-	pGetFilesW=0;
-	pPutFilesW=0;
-	pDeleteFilesW=0;
-	pMakeDirectoryW=0;
-	pProcessHostFileW=0;
-	pSetFindListW=0;
-	pConfigureW=0;
-	pExitFARW=0;
-	pProcessKeyW=0;
-	pProcessEventW=0;
-	pCompareW=0;
-	pProcessEditorInputW=0;
-	pProcessEditorEventW=0;
-	pProcessViewerEventW=0;
-	pMinFarVersionW=0;
+	ClearExports();
 }
 
-Plugin::~Plugin()
+PluginW::~PluginW()
 {
 	Lang.Close();
 }
 
 
-int Plugin::LoadFromCache ()
+int PluginW::LoadFromCache ()
 {
 	string strRegKey;
 
@@ -194,7 +170,7 @@ int Plugin::LoadFromCache ()
 	return FALSE;
 }
 
-int Plugin::SaveToCache()
+int PluginW::SaveToCache()
 {
 	if ( pGetPluginInfoW ||
 		 pOpenPluginW ||
@@ -300,174 +276,7 @@ int Plugin::SaveToCache()
 	return FALSE;
 }
 
-unsigned long CRC32(
-    unsigned long crc,
-    const char *buf,
-    unsigned int len
-    )
-{
-  static unsigned long crc_table[256];
-
-  if (!crc_table[1])
-  {
-    unsigned long c;
-    int n, k;
-
-    for (n = 0; n < 256; n++)
-    {
-      c = (unsigned long)n;
-      for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
-        crc_table[n] = c;
-    }
-  }
-
-  crc = crc ^ 0xffffffffL;
-  while (len-- > 0) {
-    crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
-  }
-
-  return crc ^ 0xffffffffL;
-}
-
-
-#define CRC32_SETSTARTUPINFO  0xF537107A
-#define CRC32_GETPLUGININFO   0xDB6424B4
-#define CRC32_OPENPLUGIN    0x601AEDE8
-#define CRC32_OPENFILEPLUGIN  0xAC9FF5CD
-#define CRC32_EXITFAR     0x04419715
-#define CRC32_SETFINDLIST   0x7A74A2E5
-#define CRC32_CONFIGURE     0x4DC1BC1A
-#define CRC32_GETMINFARVERSION  0x2BBAD952
-
-DWORD ExportCRC32[7] = {
-    CRC32_SETSTARTUPINFO,
-    CRC32_GETPLUGININFO,
-    CRC32_OPENPLUGIN,
-    CRC32_OPENFILEPLUGIN,
-    CRC32_EXITFAR,
-    CRC32_SETFINDLIST,
-//    CRC32_CONFIGURE,
-    CRC32_GETMINFARVERSION
-    };
-
-BOOL IsModulePlugin2 (
-	PBYTE hModule
-	)
-{
-	DWORD dwExportAddr;
-
-	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
-	PIMAGE_NT_HEADERS pPEHeader;
-
-	TRY {
-
-		if ( pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE )
-			return FALSE;
-
-		pPEHeader = (PIMAGE_NT_HEADERS)&hModule[pDOSHeader->e_lfanew];
-
-		if ( pPEHeader->Signature != IMAGE_NT_SIGNATURE )
-			return FALSE;
-
-		if ( (pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL) == 0 )
-			return FALSE;
-
-		dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
-
-		if ( !dwExportAddr )
-			return FALSE;
-
-		PIMAGE_SECTION_HEADER pSection = (PIMAGE_SECTION_HEADER)IMAGE_FIRST_SECTION (pPEHeader);
-
-		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
-		{
-			if ( (pSection[i].VirtualAddress == dwExportAddr) ||
-				 ((pSection[i].VirtualAddress <= dwExportAddr ) && ((pSection[i].Misc.VirtualSize+pSection[i].VirtualAddress) > dwExportAddr)) )
-			{
-				int nDiff = pSection[i].VirtualAddress-pSection[i].PointerToRawData;
-
-				PIMAGE_EXPORT_DIRECTORY pExportDir = (PIMAGE_EXPORT_DIRECTORY)&hModule[dwExportAddr-nDiff];
-
-				DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
-
-				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
-				{
-					const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
-
-					//BUGBUG надо переделать *оптимизацию* для новых имён с W
-					/*
-					DWORD dwCRC32 = CRC32 (0, lpExportName, (unsigned int)strlen (lpExportName));
-
-					for (int j = 0; j < 7; j++)  // а это вам не фиг знает что, это вам оптимизация, типа 8-)
-						if ( dwCRC32 == ExportCRC32[j] )
-							return TRUE;
-					*/
-
-					if ( !strcmp (lpExportName, "GetPluginInfoW") ||
-								!strcmp (lpExportName, "SetStartupInfoW") ||
-								!strcmp (lpExportName, "OpenPluginW") ||
-								!strcmp (lpExportName, "OpenFilePluginW") ||
-								!strcmp (lpExportName, "SetFindListW") ||
-								!strcmp (lpExportName, "ConfigureW") ||
-								!strcmp (lpExportName, "GetMinFarVersionW") ||
-								!strcmp (lpExportName, "ExitFARW") )
-						return TRUE;
-				}
-			}
-		}
-
-		return FALSE;
-	}
-	EXCEPT (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return FALSE;
-	}
-}
-
-BOOL IsModulePlugin (const wchar_t *lpModuleName)
-{
-	int bResult = FALSE;
-
-	HANDLE hModuleFile = CreateFileW (
-			lpModuleName,
-			GENERIC_READ,
-			FILE_SHARE_READ,
-			NULL,
-			OPEN_EXISTING,
-			0,
-			NULL
-			);
-
-	if ( hModuleFile != INVALID_HANDLE_VALUE )
-	{
-		HANDLE hModuleMapping = CreateFileMappingW (
-				hModuleFile,
-				NULL,
-				PAGE_READONLY,
-				0,
-				0,
-				NULL
-				);
-
-		if ( hModuleMapping )
-		{
-			PBYTE pData = (PBYTE)MapViewOfFile (hModuleMapping, FILE_MAP_READ, 0, 0, 0);
-
-			bResult = IsModulePlugin2 (pData);
-
-			UnmapViewOfFile (pData);
-			CloseHandle (hModuleMapping);
-		}
-
-		CloseHandle (hModuleFile);
-	}
-
-	return bResult;
-}
-
-
-
-int Plugin::Load()
+int PluginW::Load()
 {
 	if ( WorkFlags.Check(PIWF_DONTLOADAGAIN) )
 		return (FALSE);
@@ -492,22 +301,17 @@ int Plugin::Load()
 			apiGetEnvironmentVariable (Drive,strCurPlugDiskPath);
 		}
 
-		PrepareModulePathW(m_strModuleName);
+		PrepareModulePath(m_strModuleName);
 
-		if ( IsModulePlugin (m_strModuleName) )
-		{
-			m_hModule = LoadLibraryExW(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryExW(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
 
-			if( !m_hModule )
-				LstErr=GetLastError();
+		if( !m_hModule )
+			LstErr=GetLastError();
 
-			FarChDir(strCurPath, TRUE);
+		FarChDir(strCurPath, TRUE);
 
-			if(Drive[0]) // вернем ее (переменную окружения) обратно
-				SetEnvironmentVariableW(Drive,strCurPlugDiskPath);
-		}
-		else
-			return FALSE;
+		if(Drive[0]) // вернем ее (переменную окружения) обратно
+			SetEnvironmentVariableW(Drive,strCurPlugDiskPath);
 	}
 
 	if ( !m_hModule )
@@ -684,7 +488,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
   PSI->ModuleNumber=(INT_PTR)pPlugin;
   PSI->FSF=FSF;
 
-  PSI->ModuleName = (const wchar_t*)pPlugin->m_strModuleName;
+  PSI->ModuleName = (const wchar_t*)pPlugin->GetModuleName();
   PSI->RootKey=NULL;
 }
 
@@ -716,9 +520,9 @@ struct ExecuteStruct {
 			TRY { \
 				function; \
 			} \
-			EXCEPT(xfilter(es.id, GetExceptionInformation(), this, 0)) \
+			EXCEPT(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
 			{ \
-				m_owner->UnloadPlugin(this, es.id, true); \
+				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
 				es.bUnloaded = true; \
 				ProcessException=FALSE; \
 			} \
@@ -737,9 +541,9 @@ struct ExecuteStruct {
 			TRY { \
 				es.nResult = (INT_PTR)function; \
 			} \
-			EXCEPT(xfilter(es.id, GetExceptionInformation(), this, 0)) \
+			EXCEPT(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
 			{ \
-				m_owner->UnloadPlugin(this, es.id, true); \
+				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
 				es.bUnloaded = true; \
 				es.nResult = es.nDefaultResult; \
 				ProcessException=FALSE; \
@@ -751,14 +555,14 @@ struct ExecuteStruct {
 
 
 
-int Plugin::SetStartupInfo (bool &bUnloaded)
+int PluginW::SetStartupInfo (bool &bUnloaded)
 {
 	if ( pSetStartupInfoW && !ProcessException )
 	{
 		PluginStartupInfo _info;
 		FarStandardFunctions _fsf;
 
-		CreatePluginStartupInfo(this, &_info, &_fsf);
+		CreatePluginStartupInfo((Plugin *)this, &_info, &_fsf);
 
 		// скорректирем адреса и плагино-зависимые поля
 		strRootKey = Opt.strRegRoot;
@@ -781,7 +585,7 @@ int Plugin::SetStartupInfo (bool &bUnloaded)
 	return TRUE;
 }
 
-void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
+static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
 {
 	string strMsg1, strMsg2;
 	string strPlgName;
@@ -796,7 +600,7 @@ void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
 }
 
 
-int Plugin::CheckMinFarVersion (bool &bUnloaded)
+int PluginW::CheckMinFarVersion (bool &bUnloaded)
 {
 	if ( pMinFarVersionW && !ProcessException )
 	{
@@ -827,7 +631,7 @@ int Plugin::CheckMinFarVersion (bool &bUnloaded)
 	return TRUE;
 }
 
-int Plugin::Unload (bool bExitFAR)
+int PluginW::Unload (bool bExitFAR)
 {
 	int nResult = TRUE;
 
@@ -846,7 +650,7 @@ int Plugin::Unload (bool bExitFAR)
 	return nResult;
 }
 
-bool Plugin::IsPanelPlugin()
+bool PluginW::IsPanelPlugin()
 {
 	return pSetFindListW ||
 		pGetFindDataW ||
@@ -866,7 +670,7 @@ bool Plugin::IsPanelPlugin()
 		pClosePluginW;
 }
 
-HANDLE Plugin::OpenPlugin (int OpenFrom, INT_PTR Item)
+HANDLE PluginW::OpenPlugin (int OpenFrom, INT_PTR Item)
 {
   //BUGBUG???
   //AY - непонятно нафига нужно, в других вызовах нету,
@@ -934,7 +738,7 @@ HANDLE Plugin::OpenPlugin (int OpenFrom, INT_PTR Item)
 
 //////////////////////////////////
 
-HANDLE Plugin::OpenFilePlugin (
+HANDLE PluginW::OpenFilePlugin (
 		const wchar_t *Name,
 		const unsigned char *Data,
 		int DataSize,
@@ -961,7 +765,7 @@ HANDLE Plugin::OpenFilePlugin (
 }
 
 
-int Plugin::SetFindList (
+int PluginW::SetFindList (
 		HANDLE hPlugin,
 		const PluginPanelItem *PanelItem,
 		int ItemsNumber
@@ -984,7 +788,7 @@ int Plugin::SetFindList (
 	return bResult;
 }
 
-int Plugin::ProcessEditorInput (
+int PluginW::ProcessEditorInput (
 		const INPUT_RECORD *D
 		)
 {
@@ -1005,7 +809,7 @@ int Plugin::ProcessEditorInput (
 	return bResult;
 }
 
-int Plugin::ProcessEditorEvent (
+int PluginW::ProcessEditorEvent (
 		int Event,
 		PVOID Param
 		)
@@ -1023,7 +827,7 @@ int Plugin::ProcessEditorEvent (
 	return 0; //oops!
 }
 
-int Plugin::ProcessViewerEvent (
+int PluginW::ProcessViewerEvent (
 		int Event,
 		void *Param
 		)
@@ -1042,7 +846,7 @@ int Plugin::ProcessViewerEvent (
 }
 
 
-int Plugin::GetVirtualFindData (
+int PluginW::GetVirtualFindData (
 		HANDLE hPlugin,
 		PluginPanelItem **pPanelItem,
 		int *pItemsNumber,
@@ -1067,7 +871,7 @@ int Plugin::GetVirtualFindData (
 }
 
 
-void Plugin::FreeVirtualFindData (
+void PluginW::FreeVirtualFindData (
 		HANDLE hPlugin,
 		PluginPanelItem *PanelItem,
 		int ItemsNumber
@@ -1084,7 +888,7 @@ void Plugin::FreeVirtualFindData (
 
 
 
-int Plugin::GetFiles (
+int PluginW::GetFiles (
 		HANDLE hPlugin,
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
@@ -1111,7 +915,7 @@ int Plugin::GetFiles (
 }
 
 
-int Plugin::PutFiles (
+int PluginW::PutFiles (
 		HANDLE hPlugin,
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
@@ -1136,7 +940,7 @@ int Plugin::PutFiles (
 	return nResult;
 }
 
-int Plugin::DeleteFiles (
+int PluginW::DeleteFiles (
 		HANDLE hPlugin,
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
@@ -1161,7 +965,7 @@ int Plugin::DeleteFiles (
 }
 
 
-int Plugin::MakeDirectory (
+int PluginW::MakeDirectory (
 		HANDLE hPlugin,
 		const wchar_t *Name,
 		int OpMode
@@ -1185,7 +989,7 @@ int Plugin::MakeDirectory (
 }
 
 
-int Plugin::ProcessHostFile (
+int PluginW::ProcessHostFile (
 		HANDLE hPlugin,
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
@@ -1210,7 +1014,7 @@ int Plugin::ProcessHostFile (
 }
 
 
-int Plugin::ProcessEvent (
+int PluginW::ProcessEvent (
 		HANDLE hPlugin,
 		int Event,
 		PVOID Param
@@ -1234,7 +1038,7 @@ int Plugin::ProcessEvent (
 }
 
 
-int Plugin::Compare (
+int PluginW::Compare (
 		HANDLE hPlugin,
 		const PluginPanelItem *Item1,
 		const PluginPanelItem *Item2,
@@ -1259,7 +1063,7 @@ int Plugin::Compare (
 }
 
 
-int Plugin::GetFindData (
+int PluginW::GetFindData (
 		HANDLE hPlugin,
 		PluginPanelItem **pPanelItem,
 		int *pItemsNumber,
@@ -1284,7 +1088,7 @@ int Plugin::GetFindData (
 }
 
 
-void Plugin::FreeFindData (
+void PluginW::FreeFindData (
 		HANDLE hPlugin,
 		PluginPanelItem *PanelItem,
 		int ItemsNumber
@@ -1299,7 +1103,7 @@ void Plugin::FreeFindData (
 	}
 }
 
-int Plugin::ProcessKey (
+int PluginW::ProcessKey (
 		HANDLE hPlugin,
 		int Key,
 		unsigned int dwControlState
@@ -1323,7 +1127,7 @@ int Plugin::ProcessKey (
 }
 
 
-void Plugin::ClosePlugin (
+void PluginW::ClosePlugin (
 		HANDLE hPlugin
 		)
 {
@@ -1340,7 +1144,7 @@ void Plugin::ClosePlugin (
 }
 
 
-int Plugin::SetDirectory (
+int PluginW::SetDirectory (
 		HANDLE hPlugin,
 		const wchar_t *Dir,
 		int OpMode
@@ -1364,7 +1168,7 @@ int Plugin::SetDirectory (
 }
 
 
-void Plugin::GetOpenPluginInfo (
+void PluginW::GetOpenPluginInfo (
 		HANDLE hPlugin,
 		OpenPluginInfo *pInfo
 		)
@@ -1383,7 +1187,7 @@ void Plugin::GetOpenPluginInfo (
 }
 
 
-int Plugin::Configure(
+int PluginW::Configure(
 		int MenuItem
 		)
 {
@@ -1405,7 +1209,7 @@ int Plugin::Configure(
 }
 
 
-void Plugin::GetPluginInfo (PluginInfo *pi)
+void PluginW::GetPluginInfo (PluginInfo *pi)
 {
 	memset (pi, 0, sizeof (PluginInfo));
 
@@ -1419,7 +1223,7 @@ void Plugin::GetPluginInfo (PluginInfo *pi)
 	}
 }
 
-void Plugin::ExitFAR()
+void PluginW::ExitFAR()
 {
 	if ( pExitFARW && !ProcessException )
 	{
@@ -1431,7 +1235,7 @@ void Plugin::ExitFAR()
 	}
 }
 
-int Plugin::GetCacheNumber () //ничего не понимаю....
+int PluginW::GetCacheNumber () //ничего не понимаю....
 {
 	for (int i = -1 ;; i++)
 	{
@@ -1474,7 +1278,7 @@ int Plugin::GetCacheNumber () //ничего не понимаю....
 }
 
 
-void Plugin::ClearExports()
+void PluginW::ClearExports()
 {
 	pSetStartupInfoW=0;
 	pOpenPluginW=0;

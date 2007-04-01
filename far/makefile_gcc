@@ -87,7 +87,8 @@ SRCS = 	cddrv.cpp \
 	plognmn.cpp \
 	plugapi.cpp \
 	plugins.cpp \
-	plclass.cpp \
+	PluginA.cpp \
+	PluginW.cpp \
 	poscache.cpp \
 	print.cpp \
 	qsortex.c \

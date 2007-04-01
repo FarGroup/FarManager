@@ -878,8 +878,8 @@ int GetClusterSize(const wchar_t *Root)
   char *lpRoot = UnicodeToAnsi (Root);
 
   reg.reg_EAX = 0x7303;
-  reg.reg_EDX = (DWORD)lpRoot;
-  reg.reg_EDI = (DWORD)&DiskInfo;
+  reg.reg_EDX = (DWORD)(DWORD_PTR)lpRoot;
+  reg.reg_EDI = (DWORD)(DWORD_PTR)&DiskInfo;
   reg.reg_ECX = sizeof(DiskInfo);
   reg.reg_Flags = 0x0001;
 

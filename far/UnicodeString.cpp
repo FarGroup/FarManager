@@ -32,7 +32,7 @@ size_t UnicodeString::Inflate(size_t nSize, bool bForce)
   return m_pData->GetSize();
 }
 
-size_t UnicodeString::GetCharString(char *lpszStr, size_t nLength, UINT CodePage)
+size_t UnicodeString::GetCharString(char *lpszStr, size_t nLength, UINT CodePage) const
 {
   size_t nCopyLength = (nLength <= m_pData->GetLength() ? nLength : m_pData->GetLength());
   WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,NULL,NULL);
