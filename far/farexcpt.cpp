@@ -68,8 +68,8 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,D
     _stack.args[1] = (DWORD_PTR)xp;
     _stack.args[2] = (DWORD_PTR)Module;
     _stack.args[3] = Flags;
-    xp->ContextRecord->Esp = (DWORD_PTR)(&_stack.ret_addr);
-    xp->ContextRecord->Eip = (DWORD_PTR)(&_xfilter);
+    xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
+    xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
 #else
     xp->ContextRecord->Rcx = (DWORD_PTR)From;
     xp->ContextRecord->Rdx = (DWORD_PTR)xp;

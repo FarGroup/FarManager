@@ -850,8 +850,8 @@ int GetClusterSize(char *Root)
   DiskInfo.ExtFree_Level=0;
 
   reg.reg_EAX = 0x7303;
-  reg.reg_EDX = (DWORD)Root;
-  reg.reg_EDI = (DWORD)&DiskInfo;
+  reg.reg_EDX = (DWORD)(DWORD_PTR)Root;
+  reg.reg_EDI = (DWORD)(DWORD_PTR)&DiskInfo;
   reg.reg_ECX = sizeof(DiskInfo);
   reg.reg_Flags = 0x0001;
 

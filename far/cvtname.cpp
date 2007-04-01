@@ -21,9 +21,13 @@ cvtname.cpp
 */
 void CharBufferTooSmallWarn(int BufSize, int FileNameSize)
 {
-  char Buf2 [80];
-  sprintf (Buf2,MSG(MBuffSizeTooSmall_2), FileNameSize, BufSize);
-  Message(MSG_WARNING,1,MSG(MError),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
+  if(FileNameSize > MAX_PATH)
+      Message(MSG_WARNING,1,MSG(MError),MSG(MFileNameExceedSystem),MSG(MOk));
+  else {
+    char Buf2 [80];
+    sprintf (Buf2,MSG(MBuffSizeTooSmall_2), FileNameSize, BufSize);
+    Message(MSG_WARNING,1,MSG(MError),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
+  }
 }
 
 /* $ 02.07.2001 IS
