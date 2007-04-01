@@ -28,6 +28,8 @@
 #include "plclass.hpp"
 #include "PluginA.hpp"
 
+#include "wrap.cpp"
+
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_SysID=L"SysID";
 
@@ -409,52 +411,51 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
   if(!StandardFunctions.StructSize)
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
-    //StandardFunctions.sprintf=swprintf;
-    //StandardFunctions.snprintf=_snwprintf;
-    //StandardFunctions.sscanf=swscanf;
-    //StandardFunctions.qsort=FarQsort;
-    //StandardFunctions.qsortex=FarQsortEx;
-    //StandardFunctions.atoi=FarAtoi;
-    //StandardFunctions.atoi64=FarAtoi64;
-    //StandardFunctions.itoa=FarItoa;
-    //StandardFunctions.itoa64=FarItoa64;
-    //StandardFunctions.bsearch=FarBsearch;
-    //StandardFunctions.LIsLower   =LocalIslowerW;
-    //StandardFunctions.LIsUpper   =LocalIsupperW;
-    //StandardFunctions.LIsAlpha   =LocalIsalphaW;
-    //StandardFunctions.LIsAlphanum=LocalIsalphanumW;
-    //StandardFunctions.LUpper     =LocalUpperW;
-    //StandardFunctions.LUpperBuf  =LocalUpperBufW;
-    //StandardFunctions.LLowerBuf  =LocalLowerBufW;
-    //StandardFunctions.LLower     =LocalLowerW;
-    //StandardFunctions.LStrupr    =LocalStruprW;
-    //StandardFunctions.LStrlwr    =LocalStrlwrW;
-    //StandardFunctions.LStricmp   =LocalStricmpW;
-    //StandardFunctions.LStrnicmp  =LocalStrnicmpW;
-    /* SVS $ */
+    StandardFunctions.sprintf=sprintf;
+    StandardFunctions.snprintf=_snprintf;
+    StandardFunctions.sscanf=sscanf;
+    StandardFunctions.qsort=FarQsort;
+    StandardFunctions.qsortex=FarQsortEx;
+    StandardFunctions.atoi=FarAtoiA;
+    StandardFunctions.atoi64=FarAtoi64A;
+    StandardFunctions.itoa=FarItoaA;
+    StandardFunctions.itoa64=FarItoa64A;
+    StandardFunctions.bsearch=FarBsearch;
+    StandardFunctions.LIsLower   =LocalIslower;
+    StandardFunctions.LIsUpper   =LocalIsupper;
+    StandardFunctions.LIsAlpha   =LocalIsalpha;
+    StandardFunctions.LIsAlphanum=LocalIsalphanum;
+    StandardFunctions.LUpper     =LocalUpper;
+    StandardFunctions.LUpperBuf  =LocalUpperBuf;
+    StandardFunctions.LLowerBuf  =LocalLowerBuf;
+    StandardFunctions.LLower     =LocalLower;
+    StandardFunctions.LStrupr    =LocalStrupr;
+    StandardFunctions.LStrlwr    =LocalStrlwr;
+    StandardFunctions.LStricmp   =LStricmp;
+    StandardFunctions.LStrnicmp  =LStrnicmp;
 
-    //StandardFunctions.Unquote=Unquote;
-    //StandardFunctions.LTrim=RemoveLeadingSpaces;
-    //StandardFunctions.RTrim=RemoveTrailingSpaces;
-    //StandardFunctions.Trim=RemoveExternalSpaces;
-    //StandardFunctions.TruncStr=TruncStr;
-    //StandardFunctions.TruncPathStr=TruncPathStr;
-    //StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
-    //StandardFunctions.PointToName=PointToName;
-    //StandardFunctions.GetPathRoot=GetPathRoot; BUGBUG
-    //StandardFunctions.AddEndSlash=AddEndSlash;
-    //StandardFunctions.CopyToClipboard=CopyToClipboard;
-    //StandardFunctions.PasteFromClipboard=PasteFromClipboard;
+    StandardFunctions.Unquote=UnquoteA;
+    StandardFunctions.LTrim=RemoveLeadingSpacesA;
+    StandardFunctions.RTrim=RemoveTrailingSpacesA;
+    StandardFunctions.Trim=RemoveExternalSpacesA;
+    StandardFunctions.TruncStr=TruncStrA;
+    StandardFunctions.TruncPathStr=TruncPathStrA;
+    StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnlyA;
+    StandardFunctions.PointToName=PointToNameA;
+    StandardFunctions.GetPathRoot=GetPathRootA;
+    StandardFunctions.AddEndSlash=AddEndSlashA;
+    StandardFunctions.CopyToClipboard=CopyToClipboardA;
+    StandardFunctions.PasteFromClipboard=PasteFromClipboardA;
     //StandardFunctions.FarKeyToName=KeyToText; //BUGBUG
-    ///StandardFunctions.FarNameToKey=KeyNameToKey; //BUGBUG
-    //StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+    //StandardFunctions.FarNameToKey=KeyNameToKey; //BUGBUG
+    StandardFunctions.FarInputRecordToKey=InputRecordToKey;//BUGBUG или нет?
     //StandardFunctions.XLat=XlatA;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
     //StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
     //StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
     //StandardFunctions.MkTemp=FarMkTemp;
-    //StandardFunctions.DeleteBuffer=DeleteBuffer;
-    //StandardFunctions.ProcessName=ProcessName;
+    StandardFunctions.DeleteBuffer=DeleteBufferA;
+    StandardFunctions.ProcessName=ProcessNameA;
     //StandardFunctions.MkLink=FarMkLink;
     //StandardFunctions.ConvertNameToReal=ConvertNameToReal; //BUGBUG
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
@@ -468,24 +469,24 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     //StartupInfo.GetMsg=FarGetMsgFn;
     //StartupInfo.Message=FarMessageFn;
     //StartupInfo.Control=FarControl;
-    //StartupInfo.SaveScreen=FarSaveScreen;
-    //StartupInfo.RestoreScreen=FarRestoreScreen;
+    StartupInfo.SaveScreen=FarSaveScreen;
+    StartupInfo.RestoreScreen=FarRestoreScreen;
     //StartupInfo.GetDirList=FarGetDirList;
     //StartupInfo.GetPluginDirList=FarGetPluginDirList;
     //StartupInfo.FreeDirList=FarFreeDirList;
-    //StartupInfo.Viewer=FarViewer;
-    //StartupInfo.Editor=FarEditor;
-    //StartupInfo.CmpName=FarCmpName;
+    StartupInfo.Viewer=FarViewerA;
+    StartupInfo.Editor=FarEditorA;
+    StartupInfo.CmpName=FarCmpNameA;
     //StartupInfo.CharTable=FarCharTable;
-    //StartupInfo.Text=FarText;
+    StartupInfo.Text=FarTextA;
     //StartupInfo.EditorControl=FarEditorControl;
     //StartupInfo.ViewerControl=FarViewerControl;
-    //StartupInfo.ShowHelp=FarShowHelp;
+    StartupInfo.ShowHelp=FarShowHelpA;
     //StartupInfo.AdvControl=FarAdvControl;
     //StartupInfo.DialogEx=FarDialogEx;
     //StartupInfo.SendDlgMessage=FarSendDlgMessage;
     //StartupInfo.DefDlgProc=FarDefDlgProc;
-    //StartupInfo.InputBox=FarInputBox;
+    StartupInfo.InputBox=FarInputBoxA;
   }
 
   memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
@@ -1250,26 +1251,6 @@ int PluginA::Configure(
 	}
 
 	return bResult;
-}
-
-wchar_t *AnsiToUnicode (const char *lpszAnsiString)
-{
-  int nLength = (int)strlen (lpszAnsiString)+1;
-
-  wchar_t *lpResult = (wchar_t*)malloc (nLength*sizeof(wchar_t));
-
-  wmemset (lpResult, 0, nLength);
-
-  MultiByteToWideChar (
-          CP_OEMCP,
-          0,
-          lpszAnsiString,
-          -1,
-          lpResult,
-          nLength
-          );
-
-  return lpResult;
 }
 
 void PluginA::FreePluginInfo()
