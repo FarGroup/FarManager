@@ -292,6 +292,44 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 	return ret;
 }
 
+int WINAPI KeyNameToKeyA(const char *Name)
+{
+	string strN(Name);
+	return KeyNameToKey(strN);
+}
+
+BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
+{
+	string strKT;
+	int ret=KeyToText(Key,strKT);
+	if (ret)
+		strKT.GetCharString(KeyText,Size>0?Size:32);
+	return ret;
+}
+
+char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
+{
+	string strP((Prefix?Prefix:""));
+	wchar_t D[NM] = {0};
+
+	FarMkTemp(D,sizeof(D),strP);
+
+	UnicodeToAnsi(D,Dest);
+	return Dest;
+}
+
+DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
+{
+	string strS(src), strD;
+
+	apiExpandEnvironmentStrings(strS,strD);
+	DWORD len = (DWORD)min(strD.GetLength(),size-1);
+
+	strD.GetCharString(dest,len+1);
+	dest[len]=0;
+	return len;
+}
+
 int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
 {
 	string strFN(FileName), strT(Title);
@@ -332,4 +370,86 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 	if (DestText)
 		strD.GetCharString(DestText,DestLength);
 	return ret;
+}
+
+int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,const char * const *Items,int ItemsNumber,int ButtonsNumber)
+{
+	string strHT((HelpTopic?HelpTopic:""));
+	wchar_t **p;
+	int c=0;
+
+	if (Flags&FMSG_ALLINONE)
+	{
+		p = (wchar_t **)AnsiToUnicode((const char *)Items);
+	}
+	else
+	{
+		c = ItemsNumber;
+		p = (wchar_t **)malloc(c*sizeof(wchar_t*));
+		for (int i=0; i<c; i++)
+			p[i] = AnsiToUnicode(Items[i]);
+	}
+
+	int ret = FarMessageFn(PluginNumber,Flags,(HelpTopic?(const wchar_t *)strHT:NULL),p,ItemsNumber,ButtonsNumber);
+
+	for (int i=0; i<c; i++)
+		free(p[i]);
+	free(p);
+
+	return ret;
+}
+
+const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
+{
+	static char s[] = "abc";
+	return s;
+}
+
+int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const struct oldfar::FarMenuItem *Item,int ItemsNumber)
+{
+	return -1;
+}
+
+int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber)
+{
+	return -1;
+}
+
+int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
+{
+	return FALSE;
+}
+
+int WINAPI FarGetDirListA(const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
+{
+	return FALSE;
+}
+
+int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
+{
+	return FALSE;
+}
+
+void WINAPI FarFreeDirListA(const struct oldfar::PluginPanelItem *PanelItem)
+{
+}
+
+INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
+{
+	return 0;
+}
+
+int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
+{
+	return -1;
+}
+
+int WINAPI FarEditorControlA(int Command,void* Param)
+{
+	return FALSE;
+}
+
+int WINAPI FarViewerControlA(int Command,void* Param)
+{
+	return TRUE;
 }
