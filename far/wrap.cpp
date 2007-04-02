@@ -428,7 +428,54 @@ const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 
 int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const struct oldfar::FarMenuItem *Item,int ItemsNumber)
 {
-	return -1;
+	string strT((Title?Title:"")), strB((Bottom?Bottom:"")), strHT((HelpTopic?HelpTopic:""));
+
+	if (!Item || !ItemsNumber)	return -1;
+
+	FarMenuItemEx *mi = (FarMenuItemEx *)malloc(ItemsNumber*sizeof(*mi));
+
+	if (Flags&FMENU_USEEXT)
+	{
+		oldfar::FarMenuItemEx *p = (oldfar::FarMenuItemEx *)Item;
+
+		for (int i=0; i<ItemsNumber; i++)
+		{
+			mi[i].Flags = p[i].Flags;
+			mi[i].Text = AnsiToUnicode(p[i].Flags&MIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
+			mi[i].AccelKey = p[i].AccelKey;
+			mi[i].Reserved = p[i].Reserved;
+			mi[i].UserData = p[i].UserData;
+		}
+	}
+	else
+	{
+		for (int i=0; i<ItemsNumber; i++)
+		{
+			mi[i].Flags=0;
+			if (Item[i].Selected)
+				mi[i].Flags|=MIF_SELECTED;
+			if (Item[i].Checked)
+			{
+				mi[i].Flags|=MIF_CHECKED;
+				if (Item[i].Checked>1)
+					mi[i].Flags|=Item[i].Checked&0xFF; //BUGBUG надо перекодировать символ пометки в юникод
+			}
+			if (Item[i].Separator)
+				mi[i].Flags|=MIF_SEPARATOR;
+			mi[i].Text = AnsiToUnicode(Item[i].Text);
+			mi[i].AccelKey = 0;
+			mi[i].Reserved = 0;
+			mi[i].UserData = 0;
+		}
+	}
+
+	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags|FMENU_USEEXT,(Title?(const wchar_t *)strT:NULL),(Bottom?(const wchar_t *)strB:NULL),(HelpTopic?(const wchar_t *)strHT:NULL),BreakKeys,BreakCode,(FarMenuItem *)mi,ItemsNumber);
+
+	for (int i=0; i<ItemsNumber; i++)
+		if (mi[i].Text) free((wchar_t *)mi[i].Text);
+	if (mi) free(mi);
+
+	return ret;
 }
 
 int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber)
