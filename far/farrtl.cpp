@@ -284,6 +284,58 @@ void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
 }
 /* tran $ */
 
+#if defined(__BORLANDC__)
+int WINAPIV FarSprintf(char *buffer,const char *format,...)
+{
+  int ret=0;
+  if(buffer && format)
+  {
+    va_list argptr;
+
+    *buffer=0;
+    va_start(argptr,format);
+    ret=vsprintf(buffer,format,argptr);
+    va_end(argptr);
+  }
+  return ret;
+}
+
+int WINAPIV FarSnprintf(char *buffer,size_t __nsize,const char *format,...)
+{
+  int ret=0;
+  if(buffer && format)
+  {
+    va_list argptr;
+    va_start(argptr,format);
+    ret = vsnprintf(buffer,__nsize,format,argptr);
+    va_end(argptr);
+  }
+  return ret;
+}
+
+#ifndef FAR_MSVCRT
+/* $ 29.08.2000 SVS
+   - Неверно отрабатывала функция FarSscanf
+   Причина - т.к. у VC нету vsscanf, то пришлось смоделировать (взять из
+   исходников VC sscanf и "нарисовать" ее сюда
+*/
+int WINAPIV FarSscanf(const char *buffer, const char *format,...)
+{
+  if(!buffer || !format)
+    return 0;
+  va_list argptr;
+  va_start(argptr,format);
+  int ret=vsscanf(buffer,format,argptr);
+  va_end(argptr);
+  return ret;
+}
+/* 29.08.2000 SVS $ */
+/* SVS $ */
+
+#endif
+
+#endif // defined(__BORLANDC__)
+
 /* $ 07.09.2000 SVS
    Оболочка FarBsearch для плагинов (функция bsearch)
 */

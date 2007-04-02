@@ -824,9 +824,20 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   if(!StandardFunctions.StructSize)
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
+    #if defined(__BORLANDC__)
+    StandardFunctions.sprintf=FarSprintf;
+    StandardFunctions.snprintf=FarSnprintf;
+    #ifndef FAR_MSVCRT
+      StandardFunctions.sscanf=FarSscanf;
+    #else
+      StandardFunctions.sscanf=sscanf;
+    #endif
+    #else
     StandardFunctions.sprintf=sprintf;
     StandardFunctions.snprintf=_snprintf;
     StandardFunctions.sscanf=sscanf;
+    #endif // defined(__BORLANDC__)
+
     StandardFunctions.qsort=FarQsort;
     /* $ 24.03.2001 tran
       + qsortex */

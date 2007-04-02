@@ -625,6 +625,13 @@ char *WINAPI FarItoa64(__int64 value, char *string, int radix);
 int WINAPI FarAtoi(const char *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
+#if defined(__BORLANDC__)
+int WINAPIV FarSprintf(char *buffer,const char *format,...);
+int WINAPIV FarSnprintf(char *buffer,size_t sizebuf,const char *format,...);
+#ifndef FAR_MSVCRT
+int WINAPIV FarSscanf(const char *buffer, const char *format,...);
+#endif
+#endif // defined(__BORLANDC__)
 int WINAPI CopyToClipboard(const char *Data);
 char* WINAPI PasteFromClipboard(void);
 
@@ -1092,13 +1099,11 @@ void SetPreRedrawFunc(PREREDRAWFUNC Func);
 int PathMayBeAbsolute(const char *Src);
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 
-#if defined(MOUSEKEY)
 //   TableSet - указатель на таблицы перекодировки (если отсутствует,
 //              то кодировка - OEM)
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова
 const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const char *WordDiv);
-#endif
 
 void CharBufferTooSmallWarn(int BufSize, int FileNameSize);
 
@@ -1133,5 +1138,9 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int
 const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName);
 
 int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType);
+
+BOOL GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator);
+BOOL StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator);
+int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,char *OSrcDate,char *OSrcTime);
 
 #endif  // __FARFUNC_HPP__

@@ -922,7 +922,6 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
-#if defined(MOUSEKEY)
     case MCODE_OP_SELWORD:
     {
       int OldCurPos=CurPos;
@@ -930,11 +929,13 @@ int Edit::ProcessKey(int Key)
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
 
+#if defined(MOUSEKEY)
       if(SelStart != -1 && CurPos >= SelStart && CurPos <= SelEnd)
       { // выделяем ВСЮ строку при повторном двойном клике
         Select(0,StrSize);
       }
       else
+#endif
       {
         CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv);
         Select(SStart,++SEnd);
@@ -943,7 +944,6 @@ int Edit::ProcessKey(int Key)
       Show();
       return TRUE;
     }
-#endif
 
     case MCODE_OP_DATE:
     case MCODE_OP_PLAINTEXT:

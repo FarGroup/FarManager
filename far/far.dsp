@@ -496,6 +496,10 @@ SOURCE=.\strftime.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\timefunc.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\strmix.cpp
 # End Source File
 # Begin Source File

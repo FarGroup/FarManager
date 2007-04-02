@@ -79,31 +79,8 @@ struct SetAttrDlgParam{
 };
 
 static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
-static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
-                       char *OSrcDate,char *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
 void ShellSetFileAttributesMsg(char *Name);
-
-// В Dst получить числа для даты времени
-static void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
-{
-  char Temp[32], Digit[16],*PtrDigit;
-  int I;
-
-  xstrncpy(Temp,Src,sizeof(Temp)-1);
-  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
-  I=0;
-  const char *Ptr=Temp;
-  while((Ptr=GetCommaWord(Ptr,Digit,Separator)) != NULL)
-  {
-    PtrDigit=Digit;
-    while (*PtrDigit && !isdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      Dst[I]=atoi(PtrDigit);
-    ++I;
-  }
-}
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
@@ -1086,109 +1063,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   CtrlObject->Cp()->Redraw();
   return 1;
-}
-
-static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
-                       char *OSrcDate,char *OSrcTime)
-{
-  FILETIME ft, oft;
-  SYSTEMTIME st, ost;
-  unsigned DateN[3],TimeN[3];
-  int DigitCount;
-  int /*SetTime,*/GetTime;
-  FILETIME *OriginalFileTime=0, OFTModify, OFTCreate, OFTLast;
-
-  /*$ 17.07.2001 SKV
-    от греха подальше, занулим.
-  */
-  ZeroMemory(&st,sizeof(st));
-  /* SKV$*/
-
-  // ****** ОБРАБОТКА ДАТЫ ******** //
-  GetFileDateAndTime(OSrcDate,DateN,GetDateSeparator());
-  // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
-  GetFileDateAndTime(OSrcTime,TimeN,GetTimeSeparator());
-
-  // исключаем лишние телодвижения
-  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
-     TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
-  {
-    // получаем инфу про оригинальную дату и время файла.
-    HANDLE hFile=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                 NULL,OPEN_EXISTING,
-                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
-    if (hFile==INVALID_HANDLE_VALUE)
-      return(FALSE);
-    GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify);
-    CloseHandle(hFile);
-
-    if(!GetTime)
-      return(FALSE);
-
-    switch(Type)
-    {
-      case 0: // Modif
-        OriginalFileTime=&OFTModify;
-        break;
-      case 1: // Creat
-        OriginalFileTime=&OFTCreate;
-        break;
-      case 2: // Last
-        OriginalFileTime=&OFTLast;
-        break;
-    }
-
-    // конвертнем в локальное время.
-    FileTimeToLocalFileTime(OriginalFileTime,&oft);
-    FileTimeToSystemTime(&oft,&ost);
-    DigitCount=TRUE;
-  }
-  else
-    DigitCount=FALSE;
-
-  // "Оформим"
-  switch(GetDateFormat())
-  {
-    case 0:
-      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:ost.wMonth;
-      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:ost.wDay;
-      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
-      break;
-    case 1:
-      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:ost.wDay;
-      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
-      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
-      break;
-    default:
-      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:ost.wYear;
-      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
-      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:ost.wDay;
-      break;
-  }
-  st.wHour   = TimeN[0]!=(unsigned)-1? (TimeN[0]):ost.wHour;
-  st.wMinute = TimeN[1]!=(unsigned)-1? (TimeN[1]):ost.wMinute;
-  st.wSecond = TimeN[2]!=(unsigned)-1? (TimeN[2]):ost.wSecond;
-
-  if (st.wYear<100)
-    if (st.wYear<80)
-      st.wYear+=2000;
-    else
-      st.wYear+=1900;
-
-  if(TimeN[0]==(unsigned)-1 && TimeN[1]==(unsigned)-1 && TimeN[2]==(unsigned)-1)
-  {
-    st.wMilliseconds=ost.wMilliseconds;
-    // для правильности выставления wDayOfWeek
-    //SystemTimeToFileTime(&st,&ft);
-    //FileTimeToSystemTime(&ft,&st);
-  }
-
-  // преобразование в "удобоваримый" формат
-  SystemTimeToFileTime(&st,&ft);
-  LocalFileTimeToFileTime(&ft,FileTime);
-  if(DigitCount)
-    return (CompareFileTime(FileTime,OriginalFileTime) == 0)?FALSE:TRUE;
-  return TRUE;
 }
 
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip

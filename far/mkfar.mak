@@ -168,6 +168,7 @@ FAROBJ=\
    $(OBJPATH)\strftime.obj\
    $(OBJPATH)\mix.obj\
    $(OBJPATH)\mkdir.obj\
+   $(OBJPATH)\timefunc.obj\
    $(OBJPATH)\modal.obj\
    $(OBJPATH)\namelist.obj\
    $(OBJPATH)\options.obj\

@@ -217,16 +217,14 @@ static struct TKeyCodeName{
    { MCODE_OP_SWITCHKBD,           10, "$KbdSwitch"},
    { MCODE_OP_MACROMODE,            6, "$MMode"   },
    { MCODE_OP_REP,                  4, "$Rep"     },
-#if defined(MOUSEKEY)
    { MCODE_OP_SELWORD,              8, "$SelWord" },
-#endif
    { MCODE_OP_PLAINTEXT,            5, "$Text"    }, // $Text "Plain Text"
    { MCODE_OP_WHILE,                6, "$While"   },
    { MCODE_OP_XLAT,                 5, "$XLat"    },
 };
 
 
-TVarTable glbVarTable, locVarTable;
+TVarTable glbVarTable;
 TVar eStack[MAXEXEXSTACK];
 
 static char __code2symbol(BYTE b1, BYTE b2);
@@ -268,8 +266,7 @@ KeyMacro::KeyMacro()
   _KEYMACRO(SysLog("[%p] KeyMacro::KeyMacro()", this));
   MacroVersion=GetRegKey("KeyMacros","MacroVersion",0);
   CurPCStack=-1;
-  Work.MacroWORKCount=0;
-  Work.MacroWORK=NULL;
+  Work.Init(NULL);
   LockScr=NULL;
   MacroLIB=NULL;
   RecBuffer=NULL;
@@ -341,6 +338,8 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
           xf_free(Work.MacroWORK[I].Src);
       }
       xf_free(Work.MacroWORK);
+      if(Work.AllocVarTable)
+        deleteVTable(*Work.locVarTable);
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
     }
@@ -350,6 +349,8 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
         xf_free(Work.MacroWORK->Buffer);
       if(Work.MacroWORK->Src)
         xf_free(Work.MacroWORK->Src);
+      if(Work.AllocVarTable)
+        deleteVTable(*Work.locVarTable);
       Work.MacroWORKCount--;
 
       memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*Work.MacroWORKCount);
@@ -766,7 +767,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_C_SELECTED:    // Selected?
         {
 #if 1
-          int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
+          int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
           if (CurFrame && CurFrame->GetType()==NeedType)
           {
             int CurSelected;
@@ -1348,52 +1349,17 @@ static TVar playmacroFunc(TVar *param)
 {
   const char *SequenceText = param[0].toString();
   __int64 KeysSend=_i64(1);
-#if 1
+
   struct MacroRecord RBuf;
   int KeyPos;
   CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
-  CtrlObject->Macro.PushState();
+  CtrlObject->Macro.PushState(true);
   if(!CtrlObject->Macro.PostNewMacro(SequenceText,RBuf.Flags))
   {
     CtrlObject->Macro.PopState();
     KeysSend=_i64(0);
   }
-#else
-  DWORD KeyCode;
-  const char *NameKeyPtr;
-  UserDefinedList ArrayKey(' ','\t',0);
-  bool CompileError=false;
 
-  if(ArrayKey.Set(SequenceText))
-  {
-    ArrayKey.Reset();
-    while(NULL!=(NameKeyPtr=ArrayKey.GetNext()))
-    {
-      if ( ( KeyCode = KeyNameToKey(NameKeyPtr) ) != (DWORD)-1 )
-          KeysSend++;
-      else
-      {
-        CompileError=true;
-        break;
-      }
-    }
-    if(!CompileError)
-    {
-      KeysSend=_i64(0);
-      ArrayKey.Reset();
-      while(NULL!=(NameKeyPtr=ArrayKey.GetNext()))
-      {
-        if ( ( KeyCode = KeyNameToKey(NameKeyPtr) ) != (DWORD)-1 )
-          if( WriteInput(KeyCode,0) )
-            KeysSend++;
-      }
-    }
-    else
-    {
-      KeysSend=-KeysSend-1;
-    }
-  }
-#endif
   return TVar(KeysSend);
 }
 
@@ -1968,6 +1934,12 @@ static TVar panelitemFunc(TVar *param)
       case 14:  // Position
         return TVar((__int64)filelistItem.Position);
 
+      case 15:  // CreationTime (FILETIME)
+        return TVar((__int64)*(__int64*)&filelistItem.CreationTime);
+      case 16:  // AccessTime (FILETIME)
+        return TVar((__int64)*(__int64*)&filelistItem.AccessTime);
+      case 17:  // WriteTime (FILETIME)
+        return TVar((__int64)*(__int64*)&filelistItem.WriteTime);
     }
   }
 
@@ -2206,7 +2178,7 @@ done:
           case MCODE_OP_PUSHVAR:  // Положить на стек переменную.
           {
             GetPlainText(value);
-            TVarTable *t = ( *value == '%' ) ? &glbVarTable : &locVarTable;
+            TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
             // %%name - глобальная переменная
             ++ePos;
             eStack[ePos] = varLook(*t, value, errVar)->value;
@@ -2469,7 +2441,7 @@ done:
       // здесь проверка нужна, т.к. существует вариант вызова функции, без присвоения переменной
       if(*value)
       {
-        TVarTable *t = ( *value == '%' ) ? &glbVarTable : &locVarTable;
+        TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
         varInsert(*t, value)->value = *eStack;
       }
       goto begin;
@@ -2720,10 +2692,10 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     if (Type == REG_NONE)
       break;
 
-    if(*ValueName != '%')
+    if(*ValueName != '%' && ValueName[1] != '%')
       continue;
 
-    TVarTable *t = ( ValueName[1] == '%' ) ? &glbVarTable : &locVarTable;
+    TVarTable *t = &glbVarTable;
 
     if (Type == REG_SZ)
       varInsert(*t, ValueName+1)->value = SData;
@@ -2734,6 +2706,35 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
   }
   return TRUE;
 }
+
+/*
+   KeyMacros\Function
+*/
+int KeyMacro::ReadMacroFunction(int ReadMode, char *SData, int SDataSize)
+{
+  if(ReadMode != MACRO_FUNC) // пока так :-)
+    return FALSE;
+#if 0
+  int I;
+  char UpKeyName[100];
+  char ValueName[129];
+  long IData;
+  __int64 IData64;
+
+  strcpy(UpKeyName,"KeyMacros\\Function");
+
+  for (I=0;;I++)
+  {
+    IData=0;
+    *ValueName=0;
+    *SData=0;
+
+    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,(LPDWORD)&IData,(__int64*)&IData64);
+  }
+#endif
+  return TRUE;
+}
+
 
 /* $ 10.09.2000 SVS
   ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
@@ -4165,7 +4166,7 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
   {
-    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
+    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
     Frame* CurFrame=FrameManager->GetCurrentFrame();
     if (CurFrame && CurFrame->GetType()==NeedType)
     {
@@ -4492,10 +4493,10 @@ static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
    // пропускаем ведущие пробельные символы
    while (IsSpace(*BufPtr) || IsEol(*BufPtr))
    {
-     if(IsEol(*BufPtr))
-     {
+     //if(IsEol(*BufPtr))
+     //{
        // TODO!!!
-     }
+     //}
      BufPtr++;
    }
 
@@ -4521,13 +4522,31 @@ static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
    return BufPtr;
 }
 
-int KeyMacro::PushState()
+void MacroState::Init(TVarTable *tbl)
+{
+  KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
+  MacroWORK=NULL;
+  if(!tbl)
+  {
+    AllocVarTable=true;
+    locVarTable=(TVarTable*)new TVarTable;
+    initVTable(*locVarTable);
+  }
+  else
+  {
+    AllocVarTable=false;
+    locVarTable=tbl;
+  }
+}
+
+
+int KeyMacro::PushState(bool CopyLocalVars)
 {
   if(CurPCStack+1 >= STACKLEVEL)
     return FALSE;
   ++CurPCStack;
   memcpy(PCStack+CurPCStack,&Work,sizeof(struct MacroState));
-  memset(&Work,0,sizeof(struct MacroState));
+  Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
   return TRUE;
 }
 
@@ -4542,10 +4561,12 @@ int KeyMacro::PopState()
 
 void initMacroVarTable(int global)
 {
-  initVTable(global ? glbVarTable : locVarTable);
+  if(global)
+    initVTable(glbVarTable);
 }
 
 void doneMacroVarTable(int global)
 {
-  deleteVTable(global ? glbVarTable : locVarTable);
+  if(global)
+    deleteVTable(glbVarTable);
 }

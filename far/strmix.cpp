@@ -1181,7 +1181,6 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigne
 }
 /* IS $ */
 
-#if defined(MOUSEKEY)
 /*
   Ptr=CalcWordFromString(Str,I,&Start,&End);
   xstrncpy(Dest,Ptr,End-Start+1);
@@ -1197,7 +1196,7 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
 {
   int I, J, StartWPos, EndWPos;
   DWORD DistLeft, DistRight;
-  int StrSize=strlen(Str);
+  int StrSize=(int)strlen(Str);
   char WordDiv[512];
   xstrncpy(WordDiv,WordDiv0,sizeof(WordDiv)-5);
   strcat(WordDiv," \t\n\r");
@@ -1262,7 +1261,6 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
 
   return Str+StartWPos;
 }
-#endif
 
 BOOL TestParentFolderName(const char *Name)
 {

@@ -989,7 +989,8 @@ int Editor::ProcessKey(int Key)
            KEY_CTRLDOWN,  KEY_CTRLNUMPAD2,
            KEY_CTRLN,
            KEY_CTRLE,
-           KEY_CTRLS
+           KEY_CTRLS,
+           MCODE_OP_SELWORD,
         };
         for (int I=0;I<sizeof(UnmarkKeys)/sizeof(UnmarkKeys[0]);I++)
           if (Key==UnmarkKeys[I])
@@ -1097,20 +1098,6 @@ int Editor::ProcessKey(int Key)
       }
       _SVS(SysLog("[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
     }
-#if defined(MOUSEKEY)
-    case MCODE_OP_SELWORD:
-    {
-/*
-      int OldCurPos=CurPos;
-
-      UnmarkBlock();
-
-      CurPos=OldCurPos; // возвращаем обратно
-      Show();
-*/
-      return TRUE;
-    }
-#endif
   }
 
   switch(Key)
@@ -2679,6 +2666,34 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
     /* SVS $ */
+
+    case MCODE_OP_SELWORD:
+    {
+      int OldCurPos=CurPos;
+      int SStart, SEnd;
+      Pasting++;
+      Lock ();
+
+      UnmarkBlock();
+      CalcWordFromString(CurLine->GetStringAddr(),CurPos,&SStart,&SEnd,&TableSet,EdOpt.WordDiv);
+      CurLine->Select(SStart,++SEnd);
+
+      Flags.Set(FEDITOR_MARKINGBLOCK);
+      BlockStart=CurLine;
+      BlockStartLine=NumLine;
+      //SelFirst=TRUE;
+      SelStart=SStart;
+      SelEnd=SEnd;
+
+      //CurLine->ProcessKey(MCODE_OP_SELWORD);
+
+      CurPos=OldCurPos; // возвращаем обратно
+      Pasting--;
+      Unlock ();
+
+      Show();
+      return TRUE;
+    }
 
     case MCODE_OP_DATE:
     case MCODE_OP_PLAINTEXT:

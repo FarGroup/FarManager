@@ -32,6 +32,11 @@ struct MacroState
   int ExecLIBPos;
   int MacroWORKCount;
   struct MacroRecord *MacroWORK; // т.н. текущее исполнение
+
+  bool AllocVarTable;
+  TVarTable *locVarTable;
+
+  void Init(TVarTable *tbl);
 };
 
 /* $TODO:
@@ -70,6 +75,7 @@ class KeyMacro
 
   private:
     int ReadVarsConst(int ReadMode, char *Buffer, int BufferSize);
+    int ReadMacroFunction(int ReadMode, char *Buffer, int BufferSize);
     int WriteVarsConst(int ReadMode);
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
     DWORD AssignMacroKey();
@@ -105,7 +111,7 @@ class KeyMacro
     int GetKey();
     int PeekKey();
 
-    int PushState();
+    int PushState(bool CopyLocalVars=FALSE);
     int PopState();
     int GetLevelState(){return CurPCStack;};
 
