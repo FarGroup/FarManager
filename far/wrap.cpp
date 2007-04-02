@@ -18,6 +18,27 @@ wchar_t *AnsiToUnicode (const char *lpszAnsiString)
   return lpResult;
 }
 
+char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
+{
+  char *lpResult = (char*)malloc (nLength);
+
+  memset (lpResult, 0, nLength);
+
+  WideCharToMultiByte (
+          CP_OEMCP,
+          0,
+          lpwszUnicodeString,
+          nLength,
+          lpResult,
+          nLength,
+          NULL,
+          NULL
+          );
+
+  return lpResult;
+}
+
+
 char *WINAPI FarItoaA(int value, char *string, int radix)
 {
   if(string)
@@ -446,6 +467,112 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 int WINAPI FarEditorControlA(int Command,void* Param)
 {
+	static char *gt=NULL;
+	static char *geol=NULL;
+	static char *fn=NULL;
+
+	switch (Command)
+	{
+		case ECTL_ADDCOLOR:
+		case ECTL_DELETEBLOCK:
+		case ECTL_DELETECHAR:
+		case ECTL_DELETESTRING:
+		case ECTL_EXPANDTABS:
+		case ECTL_GETCOLOR:
+		case ECTL_GETBOOKMARKS:
+		case ECTL_INSERTSTRING:
+		case ECTL_QUIT:
+		case ECTL_REALTOTAB:
+		case ECTL_REDRAW:
+		case ECTL_SELECT:
+		case ECTL_SETPOSITION:
+		case ECTL_TABTOREAL:
+		case ECTL_TURNOFFMARKINGBLOCK:
+			return FarEditorControl(Command,Param);
+
+		case ECTL_GETSTRING:
+			{
+				EditorGetString egs;
+				oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
+				if (!oegs) return FALSE;
+				egs.StringNumber=oegs->StringNumber;
+				int ret=FarEditorControl(ECTL_GETSTRING,&egs);
+				if (ret)
+				{
+					oegs->StringNumber=egs.StringNumber;
+					oegs->StringLength=egs.StringLength;
+					oegs->SelStart=egs.SelStart;
+					oegs->SelEnd=egs.SelEnd;
+					if (gt) free(gt);
+					if (geol) free(geol);
+					gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength);
+					geol = UnicodeToAnsi(egs.StringEOL);
+					oegs->StringText=gt;
+					oegs->StringEOL=geol;
+					return TRUE;
+				}
+				return FALSE;
+			}
+
+		case ECTL_INSERTTEXT:
+		{
+			const char *p=(const char *)Param;
+			if (!p) return FALSE;
+			string strP(p);
+			return FarEditorControl(ECTL_INSERTTEXT,(void *)(const wchar_t *)strP);
+		}
+
+		case ECTL_GETINFO:
+		{
+			EditorInfo ei;
+			oldfar::EditorInfo *oei=(oldfar::EditorInfo *)Param;
+			if (!oei) return FALSE;
+			int ret=FarEditorControl(ECTL_GETINFO,&ei);
+			if (ret)
+			{
+				memset(oei,0,sizeof(*oei));
+				oei->EditorID=ei.EditorID;
+				if (fn)	free(fn);
+				fn = UnicodeToAnsi(ei.FileName);
+				oei->FileName=fn;
+				oei->WindowSizeX=ei.WindowSizeX;
+				oei->WindowSizeY=ei.WindowSizeY;
+				oei->TotalLines=ei.TotalLines;
+				oei->CurLine=ei.CurLine;
+				oei->CurPos=ei.CurPos;
+				oei->CurTabPos=ei.CurTabPos;
+				oei->TopScreenLine=ei.TopScreenLine;
+				oei->LeftPos=ei.LeftPos;
+				oei->Overtype=ei.Overtype;
+				oei->BlockType=ei.BlockType;
+				oei->BlockStartLine=ei.BlockStartLine;
+				oei->AnsiMode=0;
+				oei->TableNum=-1;
+				oei->Options=ei.Options;
+				oei->TabSize=ei.TabSize;
+				oei->BookMarkCount=ei.BookMarkCount;
+				oei->CurState=ei.CurState;
+				return TRUE;
+			}
+			return FALSE;
+		}
+
+		case ECTL_EDITORTOOEM:
+		case ECTL_OEMTOEDITOR:
+			return TRUE;
+
+		case ECTL_SAVEFILE:
+		case ECTL_PROCESSINPUT:
+		case ECTL_PROCESSKEY:
+		case ECTL_READINPUT:
+		case ECTL_SETKEYBAR:
+		case ECTL_SETPARAM:
+		case ECTL_SETSTRING:
+		case ECTL_SETTITLE:
+			return FALSE;
+
+	}
+
 	return FALSE;
 }
 

@@ -569,7 +569,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 			return (HANDLE)handle;
 	}
 
-    return INVALID_HANDLE_VALUE;
+	return INVALID_HANDLE_VALUE;
 }
 
 
@@ -619,12 +619,12 @@ int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 {
 	Plugin *pPlugin = NULL;;
 
-    for (int i = 0; i < PluginsCount; i++)
-    {
-    	pPlugin = PluginsData[i];
+	for (int i = 0; i < PluginsCount; i++)
+	{
+		pPlugin = PluginsData[i];
 
-    	if ( pPlugin->ProcessEditorInput(Rec) )
-    		return TRUE;
+		if ( pPlugin->ProcessEditorInput(Rec) )
+			return TRUE;
 	}
 
 	return FALSE;
