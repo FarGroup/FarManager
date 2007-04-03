@@ -2085,6 +2085,9 @@ void Help::InitKeyBar(void)
   HelpKeyBar.Change(KBL_SHIFT,L"",7-1);
 #endif
 
+  HelpKeyBar.ReadRegGroup(L"Help",Opt.strLanguage);
+  HelpKeyBar.SetAllRegGroup();
+
   SetKeyBar(&HelpKeyBar);
 }
 /* SVS $ */

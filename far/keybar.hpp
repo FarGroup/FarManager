@@ -8,6 +8,7 @@ Keybar
 */
 
 #include "scrobj.hpp"
+#include "unicodestring.hpp"
 
 //   Группы меток
 enum {
@@ -24,12 +25,7 @@ enum {
 
 const int KEY_COUNT = 12;
 
-/* $ 30.04.2001 DJ
-   добавлен typedef; структура класса переделана, дабы избавиться от
-   дублирования кода и данных
-*/
-
-typedef wchar_t KeyBarTitle [10];
+typedef wchar_t KeyBarTitle [16];
 typedef KeyBarTitle KeyBarTitleGroup [KEY_COUNT];
 
 class KeyBar: public ScreenObject
@@ -43,17 +39,33 @@ class KeyBar: public ScreenObject
     int AltState,CtrlState,ShiftState;
     int DisableMask;
 
+    KeyBarTitleGroup RegKeyTitles [KBL_GROUP_COUNT];
+    bool RegReaded;
+
+    string strLanguage;
+    string strRegGroupName;
+
   private:
     virtual void DisplayObject();
 
   public:
     KeyBar();
     virtual  ~KeyBar() {}
-    void SetOwner(ScreenObject *Owner);
+
+  public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
+    void SetOwner(ScreenObject *Owner);
+
+    void ReadRegGroup(const wchar_t *RegGroup, string &strLanguage);
+    void SetRegGroup(int Group);
+    void SetAllRegGroup(void);
+
     void SetGroup(int Group,const wchar_t * const *Key,int KeyCount);
+    // Групповая установка идущих подряд строк LNG для указанной группы
+    void SetAllGroup (int Group, int StartIndex, int Count);
+
     void ClearGroup(int Group);
 
     void Set(const wchar_t * const *Key,int KeyCount)            { SetGroup (KBL_MAIN, Key, KeyCount); }
@@ -67,22 +79,11 @@ class KeyBar: public ScreenObject
     void SetDisableMask(int Mask);
     void Change(const wchar_t *NewStr,int Pos)                   { Change (KBL_MAIN, NewStr, Pos); }
 
-    /* $ 07.08.2000 SVS
-       Изменение любого Label
-    */
+    // Изменение любого Label
     void Change(int Group,const wchar_t *NewStr,int Pos);
-    /* SVS $ */
-
-    /* $ 30.04.2001 DJ
-       Групповая установка идущих подряд строк LNG для указанной группы
-    */
-    void SetAllGroup (int Group, int StartIndex, int Count);
-    /* DJ $ */
 
     void RedrawIfChanged();
     virtual void ResizeConsole();
 };
-
-/* DJ $ */
 
 #endif  // __KEYBAR_HPP__

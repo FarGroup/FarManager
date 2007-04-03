@@ -1941,7 +1941,10 @@ BOOL TreeList::UpdateKeyBar()
 
 void TreeList::DynamicUpdateKeyBar()
 {
-  ;//KeyBar *KB = CtrlObject->MainKeyBar;
+  KeyBar *KB = CtrlObject->MainKeyBar;
+
+  KB->ReadRegGroup(L"Tree",Opt.strLanguage);
+  KB->SetAllRegGroup();
 }
 
 void TreeList::SetTitle()

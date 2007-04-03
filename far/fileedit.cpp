@@ -811,6 +811,9 @@ void FileEditor::InitKeyBar(void)
   else*/
     EditKeyBar.Change(KBL_MAIN,UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
+  EditKeyBar.ReadRegGroup(L"Editor",Opt.strLanguage);
+  EditKeyBar.SetAllRegGroup();
+
   EditKeyBar.Show();
   m_editor->SetPosition(X1,Y1,X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   SetKeyBar(&EditKeyBar);

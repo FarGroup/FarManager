@@ -1,3 +1,36 @@
+svs 03.04.2007 21:27:41 +0300 - build 234
+
+1. Фигня была с языками. 
+   Например, убили FarEng.lng, в реестре при этом стоит Language/Main="English"
+   Грузимся. Видим русский интерфейс.
+   set FARLANG
+   видим "English".
+
+2. Mantis#0000092: Переопределение лейбов функциональных клавиш
+   Ну, это фича, давно востребованная... В общем работает. :-)
+   [HKCU\Software\Far\KeyLabels\ЯЗЫК\ОБЛАСТЬ]
+   "ИМЯКЛАВИШИ"="Значение"
+
+   Здесь
+     ЯЗЫК       - так, как написано в LNG-файле, например,
+                  English или Russian, т.е. тот, который в параметре
+                  ".Language" идет первым после "=" и до ","
+     ОБЛАСТЬ    - область действия в терминологии macro.
+                  Понимаем области: Shell, Help, Edit, View, QView, Tree, Info
+     ИМЯКЛАВИШИ - так, как они описываются в макросах.
+                  Понимаются только функциональные "*F?" (что естественно :-))
+
+2Warp: Бадья с EnumRegValueEx и EnumRegValue.
+       второй RegEnumValueW возвращает
+       #define ERROR_MORE_DATA                  234L    // dderror
+
+       И в config.cpp вот это глянь
+      {1, REG_SZ,     NKeyLanguageW,L"Main",&Opt.strLanguage, 0, InitedLanguage}, 
+
+      в общем... все, что связано с InitedLanguage :-)
+
+
+
 t-rex 02.04.2007 08:07:13 +0200 - 233
 
 1. Wrapper: Теперь работает Menu.

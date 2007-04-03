@@ -673,11 +673,6 @@ int InfoList::GetCurName(string &strName, string &strShortName)
   return (TRUE);
 }
 
-/* IS $ */
-/* $ 30.04.2001 DJ
-   свой кейбар
-*/
-
 BOOL InfoList::UpdateKeyBar()
 {
   KeyBar *KB = CtrlObject->MainKeyBar;
@@ -729,5 +724,7 @@ void InfoList::DynamicUpdateKeyBar()
     KB->Change (KBL_SHIFT, L"", 8-1);
     KB->Change (KBL_ALT, UMSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
+
+  KB->ReadRegGroup(L"Info",Opt.strLanguage);
+  KB->SetAllRegGroup();
 }
-/* DJ $ */

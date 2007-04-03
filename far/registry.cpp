@@ -673,7 +673,7 @@ int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDat
   return RetCode;
 }
 
-int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string strSData, LPDWORD IData,__int64* IData64)
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData,__int64* IData64)
 {
   HKEY hKey=OpenRegKey(Key);
   int RetCode=REG_NONE;

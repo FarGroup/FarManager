@@ -155,6 +155,9 @@ void FileViewer::InitKeyBar(void)
   if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
     ViewKeyBar.Change(KBL_ALT,L"",5-1);
 
+  ViewKeyBar.ReadRegGroup(L"Viewer",Opt.strLanguage);
+  ViewKeyBar.SetAllRegGroup();
+
   SetKeyBar(&ViewKeyBar);
   // $ 15.07.2000 tran - ShowKeyBarViewer support
   View.SetPosition(X1,Y1,X2,Y2-(Opt.ViOpt.ShowKeyBar?1:0));

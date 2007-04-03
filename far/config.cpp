@@ -1151,7 +1151,7 @@ static struct FARConfig{
 
   {0, REG_DWORD,  NKeyHelpW,L"ActivateURL",&Opt.HelpURLRules,1, 0},
 
-  {1, REG_SZ,     NKeyLanguageW,L"Main",&Opt.strLanguage, 0, L"English"},
+  {1, REG_SZ,     NKeyLanguageW,L"Main",&Opt.strLanguage, 0, InitedLanguage},
   {1, REG_SZ,     NKeyLanguageW,L"Help",&Opt.strHelpLanguage, 0, L"English"},
 
   {1, REG_DWORD,  NKeyConfirmationsW,L"Copy",&Opt.Confirm.Copy,1, 0},
@@ -1280,6 +1280,10 @@ void ReadConfig()
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     Opt.FlagPosixSemantics=0;
   /* VVM $ */
+
+  // ОНО ранее может переопределяться
+  if(LocalStricmpW(Opt.strLanguage,InitedLanguage))
+    Opt.strLanguage=InitedLanguage;
 
   GetRegKey(NKeyConfirmationsW,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
 

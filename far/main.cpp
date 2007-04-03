@@ -575,6 +575,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     WaitKey(); // А стоит ли ожидать клавишу??? Стоит
     exit(0);
   }
+  wcscpy(InitedLanguage,Opt.strLanguage); // ?????? wcsncpy
   SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
   ConvertOldSettings();
   SetHighlighting();
@@ -582,7 +583,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   DeleteEmptyKey(HKEY_CLASSES_ROOT,L"Directory\\shellex\\CopyHookHandlers");
 
-  initMacroVarTable(0);
   initMacroVarTable(1);
 
 #ifdef _DEBUGEXC
@@ -611,7 +611,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   FinalizeSetupAPI ();
 
   doneMacroVarTable(1);
-  doneMacroVarTable(0);
 
   _OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
   return Result;

@@ -4238,6 +4238,9 @@ BOOL FileList::UpdateKeyBar()
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     KB->Change(KBL_ALT,L"",6-1);
 
+  KB->ReadRegGroup(L"Shell",Opt.strLanguage);
+  KB->SetAllRegGroup();
+
   if (GetMode() == PLUGIN_PANEL)
   {
     struct OpenPluginInfo Info;

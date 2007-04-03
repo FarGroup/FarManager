@@ -261,6 +261,8 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
   FILE *LangFile=NULL;
   string strFullName, strEngFileName;
   FAR_FIND_DATA_EX FindData;
+  string strLangName;
+  strLangName=Opt.strLanguage;
 
   ScanTree ScTree(FALSE,FALSE);
   ScTree.SetFindPath(Path,Mask);
@@ -275,7 +277,6 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
     {
       nCodePage = GetFileFormat (LangFile);
 
-      string strLangName;
       string strNULL;
 
       if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nCodePage) && LocalStricmpW(strLangName,Language)==0)
@@ -297,7 +298,11 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
     if ( !strEngFileName.IsEmpty() )
       strFileName = strEngFileName;
     if ( !strFileName.IsEmpty() )
+    {
+      if(!strLangName.IsEmpty() && LocalStricmpW(strLangName,Language))
+        Opt.strLanguage=strLangName;
       LangFile=_wfopen(strFileName,L"rb");
+    }
   }
 
   return(LangFile);

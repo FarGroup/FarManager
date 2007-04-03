@@ -427,7 +427,7 @@ HKEY OpenRegKey(const wchar_t *Key);
 int GetRegKeySize(const wchar_t *Key,const wchar_t *ValueName);
 int GetRegKeySize(HKEY hKey,const wchar_t *ValueName);
 int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName, LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
-int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string strData, LPDWORD IData=NULL,__int64* IData64=NULL);
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strData, LPDWORD IData=NULL,__int64* IData64=NULL);
 LONG SetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData);
 int GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default);
 __int64 GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default);

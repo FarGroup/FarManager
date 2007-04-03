@@ -31,6 +31,7 @@ BOOL IsCryptFileASupport=FALSE;
 
 // языковой файл загружен?
 BOOL LanguageLoaded=FALSE;
+wchar_t InitedLanguage[LANGUAGENAME_SIZE];
 
 // флаг на запрет юзание Ctrl-Alt-Shift
 BOOL NotUseCAS=FALSE;
