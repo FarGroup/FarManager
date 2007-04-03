@@ -539,6 +539,20 @@ the main help file, that is actual for the current FAR Manager version.
    1. The "System/CopySecurityOptions" key does not affect the creation  of
       links (Alt-F6). In this case the access right are always copied.
 
+1.2.26.(TechInfo #76)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\System]
+   "FolderDeepScan":DWORD
+   ѕараметр "System/FolderDeepScan" с типом DWORD позвол€ет обходить
+   ограничени€ при работе с каталогами, в именах которых содержатс€
+   символы, некорректно преобразованные из ANSI в OEM.
+   ≈сли параметр включен (=1), то при обработке подобных каталогов будет
+   произведена попытка получить информацию по короткому имени.
+   Ёта опци€ не вли€ет на работу механизма копировани€.
+   ћожет быть одним из следующих значений:
+      0 - опци€ отключена;
+      1 - использовать короткие имена;
+   ѕо умолчанию значение = 0 (работать только с длинными именами каталогов)
 
 
 ======================
