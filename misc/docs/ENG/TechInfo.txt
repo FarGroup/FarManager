@@ -40,7 +40,8 @@ the main help file, that is actual for the current FAR Manager version.
    The     data     from     [HKCU\Software\Far]     is     copied     into
    [HKCU\Software\Far\Users] only if the following registry branch  doesn't
    exist:
-   [HKCU\Software\Far\Users\<username>].
+   [HKCU\Software\Far\Users\<username>]. Копируются все данные, кроме
+   [HKCU\Software\Far\Users] и [HKCU\Software\Far\PluginsCache].
    That means that changing parameters  described  below  will  not  affect
    existing user profiles.  Setting  for  "<username>"  should  be  changed
    relative to the branch [HKCU\Software\Far\Users\<username>].

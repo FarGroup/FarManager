@@ -39,9 +39,10 @@ I. FAR Manager: дополнительные настройки.
     люч "/u <username>"
    ƒанные из  [HKCU\Software\Far]  копируютс€  в  [HKCU\Software\Far\Users]
    только в том случае, если в реестре не существует ветки:
-   [HKCU\Software\Far\Users\<username>].
-   “.о. изменени€ указанных ниже параметров  не  повли€ют  на  существующие
-   профили  пользователей.  »зменени€  настроек  дл€  "<username>"  следует
+   [HKCU\Software\Far\Users\<username>].  опируютс€ все данные, кроме
+   [HKCU\Software\Far\Users] и [HKCU\Software\Far\PluginsCache]
+   “.о. изменени€ указанных ниже параметров не повли€ют на существующие
+   профили пользователей. »зменени€ настроек дл€ "<username>" следует
    проводить относительно ветки [HKCU\Software\Far\Users\<username>]
 
 1.1.1.(TechInfo #3)
