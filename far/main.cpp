@@ -662,6 +662,7 @@ int _cdecl main(int Argc, char *Argv[])
     exit(0);
     /* SVS $ */
   }
+  strcpy(InitedLanguage,Opt.Language); // скорректируем инициализирующую строку лэнгвича
   SetEnvironmentVariable("FARLANG",Opt.Language);
   ConvertOldSettings();
   SetHighlighting();
@@ -675,7 +676,6 @@ int _cdecl main(int Argc, char *Argv[])
   }
   /* IS $ */
 
-  initMacroVarTable(0);
   initMacroVarTable(1);
 
 #ifdef _DEBUGEXC
@@ -704,7 +704,6 @@ int _cdecl main(int Argc, char *Argv[])
   FinalizeSetupAPI ();
 
   doneMacroVarTable(1);
-  doneMacroVarTable(0);
 
   _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));
   return Result;

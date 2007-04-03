@@ -105,6 +105,7 @@ extern BOOL IsCryptFileASupport;
 extern char RegColorsHighlight[];
 
 extern BOOL LanguageLoaded;
+extern char InitedLanguage[];
 
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;

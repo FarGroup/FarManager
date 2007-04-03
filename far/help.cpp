@@ -1921,6 +1921,8 @@ void Help::SetScreenPosition()
 */
 void Help::InitKeyBar(void)
 {
+  HelpKeyBar.ReadRegGroup("Help",Opt.Language);
+
   HelpKeyBar.SetAllGroup (KBL_MAIN, MHelpF1, 12);
   HelpKeyBar.SetAllGroup (KBL_SHIFT, MHelpShiftF1, 12);
   HelpKeyBar.SetAllGroup (KBL_ALT, MHelpAltF1, 12);
@@ -1937,6 +1939,7 @@ void Help::InitKeyBar(void)
   HelpKeyBar.Change(KBL_MAIN,"",7-1);
   HelpKeyBar.Change(KBL_SHIFT,"",7-1);
 #endif
+  HelpKeyBar.SetAllRegGroup();
 
   SetKeyBar(&HelpKeyBar);
 }

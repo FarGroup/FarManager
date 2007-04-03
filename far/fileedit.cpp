@@ -450,6 +450,8 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
 
 void FileEditor::InitKeyBar(void)
 {
+  EditKeyBar.ReadRegGroup("Editor",Opt.Language);
+
   EditKeyBar.SetAllGroup (KBL_MAIN,      Opt.OnlyEditorViewerUsed?MSingleEditF1:MEditF1, 12);
   EditKeyBar.SetAllGroup (KBL_SHIFT,     Opt.OnlyEditorViewerUsed?MSingleEditShiftF1:MEditShiftF1, 12);
   EditKeyBar.SetAllGroup (KBL_ALT,       Opt.OnlyEditorViewerUsed?MSingleEditAltF1:MEditAltF1, 12);
@@ -478,6 +480,8 @@ void FileEditor::InitKeyBar(void)
     EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
   else
     EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+
+  EditKeyBar.SetAllRegGroup();
 
   EditKeyBar.Show();
   FEdit->SetPosition(X1,Y1,X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));

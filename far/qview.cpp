@@ -512,9 +512,17 @@ void QuickView::SetMacroMode(int Restore)
   CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);
 }
 
-/* $ 30.04.2001 DJ
-   свой кейбар
-*/
+int QuickView::GetCurName(char *Name,char *ShortName)
+{
+  if (Name && ShortName && *CurFileName)
+  {
+    strcpy(Name, CurFileName);
+    strcpy(ShortName, Name);
+    return (TRUE);
+  }
+  return (FALSE);
+}
+
 
 BOOL QuickView::UpdateKeyBar()
 {
@@ -530,17 +538,6 @@ BOOL QuickView::UpdateKeyBar()
   DynamicUpdateKeyBar();
 
   return TRUE;
-}
-
-int QuickView::GetCurName(char *Name,char *ShortName)
-{
-  if (Name && ShortName && *CurFileName)
-  {
-    strcpy(Name, CurFileName);
-    strcpy(ShortName, Name);
-    return (TRUE);
-  }
-  return (FALSE);
 }
 
 void QuickView::DynamicUpdateKeyBar()
@@ -581,6 +578,6 @@ void QuickView::DynamicUpdateKeyBar()
     else
       KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
   }
+  KB->ReadRegGroup("QView",Opt.Language);
+  KB->SetAllRegGroup();
 }
-
-/* DJ $ */

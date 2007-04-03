@@ -7,6 +7,7 @@ Keybar
 
 */
 
+#include "farconst.hpp"
 #include "scrobj.hpp"
 
 enum {
@@ -23,12 +24,7 @@ enum {
 
 const int KEY_COUNT = 12;
 
-/* $ 30.04.2001 DJ
-   добавлен typedef; структура класса переделана, дабы избавиться от
-   дублирования кода и данных
-*/
-
-typedef char KeyBarTitle [10];
+typedef char KeyBarTitle [16];
 typedef KeyBarTitle KeyBarTitleGroup [KEY_COUNT];
 
 class KeyBar: public ScreenObject
@@ -39,8 +35,14 @@ class KeyBar: public ScreenObject
     KeyBarTitleGroup KeyTitles [KBL_GROUP_COUNT];
     int KeyCounts [KBL_GROUP_COUNT];
 
+    KeyBarTitleGroup RegKeyTitles [KBL_GROUP_COUNT];
+    bool RegReaded;
+
     int AltState,CtrlState,ShiftState;
     int DisableMask;
+
+    char Language[LANGUAGENAME_SIZE];
+    char RegGroupName[32];
 
   private:
     virtual void DisplayObject();
@@ -48,12 +50,22 @@ class KeyBar: public ScreenObject
   public:
     KeyBar();
     virtual  ~KeyBar() {};
-    void SetOwner(ScreenObject *Owner);
+
+  public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    void SetGroup(int Group,const char **Key,int KeyCount);
+    void SetOwner(ScreenObject *Owner);
+
     void ClearGroup(int Group);
+
+    void ReadRegGroup(const char *RegGroup, const char *szLanguage);
+    void SetRegGroup(int Group);
+    void SetAllRegGroup(void);
+
+    void SetGroup(int Group,const char **Key,int KeyCount);
+    // Групповая установка идущих подряд строк LNG для указанной группы
+    void SetAllGroup (int Group, int StartIndex, int Count);
 
     void Set(const char **Key,int KeyCount)            { SetGroup (KBL_MAIN, Key, KeyCount); }
     void SetShift(const char **Key,int KeyCount)       { SetGroup (KBL_SHIFT, Key, KeyCount); }
@@ -63,25 +75,15 @@ class KeyBar: public ScreenObject
     void SetAltShift(const char **Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
     void SetCtrlAlt(const char **Key,int KeyCount)     { SetGroup (KBL_CTRLALT, Key, KeyCount); }
 
-    void SetDisableMask(int Mask);
     void Change(const char *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
 
-    /* $ 07.08.2000 SVS
-       Изменение любого Label
-    */
+    // Изменение любого Label
     void Change(int Group,const char *NewStr,int Pos);
-    /* SVS $ */
 
-    /* $ 30.04.2001 DJ
-       Групповая установка идущих подряд строк LNG для указанной группы
-    */
-    void SetAllGroup (int Group, int StartIndex, int Count);
-    /* DJ $ */
+    void SetDisableMask(int Mask);
 
     void RedrawIfChanged();
     virtual void ResizeConsole();
 };
-
-/* DJ $ */
 
 #endif  // __KEYBAR_HPP__

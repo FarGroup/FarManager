@@ -20,9 +20,12 @@ KeyBar::KeyBar()
   _OT(SysLog("[%p] KeyBar::KeyBar()", this));
   DisableMask=0;
   Owner=NULL;
+  RegReaded=FALSE;
   AltState=CtrlState=ShiftState=0;
+  *RegGroupName=0;
   memset (KeyTitles, 0, sizeof (KeyTitles));
   memset (KeyCounts, 0, sizeof (KeyCounts));
+  memset (RegKeyTitles, 0, sizeof (RegKeyTitles));
 }
 
 
@@ -120,6 +123,82 @@ void KeyBar::DisplayObject()
 }
 /* SVS $ */
 
+void KeyBar::ReadRegGroup(const char *RegGroup, const char *szLanguage)
+{
+  if(!RegReaded || stricmp(Language,szLanguage) != 0 || stricmp(RegGroupName,RegGroup) != 0)
+  {
+    int I;
+
+    char RegName[NM];
+    char ValueName[129];
+    char Value[NM];
+
+    memset (RegKeyTitles, 0, sizeof (RegKeyTitles));
+    xstrncpy(Language,szLanguage,sizeof(Language)-1);
+    xstrncpy(RegGroupName,RegGroup,sizeof(RegGroupName)-1);
+
+    strcpy(RegName,"KeyBarLabels\\");
+    strncat(RegName,Language,sizeof(RegName)-1);
+    strncat(RegName,"\\",sizeof(RegName)-1);
+    strncat(RegName,RegGroup,sizeof(RegName)-1);
+
+    for (I=0;;I++)
+    {
+      *ValueName=0;
+      int Type=EnumRegValue(RegName,I,ValueName,sizeof(ValueName),(LPBYTE)Value,sizeof(Value)-1);
+
+      if (Type == REG_NONE)
+        break;
+
+      if (Type == REG_SZ)
+      {
+        DWORD Key=KeyNameToKey(ValueName);
+        DWORD Key0=Key&(~KEY_CTRLMASK);
+        DWORD Ctrl=Key&KEY_CTRLMASK;
+        if( Key0 >= KEY_F1 && Key0 <= KEY_F24 )
+        {
+          int I;
+          static DWORD Area[][2]={
+            { KBL_MAIN,        0 },
+            { KBL_SHIFT,       KEY_SHIFT },
+            { KBL_CTRL,        KEY_CTRL },
+            { KBL_ALT,         KEY_ALT },
+            { KBL_CTRLSHIFT,   KEY_CTRL|KEY_SHIFT },
+            { KBL_ALTSHIFT,    KEY_ALT|KEY_SHIFT },
+            { KBL_CTRLALT,     KEY_CTRL|KEY_ALT },
+          };
+          for(I=0; I < sizeof(Area)/sizeof(Area[0]); ++I)
+            if(Area[I][1] == Ctrl)
+              break;
+
+          if(I <= sizeof(Area)/sizeof(Area[0]))
+          {
+            Key0 -= KEY_F1;
+            int Group=Area[I][0];
+            xstrncpy (RegKeyTitles [Group][Key0], Value, sizeof (KeyTitles [Group][Key0])-1);
+          }
+
+        }
+      }
+    }
+    RegReaded=TRUE;
+  }
+}
+
+void KeyBar::SetRegGroup(int Group)
+{
+  for (int I=0; I < KEY_COUNT; I++)
+    if(*RegKeyTitles[Group][I])
+      xstrncpy (KeyTitles [Group][I], RegKeyTitles[Group][I], sizeof (KeyTitles [Group][I])-1);
+}
+
+void KeyBar::SetAllRegGroup(void)
+{
+  for(int I=0; I < KBL_GROUP_COUNT; ++I)
+    SetRegGroup(I);
+}
+
+
 void KeyBar::SetGroup(int Group,const char **Key,int KeyCount)
 {
   if(!Key) return;
@@ -136,21 +215,15 @@ void KeyBar::ClearGroup(int Group)
   KeyCounts [Group] = 0;
 }
 
-/* $ 07.08.2000 SVS
-   Изменение любого Label
-*/
+//Изменение любого Label
 void KeyBar::Change(int Group,const char *NewStr,int Pos)
 {
   if(NewStr)
     xstrncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos])-1);
 }
-/* SVS $ */
 
 
-/* $ 30.04.2001 DJ
-   Групповая установка идущих подряд строк LNG для указанной группы
-*/
-
+// Групповая установка идущих подряд строк LNG для указанной группы
 void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
 {
   if (Count > KEY_COUNT)
@@ -160,10 +233,6 @@ void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
   KeyCounts [Group] = Count;
 }
 
-/* DJ $ */
-
-/* $ 28.04.2001 VVM
-  + ProcessKey() */
 int KeyBar::ProcessKey(int Key)
 {
   switch (Key)
@@ -172,11 +241,10 @@ int KeyBar::ProcessKey(int Key)
     case KEY_GOTFOCUS:
       RedrawIfChanged();
       return(TRUE);
-  } /* switch */
+  }
   return(FALSE);
 }
 
-/* VVM */
 int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   INPUT_RECORD rec;

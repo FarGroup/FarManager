@@ -4124,6 +4124,8 @@ BOOL FileList::UpdateKeyBar()
 {
   KeyBar *KB=CtrlObject->MainKeyBar;
 
+  KB->ReadRegGroup("Shell",Opt.Language);
+
   KB->SetAllGroup (KBL_MAIN, MF1, 12);
   KB->SetAllGroup (KBL_SHIFT, MShiftF1, 12);
   KB->SetAllGroup (KBL_ALT, MAltF1, 12);
@@ -4134,6 +4136,8 @@ BOOL FileList::UpdateKeyBar()
 
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     KB->Change(KBL_ALT,"",6-1);
+
+  KB->SetAllRegGroup();
 
   if (GetMode() == PLUGIN_PANEL)
   {

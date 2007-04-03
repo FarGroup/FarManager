@@ -237,6 +237,8 @@ FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Langu
   FILE *LangFile=NULL;
   char FullName[NM], EngFileName[NM];
   WIN32_FIND_DATA FindData;
+  char LangName[LANGUAGENAME_SIZE];
+  strcpy(LangName,Opt.Language);
 
   *EngFileName=0;
 
@@ -251,7 +253,6 @@ FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Langu
       *FileName=0;
     else
     {
-      char LangName[100];
       if (GetLangParam(LangFile,"Language",LangName,NULL) && LocalStricmp(LangName,Language)==0)
         break;
       fclose(LangFile);
@@ -271,7 +272,11 @@ FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Langu
     if (*EngFileName)
       strcpy(FileName,EngFileName);
     if (*FileName)
+    {
       LangFile=fopen(FileName,"rb");
+      if(*LangName && LocalStricmp(Opt.Language,LangName))
+        strcpy(Opt.Language,LangName);
+    }
   }
 
   return(LangFile);

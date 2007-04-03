@@ -370,7 +370,7 @@ struct Options
   DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
   int AutoUpdateRemoteDrive;
 
-  char Language[80];
+  char Language[LANGUAGENAME_SIZE];
   int SmallIcon;
   char RegRoot[NM];
   /* $ 12.09.2000 SVS

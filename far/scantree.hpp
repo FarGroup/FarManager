@@ -18,7 +18,7 @@ enum{
   FSCANTREE_SCANSYMLINK      = 0x00000004, // = FRS_SCANSYMLINK
 
   // в младшем слове старшие 8 бита служебные!
-  FSCANTREE_USEDALTFOLDERNAME= 0x00001000, //
+  FSCANTREE_USEDALTFOLDERNAME= 0x00001000, // можно использовать короткое имя, если с длинным траблы
   FSCANTREE_SECONDPASS       = 0x00002000, // то, что раньше было было SecondPass[]
   FSCANTREE_SECONDDIRNAME    = 0x00004000,
   FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?

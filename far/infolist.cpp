@@ -720,5 +720,7 @@ void InfoList::DynamicUpdateKeyBar()
     KB->Change (KBL_SHIFT, "", 8-1);
     KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
+  KB->ReadRegGroup("Info",Opt.Language);
+  KB->SetAllRegGroup();
 }
 /* DJ $ */

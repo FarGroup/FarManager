@@ -129,6 +129,8 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
 
 void FileViewer::InitKeyBar(void)
 {
+  ViewKeyBar.ReadRegGroup("Viewer",Opt.Language);
+
   ViewKeyBar.SetAllGroup (KBL_MAIN,      Opt.OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
   ViewKeyBar.SetAllGroup (KBL_SHIFT,     Opt.OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);
   ViewKeyBar.SetAllGroup (KBL_ALT,       Opt.OnlyEditorViewerUsed?MSingleViewAltF1:MViewAltF1, 12);
@@ -148,6 +150,8 @@ void FileViewer::InitKeyBar(void)
 
   if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
     ViewKeyBar.Change(KBL_ALT,"",5-1);
+
+  ViewKeyBar.SetAllRegGroup();
 
   SetKeyBar(&ViewKeyBar);
   // $ 15.07.2000 tran - ShowKeyBarViewer support
