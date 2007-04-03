@@ -165,6 +165,35 @@ the main help file, that is actual for the current FAR Manager version.
    1 - plugin paths are shown in the history and saved to the registry.
    The default value is 0 (do not save plugin paths to the registry).
 
+1.1.13.(TechInfo #77)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\KeyLabels]
+   Содержимое ветки реестра "KeyLabels" позволяет переопределять надписи
+   к функциональным клавишам не прибегая к исправлению LNG-файлов.
+   Приоритет ветки высокий: FAR сначала считывает подписи к функциональным
+   клавишам из LNG-файла, далее изменяет значение подписей на значения
+   из этой ветки реестра (если найдено соответствующая подпись).
+   Структура:
+    [HKEY_CURRENT_USER\Software\Far\KeyLabels\ЯЗЫК\ОБЛАСТЬ]
+    "ИМЯКЛАВИШИ"="Значение"
+    Здесь
+      ЯЗЫК       - англоязычное название языка интерфейса, такое же написание,
+                   как в параметре ".Language" в LNG-файле (между '=' и ',');
+                   например, English или Russian.
+      ОБЛАСТЬ    - область действия в терминологии макросов;
+                   распознаются области: "Shell", "Help", "Editor", "Viewer",
+                   "QView", "Tree", "Info"
+      ИМЯКЛАВИШИ - имя клавиши в терминологии макросов, например, для
+                   сочетания Ctrl-Alt-F7 ИМЯКЛАВИШИ будет "CtrlAltF7";
+                   распознаются только функциональные клавиши от F1 до F12
+                   (в сочетании с модификаторами Alt, Ctrl и Shift).
+   Например,
+    чтобы "навсегда" в редакторе прописать для F1 метку "Мануал", необходимо
+    указать:
+      [HKEY_CURRENT_USER\Software\Far\KeyBarLabels\English\Editor]
+      "F1"="Мануал"
+
+
 
 =====================
   1.2. System.
