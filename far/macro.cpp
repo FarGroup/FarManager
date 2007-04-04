@@ -1917,6 +1917,12 @@ static TVar panelitemFunc(TVar *param)
       case 14:  // Position
         return TVar((__int64)filelistItem.Position);
 
+      case 15:  // CreationTime (FILETIME)
+        return TVar((__int64)*(__int64*)&filelistItem.CreationTime);
+      case 16:  // AccessTime (FILETIME)
+        return TVar((__int64)*(__int64*)&filelistItem.AccessTime);
+      case 17:  // WriteTime (FILETIME)
+        return TVar((__int64)*(__int64*)&filelistItem.WriteTime);
     }
   }
 
@@ -2682,10 +2688,10 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
     if (Type == REG_NONE)
       break;
 
-    if( strValueName.At(0) != L'%')
+    if( ! ( strValueName.At(0) == L'%' && strValueName.At(1) == L'%' ) )
       continue;
 
-    TVarTable *t = ( strValueName.At(1) == L'%' ) ? &glbVarTable : &locVarTable;
+    TVarTable *t = &glbVarTable;
 
     if (Type == REG_SZ)
       varInsert(*t, (const wchar_t*)strValueName+1)->value = (const wchar_t*)strSData;
@@ -3620,6 +3626,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     const wchar_t *oldBufPtr = BufPtr;
     if ( ( BufPtr = __GetNextWord(BufPtr, strCurrKeyText) ) == NULL )
        break;
+
     //- AN ----------------------------------------------
     //  Проверка на строковый литерал
     //  Сделаем $Text опциональным

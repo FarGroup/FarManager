@@ -688,18 +688,16 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
       DWORD Type=(DWORD)-1;
       DWORD Size = 0;
 
-      if (RegEnumValueW(hKey,Index,ValueName,&ValSize, NULL, &Type, NULL, &Size) != ERROR_SUCCESS)
+      if(RegEnumValueW(hKey,Index,ValueName,&ValSize, NULL, &Type, NULL, &Size) != ERROR_SUCCESS)
         break;
 
       wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
+      ValSize=sizeof(ValueName); // НАДА, иначе получаем ERROR_MORE_DATA
+      int Ret=RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,(LPBYTE)Data,&Size);
+      strSData.ReleaseBuffer ();
 
-      if (RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,(LPBYTE)Data,&Size) != ERROR_SUCCESS)
-      {
-        strSData.ReleaseBuffer ();
+      if (Ret != ERROR_SUCCESS)
         break;
-      }
-      else
-        strSData.ReleaseBuffer ();
 
       RetCode=Type;
 
