@@ -48,7 +48,10 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   int LastError=GetLastError();
 
   int nCodePage = CP_OEMCP;
-  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage);
+  string strLangName=Opt.strLanguage;
+  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
+  if(this == &Lang && LocalStricmpW(Opt.strLanguage,strLangName))
+    Opt.strLanguage=strLangName;
 
   if (LangFile==NULL)
     return(FALSE);
@@ -254,7 +257,7 @@ wchar_t* Language::GetMsg (int nID)
 }
 
 
-FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, int &nCodePage, BOOL StrongLang)
+FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, int &nCodePage, BOOL StrongLang,string *pstrLangName)
 {
   strFileName=L"";
 
@@ -262,7 +265,6 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
   string strFullName, strEngFileName;
   FAR_FIND_DATA_EX FindData;
   string strLangName;
-  strLangName=Opt.strLanguage;
 
   ScanTree ScTree(FALSE,FALSE);
   ScTree.SetFindPath(Path,Mask);
@@ -302,6 +304,8 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       if(!strLangName.IsEmpty() && LocalStricmpW(strLangName,Language))
         Opt.strLanguage=strLangName;
       LangFile=_wfopen(strFileName,L"rb");
+      if(pstrLangName)
+         *pstrLangName=strLangName;
     }
   }
 

@@ -40,7 +40,7 @@ class Language
 
     wchar_t* GetMsg (int nID);
 
-    static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nCodePage, BOOL StrongLang=FALSE);
+    static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
     static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage);
     /* $ 01.09.2000 SVS
       + Ќовый метод, дл€ получени€ параметров дл€ .Options
