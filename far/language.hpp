@@ -34,7 +34,7 @@ class Language
     void Close();
     char* GetMsg(int MsgId);
 
-    static FILE* OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang=FALSE);
+    static FILE* OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang=FALSE,char *pLangName=NULL);
     static int GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2);
     /* $ 01.09.2000 SVS
       + Ќовый метод, дл€ получени€ параметров дл€ .Options

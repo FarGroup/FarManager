@@ -44,9 +44,14 @@ int Language::Init(char *Path,int CountNeed)
 
   int LastError=GetLastError();
 
-  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.Language,MessageFile);
+  char LangName[LANGUAGENAME_SIZE];
+  strcpy(LangName,Opt.Language);
+  FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.Language,MessageFile,FALSE,LangName);
   if (LangFile==NULL)
     return(FALSE);
+
+  if(this == &Lang && *LangName && LocalStricmp(Opt.Language,LangName))
+    strcpy(Opt.Language,LangName);
 
   char ReadStr[1024];
 
@@ -230,7 +235,7 @@ char* Language::GetMsg(int MsgId)
 }
 
 
-FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang)
+FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang,char *pLangName)
 {
   *FileName=0;
 
@@ -238,7 +243,6 @@ FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Langu
   char FullName[NM], EngFileName[NM];
   WIN32_FIND_DATA FindData;
   char LangName[LANGUAGENAME_SIZE];
-  strcpy(LangName,Opt.Language);
 
   *EngFileName=0;
 
@@ -274,8 +278,8 @@ FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Langu
     if (*FileName)
     {
       LangFile=fopen(FileName,"rb");
-      if(*LangName && LocalStricmp(Opt.Language,LangName))
-        strcpy(Opt.Language,LangName);
+      if(pLangName)
+         strcpy(pLangName,LangName);
     }
   }
 
