@@ -30,7 +30,12 @@ cddrv.cpp
 #undef offsetof
 #define offsetof(s,m)   (size_t)&(((s *)0)->m)
 
-#if !defined(_MSC_VER) || (_MSC_VER < 1400)
+// Убедимся, что WSDK не подключен, чтобы избежать переопределения типов.
+#ifndef IOCTL_STORAGE_QUERY_PROPERTY
+
+// На самом деле определения ниже до #endif входили раньше (до Вистовского WSDK)
+// в DDK (ntddstor.h) и их надо было определять всегда. Теперь в WSDK они входят
+// в winioctl.h и определяются "автоматически".
 
 #define IOCTL_STORAGE_QUERY_PROPERTY    0x002D1400
 
