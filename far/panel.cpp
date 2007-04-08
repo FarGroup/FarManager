@@ -1214,6 +1214,11 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
     }
 }
 
+int Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  return 0;
+}
+
 // корректировка букв
 static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 {
@@ -1282,7 +1287,7 @@ void Panel::FastFind(int FirstKey)
           }
           else if((Opt.XLat.XLatFastFindKey && Key == Opt.XLat.XLatFastFindKey ||
                    Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey) ||
-                  Key == MCODE_OP_XLAT)
+                  Key == KEY_OP_XLAT)
           {
             string strTempName;
             FindEdit.Xlat();
@@ -1292,7 +1297,7 @@ void Panel::FastFind(int FirstKey)
             FastFindShow(FindX,FindY);
             continue;
           }
-          else if(Key == MCODE_OP_DATE || Key == MCODE_OP_PLAINTEXT)
+          else if(Key == KEY_OP_DATE || Key == KEY_OP_PLAINTEXT)
           {
             string strTempName;
             FindEdit.ProcessKey(Key);

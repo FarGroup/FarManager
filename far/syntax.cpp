@@ -529,21 +529,22 @@ static void put64(unsigned __int64 code)
 
 static void putstr(const wchar_t *s)
 {
-  int Length = (int)wcslen(s)+1;
+  _KEYMACRO(CleverSysLog Clev(L"putstr"));
+  _KEYMACRO(SysLog(L"s[%p]='%s'", s,s));
+
+  int Length = (int)(wcslen(s)+1)*sizeof(wchar_t);
   // строка должна быть выровнена на 4
-  int nSize = Length/sizeof(unsigned long);
-  if ( Length == 1 || ( Length % sizeof(unsigned long)) != 0 ) // дополнение до sizeof(DWORD) нулями.
+  int nSize = Length/sizeof(DWORD);
+  memmove(&exprBuff[Size],s,Length);
+  if ( Length == sizeof(wchar_t) || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
     nSize++;
-  for ( int i = 0 ; i < nSize ; i++ )
-  {
-    unsigned long d[2] = { 0, 0 };
-    wcsncpy((wchar_t*)d, s, sizeof(unsigned long));
-    s += sizeof(unsigned long);
-    exprBuff[Size++] = *d;
-  }
+  memset(&exprBuff[Size],0,nSize*sizeof(DWORD));
+  memmove(&exprBuff[Size],s,Length);
+  Size+=nSize;
 }
 
 int _macro_nErr = 0;
+int _macro_ErrCode=err_Success;
 static wchar_t nameString[1024];
 static wchar_t *sSrcString;
 static wchar_t *pSrcString = NULL;
@@ -578,6 +579,7 @@ void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar
 {
   if ( !_macro_nErr++ )
   {
+    _macro_ErrCode=err;
     int oPos = 0, ePos = (int)(s-p);
     ErrMessage[0]=ErrMessage[1]=ErrMessage[2]=L"";
     if ( ePos < 0 )
@@ -586,7 +588,7 @@ void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar
       return;
     }
 
-    ErrMessage[0].Format (UMSG(MMacroPErrUnrecognized_keyword+err),c);
+    ErrMessage[0].Format (UMSG(MMacroPErrUnrecognized_keyword+err-1),c);
     if ( ePos > 61 )
     {
       oPos = ePos-50;
@@ -1104,7 +1106,7 @@ int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wcha
 {
   wchar_t tmp[4];
   IsProcessFunc=0;
-  Size = _macro_nErr = 0;
+  _macro_ErrCode = Size = _macro_nErr = 0;
   while ( *BufPtr && iswspace(*BufPtr) )
     BufPtr++;
   if ( bound1 )

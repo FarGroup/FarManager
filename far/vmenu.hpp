@@ -220,7 +220,7 @@ class VMenu: public Modal
     virtual void DisplayObject();
     void ShowMenu(int IsParent=0);
     void DrawTitles();
-    int  GetPosition(int Position);
+    int  GetItemPosition(int Position);
     static int _SetUserData(MenuItemEx *PItem,const void *Data,int Size);
     static void* _GetUserData(MenuItemEx *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
@@ -271,6 +271,7 @@ class VMenu: public Modal
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     BOOL UpdateRequired(void);
 

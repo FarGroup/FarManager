@@ -188,6 +188,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\syntax.obj" \
+	"$(INTDIR)\TVMStack.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\udlist.obj" \

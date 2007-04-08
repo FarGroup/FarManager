@@ -216,6 +216,7 @@ FAROBJ=\
    $(OBJPATH)\qsort.obj\
    $(OBJPATH)\cmem.obj\
    $(OBJPATH)\syntax.obj\
+   $(OBJPATH)\TVMStack.obj\
    $(OBJPATH)\main.obj
 
 

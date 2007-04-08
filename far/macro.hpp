@@ -33,6 +33,11 @@ struct MacroState
   int ExecLIBPos;
   int MacroWORKCount;
   struct MacroRecord *MacroWORK; // т.н. текущее исполнение
+
+  bool AllocVarTable;
+  TVarTable *locVarTable;
+
+  void Init(TVarTable *tbl);
 };
 
 /* $TODO:
@@ -71,6 +76,7 @@ class KeyMacro
 
   private:
     int ReadVarsConst(int ReadMode, string &strBuffer);
+    int ReadMacroFunction(int ReadMode, string &strBuffer);
     int WriteVarsConst(int ReadMode);
     int ReadMacros(int ReadMode, string &strBuffer);
     DWORD AssignMacroKey();
@@ -106,7 +112,7 @@ class KeyMacro
     int GetKey();
     int PeekKey();
 
-    int PushState();
+    int PushState(bool CopyLocalVars=FALSE);
     int PopState();
     int GetLevelState(){return CurPCStack;};
 
@@ -133,8 +139,8 @@ class KeyMacro
     // получение размера, занимаемого указанным макросом
     int GetRecordSize(int Key, int Mode);
 
-    wchar_t *GetPlainText(wchar_t *Dest);
-    int   GetPlainTextSize();
+    bool GetPlainText(string& Dest);
+    int  GetPlainTextSize();
 
     void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
 

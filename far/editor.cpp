@@ -663,6 +663,9 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
     case 3:
       strcpy(GlobalEOL,MAC_EOL_fmt);
       break;
+    case 4:
+      strcpy(GlobalEOL,WIN_EOL_fmt);
+      break;
   }
 
   int StrLength=0;
@@ -686,8 +689,10 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
         EndSeq=DOS_EOL_fmt;
       else if (TextFormat==2)
         EndSeq=UNIX_EOL_fmt;
-      else
+      else if (TextFormat==3)
         EndSeq=MAC_EOL_fmt;
+      else
+        EndSeq=WIN_EOL_fmt;
 
       CurPtr->SetEOL(EndSeq);
     }
@@ -904,6 +909,33 @@ void Editor::TextChanged(int State)
 }
 /* skv$*/
 
+
+int Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  int CurPos=CurLine->GetCurPos();
+  switch(OpCode)
+  {
+    case MCODE_C_EMPTY:
+      return !CurLine->m_next && !CurLine->m_prev; //??
+    case MCODE_C_EOF:
+      return !CurLine->m_next && CurPos>=CurLine->GetLength();
+    case MCODE_C_BOF:
+      return !CurLine->m_prev && CurPos==0;
+    case MCODE_C_SELECTED:
+      return BlockStart || VBlockStart?TRUE:FALSE;
+    case MCODE_V_EDITORCURPOS:
+      return CurLine->GetTabCurPos()+1;
+    case MCODE_V_EDITORCURLINE:
+      return NumLine+1;
+    case MCODE_V_ITEMCOUNT:
+    case MCODE_V_EDITORLINES:
+      return NumLastLine;
+
+  }
+  return 0;
+}
+
+
 int Editor::ProcessKey(int Key)
 {
   if (Key==KEY_IDLE)
@@ -926,8 +958,7 @@ int Editor::ProcessKey(int Key)
   int isk=IsShiftKey(Key);
   _SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
   //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
-//  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
-  if (!isk && !Pasting && (Key < KEY_MACRO_BASE || Key > KEY_MACRO_ENDBASE))
+  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))
   {
     _SVS(SysLog(L"[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
     if (BlockStart!=NULL || VBlockStart!=NULL)
@@ -959,7 +990,7 @@ int Editor::ProcessKey(int Key)
            KEY_CTRLDOWN,  KEY_CTRLNUMPAD2,
            KEY_CTRLN,
            KEY_CTRLE,
-           KEY_CTRLS
+           KEY_CTRLS,
         };
         for (int I=0;I<sizeof(UnmarkKeys)/sizeof(UnmarkKeys[0]);I++)
           if (Key==UnmarkKeys[I])
@@ -979,25 +1010,6 @@ int Editor::ProcessKey(int Key)
           UnmarkBlock();
       }
     }
-  }
-
-  switch(Key)
-  {
-    case MCODE_C_EMPTY:
-      return !CurLine->m_next && !CurLine->m_prev; //??
-    case MCODE_C_EOF:
-      return !CurLine->m_next && CurPos>=CurLine->GetLength();
-    case MCODE_C_BOF:
-      return !CurLine->m_prev && CurPos==0;
-    case MCODE_C_SELECTED:
-      return BlockStart || VBlockStart?TRUE:FALSE;
-    case MCODE_V_EDITORCURPOS:
-      return CurLine->GetTabCurPos()+1;
-    case MCODE_V_EDITORCURLINE:
-      return NumLine+1;
-    case MCODE_V_ITEMCOUNT:
-    case MCODE_V_EDITORLINES:
-      return NumLastLine;
   }
 
   if (Key==KEY_ALTD)
@@ -2624,17 +2636,45 @@ int Editor::ProcessKey(int Key)
     }
     /* SVS $ */
 
-    case MCODE_OP_DATE:
-    case MCODE_OP_PLAINTEXT:
+    case KEY_OP_SELWORD:
+    {
+      int OldCurPos=CurPos;
+      int SStart, SEnd;
+      Pasting++;
+      Lock ();
+
+      UnmarkBlock();
+      CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,CurLine->TableSet,EdOpt.strWordDiv);
+      CurLine->Select(SStart,++SEnd);
+
+      Flags.Set(FEDITOR_MARKINGBLOCK);
+      BlockStart=CurLine;
+      BlockStartLine=NumLine;
+      //SelFirst=TRUE;
+      SelStart=SStart;
+      SelEnd=SEnd;
+
+      //CurLine->ProcessKey(MCODE_OP_SELWORD);
+
+      CurPos=OldCurPos; // возвращаем обратно
+      Pasting--;
+      Unlock ();
+
+      Show();
+      return TRUE;
+    }
+
+    case KEY_OP_DATE:
+    case KEY_OP_PLAINTEXT:
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         const wchar_t *Fmt = eStackAsString();
         string strTStr;
 
-        if(Key == MCODE_OP_PLAINTEXT)
+        if(Key == KEY_OP_PLAINTEXT)
           strTStr = Fmt;
-        if(Key == MCODE_OP_PLAINTEXT || MkStrFTime(strTStr, Fmt))
+        if(Key == KEY_OP_PLAINTEXT || MkStrFTime(strTStr, Fmt))
         {
           wchar_t *Ptr=strTStr.GetBuffer();
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
@@ -2815,7 +2855,7 @@ int Editor::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
             Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) ||
-            Key == MCODE_OP_XLAT)
+            Key == KEY_OP_XLAT)
         /* IS  $ */
         {
           Xlat();

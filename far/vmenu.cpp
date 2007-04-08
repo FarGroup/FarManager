@@ -705,25 +705,10 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   return EndLoop==TRUE;
 }
 
-int VMenu::ProcessKey(int Key)
+int VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  CriticalSectionLock Lock(CS);
-
-  int I;
-
-  if (Key==KEY_NONE || Key==KEY_IDLE)
-    return(FALSE);
-
-  switch(Key)
+  switch(OpCode)
   {
-    case MCODE_OP_PLAINTEXT:
-    {
-      const wchar_t *str = eStackAsString();
-      if (!*str)
-        return FALSE;
-      Key=*str;
-      break;
-    }
     case MCODE_C_EMPTY:
       return ItemCount<=0;
     case MCODE_C_EOF:
@@ -738,11 +723,32 @@ int VMenu::ProcessKey(int Key)
       return SelectPos+1;
     case MCODE_F_MENU_CHECKHOTKEY:
     {
-      const wchar_t *str = eStackAsString(1);
+      const wchar_t *str = (const wchar_t *)vParam;
       if ( *str )
-        return CheckHighlights(*str);
+        return CheckHighlights((WORD)*str);
       return FALSE;
     }
+  }
+
+  return 0;
+}
+
+int VMenu::ProcessKey(int Key)
+{
+  CriticalSectionLock Lock(CS);
+
+  int I;
+
+  if (Key==KEY_NONE || Key==KEY_IDLE)
+    return(FALSE);
+
+
+  if( Key == KEY_OP_PLAINTEXT)
+  {
+    const wchar_t *str = eStackAsString();
+    if (!*str)
+      return FALSE;
+    Key=*str;
   }
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
@@ -753,7 +759,7 @@ int VMenu::ProcessKey(int Key)
       return(FALSE);
     }
 
-  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
+  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE))
   {
     DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
     DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));
@@ -1434,7 +1440,7 @@ int VMenu::GetUserDataSize(int Position)
   if (ItemCount==0)
     return(0);
 
-  int DataSize=Item[GetPosition(Position)]->UserDataSize;
+  int DataSize=Item[GetItemPosition(Position)]->UserDataSize;
 
   return(DataSize);
 }
@@ -1825,7 +1831,7 @@ void VMenu::SetBoxType(int BoxType)
   VMenu::BoxType=BoxType;
 }
 
-int VMenu::GetPosition(int Position)
+int VMenu::GetItemPosition(int Position)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1843,7 +1849,7 @@ int VMenu::GetSelection(int Position)
   if (ItemCount==0)
     return(0);
 
-  int DataPos=GetPosition(Position);
+  int DataPos=GetItemPosition(Position);
   if (Item[DataPos]->Flags&LIF_SEPARATOR)
     return(0);
   int Checked=Item[DataPos]->Flags&0xFFFF;
@@ -1857,7 +1863,7 @@ void VMenu::SetSelection(int Selection,int Position)
 
   if (ItemCount==0)
     return;
-  Item[GetPosition(Position)]->SetCheck(Selection);
+  Item[GetItemPosition(Position)]->SetCheck(Selection);
 }
 
 // Функция GetItemPtr - получить указатель на нужный Item.
@@ -1867,7 +1873,7 @@ struct MenuItemEx *VMenu::GetItemPtr(int Position)
 
   if (ItemCount==0)
     return NULL;
-  return Item[GetPosition(Position)];
+  return Item[GetItemPosition(Position)];
 }
 
 BOOL VMenu::CheckHighlights(WORD CheckSymbol)
@@ -2249,7 +2255,7 @@ int VMenu::SetUserData(void *Data,   // Данные
   if (ItemCount==0 || Position < 0)
     return(0);
 
-  int DataSize=VMenu::_SetUserData(Item[GetPosition(Position)],Data,Size);
+  int DataSize=VMenu::_SetUserData(Item[GetItemPosition(Position)],Data,Size);
 
   return DataSize;
 }
@@ -2262,7 +2268,7 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
   void *PtrData=NULL;
   if (ItemCount || Position < 0)
   {
-    if((Position=GetPosition(Position)) >= 0)
+    if((Position=GetItemPosition(Position)) >= 0)
       PtrData=VMenu::_GetUserData(Item[Position],Data,Size);
   }
   return(PtrData);

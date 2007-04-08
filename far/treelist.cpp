@@ -756,6 +756,26 @@ int TreeList::CountSlash(const wchar_t *Str)
 }
 
 
+int TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  switch(OpCode)
+  {
+    case MCODE_C_EMPTY:
+      return TreeCount<=0;
+    case MCODE_C_EOF:
+      return CurFile==TreeCount-1;
+    case MCODE_C_BOF:
+      return CurFile==0;
+    case MCODE_C_SELECTED:
+      return FALSE;
+    case MCODE_V_ITEMCOUNT:
+      return TreeCount;
+    case MCODE_V_CURPOS:
+      return CurFile+1;
+  }
+  return 0;
+}
+
 int TreeList::ProcessKey(int Key)
 {
   struct TreeItem *CurPtr;
@@ -770,41 +790,6 @@ int TreeList::ProcessKey(int Key)
     return(TRUE);
   if(ProcessShortcutFolder(Key,TRUE))
     return(TRUE);
-
-  switch(Key)
-  {
-/*
-    case MCODE_OP_PLAINTEXT:
-    {
-      const char *str = eStackAsString();
-      if (!*str)
-        return FALSE;
-      Key=*str;
-      break;
-    }
-*/
-    case MCODE_C_EMPTY:
-      return TreeCount<=0;
-    case MCODE_C_EOF:
-      return CurFile==TreeCount-1;
-    case MCODE_C_BOF:
-      return CurFile==0;
-    case MCODE_C_SELECTED:
-      return FALSE;
-    case MCODE_V_ITEMCOUNT:
-      return TreeCount;
-    case MCODE_V_CURPOS:
-      return CurFile+1;
-/*
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const char *str = eStackAsString(1);
-      if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
-    }
-*/
-  }
 
   switch(Key)
   {

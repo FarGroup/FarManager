@@ -55,6 +55,7 @@ class FilePanels:public Frame
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     int SetAnhoterPanelFocus(void);
     int SwapPanels(void);

@@ -220,10 +220,14 @@ static struct TFKey3 ModifKeyName[]={
 static struct TFKey3 SpecKeyName[]={
   { KEY_CONSOLE_BUFFER_RESIZE,19, L"ConsoleBufferResize"},
   { KEY_LOCKSCREEN           ,10, L"LockScreen"},
+  { KEY_OP_SELWORD           ,10, L"OP_SelWord"},
   { KEY_KILLFOCUS             ,9, L"KillFocus"},
   { KEY_GOTFOCUS              ,8, L"GotFocus"},
   { KEY_DRAGCOPY             , 8, L"DragCopy"},
   { KEY_DRAGMOVE             , 8, L"DragMove"},
+  { KEY_OP_DATE              , 7, L"OP_Date"},
+  { KEY_OP_PLAINTEXT         , 7, L"OP_Text"},
+  { KEY_OP_XLAT              , 7, L"OP_Xlat"},
   { KEY_NONE                 , 4, L"None"},
   { KEY_IDLE                 , 4, L"Idle"},
 };
@@ -284,7 +288,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
 //_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -1228,7 +1232,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=GetInputRecord(&rec,true);
     if(KeyWait == (DWORD)-1)
     {
-      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
+      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
         break;
     }
     else if(Key == KeyWait)

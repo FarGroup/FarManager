@@ -66,7 +66,7 @@ void HMenu::ShowMenu()
 }
 
 
-int HMenu::ProcessKey(int Key)
+int HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   int I;
 
@@ -79,16 +79,8 @@ int HMenu::ProcessKey(int Key)
 
     string strName;
 
-  switch(Key)
+  switch(OpCode)
   {
-    case MCODE_OP_PLAINTEXT:
-    {
-      const wchar_t *str = eStackAsString();
-      if (!*str)
-        return FALSE;
-      Key=*str;
-      break;
-    }
     case MCODE_C_EMPTY:
       return ItemCount<=0;
     case MCODE_C_EOF:
@@ -101,19 +93,33 @@ int HMenu::ProcessKey(int Key)
       return ItemCount;
     case MCODE_V_CURPOS:
       return SelectPos+1;
-/*
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const char *str = eStackAsString(1);
-      if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
-    }
-*/
   }
+
+  return 0;
+}
+
+int HMenu::ProcessKey(int Key)
+{
+  int I;
+
+  for (SelectPos=0,I=0;I<ItemCount;I++)
+    if (Item[I].Selected)
+    {
+      SelectPos=I;
+      break;
+    }
 
   switch(Key)
   {
+    case KEY_OP_PLAINTEXT:
+    {
+      const wchar_t *str = eStackAsString();
+      if (!*str)
+        return FALSE;
+      Key=*str;
+      break;
+    }
+
     case KEY_NONE:
     case KEY_IDLE:
     {
@@ -247,6 +253,8 @@ int HMenu::ProcessKey(int Key)
       return(FALSE);
     }
   }
+
+  return FALSE;
 }
 
 

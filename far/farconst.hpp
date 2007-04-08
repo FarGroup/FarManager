@@ -88,6 +88,7 @@ enum DIZUPDATETYPE {
 // *** Macros ***
 // области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
 enum MACROMODEAREA {
+  MACRO_FUNC         =  -2,
   MACRO_VARS         =  -1,
 
   MACRO_OTHER        =   0, // Режим копирования текста с экрана, вертикальные меню

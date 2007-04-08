@@ -367,6 +367,7 @@ class Dialog: public Frame
   public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void Show();
     /* $ 30.08.2000 SVS
        Надобно перехватить Hide()

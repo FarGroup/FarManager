@@ -935,6 +935,8 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(OP_IF),
      DEF_MCODE_(OP_ELSE),
      DEF_MCODE_(OP_WHILE),
+     DEF_MCODE_(OP_KEYS),                    // за этим кодом следуют ФАРовы коды клавиш
+     DEF_MCODE_(OP_ENDKEYS),                 // ФАРовы коды закончились.
      DEF_MCODE_(OP_XLAT),
      DEF_MCODE_(OP_DATE),
      DEF_MCODE_(OP_PLAINTEXT),
@@ -974,6 +976,9 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(F_SLEEP),
      DEF_MCODE_(F_PANEL_FEXIST),
      DEF_MCODE_(F_PANEL_FATTR),
+     DEF_MCODE_(F_AKEY),                     // S=akey()
+     DEF_MCODE_(F_WAITKEY),                  // S=waitkey(N)
+     DEF_MCODE_(F_PLAYMACRO),                // N=playmacro(S)
      DEF_MCODE_(C_DISABLEOUTPUT),
      DEF_MCODE_(C_AREA_OTHER),
      DEF_MCODE_(C_AREA_SHELL),

@@ -215,6 +215,8 @@ class Panel:public ScreenObject
     virtual void SetTitle();
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+
     virtual void IfGoHome(wchar_t Drive){};
 
     /* $ 30.04.2001 DJ

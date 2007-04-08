@@ -1098,13 +1098,11 @@ int PathMayBeAbsolute(const wchar_t *Src);
 
 string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 
-#if defined(MOUSEKEY)
 //   TableSet - указатель на таблицы перекодировки (если отсутствует,
 //              то кодировка - OEM)
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова
-const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const char *WordDiv);
-#endif
+const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const wchar_t *WordDiv);
 
 long filelen(FILE *FPtr);
 __int64 filelen64(FILE *FPtr);

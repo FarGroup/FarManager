@@ -2114,6 +2114,85 @@ int Dialog::ProcessMoveDialog(DWORD Key)
   return (FALSE);
 }
 
+int Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  switch(OpCode)
+  {
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const wchar_t *str = (const wchar_t *)vParam;
+      if ( *str )
+        return CheckHighlights(*str);
+      return FALSE;
+    }
+  }
+  switch(OpCode)
+  {
+    case MCODE_C_EOF:
+    case MCODE_C_BOF:
+    case MCODE_C_SELECTED:
+    case MCODE_C_EMPTY:
+    {
+      if (IsEdit(Item[FocusPos]->Type))
+        return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode,vParam,iParam);
+      else if(Item[FocusPos]->Type == DI_LISTBOX && OpCode != MCODE_C_SELECTED)
+        return Item[FocusPos]->ListPtr->VMProcess(OpCode);
+      return 0;
+    }
+    case MCODE_V_DLGITEMTYPE:
+      switch(Item[FocusPos]->Type)
+      {
+        case DI_EDIT:            return DropDownOpened?0x8001:1;
+        case DI_PSWEDIT:         return 2;
+        case DI_FIXEDIT:         return 3;
+        case DI_BUTTON:          return 4;
+        case DI_CHECKBOX:        return 5;
+        case DI_RADIOBUTTON:     return 6;
+        case DI_COMBOBOX:        return DropDownOpened?0x8007:7;
+        case DI_LISTBOX:         return 8;
+        case DI_USERCONTROL:     return 9;
+      }
+      return 0;
+
+    case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
+    {
+      return ItemCount;
+    }
+
+    case MCODE_V_DLGCURPOS:    // Dlg.CurPos
+    {
+      return FocusPos+1;
+    }
+
+    case MCODE_V_ITEMCOUNT:
+    case MCODE_V_CURPOS:
+    {
+      switch(Item[FocusPos]->Type)
+      {
+        case DI_COMBOBOX:
+           if(DropDownOpened || (Item[FocusPos]->Flags & DIF_DROPDOWNLIST))
+             return Item[FocusPos]->ListPtr->VMProcess(OpCode);
+        case DI_EDIT:
+        case DI_PSWEDIT:
+        case DI_FIXEDIT:
+           return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode);
+        case DI_LISTBOX:
+          return Item[FocusPos]->ListPtr->VMProcess(OpCode);
+
+        case DI_USERCONTROL:
+          if(OpCode == MCODE_V_CURPOS)
+            return Item[FocusPos]->UCData->CursorPos.X;
+        case DI_BUTTON:
+        case DI_CHECKBOX:
+        case DI_RADIOBUTTON:
+          return 0;
+      }
+      return 0;
+    }
+  }
+  return 0;
+}
+
 //////////////////////////////////////////////////////////////////////////
 /* Public, Virtual:
    Обработка данных от клавиатуры.
@@ -2142,86 +2221,13 @@ int Dialog::ProcessKey(int Key)
   if(ProcessMoveDialog(Key))
     return TRUE;
 
-  switch(Key)
-  {
-    case MCODE_C_EOF:
-    case MCODE_C_BOF:
-    case MCODE_C_SELECTED:
-    case MCODE_C_EMPTY:
-    {
-      if (IsEdit(Item[FocusPos]->Type))
-        return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->ProcessKey(Key);
-      else if(Item[FocusPos]->Type == DI_LISTBOX && Key != MCODE_C_SELECTED)
-        return Item[FocusPos]->ListPtr->ProcessKey(Key);
-      return 0;
-    }
-    case MCODE_V_DLGITEMTYPE:
-      switch(Item[FocusPos]->Type)
-      {
-        case DI_EDIT:            return DropDownOpened?0x8001:1;
-        case DI_PSWEDIT:         return 2;
-        case DI_FIXEDIT:         return 3;
-        case DI_BUTTON:          return 4;
-        case DI_CHECKBOX:        return 5;
-        case DI_RADIOBUTTON:     return 6;
-        case DI_COMBOBOX:        return DropDownOpened?0x8007:7;
-        case DI_LISTBOX:         return 8;
-        case DI_USERCONTROL:     return 9;
-      }
-      return 0;
-
-    case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
-    {
-      return ItemCount;
-    }
-
-    case MCODE_V_DLGCURPOS:    // Dlg.CurPos
-    {
-      return FocusPos+1;
-    }
-
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const wchar_t *str = eStackAsString(1);
-      if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
-    }
-
-    case MCODE_V_ITEMCOUNT:
-    case MCODE_V_CURPOS:
-    {
-      switch(Item[FocusPos]->Type)
-      {
-        case DI_COMBOBOX:
-           if(DropDownOpened || (Item[FocusPos]->Flags & DIF_DROPDOWNLIST))
-             return Item[FocusPos]->ListPtr->ProcessKey(Key);
-        case DI_EDIT:
-        case DI_PSWEDIT:
-        case DI_FIXEDIT:
-           return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->ProcessKey(Key);
-        case DI_LISTBOX:
-          return Item[FocusPos]->ListPtr->ProcessKey(Key);
-
-        case DI_USERCONTROL:
-          if(Key == MCODE_V_CURPOS)
-            return Item[FocusPos]->UCData->CursorPos.X;
-        case DI_BUTTON:
-        case DI_CHECKBOX:
-        case DI_RADIOBUTTON:
-          return 0;
-      }
-      return 0;
-    }
-  }
-
   // BugZ#488 - Shift=enter
   if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting() && Item[FocusPos]->Type != DI_BUTTON)
   {
     Key=KEY_SHIFTENTER;
   }
 
-  if(!(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) && !DialogMode.Check(DMODE_KEY))
+  if(!(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && !DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 
@@ -2753,7 +2759,7 @@ int Dialog::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == MCODE_OP_XLAT && !(Item[FocusPos]->Flags & DIF_READONLY))
+           Key == KEY_OP_XLAT && !(Item[FocusPos]->Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();

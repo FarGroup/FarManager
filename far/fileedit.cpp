@@ -862,6 +862,36 @@ bool IsUnicodeCP (int codepage) //BUGBUG
 }
 
 
+int FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  if(OpCode == MCODE_V_EDITORSTATE)
+  {
+    DWORD MacroEditState=0;
+    MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
+    MacroEditState|=Flags.Flags&FFILEEDIT_ENABLEF6?0x00000002:0;
+    MacroEditState|=Flags.Flags&FFILEEDIT_DELETEONCLOSE?0x00000004:0;
+    MacroEditState|=m_editor->Flags.Flags&FEDITOR_MODIFIED?0x00000008:0;
+    MacroEditState|=m_editor->BlockStart?0x00000010:0;
+    MacroEditState|=m_editor->VBlockStart?0x00000020:0;
+    MacroEditState|=m_editor->Flags.Flags&FEDITOR_WASCHANGED?0x00000040:0;
+    MacroEditState|=m_editor->Flags.Flags&FEDITOR_OVERTYPE?0x00000080:0;
+    MacroEditState|=m_editor->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
+    MacroEditState|=m_editor->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
+    MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
+    return MacroEditState;
+  }
+
+  if(OpCode == MCODE_V_EDITORCURPOS)
+    return m_editor->CurLine->GetTabCurPos()+1;
+  if(OpCode == MCODE_V_EDITORCURLINE)
+    return m_editor->NumLine+1;
+  if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
+    return m_editor->NumLastLine;
+
+  return(m_editor->VMProcess(OpCode));
+}
+
+
 int FileEditor::ProcessKey(int Key)
 {
   return ReProcessKey(Key,FALSE);
@@ -886,33 +916,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
      никак не соответствует обрабатываемой клавише, возникают разномастные
      глюки
   */
-  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
+  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) // исключаем MACRO
   {
-    if(Key == MCODE_V_EDITORSTATE)
-    {
-      DWORD MacroEditState=0;
-      MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
-      MacroEditState|=Flags.Flags&FFILEEDIT_ENABLEF6?0x00000002:0;
-      MacroEditState|=Flags.Flags&FFILEEDIT_DELETEONCLOSE?0x00000004:0;
-      MacroEditState|=m_editor->Flags.Flags&FEDITOR_MODIFIED?0x00000008:0;
-      MacroEditState|=m_editor->BlockStart?0x00000010:0;
-      MacroEditState|=m_editor->VBlockStart?0x00000020:0;
-      MacroEditState|=m_editor->Flags.Flags&FEDITOR_WASCHANGED?0x00000040:0;
-      MacroEditState|=m_editor->Flags.Flags&FEDITOR_OVERTYPE?0x00000080:0;
-      MacroEditState|=m_editor->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
-      MacroEditState|=m_editor->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
-      MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
-      return MacroEditState;
-    }
-
-    if(Key == MCODE_V_EDITORCURPOS)
-      return m_editor->CurLine->GetTabCurPos()+1;
-    if(Key == MCODE_V_EDITORCURLINE)
-      return m_editor->NumLine+1;
-    if(Key == MCODE_V_ITEMCOUNT || Key == MCODE_V_EDITORLINES)
-      return m_editor->NumLastLine;
-
-    return(m_editor->ProcessKey(Key));
+    ; //
   }
   /* DJ $ */
 
@@ -1562,8 +1568,11 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		const wchar_t *CurEOL;
 
 		if ( !LastLineCR &&
-			 ((CurEOL = wmemchr(Str,L'\r',StrLength)) != NULL ||
-			  (CurEOL=wmemchr(Str,L'\n',StrLength))!=NULL) )
+			 (
+			  (CurEOL = wmemchr(Str,L'\r',StrLength)) != NULL ||
+			  (CurEOL = wmemchr(Str,L'\n',StrLength)) != NULL
+			 )
+		   )
 		{
 			xwcsncpy(m_editor->GlobalEOL,CurEOL,(sizeof(m_editor->GlobalEOL)-1)/sizeof(wchar_t));
 			m_editor->GlobalEOL[sizeof(m_editor->GlobalEOL)-1]=0;
@@ -1724,6 +1733,9 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     case 3:
       wcscpy(m_editor->GlobalEOL,MAC_EOL_fmt);
       break;
+    case 4:
+      wcscpy(m_editor->GlobalEOL,WIN_EOL_fmt);
+      break;
   }
 
   if(::GetFileAttributesW(Name) == -1)
@@ -1843,8 +1855,11 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
           EndSeq=DOS_EOL_fmt;
         else if (TextFormat==2)
           EndSeq=UNIX_EOL_fmt;
-        else
+        else if (TextFormat==3)
           EndSeq=MAC_EOL_fmt;
+        else
+          EndSeq=WIN_EOL_fmt;
+
         CurPtr->SetEOL(EndSeq);
       }
 
@@ -2476,10 +2491,12 @@ int FileEditor::EditorControl(int Command, void *Param)
         {
           if (wcscmp(esf->FileEOL,DOS_EOL_fmt)==0)
             EOL=1;
-          if (wcscmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+          else if (wcscmp(esf->FileEOL,UNIX_EOL_fmt)==0)
             EOL=2;
-          if (wcscmp(esf->FileEOL,MAC_EOL_fmt)==0)
+          else if (wcscmp(esf->FileEOL,MAC_EOL_fmt)==0)
             EOL=3;
+          else if (wcscmp(esf->FileEOL,WIN_EOL_fmt)==0)
+            EOL=4;
         }
       }
 
@@ -2515,7 +2532,8 @@ int FileEditor::EditorControl(int Command, void *Param)
         while(1)
         {
           Key=GetInputRecord(rec);
-          if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) && Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
+          if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
+              (Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
              ReProcessKey(Key);
           else
             break;

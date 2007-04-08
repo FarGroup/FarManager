@@ -508,6 +508,10 @@ SOURCE=.\strncpy.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\TVMStack.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\syntax.cpp
 # End Source File
 # Begin Source File
@@ -902,6 +906,10 @@ SOURCE=.\scrobj.hpp
 # Begin Source File
 
 SOURCE=.\struct.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TVMStack.hpp
 # End Source File
 # Begin Source File
 

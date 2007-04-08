@@ -143,8 +143,9 @@ private:
     /* KM $ */
 
     int ProcessCtrlQ(void);
-    int ProcessInsDate(void);
-    int ProcessInsPlainText(void);
+    int ProcessInsDate(const wchar_t *Str);
+    int ProcessInsPlainText(const wchar_t *Str);
+
     int CheckCharMask(wchar_t Chr);
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
@@ -160,29 +161,23 @@ private:
     virtual void  FastShow();
     virtual int   ProcessKey(int Key);
     virtual int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    /* $ 28.07.2000 SVS
-       ! Функция установки текущих Color,SelColor и ColorUnChanged!
-    */
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+
+    //   ! Функция установки текущих Color,SelColor и ColorUnChanged!
     void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
     //   + Функция получения текущих Color,SelColor
     long  GetObjectColor() {return MAKELONG(Color,SelColor);}
     int   GetObjectColorUnChanged() {return ColorUnChanged;}
-    /* SVS $*/
-    /* $ 14.02.2001 IS
-         Функции чтения/установления размера табуляции
-    */
+
     void SetTabSize(int NewSize) { TabSize=NewSize; }
     int  GetTabSize(void) {return TabSize; }
-    /* IS $ */
-    /* $ 15.02.2001 IS
-         Функции чтения/установления текущих настроек редактирования
-    */
+
     void SetDelRemovesBlocks(int Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
     int  GetDelRemovesBlocks(void) {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 
     void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
     int  GetPersistentBlocks(void) {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
-    /* IS $ */
+
     void  GetString(wchar_t *Str, int MaxSize);
     void  GetString(string &strStr);
 

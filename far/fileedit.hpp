@@ -132,6 +132,7 @@ public:
     virtual void InitKeyBar(void);                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void ShowConsoleTitle();
     int IsFileChanged() {return(m_editor->IsFileChanged());};
     virtual int IsFileModified() {return(m_editor->IsFileModified());};

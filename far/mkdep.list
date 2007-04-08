@@ -190,3 +190,5 @@ usermenu.cpp
 viewer.cpp
 vmenu.cpp
 xlat.cpp
+TVMStack.hpp
+TVMStack.cpp

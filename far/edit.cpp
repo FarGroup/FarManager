@@ -24,8 +24,8 @@ edit.cpp
 static int EditEncodeDisabled=0;
 static int Recurse=0;
 
-enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
-static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n"};
+enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
+static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 
 #define EDMASK_ANY   L'X' // позволяет вводить в строку ввода любой символ;
 #define EDMASK_DSS   L'#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
@@ -571,10 +571,9 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 }
 
 
-int Edit::ProcessKey(int Key)
+int Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-
-  switch(Key)
+  switch(OpCode)
   {
     case MCODE_C_EMPTY:
       return GetLength()==0;
@@ -589,7 +588,11 @@ int Edit::ProcessKey(int Key)
     case MCODE_V_CURPOS:
       return CursorPos+1;
   }
+  return 0;
+}
 
+int Edit::ProcessKey(int Key)
+{
   int I;
   switch(Key)
   {
@@ -720,7 +723,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
-      (Key<KEY_MACRO_BASE || Key>KEY_MACRO_ENDBASE) && Key!=KEY_CTRLQ)
+      (Key<KEY_MACRO_BASE || Key>KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();
@@ -967,19 +970,19 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
-#if defined(MOUSEKEY)
-    case MCODE_OP_SELWORD:
+    case KEY_OP_SELWORD:
     {
       int OldCurPos=CurPos;
-      int SStart, SEnd;
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
 
+#if defined(MOUSEKEY)
       if(CurPos >= SelStart && CurPos <= SelEnd)
       { // выделяем ВСЮ строку при повторном двойном клике
         Select(0,StrSize);
       }
       else
+#endif
       {
         int SStart, SEnd;
         CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv);
@@ -989,20 +992,20 @@ int Edit::ProcessKey(int Key)
       Show();
       return TRUE;
     }
-#endif
 
-    case MCODE_OP_DATE:
-    case MCODE_OP_PLAINTEXT:
+    case KEY_OP_DATE:
+    case KEY_OP_PLAINTEXT:
     {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       {
         if(SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - Неточности в $Text
           RecurseProcessKey(KEY_DEL);
       }
-      if(Key == MCODE_OP_DATE)
-        ProcessInsDate();
+      const wchar_t *S = eStackAsString();
+      if(Key == KEY_OP_DATE)
+        ProcessInsDate(S);
       else
-        ProcessInsPlainText();
+        ProcessInsPlainText(S);
       Show();
       return TRUE;
     }
@@ -1500,10 +1503,8 @@ int Edit::ProcessCtrlQ(void)
   return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
 }
 
-int Edit::ProcessInsDate(void)
+int Edit::ProcessInsDate(const wchar_t *Fmt)
 {
-  const wchar_t *Fmt = eStackAsString();
-
   string strTStr;
 
   if(MkStrFTime(strTStr,Fmt))
@@ -1514,9 +1515,8 @@ int Edit::ProcessInsDate(void)
   return FALSE;
 }
 
-int Edit::ProcessInsPlainText(void)
+int Edit::ProcessInsPlainText(const wchar_t *str)
 {
-  const wchar_t *str = eStackAsString();
   if (*str)
   {
     InsertString(str);
@@ -1702,11 +1702,13 @@ void Edit::SetString(const wchar_t *Str)
 void Edit::SetEOL(const wchar_t *EOL)
 {
   EndType=EOL_NONE;
-  if ( EOL )
+  if ( EOL && *EOL )
   {
     if (EOL[0]==L'\r')
       if (EOL[1]==L'\n')
         EndType=EOL_CRLF;
+      else if (EOL[1]==L'\r' && EOL[2]==L'\n')
+        EndType=EOL_CRCRLF;
       else
         EndType=EOL_CR;
     else
@@ -1752,10 +1754,16 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
       if (Str[Length-1]==L'\n')
       {
         Length--;
-        if (Length>0 && Str[Length-1]==L'\r')
+        if (Length > 0 && Str[Length-1]==L'\r')
         {
-          EndType=EOL_CRLF;
           Length--;
+          if (Length > 0 && Str[Length-1]==L'\r')
+          {
+            Length--;
+            EndType=EOL_CRCRLF;
+          }
+          else
+            EndType=EOL_CRLF;
         }
         else
           EndType=EOL_LF;

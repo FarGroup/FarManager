@@ -1321,7 +1321,6 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wcha
 
 /* IS $ */
 
-#if defined(MOUSEKEY)
 /*
   Ptr=CalcWordFromString(Str,I,&Start,&End);
   xstrncpy(Dest,Ptr,End-Start+1);
@@ -1333,8 +1332,9 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wcha
 //   WordDiv  - набор разделителей слова в кодировке OEM
   возвращает указатель на начало слова
 */
-const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const char *WordDiv0)
+const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const wchar_t *WordDiv0)
 {
+#if 0
   int I, J, StartWPos, EndWPos;
   DWORD DistLeft, DistRight;
   int StrSize=strlen(Str);
@@ -1401,8 +1401,10 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
   *End=EndWPos;
 
   return Str+StartWPos;
-}
+#else
+  return Str;
 #endif
+}
 
 BOOL TestParentFolderName(const wchar_t *Name)
 {

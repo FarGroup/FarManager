@@ -111,6 +111,7 @@ SRCS = 	cddrv.cpp \
 	strmix.cpp \
 	strncpy.c \
 	syntax.cpp \
+	TVMStack.cpp \
 	syslog.cpp \
 	treelist.cpp \
 	udlist.cpp \
