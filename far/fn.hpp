@@ -775,7 +775,7 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
 extern "C" {
 #endif
 void WINAPIV _export FarSysLog(char *ModuleName,int Level,char *fmt,...);
-void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+void WINAPI  _export FarSysLogDump(const char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
 void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec);
 #ifdef __cplusplus
 };
@@ -925,7 +925,7 @@ struct TUserLog
     int   Level;
 };
 
-void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
+void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
 
 FILE *OpenLogStream(char *file);
 

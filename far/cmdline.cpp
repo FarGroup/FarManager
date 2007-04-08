@@ -89,16 +89,21 @@ BOOL CommandLine::SetLastCmdStr(const char *Ptr,int LenPtr)
   return FALSE;
 }
 
+int CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  if(OpCode >= MCODE_C_CMDLINE_BOF && OpCode <= MCODE_C_CMDLINE_SELECTED)
+    return CmdStr.VMProcess(OpCode-MCODE_C_CMDLINE_BOF+MCODE_C_BOF);
+  if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_CURPOS)
+    return CmdStr.VMProcess(OpCode);
+  if(OpCode == MCODE_V_CMDLINE_ITEMCOUNT || OpCode == MCODE_V_CMDLINE_CURPOS)
+    return CmdStr.VMProcess(OpCode-MCODE_V_CMDLINE_ITEMCOUNT+MCODE_V_ITEMCOUNT);
+
+  return 0;
+}
+
 int CommandLine::ProcessKey(int Key)
 {
   char Str[2048], *PStr;
-
-  if(Key >= MCODE_C_CMDLINE_BOF && Key <= MCODE_C_CMDLINE_SELECTED)
-    return CmdStr.ProcessKey(Key-MCODE_C_CMDLINE_BOF+MCODE_C_BOF);
-  if(Key == MCODE_V_ITEMCOUNT || Key == MCODE_V_CURPOS)
-    return CmdStr.ProcessKey(Key);
-  if(Key == MCODE_V_CMDLINE_ITEMCOUNT || Key == MCODE_V_CMDLINE_CURPOS)
-    return CmdStr.ProcessKey(Key-MCODE_V_CMDLINE_ITEMCOUNT+MCODE_V_ITEMCOUNT);
 
   if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
@@ -305,7 +310,7 @@ int CommandLine::ProcessKey(int Key)
       */
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
-         Key == MCODE_OP_XLAT)
+         Key == KEY_OP_XLAT)
       {
         /* 13.12.2000 SVS
            ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)

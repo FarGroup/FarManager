@@ -24,8 +24,8 @@ edit.cpp
 static int EditEncodeDisabled=0;
 static int Recurse=0;
 
-enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
-static const char *EOL_TYPE_CHARS[]={"","\r","\n","\r\n"};
+enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
+static const char *EOL_TYPE_CHARS[]={"","\r","\n","\r\n","\r\r\n"};
 
 // Идентификаторы масок
 #define EDMASK_ANY   'X' // позволяет вводить в строку ввода любой символ;
@@ -520,9 +520,9 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 }
 
 
-int Edit::ProcessKey(int Key)
+int Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  switch(Key)
+  switch(OpCode)
   {
     case MCODE_C_EMPTY:
       return GetLength()==0;
@@ -537,7 +537,11 @@ int Edit::ProcessKey(int Key)
     case MCODE_V_CURPOS:
       return CursorPos+1;
   }
+  return 0;
+}
 
+int Edit::ProcessKey(int Key)
+{
   int I;
   switch(Key)
   {
@@ -674,7 +678,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
-      (Key<KEY_MACRO_BASE || Key>KEY_MACRO_ENDBASE) && Key!=KEY_CTRLQ)
+      !(Key>=KEY_MACRO_BASE && Key<=KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();
@@ -922,7 +926,7 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case MCODE_OP_SELWORD:
+    case KEY_OP_SELWORD:
     {
       int OldCurPos=CurPos;
       int SStart, SEnd;
@@ -945,18 +949,19 @@ int Edit::ProcessKey(int Key)
       return TRUE;
     }
 
-    case MCODE_OP_DATE:
-    case MCODE_OP_PLAINTEXT:
+    case KEY_OP_DATE:
+    case KEY_OP_PLAINTEXT:
     {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       {
         if(SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - Неточности в $Text
           RecurseProcessKey(KEY_DEL);
       }
-      if(Key == MCODE_OP_DATE)
-        ProcessInsDate();
+      const char *str = eStackAsString();
+      if(Key == KEY_OP_DATE)
+        ProcessInsDate(str);
       else
-        ProcessInsPlainText();
+        ProcessInsPlainText(str);
       Show();
       return TRUE;
     }
@@ -1453,10 +1458,9 @@ int Edit::ProcessCtrlQ(void)
   return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
 }
 
-int Edit::ProcessInsDate(void)
+int Edit::ProcessInsDate(const char *Fmt)
 {
-  const char *Fmt = eStackAsString();
-  int SizeMacroText = 16+(*Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
+  int SizeMacroText = 16+(Fmt && *Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
   SizeMacroText*=4+1;
   char *TStr=(char*)alloca(SizeMacroText);
   if(!TStr)
@@ -1470,9 +1474,8 @@ int Edit::ProcessInsDate(void)
   return FALSE;
 }
 
-int Edit::ProcessInsPlainText(void)
+int Edit::ProcessInsPlainText(const char *str)
 {
-  const char *str = eStackAsString();
   if (*str)
   {
     InsertString(str);
@@ -1660,12 +1663,14 @@ void Edit::SetEOL(const char *EOL)
 {
   EndType=EOL_NONE;
 
-  if (EOL)
+  if (EOL && *EOL)
   {
     if (EOL[0]=='\r')
     {
       if (EOL[1]=='\n')
         EndType=EOL_CRLF;
+      else if (EOL[1]=='\r' && EOL[2]=='\n')
+        EndType=EOL_CRCRLF;
       else
         EndType=EOL_CR;
     }
@@ -1715,8 +1720,14 @@ void Edit::SetBinaryString(const char *Str,int Length)
         Length--;
         if (Length>0 && Str[Length-1]=='\r')
         {
-          EndType=EOL_CRLF;
           Length--;
+          if (Length>0 && Str[Length-1]=='\r')
+          {
+            Length--;
+            EndType=EOL_CRCRLF;
+          }
+          else
+            EndType=EOL_CRLF;
         }
         else
           EndType=EOL_LF;

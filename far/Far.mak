@@ -187,6 +187,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\timefunc.obj" \
 	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\syntax.obj" \
+	"$(INTDIR)\TVMStack.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\udlist.obj" \

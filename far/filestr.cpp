@@ -9,6 +9,7 @@ filestr.cpp
 #pragma hdrstop
 
 #include "fn.hpp"
+#include "global.hpp"
 #include "filestr.hpp"
 
 GetFileString::GetFileString(FILE *SrcFile)
@@ -29,8 +30,15 @@ GetFileString::~GetFileString()
 
 int GetFileString::GetString(char **DestStr,int &Length)
 {
+  int CurLength=0;
+  int ExitCode=1;
+  int Eol=0;
+  char EOL[16];
+  char *PtrEol=EOL;
+
+  memset(EOL,0,sizeof(EOL));
   Length=0;
-  int CurLength=0,ExitCode=1;
+
   while (1)
   {
     if (ReadPos>=ReadSize)
@@ -43,10 +51,22 @@ int GetFileString::GetString(char **DestStr,int &Length)
       }
       ReadPos=0;
     }
-    int Ch=ReadBuf[ReadPos];
+    int Ch=ReadBuf[ReadPos++];
+#if 0
     if (Ch!='\n' && CurLength>0 && Str[CurLength-1]=='\r')
+#else
+    if( ( Eol && Ch != '\n' && Ch != '\r' ) || Eol >= (int)sizeof(EOL))
       break;
-    ReadPos++;
+
+//    if(Eol && (Ch == '\n' || Ch == '\r') && (!strcmp(EOL,DOS_EOL_fmt) || !strcmp(EOL,UNIX_EOL_fmt) || !strcmp(EOL,WIN_EOL_fmt)))
+    if(Eol && (Ch == '\n' || Ch == '\r') && (!strcmp(EOL,WIN_EOL_fmt) || !strcmp(EOL,DOS_EOL_fmt) || !strcmp(EOL,UNIX_EOL_fmt)))
+      break;
+    if(Ch == '\n' || Ch == '\r')
+    {
+      *PtrEol++=Ch;
+      Eol++;
+    }
+#endif
     if (CurLength>=StrLength-1)
     {
       char *NewStr=(char *)xf_realloc(Str,StrLength+1024);
@@ -56,8 +76,13 @@ int GetFileString::GetString(char **DestStr,int &Length)
       StrLength+=1024;
     }
     Str[CurLength++]=Ch;
+#if 0
     if (Ch=='\n')
       break;
+#else
+    if(Eol && (Ch == '\n' || Ch == '\r') && (!strcmp(EOL,WIN_EOL_fmt) || !strcmp(EOL,DOS_EOL_fmt) || !strcmp(EOL,UNIX_EOL_fmt)))
+      break;
+#endif
   }
   Str[CurLength]=0;
   *DestStr=Str;

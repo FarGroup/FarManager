@@ -543,6 +543,7 @@ static void putstr(const char *s)
 }
 
 int _macro_nErr = 0;
+int _macro_ErrCode=err_Success;
 static char nameString[1024];
 static char *sSrcString;
 static char *pSrcString = NULL;
@@ -577,6 +578,7 @@ void keyMacroParseError(int err, const char *s, const char *p, const char *c)
 {
   if ( !_macro_nErr++ )
   {
+    _macro_ErrCode=err;
     int oPos = 0, ePos = (int)(s-p);
     ErrMessage[0][0]=ErrMessage[1][0]=ErrMessage[2][0]=0;
     if ( ePos < 0 )
@@ -585,7 +587,7 @@ void keyMacroParseError(int err, const char *s, const char *p, const char *c)
       return;
     }
 
-    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognized_keyword+err),c);
+    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognized_keyword+err-1),c);
     if ( ePos > 61 )
     {
       oPos = ePos-50;
@@ -1107,7 +1109,7 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
 {
   char tmp[4];
   IsProcessFunc=0;
-  Size = _macro_nErr = 0;
+  _macro_ErrCode = Size = _macro_nErr = 0;
   while ( *BufPtr && isspace(*BufPtr) )
     BufPtr++;
   if ( bound1 )

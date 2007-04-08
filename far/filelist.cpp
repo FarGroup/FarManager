@@ -457,13 +457,9 @@ int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
   return FALSE;
 }
 
-int FileList::ProcessKey(int Key)
+int FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  struct FileListItem *CurPtr=NULL;
-  int N, NeedRealName=FALSE;
-  int CmdLength=CtrlObject->CmdLine->GetLength();
-
-  switch(Key)
+  switch(OpCode)
   {
     case MCODE_C_ROOTFOLDER:
     {
@@ -495,6 +491,15 @@ int FileList::ProcessKey(int Key)
     case MCODE_V_CURPOS:
       return CurFile+1;
   }
+  return 0;
+}
+
+int FileList::ProcessKey(int Key)
+{
+  struct FileListItem *CurPtr=NULL;
+  int N, NeedRealName=FALSE;
+  int CmdLength=CtrlObject->CmdLine->GetLength();
+
 
   if (IsVisible())
   {

@@ -296,7 +296,7 @@ void SysLog(int l,char *fmt,...)
 }
 
 
-void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
+void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 {
 #if defined(SYSLOG)
   if(!IsLogON())
@@ -691,7 +691,7 @@ void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
   }
 }
 
-void WINAPI _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
+void WINAPI _export FarSysLogDump(const char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
 {
   if(!IsLogON())
     return;
@@ -939,6 +939,8 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(OP_IF),
      DEF_MCODE_(OP_ELSE),
      DEF_MCODE_(OP_WHILE),
+     DEF_MCODE_(OP_KEYS),                    // за этим кодом следуют ФАРовы коды клавиш
+     DEF_MCODE_(OP_ENDKEYS),                 // ФАРовы коды закончились.
      DEF_MCODE_(OP_XLAT),
      DEF_MCODE_(OP_DATE),
      DEF_MCODE_(OP_PLAINTEXT),
@@ -978,6 +980,9 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_SLEEP),
      DEF_MCODE_(F_PANEL_FEXIST),
      DEF_MCODE_(F_PANEL_FATTR),
+     DEF_MCODE_(F_AKEY),                     // S=akey()
+     DEF_MCODE_(F_WAITKEY),                  // S=waitkey(N)
+     DEF_MCODE_(F_PLAYMACRO),                // N=playmacro(S)
      DEF_MCODE_(C_DISABLEOUTPUT),
      DEF_MCODE_(C_AREA_OTHER),
      DEF_MCODE_(C_AREA_SHELL),

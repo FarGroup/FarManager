@@ -2077,34 +2077,20 @@ int Dialog::ProcessMoveDialog(DWORD Key)
   return (FALSE);
 }
 
-//////////////////////////////////////////////////////////////////////////
-/* Public, Virtual:
-   Обработка данных от клавиатуры.
-   Перекрывает BaseInput::ProcessKey.
-*/
-int Dialog::ProcessKey(int Key)
+
+int Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  CriticalSectionLock Lock(CS);
-
-  int I;
-  char Str[1024];
-
-  if (Key==KEY_NONE || Key==KEY_IDLE)
+  switch(OpCode)
   {
-    DlgProc((HANDLE)this,DN_ENTERIDLE,0,0); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
-    return(FALSE);
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const char *str = (const char *)vParam;
+      if ( *str )
+        return CheckHighlights(*str);
+      return FALSE;
+    }
   }
-
-  if(Key == KEY_KILLFOCUS || Key == KEY_GOTFOCUS)
-  {
-    DlgProc((HANDLE)this,DN_ACTIVATEAPP,Key == KEY_KILLFOCUS?FALSE:TRUE,0);
-    return(FALSE);
-  }
-
-  if(ProcessMoveDialog(Key))
-    return TRUE;
-
-  switch(Key)
+  switch(OpCode)
   {
     case MCODE_C_EOF:
     case MCODE_C_BOF:
@@ -2112,9 +2098,9 @@ int Dialog::ProcessKey(int Key)
     case MCODE_C_EMPTY:
     {
       if (IsEdit(Item[FocusPos].Type))
-        return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-      else if(Item[FocusPos].Type == DI_LISTBOX && Key != MCODE_C_SELECTED)
-        return Item[FocusPos].ListPtr->ProcessKey(Key);
+        return ((DlgEdit *)(Item[FocusPos].ObjPtr))->VMProcess(OpCode,vParam,iParam);
+      else if(Item[FocusPos].Type == DI_LISTBOX && OpCode != MCODE_C_SELECTED)
+        return Item[FocusPos].ListPtr->VMProcess(OpCode);
       return 0;
     }
     case MCODE_V_DLGITEMTYPE:
@@ -2142,14 +2128,6 @@ int Dialog::ProcessKey(int Key)
       return FocusPos+1;
     }
 
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const char *str = eStackAsString(1);
-      if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
-    }
-
     case MCODE_V_ITEMCOUNT:
     case MCODE_V_CURPOS:
     {
@@ -2157,16 +2135,16 @@ int Dialog::ProcessKey(int Key)
       {
         case DI_COMBOBOX:
            if(DropDownOpened || (Item[FocusPos].Flags & DIF_DROPDOWNLIST))
-             return Item[FocusPos].ListPtr->ProcessKey(Key);
+             return Item[FocusPos].ListPtr->VMProcess(OpCode);
         case DI_EDIT:
         case DI_PSWEDIT:
         case DI_FIXEDIT:
-           return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+           return ((DlgEdit *)(Item[FocusPos].ObjPtr))->VMProcess(OpCode);
         case DI_LISTBOX:
-          return Item[FocusPos].ListPtr->ProcessKey(Key);
+          return Item[FocusPos].ListPtr->VMProcess(OpCode);
 
         case DI_USERCONTROL:
-          if(Key == MCODE_V_CURPOS)
+          if(OpCode == MCODE_V_CURPOS)
             return Item[FocusPos].UCData->CursorPos.X;
         case DI_BUTTON:
         case DI_CHECKBOX:
@@ -2176,6 +2154,35 @@ int Dialog::ProcessKey(int Key)
       return 0;
     }
   }
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+/* Public, Virtual:
+   Обработка данных от клавиатуры.
+   Перекрывает BaseInput::ProcessKey.
+*/
+int Dialog::ProcessKey(int Key)
+{
+  CriticalSectionLock Lock(CS);
+
+  int I;
+  char Str[1024];
+
+  if (Key==KEY_NONE || Key==KEY_IDLE)
+  {
+    DlgProc((HANDLE)this,DN_ENTERIDLE,0,0); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
+    return(FALSE);
+  }
+
+  if(Key == KEY_KILLFOCUS || Key == KEY_GOTFOCUS)
+  {
+    DlgProc((HANDLE)this,DN_ACTIVATEAPP,Key == KEY_KILLFOCUS?FALSE:TRUE,0);
+    return(FALSE);
+  }
+
+  if(ProcessMoveDialog(Key))
+    return TRUE;
 
   // BugZ#488 - Shift=enter
   if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting() && Item[FocusPos].Type != DI_BUTTON)
@@ -2183,7 +2190,7 @@ int Dialog::ProcessKey(int Key)
     Key=KEY_SHIFTENTER;
   }
 
-  if(!(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) && !DialogMode.Check(DMODE_KEY))
+  if(!(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && !DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 
@@ -2714,7 +2721,7 @@ int Dialog::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == MCODE_OP_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
+           Key == KEY_OP_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();

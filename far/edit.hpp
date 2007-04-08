@@ -102,8 +102,8 @@ class Edit:public ScreenObject
     int KeyMatchedMask(int Key);
 
     int ProcessCtrlQ(void);
-    int ProcessInsDate(void);
-    int ProcessInsPlainText(void);
+    int ProcessInsDate(const char *Fmt);
+    int ProcessInsPlainText(const char *str);
     int CheckCharMask(char Chr);
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
@@ -115,6 +115,7 @@ class Edit:public ScreenObject
     void FastShow();
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
     long  GetObjectColor() {return MAKELONG(Color,SelColor);}

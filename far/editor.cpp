@@ -353,8 +353,12 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       }
 
       char *CurEOL;
-      if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
-          (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
+      if (!LastLineCR &&
+          (
+            (CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
+            (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL
+          )
+         )
       {
         xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
         GlobalEOL[sizeof(GlobalEOL)-1]=0;
@@ -690,6 +694,9 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
     case 3:
       strcpy(GlobalEOL,MAC_EOL_fmt);
       break;
+    case 4:
+      strcpy(GlobalEOL,WIN_EOL_fmt);
+      break;
   }
 
   int StrLength=0;
@@ -713,8 +720,10 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
         EndSeq=DOS_EOL_fmt;
       else if (TextFormat==2)
         EndSeq=UNIX_EOL_fmt;
-      else
+      else if (TextFormat==3)
         EndSeq=MAC_EOL_fmt;
+      else
+        EndSeq=WIN_EOL_fmt;
 
       CurPtr->SetEOL(EndSeq);
     }
@@ -934,6 +943,33 @@ void Editor::TextChanged(int State)
 }
 /* skv$*/
 
+
+int Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  int CurPos=CurLine->GetCurPos();
+  switch(OpCode)
+  {
+    case MCODE_C_EMPTY:
+      return !CurLine->m_next && !CurLine->m_prev; //??
+    case MCODE_C_EOF:
+      return !CurLine->m_next && CurPos>=CurLine->GetLength();
+    case MCODE_C_BOF:
+      return !CurLine->m_prev && CurPos==0;
+    case MCODE_C_SELECTED:
+      return BlockStart || VBlockStart?TRUE:FALSE;
+    case MCODE_V_EDITORCURPOS:
+      return CurLine->GetTabCurPos()+1;
+    case MCODE_V_EDITORCURLINE:
+      return NumLine+1;
+    case MCODE_V_ITEMCOUNT:
+    case MCODE_V_EDITORLINES:
+      return NumLastLine;
+
+  }
+  return 0;
+}
+
+
 int Editor::ProcessKey(int Key)
 {
   if (Key==KEY_IDLE)
@@ -957,7 +993,7 @@ int Editor::ProcessKey(int Key)
   _SVS(SysLog("[%d] isk=%d",__LINE__,isk));
   //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
 //  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
-  if (!isk && !Pasting && (Key < KEY_MACRO_BASE || Key > KEY_MACRO_ENDBASE))
+  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))
   {
     _SVS(SysLog("[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
     if (BlockStart!=NULL || VBlockStart!=NULL)
@@ -990,7 +1026,6 @@ int Editor::ProcessKey(int Key)
            KEY_CTRLN,
            KEY_CTRLE,
            KEY_CTRLS,
-           MCODE_OP_SELWORD,
         };
         for (int I=0;I<sizeof(UnmarkKeys)/sizeof(UnmarkKeys[0]);I++)
           if (Key==UnmarkKeys[I])
@@ -1010,25 +1045,6 @@ int Editor::ProcessKey(int Key)
           UnmarkBlock();
       }
     }
-  }
-
-  switch(Key)
-  {
-    case MCODE_C_EMPTY:
-      return !CurLine->m_next && !CurLine->m_prev; //??
-    case MCODE_C_EOF:
-      return !CurLine->m_next && CurPos>=CurLine->GetLength();
-    case MCODE_C_BOF:
-      return !CurLine->m_prev && CurPos==0;
-    case MCODE_C_SELECTED:
-      return BlockStart || VBlockStart?TRUE:FALSE;
-    case MCODE_V_EDITORCURPOS:
-      return CurLine->GetTabCurPos()+1;
-    case MCODE_V_EDITORCURLINE:
-      return NumLine+1;
-    case MCODE_V_ITEMCOUNT:
-    case MCODE_V_EDITORLINES:
-      return NumLastLine;
   }
 
   if (Key==KEY_ALTD)
@@ -2667,7 +2683,7 @@ int Editor::ProcessKey(int Key)
     }
     /* SVS $ */
 
-    case MCODE_OP_SELWORD:
+    case KEY_OP_SELWORD:
     {
       int OldCurPos=CurPos;
       int SStart, SEnd;
@@ -2695,13 +2711,13 @@ int Editor::ProcessKey(int Key)
       return TRUE;
     }
 
-    case MCODE_OP_DATE:
-    case MCODE_OP_PLAINTEXT:
+    case KEY_OP_DATE:
+    case KEY_OP_PLAINTEXT:
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         const char *Fmt = eStackAsString();
-        int SizeMacroText = 16+(*Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
+        int SizeMacroText = 16+(Fmt && *Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
         if(Key == MCODE_OP_PLAINTEXT)
           SizeMacroText=(int)strlen(Fmt)+1;
         SizeMacroText*=4+1;
@@ -2887,7 +2903,7 @@ int Editor::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
             Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) ||
-            Key == MCODE_OP_XLAT)
+           Key == KEY_OP_XLAT)
         /* IS  $ */
         {
           Xlat();

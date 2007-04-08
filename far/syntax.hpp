@@ -149,6 +149,7 @@ struct TMacroKeywords {
 
 enum errParseCode
 {
+  err_Success,
   err_Unrecognized_keyword,
   err_Unrecognized_function,
   err_Not_expected_ELSE,
@@ -168,6 +169,7 @@ DWORD funcLook(const char *s, int& nParam);
 extern int MKeywordsSize;
 extern TMacroKeywords MKeywords[];
 extern int _macro_nErr;
+extern int _macro_ErrCode;
 
 
 #endif

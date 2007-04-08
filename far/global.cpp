@@ -117,9 +117,10 @@ struct PreRedrawParamStruct PreRedrawParam={0};
 
 int WidthNameForMessage=0;
 
-const char DOS_EOL_fmt[]  ="\r\n",
-           UNIX_EOL_fmt[] ="\n",
-           MAC_EOL_fmt[]  ="\r";
+const char MAC_EOL_fmt[]  ="\r";
+const char UNIX_EOL_fmt[] ="\n";
+const char DOS_EOL_fmt[]  ="\r\n";
+const char WIN_EOL_fmt[]  ="\r\r\n";
 
 BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;

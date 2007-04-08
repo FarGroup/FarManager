@@ -512,6 +512,10 @@ SOURCE=.\syntax.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TVMStack.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\syslog.cpp
 # End Source File
 # Begin Source File
@@ -906,6 +910,10 @@ SOURCE=.\struct.hpp
 # Begin Source File
 
 SOURCE=.\syntax.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TVMStack.hpp
 # End Source File
 # Begin Source File
 

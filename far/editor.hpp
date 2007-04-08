@@ -199,6 +199,8 @@ class Editor:public ScreenObject
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+
     void KeepInitParameters();
     void SetStartPos(int LineNum,int CharNum);
     int IsFileModified();

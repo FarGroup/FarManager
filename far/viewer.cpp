@@ -1171,16 +1171,9 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 }
 
 
-/* $ 28.01.2001
-   - Путем проверки ViewFile на NULL избавляемся от падения
-*/
-int Viewer::ProcessKey(int Key)
+int Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  int I;
-
-  ViewerString vString;
-
-  switch(Key)
+  switch(OpCode)
   {
     case MCODE_C_EMPTY:
       return FileSize==0;
@@ -1202,6 +1195,18 @@ int Viewer::ProcessKey(int Key)
       return MacroViewerState;
     }
   }
+
+  return 0;
+}
+
+/* $ 28.01.2001
+   - Путем проверки ViewFile на NULL избавляемся от падения
+*/
+int Viewer::ProcessKey(int Key)
+{
+  int I;
+
+  ViewerString vString;
 
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение

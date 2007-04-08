@@ -121,7 +121,10 @@ extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
 extern int WidthNameForMessage;
 
-extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
+extern const char DOS_EOL_fmt[];
+extern const char UNIX_EOL_fmt[];
+extern const char MAC_EOL_fmt[];
+extern const char WIN_EOL_fmt[];
 
 extern BOOL ProcessException;
 

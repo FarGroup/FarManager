@@ -199,6 +199,13 @@ enum BaseDefKeyboard
   KEY_GOTFOCUS             =0x00001007,
   KEY_CONSOLE_BUFFER_RESIZE=0x00001008,
 
+  KEY_OP_BASE              =0x00001100,
+  KEY_OP_XLAT              =KEY_OP_BASE+0,
+  KEY_OP_DATE              =KEY_OP_BASE+1,
+  KEY_OP_PLAINTEXT         =KEY_OP_BASE+2,
+  KEY_OP_SELWORD           =KEY_OP_BASE+3,
+  KEY_OP_ENDBASE           =0x000011FF,
+
 #endif // END FAR_USE_INTERNALS
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,

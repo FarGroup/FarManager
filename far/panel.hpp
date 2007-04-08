@@ -208,6 +208,8 @@ class Panel:public ScreenObject
     virtual void SetTitle();
     virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
 
+    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+
     virtual void IfGoHome(char Drive){};
 
     /* $ 30.04.2001 DJ

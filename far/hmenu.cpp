@@ -65,6 +65,36 @@ void HMenu::ShowMenu()
 }
 
 
+int HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  int I;
+
+  for (SelectPos=0,I=0;I<ItemCount;I++)
+    if (Item[I].Selected)
+    {
+      SelectPos=I;
+      break;
+    }
+
+  switch(OpCode)
+  {
+    case MCODE_C_EMPTY:
+      return ItemCount<=0;
+    case MCODE_C_EOF:
+      return SelectPos==ItemCount-1;
+    case MCODE_C_BOF:
+      return SelectPos==0;
+    case MCODE_C_SELECTED:
+      return ItemCount > 0 && SelectPos >= 0;
+    case MCODE_V_ITEMCOUNT:
+      return ItemCount;
+    case MCODE_V_CURPOS:
+      return SelectPos+1;
+  }
+
+  return 0;
+}
+
 int HMenu::ProcessKey(int Key)
 {
   int I;
@@ -78,7 +108,7 @@ int HMenu::ProcessKey(int Key)
 
   switch(Key)
   {
-    case MCODE_OP_PLAINTEXT:
+    case KEY_OP_PLAINTEXT:
     {
       const char *str = eStackAsString();
       if (!*str)
@@ -86,31 +116,7 @@ int HMenu::ProcessKey(int Key)
       Key=*str;
       break;
     }
-    case MCODE_C_EMPTY:
-      return ItemCount<=0;
-    case MCODE_C_EOF:
-      return SelectPos==ItemCount-1;
-    case MCODE_C_BOF:
-      return SelectPos==0;
-    case MCODE_C_SELECTED:
-      return ItemCount > 0 && SelectPos >= 0;
-    case MCODE_V_ITEMCOUNT:
-      return ItemCount;
-    case MCODE_V_CURPOS:
-      return SelectPos+1;
-/*
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const char *str = eStackAsString(1);
-      if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
-    }
-*/
-  }
 
-  switch(Key)
-  {
     case KEY_NONE:
     case KEY_IDLE:
     {
@@ -202,7 +208,7 @@ int HMenu::ProcessKey(int Key)
         SelectPos=ItemCount-1;
       Item[SelectPos].Selected=1;
       ShowMenu();
-      return(TRUE);
+      return TRUE;
     }
 
     case KEY_RIGHT:     case KEY_NUMPAD6:
@@ -212,7 +218,7 @@ int HMenu::ProcessKey(int Key)
         SelectPos=0;
       Item[SelectPos].Selected=1;
       ShowMenu();
-      return(TRUE);
+      return TRUE;
     }
 
     default:
@@ -225,7 +231,7 @@ int HMenu::ProcessKey(int Key)
           SelectPos=I;
           ShowMenu();
           ProcessKey(KEY_ENTER);
-          return(TRUE);
+          return TRUE;
         }
       for (I=0;I<ItemCount;I++)
         if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE))
@@ -235,11 +241,12 @@ int HMenu::ProcessKey(int Key)
           SelectPos=I;
           ShowMenu();
           ProcessKey(KEY_ENTER);
-          return(TRUE);
+          return TRUE;
         }
-      return(FALSE);
+      return FALSE;
     }
   }
+  return FALSE;
 }
 
 
