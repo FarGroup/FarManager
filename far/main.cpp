@@ -99,15 +99,17 @@ printf(
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
-" /x   Disable exception handling.\n"
+" /x   Disable exception handling.\n");
 #if defined(_DEBUGEXC)
+printf(
 " /xd  Enable exception handling.\n"
-" /cr  Disable check registration.\n"
+" /cr  Disable check registration.\n");
 #endif
 #ifdef DIRECT_RT
-" /do  Direct output.\n"
+printf(
+" /do  Direct output.\n");
 #endif
-);
+
 #if 0
 #if defined(USE_WFUNC)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)

@@ -807,6 +807,12 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _KEYMACRO(x)
 #endif
 
+#if defined(_DEBUG) && defined(SYSLOG_KEYMACRO_PARSE)
+#define _KEYMACRO_PARSE(x)  x
+#else
+#define _KEYMACRO_PARSE(x)
+#endif
+
 #if defined(_DEBUG) && defined(SYSLOG_ECTL)
 #define _ECTLLOG(x)  x
 #else
@@ -915,6 +921,11 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _TREX(x)
 #endif
 
+#if defined(_DEBUG) && defined(SYSLOG_YJH)
+#define _YJH(x)  x
+#else
+#define _YJH(x)
+#endif
 
 void OpenSysLog();
 void CloseSysLog();

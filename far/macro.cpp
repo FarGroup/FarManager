@@ -2632,12 +2632,13 @@ done:
 
     case MCODE_OP_SAVE:
     {
+      TVar Val0=VMStack.Pop();
       GetPlainText(value);
       // здесь проверка нужна, т.к. существует вариант вызова функции, без присвоения переменной
       if(*value)
       {
         TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
-        varInsert(*t, value)->value = VMStack.Pop();
+        varInsert(*t, value)->value = Val0;
       }
       goto begin;
     }
@@ -3712,104 +3713,141 @@ static char *printfStr(DWORD* k, int& i)
   return s;
 }
 
-static void sprint(int i, char *fmt, char *data = NULL)
-{
-  static char tmp[256];
-  strcat(strcpy(tmp, "%08X: "), fmt);
-  SysLog(tmp, i, data);
-}
-
 static void printKeyValue(DWORD* k, int& i)
 {
+  DWORD Code=k[i];
+  const char *_mcodename=_MCODE_ToName(Code);
+  const char *cmt="";
+
+  static struct {
+    DWORD c;
+    const char *n;
+  } kmf[]={
+    {MCODE_F_ABS,              "N=abs(N)"},
+    {MCODE_F_AKEY,             "S=akey()"},
+    {MCODE_F_CLIP,             "V=clip(N,S)"},
+    {MCODE_F_DATE,             "S=date(S)"},
+    {MCODE_F_DLG_GETVALUE,     "V=Dlg.GetValue(ID,N)"},
+    {MCODE_F_EDITOR_SET,       "N=Editor.Set(N,Var)"},
+    {MCODE_F_ENVIRON,          "S=env(S)"},
+    {MCODE_F_FATTR,            "N=fattr(S)"},
+    {MCODE_F_FEXIST,           "S=fexist(S)"},
+    {MCODE_F_FSPLIT,           "S=fsplit(S,N)"},
+    {MCODE_F_IIF,              "V=iif(Condition,V1,V2)"},
+    {MCODE_F_INDEX,            "S=index(S1,S2)"},
+    {MCODE_F_INT,              "N=int(V)"},
+    {MCODE_F_ITOA,             "S=itoa(N,radix)"},
+    {MCODE_F_LCASE,            "S=lcase(S1)"},
+    {MCODE_F_LEN,              "N=len(S)"},
+    {MCODE_F_MAX,              "N=max(N1,N2)"},
+    {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S)"},
+    {MCODE_F_MIN,              "N=min(N1,N2)"},
+    {MCODE_F_MSAVE,            "N=msave(S)"},
+    {MCODE_F_MSGBOX,           "N=msgbox(sTitle,sText,flags)"},
+    {MCODE_F_PANEL_FATTR,      "N=panel.fattr(panelType,S)"},
+    {MCODE_F_PANEL_FEXIST,     "S=panel.fexist(panelType,S)"},
+    {MCODE_F_PANEL_SETPOS,     "N=panel.SetPos(panelType,fileName)"},
+    {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
+    {MCODE_F_PLAYMACRO,        "N=playmacro(S)"},
+    {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},
+    {MCODE_F_SLEEP,            "N=Sleep(N)"},
+    {MCODE_F_STRING,           "S=string(V)"},
+    {MCODE_F_SUBSTR,           "S=substr(S1,S2,N)"},
+    {MCODE_F_UCASE,            "S=ucase(S1)"},
+    {MCODE_F_WAITKEY,          "S=waitkey(N)"},
+    {MCODE_F_XLAT,             "S=xlat(S)"},
+ };
+
+  if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
+  {
+    for(int J=0; J <= sizeof(kmf)/sizeof(kmf[0]); ++J)
+      if(kmf[J].c == Code)
+      {
+         cmt=kmf[J].n;
+         break;
+      }
+  }
+
+  if(Code >= KEY_MACRO_BASE && Code <= KEY_MACRO_ENDBASE)
+    SysLog("%08X: %s  %s%s", i,_mcodename,(*cmt?"# ":""),(*cmt?cmt:""));
+
   int ii = i;
-  if ( !k[i] )                                 sprint(ii, "<null>");
-  else if ( k[i] == MCODE_OP_END )             sprint(ii, "END");
-  else if ( k[i] == MCODE_OP_EXPR )            sprint(ii, "<expr> (");
-  else if ( k[i] == MCODE_OP_DOIT )            sprint(ii, ") </expr>");
-  else if ( k[i] == MCODE_OP_SAVE )            sprint(ii, "SAVE \"%%%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, "SAVE REP COUNT");
-  else if ( k[i] == MCODE_OP_REP )             sprint(ii, "REP (*)", (char*)(i++));
-  else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_PUSHINT )
+
+  if ( !Code )
+  {
+    SysLog("%08X: %08X | <null>", ii,k[i]);
+  }
+  else if ( Code == MCODE_OP_REP )
   {
     FARINT64 i64;
-    i64.Part.HighPart=k[++i]; //???
-    i64.Part.LowPart=k[++i]; //???
-    SysLog("%08X:  PUSH INT %I64d", ii, i64.i64);
+    i64.Part.HighPart=k[i+1];
+    i64.Part.LowPart=k[i+2];
+    SysLog("%08X: %08X |   %I64d", ii,k[i+1],i64.i64);
+    SysLog("%08X: %08X |", ii,k[i+2]);
+    i+=2;
   }
-  else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %08X", (char*)k[++i]);
-  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %08X", (char*)k[++i]);
+  else if ( Code == MCODE_OP_PUSHINT )
+  {
+    FARINT64 i64;
+    ++i;
+    i64.Part.HighPart=k[i];
+    i64.Part.LowPart=k[i+1];
+    SysLog("%08X: %08X |   %I64d", ++ii,k[i],i64.i64);
+    ++i;
+    SysLog("%08X: %08X |", ++ii,k[i]);
+  }
+  else if ( Code == MCODE_OP_PUSHSTR || Code == MCODE_OP_PUSHVAR || Code == MCODE_OP_SAVE)
+  {
+    int iii=i+1;
+    const char *s=printfStr(k, i);
+    if(Code == MCODE_OP_PUSHSTR)
+      SysLog("%08X: %08X |   \"%s\"", iii,k[iii], s);
+    else
+      SysLog("%08X: %08X |   %%%s", iii,k[iii], s);
+    for(iii++; iii <= i; ++iii)
+      SysLog("%08X: %08X |", iii,k[iii]);
+  }
+  else if ( Code >= MCODE_OP_JMP && Code <= MCODE_OP_JGE)
+  {
+    ++i;
+    SysLog("%08X: %08X |   %08X (%s)", i,k[i],k[i],(k[i]<i?"up":"down"));
+  }
+/*
+  else if ( Code == MCODE_OP_DATE )
+  {
+    //sprint(k[i],ii, "$date ''");
+  }
+  else if ( Code == MCODE_OP_PLAINTEXT )
+  {
+    //sprint(k[i],ii, "$text ''");
+  }
+*/
 
-  else if ( k[i] == MCODE_OP_DATE )            sprint(ii, "$date ''");
-  else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, "$text ''");
-
-  else if ( k[i] == MCODE_OP_NEGATE )          sprint(ii, " /-/");
-  else if ( k[i] == MCODE_OP_ADD )             sprint(ii, " +");
-  else if ( k[i] == MCODE_OP_SUB )             sprint(ii, " -");
-  else if ( k[i] == MCODE_OP_MUL )             sprint(ii, " *");
-  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, " /");
-  else if ( k[i] == MCODE_OP_LT )              sprint(ii, " <");
-  else if ( k[i] == MCODE_OP_LE )              sprint(ii, " <=");
-  else if ( k[i] == MCODE_OP_GE )              sprint(ii, " >=");
-  else if ( k[i] == MCODE_OP_GT )              sprint(ii, " >");
-  else if ( k[i] == MCODE_OP_EQ )              sprint(ii, " ==");
-  else if ( k[i] == MCODE_OP_NE )              sprint(ii, " !=");
-  else if ( k[i] == MCODE_OP_NOT )             sprint(ii, " !");
-  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, " /");
-  else if ( k[i] == MCODE_OP_AND )             sprint(ii, " &&");
-  else if ( k[i] == MCODE_OP_OR )              sprint(ii, " ||");
-  else if ( k[i] == MCODE_OP_BITAND )          sprint(ii, " &");
-  else if ( k[i] == MCODE_OP_BITOR )           sprint(ii, " |");
-  else if ( k[i] == MCODE_OP_BITXOR )          sprint(ii, " ^");
-
-  else if ( k[i] == MCODE_F_ABS )              sprint(ii, " N=abs(N)");
-  else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, " N=checkhotkey(S)");
-  else if ( k[i] == MCODE_F_DATE )             sprint(ii, " S=date(S)");
-  else if ( k[i] == MCODE_F_EDITOR_SET )       sprint(ii, " N=Editor.Set(N,Var)");
-  else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, " S=env(S)");
-  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " N=fattr(S)");
-  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " S=fexist(S)");
-  else if ( k[i] == MCODE_F_FSPLIT )           sprint(ii, " S=fsplit(S,N)");
-  else if ( k[i] == MCODE_F_IIF )              sprint(ii, " V=iif(Condition,V1,V2)");
-  else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " S=index(S1,S2)");
-  else if ( k[i] == MCODE_F_INT )              sprint(ii, " N=int(V)");
-  else if ( k[i] == MCODE_F_ITOA )             sprint(ii, " S=itoa(N,radix)");
-  else if ( k[i] == MCODE_F_SLEEP )            sprint(ii, " N=Sleep(N)");
-  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " N=len(S)");
-  else if ( k[i] == MCODE_F_MAX )              sprint(ii, " N=max(N1,N2)");
-  else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, " N=msave(S)");
-  else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, " N=msgbox(\"Title\",\"Text\",flags)");
-  else if ( k[i] == MCODE_F_MIN )              sprint(ii, " N=min(N1,N2)");
-  else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
-  else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, " N=panel.SetPos(panelType,fileName)");
-  else if ( k[i] == MCODE_F_PANEL_FATTR )      sprint(ii, " N=panel.fattr(panelType,S)");
-  else if ( k[i] == MCODE_F_PANEL_FEXIST )     sprint(ii, " S=panel.fexist(panelType,S)");
-  else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " S=rindex(S1,S2)");
-  else if ( k[i] == MCODE_F_DLG_GETVALUE )     sprint(ii, " V=Dlg.GetValue(ID,N)");
-  else if ( k[i] == MCODE_F_STRING )           sprint(ii, " S=string(V)");
-  else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " S=substr(S1,S2,N)");
-  else if ( k[i] == MCODE_F_UCASE )            sprint(ii, " S=ucase(S1)");
-  else if ( k[i] == MCODE_F_LCASE )            sprint(ii, " S=lcase(S1)");
-  else if ( k[i] == MCODE_F_XLAT )             sprint(ii, " S=xlat(S)");
-  else if ( k[i] == MCODE_F_PLAYMACRO )        sprint(ii, " N=playmacro(S)");
-  else
+  else if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
   {
     int FARFunc = 0;
     for ( int j = 0 ; j < MKeywordsSize ; j++ )
-      if ( k[i] == MKeywords[j].Value)
+    {
+      if ( Code == MKeywords[j].Value)
       {
         FARFunc = 1;
-        sprint(ii, " %s", MKeywords[j].Name);
+        SysLog("%08X: %08X | %s", ii,Code,MKeywords[j].Name);
         break;
       }
+      else if ( Code == MKeywordsFlags[j].Value)
+      {
+        FARFunc = 1;
+        SysLog("%08X: %08X | %s", ii,Code,MKeywords[j].Name);
+        break;
+      }
+    }
     if ( !FARFunc )
     {
       char tmp[128];
-      if ( KeyToText(k[i], tmp, sizeof(tmp)) )
-        sprint(ii, "%s", tmp);
+      if ( KeyToText(Code, tmp, sizeof(tmp)) )
+        SysLog("%08X: %08X | Key: '%s'", ii,Code,tmp);
       else
-        sprint(ii, "0x%08X", (char*)k[i]);
+        SysLog("%08X: %08X | ???", ii,Code);
     }
   }
 }
@@ -3829,14 +3867,20 @@ static void __Dump_eStack(const char *Title)
 static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const char *BufPtr)
 {
   _KEYMACRO(CleverSysLog Clev("parseMacroString"));
-  _KEYMACRO(SysLog("BufPtr[%p]='%s'", BufPtr,BufPtr));
+  _KEYMACRO(SysLog("Param: BufPtr[%p]='%s'", BufPtr,BufPtr));
+
   _macro_nErr = 0;
   if ( BufPtr == NULL || !*BufPtr)
+  {
+    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: BufPtr == NULL || !*BufPtr", __LINE__));
     return FALSE;
+  }
+
   int SizeCurKeyText = (int)strlen(BufPtr)*2;
   char *CurrKeyText = (char*)xf_malloc(SizeCurKeyText);
   if ( CurrKeyText == NULL )
   {
+    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: xf_malloc == NULL (for CurrKeyText)", __LINE__));
     return FALSE;
   }
   //- AN ----------------------------------------------
@@ -3846,20 +3890,29 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
   if ( exprBuff == NULL )
   {
     xf_free(CurrKeyText);
+    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: xf_malloc == NULL (for exprBuff)", __LINE__));
     return FALSE;
   }
   TExec exec;
   char varName[256];
   DWORD KeyCode, *CurMacro_Buffer = NULL;
 
+  _KEYMACRO_PARSE(SysLog("<Parse>{"));
+  _KEYMACRO_PARSE(int __ItNum=0);
   for (;;)
   {
+    _KEYMACRO_PARSE(++__ItNum);
+    //_KEYMACRO_PARSE(SysLog("iteration=%d", __ItNum));
+
     int Size = 1;
     int SizeVarName = 0;
     const char *oldBufPtr = BufPtr;
 
+
     if ( ( BufPtr = __GetNextWord(BufPtr, CurrKeyText) ) == NULL )
        break;
+
+    _KEYMACRO_PARSE(SysLog("(%d) CurrKeyText='%s'", __ItNum,CurrKeyText));
 
     //- AN ----------------------------------------------
     //  Проверка на строковый литерал
@@ -3869,13 +3922,17 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     {
       KeyCode = MCODE_OP_PLAINTEXT;
       BufPtr = oldBufPtr;
+      _KEYMACRO_PARSE(SysLog("(%d) KeyCode = MCODE_OP_PLAINTEXT", __ItNum));
     }
     else if ( ( KeyCode = KeyNameToKey(CurrKeyText) ) == (DWORD)-1 )
     {
+      _KEYMACRO_PARSE(CleverSysLog Clev("KeyNameToKey() == -1"));
       int ProcError=0;
 
       if ( *CurrKeyText == '%' && ( ( isalpha(CurrKeyText[1]) || CurrKeyText[1] == '_' ) || ( CurrKeyText[1] == '%' && ( isalpha(CurrKeyText[2]) || CurrKeyText[2]=='_' ) ) ) )
       {
+        _KEYMACRO_PARSE(CleverSysLog Clev("Detect Vars"));
+
         BufPtr = oldBufPtr;
         while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)))
           BufPtr++;
@@ -3895,6 +3952,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         SizeVarName = Length/sizeof(DWORD);
         if ( Length == 1 || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
           SizeVarName++;
+        _KEYMACRO_PARSE(SysLog("(%d) KeyCode = MCODE_OP_SAVE, varName='%s', SizeVarName=%d", __ItNum,varName,SizeVarName));
         BufPtr += Length;
         Size += parseExpr(BufPtr, exprBuff, '=', ';');
         if(_macro_nErr)
@@ -3904,6 +3962,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       }
       else
       {
+        _KEYMACRO_PARSE(CleverSysLog Clev("not Vars"));
         // проверим вариант, когда вызвали функцию, но результат не присвоили,
         // например, вызвали MsgBox(), но результат неважен
         // тогда SizeVarName=1 и varName=""
@@ -3918,6 +3977,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
 
         if(funcLook(CurrKeyText, __nParam) != MCODE_F_NOFUNC)
         {
+          _KEYMACRO_PARSE(CleverSysLog Clev("Detect Func"));
           if(Brack) *Brack=Chr;
           BufPtr = oldBufPtr;
           while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
@@ -4214,29 +4274,28 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       default:
         //MCODE_OP_KEYS
         //MCODE_OP_ENDKEYS
+        _KEYMACRO_PARSE(SysLog("(%d) default: KeyCode = %08X", __ItNum,KeyCode));
         CurMacro_Buffer[CurMacroBufferSize]=KeyCode;
 
     } // end switch(KeyCode)
 
     CurMacroBufferSize += Size+SizeVarName;
   } // END for (;;)
+  _KEYMACRO_PARSE(SysLog("}</Parse>"));
+
 #ifdef _DEBUG
 #ifdef SYSLOG_KEYMACRO
-  SysLog("--- macro buffer out (%d)", CurMacroBufferSize);
-  SysLogDump("",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
+  SysLogDump("Macro Buffer",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
+  SysLog("<ByteCode>{");
   if ( CurMacro_Buffer )
   {
     int ii;
-    for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
-      SysLog("%08X: %08X",ii,CurMacro_Buffer[ii]);
-
-    SysLog("------------------------");
     for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
       printKeyValue(CurMacro_Buffer, ii);
   }
   else
     SysLog("??? is NULL");
-  SysLog("--- macro buffer end");
+  SysLog("}</ByteCode>");
 #endif
 #endif
   if ( CurMacroBufferSize > 1 )

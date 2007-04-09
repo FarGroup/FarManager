@@ -22,7 +22,7 @@ syslog.cpp
 #endif
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(SYSLOG_WARP) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW) || defined(SYSLOG_TREX)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(SYSLOG_WARP) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW) || defined(SYSLOG_TREX) || defined(SYSLOG_KEYMACRO_PARSE) || defined(SYSLOG_YJH)
   #define SYSLOG
  #endif
 #endif
@@ -302,6 +302,7 @@ void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE
   if(!IsLogON())
     return;
 
+  static char timebuf[64];
   int CY=(SizeBuf+15)/16;
   int X,Y;
   int InternalLog=fp==NULL?TRUE:FALSE;
@@ -311,7 +312,8 @@ void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE
   if(InternalLog)
   {
     OpenSysLog();
-    fp=PrintBaner(fp,"",Title);
+    fp=LogStream;
+    fprintf(fp,"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title),SizeBuf);
   }
 
   if (fp)
@@ -324,6 +326,8 @@ void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE
     for(Y=0; Y < CY; ++Y)
     {
       memset(TmpBuf,' ',16);
+
+      fprintf(fp,"%s %s ",PrintTime(timebuf),MakeSpace());
       fprintf(fp, " %08X: ",StartAddress+Y*16);
       for(X=0; X < 16; ++X)
       {
@@ -337,7 +341,7 @@ void SysLogDump(const char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE
       }
       fprintf(fp,"| %s\n",TmpBuf);
     }
-    fprintf(fp,"\n");
+    fprintf(fp,"%s %s}</%s>\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
     fflush(fp);
   }
 
@@ -1089,10 +1093,10 @@ const char *_MCODE_ToName(int OpCode)
   for(I=0; I < sizeof(MCODE)/sizeof(MCODE[0]); ++I)
     if(MCODE[I].Msg == OpCode)
     {
-      sprintf(Name,"\"MCODE_%s\" [0x%04X]",MCODE[I].Name,OpCode);
+      sprintf(Name,"%08X | MCODE_%-20s",OpCode,MCODE[I].Name);
       return Name;
     }
-  sprintf(Name,"\"MCODE_????\" [0x%04X]",OpCode);
+  sprintf(Name,"%08X | MCODE_%-20s",OpCode,"????");
   return Name;
 #else
   return "";
