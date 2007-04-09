@@ -93,15 +93,16 @@ L" /u <username>\n"
 L"      Allows to have separate settings for different users.\n"
 L" /v <filename>\n"
 L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
-L" /x   Disable exception handling.\n"
+L" /x   Disable exception handling.\n");
 #if defined(_DEBUGEXC)
+wprintf(
 L" /xd  Enable exception handling.\n"
-L" /cr  Disable check registration.\n"
+L" /cr  Disable check registration.\n");
 #endif
 #ifdef DIRECT_RT
-L" /do  Direct output.\n"
+wprintf(
+L" /do  Direct output.\n");
 #endif
-);
 }
 
 void QueryRegistration ()

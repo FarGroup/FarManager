@@ -93,39 +93,40 @@ enum MACRO_OP_CODE {
   /* ************************************************************************* */
   // функции
   MCODE_F_NOFUNC=KEY_MACRO_F_BASE,
-  MCODE_F_ABS,                      //
-  MCODE_F_MIN,                      //
-  MCODE_F_MAX,                      //
-  MCODE_F_IIF,                      //
-  MCODE_F_SUBSTR,                   //
-  MCODE_F_INDEX,                    //
-  MCODE_F_RINDEX,                   //
-  MCODE_F_LEN,                      //
-  MCODE_F_STRING,                   //
-  MCODE_F_INT,                      //
-  MCODE_F_DATE,                     //
-  MCODE_F_XLAT,                     // вызывать XLat: Param=0 или 1
-  MCODE_F_MENU_CHECKHOTKEY,         // есть такой сивол?
-  MCODE_F_ENVIRON,                  // получить значение переменной среды
-  MCODE_F_FEXIST,                   // проверка существования файла/каталога
-  MCODE_F_FATTR,                    // возвращает атрибуты файловго объекта
-  MCODE_F_FSPLIT,                   // возвращает заданную компоненту пути
-  MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
-  MCODE_F_UCASE,                    // UpperCase
-  MCODE_F_LCASE,                    // LowerCase
-  MCODE_F_ITOA,                     //
-  MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
-  MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
-  MCODE_F_MSAVE,                    // b=msave(var)
-  MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
-  MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
-  MCODE_F_CLIP,                     // V=clip(N,S)
-  MCODE_F_SLEEP,                    // Sleep(N)
-  MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
-  MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)
+
+  MCODE_F_ABS,                      // N=abs(N)
   MCODE_F_AKEY,                     // S=akey()
-  MCODE_F_WAITKEY,                  // S=waitkey(N)
+  MCODE_F_CLIP,                     // V=clip(N,S)
+  MCODE_F_DATE,                     // S=date(S)
+  MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
+  MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
+  MCODE_F_ENVIRON,                  // S=env(S)
+  MCODE_F_FATTR,                    // N=fattr(S)
+  MCODE_F_FEXIST,                   // S=fexist(S)
+  MCODE_F_FSPLIT,                   // S=fsplit(S,N)
+  MCODE_F_IIF,                      // V=iif(C,V1,V2)
+  MCODE_F_INDEX,                    // S=index(S1,S2)
+  MCODE_F_INT,                      // N=int(V)
+  MCODE_F_ITOA,                     // S=itoa(N,radix)
+  MCODE_F_LCASE,                    // S=lcase(S1)
+  MCODE_F_LEN,                      // N=len(S)
+  MCODE_F_MAX,                      // N=max(N1,N2)
+  MCODE_F_MENU_CHECKHOTKEY,         // N=checkhotkey(S)
+  MCODE_F_MIN,                      // N=min(N1,N2)
+  MCODE_F_MSAVE,                    // B=msave(var)
+  MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
+  MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)
+  MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
+  MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
+  MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
   MCODE_F_PLAYMACRO,                // N=playmacro(S)
+  MCODE_F_RINDEX,                   // S=rindex(S1,S2)
+  MCODE_F_SLEEP,                    // Sleep(N)
+  MCODE_F_STRING,                   // S=string(V)
+  MCODE_F_SUBSTR,                   // S=substr(s1,s2)
+  MCODE_F_UCASE,                    // S=ucase(S1)
+  MCODE_F_WAITKEY,                  // S=waitkey(N)
+  MCODE_F_XLAT,                     // S=xlat(S)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
