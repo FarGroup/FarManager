@@ -366,7 +366,7 @@ int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X
 int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
 {
 	string strP(pattern), strS(str);
-  return FarCmpName(strP,strS,skippath);
+	return FarCmpName(strP,strS,skippath);
 }
 
 void WINAPI FarTextA(int X,int Y,int Color,const char *Str)
@@ -422,8 +422,18 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 
 const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 {
-	static char s[] = "abc";
-	return s;
+	//BUGBUG, надо проверять, что PluginHandle - плагин
+
+	Plugin *pPlugin = (Plugin*)PluginHandle;
+
+	string strPath = pPlugin->GetModuleName();
+
+	CutToSlash(strPath);
+
+	if ( pPlugin->InitLang(strPath) )
+		return pPlugin->GetMsgA(MsgId);
+
+	return "";
 }
 
 int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const struct oldfar::FarMenuItem *Item,int ItemsNumber)

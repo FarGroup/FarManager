@@ -147,6 +147,7 @@ public:
 
 	int InitLang(const wchar_t *Path,int CountNeed=-1) { return Lang.Init(Path,CountNeed); }
 	void CloseLang() { Lang.Close(); }
+	const char *GetMsgA (int nID) { return Lang.GetMsgA(nID); }
 	const wchar_t *GetMsg (int nID) { return Lang.GetMsg(nID); }
 
 public:

@@ -19,6 +19,9 @@ class Language
     wchar_t **MsgAddr;
     wchar_t *MsgList;
 
+    char **MsgAddrA; //фантастика, да
+    char *MsgListA;
+
     long MsgSize;
 
     int MsgCount;
@@ -38,7 +41,8 @@ class Language
     int Init(const wchar_t *Path,int CountNeed=-1);
     void Close();
 
-    wchar_t* GetMsg (int nID);
+    const wchar_t* GetMsg (int nID);
+    const char* GetMsgA (int nID);
 
     static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
     static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage);

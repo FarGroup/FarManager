@@ -35,6 +35,9 @@ Language::Language()
   MsgList = NULL;
   MsgAddr = NULL;
 
+  MsgListA = NULL;
+  MsgAddrA = NULL;
+
   MsgCount=0;
   MsgSize=0;
 }
@@ -80,9 +83,19 @@ int Language::Init(const wchar_t *Path,int CountNeed)
       return(FALSE);
     }
 
+    if ( (MsgListA = (char*)xf_realloc(MsgListA, (MsgSize+DestLength)*sizeof (char))) == NULL )
+    {
+      xf_free (MsgList);
+      fclose(LangFile);
+      return FALSE;
+    }
+
     *(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
+    *(int*)&MsgListA[MsgSize+DestLength-_PACK] = 0;
 
     wcscpy(MsgList+MsgSize, strDestStr);
+
+    UnicodeToAnsi (strDestStr, MsgListA+MsgSize, DestLength);
 
     MsgSize+=DestLength;
     MsgCount++;
@@ -96,9 +109,9 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   }
   /* SVS $ */
   wchar_t *CurAddr = MsgList;
+  char *CurAddrA = MsgListA;
 
   MsgAddr = new wchar_t*[MsgCount];
-
 
   if ( MsgAddr == NULL )
   {
@@ -106,10 +119,25 @@ int Language::Init(const wchar_t *Path,int CountNeed)
     return(FALSE);
   }
 
+  MsgAddrA = new char*[MsgCount];
+
+  if ( MsgAddrA == NULL )
+  {
+    delete MsgAddr;
+    fclose(LangFile);
+    return FALSE;
+  }
+
   for (int I=0;I<MsgCount;I++)
   {
     MsgAddr[I]=CurAddr;
     CurAddr+=pack(wcslen(CurAddr)+1);
+  }
+
+  for (int I=0;I<MsgCount;I++)
+  {
+    MsgAddrA[I]=CurAddrA;
+    CurAddrA+=pack(strlen(CurAddrA)+1);
   }
 
   fclose(LangFile);
@@ -129,9 +157,13 @@ Language::~Language()
 void Language::Free()
 {
   if(MsgList)xf_free(MsgList);
+  if(MsgListA)xf_free(MsgListA);
   MsgList=NULL;
+  MsgListA=NULL;
   if(MsgAddr)delete[] MsgAddr;
   MsgAddr=NULL;
+  if(MsgAddrA)delete[] MsgAddrA;
+  MsgAddrA=NULL;
   MsgCount=0;
   MsgSize=0;
 }
@@ -144,12 +176,16 @@ void Language::Close()
       OldLang.Free();
     OldLang.MsgList=MsgList;
     OldLang.MsgAddr=MsgAddr;
+    OldLang.MsgListA=MsgListA;
+    OldLang.MsgAddrA=MsgAddrA;
     OldLang.MsgCount=MsgCount;
     OldLang.MsgSize=MsgSize;
   }
 
   MsgList=NULL;
   MsgAddr=NULL;
+  MsgListA=NULL;
+  MsgAddrA=NULL;
   MsgCount=0;
   MsgSize=0;
   LanguageLoaded=FALSE;
@@ -245,7 +281,7 @@ BOOL Language::CheckMsgId(int MsgId)
   return TRUE;
 }
 
-wchar_t* Language::GetMsg (int nID)
+const wchar_t* Language::GetMsg (int nID)
 {
   if( !CheckMsgId (nID) )
     return L"";
@@ -254,6 +290,17 @@ wchar_t* Language::GetMsg (int nID)
     return(OldLang.MsgAddr[nID]);
 
   return(MsgAddr[nID]);
+}
+
+const char* Language::GetMsgA (int nID)
+{
+  if( !CheckMsgId (nID) )
+    return "";
+
+  if( this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
+    return(OldLang.MsgAddrA[nID]);
+
+  return(MsgAddrA[nID]);
 }
 
 

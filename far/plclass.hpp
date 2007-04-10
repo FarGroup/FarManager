@@ -59,6 +59,7 @@ public:
 	virtual int InitLang(const wchar_t *Path,int CountNeed=-1) = 0;
 	virtual void CloseLang() = 0;
 	virtual const wchar_t *GetMsg (int nID) = 0;
+	virtual const char *GetMsgA (int nID) = 0; //BUGBUG
 
 	virtual int SetStartupInfo (bool &bUnloaded) = 0;
 	virtual int CheckMinFarVersion (bool &bUnloaded) = 0;
