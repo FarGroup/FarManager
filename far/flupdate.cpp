@@ -224,9 +224,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int AllocatedCount=0;
   struct FileListItem *NewPtr;
 
-  // вне цикла получим указатель.
-  //char * PointToName_CurDir=PointToName(CurDir);
-
   // сформируем заголовок вне цикла
   char Title[2048];
   int TitleLength=Min((int)X2-X1-1,(int)sizeof(Title)-1);
@@ -247,15 +244,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       {
         UpperDir=TRUE;
         DotsPresent=TRUE;
-        /*
-        AY: Какая то левая проверка, раз FindFile нашел ".." значит они есть
-            и зачем нам решать вдруг что их нету.
-        if (*PointToName_CurDir==0)
+        if (IsLocalRootPath(CurDir))
         {
           Done=!FindNextFile(FindHandle,&fdata);
           continue;
         }
-        */
       }
       if (FileCount>=AllocatedCount)
       {
@@ -376,7 +369,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   }
   */
   // пока кусок закомментим, возможно он даже и не пригодится.
-  if (!DotsPresent && *PointToName(CurDir)!=0)// && !NetRoot)
+  if (!DotsPresent && !IsLocalRootPath(CurDir))// && !NetRoot)
   {
     if (FileCount>=AllocatedCount)
     {

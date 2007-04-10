@@ -4,7 +4,7 @@
 @echo This command will tag the trunk under tags/VERSION_bBUILD, if such
 @echo tag already exists this command might cause problems.
 @echo --------------------------------------------------------------------
-@echo If you're not sure press СtrlC.
+@echo If you're not sure press CtrlC.
 @echo --------------------------------------------------------------------
 @echo --------------------------------------------------------------------
 @echo Продолжайте тольке если вы уверены что вы выставили правильный
