@@ -2718,15 +2718,15 @@ int Editor::ProcessKey(int Key)
       {
         const char *Fmt = eStackAsString();
         int SizeMacroText = 16+(Fmt && *Fmt ? (int)strlen(Fmt) : (int)strlen(Opt.DateFormat));
-        if(Key == MCODE_OP_PLAINTEXT)
+        if(Key == KEY_OP_PLAINTEXT)
           SizeMacroText=(int)strlen(Fmt)+1;
         SizeMacroText*=4+1;
         char *TStr=(char*)alloca(SizeMacroText);
         if(!TStr)
           return FALSE;
-        if(Key == MCODE_OP_PLAINTEXT)
+        if(Key == KEY_OP_PLAINTEXT)
           strcpy(TStr,Fmt);
-        if(Key == MCODE_OP_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
+        if(Key == KEY_OP_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)

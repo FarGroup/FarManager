@@ -1,3 +1,8 @@
+svs 12.04.2007 21:39:13 +0300 - build 2223
+
+1. Бага в обработчике KEY_OP_TEXTPLAIN в редакторе.
+   забыл поправить MCODE_OP_PLAINTEXT на KEY_OP_PLAINTEXT
+
 svs 10.04.2007 19:58:36 +0300 - build 
 
 Без билда. Добавлен файл "TODO"
