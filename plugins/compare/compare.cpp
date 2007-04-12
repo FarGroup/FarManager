@@ -828,7 +828,6 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
         {
           if (   CheckForEsc()
               || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, NULL)
-              || !ReadSizeA
               || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, NULL)
               || ReadSizeA != ReadSizeP
               || memcmp(ABuf, PBuf, ReadSizeA) )
