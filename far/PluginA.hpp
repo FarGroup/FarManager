@@ -67,6 +67,8 @@ private:
 	char *RootKey;
 
 	PluginInfo PI;
+	OpenPluginInfo OPI;
+	oldfar::PluginPanelItem  *pFDPanelItemA;
 
 	PLUGINSETSTARTUPINFO        pSetStartupInfo;
 	PLUGINOPENPLUGIN            pOpenPlugin;
@@ -191,6 +193,8 @@ private:
 
 	void FreePluginInfo();
 	void ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest);
+	void FreeOpenPluginInfo();
+	void ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo *Dest);
 };
 
 #endif  // __PLUGINA_HPP__

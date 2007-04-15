@@ -38,6 +38,134 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
   return lpResult;
 }
 
+void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, int ItemsNumber)
+{
+	*PanelItemW = (PluginPanelItem *)malloc(ItemsNumber*sizeof(PluginPanelItem));
+
+	memset(*PanelItemW,0,ItemsNumber*sizeof(PluginPanelItem));
+
+	for (int i=0; i<ItemsNumber; i++)
+	{
+		(*PanelItemW)[i].Flags = PanelItemA[i].Flags;
+		(*PanelItemW)[i].NumberOfLinks = PanelItemA[i].NumberOfLinks;
+
+		if (PanelItemA[i].Description)
+			(*PanelItemW)[i].Description = AnsiToUnicode(PanelItemA[i].Description);
+
+		if (PanelItemA[i].Owner)
+			(*PanelItemW)[i].Owner = AnsiToUnicode(PanelItemA[i].Owner);
+
+		if (PanelItemA[i].CustomColumnNumber)
+		{
+			(*PanelItemW)[i].CustomColumnNumber = PanelItemA[i].CustomColumnNumber;
+			(*PanelItemW)[i].CustomColumnData = (wchar_t **)malloc(PanelItemA[i].CustomColumnNumber*sizeof(wchar_t *));
+
+			for (int j=0; j<PanelItemA[i].CustomColumnNumber; j++)
+				(*PanelItemW)[i].CustomColumnData[j] = AnsiToUnicode(PanelItemA[i].CustomColumnData[j]);
+		}
+
+		(*PanelItemW)[i].UserData = PanelItemA[i].UserData;
+		(*PanelItemW)[i].CRC32 = PanelItemA[i].CRC32;
+
+		(*PanelItemW)[i].FindData.dwFileAttributes = PanelItemA[i].FindData.dwFileAttributes;
+		(*PanelItemW)[i].FindData.ftCreationTime = PanelItemA[i].FindData.ftCreationTime;
+		(*PanelItemW)[i].FindData.ftLastAccessTime = PanelItemA[i].FindData.ftLastAccessTime;
+		(*PanelItemW)[i].FindData.ftLastWriteTime = PanelItemA[i].FindData.ftLastWriteTime;
+		(*PanelItemW)[i].FindData.nFileSize = (unsigned __int64)PanelItemA[i].FindData.nFileSizeLow + (((unsigned __int64)PanelItemA[i].FindData.nFileSizeHigh)<<32);
+		(*PanelItemW)[i].FindData.nPackSize = (unsigned __int64)PanelItemA[i].PackSize + (((unsigned __int64)PanelItemA[i].PackSizeHigh)<<32);
+		(*PanelItemW)[i].FindData.lpwszFileName = AnsiToUnicode(PanelItemA[i].FindData.cFileName);
+		(*PanelItemW)[i].FindData.lpwszAlternateFileName = AnsiToUnicode(PanelItemA[i].FindData.cAlternateFileName);
+	}
+}
+
+void ConvertPanelItemW(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem **PanelItemA, int ItemsNumber)
+{
+	*PanelItemA = (oldfar::PluginPanelItem *)malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
+
+	memset(*PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
+
+	for (int i=0; i<ItemsNumber; i++)
+	{
+		(*PanelItemA)[i].Flags = PanelItemW[i].Flags;
+		(*PanelItemA)[i].NumberOfLinks = PanelItemW[i].NumberOfLinks;
+
+		if (PanelItemW[i].Description)
+			(*PanelItemA)[i].Description = UnicodeToAnsi(PanelItemW[i].Description);
+
+		if (PanelItemW[i].Owner)
+			(*PanelItemA)[i].Owner = UnicodeToAnsi(PanelItemW[i].Owner);
+
+		if (PanelItemW[i].CustomColumnNumber)
+		{
+			(*PanelItemA)[i].CustomColumnNumber = PanelItemW[i].CustomColumnNumber;
+			(*PanelItemA)[i].CustomColumnData = (char **)malloc(PanelItemW[i].CustomColumnNumber*sizeof(char *));
+
+			for (int j=0; j<PanelItemW[i].CustomColumnNumber; j++)
+				(*PanelItemA)[i].CustomColumnData[j] = UnicodeToAnsi(PanelItemW[i].CustomColumnData[j]);
+		}
+
+		(*PanelItemA)[i].UserData = PanelItemW[i].UserData;
+		(*PanelItemA)[i].CRC32 = PanelItemW[i].CRC32;
+
+		(*PanelItemA)[i].FindData.dwFileAttributes = PanelItemW[i].FindData.dwFileAttributes;
+		(*PanelItemA)[i].FindData.ftCreationTime = PanelItemW[i].FindData.ftCreationTime;
+		(*PanelItemA)[i].FindData.ftLastAccessTime = PanelItemW[i].FindData.ftLastAccessTime;
+		(*PanelItemA)[i].FindData.ftLastWriteTime = PanelItemW[i].FindData.ftLastWriteTime;
+		(*PanelItemA)[i].FindData.nFileSizeLow = (DWORD)PanelItemW[i].FindData.nFileSize;
+		(*PanelItemA)[i].FindData.nFileSizeHigh = (DWORD)(PanelItemW[i].FindData.nFileSize>>32);
+		(*PanelItemA)[i].PackSize = (DWORD)PanelItemW[i].FindData.nPackSize;
+		(*PanelItemA)[i].PackSizeHigh = (DWORD)(PanelItemW[i].FindData.nPackSize>>32);
+		UnicodeToAnsi(PanelItemW[i].FindData.lpwszFileName,(*PanelItemA)[i].FindData.cFileName,sizeof((*PanelItemA)[i].FindData.cFileName));
+		UnicodeToAnsi(PanelItemW[i].FindData.lpwszAlternateFileName,(*PanelItemA)[i].FindData.cAlternateFileName,sizeof((*PanelItemA)[i].FindData.cAlternateFileName));
+	}
+}
+
+void FreePanelItemW(PluginPanelItem *PanelItem, int ItemsNumber)
+{
+	for (int i=0; i<ItemsNumber; i++)
+	{
+		if (PanelItem[i].Description)
+			free(PanelItem[i].Description);
+
+		if (PanelItem[i].Owner)
+			free(PanelItem[i].Owner);
+
+		if (PanelItem[i].CustomColumnNumber)
+		{
+			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
+				free(PanelItem[i].CustomColumnData[j]);
+
+			free(PanelItem[i].CustomColumnData);
+		}
+
+		free(PanelItem[i].FindData.lpwszFileName);
+		free(PanelItem[i].FindData.lpwszAlternateFileName);
+	}
+
+	free(PanelItem);
+}
+
+void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber)
+{
+	for (int i=0; i<ItemsNumber; i++)
+	{
+		if (PanelItem[i].Description)
+			free(PanelItem[i].Description);
+
+		if (PanelItem[i].Owner)
+			free(PanelItem[i].Owner);
+
+		if (PanelItem[i].CustomColumnNumber)
+		{
+			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
+				free(PanelItem[i].CustomColumnData[j]);
+
+			free(PanelItem[i].CustomColumnData);
+		}
+	}
+
+	free(PanelItem);
+}
 
 char *WINAPI FarItoaA(int value, char *string, int radix)
 {
@@ -495,6 +623,36 @@ int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
+	static oldfar::PanelInfo PIA={0};
+	HANDLE hPluginW = CURRENT_PANEL;
+
+	switch (Command)
+	{
+		case oldfar::FCTL_CHECKPANELSEXIST:
+			return FarControl(hPlugin,FCTL_CHECKPANELSEXIST,Param);
+
+		case oldfar::FCTL_CLOSEPLUGIN:
+			{
+				wchar_t *ParamW = NULL;
+				if (Param)
+					ParamW = AnsiToUnicode((const char *)Param);
+				int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,ParamW);
+				if (ParamW) free(ParamW);
+				return ret;
+			}
+
+		case oldfar::FCTL_GETANOTHERPANELINFO:
+			hPluginW = ANOTHER_PANEL;
+		case oldfar::FCTL_GETPANELINFO:
+			{
+				PanelInfo PIW;
+				int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
+				if (ret)
+				{
+				}
+				//return ret;
+			}
+	}
 	return FALSE;
 }
 

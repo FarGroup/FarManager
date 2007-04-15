@@ -134,12 +134,14 @@ PluginA::PluginA (
 	ClearExports();
 
 	memset(&PI,0,sizeof(PI));
+	memset(&OPI,0,sizeof(OPI));
 }
 
 PluginA::~PluginA()
 {
 	if (RootKey) free(RootKey);
 	FreePluginInfo();
+	FreeOpenPluginInfo();
 	Lang.Close();
 }
 
@@ -775,7 +777,9 @@ HANDLE PluginA::OpenFilePlugin (
 		es.id = EXCEPT_OPENFILEPLUGIN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 
-		char *NameA = UnicodeToAnsi(Name);
+		char *NameA = NULL;
+		if (Name)
+			NameA = UnicodeToAnsi(Name);
 
 		EXECUTE_FUNCTION_EX(pOpenFilePlugin(NameA, Data, DataSize), es);
 
@@ -803,8 +807,12 @@ int PluginA::SetFindList (
 		es.id = EXCEPT_SETFINDLIST;
 		es.bDefaultResult = FALSE;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pSetFindList(hPlugin, PanelItem, ItemsNumber), es);
-  	es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		oldfar::PluginPanelItem *PanelItemA = NULL;
+		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+
+		EXECUTE_FUNCTION_EX(pSetFindList(hPlugin, PanelItemA, ItemsNumber), es);
+
+		FreePanelItemA(PanelItemA,ItemsNumber);
 
 		bResult = es.bResult;
 	}
@@ -931,8 +939,14 @@ int PluginA::GetFiles (
 		es.id = EXCEPT_GETFILES;
 		es.nDefaultResult = -1;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pGetFiles(hPlugin, PanelItem, ItemsNumber, Move, DestPath, OpMode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		oldfar::PluginPanelItem *PanelItemA = NULL;
+		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+		char DestA[33*1024];
+		UnicodeToAnsi(DestPath,DestA,sizeof(DestA));
+
+		EXECUTE_FUNCTION_EX(pGetFiles(hPlugin, PanelItemA, ItemsNumber, Move, DestA, OpMode), es);
+
+		FreePanelItemA(PanelItemA,ItemsNumber);
 
 		nResult = (int)es.nResult;
 	}
@@ -958,8 +972,12 @@ int PluginA::PutFiles (
 		es.id = EXCEPT_PUTFILES;
 		es.nDefaultResult = -1;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pPutFiles(hPlugin, PanelItem, ItemsNumber, Move, OpMode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		oldfar::PluginPanelItem *PanelItemA = NULL;
+		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+
+		EXECUTE_FUNCTION_EX(pPutFiles(hPlugin, PanelItemA, ItemsNumber, Move, OpMode), es);
+
+		FreePanelItemA(PanelItemA,ItemsNumber);
 
 		nResult = (int)es.nResult;
 	}
@@ -983,8 +1001,12 @@ int PluginA::DeleteFiles (
 		es.id = EXCEPT_DELETEFILES;
 		es.bDefaultResult = FALSE;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pDeleteFiles(hPlugin, PanelItem, ItemsNumber, OpMode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		oldfar::PluginPanelItem *PanelItemA = NULL;
+		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+
+		EXECUTE_FUNCTION_EX(pDeleteFiles(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
+
+		FreePanelItemA(PanelItemA,ItemsNumber);
 
 		bResult = (int)es.bResult;
 	}
@@ -1008,8 +1030,10 @@ int PluginA::MakeDirectory (
 		es.id = EXCEPT_MAKEDIRECTORY;
 		es.nDefaultResult = -1;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pMakeDirectory(hPlugin, Name, OpMode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		char NameA[33*1024];
+		UnicodeToAnsi(Name,NameA,sizeof(NameA));
+
+		EXECUTE_FUNCTION_EX(pMakeDirectory(hPlugin, NameA, OpMode), es);
 
 		nResult = (int)es.nResult;
 	}
@@ -1034,8 +1058,12 @@ int PluginA::ProcessHostFile (
 		es.id = EXCEPT_PROCESSHOSTFILE;
 		es.bDefaultResult = FALSE;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pProcessHostFile(hPlugin, PanelItem, ItemsNumber, OpMode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		oldfar::PluginPanelItem *PanelItemA = NULL;
+		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+
+		EXECUTE_FUNCTION_EX(pProcessHostFile(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
+
+		FreePanelItemA(PanelItemA,ItemsNumber);
 
 		bResult = es.bResult;
 	}
@@ -1059,16 +1087,14 @@ int PluginA::ProcessEvent (
 		es.id = EXCEPT_PROCESSEVENT;
 		es.bDefaultResult = FALSE;
 
-		char *ParamA = NULL;
-		if (Param && Event == FE_COMMAND)
-		{
-			ParamA = UnicodeToAnsi((const wchar_t *)Param);
-			Param = (PVOID)ParamA;
-		}
+		PVOID ParamA = Param;
+		if (Param && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
+			ParamA = (PVOID)UnicodeToAnsi((const wchar_t *)Param);
 
-		EXECUTE_FUNCTION_EX(pProcessEvent(hPlugin, Event, Param), es);
+		EXECUTE_FUNCTION_EX(pProcessEvent(hPlugin, Event, ParamA), es);
 
-		if (ParamA) free(ParamA);
+		if (ParamA && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
+			free(ParamA);
 
 		bResult = es.bResult;
 	}
@@ -1093,8 +1119,15 @@ int PluginA::Compare (
 		es.id = EXCEPT_COMPARE;
 		es.nDefaultResult = -2;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pCompare(hPlugin, Item1, Item2, Mode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		oldfar::PluginPanelItem *Item1A = NULL;
+		oldfar::PluginPanelItem *Item2A = NULL;
+		ConvertPanelItemW(Item1,&Item1A,1);
+		ConvertPanelItemW(Item2,&Item2A,1);
+
+		EXECUTE_FUNCTION_EX(pCompare(hPlugin, Item1A, Item2A, Mode), es);
+
+		FreePanelItemA(Item1A,1);
+		FreePanelItemA(Item2A,1);
 
 		nResult = (int)es.nResult;
 	}
@@ -1119,10 +1152,16 @@ int PluginA::GetFindData (
 		es.id = EXCEPT_GETFINDDATA;
 		es.bDefaultResult = FALSE;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pGetFindData(hPlugin, pPanelItem, pItemsNumber, OpMode), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		pFDPanelItemA = NULL;
+
+		EXECUTE_FUNCTION_EX(pGetFindData(hPlugin, &pFDPanelItemA, pItemsNumber, OpMode), es);
 
 		bResult = es.bResult;
+
+		if (bResult && *pItemsNumber)
+		{
+			ConvertPanelItemA(pFDPanelItemA, pPanelItem, *pItemsNumber);
+		}
 	}
 
 	return bResult;
@@ -1135,12 +1174,16 @@ void PluginA::FreeFindData (
 		int ItemsNumber
 		)
 {
+	FreePanelItemW(PanelItem, ItemsNumber);
+
 	if ( pFreeFindData && !ProcessException )
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
 
-		//TODO!!! EXECUTE_FUNCTION(pFreeFindData(hPlugin, PanelItem, ItemsNumber), es);
+		EXECUTE_FUNCTION(pFreeFindData(hPlugin, pFDPanelItemA, ItemsNumber), es);
+
+		pFDPanelItemA = NULL;
 	}
 }
 
@@ -1159,8 +1202,7 @@ int PluginA::ProcessKey (
 		es.id = EXCEPT_PROCESSKEY;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pProcessKey(hPlugin, Key, dwControlState), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		EXECUTE_FUNCTION_EX(pProcessKey(hPlugin, Key, dwControlState), es);
 
 		bResult = es.bResult;
 	}
@@ -1181,6 +1223,8 @@ void PluginA::ClosePlugin (
 
 		EXECUTE_FUNCTION(pClosePlugin(hPlugin), es);
 	}
+
+	FreeOpenPluginInfo();
 
 //	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
@@ -1213,6 +1257,50 @@ int PluginA::SetDirectory (
 	return bResult;
 }
 
+void PluginA::FreeOpenPluginInfo()
+{
+	if (OPI.CurDir)
+		free((void *)OPI.CurDir);
+
+	if (OPI.HostFile)
+		free((void *)OPI.HostFile);
+
+	if (OPI.Format)
+		free((void *)OPI.Format);
+
+	if (OPI.PanelTitle)
+		free((void *)OPI.PanelTitle);
+
+	//if (OPI.ShortcutData)
+		//free((void *)OPI.ShortcutData);
+
+	memset(&OPI,0,sizeof(OPI));
+}
+
+void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo *Dest)
+{
+	FreeOpenPluginInfo();
+
+	OPI.StructSize = sizeof(OPI);
+	OPI.Flags = Src.Flags;
+
+	if (Src.CurDir)
+		OPI.CurDir = AnsiToUnicode(Src.CurDir);
+
+	if (Src.HostFile)
+		OPI.HostFile = AnsiToUnicode(Src.HostFile);
+
+	if (Src.Format)
+		OPI.Format = AnsiToUnicode(Src.Format);
+
+	if (Src.PanelTitle)
+		OPI.PanelTitle = AnsiToUnicode(Src.PanelTitle);
+
+	//if (Src.ShortcutData)
+		//OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);
+
+  memcpy(Dest,&OPI,sizeof(*Dest));
+}
 
 void PluginA::GetOpenPluginInfo (
 		HANDLE hPlugin,
@@ -1228,7 +1316,12 @@ void PluginA::GetOpenPluginInfo (
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPLUGININFO;
 
-		//TODO!!! EXECUTE_FUNCTION(pGetOpenPluginInfo(hPlugin, pInfo), es);
+		oldfar::OpenPluginInfo InfoA;
+		memset(&InfoA,0,sizeof(InfoA));
+
+		EXECUTE_FUNCTION(pGetOpenPluginInfo(hPlugin, &InfoA), es);
+
+		ConvertOpenPluginInfo(InfoA,pInfo);
 	}
 }
 
