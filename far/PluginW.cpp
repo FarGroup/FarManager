@@ -688,7 +688,7 @@ HANDLE PluginW::OpenPlugin (int OpenFrom, INT_PTR Item)
   }
 
 
-  if ( pOpenPluginW && Load() && !ProcessException )
+  if ( Load() && pOpenPluginW && !ProcessException )
   {
 		//CurPluginItem=this; //BUGBUG
 
@@ -749,7 +749,7 @@ HANDLE PluginW::OpenFilePlugin (
 //		Load (FORCE_LOAD);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
-	if ( pOpenFilePluginW && Load() && !ProcessException )
+	if ( Load() && pOpenFilePluginW && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -794,7 +794,7 @@ int PluginW::ProcessEditorInput (
 {
 	BOOL bResult = FALSE;
 
-	if ( pProcessEditorInputW && Load() && !ProcessException )
+	if ( Load() && pProcessEditorInputW && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -814,7 +814,7 @@ int PluginW::ProcessEditorEvent (
 		PVOID Param
 		)
 {
-	if ( pProcessEditorEventW && Load() && !ProcessException )
+	if ( Load() && pProcessEditorEventW && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -832,7 +832,7 @@ int PluginW::ProcessViewerEvent (
 		void *Param
 		)
 {
-	if ( pProcessViewerEventW && Load() && !ProcessException )
+	if ( Load() && pProcessViewerEventW && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -1193,7 +1193,7 @@ int PluginW::Configure(
 {
 	BOOL bResult = FALSE;
 
-	if ( pConfigureW && Load() && !ProcessException )
+	if ( Load() && pConfigureW && !ProcessException )
 	{
 		ExecuteStruct es;
 

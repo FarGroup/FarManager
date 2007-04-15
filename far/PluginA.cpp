@@ -465,9 +465,9 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
   if(!StartupInfo.StructSize)
   {
     StartupInfo.StructSize=sizeof(StartupInfo);
-    StartupInfo.Menu=FarMenuFnA; //заглушка
+    StartupInfo.Menu=FarMenuFnA;
     StartupInfo.Dialog=FarDialogFnA; //заглушка
-    StartupInfo.GetMsg=FarGetMsgFnA; //заглушка
+    StartupInfo.GetMsg=FarGetMsgFnA;
     StartupInfo.Message=FarMessageFnA;
     StartupInfo.Control=FarControlA; //заглушка
     StartupInfo.SaveScreen=FarSaveScreen;
@@ -697,7 +697,7 @@ HANDLE PluginA::OpenPlugin (int OpenFrom, INT_PTR Item)
   }
 
 
-  if ( pOpenPlugin && Load() && !ProcessException )
+  if ( Load() && pOpenPlugin && !ProcessException )
   {
 		//CurPluginItem=this; //BUGBUG
 
@@ -768,7 +768,7 @@ HANDLE PluginA::OpenFilePlugin (
 //		Load (FORCE_LOAD);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
-	if ( pOpenFilePlugin && Load() && !ProcessException )
+	if ( Load() && pOpenFilePlugin && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -818,7 +818,7 @@ int PluginA::ProcessEditorInput (
 {
 	BOOL bResult = FALSE;
 
-	if ( pProcessEditorInput && Load() && !ProcessException )
+	if ( Load() && pProcessEditorInput && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -838,7 +838,7 @@ int PluginA::ProcessEditorEvent (
 		PVOID Param
 		)
 {
-	if ( pProcessEditorEvent && Load() && !ProcessException )
+	if ( Load() && pProcessEditorEvent && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -856,7 +856,7 @@ int PluginA::ProcessViewerEvent (
 		void *Param
 		)
 {
-	if ( pProcessViewerEvent && Load() && !ProcessException )
+	if ( Load() && pProcessViewerEvent && !ProcessException )
 	{
 		ExecuteStruct es;
 
@@ -1239,7 +1239,7 @@ int PluginA::Configure(
 {
 	BOOL bResult = FALSE;
 
-	if ( pConfigure && Load() && !ProcessException )
+	if ( Load() && pConfigure && !ProcessException )
 	{
 		ExecuteStruct es;
 
