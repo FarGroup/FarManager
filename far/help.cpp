@@ -1826,6 +1826,11 @@ void Help::MoveToReference(int Forward,int CurScreen)
   FastShow();
 }
 
+int __cdecl SortEntries (const wchar_t *str1, const wchar_t *str2)
+{
+	return LocalStricmpW (str1, str2);
+}
+
 void Help::ReadDocumentsHelp(int TypeIndex)
 {
   if(HelpData)
@@ -1969,7 +1974,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 #endif
   }
   // сортируем по алфавиту
-  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH*sizeof (wchar_t),(int (__cdecl*)(const void *,const void *))LocalStricmpW);
+  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH*sizeof (wchar_t),(int (__cdecl*)(const void *,const void *))SortEntries);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */

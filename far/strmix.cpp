@@ -732,7 +732,7 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
       if(*lpwszEndPath == L'\\') //LAME!!!
       {
         Ret=TRUE;
-        *lpwszPath=0;
+        *lpwszEndPath=0;
         if(!allendslash)
         {
           strPath.ReleaseBuffer();
