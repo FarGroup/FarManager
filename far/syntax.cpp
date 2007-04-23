@@ -390,6 +390,44 @@ TVar operator^(const TVar& a, const TVar& b)
   return r;
 }
 
+TVar operator>>(const TVar& a, const TVar& b)
+{
+  TVar r;
+  switch ( a.vType )
+  {
+    case vtInteger:
+      switch ( b.vType )
+      {
+        case vtInteger: r = a.inum >> b.inum;                 break;
+        case vtString:  r = a;                                break;
+      }
+      break;
+    case vtString:
+      r = a;
+      break;
+  }
+  return r;
+}
+
+TVar operator<<(const TVar& a, const TVar& b)
+{
+  TVar r;
+  switch ( a.vType )
+  {
+    case vtInteger:
+      switch ( b.vType )
+      {
+        case vtInteger: r = a.inum << b.inum;                 break;
+        case vtString:  r = a;                                break;
+      }
+      break;
+    case vtString:
+      r = a;
+      break;
+  }
+  return r;
+}
+
 TVar TVar::operator+()
 {
   return *this;
@@ -855,18 +893,19 @@ static TToken getToken(void)
         return currTok = tLet;
       }
     case '>':
-      if ( ( ch = getChar() ) == '=')
-        return currTok = tGe;
-      else
+      switch ( ( ch = getChar() ) )
       {
-        putBack(ch);
-        return currTok = tGt;
+        case '=': return currTok = tGe;
+        case '>': return currTok = tBitShr;
+        default:
+          putBack(ch);
+          return currTok = tGt;
       }
     case '<':
       switch ( ch = getChar() )
       {
-        //case '>': return currTok = tNe;
         case '=': return currTok = tLe;
+        case '<': return currTok = tBitShl;
         default:
           putBack(ch);
           return currTok = tLt;
@@ -1065,8 +1104,10 @@ static void mathExpr(void)
   for ( ; ; )
     switch ( currTok )
     {
-      case tPlus:  getToken(); term(); put(MCODE_OP_ADD); break;
-      case tMinus: getToken(); term(); put(MCODE_OP_SUB); break;
+      case tPlus:    getToken(); term(); put(MCODE_OP_ADD); break;
+      case tMinus:   getToken(); term(); put(MCODE_OP_SUB); break;
+      case tBitShl:  getToken(); term(); put(MCODE_OP_BITSHL);  break;
+      case tBitShr:  getToken(); term(); put(MCODE_OP_BITSHR);  break;
       default:
         return;
     }

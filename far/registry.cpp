@@ -46,6 +46,17 @@ void CloseSameRegKey()
 }
 
 
+LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData, int SizeData, DWORD Type)
+{
+  HKEY hKey;
+  LONG Ret=ERROR_SUCCESS;
+  if((hKey=CreateRegKey(Key)) != NULL)
+    Ret=RegSetValueEx(hKey,ValueName,0,Type,(unsigned char *)ValueData,(DWORD)SizeData);
+  CloseRegKey(hKey);
+  return Ret;
+}
+
+
 LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData)
 {
   HKEY hKey;
@@ -114,7 +125,7 @@ int GetRegKeySize(HKEY hKey,const char *ValueName)
   Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
   Если такая ситуация встретилась - получим сколько надо в любом случае
 */
-int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize)
+int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize,DWORD *pType)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -132,6 +143,8 @@ int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *
         delete[] TempBuffer;
       }
     }
+    if(pType)
+      *pType=Type;
     CloseRegKey(hKey);
   }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
@@ -197,7 +210,7 @@ __int64 GetRegKey64(const char *Key,const char *ValueName,unsigned __int64 Defau
 }
 
 
-int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize)
+int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -216,6 +229,8 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *
         delete[] TempBuffer;
       }
     }
+    if(pType)
+      *pType=Type;
     CloseRegKey(hKey);
   }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)

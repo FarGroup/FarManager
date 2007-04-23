@@ -1,3 +1,23 @@
+svs 23.04.2007 15:40:24 +0300 - build 2224
+
+1. MFLAGS_LABELPRESENT - в морг. вместо него будет MFLAGS_REG_MULTI_SZ
+
+2. +API::FARKEYSEQUENCEFLAGS::KSFLAGS_REG_MULTI_SZ
+
+3. Как следствие - Sequence может иметь тип REG_MULTI_SZ.
+
+4. Небольшая добавка в виде операторов ">>" (shr) и "<<" (shl)
+   У них приоритет такой же как и у "+" и "-".
+
+5. Отучение от внутреннего цикла для MCODE_OP_EXPR.
+   Теперь MCODE_OP_EXPR и MCODE_OP_DOIT пережитки прошлого.
+
+6. В KeyMacro::FARPseudoVariable в паре мест были пропущены "break;"
+
+7. В KeyMacro::GetKey - вместо MCODE_OP_LT (и подобных) нужно было 
+   MCODE_OP_JLT
+
+
 svs 12.04.2007 21:39:13 +0300 - build 2223
 
 1. Бага в обработчике KEY_OP_TEXTPLAIN в редакторе.

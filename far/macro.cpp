@@ -375,7 +375,7 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   int Ret=FALSE;
   InitInternalVars(InitedRAM);
 
-  #define TEMP_BUFFER_SIZE 32768
+  #define TEMP_BUFFER_SIZE (128*1024)
   char *Buffer=new char[TEMP_BUFFER_SIZE];
 
   if(Buffer)
@@ -631,7 +631,7 @@ int KeyMacro::GetPlainTextSize()
   return (int)strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
-TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
+TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::FARPseudoVariable()"));
   int I;
@@ -644,8 +644,12 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
     if ( MKeywords[I].Value == CheckCode )
       break;
   if ( I == sizeof(MKeywords)/sizeof(MKeywords[0]) )
+  {
+    Err=1;
+    _KEYMACRO(SysLog("return; Err=%d",Err));
     return Cond; // здесь TRUE об€зательно, чтобы прекратить выполнение
                  // макроса, ибо код не распознан.
+  }
 
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
@@ -1080,6 +1084,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             else
               Cond = (__int64)(X2-X1+1);
           }
+          break;
         }
 
         case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -1098,6 +1103,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             else
               Cond=(__int64)f->VMProcess(CheckCode);
           }
+          break;
         }
         // *****************
 
@@ -1159,9 +1165,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         }
 
       }
+      break;
+
     }
+
+    default:
+      Err=1;
+      break;
   }
 
+  _KEYMACRO(SysLog("return; Err=%d",Err));
   return Cond;
 }
 
@@ -2152,6 +2165,7 @@ int KeyMacro::GetKey()
   //_KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
   //_KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   struct MacroRecord *MR;
+  TVar tmpVar;
   int RetKey=0;
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return(FALSE);
@@ -2269,34 +2283,47 @@ done:
 
   _KEYMACRO(SysLog("IP=%d  %s",Work.ExecLIBPos-1,(Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE?_MCODE_ToName(Key):_FARKEY_ToName(Key)));
 
-  if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
-  {
-    Key&=~KEY_ALTDIGIT;
-    ReturnAltValue=1;
-  }
-
   static int errVar;
   char value[2048];
 
   switch(Key)
   {
-    case MCODE_OP_XLAT:
+    case MCODE_OP_KEYS:                    // за этим кодом следуют ‘ј–овы коды клавиш
+    {
+      Work.KeyProcess++;
+      goto begin;
+    }
+
+    case MCODE_OP_ENDKEYS:                 // ‘ј–овы коды закончились.
+    {
+      Work.KeyProcess--;
+      goto begin;
+    }
+
+    case KEY_ALTINS:
+    {
+      if(RunGraber())
+        return KEY_NONE;
+      break;
+    }
+
+    case MCODE_OP_XLAT:               // $XLat
     {
       return KEY_OP_XLAT;
     }
 
-    case MCODE_OP_SELWORD:
+    case MCODE_OP_SELWORD:            // $SelWord
     {
       return KEY_OP_SELWORD;
     }
 
-    case MCODE_OP_DATE:
+    case MCODE_OP_DATE:               // $Date ["format"]
     {
       __varTextDate=VMStack.Pop();
       return KEY_OP_DATE;
     }
 
-    case MCODE_OP_PLAINTEXT:
+    case MCODE_OP_PLAINTEXT:          // $Text "Text"
     {
       __varTextDate=VMStack.Pop();
       if(__varTextDate == TVMStack::errorStack)
@@ -2304,10 +2331,10 @@ done:
       return KEY_OP_PLAINTEXT;
     }
 
-    case MCODE_OP_EXIT:
+    case MCODE_OP_EXIT:               // $Exit
       goto done;
 
-    case MCODE_OP_AKEY: //$AKey
+    case MCODE_OP_AKEY:               //$AKey
     {
       return MR->Key;
     }
@@ -2315,13 +2342,13 @@ done:
     /* $IClip
        0: MCODE_OP_ICLIP
     */
-    case MCODE_OP_ICLIP:
+    case MCODE_OP_ICLIP:              // $IClip
     {
       UsedInternalClipboard=UsedInternalClipboard==0?1:0;
       goto begin;
     }
 
-    case MCODE_OP_SWITCHKBD:
+    case MCODE_OP_SWITCHKBD:          // $KbdSwitch
     {
       if(hFarWnd)
       {
@@ -2331,262 +2358,6 @@ done:
       }
       goto begin;
     }
-
-    // переходы
-    case MCODE_OP_JMP:
-      Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      goto begin;
-    case MCODE_OP_JZ:
-      if ( VMStack.Pop().toInteger() == 0 )
-        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      else
-        Work.ExecLIBPos++;
-      goto begin;
-    case MCODE_OP_JNZ:
-      if ( VMStack.Pop().toInteger() != 0 )
-        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      else
-        Work.ExecLIBPos++;
-      goto begin;
-    case MCODE_OP_LT:
-      if ( VMStack.Pop().toInteger() < 0 )
-        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      else
-        Work.ExecLIBPos++;
-      goto begin;
-    case MCODE_OP_LE:
-      if ( VMStack.Pop().toInteger() <= 0 )
-        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      else
-        Work.ExecLIBPos++;
-      goto begin;
-    case MCODE_OP_GT:
-      if ( VMStack.Pop().toInteger() > 0 )
-        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      else
-        Work.ExecLIBPos++;
-      goto begin;
-    case MCODE_OP_GE:
-      if ( VMStack.Pop().toInteger() >= 0 )
-        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
-      else
-        Work.ExecLIBPos++;
-      goto begin;
-
-    // вычислить выражение
-    case MCODE_OP_EXPR:
-    {
-      _KEYMACRO(CleverSysLog Clev("MCODE_OP_EXPR"));
-      TVar tmpVar;
-      //ePos = 0;
-      while ( ( Key=GetOpCode(MR,Work.ExecLIBPos++) ) != MCODE_OP_DOIT && Work.ExecLIBPos < MR->BufferSize )
-      {
-        _KEYMACRO(SysLog("IP=%d  %s",Work.ExecLIBPos-1,(Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE?_MCODE_ToName(Key):_FARKEY_ToName(Key)));
-        switch ( Key )
-        {
-          case MCODE_OP_PUSHINT:  // ѕоложить целое значение на стек.
-          {
-            FARINT64 i64;
-            i64.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
-            i64.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-            VMStack.Push(i64.i64);
-            break;
-          }
-          case MCODE_OP_PUSHVAR:  // ѕоложить на стек переменную.
-          {
-            GetPlainText(value);
-            TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
-            // %%name - глобальна€ переменна€
-            VMStack.Push(varLook(*t, value, errVar)->value);
-            break;
-          }
-          case MCODE_OP_PUSHSTR: // ѕоложить на стек строку-константу.
-            GetPlainText(value);
-            VMStack.Push(TVar(value));
-            break;
-
-          // операции
-          case MCODE_OP_NEGATE: VMStack.Push(-VMStack.Pop()); break;
-          case MCODE_OP_NOT:    VMStack.Push(!VMStack.Pop()); break;
-
-          case MCODE_OP_LT:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() <  tmpVar); break;
-          case MCODE_OP_LE:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() <= tmpVar); break;
-          case MCODE_OP_GT:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() >  tmpVar); break;
-          case MCODE_OP_GE:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() >= tmpVar); break;
-          case MCODE_OP_EQ:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() == tmpVar); break;
-          case MCODE_OP_NE:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() != tmpVar); break;
-
-          case MCODE_OP_ADD:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() +  tmpVar); break;
-          case MCODE_OP_SUB:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() -  tmpVar); break;
-          case MCODE_OP_MUL:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() *  tmpVar); break;
-          case MCODE_OP_DIV:
-            if(VMStack.Peek() == _i64(0)) //???
-            {
-              _KEYMACRO(SysLog("[%d] IP=%d/0x%08X Error: Divide by zero",__LINE__,Work.ExecLIBPos,Work.ExecLIBPos));
-              goto done;
-            }
-            tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() /  tmpVar);
-            break;
-
-          case MCODE_OP_AND:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() && tmpVar); break;
-          case MCODE_OP_OR:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() || tmpVar); break;
-          case MCODE_OP_BITAND: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() &  tmpVar); break;
-          case MCODE_OP_BITOR:  tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() |  tmpVar); break;
-          case MCODE_OP_BITXOR: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() ^  tmpVar); break;
-
-          // Function
-          case MCODE_F_PLAYMACRO: // N=playmacro(S)
-            if(playmacroFunc())
-              goto initial; // т.к.
-            break;
-
-          case MCODE_F_AKEY: // S=akey()
-            VMStack.Push((__int64)MR->Key); //???
-            break;
-          case MCODE_F_WAITKEY:  // S=waitkey(N)
-            waitkeyFunc();
-            break;
-          case MCODE_F_ITOA: // S=itoa(N,radix)
-            itoaFunc();
-            break;
-          case MCODE_F_MIN:  // N=min(N1,N2)
-            minFunc();
-            break;
-          case MCODE_F_MAX:  // N=max(N1,N2)
-            maxFunc();
-            break;
-          case MCODE_F_IIF:  // V=iif(Condition,V1,V2)
-            iifFunc();
-            break;
-          case MCODE_F_SUBSTR: // S=substr(S,N1,N2)
-            substrFunc();
-            break;
-          case MCODE_F_RINDEX: // S=rindex(S1,S2)
-            rindexFunc();
-            break;
-          case MCODE_F_INDEX: // S=index(S1,S2)
-            indexFunc();
-            break;
-          case MCODE_F_PANELITEM:  // V=panelitem(Panel,Index,TypeInfo)
-            panelitemFunc();
-            break;
-          case MCODE_F_PANEL_SETPOS: // N=Panel.SetPos(panelType,fileName)
-            panelsetposFunc();
-            break;
-          case MCODE_F_PANEL_FATTR:         // N=Panel.FAttr(panelType,fileMask)
-            panelfattrFunc();
-            break;
-          case MCODE_F_PANEL_FEXIST:        // N=Panel.FExist(panelType,fileMask)
-            panelfexistFunc();
-            break;
-          case MCODE_F_SLEEP: // N=Sleep(N)
-            sleepFunc();
-            break;
-          case MCODE_F_ENVIRON: // S=env(S)
-            environFunc();
-            break;
-          case MCODE_F_LEN:  // N=len(S)
-            lenFunc();
-            break;
-          case MCODE_F_UCASE: // S=ucase(S1)
-            ucaseFunc();
-            break;
-          case MCODE_F_LCASE: // S=lcase(S1)
-            lcaseFunc();
-            break;
-          case MCODE_F_FEXIST:  // S=fexist(S)
-            fexistFunc();
-            break;
-          case MCODE_F_FSPLIT:  // S=fsplit(S,N)
-            fsplitFunc();
-            break;
-          case MCODE_F_FATTR:   // N=fattr(S)
-            fattrFunc();
-            break;
-          case MCODE_F_MSAVE:   // N=msave(S)
-            msaveFunc();
-            break;
-          case MCODE_F_DLG_GETVALUE:        // V=Dlg.GetValue(ID,N)
-            dlggetvalueFunc();
-            break;
-          case MCODE_F_EDITOR_SET: // N=Editor.Set(N,Var)
-            editorsetFunc();
-            break;
-          case MCODE_F_STRING:  // S=string(V)
-            stringFunc();
-            break;
-          case MCODE_F_CLIP: // V=Clip(N,S)
-            clipFunc();
-            break;
-          case MCODE_F_INT: // N=int(V)
-            intFunc();
-            break;
-          case MCODE_F_DATE:  // // S=date(S)
-            dateFunc();
-            break;
-          case MCODE_F_XLAT: // S=xlat(S)
-            xlatFunc();
-            break;
-          case MCODE_F_ABS: // N=abs(N)
-            absFunc();
-            break;
-
-          case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
-          {
-             _KEYMACRO(CleverSysLog Clev("MCODE_F_MENU_CHECKHOTKEY"));
-             long Result=0;
-             tmpVar=VMStack.Pop();
-             const char *checkStr=tmpVar.toString();
-             int CurMMode=CtrlObject->Macro.GetMode();
-             if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
-             {
-               Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
-               //f=f->GetTopModal();
-               while(f)
-               {
-                 fo=f;
-                 f=f->GetTopModal();
-               }
-               if(!f)
-                 f=fo;
-
-               if(f)
-                 Result=f->VMProcess(MCODE_F_MENU_CHECKHOTKEY,(void*)checkStr);
-             }
-             VMStack.Push((__int64)Result);
-             break;
-          }
-          case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
-          {
-              _KEYMACRO(CleverSysLog Clev("MCODE_F_MSGBOX"));
-              DWORD Flags=MR->Flags;
-              if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
-              {
-                if(LockScr) delete LockScr;
-                LockScr=NULL;
-              }
-              InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
-              msgBoxFunc();
-              InternalInput--;
-              if(Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
-              {
-                if(LockScr) delete LockScr;
-                LockScr=new LockScreen;
-              }
-              break;
-          }
-
-          //
-          default:
-            VMStack.Push(FARPseudoVariable(MR->Flags, Key));
-            break;
-        }
-      }
-      //*eStack = eStack[ePos];
-      //_KEYMACRO(SysLog("ePos=%d  eStack->i()=%d eStack->s()='%s'", ePos, eStack->i(), eStack->s()));
-      //_KEYMACRO(SysLog("IP=%d/0x%08X",Work.ExecLIBPos,Work.ExecLIBPos));
-    }
-    goto begin;
 
 // $Rep (expr) ... $End
 // -------------------------------------
@@ -2643,18 +2414,11 @@ done:
       goto begin;
     }
 
-    case KEY_ALTINS:
-    {
-      if(RunGraber())
-        return KEY_NONE;
-      break;
-    }
-
     /* $MMode 1
        0: MCODE_OP_MACROMODE
        1: '1'
     */
-    case MCODE_OP_MACROMODE:
+    case MCODE_OP_MACROMODE:          // $MMode 1
       if (Work.ExecLIBPos<MR->BufferSize)
       {
         Key=GetOpCode(MR,Work.ExecLIBPos++);
@@ -2679,9 +2443,239 @@ done:
       }
       break;
 
+    case MCODE_OP_EXPR:
+    case MCODE_OP_DOIT:
+      goto begin;
+
+    case MCODE_OP_DISCARD:    // убрать значение с вершины стека
+      VMStack.Pop();
+      goto begin;
+
+    case MCODE_OP_PUSHINT:  // ѕоложить целое значение на стек.
+    {
+      FARINT64 i64;
+      i64.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
+      i64.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
+      VMStack.Push(i64.i64);
+      goto begin;
+    }
+
+    case MCODE_OP_PUSHVAR:  // ѕоложить на стек переменную.
+    {
+      GetPlainText(value);
+      TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
+      // %%name - глобальна€ переменна€
+      VMStack.Push(varLook(*t, value, errVar)->value);
+      goto begin;
+    }
+
+    case MCODE_OP_PUSHSTR: // ѕоложить на стек строку-константу.
+      GetPlainText(value);
+      VMStack.Push(TVar(value));
+      goto begin;
+
+    // переходы
+    case MCODE_OP_JMP:
+      Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      goto begin;
+
+    case MCODE_OP_JZ:
+      if ( VMStack.Pop().toInteger() == 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+
+    case MCODE_OP_JNZ:
+      if ( VMStack.Pop().toInteger() != 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+
+    case MCODE_OP_JLT:
+      if ( VMStack.Pop().toInteger() < 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+
+    case MCODE_OP_JLE:
+      if ( VMStack.Pop().toInteger() <= 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+
+    case MCODE_OP_JGT:
+      if ( VMStack.Pop().toInteger() > 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+
+    case MCODE_OP_JGE:
+      if ( VMStack.Pop().toInteger() >= 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+
+    // операции
+    case MCODE_OP_NEGATE: VMStack.Push(-VMStack.Pop()); goto begin;
+    case MCODE_OP_NOT:    VMStack.Push(!VMStack.Pop()); goto begin;
+
+    case MCODE_OP_LT:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() <  tmpVar); goto begin;
+    case MCODE_OP_LE:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() <= tmpVar); goto begin;
+    case MCODE_OP_GT:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() >  tmpVar); goto begin;
+    case MCODE_OP_GE:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() >= tmpVar); goto begin;
+    case MCODE_OP_EQ:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() == tmpVar); goto begin;
+    case MCODE_OP_NE:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() != tmpVar); goto begin;
+
+    case MCODE_OP_ADD:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() +  tmpVar); goto begin;
+    case MCODE_OP_SUB:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() -  tmpVar); goto begin;
+    case MCODE_OP_MUL:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() *  tmpVar); goto begin;
+    case MCODE_OP_DIV:
+      if(VMStack.Peek() == _i64(0)) //???
+      {
+        _KEYMACRO(SysLog("[%d] IP=%d/0x%08X Error: Divide by zero",__LINE__,Work.ExecLIBPos,Work.ExecLIBPos));
+        goto done;
+      }
+      tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() /  tmpVar);
+      goto begin;
+
+    // Logical
+    case MCODE_OP_AND:    tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() && tmpVar); goto begin;
+    case MCODE_OP_OR:     tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() || tmpVar); goto begin;
+
+    // Bit Op
+    case MCODE_OP_BITAND: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() &  tmpVar); goto begin;
+    case MCODE_OP_BITOR:  tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() |  tmpVar); goto begin;
+    case MCODE_OP_BITXOR: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() ^  tmpVar); goto begin;
+    case MCODE_OP_BITSHR: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() >> tmpVar); goto begin;
+    case MCODE_OP_BITSHL: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() << tmpVar); goto begin;
+
+    // Function
+    case MCODE_F_PLAYMACRO: // N=playmacro(S)
+      if(playmacroFunc())
+        goto initial; // т.к.
+      goto begin;
+
+    case MCODE_F_AKEY: // S=akey()
+      VMStack.Push((__int64)MR->Key); //???
+      goto begin;
+
+    case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
+    {
+       _KEYMACRO(CleverSysLog Clev("MCODE_F_MENU_CHECKHOTKEY"));
+       long Result=0;
+       tmpVar=VMStack.Pop();
+       const char *checkStr=tmpVar.toString();
+       int CurMMode=CtrlObject->Macro.GetMode();
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
+       {
+         Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
+         //f=f->GetTopModal();
+         while(f)
+         {
+           fo=f;
+           f=f->GetTopModal();
+         }
+         if(!f)
+           f=fo;
+
+         if(f)
+           Result=f->VMProcess(MCODE_F_MENU_CHECKHOTKEY,(void*)checkStr);
+       }
+       VMStack.Push((__int64)Result);
+       goto begin;
+    }
+
+    case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
+    {
+        _KEYMACRO(CleverSysLog Clev("MCODE_F_MSGBOX"));
+        DWORD Flags=MR->Flags;
+        if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
+        {
+          if(LockScr) delete LockScr;
+          LockScr=NULL;
+        }
+        InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
+        msgBoxFunc();
+        InternalInput--;
+        if(Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
+        {
+          if(LockScr) delete LockScr;
+          LockScr=new LockScreen;
+        }
+        goto begin;
+    }
+
+    //
     default:
-      ;
-  }
+    {
+      static struct TMCode2Func{
+        DWORD Op;
+        bool (*Func)();
+      } MCode2Func[]={
+        {MCODE_F_WAITKEY,waitkeyFunc},  // S=waitkey(N)
+        {MCODE_F_ITOA,itoaFunc}, // S=itoa(N,radix)
+        {MCODE_F_MIN,minFunc},  // N=min(N1,N2)
+        {MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
+        {MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
+        {MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
+        {MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2)
+        {MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
+        {MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
+        {MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
+        {MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
+        {MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
+        {MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
+        {MCODE_F_ENVIRON,environFunc}, // S=env(S)
+        {MCODE_F_LEN,lenFunc},  // N=len(S)
+        {MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
+        {MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
+        {MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
+        {MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
+        {MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
+        {MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
+        {MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
+        {MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
+        {MCODE_F_STRING,stringFunc},  // S=string(V)
+        {MCODE_F_CLIP,clipFunc}, // V=Clip(N,S)
+        {MCODE_F_INT,intFunc}, // N=int(V)
+        {MCODE_F_DATE,dateFunc},  // // S=date(S)
+        {MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
+        {MCODE_F_ABS,absFunc}, // N=abs(N)
+      };
+      int J;
+      for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)
+        if(MCode2Func[J].Op == Key)
+        {
+          MCode2Func[J].Func();
+          break;
+        }
+
+      if(J >= sizeof(MCode2Func)/sizeof(MCode2Func[0]))
+      {
+        DWORD Err=0;
+        tmpVar=FARPseudoVariable(MR->Flags, Key, Err);
+        if(!Err)
+          VMStack.Push(tmpVar);
+        else
+        {
+          if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
+          {
+            Key&=~KEY_ALTDIGIT;
+            ReturnAltValue=1;
+          }
+          break; // клавиши будем возвращать
+        }
+      }
+      goto begin;
+    } // END default
+
+  } // END switch(Key)
 
 #if 0
   if(MR==Work.MacroWORK &&
@@ -2814,7 +2808,26 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
     if(TextBuffer)
       xf_free(TextBuffer);
 #endif
-    SetRegKey(RegKeyName,"Sequence",MacroLIB[I].Src);
+    BOOL Ok=TRUE;
+    if(MacroLIB[I].Flags&MFLAGS_REG_MULTI_SZ)
+    {
+      int Len=(int)strlen(MacroLIB[I].Src)+1;
+      char *ptrSrc=(char *)xf_malloc(Len);
+      if(ptrSrc)
+      {
+        strcpy(ptrSrc,MacroLIB[I].Src);
+        for(int J=0; ptrSrc[J]; ++J)
+          if(ptrSrc[J] == '\n')
+            ptrSrc[J]=0;
+        ptrSrc[Len-1]=0;
+        SetRegKey(RegKeyName,"Sequence",ptrSrc,Len,REG_MULTI_SZ);
+        free(ptrSrc);
+        Ok=FALSE;
+      }
+    }
+
+    if(Ok)
+      SetRegKey(RegKeyName,"Sequence",MacroLIB[I].Src);
 
     // подсократим код”...
     for(int J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
@@ -2983,7 +2996,20 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     if (KeyCode==-1)
       continue;
 
-    GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
+    DWORD regType=0;
+    if(GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize,&regType) && regType == REG_MULTI_SZ)
+    {
+      // –азличаем так же REG_MULTI_SZ
+      char *ptrBuffer=Buffer;
+      while(1)
+      {
+        ptrBuffer+=(int)strlen(ptrBuffer);
+        if(!ptrBuffer[0] && !ptrBuffer[1])
+          break;
+        *ptrBuffer='\n';
+      }
+    }
+
     RemoveExternalSpaces(Buffer);
     if(!strlen(Buffer))
       continue;
@@ -2992,7 +3018,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro.Buffer=NULL;
     CurMacro.Src=NULL;
     CurMacro.BufferSize=0;
-    CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
+    CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK)|(regType == REG_MULTI_SZ?MFLAGS_REG_MULTI_SZ:0);
 
     for(J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
       CurMacro.Flags|=GetRegKey(RegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
@@ -3565,9 +3591,47 @@ int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags)
   _KEYMACRO(CleverSysLog Clev("KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)"));
   _KEYMACRO(SysLog("Param: PlainText=\"%s\"",PlainText));
   struct MacroRecord NewMacroWORK2={0};
+  char *Buffer=(char *)PlainText;
+  bool allocBuffer=false;
+
+  if(Flags&MFLAGS_REG_MULTI_SZ) // –азличаем так же REG_MULTI_SZ
+  {
+    int lenPlainText=0;
+    while(1)
+    {
+      if(!PlainText[lenPlainText] && !PlainText[lenPlainText+1])
+      {
+        lenPlainText+=2;
+        break;
+      }
+      lenPlainText++;
+    }
+    //lenPlainText++;
+
+    Buffer=(char*)xf_malloc(lenPlainText+1);
+    if(Buffer)
+    {
+      allocBuffer=true;
+      memmove(Buffer,PlainText,lenPlainText);
+      Buffer[lenPlainText]=0; // +1
+      char *ptrBuffer=Buffer;
+      while(1)
+      {
+        ptrBuffer+=strlen(ptrBuffer);
+        if(!ptrBuffer[0] && !ptrBuffer[1])
+          break;
+        *ptrBuffer='\n';
+      }
+    }
+    else
+      return FALSE;
+  }
 
   // сначала смотрим на парсер
-  if(!ParseMacroString(&NewMacroWORK2,PlainText))
+  BOOL parsResult=ParseMacroString(&NewMacroWORK2,Buffer);
+  if(allocBuffer && Buffer)
+    free(Buffer);
+  if(!parsResult)
   {
     if(NewMacroWORK2.BufferSize > 1)
       xf_free(NewMacroWORK2.Buffer);
