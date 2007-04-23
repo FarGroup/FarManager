@@ -415,13 +415,14 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 // Registry
 void SetRegRootKey(HKEY hRootKey);
 
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData, int SizeData, DWORD Type);
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData);
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData);
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize);
-int GetRegKey(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName, string &strValueData,const wchar_t *Default,DWORD *pType=NULL);
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType=NULL);
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default);
-int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
 HKEY CreateRegKey(const wchar_t *Key);
 HKEY OpenRegKey(const wchar_t *Key);
 int GetRegKeySize(const wchar_t *Key,const wchar_t *ValueName);

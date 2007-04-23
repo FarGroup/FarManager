@@ -48,6 +48,16 @@ void CloseSameRegKey()
 }
 
 
+LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData, int SizeData, DWORD Type)
+{
+  HKEY hKey;
+  LONG Ret=ERROR_SUCCESS;
+
+  if((hKey=CreateRegKey(Key)) != NULL)
+    Ret=RegSetValueExW(hKey,ValueName,0,Type,(unsigned char *)ValueData,(int)SizeData);
+  CloseRegKey(hKey);
+  return Ret;
+}
 
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData)
 {
@@ -121,7 +131,7 @@ int GetRegKeySize(HKEY hKey,const wchar_t *ValueName)
   Если такая ситуация встретилась - получим сколько надо в любом случае
 */
 
-int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,const wchar_t *Default)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,const wchar_t *Default,DWORD *pType)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -144,6 +154,8 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,c
 
       strValueData.ReleaseBuffer();
     }
+    if(pType)
+      *pType=Type;
     CloseRegKey(hKey);
   }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
@@ -206,7 +218,7 @@ __int64 GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64
   return(ValueData);
 }
 
-int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize)
+int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -225,6 +237,8 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const 
         delete[] TempBuffer;
       }
     }
+    if(pType)
+      *pType=Type;
     CloseRegKey(hKey);
   }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)

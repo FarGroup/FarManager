@@ -45,23 +45,25 @@ enum MACRO_OP_CODE {
   MCODE_OP_NOT,
 
   // Двуместные операции
-  MCODE_OP_LT,
-  MCODE_OP_LE,
-  MCODE_OP_GT,
-  MCODE_OP_GE,
-  MCODE_OP_EQ,
-  MCODE_OP_NE,
+  MCODE_OP_LT,                      // a <  b
+  MCODE_OP_LE,                      // a <= b
+  MCODE_OP_GT,                      // a >  b
+  MCODE_OP_GE,                      // a >= b
+  MCODE_OP_EQ,                      // a == b
+  MCODE_OP_NE,                      // a != b
 
-  MCODE_OP_ADD,
-  MCODE_OP_SUB,
-  MCODE_OP_MUL,
-  MCODE_OP_DIV,
+  MCODE_OP_ADD,                     // a +  b
+  MCODE_OP_SUB,                     // a -  b
+  MCODE_OP_MUL,                     // a *  b
+  MCODE_OP_DIV,                     // a /  b
 
-  MCODE_OP_AND,
-  MCODE_OP_OR,
-  MCODE_OP_BITAND,
-  MCODE_OP_BITOR,
-  MCODE_OP_BITXOR,
+  MCODE_OP_AND,                     // a && b
+  MCODE_OP_OR,                      // a || b
+  MCODE_OP_BITAND,                  // a &  b
+  MCODE_OP_BITOR,                   // a || b
+  MCODE_OP_BITXOR,                  // a ^  b
+  MCODE_OP_BITSHR,                  // a >> b
+  MCODE_OP_BITSHL,                  // a << b
 
   // <TODO>
   MCODE_OP_DISCARD,                 // убрать значение с вершины стека

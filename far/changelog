@@ -1,3 +1,23 @@
+svs 23.04.2007 16:25:20 +0300 - build 243
+
+1. MFLAGS_LABELPRESENT - в морг. вместо него будет MFLAGS_REG_MULTI_SZ
+
+2. +API::FARKEYSEQUENCEFLAGS::KSFLAGS_REG_MULTI_SZ
+
+3. Как следствие - Sequence может иметь тип REG_MULTI_SZ.
+
+4. Небольшая добавка в виде операторов ">>" (shr) и "<<" (shl)
+   У них приоритет такой же как и у "+" и "-".
+
+5. Отучение от внутреннего цикла для MCODE_OP_EXPR.
+   Теперь MCODE_OP_EXPR и MCODE_OP_DOIT пережитки прошлого.
+
+6. В KeyMacro::FARPseudoVariable в паре мест были пропущены "break;"
+
+7. В KeyMacro::GetKey - вместо MCODE_OP_LT (и подобных) нужно было 
+   MCODE_OP_JLT
+
+
 warp 17.04.2007 03:20:36 +0300 - build 242
 
 1. Падение хелпа при нажатии Shift-F2. Это жесть.

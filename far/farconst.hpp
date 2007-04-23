@@ -137,7 +137,7 @@ enum MACROFLAGS_MFLAGS{
   MFLAGS_PNOFILES            =0x04000000, // пассивная: запускать, если текущий объект "папка"
   MFLAGS_NOFILES             =0x08000000, // активная:  запускать, если текущий объект "папка"
 
-  MFLAGS_LABELPRESENT        =0x10000000, // есть "метка" для F? клавиш
+  MFLAGS_REG_MULTI_SZ        =0x10000000, // REG_MULTI_SZ?
   MFLAGS_REUSEMACRO          =0x20000000, // повторное использование макросов (вызов макроса из макроса)
   MFLAGS_NEEDSAVEMACRO       =0x40000000, // необходимо этот макрос запомнить
   MFLAGS_DISABLEMACRO        =0x80000000, // этот макрос отключен

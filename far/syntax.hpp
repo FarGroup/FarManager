@@ -39,10 +39,13 @@ public:
   friend TVar operator/(const TVar&, const TVar&);
 
   friend TVar operator&(const TVar&, const TVar&);
-  friend TVar operator&&(const TVar&, const TVar&);
   friend TVar operator|(const TVar&, const TVar&);
-  friend TVar operator||(const TVar&, const TVar&);
   friend TVar operator^(const TVar&, const TVar&);
+  friend TVar operator>>(const TVar&, const TVar&);
+  friend TVar operator<<(const TVar&, const TVar&);
+
+  friend TVar operator&&(const TVar&, const TVar&);
+  friend TVar operator||(const TVar&, const TVar&);
 
   TVar& operator=(const TVar&);
 
@@ -136,7 +139,8 @@ enum TToken
   tNo, tEnd,  tLet,
   tVar, tStr, tInt, tFunc, tFARVar,
   tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
-  tBoolAnd, tBoolOr, tBitAnd, tBitOr, tBitXor, tNot,
+  tBoolAnd, tBoolOr,
+  tBitAnd, tBitOr, tBitXor, tNot, tBitShl, tBitShr,
   tEq, tNe, tLt, tLe, tGt, tGe,
 };
 
