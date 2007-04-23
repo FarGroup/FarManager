@@ -4,7 +4,6 @@
 <title>ActlKeyMacro</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
@@ -71,6 +70,17 @@ struct ActlKeyMacro {
        <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_NOSENDKEYSTOPLUGINS">KSFLAGS_NOSENDKEYSTOPLUGINS</a></td>
        <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим
         функцию <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a>).</td></tr>
+       <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_REG_MULTI_SZ">KSFLAGS_REG_MULTI_SZ</a></td>
+       <td class="cont" width="60%">Параметр <em>Param.PlainText.SequenceText</em> представлен в формате <dfn>REG_MULTI_SZ</dfn>.<br>REG_MULTI_SZ в реестре:
+<pre class=code>строка 1\x00
+строка 2\x00
+...
+строка N\x00
+\x00</pre>
+
+       </td>
+       </tr>
+
 </table>
      Этот член структуры используется для команды <dfn>MCMD_POSTMACROSTRING</dfn>.
     </div>
@@ -82,8 +92,10 @@ struct ActlKeyMacro {
 
 <h3>Замечания</h3>
 <div class=descr>
-  <p>Команды <dfn>MCMD_LOADALL</dfn> и <dfn>MCMD_SAVEALL</dfn> не будут
-  исполняться во время записи или "проигрывания" макроса.</p>
+<ol>
+<li>Команды <dfn>MCMD_LOADALL</dfn> и <dfn>MCMD_SAVEALL</dfn> не будут исполняться во время записи или "проигрывания" макроса.</li>
+<li>Флаг <dfn>KSFLAGS_REG_MULTI_SZ</dfn> можно не указывать, если в <em>Param.PlainText.SequenceText</em> вместо 0x00 будут стоять '\n'.
+</ol>
 </div>
 
 <h3>Пример</h3>
