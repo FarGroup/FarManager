@@ -767,6 +767,20 @@ int RemoveToRecycleBin(const char *Name)
     return 1;
   }
 
+  // При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
+  if(Opt.DeleteToRecycleBinKillLink && GetFileAttributes(Name) == FA_DIREC)
+  {
+    char FullName2[NM];
+    WIN32_FIND_DATA FindData;
+    ScanTree ScTree(TRUE,TRUE,FALSE,TRUE);
+    ScTree.SetFindPath(Name,"*.*", 0);
+    while (ScTree.GetNextName(&FindData,FullName2, sizeof (FullName2)-1))
+    {
+      if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+        ERemoveDirectory(FullName2,FindData.cAlternateFileName,FALSE);
+    }
+  }
+
   FAR_OemToChar(FullName,FullName);
   FullName[strlen(FullName)+1]=0;
 

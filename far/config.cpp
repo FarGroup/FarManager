@@ -83,93 +83,96 @@ void SystemSettings()
      + Добавка в виде задания дополнительного пути для поиска плагинов
   */
   static struct DialogData CfgDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(char *)MConfigSystemTitle,
+  /* 00 */ DI_DOUBLEBOX,3,1,52,21,0,0,0,0,(char *)MConfigSystemTitle,
   /* 01 */ DI_CHECKBOX,5,2,0,2,1,0,0,0,(char *)MConfigRO,
   /* 02 */ DI_CHECKBOX,5,3,0,3,0,0,0,0,(char *)MConfigRecycleBin,
-  /* 03 */ DI_CHECKBOX,5,4,0,4,0,0,0,0,(char *)MConfigSystemCopy,
-  /* 04 */ DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MConfigCopySharing,
-  /* 05 */ DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MConfigScanJunction,
-  /* 06 */ DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
-  /* 07 */ DI_CHECKBOX,5,8,0,8,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
-  /* 08 */ DI_FIXEDIT,9,9,11,9,0,0,0,0,"",
-  /* 09 */ DI_TEXT,13,9,0,9,0,0,0,0,(char *)MConfigInactivityMinutes,
-  /* 10 */ DI_CHECKBOX,5,10,0,10,0,0,0,0,(char *)MConfigSaveHistory,
-  /* 11 */ DI_CHECKBOX,5,11,0,11,0,0,0,0,(char *)MConfigSaveFoldersHistory,
-  /* 12 */ DI_CHECKBOX,5,12,0,12,0,0,0,0,(char *)MConfigSaveViewHistory,
-  /* 13 */ DI_CHECKBOX,5,13,0,13,0,0,0,0,(char *)MConfigRegisteredTypes,
-  /* 14 */ DI_CHECKBOX,5,14,0,14,0,0,0,0,(char *)MConfigCloseCDGate,
-  /* 15 */ DI_TEXT,5,15,0,15,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 16 */ DI_EDIT,5,16,50,16,0,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-  /* 17 */ DI_CHECKBOX,5,17,0,17,0,0,0,0,(char *)MConfigAutoSave,
-  /* 18 */ DI_TEXT,5,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 19 */ DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 20 */ DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 03 */ DI_CHECKBOX,9,4,0,4,0,0,0,0,(char *)MConfigRecycleBinLink,
+  /* 04 */ DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MConfigSystemCopy,
+  /* 05 */ DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MConfigCopySharing,
+  /* 06 */ DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MConfigScanJunction,
+  /* 07 */ DI_CHECKBOX,5,8,0,8,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
+  /* 08 */ DI_CHECKBOX,5,9,0,9,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
+  /* 09 */ DI_FIXEDIT,9,10,11,10,0,0,0,0,"",
+  /* 10 */ DI_TEXT,13,10,0,10,0,0,0,0,(char *)MConfigInactivityMinutes,
+  /* 11 */ DI_CHECKBOX,5,11,0,11,0,0,0,0,(char *)MConfigSaveHistory,
+  /* 12 */ DI_CHECKBOX,5,12,0,12,0,0,0,0,(char *)MConfigSaveFoldersHistory,
+  /* 13 */ DI_CHECKBOX,5,13,0,13,0,0,0,0,(char *)MConfigSaveViewHistory,
+  /* 14 */ DI_CHECKBOX,5,14,0,14,0,0,0,0,(char *)MConfigRegisteredTypes,
+  /* 15 */ DI_CHECKBOX,5,15,0,15,0,0,0,0,(char *)MConfigCloseCDGate,
+  /* 16 */ DI_TEXT,5,16,0,16,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 17 */ DI_EDIT,5,17,50,17,0,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+  /* 18 */ DI_CHECKBOX,5,18,0,18,0,0,0,0,(char *)MConfigAutoSave,
+  /* 19 */ DI_TEXT,5,19,0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 20 */ DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 21 */ DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
   CfgDlg[1].Selected=Opt.ClearReadOnly;
   CfgDlg[2].Selected=Opt.DeleteToRecycleBin;
-  CfgDlg[3].Selected=Opt.CMOpt.UseSystemCopy;
-  CfgDlg[4].Selected=Opt.CMOpt.CopyOpened;
+  CfgDlg[3].Selected=Opt.DeleteToRecycleBinKillLink;
+  CfgDlg[4].Selected=Opt.CMOpt.UseSystemCopy;
+  CfgDlg[5].Selected=Opt.CMOpt.CopyOpened;
   if (!RegVer)
   {
-    CfgDlg[5].Flags|=DIF_DISABLE;
-    CfgDlg[5].Selected=0;
+    CfgDlg[6].Flags|=DIF_DISABLE;
+    CfgDlg[6].Selected=0;
   }
   else
   {
-    CfgDlg[5].Selected=Opt.ScanJunction;
+    CfgDlg[6].Selected=Opt.ScanJunction;
   }
 
 
-  CfgDlg[6].Selected=Opt.CreateUppercaseFolders;
+  CfgDlg[7].Selected=Opt.CreateUppercaseFolders;
 
-  CfgDlg[7].Selected=Opt.InactivityExit;
-  sprintf(CfgDlg[8].Data,"%d",Opt.InactivityExitTime);
+  CfgDlg[8].Selected=Opt.InactivityExit;
+  sprintf(CfgDlg[9].Data,"%d",Opt.InactivityExitTime);
   if(!Opt.InactivityExit)
   {
-    CfgDlg[8].Flags|=DIF_DISABLE;
     CfgDlg[9].Flags|=DIF_DISABLE;
+    CfgDlg[10].Flags|=DIF_DISABLE;
   }
 
-  CfgDlg[10].Selected=Opt.SaveHistory;
-  CfgDlg[11].Selected=Opt.SaveFoldersHistory;
-  CfgDlg[12].Selected=Opt.SaveViewHistory;
-  CfgDlg[13].Selected=Opt.UseRegisteredTypes;
-  CfgDlg[14].Selected=Opt.CloseCDGate;
+  CfgDlg[11].Selected=Opt.SaveHistory;
+  CfgDlg[12].Selected=Opt.SaveFoldersHistory;
+  CfgDlg[13].Selected=Opt.SaveViewHistory;
+  CfgDlg[14].Selected=Opt.UseRegisteredTypes;
+  CfgDlg[15].Selected=Opt.CloseCDGate;
   strcpy(PersonalPluginsPath,Opt.LoadPlug.PersonalPluginsPath);
-  CfgDlg[16].Ptr.PtrData=PersonalPluginsPath;
-  CfgDlg[16].Ptr.PtrLength=sizeof(PersonalPluginsPath);
-  CfgDlg[17].Selected=Opt.AutoSaveSetup;
+  CfgDlg[17].Ptr.PtrData=PersonalPluginsPath;
+  CfgDlg[17].Ptr.PtrLength=sizeof(PersonalPluginsPath);
+  CfgDlg[18].Selected=Opt.AutoSaveSetup;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
-    Dlg.SetPosition(-1,-1,56,22);
-    Dlg.SetAutomation(7,8,DIF_DISABLE,0,0,DIF_DISABLE);
-    Dlg.SetAutomation(7,9,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetPosition(-1,-1,56,23);
+    Dlg.SetAutomation(8,9,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(8,10,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=19)
+    if (Dlg.GetExitCode()!=20)
       return;
   }
 
   Opt.ClearReadOnly=CfgDlg[1].Selected;
   Opt.DeleteToRecycleBin=CfgDlg[2].Selected;
-  Opt.CMOpt.UseSystemCopy=CfgDlg[3].Selected;
-  Opt.CMOpt.CopyOpened=CfgDlg[4].Selected;
+  Opt.DeleteToRecycleBinKillLink=CfgDlg[3].Selected;
+  Opt.CMOpt.UseSystemCopy=CfgDlg[4].Selected;
+  Opt.CMOpt.CopyOpened=CfgDlg[5].Selected;
   //_SVS(SysLog("1. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
-  Opt.ScanJunction=CfgDlg[5].Selected;
+  Opt.ScanJunction=CfgDlg[6].Selected;
   //_SVS(SysLog("2. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
-  Opt.CreateUppercaseFolders=CfgDlg[6].Selected;
-  Opt.InactivityExit=CfgDlg[7].Selected;
-  if ((Opt.InactivityExitTime=atoi(CfgDlg[8].Data))<=0)
+  Opt.CreateUppercaseFolders=CfgDlg[7].Selected;
+  Opt.InactivityExit=CfgDlg[8].Selected;
+  if ((Opt.InactivityExitTime=atoi(CfgDlg[9].Data))<=0)
     Opt.InactivityExit=Opt.InactivityExitTime=0;
-  Opt.SaveHistory=CfgDlg[10].Selected;
-  Opt.SaveFoldersHistory=CfgDlg[11].Selected;
-  Opt.SaveViewHistory=CfgDlg[12].Selected;
-  Opt.UseRegisteredTypes=CfgDlg[13].Selected;
-  Opt.CloseCDGate=CfgDlg[14].Selected;
-  Opt.AutoSaveSetup=CfgDlg[17].Selected;
+  Opt.SaveHistory=CfgDlg[11].Selected;
+  Opt.SaveFoldersHistory=CfgDlg[12].Selected;
+  Opt.SaveViewHistory=CfgDlg[13].Selected;
+  Opt.UseRegisteredTypes=CfgDlg[14].Selected;
+  Opt.CloseCDGate=CfgDlg[15].Selected;
+  Opt.AutoSaveSetup=CfgDlg[18].Selected;
   strcpy(Opt.LoadPlug.PersonalPluginsPath,PersonalPluginsPath);
   /* SVS $ */
 }
@@ -1069,6 +1072,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"AutoSaveSetup",&Opt.AutoSaveSetup,0, 0},
   {1, REG_DWORD,  NKeySystem,"ClearReadOnly",&Opt.ClearReadOnly,0, 0},
   {1, REG_DWORD,  NKeySystem,"DeleteToRecycleBin",&Opt.DeleteToRecycleBin,1, 0},
+  {1, REG_DWORD,  NKeySystem,"DeleteToRecycleBinKillLink",&Opt.DeleteToRecycleBinKillLink,1, 0},
   {0, REG_DWORD,  NKeySystem,"WipeSymbol",&Opt.WipeSymbol,0, 0},
 
   {1, REG_DWORD,  NKeySystem,"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,0, 0},

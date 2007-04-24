@@ -4422,35 +4422,42 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
 }
 /* tran 07.07.2000 $ */
 
-/* $ 03.12.2001 IS
-   UndoData - теперь указатель
-*/
 void Editor::AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,int Type)
 {
   int PrevUndoDataPos;
-  if (Flags.Check(FEDITOR_DISABLEUNDO) || !UndoData)
+
+  if (Flags.Check(FEDITOR_DISABLEUNDO) || !UndoData) // уже идет процесс Undo?
     return;
-  if (StrNum==-1)
+
+  if (StrNum==-1)    // текущая линия?
     StrNum=NumLine;
+
   if ((PrevUndoDataPos=UndoDataPos-1)<0)
     PrevUndoDataPos=EdOpt.UndoSize-1;
-  if (!Flags.Check(FEDITOR_NEWUNDO) && Type==UNDO_EDIT &&
+
+  if (!Flags.Check(FEDITOR_NEWUNDO) &&
+      Type==UNDO_EDIT &&
       UndoData[PrevUndoDataPos].Type==UNDO_EDIT &&
       StrNum==UndoData[PrevUndoDataPos].StrNum &&
-      (abs(StrPos-UndoData[PrevUndoDataPos].StrPos)<=1 ||
-      abs(StrPos-LastChangeStrPos)<=1))
+      (
+        abs(StrPos-UndoData[PrevUndoDataPos].StrPos)<=1 ||
+        abs(StrPos-LastChangeStrPos)<=1)
+      )
   {
     LastChangeStrPos=StrPos;
     return;
   }
+
   Flags.Clear(FEDITOR_NEWUNDO);
   if (UndoData[UndoDataPos].Type!=UNDO_NONE && UndoData[UndoDataPos].Str!=NULL)
     delete[] UndoData[UndoDataPos].Str;
+
   UndoData[UndoDataPos].Type=Type;
   UndoData[UndoDataPos].UndoNext=BlockUndo;
   UndoData[UndoDataPos].StrPos=StrPos;
   UndoData[UndoDataPos].StrNum=StrNum;
   xstrncpy(UndoData[UndoDataPos].EOL,Eol?Eol:"",sizeof(UndoData[UndoDataPos].EOL)-1);
+
   if (Str!=NULL)
   {
     UndoData[UndoDataPos].Str=new char[strlen(Str)+1];
@@ -4459,32 +4466,30 @@ void Editor::AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,i
   }
   else
     UndoData[UndoDataPos].Str=NULL;
+
   if (++UndoDataPos==EdOpt.UndoSize)
     UndoDataPos=0;
+
   if (UndoDataPos==UndoSavePos)
     Flags.Set(FEDITOR_UNDOOVERFLOW);
 }
-/* IS $ */
 
-/* $ 03.12.2001 IS
-   UndoData - теперь указатель
-*/
 void Editor::Undo()
 {
   if(!UndoData)
     return;
+
   int NewPos=UndoDataPos-1;
+
   if (NewPos<0)
     NewPos=EdOpt.UndoSize-1;
+
   if (UndoData[NewPos].Type==UNDO_NONE)
     return;
+
   UnmarkBlock();
   UndoDataPos=NewPos;
-  /*$ 10.08.2000 skv
-    Modified->TextChanged
-  */
   TextChanged(1);
-  /* skv $*/
   /* $ 30.03.2002 IS
      Уберем пока установление FEDITOR_WASCHANGED, т.к. эта штука, как я понял,
      должна включаться толко при изменении файла непосредственно _на диске_, а
@@ -4493,13 +4498,15 @@ void Editor::Undo()
      оно устанавливается в "TextChanged(1)" - см. выше.
   */
   Flags.Set(/*FEDITOR_WASCHANGED|*/FEDITOR_DISABLEUNDO);
-  /* IS $ */
+
   GoToLine(UndoData[UndoDataPos].StrNum);
+
   switch(UndoData[UndoDataPos].Type)
   {
     case UNDO_INSSTR:
       DeleteString(CurLine,TRUE,NumLine>0 ? NumLine-1:NumLine);
       break;
+
     case UNDO_DELSTR:
       Pasting++;
       if (NumLine<UndoData[UndoDataPos].StrNum)
@@ -4520,6 +4527,7 @@ void Editor::Undo()
         CurLine->SetEOL(UndoData[UndoDataPos].EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
       }
       break;
+
     case UNDO_EDIT:
       if (UndoData[UndoDataPos].Str!=NULL)
       {
@@ -4529,20 +4537,20 @@ void Editor::Undo()
       CurLine->SetCurPos(UndoData[UndoDataPos].StrPos);
       break;
   }
+
   if (UndoData[UndoDataPos].Str!=NULL)
     delete[] UndoData[UndoDataPos].Str;
+
   UndoData[UndoDataPos].Type=UNDO_NONE;
+
   if (UndoData[UndoDataPos].UndoNext)
     Undo();
-  /*$ 10.08.2000 skv
-    ! Modified->TextChanged
-  */
+
   if (!Flags.Check(FEDITOR_UNDOOVERFLOW) && UndoDataPos==UndoSavePos)
     TextChanged(0);
-  /* skv $*/
+
   Flags.Clear(FEDITOR_DISABLEUNDO);
 }
-/* IS $ */
 
 void Editor::SelectAll()
 {
@@ -4917,11 +4925,7 @@ void Editor::VPaste(char *ClipText)
   if (*ClipText)
   {
     Flags.Set(FEDITOR_NEWUNDO);
-    /*$ 10.08.2000 skv
-      Modified->TextChanged
-    */
     TextChanged(1);
-    /* skv $*/
     int SaveOvertype=Flags.Check(FEDITOR_OVERTYPE);
     UnmarkBlock();
     Pasting++;
