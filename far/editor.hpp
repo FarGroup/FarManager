@@ -57,9 +57,9 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_MARKINGVBLOCK         = 0x00001000,
   FEDITOR_WASCHANGED            = 0x00002000,
   FEDITOR_OVERTYPE              = 0x00004000,
-  FEDITOR_UNDOOVERFLOW          = 0x00008000,
+  FEDITOR_UNDOOVERFLOW          = 0x00008000,   // Переполнение в ундо?
   FEDITOR_NEWUNDO               = 0x00010000,
-  FEDITOR_DISABLEUNDO           = 0x00040000,
+  FEDITOR_DISABLEUNDO           = 0x00040000,   // возможно процесс Undo уже идет?
   FEDITOR_LOCKMODE              = 0x00080000,
   FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00100000,   // TRUE, если позиция в редакторе была изменена
                                                 // плагином (ECTL_SETPOSITION)
@@ -104,7 +104,6 @@ class Editor:public ScreenObject
 
     struct EditorUndoData *UndoData;  // $ 03.12.2001 IS: теперь указатель, т.к. размер может меняться
     int UndoDataPos;
-    int UndoOverflow;
     int UndoSavePos;
 
     int LastChangeStrPos;

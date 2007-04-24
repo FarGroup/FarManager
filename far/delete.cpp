@@ -758,6 +758,21 @@ int RemoveToRecycleBin(const wchar_t *Name)
   string strFullName;
   ConvertNameToFull(Name, strFullName);
 
+  // ѕри удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
+  if(Opt.DeleteToRecycleBinKillLink && GetFileAttributesW(Name) == FA_DIREC)
+  {
+    string strFullName2;
+    FAR_FIND_DATA_EX FindData;
+    ScanTree ScTree(TRUE,TRUE,FALSE);
+    ScTree.SetFindPath(Name,L"*.*", 0);
+    while (ScTree.GetNextName(&FindData,strFullName2))
+    {
+      if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+        ERemoveDirectory(strFullName2,FindData.strAlternateFileName,FALSE);
+    }
+  }
+
+
   memset(&fop,0,sizeof(fop)); // говор€т помогает :-)
 
   wchar_t *lpwszName = strFullName.GetBuffer ((int)strFullName.GetLength()+1);

@@ -1267,7 +1267,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
           }
 
-          if(Flags.Check(FFILEEDIT_NEW))
+          Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+          if(Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1))  // Mantis#279
           {
             UpdateFileList();
             Flags.Clear(FFILEEDIT_NEW);

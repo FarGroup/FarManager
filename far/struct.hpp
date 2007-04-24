@@ -395,7 +395,8 @@ struct Options
   int ReverseSort;
   int ClearReadOnly;
   int SortFolderExt;
-  int DeleteToRecycleBin;
+  int DeleteToRecycleBin;         // удалять в корзину?
+  int DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.
   int WipeSymbol; // символ заполнитель для "ZAP-операции"
 
   struct CopyMoveOptions CMOpt;

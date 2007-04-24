@@ -1876,6 +1876,10 @@ $ #Settings dialog: system#
                           Bin can be performed only for local hard
                           disks.
 
+  #Delete symbolic links#   Перед удалением каталога в Корзину, 
+                          просканировать и удалить линки на 
+                          подкаталоги.
+
   #Use system copy#         Use the file copy functions provided by
   #routine#                 the operating system instead of internal
                           file copy implementation. It may be useful
