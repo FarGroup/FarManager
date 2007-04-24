@@ -135,7 +135,12 @@ void InfoList::DisplayObject()
   {
     char JuncName[NM];
     if(GetJunctionPointInfo(CurDir,JuncName,sizeof(JuncName)))
-      GetPathRoot(JuncName+4,DriveRoot); //"\??\D:\Junc\Src\"
+    {
+      int offset = 0;
+      if (!strncmp(JuncName,"\\??\\",4))
+        offset = 4;
+      GetPathRoot(JuncName+offset,DriveRoot); //"\??\D:\Junc\Src\"
+    }
   }
   else
    GetPathRoot(CurDir,DriveRoot);

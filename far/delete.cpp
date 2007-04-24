@@ -124,13 +124,16 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     ConvertNameToFull(SelName,JuncName, sizeof(JuncName));
     if(GetJunctionPointInfo(JuncName,JuncName,sizeof(JuncName))) // ? SelName ?
     {
-      TruncPathStr(JuncName+4,sizeof(JuncName)-4);
+      int offset = 0;
+      if (!strncmp(JuncName,"\\??\\",4))
+        offset = 4;
+      TruncPathStr(JuncName+offset,sizeof(JuncName)-offset);
 
       //SetMessageHelp("DeleteLink");
       Ret=Message(0,3,MSG(MDeleteLinkTitle),
                 DeleteFilesMsg,
                 MSG(MAskDeleteLink),
-                JuncName+4,
+                JuncName+offset,
                 MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
 
       if(Ret == 1)

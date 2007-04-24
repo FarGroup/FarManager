@@ -606,68 +606,71 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             AttrDlg[I].Flags&=~DIF_3STATE;
         }
         FolderPresent=TRUE;
-
-        // обработка случая, если ЭТО SymLink
-        if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
-        {
-          char JuncName[NM*2];
-          DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
-          //"\??\D:\Junc\Src\" или "\\?\Volume{..."
-
-          AttrDlg[SETATTR_TITLE].Y2++;
-          for(I=3; I  < DlgCountItems; ++I)
-          {
-            AttrDlg[I].Y1++;
-            if (AttrDlg[I].Y2)
-              AttrDlg[I].Y2++;
-          }
-          DlgCountItems++;
-          JunctionPresent=TRUE;
-
-          int ID_Msg, Width;
-          if(!strncmp(JuncName+4,"Volume{",7))
-          {
-            char JuncRoot[NM*2];
-            JuncRoot[0]=JuncRoot[1]=0;
-            GetPathRootOne(JuncName+4,JuncRoot);
-            if(JuncRoot[1] == ':')
-              strcpy(JuncName+4,JuncRoot);
-            ID_Msg=MSetAttrVolMount;
-            Width=38;
-          }
-          else
-          {
-            ID_Msg=MSetAttrJunction;
-            Width=52;
-          }
-
-          sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
-                (LenJunction?
-                   TruncPathStr(JuncName+4,Width):
-                   MSG(MSetAttrUnknownJunction)));
-
-          /* $ 11.09.2001 SVS
-             Уточнение по поводу слинкованной файловой системы отличной от
-             NTFS.
-          */
-          DlgParam.FileSystemFlags=0;
-          GetPathRoot(SelName,JuncName);
-          if (GetVolumeInformation(JuncName,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
-          {
-            if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
-              AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
-
-            if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
-              AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
-          }
-          /* SVS $ */
-        }
       }
       else
       {
         // убираем 3-State
         for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
           AttrDlg[I].Flags&=~DIF_3STATE;
+      }
+
+      // обработка случая, если ЭТО SymLink
+      if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        char JuncName[NM*2];
+        DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
+        //"\??\D:\Junc\Src\" или "\\?\Volume{..."
+        int offset = 0;
+        if (!strncmp(JuncName,"\\??\\",4))
+          offset = 4;
+
+        AttrDlg[SETATTR_TITLE].Y2++;
+        for(I=3; I  < DlgCountItems; ++I)
+        {
+          AttrDlg[I].Y1++;
+          if (AttrDlg[I].Y2)
+            AttrDlg[I].Y2++;
+        }
+        DlgCountItems++;
+        JunctionPresent=TRUE;
+
+        int ID_Msg, Width;
+        if(!strncmp(JuncName+offset,"Volume{",7))
+        {
+          char JuncRoot[NM*2];
+          JuncRoot[0]=JuncRoot[1]=0;
+          GetPathRootOne(JuncName+offset,JuncRoot);
+          if(JuncRoot[1] == ':')
+            strcpy(JuncName+offset,JuncRoot);
+          ID_Msg=MSetAttrVolMount;
+          Width=38;
+        }
+        else
+        {
+          ID_Msg=MSetAttrJunction;
+          Width=52;
+        }
+
+        sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
+              (LenJunction?
+                  TruncPathStr(JuncName+offset,Width):
+                  MSG(MSetAttrUnknownJunction)));
+
+        /* $ 11.09.2001 SVS
+            Уточнение по поводу слинкованной файловой системы отличной от
+            NTFS.
+        */
+        DlgParam.FileSystemFlags=0;
+        GetPathRoot(SelName,JuncName);
+        if (GetVolumeInformation(JuncName,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
+        {
+          if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
+            AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
+
+          if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+            AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
+        }
+        /* SVS $ */
       }
 
       strcpy(AttrDlg[SETATTR_NAME].Data,SelName);

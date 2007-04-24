@@ -31,6 +31,9 @@ flink.cpp
 #ifndef IO_REPARSE_TAG_MOUNT_POINT
 #define IO_REPARSE_TAG_MOUNT_POINT               (0xA0000003)
 #endif
+#ifndef IO_REPARSE_TAG_SYMLINK
+#define IO_REPARSE_TAG_SYMLINK                   (0xA000000C)
+#endif
 
 // The value of the following constant needs to satisfy the following conditions:
 //  (1) Be at least as large as the largest of the reserved tags.
@@ -113,18 +116,26 @@ struct TMN_REPARSE_DATA_BUFFER
   DWORD  ReparseTag;
   WORD   ReparseDataLength;
   WORD   Reserved;
-
-  // IO_REPARSE_TAG_MOUNT_POINT specifics follow
-  WORD   SubstituteNameOffset;
-  WORD   SubstituteNameLength;
-  WORD   PrintNameOffset;
-  WORD   PrintNameLength;
-  WCHAR  PathBuffer[1];
-
-  // Some helper functions
-  //BOOL Init(LPCSTR szJunctionPoint);
-  //BOOL Init(LPCWSTR wszJunctionPoint);
-  //int BytesForIoControl() const;
+  union {
+    struct {
+      WORD   SubstituteNameOffset;
+      WORD   SubstituteNameLength;
+      WORD   PrintNameOffset;
+      WORD   PrintNameLength;
+      ULONG  Flags;
+      WCHAR PathBuffer[1];
+    } SymbolicLinkReparseBuffer;
+    struct {
+      WORD   SubstituteNameOffset;
+      WORD   SubstituteNameLength;
+      WORD   PrintNameOffset;
+      WORD   PrintNameLength;
+      WCHAR PathBuffer[1];
+    } MountPointReparseBuffer;
+    struct {
+      BYTE   DataBuffer[1];
+    } GenericReparseBuffer;
+  };
 };
 
 typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
@@ -249,11 +260,11 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
   rdb.ReparseDataLength       = nDestMountPointBytes + 12;
   rdb.Reserved                = 0;
-  rdb.SubstituteNameOffset    = 0;
-  rdb.SubstituteNameLength    = nDestMountPointBytes;
-  rdb.PrintNameOffset         = nDestMountPointBytes + 2;
-  rdb.PrintNameLength         = 0;
-  wcscpy(rdb.PathBuffer, wszDestMountPoint);
+  rdb.MountPointReparseBuffer.SubstituteNameOffset = 0;
+  rdb.MountPointReparseBuffer.SubstituteNameLength = nDestMountPointBytes;
+  rdb.MountPointReparseBuffer.PrintNameOffset      = nDestMountPointBytes + 2;
+  rdb.MountPointReparseBuffer.PrintNameLength      = 0;
+  wcscpy(rdb.MountPointReparseBuffer.PathBuffer, wszDestMountPoint);
   //_SVS(SysLogDump("rdb",0,szBuff,MAXIMUM_REPARSE_DATA_BUFFER_SIZE/3,0));
 
 
@@ -267,7 +278,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   }
   DWORD dwBytes;
 #define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE \
-      FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, SubstituteNameOffset)
+      FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, MountPointReparseBuffer)
   if(!DeviceIoControl(hDir,
             FSCTL_SET_REPARSE_POINT,
             (LPVOID)&rdb,
@@ -364,18 +375,29 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 
   CloseHandle(hDir);
 
-  if (dwBuffSize < rdb.SubstituteNameLength / sizeof(TCHAR) + sizeof(TCHAR))
+  WORD SubstituteNameLength;
+  WCHAR *PathBuffer;
+
+  if (rdb.ReparseTag == IO_REPARSE_TAG_SYMLINK)
   {
-    return rdb.SubstituteNameLength / sizeof(TCHAR) + sizeof(TCHAR);
+    SubstituteNameLength = rdb.SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(WCHAR);
+    PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(WCHAR)];
+  }
+  else
+  {
+    SubstituteNameLength = rdb.MountPointReparseBuffer.SubstituteNameLength/sizeof(WCHAR);
+    PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.SubstituteNameOffset/sizeof(WCHAR)];
   }
 
-#ifdef UNICODE
-  lstrcpy(szDestBuff, rdb.PathBuffer);
-#else
+  if (dwBuffSize < SubstituteNameLength + sizeof(TCHAR))
+  {
+    return SubstituteNameLength + sizeof(TCHAR);
+  }
+
   if (!WideCharToMultiByte(CP_THREAD_ACP,
               0,
-              rdb.PathBuffer,
-              rdb.SubstituteNameLength / sizeof(WCHAR) + 1,
+              PathBuffer,
+              SubstituteNameLength,
               szDestBuff,
               dwBuffSize,
               "",
@@ -384,9 +406,9 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
     //printf("WideCharToMultiByte failed (%d)\n", GetLastError());
     return 0;
   }
+  szDestBuff[SubstituteNameLength] = 0;
   FAR_CharToOemBuff(szDestBuff,szDestBuff,dwBuffSize); // !!!
-#endif
-  return rdb.SubstituteNameLength / sizeof(TCHAR);
+  return SubstituteNameLength;
 }
 
 /* $ 14.06.2003 IS
@@ -865,27 +887,52 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
         {
           if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
           {
-             if(!Reenter)
-               _GetPathRoot(JuncName+4,Root,TRUE);
-             else
-               GetPathRootOne(JuncName+4,Root);
+            int offset = 0;
+            if (!strncmp(JuncName,"\\??\\",4))
+            {
+              offset = 4;
+            }
+            else if (*JuncName == '.')
+            {
+              //AY: вся эта заморочка во первых кривая (не всегда работает как надо)
+              //    а во вторых нужна потому что в висте симлинки могут содержать относительный
+              //    путь. Тут видимо надо как то заюзать GetFullPathName.
+              char TempJunc[2048];
+              if (Ptr)
+              {
+                *Ptr = 0;
+                if (*(Ptr+1) == 0)
+                {
+                  Ptr=strrchr(TmpPtr,'\\');
+                  if (Ptr) *Ptr = 0;
+                }
+              }
+              xstrncpy(TempJunc,TempRoot,sizeof(TempJunc)-1);
+              strcat(TempJunc,JuncName);
+              xstrncpy(JuncName,TempJunc,sizeof(JuncName)-1);
+            }
+
+            if(!Reenter)
+              _GetPathRoot(JuncName+offset,Root,TRUE);
+            else
+              GetPathRootOne(JuncName+offset,Root);
 #if 0
-             _LOGCOPYR(SysLog("afret  GetPathRootOne() Root='%s', JuncName='%s'",Root,JuncName));
-               //CheckParseJunction('\\vr-srv002\userhome$\vskirdin\wwwroot')=2
-               //return -> 952 Root='F:\', JuncName='\??\F:\wwwroot'
-             if(TempRoot[0] == '\\' && TempRoot[1] == '\\' && IsLocalPath(Root))
-             {
-               char *Ptr=strchr(TempRoot+2,'\\');
-               if(Ptr)
-               {
-                 JuncName[5]='$';
-                 strcpy(Ptr+1,JuncName+4);
-                 strcpy(Root,TempRoot);
-               }
-             }
+            _LOGCOPYR(SysLog("afret  GetPathRootOne() Root='%s', JuncName='%s'",Root,JuncName));
+              //CheckParseJunction('\\vr-srv002\userhome$\vskirdin\wwwroot')=2
+              //return -> 952 Root='F:\', JuncName='\??\F:\wwwroot'
+            if(TempRoot[0] == '\\' && TempRoot[1] == '\\' && IsLocalPath(Root))
+            {
+              char *Ptr=strchr(TempRoot+2,'\\');
+              if(Ptr)
+              {
+                JuncName[5]='$';
+                strcpy(Ptr+1,JuncName+4);
+                strcpy(Root,TempRoot);
+              }
+            }
 #endif
-             _LOGCOPYR(SysLog("return -> %d Root='%s', JuncName='%s'",__LINE__,Root,JuncName));
-             return;
+            _LOGCOPYR(SysLog("return -> %d Root='%s', JuncName='%s'",__LINE__,Root,JuncName));
+            return;
           }
         } /* if */
         if(Ptr) *Ptr=0; else break;

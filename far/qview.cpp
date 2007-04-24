@@ -117,13 +117,16 @@ void QuickView::DisplayObject()
       int ID_Msg, Width;
       if(GetJunctionPointInfo(CurFileName,JuncName,sizeof(JuncName))) //"\??\D:\Junc\Src\"
       {
-        if(!strncmp(JuncName+4,"Volume{",7))
+        int offset = 0;
+        if (!strncmp(JuncName,"\\??\\",4))
+          offset = 4;
+        if(!strncmp(JuncName+offset,"Volume{",7))
         {
           char JuncRoot[NM*2];
           JuncRoot[0]=JuncRoot[1]=0;
-          GetPathRootOne(JuncName+4,JuncRoot);
+          GetPathRootOne(JuncName+offset,JuncRoot);
           if(JuncRoot[1] == ':')
-            strcpy(JuncName+4,JuncRoot);
+            strcpy(JuncName+offset,JuncRoot);
           ID_Msg=MQuickViewVolMount;
           Width=20;
         }
@@ -132,7 +135,7 @@ void QuickView::DisplayObject()
           ID_Msg=MQuickViewJunction;
           Width=9;
         }
-        sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+4,X2-X1-4-Width));
+        sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+offset,X2-X1-4-Width));
         //TruncStr(Msg,X2-X1-4);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);

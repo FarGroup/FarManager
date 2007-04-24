@@ -379,19 +379,22 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
           // Получим инфу симлинке
           if(GetJunctionPointInfo(TempDest,TempDest2,sizeof(TempDest2)))
           {
+            int offset = 0;
+            if (!strncmp(TempDest2,"\\??\\",4))
+              offset = 4;
             // для случая монтированного диска (не имеющего букву)...
-            if(!strncmp(TempDest2+4,"Volume{",7))
+            if(!strncmp(TempDest2+offset,"Volume{",7))
             {
               char JuncRoot[NM*2];
               JuncRoot[0]=JuncRoot[1]=0;
               // получим либо букву диска, либо...
-              GetPathRootOne(TempDest2+4,JuncRoot);
+              GetPathRootOne(TempDest2+offset,JuncRoot);
               // ...но в любом случае пишем полностью.
-              strcpy(TempDest2+4,JuncRoot);
+              strcpy(TempDest2+offset,JuncRoot);
             }
-            // небольшая метаморфоза с именем, дабы удалить ведущие "\\?\"
+            // небольшая метаморфоза с именем, дабы удалить ведущие "\??\"
             // но для "Volume{" начало всегда будет корректным!
-            memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
+            memmove(TempDest2,TempDest2+offset,strlen(TempDest2+offset)+1);
             *Ptr=Chr; // восстановим символ
             DeleteEndSlash(TempDest2);
             strcat(TempDest2,Ptr);
