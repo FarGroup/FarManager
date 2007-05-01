@@ -137,7 +137,7 @@ HRESULT __stdcall CInFile::Seek (__int64 offset, unsigned int seekOrigin, unsign
 {
 	DWORD hi, lo;
 
-	hi = offset >> 32;
+	hi = (DWORD)(offset >> 32);
 	lo = (DWORD)offset;
 
 	lo = SetFilePointer (m_hFile, lo, (PLONG)&hi, seekOrigin);
@@ -268,7 +268,7 @@ HRESULT __stdcall COutFile::Seek (__int64 offset, unsigned int seekOrigin, unsig
 {
 	DWORD hi, lo;
 
-	hi = offset >> 32;
+	hi = (DWORD)(offset >> 32);
 	lo = (DWORD)offset;
 
 	lo = SetFilePointer (m_hFile, lo, (PLONG)&hi, seekOrigin);

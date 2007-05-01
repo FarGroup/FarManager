@@ -7,6 +7,7 @@ pointer_array<ArchivePlugin*> Plugins;
 pointer_array<ArchivePanel*> Panels;
 
 char *lpCurrentLanguage;
+char *lpINIFileName;
 
 char *pCommandNames[11] = {
 		"Extract",
@@ -265,6 +266,11 @@ void __stdcall SetStartupInfo (
 			);
 
 	StrFree (lpPluginsPath);
+
+	lpINIFileName = StrDuplicate (Info.ModuleName, 260);
+
+	CutToSlash (lpINIFileName);
+	strcat (lpINIFileName, "templates.ini");
 }
 
 int __stdcall ProcessHostFile(
@@ -314,6 +320,7 @@ void __stdcall ExitFAR ()
 	Panels.free ();
 
 	StrFree (lpCurrentLanguage);
+	StrFree (lpINIFileName);
 }
 
 void __stdcall GetPluginInfo (

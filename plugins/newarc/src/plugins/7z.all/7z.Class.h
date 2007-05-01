@@ -8,6 +8,8 @@ struct FormatPosition {
 
 typedef unsigned int (__stdcall *CREATEOBJECT) (const GUID *, const GUID *, void **);
 typedef HRESULT (__stdcall *GETHANDLERPROPERTY) (PROPID propID, PROPVARIANT *value);
+typedef HRESULT (__stdcall *GETHANDLERPROPERTY2) (unsigned int formatIndex, PROPID propID, PROPVARIANT *value);
+typedef HRESULT (__stdcall *GETNUMBEROFFORMATS) (unsigned int *numFormats);
 
 extern bool GetFormatCommand(const GUID &guid, int nCommand, char *lpCommand);
 
@@ -19,16 +21,18 @@ public:
 
 	CREATEOBJECT m_pfnCreateObject;
 	GETHANDLERPROPERTY m_pfnGetHandlerProperty;
+	GETHANDLERPROPERTY2 m_pfnGetHandlerProperty2;
+	GETNUMBEROFFORMATS m_pfnGetNumberOfFormats;
 
-	GUID m_uid;
+	unsigned int m_nNumberOfFormats;
+	GUID *m_puids;
 
 public:
 
 	bool Initialize (const char *lpFileName);
 	~SevenZipModule ();
 
-	void GetArchiveFormatInfo (ArchiveFormatInfo *pInfo);
-	bool IsSplitModule ();
+	void GetArchiveFormatInfo (unsigned int nFormatIndex, ArchiveFormatInfo *pInfo);
 };
 
 class SevenZipArchive {
@@ -36,6 +40,7 @@ class SevenZipArchive {
 public:
 
 	const SevenZipModule *m_pModule;
+	unsigned int m_nFormatIndex;
 
 	HANDLE m_hArchive;
 	ARCHIVECALLBACK m_pfnCallback;
@@ -55,7 +60,7 @@ public:
 
 public:
 
-	SevenZipArchive (const SevenZipModule *pModule, const char *lpFileName, bool bNewArchive);
+	SevenZipArchive (const SevenZipModule *pModule, unsigned int nFormatIndex, const char *lpFileName, bool bNewArchive);
 	virtual ~SevenZipArchive ();
 
 	int Callback (int nMsg, int nParam1, int nParam2);

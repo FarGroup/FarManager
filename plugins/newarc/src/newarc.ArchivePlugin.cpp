@@ -58,7 +58,7 @@ void ArchivePlugin::Finalize ()
 
 	StrFree (m_lpModuleName);
 
-	free (m_pfnGetMsgThunk);
+	ReleaseThunk (m_pfnGetMsgThunk);
 
 	FinalizeLanguageStrings (m_pLanguageStrings, m_nStringsCount);
 }

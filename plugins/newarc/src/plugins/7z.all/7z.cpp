@@ -4,7 +4,7 @@
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
 
-pointer_array <SevenZipModule*> Formats;
+pointer_array <SevenZipModule*> modules;
 ArchiveFormatInfo *pFormatInfo = NULL;
 
 struct ArchiveModuleInformation {
@@ -17,11 +17,23 @@ struct ArchiveModuleInformation {
 	char **pConfigStrings;
 };
 
-const SevenZipModule *GetModuleFromGUID (const GUID &uid)
+const SevenZipModule *GetModuleFromGUID (const GUID &uid, unsigned int *formatIndex)
 {
-	for (int i = 0; i < Formats.count(); i++)
-		if ( Formats[i]->m_uid == uid )
-			return Formats[i];
+	for (int i = 0; i < modules.count(); i++)
+	{
+		SevenZipModule *pModule = modules[i];
+
+		for (int j = 0; j < pModule->m_nNumberOfFormats; j++)
+		{
+			if ( pModule->m_puids[j] == uid )
+			{
+				if ( formatIndex )
+					*formatIndex = j;
+
+				return pModule;
+			}
+		}
+	}
 
 	return NULL;
 }
@@ -31,7 +43,7 @@ int OnInitialize (PluginStartupInfo *pInfo)
 	Info = *pInfo;
 	FSF = *pInfo->FSF;
 
-	Formats.create (ARRAY_OPTIONS_DELETE);
+	modules.create (ARRAY_OPTIONS_DELETE);
 
 	WIN32_FIND_DATA fdata;
 	char *lpMask = StrDuplicate (Info.ModuleName, 260);
@@ -56,7 +68,7 @@ int OnInitialize (PluginStartupInfo *pInfo)
 				strcat (lpModuleName, fdata.cFileName);
 
 				if ( pModule->Initialize (lpModuleName) )
-					Formats.add (pModule);
+					modules.add (pModule);
 				else
 					delete pModule;
 
@@ -74,7 +86,7 @@ int OnInitialize (PluginStartupInfo *pInfo)
 
 int OnFinalize ()
 {
-	Formats.free ();
+	modules.free ();
 	free (pFormatInfo);
 
 	return NAERROR_SUCCESS;
@@ -170,25 +182,22 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 	{
 		FormatPosition *pos = formats[j];
 
-		for (int i = 0; i < Formats.count (); i++)
+		for (int i = 0; i < modules.count (); i++)
 		{
-			SevenZipModule *pModule = Formats[i];
+			SevenZipModule *pModule = modules[i];
 
-			if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
+			for (int k = 0; k < pModule->m_nNumberOfFormats; k++)
 			{
-				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName, false);
+				if ( IsEqualGUID (pModule->m_puids[k], *pos->puid) )
+				{
+					SevenZipArchive *pArchive = new SevenZipArchive (pModule, k, pQAS->lpFileName, false);
 
-				/*ArchiveFormatInfo info;
+					pQAS->hResult = (HANDLE)pArchive;
 
-				pModule->GetArchiveFormatInfo (&info);
+					formats.free ();
 
-				MessageBox (0, info.lpName, "asD", MB_OK);*/
-
-				pQAS->hResult = (HANDLE)pArchive;
-
-				formats.free ();
-
-				return NAERROR_SUCCESS;
+					return NAERROR_SUCCESS;
+				}
 			}
 		}
 	}
@@ -200,11 +209,12 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 int OnCreateArchive (CreateArchiveStruct *pCAS)
 {
-	const SevenZipModule *pModule = GetModuleFromGUID (pCAS->uid);
+	unsigned int formatIndex = 0;
+	const SevenZipModule *pModule = GetModuleFromGUID (pCAS->uid, &formatIndex);
 
 	if ( pModule )
 	{
-		SevenZipArchive *pArchive = new SevenZipArchive (pModule, pCAS->lpFileName, true);
+		SevenZipArchive *pArchive = new SevenZipArchive (pModule, formatIndex, pCAS->lpFileName, true);
 
 		pCAS->hResult = (HANDLE)pArchive;
 
@@ -244,12 +254,26 @@ int OnGetArchivePluginInfo (
 		ArchivePluginInfo *ai
 		)
 {
-	int nCount = Formats.count ();
+	int nCount = 0;
+
+	for (int i = 0; i < modules.count (); i++)
+		nCount += modules[i]->m_nNumberOfFormats;
 
 	pFormatInfo = (ArchiveFormatInfo*)realloc (pFormatInfo, nCount*sizeof (ArchiveFormatInfo));
 
-	for (int i = 0; i < nCount; i++)
-		Formats[i]->GetArchiveFormatInfo (&pFormatInfo[i]);
+	int index = 0;
+
+	for (int i = 0; i < modules.count (); i++)
+	{
+		SevenZipModule *pModule = modules[i];
+
+		for (int j = 0; j < pModule->m_nNumberOfFormats; j++)
+		{
+			pModule->GetArchiveFormatInfo (j, &pFormatInfo[index]);
+			index++;
+		}
+	}
+
 
 	ai->nFormats = nCount;
 	ai->pFormatInfo = pFormatInfo;
@@ -269,7 +293,7 @@ int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
-	pGAF->uid = pArchive->m_pModule->m_uid;
+	pGAF->uid = pArchive->m_pModule->m_puids[pArchive->m_nFormatIndex];
 
 	return NAERROR_SUCCESS;
 }

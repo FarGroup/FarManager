@@ -222,6 +222,7 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 {
 	bool bResult = false;
 
+	m_puids = NULL;
 	m_hModule = LoadLibraryEx (
 			lpFileName,
 			NULL,
@@ -232,18 +233,49 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 	{
 		m_pfnCreateObject = (CREATEOBJECT)GetProcAddress (m_hModule, "CreateObject");
 		m_pfnGetHandlerProperty = (GETHANDLERPROPERTY)GetProcAddress (m_hModule, "GetHandlerProperty");
+		m_pfnGetHandlerProperty2 = (GETHANDLERPROPERTY2)GetProcAddress (m_hModule, "GetHandlerProperty2");
+		m_pfnGetNumberOfFormats = (GETNUMBEROFFORMATS)GetProcAddress (m_hModule, "GetNumberOfFormats");
 
 		if ( m_pfnCreateObject &&
-			 m_pfnGetHandlerProperty )
+			 (m_pfnGetHandlerProperty || (m_pfnGetHandlerProperty2 && m_pfnGetNumberOfFormats)) )
 		{
-			CPropVariant value;
-
-			m_pfnGetHandlerProperty (NArchive::kClassID, &value);
-
-			if ( value.vt == VT_BSTR )
+			if ( m_pfnGetHandlerProperty2 && m_pfnGetNumberOfFormats )
 			{
-				memcpy (&m_uid, value.bstrVal, sizeof (GUID));
-				bResult = true;
+				if ( m_pfnGetNumberOfFormats (&m_nNumberOfFormats) == S_OK )
+				{
+					m_puids = (GUID*)malloc (m_nNumberOfFormats*sizeof (GUID));
+
+					CPropVariant value;
+
+					bResult = true;
+
+					for (int i = 0; i < m_nNumberOfFormats; i++)
+					{
+						if ( (m_pfnGetHandlerProperty2 (i, NArchive::kClassID, &value) != S_OK) ||
+							 (value.vt != VT_BSTR) )
+						{
+							bResult = false;
+							break;
+						}
+
+						memcpy (&m_puids[i], value.bstrVal, sizeof (GUID));
+					}
+				}
+			}
+			else
+			{
+				m_nNumberOfFormats= 1;
+
+				m_puids = (GUID*)malloc (m_nNumberOfFormats*sizeof (GUID));
+
+				CPropVariant value;
+
+				if ( (m_pfnGetHandlerProperty (NArchive::kClassID, &value) == S_OK) && 
+					 (value.vt == VT_BSTR) )
+				{
+					memcpy (&m_puids[0], value.bstrVal, sizeof (GUID));
+					bResult = true;
+				}
 			}
 		}
 	}
@@ -254,6 +286,9 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 
 SevenZipModule::~SevenZipModule ()
 {
+	if ( m_puids )
+		free (m_puids);
+
 	FreeLibrary (m_hModule);
 }
 
@@ -273,128 +308,124 @@ bool SevenZipModule::HasSignature ()
 }
 */
 
-bool SevenZipModule::IsSplitModule ()
-{
-	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
-		return true;
 
-	return false;
-}
-
-
-
-void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
+void SevenZipModule::GetArchiveFormatInfo (unsigned int nFormatIndex, ArchiveFormatInfo *pInfo)
 {
 	CPropVariant value;
 
-	m_pfnGetHandlerProperty (NArchive::kUpdate, &value);
+	if ( m_pfnGetHandlerProperty2 )
+		m_pfnGetHandlerProperty2 (nFormatIndex, NArchive::kUpdate, &value);
+	else
+		m_pfnGetHandlerProperty (NArchive::kUpdate, &value);
+
+	GUID uid = m_puids[nFormatIndex];
 
 	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
-	pInfo->uid = m_uid;
+	pInfo->uid = uid;
 
 	if ( (value.vt == VT_BOOL) && (value.boolVal == VARIANT_TRUE) )
 		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
 
-	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
+	if ( IsEqualGUID (uid, CLSID_CFormat7z) )
 	{
 		pInfo->lpName = "7z archive [7z]";
 		pInfo->lpDefaultExtention = "7z";
 	}
 	else
 
-	if ( IsEqualGUID (m_uid, CLSID_CArjHandler) )
+	if ( IsEqualGUID (uid, CLSID_CArjHandler) )
 	{
 		pInfo->lpName = "ARJ archive [7z]";
 		pInfo->lpDefaultExtention = "arj";
 	}
 	else
 
-	if ( IsEqualGUID (m_uid, CLSID_CBZip2Handler) )
+	if ( IsEqualGUID (uid, CLSID_CBZip2Handler) )
 	{
 		pInfo->lpName = "BZip2 archive [7z]";
 		pInfo->lpDefaultExtention = "bz2";
 	}
 	else
 
-	if ( IsEqualGUID (m_uid, CLSID_CCabHandler) )
+	if ( IsEqualGUID (uid, CLSID_CCabHandler) )
 	{
 		pInfo->lpName = "CAB archive [7z]";
 		pInfo->lpDefaultExtention = "cab";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CChmHandler) )
+	if ( IsEqualGUID (uid, CLSID_CChmHandler) )
 	{
 		pInfo->lpName = "CHM archive [7z]";
 		pInfo->lpDefaultExtention = "chm";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CCpioHandler) )
+	if ( IsEqualGUID (uid, CLSID_CCpioHandler) )
 	{
 		pInfo->lpName = "Cpio archive [7z]";
 		pInfo->lpDefaultExtention = "cpio";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CDebHandler) )
+	if ( IsEqualGUID (uid, CLSID_CDebHandler) )
 	{
 		pInfo->lpName = "Debian archive [7z]";
 		pInfo->lpDefaultExtention = "deb";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CGZipHandler) )
+	if ( IsEqualGUID (uid, CLSID_CGZipHandler) )
 	{
 		pInfo->lpName = "GZip archive [7z]";
 		pInfo->lpDefaultExtention = "gz";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CIsoHandler) )
+	if ( IsEqualGUID (uid, CLSID_CIsoHandler) )
 	{
 		pInfo->lpName = "ISO archive [7z]";
 		pInfo->lpDefaultExtention = "iso";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CLzhHandler) )
+	if ( IsEqualGUID (uid, CLSID_CLzhHandler) )
 	{
 		pInfo->lpName = "LZH archive [7z]";
 		pInfo->lpDefaultExtention = "lzh";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CNsisHandler) )
+	if ( IsEqualGUID (uid, CLSID_CNsisHandler) )
 	{
 		pInfo->lpName = "NSIS archive [7z]";
 		pInfo->lpDefaultExtention = "exe";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CRarHandler) )
+	if ( IsEqualGUID (uid, CLSID_CRarHandler) )
 	{
 		pInfo->lpName = "RAR archive [7z]";
 		pInfo->lpDefaultExtention = "rar";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CRpmHandler) )
+	if ( IsEqualGUID (uid, CLSID_CRpmHandler) )
 	{
 		pInfo->lpName = "RPM archive [7z]";
 		pInfo->lpDefaultExtention = "rpm";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
+	if ( IsEqualGUID (uid, CLSID_CSplitHandler) )
 	{
 		pInfo->lpName = "Split archive [7z]";
 		pInfo->lpDefaultExtention = "001";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CTarHandler) )
+	if ( IsEqualGUID (uid, CLSID_CTarHandler) )
 	{
 		pInfo->lpName = "TAR archive [7z]";
 		pInfo->lpDefaultExtention = "tar";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CZHandler) )
+	if ( IsEqualGUID (uid, CLSID_CZHandler) )
 	{
 		pInfo->lpName = "Z archive [7z]";
 		pInfo->lpDefaultExtention = "z";
 	}
 	else
-	if ( IsEqualGUID (m_uid, CLSID_CZipHandler) )
+	if ( IsEqualGUID (uid, CLSID_CZipHandler) )
 	{
 		pInfo->lpName = "ZIP archive [7z]";
 		pInfo->lpDefaultExtention = "zip";
@@ -402,11 +433,17 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 }
 
 
-SevenZipArchive::SevenZipArchive (const SevenZipModule *pModule, const char *lpFileName, bool bNewArchive)
+SevenZipArchive::SevenZipArchive (
+		const SevenZipModule *pModule, 
+		unsigned int nFormatIndex,
+		const char *lpFileName, 
+		bool bNewArchive
+		)
 {
 	m_pArchive = NULL;
 	m_pInFile = NULL;
 
+	m_nFormatIndex = nFormatIndex;
 	m_pModule = pModule;
 	m_lpFileName = StrDuplicate (lpFileName);
 
@@ -441,7 +478,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 	  		if ( m_pInFile->Create () )
 	  		{
 				HRESULT hr = m_pModule->m_pfnCreateObject (
-  						&m_pModule->m_uid,
+  						&m_pModule->m_puids[m_nFormatIndex],
   						&IID_IInArchive,
 						(void**)&m_pArchive
 	  					);
@@ -461,7 +498,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   			if ( m_pInFile->Open () )
 	  		{
 				HRESULT hr = m_pModule->m_pfnCreateObject (
-  						&m_pModule->m_uid,
+  						&m_pModule->m_puids[m_nFormatIndex],
   						&IID_IInArchive,
 						(void**)&m_pArchive
 	  					);

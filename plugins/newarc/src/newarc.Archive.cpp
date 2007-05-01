@@ -91,7 +91,7 @@ void doFrame (int X, int Y, int Width, int Height, char *Header, bool Shadow)
 {
 	int X2 = X+Width-1;
 	int Y2 = Y+Height;
-	char *Line = (char*)malloc (Width);
+	char *Line = (char*)malloc (Width+1);
 	memset(Line,32,Width);
 	Line[Width] = 0;
 

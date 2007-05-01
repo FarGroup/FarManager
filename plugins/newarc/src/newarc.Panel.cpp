@@ -1,6 +1,6 @@
 #include "newarc.h"
 
-char *lpINIFileName;
+extern char *lpINIFileName;
 
 ArchivePanel::ArchivePanel (
 		Archive** pArchives,
@@ -19,10 +19,6 @@ ArchivePanel::ArchivePanel (
 
 	m_bFirstTime = true;
 	m_nCurrentMode = 0;
-
-	lpINIFileName = StrDuplicate (Info.ModuleName, 260);
-	CutToSlash (lpINIFileName);
-	strcat (lpINIFileName, "templates.ini");
 }
 
 
@@ -38,8 +34,6 @@ ArchivePanel::~ArchivePanel ()
 	free (m_pArchives);
 
 	m_Editors.free ();
-
-	StrFree (lpINIFileName);
 }
 
 bool CheckForEsc ()
