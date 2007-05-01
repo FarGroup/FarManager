@@ -193,7 +193,6 @@ int __stdcall Archive::OnStartOperation (int nOperation, OperationStructPlugin *
 
 		if ( OptionIsOn (pOS->dwFlags, OS_FLAG_TOTALFILES) )
 			m_OS.uTotalFiles = pOS->uTotalFiles;
-
 	}
 
 	m_OS.nOperation = nOperation;
@@ -257,86 +256,86 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
 {
 	char *lpTemp;
 
-   	m_pCurrentItem = item;
+	m_pCurrentItem = item;
 
-   	if ( m_OS.bFirstFile )
-   	{
-   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-   		{
-   			if ( m_OS.nOperation == OPERATION_EXTRACT )
-   			{
-   				doEmptyDialog (" Распаковка ", false, c);
-	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Распаковка файла");
+	if ( m_OS.bFirstFile )
+	{
+		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		{
+			if ( m_OS.nOperation == OPERATION_EXTRACT )
+			{
+				doEmptyDialog (" Распаковка ", false, c);
+				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Распаковка файла");
 			}
 
 			if ( m_OS.nOperation == OPERATION_ADD )
-   				doEmptyDialog (" Добавление ", false, c);
+				doEmptyDialog (" Добавление ", false, c);
 
 			if ( m_OS.nOperation == OPERATION_DELETE )
 			{
-   				doEmptyDialog (" Удаление ", false, c);
-	   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Удаление файла");
+				doEmptyDialog (" Удаление ", false, c);
+				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Удаление файла");
 			}
 
-   			Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), "в");
+			Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), "в");
 
-   			doIndicator (c.X+5, c.Y+6, 0);
-   			doIndicator (c.X+5, c.Y+8, 0);
+			doIndicator (c.X+5, c.Y+6, 0);
+			doIndicator (c.X+5, c.Y+8, 0);
 
-   			Info.Text (0, 0, 0, 0);
-   		}
+			Info.Text (0, 0, 0, 0);
+		}
 
-   		m_OS.bFirstFile = false;
-   		m_OS.uTotalProcessedSize = 0;
-   	}
+		m_OS.bFirstFile = false;
+		m_OS.uTotalProcessedSize = 0;
+	}
 
 	if ( m_OS.nOperation == OPERATION_ADD )
 	{
 		if ( m_pCurrentItem )
-   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Добавление файла");
+			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Добавление файла");
 		else
 			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Перепаковка архива");
 	}
 
-   	//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
+	//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
 
-   	if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-   	{
-   		lpTemp = StrCreate (260);
+	if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+	{
+		lpTemp = StrCreate (260);
 
-   		memset (lpTemp, 32, 40);
-   		Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
-   		Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
+		memset (lpTemp, 32, 40);
+		Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+		Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
 
-   		if ( m_pCurrentItem )
-   		{
-	   		strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
+		if ( m_pCurrentItem )
+		{
+			strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
 
-   			FSF.TruncPathStr (lpTemp, 40);
-   			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
+			FSF.TruncPathStr (lpTemp, 40);
+			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
 		}
 
 		if ( lpDestName )
 		{
-	   		strcpy (lpTemp, lpDestName);
-   			FSF.TruncPathStr (lpTemp, 40);
+			strcpy (lpTemp, lpDestName);
+			FSF.TruncPathStr (lpTemp, 40);
 
-   			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
+			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
 		}
 
-   		StrFree (lpTemp);
+		StrFree (lpTemp);
 
-   		Info.Text (0, 0, 0, 0);
-   	}
+		Info.Text (0, 0, 0, 0);
+	}
 
 	if ( m_pCurrentItem )
-   		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow;
+		m_OS.uFileSize = m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow;
 	else
 		m_OS.uFileSize = m_OS.uTotalSize;
 
-   	m_OS.uProcessedSize = 0;
+	m_OS.uProcessedSize = 0;
 
-   	return TRUE;
+	return TRUE;
 }
 
 int __stdcall Archive::OnProcessData (unsigned int uDataSize)
@@ -349,70 +348,70 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 	static char szOldTitle[MAX_PATH] = {0};
 
 	//if ( m_pCurrentItem )
-   	{
-   		double div;
-   		char szPercents[MAX_PATH];
+	{
+		double div;
+		char szPercents[MAX_PATH];
 
-   		if ( m_OS.uFileSize )
-   			div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
-   		else
-   			div = 1;
-   		if (div > 1)
-   			div = 1;
-   		dword dwPercent = (int)(div*40);
-   		dword dwRealPercent = (int)(div*100);
+		if ( m_OS.uFileSize )
+			div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
+		else
+			div = 1;
+		if (div > 1)
+			div = 1;
+		dword dwPercent = (int)(div*40);
+		dword dwRealPercent = (int)(div*100);
 
-   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-   		{
-   			doIndicator (c.X+5, c.Y+6, dwPercent);
+		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		{
+			doIndicator (c.X+5, c.Y+6, dwPercent);
 
-   			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
-   			Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
-   		}
-
-   		if ( m_OS.uTotalSize )
-       		div = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
-           else
-   	    	div = 1;
-   		if (div > 1)
-   			div = 1;
-
-   		dwPercent = (int)(div*40);
-   		dwRealPercent = (int)(div*100);
-
-   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-   		{
-   			doIndicator (c.X+5, c.Y+8, dwPercent);
-
-   			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
-   			Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
-
-   			Info.Text (0, 0, 0, 0);
-   		}
-
-   		char szTitle[MAX_PATH];
-
-   		FSF.sprintf (szTitle, "{%d%%} Распаковка - Far", (int)(div*100));
-
-   		if ( strcmp (szTitle, szOldTitle) != 0 )
-   		{
-	   		SetConsoleTitle (szTitle);
-	   		strcpy (szOldTitle, szTitle);
+			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
+			Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
 		}
-   	}
 
-   	if ( CheckForEsc () )
-   	{
-   		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-   		{
-   			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Операция прерывается...");
-   			Info.Text (0, 0, 0, 0);
-   		}
+		if ( m_OS.uTotalSize )
+			div = (double)m_OS.uTotalProcessedSize/(double)m_OS.uTotalSize;
+		else
+			div = 1;
+		if (div > 1)
+			div = 1;
 
-   		return FALSE;
-   	}
+		dwPercent = (int)(div*40);
+		dwRealPercent = (int)(div*100);
 
-   	return TRUE;
+		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		{
+			doIndicator (c.X+5, c.Y+8, dwPercent);
+
+			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
+			Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
+
+			Info.Text (0, 0, 0, 0);
+		}
+
+		char szTitle[MAX_PATH];
+
+		FSF.sprintf (szTitle, "{%d%%} Распаковка - Far", (int)(div*100));
+
+		if ( strcmp (szTitle, szOldTitle) != 0 )
+		{
+			SetConsoleTitle (szTitle);
+			strcpy (szOldTitle, szTitle);
+		}
+	}
+
+	if ( CheckForEsc () )
+	{
+		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		{
+			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Операция прерывается...");
+			Info.Text (0, 0, 0, 0);
+		}
+
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 
@@ -426,7 +425,7 @@ int __stdcall Archive::ArchiveCallback (
 		return OnQueryPassword (nParam1, (ArchivePassword*)nParam2);
 
 	if ( nMsg == AM_START_OPERATION )
-		return OnStartOperation (nParam1, (OperationStructPlugin *)nParam2); 
+		return OnStartOperation (nParam1, (OperationStructPlugin *)nParam2);
 
 	if ( nMsg == AM_PROCESS_FILE )
 		return OnProcessFile ((PluginPanelItem*)nParam1, (const char*)nParam2);

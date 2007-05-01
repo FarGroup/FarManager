@@ -244,7 +244,7 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 					memset (&item, 0, sizeof (item));
 					strcpy (item.FindData.cFileName, State->ArchivedFile.FileData->SourceFileName);
 
-					m_pfnCallback (AM_PROCESS_FILE, (int)&item, NULL);
+					m_pfnCallback (AM_PROCESS_FILE, (int)&item, 0);
 				}
 			}
 		}

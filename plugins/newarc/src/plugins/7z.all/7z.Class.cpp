@@ -270,7 +270,7 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 
 				CPropVariant value;
 
-				if ( (m_pfnGetHandlerProperty (NArchive::kClassID, &value) == S_OK) && 
+				if ( (m_pfnGetHandlerProperty (NArchive::kClassID, &value) == S_OK) &&
 					 (value.vt == VT_BSTR) )
 				{
 					memcpy (&m_puids[0], value.bstrVal, sizeof (GUID));
@@ -434,9 +434,9 @@ void SevenZipModule::GetArchiveFormatInfo (unsigned int nFormatIndex, ArchiveFor
 
 
 SevenZipArchive::SevenZipArchive (
-		const SevenZipModule *pModule, 
+		const SevenZipModule *pModule,
 		unsigned int nFormatIndex,
-		const char *lpFileName, 
+		const char *lpFileName,
 		bool bNewArchive
 		)
 {
@@ -471,41 +471,41 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 		if ( m_bOpened )
 			pCloseArchive ();
 
-	  	m_pInFile = new CInFile (m_lpFileName);
+		m_pInFile = new CInFile (m_lpFileName);
 
-	  	if ( m_bNewArchive )
-	  	{
-	  		if ( m_pInFile->Create () )
-	  		{
+		if ( m_bNewArchive )
+		{
+			if ( m_pInFile->Create () )
+			{
 				HRESULT hr = m_pModule->m_pfnCreateObject (
-  						&m_pModule->m_puids[m_nFormatIndex],
-  						&IID_IInArchive,
+						&m_pModule->m_puids[m_nFormatIndex],
+						&IID_IInArchive,
 						(void**)&m_pArchive
-	  					);
+						);
 
 				if ( hr == S_OK )
 				{
 					m_bOpened = true;
 					return true;
 				}
-	  		}
+			}
 
 			m_pInFile->Release ();
 			m_pInFile = NULL;
-	  	}
-	  	else
-	  	{
-  			if ( m_pInFile->Open () )
-	  		{
+		}
+		else
+		{
+			if ( m_pInFile->Open () )
+			{
 				HRESULT hr = m_pModule->m_pfnCreateObject (
-  						&m_pModule->m_puids[m_nFormatIndex],
-  						&IID_IInArchive,
-						(void**)&m_pArchive
-	  					);
+						&m_pModule->m_puids[m_nFormatIndex],
+						&IID_IInArchive,
+  					(void**)&m_pArchive
+						);
 
 				if ( hr == S_OK )
-	  			{
-  					unsigned __int64 max = 1 << 17;
+				{
+					unsigned __int64 max = 1 << 17;
 
 					CArchiveOpenCallback *pCallback = new CArchiveOpenCallback (this);
 
@@ -514,44 +514,44 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 					hr = m_pArchive->Open (m_pInFile, &max, pCallback);
 
 					if ( hr == S_OK )
-		  			{
-  						if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
-  						{
-  							m_nItemsNumber--;
+					{
+						if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
+						{
+							m_nItemsNumber--;
 
-  							m_bOpened = true;
+							m_bOpened = true;
 
-	  						delete pCallback;
-  							return true;
-	  					}
+							delete pCallback;
+							return true;
+						}
 
-  						m_pArchive->Close();
-  					}
-	  				else
-		  			{
-			  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
-	  					//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
+						m_pArchive->Close();
+					}
+					else
+					{
+						//HACK!!! цинично показываем пустую панель при неправильном пароле на
+						//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
 
-  						if ( m_bListPassword )
-  						{
-  							m_nItemsNumber = (DWORD)-1;
-		  					delete pCallback;
-  							return true;
-  						}
+						if ( m_bListPassword )
+						{
+							m_nItemsNumber = (DWORD)-1;
+							delete pCallback;
+							return true;
+						}
 					}
 
 					delete pCallback;
 
-	  				//if we get here, there is an error
+					//if we get here, there is an error
 
-  					m_pArchive->Release ();
-  					m_pArchive = NULL;
-	  			}
+					m_pArchive->Release ();
+					m_pArchive = NULL;
+				}
 
-	  			m_pInFile->Release ();
-  				m_pInFile = NULL;
-		  	}
-	  	}
+				m_pInFile->Release ();
+				m_pInFile = NULL;
+			}
+		}
 	}
 	else
 	{
@@ -625,7 +625,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidAttributes, &value) == S_OK )
 		{
 			if ( value.vt == VT_UI4 )
-		        pItem->pi.FindData.dwFileAttributes = value.ulVal;
+				pItem->pi.FindData.dwFileAttributes = value.ulVal;
 		}
 
 		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidIsFolder, &value) == S_OK )

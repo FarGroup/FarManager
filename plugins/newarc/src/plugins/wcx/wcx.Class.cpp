@@ -183,7 +183,7 @@ WcxModule *WcxModules::IsArchive (QueryArchiveStruct *pQAS, int *nModuleNum)
 {
 	WcxModule *TrueArc = NULL;
 
-    *nModuleNum = -1;
+	*nModuleNum = -1;
 
 	for (int i=0; i<m_Modules.count(); i++)
 	{
@@ -237,7 +237,7 @@ int WINAPI WcxModules::LoadWcxModules (const WIN32_FIND_DATA *pFindData,
 		return TRUE;
 	}
 
-    WcxPluginInfo *info = &pModule->m_Info;
+	WcxPluginInfo *info = &pModule->m_Info;
 
 	strcpy(info->Name,FSF.PointToName(lpFullName));
 	*strrchr(info->Name,'.') = 0;
@@ -263,7 +263,7 @@ bool WcxModules::GetDefaultCommand (const GUID &uid, int nCommand, char *lpComma
 
 int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
 {
-	if ( m_pfnCallback )
+	if ( m_pfnCallback && bProcessDataProc )
 		return m_pfnCallback (AM_PROCESS_DATA, 0, (int)Size);
 
 	return 1;
@@ -274,16 +274,18 @@ int __stdcall WcxArchive::SetChangeVolProc (char *ArcName, int Mode)
 	return 1;
 }
 
-
 WcxArchive::WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileName)
 {
 	m_pModule = pModule;
 
 	m_lpFileName = StrDuplicate (lpFileName);
+	OemToChar (m_lpFileName, m_lpFileName);
 
 	m_nModuleNum = nModuleNum;
 
 	m_hArchive = NULL;
+
+	bProcessDataProc = false;
 
 	CreateClassThunk (WcxArchive, ProcessDataProc, m_pfnProcessDataProc);
 	CreateClassThunk (WcxArchive, SetChangeVolProc, m_pfnSetChangeVolProc);
@@ -295,8 +297,8 @@ WcxArchive::~WcxArchive ()
 {
 	StrFree (m_lpFileName);
 
-	free (m_pfnProcessDataProc);
-	free (m_pfnSetChangeVolProc);
+	ReleaseThunk (m_pfnProcessDataProc);
+	ReleaseThunk (m_pfnSetChangeVolProc);
 }
 
 int WcxArchive::ConvertResult (int nResult)
@@ -329,7 +331,9 @@ bool __stdcall WcxArchive::pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallbac
 	OpenArchiveData.ArcName = m_lpFileName;
 	OpenArchiveData.OpenMode = (nOpMode == OM_LIST)?PK_OM_LIST:PK_OM_EXTRACT;
 
+	SetFileApisToANSI();
 	m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
+	SetFileApisToOEM();
 
 	if ( m_hArchive )
 	{
@@ -434,7 +438,8 @@ bool __stdcall WcxArchive::pExtract (
 
 	bool bFound;
 
-	char *lpDestName = StrCreate (260);
+	char *lpDestName  = StrCreate (260);
+	char *lpDestNameA = StrCreate (260);
 	char *lpCurrentFileName = StrCreate (260);
 
 	Callback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
@@ -458,27 +463,39 @@ bool __stdcall WcxArchive::pExtract (
 			{
 				if ( !strcmp (pItems[i].FindData.cFileName, lpCurrentFileName) )
 				{
-					OemToChar (lpDestPath, lpDestName);
+					OemToChar (lpDestPath, lpDestNameA);
+					strcpy (lpDestName, lpDestPath);
 
 					FSF.AddEndSlash (lpDestName);
+					FSF.AddEndSlash (lpDestNameA);
 
-					char *lpName = lpCurrentFileName;//HeaderData.FileName;
+					char *lpName  = lpCurrentFileName;
+					char *lpNameA = HeaderData.FileName;
 
 					if ( *lpCurrentFolder /*&& !strncmp (
 							lpName,
 							lpCurrentFolder,
 							strlen (lpCurrentFolder)
 							)*/ )
-						lpName += strlen (lpCurrentFolder);
+					{
+						lpName  += strlen (lpCurrentFolder);
+						lpNameA += strlen (lpCurrentFolder);
+				  }
 
 					if ( *lpName == '\\' )
+					{
 						lpName++;
+						lpNameA++;
+					}
 
-					strcat (lpDestName, lpName);
+					strcat (lpDestName,  lpName);
+					strcat (lpDestNameA, lpNameA);
 
 					Callback (AM_PROCESS_FILE, (int)&pItems[i], (int)lpDestName);
 
 					int nProcessResult = 0;
+
+					bProcessDataProc = true;
 
 					if ( (HeaderData.FileAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
 					{
@@ -488,8 +505,12 @@ bool __stdcall WcxArchive::pExtract (
 					else
 					{
 						CreateDirs(lpDestName);
-						nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_EXTRACT, NULL, lpDestName);
+						SetFileApisToANSI();
+						nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_EXTRACT, NULL, lpDestNameA);
+						SetFileApisToOEM();
 					}
+
+					bProcessDataProc = false;
 
 					if ( !nProcessResult  )
 						nProcessed++;
@@ -511,6 +532,7 @@ bool __stdcall WcxArchive::pExtract (
 l_1:
 
 	StrFree (lpDestName);
+	StrFree (lpDestNameA);
 	StrFree (lpCurrentFileName);
 
 	return nProcessed!=0;

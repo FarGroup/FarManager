@@ -84,6 +84,8 @@ class WcxArchive {
 	HANDLE m_hArchive;
 	char *m_lpFileName;
 
+	bool bProcessDataProc;
+
 	PBYTE m_pfnProcessDataProc;
 	PBYTE m_pfnSetChangeVolProc;
 

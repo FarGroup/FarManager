@@ -1109,7 +1109,7 @@ void SaveTemplates ()
 
 	if ( iCount > 0 )
 	{
-		char szArchiver[8];
+		//char szArchiver[8];
 
 		for ( int i = 0; i < iCount; i++ )
 		{
@@ -1352,7 +1352,7 @@ int __stdcall hndModifyCreateArchive (
 	  			if ( pos != -1 )
 	  			{
 					ArchiveTemplate *psrc = Templates[pos];
-	  			
+
 		  			ptpl->lpName = StrDuplicate (psrc->lpName);
 	  				ptpl->lpParams = StrDuplicate (psrc->lpParams);
 	  				ptpl->uid = psrc->uid;

@@ -45,7 +45,7 @@ const char *GUID2STR (const GUID &uid)
 
 const GUID& STR2GUID (const char *lpStr)
 {
-	GUID uid;
+	static GUID uid;
 
 	wchar_t wszGUID[64];
 
