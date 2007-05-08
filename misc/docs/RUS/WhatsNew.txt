@@ -27,7 +27,7 @@ FAR 1.71 alpha 4 (build 2225) (24.04.2007)
 
 [+] Macro: [A|P]Panel.ColumnCount
 
-[+] Macro: новые функции waitkey(), playmacro()
+[+] Macro: новые функции waitkey(), eval()
 
 [+] Добавлена обработка области функциональных клавиш для диалога "Поиска папок"
     (Alt-F10)
