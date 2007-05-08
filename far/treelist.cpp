@@ -588,7 +588,7 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
   if (CreateDir)
   {
     CreateDirectoryW (strFolderName, NULL);
-    SetFileAttributesW (strFolderName,FA_HIDDEN);
+    SetFileAttributesW (strFolderName,Opt.Tree.TreeFileAttr);
   }
 
   string strRemoteName;

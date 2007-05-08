@@ -1148,6 +1148,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutorW,L"FullTitle",&Opt.ExecuteFullTitle,0, 0},
 
   {0, REG_DWORD,  NKeyPanelTreeW,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
+  {0, REG_DWORD,  NKeyPanelTreeW,L"TreeFileAttr",&Opt.Tree.TreeFileAttr, FA_HIDDEN, 0},
   {0, REG_DWORD,  NKeyPanelTreeW,L"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
   {0, REG_DWORD,  NKeyPanelTreeW,L"NetDisk",&Opt.Tree.NetDisk, 2, 0},
   {0, REG_DWORD,  NKeyPanelTreeW,L"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},

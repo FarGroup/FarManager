@@ -24,7 +24,7 @@ extern int ColumnTypeWidth[];
 
 //static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 static BYTE VerticalLineEx[2]={0x0B3,0x0BA};
-static wchar_t OutCharacter[2]={0,0};
+static wchar_t OutCharacter[8]={0,0,0,0,0,0,0,0};
 
 static int __FormatEndSelectedPhrase(int Count)
 {
@@ -179,6 +179,7 @@ void FileList::ShowFileList(int Fast)
     ColumnPos++;
   }
 
+  int NextX1=X1+1;
   if (Opt.ShowSortMode)
   {
     static int SortModes[]={UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,
@@ -197,16 +198,18 @@ void FileList::ShowFileList(int Fast)
         if (Ch!=NULL)
         {
           if (Opt.ShowColumnTitles)
-            GotoXY(X1+1,Y1+1);
+            GotoXY(NextX1,Y1+1);
           else
-            GotoXY(X1+1,Y1);
+            GotoXY(NextX1,Y1);
           SetColor(COL_PANELCOLUMNTITLE);
           OutCharacter[0]=SortOrder==1 ? LocalLowerW(Ch[1]):LocalUpperW(Ch[1]);
           Text(OutCharacter);
+          NextX1++;
           if (Filter!=NULL && Filter->IsEnabledOnPanel())
           {
             OutCharacter[0]=L'*';
             Text(OutCharacter);
+            NextX1++;
           }
         }
         break;
@@ -214,11 +217,33 @@ void FileList::ShowFileList(int Fast)
     }
   }
 
-  if(SelectedFirst)
+  /* <режимы сортировки> */
+  if(GetNumericSort() || GetSortGroups() || GetSelectedFirstMode())
   {
-    OutCharacter[0]=L'^';
+    if (Opt.ShowColumnTitles)
+      GotoXY(NextX1,Y1+1);
+    else
+      GotoXY(NextX1,Y1);
+
+    SetColor(COL_PANELCOLUMNTITLE);
+    wchar_t *PtrOutCharacter=OutCharacter;
+    *PtrOutCharacter=0;
+
+    if(GetSelectedFirstMode())
+      *PtrOutCharacter++=L'^';
+
+/*
+    if(GetNumericSort())
+      *PtrOutCharacter++=L'#';
+    if(GetSortGroups())
+      *PtrOutCharacter++=L'@';
+*/
+    *PtrOutCharacter=0;
+
     Text(OutCharacter);
+    PtrOutCharacter[1]=0;
   }
+  /* </режимы сортировки> */
 
   if (!Fast && GetFocus())
   {
@@ -249,6 +274,7 @@ void FileList::ShowFileList(int Fast)
     if (Overlap>0)
       TitleX-=Overlap;
   }
+
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
   GotoXY(TitleX,Y1);
   Text(strTitle);
@@ -259,6 +285,7 @@ void FileList::ShowFileList(int Fast)
     //GotoXY(X1+1,Y2-1);
     //mprintf("%*s",X2-X1-1,"");
   }
+
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
     struct FileListItem *CurPtr=ListData[CurFile];
@@ -285,6 +312,7 @@ void FileList::ShowFileList(int Fast)
       }
     }
   }
+
   if ((Opt.ShowPanelTotals || Opt.ShowPanelFree) &&
       (Opt.ShowPanelStatus || SelFileCount==0))
     ShowTotalSize(Info);
@@ -295,12 +323,15 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELSCROLLBAR);
     ScrollBar(X2,Y1+1+Opt.ShowColumnTitles,Height,CurFile,FileCount>1 ? FileCount-1:FileCount);
   }
+
   ShowScreensCount();
+
   if (!ProcessingPluginCommand && LastCurFile!=CurFile)
   {
     LastCurFile=CurFile;
     UpdateViewPanel();
   }
+
   if (PanelMode==PLUGIN_PANEL)
     CtrlObject->Cp()->RedrawKeyBar();
 }
