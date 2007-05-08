@@ -24,7 +24,7 @@ extern int ColumnTypeWidth[];
 
 //static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 static BYTE VerticalLine[2]={0x0B3,0x0BA};
-static char OutCharacter[2]={0,0};
+static char OutCharacter[8]={0,0,0,0,0,0,0,0};
 
 static int __FormatEndSelectedPhrase(int Count)
 {
@@ -180,6 +180,7 @@ void FileList::ShowFileList(int Fast)
     ColumnPos++;
   }
 
+  int NextX1=X1+1;
   if (Opt.ShowSortMode)
   {
     static int SortModes[]={UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,
@@ -189,6 +190,7 @@ void FileList::ShowFileList(int Fast)
       MMenuSortByExt,MMenuSortByModification,MMenuSortByCreation,
       MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
       MMenuSortByCompressedSize,MMenuSortByNumLinks};
+
     for (int I=0;I<sizeof(SortModes)/sizeof(SortModes[0]);I++)
     {
       if (SortModes[I]==SortMode)
@@ -198,16 +200,18 @@ void FileList::ShowFileList(int Fast)
         if (Ch!=NULL)
         {
           if (Opt.ShowColumnTitles)
-            GotoXY(X1+1,Y1+1);
+            GotoXY(NextX1,Y1+1);
           else
-            GotoXY(X1+1,Y1);
+            GotoXY(NextX1,Y1);
           SetColor(COL_PANELCOLUMNTITLE);
           OutCharacter[0]=SortOrder==1 ? LocalLower(Ch[1]):LocalUpper(Ch[1]);
           Text(OutCharacter);
+          NextX1++;
           if (Filter!=NULL && Filter->IsEnabledOnPanel())
           {
             OutCharacter[0]='*';
             Text(OutCharacter);
+            NextX1++;
           }
         }
         break;
@@ -215,11 +219,33 @@ void FileList::ShowFileList(int Fast)
     }
   }
 
-  if(SelectedFirst)
+  /* <режимы сортировки> */
+  if(GetNumericSort() || GetSortGroups() || GetSelectedFirstMode())
   {
-    OutCharacter[0]='^';
+    if (Opt.ShowColumnTitles)
+      GotoXY(NextX1,Y1+1);
+    else
+      GotoXY(NextX1,Y1);
+
+    SetColor(COL_PANELCOLUMNTITLE);
+    char *PtrOutCharacter=OutCharacter;
+    *PtrOutCharacter=0;
+
+    if(GetSelectedFirstMode())
+      *PtrOutCharacter++='^';
+
+/*
+    if(GetNumericSort())
+      *PtrOutCharacter++='#';
+    if(GetSortGroups())
+      *PtrOutCharacter++='@';
+*/
+    *PtrOutCharacter=0;
+
     Text(OutCharacter);
+    PtrOutCharacter[1]=0;
   }
+  /* </режимы сортировки> */
 
   if (!Fast && GetFocus())
   {
@@ -276,6 +302,7 @@ void FileList::ShowFileList(int Fast)
       }
     }
   }
+
   if ((Opt.ShowPanelTotals || Opt.ShowPanelFree) &&
       (Opt.ShowPanelStatus || SelFileCount==0))
     ShowTotalSize(Info);
@@ -287,6 +314,7 @@ void FileList::ShowFileList(int Fast)
     ScrollBar(X2,Y1+1+Opt.ShowColumnTitles,Height,CurFile,FileCount>1 ? FileCount-1:FileCount);
   }
   ShowScreensCount();
+
   if (!ProcessingPluginCommand && LastCurFile!=CurFile)
   {
     LastCurFile=CurFile;

@@ -1118,6 +1118,11 @@ int PathMayBeAbsolute(const char *Path)
          );
 }
 
+BOOL IsNetworkPath(const char *Path)
+{
+  return (Path && Path[0] == '\\' && Path[1] == '\\' && Path[2] != '\\' && strchr(Path+2,'\\'));
+}
+
 BOOL IsLocalPath(const char *Path)
 {
   return (Path && isalpha(*Path) && Path[1]==':' && Path[2]);

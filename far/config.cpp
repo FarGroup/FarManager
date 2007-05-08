@@ -85,7 +85,7 @@ void SystemSettings()
   static struct DialogData CfgDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,52,21,0,0,0,0,(char *)MConfigSystemTitle,
   /* 01 */ DI_CHECKBOX,5,2,0,2,1,0,0,0,(char *)MConfigRO,
-  /* 02 */ DI_CHECKBOX,5,3,0,3,0,0,0,0,(char *)MConfigRecycleBin,
+  /* 02 */ DI_CHECKBOX,5,3,0,3,0,0,DIF_AUTOMATION,0,(char *)MConfigRecycleBin,
   /* 03 */ DI_CHECKBOX,9,4,0,4,0,0,0,0,(char *)MConfigRecycleBinLink,
   /* 04 */ DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MConfigSystemCopy,
   /* 05 */ DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MConfigCopySharing,
@@ -148,6 +148,7 @@ void SystemSettings()
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
     Dlg.SetPosition(-1,-1,56,23);
+    Dlg.SetAutomation(2,3,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(8,9,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(8,10,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
@@ -1170,6 +1171,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutor,"FullTitle",&Opt.ExecuteFullTitle,0, 0},
 
   {0, REG_DWORD,  NKeyPanelTree,"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
+  {0, REG_DWORD,  NKeyPanelTree,"TreeFileAttr",&Opt.Tree.TreeFileAttr, FA_HIDDEN, 0},
   {0, REG_DWORD,  NKeyPanelTree,"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
   {0, REG_DWORD,  NKeyPanelTree,"NetDisk",&Opt.Tree.NetDisk, 2, 0},
   {0, REG_DWORD,  NKeyPanelTree,"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},

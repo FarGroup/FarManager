@@ -258,6 +258,7 @@ struct TreeOptions{
   int RemovableDisk;     // Хранить файл структуры папок для сменных дисков
   int MinTreeCount;      // Минимальное количество папок для сохранения дерева в файле.
   int AutoChangeFolder;  // автосмена папок при перемещении по дереву
+  DWORD TreeFileAttr;      // файловые атрибуты для файлов-деревях
 };
 
 struct CopyMoveOptions{

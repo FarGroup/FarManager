@@ -562,7 +562,7 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
   if (CreateDir)
   {
     mkdir(FolderName);
-    SetFileAttributes(FolderName,FA_HIDDEN);
+    SetFileAttributes(FolderName,Opt.Tree.TreeFileAttr);
   }
   char RemoteName[NM*3];
   *RemoteName=0;

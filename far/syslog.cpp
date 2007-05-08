@@ -986,7 +986,7 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_PANEL_FATTR),
      DEF_MCODE_(F_AKEY),                     // S=akey()
      DEF_MCODE_(F_WAITKEY),                  // S=waitkey(N)
-     DEF_MCODE_(F_PLAYMACRO),                // N=playmacro(S)
+     DEF_MCODE_(F_EVAL),                // N=eval(S)
      DEF_MCODE_(C_DISABLEOUTPUT),
      DEF_MCODE_(C_AREA_OTHER),
      DEF_MCODE_(C_AREA_SHELL),

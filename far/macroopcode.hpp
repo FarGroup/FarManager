@@ -121,7 +121,7 @@ enum MACRO_OP_CODE {
   MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
   MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
-  MCODE_F_PLAYMACRO,                // N=playmacro(S)
+  MCODE_F_EVAL,                     // N=eval(S)
   MCODE_F_RINDEX,                   // S=rindex(S1,S2)
   MCODE_F_SLEEP,                    // Sleep(N)
   MCODE_F_STRING,                   // S=string(V)

@@ -1379,8 +1379,8 @@ static bool sleepFunc()
   return false;
 }
 
-// N=playmacro(S)
-static bool playmacroFunc()
+// N=eval(S)
+static bool evalFunc()
 {
   bool Ret=true;
   TVar Val= VMStack.Pop();
@@ -1388,7 +1388,7 @@ static bool playmacroFunc()
   int KeyPos;
   CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
   CtrlObject->Macro.PushState(true);
-  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags))
+  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ)))
   {
     CtrlObject->Macro.PopState();
     Ret=false;
@@ -2451,6 +2451,26 @@ done:
       VMStack.Pop();
       goto begin;
 
+    case MCODE_OP_POP:        // 0: pop 1: varname -> присвоить значение переменной и убрать из вершины стека
+    {
+      tmpVar=VMStack.Pop();
+      GetPlainText(value);
+      TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
+      varLook(*t, value, errVar)->value=tmpVar;
+      goto begin;
+    }
+
+    case MCODE_OP_COPY:       // 0: Copy 1: VarDest 2: VarSrc ==>  %a=%d
+    {
+      GetPlainText(value);
+      TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
+      tmpVar=varLook(*t, value, errVar)->value;
+      GetPlainText(value);
+      t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
+      tmpVar=varLook(*t, value, errVar)->value;
+      goto begin;
+    }
+
     case MCODE_OP_PUSHINT:  // Положить целое значение на стек.
     {
       FARINT64 i64;
@@ -2556,8 +2576,8 @@ done:
     case MCODE_OP_BITSHL: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() << tmpVar); goto begin;
 
     // Function
-    case MCODE_F_PLAYMACRO: // N=playmacro(S)
-      if(playmacroFunc())
+    case MCODE_F_EVAL: // N=eval(S)
+      if(evalFunc())
         goto initial; // т.к.
       goto begin;
 
@@ -3812,7 +3832,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_PANEL_FEXIST,     "S=panel.fexist(panelType,S)"},
     {MCODE_F_PANEL_SETPOS,     "N=panel.SetPos(panelType,fileName)"},
     {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
-    {MCODE_F_PLAYMACRO,        "N=playmacro(S)"},
+    {MCODE_F_EVAL,             "N=eval(S)"},
     {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},
     {MCODE_F_SLEEP,            "N=Sleep(N)"},
     {MCODE_F_STRING,           "S=string(V)"},
