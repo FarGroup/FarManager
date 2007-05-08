@@ -378,15 +378,48 @@ $End</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="playmacro">playmacro</a></dfn>(S)</td>
+    <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S)</td>
     <td class="cont" width="60%">"Проиграть" макропоследовательность заданную строкой <em>S</em>.
-      Если <em>S</em> содежит синтаксические ошибки, то макропоследовательность исполняться не будет.
+      Если <em>S</em> содержит синтаксические ошибки, то макропоследовательность исполняться не будет.
      <br>
-     FAR компилит последователность <em>S</em>. Если нет ошибок, то состояние текущего макроса сохраняется
-     и начинает выполняться последовательность <em>S</em>. После исполния <em>S</em> прерванный макрос продолжает работать.
+     FAR компилирует последовательность <em>S</em>. Если нет ошибок, то состояние текущего макроса сохраняется
+     и начинает выполняться последовательность <em>S</em>. После исполнения <em>S</em> прерванный макрос продолжает работать.
      <br>
      Функция возвращает 0 в случае успешной компиляции последовательности <em>S</em>.
-     <br>
+     <p>
+     Например, необходимо по F10 запускать окно проводника для каталога на активной панели, содержимое командной строки должно сохраняться.<br>
+     В области Vars задаем 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:
+<pre class=code>
+%%CmdSave=$If (!CmdLine.Empty) %Flg_Cmd=1;
+          %CmdCurPos=CmdLine.ItemCount-CmdLine.CurPos+1;
+          %CmdVal=CmdLine.Value; Esc $End
+
+%%CmdRestore=$If (%Flg_Cmd==1) $Text %CmdVal
+          %Flg_Cmd=0; %Num=%CmdCurPos;
+          $While (%Num!=0) %Num=%Num-1; CtrlS $End $End
+</pre>
+     далее на F10 вешаем макрос:
+<pre class=code>
+$If (APanel.Visible &amp;&amp; (!APanel.Plugin || (!APanel.Bof &amp;&amp;(APanel.OPIFlags &amp; 0x20))))
+  Eval(%%CmdSave)
+  $If (APanel.Current == "..")
+    .
+    ShiftEnter
+  $Else
+    "%SystemRoot%\\explorer.exe /select,"
+    $If (Apanel.LFN)
+      CtrlN
+    $End
+    CtrlEnter
+    $If (!Apanel.LFN)
+      CtrlN
+    $End
+    Enter
+  $End
+  Eval(%%CmdRestore)
+$End
+</pre>
+
     </td>
   </tr>
 </table>
