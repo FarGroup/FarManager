@@ -948,6 +948,8 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(C_SELECTED),
      DEF_MCODE_(C_WINDOWEDMODE),
      DEF_MCODE_(F_ABS),
+     DEF_MCODE_(F_ASC),
+     DEF_MCODE_(F_CHR),
      DEF_MCODE_(F_AKEY),
      DEF_MCODE_(F_CLIP),
      DEF_MCODE_(F_DATE),

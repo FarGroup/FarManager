@@ -682,7 +682,9 @@ typedef struct __TMacroFunction{
 static TMacroFunction macroFunction[]={
   {L"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
   {L"AKEY",           0,    MCODE_F_AKEY},                // S=akey()
+  {L"ASC",            1,    MCODE_F_ASC},                 // N=asc(N)
   {L"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {L"CHR",            1,    MCODE_F_CHR},                 // S=chr(N)
   {L"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
   {L"DATE",           1,    MCODE_F_DATE},                // S=date(S)
   {L"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)

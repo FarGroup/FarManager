@@ -2140,6 +2140,34 @@ static bool absFunc()
   return true;
 }
 
+static bool ascFunc()
+{
+  TVar tmpVar=VMStack.Pop();
+  if ( tmpVar.isString() )
+  {
+    tmpVar = (__int64)((DWORD)((WORD)*tmpVar.toString()));
+    tmpVar.toInteger();
+  }
+  VMStack.Push(tmpVar);
+  return true;
+}
+
+static bool chrFunc()
+{
+  TVar tmpVar=VMStack.Pop();
+  if ( tmpVar.isInteger() )
+  {
+    __int64 val=tmpVar.i();
+    wchar_t tmp[2]={0,0};
+    tmp[0]=(wchar_t)(val&0xFFFF); //????
+    tmpVar = (const wchar_t *)tmp;
+    tmpVar.toString();
+  }
+  VMStack.Push(tmpVar);
+  return true;
+}
+
+
 static int ePos;
 
 const wchar_t *eStackAsString(int Pos)
@@ -2659,6 +2687,8 @@ done:
         {MCODE_F_DATE,dateFunc},  // // S=date(S)
         {MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
         {MCODE_F_ABS,absFunc}, // N=abs(N)
+        {MCODE_F_ASC,ascFunc}, // N=asc(S)
+        {MCODE_F_CHR,chrFunc}, // S=chr(N)
       };
       int J;
       for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)
@@ -3798,6 +3828,8 @@ static void printKeyValue(DWORD* k, int& i)
     const wchar_t *n;
   } kmf[]={
     {MCODE_F_ABS,              L"N=abs(N)"},
+    {MCODE_F_ASC,              L"N=asc(S)"},
+    {MCODE_F_CHR,              L"S=chr(N)"},
     {MCODE_F_AKEY,             L"S=akey()"},
     {MCODE_F_CLIP,             L"V=clip(N,S)"},
     {MCODE_F_DATE,             L"S=date(S)"},
