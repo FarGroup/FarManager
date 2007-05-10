@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2225) (Apr 24 2007)
+FAR 1.71 alpha 4 (build 2228) (May 10 2007)
 ---------------------------------------------------------------------------
 
 [!] PluginAPI was adjusted for 64bit compatibility.
@@ -57,7 +57,9 @@ FAR 1.71 alpha 4 (build 2225) (Apr 24 2007)
 
 [+] Macro: Параметр "Sequence" может так же иметь тип REG_MULTI_SZ.
 
-[+] Флаг KSFLAGS_REG_MULTI_SZ.
+[+] API: Флаг KSFLAGS_REG_MULTI_SZ.
+
+[+] Macro: новые функции asc(), chr()
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
