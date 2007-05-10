@@ -955,6 +955,8 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(OP_SELWORD),
      DEF_MCODE_(F_NOFUNC),
      DEF_MCODE_(F_ABS),
+     DEF_MCODE_(F_ASC),
+     DEF_MCODE_(F_CHR),
      DEF_MCODE_(F_MIN),
      DEF_MCODE_(F_MAX),
      DEF_MCODE_(F_IIF),

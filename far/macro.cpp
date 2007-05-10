@@ -2154,6 +2154,33 @@ static bool absFunc()
   return true;
 }
 
+static bool ascFunc()
+{
+  TVar tmpVar=VMStack.Pop();
+  if ( tmpVar.isString() )
+  {
+    tmpVar = (__int64)((DWORD)((BYTE)*tmpVar.toString()));
+    tmpVar.toInteger();
+  }
+  VMStack.Push(tmpVar);
+  return true;
+}
+
+static bool chrFunc()
+{
+  TVar tmpVar=VMStack.Pop();
+  if ( tmpVar.isInteger() )
+  {
+    __int64 val=tmpVar.i();
+    char tmp[2]={0,0};
+    tmp[0]=(BYTE)(val&0xFF);
+    tmpVar = (const char *)tmp;
+    tmpVar.toString();
+  }
+  VMStack.Push(tmpVar);
+  return true;
+}
+
 const char *eStackAsString(int Pos)
 {
   const char *s=__varTextDate.toString();
@@ -2667,6 +2694,8 @@ done:
         {MCODE_F_DATE,dateFunc},  // // S=date(S)
         {MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
         {MCODE_F_ABS,absFunc}, // N=abs(N)
+        {MCODE_F_ASC,ascFunc}, // N=asc(S)
+        {MCODE_F_CHR,chrFunc}, // S=chr(N)
       };
       int J;
       for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)
@@ -3808,6 +3837,8 @@ static void printKeyValue(DWORD* k, int& i)
     const char *n;
   } kmf[]={
     {MCODE_F_ABS,              "N=abs(N)"},
+    {MCODE_F_ASC,              "N=asc(S)"},
+    {MCODE_F_CHR,              "S=chr(N)"},
     {MCODE_F_AKEY,             "S=akey()"},
     {MCODE_F_CLIP,             "V=clip(N,S)"},
     {MCODE_F_DATE,             "S=date(S)"},

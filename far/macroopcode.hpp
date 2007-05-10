@@ -98,7 +98,9 @@ enum MACRO_OP_CODE {
 
   MCODE_F_ABS,                      // N=abs(N)
   MCODE_F_AKEY,                     // S=akey()
+  MCODE_F_ASC,                      // N=asc(S)
   MCODE_F_CLIP,                     // V=clip(N,S)
+  MCODE_F_CHR,                      // S=chr(N)
   MCODE_F_DATE,                     // S=date(S)
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
