@@ -522,6 +522,7 @@ void EditFileTypes()
         MenuPos=TypesMenu.GetSelectPos();
         switch(TypesMenu.ReadInput())
         {
+          case KEY_NUMDEL:
           case KEY_DEL:
             if (MenuPos<NumLine)
               DeleteTypeRecord(MenuPos);
@@ -532,6 +533,7 @@ void EditFileTypes()
             MenuModified=TRUE;
             break;
           case KEY_ENTER:
+          case KEY_NUMENTER:
           case KEY_F4:
             if (MenuPos<NumLine)
               EditTypeRecord(MenuPos,NumLine,0);

@@ -504,7 +504,7 @@ int FileList::ProcessKey(int Key)
   if (IsVisible())
   {
     if(!InternalProcessKey)
-      if ((Key!=KEY_ENTER && Key!=KEY_SHIFTENTER) || CmdLength==0)
+      if ((!(Key==KEY_ENTER||Key==KEY_NUMENTER) && !(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER)) || CmdLength==0)
         if(SendKeyToPlugin(Key))
           return TRUE;
   }
@@ -516,6 +516,7 @@ int FileList::ProcessKey(int Key)
       case KEY_CTRLF:
       case KEY_CTRLALTF:
       case KEY_CTRLENTER:
+      case KEY_CTRLNUMENTER:
       case KEY_CTRLBRACKET:
       case KEY_CTRLBACKBRACKET:
       case KEY_CTRLSHIFTBRACKET:
@@ -830,6 +831,8 @@ int FileList::ProcessKey(int Key)
     }
     /* VVM $ */
 
+    case KEY_CTRLNUMENTER:
+    case KEY_CTRLSHIFTNUMENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLSHIFTENTER:
     case KEY_CTRLJ:
@@ -839,7 +842,7 @@ int FileList::ProcessKey(int Key)
       if (FileCount>0 && SetCurPath())
       {
         char FileName[2048];
-        if(Key==KEY_CTRLSHIFTENTER)
+        if(Key==KEY_CTRLSHIFTENTER || Key==KEY_CTRLSHIFTNUMENTER)
           _MakePath1(Key,FileName,sizeof(FileName)-1, " ");
         else
         {
@@ -907,7 +910,7 @@ int FileList::ProcessKey(int Key)
             AddEndSlash(FileName);
 
           // добавим первый префикс!
-          if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_CTRLJ))
+          if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_CTRLNUMENTER || Key == KEY_CTRLJ))
           {
             char Prefix[NM*2];
             /* $ 19.11.2001 IS оптимизация по скорости :) */
@@ -1014,6 +1017,8 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_NUMENTER:
+    case KEY_SHIFTNUMENTER:
     case KEY_ENTER:
     case KEY_SHIFTENTER:
     {
@@ -1029,7 +1034,7 @@ int FileList::ProcessKey(int Key)
         }
         break;
       }
-      ProcessEnter(1,Key==KEY_SHIFTENTER);
+      ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER);
       return(TRUE);
     }
 
@@ -1566,8 +1571,12 @@ int FileList::ProcessKey(int Key)
     }
 
     case KEY_F8:
+    case KEY_SHIFTNUMDEL:
+    case KEY_SHIFTDECIMAL:
     case KEY_SHIFTDEL:
     case KEY_SHIFTF8:
+    case KEY_ALTNUMDEL:
+    case KEY_ALTDECIMAL:
     case KEY_ALTDEL:
     {
       _ALGO(CleverSysLog clv("F8/Shift-F8/Shift-Del/Alt-Del"));
@@ -1582,9 +1591,9 @@ int FileList::ProcessKey(int Key)
         else
         {
           int SaveOpt=Opt.DeleteToRecycleBin;
-          if (Key==KEY_SHIFTDEL)
+          if (Key==KEY_SHIFTDEL || Key==KEY_SHIFTNUMDEL || Key==KEY_SHIFTDECIMAL)
             Opt.DeleteToRecycleBin=0;
-          ShellDelete(this,Key==KEY_ALTDEL);
+          ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_ALTDECIMAL);
           Opt.DeleteToRecycleBin=SaveOpt;
         }
         if (Key==KEY_SHIFTF8)

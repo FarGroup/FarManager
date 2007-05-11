@@ -632,13 +632,16 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
             break;
           }
 
+          case KEY_CTRLSHIFTNUMENTER:
+          case KEY_CTRLNUMENTER:
+          case KEY_SHIFTNUMENTER:
           case KEY_CTRLSHIFTENTER:
           case KEY_CTRLENTER:
           case KEY_SHIFTENTER:
           {
             HistoryMenu.Modal::SetExitCode(StrPos);
             Done=TRUE;
-            RetCode=Key==KEY_CTRLSHIFTENTER?6:(Key==KEY_SHIFTENTER?2:3);
+            RetCode=Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3);
             break;
           }
 
@@ -651,9 +654,8 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
             RetCode=(Key==KEY_F4? 5 : 4);
             break;
           }
-          /* $ 09.04.2001 SVS
-             Фича - копирование из истории строки в Clipboard
-          */
+
+          // $ 09.04.2001 SVS - копирование из истории строки в Clipboard
           case KEY_CTRLC:
           case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
           {
@@ -662,7 +664,8 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
               CopyToClipboard(LastStr[Code].Name);
             break;
           }
-          /* SVS $ */
+
+          case KEY_NUMDEL:
           case KEY_DEL:
           /* $ 23.07.2001 VVM
             + Спросить подтверждение перед удалением */

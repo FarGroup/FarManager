@@ -115,6 +115,7 @@ static struct TTable_KeyToVK{
    {KEY_BS,            VK_BACK},
    {KEY_TAB,           VK_TAB},
    {KEY_ENTER,         VK_RETURN},
+   {KEY_NUMENTER,      VK_RETURN}, //????
    {KEY_ESC,           VK_ESCAPE},
    {KEY_SPACE,         VK_SPACE},
    {KEY_NUMPAD5,       VK_CLEAR},
@@ -873,7 +874,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
   }
   int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);
   if ((CalcKey>=' ' && CalcKey<256 || CalcKey==KEY_BS || GrayKey) &&
-      CalcKey!=KEY_DEL && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
+      !(CalcKey==KEY_DEL||CalcKey==KEY_NUMDEL) && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
   {
 #if defined(USE_WFUNC_IN)
     if(Opt.UseUnicodeConsole)

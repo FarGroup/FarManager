@@ -2025,6 +2025,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
                 }
             if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
+        case KEY_NUMENTER:
         case KEY_ENTER:
         case KEY_CTRLF5:
             DialogMode.Clear(DMODE_DRAGGED); // закончим движение!
@@ -2185,9 +2186,9 @@ int Dialog::ProcessKey(int Key)
     return TRUE;
 
   // BugZ#488 - Shift=enter
-  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting() && Item[FocusPos].Type != DI_BUTTON)
+  if(ShiftPressed && (Key == KEY_ENTER||Key==KEY_NUMENTER) && !CtrlObject->Macro.IsExecuting() && Item[FocusPos].Type != DI_BUTTON)
   {
-    Key=KEY_SHIFTENTER;
+    Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
   }
 
   if(!(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && !DialogMode.Check(DMODE_KEY))
@@ -2238,6 +2239,7 @@ int Dialog::ProcessKey(int Key)
       case KEY_MSWHEEL_UP:
       case KEY_MSWHEEL_DOWN:
       case KEY_ENTER:
+      case KEY_NUMENTER:
         VMenu *List=Item[FocusPos].ListPtr;
         int CurListPos=List->GetSelectPos();
         int CheckedListItem=List->GetSelection(-1);
@@ -2251,7 +2253,7 @@ int Dialog::ProcessKey(int Key)
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
         }
-        if(Key != KEY_ENTER || (Item[FocusPos].Flags&DIF_LISTNOCLOSE))
+        if(!(Key == KEY_ENTER || Key == KEY_NUMENTER) || (Item[FocusPos].Flags&DIF_LISTNOCLOSE))
           return(TRUE);
 
     }
@@ -2294,6 +2296,7 @@ int Dialog::ProcessKey(int Key)
       return Do_ProcessSpace();
 
 
+    case KEY_CTRLNUMENTER:
     case KEY_CTRLENTER:
     {
       for (I=0;I<ItemCount;I++)
@@ -2319,6 +2322,7 @@ int Dialog::ProcessKey(int Key)
       }
     }
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
     {
       if (Item[FocusPos].Type != DI_COMBOBOX && IsEdit(Item[FocusPos].Type) &&  (Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
@@ -2637,6 +2641,7 @@ int Dialog::ProcessKey(int Key)
               return(TRUE);
             }
 
+            case KEY_NUMDEL:
             case KEY_DEL:
             {
               /* $ 19.07.2000 SVS
@@ -2757,7 +2762,7 @@ int Dialog::ProcessKey(int Key)
             */
             if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
                ((Item[FocusPos].Flags & DIF_HISTORY) || Item[FocusPos].Type == DI_COMBOBOX))
-            if((Opt.Dialogs.AutoComplete && Key && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
+            if((Opt.Dialogs.AutoComplete && Key && Key < 256 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {
@@ -4270,7 +4275,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
           HistoryMenu.Redraw();
           continue;
         }
-        else if (Key==KEY_SHIFTDEL) // Shift-Del очищает текущий пункт истории команд.
+        else if (Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) // Shift-Del очищает текущий пункт истории команд.
         {
           LastSelected=HistoryMenu.GetSelectPos();
           if (!HistoryMenu.GetSelection(LastSelected))
@@ -4306,7 +4311,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
           }
           continue;
         }
-        else if (Key==KEY_DEL) // Del очищает историю команд.
+        else if (Key==KEY_DEL||Key==KEY_NUMDEL) // Del очищает историю команд.
         {
           LastSelected=HistoryMenu.GetSelectPos();
 

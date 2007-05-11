@@ -646,6 +646,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
                 UserMenu.SetExitCode(-1);
               break;
             /* VVM $ */
+            case KEY_NUMDEL:
             case KEY_DEL:
               if (MenuPos<NumLine)
                 DeleteMenuRecord(MenuKey,MenuPos);

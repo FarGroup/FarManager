@@ -589,7 +589,7 @@ int Edit::ProcessKey(int Key)
          - символ перед курсором удален
          - выделение блока снято
   */
-  if (((Key==KEY_BS || Key==KEY_DEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS) || Key==KEY_CTRLD) &&
+  if (((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS) || Key==KEY_CTRLD) &&
       !Flags.Check(FEDITLINE_EDITORMODE) && SelStart!=-1 && SelStart<SelEnd)
   {
     DeleteBlock();
@@ -617,7 +617,7 @@ int Edit::ProcessKey(int Key)
     Flags.Clear(FEDITLINE_MARKINGBLOCK); // хмм... а это здесь должно быть?
 
     if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0) &&
-        Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
+        !(Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
         !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
     {
       /* $ 12.11.2002 DJ
@@ -643,7 +643,7 @@ int Edit::ProcessKey(int Key)
      если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
      удаляет такую строку также, как и Del
   */
-  if (((Opt.Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL) &&
+  if (((Opt.Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL || Key==KEY_NUMDEL) &&
      Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize)
     Key=KEY_CTRLY;
   /* SVS $ */
@@ -651,7 +651,7 @@ int Edit::ProcessKey(int Key)
      Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
            Так должно быть только для UnChanged состояния
   */
-  if(Key == KEY_SHIFTDEL && Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize && SelStart==-1)
+  if((Key == KEY_SHIFTDEL || Key == KEY_SHIFTNUMDEL || Key == KEY_SHIFTDECIMAL) && Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize && SelStart==-1)
   {
     SelStart=0;
     SelEnd=StrSize;
@@ -660,7 +660,7 @@ int Edit::ProcessKey(int Key)
 
   if (Flags.Check(FEDITLINE_CLEARFLAG) && (Key<256 && Key!=KEY_BS || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
-      Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER))
+      Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
   {
     LeftPos=0;
     SetString("");
@@ -941,7 +941,7 @@ int Edit::ProcessKey(int Key)
       else
 #endif
       {
-        CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv);
+        CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv); // TableSet --> UseDecodeTable?&TableSet:NULL
         Select(SStart,++SEnd);
       }
       CurPos=OldCurPos; // возвращаем обратно
@@ -968,6 +968,8 @@ int Edit::ProcessKey(int Key)
 
     case KEY_CTRLT:
     case KEY_CTRLDEL:
+    case KEY_CTRLNUMDEL:
+    case KEY_CTRLDECIMAL:
     {
       if (CurPos>=StrSize)
         return(FALSE);
@@ -1166,6 +1168,7 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_NUMDEL:
     case KEY_DEL:
     {
       /* $ 25.07.2000 tran
@@ -1291,6 +1294,8 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_SHIFTNUMDEL:
+    case KEY_SHIFTDECIMAL:
     case KEY_SHIFTDEL:
     {
       if (SelStart==-1 || SelStart>=SelEnd)
@@ -1404,7 +1409,7 @@ int Edit::ProcessKey(int Key)
     {
 //      _D(SysLog("Key=0x%08X",Key));
 
-      if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
+      if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key==KEY_NUMENTER || Key>=256)
         break;
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       {

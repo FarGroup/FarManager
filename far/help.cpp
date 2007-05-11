@@ -1281,6 +1281,7 @@ int Help::ProcessKey(int Key)
       return ProcessKey(KEY_ESC);
     }
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
     {
       if (*StackData.SelTopic && LocalStricmp(StackData.HelpTopic,StackData.SelTopic)!=0)

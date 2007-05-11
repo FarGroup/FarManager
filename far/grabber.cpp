@@ -261,6 +261,7 @@ int Grabber::ProcessKey(int Key)
     case KEY_ESC:
       SetExitCode(0);
       break;
+    case KEY_NUMENTER:
     case KEY_ENTER:
     case KEY_CTRLINS:   case KEY_CTRLNUMPAD0:
     case KEY_CTRLADD:

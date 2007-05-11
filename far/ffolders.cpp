@@ -171,6 +171,7 @@ static int ShowFolderShortcutMenu(int Pos)
       DWORD Key=FolderList.ReadInput();
       switch(Key)
       {
+        case KEY_NUMDEL:
         case KEY_DEL:
         case KEY_INS:
         {

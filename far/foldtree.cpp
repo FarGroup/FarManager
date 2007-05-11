@@ -186,6 +186,7 @@ int FolderTree::ProcessKey(int Key)
       SetExitCode (XC_MODIFIED);
       break;
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
       Tree->GetCurDir(NewFolder);
       if (GetFileAttributes(NewFolder)!=0xFFFFFFFF)
@@ -211,12 +212,14 @@ int FolderTree::ProcessKey(int Key)
       DrawEdit();
       break;
 
+    case KEY_CTRLNUMENTER:
+    case KEY_CTRLSHIFTNUMENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLSHIFTENTER:
       {
         char Name[NM];
         FindEdit->GetString(Name,sizeof(Name));
-        Tree->FindPartName(Name,TRUE,Key == KEY_CTRLSHIFTENTER?-1:1);
+        Tree->FindPartName(Name,TRUE,Key == KEY_CTRLSHIFTENTER||Key == KEY_CTRLSHIFTNUMENTER?-1:1);
         DrawEdit();
       }
       break;

@@ -319,6 +319,7 @@ void ShowHotplugDevice ()
         break;
       }
 
+      case KEY_NUMDEL:
       case KEY_DEL:
       {
         if(HotPlugList.GetItemCount() > 0)

@@ -332,6 +332,7 @@ bool FileFilter::FilterEdit()
         break;
       }
 
+      case KEY_NUMDEL:
       case KEY_DEL:
       {
         int SelPos=FilterList.GetSelectPos();

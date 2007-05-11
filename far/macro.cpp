@@ -3268,7 +3268,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     // <Обработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
     if(Param2 == KEY_ESC ||
-       Param2 == KEY_ENTER && LastKey == KEY_ENTER ||
+       (Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER) ||
        Param2 == KEY_CTRLDOWN ||
        Param2 == KEY_F1
       )
@@ -3286,7 +3286,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     }
 */
     // Было что-то уже нажато и Enter`ом подтверждаем
-    if(Param2 == KEY_ENTER && LastKey && LastKey != KEY_ENTER)
+    if((Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && LastKey && !(LastKey == KEY_ENTER||LastKey == KEY_NUMENTER))
       return FALSE;
     // </Обработка особых клавиш: F1 & Enter>
 M1:
