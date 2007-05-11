@@ -2352,9 +2352,9 @@ done:
 
     case MCODE_OP_PLAINTEXT:          // $Text "Text"
     {
-      __varTextDate=VMStack.Pop();
-      if(__varTextDate == TVMStack::errorStack)
+      if(VMStack.isEmpty())
         return KEY_NONE;
+      __varTextDate=VMStack.Pop();
       return KEY_OP_PLAINTEXT;
     }
 

@@ -165,7 +165,10 @@ static struct TFKey3 FKeys1[]={
   //{ KEY_HP_MARKET,            8, "HPMarket"},
   { KEY_VOLUME_UP,            8, "VolumeUp"},
   { KEY_SUBTRACT,             8, "Subtract"},
+  { KEY_NUMENTER,             8, "NumEnter"},
   { KEY_MULTIPLY,             8, "Multiply"},
+  { KEY_DECIMAL,              7, "Decimal"},
+
   //{ KEY_HP_SEARCH,            8, "HPSearch"},
   //{ KEY_HP_HOME,              6, "HPHome"},
   //{ KEY_HP_MAIL,              6, "HPMail"},
@@ -173,6 +176,7 @@ static struct TFKey3 FKeys1[]={
   //{ KEY_AC_BACK,              6, "ACBack"},
   //{ KEY_AC_STOP,              6, "ACStop"},
   { KEY_DIVIDE,               6, "Divide"},
+  { KEY_NUMDEL,               6, "NumDel"},
   { KEY_SPACE,                5, "Space"},
   { KEY_RIGHT,                5, "Right"},
   { KEY_ENTER,                5, "Enter"},
@@ -1561,6 +1565,8 @@ int WINAPI KeyNameToKey(const char *Name)
      return KeyNameMacroToKey(Name);
    if(Name[0] == '%' && Name[1])
      return -1;
+   if(Name[1] && strpbrk(Name,"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
+     return -1;
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 
@@ -2349,14 +2355,41 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       {
         return(Modif|KEY_DEL);
       }
+#if 0
       else if(NotShift && (CtrlState&NUMLOCK_ON) && KeyCode == VK_DECIMAL ||
               (CtrlState&NUMLOCK_ON) && KeyCode == VK_DELETE && (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)) // МАСДАЙ!
         return '.';
-      return Modif| (Opt.UseNumPad?Modif2:0)| KEY_DEL;
+#else
+      else if(CtrlState&NUMLOCK_ON)
+      {
+         if(NotShift && KeyCode == VK_DECIMAL ||
+            KeyCode == VK_DELETE && (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)) // МАСДАЙ!
+            return '.';
+         else
+            return Modif|(Opt.UseNumPad?KEY_DECIMAL:KEY_DEL);
+      }
+      return Modif| (Opt.UseNumPad?Modif2|(KeyCode == VK_DECIMAL?KEY_DECIMAL:KEY_NUMDEL):KEY_DEL);
+#endif
   }
 
   switch(KeyCode)
   {
+    case VK_RETURN:
+      //  !!!!!!!!!!!!! - Если "!ShiftPressed", то Shift-F4 Shift-Enter, не
+      //                  отпуская Shift...
+      _SVS(SysLog("(VK_RETURN) ShiftPressed=%d RealKey=%d !ShiftPressedLast=%d !CtrlPressed=%d !AltPressed=%d (%d)",ShiftPressed,RealKey,ShiftPressedLast,CtrlPressed,AltPressed,(ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)));
+#if 0
+      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed && !LastShiftEnterPressed)
+        return(KEY_ENTER);
+      LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
+      return(Modif|KEY_ENTER);
+#else
+      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed && !LastShiftEnterPressed)
+        return(Opt.UseNumPad && (CtrlState&ENHANCED_KEY)?Modif2|KEY_NUMENTER:KEY_ENTER);
+      LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
+      return(Modif|(Opt.UseNumPad && (CtrlState&ENHANCED_KEY)?Modif2|KEY_NUMENTER:KEY_ENTER));
+#endif
+
     case VK_BROWSER_BACK:
       return Modif|KEY_BROWSER_BACK;
     case VK_BROWSER_FORWARD:
@@ -2400,14 +2433,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return(Modif|KEY_LWIN);
     case VK_RWIN:
       return(Modif|KEY_RWIN);
-    case VK_RETURN:
-      //  !!!!!!!!!!!!! - Если "!ShiftPressed", то Shift-F4 Shift-Enter, не
-      //                  отпуская Shift...
-      _SVS(SysLog("(VK_RETURN) ShiftPressed=%d RealKey=%d !ShiftPressedLast=%d !CtrlPressed=%d !AltPressed=%d (%d)",ShiftPressed,RealKey,ShiftPressedLast,CtrlPressed,AltPressed,(ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)));
-      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed && !LastShiftEnterPressed)
-        return(KEY_ENTER);
-      LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
-      return(Modif|KEY_ENTER);
     case VK_BACK:
       return(Modif|KEY_BS);
     case VK_SPACE:

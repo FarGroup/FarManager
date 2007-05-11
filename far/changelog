@@ -1,3 +1,29 @@
+svs 11.05.2007 15:30:50 +0300 - build 2229
+
+1. Mantis#0000232: Различать Del и NumDel, Enter и NumEnter 
+   Для "System/UseNumPad=1" понадобятся макросы:
+
+   REGEDIT4
+
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\NumEnter]
+   "Sequence"="Enter"
+   "DisableOutput"=dword:00000001
+
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlNumEnter]
+   "Sequence"="CtrlEnter"
+   "DisableOutput"=dword:00000001
+   
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\ShiftNumEnter]
+   "Sequence"="ShiftEnter"
+   "DisableOutput"=dword:00000001 
+
+   Появились новые клавиши: NumEnter, Decimal/NumDel (в зависимости от состояния
+   NumLock)
+
+2. macro:post eval("AltF1") не работал; конструкция превращалась в Alt00000
+
+
+
 svs 10.05.2007 14:24:51 +0300 - build 2228
 
 1. Macro: добавлены функции asc и chr.

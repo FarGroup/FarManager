@@ -44,6 +44,8 @@ class TVMStack
     // очистить стек
     void Free();
 
+    bool isEmpty() const {return Total==0;};
+
   private:
     TVMStack& operator=(const TVMStack& rhs); /* чтобы не генерировалось */
     TVMStack(const TVMStack& rhs);            /* по умолчанию            */
