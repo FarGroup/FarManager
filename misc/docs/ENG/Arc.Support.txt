@@ -12,7 +12,8 @@
 archives of different types. The most popular archive types are RAR, ZIP,
 ARJ, HA and CAB. A comprehensive description of various archivers,
 comparison tests and links to Web sites of companies that produce archives
-can be found at the following Web site (Russian): http://arctest.narod.ru
+can be found at the following Web site (Russian):
+http://www.compression.ru/arctest
 
    If all the capabilities described above work fine on your computer, you
 can read no further.
