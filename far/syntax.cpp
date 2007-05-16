@@ -995,7 +995,7 @@ static TToken getToken(void)
     }
     case '%':
       ch = getChar();
-      if ( (isalpha(ch) || ch == '_') || ( ch == '%'  && (isalpha(*sSrcString) || *sSrcString == '_')))
+      if ( (isalnum(ch) || ch == '_') || ( ch == '%'  && (isalnum(*sSrcString) || *sSrcString == '_')))
       {
         getVarName(ch);
         putBack(ch);
