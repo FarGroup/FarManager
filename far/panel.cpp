@@ -638,6 +638,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         switch ( Key )
         {
         	// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
+			case KEY_SHIFTNUMENTER:
 			case KEY_SHIFTENTER:
 			{
 				if ( item && !item->bIsPlugin )
@@ -678,6 +679,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
             break;
 
+			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
 				if ( item && !item->bIsPlugin )
@@ -774,6 +776,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			break;
 
+			case KEY_SHIFTNUMDEL:
+			case KEY_SHIFTDECIMAL:
 			case KEY_SHIFTDEL:
 			{
 				if ( item && !item->bIsPlugin )
@@ -1339,11 +1343,13 @@ void Panel::FastFind(int FirstKey)
           FastFindShow(FindX,FindY);
           break;
         }
+        case KEY_CTRLNUMENTER:
         case KEY_CTRLENTER:
           FindPartName(strName,TRUE);
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;
+        case KEY_CTRLSHIFTNUMENTER:
         case KEY_CTRLSHIFTENTER:
           FindPartName(strName,TRUE,-1);
           FindEdit.Show();
@@ -1415,7 +1421,7 @@ void Panel::FastFind(int FirstKey)
   CtrlObject->MainKeyBar->Redraw();
   ScrBuf.Flush();
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  if (KeyToProcess==KEY_ENTER && ActivePanel->GetType()==TREE_PANEL)
+  if ((KeyToProcess==KEY_ENTER||KeyToProcess==KEY_NUMENTER) && ActivePanel->GetType()==TREE_PANEL)
     ((TreeList *)ActivePanel)->ProcessEnter();
   else
     CtrlObject->Cp()->ProcessKey(KeyToProcess);

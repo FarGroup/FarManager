@@ -344,9 +344,10 @@ static LONG_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 //    char KeyText[50];
 //    KeyToText(Param2,KeyText);
 //    _D(SysLog(L"%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed));
-    if(ShiftPressed && Param2 == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
+    if(ShiftPressed && (Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && !CtrlObject->Macro.IsExecuting())
     {
-      DWORD Arr[1]={KEY_SHIFTENTER};
+      DWORD Arr[1];
+      Arr[0]=Param2 == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
       Dialog::SendDlgMessage(hDlg,Msg,Param1,(long)Arr);
       return TRUE;
     }

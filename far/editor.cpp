@@ -1668,6 +1668,8 @@ int Editor::ProcessKey(int Key)
 
     case KEY_CTRLX:
     case KEY_SHIFTDEL:
+    case KEY_SHIFTNUMDEL:
+    case KEY_SHIFTDECIMAL:
     {
       Copy(FALSE);
     }
@@ -1731,6 +1733,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_NUMDEL:
     case KEY_DEL:
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
@@ -2016,6 +2019,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
     {
       if (Pasting || !ShiftPressed || CtrlObject->Macro.IsExecuting())
@@ -2588,6 +2592,8 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLSHIFTBRACKET:     // ¬ставить путь из активной панели
     case KEY_CTRLSHIFTBACKBRACKET: // ¬ставить путь из пассивной панели
 
+    case KEY_CTRLSHIFTNUMENTER:
+    case KEY_SHIFTNUMENTER:
     case KEY_CTRLSHIFTENTER:
     case KEY_SHIFTENTER:
     {
@@ -2644,6 +2650,7 @@ int Editor::ProcessKey(int Key)
       Lock ();
 
       UnmarkBlock();
+      // CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:NULL !!!
       CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,CurLine->TableSet,EdOpt.strWordDiv);
       CurLine->Select(SStart,++SEnd);
 
@@ -2712,7 +2719,7 @@ int Editor::ProcessKey(int Key)
     default:
     {
       {
-        if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->GetLength())
+        if ((Key==KEY_CTRLDEL || Key==KEY_CTRLNUMDEL || Key==KEY_CTRLDECIMAL || Key==KEY_CTRLT) && CurPos>=CurLine->GetLength())
         {
          /*$ 08.12.2000 skv
            - CTRL-DEL в начале строки при выделенном блоке и
@@ -3694,7 +3701,7 @@ BOOL Editor::Search(int Next)
                   ProcessKey(KEY_DEL);
                 }
                 /* SKV $ */
-                if (Ch!=KEY_BS && Ch!=KEY_DEL)
+                if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                   ProcessKey(Ch);
               }
               if(SearchStr[I]==0)
@@ -3704,7 +3711,7 @@ BOOL Editor::Search(int Next)
                 for (;ReplaceStr[I]!=0;I++)
                 {
                   int Ch=ReplaceStr[I];
-                  if (Ch!=KEY_BS && Ch!=KEY_DEL)
+                  if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                     ProcessKey(Ch);
                 }
               }else

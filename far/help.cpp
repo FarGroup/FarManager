@@ -1371,6 +1371,7 @@ int Help::ProcessKey(int Key)
       return ProcessKey(KEY_ESC);
     }
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
     {
       if ( !StackData.strSelTopic.IsEmpty() && LocalStricmpW(StackData.strHelpTopic,StackData.strSelTopic)!=0)

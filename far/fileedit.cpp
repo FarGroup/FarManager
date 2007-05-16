@@ -905,9 +905,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     ShowConsoleTitle();
 
   // BugZ#488 - Shift=enter
-  if(ShiftPressed && Key == KEY_ENTER && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
+  if(ShiftPressed && (Key == KEY_ENTER || Key == KEY_NUMENTER) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
   {
-    Key=KEY_SHIFTENTER;
+    Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
   }
 
   // Все сотальные необработанные клавиши пустим далее

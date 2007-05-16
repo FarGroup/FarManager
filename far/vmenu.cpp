@@ -776,6 +776,7 @@ int VMenu::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_NUMENTER:
     case KEY_ENTER:
     {
       if(!VMenu::ParentDialog)

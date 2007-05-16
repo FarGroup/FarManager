@@ -1657,6 +1657,8 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
     case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
     case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
 
+    case KEY_CTRLSHIFTNUMENTER:       // Текущий файл с пасс.панели
+    case KEY_SHIFTNUMENTER:           // Текущий файл с актив.панели
     case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
     case KEY_SHIFTENTER:           // Текущий файл с актив.панели
     {
@@ -1672,11 +1674,13 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
         case KEY_CTRLBACKBRACKET:
           SrcPanel=Cp->RightPanel;
           break;
+        case KEY_SHIFTNUMENTER:
         case KEY_SHIFTENTER:
         case KEY_ALTSHIFTBRACKET:
         case KEY_CTRLSHIFTBRACKET:
           SrcPanel=Cp->ActivePanel;
           break;
+        case KEY_CTRLSHIFTNUMENTER:
         case KEY_CTRLSHIFTENTER:
         case KEY_ALTSHIFTBACKBRACKET:
         case KEY_CTRLSHIFTBACKBRACKET:
@@ -1686,7 +1690,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 
       if (SrcPanel!=NULL)
       {
-        if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
+        if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER)
         {
           string strShortFileName;
           SrcPanel->GetCurName(strPathName,strShortFileName);

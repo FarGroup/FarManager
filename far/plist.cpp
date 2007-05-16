@@ -63,6 +63,7 @@ void ShowProcessList()
         break;
       }
 
+      case KEY_NUMDEL:
       case KEY_DEL:
         {
           BlockExtKey blockExtKey;

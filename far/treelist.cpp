@@ -793,8 +793,6 @@ int TreeList::ProcessKey(int Key)
 
   switch(Key)
   {
-    /* $ 08.12.2001 IS просят справку для "дерева", ее и покажем
-    */
     case KEY_F1:
     {
       {
@@ -802,8 +800,9 @@ int TreeList::ProcessKey(int Key)
       }
       return TRUE;
     }
-    /* IS $ */
 
+    case KEY_SHIFTNUMENTER:
+    case KEY_CTRLNUMENTER:
     case KEY_SHIFTENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLF:
@@ -822,7 +821,7 @@ int TreeList::ProcessKey(int Key)
         if(CAIns)
           CopyToClipboard(strQuotedName);
 
-        else if(Key == KEY_SHIFTENTER)
+        else if(Key == KEY_SHIFTENTER||Key == KEY_SHIFTNUMENTER)
           Execute(strQuotedName,FALSE,TRUE,TRUE);
         else
           CtrlObject->CmdLine->InsertString(strQuotedName);
@@ -837,6 +836,7 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
     {
       if (!ModalMode && CtrlObject->CmdLine->GetLength()>0)
@@ -936,14 +936,18 @@ int TreeList::ProcessKey(int Key)
     */
     case KEY_F8:
     case KEY_SHIFTDEL:
+    case KEY_SHIFTNUMDEL:
+    case KEY_SHIFTDECIMAL:
+    case KEY_ALTNUMDEL:
+    case KEY_ALTDECIMAL:
     case KEY_ALTDEL:
     {
       if (SetCurPath())
       {
         int SaveOpt=Opt.DeleteToRecycleBin;
-        if (Key==KEY_SHIFTDEL)
+        if (Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL)
           Opt.DeleteToRecycleBin=0;
-        ShellDelete(this,Key==KEY_ALTDEL);
+        ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_ALTDECIMAL);
         // Надобно не забыть обновить противоположную панель...
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         AnotherPanel->Update(UPDATE_KEEP_SELECTION);

@@ -992,7 +992,7 @@ static TToken getToken(void)
       return currTok = tInt;
     case L'%':
       ch = getChar();
-      if ( (LocalIsalphaW(ch) || ch == L'_') || ( ch == L'%'  && (LocalIsalphaW(*sSrcString) || *sSrcString == L'_')))
+      if ( (LocalIsalphanumW(ch) || ch == L'_') || ( ch == L'%'  && (LocalIsalphanumW(*sSrcString) || *sSrcString == L'_')))
       {
         getVarName(ch);
         putBack(ch);

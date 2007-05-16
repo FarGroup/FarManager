@@ -483,6 +483,7 @@ void HighlightFiles::HiEdit(int MenuPos)
           InitHighlightFiles();
           NeedUpdate=TRUE;
           break;
+        case KEY_NUMDEL:
         case KEY_DEL:
           {
             int *Count=NULL;
@@ -502,6 +503,7 @@ void HighlightFiles::HiEdit(int MenuPos)
             }
             break;
           }
+        case KEY_NUMENTER:
         case KEY_ENTER:
         case KEY_F4:
         {

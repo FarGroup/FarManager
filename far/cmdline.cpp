@@ -242,6 +242,9 @@ int CommandLine::ProcessKey(int Key)
             SetString(strStr);
       }
       return(TRUE);
+
+    case KEY_NUMENTER:
+    case KEY_SHIFTNUMENTER:
     case KEY_ENTER:
     case KEY_SHIFTENTER:
       {
@@ -264,7 +267,7 @@ int CommandLine::ProcessKey(int Key)
         ProcessOSAliases(strStr);
 
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)(const wchar_t *)strStr))
-          CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER,FALSE);
+          CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER,FALSE);
       }
       return(TRUE);
 

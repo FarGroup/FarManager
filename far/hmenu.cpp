@@ -132,6 +132,7 @@ int HMenu::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_NUMENTER:
     case KEY_ENTER:
     case KEY_DOWN:    case KEY_NUMPAD2:
     {
