@@ -2667,21 +2667,24 @@ void FileList::SetSortMode(int SortMode)
   FrameManager->RefreshFrame();
 }
 
+int FileList::GoToFile(long idxItem)
+{
+  if ((DWORD)idxItem < (DWORD)FileCount)
+  {
+    CurFile=idxItem;
+    CorrectPosition();
+    return TRUE;
+  }
+  return FALSE;
+}
 
 int FileList::GoToFile(const wchar_t *Name,BOOL OnlyPartName)
 {
-  long Pos=FindFile(Name,OnlyPartName);
-  if (Pos!=-1)
-  {
-    CurFile=Pos;
-    CorrectPosition();
-    return(TRUE);
-  }
-  return(FALSE);
+  return GoToFile(FindFile(Name,OnlyPartName));
 }
 
 
-int FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
+long FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
 {
   long I;
   struct FileListItem *CurPtr;
@@ -2702,12 +2705,12 @@ int FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
   return -1;
 }
 
-int FileList::FindFirst(const wchar_t *Name)
+long FileList::FindFirst(const wchar_t *Name)
 {
   return FindNext(0,Name);
 }
 
-int FileList::FindNext(int StartPos, const wchar_t *Name)
+long FileList::FindNext(int StartPos, const wchar_t *Name)
 {
   int I;
   struct FileListItem *CurPtr;

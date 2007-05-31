@@ -144,13 +144,14 @@ class Panel:public ScreenObject
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1) {return(FALSE);}
 
+    virtual int GoToFile(long idxItem) {return(TRUE);};
     virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
-    virtual int FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
+    virtual long FindFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return -1;};
 
     virtual int IsSelected(const wchar_t *Name) {return(FALSE);};
 
-    virtual int FindFirst(const wchar_t *Name) {return -1;}
-    virtual int FindNext(int StartPos, const wchar_t *Name) {return -1;}
+    virtual long FindFirst(const wchar_t *Name) {return -1;}
+    virtual long FindNext(int StartPos, const wchar_t *Name) {return -1;}
 
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима

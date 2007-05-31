@@ -1247,6 +1247,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=KEY_NONE;
       break;
     }
+    Sleep(50);
   }
 
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
