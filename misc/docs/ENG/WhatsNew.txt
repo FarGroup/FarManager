@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2230) (May 11 2007)
+FAR 1.71 alpha 4 (build 2232) (May 31 2007)
 ---------------------------------------------------------------------------
 
 [!] PluginAPI was adjusted for 64bit compatibility.
@@ -65,6 +65,9 @@ FAR 1.71 alpha 4 (build 2230) (May 11 2007)
 
 [+] Macro: Различаются Del на основной клавиатуре и Del на цифровой (NumDel).
     При включенном NumLock клавиша называется Decimal.
+
+[+] Macro: добавлена функция Panel.SetPosIdx - позиционирование
+    на файловой панели по индексу.
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
