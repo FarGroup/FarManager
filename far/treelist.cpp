@@ -1610,21 +1610,24 @@ void TreeList::UpdateViewPanel()
   }
 }
 
+int TreeList::GoToFile(long idxItem)
+{
+  if ((DWORD)idxItem < (DWORD)TreeCount)
+  {
+    CurFile=idxItem;
+    CorrectPosition();
+    return TRUE;
+  }
+  return FALSE;
+}
+
 
 int TreeList::GoToFile(const char *Name,BOOL OnlyPartName)
 {
-  long Pos=FindFile(Name,OnlyPartName);
-  if (Pos!=-1)
-  {
-    CurFile=Pos;
-    CorrectPosition();
-    return(TRUE);
-  }
-  return(FALSE);
-
+  return GoToFile(FindFile(Name,OnlyPartName));
 }
 
-int TreeList::FindFile(const char *Name,BOOL OnlyPartName)
+long TreeList::FindFile(const char *Name,BOOL OnlyPartName)
 {
   long I;
   struct TreeItem *CurPtr;
@@ -1643,12 +1646,12 @@ int TreeList::FindFile(const char *Name,BOOL OnlyPartName)
   return -1;
 }
 
-int TreeList::FindFirst(const char *Name)
+long TreeList::FindFirst(const char *Name)
 {
   return FindNext(0,Name);
 }
 
-int TreeList::FindNext(int StartPos, const char *Name)
+long TreeList::FindNext(int StartPos, const char *Name)
 {
   int I;
   struct TreeItem *CurPtr;

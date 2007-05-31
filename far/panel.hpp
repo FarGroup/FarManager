@@ -138,12 +138,13 @@ class Panel:public ScreenObject
     /* DJ $ */
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next,int Direct=1) {return(FALSE);}
+    virtual int GoToFile(long idxItem) {return(TRUE);};
     virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
-    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE) {return -1;};
+    virtual long FindFile(const char *Name,BOOL OnlyPartName=FALSE) {return -1L;};
     virtual int IsSelected(char *Name) {return(FALSE);};
 
-    virtual int FindFirst(const char *Name) {return -1;}
-    virtual int FindNext(int StartPos, const char *Name) {return -1;}
+    virtual long FindFirst(const char *Name) {return -1;}
+    virtual long FindNext(int StartPos, const char *Name) {return -1;}
 
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима

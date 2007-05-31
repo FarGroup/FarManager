@@ -1954,6 +1954,36 @@ static bool clipFunc()
   return Ret?true:false;
 }
 
+// N=Panel.SetPosIdx(panelType,Idx)
+static bool panelsetposidxFunc()
+{
+  long idxItem=(long)VMStack.Pop().toInteger();
+  int typePanel=(int)VMStack.Pop().toInteger();
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+  Panel *PassivePanel=NULL;
+  if(ActivePanel!=NULL)
+    PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+  //Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+  Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+  __int64 Ret=0;
+
+  if(SelPanel)
+  {
+    int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+    if(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
+    {
+      if(SelPanel->GoToFile(idxItem-1))
+      {
+        SelPanel->Show();
+        Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+      }
+    }
+  }
+  VMStack.Push(Ret);
+  return Ret?true:false;
+}
+
 // N=Panel.SetPos(panelType,fileName)
 static bool panelsetposFunc()
 {
@@ -2675,6 +2705,7 @@ done:
         {MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
         {MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
         {MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
+        {MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx)
         {MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
         {MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
         {MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
@@ -3862,6 +3893,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_PANEL_FATTR,      "N=panel.fattr(panelType,S)"},
     {MCODE_F_PANEL_FEXIST,     "S=panel.fexist(panelType,S)"},
     {MCODE_F_PANEL_SETPOS,     "N=panel.SetPos(panelType,fileName)"},
+    {MCODE_F_PANEL_SETPOSIDX,  "N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
     {MCODE_F_EVAL,             "N=eval(S)"},
     {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},

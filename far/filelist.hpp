@@ -251,12 +251,13 @@ class FileList:public Panel
     virtual int GetFileName(char *Name,int Pos,int &FileAttr);
     virtual int GetCurrentPos();
     virtual int FindPartName(char *Name,int Next,int Direct=1);
+    virtual int GoToFile(long idxItem);
     virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
-    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
+    virtual long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     virtual int IsSelected(char *Name);
 
-    virtual int FindFirst(const char *Name);
-    virtual int FindNext(int StartPos, const char *Name);
+    virtual long FindFirst(const char *Name);
+    virtual long FindNext(int StartPos, const char *Name);
 
     void ProcessHostFile();
     virtual void UpdateViewPanel();

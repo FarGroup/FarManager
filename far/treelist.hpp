@@ -90,12 +90,13 @@ class TreeList: public Panel
     virtual void UpdateViewPanel();
     virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual int FindPartName(char *Name,int Next,int Direct=1);
+    virtual int GoToFile(long idxItem);
     virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
-    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
+    virtual long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     void ProcessEnter();
 
-    virtual int FindFirst(const char *Name);
-    virtual int FindNext(int StartPos, const char *Name);
+    virtual long FindFirst(const char *Name);
+    virtual long FindNext(int StartPos, const char *Name);
 
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}

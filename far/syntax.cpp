@@ -708,6 +708,7 @@ static TMacroFunction macroFunction[]={
   {"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
   {"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
   {"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
+  {"PANEL.SETPOSIDX",2,    MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
   {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
