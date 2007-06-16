@@ -959,7 +959,10 @@ void SetFormatTitle (FarDialogHandler *D)
 	char *lpFormat = StrCreate (260);
 	char *lpTitle = StrCreate (260);
 
-	D->GetTextPtr (12, lpFormat);
+	if ( D->GetCheck (5) )
+		D->GetTextPtr (7, lpFormat);
+	else
+		D->GetTextPtr (12, lpFormat);
 
 	FSF.sprintf (lpTitle, "Добавить к %s", lpFormat);
 
@@ -1209,11 +1212,16 @@ void SetTemplate (FarDialogHandler *D, ArchiveTemplate *ptpl = NULL)
 	bool bEnable = (Templates.count() > 0);
 	int nFocus = D->GetFocus ();
 
+	D->Enable (5, bEnable);
+	D->Enable (7, bEnable);
 	D->Enable (9, bEnable);
 	D->Enable (10, bEnable);
 
 	if ( !bEnable && ((nFocus == 9) || (nFocus == 10)) )
 		D->SetFocus (8);
+
+	if ( !bEnable )
+		D->SetCheck (6, BSTATE_CHECKED);
 }
 
 
@@ -1253,7 +1261,7 @@ int __stdcall hndModifyCreateArchive (
 		if ( nParam1 == 8 )
 		{
 			ArchiveTemplate *ptpl = new ArchiveTemplate;
-			memset (ptpl, 0, sizeof (ptpl));
+			memset (ptpl, 0, sizeof (ArchiveTemplate));
 
 			if ( dlgAddEditTemplate (ptpl, true) )
 			{
@@ -1285,6 +1293,15 @@ int __stdcall hndModifyCreateArchive (
 				SetTemplate (D);
 				SaveTemplates ();
 			}
+		}
+	}
+
+	if ( nMsg == DN_GOTFOCUS )
+	{
+		if ( (nParam1 == 12) || (nParam1 == 14) )
+		{
+			D->SetCheck (6, BSTATE_CHECKED);
+			return 0;
 		}
 	}
 

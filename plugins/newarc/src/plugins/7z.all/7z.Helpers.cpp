@@ -716,6 +716,8 @@ CArchiveOpenCallback::CArchiveOpenCallback (SevenZipArchive *pArchive)
 	m_pArchiveOpenVolumeCallback = NULL;
 	m_bProgressMessage = false;
 	m_dwStartTime = GetTickCount ();
+
+	m_hScreen = Info.SaveScreen (0, 0, -1, -1);
 }
 
 CArchiveOpenCallback::~CArchiveOpenCallback ()
@@ -725,6 +727,8 @@ CArchiveOpenCallback::~CArchiveOpenCallback ()
 
 	if ( m_pArchiveOpenVolumeCallback )
 		m_pArchiveOpenVolumeCallback->Release ();
+
+	Info.RestoreScreen (m_hScreen);
 }
 
 HRESULT __stdcall CArchiveOpenCallback::SetTotal (const UInt64 *files, const UInt64 *bytes)
@@ -785,7 +789,7 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const
    				pMsgs,
    				4,
    				0
-	   		);
+	   			);
 
 	   	m_bProgressMessage = true;
 	}

@@ -143,6 +143,8 @@ private:
 
 	SevenZipArchive *m_pArchive;
 
+	HANDLE m_hScreen;
+
 public:
 
 	CArchiveOpenCallback (SevenZipArchive *pArchive);
