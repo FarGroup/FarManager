@@ -68,7 +68,7 @@ $(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp $(COMINC)\plugin.hpp \
 $(OBJDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp $(COMINC)\plugin.hpp netlng.hpp \
   NetMacros.hpp NetReg.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp
 $(OBJDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp \
-  $(COMMON)\plugin.hpp NetCommon.hpp netlng.hpp NetMacros.hpp NetReg.hpp
+  $(COMINC)\plugin.hpp NetCommon.hpp netlng.hpp NetMacros.hpp NetReg.hpp
 $(OBJDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp $(COMINC)\plugin.hpp netlng.hpp \
   NetMacros.hpp
 $(OBJDIR)\NetNT.obj : NetNT.cpp NetClass.hpp $(COMINC)\plugin.hpp NetCommon.hpp \
