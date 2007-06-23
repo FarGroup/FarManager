@@ -7,7 +7,7 @@ DIRBIT = 64
 !ELSE
 DIRBIT = 32
 !ENDIF
-OUTDIR = final.$(DIRBIT)$(DIRSUFF).vc
+OUTDIR = ..\final.$(DIRBIT)$(DIRSUFF).vc
 
 OBJDIR = $(OUTDIR)\obj
 OUTPUTS= $(OBJDIR)\pcre.lib
