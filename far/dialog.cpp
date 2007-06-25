@@ -378,7 +378,6 @@ void Dialog::ProcessCenterGroup(void)
       {
         JCurItem->X1=StartX;
         StartX+=LenStrItem(J);
-        JCurItem->X2=StartX-1;
 
 //        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
 //          StartX+=2;
@@ -393,6 +392,11 @@ void Dialog::ProcessCenterGroup(void)
               StartX+=5;
               break;
           }
+
+        if (StartX == JCurItem->X1)
+          JCurItem->X2=StartX;
+        else
+          JCurItem->X2=StartX-1;
       }
     }
   }
