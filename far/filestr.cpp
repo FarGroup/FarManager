@@ -92,7 +92,7 @@ int GetFileString::GetAnsiString(char **DestStr,int &Length)
       ReadPos=0;
     }
 
-    int Ch=ReadBuf[ReadPos++];
+    int Ch=ReadBuf[ReadPos];
 
     if( ( Eol && Ch != '\n' && Ch != '\r' ) || Eol >= (int)sizeof(EOL))
       break;
@@ -105,6 +105,8 @@ int GetFileString::GetAnsiString(char **DestStr,int &Length)
       *PtrEol++=Ch;
       Eol++;
     }
+
+    ReadPos++;
 
     if (CurLength>=m_nStrLength-1)
     {
@@ -148,7 +150,6 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
       ReadPos=0;
     }
     int Ch=wReadBuf[ReadPos/sizeof (wchar_t)];
-    ReadPos += sizeof (wchar_t);
 
     if( ( Eol && Ch != L'\n' && Ch != L'\r' ) || Eol >= (int)(sizeof(EOL)/sizeof (wchar_t)))
       break;
@@ -161,6 +162,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
       Eol++;
     }
 
+    ReadPos += sizeof (wchar_t);
     if (CurLength>=m_nStrLength-1)
     {
       wchar_t *NewStr=(wchar_t *)xf_realloc(wStr,(m_nStrLength+1024)*sizeof (wchar_t));
@@ -205,7 +207,6 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 			ReadPos=0;
 		}
 		int Ch=wReadBuf[ReadPos/sizeof (wchar_t)];
-		ReadPos += sizeof (wchar_t);
 		if( ( Eol && Ch != L'\n' && Ch != L'\r' ) || Eol >= (int)(sizeof(EOL)/sizeof (wchar_t)))
 			break;
 
@@ -217,6 +218,7 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 			Eol++;
 		}
 
+		ReadPos += sizeof (wchar_t);
 		if (CurLength>=m_nStrLength-1)
 		{
 			wchar_t *NewStr=(wchar_t *)xf_realloc(wStr,(m_nStrLength+1024)*sizeof (wchar_t));
