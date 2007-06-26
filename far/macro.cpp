@@ -4043,10 +4043,10 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
 
       if ( strCurrKeyText.At(0) == L'%' &&
            (
-             ( LocalIsalphaW(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) ||
+             ( LocalIsalphanumW(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) ||
              (
                strCurrKeyText.At(1) == L'%' &&
-               ( LocalIsalphaW(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' )
+               ( LocalIsalphanumW(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' )
              )
            )
          )
