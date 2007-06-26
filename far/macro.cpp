@@ -4076,7 +4076,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       _KEYMACRO_PARSE(CleverSysLog Clev("KeyNameToKey() == -1"));
       int ProcError=0;
 
-      if ( *CurrKeyText == '%' && ( ( isalpha(CurrKeyText[1]) || CurrKeyText[1] == '_' ) || ( CurrKeyText[1] == '%' && ( isalpha(CurrKeyText[2]) || CurrKeyText[2]=='_' ) ) ) )
+      if ( *CurrKeyText == '%' && ( ( isalnum(CurrKeyText[1]) || CurrKeyText[1] == '_' ) || ( CurrKeyText[1] == '%' && ( isalnum(CurrKeyText[2]) || CurrKeyText[2]=='_' ) ) ) )
       {
         _KEYMACRO_PARSE(CleverSysLog Clev("Detect Vars"));
 
