@@ -752,8 +752,6 @@ void FileFilter::SaveFilters(bool SaveAll)
 {
   char RegKey[80], *PtrRegKey;
 
-  DeleteKeyTree("Filters");
-
   strcpy(RegKey,"Filters\\Filter");
   PtrRegKey=RegKey+strlen(RegKey);
 
@@ -795,6 +793,12 @@ void FileFilter::SaveFilters(bool SaveAll)
     SetRegKey(RegKey,"Flags",SaveAll ? CurFilterData->Flags.Flags : 0);
   }
 
+  for (unsigned int i=FilterData.getCount(); i<FilterData.getCount()+5; i++)
+  {
+    itoa(i,PtrRegKey,10);
+    DeleteRegKey(RegKey);
+  }
+
   if (SaveAll)
   {
     strcpy(RegKey,"Filters\\PanelMask");
@@ -810,6 +814,12 @@ void FileFilter::SaveFilters(bool SaveAll)
       SetRegKey(RegKey,"Mask",Mask);
 
       SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
+    }
+
+    for (unsigned int i=TempFilterData.getCount(); i<TempFilterData.getCount()+5; i++)
+    {
+      itoa(i,PtrRegKey,10);
+      DeleteRegKey(RegKey);
     }
 
     SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
