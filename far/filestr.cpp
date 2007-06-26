@@ -51,9 +51,10 @@ int GetFileString::GetString(char **DestStr,int &Length)
       }
       ReadPos=0;
     }
-    int Ch=ReadBuf[ReadPos++];
+    int Ch=ReadBuf[ReadPos]; // Mantis#295
 #if 0
     if (Ch!='\n' && CurLength>0 && Str[CurLength-1]=='\r')
+      break;
 #else
     if( ( Eol && Ch != '\n' && Ch != '\r' ) || Eol >= (int)sizeof(EOL))
       break;
@@ -67,6 +68,7 @@ int GetFileString::GetString(char **DestStr,int &Length)
       Eol++;
     }
 #endif
+    ReadPos++; // Mantis#295
     if (CurLength>=StrLength-1)
     {
       char *NewStr=(char *)xf_realloc(Str,StrLength+1024);
