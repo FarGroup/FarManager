@@ -30,6 +30,11 @@ copy.cpp
 #include "lockscrn.hpp"
 #include "filefilter.hpp"
 
+/* Общее время ожидания пользователя */
+extern long WaitUserTime;
+/* Длф того, что бы время при одижании пользователя тикало, а remaining/speed нет */
+static long OldCalcTime;
+
 /* Интервал для прорисовки прогресс-бара. */
 #define COPY_TIMEOUT 200
 
@@ -53,7 +58,6 @@ static int TotalFilesToProcess;
 
 static int ShowCopyTime;
 static clock_t CopyStartTime;
-static clock_t CopyTime;
 static clock_t LastShowTime;
 /* VVM $ */
 static int OrigScrX,OrigScrY;
@@ -785,7 +789,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         TotalCopySize=TotalCopiedSize=TotalSkippedSize=0;
         // Запомним время начала
         if (ShowCopyTime)
+        {
           CopyStartTime = clock();
+          WaitUserTime = OldCalcTime = 0;
+        }
 
         CopyTitle = new ConsoleTitle(NULL);
         StaticCopyTitle=CopyTitle;
@@ -1403,7 +1410,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
   ShellCopyMsg(L"",L"",MSG_LEFTALIGN);
 
-  CopyTime = 0;
   LastShowTime = 0;
 
   // Создание структуры каталогов в месте назначения
@@ -1520,8 +1526,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       // проверка на вшивость ;-)
       if ((FindHandle=apiFindFirstFile(strSelName,&SrcData))==INVALID_HANDLE_VALUE)
       {
-        CopyTime+= (clock() - CopyStartTime);
-
         strDestPath = strSelName;
         ShellCopy::ShellCopyMsg(strSelName,strDestPath,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (Message(MSG_DOWN|MSG_WARNING,2,UMSG(MError),UMSG(MCopyCannotFind),
@@ -1529,7 +1533,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         {
           return COPY_FAILURE;
         }
-        CopyStartTime = clock();
         continue;
       }
       FindClose(FindHandle);
@@ -1866,15 +1869,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
   int IsSetSecuty=FALSE;
 
-  if (CheckForEscSilent())
+  if (CheckForEscSilent() && ConfirmAbortOp())
   {
-    CopyTime+= (clock() - CopyStartTime);
-    int AbortOp = ConfirmAbortOp();
-    CopyStartTime = clock();
-    if (AbortOp)
-    {
-      return(COPY_CANCEL);
-    }
+    return(COPY_CANCEL);
   }
 
   /* Отфильтруем файлы не попадающие в действующий фильтр,
@@ -1935,11 +1932,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       }
       if (CmpCode==2 || !Rename)
       {
-        CopyTime+= (clock() - CopyStartTime);
         SetMessageHelp(L"ErrCopyItSelf");
         Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),UMSG(MCannotCopyFolderToItself1),
                 Src,UMSG(MCannotCopyFolderToItself2),UMSG(MOk));
-        CopyStartTime = clock();
         return(COPY_CANCEL);
       }
     }
@@ -2020,11 +2015,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             {
               // Ай-ай-ай. Каталог не смогли создать! Значит будем ругаться!
               int MsgCode;
-              CopyTime+= (clock() - CopyStartTime);
               MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                               UMSG(MCopyCannotCreateFolder),strNewPath,UMSG(MCopyRetry),
                               UMSG(MCopySkip),UMSG(MCopyCancel));
-              CopyStartTime = clock();
 
               if (MsgCode!=0)
               {
@@ -2173,12 +2166,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             }
             else
             {
-              CopyTime+= (clock() - CopyStartTime);
               SetLastError(LastError);
               int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                                     UMSG(MCopyCannotRenameFolder),Src,UMSG(MCopyRetry),
                                     UMSG(MCopyIgnore),UMSG(MCopyCancel));
-              CopyStartTime = clock();
               switch (MsgCode)
               {
                 case 0:  continue;
@@ -2201,11 +2192,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       while (!CreateDirectoryW(strDestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
       {
         int MsgCode;
-        CopyTime+= (clock() - CopyStartTime);
         MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                         UMSG(MCopyCannotCreateFolder),strDestPath,UMSG(MCopyRetry),
                         UMSG(MCopySkip),UMSG(MCopyCancel));
-        CopyStartTime = clock();
 
         if (MsgCode!=0)
           return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
@@ -2227,12 +2216,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
         if(SetAttr&FILE_ATTRIBUTE_COMPRESSED)
         {
-          int MsgCode;
           while(1)
           {
-            CopyTime+= (clock() - CopyStartTime);
-            MsgCode=ESetFileCompression(strDestPath,1,0);
-            CopyStartTime = clock();
+            int MsgCode=ESetFileCompression(strDestPath,1,0);
             if(MsgCode)
             {
               if(MsgCode == 2)
@@ -2247,11 +2233,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         while(!ShellSetAttr(strDestPath,SetAttr))
         {
           int MsgCode;
-          CopyTime+= (clock() - CopyStartTime);
           MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                           UMSG(MCopyCannotChangeFolderAttr),strDestPath,
                           UMSG(MCopyRetry),UMSG(MCopySkip),UMSG(MCopySkipAll),UMSG(MCopyCancel));
-          CopyStartTime = clock();
 
           if (MsgCode!=0)
           {
@@ -2272,11 +2256,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         while(!ShellSetAttr(strDestPath,SetAttr))
         {
           int MsgCode;
-          CopyTime+= (clock() - CopyStartTime);
           MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                           UMSG(MCopyCannotChangeFolderAttr),strDestPath,
                           UMSG(MCopyRetry),UMSG(MCopySkip),UMSG(MCopySkipAll),UMSG(MCopyCancel));
-          CopyStartTime = clock();
 
           if (MsgCode!=0)
           {
@@ -2339,21 +2321,15 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
             if (CmpCode==2 || !Rename)
             {
-              CopyTime+= (clock() - CopyStartTime);
               Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),UMSG(MCannotCopyFileToItself1),
                       Src,UMSG(MCannotCopyFileToItself2),UMSG(MOk));
-              CopyStartTime = clock();
               return(COPY_CANCEL);
             }
           }
         }
 
-        int RetCode, AskCode;
-        CopyTime+= (clock() - CopyStartTime);
-        AskCode = AskOverwrite(SrcData,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
-        CopyStartTime = clock();
-
-        if (!AskCode)
+        int RetCode;
+        if (!AskOverwrite(SrcData,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
         {
           return((COPY_CODES)RetCode);
         }
@@ -2557,7 +2533,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         }
         else
         {
-          CopyTime+= (clock() - CopyStartTime);
           if(_localLastError == 5)
           {
             #define ERROR_EFS_SERVER_NOT_TRUSTED     6011L
@@ -2603,7 +2578,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           MsgCode=SkipMode;
         else
         {
-          CopyTime+= (clock() - CopyStartTime);
           MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                           UMSG(MsgMCannot),
                           strMsg1,
@@ -2611,7 +2585,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
                           strMsg2,
                           UMSG(MCopyRetry),UMSG(MCopySkip),
                           UMSG(MCopySkipAll),UMSG(MCopyCancel));
-          CopyStartTime = clock();
         }
 
         switch(MsgCode)
@@ -2631,12 +2604,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 //    CurCopiedSize=SaveCopiedSize;
     TotalCopiedSize=SaveTotalSize;
-    int RetCode, AskCode;
-    CopyTime+= (clock() - CopyStartTime);
-    AskCode = AskOverwrite(SrcData,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
-    CopyStartTime = clock();
-
-    if (!AskCode)
+    int RetCode;
+    if (!AskOverwrite(SrcData,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
       return((COPY_CODES)RetCode);
   }
   }
@@ -2739,8 +2708,8 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
     if ((Src!=NULL) && (ShowCopyTime))
     {
       CopyStartTime = clock();
-      CopyTime = 0;
       LastShowTime = 0;
+      WaitUserTime = OldCalcTime = 0;
     }
   }
 
@@ -2809,7 +2778,6 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
   if (Attr & FA_RDONLY)
   {
     int MsgCode;
-    CopyTime+= (clock() - CopyStartTime);
     if (ReadOnlyDelMode!=-1)
       MsgCode=ReadOnlyDelMode;
     else
@@ -2817,7 +2785,6 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
               UMSG(MCopyFileRO),Name,UMSG(MCopyAskDelete),
               UMSG(MCopyDeleteRO),UMSG(MCopyDeleteAllRO),
               UMSG(MCopySkipRO),UMSG(MCopySkipAllRO),UMSG(MCopyCancelRO));
-    CopyStartTime = clock();
     switch(MsgCode)
     {
       case 1:
@@ -2838,11 +2805,9 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
   while ( _wremove(Name) )
   {
     int MsgCode;
-    CopyTime+= (clock() - CopyStartTime);
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
                     UMSG(MCannotDeleteFile),Name,UMSG(MDeleteRetry),
                     UMSG(MDeleteSkip),UMSG(MDeleteCancel));
-    CopyStartTime = clock();
     if (MsgCode==1 || MsgCode==-1)
       break;
     if (MsgCode==2 || MsgCode==-2)
@@ -2880,7 +2845,6 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     }
     else
     {
-      CopyTime+= (clock() - CopyStartTime);
       SetMessageHelp(L"WarnCopyEncrypt");
 
       string strTruncSrcName = SrcName;
@@ -2891,7 +2855,6 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                       UMSG(MCopyEncryptWarn2),
                       UMSG(MCopyEncryptWarn3),
                       UMSG(MCopyIgnore),UMSG(MCopyIgnoreAll),UMSG(MCopyCancel));
-      CopyStartTime = clock();
     }
 
     switch(MsgCode)
@@ -3051,10 +3014,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
     if (CheckForEscSilent())
     {
-      CopyTime+= (clock() - CopyStartTime);
       AbortOp = ConfirmAbortOp();
       IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
-      CopyStartTime = clock();
     }
     if(IsChangeConsole)
     {
@@ -3094,12 +3055,10 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 //      StartTime=clock();
     while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
     {
-      CopyTime+= (clock() - CopyStartTime);
       int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
                             UMSG(MCopyReadError),SrcName,
                             UMSG(MRetry),UMSG(MCancel));
       ShellCopy::PR_ShellCopyMsg();
-      CopyStartTime = clock();
       if (MsgCode==0)
         continue;
       DWORD LastError=GetLastError();
@@ -3151,12 +3110,10 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             {
               CloseHandle(DestHandle);
               SetMessageHelp(L"CopyFiles");
-              CopyTime+= (clock() - CopyStartTime);
               int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(MError),
                                   UMSG(MErrorInsufficientDiskSpace),DestName,
                                   UMSG(MSplit),UMSG(MSkip),UMSG(MRetry),UMSG(MCancel));
               ShellCopy::PR_ShellCopyMsg();
-              CopyStartTime = clock();
               if (MsgCode==2)
               {
                 CloseHandle(SrcHandle);
@@ -3176,12 +3133,10 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                   if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
                     if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
                     {
-                      CopyTime+= (clock() - CopyStartTime);
                       int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,UMSG(MWarning),
                                             UMSG(MCopyErrorDiskFull),DestName,
                                             UMSG(MRetry),UMSG(MCancel));
                       ShellCopy::PR_ShellCopyMsg();
-                      CopyStartTime = clock();
                       if (MsgCode!=0)
                       {
                         Split=FALSE;
@@ -3202,11 +3157,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
         }
         if (Split)
         {
-          int RetCode, AskCode;
-          CopyTime+= (clock() - CopyStartTime);
-          AskCode = AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
-          CopyStartTime = clock();
-          if (!AskCode)
+          int RetCode;
+          if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
           {
             CloseHandle(SrcHandle);
             SetErrorMode(OldErrMode);
@@ -3250,16 +3202,12 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
         }
         else
         {
-          CopyTime+= (clock() - CopyStartTime);
           if (!SplitCancelled && !SplitSkipped &&
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
               UMSG(MCopyWriteError),DestName,UMSG(MRetry),UMSG(MCancel))==0)
           {
-            CopyStartTime = clock();
             continue;
           }
-          else
-            CopyStartTime = clock();
           CloseHandle(SrcHandle);
           if (Append)
           {
@@ -3401,14 +3349,18 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
   // // _LOGCOPYR(SysLog(L"!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
-//    CopyTime+= (clock() - CopyStartTime);
-//    CopyStartTime = clock();
-    int WorkTime = (CopyTime + (clock() - CopyStartTime))/1000;
+    unsigned WorkTime = clock() - CopyStartTime;
     unsigned __int64 SizeLeft = OldTotalSize - OldWrittenSize;
     if (SizeLeft < 0)
       SizeLeft = 0;
 
-    int TimeLeft;
+    unsigned CalcTime = OldCalcTime;
+    if (WaitUserTime != -1) // -1 => находимся в процессе ожидания ответа юзера
+      OldCalcTime = CalcTime = WorkTime - WaitUserTime;
+    WorkTime /= 1000;
+    CalcTime /= 1000;
+
+    unsigned TimeLeft;
     string strTimeStr;
     wchar_t c[2];
     c[1]=0;
@@ -3419,7 +3371,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     {
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
-      int CPS = static_cast<int>(OldWrittenSize/WorkTime);
+      unsigned CPS = static_cast<int>(CalcTime?OldWrittenSize/CalcTime:0);
       TimeLeft = static_cast<int>((CPS)?SizeLeft/CPS:0);
       c[0]=L' ';
       if (CPS > 99999) {
@@ -3843,11 +3795,9 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
   if (CheckForEscSilent())
   {
-    CopyTime+= (clock() - CopyStartTime);
     // // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
     AbortOp = ConfirmAbortOp();
     IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
-    CopyStartTime = clock();
   }
 
   if(IsChangeConsole)

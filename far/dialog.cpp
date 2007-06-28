@@ -4813,6 +4813,13 @@ void Dialog::SetDialogData(LONG_PTR NewDataDialog)
 /* SVS $ */
 
 //////////////////////////////////////////////////////////////////////////
+/* $ 29.06.2007 yjh\
+   При рассчётах времён копирования проще/надёжнее учитывать время ожидания
+   пользовательских ответов в одном месте (здесь).
+   Сброс этой переменной должен осуществляться перед общим началом операции
+*/
+long WaitUserTime;
+
 /* $ 11.08.2000 SVS
    + Для того, чтобы послать DM_CLOSE нужно переопределить Process
 */
@@ -4828,8 +4835,22 @@ void Dialog::Process()
 
   if(ExitCode == -1)
   {
+    static LONG in_dialog = -1;
+
+    clock_t btm;
+    long    save;
+
     DialogMode.Set(DMODE_BEGINLOOP);
+    if (!InterlockedIncrement(&in_dialog))
+    {
+      btm = clock();
+      save = WaitUserTime;
+      WaitUserTime = -1;
+    }
     FrameManager->ExecuteModal (this);
+    save += (clock() - btm);
+    if (InterlockedDecrement(&in_dialog) == -1)
+      WaitUserTime = save;
   }
 
   if ( pSaveItemEx )
