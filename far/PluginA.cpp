@@ -692,9 +692,9 @@ HANDLE PluginA::OpenPlugin (int OpenFrom, INT_PTR Item)
   CheckScreenLock(); //??
 
   {
-		string strCurDir;
-		CtrlObject->CmdLine->GetCurDir(strCurDir);
-		FarChDir(strCurDir);
+//		string strCurDir;
+//		CtrlObject->CmdLine->GetCurDir(strCurDir);
+//		FarChDir(strCurDir);
 		g_strDirToSet=L"";
   }
 
