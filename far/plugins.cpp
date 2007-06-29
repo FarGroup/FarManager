@@ -1219,9 +1219,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,INT_PTR Item)
   _ALGO(SysLog("PluginNumber=%d, OpenFrom=%d, Item=%d",PluginNumber,OpenFrom,Item));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   CheckScreenLock();
-  char CurDir[NM];
-  CtrlObject->CmdLine->GetCurDir(CurDir);
-  FarChDir(CurDir);
+  //char CurDir[NM];
+  //CtrlObject->CmdLine->GetCurDir(CurDir);
+  //FarChDir(CurDir);
   *DirToSet=0;
   HANDLE hInternal=0;
   if (PluginNumber<PluginsCount)
