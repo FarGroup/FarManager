@@ -431,7 +431,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
                     constStrTypes[dwType] : "(Unknown)",*/
 //              pSysHandleInformation->Handles[i].KernelAddress,
                 pSysHandleInformation->Handles[i].GrantedAccess);
-            PrintNameAndType((HANDLE)(UINT)pSysHandleInformation->Handles[i].HandleValue, dwPID, file, pThread);
+            PrintNameAndType((HANDLE)(SIZE_T)(UINT)pSysHandleInformation->Handles[i].HandleValue, dwPID, file, pThread);
             fputc('\n', file);
         }
     }
