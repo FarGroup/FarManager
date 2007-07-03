@@ -337,6 +337,8 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
       GetPDataNT( *(ProcessDataNT*)CurItem.UserData, pd);
       if(pd.dwProcessId==0 && pd.dwThreads >5) //_Total
         CurItem.FindData.dwFileAttributes |= FILE_ATTRIBUTE_HIDDEN;
+      if(pd.bProcessIs64bit)
+        CurItem.FindData.dwFileAttributes |= FILE_ATTRIBUTE_READONLY;
     }//for
     return TRUE;
 }
@@ -359,7 +361,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName, DWORD cbProcessNa
             pProcessName, cbProcessName, NULL, NULL);
             else
                 *pProcessName = 0;
-    }
+        }
         if(pFullPath) {
             SIZE_T sz = sizeof(szProcessName);//min(sizeof(szProcessName), Data.FullDllName.MaximumLength*2);
             if(ReadProcessMemory(hProcess, Data.FullDllName.Buffer, szProcessName, sz,0))
@@ -367,56 +369,56 @@ void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName, DWORD cbProcessNa
                 pFullPath, cbFullPath, NULL, NULL);
             else
                 *pFullPath = 0;
-    }
-    if(pCommandLine) {
-        UNICODE_STRING pCmd;
-        if(ReadProcessMemory(hProcess, &pProcessParams->CommandLine, &pCmd, sizeof(pCmd), 0)) {
-        SIZE_T sz = min(cbCommandLine, (ULONG)pCmd.Length + 1);
-        Array<WCHAR> sCommandLine(sz);
-        *pCommandLine = 0;
-        if(ReadProcessMemory(hProcess, pCmd.Buffer, sCommandLine, sz-1,0)) {
-            sCommandLine[sz-1] = 0;
-            WideCharToMultiByte( CP_ACP, 0, sCommandLine, -1,
-                    pCommandLine, cbCommandLine, NULL, NULL);
         }
+        if(pCommandLine) {
+            UNICODE_STRING pCmd;
+            if(ReadProcessMemory(hProcess, &pProcessParams->CommandLine, &pCmd, sizeof(pCmd), 0)) {
+                SIZE_T sz = min(cbCommandLine, (ULONG)pCmd.Length + 1);
+                Array<WCHAR> sCommandLine(sz);
+                *pCommandLine = 0;
+                if(ReadProcessMemory(hProcess, pCmd.Buffer, sCommandLine, sz-1,0)) {
+                    sCommandLine[sz-1] = 0;
+                    WideCharToMultiByte(CP_ACP, 0, sCommandLine, -1,
+                                        pCommandLine, cbCommandLine, NULL, NULL);
+                }
+            }
         }
-    }
 
-    if(ppEnvStrings) {
-        char *pEnv;
-        *ppEnvStrings = 0;
-        if(ReadProcessMemory(hProcess, &pProcessParams->EnvironmentBlock, &pEnv, sizeof(pEnv), 0)) {
-          WCHAR* pwEnvStrings = 0;
-          DWORD dwSize = 0;
-          while(1) {
-              pwEnvStrings = new WCHAR[dwSize+=1024];
-              if(!ReadProcessMemory(hProcess, pEnv, pwEnvStrings, dwSize*2,0)) {
-                  delete pwEnvStrings;
-                  pwEnvStrings = 0;
-                  break;
-              }
-              if(mwcslen(pwEnvStrings, dwSize)<dwSize)
-                  break;
-              delete pwEnvStrings;
-          }
-          if(pwEnvStrings) {
-              dwSize = mwcslen(pwEnvStrings) + 1;
-              dwSize = WideCharToMultiByte( CP_ACP, 0, pwEnvStrings, dwSize, 0,0,0,0);
-              if(dwSize) {
-                *ppEnvStrings = new char[dwSize];
-                WideCharToMultiByte( CP_ACP, 0, pwEnvStrings, dwSize, *ppEnvStrings,dwSize,0,0);
-              }
-          }
+        if(ppEnvStrings) {
+            char *pEnv;
+            *ppEnvStrings = 0;
+            if(ReadProcessMemory(hProcess, &pProcessParams->EnvironmentBlock, &pEnv, sizeof(pEnv), 0)) {
+                WCHAR* pwEnvStrings = 0;
+                DWORD dwSize = 0;
+                while(1) {
+                    pwEnvStrings = new WCHAR[dwSize+=1024];
+                    if(!ReadProcessMemory(hProcess, pEnv, pwEnvStrings, dwSize*2,0)) {
+                        delete pwEnvStrings;
+                        pwEnvStrings = 0;
+                        break;
+                    }
+                    if(mwcslen(pwEnvStrings, dwSize)<dwSize)
+                        break;
+                    delete pwEnvStrings;
+                }
+                if(pwEnvStrings) {
+                    dwSize = mwcslen(pwEnvStrings) + 1;
+                    dwSize = WideCharToMultiByte( CP_ACP, 0, pwEnvStrings, dwSize, 0,0,0,0);
+                    if(dwSize) {
+                        *ppEnvStrings = new char[dwSize];
+                        WideCharToMultiByte( CP_ACP, 0, pwEnvStrings, dwSize, *ppEnvStrings,dwSize,0,0);
+                    }
+                }
+            }
         }
-    }
-    if(psCurDir) {
-        UNICODE_STRING CurDir;
-        if(ReadProcessMemory(hProcess, &pProcessParams->CurrentDirectoryPath, &CurDir, sizeof(CurDir), 0)) {
-          Array<WCHAR> wsCurDir(CurDir.Length + 1);
-          if(ReadProcessMemory(hProcess, CurDir.Buffer, (WCHAR*)wsCurDir, CurDir.Length,0))
-            *psCurDir = new OemString((WCHAR*)wsCurDir);
+        if(psCurDir) {
+            UNICODE_STRING CurDir;
+            if(ReadProcessMemory(hProcess, &pProcessParams->CurrentDirectoryPath, &CurDir, sizeof(CurDir), 0)) {
+                Array<WCHAR> wsCurDir(CurDir.Length + 1);
+                if(ReadProcessMemory(hProcess, CurDir.Buffer, (WCHAR*)wsCurDir, CurDir.Length,0))
+                *psCurDir = new OemString((WCHAR*)wsCurDir);
+            }
         }
-    }
     }
 }
 

@@ -139,7 +139,7 @@ BOOL GetThreadId( HANDLE h, DWORD& threadID)
     // Get the thread information
     if ( pNtQueryInformationThread( handle, 0, &ti, sizeof(ti), NULL ) == 0 )
     {
-        threadID = (DWORD)ti.ClientId.UniqueThread;
+        threadID = (DWORD)(SIZE_T)ti.ClientId.UniqueThread;
         ret = TRUE;
     }
 

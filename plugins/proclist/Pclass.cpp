@@ -983,7 +983,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
                 SetForegroundWindow(hWnd);
                 if(bSPI) // Restore the old value
-                    SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)dwMs, 0);
+                    SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(SIZE_T)dwMs, 0);
 
                 WINDOWPLACEMENT wp;
                 wp.length = sizeof(wp);
