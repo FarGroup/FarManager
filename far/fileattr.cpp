@@ -11,6 +11,7 @@ fileattr.cpp
 #include "global.hpp"
 #include "fn.hpp"
 #include "lang.hpp"
+#include "flink.hpp"
 
 typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
 typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);
@@ -234,8 +235,14 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
     {
       SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
       LastError=GetLastError();
-
       CloseHandle(hFile);
+
+      if ( (FileAttr & FA_DIREC) && LastError==ERROR_NOT_SUPPORTED ) // FIX: Mantis#223
+      {
+        char DriveRoot[NM];
+        GetPathRoot (Name, DriveRoot);
+        if ( GetDriveType (DriveRoot)==DRIVE_REMOTE ) break;
+      }
     }
 
     if (FileAttr & FA_RDONLY)

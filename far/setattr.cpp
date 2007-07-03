@@ -929,9 +929,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
-            RetCode=1;
-          else
+          //if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
+          //  RetCode=1;
+          //else
             RetCode=ESetFileTime(SelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
@@ -999,9 +999,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
-                RetCode=1;
-              else
+              //if(strstr(DlgParam.FSysName,"FAT") && (FileAttr&FA_DIREC))
+              //  RetCode=1;
+              //else
                 RetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
