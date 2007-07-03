@@ -335,8 +335,13 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
       CurItem.NumberOfLinks = pd.dwThreads;
 
       GetPDataNT( *(ProcessDataNT*)CurItem.UserData, pd);
-      if(pd.dwProcessId==0 && pd.dwThreads >5) //_Total
-        CurItem.FindData.dwFileAttributes |= FILE_ATTRIBUTE_HIDDEN;
+      if(pd.dwProcessId==0 && pd.dwThreads >5)  //_Total
+        CurItem.FindData.dwFileAttributes |=
+#ifndef _WIN64
+                                             FILE_ATTRIBUTE_HIDDEN;
+#else
+                   FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN;  // Far64 unmark :)
+#endif
       if(pd.bProcessIs64bit)
         CurItem.FindData.dwFileAttributes |= FILE_ATTRIBUTE_READONLY;
     }//for
