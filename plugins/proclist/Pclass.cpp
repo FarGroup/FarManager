@@ -313,7 +313,7 @@ PanelMode* Plist::PanelModes(int& nModes)
 void Plist::GetOpenPluginInfo(OpenPluginInfo *Info)
 {
     Info->StructSize = sizeof(*Info);
-    Info->Flags = OPIF_ADDDOTS|OPIF_SHOWNAMESONLY;
+    Info->Flags = OPIF_ADDDOTS|OPIF_SHOWNAMESONLY|OPIF_USEATTRHIGHLIGHTING;
 
     Info->CurDir = "";
 
