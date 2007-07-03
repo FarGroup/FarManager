@@ -925,9 +925,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
-            RetCode=1;
-          else
+          //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
+          //  RetCode=1;
+          //else
             RetCode=ESetFileTime(strSelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
@@ -995,9 +995,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
-                RetCode=1;
-              else
+              //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
+              //  RetCode=1;
+              //else
                 RetCode=ESetFileTime(strFullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
