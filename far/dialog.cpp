@@ -2290,6 +2290,9 @@ int Dialog::ProcessKey(int Key)
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos]->Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
         }
+        else
+          List->SetSelectPos(CurListPos,0); //????
+
         if(!(Key == KEY_ENTER || Key == KEY_NUMENTER) || (Item[FocusPos]->Flags&DIF_LISTNOCLOSE))
           return(TRUE);
 
@@ -2938,7 +2941,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               ShowDialog(I); // FocusPos
           }
           else
+          {
             Pos=NewListPos;
+            List->SetSelectPos(Pos,0); //????
+          }
         }
         else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
         {
@@ -2958,6 +2964,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           else
           {
             Pos=NewListPos;
+            List->SetSelectPos(Pos,0); //????
             if(!InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
             {
               ExitCode=I;
@@ -3372,10 +3379,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFo
     SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,strStr,MaxLen);
 
   }
-  /* SVS $ */
-  /* $ 18.07.2000 SVS
-     + обработка DI_COMBOBOX - выбор из списка!
-  */
+  // $ 18.07.2000 SVS:  +обработка DI_COMBOBOX - выбор из списка!
   else if(Type == DI_COMBOBOX && CurItem->ListPtr &&
           !(CurItem->Flags & DIF_READONLY) &&
           CurItem->ListPtr->GetItemCount() > 0) //??
@@ -3385,7 +3389,6 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFo
     if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
       Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
   }
-  /* SVS $ */
   return(TRUE);
 }
 
@@ -3999,10 +4002,6 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 /* Private:
    Заполняем выпадающий список для ComboBox
 */
-/*
-   $ 18.07.2000 SVS
-   Функция-обработчик выбора из списка и установки...
-*/
 int Dialog::SelectFromComboBox(
          struct DialogItemEx *CurItem,
          DlgEdit *EditLine,                   // строка редактирования
@@ -4014,7 +4013,7 @@ int Dialog::SelectFromComboBox(
   //char *Str;
   string strStr;
   int EditX1,EditY1,EditX2,EditY2;
-  int I,Dest;
+  int I,Dest, OriginalPos;
   int CurFocusPos=FocusPos;
 
   //if((Str=(char*)xf_malloc(MaxLen)) != NULL)
@@ -4044,7 +4043,7 @@ int Dialog::SelectFromComboBox(
 
     ComboBox->Show();
 
-    Dest=ComboBox->GetSelectPos();
+    OriginalPos=Dest=ComboBox->GetSelectPos();
     while (!ComboBox->Done())
     {
       if (!GetDropDownOpened())
@@ -4092,6 +4091,10 @@ int Dialog::SelectFromComboBox(
       Dest=ComboBox->Modal::GetExitCode();
     else
       Dest=-1;
+
+    if(Dest == -1)
+      ComboBox->SetSelectPos(OriginalPos,0); //????
+
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
     if (Dest<0)
     {
@@ -4112,7 +4115,6 @@ int Dialog::SelectFromComboBox(
   }
   return KEY_ESC;
 }
-/* SVS $ */
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:
