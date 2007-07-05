@@ -437,8 +437,6 @@ FindFiles::FindFiles()
   SearchHex=LastSearchHex;
   if(LastSearchInSymLink == -1)
     LastSearchInSymLink=Opt.ScanJunction;
-  if (!RegVer)
-    LastSearchInSymLink=0;
   SearchInSymLink=LastSearchInSymLink;
   SearchMode=Opt.FindOpt.FileSearchMode;
 
@@ -617,7 +615,7 @@ FindFiles::FindFiles()
       }
     }
 
-    if (!RegVer || PluginMode)
+    if (PluginMode)
     {
       FindAskDlg[16].Selected=0;
       FindAskDlg[16].Flags|=DIF_DISABLE;
@@ -704,7 +702,7 @@ FindFiles::FindFiles()
     if (FindFoldersChanged)
       Opt.FindOpt.FindFolders=FindAskDlg[15].Selected;
 
-    if (RegVer && !PluginMode)
+    if (!PluginMode)
       SearchInSymLink=FindAskDlg[16].Selected;
 
     // Запомнить признак использования фильтра. KM

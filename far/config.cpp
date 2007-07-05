@@ -113,16 +113,7 @@ void SystemSettings()
   CfgDlg[3].Selected=Opt.DeleteToRecycleBinKillLink;
   CfgDlg[4].Selected=Opt.CMOpt.UseSystemCopy;
   CfgDlg[5].Selected=Opt.CMOpt.CopyOpened;
-  if (!RegVer)
-  {
-    CfgDlg[6].Flags|=DIF_DISABLE;
-    CfgDlg[6].Selected=0;
-  }
-  else
-  {
-    CfgDlg[6].Selected=Opt.ScanJunction;
-  }
-
+  CfgDlg[6].Selected=Opt.ScanJunction;
 
   CfgDlg[7].Selected=Opt.CreateUppercaseFolders;
   CfgDlg[8].Selected=Opt.InactivityExit;
@@ -245,20 +236,8 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=(int)wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=(int)wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
-
-  if (!RegVer)
-  {
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT2].Flags|=DIF_DISABLE;
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Flags|=DIF_DISABLE;
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
-    CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive=1;
-    CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Flags|=DIF_DISABLE;
-  }
-  else
-  {
-    CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive;
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].strData.Format (L"%u", Opt.AutoUpdateLimit);;
-  }
+  CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].strData.Format (L"%u", Opt.AutoUpdateLimit);;
 
   if(Opt.AutoUpdateLimit==0)
     CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
@@ -354,14 +333,7 @@ void InterfaceSettings()
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
-  if (!RegVer)
-  {
-    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Flags|=DIF_DISABLE;
-    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock=0;
-  }
-  else
-    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock;
-
+  CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock;
   CfgDlg[DLG_INTERF_CLOCK].Selected=Opt.Clock;
   CfgDlg[DLG_INTERF_MOUSE].Selected=Opt.Mouse;
   CfgDlg[DLG_INTERF_MOUSEPMCLICKRULE].Selected=Opt.PanelMiddleClickRule;
@@ -694,12 +666,6 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[ID_VC_EXTERALCOMMANDEDIT].strData = Opt.strExternalViewer;
   CfgDlg[ID_VC_TABSIZEEDIT].strData.Format (L"%d",ViOpt.TabSize);
 
-  if ( !RegVer )
-  {
-    CfgDlg[ID_VC_TABSIZEEDIT].Flags |= DIF_DISABLE;
-    CfgDlg[ID_VC_TABSIZE].Flags |= DIF_DISABLE;
-  }
-
   int DialogHeight = 21;
 
   if (Local)
@@ -871,11 +837,6 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiTableForNewFile;
 
   CfgDlg[ID_EC_TABSIZEEDIT].strData.Format (L"%d",EdOpt.TabSize);
-  if ( !RegVer )
-  {
-    CfgDlg[ID_EC_TABSIZEEDIT].Flags |= DIF_DISABLE;
-    CfgDlg[ID_EC_TABSIZE].Flags |= DIF_DISABLE;
-  }
 
   int DialogHeight=24;
 
@@ -1324,7 +1285,7 @@ void ReadConfig()
   /* SVS 13.12.2000 $ */
 
   Opt.ViOpt.ViewerIsWrap&=1;
-  if(RegVer) Opt.ViOpt.ViewerWrap&=1; else Opt.ViOpt.ViewerWrap=0;
+  Opt.ViOpt.ViewerWrap&=1;
 
   if (!Opt.ViOpt.AnsiTableAsDefault)
   {

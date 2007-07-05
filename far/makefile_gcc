@@ -7,7 +7,6 @@ DEF = far.def
 
 SRCS = 	cddrv.cpp \
 	CFileMask.cpp \
-	checkver.cpp \
 	chgmmode.cpp \
 	chgprior.cpp \
 	clipboard.cpp \

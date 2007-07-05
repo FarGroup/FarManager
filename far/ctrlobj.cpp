@@ -65,28 +65,8 @@ void ControlObject::Init()
 
   SetColor(F_LIGHTGRAY|B_BLACK);
   GotoXY(0,ScrY-3);
-  while (RegVer==-1)
-    Sleep(0);
   ShowCopyright();
   GotoXY(0,ScrY-2);
-
-  string strTruncRegName; //BUGBUG
-
-  strTruncRegName.SetData (RegName, CP_OEMCP);
-
-  wchar_t *CountPtr = strTruncRegName.GetBuffer ();
-
-  CountPtr = wcsstr (CountPtr, L" - (");
-
-  if (CountPtr!=NULL && iswdigit(CountPtr[4]) && wcschr(CountPtr+5,L'/')!=NULL && wcschr(CountPtr+6,L')')!=NULL)
-    *CountPtr=0;
-
-  strTruncRegName.ReleaseBuffer();
-
-  if (RegVer)
-    mprintf(L"%s: %s",UMSG(MRegistered),(const wchar_t*)strTruncRegName);
-  else
-    Text(MShareware);
 
   MoveCursor(0,ScrY-1);
   CmdLine->SaveBackground(0,0,ScrX,ScrY);
@@ -104,16 +84,6 @@ void ControlObject::Init()
   CmdLine->Show();
   if(Opt.ShowKeyBar)
     this->MainKeyBar->Show();
-
-  RegistrationBugs=FALSE;
-#ifdef _DEBUGEXC
-  if(CheckRegistration)
-#endif
-    if(_beginthread(CheckVersion,0x10000,NULL) == -1)
-    {
-      RegistrationBugs=TRUE;
-      CheckVersion(NULL);
-    }
 
   Cp()->LeftPanel->Update(0);
   Cp()->RightPanel->Update(0);
@@ -236,9 +206,6 @@ void ControlObject::ShowCopyright(DWORD Flags)
   }
   else
   {
-#ifdef BETA
-    mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
-#else
     ScrollScreen(2+Line2?1:0);
     if(Line2)
     {
@@ -249,7 +216,6 @@ void ControlObject::ShowCopyright(DWORD Flags)
     }
     else
       Text(strStr);
-#endif
   }
 }
 /* SVS $ */

@@ -398,11 +398,6 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 
 BOOL Manager::ShowBackground()
 {
-  if (!RegVer)
-  {
-    Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
-    return FALSE;
-  }
   CtrlObject->CmdLine->ShowBackground();
   return TRUE;
 }

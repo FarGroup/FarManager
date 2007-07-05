@@ -96,10 +96,6 @@ SOURCE=.\CFileMask.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\checkver.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\chgmmode.cpp
 # End Source File
 # Begin Source File

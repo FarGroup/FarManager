@@ -99,12 +99,6 @@ string &InsertCommas(unsigned __int64 li, string &strDest);
 void DeleteDirTree(const wchar_t *Dir);
 int GetClusterSize(const wchar_t *Root);
 
-void __cdecl CheckVersion(void *Param);
-void __cdecl ErrRegFn(void *Param);
-void __cdecl CheckReg(void *Param);
-void Register();
-
-char ToHex(char Ch);
 void InitDetectWindowedMode();
 void DetectWindowedMode();
 int IsWindowed();

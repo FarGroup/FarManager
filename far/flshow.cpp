@@ -404,21 +404,6 @@ void FileList::ShowSelectedSize()
     GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
     Text(strSelStr);
   }
-  else
-    if (!RegVer)
-    {
-      string strEvalStr;
-      const wchar_t *EvalMsg=UMSG(MListEval);
-      if (*EvalMsg==0)
-        strEvalStr = L" Evaluation version ";
-      else
-        strEvalStr.Format (L" %s ",UMSG(MListEval));
-      TruncStr(strEvalStr,X2-X1-1);
-      Length=(int)strEvalStr.GetLength();
-      SetColor(COL_PANELTEXT);
-      GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
-      Text(strEvalStr);
-    }
 }
 
 

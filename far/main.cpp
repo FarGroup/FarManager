@@ -96,29 +96,12 @@ L"      View the specified file. If <filename> is -, data is read from the stdin
 L" /x   Disable exception handling.\n");
 #if defined(_DEBUGEXC)
 wprintf(
-L" /xd  Enable exception handling.\n"
-L" /cr  Disable check registration.\n");
+L" /xd  Enable exception handling.\n");
 #endif
 #ifdef DIRECT_RT
 wprintf(
 L" /do  Direct output.\n");
 #endif
-}
-
-void QueryRegistration ()
-{
-  static struct RegInfo Reg;
-
-  if(_beginthread(CheckReg,0x10000,&Reg) == -1)
-  {
-    RegistrationBugs=TRUE;
-    CheckReg(&Reg);
-  }
-  else
-    RegistrationBugs=FALSE;
-
-  while (!Reg.Done)
-    Sleep(10);
 }
 
 static int MainProcess(
@@ -173,18 +156,6 @@ static int MainProcess(
     {
       Opt.OnlyEditorViewerUsed=0;
       NotUseCAS=FALSE;
-#ifdef _DEBUGEXC
-      if(CheckRegistration)
-      {
-#endif
-        if (RegOpt)
-        {
-          Register();
-          QueryRegistration ();
-        }
-#ifdef _DEBUGEXC
-      }
-#endif
 
       Opt.SetupArgv=0;
 
@@ -501,10 +472,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
               Opt.LoadPlug.PluginsCacheOnly=TRUE;
               Opt.LoadPlug.PluginsPersonal=FALSE;
             }
-#ifdef _DEBUGEXC
-            else if (LocalUpperW(Argv[I][2])==L'R')
-              CheckRegistration=FALSE;
-#endif
             break;
         /* tran $ */
         /* $ 19.01.2001 SVS
@@ -568,7 +535,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   InitDetectWindowedMode();
   InitConsole();
   GetRegKey(L"Language",L"Main",Opt.strLanguage,L"English");
-  if (!Lang.Init(g_strFarPath,MListEval))
+  if (!Lang.Init(g_strFarPath,MNewFileName))
   {
     ControlObject::ShowCopyright(1);
     fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
@@ -585,18 +552,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   DeleteEmptyKey(HKEY_CLASSES_ROOT,L"Directory\\shellex\\CopyHookHandlers");
 
   initMacroVarTable(1);
-
-#ifdef _DEBUGEXC
-  if(CheckRegistration)
-  {
-#endif
-    RegVer=-1;
-    QueryRegistration ();
-#ifdef _DEBUGEXC
-  }
-  else
-    RegVer = 1;
-#endif
 
   int Result=0;
   if(Opt.ExceptRules)

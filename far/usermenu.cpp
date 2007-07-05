@@ -653,49 +653,45 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 //              MenuModified=TRUE;
               break;
             case KEY_ALTF4:
-              if (RegVer)
-              {
-                (*FrameManager)[0]->Unlock();
-                FILE *MenuFile;
-                string strMenuFileName;
-                if (!FarMkTempEx(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==NULL)
-                  break;
-                MenuRegToFile(strMenuRootKey,MenuFile);
-                MenuNeedRefresh=TRUE;
-                fclose(MenuFile);
-                {
-                  ConsoleTitle *OldTitle=new ConsoleTitle;
-                  string strFileName = strMenuFileName;
-                  FileEditor ShellEditor(strFileName,-1, // -1 ??? CP_AUTODETECT ???
-                                         FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
-                  delete OldTitle;
-                  ShellEditor.SetDynamicallyBorn(false);
-                  FrameManager->EnterModalEV();
-                  FrameManager->ExecuteModal();
-                  FrameManager->ExitModalEV();
-                  if (!ShellEditor.IsFileChanged() || (MenuFile=_wfopen(strMenuFileName,L"rb"))==NULL)
-                  {
-                    DeleteFileW(strMenuFileName);
-                    return(0);
-                  }
-                }
-                DeleteKeyTree(strMenuRootKey);
-                MenuFileToReg(strMenuRootKey,MenuFile);
-                fclose(MenuFile);
-                DeleteFileW (strMenuFileName);
-                /* $ 14.12.2001 IS Меню изменили, зачем же это скрывать? */
-                MenuModified=TRUE;
-                /* IS $ */
-                UserMenu.Hide();
+            	{
+								(*FrameManager)[0]->Unlock();
+								FILE *MenuFile;
+								string strMenuFileName;
+								if (!FarMkTempEx(strMenuFileName) || (MenuFile=_wfopen(strMenuFileName,L"wb"))==NULL)
+									break;
+								MenuRegToFile(strMenuRootKey,MenuFile);
+								MenuNeedRefresh=TRUE;
+								fclose(MenuFile);
+								{
+									ConsoleTitle *OldTitle=new ConsoleTitle;
+									string strFileName = strMenuFileName;
+									FileEditor ShellEditor(strFileName,-1, // -1 ??? CP_AUTODETECT ???
+																				FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
+									delete OldTitle;
+									ShellEditor.SetDynamicallyBorn(false);
+									FrameManager->EnterModalEV();
+									FrameManager->ExecuteModal();
+									FrameManager->ExitModalEV();
+									if (!ShellEditor.IsFileChanged() || (MenuFile=_wfopen(strMenuFileName,L"rb"))==NULL)
+									{
+										DeleteFileW(strMenuFileName);
+										return(0);
+									}
+								}
+								DeleteKeyTree(strMenuRootKey);
+								MenuFileToReg(strMenuRootKey,MenuFile);
+								fclose(MenuFile);
+								DeleteFileW (strMenuFileName);
+								/* $ 14.12.2001 IS Меню изменили, зачем же это скрывать? */
+								MenuModified=TRUE;
+								/* IS $ */
+								UserMenu.Hide();
+							}
 /* $ 14.07.2000 VVM
    ! Закрыть меню
 */
-                return(0);
+              return(0);
 /* VVM $ */
-              }
-              else
-                Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
-              break;
             /* $ 28.06.2000 tran
                выход из пользовательского меню по ShiftF10 из любого уровня
                вложенности просто задаем ExitCode -1, и возвращаем FALSE -

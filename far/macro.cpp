@@ -3520,82 +3520,77 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
 
 LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  static struct DlgParam *KMParam=NULL;
+	static struct DlgParam *KMParam=NULL;
 
-  if(Msg == DN_INITDIALOG)
-  {
-    KMParam=(struct DlgParam *)Param2;
-  }
-  else if(Msg == DN_BTNCLICK && (Param1 == 4 || Param1 == 8))
-  {
-    for(int I=1; I <= 3; ++I)
-      Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+I,Param2);
-  }
+	if(Msg == DN_INITDIALOG)
+	{
+		KMParam=(struct DlgParam *)Param2;
+	}
+	else if(Msg == DN_BTNCLICK && (Param1 == 4 || Param1 == 8))
+	{
+		for(int I=1; I <= 3; ++I)
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+I,Param2);
+	}
 #if 0
   else if(Msg==DN_KEY && Param2==KEY_ALTF4)
   {
-    if (RegVer)
-    {
-      KeyMacro *MacroDlg=KMParam->Handle;
-      (*FrameManager)[0]->UnlockRefresh();
-      FILE *MacroFile;
-      char MacroFileName[NM];
-      if (!FarMkTempEx(MacroFileName) || (MacroFile=fopen(MacroFileName,"wb"))==NULL)
-        return TRUE;
+		KeyMacro *MacroDlg=KMParam->Handle;
+		(*FrameManager)[0]->UnlockRefresh();
+		FILE *MacroFile;
+		char MacroFileName[NM];
+		if (!FarMkTempEx(MacroFileName) || (MacroFile=fopen(MacroFileName,"wb"))==NULL)
+			return TRUE;
 
-      char *TextBuffer;
-      DWORD Buf[1];
-      Buf[0]=MacroDlg->RecBuffer[0];
-      if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
-      {
-        fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
-        fclose(MacroFile);
-        xf_free(TextBuffer);
-        {
-          //ConsoleTitle *OldTitle=new ConsoleTitle;
-          FileEditor ShellEditor(MacroFileName,-1,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
-          //delete OldTitle;
-          ShellEditor.SetDynamicallyBorn(false);
-          FrameManager->EnterModalEV();
-          FrameManager->ExecuteModal();
-          FrameManager->ExitModalEV();
-          if (!ShellEditor.IsFileChanged() || (MacroFile=fopen(MacroFileName,"rb"))==NULL)
-            ;
-          else
-          {
-            struct MacroRecord NewMacroWORK2={0};
-            long FileSize=filelen(MacroFile);
-            TextBuffer=(char*)malloc(FileSize);
-            if(TextBuffer)
-            {
-              fread(TextBuffer,FileSize,1,MacroFile);
-              if(!MacroDlg->ParseMacroString(&NewMacroWORK2,TextBuffer))
-              {
-                if(NewMacroWORK2.BufferSize > 1)
-                  xf_free(NewMacroWORK2.Buffer);
-              }
-              else
-              {
-                MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
-                MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
-              }
-            }
-            fclose(MacroFile);
-          }
-        }
-        FrameManager->ResizeAllFrame();
-        FrameManager->PluginCommit();
-      }
-      else
-        fclose(MacroFile);
-      remove(MacroFileName);
-    }
-    else
-      Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MRegOnly),UMSG(MOk));
-    return TRUE;
-  }
+		char *TextBuffer;
+		DWORD Buf[1];
+		Buf[0]=MacroDlg->RecBuffer[0];
+		if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
+		{
+			fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
+			fclose(MacroFile);
+			xf_free(TextBuffer);
+			{
+				//ConsoleTitle *OldTitle=new ConsoleTitle;
+				FileEditor ShellEditor(MacroFileName,-1,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
+				//delete OldTitle;
+				ShellEditor.SetDynamicallyBorn(false);
+				FrameManager->EnterModalEV();
+				FrameManager->ExecuteModal();
+				FrameManager->ExitModalEV();
+				if (!ShellEditor.IsFileChanged() || (MacroFile=fopen(MacroFileName,"rb"))==NULL)
+					;
+				else
+				{
+					struct MacroRecord NewMacroWORK2={0};
+					long FileSize=filelen(MacroFile);
+					TextBuffer=(char*)malloc(FileSize);
+					if(TextBuffer)
+					{
+						fread(TextBuffer,FileSize,1,MacroFile);
+						if(!MacroDlg->ParseMacroString(&NewMacroWORK2,TextBuffer))
+						{
+							if(NewMacroWORK2.BufferSize > 1)
+								xf_free(NewMacroWORK2.Buffer);
+						}
+						else
+						{
+							MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
+							MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
+						}
+					}
+					fclose(MacroFile);
+				}
+			}
+			FrameManager->ResizeAllFrame();
+			FrameManager->PluginCommit();
+		}
+		else
+			fclose(MacroFile);
+		remove(MacroFileName);
+		return TRUE;
+	}
 #endif
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 /* $ 03.01.2001 IS

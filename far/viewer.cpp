@@ -1041,7 +1041,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
-          if (VM.WordWrap && RegVer) // только для зарегестрированных
+          if (VM.WordWrap)
           {
             if ( !IsSpace(Ch) && !IsSpace(pString->lpData[(int)OutPtr]))
             {
@@ -1110,10 +1110,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         {
           pString->lpData[(int)OutPtr++]=L' ';
         } while ((OutPtr % ViOpt.TabSize)!=0 && ((int)OutPtr < (MAX_VIEWLINEB-1)));
-        // 12.07.2000 SVS - Wrap - 3-x позиционный и если есть регистрация :-)
-        // 22.01.2002 IS - Не забудем и про простую свертку не по словам
-        if ((VM.Wrap && (!VM.WordWrap || (VM.WordWrap && RegVer)))
-            && OutPtr>XX2-X1)
+        if (VM.Wrap && OutPtr>XX2-X1)
           pString->lpData[XX2-X1+1]=0;
         continue;
       }
@@ -3400,24 +3397,21 @@ int Viewer::ProcessWrapMode(int newMode, bool isRedraw)
 
 int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 {
-  int oldTypeWrap=VM.WordWrap;
-  if(RegVer)
-  {
-    VM.WordWrap=newMode&1;
-    if(!VM.Wrap)
-    {
-      VM.Wrap=!VM.Wrap;
-      LeftPos = 0;
-    }
+	int oldTypeWrap=VM.WordWrap;
+	VM.WordWrap=newMode&1;
+	if(!VM.Wrap)
+	{
+		VM.Wrap=!VM.Wrap;
+		LeftPos = 0;
+	}
 
-    if(isRedraw)
-    {
-      ChangeViewKeyBar();
-      Show();
-    }
+	if(isRedraw)
+	{
+		ChangeViewKeyBar();
+		Show();
+	}
 
-    Opt.ViOpt.ViewerWrap=VM.WordWrap;
-//    LastSelPos=FilePos;
-  }
-  return oldTypeWrap;
+	Opt.ViOpt.ViewerWrap=VM.WordWrap;
+//LastSelPos=FilePos;
+	return oldTypeWrap;
 }

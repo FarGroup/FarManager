@@ -11,7 +11,6 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~How to use help~@Help@
 
    ~About FAR~@About@
-   ~How to register FAR~@Register@
 
    ~Command line switches~@CmdLine@
    ~Keyboard reference~@KeyRef@
@@ -96,26 +95,11 @@ $ # FAR: about#
 NT and Windows 2000/XP/2003. It supports #long file names# and provides a wide
 set of file and folder operations.
 
-    #FAR# is #shareware# software. You must ~register~@Register@ it to continue
-to use after 40-days trial period.
-
     #FAR# does transparent #archive# processing. Files in the archive are
 handled similarly as in a folder: when you operate with the archive, FAR
 transforms your commands into the corresponding external archiver calls.
 
     #FAR# offers a number of service functions as well.
-
-
-@Register
-$ # FAR: how to register#
-    FAR is #shareware# software. You must register it to continue to use after
-the 40-days trial period. Please read License.txt file for user license.
-
-    Detailed registration instructions are provided in Register.txt. File
-Far_Site.txt contains a list of FAR registration sites. You also may read the
-latest version of this list on:
-
-    ~http://www.rarlab.com~@http://www.rarlab.com@
 
 
 @CmdLine
@@ -1876,8 +1860,8 @@ $ #Settings dialog: system#
                           Bin can be performed only for local hard
                           disks.
 
-  #Delete symbolic links#   Перед удалением каталога в Корзину, 
-                          просканировать и удалить линки на 
+  #Delete symbolic links#   Перед удалением каталога в Корзину,
+                          просканировать и удалить линки на
                           подкаталоги.
 
   #Use system copy#         Use the file copy functions provided by

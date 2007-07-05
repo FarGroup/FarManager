@@ -81,7 +81,6 @@ RES_FILES= \
 LINK32_OBJS= \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
-	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\clipboard.obj" \

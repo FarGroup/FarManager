@@ -78,7 +78,6 @@ viewer.hpp
 vmenu.hpp
 cddrv.cpp
 CFileMask.cpp
-checkver.cpp
 chgmmode.cpp
 chgprior.cpp
 clipboard.cpp
