@@ -1975,7 +1975,11 @@ static bool panelsetposidxFunc()
     {
       if(SelPanel->GoToFile(idxItem-1))
       {
-        SelPanel->Show();
+        //SelPanel->Show();
+        // <Mantis#0000289> - грозно, но со вкусом :-)
+        ShellUpdatePanels(SelPanel);
+        FrameManager->RefreshFrame(FrameManager->GetTopModal());
+        // </Mantis#0000289>
         Ret=(__int64)(SelPanel->GetCurrentPos()+1);
       }
     }
@@ -2006,7 +2010,11 @@ static bool panelsetposFunc()
     {
       if(SelPanel->GoToFile(fileName))
       {
-        SelPanel->Show();
+        //SelPanel->Show();
+        // <Mantis#0000289> - грозно, но со вкусом :-)
+        ShellUpdatePanels(SelPanel);
+        FrameManager->RefreshFrame(FrameManager->GetTopModal());
+        // </Mantis#0000289>
         Ret=(__int64)(SelPanel->GetCurrentPos()+1);
       }
     }

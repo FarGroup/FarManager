@@ -677,7 +677,7 @@ int FileList::ProcessKey(int Key)
           delete[] ShortcutFolder;
           return(TRUE);
         }
-        switch(CheckShortcutFolder(ShortcutFolder,SizeFolderNameShortcut,FALSE))
+        switch(CheckShortcutFolder(ShortcutFolder,SizeFolderNameShortcut,FALSE)) // CtrlObject->Macro.IsRecording()||CtrlObject->Macro.IsExecuting() == Silent (WARNING!!!)
         {
           case 0:
   //          return FALSE;

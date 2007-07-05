@@ -2258,6 +2258,9 @@ int Dialog::ProcessKey(int Key)
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
         }
+        else
+          List->SetSelectPos(CurListPos,0); //????
+
         if(!(Key == KEY_ENTER || Key == KEY_NUMENTER) || (Item[FocusPos].Flags&DIF_LISTNOCLOSE))
           return(TRUE);
 
@@ -2920,7 +2923,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               ShowDialog(I); // FocusPos
           }
           else
+          {
             Pos=NewListPos;
+            List->SetSelectPos(Pos,0); //????
+          }
         }
         else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
         {
@@ -2940,6 +2946,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           else
           {
             Pos=NewListPos;
+            List->SetSelectPos(Pos,0); //????
             if(!InScroolBar && !(Item[I].Flags&DIF_LISTNOCLOSE))
             {
               ExitCode=I;
@@ -4036,7 +4043,7 @@ int Dialog::SelectFromComboBox(
 
   char *Str;
   int EditX1,EditY1,EditX2,EditY2;
-  int I,Dest;
+  int I,Dest, OriginalPos;
   int CurFocusPos=FocusPos;
 
   if((Str=(char*)xf_malloc(MaxLen)) != NULL)
@@ -4066,7 +4073,7 @@ int Dialog::SelectFromComboBox(
 
     ComboBox->Show();
 
-    Dest=ComboBox->GetSelectPos();
+    OriginalPos=Dest=ComboBox->GetSelectPos();
     while (!ComboBox->Done())
     {
       if (!GetDropDownOpened())
@@ -4114,6 +4121,10 @@ int Dialog::SelectFromComboBox(
       Dest=ComboBox->Modal::GetExitCode();
     else
       Dest=-1;
+
+    if(Dest == -1)
+      ComboBox->SetSelectPos(OriginalPos,0); //????
+
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
     if (Dest<0)
     {
