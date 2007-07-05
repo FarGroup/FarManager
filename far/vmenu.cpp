@@ -732,6 +732,16 @@ int VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         return CheckHighlights(*str);
       return FALSE;
     }
+
+    case MCODE_F_MENU_GETHOTKEY:
+    {
+      if(iParam == _i64(-1))
+        iParam=(__int64)SelectPos;
+
+      if((int)iParam < ItemCount)
+        return GetHighlights(GetItemPtr((int)iParam));
+      return 0;
+    }
   }
   return 0;
 }
@@ -1860,21 +1870,22 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
   return Item+GetItemPosition(Position);
 }
 
-BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
+char VMenu::GetHighlights(const struct MenuItem *_item)
 {
   CriticalSectionLock Lock(CS);
 
-  for (int I=0; I < ItemCount; I++)
+  char Ch=0;
+
+  if(_item)
   {
-    char Ch=0;
-    const char *Name=Item[I].PtrName();
+    const char *Name=((struct MenuItem *)_item)->PtrName();
     const char *ChPtr=strchr(Name,'&');
 
-    if (ChPtr || Item[I].AmpPos > -1)
+    if (ChPtr || _item->AmpPos > -1)
     {
-      if (!ChPtr && Item[I].AmpPos > -1)
+      if (!ChPtr && _item->AmpPos > -1)
       {
-        ChPtr=Name+Item[I].AmpPos;
+        ChPtr=Name+_item->AmpPos;
         Ch=*ChPtr;
       }
       else
@@ -1887,6 +1898,18 @@ BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
           Ch=ChPtr[1];
       }
     }
+  }
+
+  return Ch;
+}
+
+BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
+{
+  CriticalSectionLock Lock(CS);
+
+  for (int I=0; I < ItemCount; I++)
+  {
+    char Ch=GetHighlights(Item+I);
 
     if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
       return TRUE;

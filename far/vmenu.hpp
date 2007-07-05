@@ -208,6 +208,7 @@ class VMenu: public Modal
     static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
     BOOL CheckHighlights(BYTE Chr);
+    char GetHighlights(const struct MenuItem *_item);
 
   public:
     /* $ 18.07.2000 SVS

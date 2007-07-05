@@ -969,6 +969,7 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_DATE),
      DEF_MCODE_(F_XLAT),
      DEF_MCODE_(F_MENU_CHECKHOTKEY),
+     DEF_MCODE_(F_MENU_GETHOTKEY),           // S=gethotkey()
      DEF_MCODE_(F_ENVIRON),
      DEF_MCODE_(F_FEXIST),
      DEF_MCODE_(F_FATTR),
