@@ -95,6 +95,13 @@
       вызовет плагин, если хоткей назначен или стандартный диалог
       поиска, если хоткей не назначен.</td>
   </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
+    <td class="cont" width="60%">Возвращает хоткей <em>S</em> для пункта <em>N</em>, если в меню присутствует горячая
+      клавиша и текущий &quot;объект&quot; - меню. В противном случае (не меню; нет хоткея; N больше чем количество пунктов меню) возвращает 0.<br>
+      Здесь <em>N</em> - позиция в списке от 1 (0 - текущая).
+    </td>
+  </tr>
 
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
