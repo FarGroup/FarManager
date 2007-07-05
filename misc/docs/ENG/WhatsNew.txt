@@ -12,6 +12,9 @@
 FAR 1.71 alpha 4 (build 2240) (Jul 05 2007)
 ---------------------------------------------------------------------------
 
+[!] When setting folder attributes for FAT and FAT32 file systems, date and
+    time will be set only then system has support it.
+
 [!] PluginAPI was adjusted for 64bit compatibility.
 
 [+] Новая таблица кодировки Bulgarian MIC.
