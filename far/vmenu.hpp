@@ -225,6 +225,7 @@ class VMenu: public Modal
     static void* _GetUserData(MenuItemEx *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
     BOOL CheckHighlights(WORD Chr);
+    wchar_t GetHighlights(const struct MenuItemEx *_item);
 
   public:
 

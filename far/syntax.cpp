@@ -694,6 +694,7 @@ static TMacroFunction macroFunction[]={
   {L"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
   {L"FEXIST",         1,    MCODE_F_FEXIST},              // N=fexist(S)
   {L"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
+  {L"GETHOTKEY",      1,    MCODE_F_MENU_GETHOTKEY},      // S=gethotkey(N)
   {L"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
   {L"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
   {L"INT",            1,    MCODE_F_INT},                 // N=int(V)

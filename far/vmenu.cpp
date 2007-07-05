@@ -728,6 +728,17 @@ int VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         return CheckHighlights((WORD)*str);
       return FALSE;
     }
+
+    case MCODE_F_MENU_GETHOTKEY:
+    {
+      if(iParam == _i64(-1))
+        iParam=(__int64)SelectPos;
+
+      if((int)iParam < ItemCount)
+        return GetHighlights(GetItemPtr((int)iParam));
+      return 0;
+    }
+
   }
 
   return 0;
@@ -1877,21 +1888,21 @@ struct MenuItemEx *VMenu::GetItemPtr(int Position)
   return Item[GetItemPosition(Position)];
 }
 
-BOOL VMenu::CheckHighlights(WORD CheckSymbol)
+wchar_t VMenu::GetHighlights(const struct MenuItemEx *_item)
 {
   CriticalSectionLock Lock(CS);
 
-  for (int I=0; I < ItemCount; I++)
+  wchar_t Ch=0;
+  if(_item)
   {
-    wchar_t Ch=0;
-    const wchar_t *Name=Item[I]->strName;
+    const wchar_t *Name=((struct MenuItemEx *)_item)->strName;
     const wchar_t *ChPtr=wcschr(Name,L'&');
 
-    if (ChPtr || Item[I]->AmpPos > -1)
+    if (ChPtr || _item->AmpPos > -1)
     {
-      if (!ChPtr && Item[I]->AmpPos > -1)
+      if (!ChPtr && _item->AmpPos > -1)
       {
-        ChPtr=Name+Item[I]->AmpPos;
+        ChPtr=Name+_item->AmpPos;
         Ch=*ChPtr;
       }
       else
@@ -1904,6 +1915,18 @@ BOOL VMenu::CheckHighlights(WORD CheckSymbol)
           Ch=ChPtr[1];
       }
     }
+  }
+
+  return Ch;
+}
+
+BOOL VMenu::CheckHighlights(WORD CheckSymbol)
+{
+  CriticalSectionLock Lock(CS);
+
+  for (int I=0; I < ItemCount; I++)
+  {
+    wchar_t Ch=GetHighlights(Item[I]);
 
     if(Ch && LocalUpperW(CheckSymbol) == LocalUpperW(Ch))
       return TRUE;

@@ -2638,6 +2638,42 @@ done:
       VMStack.Push((__int64)MR->Key);
       goto begin;
 
+    case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey()
+    {
+       _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_GETHOTKEY"));
+       tmpVar=VMStack.Pop();
+       int CurMMode=CtrlObject->Macro.GetMode();
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
+       {
+         Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
+         //f=f->GetTopModal();
+         while(f)
+         {
+           fo=f;
+           f=f->GetTopModal();
+         }
+         if(!f)
+           f=fo;
+
+         long Result;
+
+         if(f && (Result=f->VMProcess(MCODE_F_MENU_GETHOTKEY,NULL,tmpVar.i()-1)) != 0)
+         {
+           wchar_t _value[2];
+           _value[0]=(wchar_t)Result;
+           _value[1]=0;
+           tmpVar=_value;
+         }
+         else
+           tmpVar=_i64(0);
+       }
+       else
+         tmpVar=_i64(0);
+
+       VMStack.Push(tmpVar);
+       goto begin;
+    }
+
     case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
     {
        _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_CHECKHOTKEY"));
@@ -3879,6 +3915,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_LEN,              L"N=len(S)"},
     {MCODE_F_MAX,              L"N=max(N1,N2)"},
     {MCODE_F_MENU_CHECKHOTKEY, L"N=checkhotkey(S)"},
+    {MCODE_F_MENU_GETHOTKEY,   L"S=gethotkey()"},
     {MCODE_F_MIN,              L"N=min(N1,N2)"},
     {MCODE_F_MSAVE,            L"N=msave(S)"},
     {MCODE_F_MSGBOX,           L"N=msgbox(sTitle,sText,flags)"},
