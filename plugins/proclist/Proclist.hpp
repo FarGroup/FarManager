@@ -1,12 +1,13 @@
 #define STRICT
 
 #include <windows.h>
+#include <tchar.h>
 #include <stdio.h>
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
-#ifdef __GNUC__
+//#ifdef __GNUC__
 #include "CRT/crt.hpp"
-#endif
+//#endif
 
 #ifdef _MSC_VER
 #pragma hdrstop
@@ -50,13 +51,12 @@ extern struct _Opt
   int ExportPerformance;
   int ExportHandles;
   int EnableWMI;
-  //int AnsiOutput;
   static void Read();
   static void Write();
 } Opt;
 
 
-inline int Message(unsigned Flags, char *HelpTopic, PCSTR*Items, int nItems, int nButtons=1) {
+inline int Message(unsigned Flags, TCHAR *HelpTopic, PCTSTR*Items, int nItems, int nButtons=1) {
     return Info.Message(Info.ModuleNumber, Flags, HelpTopic, Items, nItems, nButtons);
 }
 
@@ -70,13 +70,13 @@ public:
 class Plist
 {
   private:
-    void PrintVersionInfo(HANDLE InfoFile, char* FullPath);
+    void PrintVersionInfo(HANDLE InfoFile, TCHAR* FullPath);
     void Reread();
-    void FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,char *TimeText);
-    void PutToCmdLine(char* tmp);
+    void FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,TCHAR *TimeText);
+    void PutToCmdLine(TCHAR* tmp);
 
     DWORD LastUpdateTime;
-    char HostName[64];
+    TCHAR HostName[64];
     PerfThread* pPerfThread;
     unsigned StartPanelMode;
     unsigned SortMode;
@@ -86,11 +86,11 @@ class Plist
 
     void GeneratePanelModes();
     int Control(int Command, void *Param) { return (*Info.Control)(this, Command, Param); }
-    int Menu(unsigned int Flags, char *Title, char *Bottom, char *HelpTopic, int *BreakKeys, FarMenuItem *Item, int ItemsNumber)
+    int Menu(unsigned int Flags, TCHAR *Title, TCHAR *Bottom, TCHAR *HelpTopic, int *BreakKeys, FarMenuItem *Item, int ItemsNumber)
     {
         return (*Info.Menu)(Info.ModuleNumber, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys,0, Item, ItemsNumber);
     }
-    static bool TranslateMode(char* src, char* dest);
+    static bool TranslateMode(LPCTSTR src, LPTSTR dest);
     void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
 
     bool ConnectWMI();
@@ -100,13 +100,13 @@ class Plist
   public:
     Plist();
     ~Plist();
-    bool Connect(LPCSTR pMachine, LPCSTR pUser=0, LPCSTR pPasw=0);
+    bool Connect(LPCTSTR pMachine, LPCTSTR pUser=0, LPCTSTR pPasw=0);
     int GetFindData(PluginPanelItem* &pPanelItem,int &pItemsNumber,int OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
     void GetOpenPluginInfo(OpenPluginInfo *Info);
-    int SetDirectory(char *Dir,int OpMode);
+    int SetDirectory(TCHAR *Dir,int OpMode);
     int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-        int Move,char *DestPath,int OpMode, _Opt& opt=::Opt);
+        int Move,TCHAR *DestPath,int OpMode, _Opt& opt=::Opt);
     int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                     int OpMode);
     int ProcessEvent(int Event,void *Param);
@@ -114,13 +114,13 @@ class Plist
     int ProcessKey(int Key,unsigned int ControlState);
     PanelMode* Plist::PanelModes(int& nModes);
 
-    static char* PrintTitle(int MsgId);
+    static TCHAR* PrintTitle(int MsgId);
 
-  static bool GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, char* &pDesc);
+  static bool GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, TCHAR* &pDesc);
   static bool bInit;
   static PanelMode PanelModesLocal[NPANELMODES], PanelModesRemote[NPANELMODES];
-  static char ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
-  static char PanelModeBuffer[NPANELMODES*MAX_MODE_STR*4*2];
+  static TCHAR ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
+  static TCHAR PanelModeBuffer[NPANELMODES*MAX_MODE_STR*4*2];
   static void SavePanelModes();
   static void InitializePanelModes();
   static bool PanelModesInitialized() { return PanelModesLocal[0].ColumnTypes!=0; }
@@ -134,7 +134,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  char *Data;
+  TCHAR *Data;
 };
 
 struct ProcessData
@@ -146,17 +146,17 @@ struct ProcessData
   DWORD dwParentPID;
   DWORD dwPrBase;
   UINT  uAppType;
-  char FullPath[NM];
+  TCHAR FullPath[NM];
 };
 
 struct ProcessDataNT : ProcessData {
     DWORD dwElapsedTime;
-    char CommandLine[MAX_CMDLINE];
+    TCHAR CommandLine[MAX_CMDLINE];
 };
 
 extern int NT, W2K;
 
-extern char PluginRootKey[80];
+extern TCHAR PluginRootKey[80];
 
 class PerfThread;
 
@@ -165,24 +165,25 @@ BOOL GetListNT(PluginPanelItem **pPanelItem,int *pItemsNumber,PerfThread& PThrea
 BOOL KillProcess(DWORD pid);
 BOOL KillProcessNT(DWORD pid,HWND hwnd);
 
-char *GetMsg(int MsgId);
+TCHAR *GetMsg(int MsgId);
 void InitDialogItems(InitDialogItem *Init,FarDialogItem *Item, int ItemsNumber);
-//int LocalStricmp(char *Str1,char *Str2);
-void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText);
+//int LocalStricmp(TCHAR *Str1,TCHAR *Str2);
+void ConvertDate(const FILETIME &ft,TCHAR *DateText,TCHAR *TimeText);
 int Config();
 
-void SetRegKey(const char *Key,const char *ValueName,char *ValueData);
-void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);
-void SetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,DWORD ValueSize);
-int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(const char *Key,const char *ValueName,DWORD Default);
-int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
-void DeleteRegKey(const char *Key);
+void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPCTSTR ValueData);
+void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD ValueData);
+void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPBYTE ValueData,DWORD ValueSize);
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPTSTR ValueData,LPCTSTR Default,DWORD DataSize);
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPBYTE ValueData,LPCBYTE Default,DWORD DataSize);
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,int &ValueData,DWORD Default);
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD Default);
+void DeleteRegKey(LPCTSTR Key);
 
-int WinError(char* pSourceModule=0, BOOL bDown=FALSE);
+int WinError(TCHAR* pSourceModule=0, BOOL bDown=FALSE);
 BOOL ChangePrivileges(BOOL bAdd, BOOL bAsk);
 
+#ifndef UNICODE
 class OemString {
         char* pStr;
     public:
@@ -192,22 +193,31 @@ class OemString {
         operator char*() { return pStr; }
         operator unsigned char*() { return (unsigned char*)pStr; }
 };
+#define OUT_STRING(p) (const char*)OemString(p)
+#define CURDIR_STR_TYPE OemString
+#define OUT_CVT(pp)   (const char*)*pp
+#else
+static inline const wchar_t *__chk_wca(const wchar_t *arg) { return arg; }
+#define OUT_STRING(p) __chk_wca(p)
+#define CURDIR_STR_TYPE wchar_t
+#define OUT_CVT(pp)   __chk_wca(pp)
+#endif
 
-void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName=0, DWORD cbProcessName=0,
-        char* pFullPath=0, DWORD cbFullPath=0, char* pCommandLine=0, DWORD cbCommandLine=0,
-        char** ppEnvStrings=0, OemString** pCurDir=0);
+void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName=0, DWORD cbProcessName=0,
+        TCHAR* pFullPath=0, DWORD cbFullPath=0, TCHAR* pCommandLine=0, DWORD cbCommandLine=0,
+        TCHAR** ppEnvStrings=0, CURDIR_STR_TYPE** pCurDir=0);
 
 HANDLE OpenProcessForced(DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
 
 enum { SM_CUSTOM=64, SM_PID, SM_PARENTPID, SM_PRIOR, SM_PERFCOUNTER,  SM_PERSEC=128 };
 
-extern char CustomColumns[10][10];
+extern TCHAR CustomColumns[10][10];
 
 BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& PThread);
 BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber);
 DWORD GetHeapSize(DWORD dwPID);
-char* PrintNTUptime(void*p);
-char* PrintTime(ULONGLONG ul100ns, bool bDays=true);
+TCHAR* PrintNTUptime(void*p);
+TCHAR* PrintTime(ULONGLONG ul100ns, bool bDays=true);
 void DumpNTCounters(HANDLE InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
 void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
@@ -267,5 +277,14 @@ typedef HRESULT (WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_A
 extern PCoInitializeSecurity pCoInitializeSecurity;
 //------
 
-int fprintf(HANDLE stream, const char *format, ...);
+int fprintf(HANDLE stream, const TCHAR *format, ...);
 int fputc(int c, HANDLE stream);
+
+//-------
+#ifndef UNICODE
+#define NORM_M_PREFIX(m)  (*(LPWORD)m==0x5c5c)
+#define REV_M_PREFIX(m)   (*(LPWORD)m==0x2f2f)
+#else
+#define NORM_M_PREFIX(m)  (*(LPDWORD)m==0x5c005c)
+#define REV_M_PREFIX(m)   (*(LPDWORD)m==0x2f002f)
+#endif

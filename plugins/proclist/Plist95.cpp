@@ -19,7 +19,7 @@ static HEAPFIRST pHeap32First;
 static HEAPNEXT pHeap32Next;
 
 BOOL GetProcessModule (DWORD dwPID, DWORD dwModuleID, LPMODULEENTRY32 lpMe32, DWORD& dwTotalSize);
-BOOL GetModuleNameFromExe (LPCSTR szFileName, LPSTR szModuleName, WORD cbLen);
+BOOL GetModuleNameFromExe (LPCTSTR szFileName, LPTSTR szModuleName, WORD cbLen);
 DWORD GetHeapSize(DWORD dwPID);
 
 void GetPData95(ProcessData& pdata, PROCESSENTRY32& pe32)
@@ -63,6 +63,9 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
 
   PROCESSENTRY32 pe32 = {sizeof(pe32)};
   BOOL bRet = FALSE;
+#ifdef UNICODE
+  wchar_t tmpStr[MAX_PATH];
+#endif
   ItemsNumber = 0;
 
   HANDLE hProcessSnap = pCreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
@@ -87,23 +90,52 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
         CurItem.Flags |= PPIF_USERDATA;
         CurItem.UserData = (DWORD_PTR)(new ProcessData);
         ProcessData& pdata = *(ProcessData*)CurItem.UserData;
+#ifdef UNICODE
+#define PackSize      FindData.nPackSize
+#define nFileSizeLow  nFileSize
+#endif
         CurItem.PackSize = dwTotalSize;
         CurItem.FindData.nFileSizeLow = dwTotalSize;// + GetHeapSize(pe32.th32ProcessID);
+#undef PackSize
+#undef nFileSizeLow
         CurItem.NumberOfLinks = pe32.cntThreads;
 
         if (!FSF.LStricmp(pe32.szExeFile,me32.szExePath))
         {
-          lstrcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=32;
+get_from_me32:
+#ifndef UNICODE
+          lstrcpy(CurItem.FindData.cFileName,me32.szModule);
+#else
+          CurItem.FindData.lpwszFileName = wcsdup(me32.szModule);
+#endif
         }
         else
         {
-          if (!GetModuleNameFromExe(pe32.szExeFile,CurItem.FindData.cFileName,ArraySize(CurItem.FindData.cFileName)))
-            lstrcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=16;
+#ifndef UNICODE
+#define GET CurItem.FindData.cFileName
+#else
+#define GET tmpStr
+#endif
+          if (!GetModuleNameFromExe(pe32.szExeFile,GET,ArraySize(GET)))
+              goto get_from_me32;
+#undef GET
+#ifdef UNICODE
+          CurItem.FindData.lpwszFileName = wcsdup(tmpStr);
+#endif
         }
+#ifndef UNICODE
         CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
-        FSF.sprintf(CurItem.FindData.cAlternateFileName, "%08X", pe32.th32ProcessID);
+#define PRT CurItem.FindData.cAlternateFileName
+#else
+#define PRT tmpStr
+#endif
+        FSF.sprintf(PRT, _T("%08X"), pe32.th32ProcessID);
+#undef PRT
+#ifdef UNICODE
+        CurItem.FindData.lpwszAlternateFileName = wcsdup(tmpStr);
+#endif
         GetPData95(pdata, pe32);
 
         ItemsNumber++;
@@ -121,7 +153,7 @@ BOOL InitToolhelp32()
   BOOL   bRet;
   HMODULE hKernel;
 
-  hKernel = GetModuleHandle("KERNEL32.DLL");
+  hKernel = GetModuleHandle(_T("KERNEL32.DLL"));
 
   if (hKernel)
   {
@@ -217,7 +249,7 @@ BOOL KillProcess(DWORD dwPID)
   return bRet;
 }
 
-BOOL GetModuleNameFromExe(LPCSTR szFileName,LPSTR szModuleName,WORD cbLen)
+BOOL GetModuleNameFromExe(LPCTSTR szFileName,LPTSTR szModuleName,WORD cbLen)
 {
   PIMAGE_OS2_HEADER pNEHdr;
   PIMAGE_DOS_HEADER pDosExeHdr;
@@ -246,13 +278,23 @@ BOOL GetModuleNameFromExe(LPCSTR szFileName,LPSTR szModuleName,WORD cbLen)
   }
 
   pNEHdr=(PIMAGE_OS2_HEADER)((LPSTR)pDosExeHdr + pDosExeHdr -> e_lfanew);
+  bResult = FALSE;
   if (pDosExeHdr -> e_magic == IMAGE_DOS_SIGNATURE && pNEHdr -> ne_magic == IMAGE_OS2_SIGNATURE)
   {
+#ifndef UNICODE
     lstrcpyn(szModuleName, (LPSTR)pNEHdr + pNEHdr->ne_restab +1,Min((BYTE)*((LPSTR)pNEHdr + pNEHdr -> ne_restab) + 1,cbLen)+1);
     bResult=TRUE;
+#else
+    int n = MultiByteToWideChar(CP_ACP, 0,
+                                (const char*)pNEHdr + pNEHdr->ne_restab + 1,
+                                (BYTE)*((LPCBYTE)pNEHdr + pNEHdr->ne_restab) + 1,
+                                szModuleName, cbLen);
+    if (n) {
+      szModuleName[n] = 0;
+      bResult = TRUE;
+    }
+#endif
   }
-  else
-    bResult=FALSE;
 
   UnmapViewOfFile(pDosExeHdr);
   CloseHandle(hFileMapping);
@@ -261,7 +303,7 @@ BOOL GetModuleNameFromExe(LPCSTR szFileName,LPSTR szModuleName,WORD cbLen)
   return bResult;
 }
 
-void PrintModuleVersion(HANDLE InfoFile, char* pVersion, char* pDesc, int len);
+void PrintModuleVersion(HANDLE InfoFile, LPTSTR pVersion, LPTSTR pDesc, int len);
 
 void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 {
@@ -277,13 +319,14 @@ void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
     me32.dwSize = sizeof(me32);
     for(BOOL bRet = pModule32First(hModuleSnap, &me32); bRet;
              bRet = pModule32Next (hModuleSnap, &me32)) {
-        int len = fprintf(InfoFile, " %p  %6X  %s", me32.modBaseAddr, me32.modBaseSize,(const char *)OemString(me32.szExePath));
-        char *pBuf, *pVersion, *pDesc;
+        int len = fprintf(InfoFile, _T(" %p  %6X  %s"), me32.modBaseAddr, me32.modBaseSize,OUT_STRING(me32.szExePath));
+        TCHAR   *pVersion, *pDesc;
+        LPBYTE  pBuf;
         if(Opt.ExportModuleVersion && Plist::GetVersionInfo(me32.szExePath, pBuf, pVersion, pDesc)) {
             PrintModuleVersion(InfoFile, pVersion, pDesc, len);
             delete pBuf;
         }
-        fputc('\n',InfoFile);
+        fputc(_T('\n'),InfoFile);
     }
     CloseHandle (hModuleSnap);
 }

@@ -5,13 +5,19 @@
 #include <stdio.h>
 #include <time.h>
 
+#ifndef UNICODE
+#define EXP_NAME(p) _export p
+#else
+#define EXP_NAME(p) _export p ## W
+#endif
+
 _Opt Opt;
 ui64Table *_ui64Table;
 
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
 int NT, W2K;
-char PluginRootKey[80];
+TCHAR PluginRootKey[80];
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
@@ -86,7 +92,11 @@ static HRESULT WINAPI fCoInitializeSecurity(
 { return E_FAIL; }
 PCoInitializeSecurity pCoInitializeSecurity = fCoInitializeSecurity;
 
+#ifndef UNICODE
 #define FUNC_AW_SUFFIX  "A"
+#else
+#define FUNC_AW_SUFFIX  "W"
+#endif
 static void dynamic_bind(void)
 {
   static BOOL Inited;
@@ -94,7 +104,7 @@ static void dynamic_bind(void)
     HMODULE h;
     FARPROC f;
 
-    if ((h = GetModuleHandle("ntdll")) != NULL) {
+    if ((h = GetModuleHandle(_T("ntdll"))) != NULL) {
       if ((f = GetProcAddress(h, "NtQueryInformationProcess")) != NULL)
           *(FARPROC*)&pNtQueryInformationProcess = f;
       if ((f = GetProcAddress(h, "NtQueryInformationThread")) != NULL)
@@ -106,11 +116,11 @@ static void dynamic_bind(void)
       if ((f = GetProcAddress(h, "NtQueryInformationFile")) != NULL)
           *(FARPROC*)&pNtQueryInformationFile = f;
     }
-    if ((h = GetModuleHandle("kernel32")) != NULL) {
+    if ((h = GetModuleHandle(_T("kernel32"))) != NULL) {
       if ((f = GetProcAddress(h, "IsWow64Process")) != NULL)
           *(FARPROC*)&pIsWow64Process = f;
     }
-    if ((h = GetModuleHandle("advapi32")) != NULL) {
+    if ((h = GetModuleHandle(_T("advapi32"))) != NULL) {
       if ((f = GetProcAddress(h, "IsValidSid")) != NULL)
           *(FARPROC*)&pIsValidSid = f;
       if ((f = GetProcAddress(h, "GetSidIdentifierAuthority")) != NULL)
@@ -122,11 +132,11 @@ static void dynamic_bind(void)
       if ((f = GetProcAddress(h, "LookupAccountName" FUNC_AW_SUFFIX)) != NULL)
           *(FARPROC*)&pLookupAccountName = f;
     }
-    if ((h = GetModuleHandle("user32")) != NULL) {
+    if ((h = GetModuleHandle(_T("user32"))) != NULL) {
       if ((f = GetProcAddress(h, "GetGuiResources")) != NULL)
           *(FARPROC*)&pGetGuiResources = f;
     }
-    if ((h = GetModuleHandle("ole32")) != NULL) {
+    if ((h = GetModuleHandle(_T("ole32"))) != NULL) {
       if ((f = GetProcAddress(h, "CoInitializeSecurity")) != NULL)
           *(FARPROC*)&pCoInitializeSecurity = f;
     }
@@ -137,7 +147,7 @@ static void dynamic_bind(void)
 
 //----------------------------------------------------------------------------
 
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   dynamic_bind();
   OSVERSIONINFO WinVer;
@@ -148,25 +158,26 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   ::Info = *Info;
   FSF = *Info->FSF;
   ::Info.FSF = &FSF;
-  FSF.sprintf(PluginRootKey,"%s\\Plist",Info->RootKey);
+  FSF.sprintf(PluginRootKey,_T("%s\\Plist"),Info->RootKey);
   _ui64Table = new ui64Table;
   Opt.Read();
 }
 
 
-void WINAPI _export ExitFAR()
+void WINAPI EXP_NAME(ExitFAR)()
 {
   delete _ui64Table;
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
   Opt.Read();
   Plist* hPlugin = new Plist();
 
-  if(OpenFrom==OPEN_COMMANDLINE && (*(short*)Item==0x5c5c||*(short*)Item==0x2f2f)) {
-      if(!hPlugin->Connect((char*)Item)) {
+  if(OpenFrom==OPEN_COMMANDLINE && (NORM_M_PREFIX(Item) || REV_M_PREFIX(Item)))
+  {
+      if(!hPlugin->Connect((TCHAR*)Item)) {
           delete hPlugin;
           hPlugin = (Plist*)INVALID_HANDLE_VALUE;
       }
@@ -175,39 +186,39 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 }
 
 
-void WINAPI _export ClosePlugin(HANDLE hPlugin)
+void WINAPI EXP_NAME(ClosePlugin)(HANDLE hPlugin)
 {
   delete (Plist *)hPlugin;
 }
 
 
-int WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **ppPanelItem,int *pItemsNumber,int OpMode)
+int WINAPI EXP_NAME(GetFindData)(HANDLE hPlugin,struct PluginPanelItem **ppPanelItem,int *pItemsNumber,int OpMode)
 {
   Plist *Panel=(Plist *)hPlugin;
   return Panel->GetFindData(*ppPanelItem,*pItemsNumber,OpMode);
 }
 
 
-void WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
+void WINAPI EXP_NAME(FreeFindData)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
 {
   Plist *Panel=(Plist *)hPlugin;
   Panel->FreeFindData(PanelItem,ItemsNumber);
 }
 
 
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
   Info->Flags=0;
   if(Opt.AddToPluginsMenu)
   {
-    static char *PluginMenuStrings[1];
+    static TCHAR *PluginMenuStrings[1];
     PluginMenuStrings[0]=GetMsg(MPlistPanel);
     Info->PluginMenuStrings=PluginMenuStrings;
     Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
   }
 
-  static char *DiskMenuStrings[1];
+  static TCHAR *DiskMenuStrings[1];
   static int DiskMenuNumbers[1];
   DiskMenuStrings[0]=GetMsg(MPlistPanel);
   DiskMenuNumbers[0]=Opt.DisksMenuDigit;
@@ -215,51 +226,51 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   Info->DiskMenuStrings=DiskMenuStrings;
   Info->DiskMenuStringsNumber=Opt.AddToDisksMenu ? 1:0;
 
-  static char *PluginCfgStrings[1];
+  static TCHAR *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MPlistPanel);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
-  Info->CommandPrefix = "plist";
+  Info->CommandPrefix = _T("plist");
 }
 
 
-void WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
+void WINAPI EXP_NAME(GetOpenPluginInfo)(HANDLE hPlugin,struct OpenPluginInfo *Info)
 {
   Plist *Panel=(Plist *)hPlugin;
   Panel->GetOpenPluginInfo(Info);
 }
 
 
-int WINAPI _export GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,
-                   int ItemsNumber,int Move,char *DestPath,int OpMode)
+int WINAPI EXP_NAME(GetFiles)(HANDLE hPlugin,PluginPanelItem *PanelItem,
+                   int ItemsNumber,int Move,TCHAR *DestPath,int OpMode)
 {
   return ((Plist *)hPlugin)->GetFiles(PanelItem,ItemsNumber,Move,DestPath,OpMode);
 }
 
 
-int WINAPI _export DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,
+int WINAPI EXP_NAME(DeleteFiles)(HANDLE hPlugin,PluginPanelItem *PanelItem,
                    int ItemsNumber,int OpMode)
 {
   return ((Plist *)hPlugin)->DeleteFiles(PanelItem,ItemsNumber,OpMode);
 }
 
 
-int WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param)
+int WINAPI EXP_NAME(ProcessEvent)(HANDLE hPlugin,int Event,void *Param)
 {
   return ((Plist *)hPlugin)->ProcessEvent(Event,Param);
 }
 
 
-int WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
+int WINAPI EXP_NAME(ProcessKey)(HANDLE hPlugin,int Key,unsigned int ControlState)
 {
   return ((Plist *)hPlugin)->ProcessKey(Key,ControlState);
 }
 
-int WINAPI _export Configure(int ItemNumber)
+int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
   return Config();
 }
-int WINAPI _export Compare (HANDLE hPlugin, const struct PluginPanelItem *Item1, const struct PluginPanelItem *Item2, unsigned int Mode)
+int WINAPI EXP_NAME(Compare)(HANDLE hPlugin, const struct PluginPanelItem *Item1, const struct PluginPanelItem *Item2, unsigned int Mode)
 {
    return ((Plist *)hPlugin)->Compare(Item1, Item2, Mode);
 }

@@ -28,7 +28,7 @@ template <class T> class Array {
 };
 
 extern struct _Counters {
-   char* Name; DWORD idName; DWORD idCol;
+   TCHAR* Name; DWORD idName; DWORD idCol;
 } Counters[NCOUNTERS];
 
 struct ProcessPerfData {
@@ -40,17 +40,17 @@ struct ProcessPerfData {
     LONGLONG    qwCounters[NCOUNTERS];
     LONGLONG    qwResults[NCOUNTERS];
 
-    CHAR        ProcessName[MAX_PATH];
-    CHAR        FullPath[MAX_PATH];
-    CHAR        Owner[MAX_USERNAME_LENGTH];
-    CHAR        CommandLine[MAX_CMDLINE];
+    TCHAR       ProcessName[MAX_PATH];
+    TCHAR       FullPath[MAX_PATH];
+    TCHAR       Owner[MAX_USERNAME_LENGTH];
+    TCHAR       CommandLine[MAX_CMDLINE];
     FILETIME    ftCreation;
     DWORD       dwGDIObjects, dwUSERObjects;
     BOOL        bProcessIsWow64;
 };
 
 struct PerfLib {
-    CHAR  szSubKey[1024];
+    TCHAR szSubKey[1024];
     DWORD dwProcessIdTitle;
     DWORD dwPriorityTitle;
     DWORD dwThreadTitle;
@@ -73,16 +73,16 @@ class WMIConnection {
     WMIConnection() { pIWbemServices = NULL; hrLast = 0; }
     ~WMIConnection() { Disconnect(); }
     operator bool () { return pIWbemServices!=0; }
-    bool Connect(LPCSTR pMachineName, LPCSTR pUser=0, LPCSTR pPassword=0);
+    bool Connect(LPCTSTR pMachineName, LPCTSTR pUser=0, LPCTSTR pPassword=0);
     void Disconnect();
     IWbemServices *GetIWbemServices() { return pIWbemServices; }
     DWORD GetProcessPriority(DWORD dwPID);
     int SetProcessPriority(DWORD dwPID, DWORD dwPri);
     int TerminateProcess(DWORD dwPID);
-    void GetProcessOwner(DWORD dwPID, char* pUser, char* pDomain=0);
-    void GetProcessUserSid(DWORD dwPID, char* pUserSid);
+    void GetProcessOwner(DWORD dwPID, TCHAR* pUser, TCHAR* pDomain=0);
+    void GetProcessUserSid(DWORD dwPID, TCHAR* pUserSid);
     int GetProcessSessionId(DWORD dwPID);
-    void GetProcessExecutablePath(DWORD dwPID, char* pPath);
+    void GetProcessExecutablePath(DWORD dwPID, TCHAR* pPath);
     int AttachDebuggerToProcess(DWORD dwPID) { return ExecMethod(dwPID, L"AttachDebugger"); }
     HRESULT GetLastHResult() { return hrLast; }
 };
@@ -102,7 +102,7 @@ class PerfThread {
         bool bOK;
         HKEY hHKLM, hPerf;
         DWORD dwRefreshMsec, dwLastRefreshTicks;
-        char HostName[64];
+        TCHAR HostName[64];
         HANDLE hMutex;
         WMIConnection WMI;
 
@@ -116,7 +116,7 @@ class PerfThread {
         Plist& PlistPlugin;
 
     public:
-        PerfThread(Plist& plist, LPCSTR hostname=0, LPCSTR pUser=0, LPCSTR pPasw=0);
+        PerfThread(Plist& plist, LPCTSTR hostname=0, LPCTSTR pUser=0, LPCTSTR pPasw=0);
         ~PerfThread();
         void GetProcessData(ProcessPerfData* &pd, DWORD &nProc) const
         {
@@ -129,13 +129,13 @@ class PerfThread {
         void SyncReread();
         void SmartReread() { if(dwLastRefreshTicks>1000) AsyncReread(); else SyncReread(); }
         bool IsOK() const { return bOK; }
-        LPCSTR GetHostName() const { return HostName; }
+        LPCTSTR GetHostName() const { return HostName; }
         bool Updated() { bool bRet=bUpdated; bUpdated=false; return bRet; }
         bool IsWMIConnected() { return WMI; }
-        static void GetProcessOwnerInfo(DWORD dwPid, char* pUser, char* UserSid, char* pDomain, int& nSession);
+        static void GetProcessOwnerInfo(DWORD dwPid, TCHAR* pUser, TCHAR* UserSid, TCHAR* pDomain, int& nSession);
 
-        char UserName[64];
-        char Password[64];
+        TCHAR UserName[64];
+        TCHAR Password[64];
 };
 class Lock {
     HANDLE h;

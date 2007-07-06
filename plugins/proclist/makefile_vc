@@ -21,7 +21,7 @@ UNIDEF=/DUNICODE /D_UNICODE
 !endif
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
-DEF = $(NAME).vc.def
+DEF = $(NAME)$(DIRSUFF).vc.def
 MAP = $(OUTDIR)\$(NAME).map
 
 !IF "$(CPU)" == "AMD64"

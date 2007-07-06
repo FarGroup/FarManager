@@ -4,17 +4,16 @@
 #include "proclng.hpp"
 
 class StrTok {
-    char* tok;
-    char* ptr;
-    char* buf;
+    LPCTSTR tok;
+    LPTSTR  ptr;
+    LPTSTR  buf;
 public:
-    StrTok(char* str, char* token) : tok (token) {
-        buf = new char[lstrlen(str)+1];
-        lstrcpy(buf, str);
-        ptr = strtok(buf,token);
+    StrTok(LPCTSTR str, LPCTSTR token) : tok (token) {
+        buf = _tcsdup(str);
+        ptr = _tcstok(buf, token);
     }
-    operator char* () { return ptr; }
-    void operator ++ () { ptr = strtok(NULL, tok); }
+    operator TCHAR* () { return ptr; }
+    void operator ++ () { ptr = _tcstok(NULL, tok); }
     operator bool() { return ptr!=NULL; }
     ~StrTok() { delete buf; }
 };
@@ -33,24 +32,24 @@ unsigned __int64 ui64Table::tenpow(unsigned n)
     return Table[n];
 }
 
-void ui64toa_width(unsigned __int64 value, char* buf, unsigned width, bool bThousands)
+static void ui64toa_width(unsigned __int64 value, TCHAR* buf, unsigned width, bool bThousands)
 {
     if(width < 1)
         return;
 
-    const char* pSuffix = "";
+    const TCHAR* pSuffix = _T("");
     unsigned uDivider = bThousands ? 1000 : 1024;
     if(width<=20) {
         if(value >= _ui64Table->tenpow(width)) {
             value /= uDivider;
-            pSuffix = "K";
+            pSuffix = _T("K");
         }
         if(value >= _ui64Table->tenpow(width)) {
             value /= uDivider;
-            pSuffix = "M";
+            pSuffix = _T("M");
         }
     }
-    _ui64toa(value, buf, 10);
+    _ui64tot(value, buf, 10);
     lstrcat(buf,pSuffix);
 }
 
@@ -62,8 +61,8 @@ Plist::Plist()
     *HostName = 0;
     pPerfThread = 0;
     dwPluginThread = GetCurrentThreadId();
-    SortMode = GetRegKey(0,"SortMode", SM_UNSORTED); //SM_CUSTOM;
-    StartPanelMode = GetRegKey(0,"StartPanelMode", 1)+'0';
+    SortMode = GetRegKey(0,_T("SortMode"), SM_UNSORTED); //SM_CUSTOM;
+    StartPanelMode = GetRegKey(0,_T("StartPanelMode"), 1)+'0';
 
     InitializePanelModes();
 
@@ -73,52 +72,55 @@ Plist::Plist()
 
 void Plist::InitializePanelModes()
 {
-    static char StatusWidth9x[] = "0,8,0,5";
-    static char StatusWidthNT[] = "0,8,0,5";
-    static char StatusCols[] = "N,S,D,T";
+    static const TCHAR StatusWidth9x[] = _T("0,8,0,5"),
+                       StatusWidthNT[] = _T("0,8,0,5"),
+                       StatusCols[] = _T("N,S,D,T");
 
     // Default panel modes. Overridable from registry.
     // These modes are translated into PanelModesXX
-    static struct { char *Cols, *Width; }
-    DefaultModesNT[NPANELMODES] = {
-        /*0*/ {"N,X15T,X16T,X17T,X18S", "12,0,0,0,4"}, // I/O
-        /*1*/ {"N,XI,XP,X0S,X6", "0,4,2,3,9"}, // General info
-        /*2*/ {"N,N","0,0"},// Names only
-        /*3*/ {"N,XI,XC,D,T","0,4,4,0,0"},    // Startup: PID/Date/Time
-        /*4*/ {"N,XI,X4,X6","0,4,9,9"}, // Memory (basic)
-        /*5*/ {"N,XI,X4,X6,X10,X12,X0,X1,X2","12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
-        /*6*/ {"N,ZD","12,0"}, // Descriptions
-        /*7*/ {"N,XP,X0S,X1S,X2S,X11S,X14S,X18S","0,2,3,2,2,3,4,3"}, // Dynamic Performance
-        /*8*/ {"N,XI,O","0,5,15"}, // Owners (not implemented)
-        /*9*/ {"N,XI,XT,X3,XG,XU","0,4,3,4,4,4"} // Resources
+    static const struct {
+      const TCHAR *Cols;
+      const TCHAR *Width;
+    }
+      DefaultModesNT[NPANELMODES] = {
+        /*0*/ {_T("N,X15T,X16T,X17T,X18S"), _T("12,0,0,0,4")}, // I/O
+        /*1*/ {_T("N,XI,XP,X0S,X6"), _T("0,4,2,3,9")}, // General info
+        /*2*/ {_T("N,N"),_T("0,0")},// Names only
+        /*3*/ {_T("N,XI,XC,D,T"),_T("0,4,4,0,0")},    // Startup: PID/Date/Time
+        /*4*/ {_T("N,XI,X4,X6"),_T("0,4,9,9")}, // Memory (basic)
+        /*5*/ {_T("N,XI,X4,X6,X10,X12,X0,X1,X2"),_T("12,4,0,0,0,0,8,8,8")},     // Extended Memory/Time
+        /*6*/ {_T("N,ZD"),_T("12,0")}, // Descriptions
+        /*7*/ {_T("N,XP,X0S,X1S,X2S,X11S,X14S,X18S"),_T("0,2,3,2,2,3,4,3")}, // Dynamic Performance
+        /*8*/ {_T("N,XI,O"),_T("0,5,15")}, // Owners (not implemented)
+        /*9*/ {_T("N,XI,XT,X3,XG,XU"),_T("0,4,3,4,4,4")} // Resources
     },
-        DefaultModes9x[NPANELMODES] = {
-            /*0*/ {"N,N","0,0"},// Names only
-            /*1*/ {"N,XP,XB,XI", "0,2,2,8"},// General info
-            /*2*/ {"N,N","0,0"},// Names only
-            /*3*/ {"N,XP,XI,XC,XT","0,2,8,8,3"},
-            /*4*/ {"N,S","0,8"},
-            /*5*/ {"N,N","0,0"},// Names only
-            /*6*/ {"N,ZP","12,0"},
-            /*7*/ {"N,ZD","12,0"},
-            /*8*/ {"N,ZW","12,0"},
-            /*9*/ {"N,XI,XT","0,8,3"}
-        },
-            DefaultModesRemoteNT[NPANELMODES] = {
-                /*0*/ {"N,X15T,X16T,X17T,X18S", "12,0,0,0,4"}, // I/O
-                /*1*/ {"N,XI,XP,X0S,X6", "0,4,2,3,9"}, // General info
-                /*2*/ {"N,N","0,0"},// Names only
-                /*3*/ {"N,XI,XC,D,T","0,4,4,0,0"},    // Startup: PID/Date/Time
-                /*4*/ {"N,XI,X4,X6","0,4,9,9"}, // Memory (basic)
-                /*5*/ {"N,XI,X4,X6,X10,X12,X0,X1,X2","12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
-                /*6*/ {"N,ZD","12,0"}, // Descriptions
-                /*7*/ {"N,XP,X0S,X1S,X2S,X11S,X14S,X18S","0,2,3,2,2,3,4,3"}, // Dynamic Performance
-                /*8*/ {"N,XI,O","0,5,15"}, // Owners (not implemented)
-                /*9*/ {"N,XI,XT,X3","0,4,3,4"}
-            };
+      DefaultModes9x[NPANELMODES] = {
+        /*0*/ {_T("N,N"),_T("0,0")},// Names only
+        /*1*/ {_T("N,XP,XB,XI"),_T("0,2,2,8")},// General info
+        /*2*/ {_T("N,N"),_T("0,0")},// Names only
+        /*3*/ {_T("N,XP,XI,XC,XT"),_T("0,2,8,8,3")},
+        /*4*/ {_T("N,S"),_T("0,8")},
+        /*5*/ {_T("N,N"),_T("0,0")},// Names only
+        /*6*/ {_T("N,ZP"),_T("12,0")},
+        /*7*/ {_T("N,ZD"),_T("12,0")},
+        /*8*/ {_T("N,ZW"),_T("12,0")},
+        /*9*/ {_T("N,XI,XT"),_T("0,8,3")}
+     },
+       DefaultModesRemoteNT[NPANELMODES] = {
+        /*0*/ {_T("N,X15T,X16T,X17T,X18S"), _T("12,0,0,0,4")}, // I/O
+        /*1*/ {_T("N,XI,XP,X0S,X6"), _T("0,4,2,3,9")}, // General info
+        /*2*/ {_T("N,N"),_T("0,0")},// Names only
+        /*3*/ {_T("N,XI,XC,D,T"),_T("0,4,4,0,0")},    // Startup: PID/Date/Time
+        /*4*/ {_T("N,XI,X4,X6"),_T("0,4,9,9")}, // Memory (basic)
+        /*5*/ {_T("N,XI,X4,X6,X10,X12,X0,X1,X2"),_T("12,4,0,0,0,0,8,8,8")},     // Extended Memory/Time
+        /*6*/ {_T("N,ZD"),_T("12,0")}, // Descriptions
+        /*7*/ {_T("N,XP,X0S,X1S,X2S,X11S,X14S,X18S"),_T("0,2,3,2,2,3,4,3")}, // Dynamic Performance
+        /*8*/ {_T("N,XI,O"),_T("0,5,15")}, // Owners (not implemented)
+        /*9*/ {_T("N,XI,XT,X3"),_T("0,4,3,4")}
+      };
 #define MAXCOLS MAX_CUSTOM_COLS+4
 
-        char name[20];
+        TCHAR name[20];
         PanelModesLocal[5].FullScreen = PanelModesRemote[5].FullScreen = 1;
 
         for(int iMode=0; iMode<NPANELMODES; iMode++) {
@@ -132,14 +134,14 @@ void Plist::InitializePanelModes()
             PanelModesRemote[iMode].StatusColumnTypes = PanelModeBuffer + iMode*MAX_MODE_STR*8 + MAX_MODE_STR*6;
             PanelModesRemote[iMode].StatusColumnWidths = PanelModeBuffer + iMode*MAX_MODE_STR*8 + MAX_MODE_STR*7;
 
-            FSF.sprintf(name, "Mode%d", iMode);
+            FSF.sprintf(name, _T("Mode%d"), iMode);
 
-            GetRegKey(name, "ColumnsLocal", ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, sizeof(ProcPanelModesLocal[iMode]));
-            GetRegKey(name, "ColumnsRemote", ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, sizeof(ProcPanelModesRemote[iMode]));
-            GetRegKey(name, "WidthsLocal", PanelModesLocal[iMode].ColumnWidths, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width, MAX_MODE_STR-1);
-            GetRegKey(name, "WidthsRemote", PanelModesRemote[iMode].ColumnWidths, DefaultModesRemoteNT[iMode].Width, MAX_MODE_STR-1);
-            GetRegKey(name, "FullScreenLocal", PanelModesLocal[iMode].FullScreen, iMode==5 && NT ? 1 : 0);
-            GetRegKey(name, "FullScreenRemote", PanelModesRemote[iMode].FullScreen, iMode==5 ? 1 : 0);
+            GetRegKey(name, _T("ColumnsLocal"), ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, ArraySize(ProcPanelModesLocal[iMode]));
+            GetRegKey(name, _T("ColumnsRemote"), ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, ArraySize(ProcPanelModesRemote[iMode]));
+            GetRegKey(name, _T("WidthsLocal"), PanelModesLocal[iMode].ColumnWidths, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width, MAX_MODE_STR-1);
+            GetRegKey(name, _T("WidthsRemote"), PanelModesRemote[iMode].ColumnWidths, DefaultModesRemoteNT[iMode].Width, MAX_MODE_STR-1);
+            GetRegKey(name, _T("FullScreenLocal"), PanelModesLocal[iMode].FullScreen, iMode==5 && NT ? 1 : 0);
+            GetRegKey(name, _T("FullScreenRemote"), PanelModesRemote[iMode].FullScreen, iMode==5 ? 1 : 0);
 
             //Status line is the same for all modes currently and cannot be changed.
             TranslateMode(StatusCols, PanelModesLocal[iMode].StatusColumnTypes);
@@ -157,67 +159,65 @@ Plist::~Plist()
 
 void Plist::SavePanelModes()
 {
-    char name[20];
+    TCHAR name[20];
     for(int iMode=0; iMode<NPANELMODES; iMode++) {
-        FSF.sprintf(name, "Mode%d", iMode);
-        SetRegKey(name, "ColumnsLocal", ProcPanelModesLocal[iMode]);
-        SetRegKey(name, "ColumnsRemote", ProcPanelModesRemote[iMode]);
-        SetRegKey(name, "WidthsLocal", PanelModesLocal[iMode].ColumnWidths);
-        SetRegKey(name, "WidthsRemote", PanelModesRemote[iMode].ColumnWidths);
-        SetRegKey(name, "FullScreenLocal", PanelModesLocal[iMode].FullScreen);
-        SetRegKey(name, "FullScreenRemote", PanelModesRemote[iMode].FullScreen);
+        FSF.sprintf(name, _T("Mode%d"), iMode);
+        SetRegKey(name, _T("ColumnsLocal"), ProcPanelModesLocal[iMode]);
+        SetRegKey(name, _T("ColumnsRemote"), ProcPanelModesRemote[iMode]);
+        SetRegKey(name, _T("WidthsLocal"), PanelModesLocal[iMode].ColumnWidths);
+        SetRegKey(name, _T("WidthsRemote"), PanelModesRemote[iMode].ColumnWidths);
+        SetRegKey(name, _T("FullScreenLocal"), PanelModesLocal[iMode].FullScreen);
+        SetRegKey(name, _T("FullScreenRemote"), PanelModesRemote[iMode].FullScreen);
     }
 }
 
-bool Plist::TranslateMode(char* src, char* dest)
+bool Plist::TranslateMode(LPCTSTR src, LPTSTR dest)
 {
     if(!dest) return true;
     if(!src) { *dest=0; return true; }
-    int iCustomMode = '0';
+    int iCustomMode = _T('0');
     bool bWasDesc = false;
     while(*src) {
-        switch(*src&~0x20) {
-case 'Z':
-    switch(*++src&~0x20) {
-case 'P':case 'W':case 'D':case 'C':
-    break;
-default:
-    return false;
-    }
-    if(bWasDesc)
-        return false;
-    *dest++ = 'Z';
-    bWasDesc = true;
-    //*dest++ = iCustomMode++;
-    if(*src && *src!=',')
-        return false;
-    break;
-case 'X':
-    switch(*++src&~0x20) {
-case 'P':case 'I':case 'C'://case 'W':
-case 'T':case 'B':case 'G':case 'U':
-    src++;
-    break;
-default:
-    char* endptr;
-    if(*src<'0' || *src>'9')
-        return false;
-    strtol(src,&endptr,10);
-    if(endptr==src) return false;
-    src = endptr;
-    }
-    *dest++ = 'C';
-    *dest++ = iCustomMode++;
-    /*if(*src && *src!=',')
-    return false;*/
-    while(*src && *src!=',') src++;
-    break;
-default:
-    while(*src && *src!=',')
-        *dest++ = *src++;
-        }
-        if(*src==',')
-            *dest++ = *src++;
+      switch(*src & ~0x20) {
+        case _T('Z'):
+          switch(*++src & ~0x20) {
+            case _T('P'):case _T('W'):case _T('D'):case _T('C'):
+              break;
+            default:
+              return false;
+          }
+          if(bWasDesc)
+            return false;
+          *dest++ = _T('Z');
+          bWasDesc = true;
+          //*dest++ = iCustomMode++;
+          if(*src && *src!=_T(','))
+            return false;
+          break;
+        case _T('X'):
+          switch(*++src & ~0x20) {
+            case _T('P'):case _T('I'):case _T('C')://case _T('W'):
+            case _T('T'):case _T('B'):case _T('G'):case _T('U'):
+              src++;
+              break;
+            default:
+              TCHAR* endptr;
+              if(*src<_T('0') || *src>_T('9'))
+                return false;
+              _tcstol(src,&endptr,10);
+              if(endptr==src) return false;
+              src = endptr;
+          }
+          *dest++ = _T('C');
+          *dest++ = iCustomMode++;
+          /*if(*src && *src!=_T(','))
+          return false;*/
+          while(*src && *src!=_T(',')) ++src;
+          break;
+        default:
+          while(*src && *src!=_T(',')) *dest++ = *src++;
+      }
+      if(*src==_T(',')) *dest++ = *src++;
     }
     *dest = 0;
     return true;
@@ -238,45 +238,46 @@ MTitleFileDesc, MCommandLine };
 
 #define CANBE_PERSEC(n) ((n)<3 || (n)==11 || (n)>=14)
 
-void GenerateTitles(char ProcPanelModes[][MAX_MODE_STR], PanelMode* PanelModes, char* Titles[][MAXCOLS])
+static void GenerateTitles(TCHAR ProcPanelModes[][MAX_MODE_STR],
+                           PanelMode* PanelModes, TCHAR* Titles[][MAXCOLS])
 {
-    char buf[80];
+    TCHAR buf[80];
     for(int i=0; i<NPANELMODES; i++) {
         if(*ProcPanelModes[i]) {
             lstrcpyn(buf, ProcPanelModes[i], ArraySize(buf));
             int ii=0;
-            for(StrTok tok(buf,","); tok; ++tok) {
+            for(StrTok tok(buf,_T(",")); tok; ++tok) {
                 int id=0;
                 switch(*tok&~0x20) {
-case 'N': id = MColumnModule; break;
-case 'Z':
-    switch(tok[1]&~0x20) {
-case 'P': id = MTitleFullPath; break;
-case 'W': id = MColumnTitle; break;
-case 'D': id = MTitleFileDesc; break;
-case 'C': id = MCommandLine; break;
-    }
-    break;
-case 'X':
-    switch(tok[1]&~0x20) {
-case 'P': id = MColumnPriority; break;
-case 'I': id = MTitlePID; break;
-case 'C': id = MColumnParentPID; break;
-    //case 'W': id = ; break;
-case 'T': id = MTitleThreads; break;
-case 'B': id = MColumnBits; break;
-case 'G': id = MColumnGDI; break;
-case 'U': id = MColumnUSER; break;
-default:
-    int n = FSF.atoi(&tok[1]);
-    if(n>=0 && n<NCOUNTERS) {
-        id = Counters[n].idCol;
-        if(strpbrk(&tok[1], "Ss") && CANBE_PERSEC(n))
-            id++;
-    }
-    break;
-    }
-    break;
+                  case _T('N'): id = MColumnModule; break;
+                  case _T('Z'):
+                    switch(tok[1]&~0x20) {
+                      case _T('P'): id = MTitleFullPath; break;
+                      case _T('W'): id = MColumnTitle; break;
+                      case _T('D'): id = MTitleFileDesc; break;
+                      case _T('C'): id = MCommandLine; break;
+                    }
+                    break;
+                  case _T('X'):
+                    switch(tok[1]&~0x20) {
+                      case _T('P'): id = MColumnPriority; break;
+                      case _T('I'): id = MTitlePID; break;
+                      case _T('C'): id = MColumnParentPID; break;
+                      //case _T('W'): id = ; break;
+                      case _T('T'): id = MTitleThreads; break;
+                      case _T('B'): id = MColumnBits; break;
+                      case _T('G'): id = MColumnGDI; break;
+                      case _T('U'): id = MColumnUSER; break;
+                      default:
+                        int n = FSF.atoi(&tok[1]);
+                        if(n>=0 && n<NCOUNTERS) {
+                          id = Counters[n].idCol;
+                          if(_tcspbrk(&tok[1], _T("Ss")) && CANBE_PERSEC(n))
+                          ++id;
+                        }
+                        break;
+                    }
+                    break;
                 }
                 Titles[i][ii++] = id ? GetMsg(id) : 0;
             }
@@ -290,10 +291,10 @@ default:
 // Obtains the current array of panel modes. Called from OpenPluginInfo.
 PanelMode* Plist::PanelModes(int& nModes)
 {
-    static char* TitlesLocal[NPANELMODES][MAXCOLS];
-    static char* TitlesRemote[NPANELMODES][MAXCOLS];
+    static TCHAR* TitlesLocal[NPANELMODES][MAXCOLS];
+    static TCHAR* TitlesRemote[NPANELMODES][MAXCOLS];
 
-    static char* OldMsg0;
+    static TCHAR* OldMsg0;
 
     if(OldMsg0 != GetMsg(0)) {// language changed
         bInit = false;
@@ -315,13 +316,13 @@ void Plist::GetOpenPluginInfo(OpenPluginInfo *Info)
     Info->StructSize = sizeof(*Info);
     Info->Flags = OPIF_ADDDOTS|OPIF_SHOWNAMESONLY|OPIF_USEATTRHIGHLIGHTING;
 
-    Info->CurDir = "";
+    Info->CurDir = _T("");
 
-    static char Title[100];
+    static TCHAR Title[100];
     if(*HostName)
-        FSF.sprintf(Title,"%s: %s ", HostName, GetMsg(MPlistPanel));
+        FSF.sprintf(Title,_T("%s: %s "), HostName, GetMsg(MPlistPanel));
     else
-        FSF.sprintf(Title," %s ",GetMsg(MPlistPanel));
+        FSF.sprintf(Title,_T(" %s "),GetMsg(MPlistPanel));
     Info->PanelTitle=Title;
 
     Info->PanelModesArray = PanelModes(Info->PanelModesNumber);
@@ -330,8 +331,8 @@ void Plist::GetOpenPluginInfo(OpenPluginInfo *Info)
     Info->StartSortMode = SortMode >= SM_CUSTOM ? SM_CTIME : SortMode; //SM_UNSORTED;
 
     static KeyBarTitles keybartitles = {
-        { 0, 0, 0, 0, 0, "", "", }, { 0, }, { 0, 0, 0, 0, 0, "",},
-        { "", "", "", 0, "", "", "", }
+        { 0, 0, 0, 0, 0, _T(""), _T(""), }, { 0, }, { 0, 0, 0, 0, 0, _T(""),},
+        { _T(""), _T(""), _T(""), 0, _T(""), _T(""), _T(""), }
     };
     keybartitles.Titles[5] = GetMsg(MFRemote);
     keybartitles.ShiftTitles[0] = GetMsg(MFPriorMinus);
@@ -363,16 +364,16 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
 {
     Lock l(pPerfThread);
     int RetCode = pPerfThread ? GetListNT(pPanelItem,ItemsNumber,*pPerfThread) :
-    GetList95(pPanelItem,ItemsNumber);
+                                GetList95(pPanelItem,ItemsNumber);
     if(!RetCode) return FALSE;
 
     PanelInfo pi;
     Control(FCTL_GETPANELINFO, &pi);
 
-    char (* ProcPanelModes)[MAX_MODE_STR] = *HostName ? ProcPanelModesRemote : ProcPanelModesLocal;
+    TCHAR (* ProcPanelModes)[MAX_MODE_STR] = *HostName ? ProcPanelModesRemote : ProcPanelModesLocal;
     int cDescMode = 0;
     if(!*HostName) {
-        char* p = strchr(ProcPanelModes[pi.ViewMode], 'Z' );
+        TCHAR* p = _tcschr(ProcPanelModes[pi.ViewMode], _T('Z') );
         if(p)
             cDescMode = p[1];
     }
@@ -382,29 +383,30 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         ProcessData & pdata = *((ProcessData *)CurItem.UserData);
 
         // Make descriptions
-        char Title[NM]; *Title=0;
-        char* pDesc="", *pBuf=0;
+        TCHAR Title[NM]; *Title=0;
+        TCHAR* pDesc=_T("");
+        LPBYTE pBuf=0;
         EnumWndData ewdata = { pdata.dwPID, 0 };
         EnumWindows((WNDENUMPROC)EnumWndProc, (LPARAM)&ewdata);
         pdata.hwnd = ewdata.hWnd;
 
         if(cDescMode) {
             switch(cDescMode&~0x20) {
-            case 'P':
+            case _T('P'):
                 if(*pdata.FullPath)
                     pDesc = pdata.FullPath;
                 break;
-            case 'W':
+            case _T('W'):
                 if(ewdata.hWnd)
                     GetWindowText(ewdata.hWnd, Title, ArraySize(Title));
                 pDesc = Title;
                 break;
-            case 'D':
-                char *pVersion;
+            case _T('D'):
+                TCHAR *pVersion;
                 if(!Plist::GetVersionInfo(pdata.FullPath, pBuf, pVersion, pDesc))
-                    pDesc = "";
+                    pDesc = _T("");
                 break;
-            case 'C':
+            case _T('C'):
                 if(NT)
                     pDesc = ((ProcessDataNT *)CurItem.UserData)->CommandLine;
                 break;
@@ -413,9 +415,11 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
             }
             if(cDescMode)
             {
-                CurItem.Description = new char[lstrlen(pDesc)+1];
+                CurItem.Description = new TCHAR[lstrlen(pDesc)+1];
                 lstrcpy(CurItem.Description, pDesc);
+#ifndef UNICODE
                 CharToOem(CurItem.Description, CurItem.Description);
+#endif
             }
             delete pBuf;
         }
@@ -428,18 +432,22 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         unsigned uCustomColSize = 0;
 
         int nCols=0;
-        for(StrTok tokn(pi.ColumnWidths, ", "); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
+#ifdef UNICODE
+#define ColumnWidths  lpwszColumnWidths
+#endif
+        for(StrTok tokn(pi.ColumnWidths, _T(", ")); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
+#undef ColumnWidths
             uCustomColSize += (Widths[nCols++] = FSF.atoi(tokn)) + 1;
         }
 
         if(nCols) {
-            CurItem.CustomColumnData = (char**)new char[DataOffset + uCustomColSize];
-            char* pData = ((char*)CurItem.CustomColumnData)+DataOffset; // Start offset of column data aftet ptrs
+            CurItem.CustomColumnData = (TCHAR**)new TCHAR[DataOffset + uCustomColSize];
+            TCHAR* pData = ((TCHAR*)CurItem.CustomColumnData)+DataOffset; // Start offset of column data aftet ptrs
 
             int nCustomCols;
             nCustomCols = nCols = 0;
-            for(StrTok tok(ProcPanelModes[pi.ViewMode], ", "); tok; ++tok, ++nCols) {
-                if((*tok&~0x20)=='X') { // Custom column
+            for(StrTok tok(ProcPanelModes[pi.ViewMode], _T(", ")); tok; ++tok, ++nCols) {
+                if((*tok&~0x20)==_T('X')) { // Custom column
                     bool bCol = true;
                     DWORD dwData = 0;
                     int nBase = 10;
@@ -448,28 +456,28 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                     if(nColWidth==0)
                         continue;
                     bool bPerSec = false, bThousands = false;
-                    char c = tok[1];
+                    TCHAR c = tok[1];
                     switch(c&~0x20) {
-                        case 'P': dwData = pdata.dwPrBase; break;
-                        case 'I': dwData = pdata.dwPID;
+                        case _T('P'): dwData = pdata.dwPrBase; break;
+                        case _T('I'): dwData = pdata.dwPID;
                             if(!pPerfThread) nBase = 16;
                             break;
-                        case 'C': dwData = pdata.dwParentPID;
+                        case _T('C'): dwData = pdata.dwParentPID;
                             if(!pPerfThread) nBase = 16;
                             break;
-                            //case 'W': dwData = hwnd; nBase = 16; break;
-                        case 'T': dwData = CurItem.NumberOfLinks; break;
-                        case 'B': dwData = pdata.uAppType; break;
-                        case 'G': if(pd) dwData = pd->dwGDIObjects; break;
-                        case 'U': if(pd) dwData = pd->dwUSERObjects; break;
+                            //case _T('W'): dwData = hwnd; nBase = 16; break;
+                        case _T('T'): dwData = CurItem.NumberOfLinks; break;
+                        case _T('B'): dwData = pdata.uAppType; break;
+                        case _T('G'): if(pd) dwData = pd->dwGDIObjects; break;
+                        case _T('U'): if(pd) dwData = pd->dwUSERObjects; break;
                         default:
-                            if(c<'0' || c>'9')
+                            if(c<_T('0') || c>_T('9'))
                                 bCol = false;
                             else {
                                 iCounter = FSF.atoi(&tok[1]);
-                                if(strpbrk(&tok[1], "Ss") && CANBE_PERSEC(iCounter))
+                                if(_tcspbrk(&tok[1], _T("Ss")) && CANBE_PERSEC(iCounter))
                                     bPerSec = true;
-                                if(strpbrk(&tok[1], "Tt"))
+                                if(_tcspbrk(&tok[1], _T("Tt")))
                                     bThousands = true;
                             }
                     }
@@ -479,8 +487,8 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                     CurItem.CustomColumnData[nCustomCols] = pData;
 
                     int nBufSize = max( nColWidth+1, 16); // to provide space for itoa
-                    Array<char> buf(nBufSize);
-                    if(c>='A') // Not a performance counter
+                    Array<TCHAR> buf(nBufSize);
+                    if(c>=_T('A')) // Not a performance counter
                         FSF.itoa(dwData, buf, nBase);
                     else if(pd && iCounter>=0) {    // Format performance counters
                         if(iCounter<3 && !bPerSec)  // first 3 are date/time
@@ -518,13 +526,17 @@ void Plist::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
         delete item.Owner;
         delete item.CustomColumnData;
         delete (ProcessData *)item.UserData;
+#ifdef UNICODE
+        delete item.FindData.lpwszFileName;
+        delete item.FindData.lpwszAlternateFileName;
+#endif
     }
     delete PanelItem;
 }
 
-int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *DestPath,int OpMode, _Opt& Opt)
+int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,TCHAR *DestPath,int OpMode, _Opt& Opt)
 {
-    static char invalid_chars[] = ":*?\\/\"<>;|";
+    static const TCHAR invalid_chars[] = _T(":*?\\/\"<>;|");
     if (ItemsNumber==0)
         return 0;
 
@@ -536,12 +548,16 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
         if(!pdata) {
             if(!pPerfThread) {
                 memset(&PData, 0, sizeof(PData));
-                PData.dwPID = strtoul(CurItem.FindData.cAlternateFileName, 0, 16);
+#ifdef UNICODE
+#define cAlternateFileName lpwszAlternateFileName
+#endif
+                PData.dwPID = _tcstoul(CurItem.FindData.cAlternateFileName, 0, 16);
                 if(GetPData95(PData))
                     pdata = &PData;
             }
             else {
                 PData.dwPID = FSF.atoi(CurItem.FindData.cAlternateFileName);
+#undef cAlternateFileName
                 ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.NumberOfLinks);
                 if(ppd && GetPDataNT(PData, *ppd))
                     pdata = &PData;
@@ -550,57 +566,68 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
                 return 0;
         }
         // may be 0 if called from FindFile
-        char FileName[MAX_PATH];
+        TCHAR FileName[MAX_PATH];
         lstrcpyn(FileName, DestPath, ArraySize(FileName));
         if(!(OpMode&0x10000)) {
             FSF.AddEndSlash(FileName);
-            strncat(FileName,CurItem.FindData.cFileName,ArraySize(FileName)-lstrlen(FileName)-1);
-            strncat(FileName,".txt",ArraySize(FileName)-lstrlen(FileName)-1);
+#ifdef UNICODE
+#define cFileName lpwszFileName
+#endif
+            _tcsncat(FileName,CurItem.FindData.cFileName,ArraySize(FileName)-lstrlen(FileName)-1);
+            _tcsncat(FileName,_T(".txt"),ArraySize(FileName)-lstrlen(FileName)-1);
         }
         // Replace "invalid" chars by underscores
-        char* pname = strrchr(FileName, '\\');
+        TCHAR* pname = _tcsrchr(FileName, _T('\\'));
         if(!pname) pname = FileName; else pname++;
         for(; *pname; pname++) {
-            if(strchr(invalid_chars, *pname) || *pname<' ')
-                *pname = '_';
+            if(_tcschr(invalid_chars, *pname) || *pname<_T(' '))
+                *pname = _T('_');
         }
 
         HANDLE InfoFile = CreateFile(FileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,CREATE_ALWAYS,0,NULL);
         if (InfoFile==INVALID_HANDLE_VALUE)
             return 0;
-        char AppType[100];
+#ifdef UNICODE
+        //TODO: currently viewer not support prefix!
+        fputc(0xFF, InfoFile);
+        fputc(0xFE, InfoFile);
+#endif
+        TCHAR AppType[100];
         if (!pPerfThread && pdata->uAppType)
-            FSF.sprintf(AppType,", %d%s",pdata->uAppType,GetMsg(MBits));
+            FSF.sprintf(AppType,_T(", %d%s"),pdata->uAppType,GetMsg(MBits));
         else
             *AppType=0;
 
-        char ModuleName[MAX_PATH];
-        //if(Opt.AnsiOutput)
-        //      OemToChar(CurItem.FindData.cFileName, ModuleName);
-        //else
+        TCHAR ModuleName[MAX_PATH];
         lstrcpy(ModuleName, CurItem.FindData.cFileName);
-        fprintf(InfoFile,"%s %s%s\n",PrintTitle(MTitleModule),ModuleName,AppType);
+#undef cFileName
+        fprintf(InfoFile,_T("%s %s%s\n"),PrintTitle(MTitleModule),ModuleName,AppType);
         if (pdata && pdata->FullPath && *pdata->FullPath) {
-            fprintf(InfoFile,"%s %s\n",PrintTitle(MTitleFullPath),(char*)OemString(pdata->FullPath));
+            fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleFullPath),OUT_STRING(pdata->FullPath));
             PrintVersionInfo(InfoFile, pdata->FullPath);
         }
-        fprintf(InfoFile, pPerfThread ? "%s %d\n":"%s %08X\n",PrintTitle(MTitlePID),pdata->dwPID);
-        fprintf(InfoFile, "%s ", PrintTitle(MTitleParentPID));
+        fprintf(InfoFile, pPerfThread ? _T("%s %d\n"):_T("%s %08X\n"),PrintTitle(MTitlePID),pdata->dwPID);
+        fprintf(InfoFile, _T("%s "), PrintTitle(MTitleParentPID));
         if(pPerfThread) {
             Lock l(pPerfThread);
             ProcessPerfData* pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, 0);
-            char* pName = pdata->dwParentPID && pParentData ? pParentData->ProcessName : 0;
-            fprintf(InfoFile, pName ? "%d  (%s)\n" : "%d\n",pdata->dwParentPID, pName);
+            TCHAR* pName = pdata->dwParentPID && pParentData ? pParentData->ProcessName : 0;
+            fprintf(InfoFile, pName ? _T("%u  (%s)\n") : _T("%u\n"),pdata->dwParentPID, pName);
         }
         else
-            fprintf(InfoFile, "%08X\n",pdata->dwParentPID);
+            fprintf(InfoFile, _T("%08X\n"),pdata->dwParentPID);
 
-        fprintf(InfoFile,"%s %d\n",PrintTitle(MTitlePriority),pdata->dwPrBase);
-        fprintf(InfoFile,"%s %d\n",PrintTitle(MTitleThreads),CurItem.NumberOfLinks);
+        fprintf(InfoFile,_T("%s %d\n"),PrintTitle(MTitlePriority),pdata->dwPrBase);
+        fprintf(InfoFile,_T("%s %u\n"),PrintTitle(MTitleThreads),CurItem.NumberOfLinks);
 
         if(!pPerfThread) {
-            fprintf(InfoFile,"%s %8d\n",PrintTitle(MTitleModuleSize),CurItem.PackSize);
-            fprintf(InfoFile,"%s %8d\n",PrintTitle(MTitleHeapSize),GetHeapSize(pdata->dwPID));
+            fprintf(InfoFile,_T("%s %8u\n"),PrintTitle(MTitleModuleSize),
+#ifndef UNICODE
+                    CurItem.PackSize);
+#else
+                    (DWORD)CurItem.FindData.nPackSize);
+#endif
+            fprintf(InfoFile,_T("%s %8u\n"),PrintTitle(MTitleHeapSize),GetHeapSize(pdata->dwPID));
         }
         else
             PrintOwnerInfo(InfoFile, pdata->dwPID);
@@ -617,18 +644,18 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
             FileTimeToSystemTime(&CurItem.FindData.ftCreationTime,&Compare);
             SystemTimeToTzSpecificLocalTime(NULL,&Compare,&Compare);
 
-            char DateText[MAX_DATETIME],TimeText[MAX_DATETIME];
+            TCHAR DateText[MAX_DATETIME],TimeText[MAX_DATETIME];
             ConvertDate(CurItem.FindData.ftCreationTime,DateText,TimeText);
 
             if (Current.wYear!=Compare.wYear || Current.wMonth!=Compare.wMonth ||
                 Current.wDay!=Compare.wDay)
-                fprintf(InfoFile,"\n%s %s %s\n",PrintTitle(MTitleStarted),DateText,TimeText);
+                fprintf(InfoFile,_T("\n%s %s %s\n"),PrintTitle(MTitleStarted),DateText,TimeText);
             else
-                fprintf(InfoFile,"\n%s %s\n",PrintTitle(MTitleStarted),TimeText);
+                fprintf(InfoFile,_T("\n%s %s\n"),PrintTitle(MTitleStarted),TimeText);
 
-            //fprintf(InfoFile,"%s %s\n",PrintTitle(MTitleUptime),PrintNTUptime((void*)CurItem.UserData));
+            //fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleUptime),PrintNTUptime((void*)CurItem.UserData));
             FileTimeToText  (&CurFileTime,&CurItem.FindData.ftCreationTime,TimeText);
-            fprintf(InfoFile,"%s %s\n",PrintTitle(MTitleUptime),TimeText);
+            fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleUptime),TimeText);
         }
 
         HANDLE hProcess = 0;
@@ -636,7 +663,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
         if (NT && !*HostName) // local only
         {
             if (*((ProcessDataNT*)pdata)->CommandLine)
-                fprintf(InfoFile, "\n%s:\n%s\n", GetMsg(MCommandLine), (char*)OemString(((ProcessDataNT*)pdata)->CommandLine));
+                fprintf(InfoFile, _T("\n%s:\n%s\n"), GetMsg(MCommandLine), OUT_STRING(((ProcessDataNT*)pdata)->CommandLine));
 
             SetLastError(0);
             hProcess = OpenProcessForced(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL,pdata->dwPID);
@@ -651,9 +678,9 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
                 Lock l(pPerfThread);
                 ProcessPerfData& pd = *pPerfThread->GetProcessData(pdata->dwPID, CurItem.NumberOfLinks);
                 if(pd.dwGDIObjects)
-                    fprintf(InfoFile,"\n%s %d\n",PrintTitle(MGDIObjects), pd.dwGDIObjects);
+                    fprintf(InfoFile,_T("\n%s %u\n"),PrintTitle(MGDIObjects), pd.dwGDIObjects);
                 if(pd.dwUSERObjects)
-                    fprintf(InfoFile,"%s %d\n",PrintTitle(MUSERObjects), pd.dwUSERObjects);
+                    fprintf(InfoFile,_T("%s %u\n"),PrintTitle(MUSERObjects), pd.dwUSERObjects);
             }
             ChangePrivileges(FALSE,FALSE);
         }// NT && !*HostName
@@ -662,12 +689,13 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
             DumpNTCounters(InfoFile, *pPerfThread, pdata->dwPID, CurItem.NumberOfLinks);
         if(!*HostName && pdata->hwnd)
         {
-            char Title[NM]; *Title=0;
+            TCHAR Title[NM]; *Title=0;
             GetWindowText(pdata->hwnd, Title, ArraySize(Title));
-            //if(!Opt.AnsiOutput)
+#ifndef UNICODE
             CharToOem(Title,Title);
-            fprintf(InfoFile,"\n%s %s\n",PrintTitle(MTitleWindow), Title);
-            fprintf(InfoFile,"%-22s %p\n","HWND:",pdata->hwnd);
+#endif
+            fprintf(InfoFile,_T("\n%s %s\n"),PrintTitle(MTitleWindow), Title);
+            fprintf(InfoFile,_T("%-22s %p\n"),_T("HWND:"),pdata->hwnd);
             LONG Style=0,ExtStyle=0;
             if (pdata->hwnd!=NULL)
             {
@@ -675,62 +703,64 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *D
                 ExtStyle=GetWindowLong(pdata->hwnd,GWL_EXSTYLE);
             }
 
-            static int Styles[]={
+            static const int Styles[]={
                 WS_POPUP,WS_CHILD,WS_MINIMIZE,WS_VISIBLE,WS_DISABLED,
-                    WS_CLIPSIBLINGS,WS_CLIPCHILDREN,WS_MAXIMIZE,WS_BORDER,WS_DLGFRAME,
-                    WS_VSCROLL,WS_HSCROLL,WS_SYSMENU,WS_THICKFRAME,WS_MINIMIZEBOX,
-                    WS_MAXIMIZEBOX
+                WS_CLIPSIBLINGS,WS_CLIPCHILDREN,WS_MAXIMIZE,WS_BORDER,WS_DLGFRAME,
+                WS_VSCROLL,WS_HSCROLL,WS_SYSMENU,WS_THICKFRAME,WS_MINIMIZEBOX,
+                WS_MAXIMIZEBOX
             };
 
-            static char *StrStyles[]={
-                "WS_POPUP","WS_CHILD","WS_MINIMIZE","WS_VISIBLE","WS_DISABLED",
-                    "WS_CLIPSIBLINGS","WS_CLIPCHILDREN","WS_MAXIMIZE","WS_BORDER","WS_DLGFRAME",
-                    "WS_VSCROLL","WS_HSCROLL","WS_SYSMENU","WS_THICKFRAME","WS_MINIMIZEBOX",
-                    "WS_MAXIMIZEBOX"
+            static TCHAR const * const StrStyles[]={
+                _T("WS_POPUP"),_T("WS_CHILD"),_T("WS_MINIMIZE"),_T("WS_VISIBLE"),
+                _T("WS_DISABLED"),_T("WS_CLIPSIBLINGS"),_T("WS_CLIPCHILDREN"),
+                _T("WS_MAXIMIZE"),_T("WS_BORDER"),_T("WS_DLGFRAME"),_T("WS_VSCROLL"),
+                _T("WS_HSCROLL"),_T("WS_SYSMENU"),_T("WS_THICKFRAME"),
+                _T("WS_MINIMIZEBOX"),_T("WS_MAXIMIZEBOX")
             };
 
-            static int ExtStyles[]={
+            static const int ExtStyles[]={
                 WS_EX_DLGMODALFRAME,WS_EX_NOPARENTNOTIFY,WS_EX_TOPMOST,
-                    WS_EX_ACCEPTFILES,WS_EX_TRANSPARENT,WS_EX_MDICHILD,
-                    WS_EX_TOOLWINDOW,WS_EX_WINDOWEDGE,WS_EX_CLIENTEDGE,WS_EX_CONTEXTHELP,
-                    WS_EX_RIGHT,WS_EX_RTLREADING,WS_EX_LEFTSCROLLBAR,WS_EX_CONTROLPARENT,
-                    WS_EX_STATICEDGE,WS_EX_APPWINDOW,
-                    0x00080000, 0x00100000L, 0x00400000L, 0x08000000L
-                    /*WS_EX_LAYERED,WS_EX_NOINHERITLAYOUT,
-                    WS_EX_LAYOUTRTL,WS_EX_NOACTIVATE*/
+                WS_EX_ACCEPTFILES,WS_EX_TRANSPARENT,WS_EX_MDICHILD,
+                WS_EX_TOOLWINDOW,WS_EX_WINDOWEDGE,WS_EX_CLIENTEDGE,WS_EX_CONTEXTHELP,
+                WS_EX_RIGHT,WS_EX_RTLREADING,WS_EX_LEFTSCROLLBAR,WS_EX_CONTROLPARENT,
+                WS_EX_STATICEDGE,WS_EX_APPWINDOW,
+                0x00080000, 0x00100000L, 0x00400000L, 0x08000000L
+                /*WS_EX_LAYERED,WS_EX_NOINHERITLAYOUT,
+                  WS_EX_LAYOUTRTL,WS_EX_NOACTIVATE*/
             };
 
-            static char *StrExtStyles[]={
-                "WS_EX_DLGMODALFRAME","WS_EX_NOPARENTNOTIFY","WS_EX_TOPMOST",
-                    "WS_EX_ACCEPTFILES","WS_EX_TRANSPARENT","WS_EX_MDICHILD",
-                    "WS_EX_TOOLWINDOW","WS_EX_WINDOWEDGE","WS_EX_CLIENTEDGE","WS_EX_CONTEXTHELP",
-                    "WS_EX_RIGHT","WS_EX_RTLREADING","WS_EX_LEFTSCROLLBAR","WS_EX_CONTROLPARENT",
-                    "WS_EX_STATICEDGE","WS_EX_APPWINDOW","WS_EX_LAYERED","WS_EX_NOINHERITLAYOUT",
-                    "WS_EX_LAYOUTRTL","WS_EX_NOACTIVATE"
+            static TCHAR const * const StrExtStyles[]={
+                _T("WS_EX_DLGMODALFRAME"),_T("WS_EX_NOPARENTNOTIFY"),_T("WS_EX_TOPMOST"),
+                _T("WS_EX_ACCEPTFILES"),_T("WS_EX_TRANSPARENT"),_T("WS_EX_MDICHILD"),
+                _T("WS_EX_TOOLWINDOW"),_T("WS_EX_WINDOWEDGE"),_T("WS_EX_CLIENTEDGE"),
+                _T("WS_EX_CONTEXTHELP"),_T("WS_EX_RIGHT"),_T("WS_EX_RTLREADING"),
+                _T("WS_EX_LEFTSCROLLBAR"),_T("WS_EX_CONTROLPARENT"),
+                _T("WS_EX_STATICEDGE"),_T("WS_EX_APPWINDOW"),_T("WS_EX_LAYERED"),
+                _T("WS_EX_NOINHERITLAYOUT"),_T("WS_EX_LAYOUTRTL"),_T("WS_EX_NOACTIVATE")
             };
 
-            char StyleStr[1024], ExtStyleStr[1024];
+            TCHAR StyleStr[1024], ExtStyleStr[1024];
             *StyleStr = *ExtStyleStr=0;
             size_t i;
             for (i=0; i<ArraySize(Styles); i++)
                 if (Style & Styles[i])
                 {
-                    lstrcat(StyleStr, " ");
+                    lstrcat(StyleStr, _T(" "));
                     lstrcat(StyleStr, StrStyles[i]);
                 }
             for (i=0; i<ArraySize(ExtStyles); i++)
                 if (Style & ExtStyles[i])
                 {
-                    lstrcat(ExtStyleStr, " ");
+                    lstrcat(ExtStyleStr, _T(" "));
                     lstrcat(ExtStyleStr, StrExtStyles[i]);
                 }
 
-            fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleStyle),Style,StyleStr);
-            fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleExtStyle),ExtStyle,ExtStyleStr);
+            fprintf(InfoFile,_T("%-22s %08X %s\n"),PrintTitle(MTitleStyle),Style,StyleStr);
+            fprintf(InfoFile,_T("%-22s %08X %s\n"),PrintTitle(MTitleExtStyle),ExtStyle,ExtStyleStr);
         }
 
         if(!*HostName && Opt.ExportModuleInfo && pdata->dwPID!=8) {
-            fprintf(InfoFile,"\n%s\n%s%s\n",  GetMsg(MTitleModules), GetMsg(MColBaseSize),
+            fprintf(InfoFile,_T("\n%s\n%s%s\n"),  GetMsg(MTitleModules), GetMsg(MColBaseSize),
                 Opt.ExportModuleVersion ? GetMsg(MColPathVerDesc) : GetMsg(MColPathVerDescNotShown) );
             if(!NT)
                 PrintModules95(InfoFile, pdata->dwPID, Opt);
@@ -757,17 +787,20 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
     if(*HostName && !Opt.EnableWMI)
     {
         //cannot kill remote process
-        const char *MsgItems[]={GetMsg(MCannotDeleteProc),GetMsg(MCannotKillRemote),GetMsg(MOk)};
+        const TCHAR *MsgItems[]={GetMsg(MCannotDeleteProc),GetMsg(MCannotKillRemote),GetMsg(MOk)};
         Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems));
         return FALSE;
     }
 
-    const char *MsgItems[]={GetMsg(MDeleteTitle),GetMsg(MDeleteProcesses),
+    const TCHAR *MsgItems[]={GetMsg(MDeleteTitle),GetMsg(MDeleteProcesses),
         GetMsg(MDeleteDelete),GetMsg(MCancel)};
-    char Msg[512];
+    TCHAR Msg[512];
 
     if (ItemsNumber==1)
     {
+#ifdef UNICODE
+#define cFileName lpwszFileName
+#endif
         FSF.sprintf(Msg,GetMsg(MDeleteProcess),PanelItem[0].FindData.cFileName);
         MsgItems[1]=Msg;
     }
@@ -775,7 +808,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         return FALSE;
     if (ItemsNumber>1)
     {
-        char Msg[512];
+        TCHAR Msg[512];
         FSF.sprintf(Msg,GetMsg(MDeleteNumberOfProcesses),ItemsNumber);
         MsgItems[1]=Msg;
         if (Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
@@ -811,9 +844,10 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
             Success = KillProcess(pdata->dwPID);
         if (!Success)
         {
-            char Msg[512];
+            TCHAR Msg[512];
             FSF.sprintf(Msg,GetMsg(MCannotDelete),CurItem.FindData.cFileName);
-            const char *MsgItems[]={GetMsg(MDeleteTitle),Msg, 0, GetMsg(MOk)};
+#undef cFileName
+            const TCHAR *MsgItems[]={GetMsg(MDeleteTitle),Msg, 0, GetMsg(MOk)};
             int nItems = ArraySize(MsgItems);
             if(MsgId)
                 MsgItems[2] = GetMsg(MsgId);
@@ -839,11 +873,11 @@ int Plist::ProcessEvent(int Event,void *Param)
     if(Event==FE_CLOSE) {
         PanelInfo pi;
         Control(FCTL_GETPANELINFO, &pi);
-        SetRegKey(0,"StartPanelMode", pi.ViewMode);
-        SetRegKey(0,"SortMode", pi.SortMode==SM_CTIME ? SortMode : pi.SortMode);
+        SetRegKey(0,_T("StartPanelMode"), pi.ViewMode);
+        SetRegKey(0,_T("SortMode"), pi.SortMode==SM_CTIME ? SortMode : pi.SortMode);
     }
     if(Event==FE_CHANGEVIEWMODE) {
-        if(/*pPerfThread || */strchr((char*)Param,'Z') || strchr((char*)Param,'C'))
+        if(/*pPerfThread || */_tcschr((TCHAR*)Param,_T('Z')) || _tcschr((TCHAR*)Param,_T('C')))
             Reread();
     }
     return FALSE;
@@ -855,61 +889,63 @@ void Plist::Reread()
     Control(FCTL_REDRAWPANEL, NULL);
 
     PanelInfo PInfo;
+#ifndef UNICODE
     Control(FCTL_GETANOTHERPANELINFO,&PInfo);
+#else
+    Info.Control(ANOTHER_PANEL, FCTL_GETPANELINFO, &PInfo);
+#endif
     if (PInfo.PanelType==PTYPE_QVIEWPANEL)
     {
+#ifndef UNICODE
         Control(FCTL_UPDATEANOTHERPANEL,(void *)1);
         Control(FCTL_REDRAWANOTHERPANEL,NULL);
+#else
+        Info.Control(ANOTHER_PANEL, FCTL_UPDATEPANEL, (void *)1);
+        Info.Control(ANOTHER_PANEL, FCTL_REDRAWPANEL, NULL);
+#endif
     }
 }
 
-void Plist::PutToCmdLine(char* tmp)
+void Plist::PutToCmdLine(TCHAR* tmp)
 {
     unsigned l = lstrlen(tmp);
-    char* tmp1 = 0;
-    if(strcspn(tmp," &^")!=l) {
-        tmp1 = new char[l+3];
-        memcpy(tmp1+1,tmp,l);
-        tmp1[0] = tmp1[l+1] = '\"';
-        tmp1[l+2] = '\0';
+    TCHAR* tmp1 = 0;
+    if(_tcscspn(tmp,_T(" &^"))!=l) {
+        tmp1 = new TCHAR[l+3];
+        memcpy(tmp1+1,tmp,l*sizeof(TCHAR));
+        tmp1[0] = tmp1[l+1] = _T('\"');
+        tmp1[l+2] = 0;
         tmp = tmp1;
     }
     Info.Control(this,FCTL_INSERTCMDLINE, tmp);
-    Info.Control(this,FCTL_INSERTCMDLINE, (void *)" ");
+    Info.Control(this,FCTL_INSERTCMDLINE, (void *)_T(" "));
     delete tmp1;
 }
 
-bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
+bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
 {
-    char Machine[ArraySize(HostName)];
+    TCHAR Machine[ArraySize(HostName)];
     lstrcpyn(Machine, pMachine, ArraySize(Machine));
 
-    //Convert "//" to "\\"
-    if(*(short*)Machine == 0x2f2f)
-        *(short*)Machine = 0x5c5c;
     // Add "\\" if missing
-    if(*(short*)Machine != 0x5c5c)
-    {
-        memmove(Machine+2, Machine, lstrlen(Machine)+1);
-        *(short*)Machine = 0x5c5c;
+    if(!NORM_M_PREFIX(Machine)) {
+      //Convert "//" to "\\"
+      if(!REV_M_PREFIX(Machine))
+        memmove(Machine+2*sizeof(TCHAR), Machine, lstrlen(Machine)+1);
+#ifndef UNICODE
+        *(LPWORD)Machine = 0x5c5c;
+#else
+        *(LPDWORD)Machine= 0x5c005c;
+#endif
     }
-    /*
-    //Extract the username if any
-    char* p;
-    if(p=strchr(Machine, '@')) {
-    char* user = strtok(Machine+2,"@");
-    char* host = strtok(user,":");
-    memmove(p, host, lstrlen(host));
-    }
-    */
-
     //Try to connect...
-    LPCSTR ConnectItems[] = {"",GetMsg(MConnect)};
+    LPCTSTR ConnectItems[] = {_T(""),GetMsg(MConnect)};
     HANDLE hScreen = Info.SaveScreen(0,0,-1,-1);
     Message(0,0,ConnectItems,2,0);
     if(pUser && *pUser) {
-        static NETRESOURCE nr = { RESOURCE_GLOBALNET, RESOURCETYPE_DISK, RESOURCEDISPLAYTYPE_SERVER,
-            RESOURCEUSAGE_CONTAINER, NULL, NULL, "", NULL};
+        static NETRESOURCE nr =
+            { RESOURCE_GLOBALNET, RESOURCETYPE_DISK, RESOURCEDISPLAYTYPE_SERVER,
+              RESOURCEUSAGE_CONTAINER, NULL, NULL, _T(""), NULL};
         nr.lpRemoteName = Machine;
         DWORD dwErr = WNetAddConnection2(&nr,pPasw,pUser,0);
         if(dwErr==ERROR_SESSION_CREDENTIAL_CONFLICT) {
@@ -943,7 +979,7 @@ bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
 
 int Plist::ProcessKey(int Key,unsigned int ControlState)
 {
-    if (ControlState==PKF_CONTROL && Key=='R')
+    if (ControlState==PKF_CONTROL && Key==_T('R'))
     {
         if(pPerfThread)
             pPerfThread->SmartReread();
@@ -952,7 +988,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     if (ControlState==0 && Key==VK_RETURN)
     {
         //check for the command line; if it's not empty, don't process Enter
-        char CmdLine[1024];
+        TCHAR CmdLine[1024];
 
         Control(FCTL_GETCMDLINE, CmdLine);
         if(*CmdLine)
@@ -993,29 +1029,42 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         }
         return TRUE;
     }
-    else if (ControlState==PKF_SHIFT && Key==VK_F3)
+    else if (ControlState==PKF_SHIFT && (Key==VK_F3
+        //TODO: 1.80 BUG!
+#ifdef UNICODE
+                                                     || Key==0x80052  //BUGBUG!!!
+#endif
+                                                                     ))
     {
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
+#ifdef UNICODE
+#define cFileName lpwszFileName
+#endif
         if (pi.CurrentItem >= pi.ItemsNumber ||
-            !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, ".."))
+            !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, _T("..")))
             return TRUE;
 
-        InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MViewWithOptions, };
+        InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MViewWithOptions, };
         FarDialogItem DialogItems[NVIEWITEMS + 1];
         InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
         _Opt LocalOpt = Opt;
         MakeViewOptions(DialogItems+1, LocalOpt, 2);
-        int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,"Config",DialogItems,ArraySize(DialogItems));
+        int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),DialogItems,ArraySize(DialogItems));
         if(ExitCode==-1)
             return TRUE;
         GetViewOptions(DialogItems+1, LocalOpt);
 
-        char FileName[MAX_PATH];
-        FSF.MkTemp(FileName, "prc");
+        TCHAR FileName[MAX_PATH];
+#ifndef UNICODE
+        FSF.MkTemp(FileName, _T("prc"));
+#else
+        FSF.MkTemp(FileName, ArraySize(FileName), _T("prc"));
+#endif
 
         if(!GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, FileName, OPM_VIEW|0x10000, LocalOpt))
             return TRUE;
+        //TODO: viewer crashed on exit!
         Info.Viewer (FileName, pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE);
         return TRUE;
     }
@@ -1024,23 +1073,26 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItem Items[] = {
             { DI_DOUBLEBOX, 3,1, 44,9, 0,0,0,0, GetMsg(MSelectComputer)},
             { DI_TEXT, 5,2, 0,0, 0,0,0,0, GetMsg(MComputer)},
-            { DI_EDIT, 5,3, 42,0, 1,(DWORD_PTR)"ProcessList.Computer",DIF_HISTORY,1,HostName},
+            { DI_EDIT, 5,3, 42,0, 1,(DWORD_PTR)_T("ProcessList.Computer"),DIF_HISTORY,1,HostName},
             { DI_TEXT, 5,4, 0,0, 0,0,0,0, GetMsg(MEmptyForLocal)},
-            { DI_TEXT, 0,5, 0,0, 0,0,DIF_SEPARATOR,0, ""},
+            { DI_TEXT, 0,5, 0,0, 0,0,DIF_SEPARATOR,0, _T("")},
             { DI_TEXT, 5,6, 0,0, 0,0,0,0, GetMsg(MUsername)},
             { DI_TEXT,25,6, 0,0, 0,0,0,0, GetMsg(MPaswd)},
-            { DI_EDIT, 5,7,22,0, 0,(DWORD_PTR)"ProcessList.Username",DIF_HISTORY,0,""},
-            { DI_PSWEDIT,26,7,42,0, 0,0, 0, 0, ""},
+            { DI_EDIT, 5,7,22,0, 0,(DWORD_PTR)_T("ProcessList.Username"),DIF_HISTORY,0,_T("")},
+            { DI_PSWEDIT,26,7,42,0, 0,0, 0, 0, _T("")},
             { DI_TEXT, 5,8, 0,0, 0,0,0,0, GetMsg(MEmptyForCurrent)},
         };
         FarDialogItem FarItems[ArraySize(Items)];
         InitDialogItems(Items, FarItems, ArraySize(Items));
 
+#ifdef UNICODE
+#define Data  PtrData
+#endif
         //Loop until successful connect or user cancel in dialog
-        while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, "Contents",
-            FarItems, ArraySize(Items))!=-1)
+        while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
+                          FarItems, ArraySize(Items))!=-1)
         {
-            if(*FarItems[2].Data==0 || !lstrcmp(FarItems[2].Data,"\\\\"))
+            if(*FarItems[2].Data==0 || !lstrcmp(FarItems[2].Data,_T("\\\\")))
             {
                 //go to local computer
                 delete pPerfThread;
@@ -1051,6 +1103,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             }
             if(Connect(FarItems[2].Data, FarItems[7].Data, FarItems[8].Data))
                 break;
+#undef Data
         }
         Reread();
         return TRUE;
@@ -1068,13 +1121,13 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     else if (ControlState==PKF_ALT && Key==VK_F6) {
         if(!Opt.EnableWMI)
             return TRUE;
-        const char *MsgItems[]={/*GetMsg(MAttachDebugger)*/"Attach Debugger",/*GetMsg(MConfirmAttachDebugger)*/"Do you want to attach debugger to this process?",GetMsg(MYes),GetMsg(MNo)};
+        const TCHAR *MsgItems[]={/*GetMsg(MAttachDebugger)*/_T("Attach Debugger"),/*GetMsg(MConfirmAttachDebugger)*/_T("Do you want to attach debugger to this process?"),GetMsg(MYes),GetMsg(MNo)};
         if(Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
             return TRUE;
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
         PluginPanelItem& item = pi.PanelItems[pi.CurrentItem];
-        if(!lstrcmp(item.FindData.cFileName, ".."))
+        if(!lstrcmp(item.FindData.cFileName, _T("..")))
             return TRUE;
         int i;
         if(ConnectWMI() && pWMI && item.UserData)
@@ -1083,9 +1136,9 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 case 0: break;
                 case 2: SetLastError(i); WinError(); break;
                 default:
-                    char buf[80];
-                    FSF.sprintf(buf,"Return code: %d", i);
-                    const char *MsgItems[]={/*GetMsg(MAttachDebugger)*/"Attach Debugger",buf,GetMsg(MOk)};
+                    TCHAR buf[80];
+                    FSF.sprintf(buf,_T("Return code: %d"), i);
+                    const TCHAR *MsgItems[]={/*GetMsg(MAttachDebugger)*/_T("Attach Debugger"),buf,GetMsg(MOk)};
                     Message(FMSG_WARNING,0,MsgItems,ArraySize(MsgItems));
                     /*3 The user does not have sufficient privilege.
                     8 Unknown failure.
@@ -1097,6 +1150,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             return TRUE;
     }
 #endif
+#undef cFileName
     else if(ControlState==PKF_SHIFT && (Key==VK_F1||Key==VK_F2) && (!*HostName||Opt.EnableWMI)) {
         //lower/raise priority class
         PanelInfo PInfo;
@@ -1104,7 +1158,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 
         if(PInfo.SelectedItemsNumber>1)
         {
-            const char *MsgItems[]={GetMsg(MChangePriority),GetMsg(MConfirmChangePriority),GetMsg(MYes),GetMsg(MNo)};
+            const TCHAR *MsgItems[]={GetMsg(MChangePriority),GetMsg(MConfirmChangePriority),GetMsg(MYes),GetMsg(MNo)};
             if(Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
                 return TRUE;
         }
@@ -1116,10 +1170,13 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         }
 
         bool bNewPri = W2K || *HostName;
-        static USHORT PrClasses[] = { IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS,
-            HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
-        static USHORT PrClasses2k[] = { IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS,
-            NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS, HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
+        static const USHORT PrClasses[] =
+            { IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS,
+              HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
+        static const USHORT PrClasses2k[] =
+            { IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS,
+              NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS,
+              HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
         const int N = bNewPri ? ArraySize(PrClasses2k) : ArraySize(PrClasses);
 
         for(int i=0; i<PInfo.SelectedItemsNumber; i++)
@@ -1166,7 +1223,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                         WmiError();
                         continue;
                     }
-                    static BYTE Pr2K[ArraySize(PrClasses2k)] = {4,6,8,10,13,24};
+                    static const BYTE Pr2K[ArraySize(PrClasses2k)] = {4,6,8,10,13,24};
                     for(int i=0; i<N; i++)
                         if( dwPriorityClass==Pr2K[i] ) {
                             bool bChange = false;
@@ -1200,7 +1257,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         /*  } else if (ControlState==(PKF_ALT|PKF_SHIFT) && Key==VK_F9) {
         Config();
         return TRUE;*/
-    } else if(ControlState==PKF_CONTROL && Key=='F')
+    } else if(ControlState==PKF_CONTROL && Key==_T('F'))
     {
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
@@ -1231,56 +1288,92 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         };
 
 #define NSTATICITEMS (ArraySize(StaticItems))
+#ifndef UNICODE
 #define LASTBYTE(_array) ((_array)[sizeof(_array) - 1])
+#endif
 
         int nMoreData = pPerfThread ? ArraySize(Counters) + 1 : 0;
 
         PanelInfo pi;
         Control(FCTL_GETPANELINFO, &pi);
-        char cIndicator = pi.Flags&PFLAGS_REVERSESORTORDER ? '-' : '+';
+        TCHAR cIndicator = pi.Flags&PFLAGS_REVERSESORTORDER ? _T('-') : _T('+');
 
         Array<FarMenuItem> Items(NSTATICITEMS + nMoreData*2);
+#ifdef UNICODE
+        struct {
+            BYTE  m;
+            BYTE  a;
+        }Flags[ArraySize(Counters)*2 + NSTATICITEMS + 1] = { {0} };
+#endif
         DWORD i;
         for(i=0; i<NSTATICITEMS; i++)
             if(StaticItems[i].id==0)
                 Items[i].Separator = 1;
             else {
-                lstrcpyn(Items[i].Text, GetMsg(StaticItems[i].id), ArraySize(Items[0].Text));
+#ifndef UNICODE
+                lstrcpyn(Items[i].Text, GetMsg(StaticItems[i].id), sizeof(Items[0].Text));
                 LASTBYTE(Items[i].Text) = StaticItems[i].mode;
+#else
+                Items[i].Text = GetMsg(StaticItems[i].id);
+                Flags[i].m = StaticItems[i].mode;
+#endif
                 int sm = pi.SortMode;
                 if(sm==SM_CTIME)
                     sm = SortMode;
                 if(sm==StaticItems[i].mode)
                     Items[i].Checked = cIndicator;
             }
-            int nItems = NSTATICITEMS;
-            if(pPerfThread) {
-                Items[nItems++].Separator = 1;
-                const PerfLib* pl = pPerfThread->GetPerfLib();
-                for(i=0; i<ArraySize(Counters); i++)
-                    if(pl->dwCounterTitles[i]) {
-                        lstrcpyn(Items[nItems].Text, GetMsg(Counters[i].idName), ArraySize(Items[0].Text));
-                        LASTBYTE(Items[nItems].Text) = SM_PERFCOUNTER+i;
-                        if(SM_PERFCOUNTER+i==SortMode)
+        int nItems = NSTATICITEMS;
+        if(pPerfThread) {
+            Items[nItems++].Separator = 1;
+            const PerfLib* pl = pPerfThread->GetPerfLib();
+            for(i=0; i<ArraySize(Counters); i++)
+                if(pl->dwCounterTitles[i]) {
+#ifndef UNICODE
+                    lstrcpyn(Items[nItems].Text, GetMsg(Counters[i].idName), ArraySize(Items[0].Text));
+                    LASTBYTE(Items[nItems].Text) = SM_PERFCOUNTER+i;
+#else
+                    Items[nItems].Text = GetMsg(Counters[i].idName);
+                    Flags[nItems].m = SM_PERFCOUNTER+i;
+#endif
+                    if(SM_PERFCOUNTER+i==SortMode)
+                        Items[nItems].Checked = cIndicator;
+                    nItems++;
+                    if(CANBE_PERSEC(i)) {
+#ifdef UNICODE
+                        wchar_t tmpStr[512];
+#define PUT tmpStr
+#else
+#define PUT Items[nItems].Text
+#endif
+                        if(i<3)
+                            FSF.sprintf(PUT, _T("%% %s"), GetMsg(Counters[i].idName));
+                        else
+                            FSF.sprintf(PUT, _T("%s %s"), GetMsg(Counters[i].idName), GetMsg(MperSec));
+#undef PUT
+#ifndef UNICODE
+                        LASTBYTE(Items[nItems].Text) = (SM_PERFCOUNTER+i) | SM_PERSEC;
+#else
+                        Items[nItems].Text = wcsdup(tmpStr);
+                        Flags[nItems].m = (SM_PERFCOUNTER+i) | SM_PERSEC;
+                        Flags[nItems].a = 1;
+#endif
+                        if(((SM_PERFCOUNTER+i) | SM_PERSEC) == SortMode)
                             Items[nItems].Checked = cIndicator;
                         nItems++;
-                        if(CANBE_PERSEC(i)) {
-                            if(i<3)
-                                FSF.sprintf(Items[nItems].Text, "%% %s", GetMsg(Counters[i].idName));
-                            else
-                                FSF.sprintf(Items[nItems].Text, "%s %s", GetMsg(Counters[i].idName), GetMsg(MperSec));
-                            LASTBYTE(Items[nItems].Text) = (SM_PERFCOUNTER+i) | SM_PERSEC;
-                            if(((SM_PERFCOUNTER+i) | SM_PERSEC) == SortMode)
-                                Items[nItems].Checked = cIndicator;
-                            nItems++;
-                        }
                     }
-            }
-            // Show sort menu
-            int rc= Menu(FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE, GetMsg(MSortBy), 0, 0, 0, Items, nItems);
-            if(rc==-1) return TRUE;
+                }
+        }
+        // Show sort menu
+        int rc= Menu(FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE, GetMsg(MSortBy), 0, 0, 0, Items, nItems);
+        if(rc != -1) {
+            unsigned mode;
+#ifndef UNICODE
+            mode = (BYTE)LASTBYTE(Items[rc].Text);
+#else
+            mode = Flags[rc].m;
+#endif
 
-            unsigned mode = (BYTE)LASTBYTE(Items[rc].Text);
             SortMode = mode;
             if(mode >= SM_CUSTOM)
                 mode = SM_CTIME;
@@ -1291,21 +1384,26 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             else if(rc==NSTATICITEMS-1)
             Control(FCTL_SETSORTMODE, (void*)&items[rc].mode);
             */
-            return TRUE;
+        }
+#ifdef UNICODE
+        while(--nItems > NSTATICITEMS)
+            if(Flags[nItems].a) free((wchar_t*)Items[nItems].Text);
+#endif
+        return TRUE;
     }
     return FALSE;
 }
 
-char *Plist::PrintTitle(int MsgId)
+TCHAR *Plist::PrintTitle(int MsgId)
 {
-    static char FullStr[256];
-    char Str[256];
-    FSF.sprintf(Str,"%s:",GetMsg(MsgId));
-    FSF.sprintf(FullStr,"%-22s",Str);
+    static TCHAR FullStr[256];
+    TCHAR Str[256];
+    FSF.sprintf(Str,_T("%s:"),GetMsg(MsgId));
+    FSF.sprintf(FullStr,_T("%-22s"),Str);
     return FullStr;
 }
 
-void Plist::FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,char *TimeText)
+void Plist::FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,TCHAR *TimeText)
 {
     FILETIME Uptime;
     if (CurFileTime==NULL)
@@ -1326,80 +1424,108 @@ void Plist::FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,char *TimeTex
         int Days=st.wDay-1;
         for (int I=1;I<st.wMonth;I++)
         {
-            static int MonthDays[12]={31,29,31,30,31,30,31,31,30,31,30,31};
+            static const int MonthDays[12]={31,29,31,30,31,30,31,31,30,31,30,31};
             Days+=MonthDays[I-1];
         }
         if (Days>0)
-            FSF.sprintf(TimeText,"%d %02d:%02d:%02d",Days,st.wHour,st.wMinute,st.wSecond);
+            FSF.sprintf(TimeText,_T("%d %02d:%02d:%02d"),Days,st.wHour,st.wMinute,st.wSecond);
         else
-            FSF.sprintf(TimeText,"%02d:%02d:%02d",st.wHour,st.wMinute,st.wSecond);
+            FSF.sprintf(TimeText,_T("%02d:%02d:%02d"),st.wHour,st.wMinute,st.wSecond);
     } else // failed
-        lstrcpy(TimeText, "???");
+        lstrcpy(TimeText, _T("???"));
 }
 
-bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, char* &pDesc)
+bool Plist::GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, TCHAR* &pDesc)
 {
-    static char SFI[] = "StringFileInfo";
-    static wchar_t WSFI[] = L"StringFileInfo";
+#ifndef UNICODE
+    static const char SFI[] = "StringFileInfo";
+#endif
+    static const wchar_t WSFI[] = L"StringFileInfo";
 
-    if(*(DWORD*)pFullPath==0x5C3F3F5C) /* \??\ */
+#ifndef UNICODE
+    if(*(DWORD*)pFullPath==0x5C3F3F5C) // "\??\"
         pFullPath += 4;
+#endif
     //if(*(LONGLONG*)pFullPath==0x005C003F003F005C) /* \??\ */
     if(!memcmp(pFullPath,L"\\??\\",8))
         pFullPath += 8;
-    DWORD size = pFullPath[1] ? GetFileVersionInfoSize(pFullPath, &size) :
-    GetFileVersionInfoSizeW((wchar_t*)pFullPath, &size);
+    DWORD size =
+#ifndef UNICODE
+                 pFullPath[1] ? GetFileVersionInfoSize(pFullPath, &size) :
+#endif
+                          GetFileVersionInfoSizeW((wchar_t*)pFullPath, &size);
     if(!size) return false;
-    pBuffer = new char[size];
+    pBuffer = new BYTE[size];
+#ifndef UNICODE
     if(pFullPath[1])
         GetFileVersionInfo(pFullPath, 0, size, pBuffer);
     else
+#endif
         GetFileVersionInfoW((wchar_t*)pFullPath, 0, size, pBuffer);
 
     //Find StringFileInfo
     DWORD ofs;
     for(ofs = NT ? 92 : 70; ofs < size; ofs += *(WORD*)(pBuffer+ofs) )
-        if( !NT && !FSF.LStricmp(pBuffer+ofs+6, SFI) || NT && !lstrcmpiW((wchar_t*)(pBuffer+ofs+6), WSFI))
+        if(
+#ifndef UNICODE
+            !NT && !FSF.LStricmp((PCH)pBuffer+ofs+6, SFI) || NT &&
+#endif
+                          !lstrcmpiW((wchar_t*)(pBuffer+ofs+6), WSFI))
             break;
     if(ofs >= size) {
         delete pBuffer;
         return false;
     }
-    char* langcode, lcode[10];
+    TCHAR *langcode;
+#ifndef UNICODE
+    char  lcode[10];
+#endif
     if(NT) {
+#ifndef UNICODE
         WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)(pBuffer+ofs+42), -1, lcode, sizeof(lcode), 0,0);
         langcode = lcode;
+#else
+        langcode = (TCHAR*)(pBuffer + ofs + 42);
+
+#endif
     }
     else
-        langcode = pBuffer + ofs + 26;
+        langcode = (TCHAR*)(pBuffer + ofs + 26);
 
-    char blockname[48];
+    TCHAR blockname[48];
     unsigned dsize;
 
-    FSF.sprintf(blockname, "\\%s\\%s\\FileVersion", SFI, langcode);
+#ifdef UNICODE
+#define SFI WSFI
+#endif
+    FSF.sprintf(blockname, _T("\\%s\\%s\\FileVersion"), SFI, langcode);
     if(!VerQueryValue(pBuffer, blockname, (void**)&pVersion, &dsize))
         pVersion = 0;
 
-    FSF.sprintf(blockname, "\\%s\\%s\\FileDescription", SFI, langcode);
+    FSF.sprintf(blockname, _T("\\%s\\%s\\FileDescription"), SFI, langcode);
+#undef SFI
     if(!VerQueryValue(pBuffer, blockname, (void**)&pDesc, &dsize))
         pDesc = 0;
     return true;
 }
 
-void Plist::PrintVersionInfo(HANDLE InfoFile, char* pFullPath)
+void Plist::PrintVersionInfo(HANDLE InfoFile, TCHAR* pFullPath)
 {
-    char *pBuf, *pVersion, *pDesc;
+    TCHAR   *pVersion, *pDesc;
+    LPBYTE  pBuf;
     if(!GetVersionInfo(pFullPath, pBuf, pVersion, pDesc))
         return;
     if(pVersion) {
-        //if(!Opt.AnsiOutput)
+#ifndef UNICODE
         CharToOem(pVersion,pVersion);
-        fprintf(InfoFile,"%s %s\n",PrintTitle(MTitleFileVersion), pVersion);
+#endif
+        fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleFileVersion), pVersion);
     }
     if(pDesc) {
-        //if(!Opt.AnsiOutput)
+#ifndef UNICODE
         CharToOem(pDesc,pDesc);
-        fprintf(InfoFile,"%s %s\n",PrintTitle(MTitleFileDesc), pDesc);
+#endif
+        fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleFileDesc), pDesc);
     }
 
     delete pBuf;
@@ -1423,9 +1549,9 @@ void Plist::DisconnectWMI()
 
 void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
 {
-    char User[MAX_USERNAME_LENGTH];
-    char UserSid[MAX_USERNAME_LENGTH];
-    char Domain[MAX_USERNAME_LENGTH];
+    TCHAR User[MAX_USERNAME_LENGTH];
+    TCHAR UserSid[MAX_USERNAME_LENGTH];
+    TCHAR Domain[MAX_USERNAME_LENGTH];
 
     if(!Opt.EnableWMI || !pPerfThread->IsWMIConnected() || !ConnectWMI())
         return;
@@ -1436,19 +1562,19 @@ void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
     pWMI->GetProcessUserSid(dwPid, UserSid);
 
     if(*User || *Domain || *UserSid) {
-        fprintf(InfoFile,"%s ", PrintTitle(MTitleUsername));
+        fprintf(InfoFile,_T("%s "), PrintTitle(MTitleUsername));
         if(*Domain)
-            fprintf(InfoFile, "%s\\", Domain);
+            fprintf(InfoFile, _T("%s\\"), Domain);
         if(*User)
             fprintf(InfoFile, User);
         if(*UserSid)
-            fprintf(InfoFile," (%s)", UserSid);
-        fputc('\n',InfoFile);
+            fprintf(InfoFile,_T(" (%s)"), UserSid);
+        fputc(_T('\n'),InfoFile);
     }
 
     int nSession = pWMI->GetProcessSessionId(dwPid);
     if(nSession!=-1)
-        fprintf(InfoFile,"%s %d\n", PrintTitle(MTitleSessionId), nSession);
+        fprintf(InfoFile,_T("%s %d\n"), PrintTitle(MTitleSessionId), nSession);
 }
 
 int Plist::Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2,
@@ -1494,8 +1620,8 @@ default:
 
 bool Plist::bInit;
 PanelMode Plist::PanelModesLocal[], Plist::PanelModesRemote[];
-char Plist::PanelModeBuffer[];
-char Plist::ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], Plist::ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
+TCHAR Plist::PanelModeBuffer[];
+TCHAR Plist::ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], Plist::ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
 /*
 bool Plist::PostUpdate()
 {
@@ -1503,7 +1629,7 @@ PanelInfo pi;
 if(!Control(FCTL_GETPANELINFO, &pi))
 return false;
 
-DWORD dwCtrlR = KEY_CTRL | 'R';
+DWORD dwCtrlR = KEY_CTRL | _T('R');
 KeySequence ks = { 0, 1, &dwCtrlR };
 (*Info.AdvControl)(Info.ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
 Control(FCTL_REDRAWPANEL, NULL);
@@ -1515,6 +1641,6 @@ void Plist::WmiError()
     if(pWMI) {
         HRESULT hr = pWMI->GetLastHResult();
         SetLastError(hr);
-        WinError(hr<(HRESULT)0x80040000 ? 0 : (char *)"wbemcomn");
+        WinError(hr<(HRESULT)0x80040000 ? 0 : (TCHAR *)_T("wbemcomn"));
     }
 }

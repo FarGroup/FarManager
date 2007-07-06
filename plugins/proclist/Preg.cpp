@@ -1,10 +1,10 @@
 #include "proclist.hpp"
 #include "proclng.hpp"
 
-HKEY CreateRegKey(const char *Key);
-HKEY OpenRegKey(const char *Key);
+static HKEY CreateRegKey(LPCTSTR Key);
+static HKEY OpenRegKey(LPCTSTR Key);
 
-void SetRegKey(const char *Key,const char *ValueName,char *ValueData)
+void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPCTSTR ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
@@ -12,7 +12,7 @@ void SetRegKey(const char *Key,const char *ValueName,char *ValueData)
 }
 
 
-void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
+void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
@@ -20,7 +20,7 @@ void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
 }
 
 
-void SetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,DWORD ValueSize)
+void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,BYTE *ValueData,DWORD ValueSize)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
@@ -28,7 +28,7 @@ void SetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,DWORD Value
 }
 
 
-int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize)
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPTSTR ValueData,LPCTSTR Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(Key);
   DWORD Type;
@@ -43,7 +43,7 @@ int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Defaul
 }
 
 
-int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default)
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,int &ValueData,DWORD Default)
 {
   HKEY hKey=OpenRegKey(Key);
   DWORD Type,Size=sizeof(ValueData);
@@ -58,7 +58,7 @@ int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default
 }
 
 
-int GetRegKey(const char *Key,const char *ValueName,DWORD Default)
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD Default)
 {
   int ValueData;
   GetRegKey(Key,ValueName,ValueData,Default);
@@ -66,7 +66,7 @@ int GetRegKey(const char *Key,const char *ValueName,DWORD Default)
 }
 
 
-int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize)
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(Key);
   DWORD Type;
@@ -86,18 +86,18 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,BYTE *Defaul
 
 void DeleteRegKey(char *Key)
 {
-  char FullKeyName[80];
-  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
+  TCHAR FullKeyName[80];
+  FSF.sprintf(FullKeyName,_T("%s%s%s"),PluginRootKey,*Key ? _T("\\"):_T(""),Key);
   RegDeleteKey(HKEY_CURRENT_USER,FullKeyName);
 }
 
 
-HKEY CreateRegKey(const char *Key)
+static HKEY CreateRegKey(LPCTSTR Key)
 {
   HKEY hKey;
-  char FullKeyName[MAX_PATH];
+  TCHAR FullKeyName[MAX_PATH];
   if(Key && *Key)
-    FSF.sprintf(FullKeyName,"%s\\%s",PluginRootKey,Key);
+    FSF.sprintf(FullKeyName,_T("%s\\%s"),PluginRootKey,Key);
   else
     lstrcpy(FullKeyName, PluginRootKey);
   RegCreateKeyEx(HKEY_CURRENT_USER,FullKeyName,0,0,0,KEY_WRITE,0,&hKey,0);
@@ -105,12 +105,12 @@ HKEY CreateRegKey(const char *Key)
 }
 
 
-HKEY OpenRegKey(const char *Key)
+static HKEY OpenRegKey(LPCTSTR Key)
 {
   HKEY hKey;
-  char FullKeyName[MAX_PATH];
+  TCHAR FullKeyName[MAX_PATH];
   if(Key && *Key)
-    FSF.sprintf(FullKeyName,"%s\\%s",PluginRootKey,Key);
+    FSF.sprintf(FullKeyName,_T("%s\\%s"),PluginRootKey,Key);
   else
     lstrcpy(FullKeyName, PluginRootKey);
   if (RegOpenKeyEx(HKEY_CURRENT_USER,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
