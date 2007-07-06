@@ -199,11 +199,6 @@ typedef struct _PEB {
   ULONG                   SessionId;
 } PEB, *PPEB;
 
-typedef enum _PROCESSINFOCLASS {
-    ProcessBasicInformation = 0,
-    ProcessWow64Information = 26
-} PROCESSINFOCLASS;
-
 typedef struct _PROCESS_BASIC_INFORMATION {
     PVOID Reserved1;
     PPEB PebBaseAddress;
@@ -219,13 +214,8 @@ BOOL GetInternalProcessData( HANDLE hProcess, ModuleData* Data, PROCESS_PARAMETE
     // From ntddk.h
     PROCESS_BASIC_INFORMATION processInfo;
 
-
-    typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
-    DYNAMIC_ENTRY(NtQueryInformationProcess, GetModuleHandle( "ntdll.dll" ))
-
-    if (pNtQueryInformationProcess == NULL ||
-        pNtQueryInformationProcess( hProcess, ProcessBasicInformation, &processInfo, sizeof(processInfo), &ret ) )
-     return FALSE;
+    if (pNtQueryInformationProcess(hProcess, ProcessBasicInformation, &processInfo, sizeof(processInfo), &ret))
+      return FALSE;
 
     char *p4;
 

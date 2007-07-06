@@ -217,14 +217,9 @@ bool WMIConnection::Connect(LPCSTR pMachineName, LPCSTR pUser, LPCSTR pPassword)
     CoInitialize(0);
 
     //nt 3.51 dont' have CoInitializeSecurity
-    typedef HRESULT (WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_AUTHENTICATION_SERVICE*, void*,DWORD,DWORD,void*,DWORD,void*);
-    DYNAMIC_ENTRY(CoInitializeSecurity,GetModuleHandle("ole32.dll"))
-    if(pCoInitializeSecurity)
-    {
-      // It must called per thread, otherwise returns
-      pCoInitializeSecurity( 0, -1, 0, 0, RPC_C_AUTHN_LEVEL_DEFAULT,
-                  RPC_C_IMP_LEVEL_IMPERSONATE, 0, EOAC_NONE, 0);
-    }
+    // It must called per thread, otherwise returns
+    pCoInitializeSecurity(0, -1, 0, 0, RPC_C_AUTHN_LEVEL_DEFAULT,
+                          RPC_C_IMP_LEVEL_IMPERSONATE, 0, EOAC_NONE, 0);
 
     if(!pMachineName || !*pMachineName)
         pMachineName = ".";

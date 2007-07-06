@@ -253,9 +253,6 @@ void PerfThread::Refresh()
     // loop thru the performance instance data extracting each process name
     // and process id
     //
-    typedef DWORD (WINAPI *PGetGuiResources)(IN HANDLE hProcess, IN DWORD uiFlags);
-    DYNAMIC_ENTRY(GetGuiResources, GetModuleHandle("user32"))
-
     for (i=0; i<(DWORD)pObj->NumInstances; i++) {
 
         ProcessPerfData& Task = (*pNewPData)[i];
@@ -340,13 +337,11 @@ void PerfThread::Refresh()
             GetProcessTimes(hProcess,&Task.ftCreation,&ftExit,&ftKernel,&ftUser);
 
             SetLastError(0);
-            Task.dwGDIObjects = pGetGuiResources ? pGetGuiResources(hProcess, 0/*GR_GDIOBJECTS*/) : 0;
-            Task.dwUSERObjects = pGetGuiResources ? pGetGuiResources(hProcess, 1/*GR_USEROBJECTS*/) : 0;
+            Task.dwGDIObjects = pGetGuiResources(hProcess, 0/*GR_GDIOBJECTS*/);
+            Task.dwUSERObjects = pGetGuiResources(hProcess, 1/*GR_USEROBJECTS*/);
 
-            typedef BOOL (WINAPI *PIsWow64Process)(IN HANDLE hProcess, IN PBOOL Wow64Process);
-            DYNAMIC_ENTRY(IsWow64Process, GetModuleHandle("kernel32"))
             BOOL wow64;
-            if(pIsWow64Process && pIsWow64Process(hProcess, &wow64) && !wow64)
+            if(pIsWow64Process(hProcess, &wow64) && !wow64)
               Task.bProcessIs64bit = TRUE;
 
             CloseHandle(hProcess);

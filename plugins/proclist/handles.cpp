@@ -68,11 +68,6 @@ typedef struct _THREAD_BASIC_INFORMATION {
   KPRIORITY  BasePriority;
 } BASIC_THREAD_INFORMATION, THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
 
-typedef enum _PROCESSINFOCLASS {
-    ProcessBasicInformation = 0,
-    ProcessWow64Information = 26
-} PROCESSINFOCLASS;
-
 typedef struct _PROCESS_BASIC_INFORMATION {
     PVOID Reserved1;
     PVOID PebBaseAddress;
@@ -114,9 +109,6 @@ BOOL GetProcessId( HANDLE handle, DWORD& dwPID)
     dwPID = 0;
 
     // Get the process information
-    typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
-    DYNAMIC_ENTRY(NtQueryInformationProcess,GetModuleHandle("ntdll"))
-
     if ( pNtQueryInformationProcess( handle, ProcessBasicInformation, &pi, sizeof(pi), NULL) == 0 )
     {
         dwPID = pi.UniqueProcessId;
@@ -134,8 +126,6 @@ BOOL GetThreadId( HANDLE h, DWORD& threadID)
 
     handle = h;
 
-    typedef DWORD (WINAPI *PNtQueryInformationThread)(HANDLE, ULONG, PVOID, DWORD, DWORD* );
-    DYNAMIC_ENTRY(NtQueryInformationThread, GetModuleHandle("ntdll"))
     // Get the thread information
     if ( pNtQueryInformationThread( handle, 0, &ti, sizeof(ti), NULL ) == 0 )
     {
@@ -151,25 +141,20 @@ BOOL GetThreadId( HANDLE h, DWORD& threadID)
     return ret;
 }
 
-inline bool GOODSTATUS(DWORD st) { return !(st) || (st)==0xC0000004L; }
+inline bool GOODSTATUS(DWORD st) { return !(st) || (st)==STATUS_INFO_LENGTH_MISMATCH; }
 
-typedef DWORD (WINAPI *PNtQueryObject)( HANDLE, DWORD, VOID*, DWORD, VOID* );
-
-DWORD WINAPI GetFileNameThread(PVOID Param)
+static DWORD WINAPI GetFileNameThread(PVOID Param)
 {
-    typedef DWORD (WINAPI *PNtQueryInformationFile)( HANDLE, PVOID, PVOID, DWORD, DWORD );
-    DYNAMIC_ENTRY(NtQueryInformationFile, GetModuleHandle("ntdll"))
-
     DWORD iob[2];
     char info[256];
-    pNtQueryInformationFile((HANDLE)Param, &iob, &info,sizeof(info), 22);
+    if (pNtQueryInformationFile((HANDLE)Param, &iob, &info, sizeof(info), 22)
+        == STATUS_NOT_IMPLEMENTED) Sleep(200);
     return 0;
 }
 
 bool PrintFileName(HANDLE handle, HANDLE file)
 {
     bool ret = false;
-    DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
 
     // Check if it's possible to get the file name info
     DWORD dwThreadId;
@@ -208,7 +193,6 @@ bool GetTypeToken(HANDLE handle, char* str, DWORD dwSize)
 {
     ULONG size = 0x2000;
     bool ret = false;
-    DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
 
     // Query the info size
     if(GOODSTATUS(pNtQueryObject( handle, 2, NULL, 0, &size ))) {
@@ -253,7 +237,6 @@ WORD GetType( HANDLE h)
 bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=0)
 {
     bool ret = false;
-    DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
 
     // let's be happy, handle is in our process space, so query the infos :)
     DWORD dwId = 0;
@@ -381,8 +364,6 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 {
     bool ret = true;
     DWORD i;
-    typedef DWORD (WINAPI *PNtQuerySystemInformation)( DWORD, VOID*, DWORD, ULONG* );
-    DYNAMIC_ENTRY(NtQuerySystemInformation, GetModuleHandle("ntdll"))
 
     DWORD size = 0x2000, needed = 0;
     SYSTEM_HANDLE_INFORMATION* pSysHandleInformation = (SYSTEM_HANDLE_INFORMATION*)
@@ -453,35 +434,24 @@ void main(int ac, char** av)
 
 BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 {
+   PUCHAR pscnt;
    PSID_IDENTIFIER_AUTHORITY psia;
    DWORD dwSubAuthorities;
    DWORD dwSidRev=SID_REVISION;
    DWORD dwCounter;
    DWORD dwSidSize;
-   HMODULE hApi32 = GetModuleHandle("advapi32");
    //
    // test if SID passed in is valid
    //
-   typedef BOOL (WINAPI *PIsValidSid)(PSID);
-   DYNAMIC_ENTRY(IsValidSid, hApi32)
-
-   if(!pIsValidSid || !pIsValidSid(pSid)) return FALSE;
+   if(!pIsValidSid(pSid)) return FALSE;
 
    // obtain SidIdentifierAuthority
-   typedef PSID_IDENTIFIER_AUTHORITY (WINAPI *PGetSidIdentifierAuthority)(PSID);
-   DYNAMIC_ENTRY(GetSidIdentifierAuthority, hApi32)
-
-   if(!pGetSidIdentifierAuthority || !pGetSidIdentifierAuthority(pSid)) return FALSE;
-
-   psia = pGetSidIdentifierAuthority(pSid);
+   if((psia = pGetSidIdentifierAuthority(pSid)) == NULL) return FALSE;
 
    // obtain sidsubauthority count
-   typedef PUCHAR (WINAPI *PGetSidSubAuthorityCount)(PSID);
-   DYNAMIC_ENTRY(GetSidSubAuthorityCount, hApi32)
+   if((pscnt = pGetSidSubAuthorityCount(pSid)) == NULL) return FALSE;
 
-   if(!pGetSidIdentifierAuthority || !pGetSidIdentifierAuthority(pSid)) return FALSE;
-
-   dwSubAuthorities=*pGetSidSubAuthorityCount(pSid);
+   dwSubAuthorities=*pscnt;
 
    //
    // compute buffer length
@@ -512,12 +482,10 @@ BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 
    // loop through SidSubAuthorities
    // obtain sidsubauthority count
-   typedef PDWORD (WINAPI *PGetSidSubAuthority)(PSID, DWORD);
-   DYNAMIC_ENTRY(GetSidSubAuthority, hApi32)
-
    for (dwCounter=0 ; dwCounter < dwSubAuthorities ; dwCounter++){
-      dwSidSize += wsprintfW(pszSidText + dwSidSize, L"-%lu",
-      *pGetSidSubAuthority(pSid, dwCounter) );
+      DWORD rc = 0, *prc = pGetSidSubAuthority(pSid, dwCounter);
+      if (prc) rc = *prc;
+      dwSidSize += wsprintfW(pszSidText + dwSidSize, L"-%lu", rc);
    }
 
    return TRUE;
@@ -531,17 +499,16 @@ static char UserAccountID[256];
    SID_NAME_USE eUse;
    DWORD cbSid=0,cbDomainName=0;
 
-   typedef BOOL (WINAPI *PLookupAccountNameA)(LPCTSTR,LPCTSTR,PSID,LPDWORD,LPTSTR,LPDWORD,PSID_NAME_USE);
-   DYNAMIC_ENTRY(LookupAccountNameA, GetModuleHandle("advapi32"))
 
-   if(!GetUserName(UserAccountID,&size) || !pLookupAccountNameA)
+   if(   !GetUserName(UserAccountID, &size)
+      || !pLookupAccountName(0,UserAccountID,0,&cbSid, 0,&cbDomainName, &eUse))
+   {
        return L"";
-
-   pLookupAccountNameA(0,UserAccountID,0,&cbSid, 0,&cbDomainName, &eUse);
+   }
 
    PSID pSid = (PSID)new char[cbSid];
    char* pDomainName = new char[cbDomainName+1];
-   pLookupAccountNameA(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
+   pLookupAccountName(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
    size = sizeof(UserAccountID);
    if(!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
    delete (char *)pSid;

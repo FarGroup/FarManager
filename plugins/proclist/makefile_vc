@@ -17,6 +17,7 @@ COMMON = ..\common
 COMINC = $(COMMON)\ascii
 !else
 COMINC = $(COMMON)\unicode
+UNIDEF=/DUNICODE /D_UNICODE
 !endif
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
@@ -25,10 +26,10 @@ MAP = $(OUTDIR)\$(NAME).map
 
 !IF "$(CPU)" == "AMD64"
 LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
-CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM"
+CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
 !ELSE
 LIBS = kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
-CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM"
+CPP_PROJ=/nologo /c /O1i /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
 !ENDIF
 
 !IF "$(CPU)" == "AMD64"

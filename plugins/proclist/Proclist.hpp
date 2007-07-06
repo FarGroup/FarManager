@@ -221,11 +221,51 @@ void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset);
 void GetViewOptions(FarDialogItem* Items, _Opt& Opt);
 #define NVIEWITEMS 7
 
+#define ArraySize(d)  (sizeof(d)/sizeof(d[0]))
 
-#define DYNAMIC_ENTRY(_name, _module)  \
-    static P##_name p##_name;   \
-    if(!p##_name)               \
-       p##_name = (P##_name)GetProcAddress((_module), #_name);
+//------
+// dynamic binding
+typedef enum _PROCESSINFOCLASS {
+    ProcessBasicInformation = 0,
+    ProcessWow64Information = 26
+} PROCESSINFOCLASS;
+//
+#ifndef STATUS_NOT_IMPLEMENTED
+#define STATUS_NOT_IMPLEMENTED           ((LONG)0xC0000002L)
+#endif
+#ifndef STATUS_INFO_LENGTH_MISMATCH
+#define STATUS_INFO_LENGTH_MISMATCH      ((LONG)0xC0000004L)
+#endif
+//
+typedef LONG (WINAPI *PNtQueryInformationProcess)(HANDLE,PROCESSINFOCLASS,PVOID,ULONG,PULONG);
+extern PNtQueryInformationProcess pNtQueryInformationProcess;
+typedef LONG (WINAPI *PNtQueryInformationThread)(HANDLE, ULONG, PVOID, DWORD, DWORD*);
+extern PNtQueryInformationThread pNtQueryInformationThread;
+typedef LONG (WINAPI *PNtQueryObject)(HANDLE, DWORD, VOID*, DWORD, VOID*);
+extern PNtQueryObject pNtQueryObject;
+typedef LONG (WINAPI *PNtQuerySystemInformation)(DWORD, VOID*, DWORD, ULONG*);
+extern PNtQuerySystemInformation pNtQuerySystemInformation;
+typedef LONG (WINAPI *PNtQueryInformationFile)(HANDLE, PVOID, PVOID, DWORD, DWORD);
+extern PNtQueryInformationFile pNtQueryInformationFile;
+typedef LONG (WINAPI *PNtQueryInformationFile)(HANDLE, PVOID, PVOID, DWORD, DWORD);
+extern PNtQueryInformationFile pNtQueryInformationFile;
+typedef BOOL (WINAPI *PIsValidSid)(PSID);
+extern PIsValidSid pIsValidSid;
+typedef PSID_IDENTIFIER_AUTHORITY (WINAPI *PGetSidIdentifierAuthority)(PSID);
+extern PGetSidIdentifierAuthority pGetSidIdentifierAuthority;
+typedef PUCHAR (WINAPI *PGetSidSubAuthorityCount)(PSID);
+extern PGetSidSubAuthorityCount pGetSidSubAuthorityCount;
+typedef PDWORD (WINAPI *PGetSidSubAuthority)(PSID, DWORD);
+extern PGetSidSubAuthority pGetSidSubAuthority;
+typedef BOOL (WINAPI *PLookupAccountName)(LPCTSTR,LPCTSTR,PSID,LPDWORD,LPTSTR,LPDWORD,PSID_NAME_USE);
+extern PLookupAccountName pLookupAccountName;
+typedef BOOL (WINAPI *PIsWow64Process)(IN HANDLE hProcess, IN PBOOL Wow64Process);
+extern PIsWow64Process pIsWow64Process;
+typedef DWORD (WINAPI *PGetGuiResources)(IN HANDLE hProcess, IN DWORD uiFlags);
+extern PGetGuiResources pGetGuiResources;
+typedef HRESULT (WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_AUTHENTICATION_SERVICE*, void*,DWORD,DWORD,SOLE_AUTHENTICATION_LIST*,DWORD,void*);
+extern PCoInitializeSecurity pCoInitializeSecurity;
+//------
 
 int fprintf(HANDLE stream, const char *format, ...);
 int fputc(int c, HANDLE stream);

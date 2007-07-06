@@ -31,8 +31,115 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+//-----------------------------------------------------------------------------
+static LONG WINAPI fNtQueryInformationProcess(
+                              HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG)
+{ return STATUS_NOT_IMPLEMENTED; }
+PNtQueryInformationProcess pNtQueryInformationProcess = fNtQueryInformationProcess;
+
+static LONG WINAPI fNtQueryInformationThread(HANDLE, ULONG, PVOID, DWORD, DWORD*)
+{ return STATUS_NOT_IMPLEMENTED; }
+PNtQueryInformationThread pNtQueryInformationThread = fNtQueryInformationThread;
+
+static LONG WINAPI fNtQueryObject(HANDLE, DWORD, VOID*, DWORD, VOID*)
+{ return STATUS_NOT_IMPLEMENTED; }
+PNtQueryObject pNtQueryObject = fNtQueryObject;
+
+static LONG WINAPI fNtQuerySystemInformation(DWORD, VOID*, DWORD, ULONG*)
+{ return STATUS_NOT_IMPLEMENTED; }
+PNtQuerySystemInformation pNtQuerySystemInformation = fNtQuerySystemInformation;
+
+static LONG WINAPI fNtQueryInformationFile(HANDLE, PVOID, PVOID, DWORD, DWORD)
+{ return STATUS_NOT_IMPLEMENTED; }
+PNtQueryInformationFile pNtQueryInformationFile = fNtQueryInformationFile;
+
+
+static BOOL WINAPI fIsWow64Process(HANDLE, PBOOL) { return FALSE; }
+PIsWow64Process pIsWow64Process = fIsWow64Process;
+
+
+static DWORD WINAPI fGetGuiResources(HANDLE, DWORD) { return 0; }
+PGetGuiResources pGetGuiResources = fGetGuiResources;
+
+
+static BOOL WINAPI fIsValidSid(PSID) { return FALSE; }
+PIsValidSid pIsValidSid = fIsValidSid;
+
+static PSID_IDENTIFIER_AUTHORITY WINAPI fGetSidIdentifierAuthority(PSID)
+{ return NULL; }
+PGetSidIdentifierAuthority pGetSidIdentifierAuthority = fGetSidIdentifierAuthority;
+
+static PUCHAR WINAPI fGetSidSubAuthorityCount(PSID) { return NULL; }
+PGetSidSubAuthorityCount pGetSidSubAuthorityCount = fGetSidSubAuthorityCount;
+
+static PDWORD WINAPI fGetSidSubAuthority(PSID, DWORD) { return NULL; }
+PGetSidSubAuthority pGetSidSubAuthority = fGetSidSubAuthority;
+
+static BOOL WINAPI fLookupAccountName(LPCTSTR,LPCTSTR,PSID,LPDWORD,LPTSTR,LPDWORD,PSID_NAME_USE)
+{ return FALSE; }
+PLookupAccountName pLookupAccountName = fLookupAccountName;
+
+
+static HRESULT WINAPI fCoInitializeSecurity(
+              PSECURITY_DESCRIPTOR, LONG, SOLE_AUTHENTICATION_SERVICE*, void*,
+              DWORD, DWORD, SOLE_AUTHENTICATION_LIST*, DWORD, void*)
+{ return E_FAIL; }
+PCoInitializeSecurity pCoInitializeSecurity = fCoInitializeSecurity;
+
+#define FUNC_AW_SUFFIX  "A"
+static void dynamic_bind(void)
+{
+  static BOOL Inited;
+  if (!Inited) {
+    HMODULE h;
+    FARPROC f;
+
+    if ((h = GetModuleHandle("ntdll")) != NULL) {
+      if ((f = GetProcAddress(h, "NtQueryInformationProcess")) != NULL)
+          *(FARPROC*)&pNtQueryInformationProcess = f;
+      if ((f = GetProcAddress(h, "NtQueryInformationThread")) != NULL)
+          *(FARPROC*)&pNtQueryInformationThread = f;
+      if ((f = GetProcAddress(h, "NtQueryObject")) != NULL)
+          *(FARPROC*)&pNtQueryObject = f;
+      if ((f = GetProcAddress(h, "NtQuerySystemInformation")) != NULL)
+          *(FARPROC*)&pNtQuerySystemInformation = f;
+      if ((f = GetProcAddress(h, "NtQueryInformationFile")) != NULL)
+          *(FARPROC*)&pNtQueryInformationFile = f;
+    }
+    if ((h = GetModuleHandle("kernel32")) != NULL) {
+      if ((f = GetProcAddress(h, "IsWow64Process")) != NULL)
+          *(FARPROC*)&pIsWow64Process = f;
+    }
+    if ((h = GetModuleHandle("advapi32")) != NULL) {
+      if ((f = GetProcAddress(h, "IsValidSid")) != NULL)
+          *(FARPROC*)&pIsValidSid = f;
+      if ((f = GetProcAddress(h, "GetSidIdentifierAuthority")) != NULL)
+          *(FARPROC*)&pGetSidIdentifierAuthority = f;
+      if ((f = GetProcAddress(h, "GetSidSubAuthorityCount")) != NULL)
+          *(FARPROC*)&pGetSidSubAuthorityCount = f;
+      if ((f = GetProcAddress(h, "GetSidSubAuthority")) != NULL)
+          *(FARPROC*)&pGetSidSubAuthority = f;
+      if ((f = GetProcAddress(h, "LookupAccountName" FUNC_AW_SUFFIX)) != NULL)
+          *(FARPROC*)&pLookupAccountName = f;
+    }
+    if ((h = GetModuleHandle("user32")) != NULL) {
+      if ((f = GetProcAddress(h, "GetGuiResources")) != NULL)
+          *(FARPROC*)&pGetGuiResources = f;
+    }
+    if ((h = GetModuleHandle("ole32")) != NULL) {
+      if ((f = GetProcAddress(h, "CoInitializeSecurity")) != NULL)
+          *(FARPROC*)&pCoInitializeSecurity = f;
+    }
+    Inited = TRUE;
+  }
+}
+#undef FUNC_AW_SUFFIX
+
+//----------------------------------------------------------------------------
+
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
+  dynamic_bind();
   OSVERSIONINFO WinVer;
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
   GetVersionEx(&WinVer);
