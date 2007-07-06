@@ -2290,8 +2290,6 @@ int Dialog::ProcessKey(int Key)
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos]->Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
         }
-        else
-          List->SetSelectPos(CurListPos,0); //????
 
         if(!(Key == KEY_ENTER || Key == KEY_NUMENTER) || (Item[FocusPos]->Flags&DIF_LISTNOCLOSE))
           return(TRUE);
@@ -2943,7 +2941,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           else
           {
             Pos=NewListPos;
-            List->SetSelectPos(Pos,0); //????
           }
         }
         else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
@@ -2964,7 +2961,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           else
           {
             Pos=NewListPos;
-            List->SetSelectPos(Pos,0); //????
             if(!InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
             {
               ExitCode=I;
