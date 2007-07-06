@@ -397,6 +397,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName, DWORD cbProcessNa
                     if(dwSize) {
                         *ppEnvStrings = new char[dwSize];
                         WideCharToMultiByte( CP_ACP, 0, pwEnvStrings, dwSize, *ppEnvStrings,dwSize,0,0);
+                        delete pwEnvStrings;
                     }
                 }
             }
@@ -570,8 +571,10 @@ void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironme
 
     fputc('\n',InfoFile);
 
-    if(sCurDir)
-    fprintf(InfoFile,"%s %s\n\n",Plist::PrintTitle(MCurDir),(char*)*sCurDir);
+    if(sCurDir) {
+      fprintf(InfoFile,"%s %s\n\n",Plist::PrintTitle(MCurDir),(char*)*sCurDir);
+      delete sCurDir;
+    }
 
     if(bExportEnvironment) {
     if(pEnvStrings)

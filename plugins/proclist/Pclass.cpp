@@ -1084,7 +1084,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 case 2: SetLastError(i); WinError(); break;
                 default:
                     char buf[80];
-                    sprintf(buf,"Return code: %d", i);
+                    FSF.sprintf(buf,"Return code: %d", i);
                     const char *MsgItems[]={/*GetMsg(MAttachDebugger)*/"Attach Debugger",buf,GetMsg(MOk)};
                     Message(FMSG_WARNING,0,MsgItems,ArraySize(MsgItems));
                     /*3 The user does not have sufficient privilege.
