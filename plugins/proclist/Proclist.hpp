@@ -56,7 +56,7 @@ extern struct _Opt
 } Opt;
 
 
-inline int Message(unsigned Flags, TCHAR *HelpTopic, PCTSTR*Items, int nItems, int nButtons=1) {
+inline int Message(unsigned Flags, TCHAR *HelpTopic, LPCTSTR*Items, int nItems, int nButtons=1) {
     return Info.Message(Info.ModuleNumber, Flags, HelpTopic, Items, nItems, nButtons);
 }
 
@@ -175,7 +175,7 @@ void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPCTSTR ValueData);
 void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD ValueData);
 void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPBYTE ValueData,DWORD ValueSize);
 int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPTSTR ValueData,LPCTSTR Default,DWORD DataSize);
-int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPBYTE ValueData,LPCBYTE Default,DWORD DataSize);
+int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPBYTE ValueData,LPBYTE Default,DWORD DataSize);
 int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,int &ValueData,DWORD Default);
 int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD Default);
 void DeleteRegKey(LPCTSTR Key);
