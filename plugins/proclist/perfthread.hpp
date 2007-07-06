@@ -46,7 +46,7 @@ struct ProcessPerfData {
     CHAR        CommandLine[MAX_CMDLINE];
     FILETIME    ftCreation;
     DWORD       dwGDIObjects, dwUSERObjects;
-    BOOL        bProcessIs64bit;
+    BOOL        bProcessIsWow64;
 };
 
 struct PerfLib {

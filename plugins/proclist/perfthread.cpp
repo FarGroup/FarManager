@@ -258,7 +258,7 @@ void PerfThread::Refresh()
         ProcessPerfData& Task = (*pNewPData)[i];
         // get the process id
         PPERF_COUNTER_BLOCK pCounter = (PPERF_COUNTER_BLOCK) ((DWORD_PTR)pInst + pInst->ByteLength);
-        Task.bProcessIs64bit = FALSE;
+        Task.bProcessIsWow64 = FALSE;
         Task.dwProcessId = *((LPDWORD) ((DWORD_PTR)pCounter + dwProcessIdCounter));
         Task.dwProcessPriority = *((LPDWORD) ((DWORD_PTR)pCounter + dwPriorityCounter));
         Task.dwThreads = dwThreadCounter ? *((LPDWORD) ((DWORD_PTR)pCounter + dwThreadCounter)) : 0;
@@ -341,8 +341,8 @@ void PerfThread::Refresh()
             Task.dwUSERObjects = pGetGuiResources(hProcess, 1/*GR_USEROBJECTS*/);
 
             BOOL wow64;
-            if(pIsWow64Process(hProcess, &wow64) && !wow64)
-              Task.bProcessIs64bit = TRUE;
+            if(pIsWow64Process(hProcess, &wow64) && wow64)
+              Task.bProcessIsWow64 = TRUE;
 
             CloseHandle(hProcess);
           }
