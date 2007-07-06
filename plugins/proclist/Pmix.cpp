@@ -123,14 +123,14 @@ void ConvertDate(const FILETIME& ft,char *DateText,char *TimeText)
 int GetDateFormat()
 {
   char Info[100];
-  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info, sizeof(Info));
+  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info, ArraySize(Info));
   return(FSF.atoi(Info));
 }
 
 int GetDateSeparator()
 {
   char Info[100];
-  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info, sizeof(Info));
+  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info, ArraySize(Info));
   return(*Info);
 }
 
@@ -138,7 +138,7 @@ int GetDateSeparator()
 int GetTimeSeparator()
 {
   char Info[100];
-  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info, sizeof(Info));
+  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info, ArraySize(Info));
   return(*Info);
 }
 */
@@ -170,7 +170,7 @@ int WinError(char* pSourceModule, BOOL bDown)
   items[1] = strtok(lpMsgBuf,"\r\n");
   items[2] = strtok(NULL,"\r\n"); if(!items[2]) items[2] = items[3];
   int rc = Message(bDown ? FMSG_WARNING|FMSG_DOWN : FMSG_WARNING,
-        0,items,sizeof(items)/sizeof(*items) - (items[2]==items[3]));
+        0,items,ArraySize(items) - (items[2]==items[3]));
   if(bAllocated) LocalFree( lpMsgBuf );
   return rc;
 }

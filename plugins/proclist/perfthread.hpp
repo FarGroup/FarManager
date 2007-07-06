@@ -56,8 +56,8 @@ struct PerfLib {
     DWORD dwThreadTitle;
     DWORD dwCreatingPIDTitle;
     DWORD dwElapsedTitle;
-    DWORD dwCounterTitles[sizeof(Counters)/sizeof(*Counters)];
-    DWORD CounterTypes[sizeof(Counters)/sizeof(*Counters)];
+    DWORD dwCounterTitles[ArraySize(Counters)];
+    DWORD CounterTypes[ArraySize(Counters)];
 };
 
 struct IWbemServices;

@@ -62,10 +62,10 @@ int Config()
   if(!Plist::PanelModesInitialized())
       Plist::InitializePanelModes();
 
-#define NITEMS (sizeof(InitItems) /sizeof(*InitItems) + NVIEWITEMS)
+#define NITEMS (ArraySize(InitItems) + NVIEWITEMS)
 
   FarDialogItem DialogItems[NITEMS];
-  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(*InitItems));
+  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
   memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2, sizeof(*DialogItems) * 2);
 
   MakeViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt, NITEMS-NVIEWITEMS-3);
@@ -75,8 +75,8 @@ int Config()
   if (Opt.DisksMenuDigit)
     FSF.itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
 
-  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"Config",DialogItems,sizeof(DialogItems)/sizeof(*DialogItems));
-  if (ExitCode != sizeof(DialogItems)/sizeof(*DialogItems) - 2)
+  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"Config",DialogItems,ArraySize(DialogItems));
+  if (ExitCode != ArraySize(DialogItems) - 2)
     return FALSE;
 
   Opt.AddToDisksMenu = DialogItems[1].Selected;

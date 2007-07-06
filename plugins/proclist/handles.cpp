@@ -96,10 +96,10 @@ enum { OB_TYPE_UNKNOWN = 0, OB_TYPE_TYPE = 1, OB_TYPE_DIRECTORY,
         OB_TYPE_IO_COMPLETION, OB_TYPE_FILE, OB_TYPE_WMI_GUID,
 };
 
-wchar_t* GetUserAccountID();
+static wchar_t* GetUserAccountID();
 static wchar_t* pUserAccountID;
 
-BOOL GetProcessId( HANDLE handle, DWORD& dwPID)
+static BOOL GetProcessId( HANDLE handle, DWORD& dwPID)
 {
     BOOL ret = FALSE;
     //bool remote = false;
@@ -117,7 +117,7 @@ BOOL GetProcessId( HANDLE handle, DWORD& dwPID)
 
     return ret;
 }
-BOOL GetThreadId( HANDLE h, DWORD& threadID)
+static BOOL GetThreadId( HANDLE h, DWORD& threadID)
 {
     BOOL ret = FALSE;
     BASIC_THREAD_INFORMATION ti;
@@ -152,7 +152,7 @@ static DWORD WINAPI GetFileNameThread(PVOID Param)
     return 0;
 }
 
-bool PrintFileName(HANDLE handle, HANDLE file)
+static bool PrintFileName(HANDLE handle, HANDLE file)
 {
     bool ret = false;
 
@@ -189,7 +189,7 @@ bool PrintFileName(HANDLE handle, HANDLE file)
     return ret;
 }
 
-bool GetTypeToken(HANDLE handle, char* str, DWORD dwSize)
+static bool GetTypeToken(HANDLE handle, char* str, DWORD dwSize)
 {
     ULONG size = 0x2000;
     bool ret = false;
@@ -211,30 +211,32 @@ bool GetTypeToken(HANDLE handle, char* str, DWORD dwSize)
     return ret;
 }
 
-char* constStrTypes[] = {
-    "", "", "Directory", "SymbolicLink", "Token",
-    "Process", "Thread", /*"Unknown7",*/ "Event", "EventPair", "Mutant",
-    /*"Unknown11", */"Semaphore", "Timer", "Profile", "WindowStation",
-    "Desktop", "Section", "Key", "Port", "WaitablePort",
-    //"Unknown21", "Unknown22", "Unknown23", "Unknown24",
-    "Job",
-    "IoCompletion", "File", /*"Unknown27",*/ "WmiGuid", };
+static char const * const constStrTypes[] = {
+    "",               "",               "Directory",      "SymbolicLink",
+    "Token",          "Process",        "Thread",         /*"Unknown7",*/
+    "Event",          "EventPair",      "Mutant",         /*"Unknown11", */
+    "Semaphore",      "Timer",          "Profile",        "WindowStation",
+    "Desktop",        "Section",        "Key",            "Port",
+    "WaitablePort",   /*"Unknown21",*/  /*"Unknown22",*/  /*"Unknown23",*/
+    /*"Unknown24",*/  "Job",            "IoCompletion",   "File",
+    /*"Unknown27",*/  "WmiGuid",
+};
 
-WORD GetTypeFromTypeToken( LPCSTR typeToken)
+static WORD GetTypeFromTypeToken( LPCSTR typeToken)
 {
-    for ( WORD i = 1; i < sizeof(constStrTypes)/sizeof(*constStrTypes); i++ )
+    for ( WORD i = 1; i < ArraySize(constStrTypes); i++ )
         if ( !FSF.LStricmp(constStrTypes[i], typeToken) )
             return i;
     return OB_TYPE_UNKNOWN;
 }
 
-WORD GetType( HANDLE h)
+static WORD GetType( HANDLE h)
 {
     char strType[256];
-    return GetTypeToken( h, strType, sizeof(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
+    return GetTypeToken(h, strType, ArraySize(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
 }
 
-bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=0)
+static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=0)
 {
     bool ret = false;
 
@@ -282,24 +284,24 @@ bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=
             if(((UNICODE_STRING*)lpBuffer)->Length) {
                 wchar_t *ws = ((UNICODE_STRING*)lpBuffer)->Buffer;
                 if(type==OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY)-2) ) {
-                    wchar_t *ws1 = ws + sizeof(REGISTRY) / 2 - 1;
+                    wchar_t *ws1 = ws + ArraySize(REGISTRY) - 1;
                     char *s0 = 0;
                     if(!_memicmp(ws1, USER, sizeof(USER)-2)) {
-                            ws1 += sizeof(USER) / 2 - 1;
+                            ws1 += ArraySize(USER) - 1;
                             size_t l  = lstrlenW(pUserAccountID);
                             if(l>0 && !_memicmp(ws1,pUserAccountID,l*2)) {
                                 s0 = "HKCU";
                                 ws1 += l;
                                 if(!_memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2)) {
                                     s0 = "HKCU\\Classes";
-                                    ws1 += sizeof(_CLASSES) / 2 - 1;
+                                    ws1 += ArraySize(_CLASSES) - 1;
                                 }
                             }
                             else
                                 s0 = "HKU";
                     }
-                    else if(!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = "HKCR"; ws1+=(sizeof(CLASSES))/2 - 1;}
-                    else if(!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = "HKLM"; ws1+=(sizeof(MACHINE))/2 - 1;}
+                    else if(!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = "HKCR"; ws1+=ArraySize(CLASSES) - 1;}
+                    else if(!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = "HKLM"; ws1+=ArraySize(MACHINE) - 1;}
                     if(s0) {
                         fprintf(file, "%s", s0);
                         ws = ws1;
@@ -315,7 +317,7 @@ bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=
     return ret;
 }
 
-bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread=0)
+static bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread=0)
 {
     HANDLE handle, hRemoteProcess=NULL;
     bool remote = dwPID != GetCurrentProcessId();
@@ -331,7 +333,7 @@ bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread=0)
         handle = h;
 
     WORD type = GetType(handle);
-    if(type<sizeof(constStrTypes)/sizeof(*constStrTypes))
+    if(type < ArraySize(constStrTypes))
         fprintf(file, "%-13s ", constStrTypes[type]);
     bool ret = type!=OB_TYPE_UNKNOWN &&
             PrintNameByType( handle, type, file, pThread);
@@ -408,7 +410,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
             pSysHandleInformation->Handles[i].HandleAttributes = (WORD)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
             fprintf(file, "%5X  %08X ",
                 pSysHandleInformation->Handles[i].HandleValue,
-                /*dwType< sizeof(constStrTypes)/sizeof(*constStrTypes) ?
+                /*dwType< ArraySize(constStrTypes) ?
                     constStrTypes[dwType] : "(Unknown)",*/
 //              pSysHandleInformation->Handles[i].KernelAddress,
                 pSysHandleInformation->Handles[i].GrantedAccess);
@@ -432,7 +434,7 @@ void main(int ac, char** av)
 }
 */
 
-BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
+static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 {
    PUCHAR pscnt;
    PSID_IDENTIFIER_AUTHORITY psia;
@@ -492,10 +494,10 @@ BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 
 }
 
-wchar_t* GetUserAccountID()
+static wchar_t* GetUserAccountID()
 {
 static char UserAccountID[256];
-   DWORD size = sizeof(UserAccountID);
+   DWORD size = ArraySize(UserAccountID);
    SID_NAME_USE eUse;
    DWORD cbSid=0,cbDomainName=0;
 
@@ -509,7 +511,7 @@ static char UserAccountID[256];
    PSID pSid = (PSID)new char[cbSid];
    char* pDomainName = new char[cbDomainName+1];
    pLookupAccountName(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
-   size = sizeof(UserAccountID);
+   size = ArraySize(UserAccountID);
    if(!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
    delete (char *)pSid;
    delete pDomainName;

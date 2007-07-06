@@ -204,7 +204,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
     static char *PluginMenuStrings[1];
     PluginMenuStrings[0]=GetMsg(MPlistPanel);
     Info->PluginMenuStrings=PluginMenuStrings;
-    Info->PluginMenuStringsNumber=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
+    Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
   }
 
   static char *DiskMenuStrings[1];
@@ -218,7 +218,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   static char *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MPlistPanel);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
+  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
   Info->CommandPrefix = "plist";
 }
 

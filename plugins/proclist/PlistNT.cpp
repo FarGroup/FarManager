@@ -272,8 +272,8 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
     char* pFullPath = pd.FullPath;
     if(*(DWORD*)pFullPath==0x5C3F3F5C) // "\??\"
       pFullPath += 4;
-    lstrcpyn(DATA.FullPath, pFullPath, sizeof(DATA.FullPath));
-    lstrcpyn(DATA.CommandLine, pd.CommandLine, sizeof(DATA.CommandLine));
+    lstrcpyn(DATA.FullPath, pFullPath, ArraySize(DATA.FullPath));
+    lstrcpyn(DATA.CommandLine, pd.CommandLine, ArraySize(DATA.CommandLine));
     return true;
 }
 
@@ -300,7 +300,7 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
       ProcessPerfData& pd = pData[i];
 
       CurItem.Flags|=PPIF_USERDATA;
-      lstrcpyn(CurItem.FindData.cFileName,pd.ProcessName,sizeof(CurItem.FindData.cFileName));
+      lstrcpyn(CurItem.FindData.cFileName,pd.ProcessName,ArraySize(CurItem.FindData.cFileName));
       if(*pd.Owner) {
         CurItem.Owner = new char[lstrlen(pd.Owner)+1];
         lstrcpy(CurItem.Owner, pd.Owner);
@@ -424,7 +424,7 @@ BOOL ChangePrivileges(BOOL bAdd, BOOL bAsk)
       const char *MsgItems[]={ GetMsg(MDeleteTitle),
         GetMsg(MCannotDeleteProc), GetMsg(MRetryWithDebug),
         GetMsg(MDangerous), GetMsg(MYes), GetMsg(MNo)};
-      if(Message(FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
+      if(Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
         return FALSE;
     }
     static HANDLE hToken=0;
@@ -519,12 +519,12 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
       return;
     const PerfLib* pf = Thread.GetPerfLib();
 
-    for(size_t i=0; i<sizeof(Counters)/sizeof(*Counters); i++)
+    for(size_t i=0; i<ArraySize(Counters); i++)
     {
       if(!pf->dwCounterTitles[i]) // counter is absent
           continue;
       char buf[28];
-      lstrcpyn(buf,GetMsg(Counters[i].idName),sizeof(buf)-2);
+      lstrcpyn(buf,GetMsg(Counters[i].idName),ArraySize(buf)-2);
       /*if(Opt.AnsiOutput)
           OemToChar(buf,buf);*/
       lstrcat(buf,":");

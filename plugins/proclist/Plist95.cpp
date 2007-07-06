@@ -98,7 +98,7 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
         }
         else
         {
-          if (!GetModuleNameFromExe(pe32.szExeFile,CurItem.FindData.cFileName,sizeof(CurItem.FindData.cFileName)))
+          if (!GetModuleNameFromExe(pe32.szExeFile,CurItem.FindData.cFileName,ArraySize(CurItem.FindData.cFileName)))
             lstrcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=16;
         }
