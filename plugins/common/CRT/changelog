@@ -1,3 +1,7 @@
+yjh 06.07.2007 15:52:37 +0300
+
+1. Добавлены дефайны для _strdup/_wcsdup, что бы работал _tcsdup
+
 yjh 17.08.2007 01:03:37 +0300
 
 1. Замена memicmp на _memicmp (ISO restrictions in vc8) с созданием

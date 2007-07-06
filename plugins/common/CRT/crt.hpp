@@ -81,7 +81,11 @@ extern "C"
   size_t __cdecl strcspn(const char *string, const char *control);
   size_t __cdecl wcscspn(const wchar_t *string, const wchar_t *control);
   char * __cdecl strdup(const char *block);
+#undef _strdup
+#define _strdup strdup
   wchar_t * __cdecl wcsdup(const wchar_t *block);
+#undef _wcsdup
+#define _wcsdup wcsdup
   char * __cdecl strncat(char *first, const char *last, size_t count);
   wchar_t * __cdecl wcsncat(wchar_t *first, const wchar_t *last, size_t count);
   int __cdecl strncmp(const char *first, const char *last, size_t count);
