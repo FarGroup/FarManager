@@ -227,9 +227,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int AllocatedCount=0;
   struct FileListItem *NewPtr;
 
-  // вне цикла получим указатель.
-  const wchar_t *PointToName_CurDir=PointToName(strCurDir);
-
   // сформируем заголовок вне цикла
   wchar_t Title[2048];
   int TitleLength=Min((int)X2-X1-1,(int)(sizeof(Title)/sizeof(wchar_t))-1);
@@ -250,7 +247,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       {
         UpperDir=TRUE;
         DotsPresent=TRUE;
-        if (*PointToName_CurDir==0)
+        if (IsLocalRootPath(strCurDir))
         {
           Done=!apiFindNextFile (FindHandle,&fdata);
           continue;
@@ -381,6 +378,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz();
 
+  /*
   int NetRoot=FALSE;
   if (strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\')
   {
@@ -388,10 +386,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     if (ChPtr==NULL || wcschr(ChPtr+1,L'\\')==NULL)
       NetRoot=TRUE;
   }
-  // пока кусок закомментим, возможно он даже и не пригодится.
-  const wchar_t *lpwszName = PointToName(strCurDir);
+  */
 
-  if (!DotsPresent && *lpwszName )// && !NetRoot)
+  // пока кусок закомментим, возможно он даже и не пригодится.
+  if (!DotsPresent && !IsLocalRootPath(strCurDir) )// && !NetRoot)
   {
     if (FileCount>=AllocatedCount)
     {
@@ -402,6 +400,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     if (CurPtr!=NULL)
     {
       AddParentPoint(ListData[FileCount],FileCount);
+      if (NeedHighlight)
+        CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],1);
       FileCount++;
     }
   }

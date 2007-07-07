@@ -407,9 +407,11 @@ bool FileFilter::FilterEdit()
   if (ExitCode!=-1)
     ProcessSelection(&FilterList);
 
+  if(Opt.AutoSaveSetup)
+    SaveFilters();
+
   if (ExitCode!=-1 || bNeedUpdate)
   {
-    SaveFilters(false);
     if (m_FilterType == FFT_PANEL)
     {
       m_HostPanel->Update(UPDATE_KEEP_SELECTION);
@@ -754,70 +756,66 @@ void FileFilter::CloseFilter()
   TempFilterData.Free();
 }
 
-void FileFilter::SaveFilters(bool SaveAll)
+void FileFilter::SaveFilters()
 {
-  string strRegKey;
+	string strRegKey;
 
-  DeleteKeyTree(L"Filters");
+	DeleteKeyTree(L"Filters");
 
-  FileFilterParams *CurFilterData;
+	FileFilterParams *CurFilterData;
 
-  for (unsigned int i=0; i<FilterData.getCount(); i++)
-  {
-    strRegKey.Format(L"Filters\\Filter%d",i);
+	for (unsigned int i=0; i<FilterData.getCount(); i++)
+	{
+		strRegKey.Format(L"Filters\\Filter%d",i);
 
-    CurFilterData = FilterData.getItem(i);
+		CurFilterData = FilterData.getItem(i);
 
-    SetRegKey(strRegKey,L"Title",CurFilterData->GetTitle());
+		SetRegKey(strRegKey,L"Title",CurFilterData->GetTitle());
 
-    const wchar_t *Mask;
-    SetRegKey(strRegKey,L"UseMask",CurFilterData->GetMask(&Mask));
-    SetRegKey(strRegKey,L"Mask",Mask);
-
-
-    DWORD DateType;
-    FILETIME DateAfter, DateBefore;
-    SetRegKey(strRegKey,L"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore));
-    SetRegKey(strRegKey,L"DateType",DateType);
-    SetRegKey(strRegKey,L"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
-    SetRegKey(strRegKey,L"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
+		const wchar_t *Mask;
+		SetRegKey(strRegKey,L"UseMask",CurFilterData->GetMask(&Mask));
+		SetRegKey(strRegKey,L"Mask",Mask);
 
 
-    DWORD SizeType;
-    __int64 SizeAbove, SizeBelow;
-    SetRegKey(strRegKey,L"UseSize",CurFilterData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-    SetRegKey(strRegKey,L"SizeType",SizeType);
-    SetRegKey64(strRegKey,L"SizeAbove",SizeAbove);
-    SetRegKey64(strRegKey,L"SizeBelow",SizeBelow);
+		DWORD DateType;
+		FILETIME DateAfter, DateBefore;
+		SetRegKey(strRegKey,L"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore));
+		SetRegKey(strRegKey,L"DateType",DateType);
+		SetRegKey(strRegKey,L"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
+		SetRegKey(strRegKey,L"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
 
 
-    DWORD AttrSet, AttrClear;
-    SetRegKey(strRegKey,L"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear));
-    SetRegKey(strRegKey,L"AttrSet",AttrSet);
-    SetRegKey(strRegKey,L"AttrClear",AttrClear);
+		DWORD SizeType;
+		__int64 SizeAbove, SizeBelow;
+		SetRegKey(strRegKey,L"UseSize",CurFilterData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
+		SetRegKey(strRegKey,L"SizeType",SizeType);
+		SetRegKey64(strRegKey,L"SizeAbove",SizeAbove);
+		SetRegKey64(strRegKey,L"SizeBelow",SizeBelow);
 
-    SetRegKey(strRegKey,L"Flags",SaveAll ? CurFilterData->Flags.Flags : 0);
-  }
 
-  if (SaveAll)
-  {
-    for (unsigned int i=0; i<TempFilterData.getCount(); i++)
-    {
-      strRegKey.Format(L"Filters\\PanelMask%d",i);
+		DWORD AttrSet, AttrClear;
+		SetRegKey(strRegKey,L"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear));
+		SetRegKey(strRegKey,L"AttrSet",AttrSet);
+		SetRegKey(strRegKey,L"AttrClear",AttrClear);
 
-      CurFilterData = TempFilterData.getItem(i);
+		SetRegKey(strRegKey,L"Flags",CurFilterData->Flags.Flags);
+	}
 
-      const wchar_t *Mask;
-      CurFilterData->GetMask(&Mask);
-      SetRegKey(strRegKey,L"Mask",Mask);
+	for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+	{
+		strRegKey.Format(L"Filters\\PanelMask%d",i);
 
-      SetRegKey(strRegKey,L"Flags",CurFilterData->Flags.Flags);
-    }
+		CurFilterData = TempFilterData.getItem(i);
 
-    SetRegKey(L"Filters",L"FoldersFilterFlags",FoldersFilter.Flags.Flags);
+		const wchar_t *Mask;
+		CurFilterData->GetMask(&Mask);
+		SetRegKey(strRegKey,L"Mask",Mask);
 
-    SetRegKey(L"Filters",L"FolderFlags",FolderFlags.Flags);
-  }
+		SetRegKey(strRegKey,L"Flags",CurFilterData->Flags.Flags);
+	}
+
+	SetRegKey(L"Filters",L"FoldersFilterFlags",FoldersFilter.Flags.Flags);
+	SetRegKey(L"Filters",L"FolderFlags",FolderFlags.Flags);
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)

@@ -391,7 +391,6 @@ void Dialog::ProcessCenterGroup(void)
       if (StartX<0)
         StartX=0;
 
-
       for (J=I, JCurItem = Item[J]; J < ItemCount &&
                 (JCurItem->Flags & DIF_CENTERGROUP) &&
                 JCurItem->Y1==CurItem->Y1; J++, JCurItem = Item[J])
@@ -413,6 +412,11 @@ void Dialog::ProcessCenterGroup(void)
               StartX+=5;
               break;
           }
+
+        if (StartX == JCurItem->X1)
+          JCurItem->X2=StartX;
+        else
+          JCurItem->X2=StartX-1;
       }
     }
   }
