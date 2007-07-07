@@ -253,10 +253,12 @@ void Manager::ExecuteModal (Frame *Executed)
   return;// GetModalExitCode();
 }
 
-int Manager::GetModalExitCode()
-{
+int Manager::GetModalExitCode()      {
   return ModalExitCode;
 }
+
+static inline int __cdecl wrpLocalStricmpW(const wchar_t *s1, const wchar_t *s2)
+{ return LocalStricmpW(s1, s2); }
 
 /* $ 11.10.2001 IS
    Подсчитать количество фреймов с указанным именем.
@@ -265,7 +267,7 @@ int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
 {
    int Counter=0;
    typedef int (__cdecl *cmpfunc_t)(const wchar_t *s1, const wchar_t *s2);
-   cmpfunc_t cmpfunc=IgnoreCase?(cmpfunc_t)LocalStricmpW:(cmpfunc_t)wcscmp;
+   cmpfunc_t cmpfunc=IgnoreCase ? wrpLocalStricmpW : wcscmp;
    string strType, strCurName;
    for (int I=0;I<FrameCount;I++)
    {

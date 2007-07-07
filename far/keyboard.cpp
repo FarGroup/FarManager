@@ -1589,7 +1589,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
-  int FKey  =Key&0x0000FFFF;
+  int FKey  =Key&0x0003FFFF;
   int FShift=Key&0x7F000000; // старший бит используется в других целях!
   int I;
 
@@ -1609,8 +1609,8 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
   {
     if (FKey>='0' && FKey<='9' || FKey>='A' && FKey<='Z')
       VirtKey=FKey;
-    else if(FKey > 0x100 && FKey < KEY_END_FKEY)
-      VirtKey=FKey-0x100;
+    else if(FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
+      VirtKey=FKey-KEY_FKEY_BEGIN;
     else if(FKey < 0x100)
       VirtKey=VkKeyScan(FKey)&0xFF;
     else
