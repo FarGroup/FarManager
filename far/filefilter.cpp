@@ -410,7 +410,8 @@ bool FileFilter::FilterEdit()
 
   if (ExitCode!=-1 || bNeedUpdate)
   {
-    SaveFilters(false);
+    if(Opt.AutoSaveSetup)
+      SaveFilters();
     if (m_FilterType == FFT_PANEL)
     {
       m_HostPanel->Update(UPDATE_KEEP_SELECTION);
@@ -748,9 +749,11 @@ void FileFilter::CloseFilter()
   TempFilterData.Free();
 }
 
-void FileFilter::SaveFilters(bool SaveAll)
+void FileFilter::SaveFilters()
 {
   char RegKey[80], *PtrRegKey;
+
+  DeleteKeyTree("Filters");
 
   strcpy(RegKey,"Filters\\Filter");
   PtrRegKey=RegKey+strlen(RegKey);
@@ -790,42 +793,26 @@ void FileFilter::SaveFilters(bool SaveAll)
     SetRegKey(RegKey,"AttrSet",AttrSet);
     SetRegKey(RegKey,"AttrClear",AttrClear);
 
-    SetRegKey(RegKey,"Flags",SaveAll ? CurFilterData->Flags.Flags : 0);
+    SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
   }
 
-  for (unsigned int i=FilterData.getCount(); i<FilterData.getCount()+5; i++)
+  strcpy(RegKey,"Filters\\PanelMask");
+  PtrRegKey=RegKey+strlen(RegKey);
+
+  for (unsigned int i=0; i<TempFilterData.getCount(); i++)
   {
+    CurFilterData = TempFilterData.getItem(i);
     itoa(i,PtrRegKey,10);
-    DeleteRegKey(RegKey);
+
+    const char *Mask;
+    CurFilterData->GetMask(&Mask);
+    SetRegKey(RegKey,"Mask",Mask);
+
+    SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
   }
 
-  if (SaveAll)
-  {
-    strcpy(RegKey,"Filters\\PanelMask");
-    PtrRegKey=RegKey+strlen(RegKey);
-
-    for (unsigned int i=0; i<TempFilterData.getCount(); i++)
-    {
-      CurFilterData = TempFilterData.getItem(i);
-      itoa(i,PtrRegKey,10);
-
-      const char *Mask;
-      CurFilterData->GetMask(&Mask);
-      SetRegKey(RegKey,"Mask",Mask);
-
-      SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
-    }
-
-    for (unsigned int i=TempFilterData.getCount(); i<TempFilterData.getCount()+5; i++)
-    {
-      itoa(i,PtrRegKey,10);
-      DeleteRegKey(RegKey);
-    }
-
-    SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
-
-    SetRegKey("Filters","FolderFlags",FolderFlags.Flags);
-  }
+  SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
+  SetRegKey("Filters","FolderFlags",FolderFlags.Flags);
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)
