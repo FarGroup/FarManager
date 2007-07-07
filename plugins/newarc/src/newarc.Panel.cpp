@@ -1298,6 +1298,12 @@ int __stdcall hndModifyCreateArchive (
 
 	if ( nMsg == DN_GOTFOCUS )
 	{
+		if ( nParam1 == 7 )
+		{
+			D->SetCheck (5, BSTATE_CHECKED);
+			return 0;
+		}
+
 		if ( (nParam1 == 12) || (nParam1 == 14) )
 		{
 			D->SetCheck (6, BSTATE_CHECKED);
