@@ -688,11 +688,12 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         GetColorDialog(Color,true,true);
         EditData->Color[(Param1-ID_HER_NORMALFILE)/4][(Param1-ID_HER_NORMALFILE)%4]=(WORD)Color;
 
-        FarDialogItem MarkChar, ColorExample;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(LONG_PTR)&MarkChar);
+        FarDialogItem ColorExample;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
-        if ( MarkChar.PtrData )
-          EditData->MarkChar=*(MarkChar.PtrData);
+        wchar_t MarkChar[2];
+        //MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
+        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
+        EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,*EditData);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         return TRUE;
@@ -703,11 +704,12 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       if (Param1 == ID_HER_MARKEDIT)
       {
         HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-        FarDialogItem *MarkChar, ColorExample;
-        MarkChar=(FarDialogItem *)Param2;
+        FarDialogItem ColorExample;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
-        if ( MarkChar->PtrData )
-          EditData->MarkChar=*(MarkChar->PtrData);
+        wchar_t MarkChar[2];
+        //MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
+        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
+        EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,*EditData);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
         return TRUE;
