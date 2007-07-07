@@ -426,7 +426,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         ProcessPerfData* pd = 0;
         if(pPerfThread)
             pd = pPerfThread->GetProcessData(pdata.dwPID, CurItem.NumberOfLinks);
-        int DataOffset = sizeof(char*) * MAX_CUSTOM_COLS;
+        const int DataOffset = sizeof(TCHAR*) * MAX_CUSTOM_COLS;
         int Widths[MAX_CUSTOM_COLS]; memset(Widths, 0, sizeof(Widths));
 
         unsigned uCustomColSize = 0;
@@ -437,12 +437,12 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
 #endif
         for(StrTok tokn(pi.ColumnWidths, _T(", ")); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
 #undef ColumnWidths
-            uCustomColSize += (Widths[nCols++] = FSF.atoi(tokn)) + 1;
+            uCustomColSize += ((Widths[nCols++] = FSF.atoi(tokn)) + 1)*sizeof(TCHAR);
         }
 
         if(nCols) {
-            CurItem.CustomColumnData = (TCHAR**)new TCHAR[DataOffset + uCustomColSize];
-            TCHAR* pData = ((TCHAR*)CurItem.CustomColumnData)+DataOffset; // Start offset of column data aftet ptrs
+            CurItem.CustomColumnData = (TCHAR**)new char[DataOffset + uCustomColSize];
+            TCHAR* pData = (TCHAR*)((PCH)CurItem.CustomColumnData+DataOffset); // Start offset of column data aftet ptrs
 
             int nCustomCols;
             nCustomCols = nCols = 0;
@@ -501,7 +501,8 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                         *buf=0;
                     int nVisibleDigits = lstrlen(buf);
                     if(nVisibleDigits > nColWidth) nVisibleDigits = nColWidth;
-                    memset(pData,' ',nColWidth - nVisibleDigits);
+                    for(int i = nColWidth - nVisibleDigits; --i >= 0; )
+                        pData[i] = _T(' ');
                     pData += nColWidth-nVisibleDigits;
                     lstrcpyn(pData,buf,nVisibleDigits+1);
                     pData += nVisibleDigits+1;
@@ -1029,12 +1030,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         }
         return TRUE;
     }
-    else if (ControlState==PKF_SHIFT && (Key==VK_F3
-        //TODO: 1.80 BUG!
-#ifdef UNICODE
-                                                     || Key==0x80052  //BUGBUG!!!
-#endif
-                                                                     ))
+    else if (ControlState==PKF_SHIFT && Key==VK_F3)
     {
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
