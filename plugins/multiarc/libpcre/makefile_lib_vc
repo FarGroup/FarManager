@@ -16,7 +16,7 @@ OBJS=$(OBJDIR)\chartables.obj $(OBJDIR)\get.obj $(OBJDIR)\pcre.obj $(OBJDIR)\stu
 !IF "$(CPU)" == "AMD64"
 CFLAGS=/nologo /Zp8 /Wp64 /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\" /c /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox /GS- /Gr /GR- /EHs-c- /LD
 !ELSE
-CFLAGS=/nologo /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\" /c /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox /Gr /GR- /EHs-c- /LD
+CFLAGS=/nologo /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\" /c /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox /Gr /GS- /GR- /EHs-c- /LD
 !ENDIF
 
 all: $(OUTPUTS)
