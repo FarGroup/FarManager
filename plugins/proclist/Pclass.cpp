@@ -589,9 +589,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,TCHAR *
         if (InfoFile==INVALID_HANDLE_VALUE)
             return 0;
 #ifdef UNICODE
-        //TODO: currently viewer not support prefix!
-        fputc(0xFF, InfoFile);
-        fputc(0xFE, InfoFile);
+        fputc(0xFEFF, InfoFile);
 #endif
         TCHAR AppType[100];
         if (!pPerfThread && pdata->uAppType)
