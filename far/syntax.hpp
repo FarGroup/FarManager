@@ -18,6 +18,8 @@ syntax.hpp
 #ifndef __SYNTAX_H
 #define __SYNTAX_H
 
+#include "fn.hpp"
+
 enum TVarType { vtInteger, vtString };
 
 class TVar
@@ -92,7 +94,7 @@ class TAbstractSet
       next = NULL;
       if ( s )
       {
-        str = new wchar_t[wcslen(s)+1];
+        str = new wchar_t[StrLength(s)+1];
         wcscpy(str, s);
       }
     }

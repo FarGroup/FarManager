@@ -736,7 +736,7 @@ void Text(int X, int Y, int Color, const WCHAR *Str)
 
 void Text(const WCHAR *Str)
 {
-  int Length=(int)wcslen(Str), I;
+  int Length=StrLength(Str), I;
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
@@ -766,7 +766,7 @@ void Text(int MsgId)
 
 void VText(const WCHAR *Str)
 {
-  int Length=(int)wcslen(Str);
+  int Length=StrLength(Str);
   if (CurY+Length>ScrY)
     Length=ScrY-CurY+1;
   if (Length<=0)

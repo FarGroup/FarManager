@@ -102,9 +102,9 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
   string strCurDir;
   wchar_t *lpwszCurDir;
 
-  if(LocalIsalphaW(*NewDir) && NewDir[1]==L':' && NewDir[2]==0)// если указана только
+  if(IsAlpha(*NewDir) && NewDir[1]==L':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
-    Drive[1]=LocalUpperW(*NewDir);                          // возьмем из переменной
+    Drive[1]=Upper(*NewDir);                          // возьмем из переменной
 
     if ( !apiGetEnvironmentVariable (Drive, strCurDir) )
     {
@@ -133,7 +133,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
   {
     strCurDir = NewDir;
 
-    if(!wcscmp(strCurDir,L"\\"))
+    if(!StrCmp(strCurDir,L"\\"))
       FarGetCurDir(strCurDir); // здесь берем корень
 
     wchar_t *lpwszChr = strCurDir.GetBuffer();
@@ -173,9 +173,9 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     lpwszCurDir = strCurDir.GetBuffer (nSize+1);
 
     if ((!ChangeDir || GetCurrentDirectoryW(nSize+1,lpwszCurDir)) &&
-        LocalIsalphaW(*lpwszCurDir) && lpwszCurDir[1]==L':')
+        IsAlpha(*lpwszCurDir) && lpwszCurDir[1]==L':')
     {
-      Drive[1]=LocalUpperW(*lpwszCurDir);
+      Drive[1]=Upper(*lpwszCurDir);
       SetEnvironmentVariableW(Drive,lpwszCurDir);
     }
 
@@ -198,11 +198,11 @@ DWORD FarGetCurDir(string &strBuffer)
     DWORD Result = GetCurrentDirectoryW (nLength, lpwszBuffer);
 
     if ( Result &&
-         LocalIsalphaW (*lpwszBuffer) &&
+         IsAlpha (*lpwszBuffer) &&
          lpwszBuffer[1] == L':' &&
          (lpwszBuffer[2] == 0 || lpwszBuffer[2] == '\\')
          )
-         *lpwszBuffer = LocalUpperW (*lpwszBuffer);
+         *lpwszBuffer = Upper (*lpwszBuffer);
 
     strBuffer.ReleaseBuffer ();
 
@@ -434,7 +434,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
 
 int GetFileTypeByName(const wchar_t *Name)
 {
-  HANDLE hFile=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+  HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
     return(FILE_TYPE_UNKNOWN);
@@ -587,7 +587,7 @@ int GetDirInfo(const wchar_t *Title,
 
         CutToSlash(strCurDirName); //???
 
-        if (LocalStricmpW(strCurDirName,strLastDirName)!=0)
+        if (StrCmpI(strCurDirName,strLastDirName)!=0)
         {
           DirCount++;
           strLastDirName = strCurDirName;
@@ -674,7 +674,7 @@ int CheckFolder(const wchar_t *Path)
   if(!(Path || *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
 
-/*  int LenFindPath=Max((int)wcslen(Path),2048)+8;
+/*  int LenFindPath=Max(StrLength(Path),2048)+8;
   char *FindPath=(char *)alloca(LenFindPath); // здесь alloca - чтобы _точно_ хватило на все про все.
   if(!FindPath)
     return CHKFLD_ERROR;*/
@@ -703,7 +703,7 @@ int CheckFolder(const wchar_t *Path)
     GetPathRootOne(Path,strFindPath);
 
 
-    if(!wcscmp(Path,strFindPath))
+    if(!StrCmp(Path,strFindPath))
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
       if(GetFileAttributesW(strFindPath)!=0xFFFFFFFF)
@@ -714,7 +714,7 @@ int CheckFolder(const wchar_t *Path)
 
     if(CheckShortcutFolder(&strFindPath,FALSE,TRUE))
     {
-      if(wcscmp(Path,strFindPath))
+      if(StrCmp(Path,strFindPath))
         return CHKFLD_NOTFOUND;
     }
 
@@ -867,7 +867,7 @@ int GetClusterSize(const wchar_t *Root)
       WinVer.dwBuildNumber<0x04000457)
     return(0);
 
-  HANDLE hDevice = FAR_CreateFileW(L"\\\\.\\vwin32", 0, 0, NULL, 0,
+  HANDLE hDevice = apiCreateFile(L"\\\\.\\vwin32", 0, 0, NULL, 0,
                               FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
   if (hDevice==INVALID_HANDLE_VALUE)
@@ -1070,7 +1070,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 
   string strPath = Opt.strTempPath;
 
-  wchar_t *lpwszDest = strDest.GetBuffer ((int)(wcslen(Prefix)+strPath.GetLength()+13));
+  wchar_t *lpwszDest = strDest.GetBuffer ((int)(StrLength(Prefix)+strPath.GetLength()+13));
 
   do {
     GetTempFileNameW (strPath, Prefix, GetCurrentProcessId(), lpwszDest);
@@ -1252,7 +1252,7 @@ int PathMayBeAbsolute(const wchar_t *Path)
 {
     return (Path &&
            (
-             (LocalIsalphaW(*Path) && Path[1]==L':') ||
+             (IsAlpha(*Path) && Path[1]==L':') ||
              (Path[0]==L'\\'  && Path[1]==L'\\') ||
              (Path[0]==L'/'   && Path[1]==L'/')
            )
@@ -1267,12 +1267,12 @@ BOOL IsNetworkPath(const wchar_t *Path)
 
 BOOL IsLocalPath(const wchar_t *Path)
 {
-  return (Path && LocalIsalphaW(*Path) && Path[1]==L':' && Path[2]);
+  return (Path && IsAlpha(*Path) && Path[1]==L':' && Path[2]);
 }
 
 BOOL IsLocalRootPath(const wchar_t *Path)
 {
-  return (Path && LocalIsalphaW(*Path) && Path[1]==L':' && Path[2] == L'\\' && !Path[3]);
+  return (Path && IsAlpha(*Path) && Path[1]==L':' && Path[2] == L'\\' && !Path[3]);
 }
 
 // Косметические преобразования строки пути.
@@ -1282,7 +1282,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
   if( !strPath.IsEmpty() )
   {
-    if((LocalIsalphaW(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
+    if((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
     {
       if(CheckFullPath)
 		  ConvertNameToLong (strPath, strPath); //??? а почему не convert to full?
@@ -1293,10 +1293,10 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
       {
         wchar_t *ptr=&lpwszPath[2];
         while (*ptr && *ptr!=L'\\')
-          *(ptr++)=LocalUpperW(*ptr);
+          *(ptr++)=Upper(*ptr);
       }
       else
-        lpwszPath[0]=LocalUpperW(lpwszPath[0]);
+        lpwszPath[0]=Upper(lpwszPath[0]);
 
       strPath.ReleaseBuffer ();
       /* DJ $ */
@@ -1833,13 +1833,13 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
       return TRUE;
 
     if ((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\' || strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\') &&
-        LocalStricmpW(strSrcRoot,strDestRoot)!=0)
+        StrCmpI(strSrcRoot,strDestRoot)!=0)
       return FALSE;
 
     if ( *SrcPath == 0 || *DestPath == 0 || (SrcPath[1]!=L':' && DestPath[1]!=L':')) //????
       return TRUE;
 
-    if (LocalUpperW(strDestRoot.At(0))==LocalUpperW(strSrcRoot.At(0)))
+    if (Upper(strDestRoot.At(0))==Upper(strSrcRoot.At(0)))
         return TRUE;
 
     unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
@@ -1852,7 +1852,7 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 
     if (!(SrcVolumeNumber!=0 &&
         SrcVolumeNumber==DestVolumeNumber &&
-        LocalStricmpW(strSrcVolumeName, strDestVolumeName)==0 &&
+        StrCmpI(strSrcVolumeName, strDestVolumeName)==0 &&
         SrcTotalSize==DestTotalSize))
       return FALSE;
   }

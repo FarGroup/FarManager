@@ -340,12 +340,12 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
 
    // convert command line arg 1 from a drive letter to a DOS drive
    // number
-   bDrive = (LocalUpperW(Letter) - L'A') + 1;
+   bDrive = (Upper(Letter) - L'A') + 1;
 
    // OpenVWin32
    /* Opens a handle to VWIN32 that can be used to issue low-level disk I/O
      commands. */
-   hVWin32 = FAR_CreateFileW (L"\\\\.\\vwin32", 0, 0, NULL, 0,
+   hVWin32 = apiCreateFile(L"\\\\.\\vwin32", 0, 0, NULL, 0,
                       FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
    if(hVWin32 == INVALID_HANDLE_VALUE)
@@ -400,7 +400,7 @@ CLEANUP_AND_EXIT_APP:
       // возврашаемые значени€ не провер€ю, по моему так лучше
       UnlockMedia (hVWin32, bDrive);
       char cmd[100];
-      sprintf(cmd, "open %c: type cdaudio alias ejcd shareable", LocalUpperW(Letter)-L'A'+'A');
+      sprintf(cmd, "open %c: type cdaudio alias ejcd shareable", Upper(Letter)-L'A'+'A');
 
       typedef MCIERROR (WINAPI *PMCISENDSTRING)(LPCSTR lpstrCommand, LPSTR lpstrReturnString, UINT uReturnLength, HWND hwndCallback);
       static PMCISENDSTRING pmciSendString=NULL;
@@ -468,12 +468,12 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
       return FALSE;
   }
 
-  DiskHandle=FAR_CreateFileW(szRootName,dwAccessFlags,
+  DiskHandle=apiCreateFile(szRootName,dwAccessFlags,
                         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                         0,0);
   if((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
   {
-    DiskHandle=FAR_CreateFileW(szRootName,GENERIC_READ,
+    DiskHandle=apiCreateFile(szRootName,GENERIC_READ,
                           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                           0,0);
     ReadOnly=FALSE;
@@ -577,7 +577,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
     wchar_t win_name[]=L"\\\\.\\?:";
     win_name[4]=Letter;
 
-    HANDLE h=FAR_CreateFileW(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    HANDLE h=apiCreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 
     if (h==INVALID_HANDLE_VALUE)
      return FALSE;
@@ -613,7 +613,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 
       //  BUGBUG: this is a real hack (talking to VWIN32) on NT we can just
       //  open the device, we dont have to go through VWIN32
-      reg.reg_EBX = (LocalUpperW(Letter) - L'A') + 1;   // make 1 based drive number
+      reg.reg_EBX = (Upper(Letter) - L'A') + 1;   // make 1 based drive number
       reg.reg_EDX = (DWORD)(DWORD_PTR)&dmi; // out buffer
       reg.reg_ECX = 0x86F;              // device specific command code
       reg.reg_EAX = 0x440D;           // generic read ioctl

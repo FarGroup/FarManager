@@ -143,7 +143,7 @@ bool FileFilter::FilterEdit()
   {
     wchar_t *CurExtPtr=ExtPtr+i*NM;
     MenuString(ListItem.strName,NULL,false,true,CurExtPtr,UMSG(MPanelFileType));
-    ListItem.SetCheck(CurExtPtr[wcslen(CurExtPtr)+1]);
+    ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
     FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
   }
   xf_free(ExtPtr);
@@ -506,14 +506,14 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
         CurFilterData->GetMask(&FMask);
         strMask2 = FMask;
         Unquote(strMask2);
-        if (LocalStricmpW(strMask1,strMask2)<1)
+        if (StrCmpI(strMask1,strMask2)<1)
           break;
         j++;
       }
 
       if (CurFilterData)
       {
-        if (!LocalStricmpW(Mask,FMask))
+        if (!StrCmpI(Mask,FMask))
         {
           if (!Check && !CurFilterData->Flags.Check(~(Inc|Exc)))
           {
@@ -870,7 +870,7 @@ void FileFilter::SwapFilter()
 
 int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check)
 {
-  if (!wcscmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FA_DIREC))
+  if (!StrCmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FA_DIREC))
     return -1;
 
   const wchar_t *DotPtr=wcsrchr(FileName,L'.');
@@ -901,7 +901,7 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
   NewPtr=*ExtPtr+ExtCount*NM;
   xwcsncpy(NewPtr,strMask,NM-2);
 
-  NewPtr=NewPtr+wcslen(NewPtr)+1;
+  NewPtr=NewPtr+StrLength(NewPtr)+1;
   *NewPtr=Check;
 
   ExtCount++;
@@ -911,5 +911,5 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 
 int _cdecl ExtSort(const void *el1,const void *el2)
 {
-  return LocalStricmpW((const wchar_t *)el1,(const wchar_t *)el2);
+  return StrCmpI((const wchar_t *)el1,(const wchar_t *)el2);
 }

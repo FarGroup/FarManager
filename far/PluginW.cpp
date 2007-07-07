@@ -196,7 +196,7 @@ int PluginW::SaveToCache()
 
 			GetRegKey(strRegKey, L"Name", strPluginName, L"");
 
-			if ( strPluginName.IsEmpty() || LocalStricmpW(strPluginName, m_strModuleName) == 0)
+			if ( strPluginName.IsEmpty() || StrCmpI(strPluginName, m_strModuleName) == 0)
 			{
 				DeleteKeyTree(strRegKey);
 
@@ -413,18 +413,18 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.itoa=FarItoa;
     StandardFunctions.itoa64=FarItoa64;
     StandardFunctions.bsearch=FarBsearch;
-    StandardFunctions.LIsLower   =LocalIslowerW;
-    StandardFunctions.LIsUpper   =LocalIsupperW;
-    StandardFunctions.LIsAlpha   =LocalIsalphaW;
-    StandardFunctions.LIsAlphanum=LocalIsalphanumW;
-    StandardFunctions.LUpper     =LocalUpperW;
-    StandardFunctions.LUpperBuf  =LocalUpperBufW;
-    StandardFunctions.LLowerBuf  =LocalLowerBufW;
-    StandardFunctions.LLower     =LocalLowerW;
-    StandardFunctions.LStrupr    =LocalStruprW;
-    StandardFunctions.LStrlwr    =LocalStrlwrW;
-    StandardFunctions.LStricmp   =LocalStricmpW;
-    StandardFunctions.LStrnicmp  =LocalStrnicmpW;
+    StandardFunctions.LIsLower = farIsLower;
+    StandardFunctions.LIsUpper = farIsUpper;
+    StandardFunctions.LIsAlpha = farIsAlpha;
+    StandardFunctions.LIsAlphanum = farIsAlphaNum;
+    StandardFunctions.LUpper = farUpper;
+    StandardFunctions.LUpperBuf = farUpperBuf;
+    StandardFunctions.LLowerBuf = farLowerBuf;
+    StandardFunctions.LLower = farLower;
+    StandardFunctions.LStrupr = farStrUpper;
+    StandardFunctions.LStrlwr = farStrLower;
+    StandardFunctions.LStricmp = farStrCmpI;
+    StandardFunctions.LStrnicmp = farStrCmpNI;
     /* SVS $ */
 
     StandardFunctions.Unquote=Unquote;
@@ -1253,7 +1253,7 @@ int PluginW::GetCacheNumber () //ничего не понимаю....
 		if ( strPluginName.IsEmpty() )
 			break;
 
-		if ( LocalStricmpW(strPluginName, m_strModuleName) != 0 )
+		if ( StrCmpI(strPluginName, m_strModuleName) != 0 )
 			continue;
 
 		GetRegKey(strRegKey, L"ID", strPluginID, L"");
@@ -1267,7 +1267,7 @@ int PluginW::GetCacheNumber () //ничего не понимаю....
 					FindData.ftLastWriteTime.dwLowDateTime
 					);
 
-			if ( wcscmp(strPluginID, strCurPluginID) != 0 )
+			if ( StrCmp(strPluginID, strCurPluginID) != 0 )
 				continue;
 		}
 

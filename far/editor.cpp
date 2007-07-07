@@ -8,10 +8,10 @@ editor.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "editor.hpp"
 #include "edit.hpp"
 #include "global.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -347,7 +347,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       const wchar_t *SaveStr,*EndSeq;
       int Length;
       CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-      TotalSize+=Length+wcslen(EndSeq);
+      TotalSize+=Length+StrLength(EndSeq);
       if (TotalSize>StartChar)
         break;
       CurPtr=CurPtr->m_next;
@@ -3264,7 +3264,7 @@ void Editor::InsertString()
     if (EdOpt.AutoIndent && NewLineEmpty)
     {
       RemoveTrailingSpaces(NewCurLineStr);
-      StrSize=(int)wcslen(NewCurLineStr);
+      StrSize=StrLength(NewCurLineStr);
     }
 
     CurLine->SetBinaryString(NewCurLineStr,StrSize);
@@ -3743,7 +3743,7 @@ BOOL Editor::Search(int Next)
               int SStrLen=(int)strSearchStr.GetLength(),
                   RStrLen=(int)strReplaceStr.GetLength();
               CurLine->GetBinaryString(&Str,&Eol,StrLen);
-              int EolLen=(int)wcslen(Eol);
+              int EolLen=StrLength(Eol);
               NewStrLen=StrLen;
               NewStrLen-=SStrLen;
               NewStrLen+=RStrLen;
@@ -3944,7 +3944,7 @@ void Editor::Copy(int Append)
   {
     CopyData=PasteFromClipboard();
     if (CopyData!=NULL)
-      PrevSize=DataSize=(long)wcslen(CopyData);
+      PrevSize=DataSize=(long)StrLength(CopyData);
   }
 
   while (CurPtr!=NULL)
@@ -3963,7 +3963,7 @@ void Editor::Copy(int Append)
     }
     CopyData=NewPtr;
     CurPtr->GetSelString(CopyData+DataSize,Length);
-    DataSize+=(long)wcslen(CopyData+DataSize);
+    DataSize+=(long)StrLength(CopyData+DataSize);
     if (EndSel==-1)
     {
       wcscpy(CopyData+DataSize,DOS_EOL_fmt);
@@ -4063,7 +4063,7 @@ void Editor::DeleteBlock()
       if (CurPtr->m_next!=NULL)
         DeleteNext=TRUE;
     }
-    wmemmove(TmpStr+StartSel,TmpStr+EndSel,wcslen(TmpStr+EndSel)+1);
+    wmemmove(TmpStr+StartSel,TmpStr+EndSel,StrLength(TmpStr+EndSel)+1);
     int CurPos=StartSel;
 /*    if (CurPos>=StartSel)
     {
@@ -4107,7 +4107,7 @@ void Editor::DeleteBlock()
       if (BlockStartLine+1<NumLine)
         NumLine--;
     }
-    int EndLength=(int)wcslen(EndSeq);
+    int EndLength=StrLength(EndSeq);
     wmemcpy(TmpStr+Length,EndSeq,EndLength);
     Length+=EndLength;
     TmpStr[Length]=0;
@@ -4326,7 +4326,7 @@ void Editor::GoToPosition()
 void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
 {
   int x=0xffff,y;
-  size_t l;
+  int l;
   wchar_t *argvx=0;
   int LeftPos=CurLine->GetTabCurPos() + 1;
 
@@ -4339,10 +4339,10 @@ void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
   wchar_t *argv = strArg.GetBuffer ();
   // получаем индекс вхождения любого разделителя
   // в искомой строке
-  l=wcscspn(argv,L",:;. ");
+  l=(int)wcscspn(argv,L",:;. ");
   // если разделителя нету, то l=strlen(argv)
 
-  if(l < wcslen(argv)) // Варианты: "row,col" или ",col"?
+  if(l < StrLength(argv)) // Варианты: "row,col" или ",col"?
   {
     argv[l]=L'\0'; // Вместо разделителя впиндюлим "конец строки" :-)
     argvx=argv+l+1;
@@ -4423,7 +4423,7 @@ void Editor::AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int St
 
   if (Str!=NULL)
   {
-    UndoData[UndoDataPos].Str=new wchar_t[wcslen(Str)+1];
+    UndoData[UndoDataPos].Str=new wchar_t[StrLength(Str)+1];
     if (UndoData[UndoDataPos].Str!=NULL)
       wcscpy(UndoData[UndoDataPos].Str,Str);
   }
@@ -4552,7 +4552,7 @@ long Editor::GetCurPos()
     const wchar_t *SaveStr,*EndSeq;
     int Length;
     CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-    TotalSize+=Length+(int)wcslen(EndSeq);
+    TotalSize+=Length+StrLength(EndSeq);
     CurPtr=CurPtr->m_next;
   }
   return(TotalSize);
@@ -4623,7 +4623,7 @@ void Editor::BlockLeft()
 
     if ((EndSel==-1 || EndSel>StartSel) && IsSpace(*CurStr))
     {
-      int EndLength=(int)wcslen(EndSeq);
+      int EndLength=StrLength(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
@@ -4691,7 +4691,7 @@ void Editor::BlockRight()
 
     if (EndSel==-1 || EndSel>StartSel)
     {
-      int EndLength=(int)wcslen(EndSeq);
+      int EndLength=StrLength(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
       AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
@@ -4777,7 +4777,7 @@ void Editor::DeleteVBlock()
       wmemcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
       CurLength+=CopySize;
     }
-    int EndLength=(int)wcslen(EndSeq);
+    int EndLength=StrLength(EndSeq);
     wmemcpy(TmpStr+CurLength,EndSeq,EndLength);
     CurLength+=EndLength;
     TmpStr[CurLength]=0;
@@ -4808,12 +4808,12 @@ void Editor::VCopy(int Append)
   {
     CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
     if (CopyData!=NULL)
-      PrevSize=DataSize=(long)wcslen(CopyData);
+      PrevSize=DataSize=(long)StrLength(CopyData);
     else
     {
       CopyData=PasteFromClipboard();
       if (CopyData!=NULL)
-        PrevSize=DataSize=(long)wcslen(CopyData);
+        PrevSize=DataSize=(long)StrLength(CopyData);
     }
   }
 
@@ -5007,9 +5007,9 @@ void Editor::VBlockShift(int Left)
                 CurPtr->GetCurPos(),UNDO_EDIT);
     UndoNext=TRUE;
 
-    int StrLength=Max(Length,TBlockX+TBlockSizeX+!Left);
-    wchar_t *TmpStr=new wchar_t[StrLength+3];
-    wmemset(TmpStr,L' ',StrLength);
+    int StrLen=Max(Length,TBlockX+TBlockSizeX+!Left);
+    wchar_t *TmpStr=new wchar_t[StrLen+3];
+    wmemset(TmpStr,L' ',StrLen);
     wmemcpy(TmpStr,CurStr,Length);
 
     if (Left)
@@ -5027,14 +5027,14 @@ void Editor::VBlockShift(int Left)
       TmpStr[TBlockX]=Ch;
     }
 
-    while (StrLength>0 && TmpStr[StrLength-1]==L' ')
-      StrLength--;
-    int EndLength=(int)wcslen(EndSeq);
-    wmemcpy(TmpStr+StrLength,EndSeq,EndLength);
-    StrLength+=EndLength;
-    TmpStr[StrLength]=0;
+    while (StrLen>0 && TmpStr[StrLen-1]==L' ')
+      StrLen--;
+    int EndLength=StrLength(EndSeq);
+    wmemcpy(TmpStr+StrLen,EndSeq,EndLength);
+    StrLen+=EndLength;
+    TmpStr[StrLen]=0;
 
-    CurPtr->SetBinaryString(TmpStr,StrLength);
+    CurPtr->SetBinaryString(TmpStr,StrLen);
     delete[] TmpStr;
   }
   VBlockX+=Left ? -1:1;
@@ -5087,7 +5087,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog(L"struct EditorGetString{"));
         _ECTLLOG(SysLog(L"  StringNumber    =%d",GetString->StringNumber));
         _ECTLLOG(SysLog(L"  StringText      ='%s'",GetString->StringText));
-        _ECTLLOG(SysLog(L"  StringEOL       ='%s'",GetString->StringEOL?_SysLog_LinearDump((LPBYTE)GetString->StringEOL,wcslen(GetString->StringEOL)):L"(null)"));
+        _ECTLLOG(SysLog(L"  StringEOL       ='%s'",GetString->StringEOL?_SysLog_LinearDump((LPBYTE)GetString->StringEOL,StrLength(GetString->StringEOL)):L"(null)"));
         _ECTLLOG(SysLog(L"  StringLength    =%d",GetString->StringLength));
         _ECTLLOG(SysLog(L"  SelStart        =%d",GetString->SelStart));
         _ECTLLOG(SysLog(L"  SelEnd          =%d",GetString->SelEnd));
@@ -5155,7 +5155,7 @@ int Editor::EditorControl(int Command,void *Param)
       _ECTLLOG(SysLog(L"struct EditorSetString{"));
       _ECTLLOG(SysLog(L"  StringNumber    =%d",SetString->StringNumber));
       _ECTLLOG(SysLog(L"  StringText      ='%s'",SetString->StringText));
-      _ECTLLOG(SysLog(L"  StringEOL       ='%s'",SetString->StringEOL?_SysLog_LinearDump((LPBYTE)SetString->StringEOL,wcslen(SetString->StringEOL)):L"(null)"));
+      _ECTLLOG(SysLog(L"  StringEOL       ='%s'",SetString->StringEOL?_SysLog_LinearDump((LPBYTE)SetString->StringEOL,StrLength(SetString->StringEOL)):L"(null)"));
       _ECTLLOG(SysLog(L"  StringLength    =%d",SetString->StringLength));
       _ECTLLOG(SysLog(L"}"));
 
@@ -5186,7 +5186,7 @@ int Editor::EditorControl(int Command,void *Param)
 
         const wchar_t *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
         /* IS 06.08.2002 IS $ */
-        int LengthEOL=(int)wcslen(EOL);
+        int LengthEOL=StrLength(EOL);
         wchar_t *NewStr=(wchar_t*)xf_malloc((Length+LengthEOL+1)*sizeof (wchar_t));
         if (NewStr==NULL)
         {
@@ -5870,7 +5870,7 @@ void Editor::Xlat()
         if (StartSel==-1)
           break;
         if(EndSel == -1)
-          EndSel=wcslen(CurPtr->Str);
+          EndSel=StrLength(CurPtr->Str);
         AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,0,UNDO_EDIT);
         ::Xlat(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
@@ -5882,7 +5882,7 @@ void Editor::Xlat()
     else
     {
       wchar_t *Str=CurLine->Str;
-      int start=CurLine->GetCurPos(), end, StrSize=wcslen(Str);
+      int start=CurLine->GetCurPos(), end, StrSize=StrLength(Str);
       // $ 10.12.2000 IS
       //   Обрабатываем только то слово, на котором стоит курсор, или то слово,
       //   что находится левее позиции курсора на 1 символ

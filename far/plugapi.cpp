@@ -1069,7 +1069,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
   if(Flags&FMSG_ALLINONE)
   {
     ItemsNumber=0;
-    I=(int)wcslen((wchar_t *)Items)+2;
+    I=StrLength((wchar_t *)Items)+2;
     if((SingleItems=(wchar_t *)xf_malloc(I*sizeof (wchar_t))) == NULL)
       return -1;
 
@@ -1105,7 +1105,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
     {
       *MsgTemp=L'\0';
       MsgItems[I]=Msg;
-      Msg+=wcslen(Msg)+1;
+      Msg+=StrLength(Msg)+1;
 
       if(*Msg == L'\0')
         break;
@@ -1533,7 +1533,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
     return FALSE;
 
   {
-    if (wcscmp(Dir,L".")==0 || TestParentFolderName(Dir))
+    if (StrCmp(Dir,L".")==0 || TestParentFolderName(Dir))
       return FALSE;
 
     static struct PluginHandle DirListPlugin;
@@ -1601,7 +1601,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
           struct OpenPluginInfo NewInfo;
           CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
 
-          if ( LocalStricmpW (strPrevDir, NewInfo.CurDir)!=0)
+          if ( StrCmpI (strPrevDir, NewInfo.CurDir) !=0 )
             CtrlObject->Plugins.SetDirectory(hDirListPlugin,strPrevDir,OPM_FIND);
         }
       }
@@ -1714,7 +1714,7 @@ void ScanPluginDir()
 	{
 		PluginPanelItem *CurPanelItem=PanelData+I;
 		if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
-				wcscmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&
+				StrCmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&
 				!TestParentFolderName(CurPanelItem->FindData.lpwszFileName))
 
 		{
@@ -2116,3 +2116,65 @@ int WINAPI FarViewerControl(int Command,void *Param)
     return(0);
   return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
 }
+
+
+void __stdcall farUpperBuf(wchar_t *Buf, int Length)
+{
+	return UpperBuf(Buf, Length);
+}
+
+void __stdcall farLowerBuf(wchar_t *Buf, int Length)
+{
+	return LowerBuf(Buf, Length);
+}
+
+void __stdcall farStrUpper(wchar_t *s1)
+{
+	return StrUpper(s1);
+}
+
+void __stdcall farStrLower(wchar_t *s1)
+{
+	return StrLower(s1);
+}
+
+wchar_t __stdcall farUpper(wchar_t Ch)
+{
+	return Upper(Ch);
+}
+
+wchar_t __stdcall farLower(wchar_t Ch)
+{
+	return Lower(Ch);
+}
+
+int __stdcall farStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
+{
+	return StrCmpNI(s1, s2, n);
+}
+
+int __stdcall farStrCmpI(const wchar_t *s1, const wchar_t *s2)
+{
+	return StrCmpI(s1, s2);
+}
+
+int __stdcall farIsLower(wchar_t Ch)
+{
+	return IsLower(Ch);
+}
+
+int __stdcall farIsUpper(wchar_t Ch)
+{
+	return IsUpper(Ch);
+}
+
+int __stdcall farIsAlpha(wchar_t Ch)
+{
+	return IsAlpha(Ch);
+}
+
+int __stdcall farIsAlphaNum(wchar_t Ch)
+{
+	return IsAlphaNum(Ch);
+}
+

@@ -87,9 +87,8 @@ int WINAPI LocalIslower(unsigned Ch)
 	char s[2];
 	s[0] = Ch; s[1] = 0;
 	string strS(s,CP_OEMCP);
-	return LocalIslowerW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
+	return IsLower(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
-
 
 int WINAPI LocalIsupper(unsigned Ch)
 {
@@ -99,8 +98,10 @@ int WINAPI LocalIsupper(unsigned Ch)
 	char s[2];
 	s[0] = Ch; s[1] = 0;
 	string strS(s,CP_OEMCP);
-	return LocalIsupperW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
+	return IsUpper(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
+
+
 
 int WINAPI LocalIsalpha(unsigned Ch)
 {
@@ -110,8 +111,9 @@ int WINAPI LocalIsalpha(unsigned Ch)
 	char s[2];
 	s[0] = Ch; s[1] = 0;
 	string strS(s,CP_OEMCP);
-	return IsCharAlphaW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
+	return IsAlpha(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
+
 
 int WINAPI LocalIsalphanum(unsigned Ch)
 {
@@ -121,8 +123,9 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 	char s[2];
 	s[0] = Ch; s[1] = 0;
 	string strS(s,CP_OEMCP);
-	return IsCharAlphaNumericW(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
+	return IsAlphaNum(strS.At(0)); //BUGBUG - юникодный символ может быть шире чем один элемент
 }
+
 
 
 unsigned WINAPI LocalUpper(unsigned LowerChar)
@@ -247,7 +250,7 @@ int __cdecl LocalStricmp(const char *s1,const char *s2)
 {
 	string strS1(s1,CP_OEMCP);
 	string strS2(s2,CP_OEMCP);
-	return LocalStricmpW(strS1,strS2);
+	return StrCmpI(strS1,strS2);
 }
 
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
@@ -278,71 +281,78 @@ int LocalKeyToKey(int Key)
   return(KeyToKey[Key]);
 }
 
-
-const wchar_t * __cdecl StrstriW(const wchar_t *str1, const wchar_t *str2)
+/*---------------------------------------*/
+int __cdecl StrLength(const wchar_t *str)
 {
-  wchar_t *cp = (wchar_t *) str1;
-  wchar_t *s1, *s2;
-
-  if ( !*str2 )
-      return str1;
-
-  while (*cp)
-  {
-    s1 = cp;
-    s2 = (wchar_t *) str2;
-
-    while ( *s1 && *s2 && !(LocalLowerW(*s1) - LocalLowerW(*s2)) )
-    {
-      s1++;
-      s2++;
-    }
-
-    if (!*s2)
-      return (const wchar_t *)cp;
-
-    cp++;
-  }
-
-  return (const wchar_t *)NULL;
-}
-
-const wchar_t * __cdecl RevStrstriW(const wchar_t *str1, const wchar_t *str2)
-{
-  int len1 = (int)wcslen(str1);
-  int len2 = (int)wcslen(str2);
-
-  if (len2 > len1)
-    return (const wchar_t *)NULL;
-
-  if ( !*str2 )
-    return &str1[len1];
-
-  wchar_t *cp = (wchar_t *)&str1[len1 - len2];
-  wchar_t *s1, *s2;
-
-  while (cp >= str1)
-  {
-    s1 = cp;
-    s2 = (wchar_t *) str2;
-
-    while ( *s1 && *s2 && !(LocalLowerW(*s1) - LocalLowerW(*s2)) )
-    {
-      s1++;
-      s2++;
-    }
-
-    if (!*s2)
-      return (const wchar_t *)cp;
-
-    cp--;
-  }
-
-  return (const wchar_t *)NULL;
+	return lstrlenW(str);
 }
 
 
-wchar_t WINAPI LocalUpperW (wchar_t Ch)
+const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
+{
+	wchar_t *cp = (wchar_t *) str1;
+	wchar_t *s1, *s2;
+
+	if ( !*str2 )
+		return str1;
+
+	while ( *cp )
+	{
+		s1 = cp;
+		s2 = (wchar_t *) str2;
+
+		while ( *s1 && *s2 && !(Lower(*s1)-Lower(*s2)) )
+		{
+			s1++;
+			s2++;
+		}
+
+		if ( !*s2 )
+			return (const wchar_t *)cp;
+
+		cp++;
+	}
+
+	return (const wchar_t *)NULL;
+}
+
+
+const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
+{
+	int len1 = StrLength(str1);
+	int len2 = StrLength(str2);
+
+	if (len2 > len1)
+		return (const wchar_t *)NULL;
+
+	if ( !*str2 )
+		return &str1[len1];
+
+	wchar_t *cp = (wchar_t *)&str1[len1-len2];
+	wchar_t *s1, *s2;
+
+	while ( cp >= str1 )
+	{
+		s1 = cp;
+		s2 = (wchar_t *) str2;
+
+		while ( *s1 && *s2 && !(Lower(*s1)-Lower(*s2)) )
+		{
+			s1++;
+			s2++;
+		}
+
+		if ( !*s2 )
+			return (const wchar_t *)cp;
+
+		cp--;
+	}
+
+	return (const wchar_t *)NULL;
+}
+
+
+wchar_t __cdecl Upper(wchar_t Ch)
 {
     wchar_t Buf = Ch;
 
@@ -351,7 +361,8 @@ wchar_t WINAPI LocalUpperW (wchar_t Ch)
     return Buf;
 }
 
-wchar_t WINAPI LocalLowerW (wchar_t Ch)
+
+wchar_t __cdecl Lower(wchar_t Ch)
 {
     wchar_t Buf = Ch;
 
@@ -360,159 +371,181 @@ wchar_t WINAPI LocalLowerW (wchar_t Ch)
     return Buf;
 }
 
-int WINAPI LocalStrnicmpW (const wchar_t *s1, const wchar_t *s2, int n)
+int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 {
-    return CompareStringW (
-            0,
-            NORM_IGNORECASE,
-            s1,
-            n,
-            s2,
-            n
-            )-2;
+	return CompareStringW (
+			0,
+			NORM_IGNORECASE,
+			s1,
+			n,
+			s2,
+			n
+			)-2;
 }
 
-int WINAPI LocalStricmpW (const wchar_t *s1, const wchar_t *s2)
+int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
-    return CompareStringW (
-            0,
-            NORM_IGNORECASE,
-            s1,
-            -1,
-            s2,
-            -1
-            )-2;
-
-}
-
-int WINAPI LocalStrncmpW (const wchar_t *s1, const wchar_t *s2, int n)
-{
-    return CompareStringW (
-            0,
-            0,
-            s1,
-            n,
-            s2,
-            n
-            )-2;
-}
-
-int WINAPI LocalStrcmpW (const wchar_t *s1, const wchar_t *s2)
-{
-    return CompareStringW (
-            0,
-            0,
-            s1,
-            -1,
-            s2,
-            -1
-            )-2;
+	return CompareStringW (
+			0,
+			NORM_IGNORECASE,
+			s1,
+			-1,
+			s2,
+			-1
+			)-2;
 
 }
 
-int __cdecl LocalNumStricmpW (const wchar_t *s1, const wchar_t *s2)
+int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 {
-  int ret;
-  while(*s1 && *s2)
-  {
-    if(iswdigit(*s1) && iswdigit(*s2))
-    {
-       // берем длину числа без ведущих нулей
-       int dig_len1 = __digit_cnt_0(s1, &s1);
-       int dig_len2 = __digit_cnt_0(s2, &s2);
-       // если одно длиннее другого, значит они и больше! :)
-       if(dig_len1 != dig_len2)
-         return dig_len1 - dig_len2;
-       // длины одинаковы, сопоставляем...
-       while(iswdigit(*s1) && iswdigit(*s2))
-       {
-         ret = LocalStrnicmpW(s1,s2,1);
-         if (ret)
-           return ret;
-         s1++; s2++;
-       }
-       if(*s1 == 0)
-         break;
-    }
-    ret = LocalStrnicmpW(s1,s2,1);
-    if (ret)
-      return ret;
-    s1++; s2++;
-  }
-  return LocalStricmpW(s1,s2);
+	return CompareStringW (
+			0,
+			0,
+			s1,
+			n,
+			s2,
+			n
+			)-2;
 }
 
-int __cdecl LocalNumStrcmpW (const wchar_t *s1, const wchar_t *s2)
+int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2)
 {
-  int ret;
-  while(*s1 && *s2)
-  {
-    if(iswdigit(*s1) && iswdigit(*s2))
-    {
-       // берем длину числа без ведущих нулей
-       int dig_len1 = __digit_cnt_0(s1, &s1);
-       int dig_len2 = __digit_cnt_0(s2, &s2);
-       // если одно длиннее другого, значит они и больше! :)
-       if(dig_len1 != dig_len2)
-         return dig_len1 - dig_len2;
-       // длины одинаковы, сопоставляем...
-       while(iswdigit(*s1) && iswdigit(*s2))
-       {
-         ret = LocalStrncmpW(s1,s2,1);
-         if (ret)
-           return ret;
-         s1++; s2++;
-       }
-       if(*s1 == 0)
-         break;
-    }
-    ret = LocalStrncmpW(s1,s2,1);
-    if (ret)
-      return ret;
-    s1++; s2++;
-  }
-  return LocalStrcmpW(s1,s2);
+	return CompareStringW (
+			0,
+			0,
+			s1,
+			-1,
+			s2,
+			-1
+			)-2;
+
 }
 
-int WINAPI LocalIsupperW (wchar_t Ch)
+int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
-    return IsCharUpperW (Ch);
+	int ret;
+	
+	while ( *s1 && *s2 )
+	{
+		if ( iswdigit(*s1) && iswdigit(*s2) )
+		{
+			// берем длину числа без ведущих нулей
+			int dig_len1 = __digit_cnt_0(s1, &s1);
+			int dig_len2 = __digit_cnt_0(s2, &s2);
+			// если одно длиннее другого, значит они и больше! :)
+			
+			if(dig_len1 != dig_len2)
+				return dig_len1 - dig_len2;
+
+			// длины одинаковы, сопоставляем...
+			while ( iswdigit(*s1) && iswdigit(*s2) )
+			{
+				ret = StrCmpNI(s1,s2,1);
+
+				if ( ret )
+					return ret;
+					
+				s1++; s2++;
+			}
+
+            if ( *s1 == 0 )
+            	break;
+		}
+
+		ret = StrCmpNI(s1,s2,1);
+
+		if ( ret )
+			return ret;
+
+		s1++; s2++;
+	}
+
+    return StrCmpI(s1,s2);
 }
 
-int WINAPI LocalIslowerW (wchar_t Ch)
+int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2)
 {
-    return IsCharLowerW (Ch);
+	int ret;
+	
+	while ( *s1 && *s2 )
+	{
+		if ( iswdigit(*s1) && iswdigit(*s2) )
+		{
+			// берем длину числа без ведущих нулей
+			int dig_len1 = __digit_cnt_0(s1, &s1);
+			int dig_len2 = __digit_cnt_0(s2, &s2);
+			// если одно длиннее другого, значит они и больше! :)
+			
+			if(dig_len1 != dig_len2)
+				return dig_len1 - dig_len2;
+
+			// длины одинаковы, сопоставляем...
+			while ( iswdigit(*s1) && iswdigit(*s2) )
+			{
+				ret = StrCmpN(s1,s2,1);
+
+				if ( ret )
+					return ret;
+					
+				s1++; s2++;
+			}
+
+            if ( *s1 == 0 )
+            	break;
+		}
+
+		ret = StrCmpN(s1,s2,1);
+
+		if ( ret )
+			return ret;
+
+		s1++; s2++;
+	}
+
+    return StrCmp(s1,s2);
 }
 
-int WINAPI LocalIsalphaW (wchar_t Ch)
+
+int __cdecl IsUpper(wchar_t Ch)
 {
-    return IsCharAlphaW (Ch);
+    return IsCharUpperW(Ch);
 }
 
-int WINAPI LocalIsalphanumW (wchar_t Ch)
+int __cdecl IsLower(wchar_t Ch)
 {
-    return IsCharAlphaNumericW (Ch);
+    return IsCharLowerW(Ch);
 }
 
-
-void WINAPI LocalUpperBufW(wchar_t *Buf, int Length)
+int __cdecl IsAlpha(wchar_t Ch)
 {
-    CharUpperBuffW (Buf, Length);
+    return IsCharAlphaW(Ch);
 }
 
-
-void WINAPI LocalLowerBufW(wchar_t *Buf,int Length)
+int __cdecl IsAlphaNum(wchar_t Ch)
 {
-    CharLowerBuffW (Buf, Length);
-}
-
-void WINAPI LocalStruprW(wchar_t *s1)
-{
-    LocalUpperBufW (s1, (int)wcslen (s1));
+    return IsCharAlphaNumericW(Ch);
 }
 
 
-void WINAPI LocalStrlwrW(wchar_t *s1)
+void __cdecl UpperBuf(wchar_t *Buf, int Length)
 {
-    LocalLowerBufW (s1, (int)wcslen (s1));
+    CharUpperBuffW(Buf, Length);
 }
+
+
+void __cdecl LowerBuf(wchar_t *Buf,int Length)
+{
+    CharLowerBuffW(Buf, Length);
+}
+
+void __cdecl StrUpper(wchar_t *s1)
+{
+    UpperBuf(s1, StrLength(s1));
+}
+
+
+void __cdecl StrLower(wchar_t *s1)
+{
+    LowerBuf(s1, StrLength(s1));
+}
+/*---------------------------*/

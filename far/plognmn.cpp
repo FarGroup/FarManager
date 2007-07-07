@@ -34,7 +34,7 @@ PreserveLongName::~PreserveLongName()
 	{
 		FAR_FIND_DATA_EX FindData;
 
-		if ( !apiGetFindDataEx (strSaveShortName, &FindData) || wcscmp(strSaveLongName,FindData.strFileName)!=0)
+		if ( !apiGetFindDataEx (strSaveShortName, &FindData) || StrCmp(strSaveLongName,FindData.strFileName)!=0)
 		{
 			string strNewName;
 

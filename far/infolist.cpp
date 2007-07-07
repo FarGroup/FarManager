@@ -159,7 +159,7 @@ void InfoList::DisplayObject()
     strLocalName.Format (L"%c:", strDriveRoot.At(0));
 
     if ( !strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')
-      strDiskName.Format (L"%c:",LocalUpperW(strDriveRoot.At(0)));
+      strDiskName.Format (L"%c:",Upper(strDriveRoot.At(0)));
     else
       strDiskName = strDriveRoot;
 

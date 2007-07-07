@@ -448,7 +448,7 @@ void CommandLine::GetPrompt(string &strDestStr)
           break;
         case L'n':
           if (IsLocalPath(strCurDir) && strCurDir.At(2)==L'\\')
-            add_char (strDestStr, LocalUpperW(strCurDir.At(0)));
+            add_char (strDestStr, Upper(strCurDir.At(0)));
           else
             add_char (strDestStr, L'?');
           break;
@@ -485,7 +485,7 @@ void CommandLine::GetPrompt(string &strDestStr)
     {
       if (*Format==L'$')
       {
-        wchar_t Chr=LocalUpperW(*++Format);
+        wchar_t Chr=Upper(*++Format);
         int I;
         for(I=0; I < countof(ChrFmt); ++I)
         {
@@ -519,7 +519,7 @@ void CommandLine::GetPrompt(string &strDestStr)
             }
             case L'N': // $N - Current drive
               if (IsLocalPath(strCurDir) && strCurDir.At(2)==L'\\')
-                add_char (strDestStr, LocalUpperW(strCurDir.At(0)));
+                add_char (strDestStr, Upper(strCurDir.At(0)));
               else
                 add_char (strDestStr, L'?');
               break;

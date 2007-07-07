@@ -601,7 +601,7 @@ void VMenu::ShowMenu(int IsParent)
 //_SVS(SysLog(L">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
           if(AmpPos >= 2 && TmpStrW[AmpPos] != L'&')
           {
-            wmemmove(TmpStrW+AmpPos+1,TmpStrW+AmpPos,wcslen(TmpStrW+AmpPos)+1);
+            wmemmove(TmpStrW+AmpPos+1,TmpStrW+AmpPos,StrLength(TmpStrW+AmpPos)+1);
             TmpStrW[AmpPos]='&';
           }
 //_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
@@ -1343,9 +1343,9 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
     ++I;
   }
 
-  Item[PosAdd]->Len[0]=(int)wcslen(NamePtr)-Item[PosAdd]->Idx2; //??
+  Item[PosAdd]->Len[0]=StrLength(NamePtr)-Item[PosAdd]->Idx2; //??
   if(Item[PosAdd]->Idx2)
-    Item[PosAdd]->Len[1]=(int)wcslen(&NamePtr[Item[PosAdd]->Idx2]);
+    Item[PosAdd]->Len[1]=StrLength(&NamePtr[Item[PosAdd]->Idx2]);
 
   // Уточнение общих размеров
   if(RLen[0] < Item[PosAdd]->Len[0])
@@ -1473,7 +1473,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 
     // Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
     if(!Size)
-      SizeReal=(int)((wcslen((const wchar_t*)Data)+1)*sizeof(wchar_t));
+      SizeReal=(int)((StrLength((const wchar_t*)Data)+1)*sizeof(wchar_t));
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
     if(!Size ||
@@ -1928,7 +1928,7 @@ BOOL VMenu::CheckHighlights(WORD CheckSymbol)
   {
     wchar_t Ch=GetHighlights(Item[I]);
 
-    if(Ch && LocalUpperW(CheckSymbol) == LocalUpperW(Ch))
+    if(Ch && Upper(CheckSymbol) == Upper(Ch))
       return TRUE;
   }
   return FALSE;
@@ -1972,10 +1972,10 @@ void VMenu::AssignHighlights(int Reverse)
       }
     }
 
-    if(Ch && !Used[LocalUpperW(Ch)] && !Used[LocalLowerW(Ch)])
+    if(Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
     {
-      Used[LocalUpperW(Ch)]++;
-      Used[LocalLowerW(Ch)]++;
+      Used[Upper(Ch)]++;
+      Used[Lower(Ch)]++;
       Item[I]->AmpPos=(int)(ChPtr-Name);
     }
   }
@@ -1991,11 +1991,11 @@ void VMenu::AssignHighlights(int Reverse)
       for (int J=0; Name[J]; J++)
       {
         wchar_t Ch=Name[J];
-        if((Ch ==L'&' || LocalIsalphaW(Ch) || (Ch >= L'0' && Ch <=L'9')) &&
-             !Used[LocalUpperW(Ch)] && !Used[LocalLowerW(Ch)])
+        if((Ch ==L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) &&
+             !Used[Upper(Ch)] && !Used[Lower(Ch)])
         {
-          Used[LocalUpperW(Ch)]++;
-          Used[LocalLowerW(Ch)]++;
+          Used[Upper(Ch)]++;
+          Used[Lower(Ch)]++;
           Item[I]->AmpPos=J;
           break;
         }
@@ -2152,7 +2152,7 @@ static int __cdecl  SortItem(const MenuItemEx **el1,
   strName2 = (*el2)->strName;
   RemoveChar (strName1,L'&',TRUE);
   RemoveChar (strName2,L'&',TRUE);
-  int Res=LocalStricmpW((const wchar_t*)strName1+Param->Offset,(const wchar_t*)strName2+Param->Offset);
+  int Res=StrCmpI((const wchar_t*)strName1+Param->Offset,(const wchar_t*)strName2+Param->Offset);
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
 
@@ -2223,7 +2223,7 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
   string strTmpBuf;
   if((DWORD)StartIndex < (DWORD)ItemCount)
   {
-    int LenPattern=(int)wcslen(Pattern);
+    int LenPattern=StrLength(Pattern);
     for(int I=StartIndex;I < ItemCount;I++)
     {
       strTmpBuf = Item[I]->strName;
@@ -2233,7 +2233,7 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
 
       if(Flags&LIFIND_EXACTMATCH)
       {
-        if(!LocalStrnicmpW(strTmpBuf,Pattern,Max(LenPattern,LenNamePtr)))
+        if(!StrCmpNI(strTmpBuf,Pattern,Max(LenPattern,LenNamePtr)))
           return I;
       }
       else

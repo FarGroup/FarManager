@@ -109,11 +109,11 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
     TempDest = strTempDest.GetBuffer (2048); //BUGBUGBUG!!!!
     wchar_t *Ptr, Chr;
 
-    Ptr = TempDest+wcslen(TempDest);
+    Ptr = TempDest+StrLength(TempDest);
 
     const wchar_t *CtrlChar = TempDest;
 
-    if (wcslen(TempDest) > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
+    if (StrLength(TempDest) > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
       CtrlChar= wcschr(TempDest+2, L'\\');
 
     // обычный цикл прохода имени от корня
@@ -161,7 +161,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
             DeleteEndSlash(strTempDest2);
             strTempDest2 = Ptr;
             wcscpy(TempDest,strTempDest2); //BUGBUG
-            Ret=(int)wcslen(TempDest);
+            Ret=StrLength(TempDest);
             // ВСЕ. Реальный путь у нас в кармане...
             break;
           }
@@ -177,7 +177,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
   TempDest = strTempDest.GetBuffer ();
 
   if(IsAddEndSlash) // если не просили - удалим.
-    TempDest[wcslen(TempDest)-1]=0;
+    TempDest[StrLength(TempDest)-1]=0;
 
   strTempDest.ReleaseBuffer ();
 

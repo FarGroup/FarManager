@@ -54,7 +54,7 @@ FileList::FileList()
   */
   {
     const wchar_t *data=UMSG(MPanelBracketsForLongName);
-    if(wcslen(data)>1)
+    if(StrLength(data)>1)
     {
       *openBracket=data[0];
       *closeBracket=data[1];
@@ -325,7 +325,7 @@ int _cdecl SortList(const void *el1,const void *el2)
           return(-ListSortOrder);
         if (*(ChPtr2+1)==L'.')
           return(ListSortOrder);
-        RetCode=ListSortOrder*LocalStricmpW(ChPtr1+1,ChPtr2+1);
+        RetCode=ListSortOrder*StrCmpI(ChPtr1+1,ChPtr2+1);
         if(RetCode)
           return RetCode;
         break;
@@ -356,13 +356,13 @@ int _cdecl SortList(const void *el1,const void *el2)
             return(ListSortOrder);
         if (SPtr2->DizText==NULL)
           return(-ListSortOrder);
-        RetCode=ListSortOrder*LocalStricmpW(SPtr1->DizText,SPtr2->DizText);
+        RetCode=ListSortOrder*StrCmpI(SPtr1->DizText,SPtr2->DizText);
         if(RetCode)
           return RetCode;
         break;
 
       case BY_OWNER:
-        RetCode=ListSortOrder*LocalStricmpW(SPtr1->strOwner,SPtr2->strOwner);
+        RetCode=ListSortOrder*StrCmpI(SPtr1->strOwner,SPtr2->strOwner);
         if(RetCode)
           return RetCode;
         break;
@@ -380,9 +380,9 @@ int _cdecl SortList(const void *el1,const void *el2)
   int NameCmp;
 
   if(!ListNumericSort)
-    NameCmp=ListCaseSensitive?LocalStrcmpW(Name1,Name2):LocalStricmpW(Name1,Name2);
+    NameCmp=ListCaseSensitive?StrCmp(Name1,Name2):StrCmpI(Name1,Name2);
   else
-    NameCmp=ListCaseSensitive?LocalNumStrcmpW(Name1,Name2):LocalNumStricmpW(Name1,Name2);
+    NameCmp=ListCaseSensitive?NumStrCmp(Name1,Name2):NumStrCmpI(Name1,Name2);
   NameCmp*=ListSortOrder;
   if (NameCmp==0)
     NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
@@ -397,7 +397,7 @@ int _cdecl SortSearchList(const void *el1,const void *el2)
   SPtr1=(struct FileListItem **)el1;
   SPtr2=(struct FileListItem **)el2;
 
-  return LocalStrcmpW(SPtr1[0]->strName,SPtr2[0]->strName);
+  return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);
 //  return NumStrcmp(SPtr1->Name,SPtr2->Name);
 }
 #if defined(__BORLANDC__)
@@ -458,7 +458,7 @@ int FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
         {
           string strDriveRoot;
           GetPathRoot(strCurDir, strDriveRoot);
-          return !LocalStricmpW(strCurDir, strDriveRoot);
+          return !StrCmpI(strCurDir, strDriveRoot);
         }
         return TRUE;
       }
@@ -633,7 +633,7 @@ int FileList::ProcessKey(int Key)
             {
               Plugin *pPlugin = CtrlObject->Plugins.PluginsData[I];
 
-              if ( LocalStricmpW(pPlugin->GetModuleName(),strPluginModule)==0)
+              if ( StrCmpI(pPlugin->GetModuleName(),strPluginModule)==0)
               {
                 if (pPlugin->HasOpenPlugin())
                 {
@@ -1261,7 +1261,7 @@ int FileList::ProcessKey(int Key)
             FileListToPluginItem(CurPtr,&PanelItem);
             if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW)))
             {
-              FAR_RemoveDirectoryW(strTempDir);
+              apiRemoveDirectory(strTempDir);
               return(TRUE);
             }
           }
@@ -1995,7 +1995,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 
       if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW))
       {
-        FAR_RemoveDirectoryW(strTempDir);
+        apiRemoveDirectory(strTempDir);
         return;
       }
 
@@ -2014,7 +2014,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     int ExeType=FALSE,BatType=FALSE;
     if (ExtPtr!=NULL)
     {
-      ExeType=LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0;
+      ExeType=StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0;
       BatType=IsBatchExtType(ExtPtr);
     }
     if (EnableExec && (ExeType || BatType))
@@ -2094,7 +2094,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   strSetDir = NewDir;
   PrepareDiskPath(strSetDir);
 
-  if ( !TestParentFolderName(strSetDir) && wcscmp(strSetDir,L"\\")!=0)
+  if ( !TestParentFolderName(strSetDir) && StrCmp(strSetDir,L"\\")!=0)
     UpperFolderTopFile=CurTopFile;
 
   if (SelFileCount>0)
@@ -2196,7 +2196,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
     ConvertNameToFull(strSetDir, strFullNewDir);
 
-    if ( LocalStricmpW(strFullNewDir, strCurDir)!=0)
+    if ( StrCmpI(strFullNewDir, strCurDir)!=0)
       CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
 
     if(TestParentFolderName(strSetDir))
@@ -2208,7 +2208,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       AddEndSlash(strTempDir);
       GetPathRoot(strTempDir, strRootDir);
 
-      if((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && wcscmp(strTempDir,strRootDir)==0) ||
+      if((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && StrCmp(strTempDir,strRootDir)==0) ||
          (strCurDir.At(1) == L':'  && strCurDir[2] == L'\\' && strCurDir.At(3)==0))
       {
         string strDirName;
@@ -2274,7 +2274,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     strSetDir.ReleaseBuffer ();
   }
 
-  if(PanelMode!=PLUGIN_PANEL && !wcscmp(strSetDir,L"\\"))
+  if(PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
   {
 #if 1    // если поставить 0, то ФАР будет выкидыват в корень того диска, который подмаплен на файловую систему
     GetPathRootOne(strCurDir,strSetDir);
@@ -2697,9 +2697,9 @@ long FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
     if(OnlyPartName)
       CurPtrName=PointToName(CurPtr->strName);
 
-    if (wcscmp(Name,CurPtrName)==0)
+    if (StrCmp(Name,CurPtrName)==0)
       return I;
-    if (LocalStricmpW(Name,CurPtrName)==0)
+    if (StrCmpI(Name,CurPtrName)==0)
       return I;
   }
   return -1;
@@ -2742,7 +2742,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
   struct FileListItem *CurPtr;
 
   int DirFind = 0;
-  int Length = (int)wcslen(Name);
+  int Length = StrLength(Name);
 
   // Mask должна указывать на буфер на 1 символ больше, чем Name, т.к. к ней еще и * надо добавить. Karbazol.
   wchar_t *Mask = (wchar_t*)xf_malloc((Length+2)*sizeof(wchar_t));
@@ -3216,7 +3216,7 @@ void FileList::UpdateViewPanel()
         if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW))
         {
           ViewPanel->ShowFile(NULL,FALSE,NULL);
-          FAR_RemoveDirectoryW(strTempDir);
+          apiRemoveDirectory(strTempDir);
           return;
         }
         ViewPanel->ShowFile(CurPtr->strName,TRUE,NULL);
@@ -3299,7 +3299,7 @@ void FileList::CompareDir()
 
     if (apiGetVolumeInformation (strRoot1,NULL,NULL,NULL,NULL,&strFileSystemName1) &&
         apiGetVolumeInformation (strRoot2,NULL,NULL,NULL,NULL,&strFileSystemName2))
-      if (LocalStricmpW(strFileSystemName1,strFileSystemName2)!=0)
+      if (StrCmpI(strFileSystemName1,strFileSystemName2)!=0)
         CompareFatTime=TRUE;
   }
 
@@ -3345,7 +3345,7 @@ void FileList::CompareDir()
       PtrTempName2=PointToName(AnotherCurPtr->strName);
 #endif
 
-      if (LocalStricmpW(PtrTempName1,PtrTempName2)==0)
+      if (StrCmpI(PtrTempName1,PtrTempName2)==0)
       //if (LocalStricmp(CurPtr->Name,AnotherCurPtr->Name)==0)
       {
         if (CompareFatTime)
@@ -3552,7 +3552,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
     UNIVERSAL_NAME_INFOW uni;
     DWORD uniSize = sizeof(uni);
     // применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-    if (LocalStricmpW(strFileSystemName,L"NWFS") != 0 &&
+    if (StrCmpI(strFileSystemName,L"NWFS") != 0 &&
         WNetGetUniversalNameW(strFileName, UNIVERSAL_NAME_INFO_LEVEL,&uni, &uniSize) == NOERROR)
     {
         strFileName = uni.lpUniversalName;

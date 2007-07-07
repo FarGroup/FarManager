@@ -734,7 +734,7 @@ void TreeList::FillLastData()
       }
       else
       {
-        if ( LocalStrnicmpW(ListData[I]->strName,ListData[J]->strName,PathLength)==0 )
+        if ( StrCmpNI(ListData[I]->strName,ListData[J]->strName,PathLength)==0 )
           Last=0;
         break;
       }
@@ -1169,7 +1169,7 @@ int TreeList::SetDirPosition(const wchar_t *NewDir)
   long I;
   for (I=0;I<TreeCount;I++)
   {
-    if (LocalStricmpW(NewDir,ListData[I]->strName)==0)
+    if (StrCmpI(NewDir,ListData[I]->strName)==0)
     {
       WorkDir=CurFile=I;
       CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1352,7 +1352,7 @@ int TreeList::ReadTreeFile()
 
   while (fgetws(DirName+RootLength, NM-RootLength,TreeFile)!=NULL)
   {
-    if ( LocalStricmpW (DirName,LastDirName)==0)
+    if ( StrCmpI (DirName,LastDirName)==0)
       continue;
 
     wcscpy (LastDirName,DirName);
@@ -1513,7 +1513,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
   ReadCache(strRoot);
   for(CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    int Result=LocalStricmpW(TreeCache.ListName[CachePos],Name);
+    int Result=StrCmpI(TreeCache.ListName[CachePos],Name);
     if(!Result)
       break;
     if(Result > 0)
@@ -1546,10 +1546,10 @@ void TreeList::DelTreeName(const wchar_t *Name)
   for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
     wszDirName=TreeCache.ListName[CachePos];
-    Length=(int)wcslen(Name);
-    DirLength=(int)wcslen(wszDirName);
+    Length=StrLength(Name);
+    DirLength=StrLength(wszDirName);
     if(DirLength<Length) continue;
-    if (LocalStrnicmpW(Name,wszDirName,Length)==0 &&
+    if (StrCmpNI(Name,wszDirName,Length)==0 &&
         (wszDirName[Length]==0 || wszDirName[Length]==L'\\'))
     {
       TreeCache.Delete(CachePos);
@@ -1568,7 +1568,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
   GetPathRoot(SrcName,strSrcRoot);
   GetPathRoot(DestName,strDestRoot);
 
-  if ( LocalStricmpW (strSrcRoot,strDestRoot)!=0)
+  if ( StrCmpI (strSrcRoot,strDestRoot)!=0)
   {
     DelTreeName(SrcName);
     ReadSubTree(SrcName);
@@ -1579,12 +1579,12 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 
   ReadCache(strSrcRoot);
 
-  int SrcLength=(int)wcslen(SrcName);
+  int SrcLength=StrLength(SrcName);
 
   for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
     const wchar_t *DirName=TreeCache.ListName[CachePos];
-    if (LocalStrnicmpW(SrcName,DirName,SrcLength)==0 &&
+    if (StrCmpNI(SrcName,DirName,SrcLength)==0 &&
         (DirName[SrcLength]==0 || DirName[SrcLength]==L'\\'))
     {
       string strNewName = DestName;
@@ -1661,7 +1661,7 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
   wchar_t *ChPtr;
   FILE *TreeFile=NULL;
 
-  if (wcscmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName)==0)
+  if (StrCmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName)==0)
     return;
 
   if (TreeCache.TreeCount!=0)
@@ -1766,10 +1766,10 @@ long TreeList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
     if(OnlyPartName)
       CurPtrName=PointToName(CurPtr->strName);
 
-    if (wcscmp(Name,CurPtrName)==0)
+    if (StrCmp(Name,CurPtrName)==0)
       return I;
 
-    if (LocalStricmpW(Name,CurPtrName)==0)
+    if (StrCmpI(Name,CurPtrName)==0)
       return I;
   }
   return -1;
@@ -1816,17 +1816,17 @@ int _cdecl SortList(const void *el1,const void *el2)
   string strName1=((struct TreeItem **)el1)[0]->strName;
   string strName2=((struct TreeItem **)el2)[0]->strName;
   if(!StaticSortNumeric)
-    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LocalStricmpW(strName1,strName2));
+    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):StrCmpI(strName1,strName2));
   else
-    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):LocalNumStricmpW(strName1,strName2));
+    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):NumStrCmpI(strName1,strName2));
 }
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
   if(!StaticSortNumeric)
-    return(LocalStricmpW(*(wchar_t **)el1,*(wchar_t **)el2));
+    return(StrCmpI(*(wchar_t **)el1,*(wchar_t **)el2));
   else
-    return(LocalNumStricmpW(*(wchar_t **)el1,*(wchar_t **)el2));
+    return(NumStrCmpI(*(wchar_t **)el1,*(wchar_t **)el2));
 }
 
 
@@ -1869,7 +1869,7 @@ int TreeList::MustBeCached(const wchar_t *Root)
     {
         if ( type==DRIVE_REMOVABLE )
         {
-            if ( LocalUpperW(Root[0])==L'A' || LocalUpperW(Root[0])==L'B')
+            if ( Upper(Root[0])==L'A' || Upper(Root[0])==L'B')
                 return FALSE; // это дискеты
         }
         return TRUE;

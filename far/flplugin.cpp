@@ -195,7 +195,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
   fi->strOwner = NullToEmpty(pi->Owner);
   if (pi->Description)
   {
-    fi->DizText=new wchar_t[wcslen(pi->Description)+1];
+    fi->DizText=new wchar_t[StrLength(pi->Description)+1];
 
     wcscpy (fi->DizText, pi->Description);
 
@@ -230,7 +230,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
     for (int I=0;I<pi->CustomColumnNumber;I++)
       if (pi->CustomColumnData!=NULL && pi->CustomColumnData[I]!=NULL)
       {
-        fi->CustomColumnData[I]=new wchar_t[wcslen(pi->CustomColumnData[I])+1];
+        fi->CustomColumnData[I]=new wchar_t[StrLength(pi->CustomColumnData[I])+1];
         wcscpy(fi->CustomColumnData[I],pi->CustomColumnData[I]);
       }
       else
@@ -250,11 +250,11 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 
   HANDLE hFile=INVALID_HANDLE_VALUE;
   if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hFile=FAR_CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
+    hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
                          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
                          NULL);
   if(hFile==INVALID_HANDLE_VALUE)
-    hFile=FAR_CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
+    hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
                          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
   if (hFile==INVALID_HANDLE_VALUE)
@@ -999,7 +999,7 @@ void FileList::PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNum
     struct PluginPanelItem *CurPluginPtr=ItemList+PluginNumber;
     if ((CurPluginPtr->Flags & PPIF_SELECTED)==0)
     {
-      while (LocalStricmpW(CurPluginPtr->FindData.lpwszFileName,ListData[FileNumber]->strName)!=0)
+      while (StrCmpI(CurPluginPtr->FindData.lpwszFileName,ListData[FileNumber]->strName)!=0)
         if (++FileNumber>=FileCount)
           return;
       Select(ListData[FileNumber++],0);

@@ -331,7 +331,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
         }
         else
           for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
-            if (wcscmp(strArgName,ColumnSymbol[I])==0)
+            if (StrCmp(strArgName,ColumnSymbol[I])==0)
             {
               ViewColumnTypes[ColumnCount]=I;
               break;

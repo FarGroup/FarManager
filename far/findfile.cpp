@@ -115,7 +115,7 @@ int _cdecl SortItems(const void *p1,const void *p2)
 
   CutToSlash(strN1);
   CutToSlash(strN2);
-  return LocalStricmpW(strN2,strN1);
+  return StrCmpI(strN2,strN1);
 }
 
 LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
@@ -155,8 +155,9 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,1);
       /* KM $ */
 
-      unsigned int W=Dlg->Item[7]->X1-Dlg->Item[4]->X1-5;
-      if (wcslen((Dlg->Item[13]->Selected?FindHex:FindText))>W)
+      int W=Dlg->Item[7]->X1-Dlg->Item[4]->X1-5;
+
+      if (StrLength((Dlg->Item[13]->Selected?FindHex:FindText))>W)
       {
         strDataStr = Dlg->Item[13]->Selected?FindHex:FindText;
         TruncStr(strDataStr, W);
@@ -167,7 +168,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)(const wchar_t*)strDataStr);
 
       W=Dlg->Item[0]->X2-Dlg->Item[7]->X1-3;
-      if (wcslen(FindCode)>W)
+      if (StrLength(FindCode)>W)
       {
         strDataStr = FindCode;
         TruncStr(strDataStr, W);
@@ -337,8 +338,8 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         }
         /* KM $ */
 
-        unsigned int W=Dlg->Item[7]->X1-Dlg->Item[4]->X1-5;
-        if (wcslen((Param2?FindHex:FindText))>W)
+        int W=Dlg->Item[7]->X1-Dlg->Item[4]->X1-5;
+        if (StrLength((Param2?FindHex:FindText))>W)
         {
           strDataStr = (Param2?FindHex:FindText);
           TruncStr(strDataStr, W);
@@ -1149,7 +1150,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             {
               apiFreeFindData(&FileItem.FindData);
 
-              FAR_RemoveDirectoryW(strTempDir);
+              apiRemoveDirectory(strTempDir);
               if (ClosePlugin)
               {
                 CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin);
@@ -1610,7 +1611,7 @@ int FindFiles::FindFilesProcess()
       int ItemsNumber=0;
       for (int i=0;i<ListSize;i++)
       {
-        if (wcslen(FindList[i]->FindData.strFileName)>0 && FindList[i]->Used)
+        if (StrLength(FindList[i]->FindData.strFileName)>0 && FindList[i]->Used)
         // Добавляем всегда, если имя задано
         {
           // Для плагинов с виртуальными именами заменим имя файла на имя архива.
@@ -1636,7 +1637,7 @@ int FindFiles::FindFilesProcess()
               + Передаем имена каталогов без заключительного "\" */
             if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-              int Length = (int)wcslen(pi->FindData.lpwszFileName);
+              int Length = StrLength(pi->FindData.lpwszFileName);
               if ((Length) && (pi->FindData.lpwszFileName[Length-1]=='\\'))
                 pi->FindData.lpwszFileName[Length-1] = 0;
             }
@@ -1773,7 +1774,7 @@ int FindFiles::FindFilesProcess()
 
           strDirTmp.ReleaseBuffer();
 
-          if(0!=LocalStricmpW(strFileName, strDirTmp))
+          if(0!=StrCmpI(strFileName, strDirTmp))
             FindPanel->SetCurDir(strFileName,TRUE);
         }
         /* IS $ */
@@ -1802,7 +1803,7 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
      легче определить плагиновые пути и, соответственно,
      сделать правильный переход.
   */
-  if ( wcslen(DirName)>0 )
+  if ( StrLength(DirName)>0 )
     IsPluginDir=wcschr(DirName,L'\x1')!=NULL;
   else
     IsPluginDir=FALSE;
@@ -1860,7 +1861,7 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
             if (!CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
               break;
             if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(strSelName) ||
-                wcscmp(strSelName,L".")==0)
+                StrCmp(strSelName,L".")==0)
               continue;
 
 
@@ -1939,7 +1940,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
       if((PathEnv=(wchar_t *)alloca((SizeStr+2)*sizeof (wchar_t))) != NULL)
       {
         GetEnvironmentVariableW(L"PATH",PathEnv,SizeStr+1);
-        PathEnv[wcslen(PathEnv)]=0;
+        PathEnv[StrLength(PathEnv)]=0;
         Ptr=PathEnv;
         while(*Ptr)
         {
@@ -1978,7 +1979,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
         if(!*Ptr)
           break;
         strRoot = Ptr;
-        Ptr+=wcslen(Ptr)+1;
+        Ptr+=StrLength(Ptr)+1;
       }
 
       DoScanTree(strRoot, FindData, strFullName);
@@ -2147,7 +2148,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
-          FAR_RemoveDirectoryW(strTempDir);
+          apiRemoveDirectory(strTempDir);
           break;
         }
         else
@@ -2292,7 +2293,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 
   AddEndSlash(strPathName);
 
-  if ( LocalStricmpW(strPathName,strLastDirName)!=0)
+  if ( StrCmpI(strPathName,strLastDirName)!=0)
   {
     if ( !strLastDirName.IsEmpty() )
     {
@@ -2418,10 +2419,10 @@ int FindFiles::LookForString(const wchar_t *Name)
   int Length,ReadSize,SaveReadSize;
   if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
-  HANDLE FileHandle=FAR_CreateFileW(Name,GENERIC_READ|GENERIC_WRITE,
+  HANDLE FileHandle=apiCreateFile(Name,GENERIC_READ|GENERIC_WRITE,
          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   if (FileHandle==INVALID_HANDLE_VALUE)
-    FileHandle=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    FileHandle=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (FileHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
@@ -2814,7 +2815,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       PluginPanelItem *CurPanelItem=PanelData+I;
       string strCurName=CurPanelItem->FindData.lpwszFileName;
       string strFullName;
-      if (wcscmp(strCurName,L".")==0 || TestParentFolderName(strCurName))
+      if (StrCmp(strCurName,L".")==0 || TestParentFolderName(strCurName))
         continue;
       if (Flags & OPIF_REALNAMES)
       {
@@ -2869,7 +2870,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       PluginPanelItem *CurPanelItem=PanelData+I;
       string strCurName=CurPanelItem->FindData.lpwszFileName;
       if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-          wcscmp(strCurName,L".")!=0 && !TestParentFolderName(strCurName) &&
+          StrCmp(strCurName,L".")!=0 && !TestParentFolderName(strCurName) &&
           (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1 ||
           CtrlObject->Cp()->ActivePanel->IsSelected(strCurName)))
       {
@@ -3114,8 +3115,8 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
 
   wchar_t *CurDir = strCurDir.GetBuffer ();
 
-  if (CurDir[wcslen(CurDir)-1]==L'\\')
-    CurDir[wcslen(CurDir)-1]=0;
+  if (CurDir[StrLength(CurDir)-1]==L'\\')
+    CurDir[StrLength(CurDir)-1]=0;
 
   strCurDir.ReleaseBuffer ();
 

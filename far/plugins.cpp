@@ -411,7 +411,7 @@ Plugin *PluginManager::GetPlugin (const wchar_t *lpwszModuleName)
 
 		ConvertNameToShort (pPlugin->GetModuleName(), strFileName2);
 
-		if ( !LocalStricmpW (strFileName1, strFileName2) )
+		if ( !StrCmpI (strFileName1, strFileName2) )
 			return pPlugin;
 	}
 
@@ -537,7 +537,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 {
 	Plugin *Plugin1=*((Plugin**)el1);
 	Plugin *Plugin2=*((Plugin**)el2);
-	return (LocalStricmpW(PointToName(Plugin1->GetModuleName()),PointToName(Plugin2->GetModuleName())));
+	return (StrCmpI(PointToName(Plugin1->GetModuleName()),PointToName(Plugin2->GetModuleName())));
 }
 
 
@@ -1667,9 +1667,9 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
     while(1)
     {
       const wchar_t *PrEnd = wcschr(PrStart, L':');
-      size_t Len=PrEnd==NULL ? wcslen(PrStart):(PrEnd-PrStart);
+      size_t Len=PrEnd==NULL ? StrLength(PrStart):(PrEnd-PrStart);
       if(Len<PrefixLength)Len=PrefixLength;
-      if (LocalStrnicmpW(Prefix, PrStart, (int)Len)==0)
+      if (StrCmpNI(Prefix, PrStart, (int)Len)==0)
       {
         PluginPos=PData;
         break;

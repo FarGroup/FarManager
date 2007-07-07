@@ -154,7 +154,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
     if( ( Eol && Ch != L'\n' && Ch != L'\r' ) || Eol >= (int)(sizeof(EOL)/sizeof (wchar_t)))
       break;
 
-    if(Eol && (Ch == L'\n' || Ch == L'\r') && (!wcscmp(EOL,WIN_EOL_fmt) || !wcscmp(EOL,DOS_EOL_fmt) || !wcscmp(EOL,UNIX_EOL_fmt)))
+    if(Eol && (Ch == L'\n' || Ch == L'\r') && (!StrCmp(EOL,WIN_EOL_fmt) || !StrCmp(EOL,DOS_EOL_fmt) || !StrCmp(EOL,UNIX_EOL_fmt)))
       break;
     if(Ch == L'\n' || Ch == L'\r')
     {
@@ -172,7 +172,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
       m_nStrLength+=1024;
     }
     wStr[CurLength++]=Ch;
-    if(Eol && (Ch == L'\n' || Ch == L'\r') && (!wcscmp(EOL,WIN_EOL_fmt) || !wcscmp(EOL,DOS_EOL_fmt) || !wcscmp(EOL,UNIX_EOL_fmt)))
+    if(Eol && (Ch == L'\n' || Ch == L'\r') && (!StrCmp(EOL,WIN_EOL_fmt) || !StrCmp(EOL,DOS_EOL_fmt) || !StrCmp(EOL,UNIX_EOL_fmt)))
       break;
   }
   wStr[CurLength]=0;
@@ -210,7 +210,7 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 		if( ( Eol && Ch != L'\n' && Ch != L'\r' ) || Eol >= (int)(sizeof(EOL)/sizeof (wchar_t)))
 			break;
 
-		if(Eol && (Ch == L'\n' || Ch == L'\r') && (!wcscmp(EOL,WIN_EOL_fmt) || !wcscmp(EOL,DOS_EOL_fmt) || !wcscmp(EOL,UNIX_EOL_fmt)))
+		if(Eol && (Ch == L'\n' || Ch == L'\r') && (!StrCmp(EOL,WIN_EOL_fmt) || !StrCmp(EOL,DOS_EOL_fmt) || !StrCmp(EOL,UNIX_EOL_fmt)))
 			break;
 		if(Ch == L'\n' || Ch == L'\r')
 		{
@@ -228,7 +228,7 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 			m_nStrLength+=1024;
 		}
 		wStr[CurLength++]=Ch;
-		if(Eol && (Ch == L'\n' || Ch == L'\r') && (!wcscmp(EOL,WIN_EOL_fmt) || !wcscmp(EOL,DOS_EOL_fmt) || !wcscmp(EOL,UNIX_EOL_fmt)))
+		if(Eol && (Ch == L'\n' || Ch == L'\r') && (!StrCmp(EOL,WIN_EOL_fmt) || !StrCmp(EOL,DOS_EOL_fmt) || !StrCmp(EOL,UNIX_EOL_fmt)))
 			break;
 	}
 	wStr[CurLength]=0;

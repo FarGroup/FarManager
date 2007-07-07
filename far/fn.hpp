@@ -124,64 +124,9 @@ BOOL IsCaseLower(const string &strStr);
 int DeleteFileWithFolder(const wchar_t *FileName);
 
 
-/* $ 26.01.2003 IS
-    + FAR_DeleteFile, FAR_RemoveDirectory просьба только их использовать
-      для удаления соответственно файлов и каталогов.
-    + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-      ее вместо CreateFile
-*/
-// удалить файл, код возврата аналогичен DeleteFile
-BOOL WINAPI FAR_DeleteFileW(const wchar_t *FileName);
-// удалить каталог, код возврата аналогичен RemoveDirectory
-BOOL WINAPI FAR_RemoveDirectoryW(const wchar_t *DirName);
-
-
-HANDLE WINAPI FAR_CreateFileW(
-    const wchar_t *lpwszFileName,     // pointer to name of the file
-    DWORD dwDesiredAccess,  // access (read-write) mode
-    DWORD dwShareMode,      // share mode
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-    DWORD dwCreationDistribution, // how to create
-    DWORD dwFlagsAndAttributes,   // file attributes
-    HANDLE hTemplateFile          // handle to file with attributes to copy
-   );
-
-
-BOOL FAR_CopyFileW(
-    const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
-    const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
-    BOOL bFailIfExists  // flag for operation if file exists
-   );
-
-
-BOOL Init_CopyFileEx(void);
-
-
-BOOL FAR_CopyFileExW(
-        const wchar_t *lpExistingFileName,
-        const wchar_t *lpNewFileName,
-        void *lpProgressRoutine,
-        LPVOID lpData,
-        LPBOOL pbCancel,
-        DWORD dwCopyFlags
-        );
-
-
-BOOL FAR_MoveFileW(
-    const wchar_t *lpwszExistingFileName, // address of name of the existing file
-    const wchar_t *lpwszNewFileName   // address of new name for the file
-   );
-
-BOOL FAR_MoveFileExW(
-    const wchar_t *lpwszExistingFileName, // address of name of the existing file
-    const wchar_t *lpwszNewFileName,   // address of new name for the file
-    DWORD dwFlags   // flag to determine how to move file
-   );
-
 
 BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest);
 
-void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst);
@@ -322,6 +267,7 @@ int WINAPI LocalIslower(unsigned Ch);
 int WINAPI LocalIsupper(unsigned Ch);
 int WINAPI LocalIsalpha(unsigned Ch);
 int WINAPI LocalIsalphanum(unsigned Ch);
+
 unsigned WINAPI LocalUpper(unsigned LowerChar);
 void WINAPI LocalUpperBuf(char *Buf,int Length);
 void WINAPI LocalLowerBuf(char *Buf,int Length);
@@ -334,27 +280,29 @@ int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 const char * __cdecl LocalStrstri(const char *str1, const char *str2);
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
 
-const wchar_t * __cdecl StrstriW(const wchar_t *str1, const wchar_t *str2);
-const wchar_t * __cdecl RevStrstriW(const wchar_t *str1, const wchar_t *str2);
+int __cdecl StrLength(const wchar_t *str);
 
-void WINAPI LocalUpperBufW(wchar_t *Buf,int Length);
-void WINAPI LocalLowerBufW(wchar_t *Buf,int Length);
-void WINAPI LocalStruprW(wchar_t *s1);
-void WINAPI LocalStrlwrW(wchar_t *s1);
+const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
+const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
-wchar_t WINAPI LocalUpperW (wchar_t Ch);
-wchar_t WINAPI LocalLowerW (wchar_t Ch);
-int WINAPI LocalStrnicmpW (const wchar_t *s1, const wchar_t *s2, int n);
-int WINAPI LocalStricmpW (const wchar_t *s1, const wchar_t *s2);
-int WINAPI LocalIslowerW (wchar_t Ch);
-int WINAPI LocalIsupperW (wchar_t Ch);
-int WINAPI LocalIsalphaW (wchar_t Ch);
-int WINAPI LocalIsalphanumW (wchar_t Ch);
+void __cdecl UpperBuf(wchar_t *Buf, int Length);
+void __cdecl LowerBuf(wchar_t *Buf, int Length);
+void __cdecl StrUpper(wchar_t *s1);
+void __cdecl StrLower(wchar_t *s1);
 
-int WINAPI LocalStrcmpW (const wchar_t *s1, const wchar_t *s2);
-int WINAPI LocalStrncmpW (const wchar_t *s1, const wchar_t *s2, int n);
-int __cdecl LocalNumStrcmpW (const wchar_t *s1, const wchar_t *s2);
-int __cdecl LocalNumStricmpW (const wchar_t *s1, const wchar_t *s2);
+wchar_t __cdecl Upper(wchar_t Ch);
+wchar_t __cdecl Lower(wchar_t Ch);
+int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
+int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2);
+int __cdecl IsLower(wchar_t Ch);
+int __cdecl IsUpper(wchar_t Ch);
+int __cdecl IsAlpha(wchar_t Ch);
+int __cdecl IsAlphaNum(wchar_t Ch);
+
+int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2);
+int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n);
+int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2);
+int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
 
 int LocalKeyToKey(int Key);
 int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL,
@@ -487,7 +435,24 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FA
 
 
 #ifdef __PLUGIN_HPP__
-// эти функции _были_ как static
+
+//----------- PLUGIN API/FSF ---------------------------------------------------
+//все эти функции, за исключение sprintf/sscanf имеют тип вызова __stdcall
+
+void __stdcall farUpperBuf(wchar_t *Buf, int Length);
+void __stdcall farLowerBuf(wchar_t *Buf, int Length);
+void __stdcall farStrUpper(wchar_t *s1);
+void __stdcall farStrLower(wchar_t *s1);
+wchar_t __stdcall farUpper(wchar_t Ch);
+wchar_t __stdcall farLower(wchar_t Ch);
+int __stdcall farStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
+int __stdcall farStrCmpI(const wchar_t *s1, const wchar_t *s2);
+int __stdcall farIsLower(wchar_t Ch);
+int __stdcall farIsUpper(wchar_t Ch);
+int __stdcall farIsAlpha(wchar_t Ch);
+int __stdcall farIsAlphaNum(wchar_t Ch);
+
+
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                   const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);
@@ -523,32 +488,19 @@ int WINAPI FarEditorControl(int Command,void *Param);
 
 int WINAPI FarViewerControl(int Command,void *Param);
 
-/* $ 18.08.2000 tran
-   add Flags parameter */
-/* $ 03.07.2000 IS
-  Функция вывода помощи
-*/
+/* Функция вывода помощи */
 BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
                         const wchar_t *HelpTopic,DWORD Flags);
-/* IS $ */
-/* tran 18.08.2000 $ */
-/* $ 07.12.2001 IS
-   Обертка вокруг GetString для плагинов - с меньшей функциональностью.
-   Сделано для того, чтобы не дублировать код GetString.
-*/
+
+/* Обертка вокруг GetString для плагинов - с меньшей функциональностью.
+   Сделано для того, чтобы не дублировать код GetString.*/
+
 int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
                        const wchar_t *HistoryName,const wchar_t *SrcText,
                        wchar_t *DestText,int DestLength,
                        const wchar_t *HelpTopic,DWORD Flags);
-/* IS $ */
-/* $ 06.07.2000 IS
-  Функция, которая будет действовать и в редакторе, и в панелях, и...
-*/
+/* Функция, которая будет действовать и в редакторе, и в панелях, и... */
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
-/* IS $ */
-/* $ 23.07.2000 IS
-   Функции для расширенного диалога
-*/
 //  Функция расширенного диалога
 int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
       const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
@@ -559,7 +511,6 @@ LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 // Посылка сообщения диалогу
 LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param2);
 
-/* SVS $ */
 #endif
 
 
@@ -1140,12 +1091,18 @@ BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *s
 
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
+string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
+int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
+
 
 #define CP_UNICODE 1200 //MSDN
 #define CP_REVERSEBOM 65534
 #define CP_AUTODETECT -1
 
 int GetFileFormat (FILE *file, bool *pSignatureFound = NULL);
+
+
+//winapi wrappers
 
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer);
 DWORD apiGetCurrentDirectory (string &strCurDir);
@@ -1155,13 +1112,13 @@ DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest);
 DWORD apiGetConsoleTitle (string &strConsoleTitle);
 DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName);
 BOOL apiGetVolumeInformation (
-   const wchar_t *lpwszRootPathName,
-   string *pVolumeName,
-   LPDWORD lpVolumeSerialNumber,
-   LPDWORD lpMaximumComponentLength,
-   LPDWORD lpFileSystemFlags,
-   string *pFileSystemName
-   );
+		const wchar_t *lpwszRootPathName,
+		string *pVolumeName,
+		LPDWORD lpVolumeSerialNumber,
+		LPDWORD lpMaximumComponentLength,
+		LPDWORD lpFileSystemFlags,
+		string *pFileSystemName
+		);
 
 HANDLE apiFindFirstFile (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindFileData);
 BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData);
@@ -1173,8 +1130,49 @@ void apiFreeFindData (FAR_FIND_DATA *pData);
 BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData);
 BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
-string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
+//junk
 
-int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
+BOOL apiDeleteFile (const wchar_t *lpwszFileName);
+BOOL apiRemoveDirectory (const wchar_t *DirName);
+        
+HANDLE apiCreateFile (
+		const wchar_t *lpwszFileName,     // pointer to name of the file
+		DWORD dwDesiredAccess,  // access (read-write) mode
+		DWORD dwShareMode,      // share mode
+		LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
+		DWORD dwCreationDistribution, // how to create
+		DWORD dwFlagsAndAttributes,   // file attributes
+		HANDLE hTemplateFile          // handle to file with attributes to copy
+		);
+        
+BOOL apiCopyFile (
+		const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
+		const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
+		BOOL bFailIfExists  // flag for operation if file exists
+		);
+
+BOOL Init_CopyFileEx(void);
+        
+BOOL apiCopyFileEx (
+		const wchar_t *lpExistingFileName,
+		const wchar_t *lpNewFileName,
+		void *lpProgressRoutine,
+		LPVOID lpData,
+		LPBOOL pbCancel,
+		DWORD dwCopyFlags
+		);
+
+
+BOOL apiMoveFile (
+		const wchar_t *lpwszExistingFileName, // address of name of the existing file
+		const wchar_t *lpwszNewFileName   // address of new name for the file
+		);
+
+BOOL apiMoveFileEx (
+		const wchar_t *lpwszExistingFileName, // address of name of the existing file
+		const wchar_t *lpwszNewFileName,   // address of new name for the file
+		DWORD dwFlags   // flag to determine how to move file
+		);
+
 
 #endif  // __FARFUNC_HPP__

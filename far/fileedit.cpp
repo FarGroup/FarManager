@@ -535,7 +535,7 @@ void FileEditor::Init (
 		)
 {
   SysErrorCode=0;
-  int BlankFileName=!wcscmp(Name,UMSG(MNewFileName));
+  int BlankFileName=!StrCmp(Name,UMSG(MNewFileName));
 
   //AY: флаг оповещающий закрытие редактора.
   m_bClosing = false;
@@ -1114,7 +1114,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             wChr=*lpwszPtr;
             *lpwszPtr=0;
             // В корне?
-            if (!(LocalIsalphaW(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && !strFullFileName.At(2)))
+            if (!(IsAlpha(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && !strFullFileName.At(2)))
             {
               // а дальше? каталог существует?
               if((FNAttr=::GetFileAttributesW(strFullFileName)) == -1 ||
@@ -1155,7 +1155,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             RemoveTrailingSpaces(strSaveAsName);
             Unquote(strSaveAsName);
 
-            NameChanged=LocalStricmpW(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
+            NameChanged=StrCmpI(strSaveAsName, (Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName))!=0;
 
             if( !NameChanged )
               FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
@@ -1433,7 +1433,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       SetExitCode (XC_QUIT);
       break;
     }
-    if(!wcscmp(strFileName,UMSG(MNewFileName)))
+    if(!StrCmp(strFileName,UMSG(MNewFileName)))
       if(!ProcessKey(KEY_SHIFTF2))
       {
         FarChDir(strOldCurDir);
@@ -1465,7 +1465,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	FILE *EditFile;
 
-	HANDLE hEdit = FAR_CreateFileW (
+	HANDLE hEdit = apiCreateFile (
 			Name,
 			GENERIC_READ,
 			FILE_SHARE_READ,
@@ -1754,7 +1754,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
-    HANDLE hEdit = FAR_CreateFileW (
+    HANDLE hEdit = apiCreateFile (
     		Name,
     		GENERIC_WRITE,
     		FILE_SHARE_READ,
@@ -1864,7 +1864,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
         CurPtr->SetEOL(EndSeq);
       }
 
-      int EndLength=(int)wcslen(EndSeq);
+      int EndLength=StrLength(EndSeq);
       bool bError = false;
 
 		if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
@@ -2269,7 +2269,7 @@ BOOL FileEditor::UpdateFileList()
   ActivePanel->GetCurDir(strPanelPath);
   AddEndSlash(strPanelPath);
   AddEndSlash(strFilePath);
-  if (!wcscmp(strPanelPath, strFilePath))
+  if (!StrCmp(strPanelPath, strFilePath))
   {
     ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
     return TRUE;
@@ -2490,13 +2490,13 @@ int FileEditor::EditorControl(int Command, void *Param)
           strName=esf->FileName;
         if (esf->FileEOL!=NULL)
         {
-          if (wcscmp(esf->FileEOL,DOS_EOL_fmt)==0)
+          if (StrCmp(esf->FileEOL,DOS_EOL_fmt)==0)
             EOL=1;
-          else if (wcscmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+          else if (StrCmp(esf->FileEOL,UNIX_EOL_fmt)==0)
             EOL=2;
-          else if (wcscmp(esf->FileEOL,MAC_EOL_fmt)==0)
+          else if (StrCmp(esf->FileEOL,MAC_EOL_fmt)==0)
             EOL=3;
-          else if (wcscmp(esf->FileEOL,WIN_EOL_fmt)==0)
+          else if (StrCmp(esf->FileEOL,WIN_EOL_fmt)==0)
             EOL=4;
         }
       }
@@ -2505,7 +2505,7 @@ int FileEditor::EditorControl(int Command, void *Param)
         string strOldFullFileName = strFullFileName;
 
         if(SetFileName(strName))
-          return SaveFile(strName,FALSE,!LocalStricmpW(strName, strOldFullFileName),EOL);
+          return SaveFile(strName,FALSE,!StrCmpI(strName, strOldFullFileName),EOL);
       }
       return FALSE;
     }

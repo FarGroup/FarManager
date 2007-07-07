@@ -202,7 +202,7 @@ void FileList::ShowFileList(int Fast)
           else
             GotoXY(NextX1,Y1);
           SetColor(COL_PANELCOLUMNTITLE);
-          OutCharacter[0]=SortOrder==1 ? LocalLowerW(Ch[1]):LocalUpperW(Ch[1]);
+          OutCharacter[0]=SortOrder==1 ? Lower(Ch[1]):Upper(Ch[1]);
           Text(OutCharacter);
           NextX1++;
           if (Filter!=NULL && Filter->IsEnabledOnPanel())
@@ -472,7 +472,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 
   wmemset(lpwszDest,L' ',MaxLength);
 
-  int SrcLength=(int)wcslen(SrcName);
+  int SrcLength=StrLength(SrcName);
   if (RightAlign && SrcLength>MaxLength)
   {
     wmemcpy(lpwszDest,SrcName+SrcLength-MaxLength,MaxLength);
@@ -488,7 +488,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
       (DotPtr=wcsrchr(SrcName,L'.'))!=NULL && DotPtr!=SrcName &&
       (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
   {
-    int DotLength=(int)wcslen(DotPtr+1);
+    int DotLength=StrLength(DotPtr+1);
     int NameLength=(int)(DotPtr-SrcName);
     int DotPos=MaxLength-Max(DotLength,3);
     if (DotPos<=NameLength)
@@ -781,7 +781,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           int CurLeftPos=0;
           if (!ShowStatus && LeftPos>0)
           {
-            int Length=(int)wcslen(ColumnData);
+            int Length=StrLength(ColumnData);
             if (Length>ColumnWidth)
             {
               CurLeftPos=LeftPos;
@@ -879,7 +879,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   if (RightAlign)
                     LeftBracket=TRUE;
-                  if (!RightAlign && wcslen(NamePtr)>static_cast<size_t>(Width))
+                  if (!RightAlign && StrLength(NamePtr)>Width)
                     RightBracket=TRUE;
                 }
 
@@ -946,7 +946,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   else
                     PtrName=UMSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
 
-                  if (wcslen(PtrName) <= static_cast<size_t>(Width-2))
+                  if (StrLength(PtrName) <= Width-2 )
                     strStr.Format (L"<%s>", PtrName);
                   else
                     strStr = PtrName;
@@ -1034,7 +1034,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=CurPtr->DizText ? (int)wcslen(CurPtr->DizText):0;
+                  int Length=CurPtr->DizText ? StrLength(CurPtr->DizText):0;
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;

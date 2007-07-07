@@ -12,41 +12,41 @@ constitle.cpp
 #include "global.hpp"
 #include "fn.hpp"
 
-ConsoleTitle::ConsoleTitle(const wchar_t *title)
+ConsoleTitle::ConsoleTitle (const wchar_t *title)
 {
-  apiGetConsoleTitle (strOldTitle);
+	apiGetConsoleTitle (strOldTitle);
 
-  if( title )
-    SetFarTitle(title);
-
+	if( title )
+		SetFarTitle (title);
 }
 
 ConsoleTitle::~ConsoleTitle()
 {
-    wchar_t *lpwszTitle = strOldTitle.GetBuffer ();
+	wchar_t *lpwszTitle = strOldTitle.GetBuffer ();
 
-    if ( *lpwszTitle )
-    {
-        lpwszTitle += wcslen (lpwszTitle);
-        lpwszTitle -= wcslen (FarTitleAddons);
+	if ( *lpwszTitle )
+	{
+		lpwszTitle += StrLength (lpwszTitle);
+		lpwszTitle -= StrLength (FarTitleAddons);
 
-        if ( !LocalStricmpW (lpwszTitle, FarTitleAddons) )
-            *lpwszTitle = 0;
+		if ( !StrCmpI (lpwszTitle, FarTitleAddons) )
+			*lpwszTitle = 0;
     }
 
-    strOldTitle.ReleaseBuffer ();
+	strOldTitle.ReleaseBuffer ();
 
-    SetFarTitle(strOldTitle);
+	SetFarTitle (strOldTitle);
 }
 
-void ConsoleTitle::Set(const wchar_t *fmt,...)
+void ConsoleTitle::Set (const wchar_t *fmt,...)
 {
-  wchar_t msg[2048];
+	wchar_t msg[2048];
 
-  va_list argptr;
-  va_start( argptr, fmt );
+	va_list argptr;
+	va_start(argptr, fmt);
 
-  vsnwprintf( msg, countof(msg)-1, fmt, argptr );
-  va_end(argptr);
-  SetFarTitle(msg);
+	vsnwprintf(msg, countof(msg)-1, fmt, argptr);
+
+	va_end(argptr);
+	SetFarTitle(msg);
 }

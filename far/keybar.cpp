@@ -121,7 +121,7 @@ void KeyBar::DisplayObject()
 void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
 {
 #if 1
-  if(!RegReaded || LocalStricmpW(strLanguage,strLanguage) || LocalStricmpW(strRegGroupName,RegGroup))
+  if(!RegReaded || StrCmpI(strLanguage,strLanguage) || StrCmpI(strRegGroupName,RegGroup))
   {
     DWORD I;
 

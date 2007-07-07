@@ -372,7 +372,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
   string strOutFileName;
 
   if(Name && *Name)
-    WidthTemp=Max((int)wcslen(Name),(int)54);
+    WidthTemp=Max(StrLength(Name),(int)54);
   else
     Width=WidthTemp=54;
 
@@ -506,7 +506,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
-      if(!LocalStricmpW(strFSysName,L"NTFS"))
+      if(!StrCmpI(strFSysName,L"NTFS"))
         AttrDlg[SETATTR_INDEXED].Flags&=~DIF_DISABLE;
     }
     DlgParam.strFSysName=strFSysName;
@@ -1090,7 +1090,7 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
      TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
   {
     // получаем инфу про оригинальную дату и время файла.
-    HANDLE hFile=FAR_CreateFileW(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hFile= apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     if (hFile==INVALID_HANDLE_VALUE)
@@ -1178,7 +1178,7 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
     if (FileAttr & FA_RDONLY)
       SetFileAttributesW(Name,FileAttr & ~FA_RDONLY);
 
-    HANDLE hFile=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     BOOL Writable=TRUE;
     if(hFile == INVALID_HANDLE_VALUE)
       Writable=FALSE;

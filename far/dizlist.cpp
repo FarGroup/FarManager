@@ -131,7 +131,7 @@ void DizList::AddRecord(const wchar_t *DizText)
   if (NewDizData!=NULL)
   {
     DizData=NewDizData;
-    DizData[DizCount].DizText=new wchar_t[wcslen(DizText)+1];
+    DizData[DizCount].DizText=new wchar_t[StrLength(DizText)+1];
     wcscpy(DizData[DizCount].DizText,DizText);
     DizData[DizCount].Deleted=0;
     DizCount++;
@@ -217,7 +217,7 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
       if (TextPos!=NULL)
       {
         *TextPos=(int)strQuotedName.GetLength()+1;
-        int DizLength=(int)wcslen(DizRecordAddr->DizText);
+        int DizLength=StrLength(DizRecordAddr->DizText);
         if (*TextPos>DizLength)
           *TextPos=DizLength;
       }
@@ -235,8 +235,8 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
       {
         if (TextPos!=NULL)
         {
-          *TextPos=(int)wcslen(ShortName)+1;
-          int DizLength=(int)wcslen(DizRecordAddr->DizText);
+          *TextPos=StrLength(ShortName)+1;
+          int DizLength=StrLength(DizRecordAddr->DizText);
           if (*TextPos>DizLength)
             *TextPos=DizLength;
         }
@@ -274,7 +274,7 @@ int _cdecl SortDizIndex(const void *el1,const void *el2)
 {
   const wchar_t *Diz1=SearchDizData[*(int *)el1].DizText;
   const wchar_t *Diz2=SearchDizData[*(int *)el2].DizText;
-  return(LocalStricmpW(Diz1,Diz2));
+  return(StrCmpI(Diz1,Diz2));
 }
 
 
@@ -282,8 +282,8 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 {
   const wchar_t *SearchName=(const wchar_t *)key;
   const wchar_t *TableName=SearchDizData[*(int *)elem].DizText;
-  int NameLength=(int)wcslen(SearchName);
-  int CmpCode=LocalStrnicmpW(SearchName,TableName,NameLength);
+  int NameLength=StrLength(SearchName);
+  int CmpCode=StrCmpNI(SearchName,TableName,NameLength);
 
   if (CmpCode==0)
   {

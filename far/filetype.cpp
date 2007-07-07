@@ -74,9 +74,9 @@ BOOL ExtractIfExistCommand (string &strCommandText)
       return FALSE;
     // прокинем "if exist"
     if ( *CommandText == L'@')
-      wmemmove(CommandText+1,PtrCmd,wcslen(PtrCmd)+1);
+      wmemmove(CommandText+1,PtrCmd,StrLength(PtrCmd)+1);
     else
-      wmemmove(CommandText,PtrCmd,wcslen(PtrCmd)+1);
+      wmemmove(CommandText,PtrCmd,StrLength(PtrCmd)+1);
   }
 
   strCommandText.ReleaseBuffer ();
@@ -349,7 +349,7 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
     strExpAssocStr.ReleaseBuffer ();
 
 
-    ChPtr = strExpAssocStr.GetBuffer ((int)(strExpAssocStr.GetLength()+wcslen(Name)+1));
+    ChPtr = strExpAssocStr.GetBuffer ((int)(strExpAssocStr.GetLength()+StrLength(Name)+1));
 
     if ((ChPtr=wcsstr(ChPtr,L"%1"))!=NULL)
     {
@@ -383,7 +383,7 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
     {
       for (int I=0;strExpAssocStr.At(I)!=0;I++)
       {
-        if (LocalStrnicmpW((const wchar_t*)strExpAssocStr+I,L".exe",4)==0 &&
+        if (StrCmpNI((const wchar_t*)strExpAssocStr+I,L".exe",4)==0 &&
             (strExpAssocStr.At(I+4)==L' ' || strExpAssocStr.At(I+4)==L'/'))
         {
           int SpacePresent=0;

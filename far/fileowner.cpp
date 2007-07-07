@@ -53,7 +53,7 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
       {
         if((new_rec->username=(wchar_t *)malloc(AccountLength+DomainLength+16)) != NULL)
         {
-          size_t Len=wcslen(wcscpy(new_rec->username,DomainName));
+          size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
           new_rec->username[Len+1]=0;
           new_rec->username[Len]=L'\\';
           wcscat(new_rec->username,AccountName);

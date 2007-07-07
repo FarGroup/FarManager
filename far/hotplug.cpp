@@ -190,7 +190,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
       if ( !strDescription.IsEmpty() )
         ListItem.strName = strDescription;
 
-      if ( !strFriendlyName.IsEmpty() && LocalStricmpW(strDescription, strFriendlyName) )
+      if ( !strFriendlyName.IsEmpty() && StrCmpI(strDescription, strFriendlyName) )
       {
         if ( !strDescription.IsEmpty() )
           ListItem.strName += L" \"";
@@ -201,7 +201,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
           ListItem.strName += L"\"";
       }
 
-      if(LocalStricmpW(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
+      if(StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
       {
         //TruncStr(szDescription,sizeof(ListItem.Name)-1);
         ListItem.strName = strDescription + L" \"" + strFriendlyName + L"\"";
@@ -308,7 +308,7 @@ int ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags)
 {
   int bResult = -1;
   DeviceInfo *pInfo;
-  DWORD dwDriveMask = (1 << (LocalUpperW(Drive)-L'A'));
+  DWORD dwDriveMask = (1 << (Upper(Drive)-L'A'));
 
   DWORD SavedLastError=ERROR_SUCCESS;
 
@@ -515,7 +515,7 @@ DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
 
     pfnGetVolumeNameForVolumeMountPoint (wszMountPoint, wszCurrentVolumeName, MAX_PATH);
 
-    if ( !LocalStricmpW (wszCurrentVolumeName, lpwszVolumeName) )
+    if ( !StrCmpI (wszCurrentVolumeName, lpwszVolumeName) )
       return (1 << (Letter-L'A'));
   }
 
@@ -871,7 +871,7 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
     if(*Disks)
       strDiskMsg.Format(UMSG(MHotPlugDisks),Disks);
 
-    if(LocalStricmpW(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
+    if(StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
     {
       if(!strDiskMsg.IsEmpty ())
         DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));

@@ -171,7 +171,7 @@ void PrintFiles(Panel *SrcPanel)
             if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
               SrcFile=_wfopen(strTempName,L"rb");
             else
-              FAR_RemoveDirectoryW(strTempDir);
+              apiRemoveDirectory(strTempDir);
           }
         }
       }

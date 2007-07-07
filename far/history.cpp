@@ -162,7 +162,7 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
   HistoryRecord AddRecord;
 
   if(TypeHistory == HISTORYTYPE_FOLDER)
-    AddRecord.Name=(wchar_t *)xf_malloc((wcslen(Str)+wcslen(NullToEmpty(Title))+2)*sizeof (wchar_t));
+    AddRecord.Name=(wchar_t *)xf_malloc((StrLength(Str)+StrLength(NullToEmpty(Title))+2)*sizeof (wchar_t));
   else
     AddRecord.Name=wcsdup(Str);
 
@@ -205,17 +205,17 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
         int Equal;
         if(TypeHistory == HISTORYTYPE_VIEW) // только по файлу и типу
         {
-           Equal=RemoveDups==1 && wcscmp(AddRecord.Name,PtrLastStr->Name)==0 ||
-                 RemoveDups==2 && LocalStricmpW(AddRecord.Name,PtrLastStr->Name)==0;
+           Equal=RemoveDups==1 && StrCmp(AddRecord.Name,PtrLastStr->Name)==0 ||
+                 RemoveDups==2 && StrCmpI(AddRecord.Name,PtrLastStr->Name)==0;
         }
         else
         {
            Equal=RemoveDups==1 &&
-                   wcscmp(AddRecord.Name,PtrLastStr->Name)==0 &&
-                   wcscmp(AddRecord.Title,PtrLastStr->Title)==0 ||
+                   StrCmp(AddRecord.Name,PtrLastStr->Name)==0 &&
+                   StrCmp(AddRecord.Title,PtrLastStr->Title)==0 ||
                  RemoveDups==2 &&
-                   LocalStricmpW(AddRecord.Name,PtrLastStr->Name)==0 &&
-                   LocalStricmpW(AddRecord.Title,PtrLastStr->Title)==0;
+                   StrCmpI(AddRecord.Name,PtrLastStr->Name)==0 &&
+                   StrCmpI(AddRecord.Title,PtrLastStr->Title)==0;
         }
 
         if (Equal)
@@ -251,8 +251,8 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
   int Pos=(LastPtr-1) % HistoryCount;
 
   if(LastStr[Pos].Name && LastStr[LastPtr].Name &&
-      (wcscmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
-        wcscmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
+      (StrCmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
+        StrCmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
         !EqualType(AddRecord.Type,LastStr[Pos].Type)))
     xf_free(LastStr[LastPtr].Name);
 
@@ -288,7 +288,7 @@ BOOL History::SaveHistory()
   {
     if(LastStr[I].Name)
     {
-      Len=(int)wcslen(LastStr[I].Name);
+      Len=StrLength(LastStr[I].Name);
       if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
         Len=511;
 
@@ -317,7 +317,7 @@ BOOL History::SaveHistory()
           if(LastStr[I].Name)
           {
             wcscpy(BufferTitles+SizeTitles,LastStr[I].Title);
-            SizeTitles+=(DWORD)wcslen(LastStr[I].Title)+1;
+            SizeTitles+=(DWORD)StrLength(LastStr[I].Title)+1;
           }
         }
         BufferTitles[SizeTitles++]=0;
@@ -412,7 +412,7 @@ BOOL History::ReadHistory()
     Buf=Buffer;
     while ((int)Size > 1 && StrPos < HistoryCount)
     {
-      Length=(int)wcslen(Buf)+1;
+      Length=StrLength(Buf)+1;
       if((LastStr[StrPos].Name=(wchar_t*)xf_malloc(Length*sizeof (wchar_t))) == NULL)
       {
         xf_free(Buffer);
@@ -451,7 +451,7 @@ BOOL History::ReadHistory()
       {
         xwcsncpy(LastStr[StrPos].Title,Buf,(sizeof(LastStr[StrPos].Title)-1)*sizeof (wchar_t));
         ++StrPos;
-        Length=(int)wcslen(Buf)+1;
+        Length=StrLength(Buf)+1;
         Buf+=Length;
         Size-=Length*sizeof (wchar_t);
       }
@@ -822,7 +822,7 @@ void History::GetSimilar(string &strStr,int LastCmdPartLength)
   {
     int Pos=(LastPtr-LastSimilar-I)%HistoryCount;
     wchar_t *Name=LastStr[Pos].Name;
-    if (Name && *Name && LocalStrnicmpW(strStr,Name,Length)==0 && wcscmp(strStr,Name)!=0)
+    if (Name && *Name && StrCmpNI(strStr,Name,Length)==0 && StrCmp(strStr,Name)!=0)
     {
       int NewSimilar=(LastPtr-Pos)%HistoryCount;
       if (NewSimilar<=LastSimilar && ReturnSimilarTemplate)

@@ -53,7 +53,7 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   int nCodePage = CP_OEMCP;
   string strLangName=Opt.strLanguage;
   FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
-  if(this == &Lang && LocalStricmpW(Opt.strLanguage,strLangName))
+  if(this == &Lang && StrCmpI(Opt.strLanguage,strLangName))
     Opt.strLanguage=strLangName;
 
   if (LangFile==NULL)
@@ -131,7 +131,7 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   for (int I=0;I<MsgCount;I++)
   {
     MsgAddr[I]=CurAddr;
-    CurAddr+=pack(wcslen(CurAddr)+1);
+    CurAddr+=pack(StrLength(CurAddr)+1);
   }
 
   for (int I=0;I<MsgCount;I++)
@@ -328,7 +328,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
 
       string strNULL;
 
-      if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nCodePage) && LocalStricmpW(strLangName,Language)==0)
+      if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nCodePage) && StrCmpI(strLangName,Language)==0)
         break;
       fclose(LangFile);
       LangFile=NULL;
@@ -337,7 +337,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
         strFileName=strEngFileName=L"";
         break;
       }
-      if (LocalStricmpW(strLangName,L"English")==0)
+      if (StrCmpI(strLangName,L"English")==0)
         strEngFileName = strFileName;
     }
   }
@@ -348,7 +348,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       strFileName = strEngFileName;
     if ( !strFileName.IsEmpty() )
     {
-      if(!strLangName.IsEmpty() && LocalStricmpW(strLangName,Language))
+      if(!strLangName.IsEmpty() && StrCmpI(strLangName,Language))
         Opt.strLanguage=strLangName;
       LangFile=_wfopen(strFileName,L"rb");
       if(pstrLangName)
@@ -377,7 +377,7 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
 
   while ( ReadString (SrcFile, ReadStr, 1024, nCodePage)!=NULL)
   {
-    if (LocalStrnicmpW(ReadStr,strFullParamName,Length)==0)
+    if (StrCmpNI(ReadStr,strFullParamName,Length)==0)
     {
       wchar_t *Ptr=wcschr(ReadStr,L'=');
       if(Ptr)
@@ -405,7 +405,7 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
         break;
       }
     }
-    else if (!LocalStrnicmpW (ReadStr, L"@Contents", 9))
+    else if (!StrCmpNI (ReadStr, L"@Contents", 9))
       break;
   }
   fseek (SrcFile,OldPos,SEEK_SET);
@@ -467,7 +467,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
          */
          if(LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
          {
-           LangMenuItem.SetSelect(LocalStricmpW(*strDest,strLangName)==0);
+           LangMenuItem.SetSelect(StrCmpI(*strDest,strLangName)==0);
            LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItem(&LangMenuItem));
          }
          /* SVS $ */
@@ -501,13 +501,13 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
 
   wchar_t *Ptr;
 
-  int Length=(int)wcslen(L".Options");
+  int Length=StrLength(L".Options");
 
   long CurFilePos=ftell(SrcFile);
 
   while ( ReadString (SrcFile, ReadStr, 1024, nCodePage) !=NULL)
   {
-    if (!LocalStrnicmpW(ReadStr,L".Options",Length))
+    if (!StrCmpNI(ReadStr,L".Options",Length))
     {
       strFullParamName = RemoveExternalSpaces(ReadStr+Length);
 
@@ -528,7 +528,7 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
 
       RemoveExternalSpaces (strFullParamName);
 
-      if (!LocalStricmpW(strFullParamName,KeyName))
+      if (!StrCmpI(strFullParamName,KeyName))
         return(TRUE);
     }
   }

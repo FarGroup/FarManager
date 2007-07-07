@@ -9,6 +9,7 @@ delete.cpp
 #pragma hdrstop
 
 #include "global.hpp"
+#include "fn.hpp"
 #include "lang.hpp"
 #include "flink.hpp"
 #include "panel.hpp"
@@ -21,7 +22,6 @@ delete.cpp
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
-#include "fn.hpp"
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
@@ -103,7 +103,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     const wchar_t *Ends;
     wchar_t StrItems[16];
     _itow(SelCount,StrItems,10);
-    int LenItems=(int)wcslen(StrItems);
+    int LenItems=StrLength(StrItems);
     if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
            StrItems[LenItems-1] >= L'5' ||
            StrItems[LenItems-1] == L'0')
@@ -519,7 +519,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe)
     if(Name && *Name)
     {
       DeleteStartTime = clock();     // Первый файл рисуется всегда
-      WidthTemp=Max((int)wcslen(Name),(int)30);
+      WidthTemp=Max(StrLength(Name),(int)30);
     }
     else
       Width=WidthTemp=30;
@@ -697,7 +697,7 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         break;
     }
     else
-      if (FAR_RemoveDirectoryW(Name) || (_localLastError != ERROR_ACCESS_DENIED && FAR_RemoveDirectoryW(ShortName)))
+      if (apiRemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && apiRemoveDirectory(ShortName)))
         break;
     /* $ 19.01.2003 KM
        Добавлен Skip и Skip all
@@ -777,7 +777,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 
   wchar_t *lpwszName = strFullName.GetBuffer ((int)strFullName.GetLength()+1);
 
-  lpwszName[wcslen(lpwszName)+1] = 0; //dirty trick to make strFullName ends with DOUBLE zero!!!
+  lpwszName[StrLength(lpwszName)+1] = 0; //dirty trick to make strFullName ends with DOUBLE zero!!!
 
   fop.wFunc=FO_DELETE;
   fop.pFrom=lpwszName;
@@ -833,7 +833,7 @@ int WipeFile(const wchar_t *Name)
   unsigned __int64 FileSize;
   HANDLE WipeHandle;
   SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
-  WipeHandle=FAR_CreateFileW(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+  WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
 
@@ -883,7 +883,7 @@ int WipeDirectory(const wchar_t *Name)
     SetLastError((_localLastError = GetLastError()));
     return FALSE;
   }
-  return(FAR_RemoveDirectoryW(strTempName));
+  return apiRemoveDirectory(strTempName);
 }
 
 int DeleteFileWithFolder(const wchar_t *FileName)
@@ -907,7 +907,7 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 
       strFileOrFolderName.ReleaseBuffer();
 
-      return(FAR_RemoveDirectoryW(strFileOrFolderName));
+      return apiRemoveDirectory(strFileOrFolderName);
     }
   }
   SetLastError((_localLastError = GetLastError()));
@@ -931,11 +931,11 @@ void DeleteDirTree(const wchar_t *Dir)
     if (FindData.dwFileAttributes & FA_DIREC)
     {
       if (ScTree.IsDirSearchDone())
-        FAR_RemoveDirectoryW(strFullName);
+        apiRemoveDirectory(strFullName);
     }
     else
-      FAR_DeleteFileW(strFullName);
+      apiDeleteFile(strFullName);
   }
   SetFileAttributesW(Dir,FILE_ATTRIBUTE_NORMAL);
-  FAR_RemoveDirectoryW(Dir);
+  apiRemoveDirectory(Dir);
 }

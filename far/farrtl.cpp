@@ -23,7 +23,7 @@ int _cdecl getdisk(void)
    * parse the drive name.
    */
   GetCurrentDirectoryW(sizeof(buf)/sizeof(wchar_t), buf);    /* ignore errors */
-  drive = LocalUpperW(buf[0]) - L'A';
+  drive = Upper(buf[0]) - L'A';
   return (int)drive;
 }
 /* SVS $*/

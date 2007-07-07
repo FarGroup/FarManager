@@ -60,7 +60,7 @@ static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
   else
     apiExpandEnvironmentStrings(strSrc, strSrc);
 
-  if(!wcscmp(strSrc,L"/"))
+  if(!StrCmp(strSrc,L"/"))
   {
     strSrc = g_strFarPath;
 
@@ -1059,8 +1059,8 @@ void FilePanels::GoToFile(const wchar_t *FileName)
          панелях, тем самым добиваемся того, что выделение с элементов
          панелей не сбрасывается.
     */
-    BOOL AExist=(ActiveMode==NORMAL_PANEL) && (LocalStricmpW(ADir,strNameDir)==0);
-    BOOL PExist=(PassiveMode==NORMAL_PANEL) && (LocalStricmpW(PDir,strNameDir)==0);
+    BOOL AExist=(ActiveMode==NORMAL_PANEL) && (StrCmpI(ADir,strNameDir)==0);
+    BOOL PExist=(PassiveMode==NORMAL_PANEL) && (StrCmpI(PDir,strNameDir)==0);
     // если нужный путь есть на пассивной панели
     if (!AExist && PExist)
       ProcessKey(KEY_TAB);

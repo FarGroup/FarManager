@@ -401,7 +401,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
     /* $ 14.10.2000 VVM
        + Разделитель меню, если Метка пуста, а ХотКей="-"
     */
-    if ( (wcslen(strLabel)==0) && (wcscmp(strHotKey, L"-")==0))
+    if ( (StrLength(strLabel)==0) && (StrCmp(strHotKey, L"-")==0))
     {
      // Nothing to do
     }
@@ -460,7 +460,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
     GetRegKey(strItemKey,L"Submenu",SubMenu,0);
 
     int FuncNum=0;
-    if ( wcslen(strHotKey)>1)
+    if ( StrLength(strHotKey)>1)
     {
       FuncNum=_wtoi((const wchar_t*)strHotKey+1);
       if (FuncNum<1 || FuncNum>12)
@@ -474,7 +474,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
     /* $ 14.10.2000 VVM
        + Разделитель меню, если Метка пуста, а ХотКей="-"
     */
-    if ((wcslen(strLabel)==0) && (wcscmp(strHotKey,L"-")==0))
+    if ((StrLength(strLabel)==0) && (StrCmp(strHotKey,L"-")==0))
     {
       UserMenuItem.Flags|=LIF_SEPARATOR;
       UserMenuItem.Flags&=~LIF_SELECTED;
@@ -801,7 +801,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 
       string strListName, strAnotherListName;
       string strShortListName, strAnotherShortListName;
-      if (LocalStrnicmpW (strCommand,L"REM ",4) && LocalStrnicmpW(strCommand,L"::",2))
+      if (StrCmpNI (strCommand,L"REM ",4) && StrCmpNI(strCommand,L"::",2))
       {
         /*
           Осталось корректно обработать ситуацию, например:
@@ -912,11 +912,11 @@ int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
 // возвращает: 0 -все ОБИ, 1 или 2 - ошибка и, соответственно, на какой контрол поставить фокус
 int CanCloseDialog(const wchar_t *Hotkey, const wchar_t *Label)
 {
-  if (wcscmp(Hotkey,L"-") == 0)
+  if (StrCmp(Hotkey,L"-") == 0)
     return 0;
-  if (wcslen(Label) == 0)
+  if (StrLength(Label) == 0)
     return 2;
-  if (wcslen(Hotkey) < 2)
+  if (StrLength(Hotkey) < 2)
     return 0;
   /* Проверить на правильность задания функциональной клавиши */
   int FuncNum=_wtoi(Hotkey+1);

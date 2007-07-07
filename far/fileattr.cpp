@@ -65,7 +65,7 @@ int ESetFileAttributes(const wchar_t *Name,int Attr)
 
 static int SetFileCompression(const wchar_t *Name,int State)
 {
-  HANDLE hFile=FAR_CreateFileW(Name,FILE_READ_DATA|FILE_WRITE_DATA,
+  HANDLE hFile=apiCreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
                  FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                  FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
@@ -190,7 +190,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
     if (FileAttr & FA_RDONLY)
       SetFileAttributesW(Name,FileAttr & ~FA_RDONLY);
 
-    HANDLE hFile=FAR_CreateFileW(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hFile=apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     int SetTime;

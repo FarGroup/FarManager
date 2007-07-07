@@ -141,9 +141,9 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       *PtrCopyBuf++=Chr;
       *PtrCopyBuf=0;
     }
-    for (int K=(int)wcslen(CopyBuf)-1;K>=0 && CopyBuf[K]==L' ';K--)
+    for (int K=StrLength(CopyBuf)-1;K>=0 && CopyBuf[K]==L' ';K--)
       CopyBuf[K]=0;
-    PtrCopyBuf=CopyBuf+wcslen(CopyBuf);
+    PtrCopyBuf=CopyBuf+StrLength(CopyBuf);
   }
   if (Append)
   {
@@ -151,7 +151,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     int add=0;
     if (AppendBuf!=NULL)
     {
-      size_t DataSize=wcslen(AppendBuf);
+      size_t DataSize=StrLength(AppendBuf);
       if ( AppendBuf[DataSize-1]!=L'\n' )
       {
         add=2;

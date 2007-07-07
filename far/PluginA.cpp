@@ -206,7 +206,7 @@ int PluginA::SaveToCache()
 
 			GetRegKey(strRegKey, L"Name", strPluginName, L"");
 
-			if ( strPluginName.IsEmpty() || LocalStricmpW(strPluginName, m_strModuleName) == 0)
+			if ( strPluginName.IsEmpty() || StrCmpI(strPluginName, m_strModuleName) == 0)
 			{
 				DeleteKeyTree(strRegKey);
 
@@ -1460,7 +1460,7 @@ int PluginA::GetCacheNumber () //ничего не понимаю....
 		if ( strPluginName.IsEmpty() )
 			break;
 
-		if ( LocalStricmpW(strPluginName, m_strModuleName) != 0 )
+		if ( StrCmpI(strPluginName, m_strModuleName) != 0 )
 			continue;
 
 		GetRegKey(strRegKey, L"ID", strPluginID, L"");
@@ -1474,7 +1474,7 @@ int PluginA::GetCacheNumber () //ничего не понимаю....
 					FindData.ftLastWriteTime.dwLowDateTime
 					);
 
-			if ( wcscmp(strPluginID, strCurPluginID) != 0 )
+			if ( StrCmp(strPluginID, strCurPluginID) != 0 )
 				continue;
 		}
 

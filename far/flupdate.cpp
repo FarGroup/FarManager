@@ -127,7 +127,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     if (!SetCurPath())
     {
       FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
-      if (wcscmp(strCurDir, strOldCurDir) == 0) //?? i??
+      if (StrCmp(strCurDir, strOldCurDir) == 0) //?? i??
       {
         GetPathRootOne(strOldCurDir,strOldCurDir);
         if(!IsDiskInDrive(strOldCurDir))
@@ -153,7 +153,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     ConvertNameToFull(strCurDir,strRootDir);
     GetPathRoot(strRootDir, strRootDir);
     if ( apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
-      Is_FS_NTFS=!LocalStricmpW(strFileSysName,L"NTFS")?TRUE:FALSE;
+      Is_FS_NTFS=!StrCmpI(strFileSysName,L"NTFS")?TRUE:FALSE;
   }
 
   LastCurFile=-1;
@@ -463,7 +463,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   SortFileList(FALSE);
 
-  if (CurFile>=FileCount || LocalStricmpW(ListData[CurFile]->strName,strCurName)!=0)
+  if (CurFile>=FileCount || StrCmpI(ListData[CurFile]->strName,strCurName)!=0)
     if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
       GoToFile(strNextCurName);
 
@@ -796,7 +796,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   SortFileList(FALSE);
 
-  if (CurFile>=FileCount || LocalStricmpW(ListData[CurFile]->strName,strCurName)!=0)
+  if (CurFile>=FileCount || StrCmpI(ListData[CurFile]->strName,strCurName)!=0)
       if (!GoToFile(strCurName) && !strNextCurName.IsEmpty() )
         GoToFile(strNextCurName);
   SetTitle();
@@ -843,7 +843,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
         {
             string strFileName = CurPanelData->FindData.lpwszFileName;
 
-          if (LocalStricmpW(strFileName,Info.DescrFiles[I])==0)
+          if (StrCmpI(strFileName,Info.DescrFiles[I])==0)
           {
             string strTempDir, strDizName;
             if (FarMkTempEx(strTempDir) && CreateDirectoryW(strTempDir,NULL))
@@ -858,7 +858,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
                 I=Info.DescrFilesNumber;
                 break;
               }
-              FAR_RemoveDirectoryW(strTempDir);
+              apiRemoveDirectory(strTempDir);
               //ViewPanel->ShowFile(NULL,FALSE,NULL);
             }
           }

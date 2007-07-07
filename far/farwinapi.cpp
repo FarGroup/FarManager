@@ -11,38 +11,40 @@ farwinapi.cpp
 #include "global.hpp"
 #include "fn.hpp"
 
-BOOL WINAPI FAR_DeleteFileW(const wchar_t *FileName)
+BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {
-  // IS: сначала попробуем удалить стандартной функцией, чтобы
-  // IS: не осуществлять лишние телодвижения
-  BOOL rc=DeleteFileW(FileName);
-  if(!rc) // IS: вот тут лишние телодвижения и начнем...
-  {
-    SetLastError((_localLastError = GetLastError()));
-    if(CheckErrorForProcessed(_localLastError))
-    {
-      string strFullName;
-      //char FullName[NM*2]="\\\\?\\";
+	// IS: сначала попробуем удалить стандартной функцией, чтобы
+	// IS: не осуществлять лишние телодвижения
 
-      ConvertNameToFull (FileName, strFullName);
+	BOOL rc = DeleteFileW (lpwszFileName);
+	
+	if ( !rc ) // IS: вот тут лишние телодвижения и начнем...
+	{
+		SetLastError((_localLastError = GetLastError()));
+		
+		if ( CheckErrorForProcessed(_localLastError) )
+		{
+			string strFullName;
+			
+			ConvertNameToFull (lpwszFileName, strFullName);
 
-      strFullName = L"\\\\?\\"+strFullName;
+			strFullName = L"\\\\?\\"+strFullName;
+			
+			if( (strFullName.At(4)==L'/' && strFullName.At(5)==L'/') ||
+				(strFullName.At(4)==L'\\' && strFullName.At(5)==L'\\') )
+				rc = DeleteFileW((const wchar_t*)strFullName+4);
+			else
+				rc = DeleteFileW(strFullName);
+		}
+	}
 
-      if( (strFullName.At(4)==L'/' && strFullName.At(5)==L'/') ||
-          (strFullName.At(4)==L'\\' && strFullName.At(5)==L'\\') )
-        rc=DeleteFileW((const wchar_t*)strFullName+4);
-      // IS: нужных символов в пути нет, поэтому используем наши
-      else
-        rc=DeleteFileW(strFullName);
-    }
-  }
-  return rc;
+	return rc;
 }
 
 
-BOOL WINAPI FAR_RemoveDirectoryW (const wchar_t *DirName)
+BOOL apiRemoveDirectory (const wchar_t *DirName)
 {
-  BOOL rc = RemoveDirectoryW (DirName);
+	BOOL rc = RemoveDirectoryW (DirName);
 
   //BUGBUG
   /*
@@ -66,42 +68,33 @@ BOOL WINAPI FAR_RemoveDirectoryW (const wchar_t *DirName)
     }
   }
   */
-  return rc;
+	return rc;
 }
 
-/* IS $ */
 
-
-HANDLE WINAPI FAR_CreateFileW(
-    const wchar_t *lpwszFileName,     // pointer to name of the file
-    DWORD dwDesiredAccess,  // access (read-write) mode
-    DWORD dwShareMode,      // share mode
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-    DWORD dwCreationDistribution, // how to create
-    DWORD dwFlagsAndAttributes,   // file attributes
-    HANDLE hTemplateFile          // handle to file with attributes to copy
-   )
+HANDLE apiCreateFile (
+		const wchar_t *lpwszFileName,     // pointer to name of the file
+		DWORD dwDesiredAccess,  // access (read-write) mode
+		DWORD dwShareMode,      // share mode
+		LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
+		DWORD dwCreationDistribution, // how to create
+		DWORD dwFlagsAndAttributes,   // file attributes
+		HANDLE hTemplateFile          // handle to file with attributes to copy
+		)
 {
-  HANDLE hFile=CreateFileW(lpwszFileName,dwDesiredAccess,dwShareMode,
-    lpSecurityAttributes, dwCreationDistribution,dwFlagsAndAttributes,
-    hTemplateFile);
-  return hFile;
+	HANDLE hFile = CreateFileW (
+			lpwszFileName,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDistribution,
+			dwFlagsAndAttributes,
+			hTemplateFile
+			);
+
+	return hFile;
 }
 
-/* IS $ */
-
-void WINAPI SetFileApisTo(int Type)
-{
-  switch(Type)
-  {
-    case APIS2OEM:
-      SetFileApisToOEM();
-      break;
-    case APIS2ANSI:
-      SetFileApisToANSI();
-      break;
-  }
-}
 
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
 {
@@ -157,25 +150,35 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
 }
 
 
-
-
-
-BOOL FAR_CopyFileW(
-    const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
-    const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
-    BOOL bFailIfExists  // flag for operation if file exists
-   )
+BOOL apiCopyFile (
+		const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
+		const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
+		BOOL bFailIfExists  // flag for operation if file exists
+		)
 {
-  return CopyFileW(lpwszExistingFileName,lpwszNewFileName,bFailIfExists);
+	return CopyFileW (
+			lpwszExistingFileName,
+			lpwszNewFileName,
+			bFailIfExists
+			);
 }
 
-typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
-            LPCTSTR lpNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+typedef BOOL (__stdcall *COPYFILEEX) (
+		LPCTSTR lpExistingFileName, 
+		LPCTSTR lpNewFileName, 
+		void *lpProgressRoutine, 
+		LPVOID lpData,LPBOOL pbCancel,
+		DWORD dwCopyFlags
+		);
 
-typedef BOOL (WINAPI *COPYFILEEXW)(const wchar_t *lpwszExistingFileName,
-            const wchar_t *lpwszNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+typedef BOOL (__stdcall *COPYFILEEXW) (
+		const wchar_t *lpwszExistingFileName,
+		const wchar_t *lpwszNewFileName,
+		void *lpProgressRoutine,
+		LPVOID lpData,
+		LPBOOL pbCancel,
+		DWORD dwCopyFlags
+		);
 
 static COPYFILEEX pCopyFileEx=NULL;
 static COPYFILEEXW pCopyFileExW=NULL;
@@ -198,31 +201,44 @@ BOOL Init_CopyFileEx(void)
   return IsFn_FAR_CopyFileEx;
 }
 
-BOOL FAR_CopyFileExW(const wchar_t *lpwszExistingFileName,
-            const wchar_t *lpwszNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags)
+BOOL apiCopyFileEx (
+		const wchar_t *lpwszExistingFileName,
+		const wchar_t *lpwszNewFileName,
+		void *lpProgressRoutine,
+		LPVOID lpData,
+		LPBOOL pbCancel,
+		DWORD dwCopyFlags
+		)
 {
-  if(pCopyFileExW)
-    return pCopyFileExW(lpwszExistingFileName,lpwszNewFileName,lpProgressRoutine,lpData,pbCancel,dwCopyFlags);
-  return FALSE;
+	if ( pCopyFileExW )
+		return pCopyFileExW (
+				lpwszExistingFileName,
+				lpwszNewFileName,
+				lpProgressRoutine,
+				lpData,
+				pbCancel,
+				dwCopyFlags
+				);
+
+	return FALSE;
 }
 
 
-BOOL FAR_MoveFileW(
-    const wchar_t *lpwszExistingFileName, // address of name of the existing file
-    const wchar_t *lpwszNewFileName   // address of new name for the file
-   )
+BOOL apiMoveFile (
+		const wchar_t *lpwszExistingFileName, // address of name of the existing file
+		const wchar_t *lpwszNewFileName   // address of new name for the file
+		)
 {
-  return MoveFileW(lpwszExistingFileName,lpwszNewFileName);
+	return MoveFileW (lpwszExistingFileName,lpwszNewFileName);
 }
 
-BOOL FAR_MoveFileExW(
-    const wchar_t *lpwszExistingFileName, // address of name of the existing file
-    const wchar_t *lpwszNewFileName,   // address of new name for the file
-    DWORD dwFlags   // flag to determine how to move file
-   )
+BOOL apiMoveFileEx (
+		const wchar_t *lpwszExistingFileName, // address of name of the existing file
+		const wchar_t *lpwszNewFileName,   // address of new name for the file
+		DWORD dwFlags   // flag to determine how to move file
+		)
 {
-  return MoveFileExW(lpwszExistingFileName,lpwszNewFileName,dwFlags);
+	return MoveFileExW (lpwszExistingFileName,lpwszNewFileName,dwFlags);
 }
 
 

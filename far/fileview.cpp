@@ -281,11 +281,11 @@ int FileViewer::ProcessKey(int Key)
 
         HANDLE hEdit=INVALID_HANDLE_VALUE;
         if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-          hEdit=FAR_CreateFileW(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+          hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
             OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
             NULL);
         if(hEdit==INVALID_HANDLE_VALUE)
-          hEdit=FAR_CreateFileW(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+          hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
             OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
         if (hEdit==INVALID_HANDLE_VALUE)

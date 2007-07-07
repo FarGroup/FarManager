@@ -1421,7 +1421,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 
-   int I, Pos, Len=(int)wcslen(Name);
+   int I, Pos, Len=StrLength(Name);
 
    string strTmpName;
    strTmpName = Name;
@@ -1429,7 +1429,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    // пройдемся по всем модификаторам
    for(Pos=I=0; I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
    {
-     if(StrstriW(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
+     if(StrStrI(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
        ReplaceStrings(strTmpName,ModifKeyName[I].Name,L"",-1,TRUE);
        Key|=ModifKeyName[I].Key;
@@ -1444,7 +1444,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
      // сначала - FKeys1
      const wchar_t* Ptr=Name+Pos;
      for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
-       if (!LocalStrnicmpW (Ptr,FKeys1[I].Name,FKeys1[I].Len))
+       if (!StrCmpNI (Ptr,FKeys1[I].Name,FKeys1[I].Len))
        {
          Key|=FKeys1[I].Key;
          Pos+=FKeys1[I].Len;
@@ -1461,7 +1461,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
            {
              if(Chr > 0x7F)
                 Chr=LocalKeyToKey(Chr);
-             Chr=LocalUpperW(Chr);
+             Chr=Upper(Chr);
            }
            Key|=Chr;
            if(Chr)
@@ -2587,7 +2587,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
         }
       }
       if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
-        return(LocalUpperW(Char.UnicodeChar)+KEY_ALT);
+        return(Upper(Char.UnicodeChar)+KEY_ALT);
       else if(WaitInMainLoop ||
               !Opt.HotkeyRules //????
            )

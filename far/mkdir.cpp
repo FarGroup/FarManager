@@ -155,9 +155,9 @@ void ShellMakeDir(Panel *SrcPanel)
     wchar_t *Slash=wcschr(lpwszDirName,L'\\');
     if (Slash!=NULL)
       *Slash=0;
-    if(!SrcPanel->GoToFile(lpwszDirName) && lpwszDirName[wcslen(lpwszDirName)-1]==L'.')
+    if(!SrcPanel->GoToFile(lpwszDirName) && lpwszDirName[StrLength(lpwszDirName)-1]==L'.')
     {
-      lpwszDirName[wcslen(lpwszDirName)-1]=0;
+      lpwszDirName[StrLength(lpwszDirName)-1]=0;
       SrcPanel->GoToFile(lpwszDirName);
     }
   }

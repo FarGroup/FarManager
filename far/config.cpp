@@ -233,8 +233,8 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected=Opt.ShowPanelScrollbar;
   CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected=Opt.ShowScreensNumber;
   CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected=Opt.ShowSortMode;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=(int)wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=(int)wcslen(UMSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=StrLength(UMSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=StrLength(UMSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
   CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].strData.Format (L"%u", Opt.AutoUpdateLimit);;
@@ -782,14 +782,14 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   {
     const wchar_t *Str = UMSG(MEditConfigEditorF4);
 
-    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=(int)wcslen(Str)-(wcschr(Str, L'&')?1:0)+5;
+    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5;
 
     Str = UMSG(MEditConfigPersistentBlocks);
-    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=(int)wcslen(Str)-(wcschr(Str, L'&')?1:0)+5+3;
+    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5+3;
 
     Str = UMSG(MEditConfigSavePos);
 
-    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=(int)wcslen(Str)-(wcschr(Str, L'&')?1:0)+5+3;
+    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5+3;
 
     if (CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 > CfgDlg[ID_EC_SAVEBOOKMARKS].X1)
       CfgDlg[ID_EC_SAVEBOOKMARKS].X1 = CfgDlg[ID_EC_DELREMOVESBLOCKS].X1;
@@ -1249,7 +1249,7 @@ void ReadConfig()
   /* VVM $ */
 
   // ОНО ранее может переопределяться
-  if(LocalStricmpW(Opt.strLanguage,InitedLanguage))
+  if(StrCmpI(Opt.strLanguage,InitedLanguage))
     Opt.strLanguage=InitedLanguage;
 
   GetRegKey(NKeyConfirmationsW,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);

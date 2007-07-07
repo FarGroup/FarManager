@@ -53,7 +53,7 @@ TVar::TVar(const wchar_t *v) :
   vType(vtString),
   inum(0)
 {
-  str = new wchar_t[wcslen(v)+1];
+  str = new wchar_t[StrLength(v)+1];
   if ( str )
     wcscpy(str, v);
 };
@@ -65,7 +65,7 @@ TVar::TVar(const TVar& v) :
 {
   if ( v.str )
   {
-    str = new wchar_t[wcslen(v.str)+1];
+    str = new wchar_t[StrLength(v.str)+1];
     if ( str )
       wcscpy(str, v.str);
   }
@@ -82,7 +82,7 @@ TVar& TVar::operator=(const TVar& v)
   str = NULL;
   if ( v.str )
   {
-    str = new wchar_t[wcslen(v.str)+1];
+    str = new wchar_t[StrLength(v.str)+1];
     if ( str )
       wcscpy(str, v.str);
   }
@@ -115,7 +115,7 @@ const wchar_t *TVar::toString()
   }
   if ( str )
     delete [] str;
-  str = new wchar_t[wcslen(s)+1];
+  str = new wchar_t[StrLength(s)+1];
   if ( str )
     wcscpy(str, s);
   vType = vtString;
@@ -140,7 +140,7 @@ int operator==(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum == b.inum;          break;
-    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) == 0; break;
+    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) == 0; break;
   }
   return r;
 };
@@ -151,7 +151,7 @@ int operator!=(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum != b.inum;          break;
-    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) != 0; break;
+    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) != 0; break;
   }
   return r;
 };
@@ -162,7 +162,7 @@ int operator<(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum < b.inum;           break;
-    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) < 0;  break;
+    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) < 0;  break;
   }
   return r;
 };
@@ -173,7 +173,7 @@ int operator<=(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum <= b.inum;          break;
-    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) <= 0; break;
+    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) <= 0; break;
   }
   return r;
 };
@@ -184,7 +184,7 @@ int operator>(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum > b.inum;           break;
-    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) > 0;  break;
+    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) > 0;  break;
   }
   return r;
 };
@@ -195,7 +195,7 @@ int operator>=(const TVar& a, const TVar& b)
   switch ( a.vType )
   {
     case vtInteger: if ( b.isInteger() ) r = a.inum >= b.inum;          break;
-    case vtString:  if ( b.isString() )  r = wcscmp(a.s(), b.s()) >= 0; break;
+    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) >= 0; break;
   }
   return r;
 };
@@ -203,7 +203,7 @@ int operator>=(const TVar& a, const TVar& b)
 static TVar addStr(const wchar_t *a, const wchar_t *b)
 {
   TVar r(L"");
-  wchar_t *c = new wchar_t[wcslen(a ? a : L"")+wcslen(b ? b : L"")+1];
+  wchar_t *c = new wchar_t[StrLength(a ? a : L"")+StrLength(b ? b : L"")+1];
   if ( c )
   {
     r = wcscat(wcscpy(c, a ? a : L""), b ? b : L"");
@@ -477,7 +477,7 @@ int isVar(TVarTable table, const wchar_t *p)
 {
   int i = hash(p);
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-    if ( !LocalStricmpW(n->str, p) )
+    if ( !StrCmpI(n->str, p) )
       return 1;
   return 0;
 }
@@ -487,7 +487,7 @@ TVarSet *varLook(TVarTable table, const wchar_t *p, int& error, int ins)
   int i = hash(p);
   error = 0;
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-    if ( !LocalStricmpW(n->str, p) )
+    if ( !StrCmpI(n->str, p) )
       return n;
   if ( !ins )
     error = 1;
@@ -515,7 +515,7 @@ void varKill(TVarTable table, const wchar_t *p)
   TVarSet *nn = table[i];
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
   {
-    if ( !LocalStricmpW(n->str, p) )
+    if ( !StrCmpI(n->str, p) )
     {
       if(n == table[i])
          table[i]=((TVarSet*)n->next);
@@ -570,7 +570,7 @@ static void putstr(const wchar_t *s)
   _KEYMACRO(CleverSysLog Clev(L"putstr"));
   _KEYMACRO(SysLog(L"s[%p]='%s'", s,s));
 
-  int Length = (int)(wcslen(s)+1)*sizeof(wchar_t);
+  int Length = (int)(StrLength(s)+1)*sizeof(wchar_t);
   // строка должна быть выровнена на 4
   int nSize = Length/sizeof(DWORD);
   memmove(&exprBuff[Size],s,Length);
@@ -724,7 +724,7 @@ DWORD funcLook(const wchar_t *s, int& nParam)
   nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
     //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
-    if(!LocalStrnicmpW(s, macroFunction[I].Name, (int)Max(wcslen(macroFunction[I].Name),wcslen(s))))
+    if(!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
     {
       nParam = macroFunction[I].nParam;
       return (DWORD)macroFunction[I].Code;
@@ -994,7 +994,7 @@ static TToken getToken(void)
       return currTok = tInt;
     case L'%':
       ch = getChar();
-      if ( (LocalIsalphanumW(ch) || ch == L'_') || ( ch == L'%'  && (LocalIsalphanumW(*sSrcString) || *sSrcString == L'_')))
+      if ( (IsAlphaNum(ch) || ch == L'_') || ( ch == L'%'  && (IsAlphaNum(*sSrcString) || *sSrcString == L'_')))
       {
         getVarName(ch);
         putBack(ch);
@@ -1004,7 +1004,7 @@ static TToken getToken(void)
         keyMacroParseError(err_Var_Expected,L""); // BUG nameString
       break;
     default:
-      if ( LocalIsalphaW(ch) ) // || ch == L'_' ????
+      if ( IsAlpha(ch) ) // || ch == L'_' ????
       {
         getFarName(ch);
         if(ch == L' ')
@@ -1018,7 +1018,7 @@ static TToken getToken(void)
         {
           putBack(ch);
           for ( int i = 0 ; i < MKeywordsSize ; i++ )
-            if ( !LocalStricmpW(nameString, MKeywords[i].Name) )
+            if ( !StrCmpI(nameString, MKeywords[i].Name) )
             {
               FARVar = MKeywords[i].Value;
               return currTok = tFARVar;

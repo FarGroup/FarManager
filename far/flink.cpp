@@ -234,7 +234,7 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
   wcscpy (rdb.PathBuffer, strDestDir);
 
 
-  HANDLE hDir=FAR_CreateFileW(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
+  HANDLE hDir=apiCreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
           FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
 
   if (hDir == INVALID_HANDLE_VALUE)
@@ -256,7 +256,7 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
   {
     DWORD LastErr=GetLastError();
     CloseHandle(hDir);
-    FAR_DeleteFileW(LinkFolder); // ј нужно ли убивать, когда создали каталог, но симлинк не удалось ???
+    apiDeleteFile(LinkFolder); // ј нужно ли убивать, когда создали каталог, но симлинк не удалось ???
     SetLastError(LastErr);
     return 0;
   }
@@ -267,7 +267,7 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
 
 BOOL WINAPI DeleteJunctionPoint(const wchar_t *szDir)
 {
-  HANDLE hDir=FAR_CreateFileW(szDir,
+  HANDLE hDir=apiCreateFile(szDir,
           GENERIC_READ | GENERIC_WRITE,
           0,
           0,
@@ -313,7 +313,7 @@ DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff
     return 0;
   }
 
-  HANDLE hDir=FAR_CreateFileW(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
+  HANDLE hDir=apiCreateFile(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
           FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
 
   if (hDir == INVALID_HANDLE_VALUE)
@@ -383,7 +383,7 @@ int IsLocalDrive(const wchar_t *Path)
 
 int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
-  HANDLE hFile=FAR_CreateFileW(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
+  HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
     return(1);
@@ -450,7 +450,7 @@ int WINAPI MkLink(const wchar_t *Src,const wchar_t *Dest)
 
   strFileLink = strFileDest;
 
-  hFileSource = FAR_CreateFileW(strFileSource,FILE_WRITE_ATTRIBUTES,
+  hFileSource = apiCreateFile(strFileSource,FILE_WRITE_ATTRIBUTES,
                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
   if(hFileSource == INVALID_HANDLE_VALUE)
@@ -578,7 +578,7 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
       // plus a $DATA default trailer. If the stream name is
       // VersionInfo it's stored (and retrieved) as:
       // :VersionInfo:$DATA
-      if (wcslen(wszStreamName))
+      if (StrLength(wszStreamName))
       {
         WCHAR Wsz[MAX_PATH], *pwsz=Wsz;
         lstrcpyW(pwsz, wszStreamName + sizeof(CHAR));
@@ -720,7 +720,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
                   Drive, // input volume mount point or directory
                   TempRoot, // output volume name buffer
                   1024) &&       // size of volume name buffer
-           !LocalStricmpW(TempRoot+4,Path))
+           !StrCmpI(TempRoot+4,Path))
         {
            strTempRoot.ReleaseBuffer ();
 
@@ -785,7 +785,7 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   wchar_t *TmpPtr;
 
   int IsUNC = FALSE;
-  int PathLen = (int)wcslen(Path);
+  int PathLen = StrLength(Path);
 
   strNewPath = Path;
   // ѕроверим им€ на UNC
@@ -821,7 +821,7 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
     if (!IsUNC || CtlChar)
     {
       wchar_t *Ptr=wcsrchr(TmpPtr,L'\\');
-      while(Ptr >= CtlChar && wcslen(TempRoot) > 2)
+      while(Ptr >= CtlChar && StrLength(TempRoot) > 2)
       {
         FileAttr=GetFileAttributesW(TempRoot);
 
@@ -910,13 +910,13 @@ BOOL WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLink
     strRoot2 = strRoot1;
 
    // same drive?
-  if( !wcscmp(strRoot1, strRoot2))
+  if( !StrCmp(strRoot1, strRoot2))
   {
     // NTFS drive?
     DWORD FileSystemFlags;
     if(apiGetVolumeInformation (strRoot1,NULL,NULL,NULL,&FileSystemFlags,&strFSysName))
     {
-      if(!wcscmp(strFSysName,L"NTFS"))
+      if(!StrCmp(strFSysName,L"NTFS"))
         return TRUE;
     }
   }

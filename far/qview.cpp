@@ -444,7 +444,7 @@ void QuickView::QViewDelTempName()
     DeleteFileW (strTempName); //BUGBUG
 
     CutToSlash(strTempName);
-    FAR_RemoveDirectoryW(strTempName);
+    apiRemoveDirectory(strTempName);
 
     strTempName=L"";
   }

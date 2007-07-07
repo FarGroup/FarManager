@@ -324,7 +324,7 @@ int Help::ReadHelp(const wchar_t *Mask)
   else
     strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:g_strFarPath;
 
-  if (!wcscmp(StackData.strHelpTopic,PluginContents))
+  if (!StrCmp(StackData.strHelpTopic,PluginContents))
   {
     strFullHelpPathName = L"";
     ReadDocumentsHelp(HIDX_PLUGINS);
@@ -438,7 +438,7 @@ int Help::ReadHelp(const wchar_t *Mask)
       PosTab=(int)(Ptr-ReadStr+1);
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
         InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
-      if(wcslen(ReadStr) > sizeof(ReadStr)/2/sizeof (wchar_t))
+      if(StrLength(ReadStr) > sizeof(ReadStr)/2/sizeof (wchar_t))
         break;
     }
 
@@ -464,13 +464,13 @@ int Help::ReadHelp(const wchar_t *Mask)
     {
       if (TopicFound)
       {
-        if (wcscmp(ReadStr,L"@+")==0)
+        if (StrCmp(ReadStr,L"@+")==0)
         {
           Formatting=TRUE;
           PrevSymbol=0;
           continue;
         }
-        if (wcscmp(ReadStr,L"@-")==0)
+        if (StrCmp(ReadStr,L"@-")==0)
         {
           Formatting=FALSE;
           PrevSymbol=0;
@@ -486,7 +486,7 @@ int Help::ReadHelp(const wchar_t *Mask)
         break;
       }
       else
-        if (LocalStricmpW(ReadStr+1,StackData.strHelpTopic)==0)
+        if (StrCmpI(ReadStr+1,StackData.strHelpTopic)==0)
         {
           TopicFound=1;
           NearTopicFound=1;
@@ -590,7 +590,7 @@ m1:
 
           int Splitted=0;
 
-          for (int I=(int)wcslen(SplitLine)-1;I>0;I--)
+          for (int I=StrLength(SplitLine)-1;I>0;I--)
           {
             if (I>0 && SplitLine[I]==L'~' && SplitLine[I-1]==L'~')
             {
@@ -610,7 +610,7 @@ m1:
               if (StringLen(SplitLine)<RealMaxLength)
               {
                 AddLine(SplitLine);
-                memmove(SplitLine+1,SplitLine+I+1,(wcslen(SplitLine+I+1)+1)*sizeof(wchar_t));
+                memmove(SplitLine+1,SplitLine+I+1,(StrLength(SplitLine+I+1)+1)*sizeof(wchar_t));
                 *SplitLine=L' ';
                 HighlightsCorrection(SplitLine);
                 Splitted=TRUE;
@@ -691,7 +691,7 @@ void Help::HighlightsCorrection(wchar_t *Str)
       Count++;
   if ((Count & 1) && *Str!=L'$')
   {
-    memmove(Str+1,Str,(wcslen(Str)+1)*sizeof (wchar_t));
+    memmove(Str+1,Str,(StrLength(Str)+1)*sizeof (wchar_t));
     *Str=L'#';
   }
 }
@@ -869,7 +869,7 @@ void Help::OutString(const wchar_t *Str)
             {
               if(*(EndPtr+1) == L'@')
               {
-                memmove(EndPtr,EndPtr+1,(wcslen(EndPtr)+1)*sizeof (wchar_t));
+                memmove(EndPtr,EndPtr+1,(StrLength(EndPtr)+1)*sizeof (wchar_t));
                 EndPtr++;
               }
               EndPtr=wcschr(EndPtr,L'@');
@@ -891,11 +891,11 @@ void Help::OutString(const wchar_t *Str)
           SetColor(CurColor);
       /* $ 24.09.2001 VVM
         ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-      if (static_cast<int>(wcslen(OutStr) + WhereX()) > X2)
+      if (static_cast<int>(StrLength(OutStr) + WhereX()) > X2)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
       if (Locked())
-        GotoXY(WhereX()+(int)wcslen(OutStr),WhereY());
+        GotoXY(WhereX()+StrLength(OutStr),WhereY());
       else
         Text(OutStr);
       OutPos=0;
@@ -1093,7 +1093,7 @@ int Help::Search(int Next)
 
     if (!Case)
       for (int I=0;I<SearchLength;I++)
-        SearchStr[I]=LocalUpperW(SearchStr[I]);
+        SearchStr[I]=Upper(SearchStr[I]);
 /*
     //if(!ReadHelp(HelpMask))
     //fseek(ViewFile,LastSearchPos,SEEK_SET);
@@ -1302,7 +1302,7 @@ int Help::ProcessKey(int Key)
     case KEY_F1:
     {
       // не поганим SelTopic, если и так в Help on Help
-      if(LocalStricmpW(StackData.strHelpTopic,HelpOnHelpTopic)!=0)
+      if(StrCmpI(StackData.strHelpTopic,HelpOnHelpTopic)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1316,7 +1316,7 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTF1:
     {
       //   не поганим SelTopic, если и так в теме Contents
-      if(LocalStricmpW(StackData.strHelpTopic,HelpContents)!=0)
+      if(StrCmpI(StackData.strHelpTopic,HelpContents)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1330,7 +1330,7 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTF2:
     {
       //   не поганим SelTopic, если и так в PluginContents
-      if(LocalStricmpW(StackData.strHelpTopic,PluginContents)!=0)
+      if(StrCmpI(StackData.strHelpTopic,PluginContents)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1345,7 +1345,7 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTF3: // Для "документов" :-)
     {
       //   не поганим SelTopic, если и так в DocumentContents
-      if(LocalStricmpW(StackData.strHelpTopic,DocumentContents)!=0)
+      if(StrCmpI(StackData.strHelpTopic,DocumentContents)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1374,7 +1374,7 @@ int Help::ProcessKey(int Key)
     case KEY_NUMENTER:
     case KEY_ENTER:
     {
-      if ( !StackData.strSelTopic.IsEmpty() && LocalStricmpW(StackData.strHelpTopic,StackData.strSelTopic)!=0)
+      if ( !StackData.strSelTopic.IsEmpty() && StrCmpI(StackData.strHelpTopic,StackData.strSelTopic)!=0)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
@@ -1441,7 +1441,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     wchar_t *lpwszFullPath = strFullPath.GetBuffer();
     // уберем _все_ конечные слеши и добавим один
-    int Len=(int)wcslen(lpwszFullPath)-1;
+    int Len=StrLength(lpwszFullPath)-1;
     while(Len>-1 && lpwszFullPath[Len]==L'\\')
     {
       lpwszFullPath[Len]=0;
@@ -1495,7 +1495,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   // а вот теперь попробуем...
 
 //_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
-  if ( !StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && wcscmp(StackData.strSelTopic,HelpOnHelpTopic)!=0)
+  if ( !StackData.strHelpPath.IsEmpty() && StackData.strSelTopic.At(0) !=HelpBeginLink && StrCmp(StackData.strSelTopic,HelpOnHelpTopic)!=0)
   {
     if ( StackData.strSelTopic.At(0)==L':')
     {
@@ -1509,7 +1509,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   }
   else
   {
-    strNewTopic = (const wchar_t*)StackData.strSelTopic+(!wcscmp(StackData.strSelTopic,HelpOnHelpTopic)?1:0);
+    strNewTopic = (const wchar_t*)StackData.strSelTopic+(!StrCmp(StackData.strSelTopic,HelpOnHelpTopic)?1:0);
   }
 
   // удалим ссылку на .DLL
@@ -1538,9 +1538,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
             StackData.strHelpMask.ReleaseBuffer ();
           }
-          memmove(p,p2,(wcslen(p2)+1)*sizeof(wchar_t));
+          memmove(p,p2,(StrLength(p2)+1)*sizeof(wchar_t));
           const wchar_t *p3=wcsrchr(StackData.strHelpMask,L'.');
-          if(p3 && LocalStricmpW(p3,L".hlf"))
+          if(p3 && StrCmpI(p3,L".hlf"))
             StackData.strHelpMask=L"";
           break;
         }
@@ -1558,9 +1558,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 //_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
   if( StackData.strSelTopic.At(0) != L':' &&
-     LocalStricmpW(StackData.strSelTopic,PluginContents)
+     StrCmpI(StackData.strSelTopic,PluginContents)
 #if defined(WORK_HELP_DOCUMS)
-     && LocalStricmpW(StackData.strSelTopic,DocumentContents)
+     && StrCmpI(StackData.strSelTopic,DocumentContents)
 #endif
     )
   {
@@ -1612,9 +1612,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   }
 //  ResizeConsole();
   if(IsNewTopic
-    || !LocalStricmpW(StackData.strSelTopic,PluginContents) // Это неприятный костыль :-((
+    || !StrCmpI(StackData.strSelTopic,PluginContents) // Это неприятный костыль :-((
 #if defined(WORK_HELP_DOCUMS)
-    || !LocalStricmpW(StackData.strSelTopic,DocumentContents)
+    || !StrCmpI(StackData.strSelTopic,DocumentContents)
 #endif
     )
     MoveToReference(1,1);
@@ -1827,11 +1827,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
   FastShow();
 }
 
-int __cdecl SortEntries (const wchar_t *str1, const wchar_t *str2)
-{
-	return LocalStricmpW (str1, str2);
-}
-
 void Help::ReadDocumentsHelp(int TypeIndex)
 {
   if(HelpData)
@@ -1975,7 +1970,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 #endif
   }
   // сортируем по алфавиту
-  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH*sizeof (wchar_t),(int (__cdecl*)(const void *,const void *))SortEntries);
+  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH*sizeof (wchar_t),(int (__cdecl*)(const void *,const void *))StrCmpI);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */
@@ -2038,7 +2033,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
               - Неверно создавался топик с учётом нового правила,
                 в котором путь для топика должен заканчиваться "/".
             */
-            memmove(Ptr2+1,Ptr,(wcslen(Ptr)+1)*sizeof(wchar_t)); //???
+            memmove(Ptr2+1,Ptr,(StrLength(Ptr)+1)*sizeof(wchar_t)); //???
             /* KM $ */
 
             // А вот ЗДЕСЬ теперь все по правилам Help API!
@@ -2137,14 +2132,14 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
           pp=URLPath;
           while(*pp && (pp=wcsstr(pp,L"~~")) != NULL)
           {
-            memmove(pp,pp+1,(wcslen(pp+1)+1)*sizeof (wchar_t));
+            memmove(pp,pp+1,(StrLength(pp+1)+1)*sizeof (wchar_t));
             ++pp;
           }
           // удалим два идущих в подряд ##
           pp=URLPath;
           while(*pp && (pp=wcsstr(pp,L"##")) != NULL)
           {
-            memmove(pp,pp+1,(wcslen(pp+1)+1)*sizeof (wchar_t));
+            memmove(pp,pp+1,(StrLength(pp+1)+1)*sizeof (wchar_t));
             ++pp;
           }
 

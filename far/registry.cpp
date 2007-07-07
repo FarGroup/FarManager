@@ -65,7 +65,7 @@ LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const
   LONG Ret=ERROR_SUCCESS;
 
   if((hKey=CreateRegKey(Key)) != NULL)
-    Ret=RegSetValueExW(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(wcslen(ValueData)+1)*sizeof(wchar_t));
+    Ret=RegSetValueExW(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(StrLength(ValueData)+1)*sizeof(wchar_t));
   CloseRegKey(hKey);
   return Ret;
 }
@@ -402,7 +402,7 @@ void RenumKeyRecord(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t 
   {
     if(!EnumRegKey(KeyRoot,CurPos,strRegKey))
       break;
-    KItem.ItemIdx=_wtoi((const wchar_t*)strRegKey+wcslen(KeyMask0));
+    KItem.ItemIdx=_wtoi((const wchar_t*)strRegKey+StrLength(KeyMask0));
     if(KItem.ItemIdx != CurPos)
       Processed=TRUE;
     KAItems.addItem(KItem);
@@ -475,10 +475,10 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
       bool Found=false;
       const wchar_t *SkipName=Skip;
       while (!Found && *SkipName)
-        if (LocalStricmpW(strSrcKeyName,SkipName)==0)
+        if (StrCmpI(strSrcKeyName,SkipName)==0)
           Found=true;
         else
-          SkipName+=wcslen(SkipName)+1;
+          SkipName+=StrLength(SkipName)+1;
       if (Found)
         continue;
     }

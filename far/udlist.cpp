@@ -24,7 +24,7 @@ UserDefinedListItem::~UserDefinedListItem()
 
 bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
 {
-  return (Str && rhs.Str)?(!LocalStricmpW(Str, rhs.Str)):false;
+  return (Str && rhs.Str)?(!StrCmpI(Str, rhs.Str)):false;
 }
 
 int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
@@ -34,7 +34,7 @@ int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
   else if(!rhs.Str)
     return -1;
   else
-    return LocalStricmpW(Str, rhs.Str)<0;
+    return StrCmpI(Str, rhs.Str)<0;
 }
 
 const UserDefinedListItem& UserDefinedListItem::operator=(const
@@ -161,7 +161,7 @@ BOOL UserDefinedList::Set(const wchar_t *List, BOOL AddToList)
     item.index=Array.getSize();
     if(*List!=Separator1 && *List!=Separator2)
     {
-      Length=(int)wcslen(List);
+      Length=StrLength(List);
       BOOL Error=FALSE;
       const wchar_t *CurList=List;
       while(!Error &&
@@ -192,7 +192,7 @@ BOOL UserDefinedList::Set(const wchar_t *List, BOOL AddToList)
                     else
                     {
                       memcpy(item.Str+i, item.Str+i+1,
-                        (wcslen(item.Str+i+1)+1)*sizeof(wchar_t));
+                        (StrLength(item.Str+i+1)+1)*sizeof(wchar_t));
                       --i;
                     }
                   }
@@ -204,7 +204,7 @@ BOOL UserDefinedList::Set(const wchar_t *List, BOOL AddToList)
 
               if(AddAsterisk && wcspbrk(item.Str,L"?*.")==NULL)
               {
-                Length=(int)wcslen(item.Str);
+                Length=StrLength(item.Str);
                 /* $ 18.09.2002 DJ
                    выделялось на 1 байт меньше, чем надо
                 */

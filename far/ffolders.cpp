@@ -228,7 +228,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
           if (GetString(UMSG(MFolderShortcutsTitle),UMSG(MEnterShortcut),NULL,
                         strNewDir,strNewDir,1024, HelpFolderShortcuts,FIB_BUTTONS/*|FIB_EDITPATH*/) && //BUGBUG 1024
-              wcscmp(strNewDir,strOldNewDir) != 0)
+              StrCmp(strNewDir,strOldNewDir) != 0)
           {
             Unquote(strNewDir);
             if(!(strNewDir.At(1) == L':' && strNewDir.At(2) == L'\\' && strNewDir.At(3) == 0))

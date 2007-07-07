@@ -218,7 +218,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
   {
     int i;
     int PosChanged=FALSE;
-    int MaskLen=(int)wcslen(Mask);
+    int MaskLen=StrLength(Mask);
     for (i=Position;i<MaskLen && i>=0;i+=Where)
     {
       if (CheckCharMask(Mask[i]))
@@ -417,13 +417,13 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
           return;
 
         wcsncpy(ShortStr,ShowStr,StrSize);
-        Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
+        Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         Size=Len;
       }
       else
       {
-        Len=(int)wcslen(&ShowStr[LeftPos]);
+        Len=StrLength(&ShowStr[LeftPos]);
         Size=StrSize;
       }
       if(Len > EditLength)
@@ -867,7 +867,7 @@ int Edit::ProcessKey(int Key)
           return FALSE;
 
         wcsncpy(ShortStr,Str,StrSize);
-        Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
+        Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -1030,7 +1030,7 @@ int Edit::ProcessKey(int Key)
            Добавим код для удаления части строки
            с учётом маски.
         */
-        int MaskLen=(int)wcslen(Mask);
+        int MaskLen=StrLength(Mask);
         int ptr=CurPos;
         while(ptr<MaskLen)
         {
@@ -1151,7 +1151,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        CurPos=(int)wcslen(RemoveTrailingSpaces(ShortStr));
+        CurPos=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
       else
@@ -1192,7 +1192,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        int Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
+        int Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1242,7 +1242,7 @@ int Edit::ProcessKey(int Key)
       */
       if (Mask && *Mask)
       {
-        int MaskLen=(int)wcslen(Mask);
+        int MaskLen=StrLength(Mask);
         int i,j;
         for (i=CurPos,j=CurPos;i<MaskLen;i++)
         {
@@ -1310,7 +1310,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
         wcsncpy(ShortStr,Str,StrSize);
-        Len=(int)wcslen(RemoveTrailingSpaces(ShortStr));
+        Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
           CurPos++;
@@ -1401,13 +1401,13 @@ int Edit::ProcessKey(int Key)
           DeleteBlock();
         }
 
-        for (I=(int)wcslen(Str)-1;I>=0 && IsEol(Str[I]);I--)
+        for (I=StrLength(Str)-1;I>=0 && IsEol(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
           if (IsEol(ClipText[I]))
           {
             if (IsEol(ClipText[I+1]))
-              wmemmove(&ClipText[I],&ClipText[I+1],wcslen(&ClipText[I+1])+1);
+              wmemmove(&ClipText[I],&ClipText[I+1],StrLength(&ClipText[I+1])+1);
             if (ClipText[I+1]==0)
               ClipText[I]=0;
             else
@@ -1556,7 +1556,7 @@ int Edit::InsertKey(int Key)
   }
   if (Mask && *Mask)
   {
-    int MaskLen=(int)wcslen(Mask);
+    int MaskLen=StrLength(Mask);
     if (CurPos<MaskLen)
     {
       /* $ 15.11.2000 KM
@@ -1701,7 +1701,7 @@ void Edit::SetString(const wchar_t *Str)
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   Select(-1,0);
-  SetBinaryString(Str,(int)wcslen(Str));
+  SetBinaryString(Str,StrLength(Str));
 }
 
 void Edit::SetEOL(const wchar_t *EOL)
@@ -1796,7 +1796,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
     /* $ 26.10.2003 KM
        ! Скорректируем вставку из клипборда с учётом маски
     */
-    int maskLen=(int)wcslen(Mask);
+    int maskLen=StrLength(Mask);
     for (int i=0,j=0;j<maskLen && j<Length;)
     {
       if (CheckCharMask(Mask[i]))
@@ -1911,7 +1911,7 @@ void Edit::InsertString(const wchar_t *Str)
   /* tran 25.07.2000 $ */
 
   Select(-1,0);
-  InsertBinaryString(Str,(int)wcslen(Str));
+  InsertBinaryString(Str,StrLength(Str));
 }
 
 
@@ -1935,7 +1935,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
   if (Mask && *Mask)
   {
     int Pos=CurPos;
-    int MaskLen=(int)wcslen(Mask);
+    int MaskLen=StrLength(Mask);
     if (Pos<MaskLen)
     {
       //_SVS(SysLog(L"InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
@@ -2061,7 +2061,7 @@ void Edit::RefreshStrByMask(int InitMode)
   int i;
   if (Mask && *Mask)
   {
-    int MaskLen=(int)wcslen(Mask);
+    int MaskLen=StrLength(Mask);
     /* $12.11.2000 KM
        Некоторые изменения в работе с маской.
        Теперь Str не может быть длиннее Mask и
@@ -2297,7 +2297,7 @@ void Edit::SetTabCurPos(int NewPos)
     if (ShortStr==NULL)
       return;
     wcsncpy(ShortStr,Str,StrSize);
-    Pos=(int)wcslen(RemoveTrailingSpaces(ShortStr));
+    Pos=StrLength(RemoveTrailingSpaces(ShortStr));
     delete[] ShortStr;
     if (NewPos>Pos)
       NewPos=Pos;
@@ -2621,7 +2621,7 @@ void Edit::Xlat(BOOL All)
   */
   if(All && SelStart == -1 && SelEnd == 0)
   {
-    ::Xlat(Str,0,(int)wcslen(Str),TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,0,StrLength(Str),TableSet,Opt.XLat.Flags);
     Show();
     return;
   }
@@ -2633,7 +2633,7 @@ void Edit::Xlat(BOOL All)
   /* IS $ */
   {
     if(SelEnd == -1)
-      SelEnd=(int)wcslen(Str);
+      SelEnd=StrLength(Str);
     ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
     Show();
   }
@@ -2647,7 +2647,7 @@ void Edit::Xlat(BOOL All)
       Обрабатываем только то слово, на котором стоит курсор, или то слово, что
       находится левее позиции курсора на 1 символ
    */
-   int start=CurPos, end, StrSize=(int)wcslen(Str);
+   int start=CurPos, end, StrSize=StrLength(Str);
    BOOL DoXlat=TRUE;
 
    /* $ 12.01.2004 IS
@@ -2696,12 +2696,12 @@ int Edit::KeyMatchedMask(int Key)
   else if (Mask[CurPos]==EDMASK_DIGIT && (iswdigit(Key)))
     Inserted=TRUE;
   /* KM $ */
-  else if (Mask[CurPos]==EDMASK_ALPHA && LocalIsalphaW(Key))
+  else if (Mask[CurPos]==EDMASK_ALPHA && IsAlpha(Key))
     Inserted=TRUE;
   /* $ 20.09.2003 KM
      Добавлена поддержка hex-символов.
   */
-  else if (Mask[CurPos]==EDMASK_HEX && (iswdigit(Key) || (LocalUpperW(Key)>=L'A' && LocalUpperW(Key)<=L'F') || (LocalUpperW(Key)>=L'a' && LocalUpperW(Key)<=L'f')))
+  else if (Mask[CurPos]==EDMASK_HEX && (iswdigit(Key) || (Upper(Key)>=L'A' && Upper(Key)<=L'F') || (Upper(Key)>=L'a' && Upper(Key)<=L'f')))
     Inserted=TRUE;
   /* KM $ */
 

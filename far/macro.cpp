@@ -8,13 +8,13 @@ macro.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "macro.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "global.hpp"
 #include "lang.hpp"
 #include "plugin.hpp"
-#include "fn.hpp"
 #include "lockscrn.hpp"
 #include "viewer.hpp"
 #include "fileedit.hpp"
@@ -383,7 +383,7 @@ int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 {
   // пройдемся по всем модификаторам
   for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
-    if(!LocalStrnicmpW (Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
+    if(!StrCmpNI (Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
       return KeyMacroCodes[I].Key;
   return -1;
 }
@@ -543,8 +543,8 @@ int KeyMacro::ProcessKey(int Key)
       if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF) // 0xFFFF ??
       {
 //        Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
-        Key=LocalUpperW(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
-        //_KEYMACRO(SysLog(L"LocalUpperW(Key)=%s",_FARKEY_ToName(Key)));
+        Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+        //_KEYMACRO(SysLog(L"Upper(Key)=%s",_FARKEY_ToName(Key)));
 
         //if((Key&0x00FFFFFF) > 0x7F)
           //Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
@@ -589,7 +589,7 @@ bool KeyMacro::GetPlainText(string& strDest)
 
   struct MacroRecord *MR=Work.MacroWORK;
 
-  int LenTextBuf=(int)(wcslen((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
+  int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
   if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
   {
     strDest=L"";
@@ -612,7 +612,7 @@ int KeyMacro::GetPlainTextSize()
   if(!Work.MacroWORK)
     return 0;
   struct MacroRecord *MR=Work.MacroWORK;
-  return (int)wcslen((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
+  return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
@@ -1185,11 +1185,11 @@ static bool substrFunc()
   wchar_t *p = (wchar_t *)Val.toString();
   bool Ret=false;
 
-  int len = (int)wcslen(p);
+  int len = StrLength(p);
   if ( ( p1 >= 0 ) && ( p1 < len ) )
   {
     p += p1;
-    len = (int)wcslen(p);
+    len = StrLength(p);
     if ( ( p2 > 0 ) && ( p2 < len ) )
       p[p2] = 0;
     Ret=true;
@@ -1210,7 +1210,7 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
   wchar_t *s = (wchar_t*)lpFullName; //start of sub-string
   wchar_t *p = s; //current string pointer
 
-  wchar_t *es = s+wcslen(s); //end of string
+  wchar_t *es = s+StrLength(s); //end of string
   wchar_t *e; //end of sub-string
 
   if ( !*p )
@@ -1237,7 +1237,7 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
   {
     if ( *(p+1) == L':' )
     {
-      if ( !LocalIsalphaW (*p) )
+      if ( !IsAlpha (*p) )
         return FALSE; // 1:\ is not a valid disk
 
       p += 2;
@@ -1288,7 +1288,7 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
 
   //FSF.AddEndSlash replacement
 
-  if ( *lpDest && (lpDest[wcslen(lpDest)] != L'\\') ) //hack, just in case of "disk+name" etc.
+  if ( *lpDest && (lpDest[StrLength(lpDest)] != L'\\') ) //hack, just in case of "disk+name" etc.
       wcscat (lpDest, L"\\");
 
   if ( nFlags & FLAG_NAME )
@@ -1445,7 +1445,7 @@ static bool indexFunc()
   TVar S1 = VMStack.Pop();
   const wchar_t *s = S1.toString();
   const wchar_t *p = S2.toString();
-  const wchar_t *i = StrstriW(s,p);
+  const wchar_t *i = StrStrI(s,p);
   bool Ret= i ? true : false;
   VMStack.Push(TVar((__int64)(i ? i-s : -1)));
   return Ret;
@@ -1458,7 +1458,7 @@ static bool rindexFunc()
   TVar S1 = VMStack.Pop();
   const wchar_t *s = S1.toString();
   const wchar_t *p = S2.toString();
-  const wchar_t *i = RevStrstriW(s,p);
+  const wchar_t *i = RevStrStrI(s,p);
   bool Ret= i ? true : false;
   VMStack.Push(TVar((__int64)(i ? i-s : -1)));
   return Ret;
@@ -1484,7 +1484,7 @@ static bool xlatFunc()
 {
   TVar Val = VMStack.Pop();
   wchar_t *Str = (wchar_t *)Val.toString();
-  bool Ret=::Xlat(Str,0,(int)wcslen(Str),NULL,Opt.XLat.Flags) == NULL?false:true;
+  bool Ret=::Xlat(Str,0,StrLength(Str),NULL,Opt.XLat.Flags) == NULL?false:true;
   VMStack.Push(TVar((const wchar_t*)Str));
   return Ret;
 }
@@ -1891,8 +1891,8 @@ static bool clipFunc()
       wchar_t *CopyData=InternalPasteFromClipboard(0); // 0!  ???
       if(CopyData)
       {
-        size_t DataSize=wcslen(CopyData);
-        wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+wcslen(Val.s())+2)*sizeof (wchar_t));
+        size_t DataSize=StrLength(CopyData);
+        wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+StrLength(Val.s())+2)*sizeof (wchar_t));
         if (NewPtr)
         {
           CopyData=NewPtr;
@@ -2133,14 +2133,14 @@ static bool panelitemFunc()
 
 static bool lenFunc()
 {
-  VMStack.Push(TVar(wcslen(VMStack.Pop().toString())));
+  VMStack.Push(TVar(StrLength(VMStack.Pop().toString())));
   return true;
 }
 
 static bool ucaseFunc()
 {
   TVar Val=VMStack.Pop();
-  LocalStruprW((wchar_t *)Val.toString());
+  StrUpper((wchar_t *)Val.toString());
   VMStack.Push(Val);
   return true;
 }
@@ -2148,7 +2148,7 @@ static bool ucaseFunc()
 static bool lcaseFunc()
 {
   TVar Val=VMStack.Pop();
-  LocalStrlwrW((wchar_t *)Val.toString());
+  StrLower((wchar_t *)Val.toString());
   VMStack.Push(Val);
   return true;
 }
@@ -2933,7 +2933,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
     BOOL Ok=TRUE;
     if(MacroLIB[I].Flags&MFLAGS_REG_MULTI_SZ)
     {
-      int Len=(int)wcslen(MacroLIB[I].Src)+1;
+      int Len=StrLength(MacroLIB[I].Src)+1;
       wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len);
       if(ptrSrc)
       {
@@ -3091,7 +3091,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 
           while(*Ptr && *Ptr == L'~')// && IsSpace(KeyText[1]))
              ++Ptr;
-          wmemmove(KeyText,Ptr,wcslen(Ptr)+1);
+          wmemmove(KeyText,Ptr,StrLength(Ptr)+1);
 
           strKeyText.ReleaseBuffer ();
 
@@ -3112,7 +3112,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
       wchar_t *ptrBuffer = strBuffer.GetBuffer ();
       while(1)
       {
-        ptrBuffer+=(int)wcslen(ptrBuffer);
+        ptrBuffer+=StrLength(ptrBuffer);
         if(!ptrBuffer[0] && !ptrBuffer[1])
           break;
         *ptrBuffer=L'\n';
@@ -3402,7 +3402,7 @@ M1:
       if(Mac->Src != NULL)
       {
         int F=0;
-        I=(int)wcslen(Mac->Src);
+        I=StrLength(Mac->Src);
         if(I > 45) { I=45; F++; }
         strBuf.Format (L"\"%*.*s%s\"",I,I,Mac->Src,(F?L"...":L""));
         strBufKey = strBuf;
@@ -3729,7 +3729,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags)
       wchar_t *ptrBuffer=Buffer;
       while(1)
       {
-        ptrBuffer+=wcslen(ptrBuffer);
+        ptrBuffer+=StrLength(ptrBuffer);
         if(!ptrBuffer[0] && !ptrBuffer[1])
           break;
         *ptrBuffer=L'\n';
@@ -3883,7 +3883,7 @@ static wchar_t *printfStr(DWORD* k, int& i)
 {
   i++;
   wchar_t *s = (wchar_t *)&k[i];
-  while ( wcslen((wchar_t*)&k[i]) > 2 )
+  while ( StrLength((wchar_t*)&k[i]) > 2 )
     i++;
   return s;
 }
@@ -4044,7 +4044,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
   if ( BufPtr == NULL || !*BufPtr)
     return FALSE;
 
-  int SizeCurKeyText = (int)(wcslen(BufPtr)*2)*sizeof (wchar_t);
+  int SizeCurKeyText = (int)(StrLength(BufPtr)*2)*sizeof (wchar_t);
 
   string strCurrKeyText;
   //- AN ----------------------------------------------
@@ -4083,10 +4083,10 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
 
       if ( strCurrKeyText.At(0) == L'%' &&
            (
-             ( LocalIsalphanumW(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) ||
+             ( IsAlphaNum(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) ||
              (
                strCurrKeyText.At(1) == L'%' &&
-               ( LocalIsalphanumW(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' )
+               ( IsAlphaNum(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' )
              )
            )
          )
@@ -4105,7 +4105,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         while ( ( iswalnum(ch = *s++) || ( ch == L'_') ) )
           *p++ = ch;
         *p = 0;
-        int Length = (int)(wcslen(varName)+1)*sizeof(wchar_t);
+        int Length = (int)(StrLength(varName)+1)*sizeof(wchar_t);
         // строка должна быть выровнена на 4
         SizeVarName = Length/sizeof(DWORD);
         if ( Length == sizeof(wchar_t) || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
@@ -4496,7 +4496,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
         for(Pos=0; Pos < Len; ++Pos, ++MPtr)
         {
           if ( !((MPtr->Key ^ Key) & ~0xFFFF) &&
-                (LocalUpperW(MPtr->Key)==LocalUpperW(Key)) &&
+                (Upper(MPtr->Key)==Upper(Key)) &&
                 (MPtr->BufferSize > 0) )
           {
     //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
@@ -4541,7 +4541,7 @@ int KeyMacro::GetSubKey(const wchar_t *Mode)
 {
   int I;
   for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
-    if(!LocalStricmpW(MKeywordsArea[I].Name,Mode))
+    if(!StrCmpI(MKeywordsArea[I].Name,Mode))
       return I;
   return -1;
 }

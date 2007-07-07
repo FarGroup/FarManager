@@ -661,7 +661,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect
     szVolumeName[4]=*RootDir;
 
     //get a handle to the device
-    HANDLE hDevice = FAR_CreateFileW(szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+    HANDLE hDevice = apiCreateFile (szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {

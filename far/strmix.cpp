@@ -19,11 +19,11 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 
    wchar_t *lpwszDest = strDest.GetBuffer();
 
-   for (int I=(int)wcslen(lpwszDest)-4;I>=0;I-=3)
+   for (int I=StrLength(lpwszDest)-4;I>=0;I-=3)
    {
       if (lpwszDest[I])
       {
-        wmemmove(lpwszDest+I+2,lpwszDest+I+1,wcslen(lpwszDest+I));
+        wmemmove(lpwszDest+I+2,lpwszDest+I+1,StrLength(lpwszDest+I));
         lpwszDest[I+1]=L',';
       }
    }
@@ -97,8 +97,8 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
     /* $ 01.05.2001 DJ
        используем инлайновые версии
     */
-    stringc=LocalUpperW(*str);
-    patternc=LocalUpperW(*pattern++);
+    stringc=Upper(*str);
+    patternc=Upper(*pattern++);
     /* DJ $ */
     switch (patternc)
     {
@@ -130,7 +130,7 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
             if (patdot != NULL && dot == NULL)
               return(FALSE);
             if (patdot == NULL && dot != NULL)
-              return(LocalStricmpW (pattern+1,dot+1) == 0);
+              return(StrCmpI (pattern+1,dot+1) == 0);
           }
         }
         /* DJ $ */
@@ -156,7 +156,7 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
           break;
         }
         match = 0;
-        while ((rangec = LocalUpperW(*pattern++))!=0)
+        while ((rangec = Upper(*pattern++))!=0)
         {
           if (rangec == L']')
             if (match)
@@ -167,8 +167,8 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
             continue;
           if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
           {
-            match = (stringc <= LocalUpperW(*pattern) &&
-                     LocalUpperW(*(pattern - 2)) <= stringc);
+            match = (stringc <= Upper(*pattern) &&
+                     Upper(*(pattern - 2)) <= stringc);
             pattern++;
           }
           else
@@ -210,7 +210,7 @@ int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderN
     wchar_t *Src = _wcsdup (SrcName);
   //char PartBeforeName[NM],PartAfterFolderName[NM];
 
-    DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+wcslen(SrcName)+1)); //???
+    DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+StrLength(SrcName)+1)); //???
     DestNamePtr = (wchar_t*)PointToName(DestNamePtr);
 
     strWildName = DestNamePtr;
@@ -308,7 +308,7 @@ int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderN
 
 wchar_t * WINAPI InsertQuote(wchar_t *Str)
 {
-  size_t l = wcslen(Str);
+  size_t l = StrLength(Str);
   if(*Str != L'"')
   {
     wmemmove(Str+1,Str,++l);
@@ -372,7 +372,7 @@ string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
 {
   if( !strStr.IsEmpty() )
   {
-    int Length = (int)wcslen(strStr);
+    int Length = StrLength(strStr);
 
     if (Length > MaxLength)
     {
@@ -397,12 +397,12 @@ wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
     int Length;
     if (MaxLength<0)
       MaxLength=0;
-    if ((Length=(int)wcslen(Str))>MaxLength)
+    if ((Length=StrLength(Str))>MaxLength)
     {
       if (MaxLength>3)
       {
         wchar_t *MovePos = Str+Length-MaxLength+3;
-        memmove(Str+3, MovePos, (wcslen(MovePos)+1)*sizeof (wchar_t));
+        memmove(Str+3, MovePos, (StrLength(MovePos)+1)*sizeof (wchar_t));
         memcpy(Str,L"...",6);
       }
 
@@ -482,7 +482,7 @@ wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
   for (; IsSpace(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
-    wmemmove(Str,ChPtr,wcslen(ChPtr)+1);
+    wmemmove(Str,ChPtr,StrLength(ChPtr)+1);
   return Str;
 }
 
@@ -495,7 +495,7 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
   for (; IsSpace(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
-    wmemmove(Str,ChPtr,(wcslen(ChPtr)+1));
+    wmemmove(Str,ChPtr,(StrLength(ChPtr)+1));
 
   strStr.ReleaseBuffer ();
 
@@ -533,7 +533,7 @@ wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
   wchar_t *ChPtr;
   size_t I;
 
-  for (ChPtr=Str+(I=wcslen(Str))-1; I > 0; I--, ChPtr--)
+  for (ChPtr=Str+(I=StrLength(Str))-1; I > 0; I--, ChPtr--)
     if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
     else
@@ -662,7 +662,7 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
     }
     else
     {
-      end=Path+wcslen(Path);
+      end=Path+StrLength(Path);
       if(TypeSlash == L'\\')
         Slash=1;
       else
@@ -752,7 +752,7 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
 
 string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 {
-  int SrcLength=(int)wcslen(Src);
+  int SrcLength=StrLength(Src);
 
   string strTempStr = Src; //если Src == strDest, то надо копировать Src!
 
@@ -819,13 +819,13 @@ BOOL IsCaseMixed (
 {
 	const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
 
-	while ( *lpwszSrc && !LocalIsalphaW (*lpwszSrc) )
+	while ( *lpwszSrc && !IsAlpha (*lpwszSrc) )
 		lpwszSrc++;
 
-	int Case = LocalIslowerW (*lpwszSrc);
+	int Case = IsLower (*lpwszSrc);
 
 	while ( *(lpwszSrc++) )
-		if ( LocalIsalphaW(*lpwszSrc) && (LocalIslowerW(*lpwszSrc) != Case) )
+		if ( IsAlpha(*lpwszSrc) && (IsLower(*lpwszSrc) != Case) )
 			return TRUE;
 
 	return FALSE;
@@ -839,7 +839,7 @@ BOOL IsCaseLower (
 
 	while ( *lpwszSrc )
 	{
-		if ( !LocalIslowerW (*lpwszSrc) )
+		if ( !IsLower (*lpwszSrc) )
 			return FALSE;
 
 		lpwszSrc++;
@@ -886,10 +886,10 @@ void UnquoteExternal(string &strStr)
 {
   wchar_t *lpwszStr = strStr.GetBuffer ();
 
-  if (*lpwszStr == L'\"' && lpwszStr[wcslen(lpwszStr)-1] == L'\"')
+  if (*lpwszStr == L'\"' && lpwszStr[StrLength(lpwszStr)-1] == L'\"')
   {
-    lpwszStr[wcslen(lpwszStr)-1]=0;
-    wmemmove(lpwszStr,lpwszStr+1,wcslen(lpwszStr));
+    lpwszStr[StrLength(lpwszStr)-1]=0;
+    wmemmove(lpwszStr,lpwszStr+1,StrLength(lpwszStr));
   }
 
   strStr.ReleaseBuffer ();
@@ -1037,10 +1037,10 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 {
-  int InsLen=(int)wcslen(InsStr);
+  int InsLen=StrLength(InsStr);
   if(InsSize && InsSize < InsLen)
     InsLen=InsSize;
-  wmemmove(Str+Pos+InsLen, Str+Pos, (wcslen(Str+Pos)+1));
+  wmemmove(Str+Pos+InsLen, Str+Pos, (StrLength(Str+Pos)+1));
   wmemcpy(Str+Pos, InsStr, InsLen);
   return Str;
 }
@@ -1052,21 +1052,21 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
   int I=0, J=0, Res;
-  int LenReplStr=(int)wcslen(ReplStr);
-  int LenFindStr=(int)wcslen(FindStr);
+  int LenReplStr=StrLength(ReplStr);
+  int LenFindStr=StrLength(FindStr);
   int L=(int)strStr.GetLength ();
 
   wchar_t *Str = strStr.GetBuffer (1024); //BUGBUG!!!
 
   while(I <= L-LenFindStr)
   {
-    Res=IgnoreCase?LocalStrnicmpW(Str+I, FindStr, LenFindStr):wcsncmp(Str+I, FindStr, LenFindStr);
+    Res=IgnoreCase?StrCmpNI(Str+I, FindStr, LenFindStr):wcsncmp(Str+I, FindStr, LenFindStr);
     if(Res == 0)
     {
       if(LenReplStr > LenFindStr)
-        wmemmove(Str+I+(LenReplStr-LenFindStr),Str+I,(wcslen(Str+I)+1)); // >>
+        wmemmove(Str+I+(LenReplStr-LenFindStr),Str+I,(StrLength(Str+I)+1)); // >>
       else if(LenReplStr < LenFindStr)
-        wmemmove(Str+I,Str+I+(LenFindStr-LenReplStr),(wcslen(Str+I+(LenFindStr-LenReplStr))+1)); //??
+        wmemmove(Str+I,Str+I+(LenFindStr-LenReplStr),(StrLength(Str+I+(LenFindStr-LenReplStr))+1)); //??
       wmemcpy(Str+I,ReplStr,LenReplStr);
       I += LenReplStr;
       if(Count > 0 && ++J == Count)
@@ -1074,7 +1074,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
     }
     else
       I++;
-    L=(int)wcslen(Str);
+    L=StrLength(Str);
   }
 
   strStr.ReleaseBuffer ();
@@ -1152,7 +1152,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 
   const wchar_t *text= strSrc;
   long linelength = Width;
-  int breakcharlen = (int)wcslen(breakchar);
+  int breakcharlen = StrLength(breakchar);
   int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 
   /* Special case for a single-character break as it needs no

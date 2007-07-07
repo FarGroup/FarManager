@@ -8,6 +8,7 @@ Unicode строки
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "UnicodeString.hpp"
 
 size_t UnicodeString::Inflate(size_t nSize, bool bForce)
@@ -56,7 +57,7 @@ const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 {
   if (m_pData)
     m_pData->DecRef();
-  size_t nLength = wcslen(lpwszData);
+  size_t nLength = StrLength(lpwszData);
   m_pData = new UnicodeStringData(nLength + 1);
   wchar_t *pStr = m_pData->GetData();
   if (pStr)
@@ -91,7 +92,7 @@ const UnicodeString& UnicodeString::Append(const UnicodeString &strAdd)
 
 const UnicodeString& UnicodeString::Append(const wchar_t *lpwszAdd)
 {
-  size_t nAddLength = wcslen(lpwszAdd);
+  size_t nAddLength = StrLength(lpwszAdd);
   size_t nNewLength = m_pData->GetLength() + nAddLength;
   Inflate(nNewLength + 1);
   wmemcpy(m_pData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
@@ -172,5 +173,5 @@ void UnicodeString::ReleaseBuffer (int nLength)
 	if ( nLength != -1 )
 		m_pData->SetLength (nLength);
 	else
-		m_pData->SetLength (wcslen(m_pData->GetData()));
+		m_pData->SetLength (StrLength(m_pData->GetData()));
 }

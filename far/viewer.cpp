@@ -8,10 +8,10 @@ Internal viewer
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "viewer.hpp"
 #include "macroopcode.hpp"
 #include "global.hpp"
-#include "fn.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
@@ -252,7 +252,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
         OpenFailed=TRUE;
         return(FALSE);
       }
-      OutHandle=FAR_CreateFileW(strTempName,GENERIC_READ|GENERIC_WRITE,
+      OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
                 FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
       if (OutHandle==INVALID_HANDLE_VALUE)
@@ -285,11 +285,11 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
       ShareMode|=FILE_SHARE_DELETE;
     }
 
-    HANDLE hView=FAR_CreateFileW(strFileName,GENERIC_READ,
+    HANDLE hView=apiCreateFile(strFileName,GENERIC_READ,
                             ShareMode,
                             NULL,OPEN_EXISTING,Flags,NULL);
     if (hView==INVALID_HANDLE_VALUE && Flags!=0)
-      hView=FAR_CreateFileW(strFileName,GENERIC_READ,
+      hView=apiCreateFile(strFileName,GENERIC_READ,
                        ShareMode,
                        NULL,OPEN_EXISTING,0,NULL);
     if (hView!=INVALID_HANDLE_VALUE)
@@ -597,12 +597,12 @@ void Viewer::ShowPage (int nMode)
   {
     for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
     {
-      int StrLength = (int)wcslen(Strings[I]->lpData);
+      int StrLen = StrLength(Strings[I]->lpData);
 
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
 
-      if ( StrLength > LeftPos )
+      if ( StrLen > LeftPos )
       {
         if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !Strings[I]->nFilePos)
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
@@ -649,7 +649,7 @@ void Viewer::ShowPage (int nMode)
         }
       }
 
-      if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
+      if (StrLen > LeftPos + Width && ViOpt.ShowArrows)
       {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
@@ -765,7 +765,7 @@ void Viewer::ShowHex()
         }
         else
         {
-          swprintf(OutStr+wcslen(OutStr),L"%02X%02X ",Ch1,Ch);
+          swprintf(OutStr+StrLength(OutStr),L"%02X%02X ",Ch1,Ch);
           char TmpBuf[2];
 
           wchar_t NewCh;
@@ -849,7 +849,7 @@ void Viewer::ShowHex()
 
           WideCharToMultiByte(CP_OEMCP, 0, (const wchar_t*)&Ch,1, &NewCh,1," ",NULL);
 
-          swprintf(OutStr+wcslen(OutStr),L"%02X ", NewCh);
+          swprintf(OutStr+StrLength(OutStr),L"%02X ", NewCh);
           if (Ch==0)
             Ch=L' ';
           TextStr[TextPos++]=Ch;
@@ -870,7 +870,7 @@ void Viewer::ShowHex()
     wcscat(OutStr,L" ");
 
     wcscat(OutStr,TextStr);
-    if ((int)wcslen(OutStr)>HexLeftPos)
+    if (StrLength(OutStr)>HexLeftPos)
       mprintf(L"%-*.*s",ObjWidth,ObjWidth,OutStr+(int)HexLeftPos);
     else
       mprintf(L"%*s",ObjWidth,L"");
@@ -1768,7 +1768,7 @@ int Viewer::ProcessKey(int Key)
           int I, Y, Len, MaxLen = 0;
           for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
           {
-             Len = (int)wcslen(Strings[I]->lpData);
+             Len = StrLength(Strings[I]->lpData);
              if (Len > MaxLen)
                MaxLen = Len;
           } /* for */
@@ -2924,7 +2924,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
               Relative=1;
           else
               Relative=-1;
-          memmove(ptr,ptr+1,wcslen(ptr)*sizeof (wchar_t)); // если вы думаете про strlen(ptr)-1,
+          memmove(ptr,ptr+1,StrLength(ptr)*sizeof (wchar_t)); // если вы думаете про strlen(ptr)-1,
                                           // то вы ошибаетесь :)
       }
       if ( wcschr(ptr,L'%') )   // он хочет процентов
@@ -2932,14 +2932,14 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
           GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_PRC].Selected=1;
       }
-      else if ( LocalStrnicmpW(ptr,L"0x",2)==0 || ptr[0]==L'$' || wcschr(ptr,L'h') || wcschr(ptr,L'H') ) // он умный - hex код ввел!
+      else if ( StrCmpNI(ptr,L"0x",2)==0 || ptr[0]==L'$' || wcschr(ptr,L'h') || wcschr(ptr,L'H') ) // он умный - hex код ввел!
       {
           GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_HEX].Selected=1;
-          if ( LocalStrnicmpW(ptr,L"0x",2)==0)
-              memmove(ptr,ptr+2,(wcslen(ptr)-1)*sizeof (wchar_t)); // а тут надо -1, а не -2  // сдвинем строку
+          if ( StrCmpNI(ptr,L"0x",2)==0)
+              memmove(ptr,ptr+2,(StrLength(ptr)-1)*sizeof (wchar_t)); // а тут надо -1, а не -2  // сдвинем строку
           else if (ptr[0]=='$')
-              memmove(ptr,ptr+1,wcslen(ptr)*sizeof (wchar_t));
+              memmove(ptr,ptr+1,StrLength(ptr)*sizeof (wchar_t));
           //Relative=0; // при hex значении никаких относительных значений?
       }
 
@@ -3121,7 +3121,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
   */
 
     SelectPosOffSet=(VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
-           && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)wcslen(Strings[0]->lpData)))?1:0;
+           && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)StrLength(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;
 

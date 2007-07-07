@@ -9,6 +9,7 @@ execute.cpp
 #pragma hdrstop
 
 #include "farqueue.hpp"
+#include "fn.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -20,7 +21,6 @@ execute.cpp
 #include "global.hpp"
 #include "cmdline.hpp"
 #include "panel.hpp"
-#include "fn.hpp"
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
 
@@ -46,7 +46,7 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
   int Ret=FALSE;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-  if((hFile=FAR_CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
+  if((hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
     DWORD ReadSize;
     IMAGE_DOS_HEADER dos_head;
@@ -375,7 +375,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
     strFullName += ";";
 
     Ptr=wcscat(StdExecuteExt, strFullName);  //BUGBUG
-    StdExecuteExt[wcslen(StdExecuteExt)]=0;
+    StdExecuteExt[StrLength(StdExecuteExt)]=0;
     while(*Ptr)
     {
       if(*Ptr == L';')
@@ -396,7 +396,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
     {
       GetRegKey(strSystemExecutor,L"ExcludeCmds",(PBYTE)ExcludeCmds,(PBYTE)L"",sizeof(ExcludeCmds));
       Ptr=wcscat(ExcludeCmds,L";"); //!!!
-      ExcludeCmds[wcslen(ExcludeCmds)]=0;
+      ExcludeCmds[StrLength(ExcludeCmds)]=0;
       while(*Ptr)
       {
         if(*Ptr == L';')
@@ -425,12 +425,12 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
     wchar_t *Ptr=ExcludeCmds;
     while(*Ptr)
     {
-      if(!LocalStricmpW(strFileName,Ptr))
+      if(!StrCmpI(strFileName,Ptr))
       {
         ImageSubsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
         return TRUE;
       }
-      Ptr+=wcslen(Ptr)+1;
+      Ptr+=StrLength(Ptr)+1;
     }
   }
 
@@ -459,7 +459,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
         Ret=TRUE;
         break;
       }
-      PtrExt+=wcslen(PtrExt)+1;
+      PtrExt+=StrLength(PtrExt)+1;
     }
 
     if(!Ret) // второй проход - по правилам SearchPath
@@ -492,7 +492,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
             break;
           }
 
-          PtrExt+=wcslen(PtrExt)+1;
+          PtrExt+=StrLength(PtrExt)+1;
         }
       }
 
@@ -522,7 +522,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
             break;
           }
 
-          PtrExt+=wcslen(PtrExt)+1;
+          PtrExt+=StrLength(PtrExt)+1;
         }
       }
       /* VVM $ */
@@ -594,7 +594,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
                 break;
               }
             } /* for */
-            PtrExt+=wcslen(PtrExt)+1;
+            PtrExt+=StrLength(PtrExt)+1;
           }
         } /* if */
       } /* if */
@@ -687,7 +687,7 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
   {
     //for (int I=0;CmdStr[I]!=0;I++)
     //{
-      //if (LocalIsalphaW(CmdStr[I]) && CmdStr[I+1]==L':' && CmdStr[I+2]!=L'\\')
+      //if (IsAlpha(CmdStr[I]) && CmdStr[I+1]==L':' && CmdStr[I+2]!=L'\\')
       //{
         string strSetPathCmd;
         string strSavePath;
@@ -832,7 +832,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       DWORD Error=0, dwSubSystem2=0;
       const wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
 
-      if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
+      if(ExtPtr && !(StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0 ||
          IsBatchExtType(ExtPtr)))
         if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
           dwSubSystem=dwSubSystem2;
@@ -1257,18 +1257,18 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
   /* DJ $ */
   while(1)
   {
-    if (!PtrCmd || !*PtrCmd || LocalStrnicmpW(PtrCmd,L"IF ",3))
+    if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3))
       break;
 
     PtrCmd+=3; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
 
-    if (LocalStrnicmpW(PtrCmd,L"NOT ",4)==0)
+    if (StrCmpNI(PtrCmd,L"NOT ",4)==0)
     {
       Not=TRUE;
       PtrCmd+=4; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
     }
 
-    if (*PtrCmd && !LocalStrnicmpW(PtrCmd,L"EXIST ",6))
+    if (*PtrCmd && !StrCmpNI(PtrCmd,L"EXIST ",6))
     {
       PtrCmd+=6; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
@@ -1331,7 +1331,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
       /* DJ $ */
     }
     // "IF [NOT] DEFINED variable command"
-    else if (*PtrCmd && !LocalStrnicmpW(PtrCmd,L"DEFINED ",8))
+    else if (*PtrCmd && !StrCmpNI(PtrCmd,L"DEFINED ",8))
     {
       PtrCmd+=8; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
@@ -1378,10 +1378,10 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
   RemoveTrailingSpaces(strCmdLine);
 
-  if (!SeparateWindow && LocalIsalphaW(strCmdLine.At(0)) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
+  if (!SeparateWindow && IsAlpha(strCmdLine.At(0)) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
   {
     wchar_t NewDir[10];
-    swprintf(NewDir,L"%c:",LocalUpperW(strCmdLine.At(0)));
+    swprintf(NewDir,L"%c:",Upper(strCmdLine.At(0)));
     FarChDir(strCmdLine);
     if (getdisk()!=NewDir[0]-L'A')
     {
@@ -1393,7 +1393,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   }
 
   // SET [переменная=[строка]]
-  if (LocalStrnicmpW(strCmdLine,L"SET ",4)==0)
+  if (StrCmpNI(strCmdLine,L"SET ",4)==0)
   {
     string strCmd;
 
@@ -1423,12 +1423,12 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     return(TRUE);
   }
 
-  if (!LocalStrnicmpW(strCmdLine,L"REM ",4) || !LocalStrnicmpW(strCmdLine,L"::",2))
+  if (!StrCmpNI(strCmdLine,L"REM ",4) || !StrCmpNI(strCmdLine,L"::",2))
   {
     return TRUE;
   }
 
-  if (!LocalStrnicmpW(strCmdLine,L"CLS",3))
+  if (!StrCmpNI(strCmdLine,L"CLS",3))
   {
     if(strCmdLine.At(3))
       return FALSE;
@@ -1443,7 +1443,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     nnn   Specifies a code page number (Dec or Hex).
   Type CHCP without a parameter to display the active code page number.
   */
-  if (!LocalStrnicmpW(strCmdLine,L"CHCP",4))
+  if (!StrCmpNI(strCmdLine,L"CHCP",4))
   {
     if(strCmdLine.At(4) == 0 || !(strCmdLine.At(4) == L' ' || strCmdLine.At(4) == L'\t'))
       return(FALSE);
@@ -1485,7 +1485,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
        "IF [NOT] EXIST filename command"
        "IF [NOT] DEFINED variable command"
   */
-  if (LocalStrnicmpW(strCmdLine,L"IF ",3)==0)
+  if (StrCmpNI(strCmdLine,L"IF ",3)==0)
   {
     const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
     // здесь PtrCmd - уже готовая команда, без IF
@@ -1506,7 +1506,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
      пропускаем обработку, если нажат Shift-Enter
   */
   if (!SeparateWindow &&  /* DJ $ */
-      (LocalStrnicmpW(strCmdLine,L"CD",Length=2)==0 || LocalStrnicmpW(strCmdLine,L"CHDIR",Length=5)==0) &&
+      (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
       (IsSpace(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
       TestParentFolderName((const wchar_t*)strCmdLine+Length)))
   {
@@ -1625,9 +1625,9 @@ BOOL IsBatchExtType(const wchar_t *ExtPtr)
   const wchar_t *PtrBatchType=Opt.strExecuteBatchType;
   while(*PtrBatchType)
   {
-    if(LocalStricmpW(ExtPtr,PtrBatchType)==0)
+    if(StrCmpI(ExtPtr,PtrBatchType)==0)
       return TRUE;
-    PtrBatchType+=wcslen(PtrBatchType)+1;
+    PtrBatchType+=StrLength(PtrBatchType)+1;
   }
 
   return FALSE;

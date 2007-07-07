@@ -68,14 +68,14 @@ public:
 bool ChDiskPluginItem::operator==(const ChDiskPluginItem &rhs) const
 {
   return HotKey==rhs.HotKey &&
-    !LocalStricmpW(Item.strName,rhs.Item.strName) &&
+    !StrCmpI(Item.strName,rhs.Item.strName) &&
     Item.UserData==rhs.Item.UserData;
 }
 
 int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
 {
   if(HotKey==rhs.HotKey)
-    return LocalStricmpW(Item.strName,rhs.Item.strName)<0;
+    return StrCmpI(Item.strName,rhs.Item.strName)<0;
   else if(HotKey && rhs.HotKey)
     return HotKey < rhs.HotKey;
   else
@@ -134,7 +134,7 @@ void Panel::ChangeDisk()
 {
   int Pos,FirstCall=TRUE;
   if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
-    Pos=LocalUpperW(strCurDir.At(0))-L'A';
+    Pos=Upper(strCurDir.At(0))-L'A';
   else
     Pos=getdisk();
   while (Pos!=-1)
@@ -218,7 +218,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	string strMenuText;
 
 	int DriveType,MenuLine;
-	int LabelWidth = Max(11,(int)wcslen(UMSG(MChangeDriveLabelAbsent)));
+	int LabelWidth = Max(11,StrLength(UMSG(MChangeDriveLabelAbsent)));
 
     /* $ 02.04.2001 VVM
       ! Попытка не будить спящие диски... */
@@ -234,7 +234,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ( Opt.ChangeDriveMode & DRIVE_SHOW_TYPE )
 		{
-			strDiskType.Format (L"%*s",wcslen(UMSG(MChangeDriveFixed)),L"");
+			strDiskType.Format (L"%*s",StrLength(UMSG(MChangeDriveFixed)),L"");
 
 			for (J=0; J < countof(DrTMsg); ++J)
 			{
@@ -394,7 +394,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		const wchar_t *AdditionalHotKey=UMSG(MAdditionalHotKey);
 
 		int AHKPos = 0; // индекс в списке хоткеев
-		int AHKSize = (int)wcslen(AdditionalHotKey); // для предотвращения выхода за границу массива
+		int AHKSize = StrLength(AdditionalHotKey); // для предотвращения выхода за границу массива
 
 		int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
 		int PluginTextNumber, ItemPresent, HotKey, Done=FALSE;
@@ -1034,7 +1034,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ( (PanelMode == NORMAL_PANEL) &&
 			 (GetType() == FILE_PANEL) &&
-			 !LocalStricmpW(strCurDir,strNewCurDir) &&
+			 !StrCmpI(strCurDir,strNewCurDir) &&
 			 IsVisible() )
 		{
 			// А нужно ли делать здесь Update????
@@ -1183,15 +1183,15 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
 {
-   wchar_t *Ptr=(wchar_t *)xf_malloc((wcslen(Src)+wcslen(FindEdit->GetStringAddrW())+32)*sizeof (wchar_t));
+   wchar_t *Ptr=(wchar_t *)xf_malloc((StrLength(Src)+StrLength(FindEdit->GetStringAddrW())+32)*sizeof (wchar_t));
     if(Ptr)
     {
       wcscpy(Ptr,FindEdit->GetStringAddrW());
-      wchar_t *EndPtr=Ptr+wcslen(Ptr);
+      wchar_t *EndPtr=Ptr+StrLength(Ptr);
       wcscat(Ptr,Src);
       Unquote(EndPtr);
 
-      EndPtr=Ptr+wcslen(Ptr);
+      EndPtr=Ptr+StrLength(Ptr);
       DWORD Key;
       while(1)
       {
@@ -1323,9 +1323,9 @@ void Panel::FastFind(int FirstKey)
 
       // // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
-        Key=LocalLowerW (Key-KEY_ALT_BASE);
+        Key=Lower (Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
-        Key=LocalLowerW (Key-KEY_ALTSHIFT_BASE);
+        Key=Lower (Key-KEY_ALTSHIFT_BASE);
 
       if (Key==KEY_MULTIPLY)
         Key=L'*';
@@ -1376,7 +1376,7 @@ void Panel::FastFind(int FirstKey)
 
             wchar_t *Name = strName.GetBuffer ();
 
-            size_t LenName=wcslen(Name);
+            size_t LenName=StrLength(Name);
             if(LenName > 1 && Name[LenName-1] == L'*' && Name[LenName-2] == L'*')
             {
               Name[LenName-1]=0;
@@ -1389,7 +1389,7 @@ void Panel::FastFind(int FirstKey)
             if(*Name == L'"')
             {
               memmove(Name,Name+1,(sizeof(Name)-1)*sizeof (wchar_t));
-              Name[wcslen(Name)-1]=0;
+              Name[StrLength(Name)-1]=0;
               FindEdit.SetString(Name);
             }
 
@@ -1668,8 +1668,8 @@ int  Panel::SetCurPath()
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=PLUGIN_PANEL)
   {
-    if (LocalIsalphaW(AnotherPanel->strCurDir.At(0)) && AnotherPanel->strCurDir.At(1)==L':' &&
-        LocalUpperW(AnotherPanel->strCurDir.At(0))!=LocalUpperW(strCurDir.At(0)))
+    if (IsAlpha(AnotherPanel->strCurDir.At(0)) && AnotherPanel->strCurDir.At(1)==L':' &&
+        Upper(AnotherPanel->strCurDir.At(0))!=Upper(strCurDir.At(0)))
     {
       // сначала установим переменные окружения для пассивной панели
       // (без реальной смены пути, чтобы лишний раз пассивный каталог
@@ -2213,9 +2213,9 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
     HKEY hKey;
     IsPersistent=TRUE;
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-      strMsgText.Format (L"Network\\%c",LocalUpperW(Letter));
+      strMsgText.Format (L"Network\\%c",Upper(Letter));
     else
-      strMsgText.Format (L"Network\\Persistent\\%c", LocalUpperW(Letter));
+      strMsgText.Format (L"Network\\Persistent\\%c", Upper(Letter));
 
     if(RegOpenKeyExW(HKEY_CURRENT_USER,strMsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {
@@ -2250,7 +2250,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
   /* Обновить, если обновление разрешено и пути совпадают */
   if ((!Opt.AutoUpdateLimit || static_cast<DWORD>(GetFileCount()) <= Opt.AutoUpdateLimit) &&
-      LocalStricmpW(AnotherPanel->strCurDir,strCurDir)==0)
+      StrCmpI(AnotherPanel->strCurDir,strCurDir)==0)
     return TRUE;
   return FALSE;
 }

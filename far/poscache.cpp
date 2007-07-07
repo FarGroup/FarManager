@@ -173,9 +173,9 @@ int FilePositionCache::FindPosition(const wchar_t *FullName)
     wchar_t *Ptr=Names+Pos*3*NM;
 
     if (Opt.FlagPosixSemantics)
-      CmpRes = wcscmp(Ptr,FullName);
+      CmpRes = StrCmp(Ptr,FullName);
     else
-      CmpRes = LocalStricmpW(Ptr,FullName);
+      CmpRes = StrCmpI(Ptr,FullName);
 
     if (CmpRes == 0)
       return(Pos);
@@ -204,7 +204,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
     GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
     GetRegKey(Key,strItem,strDataStr,EmptyPos);
 
-    if(!wcscmp(strDataStr,EmptyPos))
+    if(!StrCmp(strDataStr,EmptyPos))
     {
       Names[I*3*NM]=0;
       memset(Param+PARAM_POS(I),0,SizeValue*5);
@@ -284,7 +284,7 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
     /* IS $ */
 
     // ????????
-    if(!wcscmp(strDataStr,EmptyPos))
+    if(!StrCmp(strDataStr,EmptyPos))
     {
       DeleteRegValue(Key,strItem);
       continue;

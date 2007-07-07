@@ -818,7 +818,7 @@ const wchar_t *Dialog::GetDialogTitle()
     {
       const wchar_t *Ptr = CurItem->strData;
       for (; *Ptr; Ptr++)
-        if ( LocalIsalphaW (*Ptr) || iswdigit(*Ptr) )
+        if ( IsAlpha (*Ptr) || iswdigit(*Ptr) )
           return(Ptr);
     }
     else if(CurItem->Type==DI_LISTBOX && !I)
@@ -1579,9 +1579,9 @@ void Dialog::ShowDialog(int ID)
           {
               lpwszStr = strStr.GetBuffer();
 
-              memmove(lpwszStr+1, lpwszStr, (wcslen(lpwszStr)+1)*sizeof (lpwszStr));
+              memmove(lpwszStr+1, lpwszStr, (StrLength(lpwszStr)+1)*sizeof (lpwszStr));
 
-              LenText = (int)wcslen(lpwszStr);
+              LenText = StrLength(lpwszStr);
 
               *lpwszStr = lpwszStr[LenText]=L' ';
 
@@ -1689,7 +1689,7 @@ void Dialog::ShowDialog(int ID)
         strStr = CurItem->strData;
         LenText=LenStrItem(I,strStr);
         if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
-          LenText=(int)wcslen(CenterStr(strStr,strStr,CY2-CY1+1));
+          LenText=StrLength(CenterStr(strStr,strStr,CY2-CY1+1));
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
         Y=(CY1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(Y2-Y1+1-LenText)/2:CY1;
         if(Y < 0)
@@ -1981,7 +1981,7 @@ int Dialog::LenStrItem(int ID, const wchar_t *lpwszStr)
   if ( !lpwszStr )
       lpwszStr = Item[ID]->strData;
 
-  return (Item[ID]->Flags & DIF_SHOWAMPERSAND)?(int)wcslen(lpwszStr):HiStrlen(lpwszStr);
+  return (Item[ID]->Flags & DIF_SHOWAMPERSAND)?StrLength(lpwszStr):HiStrlen(lpwszStr);
 }
 
 
@@ -2623,7 +2623,7 @@ int Dialog::ProcessKey(int Key)
                   // добавляем к предыдущему и...
                   DlgEdit *edt_1=(DlgEdit *)Item[FocusPos-1]->ObjPtr;
                   edt_1->GetString(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
-                  CurPos=(int)wcslen(Str);
+                  CurPos=StrLength(Str);
                   edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
                   edt_1->SetString(Str);
 
@@ -2696,7 +2696,7 @@ int Dialog::ProcessKey(int Key)
 
                 edt->GetSelection(SelStart, SelEnd);
                 edt->GetString(Str,sizeof(Str)/sizeof (wchar_t));
-                int LengthStr=(int)wcslen(Str);
+                int LengthStr=StrLength(Str);
                 if(SelStart > -1)
                 {
                   wmemmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
@@ -3966,7 +3966,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 
         GetRegKey(strRegKey,strLine,strStr,L"");
 
-        if (!LocalStrnicmpW (strStr, strFindStr, LenFindStr))
+        if (!StrCmpNI (strStr, strFindStr, LenFindStr))
           break;
     }
 
@@ -3982,7 +3982,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 
     for (I=0; I < Count ;I++)
     {
-      if (!LocalStrnicmpW (ListItems[I].Text, strFindStr, LenFindStr))
+      if (!StrCmpNI (ListItems[I].Text, strFindStr, LenFindStr))
         break;
     }
     if (I  == Count)
@@ -4466,7 +4466,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 
   // ищем строку добавления
   for (I=0; I < HistCount; I++)
-    if (!LocalStricmpW (AddStr,His[I].Str))
+    if (!StrCmpI (AddStr,His[I].Str))
     {
       // берем только! либо которой нету либо залоченную
       if(AddLine == -1 || AddLine != -1 && His[I].Locked)
@@ -4535,7 +4535,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
       {
         if(HisTemp[J].Str)
         {
-          if(!LocalStricmpW(HisTemp[I].Str,HisTemp[J].Str))
+          if(!StrCmpI(HisTemp[I].Str,HisTemp[J].Str))
           {
             xf_free(HisTemp[J].Str);
             HisTemp[J].Str=NULL;
@@ -4591,7 +4591,7 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   }
   else
   {
-    if(AmpPos >= (int)wcslen(Str))
+    if(AmpPos >= StrLength(Str))
       return FALSE;
     Str=Str+AmpPos;
     AmpPos=0;
@@ -4599,7 +4599,7 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
       AmpPos++;
   }
 //_SVS(SysLog(L"'%s' (%d)",Str+AmpPos,AmpPos));
-  int UpperStrKey=LocalUpperW ((int)Str[AmpPos]);
+  int UpperStrKey=Upper ((int)Str[AmpPos]);
   /* $ 08.11.2000 SVS
      Изменен пересчет кодов клавиш для hotkey (используются сканкоды)
   */
@@ -4608,9 +4608,9 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   if (Key < 256)
   {
     int KeyToKey=LocalKeyToKey(Key);
-    return(UpperStrKey == (int)LocalUpperW(Key) ||
+    return(UpperStrKey == (int)Upper(Key) ||
       Translate &&
-      (!Opt.HotkeyRules && UpperStrKey==(int)LocalUpperW(KeyToKey) ||
+      (!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey) ||
         Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey));
   }
 
@@ -4628,9 +4628,9 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
   //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
       {
-        return(UpperStrKey==(int)LocalUpperW(AltKey) ||
+        return(UpperStrKey==(int)Upper(AltKey) ||
                Translate &&
-               (!Opt.HotkeyRules && UpperStrKey==(int)LocalUpperW(AltKeyToKey) ||
+               (!Opt.HotkeyRules && UpperStrKey==(int)Upper(AltKeyToKey) ||
                   Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
       }
     }
@@ -4661,7 +4661,7 @@ BOOL Dialog::CheckHighlights(WORD CheckSymbol)
       if (ChPtr)
       {
         WORD Ch=ChPtr[1];
-        if(Ch && LocalUpperW(CheckSymbol) == LocalUpperW(Ch))
+        if(Ch && Upper(CheckSymbol) == Upper(Ch))
           return TRUE;
       }
     }
@@ -6205,7 +6205,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           case DI_RADIOBUTTON:
           case DI_BUTTON:
 
-            Len=(int)wcslen(Ptr)+1;
+            Len=StrLength(Ptr)+1;
             if (!(CurItem->Flags & DIF_NOBRACKETS) && Type == DI_BUTTON)
             {
               Ptr+=2;
@@ -6252,7 +6252,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       switch(Type)
       {
         case DI_BUTTON:
-          Len=(int)wcslen(Ptr)+1;
+          Len=StrLength(Ptr)+1;
           if (!(CurItem->Flags & DIF_NOBRACKETS))
             Len-=4;
           break;
@@ -6267,7 +6267,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         case DI_DOUBLEBOX:
         case DI_CHECKBOX:
         case DI_RADIOBUTTON:
-          Len=(int)wcslen(Ptr)+1;
+          Len=StrLength(Ptr)+1;
           break;
 
         case DI_COMBOBOX:
@@ -6307,7 +6307,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       struct FarDialogItemData IData;
       IData.PtrData=(wchar_t *)Param2;
-      IData.PtrLength=(int)wcslen(IData.PtrData);
+      IData.PtrLength=StrLength(IData.PtrData);
       return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(LONG_PTR)&IData);
     }
 

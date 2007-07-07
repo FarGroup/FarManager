@@ -364,10 +364,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   {
     if ((Argv[I][0]==L'/' || Argv[I][0]==L'-') && Argv[I][1])
     {
-      switch(LocalUpperW(Argv[I][1]))
+      switch(Upper(Argv[I][1]))
       {
         case L'A':
-          switch (LocalUpperW(Argv[I][2]))
+          switch (Upper(Argv[I][2]))
           {
             case 0:
               Opt.CleanAscii=TRUE;
@@ -399,7 +399,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           }
           break;
         case L'R':
-          switch (LocalUpperW(Argv[I][2]))
+          switch (Upper(Argv[I][2]))
           {
             case 0:
               RegOpt=TRUE;
@@ -415,7 +415,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         case L'X':
           Opt.ExceptRules=0;
 #if defined(_DEBUGEXC)
-          if ( LocalUpperW(Argv[I][2])==L'D' )
+          if ( Upper(Argv[I][2])==L'D' )
             Opt.ExceptRules=1;
 #endif
           break;
@@ -467,7 +467,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         /* $ 01.09.2000 tran
            /co switch support */
         case L'C':
-            if (LocalUpperW(Argv[I][2])==L'O')
+            if (Upper(Argv[I][2])==L'O')
             {
               Opt.LoadPlug.PluginsCacheOnly=TRUE;
               Opt.LoadPlug.PluginsPersonal=FALSE;
@@ -485,7 +485,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         /* SVS $ */
 #ifdef DIRECT_RT
         case L'D':
-          if ( LocalUpperW(Argv[I][2])==L'O' )
+          if ( Upper(Argv[I][2])==L'O' )
             DirectRT=1;
           break;
 #endif

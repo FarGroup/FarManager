@@ -511,7 +511,7 @@ int SubstFileName(string &strStr,            // результирующая строка
   {
     //_SVS(SysLog(L"***** Pass=%d",Pass));
     if(*CurStr == L'!')
-      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,(int)(sizeof(TmpStr)-wcslen(TmpStr)-1));
+      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,(int)(sizeof(TmpStr)-StrLength(TmpStr)-1));
     else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
     {
       wcsncat(TmpStr,CurStr,1);
@@ -617,7 +617,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
 
     wchar_t *t = Title;
 
-    if (wcslen(Title)>0)
+    if (StrLength(Title)>0)
     {
       if (Title[0] == L'$')        // begin of history name
       {
@@ -666,7 +666,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
       while (*CurStr)
       {
         if (*CurStr == L'!')
-          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-(int)wcslen(tmp_t)-1);
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-StrLength(tmp_t)-1);
         else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
         {
           wcsncat(tmp_t,CurStr,1);
@@ -710,7 +710,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
       while (*CurStr)
       {
         if (*CurStr == L'!')
-          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-(int)wcslen(tmp_t)-1);
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-StrLength(tmp_t)-1);
         else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
         {
           wcsncat(tmp_t,CurStr,1);
@@ -824,7 +824,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
       if(wcschr(Modifers,'F') && PointToName((const wchar_t*)strFileName) == (const wchar_t*)strFileName) // 'F' - использовать полный путь; //BUGBUG
       {
         string strTempFileName;
-        strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(strCurDir.At(wcslen(strCurDir)-1) != L'\\'?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
+        strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(strCurDir.At(StrLength(strCurDir)-1) != L'\\'?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
         if (ShortNames)
           ConvertNameToShort(strTempFileName, strTempFileName);
         strFileName = strTempFileName;

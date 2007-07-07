@@ -8,9 +8,9 @@ message.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "global.hpp"
 #include "ctrlobj.hpp"
-#include "fn.hpp"
 #include "plugin.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
@@ -111,14 +111,14 @@ int Message(
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
-    if (static_cast<DWORD>(Length=(int)wcslen(Items[I]))>MaxLength)
+    if (static_cast<DWORD>(Length=StrLength(Items[I]))>MaxLength)
       MaxLength=Length;
   }
 
   // учтем так же размер заголовка
   if(Title && *Title)
   {
-    I=(DWORD)wcslen(Title)+2;
+    I=(DWORD)StrLength(Title)+2;
     if (MaxLength < I)
       MaxLength=I;
   }
@@ -139,7 +139,7 @@ int Message(
     //InsertQuote(ErrStr); // оквочим
 
     // вычисление "красивого" размера
-    DWORD LenErrStr=(DWORD)wcslen(strErrStr);
+    DWORD LenErrStr=(DWORD)StrLength(strErrStr);
     if(LenErrStr > MAX_WIDTH_MESSAGE)
     {
       // половина меньше?
@@ -187,7 +187,7 @@ int Message(
   for (I=0; I < CountErrorLine;I++)
   {
     Str[I]=CPtrStr;
-    CPtrStr+=wcslen(CPtrStr)+1;
+    CPtrStr+=StrLength(CPtrStr)+1;
     if(!*CPtrStr) // два идущих подряд нуля - "хандец" всему
     {
       ++I;
@@ -354,7 +354,7 @@ int Message(
         GotoXY(X1+3,Y1+I+2);
         DrawLine(Length,(Chr == 2?3:1));
         CPtrStr++;
-        int TextLength=(int)wcslen(CPtrStr);
+        int TextLength=StrLength(CPtrStr);
         if (TextLength<Length)
         {
           GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
@@ -364,7 +364,7 @@ int Message(
       }
       continue;
     }
-    if ((Length=(int)wcslen(CPtrStr))>ScrX-15)
+    if ((Length=StrLength(CPtrStr))>ScrX-15)
       Length=ScrX-15;
     int Width=X2-X1+1;
 
