@@ -408,10 +408,11 @@ bool FileFilter::FilterEdit()
   if (ExitCode!=-1)
     ProcessSelection(&FilterList);
 
+  if(Opt.AutoSaveSetup)
+    SaveFilters();
+
   if (ExitCode!=-1 || bNeedUpdate)
   {
-    if(Opt.AutoSaveSetup)
-      SaveFilters();
     if (m_FilterType == FFT_PANEL)
     {
       m_HostPanel->Update(UPDATE_KEEP_SELECTION);
