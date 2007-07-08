@@ -326,6 +326,7 @@ struct FindFileOptions
   int CollectFiles;
   int FileSearchMode;
   int SearchInFirst;
+  int UseFilter;
   string strSearchInFirstSize;
 
   /*

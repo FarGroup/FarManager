@@ -1065,6 +1065,8 @@ static struct FARConfig{
      Запомнить флаг разрешения поиска каталогов в Alt-F7
   */
   {1, REG_DWORD,  NKeySystemW,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
+  /* 08.07.2003 yjh */
+  {1, REG_DWORD,  NKeySystemW,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
   /* KM $ */
   /* $ 17.09.2003 KM */
   {1, REG_BINARY, NKeySystemW,L"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
