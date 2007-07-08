@@ -78,7 +78,7 @@ auto_sz::auto_sz(const STRRET& sr, LPCITEMIDLIST piid)
     if (s_bOem) Ansi2Oem();
 #else
     {
-      size_t len = strlen(sr.cStr)+1;
+      size_t len = lstrlenA(sr.cStr)+1;
       Realloc(len);
       MultiByteToWideChar(CP_ACP, 0, sr.cStr, -1, *this, (int)len);
     }

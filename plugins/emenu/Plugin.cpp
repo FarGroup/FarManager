@@ -619,6 +619,7 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPTSTR szCmdLine/*=NULL*/
     }
     CPidl oDirPidl(m_pMalloc);
     ULONG nCount;
+//__asm int 3;
     if (FAILED(m_pDesktop->ParseDisplayName(NULL_HWND, NULL, strFilesDir, &nCount
       , &oDirPidl, NULL)))
     {

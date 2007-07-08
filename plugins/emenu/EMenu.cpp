@@ -10,6 +10,10 @@
 
 CPlugin *thePlug=NULL;
 
+#ifdef DEBUG
+extern "C" void __cdecl main(void) {}
+#endif
+
 extern "C" BOOL WINAPI _DllMainCRTStartup(
         HANDLE  hDllHandle,
         DWORD   dwReason,
