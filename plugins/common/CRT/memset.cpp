@@ -1,16 +1,28 @@
 #include "crt.hpp"
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(UNICODE)
 #pragma function(memset)
 #endif
 
-void * __cdecl memset(void *dst, int val, size_t count)
+#if defined(_MSC_VER) && defined(UNICODE)
+typedef wchar_t PTRTYP;
+#else
+typedef void    PTRTYP;
+#endif
+
+PTRTYP * __cdecl
+#ifndef UNICODE
+               memset
+#else
+               _wmemset
+#endif
+                        (PTRTYP *dst, int val, size_t count)
 {
-  void *start = dst;
+  PTRTYP *start = dst;
 
   while (count--)
   {
-    *(char *)dst = (char)val;
-    dst = (char *)dst + 1;
+    *(TCHAR *)dst = (TCHAR)val;
+    dst = (TCHAR *)dst + 1;
   }
   return(start);
 }

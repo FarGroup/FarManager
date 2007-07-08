@@ -27,11 +27,14 @@ $(OBJDIR)\memcpy.obj \
 $(OBJDIR)\memicmp.obj \
 $(OBJDIR)\memmove.obj \
 $(OBJDIR)\memset.obj \
+$(OBJDIRW)\memset.obj \
 $(OBJDIR)\new.obj \
 $(OBJDIR)\new_array.obj \
 $(OBJDIR)\realloc.obj \
 $(OBJDIR)\strchr.obj \
 $(OBJDIRW)\strchr.obj \
+$(OBJDIR)\strcpy.obj \
+$(OBJDIRW)\strcpy.obj \
 $(OBJDIR)\strcspn.obj \
 $(OBJDIR)\strdup.obj \
 $(OBJDIRW)\strdup.obj \
