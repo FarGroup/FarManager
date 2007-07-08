@@ -5,9 +5,13 @@
 #include <stdio.h>
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
-//#ifdef __GNUC__
 #include "CRT/crt.hpp"
-//#endif
+
+#ifdef UNICODE
+#define WCONST  const
+#else
+#define WCONST
+#endif
 
 #ifdef _MSC_VER
 #pragma hdrstop
@@ -106,7 +110,7 @@ class Plist
     void GetOpenPluginInfo(OpenPluginInfo *Info);
     int SetDirectory(TCHAR *Dir,int OpMode);
     int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-        int Move,TCHAR *DestPath,int OpMode, _Opt& opt=::Opt);
+        int Move,WCONST TCHAR *DestPath,int OpMode, _Opt& opt=::Opt);
     int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                     int OpMode);
     int ProcessEvent(int Event,void *Param);

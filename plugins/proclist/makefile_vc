@@ -1,5 +1,11 @@
 NAME = Proclist
 
+!ifndef DEBUG
+DIRNAME=final
+!else
+DIRNAME=debug
+!endif                   
+
 !ifdef WIDE
 DIRSUFF = W
 !endif
@@ -9,7 +15,7 @@ DIRBIT = 64
 !ELSE
 DIRBIT = 32
 !ENDIF
-OUTDIR = final.$(DIRBIT)$(DIRSUFF).vc
+OUTDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
 
 OBJDIR = $(OUTDIR)\obj
 COMMON = ..\common
@@ -24,19 +30,39 @@ DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
 DEF = $(NAME)$(DIRSUFF).vc.def
 MAP = $(OUTDIR)\$(NAME).map
 
-!IF "$(CPU)" == "AMD64"
-LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
-CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
-!ELSE
-LIBS = kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
-CPP_PROJ=/nologo /c /O1i /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
-!ENDIF
+!ifndef DEBUG
+CPP_OPT=/DNDEBUG /O1i
+!else
+PDBNAME="$(OUTDIR)\$(NAME).pdb"
+CPP_OPT=/DDEBUG /Od /Fd$(PDBNAME)
+!endif
 
 !IF "$(CPU)" == "AMD64"
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+LIBS = chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib libcmt.lib
+CPP_PROJ=/nologo /c /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
+ULOUT=-Tpd+
 !ELSE
-LINK_FLAGS=/STUB:$(COMMON)\minstub.exe /nologo /dll /release /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
+LIBS = kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib libcmt.lib
+CPP_PROJ=/nologo /c /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
+ULOUT=-Tpd -Re
 !ENDIF
+
+!ifndef ULINK
+LNK=link.exe /STUB:$(COMMON)\minstub.exe 
+LINK_DEBUG=/pdb:$(PDBNAME)
+CPP_DBGOPT=/Zi $(CPP_OPT)
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+!else
+LINK_DEBUG=-v
+CPP_DBGOPT=/Z7 $(CPP_OPT)
+LNK=ulink.exe +-
+LINK_FLAGS=-q $(ULOUT) -Gz -m- -Gh -Gh- /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)"
+!endif
+
+!ifndef DEBUG
+!undef LINK_DEBUG
+!undef CPP_DEBUG
+!endif
 
 LINK_OBJS = $(OBJDIR)\fileio.obj \
 $(OBJDIR)\handles.obj \
@@ -54,15 +80,15 @@ $(OBJDIR)\$(NAME).res
 ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
 
 $(DLLFULLNAME) : $(LINK_OBJS)
-	link @<<
-	$(LINK_FLAGS) $(LINK_OBJS)
+	$(LNK) @<<
+	$(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RESS)
 <<
 	@copy /Y *.hlf $(OUTDIR) > nul
 	@copy /Y *.lng $(OUTDIR) > nul
 
 .cpp{$(OBJDIR)}.obj::
 	cl @<<
-	$(CPP_PROJ) $<
+	$(CPP_PROJ) $(CPP_DBGOPT) $<
 <<
 
 $(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp

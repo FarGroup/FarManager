@@ -501,8 +501,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                         *buf=0;
                     int nVisibleDigits = lstrlen(buf);
                     if(nVisibleDigits > nColWidth) nVisibleDigits = nColWidth;
-                    for(int i = nColWidth - nVisibleDigits; --i >= 0; )
-                        pData[i] = _T(' ');
+                    _tmemset(pData, _T(' '), nColWidth-nVisibleDigits);
                     pData += nColWidth-nVisibleDigits;
                     lstrcpyn(pData,buf,nVisibleDigits+1);
                     pData += nVisibleDigits+1;
@@ -535,7 +534,7 @@ void Plist::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
     delete PanelItem;
 }
 
-int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,TCHAR *DestPath,int OpMode, _Opt& Opt)
+int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST TCHAR *DestPath,int OpMode, _Opt& Opt)
 {
     static const TCHAR invalid_chars[] = _T(":*?\\/\"<>;|");
     if (ItemsNumber==0)

@@ -242,7 +242,7 @@ void WINAPI EXP_NAME(GetOpenPluginInfo)(HANDLE hPlugin,struct OpenPluginInfo *In
 
 
 int WINAPI EXP_NAME(GetFiles)(HANDLE hPlugin,PluginPanelItem *PanelItem,
-                   int ItemsNumber,int Move,TCHAR *DestPath,int OpMode)
+                   int ItemsNumber,int Move,WCONST TCHAR *DestPath,int OpMode)
 {
   return ((Plist *)hPlugin)->GetFiles(PanelItem,ItemsNumber,Move,DestPath,OpMode);
 }
