@@ -248,6 +248,7 @@ struct FindFileOptions{
   int CollectFiles;
   int FileSearchMode;
   int SearchInFirst;
+  int UseFilter;
   char SearchInFirstSize[NM];
 };
 

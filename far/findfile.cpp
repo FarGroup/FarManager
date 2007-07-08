@@ -437,6 +437,7 @@ FindFiles::FindFiles()
     LastSearchInSymLink=0;
   SearchInSymLink=LastSearchInSymLink;
   SearchMode=Opt.FindOpt.FileSearchMode;
+  UseFilter=Opt.FindOpt.UseFilter;
 
   // Индекс типа размера, в котором производить ограничение поиска в файле
   SearchInFirstIndex=Opt.FindOpt.SearchInFirst;
@@ -702,7 +703,7 @@ FindFiles::FindFiles()
       SearchInSymLink=FindAskDlg[16].Selected;
 
     // Запомнить признак использования фильтра. KM
-    UseFilter=FindAskDlg[28].Selected;
+    Opt.FindOpt.UseFilter=UseFilter=FindAskDlg[28].Selected;
 
     /* $ 14.12.2000 OT */
 
