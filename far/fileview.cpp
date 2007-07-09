@@ -185,6 +185,11 @@ void FileViewer::DisplayObject()
 }
 
 
+int FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  return View.VMProcess(OpCode,vParam,iParam);
+}
+
 int FileViewer::ProcessKey(int Key)
 {
   if (RedrawTitle && ((Key & 0x00ffffff) < KEY_END_FKEY))
