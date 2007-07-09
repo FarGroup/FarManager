@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2243) (Jul 09 2007)
+FAR 1.71 alpha 4 (build 2246) (Jul 09 2007)
 ---------------------------------------------------------------------------
 
 [!] When setting folder attributes for FAT and FAT32 file systems, date and
