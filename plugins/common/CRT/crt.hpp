@@ -75,11 +75,7 @@ extern "C"
   int __cdecl memicmp(const void *first, const void *last, size_t count);
   void * __cdecl memmove(void *dst, const void *src, size_t count);
   void * __cdecl memset(void *dst, int val, size_t count);
-#ifndef _MSC_VER
-  void * __cdecl wmemset(void *dst, int val, size_t count);
-#else
-  wchar_t * __cdecl wmemset(wchar_t *dst, wchar_t val, size_t count);
-#endif
+  wchar_t * __cdecl _wmemset(wchar_t *dst, wchar_t val, size_t count);
   void * __cdecl realloc(void *block, size_t size);
   _CONST_RETURN char * __cdecl strchr(register const char *s,int c);
   _CONST_RETURN_W wchar_t * __cdecl wcschr(register const wchar_t *s,wchar_t c);
@@ -122,7 +118,7 @@ extern "C"
 #ifndef UNICODE
 #define _tmemset(t,c,s) memset(t,c,s)
 #else
-#define _tmemset(t,c,s) wmemset(t,c,s)
+#define _tmemset(t,c,s) _wmemset(t,c,s)
 #endif
 
 #endif

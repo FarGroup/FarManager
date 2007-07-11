@@ -3,19 +3,13 @@
 #pragma function(memset)
 #endif
 
-#if defined(_MSC_VER) && defined(UNICODE)
-typedef wchar_t PTRTYP;
-#else
-typedef void    PTRTYP;
-#endif
-
-PTRTYP * __cdecl
 #ifndef UNICODE
-               memset
+  typedef void PTRTYP;
+  void * __cdecl memset(void *dst, int val, size_t count)
 #else
-               _wmemset
+  typedef wchar_t PTRTYP;
+  wchar_t * __cdecl _wmemset(wchar_t *dst, wchar_t val, size_t count)
 #endif
-                        (PTRTYP *dst, int val, size_t count)
 {
   PTRTYP *start = dst;
 

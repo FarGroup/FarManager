@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2211
+  Plugin API for FAR Manager 1.71 build 2232
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2007 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2211)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2232)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -972,6 +972,7 @@ struct ActlEjectMedia {
 enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,
   KSFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
+  KSFLAGS_REG_MULTI_SZ        = 0x00100000,
 };
 
 struct KeySequence{
