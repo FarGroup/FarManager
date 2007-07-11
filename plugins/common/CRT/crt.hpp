@@ -76,10 +76,12 @@ extern "C"
   void * __cdecl memmove(void *dst, const void *src, size_t count);
   void * __cdecl memset(void *dst, int val, size_t count);
 #ifdef __BORLANDC__
-  void * __cdecl wmemset(void *dst, int val, size_t count);
+  void * __cdecl _wmemset(void *dst, int val, size_t count);
 #else
-  wchar_t * __cdecl wmemset(wchar_t *dst, wchar_t val, size_t count);
+  wchar_t * __cdecl _wmemset(wchar_t *dst, wchar_t val, size_t count);
 #endif
+#undef wmemset
+#define wmemset _wmemset
   void * __cdecl realloc(void *block, size_t size);
   _CONST_RETURN char * __cdecl strchr(register const char *s,int c);
   _CONST_RETURN_W wchar_t * __cdecl wcschr(register const wchar_t *s,wchar_t c);
