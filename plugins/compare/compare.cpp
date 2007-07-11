@@ -160,11 +160,7 @@ static void TrunCopy(TCHAR *cpDest, const TCHAR *cpSrc)
 
   if (iLen < iTruncLen)
   {
-#ifndef UNICODE
-    memset(&cpDest[iLen], ' ', iTruncLen - iLen);
-#else
-    do cpDest[iLen] = _T(' '); while(++iLen < iTruncLen);
-#endif
+    _tmemset(&cpDest[iLen], _T(' '), iTruncLen - iLen);
     cpDest[iTruncLen] = _T('\0');
   }
 }
