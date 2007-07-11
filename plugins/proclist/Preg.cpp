@@ -84,7 +84,7 @@ int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,BYTE *ValueData,BYTE *Default,DWORD 
 }
 
 
-void DeleteRegKey(char *Key)
+void DeleteRegKey(LPCTSTR Key)
 {
   TCHAR FullKeyName[80];
   FSF.sprintf(FullKeyName,_T("%s%s%s"),PluginRootKey,*Key ? _T("\\"):_T(""),Key);

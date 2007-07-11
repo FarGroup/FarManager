@@ -17,7 +17,11 @@ FILETYPE 2
   {
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Process List for FAR Manager\000"
-   VALUE "FileVersion", "1.71 build 134\000\000"
+#ifndef UNICODE
+   VALUE "FileVersion", "1.71 build 134\000"
+#else
+   VALUE "FileVersion", "1.80 build 134\000"
+#endif
    VALUE "InternalName", "ProcList\000"
    VALUE "LegalCopyright", FARCOPYRIGHT
    VALUE "OriginalFilename", "ProcList.dll\000"

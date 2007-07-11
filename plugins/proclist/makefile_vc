@@ -38,23 +38,24 @@ CPP_OPT=/DDEBUG /Od /Fd$(PDBNAME)
 !endif
 
 !IF "$(CPU)" == "AMD64"
-LIBS = chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib libcmt.lib
+LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
 CPP_PROJ=/nologo /c /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
 ULOUT=-Tpd+
+LINK_FLAGS=/nologo /dll /release /noentry /nodefaultlib /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !ELSE
-LIBS = kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib libcmt.lib
-CPP_PROJ=/nologo /c /J /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
+LIBS = kernel32.lib user32.lib gdi32.lib advapi32.lib Version.Lib mpr.lib Ole32.Lib OleAut32.Lib WbemUuid.Lib shell32.lib
+CPP_PROJ=/nologo /c /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" /I".\WMI" -D"_WIN32_DCOM" $(UNIDEF)
 ULOUT=-Tpd -Re
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !ENDIF
 
 !ifndef ULINK
-LNK=link.exe /STUB:$(COMMON)\minstub.exe 
+LNK=link.exe
 LINK_DEBUG=/pdb:$(PDBNAME)
-CPP_DBGOPT=/Zi $(CPP_OPT)
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+CPP_DEBUG=/Zi
 !else
 LINK_DEBUG=-v
-CPP_DBGOPT=/Z7 $(CPP_OPT)
+CPP_DEBUG=/Z7
 LNK=ulink.exe +-
 LINK_FLAGS=-q $(ULOUT) -Gz -m- -Gh -Gh- /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)"
 !endif
@@ -88,7 +89,7 @@ $(DLLFULLNAME) : $(LINK_OBJS)
 
 .cpp{$(OBJDIR)}.obj::
 	cl @<<
-	$(CPP_PROJ) $(CPP_DBGOPT) $<
+	$(CPP_PROJ) $(CPP_DBGOPT) $(CPP_OPT) $<
 <<
 
 $(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp
