@@ -55,11 +55,11 @@ ULOUT=-Tpd -Re
 !ifndef ULINK
 LNK=link.exe
 LINK_DEBUG=/pdb:$(PDBNAME)
-CPP_DBGOPT=/Zi $(CPP_OPT)
+CPP_DEBUG=/Zi
 LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !else
 LINK_DEBUG=-v
-CPP_DBGOPT=/Z7 $(CPP_OPT)
+CPP_DEBUG=/Z7
 LNK=ulink.exe +-
 LINK_FLAGS=-q $(ULOUT) -Gz -n -m- -Gh -Gh- /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)"
 !endif
@@ -92,7 +92,7 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RESS)
 
 .cpp{$(OBJDIR)}.obj::
 	cl @<<
-	$(CPP_PROJ) $(CPP_DBGOPT) $<
+	$(CPP_PROJ) $(CPP_DEBUG) $(CPP_OPT) $<
 <<
 
 $(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp resource.h
