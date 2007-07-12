@@ -27,7 +27,7 @@ startup: _all
 _all: VER FARLIB PLUGIN
 
 VER:
-  touch ftp_Key.cpp
+    touch ftp_Key.cpp
 
 PLUGIN: $(PROJECT)
     -@if exist $(PROJECT:dll=lib) del $(PROJECT:dll=lib) >nul
