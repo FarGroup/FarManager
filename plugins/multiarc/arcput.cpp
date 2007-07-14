@@ -262,14 +262,14 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       case PDI_EXACTNAMECHECK:
         if(Param2)
         {
-          BOOL UnChanged=Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_ARCNAMEEDT, -1);
+          BOOL UnChanged=(BOOL)Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_ARCNAMEEDT, -1);
           if(!pdd->OldExactState && /*!pdd->ArcNameChanged*/UnChanged) // 0->1
             Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
         }
         else
           if(pdd->OldExactState)  // 1->0
             Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
-        pdd->OldExactState=Param2;
+        pdd->OldExactState=(BOOL)Param2;
         return TRUE;
     }
   }
@@ -330,7 +330,7 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
     pdd->Self->FormatToPlugin(pdd->ArcFormat,pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType);
 
-    BOOL IsDelOldDefExt=Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
+    BOOL IsDelOldDefExt=(BOOL)Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
     IsDelOldDefExt=IsDelOldDefExt && Info.SendDlgMessage(hDlg, DM_GETCHECK, PDI_EXACTNAMECHECK, 0);
 
     GetRegKey(pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
@@ -790,7 +790,7 @@ void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
   char *Name=Items->FindData.cFileName;
   char *Dot=strrchr(Name, '.');
   int Len=(Dot && !(Items->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-          ?(Dot-Name):lstrlen(Name);
+          ?((int)(Dot-Name)):lstrlen(Name);
   for(int i=1; i<Count; i++)
     if(NoGroop || FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
 //    if(FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))

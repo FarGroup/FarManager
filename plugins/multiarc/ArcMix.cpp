@@ -20,7 +20,7 @@ BOOL GoToFile(const char *Target, BOOL AllowChangeDir)
   int pathlen;
 
   lstrcpy(Name,FSF.PointToName(const_cast<char*>(Target)));
-  pathlen=FSF.PointToName(const_cast<char*>(Target))-Target;
+  pathlen=(int)(FSF.PointToName(const_cast<char*>(Target))-Target);
   if(pathlen)
     memcpy(Dir,Target,pathlen);
   Dir[pathlen]=0;

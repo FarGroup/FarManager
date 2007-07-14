@@ -80,7 +80,7 @@ static char Password[NM/2];
 
 static FARAPIINPUTBOX FarInputBox=NULL;
 static FARAPIGETMSG   FarGetMsg=NULL;
-static int MainModuleNumber=-1;
+static INT_PTR MainModuleNumber=-1;
 
 void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
 {

@@ -249,7 +249,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow || ArcData==NULL)
   {
     BOOL ReadArcOK=FALSE;
-    DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
+    DWORD size = (DWORD)Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
     HANDLE h=CreateFile(ArcName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h!=INVALID_HANDLE_VALUE)
     {
@@ -543,7 +543,7 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   if (!Opt.ReadDescriptions || DizPresent)
     Info->DescrFilesNumber=0;
   else
-    Info->DescrFilesNumber=DescrFilesNumber;
+    Info->DescrFilesNumber=(int)DescrFilesNumber;
 
   static struct KeyBarTitles KeyBar;
   memset(&KeyBar,0,sizeof(KeyBar));

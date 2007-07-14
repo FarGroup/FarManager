@@ -1,38 +1,4 @@
 NAME = MultiArc
-
-!ifdef WIDE
-DIRSUFF = W
-!endif
-
-!IF "$(CPU)" == "AMD64"
-DIRBIT = 64
-!ELSE
-DIRBIT = 32
-!ENDIF
-OUTDIR = final.$(DIRBIT)$(DIRSUFF).vc
-
-OBJDIR = $(OUTDIR)\obj
-COMMON = ..\common
-!ifndef WIDE
-COMINC = $(COMMON)\ascii
-!else
-COMINC = $(COMMON)\unicode
-!endif
-DLLNAME = $(NAME).dll
-DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
-DEF = $(NAME).def
-MAP = $(OUTDIR)\$(NAME).map
-
-!IF "$(CPU)" == "AMD64"
-LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib
-CPP_PROJ=/nologo /D_FAR_USE_FARFINDDATA /c /Ox /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
-!ELSE
-LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib libcmt.lib
-CPP_PROJ=/nologo /D_FAR_USE_FARFINDDATA /c /Zp1 /Ox /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
-!ENDIF
-
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
-
 LINK_OBJS = $(OBJDIR)\MultiArc.obj \
 $(OBJDIR)\ArcCfg.obj \
 $(OBJDIR)\ArcCmd.obj \
@@ -43,44 +9,32 @@ $(OBJDIR)\ArcProc.obj \
 $(OBJDIR)\ArcPut.obj \
 $(OBJDIR)\ArcRead.obj \
 $(OBJDIR)\ArcReg.obj \
-$(OBJDIR)\global.obj \
-$(OBJDIR)\$(NAME).res
+$(OBJDIR)\global.obj
 
-ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME) fmt
+!IF "$(CPU)" == "AMD64"
+USERCPP = /D_FAR_USE_FARFINDDATA
+!ELSE
+USERCPP = /D_FAR_USE_FARFINDDATA /Zp1
+!ENDIF
 
-$(DLLFULLNAME) : $(LINK_OBJS)
-	link @<<
-	$(LINK_FLAGS) $(LINK_OBJS)
-<<
-	@copy /Y *.lng $(OUTDIR) > nul
-	@copy /Y *.hlf $(OUTDIR) > nul
+include ..\makefile_vc_def_inc
 
-.cpp{$(OBJDIR)}.obj::
-	cl @<<
-	$(CPP_PROJ) $<
-<<
+include ..\makefile_vc_target_inc
 
-$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp
-	@rc /I"$(COMINC)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+ALL: fmt
 
-$(OBJDIR): $(OUTDIR)
-	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
-
-$(OUTDIR):
-	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+$(OBJDIR)\$(NAME).res: multiarcversion.hpp
 
 fmt:
-	@cd libpcre
-	$(MAKE) /f makefile_lib_vc
-	@cd ..
-	$(MAKE) /f makefile_fmt_vc FMT=Custom
-	$(MAKE) /f makefile_fmt_vc FMT=Ace
-	$(MAKE) /f makefile_fmt_vc FMT=Arc
-	$(MAKE) /f makefile_fmt_vc FMT=Arj
-	$(MAKE) /f makefile_fmt_vc FMT=Cab
-	$(MAKE) /f makefile_fmt_vc FMT=Ha
-	$(MAKE) /f makefile_fmt_vc FMT=Lzh
-	$(MAKE) /f makefile_fmt_vc FMT=Rar
-	$(MAKE) /f makefile_fmt_vc FMT=TarGz
-	$(MAKE) /f makefile_fmt_vc FMT=Zip
+	$(MAKE) /f makefile_vc_libpcre
+	$(MAKE) /f makefile_vc_fmt FMT=Custom
+	$(MAKE) /f makefile_vc_fmt FMT=Ace
+	$(MAKE) /f makefile_vc_fmt FMT=Arc
+	$(MAKE) /f makefile_vc_fmt FMT=Arj
+	$(MAKE) /f makefile_vc_fmt FMT=Cab
+	$(MAKE) /f makefile_vc_fmt FMT=Ha
+	$(MAKE) /f makefile_vc_fmt FMT=Lzh
+	$(MAKE) /f makefile_vc_fmt FMT=Rar
+	$(MAKE) /f makefile_vc_fmt FMT=TarGz
+	$(MAKE) /f makefile_vc_fmt FMT=Zip
 	@copy /Y Custom.ini $(OUTDIR)\Formats

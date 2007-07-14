@@ -1,0 +1,23 @@
+# nmake fmt_vc.mak FMT=name
+!if "$(FMT)" == ""
+!error An invalid FMT-target
+!endif
+
+NAME = $(FMT)
+EXT = fmt
+ADDOUTDIR = \Formats
+LINK_OBJS = $(OBJDIR)\$(NAME).obj
+
+!IF "$(CPU)" == "AMD64"
+USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre"
+!ELSE
+USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre" /Zp1
+!ENDIF
+
+include ..\makefile_vc_def_inc
+
+LIBS = $(OBJDIR)\pcre.lib $(LIBS)
+
+include ..\makefile_vc_target_inc
+
+$(OBJDIR)\$(NAME).res: multiarcversion.hpp

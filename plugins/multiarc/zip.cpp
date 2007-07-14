@@ -106,7 +106,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   {
     if (IsValidHeader(CurData, DataEnd))
     {
-      SFXSize=CurData-Data;
+      SFXSize=(DWORD)(CurData-Data);
       return(TRUE);
     }
   }

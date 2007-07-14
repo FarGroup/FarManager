@@ -124,7 +124,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
         ConfigCommands(MenuItems[0].Text.Text,2+MenuData[ExitCode].Cmd*2);
         continue;
       }
-      CommandType=MenuItems[ExitCode].UserData;
+      CommandType=(int)MenuItems[ExitCode].UserData;
       if(MenuItems[ExitCode].UserData==0xFFFFFFFF)
         return FALSE;
     }

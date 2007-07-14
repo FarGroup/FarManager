@@ -32,7 +32,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
 
-  FarVER=::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
+  FarVER=(int)::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
 
   FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
 
@@ -122,7 +122,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
       HANDLE h = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
       if (h == INVALID_HANDLE_VALUE)
         return INVALID_HANDLE_VALUE;
-      DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
+      DWORD size = (DWORD)Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
       unsigned char *data;
       data = (unsigned char *) malloc(size*sizeof(unsigned char));
       if (!data)

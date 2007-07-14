@@ -1,0 +1,20 @@
+ifndef FMT
+$(error An invalid FMT-target)
+endif
+
+NAME = $(FMT)
+EXT = fmt
+ADDOUTDIR = /Formats
+SRCS = $(NAME).cpp
+ifeq ($(FMT),Custom)
+DOCS = Custom.ini
+endif
+
+USERCPP = -D_FAR_USE_FARFINDDATA -I ./libpcre
+USERLIBSFIRST = -L $(OBJDIR) -lPCRE
+
+include ../makefile_gcc_def_inc
+
+include ../makefile_gcc_target_inc
+
+$(OBJDIR)/$(NAME).res.o: multiarcversion.hpp

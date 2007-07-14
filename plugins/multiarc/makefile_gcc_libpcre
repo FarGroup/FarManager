@@ -1,32 +1,23 @@
-OBJDIR = ../final.32.gcc/obj
-REOBJDIR = \.\.\/final\.32\.gcc\/obj\/
-DLLDIR = ../final.32.gcc/obj
-DLLNAME = libPCRE.a
-DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
-SRCS = chartables.c get.c pcre.c study.c
+USERCPP = -DWIN32 -DPCRE_STATIC -D_WIN32
 
-CXX = g++
-RM = rm -f
-CP = cp -f
-M4 = m4 -P
-MV = mv -f
-MKDIR = mkdir
-AR = ar
-RANLIB = ranlib
-CXXFLAGS = -I ../../common -Wall -DWIN32 -DPCRE_STATIC -D_WIN32 -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
+include ../makefile_gcc_def_inc
+
+DLLNAME = libPCRE.a
+DLLFULLNAME = $(OBJDIR)/$(DLLNAME)
+SRCS = chartables.c get.c pcre.c study.c
 
 OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
 DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
 
 all: $(DLLFULLNAME)
 
-$(OBJDIR)/%.d: %.c
+$(OBJDIR)/%.d: ./libpcre/%.c
 	@echo making depends for $<
 	@$(MKDIR) -p $(@D)
 	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: ./libpcre/%.c
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -36,6 +27,6 @@ $(DLLFULLNAME): $(OBJS)
 	@$(MKDIR) -p $(@D)
 	@$(AR) rc $(DLLNAME) $(OBJS)
 	@$(RANLIB) $(DLLNAME)
-	@$(MV) $(DLLNAME) $(DLLDIR)
+	@$(MV) $(DLLNAME) $(OBJDIR)
 
 -include $(DEPS)
