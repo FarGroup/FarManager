@@ -9,6 +9,7 @@ endif
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 DEF = $(NAME).gcc.def
+RES = $(OBJDIR)/$(NAME).res.o
 
 CXX = g++
 DLLTOOL = dlltool
@@ -23,6 +24,6 @@ RANLIB = ranlib
 CXXFLAGS = -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions $(USERCPP)
 LNKFLAGS = -mdll -s -nostartfiles -nodefaultlibs -lgcc $(USERLIBSFIRST) -L $(COMMON) -lCRT -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 MAP = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
