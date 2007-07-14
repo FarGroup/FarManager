@@ -1,0 +1,31 @@
+!ifndef ADDOUTDIR
+ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
+!else
+ALL: $(OUTDIR) $(OBJDIR) $(OUTDIR)$(ADDOUTDIR) $(DLLFULLNAME)
+
+$(OUTDIR)$(ADDOUTDIR): $(OUTDIR)
+	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
+!endif
+
+$(DLLFULLNAME) : $(LINK_OBJS) $(RES)
+	$(LNK) @<<
+	$(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
+<<
+	-255 @copy /Y *.lng $(OUTDIR) > nul 2> nul
+	-255 @copy /Y *.hlf $(OUTDIR) > nul 2> nul
+	-255 @copy /Y *.reg $(OUTDIR) > nul 2> nul
+	-255 @copy /Y *.temp $(OUTDIR) > nul 2> nul
+
+.cpp{$(OBJDIR)}.obj::
+	cl @<<
+	$(CFLAGS) $<
+<<
+
+$(RES): $(NAME).rc $(COMINC)\farversion.hpp
+	@rc /I"$(COMINC)" $(RC_WIDE) /fo"$(RES)" $(NAME).rc
+
+$(OBJDIR): $(OUTDIR)
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+
+$(OUTDIR):
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"

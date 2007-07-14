@@ -1,0 +1,91 @@
+!ifndef DEBUG
+DIRNAME=final
+!else
+DIRNAME=debug
+!endif                   
+
+!ifdef WIDE
+DIRSUFF = W
+!endif
+
+!IF "$(CPU)" == "AMD64"
+DIRBIT = 64
+!ELSE
+DIRBIT = 32
+!ENDIF
+OUTDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
+
+OBJDIR = $(OUTDIR)\obj
+COMMON = ..\common
+!ifndef WIDE
+COMINC = $(COMMON)\ascii
+!else
+COMINC = $(COMMON)\unicode
+CPP_WIDE = /DUNICODE /D_UNICODE
+RC_WIDE = /dUNICODE
+!endif
+!ifndef EXT
+EXT = dll
+!endif
+DLLNAME = $(NAME).$(EXT)
+DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
+!ifndef WIDE
+DEF = $(NAME).vc.def
+!else
+DEF = $(NAME)W.vc.def
+!endif
+MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
+RES = $(OBJDIR)\$(NAME).res
+
+!ifndef DEBUG
+CPP_OPT=/DNDEBUG /O1i
+!else
+PDBNAME="$(OUTDIR)$(ADDOUTDIR)\$(NAME).pdb"
+CPP_OPT=/DDEBUG /Od /Fd$(PDBNAME)
+!endif
+
+!IF "$(CPU)" == "AMD64"
+COMMONLIB = $(COMMON)\libCRT64.lib
+!ifdef EXCLUDECRT
+!undef COMMONLIB
+!endif
+LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
+CPP_PROJ=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
+ULOUT=-Tpd+
+!ELSE
+COMMONLIB = $(COMMON)\libCRT.lib
+!ifdef EXCLUDECRT
+!undef COMMONLIB
+!endif
+LIBS = $(COMMONLIB) kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib libcmt.lib
+CPP_PROJ=/nologo /c /W3 /Gy /GF /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
+ULOUT=-Tpd -Re
+!ENDIF
+
+!ifndef ULINK
+LNK=link.exe
+LINK_DEBUG=/pdb:$(PDBNAME)
+CPP_DEBUG=/Zi
+!ifndef NEEDENTRY
+NOENTRY = /noentry
+!endif
+!ifndef NEEDDEFLIB
+NODEFLIB = /nodefaultlib
+!endif
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 $(NOENTRY) $(NODEFLIB) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+!else
+LINK_DEBUG=-v
+CPP_DEBUG=/Z7
+LNK=ulink.exe +-
+!ifndef NEEDENTRY
+NOENTRY = -e-
+!endif
+LINK_FLAGS=-q $(ULOUT) -Gz -n -m- -Gh -Gh- $(NOENTRY) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)"
+!endif
+
+!ifndef DEBUG
+!undef LINK_DEBUG
+!undef CPP_DEBUG
+!endif
+
+CFLAGS = $(CPP_PROJ) $(CPP_DEBUG) $(CPP_OPT)
