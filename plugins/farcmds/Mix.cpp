@@ -11,7 +11,7 @@ int GetInt(char *Start, char *End)
   if(End >= Start)
   {
     char Tmp[11];
-    int Size=End-Start;
+    int Size=(int)(End-Start);
 
     if(Size)
     {

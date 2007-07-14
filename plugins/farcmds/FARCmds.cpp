@@ -141,7 +141,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
     int pathlen;
 
     lstrcpy(Name,PointToName(selectItem));
-    pathlen=PointToName(selectItem)-selectItem;
+    pathlen=(int)(PointToName(selectItem)-selectItem);
 
     if(pathlen)
       memcpy(Dir,selectItem,pathlen);
