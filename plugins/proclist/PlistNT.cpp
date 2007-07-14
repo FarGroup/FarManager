@@ -393,7 +393,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
             UNICODE_STRING pCmd;
             if(ReadProcessMemory(hProcess, &pProcessParams->CommandLine, &pCmd, sizeof(pCmd), 0)) {
                 SIZE_T sz = min(cbCommandLine, (ULONG)pCmd.Length + 1);
-                Array<WCHAR> sCommandLine(sz);
+                Array<WCHAR> sCommandLine((DWORD)sz);
                 *pCommandLine = 0;
                 if(ReadProcessMemory(hProcess, pCmd.Buffer, sCommandLine, sz-1,0)) {
                     sCommandLine[sz-1] = 0;
@@ -426,7 +426,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
                 }
                 if(pwEnvStrings) {
 #ifndef UNICODE
-                    dwSize = mwcslen(pwEnvStrings) + 1;
+                    dwSize = (DWORD)(mwcslen(pwEnvStrings) + 1);
                     dwSize = WideCharToMultiByte( CP_ACP, 0, pwEnvStrings, dwSize, 0,0,0,0);
                     if(dwSize) {
                         *ppEnvStrings = new char[dwSize];

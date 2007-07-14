@@ -411,7 +411,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
         // ProcessId filtering check
         if(pSysHandleInformation->Handles[i].UniqueProcessId==dwPID || dwPID==(DWORD)-1)
         {
-            pSysHandleInformation->Handles[i].HandleAttributes = (WORD)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
+            pSysHandleInformation->Handles[i].HandleAttributes = (UCHAR)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
             fprintf(file, _T("%5X  %08X "),
                 pSysHandleInformation->Handles[i].HandleValue,
                 /*dwType< ArraySize(constStrTypes) ?

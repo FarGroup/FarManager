@@ -214,22 +214,21 @@ BOOL GetProcessModule(DWORD dwPID,DWORD dwModuleID,LPMODULEENTRY32 lpMe32,
 
 DWORD GetHeapSize(DWORD dwPID)
 {
-    HEAPLIST32 hl32 = { sizeof(hl32) };
-    HEAPENTRY32 he32 = { sizeof(he32) };
+  HEAPLIST32 hl32 = { sizeof(hl32) };
+  HEAPENTRY32 he32 = { sizeof(he32) };
 
-    HANDLE hSnapshot = pCreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, dwPID);
-    if (hSnapshot==INVALID_HANDLE_VALUE)
-        return 0;
+  HANDLE hSnapshot = pCreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, dwPID);
+  if (hSnapshot==INVALID_HANDLE_VALUE)
+    return 0;
 
-    DWORD dwSize = 0;
+  DWORD dwSize = 0;
 
-    for(BOOL bRes = pHeap32ListFirst(hSnapshot, &hl32); bRes; bRes=pHeap32ListNext(hSnapshot, &hl32)) {
-        for(BOOL bRes1 = pHeap32First(&he32, hl32.th32ProcessID, hl32.th32HeapID);
-                bRes1; bRes1 = pHeap32Next(&he32))
-                        dwSize += he32.dwBlockSize;
-    }
-    CloseHandle(hSnapshot);
-    return dwSize;
+  for(BOOL bRes = pHeap32ListFirst(hSnapshot, &hl32); bRes; bRes=pHeap32ListNext(hSnapshot, &hl32)) {
+    for(BOOL bRes1 = pHeap32First(&he32, hl32.th32ProcessID, hl32.th32HeapID); bRes1; bRes1 = pHeap32Next(&he32))
+      dwSize += (DWORD)he32.dwBlockSize;
+  }
+  CloseHandle(hSnapshot);
+  return dwSize;
 }
 
 BOOL KillProcess(DWORD dwPID)

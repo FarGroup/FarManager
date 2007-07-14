@@ -437,7 +437,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
 #endif
         for(StrTok tokn(pi.ColumnWidths, _T(", ")); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
 #undef ColumnWidths
-            uCustomColSize += ((Widths[nCols++] = FSF.atoi(tokn)) + 1)*sizeof(TCHAR);
+            uCustomColSize += (unsigned int)(((Widths[nCols++] = FSF.atoi(tokn)) + 1)*sizeof(TCHAR));
         }
 
         if(nCols) {
@@ -1324,7 +1324,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 if(pl->dwCounterTitles[i]) {
 #ifndef UNICODE
                     lstrcpyn(Items[nItems].Text, GetMsg(Counters[i].idName), ArraySize(Items[0].Text));
-                    LASTBYTE(Items[nItems].Text) = SM_PERFCOUNTER+i;
+                    LASTBYTE(Items[nItems].Text) = (char)(SM_PERFCOUNTER+i);
 #else
                     Items[nItems].Text = GetMsg(Counters[i].idName);
                     Flags[nItems].m = SM_PERFCOUNTER+i;
@@ -1345,7 +1345,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                             FSF.sprintf(PUT, _T("%s %s"), GetMsg(Counters[i].idName), GetMsg(MperSec));
 #undef PUT
 #ifndef UNICODE
-                        LASTBYTE(Items[nItems].Text) = (SM_PERFCOUNTER+i) | SM_PERSEC;
+                        LASTBYTE(Items[nItems].Text) = (char)((SM_PERFCOUNTER+i) | SM_PERSEC);
 #else
                         Items[nItems].Text = wcsdup(tmpStr);
                         Flags[nItems].m = (SM_PERFCOUNTER+i) | SM_PERSEC;

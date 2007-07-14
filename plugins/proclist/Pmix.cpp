@@ -87,7 +87,7 @@ int WinError(TCHAR* pSourceModule, BOOL bDown)
   items[1] = _tcstok(lpMsgBuf,_T("\r\n"));
   items[2] = _tcstok(NULL,_T("\r\n")); if(!items[2]) items[2] = items[3];
   int rc = Message(bDown ? FMSG_WARNING|FMSG_DOWN : FMSG_WARNING,
-        0,items,ArraySize(items) - (items[2]==items[3]));
+        0,items,(int)(ArraySize(items) - (items[2]==items[3])));
   if(bAllocated) LocalFree( lpMsgBuf );
   return rc;
 }
