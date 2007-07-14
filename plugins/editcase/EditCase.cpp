@@ -7,6 +7,7 @@
 
 #if defined(__GNUC__) || defined (_MSC_VER)
 #include <limits.h>
+#undef MAXINT
 #define MAXINT INT_MAX
 #else
 #include <values.h> //MAXINT
@@ -47,7 +48,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     IsOldFAR=FALSE;
 
     FSF.sprintf(PluginRootKey,"%s\\EditCase",Info->RootKey);
-    WordDivLen=::Info.AdvControl(::Info.ModuleNumber, ACTL_GETSYSWORDDIV, WordDiv);
+    WordDivLen=(int)::Info.AdvControl(::Info.ModuleNumber, ACTL_GETSYSWORDDIV, WordDiv);
     char AddWordDiv[sizeof(WordDiv)];
     GetRegKey(HKEY_CURRENT_USER,"","AddWordDiv",AddWordDiv,"#",sizeof(AddWordDiv));
     WordDivLen += lstrlen(AddWordDiv);
