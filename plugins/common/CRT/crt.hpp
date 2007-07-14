@@ -50,17 +50,35 @@ extern "C"
 {
 #endif
 #undef isdigit
-  int __cdecl isdigit(int c);
+  __inline int __cdecl isdigit(int c)
+  {
+    return (c>='0' && c<='9');
+  }
 #undef iswdigit
-  int __cdecl iswdigit(wint_t c);
+  __inline int __cdecl iswdigit(wint_t c)
+  {
+    return (c>='0' && c<='9');
+  }
 #undef isspace
-  int __cdecl isspace(int c);
+  __inline int __cdecl isspace(int c)
+  {
+    return (c==0x20 || (c>=0x09 && c<=0x0D));
+  }
 #undef iswspace
-  int __cdecl iswspace(wint_t c);
+  __inline int __cdecl iswspace(wint_t c)
+  {
+    return (c==0x20 || (c>=0x09 && c<=0x0D));
+  }
 #undef isxdigit
-  int __cdecl isxdigit(int c);
+  __inline int __cdecl isxdigit(int c)
+  {
+    return ((c>='0' && c<='9') || (c>='A' && c<='F'));
+  }
 #undef iswxdigit
-  int __cdecl iswxdigit(wint_t c);
+  __inline int __cdecl iswxdigit(wint_t c)
+  {
+    return ((c>='0' && c<='9') || (c>='A' && c<='F'));
+  }
   void __cdecl free(void *block);
   char * __cdecl _i64toa(__int64 val, char *buf, int radix);
   wchar_t * __cdecl _i64tow(__int64 val, wchar_t *buf, int radix);

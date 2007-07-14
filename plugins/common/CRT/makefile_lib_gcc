@@ -23,7 +23,6 @@ strrchr.cpp \
 strtok.cpp \
 strtol.cpp \
 i64toa.cpp \
-ctype.cpp \
 delete.cpp \
 delete_array.cpp \
 free.cpp \

@@ -14,8 +14,7 @@ OUTDIR = ..
 VC8OPT=/GS- /D_CRT_SECURE_NO_DEPRECATE
 !endif
 
-LINK_OBJS = $(OBJDIR)\ctype.obj \
-$(OBJDIR)\delete.obj \
+LINK_OBJS = $(OBJDIR)\delete.obj \
 $(OBJDIR)\delete_array.obj \
 $(OBJDIR)\free.obj \
 $(OBJDIR)\i64toa.obj \
@@ -87,7 +86,6 @@ $(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
 	$(MASM) /nologo /coff /c /Fo$@ $<
 
 
-$(OBJDIR)\ctype.obj: ctype.cpp crt.hpp
 $(OBJDIR)\delete.obj: delete.cpp crt.hpp
 $(OBJDIR)\delete_array.obj: delete_array.cpp crt.hpp
 $(OBJDIR)\free.obj: free.cpp crt.hpp
