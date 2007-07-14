@@ -20,4 +20,4 @@ LIBS = $(OBJDIR)\pcre.lib $(LIBS)
 
 include ..\makefile_vc_target_inc
 
-$(OBJDIR)\$(NAME).res: multiarcversion.hpp
+$(RES): multiarcversion.hpp

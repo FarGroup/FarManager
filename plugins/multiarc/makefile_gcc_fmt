@@ -17,4 +17,4 @@ include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc
 
-$(OBJDIR)/$(NAME).res.o: multiarcversion.hpp
+$(RES): multiarcversion.hpp

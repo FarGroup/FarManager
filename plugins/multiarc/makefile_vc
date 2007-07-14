@@ -23,7 +23,7 @@ include ..\makefile_vc_target_inc
 
 ALL: fmt
 
-$(OBJDIR)\$(NAME).res: multiarcversion.hpp
+$(RES): multiarcversion.hpp
 
 fmt:
 	$(MAKE) /f makefile_vc_libpcre
