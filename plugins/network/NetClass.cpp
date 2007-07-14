@@ -1479,7 +1479,7 @@ int NetBrowser::AddConnectionWithLogon(NETRESOURCE *nr, char *Name, char *Passwo
       //make copy of Name
       lstrcpy(szNameCopy, Name);
       char *p = nr->lpRemoteName;
-      int n = PointToName(p) - p;
+      int n = (int)(PointToName(p) - p);
       if(n <= 2)
         lstrcpyn(szServer, p + n, sizeof(szServer));
       else
@@ -1528,7 +1528,7 @@ void NetBrowser::DisconnectFromServer(NETRESOURCE *nr)
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     return;
   //First we should know a name of the server
-  int n = PointToName(nr->lpRemoteName) - nr->lpRemoteName;
+  int n = (int)(PointToName(nr->lpRemoteName) - nr->lpRemoteName);
   if(n <= 2)
     n = lstrlen(nr->lpRemoteName) + 1;
   char *szServer = (char*)malloc(n + 1);

@@ -1,38 +1,4 @@
 NAME = Network
-
-!ifdef WIDE
-DIRSUFF = W
-!endif
-
-!IF "$(CPU)" == "AMD64"
-DIRBIT = 64
-!ELSE
-DIRBIT = 32
-!ENDIF
-OUTDIR = final.$(DIRBIT)$(DIRSUFF).vc
-
-OBJDIR = $(OUTDIR)\obj
-COMMON = ..\common
-!ifndef WIDE
-COMINC = $(COMMON)\ascii
-!else
-COMINC = $(COMMON)\unicode
-!endif
-DLLNAME = $(NAME).dll
-DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
-DEF = $(NAME).vc.def
-MAP = $(OUTDIR)\$(NAME).map
-
-!IF "$(CPU)" == "AMD64"
-LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib mpr.lib
-CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
-!ELSE
-LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib mpr.lib libcmt.lib
-CPP_PROJ=/nologo /c /O1i /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
-!ENDIF
-
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
-
 LINK_OBJS = $(OBJDIR)\Network.obj \
 $(OBJDIR)\NetCfg.obj \
 $(OBJDIR)\NetClass.obj \
@@ -40,25 +6,11 @@ $(OBJDIR)\NetCommon.obj \
 $(OBJDIR)\NetFavorites.obj \
 $(OBJDIR)\NetMix.obj \
 $(OBJDIR)\NetNT.obj \
-$(OBJDIR)\NetReg.obj \
-$(OBJDIR)\$(NAME).res
+$(OBJDIR)\NetReg.obj
 
-ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
+include ..\makefile_vc_def_inc
 
-$(DLLFULLNAME) : $(LINK_OBJS)
-	link @<<
-	$(LINK_FLAGS) $(LINK_OBJS)
-<<
-	@copy /Y *.hlf $(OUTDIR) > nul
-	@copy /Y *.lng $(OUTDIR) > nul
-
-.cpp{$(OBJDIR)}.obj::
-	cl @<<
-	$(CPP_PROJ) $<
-<<
-
-$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp
-	@rc /I"$(COMINC)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
+include ..\makefile_vc_target_inc
 
 $(OBJDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp $(COMINC)\plugin.hpp \
   netlng.hpp NetMacros.hpp NetFavorites.hpp NetClass.hpp NetReg.hpp
@@ -77,9 +29,3 @@ $(OBJDIR)\NetReg.obj : NetReg.cpp NetReg.hpp NetCommon.hpp $(COMINC)\plugin.hpp 
   netlng.hpp NetMacros.hpp
 $(OBJDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp $(COMINC)\plugin.hpp \
   netlng.hpp NetMacros.hpp NetClass.hpp
-
-$(OBJDIR): $(OUTDIR)
-	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
-
-$(OUTDIR):
-	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
