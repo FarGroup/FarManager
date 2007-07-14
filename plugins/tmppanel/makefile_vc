@@ -1,61 +1,10 @@
 NAME = TmpPanel
-
-!IF "$(CPU)" == "AMD64"
-OUTDIR = final.64.vc
-!ELSE
-OUTDIR = final.32.vc
-!ENDIF
-
-OBJDIR = $(OUTDIR)\obj
-COMMON = ..\common
-!ifndef WIDE
-COMINC = $(COMMON)\ascii
-!else
-COMINC = $(COMMON)\unicode
-!endif
-DLLNAME = $(NAME).dll
-DLLFULLNAME = $(OUTDIR)\$(DLLNAME)
-DEF = $(NAME).vc.def
-MAP = $(OUTDIR)\$(NAME).map
-
-!IF "$(CPU)" == "AMD64"
-LIBS = $(COMMON)\libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib 
-CPP_PROJ=/nologo /c /O1i /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
-!ELSE
-LIBS = $(COMMON)\libCRT.lib kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib libcmt.lib
-CPP_PROJ=/nologo /c /O1i /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)"
-!ENDIF
-
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 /noentry /nodefaultlib /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)" $(LIBS)
-
 LINK_OBJS = $(OBJDIR)\TmpPanel.obj \
 $(OBJDIR)\TmpCfg.obj \
 $(OBJDIR)\TmpClass.obj \
 $(OBJDIR)\TmpMix.obj \
-$(OBJDIR)\TmpReg.obj \
-$(OBJDIR)\$(NAME).res
+$(OBJDIR)\TmpReg.obj
 
-ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
+include ..\makefile_vc_def_inc
 
-$(DLLFULLNAME) : $(LINK_OBJS)
-	link @<<
-	$(LINK_FLAGS) $(LINK_OBJS)
-<<
-	@copy /Y *.hlf $(OUTDIR) > nul
-	@copy /Y *.lng $(OUTDIR) > nul
-	@copy /Y *.reg $(OUTDIR) > nul
-	@copy /Y *.temp $(OUTDIR) > nul
-
-.cpp{$(OBJDIR)}.obj::
-	cl @<<
-	$(CPP_PROJ) $<
-<<
-
-$(OBJDIR)\$(NAME).res: $(NAME).rc $(COMINC)\farversion.hpp
-	@rc /I"$(COMINC)" /fo"$(OBJDIR)\$(NAME).res" $(NAME).rc
-
-$(OBJDIR): $(OUTDIR)
-	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
-
-$(OUTDIR):
-	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+include ..\makefile_vc_target_inc
