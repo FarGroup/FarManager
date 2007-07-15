@@ -10,6 +10,9 @@
 #
 #USERCPP - user defined switches for the compiler (added after the default
 #          ones).
+#
+#LINK_OBJS - a list of target *.obj files
+#
 #DEBUG - set if a debug build is needed
 #
 #WIDE - set for a unicode build
