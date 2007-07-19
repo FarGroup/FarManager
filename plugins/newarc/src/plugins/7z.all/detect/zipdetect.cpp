@@ -32,7 +32,7 @@ static inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char 
   ZipHeader* pHdr=(ZipHeader*)Data;
   //const WORD Zip64=45;
   return (0x04034b50==pHdr->Signature
-    && pHdr->Method<15
+    && (pHdr->Method<20 || pHdr->Method==98 || pHdr->Method == 99)
     && pHdr->VerToExtract < 0xFF
     && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
