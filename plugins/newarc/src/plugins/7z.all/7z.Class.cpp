@@ -430,6 +430,17 @@ void SevenZipModule::GetArchiveFormatInfo (unsigned int nFormatIndex, ArchiveFor
 		pInfo->lpName = "ZIP archive [7z]";
 		pInfo->lpDefaultExtention = "zip";
 	}
+	else
+	if ( IsEqualGUID (uid, CLSID_CWimHandler) )
+	{
+		pInfo->lpName = "WIM archive [7z]";
+		pInfo->lpDefaultExtention = "wim";
+	}
+	else
+	{
+		pInfo->lpName = "UNKNOWN archive [7z]";
+		pInfo->lpDefaultExtention = "";
+	}
 }
 
 
