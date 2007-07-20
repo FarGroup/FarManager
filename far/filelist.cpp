@@ -786,7 +786,7 @@ int FileList::ProcessKey(int Key)
 
     case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
     case KEY_ALTHOME:     // Прокрутка длинных имен и описаний - в начало
-      LeftPos=(Key == KEY_ALTHOME)?0:LeftPos-1;
+      LeftPos=(Key == KEY_ALTHOME)?-0x7fff:LeftPos-1;
       Redraw();
       return(TRUE);
 
