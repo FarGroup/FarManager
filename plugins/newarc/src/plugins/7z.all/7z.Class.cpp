@@ -23,6 +23,7 @@ const GUID FormatGUIDs[] = {
 		CLSID_CZHandler,
 		CLSID_CBZip2Handler,
 		CLSID_CCpioHandler,
+		CLSID_CWimHandler,
 };
 
 
@@ -40,6 +41,7 @@ const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUG BUG: вроде 
 const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
 const unsigned char NsisSig[]     = {0xEF, 0xBE, 0xAD, 0xDE, 0x4E, 0x75, 0x6C, 0x6C, 0x73, 0x6F, 0x66, 0x74, 0x49, 0x6E, 0x73, 0x74};
 const unsigned char IsoSig[]      = {'C', 'D', '0', '0', '1', 0x1};
+const unsigned char WimSig[]      = {'M', 'S', 'W', 'I', 'M', 0, 0, 0};
 
 struct FormatInfo {
 	const GUID *puid;
@@ -66,6 +68,7 @@ const FormatInfo signs[] = {
 	{&CLSID_CChmHandler,   (const unsigned char *)&ChmSig,      4, true,  NULL},
 	{&CLSID_CNsisHandler,  (const unsigned char *)&NsisSig,    16, false, IsNSISHeader},
 	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, true,  IsIsoHeader},
+	{&CLSID_CWimHandler,   (const unsigned char *)&WimSig,      8, true,  NULL},
 };
 
 
@@ -249,7 +252,7 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 
 					bResult = true;
 
-					for (int i = 0; i < m_nNumberOfFormats; i++)
+					for (unsigned int i = 0; i < m_nNumberOfFormats; i++)
 					{
 						if ( (m_pfnGetHandlerProperty2 (i, NArchive::kClassID, &value) != S_OK) ||
 							 (value.vt != VT_BSTR) )
