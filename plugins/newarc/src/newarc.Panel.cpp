@@ -711,7 +711,6 @@ void GetArchiveItemsToProcess (
 		if ( pItemInfo )
 		{
 			memcpy (item, &pItemInfo->ItemInfo.pi, sizeof (PluginPanelItem));
-		//	MessageBox (0, pItemInfo->ItemInfo.pi.FindData.cFileName, "asd", MB_OK);
 		}
 		else
 		{
