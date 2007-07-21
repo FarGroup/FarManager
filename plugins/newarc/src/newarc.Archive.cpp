@@ -221,8 +221,8 @@ int __stdcall Archive::OnQueryPassword (int nMode, ArchivePassword *pPassword)
    			m_lpLastUsedPassword = StrCreate (512);
 
    			bResult = Info.InputBox (
-   					(nMode == PASSWORD_LIST)?"Информация об именах файлов защищена паролем":"Содержимое файла защищено паролем",
-   					"Введите пароль",
+   					(nMode == PASSWORD_LIST)?_M(MQueryPasswordFileList):_M(MQueryPasswordContents),
+   					_M(MQueryPasswordEnterPassword),
    					NULL,
    					NULL,
    					m_lpLastUsedPassword,
@@ -264,20 +264,20 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
 		{
 			if ( m_OS.nOperation == OPERATION_EXTRACT )
 			{
-				doEmptyDialog (" Распаковка ", false, c);
-				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Распаковка файла");
+				doEmptyDialog (_M(MProcessFileExtractionTitle), false, c);
+				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessFileExtraction));
 			}
 
 			if ( m_OS.nOperation == OPERATION_ADD )
-				doEmptyDialog (" Добавление ", false, c);
+				doEmptyDialog (_M(MProcessFileAdditionTitle), false, c);
 
 			if ( m_OS.nOperation == OPERATION_DELETE )
 			{
-				doEmptyDialog (" Удаление ", false, c);
-				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Удаление файла");
+				doEmptyDialog (_M(MProcessFileDeletionTitle), false, c);
+				Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessFileDeletion));
 			}
 
-			Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), "в");
+			Info.Text (c.X+5, c.Y+4, FarGetColor (COL_DIALOGTEXT), _M(MProcessFileTo));
 
 			doIndicator (c.X+5, c.Y+6, 0);
 			doIndicator (c.X+5, c.Y+8, 0);
@@ -292,9 +292,9 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
 	if ( m_OS.nOperation == OPERATION_ADD )
 	{
 		if ( m_pCurrentItem )
-			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Добавление файла");
+			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessFileAddition));
 		else
-			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Перепаковка архива");
+			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessFileAdditionRecompresion));
 	}
 
 	//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
@@ -391,7 +391,7 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 
 		char szTitle[MAX_PATH];
 
-		FSF.sprintf (szTitle, "{%d%%} Распаковка - Far", (int)(div*100));
+		FSF.sprintf (szTitle, _M(MProcessDataWindowTitle), (int)(div*100));
 
 		if ( strcmp (szTitle, szOldTitle) != 0 )
 		{
@@ -404,7 +404,7 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 	{
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 		{
-			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), "Операция прерывается...");
+			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessDataOperationCanceled));
 			Info.Text (0, 0, 0, 0);
 		}
 

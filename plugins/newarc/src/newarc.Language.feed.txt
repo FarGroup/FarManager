@@ -4,6 +4,10 @@ newarc.Messages.h
 newarc.Russian.lng Russian "Russian (Русский)"
 newarc.English.lng English "English"
 
+MPluginTitle
+"Поддержка архивов (newarc)"
+"Archive support (newarc)"
+
 MSG_cmn_B_OK
 "Продолжить"
 "Ok"
@@ -11,6 +15,18 @@ MSG_cmn_B_OK
 MSG_cmn_B_CANCEL
 "Отмена"
 "Cancel"
+
+MReset
+"Сбросить"
+"Reset"
+
+MCommandLinesAndParamsTitleMenu
+"Командные строки архиваторов"
+"Archivers command lines"
+
+MCommandLinesAndParamsTitleDialog
+"Параметры архиватора %s"
+"%s settings"
 
 MSG_dlgCLAP_S_EXTRACT
 "&Распаковка            :"
@@ -56,6 +72,18 @@ MSG_dlgCLAP_S_ADD_FILES
 "&Добавление файлов     :"
 "Add files             :"
 
+MCommandLinesAndParamsFileExtension
+"Расширение файлов :"
+"File extension :"
+
+MCommandLinesAndParamsAllFilesMask
+"Маска \"все файлы\" :"
+"All files mask :"
+
+MCommandLinesAndParamsArchiveFormat
+"Формат архива"
+"Archive format"
+
 MSG_mnuCO_S_TEST_ARCHIVE
 "&Тестирование архива"
 "Test archive"
@@ -83,3 +111,91 @@ MSG_mnuCO_S_ADD_RECOVERY_RECORD
 MSG_mnuCO_S_LOCK
 "З&апретить изменение архива"
 "Lock archive"
+
+MConfigCommonTitle
+"Общие настройки"
+"Common settings"
+
+MConfigCommonAlwaysShowOutput
+"Всегда показывать сообщения архиваторов"
+"Always show archiver output"
+
+MConfigCommonDontShowOutputWhenViewingEditing
+"Не показывать сообщения архиваторов при редактировании/просмотре"
+"Don't show archiver output when editing/viewing"
+
+MConfigCommonNeverShowOutput
+"Не показывать сообщения архиваторов"
+"Don't show archiver output"
+
+MQueryPasswordFileList
+"Информация об именах файлов защищена паролем"
+"File list is password protected"
+
+MQueryPasswordContents
+"Содержимое файла защищено паролем"
+"The contents is password protected"
+
+MQueryPasswordEnterPassword
+"Введите пароль"
+"Enter password"
+
+MProcessFileExtractionTitle
+" Распаковка "
+" Extraction "
+
+MProcessFileExtraction
+"Распаковка файла"
+"Extracting"
+
+MProcessFileAdditionTitle
+" Добавление "
+" Addition "
+
+MProcessFileAddition
+"Добавление файла"
+"Adding"
+
+MProcessFileAdditionRecompresion
+"Перепаковка архива"
+"Recompressing"
+
+MProcessFileDeletionTitle
+" Удаление "
+" Deletion "
+
+MProcessFileDeletion
+"Удаление файла"
+"Deleting"
+
+MProcessFileTo
+"в"
+"to"
+
+MProcessDataWindowTitle
+"{%d%%} Распаковка - Far"
+"{%d%%} Extraction - Far"
+
+MProcessDataOperationCanceled
+"Операция прерывается..."
+"Operation is being canceled..."
+
+MReadArchiveWait
+"Подождите"
+"Please wait"
+
+MReadArchiveReading
+"Чтение архива"
+"Reading archive"
+
+MReadArchiveFileCount
+"%d файлов"
+"%d files"
+
+MOpenArchiveAs
+"Открыть как"
+"Open as"
+
+MAddToTitle
+"Добавить к %s"
+"Add to %s"

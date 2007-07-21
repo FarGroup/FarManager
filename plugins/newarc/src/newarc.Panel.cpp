@@ -100,12 +100,12 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 				char szFileCount[100];
 				char *pMsgs[4];
 
-				pMsgs[0] = "Подождите";
-				pMsgs[1] = "Чтение архива";
+				pMsgs[0] = _M(MReadArchiveWait);
+				pMsgs[1] = _M(MReadArchiveReading);
 				pMsgs[2] = m_pArchive->m_lpFileName;
 				pMsgs[3] = (char*)&szFileCount;
 
-				FSF.sprintf ((char*)&szFileCount, "%d файлов", m_pArchiveFiles.count());
+				FSF.sprintf ((char*)&szFileCount, _M(MReadArchiveFileCount), m_pArchiveFiles.count());
 
 				Info.Message(
 						Info.ModuleNumber,
@@ -171,7 +171,7 @@ int __stdcall ArchivePanel::pGetFindData(
 						-1,
 						0,
 						FMENU_WRAPMODE,
-						"Открыть как",
+						_M(MOpenArchiveAs),
 						NULL,
 						NULL,
 						NULL,
@@ -963,7 +963,7 @@ void SetFormatTitle (FarDialogHandler *D)
 	else
 		D->GetTextPtr (12, lpFormat);
 
-	FSF.sprintf (lpTitle, "Добавить к %s", lpFormat);
+	FSF.sprintf (lpTitle, _M(MAddToTitle), lpFormat);
 
 	D->SetTextPtr (0, lpTitle);
 

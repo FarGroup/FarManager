@@ -10,19 +10,18 @@ char *lpCurrentLanguage;
 char *lpINIFileName;
 
 char *pCommandNames[11] = {
-		"Extract",
-        "ExtractWithoutPath",
-        "Test",
-        "Delete",
-        "ArchiveComment",
-        "FileComment",
-        "ConvertToSFX",
-        "Lock",
-        "AddRecoveryRecord",
-        "Recover",
-        "Add"
-        };
-
+	"Extract",
+	"ExtractWithoutPath",
+	"Test",
+	"Delete",
+	"ArchiveComment",
+	"FileComment",
+	"ConvertToSFX",
+	"Lock",
+	"AddRecoveryRecord",
+	"Recover",
+	"Add"
+};
 
 const char *GUID2STR (const GUID &uid)
 {
@@ -329,7 +328,7 @@ void __stdcall GetPluginInfo (
 {
 	static char *PluginConfigStrings[1];
 
-	PluginConfigStrings[0] = "Поддержка архивов (newarc)";
+	PluginConfigStrings[0] = _M(MPluginTitle);
 
 	pi->PluginConfigStrings = (const char *const*)&PluginConfigStrings;
 	pi->PluginConfigStringsNumber = 1;
@@ -358,18 +357,18 @@ void dlgConfigure ()
 {
 	FarDialog D (-1, -1, 78, 9);
 
-	D.DoubleBox (3, 1, 74, 7, "Общие настройки");
+	D.DoubleBox (3, 1, 74, 7, _M(MConfigCommonTitle));
 
-	D.RadioButton (5, 2, false, "Всегда показывать сообщения архиваторов");
-	D.RadioButton (5, 3, false, "Не показывать сообщения архиваторов при редактировании/просмотре");
-	D.RadioButton (5, 4, false, "Не показывать сообщения архиваторов");
+	D.RadioButton (5, 2, false, _M(MConfigCommonAlwaysShowOutput));
+	D.RadioButton (5, 3, false, _M(MConfigCommonDontShowOutputWhenViewingEditing));
+	D.RadioButton (5, 4, false, _M(MConfigCommonNeverShowOutput));
 
 	D.Separator (5);
 
-	D.Button (-1, 6, "Принять");
+	D.Button (-1, 6, _M(MSG_cmn_B_OK));
 	D.DefaultButton ();
 
-	D.Button (-1, 6, "Отмена");
+	D.Button (-1, 6, _M(MSG_cmn_B_CANCEL));
 
 	if ( D.ShowEx () == D.FirstButton() )
 	{
@@ -399,7 +398,7 @@ void dlgCommandLinesAndParams (GUID &uid)
 
 	const ArchiveFormatInfo *info = pPlugin->GetArchiveFormatInfo (uid);
 
-	FSF.sprintf (lpTitle, "Параметры архиватора %s", info->lpName);
+	FSF.sprintf (lpTitle, _M(MCommandLinesAndParamsTitleDialog), info->lpName);
 
 	D.DoubleBox (3, 1, 72, nHeight-2, lpTitle); //0
 
@@ -408,19 +407,19 @@ void dlgCommandLinesAndParams (GUID &uid)
 
 	D.Separator (Y++);
 
-	D.Text (5, Y, "Расширение файлов :");
+	D.Text (5, Y, _M(MCommandLinesAndParamsFileExtension));
 	D.Edit (25, Y, 10, info->lpDefaultExtention);
 
-	D.Text (40, Y, "Маска \"все файлы\" :");
+	D.Text (40, Y, _M(MCommandLinesAndParamsAllFilesMask));
 	D.Edit (60, Y++, 10);
 
 	D.Separator (Y++);
 
-	D.Button (-1, Y, "Принять");
+	D.Button (-1, Y, _M(MSG_cmn_B_OK));
 	D.DefaultButton ();
 
-	D.Button (-1, Y, "Отмена");
-	D.Button (-1, Y++, "Сбросить");
+	D.Button (-1, Y, _M(MSG_cmn_B_CANCEL));
+	D.Button (-1, Y++, _M(MReset));
 
 	if ( D.Show () == D.FirstButton() )
 	{
@@ -510,7 +509,7 @@ void mnuCommandLinesAndParams ()
 			-1,
 			0,
 			FMENU_WRAPMODE|FMENU_USEEXT,
-			"Формат архива",
+			_M(MCommandLinesAndParamsArchiveFormat),
 			NULL,
 			NULL,
 			NULL,
@@ -537,14 +536,12 @@ int __stdcall Configure (
 		int nItem
 		)
 {
-	FarMenuItem *pItems = (FarMenuItem*)malloc (
-			2*sizeof (FarMenuItem)
-			);
+	FarMenuItem *pItems = (FarMenuItem*)malloc ( 2*sizeof (FarMenuItem) );
 
 	memset (pItems, 0, 2*sizeof (FarMenuItem));
 
-	strcpy (pItems[0].Text, "Настройка");
-	strcpy (pItems[1].Text, "Командные строки архиваторов");
+	strcpy (pItems[0].Text, _M(MConfigCommonTitle));
+	strcpy (pItems[1].Text, _M(MCommandLinesAndParamsTitleMenu));
 
 	int nResult = Info.Menu (
 			Info.ModuleNumber,
@@ -552,7 +549,7 @@ int __stdcall Configure (
 			-1,
 			0,
 			FMENU_WRAPMODE,
-			NULL,
+			_M(MPluginTitle),
 			NULL,
 			NULL,
 			NULL,
@@ -567,10 +564,7 @@ int __stdcall Configure (
 	if ( nResult == 1 )
 		mnuCommandLinesAndParams ();
 
-
 	free (pItems);
-
-
 
 	return FALSE;
 }
