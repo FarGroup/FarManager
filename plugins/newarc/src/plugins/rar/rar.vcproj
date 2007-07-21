@@ -32,8 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\plugins\rar.module"
+				OutputFile="&quot;C:\System Independent Files\Manager\Far\plugins\newarc\plugins\rar.module&quot;"
 				LinkIncremental="2"
+				ModuleDefinitionFile="rar.def"
+				AddModuleNamesToAssembly=""
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/rar.pdb"
 				SubSystem="2"

@@ -53,7 +53,7 @@ RarArchive::RarArchive (RarModule *pModule, const char *lpFileName)
 RarArchive::~RarArchive ()
 {
 	StrFree (m_lpFileName);
-	free (m_pfnRarCallback);
+	ReleaseThunk (m_pfnRarCallback);
 }
 
 bool __stdcall RarArchive::pOpenArchive (
