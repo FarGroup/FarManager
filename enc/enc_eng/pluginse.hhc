@@ -1489,6 +1489,10 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getdropdownopened.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_GETEDITPOSITION">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_geteditposition.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETFOCUS">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getfocus.html">
                                 </OBJECT>
@@ -1631,6 +1635,10 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_SETDROPDOWNOPENED">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_setdropdownopened.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_SETEDITPOSITION">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_seteditposition.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_SETFOCUS">
