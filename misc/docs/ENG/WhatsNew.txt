@@ -74,7 +74,7 @@ FAR 1.71 alpha 4 (build 2248) (Jul 23 2007)
 
 [+] Macro: нова€ функци€ gethotkey()
 
-[+] API: добавлены команды DM_GETEDITPOSITION и DM_GETEDITPOSITION - управление
+[+] API: добавлены команды DM_GETEDITPOSITION и DM_SETEDITPOSITION - управление
     позицией строки в строках ввода в диалогах.
 
 [*] API: „лен структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
