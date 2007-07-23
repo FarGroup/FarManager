@@ -279,6 +279,27 @@ int DlgEdit::GetCurRow()
     return 0;
 }
 
+int DlgEdit::GetTabCurPos()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    return multiEdit->GetCurPos(); // GetCurCol???
+  else
+#endif
+    return lineEdit->GetTabCurPos();
+}
+
+void DlgEdit::SetTabCurPos(int NewPos)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->SetCurPos(NewPos,multiEdit->GetCurRow()); //???
+  else
+#endif
+    lineEdit->SetTabCurPos(NewPos);
+}
+
+
 void DlgEdit::SetPersistentBlocks(int Mode)
 {
 #if defined(PROJECT_DI_MEMOEDIT)

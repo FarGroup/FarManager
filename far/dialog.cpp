@@ -5963,6 +5963,59 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     }
 
     /*****************************************************************/
+    case DM_GETEDITPOSITION:
+    {
+      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct EditorSetPosition)) && IsEdit(Type))
+      {
+        if(Type == DI_MEMOEDIT)
+        {
+          //EditorControl(ECTL_GETINFO,(struct EditorSetPosition *)Param2);
+          return TRUE;
+        }
+        else
+        {
+          struct EditorSetPosition *esp=(struct EditorSetPosition *)Param2;
+          DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
+          esp->CurLine=0;
+          esp->CurPos=EditPtr->GetCurPos();
+          esp->CurTabPos=EditPtr->GetTabCurPos();
+          esp->TopScreenLine=0;
+          esp->LeftPos=EditPtr->GetLeftPos();
+          esp->Overtype=EditPtr->GetOvertypeMode();
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+
+    /*****************************************************************/
+    case DM_SETEDITPOSITION:
+    {
+      if(Param2 && !IsBadReadPtr((void*)Param2,sizeof(struct EditorSetPosition)) && IsEdit(Type))
+      {
+        if(Type == DI_MEMOEDIT)
+        {
+          //EditorControl(ECTL_SETPOSITION,(struct EditorSetPosition *)Param2);
+          return TRUE;
+        }
+        else
+        {
+          struct EditorSetPosition *esp=(struct EditorSetPosition *)Param2;
+          DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
+          EditPtr->SetCurPos(esp->CurPos);
+          EditPtr->SetTabCurPos(esp->CurTabPos);
+          EditPtr->SetLeftPos(esp->LeftPos);
+          EditPtr->SetOvertypeMode(esp->Overtype);
+
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+
+    /*****************************************************************/
     /* $ 23.10.2000 SVS
        ѕолучить/установить размер курсора
        Param2=0

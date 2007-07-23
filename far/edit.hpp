@@ -210,9 +210,9 @@ private:
     void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}
     int   GetCurPos() {return(CurPos);}
     int   GetTabCurPos();
+    void  SetTabCurPos(int NewPos);
     int   GetLeftPos() {return(LeftPos);}
     void  SetLeftPos(int NewPos) {LeftPos=NewPos;}
-    void  SetTabCurPos(int NewPos);
     void  SetPasswordMode(int Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);};
     void  SetMaxLength(int Length) {MaxLength=Length;};
     /* $ 28.07.2000 SVS
