@@ -237,6 +237,26 @@ void DlgEdit::GetString(char *Str,int MaxSize,int Row)
     lineEdit->GetString(Str,MaxSize);
 }
 
+int DlgEdit::GetTabCurPos()
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    return multiEdit->GetCurPos(); // GetCurCol???
+  else
+#endif
+    return lineEdit->GetTabCurPos();
+}
+
+void DlgEdit::SetTabCurPos(int NewPos)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+    multiEdit->SetCurPos(NewPos,multiEdit->GetCurRow()); //???
+  else
+#endif
+    lineEdit->SetTabCurPos(NewPos);
+}
+
 void DlgEdit::SetCurPos(int NewCol, int NewRow) // Row==-1 - current line
 {
 #if defined(PROJECT_DI_MEMOEDIT)

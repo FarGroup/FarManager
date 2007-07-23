@@ -90,6 +90,9 @@ class DlgEdit: public ScreenObject
     int   GetCurPos();
     int   GetCurRow();
 
+    int   GetTabCurPos();
+    void  SetTabCurPos(int NewPos);
+
     void  SetPersistentBlocks(int Mode);
     int   GetPersistentBlocks(void);
     void  SetDelRemovesBlocks(int NewMode);
