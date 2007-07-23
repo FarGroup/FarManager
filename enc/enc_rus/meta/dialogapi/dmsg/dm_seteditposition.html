@@ -68,12 +68,12 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
   EditorSetPosition esp;
   Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, idStr, (LONG_PTR)&amp;esp);
 
-  int length = Info.SendDlgMessage(hDlg, DM_GETTEXTLENGTH, idStr, 0);
-  int CurPos = dwMousePosX - ( dlgRect.Left + itemRect.Left );
+  int length=Info.SendDlgMessage(hDlg, DM_GETTEXTLENGTH, idStr, 0);
+  int CurPos=dwMousePosX - ( dlgRect.Left + itemRect.Left );
 
-  if (dwMousePosX &lt;= ( dlgRect.Left + itemRect.Left ) &amp;&amp; esp.LeftPos &gt; 0 )
+  if ( dwMousePosX &lt;= ( dlgRect.Left + itemRect.Left ) &amp;&amp; esp.LeftPos &gt; 0 )
     esp.LeftPos-=1;
-  else if (dwMousePosX &gt;= ( dlgRect.Left + itemRect.Right ) &amp;&amp; CurPos+esp.LeftPos &lt; length )
+  else if ( dwMousePosX &gt;= ( dlgRect.Left + itemRect.Right ) &amp;&amp; CurPos+esp.LeftPos &lt; length )
     esp.LeftPos+=1;
 
   if (CurPos+esp.LeftPos &lt; 0)
@@ -95,7 +95,7 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
   es.BlockType=BTYPE_COLUMN;
   es.BlockStartLine=es.BlockHeight=0;
 
-  if (CurPos&gt;StartPosX)
+  if (CurPos &gt; StartPosX)
   {
     es.BlockStartPos=StartPosX;
     es.BlockWidth=CurPos-StartPosX;
@@ -107,7 +107,7 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
   }
 
   Info.SendDlgMessage(hDlg, DM_SETSELECTION, idStr, (LONG_PTR)&amp;es);
-  <b>Info.SendDlgMessage(hDlg, DM_SETEDITPOSITION, idStr, (LONG_PTR)&amp;esp);</b>
+  Info.SendDlgMessage(hDlg, DM_SETEDITPOSITION, idStr, (LONG_PTR)&amp;esp);
 }
 </pre>
 
