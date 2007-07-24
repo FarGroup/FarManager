@@ -554,7 +554,8 @@ void Manager::EnterMainLoop()
 void Manager::ProcessMainLoop()
 {
 
-  WaitInMainLoop=IsPanelsActive();
+                                  // Mantis#0000073: Не работает автоскролинг в QView
+  WaitInMainLoop=IsPanelsActive() && ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL;
 
   //WaitInFastFind++;
   int Key=GetInputRecord(&LastInputRecord);
@@ -621,13 +622,9 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 int  Manager::ProcessKey(DWORD Key)
 {
   int ret=FALSE;
-  _OT(char kn[32]);
-  _OT(KeyToText(Key,kn));
-  //    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
 
   if ( CurrentFrame)
   {
-    //      _D(SysLog(L"Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
     int i=0;
 
     DWORD KeyM=(Key&(~KEY_CTRLMASK));

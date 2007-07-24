@@ -2228,6 +2228,10 @@ $ #Viewer: control keys#
     5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
+    6. Для автоматического скроллинга просматриваемого 
+       динамически обновляемого файла необходимо стать в 
+       конец файла (клавиша End).
+
 
 @ViewerGotoPos
 $ #Viewer: go to specified position#
