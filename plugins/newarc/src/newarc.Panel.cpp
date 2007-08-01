@@ -1960,21 +1960,32 @@ int __stdcall ArchivePanel::pSetDirectory (
 	}
 	else
 	{
-		Info.Control (this, FCTL_GETPANELINFO, &pi);
+		int nCurDirLength = strlen(m_lpCurrentFolder);
+		int nDirLength = strlen(Dir);
 
-		for (int i = 0; i < pi.ItemsNumber; i++)
+		if ( nCurDirLength )
+			nCurDirLength++;
+
+		for (int i = 0; i < m_pArchiveFiles.count(); i++)
 		{
-			PluginPanelItem *ppi = &pi.PanelItems[i];
+			InternalArchiveItemInfo *item = &m_pArchiveFiles[i];
+			
+			const char *lpCurName = (const char*)&item->ItemInfo.pi.FindData.cFileName;
 
-			if ( OptionIsOn (ppi->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) &&
-				 !FSF.LStricmp (ppi->FindData.cFileName, Dir) )
+			if ( (strlen(lpCurName) >= nCurDirLength+nDirLength) && 
+					!FSF.LStrnicmp (Dir, lpCurName+nCurDirLength, nDirLength) )
 			{
-				if ( *m_lpCurrentFolder )
-					strcat (m_lpCurrentFolder, "\\");
+				const char *p = lpCurName+nCurDirLength+nDirLength;
 
-				strcat (m_lpCurrentFolder, Dir);
+				if ( (*p == '\\') || (*p == '//') || !*p )
+				{
+					if ( *m_lpCurrentFolder )
+						strcat (m_lpCurrentFolder, "\\");
 
-				return TRUE;
+					strcat (m_lpCurrentFolder, Dir);
+
+					return TRUE;
+				}
 			}
 		}
 	}
