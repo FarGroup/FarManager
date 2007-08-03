@@ -1940,8 +1940,6 @@ int __stdcall ArchivePanel::pSetDirectory (
 		int nOpMode
 		)
 {
-	PanelInfo pi;
-
 	if ( !strcmp (Dir, "..") )
 	{
 		if ( strchr (m_lpCurrentFolder, '\\') )
@@ -1969,15 +1967,15 @@ int __stdcall ArchivePanel::pSetDirectory (
 		for (int i = 0; i < m_pArchiveFiles.count(); i++)
 		{
 			InternalArchiveItemInfo *item = &m_pArchiveFiles[i];
-			
+
 			const char *lpCurName = (const char*)&item->ItemInfo.pi.FindData.cFileName;
 
-			if ( (strlen(lpCurName) >= nCurDirLength+nDirLength) && 
+			if ( ((int)strlen(lpCurName) >= nCurDirLength+nDirLength) &&
 					!FSF.LStrnicmp (Dir, lpCurName+nCurDirLength, nDirLength) )
 			{
 				const char *p = lpCurName+nCurDirLength+nDirLength;
 
-				if ( (*p == '\\') || (*p == '//') || !*p )
+				if ( (*p == '\\') || (*p == '/') || !*p )
 				{
 					if ( *m_lpCurrentFolder )
 						strcat (m_lpCurrentFolder, "\\");

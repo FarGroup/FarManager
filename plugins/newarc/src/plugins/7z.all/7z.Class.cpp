@@ -24,6 +24,7 @@ const GUID FormatGUIDs[] = {
 		CLSID_CBZip2Handler,
 		CLSID_CCpioHandler,
 		CLSID_CWimHandler,
+		CLSID_CCompoundHandler,
 };
 
 
@@ -42,6 +43,7 @@ const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
 const unsigned char NsisSig[]     = {0xEF, 0xBE, 0xAD, 0xDE, 0x4E, 0x75, 0x6C, 0x6C, 0x73, 0x6F, 0x66, 0x74, 0x49, 0x6E, 0x73, 0x74};
 const unsigned char IsoSig[]      = {'C', 'D', '0', '0', '1', 0x1};
 const unsigned char WimSig[]      = {'M', 'S', 'W', 'I', 'M', 0, 0, 0};
+const unsigned char CompoundSig[] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
 
 struct FormatInfo {
 	const GUID *puid;
@@ -52,23 +54,24 @@ struct FormatInfo {
 };
 
 const FormatInfo signs[] = {
-	{&CLSID_CFormat7z,     (const unsigned char *)&SevenZipSig, 6, false, Is7zHeader},
-	{&CLSID_CRarHandler,   (const unsigned char *)&RarSig,      4, false, IsRarHeader},
-	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
-	{&CLSID_CRpmHandler,   (const unsigned char *)&RpmSig,      4, true,  NULL},
-	{&CLSID_CDebHandler,   (const unsigned char *)&DebSig,     21, true,  NULL},
-	{&CLSID_CCabHandler,   (const unsigned char *)&CabSig,      4, false, IsCabHeader},
-	{&CLSID_CBZip2Handler, (const unsigned char *)&BZipSig,     3, true,  NULL},
-	{&CLSID_CArjHandler,   (const unsigned char *)&ArjSig,      2, false, IsArjHeader},
-	{&CLSID_CTarHandler,   NULL,                                0, true,  IsTarHeader},
-	{&CLSID_CGZipHandler,  (const unsigned char *)&GZipSig,     2, true,  NULL},
-	{&CLSID_CZHandler,     (const unsigned char *)&ZSig,        2, true,  NULL},
-	{&CLSID_CLzhHandler,   NULL,                                0, false, IsLzhHeader},
-	{&CLSID_CCpioHandler,  (const unsigned char *)&CpioSig,     5, true,  NULL},
-	{&CLSID_CChmHandler,   (const unsigned char *)&ChmSig,      4, true,  NULL},
-	{&CLSID_CNsisHandler,  (const unsigned char *)&NsisSig,    16, false, IsNSISHeader},
-	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, true,  IsIsoHeader},
-	{&CLSID_CWimHandler,   (const unsigned char *)&WimSig,      8, true,  NULL},
+	{&CLSID_CFormat7z,        (const unsigned char *)&SevenZipSig, 6, false, Is7zHeader},
+	{&CLSID_CRarHandler,      (const unsigned char *)&RarSig,      4, false, IsRarHeader},
+	{&CLSID_CZipHandler,      (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
+	{&CLSID_CRpmHandler,      (const unsigned char *)&RpmSig,      4, true,  NULL},
+	{&CLSID_CDebHandler,      (const unsigned char *)&DebSig,     21, true,  NULL},
+	{&CLSID_CCabHandler,      (const unsigned char *)&CabSig,      4, false, IsCabHeader},
+	{&CLSID_CBZip2Handler,    (const unsigned char *)&BZipSig,     3, true,  NULL},
+	{&CLSID_CArjHandler,      (const unsigned char *)&ArjSig,      2, false, IsArjHeader},
+	{&CLSID_CTarHandler,      NULL,                                0, true,  IsTarHeader},
+	{&CLSID_CGZipHandler,     (const unsigned char *)&GZipSig,     2, true,  NULL},
+	{&CLSID_CZHandler,        (const unsigned char *)&ZSig,        2, true,  NULL},
+	{&CLSID_CLzhHandler,      NULL,                                0, false, IsLzhHeader},
+	{&CLSID_CCpioHandler,     (const unsigned char *)&CpioSig,     5, true,  NULL},
+	{&CLSID_CChmHandler,      (const unsigned char *)&ChmSig,      4, true,  NULL},
+	{&CLSID_CNsisHandler,     (const unsigned char *)&NsisSig,    16, false, IsNSISHeader},
+	{&CLSID_CIsoHandler,      (const unsigned char *)&IsoSig,      6, true,  IsIsoHeader},
+	{&CLSID_CWimHandler,      (const unsigned char *)&WimSig,      8, true,  NULL},
+	{&CLSID_CCompoundHandler, (const unsigned char *)&CompoundSig, 8, true,  NULL},
 };
 
 
@@ -438,6 +441,12 @@ void SevenZipModule::GetArchiveFormatInfo (unsigned int nFormatIndex, ArchiveFor
 	{
 		pInfo->lpName = "WIM archive [7z]";
 		pInfo->lpDefaultExtention = "wim";
+	}
+	else
+	if ( IsEqualGUID (uid, CLSID_CCompoundHandler) )
+	{
+		pInfo->lpName = "Compound archive [7z]";
+		pInfo->lpDefaultExtention = "msi";
 	}
 	else
 	{
