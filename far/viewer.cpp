@@ -375,6 +375,8 @@ int Viewer::OpenFile(const char *Name,int warning)
     else
       strcpy(CacheName,FileName);
 
+    memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
+
     {
       struct /*TPosCache32*/ TPosCache64 PosCache={0};
       if(Opt.ViOpt.SaveViewerShortPos)
@@ -1434,6 +1436,7 @@ int Viewer::ProcessKey(int Key)
                 //PosCache.Position[3]=;
               }
               CtrlObject->ViewerPosCache->AddPosition(CacheName,&PosCache);
+              memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
             }
           }
           if (PointToName(Name)==Name)

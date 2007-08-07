@@ -94,35 +94,36 @@ void FilePositionCache::AddPosition(const char *Name,void *PosCache)
       return;
     }
   }
-  /* $ 06.04.2001 VVM
-    - Неправильное позиционирование в открытых файлах
-      Имена копировал до поиска, а не после :) */
-  int Pos = FindPosition(FullName);
-  if (Pos >= 0)
-    CurPos = Pos;
-  strcpy(Names+CurPos*3*NM,FullName);
-  /* VVM $ */
+
+  int FoundPos, Pos;
+
+  Pos=FoundPos=FindPosition(FullName);
+
+  if (Pos < 0)
+    Pos = CurPos;
+  strcpy(Names+Pos*3*NM,FullName);
 
   int I;
 
-  memset(Position+POSITION_POS(CurPos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
-  memcpy(Param+PARAM_POS(CurPos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+  memset(Position+POSITION_POS(Pos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
+  memcpy(Param+PARAM_POS(Pos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
 
   if(SizeValue == sizeof(DWORD))
   {
     for(I=0; I < 4; ++I)
       if(((struct TPosCache32*)PosCache)->Position[I])
-        memcpy(Position+POSITION_POS(CurPos,I),((struct TPosCache32*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
+        memcpy(Position+POSITION_POS(Pos,I),((struct TPosCache32*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
   }
   else
   {
     for(I=0; I < 4; ++I)
       if(((struct TPosCache64*)PosCache)->Position[I])
-        memcpy(Position+POSITION_POS(CurPos,I),((struct TPosCache64*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
+        memcpy(Position+POSITION_POS(Pos,I),((struct TPosCache64*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
   }
 
-  if (++CurPos>=Opt.MaxPositionCache)
-    CurPos=0;
+  if (FoundPos < 0)
+    if (++CurPos >= Opt.MaxPositionCache)
+      CurPos=0;
 }
 
 
