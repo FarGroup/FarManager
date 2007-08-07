@@ -3128,7 +3128,7 @@ void FileList::SelectFiles(int Mode)
   if(!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
   {                               // работоспособную маску
     const wchar_t *src=(const wchar_t*)strRawMask;
-    int dest=0;
+    strMask=(const wchar_t*)L"";
     while ( *src )
     {
       if(*src==L']' || *src==L'[')
