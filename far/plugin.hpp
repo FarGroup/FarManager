@@ -93,14 +93,6 @@
 // for example, the Data field of the FarDialogItem structure
 // you will need to use Data.Data, and the Selected field - Param.Selected
 //#define _FAR_NO_NAMELESS_UNIONS
-
-// To ensure correct structure packing, you can #define _FAR_USE_FARFINDDATA.
-// In this case, the member PluginPanelItem.FindData will have the type
-// FAR_FIND_DATA, not WIN32_FIND_DATA. The structure FAR_FIND_DATA has the
-// same layout as WIN32_FIND_DATA, but since it is declared in this file,
-// it is generated with correct 2-byte alignment.
-// This #define is necessary to compile plugins with Borland C++ 5.5.
-//#define _FAR_USE_FARFINDDATA
 #endif // END FAR_USE_INTERNALS
 
 #ifndef _WINCON_

@@ -73,7 +73,7 @@ struct SetAttrDlgParam{
   int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
   int OriginalCBAttr2[16]; //
   DWORD OriginalCBFlag[16];
-  int OState12, OState8, OState9;
+  int OStateF_12, OStateC_8, OStateC_9;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
   string strFSysName;
 };
@@ -109,7 +109,7 @@ static void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
 LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   int FocusPos,I;
-  int State8, State9, State12;
+  int StateC_8, StateC_9, StateF_12;
   struct SetAttrDlgParam *DlgParam;
 
   DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -122,9 +122,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
         DlgParam->OriginalCBAttr2[Param1-SETATTR_RO] = 0;
 
         FocusPos=(int)Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0);
-        State8=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
-        State9=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_ENCRYPTED,0);
-        State12=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_SUBFOLDERS,0);
+        StateC_8=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
+        StateC_9=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_ENCRYPTED,0);
+        StateF_12=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_SUBFOLDERS,0);
 
         if(!DlgParam->ModeDialog) // =0 - одиночный
         {
@@ -132,9 +132,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
              (FocusPos == SETATTR_COMPRESSED || FocusPos == SETATTR_ENCRYPTED))
           {
-              if(FocusPos == SETATTR_COMPRESSED && /*State8 &&*/ State9)
+              if(FocusPos == SETATTR_COMPRESSED && /*StateC_8 &&*/ StateC_9)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_UNCHECKED);
-              if(FocusPos == SETATTR_ENCRYPTED && /*State9 &&*/ State8)
+              if(FocusPos == SETATTR_ENCRYPTED && /*StateC_9 &&*/ StateC_8)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_UNCHECKED);
           }
         }
@@ -145,29 +145,29 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
              (FocusPos == SETATTR_COMPRESSED || FocusPos == SETATTR_ENCRYPTED))
           {
-            if(FocusPos == SETATTR_COMPRESSED && DlgParam->OState8 != State8) // Состояние изменилось?
+            if(FocusPos == SETATTR_COMPRESSED && DlgParam->OStateC_8 != StateC_8) // Состояние изменилось?
             {
-              if(State8 == BSTATE_CHECKED && State9)
+              if(StateC_8 == BSTATE_CHECKED && StateC_9)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_UNCHECKED);
-              else if(State8 == BSTATE_3STATE)
+              else if(StateC_8 == BSTATE_3STATE)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_3STATE);
             }
-            else if(FocusPos == SETATTR_ENCRYPTED && DlgParam->OState9 != State9) // Состояние изменилось?
+            else if(FocusPos == SETATTR_ENCRYPTED && DlgParam->OStateC_9 != StateC_9) // Состояние изменилось?
             {
-              if(State9 == BSTATE_CHECKED && State8)
+              if(StateC_9 == BSTATE_CHECKED && StateC_8)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_UNCHECKED);
-              else if(State9 == 2)
+              else if(StateC_9 == 2)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_3STATE);
             }
 
             // еще одна проверка
-            if(FocusPos == SETATTR_COMPRESSED && /* DlgParam->OState8 && */ State9)
+            if(FocusPos == SETATTR_COMPRESSED && /* DlgParam->OStateC_8 && */ StateC_9)
               Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_UNCHECKED);
-            if(FocusPos == SETATTR_ENCRYPTED && /* DlgParam->OState9 && */ State8)
+            if(FocusPos == SETATTR_ENCRYPTED && /* DlgParam->OStateC_9 && */ StateC_8)
               Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_UNCHECKED);
 
-            DlgParam->OState9=State9;
-            DlgParam->OState8=State8;
+            DlgParam->OStateC_9=StateC_9;
+            DlgParam->OStateC_8=StateC_8;
           }
 
           // если снимаем атрибуты для SubFolders
@@ -177,12 +177,12 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
           {
             if(DlgParam->ModeDialog==1) // каталог однозначно!
             {
-              if(DlgParam->OState12 != State12) // Состояние изменилось?
+              if(DlgParam->OStateF_12 != StateF_12) // Состояние изменилось?
               {
                 // убираем 3-State
                 for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
                 {
-                  if(!State12) // сняли?
+                  if(!StateF_12) // сняли?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,FALSE);
                     Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-SETATTR_RO]);
@@ -200,7 +200,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
                   if ( apiGetFindDataEx (DlgParam->strSelName,&FindData) )
                   {
-                    if(!State12)
+                    if(!StateF_12)
                     {
                       if(!DlgParam->OLastWriteTime)
                       {
@@ -243,11 +243,11 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
             }
             else  // много объектов
             {
-              if(DlgParam->OState12 != State12) // Состояние изменилось?
+              if(DlgParam->OStateF_12 != StateF_12) // Состояние изменилось?
               {
                 for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
                 {
-                  if(!State12) // сняли?
+                  if(!StateF_12) // сняли?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,
                               ((DlgParam->OriginalCBFlag[I-SETATTR_RO]&DIF_3STATE)?TRUE:FALSE));
@@ -264,7 +264,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                 }
               }
             }
-            DlgParam->OState12=State12;
+            DlgParam->OStateF_12=StateF_12;
           }
         }
         return TRUE;
@@ -777,9 +777,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FA_DIREC)==0)?0:(SelCount==1?1:2));
     DlgParam.strSelName=strSelName;
-    DlgParam.OState12=AttrDlg[SETATTR_SUBFOLDERS].Selected;
-    DlgParam.OState8=AttrDlg[SETATTR_COMPRESSED].Selected;
-    DlgParam.OState9=AttrDlg[SETATTR_ENCRYPTED].Selected;
+    DlgParam.OStateF_12=AttrDlg[SETATTR_SUBFOLDERS].Selected;
+    DlgParam.OStateC_8=AttrDlg[SETATTR_COMPRESSED].Selected;
+    DlgParam.OStateC_9=AttrDlg[SETATTR_ENCRYPTED].Selected;
 
     // <Dialog>
     {

@@ -2143,7 +2143,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
             KeyCode == VK_DELETE && (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)) // Ã¿—ƒ¿…!
             return '.';
          else
-            return Modif|(Opt.UseNumPad?KEY_DECIMAL:KEY_DEL);
+            return Modif|(Opt.UseNumPad?Modif2|KEY_DECIMAL:KEY_DEL); //??
       }
       return Modif| (Opt.UseNumPad?Modif2|(KeyCode == VK_DECIMAL?KEY_DECIMAL:KEY_NUMDEL):KEY_DEL);
 #endif
