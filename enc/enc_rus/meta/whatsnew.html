@@ -8,10 +8,24 @@
 </head>
 <body>
 
-<h1>Что нового в Far PlugRinG Help 1.71 SR2248?</h1>
+<h1>Что нового в Far PlugRinG Help 1.71 SR2251?</h1>
 <div class=navbar>
 <a href="index.html">главная</a>
 </div>
+
+<h3>7 августа 2007 г.</h3>
+<ul>
+  <li>Bug: Если плагин для списка отключал реакцию слежения за курсором мыши
+    (<a href="dialogapi/dmsg/dm_listsetmousereaction.html#LMRT_NEVER">LMRT_NEVER</a>), то в диалоговую процедуру не приходило событие DN_MOUSECLICK
+    для двойного клика мыши (Mantis#0000309)
+    <br><br>
+
+  <li>В структуре <a href="structures/pluginpanelitem.html">PluginPanelItem</a> вместо <a href="winapi/win32_find_data.html">WIN32_FIND_DATA</a> используется
+    структура <a href="defs/far_find_data.html">FAR_FIND_DATA</a>. Вместо макроса _FAR_USE_FARFINDDATA необходимо
+    использовать <a href="defs/_far_use_win32_find_data.html">_FAR_USE_WIN32_FIND_DATA</a>.
+    <br><br>
+
+</ul>
 
 
 <h3>23 июля 2007 г.</h3>

@@ -31,7 +31,7 @@
 <pre class=syntax>
 struct PluginPanelItem
 {
-#ifdef _FAR_USE_FARFINDDATA
+#ifndef _FAR_USE_WIN32_FIND_DATA
   struct FAR_FIND_DATA   FindData;
 #else
   WIN32_FIND_DATA FindData;
@@ -142,7 +142,7 @@ struct PluginPanelItem
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="index.html">структуры</a> |
-<a href="../defs/_far_use_farfinddata.html">_FAR_USE_FARFINDDATA</a> |
+<a href="../defs/_far_use_win32_find_data.html">_FAR_USE_WIN32_FIND_DATA</a> |
 <a href="../defs/far_find_data.html">FAR_FIND_DATA</a> |
 <a href="../delphi/tpluginpanelitem.html">TPluginPanelItem</a>
 </div>
