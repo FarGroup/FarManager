@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>_FAR_USE_WIN32_FIND_DATA</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<h1>_FAR_USE_WIN32_FIND_DATA</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">types and definitions</a>
+</div>
+
+
+<div class=shortdescr>
+<p>The macro <dfn>_FAR_USE_WIN32_FIND_DATA</dfn> controls whether the
+<a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structure
+uses the <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> structure
+defined in the Windows API headers or the the <a href="far_find_data.html">FAR_FIND_DATA</a>
+that has the same layout but is defined in <code>plugin.hpp</code>.
+As some compilers (for instance, Borland C++ 5.5) force 8-byte alignment for structures defined in
+the Windows API headers, it is not possible to achieve the correct 2-byte alignment for the entire
+<a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structure when the
+<a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> structure is used.
+
+<p>Если <b>определено</b> макро <dfn>_FAR_USE_WIN32_FIND_DATA</dfn>, структура
+<a href="../structures/pluginpanelitem.html">PluginPanelItem</a>
+будет иметь вид, совместимый с FAR 1.65 и FAR 1.70.
+Однако корректная компиляция плагинов в Borland C++ 5.5 будет невозможна без
+модификации системных заголовков Windows API.
+
+<p>Если <b>не определено</b> макро <dfn>_FAR_USE_WIN32_FIND_DATA</dfn>, будет использоваться
+структура <a href="far_find_data.html">FAR_FIND_DATA</a>. При этом код будет корректно работать со
+всеми компиляторами, но некоторые плагины, рассчитанные на то, что
+используется <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a>,
+не будут компилироваться.
+
+<p class=note><img src="../../images/warning.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>В FAR 1.70 release по умолчанию используется вариант, совместимый со
+старыми плагинами (<dfn>_FAR_USE_WIN32_FIND_DATA</dfn> определено). В версии FAR 1.71
+умолчанием станет вариант со структурой <a href="far_find_data.html">FAR_FIND_DATA</a>.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="far_find_data.html">FAR_FIND_DATA</a> |
+<a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a>
+</div>
+
+</body>
+</html>
