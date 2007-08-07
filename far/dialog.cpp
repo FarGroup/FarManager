@@ -2909,7 +2909,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           ShowDialog();
         }
 
-        if((Item[I].IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)) == 0)
+        if(MouseEvent->dwEventFlags!=DOUBLE_CLICK && (Item[I].IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)) == 0)
         {
           List->ProcessMouse(MouseEvent);
           int NewListPos=List->GetSelectPos();
