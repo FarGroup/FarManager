@@ -12,6 +12,11 @@
 #include "HMenu.h"
 #include <cassert>
 
+// new version of PSDK do not contains standard smart-pointer declaration
+_COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
+_COM_SMARTPTR_TYPEDEF(IContextMenu2, __uuidof(IContextMenu2));
+_COM_SMARTPTR_TYPEDEF(IContextMenu3, __uuidof(IContextMenu3));
+
 #define BOUNDS( x )  (sizeof( (x) ) / sizeof( (x)[0] ))
 
 #ifdef _MSC_VER
