@@ -1,3 +1,9 @@
+Zuz 11.08.2007 16:50:52 +0500 - build 
+
+1. Mantis#0000176: Двойное сканирование после cd path, логический фикс
+2. В flupdate.cpp (FileList::ReadFileNames) рамка криво рисовалась для
+сообщения MReadingFiles, пока сформировал её с помощью MakeSeparator
+
 svs 07.08.2007 22:06:56 +0300 - build 270
 
 1. Ctrl+/Ctrl- - траблы с пометкой в панелях.

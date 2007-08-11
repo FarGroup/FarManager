@@ -230,8 +230,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   // сформируем заголовок вне цикла
   wchar_t Title[2048];
   int TitleLength=Min((int)X2-X1-1,(int)(sizeof(Title)/sizeof(wchar_t))-1);
-  wmemset(Title,0x0CD,TitleLength); //BUGBUG
-  Title[TitleLength]=0;
+  //wmemset(Title,0x0CD,TitleLength); //BUGBUG
+  //Title[TitleLength]=0;
+  MakeSeparator (TitleLength, Title, 9, NULL);
   BOOL IsShowTitle=FALSE;
   BOOL NeedHighlight=Opt.Highlight && PanelMode != PLUGIN_PANEL;
 
