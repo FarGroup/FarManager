@@ -1254,8 +1254,11 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
   if(!SrcPanel)
     SrcPanel=CtrlObject->Cp()->ActivePanel;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+  if ( SrcPanel->GetType()==QVIEW_PANEL || SrcPanel->GetType()==INFO_PANEL)
+    SrcPanel=CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
+
   int AnotherType=AnotherPanel->GetType();
-  if (AnotherType!=QVIEW_PANEL)
+  if (AnotherType!=QVIEW_PANEL && AnotherType!=INFO_PANEL)
   {
     if(NeedSetUpADir)
     {
@@ -1277,12 +1280,10 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
       }
     }
   }
-  SrcPanel->Update(UPDATE_KEEP_SELECTION);
-//  SrcPanel->Redraw();
-  if (AnotherType==QVIEW_PANEL)
+  else if (AnotherType==QVIEW_PANEL)
   {
+    SrcPanel->Update(UPDATE_KEEP_SELECTION);
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-//    AnotherPanel->Redraw();
   }
   CtrlObject->Cp()->Redraw();
 }
