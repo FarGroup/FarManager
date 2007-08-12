@@ -1434,11 +1434,9 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
       }
     }
   }
-  else if (AnotherType==QVIEW_PANEL)
-  {
-    SrcPanel->Update(UPDATE_KEEP_SELECTION);
+  SrcPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+  if (AnotherType==QVIEW_PANEL)
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-  }
   CtrlObject->Cp()->Redraw();
 }
 
