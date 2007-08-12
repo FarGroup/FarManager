@@ -4174,7 +4174,7 @@ bool ShellCopy::CalcTotalSize()
   // TODO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
   TotalCopySize=TotalCopySize*(__int64)CountTarget;
 
-  InsertCommas(TotalCopySize,TotalCopySizeText);
+  InsertCommas(TotalCopySize,TotalCopySizeText,sizeof(TotalCopySizeText));
   return(true);
 }
 

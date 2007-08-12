@@ -165,13 +165,13 @@ void QuickView::DisplayObject()
       GotoXY(X1+2,Y1+8);
       PrintText(MSG(MQuickViewBytes));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommas(FileSize,Msg);
+      InsertCommas(FileSize,Msg,sizeof(Msg));
       PrintText(Msg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
       PrintText(MSG(MQuickViewCompressed));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommas(CompressedFileSize,Msg);
+      InsertCommas(CompressedFileSize,Msg,sizeof(Msg));
       PrintText(Msg);
 
       SetColor(COL_PANELTEXT);
@@ -187,19 +187,19 @@ void QuickView::DisplayObject()
         GotoXY(X1+2,Y1+12);
         PrintText(MSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(ClusterSize,Msg);
+        InsertCommas(ClusterSize,Msg,sizeof(Msg));
         PrintText(Msg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
         PrintText(MSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(RealFileSize,Msg);
+        InsertCommas(RealFileSize,Msg,sizeof(Msg));
         PrintText(Msg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+14);
         PrintText(MSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(RealFileSize-CompressedFileSize,Msg);
+        InsertCommas(RealFileSize-CompressedFileSize,Msg,sizeof(Msg));
         __int64 Size1=RealFileSize-CompressedFileSize;
         __int64 Size2=RealFileSize;
         sprintf(SlackMsg,"%s (%d%%)",Msg,ToPercent64(Size1,Size2));

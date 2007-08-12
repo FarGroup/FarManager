@@ -224,11 +224,11 @@ void InfoList::DisplayObject()
     {
       GotoXY(X1+2,Y1+4);
       PrintText(MInfoDiskTotal);
-      InsertCommas(TotalSize,OutStr);
+      InsertCommas(TotalSize,OutStr,sizeof(OutStr));
       PrintInfo(OutStr);
       GotoXY(X1+2,Y1+5);
       PrintText(MInfoDiskFree);
-      InsertCommas(UserFree,OutStr);
+      InsertCommas(UserFree,OutStr,sizeof(OutStr));
       PrintInfo(OutStr);
     }
 
@@ -254,19 +254,19 @@ void InfoList::DisplayObject()
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+10);
   PrintText(MInfoMemoryTotal);
-  InsertCommas(static_cast<unsigned __int64>(ms.ullTotalPhys),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullTotalPhys),OutStr,sizeof(OutStr));
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+11);
   PrintText(MInfoMemoryFree);
-  InsertCommas(static_cast<unsigned __int64>(ms.ullAvailPhys),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullAvailPhys),OutStr,sizeof(OutStr));
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+12);
   PrintText(MInfoVirtualTotal);
-  InsertCommas(static_cast<unsigned __int64>(ms.ullTotalPageFile),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullTotalPageFile),OutStr,sizeof(OutStr));
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+13);
   PrintText(MInfoVirtualFree);
-  InsertCommas(static_cast<unsigned __int64>(ms.ullAvailPageFile),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullAvailPageFile),OutStr,sizeof(OutStr));
   PrintInfo(OutStr);
   ShowDirDescription();
   ShowPluginDescription();

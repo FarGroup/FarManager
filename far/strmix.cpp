@@ -13,21 +13,40 @@ strmix.cpp
 #include "plugin.hpp"
 #include "lang.hpp"
 
-char *InsertCommas(const unsigned long &Number,char *Dest)
+char *FormatNumber(const char *Src, char *Dest, int Size, int NumDigits)
 {
-  ultoa(Number,Dest,10);
-  for (int I=(int)strlen(Dest)-4;I>=0;I-=3)
-    if (Dest[I])
-    {
-      memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
-      Dest[I+1]=',';
-    }
+  static bool first = true;
+  static NUMBERFMT fmt;
+  static char DecimalSep[4];
+  static char ThousandSep[4];
+  if (first)
+  {
+    GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,sizeof(ThousandSep));
+    GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,sizeof(DecimalSep));
+    DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
+    ThousandSep[1]=0; //но для нас это будет не очень хорошо
+    FAR_CharToOem(DecimalSep,DecimalSep);
+    FAR_CharToOem(ThousandSep,ThousandSep);
+    fmt.LeadingZero = 1;
+    fmt.Grouping = 3;
+    fmt.lpDecimalSep = DecimalSep;
+    fmt.lpThousandSep = ThousandSep;
+    fmt.NegativeOrder = 1;
+    first = false;
+  }
+  fmt.NumDigits = NumDigits;
+
+  GetNumberFormat(LOCALE_USER_DEFAULT,0,Src,&fmt,Dest,(int)Size);
+
   return Dest;
 }
 
-char* InsertCommas(const unsigned __int64  &LI,char *Dest)
+char *InsertCommas(const unsigned long &Number,char *Dest,int Size)
 {
-  _i64toa(LI,Dest,10);
+  char val[40];
+  ultoa(Number,val,10);
+  return FormatNumber(val,Dest,Size);
+  /*
   for (int I=(int)strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
@@ -35,6 +54,23 @@ char* InsertCommas(const unsigned __int64  &LI,char *Dest)
       Dest[I+1]=',';
     }
   return Dest;
+  */
+}
+
+char *InsertCommas(const unsigned __int64  &LI,char *Dest,int Size)
+{
+  char val[40];
+  _i64toa(LI,val,10);
+  return FormatNumber(val,Dest,Size);
+  /*
+  for (int I=(int)strlen(Dest)-4;I>=0;I-=3)
+    if (Dest[I])
+    {
+      memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
+      Dest[I+1]=',';
+    }
+  return Dest;
+  */
 }
 
 char* WINAPI PointToName(char *Path)
@@ -831,9 +867,10 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
       Divider64F = Divider64F*Divider64F_mul;
       Divider64F2  = Divider64F2*Divider64F2_mul;
     }
+    char Fmt[100];
     if (IndexB==0)
     {
-      sprintf(Str,"%d",(int)Sz);
+      sprintf(Fmt,"%d",(int)Sz);
     }
     else
     {
@@ -845,6 +882,7 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
       DWORD Decimal = (DWORD)((double)(OldSize&_i64(0xFFFFFFFF))/(double)Divider*100.0);
       #endif
       sprintf(Str,"%d.%02d",(int)Sz,Decimal);
+      FormatNumber(Str,Fmt,sizeof(Fmt),2);
     }
     if (IndexB>0 || ShowBytesIndex)
     {
@@ -852,18 +890,18 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
       if (Width<0)
         Width=0;
       if (Economic)
-        sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+        sprintf(DestStr,"%*.*s%1.1s",Width,Width,Fmt,KMGTbStr[IndexB][IndexDiv]);
       else
-        sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+        sprintf(DestStr,"%*.*s %1.1s",Width,Width,Fmt,KMGTbStr[IndexB][IndexDiv]);
     }
     else
-      sprintf(DestStr,"%*.*s",Width,Width,Str);
+      sprintf(DestStr,"%*.*s",Width,Width,Fmt);
 
     return DestStr;
   }
 
   if (Commas)
-    InsertCommas(Sz,Str);
+    InsertCommas(Sz,Str,sizeof(Str));
   else
     sprintf(Str,"%I64d",Sz);
 
@@ -895,7 +933,7 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
       IndexB++;
 
       if (Commas)
-        InsertCommas(Sz,Str);
+        InsertCommas(Sz,Str,sizeof(Str));
       else
         sprintf(Str,"%I64d",Sz);
     } while((UseMinSizeIndex && IndexB<MinSizeIndex) || (strlen(Str) > static_cast<size_t>(Width)));

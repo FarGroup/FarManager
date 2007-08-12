@@ -131,8 +131,9 @@ int GetTimeSeparator();
 char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
-char* InsertCommas(const unsigned long &Number,char *Dest);
-char* InsertCommas(const unsigned __int64 &li,char *Dest);
+char *FormatNumber(const char *Src, char *Dest, int Size, int NumDigits=0);
+char* InsertCommas(const unsigned long &Number,char *Dest,int Size);
+char* InsertCommas(const unsigned __int64 &li,char *Dest,int Size);
 void DeleteDirTree(const char *Dir);
 int GetClusterSize(char *Root);
 

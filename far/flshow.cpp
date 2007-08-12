@@ -384,7 +384,7 @@ void FileList::ShowSelectedSize()
 
   if (SelFileCount)
   {
-    InsertCommas((unsigned __int64)SelFileSize,FormStr);
+    InsertCommas((unsigned __int64)SelFileSize,FormStr,sizeof(FormStr));
     sprintf(SelStr,MSG(__FormatEndSelectedPhrase(SelFileCount)),FormStr,SelFileCount);
 
     TruncStr(SelStr,X2-X1-1);
@@ -418,10 +418,10 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   char TotalStr[256],FormSize[20],FreeSize[20];
   int Length;
 
-  InsertCommas((unsigned __int64)TotalFileSize,FormSize);
+  InsertCommas((unsigned __int64)TotalFileSize,FormSize,sizeof(FormSize));
   *FreeSize=0;
   if (Opt.ShowPanelFree && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
-    InsertCommas((unsigned __int64)FreeDiskSize,FreeSize);
+    InsertCommas((unsigned __int64)FreeDiskSize,FreeSize,sizeof(FreeSize));
   if (Opt.ShowPanelTotals)
   {
     if (!Opt.ShowPanelFree || *FreeSize==0)
@@ -433,8 +433,8 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       sprintf(TotalStr," %s (%d) %s %s ",FormSize,TotalFileCount,DHLine,FreeSize);
       if ((int) strlen(TotalStr)> X2-X1-1)
       {
-        InsertCommas(((unsigned __int64)FreeDiskSize)>>20,FreeSize);
-        InsertCommas(((unsigned __int64)TotalFileSize)>>20,FormSize);
+        InsertCommas(((unsigned __int64)FreeDiskSize)>>20,FreeSize,sizeof(FreeSize));
+        InsertCommas(((unsigned __int64)TotalFileSize)>>20,FormSize,sizeof(FormSize));
         sprintf(TotalStr," %s %s (%d) %s %s %s ",FormSize,MSG(MListMb),TotalFileCount,DHLine,FreeSize,MSG(MListMb));
       }
     }
