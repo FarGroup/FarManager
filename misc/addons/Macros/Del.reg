@@ -24,3 +24,28 @@ REGEDIT4
 "DisableOutput"=dword:00000001
 "EmptyCommandLine"=dword:00000001
 "NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\NumDel]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\NumDel]
+"Description"="Use Del to remove files"
+"Sequence"="F8"
+"DisableOutput"=dword:00000001
+"EmptyCommandLine"=dword:00000001
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\NumDel]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\NumDel]
+"Description"="Use Del to remove files"
+"Sequence"="F8"
+"DisableOutput"=dword:00000001
+"RunAfterFARStart"=dword:00000000
+"EmptyCommandLine"=dword:00000000
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\NumDel]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\NumDel]
+"Description"="Use Del to remove files"
+"Sequence"="F8"
+"DisableOutput"=dword:00000001
+"EmptyCommandLine"=dword:00000001
+"NotEmptyCommandLine"=dword:00000000
