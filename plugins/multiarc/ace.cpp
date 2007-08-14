@@ -4,7 +4,7 @@
   Second-level plugin module for FAR Manager and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2006 FAR group
+  Copyrigth (c) 2000-2007 FAR group
 */
 
 #include <windows.h>
@@ -274,7 +274,11 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       {
         Item->FindData.dwFileAttributes=FileHeader->FileAttr;
         if(FileHeader->FileNameSize)
+        {
+          if(FileHeader->FileNameSize >= (WORD)sizeof(Item->FindData.cFileName))
+            return(GETARC_BROKEN);
           memcpy(Item->FindData.cFileName,FileHeader->FileName,FileHeader->FileNameSize);
+        }
         Item->FindData.cFileName[FileHeader->FileNameSize]=0;
         Item->FindData.nFileSizeLow=FileHeader->UnpSize;
         Item->FindData.nFileSizeHigh=0;
