@@ -268,7 +268,9 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
         else
         {
           MsgCode=(OpenModeExstFile==FEOPMODE_USEEXISTING)?0:
-                        (OpenModeExstFile==FEOPMODE_NEWIFOPEN?1:-100);
+                        (OpenModeExstFile==FEOPMODE_NEWIFOPEN?1:
+                           (OpenModeExstFile==FEOPMODE_RELOAD?2:-100)
+                  );
         }
         switch(MsgCode)
         {
@@ -412,6 +414,8 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
       FEdit->UseDecodeTable=FALSE;
     }
   }
+
+  FEdit->Flags.Change(FEDITOR_LOCKMODE,Flags.Check(FFILEEDIT_LOCKED));
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
   _ECTLLOG(SysLog("call ProcessEditorEvent(EE_READ,NULL) {"));

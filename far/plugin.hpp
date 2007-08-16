@@ -97,7 +97,7 @@
 
 // To ensure correct structure packing the member PluginPanelItem.FindData
 // has the type FAR_FIND_DATA, not WIN32_FIND_DATA (since version 1.71
-// build ????). The structure FAR_FIND_DATA has the same layout as
+// build 2250). The structure FAR_FIND_DATA has the same layout as
 // WIN32_FIND_DATA, but since it is declared in this file, it is
 // generated with correct 2-byte alignment.
 // This #define is necessary to compile plugins that expect
@@ -832,13 +832,17 @@ enum EDITOR_FLAGS {
   EF_ENABLE_F6             = 0x00000004,
   EF_DISABLEHISTORY        = 0x00000008,
   EF_DELETEONCLOSE         = 0x00000010,
-#ifdef FAR_USE_INTERNALS
-  EF_USEEXISTING           = 0x00000020,
-  EF_BREAKIFOPEN           = 0x00000040,
-  EF_NEWIFOPEN             = 0x00000080,
-#endif // END FAR_USE_INTERNALS
   EF_IMMEDIATERETURN       = 0x00000100,
   EF_DELETEONLYFILEONCLOSE = 0x00000200,
+#ifdef FAR_USE_INTERNALS
+  EF_LOCKED                = 0x00000400,
+
+  EF_OPENMODE_MASK         = 0xF0000000,
+  EF_OPENMODE_NEWIFOPEN    = 0x10000000,
+  EF_OPENMODE_USEEXISTING  = 0x20000000,
+  EF_OPENMODE_BREAKIFOPEN  = 0x30000000,
+  EF_OPENMODE_RELOADIFOPEN = 0x40000000,
+#endif // END FAR_USE_INTERNALS
 #ifdef FAR_USE_INTERNALS
   EF_SERVICEREGION         = 0x00001000,
 #endif // END FAR_USE_INTERNALS

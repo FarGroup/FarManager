@@ -1840,6 +1840,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
 {
   if (FrameManager->ManagerIsDown())
     return EEC_OPEN_ERROR;
+
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   /* $ 12.07.2000 IS
@@ -1852,6 +1853,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   /* VVM $ */
   /* $ 09.09.2001 IS */
   int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
+  int Locked=(Flags & EF_LOCKED)?TRUE:FALSE;
   /* $ 14.06.2002 IS
      Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
      приоритет по сравнению с EF_DELETEONCLOSE
@@ -1864,10 +1866,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   /* IS 14.06.2002 $ */
   /* IS 09.09.2001 $ */
   int OpMode=FEOPMODE_QUERY;
-#if 0
-  if((Flags&(EF_USEEXISTING|EF_BREAKIFOPEN)) != (EF_USEEXISTING|EF_BREAKIFOPEN))
-    OpMode=(Flags&EF_USEEXISTING)?FEOPMODE_USEEXISTING:FEOPMODE_BREAKIFOPEN;
-#endif
+
+  if((Flags&EF_OPENMODE_MASK) != 0)
+    OpMode=Flags&EF_OPENMODE_MASK;
 
   /*$ 15.05.2002 SKV
     Запретим вызов немодального редактора, если находимся в модальном
@@ -1883,7 +1884,8 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   if (Flags & EF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),
+    FileEditor *Editor=new FileEditor(FileName,
+                                      (CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
@@ -1922,7 +1924,8 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   else
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor Editor(FileName,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),
+    FileEditor Editor(FileName,
+                      (CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
                       StartLine,StartChar,Title,
                       X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
