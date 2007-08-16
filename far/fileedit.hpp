@@ -22,10 +22,11 @@ enum {
 
 // как открывать
 enum FEOPMODEEXISTFILE{
-  FEOPMODE_QUERY        =0,
-  FEOPMODE_NEWIFOPEN    =1,
-  FEOPMODE_USEEXISTING  =2,
-  FEOPMODE_BREAKIFOPEN  =3,
+  FEOPMODE_QUERY        =0x00000000,
+  FEOPMODE_NEWIFOPEN    =0x10000000,
+  FEOPMODE_USEEXISTING  =0x20000000,
+  FEOPMODE_BREAKIFOPEN  =0x30000000,
+  FEOPMODE_RELOAD       =0x40000000,
 };
 
 enum FFILEEDIT_FLAGS{
@@ -38,6 +39,7 @@ enum FFILEEDIT_FLAGS{
                                                  //   При редактировании найденного файла из архива для
                                                  //   клавиши F2 сделать вызов ShiftF2.
   FFILEEDIT_SAVEWQUESTIONS        = 0x00400000,  // сохранить без вопросов
+  FFILEEDIT_LOCKED                = 0x00800000,  // заблокировать?
   FFILEEDIT_OPENFAILED            = 0x01000000,  // файл открыть не удалось
   FFILEEDIT_DELETEONCLOSE         = 0x02000000,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
   FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // удалить в деструкторе только файл

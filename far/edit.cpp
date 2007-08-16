@@ -608,6 +608,9 @@ int Edit::ProcessKey(int Key)
     case KEY_DIVIDE:
       Key=L'/';
       break;
+    case KEY_DECIMAL:
+      Key=L'.';
+      break;
     case KEY_CTRLC:
       Key=KEY_CTRLINS;
       break;

@@ -621,7 +621,9 @@ void FileEditor::Init (
         else
         {
           MsgCode=(OpenModeExstFile==FEOPMODE_USEEXISTING)?0:
-                        (OpenModeExstFile==FEOPMODE_NEWIFOPEN?1:-100);
+                        (OpenModeExstFile==FEOPMODE_NEWIFOPEN?1:
+                           (OpenModeExstFile==FEOPMODE_RELOAD?2:-100)
+                  );
         }
         switch(MsgCode)
         {
@@ -751,6 +753,8 @@ void FileEditor::Init (
       return;
     }
   }
+
+  m_editor->Flags.Change(FEDITOR_LOCKMODE,Flags.Check(FFILEEDIT_LOCKED));
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);

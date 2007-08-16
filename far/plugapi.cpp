@@ -1813,17 +1813,14 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 
 
   class ConsoleTitle ct;
-  /* $ 09.09.2001 IS */
+
   int DisableHistory=(Flags & VF_DISABLEHISTORY)?TRUE:FALSE;
-  /* IS $ */
-  /* $ 15.05.2002 SKV
-    Запретим вызов немодального редактора вьюера из модального.
-  */
+
+  // $ 15.05.2002 SKV - Запретим вызов немодального редактора вьюера из модального.
   if( FrameManager->InModalEV())
   {
     Flags&=~VF_NONMODAL;
   }
-  /* SKV $ */
 
   if (Flags & VF_NONMODAL)
   {
@@ -1908,12 +1905,10 @@ int WINAPI FarEditor(
    Проверка флагов редактора (раньше они игнорировались) и открытие
    немодального редактора, если есть соответствующий флаг
   */
-  /* $ 21.03.2001 VVM
-    + Обработка флага EF_CREATENEW */
   int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
-  /* VVM $ */
-  /* $ 09.09.2001 IS */
+  int Locked=(Flags & EF_LOCKED)?TRUE:FALSE;
   int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
+
   /* $ 14.06.2002 IS
      Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
      приоритет по сравнению с EF_DELETEONCLOSE
@@ -1923,13 +1918,11 @@ int WINAPI FarEditor(
     DeleteOnClose = 1;
   else if(Flags & EF_DELETEONLYFILEONCLOSE)
     DeleteOnClose = 2;
-  /* IS 14.06.2002 $ */
-  /* IS 09.09.2001 $ */
+
   int OpMode=FEOPMODE_QUERY;
-#if 0
-  if((Flags&(EF_USEEXISTING|EF_BREAKIFOPEN)) != (EF_USEEXISTING|EF_BREAKIFOPEN))
-    OpMode=(Flags&EF_USEEXISTING)?FEOPMODE_USEEXISTING:FEOPMODE_BREAKIFOPEN;
-#endif
+
+  if((Flags&EF_OPENMODE_MASK) != 0)
+    OpMode=Flags&EF_OPENMODE_MASK;
 
   /*$ 15.05.2002 SKV
     Запретим вызов немодального редактора, если находимся в модальном
@@ -1945,7 +1938,7 @@ int WINAPI FarEditor(
   if (Flags & EF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,-1,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),
+    FileEditor *Editor=new FileEditor(FileName,-1,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
@@ -1984,7 +1977,7 @@ int WINAPI FarEditor(
   else
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor Editor(FileName,-1,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),
+    FileEditor Editor(FileName,-1,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
                       StartLine,StartChar,Title,
                       X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
@@ -2177,4 +2170,3 @@ int __stdcall farIsAlphaNum(wchar_t Ch)
 {
 	return IsAlphaNum(Ch);
 }
-
