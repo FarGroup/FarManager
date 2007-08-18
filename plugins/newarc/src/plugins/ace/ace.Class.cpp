@@ -244,6 +244,9 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 					memset (&item, 0, sizeof (item));
 					strcpy (item.FindData.cFileName, State->ArchivedFile.FileData->SourceFileName);
 
+					item.FindData.nFileSizeLow = State->ArchivedFile.FileData->Size;
+					item.FindData.nFileSizeHigh = (DWORD)(State->ArchivedFile.FileData->Size >> 32);
+
 					m_pfnCallback (AM_PROCESS_FILE, (int)&item, 0);
 				}
 			}
@@ -256,7 +259,10 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 		int diff = State->Progress.ProgressData->TotalProcessedSize-m_nLastProcessed;
 
 		if ( m_pfnCallback )
-			m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff);
+		{
+			if ( !m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff) )
+				return ACE_CALLBACK_RETURN_CANCEL;
+		}
 
 		m_nLastProcessed = State->Progress.ProgressData->TotalProcessedSize;
 	}

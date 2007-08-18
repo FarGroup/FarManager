@@ -23,7 +23,8 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="5"
+				StructMemberAlignment="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -32,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace\ace.module"
+				OutputFile="C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\ace.module"
 				LinkIncremental="2"
 				ModuleDefinitionFile="ace.def"
 				GenerateDebugInformation="TRUE"
