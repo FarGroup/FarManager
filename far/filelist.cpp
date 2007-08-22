@@ -1329,8 +1329,22 @@ int FileList::ProcessKey(int Key)
                 }
 
                 FileEditor *ShellEditor=new FileEditor(strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6);
+                /* TODO: BUG BUG BUG!!! проблема в том, что если...
+                если была ошибка - то ShellEditor в список манагера не попадает, получается утечка памяти
+                */
+#if 0
+
+                if(ShellEditor->GetExitCode() == XC_OPEN_ERROR) // и прочие коды с ошибками!!!
+                  delete ShellEditor;
+                else
+                {
+                  ShellEditor->SetNamesList (&EditList);
+                  FrameManager->ExecuteModal();//OT
+                }
+#else
                 ShellEditor->SetNamesList (&EditList);
                 FrameManager->ExecuteModal();//OT
+#endif
               }
             }
 

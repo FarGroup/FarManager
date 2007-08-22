@@ -534,6 +534,17 @@ void FileEditor::Init (
 		int OpenModeExstFile
 		)
 {
+  class SmartLock{
+    private:
+      Editor *editor;
+    public:
+      SmartLock() {editor=NULL;};
+      ~SmartLock() {if(editor) editor->Unlock ();};
+
+      void Set(Editor *e) {editor=e; editor->Lock ();};
+  };
+
+  SmartLock __smartlock;
   SysErrorCode=0;
   int BlankFileName=!StrCmp(Name,UMSG(MNewFileName));
 
@@ -543,6 +554,8 @@ void FileEditor::Init (
   bEE_READ_Sent = false;
 
   m_editor = new Editor;
+
+  __smartlock.Set(m_editor);
 
   if ( !m_editor )
   {
