@@ -1877,8 +1877,8 @@ $ #Settings dialog: system#
                           Bin can be performed only for local hard
                           disks.
 
-  #Delete symbolic links#   Перед удалением каталога в Корзину, 
-                          просканировать и удалить линки на 
+  #Delete symbolic links#   Перед удалением каталога в Корзину,
+                          просканировать и удалить линки на
                           подкаталоги.
 
   #Use system copy#         Use the file copy functions provided by
@@ -2245,8 +2245,8 @@ $ #Viewer: control keys#
     5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
-    6. Для автоматического скроллинга просматриваемого 
-       динамически обновляемого файла необходимо стать в 
+    6. Для автоматического скроллинга просматриваемого
+       динамически обновляемого файла необходимо стать в
        конец файла (клавиша End).
 
 
@@ -3058,17 +3058,8 @@ characters, delimited with commas. Allowed column types are:
                  for example NMR
 
     S[C,T,F,E] - file size
-                 where: C - format file size with commas;
-                        T - use 1000 instead of 1024 as a divider;
-                        F - show file sizes similar to Windows
-                            Explorer (i.e. 999 bytes will be
-                            displayed as 999 and 1000 bytes will
-                            be displayed as 0.97 KB);
-                        E - economic mode, no space between file
-                            size and suffix will be shown;
-
     P[C,T,F,E] - packed file size
-                 where: C - format file size with commas;
+                 where: C - format file size;
                         T - use 1000 instead of 1024 as a divider;
                         F - show file sizes similar to Windows
                             Explorer (i.e. 999 bytes will be

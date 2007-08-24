@@ -275,17 +275,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
             {
               //размер как минимум в мегабайтах
-              FileSizeToStr(TotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
-              FileSizeToStr(FreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
+              FileSizeToStr(TotalText,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
+              FileSizeToStr(FreeText,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
             }
             else
             {
               //размер с точкой и для 0 добавляем букву размера (B)
-              FileSizeToStr(TotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-              FileSizeToStr(FreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStr(TotalText,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStr(FreeText,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
             }
           }
-          sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
+          sprintf(MenuText+strlen(MenuText),"%c%-9s%c%-9s",VerticalLine,TotalText,VerticalLine,FreeText);
         }
 
         if (Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME)
