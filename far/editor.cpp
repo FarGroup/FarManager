@@ -1127,7 +1127,10 @@ int Editor::ProcessKey(int Key)
       {
         ProcessKey(KEY_SHIFTPGUP);
       }
-      ProcessKey(KEY_SHIFTHOME);
+
+      if(Key == KEY_CTRLSHIFTHOME || Key == KEY_CTRLSHIFTNUMPAD7)
+        ProcessKey(KEY_SHIFTHOME);
+
       Pasting--;
       Unlock ();
 
@@ -1155,8 +1158,10 @@ int Editor::ProcessKey(int Key)
            предыдущее выполнение KEY_SHIFTPGDN.
       */
       Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-      /* IS $ */
-      ProcessKey(KEY_SHIFTEND);
+
+      if(Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)
+        ProcessKey(KEY_SHIFTEND);
+
       Unlock ();
       Pasting--;
 
@@ -3185,7 +3190,12 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
   if (DelPtr==TopList)
     TopList=TopList->m_next;
   if (DelPtr==BlockStart)
+  {
     BlockStart=BlockStart->m_next;
+    // Mantis#0000316: Не работает копирование строки
+    if(!BlockStart->IsSelection())
+       BlockStart=NULL;
+  }
   if (DelPtr==VBlockStart)
     VBlockStart=VBlockStart->m_next;
   if (UndoLine!=-1)

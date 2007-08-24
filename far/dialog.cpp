@@ -591,7 +591,7 @@ int Dialog::InitDialogObjects(int ID)
         CurItem->ObjPtr=new DlgEdit(this,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
         if(Type == DI_COMBOBOX)
         {
-          CurItem->ListPtr=new VMenu("",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,Parent*/);
+          CurItem->ListPtr=new VMenu("",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
         }
         CurItem->SelStart=-1;
       }

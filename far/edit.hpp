@@ -170,6 +170,7 @@ class Edit:public ScreenObject
     void  Select(int Start,int End);
     void  AddSelect(int Start,int End);
     void  GetSelection(int &Start,int &End);
+    BOOL  IsSelection() {return  SelStart==-1 && !SelEnd?FALSE:TRUE; };
     void  GetRealSelection(int &Start,int &End);
     void  SetEditBeyondEnd(int Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND,Mode);};
     void  SetEditorMode(int Mode) {Flags.Change(FEDITLINE_EDITORMODE,Mode);};
