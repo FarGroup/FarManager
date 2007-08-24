@@ -1560,7 +1560,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
           FKey=(Key&0xFF)&(~0x20);
 
           wchar_t KeyText[2];
-          KeyText[1] = 0;
+          KeyText[0]=KeyText[1] = 0;
 
           if (FKey >= L'A' && FKey <= L'Z')
             KeyText[0]=(wchar_t)(Key&0xFF)&((Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL))?(~0x20):0xFF);
@@ -2124,7 +2124,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return '5';
       return Modif|(Opt.UseNumPad?Modif2:0)|KEY_NUMPAD5;
 
-    case VK_DECIMAL:
+/*    case VK_DECIMAL:
     case VK_DELETE:
 //      // // _SVS(SysLog(L"case VK_DELETE:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       if(CtrlState&ENHANCED_KEY)
@@ -2146,8 +2146,12 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
             return Modif|(Opt.UseNumPad?Modif2|KEY_DECIMAL:KEY_DEL); //??
       }
       return Modif| (Opt.UseNumPad?Modif2|(KeyCode == VK_DECIMAL?KEY_DECIMAL:KEY_NUMDEL):KEY_DEL);
-#endif
-
+#endif*/
+    case VK_DELETE:
+      if (CtrlState&ENHANCED_KEY) return (Modif|KEY_DEL);
+    case VK_DECIMAL:
+       //if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS && (CtrlState&NUMLOCK_ON)) return Modif|KEY_DOT; // ÌÀÑÄÀÉ!
+       return Modif|Modif2|(CtrlState&NUMLOCK_ON?(KEY_DECIMAL):(Opt.UseNumPad?KEY_NUMDEL:KEY_DEL));
   }
 
   switch(KeyCode)

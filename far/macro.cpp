@@ -3332,7 +3332,8 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     if(Param2 != -1)
       goto M1;
   }
-  else if(Msg == DN_KEY && (Param2&KEY_END_SKEY) < KEY_END_FKEY)
+  else if ( Msg == DN_KEY && (((Param2&KEY_END_SKEY) < KEY_END_FKEY) ||
+   (((Param2&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (Param2&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)) )
   {
 //    if((Param2&0x00FFFFFF) >= 'A' && (Param2&0x00FFFFFF) <= 'Z' && ShiftPressed)
 //      Param2|=KEY_SHIFT;
