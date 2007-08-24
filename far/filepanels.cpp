@@ -658,6 +658,17 @@ int FilePanels::ProcessKey(int Key)
       break;
     }
 
+    case KEY_CTRLSHIFTCLEAR:
+    {
+      if (Opt.HeightDecrement!=0)
+      {
+        Opt.HeightDecrement=0;
+        SetScreenPosition();
+        FrameManager->RefreshFrame();
+      }
+      break;
+    }
+
     case KEY_F9:
     {
       ShellOptions(0,NULL);

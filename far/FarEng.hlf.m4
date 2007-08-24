@@ -241,6 +241,7 @@ $ #Panel control commands  #
   Change panels width                           #Ctrl-Left,Ctrl-Right#
     (when the command line is empty)
   Restore default panels width                          #Ctrl-Numpad5#
+  Restore default panels height                   #Ctrl-Shift-Numpad5#
   Show/Hide functional key bar at the bottom line.            #Ctrl-B#
 
     #File panel commands#
