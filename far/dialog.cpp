@@ -591,7 +591,7 @@ int Dialog::InitDialogObjects(int ID)
         CurItem->ObjPtr=new DlgEdit(this,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
         if(Type == DI_COMBOBOX)
         {
-          CurItem->ListPtr=new VMenu("",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
+          CurItem->ListPtr=new VMenu("",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,Parent*/);
         }
         CurItem->SelStart=-1;
       }
@@ -2200,6 +2200,9 @@ int Dialog::ProcessKey(int Key)
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 
+  if(!DialogMode.Check(DMODE_SHOW))
+      return TRUE;
+
   // А ХЗ, может в этот момент изменилось состояние элемента!
   if(Item[FocusPos].Flags&DIF_HIDDEN)
     return TRUE;
@@ -2254,6 +2257,9 @@ int Dialog::ProcessKey(int Key)
         int NewListPos=List->GetSelectPos();
         if(NewListPos != CurListPos && !DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,NewListPos))
         {
+          if(!DialogMode.Check(DMODE_SHOW))
+              return TRUE;
+
           List->SetSelection(CheckedListItem,CurListPos);
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
@@ -2537,6 +2543,8 @@ int Dialog::ProcessKey(int Key)
         int NewListPos=List->GetSelectPos();
         if(NewListPos != CurListPos && !DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,NewListPos))
         {
+          if(!DialogMode.Check(DMODE_SHOW))
+              return TRUE;
           List->SetSelection(CheckedListItem,CurListPos);
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
@@ -2994,6 +3002,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   {
     if(DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(LONG_PTR)MouseEvent))
     {
+      if(!DialogMode.Check(DMODE_SHOW))
+        return TRUE;
+
 //      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
       if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
         ProcessKey(KEY_ESC);
@@ -3041,6 +3052,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           {
             if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
               return TRUE;
+            if(!DialogMode.Check(DMODE_SHOW))
+              return TRUE;
           }
           else
             continue;
@@ -3056,6 +3069,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 //_SVS(SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
         if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent))
           return TRUE;
+
+        if(!DialogMode.Check(DMODE_SHOW))
+           return TRUE;
 
         if(Item[I].Type == DI_USERCONTROL)
         {
@@ -3281,6 +3297,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 NeedSendMsg++;
                 if(!DlgProc((HANDLE)this,DN_DRAGGED,0,0)) // а может нас обломали?
                   break;  // валим отсель...плагин сказал - в морг перемещения
+                if(!DialogMode.Check(DMODE_SHOW))
+                  break;
               }
 
               // Да, мальчик был. Зачнем...
@@ -3306,7 +3324,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             Y2=OldY2;
             DialogMode.Clear(DMODE_DRAGGED);
             DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
-            Show();
+            if(DialogMode.Check(DMODE_SHOW))
+              Show();
             break;
           }
           else  // release key, drop dialog
@@ -3316,7 +3335,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               LockScreen LckScr;
               DialogMode.Clear(DMODE_DRAGGED);
               DlgProc((HANDLE)this,DN_DRAGGED,1,0);
-              Show();
+              if(DialogMode.Check(DMODE_SHOW))
+                Show();
             }
             break;
           }
@@ -3663,7 +3683,11 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
   if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
   {
     if(DialogMode.Check(DMODE_INITOBJECTS))
+    {
       FucusPosNeed=(int)DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
+      if(!DialogMode.Check(DMODE_SHOW))
+         return SetFocusPos;
+    }
 
     if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
       SetFocusPos=FucusPosNeed;
@@ -3740,6 +3764,8 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 */
 void Dialog::SelectOnEntry(int Pos,BOOL Selected)
 {
+  if(!DialogMode.Check(DMODE_SHOW))
+     return;
   if(IsEdit(Item[Pos].Type) &&
      (Item[Pos].Flags&DIF_SELECTONENTRY)
 //     && PrevFocusPos != -1 && PrevFocusPos != Pos
@@ -4059,6 +4085,9 @@ int Dialog::SelectFromComboBox(
     ComboBox->GetColors(&ListColors);
     if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(LONG_PTR)&ListColors))
       ComboBox->SetColors(&ListColors);
+
+    if(!DialogMode.Check(DMODE_SHOW))
+       return KEY_ESC;
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 
