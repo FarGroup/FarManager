@@ -2106,6 +2106,15 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   string strFindDir, strSetDir;
 
   strSetDir = NewDir;
+    /* $ 28.08.2007 YJH
+      + ” форточек сносит крышу на GetFileAttributes("..") при нахождении в
+        корне UNC пути. ѕриходитс€ обходить в ручную */
+  if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir, L"..") &&
+      !StrCmpN(strCurDir, L"\\\\?\\", 4) && strCurDir.At(4) &&
+      !StrCmp(&strCurDir[5], L":\\"))
+  {
+    strSetDir = (const wchar_t*)strCurDir+4;
+  }
   PrepareDiskPath(strSetDir);
 
   if ( !TestParentFolderName(strSetDir) && StrCmp(strSetDir,L"\\")!=0)
@@ -2293,8 +2302,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 #if 1    // если поставить 0, то ‘ј– будет выкидыват в корень того диска, который подмаплен на файловую систему
     GetPathRootOne(strCurDir,strSetDir);
 #else
-    GetPathRoot(CurDir,SetDir);
-    if(!strncmp(SetDir,"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
+    GetPathRoot(strCurDir,strSetDir);
+    if(!StrCmpN(SetDir,L"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
       GetPathRootOne(CurDir,SetDir);
 #endif
   }

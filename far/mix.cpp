@@ -1292,8 +1292,13 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
       if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
       {
         wchar_t *ptr=&lpwszPath[2];
-        while (*ptr && *ptr!=L'\\')
-          *(ptr++)=Upper(*ptr);
+        if (*ptr == L'?' && ptr[1] == L'\\' && ptr[2] == L'\\') {
+          if (ptr[3] && ptr[4] == L':')
+              ptr[3] = Upper(ptr[3]);
+        } else {
+          while (*ptr && *ptr!=L'\\')
+            *(ptr++)=Upper(*ptr);
+        }
       }
       else
         lpwszPath[0]=Upper(lpwszPath[0]);
