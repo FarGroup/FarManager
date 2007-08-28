@@ -1156,8 +1156,13 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
       if (Path[0]=='\\' && Path[1]=='\\')
       {
         char *ptr=&Path[2];
-        while (*ptr && *ptr!='\\')
-          *(ptr++)=toupper(*ptr);
+        if (*ptr == '?' && ptr[1] == '\\' && ptr[2] == '\\') {
+          if (ptr[3] && ptr[4] == ':')
+              ptr[3] = toupper(ptr[3]);
+        } else {
+          while (*ptr && *ptr!='\\')
+            *(ptr++)=toupper(*ptr);
+        }
       }
       else
         Path[0]=toupper(Path[0]);

@@ -2080,6 +2080,14 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
   char FindDir[4096],SetDir[4096];
 
   strcpy(SetDir,NewDir);
+    /* $ 28.08.2007 YJH
+      + У форточек сносит крышу на GetFileAttributes("..") при нахождении в
+        корне UNC пути. Приходится обходить в ручную */
+  if (PanelMode!=PLUGIN_PANEL && !strcmp(SetDir,"..") &&
+      !strncmp(CurDir, "\\\\?\\", 4) && CurDir[4] && !strcmp(&CurDir[5], ":\\"))
+  {
+    strcpy(SetDir, CurDir+4);
+  }
   PrepareDiskPath(SetDir,sizeof(SetDir)-1);
 
   if (!TestParentFolderName(SetDir) && strcmp(SetDir,"\\")!=0)
