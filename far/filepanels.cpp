@@ -364,18 +364,9 @@ int FilePanels::SwapPanels(void)
   return Ret;
 }
 
-int FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  switch(OpCode)
-  {
-    case MCODE_C_EOF:
-    case MCODE_C_BOF:
-    case MCODE_C_SELECTED:
-    case MCODE_V_ITEMCOUNT:
-    case MCODE_V_CURPOS:
-      return ActivePanel->VMProcess(OpCode);
-  }
-  return 0;
+  return ActivePanel->VMProcess(OpCode);
 }
 
 int FilePanels::ProcessKey(int Key)

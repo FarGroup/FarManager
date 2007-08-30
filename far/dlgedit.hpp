@@ -58,7 +58,7 @@ class DlgEdit: public ScreenObject
     virtual void ShowConsoleTitle();
     virtual void SetScreenPosition();
     virtual void ResizeConsole();
-    virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
 

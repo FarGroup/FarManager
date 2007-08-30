@@ -1,4 +1,5 @@
 BEGIN{
+  print "Rebuild dependencies..." > "/dev/stderr"
   FS=".";
   if(out == "")
     out="Release.vc";

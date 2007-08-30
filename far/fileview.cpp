@@ -185,7 +185,7 @@ void FileViewer::DisplayObject()
 }
 
 
-int FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   return View.VMProcess(OpCode,vParam,iParam);
 }

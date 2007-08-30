@@ -1173,18 +1173,18 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 }
 
 
-int Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return FileSize==0;
+      return (__int64)(FileSize==0);
     case MCODE_C_SELECTED:
-      return SelectSize==0?FALSE:TRUE;
+      return (__int64)(SelectSize==0?FALSE:TRUE);
     case MCODE_C_EOF:
-      return LastPage || ViewFile==NULL;
+      return (__int64)(LastPage || ViewFile==NULL);
     case MCODE_C_BOF:
-      return !FilePos || ViewFile==NULL;
+      return (__int64)(!FilePos || ViewFile==NULL);
     case MCODE_V_VIEWERSTATE:
     {
       DWORD MacroViewerState=0;
@@ -1194,11 +1194,16 @@ int Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
       MacroViewerState|=VM.Wrap?0x00000008:0;
       MacroViewerState|=VM.WordWrap?0x00000010:0;
       MacroViewerState|=VM.Hex?0x00000020:0;
-      return MacroViewerState;
+      return (__int64)MacroViewerState;
     }
+    case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
+      return (__int64)GetViewFileSize();
+
+    case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
+      return (__int64)(GetViewFilePos()+1);
   }
 
-  return 0;
+  return _i64(0);
 }
 
 /* $ 28.01.2001

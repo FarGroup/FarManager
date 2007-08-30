@@ -708,29 +708,29 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   return EndLoop==TRUE;
 }
 
-int VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return ItemCount<=0;
+      return (__int64)(ItemCount<=0);
     case MCODE_C_EOF:
-      return SelectPos==ItemCount-1;
+      return (__int64)(SelectPos==ItemCount-1);
     case MCODE_C_BOF:
-      return SelectPos==0;
+      return (__int64)(SelectPos==0);
     case MCODE_C_SELECTED:
-      return ItemCount > 0 && SelectPos >= 0;
+      return (__int64)(ItemCount > 0 && SelectPos >= 0);
     case MCODE_V_ITEMCOUNT:
-      return ItemCount;
+      return (__int64)ItemCount;
     case MCODE_V_CURPOS:
-      return SelectPos+1;
+      return (__int64)(SelectPos+1);
 
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = (const char *)vParam;
       if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
+        return (__int64)((DWORD)CheckHighlights(*str));
+      return _i64(0);
     }
 
     case MCODE_F_MENU_GETHOTKEY:
@@ -739,11 +739,11 @@ int VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         iParam=(__int64)SelectPos;
 
       if((int)iParam < ItemCount)
-        return GetHighlights(GetItemPtr((int)iParam));
-      return 0;
+        return (__int64)((DWORD)GetHighlights(GetItemPtr((int)iParam)));
+      return _i64(0);
     }
   }
-  return 0;
+  return _i64(0);
 }
 
 int VMenu::ProcessKey(int Key)

@@ -1025,7 +1025,7 @@ int Help::Search(int Next)
 }
 #endif
 
-int Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
@@ -1042,10 +1042,10 @@ int Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
       break;
 
     default:
-      return 0;
+      return _i64(0);
   }
 
-  return 1;
+  return _i64(1);
 }
 
 

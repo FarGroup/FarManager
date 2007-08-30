@@ -530,7 +530,7 @@ void FileEditor::DisplayObject()
 }
 
 
-int FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   if(OpCode == MCODE_V_EDITORSTATE)
   {
@@ -546,17 +546,17 @@ int FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
     MacroEditState|=FEdit->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
     MacroEditState|=FEdit->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
     MacroEditState|=FEdit->EdOpt.PersistentBlocks?0x00000400:0;
-    return MacroEditState;
+    return (__int64)MacroEditState;
   }
 
   if(OpCode == MCODE_V_EDITORCURPOS)
-    return FEdit->CurLine->GetTabCurPos()+1;
+    return (__int64)(FEdit->CurLine->GetTabCurPos()+1);
   if(OpCode == MCODE_V_EDITORCURLINE)
-    return FEdit->NumLine+1;
+    return (__int64)(FEdit->NumLine+1);
   if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
-    return FEdit->NumLastLine;
+    return (__int64)FEdit->NumLastLine;
 
-  return(FEdit->VMProcess(OpCode));
+  return FEdit->VMProcess(OpCode);
 }
 
 

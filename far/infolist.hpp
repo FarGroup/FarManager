@@ -69,6 +69,7 @@ class InfoList:public Panel
   public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void Update(int Mode);
     virtual void SetFocus();
     virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);

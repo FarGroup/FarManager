@@ -2084,7 +2084,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 }
 
 
-int Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
@@ -2092,8 +2092,8 @@ int Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
     {
       const char *str = (const char *)vParam;
       if ( *str )
-        return CheckHighlights(*str);
-      return FALSE;
+        return (__int64)((DWORD)CheckHighlights(*str));
+      return _i64(0);
     }
   }
   switch(OpCode)
@@ -2107,31 +2107,31 @@ int Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
         return ((DlgEdit *)(Item[FocusPos].ObjPtr))->VMProcess(OpCode,vParam,iParam);
       else if(Item[FocusPos].Type == DI_LISTBOX && OpCode != MCODE_C_SELECTED)
         return Item[FocusPos].ListPtr->VMProcess(OpCode);
-      return 0;
+      return _i64(0);
     }
     case MCODE_V_DLGITEMTYPE:
       switch(Item[FocusPos].Type)
       {
-        case DI_EDIT:            return DropDownOpened?0x8001:1;
-        case DI_PSWEDIT:         return 2;
-        case DI_FIXEDIT:         return 3;
-        case DI_BUTTON:          return 4;
-        case DI_CHECKBOX:        return 5;
-        case DI_RADIOBUTTON:     return 6;
-        case DI_COMBOBOX:        return DropDownOpened?0x8007:7;
-        case DI_LISTBOX:         return 8;
-        case DI_USERCONTROL:     return 9;
+        case DI_EDIT:            return (__int64)(DropDownOpened?0x8001:1);
+        case DI_PSWEDIT:         return _i64(2);
+        case DI_FIXEDIT:         return _i64(3);
+        case DI_BUTTON:          return _i64(4);
+        case DI_CHECKBOX:        return _i64(5);
+        case DI_RADIOBUTTON:     return _i64(6);
+        case DI_COMBOBOX:        return (__int64)(DropDownOpened?0x8007:7);
+        case DI_LISTBOX:         return _i64(8);
+        case DI_USERCONTROL:     return _i64(9);
       }
-      return 0;
+      return _i64(0);
 
     case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
     {
-      return ItemCount;
+      return (__int64)ItemCount;
     }
 
     case MCODE_V_DLGCURPOS:    // Dlg.CurPos
     {
-      return FocusPos+1;
+      return (__int64)(FocusPos+1);
     }
 
     case MCODE_V_ITEMCOUNT:
@@ -2151,16 +2151,16 @@ int Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
         case DI_USERCONTROL:
           if(OpCode == MCODE_V_CURPOS)
-            return Item[FocusPos].UCData->CursorPos.X;
+            return (__int64)(Item[FocusPos].UCData->CursorPos.X);
         case DI_BUTTON:
         case DI_CHECKBOX:
         case DI_RADIOBUTTON:
-          return 0;
+          return _i64(0);
       }
-      return 0;
+      return _i64(0);
     }
   }
-  return 0;
+  return _i64(0);
 }
 
 //////////////////////////////////////////////////////////////////////////
