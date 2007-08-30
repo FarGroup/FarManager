@@ -282,6 +282,13 @@ void InfoList::DisplayObject()
 }
 
 
+__int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  if(DizView!=NULL)
+    return DizView->VMProcess(OpCode,vParam,iParam);
+  return _i64(0);
+}
+
 int InfoList::ProcessKey(int Key)
 {
   if (!IsVisible())

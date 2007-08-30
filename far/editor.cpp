@@ -910,29 +910,29 @@ void Editor::TextChanged(int State)
 /* skv$*/
 
 
-int Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   int CurPos=CurLine->GetCurPos();
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return !CurLine->m_next && !CurLine->m_prev; //??
+      return (__int64)(!CurLine->m_next && !CurLine->m_prev); //??
     case MCODE_C_EOF:
-      return !CurLine->m_next && CurPos>=CurLine->GetLength();
+      return (__int64)(!CurLine->m_next && CurPos>=CurLine->GetLength());
     case MCODE_C_BOF:
-      return !CurLine->m_prev && CurPos==0;
+      return (__int64)(!CurLine->m_prev && CurPos==0);
     case MCODE_C_SELECTED:
-      return BlockStart || VBlockStart?TRUE:FALSE;
+      return (__int64)(BlockStart || VBlockStart?TRUE:FALSE);
     case MCODE_V_EDITORCURPOS:
-      return CurLine->GetTabCurPos()+1;
+      return (__int64)(CurLine->GetTabCurPos()+1);
     case MCODE_V_EDITORCURLINE:
-      return NumLine+1;
+      return (__int64)(NumLine+1);
     case MCODE_V_ITEMCOUNT:
     case MCODE_V_EDITORLINES:
-      return NumLastLine;
+      return (__int64)NumLastLine;
 
   }
-  return 0;
+  return _i64(0);
 }
 
 
@@ -2657,7 +2657,7 @@ int Editor::ProcessKey(int Key)
       UnmarkBlock();
       // CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:NULL !!!
       CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,CurLine->TableSet,EdOpt.strWordDiv);
-      CurLine->Select(SStart,++SEnd);
+      CurLine->Select(SStart,SEnd+(SEnd < CurLine->StrSize?1:0));
 
       Flags.Set(FEDITOR_MARKINGBLOCK);
       BlockStart=CurLine;

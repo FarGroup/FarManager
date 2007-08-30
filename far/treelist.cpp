@@ -756,24 +756,24 @@ int TreeList::CountSlash(const wchar_t *Str)
 }
 
 
-int TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return TreeCount<=0;
+      return (__int64)(TreeCount<=0);
     case MCODE_C_EOF:
-      return CurFile==TreeCount-1;
+      return (__int64)(CurFile==TreeCount-1);
     case MCODE_C_BOF:
-      return CurFile==0;
+      return (__int64)(CurFile==0);
     case MCODE_C_SELECTED:
-      return FALSE;
+      return _i64(0);
     case MCODE_V_ITEMCOUNT:
-      return TreeCount;
+      return (__int64)TreeCount;
     case MCODE_V_CURPOS:
-      return CurFile+1;
+      return (__int64)(CurFile+1);
   }
-  return 0;
+  return _i64(0);
 }
 
 int TreeList::ProcessKey(int Key)

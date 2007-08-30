@@ -53,7 +53,7 @@ class FileViewer:public Frame
     /* SVS $ */
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void ShowConsoleTitle();
     /* $ 14.06.2002 IS
        Параметр DeleteFolder - удалить не только файл, но и каталог, его

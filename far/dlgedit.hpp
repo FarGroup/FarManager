@@ -59,7 +59,7 @@ class DlgEdit: public ScreenObject
     virtual void ShowConsoleTitle();
     virtual void SetScreenPosition();
     virtual void ResizeConsole();
-    virtual int  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     void  SetDialogParent(DWORD Sets);
     void  SetDropDownBox(int NewDropDownBox);

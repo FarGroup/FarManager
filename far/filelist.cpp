@@ -440,7 +440,7 @@ int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
   return FALSE;
 }
 
-int FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
@@ -450,7 +450,7 @@ int FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
       {
         struct OpenPluginInfo Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-        return *NullToEmpty(Info.CurDir)==0;
+        return (__int64)(*NullToEmpty(Info.CurDir)==0);
       }
       else
       {
@@ -458,24 +458,24 @@ int FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
         {
           string strDriveRoot;
           GetPathRoot(strCurDir, strDriveRoot);
-          return !StrCmpI(strCurDir, strDriveRoot);
+          return (__int64)(!StrCmpI(strCurDir, strDriveRoot));
         }
-        return TRUE;
+        return _i64(1);
       }
     }
     case MCODE_C_EOF:
-      return CurFile == FileCount-1;
+      return (__int64)(CurFile == FileCount-1);
     case MCODE_C_BOF:
-      return CurFile==0;
+      return (__int64)(CurFile==0);
     case MCODE_C_SELECTED:
-      return GetRealSelCount()>1;
+      return (__int64)(GetRealSelCount()>1);
     case MCODE_V_ITEMCOUNT:
-      return FileCount;
+      return (__int64)(FileCount);
     case MCODE_V_CURPOS:
-      return CurFile+1;
+      return (__int64)(CurFile+1);
   }
 
-  return 0;
+  return _i64(0);
 }
 
 int FileList::ProcessKey(int Key)

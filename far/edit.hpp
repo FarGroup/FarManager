@@ -161,7 +161,7 @@ private:
     virtual void  FastShow();
     virtual int   ProcessKey(int Key);
     virtual int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     //   ! Функция установки текущих Color,SelColor и ColorUnChanged!
     void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);

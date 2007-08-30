@@ -571,24 +571,24 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 }
 
 
-int Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return GetLength()==0;
+      return (__int64)(GetLength()==0);
     case MCODE_C_SELECTED:
-      return SelStart != -1 && SelStart < SelEnd;
+      return (__int64)(SelStart != -1 && SelStart < SelEnd);
     case MCODE_C_EOF:
-      return CurPos >= StrSize;
+      return (__int64)(CurPos >= StrSize);
     case MCODE_C_BOF:
-      return CurPos==0;
+      return (__int64)(CurPos==0);
     case MCODE_V_ITEMCOUNT:
-      return StrSize;
+      return (__int64)StrSize;
     case MCODE_V_CURPOS:
-      return CursorPos+1;
+      return (__int64)(CursorPos+1);
   }
-  return 0;
+  return _i64(0);
 }
 
 int Edit::ProcessKey(int Key)
@@ -989,7 +989,7 @@ int Edit::ProcessKey(int Key)
       {
         int SStart, SEnd;
         CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv); // TableSet --> UseDecodeTable?&TableSet:NULL
-        Select(SStart,++SEnd);
+        Select(SStart,SEnd+(SEnd < StrSize?1:0));
       }
       CurPos=OldCurPos; // возвращаем обратно
       Show();

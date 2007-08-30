@@ -300,7 +300,7 @@ class FileList:public Panel
   public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual void SetFocus();
     virtual void Update(int Mode);

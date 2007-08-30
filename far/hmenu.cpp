@@ -66,7 +66,7 @@ void HMenu::ShowMenu()
 }
 
 
-int HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   int I;
 
@@ -82,20 +82,36 @@ int HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return ItemCount<=0;
+      return (__int64)(ItemCount<=0);
     case MCODE_C_EOF:
-      return SelectPos==ItemCount-1;
+      return (__int64)(SelectPos==ItemCount-1);
     case MCODE_C_BOF:
-      return SelectPos==0;
+      return (__int64)(SelectPos==0);
     case MCODE_C_SELECTED:
-      return ItemCount > 0 && SelectPos >= 0;
+      return (__int64)(ItemCount > 0 && SelectPos >= 0);
     case MCODE_V_ITEMCOUNT:
-      return ItemCount;
+      return (__int64)ItemCount;
     case MCODE_V_CURPOS:
-      return SelectPos+1;
+      return (__int64)(SelectPos+1);
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const wchar_t *str = (const wchar_t *)vParam;
+      if ( *str )
+        return (__int64)CheckHighlights((WORD)*str);
+      return _i64(0);
+    }
+    case MCODE_F_MENU_GETHOTKEY:
+    {
+      if(iParam == _i64(-1))
+        iParam=(__int64)SelectPos;
+
+      if((int)iParam < ItemCount)
+        return (__int64)((DWORD)GetHighlights((const struct HMenuData *)(Item+(int)iParam)));
+      return _i64(0);
+    }
   }
 
-  return 0;
+  return _i64(0);
 }
 
 int HMenu::ProcessKey(int Key)
@@ -379,4 +395,39 @@ HMenu::~HMenu()
 {
   FrameManager->UnmodalizeFrame(this);
   FrameManager->RefreshFrame();
+}
+
+wchar_t HMenu::GetHighlights(const struct HMenuData *_item)
+{
+  CriticalSectionLock Lock(CS);
+
+  wchar_t Ch=0;
+
+  if(_item)
+  {
+    const wchar_t *Name=_item->Name;
+    if(Name && *Name)
+    {
+      const wchar_t *ChPtr=wcschr(Name,L'&');
+
+      if (ChPtr)
+        Ch=ChPtr[1];
+    }
+  }
+
+  return Ch;
+}
+
+BOOL HMenu::CheckHighlights(WORD CheckSymbol)
+{
+  CriticalSectionLock Lock(CS);
+
+  for (int I=0; I < ItemCount; I++)
+  {
+    wchar_t Ch=GetHighlights((const struct HMenuData *)(Item+I));
+
+    if(Ch && Upper(CheckSymbol) == Upper(Ch))
+      return TRUE;
+  }
+  return FALSE;
 }

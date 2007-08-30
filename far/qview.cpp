@@ -220,6 +220,13 @@ void QuickView::DisplayObject()
 }
 
 
+__int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
+{
+  if(QView!=NULL)
+    return QView->VMProcess(OpCode,vParam,iParam);
+  return _i64(0);
+}
+
 int QuickView::ProcessKey(int Key)
 {
   if (!IsVisible())

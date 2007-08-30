@@ -560,7 +560,7 @@ void DlgEdit::ResizeConsole()
     lineEdit->ResizeConsole();
 }
 
-int  DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)

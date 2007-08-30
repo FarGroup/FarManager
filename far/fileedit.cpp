@@ -879,7 +879,7 @@ bool IsUnicodeCP (int codepage) //BUGBUG
 }
 
 
-int FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+__int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   if(OpCode == MCODE_V_EDITORSTATE)
   {
@@ -895,17 +895,17 @@ int FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
     MacroEditState|=m_editor->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
     MacroEditState|=m_editor->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
     MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
-    return MacroEditState;
+    return (__int64)MacroEditState;
   }
 
   if(OpCode == MCODE_V_EDITORCURPOS)
-    return m_editor->CurLine->GetTabCurPos()+1;
+    return (__int64)(m_editor->CurLine->GetTabCurPos()+1);
   if(OpCode == MCODE_V_EDITORCURLINE)
-    return m_editor->NumLine+1;
+    return (__int64)(m_editor->NumLine+1);
   if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
-    return m_editor->NumLastLine;
+    return (__int64)(m_editor->NumLastLine);
 
-  return(m_editor->VMProcess(OpCode));
+  return m_editor->VMProcess(OpCode);
 }
 
 

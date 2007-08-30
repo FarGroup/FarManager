@@ -710,7 +710,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
             if(!f)
               f=fo;
             if(f)
-              Cond=(__int64)f->VMProcess(CheckCode);
+              Cond=f->VMProcess(CheckCode);
           }
           else
             if(CurFrame)
@@ -718,7 +718,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 #else
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            Cond=(__int64)f->VMProcess(CheckCode);
+            Cond=f->VMProcess(CheckCode);
 #endif
           break;
         }
@@ -730,7 +730,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
         case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
         case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
         {
-          Cond=(__int64)CtrlObject->CmdLine->VMProcess(CheckCode);
+          Cond=CtrlObject->CmdLine->VMProcess(CheckCode);
           break;
         }
 
@@ -746,7 +746,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
         {
           Panel *SelPanel=(CheckCode==MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
-            Cond=(__int64)SelPanel->VMProcess(MCODE_C_ROOTFOLDER)?1:0;
+            Cond=SelPanel->VMProcess(MCODE_C_ROOTFOLDER)?1:0;
           break;
         }
 
@@ -757,7 +757,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
         {
           Panel *SelPanel=(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
-            Cond=(__int64)SelPanel->VMProcess(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
+            Cond=SelPanel->VMProcess(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
           break;
         }
 
@@ -769,9 +769,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           {
             int CurSelected;
             if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-              CurSelected=CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
+              CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
             else
-              CurSelected=CurFrame->VMProcess(MCODE_C_SELECTED);
+              CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
             Cond=CurSelected?1:0;
           }
 #else
@@ -1086,6 +1086,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           Frame *f=FrameManager->GetTopModal();
           if(f)
           {
+/*
             if(f->GetType() == MODALTYPE_VIEWER)
             {
               if(CheckCode == MCODE_V_ITEMCOUNT)
@@ -1095,6 +1096,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
             }
             else
               Cond=(__int64)f->VMProcess(CheckCode);
+*/
+            Cond=f->VMProcess(CheckCode);
           }
           break;
         }
@@ -1125,7 +1128,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
               Cond=egs.StringText;
             }
             else
-              Cond=(__int64)CtrlObject->Plugins.CurEditor->VMProcess(CheckCode);
+              Cond=CtrlObject->Plugins.CurEditor->VMProcess(CheckCode);
           }
           break;
         }
@@ -1154,7 +1157,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
               Cond=(const wchar_t*)strFileName;
             }
             else
-              Cond=(__int64)CtrlObject->Plugins.CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
+              Cond=CtrlObject->Plugins.CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
           }
           break;
         }
@@ -2651,7 +2654,7 @@ done:
        _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_GETHOTKEY"));
        tmpVar=VMStack.Pop();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || MACRO_USERMENU)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();
@@ -2663,20 +2666,21 @@ done:
          if(!f)
            f=fo;
 
-         long Result;
+         __int64 Result;
 
          if(f && (Result=f->VMProcess(MCODE_F_MENU_GETHOTKEY,NULL,tmpVar.i()-1)) != 0)
          {
            wchar_t _value[2];
-           _value[0]=(wchar_t)Result;
-           _value[1]=0;
-           tmpVar=_value;
+           _value[0]=_value[1]=0;
+           if(Result)
+             _value[0]=(wchar_t)Result;
+           tmpVar=(const wchar_t*)_value;
          }
          else
-           tmpVar=_i64(0);
+           tmpVar=(const wchar_t*)L"";
        }
        else
-         tmpVar=_i64(0);
+         tmpVar=(const wchar_t*)L"";
 
        VMStack.Push(tmpVar);
        goto begin;
@@ -2685,10 +2689,10 @@ done:
     case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
     {
        _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_CHECKHOTKEY"));
-       long Result=0;
+       __int64 Result=_i64(0);
        tmpVar=VMStack.Pop();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || MACRO_USERMENU)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();
@@ -2703,7 +2707,7 @@ done:
          if(f)
            Result=f->VMProcess(MCODE_F_MENU_CHECKHOTKEY,(void*)tmpVar.toString());
        }
-       VMStack.Push((__int64)Result);
+       VMStack.Push(Result);
        goto begin;
     }
 
@@ -4581,9 +4585,9 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
     {
       int CurSelected;
       if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-        CurSelected=CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
+        CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
       else
-        CurSelected=CurFrame->VMProcess(MCODE_C_SELECTED);
+        CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
 
       if((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected)

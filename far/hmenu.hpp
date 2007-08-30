@@ -9,6 +9,7 @@ hmenu.hpp
 
 #include "modal.hpp"
 #include "frame.hpp"
+#include "CriticalSections.hpp"
 
 struct HMenuData
 {
@@ -30,12 +31,15 @@ class HMenu: public Modal
     int ItemCount;
     int VExitCode;
     int ItemX[16];
+    CriticalSection CS;
 
   private:
     virtual void DisplayObject();
     void ShowMenu();
     void ProcessSubMenu(struct MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
                         int X,int Y,int &Position);
+    wchar_t GetHighlights(const struct HMenuData *_item);
+    BOOL CheckHighlights(WORD CheckSymbol);
 
   public:
     HMenu(struct HMenuData *Item,int ItemCount);
@@ -44,7 +48,7 @@ class HMenu: public Modal
   public:
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     virtual void Process();
     virtual void ResizeConsole();

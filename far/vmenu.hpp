@@ -272,7 +272,7 @@ class VMenu: public Modal
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual int VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     BOOL UpdateRequired(void);
 
