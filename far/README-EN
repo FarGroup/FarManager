@@ -1,0 +1,125 @@
+RULES
+~~~~~
+
+Compilation
+~~~~~~~~~~~
+1. There is a set of batch files to compile using VC:
+
+   Do not edit those batch file directly!!!!!!!!!
+   Only for permanent changes concerning all project members.
+   Read the explanation below - everything is taken into account.
+
+   --------------------
+   vc.build.release.bat
+   --------------------
+   This batch file builds a release version of Far using VC and Far.mak.
+   It also updates the far.release.dep file and the language files.
+   By using this batch file you should never encounter any problems when
+   building Far (except bugs in the code :).
+   For this batch file to be universal so anyone can use it without changes it
+   calls another batch file - custom.vc.release.bat - if such exists.
+   That (custom.vc.release.bat) batch file you will have to create by yourself
+   as it is your personal batch file and will not be committed to the SVN. In
+   it you can define compile time variables and redefine the ones defined in
+   the main batch file.
+   For example my custom.vc.release.bat contains:
+   ---->8----
+   @echo off
+   call F:\lng\VC.Toolkit.2003\vcvars32.bat
+   ----8<----
+
+   ------------------
+   vc.build.debug.bat
+   ------------------
+   The same as vc.build.release.bat only build a debug version of Far, updates
+   far.debug.dep and calls custom.vc.debug.bat if such exists.
+   Example of custom.vc.debug.bat:
+   ---->8----
+   @echo off
+   call F:\lng\VS98\Bin\VCVARS32.BAT
+   set FAR_MSVCRT=/D FAR_MSVCRT
+   set FARSYSLOG=-DSYSLOG_TREX %FARSYSLOG%
+   ----8<----
+
+   The same goes for the x64 build only:
+   vc.build.debug.64.bat --> custom.vc.debug.64.bat
+   vc.build.release.64.bat --> custom.vc.release.64.bat
+
+   If you want to use ulink as the linker then the following lines should be
+   added to custom.vc...bat:
+   ---->8----
+   set NMAKE_OPTS=LINK_ULINK=1
+   ----8<----
+   or (for x86 versions compiled with VC8)
+   ---->8----
+   set NMAKE_OPTS=USE_VC8_32=1 LINK_ULINK=1
+   ----8<----
+
+   By setting NMAKE_OPTS you can pass command line arguments to nmake
+
+
+2. To compile with GCC the is a makefile (makefile_gcc) that does everything.
+
+
+Changelog - "changelog" file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. All comments on committed changes should be written to the "changelog" file.
+   You should leave comments in the source code only if you think the code is
+   not self explanatory and won't be understood by "future generations".
+2. Recent changes go on top.
+3. Each entry starts with a header of the form:
+   warp 05.12.2006 01:39:38 +0300 - build 2149
+4. Changes not always require a build increase (i.e. cosmetic changes in the
+   code).
+
+
+farversion.m4
+~~~~~~~~~~~~~
+1. This file contains information used to generate Far version:
+   a. BUILDTYPE, a string that defines the build type, can be:
+      - `'      - empty string - release version
+      - `alpha' - alpha version
+      - `beta'  - beta version
+      - `RC'    - release candidate
+      - `AnyThingElse' - intended for Far versions which code has not been
+        commited yet to the SVN so we and the users will not be confused.
+        Far version will look something like that:
+        FarVersion alpha AnyThingElse based on build BuildNumber
+   b. BUILDTESTONLY, a flag to add TEST ONLY! to the version. Can be 1 or 0.
+   c. BUILDTYPENUM, build type number - will be shown for alpha,beta,RC
+      versions.
+   d. MAJOR - MAJOR Far version (i.e. 1).
+   e. MINOR - MINOR Far version (i.e. 71).
+
+
+vbuild.m4
+~~~~~~~~~
+1. If the build number in "vbuild.m4"  was changed then after committing the
+   changes to the SVN you should call "svn_tag_build.bat".
+
+
+Exceptions (SEH)
+~~~~~~~~~~~~~~~~
+1. Instead of _try, __try, etc. we use a macro - TRY
+2. Instead of __except, etc. we use a macro - EXCEPT
+
+
+GCC - ensuring "successful" compilation with GCC
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Instead of postfixes i64 and ui64 use the macros _i64() and _ui64().
+
+
+x64 - ensuring "successful" compilation  for x86 and x64
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. DWORD_PTR, LONG_PTR, etc. are used instead of DWORD/long/etc. in the
+   following cases:
+
+   a) needed where previosly int/long/dword/or_any_other_non_pointer_type
+      were used and a pointer value was assigned to it.
+   b) ...
+   c) ...
+
+
+REMINDER
+~~~~~~~~
+Reminders, todos, notes should be written to the "REMINDER" file.
