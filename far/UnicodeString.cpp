@@ -101,7 +101,7 @@ const UnicodeString& UnicodeString::SetData(const char *lpszData, UINT CodePage)
 
   size_t nSize = MultiByteToWideChar(CodePage,0,lpszData,-1,NULL,0);
   m_pData = new UnicodeStringData(nSize);
-  MultiByteToWideChar(CodePage,0,lpszData,(int)nSize,m_pData->GetData(),(int)(m_pData->GetSize()/sizeof(wchar_t)));
+  MultiByteToWideChar(CodePage,0,lpszData,(int)nSize,m_pData->GetData(),(int)m_pData->GetSize());
   m_pData->SetLength(nSize - 1);
   return *this;
 }
@@ -131,7 +131,7 @@ const UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)
   size_t nAddSize = MultiByteToWideChar(CodePage,0,lpszAdd,-1,NULL,0);
   size_t nNewLength = m_pData->GetLength() + nAddSize - 1;
   Inflate(nNewLength + 1);
-  MultiByteToWideChar(CodePage,0,lpszAdd,(int)nAddSize,m_pData->GetData() + m_pData->GetLength(),(int)(m_pData->GetSize()/sizeof(wchar_t)));
+  MultiByteToWideChar(CodePage,0,lpszAdd,(int)nAddSize,m_pData->GetData() + m_pData->GetLength(),(int)m_pData->GetSize());
   m_pData->SetLength(nNewLength);
   return *this;
 }

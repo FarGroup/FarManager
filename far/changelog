@@ -1,3 +1,9 @@
+t-rex 01.09.2007 23:04:03 +0200 - build 283
+
+1. Bug in OEM to UNICODE conversion in UnicodeString.cpp.
+
+2. Revert copyright.inc.m4.
+
 zg 01.09.2007 22:55:45 +0200 - build 282
 
 1. проблема с ".." в папках, в которых он отсутствует.
