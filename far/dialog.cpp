@@ -1583,7 +1583,7 @@ void Dialog::ShowDialog(int ID)
           {
               lpwszStr = strStr.GetBuffer();
 
-              memmove(lpwszStr+1, lpwszStr, (StrLength(lpwszStr)+1)*sizeof (lpwszStr));
+              memmove(lpwszStr+1, lpwszStr, (StrLength(lpwszStr)+1)*sizeof (wchar_t));
 
               LenText = StrLength(lpwszStr);
 

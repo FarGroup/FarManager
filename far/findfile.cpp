@@ -2209,9 +2209,9 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
     strSizeText.Format (L"%13s", UMSG(MFindFileFolder));
   else
   {
-    wchar_t *wszSizeText = strSizeText.GetBuffer ();
+    wchar_t *wszSizeText = strSizeText.GetBuffer (100); //BUGBUG, function!!!
 
-    _ui64tow(FindData->nFileSize, wszSizeText,10);
+    _ui64tow(FindData->nFileSize, wszSizeText, 10);
 
     strSizeText.ReleaseBuffer ();
   }

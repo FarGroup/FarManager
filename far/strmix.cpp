@@ -17,7 +17,7 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 {
    strDest.Format (L"%I64u", li);
 
-   wchar_t *lpwszDest = strDest.GetBuffer();
+   wchar_t *lpwszDest = strDest.GetBuffer(strDest.GetLength() << 1); //BUGBUG
 
    for (int I=StrLength(lpwszDest)-4;I>=0;I-=3)
    {
@@ -783,7 +783,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
     return(NULL);
   SkipBrackets=FALSE;
 
-  wchar_t *lpwszWord = strWord.GetBuffer ((int)wcslen (Src));
+  wchar_t *lpwszWord = strWord.GetBuffer (StrLength(Src)+1); //BUGBUG
 
   for (WordPos=0;*Src!=0;Src++,WordPos++)
   {

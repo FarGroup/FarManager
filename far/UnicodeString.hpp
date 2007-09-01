@@ -9,7 +9,7 @@ Unicode строки
 
 #define string UnicodeString
 
-#define __US_DELTA 512
+#define __US_DELTA 20
 
 class UnicodeStringData {
 private:

@@ -1619,7 +1619,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
   string strPrefix;
 
-  wchar_t *Prefix = strPrefix.GetBuffer((int)PrefixLength);
+  wchar_t *Prefix = strPrefix.GetBuffer((int)PrefixLength+1); //BUGBUG, действительно ли тут нужен +1
 
   xwcsncpy(Prefix,strCommand,PrefixLength);
 
