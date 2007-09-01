@@ -163,7 +163,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   int HItem,VItem;
 
   // дисаблим
-  CmdMenu[20].SetDisable(!CheckInitSetupAPI());
+  CmdMenu[19].SetDisable(!CheckInitSetupAPI());
 
   if (Opt.Policies.DisabledOptions)
     for(I=0; I < sizeof(OptionsMenu)/sizeof(OptionsMenu[0]); ++I)
