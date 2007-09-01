@@ -1,3 +1,12 @@
+t-rex 01.09.2007 21:41:06 +0200
+
+1. Preparing for open source:
+   - added BSD license to all source files
+   - added an exception to the license for plugin api header files
+   - added LICENSE file with the BSD license including the exception for plugins
+
+2. Removed some unneeded files.
+
 warp 01.09.2007 20:33:00 +0300 - build 281
 
 1. В несколько раз уменьшил потребление памяти на панелях (это к вопросу "а вот Far жрет аж 191 мб").

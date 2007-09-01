@@ -58,7 +58,7 @@ Compilation
    By setting NMAKE_OPTS you can pass command line arguments to nmake
 
 
-2. To compile with GCC the is a makefile (makefile_gcc) that does everything.
+2. To compile with GCC there is a makefile (makefile_gcc) that does everything.
 
 
 Changelog - "changelog" file

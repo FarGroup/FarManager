@@ -2,7 +2,33 @@
 farwinapi.cpp
 
 Враперы вокруг некоторых WinAPI функций
+*/
+/*
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "headers.hpp"
@@ -17,19 +43,19 @@ BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 	// IS: не осуществлять лишние телодвижения
 
 	BOOL rc = DeleteFileW (lpwszFileName);
-	
+
 	if ( !rc ) // IS: вот тут лишние телодвижения и начнем...
 	{
 		SetLastError((_localLastError = GetLastError()));
-		
+
 		if ( CheckErrorForProcessed(_localLastError) )
 		{
 			string strFullName;
-			
+
 			ConvertNameToFull (lpwszFileName, strFullName);
 
 			strFullName = L"\\\\?\\"+strFullName;
-			
+
 			if( (strFullName.At(4)==L'/' && strFullName.At(5)==L'/') ||
 				(strFullName.At(4)==L'\\' && strFullName.At(5)==L'\\') )
 				rc = DeleteFileW((const wchar_t*)strFullName+4);
@@ -164,9 +190,9 @@ BOOL apiCopyFile (
 }
 
 typedef BOOL (__stdcall *COPYFILEEX) (
-		LPCTSTR lpExistingFileName, 
-		LPCTSTR lpNewFileName, 
-		void *lpProgressRoutine, 
+		LPCTSTR lpExistingFileName,
+		LPCTSTR lpNewFileName,
+		void *lpProgressRoutine,
 		LPVOID lpData,LPBOOL pbCancel,
 		DWORD dwCopyFlags
 		);
