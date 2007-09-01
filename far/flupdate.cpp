@@ -424,8 +424,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
         ListData=pTemp;
     }
-    if (CurPtr!=NULL)
+    if (ListData!=NULL)
     {
+      ListData[FileCount] = new FileListItem;
       AddParentPoint(ListData[FileCount],FileCount);
       if (NeedHighlight)
         CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],1);
