@@ -25,7 +25,7 @@ const SevenZipModule *GetModuleFromGUID (const GUID &uid, unsigned int *formatIn
 
 		for (int j = 0; j < pModule->m_nNumberOfFormats; j++)
 		{
-			if ( pModule->m_puids[j] == uid )
+			if ( pModule->m_pInfo[j].uid == uid )
 			{
 				if ( formatIndex )
 					*formatIndex = j;
@@ -188,7 +188,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 			for (int k = 0; k < pModule->m_nNumberOfFormats; k++)
 			{
-				if ( IsEqualGUID (pModule->m_puids[k], *pos->puid) )
+				if ( IsEqualGUID (pModule->m_pInfo[k].uid, *pos->puid) )
 				{
 					SevenZipArchive *pArchive = new SevenZipArchive (pModule, k, pQAS->lpFileName, false);
 
@@ -293,7 +293,7 @@ int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
-	pGAF->uid = pArchive->m_pModule->m_puids[pArchive->m_nFormatIndex];
+	pGAF->uid = pArchive->m_pModule->m_pInfo[pArchive->m_nFormatIndex].uid;
 
 	return NAERROR_SUCCESS;
 }

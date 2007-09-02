@@ -14,6 +14,16 @@ typedef HRESULT (__stdcall *GETNUMBEROFFORMATS) (unsigned int *numFormats);
 extern bool GetFormatCommand(const GUID &guid, int nCommand, char *lpCommand);
 
 
+struct FormatInfoInternal {
+	GUID uid;
+	char *lpSignature;
+	int nSignatureLength;
+	char *lpDefaultExt;
+	bool bUpdate;
+	char *lpName;
+};
+
+
 class SevenZipModule {
 
 public:
@@ -25,7 +35,7 @@ public:
 	GETNUMBEROFFORMATS m_pfnGetNumberOfFormats;
 
 	unsigned int m_nNumberOfFormats;
-	GUID *m_puids;
+	FormatInfoInternal *m_pInfo;
 
 public:
 
