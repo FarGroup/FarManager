@@ -29,3 +29,6 @@ m4_ifelse(`1',BUILDTESTONLY,`   VALUE "Comments", "TEST ONLY!\000\000"',`m4_dnl'
    VALUE "Translation", 0x0, 1252
  }
 }
+
+// Manifest
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "Far.exe.manifest"
