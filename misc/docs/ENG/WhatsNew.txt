@@ -9,8 +9,11 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2262) (Aug 30 2007)
+FAR 1.71 alpha 4 (build 2264) (Sep 05 2007)
 ---------------------------------------------------------------------------
+
+[!] For elimination of effects of Vista virtualization technology the
+    manifest file has been added
 
 [!] When setting folder attributes for FAT and FAT32 file systems, date and
     time will be set only then system has support it.
