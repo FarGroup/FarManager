@@ -167,7 +167,10 @@ $(OBJDIR)/far.rc.o: far.rc res.hpp far.ico
 	@$(MKDIR) $(OBJDIR)
 	@$(WINDRES) -i $< -o $@
 
-far.rc: far.rc.m4 farversion.m4 vbuild.m4
+Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 vbuild.m4
+	@tools/m4 -P Far.exe.manifest.m4 > Far.exe.manifest
+
+far.rc: far.rc.m4 farversion.m4 vbuild.m4 Far.exe.manifest
 	@tools/m4 -P far.rc.m4 > far.rc
 
 copyright.inc: copyright.inc.m4 farversion.m4 vbuild.m4

@@ -324,7 +324,10 @@ AllDirs:
 ".\farversion.inc": farversion.inc.m4 farversion.m4 vbuild.m4
 	@tools\m4 -P farversion.inc.m4 > farversion.inc
 
-"far.rc": far.rc.m4 farversion.m4 vbuild.m4
+"Far.exe.manifest": Far.exe.manifest.m4 farversion.m4 vbuild.m4
+	@tools\m4 -P Far.exe.manifest.m4 > Far.exe.manifest
+
+"far.rc": far.rc.m4 farversion.m4 vbuild.m4 Far.exe.manifest
 	@tools\m4 -P far.rc.m4 > far.rc
 
 # ************************************************************************

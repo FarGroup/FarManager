@@ -1,3 +1,7 @@
+Zuz 05.09.2007 00:52:11 +0500 - build 284
+
+1. For elimination of effects of Vista virtualization technology the manifest file has been added
+
 t-rex 01.09.2007 23:04:03 +0200 - build 283
 
 1. Bug in OEM to UNICODE conversion in UnicodeString.cpp.
