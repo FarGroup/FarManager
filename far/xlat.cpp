@@ -12,10 +12,7 @@ XLat - перекодировка
 #include "global.hpp"
 #include "fn.hpp"
 
-/* $ 05.09.2000 SVS
-  XLat-перекодировка!
-  Ќа основе плагина EditSwap by SVS :-)))
-*/
+// $ 05.09.2000 SVS -  XLat-перекодировка!
 char* WINAPI Xlat(
    char *Line,                    // исходна€ строка
    int StartPos,                  // начало переконвертировани€
@@ -166,21 +163,17 @@ char* WINAPI Xlat(
 
   // переключаем раскладку клавиатуры?
   //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
-  /* $ 20.09.2000 SVS
-     Ќемного изменим услови€ и возьмем окно именно FAR.
-  */
-  if(hFarWnd && (Flags & XLAT_SWITCHKEYBLAYOUT))
+  if((Flags & XLAT_SWITCHKEYBLAYOUT))
   {
-    PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
-    /* $ 04.11.2000 SVS
-       ¬ыдаем звуковой сигнал, если надо.
-    */
-    if(Flags & XLAT_SWITCHKEYBBEEP)
-      MessageBeep(0);
-    /* SVS $ */
+    if(!hFarWnd)
+      InitDetectWindowedMode();
+    if(hFarWnd)
+    {
+      PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+      if(Flags & XLAT_SWITCHKEYBBEEP)
+        MessageBeep(0);
+    }
   }
-  /* SVS $ */
 
   return Line;
 }
-/* SVS $ */

@@ -187,6 +187,7 @@ class Edit:public ScreenObject
 #endif
     void Xlat(BOOL All=FALSE);  // $ 24.09.2000 SVS - Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
     static void DisableEncode(int Disable);
+    static int GetEncodeState();
 
     void SetDialogParent(DWORD Sets);
     void SetCursorType(int Visible,int Size);

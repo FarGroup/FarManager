@@ -2397,6 +2397,11 @@ void Edit::DisableEncode(int Disable)
   EditEncodeDisabled=Disable;
 }
 
+int Edit::GetEncodeState()
+{
+  return EditEncodeDisabled;
+}
+
 
 void Edit::SetTables(struct CharTableSet *TableSet)
 {

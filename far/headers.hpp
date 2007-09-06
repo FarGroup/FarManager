@@ -328,4 +328,14 @@ headers.hpp
   #define IMAGE_ROM_OPTIONAL_HDR_MAGIC       0x107
 #endif
 
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+/*
+ * Bits in wParam of WM_INPUTLANGCHANGEREQUEST message
+ */
+#define INPUTLANGCHANGE_SYSCHARSET 0x0001
+#define INPUTLANGCHANGE_FORWARD    0x0002
+#define INPUTLANGCHANGE_BACKWARD   0x0004
+#endif
+
+
 #endif // __HEADERS_HPP__

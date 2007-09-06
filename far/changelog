@@ -1,3 +1,12 @@
+svs 06.09.2007 15:47:01 +0300 - build 2265
+
+1. "Не удалось открыть файл" -> "Ошибка открытия файла"
+   уже не помню какой-там мантис...
+
+2. Другой вариант переключения раскладки в XLat и $KbdSwitch
+   (взято с форума)
+
+
 Zuz 05.09.2007 01:13:26 +0500 - build 2264
 
 1. For elimination of effects of Vista virtualization technology the manifest file has been added
