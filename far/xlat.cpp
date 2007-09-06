@@ -196,15 +196,16 @@ char* WINAPI XlatA(
   /* $ 20.09.2000 SVS
      Немного изменим условия и возьмем окно именно FAR.
   */
-  if(hFarWnd && (Flags & XLAT_SWITCHKEYBLAYOUT))
+  if((Flags & XLAT_SWITCHKEYBLAYOUT))
   {
-    PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
-    /* $ 04.11.2000 SVS
-       Выдаем звуковой сигнал, если надо.
-    */
-    if(Flags & XLAT_SWITCHKEYBBEEP)
-      MessageBeep(0);
-    /* SVS $ */
+    if(!hFarWnd)
+      InitDetectWindowedMode();
+    if(hFarWnd)
+    {
+      PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+      if(Flags & XLAT_SWITCHKEYBBEEP)
+        MessageBeep(0);
+    }
   }
   /* SVS $ */
 

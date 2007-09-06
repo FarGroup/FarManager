@@ -43,7 +43,7 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 {
    strDest.Format (L"%I64u", li);
 
-   wchar_t *lpwszDest = strDest.GetBuffer(strDest.GetLength() << 1); //BUGBUG
+   wchar_t *lpwszDest = strDest.GetBuffer((int)strDest.GetLength() << 1); //BUGBUG
 
    for (int I=StrLength(lpwszDest)-4;I>=0;I-=3)
    {
