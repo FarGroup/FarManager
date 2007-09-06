@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2264) (Sep 05 2007)
+FAR 1.71 alpha 4 (build 2265) (Sep 06 2007)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -211,6 +211,9 @@ FAR 1.71 alpha 4 (build 2264) (Sep 05 2007)
 
 [-] Macro: В панелях быстрого просмотра и информации не работали некоторые переменные:
     ItemCount, CurPos, Selected, Bof, Eof всегда 0; Empty всегда 1.
+
+[-] Некорректно работала функция переключения языка в XLat-трансляции и макрокоманде
+    $KbdSwitch.
 
 
 TempPanel - build 31
