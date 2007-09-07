@@ -227,6 +227,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_QUOTE,                1, L"\""},
   { KEY_BRACKET,              1, L"["},
   { KEY_COLON,                1, L":"},
+  { KEY_SEMICOLON,            1, L";"},
   { KEY_SLASH,                1, L"/"},
   { KEY_DOT,                  1, L"."},
   { KEY_COMMA,                1, L","},
@@ -2279,9 +2280,9 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
         case VK_OEM_4:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_QUOTE);
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'\'');
         case VK_OEM_1:
-          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COLON);
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_SEMICOLON);
         case VK_OEM_2:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_SLASH);
         case VK_OEM_PERIOD:
@@ -2328,9 +2329,9 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_V
         case VK_OEM_4:
           return(KEY_CTRL+KEY_ALT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_CTRL+KEY_ALT+KEY_QUOTE);
+          return(KEY_CTRL+KEY_ALT+'\'');
         case VK_OEM_1:
-          return(KEY_CTRL+KEY_ALT+KEY_COLON);
+          return(KEY_CTRL+KEY_ALT+KEY_SEMICOLON);
         case VK_OEM_2:
           return(KEY_CTRL+KEY_ALT+KEY_SLASH);
         case VK_OEM_PERIOD:
@@ -2389,9 +2390,9 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK
         case VK_OEM_4:
           return(KEY_ALT+KEY_SHIFT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_ALT+KEY_SHIFT+KEY_QUOTE);
+          return(KEY_ALT+KEY_SHIFT+'\'');
         case VK_OEM_1:
-          return(KEY_ALT+KEY_SHIFT+KEY_COLON);
+          return(KEY_ALT+KEY_SHIFT+KEY_SEMICOLON);
         case VK_OEM_2:
           //if(WaitInFastFind)
           //  return(KEY_ALT+KEY_SHIFT+'?');
@@ -2470,9 +2471,9 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
         case VK_OEM_PLUS:
           return(KEY_CTRL+KEY_SHIFT+'=');
         case VK_OEM_7:
-          return(KEY_CTRL+KEY_SHIFT+KEY_QUOTE);
+          return(KEY_CTRL+KEY_SHIFT+'\'');
         case VK_OEM_1:
-          return(KEY_CTRL+KEY_SHIFT+KEY_COLON);
+          return(KEY_CTRL+KEY_SHIFT+KEY_SEMICOLON);
         case VK_OEM_COMMA:
           return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
       }
@@ -2547,7 +2548,7 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_
         case VK_OEM_PLUS:
           return(KEY_CTRL+'=');
         case VK_OEM_1:
-          return(KEY_CTRL+KEY_COLON);
+          return(KEY_CTRL+KEY_SEMICOLON);
       }
 
     if (KeyCode)
@@ -2581,9 +2582,9 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
         case VK_OEM_4:
           return(KEY_ALT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_ALT+KEY_QUOTE);
+          return(KEY_ALT+'\'');
         case VK_OEM_1:
-          return(KEY_ALT+KEY_COLON);
+          return(KEY_ALT+KEY_SEMICOLON);
         case VK_OEM_2:
           return(KEY_ALT+KEY_SLASH);
       }
