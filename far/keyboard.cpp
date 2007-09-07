@@ -237,6 +237,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_QUOTE,                1, "\""},
   { KEY_BRACKET,              1, "["},
   { KEY_COLON,                1, ":"},
+  { KEY_SEMICOLON,            1, ";"},
   { KEY_SLASH,                1, "/"},
   { KEY_DOT,                  1, "."},
   { KEY_COMMA,                1, ","},
@@ -2484,9 +2485,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_4:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_QUOTE);
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'\''); // KEY_QUOTE
         case VK_OEM_1:
-          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COLON);
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_SEMICOLON); // KEY_COLON
         case VK_OEM_2:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_SLASH);
         case VK_OEM_PERIOD:
@@ -2533,9 +2534,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_4:
           return(KEY_CTRL+KEY_ALT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_CTRL+KEY_ALT+KEY_QUOTE);
+          return(KEY_CTRL+KEY_ALT+'\'');  // KEY_QUOTE
         case VK_OEM_1:
-          return(KEY_CTRL+KEY_ALT+KEY_COLON);
+          return(KEY_CTRL+KEY_ALT+KEY_SEMICOLON);  // KEY_COLON
         case VK_OEM_2:
           return(KEY_CTRL+KEY_ALT+KEY_SLASH);
         case VK_OEM_PERIOD:
@@ -2595,9 +2596,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_4:
           return(KEY_ALT+KEY_SHIFT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_ALT+KEY_SHIFT+KEY_QUOTE);
+          return(KEY_ALT+KEY_SHIFT+'\'');  // KEY_QUOTE
         case VK_OEM_1:
-          return(KEY_ALT+KEY_SHIFT+KEY_COLON);
+          return(KEY_ALT+KEY_SHIFT+KEY_SEMICOLON);  // KEY_COLON
         case VK_OEM_2:
           //if(WaitInFastFind)
           //  return(KEY_ALT+KEY_SHIFT+'?');
@@ -2676,9 +2677,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_PLUS:
           return(KEY_CTRL+KEY_SHIFT+'=');
         case VK_OEM_7:
-          return(KEY_CTRL+KEY_SHIFT+KEY_QUOTE);
+          return(KEY_CTRL+KEY_SHIFT+'\''); // KEY_QUOTE
         case VK_OEM_1:
-          return(KEY_CTRL+KEY_SHIFT+KEY_COLON);
+          return(KEY_CTRL+KEY_SHIFT+KEY_SEMICOLON); // KEY_COLON
         case VK_OEM_COMMA:
           return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
       }
@@ -2787,9 +2788,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_4:
           return(KEY_ALT+KEY_BRACKET);
         case VK_OEM_7:
-          return(KEY_ALT+KEY_QUOTE);
+          return(KEY_ALT+'\''); // KEY_QUOTE
         case VK_OEM_1:
-          return(KEY_ALT+KEY_COLON);
+          return(KEY_ALT+KEY_SEMICOLON); // KEY_COLON
         case VK_OEM_2:
           return(KEY_ALT+KEY_SLASH);
       }

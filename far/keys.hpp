@@ -61,6 +61,7 @@ enum BaseDefKeyboard
   KEY_DOT                  ='.',
   KEY_SLASH                ='/',
   KEY_COLON                =':',
+  KEY_SEMICOLON            =';',
   KEY_BACKSLASH            ='\\',
 
   KEY_BS                   =0x00000008,
