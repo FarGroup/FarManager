@@ -237,11 +237,10 @@ void ProcessUserMenu(int EditMenu)
           MenuMode=MM_MAIN;
         break;
       }
+
       case EC_MAIN_MENU:
       {
-/* $ 14.07.2000 VVM
-    + SHIFT+F2 переключает Главное меню/локальное в цикле
-*/
+        // $ 14.07.2000 VVM + SHIFT+F2 переключает Главное меню/локальное в цикле
         switch(MenuMode)
         {
           case MM_LOCAL:
@@ -262,6 +261,7 @@ void ProcessUserMenu(int EditMenu)
             MenuMode=MM_LOCAL;
           }
         } /* switch */
+
 //      if (MenuMode==MM_LOCAL)
 //      {
 //        strcpy(MenuFilePath, FarPath);
@@ -269,7 +269,6 @@ void ProcessUserMenu(int EditMenu)
 //      }
 //      else
 //        MenuMode=MM_MAIN;
-/* VVM $ */
         break;
       } /* case */
     } /* switch */

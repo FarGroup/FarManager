@@ -2171,6 +2171,8 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int Dialog::ProcessKey(int Key)
 {
   CriticalSectionLock Lock(CS);
+  _DIALOG(CleverSysLog CL("Dialog::ProcessKey"));
+  _DIALOG(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
 
   int I;
   char Str[1024];
@@ -3369,11 +3371,8 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
        Opt.Dialogs.EditHistory &&
        CurItem->History &&
        !(CurItem->Flags & DIF_READONLY))
-  /* $ 26.07.2000 SVS
-     Передаем то, что в строке ввода в функцию выбора из истории
-     для выделения нужного пункта в истории.
-  */
   {
+    // $ 26.07.2000 SVS - Передаем то, что в строке ввода в функцию выбора из истории для выделения нужного пункта в истории.
     char *PStr=Str;
     int MaxLen=sizeof(CurItem->Data);
     if(CurItem->Flags&DIF_VAREDIT)
@@ -3382,20 +3381,11 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
       if((PStr=(char*)xf_malloc(MaxLen+1)) == NULL)
         return TRUE;//???
     }
-    /* $ 27.04.2001 SVS
-       Оху%$@#&^%$&$%*%^$*^%$*^%$*^%$&*
-       Было: sizeof(MaxLen) ;-( - это типа размер данных.
-    */
     CurEditLine->GetString(PStr,MaxLen);
-    /* SVS $ */
     SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,PStr,MaxLen);
     if(CurItem->Flags&DIF_VAREDIT)
       xf_free(PStr);
   }
-  /* SVS $ */
-  /* $ 18.07.2000 SVS
-     + обработка DI_COMBOBOX - выбор из списка!
-  */
   else if(Type == DI_COMBOBOX && CurItem->ListPtr &&
           !(CurItem->Flags & DIF_READONLY) &&
           CurItem->ListPtr->GetItemCount() > 0) //??
@@ -3406,7 +3396,6 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
     if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
       Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
   }
-  /* SVS $ */
   return(TRUE);
 }
 
@@ -4106,8 +4095,16 @@ int Dialog::SelectFromComboBox(
         ComboBox->ProcessKey(KEY_ESC);
         continue;
       }
-      //int Key=
-      int Key=ComboBox->ReadInput();
+      INPUT_RECORD ReadRec;
+      int Key=ComboBox->ReadInput(&ReadRec);
+#if 1
+      if(ReadRec.EventType == KEY_EVENT)
+        if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
+          continue;
+      else if(ReadRec.EventType == MOUSE_EVENT)
+        if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)&ReadRec.Event.MouseEvent))
+          continue;
+#endif
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
       if (Key==KEY_TAB) // Tab в списке - аналог Enter
