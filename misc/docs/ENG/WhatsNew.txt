@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2266) (Sep 07 2007)
+FAR 1.71 alpha 4 (build 2267) (Sep 07 2007)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -86,6 +86,9 @@ FAR 1.71 alpha 4 (build 2266) (Sep 07 2007)
 
 [+] В панелях добавлена комбинация клавиш Ctrl-Shift-Numpad5:
     "Восстановить высоту панелей по умолчанию"
+
+[+] API: Добавлены события DN_KEY или DN_MOUSEEVENT, которые посылаются
+    в процедуру обработки диалога при навигации по DI_COMBOBOX
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
