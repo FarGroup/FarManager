@@ -59,7 +59,7 @@ class Modal: public Frame
 
     virtual void Process();
 
-    int  ReadInput();
+    int  ReadInput(INPUT_RECORD *GetReadRec=NULL);
     void WriteInput(int Key);
     void ProcessInput();
 

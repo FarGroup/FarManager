@@ -2232,6 +2232,8 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int Dialog::ProcessKey(int Key)
 {
   CriticalSectionLock Lock(CS);
+  _DIALOG(CleverSysLog CL("Dialog::ProcessKey"));
+  _DIALOG(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
 
   int I;
   wchar_t Str[1024]; //BUGBUG
@@ -3419,6 +3421,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFo
        CurItem->History &&
        !(CurItem->Flags & DIF_READONLY))
   {
+    // Передаем то, что в строке ввода в функцию выбора из истории для выделения нужного пункта в истории.
     int MaxLen = 512; //BUGBUG
 
     CurEditLine->GetString(strStr);
@@ -4104,8 +4107,16 @@ int Dialog::SelectFromComboBox(
         ComboBox->ProcessKey(KEY_ESC);
         continue;
       }
-      //int Key=
-      int Key=ComboBox->ReadInput();
+      INPUT_RECORD ReadRec;
+      int Key=ComboBox->ReadInput(&ReadRec);
+#if 1
+      if(ReadRec.EventType == KEY_EVENT)
+        if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
+          continue;
+      else if(ReadRec.EventType == MOUSE_EVENT)
+        if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)&ReadRec.Event.MouseEvent))
+          continue;
+#endif
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
       if (Key==KEY_TAB) // Tab в списке - аналог Enter

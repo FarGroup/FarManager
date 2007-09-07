@@ -63,15 +63,21 @@ void Modal::Process()
 }
 
 
-int Modal::ReadInput()
+int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 {
+  if(GetReadRec)
+    memset(GetReadRec,0,sizeof(INPUT_RECORD));
   if (WriteKey>=0)
   {
     ReadKey=WriteKey;
     WriteKey=-1;
   }
   else
+  {
     ReadKey=GetInputRecord(&ReadRec);
+    if(GetReadRec)
+      memmove(GetReadRec,&ReadRec,sizeof(INPUT_RECORD));
+  }
   if(ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
   {
     LockScreen LckScr;
