@@ -18,17 +18,9 @@ vmenu.hpp
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
 
-/* $ 30.11.2001 DJ
-   значение приведено в соответствие с действительностью
-*/
-
 #define VMENU_COLOR_COUNT  10
 
-/* DJ $ */
-
-/* $ 28.07.2000 SVS
-   Цветовые атрибуты - индексы в массиве цветов
-*/
+// Цветовые атрибуты - индексы в массиве цветов
 enum{
   VMenuColorBody=0,      // подложка
   VMenuColorBox=1,       // рамка
@@ -41,7 +33,6 @@ enum{
   VMenuColorScrollBar=8, // ScrollBar
   VMenuColorDisabled=9,  // Disabled
 };
-/* SVS */
 
 enum VMENU_FLAGS_TYPE{
   VMENU_ALWAYSSCROLLBAR       =0x00000100, // всегда показывать скроллбар
@@ -62,6 +53,7 @@ enum VMENU_FLAGS_TYPE{
   VMENU_MOUSEDOWN             =0x00800000, //
   VMENU_CHANGECONSOLETITLE    =0x01000000, //
   VMENU_SELECTPOSNONE         =0x02000000, //
+  VMENU_MOUSEREACTION         =0x04000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
   VMENU_DISABLED              =0x80000000, //
 };
 
@@ -88,9 +80,6 @@ struct MenuItem
 
   int   ShowPos;
 
-  /* $ 01.12.2001 DJ
-     исправим баг, заодно нормально отформатируем код
-  */
   DWORD SetCheck(int Value)
   {
     if(Value)
@@ -103,7 +92,6 @@ struct MenuItem
       Flags&=~(0xFFFF|LIF_CHECKED);
     return Flags;
   }
-  /* DJ $ */
 
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
@@ -118,9 +106,6 @@ struct MenuData
   DWORD Flags;
   DWORD AccelKey;
 
-  /* $ 01.12.2001 DJ
-     исправим баг, заодно нормально отформатируем код
-  */
   DWORD SetCheck(int Value)
   {
     if(Value)
@@ -132,7 +117,6 @@ struct MenuData
       Flags&=~(0xFFFF|LIF_CHECKED);
     return Flags;
   }
-  /* DJ $ */
 
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
@@ -164,14 +148,9 @@ class VMenu: public Modal
     BitFlags VMOldFlags;
     /* SVS $ */
 
-    /* $ 01.08.2000 SVS
-       + Для LisBox - родитель в виде диалога
-       + Обработчик меню!
-    */
     Dialog *ParentDialog;
     int DialogItemID;
     FARWINDOWPROC VMenuProc;      // функция обработки меню
-    /* SVS $ */
 
     short RLen[2];                // реальные размеры 2-х половин
     CRITICAL_SECTION CSection;
@@ -190,11 +169,7 @@ class VMenu: public Modal
     int ItemCount;
 
     int LastAddedItem;
-    /* $ 28.07.2000 SVS
-       Цветовые атрибуты
-    */
     BYTE Colors[VMENU_COLOR_COUNT];
-    /* SVS */
 
   public:
     Frame *FrameFromLaunched;
@@ -211,24 +186,13 @@ class VMenu: public Modal
     char GetHighlights(const struct MenuItem *_item);
 
   public:
-    /* $ 18.07.2000 SVS
-       ! изменен вызов конструктора с учетом необходимости scrollbar в
-         DI_LISTBOX & DI_COMBOBOX
-         По умолчанию - зависит от настроек показа scrollbar в меню,
-         т.е. не требуется. Для данных элементов (DI_LISTBOX & DI_COMBOBOX)
-         параметр isListBoxControl должен быть равен TRUE.
-    */
-    /* $ 01.08.2000 SVS
-       Изменен вызов конструктора для указания функции-обработчика и родителя!
-    */
     VMenu(const char *Title,
           struct MenuData *Data,int ItemCount,
           int MaxHeight=0,
           DWORD Flags=0,
           FARWINDOWPROC Proc=NULL,
           Dialog *ParentDialog=NULL);
-    /* 01.08.2000 SVS $ */
-    /* SVS $ */
+
     virtual ~VMenu();
 
   public:
@@ -257,9 +221,7 @@ class VMenu: public Modal
     void SetColors(struct FarListColors *Colors=NULL);
     void GetColors(struct FarListColors *Colors);
 
-    /* $ 25.05.2001 DJ */
     void SetOneColor (int Index, short Color);
-    /* DJ $ */
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -268,11 +230,7 @@ class VMenu: public Modal
     BOOL UpdateRequired(void);
 
     void DeleteItems();
-    /* $ 01.08.2000 SVS
-       функция удаления N пунктов меню
-    */
     int  DeleteItem(int ID,int Count=1);
-    /* SVS $ */
 
     int  AddItem(const struct MenuItem *NewItem,int PosAdd=0x7FFFFFFF);
     int  AddItem(const struct FarList *NewItem);
@@ -328,13 +286,9 @@ class VMenu: public Modal
   public:
     static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);
     static struct FarListItem *MenuItem2FarList(const struct MenuItem *ListItem,struct FarListItem *Item);
-    /* $ 01.08.2000 SVS
-       функция обработки меню (по умолчанию)
-    */
+
     static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
-    // функция посылки сообщений меню
     static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
-    /* SVS $ */
 
 };
 

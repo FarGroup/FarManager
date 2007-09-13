@@ -40,7 +40,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   int I;
   SetDynamicallyBorn(false);
 
-  VMenu::VMFlags.Set(Flags);
+  VMenu::VMFlags.Set(Flags|VMENU_MOUSEREACTION);
   VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
 /* SVS $ */
 
@@ -954,53 +954,40 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(FALSE);
   }
 
-  /* $ 27.04.2001 VVM
-    + Считать нажатие средней кнопки за ЕНТЕР */
+  // $ 27.04.2001 VVM - Считать нажатие средней кнопки за ЕНТЕР
   if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
   {
     ProcessKey(KEY_ENTER);
     return(TRUE);
   }
-  /* VVM $ */
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
-  /* $ 06.07.2000 tran
-     + mouse support for menu scrollbar
-  */
 
-  /* $ 21.07.2001 KM
-   ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-  */
   int SbY1=((BoxType!=NO_BOX)?Y1+1:Y1), SbY2=((BoxType!=NO_BOX)?Y2-1:Y2);
 
   XX2=X2;
 
-  /* $ 12.10.2001 VVM
-    ! Есть ли у нас скроллбар? */
-  int ShowScrollBar = FALSE;
+  int bShowScrollBar = FALSE;
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
-    ShowScrollBar = TRUE;
-  /* VVM $ */
+    bShowScrollBar = TRUE;
 
-  if (ShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
+  if (bShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
     XX2--;  // уменьшает площадь, в которой меню следит за мышью само
 
-  if (ShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
-      (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
-  /* KM $ */
+  if ( bShowScrollBar &&
+       MsX==X2 &&
+       ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1) < ItemCount &&
+       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+     )
   {
     if (MsY==SbY1)
     {
       while (IsMouseButtonPressed())
       {
-        /* $ 11.12.2000 tran
-           прокрутка мышью не должна врапить меню
-        */
         if (SelectPos!=0)
             ProcessKey(KEY_UP);
         ShowMenu(TRUE);
-        /* tran $ */
       }
       return(TRUE);
     }
@@ -1008,12 +995,8 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       while (IsMouseButtonPressed())
       {
-        /* $ 11.12.2000 tran
-           прокрутка мышью не должна врапить меню
-        */
         if (SelectPos!=ItemCount-1)
             ProcessKey(KEY_DOWN);
-        /* tran $ */
         ShowMenu(TRUE);
       }
       return(TRUE);
@@ -1043,7 +1026,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     }
   }
-  /* tran 06.07.2000 $ */
 
   // dwButtonState & 3 - Left & Right button
   if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MsX>X1 && MsX<X2)
@@ -1062,23 +1044,12 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
   }
 
-  /* $ 06.07.2000 tran
-     + mouse support for menu scrollbar
-     */
-  /* $ 21.07.2001 KM
-   ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-  */
   if ((BoxType!=NO_BOX)?
       (MsX>X1 && MsX<XX2 && MsY>Y1 && MsY<Y2):
       (MsX>=X1 && MsX<=XX2 && MsY>=Y1 && MsY<=Y2))
-  /* KM $ */
-  /* tran 06.07.2000 $ */
   {
-    /* $ 21.07.2001 KM
-     ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-    */
     MsPos=TopPos+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
-    /* KM $ */
+
     if (MsPos<ItemCount && !(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
@@ -1091,6 +1062,11 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if(!CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags==MOUSE_MOVED ||
             CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 */
+        if( (VMenu::VMFlags.Check(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags==MOUSE_MOVED)
+         ||
+            (!VMenu::VMFlags.Check(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+          )
+
         {
           Item[SelectPos].Flags&=~LIF_SELECTED;
           Item[MsPos].Flags|=LIF_SELECTED;
@@ -1098,11 +1074,11 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         }
         ShowMenu(TRUE);
       }
-      /* $ 13.10.2001 VVM
-        + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
+
       if (MouseEvent->dwEventFlags==0 &&
          (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
         VMenu::VMFlags.Set(VMENU_MOUSEDOWN);
+
       if (MouseEvent->dwEventFlags==0 &&
          (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
           VMenu::VMFlags.Check(VMENU_MOUSEDOWN))
@@ -1110,16 +1086,15 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
         ProcessKey(KEY_ENTER);
       }
-      /* VVM $ */
+
     }
     return(TRUE);
   }
-  else
-    if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MouseEvent->dwEventFlags==0)
-    {
-      ProcessKey(KEY_ESC);
-      return(TRUE);
-    }
+  else if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MouseEvent->dwEventFlags==0)
+  {
+    ProcessKey(KEY_ESC);
+    return(TRUE);
+  }
 
   return(FALSE);
 }

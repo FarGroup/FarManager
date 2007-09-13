@@ -2870,9 +2870,7 @@ int Dialog::ProcessKey(int Key)
    Обработка данных от "мыши".
    Перекрывает BaseInput::ProcessMouse.
 */
-/* $ 18.08.2000 SVS
-   + DN_MOUSECLICK
-*/
+// $ 18.08.2000 SVS + DN_MOUSECLICK
 int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   CriticalSectionLock Lock(CS);
@@ -2882,9 +2880,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int Type;
   RECT Rect;
 
-  /* $ 11.06.2001 KM
-     ! Сделана нормальная работа мыши в DI_LISTBOX.
-  */
+  // $ 11.06.2001 KM - Сделана нормальная работа мыши в DI_LISTBOX.
   if(!DialogMode.Check(DMODE_SHOW))
     return FALSE;
 
@@ -2907,7 +2903,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2 &&
         MsX >= X1+Item[I].X1 && MsX <= X1+Item[I].X2)
     {
-      /* $ 30.06.2001 KM */
       VMenu *List=Item[I].ListPtr;
       int Pos=List->GetSelectPos();
       int CheckedListItem=List->GetSelection(-1);
@@ -2918,7 +2913,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           ChangeFocus2(FocusPos,I);
           ShowDialog();
         }
-
         if(MouseEvent->dwEventFlags!=DOUBLE_CLICK && (Item[I].IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)) == 0)
         {
           List->ProcessMouse(MouseEvent);
@@ -2994,11 +2988,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           }
         }
       }
-      /* KM $ */
       return(TRUE);
     }
   }
-  /* KM $ */
 
   if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
   {
@@ -3237,10 +3229,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       // ДЛЯ MOUSE-Перемещалки:
       //   Сюда попадаем в том случае, если мышь не попала на активные элементы
       //
-      /* $ 10.08.2000 SVS
-         Двигаем, если разрешено! (IsCanMove)
-      */
-      if (DialogMode.Check(DMODE_ISCANMOVE))
+      if (DialogMode.Check(DMODE_ISCANMOVE)) // Двигаем, если разрешено! (IsCanMove)
       {
         /* $ 03.08.2000 tran
            ну раз попадаем - то будем перемещать */
@@ -3314,7 +3303,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               }
             }
           }
-          /* SVS $ */
           else if (mb==2) // right key, abort
           {
             LockScreen LckScr;
@@ -3344,14 +3332,11 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           }
 
         }// while (1)
-        /* tran 03.08.2000 $ */
       }
-      /* SVS 10.08.2000 $*/
     }
   }
   return(FALSE);
 }
-/* SVS 18.08.2000 $ */
 
 
 int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocusPos)
@@ -4088,6 +4073,7 @@ int Dialog::SelectFromComboBox(
     ComboBox->Show();
 
     OriginalPos=Dest=ComboBox->GetSelectPos();
+    CurItem->IFlags.Set(DLGIIF_COMBOBOXNOREDRAWEDIT);
     while (!ComboBox->Done())
     {
       if (!GetDropDownOpened())
@@ -4097,14 +4083,14 @@ int Dialog::SelectFromComboBox(
       }
       INPUT_RECORD ReadRec;
       int Key=ComboBox->ReadInput(&ReadRec);
-#if 1
-      if(ReadRec.EventType == KEY_EVENT)
+
+      if(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
         if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
           continue;
-      else if(ReadRec.EventType == MOUSE_EVENT)
+      else if(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
         if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)&ReadRec.Event.MouseEvent))
           continue;
-#endif
+
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
       if (Key==KEY_TAB) // Tab в списке - аналог Enter
@@ -4137,6 +4123,7 @@ int Dialog::SelectFromComboBox(
       // ...
       ComboBox->ProcessInput();
     }
+    CurItem->IFlags.Clear(DLGIIF_COMBOBOXNOREDRAWEDIT);
     ComboBox->ClearDone();
     ComboBox->Hide();
     if (GetDropDownOpened()) // Закрылся не программным путём?
@@ -5604,6 +5591,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
     case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=FARLISTMOUSEREACTIONTYPE Ret=OldSets
+    case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
+    case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
     {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -5823,9 +5812,15 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 CurItem->IFlags.Set(DLGIIF_LISTREACTIONFOCUS);
               }
               else if(Param2 == LMRT_NEVER)
+              {
                 CurItem->IFlags.Clear(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS);
+                //ListBox->ClearFlags(VMENU_MOUSEREACTION);
+              }
               else
+              {
                 CurItem->IFlags.Set(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS);
+                //ListBox->SetFlags(VMENU_MOUSEREACTION);
+              }
 
               if((OldSets&(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS)) == (DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS))
                 OldSets=LMRT_ALWAYS;
@@ -5835,9 +5830,26 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 OldSets=LMRT_ONLYFOCUS;
               return OldSets;
             }
+
+            case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
+            {
+              return (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY)?CBET_KEY:0)|(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE)?CBET_MOUSE:0);
+            }
+
+            case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
+            {
+              int OldSets=CurItem->IFlags.Flags;
+              CurItem->IFlags.Clear(DLGIIF_COMBOBOXEVENTKEY|DLGIIF_COMBOBOXEVENTMOUSE);
+              if(Param2&CBET_KEY)
+                CurItem->IFlags.Set(DLGIIF_COMBOBOXEVENTKEY);
+              if(Param2&CBET_MOUSE)
+                CurItem->IFlags.Set(DLGIIF_COMBOBOXEVENTMOUSE);
+              return OldSets;
+            }
+
           }
           // уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
-          if(Type==DI_COMBOBOX && CurItem->ObjPtr)
+          if(!CurItem->IFlags.Check(DLGIIF_COMBOBOXNOREDRAWEDIT) && Type==DI_COMBOBOX && CurItem->ObjPtr)
           {
             struct MenuItem *ListMenuItem;
             if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
