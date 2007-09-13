@@ -4100,6 +4100,7 @@ int Dialog::SelectFromComboBox(
     ComboBox->Show();
 
     OriginalPos=Dest=ComboBox->GetSelectPos();
+    CurItem->IFlags.Set(DLGIIF_COMBOBOXNOREDRAWEDIT);
     while (!ComboBox->Done())
     {
       if (!GetDropDownOpened())
@@ -4109,14 +4110,14 @@ int Dialog::SelectFromComboBox(
       }
       INPUT_RECORD ReadRec;
       int Key=ComboBox->ReadInput(&ReadRec);
-#if 1
-      if(ReadRec.EventType == KEY_EVENT)
+
+      if(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
         if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
           continue;
-      else if(ReadRec.EventType == MOUSE_EVENT)
+      else if(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
         if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)&ReadRec.Event.MouseEvent))
           continue;
-#endif
+
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
       if (Key==KEY_TAB) // Tab в списке - аналог Enter
@@ -4149,6 +4150,7 @@ int Dialog::SelectFromComboBox(
       // ...
       ComboBox->ProcessInput();
     }
+    CurItem->IFlags.Clear(DLGIIF_COMBOBOXNOREDRAWEDIT);
     ComboBox->ClearDone();
     ComboBox->Hide();
     if (GetDropDownOpened()) // Закрылся не программным путём?
@@ -5649,6 +5651,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
     case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=FARLISTMOUSEREACTIONTYPE Ret=OldSets
+    case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
+    case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
     {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -5884,9 +5888,15 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 CurItem->IFlags.Set(DLGIIF_LISTREACTIONFOCUS);
               }
               else if(Param2 == LMRT_NEVER)
+              {
                 CurItem->IFlags.Clear(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS);
+                //ListBox->ClearFlags(VMENU_MOUSEREACTION);
+              }
               else
+              {
                 CurItem->IFlags.Set(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS);
+                //ListBox->SetFlags(VMENU_MOUSEREACTION);
+              }
 
               if((OldSets&(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS)) == (DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS))
                 OldSets=LMRT_ALWAYS;
@@ -5896,9 +5906,24 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 OldSets=LMRT_ONLYFOCUS;
               return OldSets;
             }
+            case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
+            {
+              return (CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY)?CBET_KEY:0)|(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE)?CBET_MOUSE:0);
+            }
+
+            case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
+            {
+              int OldSets=CurItem->IFlags.Flags;
+              CurItem->IFlags.Clear(DLGIIF_COMBOBOXEVENTKEY|DLGIIF_COMBOBOXEVENTMOUSE);
+              if(Param2&CBET_KEY)
+                CurItem->IFlags.Set(DLGIIF_COMBOBOXEVENTKEY);
+              if(Param2&CBET_MOUSE)
+                CurItem->IFlags.Set(DLGIIF_COMBOBOXEVENTMOUSE);
+              return OldSets;
+            }
           }
           // уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
-          if(Type==DI_COMBOBOX && CurItem->ObjPtr)
+          if(!CurItem->IFlags.Check(DLGIIF_COMBOBOXNOREDRAWEDIT) && Type==DI_COMBOBOX && CurItem->ObjPtr)
           {
             MenuItemEx *ListMenuItem;
             if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)

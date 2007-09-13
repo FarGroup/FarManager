@@ -609,28 +609,6 @@ void SetDizConfig()
 
 void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 {
-/* $ 18.07.2000 tran
-   настройка двух новых параметров для вьювера */
-/*
- +----------------- Viewer ------------------+
- | + External viewer ----------------------+ |
- | | ( ) Use for F3                        | |
- | | () Use for Alt-F3                    | |
- | | Viewer command:                       | |
- | |                                       | |
- | +---------------------------------------+ |
- | + Internal viewer ----------------------+ |
- | | [x] Save file position                | |
- | | [x] Save shortcut position            | |
- | | [x] Autodetect character table        | |
- | | 8   Tab size                          | |
- | | [x] Show scrollbar                    | |
- | | [x] Show arrows                       | |
- | +---------------------------------------+ |
- |            [ Ok ]  [ Cancel ]             |
- +-------------------------------------------+
-*/
-
   enum enumViewerConfig {
       ID_VC_TITLE,
       ID_VC_EXTERNALCONFIGTITLE,
@@ -640,6 +618,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
       ID_VC_EXTERALCOMMANDEDIT,
       ID_VC_SEPARATOR1,
       ID_VC_INTERNALCONFIGTITLE,
+      ID_VC_PERSISTENTSELECTION,
       ID_VC_SAVEPOSITION,
       ID_VC_SAVEBOOKMARKS,
       ID_VC_AUTODETECTTABLE,
@@ -647,7 +626,6 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
       ID_VC_TABSIZE,
       ID_VC_SHOWSCROLLBAR,
       ID_VC_SHOWARROWS,
-      ID_VC_PERSISTENTSELECTION,
       ID_VC_ANSIASDEFAULT,
       ID_VC_SEPARATOR2,
       ID_VC_OK,
@@ -655,7 +633,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   };
 
   static struct DialogDataEx CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,   3, 1,70,19,0,0,0,0,(const wchar_t *)MViewConfigTitle,
+  /*  0 */  DI_DOUBLEBOX,   3, 1,70,18,0,0,0,0,(const wchar_t *)MViewConfigTitle,
   /*  1 */  DI_TEXT,        5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigExternal,
   /*  2 */  DI_RADIOBUTTON, 6, 3, 0, 3,1,0,DIF_GROUP,0,(const wchar_t *)MViewConfigExternalF3,
   /*  3 */  DI_RADIOBUTTON, 6, 4, 0, 4,0,0,0,0,(const wchar_t *)MViewConfigExternalAltF3,
@@ -663,26 +641,33 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /*  5 */  DI_EDIT,        6, 6,68, 6,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
   /*  6 */  DI_TEXT,        0, 7, 0, 7, 0, 0, DIF_SEPARATOR, 0, L"",
   /*  7 */  DI_TEXT,        5, 8,68,16,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigInternal,
-  /*  8 */  DI_CHECKBOX,    6, 9, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigSavePos,
+  /* 15 */  DI_CHECKBOX,    6,15, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
+  /*  8 */  DI_CHECKBOX,    6, 9, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
   /*  9 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
   /* 10 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectTable,
   /* 11 */  DI_FIXEDIT,     6,12, 9,12,0,0,0,0,L"",
   /* 12 */  DI_TEXT,       11,12, 0,12,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
   /* 13 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
   /* 14 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MViewConfigArrows,
-  /* 15 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
-  /* 16 */  DI_CHECKBOX,    6,16, 0,16,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
-  /* 17 */  DI_TEXT,        0,17, 0,17, 0, 0, DIF_SEPARATOR, 0, L"",
-  /* 18 */  DI_BUTTON,      0,18, 0,18,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 19 */  DI_BUTTON,      0,18, 0,18,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 16 */  DI_CHECKBOX,    6,16, 0,15,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
+  /* 17 */  DI_TEXT,        0,17, 0,16, 0, 0, DIF_SEPARATOR, 0, L"",
+  /* 18 */  DI_BUTTON,      0,18, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 19 */  DI_BUTTON,      0,18, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
 
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
+
+  {
+    const wchar_t *Str = UMSG(MViewConfigSavePos);
+    CfgDlg[ID_VC_SAVEBOOKMARKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5;
+  }
 
   CfgDlg[ID_VC_EXTERNALUSEF3].Selected = Opt.ViOpt.UseExternalViewer;
   CfgDlg[ID_VC_EXTERNALUSEALTF3].Selected = !Opt.ViOpt.UseExternalViewer;
   CfgDlg[ID_VC_SAVEPOSITION].Selected = Opt.ViOpt.SaveViewerPos;
   CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.ViOpt.SaveViewerShortPos;
+  if(!Opt.ViOpt.SaveViewerPos)
+    CfgDlg[ID_VC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
   CfgDlg[ID_VC_AUTODETECTTABLE].Selected = ViOpt.AutoDetectTable && DistrTableExist();
   CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
   CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
@@ -692,7 +677,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[ID_VC_EXTERALCOMMANDEDIT].strData = Opt.strExternalViewer;
   CfgDlg[ID_VC_TABSIZEEDIT].strData.Format (L"%d",ViOpt.TabSize);
 
-  int DialogHeight = 21;
+  int DialogHeight = 20;
 
   if (Local)
   {
@@ -710,10 +695,11 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 
   {
     Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
+    Dlg.SetAutomation(ID_VC_SAVEPOSITION,ID_VC_SAVEBOOKMARKS,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetHelp(L"ViewerSettings");
     Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();
-    if (Dlg.GetExitCode()!= ID_VC_OK)
+    if (Dlg.GetExitCode() != ID_VC_OK)
       return;
   }
 
@@ -734,7 +720,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
               UMSG(MDistributionTableWasNotFound),UMSG(MAutoDetectWillNotWork),
               UMSG(MOk));
   }
-  /* IS $ */
+
   ViOpt.TabSize=_wtoi(CfgDlg[ID_VC_TABSIZEEDIT].strData);
   ViOpt.ShowScrollbar=CfgDlg[ID_VC_SHOWSCROLLBAR].Selected;
   ViOpt.ShowArrows=CfgDlg[ID_VC_SHOWARROWS].Selected;
@@ -788,7 +774,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /*  9 */  DI_COMBOBOX,    6, 9,68, 9,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
   /* 10 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigPersistentBlocks,
   /* 11 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigDelRemovesBlocks,
-  /* 12 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigSavePos,
+  /* 12 */  DI_CHECKBOX,    6,11, 0,11,0,0,DIF_AUTOMATION,0,(const wchar_t *)MEditConfigSavePos,
   /* 13 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
   /* 14 */  DI_CHECKBOX,    6,12, 0,12,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
   /* 15 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MEditAutoDetectTable,
@@ -855,6 +841,8 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_AUTOINDENT].Selected = EdOpt.AutoIndent;
   CfgDlg[ID_EC_SAVEPOSITION].Selected = EdOpt.SavePos;
   CfgDlg[ID_EC_SAVEBOOKMARKS].Selected = EdOpt.SaveShortPos;
+  if(!EdOpt.SavePos)
+    CfgDlg[ID_EC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
   CfgDlg[ID_EC_AUTODETECTTABLE].Selected = EdOpt.AutoDetectTable&&DistrTableExist();
   CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
   CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
@@ -882,6 +870,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
   {
     Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
+    Dlg.SetAutomation(ID_EC_SAVEPOSITION,ID_EC_SAVEBOOKMARKS,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetHelp(L"EditorSettings");
     Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();

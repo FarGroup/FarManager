@@ -45,17 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CriticalSections.hpp"
 #include "UnicodeString.hpp"
 
-/* $ 30.11.2001 DJ
-   значение приведено в соответствие с действительностью
-*/
-
 #define VMENU_COLOR_COUNT  10
 
-/* DJ $ */
-
-/* $ 28.07.2000 SVS
-   ÷ветовые атрибуты - индексы в массиве цветов
-*/
+// ÷ветовые атрибуты - индексы в массиве цветов
 enum{
   VMenuColorBody=0,      // подложка
   VMenuColorBox=1,       // рамка
@@ -88,6 +80,7 @@ enum{
 #define VMENU_MOUSEDOWN             0x00800000  //
 #define VMENU_CHANGECONSOLETITLE    0x01000000  //
 #define VMENU_SELECTPOSNONE         0x02000000  //
+#define VMENU_MOUSEREACTION         0x04000000  // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
 #define VMENU_DISABLED              0x80000000  //
 
 class Dialog;
@@ -291,10 +284,7 @@ class VMenu: public Modal
 
     void SetColors(struct FarListColors *Colors=NULL);
     void GetColors(struct FarListColors *Colors);
-
-    /* $ 25.05.2001 DJ */
     void SetOneColor (int Index, short Color);
-    /* DJ $ */
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -303,11 +293,7 @@ class VMenu: public Modal
     BOOL UpdateRequired(void);
 
     void DeleteItems();
-    /* $ 01.08.2000 SVS
-       функци€ удалени€ N пунктов меню
-    */
     int  DeleteItem(int ID,int Count=1);
-    /* SVS $ */
 
     int  AddItem(const MenuItemEx *NewItem,int PosAdd=0x7FFFFFFF);
     int  AddItem(const FarList *NewItem);
@@ -334,27 +320,20 @@ class VMenu: public Modal
        функци€, провер€юща€ корректность текущей позиции и флагов SELECTED
     */
     void AdjustSelectPos();
-    /* DJ $ */
 
     virtual void Process();
     virtual void ResizeConsole();
 
-    /* $ 20.09.2000 SVS
-      + ‘ункци€ GetItemPtr - получить указатель на нужный Item.
-    */
     struct MenuItemEx *GetItemPtr(int Position=-1);
-    /* SVS $*/
 
     void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
     BOOL GetVMenuInfo(struct FarListInfo* Info);
 
     virtual const wchar_t *GetTypeName() {return L"[VMenu]";};
     virtual int GetTypeAndName(string &strType, string &strName);
-    /* $ 28.04.2002 KM
-        ћеню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
-    */
+
     virtual int GetType() { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
-    /* KM $ */
+
     void SetMaxHeight(int NewMaxHeight);
 
     int GetVDialogItemID() const {return DialogItemID;};
@@ -363,14 +342,9 @@ class VMenu: public Modal
   public:
     static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
     static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
-    /* $ 01.08.2000 SVS
-       функци€ обработки меню (по умолчанию)
-    */
-    static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
-    // функци€ посылки сообщений меню
-    static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
-    /* SVS $ */
 
+    static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
 };
 
 

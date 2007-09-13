@@ -65,7 +65,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   int I;
   SetDynamicallyBorn(false);
 
-  VMenu::VMFlags.Set(Flags);
+  VMenu::VMFlags.Set(Flags|VMENU_MOUSEREACTION);
   VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
 /* SVS $ */
 
@@ -1004,15 +1004,15 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   /* $ 12.10.2001 VVM
     ! ≈сть ли у нас скроллбар? */
-  int ShowScrollBar = FALSE;
+  int bShowScrollBar = FALSE;
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
-    ShowScrollBar = TRUE;
+    bShowScrollBar = TRUE;
   /* VVM $ */
 
-  if (ShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
+  if (bShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
     XX2--;  // уменьшает площадь, в которой меню следит за мышью само
 
-  if (ShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
+  if (bShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
   /* KM $ */
   {
@@ -1117,6 +1117,10 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if(!CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags==MOUSE_MOVED ||
             CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 */
+        if( (VMenu::VMFlags.Check(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags==MOUSE_MOVED)
+         ||
+            (!VMenu::VMFlags.Check(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+          )
         {
           Item[SelectPos]->Flags&=~LIF_SELECTED;
           Item[MsPos]->Flags|=LIF_SELECTED;
