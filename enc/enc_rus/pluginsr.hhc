@@ -1465,6 +1465,10 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getcheck.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_GETCOMBOBOXEVENT">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_getcomboboxevent.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_GETCURSORPOS">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_getcursorpos.html">
                                 </OBJECT>
@@ -1615,6 +1619,10 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_SETCHECK">
                                 <param name="Local" value="html/dialogapi/dmsg/dm_setcheck.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DM_SETCOMBOBOXEVENT">
+                                <param name="Local" value="html/dialogapi/dmsg/dm_setcomboboxevent.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DM_SETCURSORPOS">
