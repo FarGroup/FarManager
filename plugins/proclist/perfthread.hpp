@@ -133,7 +133,9 @@ class PerfThread {
         bool Updated() { bool bRet=bUpdated; bUpdated=false; return bRet; }
         bool IsWMIConnected() { return WMI; }
         static void GetProcessOwnerInfo(DWORD dwPid, TCHAR* pUser, TCHAR* UserSid, TCHAR* pDomain, int& nSession);
-
+#ifndef UNICODE
+        bool IsLocal() { return HostName[0] == '\0'; }
+#endif
         TCHAR UserName[64];
         TCHAR Password[64];
 };

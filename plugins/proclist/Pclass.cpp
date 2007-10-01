@@ -1327,7 +1327,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     LASTBYTE(Items[nItems].Text) = (char)(SM_PERFCOUNTER+i);
 #else
                     Items[nItems].Text = GetMsg(Counters[i].idName);
-                    Flags[nItems].m = SM_PERFCOUNTER+i;
+                    Flags[nItems].m = (BYTE)(SM_PERFCOUNTER+i);
 #endif
                     if(SM_PERFCOUNTER+i==SortMode)
                         Items[nItems].Checked = cIndicator;
@@ -1348,7 +1348,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                         LASTBYTE(Items[nItems].Text) = (char)((SM_PERFCOUNTER+i) | SM_PERSEC);
 #else
                         Items[nItems].Text = wcsdup(tmpStr);
-                        Flags[nItems].m = (SM_PERFCOUNTER+i) | SM_PERSEC;
+                        Flags[nItems].m = (BYTE)((SM_PERFCOUNTER+i) | SM_PERSEC);
                         Flags[nItems].a = 1;
 #endif
                         if(((SM_PERFCOUNTER+i) | SM_PERSEC) == SortMode)

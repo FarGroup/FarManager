@@ -316,7 +316,8 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
         lstrcpy(CurItem.Owner, pd.Owner);
       }
 #ifndef UNICODE
-      CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
+      if(Thread.IsLocal())
+        CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
 #endif
 
       CurItem.UserData = (DWORD_PTR) new ProcessDataNT;

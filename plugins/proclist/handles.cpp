@@ -111,7 +111,7 @@ static BOOL GetProcessId(HANDLE handle, DWORD& dwPID)
     // Get the process information
     if ( pNtQueryInformationProcess( handle, ProcessBasicInformation, &pi, sizeof(pi), NULL) == 0 )
     {
-        dwPID = pi.UniqueProcessId;
+        dwPID = (DWORD)pi.UniqueProcessId;
         ret = TRUE;
     }
 
