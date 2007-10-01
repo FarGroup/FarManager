@@ -101,6 +101,7 @@ extern "C"
 #undef wmemset
 #define wmemset _wmemset
   void * __cdecl realloc(void *block, size_t size);
+  void * __cdecl _recalloc(void *block, size_t num, size_t size);
   _CONST_RETURN char * __cdecl strchr(register const char *s,int c);
   _CONST_RETURN_W wchar_t * __cdecl wcschr(register const wchar_t *s,wchar_t c);
   char * __cdecl strcpy(char *dst, const char *src);

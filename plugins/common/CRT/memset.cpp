@@ -4,9 +4,11 @@
 #endif
 
 #if defined(UNICODE) && !defined(__BORLANDC__)
-typedef TCHAR PTRTYP;
+typedef wchar_t PTRTYP;
+typedef wchar_t FILLTYP;
 #else
 typedef void  PTRTYP;
+typedef int   FILLTYP;
 #endif
 
 PTRTYP * __cdecl
@@ -15,7 +17,7 @@ PTRTYP * __cdecl
 #else
                _wmemset
 #endif
-                        (PTRTYP *dst, int val, size_t count)
+                        (PTRTYP *dst, FILLTYP val, size_t count)
 {
   PTRTYP *start = dst;
 
