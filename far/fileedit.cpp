@@ -755,6 +755,9 @@ void FileEditor::Init (
   if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
     Flags.Set(FFILEEDIT_NEW);
 
+  if(Flags.Check(FFILEEDIT_LOCKED))
+    m_editor->Flags.Set(FEDITOR_LOCKMODE);
+
   if (!LoadFile(strFullFileName,UserBreak))
   {
     m_codepage = CP_OEMCP; //BUGBUG
@@ -785,8 +788,6 @@ void FileEditor::Init (
       return;
     }
   }
-
-  m_editor->Flags.Change(FEDITOR_LOCKMODE,Flags.Check(FFILEEDIT_LOCKED));
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
