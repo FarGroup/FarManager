@@ -68,6 +68,7 @@ class Frame: public ScreenObject
     int  CanLoseFocus;
     int  ExitCode;
     int  KeyBarVisible;
+    int  TitleBarVisible;
     KeyBar *FrameKeyBar;
     int MacroMode;
 
@@ -98,6 +99,8 @@ class Frame: public ScreenObject
     void SetKeyBar(KeyBar *FrameKeyBar);
     void UpdateKeyBar();
     virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
+
+    int IsTitleBarVisible() const {return TitleBarVisible;};
 
     /* $ 12.05.2001 DJ */
     int IsTopFrame();

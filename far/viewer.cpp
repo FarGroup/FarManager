@@ -535,7 +535,7 @@ void Viewer::ShowPage (int nMode)
     if( !strFileName.IsEmpty () && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)) )
     {
       SetScreen(X1,Y1,X2,Y2,L' ',COL_VIEWERTEXT);
-      GotoXY(X1,Y1+ShowStatusLine);
+      GotoXY(X1,Y1);
       SetColor(COL_WARNDIALOGTEXT);
       mprintf(L"%.*s", XX2-X1+1, UMSG(MViewerCannotOpenFile));
       ShowStatus();
@@ -566,7 +566,7 @@ void Viewer::ShowPage (int nMode)
     case SHOW_RELOAD:
       CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
 
-      ViewY1 = Y1+ShowStatusLine;
+      ViewY1 = Y1;
 
       for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
       {
@@ -960,6 +960,9 @@ void Viewer::GetTitle(string &strName,int,int)
 
 void Viewer::ShowStatus()
 {
+  if (HostFileViewer)
+    HostFileViewer->ShowStatus();
+#if 0
   string strName;
   string strStatus;
 
@@ -1015,13 +1018,14 @@ void Viewer::ShowStatus()
 
   if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
     ShowTime(FALSE);
+#endif
 }
 
 
 void Viewer::SetStatusMode(int Mode)
 {
   ShowStatusLine=Mode;
-  ViewY1=Y1+ShowStatusLine;
+  ViewY1=Y1;
 }
 
 
@@ -1997,7 +2001,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 12.10.2001 SKV
     угу, а только если он нсть, statusline...
   */
-  if ( MsY==Y1 && ShowStatusLine) // Status line
+  if ( MsY==Y1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
   /* SKV$*/
   {
     int XTable, XPos, NameLength;

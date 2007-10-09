@@ -102,6 +102,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
   KeyBarVisible = Opt.ViOpt.ShowKeyBar;
+  TitleBarVisible = Opt.ViOpt.ShowTitleBar;
 
   int OldMacroMode=CtrlObject->Macro.GetMode();
   MacroMode = MACRO_VIEWER;
@@ -203,10 +204,11 @@ void FileViewer::Show()
         ViewKeyBar.Redraw();
     }
     SetPosition(0,0,ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
-    View.SetPosition(0,0,ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
+    View.SetPosition(0,(Opt.ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
     /* tran 15.07.2000 $ */
   }
   ScreenObject::Show();
+  ShowStatus();
 }
 
 
@@ -264,8 +266,8 @@ int FileViewer::ProcessKey(int Key)
         return (TRUE);
       }
     /* tran 22.07.2000 $ */
-    /* $ 15.07.2000 tran
-       + CtrlB switch KeyBar*/
+
+    // $ 15.07.2000 tran + CtrlB switch KeyBar
     case KEY_CTRLB:
       Opt.ViOpt.ShowKeyBar=!Opt.ViOpt.ShowKeyBar;
       if ( Opt.ViOpt.ShowKeyBar )
@@ -273,11 +275,17 @@ int FileViewer::ProcessKey(int Key)
       else
         ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
       Show();
-      /* $ 07.05.2001 DJ */
       KeyBarVisible = Opt.ViOpt.ShowKeyBar;
-      /* DJ $ */
       return (TRUE);
-    /* tran 15.07.2000 $ */
+
+    case KEY_CTRLSHIFTB:
+    {
+      Opt.ViOpt.ShowTitleBar=!Opt.ViOpt.ShowTitleBar;
+      TitleBarVisible = Opt.ViOpt.ShowTitleBar;
+      Show();
+      return (TRUE);
+    }
+
     /* $ 24.08.2000 SVS
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
@@ -499,4 +507,63 @@ __int64 FileViewer::GetViewFileSize() const
 __int64 FileViewer::GetViewFilePos() const
 {
   return View.GetViewFilePos();
+}
+
+void FileViewer::ShowStatus()
+{
+  string strName;
+  string strStatus;
+
+  if (!IsTitleBarVisible())
+    return;
+
+  GetTitle(strName);
+
+  int NameLength=ScrX-43; //???41
+  if (Opt.ViewerEditorClock && IsFullScreen())
+    NameLength-=6;
+  if (NameLength<20)
+    NameLength=20;
+
+  /* $ 01.10.2000 IS
+     ! Показывать букву диска в статусной строке
+  */
+  TruncPathStr(strName, NameLength);
+  /* IS $ */
+  string strTableName;
+  string strTmpTableName;
+  if (View.VM.Unicode)
+    strTableName=L"Unicode";
+  else if (View.VM.UseDecodeTable)
+  {
+    strTmpTableName.SetData (View.TableSet.TableName, CP_OEMCP);
+    strTableName=RemoveChar(strTmpTableName,L'&',TRUE);
+  }
+  else if (View.VM.AnsiMode)
+    strTableName=L"Win";
+  else
+    strTableName=L"DOS";
+
+  const wchar_t *lpwszStatusFormat = L"%-*s %10.10s %13I64u %7.7s %-4I64d %s%3d%%";
+
+  strStatus.Format (
+        lpwszStatusFormat,
+        NameLength,
+        (const wchar_t*)strName,
+        (const wchar_t*)strTableName,
+        View.FileSize,
+        UMSG(MViewerStatusCol),
+        View.LeftPos,
+        Opt.ViewerEditorClock ? L"":L" ",
+        (View.LastPage ? 100:ToPercent64(View.FilePos,View.FileSize))
+        );
+
+  SetColor(COL_VIEWERSTATUS);
+  GotoXY(X1,Y1);
+
+  mprintf(L"%-*.*s",View.Width+(View.ViOpt.ShowScrollbar?1:0),
+                    View.Width+(View.ViOpt.ShowScrollbar?1:0), (const wchar_t*)strStatus);
+
+  if (Opt.ViewerEditorClock && IsFullScreen())
+    ShowTime(FALSE);
 }

@@ -594,26 +594,19 @@ void FileEditor::Init (
   m_editor->SetOwner (this);
   m_editor->SetCodePage (m_codepage);
 
-  /* $ 19.02.2001 IS
-       Я не учел, что для нового файла GetFileAttributes не вызывается...
-  */
   *AttrStr=0;
-  /* IS $ */
+
   CurrentEditor=this;
   FileAttributes=(DWORD)-1;
   FileAttributesModified=false;
   SetTitle(Title);
-  /* $ 07.05.2001 DJ */
+
   EditNamesList = NULL;
   KeyBarVisible = Opt.EdOpt.ShowKeyBar;
-  /* DJ $ */
+  TitleBarVisible = Opt.EdOpt.ShowTitleBar;
 
-  /* $ 17.08.2001 KM
-    Добавлено для поиска по AltF7. При редактировании найденного файла из
-    архива для клавиши F2 сделать вызов ShiftF2.
-  */
+  // $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
   Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
-  /* KM $ */
 
   if (*Name==0)
   {
@@ -748,7 +741,7 @@ void FileEditor::Init (
   /* SVS 03.12.2000 $ */
   /* SVS $ */
 
-  m_editor->SetPosition(X1,Y1,X2,Y2-1);
+  m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   m_editor->SetStartPos(StartLine,StartChar);
   SetDeleteOnClose(DeleteOnClose);
   int UserBreak;
@@ -858,7 +851,7 @@ void FileEditor::InitKeyBar(void)
   EditKeyBar.SetAllRegGroup();
 
   EditKeyBar.Show();
-  m_editor->SetPosition(X1,Y1,X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
+  m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   SetKeyBar(&EditKeyBar);
 }
 
@@ -879,7 +872,7 @@ void FileEditor::Show()
        EditKeyBar.Redraw();
     }
     ScreenObject::SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
-    m_editor->SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
+    m_editor->SetPosition(0,(Opt.EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
   }
   ScreenObject::Show();
 }
@@ -1286,9 +1279,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         return TRUE;
       }
 
-      /*$ 21.07.2000 SKV
-          + выход с позиционированием на редактируемом файле по CTRLF10
-      */
+      // $ 21.07.2000 SKV + выход с позиционированием на редактируемом файле по CTRLF10
       case KEY_CTRLF10:
       {
         {
@@ -1298,11 +1289,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           }
 
           string strFullFileNameTemp = strFullFileName;
-          /* 26.11.2001 VVM
-            ! Использовать полное имя файла */
-          /* $ 28.12.2001 DJ
-             вынесем код в общую функцию
-          */
+
           if(::GetFileAttributesW(strFullFileName) == -1) // а сам файл то еще на месте?
           {
               if(!CheckShortcutFolder(&strFullFileNameTemp,-1,FALSE))
@@ -1322,12 +1309,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
             Flags.Set(FFILEEDIT_REDRAWTITLE);
           }
-          /* DJ $ */
-          /* VVM $ */
         }
         return (TRUE);
       }
-      /* SKV $*/
 
       case KEY_CTRLB:
       {
@@ -1338,6 +1322,14 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           EditKeyBar.Hide0(); // 0 mean - Don't purge saved screen
         Show();
         KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+        return (TRUE);
+      }
+
+      case KEY_CTRLSHIFTB:
+      {
+        Opt.EdOpt.ShowTitleBar=!Opt.EdOpt.ShowTitleBar;
+        TitleBarVisible = Opt.EdOpt.ShowTitleBar;
+        Show();
         return (TRUE);
       }
 
@@ -2194,7 +2186,7 @@ void FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
 
 void FileEditor::ShowStatus()
 {
-  if ( m_editor->Locked () )
+  if ( m_editor->Locked () || !Opt.EdOpt.ShowTitleBar)
     return;
 
   SetColor(COL_EDITORSTATUS);

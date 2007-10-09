@@ -183,6 +183,7 @@ struct EditorOptions
 	DWORD FileSizeLimitLo;
 	DWORD FileSizeLimitHi;
 	int ShowKeyBar;
+	int ShowTitleBar;
 
 	string strWordDiv;
 
@@ -207,6 +208,7 @@ struct EditorOptions
 		UndoSize = 0;
 		UseExternalEditor = 0;
 		ShowKeyBar = 0;
+		ShowTitleBar = 0;
 
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
@@ -235,6 +237,7 @@ struct EditorOptions
 		dest.UndoSize = UndoSize;
 		dest.UseExternalEditor = UseExternalEditor;
 		dest.ShowKeyBar = ShowKeyBar;
+		dest.ShowTitleBar = ShowTitleBar;
 		dest.strWordDiv = strWordDiv;
 
 		dest.FileSizeLimitLo = FileSizeLimitLo;
@@ -259,6 +262,7 @@ struct ViewerOptions
   int UseExternalViewer;
   int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
   int AnsiTableAsDefault;
+  int ShowTitleBar;
 };
 /* IS $ */
 

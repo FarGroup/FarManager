@@ -992,6 +992,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewerW,L"AutoDetectTable",&Opt.ViOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyViewerW,L"TabSize",&Opt.ViOpt.TabSize,8, 0},
   {1, REG_DWORD,  NKeyViewerW,L"ShowKeyBar",&Opt.ViOpt.ShowKeyBar,1, 0},
+  {0, REG_DWORD,  NKeyViewerW,L"ShowTitleBar",&Opt.ViOpt.ShowTitleBar,1, 0},
   {1, REG_DWORD,  NKeyViewerW,L"ShowArrows",&Opt.ViOpt.ShowArrows,1, 0},
   {1, REG_DWORD,  NKeyViewerW,L"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
   {1, REG_DWORD,  NKeyViewerW,L"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
@@ -1032,6 +1033,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditorW,L"AnsiTableForNewFile",&Opt.EdOpt.AnsiTableForNewFile,1, 0},
   {1, REG_DWORD,  NKeyEditorW,L"AnsiTableAsDefault",&Opt.EdOpt.AnsiTableAsDefault,1, 0},
   {1, REG_DWORD,  NKeyEditorW,L"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
+  {0, REG_DWORD,  NKeyEditorW,L"ShowTitleBar",&Opt.EdOpt.ShowTitleBar,1, 0},
 
   {0, REG_DWORD,  NKeyXLatW,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLatW,L"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
