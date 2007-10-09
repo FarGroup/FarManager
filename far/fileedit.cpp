@@ -373,6 +373,9 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
     Flags.Set(FFILEEDIT_NEW);
 
+  if(Flags.Check(FFILEEDIT_LOCKED))
+    FEdit->Flags.Set(FEDITOR_LOCKMODE);
+
   if (!ReadFile(FullFileName,UserBreak))
   {
     if(BlankFileName)
@@ -416,8 +419,6 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
       FEdit->UseDecodeTable=FALSE;
     }
   }
-
-  FEdit->Flags.Change(FEDITOR_LOCKMODE,Flags.Check(FFILEEDIT_LOCKED));
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
   _ECTLLOG(SysLog("call ProcessEditorEvent(EE_READ,NULL) {"));
