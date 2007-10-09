@@ -83,6 +83,7 @@ class FileViewer:public Frame
     virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     __int64 GetViewFileSize() const;
     __int64 GetViewFilePos() const;
+    void ShowStatus();
 };
 
 #endif  // __FILEVIEWER_HPP__

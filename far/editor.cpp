@@ -809,7 +809,7 @@ void Editor::ShowEditor(int CurLineOnly)
     курсор загоним в экран.
   */
 
-  while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
+  while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1+1)
   {
     TopScreen=TopScreen->m_next;
     //DisableOut=TRUE;
@@ -877,7 +877,7 @@ void Editor::ShowEditor(int CurLineOnly)
   {
     LeftPos=CurLine->GetLeftPos();
 
-    for (CurPtr=TopScreen,Y=Y1+1;Y<=Y2;Y++)
+    for (CurPtr=TopScreen,Y=Y1;Y<=Y2;Y++)
       if (CurPtr!=NULL)
       {
         CurPtr->SetEditBeyondEnd(TRUE);
@@ -901,11 +901,14 @@ void Editor::ShowEditor(int CurLineOnly)
   CurLine->SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
   CurLine->Show();
 
+  // раскраска вертикального блока
   if (VBlockStart!=NULL && VBlockSizeX>0 && VBlockSizeY>0)
   {
     int CurScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
     LeftPos=CurLine->GetLeftPos();
-    for (CurPtr=TopScreen,Y=Y1+1;Y<=Y2;Y++)
+
+    for (CurPtr=TopScreen,Y=Y1;Y<=Y2;Y++)
+    {
       if (CurPtr!=NULL)
       {
         if (CurScreenLine>=VBlockY && CurScreenLine<VBlockY+VBlockSizeY)
@@ -923,6 +926,7 @@ void Editor::ShowEditor(int CurLineOnly)
         CurScreenLine++;
       }
     }
+  }
 
   if(HostFileEditor) HostFileEditor->ShowStatus();
 //_SVS(SysLog("Exit from ShowEditor"));
@@ -1173,7 +1177,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
-      for (I=Y1+1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTUP);
         if(!EdOpt.CursorBeyondEOL)
@@ -1195,7 +1199,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
-      for (I=Y1+1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTDOWN);
         if(!EdOpt.CursorBeyondEOL)
@@ -2001,7 +2005,7 @@ int Editor::ProcessKey(int Key)
     case KEY_PGUP:     case KEY_NUMPAD9:
     {
       Flags.Set(FEDITOR_NEWUNDO);
-      for (I=Y1+1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
         ScrollUp();
       Show();
       return(TRUE);
@@ -2010,7 +2014,7 @@ int Editor::ProcessKey(int Key)
     case KEY_PGDN:    case KEY_NUMPAD3:
     {
       Flags.Set(FEDITOR_NEWUNDO);
-      for (I=Y1+1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
         ScrollDown();
       Show();
       return(TRUE);
@@ -2041,7 +2045,7 @@ int Editor::ProcessKey(int Key)
         int StartPos=CurLine->GetTabCurPos();
         NumLine=NumLastLine-1;
         CurLine=EndList;
-        for (TopScreen=CurLine,I=Y1+1;I<Y2 && TopScreen->m_prev!=NULL;I++)
+        for (TopScreen=CurLine,I=Y1;I<Y2 && TopScreen->m_prev!=NULL;I++)
         {
           TopScreen->SetPosition(X1,I,X2,I);
           TopScreen=TopScreen->m_prev;
@@ -2093,7 +2097,7 @@ int Editor::ProcessKey(int Key)
         Flags.Set(FEDITOR_NEWUNDO);
         Edit *CurPtr=TopScreen;
         int CurLineFound=FALSE;
-        for (I=Y1+1;I<Y2;I++)
+        for (I=Y1;I<Y2;I++)
         {
           if (CurPtr->m_next==NULL)
             break;
@@ -2580,7 +2584,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
-      for (I=Y1+1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
         ProcessKey(KEY_ALTSHIFTUP);
       Unlock ();
       Pasting--;
@@ -2593,7 +2597,7 @@ int Editor::ProcessKey(int Key)
     {
       Pasting++;
       Lock ();
-      for (I=Y1+1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
         ProcessKey(KEY_ALTSHIFTDOWN);
       Unlock ();
       Pasting--;
@@ -3049,6 +3053,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     } /* if */
   } /* if */
+
   if (CurLine->ProcessMouse(MouseEvent))
   {
     if(HostFileEditor) HostFileEditor->ShowStatus();
@@ -3065,25 +3070,34 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     return(TRUE);
   }
+
   if ((MouseEvent->dwButtonState & 3)==0)
     return(FALSE);
 /* VVM $ */
-  if (MouseEvent->dwMousePosition.Y==Y1)
+
+  // scroll up
+  //_SVS(SysLog(">>>>>> Y1-1=%d, MouseEvent->dwMousePosition.Y=%d, dwEventFlags=%x",Y1-1,MouseEvent->dwMousePosition.Y,MouseEvent->dwEventFlags));
+  if (MouseEvent->dwMousePosition.Y==Y1-1)
   {
-    while (IsMouseButtonPressed() && MouseY==Y1)
+    while (IsMouseButtonPressed() && MouseY==Y1-1)
       ProcessKey(KEY_UP);
     return(TRUE);
   }
+
+  // scroll down
+  //_SVS(SysLog(">>>>>> Y2+1=%d, MouseEvent->dwMousePosition.Y=%d, dwEventFlags=%x",Y2+1,MouseEvent->dwMousePosition.Y,MouseEvent->dwEventFlags));
   if (MouseEvent->dwMousePosition.Y==Y2+1)
   {
     while (IsMouseButtonPressed() && MouseY==Y2+1)
       ProcessKey(KEY_DOWN);
     return(TRUE);
   }
+
   if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
-      MouseEvent->dwMousePosition.Y<=Y1 || MouseEvent->dwMousePosition.Y>Y2)
+      MouseEvent->dwMousePosition.Y<Y1 || MouseEvent->dwMousePosition.Y>Y2)
     return(FALSE);
-  NewDist=MouseEvent->dwMousePosition.Y-Y1-1;
+
+  NewDist=MouseEvent->dwMousePosition.Y-Y1;
   NewPtr=TopScreen;
   while (NewDist-- && NewPtr->m_next)
     NewPtr=NewPtr->m_next;
@@ -3096,6 +3110,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   else
     while (Dist++)
       Up();
+
   CurLine->ProcessMouse(MouseEvent);
   Show();
   return(TRUE);
@@ -3468,15 +3483,22 @@ void Editor::InsertString()
 
 void Editor::Down()
 {
+  _SVS(CleverSysLog SL("Editor::Down()"));
   //TODO: "Свертка" - если учесть "!Flags.Check(FSCROBJ_VISIBLE)", то крутить надо до следующей видимой строки
   Edit *CurPtr;
   int LeftPos,CurPos,Y;
   if (CurLine->m_next==NULL)
     return;
-  for (Y=0,CurPtr=TopScreen;CurPtr!=CurLine;CurPtr=CurPtr->m_next)
+  _SVS(SysLog("TopScreen=%p CurLine=%p",TopScreen, CurLine));
+  for (Y=0,CurPtr=TopScreen;CurPtr && CurPtr!=CurLine;CurPtr=CurPtr->m_next)
+  {
+    _SVS(SysLog("  Y=%02d CurPtr=%p",Y,CurPtr));
     Y++;
-  if (Y>=Y2-Y1-1)
+  }
+  _SVS(SysLog("Y=%d Y2(%d)-Y1(%d)=%d",Y,Y2,Y1,Y2-Y1));
+  if (Y>=Y2-Y1)
     TopScreen=TopScreen->m_next;
+  _SVS(SysLog("TopScreen=%p",TopScreen));
   CurPos=CurLine->GetTabCurPos();
   LeftPos=CurLine->GetLeftPos();
   CurLine=CurLine->m_next;

@@ -216,6 +216,8 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
   KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+  TitleBarVisible = Opt.EdOpt.ShowTitleBar;
+
   /* DJ $ */
   /* $ 17.08.2001 KM
     Добавлено для поиска по AltF7. При редактировании найденного файла из
@@ -357,7 +359,7 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   /* SVS 03.12.2000 $ */
   /* SVS $ */
 
-  FEdit->SetPosition(X1,Y1,X2,Y2-1);
+  FEdit->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   FEdit->SetStartPos(StartLine,StartChar);
   SetDeleteOnClose(DeleteOnClose);
   int UserBreak;
@@ -488,7 +490,7 @@ void FileEditor::InitKeyBar(void)
   EditKeyBar.SetAllRegGroup();
 
   EditKeyBar.Show();
-  FEdit->SetPosition(X1,Y1,X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
+  FEdit->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   SetKeyBar(&EditKeyBar);
 }
 
@@ -509,7 +511,7 @@ void FileEditor::Show()
        EditKeyBar.Redraw();
     }
     ScreenObject::SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
-    FEdit->SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
+    FEdit->SetPosition(0,(Opt.EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
   }
   ScreenObject::Show();
 }
@@ -969,6 +971,14 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         /* $ 07.05.2001 DJ */
         KeyBarVisible = Opt.EdOpt.ShowKeyBar;
         /* DJ $ */
+        return (TRUE);
+      }
+
+      case KEY_CTRLSHIFTB:
+      {
+        Opt.EdOpt.ShowTitleBar=!Opt.EdOpt.ShowTitleBar;
+        TitleBarVisible = Opt.EdOpt.ShowTitleBar;
+        Show();
         return (TRUE);
       }
 
@@ -1592,7 +1602,7 @@ void FileEditor::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 
 void FileEditor::ShowStatus()
 {
-  if (FEdit->Locked())
+  if (FEdit->Locked() || !Opt.EdOpt.ShowTitleBar)
     return;
   SetColor(COL_EDITORSTATUS);
   GotoXY(X1,Y1); //??

@@ -2208,6 +2208,7 @@ $ #Viewer: control keys#
                        (as long as these keys are held down)
     #Ctrl-B#             Show/Hide functional key bar at the bottom
                        line.
+    #Ctrl-Shift-B#       Show/Hide status line
     #Ctrl-S#             Show/Hide the scrollbar.
     #Alt-BS, Ctrl-Z#     Undo position change
     #RightCtrl-0..9#     Set a bookmark 0..9 at the current position
@@ -2429,6 +2430,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
                            edited at the cursor position.
    #Ctrl-B#                  Show/Hide functional key bar at the bottom
                            line.
+   #Ctrl-Shift-B#            Show/Hide status line
 
     Notes:
 

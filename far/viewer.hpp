@@ -73,6 +73,7 @@ enum SHOW_MODES {
 
 class Viewer:public ScreenObject
 {
+  friend class FileViewer;
   private:
 
     BitFlags SearchFlags;

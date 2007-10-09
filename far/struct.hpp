@@ -146,6 +146,7 @@ struct EditorOptions
   DWORD FileSizeLimitHi;
   /* SVS $ */
   int ShowKeyBar;
+  int ShowTitleBar;
 };
 /* IS $ */
 
@@ -166,6 +167,7 @@ struct ViewerOptions
   int UseExternalViewer;
   int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
   int AnsiTableAsDefault;
+  int ShowTitleBar;
 };
 /* IS $ */
 

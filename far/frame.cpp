@@ -18,7 +18,7 @@ Frame::Frame()
   _OT(SysLog("[%p] Frame::Frame()", this));
   CanLoseFocus=FALSE;
   ExitCode=-1;
-  KeyBarVisible=MacroMode=0;
+  TitleBarVisible=KeyBarVisible=MacroMode=0;
   FrameKeyBar=NULL;
 //  ModalStack=NULL;
 //  ModalStackCount = ModalStackSize=0;

@@ -525,7 +525,7 @@ void Viewer::ShowPage (int nMode)
     if( *FileName && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)) )
     {
       SetScreen(X1,Y1,X2,Y2,' ',COL_VIEWERTEXT);
-      GotoXY(X1,Y1+ShowStatusLine);
+      GotoXY(X1,Y1); //+ShowStatusLine
       SetColor(COL_WARNDIALOGTEXT);
       mprintf("%.*s", XX2-X1+1, MSG(MViewerCannotOpenFile));
       ShowStatus();
@@ -556,7 +556,7 @@ void Viewer::ShowPage (int nMode)
     case SHOW_RELOAD:
       CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
 
-      ViewY1 = Y1+ShowStatusLine;
+      ViewY1 = Y1; //+ShowStatusLine
 
       for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
       {
@@ -939,8 +939,13 @@ void Viewer::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 
 void Viewer::ShowStatus()
 {
+ _SVS(SysLog("Viewer::ShowStatus()"));
+
+  if (HostFileViewer)
+    HostFileViewer->ShowStatus();
+#if 0
   char Status[4096],Name[4096];
-  if (!ShowStatusLine)
+  if (!HostFileViewer || !HostFileViewer->IsTitleBarVisible())
     return;
   /* $ 22.06.2000 IS
     Показывать полное имя файла во вьюере
@@ -988,13 +993,14 @@ void Viewer::ShowStatus()
   /* SVS $ */
   if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
     ShowTime(FALSE);
+#endif
 }
 
 
 void Viewer::SetStatusMode(int Mode)
 {
   ShowStatusLine=Mode;
-  ViewY1=Y1+ShowStatusLine;
+  ViewY1=Y1;//+ShowStatusLine;
 }
 
 
@@ -1974,7 +1980,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 12.10.2001 SKV
     угу, а только если он нсть, statusline...
   */
-  if ( MsY==Y1 && ShowStatusLine) // Status line
+  if ( MsY==Y1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
   /* SKV$*/
   {
     int XTable, XPos, NameLength;
