@@ -1414,8 +1414,9 @@ int Editor::ProcessKey(int Key)
              Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
-          //if (IsSpace(Str[CurPos-1]) ||
-          //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+          if (IsSpace(Str[CurPos-1]) ||
+              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+              //IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
           /* IS $ */
           /* SVS $ */
             if (SkipSpace)
@@ -1460,7 +1461,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          //if (IsSpace(Str[CurPos]) ||
+          if (IsSpace(Str[CurPos]) ||
+              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             //  IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             if (SkipSpace)
             {
@@ -2398,7 +2400,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          //if (IsSpace(Str[CurPos-1]) ||
+          if (IsSpace(Str[CurPos-1]) ||
+              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
           //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
             if (SkipSpace)
             {
@@ -2438,7 +2441,8 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          //if (IsSpace(Str[CurPos]) ||
+          if (IsSpace(Str[CurPos]) ||
+              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
           //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
             if (SkipSpace)
             {
@@ -6117,6 +6121,7 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 		pEdit->SetCodePage (m_codepage);
 		if ( lpwszStr )
 			pEdit->SetBinaryString(lpwszStr, nLength);
+		pEdit->SetPosition(X1,0,X2,0);
 		pEdit->SetCurPos (0);
 		pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
 		pEdit->SetEditorMode (TRUE);

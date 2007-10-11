@@ -1341,7 +1341,8 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 //   Chr      - проверяемый символ
 BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr)
 {
-    return FALSE; //BUGBUG
+  return NULL!=wcschr (WordDiv, Chr);
+//    return FALSE; //BUGBUG
 //  return NULL!=strchr(WordDiv, TableSet?TableSet->DecodeTable[Chr]:Chr);
 }
 
