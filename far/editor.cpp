@@ -6192,6 +6192,7 @@ Edit *Editor::CreateString (const char *lpszStr, int nLength)
     pEdit->SetConvertTabs (EdOpt.ExpandTabs);
     if ( lpszStr )
       pEdit->SetBinaryString (lpszStr, nLength);
+    pEdit->SetPosition(X1,0,X2,0);
     pEdit->SetCurPos (0);
     pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
     pEdit->SetEditorMode (TRUE);

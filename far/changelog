@@ -1,3 +1,47 @@
+svs 11.10.2007 11:29:16 +0300 - build 2271
+
+1. Mantis#0000106: Экран уезжает вправо после PgDn 
+
+   [-] Некорректное отображение экрана редактора при выключенной опции
+       "Курсор за пределами строки" ("Cursor beyond end of line") 
+
+
+   Проблема в следующем. Сначала код.
+
+   Editor::ShowEditor
+     if (!EdOpt.CursorBeyondEOL)
+     {
+       CurLine->SetLeftPos(0);
+       Здесь LeftPos =  0
+   (а)>>  CurLine->FastShow();
+       Здесь LeftPos != 0
+     }
+
+   Edit::FastShow()
+   (б)>>  EditLength=ObjWidth;
+
+    if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
+    {
+      if (TabCurPos-LeftPos>EditLength-1)
+        LeftPos=TabCurPos-EditLength+1;
+      if (TabCurPos<LeftPos)
+        LeftPos=TabCurPos;
+    }
+
+   Теперь описание :-)
+   1. Начинаем открывать файл в редакторе.
+   2. Читаем построчно, создавая при этом связанный список строк 
+      (используется Editor::CreateString)
+   3. Т.к. класс Edit основан на ScreenObject, то ObjWidth=0
+   4. в (б) EditLength=0
+   5. ...
+   Когда по строкам "пробежались", то... ObjWidth нормализуется
+   и в последующем для этого открытого файла баг пропадает.
+
+   Делаем следующее. В Editor::CreateString задаем изначальное значение
+   X1 и X2 (Y1 и Y2 нам здесь на этом этапе ненужен)
+
+
 svs 09.10.2007 20:29:26 +0300 - build 2270
 
 1. Mantis#0000333: Не работает Lock editing Read-only files 
