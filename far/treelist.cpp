@@ -1429,12 +1429,19 @@ int TreeList::ReadTreeFile()
 }
 
 
-int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
+int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSets)
 {
   string strMask;
 
   strMask = Name;
   strMask += L"*";
+
+  if(ExcludeSets)
+  {
+    ReplaceStrings(strMask,L"[",L"<[%>",-1,1);
+    ReplaceStrings(strMask,L"]",L"[]]",-1,1);
+    ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
+  }
 
   int I;
   for (I=CurFile+(Next?Direct:0); I >= 0 && I < TreeCount; I+=Direct)
@@ -1450,6 +1457,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
       return(TRUE);
     }
   }
+
   CmpNameSearchMode=FALSE;
 
   for(
@@ -1466,6 +1474,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct)
       return(TRUE);
     }
   }
+
   return(FALSE);
 }
 

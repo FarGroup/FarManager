@@ -962,63 +962,6 @@ void Viewer::ShowStatus()
 {
   if (HostFileViewer)
     HostFileViewer->ShowStatus();
-#if 0
-  string strName;
-  string strStatus;
-
-  if (!ShowStatusLine)
-    return;
-
-  GetTitle(strName);
-
-  int NameLength=ScrX-43; //???41
-  if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
-    NameLength-=6;
-  if (NameLength<20)
-    NameLength=20;
-
-  /* $ 01.10.2000 IS
-     ! ѕоказывать букву диска в статусной строке
-  */
-  TruncPathStr(strName, NameLength);
-  /* IS $ */
-  string strTableName;
-  string strTmpTableName;
-  if (VM.Unicode)
-    strTableName=L"Unicode";
-  else if (VM.UseDecodeTable)
-  {
-    strTmpTableName.SetData (TableSet.TableName, CP_OEMCP);
-    strTableName=RemoveChar(strTmpTableName,L'&',TRUE);
-  }
-  else if (VM.AnsiMode)
-    strTableName=L"Win";
-  else
-    strTableName=L"DOS";
-
-  const wchar_t *lpwszStatusFormat = L"%-*s %10.10s %13I64u %7.7s %-4I64d %s%3d%%";
-
-  strStatus.Format (
-        lpwszStatusFormat,
-        NameLength,
-        (const wchar_t*)strName,
-        (const wchar_t*)strTableName,
-        FileSize,
-        UMSG(MViewerStatusCol),
-        LeftPos,
-        Opt.ViewerEditorClock ? L"":L" ",
-        (LastPage ? 100:ToPercent64(FilePos,FileSize))
-        );
-
-  SetColor(COL_VIEWERSTATUS);
-  GotoXY(X1,Y1);
-
-  mprintf(L"%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
-                   Width+(ViOpt.ShowScrollbar?1:0), (const wchar_t*)strStatus);
-
-  if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
-    ShowTime(FALSE);
-#endif
 }
 
 
@@ -1165,6 +1108,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
       if (Ch==0 || Ch==10)
         Ch=L' ';
       pString->lpData[(int)OutPtr++]=Ch;
+      pString->lpData[(int)OutPtr]=0;
 
       if (SelectSize > 0 && (SelectPos+SelectSize)==vtell(ViewFile))
       {

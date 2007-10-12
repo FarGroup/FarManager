@@ -249,7 +249,7 @@ int FolderTree::ProcessKey(int Key)
       {
         string strName;
         FindEdit->GetString(strName);
-        Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER||Key == KEY_CTRLSHIFTNUMENTER?-1:1);
+        Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER||Key == KEY_CTRLSHIFTNUMENTER?-1:1,1);
         DrawEdit();
       }
       break;
@@ -289,7 +289,7 @@ int FolderTree::ProcessKey(int Key)
       {
         string strName;
         FindEdit->GetString(strName);
-        if (Tree->FindPartName(strName,FALSE))
+        if (Tree->FindPartName(strName,FALSE,1,1))
           strLastName = strName;
         else
         {

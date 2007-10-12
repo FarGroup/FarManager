@@ -168,7 +168,7 @@ class Panel:public ScreenObject
     virtual void UpdateIfRequired() {};
     /* DJ $ */
     virtual void CloseChangeNotification() {};
-    virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1) {return(FALSE);}
+    virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0) {return(FALSE);}
 
     virtual int GoToFile(long idxItem) {return(TRUE);};
     virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};

@@ -2785,7 +2785,7 @@ int FileList::IsSelected(const wchar_t *Name)
 
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
-int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
+int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSets)
 {
   int I;
   struct FileListItem *CurPtr;
@@ -2793,25 +2793,30 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
   int DirFind = 0;
   int Length = StrLength(Name);
 
-  // Mask должна указывать на буфер на 1 символ больше, чем Name, т.к. к ней еще и * надо добавить. Karbazol.
-  wchar_t *Mask = (wchar_t*)xf_malloc((Length+2)*sizeof(wchar_t));
-  wcscpy(Mask, Name);
+  string strMask;
+
+  strMask = Name;
 
   if ( Length > 0 && (Name[Length-1] == L'/' || Name[Length-1] == L'\\') )
   {
     DirFind = 1;
-    Mask[Length-1] = L'*';
+    strMask.SetLength(strMask.GetLength ()-1);
   }
-  else
+
+  strMask += L"*";
+
+  if(ExcludeSets)
   {
-    Mask[Length] = L'*';
-    Mask[Length+1] = 0;
+    ReplaceStrings(strMask,L"[",L"<[%>",-1,1);
+    ReplaceStrings(strMask,L"]",L"[]]",-1,1);
+    ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
   }
+
   for (I=CurFile+(Next?Direct:0); I >= 0 && I < FileCount; I+=Direct)
   {
     CurPtr = ListData[I];
     CmpNameSearchMode=(I==CurFile);
-    if (CmpName(Mask,CurPtr->strName,TRUE))
+    if (CmpName(strMask,CurPtr->strName,TRUE))
       if (!TestParentFolderName(CurPtr->strName))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
@@ -2819,32 +2824,25 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct)
           CurFile=I;
           CurTopFile=CurFile-(Y2-Y1)/2;
           ShowFileList(TRUE);
-
-          xf_free (Mask);
-
           return(TRUE);
         }
   }
+
   CmpNameSearchMode=FALSE;
 
   for(I=(Direct > 0)?0:FileCount-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
   {
     CurPtr = ListData[I];
-    if (CmpName(Mask,CurPtr->strName,TRUE))
+    if (CmpName(strMask,CurPtr->strName,TRUE))
       if (!TestParentFolderName(CurPtr->strName))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
           CurFile=I;
           CurTopFile=CurFile-(Y2-Y1)/2;
           ShowFileList(TRUE);
-
-          xf_free (Mask);
-
           return(TRUE);
         }
   }
-
-  xf_free (Mask);
 
   return(FALSE);
 }
