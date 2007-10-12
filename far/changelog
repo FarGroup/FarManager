@@ -1,3 +1,65 @@
+svs 12.10.2007 10:55:15 +0300 - build 292
+
+1. В 2269 забыл про АПИ (это про "Editor должен работать в пределах X1,Y1,X2,Y2...")
+
+2. Mantis#0000303: Названия кнопкосочетаний с модификаторами
+   Ctrl-" и Ctrl-: забыл...
+
+3. Mantis#0000326: QView, Info: ItemCount, CurPos, Selected, Bof, Eof всегда 0; Empty всегда 1
+   Теперь: Bof/Eof/Empty/Selected - если в панелях, но в QView/Info/Tree, то возвращается
+   значение для этих типов панелей, иначе - для ком.строки.
+
+4. API: ListBox не реагировал на выбор мышкой, если был выставлен режим LMRT_NEVER.
+
+5. Macro: Добавлен MacroArea - возвращает имя текущей макрообласти.
+
+6. Alt-Shift-F9 - не сохранялось значение опции "Lock editing of read-only files"
+
+svs 11.10.2007 11:44:09 +0300 - build 291
+
+1. Mantis#0000106: Экран уезжает вправо после PgDn 
+
+   Проблема в следующем. Сначала код.
+
+   Editor::ShowEditor
+     if (!EdOpt.CursorBeyondEOL)
+     {
+       CurLine->SetLeftPos(0);
+       Здесь LeftPos =  0
+   (а)>>  CurLine->FastShow();
+       Здесь LeftPos != 0
+     }
+
+   Edit::FastShow()
+   (б)>>  EditLength=ObjWidth;
+
+    if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
+    {
+      if (TabCurPos-LeftPos>EditLength-1)
+        LeftPos=TabCurPos-EditLength+1;
+      if (TabCurPos<LeftPos)
+        LeftPos=TabCurPos;
+    }
+
+   Теперь описание :-)
+   1. Начинаем открывать файл в редакторе.
+   2. Читаем построчно, создавая при этом связанный список строк 
+      (используется Editor::CreateString)
+   3. Т.к. класс Edit основан на ScreenObject, то ObjWidth=0
+   4. в (б) EditLength=0
+   5. ...
+   Когда по строкам "пробежались", то... ObjWidth нормализуется
+   и в последующем для этого открытого файла баг пропадает.
+
+   Делаем следующее. В Editor::CreateString задаем изначальное значение
+   X1 и X2 (Y1 и Y2 нам здесь на этом этапе ненужен)
+
+2. Воркэраундд для strmix.cpp::IsWordDiv()
+   Вместо возврата FALSE проигнорируем параметр TableSet и просто
+   тупо поищим Chr в массиве WordDiv.
+   Потом это надо уточнить. Уточнялка занесена в REMINDER.
+
+
 svs 09.10.2007 20:31:33 +0300 - build 290
 
 1. Mantis#0000333: Не работает Lock editing Read-only files 

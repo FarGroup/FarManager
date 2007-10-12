@@ -113,6 +113,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  L"Far.Width",          MCODE_V_FAR_WIDTH,0},
   {2,  L"Far.Height",         MCODE_V_FAR_HEIGHT,0},
   {2,  L"Far.Title",          MCODE_V_FAR_TITLE,0},
+  {2,  L"MacroArea",          MCODE_V_MACROAREA,0},
 
   {2,  L"ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
   {2,  L"CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
@@ -699,6 +700,10 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           Cond=(const wchar_t*)strFileName;
           break;
 
+        case MCODE_V_MACROAREA:
+          Cond=GetSubKey(CtrlObject->Macro.GetMode());
+          break;
+
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
           Cond=Flags&CheckCode?1:0;
           break;
@@ -718,36 +723,6 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
         case MCODE_V_DRVSHOWMODE: // Drv.ShowMode
           Cond=(__int64)Opt.ChangeDriveMode;
           break;
-
-        case MCODE_C_BOF:
-        case MCODE_C_EOF:
-        {
-#if 0
-          int CurMMode=CtrlObject->Macro.GetMode();
-          if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
-          {
-            Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
-//            f=f->GetTopModal();
-            while(f)
-            {
-              fo=f;
-              f=f->GetTopModal();
-            }
-            if(!f)
-              f=fo;
-            if(f)
-              Cond=f->VMProcess(CheckCode);
-          }
-          else
-            if(CurFrame)
-              Cond=CurFrame->VMProcess(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
-#else
-          Frame *f=FrameManager->GetTopModal();
-          if(f)
-            Cond=f->VMProcess(CheckCode);
-#endif
-          break;
-        }
 
         case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - курсор в начале cmd-строки редактирования?
         case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конеце cmd-строки редактирования?
@@ -787,6 +762,27 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           break;
         }
 
+        case MCODE_C_BOF:
+        case MCODE_C_EOF:
+        {
+#if 1
+          int CurMMode=CtrlObject->Macro.GetMode();
+          if(CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
+            Cond=CtrlObject->CmdLine->VMProcess(CheckCode);
+          else
+          {
+            Frame *f=FrameManager->GetTopModal();
+            if(f)
+              Cond=f->VMProcess(CheckCode);
+          }
+#else
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+            Cond=f->VMProcess(CheckCode);
+#endif
+          break;
+        }
+
         case MCODE_C_SELECTED:    // Selected?
         {
 #if 1
@@ -808,6 +804,27 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           break;
         }
 
+        case MCODE_C_EMPTY:   // Empty
+        {
+#if 1
+          int CurMMode=CtrlObject->Macro.GetMode();
+          if(CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
+            Cond=CtrlObject->CmdLine->GetLength()==0?1:0;
+          else
+          {
+            Frame *f=FrameManager->GetTopModal();
+            if(f)
+              Cond=f->VMProcess(CheckCode);
+          }
+#else
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+            Cond=f->VMProcess(CheckCode);
+#endif
+          break;
+        }
+
+
         case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
         case MCODE_V_DLGCURPOS:    // Dlg.CurPos
         case MCODE_V_DLGITEMTYPE:  // Dlg.ItemType
@@ -818,21 +835,6 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           }
           break;
         }
-
-        case MCODE_C_EMPTY:   // Empty
-          if(CurFrame->GetType() == MACRO_SHELL)
-            Cond=(__int64)CtrlObject->CmdLine->GetLength()==0;
-          else
-          {
-#if 0
-            Cond=(__int64)CurFrame->VMProcess(MCODE_C_EMPTY);
-#else
-            Frame *f=FrameManager->GetTopModal();
-            if(f)
-              Cond=(__int64)f->VMProcess(CheckCode);
-#endif
-          }
-          break;
 
         case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
         case MCODE_C_PPANEL_VISIBLE:  // PPanel.Visible

@@ -263,7 +263,7 @@ void ShowHotplugDevice ()
 
   pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
 
-  //HotPlugList.AssignHighlights(FALSE);
+  HotPlugList.AssignHighlights(TRUE);
   HotPlugList.SetBottomTitle(UMSG(MHotPlugListBottom));
   HotPlugList.Show();
 

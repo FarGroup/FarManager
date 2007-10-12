@@ -2350,6 +2350,7 @@ void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
   m_editor->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
   m_editor->SetCharCodeBase(EdOpt.CharCodeBase);
   m_editor->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
+  m_editor->SetReadOnlyLock(EdOpt.ReadOnlyLock);
   //m_editor->SetBSLikeDel(EdOpt.BSLikeDel);
 }
 

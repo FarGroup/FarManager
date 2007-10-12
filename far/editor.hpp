@@ -294,6 +294,9 @@ class Editor:public ScreenObject
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
+    void SetReadOnlyLock(int NewMode)  { EdOpt.ReadOnlyLock=NewMode&3; }
+    int  GetReadOnlyLock(void) const {return EdOpt.ReadOnlyLock; }
+
     void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
     const wchar_t *GetWordDiv() { return (const wchar_t*)EdOpt.strWordDiv; }
     /* $ 29.10.2001 IS

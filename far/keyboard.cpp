@@ -2531,7 +2531,7 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_
       case VK_OEM_6:
         return(KEY_CTRLBACKBRACKET);
       case VK_OEM_7:
-        return(KEY_CTRLQUOTE);
+        return(KEY_CTRL+'\''); // KEY_QUOTE
       case VK_MULTIPLY:
         return(KEY_CTRL|KEY_MULTIPLY);
       case VK_DIVIDE:

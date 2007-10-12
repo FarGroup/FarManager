@@ -823,7 +823,7 @@ void Editor::ShowEditor(int CurLineOnly)
       CurLine->SetCurPos(Length);
       CurLine->SetLeftPos(0);
       //_D(SysLog(L"call CurLine->FastShow()"));
-      CurLine->FastShow();
+      //CurLine->FastShow();
       CurPos=CurLine->GetTabCurPos();
     }
   }
@@ -867,6 +867,15 @@ void Editor::ShowEditor(int CurLineOnly)
   if (!CurLineOnly)
   {
     LeftPos=CurLine->GetLeftPos();
+#if 1
+    // крайне эксперементальный кусок!
+    if(CurPos+LeftPos < X2 )
+      LeftPos=0;
+    else if(CurLine->X2 < X2)
+      LeftPos=CurLine->GetLength()-CurPos;
+    if(LeftPos < 0)
+      LeftPos=0;
+#endif
 
     for (CurPtr=TopScreen,Y=Y1;Y<=Y2;Y++)
       if (CurPtr!=NULL)
@@ -5307,7 +5316,7 @@ int Editor::EditorControl(int Command,void *Param)
         Info->EditorID=Editor::EditorID;
         Info->FileName=_wcsdup (L"");
         Info->WindowSizeX=ObjWidth;
-        Info->WindowSizeY=Y2-Y1;
+        Info->WindowSizeY=Y2-Y1+1;
         Info->TotalLines=NumLastLine;
         Info->CurLine=NumLine;
         Info->CurPos=CurLine->GetCurPos();
@@ -6121,7 +6130,6 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 		pEdit->SetCodePage (m_codepage);
 		if ( lpwszStr )
 			pEdit->SetBinaryString(lpwszStr, nLength);
-		pEdit->SetPosition(X1,0,X2,0);
 		pEdit->SetCurPos (0);
 		pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
 		pEdit->SetEditorMode (TRUE);

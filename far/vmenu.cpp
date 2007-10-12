@@ -1120,6 +1120,8 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if( (VMenu::VMFlags.Check(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags==MOUSE_MOVED)
          ||
             (!VMenu::VMFlags.Check(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+         ||
+            (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))
           )
         {
           Item[SelectPos]->Flags&=~LIF_SELECTED;
