@@ -2329,6 +2329,10 @@
                                          <param name="Local" value="html/macro/macrocmd/kbdswitch.html">
                                          </OBJECT>
                                  <LI> <OBJECT type="text/sitemap">
+                                         <param name="Name" value="$SelWord">
+                                         <param name="Local" value="html/macro/macrocmd/selword.html">
+                                         </OBJECT>
+                                 <LI> <OBJECT type="text/sitemap">
                                          <param name="Name" value="$If">
                                          <param name="Local" value="html/macro/macrocmd/if.html">
                                          </OBJECT>
