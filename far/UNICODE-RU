@@ -1,0 +1,47 @@
+1. Таблица соответствий Unicode
+
+   Типы
+   ~~~~
+   Не Unicode      Unicode        Примечание  
+   ------------------------------------------
+   char            wchar_t     
+
+   Функции
+   ~~~~~~~
+   Не Unicode      Unicode        Примечание  
+   ------------------------------------------
+   strlen          StrLength     
+   strcat          wcscat     
+   strncat         wcsncat
+   strcpy          wcscpy
+   strncpy         wcsncpy
+   strcmp          StrCmp
+   _stricmp        StrCmpI
+   strncmp         StrCmpN
+   strchr          wcschr
+   strrchr         wcsrchr
+   strstr          wcsstr
+   strpbrk         wcspbrk
+   strtol          wcstol
+   strtoul         wcstoul
+
+   _vsnprintf      _vsnwprintf     
+   fprintf         fwprintf
+   sprintf         swprintf
+   _fsopen         _wfsopen
+   fprintf         fwprintf
+
+
+   Примеры
+   ~~~~~~~
+
+   1. Переводим кусок кода из 1.71 в 1.80 было: 
+
+        if(isalpha(NameTmp[0]) && NameTmp[1]==':' && !NameTmp[2])
+          PrepareDiskPath(NameTmp,SizeBuffer,true);
+
+      делаем: 
+
+        if ( (strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
+          PrepareDiskPathW(strNameTmp,true);
+
