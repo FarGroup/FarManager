@@ -236,6 +236,9 @@ class Editor:public ScreenObject
     void SetBSLikeDel(int NewMode) { EdOpt.BSLikeDel=NewMode; }
     int  GetBSLikeDel(void) const {return EdOpt.BSLikeDel; }
 
+    void SetReadOnlyLock(int NewMode)  { EdOpt.ReadOnlyLock=NewMode&3; }
+    int  GetReadOnlyLock(void) const {return EdOpt.ReadOnlyLock; }
+
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 

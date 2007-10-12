@@ -9,6 +9,7 @@ Quick view panel
 #pragma hdrstop
 
 #include "qview.hpp"
+#include "macroopcode.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
@@ -216,8 +217,14 @@ void QuickView::DisplayObject()
 
 __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  if(QView!=NULL)
+  if(!Directory && QView!=NULL)
     return QView->VMProcess(OpCode,vParam,iParam);
+
+  switch(OpCode)
+  {
+    case MCODE_C_EMPTY:
+      return _i64(1);
+  }
   return _i64(0);
 }
 

@@ -387,7 +387,6 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
   if (StartLine==-2)
   {
-    _SVS(CleverSysLog SL("if (StartLine==-2)"));
     Edit *CurPtr=TopList;
     long TotalSize=0;
     while (CurPtr!=NULL && CurPtr->m_next!=NULL)
@@ -495,7 +494,6 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   }
   else
   {
-    _SVS(CleverSysLog SL("if (StartLine!=-2)"));
     if (StartLine!=-1 || EdOpt.SavePos && CtrlObject!=NULL)
     {
       unsigned int Line,ScreenLine,LinePos,LeftPos=0;
@@ -770,7 +768,6 @@ void Editor::ShowEditor(int CurLineOnly)
 {
   if ( Locked () )
     return;
-
   Edit *CurPtr;
   int LeftPos,CurPos,Y;
 
@@ -824,6 +821,7 @@ void Editor::ShowEditor(int CurLineOnly)
   if (!EdOpt.CursorBeyondEOL)
   {
     MaxRightPos=CurPos;
+    //CurLine->SetPosition(X1,0,X2,0);
     int RealCurPos=CurLine->GetCurPos();
     int Length=CurLine->GetLength();
 
@@ -832,7 +830,7 @@ void Editor::ShowEditor(int CurLineOnly)
       CurLine->SetCurPos(Length);
       CurLine->SetLeftPos(0);
       //_D(SysLog("call CurLine->FastShow()"));
-      CurLine->FastShow();
+      //CurLine->FastShow();
       CurPos=CurLine->GetTabCurPos();
     }
   }
@@ -876,6 +874,15 @@ void Editor::ShowEditor(int CurLineOnly)
   if (!CurLineOnly)
   {
     LeftPos=CurLine->GetLeftPos();
+#if 1
+    // крайне эксперементальный кусок!
+    if(CurPos+LeftPos < X2 )
+      LeftPos=0;
+    else if(CurLine->X2 < X2)
+      LeftPos=CurLine->GetLength()-CurPos;
+    if(LeftPos < 0)
+      LeftPos=0;
+#endif
 
     for (CurPtr=TopScreen,Y=Y1;Y<=Y2;Y++)
       if (CurPtr!=NULL)
@@ -5334,7 +5341,7 @@ int Editor::EditorControl(int Command,void *Param)
         Info->EditorID=Editor::EditorID;
         Info->FileName="";
         Info->WindowSizeX=ObjWidth;
-        Info->WindowSizeY=Y2-Y1;
+        Info->WindowSizeY=Y2-Y1+1;
         Info->TotalLines=NumLastLine;
         Info->CurLine=NumLine;
         Info->CurPos=CurLine->GetCurPos();
@@ -6192,7 +6199,7 @@ Edit *Editor::CreateString (const char *lpszStr, int nLength)
     pEdit->SetConvertTabs (EdOpt.ExpandTabs);
     if ( lpszStr )
       pEdit->SetBinaryString (lpszStr, nLength);
-    pEdit->SetPosition(X1,0,X2,0);
+    //pEdit->SetPosition(X1,0,X2,0);
     pEdit->SetCurPos (0);
     pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
     pEdit->SetEditorMode (TRUE);

@@ -2737,7 +2737,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_OEM_6:
         return(KEY_CTRLBACKBRACKET);
       case VK_OEM_7:
-        return(KEY_CTRLQUOTE);
+        return(KEY_CTRL+'\''); // KEY_QUOTE
       case VK_MULTIPLY:
         return(KEY_CTRL|KEY_MULTIPLY);
       case VK_DIVIDE:
@@ -2754,7 +2754,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_PLUS:
           return(KEY_CTRL+'=');
         case VK_OEM_1:
-          return(KEY_CTRL+KEY_COLON);
+          return(KEY_CTRL+KEY_SEMICOLON); // KEY_COLON
       }
 
     if (KeyCode)

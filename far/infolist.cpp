@@ -9,6 +9,7 @@ infolist.cpp
 #pragma hdrstop
 
 #include "infolist.hpp"
+#include "macroopcode.hpp"
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
@@ -275,8 +276,14 @@ void InfoList::DisplayObject()
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  if(DizView!=NULL)
+  if(DizPresent && DizView!=NULL)
     return DizView->VMProcess(OpCode,vParam,iParam);
+
+  switch(OpCode)
+  {
+    case MCODE_C_EMPTY:
+      return _i64(1);
+  }
   return _i64(0);
 }
 
