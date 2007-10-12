@@ -8,33 +8,41 @@
 </head>
 <body>
 
-<h1>What's new in Programming FAR plugins - Encyclopedia for Developers 1.71 SR2268?</h1>
+<h1>What's new in Programming FAR plugins - Encyclopedia for Developers 1.71 SR2273?</h1>
 <div class=navbar>
 <a href="index.html">main</a>
 </div>
+
+<h3>12 октября 2007 г.</h3>
+<ul>
+  <li>Macro: Добавлена константа "<a href="macro/macrocmd/states.html#MacroArea">MacroArea</a>" - возвращает имя текущей макрообласти.
+    <br><br>
+
+  <li>Macro: Bof/Eof/Empty/Selected в панелях типа QView/Info/Tree возвращают значения для этих типов панелей. Для обычных панелей возвращают значения из командной строки.
+    <br><br>
+</ul>
 
 <h3>13 сентября 2007 г.</h3>
 <ul>
   <li>Теперь при открытом DI_COMBOBOX в диалоговую процедуру посылаются
     события DN_KEY или DN_MOUSEEVENT. Управлять этим поведением можно с помощью
-    сообщений DM_SETCOMBOBOXEVENT и DM_GETCOMBOBOXEVENT.
+    сообщений <a href="dialogapi/dmsg/dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a> и <a href="dialogapi/dmsg/dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a>.
     <br><br>
 </ul>
 
 
 <h3>30 августа 2007 г.</h3>
 <ul>
-  <li>Bug: Macro: Если пункт меню не содержит горячую клавишу, то GetHotkey() возвращает "0" вместо ""
+  <li>Bug: Macro: Если пункт меню не содержит горячую клавишу, то <a href="macro/macrocmd/functions.html">GetHotkey()</a> возвращает "0" вместо ""
     <br><br>
 
-  <li>Bug: Macro: $SelWord выделяет лишнее знакоместо в конце строки
+  <li>Macro: Добавлена команда <a href="macro/macrocmd/selword.html">$SelWord</a> - выделяет слово.
     <br><br>
 
   <li>Bug: Macro: В панелях быстрого просмотра и информации не работали некоторые переменные: ItemCount, CurPos, Selected, Bof, Eof всегда 0; Empty всегда 1.
     <br><br>
 
 </ul>
-
 
 <h3>7 августа 2007 г.</h3>
 <ul>
