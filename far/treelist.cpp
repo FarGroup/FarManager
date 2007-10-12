@@ -1325,11 +1325,19 @@ int TreeList::ReadTreeFile()
 }
 
 
-int TreeList::FindPartName(char *Name,int Next,int Direct)
+int TreeList::FindPartName(char *Name,int Next,int Direct,int ExcludeSets)
 {
   char Mask[NM*2];
   xstrncpy(Mask,Name,sizeof(Mask)-1);
   strncat(Mask,"*",sizeof(Mask)-1);
+
+  if(ExcludeSets)
+  {
+    ReplaceStrings(Mask,"[","<[%>",-1,1);
+    ReplaceStrings(Mask,"]","[]]",-1,1);
+    ReplaceStrings(Mask,"<[%>","[[]",-1,1);
+  }
+
   int I;
   for (I=CurFile+(Next?Direct:0); I >= 0 && I < TreeCount; I+=Direct)
   {

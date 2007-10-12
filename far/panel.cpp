@@ -1017,6 +1017,7 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,char *Name)
 {
+  //_SVS(SysLog("Panel::FastFindProcessName ==> Src='%s',LastName='%s',Name='%s'",Src,LastName,Name));
   if(strlen(Src) <= NM*2) // сделаем разумное ограничение на размер...
   {
     char *Ptr=(char *)xf_malloc(strlen(Src)+strlen(FindEdit->GetStringAddr())+32);
@@ -1037,7 +1038,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
           break;
         }
 
-        if (FindPartName(Ptr,FALSE))
+        if (FindPartName(Ptr,FALSE,1,1))
         {
           Key=*(EndPtr-1);
           *EndPtr=0;
@@ -1053,6 +1054,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
       xf_free(Ptr);
     }
   }
+  //_SVS(SysLog("Panel::FastFindProcessName <<== Src='%s',LastName='%s',Name='%s'",Src,LastName,Name));
 }
 
 
@@ -1076,7 +1078,7 @@ static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 
 void Panel::FastFind(int FirstKey)
 {
-  // // _SVS(CleverSysLog Clev("Panel::FastFind"));
+  //_SVS(CleverSysLog Clev("Panel::FastFind"));
   INPUT_RECORD rec;
   char LastName[NM],Name[NM];
   int Key,KeyToProcess=0;
@@ -1099,13 +1101,11 @@ void Panel::FastFind(int FirstKey)
       if (FirstKey)
       {
         FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
-        // // _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
-        // // _SVS(SysLog("if (FirstKey)"));
+        //_SVS(SysLog("[%d] Panel::FastFind  FirstKey=%s  %s",__LINE__,_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
         Key=FirstKey;
       }
       else
       {
-        // // _SVS(SysLog("else if (FirstKey)"));
         Key=GetInputRecord(&rec);
         if (rec.EventType==MOUSE_EVENT)
         {
@@ -1116,6 +1116,7 @@ void Panel::FastFind(int FirstKey)
         }
         else if (!rec.EventType || rec.EventType==KEY_EVENT || rec.EventType==FARMACRO_KEY_EVENT)
         {
+          //_SVS(SysLog("[%d] Panel::FastFind  Key=%s",__LINE__,_FARKEY_ToName(Key)));
           // для вставки воспользуемся макродвижком...
           if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
           {
@@ -1160,7 +1161,8 @@ void Panel::FastFind(int FirstKey)
         break;
       }
 
-      // // _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
+      //_SVS(SysLog("[%d] Panel::FastFind  Key=%s",__LINE__,_FARKEY_ToName(Key)));
+
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=tolower(Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
@@ -1184,13 +1186,13 @@ void Panel::FastFind(int FirstKey)
         }
         case KEY_CTRLNUMENTER:
         case KEY_CTRLENTER:
-          FindPartName(Name,TRUE);
+          FindPartName(Name,TRUE,1,1);
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;
         case KEY_CTRLSHIFTNUMENTER:
         case KEY_CTRLSHIFTENTER:
-          FindPartName(Name,TRUE,-1);
+          FindPartName(Name,TRUE,-1,1);
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;
@@ -1210,6 +1212,7 @@ void Panel::FastFind(int FirstKey)
           if (FindEdit.ProcessKey(Key))
           {
             FindEdit.GetString(Name,sizeof(Name));
+            //_SVS(SysLog("[%d] Panel::FastFind  FindEdit.GetString ==> Name=%s",__LINE__,Name));
 
             // уберем двойные '**'
             int LenName=(int)strlen(Name);
@@ -1229,7 +1232,8 @@ void Panel::FastFind(int FirstKey)
               FindEdit.SetString(Name);
             }
             /* SVS $ */
-            if (FindPartName(Name,FALSE))
+            //_SVS(SysLog("[%d] Panel::FastFind  Call FindPartName(Name=%s)",__LINE__,Name));
+            if (FindPartName(Name,FALSE,1,1))
               strcpy(LastName,Name);
             else
             {

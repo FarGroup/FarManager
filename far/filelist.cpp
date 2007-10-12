@@ -2748,8 +2748,10 @@ int FileList::IsSelected(char *Name)
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
-int FileList::FindPartName(char *Name,int Next,int Direct)
+int FileList::FindPartName(char *Name,int Next,int Direct,int ExcludeSets)
 {
+  _SVS(CleverSysLog Clev("FileList::FindPartName"));
+  _SVS(SysLog("Param: Name='%s', Next=%d, Direct=%d",Name,Next,Direct));
   char Mask[NM*2];
   int I;
   struct FileListItem *CurPtr;
@@ -2768,6 +2770,16 @@ int FileList::FindPartName(char *Name,int Next,int Direct)
     Mask[Length] = '*';
     Mask[Length+1] = 0;
   }
+
+  if(ExcludeSets)
+  {
+    ReplaceStrings(Mask,"[","<[%>",-1,1);
+    ReplaceStrings(Mask,"]","[]]",-1,1);
+    ReplaceStrings(Mask,"<[%>","[[]",-1,1);
+  }
+
+  _SVS(SysLog("Mask=%s",Mask));
+
   for (I=CurFile+(Next?Direct:0), CurPtr=ListData+I; I >= 0 && I < FileCount; I+=Direct, (Direct==1?CurPtr++:CurPtr--))
   {
     CmpNameSearchMode=(I==CurFile);

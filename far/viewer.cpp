@@ -585,6 +585,7 @@ void Viewer::ShowPage (int nMode)
       SecondPos = Strings[1]->nFilePos;
 
       ReadString(Strings[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB);
+
       break;
 
     case SHOW_DOWN:
@@ -939,61 +940,8 @@ void Viewer::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 
 void Viewer::ShowStatus()
 {
- _SVS(SysLog("Viewer::ShowStatus()"));
-
   if (HostFileViewer)
     HostFileViewer->ShowStatus();
-#if 0
-  char Status[4096],Name[4096];
-  if (!HostFileViewer || !HostFileViewer->IsTitleBarVisible())
-    return;
-  /* $ 22.06.2000 IS
-    Показывать полное имя файла во вьюере
-    Was: strcpy(Name,*Title ? Title:FileName);
-  */
-  GetTitle(Name,sizeof(Name)-1,0);
-  /* IS $  */
-  int NameLength=ScrX-43; //???41
-  if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
-    NameLength-=6;
-  if (NameLength<20)
-    NameLength=20;
-  /* $ 01.10.2000 IS
-     ! Показывать букву диска в статусной строке
-  */
-  TruncPathStr(Name,NameLength);
-  /* IS $ */
-  char *TableName;
-  char TmpTableName[32];
-  if (VM.Unicode)
-    TableName="Unicode";
-  else if (VM.UseDecodeTable)
-  {
-    xstrncpy(TmpTableName,TableSet.TableName,sizeof(TmpTableName));
-    TableName=RemoveChar(TmpTableName,'&',TRUE);
-  }
-  else if (VM.AnsiMode)
-    TableName="Win";
-  else
-    TableName="DOS";
-
-  const char *StatusFormat="%-*s %10.10s %13I64u %7.7s %-4I64d %s%3d%%";
-  sprintf(Status,StatusFormat,
-          NameLength,Name,TableName,
-          FileSize,MSG(MViewerStatusCol),LeftPos,
-          Opt.ViewerEditorClock ? "":" ",
-          (LastPage ? 100:ToPercent64(FilePos,FileSize)));
-  SetColor(COL_VIEWERSTATUS);
-  GotoXY(X1,Y1);
-  /* $ 31.08.2000 SVS
-     Бага - без часиков неверно отображается верхний статус
-  */
-  mprintf("%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
-                   Width+(ViOpt.ShowScrollbar?1:0),Status);
-  /* SVS $ */
-  if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
-    ShowTime(FALSE);
-#endif
 }
 
 
@@ -1142,6 +1090,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
       if (Ch==0 || Ch==10)
         Ch=' ';
       pString->lpData[(int)OutPtr++]=Ch;
+      pString->lpData[(int)OutPtr]=0;
 
       if (SelectSize > 0 && (SelectPos+SelectSize)==vtell(ViewFile))
       {

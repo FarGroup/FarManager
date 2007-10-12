@@ -89,7 +89,7 @@ class TreeList: public Panel
     virtual int GetCurName(char *Name,char *ShortName);
     virtual void UpdateViewPanel();
     virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual int FindPartName(char *Name,int Next,int Direct=1);
+    virtual int FindPartName(char *Name,int Next,int Direct=1,int ExcludeSets=0);
     virtual int GoToFile(long idxItem);
     virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
     virtual long FindFile(const char *Name,BOOL OnlyPartName=FALSE);

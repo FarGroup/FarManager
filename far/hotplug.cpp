@@ -280,7 +280,7 @@ void ShowHotplugDevice ()
   int I;
 
   VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
-  HotPlugList.SetFlags(VMENU_WRAPMODE);
+  HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
   HotPlugList.SetPosition(-1,-1,0,0);
 
   pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
