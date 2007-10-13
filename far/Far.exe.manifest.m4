@@ -5,7 +5,7 @@
 <assemblyIdentity
 	version="MAJOR.MINOR.0.BUILD"
 	processorArchitecture="*"
-	name="FAR"
+	name="Far Manager"
 	type="win32"
 />
 <description>File and archive manager</description>
