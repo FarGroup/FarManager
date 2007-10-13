@@ -4310,7 +4310,7 @@ void Editor::GoToLine(int Line)
     CurLine=CurLine->m_next;
   CurScrLine+=NumLine-LastNumLine;
 
-  if (CurScrLine<0 || CurScrLine>=Y2-Y1)
+  if (CurScrLine<0 || CurScrLine>Y2-Y1)
     TopScreen=CurLine;
 
 // <GOTO_UNMARK:2>
