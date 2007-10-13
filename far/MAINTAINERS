@@ -1,0 +1,137 @@
+This is a list of maintainers for various Far Manager modules and plugins.
+Not all modules/plugins have a dedicated maintainer.
+At the end you will also find the contact details of the maintainers.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Far Manager modules          | Maintainers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command Line/Execute         | t-rex
+Copy/Move                    |
+Delete files/folders         | Skirda
+Descriptions                 | Zuz
+Dialog                       | Skirda
+Drive Menu                   | t-rex
+Editor                       | Skirda, t-rex
+Fast Find                    | Skirda
+File associations            | t-rex
+File Masks                   |
+File System                  |
+Files Highlighting           | t-rex
+Filters                      | t-rex
+FindFiles                    |
+Folder Shortcuts             |
+Grabber                      | Skirda
+Help/Language                |
+History                      |
+Interface                    |
+KeyBar                       | Skirda
+Keyboard                     | Skirda
+Macro                        | Skirda
+Main menu                    | Skirda
+Make Dir                     | Skirda
+Mouse                        | Skirda
+Panel                        |
+Panel.Info                   |
+Panel.Panel Modes            |
+Panel.QView                  |
+Panel.Tree                   |
+Plugins API                  |
+Plugins API.Dialog           | Skirda
+Plugins API.Editor           | t-rex, Skirda
+Plugins API.Panel            |
+Plugins API.Viewer           |
+Plugins API.VMenu            | Skirda
+Policies                     | Zuz
+Popup Menu                   | Skirda
+Print                        |
+SetAttr                      |
+Settings                     |
+Sort Groups                  | t-rex
+Sort Order                   |
+Special Symbols              |
+SymLink/HardLink             |
+User Menu                    |
+Viewer                       |
+_Common                      |
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Far Manager plugins          | Maintainers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Advanced compare             | t-rex, yjh
+Align                        | t-rex
+Brackets                     | t-rex
+DrawLine                     | t-rex
+EditCase                     | t-rex
+EMenu                        | yjh
+FARCmds                      | Skirda, t-rex
+FileCase                     | t-rex
+FTP                          | yjh, t-rex
+HelloWorld                   | t-rex
+HlfViewer                    | t-rex
+MultiArc                     | t-rex, Skirda
+Network                      | Karbazol
+Newarc                       | Warp, t-rex
+ProcList                     | yjh
+Temporary panel              | t-rex
+Common                       | t-rex, yjh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Miscellaneous                | Maintainers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unicode                      | warp, t-rex, yjh
+Documentation                | Skirda, t-rex
+Installer                    | warp, t-rex
+x64                          | t-rex, yjh
+Vista                        | t-rex, Zuz
+Win9x                        | Zuz, yjh
+DOS (dw32)                   | yjh, Zuz
+Build system                 | t-rex, yjh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Contact methods:
+~~~~~~~~~~~~~~~~
+Mantis - Our bug tracking system
+http://www.farmanager.com/mantis/
+
+Forum - Our official forums
+http://forum.farmanager.com/ - Russian forum
+http://enforum.farmanager.com/ - English forum
+
+E-Mail - Some maintainers prefer to be contacted by e-mail rather than
+through the forums.
+
+Contact details:
+~~~~~~~~~~~~~~~~
+Skirda
+Valentin Skirdin
+at mail.ru / vskirdin
+Preferred contact methods: Mantis, Forum
+Languages: Russian
+
+Warp
+WARP_ItSelf
+at mail.ru / WARP_ItSelf
+Preferred contact methods: Mantis, Forum
+Languages: Russian, English
+
+t-rex
+Alex Yaroslavsky
+at gmail.com / trexinc
+Preferred contact methods: Mantis, Forum
+Languages: Russian, English, Hebrew
+
+Karbazol
+Eugene Leskinen
+at gmail.com/ karbazol
+Preferred contact methods: Mantis, E-Mail
+Languages: Russian, English
+
+yjh
+Iouri Kharon
+at styx.cabel.net / yjh
+Preferred contact methods: Mantis, E-Mail
+Languages: Russian, English
+
+Zuz
+Yuris W. Auzinsh
+at gmail.com / zuz666
+Preferred contact methods: Mantis, Forum
+Languages: Russian, English
