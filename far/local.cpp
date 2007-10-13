@@ -574,4 +574,3 @@ void __cdecl StrLower(wchar_t *s1)
 {
     LowerBuf(s1, StrLength(s1));
 }
-/*---------------------------*/

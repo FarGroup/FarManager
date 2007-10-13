@@ -786,7 +786,7 @@ void Editor::ShowEditor(int CurLineOnly)
   if(!EdOpt.AllowEmptySpaceAfterEof)
   {
 
-    while(CalcDistance(TopScreen,NULL,Y2-Y1-1)<Y2-Y1-1)
+    while(CalcDistance(TopScreen,NULL,Y2-Y1)<Y2-Y1)
     {
       if(TopScreen->m_prev)
         TopScreen=TopScreen->m_prev;
@@ -4291,7 +4291,7 @@ void Editor::GoToLine(int Line)
     CurLine=CurLine->m_next;
   CurScrLine+=NumLine-LastNumLine;
 
-  if (CurScrLine<0 || CurScrLine>=Y2-Y1)
+  if (CurScrLine<0 || CurScrLine>Y2-Y1)
     TopScreen=CurLine;
 
 // <GOTO_UNMARK:2>
@@ -5397,7 +5397,7 @@ int Editor::EditorControl(int Command,void *Param)
         if (Pos->TopScreenLine >= 0 && Pos->TopScreenLine<=NumLine)
         {
           TopScreen=CurLine;
-          for (int I=NumLine;I>0 && NumLine-I<Y2-Y1+1 && I!=Pos->TopScreenLine;I--)
+          for (int I=NumLine;I>0 && NumLine-I<Y2-Y1 && I!=Pos->TopScreenLine;I--)
             TopScreen=TopScreen->m_prev;
         }
 

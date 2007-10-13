@@ -82,7 +82,7 @@ farversion.m4
       - `beta'  - beta version
       - `RC'    - release candidate
       - `AnyThingElse' - intended for Far versions which code has not been
-        commited yet to the SVN so we and the users will not be confused.
+        committed yet to the SVN so we and the users will not be confused.
         Far version will look something like that:
         FarVersion alpha AnyThingElse based on build BuildNumber
    b. BUILDTESTONLY, a flag to add TEST ONLY! to the version. Can be 1 or 0.
@@ -109,12 +109,12 @@ GCC - ensuring "successful" compilation with GCC
 1. Instead of postfixes i64 and ui64 use the macros _i64() and _ui64().
 
 
-x64 - ensuring "successful" compilation  for x86 and x64
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+x64 - ensuring "successful" compilation for x86 and x64
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. DWORD_PTR, LONG_PTR, etc. are used instead of DWORD/long/etc. in the
    following cases:
 
-   a) needed where previosly int/long/dword/or_any_other_non_pointer_type
+   a) needed where previously int/long/dword/or_any_other_non_pointer_type
       were used and a pointer value was assigned to it.
    b) ...
    c) ...
