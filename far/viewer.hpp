@@ -163,7 +163,6 @@ class Viewer:public ScreenObject
     */
     __int64 SelectPosOffSet;
     /* IS $ */
-    int ViewY1;
     int ShowStatusLine,HideCursor;
 
     string strTitle;

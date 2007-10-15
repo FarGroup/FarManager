@@ -566,13 +566,11 @@ void Viewer::ShowPage (int nMode)
     case SHOW_RELOAD:
       CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
 
-      ViewY1 = Y1;
-
-      for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+      for (I=0,Y=Y1;Y<=Y2;Y++,I++)
       {
         Strings[I]->nFilePos = vtell(ViewFile);
 
-        if ( Y==ViewY1+1 && !feof(ViewFile) )
+        if ( Y==Y1+1 && !feof(ViewFile) )
           SecondPos=vtell(ViewFile);
 
         ReadString(Strings[I],-1,MAX_VIEWLINEB);
@@ -581,7 +579,7 @@ void Viewer::ShowPage (int nMode)
       break;
 
     case SHOW_UP:
-      for (I=Y2-ViewY1-1;I>=0;I--)
+      for (I=Y2-Y1-1;I>=0;I--)
       {
         Strings[I+1]->nFilePos = Strings[I]->nFilePos;
         Strings[I+1]->nSelStart = Strings[I]->nSelStart;
@@ -599,7 +597,7 @@ void Viewer::ShowPage (int nMode)
 
     case SHOW_DOWN:
 
-      for (I=0; I<Y2-ViewY1;I++)
+      for (I=0; I<Y2-Y1;I++)
       {
         Strings[I]->nFilePos = Strings[I+1]->nFilePos;
         Strings[I]->nSelStart = Strings[I+1]->nSelStart;
@@ -612,17 +610,17 @@ void Viewer::ShowPage (int nMode)
       FilePos = Strings[0]->nFilePos;
       SecondPos = Strings[1]->nFilePos;
 
-      vseek(ViewFile, Strings[Y2-ViewY1]->nFilePos, SEEK_SET);
-      ReadString(Strings[Y2-ViewY1],-1,MAX_VIEWLINEB);
-      Strings[Y2-ViewY1]->nFilePos = vtell(ViewFile);
-      ReadString(Strings[Y2-ViewY1],-1,MAX_VIEWLINEB);
+      vseek(ViewFile, Strings[Y2-Y1]->nFilePos, SEEK_SET);
+      ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
+      Strings[Y2-Y1]->nFilePos = vtell(ViewFile);
+      ReadString(Strings[Y2-Y1],-1,MAX_VIEWLINEB);
 
       break;
   }
 
   if ( nMode != SHOW_HEX )
   {
-    for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+    for (I=0,Y=Y1;Y<=Y2;Y++,I++)
     {
       int StrLen = StrLength(Strings[I]->lpData);
 
@@ -713,7 +711,7 @@ void Viewer::ShowHex()
 
   __int64 HexLeftPos=((LeftPos>80-ObjWidth) ? Max(80-ObjWidth,0):LeftPos);
 
-  for (EndFile=0,Y=ViewY1;Y<=Y2;Y++)
+  for (EndFile=0,Y=Y1;Y<=Y2;Y++)
   {
     bSelStartFound = false;
     bSelEndFound = false;
@@ -728,7 +726,7 @@ void Viewer::ShowHex()
       continue;
     }
 
-    if (Y==ViewY1+1 && !feof(ViewFile))
+    if (Y==Y1+1 && !feof(ViewFile))
       SecondPos=vtell(ViewFile);
     swprintf(OutStr,L"%010I64X: ",(__int64)ftell64(ViewFile));
 
@@ -928,7 +926,7 @@ void Viewer::DrawScrollbar()
     /* $ 27.04.2001 DJ
        если status line выключена, рисуем скроллбар до верха окна
     */
-    ScrollBar(X2,ViewY1,Y2-ViewY1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+    ScrollBar(X2,Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
     /* DJ $ */
   }
   /* tran 18.07.2000 $ */
@@ -968,7 +966,6 @@ void Viewer::ShowStatus()
 void Viewer::SetStatusMode(int Mode)
 {
   ShowStatusLine=Mode;
-  ViewY1=Y1;
 }
 
 
@@ -1619,7 +1616,7 @@ int Viewer::ProcessKey(int Key)
     {
       if(ViewFile)
       {
-        for (I=ViewY1;I<Y2;I++)
+        for (I=Y1;I<Y2;I++)
           Up();
         Show();
 //        LastSelPos=FilePos;
@@ -1634,14 +1631,14 @@ int Viewer::ProcessKey(int Key)
       if (LastPage || ViewFile==NULL)
         return(TRUE);
       vseek(ViewFile,FilePos,SEEK_SET);
-      for (I=ViewY1;I<Y2;I++)
+      for (I=Y1;I<Y2;I++)
       {
         ReadString(&vString,-1, MAX_VIEWLINEB);
         if (LastPage)
           return(TRUE);
       }
       FilePos=vtell(ViewFile);
-      for (I=ViewY1;I<=Y2;I++)
+      for (I=Y1;I<=Y2;I++)
         ReadString(&vString,-1, MAX_VIEWLINEB);
       /* $ 02.06.2003 VVM
         + —тарое поведение оставим на Ctrl-Down */
@@ -1747,7 +1744,7 @@ int Viewer::ProcessKey(int Key)
         if (ViewFile)
         {
           int I, Y, Len, MaxLen = 0;
-          for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+          for (I=0,Y=Y1;Y<=Y2;Y++,I++)
           {
              Len = StrLength(Strings[I]->lpData);
              if (Len > MaxLen)
@@ -1790,7 +1787,7 @@ int Viewer::ProcessKey(int Key)
            обработка End (и подобных) на такой строке отличаетс€ от обработки
            Down.
         */
-        unsigned int max_counter=Y2-ViewY1;
+        unsigned int max_counter=Y2-Y1;
         if(VM.Hex)
           vseek(ViewFile,0,SEEK_END);
         else
@@ -1900,7 +1897,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         /* $ 14.05.2001 DJ
            более точное позиционирование; корректна€ работа на больших файлах
         */
-        FilePos=(FileSize-1)/(Y2-ViewY1-1)*(MsY-ViewY1);
+        FilePos=(FileSize-1)/(Y2-Y1-1)*(MsY-Y1);
         /* DJ $ */
         int Perc;
         if(FilePos > FileSize)
@@ -1978,7 +1975,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
   }
   /* tran $ */
-  if (MsX<X1 || MsX>X2 || MsY<ViewY1 || MsY>Y2)
+  if (MsX<X1 || MsX>X2 || MsY<Y1 || MsY>Y2)
     return(FALSE);
 
   if (MsX<X1+7)
@@ -1989,11 +1986,11 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       while (IsMouseButtonPressed() && MouseX>X2-7)
         ProcessKey(KEY_RIGHT);
     else
-      if (MsY<ViewY1+(Y2-ViewY1)/2)
-        while (IsMouseButtonPressed() && MouseY<ViewY1+(Y2-ViewY1)/2)
+      if (MsY<Y1+(Y2-Y1)/2)
+        while (IsMouseButtonPressed() && MouseY<Y1+(Y2-Y1)/2)
           ProcessKey(KEY_UP);
       else
-        while (IsMouseButtonPressed() && MouseY>=ViewY1+(Y2-ViewY1)/2)
+        while (IsMouseButtonPressed() && MouseY>=Y1+(Y2-Y1)/2)
           ProcessKey(KEY_DOWN);
   return(TRUE);
 }
