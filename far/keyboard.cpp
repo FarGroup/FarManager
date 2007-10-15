@@ -2471,9 +2471,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       switch(KeyCode)
       {
         case VK_OEM_3:
-          //if(!Opt.UseVk_oem_x)
-            return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'~');
-          //break;
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'`');
         case VK_OEM_MINUS:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'-');
         case VK_OEM_PLUS:
@@ -2522,7 +2520,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_CTRL+KEY_ALT+'~');
+          return(KEY_CTRL+KEY_ALT+'`');
         case VK_OEM_MINUS:
           return(KEY_CTRL+KEY_ALT+'-');
         case VK_OEM_PLUS:
@@ -2583,7 +2581,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_ALT+KEY_SHIFT+'~');
+          return(KEY_ALT+KEY_SHIFT+'`');
         case VK_OEM_MINUS:
           //return(KEY_ALT+KEY_SHIFT+'_');
           return(KEY_ALT+KEY_SHIFT+'-');
@@ -2671,7 +2669,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_CTRL+KEY_SHIFT+'~');
+          return(KEY_CTRL+KEY_SHIFT+'`');
         case VK_OEM_MINUS:
           return(KEY_CTRL+KEY_SHIFT+'-');
         case VK_OEM_PLUS:
@@ -2748,7 +2746,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_CTRL+'~');
+          return(KEY_CTRL+'`');
         case VK_OEM_MINUS:
           return(KEY_CTRL+'-');
         case VK_OEM_PLUS:
@@ -2773,7 +2771,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_ALT+'~');
+          return(KEY_ALT+'`');
         case VK_OEM_MINUS:
           //if(WaitInFastFind)
           //  return(KEY_ALT+KEY_SHIFT+'_');
