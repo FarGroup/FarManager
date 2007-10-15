@@ -116,7 +116,6 @@ class Viewer:public ScreenObject
     */
     __int64 SelectPosOffSet;
     /* IS $ */
-    int ViewY1;
     int ShowStatusLine,HideCursor;
     char TempViewName[NM];
     /* $ 14.06.2002 IS
