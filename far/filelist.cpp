@@ -530,8 +530,8 @@ int FileList::ProcessKey(int Key)
       case KEY_CTRLBACKBRACKET:
       case KEY_CTRLSHIFTBRACKET:
       case KEY_CTRLSHIFTBACKBRACKET:
-      case KEY_CTRL|KEY_COLON:
-      case KEY_CTRL|KEY_ALT|KEY_COLON:
+      case KEY_CTRL|KEY_SEMICOLON:
+      case KEY_CTRL|KEY_ALT|KEY_SEMICOLON:
       case KEY_CTRLALTBRACKET:
       case KEY_CTRLALTBACKBRACKET:
       case KEY_ALTSHIFTBRACKET:
@@ -828,8 +828,8 @@ int FileList::ProcessKey(int Key)
     /* $ 14.02.2001 VVM
       + Ctrl: вставляет имя файла с пассивной панели.
       + CtrlAlt: вставляет UNC-имя файла с пассивной панели */
-    case KEY_CTRL|KEY_COLON:
-    case KEY_CTRL|KEY_ALT|KEY_COLON:
+    case KEY_CTRL|KEY_SEMICOLON:
+    case KEY_CTRL|KEY_ALT|KEY_SEMICOLON:
     {
       int NewKey = KEY_CTRLF;
       if (Key & KEY_ALT)

@@ -637,7 +637,7 @@ void Viewer::ShowPage (int nMode)
       else
         mprintf(L"%*s",Width,L"");
 
-      if ( Strings[I]->bSelection )
+      if ( SelectSize && Strings[I]->bSelection )
       {
         __int64 SelX1;
 
@@ -744,6 +744,9 @@ void Viewer::ShowHex()
 
     if ( fpos < SelectPos+SelectSize-1 )
        bSelEndFound = true;
+
+    if (!SelectSize)
+      bSelStartFound = bSelEndFound = false;
 
     if (VM.Unicode)
       for (X=0;X<8;X++)

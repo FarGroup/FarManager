@@ -412,9 +412,9 @@ $ #Command line commands#
 
   Insert current file name from the passive panel   #Ctrl-Shift-Enter#
   Insert full file name from the active panel                 #Ctrl-F#
-  Insert full file name from the passive panel                #Ctrl-:#
+  Insert full file name from the passive panel                #Ctrl-;#
   Insert network (UNC) file name from the active panel    #Ctrl-Alt-F#
-  Insert network (UNC) file name from the passive panel   #Ctrl-Alt-:#
+  Insert network (UNC) file name from the passive panel   #Ctrl-Alt-;#
 
   Insert path from the left panel                             #Ctrl-[#
   Insert path from the right panel                            #Ctrl-]#

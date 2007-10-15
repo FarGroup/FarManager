@@ -2268,7 +2268,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'~');
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'`');
         case VK_OEM_MINUS:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'-');
         case VK_OEM_PLUS:
@@ -2317,7 +2317,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_V
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_CTRL+KEY_ALT+'~');
+          return(KEY_CTRL+KEY_ALT+'`');
         case VK_OEM_MINUS:
           return(KEY_CTRL+KEY_ALT+'-');
         case VK_OEM_PLUS:
@@ -2378,7 +2378,7 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_ALT+KEY_SHIFT+'~');
+          return(KEY_ALT+KEY_SHIFT+'`');
         case VK_OEM_MINUS:
           return(KEY_ALT+KEY_SHIFT+'_');
         case VK_OEM_PLUS:
@@ -2465,7 +2465,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_CTRL+KEY_SHIFT+'~');
+          return(KEY_CTRL+KEY_SHIFT+'`');
         case VK_OEM_MINUS:
           return(KEY_CTRL+KEY_SHIFT+'-');
         case VK_OEM_PLUS:
@@ -2542,7 +2542,7 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_CTRL+'~');
+          return(KEY_CTRL+'`');
         case VK_OEM_MINUS:
           return(KEY_CTRL+'-');
         case VK_OEM_PLUS:
@@ -2567,7 +2567,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
       switch(KeyCode)
       {
         case VK_OEM_3:
-          return(KEY_ALT+'~');
+          return(KEY_ALT+'`');
         case VK_OEM_MINUS:
           //if(WaitInFastFind)
           //  return(KEY_ALT+KEY_SHIFT+'_');
