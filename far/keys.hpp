@@ -76,6 +76,9 @@ enum BaseDefKeyboard
 
   KEY_BREAK                =0x00000103,
 
+  KEY_PAUSE                =0x00000113,
+  KEY_CAPSLOCK             =0x00000114,
+
   KEY_PGUP                 =0x00000121,
   KEY_PGDN                 =0x00000122,
   KEY_END                  =0x00000123,
@@ -133,6 +136,9 @@ enum BaseDefKeyboard
   KEY_F22                  =0x00000185,
   KEY_F23                  =0x00000186,
   KEY_F24                  =0x00000187,
+
+  KEY_NUMLOCK              =0x00000190,
+  KEY_SCROLLLOCK           =0x00000191,
 
   KEY_BROWSER_BACK         =0x000001A6,
   KEY_BROWSER_FORWARD      =0x000001A7,

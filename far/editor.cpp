@@ -3215,7 +3215,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
   {
     BlockStart=BlockStart->m_next;
     // Mantis#0000316: Не работает копирование строки
-    if(!BlockStart->IsSelection())
+    if(BlockStart && !BlockStart->IsSelection())
        BlockStart=NULL;
   }
   if (DelPtr==VBlockStart)

@@ -133,6 +133,7 @@ enum MACRO_OP_CODE {
   MCODE_F_UCASE,                    // S=ucase(S1)
   MCODE_F_WAITKEY,                  // S=waitkey(N)
   MCODE_F_XLAT,                     // S=xlat(S)
+  MCODE_F_FLOCK,                    // N=FLock(N,N)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

@@ -1031,6 +1031,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 */
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0);
 /* SVS $ */
+int SetFLockState(UINT vkKey, int State);
 char *FARGetKeybLayoutName(char *Dest,int DestSize);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
