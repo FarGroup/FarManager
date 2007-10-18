@@ -1,3 +1,52 @@
+svs 18.10.2007 22:07:16 +0300 - build 297
+
+1. Editor: Падает, гад.
+   Имеем файл (символ '*' - обозначим концы строк)
+     +----------------------+
+     |1 2 3*                |
+     |3 4 5 6*              |
+     |*                     |
+     +----------------------+
+
+   настройки редактора:
+    [x] Persistent blocks     
+    [ ] Del removes blocks
+    [x] Cursor beyond end of line
+
+   Последовательность действий:
+     Выделяем символ '6' 
+     End
+     Del
+     Up
+     Del
+     упали.
+
+   В Editor::DeleteString() после "BlockStart=BlockStart->m_next;" не
+   проверялся  BlockStart на NULL, но был вызов "BlockStart->IsSelection()".
+
+2. Добавлена обработка клавиш NumLock, CapsLock, ScrollLock с модификаторами.
+
+
+3. Macro: добавлена функция FLock()
+    N=FLock(Nkey,NState)
+       Nkey:
+          0 - NumLock
+          1 - CapsLock
+          2 - ScrollLock
+
+       State:
+         -1 get state
+          0 off
+          1 on
+          2 flip
+
+     Windows NT/2000/XP: The keybd_event function can toggle the NUM LOCK, CAPS LOCK, and SCROLL LOCK keys.
+     Windows 95/98/Me:   The keybd_event function can toggle only the CAPS LOCK and SCROLL LOCK keys. It cannot toggle the NUM LOCK key.
+
+
+4. Небольшая перетасовко-перегруппировка кода в macro.cpp
+
+
 svs 15.10.2007 18:51:33 +0300 - build 296
 
 1. Ctrl-: и Ctrl-Alt-: - приводим к соответствию, к Ctrl-; и Ctrl-Alt-;

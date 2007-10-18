@@ -144,6 +144,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_BROWSER_BACK,        11, L"BrowserBack"},
   { KEY_VOLUME_MUTE,         10, L"VolumeMute"},
   { KEY_VOLUME_DOWN,         10, L"VolumeDown"},
+  { KEY_SCROLLLOCK,          10, L"ScrollLock"},
   { KEY_LAUNCH_MAIL,         10, L"LaunchMail"},
   { KEY_LAUNCH_APP2,         10, L"LaunchApp2"},
   { KEY_LAUNCH_APP1,         10, L"LaunchApp1"},
@@ -159,6 +160,8 @@ static struct TFKey3 FKeys1[]={
   { KEY_SUBTRACT,             8, L"Subtract"},
   { KEY_NUMENTER,             8, L"NumEnter"},
   { KEY_MULTIPLY,             8, L"Multiply"},
+  { KEY_CAPSLOCK,             8, L"CapsLock"},
+  { KEY_NUMLOCK,              7, L"NumLock"},
   { KEY_DECIMAL,              7, L"Decimal"},
   //{ KEY_HP_SEARCH,            8, "HPSearch"},
   //{ KEY_HP_HOME,              6, "HPHome"},
@@ -170,6 +173,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_NUMDEL,               6, L"NumDel"},
   { KEY_SPACE,                5, L"Space"},
   { KEY_RIGHT,                5, L"Right"},
+  { KEY_PAUSE,                5, L"Pause"},
   { KEY_ENTER,                5, L"Enter"},
   { KEY_CLEAR,                5, L"Clear"},
   { KEY_BREAK,                5, L"Break"},
@@ -265,6 +269,57 @@ static struct TFKey3 SpecKeyName[]={
 #endif
 
 /* ----------------------------------------------------------------- */
+
+/*
+  State:
+    -1 get state
+     0 off
+     1 on
+     2 flip
+*/
+int SetFLockState(UINT vkKey, int State)
+{
+  /*
+Windows NT/2000/XP: The keybd_event function can toggle the NUM LOCK, CAPS LOCK, and SCROLL LOCK keys.
+Windows 95/98/Me: The keybd_event function can toggle only the CAPS LOCK and SCROLL LOCK keys. It cannot toggle the NUM LOCK key.
+
+VK_NUMLOCK (90)
+VK_SCROLL (91)
+VK_CAPITAL (14)
+  */
+  UINT ScanCode, ExKey=KEYEVENTF_EXTENDEDKEY;
+
+  switch(vkKey)
+  {
+    case VK_NUMLOCK:
+      ScanCode=0x0045;
+      break;
+    case VK_SCROLL:
+      ScanCode=0x0046;
+      break;
+    case VK_CAPITAL:
+      ScanCode=0x003A;
+      ExKey=0;
+      break;
+    default:
+      return -1;
+  }
+
+  BYTE keyState[256];
+
+  GetKeyboardState((LPBYTE)&keyState);
+
+  if (State < 0)
+    return keyState[vkKey] & 1;
+
+  if (State == 2 || (State==1 && !(keyState[vkKey] & 1)) || (!State && (keyState[vkKey] & 1)) )
+  {
+    keybd_event( vkKey, ScanCode, ExKey | 0, 0 );
+    keybd_event( vkKey, ScanCode, ExKey | KEYEVENTF_KEYUP, 0);
+  }
+
+  return keyState[vkKey] & 1;
+}
 
 /* tran 31.08.2000 $
   FarInputRecordToKey */
@@ -1047,49 +1102,57 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     else
       PressedLastTime=CurClock;
 
-    if (KeyCode==VK_SHIFT || KeyCode==VK_MENU || KeyCode==VK_CONTROL ||
-        KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL)
+    if (KeyCode==VK_SHIFT || KeyCode==VK_MENU || KeyCode==VK_CONTROL || KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL || KeyCode==VK_CAPITAL)
     {
-      /* $ 24.08.2000 SVS
-         + Добавление на реакцию KEY_CTRLALTSHIFTPRESS
-      */
-      switch(KeyCode)
+      if((KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL || KeyCode==VK_CAPITAL) &&
+           (CtrlState&(LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED)))
       {
-        case VK_SHIFT:
-        case VK_MENU:
-        case VK_CONTROL:
-          if(!IsKeyCASPressed && CtrlPressed && AltPressed && ShiftPressed)
-          {
+        // TODO:
+        ;
+      }
+      else
+      {
+        /* $ 24.08.2000 SVS
+           + Добавление на реакцию KEY_CTRLALTSHIFTPRESS
+        */
+        switch(KeyCode)
+        {
+          case VK_SHIFT:
+          case VK_MENU:
+          case VK_CONTROL:
+            if(!IsKeyCASPressed && CtrlPressed && AltPressed && ShiftPressed)
+            {
+              if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed)
+              {
+                if(Opt.CASRule&2)
+                {
+                  IsKeyRCASPressed=TRUE;
+                  return (KEY_RCTRLALTSHIFTPRESS);
+                }
+              }
+              else if(Opt.CASRule&1)
+              {
+                IsKeyCASPressed=TRUE;
+                return (KEY_CTRLALTSHIFTPRESS);
+              }
+            }
+            break;
+          case VK_LSHIFT:
+          case VK_LMENU:
+          case VK_LCONTROL:
             if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed)
             {
-              if(Opt.CASRule&2)
+              if((Opt.CASRule&2))
               {
                 IsKeyRCASPressed=TRUE;
                 return (KEY_RCTRLALTSHIFTPRESS);
               }
             }
-            else if(Opt.CASRule&1)
-            {
-              IsKeyCASPressed=TRUE;
-              return (KEY_CTRLALTSHIFTPRESS);
-            }
-          }
-          break;
-        case VK_LSHIFT:
-        case VK_LMENU:
-        case VK_LCONTROL:
-          if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed)
-          {
-            if((Opt.CASRule&2))
-            {
-              IsKeyRCASPressed=TRUE;
-              return (KEY_RCTRLALTSHIFTPRESS);
-            }
-          }
-          break;
+            break;
+        }
+        /* SVS $ */
+        return(KEY_NONE);
       }
-      /* SVS $ */
-      return(KEY_NONE);
     }
     Panel::EndDrag();
   }
@@ -2258,6 +2321,17 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return(Modif|KEY_ESC);
   }
 
+
+  switch(KeyCode)
+  {
+    case VK_CAPITAL:
+      return(Modif|KEY_CAPSLOCK);
+    case VK_NUMLOCK:
+      return(Modif|KEY_NUMLOCK);
+    case VK_SCROLL:
+      return(Modif|KEY_SCROLLLOCK);
+  }
+
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed && ShiftPressed)
   {
@@ -2297,7 +2371,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
       case VK_MULTIPLY:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_MULTIPLY);
       case VK_PAUSE:
-        return(KEY_SHIFT|KEY_CTRLALT|KEY_BREAK);
+        return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
     }
     if (Char.UnicodeChar)
       return(KEY_SHIFT|KEY_CTRL|KEY_ALT+Char.UnicodeChar);
@@ -2345,8 +2419,12 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_V
         return(KEY_CTRLALT|KEY_DIVIDE);
       case VK_MULTIPLY:
         return(KEY_CTRLALT|KEY_MULTIPLY);
-      case VK_PAUSE:
-        return(KEY_CTRLALT|KEY_BREAK);
+      // KEY_EVENT_RECORD: Dn, 1, Vk="VK_CANCEL" [3/0x0003], Scan=0x0046 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x0000014A (CAsac - EcnS)
+      //case VK_PAUSE:
+      case VK_CANCEL: // Ctrl-Alt-Pause
+        if(!ShiftPressed && (CtrlState&ENHANCED_KEY))
+          return KEY_CTRLALT|KEY_PAUSE;
+        return KEY_NONE;
     }
     if (Char.UnicodeChar)
       return(KEY_CTRL|KEY_ALT+Char.UnicodeChar);
@@ -2417,10 +2495,8 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK
         //}
         //else
           return(KEY_ALTSHIFT|KEY_MULTIPLY);
-      case VK_CAPITAL:
-        return(KEY_NONE);
       case VK_PAUSE:
-        return(KEY_ALTSHIFT|KEY_BREAK);
+        return(KEY_ALTSHIFT|KEY_PAUSE);
     }
     if (Char.UnicodeChar)
     {
@@ -2505,6 +2581,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
         return(KEY_BREAK);
       case VK_MULTIPLY:
         return(KEY_MULTIPLY);
+      case VK_PAUSE:
+        return(KEY_PAUSE);
     }
   }
 
@@ -2536,6 +2614,10 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_
         return(KEY_CTRL|KEY_MULTIPLY);
       case VK_DIVIDE:
         return(KEY_CTRL|KEY_DIVIDE);
+      case VK_PAUSE:
+        if(CtrlState&ENHANCED_KEY)
+          return KEY_CTRL|KEY_NUMLOCK;
+        return(KEY_BREAK);
     }
 
     if(Opt.ShiftsKeyRules) //???
@@ -2605,7 +2687,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
 //        else
           return(KEY_ALT|KEY_MULTIPLY);
       case VK_PAUSE:
-        return(KEY_ALT+KEY_BREAK);
+        return(KEY_ALT+KEY_PAUSE);
     }
     if (Char.UnicodeChar)
     {
@@ -2624,8 +2706,6 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
            )
         return(KEY_ALT+Char.UnicodeChar);
     }
-    if (KeyCode==VK_CAPITAL)
-      return(KEY_NONE);
     if (!RealKey && KeyCode==VK_MENU)
       return(KEY_NONE);
     return(KEY_ALT+KeyCode);
@@ -2640,6 +2720,8 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
         return(KEY_SHIFT|KEY_DIVIDE);
       case VK_MULTIPLY:
         return(KEY_SHIFT|KEY_MULTIPLY);
+      case VK_PAUSE:
+        return(KEY_SHIFT|KEY_PAUSE);
     }
 
   }

@@ -992,26 +992,14 @@ int WINAPI GetSearchReplaceString (
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0);
 int WINAPI KeyNameMacroToKey(const wchar_t *Name);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
-/* $ 24.09.2000 SVS
- + Функция KeyNameToKey - получение кода клавиши по имени
-   Если имя не верно или нет такого - возвращается -1
-*/
 int WINAPI KeyNameToKey(const wchar_t *Name);
 BOOL WINAPI KeyToText (int Key, string &strKeyText);
-/* SVS $ */
-/* 01.08.2000 SVS $ */
-/* $ 31.08.2000 tran
-   FSF/FarInputRecordToKey */
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
-/* tran 31.08.2000 $ */
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false);
 DWORD PeekInputRecord(INPUT_RECORD *rec);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
-/* $ 24.08.2000 SVS
- + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
-*/
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0);
-/* SVS $ */
+int SetFLockState(UINT vkKey, int State);
 BOOL FARGetKeybLayoutNameW (string &strDest);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);

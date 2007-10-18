@@ -261,7 +261,7 @@ TVMStack VMStack;
 static char __code2symbol(BYTE b1, BYTE b2);
 static const char* ParsePlainText(char *CurKeyText, const char *BufPtr);
 static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText);
-
+static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);
 
 // функция преобразования кода макроклавиши в текст
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
@@ -1640,6 +1640,49 @@ static bool panelfexistFunc()
   return _fattrFunc(3);
 }
 
+// N=FLock(Nkey,NState)
+/*
+  Nkey:
+     0 - NumLock
+     1 - CapsLock
+     2 - ScrollLock
+
+  State:
+    -1 get state
+     0 off
+     1 on
+     2 flip
+*/
+static bool flockFunc()
+{
+  TVar Ret(-1);
+
+  int stateFLock=(int)VMStack.Pop().toInteger();
+  UINT vkKey=(UINT)VMStack.Pop().toInteger();
+
+  switch(vkKey)
+  {
+    case 0:
+      vkKey=VK_NUMLOCK;
+      break;
+    case 1:
+      vkKey=VK_CAPITAL;
+      break;
+    case 2:
+      vkKey=VK_SCROLL;
+      break;
+    default:
+      vkKey=0;
+      break;
+  }
+
+  if(vkKey)
+    Ret=(__int64)SetFLockState(vkKey,stateFLock);
+
+  VMStack.Push(Ret);
+  return Ret.i() != _i64(-1);
+}
+
 // V=Dlg.GetValue(ID,N)
 static bool dlggetvalueFunc()
 {
@@ -2786,6 +2829,7 @@ done:
         {MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
         {MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
         {MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
+        {MCODE_F_FLOCK,flockFunc},  // N=FLock(N,N)
         {MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
         {MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
         {MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
@@ -3852,6 +3896,55 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL /*NeedAddSendFlag*/)
   return TRUE;
 }
 
+void MacroState::Init(TVarTable *tbl)
+{
+  KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
+  MacroWORK=NULL;
+  if(!tbl)
+  {
+    AllocVarTable=true;
+    locVarTable=(TVarTable*)new TVarTable;
+    initVTable(*locVarTable);
+  }
+  else
+  {
+    AllocVarTable=false;
+    locVarTable=tbl;
+  }
+}
+
+int KeyMacro::PushState(bool CopyLocalVars)
+{
+  if(CurPCStack+1 >= STACKLEVEL)
+    return FALSE;
+  ++CurPCStack;
+  memcpy(PCStack+CurPCStack,&Work,sizeof(struct MacroState));
+  Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
+  return TRUE;
+}
+
+int KeyMacro::PopState()
+{
+  if(CurPCStack < 0)
+    return FALSE;
+  memcpy(&Work,PCStack+CurPCStack,sizeof(struct MacroState));
+  CurPCStack--;
+  return TRUE;
+}
+
+void initMacroVarTable(int global)
+{
+  if(global)
+    initVTable(glbVarTable);
+}
+
+void doneMacroVarTable(int global)
+{
+  if(global)
+    deleteVTable(glbVarTable);
+}
+
+
 // Парсер строковых эквивалентов в коды клавиш
 //- AN ----------------------------------------------
 //  Парсер строковых эквивалентов в байткод
@@ -3944,6 +4037,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_ENVIRON,          L"S=env(S)"},
     {MCODE_F_FATTR,            L"N=fattr(S)"},
     {MCODE_F_FEXIST,           L"S=fexist(S)"},
+    {MCODE_F_FLOCK,            L"N=FLock(N,N)"},
     {MCODE_F_FSPLIT,           L"S=fsplit(S,N)"},
     {MCODE_F_IIF,              L"V=iif(Condition,V1,V2)"},
     {MCODE_F_INDEX,            L"S=index(S1,S2)"},
@@ -4970,52 +5064,4 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
    strCurKeyText.ReleaseBuffer ();
 
    return BufPtr;
-}
-
-void MacroState::Init(TVarTable *tbl)
-{
-  KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
-  MacroWORK=NULL;
-  if(!tbl)
-  {
-    AllocVarTable=true;
-    locVarTable=(TVarTable*)new TVarTable;
-    initVTable(*locVarTable);
-  }
-  else
-  {
-    AllocVarTable=false;
-    locVarTable=tbl;
-  }
-}
-
-int KeyMacro::PushState(bool CopyLocalVars)
-{
-  if(CurPCStack+1 >= STACKLEVEL)
-    return FALSE;
-  ++CurPCStack;
-  memcpy(PCStack+CurPCStack,&Work,sizeof(struct MacroState));
-  Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
-  return TRUE;
-}
-
-int KeyMacro::PopState()
-{
-  if(CurPCStack < 0)
-    return FALSE;
-  memcpy(&Work,PCStack+CurPCStack,sizeof(struct MacroState));
-  CurPCStack--;
-  return TRUE;
-}
-
-void initMacroVarTable(int global)
-{
-  if(global)
-    initVTable(glbVarTable);
-}
-
-void doneMacroVarTable(int global)
-{
-  if(global)
-    deleteVTable(glbVarTable);
 }
