@@ -1,0 +1,419 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<html lang="ru" dir="ltr" xml:lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>SVN - FarGroupWiki</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<style>
+<!--
+pre          { background-color: #F0F0F0 }
+-->
+</style>
+</head>
+
+<body>
+
+<h1 class="firstHeading">SVN</h1>
+<p><b>Subversion</b> (дальше по тексту <b>SVN</b>) - это система контроля версий,
+призванная рано или поздно заменить CVS, избавив всех нас от многих проблем, связанных со старческими болезнями CVS.
+</p>
+<h2>Проекты которые уже заSVN&#39;ины</h2>
+<p>Дабы случайно не забыли ко всем линкам добавил trunk (читайте пособие ниже если
+не знаете что это и зачем).<br>
+Чтоб получить личный username:password обращяйтесь ко мне trexinc@gmail.com<br>
+</p>
+<ul>
+    <li><b>Для тренировки</b> (имя - fargroup, пароль - secret) - svn://farmanager.com/svn/test/trunk
+    (<a class="external text" title="http://www.farmanager.com/viewvc/test/trunk/" href="http://www.farmanager.com/viewvc/test/trunk/" rel="nofollow">View</a>)
+    </li>
+    <li><b>Документация Фара</b> - svn://farmanager.com/svn/misc/docs/trunk (<a class="external text" title="http://farmanager.com/viewvc/misc/docs/trunk" href="http://farmanager.com/viewvc/misc/docs/trunk" rel="nofollow">View</a>)
+    </li>
+    <li><b>Addons Фара</b> - svn://farmanager.com/svn/misc/addons/trunk (<a class="external text" title="http://farmanager.com/viewvc/misc/addons/trunk" href="http://farmanager.com/viewvc/misc/addons/trunk" rel="nofollow">View</a>)
+    </li>
+    <li><b>Енциклопедия</b>
+    <ul>
+        <li><b>Русские мета файлы</b> - svn://farmanager.com/svn/enc/meta_rus/trunk
+        (<a class="external text" title="http://farmanager.com/viewvc/enc/meta rus/trunk" href="http://farmanager.com/viewvc/enc/meta_rus/trunk" rel="nofollow">View</a>)
+        </li>
+        <li><b>Английские мета файлы</b> - svn://farmanager.com/svn/enc/meta_eng/trunk
+        (<a class="external text" title="http://farmanager.com/viewvc/enc/meta eng/trunk" href="http://farmanager.com/viewvc/enc/meta_eng/trunk" rel="nofollow">View</a>)
+        </li>
+        <li><b>Tools</b> - svn://farmanager.com/svn/enc/tools/trunk (<a class="external text" title="http://farmanager.com/viewvc/enc/tools/trunk" href="http://farmanager.com/viewvc/enc/tools/trunk" rel="nofollow">View</a>)
+        </li>
+    </ul>
+    </li>
+    <li><b>Плагины</b>
+    <ul>
+        <li><b>Общее</b>
+        <ul>
+            <li><b>Common</b> - svn://farmanager.com/svn/plugins/common/trunk (<a class="external text" title="http://farmanager.com/viewvc/plugins/common/trunk" href="http://farmanager.com/viewvc/plugins/common/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+        <li><b>Редакторные плагины</b>
+        <ul>
+            <li><b>Align</b> - svn://farmanager.com/svn/plugins/align/trunk (<a class="external text" title="http://farmanager.com/viewvc/plugins/align/trunk" href="http://farmanager.com/viewvc/plugins/align/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Autowrap</b> - svn://farmanager.com/svn/plugins/autowrap/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/autowrap/trunk" href="http://farmanager.com/viewvc/plugins/autowrap/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Brackets</b> - svn://farmanager.com/svn/plugins/brackets/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/brackets/trunk" href="http://farmanager.com/viewvc/plugins/brackets/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Drawline</b> - svn://farmanager.com/svn/plugins/drawline/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/drawline/trunk" href="http://farmanager.com/viewvc/plugins/drawline/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Editcase</b> - svn://farmanager.com/svn/plugins/editcase/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/editcase/trunk" href="http://farmanager.com/viewvc/plugins/editcase/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+        <li><b>Поддержка архивов</b>
+        <ul>
+            <li><b>Multiarc</b> - svn://farmanager.com/svn/plugins/multiarc/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/multiarc/trunk" href="http://farmanager.com/viewvc/plugins/multiarc/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Newarc</b> - svn://farmanager.com/svn/plugins/newarc/trunk (<a class="external text" title="http://farmanager.com/viewvc/plugins/newarc/trunk" href="http://farmanager.com/viewvc/plugins/newarc/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+        <li><b>Для чайников</b>
+        <ul>
+            <li><b>Helloworld</b> - svn://farmanager.com/svn/plugins/helloworld/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/helloworld/trunk" href="http://farmanager.com/viewvc/plugins/helloworld/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+        <li><b>Девелоперские</b>
+        <ul>
+            <li><b>Hlfviewer</b> - svn://farmanager.com/svn/plugins/hlfviewer/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/hlfviewer/trunk" href="http://farmanager.com/viewvc/plugins/hlfviewer/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+        <li><b>Сетевые</b>
+        <ul>
+            <li><b>Ftp</b> - svn://farmanager.com/svn/plugins/ftp/trunk (<a class="external text" title="http://farmanager.com/viewvc/plugins/ftp/trunk" href="http://farmanager.com/viewvc/plugins/ftp/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Network</b> - svn://farmanager.com/svn/plugins/network/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/network/trunk" href="http://farmanager.com/viewvc/plugins/network/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+        <li><b>Прочие</b>
+        <ul>
+            <li><b>Compare</b> - svn://farmanager.com/svn/plugins/compare/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/compare/trunk" href="http://farmanager.com/viewvc/plugins/compare/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Emenu</b> - svn://farmanager.com/svn/plugins/emenu/trunk (<a class="external text" title="http://farmanager.com/viewvc/plugins/emenu/trunk" href="http://farmanager.com/viewvc/plugins/emenu/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Farcmds</b> - svn://farmanager.com/svn/plugins/farcmds/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/farcmds/trunk" href="http://farmanager.com/viewvc/plugins/farcmds/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Filecase</b> - svn://farmanager.com/svn/plugins/filecase/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/filecase/trunk" href="http://farmanager.com/viewvc/plugins/filecase/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Proclist</b> - svn://farmanager.com/svn/plugins/proclist/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/proclist/trunk" href="http://farmanager.com/viewvc/plugins/proclist/trunk" rel="nofollow">View</a>)
+            </li>
+            <li><b>Tmppanel</b> - svn://farmanager.com/svn/plugins/tmppanel/trunk
+            (<a class="external text" title="http://farmanager.com/viewvc/plugins/tmppanel/trunk" href="http://farmanager.com/viewvc/plugins/tmppanel/trunk" rel="nofollow">View</a>)
+            </li>
+        </ul>
+        </li>
+    </ul>
+    </li>
+</ul>
+<p>P.S. Доступ он как по svn:// так и по http:// </p>
+
+<a name=".D0.9A.D1.80.D0.B0.D1.82.D0.BA.D0.BE.D0.B5_.D0.BF.D0.BE.D1.81.D0.BE.D0.B1.D0.B8.D0.B5">
+</a>
+<h2>Краткое пособие</h2>
+<p>Теперь краткое пособие по работе с <b>svn</b>, полная информация есть тут
+<a class="external text" title="http://svnbook.red-bean.com/" href="http://svnbook.red-bean.com/" rel="nofollow">
+svnbook</a>. </p>
+<p>Всё почти как с
+CVS но
+главное различие в том что в SVN вместо тегов есть немного другая система, кроме
+того svn отличается отличным binary diff и в общем работает со всеми файлами как
+с бинарными, а также имеется команда svn move и в будущем обещают команду rename.
+</p>
+<p>Repository для каждой программы надо создавать с такой структурой папок </p>
+<ul>
+    <li>
+    trunk </li>
+    <li>
+    tags </li>
+    <li>
+    branches </li>
+</ul>
+<p>В папку
+<b>trunk</b> идёт сам проект и с этой папкой в общем и работают. Когда, например, релизиться
+версия или надо пометить текущий код то выполняется команда </p>
+<pre>svn copy svn://farmanager.com/project_name/trunk svn://farmanager.com/project_name/tags/release_name -m &quot;Remark&quot;
+</pre>
+<p>которая создаёт в
+<b>tags</b> новую папку с как бы линками на текущее состояние файлов в
+<b>trunk</b> котороё можно потом очень простым способом просмотреть.</p>
+<p>Так же очень легко узнать какие <b>tags</b> есть так как этой папке можно делать </p>
+<pre>svn ls svn://farmanager.com/project_name/tags
+</pre>
+<p><br>
+Чтобы, например, начать работать с готовым проектом надо сделать
+<b>checkout</b>, например так: </p>
+<pre>svn co svn://farmanager.com/project_name/trunk project_name
+</pre>
+<p>что создаст в локальной папке <b>project_name</b> копию внутренностей <b>trunk</b>. С этой папкой теперь можно начать работать в привычном виде, т.е. редактировать
+делать
+svn add и
+svn commit. Назовём эту локальную папку <b>Рабочая копия</b>. </p>
+<p>Для команды
+svn commit и
+svn copy надо обязательно задавать текст объяснений. Это делается таким образом:
+</p>
+<pre>svn commit -m &quot;log message&quot;
+</pre>
+<p>Например, если вы хотите добавить новый файл в проект, то надо скопировать его
+в то место в вашей рабочей копии (та которую вы
+checkout) и выполнить команду </p>
+<pre>svn add filename
+</pre>
+<p>а потом сделать </p>
+<pre>svn commit
+</pre>
+<p>чтоб обновить его в
+repository. </p>
+<p>Также есть команды </p>
+<pre>svn mkdir
+svn move
+svn copy
+</pre>
+<p>которые можно использовать как и с локальными путями так и с прямым доступом
+к серверу. Используйте эти команды, если вы хотите произвести эти действия над файлами
+в вашей рабочей копии. </p>
+<p>Чтоб получит обновления из
+repository Надо выполнить </p>
+<pre>svn update
+</pre>
+<p>Заметьте что все файл перепишутся теми, что есть в
+repository. Потом есть ещё такой классный прикол, скажем ты изменял файлы но
+кто то за это время сделал комит и ты до того как закомитить делаешь update то если
+твои изменения не мешают новым изменениям то они будут смерджены в твой файл без
+потери твоих изменений, а если они да мешают друг друг то твой файл переименуется
+но во всяком случае ни чего не потеряется. </p>
+<p>Команда </p>
+<pre>svn status
+</pre>
+<p>позволяет просмотреть отличия рабочей копии от вашего последнего
+комита. </p>
+<a name=".D0.A1.D0.BE.D0.B7.D0.B4.D0.B0.D0.BD.D0.B8.D0.B5_repository"></a>
+<h2>Создание repository</h2>
+<p>Чтоб создать
+repository надо на сервере выполнить следующую команду: </p>
+<pre>svnadmin create --fs-type fsfs /svnroot/project_name
+</pre>
+<p>и отредактировать <b>/svnroot/project_name/conf/svnserve.conf</b>, чтоб настроить
+доступ.<br>
+</p>
+<p>После создания repository надобно создать начальную структуру папок, примерно
+вот так: </p>
+<pre>svn checkout svn://farmanager.com/repos_name _local_folder_name_
+</pre>
+<p>зайти в _local_folder_name_ и там </p>
+<pre>svn mkdir trunk tags branches
+svn commit -m &quot;Initial commit&quot;
+</pre>
+<p>теперь эту папку можно стереть и сделать уже checkout для trunk папки repository
+</p>
+<pre>svn checkout svn://farmanager.com/repos_name/trunk _local_folder_name_
+</pre>
+<p>теперь папка _local_folder_name_ это рабочая копия проекта и туда добавляются
+все файлы и там проходит вся работа над ними.<br>
+</p>
+<p>У
+svnserve.conf следующий формат: </p>
+<pre>[general]
+anon-access = read
+auth-access = write
+password-db = /svnroot/passwd_file
+authz-db    = /svnroot/authz_file
+realm = FAR Plugins
+</pre>
+<ul>
+    <li>anon-access - контролирует доступ anonymous, может быть <b>none</b>, <b>
+    read</b>, <b>write</b>. Должен быть <b>none</b> чтоб правильно работал authz-db.
+    </li>
+    <li>auth-access - контролирует запароленный доступ, может быть <b>none</b>,
+    <b>read</b>, <b>write</b>. Должен быть закоментирован чтоб правильно работал
+    authz-db. </li>
+    <li>password-db - путь к файлу паролей </li>
+    <li>authz-db - путь к файлу настроек доступа </li>
+    <li>realm - проcто имя которое покажется при запросе пароля </li>
+</ul>
+<p>У файла паролей следующий формат: </p>
+<pre>[users]
+useranme = password
+</pre>
+<p>и так сколько надо </p>
+<p>У файла настроек доступа следующий формат: </p>
+<pre>[groups]
+fardevs=roshal,skirda,xecutor,cosm,spinoza,tran,vvm,warp,trex,che
+ftpdevs=jurim
+proclistdevs=yms
+networkdevs=karbazol
+#Полный доступ ко всему репоситорию членам группы fardevs
+[/]
+@fardevs=rw
+#У юзера fargroup есть доступ только к /test и его подпапкам.
+[/test]
+fargroup=rw
+[/plugins/ftp]
+@ftpdevs=rw
+[/plugins/proclist]
+@proclistdevs=rw
+[/plugins/network]
+@networkdevs=rw
+</pre>
+<p>также, например чтоб открыть доступ всем для чтения можно добавить </p>
+<pre>[/]
+* = r
+</pre>
+<a name=".D0.94.D0.BE.D1.81.D1.82.D1.83.D0.BF_.D0.BF.D0.BE_svn:.2F.2F"></a>
+<h2>Доступ по svn://</h2>
+<p>Чтоб настроить доступ по svn:// надобно запустить (как root): </p>
+<pre>svnserve -d -r /svnroot
+</pre>
+<a name=".D0.94.D0.BE.D1.81.D1.82.D1.83.D0.BF_.D0.BF.D0.BE_http:.2F.2F"></a>
+<h2>Доступ по http://</h2>
+<p>Чтоб настроить доступ по http надобно прописать в httpd.conf такое: </p>
+<pre>&lt;Location /svn&gt;
+ DAV svn
+ SVNPath /svnroot/svn
+ # our access control policy
+ AuthzSVNAccessFile /svnroot/authz
+ # try anonymous access first, resort to real
+ # authentication if necessary.
+ Satisfy Any
+ Require valid-user
+ # how to authenticate a user
+ AuthType Basic
+ AuthName &quot;FAR SVN&quot;
+ AuthUserFile /svnroot/passwd
+&lt;/Location&gt;
+</pre>
+<p>Это настроит svn работать по http таким же образом как и по svn://. Можно (и
+желательно) использовать тот же файл настроек доступа, но файл паролей должен быть
+свой, созданный с htpasswd. </p>
+<p>create new passwd file: </p>
+<pre> htpasswd -b -c passwdfile user pass
+</pre>
+<p>add user:pass to file: </p>
+<pre> htpasswd -b passwdfile user pass
+</pre>
+<p>Также важно настроить доступ записи для Apache в папку где лежит репозиторий,
+у нас писать в эту папку разрешено группе svnadmins - т.е. надо чтоб Apache был
+членом этой группы. </p>
+<a name="Diff"></a>
+<h2>Diff</h2>
+<p>Чтоб увидеть разницу между разными комитами есть следующая команда </p>
+<pre>svn diff -r NUM:NUM &gt; temp.diff
+</pre>
+<p>Где NUM:NUM это или номера ревизий или дата или спец команды, например чтоб получить
+дифф от предыдущей версий </p>
+<pre>svn diff -r PREV:COMMITTED &gt; temp.diff
+</pre>
+<p>или скажем разницу 16 ревизии от 17 </p>
+<pre>svn diff -r 16:17 &gt; temp.diff
+</pre>
+<p>Это даст разницу всех изменёных файлов. </p>
+<p>Чтоб получить разницу определённых файлов это будет выглядеть так </p>
+<pre>svn diff --old=filename@16 --new=filename@17
+</pre>
+<p><br>
+</p>
+<a name=".D0.9F.D0.BE.D0.BB.D1.83.D1.87.D0.B8.D1.82.D1.8C_.D1.80.D0.B5.D0.BB.D0.B8.D0.B7">
+</a>
+<h2>Получить релиз</h2>
+<p>Скажем вы хотите релизить, и надо получить все файлы без этих .svn папок - так
+это очень просто: </p>
+<pre>svn export _путь_к_рабочей_копии_ _путь_куда_закинуть_файлы_
+</pre>
+<p>или напрямую с сервера </p>
+<pre>svn export svn://farmanager.com/имя_проекта/trunk _путь_куда_закинуть_файлы_
+</pre>
+<a name=".D0.94.D0.BE.D0.BF._.D0.BA.D0.BE.D0.BC.D0.B0.D0.BD.D0.B4.D1.8B_.D0.B4.D0.BB.D1.8F_.D1.80.D0.B0.D0.B1.D0.BE.D1.82.D1.8B_.D1.81_.D0.A0.D0.B0.D0.B1.D0.BE.D1.87.D0.B5.D0.B9_.D0.BA.D0.BE.D0.BF.D0.B8.D0.B5.D0.B9">
+</a>
+<h2>Доп. команды для работы с Рабочей копией</h2>
+<p>Чтоб получить помощь по командам svn </p>
+<pre>svn help _команда_
+</pre>
+<a name=".D0.93.D0.B4.D0.B5_.D0.B2.D0.B7.D1.8F.D1.82.D1.8C"></a>
+<h2>Где взять</h2>
+<p>Сам
+svn клиент можно взять тут <a href="http://subversion.tigris.org" title="http://subversion.tigris.org" rel="nofollow">SVN</a>. </p>
+<p>Книга <b>Управление версиями в Subversion</b> -
+<a class="external text" title="http://svnbook.red-bean.com/nightly/ru/" href="http://svnbook.red-bean.com/nightly/ru/" rel="nofollow">
+по частям</a>,
+<a class="external text" title="http://svnbook.red-bean.com/nightly/ru/svn-book.html" href="http://svnbook.red-bean.com/nightly/ru/svn-book.html" rel="nofollow">
+текст на одной странице</a> </p>
+<a name=".D0.97.D0.B0.D0.BC.D0.B5.D1.82.D0.BA.D0.B8"></a>
+<h2>Заметки</h2>
+<a name=".D0.92.D0.B0.D0.B6.D0.BD.D0.BE.21"></a>
+<h3>Важно!</h3>
+если вы ставите svn из zip файла то надо в ручную выставить environment variable
+APR_ICONV_PATH чтоб показывал на папку iconv в папке svn, а то не будут работать
+комиты с русским текстом в лог коменте.
+
+<h2>Svn update.cmd</h2>
+                Допустим, мы все проекты аккуратно &quot;сложили&quot; (svn co) в
+                отдельную папку. В эту же папку складываем <b>svn_update.cmd</b>:
+                <h3>Plain</h3>
+                <pre>@echo off
+FOR /D %%i IN (*) DO (
+  echo Update %%i
+  cd %%i
+  svn update
+  cd ..
+)
+</pre>
+                <p>Теперь можно апдейтиться одним кликом&nbsp;:-) </p>
+                <h3>Иерархия</h3>
+                <p>Если соблюсти иерархию каталогов (плагины к плагинам, доки к
+                докам, etc.), то батник может быть таким: </p>
+                <pre>@echo off
+if exist .svn exit /B
+FOR /D %%i IN (*) DO (
+  cd %%i
+  call %0
+  echo Update %%i
+  svn update
+  cd ..
+)
+</pre>
+
+
+<a name=".D0.9A.D0.BE.D0.BC.D0.BF.D0.B8.D0.BB.D1.8F.D1.86.D0.B8_SVN_.D0.BD.D0.B0_.D1.81.D0.B5.D1.80.D0.B2.D0.B0.D0.BA.D0.B5"></a>
+<h2>Компиляци SVN на серваке</h2>
+<ul>
+    <li>Качаем сорцы в tar.gz, открываем их, становимся рутом. </li>
+    <li>./configure --with-apr=/usr/local/apache2 --with-apr-util=/usr/local/apache2
+    --without-neon </li>
+    <li>не забываем убить svnserve если он работает </li>
+    <li>make </li>
+    <li>стираем старые либы чтоб они не слинковались случайно вместо новых (может
+    даже лучше mv пока не закончили собирать). </li>
+<pre># rm -f /usr/local/lib/libsvn*
+# rm -f /usr/local/lib/libapr*
+# rm -f /usr/local/lib/libexpat*
+# rm -f /usr/local/lib/libneon*
+</pre>
+    <li>make install </li>
+    <li>make swig-py (это нужно для viewcvs и для скрипта рассылки диффоф) </li>
+    <li>make install-swig-py </li>
+    <li>всё svn собран - надо перезапустить apache и svnserve </li>
+</ul>
+
+
+</body>
+
+</html>
