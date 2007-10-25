@@ -54,20 +54,15 @@ ControlObject::ControlObject()
   _OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
   FPanels=0;
   CtrlObject=this;
-  /* $ 06.05.2001 DJ
-     создаем динамически (для уменьшения dependencies)
-  */
+
   HiFiles = new HighlightFiles;
   ViewerPosCache = new FilePositionCache(FPOSCACHE_64);
   EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
-  /* DJ $ */
+
   ReadConfig();
-  /* $ 28.02.2001 IS
-       Создадим обязательно только после того, как прочитали настройки
-  */
+
   CmdLine=new CommandLine;
-  /* IS $ */
 
   CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
   FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
@@ -113,14 +108,12 @@ void ControlObject::Init()
 
   Cp()->LeftPanel->Update(0);
   Cp()->RightPanel->Update(0);
-  /* $ 07.09.2000 tran
-    + Config//Current File */
+
   if (Opt.AutoSaveSetup)
   {
       Cp()->LeftPanel->GoToFile(Opt.strLeftCurFile);
       Cp()->RightPanel->GoToFile(Opt.strRightCurFile);
   }
-  /* tran 07.09.2000 $ */
 
   FrameManager->InsertFrame(FPanels);
 
@@ -175,9 +168,6 @@ ControlObject::~ControlObject()
   delete FolderHistory;
   delete ViewHistory;
   delete CmdLine;
-  /* $ 06.05.2001 DJ
-     удаляем то, что создали динамически
-  */
   delete HiFiles;
 
   if (Opt.ViOpt.SaveViewerPos)
@@ -189,7 +179,6 @@ ControlObject::~ControlObject()
 
   delete EditorPosCache;
   delete FrameManager;
-  /* DJ $ */
 
   SIDCacheFlush();
   Lang.Close();
@@ -197,12 +186,6 @@ ControlObject::~ControlObject()
 }
 
 
-/* $ 25.11.2000 SVS
-   Copyright в 2 строки
-*/
-/* $ 15.12.2000 SVS
- Метод ShowCopyright - public static & параметр Flags.
-*/
 void ControlObject::ShowCopyright(DWORD Flags)
 {
   char Str[256];
@@ -244,9 +227,6 @@ void ControlObject::ShowCopyright(DWORD Flags)
       Text(strStr);
   }
 }
-/* SVS $ */
-/* SVS $ */
-
 
 FilePanels* ControlObject::Cp()
 {

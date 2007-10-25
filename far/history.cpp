@@ -553,11 +553,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
   {
     VMenu HistoryMenu(Title,NULL,0,Height);
-    /* $ 06.11.2001 IS
-       ! Меню теперь у нас с прокруткой (Wrap)
-    */
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-    /* IS $ */
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
@@ -691,8 +687,6 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
           case KEY_NUMDEL:
           case KEY_DEL:
-          /* $ 23.07.2001 VVM
-            + Спросить подтверждение перед удалением */
           {
             if(HistoryMenu.GetItemCount() > 1 &&
                (!Opt.Confirm.HistoryClear ||
@@ -714,7 +708,6 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
             break;
           }
 
-          /* VVM $ */
           default:
             HistoryMenu.ProcessInput();
             break;

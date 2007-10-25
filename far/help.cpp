@@ -207,17 +207,10 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
   StackData.strHelpTopic = L"";
   StackData.strSelTopic = L"";
 
-  /* $ 01.09.2000 SVS
-     Установим по умолчанию текущий цвет отрисовки...
-  */
+  //   Установим по умолчанию текущий цвет отрисовки...
   CurColor=COL_HELPTEXT;
-  /* SVS $ */
 
-  /* $ 27.11.2001 DJ
-     не забудем инициализировать
-  */
   CtrlTabSize = 8;
-  /* DJ $ */
 
   StackData.strHelpMask = NullToEmpty(Mask); // сохраним маску файла
 
@@ -410,7 +403,6 @@ int Help::ReadHelp(const wchar_t *Mask)
   */
   if (!Language::GetLangParam (HelpFile,L"PluginContents",&strCurPluginContents, NULL, nCodePage))
     strCurPluginContents = L"";
-  /* DJ $ */
 
   *SplitLine=0;
   if (HelpData)
@@ -760,12 +752,8 @@ void Help::FastShow()
 {
   int I;
 
-  /* $ 29.11.2001 DJ
-     отрисовка рамки -> в отдельную функцию
-  */
   if (!Locked())
     DrawWindowFrame();
-  /* DJ $ */
 
   CorrectPosition();
   StackData.strSelTopic=L"";
@@ -774,7 +762,6 @@ void Help::FastShow()
      чтобы новая тема начиналась с нормальными атрибутами
   */
   CurColor=COL_HELPTEXT;
-  /* SVS $ */
   for (I=0;I<Y2-Y1-1;I++)
   {
     int StrPos;
@@ -820,10 +807,6 @@ void Help::FastShow()
   }
 }
 
-/* $ 29.11.2001 DJ
-   вытащена из FastShow; добавлен показ того, чей у нас хелп
-*/
-
 void Help::DrawWindowFrame()
 {
   SetScreen(X1,Y1,X2,Y2,L' ',COL_HELPTEXT);
@@ -837,16 +820,10 @@ void Help::DrawWindowFrame()
     strHelpTitleBuf += strCurPluginContents;
   else
     strHelpTitleBuf += L"FAR";
-  /* $ 03.12.2001 DJ
-     обрежем длинный заголовок
-  */
   TruncStrFromEnd(strHelpTitleBuf,X2-X1-3);
-  /* DJ $ */
   GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.GetLength()-2)/2,Y1);
   mprintf(L" %s ", (const wchar_t*)strHelpTitleBuf);
 }
-
-/* DJ $ */
 
 /* $ 01.09.2000 SVS
   Учтем символ CtrlColorChar & CurColor
@@ -904,7 +881,6 @@ void Help::OutString(const wchar_t *Str)
             }
 
             StackData.strSelTopic.ReleaseBuffer ();
-            /* SVS $ */
           }
         }
         else
@@ -919,7 +895,6 @@ void Help::OutString(const wchar_t *Str)
         ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
       if (static_cast<int>(StrLength(OutStr) + WhereX()) > X2)
         OutStr[X2 - WhereX()] = 0;
-      /* VVM $ */
       if (Locked())
         GotoXY(WhereX()+StrLength(OutStr),WhereY());
       else
@@ -947,7 +922,6 @@ void Help::OutString(const wchar_t *Str)
       while (*Str)
         if (*(++Str)==L'@' && *(Str-1)!=L'@')
           break;
-      /* SVS $ */
       Str++;
       continue;
     }
@@ -1021,7 +995,6 @@ int Help::StringLen(const wchar_t *Str)
       while (*Str)
         if (*(++Str)==L'@' && *(Str-1)!=L'@')
           break;
-      /* SVS $ */
       Str++;
       continue;
     }
@@ -1042,7 +1015,6 @@ int Help::StringLen(const wchar_t *Str)
         continue;
       }
     }
-    /* SVS $ */
 
     if (*Str!=L'#' && *Str!=L'~')
       Length++;
@@ -1259,8 +1231,6 @@ int Help::ProcessKey(int Key)
 
     /* $ 26.07.2001 VVM
       + С альтом скролим по 1 */
-    /* $ 07.05.2001 DJ
-      + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
     {
@@ -1277,8 +1247,6 @@ int Help::ProcessKey(int Key)
         ProcessKey(KEY_DOWN);
       return(TRUE);
     }
-    /* DJ $ */
-    /* VVM $ */
 
     case KEY_PGUP:      case KEY_NUMPAD9:
     {
@@ -1490,7 +1458,6 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     strFullPath.Format (addSlash?HelpFormatLink:HelpFormatLinkModule, (const wchar_t*)strNewTopic, wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink)+1);
     StackData.strSelTopic = strFullPath;
   }
-  /* IS 14.07.2002 $ */
 //_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData.SelTopic));
   // URL активатор - это ведь так просто :-)))
   {
@@ -1668,7 +1635,6 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ProcessKey(KEY_ENTER);
     return(TRUE);
   }
-  /* VVM $ */
 
   int MsX,MsY;
   MsX=MouseEvent->dwMousePosition.X;
@@ -1725,7 +1691,6 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return TRUE;
     }
   }
-  /* DJ $ */
 
   // DoubliClock - свернуть/развернуть хелп.
   if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
@@ -1763,7 +1728,6 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     MouseDown = FALSE;
     ProcessKey(KEY_ENTER);
   }
-  /* VVM $ */
 //  if ((MouseEvent->dwButtonState & 3)==0 && *StackData.SelTopic)
 //    ProcessKey(KEY_ENTER);
   return(TRUE);
@@ -1774,13 +1738,9 @@ int Help::IsReferencePresent()
 {
   CorrectPosition();
   int StrPos=FixCount+StackData.TopStr+StackData.CurY;
-  /* $ 19.09.2000 OT
-    Ошибка при отрисовки хелпа
-    */
   if (StrPos >= StrCount) {
     return FALSE;
   }
-  /* OT 19.09.2000 $ */
   wchar_t *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
   return (wcschr(OutStr,L'@')!=NULL && wcschr(OutStr,L'~')!=NULL);
 }
@@ -1862,7 +1822,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
      это не плагин -> чистим CurPluginContents
   */
   strCurPluginContents = L"";
-  /* DJ $ */
 
   StrCount=0;
   FixCount=1;
@@ -2001,7 +1960,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */
   AddLine(L"");
-  /* IS $ */
 }
 
 // Формирование топика с учетом разных факторов
@@ -2060,7 +2018,6 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
                 в котором путь для топика должен заканчиваться "/".
             */
             memmove(Ptr2+1,Ptr,(StrLength(Ptr)+1)*sizeof(wchar_t)); //???
-            /* KM $ */
 
             // А вот ЗДЕСЬ теперь все по правилам Help API!
           }
@@ -2088,11 +2045,7 @@ void Help::SetScreenPosition()
     SetPosition(4,2,ScrX-4,ScrY-2);
   Show();
 }
-/* tran $ */
 
-/* $ 30.12.2000 SVS
-  Функция инициализации KeyBar Labels
-*/
 void Help::InitKeyBar(void)
 {
   HelpKeyBar.SetAllGroup (KBL_MAIN, MHelpF1, 12);
@@ -2117,7 +2070,6 @@ void Help::InitKeyBar(void)
 
   SetKeyBar(&HelpKeyBar);
 }
-/* SVS $ */
 
 /* $ 25.08.2000 SVS
    Запуск URL-ссылок... ;-)

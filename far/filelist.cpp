@@ -75,9 +75,6 @@ enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
 FileList::FileList()
 {
   _OT(SysLog(L"[%p] FileList::FileList()", this));
-  /* $ 09.11.2001 IS
-       Проинициализируем наши "скобки"
-  */
   {
     const wchar_t *data=UMSG(MPanelBracketsForLongName);
     if(StrLength(data)>1)
@@ -92,7 +89,7 @@ FileList::FileList()
     }
     openBracket[1]=closeBracket[1]=0;
   }
-  /* IS $ */
+
   Type=FILE_PANEL;
   FarGetCurDir(strCurDir);
   hPlugin=INVALID_HANDLE_VALUE;
@@ -147,11 +144,7 @@ FileList::~FileList()
     DeleteListData(PrevDataStack[I]->PrevListData,PrevDataStack[I]->PrevFileCount);
     delete PrevDataStack[I];
   }
-  /* $ 29.11.2001 DJ
-     выделяли через realloc - освобождать надо через free
-  */
   if(PrevDataStack) xf_free (PrevDataStack);
-  /* DJ $ */
   DeleteListData(ListData,FileCount);
   if (PanelMode==PLUGIN_PANEL)
     while (PopPlugin(FALSE))
@@ -175,11 +168,8 @@ void FileList::DeleteListData(struct FileListItem **(&ListData),long &FileCount)
         delete[] CurPtr->CustomColumnData[J];
       delete[] CurPtr->CustomColumnData;
     }
-    /* $ 18.01.2003 VVM
-      - Выделяли через malloc() и освобождать будем через free() */
     if (CurPtr->UserFlags & PPIF_USERDATA)
       xf_free((void *)CurPtr->UserData);
-    /* VVM $ */
     if (CurPtr->DizText && CurPtr->DeleteDiz)
       delete[] CurPtr->DizText;
 
@@ -441,7 +431,6 @@ void FileList::SetFocus()
   */
   if (!IsRedrawFramesInProcess)
     SetTitle();
-  /* KM $ */
 }
 
 int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
@@ -717,7 +706,6 @@ int FileList::ProcessKey(int Key)
     else if(Key == KEY_SHIFTRIGHT || Key == KEY_SHIFTNUMPAD6)
       Key=KEY_SHIFTPGDN;
   }
-  /* SVS$ */
 
   switch(Key)
   {
@@ -844,7 +832,6 @@ int FileList::ProcessKey(int Key)
       SetCurPath();
       return(TRUE);
     }
-    /* VVM $ */
 
     case KEY_CTRLNUMENTER:
     case KEY_CTRLSHIFTNUMENTER:
@@ -913,9 +900,7 @@ int FileList::ProcessKey(int Key)
                 if (ViewSettings.FileUpperToLowerCase)
                   if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(strFileName))
                      strFileName.Lower();
-                /* tran $ */
               }
-              /* SVS $*/
               strFullName += strFileName;
               strFileName = strFullName;
             }
@@ -933,7 +918,6 @@ int FileList::ProcessKey(int Key)
                 strPrefix += strFileName;
                 strFileName = strPrefix;
             }
-            /* IS $ */
           }
           if(Opt.QuotedName&QUOTEDNAME_INSERT)
             QuoteSpace(strFileName);
@@ -1195,7 +1179,7 @@ int FileList::ProcessKey(int Key)
               {
                 PluginMode=FALSE;
               }
-              /* IS $ */
+
               {
                 // проверим путь к файлу
                 wchar_t *lpwszStart=strFileName.GetBuffer ();
@@ -1301,7 +1285,6 @@ int FileList::ProcessKey(int Key)
            должно быт равно false, т.к. внутренний вьюер сам все удалит.
         */
         bool DeleteViewedFile=PluginMode && !Edit;
-        /* IS $ */
         if ( !strFileName.IsEmpty () )
           if (Edit)
           {
@@ -1320,10 +1303,8 @@ int FileList::ProcessKey(int Key)
 
             if (!Processed || Key==KEY_CTRLSHIFTF4)
             {
-            /* IS $ */
               if (EnableExternal)
                 ProcessExternal(Opt.strExternalEditor,strFileName,strShortFileName,PluginMode);
-                /* IS $ */
               else if (PluginMode)
               {
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
@@ -1338,7 +1319,6 @@ int FileList::ProcessKey(int Key)
                      или нет, все равно добавим его на панель плагина.
                 */
                 UploadFile=ShellEditor.IsFileChanged() || NewFile;
-                /* IS $ */
                 Modaling=TRUE;///
               }
               else
@@ -1435,7 +1415,6 @@ int FileList::ProcessKey(int Key)
                Processed=TRUE;
 
             if (!Processed || Key==KEY_CTRLSHIFTF3)
-            /* IS $ */
               if (EnableExternal)
                 ProcessExternal(Opt.strExternalViewer,strFileName,strShortFileName,PluginMode);
               else
@@ -1453,15 +1432,13 @@ int FileList::ProcessKey(int Key)
                 FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData,&ViewList);
 
                 /* $ 08.04.2002 IS
-                   Сбросим DeleteViewedFile, т.к. внутренний вьюер сам все
-                   удалит
+                   Сбросим DeleteViewedFile, т.к. внутренний вьюер сам все удалит
                 */
                 if (PluginMode)
                 {
                   ShellViewer->SetTempViewName(strFileName);
                   DeleteViewedFile=false;
                 }
-                /* IS $ */
                 Modaling=FALSE;
               }
           }
@@ -1479,7 +1456,6 @@ int FileList::ProcessKey(int Key)
             // внешнем вьюере, т.к. внутренний вьюер удаляет файл сам
             DeleteFileWithFolder(strFileName);
         }
-        /* IS $ */
         if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)) && RefreshedPanel)
         {
           //if (!PluginMode || UploadFile)
@@ -1505,7 +1481,6 @@ int FileList::ProcessKey(int Key)
          потому что этот viewer, editor могут нам неверно восстановить
          */
 //      CtrlObject->Cp()->Redraw();
-      /* tran 15.07.2000 $ */
       return(TRUE);
     }
 
@@ -1601,7 +1576,6 @@ int FileList::ProcessKey(int Key)
             AnotherPanel->SetCurDir(strCurDir,FALSE);
             AnotherPanel->Redraw();
           }
-          /* VVM */
         }
         else
           ShellMakeDir(this);
@@ -1641,10 +1615,7 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
     }
 
-    /* $ 26.07.2001 VVM
-       + С альтом скролим всегда по 1 */
-    /* $ 26.04.2001 VVM
-       + Обработка колеса мышки */
+    // $ 26.07.2001 VVM  С альтом скролим всегда по 1
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
       Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
@@ -1654,8 +1625,6 @@ int FileList::ProcessKey(int Key)
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
       Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
       return(TRUE);
-    /* VVM $ */
-    /* VVM $ */
 
     case KEY_HOME:         case KEY_NUMPAD7:
       Up(0x7fffff);
@@ -1803,7 +1772,6 @@ int FileList::ProcessKey(int Key)
       ShowFileList(TRUE);
       return(TRUE);
     }
-    /* DJ $ */
 
     case KEY_INS:          case KEY_NUMPAD0:
     {
@@ -1873,19 +1841,12 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
-      /* $ 09.04.2001 SVS
-         Не перерисовываем, если ChangeDir закрыла панель
-      */
-    /* $ 16.08.2001 OT
-     Перерисовываем всегда ! ( убран if, обрамляющий ChangeDir(".."))
-    */
       /* $ 25.12.2001 DJ
          И кого мы будем перерисовывать, если ChangeDir() вызвал деструктор
          панели? Правильно, не this, а активную панель. Потому что this
          уже уничтожен!
       */
       ChangeDir(L"..");
-      /* OT $ */
       /* $ 24.04.2001 IS
            Проинициализируем заново режим панели.
       */
@@ -1894,9 +1855,6 @@ int FileList::ProcessKey(int Key)
         NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
         NewActivePanel->Show();
       }
-      /* DJ $ */
-      /* IS $ */
-      /* SVS $ */
       return(TRUE);
 
     case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
@@ -1987,7 +1945,6 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
           ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
         if (!TestParentFolderName(CurPtr->strName))
           strFullPath += CurPtr->strName;
-        /* VVM $ */
       }
       else
       {
@@ -2017,7 +1974,6 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         CtrlObject->Cp()->GetAnotherPanel(this)->Show();
       }
       CtrlObject->Cp()->ActivePanel->Show();
-      /* SVS $ */
     }
   }
   else
@@ -2087,7 +2043,6 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
           }
           return;
         }
-        /* IS $ */
         if (SeparateWindow || (hOpen=OpenFilePlugin(strFileName,TRUE))==INVALID_HANDLE_VALUE ||
             hOpen==(HANDLE)-2)
         {
@@ -2166,13 +2121,11 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
     CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,strInfoFormat,1,
                                (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
-    /* VVM $ */
 
     /* $ 25.04.01 DJ
        при неудаче SetDirectory не сбрасываем выделение
     */
     BOOL SetDirectorySuccess = TRUE;
-    /* DJ $ */
     int UpperFolder=TestParentFolderName(strSetDir);
     if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
     {
@@ -2201,7 +2154,6 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       Update(0);
     else
       Update(UPDATE_KEEP_SELECTION);
-    /* DJ $ */
     if (PluginClosed && PrevDataStackSize>0)
     {
       PrevDataStackSize--;
@@ -2236,7 +2188,6 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     */
     else if (SetDirectorySuccess)
       CurFile=CurTopFile=0;
-    /* DJ $ */
     return(TRUE);
   }
   else
@@ -2291,10 +2242,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
               return(FALSE);
           }
         }
-        /* SVS $ */
       }
     }
-    /* SVS $ */
   }
 
   strFindDir = PointToName(strCurDir);
@@ -2343,7 +2292,6 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     strTarget = strSetDir;
     TruncPathStr(strTarget, ScrX-16);
     Message(MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strTarget, UMSG (MOk));
-    /* IS $ */
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
   /* $ 28.04.2001 IS
@@ -2360,7 +2308,6 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       setdisk(CurDisk);
     }
   }*/
-  /* IS $ */
   FarGetCurDir(strCurDir);
 
   if(!IsUpdated)
@@ -2377,7 +2324,6 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   }
   else if (UpdateFlags != UPDATE_KEEP_SELECTION)
     CurFile=CurTopFile=0;
-  /* DJ $ */
 
   if (GetFocus())
   {
@@ -2449,7 +2395,6 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if ((MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
       && (MouseEvent->dwEventFlags != MOUSE_MOVED)
       && Opt.PanelMiddleClickRule)
-  /* IS $ */
   {
     int Key = KEY_ENTER;
     if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
@@ -2461,7 +2406,6 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ProcessKey(Key);
     return(TRUE);
   }
-  /* VVM $ */
 
   if (Panel::PanelProcessMouse(MouseEvent,RetCode))
     return(RetCode);
@@ -2496,7 +2440,6 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         Вроде всё должно быть ок.
       */
       ShowFileList(TRUE);
-      /* SKV$*/
       FlushInputBuffer();
       ProcessEnter(1,ShiftPressed!=0);
       return(TRUE);
@@ -2514,7 +2457,6 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if (SelectedFirst)
           SortFileList(TRUE);
       }
-      /* SVS $ */
     }
     ShowFileList(TRUE);
     return(TRUE);
@@ -2603,9 +2545,7 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   else
     IsEmpty=FALSE;
-  /* SVS $ */
 }
-/* SVS $ */
 
 void FileList::SetViewMode(int ViewMode)
 {
@@ -3479,7 +3419,6 @@ void FileList::CopyNames(int FillPathName,int UNC)
             p[1] = 0;
             strSelShortName.ReleaseBuffer();
         }
-        /* IS $ */
         if(!CreateFullPathName(strQuotedName,strSelShortName,FileAttr,strQuotedName,UNC))
         {
           xf_free(CopyData);
@@ -3518,7 +3457,6 @@ void FileList::CopyNames(int FillPathName,int UNC)
             strPrefix += strQuotedName;
             strQuotedName = strPrefix;
           }
-          /* IS $ */
         }
       }
     }
@@ -3580,7 +3518,6 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
     strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
     strFileName = strTemp;
   }
-  /* IS $ */
   if (ShowShortNames && ShortNameAsIs)
     ConvertNameToShort(strFileName,strFileName);
 
@@ -3629,7 +3566,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 
     ConvertNameToReal(strFileName,strFileName);
   } /* if */
-  /* VVM $ */
+
   // $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
   if(Opt.PanelCtrlFRule)
   {
@@ -3822,12 +3759,9 @@ void FileList::SelectSortMode()
   int SortCode;
   {
     VMenu SortModeMenu(UMSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
+
     SortModeMenu.SetHelp(L"PanelCmdSort");
-    /* $ 16.06.2001 KM
-       ! Добавление WRAPMODE в меню.
-    */
     SortModeMenu.SetPosition(X1+4,-1,0,0);
-    /* KM $ */
     SortModeMenu.SetFlags(VMENU_WRAPMODE);
     SortModeMenu.Process();
     if ((SortCode=SortModeMenu.Modal::GetExitCode())<0)
@@ -3909,7 +3843,7 @@ void FileList::DescribeFiles()
                    PrevText!=NULL ? PrevText:L"",strDizText,1024,
                    L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
       break;
-    /* SVS $*/
+
     DizCount++;
     if ( strDizText.IsEmpty() )
       Diz.DeleteDiz(strSelName,strSelShortName);
@@ -3986,7 +3920,6 @@ void FileList::ApplyCommand()
     ScrBuf.Scroll(1);
     ScrBuf.Flush();
   }
-  /* SKV$*/
 }
 
 
@@ -4046,7 +3979,6 @@ void FileList::CountDirSize(DWORD PluginFlags)
       }
     }
   }
-  /* OT $*/
 
   for (I=0; I < FileCount; I++)
   {
@@ -4270,15 +4202,11 @@ void FileList::ProcessCopyKeys(int Key)
   }
 }
 
-/* $ 09.02.2001 IS
-   Установить/сбросить режим "помеченное вперед"
-*/
 void FileList::SetSelectedFirstMode(int Mode)
 {
   SelectedFirst=Mode;
   SortFileList(TRUE);
 }
-/* IS $ */
 
 void FileList::ChangeSortOrder(int NewOrder)
 {
@@ -4390,7 +4318,6 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
   }
   return strPrefix;
 }
-/* IS $ */
 
 
 void FileList::IfGoHome(wchar_t Drive)

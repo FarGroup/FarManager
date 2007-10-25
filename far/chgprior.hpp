@@ -37,6 +37,7 @@ class ChangePriority
 {
   private:
     int SavePriority;
+
   public:
     ChangePriority(int NewPriority);
     ~ChangePriority();

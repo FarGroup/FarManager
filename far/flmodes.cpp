@@ -90,11 +90,7 @@ void FileList::SetFilePanelModes()
       VMenu ModeList(UMSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);
       ModeList.SetHelp(L"PanelViewModes");
-      /* $ 16.06.2001 KM
-         ! Добавление WRAPMODE в меню.
-      */
       ModeList.SetFlags(VMENU_WRAPMODE);
-      /* KM $ */
       ModeList.Process();
       ModeNumber=ModeList.Modal::GetExitCode();
     }

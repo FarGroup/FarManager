@@ -190,7 +190,6 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       */
       if (wcslen (TmpStr) >= static_cast<size_t>(MaxTempStrSize-1))
         break;
-      /* DJ $ */
     }
     CurStr+=CntSkip;
     //_SVS(SysLog(L"!& TmpStr=[%s]",TmpStr));
@@ -266,7 +265,6 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
           wcsncat(TmpStr,L"!", MaxTempStrSize-1);
         }
 
-        /* tran $ */
         CurStr+=Ptr-CurStr+1;
         return CurStr;
       }
@@ -449,7 +447,6 @@ int SubstFileName(string &strStr,            // результирующая строка
   */
   if(!wcschr(strStr,L'!'))
     return FALSE;
-  /* SVS $ */
 
   wchar_t TmpStr2[10240]; //BUGBUGBUGBUGBUGBUG!!!!
 
@@ -605,11 +602,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     wchar_t HistoryName[MaxSize][20];
     int HistoryNumber=DlgSize/2;
     swprintf(HistoryName[HistoryNumber],L"UserVar%d",HistoryNumber);
-    /* $ 01.08.2000 SVS
-       + .History
-    */
     DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
-    /* SVS $*/
 
     if (DlgSize==0)
     {
@@ -756,11 +749,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     xf_free(tmp_t);
     //<Skeleton>
 
-    /* $ 01.08.2000 SVS
-       "расширяем" заголовок
-    */
     apiExpandEnvironmentStrings (DlgData[DlgSize].strData,DlgData[DlgSize].strData);
-    /* SVS $*/
     DlgSize+=2;
   }
   if (DlgSize==0)

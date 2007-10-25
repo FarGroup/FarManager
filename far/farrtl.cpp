@@ -36,11 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "farconst.hpp"
 
-/* $ 19.07.2000 SVS
-  - Из-за различий в реализации функции getdisk в BC & VC
-    не работал AltFx если панель имела UNC путь
-    Сама функция находится в farrtl.cpp
-*/
 int _cdecl getdisk(void)
 {
   unsigned drive;
@@ -53,11 +48,7 @@ int _cdecl getdisk(void)
   drive = Upper(buf[0]) - L'A';
   return (int)drive;
 }
-/* SVS $*/
 
-/* $ 14.08.2000 SVS
-    + Функции семейства seek под __int64
-*/
 #if defined(__BORLANDC__)
 //#include <windows.h>
 //#include <stdio.h>
@@ -260,27 +251,22 @@ int fseek64 (FILE *fp, __int64 offset, int whence)
 }
 
 #endif
-/* SVS $*/
 
-/* $ 25.07.2000 SVS
-   Оболочки вокруг вызовов стандартных функцйи, приведенных к WINAPI
-*/
+
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
   if(string)
     return _itow(value,string,radix);
   return NULL;
 }
-/* $ 28.08.2000 SVS
-  + FarItoa64
-*/
+
 wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix)
 {
   if(string)
     return _i64tow(value, string, radix);
   return NULL;
 }
-/* SVS $ */
+
 int WINAPI FarAtoi(const wchar_t *s)
 {
   if(s)
@@ -301,26 +287,19 @@ void WINAPI FarQsort(void *base, size_t nelem, size_t width,
     far_qsort(base,nelem,width,fcmp);
 }
 
-/* $ 24.03.2001 tran
-   новая фишка...*/
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
                      int (__cdecl *fcmp)(const void *, const void *,void *user),void *user)
 {
   if(base && fcmp)
     qsortex((char*)base,nelem,width,fcmp,user);
 }
-/* tran $ */
 
-/* $ 07.09.2000 SVS
-   Оболочка FarBsearch для плагинов (функция bsearch)
-*/
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
 {
   if(key && fcmp && base)
     return bsearch(key,base,nelem,width,fcmp);
   return NULL;
 }
-/* SVS $ */
 
 #if defined(SYSLOG)
 extern long CallMallocFree;

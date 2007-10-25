@@ -235,7 +235,6 @@ DWORD FarGetCurDir(string &strBuffer)
     return Result;
 }
 
-/* SVS 20.03.2002 $ */
 
 DWORD NTTimeToDos(FILETIME *ft)
 {
@@ -455,7 +454,6 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
 
   return FALSE;
 }
-/* IS $ */
 
 
 int GetFileTypeByName(const wchar_t *Name)
@@ -520,7 +518,6 @@ int GetDirInfo(const wchar_t *Title,
     if (p)
       ShowDirName = p + 1;
   }
-  /* DJ */
 
   ConsoleTitle OldTitle;
   RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
@@ -619,7 +616,6 @@ int GetDirInfo(const wchar_t *Title,
           strLastDirName = strCurDirName;
         }
       }
-      /* KM $ */
 
       FileCount++;
 
@@ -925,8 +921,6 @@ int GetClusterSize(const wchar_t *Root)
 
 
 
-/* IS $ */
-
 #if 0
 /*
 In: "C:\WINNT\SYSTEM32\FOO.TXT", "%SystemRoot%"
@@ -976,8 +970,6 @@ BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize)
 }
 #endif
 
-/* $ 10.09.2000 tran
-   FSF/FarRecurseSearch */
 /* $ 30.07.2001 IS
      1. Проверяем правильность параметров.
      2. Теперь обработка каталогов не зависит от маски файлов
@@ -1019,16 +1011,12 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
     }
   }
 }
-/* tran 10.09.2000 $ */
 
 /* $ 14.09.2000 SVS
  + Функция FarMkTemp - получение имени временного файла с полным путем.
     Dest - приемник результата (должен быть достаточно большим, например NM
     Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
    Вернет либо NULL, либо указатель на Dest.
-*/
-/* $ 18.09.2000 SVS
-  Не ту функцию впихнул :-)))
 */
 /* $ 25.10.2000 IS
  ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
@@ -1107,10 +1095,6 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   return strDest;
 }
 
-/* IS $ */
-/* SVS 18.09.2000 $ */
-/* SVS $ */
-
 /*$ 27.09.2000 skv
   + Удаление буфера выделенного через new char[n];
     Сделано для удаления возвращенного PasteFromClipboard
@@ -1119,7 +1103,6 @@ void WINAPI DeleteBuffer(char *Buffer)
 {
   if(Buffer)delete [] Buffer;
 }
-/* skv$*/
 
 
 string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
@@ -1215,7 +1198,6 @@ string &Add_PATHEXT(string &strDest)
     /* $ 13.10.2002 IS проверка на '|' (маски исключения) */
     if( !strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
       strDest += L',';
-    /* IS $ */
     const wchar_t *Ptr;
     MaskList.Reset();
     while(NULL!=(Ptr=MaskList.GetNext()))
@@ -1229,7 +1211,6 @@ string &Add_PATHEXT(string &strDest)
   /* $ 13.10.2002 IS Оптимизация по скорости */
   if(strDest.At(curpos) == L',')
     strDest.SetLength(curpos);
-  /* IS $ */
   return strDest;
 }
 
@@ -1330,7 +1311,6 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
         lpwszPath[0]=Upper(lpwszPath[0]);
 
       strPath.ReleaseBuffer ();
-      /* DJ $ */
     }
   }
   return strPath;
@@ -1497,9 +1477,6 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
   return FALSE;
 }
 
-/* $ 26.10.2003 KM
-   Исправление и изменение внутренней логики
-*/
 /* $ 21.09.2003 KM
    Трансформация строки по заданному типу.
 */
@@ -1566,8 +1543,6 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
       break;
   }
 }
-/* KM $ */
-/* KM $ */
 
 /*
  возвращает PipeFound

@@ -122,7 +122,6 @@ BOOL Manager::ExitAll()
   }
   return TRUE;
 }
-/* IS $ */
 
 void Manager::CloseAll()
 {
@@ -140,12 +139,7 @@ void Manager::CloseAll()
     DeleteCommit();
     DeletedFrame=NULL;
   }
-  /* $ 13.07.2000 SVS
-     Здесь было "delete ModalList;", но перераспределение массива ссылок
-     идет через realloc...
-  */
   xf_free(FrameList);
-  /* SVS $ */
   FrameList=NULL;
   FrameCount=FramePos=0;
 }
@@ -222,7 +216,6 @@ void Manager::ExecuteNonModal ()
   */
   //Frame *SaveFrame=CurrentFrame;
   //AddSemiModalBackFrame(SaveFrame);
-  /* SKV $ */
   int NonModalIndex=IndexOf(NonModal);
   if (-1==NonModalIndex){
     InsertedFrame=NonModal;
@@ -247,7 +240,6 @@ void Manager::ExecuteNonModal ()
     ... и уберём его же.
   */
   //RemoveSemiModalBackFrame(SaveFrame);
-  /* SKV $ */
 }
 
 void Manager::ExecuteModal (Frame *Executed)
@@ -299,7 +291,6 @@ int Manager::CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase)
    }
    return Counter;
 }
-/* IS $ */
 
 /*!
   \return Возвращает NULL если нажат "отказ" или если нажат текущий фрейм.
@@ -317,7 +308,6 @@ Frame *Manager::FrameMenu()
 
   if (AlreadyShown)
     return NULL;
-  /* KM $ */
 
   int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
   {
@@ -349,15 +339,12 @@ Frame *Manager::FrameMenu()
       ReplaceStrings(strName,L"&",L"&&",-1);
       /*  добавляется "*" если файл изменен */
       ModalMenuItem.strName.Format (L"%s%-10.10s %c %s", (const wchar_t*)strNumText, (const wchar_t*)strType,(FrameList[I]->IsFileModified()?L'*':L' '), (const wchar_t*)strName);
-      /* tran 28.07.2000 $ */
       ModalMenuItem.SetSelect(I==FramePos);
       ModalMenu.AddItem(&ModalMenuItem);
     }
-    /* $ 28.04.2002 KM */
     AlreadyShown=TRUE;
     ModalMenu.Process();
     AlreadyShown=FALSE;
-    /* KM $ */
     ExitCode=ModalMenu.Modal::GetExitCode();
   }
 
@@ -384,7 +371,6 @@ int Manager::GetFrameCountByType(int Type)
     */
     if (FrameList[I] == DeletedFrame || FrameList [I]->GetExitCode() == XC_QUIT)
       continue;
-    /* DJ $ */
     if (FrameList[I]->GetType()==Type)
       ret++;
   }
@@ -419,7 +405,6 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
   }
   return(-1);
 }
-/* 11.05.2001 OT $*/
 
 BOOL Manager::ShowBackground()
 {
@@ -528,7 +513,6 @@ void Manager::RefreshFrame(Frame *Refreshed)
   */
   if (RefreshedFrame && RefreshedFrame->NextModal)
     Commit();
-  /* KM $ */
 }
 
 void Manager::RefreshFrame(int Index)
@@ -551,8 +535,6 @@ void Manager::SwitchToPanels()
 {
   ActivateFrame (0);
 }
-
-/* DJ $ */
 
 
 int Manager::HaveAnyFrame()
@@ -611,7 +593,6 @@ void Manager::ExitMainLoop(int Ask)
    {
    //TODO: при закрытии по x нужно делать форсированный выход. Иначе могут быть
    //      глюки, например, при перезагрузке
-   /* IS $ */
      FilePanels *cp;
      if ( (cp = CtrlObject->Cp()) == NULL
         || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL)) )
@@ -986,7 +967,6 @@ void Manager::PluginsMenu()
     const wchar_t *Topic=curType==MODALTYPE_EDITOR?L"Editor":
       curType==MODALTYPE_VIEWER?L"Viewer":NULL;
     CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
-    /* IS $ */
   }
   _OT(SysLog(-1));
 }
@@ -1096,7 +1076,6 @@ void Manager::DeactivateCommit()
   {
     return;
   }
-  /* skv $*/
 
   if (!ActivatedFrame)
   {
@@ -1160,7 +1139,6 @@ void Manager::ActivateCommit()
       break;
     }
   }
-  /* SKV $ */
 
   RefreshedFrame=CurrentFrame=ActivatedFrame;
 }
@@ -1216,7 +1194,6 @@ void Manager::DeleteCommit()
         break;
       }
     }
-    /* SKV $ */
     if (ModalStackCount)
     {
       ActivateFrame(ModalStack[ModalStackCount-1]);
@@ -1273,7 +1250,6 @@ void Manager::DeleteCommit()
     }
   }
   */
-  /* SKV $ */
 
 
   DeletedFrame->OnDestroy();
@@ -1289,7 +1265,6 @@ void Manager::DeleteCommit()
     Frame *tmp=DeletedFrame;
     DeletedFrame=NULL;
     delete tmp;
-    /* SKV $ */
   }
 
   // Полагаемся на то, что в ActevateFrame не будет переписан уже
@@ -1364,7 +1339,6 @@ BOOL Manager::PluginCommit()
 {
   return Commit();
 }
-/* SKV$*/
 
 /* $ Введена для нужд CtrlAltShift OT */
 void Manager::ImmediateHide()
@@ -1395,9 +1369,7 @@ void Manager::ImmediateHide()
     else
     {
       int UnlockCount=0;
-      /* $ 07.04.2002 KM */
       IsRedrawFramesInProcess++;
-      /* KM $ */
 
       while ((*this)[FramePos]->Locked())
       {
@@ -1434,9 +1406,7 @@ void Manager::ImmediateHide()
       */
       IsRedrawFramesInProcess--;
       CurrentFrame->ShowConsoleTitle();
-      /* KM $ */
     }
-    /* KM $ */
   }
   else
   {
@@ -1473,11 +1443,6 @@ void Manager::UnmodalizeCommit()
   }
   UnmodalizedFrame=NULL;
 }
-/* OT $*/
-
-/* $ 15.05.2002 SKV
-  Чуток подправим логику.
-*/
 
 BOOL Manager::ifDoubleInstance(Frame *frame)
 {
@@ -1494,8 +1459,6 @@ BOOL Manager::ifDoubleInstance(Frame *frame)
   return FALSE;
 }
 
-/* SKV $ */
-
 /*  Вызов ResizeConsole для всех NextModal у
     модального фрейма. KM
 */
@@ -1511,7 +1474,6 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
     iModal=iModal->NextModal;
   }
 }
-/* KM $ */
 
 void Manager::ResizeAllFrame()
 {
@@ -1528,7 +1490,6 @@ void Manager::ResizeAllFrame()
       - А теперь проресайзим все NextModal...
     */
     ResizeAllModal(ModalStack[I]);
-    /* KM $ */
   }
   ImmediateHide();
   FrameManager->RefreshFrame();

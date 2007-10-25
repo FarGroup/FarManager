@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static unsigned char KeyToKey[256];
 
-/* $ 11.01.2002 IS
+/*
    Инициализация массива клавиш.
    Вызывать только после CopyGlobalSettings, потому что только тогда GetRegKey
    считает правильные данные.

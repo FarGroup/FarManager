@@ -72,12 +72,11 @@ class Language
 
     static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, int &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
     static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage);
-    /* $ 01.09.2000 SVS
-      + Новый метод, для получения параметров для .Options
+    /*
+       метод, для получения параметров для .Options
         .Options <KeyName>=<Value>
     */
     static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nCodePage);
-    /* SVS $ */
     static int Select(int HelpLanguage,VMenu **MenuPtr);
 };
 

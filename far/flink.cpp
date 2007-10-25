@@ -333,7 +333,6 @@ DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff
   */
   if (FileAttr == 0xffffffff || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
       || !IsLocalDrive(szMountDir))
-  /* IS $ */
   {
     SetLastError(ERROR_PATH_NOT_FOUND);
     return 0;
@@ -418,8 +417,6 @@ int WINAPI GetNumberOfLinks(const wchar_t *Name)
   CloseHandle(hFile);
   return(GetCode ? bhfi.nNumberOfLinks:0);
 }
-
-/* SVS $*/
 
 
 
@@ -635,7 +632,7 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
 #pragma option -a.
 #endif
 
-/* $ 05.01.2001 SVS
+/*
    Функция DelSubstDrive - удаление Subst драйвера
    Return: -1 - это либо не SUBST-драйвер, либо OS не та.
             0 - все удалено на ура
@@ -656,7 +653,6 @@ int DelSubstDrive(const wchar_t *DosDeviceName)
   }
   return(-1);
 }
-/* SVS $ */
 
 BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 {
@@ -676,7 +672,6 @@ BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 
   string strLocalName = LocalName;
 
-  /* VVM $ */
   wchar_t Name[NM*2]=L""; //BUGBUG
 
   strLocalName.Upper ();
@@ -689,7 +684,6 @@ BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 #else
     int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name)/sizeof (wchar_t):MAXPATH;
 #endif
-    /* skv$*/
 
     if (QueryDosDeviceW(strLocalName,Name,SizeName) >= 3)
     {

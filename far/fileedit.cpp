@@ -456,9 +456,7 @@ FileEditor::FileEditor(
 		)
 {
   Flags.Set(InitFlags);
-  /* $ 02.11.2001 IS
-       отрицательные координаты левого верхнего угла заменяются на нулевые
-  */
+
   if(X1 < 0)
     X1=0;
   if(X2 < 0 || X2 > ScrX)
@@ -478,7 +476,6 @@ FileEditor::FileEditor(
     Y2=ScrY;
   }
 
-  /* IS $ */
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   Flags.Change(FFILEEDIT_FULLSCREEN,(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY));
   Init(Name,codepage, Title,InitFlags,StartLine,StartChar,L"",DeleteOnClose,OpenModeExstFile);
@@ -534,8 +531,6 @@ FileEditor::~FileEditor()
          DeleteFileW(strFullFileName); //BUGBUG
        }
     }
-    /* IS 14.06.2002 $ */
-    /* IS 11.10.2001 $ */
   }
 
   if( m_editor )
@@ -626,7 +621,6 @@ void FileEditor::Init (
     return;
   }
 
-  /*$ 11.05.2001 OT */
   //int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
   //if (FramePos!=-1)
   if (Flags.Check(FFILEEDIT_ENABLEF6))
@@ -693,7 +687,6 @@ void FileEditor::Init (
       }
     }
   }
-  /* 11.05.2001 OT $*/
 
   /* $ 29.11.2000 SVS
      Если файл имеет атрибут ReadOnly или System или Hidden,
@@ -715,7 +708,6 @@ void FileEditor::Init (
     ExitCode=XC_OPEN_ERROR;
     return;
   }
-  /* IS $ */
   if((m_editor->EdOpt.ReadOnlyLock&2) &&
      FAttr != -1 &&
      (FAttr &
@@ -728,7 +720,6 @@ void FileEditor::Init (
         )
      )
   )
-  /* SVS $ */
   {
     if(Message(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRSH),
                              UMSG(MEditROOpen),UMSG(MYes),UMSG(MNo)))
@@ -738,8 +729,6 @@ void FileEditor::Init (
       return;
     }
   }
-  /* SVS 03.12.2000 $ */
-  /* SVS $ */
 
   m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   m_editor->SetStartPos(StartLine,StartChar);
@@ -793,15 +782,11 @@ void FileEditor::Init (
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   bEE_READ_Sent = true;
 
-  /* IS $ */
   ShowConsoleTitle();
   EditKeyBar.SetOwner(this);
   EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 
-  /* $ 07.08.2000 SVS
-    ! Код, касаемый KeyBar вынесен в отдельную функцию */
   InitKeyBar();
-  /* SVS $*/
 
   if ( Opt.EdOpt.ShowKeyBar==0 )
     EditKeyBar.Hide0();
@@ -957,7 +942,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
   {
     ; //
   }
-  /* DJ $ */
 
   switch(Key)
   {
@@ -973,13 +957,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       }
       break; // отдадим Alt-F5 на растерзание плагинам, если не установлен PrintMan
     }
-    /* SVS $*/
 
     case KEY_F6:
     {
-      /* $ 10.05.2001 DJ
-         используем EnableF6
-      */
       if (Flags.Check(FFILEEDIT_ENABLEF6))
       {
         int FirstSave=1, NeedQuestion=1;
@@ -1018,28 +998,16 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
                пользователь переключился во вьюер
             */
             SetDeleteOnClose(0);
-            /* IS $ */
-            /* $ 06.05.2001 DJ
-               обработка F6 под NWZ
-            */
-            /* $ 07.05.2001 DJ
-               сохраняем NamesList
-            */
-
 
             FileViewer *Viewer = new FileViewer (strFullFileName, GetCanLoseFocus(), FALSE,
                FALSE, FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
-            /* DJ $ */
   //OT          FrameManager->InsertFrame (Viewer);
-            /* DJ $ */
           }
-          /* IS $ */
           ShowTime(2);
         }
         return(TRUE);
       }
       break; // отдадим F6 плагинам, если есть запрет на переключение
-      /* DJ $ */
     }
 
     /* $ 10.05.2001 DJ
@@ -1054,7 +1022,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       }
       break; // отдадим Alt-F11 на растерзание плагинам, если редактор модальный
     }
-    /* DJ $ */
   }
 
 #if 1
@@ -1109,7 +1076,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         }
         return (TRUE);
       }
-      /* IS $ */
       /* $ 24.08.2000 SVS
          + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
       */
@@ -1127,7 +1093,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         }
         return(TRUE);
       }
-  /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
 
       case KEY_F2:
       case KEY_SHIFTF2:
@@ -1401,14 +1366,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			return TRUE;
 		}
 
-      /* $ 19.12.2000 SVS
-         Вызов диалога настроек (с подачи IS)
-      */
       case KEY_ALTSHIFTF9:
       {
-        /* $ 26.02.2001 IS
-             Работа с локальной копией EditorOptions
-        */
+        //     Работа с локальной копией EditorOptions
         struct EditorOptions EdOpt;
         GetEditorOptions(EdOpt);
 
@@ -1417,21 +1377,18 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
         SetEditorOptions(EdOpt);
 
-        /* IS $ */
         if ( Opt.EdOpt.ShowKeyBar )
           EditKeyBar.Show();
 
         m_editor->Show();
         return TRUE;
       }
-      /* SVS $ */
 
       default:
       {
         if (Flags.Check(FFILEEDIT_FULLSCREEN) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
           if ( Opt.EdOpt.ShowKeyBar )
             EditKeyBar.Show();
-        /* SVS $ */
         if (!EditKeyBar.ProcessKey(Key))
           return(m_editor->ProcessKey(Key));
       }
@@ -1463,7 +1420,6 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       {
         UpdateFileList();
       }
-      /* VVM $ */
 
       FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
@@ -1785,7 +1741,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
        Если было произведено сохранение с любым результатом, то не удалять файл
     */
     Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-    /* IS $ */
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
@@ -1985,9 +1940,6 @@ end:
 //    Flags.Clear(FEDITOR_LOCKMODE);
 
 
-  /*$ 10.08.2000 skv
-    Modified->TextChanged
-  */
   /* 28.12.2001 VVM
     ! Проверить на успешную запись */
   if (RetCode==SAVEFILE_SUCCESS)
@@ -2044,7 +1996,6 @@ void FileEditor::SetScreenPosition()
     SetPosition(0,0,ScrX,ScrY);
   }
 }
-/* tran $ */
 
 /* $ 10.05.2001 DJ
    добавление в view/edit history
@@ -2056,8 +2007,6 @@ void FileEditor::OnDestroy()
   if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && _wcsicmp(strFileName,UMSG(MNewFileName)))
     CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryEdit),
                   (m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
-  /* $ 19.10.2001 OT
-  */
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
   {
     CtrlObject->Plugins.CurEditor=NULL;
@@ -2261,7 +2210,6 @@ void FileEditor::ShowStatus()
       Показываем в зависимости от базы */
       static wchar_t *FmtCharCode[3]={L"%05o",L"%5d",L"%04Xh"};
       mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%3],(wchar_t)Str[CurPos]);
-      /* SVS $ */
     }
   }
 
@@ -2286,7 +2234,6 @@ DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
   AttrStr[ind]=0;
   return FileAttributes;
 }
-/* IS $ */
 
 /* Return TRUE - панель обовили
 */
@@ -2332,7 +2279,6 @@ void FileEditor::SetDeleteOnClose(int NewMode)
   else if(NewMode==2)
     Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
 }
-/* IS $ */
 
 void FileEditor::GetEditorOptions(struct EditorOptions& EdOpt)
 {
@@ -2514,7 +2460,6 @@ int FileEditor::EditorControl(int Command, void *Param)
 			}
 			return TRUE;
 		}
-    /* SVS $ */
 
     case ECTL_SAVEFILE:
     {

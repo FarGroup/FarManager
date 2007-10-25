@@ -198,11 +198,7 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
   {
     DWORD Size=*(DWORD *)fi->UserData;
-    /* $ 13.07.2000 SVS
-       заменим new на malloc
-    */
     pi->UserData=(DWORD_PTR)xf_malloc(Size);
-    /* SVS $ */
     memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
   }
   else
@@ -241,11 +237,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
   if (pi->UserData && (pi->Flags & PPIF_USERDATA))
   {
     DWORD Size=*(DWORD *)pi->UserData;
-    /* $ 13.07.2000 SVS
-       заменим new на malloc
-    */
     fi->UserData=(DWORD_PTR)xf_malloc(Size);
-    /* SVS $ */
     memcpy((void *)fi->UserData,(void *)pi->UserData,Size);
   }
   else
@@ -671,7 +663,6 @@ void FileList::PluginPutFilesToNew()
     */
     int rc=PluginPutFilesToAnother(FALSE,&TmpPanel);
     if (rc!=2 && FileCount==PrevFileCount+1)
-    /* IS $ */
     {
       int LastPos=0;
       /* ћесто, где вычисл€ютс€ координаты вновьсозданного файла
@@ -870,12 +861,8 @@ int FileList::ProcessOneHostFile(int Idx)
     _ALGO(SysLog(L"call Plugins.GetFindData"));
     if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
     {
-      /* $ 26.04.2001 DJ
-         в ProcessHostFile не передавалс€ OPM_TOPLEVEL
-      */
       _ALGO(SysLog(L"call Plugins.ProcessHostFile"));
       Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
-      /* DJ $ */
       _ALGO(SysLog(L"call Plugins.FreeFindData"));
       CtrlObject->Plugins.FreeFindData(hNewPlugin,ItemList,ItemNumber);
     }
@@ -959,9 +946,8 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
 
 void FileList::PluginSetSelection(struct PanelInfo *Info)
 {
-  /* $ 06.07.2001 IS —охраним старое выделение */
   SaveSelection();
-  /* IS $ */
+
   struct FileListItem *CurPtr;
   for (int I=0; I < FileCount && I < Info->ItemsNumber; I++)
   {
@@ -1016,9 +1002,8 @@ int FileList::ProcessPluginEvent(int Event,void *Param)
 
 void FileList::PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber)
 {
-  /* $ 06.07.2001 IS —охраним старое выделение */
   SaveSelection();
-  /* IS $ */
+
   int FileNumber=0,PluginNumber=0;
   while (PluginNumber<ItemNumber)
   {

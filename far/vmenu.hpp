@@ -60,7 +60,6 @@ enum{
   VMenuColorScrollBar=8, // ScrollBar
   VMenuColorDisabled=9,  // Disabled
 };
-/* SVS */
 
 #define VMENU_ALWAYSSCROLLBAR       0x00000100  // всегда показывать скроллбар
 #define VMENU_LISTBOX               0x00000200  // Ёто список в диалоге
@@ -159,9 +158,6 @@ struct MenuDataEx
   DWORD Flags;
   DWORD AccelKey;
 
-  /* $ 01.12.2001 DJ
-     исправим баг, заодно нормально отформатируем код
-  */
   DWORD SetCheck(int Value)
   {
     if(Value)
@@ -173,7 +169,6 @@ struct MenuDataEx
       Flags&=~(0xFFFF|LIF_CHECKED);
     return Flags;
   }
-  /* DJ $ */
 
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
@@ -199,22 +194,14 @@ class VMenu: public Modal
     int PrevCursorVisible;
     int PrevCursorSize;
     int PrevMacroMode;
-    /* $ 18.07.2000 SVS
-       + переменна€, отвечающа€ за отображение scrollbar в
-         DI_LISTBOX & DI_COMBOBOX
-    */
+
+    // переменна€, отвечающа€ за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
     BitFlags VMFlags;
     BitFlags VMOldFlags;
-    /* SVS $ */
 
-    /* $ 01.08.2000 SVS
-       + ƒл€ LisBox - родитель в виде диалога
-       + ќбработчик меню!
-    */
-    Dialog *ParentDialog;
+    Dialog *ParentDialog;         // ƒл€ LisBox - родитель в виде диалога
     int DialogItemID;
     FARWINDOWPROC VMenuProc;      // функци€ обработки меню
-    /* SVS $ */
 
     short RLen[2];                // реальные размеры 2-х половин
     CRITICAL_SECTION CSection;
@@ -316,9 +303,7 @@ class VMenu: public Modal
     int  SetSelectPos(struct FarListPos *ListPos);
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
-    /* $ 21.02.2002 DJ
-       функци€, провер€юща€ корректность текущей позиции и флагов SELECTED
-    */
+    //   функци€, провер€юща€ корректность текущей позиции и флагов SELECTED
     void AdjustSelectPos();
 
     virtual void Process();

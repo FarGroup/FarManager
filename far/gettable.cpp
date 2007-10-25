@@ -50,7 +50,6 @@ int DistrTableExist(void)
 {
  return (CheckRegValue(L"CodeTables",L"Distribution"));
 }
-/* IS $ */
 
 static VMenu *tables;
 
@@ -132,7 +131,6 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
   {
     /* $ 07.08.2001 IS
        + Для "небукв" нет смысла извращаться с UpperTable и LowerTable
-       ! Исключим лишний цикл
     */
     char toUpper[2], toLower[2], decode[2], encode[2];
     toUpper[1] = toLower[1] = decode[1] = encode[1] = 0;
@@ -151,7 +149,6 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
        TableSet->UpperTable[I] = *toUpper;
        TableSet->LowerTable[I] = *toLower;
     }
-    /* IS $ */
     strcpy(TableSet->TableName,"Win");
     return(TRUE);
   }
@@ -427,7 +424,5 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
       TableSet->UpperTable[I]=TableSet->EncodeTable[LocalUpper(Ch)];
     }
   }
-  /* IS $ */
   return(TRUE);
 }
-/* IS 17.03.2002 $ */

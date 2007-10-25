@@ -510,9 +510,6 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
             // Therefore, our useful data starts at the 7th byte in the data buffer.
 
             int caps = CDDEV_CAPS_READ_CDROM;
-//char BBBB[1024];
-//sprintf(BBBB,"6=%X, 7=%X",sptwb.DataBuf[6],sptwb.DataBuf[7]);
-//MessageBox(0,BBBB,BBBB,0);
 
             if(sptwb.DataBuf[6] & 0x01)
                 caps |= CDDEV_CAPS_READ_CDR;
@@ -546,8 +543,10 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
         }
     }
 
+#if 0
 /* $ 24.07.2004 VVM Выключим этот кусок.
     Тормозит и портит болванки при записи на SCSI/IDE писалках
+*/
 
     sptwb.Spt.Cdb[0] = SCSIOP_INQUIRY;
     sptwb.Spt.Cdb[1] = 0;
@@ -580,7 +579,7 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
             return getCapsUsingProductId(productID);
         }
     }
-*/
+#endif
     return CDDEV_CAPS_NONE;
 }
 
@@ -686,7 +685,6 @@ UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect
     wchar_t szVolumeName[20]=L"\\\\.\\ :";
     szVolumeName[4]=*RootDir;
 
-    //get a handle to the device
     HANDLE hDevice = apiCreateFile (szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
     if (hDevice != INVALID_HANDLE_VALUE)

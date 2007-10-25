@@ -92,8 +92,6 @@ BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
   return(TRUE);
 }
 
-/* $ 19.01.2001 VVM
-    + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
 void FindFarWndByTitle()
 {
   string strOldTitle;
@@ -108,14 +106,10 @@ void FindFarWndByTitle()
 
   EnumWindows(IsWindowedEnumProc2,(LPARAM)(const wchar_t*)strNewTitle);
   SetConsoleTitleW (strOldTitle);
-} /* void FindFarWndByTitle */
-/* VVM $ */
+}
 
 void InitDetectWindowedMode()
 {
-  /* $ 17.01.2003 IS
-       Там, где можно, используем для поиска окна соответствующую функцию ОС
-  */
   typedef HWND WINAPI GetConsoleWindow_t(VOID);
   static GetConsoleWindow_t *GetConsoleWindow_f=(GetConsoleWindow_t*)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetConsoleWindow");
   if(GetConsoleWindow_f)
@@ -125,13 +119,10 @@ void InitDetectWindowedMode()
     // попытка найти окно по pid
     EnumWindows(IsWindowedEnumProc,(LPARAM)GetCurrentProcessId());
     if(!hFarWnd)
-      /* $ 19.01.2001 VVM
-         + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
-
+      // Если не нашли ФАР по pid, то ищем по уникальному заголовку окна
       FindFarWndByTitle();
-      /* VVM $ */
   }
-  /* IS $ */
+
   if (hFarWnd && Opt.SmallIcon)
   {
     string strFarName;
@@ -219,4 +210,3 @@ int FarAltEnter(int mode)
   DetectWindowedMode();
   return IsWindowed()?FAR_CONSOLE_WINDOWED:FAR_CONSOLE_FULLSCREEN;
 }
-/* SVS $*/

@@ -428,7 +428,6 @@ int Message(
       ScrBuf.SetLockCount(0);
     ScrBuf.Flush();
   }
-  /* IS $ */
   return(0);
 }
 
@@ -580,7 +579,6 @@ int AbortMessage()
   else
     return (FALSE);
 }
-/* VVM $ */
 
 // Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
 BOOL CheckErrorForProcessed(DWORD Err)

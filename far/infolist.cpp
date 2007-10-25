@@ -52,11 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
-/* $ 27.04.2001 DJ
-   запоминаем, был ли включен скроллбар
-*/
 static int LastDizShowScrollbar = -1;
-/* DJ $ */
 
 InfoList::InfoList()
 {
@@ -75,17 +71,11 @@ InfoList::InfoList()
 
 InfoList::~InfoList()
 {
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
   CloseFile();
-  /* DJ $ */
   SetMacroMode(TRUE);
 }
 
-/* $ 26.03.2002 DJ
-   перерисовка, только если мы текущий фрейм
-*/
+// перерисовка, только если мы текущий фрейм
 void InfoList::Update (int Mode)
 {
   if (!EnableUpdate)
@@ -93,7 +83,6 @@ void InfoList::Update (int Mode)
   if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
     Redraw();
 }
-/* DJ $ */
 
 void InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
@@ -113,11 +102,7 @@ void InfoList::DisplayObject()
   string strVolumeName, strFileSystemName;
 
   DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
   CloseFile();
-  /* DJ $ */
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
@@ -174,7 +159,6 @@ void InfoList::DisplayObject()
   }
   else
      GetPathRoot(strCurDir, strDriveRoot);
-  /* SVS $ */
 
   if ( apiGetVolumeInformation (strDriveRoot,&strVolumeName,
                             &VolumeNumber,&MaxNameLength,&FileSystemFlags,
@@ -333,15 +317,12 @@ int InfoList::ProcessKey(int Key)
 
   switch(Key)
   {
-    /* $ 30.04.2001 DJ
-       показываем правильную тему хелпа
-    */
     case KEY_F1:
       {
         Help Hlp (L"InfoPanel");
       }
       return TRUE;
-    /* DJ $ */
+
     case KEY_F3:
     case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
         if ( !strDizFileName.IsEmpty() )
@@ -351,10 +332,7 @@ int InfoList::ProcessKey(int Key)
 
         new FileViewer(strDizFileName,TRUE);//OT
       }
-      /* $ 20.07.2000 tran
-         после показа перерисовываем панели */
       CtrlObject->Cp()->Redraw();
-      /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_F4:
       /* $ 30.04.2001 DJ
@@ -387,16 +365,13 @@ int InfoList::ProcessKey(int Key)
 //        AnotherPanel->Redraw();
         Update(0);
       }
-      /* DJ $ */
-      /* $ 20.07.2000 tran
-         после показа перерисовываем панели */
       CtrlObject->Cp()->Redraw();
-      /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_CTRLR:
       Redraw();
       return(TRUE);
   }
+
   /* $ 30.04.2001 DJ
      обновляем кейбар после нажатия F8, F2 или Shift-F2
   */
@@ -420,7 +395,7 @@ int InfoList::ProcessKey(int Key)
     }
     return(ret);
   }
-  /* DJ $ */
+
   return(FALSE);
 }
 
@@ -431,18 +406,9 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (Panel::PanelProcessMouse(MouseEvent,RetCode))
     return(RetCode);
 
-  /* $ 29.05.2001 tran
-     DizView может быть равен 0 */
   if (MouseEvent->dwMousePosition.Y>=14 && DizView!=NULL)
   {
-    /* $ 27.04.2001 DJ
-       позволяем использовать скроллбар, если он включен
-    */
     _tran(SysLog(L"InfoList::ProcessMouse() DizView = %p",DizView));
-    /* $ 12.10.2001 SKV
-      одноко аккуратно посчитаем окошко DizView,
-      и оставим 2 символа на скроллинг мышой.
-    */
     int DVX1,DVX2,DVY1,DVY2;
     DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
     if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
@@ -455,8 +421,6 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       ProcessKey(KEY_F3);
       return(TRUE);
     }
-    /* SKV$*/
-    /* DJ $ */
     if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
     {
       ProcessKey(KEY_F4);
@@ -551,11 +515,7 @@ void InfoList::ShowDirDescription()
     if (OpenDizFile(strFullDizName))
       return;
   }
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
   CloseFile();
-  /* DJ $ */
   SetColor(COL_PANELTEXT);
   GotoXY(X1+2,Y1+15);
   PrintText(MInfoDizAbsent);
@@ -569,11 +529,7 @@ void InfoList::ShowPluginDescription()
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
   CloseFile();
-  /* DJ $ */
   struct OpenPluginInfo Info;
   AnotherPanel->GetOpenPluginInfo(&Info);
   for (int I=0;I<Info.InfoLinesNumber;I++)
@@ -610,26 +566,15 @@ void InfoList::ShowPluginDescription()
   }
 }
 
-/* $ 30.04.2001 DJ
-   CloseDizFile() -> CloseFile()
-*/
 void InfoList::CloseFile()
 {
   if (DizView!=NULL)
   {
-    /* $ 12.10.2001 SKV
-      Если идёт вызов метода DizView,
-      то не надо делать delete...
-    */
-    if(DizView->InRecursion)return;
-    /* SKV$*/
+    if(DizView->InRecursion)
+      return;
     LastDizWrapMode=DizView->GetWrapMode();
     LastDizWrapType=DizView->GetWrapType();
-    /* $ 27.04.2001 DJ
-       запоминаем, был ли включен скроллбар
-    */
     LastDizShowScrollbar=DizView->GetShowScrollbar();
-    /* DJ $ */
     DizView->SetWrapMode(OldWrapMode);
     DizView->SetWrapType(OldWrapType);
     delete DizView;
@@ -637,18 +582,13 @@ void InfoList::CloseFile()
   }
   strDizFileName=L"";
 }
-/* DJ $ */
 
 int InfoList::OpenDizFile(const wchar_t *DizFile)
 {
   _tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
   if (DizView == NULL)
   {
-    /* $ 12.10.2001 SKV
-      Теперь это не просто Viewer, а DizViewer :)
-    */
     DizView=new DizViewer;
-    /* SKV$*/
     _tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
     DizView->SetRestoreScreenMode(FALSE);
     DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
@@ -658,11 +598,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
     OldWrapType = DizView->GetWrapType();
     DizView->SetWrapMode(LastDizWrapMode);
     DizView->SetWrapType(LastDizWrapType);
-    /* $ 27.04.2001 DJ
-       если скроллбар был включен, включаем
-    */
     DizView->SetShowScrollbar (LastDizShowScrollbar);
-    /* DJ $ */
   }
 
   if (!DizView->OpenFile(DizFile,FALSE))

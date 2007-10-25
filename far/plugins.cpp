@@ -557,7 +557,6 @@ void PluginManager::LoadPluginsFromCache()
 
 	Flags.Set(PSIF_PLUGINSLOADDED);
 }
-/* tran $ */
 
 int _cdecl PluginsSort(const void *el1,const void *el2)
 {
@@ -1213,7 +1212,6 @@ void PluginManager::Configure(int StartPos)
     }
   }
 }
-/* IS $ */
 
 
 ///int PluginManager::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
@@ -1561,7 +1559,6 @@ int PluginManager::GetDiskMenuItem(Plugin *pPlugin,int PluginItem,
   }
   return(TRUE);
 }
-/* IS $ */
 
 int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 {
@@ -1783,7 +1780,6 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
         if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
           NewPanel->SetFocus();
 //        NewPanel->Show();
-        /* SVS $ */
       }
       return TRUE;
     }
@@ -1822,7 +1818,6 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 
 	return hPlugin;
 }
-/* SVS $ */
 
 /* $ 23.10.2000 SVS
    Функция TestPluginInfo - проверка на вшивость переданных плагином данных
@@ -1870,7 +1865,6 @@ BOOL PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 #if defined(__BORLANDC__)
 #pragma warn +par
 #endif
-/* SVS $ */
 
 /* $ 31.10.2000 SVS
    Функция TestOpenPluginInfo - проверка на вшивость переданных плагином данных
@@ -1922,4 +1916,3 @@ BOOL PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
 #if defined(__BORLANDC__)
 #pragma warn +par
 #endif
-/* SVS $ */

@@ -65,9 +65,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 {
   _OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
   DisableEdit=TRUE;
-  /* $ 02.11.2001 IS
-       отрицательные координаты левого верхнего угла заменяются на нулевые
-  */
+
   if(X1 < 0)
     X1=0;
   if(X2 < 0 || X2 > ScrX)
@@ -86,7 +84,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
     Y1=0;
     Y2=ScrY;
   }
-  /* IS $ */
+
   SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   View.SetTitle(Title);
@@ -117,12 +115,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
 
   SetCanLoseFocus(EnableSwitch);
 
-  /* $ 17.08.2001 KM
-    Добавлено для поиска по AltF7. При редактировании найденного файла из
-    архива для клавиши F2 сделать вызов ShiftF2.
-  */
   SaveToSaveAs=ToSaveAs;
-  /* KM $ */
 
   InitKeyBar();
 
@@ -157,9 +150,6 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
 }
 
 
-/* $ 07.08.2000 SVS
-  Функция инициализации KeyBar Labels
-*/
 void FileViewer::InitKeyBar(void)
 {
   ViewKeyBar.SetAllGroup (KBL_MAIN,      Opt.OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
@@ -186,18 +176,14 @@ void FileViewer::InitKeyBar(void)
   ViewKeyBar.SetAllRegGroup();
 
   SetKeyBar(&ViewKeyBar);
-  // $ 15.07.2000 tran - ShowKeyBarViewer support
   View.SetPosition(X1,Y1,X2,Y2-(Opt.ViOpt.ShowKeyBar?1:0));
   View.SetViewKeyBar(&ViewKeyBar);
 }
-/* SVS $ */
 
 void FileViewer::Show()
 {
   if (FullScreen)
   {
-    /* $ 15.07.2000 tran
-       + keybar hide/show support */
     if ( Opt.ViOpt.ShowKeyBar )
     {
         ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
@@ -205,7 +191,6 @@ void FileViewer::Show()
     }
     SetPosition(0,0,ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
     View.SetPosition(0,(Opt.ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
-    /* tran 15.07.2000 $ */
   }
   ScreenObject::Show();
   ShowStatus();
@@ -242,7 +227,6 @@ int FileViewer::ProcessKey(int Key)
         CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
       return TRUE;
     }
-    /* $ SVS */
 #endif
     /* $ 22.07.2000 tran
        + выход по ctrl-f10 с установкой курсора на файл */
@@ -252,9 +236,6 @@ int FileViewer::ProcessKey(int Key)
           return(TRUE);
         }
         SaveScreen Sc;
-        /* $ 28.12.2001 DJ
-           унифицируем обработку Ctrl-F10
-        */
         string strFileName;
 
         View.GetFileName(strFileName);
@@ -262,10 +243,8 @@ int FileViewer::ProcessKey(int Key)
         CtrlObject->Cp()->GoToFile(strFileName);
 
         RedrawTitle = TRUE;
-        /* DJ $ */
         return (TRUE);
       }
-    /* tran 22.07.2000 $ */
 
     // $ 15.07.2000 tran + CtrlB switch KeyBar
     case KEY_CTRLB:
@@ -286,10 +265,6 @@ int FileViewer::ProcessKey(int Key)
       return (TRUE);
     }
 
-    /* $ 24.08.2000 SVS
-       + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
-    */
-/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
       if(!Opt.OnlyEditorViewerUsed)
       {
@@ -301,7 +276,6 @@ int FileViewer::ProcessKey(int Key)
         }
       }
       return(TRUE);
-    /* SVS $ */
     case KEY_F3:
     case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
       if (F3KeyOnly)
@@ -333,15 +307,10 @@ int FileViewer::ProcessKey(int Key)
         }
         CloseHandle(hEdit);
 
-        /* $ 11.10.2001 IS
-            Если переключаемся в редактор, то удалять файл уже не
-            нужно
-        */
+        // Если переключаемся в редактор, то удалять файл уже не нужно
         SetTempViewName(L"");
-        /* IS $ */
         SetExitCode(0);
         __int64 FilePos=View.GetFilePos();
-        /* $ 06.05.2001 DJ обработка F6 под NWZ */
 
         /* $ 07.07.2006 IS
            Тут косяк, замеченный при чтении warnings - FilePos теряет информацию при преобразовании __int64 -> int
@@ -349,36 +318,25 @@ int FileViewer::ProcessKey(int Key)
         */
         FileEditor *ShellEditor = new FileEditor (strViewFileName, -1,
            (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0),-2, static_cast<int>(FilePos), NULL);
-        /* IS $ */
         ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ сохраняем NamesList */
         ShellEditor->SetNamesList (View.GetNamesList());
-        /* DJ $ */
-        /* DJ $ */
         FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
 
         ShowTime(2);
       }
       return(TRUE);
 
-    /* $ 27.09.2000 SVS
-       + Печать файла с использованием плагина PrintMan
-    */
+    // Печать файла с использованием плагина PrintMan
     case KEY_ALTF5:
     {
       if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER))
         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_VIEWER,0); // printman
       return TRUE;
     }
-    /* SVS $*/
 
-    /* $ 19.12.2000 SVS
-       Вызов диалога настроек (с подачи IS)
-    */
     case KEY_ALTSHIFTF9:
-      /* $ 29.03.2001 IS
-           Работа с локальной копией ViewerOptions
-      */
+      // Работа с локальной копией ViewerOptions
       struct ViewerOptions ViOpt;
 
       ViOpt.TabSize=View.GetTabSize();
@@ -387,32 +345,23 @@ int FileViewer::ProcessKey(int Key)
       ViOpt.ShowArrows=View.GetShowArrows();
       ViOpt.PersistentBlocks=View.GetPersistentBlocks();
 
-      /* $ 27.11.2001 DJ
-         Local в ViewerConfig
-      */
       ViewerConfig(ViOpt,1);
-      /* DJ $ */
 
       View.SetTabSize(ViOpt.TabSize);
       View.SetAutoDetectTable(ViOpt.AutoDetectTable);
       View.SetShowScrollbar(ViOpt.ShowScrollbar);
       View.SetShowArrows(ViOpt.ShowArrows);
       View.SetPersistentBlocks(ViOpt.PersistentBlocks);
-      /* IS $ */
+
       if ( Opt.ViOpt.ShowKeyBar )
         ViewKeyBar.Show();
       View.Show();
       return TRUE;
-    /* SVS $ */
 
-    /* $ 10.05.2001 DJ
-       Alt-F11 - show view/edit history
-    */
     case KEY_ALTF11:
       if (GetCanLoseFocus())
         CtrlObject->CmdLine->ShowViewEditHistory();
       return TRUE;
-    /* DJ $ */
 
     default:
 //      Этот кусок - на будущее (по аналогии с редактором :-)
@@ -424,7 +373,7 @@ int FileViewer::ProcessKey(int Key)
         if (!CtrlObject->Macro.IsExecuting())
           if ( Opt.ViOpt.ShowKeyBar )
               ViewKeyBar.Show();
-        /* SVS $ */
+
         if (!ViewKeyBar.ProcessKey(Key))
           return(View.ProcessKey(Key));
       }
@@ -525,11 +474,8 @@ void FileViewer::ShowStatus()
   if (NameLength<20)
     NameLength=20;
 
-  /* $ 01.10.2000 IS
-     ! Показывать букву диска в статусной строке
-  */
   TruncPathStr(strName, NameLength);
-  /* IS $ */
+
   string strTableName;
   string strTmpTableName;
   if (View.VM.Unicode)

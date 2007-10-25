@@ -91,11 +91,8 @@ static int FindExitCode;
 //static char FindFileArcName[NM];
 
 static string strFindMask, strFindStr;
-/* $ 30.07.2000 KM
-   Добавлена переменная WholeWords для поиска по точному совпадению
-*/
 static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchInSymLink,SearchHex;
-/* KM $ */
+
 static int FindFoldersChanged;
 static int SearchFromChanged;
 static int DlgWidth,DlgHeight;
@@ -121,13 +118,11 @@ static struct CharTableSet TableSet;
    файла на совпадение с искомым.
 */
 static CFileMask FileMaskForFindFile;
-/* IS $ */
 
 /* $ 05.10.2003 KM
    Указатель на объект фильтра операций
 */
 static FileFilter *Filter;
-/* KM $*/
 
 int _cdecl SortItems(const void *p1,const void *p2)
 {
@@ -179,7 +174,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,1);
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,1);
-      /* KM $ */
 
       int W=Dlg->Item[7]->X1-Dlg->Item[4]->X1-5;
 
@@ -225,7 +219,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         GetTable(&TableSet,TRUE,TableNum,UseUnicode);
         strTableName = UMSG(MGetTableWindowsText);
       }
-      /* KM $ */
       else if (!UseDecodeTable)
         strTableName = UMSG(MGetTableNormalText);
       else
@@ -277,7 +270,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         if ( !strTableName.IsEmpty() ) // BUGBUG
         	UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1);
-        /* KM $ */
       }
       return TRUE;
     }
@@ -362,7 +354,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
         }
-        /* KM $ */
 
         int W=Dlg->Item[7]->X1-Dlg->Item[4]->X1-5;
         if (StrLength((Param2?FindHex:FindText))>W)
@@ -385,8 +376,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       else if (Param1==29) // [ ] Advanced options
         EnableSearchInFirst=(int)Param2;
       return TRUE;
-      /* KM $ */
-      /* KM $ */
     }
     case DN_EDITCHANGE:
     {
@@ -407,10 +396,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       return TRUE;
     }
-    /* VVM $ */
-    /* $ 15.10.2003 KM
-        Обработаем "горячие" клавиши
-    */
     case DN_HOTKEY:
     {
       if (Param1==4)
@@ -422,7 +407,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         return FALSE;
       }
     }
-    /* KM $ */
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -448,11 +432,7 @@ FindFiles::FindFiles()
   static string strLastFindMask=L"*.*", strLastFindStr;
   // Статической структуре и статические переменные
   static string strSearchFromRoot;
-  /* $ 30.07.2000 KM
-     Добавлена переменная LastWholeWords для поиска по точному совпадению
-  */
   static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchInSymLink=-1,LastSearchHex=0;
-  /* KM $ */
   int I;
 
   // Создадим объект фильтра
@@ -567,9 +547,6 @@ FindFiles::FindFiles()
 22  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 */
 
-    /* $ 30.07.2000 KM
-       Добавлен новый checkbox "Whole words" в диалог поиска
-    */
     static struct DialogDataEx FindAskDlgData[]=
     {
       /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-2,0,0,0,0,(const wchar_t *)MFindFileTitle,
@@ -590,7 +567,7 @@ FindFiles::FindFiles()
       /* 15 */DI_CHECKBOX,40,9,0,9,0,0,0,0,(const wchar_t *)MFindFolders,
       /* 16 */DI_CHECKBOX,40,10,0,10,0,0,0,0,(const wchar_t *)MFindSymLinks,
       /* 17 */DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
-        /* 18 */DI_VTEXT,38,7,0,7,0,0,DIF_BOXCOLOR,0,L"\x253C\x2502\x2502\x2502\x2567",
+      /* 18 */DI_VTEXT,38,7,0,7,0,0,DIF_BOXCOLOR,0,L"\x253C\x2502\x2502\x2502\x2567",
       /* 19 */DI_TEXT,5,12,0,12,0,0,0,0,(const wchar_t *)MSearchWhere,
       /* 20 */DI_RADIOBUTTON,5,13,0,13,0,0,DIF_GROUP,0,(const wchar_t *)MSearchAllDisks,
       /* 21 */DI_RADIOBUTTON,5,14,0,14,0,1,0,0,(const wchar_t *)MSearchAllButNetwork,
@@ -609,7 +586,6 @@ FindFiles::FindFiles()
       /* 34 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
       /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
     };
-    /* KM $ */
 
     FindAskDlgData[23].Data = strSearchFromRoot; //BUGBUG
 
@@ -628,12 +604,10 @@ FindFiles::FindFiles()
         struct OpenPluginInfo Info;
         HANDLE hPlugin=ActivePanel->GetPluginHandle();
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-        /* $ 14.05.2001 DJ
-           дизейблим, а не прячем
-        */
+
         if ((Info.Flags & OPIF_REALNAMES)==0)
           FindAskDlg[14].Flags |= DIF_DISABLE;
-        /* DJ $ */
+
         if (FindAskDlg[20].Selected || FindAskDlg[21].Selected)
         {
           FindAskDlg[20].Selected=FindAskDlg[21].Selected=0;
@@ -656,16 +630,13 @@ FindFiles::FindFiles()
     */
     if (!(FindAskDlg[14].Flags & DIF_DISABLE))
       FindAskDlg[14].Selected=SearchInArchives;
-    /* DJ $ */
 
     FindAskDlg[2].strData = strFindMask;
 
-    /* $ 26.10.2003 KM */
     if (SearchHex)
       FindAskDlg[6].strData = strFindStr;
     else
       FindAskDlg[5].strData = strFindStr;
-    /* KM $ */
 
     FindAskDlg[11].Selected=CmpCase;
     FindAskDlg[12].Selected=WholeWords;
@@ -716,15 +687,10 @@ FindFiles::FindFiles()
 
       if(FileMaskForFindFile.Set(FindAskDlg[2].strData, FMF_ADDASTERISK))
            break;
-      /* IS $ */
     }
 
     CmpCase=FindAskDlg[11].Selected;
-    /* $ 30.07.2000 KM
-       Добавлена переменная
-    */
     WholeWords=FindAskDlg[12].Selected;
-    /* KM $ */
     SearchHex=FindAskDlg[13].Selected;
     SearchInArchives=FindAskDlg[14].Selected;
     if (FindFoldersChanged)
@@ -750,11 +716,7 @@ FindFiles::FindFiles()
     {
       UnicodeToAnsi(strFindStr, GlobalSearchString, sizeof (GlobalSearchString)-1);
       GlobalSearchCase=CmpCase;
-      /* $ 30.07.2000 KM
-         Добавлена переменная
-      */
       GlobalSearchWholeWords=WholeWords;
-      /* KM $ */
       GlobalSearchHex=SearchHex;
     }
     if (FindAskDlg[20].Selected)
@@ -776,11 +738,7 @@ FindFiles::FindFiles()
       Opt.FindOpt.FileSearchMode=SearchMode;
     }
     LastCmpCase=CmpCase;
-    /* $ 30.07.2000 KM
-       Добавлена переменная
-    */
     LastWholeWords=WholeWords;
-    /* KM $ */
     LastSearchHex=SearchHex;
     LastSearchInArchives=SearchInArchives;
     LastSearchInSymLink=SearchInSymLink;
@@ -796,11 +754,7 @@ FindFiles::FindFiles()
 
 FindFiles::~FindFiles()
 {
-  /* $ 02.07.2001 IS
-     Освободим память.
-  */
   FileMaskForFindFile.Free();
-  /* IS $ */
   ClearAllLists();
   ScrBuf.ResetShadow();
 
@@ -819,9 +773,7 @@ LONG_PTR WINAPI FindFiles::AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_P
     }
     case DN_LISTCHANGE:
     {
-      /* $ 11.12.2005 KM
-        Запомним индекс типа размера
-      */
+      //  Запомним индекс типа размера
       if (Param1==3)
       {
         SearchInFirstIndex=(int)Param2;
@@ -848,7 +800,6 @@ void FindFiles::AdvancedDialog()
   xwcsncpy(SizeItem[1].Text,UMSG(MFindFileSearchInKBytes),(sizeof(SizeItem[2].Text)-1)/sizeof (wchar_t));
   xwcsncpy(SizeItem[2].Text,UMSG(MFindFileSearchInMBytes),(sizeof(SizeItem[3].Text)-1)/sizeof (wchar_t));
   xwcsncpy(SizeItem[3].Text,UMSG(MFindFileSearchInGBytes),(sizeof(SizeItem[4].Text)-1)/sizeof (wchar_t));
-  /* KM $ */
 
   const wchar_t *DigitMask=L"99999999999999999999";
 
@@ -894,7 +845,6 @@ void FindFiles::AdvancedDialog()
 
     // Получим максимальный размер чтения из файла при поиске
     SearchInFirst=GetSearchInFirst(AdvancedDlg[2].strData);
-    /* KM $ */
   }
 
   xf_free(SizeItem);
@@ -1030,7 +980,6 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       {
         Ret = FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
       }
-      /* VVM $ */
       return Ret;
     }
 
@@ -1485,7 +1434,6 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       return TRUE;
     }
-    /* KM $ */
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -1668,7 +1616,6 @@ int FindFiles::FindFilesProcess()
               if ((Length) && (pi->FindData.lpwszFileName[Length-1]=='\\'))
                 pi->FindData.lpwszFileName[Length-1] = 0;
             }
-            /* VVM $ */
           }
         } /* if */
       } /* for */
@@ -1733,7 +1680,6 @@ int FindFiles::FindFilesProcess()
             CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_FIND);
 
           SetPluginDirectory(strFileName,hPlugin,TRUE);
-          /* KM $ */
         }
       } /* if */
       else
@@ -1804,7 +1750,6 @@ int FindFiles::FindFilesProcess()
           if(0!=StrCmpI(strFileName, strDirTmp))
             FindPanel->SetCurDir(strFileName,TRUE);
         }
-        /* IS $ */
         if ( !strSetName.IsEmpty() )
           FindPanel->GoToFile(strSetName);
         FindPanel->Show();
@@ -1838,7 +1783,6 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
   strName = DirName;
   StartName=strName.GetBuffer();
   while(IsPluginDir?(EndName=wcschr(StartName,L'\x1'))!=NULL:(EndName=wcschr(StartName,L'\\'))!=NULL)
-  /* KM $ */
   {
     *EndName=0;
     // RereadPlugin
@@ -1851,9 +1795,8 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
     CtrlObject->Plugins.SetDirectory(hPlugin,StartName,OPM_FIND);
     StartName=EndName+1;
   }
-  /* $ 19.01.2003 KM
-     Отрисуем панель при необходимости.
-  */
+
+  //   Отрисуем панель при необходимости.
   if (UpdatePanel)
   {
     CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
@@ -1863,7 +1806,6 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
   }
 
   strName.ReleaseBuffer();
-  /* KM $ */
 }
 
 
@@ -1936,7 +1878,6 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 
                 statusCS.Leave();
               }
-              /* KM $ */
 
               if (IsFileIncluded(NULL,strFullName,FindData.dwFileAttributes))
                 AddMenuRecord(strFullName,&FindData);
@@ -1944,7 +1885,6 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
               if (SearchInArchives)
                 ArchiveSearch(strFullName);
             }
-            /* KM $ */
           }
           if (SearchMode!=SEARCH_SELECTED)
             break;
@@ -2077,9 +2017,7 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
   string strArcName = ArcName;
 
   HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName,(unsigned char *)Buffer,ReadSize,OPM_FIND);
-  /* $ 01.10.2001 VVM */
   DisablePluginsOutput=SavePluginsOutput;
-  /* VVM $ */
 
   delete[] Buffer;
 
@@ -2114,7 +2052,6 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
          Запомним пути поиска в плагине, они могут измениться.
       */
       strSaveSearchPath = strPluginSearchPath;
-      /* KM $ */
 
       strSaveDirName = strLastDirName;
       strLastDirName = L"";
@@ -2127,7 +2064,6 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
       if (SaveListCount == FindListCount)
         strLastDirName = strSaveDirName;
     }
-    /* VVM $ */
   }
   FindFileArcIndex = SaveArcIndex;
   SearchMode=SaveSearchMode;
@@ -2156,8 +2092,6 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,
 //        ((hPlugin == INVALID_HANDLE_VALUE) ||
 //        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
       return FALSE;
-    /* VVM $ */
-    /* KM $ */
 
     if ( !strFindStr.IsEmpty() && FileFound)
     {
@@ -2197,7 +2131,6 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,
   }
   return(FileFound);
 }
-/* IS $ */
 
 
 void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA *FindData)
@@ -2250,7 +2183,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   */
   if (FindFileArcIndex != LIST_INDEX_NONE)
     DisplayName=PointToName(DisplayName);
-  /* KM $ */
 
   strFileText.Format (L" %-26.26s %13.13s",DisplayName,(const wchar_t*)strSizeText);
 
@@ -2305,7 +2237,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 
   strAttr.Format (L" %s", AttrStr);
   strFileText += strAttr;
-  /* KM $ */
   strMenuText.Format (L" %-*.*s",DlgWidth-3,DlgWidth-3, (const wchar_t*)strFileText);
 
   string strPathName;
@@ -2331,7 +2262,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
       // С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
       ListBox->SetUserData((void*)(DWORD_PTR)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
       ListItem.Flags&=~LIF_DISABLE;
-      /* DJ $ */
     }
     ffCS.Enter ();
 
@@ -2369,7 +2299,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
           Used=0 - Имя не попададёт во временную панель.
       */
       FindList[ItemIndex]->Used=0;
-      /* KM $ */
       // Поставим атрибут у каталога, что-бы он не был файлом :)
       FindList[ItemIndex]->FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
       if (FindFileArcIndex != LIST_INDEX_NONE)
@@ -2400,7 +2329,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
        Used=1 - Имя попададёт во временную панель.
     */
     FindList[ItemIndex]->Used=1;
-    /* KM $ */
     if (FindFileArcIndex != LIST_INDEX_NONE)
       FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
   }
@@ -2416,7 +2344,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   // Выделим как положено - в списке.
   if (!FindFileCount && !FindDirCount)
     ListBox->SetSelectPos(ListPos, -1);
-  /* VVM $ */
 
   statusCS.Enter();
 
@@ -2426,7 +2353,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
     FindFileCount++;
 
   statusCS.Leave();
-  /* KM $ */
 
   LastFoundNumber++;
   FindCountReady=TRUE;
@@ -2462,7 +2388,6 @@ int FindFiles::LookForString(const wchar_t *Name)
   FILETIME LastAccess;
   int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);
 
-  /* $ 26.10.2003 KM */
   if (SearchHex)
   {
     int LenCmpStr=sizeof(CmpStr);
@@ -2472,15 +2397,11 @@ int FindFiles::LookForString(const wchar_t *Name)
   }
   else
     xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-  /* KM $ */
 
   if (!CmpCase && !SearchHex)
     LocalStrupr(CmpStr);
-  /* $ 30.07.2000 KM
-     Добавочные переменные
-  */
+
   int FirstIteration=TRUE;
-  /* KM $ */
   int ReverseBOM=FALSE;
   int IsFirst=FALSE;
 
@@ -2506,7 +2427,6 @@ int FindFiles::LookForString(const wchar_t *Name)
 
       AlreadyRead+=ReadSize;
     }
-    /* KM $ */
 
     /* $ 11.09.2005 KM
        - Bug #1377
@@ -2543,10 +2463,8 @@ int FindFiles::LookForString(const wchar_t *Name)
              ReverseBOM=TRUE;       // byte-reversed byte-order mark
                                     // (Reverse BOM) 0xFFFE as its first character.
         }
-        /* SVS $ */
       }
     }
-    /* KM $ */
 
     while (1)
     {
@@ -2596,19 +2514,14 @@ int FindFiles::LookForString(const wchar_t *Name)
             for (int I=0;I<ReadSize;I++)
               Buf[I]=TableSet.DecodeTable[Buf[I]];
           }
-          /* KM $ */
         }
         if (!CmpCase)
           LocalUpperBuf(Buf,ReadSize);
       }
-      /* KM $ */
 
       int CheckSize=ReadSize-Length+1;
       /* $ 30.07.2000 KM
          Обработка "Whole words" в поиске
-      */
-      /* $ 26.05.2002 KM
-          Исправлены ошибки в поиске по целым словам.
       */
       for (int I=0;I<CheckSize;I++)
       {
@@ -2644,7 +2557,6 @@ int FindFiles::LookForString(const wchar_t *Name)
                (strchr(lpWordDiv,Buf[I+Length])!=NULL)))
               locResultRight=TRUE;
         }
-        /* KM $ */
         else
         {
           locResultLeft=TRUE;
@@ -2665,8 +2577,6 @@ int FindFiles::LookForString(const wchar_t *Name)
           return(TRUE);
         }
       }
-      /* KM $ */
-      /* KM $ */
       /* $ 22.09.2003 KM
          Поиск по hex-кодам
       */
@@ -2709,9 +2619,7 @@ int FindFiles::LookForString(const wchar_t *Name)
       }
       else
         break;
-      /* KM $ */
     }
-    /* KM $ */
 
     if (RealReadSize==sizeof(Buf))
     {
@@ -2731,8 +2639,6 @@ int FindFiles::LookForString(const wchar_t *Name)
       else
         NewPos=ftell64(SrcFile)-(__int64)(Length+1);
       fseek64(SrcFile,Max(NewPos,_i64(0)),SEEK_SET);
-      /* KM $ */
-      /* KM $ */
     }
   }
   if (TimeRead)
@@ -2748,7 +2654,6 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
     Sleep(200);
     strPluginSearchPath=L"";
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-    /* $ 15.10.2001 VVM */
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -2762,7 +2667,6 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
     ReleaseMutex(hPluginMutex);
     RecurseLevel=0;
     ScanPluginTree(hPlugin,ArcList[FindFileArcIndex]->Flags);
-    /* VVM $ */
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==SEARCH_ROOT ||
         SearchMode==SEARCH_ALL ||
@@ -2829,8 +2733,6 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
   */
 //  if (PanelData && strlen(PointToName(PanelData->FindData.cFileName))>0)
 //    far_qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
-  /* KM $ */
-  /* KM $ */
 
   if (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1)
   {
@@ -2879,7 +2781,6 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
           statusCS.Leave();
 
         }
-        /* KM $ */
 
         if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FindData.dwFileAttributes))
           AddMenuRecord(strFullName,&CurPanelItem->FindData);
@@ -2887,7 +2788,6 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
           ArchiveSearch(strFullName);
       }
-      /* KM $ */
     }
   }
   if (SearchMode!=SEARCH_CURRENT_ONLY)

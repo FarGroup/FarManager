@@ -113,9 +113,7 @@ private:
     virtual void DisplayObject();
     int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
     BOOL UpdateFileList();
-    /* $ 10.10.2001 IS установка DeleteOnClose */
-    /* $ 14.06.2002 IS
-        DeleteOnClose стал int:
+    /* Ret:
           0 - не удалять ничего
           1 - удалять файл и каталог
           2 - удалять только файл
@@ -125,26 +123,11 @@ private:
 
 public:
     FileEditor(const wchar_t *Name, int codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=NULL,int OpenModeExstFile=FEOPMODE_QUERY);
-    /* $ 14.06.2002 IS
-       DeleteOnClose стал int:
-         0 - не удалять ничего
-         1 - удалять файл и каталог
-         2 - удалять только файл
-    */
     FileEditor(const wchar_t *Name, int codepage, DWORD InitFlags,int StartLine,int StartChar,const wchar_t *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
-    /* IS $ */
-    /* $ 07.05.2001 DJ */
     virtual ~FileEditor();
-    /* DJ $ */
 
 
 public:
-    /* $ 14.06.2002 IS
-       DeleteOnClose стал int:
-         0 - не удалять ничего
-         1 - удалять файл и каталог
-         2 - удалять только файл
-    */
 	void Init(
 			const wchar_t *Name,
 			int codepage,
@@ -185,7 +168,6 @@ public:
       архива для клавиши F2 сделать вызов ShiftF2.
     */
     void SetSaveToSaveAs(int ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs); InitKeyBar(); }
-    /* KM $ */
 
     /* $ 08.12.2001 OT
       возвращает признак того, является ли файл временным

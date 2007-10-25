@@ -72,9 +72,6 @@ static long OldCalcTime;
 
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
-/* $ 30.01.2001 VVM
-   + Константы для правил показа
-   + Рабочие перменные */
 enum {
   COPY_RULE_NUL    = 0x0001,
   COPY_RULE_FILES  = 0x0002,
@@ -85,7 +82,7 @@ static int TotalFilesToProcess;
 static int ShowCopyTime;
 static clock_t CopyStartTime;
 static clock_t LastShowTime;
-/* VVM $ */
+
 static int OrigScrX,OrigScrY;
 
 static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
@@ -110,12 +107,8 @@ static string strTotalCopySizeText;
 static ConsoleTitle *StaticCopyTitle=NULL;
 static BOOL NT5, NT;
 
-/* $ 15.04.2005 KM
-   Указатель на объект фильтра операций
-*/
 static FileFilter *Filter;
 static int UseFilter=FALSE;
-/* KM $*/
 
 struct CopyDlgParam {
   ShellCopy *thisClass;
@@ -202,8 +195,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
   NT5=NT && WinVer.dwMajorVersion >= 5;
 
-  /* $ 06.06.2001 tran
-     инициализация NULL должна быть ДО ЛЮБЫХ Return из конструктора... */
   CopyBuffer=NULL;
 
   if(Link && !NT) // Создание линков только под NT
@@ -235,10 +226,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   sddata=new char[SDDATA_SIZE]; // Security 16000?
 
-  /* $ 26.05.2001 OT Запретить перерисовку панелей во время копирования */
+  // $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
   _tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
   (*FrameManager)[0]->Lock();
-  /* OT $ */
 
   // Размер буфера берется из реестра
   GetRegKey(L"System", L"CopyBufferSize", CopyBufferSize, 0);
@@ -289,6 +279,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
        именно эту переменную всячески измененяем, а CopyDlg[2].Data не трогаем.
   */
   string strCopyDlgValue;
+
   string strInitDestDir;
   string strDestDir;
   string strSrcDir;
@@ -511,11 +502,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   CopyDlg[ID_SC_TARGETEDIT].nMaxLength = 520; //!!!!!
 
   if (CurrentOnly)
-  /* $ 23.03.2002 IS
-     При копировании только элемента под курсором берем его имя в кавычки,
-     если оно содержит разделители.
-  */
   {
+    //   При копировании только элемента под курсором берем его имя в кавычки, если оно содержит разделители.
     CopyDlg[ID_SC_TARGETEDIT].strData = strSelName;
     if(wcspbrk(CopyDlg[ID_SC_TARGETEDIT].strData,L",;"))
     {
@@ -523,7 +511,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       InsertQuote(CopyDlg[ID_SC_TARGETEDIT].strData); // возьмем в кавычки, т.к. могут быть разделители
     }
   }
-  /* IS $ */
   else
     switch(DestPanelMode)
     {
@@ -544,7 +531,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           Unquote(CopyDlg[ID_SC_TARGETEDIT].strData);     // уберем все лишние кавычки
           InsertQuote(CopyDlg[ID_SC_TARGETEDIT].strData); // возьмем в кавычки, т.к. могут быть разделители
         }
-        /* IS $ */
         break;
       case PLUGIN_PANEL:
         {
@@ -621,7 +607,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if(!DestList.Set(strCopyDlgValue))
       Ask=TRUE;
   }
-  /* IS $ */
+
   // ***********************************************************************
   // *** Вывод и обработка диалога
   // ***********************************************************************
@@ -632,9 +618,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 
 //    Dlg.Show();
-    /* $ 02.06.2001 IS
-       + Проверим список целей и поднимем тревогу, если он содержит ошибки
-    */
+    // $ 02.06.2001 IS + Проверим список целей и поднимем тревогу, если он содержит ошибки
     int DlgExitCode;
     for(;;)
     {
@@ -662,7 +646,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
            // зависимости от наличия разделителей в оном
            InsertQuote(strCopyDlgValue);
         }
-        /* IS $ */
+
         if(DestList.Set(strCopyDlgValue) && !wcspbrk(strCopyDlgValue,ReservedFilenameSymbols))
         {
           // Запомнить признак использования фильтра. KM
@@ -675,7 +659,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       else
         break;
     }
-    /* IS $ */
+
     if(DlgExitCode == ID_SC_BTNCANCEL || DlgExitCode < 0 || (CopyDlg[ID_SC_BTNCOPY].Flags&DIF_DISABLE))
     {
       if (DestPlugin)
@@ -788,9 +772,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
      ЕСЛИ ПРИНЯТЬ В КАЧЕСТВЕ РАЗДЕЛИТЕЛЯ ПУТЕЙ, НАПРИМЕР ';',
      то нужно парсить CopyDlgValue на предмет MultiCopy и
      вызывать CopyFileTree нужное количество раз.
-  */
-  /* $ 02.06.2001 IS
-     + Коректная обработка списка целей с учетом кавычек
   */
   {
     ShellCopy::Flags&=~FCOPY_MOVE;
@@ -943,7 +924,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
     _LOGCOPYR(else SysLog(L"Error: DestList.Set(CopyDlgValue) return FALSE"));
   }
-  /* IS $ */
 
   // ***********************************************************************
   // *** заключительеая стадия процесса
@@ -1019,7 +999,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-#define DM_CALLTREE (DM_USER+1)
+  #define DM_CALLTREE (DM_USER+1)
+
   struct CopyDlgParam *DlgParam;
   DlgParam=(struct CopyDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
@@ -1229,7 +1210,6 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       DlgParam->AltF10=0;
       return TRUE;
-      /* IS $ */
     }
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -1249,7 +1229,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     *Selected5=0;
     return TRUE;
   }
-//// // _SVS(SysLog(L"\n---"));
+  // _SVS(SysLog(L"\n---"));
   // получаем полную инфу о источнике и приемнике
   if(CDP->IsDTSrcFixed == -1)
   {
@@ -1259,21 +1239,21 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     Unquote(strRoot);
     ConvertNameToFull(strRoot, strRoot);
     GetPathRoot(strRoot,strRoot);
-//// // _SVS(SysLog(L"SrcDir=%s",SrcDir));
-//// // _SVS(SysLog(L"Root=%s",Root));
+    // _SVS(SysLog(L"SrcDir=%s",SrcDir));
+    // _SVS(SysLog(L"Root=%s",Root));
     CDP->IsDTSrcFixed=FAR_GetDriveType(strRoot);
     CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED ||
                       IsDriveTypeCDROM(CDP->IsDTSrcFixed) ||
                       (NT5 && WinVer.dwMinorVersion>0?DRIVE_REMOVABLE:0);
     apiGetVolumeInformation(strRoot,NULL,NULL,NULL,&CDP->FileSystemFlagsSrc,&strFSysNameSrc);
     CDP->FSysNTFS=!StrCmpI(strFSysNameSrc,L"NTFS")?TRUE:FALSE;
-//// // _SVS(SysLog(L"FSysNameSrc=%s",FSysNameSrc));
+    // _SVS(SysLog(L"FSysNameSrc=%s",FSysNameSrc));
   }
 
-/*
-С сетевого на локаль - имеем задисабленную [ ] Symbolic link.
-С локали на сетевой  - происходит удачная попытка
-*/
+  /*
+  С сетевого на локаль - имеем задисабленную [ ] Symbolic link.
+  С локали на сетевой  - происходит удачная попытка
+  */
   // 1. если источник находится не на логическом диске
   if(CDP->IsDTSrcFixed || CDP->FSysNTFS)
   {
@@ -1426,8 +1406,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
   if(TotalCopySize == 0)
   {
     strTotalCopySizeText=L"";
-    /* $ 19.12.2001 VVM
-      ! Не сканируем каталоги при создании линков */
+
+    //  ! Не сканируем каталоги при создании линков
     if (ShowTotalCopySize && !(ShellCopy::Flags&FCOPY_LINK) && !CalcTotalSize())
       return COPY_FAILURE;
   }
@@ -1737,7 +1717,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         */
         if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
           continue;
-        /* KM $ */
 
         int AttemptToMove=FALSE;
         if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
@@ -1847,7 +1826,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         strDestPath = strSelName;
         apiRemoveDirectory(strDestPath);
       }
-      /* KM $ */
+
     }
     else if ((ShellCopy::Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
     {
@@ -1952,9 +1931,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
          if(!StrCmp(PointToName(Src),PointToName(strDestPath)))
            CmpCode=2; // ошибка: новое имя идентично старому
          else
-           RenameToShortName = (!StrCmpI(DestData.strFileName,
-             SrcData.strFileName) &&
-             0!=StrCmpI(DestData.strAlternateFileName,SrcData.strFileName));
+           RenameToShortName = (!StrCmpI(DestData.strFileName, SrcData.strFileName) &&
+                               0!=StrCmpI(DestData.strAlternateFileName,SrcData.strFileName));
       }
       if (CmpCode==2 || !Rename)
       {
@@ -2104,7 +2082,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         strCopiedName = PointToName(strDestPath);
 
       if (DestAttr!=(DWORD)-1 && !RenameToShortName)
-      /* IS $ */
       {
         if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
         {
@@ -2151,8 +2128,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             IsSetSecuty=TRUE;
         }
 
-        /* $ 18.07.2001 VVM
-          + Пытаемся переименовать, пока не отменят */
+        // Пытаемся переименовать, пока не отменят
         while (1)
         {
           BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,strDestPath):apiMoveFile(Src,strDestPath);
@@ -2173,7 +2149,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
             return(SameName ? COPY_NEXT:COPY_SUCCESS_MOVE);
           }
-          else // $ 18.07.2001 VVM
+          else
           {
             int LastError = GetLastError();
             int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
@@ -2205,11 +2181,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
                   return (COPY_CANCEL);
               } /* switch */
             } /* else */
-            /* VVM $ */
           } /* else */
         } /* while */
-        /* VVM $ */
-      }
+      } // if (Rename)
 
       SECURITY_ATTRIBUTES sa;
       if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sa))
@@ -2638,14 +2612,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 }
 
 
-COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
-{
-    return COPY_SUCCESS;
-}
-
-/*
 // проверка очередного монстрика на потоки
-COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
+COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
 {
 #if 0
   int AscStreams=(ShellCopy::Flags&FCOPY_STREAMSKIP)?2:((ShellCopy::Flags&FCOPY_STREAMALL)?0:1);
@@ -2681,9 +2649,9 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
     }
   }
 #endif
-  return COPY_SUCCESS;
+    return COPY_SUCCESS;
 }
-*/
+
 
 void ShellCopy::PR_ShellCopyMsg(void)
 {
@@ -3072,11 +3040,6 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     }
     DWORD BytesRead,BytesWritten;
 
-    /* $ 23.10.2000 VVM
-       + Динамический буфер копирования */
-
-    /* $ 25.04.2003 VVM
-       - Отменим пока это буфер */
 //    if (CopyBufSize < CopyBufferSize)
 //      StartTime=clock();
     while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
@@ -3267,8 +3230,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     if (ShowTotalCopySize)
       TotalCopiedSize+=BytesWritten;
 
-    /* $ 14.09.2002 VVM
-      + Показывать прогресс не чаще 5 раз в секунду */
+    //  + Показывать прогресс не чаще 5 раз в секунду
     if ((CurCopiedSize == FileSize) || (clock() - LastShowTime > COPY_TIMEOUT))
     {
       ShowBar(CurCopiedSize,FileSize,false);
@@ -3278,8 +3240,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
         ShowTitle(FALSE);
       }
     }
-    /* VVM $ */
   } /* while */
+
   SetErrorMode(OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
@@ -3300,38 +3262,27 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
   return COPY_SUCCESS;
 }
 
-/* $ 30.01.2001 VVM
-    + Перевод секунд в текст */
 static void GetTimeText(int Time, string &strTimeText)
 {
   int Sec = Time;
   int Min = Sec/60;
   Sec-=(Min * 60);
-  /*$ 17.05.2001 SKV
-    Хм. В часе 24 минуты??? :)
-    int Hour = Min/24;
-    Min-=(Hour*24);
-  */
   int Hour = Min/60;
   Min-=(Hour*60);
-  /* SKV$*/
   strTimeText.Format (L"%02d:%02d:%02d",Hour,Min,Sec);
 }
-/* VVM $ */
 
-/* $ 30.04.2003 VVM
-  + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE */
+//  + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE
 int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar)
 {
   // // _LOGCOPYR(CleverSysLog clv(L"ShellCopy::ShowBar"));
   // // _LOGCOPYR(SysLog(L"WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   if (!ShowTotalCopySize || TotalBar)
     LastShowTime = clock();
-/* $ 30.01.2001 VVM
-    + Запомнить размеры */
+
   unsigned __int64 OldWrittenSize = WrittenSize;
   unsigned __int64 OldTotalSize = TotalSize;
-/* VVM $ */
+
   WrittenSize=WrittenSize>>8;
   TotalSize=TotalSize>>8;
 
@@ -3370,8 +3321,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
 
   Text(strPercents);
 
-/* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость. */
+  //  + Показывает время копирования,оставшееся время и среднюю скорость.
   // // _LOGCOPYR(SysLog(L"!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
@@ -3422,7 +3372,6 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     Text(strTimeStr);
   }
   return (TRUE);
-/* VVM $ */
 }
 
 
@@ -3491,9 +3440,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
       if ((FindHandle=apiFindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
         FindClose(FindHandle);
       DestDataFilled=TRUE;
-      /* $ 04.08.2000 SVS
-         Опция "Only newer file(s)"
-      */
+      //   Опция "Only newer file(s)"
       if((ShellCopy::Flags&FCOPY_ONLYNEWERFILES))
       {
         // сравним время
@@ -3531,7 +3478,6 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
         if (!AskAppend && MsgCode==4)
           MsgCode=5;
       }
-      /* SVS $*/
     }
   }
 
@@ -3898,15 +3844,12 @@ bool ShellCopy::CalcTotalSize()
     }
     else
     {
-      /* $ 23.04.2005 KM
-        Подсчитаем количество файлов
-      */
+      //  Подсчитаем количество файлов
       if (UseFilter)
       {
         if (!Filter->FileInFilter(&fd))
           continue;
       }
-      /* KM $ */
 
       unsigned __int64 FileSize = SrcPanel->GetLastSelectedSize();
 
@@ -4087,11 +4030,11 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags)
         strSrcFullName = SelName;
         AddEndSlash(strSrcFullName);
       }
-/*
-    Вот здесь - ну очень умное поведение!
-    Т.е. если в качестве SelName передали "C:", то в этом куске происходит
-    коррекция типа линка - с symlink`а на volmount
-*/
+      /*
+        Вот здесь - ну очень умное поведение!
+        Т.е. если в качестве SelName передали "C:", то в этом куске происходит
+        коррекция типа линка - с symlink`а на volmount
+      */
       Flags&=~FCOPY_LINK;
       Flags|=FCOPY_VOLMOUNT;
     }

@@ -44,6 +44,7 @@ class GetFileString
     int m_nStrLength;
     FILE *SrcFile;
 
+  private:
     int GetAnsiString(char **DestStr,int &Length);
     int GetUnicodeString(wchar_t **DestStr,int &Length);
     int GetReverseUnicodeString(wchar_t **DestStr,int &Length);
@@ -51,6 +52,8 @@ class GetFileString
   public:
     GetFileString(FILE *SrcFile);
     ~GetFileString();
+
+  public:
     int GetString(wchar_t **DestStr, int nCodePage, int &Length);
 };
 

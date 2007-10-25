@@ -115,7 +115,6 @@ void InitConsole(int FirstInit)
       }
     }
   }
-  /* DJ $ */
   GetVideoMode(CurScreenBufferInfo);
   ScrBuf.FillBuf();
   // было sizeof(Palette)
@@ -124,7 +123,6 @@ void InitConsole(int FirstInit)
   */
   if(FirstInit)
     memcpy(Palette,DefaultPalette,SizeArrayPalette);
-  /* SKV$*/
 #if defined(DETECT_ALT_ENTER)
   PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
 #endif
@@ -147,15 +145,8 @@ void CloseConsole()
   ChangeConsoleMode(InitialConsoleMode);
   CloseHandle(hConInp);
   CloseHandle(hConOut);
-  /* $ 22.05.2001 tran
-     codeguard says... */
   delete KeyQueue;
-  /* tran $ */
-  /*$ 27.06.2001 SKV
-    ... а обNULLить?
-  */
   KeyQueue=NULL;
-  /* SKV$*/
 }
 
 
@@ -475,7 +466,6 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
     return(FALSE);
   }
   return TRUE;
-  /* IS $ */
 }
 
 
@@ -787,9 +777,6 @@ void Text(int MsgId)
   Text(UMSG(MsgId));
 }
 
-/* VVM $ */
-/* SVS $ */
-
 void VText(const WCHAR *Str)
 {
   int Length=StrLength(Str);
@@ -1009,9 +996,6 @@ void BoxText(WCHAR *Str,int IsVert)
 /*
    Отрисовка прямоугольника.
 */
-/* $ 23.07.2000 SVS
-   Немного оптимизации :-)
-*/
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
   static char ChrBox[2][6]={
@@ -1055,7 +1039,6 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
     //vmprintf(L"%.*s",y2-y1-1,OutStr);
   }
 }
-/* SVS $ */
 
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY)
 {

@@ -52,12 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
-// Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
-// ГУЯХ PE-модуля
-/* 14.06.2002 VVM
-  + Возвращаем константы IMAGE_SUBSYSTEM_*
-    Дабы консоль отличать */
+// Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о ГУЯХ PE-модуля
 
+// Возвращаем константы IMAGE_SUBSYSTEM_* дабы консоль отличать
 // При выходе из процедуры IMAGE_SUBSYTEM_UNKNOWN означает
 // "файл не является исполняемым".
 // Для DOS-приложений определим еще одно значение флага.
@@ -88,7 +85,6 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
       /* 31.07.2003 VVM
         ! Перерыл весь MSDN - этого условия не нашел */
 //      if (dos_head.e_lfarlc >= 0x40)
-      /* VVM $ */
       {
         DWORD signature;
         #include <pshpack1.h>
@@ -170,7 +166,6 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 
   return Ret;
 }
-/* VVM $ */
 
 // по имени файла (по его расширению) получить команду активации
 // Дополнительно смотрится гуевость команды-активатора
@@ -219,8 +214,6 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     UserDefinedList ActionList(0,0,ULF_UNIQUE);
 
     RetPtr=(*Action==0 ? NULL:Action);
-    /* $ 03.10.2002 VVM
-      + Команд в одной строке может быть несколько. */
     const wchar_t *ActionPtr;
 
     LONG RetEnum = ERROR_SUCCESS;
@@ -246,7 +239,6 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     } /* if */
     else
       wcsncat(Value,Action, (sizeof(Value) - 1)/2);
-    /* VVM $ */
 
 //_SVS(SysLog(L"[%d] Value='%s'",__LINE__,Value));
     if(RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
@@ -308,6 +300,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     } /* while */
 //_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
   } /* if */
+
   RegCloseKey(hKey);
 
   if (RetPtr != NULL)
@@ -490,8 +483,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
     if(!Ret) // второй проход - по правилам SearchPath
     {
-      /* $ 26.09.2003 VVM
-        ! Сначала поищем по переменной PATH, а уж потом везде */
       string strPathEnv;
       if (apiGetEnvironmentVariable(L"PATH",strPathEnv) != 0)
       {
@@ -551,7 +542,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
           PtrExt+=StrLength(PtrExt)+1;
         }
       }
-      /* VVM $ */
 
       if (!Ret && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
       {
@@ -588,8 +578,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
         }
 
         if (!Ret && Opt.ExecuteUseAppPath)
-        /* $ 14.06.2002 VVM
-           Не нашли - попробуем с расширением */
         {
           PtrExt=StdExecuteExt;
 
@@ -637,8 +625,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
   return(Ret);
 }
 
-/* $ 14.06.2002 VVM
-   Отключим эту функцию, т.к. ее никто не пользует */
 #ifdef ADD_GUI_CHECK
 DWORD IsCommandExeGUI(const char *Command)
 {
@@ -658,10 +644,7 @@ DWORD IsCommandExeGUI(const char *Command)
   }
   int GUIType=0;
 
-  /* $ 07.09.2001 VVM
-    + Обработать переменные окружения */
   ExpandEnvironmentStrings(FullName,FileName,sizeof(FileName));
-  /* VVM $ */
 
   SetFileApisTo(APIS2ANSI);
   /*$ 18.09.2000 skv
@@ -674,7 +657,6 @@ DWORD IsCommandExeGUI(const char *Command)
   {
     if(BatchFileExist(FileName,FullName,sizeof(FullName)-1))
       break;
-  /* skv$*/
 
     if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
     {
@@ -693,12 +675,10 @@ DWORD IsCommandExeGUI(const char *Command)
 */
     break;
   }
-  /* skv$*/
   SetFileApisTo(APIS2OEM);
   return(GUIType);
 }
 #endif
-/* VVM $ */
 
 
 /* Функция для выставления пути для пассивной панели
@@ -1231,16 +1211,12 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
       CtrlObject->Cp()->Redraw();
     }*/
   }
-  /* VVM $ */
+
   ScrBuf.Flush();
   return(Code);
 }
 
 
-/* 20.03.2002 IS
-   "if [not] exist" дружит теперь с масками файлов
-   PrepareOSIfExist теперь принимает и возвращает const
-*/
 /* $ 14.01.2001 SVS
    + В ProcessOSCommands добавлена обработка
      "IF [NOT] EXIST filename command"
@@ -1280,7 +1256,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
     PtrCmd++;
     while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
   }
-  /* DJ $ */
+
   while(1)
   {
     if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3))
@@ -1354,8 +1330,8 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
             return L"";
         }
       }
-      /* DJ $ */
     }
+
     // "IF [NOT] DEFINED variable command"
     else if (*PtrCmd && !StrCmpNI(PtrCmd,L"DEFINED ",8))
     {
@@ -1387,8 +1363,6 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
   }
   return Exist?PtrCmd:NULL;
 }
-/* SVS $ */
-/* IS $ */
 
 int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 {
@@ -1506,11 +1480,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
      return FALSE;
   }
 
-  /* $ 14.01.2001 SVS
-     + В ProcessOSCommands добавлена обработка
-       "IF [NOT] EXIST filename command"
-       "IF [NOT] DEFINED variable command"
-  */
   if (StrCmpNI(strCmdLine,L"IF ",3)==0)
   {
     const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
@@ -1526,12 +1495,11 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     }
     return FALSE;
   }
-  /* SVS $ */
 
   /* $ 16.04.2002 DJ
      пропускаем обработку, если нажат Shift-Enter
   */
-  if (!SeparateWindow &&  /* DJ $ */
+  if (!SeparateWindow &&
       (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
       (IsSpace(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
       TestParentFolderName((const wchar_t*)strCmdLine+Length)))
@@ -1598,7 +1566,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       SetPanel->SetCurDir(strExpandedDir,TRUE);
       return TRUE;
     }
-    /* OT $ */
 
     /* $ 20.09.2002 SKV
       Это отключает возможность выполнять такие команды как:
@@ -1617,7 +1584,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       return(TRUE);
     }
     */
-    /* SKV $ */
 
     strExpandedDir.ReleaseBuffer ();
 

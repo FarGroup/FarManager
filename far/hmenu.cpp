@@ -54,12 +54,9 @@ HMenu::HMenu(struct HMenuData *Item,int ItemCount)
   SubMenu=NULL;
   HMenu::Item=Item;
   HMenu::ItemCount=ItemCount;
-  /* $ 12.05.2001 DJ */
+
   SetRestoreScreenMode (TRUE);
-  /* DJ $ */
-  /* $ 23.02.2002 DJ */
   VExitCode = -1;
-  /* DJ $ */
   FrameManager->ModalizeFrame(this);
 }
 

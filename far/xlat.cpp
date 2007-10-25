@@ -39,10 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "fn.hpp"
 
-/* $ 05.09.2000 SVS
-  XLat-перекодировка!
-  На основе плагина EditSwap by SVS :-)))
-*/
 char* WINAPI XlatA(
    char *Line,                    // исходная строка
    int StartPos,                  // начало переконвертирования
@@ -56,12 +52,8 @@ char* WINAPI XlatA(
   int LangCount[2]={0,0};
   int IsChange=0;
 
-  /* $ 08.09.2000 SVS
-     Ошибочка вкралась :-)))
-  */
   if(!Line || *Line == 0)
     return NULL;
-  /* SVS $ */
 
   I=(int)strlen(Line);
 
@@ -193,9 +185,6 @@ char* WINAPI XlatA(
 
   // переключаем раскладку клавиатуры?
   //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
-  /* $ 20.09.2000 SVS
-     Немного изменим условия и возьмем окно именно FAR.
-  */
   if((Flags & XLAT_SWITCHKEYBLAYOUT))
   {
     if(!hFarWnd)
@@ -207,11 +196,9 @@ char* WINAPI XlatA(
         MessageBeep(0);
     }
   }
-  /* SVS $ */
 
   return Line;
 }
-/* SVS $ */
 
 wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,

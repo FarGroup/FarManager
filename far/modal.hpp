@@ -39,9 +39,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Modal: public Frame
 {
   private:
-    int     ReadKey,
-            WriteKey;
+    int     ReadKey;
+    int     WriteKey;
     typedef ScreenObject inherited;
+
   protected:
     INPUT_RECORD ReadRec;
     string strHelpTopic;
@@ -51,6 +52,8 @@ class Modal: public Frame
   public:
     Modal();
     virtual ~Modal() {}
+
+  public:
     virtual void GetDialogObjectsData() {};
     int Done();
     void ClearDone();

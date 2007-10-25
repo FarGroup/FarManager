@@ -77,19 +77,14 @@ enum {MM_LOCAL=0,           // Локальное меню
       MM_FAR=1,             // Меню из каталога ФАРа
       MM_MAIN=2};           // Главное меню
 
-/* $ 25.04.2001 DJ
-   новая константа EC_COMMAND_SELECTED
-*/
 enum {EC_CLOSE_LEVEL      = -1,   // Выйти из меню на один уровень вверх
       EC_CLOSE_MENU       = -2,   // Выйти из меню по SHIFT+F10
       EC_PARENT_MENU      = -3,   // Показать меню родительского каталога
       EC_MAIN_MENU        = -4,   // Показать главное меню
       EC_COMMAND_SELECTED = -5};  // Выбрана команда - закрыть меню и
                                   // обновить папку
-/* DJ $ */
 
 static int MenuMode;
-/* VVM $ */
 
 static wchar_t SubMenuSymbol[]={0x020,0x010,0x000};
 
@@ -130,15 +125,8 @@ void ProcessUserMenu(int EditMenu)
 
   UserDefinedList *SavedCurDirs=SaveAllCurDir();
 
-/* $ 14.07.2000 VVM
-   + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
-*/
-/* $ 25.04.2001 DJ
-   добавлена EC_COMMAND_EXECUTED
-*/
   while((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) &&
       (ExitCode != EC_COMMAND_SELECTED))
-/* DJ $ */
   {
 
     if (MenuMode!=MM_MAIN)
@@ -152,19 +140,19 @@ void ProcessUserMenu(int EditMenu)
       } /* if */
       else
       {
-      // Файл не открылся. Смотрим дальше.
+        // Файл не открылся. Смотрим дальше.
         if (MenuMode==MM_FAR)
           MenuMode=MM_MAIN;
         else
         {
           if (!EditMenu)
           {
-/* $ 14.07.2000 VVM
-    + При первом вызове не ищет меню из родительского каталога
-*/
-/* $ 28.07.2000 VVM
-    + Введен флаг для первого вызова
-*/
+            /* $ 14.07.2000 VVM
+                + При первом вызове не ищет меню из родительского каталога
+            */
+            /* $ 28.07.2000 VVM
+                + Введен флаг для первого вызова
+            */
             if (!RunFirst)
             {
               ChPtr = strMenuFilePath.GetBuffer();
@@ -183,7 +171,6 @@ void ProcessUserMenu(int EditMenu)
               strMenuFilePath.ReleaseBuffer();
             } /* if */
             RunFirst=0;
-/* VVM $ */
             strMenuFilePath = g_strFarPath;
             MenuMode=MM_FAR;
             continue;
@@ -454,11 +441,11 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
         const wchar_t *Ptr=(wcschr(strLabel, L'&')==NULL?L"":L" ");
         strMenuText.Format (L"%-20.*s%s",ScrX-12,(const wchar_t*)strLabel,Ptr);
       }
-      /* VVM $ */
+
       MenuTextLen=(int)strMenuText.GetLength()-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
     } /* else */
-    /* VVM $ */
+
     NumLine++;
   }
 
@@ -532,9 +519,7 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
         const wchar_t *Ptr=(wcschr(strLabel, L'&')==NULL?L"":L" ");
         strMenuText.Format (L"%-*.*s%s",MaxLen,MaxLen,(const wchar_t*)strLabel,Ptr);
       }
-      /* VVM $ */
 
-    /* tran 20.07.2000 $ */
       if (SubMenu)
       {
         strMenuText += SubMenuSymbol;
@@ -544,7 +529,6 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
       UserMenuItem.SetSelect(NumLine==MenuPos);
       UserMenuItem.Flags&=~LIF_SEPARATOR;
     }
-    /* VVM $ */
     int ItemPos=UserMenu.AddItem(&UserMenuItem);
     if (FuncNum>0)
       FuncPos[FuncNum-1]=ItemPos;
@@ -558,10 +542,6 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
   return NumLine;
 }
 
-/* $ 14.07.2000 VVM
-   + Вместо TRUE/FALSE возвращает коды EC_*
-*/
-/* VVM $ */
 int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 {
   MenuItemEx UserMenuItem;
@@ -602,13 +582,8 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
           }
         } /* switch */
       VMenu UserMenu(strMenuTitle,NULL,0,ScrY-4);
-      /* VVM $ */
 
-      /* $ 05.06.2001 KM
-         ! Поправочка. UserMenu не выставлял флаг VMENU_WRAPMODE
-      */
       UserMenu.SetFlags(VMENU_WRAPMODE);
-      /* KM $ */
       UserMenu.SetHelp(L"UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
       UserMenu.SetBottomTitle(UMSG(MMainMenuBottomTitle));
@@ -662,7 +637,6 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
               if (Title && *Title)
                 UserMenu.SetExitCode(-1);
               break;
-            /* VVM $ */
             case KEY_NUMDEL:
             case KEY_DEL:
               if (MenuPos<NumLine)
@@ -709,14 +683,10 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 								DeleteFileW (strMenuFileName);
 								/* $ 14.12.2001 IS Меню изменили, зачем же это скрывать? */
 								MenuModified=TRUE;
-								/* IS $ */
 								UserMenu.Hide();
 							}
-/* $ 14.07.2000 VVM
-   ! Закрыть меню
-*/
-              return(0);
-/* VVM $ */
+              return(0); // Закрыть меню
+
             /* $ 28.06.2000 tran
                выход из пользовательского меню по ShiftF10 из любого уровня
                вложенности просто задаем ExitCode -1, и возвращаем FALSE -
@@ -724,19 +694,11 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
             case KEY_SHIFTF10:
 //              UserMenu.SetExitCode(-1);
               return(EC_CLOSE_MENU);
-             /* tran $ */
-/* $ 14.07.2000 VVM
-   + Показать главное меню
-*/
-            case KEY_SHIFTF2:
+            case KEY_SHIFTF2: // Показать главное меню
                 return(EC_MAIN_MENU);
-/* $ 17.07.2000 VVM
-   + Показать меню из родительского каталога только в MM_LOCAL режиме
-*/
-            case KEY_BS:
+            case KEY_BS: // Показать меню из родительского каталога только в MM_LOCAL режиме
               if (MenuMode!=MM_MAIN)
                 return(EC_PARENT_MENU);
-/* VVM $ */
             default:
               UserMenu.ProcessInput();
               if(Key == KEY_F1)
@@ -751,11 +713,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     }
 
     if (ExitCode<0 || ExitCode>=NumLine)
-/* $ 14.07.2000 VVM
-   ! вверх на один уровень
-*/
-      return(EC_CLOSE_LEVEL);
-/* VVM $ */
+      return(EC_CLOSE_LEVEL); //  вверх на один уровень
 
     string strCurrentKey;
     int SubMenu;
@@ -788,14 +746,13 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
         else
           strSubMenuTitle = strSubMenuLabel;
       } /* if */
-      /* VVM $ */
-/* $ 14.07.2000 VVM
-   ! Если закрыли подменю, то остаться. Инече передать управление выше
-*/
+
+      /* $ 14.07.2000 VVM
+         ! Если закрыли подменю, то остаться. Инече передать управление выше
+      */
       MenuPos=ProcessSingleMenu(strSubMenuKey,0,strSubMenuTitle);
       if (MenuPos!=EC_CLOSE_LEVEL)
         return(MenuPos);
-/* VVM $ */
       MenuPos=ExitCode;
       continue;
     }
@@ -804,7 +761,6 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
          Отключим до лучших времен
     */
     //int LeftVisible,RightVisible,PanelsHidden=0;
-    /* IS $ */
     int CurLine=0;
 
     string strCmdLineDir;
@@ -855,7 +811,6 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
             CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
             PanelsHidden=TRUE;
           }*/
-          /* IS $ */
 //          ;
 //_SVS(SysLog(L"!%s!",Command));
           if(ExtractIfExistCommand(strCommand))
@@ -885,7 +840,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
        CtrlObject->CmdLine->SetString(strOldCmdLine,FrameManager->IsPanelsActive());
        CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
     }
-    /* IS $ */
+
     /* $ 01.05.2001 IS
          Отключим до лучших времен
     */
@@ -900,7 +855,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
       if (LeftVisible)
         CtrlObject->Cp()->LeftPanel->Show();
     }*/
-    /* IS $ */
+
 /* $ 14.07.2000 VVM
    ! Закрыть меню
 */
@@ -908,8 +863,6 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
    сообщаем, что была выполнена команда (нужно перерисовать панели)
 */
     return(EC_COMMAND_SELECTED);
-/* DJ $ */
-/* VVM $ */
   }
 }
 
@@ -950,7 +903,6 @@ int CanCloseDialog(const wchar_t *Hotkey, const wchar_t *Label)
     return 0;
   return 1;
 }
-/* VVM $ */
 
 static LONG_PTR WINAPI UserMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
@@ -1089,7 +1041,6 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
       else
         return FALSE;
     }
-    /* IS $ */
   }
 
   if (NewRec)

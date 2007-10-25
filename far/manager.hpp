@@ -63,13 +63,9 @@ class Manager
 
     Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
                              // его можно получить с помощью FrameManager->GetCurrentFrame();
-    /* $ 15.05.2002 SKV
-      Теперь это список.
-    */
     /*Frame **SemiModalBackFrames;
     int SemiModalBackFramesCount;
     int SemiModalBackFramesSize;*/
-    /* SKV $ */
 
     /* $ 15.05.2002 SKV
       Так как есть полумодалы, что б не было путаницы,
@@ -80,7 +76,6 @@ class Manager
       2) не только для editor/viewer'ов.
     */
     int ModalEVCount;
-    /* SKV $ */
 
     int  EndLoop;            // Признак выхода из цикла
     int  StartManager;
@@ -152,7 +147,6 @@ class Manager
          Возвращает TRUE, если все закрыли и можно выходить из фара.
     */
     BOOL ExitAll();
-    /* IS $ */
     BOOL IsAnyFrameModified(int Activate);
 
     int  GetFrameCount() {return(FrameCount);};
@@ -162,13 +156,8 @@ class Manager
     Для вызова через ACTL_COMMIT
     */
     BOOL PluginCommit();
-    /* SKV$*/
 
-    /* $ 11.10.2001 IS
-       Подсчитать количество фреймов с указанным именем.
-    */
     int CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase=TRUE);
-    /* IS $ */
 
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
     void SetFramePos(int NewPos);
@@ -182,36 +171,27 @@ class Manager
     int ProcessMouse(MOUSE_EVENT_RECORD *me);
 
     void PluginsMenu(); // вызываем меню по F11
-    /* $ 10.05.2001 DJ */
     void SwitchToPanels();
-    /* DJ $ */
 
     INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
     void ResetLastInputRecord() { LastInputRecord.EventType=0; }
 
-    /* $ 12.05.2001 DJ */
     Frame *GetCurrentFrame() { return CurrentFrame; }
-    /* DJ $ */
 
     Frame *operator[](int Index);
 
-    /* $ 19.05.2001 DJ
-       operator[] (Frame *) -> IndexOf
-    */
     int IndexOf(Frame *Frame);
-    /* DJ $ */
 
     int IndexOfStack(Frame *Frame);
     int HaveAnyFrame();
 
-/* $ Введена для нужд CtrlAltShift OT */
     void ImmediateHide();
     /* $ 13.04.2002 KM
       Для вызова ResizeConsole для всех NextModal у
       модального фрейма.
     */
     void ResizeAllModal(Frame *ModalFrame);
-    /* KM $ */
+
     Frame *GetBottomFrame() { return (*this)[FramePos]; }
 
     BOOL ManagerIsDown() {return EndLoop;}
@@ -227,7 +207,7 @@ class Manager
     void EnterModalEV(){ModalEVCount++;}
     void ExitModalEV(){ModalEVCount--;}
     BOOL InModalEV(){return ModalEVCount!=0;}
-    /* SKV $ */
+
     void ResizeAllFrame();
 
     // возвращает top-модал или сам фрейм, если у фрейма нету модалов

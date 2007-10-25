@@ -88,11 +88,7 @@ class Help:public Frame
 
     int   PrevMacroMode;        // предыдущий режим макроса
 
-    /* $ 29.11.2001 DJ
-       помним PluginContents (дл€ отображени€ в заголовке)
-    */
-    string strCurPluginContents;
-    /* DJ $ */
+    string strCurPluginContents; // помним PluginContents (дл€ отображени€ в заголовке)
 
     DWORD LastStartPos;
     DWORD StartPos;
@@ -117,11 +113,7 @@ class Help:public Frame
     void AddTitle(const wchar_t *Title);
     void HighlightsCorrection(wchar_t *Str);
     void FastShow();
-    /* $ 29.11.2001 DJ
-       вытащена из FastShow
-    */
     void DrawWindowFrame();
-    /* DJ $ */
     void OutString(const wchar_t *Str);
     int  StringLen(const wchar_t *Str);
     void CorrectPosition();
@@ -140,12 +132,11 @@ class Help:public Frame
     virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual void InitKeyBar(void);
     BOOL GetError() {return ErrorHelp;}
-    /* $ 28.06.2000 tran NT Console resize - resize help */
     virtual void SetScreenPosition();
     virtual void OnChangeFocus(int focus); // вызываетс€ при смене фокуса
     virtual void ResizeConsole();
-    /* $ ¬ведена дл€ нужд CtrlAltShift OT */
-    virtual int  FastHide();
+
+    virtual int  FastHide(); // ¬ведена дл€ нужд CtrlAltShift
 
     virtual const wchar_t *GetTypeName() {return L"[Help]";}
     virtual int GetTypeAndName(string &strType, string &strName);

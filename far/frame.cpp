@@ -71,7 +71,6 @@ void Frame::UpdateKeyBar()
     FrameKeyBar->RedrawIfChanged();
 }
 
-/* $ 12.05.2001 DJ */
 int Frame::IsTopFrame()
 {
   return FrameManager->GetCurrentFrame() == this;
@@ -82,21 +81,16 @@ void Frame::OnChangeFocus (int focus)
   if (focus) {
     Show();
     Frame *iModal=NextModal;
-    while (iModal) {
-      /* $ 28.04.2002 KM
-          Если модальный объект - комбобокс, то
-          не отображаем его.
-      */
+    while (iModal)
+    {
       if (!(iModal->GetType()==MODALTYPE_COMBOBOX))
         iModal->Show();
-      /* KM $ */
       iModal=iModal->NextModal;
     }
   } else {
     Hide();
   }
 }
-/* DJ $ */
 
 void Frame::Push(Frame* Modalized){
   if (!NextModal){
@@ -206,12 +200,10 @@ bool Frame::RemoveModal(Frame *aFrame)
   }
 }
 
-/* $ 13.04.2002 KM */
 void Frame::ResizeConsole()
 {
   FrameManager->ResizeAllModal(this);
 }
-/* KM $ */
 
 bool Frame::HasSaveScreen()
 {

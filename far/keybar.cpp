@@ -315,9 +315,6 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (Key>11)
     Key=11;
 
-  /* $ 02.08.2000 SVS
-     Добавка к новым индикаторам
-  */
   if (MouseEvent->dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED) ||
       (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
   {
@@ -339,15 +336,10 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     Key+=KEY_SHIFTF1;
   else
     Key+=KEY_F1;
-  /* SVS $ */
 
-  /*$ 22.06.2001 SKV
-    Типа всё круто! :)
-  */
   //if (Owner)
     //Owner->ProcessKey(Key);
       FrameManager->ProcessKey(Key);
-  /* SKV$*/
   return(TRUE);
 }
 

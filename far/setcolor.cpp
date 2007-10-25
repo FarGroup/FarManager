@@ -232,9 +232,6 @@ void SetColors()
     3,
   };
 
-    /* $ 29.06.2000 SVS
-      Новый пункт для настройки цветов Menu Scrollbar
-    */
   struct MenuDataEx MenuItems[]=
   {
     (const wchar_t *)MSetColorMenuNormal,LIF_SELECTED,0,
@@ -250,7 +247,6 @@ void SetColors()
     COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
     COL_MENUSELECTEDHIGHLIGHT,COL_MENUDISABLEDTEXT,
     COL_MENUBOX,COL_MENUTITLE,COL_MENUSCROLLBAR,
-    /* SVS $ */
   };
 
   struct MenuDataEx HMenuItems[]=
@@ -296,8 +292,6 @@ void SetColors()
     COL_EDITORCLOCK,COL_VIEWERCLOCK,
   };
 
-  /* $ 18.07.2000 tran
-     новый пунт для MenuScrollbar*/
   struct MenuDataEx ViewerItems[]=
   {
     (const wchar_t *)MSetColorViewerNormal,LIF_SELECTED,0,
@@ -309,7 +303,6 @@ void SetColors()
   int ViewerPaletteItems[]={
     COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS,COL_VIEWERSCROLLBAR
   };
-  /* tran 18.07.2000 $ */
 
 
   struct MenuDataEx EditorItems[]=
@@ -344,16 +337,7 @@ void SetColors()
     while (1)
     {
       GroupsMenu.SetPosition(2,1,0,0);
-      /* $ 16.06.2001 KM
-         ! Добавление WRAPMODE в меню.
-      */
-      /* $ 13.04.2002 KM
-        - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
-          меню по экрану при AltF9 в диалоге редактирования цветов.
-      */
       GroupsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
-      /* KM $ */
-      /* KM $ */
       GroupsMenu.ClearDone();
       GroupsMenu.Process();
       if ((GroupsCode=GroupsMenu.Modal::GetExitCode())<0)
@@ -429,12 +413,7 @@ static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,in
   while (1)
   {
     ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
-    /* $ 09.04.2002 KM
-      - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
-        меню по экрану при AltF9 в диалоге редактирования цветов.
-    */
     ItemsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
-    /* KM $ */
     ItemsMenu.ClearDone();
     ItemsMenu.Process();
     if ((ItemsCode=ItemsMenu.Modal::GetExitCode())<0)

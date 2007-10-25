@@ -114,7 +114,6 @@ const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
   HotKey=rhs.HotKey;
   return *this;
 }
-/* IS $ */
 
 
 Panel::Panel()
@@ -1175,7 +1174,6 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
     }
     return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
   }
-  /* SVS $ */
 
   if(Processed)
   {
@@ -1204,7 +1202,6 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
   }
   return DRIVE_DEL_FAIL;
 }
-/* DJ $ */
 
 
 void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
@@ -1420,7 +1417,6 @@ void Panel::FastFind(int FirstKey)
             }
 
             strName.ReleaseBuffer ();
-            /* SVS $ */
             if (FindPartName(strName,FALSE,1,1))
               strLastName = strName;
             else
@@ -1777,9 +1773,6 @@ int  Panel::SetCurPath()
   }
   return TRUE;
 }
-/* IS $ */
-/* SVS $ */
-/* KM $ */
 
 
 void Panel::Hide()
@@ -1804,16 +1797,16 @@ void Panel::Show()
   /* $ 03.10.2001 IS перерисуем строчку меню */
   if (Opt.ShowMenuBar)
       CtrlObject->TopMenuBar->Show();
-  /* IS $ */
   /* $ 09.05.2001 OT */
 //  SavePrevScreen();
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->IsVisible() && !GetModalMode())
   {
-  /* $ 09.05.2001 OT */
-    if (SaveScr) {
+    if (SaveScr)
+    {
       SaveScr->AppendArea(AnotherPanel->SaveScr);
     }
+
     if (AnotherPanel->GetFocus())
     {
       if (AnotherPanel->IsFullScreen())
@@ -1821,6 +1814,7 @@ void Panel::Show()
         SetVisible(TRUE);
         return;
       }
+
       if (GetType()==FILE_PANEL && IsFullScreen())
       {
         ScreenObject::Show();
@@ -1849,9 +1843,6 @@ void Panel::ShowScreensCount()
 {
   if (Opt.ShowScreensNumber && X1==0)
   {
-    /* $ 19.05.2001 DJ
-       переписано для показа диалогов
-    */
     int Viewers=FrameManager->GetFrameCountByType (MODALTYPE_VIEWER);
     int Editors=FrameManager->GetFrameCountByType (MODALTYPE_EDITOR);
     int Dialogs=FrameManager->GetFrameCountByType (MODALTYPE_DIALOG);
@@ -1876,7 +1867,6 @@ void Panel::ShowScreensCount()
       SetColor(COL_PANELSCREENSNUMBER);
       Text(strScreensText);
     }
-    /* DJ $ */
   }
 }
 
@@ -1967,8 +1957,6 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
     case FCTL_SETSORTORDER:
       {
-        /* $ 22.01.2001 VVM
-           - Порядок сортировки задается аналогично StartSortOrder */
         int Order = (Param && (*(int *)Param)) ? -1:1;
 
         ChangeSortOrder(Order);
@@ -2011,9 +1999,6 @@ int Panel::SetPluginCommand(int Command,void *Param)
       struct PanelInfo *Info=(struct PanelInfo *)Param;
       memset(Info,0,sizeof(*Info));
 
-      /* $ 19.03.2002 DJ
-         обеспечим наличие данных
-      */
       UpdateIfRequired();
 
       switch( GetType() )
@@ -2048,9 +2033,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
       GetCurDir(strInfoCurDir);
 
       Info->lpwszCurDir = _wcsdup(strInfoCurDir);
-      /* $ 24.04.2001 SVS
-         Заполнение флагов PanelInfo.Flags
-      */
+
       {
         static struct {
           int *Opt;
@@ -2086,14 +2069,10 @@ int Panel::SetPluginCommand(int Command,void *Param)
           DestFilePanel->GetOpenPluginInfo(&PInfo);
 
           Info->lpwszCurDir = _wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
-          /* $ 12.12.2001 DJ
-             обработаем флаги
-          */
           if (PInfo.Flags & OPIF_REALNAMES)
             Info->Flags |= PFLAGS_REALNAMES;
           if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
             Info->Flags &= ~PFLAGS_HIGHLIGHT;
-          /* DJ $ */
           Reenter--;
         }
         DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO)?TRUE:FALSE);

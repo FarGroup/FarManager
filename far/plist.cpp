@@ -48,11 +48,7 @@ static BOOL KillProcess(DWORD dwPID);
 void ShowProcessList()
 {
   VMenu ProcList(UMSG(MProcessListTitle),NULL,0,ScrY-4);
-  /* $ 31.01.2001 IS
-     ! Теперь это меню более дружелюбно ;)
-  */
   ProcList.SetFlags(VMENU_WRAPMODE);
-  /* IS $ */
 //  ProcList.SetHelp("TaskList");
   ProcList.SetPosition(-1,-1,0,0);
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))

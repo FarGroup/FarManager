@@ -45,12 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PARAM_POS(Pos)         ((Pos)*SizeValue*5)
 #define POSITION_POS(Pos,Idx)  ((Pos)*BOOKMARK_COUNT*SizeValue*4+(Idx)*BOOKMARK_COUNT*SizeValue)
 
-/* $ 17.06.2001 IS
-   + Имя файла должно быть взято в кавычки, т.к. оно может содержать
-     символы-разделители
-*/
 static wchar_t EmptyPos[]=L"0,0,0,0,0,\"$\"";
-/* IS $ */
 
 /*char FilePositionCache::SubKeyItem[16]="Item";
 char FilePositionCache::SubKeyShort[16]="Short";
@@ -237,15 +232,8 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
     }
     else
     {
-      /* $ 17.06.2001 IS
-         ! Применяем интеллектуальный класс, а не GetCommaWord, которая не
-           учитывает кавычки
-      */
-      /* $ 20.08.2001 VVM
-         ! Ошибка при задании разделителя списка. */
-//      UserDefinedList DataList('\"', 0, 0);
       UserDefinedList DataList(0,0,0);
-      /* VVM $ */
+
       int J=0;
       const wchar_t *DataPtr;
       string strArgData;
@@ -267,7 +255,6 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
            ++J;
          }
       }
-      /* IS $ */
     }
   }
   return TRUE;
@@ -307,7 +294,6 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
       strDataStr.Format (L"%I64d,%I64d,%I64d,%I64d,%I64d,\"$%s\"",
             Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],Names+Pos*3*NM);
     }
-    /* IS $ */
 
     // ????????
     if(!StrCmp(strDataStr,EmptyPos))

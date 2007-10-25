@@ -899,17 +899,14 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 
   const wchar_t *DotPtr=wcsrchr(FileName,L'.');
   string strMask;
-  /* $ 01.07.2001 IS
-     Если маска содержит разделитель (',' или ';'), то возьмем ее в
-     кавычки
-  */
+
+  // Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
   if (DotPtr==NULL)
     strMask = L"*.";
   else if(wcspbrk(DotPtr,L",;"))
     strMask.Format(L"\"*%s\"",DotPtr);
   else
     strMask.Format(L"*%s",DotPtr);
-  /* IS $ */
 
   // сначала поиск...
   unsigned int Cnt=ExtCount;

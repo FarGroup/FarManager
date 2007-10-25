@@ -188,18 +188,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #define setdisk(n) _chdrive((n)+1)
   #define lfind  _lfind
 
-  /* $ 12.07.2000 OT
-    - Исправление бага, из-за которго не работал ScreenSaver после
-      компиляции VC++
-  */
   #ifndef RAND_MAX
   #define RAND_MAX 0x7fffU
   #endif
   #define randomize() srand(67898)
   #define random(x) ((int) (((x) *  rand()) / (RAND_MAX+1)) )
-  /* OT $ */
 
-  /* $ 19.07.2000 SVS
+  /*
     - Из-за различий в реализации функции getdisk в BC & VC
       не работал AltFx если панель имела UNC путь
       Сама функция находится в farrtl.cpp
@@ -211,7 +206,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #ifdef  __cplusplus
   }
   #endif
-  /* SVS $ */
 
   #pragma warning (once:4018)
 #endif

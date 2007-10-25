@@ -91,9 +91,6 @@ enum {
   MSG_KILLSAVESCREEN =0x00000020,
 };
 
-/* $ 02.08.2001 IS
-     Новые константы для alt-f3, alt-f4 и ctrl-pgdn
-*/
 // Работа с ассоциациями файлов
 enum {
   FILETYPE_EXEC,       // Enter
@@ -103,7 +100,6 @@ enum {
   FILETYPE_ALTVIEW,    // Alt-F3
   FILETYPE_ALTEDIT     // Alt-F4
 };
-/* IS $ */
 
 enum DIZUPDATETYPE {
   DIZ_NOT_UPDATE,
@@ -220,9 +216,7 @@ enum {
   MODALTREE_FREE    =3
 };
 
-/* $ 27.09.2000 SVS
-  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
-*/
+//  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
 enum {
   CASR_PANEL  = 0x0001,
   CASR_EDITOR = 0x0002,
@@ -230,7 +224,6 @@ enum {
   CASR_HELP   = 0x0008,
   CASR_DIALOG = 0x0010,
 };
-/* SVS $ */
 
 enum {
   SYSID_PRINTMANAGER      =0x6E614D50,
@@ -238,12 +231,10 @@ enum {
 };
 
 
-/* $ 25.02.2001 VVM
-  + Флаги для ReadDiz() */
+// Флаги для ReadDiz()
 enum ReadDizFlags {
   RDF_NO_UPDATE         = 0x00000001UL,
 };
-/* VVM $ */
 
 #define STATUS_STRUCTWRONGFILLED       0xE0001000
 #define STATUS_INVALIDFUNCTIONRESULT   0xE0002000
@@ -331,13 +322,6 @@ enum FlagsNameAndPassword{
 #ifndef MOUSE_WHEELED
 #define MOUSE_WHEELED 0x0004
 #endif
-/* VVM $ */
-
-///
-
-/* $ 27.05.2001 DJ         30.05.2001 OT
-   константы для ExitCode - перенесены из
-*/
 
 enum {
     XC_QUIT                = (unsigned long) -777,
@@ -348,14 +332,9 @@ enum {
     XC_EXISTS              = 4,
 };
 
-/* DJ $ */
 
-
-/* $ 11.08.2000 tran
-   мелочь для лучшей читабельности */
 #define ENABLE_SWITCH TRUE
 #define DISABLE_SWITCH FALSE
-///
 
 // Размер истории - как для класса History, так и для диалогов!
 #define HISTORY_COUNT    64

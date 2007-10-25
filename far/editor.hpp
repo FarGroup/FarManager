@@ -121,7 +121,6 @@ class Editor:public ScreenObject
         if(needCheckUnmark)(ed.*method)();
       }
     };
-    /* SKV $ */
 
 	Edit *TopList;
     Edit *EndList;
@@ -140,7 +139,7 @@ class Editor:public ScreenObject
          а не Opt.TabSize
     */
     struct EditorOptions EdOpt;
-    /* IS $ */
+
     int Pasting;
     wchar_t GlobalEOL[10];
 
@@ -183,39 +182,19 @@ class Editor:public ScreenObject
     void ScrollDown();
     void ScrollUp();
     BOOL Search(int Next);
-    /* $ 05.07.2000 tran
-       ! изменил тип возврата у GoToLine() с 'void ' на 'int'
-       возвращаемое значение - это колонка, введенная пользователем
-       используется только в одном месте - в обработке Alt-F8
-    */
-    /* $ 21.07.2000 tran
-       GotoLine стала как раньше void
-       и добавилась GoToPosition
-       */
 
     void GoToLine(int Line);
     void GoToPosition();
-    /* tran 21.07.2000 $ */
 
-    /* tran 05.07.2000 $ */
-
-    /* $ 10.08.2000 skv
-      Call this when text changed to set Modified to
-      specified State and JustModified to 1
-    */
     void TextChanged(int State);
-    /* skv $*/
 
     int  CalcDistance(Edit *From, Edit *To,int MaxDist);
     void Paste(const wchar_t *Src=NULL);
     void Copy(int Append);
     void DeleteBlock();
     void UnmarkBlock();
-    /* $ 07.03.2002 IS
-         удалить выделение, если оно пустое (выделено ноль символов в ширину)
-    */
     void UnmarkEmptyBlock();
-    /* IS $ */
+
     void AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
@@ -263,9 +242,6 @@ class Editor:public ScreenObject
     FileEditor *GetHostFileEditor() {return HostFileEditor;};
     void PrepareResizedConsole(){Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
-    /* $ 26.02.2001 IS
-         Функции чтения/установления текущих настроек редактирования
-    */
     void SetTabSize(int NewSize);
     int  GetTabSize(void) const {return EdOpt.TabSize; }
 
@@ -289,7 +265,6 @@ class Editor:public ScreenObject
 
     void SetBSLikeDel(int NewMode) { EdOpt.BSLikeDel=NewMode; }
     int  GetBSLikeDel(void) const {return EdOpt.BSLikeDel; }
-    /* IS $ */
 
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
@@ -299,16 +274,12 @@ class Editor:public ScreenObject
 
     void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
     const wchar_t *GetWordDiv() { return (const wchar_t*)EdOpt.strWordDiv; }
-    /* $ 29.10.2001 IS
-         Работа с настройками "сохранять позицию файла" и
-         "сохранять закладки" после смены настроек по alt-shift-f9.
-    */
+
     void GetSavePosMode(int &SavePos, int &SaveShortPos);
 
     // передавайте в качестве значения параметра "-1" для параметра,
     // который не нужно менять
     void SetSavePosMode(int SavePos, int SaveShortPos);
-    /* IS $ */
 
     void GetRowCol(const wchar_t *argv,int *row,int *col);
 
@@ -319,7 +290,7 @@ class Editor:public ScreenObject
     void Xlat();
     static void PR_EditorShowMsg(void);
 
-    void FreeAllocatedData();  // $ 28.01.2002 VVM + Освободить всю занятую память
+    void FreeAllocatedData();
 
     Edit *CreateString (const wchar_t *lpwszStr, int nLength);
     Edit *InsertString (const wchar_t *lpwszStr, int nLength, Edit *pAfter = NULL);

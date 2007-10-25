@@ -62,7 +62,6 @@ public:
     return res;
   }
 };
-/* SKV$*/
 
 class InfoList:public Panel
 {

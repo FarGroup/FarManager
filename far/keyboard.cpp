@@ -321,8 +321,6 @@ VK_CAPITAL (14)
   return keyState[vkKey] & 1;
 }
 
-/* tran 31.08.2000 $
-  FarInputRecordToKey */
 int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 {
   if(r)
@@ -333,7 +331,6 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
   }
   return KEY_NONE;
 }
-/* tran 31.08.2000 $ */
 
 
 int IsMouseButtonPressed()
@@ -346,12 +343,8 @@ int IsMouseButtonPressed()
     return(1);
   if (RButtonPressed)
     return(2);
-  /* $ 23.08.2000 SVS
-     + Дополнительно - для средней клавиши мыши
-  */
   if(MButtonPressed)
     return(3);
-  /* SVS $ */
   return(0);
 }
 
@@ -597,7 +590,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 #endif
       break;
     }
-    /* VVM $ */
 
     ScrBuf.Flush();
 
@@ -619,7 +611,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       else
         FrameManager->ExitMainLoop(FALSE);
       return KEY_NONE;
-      /* IS $ */
     }
 
     if ((LoopCount & 15)==0)
@@ -712,7 +703,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
     rec->EventType=KEY_EVENT;
     return CalcKey;
-    /* VVM $ */
   }
 
   if (rec->EventType==KEY_EVENT)
@@ -803,9 +793,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
           return KEY_NONE;
         }
       }
-      /* KM $ */
     }
-    /* SVS $ */
 
     if (AltPressed && (CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))==0)
       DetectWindowedMode();
@@ -830,7 +818,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       IsKeyRCASPressed=FALSE;
       return KEY_RCTRLALTSHIFTRELEASE;
     }
-/* SVS $ */
   }
 
 //_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
@@ -983,7 +970,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       return(KEY_CONSOLE_BUFFER_RESIZE);
     }
   }
-  /* 17.05.2001 $ */
 
   if (rec->EventType==KEY_EVENT)
   {
@@ -1150,7 +1136,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
             }
             break;
         }
-        /* SVS $ */
         return(KEY_NONE);
       }
     }
@@ -1258,14 +1243,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
                  (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
                  (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
-      /* SVS $ */
       /* $ 14.05.2002 VVM
         - сбросим тип евента вообще. Иначе бывают глюки (ProcessEditorInput) */
       memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
       rec->EventType = KEY_EVENT;
-      /* VVM $ */
     } /* if */
-    /* VVM $ */
   }
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;
@@ -1345,7 +1327,6 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
 
   return Key;
 }
-/* SVS $ */
 
 int WriteInput(int Key,DWORD Flags)
 {
@@ -1452,7 +1433,6 @@ int CheckForEsc()
   else
     return(FALSE);
 }
-/* IS $ */
 
 /* $ 25.07.2000 SVS
     ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
@@ -1461,10 +1441,6 @@ int CheckForEsc()
    ! дополнительный параметра у KeyToText - размер данных
    Size=0 - по максимуму!
 */
-/* $ 10.09.2000 SVS
-  ! KeyToText возвращает BOOL
-*/
-
 static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
 {
   if((Key&KEY_RCTRL) == KEY_RCTRL)   strName += ModifKeyName[0].Name;
@@ -1593,7 +1569,6 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 
    return (!Key || Pos < Len)? -1: (int)Key;
 }
-/* SVS $*/
 
 BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 {
@@ -1673,8 +1648,6 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
   return TRUE;
 }
-/* SVS 10.09.2000 $ */
-/* SVS $ */
 
 
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
@@ -1995,7 +1968,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         break;
     }
   }
-  /* SVS $*/
 
   if (KeyCode>=VK_F1 && KeyCode<=VK_F24)
 //    return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));

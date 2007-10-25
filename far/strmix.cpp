@@ -125,7 +125,6 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
     */
     stringc=Upper(*str);
     patternc=Upper(*pattern++);
-    /* DJ $ */
     switch (patternc)
     {
       case 0:
@@ -159,7 +158,6 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
               return(StrCmpI (pattern+1,dot+1) == 0);
           }
         }
-        /* DJ $ */
 
         while (*str)
         {
@@ -319,8 +317,6 @@ int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderN
 }
 
 
-/* IS 10.05.2003 $ */
-
 /* $ 09.10.2000 IS
     Генерация нового имени по маске
     (взял из ShellCopy::ShellCopyConvertWildcards)
@@ -330,7 +326,6 @@ int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderN
 // каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
 // Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
-/* IS $ */
 
 wchar_t * WINAPI InsertQuote(wchar_t *Str)
 {
@@ -615,7 +610,6 @@ string& WINAPI RemoveUnprintableCharacters(string &strStr)
   return RemoveExternalSpaces(strStr);
 }
 
-/* IS $ */
 
 // Удалить символ Target из строки Str (везде!)
 string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
@@ -713,7 +707,6 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
      else
        *end=c;
     }
-    /* IS $ */
   }
   return Result;
 }
@@ -837,7 +830,6 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
   return(Src);
 }
 
-/* SVS $ */
 
 BOOL IsCaseMixed (
 	const string &strSrc
@@ -1346,7 +1338,6 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wcha
 //  return NULL!=strchr(WordDiv, TableSet?TableSet->DecodeTable[Chr]:Chr);
 }
 
-/* IS $ */
 
 /*
   Ptr=CalcWordFromString(Str,I,&Start,&End);

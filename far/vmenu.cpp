@@ -67,12 +67,10 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 
   VMenu::VMFlags.Set(Flags|VMENU_MOUSEREACTION);
   VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
-/* SVS $ */
 
 /*& 28.05.2001 OT Запретить перерисовку фрема во время запуска меню */
 //  FrameFromLaunched=FrameManager->GetCurrentFrame();
 //  FrameFromLaunched->LockRefresh();
-/* OT &*/
 
   VMenu::ParentDialog=ParentDialog;
   /* $ 03.06.2001 KM
@@ -81,7 +79,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
        не всегда удобно.
   */
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  /* KM $ */
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
   TopPos=0;
   SaveScr=NULL;
@@ -112,8 +109,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
      инициализируем перед тем, как добавлять айтема
   */
   MaxLength=(int)strTitle.GetLength ()+2;
-  /* DJ $ */
-  /* SVS $ */
 
   RLen[0]=RLen[1]=0; // реальные размеры 2-х половин
 
@@ -156,7 +151,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
      Установим цвет по умолчанию
   */
   SetColors(NULL);
-  /* SVS $*/
   if (!VMFlags.Check(VMENU_LISTBOX) && CtrlObject!=NULL)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -179,7 +173,6 @@ VMenu::~VMenu()
   DeleteItems();
 /*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
 //  FrameFromLaunched->UnlockRefresh();
-/* OT &*/
   SetCursorType(PrevCursorVisible,PrevCursorSize);
 
   if (!VMFlags.Check(VMENU_LISTBOX))
@@ -220,9 +213,6 @@ void VMenu::Show()
 
   int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
 
-  /* $ 23.02.2002 DJ
-     здесь тоже используем флаг LISTHASFOCUS
-  */
   if(VMFlags.Check(VMENU_LISTBOX))
   {
     if (VMFlags.Check(VMENU_SHOWNOBOX))
@@ -232,7 +222,6 @@ void VMenu::Show()
     else
       BoxType=SHORT_SINGLE_BOX;
   }
-  /* DJ $ */
 
   int AutoCenter=FALSE,AutoHeight=FALSE;
 
@@ -350,14 +339,10 @@ void VMenu::DisplayObject()
     }
     else
     {
-      /* $ 21.07.2001 KM
-       ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
-      */
       if (BoxType!=NO_BOX)
         SetScreen(X1-2,Y1-1,X2+2,Y2+1,L' ',VMenu::Colors[VMenuColorBody]);
       else
         SetScreen(X1,Y1,X2,Y2,L' ',VMenu::Colors[VMenuColorBody]);
-      /* KM $ */
       if(!VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
       {
         MakeShadow(X1,Y2+2,X2+3,Y2+2);
@@ -366,7 +351,6 @@ void VMenu::DisplayObject()
       if (BoxType!=NO_BOX)
         Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
     }
-    /* SVS $*/
 
 //    VMFlags.Set (VMENU_DISABLEDRAWBACKGROUND);
   }
@@ -378,11 +362,8 @@ void VMenu::DisplayObject()
   */
   if(!VMFlags.Check(VMENU_LISTBOX))
     DrawTitles();
-  /* DJ $ */
-  /* KM $ */
   ShowMenu(TRUE);
 }
-/* SVS $ */
 
 void VMenu::DrawTitles()
 {
@@ -424,7 +405,7 @@ void VMenu::ShowMenu(int IsParent)
   /* $ 23.02.2002 DJ
      если в меню нету пунктов - это не значит, что не надо рисовать фон!
   */
-  if (/*ItemCount==0 ||*/ X2<=X1 || Y2<=Y1)  /* DJ $ */
+  if (/*ItemCount==0 ||*/ X2<=X1 || Y2<=Y1)
   {
     if(!(VMFlags.Check(VMENU_SHOWNOBOX) && Y2==Y1))
       return;
@@ -438,7 +419,6 @@ void VMenu::ShowMenu(int IsParent)
   */
   if (TopPos<0)
       TopPos=0;
-  /* KM $ */
 
   /* $ 22.07.2001 KM
    - Не устанавливался тип рамки при первом вызове
@@ -457,8 +437,7 @@ void VMenu::ShowMenu(int IsParent)
     else
       BoxType = SHORT_SINGLE_BOX;
   }
-  /* DJ $ */
-  /* KM $ */
+
   if(VMFlags.Check(VMENU_LISTBOX))
   {
     if((!IsParent || !ItemCount))
@@ -503,7 +482,6 @@ void VMenu::ShowMenu(int IsParent)
   */
   if(VMFlags.Check(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
     AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
-  /* KM $ */
 
   /* $ 21.07.2001 KM
    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
@@ -516,7 +494,6 @@ void VMenu::ShowMenu(int IsParent)
     TopPos=0;
 
   for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
-  /* KM $ */
   {
     GotoXY(X1,Y);
     if (I<ItemCount)
@@ -557,9 +534,6 @@ void VMenu::ShowMenu(int IsParent)
       }
       else
       {
-        /* $ 21.07.2001 KM
-         ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
-        */
         if (BoxType!=NO_BOX)
         {
           SetColor(VMenu::Colors[VMenuColorBox]);
@@ -641,9 +615,6 @@ void VMenu::ShowMenu(int IsParent)
     }
     else
     {
-      /* $ 21.07.2001 KM
-       ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
-      */
       if (BoxType!=NO_BOX)
       {
         SetColor(VMenu::Colors[VMenuColorBox]);
@@ -657,7 +628,6 @@ void VMenu::ShowMenu(int IsParent)
       SetColor(VMenu::Colors[VMenuColorText]);
                                                      // сделаем добавочку для NO_BOX
       mprintf(L"%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),L"");
-      /* KM $ */
     }
   }
   /* $ 28.06.2000 tran
@@ -668,9 +638,6 @@ void VMenu::ShowMenu(int IsParent)
      $ 18.07.2000 SVS
        + всегда покажет scrollbar для DI_LISTBOX & DI_COMBOBOX и опционально
          для вертикального меню
-  */
-  /* $ 21.07.2001 KM
-   ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
   */
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
   {
@@ -684,7 +651,6 @@ void VMenu::ShowMenu(int IsParent)
     }
   }
 }
-/* 28.07.2000 SVS $ */
 
 BOOL VMenu::UpdateRequired(void)
 {
@@ -987,7 +953,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ProcessKey(KEY_ENTER);
     return(TRUE);
   }
-  /* VVM $ */
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
@@ -995,9 +960,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
      + mouse support for menu scrollbar
   */
 
-  /* $ 21.07.2001 KM
-   ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-  */
   int SbY1=((BoxType!=NO_BOX)?Y1+1:Y1), SbY2=((BoxType!=NO_BOX)?Y2-1:Y2);
 
   XX2=X2;
@@ -1007,14 +969,12 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int bShowScrollBar = FALSE;
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
     bShowScrollBar = TRUE;
-  /* VVM $ */
 
   if (bShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
     XX2--;  // уменьшает площадь, в которой меню следит за мышью само
 
   if (bShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
-  /* KM $ */
   {
     if (MsY==SbY1)
     {
@@ -1026,7 +986,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if (SelectPos!=0)
             ProcessKey(KEY_UP);
         ShowMenu(TRUE);
-        /* tran $ */
       }
       return(TRUE);
     }
@@ -1039,7 +998,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         */
         if (SelectPos!=ItemCount-1)
             ProcessKey(KEY_DOWN);
-        /* tran $ */
         ShowMenu(TRUE);
       }
       return(TRUE);
@@ -1069,7 +1027,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     }
   }
-  /* tran 06.07.2000 $ */
 
   // dwButtonState & 3 - Left & Right button
   if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MsX>X1 && MsX<X2)
@@ -1088,23 +1045,11 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
   }
 
-  /* $ 06.07.2000 tran
-     + mouse support for menu scrollbar
-     */
-  /* $ 21.07.2001 KM
-   ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-  */
   if ((BoxType!=NO_BOX)?
       (MsX>X1 && MsX<XX2 && MsY>Y1 && MsY<Y2):
       (MsX>=X1 && MsX<=XX2 && MsY>=Y1 && MsY<=Y2))
-  /* KM $ */
-  /* tran 06.07.2000 $ */
   {
-    /* $ 21.07.2001 KM
-     ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
-    */
     MsPos=TopPos+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
-    /* KM $ */
     if (MsPos<ItemCount && !(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&LIF_DISABLE))
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
@@ -1142,7 +1087,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
         ProcessKey(KEY_ENTER);
       }
-      /* VVM $ */
     }
     return(TRUE);
   }
@@ -1161,9 +1105,6 @@ void VMenu::DeleteItems()
 {
   CriticalSectionLock Lock(CS);
 
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
-  */
   if(Item)
   {
     for(int I=0; I < ItemCount; ++I)
@@ -1175,7 +1116,6 @@ void VMenu::DeleteItems()
     }
     xf_free(Item);
   }
-  /* SVS $ */
   Item=NULL;
   ItemCount=0;
   SelectPos=-1;
@@ -1183,11 +1123,7 @@ void VMenu::DeleteItems()
   MaxLength=(int)Max(strTitle.GetLength(),strBottomTitle.GetLength())+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
-  /* $ 23.02.2002 DJ
-     а перерисовать?
-  */
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  /* DJ $ */
 }
 
 
@@ -1247,7 +1183,6 @@ int VMenu::DeleteItem(int ID,int Count)
     */
     while (SelectPos > 0 &&(Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
       SelectPos--;
-    /* DJ $ */
   }
 
   VMFlags.Clear(VMENU_SELECTPOSNONE);
@@ -1281,7 +1216,6 @@ int VMenu::DeleteItem(int ID,int Count)
 
   return(ItemCount);
 }
-/* SVS $ */
 
 int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 {
@@ -1460,7 +1394,6 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     if (PItem->Flags & LIF_SELECTED && !(PItem->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
       SelectPos = NewItem->Index;
     AdjustSelectPos();
-    /* DJ $ */
 
     return TRUE;
   }
@@ -1568,7 +1501,6 @@ void* VMenu::_GetUserData(MenuItemEx *PItem,void *Data,int Size)
               Min(Size,static_cast<int>((PItem->strName.GetLength()+1)*sizeof(wchar_t))));
     }
   }
-  /* KM $ */
   return(PtrData);
 }
 
@@ -1689,7 +1621,6 @@ int VMenu::SetSelectPos(int Pos,int Direct)
         Pass++;
       }
     }
-    /* DJ $ */
 
     if(!(Item[Pos]->Flags&LIF_SEPARATOR) && !(Item[Pos]->Flags&LIF_DISABLE))
       break;
@@ -1710,7 +1641,6 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   */
   if (SelectPos!=-1)
     Item[SelectPos]->Flags&=~LIF_SELECTED;
-  /* KM $ */
   Item[Pos]->Flags|=LIF_SELECTED;
   SelectPos=Pos;
 
@@ -1721,7 +1651,6 @@ int VMenu::SetSelectPos(int Pos,int Direct)
     иногда не "замечал", что позиция изменилась).
   */
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  /* KM $ */
   return Pos;
 }
 
@@ -1740,9 +1669,6 @@ void VMenu::AdjustSelectPos()
   /* $ 20.07.2004 KM
      Добавим проверку на -1, в противном случае падает меню
      из Dialog API.
-  */
-  /* $ 27.07.2004 VVM
-     Перенесем проверку в другое место :)
   */
 //  if (SelectPos!=-1)
 //  {
@@ -1778,7 +1704,6 @@ void VMenu::AdjustSelectPos()
         Item [SelectPos]->SetSelect (TRUE);
     }
 //  }
-  /* KM $ */
 
   if (SelectPos == -1)
     VMFlags.Set(VMENU_SELECTPOSNONE); //??
@@ -1786,7 +1711,6 @@ void VMenu::AdjustSelectPos()
     VMFlags.Clear(VMENU_SELECTPOSNONE);
 }
 
-/* DJ $ */
 
 void VMenu::SetTitle(const wchar_t *Title)
 {
@@ -1986,7 +1910,6 @@ void VMenu::AssignHighlights(int Reverse)
     VMOldFlags.Set(VMENU_SHOWAMPERSAND);
   if (VMOldFlags.Check(VMENU_SHOWAMPERSAND))
     VMFlags.Set(VMENU_SHOWAMPERSAND);
-  /* KM $ */
   int I, Delta=Reverse ? -1:1;
   for (I=(Reverse ? ItemCount-1:0); I >= 0 && I < ItemCount; I+=Delta)
   {
@@ -2041,9 +1964,6 @@ void VMenu::AssignHighlights(int Reverse)
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
 }
 
-/* $ 28.07.2000 SVS
-
-*/
 void VMenu::SetColors(struct FarListColors *Colors)
 {
   CriticalSectionLock Lock(CS);
@@ -2156,11 +2076,7 @@ void VMenu::GetColors(struct FarListColors *Colors)
 
   memmove(Colors->Colors,VMenu::Colors,sizeof(VMenu::Colors));
 }
-/* SVS $*/
 
-/* $ 25.05.2001 DJ
-   установка одного цвета
-*/
 void VMenu::SetOneColor (int Index, short Color)
 {
   CriticalSectionLock Lock(CS);
@@ -2169,7 +2085,6 @@ void VMenu::SetOneColor (int Index, short Color)
     Colors [Index]=FarColorToReal(Color);
 }
 
-/* DJ $ */
 
 struct SortItemParam{
   int Direction;
@@ -2286,12 +2201,8 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
 
   if(Info)
   {
-    /* $ 23.02.2002 DJ
-       нефиг показывать наши внутренние флаги
-    */
     Info->Flags=VMFlags.Flags & (LINFO_SHOWNOBOX | LINFO_AUTOHIGHLIGHT
       | LINFO_REVERSEHIGHLIGHT | LINFO_WRAPMODE | LINFO_SHOWAMPERSAND);
-    /* DJ $ */
     Info->ItemsNumber=ItemCount;
     Info->SelectPos=SelectPos;
     Info->TopPos=TopPos;
@@ -2352,7 +2263,6 @@ void VMenu::ResizeConsole()
     delete SaveScr;
     SaveScr=NULL;
   }
-  /* KM $ */
   if (this->CheckFlags(VMENU_NOTCHANGE))
   {
     return;

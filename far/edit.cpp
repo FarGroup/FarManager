@@ -164,8 +164,6 @@ int Edit::GetCodePage ()
 
 void Edit::DisplayObject()
 {
-  /* $ 26.07.2000 tran
-    + dropdown style */
   if (Flags.Check(FEDITLINE_DROPDOWNBOX))
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
@@ -173,20 +171,14 @@ void Edit::DisplayObject()
     SelEnd=StrSize; // а также считаем что все выделено -
                     //    надо же отличаться от обычных Edit
   }
-  /* tran 26.07.2000 $ */
 
-  /* $ 12.08.2000 KM
-     Вычисление нового положения курсора в строке с учётом Mask.
-  */
+  //   Вычисление нового положения курсора в строке с учётом Mask.
   int Value=(PrevCurPos>CurPos)?-1:1;
   CurPos=GetNextCursorPos(CurPos,Value);
-  /* KM $ */
+
   FastShow();
 
-  /* $ 19.07.2001 KM
-     - Под NT курсор мигал.
-  */
-  /* $ 16.07.2001 KM
+  /*
      - Борьба через ж*пу с глюком консоли w9x где при запуске
        некоторых досовых прог курсор приобретал "странный"
        внешний вид.
@@ -196,8 +188,6 @@ void Edit::DisplayObject()
     ::SetCursorType(TRUE,99);
     ::SetCursorType(TRUE,CursorSize);
   }
-  /* KM $ */
-  /* KM $ */
 
   /* $ 26.07.2000 tran
      при DropDownBox курсор выключаем
@@ -233,9 +223,7 @@ void Edit::GetCursorType(int &Visible,int &Size)
   Size=CursorSize;
 }
 
-/* $ 12.08.2000 KM
-   Вычисление нового положения курсора в строке с учётом Mask.
-*/
+//   Вычисление нового положения курсора в строке с учётом Mask.
 int Edit::GetNextCursorPos(int Position,int Where)
 {
   int Result=Position;
@@ -280,7 +268,6 @@ int Edit::GetNextCursorPos(int Position,int Where)
   }
   return Result;
 }
-/* KM $ */
 
 void Edit::FastShow()
 {
@@ -310,7 +297,6 @@ void Edit::FastShow()
     if (TabCurPos<LeftPos)
       LeftPos=TabCurPos;
   }
-  /* KM $ */
   GotoXY(X1,Y1);
   int TabSelStart=(SelStart==-1) ? -1:RealPosToTab(SelStart);
   int TabSelEnd=(SelEnd<0) ? -1:RealPosToTab(SelEnd);
@@ -322,7 +308,7 @@ void Edit::FastShow()
   */
   if (Mask && *Mask)
     RefreshStrByMask();
-  /* KM $ */
+
 #ifdef SHITHAPPENS
   ReplaceSpaces(0);
 #endif
@@ -335,7 +321,7 @@ void Edit::FastShow()
     */
     int SaveSelStart=SelStart;
     int SaveSelEnd=SelEnd;
-    /* SKV $ */
+
     int SaveStrSize=StrSize,SaveCurPos=CurPos;
     if ((SaveStr=new wchar_t[StrSize+1])==NULL)
       return;
@@ -348,19 +334,11 @@ void Edit::FastShow()
       ShowString(Str,TabSelStart,TabSelEnd);
     wmemcpy(Str,SaveStr,SaveStrSize);
     Str[SaveStrSize]=0;
-    /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
-    */
     delete[] SaveStr;
-    /* SVS $*/
     StrSize=SaveStrSize;
     CurPos=SaveCurPos;
-    /* $ 04.07.2002 SKV
-      ... и восстановать.
-    */
     SelStart=SaveSelStart;
     SelEnd=SaveSelEnd;
-    /* SKV $ */
     Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t*));
   }
   else
@@ -373,7 +351,6 @@ void Edit::FastShow()
      при дроп-даун цвета нам не нужны */
   if ( !Flags.Check(FEDITLINE_DROPDOWNBOX) )
       ApplyColor();
-  /* tran 26.07.2000 $ */
 
 #ifdef SHITHAPPENS
   ReplaceSpaces(1);
@@ -394,11 +371,7 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
     Flags.Clear(FEDITLINE_PASSWORDMODE);
     ShowString(PswStr,TabSelStart,TabSelEnd);
     Flags.Set(FEDITLINE_PASSWORDMODE);
-    /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
-    */
     delete[] PswStr;
-    /* SVS $*/
     return;
   }
   wchar_t *SaveStr=NULL;
@@ -432,9 +405,7 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
     if (Flags.Check(FEDITLINE_CLEARFLAG) && LeftPos<StrSize)
     {
       SetColor(ColorUnChanged);
-      /* $ 21.09.2003 KM
-         Уточнения работы с маской
-      */
+
       int Len,Size;
       if (Mask && *Mask)
       {
@@ -459,7 +430,6 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
       SetColor(Color);
 
       int BlankLength=EditLength-(Size-LeftPos);
-      /* KM $ */
 
       if (BlankLength > 0)
       {
@@ -498,14 +468,10 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
       else
         Text(OutStr);
     }
-    /* SVS $ */
     else
     {
       mprintf(L"%.*s",TabSelStart,OutStr);
       SetColor(SelColor);
-      /* $ 15.08.2000 SVS
-         + У DropDowList`а выделение по полной программе - на всю видимую длину
-      */
       if(!Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
         mprintf(L"%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
@@ -520,22 +486,13 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
       {
         mprintf(L"%*s",X2-X1+1,OutStr);
       }
-      /* SVS $*/
     }
-    /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
-    */
     delete[] OutStr;
-    /* SVS $*/
   }
   if (SaveStr)
   {
     wmemcpy(Str,SaveStr,StrSize);
-    /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
-    */
     delete[] SaveStr;
-    /* SVS $*/
   }
 }
 
@@ -650,17 +607,10 @@ int Edit::ProcessKey(int Key)
 
   int PrevSelStart=-1,PrevSelEnd=0;
 
-  /* $ 25.07.2000 tran
-     при дроп-даун, нам Ctrl-l не нужен */
-  /* $ 03.07.2000 tran
-     + обработка Ctrl-L как переключателя состояния ReadOnly  */
   if ( !Flags.Check(FEDITLINE_DROPDOWNBOX) && Key==KEY_CTRLL )
   {
     Flags.Swap(FEDITLINE_READONLY);
   }
-  /* tran 03.07.2000 $ */
-  /* tran 25.07.2000 $ */
-
 
   /* $ 26.07.2000 SVS
      Bugs #??
@@ -676,7 +626,6 @@ int Edit::ProcessKey(int Key)
     Show();
     return(TRUE);
   }
-  /* SVS $ */
 
   int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
   // $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
@@ -703,9 +652,7 @@ int Edit::ProcessKey(int Key)
         PrevSelEnd=SelEnd;
         Select(-1,0);
         Show();
-//_SVS(SysLog(L"Edit::ProcessKey(), Select Kill"));
       }
-      /* DJ $ */
     }
 
   }
@@ -720,7 +667,7 @@ int Edit::ProcessKey(int Key)
   if (((Opt.Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL || Key==KEY_NUMDEL) &&
      Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize)
     Key=KEY_CTRLY;
-  /* SVS $ */
+
   /* $ 15.09.2000 SVS
      Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
            Так должно быть только для UnChanged состояния
@@ -730,7 +677,6 @@ int Edit::ProcessKey(int Key)
     SelStart=0;
     SelEnd=StrSize;
   }
-  /* SVS $ */
 
   if (Flags.Check(FEDITLINE_CLEARFLAG) && (Key<256 && Key!=KEY_BS || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
@@ -810,13 +756,12 @@ int Edit::ProcessKey(int Key)
 
     case KEY_CTRLSHIFTLEFT: case KEY_CTRLSHIFTNUMPAD4:
     {
-      /* $ 15.08.2000 KM */
       if (CurPos>StrSize)
       {
         PrevCurPos=CurPos;
         CurPos=StrSize;
       }
-      /* KM $ */
+
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
 
@@ -827,17 +772,11 @@ int Edit::ProcessKey(int Key)
       while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
              IsWordDiv(TableSet, WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
-        /* $ 18.08.2000 KM
-           Добавим выход из цикла проверив CurPos-1 на присутствие
-           в WordDiv.
-        */
         if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
              IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
           break;
-        /* KM $ */
         RecurseProcessKey(KEY_SHIFTLEFT);
       }
-      /* IS $ */
       Show();
       return(TRUE);
     }
@@ -847,25 +786,16 @@ int Edit::ProcessKey(int Key)
       if (CurPos>=StrSize)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
-      /* $ 12.01.2004 IS
-         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-      */
+
       while (CurPos<StrSize && !(IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
              !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
       {
-        /* $ 18.08.2000 KM
-           Добавим выход из цикла проверив CurPos-1 на присутствие
-           в WordDiv.
-        */
         if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
           break;
-        /* KM $ */
         RecurseProcessKey(KEY_SHIFTRIGHT);
         if (MaxLength!=-1 && CurPos==MaxLength-1)
           break;
       }
-      /* IS $ */
       Show();
       return(TRUE);
     }
@@ -884,9 +814,6 @@ int Edit::ProcessKey(int Key)
     {
       Lock ();
 
-      /* $ 21.09.2003 KM
-         Уточнения работы с маской
-      */
       int Len;
 
       if (Mask && *Mask)
@@ -909,7 +836,6 @@ int Edit::ProcessKey(int Key)
         if(LastCurPos==CurPos)break;
         LastCurPos=CurPos;
       }
-      /* KM $ */
 
       Unlock ();
       Show();
@@ -920,9 +846,7 @@ int Edit::ProcessKey(int Key)
     {
       if (CurPos<=0)
         return(FALSE);
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
       CurPos--;
       if (CurPos<=LeftPos)
       {
@@ -935,35 +859,22 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
-    /* $ 10.12.2000 tran
-       KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS*/
-    /* $ 03.07.2000 tran
-       + KEY_SHIFTBS - удялем от курсора до начала строки */
     case KEY_CTRLSHIFTBS:
     {
-      /* tran $ */
-      /* $ 19.08.2000 KM
-         Немного изменён алгоритм удаления до начала строки.
-         Теперь удаление работает и с маской ввода.
-      */
       int i;
       for (i=CurPos;i>=0;i--)
         RecurseProcessKey(KEY_BS);
       Show();
       return(TRUE);
     }
-      /* KM $ */
-    /* tran 03.07.2000 $ */
 
     case KEY_CTRLBS:
     {
-      /* $ 15.08.2000 KM */
       if (CurPos>StrSize)
       {
         PrevCurPos=CurPos;
         CurPos=StrSize;
       }
-      /* KM $ */
       Lock ();
 //      while (CurPos>0 && IsSpace(Str[CurPos-1]))
 //        RecurseProcessKey(KEY_BS);
@@ -975,12 +886,7 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
           break;
-        /* $ 12.01.2004 IS
-           Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-           текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-        */
         if (IsWordDiv(TableSet, WordDiv,Str[CurPos-1]))
-        /* IS $ */
           break;
       }
       Unlock ();
@@ -1049,34 +955,20 @@ int Edit::ProcessKey(int Key)
       Lock ();
 //      while (CurPos<StrSize && IsSpace(Str[CurPos]))
 //        RecurseProcessKey(KEY_DEL);
-      /* $ 19.08.2000 KM
-         Поставим пока заглушку на удаление, если
-         используется маска ввода.
-      */
       if (Mask && *Mask)
       {
-        /* $ 12.11.2000 KM
-           Добавим код для удаления части строки
-           с учётом маски.
-        */
         int MaskLen=StrLength(Mask);
         int ptr=CurPos;
         while(ptr<MaskLen)
         {
           ptr++;
-          /* $ 12.01.2004 IS
-             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-          */
           if (!CheckCharMask(Mask[ptr]) ||
              (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
              (IsWordDiv(TableSet, WordDiv, Str[ptr])))
-          /* IS $ */
             break;
         }
         for (int i=0;i<ptr-CurPos;i++)
           RecurseProcessKey(KEY_DEL);
-        /* KM $ */
       }
       else
       {
@@ -1088,12 +980,7 @@ int Edit::ProcessKey(int Key)
           RecurseProcessKey(KEY_DEL);
           if (CurPos>=StrSize || StopDelete)
             break;
-          /* $ 12.01.2004 IS
-             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-          */
           if (IsWordDiv(TableSet, WordDiv, Str[CurPos]))
-          /* IS $ */
             break;
         }
       }
@@ -1104,17 +991,9 @@ int Edit::ProcessKey(int Key)
 
     case KEY_CTRLY:
     {
-      /* $ 25.07.2000 tran
-         + DropDown style */
-      /* $ 03.07.2000 tran
-         + обработка ReadOnly */
       if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
         return (TRUE);
-      /* tran 03.07.2000 $ */
-      /* tran 25.07.2000 $ */
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
       LeftPos=CurPos=0;
       *Str=0;
       StrSize=0;
@@ -1126,14 +1005,8 @@ int Edit::ProcessKey(int Key)
 
     case KEY_CTRLK:
     {
-      /* $ 25.07.2000 tran
-         + DropDown style */
-      /* $ 03.07.2000 tran
-         + обработка ReadOnly */
       if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
         return (TRUE);
-      /* tran 03.07.2000 $ */
-      /* tran 25.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
       if (!Flags.Check(FEDITLINE_EDITBEYONDEND))
@@ -1156,9 +1029,7 @@ int Edit::ProcessKey(int Key)
     case KEY_HOME:        case KEY_NUMPAD7:
     case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
     {
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
       CurPos=0;
       Show();
       return(TRUE);
@@ -1167,13 +1038,8 @@ int Edit::ProcessKey(int Key)
     case KEY_END:         case KEY_NUMPAD1:
     case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
     {
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
 
-      /* $ 21.09.2003 KM
-         Уточнения работы с маской
-      */
       if (Mask && *Mask)
       {
         wchar_t *ShortStr=new wchar_t[StrSize+1];
@@ -1185,7 +1051,6 @@ int Edit::ProcessKey(int Key)
       }
       else
         CurPos=StrSize;
-      /* KM $ */
 
       Show();
       return(TRUE);
@@ -1196,9 +1061,7 @@ int Edit::ProcessKey(int Key)
     {
       if (CurPos>0)
       {
-        /* $ 15.08.2000 KM */
         PrevCurPos=CurPos;
-        /* KM $ */
         CurPos--;
         Show();
       }
@@ -1208,13 +1071,8 @@ int Edit::ProcessKey(int Key)
     case KEY_RIGHT:       case KEY_NUMPAD6:
     case KEY_CTRLD:
     {
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
 
-      /* $ 21.09.2003 KM
-         Уточнения работы с маской
-      */
       if (Mask && *Mask)
       {
         wchar_t *ShortStr=new wchar_t[StrSize+1];
@@ -1228,7 +1086,6 @@ int Edit::ProcessKey(int Key)
       }
       else
         CurPos++;
-      /* KM $ */
 
       Show();
       return(TRUE);
@@ -1244,14 +1101,8 @@ int Edit::ProcessKey(int Key)
     case KEY_NUMDEL:
     case KEY_DEL:
     {
-      /* $ 25.07.2000 tran
-         + DropDown style */
-      /* $ 03.07.2000 tran
-         + обработка ReadOnly */
       if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
         return (TRUE);
-      /* tran 03.07.2000 $ */
-      /* tran 25.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
       if (SelStart!=-1)
@@ -1266,9 +1117,6 @@ int Edit::ProcessKey(int Key)
           SelEnd=0;
         }
       }
-      /* $ 16.08.2000 KM
-         Работа с маской.
-      */
       if (Mask && *Mask)
       {
         int MaskLen=StrLength(Mask);
@@ -1291,27 +1139,20 @@ int Edit::ProcessKey(int Key)
         StrSize--;
         Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t));
       }
-      /* KM $ */
+
       Show();
       return(TRUE);
     }
 
     case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
     {
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
       if (CurPos>StrSize)
         CurPos=StrSize;
       if (CurPos>0)
         CurPos--;
-      /* $ 12.01.2004 IS
-         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-      */
       while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
              IsWordDiv(TableSet, WordDiv, Str[CurPos-1]) && !IsSpace(Str[CurPos])))
-      /* IS $ */
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1325,13 +1166,8 @@ int Edit::ProcessKey(int Key)
     {
       if (CurPos>=StrSize)
         return(FALSE);
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
 
-      /* $ 21.09.2003 KM
-         Уточнения работы с маской
-      */
       int Len;
       if (Mask && *Mask)
       {
@@ -1350,14 +1186,8 @@ int Edit::ProcessKey(int Key)
         CurPos++;
       }
 
-      /* $ 12.01.2004 IS
-         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-      */
       while (CurPos<Len/*StrSize*/ && !(IsWordDiv(TableSet, WordDiv,Str[CurPos]) &&
              !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
-      /* IS $ */
-      /* KM $ */
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1384,9 +1214,6 @@ int Edit::ProcessKey(int Key)
       if (!Flags.Check(FEDITLINE_PASSWORDMODE))
         if (SelStart==-1 || SelStart>=SelEnd)
         {
-          /* $ 26.10.2003 KM
-             ! Уточнение копирования маскированной строки в клипборд.
-          */
           if (Mask && *Mask)
           {
             wchar_t *ShortStr=new wchar_t[StrSize+1];
@@ -1399,7 +1226,6 @@ int Edit::ProcessKey(int Key)
           }
           else
             CopyToClipboard(Str);
-          /* KM $ */
         }
         else
           if (SelEnd<=StrSize) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
@@ -1414,9 +1240,6 @@ int Edit::ProcessKey(int Key)
 
     case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
     {
-        /* $ 15.10.2000 tran
-           если строка ввода имет максимальную длину
-           то их клипборда грузим не больше ее*/
         wchar_t *ClipText=NULL;
 
         if (MaxLength==-1)
@@ -1451,34 +1274,24 @@ int Edit::ProcessKey(int Key)
         }
         else
           InsertString(ClipText);
-        /* $ 13.07.2000 SVS
-           в PasteFromClipboard запрос памятиче через new[]
-        */
         if(ClipText)
           delete[] ClipText;
-        /* SVS $ */
         Show();
       return(TRUE);
     }
 
     case KEY_SHIFTTAB:
     {
-        /* $ 15.08.2000 KM */
         PrevCurPos=CurPos;
-        /* KM $ */
-        /* $ 12.12.2000 OT KEY_SHIFTTAB Bug Fix*/
         CursorPos-=(CursorPos-1) % TabSize+1;
         SetTabCurPos(CursorPos);
-        /* OT $ */
         Show();
       return(TRUE);
     }
 
-    /* $ 13.02.2001 VVM
-      + Обработка SHIFT+SPACE */
     case KEY_SHIFTSPACE:
       Key = KEY_SPACE;
-    /* VVM $ */
+
     default:
     {
 //      _D(SysLog(L"Key=0x%08X",Key));
@@ -1563,23 +1376,15 @@ int Edit::ProcessInsPlainText(const wchar_t *str)
 int Edit::InsertKey(int Key)
 {
   wchar_t *NewStr;
-  /* $ 25.07.2000 tran
-     + drop-down */
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return (TRUE);
-  /* tran 03.07.2000 $ */
-  /* $ 15.08.2000 KM
-     Работа с маской ввода.
-  */
+
   if (Key==KEY_TAB && Flags.Check(FEDITLINE_OVERTYPE))
   {
     PrevCurPos=CurPos;
-    /* $ 14.12.2000 OT KEY_TAB Bug Fix*/
     CursorPos+=TabSize - (CursorPos % TabSize);
     SetTabCurPos(CursorPos);
-    /* OT $ */
 
     return(TRUE);
   }
@@ -1588,11 +1393,6 @@ int Edit::InsertKey(int Key)
     int MaskLen=StrLength(Mask);
     if (CurPos<MaskLen)
     {
-      /* $ 15.11.2000 KM
-         Убран кусок кода и сделана функция KeyMatchedMask,
-         проверяющая разрешение символа на ввод по маске.
-      */
-      /* KM $*/
       if (KeyMatchedMask(Key))
       {
         if (!Flags.Check(FEDITLINE_OVERTYPE))
@@ -1608,11 +1408,7 @@ int Edit::InsertKey(int Key)
               while(!CheckCharMask(Mask[j-1]))
               {
                 if (j<=CurPos)
-                  /* $ 15.11.2000 KM
-                     Замена continue на break
-                  */
                   break;
-                  /* KM $ */
                 j--;
               }
               Str[i]=Str[j-1];
@@ -1689,21 +1485,16 @@ int Edit::InsertKey(int Key)
     else
       MessageBeep(MB_ICONHAND);
   }
-  /* KM $ */
   Str[StrSize]=0;
   return(TRUE);
 }
 
-/* $ 28.07.2000 SVS
-   ! имеет дополнительный параметр для установки ColorUnChanged
-*/
 void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 {
   Edit::Color=Color;
   Edit::SelColor=SelColor;
   Edit::ColorUnChanged=ColorUnChanged;
 }
-/* SVS $ */
 
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
@@ -1764,11 +1555,8 @@ const wchar_t *Edit::GetEOL(void)
    в Dialog он нигде не вызывается */
 void Edit::SetBinaryString(const wchar_t *Str,int Length)
 {
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
-  /* tran 03.07.2000 $ */
 
   // коррекция вставляемого размера, если определен MaxLength
   if(MaxLength != -1 && Length > MaxLength)
@@ -1806,25 +1594,12 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
         EndType=EOL_NONE;
     }
   }
-  /* $ 15.08.2000 KM
-     Работа с маской
-  */
-  /* $ 12.11.2000 KM
-     Убран кусок кода от SVS проверяющий конец строки.
-     Он не работал НИКОГДА.
-  */
+
   CurPos=0;
   if (Mask && *Mask)
   {
-    /* $ 21.09.2003 KM
-       Очистка строки с маской.
-    */
     RefreshStrByMask(TRUE);
-    /* KM $ */
 
-    /* $ 26.10.2003 KM
-       ! Скорректируем вставку из клипборда с учётом маски
-    */
     int maskLen=StrLength(Mask);
     for (int i=0,j=0;j<maskLen && j<Length;)
     {
@@ -1845,7 +1620,6 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
       }
       i++;
     }
-    /* KM $ */
 
     /* Здесь необходимо условие (*Str==0), т.к. для очистки строки
        обычно вводится нечто вроде SetBinaryString("",0)
@@ -1853,7 +1627,6 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
     */
     RefreshStrByMask(*Str==0);
   }
-  /* KM $ */
   else
   {
     wchar_t *NewStr=(wchar_t *)xf_realloc(Edit::Str,(Length+1)*sizeof (wchar_t));
@@ -1869,7 +1642,6 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
     PrevCurPos=CurPos;
     CurPos=StrSize;
   }
-  /* KM $ */
 }
 
 void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
@@ -1930,14 +1702,8 @@ int Edit::GetSelString (string &strStr)
 
 void Edit::InsertString(const wchar_t *Str)
 {
-  /* $ 25.07.2000 tran
-     + drop-down */
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
-  /* tran 03.07.2000 $ */
-  /* tran 25.07.2000 $ */
 
   Select(-1,0);
   InsertBinaryString(Str,StrLength(Str));
@@ -1948,19 +1714,11 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 {
   wchar_t *NewStr;
 
-  /* $ 25.07.2000 tran
-     + drop-down */
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
-  /* tran 03.07.2000 $ */
 
   Flags.Clear(FEDITLINE_CLEARFLAG);
 
-  /* $ 18.08.2000 KM
-     Обслуживание маски ввода.
-  */
   if (Mask && *Mask)
   {
     int Pos=CurPos;
@@ -1995,7 +1753,6 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
         }
         i++;
       }
-      /* KM $ */
     }
     RefreshStrByMask();
     //_SVS(SysLog(L"InsertBinaryString ==> Edit::Str='%s'",Edit::Str));
@@ -2038,17 +1795,11 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
       }
       Edit::Str=NewStr;
       wmemcpy(&Edit::Str[CurPos],Str,Length);
-      /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
-      /* KM $ */
       CurPos+=Length;
       wmemcpy(Edit::Str+CurPos,TmpStr,TmpSize);
       Edit::Str[StrSize]=0;
-      /* $ 13.07.2000 SVS
-         раз уж вызывали через new[]...
-      */
       delete[] TmpStr;
-      /* SVS $*/
 
       if ( TabExpandMode == EXPAND_ALLTABS )
         ReplaceTabs();
@@ -2056,7 +1807,6 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
     else
       MessageBeep(MB_ICONHAND);
   }
-  /* KM $ */
 }
 
 
@@ -2066,7 +1816,6 @@ int Edit::GetLength()
 }
 
 
-/* $ 12.08.2000 KM */
 // Функция установки маски ввода в объект Edit
 void Edit::SetInputMask(const wchar_t *InputMask)
 {
@@ -2091,11 +1840,6 @@ void Edit::RefreshStrByMask(int InitMode)
   if (Mask && *Mask)
   {
     int MaskLen=StrLength(Mask);
-    /* $12.11.2000 KM
-       Некоторые изменения в работе с маской.
-       Теперь Str не может быть длиннее Mask и
-       MaxLength будет равна длине маски.
-    */
     if (StrSize!=MaskLen)
     {
       wchar_t *NewStr=(wchar_t *)xf_realloc(Str,(MaskLen+1)*sizeof (wchar_t));
@@ -2107,7 +1851,6 @@ void Edit::RefreshStrByMask(int InitMode)
       StrSize=MaxLength=MaskLen;
       Str[StrSize]=0;
     }
-    /* KM $ */
     for (i=0;i<MaskLen;i++)
     {
       if (InitMode)
@@ -2117,7 +1860,6 @@ void Edit::RefreshStrByMask(int InitMode)
     }
   }
 }
-/* KM $ */
 
 
 int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -2129,13 +1871,10 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(FALSE);
   //SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
   SetTabCurPos(MouseEvent->dwMousePosition.X - X1 + LeftPos);
-  /* $ 05.09.2001 SVS
-    Для непостоянных блоков снимаем выделение
-    А ТАК ЛИ Я СДЕЛАЛ?????
-  */
+
   if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
     Select(-1,0);
-  /* SVS $ */
+
   Show();
   return(TRUE);
 }
@@ -2202,7 +1941,6 @@ int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Rev
     }*/ //BUGBUG
   return(FALSE);
 }
-/* KM $ */
 
 void Edit::InsertTab()
 {
@@ -2315,9 +2053,6 @@ int Edit::GetTabCurPos()
 
 void Edit::SetTabCurPos(int NewPos)
 {
-  /* $ 21.09.2003 KM
-     Уточнения работы с маской
-  */
   int Pos;
 
   if (Mask && *Mask)
@@ -2331,7 +2066,6 @@ void Edit::SetTabCurPos(int NewPos)
     if (NewPos>Pos)
       NewPos=Pos;
   }
-  /* KM $ */
 
   CurPos=TabPosToReal(NewPos);
 }
@@ -2351,7 +2085,6 @@ int Edit::RealPosToTab(int Pos)
      Cursor beyond end of line.
   */
   for (TabPos=0,I=0;I<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
-  /* KM $ */
   {
     if (I>=StrSize)
     {
@@ -2381,7 +2114,6 @@ int Edit::TabPosToReal(int Pos)
      Cursor beyond end of line.
   */
   for (TabPos=0,I=0;TabPos<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
-  /* KM $ */
   {
     if (I>StrSize)
     {
@@ -2411,7 +2143,6 @@ void Edit::Select(int Start,int End)
    17.09.2002 возвращаю обратно. Глюкодром.
 */
   if (SelEnd<SelStart && SelEnd!=-1)
-/* SKV $ */
   {
     SelStart=-1;
     SelEnd=0;
@@ -2484,20 +2215,12 @@ void Edit::SetTables(struct CharTableSet *TableSet)
 
 void Edit::DeleteBlock()
 {
-  /* $ 25.07.2000 tran
-     + drop-down */
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
-  /* tran 03.07.2000 $ */
-  /* tran 25.07.2000 $ */
 
   if (SelStart==-1 || SelStart>=SelEnd)
     return;
-  /* $ 15.08.2000 KM
-     Учёт Mask
-  */
+
   PrevCurPos=CurPos;
   if (Mask && *Mask)
   {
@@ -2506,11 +2229,7 @@ void Edit::DeleteBlock()
       if (CheckCharMask(Mask[i]))
         Str[i]=L' ';
     }
-    /* $ 18.09.2000 SVS
-      Для Mask - забыли скорректировать позицию :-)
-    */
     CurPos=SelStart;
-    /* SVS $*/
   }
   else
   {
@@ -2527,7 +2246,6 @@ void Edit::DeleteBlock()
     Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t));
   }
 
-  /* KM $ */
   SelStart=-1;
   SelEnd=0;
   Flags.Clear(FEDITLINE_MARKINGBLOCK);
@@ -2640,36 +2358,27 @@ void Edit::ApplyColor()
 /* $ 24.09.2000 SVS $
   Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
 */
-/* $ 13.12.2000 SVS
-   Дополнительный параметр в функции  Xlat()
-*/
 void Edit::Xlat(BOOL All)
 {
-  /* $ 13.12.2000 SVS
-     Для CmdLine - если нет выделения, преобразуем всю строку
-  */
+  //   Для CmdLine - если нет выделения, преобразуем всю строку
   if(All && SelStart == -1 && SelEnd == 0)
   {
     ::Xlat(Str,0,StrLength(Str),TableSet,Opt.XLat.Flags);
     Show();
     return;
   }
-  /* SVS $ */
-  /* $ 10.10.2000 IS
-     - иногда не работала конвертация из-за того, что было SelStart==SelEnd
-  */
+
   if(SelStart != -1 && SelStart != SelEnd)
-  /* IS $ */
   {
     if(SelEnd == -1)
       SelEnd=StrLength(Str);
     ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
     Show();
   }
-/* $ 25.11.2000 IS
+  /* $ 25.11.2000 IS
    Если нет выделения, то обработаем текущее слово. Слово определяется на
    основе специальной группы разделителей.
-*/
+  */
   else
   {
    /* $ 10.12.2000 IS
@@ -2700,12 +2409,8 @@ void Edit::Xlat(BOOL All)
     ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
     Show();
    }
-   /* 12.01.2004 IS $*/
-   /* 10.12.2000 IS $ */
   }
-/* IS $ */
 }
-/* SVS $ */
 
 
 /* $ 15.11.2000 KM
@@ -2719,24 +2424,15 @@ int Edit::KeyMatchedMask(int Key)
     Inserted=TRUE;
   else if (Mask[CurPos]==EDMASK_DSS && (iswdigit(Key) || Key==L' ' || Key==L'-'))
     Inserted=TRUE;
-  /* $ 15.11.2000 KM
-     Убрано разрешение пробелов в цифровой маске.
-  */
   else if (Mask[CurPos]==EDMASK_DIGIT && (iswdigit(Key)))
     Inserted=TRUE;
-  /* KM $ */
   else if (Mask[CurPos]==EDMASK_ALPHA && IsAlpha(Key))
     Inserted=TRUE;
-  /* $ 20.09.2003 KM
-     Добавлена поддержка hex-символов.
-  */
   else if (Mask[CurPos]==EDMASK_HEX && (iswdigit(Key) || (Upper(Key)>=L'A' && Upper(Key)<=L'F') || (Upper(Key)>=L'a' && Upper(Key)<=L'f')))
     Inserted=TRUE;
-  /* KM $ */
 
   return Inserted;
 }
-/* KM $ */
 
 int Edit::CheckCharMask(wchar_t Chr)
 {

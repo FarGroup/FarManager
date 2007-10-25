@@ -112,11 +112,7 @@ class Panel:public ScreenObject
 
   private:
     int ChangeDiskMenu(int Pos,int FirstCall);
-    /* $ 28.12.2001 DJ
-       обработка Del в меню дисков
-    */
     int ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu);
-    /* DJ $ */
     void FastFindShow(int FindX,int FindY);
     void FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName, string &strName);
     void DragMessage(int X,int Y,int Move);
@@ -160,13 +156,12 @@ class Panel:public ScreenObject
       Используется для Update после исполнения команды.
     */
     virtual int UpdateIfChanged(int UpdateMode) {return(0);};
-    /* SKV$*/
     /* $ 19.03.2002 DJ
        UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
        что панель невидима
     */
     virtual void UpdateIfRequired() {};
-    /* DJ $ */
+
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0) {return(FALSE);}
 
@@ -179,13 +174,8 @@ class Panel:public ScreenObject
     virtual long FindFirst(const wchar_t *Name) {return -1;}
     virtual long FindNext(int StartPos, const wchar_t *Name) {return -1;}
 
-    /* $ 09.02.2001 IS
-       Функции установления/считывания состояния режима
-       "Помеченные файлы вперед"
-    */
     virtual void SetSelectedFirstMode(int) {};
     virtual int GetSelectedFirstMode(void) {return 0;};
-    /* IS $ */
     int GetMode() {return(PanelMode);};
     void SetMode(int Mode) {PanelMode=Mode;};
     int GetModalMode() {return(ModalMode);};
@@ -203,10 +193,7 @@ class Panel:public ScreenObject
     virtual void SetSortMode(int SortMode) {Panel::SortMode=SortMode;};
     int GetSortOrder() {return(SortOrder);};
     void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};
-    /* $ 24.04.2001 VVM
-      Изменить порядок сортировки на панели */
     virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);};
-    /* VVM $ */
     int GetSortGroups() {return(SortGroups);};
     void SetSortGroups(int SortGroups) {Panel::SortGroups=SortGroups;};
     int GetShowShortNamesMode() {return(ShowShortNames);};
@@ -251,7 +238,7 @@ class Panel:public ScreenObject
        используется стандартный кейбар
     */
     virtual BOOL UpdateKeyBar() { return FALSE; };
-    /* DJ $ */
+
     virtual long GetFileCount() {return 0;}
     virtual BOOL GetItem(int,void *){return FALSE;};
 

@@ -72,11 +72,8 @@ SaveScreen::~SaveScreen()
     return;
   _OT(SysLog(L"[%p] SaveScreen::~SaveScreen()", this));
   RestoreArea();
-  /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
-  */
+
   delete[] ScreenBuf;
-  /* SVS $ */
 }
 
 
@@ -84,11 +81,9 @@ void SaveScreen::Discard()
 {
   if (!ScreenBuf)
     return;
-  /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
-  */
+
   delete[] ScreenBuf;
-  /* SVS $ */
+
   ScreenBuf=NULL;
 }
 
@@ -177,7 +172,6 @@ void SaveScreen::AppendArea(SaveScreen *NewArea)
           Buf[X-X1+(X2-X1+1)*(Y-Y1)]=NewBuf[X-NewArea->X1+(NewArea->X2-NewArea->X1+1)*(Y-NewArea->Y1)];
 }
 
-/* $ 21.05.2001 OT  ћетоды дл€ работы с измен€ющимс€ буфером экрана */
 void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
 //  Corner definition:
 //  0 --- 1
@@ -258,7 +252,6 @@ void SaveScreen::CleanupBuffer(char *Buffer, int Height, int Width)
     *(int*)&Buffer[i*sizeof(CHAR_INFO)]=0x00070020;
   }
 }
-/* 21.05.2001 OT  $ */
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)
 {

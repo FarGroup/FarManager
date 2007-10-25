@@ -166,14 +166,13 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
   }
   else
   {
-    /* $ 28.11.2000 SVS
+    /*
        Если каталог является SymLink (т.н. "Directory Junctions"),
        то в него не ломимся.
     */
     if (Flags.Check(FSCANTREE_RECUR) &&
       ((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC ||
           (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK)))
-    /* SVS $ */
     {
 
       ChPtr = strFindPath.GetBuffer ();
@@ -202,9 +201,6 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
     }
   }
 
-  /* $ 26.03.2002 DJ
-     если имя слишком длинное - пропустим и вернем следующее
-  */
   strFullName = strFindPath;
 
   ChPtr = strFullName.GetBuffer ();

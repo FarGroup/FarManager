@@ -72,18 +72,11 @@ ScreenBuf::ScreenBuf()
 
 ScreenBuf::~ScreenBuf()
 {
-  /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
-  */
   if(Buf)    delete[] Buf;
   if(Shadow) delete[] Shadow;
-  /* SVS $ */
 }
 
 
-/* $ 13.07.2000 SVS
-   раз уж вызвали new[], то и нужно delete[]
-*/
 void ScreenBuf::AllocBuf(int X,int Y)
 {
   CriticalSectionLock Lock(CS);
@@ -107,7 +100,6 @@ void ScreenBuf::AllocBuf(int X,int Y)
   BufX=X;
   BufY=Y;
 }
-/* SVS $ */
 
 /* Заполнение виртуального буфера значением из консоли.
 */
@@ -443,7 +435,6 @@ void ScreenBuf::SetCursorType(int Visible,int Size)
     CurSize=Size;
     SBFlags.Clear(SBFLAGS_FLUSHEDCURTYPE);
   }
-  /* SVS $ */
 }
 
 void ScreenBuf::GetCursorType(int &Visible,int &Size)
@@ -459,9 +450,7 @@ void ScreenBuf::RestoreMacroChar()
   ResetShadow();
 }
 
-/*$ 23.07.2001 SKV
-  проскроллировать буффер на одну строку вверх.
-*/
+//  проскроллировать буффер на одну строку вверх.
 void ScreenBuf::Scroll(int Num)
 {
   CriticalSectionLock Lock(CS);
@@ -475,4 +464,3 @@ void ScreenBuf::Scroll(int Num)
     Flush();
 #endif
 }
-/* SKV$*/

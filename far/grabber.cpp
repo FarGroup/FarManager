@@ -57,11 +57,8 @@ Grabber::Grabber()
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_OTHER);
 
-  /* $ 14.08.2000 tran
-     хоть и не решает баг, но уже на трапается */
   memset(&GArea,0,sizeof(GArea));
   memset(&PrevArea,0,sizeof(PrevArea));
-  /* tran 14.08.2000 $ */
 
   int Visible,Size;
 
@@ -273,7 +270,6 @@ int Grabber::ProcessKey(int Key)
     else if (Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
-  /* SVS $ */
 
   switch(Key)
   {
@@ -402,13 +398,10 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   if (!LButtonPressed)
     return(FALSE);
-  /* $ 07.02.2001 SVS
-     Бага с грабилкой...
-     Забыли ввести проверку на вынос координат за пределы экрана.
-  */
+
   GArea.CurX=(MouseX<ScrX?(MouseX<0?0:MouseX):ScrX);
   GArea.CurY=(MouseY<ScrY?(MouseY<0?0:MouseY):ScrY);
-  /* SVS $ */
+
   if (MouseEvent->dwEventFlags==0)
     ResetArea=TRUE;
   else

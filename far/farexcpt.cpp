@@ -425,7 +425,6 @@ static DWORD WINAPI _xfilter(
    }
 
    rc = EXCEPTION_EXECUTE_HANDLER;
-   /* VVM $ */
 
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?

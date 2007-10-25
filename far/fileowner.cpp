@@ -112,9 +112,6 @@ static const wchar_t *get_sid_cache(PSID sid)
 }
 
 
-/* $ 07.09.2000 SVS
-   Функция GetFileOwner тоже доступна плагинам :-)
-*/
 int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 {
 /*  if(!Owner)

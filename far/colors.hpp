@@ -189,9 +189,7 @@ enum PaletteColors
   COL_VIEWERARROWS,
 
 #ifdef FAR_USE_INTERNALS
-  /* $ 11.07.2000 SVS
-    + 1 Служебная позиция перед новыми цветами :-)
-  */
+  //  + 1 Служебная позиция перед новыми цветами :-)
   COL_PRIVATEPOSITION_FOR_DIF165ABOVE,
 #else // ELSE FAR_USE_INTERNALS
   COL_RESERVED0,

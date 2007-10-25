@@ -112,9 +112,6 @@ int WINAPI GetSearchReplaceString (
   if(!ReplaceHistoryName)
     ReplaceHistoryName=ReplaceHistoryName0;
 
-  /* $ 03.08.2000 KM
-     Добавление checkbox'ов в диалоги для поиска целых слов
-  */
   if (IsReplaceMode)
   {
 /*
@@ -149,7 +146,7 @@ int WINAPI GetSearchReplaceString (
     /* 10 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditReplaceReplace,
     /* 11 */DI_BUTTON,0,11,0,11,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
     };
-    /* KM $ */
+
     HeightDialog=14;
     MakeDialogItemsEx(ReplaceDlgData,ReplaceDlg);
 
@@ -351,16 +348,6 @@ int WINAPI GetSearchReplaceString (
 }
 
 
-/* $ 25.08.2000 SVS
-   ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
-     сепаратор и кнопки <Ok> & <Cancel>
-*/
-/* $ 01.08.2000 SVS
-  ! Функция ввода строки GetString имеет один параметр для всех флагов
-*/
-/* $ 31.07.2000 SVS
-   ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
-*/
 // Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
 static LONG_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
@@ -452,11 +439,7 @@ int WINAPI GetString(
   if (HistoryName!=NULL)
   {
     StrDlg[2].History=HistoryName;
-    /* $ 09.08.2000 SVS
-       флаг для использовании пред значения из истории задается отдельно!!!
-    */
     StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
-    /* SVS $ */
   }
 
   if (Flags&FIB_PASSWORD)
@@ -517,11 +500,6 @@ int WINAPI GetString(
   }
   return(FALSE);
 }
-
-/* IS $ */
-/* SVS $*/
-/* 01.08.2000 SVS $*/
-/* 25.08.2000 SVS $*/
 
 /*
   Стандартный диалог ввода пароля.

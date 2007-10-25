@@ -228,36 +228,17 @@ typedef LONG_PTR (__stdcall *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LON
 
 class Dialog: public Frame
 {
-  /* $ 21.07.2001 KM
-    ! Объявление FindFiles другом диалога для доступа к члену Item.
-  */
   friend class FindFiles;
-  /* KM $ */
+
   private:
-    /* $ 29.08.2000 SVS
-       + Номер плагина, для формирования HelpTopic
-    */
-    INT_PTR PluginNumber;
-    /* SVS $ */
-    /* $ 23.08.2000 SVS
-       + Переменная класса FocusPos
-    */
+    INT_PTR PluginNumber;       // Номер плагина, для формирования HelpTopic
     int FocusPos;               // всегда известно какой элемент в фокусе
-    /* SVS $ */
     int PrevFocusPos;           // всегда известно какой элемент был в фокусе
-    /* $ 18.08.2000 SVS
-      + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
-      + DialogMode - Флаги текущего режима диалога
-    */
     int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
     BitFlags DialogMode;        // Флаги текущего режима диалога
-    /* SVS $ */
-    /* $ 11.08.2000 SVS
-      + Данные, специфические для конкретного экземпляра диалога
-    */
-    LONG_PTR DataDialog;        // первоначально здесь параметр,
-                                //   переданный в конструктор
-    /* SVS $ */
+
+    LONG_PTR DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
+
     struct DialogItemEx **Item;    // массив элементов диалога
     DialogItemEx *pSaveItemEx;
 
@@ -269,20 +250,13 @@ class Dialog: public Frame
 
     FARWINDOWPROC DlgProc;      // функция обработки диалога
 
-    /* $ 31.07.2000 tran
-       переменные для перемещения диалога */
+    // переменные для перемещения диалога
     int  OldX1,OldX2,OldY1,OldY2;
-    /* tran 31.07.2000 $ */
 
-    /* $ 17.05.2001 DJ */
     wchar_t *HelpTopic;
-    /* DJ $ */
-    /* $ 23.06.2001 KM
-       + Содержит статус комбобокса и хистори:
-         TRUE - открыт, FALSE - закрыт.
-    */
-    volatile int DropDownOpened;
-    /* KM $ */
+
+    volatile int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
+
     CriticalSection CS;
 
     int RealWidth, RealHeight;
@@ -291,12 +265,8 @@ class Dialog: public Frame
     virtual void DisplayObject();
     void DeleteDialogObjects();
     int  LenStrItem(int ID, const wchar_t *lpwszStr = NULL);
-    /* $ 22.08.2000 SVS
-      ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
-        ID=-1 - отрисовать весь диалог
-    */
-    void ShowDialog(int ID=-1);
-    /* SVS $ */
+
+    void ShowDialog(int ID=-1);  //    ID=-1 - отрисовать весь диалог
 
     LONG_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags);
     /* $ 28.07.2000 SVS
@@ -304,62 +274,29 @@ class Dialog: public Frame
          Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
     */
     int ChangeFocus2(int KillFocusPos,int SetFocusPos);
-    /* SVS $ */
+
     int ChangeFocus(int FocusPos,int Step,int SkipGroup);
     static int IsEdit(int Type);
-    /* $ 28.07.2000 SVS
-       Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
-    */
     static int IsFocused(int Type);
-    /* SVS $ */
-    /* $ 26.07.2000 SVS
-      + Дополнительный параметр в SelectFromEditHistory для выделения
-       нужной позиции в истории (если она соответствует строке ввода)
-    */
     BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr,int MaxLen);
-    /* SVS $ */
-    /* $ 18.07.2000 SVS
-       + функция SelectFromComboBox для выбора из DI_COMBOBOX
-    */
     int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
-    /* SVS $ */
-    /* $ 26.07.2000 SVS
-       AutoComplite: Поиск входжение подстроки в истории
-    */
     int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
-    /* SVS $ */
     int AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName);
 
-    /* $ 09.12.2001 DJ
-       обработка DIF_USELASTHISTORY
-    */
-    void ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex);
-    /* DJ $ */
+    void ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex); // обработка DIF_USELASTHISTORY
 
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
     BOOL CheckHighlights(WORD Chr);
 
-    /* $ 08.09.2000 SVS
-      Функция SelectOnEntry - выделение строки редактирования
-      Обработка флага DIF_SELECTONENTRY
-    */
     void SelectOnEntry(int Pos,BOOL Selected);
-    /* SVS $ */
 
     void CheckDialogCoord(void);
     BOOL GetItemRect(int I,RECT& Rect);
 
-    /* $ 19.05.2001 DJ
-       возвращает заголовок диалога (текст первого текста или фрейма)
-    */
+    // возвращает заголовок диалога (текст первого текста или фрейма)
     const wchar_t *GetDialogTitle();
-    /* DJ $ */
 
-    /* $ 30.05.2000 KM
-       Меняет координаты или размер итема диалога.
-    */
     BOOL SetItemRect(int ID,SMALL_RECT *Rect);
-    /* KM $ */
 
     /* $ 23.06.2001 KM
        + Функции программного открытия/закрытия комбобокса и хистори
@@ -367,17 +304,11 @@ class Dialog: public Frame
     */
     volatile void SetDropDownOpened(int Status){ DropDownOpened=Status; }
     volatile int GetDropDownOpened(){ return DropDownOpened; }
-    /* KM $ */
 
     void ProcessCenterGroup(void);
     int ProcessRadioButton(int);
 
-    /* $ 24.08.2000 SVS
-       InitDialogObjects имеет параметр - для выборочной реинициализации
-       элементов
-    */
     int  InitDialogObjects(int ID=-1);
-    /* 24.08.2000 SVS $ */
 
     int ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem,int CurFocusPos);
     int ProcessMoveDialog(DWORD Key);
@@ -398,71 +329,35 @@ class Dialog: public Frame
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void Show();
-    /* $ 30.08.2000 SVS
-       Надобно перехватить Hide()
-    */
     virtual void Hide();
-    /* SVS $ */
     void FastShow() {ShowDialog();}
-    /* $ 28.07.2000 SVS
-       Теперь InitDialogObjects возвращает ID элемента
-       с фокусом ввода
-    */
-    /* SVS $ */
+
     void GetDialogObjectsData();
 
     void SetDialogMode(DWORD Flags){ DialogMode.Set(Flags); }
 
-    /* $ 28.07.2000 SVS
-       + Функция ConvertItem - преобразования из внутреннего представления
-        в FarDialogItem и обратно
-    */
+    // преобразования из внутреннего представления в FarDialogItem и обратно
     static void ConvertItemEx (int FromPlugin,struct FarDialogItem *Item,struct DialogItemEx *Data,
                            int Count,BOOL InternalCall=FALSE);
 
-    /* SVS $ */
     static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,
                            int Count);
 
     static int IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 
-    /* $ 31.07.2000 tran
-       метод для перемещения диалога */
+    // метод для перемещения диалога
     void AdjustEditPos(int dx,int dy);
-    /* tran 31.07.2000 $ */
 
-    /* $ 09.08.2000 KM
-       Добавление функции, которая позволяет проверить
-       находится ли диалог в режиме перемещения.
-    */
     int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
-    /* KM $ */
-    /* $ 10.08.2000 SVS
-       можно ли двигать диалог :-)
-    */
     void SetModeMoving(int IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
     int  GetModeMoving(void) {return DialogMode.Check(DMODE_ISCANMOVE);}
-    /* SVS $ */
-    /* $ 11.08.2000 SVS
-       Работа с доп. данными экземпляра диалога
-    */
     void SetDialogData(LONG_PTR NewDataDialog);
     LONG_PTR GetDialogData(void) {return DataDialog;};
-    /* SVS $ */
 
     void InitDialog(void);
-    /* $ 11.08.2000 SVS
-       Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
-    */
     void Process();
-    /* SVS $ */
-    /* $ 29.08.2000 SVS
-       + Установить номер плагина, для формирования HelpTopic
-    */
     void SetPluginNumber(INT_PTR NewPluginNumber){PluginNumber=NewPluginNumber;}
-    /* SVS $ */
 
-    /* $ 17.05.2001 DJ */
     void SetHelp(const wchar_t *Topic);
     void ShowHelp();
     int Done() { return DialogMode.Check(DMODE_ENDLOOP); }
@@ -470,16 +365,13 @@ class Dialog: public Frame
     virtual void SetExitCode (int Code);
 
     void CloseDialog();
-    /* DJ $ */
 
-    /* $ 19.05.2001 DJ */
     // void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; } !!!!!!! :-)
     void SetOwnsItems (int AOwnsItems) { DialogMode.Change(DMODE_OWNSITEMS,AOwnsItems); }
 
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_DIALOG; }
     virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
-    /* DJ $ */
 
     virtual int GetMacroMode();
 

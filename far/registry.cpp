@@ -613,7 +613,6 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
   }
   return TRUE;
 }
-/* IS $ */
 
 int CheckRegKey(const wchar_t *Key)
 {

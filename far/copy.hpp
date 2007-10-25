@@ -109,16 +109,11 @@ class ShellCopy
     string strCopiedName;
     string strRenamedName;
 
-    /* $ 02.03.2002 KM
-      + Ќовое свойство SkipMode - дл€ пропуска при копировании
-        залоченных файлов.
-    */
     int OvrMode;
     int ReadOnlyOvrMode;
     int ReadOnlyDelMode;
-    int SkipMode;
+    int SkipMode;          // ...дл€ пропуска при копировании залоченных файлов.
     int SkipEncMode;
-    /* KM $ */
 
     long TotalFiles;
     int SelectedFolderNameLength;

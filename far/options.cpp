@@ -260,9 +260,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     if (LastCommand)
     {
       MenuDataEx *VMenuTable[]={LeftMenu,FilesMenu,CmdMenu,OptionsMenu,RightMenu};
-      /* $ 12.05.2001 DJ
-         корректно обрабатываем нажатие Shift-F10 до того, как нажимали F9
-      */
+
       int HItemToShow = LastHItem;
       if (HItemToShow == -1)
       {
@@ -276,7 +274,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       MainMenu[HItemToShow].Selected=1;
       VMenuTable[HItemToShow][0].SetSelect(0);
       VMenuTable[HItemToShow][LastVItem].SetSelect(1);
-      /* DJ $ */
+
       HOptMenu.Show();
 
       {

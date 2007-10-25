@@ -191,7 +191,7 @@ class FileList:public Panel
          имени, которое не помещается в панели. По умолчанию - фигурные скобки.
     */
     wchar_t openBracket[2], closeBracket[2];
-    /* IS $ */
+
     string strPluginDizName;
     struct FileListItem **ListData;
     long FileCount;
@@ -218,11 +218,7 @@ class FileList:public Panel
     int ShiftSelection;
     int MouseSelection;
     int SelectedFirst;
-    /* $ 11.09.2000 SVS
-       Переменная IsEmpty, указывающая на полностью пустую колонку
-    */
-    int IsEmpty;
-    /* SVS $ */
+    int IsEmpty; // указывает на полностью пустую колонку
     int AccessTimeUpdateRequired;
 
     int DataToDeleteCount;
@@ -233,13 +229,8 @@ class FileList:public Panel
     BOOL Is_FS_NTFS;
 
   private:
-    /* $ 09.02.2001 IS
-       Функции установления/считывания состояния режима
-       "Помеченные файлы вперед"
-    */
     virtual void SetSelectedFirstMode(int Mode);
     virtual int GetSelectedFirstMode(void) {return SelectedFirst;};
-    /* IS $ */
     virtual void DisplayObject();
     void DeleteListData(struct FileListItem **(&ListData),long &FileCount);
     void Up(int Count);
@@ -257,18 +248,15 @@ class FileList:public Panel
     void Select(struct FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
     void ProcessEnter(int EnableExec,int SeparateWindow);
-    /* $ 09.04.2001 SVS
-       ChangeDir возвращает FALSE, eсли файловая панель была закрыта
-    */
+    // ChangeDir возвращает FALSE, eсли файловая панель была закрыта
     BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
-    /* SVS $ */
     void CountDirSize(DWORD PluginFlags);
     /* $ 19.03.2002 DJ
        IgnoreVisible - обновить, даже если панель невидима
     */
     void ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage);
     void UpdatePlugin(int KeepSelection, int IgnoreVisible);
-    /* DJ $ */
+
     void MoveSelection(struct FileListItem **FileList,long FileCount,
                        struct FileListItem **OldList,long OldFileCount);
     virtual int GetSelCount();
@@ -335,14 +323,12 @@ class FileList:public Panel
       Используется для Update после исполнения команды.
     */
     virtual int UpdateIfChanged(int UpdateMode);
-    /* SKV$*/
 
     /* $ 19.03.2002 DJ
        UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
        что панель невидима
     */
     virtual void UpdateIfRequired();
-    /* DJ $ */
 
     virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE);
     void CreateChangeNotification(int CheckTree);
@@ -406,19 +392,12 @@ class FileList:public Panel
 
 
     virtual BOOL GetItem(int Index,void *Dest);
-    /* $ 30.04.2001 DJ
-       добавлен UpdateKeyBar()
-    */
     virtual BOOL UpdateKeyBar();
-    /* DJ $ */
     void UpdateColorItems(void);
 
     virtual void IfGoHome(wchar_t Drive);
 
-    /* 14.05.2002 VVM
-      + Сбросить время последнего обновления панели */
     void ResetLastUpdateTime() {LastUpdateTime = 0;}
-    /* VVM $ */
     virtual HANDLE GetPluginHandle();
     virtual int GetRealSelCount();
     static void SetFilePanelModes();

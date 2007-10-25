@@ -126,14 +126,13 @@ int Language::Init(const wchar_t *Path,int CountNeed)
     MsgSize+=DestLength;
     MsgCount++;
   }
-  /* $ 19.01.2001 SVS
-     Проведем проверку на количество строк в LNG-файлах  */
+  //   Проведем проверку на количество строк в LNG-файлах
   if(CountNeed != -1 && CountNeed != MsgCount-1)
   {
     fclose(LangFile);
     return(FALSE);
   }
-  /* SVS $ */
+
   wchar_t *CurAddr = MsgList;
   char *CurAddrA = MsgListA;
 
@@ -277,7 +276,7 @@ BOOL Language::CheckMsgId(int MsgId)
      при отрицательном индексе - также покажем сообщение об ошибке
      (все лучше, чем трапаться)
   */
-  if (MsgId>=MsgCount || MsgId < 0)  /* DJ $ */
+  if (MsgId>=MsgCount || MsgId < 0)
   {
     if(this == &Lang && !LanguageLoaded && this != &OldLang && OldLang.CheckMsgId(MsgId))
       return TRUE;
@@ -301,7 +300,7 @@ BOOL Language::CheckMsgId(int MsgId)
       if (Message(MSG_WARNING,2,L"Error",strMsg1,strMsg2,L"Ok",L"Quit")==1)
         exit(0);
     }
-    /* DJ $ */
+
     return FALSE;
   }
   return TRUE;
@@ -435,7 +434,7 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
       break;
   }
   fseek (SrcFile,OldPos,SEEK_SET);
-  /* DJ $ */
+
   return(Found);
 }
 
@@ -496,7 +495,6 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
            LangMenuItem.SetSelect(StrCmpI(*strDest,strLangName)==0);
            LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItem(&LangMenuItem));
          }
-         /* SVS $ */
        }
     }
     fclose(LangFile);
@@ -561,4 +559,3 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
   fseek(SrcFile,CurFilePos,SEEK_SET);
   return(FALSE);
 }
-/* SVS $ */

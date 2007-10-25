@@ -437,7 +437,7 @@ int KeyMacro::ProcessKey(int Key)
       MacroKey=AssignMacroKey();
       FrameManager->ResetLastInputRecord();
       FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
-      /* VVM $ */
+
 //_SVS(SysLog(-1));
 //_SVS(SysLog(L"StartMode=%d",StartMode));
 
@@ -2385,7 +2385,7 @@ done:
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
       CtrlObject->Plugins.CurEditor->Show();
     }
-    /* skv$*/
+
     if(CurPCStack < 0)
     {
       if(LockScr) delete LockScr;
@@ -3129,19 +3129,11 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string &strBuffer)
   return TRUE;
 }
 
-/* $ 10.09.2000 SVS
-  ! »справим ситуацию с макросами в св€зи с переработаными кодами клавиш
-  ! ‘ункци€ ReadMacros имеет дополнительные аргументы
-*/
 int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 {
   int I, J;
   struct MacroRecord CurMacro;
-  /* $ 20.12.2003 IS
-       ѕринудительно обнулим, иначе падаем при xf_free(Src)
-  */
   memset(&CurMacro,0,sizeof(CurMacro));
-  /* IS $ */
 
   string strUpKeyName;
   string strRegKeyName, strKeyText;
@@ -3241,7 +3233,6 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
   }
   return TRUE;
 }
-/* SVS $ */
 
 // эта функци€ будет вызыватьс€ из тех классов, которым нужен перезапуск макросов
 void KeyMacro::RestartAutoMacro(int /*Mode*/)
@@ -3578,12 +3569,9 @@ DWORD KeyMacro::AssignMacroKey()
   Dlg.SetHelp(L"KeyMacro");
   Dlg.Process();
   IsProcessAssignMacroKey--;
-  /* $ 30.01.2001 SVS
-     «абыл сделать проверку на код возврата из диалога назначени€
-  */
+
   if(Dlg.GetExitCode() == -1)
     return (DWORD)-1;
-  /* SVS $ */
   return Param.Key;
 }
 
@@ -3672,9 +3660,6 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-/* $ 03.01.2001 IS
-   ! ”странение "двойного отрицани€"
-*/
 int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 /*
@@ -3776,7 +3761,6 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
   return(TRUE);
 }
-/* IS $ */
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags)
 {
@@ -4656,9 +4640,6 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
   return sizeof(struct MacroRecord)+MacroLIB[Pos].BufferSize;
 }
 
-/* $ 21.12.2000 SVS
-   ѕодсократим код.
-*/
 // получить название моды по коду
 const wchar_t* KeyMacro::GetSubKey(int Mode)
 {
@@ -4695,10 +4676,6 @@ int KeyMacro::GetMacroKeyInfo(int Mode,int Pos,const wchar_t *KeyName, string &s
   return -1;
 }
 
-/* $ 20.03.2002 DJ
-   задействуем механизм также и дл€ диалогов
-*/
-
 BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
@@ -4720,8 +4697,6 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
   }
   return TRUE;
 }
-
-/* DJ $ */
 
 BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
 {
@@ -4817,9 +4792,6 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
       if(!CheckFileFolder(PassivePanel,CurFlags,TRUE))
         return FALSE;
 
-    /* $ 20.03.2002 DJ
-       дл€ диалогов - на панель смотреть тоже не надо
-    */
     if(CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
       if(Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG && Mode!=MACRO_VIEWER)
       {
@@ -4833,7 +4805,6 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
            (CurFlags&MFLAGS_PNOSELECTION) && SelCount >= 1)
           return FALSE;
       }
-    /* DJ $ */
   }
 
   if(!CheckEditSelected(CurFlags))

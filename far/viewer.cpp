@@ -59,43 +59,30 @@ static void ViewerSearchMsg(const wchar_t *Name);
 static struct CharTableSet InitTableSet;
 
 static int InitHex=FALSE,SearchHex=FALSE;
-/* $ 27.09.2000 SVS
-   ID вьювера - по аналогии с Editor
-*/
+
 static int ViewerID=0;
-/* SVS $*/
 
 static const wchar_t BorderLine[]={0x2502,0x020,0x00};
 
 Viewer::Viewer()
 {
   _OT(SysLog(L"[%p] Viewer::Viewer()", this));
-  /* $ 29.03.2001 IS
-       "Наследуем" некоторые глобальные
-  */
 
   memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
-  /* IS $ */
-  /* $ 12.07.2000 tran
-     alloc memory for OutStr */
+
   for ( int i=0; i<=MAXSCRY; i++ )
   {
     Strings[i] = new ViewerString;
     memset (Strings[i], 0, sizeof(ViewerString));
     Strings[i]->lpData = new wchar_t[MAX_VIEWLINEB];
   }
-  /* tran 12.07.2000 $ */
+
   strLastSearchStr.SetData (GlobalSearchString, CP_OEMCP); //BUGBUG
   LastSearchCase=GlobalSearchCase;
-  /* $ 01.08.2000 KM
-     Переменная для поиска "Whole words"
-  */
+
   LastSearchWholeWords=GlobalSearchWholeWords;
-  /* KM $ */
   LastSearchReverse=GlobalSearchReverse;
-  /* $ 22.09.2003 */
   LastSearchHex=GlobalSearchHex;
-  /* KM $ */
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
   VM.UseDecodeTable=ViewerInitUseDecodeTable;
   VM.TableNum=ViewerInitTableNum;
@@ -109,12 +96,9 @@ Viewer::Viewer()
     VM.UseDecodeTable=TRUE;
   }
   VM.Unicode=(VM.TableNum==1) && VM.UseDecodeTable;
-  /* $ 31.08.2000 SVS
-    Вспомним тип врапа
-  */
+  // Вспомним тип врапа
   VM.Wrap=Opt.ViOpt.ViewerIsWrap;
   VM.WordWrap=Opt.ViOpt.ViewerWrap;
-  /* SVS $ */
   VM.Hex=InitHex;
 
   ViewFile=NULL;
@@ -196,7 +180,6 @@ Viewer::~Viewer()
 
 
   if ( !strTempViewName.IsEmpty() && !FrameManager->CountFramesWithName(strTempViewName))
-  /* IS $ */
   {
     /* $ 14.06.2002 IS
        Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
@@ -209,24 +192,18 @@ Viewer::~Viewer()
       SetFileAttributesW(strTempViewName,FILE_ATTRIBUTE_NORMAL);
       DeleteFileW(strTempViewName); //BUGBUG
     }
-    /* IS $ */
   }
-  /* $ 12.07.2000 tran
-     free memory  */
+
   for ( int i=0; i<=MAXSCRY; i++ )
   {
     delete [] Strings[i]->lpData;
     delete Strings[i];
   }
 
-  /* tran 12.07.2000 $ */
   if (!OpenFailed)
   {
     CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
-    /* $ 15.09.2001 tran
-       пора легализироваться */
     CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
-    /* tran $ */
   }
 }
 
@@ -235,15 +212,9 @@ void Viewer::KeepInitParameters()
 {
   UnicodeToAnsi (strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString)-1); //BUGBUG
   GlobalSearchCase=LastSearchCase;
-  /* $ 01.08.2000 KM
-     Сохранение параметра "Whole words" в глобальной GlobalSearchWholeWords
-  */
   GlobalSearchWholeWords=LastSearchWholeWords;
-  /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
-  /* $ 22.09.2003 KM */
   GlobalSearchHex=LastSearchHex;
-  /* KM $ */
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
   ViewerInitUseDecodeTable=VM.UseDecodeTable;
   ViewerInitTableNum=VM.TableNum;
@@ -334,7 +305,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     if (warning)
         Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MViewerTitle),
             UMSG(MViewerCannotOpenFile),strFileName,UMSG(MOk));
-    /* tran 04.07.2000 $ */
 
     OpenFailed=true;
     return(FALSE);
@@ -358,7 +328,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
        _таблица символов_ для перекодировки.
   */
   //if(ViOpt.AutoDetectTable)
-  /* IS $ */
   {
     VM.Unicode=0;
     FirstWord=0;
@@ -373,7 +342,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
       IsDecode=TRUE;
     }
   }
-  /* SVS $ */
 
   if (Opt.ViOpt.SaveViewerPos && !ReadStdin)
   {
@@ -465,12 +433,10 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   }
   ChangeViewKeyBar();
   AdjustWidth();
-  /* DJ $ */
   CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
   /* $ 15.09.2001 tran
      пора легализироваться */
   CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
-  /* tran $ */
   return(TRUE);
 }
 
@@ -481,8 +447,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 void Viewer::AdjustWidth()
 {
-  /* $ 19.07.2000 tran
-    + вычисление нужного */
   Width=X2-X1+1;
   XX2=X2;
 
@@ -491,11 +455,7 @@ void Viewer::AdjustWidth()
      Width--;
      XX2--;
   }
-
-  /* tran 19.07.2000 $ */
 }
-
-/* DJ $ */
 
 void Viewer::SetCRSym()
 {
@@ -764,7 +724,6 @@ void Viewer::ShowHex()
               Я приравниваю SelectSize нулю в Process*
           */
           //SelectSize=0;
-          /* IS $ */
         }
 
         if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)) )
@@ -789,7 +748,6 @@ void Viewer::ShowHex()
           }
           wcscat(OutStr,L"     ");
           TextStr[TextPos++]=L' ';
-          /* tran $ */
         }
         else
         {
@@ -839,7 +797,6 @@ void Viewer::ShowHex()
               Я приравниваю SelectSize нулю в Process*
           */
           //SelectSize=0;
-          /* IS $ */
         }
 
         if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)) )
@@ -867,9 +824,7 @@ void Viewer::ShowHex()
           /* $ 03.07.2000 tran
              - вместо 5 пробелов тут надо 3 */
           wcscat(OutStr,L"   ");
-          /* tran $ */
           TextStr[TextPos++]=L' ';
-          /* tran $ */
         }
         else
         {
@@ -921,21 +876,12 @@ void Viewer::ShowHex()
 
 void Viewer::DrawScrollbar()
 {
-  /* $ 18.07.2000 tran
-     рисование скролбара */
   if ( ViOpt.ShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
-    /* $ 27.04.2001 DJ
-       если status line выключена, рисуем скроллбар до верха окна
-    */
     ScrollBar(X2,Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
-    /* DJ $ */
   }
-  /* tran 18.07.2000 $ */
 }
-
-/* DJ $ */
 
 
 void Viewer::GetTitle(string &strName,int,int)
@@ -1045,7 +991,6 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
                else
                   OutPtr=SavePtr;
             }
-            /* tran 11.07.2000 $ */
             /* $ 13.09.2000 tran
                remove space at WWrap */
             __int64 savepos=vtell(ViewFile);
@@ -1053,9 +998,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
                 Ch=vgetc(ViewFile);
             if ( vtell(ViewFile)!=savepos)
                 vseek(ViewFile,-1,SEEK_CUR);
-            /* tran 13.09.2000 $ */
           }// wwrap
-          /* SVS $ */
         }
         break;
       }
@@ -1104,7 +1047,6 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         if(CRSkipped)
            continue;
       }
-      /* IS $ */
       if (Ch==0 || Ch==10)
         Ch=L' ';
       pString->lpData[(int)OutPtr++]=Ch;
@@ -1194,7 +1136,6 @@ int Viewer::ProcessKey(int Key)
   if (!ViOpt.PersistentBlocks &&
       Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
     SelectSize=0;
-  /* IS $ */
 
   if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
   {
@@ -1253,8 +1194,6 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    /* $ 05.09.2001 VVM
-      + Копирование выделения в клипбоард */
     case KEY_CTRLC:
     case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
     {
@@ -1278,21 +1217,15 @@ int Viewer::ProcessKey(int Key)
       } /* if */
       return(TRUE);
     }
-    /* VVM $ */
 
-    /* $ 18.07.2000 tran
-       включить/выключить скролбар */
+    //   включить/выключить скролбар
     case KEY_CTRLS:
     {
         ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
-        /* $ 10.03.2002 tran
-           Bugz#275 - CtrlS должне работать глобально */
         Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
-        /* tran $ */
         Show();
         return (TRUE);
     }
-    /* tran 18.07.2000 $ */
 
     case KEY_IDLE:
     {
@@ -1538,7 +1471,6 @@ int Viewer::ProcessKey(int Key)
           // IS: если включили или выключили юникод
           if((oldIsUnicode && !VM.Unicode) || (!oldIsUnicode && VM.Unicode))
             SetCRSym();
-          /* IS $ */
         }
       }
       return(TRUE);
@@ -1560,8 +1492,6 @@ int Viewer::ProcessKey(int Key)
 
     /* $ 27.06.2001 VVM
       + С альтом скролим по 1 */
-    /* $ 27.04.2001 VVM
-      + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
     {
@@ -1579,8 +1509,6 @@ int Viewer::ProcessKey(int Key)
         ProcessKey(KEY_DOWN);
       return(TRUE);
     }
-    /* VVM $ */
-    /* VVM $ */
 
     case KEY_UP: case KEY_NUMPAD8: case KEY_SHIFTNUMPAD8:
     {
@@ -1656,8 +1584,6 @@ int Viewer::ProcessKey(int Key)
         InternalKey--;
         return(TRUE);
       }
-      /* VVM $ */
-      /* VVM $ */
       Show();
 
       delete [] vString.lpData;
@@ -1810,7 +1736,6 @@ int Viewer::ProcessKey(int Key)
 */
         for (I=0;static_cast<unsigned int>(I)<max_counter;I++)
           Up();
-        /* IS 15.08.2002 $ */
 /*
         {
           char Buf[100];
@@ -1842,27 +1767,20 @@ int Viewer::ProcessKey(int Key)
   }
   return(FALSE);
 }
-/* IS $ */
 
 int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if ((MouseEvent->dwButtonState & 3)==0)
     return(FALSE);
 
-  /* $ 18.07.2000 tran
-     просто для сокращения кода*/
   int MsX=MouseEvent->dwMousePosition.X;
   int MsY=MouseEvent->dwMousePosition.Y;
-  /* tran 18.07.2000 $ */
 
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
 //  SelectSize=0;
-  /* IS $ */
 
-  /* $ 18.07.2000 tran
-     обработка сколбара */
   /* $ 10.09.2000 SVS
      ! Постоянный скроллинг при нажатой клавише
        Обыкновенный захват мыши
@@ -1879,7 +1797,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if (MsY == Y1+1)
       while (IsMouseButtonPressed())
         ProcessKey(KEY_UP);
-    /* SVS $*/
     else if (MsY==Y2)
     {
       while (IsMouseButtonPressed())
@@ -1901,7 +1818,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
            более точное позиционирование; корректная работа на больших файлах
         */
         FilePos=(FileSize-1)/(Y2-Y1-1)*(MsY-Y1);
-        /* DJ $ */
         int Perc;
         if(FilePos > FileSize)
         {
@@ -1927,7 +1843,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           */
           AdjustFilePos();
           Show();
-          /* DJ $ */
         }
         GetInputRecord(&rec);
         MsX=rec.Event.MouseEvent.dwMousePosition.X;
@@ -1936,9 +1851,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     return (TRUE);
   }
-  /* SVS 02.10.2000 $ */
-  /* SVS $*/
-  /* tran 18.07.2000 $ */
 
   /* $ 16.12.2000 tran
      шелчок мышью на статус баре */
@@ -1946,7 +1858,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     угу, а только если он нсть, statusline...
   */
   if ( MsY==Y1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
-  /* SKV$*/
   {
     int XTable, XPos, NameLength;
     NameLength=ObjWidth-40;
@@ -1977,7 +1888,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         return (TRUE);
     }
   }
-  /* tran $ */
   if (MsX<X1 || MsX>X2 || MsY<Y1 || MsY>Y2)
     return(FALSE);
 
@@ -2041,7 +1951,7 @@ void Viewer::Up()
     /* $ 29.11.2001 DJ
        не обращаемся за границу массива (а надо было всего лишь поменять местами условия...)
     */
-    if (I==-1 || Buf[I]==CRSym)   /* DJ $ */
+    if (I==-1 || Buf[I]==CRSym)
       if (!VM.Wrap)
       {
         FilePos-=BufSize-(I+1)+Skipped;
@@ -2132,8 +2042,6 @@ void Viewer::ChangeViewKeyBar()
        (!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2)
        :MViewF2Unwrap),1);
     ViewKeyBar->Change(KBL_SHIFT,UMSG((VM.WordWrap)?MViewF2:MViewShiftF2),1);
-    /* SVS $ */
-    /* SVS $ */
 
     if (VM.Hex)
       ViewKeyBar->Change(UMSG(MViewF4Text),3);
@@ -2155,7 +2063,6 @@ void Viewer::ChangeViewKeyBar()
 
 LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  /* 23.09.2003 KM */
   Dialog* Dlg=(Dialog*)hDlg;
   char DataStr[NM*2]; //BUGBUG
   struct FarDialogItem Item;
@@ -2187,7 +2094,6 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,1);
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,1);
-      /* KM $ */
 
       return TRUE;
     }
@@ -2197,7 +2103,6 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        /* $ 26.10.2003 KM */
         /* $ 22.09.2003 KM
            Переключение видимости строки ввода искомого текста
            в зависимости от установленного режима hex search
@@ -2239,16 +2144,12 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
             Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,UnchangeFlag);
           }
         }
-        /* KM $ */
-        /* KM $ */
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         return TRUE;
       }
     }
-    /* $ 15.10.2003 KM
-        Обработаем "горячие" клавиши
-    */
+
     case DN_HOTKEY:
     {
       if (Param1==1)
@@ -2262,9 +2163,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
         return FALSE;
       }
     }
-    /* KM $ */
   }
-  /* KM $ */
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -2275,9 +2174,7 @@ static void PR_ViewerSearchMsg(void)
 
 void ViewerSearchMsg(const wchar_t *MsgStr)
 {
-  /* $ 23.09.2003 KM */
   Message(0,0,UMSG(MViewSearchTitle),(SearchHex?UMSG(MViewSearchingHex):UMSG(MViewSearchingFor)),MsgStr);
-  /* KM $ */
   PreRedrawParam.Param1=(void*)MsgStr;
 }
 
@@ -2399,7 +2296,6 @@ void Viewer::Search(int Next,int FirstChar)
     SetPreRedrawFunc(PR_ViewerSearchMsg);
     ViewerSearchMsg(strMsgStr);
 
-    /* $ 26.10.2003 KM */
     if (SearchHex)
     {
       /*unsigned char HexStr[NM*2];
@@ -2410,7 +2306,6 @@ void Viewer::Search(int Next,int FirstChar)
 
       memmove(SearchStr,HexStr,sizeof(SearchStr));*/ //BUGBUG
     }
-    /* KM $ */
 
     if (!Case && !SearchHex)
       strSearchStr.Upper ();
@@ -2450,7 +2345,6 @@ void Viewer::Search(int Next,int FirstChar)
       __int64 CurPos=LastSelPos+(VM.Unicode && !ReverseSearch?1:0); // добавка к юникоду (+1), т.к. нихрена не ищет в первой строке.
                              //^^^^^^^^^^^^^^^^^  ?????????
 
-      /* KM $ */
       int BufSize=sizeof(Buf)/sizeof (wchar_t);
       if (ReverseSearch)
       {
@@ -2461,7 +2355,6 @@ void Viewer::Search(int Next,int FirstChar)
           CurPos-=sizeof(Buf)/sizeof (wchar_t)-SearchLength+1;
         else
           CurPos-=sizeof(Buf)/sizeof (wchar_t)-SearchLength;
-        /* KM $ */
         if (CurPos<0)
           BufSize+=(int)CurPos;
       }
@@ -2475,7 +2368,6 @@ void Viewer::Search(int Next,int FirstChar)
         */
         if (CurPos<0)
           CurPos=0;
-        /* KM $ */
 
         vseek(ViewFile,CurPos,SEEK_SET);
         if ((ReadSize=vread(Buf,BufSize,ViewFile))<=0)
@@ -2502,7 +2394,6 @@ void Viewer::Search(int Next,int FirstChar)
         */
         if (!Case && !SearchHex)
           CharUpperBuffW (Buf,ReadSize);
-        /* KM $ */
 
         /* $ 01.08.2000 KM
            Убран кусок текста после приведения поисковой строки
@@ -2515,9 +2406,6 @@ void Viewer::Search(int Next,int FirstChar)
         {
           /* $ 01.08.2000 KM
              Обработка поиска "Whole words"
-          */
-          /* $ 26.05.2002 KM
-              Исправлены ошибки в поиске по целым словам.
           */
           int locResultLeft=FALSE;
           int locResultRight=FALSE;
@@ -2558,10 +2446,7 @@ void Viewer::Search(int Next,int FirstChar)
             MatchPos=CurPos+I;
             break;
           }
-          /* KM $ */
-          /* KM $ */
         }
-        /* KM $ */
 
         if ((ReverseSearch && CurPos <= 0) || (!ReverseSearch && ReadSize < BufSize))
           break;
@@ -2582,7 +2467,6 @@ void Viewer::Search(int Next,int FirstChar)
           else
             CurPos+=sizeof(Buf)/sizeof (wchar_t)-SearchLength;
         }
-        /* KM $ */
       }
     }
   }
@@ -2608,7 +2492,6 @@ void Viewer::Search(int Next,int FirstChar)
     AdjustSelPosition = TRUE;
     Show();
     AdjustSelPosition = FALSE;
-    /* KM $ */
   }
   else
   {
@@ -2626,7 +2509,6 @@ void Viewer::Search(int Next,int FirstChar)
              UMSG(MHYes),UMSG(MHNo)) == 0)
         Search(2,0);
     }
-    /* VVM $ */
   }
 }
 
@@ -2739,8 +2621,6 @@ void Viewer::SetTitle(const wchar_t *Title)
 }
 
 
-/* $ 18.07.2000 tran
-   * changes 'long' to 'unsigned long' */
 void Viewer::SetFilePos(__int64 Pos)
 {
   FilePos=Pos;
@@ -2789,7 +2669,6 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
 
     memcpy (Buf, TmpBuf, Count*2);
 
-    /* tran $ */
     ReadSize+=(ReadSize & 1);
 
     return(ReadSize/2);
@@ -2851,10 +2730,7 @@ int Viewer::vgetc(FILE *SrcFile)
 //   - Устранение висячих строк при переходе (функция GoTo)
 void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
-  /* $ 17.07.2000 tran
-     + new variable*/
   __int64 Relative=0;
-  /* tran 17.07.2000 $ */
   const wchar_t *LineHistoryName=L"ViewerOffset";
   static struct DialogDataEx GoToDlgData[]=
   {
@@ -2894,7 +2770,6 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       */
       if (Dlg.GetExitCode()<=0 ) //|| !isdigit(*GoToDlg[1].Data))
         return;
-      /* IS $ */
       // xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
       /* $ 17.07.2000 tran
          тут для сокращения кода ввел ptr, который и анализирую */
@@ -2983,14 +2858,9 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         FilePos=VM.Unicode ? Offset/2:Offset;
     if ( FilePos>FileSize )   // и куда его несет?
         FilePos=FileSize;     // там все равно ничего нету
-    /* tran 17.07.2000 $ */
   }
   // коррекция
-  /* $ 27.04.2001 DJ
-     коррекция вынесена в отдельную функцию
-  */
   AdjustFilePos();
-  /* DJ $ */
 //  LastSelPos=FilePos;
   if(!(Flags&VSP_NOREDRAW))
     Show();
@@ -3028,7 +2898,6 @@ void Viewer::AdjustFilePos()
     }
   }
 }
-/* DJ $ */
 
 void Viewer::SetFileSize()
 {
@@ -3044,7 +2913,6 @@ void Viewer::SetFileSize()
   */
   if (VM.Unicode)
     FileSize=(FileSize+(FileSize&1))/2;
-  /* IS $ */
 }
 
 
@@ -3106,9 +2974,6 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
 
     SelectPos-=SelectPosOffSet;
 
-  /* IS $ */
-
-
     __int64 Length=SelectPos-StartLinePos-1;
     if (VM.Wrap)
       Length%=Width+1; //??
@@ -3131,12 +2996,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
     AdjustSelPosition = FALSE;
   }
 }
-/* SVS $ */
 
-
-/* $ 27.09.2000 SVS
-   "Ядро" будущего Viewer API :-)
-*/
 int Viewer::ViewerControl(int Command,void *Param)
 {
   int I;
@@ -3147,11 +3007,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerInfoW)))
       {
         struct ViewerInfoW *Info=(struct ViewerInfoW *)Param;
-        /* $ 29.01.2001 IS
-          - баг - затирался StructSize
-        */
         memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
-        /* IS */
         Info->ViewerID=Viewer::ViewerID;
         Info->FileName=strFullFileName;
         Info->WindowSizeX=ObjWidth;
@@ -3193,7 +3049,6 @@ int Viewer::ViewerControl(int Command,void *Param)
              GoTo принимает смещения в _байтах_.
         */
         GoTo(FALSE, vsp->StartPos.i64*(VM.Unicode?2:1), vsp->Flags);
-        /* IS $ */
         if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
         if(!(vsp->Flags&VSP_NORETNEWPOS))
@@ -3297,12 +3152,10 @@ int Viewer::ViewerControl(int Command,void *Param)
            без этого не закрывался вьюер, а просили именно это
         */
         FrameManager->DeleteFrame(HostFileViewer);
-        /* IS $ */
         if (HostFileViewer!=NULL)
           HostFileViewer->SetExitCode(0);
         return(TRUE);
       }
-      /* IS 28.12.2002 $ */
     }
 
     /* Функция установки режимов
@@ -3335,7 +3188,6 @@ int Viewer::ViewerControl(int Command,void *Param)
   }
   return(FALSE);
 }
-/* SVS $ */
 
 BOOL Viewer::isTemporary()
 {

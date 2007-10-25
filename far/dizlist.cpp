@@ -276,11 +276,9 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
 
 void DizList::BuildIndex()
 {
-  /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
   if(IndexData)
     delete[] IndexData;
-  /* SVS $ */
+
   if ((IndexData=new int[DizCount])==NULL)
   {
     Reset();

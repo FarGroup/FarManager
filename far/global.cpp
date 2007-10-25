@@ -40,13 +40,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* $ 29.06.2000 tran
   берем char *CopyRight из inc файла */
 #include "copyright.inc"
-/* tran $ */
 
 /* $ 07.12.2000 SVS
    + Версия берется из файла farversion.inc
 */
 #include "farversion.inc"
-/* SVS $ */
 
 OSVERSIONINFOW WinVer={0};
 
@@ -111,16 +109,8 @@ wchar_t RegColorsHighlight[]=L"Colors\\Highlight";
 
 char GlobalSearchString[SEARCHSTRINGBUFSIZE];
 int GlobalSearchCase=FALSE;
-/* $ 29.07.2000 KM
-   Глобальная переменная, хранящая значение "Whole words" для поиска
-*/
-int GlobalSearchWholeWords=FALSE;
-/* KM $*/
-/* $ 22.09.2003 KM
-   Глобальная переменная, хранящая значение "Search for hex" для поиска
-*/
-int GlobalSearchHex=FALSE;
-/* KM $ */
+int GlobalSearchWholeWords=FALSE; // значение "Whole words" для поиска
+int GlobalSearchHex=FALSE;     // значение "Search for hex" для поиска
 int GlobalSearchReverse=FALSE;
 
 int ScreenSaverActive=FALSE;

@@ -57,18 +57,13 @@ struct Confirmation
   int Delete;
   int DeleteFolder;
   int Exit;
-  /* $ 09.02.2001 IS
-     Для CheckForEsc
-  */
-  int Esc;
-  /* IS $ */
+  int Esc;  // Для CheckForEsc
   /* $ 12.03.2002 VVM
     + Opt.EscTwiceToInterrupt
       Определяет поведение при прерывании длительной операции
       0 - второй ESC продолжает операцию
       1 - второй ESC прерывает операцию */
   int EscTwiceToInterrupt;
-  /* VVM $ */
   int RemoveConnection;
   /* $ 23.05.2001
     +  Opt.Confirmation.AllowReedit - Флаг, который изменяет поведение открытия
@@ -106,33 +101,25 @@ struct DizOptions
   */
 };
 
-/* $ 05.09.2000 SVS
-   Структура CodeQWERTY, описывающая QWERTY-перекодировщик
-*/
 struct CodeXLAT
 {
   DWORD Flags;       // дополнительные флаги
-  /* $ 05.09.2000 SVS
-     В Opt добавлены клавиши, вызывающие функцию Xlat
-  */
+
   int XLatEditorKey;
   int XLatCmdLineKey;
   int XLatDialogKey;
   int XLatFastFindKey;
-  /* SVS $*/
-  /* $ 04.11.2000 SVS
-     В Opt добавлены альтернативные клавиши, вызывающие функцию Xlat
-  */
+
   int XLatAltEditorKey;
   int XLatAltCmdLineKey;
   int XLatAltDialogKey;
   int XLatAltFastFindKey;
-  /* SVS $*/
+
   /* $ 25.11.2000 IS
      Разграничитель слов из реестра для функции Xlat
   */
   string strWordDivForXlat;
-  /* IS $ */
+
   // первый байт - размер таблицы
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
   BYTE Rules[3][81]; // 3 по 40 правил:
@@ -158,7 +145,6 @@ struct CodeXLAT
   }
   */
 };
-/* SVS $*/
 
 struct EditorOptions
 {
@@ -264,7 +250,6 @@ struct ViewerOptions
   int AnsiTableAsDefault;
   int ShowTitleBar;
 };
-/* IS $ */
 
 // "Полиция"
 struct PoliciesOptions {
@@ -320,20 +305,12 @@ struct ScreenSizes{
 struct LoadPluginsOptions
 {
 //  DWORD TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
-  /* $ 03.08.2000 SVS
-     TRUE - использовать стандартный путь к основным плагинам
-  */
-  int MainPluginDir;
-  /* SVS $*/
-  /* $ 01.09.2000 tran
-     seting by '/co' switch, not saved in registry. */
-  int PluginsCacheOnly;
-  /* tran $ */
+  int MainPluginDir; // TRUE - использовать стандартный путь к основным плагинам
+  int PluginsCacheOnly; // seting by '/co' switch, not saved in registry
   int PluginsPersonal;
 
   string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
   string strPersonalPluginsPath;
-  /* SVS $*/
   int SilentLoadPlugin; // при загрузке плагина с кривым...
 
   /*
@@ -424,10 +401,8 @@ struct Options
 
   struct CopyMoveOptions CMOpt;
 
-  /* IS $ */
-  /* $ 07.12.2001 IS Опция создания нескольких каталогов за один сеанс */
-  int MultiMakeDir;
-  /* IS $ */
+  int MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
+
   int CreateUppercaseFolders;
   int UseRegisteredTypes;
 
@@ -492,29 +467,13 @@ struct Options
   string strLanguage;
   int SmallIcon;
   string strRegRoot;
-  /* $ 12.09.2000 SVS
-   + Opt.PanelRightClickRule задает поведение правой клавиши мыши
-     (это по поводу Bug#17)
-  */
-  int PanelRightClickRule;
-  /* SVS $*/
-  /* $ 17.12.2001 IS поведение средней кнопки мыши в панелях */
-  int PanelMiddleClickRule;
-  /* IS $ */
-  /* $ 19.09.2000 SVS
-   + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
-  */
-  int PanelCtrlAltShiftRule;
-  /* SVS $*/
-  /* $ 20.10.2000 SVS
-    Panel/CtrlFRule в реестре - задает поведение Ctrl-F
-    Если = 0, то штампуется файл как есть, иначе - с учетом
-    отображения на панели
-  */
+  int PanelRightClickRule; // задает поведение правой клавиши мыши
+  int PanelMiddleClickRule; // поведение средней кнопки мыши в панелях
+  int PanelCtrlAltShiftRule; // задает поведение Ctrl-Alt-Shift для панелей.
+  // Panel/CtrlFRule в реестре - задает поведение Ctrl-F. Если = 0, то штампуется файл как есть, иначе - с учетом отображения на панели
   int PanelCtrlFRule;
-  /* SVS $*/
-  /* $ 27.09.2000 SVS
-   + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
+  /*
+    битовые флаги, задают поведение Ctrl-Alt-Shift
      бит установлен - функция включена:
      0 - Panel
      1 - Edit
@@ -523,111 +482,67 @@ struct Options
      4 - Dialog
   */
   int AllCtrlAltShiftRule;
-  /* SVS $*/
+
   int CASRule; // 18.12.2003 - Пробуем различать левый и правый CAS (попытка #1).
-  /* $ 24.09.2000 SVS
-   + Opt.CmdHistoryRule задает поведение Esc для командной строки:
+  /*
+    задает поведение Esc для командной строки:
       =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
            нажали ESC (поведение - аля VC).
       =0 - поведение как и было - изменять положение в History
   */
   int CmdHistoryRule;
-  /* SVS $*/
+
   DWORD ExcludeCmdHistory;
-  /* $ 20.09.2000 SVS
-   + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
-     для Ctrl-[ и ему подобные
-  */
-  int SubstPluginPrefix;
-  /* SVS $*/
-  /* $ 24.09.2000 SVS
-   + Opt.MaxPositionCache - количество позиций в кэше сохранения
-  */
-  int MaxPositionCache;
-  /* SVS $*/
-  /* $ 22.11.2000 SVS
-   + Правило на счет установки атрибутов на каталоги*/
-  int SetAttrFolderRules;
-  /* SVS $ */
-  /* $ 27.11.2000 SVS
-   + Opt.ExceptRules - Правило на счет вызова исключений */
-  int ExceptRules;
-  /* $ 26.02.2001 VVM
-   + Opt.ExceptCallDebugger - вызывать дебаггер при исключении */
-  int ExceptCallDebugger;
-  /* VVM $ */
-  /* SVS $ */
-  /* $ 28.12.2000 SVS
-   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
-  int HotkeyRules;
-  /* SVS $ */
-  /* $ 09.01.2001 SVS
+  int SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
+  int MaxPositionCache; // количество позиций в кэше сохранения
+  int SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
+  int ExceptRules; // Правило на счет вызова исключений
+  int ExceptCallDebugger; // вызывать дебаггер при исключении
+  int HotkeyRules; // Правило на счет выбора механизма хоткеев
+  /*
    + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
      Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt- */
+     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
+  */
   int ShiftsKeyRules;
-  /* SVS $ */
-  /* $ 19.01.2001 SVS
-   + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
-     клавиш */
-  int MacroReuseRules;
-  /* SVS $ */
+  int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
   int IgnoreErrorBadPathName;
 
   DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
   DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
-  /* $ 22.01.2001 SVS
-   + Opt.CursorSize - Размер курсора ФАРа :-)
-     клавиш */
-  int CursorSize[4];
-  /* SVS $ */
-  /* $ 05.09.2000 SVS
-     В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
-  */
+  int CursorSize[4];   // Размер курсора ФАРа
+
   struct CodeXLAT XLat;
-  /* SVS $*/
-  /*$ 08.02.2001 SKV
-    Комбинация клавиш для детача Far'овской консоли
-    от длятельного неинтерактивного процесса в ней запущенного.
-  */
-  int ConsoleDetachKey;
-  /* SKV$*/
+
+  int ConsoleDetachKey; // Комбинация клавиш для детача Far'овской консоли от длятельного неинтерактивного процесса в ней запущенного.
 
   int UsePrintManager;
 
   string strHelpLanguage;
   int FullScreenHelp;
   int HelpTabSize;
-  /* $ 27.09.2000 SVS
-   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
-  */
-  int HelpURLRules;
 
-  /* SVS $*/
-  /* $ 28.03.2001 VVM
-    + RememberLogicalDrives = запоминать логические диски и не опрашивать
-      каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
+  int HelpURLRules; // =0 отключить возможность запуска URL-приложений
+
+  // запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
   int RememberLogicalDrives;
-  /* VVM $ */
-  /* $ 02.04.2001 VVM
-    + Opt.FlagPosixSemantics будет влиять на:
+  /*
+    будет влиять на:
         добавление файлов в историю с разным регистром
-        добавление LastPositions в редакторе и вьюере */
+        добавление LastPositions в редакторе и вьюере
+  */
   int FlagPosixSemantics;
-  /* VVM $ */
-  /* $ 16.04.2001 VVM
-    + Opt.MouseWheelDelta - задает смещение для прокрутки. */
-  int MsWheelDelta;
-  /* VVM $ */
+
+  int MsWheelDelta; // задает смещение для прокрутки
   int MsWheelDeltaView;
   int MsWheelDeltaEdit;
   int MsWheelDeltaHelp;
+
   /* $ 28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:
       0 - если установлен, то опрашивать сменные диски при GetSubstName()
       1 - если установлен, то опрашивать все остальные при GetSubstName() */
   int SubstNameRule;
-  /* VVM $ */
 
   /* $ 23.05.2001 AltF9
     + Opt.AltF9 Флаг позволяет выбрать механизм  работы комбинации Alt-F9
@@ -638,7 +553,7 @@ struct Options
          будет переключаться с нормального на максимально доступный размер
          консольного окна и обратно.*/
   int AltF9;
-  /* OT $ */
+
   int PgUpChangeDisk;
   int ShowCheckingFile;
   int CloseConsoleRule;
@@ -672,11 +587,9 @@ struct Options
   struct PoliciesOptions Policies;
   struct NowellOptions Nowell;
   struct ScreenSizes ScrSize;
-  /* $ 17.09.2003 KM
-       Структура для запоминания параметров таблиц символов в поиске
-  */
-  struct FindCharTable CharTable;
-  /* KM $ */
+
+  struct FindCharTable CharTable; // Структура для запоминания параметров таблиц символов в поиске
+
   struct TreeOptions Tree;
 
   /*

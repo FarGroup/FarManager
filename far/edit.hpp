@@ -153,20 +153,9 @@ private:
     int    RecurseProcessKey(int Key);
     void   DeleteBlock();
     void   ApplyColor();
-    /* $ 12.08.2000 KM
-       Внутренняя функция которая парсит Mask и возвращает
-       следующее возможное положение курсора в строке ввода,
-       + функция обновляющая содержимое Str на основании Mask.
-    */
     int    GetNextCursorPos(int Position,int Where);
     void   RefreshStrByMask(int InitMode=FALSE);
-    /* KM $ */
-    /* $ 15.11.2000 KM
-       Проверяет: попадает ли символ в разрешённый
-       диапазон символов, пропускаемых маской
-    */
     int KeyMatchedMask(int Key);
-    /* KM $ */
 
     int ProcessCtrlQ(void);
     int ProcessInsDate(const wchar_t *Str);
@@ -225,12 +214,8 @@ private:
 
     void  InsertString(const wchar_t *Str);
     void  InsertBinaryString(const wchar_t *Str,int Length);
-    /* $ 03.08.2000 KM
-       Добавление параметра WholeWords для поиска целых слов
-       в функцию Search.
-    */
+
     int   Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Reverse);
-    /* KM $ */
     void  SetClearFlag(int Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
     int   GetClearFlag(void) {return Flags.Check(FEDITLINE_CLEARFLAG);}
     void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}
@@ -241,18 +226,13 @@ private:
     void  SetLeftPos(int NewPos) {LeftPos=NewPos;}
     void  SetPasswordMode(int Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);};
     void  SetMaxLength(int Length) {MaxLength=Length;};
-    /* $ 28.07.2000 SVS
-       Получение максимального значения строки для потребностей Dialod API
-    */
+
+    // Получение максимального значения строки для потребностей Dialod API
     int   GetMaxLength() {return MaxLength;};
-    /* SVS $ */
-    /* $ 12.08.2000 KM
-       Функции установки и получения маски ввода
-    */
+
     void  SetInputMask(const wchar_t *InputMask);
     const wchar_t* GetInputMask() {return Mask;}
 
-    /* KM $ */
     void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
     int   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
 
@@ -280,15 +260,8 @@ private:
 #ifdef SHITHAPPENS
     void ReplaceSpaces(int i);
 #endif
-    /* $ 24.09.2000 SVS $
-      Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
-    */
-    /* $ 13.12.2000 SVS
-       Дополнительный параметр в функции  Xlat()
-    */
+
     void Xlat(BOOL All=FALSE);
-    /* SVS $ */
-    /* SVS $ */
 
     static void DisableEncode(int Disable);
 

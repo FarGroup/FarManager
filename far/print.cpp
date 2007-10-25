@@ -90,11 +90,7 @@ void PrintFiles(Panel *SrcPanel)
 
   if (pi==NULL || !EnumPrinters(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&Returned))
   {
-    /* $ 13.07.2000 SVS
-       использовалась new[]
-    */
     delete[] pi;
-    /* SVS $ */
     return;
   }
 

@@ -84,16 +84,9 @@ extern string g_strFarPath;
 
 extern char GlobalSearchString[SEARCHSTRINGBUFSIZE];
 extern int GlobalSearchCase;
-/* $ 29.07.2000 KM
-   Глобальная переменная, хранящая значение "Whole words" для поиска
-*/
-extern int GlobalSearchWholeWords;
-/* KM $*/
-/* $ 22.09.2003 KM
-   Глобальная переменная, хранящая значение "Search for hex" для поиска
-*/
-extern int GlobalSearchHex;
-/* KM $ */
+extern int GlobalSearchWholeWords; // значение "Whole words" для поиска
+extern int GlobalSearchHex; // значение "Search for hex" для поиска
+
 extern int GlobalSearchReverse;
 
 extern int ScreenSaverActive;
@@ -111,17 +104,9 @@ extern unsigned char Palette[];
 extern unsigned char BlackPalette[];
 extern int SizeArrayPalette;
 
-/* $ 20.09.2000 SVS
-  ! hFarWnd глобальна
-*/
 extern HWND hFarWnd;
-/* SVS $ */
 
-/* $ 07.12.2000 SVS
-  + Описание версии FAR_VERSION - как константа.
-*/
 extern const DWORD FAR_VERSION;
-/* SVS $ */
 
 extern BOOL IsCryptFileASupport;
 

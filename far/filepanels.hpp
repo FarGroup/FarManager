@@ -100,19 +100,11 @@ class FilePanels:public Frame
     virtual void RedrawKeyBar(); // virtual
     virtual void ShowConsoleTitle();
     virtual void ResizeConsole();
-/* $ ¬ведена дл€ нужд CtrlAltShift OT */
     virtual int FastHide();
     virtual void Refresh();
-    /* $ 28.12.2001 DJ
-       единый метод дл€ обработки Ctrl-F10 из вьюера и редактора
-    */
     void GoToFile (const wchar_t *FileName);
 
-    /* $ 16.01.2002 OT
-       переопределенный виртуальный метод от Frame
-    */
     virtual int GetMacroMode();
-    /* OT $ */
 };
 
 #endif // __FILEPANELS_HPP__

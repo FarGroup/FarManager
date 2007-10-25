@@ -53,6 +53,7 @@ class FileFilter
     Panel *m_HostPanel;
     enumFileFilterType m_FilterType;
 
+  private:
     int  ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check);
     void ProcessSelection(VMenu *FilterList);
     void GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc);
@@ -63,6 +64,7 @@ class FileFilter
     FileFilter(Panel *HostPanel, enumFileFilterType FilterType);
     ~FileFilter();
 
+  public:
     bool FilterEdit();
     bool FileInFilter(FileListItem *fli);
     bool FileInFilter(const FAR_FIND_DATA *fd);

@@ -69,9 +69,7 @@ FilePanels::FilePanels()
   LastLeftFilePanel=0;
   LastRightFilePanel=0;
   MacroMode = MACRO_SHELL;
-  /* $ 07.05.2001 DJ */
   KeyBarVisible = Opt.ShowKeyBar;
-  /* DJ $ */
 //  SetKeyBar(&MainKeyBar);
 //  _D(SysLog(L"MainKeyBar=0x%p",&MainKeyBar));
 }
@@ -313,15 +311,11 @@ void FilePanels::DeletePanel(Panel *Deleted)
 {
   if (Deleted==NULL)
     return;
-  /* $ 27.11.2001 DJ
-     не будем использовать указатель после того, как его удалили
-  */
   if (Deleted==LastLeftFilePanel)
     LastLeftFilePanel=NULL;
   if (Deleted==LastRightFilePanel)
     LastRightFilePanel=NULL;
   delete Deleted;
-  /* DJ $ */
 }
 
 int FilePanels::SetAnhoterPanelFocus(void)
@@ -468,9 +462,7 @@ int FilePanels::ProcessKey(int Key)
     case KEY_CTRLB:
     {
       Opt.ShowKeyBar=!Opt.ShowKeyBar;
-      /* $ 07.05.2001 DJ */
       KeyBarVisible = Opt.ShowKeyBar;
-      /* DJ $ */
       if(!KeyBarVisible)
         MainKeyBar.Hide();
       SetScreenPosition();
@@ -504,7 +496,6 @@ int FilePanels::ProcessKey(int Key)
             Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
           */
             AnotherPanel=ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
-          /* IS % */
           else
             AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
@@ -519,7 +510,6 @@ int FilePanels::ProcessKey(int Key)
           }
           else
             AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-          /* VVM $ */
           AnotherPanel->Show();
         }
         ActivePanel->SetFocus();
@@ -527,10 +517,6 @@ int FilePanels::ProcessKey(int Key)
       break;
     }
 
-    /* $ 19.09.2000 SVS
-       + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
-    */
-/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
     {
       {
@@ -613,7 +599,6 @@ int FilePanels::ProcessKey(int Key)
         ActivePanel->SetCurPath();
       break;
     }
-    /* IS $ */
 
     case KEY_ALTF7:
     {
@@ -754,9 +739,6 @@ Panel* FilePanels::GetAnotherPanel(Panel *Current)
 }
 
 
-/* $ 03.06.2001 IS
-   + "Наследуем" состояние режима "Помеченные файлы вперед"
-*/
 Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Force)
 {
   Panel *NewPanel;
@@ -854,11 +836,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
     UseLastPanel=TRUE;
   }
   else
-    /* $ 13.07.2000 SVS
-       немного сократим код путем вызова функции класса CreatePanel(int Type)
-    */
     NewPanel=CreatePanel(NewType);
-    /* SVS $*/
 
   if (Current==ActivePanel)
     ActivePanel=NewPanel;
@@ -904,7 +882,6 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
   }
   return(NewPanel);
 }
-/* IS $ */
 
 int  FilePanels::GetTypeAndName(string &strType, string &strName)
 {
@@ -940,12 +917,11 @@ void FilePanels::OnChangeFocus(int f)
     */
     CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
     ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
-    /* SKV$*/
     /* $ 13.04.2002 KM
       ! ??? Я не понял зачем здесь Redraw, если
         Redraw вызывается следом во Frame::OnChangeFocus.
+    */
 //    Redraw();
-    /* KM $ */
     Frame::OnChangeFocus(1);
   }
 }
@@ -1054,7 +1030,6 @@ void FilePanels::Refresh()
   */
   //Frame::OnChangeFocus(1);
   OnChangeFocus(1);
-  /* SKV$*/
 }
 
 void FilePanels::GoToFile(const wchar_t *FileName)
@@ -1094,7 +1069,6 @@ void FilePanels::GoToFile(const wchar_t *FileName)
       ProcessKey(KEY_TAB);
     if (!AExist && !PExist)
       ActivePanel->SetCurDir(strNameDir,TRUE);
-    /* IS */
     ActivePanel->GoToFile(strNameFile);
     // всегда обновим заголовок панели, чтобы дать обратную связь, что
     // Ctrl-F10 обработан
@@ -1103,11 +1077,6 @@ void FilePanels::GoToFile(const wchar_t *FileName)
 }
 
 
-/* VVM $ */
-
-/* $ 16.01.2002 OT
-   переопределенный виртуальный метод от Frame
-*/
 int  FilePanels::GetMacroMode()
 {
   switch (ActivePanel->GetType())

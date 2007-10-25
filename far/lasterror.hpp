@@ -40,9 +40,12 @@ class GuardLastError
 {
   private:
     DWORD LastError;
+
   public:
     GuardLastError(){LastError=GetLastError();}
     ~GuardLastError(){SetLastError(LastError);}
+
+  public:
     DWORD Get(){return LastError;}
 };
 

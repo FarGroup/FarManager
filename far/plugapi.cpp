@@ -143,7 +143,6 @@ BOOL WINAPI FarShowHelp (
       }
       else
         return FALSE;
-      /* SVS $*/
 
       strTopic.Format (HelpFormatLink,(const wchar_t*)strPath,HelpTopic);
     }
@@ -216,7 +215,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     {
       return FarAltEnter((int)(INT_PTR)Param);
     }
-    /* SVS $ */
 
     case ACTL_GETPLUGINMAXREADDATA:
     {
@@ -242,10 +240,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
        + if param==NULL, plugin хочет только узнать длину строки  */
       if (Param && !IsBadWritePtr(Param,LenWordDiv+1))
         wcscpy((wchar_t *)Param,Opt.strWordDiv);
-      /* tran 09.08.2000 $ */
       return LenWordDiv;
     }
-    /* SVS $ */
 
     /* $ 24.08.2000 SVS
        ожидать определенную (или любую) клавишу
@@ -257,7 +253,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     {
       return WaitKey(Param?(DWORD)(DWORD_PTR)Param:(DWORD)-1);
     }
-    /* SVS $ */
 
     /* $ 04.12.2000 SVS
       ACTL_GETCOLOR - получить определенный цвет по индекс, определенному
@@ -271,7 +266,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         return (int)((unsigned int)Palette[(int)(INT_PTR)Param]);
       return -1;
     }
-    /* SVS $ */
 
     /* $ 04.12.2000 SVS
       ACTL_GETARRAYCOLOR - получить весь массив цветов
@@ -284,7 +278,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         memmove(Param,Palette,SizeArrayPalette);
       return SizeArrayPalette;
     }
-    /* SVS $ */
 
     /*
       Param=struct FARColor{
@@ -482,7 +475,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
           f=FrameManager->GetCurrentFrame();
         else
           f=FrameManager->operator[](wi->Pos);
-        /* VVM $ */
         if ( f==NULL )
           return FALSE;
         if (Command==ACTL_GETWINDOWINFO)
@@ -525,7 +517,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
       }
       return FALSE;
     }
-    /* tran 05.06.2001 $ */
     /*$ 26.06.2001 SKV
       Для полноценной работы с ACTL_SETCURRENTWINDOW
       (и может еще для чего в будущем)
@@ -534,7 +525,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     {
       return FrameManager?FrameManager->PluginCommit():FALSE;
     }
-    /* SKV$*/
     /* $ 15.09.2001 tran
        пригодится плагинам */
     case ACTL_GETFARHWND:
@@ -543,7 +533,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         InitDetectWindowedMode();
       return (INT_PTR)hFarWnd;
     }
-    /* tran $ */
 
     case ACTL_GETDIALOGSETTINGS:
     {
@@ -647,11 +636,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
           Options|=OSys[I].Flags;
       return Options;
     }
-    /* IS $ */
 
-    /* $ 30.01.2002 DJ
-       ACTL_GETDESCSETTINGS
-    */
     case ACTL_GETDESCSETTINGS:
     {
       // опций мало - с массивом не заморачиваемся
@@ -666,7 +651,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         Options |= FDS_UPDATEREADONLY;
       return Options;
     }
-    /* DJ $ */
 
     case ACTL_GETPOLICIES:
     {
@@ -679,7 +663,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
-/* IS $ */
 
 int WINAPI FarMenuFn (
 		INT_PTR PluginNumber,
@@ -851,7 +834,6 @@ int WINAPI FarMenuFn (
               else
                  Accept=!Flags;  // TRUE только, если нам не нужны сочетания
                                  // вместе с ctrl|alt|shift
-              /* IS $ */
               if (Accept)
               {
                 if (BreakCode!=NULL)
@@ -872,9 +854,6 @@ int WINAPI FarMenuFn (
   return(ExitCode);
 }
 
-/* $ 23.07.2000 SVS
-   Функции для расширенного диалога
-*/
 // Функция FarDefDlgProc обработки диалога по умолчанию
 LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
@@ -883,10 +862,6 @@ LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
   return 0;
 }
 
-/* $ 28.07.2000 SVS
-    ! В связи с появлением SendDlgMessage в классе Dialog
-      вносим некоторые изменения!
-*/
 // Посылка сообщения диалогу
 LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
@@ -894,7 +869,6 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2
     return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
   return 0;
 }
-/* SVS $ */
 
 int WINAPI FarDialogFn (
 		INT_PTR PluginNumber,
@@ -910,10 +884,6 @@ int WINAPI FarDialogFn (
 	return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
 }
 
-/* $   13.12.2000 SVS
-   ! FarDialogItem.Data - копирование strcpy заменено на memmove
-   (терялись данные пользователя)
-*/
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
@@ -1013,12 +983,10 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
     //FarDialog.SetOwnsItems(TRUE);
     FarDialog.SetHelp(HelpTopic);
 
-    /* IS $ */
     /* $ 29.08.2000 SVS
        Запомним номер плагина - сейчас в основном для формирования HelpTopic
     */
     FarDialog.SetPluginNumber(PluginNumber);
-    /* SVS $ */
 
     int I;
     if(Opt.ExceptRules)
@@ -1043,7 +1011,6 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
   */
   if(frame != NULL)
     frame->Unlock(); // теперь можно :-)
- /* SKV $ */
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
   return(ExitCode);
@@ -1051,8 +1018,6 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
-/* SVS 13.12.2000 $ */
-/* SVS $ */
 
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 {
@@ -1069,10 +1034,6 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 
 	return L"";
 }
-
-/* $ 28.01.2001 SVS
-   ! Конкретно обновим функцию FarMessageFn()
-*/
 
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,int ItemsNumber,
@@ -1191,7 +1152,6 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
       MsgItems[ItemsNumber++]=UMSG(MCancel);
       break;
   }
-  /* tran $ */
 
   // запоминаем топик
   if(PluginNumber != -1)
@@ -1211,7 +1171,6 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
   */
   if(frame != NULL)
     frame->Unlock(); // теперь можно :-)
-  /* SKV $ */
   //CheckScreenLock();
 
   if(SingleItems)
@@ -1575,7 +1534,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         return FALSE;
 
       DirListPlugin=*((struct PluginHandle *)Handle);
-      /* DJ $ */
     }
     else
     {
@@ -1670,20 +1628,13 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
   if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
   {
     DWORD Size=*(DWORD *)CurPanelItem->UserData;
-    /* $ 13.07.2000 SVS
-       вместо new будем использовать malloc
-    */
     DestItem->UserData=(DWORD_PTR)xf_malloc(Size);
-    /* SVS $*/
     memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
   }
 
   DestItem->FindData.lpwszFileName = _wcsdup (strFullName);
   DirListItemsNumber++;
 }
-
-/* DJ $ */
-
 
 void ScanPluginDir()
 {
@@ -1729,12 +1680,8 @@ void ScanPluginDir()
 	for (I=0;I<ItemCount && !StopSearch;I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelData+I;
-		/* $ 30.11.2001 DJ
-				вытащим копирование айтема в функцию
-		*/
 		if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC)==0)
 			CopyPluginDirItem (CurPanelItem);
-		/* DJ $ */
 	}
 	for (I=0;I<ItemCount && !StopSearch;I++)
 	{
@@ -1756,7 +1703,6 @@ void ScanPluginDir()
 					обработать PPIF_USERDATA)
 			*/
 			CopyPluginDirItem (CurPanelItem);
-			/* DJ $ */
 
 			string strFileName = CurPanelItem->FindData.lpwszFileName;
 
@@ -1811,20 +1757,12 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
 
     if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
     {
-      /* $ 13.07.2000 SVS
-        для запроса использовали malloc
-      */
       xf_free((void *)CurPanelItem->UserData);
-      /* SVS $*/
     }
 
     apiFreeFindData (&CurPanelItem->FindData);
   }
-  /* $ 13.07.2000 SVS
-    для запроса использовали realloc
-  */
   xf_free((void*)PanelItem);
-  /* SVS $*/
 }
 
 
@@ -1852,7 +1790,6 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
     FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2);
-    /* IS $ */
     if(!Viewer)
       return FALSE;
     /* $ 14.06.2002 IS
@@ -1861,14 +1798,10 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
     */
     if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
       Viewer->SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
-    /* IS $ */
-    /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
-    /* DJ $ */
 
     /* $ 21.05.2002 SKV
-      Запускаем свой цикл только если
-      не был указан флаг.
+      Запускаем свой цикл только если не был указан флаг.
     */
     if(!(Flags&VF_IMMEDIATERETURN))
     {
@@ -1880,13 +1813,11 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
         GlobalSaveScrPtr->Discard();
       FrameManager->PluginCommit();
     }
-    /* SKV $ */
   }
   else
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
     FileViewer Viewer (FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2);
-    /* IS $ */
     /* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
     Viewer.SetDynamicallyBorn(false);
     FrameManager->EnterModalEV();
@@ -1898,10 +1829,7 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
     */
     if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
       Viewer.SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
-    /* IS $ */
-    /* $ 12.05.2001 DJ */
     Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
-    /* DJ $ */
     if (!Viewer.GetExitCode()){
       return FALSE;
     }
@@ -1958,7 +1886,6 @@ int WINAPI FarEditor(
   {
     Flags&=~EF_NONMODAL;
   }
-  /* SKV $ */
 
   int ExitCode=EEC_OPEN_ERROR;
   if (Flags & EF_NONMODAL)
@@ -1968,7 +1895,6 @@ int WINAPI FarEditor(
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
-    /* IS $ */
     // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
     if (Editor && Editor->GetExitCode() == XC_OPEN_ERROR)
     {
@@ -1978,9 +1904,7 @@ int WINAPI FarEditor(
 
     if (Editor)
     {
-      /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-      /* DJ $ */
       Editor->SetPluginTitle(Title);
       /* $ 21.05.2002 SKV
         Запускаем свой цикл, только если
@@ -1996,7 +1920,6 @@ int WINAPI FarEditor(
           GlobalSaveScrPtr->Discard();
         FrameManager->PluginCommit();
       }
-      /* SKV $ */
       ExitCode=XC_MODIFIED;
     }
   }
@@ -2007,15 +1930,12 @@ int WINAPI FarEditor(
                       StartLine,StartChar,Title,
                       X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
-    /* IS $ */
 
     // выполним предпроверку (ошибки разные могут быть)
     if(Editor.GetExitCode() != XC_OPEN_ERROR)
     {
       Editor.SetDynamicallyBorn(false);
-      /* $ 12.05.2001 DJ */
       Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-      /* DJ $ */
       Editor.SetPluginTitle(Title);
       /* $ 15.05.2002 SKV
         Зафиксируем вход и выход в/из модального редактора.
@@ -2023,7 +1943,6 @@ int WINAPI FarEditor(
       FrameManager->EnterModalEV();
       FrameManager->ExecuteModal();
       FrameManager->ExitModalEV();
-      /* SKV $ */
       ExitCode = Editor.GetExitCode();
       if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
       {
@@ -2037,7 +1956,6 @@ int WINAPI FarEditor(
     }
   }
   return ExitCode;
-  /* IS $ */
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -2067,7 +1985,6 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     */
     if (!FarMkTempEx(strDataFileName) || (DataFile=_wfopen(strDataFileName,L"w+b"))==NULL)
       return(-1);
-    /* IS $ */
     fwrite(Buffer,1,BufferSize,DataFile);
     fseek(DataFile,0,SEEK_SET);
     int TableNum;
@@ -2086,7 +2003,6 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
   memcpy(&TableSet,Buffer,Min((int)sizeof(CharTableSet),BufferSize));
   /* $ 17.03.2002 IS По возможности используем значение TableName */
   if (!PrepareTable(&TableSet,Command,TRUE))
-  /* IS $ */
   {
     for(unsigned int i=0;i<256;++i)
     {
@@ -2101,7 +2017,6 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     Command=-1;
   }
   memcpy(Buffer,&TableSet,BufferSize);
-  /* IS $ */
   return(Command);
 }
 

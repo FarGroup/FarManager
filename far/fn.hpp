@@ -164,10 +164,6 @@ const wchar_t* GetUnicodeLanguageString (int nID);
 
 #define UMSG(ID) GetUnicodeLanguageString(ID)
 
-/* $ 29.08.2000 SVS
-   Дополнительный параметр у Message* - номер плагина.
-*/
-
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,
             INT_PTR PluginNumber=-1);
@@ -192,7 +188,6 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t * const *Items,
             int ItemsNumber,INT_PTR PluginNumber=-1);
 
-/* SVS $*/
 /* $ 12.03.2002 VVM
   Новая функция - пользователь попытался прервать операцию.
   Зададим вопрос.
@@ -201,7 +196,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t * const *
    TRUE  - прервать операцию
 */
 int AbortMessage();
-/* VVM $ */
+
 void SetMessageHelp(const wchar_t *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
@@ -209,12 +204,8 @@ int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
 int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
-/* $ 09.10.2000 IS
-    + Новая функция для обработки имени файла
-*/
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
-/* IS $ */
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str);
 string &QuoteSpace(string &strStr);
@@ -251,12 +242,8 @@ void DialogSettings();
 void SetConfirmations();
 void SetDizConfig();
 int  IsLocalDrive(const wchar_t *Path);
-/* $ 27.11.2001 DJ
-   параметр Local
-*/
 void ViewerConfig(struct ViewerOptions &ViOpt,int Local=0);
 void EditorConfig(struct EditorOptions &EdOpt,int Local=0);
-/* DJ $ */
 void SetFolderInfoFiles();
 void ReadConfig();
 void SaveConfig(int Ask);
@@ -272,7 +259,6 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 wchar_t* WINAPI PasteFromClipboardEx(int max);
-/* tran $ */
 BOOL WINAPI FAR_EmptyClipboard(VOID);
 
 int GetFileTypeByName(const wchar_t *Name);
@@ -283,12 +269,7 @@ string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 
 void SetFarTitle(const wchar_t *Title);
-/* $ 11.01.2002 IS инициализация массива клавиш */
 void InitKeysArray();
-/* IS $ */
-/* $ 28.08.2000 SVS
-   Модификация вызова под WINAPI
-*/
 int WINAPI LocalIslower(unsigned Ch);
 int WINAPI LocalIsupper(unsigned Ch);
 int WINAPI LocalIsalpha(unsigned Ch);
@@ -302,7 +283,6 @@ void WINAPI LocalStrupr(char *s1);
 void WINAPI LocalStrlwr(char *s1);
 int WINAPI LStricmp(const char *s1,const char *s2);
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
-/* SVS $ */
 const char * __cdecl LocalStrstri(const char *str1, const char *str2);
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
 
@@ -338,11 +318,7 @@ int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=NULL,
 int GetShortcutFolderSize(int Key);
 void ShowFolderShortcut();
 void ShowFilter();
-/* 15.09.2000 IS
-   Проверяет, установлена ли таблица с распределением частот символов
-*/
 int DistrTableExist(void);
-/* IS $ */
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
 
@@ -364,15 +340,7 @@ int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &str
 
 void SIDCacheFlush(void);
 
-/* $ 26.10.2003 KM
-   Изменение входных параметров
-*/
-/* $ 21.09.2003 KM
-   Трансформирует строку по заданному типу.
-*/
 void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType);
-/* KM $ */
-/* KM $ */
 
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
@@ -456,7 +424,6 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
    По умолчанию - FALSE (использовать имя ключа).
 */
 int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FALSE);
-/* IS $ */
 #endif
 
 
@@ -548,10 +515,6 @@ void WINAPI Unquote(wchar_t *Str);
 
 void UnquoteExternal(string &strStr);
 
-/* $ 07.07.2000 SVS
-   + удалить пробелы снаружи
-   ! изменен тип возврата
-*/
 wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str);
 string& WINAPI RemoveLeadingSpaces(string &strStr);
 
@@ -561,10 +524,6 @@ string& WINAPI RemoveTrailingSpaces(string &strStr);
 
 wchar_t* WINAPI RemoveExternalSpaces(wchar_t *Str);
 string & WINAPI RemoveExternalSpaces(string &strStr);
-/* SVS $ */
-/* $ 02.02.2001 IS
-  + Новая функция: заменяет пробелами непечатные символы в строке
-*/
 string & WINAPI RemoveUnprintableCharacters(string &strStr);
 
 wchar_t* __stdcall TruncStr(wchar_t *Str,int MaxLength);
@@ -588,7 +547,7 @@ string& WINAPI QuoteSpaceOnly(string &strStr);
 //   WordDiv  - набор разделителей слова в кодировке OEM
 //   Chr      - проверяемый символ
 BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
-/* IS $ */
+
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 
@@ -647,10 +606,6 @@ int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &
 int FarAltEnter(int mode);
 
 
-/* $ 05.09.2000 SVS
-  XLat-перекодировка!
-  На основе плагина EditSwap by SVS :-)))
-*/
 char* WINAPI XlatA(char *Line,
                     int StartPos,
                     int EndPos,
@@ -663,11 +618,6 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
                     const struct CharTableSet *TableSet,
                     DWORD Flags);
 
-/* SVS $ */
-
-/* $ 14.08.2000 SVS
-    + Функции семейства seek под __int64
-*/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -954,10 +904,6 @@ bool CheckInitSetupAPI ();
 void FinalizeSetupAPI ();
 void ShowHotplugDevice ();
 
-
-/* $ 30.12.2000 SVS
-   Функции работы с атрибутами файлов "опубликованы"
-*/
 int GetEncryptFunctions(void);
 
 int ESetFileAttributes(const wchar_t *Name,int Attr);
@@ -968,7 +914,6 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
                   int FileAttr);
 
-/* SVS $ */
 //int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 

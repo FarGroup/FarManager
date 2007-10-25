@@ -44,21 +44,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "udlist.hpp"
 
-/* $ 04.06.2001 IS
-     научимся создавать несколько каталогов за один раз
-*/
 void ShellMakeDir(Panel *SrcPanel)
 {
   string strDirName;
   string strOriginalDirName;
   wchar_t *lpwszDirName;
-  /* $ 15.08.2002 IS запретить дубли */
-  UserDefinedList DirList(0,0,ULF_UNIQUE);
-  /* IS $ */
 
-  /* $ 07.12.2001 IS
-     создание нескольких каталогов за раз теперь опционально
-  */
+  UserDefinedList DirList(0,0,ULF_UNIQUE);
+
   BOOL MultiMakeDir=Opt.MultiMakeDir;
   for(;;)
   {
@@ -88,7 +81,6 @@ void ShellMakeDir(Panel *SrcPanel)
       Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
                  UMSG(MIncorrectDirList), UMSG(MOk));
   }
-  /* IS $ */
 
   const wchar_t *OneDir;
 
@@ -200,4 +192,3 @@ void ShellMakeDir(Panel *SrcPanel)
     AnotherPanel->Redraw();
   }
 }
-/* IS $ */

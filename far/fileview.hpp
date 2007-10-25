@@ -59,7 +59,6 @@ class FileViewer:public Frame
       архива дл€ клавиши F2 сделать вызов ShiftF2.
     */
     int SaveToSaveAs;
-    /* KM $ */
 
   public:
     FileViewer(const wchar_t *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
@@ -72,11 +71,7 @@ class FileViewer:public Frame
   public:
     void Init(const wchar_t *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
-    /* $ 07.08.2000 SVS
-       ‘ункци€ инициализации KeyBar Labels
-    */
     virtual void InitKeyBar(void);
-    /* SVS $ */
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
@@ -87,17 +82,14 @@ class FileViewer:public Frame
        поведение SetTempViewName такое же, как и раньше)
     */
     void SetTempViewName(const wchar_t *Name,BOOL DeleteFolder=TRUE);
-    /* IS $ */
     virtual void OnDestroy();
 
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual const wchar_t *GetTypeName(){return L"[FileView]";}; ///
     virtual int GetType() { return MODALTYPE_VIEWER; }
 
-    /* $ 12.05.2001 DJ */
     void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
-    /* DJ $ */
-/* $ ¬ведена дл€ нужд CtrlAltShift OT */
+    /* $ ¬ведена дл€ нужд CtrlAltShift OT */
     virtual int FastHide();
 
     /* $ 17.08.2001 KM
@@ -105,7 +97,6 @@ class FileViewer:public Frame
       архива дл€ клавиши F2 сделать вызов ShiftF2.
     */
     void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
-    /* KM $ */
     int  ViewerControl(int Command,void *Param);
     BOOL IsFullScreen(){return FullScreen;}
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);

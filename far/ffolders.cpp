@@ -161,11 +161,8 @@ static int ShowFolderShortcutMenu(int Pos)
   {
     MenuItemEx ListItem;
     VMenu FolderList(UMSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
-    /* $ 16.06.2001 KM
-       ! Добавление WRAPMODE в меню.
-    */
+
     FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
-    /* KM $ */
     FolderList.SetHelp(HelpFolderShortcuts);
     FolderList.SetPosition(-1,-1,0,0);
     FolderList.SetBottomTitle(UMSG(MFolderShortcutBottom));

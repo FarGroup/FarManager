@@ -467,7 +467,6 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   /* $ 01.08.2001 VVM
     + Обрезаем строчку справа, а не слева */
   TruncStrFromEnd(strTotalStr, X2-X1-1);
-  /* VVM $ */
   Length=(int)strTotalStr.GetLength();
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 

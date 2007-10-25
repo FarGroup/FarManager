@@ -107,7 +107,7 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
     delete SaveScr;
     SaveScr=NULL;
   }
-  /* KM $ */
+
   ScreenObject::X1=X1;
   ScreenObject::Y1=Y1;
   ScreenObject::X2=X2;

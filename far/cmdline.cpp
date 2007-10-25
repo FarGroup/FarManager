@@ -64,12 +64,10 @@ CommandLine::~CommandLine()
 {
 }
 
-/* $ 09.09.2001 IS установить/сбросить постоянные блоки */
 void CommandLine::SetPersistentBlocks(int Mode)
 {
   CmdStr.SetPersistentBlocks(Mode);
 }
-/* IS $ */
 
 void CommandLine::DisplayObject()
 {
@@ -147,8 +145,8 @@ int CommandLine::ProcessKey(int Key)
       return(FALSE);
     Key=KEY_CTRLX;
   }
-  /* $ 25.03.2002 VVM
-    + При погашенных панелях колесом крутим историю */
+
+  // $ 25.03.2002 VVM + При погашенных панелях колесом крутим историю
   if (!CtrlObject->Cp()->LeftPanel->IsVisible() && !CtrlObject->Cp()->RightPanel->IsVisible())
   {
     if (Key == KEY_MSWHEEL_UP)
@@ -156,7 +154,6 @@ int CommandLine::ProcessKey(int Key)
     else if (Key == KEY_MSWHEEL_DOWN)
       Key = KEY_CTRLX;
   }
-  /* VVM $ */
 
   switch(Key)
   {
@@ -169,10 +166,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ESC:
       if(Key == KEY_ESC)
       {
-        /* $ 24.09.2000 SVS
-           Если задано поведение по "Несохранению при Esc", то позицию в
-           хистори не меняем и ставим в первое положение.
-        */
+        // $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
         if(Opt.CmdHistoryRule)
           CtrlObject->CmdHistory->SetFirst();
         PStr=L"";
@@ -187,9 +181,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF8:
       {
         int Type;
-        /* $ 19.09.2000 SVS
-           - При выборе из History (по Alt-F8) плагин не получал управление!
-        */
+        // $ 19.09.2000 SVS - При выборе из History (по Alt-F8) плагин не получал управление!
         int SelectType=CtrlObject->CmdHistory->Select(UMSG(MHistoryTitle),L"History",strStr,Type);
         if(SelectType > 0 && SelectType <= 3)
         {
@@ -197,7 +189,6 @@ int CommandLine::ProcessKey(int Key)
           if(SelectType < 3)
             ProcessKey(SelectType==1?(int)KEY_ENTER:(int)KEY_SHIFTENTER);
         }
-        /* SVS $ */
       }
       return(TRUE);
     case KEY_SHIFTF9:
@@ -226,11 +217,7 @@ int CommandLine::ProcessKey(int Key)
       CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
       return(TRUE);
     case KEY_ALTF11:
-      /* $ 10.05.2001 DJ
-         показ view/edit history вынесен в отдельную процедуру
-      */
       ShowViewEditHistory();
-      /* DJ $ */
       CtrlObject->Cp()->Redraw();
       return(TRUE);
     case KEY_ALTF12:
@@ -275,12 +262,8 @@ int CommandLine::ProcessKey(int Key)
     case KEY_SHIFTENTER:
       {
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-        /* $ 19.02.2001 IS
-             - выделение нам уже не нужно
-        */
         CmdStr.Select(-1,0);
         CmdStr.Show();
-        /* IS $ */
         CmdStr.GetString(strStr);
         if ( strStr.IsEmpty() )
           break;
@@ -308,34 +291,18 @@ int CommandLine::ProcessKey(int Key)
       Key&=~KEY_ALT;
 
     default:
-      /* $ 24.09.2000 SVS
-         Если попалась клавиша вызова функции Xlat, то
-         подставим клавишу для редактора, если она != 0
-      */
-      /* $ 04.11.2000 SVS
-         Проверка на альтернативную клавишу
-      */
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
          Key == KEY_OP_XLAT)
       {
-        /* 13.12.2000 SVS
-           ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
-        */
+        // 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
         CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
-        /* SVS $ */
-        /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
         if(SetLastCmdStr(CmdStr.GetStringAddrW()))
           LastCmdPartLength=(int)strLastCmdStr.GetLength ();
-        /* IS $ */
         return(TRUE);
       }
-      /* SVS $ */
-      /* SVS $ */
 
-      /* $ 18.12.2000 SVS
-         Сбрасываем выделение на некоторых клавишах
-      */
+      //   Сбрасываем выделение на некоторых клавишах
       if (!Opt.Dialogs.EditBlock)
       {
         static int UnmarkKeys[]={
@@ -358,14 +325,9 @@ int CommandLine::ProcessKey(int Key)
             break;
           }
       }
-      /* SVS $ */
 
-      /* $ 18.12.2000 SVS
-         Написано же "Ctrl-D - Символ вправо"
-      */
       if(Key == KEY_CTRLD)
         Key=KEY_RIGHT;
-      /* SVS $ */
 
       if (!CmdStr.ProcessKey(Key))
         break;
@@ -442,6 +404,7 @@ void add_char (string &str, wchar_t c) //BUGBUG
 void CommandLine::GetPrompt(string &strDestStr)
 {
 #if 0
+  // старый вариант промптера
   char FormatStr[512],ExpandedFormatStr[512];
   string strFormatStr;
   string strExpandedFormatStr;
@@ -569,11 +532,6 @@ void CommandLine::GetPrompt(string &strDestStr)
 }
 
 
-
-/* $ 10.05.2001 DJ
-   показ history по Alt-F11 вынесен в отдельную функцию
-*/
-
 void CommandLine::ShowViewEditHistory()
 {
   string strStr;
@@ -638,7 +596,6 @@ void CommandLine::ShowViewEditHistory()
       SetString(strStr);
 }
 
-/* DJ $ */
 int CommandLine::GetCurPos()
 {
   return(CmdStr.GetCurPos());
@@ -690,7 +647,6 @@ void CommandLine::Select(int Start,int End)
 {
   CmdStr.Select(Start,End);
 }
-/* SKV$*/
 
 void CommandLine::GetSelection(int &Start,int &End)
 {

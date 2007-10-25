@@ -98,9 +98,6 @@ int ScreenSaver(int EnableExit)
     {
       clock_t CurTime=clock();
 
-      /* $ 05.05.2001 DJ
-         NWZ
-      */
       if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
           CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
           FrameManager->GetFrameCount()==1)
@@ -108,7 +105,7 @@ int ScreenSaver(int EnableExit)
         FrameManager->ExitMainLoop(FALSE);
         return(0);
       }
-      /* DJ $ */
+
       Sleep(50);
       ShowSaver(Step++);
     }

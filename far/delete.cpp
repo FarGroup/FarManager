@@ -120,12 +120,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     TruncPathStr(strDeleteFilesMsg, ScrX-16);
   }
   else
-  /* $ 05.01.2001 SVS
-     в зависимости от числа ставим нужное окончание*/
   {
-  /* $ 05.01.2001 IS
-  Вместо "файлов" пишем нейтральное - "элементов"
-  */
+    // в зависимости от числа ставим нужное окончание
     const wchar_t *Ends;
     wchar_t StrItems[16];
     _itow(SelCount,StrItems,10);
@@ -142,12 +138,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
     strDeleteFilesMsg.Format (UMSG(MAskDeleteItems),SelCount,Ends);
   }
-  /* SVS $ */
+
   Ret=1;
 
-  /* $ 13.02.2001 SVS
-     Обработка "удаления" линков
-  */
+  //   Обработка "удаления" линков
   if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
   {
     string strJuncName;
@@ -183,7 +177,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         goto done;
     }
   }
-  /* SVS $ */
 
   if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC)))
   {
@@ -220,7 +213,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         else
           DelMsg=UMSG(MAskDelete);
     }
-    /* IS $ */
+
     SetMessageHelp(L"DeleteFile");
     if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,UMSG(Wipe?MDeleteWipe:MDelete),UMSG(MCancel))!=0)
     {
@@ -352,17 +345,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
             if (FindData.dwFileAttributes & FA_DIREC)
             {
-              /* $ 28.11.2000 SVS
-                 Обеспечим корректную работу с SymLink
-                 (т.н. "Directory Junctions")
-              */
               if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
                   SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
-                /* $ 19.01.2003 KM
-                   Обработка кода возврата из ERemoveDirectory.
-                */
                 int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
@@ -380,14 +366,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                   SrcPanel->DeleteDiz(strFullName,strSelShortName);
                 ScTree.SkipDir(); // ??? ЭТО НУЖНО ДЛЯ ТОГО, ЧТОБЫ...
                 continue;
-                /* KM $ */
               }
-              /* SVS $ */
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
               {
-                /* $ 13.07.2001 IS
-                     усекаем имя, чтоб оно поместилось в сообщение
-                */
+                // усекаем имя, чтоб оно поместилось в сообщение
                 string strMsgFullName;
                 strMsgFullName = strFullName;
                 TruncPathStr(strMsgFullName, ScrX-16);
@@ -395,7 +377,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                       UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
                       UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
                       UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
-                /* IS $ */
                 if (MsgCode<0 || MsgCode==3)
                 {
                   Cancel=1;
@@ -414,9 +395,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
                   SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
-                /* $ 19.01.2003 KM
-                   Обработка кода возврата из ERemoveDirectory.
-                */
                 int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
@@ -430,7 +408,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 }
 
                 TreeList::DelTreeName(strFullName);
-                /* KM $ */
               }
             }
             else
@@ -461,9 +438,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           // симлинка в корзину чревато потерей оригинала.
           if (SymLink || !Opt.DeleteToRecycleBin || Wipe)
           {
-            /* $ 19.01.2003 KM
-               Обработка кода возврата из ERemoveDirectory.
-            */
             DeleteCode=ERemoveDirectory(strSelName,strSelShortName,Wipe);
             if (DeleteCode==DELETE_CANCEL)
               break;
@@ -487,7 +461,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if (UpdateDiz)
                 SrcPanel->DeleteDiz(strSelName,strSelShortName);
             }
-            /* KM $ */
           }
         }
       }
@@ -518,15 +491,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 done:
   SetPreRedrawFunc(NULL);
   Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
-/*& 31.05.2001 OT Разрешить перерисовку фрейма */
+
+  // Разрешить перерисовку фрейма
   FrameFromLaunched->Unlock();
-/* OT &*/
-  /* $ 01.10.2001 IS перерисуемся, чтобы не было артефактов */
+
   if(NeedUpdate)
   {
     ShellUpdatePanels(SrcPanel,NeedSetUpADir);
   }
-  /* IS $ */
 }
 
 static void PR_ShellDeleteMsg(void)
@@ -583,7 +555,6 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
             UMSG(Wipe?MAskWipeRO:MAskDeleteRO),UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
             UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),
             UMSG(MDeleteFileCancel));
-    /* IS $ */
   }
   switch(MsgCode)
   {
@@ -674,9 +645,6 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       else
         if (RemoveToRecycleBin(Name))
           break;
-    /* $ 19.01.2003 KM
-       Добавлен Skip all
-    */
     if (SkipMode!=-1)
         MsgCode=SkipMode;
     else
@@ -689,9 +657,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                       UMSG(MCannotDeleteFile),strMsgName,UMSG(MDeleteRetry),
                       UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
-      /* IS */
     }
-    /* KM $ */
     switch(MsgCode)
     {
       case -1:
@@ -725,9 +691,6 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
     else
       if (apiRemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && apiRemoveDirectory(ShortName)))
         break;
-    /* $ 19.01.2003 KM
-       Добавлен Skip и Skip all
-    */
     int MsgCode;
     if (SkipFoldersMode!=-1)
         MsgCode=SkipFoldersMode;
@@ -742,7 +705,6 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
                   UMSG(MCannotDeleteFolder),strMsgName,UMSG(MDeleteRetry),
                   UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
     }
-    /* KM $ */
     switch(MsgCode)
     {
       case -1:
@@ -759,10 +721,6 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
   return DELETE_SUCCESS;
 }
 
-/* 14.03.2001 SVS
-   Неверный анализ кода возврата функции SHFileOperation(),
-   коей файл удаляется в корзину.
-*/
 int RemoveToRecycleBin(const wchar_t *Name)
 {
   static struct {
@@ -839,7 +797,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
     RetCode=SHFileOperationW(&fop);
   }
   #endif
-  /* IS $ */
+
   if(RetCode)
   {
     for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)
@@ -852,7 +810,6 @@ int RemoveToRecycleBin(const wchar_t *Name)
   RetCode=!fop.fAnyOperationsAborted;
   return(RetCode);
 }
-/* SVS $ */
 
 int WipeFile(const wchar_t *Name)
 {

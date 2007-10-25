@@ -52,12 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
-/* $ 20.03.2002 DJ
-   передадим им€ файла дл€ подстановки
-*/
 static int GetDescriptionWidth (const wchar_t *Name=NULL, const wchar_t *ShortName=NULL);
-/* DJ $ */
-
 
 struct FileTypeStringsW
 {
@@ -76,7 +71,6 @@ const FileTypeStringsW FTSW=
         L"AltExec",L"AltView",L"AltEdit"
 };
 
-/* IS $ */
 
 /* $ 25.04.2001 DJ
    обработка @ в IF EXIST: функци€, котора€ извлекает команду из строки
@@ -109,9 +103,6 @@ BOOL ExtractIfExistCommand (string &strCommandText)
 
   return TRUE;
 }
-
-/* DJ $ */
-
 
 /* $ 14.01.2001 SVS
    ƒобавим интелектуальности.
@@ -158,7 +149,6 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
           case FILETYPE_EDIT:
             GetRegKey(strRegKey,FTSW.Edit,strNewCommand,L"");
             break;
-          /* $ 02.08.2001 IS новые команды: alt-f3, alt-f4, ctrl-pgdn */
           case FILETYPE_ALTEXEC:
             GetRegKey(strRegKey,FTSW.AltExec,strNewCommand,L"");
             break;
@@ -168,7 +158,6 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
           case FILETYPE_ALTEDIT:
             GetRegKey(strRegKey,FTSW.AltEdit,strNewCommand,L"");
             break;
-          /* IS $ */
           default:
             strNewCommand=L""; // обнулим на вс€кий пожарный
         }
@@ -195,11 +184,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
     TypesMenu.SetFlags(VMENU_WRAPMODE);
     TypesMenu.SetPosition(-1,-1,0,0);
 
-    /* $ 20.03.2002 DJ
-       передадим имена файлов
-    */
     int DizWidth=GetDescriptionWidth (Name, ShortName);
-    /* DJ $ */
     int ActualCmdCount=0; // отображаемых ассоциаций в меню
 
     for (int I=0;I<CommandCount;I++)
@@ -212,12 +197,8 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
       SubstFileName(strCommandText,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 
       // все "подставлено", теперь проверим услови€ "if exist"
-      /* $ 25.04.2001 DJ
-         обработка @ в IF EXIST
-      */
       if (!ExtractIfExistCommand (strCommandText))
         continue;
-      /* DJ $ */
 
       // запомним индекс оригинальной команды из мессива Commands
       NumCommands[ActualCmdCount++]=I;
@@ -264,20 +245,15 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
     strCommand = Commands[NumCommands[ExitCode]];
   }
 
-  /* $ 02.09.2000 tran
-     [NM] -> [NM*2] */
   string strListName, strAnotherListName;
   string strShortListName, strAnotherShortListName;
   {
       int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
 
     // —нова все "подставлено", теперь проверим услови€ "if exist"
-    /* $ 25.04.2001 DJ
-       обработка @ в IF EXIST
-    */
     if (!ExtractIfExistCommand (strCommand))
       return TRUE;
-    /* DJ $ */
+
     PreserveLongName PreserveName(ShortName,PreserveLFN);
     if ( !strCommand.IsEmpty() )
       if ( strCommand.At(0) != L'@')
@@ -310,8 +286,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 #endif
       }
   }
-  /* $ 02.09.2000 tran
-     remove 4 files, not 2*/
+
   if ( !strListName.IsEmpty() )
     DeleteFileW (strListName);
 
@@ -326,8 +301,6 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 
   return(TRUE);
 }
-/* IS $ */
-/* SVS $ */
 
 
 int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
@@ -479,12 +452,8 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
   {
     int PreserveLFN=SubstFileName(strExecStr,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
     // —нова все "подставлено", теперь проверим услови€ "if exist"
-    /* $ 25.04.2001 DJ
-       обработка @ в IF EXIST
-    */
     if (!ExtractIfExistCommand (strExecStr))
       return;
-    /* DJ $ */
 
     PreserveLongName PreserveName(ShortName,PreserveLFN);
 
@@ -494,12 +463,8 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
     //BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
     SubstFileName(strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
     // —нова все "подставлено", теперь проверим услови€ "if exist"
-    /* $ 25.04.2001 DJ
-       обработка @ в IF EXIST
-    */
     if (!ExtractIfExistCommand (strFullExecStr))
       return;
-    /* DJ $ */
 
     CtrlObject->ViewHistory->AddToHistory(strFullExecStr,UMSG(MHistoryExt),(AlwaysWaitFinish&1)+2);
 
@@ -627,15 +592,10 @@ void EditFileTypes()
             break;
         }
       }
-      /* $ 28.10.2001 tran
-         сохраним возвращенное значение */
       m=TypesMenu.Modal::GetExitCode();
       if (m!=-1)
       {
-        /* $ 28.10.2001 tran
-           и используем его - пункт могут выбрать через hotkey */
         MenuPos=m;
-        /* tran $ */
         TypesMenu.ClearDone();
         TypesMenu.WriteInput(KEY_F4);
         continue;
@@ -659,9 +619,6 @@ int DeleteTypeRecord(int DeletePos)
   return(TRUE);
 }
 
-/* $ 02.08.2001 IS
-   ќбработаем новые строчки (дл€ alt-f3, alt-f4, ctrl-pgdn)
-*/
 int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 {
   const wchar_t *HistoryName=L"Masks";
@@ -709,17 +666,13 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
     Dlg.SetHelp(FTSW.HelpModify);
     Dlg.SetPosition(-1,-1,76,23);
-    /* $ 06.07.2001 IS
-       ѕровер€ем вводимую маску файлов на корректность
-    */
+
     CFileMask FMask;
     for(;;)
     {
       Dlg.ClearDone();
       Dlg.Process();
-      /* $ 20.03.2002 DJ
-         сообщение, если не введена маска
-      */
+
       if (Dlg.GetExitCode()!=19)
         return(FALSE);
       if ( EditDlg[2].strData.IsEmpty() )
@@ -727,11 +680,10 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
         Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MAssocNeedMask), UMSG(MOk));
         continue;
       }
-      /* DJ $ */
+
       if(FMask.Set(EditDlg[2].strData, 0))
         break;
     }
-    /* IS $ */
   }
 
   if (NewRec)
@@ -748,11 +700,6 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 
   return(TRUE);
 }
-/* IS $ */
-
-/* $ 20.03.2002 DJ
-   передаем имена файлов, и считаем размер с учетом раскрыти€ метасимволов
-*/
 
 int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
 {
@@ -792,5 +739,3 @@ int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
     Width=ScrX/2;
   return(Width);
 }
-
-/* DJ $ */

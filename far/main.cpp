@@ -81,11 +81,6 @@ class TConsoleRestore{
 };
 
 static void ConvertOldSettings();
-/* $ 07.07.2000 IS
-  Вынес эту декларацию в fn.cpp, чтобы была доступна отовсюду...
-*/
-//static void SetHighlighting();
-/* IS $ */
 static void CopyGlobalSettings();
 
 static void show_help(void)
@@ -356,25 +351,15 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog(L"Opt.ExceptRules=%d",Opt.ExceptRules));
 
-  /* $ 30.12.2000 SVS
-     Проинициализируем функции работы с атрибутами Encryped сразу после
-     старта FAR
-  */
+  // Проинициализируем функции работы с атрибутами Encryped сразу после старта FAR
   GetEncryptFunctions();
-  /* SVS $ */
 
   SetRegRootKey(HKEY_CURRENT_USER);
   Opt.strRegRoot = L"Software\\Far18";
-  /* $ 03.08.2000 SVS
-     По умолчанию - брать плагины из основного каталога
-  */
+  // По умолчанию - брать плагины из основного каталога
   Opt.LoadPlug.MainPluginDir=TRUE;
-  /* SVS $ */
   Opt.LoadPlug.PluginsPersonal=TRUE;
-  /* $ 01.09.2000 tran
-     /co - cache only, */
   Opt.LoadPlug.PluginsCacheOnly=FALSE;
-  /* tran $ */
 
   if ( apiGetModuleFileName (NULL, g_strFarPath) )
   {
@@ -490,8 +475,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           }
           break;
         }
-        /* $ 01.09.2000 tran
-           /co switch support */
         case L'C':
             if (Upper(Argv[I][2])==L'O')
             {
@@ -499,16 +482,11 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
               Opt.LoadPlug.PluginsPersonal=FALSE;
             }
             break;
-        /* tran $ */
-        /* $ 19.01.2001 SVS
-           FAR.EXE /?
-        */
         case L'?':
         case L'H':
           ControlObject::ShowCopyright(1);
           show_help();
           exit(0);
-        /* SVS $ */
 #ifdef DIRECT_RT
         case L'D':
           if ( Upper(Argv[I][2])==L'O' )
@@ -636,4 +614,3 @@ void CopyGlobalSettings()
   SetRegRootKey(HKEY_CURRENT_USER);
   SetRegKey(L"System",L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
 }
-/* SVS $ */

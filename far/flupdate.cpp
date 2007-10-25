@@ -50,10 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
-/* $ 19.03.2002 DJ
-   поддержка UPDATE_IGNORE_VISIBLE
-*/
-
 void FileList::Update(int Mode)
 {
   _ALGO(CleverSysLog clv(L"FileList::Update"));
@@ -84,11 +80,6 @@ void FileList::Update(int Mode)
   LastUpdateTime=clock();
 }
 
-/* DJ $ */
-
-/* $ 19.03.2002 DJ
-*/
-
 void FileList::UpdateIfRequired()
 {
   if (UpdateRequired)
@@ -97,9 +88,6 @@ void FileList::UpdateIfRequired()
     Update (UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);
   }
 }
-
-/* DJ $ */
-
 
 void ReadFileNamesMsg(const wchar_t *Msg)
 {
@@ -116,13 +104,9 @@ static void PR_ReadFileNamesMsg(void)
 // ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manafer
 // при считывании дирректории
 
-/* $ 19.03.2002 DJ
-   IgnoreVisible
-*/
-
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
-  if (!IsVisible() && !IgnoreVisible)   /* DJ $ */
+  if (!IsVisible() && !IgnoreVisible)
   {
     UpdateRequired=TRUE;
     UpdateRequiredMode=KeepSelection;
@@ -500,7 +484,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   */
   if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
     SetTitle();
-  /* DJ $ */
 
   FarChDir(strSaveDir); //???
 }
@@ -528,7 +511,6 @@ int FileList::UpdateIfChanged(int UpdateMode)
          // Или плагинная панель и обновляем через UPDATE_FORCE
          (PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
         )
-      /* VVM $ */
         {
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
           // В этом случае - просто перекрасим
@@ -548,7 +530,6 @@ int FileList::UpdateIfChanged(int UpdateMode)
   }
   return(FALSE);
 }
-/* SKV$*/
 
 void FileList::UpdateColorItems(void)
 {
@@ -618,15 +599,11 @@ void FileList::MoveSelection(struct FileListItem **ListData,long FileCount,
   }
 }
 
-/* $ 19.03.2002 DJ
-   IgnoreVisible
-*/
-
 void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 {
   _ALGO(CleverSysLog clv(L"FileList::UpdatePlugin"));
   _ALGO(SysLog(L"(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,IgnoreVisible));
-  if (!IsVisible() && !IgnoreVisible)    /* DJ $ */
+  if (!IsVisible() && !IgnoreVisible)
   {
     UpdateRequired=TRUE;
     UpdateRequiredMode=KeepSelection;
@@ -781,11 +758,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CurPtr->Clear ();
 
     AddParentPoint(CurPtr,FileCount);
-    /* $ 22.11.2001 VVM
-      + Не забыть раскрасить :) */
+
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
-    /* VVM $ */
+
     if (Info.HostFile && *Info.HostFile)
     {
       FAR_FIND_DATA_EX FindData;
@@ -804,7 +780,6 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       ! Не считывать повторно список файлов с панели плагина */
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz(PanelData,PluginFileCount,RDF_NO_UPDATE);
-  /* VVM $ */
 
   CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
 
@@ -856,7 +831,6 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
         + Обработка флага RDF_NO_UPDATE */
     if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
       GetCode=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
-    /* VVM $ */
     else
     {
       PanelData=ItemList;
@@ -896,7 +870,6 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
           + Обработка флага RDF_NO_UPDATE */
       if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
         CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
-      /* VVM $ */
     }
   }
   struct FileListItem *CurPtr;

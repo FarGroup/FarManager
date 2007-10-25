@@ -737,7 +737,7 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     PreRedrawParam.Flags=TreeCount;
     TreeStartTime = clock();
   }
-  /* VVM $ */
+
   return(1);
 }
 

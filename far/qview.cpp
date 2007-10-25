@@ -48,16 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 
-/* $ 12.07.2000 SVS
-    ! Для возможности 3-х позиционного Wrap`а статическая переменная
-      LastWrapMode имеет не булевое значение, а обычный int
-*/
-/* $ 20.02.2001 VVM
-    ! Врап хранится в 2х переменных. */
 static int LastWrapMode = -1;
 static int LastWrapType = -1;
-/* VVM $ */
-/* SVS $ */
 
 QuickView::QuickView()
 {
@@ -65,13 +57,11 @@ QuickView::QuickView()
   QView=NULL;
   Directory=0;
   PrevMacroMode = -1;
-  /* $ 20.02.2001 VVM
-    + Проинициализируем режим врап-а */
+
   if (LastWrapMode < 0) {
     LastWrapMode = Opt.ViOpt.ViewerIsWrap;
     LastWrapType = Opt.ViOpt.ViewerWrap;
   }
-  /* VVM $ */
 }
 
 
@@ -132,9 +122,7 @@ void QuickView::DisplayObject()
     SetColor(COL_PANELTEXT);
     GotoXY(X1+2,Y1+2);
     PrintText(strMsg);
-    /* $ 01.02.2001 SVS
-       В панели "Quick view" добавим инфу про Junction
-    */
+
     if((GetFileAttributesW(strCurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
       string strJuncName;
@@ -169,7 +157,6 @@ void QuickView::DisplayObject()
         PrintText(strMsg);
       }
     }
-    /* SVS $ */
 
     if (Directory==1 || Directory==4)
     {
@@ -269,15 +256,12 @@ int QuickView::ProcessKey(int Key)
   if(ProcessShortcutFolder(Key,FALSE))
     return(TRUE);
 
-  /* $ 30.04.2001 DJ
-     показываем правильный help topic
-  */
   if (Key == KEY_F1)
   {
     Help Hlp (L"QViewPanel");
     return TRUE;
   }
-  /* DJ $ */
+
   if (Key==KEY_F3 || Key==KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
   {
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -285,8 +269,7 @@ int QuickView::ProcessKey(int Key)
       AnotherPanel->ProcessKey(KEY_F3);
     return(TRUE);
   }
-  /* $ 04.08.2000 tran
-     Gray+, Gray- передвигают курсор на другой панели*/
+
   if (Key==KEY_ADD || Key==KEY_SUBTRACT)
   {
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -294,11 +277,7 @@ int QuickView::ProcessKey(int Key)
       AnotherPanel->ProcessKey(Key==KEY_ADD?KEY_DOWN:KEY_UP);
     return(TRUE);
   }
-  /* tran 04.08.2000 $ */
 
-  /* $ 30.04.2001 DJ
-     обновляем кейбар
-  */
   if (QView!=NULL && !Directory && Key>=256)
   {
     int ret = QView->ProcessKey(Key);
@@ -375,13 +354,11 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
   QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
   QView->SetStatusMode(0);
   QView->EnableHideCursor(0);
-  /* $ 20.02.2001 VVM
-      + Запомнить старое состояние врапа и потом восстановить. */
+
   OldWrapMode = QView->GetWrapMode();
   OldWrapType = QView->GetWrapType();
   QView->SetWrapMode(LastWrapMode);
   QView->SetWrapType(LastWrapType);
-  /* VVM $ */
 
   strCurFileName = FileName;
 
@@ -397,11 +374,9 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
   }
   if (hDirPlugin || (FileAttr=GetFileAttributesW(strCurFileName))!=-1 && (FileAttr & FA_DIREC))
   {
-    /* $ 28.06.2000 IS
-     Не показывать тип файла для каталогов в "Быстром просмотре" /
-    */
+    // Не показывать тип файла для каталогов в "Быстром просмотре"
     strCurFileType=L"";
-    /* IS $ */
+
     if (hDirPlugin)
     {
       int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,DirCount,
@@ -446,13 +421,10 @@ void QuickView::CloseFile()
 {
   if (QView!=NULL)
   {
-    /* $ 20.02.2001 VVM
-        ! Восстановить старое значение врапа */
     LastWrapMode=QView->GetWrapMode();
     LastWrapType=QView->GetWrapType();
     QView->SetWrapMode(OldWrapMode);
     QView->SetWrapType(OldWrapType);
-    /* VVM $ */
     delete QView;
     QView=NULL;
   }
@@ -470,13 +442,10 @@ void QuickView::QViewDelTempName()
   {
     if (QView!=NULL)
     {
-      /* $ 20.02.2001 VVM
-          ! Восстановить старое значение врапа */
       LastWrapMode=QView->GetWrapMode();
       LastWrapType=QView->GetWrapType();
       QView->SetWrapMode(OldWrapMode);
       QView->SetWrapType(OldWrapType);
-      /* VVM $ */
       delete QView;
       QView=NULL;
     }
@@ -512,8 +481,6 @@ int QuickView::UpdateIfChanged(int UpdateMode)
   return(FALSE);
 }
 
-/* $ 20.07.2000 tran
-   два метода - установка заголовка*/
 void QuickView::SetTitle()
 {
   if (GetFocus())
@@ -538,14 +505,13 @@ void QuickView::SetTitle()
     SetFarTitle(strTitleDir);
   }
 }
-// и его показ в случае получения фокуса
+
 void QuickView::SetFocus()
 {
   Panel::SetFocus();
   SetTitle();
   SetMacroMode(FALSE);
 }
-/* tran 20.07.2000 $ */
 
 void QuickView::KillFocus()
 {

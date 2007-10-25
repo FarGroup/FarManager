@@ -61,9 +61,8 @@ class QuickView:public Panel
     void PrintText(const wchar_t *Str);
 
     void SetMacroMode(int Restore = FALSE);
-    /* $ 30.04.2001 DJ */
+
     void DynamicUpdateKeyBar();
-    /* DJ $ */
 
   public:
     QuickView();

@@ -51,17 +51,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "findfile.hpp"
 #include "hilight.hpp"
 
-/* $ 03.08.2000 SVS
-   Стандартный набор разделителей
-*/
+// Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
-/* SVS $ */
 
-/* $ 12.10.2000 IS
-   Стандартный набор разделителей для функции Xlat
-*/
+// Стандартный набор разделителей для функции Xlat
 static const wchar_t *WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
-/* IS $ */
 
 string strPersonalPluginsPath;
 string strKeyNameConsoleDetachKey;
@@ -105,9 +99,7 @@ void SystemSettings()
 {
   const wchar_t *HistoryName=L"PersPath";
   string strPersonalPluginsPath;
-  /* $ 15.07.2000 SVS
-     + Добавка в виде задания дополнительного пути для поиска плагинов
-  */
+
   struct DialogDataEx CfgDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigSystemTitle,
   /* 01 */ DI_CHECKBOX, 5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigRO,
@@ -199,25 +191,25 @@ void SystemSettings()
 
 void PanelSettings()
 {
-#define DLG_PANEL_HIDDEN              1
-#define DLG_PANEL_HIGHLIGHT           2
-#define DLG_PANEL_CHANGEFOLDER        3
-#define DLG_PANEL_SELECTFOLDERS       4
-#define DLG_PANEL_SORTFOLDEREXT       5
-#define DLG_PANEL_REVERSESORT         6
-#define DLG_PANEL_AUTOUPDATELIMIT     7
-#define DLG_PANEL_AUTOUPDATELIMIT2    8
-#define DLG_PANEL_AUTOUPDATELIMITVAL  9
-#define DLG_PANEL_AUTOUPDATEREMOTE   10
+  #define DLG_PANEL_HIDDEN              1
+  #define DLG_PANEL_HIGHLIGHT           2
+  #define DLG_PANEL_CHANGEFOLDER        3
+  #define DLG_PANEL_SELECTFOLDERS       4
+  #define DLG_PANEL_SORTFOLDEREXT       5
+  #define DLG_PANEL_REVERSESORT         6
+  #define DLG_PANEL_AUTOUPDATELIMIT     7
+  #define DLG_PANEL_AUTOUPDATELIMIT2    8
+  #define DLG_PANEL_AUTOUPDATELIMITVAL  9
+  #define DLG_PANEL_AUTOUPDATEREMOTE   10
 
-#define DLG_PANEL_SHOWCOLUMNTITLES   12
-#define DLG_PANEL_SHOWPANELSTATUS    13
-#define DLG_PANEL_SHOWPANELTOTALS    14
-#define DLG_PANEL_SHOWPANELFREE      15
-#define DLG_PANEL_SHOWPANELSCROLLBAR 16
-#define DLG_PANEL_SHOWSCREENSNUMBER  17
-#define DLG_PANEL_SHOWSORTMODE       18
-#define DLG_PANEL_OK                 20
+  #define DLG_PANEL_SHOWCOLUMNTITLES   12
+  #define DLG_PANEL_SHOWPANELSTATUS    13
+  #define DLG_PANEL_SHOWPANELTOTALS    14
+  #define DLG_PANEL_SHOWPANELFREE      15
+  #define DLG_PANEL_SHOWPANELSCROLLBAR 16
+  #define DLG_PANEL_SHOWSCREENSNUMBER  17
+  #define DLG_PANEL_SHOWSORTMODE       18
+  #define DLG_PANEL_OK                 20
 
   static struct DialogDataEx CfgDlgData[]={
   /* 00 */DI_DOUBLEBOX, 3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigPanelTitle,
@@ -313,30 +305,24 @@ void PanelSettings()
 */
 void InterfaceSettings()
 {
-#define DLG_INTERF_CLOCK                1
-#define DLG_INTERF_VIEWEREDITORCLOCK    2
-#define DLG_INTERF_MOUSE                3
-#define DLG_INTERF_MOUSEPMCLICKRULE     4
-#define DLG_INTERF_SHOWKEYBAR           5
-#define DLG_INTERF_SHOWMENUBAR          6
-#define DLG_INTERF_SCREENSAVER          7
-#define DLG_INTERF_SCREENSAVERTIME      8
-#define DLG_INTERF_SAVERMINUTES         9
-#define DLG_INTERF_USEPROMPTFORMAT     10
-#define DLG_INTERF_PROMPTFORMAT        11
-#define DLG_INTERF_ALTGR               12
-#define DLG_INTERF_COPYSHOWTOTAL       13
-#define DLG_INTERF_COPYTIMERULE        14
-#define DLG_INTERF_PGUPCHANGEDISK      15
-#define DLG_INTERF_OK                  17
+  #define DLG_INTERF_CLOCK                1
+  #define DLG_INTERF_VIEWEREDITORCLOCK    2
+  #define DLG_INTERF_MOUSE                3
+  #define DLG_INTERF_MOUSEPMCLICKRULE     4
+  #define DLG_INTERF_SHOWKEYBAR           5
+  #define DLG_INTERF_SHOWMENUBAR          6
+  #define DLG_INTERF_SCREENSAVER          7
+  #define DLG_INTERF_SCREENSAVERTIME      8
+  #define DLG_INTERF_SAVERMINUTES         9
+  #define DLG_INTERF_USEPROMPTFORMAT     10
+  #define DLG_INTERF_PROMPTFORMAT        11
+  #define DLG_INTERF_ALTGR               12
+  #define DLG_INTERF_COPYSHOWTOTAL       13
+  #define DLG_INTERF_COPYTIMERULE        14
+  #define DLG_INTERF_PGUPCHANGEDISK      15
+  #define DLG_INTERF_OK                  17
 
   static struct DialogDataEx CfgDlgData[]={
-    /* $ 04.07.2000 SVS
-       + Показывать ли ScrollBar для Menu|Options|Interface settings
-    */
-    /* $ 26.07.2000 SVS
-       + Разрешить ли автодополнение в строках ввода
-    */
   /* 00 */DI_DOUBLEBOX, 3, 1,54,18,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
   /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigClock,
   /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigViewerEditorClock,
@@ -425,14 +411,10 @@ void InterfaceSettings()
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->SetScreenPosition();
-  /*$ 10.07.2001 SKV
-    ! надо это делать, иначе если кейбар спрятали,
-      будет полный рамс.
-  */
+
+  // $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
   CtrlObject->Cp()->Redraw();
-  /* SKV$*/
 }
-/* IS 17.12.2001 $ */
 
 void DialogSettings()
 {
@@ -485,12 +467,6 @@ void DialogSettings()
   CtrlObject->CmdLine->SetPersistentBlocks(Opt.Dialogs.EditBlock);
 }
 
-/* $ 09.02.2001 IS
-   Опция Esc
-*/
-/* $ 15.03.2001 SVS
-    Подтверждение удаления мапленных дисков из меню дисков
-*/
 void SetConfirmations()
 {
   static struct DialogDataEx ConfDlgData[]={
@@ -530,8 +506,10 @@ void SetConfirmations()
   Dlg.SetHelp(L"ConfirmDlg");
   Dlg.SetPosition(-1,-1,50,18);
   Dlg.Process();
+
   if (Dlg.GetExitCode()!=14)
     return;
+
   Opt.Confirm.Copy=ConfDlg[1].Selected;
   Opt.Confirm.Move=ConfDlg[2].Selected;
   Opt.Confirm.Drag=ConfDlg[3].Selected;
@@ -545,8 +523,6 @@ void SetConfirmations()
   Opt.Confirm.HistoryClear=ConfDlg[11].Selected;
   Opt.Confirm.Exit=ConfDlg[12].Selected;
 }
-/* SVS $ */
-/* IS $ */
 
 void SetDizConfig()
 {
@@ -945,7 +921,6 @@ void SetFolderInfoFiles()
     if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
       CtrlObject->Cp()->RightPanel->Update(0);
   }
-  /* DJ $ */
 }
 
 
@@ -1074,20 +1049,11 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystemW,L"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
   {1, REG_DWORD,  NKeySystemW,L"FileSearchMode",&Opt.FindOpt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
   {0, REG_DWORD,  NKeySystemW,L"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
-  /* $ 11.10.2005 KM */
   {1, REG_DWORD,  NKeySystemW,L"SearchInFirst",&Opt.FindOpt.SearchInFirst,0,0},
   {1, REG_SZ,     NKeySystemW,L"SearchInFirstSize",&Opt.FindOpt.strSearchInFirstSize, 0, L""},
-  /* KM $ */
-  /* $ 24.10.2001 KM
-     Запомнить флаг разрешения поиска каталогов в Alt-F7
-  */
   {1, REG_DWORD,  NKeySystemW,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
-  /* 08.07.2003 yjh */
   {1, REG_DWORD,  NKeySystemW,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
-  /* KM $ */
-  /* $ 17.09.2003 KM */
   {1, REG_BINARY, NKeySystemW,L"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
-  /* KM $ */
   {1, REG_SZ,     NKeySystemW,L"FolderInfo",&Opt.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*"},
   {0, REG_DWORD,  NKeySystemW,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
   {0, REG_DWORD,  NKeySystemW,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
@@ -1107,7 +1073,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemW,L"DelThreadPriority", &Opt.DelThreadPriority, THREAD_PRIORITY_NORMAL, 0},
   {0, REG_SZ,     NKeySystemW,L"QuotedSymbols",&Opt.strQuotedSymbols, 0, L" &()[]{}^=;!'+,`"},
   {0, REG_DWORD,  NKeySystemW,L"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
-  /* KM $ */
   //{0, REG_DWORD,  NKeySystemW,L"CPAJHefuayor",&Opt.strCPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystemW,L"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystemW,L"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
@@ -1261,11 +1226,8 @@ void ReadConfig()
   }
 
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
-  /* $ 02.04.2001 VVM
-    + Opt.FlagPosixSemantics не пашет под 9x */
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)  // Opt.FlagPosixSemantics не пашет под 9x
     Opt.FlagPosixSemantics=0;
-  /* VVM $ */
 
   // ОНО ранее может переопределяться
   if(StrCmpI(Opt.strLanguage,InitedLanguage))
@@ -1301,7 +1263,6 @@ void ReadConfig()
         есть другие палитры...
       */
   }
-  /* SVS 13.12.2000 $ */
 
   Opt.ViOpt.ViewerIsWrap&=1;
   Opt.ViOpt.ViewerWrap&=1;
@@ -1319,7 +1280,6 @@ void ReadConfig()
   */
   if(Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
     Opt.EdOpt.UndoSize=64;
-  /* IS $ */
 
   if (!Opt.EdOpt.AnsiTableAsDefault)
   {
