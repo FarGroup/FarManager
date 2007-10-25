@@ -1,15 +1,15 @@
-1. Таблица соответствий Unicode
+1. Unicode <-> Ansi
 
-   Типы
-   ~~~~
-   Не Unicode      Unicode        Примечание  
-   ------------------------------------------
+   Types
+   ~~~~~
+   Ansi            Unicode        Remark
+   -------------------------------------
    char            wchar_t     
 
-   Функции
-   ~~~~~~~
-   Не Unicode      Unicode        Примечание  
-   ------------------------------------------
+   Functions
+   ~~~~~~~~~
+   Ansi            Unicode        Remark
+   -------------------------------------
    strlen          StrLength     
    strcat          wcscat     
    strncat         wcsncat
@@ -32,15 +32,16 @@
    fprintf         fwprintf
 
 
-   Примеры
-   ~~~~~~~
+   Examples
+   ~~~~~~~~
 
-   1. Переводим кусок кода из 1.71 в 1.80 было: 
+   1. Changes from old Ansi code (1.71) to new Unicode code (1.80):
+      was:
 
         if(isalpha(NameTmp[0]) && NameTmp[1]==':' && !NameTmp[2])
           PrepareDiskPath(NameTmp,SizeBuffer,true);
 
-      делаем: 
+      now: 
 
         if ( (strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
           PrepareDiskPathW(strNameTmp,true);

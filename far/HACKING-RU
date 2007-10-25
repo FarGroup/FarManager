@@ -1,6 +1,33 @@
 ПРАВИЛА
 ~~~~~~~
 
+Submitting patches
+~~~~~~~~~~~~~~~~~~
+First, please, read all the sections below to get familiar with our build
+system and rules.
+When you feel comfortable with the code and decide to make your contribution
+to the project, please follow those guidelines:
+1. One logical change per patch, the smaller the patch the easier it is for us
+   to review and commit it.
+2. Try to keep inline with the overall style of the code.
+3. Provide detailed changelog for your patch.
+4. If your patch requires updating the documentation (help, Enc., etc.),
+   please provide the needed updates.
+5. Patches should be submitted as a collection of diff files
+   diff -c -p oldfile newfile > file.diff
+   one diff file per one changed file. Create the diffs against the latest
+   code.
+6. To submit a patch you should send it to one of the people mentioned in the
+   MAINTAINERS file, please use their preferred method of contact - either way
+   patches should be submitted through Mantis or E-Mail only. You should
+   receive a response about your submition in not more than 10 days.
+7. If you plan on creating large patches or want to keep current with the
+   development of Far Manager, subscribe to the Developers mailing list
+   http://groups.google.com/group/fardev (fardev@googlegroups.com).
+8. Frequent patchers will be eligible for full SVN access, by our discretion.
+9. Be patient, we are new to Open Source :)
+
+
 Сборка
 ~~~~~~
 1. Для сборки с помощью VC есть набор батников:
@@ -60,6 +87,11 @@
 
 2. Для сборки GCC есть мэйк файл который всё делает:
    makefile_gcc
+   При первом запуске если нету файлов copyright.inc, farversion.inc и lang.hpp
+   то надо запустить:
+   tools\m4 -P copyright.inc.m4 | tools\gawk -f ./scripts/enc.awk > copyright.inc
+   tools\m4 -P farversion.inc.m4 > farversion.inc
+   tools\lng.generator.exe -nc -i lang.ini farlang.templ
 
 
 Описание изменений - файл "changelog"
@@ -70,8 +102,8 @@
 2. Дописываем изменения в начало файла.
 3. Каждая запись начинается с шапки вида:
    warp 05.12.2006 01:39:38 +0300 - build 2149
-4. Изменениям может не присваиваться билд, например, была косметика в
-   исходниках.
+4. Изменениям может не присваиваться билд, например, была косметика или
+   изменения не в коде.
 
 
 farversion.m4
