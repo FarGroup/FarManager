@@ -431,7 +431,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
           MRec.Buffer=(DWORD *)(DWORD_PTR)((struct KeySequence*)Param)->Sequence[0];
         else
           MRec.Buffer=((struct KeySequence*)Param)->Sequence;
-        return CtrlObject->Macro.PostNewMacro(&MRec,TRUE);
+        return CtrlObject->Macro.PostNewMacro(&MRec,TRUE,TRUE);
 #if 0
         // Этот кусок - для дальнейших экспериментов
         {

@@ -280,45 +280,48 @@ static struct TFKey3 SpecKeyName[]={
 int SetFLockState(UINT vkKey, int State)
 {
   /*
-Windows NT/2000/XP: The keybd_event function can toggle the NUM LOCK, CAPS LOCK, and SCROLL LOCK keys.
-Windows 95/98/Me: The keybd_event function can toggle only the CAPS LOCK and SCROLL LOCK keys. It cannot toggle the NUM LOCK key.
+     Windows NT/2000/XP: The keybd_event function can toggle the NUM LOCK, CAPS LOCK, and SCROLL LOCK keys.
+     Windows 95/98/Me: The keybd_event function can toggle only the CAPS LOCK and SCROLL LOCK keys. It cannot toggle the NUM LOCK key.
 
-VK_NUMLOCK (90)
-VK_SCROLL (91)
-VK_CAPITAL (14)
+     VK_NUMLOCK (90)
+     VK_SCROLL (91)
+     VK_CAPITAL (14)
   */
-  UINT ScanCode, ExKey=KEYEVENTF_EXTENDEDKEY;
+  UINT ScanCode, ScanCodeBreak, ExKey=KEYEVENTF_EXTENDEDKEY;
 
   switch(vkKey)
   {
     case VK_NUMLOCK:
       ScanCode=0x0045;
-      break;
-    case VK_SCROLL:
-      ScanCode=0x0046;
+      ScanCodeBreak=0x00C5;
       break;
     case VK_CAPITAL:
       ScanCode=0x003A;
+      ScanCodeBreak=0x00BA;
       ExKey=0;
+      break;
+    case VK_SCROLL:
+      ScanCode=0x0046;
+      ScanCodeBreak=0x00C6;
       break;
     default:
       return -1;
   }
 
-  BYTE keyState[256];
+  short oldState=GetKeyState(vkKey);
 
-  GetKeyboardState((LPBYTE)&keyState);
-
-  if (State < 0)
-    return keyState[vkKey] & 1;
-
-  if (State == 2 || (State==1 && !(keyState[vkKey] & 1)) || (!State && (keyState[vkKey] & 1)) )
+  if (State >= 0)
   {
-    keybd_event( vkKey, ScanCode, ExKey | 0, 0 );
-    keybd_event( vkKey, ScanCode, ExKey | KEYEVENTF_KEYUP, 0);
+    //if (State == 2 || (State==1 && !(keyState[vkKey] & 1)) || (!State && (keyState[vkKey] & 1)) )
+    if (State == 2 || (State==1 && !oldState) || (!State && oldState) )
+
+    {
+      keybd_event( vkKey, ScanCode, ExKey, 0 );
+      keybd_event( vkKey, ScanCodeBreak, ExKey | KEYEVENTF_KEYUP, 0);
+    }
   }
 
-  return keyState[vkKey] & 1;
+  return (int)(WORD)oldState;
 }
 
 int WINAPI InputRecordToKey(const INPUT_RECORD *r)
@@ -367,7 +370,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((/*MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE ||*/ MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
 //_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -1091,7 +1094,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     if (KeyCode==VK_SHIFT || KeyCode==VK_MENU || KeyCode==VK_CONTROL || KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL || KeyCode==VK_CAPITAL)
     {
       if((KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL || KeyCode==VK_CAPITAL) &&
-           (CtrlState&(LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED)))
+           (CtrlState&(LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED))
+        )
       {
         // TODO:
         ;
@@ -1308,7 +1312,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=GetInputRecord(&rec,true);
     if(KeyWait == (DWORD)-1)
     {
-      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
+      if (!(/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE ||*/ Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
         break;
     }
     else if(Key == KeyWait)
@@ -1577,8 +1581,8 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
   int I, Len;
   DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
 
-  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
-    return KeyMacroToText(Key0, strKeyText0);
+  //if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
+  //  return KeyMacroToText(Key0, strKeyText0);
 
   if(Key&KEY_ALTDIGIT)
     strKeyText.Format (L"Alt%05d", Key&FKey);

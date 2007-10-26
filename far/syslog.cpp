@@ -1022,13 +1022,11 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(OP_DATE),
      DEF_MCODE_(OP_DISCARD),
      DEF_MCODE_(OP_DIV),
-     DEF_MCODE_(OP_DOIT),
      DEF_MCODE_(OP_ELSE),
      DEF_MCODE_(OP_END),
      DEF_MCODE_(OP_ENDKEYS),
      DEF_MCODE_(OP_EQ),
      DEF_MCODE_(OP_EXIT),
-     DEF_MCODE_(OP_EXPR),
      DEF_MCODE_(OP_GE),
      DEF_MCODE_(OP_GT),
      DEF_MCODE_(OP_ICLIP),
@@ -1414,6 +1412,48 @@ string __VK_KEY_ToName(int VkKey)
 #endif
 }
 
+string __MOUSE_EVENT_RECORD_Dump(INPUT_RECORD *rec)
+{
+#if defined(SYSLOG)
+  string Records;
+
+  Records.Format(
+        L"MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
+      rec->dwMousePosition.X,
+      rec->dwMousePosition.Y,
+      rec->dwButtonState,
+        (rec->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED?L'L':L'l'),
+        (rec->dwButtonState&RIGHTMOST_BUTTON_PRESSED?L'R':L'r'),
+        (rec->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED?L'2':L' '),
+        (rec->dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED?L'3':L' '),
+        (rec->dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED?L'4':L' '),
+      rec->dwControlKeyState,
+        (rec->dwControlKeyState&LEFT_CTRL_PRESSED?L'C':L'c'),
+        (rec->dwControlKeyState&LEFT_ALT_PRESSED?L'A':L'a'),
+        (rec->dwControlKeyState&SHIFT_PRESSED?L'S':L's'),
+        (rec->dwControlKeyState&RIGHT_ALT_PRESSED?L'A':L'a'),
+        (rec->dwControlKeyState&RIGHT_CTRL_PRESSED?L'C':L'c'),
+        (rec->dwControlKeyState&ENHANCED_KEY?L'E':L'e'),
+        (rec->dwControlKeyState&CAPSLOCK_ON?L'C':L'c'),
+        (rec->dwControlKeyState&NUMLOCK_ON?L'N':L'n'),
+        (rec->dwControlKeyState&SCROLLLOCK_ON?L'S':L's'),
+      rec->dwEventFlags,
+        (rec->dwEventFlags==DOUBLE_CLICK?L"(DblClick)":
+         (rec->dwEventFlags==MOUSE_MOVED?L"(Moved)":
+          (rec->dwEventFlags==MOUSE_WHEELED?L"(Wheel)":L"")))
+    );
+  if(rec->dwEventFlags==MOUSE_WHEELED)
+  {
+    tmp.Format(L" (Delta=%d)",(short)HIWORD(rec->dwButtonState));
+    Records+=tmp;
+  }
+  return Records;
+#else
+  return L"";
+#endif
+}
+
+
 string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
@@ -1472,36 +1512,7 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
       break;
     }
     case MOUSE_EVENT:
-      Records.Format(
-            L"MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
-          rec->Event.MouseEvent.dwMousePosition.X,
-          rec->Event.MouseEvent.dwMousePosition.Y,
-          rec->Event.MouseEvent.dwButtonState,
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED?L'L':L'l'),
-            (rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED?L'R':L'r'),
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED?L'2':L' '),
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED?L'3':L' '),
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED?L'4':L' '),
-          rec->Event.MouseEvent.dwControlKeyState,
-            (rec->Event.MouseEvent.dwControlKeyState&LEFT_CTRL_PRESSED?L'C':L'c'),
-            (rec->Event.MouseEvent.dwControlKeyState&LEFT_ALT_PRESSED?L'A':L'a'),
-            (rec->Event.MouseEvent.dwControlKeyState&SHIFT_PRESSED?L'S':L's'),
-            (rec->Event.MouseEvent.dwControlKeyState&RIGHT_ALT_PRESSED?L'A':L'a'),
-            (rec->Event.MouseEvent.dwControlKeyState&RIGHT_CTRL_PRESSED?L'C':L'c'),
-            (rec->Event.MouseEvent.dwControlKeyState&ENHANCED_KEY?L'E':L'e'),
-            (rec->Event.MouseEvent.dwControlKeyState&CAPSLOCK_ON?L'C':L'c'),
-            (rec->Event.MouseEvent.dwControlKeyState&NUMLOCK_ON?L'N':L'n'),
-            (rec->Event.MouseEvent.dwControlKeyState&SCROLLLOCK_ON?L'S':L's'),
-          rec->Event.MouseEvent.dwEventFlags,
-            (rec->Event.MouseEvent.dwEventFlags==DOUBLE_CLICK?L"(DblClick)":
-             (rec->Event.MouseEvent.dwEventFlags==MOUSE_MOVED?L"(Moved)":
-              (rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED?L"(Wheel)":L"")))
-        );
-      if(rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED)
-      {
-        tmp.Format(L" (Delta=%d)",(short)HIWORD(rec->Event.MouseEvent.dwButtonState));
-        Records+=tmp;
-      }
+      wcscpy(Records,_MOUSE_EVENT_RECORD_Dump(&rec->Event.MouseEvent));
       break;
     default:
       Records.Format(

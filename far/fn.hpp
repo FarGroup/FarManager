@@ -687,6 +687,8 @@ string __VCTL_ToName(int Command);
 #define _VCTL_ToName(K) (const wchar_t*)__VCTL_ToName(K)
 string __INPUT_RECORD_Dump(INPUT_RECORD *Rec);
 #define _INPUT_RECORD_Dump(K) (const wchar_t*)__INPUT_RECORD_Dump(K)
+string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec);
+#define _MOUSE_EVENT_RECORD_Dump(K) (const wchar_t*)__MOUSE_EVENT_RECORD_Dump(K)
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 #define _SysLog_LinearDump(B,S) (const wchar_t*)__SysLog_LinearDump((B),(S))
 

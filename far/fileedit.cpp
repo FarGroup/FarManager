@@ -938,7 +938,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
      никак не соответствует обрабатываемой клавише, возникают разномастные
      глюки
   */
-  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) // исключаем MACRO
+  if(/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || */ Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) // исключаем MACRO
   {
     ; //
   }
@@ -2516,7 +2516,7 @@ int FileEditor::EditorControl(int Command, void *Param)
         {
           Key=GetInputRecord(rec);
           if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
-              (Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
+              (/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || */ Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
              ReProcessKey(Key);
           else
             break;

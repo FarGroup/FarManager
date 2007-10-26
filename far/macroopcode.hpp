@@ -54,8 +54,6 @@ enum MACRO_OP_CODE {
   MCODE_OP_JGT,
   MCODE_OP_JGE,
 
-  MCODE_OP_EXPR,                    // ѕризнак начала (инициализаци€ стека)
-  MCODE_OP_DOIT,                    // ѕризнак конца (вершина стека - Result)
   MCODE_OP_SAVE,                    // ѕрисваивание переменной. »м€ переменной следующие DWORD (как в $Text).
   MCODE_OP_SAVEREPCOUNT,
   MCODE_OP_PUSHINT,                 // ѕоложить значение на стек. —амо
@@ -93,7 +91,7 @@ enum MACRO_OP_CODE {
   // <TODO>
   MCODE_OP_DISCARD,                 // убрать значение с вершины стека
   MCODE_OP_POP,                     // присвоить значение переменной и убрать из вершины стека
-  MCODE_OP_COPY,                    // %a=%d
+  MCODE_OP_COPY,                    // %a=%d, стек не используетс€
   // </TODO>
 
   MCODE_OP_IF,                      // ¬ообще-то эта группа в байткод

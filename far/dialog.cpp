@@ -2148,7 +2148,7 @@ int Dialog::ProcessKey(int Key)
     Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
   }
 
-  if(!((Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
+  if(!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 

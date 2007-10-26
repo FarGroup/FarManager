@@ -1169,14 +1169,12 @@ int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wcha
   else
     pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr;
   exprBuff = eBuff;
-  put(MCODE_OP_EXPR);
 #if !defined(TEST000)
   getToken();
   if ( bound2 )
     expr();
   else
     prim();
-  put(MCODE_OP_DOIT);
   BufPtr = oSrcString;
   while ( *BufPtr && iswspace(*BufPtr) )
     BufPtr++;
@@ -1200,7 +1198,6 @@ int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wcha
       expr();
     else
       prim();
-    put(MCODE_OP_DOIT);
     BufPtr = oSrcString;
     while ( *BufPtr && iswspace(*BufPtr) )
       BufPtr++;
