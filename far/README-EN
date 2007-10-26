@@ -15,3 +15,6 @@ http://www.farmanager.com/mantis/
 Developers mailing list
 http://groups.google.com/group/fardev
 fardev@googlegroups.com
+
+Get the code
+svn co http://www.farmanager.com/svn/unicode_far/trunk unicode_far

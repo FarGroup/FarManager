@@ -1,31 +1,33 @@
 ПРАВИЛА
 ~~~~~~~
 
-Submitting patches
-~~~~~~~~~~~~~~~~~~
-First, please, read all the sections below to get familiar with our build
-system and rules.
-When you feel comfortable with the code and decide to make your contribution
-to the project, please follow those guidelines:
-1. One logical change per patch, the smaller the patch the easier it is for us
-   to review and commit it.
-2. Try to keep inline with the overall style of the code.
-3. Provide detailed changelog for your patch.
-4. If your patch requires updating the documentation (help, Enc., etc.),
-   please provide the needed updates.
-5. Patches should be submitted as a collection of diff files
+Предложение исправлений
+~~~~~~~~~~~~~~~~~~~~~~~
+Прежде всего, ознакомьтесь, пожалуйста, с нашими правилами и системой
+компиляции и сборки Far'а. При внесении изменений в исходный код,
+пожалуйста, следуйте следующим правилам:
+1. Каждое изменение должно быть логически завершенным и, по возможности,
+   минимальным. Это позволит нам быстрее его проверить и внести в исходный код.
+2. Придерживайтесь единообразного стиля оформления кода.
+3. Детально опишите, что и зачем Ваш код исправляет.
+4. Если Ваше исправление требует обновления документации (справки,
+   Энциклопедии и т.п.), не забудьте и ее обновить.
+5. Исправления принимаются в виде diff-файлов:
    diff -c -p oldfile newfile > file.diff
-   one diff file per one changed file. Create the diffs against the latest
-   code.
-6. To submit a patch you should send it to one of the people mentioned in the
-   MAINTAINERS file, please use their preferred method of contact - either way
-   patches should be submitted through Mantis or E-Mail only. You should
-   receive a response about your submission in not more than 10 days.
-7. If you plan on creating large patches or want to keep current with the
-   development of Far Manager, subscribe to the Developers mailing list
+   Один diff-файл на каждый измененный файл. Пожалуйста, формируйте diff-файлы
+   на основе последних версий исходного кода.
+6. Прежде чем прислать нам Ваше исправление, заглянете в файл MAINTAINERS.
+   В нем перечислены люди, отвечающие за внесение изменений в определенную
+   часть Far'а. Определитесь, кто должен получить Ваше обновление и каким
+   способом этот человек предпочитает его получить. Все исправления должны
+   отправляться либо по электронной почте, либо через Mantis. Вы должны
+   получить ответ в течение десяти дней.
+7. Если Вы планируете вносить большие исправления или просто желаете находится
+   в курсе последних событий в Far'е, подпишитесь на нашу рассылку:
    http://groups.google.com/group/fardev (fardev@googlegroups.com).
-8. Frequent patchers will be eligible for full SVN access, by our discretion.
-9. Be patient, we are new to Open Source :)
+8. Если Вы будете присылать нам исправления часто и хорошего качества,
+   Вам будет предоставлен полный доступ к SVN, на наше усмотрение.
+9. Пожалуйста, будьте снисходительны - мы сами новички в Open Source :)
 
 
 Сборка
