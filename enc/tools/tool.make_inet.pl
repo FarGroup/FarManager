@@ -1,5 +1,5 @@
 #$src_dir            =
-$dest_dr            = "../../enc";
+$dest_dr            = "../enc";
 
 $dest_dr_inet       = $dest_dr."/inet";
 $dest_dr_inet_ru    = $dest_dr_inet."/ru";
