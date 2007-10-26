@@ -1004,7 +1004,7 @@ int Editor::ProcessKey(int Key)
   _SVS(SysLog("[%d] isk=%d",__LINE__,isk));
   //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
 //  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
-  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))
+  if (!isk && !Pasting && !(/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE ||*/ Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))
   {
     _SVS(SysLog("[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
     if (BlockStart!=NULL || VBlockStart!=NULL)

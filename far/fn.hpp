@@ -758,6 +758,7 @@ const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);
 const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+const char *_MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec);
 // после вызова этой функции нужно освободить память!!!
 const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *fp);

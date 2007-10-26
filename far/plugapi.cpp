@@ -407,7 +407,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
           MRec.Buffer=(DWORD *)(DWORD_PTR)((struct KeySequence*)Param)->Sequence[0];
         else
           MRec.Buffer=((struct KeySequence*)Param)->Sequence;
-        return CtrlObject->Macro.PostNewMacro(&MRec,TRUE);
+        return CtrlObject->Macro.PostNewMacro(&MRec,TRUE,TRUE);
 #if 0
         // Этот кусок - для дальнейших экспериментов
         {
@@ -948,6 +948,7 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
+if(GetRegKey("System","TestLock",0) == 0)
     frame->Lock(); // отменим прорисовку фрейма
 
   {
@@ -996,6 +997,7 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
     Однако разлочивать нужно ровно то, что залочили.
   */
   if(frame != NULL)
+if(GetRegKey("System","TestLock",0) == 0)
     frame->Unlock(); // теперь можно :-)
  /* SKV $ */
 //  CheckScreenLock();

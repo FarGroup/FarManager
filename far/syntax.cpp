@@ -989,6 +989,7 @@ static TToken getToken(void)
         currVar = currVar+TVar(p);
       }
       return currTok = tStr;
+
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
     {
@@ -996,6 +997,7 @@ static TToken getToken(void)
       currVar = getInt64();
       return currTok = tInt;
     }
+
     case '%':
       ch = getChar();
       if ( (isalnum(ch) || ch == '_') || ( ch == '%'  && (isalnum(*sSrcString) || *sSrcString == '_')))
@@ -1172,14 +1174,12 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
   else
     pSrcString = oSrcString = sSrcString = (char*)BufPtr;
   exprBuff = eBuff;
-  put(MCODE_OP_EXPR);
 #if !defined(TEST000)
   getToken();
   if ( bound2 )
     expr();
   else
     prim();
-  put(MCODE_OP_DOIT);
   BufPtr = oSrcString;
   while ( *BufPtr && isspace(*BufPtr) )
     BufPtr++;
@@ -1203,7 +1203,6 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
       expr();
     else
       prim();
-    put(MCODE_OP_DOIT);
     BufPtr = oSrcString;
     while ( *BufPtr && isspace(*BufPtr) )
       BufPtr++;

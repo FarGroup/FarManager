@@ -1001,13 +1001,11 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(OP_DATE),
      DEF_MCODE_(OP_DISCARD),
      DEF_MCODE_(OP_DIV),
-     DEF_MCODE_(OP_DOIT),
      DEF_MCODE_(OP_ELSE),
      DEF_MCODE_(OP_END),
      DEF_MCODE_(OP_ENDKEYS),                 // ФАРовы коды закончились.
      DEF_MCODE_(OP_EQ),
      DEF_MCODE_(OP_EXIT),
-     DEF_MCODE_(OP_EXPR),
      DEF_MCODE_(OP_GE),
      DEF_MCODE_(OP_GT),
      DEF_MCODE_(OP_ICLIP),
@@ -1416,6 +1414,47 @@ const char *_VK_KEY_ToName(int VkKey)
 #endif
 }
 
+const char *_MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec)
+{
+#if defined(SYSLOG)
+  static char Records[8192];
+
+  sprintf(Records,
+        "MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
+      Rec->dwMousePosition.X,
+      Rec->dwMousePosition.Y,
+      Rec->dwButtonState,
+        (Rec->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED?'L':'l'),
+        (Rec->dwButtonState&RIGHTMOST_BUTTON_PRESSED?'R':'r'),
+        (Rec->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED?'2':' '),
+        (Rec->dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED?'3':' '),
+        (Rec->dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED?'4':' '),
+      Rec->dwControlKeyState,
+        (Rec->dwControlKeyState&LEFT_CTRL_PRESSED?'C':'c'),
+        (Rec->dwControlKeyState&LEFT_ALT_PRESSED?'A':'a'),
+        (Rec->dwControlKeyState&SHIFT_PRESSED?'S':'s'),
+        (Rec->dwControlKeyState&RIGHT_ALT_PRESSED?'A':'a'),
+        (Rec->dwControlKeyState&RIGHT_CTRL_PRESSED?'C':'c'),
+        (Rec->dwControlKeyState&ENHANCED_KEY?'E':'e'),
+        (Rec->dwControlKeyState&CAPSLOCK_ON?'C':'c'),
+        (Rec->dwControlKeyState&NUMLOCK_ON?'N':'n'),
+        (Rec->dwControlKeyState&SCROLLLOCK_ON?'S':'s'),
+      Rec->dwEventFlags,
+        (Rec->dwEventFlags==DOUBLE_CLICK?"(DblClick)":
+         (Rec->dwEventFlags==MOUSE_MOVED?"(Moved)":
+          (Rec->dwEventFlags==MOUSE_WHEELED?"(Wheel)":"")))
+    );
+  if(Rec->dwEventFlags==MOUSE_WHEELED)
+  {
+    sprintf(Records+strlen(Records)," (Delta=%d)",(short)HIWORD(Rec->dwButtonState));
+  }
+
+  return Records;
+#else
+  return "";
+#endif
+}
+
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
@@ -1471,35 +1510,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
         //sprintf(Records+strlen(Records)," (%C %C)",(rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == 9 || rec->Event.KeyEvent.uChar.UnicodeChar == 0xd || rec->Event.KeyEvent.uChar.UnicodeChar == 0xa)?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),rec->Event.KeyEvent.uChar.UnicodeChar);
       break;
     case MOUSE_EVENT:
-      sprintf(Records,
-            "MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
-          rec->Event.MouseEvent.dwMousePosition.X,
-          rec->Event.MouseEvent.dwMousePosition.Y,
-          rec->Event.MouseEvent.dwButtonState,
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED?'L':'l'),
-            (rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED?'R':'r'),
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED?'2':' '),
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED?'3':' '),
-            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED?'4':' '),
-          rec->Event.MouseEvent.dwControlKeyState,
-            (rec->Event.MouseEvent.dwControlKeyState&LEFT_CTRL_PRESSED?'C':'c'),
-            (rec->Event.MouseEvent.dwControlKeyState&LEFT_ALT_PRESSED?'A':'a'),
-            (rec->Event.MouseEvent.dwControlKeyState&SHIFT_PRESSED?'S':'s'),
-            (rec->Event.MouseEvent.dwControlKeyState&RIGHT_ALT_PRESSED?'A':'a'),
-            (rec->Event.MouseEvent.dwControlKeyState&RIGHT_CTRL_PRESSED?'C':'c'),
-            (rec->Event.MouseEvent.dwControlKeyState&ENHANCED_KEY?'E':'e'),
-            (rec->Event.MouseEvent.dwControlKeyState&CAPSLOCK_ON?'C':'c'),
-            (rec->Event.MouseEvent.dwControlKeyState&NUMLOCK_ON?'N':'n'),
-            (rec->Event.MouseEvent.dwControlKeyState&SCROLLLOCK_ON?'S':'s'),
-          rec->Event.MouseEvent.dwEventFlags,
-            (rec->Event.MouseEvent.dwEventFlags==DOUBLE_CLICK?"(DblClick)":
-             (rec->Event.MouseEvent.dwEventFlags==MOUSE_MOVED?"(Moved)":
-              (rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED?"(Wheel)":"")))
-        );
-      if(rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED)
-      {
-        sprintf(Records+strlen(Records)," (Delta=%d)",(short)HIWORD(rec->Event.MouseEvent.dwButtonState));
-      }
+      strcpy(Records,_MOUSE_EVENT_RECORD_Dump(&rec->Event.MouseEvent));
       break;
     default:
       sprintf(Records,

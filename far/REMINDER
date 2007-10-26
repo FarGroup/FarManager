@@ -212,3 +212,12 @@ Editor:Save bookmarks
 
 
    svs 09.09.2007 18:18:00 +0300
+
+
+FarDialogEx 
+   остался ошметок вида
+   if(GetRegKey("System","TestLock",0) == 0)
+   надо запомнить...
+   
+   svs 26.10.2007 19:42:21 +0300
+
