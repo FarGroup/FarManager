@@ -17,4 +17,16 @@ http://groups.google.com/group/fardev
 fardev@googlegroups.com
 
 Взять исходный код
-svn co http://www.farmanager.com/svn/unicode_far/trunk unicode_far
+svn co http://farmanager.com/svn/unicode_far/trunk unicode_far
+
+Плагины
+svn co http://farmanager.com/svn/plugins/trunk plugins
+
+Документация Фара
+svn co http://farmanager.com/svn/misc/docs/trunk docs
+
+Addons Фара
+svn co http://farmanager.com/svn/misc/addons/trunk addons
+
+Енциклопедия
+svn co http://farmanager.com/svn/enc/trunk enc
