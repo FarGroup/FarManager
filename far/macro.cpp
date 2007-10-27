@@ -449,7 +449,9 @@ int KeyMacro::ProcessKey(int Key)
 
       if (MacroKey==(DWORD)-1)
       {
-        if(RecBuffer)  xf_free(RecBuffer);
+        if(RecBuffer)
+        xf_free(RecBuffer);
+        RecBuffer=NULL;
       }
       else
       {
@@ -2950,6 +2952,9 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 {
   int J, Key;
   char MacroKeyText[50], *TextBuffer;
+
+  if(!Buffer)
+    return NULL;
 
   // выделяем заведомо большой кусок
   if((TextBuffer=(char*)xf_malloc(BufferSize*64+16)) == NULL)
