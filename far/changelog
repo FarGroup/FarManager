@@ -1,3 +1,11 @@
+t-rex 27.10.2007 17:05:41 +0200 - build 305
+
+от chupakabra:
+
+1. Вход в бесконечный цикл в FarMkTempEx().
+
+2. DeleteFileWithFolder() удаляет только файл и оставляет каталог.
+
 svs 27.10.2007 15:37:28 +0300 - build 304
 
 1. Добавлен MCODE_OP_NOP

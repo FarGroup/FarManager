@@ -882,7 +882,7 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 
   if(Ret)
   {
-    if(!DeleteFileW(strFileOrFolderName)) //BUGBUG
+    if(DeleteFileW(strFileOrFolderName)) //BUGBUG
     {
       Slash = strFileOrFolderName.GetBuffer ();
       if ((Slash=wcsrchr(Slash,L'\\'))!=NULL)

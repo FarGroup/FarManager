@@ -1086,8 +1086,9 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 
   wchar_t *lpwszDest = strDest.GetBuffer ((int)(StrLength(Prefix)+strPath.GetLength()+13));
 
+  UINT uniq = GetCurrentProcessId();
   do {
-    GetTempFileNameW (strPath, Prefix, GetCurrentProcessId(), lpwszDest);
+    GetTempFileNameW (strPath, Prefix, uniq++, lpwszDest);
   } while ( GetFileAttributesW (lpwszDest) != -1 );
 
   strDest.ReleaseBuffer ();
