@@ -319,14 +319,13 @@ mkdir $dest_dr."/styles", 0775;
 mk_inet_lng("ru","rus");
 mk_inet_lng("en","eng");
 
-system $svn." export -q --force --username=fargroup --password=secret http://localhost/svn/enc/trunk/tools/inet/ ".$dest_dr_inet."/inet";
+system $svn." export -q --force --username=fargroup --password=secret svn://localhost/svn/enc/trunk/tools/inet/ ".$dest_dr_inet."/inet";
 system "cp -f ".$dest_dr_inet."/inet/index.html ".$dest_dr;
 system "cp -f ".$dest_dr_inet."/inet/farenclogo.gif ".$dest_dr."/images/farenclogo.gif";
 system "cp -f ".$dest_dr_inet."/inet/styles.css ".$dest_dr."/styles/styles.css";
 
 system "rm -Rf ".$dest_dr_inet;
 
-system "chown -R yaros:webadmins ".$dest_dr."/*";
 system "chmod -R g+w ".$dest_dr."/*";
 
 #notify by mail of site update
@@ -363,7 +362,7 @@ sub mk_inet_lng
   my $dr2 = $_[1];
 
   print " -- preparing ".$dr1." --\n";
-  system $svn." export -q --force --username=fargroup --password=secret http://localhost/svn/enc/trunk/enc_".$dr2." ".$dest_dr_inet."/meta.".$dr1;
+  system $svn." export -q --force --username=fargroup --password=secret svn://localhost/svn/enc/trunk/enc_".$dr2." ".$dest_dr_inet."/meta.".$dr1;
   mkdir $dest_dr."/".$dr1."/", 0775;
   system "cp -Rf ".$dest_dr_inet."/meta.".$dr1."/meta/* ".$dest_dr."/".$dr1;
   system "cp -Rf ".$dest_dr_inet."/meta.".$dr1."/images/* ".$dest_dr."/images";
