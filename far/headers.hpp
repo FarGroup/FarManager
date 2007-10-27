@@ -253,7 +253,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REG_QWORD                   ( 11 )  // 64-bit number
 #endif
 
-#if defined(__BORLANDC__) || defined(_DEBUG)
+#if defined(__BORLANDC__)
+//|| defined(_DEBUG)
 // (defined(_MSC_VER) && _MSC_VER < 1300)
   #ifdef  __cplusplus
   extern "C" {
@@ -325,6 +326,10 @@ typedef struct _MEMORYSTATUSEX {
     DWORDLONG ullAvailVirtual;
     DWORDLONG ullAvailExtendedVirtual;
 } MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+#endif
+
+#ifndef INPUTLANGCHANGE_FORWARD
+#define INPUTLANGCHANGE_FORWARD 0x0002
 #endif
 
 #endif // __HEADERS_HPP__

@@ -73,7 +73,9 @@ struct.hpp
 syntax.hpp
 TList.hpp
 treelist.hpp
+TVMStack.hpp
 udlist.hpp
+UnicodeString.hpp
 viewer.hpp
 vmenu.hpp
 cddrv.cpp
@@ -185,9 +187,9 @@ syntax.cpp
 syslog.cpp
 treelist.cpp
 udlist.cpp
+UnicodeString.cpp
 usermenu.cpp
 viewer.cpp
 vmenu.cpp
 xlat.cpp
-TVMStack.hpp
 TVMStack.cpp

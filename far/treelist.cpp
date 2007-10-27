@@ -537,11 +537,7 @@ int TreeList::ReadTree()
   return TRUE;
 }
 
-#ifdef _MSC_VER
-#pragma warning(disable:4018)
-#endif
-
-extern FILE *_wfopen(const wchar_t *filename, const wchar_t *mode);
+//extern FILE *_wfopen(const wchar_t *filename, const wchar_t *mode);
 
 void TreeList::SaveTreeFile()
 {
@@ -571,7 +567,7 @@ void TreeList::SaveTreeFile()
     /* tran $ */
   }
   for (I=0;I<TreeCount;I++)
-    if (RootLength>=ListData[I]->strName.GetLength())
+    if (RootLength>=(int)ListData[I]->strName.GetLength())
       fwprintf(TreeFile,L"\\\n");
     else
       fwprintf(TreeFile,L"%s\n",(const wchar_t*)ListData[I]->strName+RootLength);
@@ -2065,7 +2061,7 @@ BOOL TreeList::GetItem(int Index,void *Dest)
 {
   if(Index == -1 || Index == -2)
     Index=GetCurrentPos();
-  if((DWORD)Index >= TreeCount)
+  if(Index >= (int)TreeCount)
     return FALSE;
   *((TreeItem *)Dest) = *ListData[Index];
   return TRUE;

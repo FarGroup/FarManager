@@ -1412,7 +1412,7 @@ string __VK_KEY_ToName(int VkKey)
 #endif
 }
 
-string __MOUSE_EVENT_RECORD_Dump(INPUT_RECORD *rec)
+string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *rec)
 {
 #if defined(SYSLOG)
   string Records;
@@ -1444,6 +1444,7 @@ string __MOUSE_EVENT_RECORD_Dump(INPUT_RECORD *rec)
     );
   if(rec->dwEventFlags==MOUSE_WHEELED)
   {
+    string tmp;
     tmp.Format(L" (Delta=%d)",(short)HIWORD(rec->dwButtonState));
     Records+=tmp;
   }
@@ -1458,7 +1459,6 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
   string Records;
-  string tmp;
 
   switch(rec->EventType)
   {
@@ -1512,7 +1512,7 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
       break;
     }
     case MOUSE_EVENT:
-      wcscpy(Records,_MOUSE_EVENT_RECORD_Dump(&rec->Event.MouseEvent));
+      Records=__MOUSE_EVENT_RECORD_Dump(&rec->Event.MouseEvent);
       break;
     default:
       Records.Format(
@@ -1521,8 +1521,9 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
         );
       break;
   }
-  Records+=tmp;
+  string tmp;
   tmp.Format(L" (%s)",FarAltEnter(FAR_CONSOLE_GET_MODE)==FAR_CONSOLE_WINDOWED?L"Widowed":L"Full Screen");
+  Records+=tmp;
   return Records;
 #else
   return L"";
