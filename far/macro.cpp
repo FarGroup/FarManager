@@ -464,6 +464,7 @@ int KeyMacro::ProcessKey(int Key)
       if (MacroKey==(DWORD)-1)
       {
         if(RecBuffer)  xf_free(RecBuffer);
+        RecBuffer=NULL;
       }
       else
       {
@@ -2980,6 +2981,9 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
   int J, Key;
   string strMacroKeyText;
   string strTextBuffer;
+
+  if(!Buffer)
+    return NULL;
 
 #if 0
   if(BufferSize == 1)
