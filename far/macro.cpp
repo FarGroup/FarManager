@@ -525,7 +525,7 @@ int KeyMacro::ProcessKey(int Key)
       if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
 
-      RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+2));
+      RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
       if (RecBuffer==NULL)
         return(FALSE);
 
@@ -2352,19 +2352,6 @@ initial:
     return FALSE;
 
   _KEYMACRO(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
-#ifdef _DEBUG
-#ifdef SYSLOG_KEYMACRO
-  SysLog("BufferSize=%d (%X)",MR->BufferSize,MR->BufferSize);
-  SysLogDump("Macro Buffer",0,(LPBYTE)MR->Buffer,MR->BufferSize*sizeof(DWORD),NULL);
-  SysLog("<ByteCode>{");
-  {
-    int ii;
-    for ( ii = 0 ; ii < MR->BufferSize ; ii++ )
-      printKeyValue(MR->Buffer, ii);
-  }
-  SysLog("}</ByteCode>");
-#endif
-#endif
 
   // ВНИМАНИЕ! Возможны глюки!
   if(!Work.ExecLIBPos && !LockScr && (MR->Flags&MFLAGS_DISABLEOUTPUT))
@@ -4543,7 +4530,7 @@ static void printKeyValue(DWORD* k, int& i)
   }
 */
 
-  else //if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
+  else if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
   {
     int FARFunc = 0;
     for ( int j = 0 ; j < MKeywordsSize ; j++ )
