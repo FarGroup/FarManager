@@ -802,11 +802,7 @@ const wchar_t *Dialog::GetDialogTitle()
 
   if(CurItemList)
   {
-      string strTitle; //BUGBUG
-
-      strTitle.SetData (CurItemList->ListPtr->GetPtrTitle());
-
-      return strTitle;
+      return CurItemList->ListPtr->GetPtrTitle();
   }
 
   return NULL; //""
@@ -4681,8 +4677,8 @@ void Dialog::Process()
   {
     static LONG in_dialog = -1;
 
-    clock_t btm;
-    long    save;
+    clock_t btm = 0;
+    long    save = 0;
 
     DialogMode.Set(DMODE_BEGINLOOP);
     if (!InterlockedIncrement(&in_dialog))

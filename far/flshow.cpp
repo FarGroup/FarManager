@@ -450,7 +450,8 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
     else
     {
 // UNICODE!!!
-      static wchar_t DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
+
+      static wchar_t DHLine[4]={BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],0x00};
       strTotalStr.Format (L" %s (%d) %s %s ",(const wchar_t*)strFormSize,TotalFileCount,DHLine,(const wchar_t*)strFreeSize);
       if ((int)strTotalStr.GetLength()> X2-X1-1)
       {

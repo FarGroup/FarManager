@@ -1418,7 +1418,10 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
         + Обновить панели, если писали в текущий каталог */
       if (NeedQuestion)
       {
-        UpdateFileList();
+        if(GetFileAttributesW(strFullFileName)!=-1) 
+        {
+          UpdateFileList();
+        }
       }
 
       FrameManager->DeleteFrame();
@@ -2243,11 +2246,9 @@ BOOL FileEditor::UpdateFileList()
   const wchar_t *FileName = PointToName(strFullFileName);
   string strFilePath, strPanelPath;
 
-  wchar_t *lpwszFilePath = strFilePath.GetBuffer();
+  strFilePath = strFullFileName;
 
-  xwcsncpy(lpwszFilePath, strFullFileName, (FileName - (const wchar_t*)strFullFileName)/sizeof(wchar_t));
-
-  strFilePath.ReleaseBuffer();
+  strFilePath.SetLength(FileName - (const wchar_t*)strFullFileName);
 
   ActivePanel->GetCurDir(strPanelPath);
   AddEndSlash(strPanelPath);
