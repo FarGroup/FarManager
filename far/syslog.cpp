@@ -1036,6 +1036,7 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(OP_JLE),
      DEF_MCODE_(OP_JLT),
      DEF_MCODE_(OP_JMP),
+     DEF_MCODE_(OP_NOP),
      DEF_MCODE_(OP_JNZ),
      DEF_MCODE_(OP_JZ),
      DEF_MCODE_(OP_KEYS),

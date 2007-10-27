@@ -484,14 +484,17 @@ int KeyMacro::ProcessKey(int Key)
 
         if (Pos==MacroLIBCount)
         {
-          struct MacroRecord *NewMacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
-          if (NewMacroLIB==NULL)
+          if(RecBufferSize > 0)
           {
-            WaitInFastFind++;
-            return(FALSE);
+            struct MacroRecord *NewMacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
+            if (NewMacroLIB==NULL)
+            {
+              WaitInFastFind++;
+              return(FALSE);
+            }
+            MacroLIB=NewMacroLIB;
+            MacroLIBCount++;
           }
-          MacroLIB=NewMacroLIB;
-          MacroLIBCount++;
         }
         else
         {
@@ -499,14 +502,22 @@ int KeyMacro::ProcessKey(int Key)
             xf_free(MacroLIB[Pos].Buffer);
           if(MacroLIB[Pos].Src)
             xf_free(MacroLIB[Pos].Src);
+          MacroLIB[Pos].Buffer=NULL;
+          MacroLIB[Pos].Src=NULL;
         }
+
         MacroLIB[Pos].Key=MacroKey;
+
         if(RecBufferSize > 0)
           RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
+
         if(RecBufferSize > 1)
           MacroLIB[Pos].Buffer=RecBuffer;
-        else if(RecBuffer)
+        else if(RecBuffer && RecBufferSize > 0)
           MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
+        else if(!RecBufferSize)
+          MacroLIB[Pos].Buffer=NULL;
+
         MacroLIB[Pos].BufferSize=RecBufferSize;
         MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
         MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
@@ -2362,7 +2373,7 @@ int KeyMacro::GetKey()
   }
 
 initial:
-  if((MR=Work.MacroWORK) == NULL)
+  if((MR=Work.MacroWORK) == NULL || !MR->Buffer)
   {
     //_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
     return FALSE; // RetKey; ?????
@@ -2454,6 +2465,9 @@ done:
 
   switch(Key)
   {
+    case MCODE_OP_NOP:
+      goto begin;
+
     case MCODE_OP_KEYS:                    // за этим кодом следуют ФАРовы коды клавиш
     {
       _KEYMACRO(SysLog("MCODE_OP_KEYS"));
@@ -3020,7 +3034,7 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
       {
         return Src?wcsdup(Src):NULL;
       }
-      if(J)
+      if(J > 1)
         strTextBuffer += L" ";
       strTextBuffer += strMacroKeyText;
     }
@@ -3920,8 +3934,11 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
   else if(MRec->Buffer)
     NewMacroWORK2.Buffer[IsPluginSend?1:0]=(DWORD)(DWORD_PTR)MRec->Buffer;
   if(IsPluginSend)
-    NewMacroWORK2.Buffer[++NewMacroWORK2.BufferSize]=MCODE_OP_ENDKEYS;
-  NewMacroWORK2.Buffer[++NewMacroWORK2.BufferSize]=KEY_NONE; // доп.клавиша/пустышка
+    NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize+1]=MCODE_OP_ENDKEYS;
+  //NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize]=MCODE_OP_NOP; // доп.клавиша/пустышка
+
+  if(IsPluginSend)
+    NewMacroWORK2.BufferSize+=2;
 
   Work.MacroWORK=NewMacroWORK;
   NewMacroWORK=Work.MacroWORK+Work.MacroWORKCount;

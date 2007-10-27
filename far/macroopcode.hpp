@@ -54,6 +54,8 @@ enum MACRO_OP_CODE {
   MCODE_OP_JGT,
   MCODE_OP_JGE,
 
+  MCODE_OP_NOP,                     // нет операции
+
   MCODE_OP_SAVE,                    // Присваивание переменной. Имя переменной следующие DWORD (как в $Text).
   MCODE_OP_SAVEREPCOUNT,
   MCODE_OP_PUSHINT,                 // Положить значение на стек. Само
@@ -88,20 +90,16 @@ enum MACRO_OP_CODE {
   MCODE_OP_BITSHR,                  // a >> b
   MCODE_OP_BITSHL,                  // a << b
 
-  // <TODO>
   MCODE_OP_DISCARD,                 // убрать значение с вершины стека
   MCODE_OP_POP,                     // присвоить значение переменной и убрать из вершины стека
   MCODE_OP_COPY,                    // %a=%d, стек не используется
-  // </TODO>
 
   MCODE_OP_IF,                      // Вообще-то эта группа в байткод
   MCODE_OP_ELSE,                    // не попадет никогда :)
   MCODE_OP_WHILE,
 
-  // <TODO>
   MCODE_OP_KEYS,                    // за этим кодом следуют ФАРовы коды клавиш
   MCODE_OP_ENDKEYS,                 // ФАРовы коды закончились.
-  // </TODO>
 
   /* ************************************************************************* */
   MCODE_OP_XLAT,
