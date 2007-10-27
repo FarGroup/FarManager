@@ -764,7 +764,7 @@ int VMenu::ProcessKey(int Key)
       return(FALSE);
     }
 
-  if(!(/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE ||*/ Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE))
+  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE))
   {
     DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
     DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));

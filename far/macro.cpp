@@ -540,7 +540,7 @@ int KeyMacro::ProcessKey(int Key)
       if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
 
-      RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+2));
+      RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
       if (RecBuffer==NULL)
         return(FALSE);
 
@@ -2443,19 +2443,7 @@ done:
   static int errVar;
   string value;
 
-  _KEYMACRO(SysLog("[%d] IP=%d Op=%08X ==> %s or %s",__LINE__,Work.ExecLIBPos-1,Key,_MCODE_ToName(Key),_FARKEY_ToName(Key)));
-#ifdef _DEBUG
-#ifdef SYSLOG_KEYMACRO
-  SysLogDump("Macro Buffer",0,(LPBYTE)MR->Buffer,MR->BufferSize*sizeof(DWORD),NULL);
-  SysLog("<ByteCode>{");
-  {
-    int ii;
-    for ( ii = 0 ; ii < MR->BufferSize ; ii++ )
-      printKeyValue(MR->Buffer, ii);
-  }
-  SysLog("}</ByteCode>");
-#endif
-#endif
+  _KEYMACRO(SysLog(L"[%d] IP=%d Op=%08X ==> %s or %s",__LINE__,Work.ExecLIBPos-1,Key,_MCODE_ToName(Key),_FARKEY_ToName(Key)));
 
   if(Work.KeyProcess && Key != MCODE_OP_ENDKEYS)
   {
@@ -2470,14 +2458,14 @@ done:
 
     case MCODE_OP_KEYS:                    // за этим кодом следуют ФАРовы коды клавиш
     {
-      _KEYMACRO(SysLog("MCODE_OP_KEYS"));
+      _KEYMACRO(SysLog(L"MCODE_OP_KEYS"));
       Work.KeyProcess++;
       goto begin;
     }
 
     case MCODE_OP_ENDKEYS:                 // ФАРовы коды закончились.
     {
-      _KEYMACRO(SysLog("MCODE_OP_ENDKEYS"));
+      _KEYMACRO(SysLog(L"MCODE_OP_ENDKEYS"));
       Work.KeyProcess--;
       goto begin;
     }
@@ -4151,7 +4139,7 @@ static void printKeyValue(DWORD* k, int& i)
     //sprint(ii, L"$text ''");
   }
 */
-  else //if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
+  else if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
   {
     int FARFunc = 0;
     for ( int j = 0 ; j < MKeywordsSize ; j++ )

@@ -938,7 +938,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
      никак не соответствует обрабатываемой клавише, возникают разномастные
      глюки
   */
-  if(/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || */ Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) // исключаем MACRO
+  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) // исключаем MACRO
   {
     ; //
   }
@@ -1418,7 +1418,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
         + Обновить панели, если писали в текущий каталог */
       if (NeedQuestion)
       {
-        if(GetFileAttributesW(strFullFileName)!=-1) 
+        if(GetFileAttributesW(strFullFileName)!=-1)
         {
           UpdateFileList();
         }
@@ -2307,7 +2307,7 @@ int FileEditor::EditorControl(int Command, void *Param)
   _KEYMACRO(CleverSysLog SL(L"FileEditor::EditorControl()"));
   if(Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
   {
-    _KEYMACRO(SysLog(L"(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)Param,Param,CtrlObject->Macro.IsExecuting()));
+    _KEYMACRO(SysLog(L"(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((DWORD_PTR)Param),(int)((DWORD_PTR)Param),CtrlObject->Macro.IsExecuting()));
   }
 #else
   _ECTLLOG(CleverSysLog SL(L"FileEditor::EditorControl()"));
@@ -2517,7 +2517,7 @@ int FileEditor::EditorControl(int Command, void *Param)
         {
           Key=GetInputRecord(rec);
           if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
-              (/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || */ Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
+              (Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
              ReProcessKey(Key);
           else
             break;

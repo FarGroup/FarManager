@@ -290,7 +290,7 @@ enum BaseDefKeyboard
   KEY_LAST_BASE            =KEY_END_SKEY,
 
 #ifdef FAR_USE_INTERNALS
-  KEY_MACRO_BASE           =0x00000000,
+  KEY_MACRO_BASE           =0x00080000,
   KEY_MACRO_OP_BASE        =KEY_MACRO_BASE,          // opcode
   KEY_MACRO_F_BASE         =KEY_MACRO_OP_BASE+256,   // функции
   KEY_MACRO_C_BASE         =KEY_MACRO_F_BASE+256,    // булевые условия

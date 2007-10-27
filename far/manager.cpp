@@ -635,7 +635,7 @@ int  Manager::ProcessKey(DWORD Key)
     int i=0;
 
     DWORD KeyM=(Key&(~KEY_CTRLMASK));
-    if(!(/*KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE ||*/ KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE)) // пропустим макро-коды
+    if(!(KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE || KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE)) // пропустим макро-коды
     {
       switch(CurrentFrame->GetType())
       {

@@ -370,7 +370,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((/*MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE ||*/ MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
 //_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -1312,7 +1312,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=GetInputRecord(&rec,true);
     if(KeyWait == (DWORD)-1)
     {
-      if (!(/*Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE ||*/ Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
+      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
         break;
     }
     else if(Key == KeyWait)
