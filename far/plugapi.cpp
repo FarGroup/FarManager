@@ -948,7 +948,7 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
-if(GetRegKey("System","TestLock",0) == 0)
+//if(GetRegKey("System","TestLock",0) == 0)
     frame->Lock(); // отменим прорисовку фрейма
 
   {
@@ -997,7 +997,7 @@ if(GetRegKey("System","TestLock",0) == 0)
     Однако разлочивать нужно ровно то, что залочили.
   */
   if(frame != NULL)
-if(GetRegKey("System","TestLock",0) == 0)
+//if(GetRegKey("System","TestLock",0) == 0)
     frame->Unlock(); // теперь можно :-)
  /* SKV $ */
 //  CheckScreenLock();
