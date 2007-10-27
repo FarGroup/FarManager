@@ -81,7 +81,6 @@ class Edit:public ScreenObject
 
   private:
     virtual void   DisplayObject();
-    void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
     int    InsertKey(int Key);
     int    RecurseProcessKey(int Key);
     void   DeleteBlock();
@@ -182,9 +181,6 @@ class Edit:public ScreenObject
     int   DeleteColor(int ColorPos);
     int   GetColor(struct ColorItem *col,int Item);
 
-#ifdef SHITHAPPENS
-    void ReplaceSpaces(int i);
-#endif
     void Xlat(BOOL All=FALSE);  // $ 24.09.2000 SVS - Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
     static void DisableEncode(int Disable);
     static int GetEncodeState();
