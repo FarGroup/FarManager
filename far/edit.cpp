@@ -271,10 +271,9 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 void Edit::FastShow()
 {
-  int EditLength;
+  int EditLength=ObjWidth;
   if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
     CurPos=StrSize;
-  EditLength=ObjWidth;
   if (MaxLength!=-1)
   {
     if (StrSize>MaxLength)
@@ -309,141 +308,77 @@ void Edit::FastShow()
   if (Mask && *Mask)
     RefreshStrByMask();
 
-#ifdef SHITHAPPENS
-  ReplaceSpaces(0);
-#endif
-
-  if ( (TabExpandMode != EXPAND_ALLTABS) && wmemchr(Str,L'\t',StrSize)!=NULL)
+  wchar_t *OutStrTmp=new wchar_t[EditLength+1];
+  if (!OutStrTmp)
+    return;
+  wchar_t *OutStr=new wchar_t[EditLength+1];
+  if (!OutStr)
   {
-    wchar_t *SaveStr;
-    /* $ 04.07.2002 SKV
-      Выделение тоже нужно запомнить ...
-    */
-    int SaveSelStart=SelStart;
-    int SaveSelEnd=SelEnd;
-
-    int SaveStrSize=StrSize,SaveCurPos=CurPos;
-    if ((SaveStr=new wchar_t[StrSize+1])==NULL)
-      return;
-    wmemcpy(SaveStr,Str,StrSize);
-    ReplaceTabs();
-    CursorPos=CurPos;
-    if (CurPos-LeftPos>EditLength-1)
-      LeftPos=CurPos-EditLength+1;
-//    if (!EditOutDisabled)
-      ShowString(Str,TabSelStart,TabSelEnd);
-    wmemcpy(Str,SaveStr,SaveStrSize);
-    Str[SaveStrSize]=0;
-    delete[] SaveStr;
-    StrSize=SaveStrSize;
-    CurPos=SaveCurPos;
-    SelStart=SaveSelStart;
-    SelEnd=SaveSelEnd;
-    Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t*));
-  }
-  else
-  {
-//    if (!EditOutDisabled)
-      ShowString(Str,TabSelStart,TabSelEnd);
-    CursorPos=CurPos;
-  }
-  /* $ 26.07.2000 tran
-     при дроп-даун цвета нам не нужны */
-  if ( !Flags.Check(FEDITLINE_DROPDOWNBOX) )
-      ApplyColor();
-
-#ifdef SHITHAPPENS
-  ReplaceSpaces(1);
-#endif
-}
-
-
-void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
-{
-  int EditLength=ObjWidth;
-  if (Flags.Check(FEDITLINE_PASSWORDMODE))
-  {
-    wchar_t *PswStr=new wchar_t[StrSize+1];
-    if (PswStr==NULL)
-      return;
-    wmemset(PswStr,L'*',StrSize);
-    PswStr[StrSize]=0;
-    Flags.Clear(FEDITLINE_PASSWORDMODE);
-    ShowString(PswStr,TabSelStart,TabSelEnd);
-    Flags.Set(FEDITLINE_PASSWORDMODE);
-    delete[] PswStr;
+    delete[] OutStrTmp;
     return;
   }
-  wchar_t *SaveStr=NULL;
-  if (TableSet)
-  {
-    SaveStr=new wchar_t[StrSize+1];
-    if (SaveStr==NULL)
-      return;
-    wmemcpy(SaveStr,Str,StrSize);
 
-    //DecodeString(ShowStr,(unsigned char*)TableSet->DecodeTable,StrSize); BUGBUG
-  }
-  if (wmemchr(Str,0,StrSize)!=0)
+  CursorPos=TabCurPos;
+  if (TabCurPos-LeftPos>EditLength-1)
+    LeftPos=TabCurPos-EditLength+1;
+  int RealLeftPos=TabPosToReal(LeftPos);
+  int OutStrLength=min(EditLength,StrSize-RealLeftPos);
+  if (OutStrLength < 0)
   {
-    if (SaveStr==NULL)
-    {
-      SaveStr=new wchar_t[StrSize+1];
-      if (SaveStr==NULL)
-        return;
-      wmemcpy(SaveStr,Str,StrSize);
-    }
-    for (int I=0;I<StrSize;I++)
-      if (Str[I]==0)
-        Str[I]=' ';
+    OutStrLength=0;
   }
+  else
+    wmemcpy(OutStrTmp,Str+RealLeftPos,OutStrLength);
+
+  //if (TableSet) BUGBUG
+    //DecodeString(OutStrTmp,(unsigned char*)TableSet->DecodeTable,OutStrLength);
+
+  {
+    wchar_t *p=OutStrTmp;
+    wchar_t *e=OutStrTmp+OutStrLength;
+    for (OutStrLength=0; OutStrLength<EditLength && p<e; p++)
+    {
+      if (*p == L'\t')
+      {
+        int S=TabSize-((LeftPos+OutStrLength) % TabSize);
+        for (int i=0; i<S && OutStrLength<EditLength; i++,OutStrLength++)
+          OutStr[OutStrLength]=L' ';
+      }
+      else
+      {
+        if (*p == 0)
+          OutStr[OutStrLength]=L' ';
+        else
+          OutStr[OutStrLength]=*p;
+        OutStrLength++;
+      }
+    }
+
+    if (Flags.Check(FEDITLINE_PASSWORDMODE))
+      wmemset(OutStr,L'*',OutStrLength);
+  }
+  OutStr[OutStrLength]=0;
 
   SetColor(Color);
 
   if (TabSelStart==-1)
   {
-    if (Flags.Check(FEDITLINE_CLEARFLAG) && LeftPos<StrSize)
+    if (Flags.Check(FEDITLINE_CLEARFLAG))
     {
       SetColor(ColorUnChanged);
-
-      int Len,Size;
       if (Mask && *Mask)
-      {
-        wchar_t *ShortStr=new wchar_t[StrSize+1];
-        if (ShortStr==NULL)
-          return;
-
-        wcsncpy(ShortStr,ShowStr,StrSize);
-        Len=StrLength(RemoveTrailingSpaces(ShortStr));
-        delete[] ShortStr;
-        Size=Len;
-      }
-      else
-      {
-        Len=StrLength(&ShowStr[LeftPos]);
-        Size=StrSize;
-      }
-      if(Len > EditLength)
-        Len=EditLength;
-
-      mprintf(L"%-*.*s",Len,Len,&ShowStr[LeftPos]);
+        OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
+      mprintf(L"%-*.*s",OutStrLength,OutStrLength,OutStr);
       SetColor(Color);
-
-      int BlankLength=EditLength-(Size-LeftPos);
-
+      int BlankLength=EditLength-OutStrLength;
       if (BlankLength > 0)
-      {
         mprintf(L"%*s",BlankLength,L"");
-      }
     }
     else
-      mprintf(L"%-*.*s",EditLength,EditLength,LeftPos>StrSize ? L"":&ShowStr[LeftPos]);
+      mprintf(L"%-*.*s",EditLength,EditLength,OutStr);
   }
   else
   {
-    wchar_t *OutStr=new wchar_t[EditLength+1];
-    if (OutStr==NULL)
-      return;
     if ((TabSelStart-=LeftPos)<0)
       TabSelStart=0;
     int AllString=(TabSelEnd==-1);
@@ -452,7 +387,8 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
     else
       if ((TabSelEnd-=LeftPos)<0)
         TabSelEnd=0;
-    swprintf(OutStr,L"%-*.*s",EditLength,EditLength,LeftPos>StrSize ? L"":&ShowStr[LeftPos]);
+    wmemset(OutStr+OutStrLength,L' ',EditLength-OutStrLength);
+    OutStr[EditLength]=0;
     /* $ 24.08.2000 SVS
        ! У DropDowList`а выделение по полной программе - на всю видимую длину
          ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
@@ -487,13 +423,15 @@ void Edit::ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd)
         mprintf(L"%*s",X2-X1+1,OutStr);
       }
     }
-    delete[] OutStr;
   }
-  if (SaveStr)
-  {
-    wmemcpy(Str,SaveStr,StrSize);
-    delete[] SaveStr;
-  }
+
+  delete[] OutStr;
+  delete[] OutStrTmp;
+
+  /* $ 26.07.2000 tran
+     при дроп-даун цвета нам не нужны */
+  if ( !Flags.Check(FEDITLINE_DROPDOWNBOX) )
+      ApplyColor();
 }
 
 
@@ -1983,11 +1921,11 @@ void Edit::InsertTab()
 void Edit::ReplaceTabs()
 {
   wchar_t *TabPtr;
-  int Pos,S;
+  int Pos=0,S;
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
 
-  while ((TabPtr=(wchar_t *)wmemchr(Str,L'\t',StrSize))!=NULL)
+  while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))!=NULL)
   {
     Pos=(int)(TabPtr-Str);
     S=TabSize-((int)(TabPtr-Str) % TabSize);
@@ -2010,39 +1948,9 @@ void Edit::ReplaceTabs()
     TabPtr=Str+Pos;
     wmemmove(TabPtr+S,TabPtr+1,PrevStrSize-Pos);
     wmemset(TabPtr,L' ',S);
-#ifdef SHITHAPPENS
-    wmemset(TabPtr,0x01,S);
-    *TabPtr=0x02;
-#endif
     Str[StrSize]=0;
   }
 }
-
-#ifdef SHITHAPPENS
-void Edit::ReplaceSpaces(int i)
-{
-  char *TabPtr;
-  int Pos,S;
-  char a,b;
-
-  if ( Flags.Check(FEDITLINE_READONLY) )
-    return;
-
-  if ( i==0 )
-  {
-    a=' '; b=0xFA;
-  }
-  else
-  {
-    b=' '; a=0xFA;
-  }
-
-  while ((TabPtr=(char *)memchr(Str,a,StrSize))!=NULL)
-  {
-    *TabPtr=b;
-  }
-}
-#endif
 
 
 int Edit::GetTabCurPos()

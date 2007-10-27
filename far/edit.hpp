@@ -148,7 +148,6 @@ private:
 
   private:
     virtual void   DisplayObject();
-    void   ShowString(const wchar_t *ShowStr,int TabSelStart,int TabSelEnd);
     int    InsertKey(int Key);
     int    RecurseProcessKey(int Key);
     void   DeleteBlock();
@@ -256,10 +255,6 @@ private:
     void  AddColor(struct ColorItem *col);
     int   DeleteColor(int ColorPos);
     int   GetColor(struct ColorItem *col,int Item);
-
-#ifdef SHITHAPPENS
-    void ReplaceSpaces(int i);
-#endif
 
     void Xlat(BOOL All=FALSE);
 
