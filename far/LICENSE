@@ -25,7 +25,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 EXCEPTION:
-Far Manager plugins that use only one or all of the following header files
-from this distribution: farcolor.hpp, farkeys.hpp, plugin.hpp, farcolor.pas,
-farkeys.pas and plugin.pas can be distributed under any other possible
-license with no implications from the above license on them.
+Far Manager plugins that use only the following header files from this
+distribution (none or any): farcolor.hpp, farkeys.hpp, plugin.hpp,
+farcolor.pas, farkeys.pas and plugin.pas; can be distributed under any other
+possible license with no implications from the above license on them.
