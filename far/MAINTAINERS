@@ -38,6 +38,7 @@ Panel.Tree                   |
 Plugins API                  |
 Plugins API.Dialog           | Skirda
 Plugins API.Editor           | t-rex, Skirda
+Plugins API.Old API Wrapper  | t-rex
 Plugins API.Panel            |
 Plugins API.Viewer           |
 Plugins API.VMenu            | Skirda
@@ -83,6 +84,7 @@ x64                          | t-rex, yjh
 Vista                        | t-rex, Zuz
 Win9x                        | Zuz, yjh
 DOS (dw32)                   | yjh, Zuz
+Wine\Winelib                 | t-rex
 Build system                 | t-rex, yjh
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
