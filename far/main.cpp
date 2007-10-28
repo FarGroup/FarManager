@@ -519,6 +519,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 #if _MSC_VER>=1300
   _set_new_handler(0);
+#elif __GNUC__ > 3
+  std::set_new_handler(0);
 #else
   set_new_handler(0);
 #endif

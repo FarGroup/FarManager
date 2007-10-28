@@ -80,6 +80,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #endif
 #endif
 
+#if defined(__GNUC__) && __GNUC__ > 3 && defined(__cplusplus)
+  #include <algorithm>
+  using std::min;
+  using std::max;
+#endif
 
 #include <winioctl.h>
 
@@ -176,6 +181,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if defined(_MSC_VER) || defined(__GNUC__)
   #if !defined(_INC_WCHAR) && !defined(_WCHAR_H_)
     #include <wchar.h>
+    #define _wmemset wmemset
+  #elif __GNUC__ > 3
     #define _wmemset wmemset
   #endif
   #define _export
