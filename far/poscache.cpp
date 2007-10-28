@@ -72,13 +72,13 @@ FilePositionCache::FilePositionCache(int TypeCache)
   IsMemory=0;
   CurPos=0;
 
-  if((Names=(wchar_t*)xf_malloc(Opt.MaxPositionCache*3*NM*sizeof(wchar_t))) != NULL) //BUGBUG!!! NM
+  Names=new string[Opt.MaxPositionCache];
+  if(Names != NULL)
   {
     Param=(BYTE*)xf_malloc(MSIZE_PARAM);
     Position=(BYTE*)xf_malloc(MSIZE_POSITION);
     if(Param && Position)
     {
-      memset(Names,0,Opt.MaxPositionCache*3*NM*sizeof (wchar_t));
       memset(Param,0,MSIZE_PARAM);
       memset(Position,0xFF,MSIZE_POSITION);
       IsMemory=1;
@@ -93,7 +93,7 @@ FilePositionCache::FilePositionCache(int TypeCache)
 
 FilePositionCache::~FilePositionCache()
 {
-  if(Names)     xf_free(Names);
+  if(Names)     delete[] Names;
   if(Param)     xf_free(Param);
   if(Position)  xf_free(Position);
 }
@@ -116,7 +116,7 @@ void FilePositionCache::AddPosition(const wchar_t *Name,void *PosCache)
   if (Pos < 0)
     Pos = CurPos;
 
-  wcscpy(Names+Pos*3*NM,strFullName);
+  Names[Pos] = strFullName;
 
   int I;
 
@@ -191,12 +191,11 @@ int FilePositionCache::FindPosition(const wchar_t *FullName)
       Pos+=Opt.MaxPositionCache;
 
     int CmpRes;
-    wchar_t *Ptr=Names+Pos*3*NM;
 
     if (Opt.FlagPosixSemantics)
-      CmpRes = StrCmp(Ptr,FullName);
+      CmpRes = StrCmp(Names[Pos],FullName);
     else
-      CmpRes = StrCmpI(Ptr,FullName);
+      CmpRes = StrCmpI(Names[Pos],FullName);
 
     if (CmpRes == 0)
       return(Pos);
@@ -227,7 +226,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
 
     if(!StrCmp(strDataStr,EmptyPos))
     {
-      Names[I*3*NM]=0;
+      Names[I].SetLength(0);
       memset(Param+PARAM_POS(I),0,SizeValue*5);
     }
     else
@@ -244,7 +243,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
          while(NULL!=(DataPtr=DataList.GetNext()))
          {
            if(*DataPtr==L'$')
-             wcscpy(Names+I*3*NM,DataPtr+1);
+             Names[I] = (DataPtr+1);
            else if(J >= 0  && J <= 4)
            {
              if(SizeValue==sizeof(DWORD))
@@ -288,11 +287,11 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
 
     if(SizeValue==sizeof(DWORD))
       strDataStr.Format (L"%d,%d,%d,%d,%d,\"$%s\"",
-            Ptr32[0],Ptr32[1],Ptr32[2],Ptr32[3],Ptr32[4],Names+Pos*3*NM);
+            Ptr32[0],Ptr32[1],Ptr32[2],Ptr32[3],Ptr32[4],(const wchar_t *)Names[Pos]);
     else
     {
       strDataStr.Format (L"%I64d,%I64d,%I64d,%I64d,%I64d,\"$%s\"",
-            Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],Names+Pos*3*NM);
+            Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],(const wchar_t *)Names[Pos]);
     }
 
     // ????????

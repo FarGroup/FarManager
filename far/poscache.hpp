@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "UnicodeString.hpp"
+
 #define MAX_POSITIONS 64
 
 enum {
@@ -54,7 +56,7 @@ class FilePositionCache
 {
   private:
     int IsMemory;
-    wchar_t *Names;
+    string *Names;
     int SizeValue;
     int CurPos;
 
