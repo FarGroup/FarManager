@@ -127,7 +127,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #include <dir.h>  // chdir
  #endif
 #endif //__DIR_H
-#if !defined(__NEW_H) && !defined(_NEW)
+#if !defined(__NEW_H) && !defined(_NEW) && defined(__cplusplus)
  #if defined(__BORLANDC__)
   #pragma option -p-
  #endif

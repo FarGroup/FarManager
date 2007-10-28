@@ -130,9 +130,8 @@ MV = mv -f
 MKDIR = mkdir -p
 WINDRES = windres
 DEFINES = -D USE_WFUNC -D FAR_ALPHA_VERSION -D USE_WFUNC_ALW -D USE_WFUNC_IN
-#DEFINES = -D FAR_MSVCRT -D USE_WFUNC -D FAR_ALPHA_VERSION -D USE_WFUNC_ALW -D USE_WFUNC_IN
-CCFLAGS = -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wno-deprecated
-CFLAGS = -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions
+CCFLAGS = -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wno-deprecated
+CFLAGS = -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions
 LNKFLAGS = -s -lmpr -lwinspool
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
@@ -156,12 +155,12 @@ $(OBJDIR)/%.d: %.cpp
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
 	@$(MKDIR) $(OBJDIR)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -include $(OBJDIR)/headers.hpp -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
 	@$(MKDIR) $(OBJDIR)
-	@$(CXX) $(CCFLAGS) -c -o $@ $<
+	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers.hpp -o $@ $<
 
 $(OBJDIR)/far.rc.o: far.rc far.ico
 	@$(MKDIR) $(OBJDIR)
@@ -187,10 +186,26 @@ lng:
 	@tools/gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | tools/m4 -P > $(EXEDIR)/FarEng.hlf
 	@tools/gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | tools/m4 -P > $(EXEDIR)/FarRus.hlf
 
-$(EXEFULLNAME): $(OBJS) $(DEF)
+$(OBJDIR)/headers.hpp.gch/c: headers.hpp 
+	@echo making precompiled headers for C
+	@$(MKDIR) $(OBJDIR)/headers.hpp.gch 
+	@$(CC) -x c-header -c $(CFLAGS) -o $(OBJDIR)/headers.hpp.gch/c headers.hpp
+
+$(OBJDIR)/headers.hpp.gch/c++: headers.hpp 
+	@echo making precompiled headers for C++
+	@$(MKDIR) $(OBJDIR)/headers.hpp.gch 
+	@$(CXX) -x c++-header -c $(CCFLAGS) -o $(OBJDIR)/headers.hpp.gch/c++ headers.hpp
+
+$(EXEFULLNAME): $(OBJDIR)/headers.hpp.gch/c $(OBJDIR)/headers.hpp.gch/c++ $(OBJS) $(DEF)
 	@echo linking $@
 	@$(MKDIR) $(EXEDIR)
 	@$(CXX) -o $(EXENAME) $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 	@$(MV) $(EXENAME) $(EXEDIR)
+
+clean:
+	@echo cleaning
+	@$(RM) $(OBJS)
+	@$(RM) $(OBJDIR)/headers.hpp.gch/c $(OBJDIR)/headers.hpp.gch/c++
+	@$(RM) $(EXEFULLNAME) $(MAP)
 
 -include $(DEPS)
