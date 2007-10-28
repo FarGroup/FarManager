@@ -496,7 +496,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
   {
     StartupInfo.StructSize=sizeof(StartupInfo);
     StartupInfo.Menu=FarMenuFnA;
-    StartupInfo.Dialog=FarDialogFnA; //заглушка
+    StartupInfo.Dialog=FarDialogFnA;
     StartupInfo.GetMsg=FarGetMsgFnA;
     StartupInfo.Message=FarMessageFnA;
     StartupInfo.Control=FarControlA; //заглушка

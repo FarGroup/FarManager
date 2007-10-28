@@ -571,7 +571,7 @@ void VMenu::ShowMenu(int IsParent)
           if (!(Item[I]->Flags&0x0000FFFF))
             Check=0x221A;
           else
-            Check=(char)Item[I]->Flags&0x0000FFFF;
+            Check=(wchar_t)Item[I]->Flags&0x0000FFFF;
 
         if(HiStrlen(_MItemPtr,TRUE) > X2-X1-3)
           swprintf(TmpStrW,L"%c %.*s",Check,X2-X1-3,(const wchar_t*)_MItemPtr);

@@ -624,7 +624,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 			{
 				mi[i].Flags|=MIF_CHECKED;
 				if (Item[i].Checked>1)
-					mi[i].Flags|=Item[i].Checked&0xFF; //BUGBUG надо перекодировать символ пометки в юникод
+					OemToCharBuffW((const char*)&Item[i].Checked,(wchar_t*)&mi[i].Flags,1);
 			}
 			if (Item[i].Separator)
 				mi[i].Flags|=MIF_SEPARATOR;
@@ -644,9 +644,164 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 	return ret;
 }
 
+int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
+{
+  string strHT((HelpTopic?HelpTopic:""));
+
+  if (!Item || !ItemsNumber)	return -1;
+
+  FarList *l = (FarList *)malloc(ItemsNumber*sizeof(FarList));
+  memset(l,0,ItemsNumber*sizeof(FarList));
+  FarDialogItem *di = (FarDialogItem *)malloc(ItemsNumber*sizeof(*di));
+
+  for (int i=0; i<ItemsNumber; i++)
+  {
+    di[i].Type=0;
+    switch(Item[i].Type)
+    {
+      case oldfar::DI_TEXT:       di[i].Type=DI_TEXT;        break;
+      case oldfar::DI_VTEXT:      di[i].Type=DI_VTEXT;       break;
+      case oldfar::DI_SINGLEBOX:  di[i].Type=DI_SINGLEBOX;   break;
+      case oldfar::DI_DOUBLEBOX:  di[i].Type=DI_DOUBLEBOX;   break;
+      case oldfar::DI_EDIT:       di[i].Type=DI_EDIT;        break;
+      case oldfar::DI_PSWEDIT:    di[i].Type=DI_PSWEDIT;     break;
+      case oldfar::DI_FIXEDIT:    di[i].Type=DI_FIXEDIT;     break;
+      case oldfar::DI_BUTTON:     di[i].Type=DI_BUTTON;      break;
+      case oldfar::DI_CHECKBOX:   di[i].Type=DI_CHECKBOX;    break;
+      case oldfar::DI_RADIOBUTTON:di[i].Type=DI_RADIOBUTTON; break;
+      case oldfar::DI_COMBOBOX:   di[i].Type=DI_COMBOBOX;    break;
+      case oldfar::DI_LISTBOX:    di[i].Type=DI_LISTBOX;     break;
+#ifdef FAR_USE_INTERNALS
+      case oldfar::DI_MEMOEDIT:   di[i].Type=DI_MEMOEDIT;    break;
+#endif // END FAR_USE_INTERNALS
+      case oldfar::DI_USERCONTROL:di[i].Type=DI_USERCONTROL; break;
+    }
+
+    di[i].X1=Item[i].X1;
+    di[i].Y1=Item[i].Y1;
+    di[i].X2=Item[i].X2;
+    di[i].Y2=Item[i].Y2;
+
+    di[i].Focus=Item[i].Focus;
+
+    switch(di[i].Type)
+    {
+      case DI_LISTBOX:
+      case DI_COMBOBOX:
+        {
+          l[i].Items = (FarListItem *)malloc(Item[i].Param.ListItems->ItemsNumber*sizeof(FarListItem));
+          l[i].ItemsNumber = Item[i].Param.ListItems->ItemsNumber;
+          for(int j = 0;j<l[i].ItemsNumber;j++)
+          {
+            ANSIToUnicode(Item[i].Param.ListItems->Items[j].Text, l[i].Items[j].Text, sizeof(Item[i].Param.ListItems->Items[j].Text)-1);
+            l[i].Items[j].Flags=0;
+            if(Item[i].Param.ListItems->Items[j].Flags&oldfar::LIF_SELECTED)       l[i].Items[j].Flags|=LIF_SELECTED;
+            if(Item[i].Param.ListItems->Items[j].Flags&oldfar::LIF_CHECKED)        l[i].Items[j].Flags|=LIF_CHECKED;
+            if(Item[i].Param.ListItems->Items[j].Flags&oldfar::LIF_SEPARATOR)      l[i].Items[j].Flags|=LIF_SEPARATOR;
+            if(Item[i].Param.ListItems->Items[j].Flags&oldfar::LIF_DISABLE)        l[i].Items[j].Flags|=LIF_DISABLE;
+  #ifdef FAR_USE_INTERNALS
+            if(Item[i].Param.ListItems->Items[j].Flags&oldfar::LIF_GRAYED)         l[i].Items[j].Flags|=LIF_GRAYED;
+  #endif // END FAR_USE_INTERNALS
+            if(Item[i].Param.ListItems->Items[j].Flags&oldfar::LIF_DELETEUSERDATA) l[i].Items[j].Flags|=LIF_DELETEUSERDATA;
+          }
+          di[i].Param.ListItems=&l[i];
+        }
+        break;
+      case DI_USERCONTROL:
+        di[i].Param.VBuf=Item[i].Param.VBuf;
+        break;
+      case DI_EDIT:
+      case DI_FIXEDIT:
+        {
+          if (Item[i].Flags&oldfar::DIF_HISTORY)
+            di[i].Param.History=AnsiToUnicode(Item[i].Param.History);
+          else if (Item[i].Flags&oldfar::DIF_MASKEDIT)
+            di[i].Param.Mask=AnsiToUnicode(Item[i].Param.Mask);
+        }
+        break;
+      default:
+        di[i].Param.Selected=Item[i].Param.Selected;
+    }
+
+    di[i].Flags=0;
+    if(Item[i].Flags)
+    {
+      if (Item[i].Flags&oldfar::DIF_COLORMASK)        di[i].Flags|=DIF_COLORMASK;
+      if (Item[i].Flags&oldfar::DIF_SETCOLOR)         di[i].Flags|=DIF_SETCOLOR;
+      if (Item[i].Flags&oldfar::DIF_BOXCOLOR)         di[i].Flags|=DIF_BOXCOLOR;
+      if (Item[i].Flags&oldfar::DIF_GROUP)            di[i].Flags|=DIF_GROUP;
+      if (Item[i].Flags&oldfar::DIF_LEFTTEXT)         di[i].Flags|=DIF_LEFTTEXT;
+      if (Item[i].Flags&oldfar::DIF_MOVESELECT)       di[i].Flags|=DIF_MOVESELECT;
+      if (Item[i].Flags&oldfar::DIF_SHOWAMPERSAND)    di[i].Flags|=DIF_SHOWAMPERSAND;
+      if (Item[i].Flags&oldfar::DIF_CENTERGROUP)      di[i].Flags|=DIF_CENTERGROUP;
+      if (Item[i].Flags&oldfar::DIF_NOBRACKETS)       di[i].Flags|=DIF_NOBRACKETS;
+      if (Item[i].Flags&oldfar::DIF_MANUALADDHISTORY) di[i].Flags|=DIF_MANUALADDHISTORY;
+      if (Item[i].Flags&oldfar::DIF_SEPARATOR)        di[i].Flags|=DIF_SEPARATOR;
+      if (Item[i].Flags&oldfar::DIF_SEPARATOR2)       di[i].Flags|=DIF_SEPARATOR2;
+      if (Item[i].Flags&oldfar::DIF_EDITOR)           di[i].Flags|=DIF_EDITOR;
+      if (Item[i].Flags&oldfar::DIF_LISTNOAMPERSAND)  di[i].Flags|=DIF_LISTNOAMPERSAND;
+      if (Item[i].Flags&oldfar::DIF_LISTNOBOX)        di[i].Flags|=DIF_LISTNOBOX;
+      if (Item[i].Flags&oldfar::DIF_HISTORY)          di[i].Flags|=DIF_HISTORY;
+      if (Item[i].Flags&oldfar::DIF_BTNNOCLOSE)       di[i].Flags|=DIF_BTNNOCLOSE;
+      if (Item[i].Flags&oldfar::DIF_CENTERTEXT)       di[i].Flags|=DIF_CENTERTEXT;
+      if (Item[i].Flags&oldfar::DIF_NOTCVTUSERCONTROL)di[i].Flags|=DIF_NOTCVTUSERCONTROL;
+  #ifdef FAR_USE_INTERNALS
+      if (Item[i].Flags&oldfar::DIF_SEPARATORUSER)    di[i].Flags|=DIF_SEPARATORUSER;
+  #endif // END FAR_USE_INTERNALS
+      if (Item[i].Flags&oldfar::DIF_EDITEXPAND)       di[i].Flags|=DIF_EDITEXPAND;
+      if (Item[i].Flags&oldfar::DIF_DROPDOWNLIST)     di[i].Flags|=DIF_DROPDOWNLIST;
+      if (Item[i].Flags&oldfar::DIF_USELASTHISTORY)   di[i].Flags|=DIF_USELASTHISTORY;
+      if (Item[i].Flags&oldfar::DIF_MASKEDIT)         di[i].Flags|=DIF_MASKEDIT;
+      if (Item[i].Flags&oldfar::DIF_SELECTONENTRY)    di[i].Flags|=DIF_SELECTONENTRY;
+      if (Item[i].Flags&oldfar::DIF_3STATE)           di[i].Flags|=DIF_3STATE;
+  #ifdef FAR_USE_INTERNALS
+      if (Item[i].Flags&oldfar::DIF_EDITPATH)         di[i].Flags|=DIF_EDITPATH;
+  #endif // END FAR_USE_INTERNALS
+      if (Item[i].Flags&oldfar::DIF_LISTWRAPMODE)     di[i].Flags|=DIF_LISTWRAPMODE;
+      if (Item[i].Flags&oldfar::DIF_LISTAUTOHIGHLIGHT)di[i].Flags|=DIF_LISTAUTOHIGHLIGHT;
+  #ifdef FAR_USE_INTERNALS
+      if (Item[i].Flags&oldfar::DIF_AUTOMATION)       di[i].Flags|=DIF_AUTOMATION;
+  #endif // END FAR_USE_INTERNALS
+      if (Item[i].Flags&oldfar::DIF_HIDDEN)           di[i].Flags|=DIF_HIDDEN;
+      if (Item[i].Flags&oldfar::DIF_READONLY)         di[i].Flags|=DIF_READONLY;
+      if (Item[i].Flags&oldfar::DIF_NOFOCUS)          di[i].Flags|=DIF_NOFOCUS;
+      if (Item[i].Flags&oldfar::DIF_DISABLE)          di[i].Flags|=DIF_DISABLE;
+    }
+
+    di[i].DefaultButton=Item[i].DefaultButton;
+
+    if ((Item[i].Type==DI_EDIT || Item[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
+      di[i].PtrData = AnsiToUnicode(Item[i].Data.Ptr.PtrData);
+    else
+      di[i].PtrData = AnsiToUnicode(Item[i].Data.Data);
+  }
+
+  int ret = FarDialogEx(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?(const wchar_t *)strHT:NULL), (FarDialogItem *)di, ItemsNumber, 0, 0, 0, 0); //BUGBUG
+
+  for (int i=0; i<ItemsNumber; i++)
+  {
+    Item[i].Param.Selected = di[i].Param.Selected;
+    if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
+      UnicodeToAnsi(di[i].PtrData,Item[i].Data.Ptr.PtrData,Item[i].Data.Ptr.PtrLength);
+    else
+      UnicodeToAnsi(di[i].PtrData,Item[i].Data.Data,sizeof(Item[i].Data.Data)-1);
+
+    if((di[i].Type==DI_EDIT || di[i].Type==DI_FIXEDIT) && (di[i].Flags&DIF_HISTORY) || (di[i].Flags&DIF_MASKEDIT))
+      if(di[i].Param.History) free((wchar_t *)di[i].Param.History);
+
+    if(l[i].Items) free(l[i].Items);
+
+    if (di[i].PtrData) free((wchar_t *)di[i].PtrData);
+  }
+
+  if (di) free(di);
+  if (l) free(l);
+  return ret;
+}
+
 int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber)
 {
-	return -1;
+  return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, 0, 0);
 }
 
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
@@ -701,11 +856,6 @@ void WINAPI FarFreeDirListA(const struct oldfar::PluginPanelItem *PanelItem)
 INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 {
 	return 0;
-}
-
-int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
-{
-	return -1;
 }
 
 int WINAPI FarEditorControlA(int Command,void* Param)
