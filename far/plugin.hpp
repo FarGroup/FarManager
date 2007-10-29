@@ -1911,7 +1911,7 @@ int    WINAPI _export GetMinFarVersionW(void);
 void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info);
 int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,char *Name,int OpMode);
+int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,wchar_t *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item);
 int    WINAPI _export ProcessEditorEventW(int Event,void *Param);
