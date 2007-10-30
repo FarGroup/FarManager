@@ -1,3 +1,13 @@
+t-rex 30.10.2007 20:55:12 +0200 - build 315
+
+от Alex Alabuzhev (с долей исправлений от мен€ :):
+¬ообще всЄ это надо очень хорошо потом протестировать.
+
+1. API 1.7:
+   - более-менее рабочий DialogEx.
+   - AdvControl.
+   - в FARKEYSEQUENCEFLAGS пропущен флаг KSFLAGS_REG_MULTI_SZ
+
 svs 29.10.2007 09:52:31 +0300 - build 314
 
 от _anton_ (?)

@@ -513,10 +513,10 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StartupInfo.EditorControl=FarEditorControlA; //заглушка
     StartupInfo.ViewerControl=FarViewerControlA; //заглушка
     StartupInfo.ShowHelp=FarShowHelpA;
-    StartupInfo.AdvControl=FarAdvControlA; //заглушка
-    StartupInfo.DialogEx=FarDialogExA; //заглушка
-    //StartupInfo.SendDlgMessage=FarSendDlgMessage;
-    //StartupInfo.DefDlgProc=FarDefDlgProc;
+    StartupInfo.AdvControl=FarAdvControlA;
+    StartupInfo.DialogEx=FarDialogExA;
+    StartupInfo.SendDlgMessage=FarSendDlgMessageA;
+    StartupInfo.DefDlgProc=FarDefDlgProcA;
     StartupInfo.InputBox=FarInputBoxA;
   }
 

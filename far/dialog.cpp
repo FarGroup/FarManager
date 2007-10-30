@@ -5492,7 +5492,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 
               if ( ListTitle )
-                  strTitle = ListTitle->Title;
+                strTitle = ListTitle->Title;
               else
                 strTitle = L"";
 
@@ -5509,6 +5509,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
             {
+            	//BUGBUG нифига не делается тут, надо продумать
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               if(ListTitle)
               {
