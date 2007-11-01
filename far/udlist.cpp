@@ -165,7 +165,7 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
       while(!Error &&
             NULL!=(CurList=Skip(CurList, Length, RealLength, Error)))
       {
-        if(Length)
+        if(Length > 0)
         {
           if(PackAsterisks && 3==Length && 0==memcmp(CurList, "*.*", 3))
           {

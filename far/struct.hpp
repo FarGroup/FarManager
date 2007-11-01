@@ -457,7 +457,8 @@ struct Options
    + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
      клавиш */
   int MacroReuseRules;
-  /* SVS $ */
+  DWORD DisableMacro; // параметры /m или /ma или /m....
+
   int IgnoreErrorBadPathName;
 
   DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT

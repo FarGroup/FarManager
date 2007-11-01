@@ -377,6 +377,9 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   int Ret=FALSE;
   InitInternalVars(InitedRAM);
 
+  if(Opt.DisableMacro&MDOL_ALL)
+    return Ret;
+
   #define TEMP_BUFFER_SIZE (128*1024)
   char *Buffer=new char[TEMP_BUFFER_SIZE];
 
@@ -3312,6 +3315,9 @@ Common        0
 void KeyMacro::RunStartMacro()
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::RunStartMacro()"));
+  if(Opt.DisableMacro&MDOL_AUTOSTART)
+    return;
+
 // временно отсавим старый вариант
 #if 1
   if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !CmdMode && CtrlObject->Plugins.IsPluginsLoaded()))

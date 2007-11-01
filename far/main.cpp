@@ -95,6 +95,8 @@ printf(
 "      Search for \"common\" plugins in the directory, specified by <path>.\n"
 " /co  Forces FAR to load plugins from the cache only.\n"
 " /rc  Restore console windows settings upon exiting FAR.\n"
+" /m   Do not load macros.\n"
+" /ma  Do not execute auto run macros.\n"
 " /u <username>\n"
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
@@ -393,6 +395,9 @@ int _cdecl main(int Argc, char *Argv[])
   }
   AddEndSlash(FarPath);
 
+  // макросы не дисаблим
+  Opt.DisableMacro=0;
+
   _SVS(for (int I0=1;I0<Argc;I0++)SysLog("I=%d Argv[I]=\"%s\"",I0,Argv[I0]));
   for (int I=1;I<Argc;I++)
   {
@@ -459,6 +464,17 @@ int _cdecl main(int Argc, char *Argv[])
               break;
             case 'C':
               RectoreConsole=TRUE;
+              break;
+          }
+          break;
+        case 'M':
+          switch (toupper(Argv[I][2]))
+          {
+            case 0:
+              Opt.DisableMacro|=MDOL_ALL;
+              break;
+            case 'A':
+              Opt.DisableMacro|=MDOL_AUTOSTART;
               break;
           }
           break;
