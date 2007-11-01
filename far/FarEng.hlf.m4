@@ -156,6 +156,12 @@ $ # FAR: command line switches#
   #/rc#   Upon closing, allows to restore console window title
         and size that were set before running FAR Manager.
 
+  #/m#    При старте FAR не будет загружать макрокоманды 
+        из реестра.
+
+  #/ma#    При старте FAR не будет исполнять макрокоманды 
+        с опцией "Выполнять после запуска FAR".
+
   #/u <username>#
         Allows to have separate settings for different users.
 

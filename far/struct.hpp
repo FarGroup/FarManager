@@ -506,6 +506,7 @@ struct Options
   */
   int ShiftsKeyRules;
   int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
+  DWORD DisableMacro; // параметры /m или /ma или /m....
   int IgnoreErrorBadPathName;
 
   DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT

@@ -108,6 +108,11 @@ enum DIZUPDATETYPE {
 };
 
 // *** Macros ***
+enum MACRODISABLEONLOAD{
+  MDOL_ALL            = 0xFFFFFFFF, // дисаблим все макросы при загрузке
+  MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
+};
+
 // области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
 enum MACROMODEAREA {
   MACRO_FUNC         =  -2,
