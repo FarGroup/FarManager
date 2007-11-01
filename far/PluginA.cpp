@@ -511,7 +511,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     //StartupInfo.CharTable=FarCharTable;
     StartupInfo.Text=FarTextA;
     StartupInfo.EditorControl=FarEditorControlA; //заглушка
-    StartupInfo.ViewerControl=FarViewerControlA; //заглушка
+    StartupInfo.ViewerControl=FarViewerControlA;
     StartupInfo.ShowHelp=FarShowHelpA;
     StartupInfo.AdvControl=FarAdvControlA;
     StartupInfo.DialogEx=FarDialogExA;
