@@ -525,7 +525,7 @@ void InfoList::ShowDirDescription()
 void InfoList::ShowPluginDescription()
 {
   Panel *AnotherPanel;
-  static wchar_t VertcalLine[2]={0xBA,0x00}; //BUGBUG
+  static wchar_t VertcalLine[2]={BoxSymbols[0xBA-0xB0],0x00};
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
