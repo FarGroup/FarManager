@@ -6,6 +6,8 @@
   #pragma optimize("", off)
 #endif
 
+#define MakePtr(Type, Base, Offset) ((Type)((Base) + (Offset)))
+
 BOOL InterceptDllCall(HMODULE hLocalModule,const char* cDllName,const char* cFuncName,
                       PVOID pApiNew,PVOID* pApiOrig)
 {
@@ -47,28 +49,28 @@ BOOL InterceptDllCall(HMODULE hLocalModule,const char* cDllName,const char* cFun
 
       if (lstrcmp((char *)&(pName->Name),cFuncName)==0)
       {
-        if (!IsBadWritePtr((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD)) /*!IsBadWritePtr*/)
+        if (!IsBadWritePtr((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR)) /*!IsBadWritePtr*/)
         {
           if (pApiOrig)
             *pApiOrig=PVOID(pRealThunk->u1.Function);
-          (PDWORD)pRealThunk->u1.Function=(PDWORD)pApiNew;
+          pRealThunk->u1.Function=(DWORD_PTR)pApiNew;
           bSuccess=TRUE;
           break;
         }
         else
         {
-          if (VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD),
+          if (VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR),
               PAGE_EXECUTE_READWRITE,&dwProtect) /*VirtualProtect*/)
           {
             DWORD dwNewProtect;
 
             if (pApiOrig)
               *pApiOrig=PVOID(pRealThunk->u1.Function);
-            (PDWORD)pRealThunk->u1.Function=(PDWORD)pApiNew;
+            pRealThunk->u1.Function=(DWORD_PTR)pApiNew;
             bSuccess=TRUE;
 
             dwNewProtect=dwProtect;
-            VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD),
+            VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR),
                            dwNewProtect,&dwProtect) /*VirtualProtect*/;
             break;
           } /*if*/
@@ -237,81 +239,7 @@ char *__fastcall GetMsg(int MsgId)
   return const_cast<char *>(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
-
-WORD __fastcall CharToUpper(WORD ch)
-{
-
-  DWORD param=(0<<16 | ch);
-  OemToChar((char *)&param,(char *)&param);
-  char *Result=CharUpper((char *)param);
-  CharToOem((char *)&Result,(char *)&Result);
-  return LOWORD((DWORD)Result);
-}
-
-
-unsigned __int64 __fastcall GetFarVersion()
-{
-  char drive[_MAX_DRIVE];
-  char dir[_MAX_DIR];
-  char fname[_MAX_FNAME];
-  char ext[_MAX_EXT];
-  char Str[MAX_PATH_LEN];
-
-  if (GetModuleFileName(GetModuleHandle(NULL),Str,MAX_PATH_LEN)==0)
-    return (__int64)0;
-
-  if (vi.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-  {
-    _splitpath(Str,drive,dir,fname,ext);
-    _makepath(Str,drive,dir,NULL,NULL);
-    GetShortPathName(Str,FarFullName,sizeof(Str));
-    DWORD err=GetLastError();
-    if (err!=ERROR_SUCCESS)
-      lstrcpy(FarFullName,Str);
-
-    int dwLen=lstrlen(FarFullName);
-    if (FarFullName[dwLen-1]!='\\')
-    {
-      FarFullName[dwLen]='\\';
-      FarFullName[dwLen+1]=0;
-    }
-    lstrcat(FarFullName,fname);
-    lstrcat(FarFullName,ext);
-  }
-  else
-    lstrcpy(FarFullName,Str);
-
-  DWORD dwZero;
-  DWORD dwInfoSize=GetFileVersionInfoSize(FarFullName,&dwZero);
-  if (dwInfoSize==0)
-    return (__int64)0;
-
-  void* Buffer=new unsigned char [dwInfoSize];
-  if (GetFileVersionInfo(FarFullName,0,dwInfoSize,Buffer)==0)
-  {
-    delete[] Buffer;
-    return (__int64)0;
-  }
-  void **pBuffer;
-  unsigned int vLen;
-  if (VerQueryValue(Buffer,"\\",(void **)&pBuffer,&vLen)==0)
-  {
-    delete[] Buffer;
-    return (__int64)0;
-  }
-  VS_FIXEDFILEINFO ffi;
-  CopyMemory(&ffi,pBuffer,sizeof(ffi));
-  unsigned __int64 hiVer=ffi.dwFileVersionMS;
-  unsigned __int64 loVer=ffi.dwFileVersionLS;
-  delete[] Buffer;
-  unsigned __int64 result=((hiVer<<32) | loVer);
-  return result;
-}
-
-
 void __fastcall FlushInputBuffer()
 {
   FlushConsoleInputBuffer(Macro->hIn);
 }
-
-

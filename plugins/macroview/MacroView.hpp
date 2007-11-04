@@ -4,12 +4,9 @@
 #include "strclass.hpp"
 #include "regclass.hpp"
 
-#define MakePtr(Type, Base, Offset) ((Type)(DWORD(Base) + (DWORD)(Offset)))
-
 #define GROUPNAMELEN 128
 #define CAPTIONLEN 128
 #define TITLELEN 64
-#define MINVERSION 0x0001004600050712i64 // 1.70.5.1810
 
 
 //----
@@ -31,7 +28,6 @@ char FarFullName[MAX_PATH_LEN]; // default "C:\\Program Files\\Far\\Far.exe"
 //----
 int OpenFrom;
 static int AltPressed=FALSE,CtrlPressed=FALSE,ShiftPressed=FALSE;
-unsigned __int64 FarVersion;
 
 
 //----
@@ -110,19 +106,10 @@ struct InitDialogItem
   int Type;
   int X1,Y1,X2,Y2;
   int Focus;
-  union {
-    int Selected;
-    char *History;
-    char *Mask;
-    struct FarList *ListItems;
-    int ListPos;
-    CHAR_INFO *VBuf;
-  } Param;
+  DWORD_PTR Selected;
   int Flags;
   int DefaultButton;
-  union {
-    char *Data;
-  } Data;
+  char *Data;
 };
 
 
@@ -154,17 +141,17 @@ struct MenuData
 BOOL InterceptDllCall(HMODULE hLocalModule,const char* c_szDllName,const char* c_szApiName,
                       PVOID pApiNew,PVOID* p_pApiOrg);
 
-typedef (WINAPI *TReadConsoleInput)(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
-typedef (WINAPI *TPeekConsoleInput)(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
+typedef BOOL (WINAPI *TReadConsoleInput)(HANDLE hConsole,INPUT_RECORD *ir,DWORD nNumber,LPDWORD nNumberOfRead);
+typedef BOOL (WINAPI *TPeekConsoleInput)(HANDLE hConsole,INPUT_RECORD *ir,DWORD nNumber,LPDWORD nNumberOfRead);
 TReadConsoleInput p_fnReadConsoleInputOrgA;
 TReadConsoleInput p_fnReadConsoleInputOrgW;
 TPeekConsoleInput p_fnPeekConsoleInputOrgA;
 TPeekConsoleInput p_fnPeekConsoleInputOrgW;
 
-long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
-long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
-long WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
-long WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
+LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+LONG_PTR WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+LONG_PTR WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
 //BOOL WINAPI ProcessKey(PINPUT_RECORD ir);
 BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir);
 
@@ -178,17 +165,15 @@ char *__fastcall CheckFirstBackSlash(char *S,BOOL mustbe);
 char *__fastcall CheckLen(char *S,unsigned ln,BOOL AddDots=TRUE);
 char *__fastcall CheckRLen(char *S,unsigned ln,BOOL AddDots=TRUE);
 int   __fastcall CmpStr(const char *String1,const char *String2,int ln1=-1,int ln2=-1);
-WORD  __fastcall CharToUpper(WORD ch);
-unsigned __int64 __fastcall GetFarVersion();
 
 
 //----
 class TMacroView
 {
-  friend long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
-  friend long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
-  friend long WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
-  friend long WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2);
+  friend LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+  friend LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+  friend LONG_PTR WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
+  friend LONG_PTR WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2);
   friend BOOL WINAPI myReadConsoleInputA(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
   friend BOOL WINAPI myReadConsoleInputW(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
   friend BOOL WINAPI myPeekConsoleInputA(HANDLE hConsole,PINPUT_RECORD ir,DWORD nNumber,LPDWORD nNumberOfRead);
@@ -218,7 +203,7 @@ class TMacroView
                   HelpInvoked,
                   HelpActivated,
                   EditInMove,
-				  MultiLine;
+          MultiLine;
     HANDLE        hand,
                   EditDlg,
                   MenuDlg,
@@ -271,7 +256,7 @@ class TMacroView
   public:
     TMacroView();
     ~TMacroView();
-    BOOL          __fastcall Config();
+    BOOL          __fastcall Configure();
     void          __fastcall ReadConfig();
     int           MacroList();
 

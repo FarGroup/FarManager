@@ -90,7 +90,7 @@ void _fastcall TMacroView::ReadConfig()
   }
 }
 
-BOOL _fastcall TMacroView::Config()
+BOOL _fastcall TMacroView::Configure()
 {
   BOOL Result;
   int OutCode;
@@ -102,24 +102,24 @@ BOOL _fastcall TMacroView::Config()
 
   struct InitDialogItem InitItems[]=
   {
-  /* 0  */ DI_DOUBLEBOX,3,1,70,18,0,0,0,0,(char *)MMacroConfig,
-  /* 1  */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroAddDescription,
-  /* 2  */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroAutomaticSave,
-  /* 3  */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MMacroUseHighlight,
-  /* 4  */ DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MMacroStartDependentSort,
-  /* 5  */ DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MMacroLongGroupNames,
-  /* 6  */ DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MMacroMenuCycle,
-  /* 7  */ DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MMacroDblClick,
-  /* 8  */ DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MMacroGroupDivider,
-  /* 9  */ DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 10 */ DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MMacroSaveOnStart,
-  /* 11 */ DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 12 */ DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MMacroViewShell,
-  /* 13 */ DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MMacroViewViewer,
-  /* 14 */ DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MMacroViewEditor,
-  /* 15 */ DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 16 */ DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave,
-  /* 17 */ DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel
+  /* 0  */ {DI_DOUBLEBOX,3,1,70,18,0,0,0,0,(char *)MMacroConfig},
+  /* 1  */ {DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroAddDescription},
+  /* 2  */ {DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroAutomaticSave},
+  /* 3  */ {DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MMacroUseHighlight},
+  /* 4  */ {DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MMacroStartDependentSort},
+  /* 5  */ {DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MMacroLongGroupNames},
+  /* 6  */ {DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MMacroMenuCycle},
+  /* 7  */ {DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MMacroDblClick},
+  /* 8  */ {DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MMacroGroupDivider},
+  /* 9  */ {DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 10 */ {DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MMacroSaveOnStart},
+  /* 11 */ {DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 12 */ {DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MMacroViewShell},
+  /* 13 */ {DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MMacroViewViewer},
+  /* 14 */ {DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MMacroViewEditor},
+  /* 15 */ {DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 16 */ {DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave},
+  /* 17 */ {DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel},
   };
 
   int size=sizeof(InitItems)/sizeof(InitItems[0]);
@@ -129,7 +129,7 @@ BOOL _fastcall TMacroView::Config()
 
   Reg->CreateKey(PluginRootKey);
   ReadConfig();
-    
+
   DialogItems[1].Param.Selected=Conf.AddDescription;
   DialogItems[2].Param.Selected=Conf.AutomaticSave;
   DialogItems[3].Param.Selected=Conf.UseHighlight;

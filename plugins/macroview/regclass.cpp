@@ -11,7 +11,7 @@ DWORD RegDataToDataType(TRegDataType Value)
   {
     case rdString: return REG_SZ;
     case rdExpandString: return REG_EXPAND_SZ;
-	case rdMultiString: return REG_MULTI_SZ;
+  case rdMultiString: return REG_MULTI_SZ;
     case rdInteger: return REG_DWORD;
     case rdBinary: return REG_BINARY;
     default: return REG_NONE;
@@ -24,7 +24,7 @@ TRegDataType DataTypeToRegData(DWORD Value)
   {
     case REG_SZ: return rdString;
     case REG_EXPAND_SZ: return rdExpandString;
-	case REG_MULTI_SZ: return rdMultiString;
+  case REG_MULTI_SZ: return rdMultiString;
     case REG_DWORD: return rdInteger;
     case REG_BINARY: return rdBinary;
     default: return rdUnknown;
@@ -276,7 +276,7 @@ TRegDataType TReg::GetDataType(char *ValueName)
 
 BOOL __fastcall TReg::WriteString(/*const */char *Name,char *Value)
 {
-  return(PutData(Name,Value,strlen(Value)+1,rdString));
+  return(PutData(Name,Value,lstrlen(Value)+1,rdString));
 }
 
 char *__fastcall TReg::ReadString(/*const */char *Name,char *Str,int size)
@@ -401,7 +401,7 @@ HKEY __fastcall TReg::GetKey(char *Key)
   BOOL __fastcall TReg::SaveKey(char *Key, char *FileName)
   {
     HKEY SaveKey;
-  
+
     BOOL Result=FALSE;
     SaveKey=GetKey(Key);
     if (SaveKey!=0)
@@ -552,4 +552,3 @@ void __fastcall TReg::MoveKey(char *OldName,char *NewName,BOOL Delete)
     }
   }
 }
-

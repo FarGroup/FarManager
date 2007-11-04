@@ -1,0 +1,8 @@
+NAME = MacroView
+LINK_OBJS = $(OBJDIR)\MacroView.obj
+
+include ..\makefile_vc_def_inc
+
+include ..\makefile_vc_target_inc
+
+$(OBJDIR)\MacroView.obj : MacroView.cpp $(COMINC)\plugin.hpp

@@ -1,4 +1,3 @@
-LIBRARY
 EXPORTS
    ClosePlugin
    Configure

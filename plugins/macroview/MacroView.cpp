@@ -1,6 +1,7 @@
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
+#define _FAR_NO_NAMELESS_UNIONS
+#define _FAR_USE_FARFINDDATA
+#include "plugin.hpp"
+#include "CRT/crt.hpp"
 
 #include "macrolng.hpp"
 #include "macroview.hpp"
@@ -12,36 +13,28 @@
 #include "config.cpp"
 #include "macrodiff.cpp"
 
+#if defined(__GNUC__)
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
 
-static int NewFar=FALSE;
-
-void IllegalFarVersion()
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-  char S[256];
-  char *WrongFar[]=
-  {
-    GetMsg(MMacroError),
-    S,
-    "\x1",
-    GetMsg(MMacroOk),
-  };
-  
-  WORD Major=(MINVERSION>>48)&0xFFFF;
-  WORD Minor=(MINVERSION>>32)&0xFFFF;
-  WORD Beta=(MINVERSION>>16)&0xFFFF;
-  WORD Build=MINVERSION&0xFFFF;
-  wsprintf(S,GetMsg(MMacroWrongFar),Major,Minor,Beta,Build);
-  Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,WrongFar,
-    sizeof(WrongFar)/sizeof(WrongFar[0]),1);
-  return;
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
 }
+#endif
 
 int WINAPI _export GetMinFarVersion()
 {
-  NewFar=TRUE;
   return MAKEFARVERSION(1,70,1810);
 }
-
 
 #if defined(__BORLANDC__)
   #pragma argsused
@@ -50,21 +43,17 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   hInstance=GetModuleHandle(NULL);
   ::Info=*Info;
-  if (NewFar)
-  {
-    ::FSF=*Info->FSF;
-    ::Info.FSF=&::FSF;
-  }
+  ::FSF=*Info->FSF;
+  ::Info.FSF=&::FSF;
 
   vi.dwOSVersionInfoSize=sizeof(vi);
   GetVersionEx(&vi);
-  FarVersion=GetFarVersion();
 
   wsprintf(PluginRootKey,"%s\\%s",Info->RootKey,Module_KEY);
   CheckFirstBackSlash(PluginRootKey,TRUE);
-  char *ptr=strstr(Info->RootKey,Plugins_KEY);
+  const char *ptr=strstr(Info->RootKey,Plugins_KEY);
   if (ptr)
-    lstrcpyn(FarKey,Info->RootKey,ptr-Info->RootKey+1);
+    lstrcpyn(FarKey,Info->RootKey,(int)(ptr-Info->RootKey)+1);
   else
     lstrcpyn(FarKey,Default_KEY,sizeof(FarKey));
 
@@ -86,9 +75,6 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   CheckFirstBackSlash(FarUsersKey,TRUE);
   wsprintf(KeyMacros,"%s\\%s",FarKey,KeyMacros_KEY);
   CheckFirstBackSlash(KeyMacros,TRUE);
-
-  if (!NewFar)
-    IllegalFarVersion();
 }
 
 
@@ -153,7 +139,7 @@ int WINAPI _export Configure(int ItemNumber)
   switch(ItemNumber)
   {
     case 0:
-      return(Macro->Config());
+      return(Macro->Configure());
   }
   return FALSE;
 }
@@ -161,14 +147,6 @@ int WINAPI _export Configure(int ItemNumber)
 
 void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 {
-  if (NewFar)
-  {
-    if (FarVersion<MINVERSION) // версия FAR 1.70.5.1810
-      return;
-  }
-  else
-    return;
-
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_VIEWER;
   Info->DiskMenuStrings=NULL;
@@ -183,4 +161,3 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   Info->PluginConfigStrings=PluginConfigStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginConfigStrings)/sizeof(PluginConfigStrings[0]);
 }
-

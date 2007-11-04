@@ -7,7 +7,7 @@
 
 //-----------------------------------------------------------------//
 
-long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   FarListPos ListPos;
   int Pos,i;
@@ -44,7 +44,7 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       else if (Param1==1)
       {
         SMALL_RECT rect;
-        if (Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&rect))
+        if (Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect))
         {
           Macro->MenuX=rect.Left;
           Macro->MenuY=rect.Top;
@@ -53,7 +53,7 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       return 0;
     case DN_LISTCHANGE:
       Macro->SelectPos=(int)Param2;
-      Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(long)&ListPos);
+      Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
 //      if (ListPos.TopPos<=Macro->SelectPos)
         Macro->TopPos=ListPos.TopPos;
       return TRUE;
@@ -63,7 +63,7 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       FarListTitles ListTitle;
       ListTitle.Title=Macro->MenuTitle;
       ListTitle.Bottom=Macro->MenuBottom;
-      Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,0,(long)&ListTitle);
+      Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,0,(LONG_PTR)&ListTitle);
       Macro->FillMenu(hDlg);
       return TRUE;
     }
@@ -77,9 +77,9 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       return TRUE;
     }
     case DN_KEY:
-    { 
-      Pos=Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,NULL/*(long)&ListPos*/);
-      MData=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(long)Pos);
+    {
+      Pos=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,0/*(LONG_PTR)&ListPos*/);
+      MData=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(LONG_PTR)Pos);
       if (*MData->Key=='~' && lstrlen(MData->Key)>1)
       {
         Macro->Deactivated=TRUE;
@@ -121,7 +121,7 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
         case KEY_F5:
         case KEY_F6:
           Macro->ActiveMode=MAC_COPYACTIVE;
-          if (Macro->CopyMacro(Param2))
+          if (Macro->CopyMacro((int)Param2))
             Macro->FillMenu(hDlg);
           Macro->ActiveMode=MAC_MENUACTIVE;
           return TRUE;
@@ -135,19 +135,19 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
         // Группа вверх
         case KEY_CTRLUP:
         {
-          int Pos1=Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(long)&ListPos);
+          int Pos1=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
           if (Pos1>=0)
           {
             for (i=Pos1;(Macro->Conf.MenuCycle && i<0)?i=Macro->MenuItemsNumber-1:i>=0;i--)
             {
-              MenuData *MData1=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(long)i);
+              MenuData *MData1=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(LONG_PTR)i);
               if (*MData1->Group && *MData1->Key)
               {
                 if (CmpStr(MData->Group,MData1->Group)!=0)
                 {
                   for(;i>=0;i--)
                   {
-                    MenuData *MData2=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(long)i);
+                    MenuData *MData2=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(LONG_PTR)i);
                     if (CmpStr(MData1->Group,MData2->Group)!=0)
                     {
                       i++;
@@ -157,8 +157,8 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
                   }
                   // Запомним позицию и установим её.
                   Macro->SelectPos=ListPos.SelectPos=i;
-                  Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(long)&ListPos);
-                  Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(long)&ListPos);
+                  Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
+                  Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
                   // Получим текущую верхнюю позицию в списке.
 //                  if (ListPos.TopPos<=Macro->SelectPos)
                     Macro->TopPos=ListPos.TopPos;
@@ -173,20 +173,20 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
         // Группа вниз
         case KEY_CTRLDOWN:
         {
-          int Pos1=Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(long)&ListPos);
+          int Pos1=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
           if (Pos1<Macro->MenuItemsNumber)
           {
             for (i=Pos1;i<Macro->MenuItemsNumber;i++)
             {
-              MenuData *MData1=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(long)i);
+              MenuData *MData1=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(LONG_PTR)i);
               if (*MData1->Group && *MData1->Key)
               {
                 if (CmpStr(MData->Group,MData1->Group)!=0)
                 {
                   // Запомним позицию и установим её.
                   Macro->SelectPos=ListPos.SelectPos=i;
-                  Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(long)&ListPos);
-                  Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(long)&ListPos);
+                  Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
+                  Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
                   // Получим текущую верхнюю позицию в списке.
 //                  if (ListPos.TopPos<=Macro->SelectPos)
                     Macro->TopPos=ListPos.TopPos;
@@ -199,7 +199,7 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
             {
               // Запомним текущию верхнюю позицию и позицию курсора и установим их.
               Macro->SelectPos=Macro->TopPos=ListPos.SelectPos=ListPos.TopPos=0;
-              Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(long)&ListPos);
+              Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
             }
           }
 
@@ -213,9 +213,9 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       char *Topic[]={"Contents","MacroView"};
       Macro->HelpActivated=TRUE;
       if (Macro->HelpInvoked)
-        return (long)Topic[1];
+        return (LONG_PTR)Topic[1];
       Macro->HelpInvoked=TRUE;
-      return (long)Topic[0];
+      return (LONG_PTR)Topic[0];
     }
     case DN_CLOSE:
       Macro->MenuDlg=NULL;
@@ -229,16 +229,16 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
         ListColors->Flags=0;
         ListColors->Reserved=0;
         ListColors->ColorCount=10;
-        ListColors->Colors[0]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[1]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[2]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTITLE);
-        ListColors->Colors[3]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[4]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUHIGHLIGHT);
-        ListColors->Colors[5]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[6]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSELECTEDTEXT);
-        ListColors->Colors[7]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSELECTEDHIGHLIGHT);
-        ListColors->Colors[8]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSCROLLBAR);
-        ListColors->Colors[9]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUDISABLEDTEXT);
+        ListColors->Colors[0]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
+        ListColors->Colors[1]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
+        ListColors->Colors[2]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTITLE);
+        ListColors->Colors[3]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
+        ListColors->Colors[4]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUHIGHLIGHT);
+        ListColors->Colors[5]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
+        ListColors->Colors[6]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSELECTEDTEXT);
+        ListColors->Colors[7]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSELECTEDHIGHLIGHT);
+        ListColors->Colors[8]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSCROLLBAR);
+        ListColors->Colors[9]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUDISABLEDTEXT);
         return TRUE;
       }
       return FALSE;
@@ -251,7 +251,7 @@ long WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   static int InProcess=FALSE;
 
@@ -261,7 +261,7 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
     {
       InProcess=TRUE;
       Info.SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
-      
+
       CONSOLE_CURSOR_INFO ci;
       BOOL result=GetConsoleCursorInfo(Macro->hOut,&ci);
       if (result)
@@ -279,7 +279,7 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       Macro->SaveScr=NULL;
 
       Info.SendDlgMessage(hDlg,DM_SETFOCUS,Macro->LastFocus,0);
-      
+
       if (result)
       {
         ci.bVisible=TRUE;
@@ -312,7 +312,7 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
           break;
       }
 
-      Info.SendDlgMessage(hDlg,DM_LISTSET,4,(long)&Macro->GroupList);
+      Info.SendDlgMessage(hDlg,DM_LISTSET,4,(LONG_PTR)&Macro->GroupList);
       return TRUE;
     }
     case DN_RESIZECONSOLE:
@@ -326,7 +326,7 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       return FALSE;
     case DN_HELP:
       if (Macro->CtrlDotPressed)
-        return NULL;
+        return 0;
       else
         Macro->HelpActivated=TRUE;
       return Param2;
@@ -340,26 +340,26 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
     {
       if (Macro->CtrlDotPressed)
       {
-        int Key=(Param2 & ~KEY_CTRL & ~KEY_ALT & ~KEY_SHIFT & ~KEY_RCTRL & ~KEY_RALT & ~KEY_SHIFT);
+        DWORD Key=((DWORD)Param2 & ~KEY_CTRL & ~KEY_ALT & ~KEY_SHIFT & ~KEY_RCTRL & ~KEY_RALT & ~KEY_SHIFT);
         if (Key>=KEY_END_FKEY)
           return TRUE;
 
         static int PrevKey=0;
         if (PrevKey==KEY_SHIFTENTER && Param2==KEY_SHIFT)
         {
-          PrevKey=Param2;
+          PrevKey=(int)Param2;
           return TRUE;
         }
         if ((PrevKey==KEY_DOWN || PrevKey==KEY_UP ||
              PrevKey==KEY_LEFT || PrevKey==KEY_RIGHT) &&
              Param2==KEY_SHIFT)
         {
-          PrevKey=Param2;
+          PrevKey=(int)Param2;
           return TRUE;
         }
-        PrevKey=Param2;
+        PrevKey=(int)Param2;
 
-        if (FSF.FarKeyToName(Param2,Macro->S,sizeof(Macro->S)))
+        if (FSF.FarKeyToName((int)Param2,Macro->S,sizeof(Macro->S)))
         {
           FarDialogItemData ItemData;
           char StrBuf1[1024],StrBuf2[1024];
@@ -369,23 +369,23 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
           {
             if (*Macro->MacroData)
             {
-           	  lstrcat(Macro->MacroData," ");
-           	  lstrcat(Macro->MacroData,Macro->S);
-           	}
-           	else
-           	  lstrcpy(Macro->MacroData,Macro->S);
+              lstrcat(Macro->MacroData," ");
+              lstrcat(Macro->MacroData,Macro->S);
+            }
+            else
+              lstrcpy(Macro->MacroData,Macro->S);
 
             ItemData.PtrLength=lstrlen(Macro->MacroData)+1;
             ItemData.PtrData=Macro->MacroData;
           }
           else
           {
-            int Len=Info.SendDlgMessage(hDlg,DM_GETTEXT,8,NULL);
+            int Len=(int)Info.SendDlgMessage(hDlg,DM_GETTEXT,8,0);
             if (Len)
             {
               ItemData.PtrLength=Len;
               ItemData.PtrData=StrBuf1;
-              Info.SendDlgMessage(hDlg,DM_GETTEXT,8,(long)&ItemData);
+              Info.SendDlgMessage(hDlg,DM_GETTEXT,8,(LONG_PTR)&ItemData);
             }
 
             if (*StrBuf1)
@@ -396,7 +396,7 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
             ItemData.PtrLength=lstrlen(StrBuf2)+1;
             ItemData.PtrData=StrBuf2;
           }
-          Info.SendDlgMessage(hDlg,DM_SETTEXT,8,(long)&ItemData);
+          Info.SendDlgMessage(hDlg,DM_SETTEXT,8,(LONG_PTR)&ItemData);
         }
         return TRUE;
       }
@@ -475,7 +475,7 @@ long WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-long WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+LONG_PTR WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   static int EnableClose=FALSE;
 
@@ -488,7 +488,7 @@ long WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
     case DN_MOUSECLICK:
       return TRUE;
     case DN_HELP:
-      return NULL;
+      return 0;
     case DN_CLOSE:
       if (EnableClose)
       {
@@ -500,20 +500,20 @@ long WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
     case DN_KEY:
       if (Macro->WaitForKeyToMacro)
       {
-        int Key=(Param2 & ~KEY_CTRL & ~KEY_ALT & ~KEY_SHIFT & ~KEY_RCTRL & ~KEY_RALT & ~KEY_SHIFT);
+        DWORD Key=((DWORD)Param2 & ~KEY_CTRL & ~KEY_ALT & ~KEY_SHIFT & ~KEY_RCTRL & ~KEY_RALT & ~KEY_SHIFT);
         if (Key>=KEY_END_FKEY)
           return TRUE;
 
-        if (FSF.FarKeyToName(Param2,Macro->S,sizeof(Macro->S)))
+        if (FSF.FarKeyToName((int)Param2,Macro->S,sizeof(Macro->S)))
         {
           FarDialogItemData ItemData;
           char StrBuf[1024];
-          
+
           lstrcpy(StrBuf,Macro->S);
           ItemData.PtrLength=lstrlen(StrBuf)+1;
           ItemData.PtrData=StrBuf;
-          Info.SendDlgMessage(Macro->EditDlg,DM_SETTEXT,2,(long)&ItemData);
-          
+          Info.SendDlgMessage(Macro->EditDlg,DM_SETTEXT,2,(LONG_PTR)&ItemData);
+
           EnableClose=TRUE;
           Info.SendDlgMessage(hDlg,DM_CLOSE,-1,0);
         }
@@ -525,7 +525,7 @@ long WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-long WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+LONG_PTR WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
   FarListPos ListPos;
 
@@ -535,14 +535,14 @@ long WINAPI CopyDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
       ListPos.SelectPos=Macro->UserConfPos;
       ListPos.TopPos=0;
 
-      Info.SendDlgMessage(hDlg,DM_LISTSET,2,(long)&Macro->ConfList);
-      Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,2,(long)&ListPos);
+      Info.SendDlgMessage(hDlg,DM_LISTSET,2,(LONG_PTR)&Macro->ConfList);
+      Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,2,(LONG_PTR)&ListPos);
 
       ListPos.SelectPos=0;
       ListPos.TopPos=0;
 
-      Info.SendDlgMessage(hDlg,DM_LISTSET,4,(long)&Macro->GroupList);
-      Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,4,(long)&ListPos);
+      Info.SendDlgMessage(hDlg,DM_LISTSET,4,(LONG_PTR)&Macro->GroupList);
+      Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,4,(LONG_PTR)&ListPos);
       return FALSE;
     case DN_LISTCHANGE:
       if (Param1==2)
@@ -653,46 +653,46 @@ BOOL WINAPI ProcessKey(PINPUT_RECORD ir)
     switch(Macro->ActiveMode)
     {
       case MAC_MENUACTIVE:
-        /*if (KeyCode==VK_F2 && !CtrlPressed && !AltPressed && !ShiftPressed) // F2 - Export
+        if (KeyCode==VK_F2 && !CtrlPressed && !AltPressed && !ShiftPressed) // F2 - Export
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_F2);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_F2);
           return FALSE;
         }
         else if (KeyCode==VK_F2 && !CtrlPressed && !AltPressed && ShiftPressed) // ShiftF2 - Export all
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_SHIFTF2);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_SHIFTF2);
           return FALSE;
         }
         else if (KeyCode==VK_INSERT && !CtrlPressed && !AltPressed && !ShiftPressed) // Ins - New
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_INS);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_INS);
           return FALSE;
         }
         else if (KeyCode==VK_DELETE && !CtrlPressed && !AltPressed && !ShiftPressed) // Del - Delete
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_DEL);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_DEL);
           return FALSE;
         }
         else if ((KeyCode==VK_F4 || KeyCode==VK_RETURN) && !CtrlPressed && !AltPressed && !ShiftPressed) // F4,Enter - Edit
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_F4);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_F4);
           return FALSE;
         }
         else if (KeyCode==VK_F5 && !CtrlPressed && !AltPressed && !ShiftPressed) // F5 - Copy
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_F5);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_F5);
           return FALSE;
         }
         else if (KeyCode==VK_F6 && !CtrlPressed && !AltPressed && !ShiftPressed) // F6 - Move
         {
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(long)KEY_F6);
+          MenuDialogProc(Macro->MenuDlg,DN_KEY,0,(LONG_PTR)KEY_F6);
           return FALSE;
         }
         else*/ /*if (!CtrlPressed && !AltPressed && !ShiftPressed)
@@ -716,7 +716,7 @@ BOOL WINAPI ProcessKey(PINPUT_RECORD ir)
           if (Macro->WaitForKeyToMacro)
           {
 //            ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(long)KEY_CTRLDOT);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(LONG_PTR)KEY_CTRLDOT);
             return FALSE;
           }
 
@@ -740,17 +740,17 @@ BOOL WINAPI ProcessKey(PINPUT_RECORD ir)
         if (Macro->WaitForKeyToMacro)
         {
           if (KeyCode==VK_F9 && AltPressed && !CtrlPressed && !ShiftPressed)
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(long)KEY_ALTF9);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(LONG_PTR)KEY_ALTF9);
           else if (KeyCode==VK_F5 && !AltPressed && CtrlPressed && !ShiftPressed)
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(long)KEY_CTRLF5);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(LONG_PTR)KEY_CTRLF5);
           else if (KeyCode==VK_TAB && !AltPressed && CtrlPressed && !ShiftPressed)
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(long)KEY_CTRLTAB);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(LONG_PTR)KEY_CTRLTAB);
           else if (KeyCode==VK_TAB && !AltPressed && CtrlPressed && ShiftPressed)
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(long)KEY_CTRLSHIFTTAB);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(LONG_PTR)KEY_CTRLSHIFTTAB);
           else if (KeyCode==VK_F11 && !AltPressed && !CtrlPressed && !ShiftPressed)
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(long)KEY_F11);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(LONG_PTR)KEY_F11);
           else if (KeyCode==VK_F12 && !AltPressed && !CtrlPressed && !ShiftPressed)
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(long)KEY_F12);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,8,(LONG_PTR)KEY_F12);
           else
             break;
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
@@ -759,17 +759,17 @@ BOOL WINAPI ProcessKey(PINPUT_RECORD ir)
         if (Macro->CtrlDotPressed)
         {
           if (KeyCode==VK_F9 && AltPressed && !CtrlPressed && !ShiftPressed)
-            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)KEY_ALTF9);
+            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)KEY_ALTF9);
           else if (KeyCode==VK_F5 && !AltPressed && CtrlPressed && !ShiftPressed)
-            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)KEY_CTRLF5);
+            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)KEY_CTRLF5);
           else if (KeyCode==VK_TAB && !AltPressed && CtrlPressed && !ShiftPressed)
-            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)KEY_CTRLTAB);
+            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)KEY_CTRLTAB);
           else if (KeyCode==VK_TAB && !AltPressed && CtrlPressed && ShiftPressed)
-            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)KEY_CTRLSHIFTTAB);
+            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)KEY_CTRLSHIFTTAB);
           else if (KeyCode==VK_F11 && !AltPressed && !CtrlPressed && !ShiftPressed)
-            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)KEY_F11);
+            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)KEY_F11);
           else if (KeyCode==VK_F12 && !AltPressed && !CtrlPressed && !ShiftPressed)
-            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)KEY_F12);
+            MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)KEY_F12);
           else
             break;
 //          ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
@@ -832,7 +832,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
   DWORD Key,CKey;
 
   DWORD KeyState=ir->Event.KeyEvent.dwControlKeyState;
-  WORD ScanCode=ir->Event.KeyEvent.wVirtualScanCode;
+  //WORD ScanCode=ir->Event.KeyEvent.wVirtualScanCode;
   WORD KeyCode=ir->Event.KeyEvent.wVirtualKeyCode;
 
   CtrlPressed=(KeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
@@ -897,7 +897,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 
           if (Macro->WaitForKeyToMacro)
           {
-            DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(long)KEY_CTRLDOT);
+            DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(LONG_PTR)KEY_CTRLDOT);
             return FALSE;
           }
 
@@ -909,7 +909,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
           {
             Macro->SaveScr=Info.SaveScreen(0,0,lstrlen(Macro->MacroText),0);
             Info.Text(0,0,0x4F,(char *)Macro->MacroText);
-            Macro->LastFocus=Info.SendDlgMessage(Macro->EditDlg,DM_GETFOCUS,0,0);
+            Macro->LastFocus=(int)Info.SendDlgMessage(Macro->EditDlg,DM_GETFOCUS,0,0);
             Info.SendDlgMessage(Macro->EditDlg,DM_SETFOCUS,8,0);
           }
           else
@@ -932,7 +932,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
             {
               if (CKey==0x0d && (KeyState & SHIFT_PRESSED)) // Shift-Enter
                 Key|=KEY_SHIFT;
-              DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(long)Key);
+              DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(LONG_PTR)Key);
 
               // Завершающая стадия, поэтому очистим событие, но вернём TRUE
               ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
@@ -957,7 +957,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
             {
               if (CKey==0x0d && (KeyState & SHIFT_PRESSED)) // Shift-Enter
                 Key|=KEY_SHIFT;
-              MacroDialogProc(Macro->EditDlg,DN_KEY,8,(long)Key);
+              MacroDialogProc(Macro->EditDlg,DN_KEY,8,(LONG_PTR)Key);
             }
           }
           return FALSE;
@@ -1027,12 +1027,12 @@ TMacroView::TMacroView():
   MacroData=new char[DATASIZE];
   if (MacroData)
   {
-	  MacroMulti=new char[DATASIZE];
-	  if (!MacroMulti)
-	  {
-		  delete[] MacroData;
-		  MacroData=NULL;
-	  }
+    MacroMulti=new char[DATASIZE];
+    if (!MacroMulti)
+    {
+      delete[] MacroData;
+      MacroData=NULL;
+    }
   }
 
   InitData();
@@ -1069,8 +1069,8 @@ void __fastcall TMacroView::InitMacroAreas()
     (char *)MMacroNameViewer,
     (char *)MMacroNameOther,
     (char *)MMacroNameCommon,
-	(char *)MMacroNameFindFolder,
-	(char *)MMacroNameUserMenu
+  (char *)MMacroNameFindFolder,
+  (char *)MMacroNameUserMenu
   };
 
   MacroGroupsSize=sizeof(MacroGroupShort)/sizeof(MacroGroupShort[0]);
@@ -1079,12 +1079,12 @@ void __fastcall TMacroView::InitMacroAreas()
   for (i=0;i<MacroGroupsSize;i++)
   {
     if (Conf.LongGroupNames)
-      lstrcpyn(GroupItems[i].Text,GetMsg((unsigned int)GroupNumbers[i]),sizeof(GroupItems[i].Text));
+      lstrcpyn(GroupItems[i].Text,GetMsg((unsigned int)(DWORD_PTR)GroupNumbers[i]),sizeof(GroupItems[i].Text));
     else
       lstrcpyn(GroupItems[i].Text,MacroGroupShort[i],sizeof(GroupItems[i].Text));
     GroupItems[i].Flags=0;
   }
-  
+
   GroupList.ItemsNumber=MacroGroupsSize;
   GroupList.Items=GroupItems;
 }
@@ -1139,61 +1139,61 @@ void __fastcall TMacroView::InitDialogs()
   InitDialogItem InitItems[]=
   {
 
-/* 0*/  DI_DOUBLEBOX,  3, 1,DIALOGWID-4,DIALOGHGT-2,0,0,0,0,(char *)MMacroCombination,
-/* 1*/  DI_TEXT,       5, 2, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroKey),30),
-/* 2*/  DI_EDIT,       5, 3,35,3,0,(DWORD)MacroKeyHistory,DIF_HISTORY,0,"",
-/* 3*/  DI_TEXT,      39, 2, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroGroup),30),
-/* 4*/  DI_COMBOBOX,  39, 3,69,3,0,0,DIF_DROPDOWNLIST,0,"",
-/* 5*/  DI_TEXT,       5, 4, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/* 6*/  DI_VTEXT,     37, 2, 0,0,0,0,0,0,"\xB3\xB3\xC1",
-/* 7*/  DI_TEXT,       5, 5, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroCommand),64),
-/* 8*/  DI_EDIT,       5, 6,69,0,1,(DWORD)MacroCmdHistory,(MacroData)?DIF_HISTORY|DIF_VAREDIT:DIF_HISTORY,0,"",
-/* 9*/  DI_TEXT,       5, 7, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDescription),64),
-/*10*/  DI_EDIT,       5, 8,69,0,0,(DWORD)MacroDescrHistory,DIF_HISTORY,0,"",
-/*11*/  DI_TEXT,       5, 9, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+/* 0*/  {DI_DOUBLEBOX,  3, 1,DIALOGWID-4,DIALOGHGT-2,0,0,0,0,(char *)MMacroCombination},
+/* 1*/  {DI_TEXT,       5, 2, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroKey),30)},
+/* 2*/  {DI_EDIT,       5, 3,35,3,0,(DWORD_PTR)MacroKeyHistory,DIF_HISTORY,0,""},
+/* 3*/  {DI_TEXT,      39, 2, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroGroup),30)},
+/* 4*/  {DI_COMBOBOX,  39, 3,69,3,0,0,DIF_DROPDOWNLIST,0,""},
+/* 5*/  {DI_TEXT,       5, 4, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/* 6*/  {DI_VTEXT,     37, 2, 0,0,0,0,0,0,"\xB3\xB3\xC1"},
+/* 7*/  {DI_TEXT,       5, 5, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroCommand),64)},
+/* 8*/  {DI_EDIT,       5, 6,69,0,1,(DWORD_PTR)MacroCmdHistory,(MacroData)?DIF_HISTORY|DIF_VAREDIT:DIF_HISTORY,0,""},
+/* 9*/  {DI_TEXT,       5, 7, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDescription),64)},
+/*10*/  {DI_EDIT,       5, 8,69,0,0,(DWORD_PTR)MacroDescrHistory,DIF_HISTORY,0,""},
+/*11*/  {DI_TEXT,       5, 9, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
 
-/*12*/  DI_CHECKBOX,   5,10, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroRunAfterStart),27),
-/*13*/  DI_CHECKBOX,  39,10, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDisable),28),
+/*12*/  {DI_CHECKBOX,   5,10, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroRunAfterStart),27)},
+/*13*/  {DI_CHECKBOX,  39,10, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDisable),28)},
 
-/*14*/  DI_CHECKBOX,   5,11, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroComState),27),
-/*15*/  DI_CHECKBOX,  39,11, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroSelection),28),
+/*14*/  {DI_CHECKBOX,   5,11, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroComState),27)},
+/*15*/  {DI_CHECKBOX,  39,11, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroSelection),28)},
 
-/*16*/  DI_CHECKBOX,   5,12, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroAPanel),27),
-/*17*/  DI_CHECKBOX,  39,12, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroPPanel),28),
+/*16*/  {DI_CHECKBOX,   5,12, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroAPanel),27)},
+/*17*/  {DI_CHECKBOX,  39,12, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroPPanel),28)},
 
-/*18*/  DI_CHECKBOX,   7,13, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFilePlugPanel),26),
-/*19*/  DI_CHECKBOX,  41,13, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFilePlugPanel),27),
+/*18*/  {DI_CHECKBOX,   7,13, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFilePlugPanel),26)},
+/*19*/  {DI_CHECKBOX,  41,13, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFilePlugPanel),27)},
 
-/*20*/  DI_CHECKBOX,   7,14, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileUnder),26),
-/*21*/  DI_CHECKBOX,  41,14, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileUnder),27),
+/*20*/  {DI_CHECKBOX,   7,14, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileUnder),26)},
+/*21*/  {DI_CHECKBOX,  41,14, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileUnder),27)},
 
-/*22*/  DI_CHECKBOX,   7,15, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileSelected),26),
-/*23*/  DI_CHECKBOX,  41,15, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileSelected),27),
+/*22*/  {DI_CHECKBOX,   7,15, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileSelected),26)},
+/*23*/  {DI_CHECKBOX,  41,15, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileSelected),27)},
 
-/*24*/  DI_TEXT,       5,16, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/*25*/  DI_VTEXT,     37, 9, 0,0,0,0,0,0,"\xC2\xB3\xB3\xB3\xB3\xB3\xB3\xC1",
+/*24*/  {DI_TEXT,       5,16, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/*25*/  {DI_VTEXT,     37, 9, 0,0,0,0,0,0,"\xC2\xB3\xB3\xB3\xB3\xB3\xB3\xC1"},
 
-/*26*/  DI_CHECKBOX,   5,17, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroSendToPlugins),62),
+/*26*/  {DI_CHECKBOX,   5,17, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroSendToPlugins),62)},
 
-/*27*/  DI_TEXT,       5,18, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+/*27*/  {DI_TEXT,       5,18, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
 
-/*28*/  DI_CHECKBOX,   5,19, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroSwitchOff),62),
-/*29*/  DI_TEXT,       5,20, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/*30*/  DI_BUTTON,   x11,21, 0,0,0,0,0,1,Btn1,
-/*31*/  DI_BUTTON,   x12,21, 0,0,0,0,0,0,Btn2,
+/*28*/  {DI_CHECKBOX,   5,19, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroSwitchOff),62)},
+/*29*/  {DI_TEXT,       5,20, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/*30*/  {DI_BUTTON,   x11,21, 0,0,0,0,0,1,Btn1},
+/*31*/  {DI_BUTTON,   x12,21, 0,0,0,0,0,0,Btn2},
 
   };
-  
+
   InitDialogItems(InitItems,EditDialog,sizeof(InitItems)/sizeof(InitItems[0]));
 
   InitDialogItem DefItems[]=
   {
 
-/* 0*/  DI_DOUBLEBOX,  3, 1,40-4,5-2,0,0,0,0,(char *)MMacroDefineTitle,
-/* 1*/  DI_TEXT,       5, 2, 0,0,0,0,DIF_CENTERGROUP,0,CheckLen(GetMsg(MMacroDesiredKey),28),
+/* 0*/  {DI_DOUBLEBOX,  3, 1,40-4,5-2,0,0,0,0,(char *)MMacroDefineTitle},
+/* 1*/  {DI_TEXT,       5, 2, 0,0,0,0,DIF_CENTERGROUP,0,CheckLen(GetMsg(MMacroDesiredKey),28)},
 
   };
-  
+
   InitDialogItems(DefItems,DefKeyDialog,sizeof(DefItems)/sizeof(DefItems[0]));
 }
 
@@ -1255,7 +1255,7 @@ void __fastcall TMacroView::InitData()
     Deactivated=FALSE;
   lstrcpy(S,List->Item.Text);
 //  while((ptr=strchr(S,'&'))!=NULL) memmove(ptr,ptr+1,lstrlen(S)-(ptr-S)+1);
-  
+
   ptr=strchr(S,':');
   if (ptr)
   {
@@ -1283,7 +1283,7 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
 
   if (MenuDlg)
   {
-    Info.SendDlgMessage(MenuDlg,DM_GETDLGRECT,0,(long)&rect);
+    Info.SendDlgMessage(MenuDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect);
     if (rect.Bottom>=csbi.dwSize.Y-1)
       return;
     if (HelpActivated)
@@ -1291,7 +1291,7 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   }
   if (EditDlg)
   {
-    Info.SendDlgMessage(EditDlg,DM_GETDLGRECT,0,(long)&rect);
+    Info.SendDlgMessage(EditDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect);
     if (rect.Bottom>=csbi.dwSize.Y-1)
       return;
     if (HelpActivated)
@@ -1339,7 +1339,7 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   char *KeyBar[12];
 
   //Узнаем ширину экрана консоли
-  int ScrWidth=csbi.dwSize.X+1;
+  //int ScrWidth=csbi.dwSize.X+1;
 
   switch(kbType)
   {
@@ -1378,9 +1378,9 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   Region.Bottom=csbi.dwSize.Y-1;
 
   ReadConsoleOutput(hOut,chi,Size,Coord,&Region);
-  
-  int ColDigit=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_KEYBARNUM);
-  int ColText=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_KEYBARTEXT);
+
+  int ColDigit=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_KEYBARNUM);
+  int ColText=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_KEYBARTEXT);
   if (chi[0].Char.AsciiChar=='1' && chi[0].Attributes==ColDigit && chi[1].Attributes==ColText)
   {
     for (i=0,j=1;j<csbi.dwSize.X;i++)
@@ -1470,7 +1470,7 @@ BOOL __fastcall TMacroView::CreateDirs(char *Dir)
     }
     else
     {
-      lstrcpyn(Str,Dir,ptr-Dir+1);
+      lstrcpyn(Str,Dir,(int)(ptr-Dir)+1);
     }
 
     if (*Str && (!CreateDirectory(Str,NULL)))
@@ -1552,13 +1552,13 @@ void TMacroView::InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,
     Item[I].X2=Init[I].X2;
     Item[I].Y2=Init[I].Y2;
     Item[I].Focus=Init[I].Focus;
-    Item[I].Param.Selected=Init[I].Param.Selected;
+    Item[I].Param.Reserved=Init[I].Selected;
     Item[I].Flags=Init[I].Flags;
     Item[I].DefaultButton=Init[I].DefaultButton;
-    if ((unsigned int)Init[I].Data.Data<300)
-      lstrcpy(Item[I].Data.Data,GetMsg((unsigned int)Init[I].Data.Data));
+    if ((unsigned int)(DWORD_PTR)Init[I].Data<300)
+      lstrcpy(Item[I].Data.Data,GetMsg((unsigned int)(DWORD_PTR)Init[I].Data));
     else
-      lstrcpy(Item[I].Data.Data,Init[I].Data.Data);
+      lstrcpy(Item[I].Data.Data,Init[I].Data);
   }
 }
 
@@ -1568,7 +1568,7 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
   char lKey[MAX_KEY_LEN];
   char lGroup[MAX_KEY_LEN];
   char *TmpPrfx="mvu";
-  FILE *fname;
+  HANDLE fname;
 
   char *ErrorRun[]=
   {
@@ -1636,7 +1636,7 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
 
     ZeroMemory(&si,sizeof(si));
     si.cb=sizeof(si);
-    
+
     char regedit[32];
     if ((vi.dwPlatformId==VER_PLATFORM_WIN32_NT) && (vi.dwMajorVersion>=5))
       lstrcpy(regedit,"regedit -ea");
@@ -1665,7 +1665,8 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
       return;
     }
 
-    if((fname=fopen(TempFileName,"rt"))==NULL)
+    fname=CreateFile(TempFileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+    if(fname==INVALID_HANDLE_VALUE)
     {
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
@@ -1678,12 +1679,25 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
 
     int iteration=1;
     int indent=1;
-    while (!feof(fname))
+    DWORD t;
+    while (1)
     {
-      fgets(S,sizeof(S),fname);
-      for (int i=0;S[i];i++)
-        if ((S[i]=='\n') || (S[i]=='\r')) S[i]='\0';
+      if (!(ReadFile(fname,S,sizeof(S)-1,&t,NULL) && t))
+        break;
 
+      DWORD i;
+      for (i=0;i<t;i++)
+      {
+        if ((S[i]=='\n') || (S[i]=='\r'))
+        {
+          if (S[i]=='\r' && i+1<t && S[i+1]=='\n')
+            S[i++]=0;
+          S[i++]=0;
+          break;
+        }
+      }
+      S[t]=0;
+      SetFilePointer(fname,-((int)(t-i)),NULL,FILE_CURRENT);
 
       if (iteration==1)
       {
@@ -1717,7 +1731,7 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
       iteration++;
     }
     Info.EditorControl(ECTL_REDRAW,NULL);
-    fclose(fname);
+    CloseHandle(fname);
   }
   DeleteFile(TempFileName);
   SetFileApisToOEM();
@@ -1767,12 +1781,12 @@ void __fastcall TMacroView::ExportMacroToFile(BOOL AllMacros)
 
     struct InitDialogItem InitItems[]=
     {
-      DI_DOUBLEBOX,3,1,EXPORTLEN+2,6,0,0,0,0,(char *)MMacroExport,
-      DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_EDIT,5,3,EXPORTLEN,3,1,(DWORD)MacroExpHistory,DIF_HISTORY,0,"",
-      DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave,
-      DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel
+      {DI_DOUBLEBOX,3,1,EXPORTLEN+2,6,0,0,0,0,(char *)MMacroExport},
+      {DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,""},
+      {DI_EDIT,5,3,EXPORTLEN,3,1,(DWORD_PTR)MacroExpHistory,DIF_HISTORY,0,""},
+      {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+      {DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave},
+      {DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel}
     };
 
     FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -1803,24 +1817,24 @@ MACRO_DIALOG:
     {
       ZeroMemory(&si,sizeof(si));
       si.cb=sizeof(si);
-      
+
       char *ptr=strrchr(DialogItems[2].Data.Data,'\\');
       if (ptr)
       {
         ZeroMemory(Str,sizeof(Str));
-        lstrcpyn(Str,DialogItems[2].Data.Data,ptr-DialogItems[2].Data.Data+1);
+        lstrcpyn(Str,DialogItems[2].Data.Data,(int)(ptr-DialogItems[2].Data.Data)+1);
         if (!CreateDirs(Str))
           goto MACRO_DIALOG;
       }
-      
+
       char AnsiName[MAX_PATH_LEN];
       SetFileApisToANSI();
       OemToChar(DialogItems[2].Data.Data,AnsiName);
-      
+
       ZeroMemory(TempPath,sizeof(TempPath));
       if (ptr)
       {
-        lstrcpyn(TempPath,DialogItems[2].Data.Data,ptr-DialogItems[2].Data.Data+1);
+        lstrcpyn(TempPath,DialogItems[2].Data.Data,(int)(ptr-DialogItems[2].Data.Data)+1);
         wsprintf(TempFileName,"%s\\%s%x.tmp",TempPath,TmpPrfx,102938);
       }
       else
@@ -2093,7 +2107,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
         ActiveMode=OldActive;
         return lResult;
       }
-  
+
       ConfItems[0].Flags=0;
       lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),sizeof(ConfItems[0].Text));
       ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
@@ -2146,18 +2160,18 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 
   struct InitDialogItem InitItems[]=
   {
-/* 0*/ DI_DOUBLEBOX,            3,1,EXPORTLEN+2,9,0,0,0,0,"",
-/* 1*/ DI_TEXT,                 5,2,EXPORTLEN/2,0,0,0,0,0,CheckLen(GetMsg(MMacroSelectConfig),EXPORTLEN/2),
-/* 2*/ DI_COMBOBOX,             5,3,EXPORTLEN/2,3,1,0,DIF_DROPDOWNLIST,0,"",
-/* 3*/ DI_TEXT,     EXPORTLEN/2+4,2,  EXPORTLEN,0,0,0,0,0,CheckLen(GetMsg(MMacroCopyMoveTo),EXPORTLEN/2-2),
-/* 4*/ DI_COMBOBOX, EXPORTLEN/2+4,3,  EXPORTLEN,3,0,0,DIF_DROPDOWNLIST,0,"",
-/* 5*/ DI_TEXT,                 5,4,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/* 6*/ DI_VTEXT,    EXPORTLEN/2+2,2,          0,0,0,0,0,0,"\xB3\xB3\xC1",
-/* 7*/ DI_TEXT,                 5,5,  EXPORTLEN,0,0,0,0,0,CheckLen(GetMsg(MMacroNewKey),EXPORTLEN),
-/* 8*/ DI_EDIT,                 5,6,  EXPORTLEN,5,0,(DWORD)MacroCopyHistory,DIF_HISTORY,0,"",
-/* 9*/ DI_TEXT,                 5,7,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-/*10*/ DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave,
-/*11*/ DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel
+/* 0*/ {DI_DOUBLEBOX,            3,1,EXPORTLEN+2,9,0,0,0,0,""},
+/* 1*/ {DI_TEXT,                 5,2,EXPORTLEN/2,0,0,0,0,0,CheckLen(GetMsg(MMacroSelectConfig),EXPORTLEN/2)},
+/* 2*/ {DI_COMBOBOX,             5,3,EXPORTLEN/2,3,1,0,DIF_DROPDOWNLIST,0,""},
+/* 3*/ {DI_TEXT,     EXPORTLEN/2+4,2,  EXPORTLEN,0,0,0,0,0,CheckLen(GetMsg(MMacroCopyMoveTo),EXPORTLEN/2-2)},
+/* 4*/ {DI_COMBOBOX, EXPORTLEN/2+4,3,  EXPORTLEN,3,0,0,DIF_DROPDOWNLIST,0,""},
+/* 5*/ {DI_TEXT,                 5,4,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/* 6*/ {DI_VTEXT,    EXPORTLEN/2+2,2,          0,0,0,0,0,0,"\xB3\xB3\xC1"},
+/* 7*/ {DI_TEXT,                 5,5,  EXPORTLEN,0,0,0,0,0,CheckLen(GetMsg(MMacroNewKey),EXPORTLEN)},
+/* 8*/ {DI_EDIT,                 5,6,  EXPORTLEN,5,0,(DWORD_PTR)MacroCopyHistory,DIF_HISTORY,0,""},
+/* 9*/ {DI_TEXT,                 5,7,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/*10*/ {DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave},
+/*11*/ {DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel}
   };
 
   FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -2235,7 +2249,7 @@ COPY_MOVE:
       wsprintf(S1,"%s\\%s\\%s",LocalKeyMacros,lGroup,lKey);
       wsprintf(Str1,"%s\\%s\\~%s",LocalKeyMacros,lGroup,lKey);
     }
-  
+
     if (CmpStr(S,S1)==0)
     {
       if (Op==KEY_F5)
@@ -2326,7 +2340,7 @@ void TMacroView::MoveTildeInKey(TStrList *&List,BOOL doit)
         List->SetText(Str,i);
       }
     }
-      
+
   }
 }
 
@@ -2393,7 +2407,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
     MacNameList=new TStrList;     // список значений в группе
     DescrList=new TStrList;       // список описаний
     MenuList=new TStrList;        // список всех макрокоманд из реестра
-  
+
     // Эти два списка созданы для синхронизации со списком MenuList
     // и содержат названия групп и ключей как будто они были взяты
     // из MenuList.
@@ -2429,7 +2443,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
     ListPos.TopPos=TopPos;
 
     // Очистим весь список
-    Info.SendDlgMessage(hDlg,DM_LISTDELETE,0,NULL);
+    Info.SendDlgMessage(hDlg,DM_LISTDELETE,0,0);
 
     for (i=0;i<NameList->GetCount();i++)
     {
@@ -2467,7 +2481,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
         lstrcpy(Str,Group);
         ConvertGroupName(Str,Conf.LongGroupNames?GRP_TOLONGNAME:GRP_TOSHORTNAME);          //local Group
         ConvertGroupName(Macro->Group,Conf.LongGroupNames?GRP_TOLONGNAME:GRP_TOSHORTNAME); //Macro->Group
-      
+
         // Проверим, совпадают ли название группы и макроса с Macro->Group и Macro->Key
         // и если да, то запомним номер позиции в списке, мы на него затем перейдём.
         // Если же искомые группа и макрос не найдены, то перейдём потом на строку,
@@ -2476,8 +2490,8 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
           if ((CmpStr(Str,Macro->Group)==0) && (CmpStr((Key[0]=='~' && lstrlen(Key)>1)?&Key[1]:Key,Macro->Key)==0))
             ListPos.SelectPos=k;
 
-        lstrcpy(Str,NameList->GetText(i));	// Str contains group name
-        lstrcpy(Key,MacNameList->GetText(j));	// Key contains key name
+        lstrcpy(Str,NameList->GetText(i));  // Str contains group name
+        lstrcpy(Key,MacNameList->GetText(j)); // Key contains key name
         if (Conf.GroupDivider)
         {
           // Добавление разделителя групп.
@@ -2537,7 +2551,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 
     if (ListPos.SelectPos==0)
       ListPos.SelectPos=SelectPos;
-  
+
     // Структура для хранения ассоциированных с итемом меню данных.
     MenuData MData;
     FarListItemData ItemData;
@@ -2549,20 +2563,20 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
         FSF.sprintf(S,"%*s\xB3%*s",KeyWidth," ",KeyWidth," ");
       else
         FSF.sprintf(S,"%*s",KeyWidth," ");
-    
+
       FarListItem ListItems; //=new FarListItem[1];
       List.ItemsNumber=1;
       List.Items=&ListItems;
 
       lstrcpy(ListItems.Text,S);
       ListItems.Flags=LIF_SELECTED;
-      Info.SendDlgMessage(hDlg,DM_LISTADD,0,(long)&List);
+      Info.SendDlgMessage(hDlg,DM_LISTADD,0,(LONG_PTR)&List);
 
       ZeroMemory(&MData,sizeof(MData));
       ItemData.Index=0;
       ItemData.Data=&MData;
       ItemData.DataSize=sizeof(MData);
-      Info.SendDlgMessage(hDlg,DM_LISTSETDATA,0,(long)&ItemData);
+      Info.SendDlgMessage(hDlg,DM_LISTSETDATA,0,(LONG_PTR)&ItemData);
 
       MaxMenuItemLen=lstrlen(S);
     }
@@ -2571,7 +2585,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
       FarListItem ListItems; //=new FarListItem[MenuItemsNumber];
       List.ItemsNumber=1; //MenuItemsNumber;
       List.Items=&ListItems;
-    
+
       for (i=0;i<MenuItemsNumber;i++)
       {
         if (Conf.AddDescription && !emptyDescr)
@@ -2612,20 +2626,20 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
           ListItems/*[i]*/.Text[0]=0;
           ZeroMemory(&MData,sizeof(MData));
         }
-        Info.SendDlgMessage(hDlg,DM_LISTADD,0,(long)&List);
+        Info.SendDlgMessage(hDlg,DM_LISTADD,0,(LONG_PTR)&List);
 
         // Ассоциируем с добавленным итемом меню данные о группе и ключе.
         ItemData.Index=i;
         ItemData.Data=&MData;
         ItemData.DataSize=sizeof(MData);
-        Info.SendDlgMessage(hDlg,DM_LISTSETDATA,0,(long)&ItemData);
+        Info.SendDlgMessage(hDlg,DM_LISTSETDATA,0,(LONG_PTR)&ItemData);
 
         MaxMenuItemLen=max(lstrlen(S),MaxMenuItemLen);
       }
     }
 
 //    Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-//    Info.SendDlgMessage(hDlg,DM_LISTSET,0,(long)&List);
+//    Info.SendDlgMessage(hDlg,DM_LISTSET,0,(LONG_PTR)&List);
 
 //    delete[] ListItems;
     delete GroupList;
@@ -2656,52 +2670,52 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
   }
 
   // Установим позицию курсора в списке
-  Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(long)&ListPos);
+  Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
   // Разрешим отрисовку экрана
   Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 
   COORD Coord;
   Coord.X=MenuW;
   Coord.Y=MenuH;
-  Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&Coord);
-  
+  Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&Coord);
+
 /*  if (MenuX==-1 && MenuY==-1) // MenuX и MenuY равны -1, значит первый вызов и диалог центрируется.
   {
     MenuX=(csbi.dwSize.X-MenuW)/2;
     MenuY=(csbi.dwSize.Y-MenuH)/2;
   }*/
-  
+
   Coord.X=MenuX;
   Coord.Y=MenuY;
-  Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&Coord);
-  
+  Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&Coord);
+
   SMALL_RECT Rect;
   Rect.Left=2;
   Rect.Top=1;
   Rect.Right=MenuW-3;
   Rect.Bottom=MenuH-2;
-  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,0,(long)&Rect);
+  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,0,(LONG_PTR)&Rect);
   Rect.Left=(MenuW-lstrlen(MenuTitle))/2;
   Rect.Top=1;
-  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,1,(long)&Rect);
+  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,1,(LONG_PTR)&Rect);
   Rect.Left=(MenuW-lstrlen(MenuBottom))/2;
   Rect.Top=MenuH-2;
-  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,2,(long)&Rect);
+  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,2,(LONG_PTR)&Rect);
 }
 
 
 void TMacroView::WriteRegValues(FarDialogItem *DialogItems)
 {
-  if (MacroData
+  if (MacroData)
   {
-	  if (MultiLine)
-	  {
-        Reg->PutData("Sequence",unsigned char *MacroData,,rdMultiString);
-	  }
-	  else
-	  {
+    if (MultiLine)
+    {
+        //BUGBUG Reg->PutData("Sequence",MacroData,,rdMultiString);
+    }
+    else
+    {
         Reg->WriteString("Sequence",MacroData);
-	  }
+    }
   }
   else
   {
@@ -2907,7 +2921,7 @@ BOOL __fastcall TMacroView::CopyMacro(int vKey)
 void __fastcall TMacroView::ExportMacro(BOOL AllMacros)
 {
   int eCode;
-  char lGroup[MAX_KEY_LEN];	//длинное название текущего раздела макроса
+  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
   char *ItemsSave1[]=
   {
@@ -2966,7 +2980,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
   BOOL lResult=FALSE;
 
   char Button[BUTTONLEN];
-  char lGroup[MAX_KEY_LEN];	//длинное название текущего раздела макроса
+  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
   if (Deactivated)
     wsprintf(Str,GetMsg(MMacroWarningDeleteThisKey),GetMsg(MMacroWarningRest));
@@ -3021,7 +3035,7 @@ BOOL __fastcall TMacroView::InsertMacro()
 {
   BOOL RetVal=FALSE;
 
-  char lGroup[MAX_KEY_LEN];	//длинное название текущего раздела макроса
+  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
   char *ItemsInsEmp[]=
   {
@@ -3055,7 +3069,7 @@ BOOL __fastcall TMacroView::InsertMacro()
   EditDialog[4].Data.Data[0]=0;
   if (MacroData)
   {
-  	EditDialog[8].Data.Ptr.PtrFlags=0;
+    EditDialog[8].Data.Ptr.PtrFlags=0;
     EditDialog[8].Data.Ptr.PtrLength=DATASIZE;
     EditDialog[8].Data.Ptr.PtrData=MacroData;
     *MacroData=0;
@@ -3201,7 +3215,7 @@ BOOL __fastcall TMacroView::EditMacro()
   BOOL RetVal=FALSE;
 
   char Button[BUTTONLEN];
-  char lGroup[MAX_KEY_LEN];	//длинное название текущего раздела макроса
+  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
   int i;
 
   char *ItemsError[]=
@@ -3346,25 +3360,25 @@ BOOL __fastcall TMacroView::EditMacro()
         if (CmpStr(S,"Sequence")==0) // Sequence
         {
           if (MacroData)
-		  {
-			// Получим тип данных макропоследовательности
-			TRegDataType Type;
-			int nSize=Reg->GetData(S,MacroData,DATASIZE,Type);
-			if (nSize>0)
-			{
-				if (Type==rdMultiString)
-					// Макрос в реестре с типом многострочный
-					MultiLine=TRUE;
-			}
-			else
-				MacroData[0]=0;
+      {
+      // Получим тип данных макропоследовательности
+      TRegDataType Type;
+      int nSize=Reg->GetData(S,MacroData,DATASIZE,Type);
+      if (nSize>0)
+      {
+        if (Type==rdMultiString)
+          // Макрос в реестре с типом многострочный
+          MultiLine=TRUE;
+      }
+      else
+        MacroData[0]=0;
 
-			/*if (Type==rdMultiString)
-			{
-			}
-			else
-				Reg->ReadString(S,MacroData,DATASIZE);*/
-		  }
+      /*if (Type==rdMultiString)
+      {
+      }
+      else
+        Reg->ReadString(S,MacroData,DATASIZE);*/
+      }
           else
           {
             Reg->ReadString(S,Str,sizeof(Str));
@@ -3731,11 +3745,11 @@ int TMacroView::MacroList()
   InitDialogItem InitItems[]=
   {
 
-/*0*/  DI_LISTBOX,   2,1,MenuW-3,MenuH-2,1,0,((Conf.UseHighlight)?DIF_LISTAUTOHIGHLIGHT:0)|((Conf.MenuCycle)?DIF_LISTWRAPMODE:0),0,"",
-/*1*/  DI_TEXT,      1000,1000,0,0,0,0,0,0,MenuTitle,
+/*0*/  {DI_LISTBOX,   2,1,MenuW-3,MenuH-2,1,0,((Conf.UseHighlight)?DIF_LISTAUTOHIGHLIGHT:0)|((Conf.MenuCycle)?DIF_LISTWRAPMODE:0),0,""},
+/*1*/  {DI_TEXT,      1000,1000,0,0,0,0,0,0,MenuTitle},
 
   };
-  
+
   InitDialogItems(InitItems,MenuDialog,sizeof(InitItems)/sizeof(InitItems[0]));
 
   Info.DialogEx(Info.ModuleNumber,MenuX,MenuY,MenuW,MenuH,"MacroView",
@@ -3767,4 +3781,3 @@ int TMacroView::MacroList()
   Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&akm);
   return 0;
 }
-

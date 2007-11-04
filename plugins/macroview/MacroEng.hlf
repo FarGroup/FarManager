@@ -2,8 +2,8 @@
 .PluginContents=FAR Macro browser
 
 @Contents
-$ #FAR Macro browser. Version 2.5#
-    
+$ #FAR Macro browser#
+
     This module provides a viewing, editing, copying and moving macros
 to other areas, copying and moving of macros to other user's FAR
 configurations, export to the file, inserting in the editor, creation,
@@ -105,19 +105,19 @@ $ #Macro areas. Short names#
  #Help#       command works in the help window.
 
  #InfoPanel#  command works in the Info panel.
- 
+
  #MainMenu#   command works in the main menu.
 
  #Menu#       command works in the other menus.
 
  #QviewPanel# command works in the quick view panel.
- 
+
  #Search#     command works in the quick search files window.
 
  #Shell#      command works in file panels.
 
  #TreePanel#  command works in the tree panel.
- 
+
  #Viewer#     command works in the built-in viewer.
 
  #Other#      command works everywhere, except areas described above.
@@ -136,19 +136,19 @@ $ #Macro areas. Long names#
  #Help window#        command works in the help window.
 
  #Info panel#         command works in the Info panel.
- 
+
  #Main menu#          command works in the main menu.
 
  #Other menus#        command works in the other menus.
 
  #Quick view panel#   command works in the quick view panel.
- 
+
  #Quick search files# command works in the quick search files window.
 
  #File panels#        command works in file panels.
 
  #Tree panel#         command works in the tree panel.
- 
+
  #Built-in viewer#    command works in the built-in viewer.
 
  #Other areas#        command works everywhere, except areas described
@@ -301,7 +301,7 @@ independently of the keys, assigned in TechInfo##10.
  #$While (Expr) Sequence $End#
      Allows to use cyclic process in macros -
 "While expression Expr is true execute sequence Sequence".
-     
+
  #$Rep (Expr) Sequence $End#
      Allows to use cyclic process in macros -
 "Execute Expr times sequence Sequence".
@@ -379,7 +379,7 @@ forbidden until the macro playback is finished.
     [?] - ignore the panel type.
 
  #Folder/file under cursor#
- 
+
     [x] - execute only if a folder is under the panel cursor
     [ ] - execute only if a file is under the panel cursor
     [?] - execute for both folders and files
@@ -501,7 +501,7 @@ registry upon module startup and thus will not be displayed in the macro list.
 
     Note, that this option is useful only when #Auto save setup# FAR option
 is disabled, otherwise FAR will automatically save these macros.
- 
+
  #Show all except "Viewer" and "Editor" areas in panels#
 
     When setting this option on, in the list of macros, started
@@ -564,8 +564,8 @@ type in the UNC path, for example:
 $ #Export file already exists#
     If there is a situation where a file with the name you enter exists,
 you will be prompted with message window for making choice from one of
-the following: #Overwrite# - overwrites the existing file, #Rename# - 
-returns you to dialog to enter new name of exporting file and #Cancel# - 
+the following: #Overwrite# - overwrites the existing file, #Rename# -
+returns you to dialog to enter new name of exporting file and #Cancel# -
 cancels exporting and returns you to the list of macros.
 
 @MacroVariables
@@ -581,7 +581,7 @@ $ #Variables#
     Имена регистронезависимые: '%myStr' и '%MYstr' - одна и та же переменная.
     Переменные могут быть двух типов - целое число или строка.
     Целочисленные константы: NNN - 10-ричная константа, 0NNN - 8-ричная константа,
-0xNNN - 16-ричная константа. 
+0xNNN - 16-ричная константа.
     Присвоение значения переменной должно заканчиваться символом ';'
 
 
@@ -594,5 +594,5 @@ $ #Variables#
                  если происходит деление на 0
     #&#            Логическое умножение
     #^#            Исключающее ИЛИ (XOR)
-    #|#            Логическое сложение 
-    #!#            Логическое отрицание 
+    #|#            Логическое сложение
+    #!#            Логическое отрицание

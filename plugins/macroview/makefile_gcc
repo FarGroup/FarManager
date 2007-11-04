@@ -1,0 +1,7 @@
+NAME = MacroView
+SRCS = MacroView.cpp
+DOCS = MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng
+
+include ../makefile_gcc_def_inc
+
+include ../makefile_gcc_target_inc
