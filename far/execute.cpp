@@ -170,77 +170,73 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 // по имени файла (по его расширению) получить команду активации
 // Дополнительно смотрится гуевость команды-активатора
 // (чтобы не ждать завершения)
-wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error)
+const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
   //_SVS(CleverSysLog clvrSLog(L"GetShellAction()"));
   //_SVS(SysLog(L"Param: FileName='%s'",FileName));
 
-  wchar_t Value[1024]; //BUGBUG
+  string strValue;
   string strNewValue;
   const wchar_t *ExtPtr;
-  wchar_t *RetPtr;
-  LONG ValueSize;
+  const wchar_t *RetPtr;
   const wchar_t command_action[]=L"\\command";
 
-  Error=ERROR_SUCCESS;
+  Error = ERROR_SUCCESS;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
   if ((ExtPtr=wcsrchr(FileName,L'.'))==NULL)
     return(NULL);
 
-  ValueSize=sizeof(Value);
-  *Value=0;
-
-  if (RegQueryValueW(HKEY_CLASSES_ROOT,ExtPtr,Value,&ValueSize)!=ERROR_SUCCESS)
+  if (RegQueryStringValue(HKEY_CLASSES_ROOT,ExtPtr,strValue,L"")!=ERROR_SUCCESS)
     return(NULL);
 
-  wcscat(Value,L"\\shell");
-//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,Value));
+  strValue += L"\\shell";
+//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
 
   HKEY hKey;
-  if (RegOpenKeyW(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
-  static wchar_t Action[512];
+  static string strAction;
 
-  *Action=0;
-  ValueSize=sizeof(Action);
-  LONG RetQuery = RegQueryValueExW(hKey,L"",NULL,NULL,(PBYTE)Action,(LPDWORD)&ValueSize);
-  wcscat(Value,L"\\");
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+  int RetQuery = RegQueryStringValueEx(hKey,L"",strAction,L"");
+
+  strValue += L"\\";
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
 
   if (RetQuery == ERROR_SUCCESS)
   {
     UserDefinedList ActionList(0,0,ULF_UNIQUE);
 
-    RetPtr=(*Action==0 ? NULL:Action);
+    RetPtr = (strAction.IsEmpty() ? NULL : (const wchar_t *)strAction);
     const wchar_t *ActionPtr;
 
     LONG RetEnum = ERROR_SUCCESS;
-    if (RetPtr != NULL && ActionList.Set(Action))
+    if (RetPtr != NULL && ActionList.Set(strAction))
     {
       HKEY hOpenKey;
 
       ActionList.Reset();
       while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
       {
-        strNewValue = Value;
+        strNewValue = strValue;
         strNewValue += ActionPtr;
         strNewValue += command_action;
 
         if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          wcsncat(Value, ActionPtr, (sizeof(Value) - 1)/2);
-          RetPtr = xwcsncpy(Action,ActionPtr,(sizeof(Action)-1)/2);
+          strValue += ActionPtr;
+          strAction = ActionPtr;
+          RetPtr = (const wchar_t *)strAction;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */
     } /* if */
     else
-      wcsncat(Value,Action, (sizeof(Value) - 1)/2);
+      strValue += strAction;
 
-//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,Value));
+//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
     if(RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
       RetPtr=NULL;
   }
@@ -249,7 +245,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     // This member defaults to "Open" if no verb is specified.
     // Т.е. если мы вернули NULL, то подразумевается команда "Open"
       RetPtr=NULL;
-//    strcat(Value,"\\open");
+//    strValue += L"\\open";
   }
 
   // Если RetPtr==NULL - мы не нашли default action.
@@ -263,62 +259,61 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     HKEY hOpenKey;
 
     // Сначала проверим "open"...
-    wcscpy(Action,L"open");
+    strAction = L"open";
 
-    strNewValue = Value;
-    strNewValue += Action;
+    strNewValue = strValue;
+    strNewValue += strAction;
     strNewValue += command_action;
 
     if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
     {
       RegCloseKey(hOpenKey);
-      wcsncat(Value, Action, (sizeof(Value) - 1)/2);
-      RetPtr = Action;
+      strValue += strAction;
+      RetPtr = (const wchar_t *)strAction;
       RetEnum = ERROR_NO_MORE_ITEMS;
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
     } /* if */
 
     // ... а теперь все остальное, если "open" нету
     while (RetEnum == ERROR_SUCCESS)
     {
-      dwKeySize = sizeof(Action);
+      wchar_t *Action = 0;
+      dwKeySize = 0;
+      RegEnumKeyExW(hKey, dwIndex, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
+      Action = strAction.GetBuffer((int)++dwKeySize);
+      *Action = 0;
       RetEnum = RegEnumKeyExW(hKey, dwIndex++, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
+      strAction.ReleaseBuffer();
       if (RetEnum == ERROR_SUCCESS)
       {
         // Проверим наличие "команды" у этого ключа
-        strNewValue = Value;
-        strNewValue += Action;
+        strNewValue = strValue;
+        strNewValue += strAction;
         strNewValue += command_action;
         if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          wcsncat(Value, Action, (sizeof(Value) - 1)/2);
-          RetPtr = Action;
+          strValue += strAction;
+          RetPtr = (const wchar_t *)strAction;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* if */
     } /* while */
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
   } /* if */
 
   RegCloseKey(hKey);
 
   if (RetPtr != NULL)
   {
-    wcsncat(Value,command_action, (sizeof(Value) - 1)/2);
+    strValue += command_action;
 
     // а теперь проверим ГУЕвость запускаемой проги
-    if (RegOpenKeyW(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
+    if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
     {
-      ValueSize=1024*sizeof (wchar_t);
-
-      wchar_t *lpwszNewValue = strNewValue.GetBuffer (1024); //BUGBUG
-
-      RetQuery=RegQueryValueExW(hKey,L"",NULL,NULL,(PBYTE)lpwszNewValue,(LPDWORD)&ValueSize);
-
-      strNewValue.ReleaseBuffer ();
-
+      RetQuery=RegQueryStringValueEx(hKey,L"",strNewValue,L"");
       RegCloseKey(hKey);
+
       if(RetQuery == ERROR_SUCCESS && !strNewValue.IsEmpty())
       {
         apiExpandEnvironmentStrings(strNewValue,strNewValue);
@@ -348,7 +343,7 @@ wchar_t* GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Err
     }
   }
 
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
   return RetPtr;
 }
 

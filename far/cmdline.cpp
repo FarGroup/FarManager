@@ -495,8 +495,8 @@ void CommandLine::GetPrompt(string &strDestStr)
             $_ - Carriage return and linefeed
             */
             case L'H': // $H - Backspace (erases previous character)
-              strDestStr.GetBuffer ((int)strDestStr.GetLength()-1);
-              strDestStr.ReleaseBuffer (); //BUGBUG
+              if (!strDestStr.IsEmpty())
+                strDestStr.SetLength(strDestStr.GetLength()-1);
               break;
             case L'D': // $D - Current date
             case L'T': // $T - Current time

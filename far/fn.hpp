@@ -116,7 +116,7 @@ int GetDateFormat();
 int GetDateSeparator();
 int GetTimeSeparator();
 
-char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
+const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 
