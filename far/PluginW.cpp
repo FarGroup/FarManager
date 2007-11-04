@@ -134,6 +134,20 @@ static void CheckScreenLock()
 	}
 }
 
+static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
+{
+  string strKT;
+  if (!KeyToText(Key,strKT))
+      return 0;
+  size_t len = strKT.GetLength();
+  size_t max = Size/sizeof(wchar_t);
+  if (max && KeyText) {
+    if (max <= len) len = max-1;
+    memcpy(KeyText, (const wchar_t*)strKT, len*sizeof(wchar_t));
+    KeyText[len] = 0;
+  } else if(KeyText) *KeyText = 0;
+  return (len+1);
+}
 
 
 PluginW::PluginW (
@@ -467,7 +481,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.AddEndSlash=AddEndSlash;
     StandardFunctions.CopyToClipboard=CopyToClipboard;
     StandardFunctions.PasteFromClipboard=PasteFromClipboard;
-    //StandardFunctions.FarKeyToName=KeyToText; //BUGBUG
+    StandardFunctions.FarKeyToName=FarKeyToName;
     ///StandardFunctions.FarNameToKey=KeyNameToKey; //BUGBUG
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
     StandardFunctions.XLat=XlatA;
