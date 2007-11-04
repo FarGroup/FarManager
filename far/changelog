@@ -1,4 +1,9 @@
-t-rex 04.11.2007 21:33:24 +0300 - build 319
+yjh 04.11.2007 22:21:28 +0300 - build 320
+
+1. В FarKeyToName параметр Size и возвращаемое значение в символах, а не
+   байтах.
+
+yjh 04.11.2007 21:33:24 +0300 - build 319
 
 1. Добавлена нормальная имплементация FarKeyToName. Изменения в API:
    typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
