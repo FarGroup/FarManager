@@ -11,7 +11,7 @@
 #USERCPP - user defined switches for the compiler (added after the default
 #          ones).
 #
-#USERLIBS - specify addional libs you need in the form -llib
+#USERLIBS - specify additional libs you need in the form -llib
 #           (added after the default ones).
 #
 #USERLIBSFIRST - same as USERLIBS but added before the default libs
@@ -19,7 +19,7 @@
 #
 #SRCS - a list of the *.cpp source files.
 #
-#DOCS - a list of addtional files that need to copied to the target folder.
+#DOCS - a list of additional files that need to copied to the target folder.
 #
 
 OBJDIR = ./final.32.gcc/obj
