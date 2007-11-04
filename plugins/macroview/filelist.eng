@@ -1,0 +1,22 @@
+Plugin module for manipulating FAR macro commands v2.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Files are contained in this archive:
+
+descript.ion            Description of FAR Macro browser package..
+file_id.diz             Quick description.
+filelist.eng            List of files in archive. English version.
+filelist.rus            List of files in archive. Russian version.
+MacroEng.hlf            English help file.
+MacroEng.lng            English language file.
+MacroRus.hlf            Russian help file.
+MacroRus.lng            Language file. Russian version.
+MacroView.dll           FAR Macro browser module.
+ReadMe.eng              English ReadMe text file.
+ReadMe.rus              Russian ReadMe text file.
+whatsnew.eng            What's new in this release. English version.
+whatsnew.rus            What's new in this release. Russian version.
+
+
+1998-2007 (c) Konstantin Melnikov
+E-Mail: cos@inbox.ru

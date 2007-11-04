@@ -1,0 +1,598 @@
+.Language=English,English
+.PluginContents=FAR Macro browser
+
+@Contents
+$ #FAR Macro browser. Version 2.5#
+    
+    This module provides a viewing, editing, copying and moving macros
+to other areas, copying and moving of macros to other user's FAR
+configurations, export to the file, inserting in the editor, creation,
+deleting and deactivating the macros used in FAR.
+
+   ~Macro list~@MacroView@
+
+   ~Macro areas~@MacroAreas@
+
+   ~Special macros~@MacroSpecial@
+
+   ~Macro parameters~@MacroParams@
+
+   ~Copying or moving~@MacroCopy@
+
+   ~Deleting or deactivating the macro~@MacroDel@
+
+   ~Export of the macro to the file~@MacroExport@
+
+   ~Export of all macros to the file~@MacroExportAll@
+
+   ~Macro browser configuration~@Config@
+
+@MacroView
+$ #Macro list#
+    The macros, that exist in FAR, are displayed as the list in
+one of two possible formats:
+ #[-] Area of action: "Command of execution"#
+
+ or in the format:
+ #[-] Area of action: "Command of execution" │ Macro description#
+
+ The format of displaying depends on ~macro browser configuration~@Config@.
+
+
+ Display format description:
+ ---------------------------
+
+ The #-# symbol at the left of the macro means, that the macro is
+temporarily deactivated.
+
+ #Area of action# - is an area of action of the macro. Depending on
+configuration, area of action can be represented with the short names,
+the internal FAR names, which are used in the registry, or long names,
+assigned by this module. Values of areas supported by this version can
+be looked in the list of ~macro areas~@MacroAreas@ or in drop down list
+of #Work area# field of the ~macro parameters~@MacroParams@ window.
+
+ #Command of execution# - a shortcut key for start of the macro, consisting
+of text representation of the keys. There is a possibility to enter these
+combinations automatically, using standard FAR shortcut to begin of macro
+recording #Ctrl-.# in the macro parameters window.
+
+ #Macro description# - user-defined macro description, which can be assigned
+when editing or creating the new macro.
+
+
+ Keyboard commands:
+ ------------------
+
+ For creating a new macro use the #Ins# key.
+
+ You can edit the macro behavior, macro sequence, the command
+of execution, area of action and its flags, having selected the macro
+from the list and having pressed #F4# or #Enter#. Thus the ~macro parameters~@MacroParams@
+window will be shown, in which it is possible to make necessary changes.
+
+ For copying the macro in any other area of any user's configuration you can
+use the #F5# key, but for moving the #F6# key.
+
+ To save the macro in the file of REGEDIT format use the #F2# key. #Shift-F2#
+key can be used to save all macros in the file.
+
+ If you want to insert the macro in a current cursor position in the editor use
+#F2# key or use #Shift-F2# to insert all macros.
+
+ Fast jump to the next or previous macro area in the list you can use
+#Ctrl-Down# and #Ctrl-Up# keys.
+
+ You can delete the unnecessary macro or temporarily deactivate by the #Del#
+key. Using the same key it is possible to make active of temporarily
+deactivated macro.
+
+@MacroAreas
+$ #Macro areas#
+
+   ~Short area names~@MacroAreasShort@
+   ~Long area names~@MacroAreasLong@
+
+@MacroAreasShort
+$ #Macro areas. Short names#
+
+ #Dialog#     command works in dialog windows.
+
+ #Disks#      command works in the disk menu.
+
+ #Editor#     command works in the built-in text editor.
+
+ #Help#       command works in the help window.
+
+ #InfoPanel#  command works in the Info panel.
+ 
+ #MainMenu#   command works in the main menu.
+
+ #Menu#       command works in the other menus.
+
+ #QviewPanel# command works in the quick view panel.
+ 
+ #Search#     command works in the quick search files window.
+
+ #Shell#      command works in file panels.
+
+ #TreePanel#  command works in the tree panel.
+ 
+ #Viewer#     command works in the built-in viewer.
+
+ #Other#      command works everywhere, except areas described above.
+
+ #Common#     common command, which works everywhere in FAR.
+
+@MacroAreasLong
+$ #Macro areas. Long names#
+
+ #Dialog windows#     command works in dialog windows.
+
+ #Disks menu#         command works in the disk menu.
+
+ #Text editor#        command works in the built-in text editor.
+
+ #Help window#        command works in the help window.
+
+ #Info panel#         command works in the Info panel.
+ 
+ #Main menu#          command works in the main menu.
+
+ #Other menus#        command works in the other menus.
+
+ #Quick view panel#   command works in the quick view panel.
+ 
+ #Quick search files# command works in the quick search files window.
+
+ #File panels#        command works in file panels.
+
+ #Tree panel#         command works in the tree panel.
+ 
+ #Built-in viewer#    command works in the built-in viewer.
+
+ #Other areas#        command works everywhere, except areas described
+                    above.
+
+ #Common macros#      common command, which works everywhere in FAR.
+
+@MacroSpecial
+$ #Special macros#
+    FAR supports the set of special macros, that cannot be entered
+automatically while in macro recording phase, but must be entered manually in
+the #Sequence# field of ~macro parameters~@MacroParams@ window:
+
+ #$Date ["format"]#
+   The current time is converted to a string according to the
+format "format". If the "format" argument is not specified,
+FAR will use the format string "%a %b %d %H:%M:%S %Z %Y".
+This format is similar to the one used by the Unix 'date' utility. $Date
+supports the following date format specification (similar
+to the format used by the strftime function):
+
+        %%   Percent sign
+        %a   Abbreviated weekday name (Sun)
+        %A   Full weekday name (Monday)
+        %b   Abbreviated month name (Jan)
+        %B   Full month name (January)
+        %c   Date and time representation in the format
+             "WDay Mnt Day HH:MM:SS yyyy"
+             (Mon Jan 10 04:11:54 2000)
+        %C   Century as a decimal number (00 - 99). 1992 => 19
+        %d   Day of the month as decimal number (01 - 31)
+        %D   Synonym for %x
+        %e   Synonym for %d, but the leading zero is replaced
+             with a space
+        %h   Synonym for %b
+        %H   Hour in 24-hour format (00 - 23)
+        %I   Hour in 12-hour format (01 - 12)
+        %j   Day of year as decimal number (001 - 366)
+        %k   Synonym for %H, but the leading zero is replaced
+             with a space
+        %l   Synonym for %I, but the leading zero is replaced
+             with a space
+        %L   Trigger for switching the language of month and weekday
+             names - English/localized.
+             FAR requests two sets of names from the system:
+             1) English names of months and weekdays
+             2) names according to the settings of the current user
+             (LOCALE_USER_DEFAULT).
+             By default the English names are used.
+        %m   Month as decimal number (1 - 12)
+        %m0  Similar to %m, but with a leading zero (01 - 12)
+        %mh  Current month as hexadecimal number (1 - C)
+        %M   Minute as decimal number (00 - 59)
+        %n   Line break `\\n'
+             Note: When using this in editor macros, auto-indent
+             will not work.
+        %p   AM or PM
+        %r   Synonym for %I:%M:%S %p
+        %R   Synonym for %H:%M
+        %S   Second as decimal number (00 - 59)
+        %t   Tab character `\\t'
+        %T   Synonym for %X
+        %U   Week of year as decimal number, with Sunday as first
+             day of week (00 - 53)
+        %v   Date in the format dd-mmm-yyyy (the month name is
+             uppercased)
+        %V   Week of year according to ISO 8601:
+             "If the week number containing January 1st has >= 4
+             days in the new year, then it is week 1; otherwise,
+             it is the last numbered week of the previous year
+             (52 or 53)"
+        %w   Week day as decimal number (0 - 6, Sunday is 0)
+        %U   Week of year as decimal number, with Monday as first
+             day of week (00 - 53)
+        %x   Date in the format dd<sep>mm<sep>yyyy (the separator
+             <sep> and the order of day, month and year are
+             determined by the regional settings)
+        %X   Time in the format HH<sep>MM<sep>SS (the separator
+             <sep> is determined by the regional settings)
+        %y   Year without century, as decimal number (00 - 99)
+        %Y   Year with century, as decimal number (19yy-20yy)
+        %Z   Time-zone name or abbreviation; no characters if
+             time zone is unknown
+
+   Arbitrary text in the format string must be in the OEM codepage.
+
+   The following escape sequences are allowed:
+
+        \"   The '"' character
+        \\   The '\\' character
+        \%   The '%' character (same as '%%')
+        \n   New line '\n' (same as '%n')
+        \t   Tab '\t' (same as '%t')
+        \a   bell
+        \b   '\b'
+        \f   '\f'
+        \v   '\v'
+        \N   Octal code of characters in the OEM code page
+        \NN  --//--//--//--
+        \NNN --//--//--//--
+        \xNN Hex code of characters in the OEM code page
+
+
+ #$Text "string"#
+   Intended for insertion of arbitrary text.
+The inserted text 'string' must be in the OEM code page.
+The following escape sequences are allowed inside the 'string' argument:
+
+        \"   The '"' character
+        \\   The '\' character
+        \n   New line `\\n'
+        \t   Tab '\t'
+        \a   bell
+        \b   '\b'
+        \f   '\f'
+        \v   '\v'
+        \N   Octal code of characters in the OEM code page
+        \NN  --//--//--//--
+        \NNN --//--//--//--
+        \xNN Hex code of characters in the OEM code page
+
+   The '$Text' macro is helpful when manually writing a macro
+sequence containing lengths of arbitrary text and will also lower memory
+usage in such macro sequences.
+
+ #$IClip#
+    By default FAR Manager works with the Windows Clipboard for
+copy/paste operations. The '$IClip' macro allows to switch,
+within the limits of a macro sequence, the internal FAR mechanism for
+working with/without the Windows Clipboard.
+
+ #$MMode 1#
+     Toggles macro mode. Changes the screen output mode
+("DisableOutput"). This macro is working as
+a trigger.
+
+ #$Exit#
+   Special macro '$Exit' stops the playback of a macro sequence.
+
+ #$XLat#
+     Calls transliteration function. This macro works
+independently of the keys, assigned in TechInfo##10.
+
+ #$KbdSwitch#
+     Cyclic keyboard layout switching.
+
+ #$If (Expr) TruePart [$Else FalsePart] $End#
+     Allows to use conditions in expressions of the macros.
+
+ #$While (Expr) Sequence $End#
+     Allows to use cyclic process in macros -
+"While expression Expr is true execute sequence Sequence".
+     
+ #$Rep (Expr) Sequence $End#
+     Allows to use cyclic process in macros -
+"Execute Expr times sequence Sequence".
+
+ #%var=value;#
+ #%%var=value;#
+     Use of ~variables~@MacroVariables@.
+
+@MacroParams
+$ #Macro parameters#
+    The given dialog window shows the parameters set on the selected macro.
+Here you can change the macro sequence, the shortcut key on which macro is assigned, an ~area~@MacroAreas@
+to which it belongs, its behavior and the description:
+
+ #Command of execution#
+
+    Shortcut key for starting of the macro which can contain the values
+consisting of names of keys, for example: #CtrlShiftF5#, #AltF1#, #ShiftF8#.
+
+ #Work area#
+
+    Area of action of the macro. The list of supported areas can be found in the
+~macro areas~@MacroAreas@ topic, and also in the drop down list of this field.
+When creating of the macro this field contains the name of that area, whence
+the module has been started.
+
+ #Sequence#
+
+    Enter new macro sequence in this field or edit the current. All keys should
+be separated from each other by a blank. There is a possibility to enter
+the macro sequence automatically, for this purpose press Ctrl-. and then the macro
+sequence itself. To stop automatic input press Ctrl-. again, then the shortcut
+key which you want to assign to the #Command of execution#. Remember, that
+~special macros~@MacroSpecial@ cannot be entered automatically, they should be
+written in this field manually.
+
+ #Description#
+
+    In this field you can enter description for just created or
+edited macro. The given description is displayed in the macro
+list if the appropriate mode is set on in the ~plugin configuration~@Config@ window.
+
+ #Run after FAR start#
+
+    Allows to execute the macro immediately after the FAR Manager
+is started.
+
+ #Disable screen output#
+
+    When executing a macro, an output to the screen will be
+forbidden until the macro playback is finished.
+
+ #Command line state#
+
+    [x] - execute only if the command line is not empty.
+    [ ] - execute only if the command line is empty.
+    [?] - ignore the command line state.
+
+ #Block selection presents#
+
+    [x] - execute only if there is a selection block present
+          in the editor, viewer, command line or dialog
+          input line
+    [ ] - execute only if there is no selection present
+    [?] - ignore selection state
+
+
+
+ The following execution conditions can be applied for the active and passive panels:
+
+ #Plugin/file panel#
+
+    [x] - execute only if the current panel is a plugin panel.
+    [ ] - execute only if the current panel is a file panel.
+    [?] - ignore the panel type.
+
+ #Folder/file under cursor#
+ 
+    [x] - execute only if a folder is under the panel cursor
+    [ ] - execute only if a file is under the panel cursor
+    [?] - execute for both folders and files
+
+ #Folder/file selected#
+
+    [x] - execute only if there are selected files/directories
+          on the panel.
+    [ ] - execute only if there are no selected files/directories
+          on the panel.
+    [?] - ignore the file selection state.
+
+
+
+ #Send macro to plugins#
+
+    If this option is turned off, then all keys in macro sequence
+will not be sent to plugins, while playing macro.
+
+ #Deactivate macro#
+
+    When this option is set on, the saved macro becomes inactive.
+
+@MacroDelEmpty
+$ #Deleting an empty macro#
+    If editing the macro to delete the macro sequence, it is supposed,
+that you want to delete the macro, as will be made if you confirm a deleting.
+Also you can temporarily deactivate it, having saved all changes you have
+made. You can simply cancel deleting and save the macro empty.
+
+@MacroDel
+$ #Deleting or deactivating the macro#
+    In this module there is a possibility to delete the unnecessary macro.
+For this purpose select the deleted macro, press a #Del# key and choose #Delete#
+when prompted. Except for that you can do not delete the macro, but only
+deactivate it. It is reached also by pressing the #Del# key, whereupon to
+choose #Deactivate#. The deactivated macro is marked in the list at the left
+by the #-# symbol. To activate the macro, you need to do the same operation,
+but when prompted, choose #Activate#.
+
+@MacroCopy
+$ #Copying or moving macro#
+    Pressing the #F5# or #F6# keys from the main list of macros it is possible
+to call the dialog of copying or moving of the selected macro to any area
+of any user's configuration.
+
+ #To configuration#
+
+    This list contains the names of all FAR user's configurations. Select
+the necessary configuration name for copying or moving of the selected macro
+to it. By default, this field contains configuration name, in which FAR works.
+
+ #To area#
+
+    This list allows to select an area, where the selected macro will be
+copied or moved.
+
+ #New command of execution#
+
+    The command of execution contained in this field will be assigned
+to the macro that is copied or moved. By default this field contains value,
+as in the macro for which the operation is made. You can change the
+command of execution to any necessary value, except the empty one.
+
+
+    If in destination there is a macro with the same name as in copied
+or moved, then the warning will be issued with confirmation of overwriting.
+
+@Config
+$ #Macro browser configuration#
+    Given dialog window allows to configure macro browser:
+
+ #Show descriptions in macro list#
+
+    Checking this value on includes macro descriptions in the list of macros.
+
+ #Save without confirm dialog#
+
+    Setting this option on cancels dialog inquiry about confirmation of saving.
+Thus saving of changes occurs automatically.
+
+ #Use highlight in macro list#
+
+    This option enables or disables displaying hot keys in the list of macros.
+
+ #Start-dependent sorting (DS)#
+
+    Enables macros sorting depending on place of start of the module, i.e.
+when module is started in the editor the first in the list will be macros,
+belonging to the "Editor" area, etc. Also in macro list and FAR titles
+the letters "DS" appear, indicating that this mode is turned on.
+
+ #Use long area names#
+
+    The given option allows to see work areas in the list of macros in "normal",
+clear to the user view.
+
+ #Cycle cursor movement through menu#
+
+    If the user selects this option, cursor movement in the list of macros
+is cyclic scrolled from the first line to the last when up
+arrow is pressed, and from the last line to the first when down
+arrow is pressed.
+
+ #Use double mouse click to edit macro#
+
+    This option is used for opening ~macros editing~@MacroParams@ window
+using a double mouse click instead of single one.
+
+ #Use area separators#
+
+    If this option is enabled, then in the macro list separating lines between
+different macro areas are displayed.
+
+ #Save all macros to registry upon startup#
+
+    Reset this option and newly created macros will not be written into the
+registry upon module startup and thus will not be displayed in the macro list.
+
+    Note, that this option is useful only when #Auto save setup# FAR option
+is disabled, otherwise FAR will automatically save these macros.
+ 
+ #Show all except "Viewer" and "Editor" areas in panels#
+
+    When setting this option on, in the list of macros, started
+from the file panels, all macros, except for belonging
+to areas "Viewer" and "Editor" are displayed.
+
+ #Show only "Viewer" area in built-in viewer#
+
+    By setting this option on, the list of macros in the
+built-in viewer shows only its own macros.
+
+ #Show only "Editor" area in built-in editor#
+
+    By setting this option on, the list of macros in the
+built-in editor shows only its own macros.
+
+@MacroExport
+$ #Export of the macro to the file#
+    If you need to save the macro in the file, then use #F2# key in the
+macro list and enter in the appeared dialog a name of the exported
+file and press the #[Save]# button, you receive the file of macro of REGEDIT
+format with the name you enter. By default, the input field contains a name of
+the filename the same as in macro. If the name is not containing the path, file
+will be saved in a current folder of the selected disk.
+
+    If you wish to save the macro in a nonexistent folder, this module will
+create it for you on any depth of nesting provided that the length of
+the path typed by you will not exceed operating system's limitation,
+for example:
+
+ #Dir1\Dir2\Dir3\macroname.reg#
+
+    Module also supports operation with UNC path, i.e. when saving the macro
+type in the UNC path, for example:
+
+ #\\Server\Resource\Dir1\Dir2\Dir3\macroname.reg#
+
+@MacroExportAll
+$ #Export of all macros to the file#
+    If you need to save all macros in the file, then use #Shift-F2# key
+in macro list and enter in appeared dialog a name of the exported file and
+press #[Save]#, you receive the file of macros of REGEDIT format with name you
+enter. By default, the input field contains a "KeyMacros.reg" filename. If the
+name is not containing the path, file will be saved in a current folder of the
+selected disk.
+
+    If you wish to save the macros in a nonexistent folder, this module will
+create it for you on any depth of nesting provided that the length of
+the path typed by you will not exceed operating system's limitation,
+for example:
+
+ #Dir1\Dir2\Dir3\KeyMacros.reg#
+
+    Module also supports operation with UNC path, i.e. when saving the macros
+type in the UNC path, for example:
+
+ #\\Server\Resource\Dir1\Dir2\Dir3\KeyMacros.reg#
+
+@MacroExportExist
+$ #Export file already exists#
+    If there is a situation where a file with the name you enter exists,
+you will be prompted with message window for making choice from one of
+the following: #Overwrite# - overwrites the existing file, #Rename# - 
+returns you to dialog to enter new name of exporting file and #Cancel# - 
+cancels exporting and returns you to the list of macros.
+
+@MacroVariables
+$ #Variables#
+    Переменные позволяют вам задавать имена значениям и обращаться к ним позже.
+В макропоследовательности можно применять локальные и глобальные переменные.
+    Имя локальной переменной начинается с символа '%', за которым следуют буквы
+латинского алфавита, цифры и символы '_' и '.'
+    Имя глобальной переменной начинается с двух символов '%%', за которым следуют
+буквы латинского алфавита, цифры, и символы '_' и '.'
+    Область действия локальной переменной - текущая макропоследовательность.
+    Область действия глобальной переменной - текущий сеанс FAR.
+    Имена регистронезависимые: '%myStr' и '%MYstr' - одна и та же переменная.
+    Переменные могут быть двух типов - целое число или строка.
+    Целочисленные константы: NNN - 10-ричная константа, 0NNN - 8-ричная константа,
+0xNNN - 16-ричная константа. 
+    Присвоение значения переменной должно заканчиваться символом ';'
+
+
+    Над переменными можно производить следующие операции:
+    Операция     Описание
+    #+#            Числовое сложение
+    #-#            Числовое вычитание
+    #*#            Числовое умножение
+    #/#            Числовое деление. FAR прерывает исполнение макроса,
+                 если происходит деление на 0
+    #&#            Логическое умножение
+    #^#            Исключающее ИЛИ (XOR)
+    #|#            Логическое сложение 
+    #!#            Логическое отрицание 

@@ -1,0 +1,240 @@
+Plugin module for manipulating FAR macro commands. Version 2.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ I: Legend.
+ ----------
+ + - new feature is added.
+ * - feature is changed.
+ ! - bug fixed.
+
+
+ II: New in version 2.4.
+ -----------------------
+ * Copying or moving of macros is made more convenient and functional.
+   Now the macro can be copied or moved to the same area, but with a new name.
+
+ * Configuration: "Use long group names" option is renamed to
+   "Use long area names"
+
+ * Configuration: "Use group dividers" option is renamed to
+   "Use area separators"
+
+ ! In the long list of macros, resizing of the console by Alt-F9 key makes
+   the list look empty in some situations.
+
+
+ III: New in version 2.3.
+ ------------------------
+ + Added a support of new area: "Common".
+
+ + Added a support of new macro modes:
+   "NoFilePPanels"
+   "NoPluginPPanels"
+   "NoPFolders"
+   "NoPFiles"
+   "PSelection"
+   "NoPSelection"
+   "EVSelection"
+   "NoEVSelection"
+   "NoSendKeysToPlugins"
+
+ * Need FAR manager 1.70 build 1810 or greater.
+
+ * When "Cycle cursor movement through menu" parameter is set on, pressing
+   Ctrl-Up and Ctrl-Down makes the cursor cyclically move through the areas.
+
+ ! When "Cycle cursor movement through menu" parameter is set on, pressing
+   Ctrl-Up from the second area moves the cursor to the last element in the
+   macro list.
+
+ ! Ctrl-. didn't work in some situations.
+
+ ! Incorrect centering of the macro list.
+
+ ! Mouse click and double click didn't work to edit the macro.
+
+
+ IV: New in version 2.2.
+ -----------------------
+ + New configuration option: "Save all macro commands to registry upon startup".
+   This option allows to control if the newly created and not saved macro
+   commands in the current FAR session will be saved onto the registry upon
+   plugin startup. By default this option is turned on.
+
+ + New keyboard combinations Ctrl-Up and Ctrl-Down, that allows to quickly jump
+   to the previous or next area in the macro list.
+
+ * Now macro sequence can store up to 32 kilobytes.
+
+ ! Bug with the "~" character used as a command of macro execution.
+
+ ! Color palette fixed.
+
+
+ V: New in version 2.1.
+ ----------------------
+ + Main: Macro browser allows using FAR-like macro tokens by using standard
+   FAR key combination "Ctrl-." in all Windows versions.
+
+ + Main: Now edited or newly created macro commands become active (can be used)
+   once after closing Macro browser. You don't need to reload FAR anymore.
+
+ + Support of macro list resizing to the maximum size when console size changed
+   due to Alt-F9 key pressed.
+
+ + Added a support of new areas: "Info", "Menu", "QView" and "Tree".
+
+ + Added a support of 6 new macro modes:
+   "NoFilePanels"   - macro cannot be executed in file panels;
+   "NoPluginPanels" - macro cannot be executed in plugin panels;
+   "NoFolders"      - macro cannot be executed if the current element is a
+                      folder;
+   "NoFile"         - macro cannot be executed if the current element is a
+                      file;
+   "Selection"      - execute only if there is selected files in file panels or
+                      block selected in the editor;
+   "NoSelection"    - execute only if there is no selected files in file panels
+                      or there is no block selected in the editor.
+
+ + New configuration option: "Use double mouse click to edit macro", that used
+   to open macro edit window using double mouse click. By default this option
+   is turned on.
+
+ + New configuration option: "Use area dividers" turns on a displaying of
+   area dividers between different areas in the macro list. By default this
+   option is turned on.
+
+ * The standard FAR dialog was used to create macro commands list, therefore
+   his behavior is the same like the other FAR ones: one can move it
+   throughout the screen and hide by Ctrl-Alt-Shift keystroke.
+
+ ! Bug with opening of some macro entries.
+
+
+ VI: New in version 2.0.
+ -----------------------
+ + The main feature of this version: user can press Ctrl-. in the insert/edit
+   dialog that allows to input macro combinations known by FAR and used for
+   macro commands. Second press of Ctrl-. will stop token writing and begin
+   normal input processing. Hint: NT and 2000 only!
+
+ + "Help" macro area is now processing, which has appeared in the FAR 1.64.
+
+ + New option in configuration dialog: user can configure cycle cursor movement
+   in macro commands list.
+
+ + New option in configuration dialog: now it is possible to configure to quit
+   FAR if Macro browser was started in file panels and after making any changes
+   to macro commands and closing macro commands list.
+
+ ! When no user configurations exist, menu of copying and moving macro command
+   to another configuration not properly displayed. 
+
+ ! Error of copying and moving macro command from user configuration to main.
+
+ ! When macro command being switched off, list sorting was "jumped".
+
+ ! The FAR title not properly displayed under Windows 9x when Russian language
+   is used.
+
+ ! Some cosmetic bugs.
+
+
+ VII: New in version 1.4.
+ ------------------------
+ + Now you can copy or move macro commands to any of existing FAR configuration,
+   using F7 and F8 keys accordingly.
+
+ + To easily understand macro command's work place, you can display macro
+   areas in more readable way, i.e. group names where macro command belongs
+   to, "tell" you its real long names.
+
+ + Setting up start-dependent sorting in macro list (i.e. in file panels first
+   will come macro commands belongs to "Shell" area, in editor first will
+   come "Editor" area, and so on).
+
+ + You can now set displaying of hot keys in macro list on or off.
+   (This hot keys in some rare situations and big macro commands amount
+   "freeze" some of the keyboard keys).
+
+ * Saving macro command to file now supports folder creating both on local
+   and network drives ("UNC" paths), i.e. you may save macro command to
+   "dir1\dir2\dir3\macro.reg" even if these "dir1\dir2\dir3" does not exists.
+
+ * Now "Show only "Shell" area in file panel" is renamed to "Show &all except
+   "Viewer" and "Editor" areas in panels" and will also, in case of setting
+   this option on, display all macro commands except "Viewer" and "Editor"
+   areas.
+
+ * When macro list is empty, pressing F4 or Enter will not now close plugin.
+
+ ! Macro had not been properly saved when changed: command of execution,
+   macro area, key combination for macro, and description simultaneously.
+
+ ! Export of macro to file, whose name contains Cyrillic letters, had lead to
+   disk errors, and no file creation occurs.
+
+
+ VIII: New in version 1.3.
+ -------------------------
+ + You can now insert macro commands into editor using F2 key.
+
+ + You can set up module to save changes without prompt.
+
+ + Setting up of displaying in file panels only its own macro commands.
+
+ + When inserting a new macro, the area field by default contains a value
+   corresponding to place where module starts from.
+
+ + Switching the macro off and back on from within edit dialog.
+
+ + You can use now F4 key in addition to Enter key to edit the macro.
+
+ * Changed behaviors of edit and insert dialogs when receiving an error.
+
+ ! Bug of displaying of switched off macro commands.
+
+ ! Inserting macro that already exists in an area.
+
+ ! Copying (and moving) macro to another area where the same macro exists,
+   but is switched off.
+
+ ! Duplicate shortcuts in edit and insert dialogs.
+
+ ! Some bugs fixed.
+
+
+ IX: New in version 1.21 beta 1.
+ -------------------------------
+ + You can now assign descriptions to macro commands.
+
+ + When editing or inserting new macro command, area history always contains
+   all possible values.
+
+ + Setting up of displaying descriptions in macro list.
+
+ + Setting up of displaying in built-in editor and in built-in viewer only
+   its own macro commands (FAR 1.60 and greater).
+
+ + Export macro to file by F2 key.
+
+
+ X: New in version 1.01.
+ -----------------------
+ + Copying functionality by F5 key.
+
+ + Moving functionality by F6 key.
+
+ ! Bug with macro that use non-ASCII letters.
+
+ ! Bug with macro that use space sign.
+
+ ! Enter key did not always open edit window.
+
+ ! Esc key did not close plugin in some situations.
+
+ ! Some bugs fixed.
+
+
+1998-2007 (c) Konstantin Melnikov
+E-Mail: cos@inbox.ru

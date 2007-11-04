@@ -1,0 +1,9 @@
+LIBRARY
+EXPORTS
+   ClosePlugin
+   Configure
+   ExitFAR
+   GetMinFarVersion
+   GetPluginInfo
+   OpenPlugin
+   SetStartupInfo
