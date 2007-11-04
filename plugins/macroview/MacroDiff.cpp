@@ -210,7 +210,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
     }
     case DN_HELP:
     {
-      char *Topic[]={"Contents","MacroView"};
+      TCHAR *Topic[]={_T("Contents"),_T("MacroView")};
       Macro->HelpActivated=TRUE;
       if (Macro->HelpInvoked)
         return (LONG_PTR)Topic[1];
@@ -271,8 +271,7 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
       }
 
       Info.DialogEx(Info.ModuleNumber,-1,-1,40,5,NULL,Macro->DefKeyDialog,
-                    sizeof(Macro->DefKeyDialog)/sizeof(Macro->DefKeyDialog[0]),0,0,
-                    DefKeyDialogProc,0);
+                    ArraySize(Macro->DefKeyDialog),0,0,DefKeyDialogProc,0);
 
       Info.RestoreScreen(NULL);
       Info.RestoreScreen(Macro->SaveScr);
@@ -359,17 +358,17 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
         }
         PrevKey=(int)Param2;
 
-        if (FSF.FarKeyToName((int)Param2,Macro->S,sizeof(Macro->S)))
+        if (FSF.FarKeyToName((int)Param2,Macro->S,ArraySize(Macro->S)))
         {
           FarDialogItemData ItemData;
-          char StrBuf1[1024],StrBuf2[1024];
+          TCHAR StrBuf1[1024],StrBuf2[1024];
           ZeroMemory(StrBuf1,sizeof(StrBuf1));
           ZeroMemory(StrBuf2,sizeof(StrBuf2));
           if (Macro->MacroData)
           {
             if (*Macro->MacroData)
             {
-              lstrcat(Macro->MacroData," ");
+              lstrcat(Macro->MacroData,_T(" "));
               lstrcat(Macro->MacroData,Macro->S);
             }
             else
@@ -389,7 +388,7 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
             }
 
             if (*StrBuf1)
-              wsprintf(StrBuf2,"%s %s",AllTrim(StrBuf1),Macro->S);
+              wsprintf(StrBuf2,_T("%s %s"),AllTrim(StrBuf1),Macro->S);
             else
               lstrcpy(StrBuf2,Macro->S);
 
@@ -504,10 +503,10 @@ LONG_PTR WINAPI DefKeyDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2
         if (Key>=KEY_END_FKEY)
           return TRUE;
 
-        if (FSF.FarKeyToName((int)Param2,Macro->S,sizeof(Macro->S)))
+        if (FSF.FarKeyToName((int)Param2,Macro->S,ArraySize(Macro->S)))
         {
           FarDialogItemData ItemData;
-          char StrBuf[1024];
+          TCHAR StrBuf[1024];
 
           lstrcpy(StrBuf,Macro->S);
           ItemData.PtrLength=lstrlen(StrBuf)+1;
@@ -727,7 +726,7 @@ BOOL WINAPI ProcessKey(PINPUT_RECORD ir)
           if (!Macro->SaveScr)
           {
             Macro->SaveScr=Info.SaveScreen(0,0,lstrlen(Macro->MacroText),0);
-            Info.Text(0,0,0x4F,(char *)Macro->MacroText);
+            Info.Text(0,0,0x4F,(TCHAR *)Macro->MacroText);
             Macro->LastFocus=Info.SendDlgMessage(Macro->EditDlg,DM_GETFOCUS,0,0);
             Info.SendDlgMessage(Macro->EditDlg,DM_SETFOCUS,8,0);
           }
@@ -908,7 +907,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
           if (!Macro->SaveScr)
           {
             Macro->SaveScr=Info.SaveScreen(0,0,lstrlen(Macro->MacroText),0);
-            Info.Text(0,0,0x4F,(char *)Macro->MacroText);
+            Info.Text(0,0,0x4F,(TCHAR *)Macro->MacroText);
             Macro->LastFocus=(int)Info.SendDlgMessage(Macro->EditDlg,DM_GETFOCUS,0,0);
             Info.SendDlgMessage(Macro->EditDlg,DM_SETFOCUS,8,0);
           }
@@ -1014,20 +1013,20 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 
 
 TMacroView::TMacroView():
-  MacroText("MACRO"),
-  MacroCmdHistory("MacroCmd"),
-  MacroKeyHistory("MacroKey"),
-  MacroDescrHistory("MacroDescr"),
-  MacroExpHistory("MacroExp"),
-  MacroCopyHistory("MacroCopy")
+  MacroText(_T("MACRO")),
+  MacroCmdHistory(_T("MacroCmd")),
+  MacroKeyHistory(_T("MacroKey")),
+  MacroDescrHistory(_T("MacroDescr")),
+  MacroExpHistory(_T("MacroExp")),
+  MacroCopyHistory(_T("MacroCopy"))
 {
   hOut=GetStdHandle(STD_OUTPUT_HANDLE);
   hIn=GetStdHandle(STD_INPUT_HANDLE);
 
-  MacroData=new char[DATASIZE];
+  MacroData=new TCHAR[DATASIZE];
   if (MacroData)
   {
-    MacroMulti=new char[DATASIZE];
+    MacroMulti=new TCHAR[DATASIZE];
     if (!MacroMulti)
     {
       delete[] MacroData;
@@ -1053,35 +1052,35 @@ void __fastcall TMacroView::InitMacroAreas()
 {
   int i;
 
-  char *GroupNumbers[]=
+  TCHAR *GroupNumbers[]=
   {
-    (char *)MMacroNameDialog,
-    (char *)MMacroNameDisks,
-    (char *)MMacroNameEditor,
-    (char *)MMacroNameHelp,
-    (char *)MMacroNameInfoPanel,
-    (char *)MMacroNameMainMenu,
-    (char *)MMacroNameMenu,
-    (char *)MMacroNameQviewPanel,
-    (char *)MMacroNameSearch,
-    (char *)MMacroNameShell,
-    (char *)MMacroNameTreePanel,
-    (char *)MMacroNameViewer,
-    (char *)MMacroNameOther,
-    (char *)MMacroNameCommon,
-  (char *)MMacroNameFindFolder,
-  (char *)MMacroNameUserMenu
+    (TCHAR *)MMacroNameDialog,
+    (TCHAR *)MMacroNameDisks,
+    (TCHAR *)MMacroNameEditor,
+    (TCHAR *)MMacroNameHelp,
+    (TCHAR *)MMacroNameInfoPanel,
+    (TCHAR *)MMacroNameMainMenu,
+    (TCHAR *)MMacroNameMenu,
+    (TCHAR *)MMacroNameQviewPanel,
+    (TCHAR *)MMacroNameSearch,
+    (TCHAR *)MMacroNameShell,
+    (TCHAR *)MMacroNameTreePanel,
+    (TCHAR *)MMacroNameViewer,
+    (TCHAR *)MMacroNameOther,
+    (TCHAR *)MMacroNameCommon,
+  (TCHAR *)MMacroNameFindFolder,
+  (TCHAR *)MMacroNameUserMenu
   };
 
-  MacroGroupsSize=sizeof(MacroGroupShort)/sizeof(MacroGroupShort[0]);
-//  MacroGroupsSize=sizeof(GroupNumbers)/sizeof(GroupNumbers[0]);
+  MacroGroupsSize=ArraySize(MacroGroupShort);
+//  MacroGroupsSize=ArraySize(GroupNumbers);
 
   for (i=0;i<MacroGroupsSize;i++)
   {
     if (Conf.LongGroupNames)
-      lstrcpyn(GroupItems[i].Text,GetMsg((unsigned int)(DWORD_PTR)GroupNumbers[i]),sizeof(GroupItems[i].Text));
+      lstrcpyn(GroupItems[i].Text,GetMsg((unsigned)(DWORD_PTR)GroupNumbers[i]),ArraySize(GroupItems[i].Text));
     else
-      lstrcpyn(GroupItems[i].Text,MacroGroupShort[i],sizeof(GroupItems[i].Text));
+      lstrcpyn(GroupItems[i].Text,MacroGroupShort[i],ArraySize(GroupItems[i].Text));
     GroupItems[i].Flags=0;
   }
 
@@ -1089,17 +1088,21 @@ void __fastcall TMacroView::InitMacroAreas()
   GroupList.Items=GroupItems;
 }
 
-
+#ifndef UNICODE
+#define ptrData Data.Data
+#else
+#define ptrData PtrData
+#endif
 void __fastcall TMacroView::InitDialogs()
 {
   InitMacroAreas();
 
   //инициализируем диалог редактировния макрокоманды
-  char Btn1[32],Btn2[32];
-  lstrcpyn(Btn1,GetMsg(MMacroSave),sizeof(Btn1));
-  lstrcpyn(Btn2,GetMsg(MMacroCancel),sizeof(Btn2));
-  CheckLen(Btn1,sizeof(Btn1)-1,FALSE);
-  CheckLen(Btn2,sizeof(Btn2)-1,FALSE);
+  TCHAR Btn1[32],Btn2[32];
+  lstrcpyn(Btn1,GetMsg(MMacroSave),ArraySize(Btn1));
+  lstrcpyn(Btn2,GetMsg(MMacroCancel),ArraySize(Btn2));
+  CheckLen(Btn1,ArraySize(Btn1)-1,FALSE);
+  CheckLen(Btn2,ArraySize(Btn2)-1,FALSE);
   int len=lstrlen(Btn1)+4+2+lstrlen(Btn2)+4;
   int x11=(DIALOGWID+2-len)/2;
   int x12=x11+lstrlen(Btn1)+4+2-1;
@@ -1136,21 +1139,32 @@ void __fastcall TMacroView::InitDialogs()
   0123456789012345678901234567890123456789012345678901234567890123456789012345
 */
 
+//TODO: Use BoxSymbols?
+#ifndef UNICODE
+#define _BOX_VTOP "\xB3\xB3\xC1"
+#define _BOX_VFUL "\xC2\xB3\xB3\xB3\xB3\xB3\xB3\xC1"
+#define _BOX_VERT "\xB3"
+#else
+#define _BOX_VTOP L"\x2502\x2502\x2534"
+#define _BOX_VFUL L"\x252C\x2502\x2502\x2502\x2502\x2502\x2502\x2534"
+#define _BOX_VERT L"\x2502"
+#endif
+
   InitDialogItem InitItems[]=
   {
 
-/* 0*/  {DI_DOUBLEBOX,  3, 1,DIALOGWID-4,DIALOGHGT-2,0,0,0,0,(char *)MMacroCombination},
+/* 0*/  {DI_DOUBLEBOX,  3, 1,DIALOGWID-4,DIALOGHGT-2,0,0,0,0,(TCHAR *)MMacroCombination},
 /* 1*/  {DI_TEXT,       5, 2, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroKey),30)},
-/* 2*/  {DI_EDIT,       5, 3,35,3,0,(DWORD_PTR)MacroKeyHistory,DIF_HISTORY,0,""},
+/* 2*/  {DI_EDIT,       5, 3,35,3,0,(DWORD_PTR)MacroKeyHistory,DIF_HISTORY,0,_T("")},
 /* 3*/  {DI_TEXT,      39, 2, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroGroup),30)},
-/* 4*/  {DI_COMBOBOX,  39, 3,69,3,0,0,DIF_DROPDOWNLIST,0,""},
-/* 5*/  {DI_TEXT,       5, 4, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-/* 6*/  {DI_VTEXT,     37, 2, 0,0,0,0,0,0,"\xB3\xB3\xC1"},
+/* 4*/  {DI_COMBOBOX,  39, 3,69,3,0,0,DIF_DROPDOWNLIST,0,_T("")},
+/* 5*/  {DI_TEXT,       5, 4, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+/* 6*/  {DI_VTEXT,     37, 2, 0,0,0,0,0,0,_BOX_VTOP},
 /* 7*/  {DI_TEXT,       5, 5, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroCommand),64)},
-/* 8*/  {DI_EDIT,       5, 6,69,0,1,(DWORD_PTR)MacroCmdHistory,(MacroData)?DIF_HISTORY|DIF_VAREDIT:DIF_HISTORY,0,""},
+/* 8*/  {DI_EDIT,       5, 6,69,0,1,(DWORD_PTR)MacroCmdHistory,(MacroData)?DIF_HISTORY|DIF_SEPARATOR:DIF_HISTORY,0,_T("")},
 /* 9*/  {DI_TEXT,       5, 7, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDescription),64)},
-/*10*/  {DI_EDIT,       5, 8,69,0,0,(DWORD_PTR)MacroDescrHistory,DIF_HISTORY,0,""},
-/*11*/  {DI_TEXT,       5, 9, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/*10*/  {DI_EDIT,       5, 8,69,0,0,(DWORD_PTR)MacroDescrHistory,DIF_HISTORY,0,_T("")},
+/*11*/  {DI_TEXT,       5, 9, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
 
 /*12*/  {DI_CHECKBOX,   5,10, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroRunAfterStart),27)},
 /*13*/  {DI_CHECKBOX,  39,10, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDisable),28)},
@@ -1170,31 +1184,37 @@ void __fastcall TMacroView::InitDialogs()
 /*22*/  {DI_CHECKBOX,   7,15, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileSelected),26)},
 /*23*/  {DI_CHECKBOX,  41,15, 0,0,0,0,DIF_3STATE,0,CheckLen(GetMsg(MMacroFolderFileSelected),27)},
 
-/*24*/  {DI_TEXT,       5,16, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-/*25*/  {DI_VTEXT,     37, 9, 0,0,0,0,0,0,"\xC2\xB3\xB3\xB3\xB3\xB3\xB3\xC1"},
+/*24*/  {DI_TEXT,       5,16, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+/*25*/  {DI_VTEXT,     37, 9, 0,0,0,0,0,0,_BOX_VFUL},
 
 /*26*/  {DI_CHECKBOX,   5,17, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroSendToPlugins),62)},
 
-/*27*/  {DI_TEXT,       5,18, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/*27*/  {DI_TEXT,       5,18, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
 
 /*28*/  {DI_CHECKBOX,   5,19, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroSwitchOff),62)},
-/*29*/  {DI_TEXT,       5,20, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+/*29*/  {DI_TEXT,       5,20, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
 /*30*/  {DI_BUTTON,   x11,21, 0,0,0,0,0,1,Btn1},
 /*31*/  {DI_BUTTON,   x12,21, 0,0,0,0,0,0,Btn2},
 
   };
 
-  InitDialogItems(InitItems,EditDialog,sizeof(InitItems)/sizeof(InitItems[0]));
+  InitDialogItems(InitItems,EditDialog,ArraySize(InitItems));
+#ifdef UNICODE
+  *(EditDialog[2].PtrData = _Group) = 0;
+  *(EditDialog[4].PtrData = _Button) = 0;
+  *(EditDialog[8].PtrData = _Data) = 0;
+  *(EditDialog[10].PtrData = _Descr) = 0;
+#endif
 
   InitDialogItem DefItems[]=
   {
 
-/* 0*/  {DI_DOUBLEBOX,  3, 1,40-4,5-2,0,0,0,0,(char *)MMacroDefineTitle},
+/* 0*/  {DI_DOUBLEBOX,  3, 1,40-4,5-2,0,0,0,0,(TCHAR *)MMacroDefineTitle},
 /* 1*/  {DI_TEXT,       5, 2, 0,0,0,0,DIF_CENTERGROUP,0,CheckLen(GetMsg(MMacroDesiredKey),28)},
 
   };
 
-  InitDialogItems(DefItems,DefKeyDialog,sizeof(DefItems)/sizeof(DefItems[0]));
+  InitDialogItems(DefItems,DefKeyDialog,ArraySize(DefItems));
 }
 
 
@@ -1246,7 +1266,7 @@ void __fastcall TMacroView::InitData()
 
 /*void __fastcall TMacroView::ParseMenuItem(FarListGetItem *List)
 {
-  char *ptr,*ptr1;
+  TCHAR *ptr,*ptr1;
   *Group=*Key=0;
 
   if (List->Item.Flags&LIF_CHECKED)
@@ -1254,9 +1274,9 @@ void __fastcall TMacroView::InitData()
   else
     Deactivated=FALSE;
   lstrcpy(S,List->Item.Text);
-//  while((ptr=strchr(S,'&'))!=NULL) memmove(ptr,ptr+1,lstrlen(S)-(ptr-S)+1);
+//  while((ptr=_tcschr(S,_T('&')))!=NULL) memmove(ptr,ptr+1,lstrlen(S)-(ptr-S)+1);
 
-  ptr=strchr(S,':');
+  ptr=_tcschr(S,_T(':'));
   if (ptr)
   {
     int len=ptr-S;
@@ -1300,43 +1320,43 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
   if ((csbi.dwCursorPosition.Y==csbi.dwSize.Y-1) && (OpenFrom==OPEN_PLUGINSMENU))
     return;
 
-  char *KeyBarCommon[12]={GetMsg(MMacroKBHelp),
+  TCHAR *KeyBarCommon[12]={GetMsg(MMacroKBHelp),
     GetMsg(MMacroKBSave),NULL,GetMsg(MMacroKBEdit),
     GetMsg(MMacroKBCopy),GetMsg(MMacroKBMove),
     NULL,NULL,NULL,
     GetMsg(MMacroKBQuit),NULL,NULL,
   };
-  char *KeyBarAlt[12]={NULL,
+  TCHAR *KeyBarAlt[12]={NULL,
     NULL,NULL,NULL,
     NULL,NULL,
     NULL,NULL,NULL,
     NULL,NULL,NULL,
   };
-  char *KeyBarCtrl[12]={NULL,
+  TCHAR *KeyBarCtrl[12]={NULL,
     NULL,NULL,NULL,
     NULL,NULL,
     NULL,NULL,NULL,
     NULL,NULL,NULL,
   };
-  char *KeyBarShift[12]={NULL,
+  TCHAR *KeyBarShift[12]={NULL,
     GetMsg(MMacroKBAltSaveAll),NULL,NULL,
     NULL,NULL,
     NULL,NULL,NULL,
     NULL,NULL,NULL,
   };
-  char *KeyBarDialog[12]={GetMsg(MMacroKBHelp),
+  TCHAR *KeyBarDialog[12]={GetMsg(MMacroKBHelp),
     NULL,NULL,NULL,
     NULL,NULL,
     NULL,NULL,NULL,
     GetMsg(MMacroKBQuit),NULL,NULL,
   };
-  char *KeyBarShiftDialog[12]={NULL,
+  TCHAR *KeyBarShiftDialog[12]={NULL,
     NULL,NULL,NULL,
     NULL,NULL,
     NULL,NULL,NULL,
     NULL,NULL,NULL,
   };
-  char *KeyBar[12];
+  TCHAR *KeyBar[12];
 
   //Узнаем ширину экрана консоли
   //int ScrWidth=csbi.dwSize.X+1;
@@ -1381,7 +1401,12 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
 
   int ColDigit=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_KEYBARNUM);
   int ColText=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_KEYBARTEXT);
-  if (chi[0].Char.AsciiChar=='1' && chi[0].Attributes==ColDigit && chi[1].Attributes==ColText)
+#ifndef UNICODE
+#define _CH AsciiChar
+#else
+#define _CH UnicodeChar
+#endif
+  if (chi[0].Char._CH==_T('1') && chi[0].Attributes==ColDigit && chi[1].Attributes==ColText)
   {
     for (i=0,j=1;j<csbi.dwSize.X;i++)
     {
@@ -1391,18 +1416,19 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
         while (chi[j].Attributes==ColText && j<csbi.dwSize.X)
         {
           if (KeyBar[i][k]!=0)
-            chi[j++].Char.AsciiChar=KeyBar[i][k++];
+            chi[j++].Char._CH=KeyBar[i][k++];
           else
-            chi[j++].Char.AsciiChar=' ';
+            chi[j++].Char._CH=_T(' ');
         }
       }
       else
       {
         while (chi[j].Attributes==ColText && j<csbi.dwSize.X)
         {
-          chi[j++].Char.AsciiChar=' ';
+          chi[j++].Char._CH=_T(' ');
         }
       }
+#undef _CH
 
       while(chi[j].Attributes!=ColText && j<csbi.dwSize.X)
         j++;
@@ -1415,46 +1441,41 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
 }
 
 
-BOOL __fastcall TMacroView::CreateDirs(char *Dir)
+BOOL __fastcall TMacroView::CreateDirs(TCHAR *Dir)
 {
-  char Str[MAX_PATH_LEN];
-  char *ErrorCreateFolder[]=
+  TCHAR Str[MAX_PATH_LEN];
+  TCHAR *ErrorCreateFolder[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorCreateFolder),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
 
-  char *Data=Dir;
-  char *ptrend=Data+lstrlen(Data);
-  char *ptr;
+  TCHAR *Data=Dir;
+  TCHAR *ptrend=Data+lstrlen(Data);
+  TCHAR *ptr;
 
   // сетевой путь?
-  if ((Data[0]=='\\') && (Data[1]=='\\'))
+  if ((Data[0]==_T('\\')) && (Data[1]==_T('\\')))
   {
-    ptr=strchr(&Data[2],'\\');
-    if (ptr)
-    {
-      char *ptr1=strchr(ptr+1,'\\');
-      if (ptr1)
-      {
-        char *ptr2=strchr(ptr1+1,'\\');
-        if (!ptr2)
-          return TRUE;
-      }
-      else
-        return TRUE;
-      Data=ptr1+1;
-    }
-    else
-      return TRUE;
+    ptr=_tcschr(&Data[2],_T('\\'));
+    if (   ptr==NULL
+        || (ptr=_tcschr(ptr+1,_T('\\')))==NULL
+        || ptr+1>=ptrend
+        || _tcschr(ptr+1,_T('\\'))==NULL) return TRUE;
+    Data=ptr+1;
   }
   else
   {
-    ptr=strchr(Data,'\\');
-    if (!ptr)
+    if (_tcschr(Data,_T('\\')) == NULL)
+      return TRUE;
+    if (Data[0] != _T('\\') && Data[1] == _T(':'))
+      Data += 2;
+    if (Data[0] == _T('\\'))
+      ++Data;
+    if (Data >= ptrend)
       return TRUE;
   }
 
@@ -1462,7 +1483,7 @@ BOOL __fastcall TMacroView::CreateDirs(char *Dir)
   while(1)
   {
     ZeroMemory(Str,sizeof(Str));
-    ptr=strchr(Data,'\\');
+    ptr=_tcschr(Data,_T('\\'));
     if (ptr==NULL || ptr>=ptrend)
     {
       lstrcpy(Str,Dir);
@@ -1482,7 +1503,7 @@ BOOL __fastcall TMacroView::CreateDirs(char *Dir)
         int OldActive=ActiveMode;
         ActiveMode=MAC_ERRORACTIVE;
         Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,ErrorCreateFolder,
-                     sizeof(ErrorCreateFolder)/sizeof(ErrorCreateFolder[0]),1);
+                     ArraySize(ErrorCreateFolder),1);
         ActiveMode=OldActive;
         return FALSE;
       }
@@ -1495,7 +1516,7 @@ BOOL __fastcall TMacroView::CreateDirs(char *Dir)
 }
 
 
-char *TMacroView::ConvertGroupName(char *Group,int nWhere)
+TCHAR *TMacroView::ConvertGroupName(TCHAR *Group,int nWhere)
 {
   int i,len;
 
@@ -1503,7 +1524,7 @@ char *TMacroView::ConvertGroupName(char *Group,int nWhere)
   {
     len=lstrlen(Group);
     if (len>=3)
-      if ((Group[len-1]=='.') && (Group[len-2]=='.') && (Group[len-3]=='.'))
+      if ((Group[len-1]==_T('.')) && (Group[len-2]==_T('.')) && (Group[len-3]==_T('.')))
         Group[len-3]=0;
 
     if (len>0)
@@ -1556,65 +1577,79 @@ void TMacroView::InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,
     Item[I].Flags=Init[I].Flags;
     Item[I].DefaultButton=Init[I].DefaultButton;
     if ((unsigned int)(DWORD_PTR)Init[I].Data<300)
+#ifndef UNICODE
       lstrcpy(Item[I].Data.Data,GetMsg((unsigned int)(DWORD_PTR)Init[I].Data));
     else
       lstrcpy(Item[I].Data.Data,Init[I].Data);
+#else
+      Item[I].PtrData = GetMsg((unsigned)(DWORD_PTR)Init[I].Data);
+    else
+      Item[I].PtrData = Init[I].Data;
+#endif
   }
 }
 
 
 void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
 {
-  char lKey[MAX_KEY_LEN];
-  char lGroup[MAX_KEY_LEN];
-  char *TmpPrfx="mvu";
+  TCHAR lKey[MAX_KEY_LEN];
+  TCHAR lGroup[MAX_KEY_LEN];
+  TCHAR *TmpPrfx=_T("mvu");
   HANDLE fname;
 
-  char *ErrorRun[]=
+  TCHAR *ErrorRun[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorRun),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ErrorCreateTemp[]=
+  TCHAR *ErrorCreateTemp[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorCreateTemp),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ErrorReadTemp[]=
+  TCHAR *ErrorReadTemp[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorReadTemp),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ErrorInsertStrEditor[]=
+  TCHAR *ErrorInsertStrEditor[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorInsertStrEditor),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
 
+#ifndef UNICODE
   SetFileApisToANSI();
+#endif
 
-/*  if (GetEnvironmentVariable(TempEnvName,TempPath,sizeof(TempPath))==0)
-    if (GetCurrentDirectory(sizeof(TempPath),TempPath)==0)
-      lstrcpy(TempPath,"C:\\");*/
+/*  if (GetEnvironmentVariable(TempEnvName,TempPath,ArraySize(TempPath))==0)
+    if (GetCurrentDirectory(ArraySize(TempPath),TempPath)==0)
+      lstrcpy(TempPath,_T("C:\\"));*/
 
 //  if (GetTempFileName(TempPath,TmpPrfx,0,TempFileName)==0)
-  if (FSF.MkTemp(TempFileName,TmpPrfx)==NULL)
+  if (FSF.MkTemp(TempFileName,
+#ifdef UNICODE
+                 sizeof(TempFileName),
+#endif
+                 TmpPrfx)==NULL)
   {
     int OldActive=ActiveMode;
     ActiveMode=MAC_ERRORACTIVE;
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,ErrorCreateTemp,
-                 sizeof(ErrorCreateTemp)/sizeof(ErrorCreateTemp[0]),1);
+                 ArraySize(ErrorCreateTemp),1);
     ActiveMode=OldActive;
+#ifndef UNICODE
     SetFileApisToOEM();
+#endif
     return;
   }
 
@@ -1625,25 +1660,28 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
 
     if (Deactivated)
     {
-      lstrcpy(lKey,"~");
+      lstrcpy(lKey,_T("~"));
       lstrcat(lKey,Key);
     }
     if (AllMacros)
       lstrcpy(S,KeyMacros);
     else
-      wsprintf(S,"%s\\%s\\%s",KeyMacros,lGroup,lKey);
+      wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,lGroup,lKey);
     CheckFirstBackSlash(S,FALSE);
 
     ZeroMemory(&si,sizeof(si));
     si.cb=sizeof(si);
 
-    char regedit[32];
-    if ((vi.dwPlatformId==VER_PLATFORM_WIN32_NT) && (vi.dwMajorVersion>=5))
-      lstrcpy(regedit,"regedit -ea");
+    TCHAR regedit[32];
+    BOOL reu = (vi.dwPlatformId==VER_PLATFORM_WIN32_NT && vi.dwMajorVersion>=5);
+#ifndef UNICODE
+    if (reu)
+      lstrcpy(regedit,_T("regedit -ea"));
     else
-      lstrcpy(regedit,"regedit -e");
+#endif
+      lstrcpy(regedit,_T("regedit -e"));
 
-    wsprintf(Str,"%s \"%s\" \"%s\\%s\"",regedit,TempFileName,HKCU,S);
+    wsprintf(Str,_T("%s \"%s\" \"%s\\%s\""),regedit,TempFileName,HKCU,S);
 
     int Code=CreateProcess(NULL,Str,NULL,NULL,TRUE,
                            0,NULL,NULL,&si,&pi);
@@ -1659,9 +1697,11 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,ErrorRun,
-                   sizeof(ErrorRun)/sizeof(ErrorRun[0]),1);
+                   ArraySize(ErrorRun),1);
       ActiveMode=OldActive;
+#ifndef UNICODE
       SetFileApisToOEM();
+#endif
       return;
     }
 
@@ -1671,34 +1711,48 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ErrorReadTemp,
-                   sizeof(ErrorReadTemp)/sizeof(ErrorReadTemp[0]),1);
+                   ArraySize(ErrorReadTemp),1);
       ActiveMode=OldActive;
+#ifndef UNICODE
       SetFileApisToOEM();
+#endif
       return;
     }
 
     int iteration=1;
     int indent=1;
     DWORD t;
-    while (1)
+    while (ReadFile(fname,S,sizeof(S)-sizeof(S[0]),&t,NULL))
     {
-      if (!(ReadFile(fname,S,sizeof(S)-1,&t,NULL) && t))
-        break;
-
       DWORD i;
-      for (i=0;i<t;i++)
+#ifdef UNICODE
+      if(reu) t /= sizeof(TCHAR);
+#endif
+      if(!t) break;
+#ifdef UNICODE
+      if(reu)
       {
-        if ((S[i]=='\n') || (S[i]=='\r'))
-        {
-          if (S[i]=='\r' && i+1<t && S[i+1]=='\n')
-            S[i++]=0;
-          S[i++]=0;
-          break;
-        }
+#endif
+        for (i=0;i<t;i++)
+          if (S[i]==_T('\n') || S[i]==_T('\r')) break;
+        S[i] = 0;
+        if (i < t && ++i < t && S[i-1] == _T('\r') && S[i] == _T('\n')) ++i;
+        t = (t-i)*sizeof(TCHAR);
+#ifdef UNICODE
+      } else {  // NT4/win9x
+        char tmp[ArraySize(S)], *SA = (char*)S;
+        for (i=0;i<t;i++)
+          if ((SA[i]=='\n') || (SA[i]=='\r')) break;
+        S[i] = 0;
+        if (i < t && ++i < t && SA[i-1] == '\r' && SA[i] == '\n') ++i;
+        t -= i;
+        lstrcpyA(tmp, SA);
+        i = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmp, -1, S, ArraySize(S)-1);
+        S[i] = 0;
       }
-      S[t]=0;
-      SetFilePointer(fname,-((int)(t-i)),NULL,FILE_CURRENT);
-
+#endif
+      if (t) SetFilePointer(fname,-(int)t,NULL,FILE_CURRENT);
+      if (!S[0]) continue;
       if (iteration==1)
       {
         if (Info.EditorControl(ECTL_INSERTTEXT,S)==0)
@@ -1708,7 +1762,7 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
           int OldActive=ActiveMode;
           ActiveMode=MAC_ERRORACTIVE;
           Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ErrorInsertStrEditor,
-                   sizeof(ErrorInsertStrEditor)/sizeof(ErrorInsertStrEditor[0]),1);
+                       ArraySize(ErrorInsertStrEditor),1);
           ActiveMode=OldActive;
           break;
         }
@@ -1723,7 +1777,7 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
           int OldActive=ActiveMode;
           ActiveMode=MAC_ERRORACTIVE;
           Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ErrorInsertStrEditor,
-                   sizeof(ErrorInsertStrEditor)/sizeof(ErrorInsertStrEditor[0]),1);
+                       ArraySize(ErrorInsertStrEditor),1);
           ActiveMode=OldActive;
           break;
         }
@@ -1734,37 +1788,42 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
     CloseHandle(fname);
   }
   DeleteFile(TempFileName);
+#ifndef UNICODE
   SetFileApisToOEM();
+#endif
 }
 
 
 void __fastcall TMacroView::ExportMacroToFile(BOOL AllMacros)
 {
-  char lKey[MAX_KEY_LEN];
-  char lGroup[MAX_KEY_LEN];
-  char sDest[EXPORTLEN];
-  char MacroHelp[64];
-  char *TmpPrfx="mvu";
+  TCHAR lKey[MAX_KEY_LEN];
+  TCHAR lGroup[MAX_KEY_LEN];
+  TCHAR sDest[EXPORTLEN];
+  TCHAR MacroHelp[64];
+#ifdef UNICODE
+  wchar_t _group[MAX_PATH_LEN], _fname[MAX_PATH_LEN];
+#endif
+  TCHAR *TmpPrfx=_T("mvu");
 
-  char *ErrorRun[]=
+  TCHAR *ErrorRun[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorRun),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ErrorExists[]=
+  TCHAR *ErrorExists[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningFileExists),
-    S,"\x1",sDest,"\x1",
+    S,_T("\x1"),sDest,_T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroRename),GetMsg(MMacroCancel)
   };
-  char *ErrorCreateFile[]=
+  TCHAR *ErrorCreateFile[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorCreateFile),
     Str,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
 
@@ -1775,36 +1834,47 @@ void __fastcall TMacroView::ExportMacroToFile(BOOL AllMacros)
 
     if (Deactivated)
     {
-      lstrcpy(lKey,"~");
+      lstrcpy(lKey,_T("~"));
       lstrcat(lKey,Key);
     }
 
     struct InitDialogItem InitItems[]=
     {
-      {DI_DOUBLEBOX,3,1,EXPORTLEN+2,6,0,0,0,0,(char *)MMacroExport},
-      {DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,""},
-      {DI_EDIT,5,3,EXPORTLEN,3,1,(DWORD_PTR)MacroExpHistory,DIF_HISTORY,0,""},
-      {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-      {DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave},
-      {DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel}
+      {DI_DOUBLEBOX,3,1,EXPORTLEN+2,6,0,0,0,0,(TCHAR *)MMacroExport},
+      {DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,_T("")},
+      {DI_EDIT,5,3,EXPORTLEN,3,1,(DWORD_PTR)MacroExpHistory,DIF_HISTORY,0,_T("")},
+      {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+      {DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MMacroSave},
+      {DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MMacroCancel}
     };
 
-    FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
-    InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+    FarDialogItem DialogItems[ArraySize(InitItems)];
+    InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+#ifdef UNICODE
+    *(DialogItems[2].PtrData = _fname) = 0;
+    DialogItems[2].PtrLength = sizeof(_fname);  //TODO: this needed?
+#endif
 
-    wsprintf(Str,"%s: %s",ConvertGroupName(Group,GRP_TOLONGNAME),Key);
+    wsprintf(Str,_T("%s: %s"),ConvertGroupName(Group,GRP_TOLONGNAME),Key);
     QuoteText(Str,TRUE);
     if (AllMacros)
     {
+#ifndef UNICODE
       lstrcpy(DialogItems[1].Data.Data,GetMsg(MMacroExportAllKey));
-      lstrcpy(DialogItems[2].Data.Data,"KeyMacros.reg");
-      lstrcpy(MacroHelp,"MacroExportAll");
+#else
+      DialogItems[1].PtrData = GetMsg(MMacroExportAllKey);
+#endif
+      lstrcpy(DialogItems[2].ptrData,_T("KeyMacros.reg"));
+      lstrcpy(MacroHelp,_T("MacroExportAll"));
     }
     else
     {
-      wsprintf(DialogItems[1].Data.Data,GetMsg(MMacroExportKey),Str);
-      wsprintf(DialogItems[2].Data.Data,"%s.reg",Key);
-      lstrcpy(MacroHelp,"MacroExport");
+#ifdef UNICODE
+      DialogItems[1].PtrData = _group;
+#endif
+      wsprintf(DialogItems[1].ptrData,GetMsg(MMacroExportKey),Str);
+      wsprintf(DialogItems[2].ptrData,_T("%s.reg"),Key);
+      lstrcpy(MacroHelp,_T("MacroExport"));
     }
 
     WriteKeyBar(KB_DIALOG);
@@ -1812,47 +1882,51 @@ void __fastcall TMacroView::ExportMacroToFile(BOOL AllMacros)
 MACRO_DIALOG:
 
     int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,EXPORTLEN+6,8,MacroHelp,DialogItems,
-                             sizeof(DialogItems)/sizeof(DialogItems[0]));
+                             ArraySize(DialogItems));
     if (ExitCode==4) // Сохранить
     {
       ZeroMemory(&si,sizeof(si));
       si.cb=sizeof(si);
 
-      char *ptr=strrchr(DialogItems[2].Data.Data,'\\');
+      TCHAR *ptr=_tcsrchr(DialogItems[2].ptrData,_T('\\'));
       if (ptr)
       {
         ZeroMemory(Str,sizeof(Str));
-        lstrcpyn(Str,DialogItems[2].Data.Data,(int)(ptr-DialogItems[2].Data.Data)+1);
+        lstrcpyn(Str,DialogItems[2].ptrData,(int)(ptr-DialogItems[2].ptrData)+1);
         if (!CreateDirs(Str))
           goto MACRO_DIALOG;
       }
 
+#ifndef UNICODE
       char AnsiName[MAX_PATH_LEN];
       SetFileApisToANSI();
       OemToChar(DialogItems[2].Data.Data,AnsiName);
+#else
+#define AnsiName  DialogItems[2].PtrData
+#endif
 
       ZeroMemory(TempPath,sizeof(TempPath));
       if (ptr)
       {
-        lstrcpyn(TempPath,DialogItems[2].Data.Data,(int)(ptr-DialogItems[2].Data.Data)+1);
-        wsprintf(TempFileName,"%s\\%s%x.tmp",TempPath,TmpPrfx,102938);
+        lstrcpyn(TempPath,DialogItems[2].ptrData,(int)(ptr-DialogItems[2].ptrData)+1);
+        wsprintf(TempFileName,_T("%s\\%s%x.tmp"),TempPath,TmpPrfx,102938);
       }
       else
       {
-        lstrcpy(TempPath,"");
-        wsprintf(TempFileName,"%s%x.tmp",TmpPrfx,102938);
+        lstrcpy(TempPath,_T(""));
+        wsprintf(TempFileName,_T("%s%x.tmp"),TmpPrfx,102938);
       }
 
       HANDLE hTemp;
       if ((hTemp=CreateFile(TempFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,
                              CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,NULL))==INVALID_HANDLE_VALUE)
       {
-        lstrcpy(Str,DialogItems[2].Data.Data);
+        lstrcpy(Str,DialogItems[2].ptrData);
         CheckRLen(Str,EXPORTLEN-8);
         int OldActive=ActiveMode;
         ActiveMode=MAC_ERRORACTIVE;
         Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,ErrorCreateFile,
-                     sizeof(ErrorCreateFile)/sizeof(ErrorCreateFile[0]),1);
+                     ArraySize(ErrorCreateFile),1);
         ActiveMode=OldActive;
         goto MACRO_DIALOG;
       }
@@ -1868,19 +1942,19 @@ MACRO_DIALOG:
         FileTimeToSystemTime(&ft,&st);
 
 //        wsprintf(sDest,"  %-24s %10lu %02u.%02u.%02u %02u:%02u:%02u  ",
-        FSF.sprintf(sDest,"  %-*s %10lu %02u.%02u.%02u %02u:%02u:%02u  ",24,
+        FSF.sprintf(sDest,_T("  %-*s %10lu %02u.%02u.%02u %02u:%02u:%02u  "),24,
                  GetMsg(MMacroDestination),
                 (fData.nFileSizeHigh*MAXDWORD)+fData.nFileSizeLow,
                  st.wDay,st.wMonth,st.wYear,
                  st.wHour,st.wMinute,st.wSecond);
 
-        lstrcpy(S,DialogItems[2].Data.Data);
+        lstrcpy(S,DialogItems[2].ptrData);
         CheckRLen(S,EXPORTLEN-8);
 
         int OldActive=ActiveMode;
         ActiveMode=MAC_ERRORACTIVE;
-        int ExitCode=Info.Message(Info.ModuleNumber,FMSG_WARNING,"MacroExportExist",ErrorExists,
-                     sizeof(ErrorExists)/sizeof(ErrorExists[0]),3);
+        int ExitCode=Info.Message(Info.ModuleNumber,FMSG_WARNING,_T("MacroExportExist"),ErrorExists,
+                                  ArraySize(ErrorExists),3);
         ActiveMode=OldActive;
 
         FindClose(hand);
@@ -1889,10 +1963,14 @@ MACRO_DIALOG:
           case 0:
             break;
           case 1:
+#ifndef UNICODE
             SetFileApisToOEM();
+#endif
             goto MACRO_DIALOG;
           default:
+#ifndef UNICODE
             SetFileApisToOEM();
+#endif
             return;
         }
       }
@@ -1900,16 +1978,21 @@ MACRO_DIALOG:
       if (AllMacros)
         lstrcpy(S,KeyMacros);
       else
-        wsprintf(S,"%s\\%s\\%s",KeyMacros,lGroup,lKey);
+        wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,lGroup,lKey);
       CheckFirstBackSlash(S,FALSE);
 
-      char regedit[32];
+      TCHAR regedit[32];
+#ifndef UNICODE
       if ((vi.dwPlatformId==VER_PLATFORM_WIN32_NT) && (vi.dwMajorVersion>=5))
-        lstrcpy(regedit,"regedit -ea");
+        lstrcpy(regedit,_T("regedit -ea"));
       else
-        lstrcpy(regedit,"regedit -e");
+#endif
+        lstrcpy(regedit,_T("regedit -e"));
 
-      wsprintf(Str,"%s \"%s\" \"%s\\%s\"",regedit,AnsiName,HKCU,S);
+      wsprintf(Str,_T("%s \"%s\" \"%s\\%s\""),regedit,AnsiName,HKCU,S);
+#ifdef UNICODE
+#undef AnsiName
+#endif
 
       int Code=CreateProcess(NULL,Str,NULL,NULL,TRUE,
                              0,NULL,NULL,&si,&pi);
@@ -1924,7 +2007,7 @@ MACRO_DIALOG:
           int OldActive=ActiveMode;
           ActiveMode=MAC_ERRORACTIVE;
           Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,ErrorRun,
-                       sizeof(ErrorRun)/sizeof(ErrorRun[0]),1);
+                       ArraySize(ErrorRun),1);
           ActiveMode=OldActive;
         }
       }
@@ -1933,19 +2016,21 @@ MACRO_DIALOG:
         int OldActive=ActiveMode;
         ActiveMode=MAC_ERRORACTIVE;
         Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,ErrorRun,
-                     sizeof(ErrorRun)/sizeof(ErrorRun[0]),1);
+                     ArraySize(ErrorRun),1);
         ActiveMode=OldActive;
       }
+#ifndef UNICODE
       SetFileApisToOEM();
+#endif
     }
   }
 }
 
 
-void TMacroView::SwitchOver(char *Group,char *Key)
+void TMacroView::SwitchOver(const TCHAR *Group,const TCHAR *Key)
 {
-  char lKey[MAX_KEY_LEN];
-  char lGroup[MAX_KEY_LEN];
+  TCHAR lKey[MAX_KEY_LEN];
+  TCHAR lGroup[MAX_KEY_LEN];
 
   if (*Group && *Key)
   {
@@ -1954,30 +2039,30 @@ void TMacroView::SwitchOver(char *Group,char *Key)
 
     if (Deactivated)
     {
-      lstrcpy(lKey,"~");
+      lstrcpy(lKey,_T("~"));
       lstrcat(lKey,Key);
     }
 
-    wsprintf(S,"%s\\%s\\%s",KeyMacros,lGroup,lKey); //полное имя ключа реестра
+    wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,lGroup,lKey); //полное имя ключа реестра
     CheckFirstBackSlash(S,TRUE);
 
     if ((EditDialog[28].Param.Selected) && (!Deactivated))  // отключить макрокоманду
     {
-      wsprintf(Str,"%s\\%s\\~%s",KeyMacros,lGroup,lKey);
+      wsprintf(Str,_T("%s\\%s\\~%s"),KeyMacros,lGroup,lKey);
       Reg->MoveKey(S,Str); //(OldName,NewName);
     }
     else if ((!EditDialog[28].Param.Selected) && (Deactivated)) // восстановить макрокоманду
     {
-      wsprintf(Str,"%s\\%s\\%s",KeyMacros,lGroup,&lKey[1]);
+      wsprintf(Str,_T("%s\\%s\\%s"),KeyMacros,lGroup,&lKey[1]);
       Reg->MoveKey(S,Str); //(OldName,NewName);
     }
   }
 }
 
 
-BOOL TMacroView::DeletingMacro(char **Items,int ItemsSize,char *HelpTopic)
+BOOL TMacroView::DeletingMacro(TCHAR **Items,int ItemsSize,TCHAR *HelpTopic)
 {
-  char lKey[MAX_KEY_LEN];
+  TCHAR lKey[MAX_KEY_LEN];
   int lCode;
 
   if (*Group && *Key)
@@ -1986,18 +2071,18 @@ BOOL TMacroView::DeletingMacro(char **Items,int ItemsSize,char *HelpTopic)
 
     if (Deactivated)
     {
-      lstrcpy(lKey,"~");
+      lstrcpy(lKey,_T("~"));
       lstrcat(lKey,Key);
     }
     lCode=Info.Message(Info.ModuleNumber,FMSG_WARNING,HelpTopic,Items,ItemsSize,3);
 
-    wsprintf(S,"%s\\%s\\%s",KeyMacros,Group,lKey); //полное имя ключа реестра
+    wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,Group,lKey); //полное имя ключа реестра
     CheckFirstBackSlash(S,TRUE);
 
     if (lCode==0)
     {
       Reg->DeleteKey(S);
-      wsprintf(S,"%s\\%s",KeyMacros,Group);
+      wsprintf(S,_T("%s\\%s"),KeyMacros,Group);
       Reg->OpenKey(S);
       if (!Reg->HasSubKeys())
         Reg->DeleteKey(S);
@@ -2007,9 +2092,9 @@ BOOL TMacroView::DeletingMacro(char **Items,int ItemsSize,char *HelpTopic)
     else if (lCode==1)
     {
       if (Deactivated)  //TRUE - восстановить
-        wsprintf(Str,"%s\\%s\\%s",KeyMacros,Group,&lKey[1]);
+        wsprintf(Str,_T("%s\\%s\\%s"),KeyMacros,Group,&lKey[1]);
       else         //FALSE - отключить
-        wsprintf(Str,"%s\\%s\\~%s",KeyMacros,Group,lKey);
+        wsprintf(Str,_T("%s\\%s\\~%s"),KeyMacros,Group,lKey);
       Reg->MoveKey(S,Str); //(OldName,NewName);
       return DM_DEACTIVATED;
     }
@@ -2022,10 +2107,10 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 {
   BOOL lResult=FALSE;
 
-  char S1[MAX_PATH_LEN];
-  char LocalKeyMacros[MAX_PATH_LEN];
-  char lKey[MAX_KEY_LEN];
-  char lGroup[MAX_KEY_LEN];
+  TCHAR S1[MAX_PATH_LEN];
+  TCHAR LocalKeyMacros[MAX_PATH_LEN];
+  TCHAR lKey[MAX_KEY_LEN];
+  TCHAR lGroup[MAX_KEY_LEN];
 
   // Если пользовательских конфигураций в фаре нет, то
   // количество пользователей = 1 (Основная конфигурация)
@@ -2036,32 +2121,32 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
   // Индекс области копирования.
   GroupPos=0;
 
-  char *ItemsErrorConf[]=
+  TCHAR *ItemsErrorConf[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorSelectConfiguration),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ItemsCopy[]=
+  TCHAR *ItemsCopy[]=
   {
     GetMsg(MMacroWarning),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ItemsExist[]=
+  TCHAR *ItemsExist[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningExist),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroCancel)
   };
-  char *ItemsKeyEmp[]=
+  TCHAR *ItemsKeyEmp[]=
   {
     GetMsg(MMacroWarning),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
 
@@ -2087,7 +2172,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
     }
 
     ConfItems[0].Flags=0;
-    lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),sizeof(ConfItems[0].Text));
+    lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),ArraySize(ConfItems[0].Text));
     ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
   }
   else
@@ -2109,7 +2194,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
       }
 
       ConfItems[0].Flags=0;
-      lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),sizeof(ConfItems[0].Text));
+      lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),ArraySize(ConfItems[0].Text));
       ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
 
       if (UserCount>1)
@@ -2121,7 +2206,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
         for (int i=0;i<UserList->GetCount();i++)
         {
           ConfItems[i+2].Flags=0;
-          lstrcpyn(ConfItems[i+2].Text,UserList->GetText(i),sizeof(ConfItems[i+2].Text));
+          lstrcpyn(ConfItems[i+2].Text,UserList->GetText(i),ArraySize(ConfItems[i+2].Text));
           ZeroMemory(ConfItems[i+2].Reserved,sizeof(ConfItems[i+2].Reserved));
 
           if (*FarUserName && (CmpStr(ConfItems[i+2].Text,FarUserName)==0))
@@ -2145,7 +2230,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
       }
 
       ConfItems[0].Flags=0;
-      lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),sizeof(ConfItems[0].Text));
+      lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),ArraySize(ConfItems[0].Text));
       ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
     }
   }
@@ -2160,22 +2245,22 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 
   struct InitDialogItem InitItems[]=
   {
-/* 0*/ {DI_DOUBLEBOX,            3,1,EXPORTLEN+2,9,0,0,0,0,""},
+/* 0*/ {DI_DOUBLEBOX,            3,1,EXPORTLEN+2,9,0,0,0,0,_T("")},
 /* 1*/ {DI_TEXT,                 5,2,EXPORTLEN/2,0,0,0,0,0,CheckLen(GetMsg(MMacroSelectConfig),EXPORTLEN/2)},
-/* 2*/ {DI_COMBOBOX,             5,3,EXPORTLEN/2,3,1,0,DIF_DROPDOWNLIST,0,""},
+/* 2*/ {DI_COMBOBOX,             5,3,EXPORTLEN/2,3,1,0,DIF_DROPDOWNLIST,0,_T("")},
 /* 3*/ {DI_TEXT,     EXPORTLEN/2+4,2,  EXPORTLEN,0,0,0,0,0,CheckLen(GetMsg(MMacroCopyMoveTo),EXPORTLEN/2-2)},
-/* 4*/ {DI_COMBOBOX, EXPORTLEN/2+4,3,  EXPORTLEN,3,0,0,DIF_DROPDOWNLIST,0,""},
-/* 5*/ {DI_TEXT,                 5,4,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-/* 6*/ {DI_VTEXT,    EXPORTLEN/2+2,2,          0,0,0,0,0,0,"\xB3\xB3\xC1"},
+/* 4*/ {DI_COMBOBOX, EXPORTLEN/2+4,3,  EXPORTLEN,3,0,0,DIF_DROPDOWNLIST,0,_T("")},
+/* 5*/ {DI_TEXT,                 5,4,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+/* 6*/ {DI_VTEXT,    EXPORTLEN/2+2,2,          0,0,0,0,0,0,_BOX_VTOP},
 /* 7*/ {DI_TEXT,                 5,5,  EXPORTLEN,0,0,0,0,0,CheckLen(GetMsg(MMacroNewKey),EXPORTLEN)},
-/* 8*/ {DI_EDIT,                 5,6,  EXPORTLEN,5,0,(DWORD_PTR)MacroCopyHistory,DIF_HISTORY,0,""},
-/* 9*/ {DI_TEXT,                 5,7,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-/*10*/ {DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,1,(char *)MMacroSave},
-/*11*/ {DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,0,(char *)MMacroCancel}
+/* 8*/ {DI_EDIT,                 5,6,  EXPORTLEN,5,0,(DWORD_PTR)MacroCopyHistory,DIF_HISTORY,0,_T("")},
+/* 9*/ {DI_TEXT,                 5,7,          0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+/*10*/ {DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MMacroSave},
+/*11*/ {DI_BUTTON,               0,8,          0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MMacroCancel}
   };
 
-  FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
-  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+  FarDialogItem DialogItems[ArraySize(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
 
   // Скопируем в локальный буфер имя группы из которой производим копирование.
   lstrcpy(lGroup,Group);
@@ -2183,33 +2268,38 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
   ConvertGroupName(lGroup,GRP_TOLONGNAME);
 
   // Подготовим строку имени копируемого макроса для заголовка диалога.
-  wsprintf(S1,"\"%s: %s\"",lGroup,Key);
-  if (Op==KEY_F5)
-    // Установим заголовок диалога - Копирование
-    wsprintf(DialogItems[0].Data.Data,"%s %s",GetMsg(MMacroCopy),S1);
-  else
-    // Установим заголовок диалога - Перемещение
-    wsprintf(DialogItems[0].Data.Data,"%s %s",GetMsg(MMacroMove),S1);
+  wsprintf(S1,_T("\"%s: %s\""),lGroup,Key);
+#ifdef UNICODE
+  wchar_t _tmps[ArraySize(lGroup)+ArraySize(Key)+64];
+  DialogItems[0].PtrData = _tmps;
+#endif
+  wsprintf(DialogItems[0].ptrData,_T("%s %s"),
+           GetMsg((Op==KEY_F5) ? MMacroCopy : MMacroMove),S1);
 
   // Инициализируем содержимое поля команды выполнения.
-  lstrcpyn(DialogItems[8].Data.Data,Key,sizeof(DialogItems[8].Data.Data));
+#ifndef UNICODE
+  lstrcpyn(DialogItems[8].Data.Data,Key,ArraySize(DialogItems[8].Data.Data));
+#else
+  wchar_t _key[ArraySize(Key)];
+  lstrcpy(DialogItems[8].PtrData = _key, Key);
+#endif
 
 COPY_MOVE:
 
-  int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,EXPORTLEN+6,11,"MacroCopy",
-           DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]),0,0,
-           CopyDialogProc,0);
+  int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,EXPORTLEN+6,11,_T("MacroCopy"),
+                             DialogItems,ArraySize(DialogItems),0,0,
+                             CopyDialogProc,0);
 
   if (ExitCode==10) // Сохранить
   {
-    if (DialogItems[8].Data.Data[0]==0) // New key is empty
+    if (DialogItems[8].ptrData[0]==0) // New key is empty
     {
-      wsprintf(S,"%s %s",GetMsg(MMacroWarningInsertEmpty0),GetMsg(MMacroWarningInsertEmpty2));
+      wsprintf(S,_T("%s %s"),GetMsg(MMacroWarningInsertEmpty0),GetMsg(MMacroWarningInsertEmpty2));
 
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsKeyEmp,
-        sizeof(ItemsKeyEmp)/sizeof(ItemsKeyEmp[0]),1);
+                   ArraySize(ItemsKeyEmp),1);
       ActiveMode=OldActive;
       goto COPY_MOVE;
     }
@@ -2217,37 +2307,37 @@ COPY_MOVE:
     // Создадим локальную копию адреса расположения макросов в реестре,
     // в зависимости от выбранной конфигурации пользователя.
     if (UserConfPos==0)
-      wsprintf(LocalKeyMacros,"%s\\%s",Default_KEY,KeyMacros_KEY);
+      wsprintf(LocalKeyMacros,_T("%s\\%s"),Default_KEY,KeyMacros_KEY);
     else if (UserConfPos>1)
-      wsprintf(LocalKeyMacros,"%s\\%s\\%s",FarUsersKey,DialogItems[2].Data.Data,KeyMacros_KEY);
+      wsprintf(LocalKeyMacros,_T("%s\\%s\\%s"),FarUsersKey,DialogItems[2].ptrData,KeyMacros_KEY);
     else
     {
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsErrorConf,
-          sizeof(ItemsErrorConf)/sizeof(ItemsErrorConf[0]),1);
+                   ArraySize(ItemsErrorConf),1);
       delete[] ConfItems;
       ActiveMode=OldActive;
       return lResult;
     }
 
-    char *Str1=new char[MAX_PATH_LEN];
-    lstrcpy(lGroup,DialogItems[4].Data.Data); // New group
-    lstrcpy(lKey,DialogItems[8].Data.Data); // New key
+    TCHAR *Str1=new TCHAR[MAX_PATH_LEN];
+    lstrcpy(lGroup,DialogItems[4].ptrData); // New group
+    lstrcpy(lKey,DialogItems[8].ptrData); // New key
 
     // Сконвертируем имя группы назначения в короткое имя
     ConvertGroupName(lGroup,GRP_TOSHORTNAME);
     if (Deactivated)
     {
-      wsprintf(S,"%s\\%s\\~%s",KeyMacros,Group,Key);
-      wsprintf(S1,"%s\\%s\\~%s",LocalKeyMacros,lGroup,lKey);
-      wsprintf(Str1,"%s\\%s\\%s",LocalKeyMacros,lGroup,lKey);
+      wsprintf(S,_T("%s\\%s\\~%s"),KeyMacros,Group,Key);
+      wsprintf(S1,_T("%s\\%s\\~%s"),LocalKeyMacros,lGroup,lKey);
+      wsprintf(Str1,_T("%s\\%s\\%s"),LocalKeyMacros,lGroup,lKey);
     }
     else
     {
-      wsprintf(S,"%s\\%s\\%s",KeyMacros,Group,Key);
-      wsprintf(S1,"%s\\%s\\%s",LocalKeyMacros,lGroup,lKey);
-      wsprintf(Str1,"%s\\%s\\~%s",LocalKeyMacros,lGroup,lKey);
+      wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,Group,Key);
+      wsprintf(S1,_T("%s\\%s\\%s"),LocalKeyMacros,lGroup,lKey);
+      wsprintf(Str1,_T("%s\\%s\\~%s"),LocalKeyMacros,lGroup,lKey);
     }
 
     if (CmpStr(S,S1)==0)
@@ -2260,7 +2350,7 @@ COPY_MOVE:
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsCopy,
-        sizeof(ItemsCopy)/sizeof(ItemsCopy[0]),1);
+                   ArraySize(ItemsCopy),1);
       delete[] Str1;
       ActiveMode=OldActive;
       goto COPY_MOVE;
@@ -2269,11 +2359,11 @@ COPY_MOVE:
     if ((Reg->KeyExists(S1)) || (Reg->KeyExists(Str1)))
     {
       lstrcpy(Str,S);
-      wsprintf(S,"\"%s: %s\"",DialogItems[4].Data.Data,lKey);
+      wsprintf(S,_T("\"%s: %s\""),DialogItems[4].ptrData,lKey);
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsExist,
-          sizeof(ItemsExist)/sizeof(ItemsExist[0]),2)!=0)
+                       ArraySize(ItemsExist),2)!=0)
       {
         delete[] Str1;
         delete[] ConfItems;
@@ -2291,7 +2381,7 @@ COPY_MOVE:
     else
     {
       Reg->MoveKey(S,S1); //(OldName,NewName);
-      wsprintf(S,"%s\\%s",KeyMacros,Group);
+      wsprintf(S,_T("%s\\%s"),KeyMacros,Group);
       if (Reg->OpenKey(S))
       {
         if (!Reg->HasSubKeys())
@@ -2324,19 +2414,19 @@ void TMacroView::MoveTildeInKey(TStrList *&List,BOOL doit)
     len=lstrlen(Str);
     if (doit)
     {
-      if ((*Str=='~') && (len>1))
+      if ((*Str==_T('~')) && (len>1))
       {
         MoveMemory(Str,&Str[1],len-1);
-        Str[len-1]='\x1';
+        Str[len-1]=_T('\x1');
         List->SetText(Str,i);
       }
     }
     else
     {
-      if ((len>1) && (Str[len-1]=='\x1'))
+      if ((len>1) && (Str[len-1]==_T('\x1')))
       {
         MoveMemory(&Str[1],Str,len-1);
-        *Str='~';
+        *Str=_T('~');
         List->SetText(Str,i);
       }
     }
@@ -2348,7 +2438,7 @@ void TMacroView::MoveTildeInKey(TStrList *&List,BOOL doit)
 void TMacroView::PrepareDependentSort(TStrList *&List,BOOL doit)
 {
   int i;
-//  char Group[MAX_KEY_LEN];
+//  TCHAR Group[MAX_KEY_LEN];
 
   for(i=0;i<List->GetCount();i++)
   {
@@ -2358,17 +2448,17 @@ void TMacroView::PrepareDependentSort(TStrList *&List,BOOL doit)
     ConvertGroupName(Str,GRP_TOSHORTNAME);
     if (doit)
     {
-      if (((OpenFrom==OPEN_PLUGINSMENU) && (CmpStr(Str,"Shell")==0))  ||
-          ((OpenFrom==OPEN_VIEWER)      && (CmpStr(Str,"Viewer")==0)) ||
-          ((OpenFrom==OPEN_EDITOR)      && (CmpStr(Str,"Editor")==0)))
+      if (((OpenFrom==OPEN_PLUGINSMENU) && (CmpStr(Str,_T("Shell"))==0))  ||
+          ((OpenFrom==OPEN_VIEWER)      && (CmpStr(Str,_T("Viewer"))==0)) ||
+          ((OpenFrom==OPEN_EDITOR)      && (CmpStr(Str,_T("Editor"))==0)))
       {
-        wsprintf(S,"\x1%s",List->GetText(i));
+        wsprintf(S,_T("\x1%s"),List->GetText(i));
         List->SetText(S,i);
       }
     }
     else
     {
-      if (*Str=='\x1')
+      if (*Str==_T('\x1'))
       {
         lstrcpy(S,List->GetText(i));
         List->SetText(&S[1],i);
@@ -2384,9 +2474,9 @@ void TMacroView::PrepareDependentSort(TStrList *&List,BOOL doit)
 void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 {
   int i,j,k=0,AddCount=0;
-  char Group[MAX_KEY_LEN];
-  char OldGroup[MAX_KEY_LEN];
-  char Key[MAX_KEY_LEN];
+  TCHAR Group[MAX_KEY_LEN];
+  TCHAR OldGroup[MAX_KEY_LEN];
+  TCHAR Key[MAX_KEY_LEN];
   BOOL emptyDescr=TRUE;
   FarList List;
 //  FarListItem *ListItems;
@@ -2453,13 +2543,13 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
       ConvertGroupName(Group,GRP_TOSHORTNAME);
 
       if (((Conf.ViewShell) && (OpenFrom==OPEN_PLUGINSMENU) &&
-          ((CmpStr(Group,"Viewer")==0) || (CmpStr(Group,"Editor")==0))) ||
+          ((CmpStr(Group,_T("Viewer"))==0) || (CmpStr(Group,_T("Editor"))==0))) ||
           ((Conf.ViewViewer) && (OpenFrom==OPEN_VIEWER) &&
-           (CmpStr(Group,"Viewer")!=0)) ||
+           (CmpStr(Group,_T("Viewer"))!=0)) ||
           ((Conf.ViewEditor) && (OpenFrom==OPEN_EDITOR) &&
-           (CmpStr(Group,"Editor")!=0)))
+           (CmpStr(Group,_T("Editor"))!=0)))
         continue;
-      wsprintf(S,"%s\\%s",KeyMacros,Group);
+      wsprintf(S,_T("%s\\%s"),KeyMacros,Group);
       CheckFirstBackSlash(S,TRUE);
       if (!Reg->OpenKey(S))
         continue;
@@ -2487,7 +2577,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
         // Если же искомые группа и макрос не найдены, то перейдём потом на строку,
         // на которой были в прошлый раз, а именно SelectPos.
         if (Macro->Key[0] && Macro->Group[0])
-          if ((CmpStr(Str,Macro->Group)==0) && (CmpStr((Key[0]=='~' && lstrlen(Key)>1)?&Key[1]:Key,Macro->Key)==0))
+          if ((CmpStr(Str,Macro->Group)==0) && (CmpStr((Key[0]==_T('~') && lstrlen(Key)>1)?&Key[1]:Key,Macro->Key)==0))
             ListPos.SelectPos=k;
 
         lstrcpy(Str,NameList->GetText(i));  // Str contains group name
@@ -2497,11 +2587,11 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
           // Добавление разделителя групп.
           if (*OldGroup && CmpStr(OldGroup,Str)!=0)
           {
-            MenuList->Add("");
-            GroupList->Add("");
-            KeyList->Add("");
+            MenuList->Add(_T(""));
+            GroupList->Add(_T(""));
+            KeyList->Add(_T(""));
             if (Conf.AddDescription)
-              DescrList->Add("");
+              DescrList->Add(_T(""));
             AddCount++;
             k++;
           }
@@ -2510,28 +2600,28 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 
         if (Conf.AddDescription)
         {
-          wsprintf(S,"%s\\%s\\%s",KeyMacros,Group,Key);
+          wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,Group,Key);
           CheckFirstBackSlash(S,TRUE);
           if (!Reg->OpenKey(S))
             continue;
-          Reg->ReadString("Description",S,sizeof(S));
+          Reg->ReadString(_T("Description"),S,sizeof(S));
           if (S[0])
           {
             DescrList->Add(S);
             emptyDescr=FALSE;
           }
           else
-            DescrList->Add("");
+            DescrList->Add(_T(""));
           Reg->CloseKey();
         }
 
         CheckLen(Str,KeyWidth);
-        lstrcat(Str,":");
-        FSF.sprintf(S,"%-*s  \"%s\"",KeyWidth+1,Str,(Key[0]=='~' && lstrlen(Key)>1)?&Key[1]:Key);
+        lstrcat(Str,_T(":"));
+        FSF.sprintf(S,_T("%-*s  \"%s\""),KeyWidth+1,Str,(Key[0]==_T('~') && lstrlen(Key)>1)?&Key[1]:Key);
         CheckLen(S,(csbi.dwSize.X-12>MAXMENULEN) ? MAXMENULEN : csbi.dwSize.X-12);
-        if (Key[0]=='~' && lstrlen(Key)>1)
+        if (Key[0]==_T('~') && lstrlen(Key)>1)
         {
-          Str[0]='~';
+          Str[0]=_T('~');
           Str[1]=0;
         }
         else
@@ -2560,9 +2650,9 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
     if (MenuItemsNumber==0)
     {
       if (Conf.AddDescription)
-        FSF.sprintf(S,"%*s\xB3%*s",KeyWidth," ",KeyWidth," ");
+        FSF.sprintf(S,_T("%*s") _BOX_VERT _T("%*s"),KeyWidth,_T(" "),KeyWidth,_T(" "));
       else
-        FSF.sprintf(S,"%*s",KeyWidth," ");
+        FSF.sprintf(S,_T("%*s"),KeyWidth,_T(" "));
 
       FarListItem ListItems; //=new FarListItem[1];
       List.ItemsNumber=1;
@@ -2593,11 +2683,12 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
           lstrcpy(Str,MenuList->GetText(i));
           if (*Str)
           {
-            FSF.sprintf(S,"%-*s \xB3 %s",GroupKeyLen,(Str[0]=='~')?&Str[1]:Str,DescrList->GetText(i));
-            if (Str[0]=='~')
+            FSF.sprintf(S,_T("%-*s ") _BOX_VERT _T(" %s"),GroupKeyLen,
+                        (Str[0]==_T('~'))?&Str[1]:Str,DescrList->GetText(i));
+            if (Str[0]==_T('~'))
             {
-              memmove(&S[1],S,sizeof(S)-1);
-              S[0]='~';
+              memmove(&S[1],S,sizeof(S)-sizeof(S[0]));
+              S[0]=_T('~');
             }
           }
           else
@@ -2609,16 +2700,16 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 
         if (*S)
         {
-          ListItems/*[i]*/.Flags=(S[0]=='~')?LIF_CHECKED|'-':0;
-          if (S[0]=='~')
-            memmove(S,&S[1],sizeof(S)-1);
+          ListItems/*[i]*/.Flags=(S[0]==_T('~'))?LIF_CHECKED|_T('-'):0;
+          if (S[0]==_T('~'))
+            memmove(S,&S[1],sizeof(S)-sizeof(S[0]));
           CheckLen(S,(csbi.dwSize.X-12>MAXMENULEN)?MAXMENULEN:csbi.dwSize.X-12);
           lstrcpy(ListItems/*[i]*/.Text,S);
 
-          lstrcpyn(MData.Group,GroupList->GetText(i),sizeof(MData.Group)-1);
-          MData.Group[sizeof(MData.Group)-1]=0;
-          lstrcpyn(MData.Key,KeyList->GetText(i),sizeof(MData.Key)-1);
-          MData.Key[sizeof(MData.Key)-1]=0;
+          lstrcpyn(MData.Group,GroupList->GetText(i),ArraySize(MData.Group)-1);
+          MData.Group[ArraySize(MData.Group)-1]=0;
+          lstrcpyn(MData.Key,KeyList->GetText(i),ArraySize(MData.Key)-1);
+          MData.Key[ArraySize(MData.Key)-1]=0;
         }
         else
         {
@@ -2710,63 +2801,63 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems)
   {
     if (MultiLine)
     {
-        //BUGBUG Reg->PutData("Sequence",MacroData,,rdMultiString);
+        //BUGBUG Reg->PutData(_T("Sequence"),MacroData,,rdMultiString);
     }
     else
     {
-        Reg->WriteString("Sequence",MacroData);
+        Reg->WriteString(_T("Sequence"),MacroData);
     }
   }
   else
   {
-    Reg->WriteString("Sequence",DialogItems[8].Data.Data);
+    Reg->WriteString(_T("Sequence"),DialogItems[8].ptrData);
   }
 
-  Reg->WriteString("Sequence",(MacroData)?MacroData:DialogItems[8].Data.Data);
-  if (DialogItems[10].Data.Data[0])
-    Reg->WriteString("Description",DialogItems[10].Data.Data);
+  Reg->WriteString(_T("Sequence"),(MacroData)?MacroData:DialogItems[8].ptrData);
+  if (DialogItems[10].ptrData[0])
+    Reg->WriteString(_T("Description"),DialogItems[10].ptrData);
   else
-    Reg->DeleteValue("Description");
+    Reg->DeleteValue(_T("Description"));
 
   if (DialogItems[12].Param.Selected)
-    Reg->WriteInteger("RunAfterFARStart",DialogItems[12].Param.Selected);
+    Reg->WriteInteger(_T("RunAfterFARStart"),DialogItems[12].Param.Selected);
   else
-    Reg->DeleteValue("RunAfterFARStart");
+    Reg->DeleteValue(_T("RunAfterFARStart"));
 
   if (DialogItems[13].Param.Selected)
-    Reg->WriteInteger("DisableOutput",DialogItems[13].Param.Selected);
+    Reg->WriteInteger(_T("DisableOutput"),DialogItems[13].Param.Selected);
   else
-    Reg->DeleteValue("DisableOutput");
+    Reg->DeleteValue(_T("DisableOutput"));
 
   switch(DialogItems[14].Param.Selected)
   {
     case 2:
-      Reg->DeleteValue("NotEmptyCommandLine");
-      Reg->DeleteValue("EmptyCommandLine");
+      Reg->DeleteValue(_T("NotEmptyCommandLine"));
+      Reg->DeleteValue(_T("EmptyCommandLine"));
       break;
     case 1:
-      Reg->DeleteValue("EmptyCommandLine");
-      Reg->WriteInteger("NotEmptyCommandLine",1);
+      Reg->DeleteValue(_T("EmptyCommandLine"));
+      Reg->WriteInteger(_T("NotEmptyCommandLine"),1);
       break;
     case 0:
-      Reg->DeleteValue("NotEmptyCommandLine");
-      Reg->WriteInteger("EmptyCommandLine",1);
+      Reg->DeleteValue(_T("NotEmptyCommandLine"));
+      Reg->WriteInteger(_T("EmptyCommandLine"),1);
       break;
   }
 
   switch(DialogItems[15].Param.Selected)
   {
     case 2:
-      Reg->DeleteValue("NoEVSelection");
-      Reg->DeleteValue("EVSelection");
+      Reg->DeleteValue(_T("NoEVSelection"));
+      Reg->DeleteValue(_T("EVSelection"));
       break;
     case 1:
-      Reg->DeleteValue("NoEVSelection");
-      Reg->WriteInteger("EVSelection",1);
+      Reg->DeleteValue(_T("NoEVSelection"));
+      Reg->WriteInteger(_T("EVSelection"),1);
       break;
     case 0:
-      Reg->DeleteValue("EVSelection");
-      Reg->WriteInteger("NoEVSelection",1);
+      Reg->DeleteValue(_T("EVSelection"));
+      Reg->WriteInteger(_T("NoEVSelection"),1);
       break;
   }
 
@@ -2776,61 +2867,61 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems)
     switch(DialogItems[18].Param.Selected)
     {
       case 2:
-        Reg->DeleteValue("NoPluginPanels");
-        Reg->DeleteValue("NoFilePanels");
+        Reg->DeleteValue(_T("NoPluginPanels"));
+        Reg->DeleteValue(_T("NoFilePanels"));
         break;
       case 1:
-        Reg->DeleteValue("NoPluginPanels");
-        Reg->WriteInteger("NoFilePanels",1);
+        Reg->DeleteValue(_T("NoPluginPanels"));
+        Reg->WriteInteger(_T("NoFilePanels"),1);
         break;
       case 0:
-        Reg->DeleteValue("NoFilePanels");
-        Reg->WriteInteger("NoPluginPanels",1);
+        Reg->DeleteValue(_T("NoFilePanels"));
+        Reg->WriteInteger(_T("NoPluginPanels"),1);
         break;
     }
 
     switch(DialogItems[20].Param.Selected)
     {
       case 2:
-        Reg->DeleteValue("NoFolders");
-        Reg->DeleteValue("NoFiles");
+        Reg->DeleteValue(_T("NoFolders"));
+        Reg->DeleteValue(_T("NoFiles"));
         break;
       case 1:
-        Reg->DeleteValue("NoFolders");
-        Reg->WriteInteger("NoFiles",1);
+        Reg->DeleteValue(_T("NoFolders"));
+        Reg->WriteInteger(_T("NoFiles"),1);
         break;
       case 0:
-        Reg->DeleteValue("NoFiles");
-        Reg->WriteInteger("NoFolders",1);
+        Reg->DeleteValue(_T("NoFiles"));
+        Reg->WriteInteger(_T("NoFolders"),1);
         break;
     }
 
     switch(DialogItems[22].Param.Selected)
     {
       case 2:
-        Reg->DeleteValue("NoSelection");
-        Reg->DeleteValue("Selection");
+        Reg->DeleteValue(_T("NoSelection"));
+        Reg->DeleteValue(_T("Selection"));
         break;
       case 1:
-        Reg->DeleteValue("NoSelection");
-        Reg->WriteInteger("Selection",1);
+        Reg->DeleteValue(_T("NoSelection"));
+        Reg->WriteInteger(_T("Selection"),1);
         break;
       case 0:
-        Reg->DeleteValue("Selection");
-        Reg->WriteInteger("NoSelection",1);
+        Reg->DeleteValue(_T("Selection"));
+        Reg->WriteInteger(_T("NoSelection"),1);
         break;
     }
   }
   else
   {
-    Reg->DeleteValue("NoPluginPanels");
-    Reg->DeleteValue("NoFilePanels");
+    Reg->DeleteValue(_T("NoPluginPanels"));
+    Reg->DeleteValue(_T("NoFilePanels"));
 
-    Reg->DeleteValue("NoFolders");
-    Reg->DeleteValue("NoFiles");
+    Reg->DeleteValue(_T("NoFolders"));
+    Reg->DeleteValue(_T("NoFiles"));
 
-    Reg->DeleteValue("NoSelection");
-    Reg->DeleteValue("Selection");
+    Reg->DeleteValue(_T("NoSelection"));
+    Reg->DeleteValue(_T("Selection"));
   }
 
   // Флаги пассивной панели
@@ -2839,67 +2930,67 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems)
     switch(DialogItems[19].Param.Selected)
     {
       case 2:
-        Reg->DeleteValue("NoPluginPPanels");
-        Reg->DeleteValue("NoFilePPanels");
+        Reg->DeleteValue(_T("NoPluginPPanels"));
+        Reg->DeleteValue(_T("NoFilePPanels"));
         break;
       case 1:
-        Reg->DeleteValue("NoPluginPPanels");
-        Reg->WriteInteger("NoFilePPanels",1);
+        Reg->DeleteValue(_T("NoPluginPPanels"));
+        Reg->WriteInteger(_T("NoFilePPanels"),1);
         break;
       case 0:
-        Reg->DeleteValue("NoFilePPanels");
-        Reg->WriteInteger("NoPluginPPanels",1);
+        Reg->DeleteValue(_T("NoFilePPanels"));
+        Reg->WriteInteger(_T("NoPluginPPanels"),1);
         break;
     }
 
     switch(DialogItems[21].Param.Selected)
     {
       case 2:
-        Reg->DeleteValue("NoPFolders");
-        Reg->DeleteValue("NoPFiles");
+        Reg->DeleteValue(_T("NoPFolders"));
+        Reg->DeleteValue(_T("NoPFiles"));
         break;
       case 1:
-        Reg->DeleteValue("NoPFolders");
-        Reg->WriteInteger("NoPFiles",1);
+        Reg->DeleteValue(_T("NoPFolders"));
+        Reg->WriteInteger(_T("NoPFiles"),1);
         break;
       case 0:
-        Reg->DeleteValue("NoPFiles");
-        Reg->WriteInteger("NoPFolders",1);
+        Reg->DeleteValue(_T("NoPFiles"));
+        Reg->WriteInteger(_T("NoPFolders"),1);
         break;
     }
 
     switch(DialogItems[23].Param.Selected)
     {
       case 2:
-        Reg->DeleteValue("NoPSelection");
-        Reg->DeleteValue("PSelection");
+        Reg->DeleteValue(_T("NoPSelection"));
+        Reg->DeleteValue(_T("PSelection"));
         break;
       case 1:
-        Reg->DeleteValue("NoPSelection");
-        Reg->WriteInteger("PSelection",1);
+        Reg->DeleteValue(_T("NoPSelection"));
+        Reg->WriteInteger(_T("PSelection"),1);
         break;
       case 0:
-        Reg->DeleteValue("PSelection");
-        Reg->WriteInteger("NoPSelection",1);
+        Reg->DeleteValue(_T("PSelection"));
+        Reg->WriteInteger(_T("NoPSelection"),1);
         break;
     }
   }
   else
   {
-    Reg->DeleteValue("NoPluginPPanels");
-    Reg->DeleteValue("NoFilePPanels");
+    Reg->DeleteValue(_T("NoPluginPPanels"));
+    Reg->DeleteValue(_T("NoFilePPanels"));
 
-    Reg->DeleteValue("NoPFolders");
-    Reg->DeleteValue("NoPFiles");
+    Reg->DeleteValue(_T("NoPFolders"));
+    Reg->DeleteValue(_T("NoPFiles"));
 
-    Reg->DeleteValue("NoPSelection");
-    Reg->DeleteValue("PSelection");
+    Reg->DeleteValue(_T("NoPSelection"));
+    Reg->DeleteValue(_T("PSelection"));
   }
 
   if (DialogItems[26].Param.Selected)
-    Reg->DeleteValue("NoSendKeysToPlugins");
+    Reg->DeleteValue(_T("NoSendKeysToPlugins"));
   else
-    Reg->WriteInteger("NoSendKeysToPlugins",1);
+    Reg->WriteInteger(_T("NoSendKeysToPlugins"),1);
 }
 
 
@@ -2921,18 +3012,18 @@ BOOL __fastcall TMacroView::CopyMacro(int vKey)
 void __fastcall TMacroView::ExportMacro(BOOL AllMacros)
 {
   int eCode;
-  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+  TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
-  char *ItemsSave1[]=
+  TCHAR *ItemsSave1[]=
   {
     GetMsg(MMacroExport),GetMsg(MMacroWhere),S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroInsertEditor),GetMsg(MMacroSaveToFile),GetMsg(MMacroCancel),
   };
-  char *ItemsSave2[]=
+  TCHAR *ItemsSave2[]=
   {
     GetMsg(MMacroExport),GetMsg(MMacroAllWhere),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroInsertEditor),GetMsg(MMacroSaveToFile),GetMsg(MMacroCancel),
   };
 
@@ -2946,18 +3037,18 @@ void __fastcall TMacroView::ExportMacro(BOOL AllMacros)
         lstrcpy(lGroup,Group);
         //Из короткого имени группы создадим длинное
         ConvertGroupName(lGroup,GRP_TOLONGNAME);
-        wsprintf(S,"%s: %s",lGroup,Key);
+        wsprintf(S,_T("%s: %s"),lGroup,Key);
         QuoteText(S,TRUE);
 
         if (AllMacros)
         {
           eCode=Info.Message(Info.ModuleNumber,0,NULL,ItemsSave2,
-            sizeof(ItemsSave2)/sizeof(ItemsSave2[0]),3);
+                             ArraySize(ItemsSave2),3);
         }
         else
         {
           eCode=Info.Message(Info.ModuleNumber,0,NULL,ItemsSave1,
-            sizeof(ItemsSave1)/sizeof(ItemsSave1[0]),3);
+                             ArraySize(ItemsSave1),3);
         }
         if (eCode==0)
         {
@@ -2979,18 +3070,18 @@ BOOL __fastcall TMacroView::DeleteMacro()
 {
   BOOL lResult=FALSE;
 
-  char Button[BUTTONLEN];
-  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+  TCHAR Button[BUTTONLEN];
+  TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
   if (Deactivated)
     wsprintf(Str,GetMsg(MMacroWarningDeleteThisKey),GetMsg(MMacroWarningRest));
   else
     wsprintf(Str,GetMsg(MMacroWarningDeleteThisKey),GetMsg(MMacroWarningDel));
-  char *ItemsDel[]=
+  TCHAR *ItemsDel[]=
   {
     GetMsg(MMacroWarningDelete),Str,
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroDelete),Button,GetMsg(MMacroCancel)
   };
 
@@ -2999,7 +3090,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
     lstrcpy(lGroup,Group);
     //Из короткого имени группы создадим длинное
     ConvertGroupName(lGroup,GRP_TOLONGNAME);
-    wsprintf(S,"%s: %s",lGroup,Key);
+    wsprintf(S,_T("%s: %s"),lGroup,Key);
     QuoteText(S,TRUE);
     if (Deactivated)
       lstrcpy(Button,GetMsg(MMacroTmpRest));
@@ -3009,7 +3100,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
     WriteKeyBar(KB_DIALOG);
     ActiveMode=MAC_DELETEACTIVE;
 
-    lResult=DeletingMacro(ItemsDel,sizeof(ItemsDel)/sizeof(ItemsDel[0]),"MacroDel")!=DM_NONE;
+    lResult=DeletingMacro(ItemsDel,ArraySize(ItemsDel),_T("MacroDel"))!=DM_NONE;
 
     *Group=*Key=0;
   }
@@ -3025,9 +3116,8 @@ int __fastcall TMacroView::ShowEdit()
   EditX2=EditX1+DIALOGWID-1;
   EditY2=EditY1+DIALOGHGT-1;
 
-  return Info.DialogEx(Info.ModuleNumber,EditX1,EditY1,EditX2,EditY2,"MacroParams",EditDialog,
-                     sizeof(EditDialog)/sizeof(EditDialog[0]),0,0,
-                     MacroDialogProc,0);
+  return Info.DialogEx(Info.ModuleNumber,EditX1,EditY1,EditX2,EditY2,_T("MacroParams"),
+                       EditDialog, ArraySize(EditDialog),0,0,MacroDialogProc,0);
 }
 
 
@@ -3035,26 +3125,26 @@ BOOL __fastcall TMacroView::InsertMacro()
 {
   BOOL RetVal=FALSE;
 
-  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+  TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
-  char *ItemsInsEmp[]=
+  TCHAR *ItemsInsEmp[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningInsertEmpty1),
     GetMsg(MMacroWarningInsertEmpty2),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ItemsEdit[]=
+  TCHAR *ItemsEdit[]=
   {
     GetMsg(MMacroWarningEdit),GetMsg(MMacroWarningEditThisKey),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),GetMsg(MMacroCancel)
   };
-  char *ItemsExist[]=
+  TCHAR *ItemsExist[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningExist),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroCancel)
   };
 
@@ -3064,19 +3154,24 @@ BOOL __fastcall TMacroView::InsertMacro()
   // Инициализируем новый макрос как НЕ многострочный
   MultiLine=FALSE;
 
-  EditDialog[2].Data.Data[0]=0;
+  EditDialog[2].ptrData[0]=0;
   EditDialog[2].Focus=TRUE;
-  EditDialog[4].Data.Data[0]=0;
+  EditDialog[4].ptrData[0]=0;
   if (MacroData)
   {
+#ifndef UNICODE
     EditDialog[8].Data.Ptr.PtrFlags=0;
     EditDialog[8].Data.Ptr.PtrLength=DATASIZE;
     EditDialog[8].Data.Ptr.PtrData=MacroData;
+#else
+    EditDialog[8].PtrLength=DATASIZE;
+    EditDialog[8].PtrData=MacroData;
+#endif
     *MacroData=0;
   }
   else
-    EditDialog[8].Data.Data[0]=0;
-  EditDialog[10].Data.Data[0]=0;
+    EditDialog[8].ptrData[0]=0;
+  EditDialog[10].ptrData[0]=0;
   EditDialog[12].Param.Selected=FALSE;
   EditDialog[13].Param.Selected=TRUE;
 
@@ -3119,7 +3214,7 @@ BOOL __fastcall TMacroView::InsertMacro()
 
   if (GroupIndex[OpenFrom]>=0)
   {
-    lstrcpy(EditDialog[4].Data.Data,GroupItems[GroupIndex[OpenFrom]].Text);
+    lstrcpy(EditDialog[4].ptrData,GroupItems[GroupIndex[OpenFrom]].Text);
   }
   Deactivated=FALSE;
 
@@ -3127,7 +3222,7 @@ INSERT_RETRY:
 
   // сконвертируем из короткого имени группы длинное,
   // для работы в диалоге
-  ConvertGroupName(EditDialog[4].Data.Data,GRP_TOLONGNAME);
+  ConvertGroupName(EditDialog[4].ptrData,GRP_TOLONGNAME);
 
   WriteKeyBar(KB_DIALOG);
   ActiveMode=MAC_EDITACTIVE;
@@ -3139,22 +3234,22 @@ INSERT_RETRY:
   {
     // конвертируем из длинного имени группы короткое,
     // для записи в реестр
-    ConvertGroupName(EditDialog[4].Data.Data,GRP_TOSHORTNAME);
+    ConvertGroupName(EditDialog[4].ptrData,GRP_TOSHORTNAME);
 
-    if ((EditDialog[2].Data.Data[0]!=0) && ((MacroData)?*MacroData!=0:EditDialog[8].Data.Data[0]!=0))
+    if ((EditDialog[2].ptrData[0]!=0) && ((MacroData)?*MacroData!=0:EditDialog[8].ptrData[0]!=0))
     {
-      lstrcpy(lGroup,EditDialog[4].Data.Data);
+      lstrcpy(lGroup,EditDialog[4].ptrData);
       //Из короткого имени группы создадим длинное
       ConvertGroupName(lGroup,GRP_TOLONGNAME);
       if ((Conf.AutomaticSave) || ((Info.Message(Info.ModuleNumber,0,NULL,ItemsEdit,
-        sizeof(ItemsEdit)/sizeof(ItemsEdit[0]),2))==0))
+                                                 ArraySize(ItemsEdit),2))==0))
       {
-        char *S1=new char[MAX_KEY_LEN];
+        TCHAR *S1=new TCHAR[MAX_KEY_LEN];
 
-        wsprintf(Str,"%s\\%s\\%s",KeyMacros,EditDialog[4].Data.Data,
-          EditDialog[2].Data.Data);
-        wsprintf(S1,"%s\\%s\\~%s",KeyMacros,EditDialog[4].Data.Data,
-          EditDialog[2].Data.Data);
+        wsprintf(Str,_T("%s\\%s\\%s"),KeyMacros,EditDialog[4].ptrData,
+                 EditDialog[2].ptrData);
+        wsprintf(S1,_T("%s\\%s\\~%s"),KeyMacros,EditDialog[4].ptrData,
+                 EditDialog[2].ptrData);
 
         CheckFirstBackSlash(Str,TRUE);
         CheckFirstBackSlash(S1,TRUE);
@@ -3163,9 +3258,9 @@ INSERT_RETRY:
         {
           int OldActive=ActiveMode;
           ActiveMode=MAC_ERRORACTIVE;
-          wsprintf(S,"\"%s: %s\"",lGroup,EditDialog[2].Data.Data);
+          wsprintf(S,_T("\"%s: %s\""),lGroup,EditDialog[2].ptrData);
           if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsExist,
-              sizeof(ItemsExist)/sizeof(ItemsExist[0]),2)==0)
+                           ArraySize(ItemsExist),2)==0)
           {
             Reg->DeleteKey(S1);
             Reg->DeleteKey(Str);
@@ -3182,7 +3277,7 @@ INSERT_RETRY:
         WriteRegValues(EditDialog);
         Reg->CloseKey();
 
-        SwitchOver(EditDialog[4].Data.Data,EditDialog[2].Data.Data);
+        SwitchOver(EditDialog[4].ptrData,EditDialog[2].ptrData);
 
         delete[] S1;
       }
@@ -3192,15 +3287,15 @@ INSERT_RETRY:
       int OldActive=ActiveMode;
       ActiveMode=MAC_ERRORACTIVE;
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsInsEmp,
-        sizeof(ItemsInsEmp)/sizeof(ItemsInsEmp[0]),1);
+                   ArraySize(ItemsInsEmp),1);
       ActiveMode=OldActive;
       goto INSERT_RETRY;
     }
 
     // Копируем  в переменные Key и Group последние значения
     // для перехода потом на новое значение
-    lstrcpy(Key,EditDialog[2].Data.Data);
-    lstrcpy(Group,EditDialog[4].Data.Data);
+    lstrcpy(Key,EditDialog[2].ptrData);
+    lstrcpy(Group,EditDialog[4].ptrData);
     Deactivated=EditDialog[28].Param.Selected;
 
     RetVal=TRUE;
@@ -3214,56 +3309,56 @@ BOOL __fastcall TMacroView::EditMacro()
 {
   BOOL RetVal=FALSE;
 
-  char Button[BUTTONLEN];
-  char lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+  TCHAR Button[BUTTONLEN];
+  TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
   int i;
 
-  char *ItemsError[]=
+  TCHAR *ItemsError[]=
   {
     GetMsg(MMacroError),GetMsg(MMacroErrorRead),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ItemsErrorData[]=
+  TCHAR *ItemsErrorData[]=
   {
     GetMsg(MMacroError),GetMsg(MMacroErrorData),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ItemsDelEmp[]=
+  TCHAR *ItemsDelEmp[]=
   {
     GetMsg(MMacroWarningDelete),GetMsg(MMacroWarningDeleteKey),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroDelete),Button,GetMsg(MMacroCancel)
   };
-  char *ItemsEdit[]=
+  TCHAR *ItemsEdit[]=
   {
     GetMsg(MMacroWarningEdit),GetMsg(MMacroWarningEditThisKey),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),GetMsg(MMacroCancel)
   };
-  char *ItemsExist[]=
+  TCHAR *ItemsExist[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningExist),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroCancel)
   };
-  char *ItemsErrorWrite[]=
+  TCHAR *ItemsErrorWrite[]=
   {
     GetMsg(MMacroError),GetMsg(MMacroErrorWrite),
     S,
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
-  char *ItemsEditEmp[]=
+  TCHAR *ItemsEditEmp[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningInsertEmpty0),
     GetMsg(MMacroWarningInsertEmpty2),
-    "\x1",
+    _T("\x1"),
     GetMsg(MMacroOk),
   };
 
@@ -3276,19 +3371,24 @@ BOOL __fastcall TMacroView::EditMacro()
   // Инициализируем новый макрос как НЕ многострочный
   MultiLine=FALSE;
 
-  lstrcpy(EditDialog[2].Data.Data,Key);
-  lstrcpy(EditDialog[4].Data.Data,Group);
+  lstrcpy(EditDialog[2].ptrData,Key);
+  lstrcpy(EditDialog[4].ptrData,Group);
   if (MacroData)
   {
+#ifndef UNICODE
     EditDialog[8].Data.Ptr.PtrFlags=0;
     EditDialog[8].Data.Ptr.PtrLength=DATASIZE;
     EditDialog[8].Data.Ptr.PtrData=MacroData;
+#else
+    EditDialog[8].PtrLength=DATASIZE;
+    EditDialog[8].PtrData=MacroData;
+#endif
     *MacroData=0;
   }
   else
-    EditDialog[8].Data.Data[0]=0;
+    EditDialog[8].ptrData[0]=0;
   EditDialog[8].Focus=TRUE;
-  EditDialog[10].Data.Data[0]=0;
+  EditDialog[10].ptrData[0]=0;
   EditDialog[12].Param.Selected=FALSE;
   EditDialog[13].Param.Selected=FALSE;
 
@@ -3324,9 +3424,9 @@ BOOL __fastcall TMacroView::EditMacro()
   EditDialog[28].Param.Selected=FALSE;
 
   if (Deactivated)
-    wsprintf(S,"%s\\%s\\~%s",KeyMacros,Group,Key);
+    wsprintf(S,_T("%s\\%s\\~%s"),KeyMacros,Group,Key);
   else
-    wsprintf(S,"%s\\%s\\%s",KeyMacros,Group,Key);
+    wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,Group,Key);
 
   CheckFirstBackSlash(S,TRUE);
   if (!Reg->OpenKey(S))
@@ -3335,7 +3435,7 @@ BOOL __fastcall TMacroView::EditMacro()
     ActiveMode=MAC_ERRORACTIVE;
     QuoteText(S,TRUE);
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsError,
-      sizeof(ItemsError)/sizeof(ItemsError[0]),1);
+                 ArraySize(ItemsError),1);
     *Group=*Key=0;
     ActiveMode=OldActive;
   }
@@ -3348,7 +3448,7 @@ BOOL __fastcall TMacroView::EditMacro()
       ActiveMode=MAC_ERRORACTIVE;
       QuoteText(S,TRUE);
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsErrorData,
-        sizeof(ItemsErrorData)/sizeof(ItemsErrorData[0]),1);
+                   ArraySize(ItemsErrorData),1);
       *Group=*Key=0;
       ActiveMode=OldActive;
     }
@@ -3357,7 +3457,7 @@ BOOL __fastcall TMacroView::EditMacro()
       for (i=0;i<ValueList->GetCount();i++)
       {
         lstrcpy(S,ValueList->GetText(i));
-        if (CmpStr(S,"Sequence")==0) // Sequence
+        if (CmpStr(S,_T("Sequence"))==0) // Sequence
         {
           if (MacroData)
       {
@@ -3383,46 +3483,46 @@ BOOL __fastcall TMacroView::EditMacro()
           {
             Reg->ReadString(S,Str,sizeof(Str));
             if (Str[0])
-              lstrcpy(EditDialog[8].Data.Data,Str);
+              lstrcpy(EditDialog[8].ptrData,Str);
           }
         }
-        else if (CmpStr(S,"Description")==0) // Description
+        else if (CmpStr(S,_T("Description"))==0) // Description
         {
           Reg->ReadString(S,Str,sizeof(Str));
           if (Str[0])
-            lstrcpy(EditDialog[10].Data.Data,Str);
+            lstrcpy(EditDialog[10].ptrData,Str);
         }
-        else if (CmpStr(S,"RunAfterFARStart")==0) // RunAfterFARStart
+        else if (CmpStr(S,_T("RunAfterFARStart"))==0) // RunAfterFARStart
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[12].Param.Selected=result;
         }
-        else if (CmpStr(S,"DisableOutput")==0) // DisableOutput
+        else if (CmpStr(S,_T("DisableOutput"))==0) // DisableOutput
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[13].Param.Selected=result;
         }
-        else if (CmpStr(S,"EmptyCommandLine")==0) // EmptyCommandLine
+        else if (CmpStr(S,_T("EmptyCommandLine"))==0) // EmptyCommandLine
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[14].Param.Selected=0;
         }
-        else if (CmpStr(S,"NotEmptyCommandLine")==0) // NotEmptyCommandLine
+        else if (CmpStr(S,_T("NotEmptyCommandLine"))==0) // NotEmptyCommandLine
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[14].Param.Selected=1;
         }
-        else if (CmpStr(S,"NoEVSelection")==0) // NoEVSelection
+        else if (CmpStr(S,_T("NoEVSelection"))==0) // NoEVSelection
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[15].Param.Selected=0;
         }
-        else if (CmpStr(S,"EVSelection")==0) // EVSelection
+        else if (CmpStr(S,_T("EVSelection"))==0) // EVSelection
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
@@ -3430,37 +3530,37 @@ BOOL __fastcall TMacroView::EditMacro()
         }
 
         // Флаги активной панели
-        else if (CmpStr(S,"NoPluginPanels")==0) // NoPluginPanels
+        else if (CmpStr(S,_T("NoPluginPanels"))==0) // NoPluginPanels
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[18].Param.Selected=0;
         }
-        else if (CmpStr(S,"NoFilePanels")==0) // NoFilePanels
+        else if (CmpStr(S,_T("NoFilePanels"))==0) // NoFilePanels
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[18].Param.Selected=1;
         }
-        else if (CmpStr(S,"NoFolders")==0) // NoFolders
+        else if (CmpStr(S,_T("NoFolders"))==0) // NoFolders
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[20].Param.Selected=0;
         }
-        else if (CmpStr(S,"NoFiles")==0) // NoFiles
+        else if (CmpStr(S,_T("NoFiles"))==0) // NoFiles
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[20].Param.Selected=1;
         }
-        else if (CmpStr(S,"NoSelection")==0) // NoSelection
+        else if (CmpStr(S,_T("NoSelection"))==0) // NoSelection
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[22].Param.Selected=0;
         }
-        else if (CmpStr(S,"Selection")==0) // Selection
+        else if (CmpStr(S,_T("Selection"))==0) // Selection
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
@@ -3468,44 +3568,44 @@ BOOL __fastcall TMacroView::EditMacro()
         }
 
         // Флаги пассивной панели
-        else if (CmpStr(S,"NoPluginPPanels")==0) // NoPluginPPanels
+        else if (CmpStr(S,_T("NoPluginPPanels"))==0) // NoPluginPPanels
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[19].Param.Selected=0;
         }
-        else if (CmpStr(S,"NoFilePPanels")==0) // NoFilePPanels
+        else if (CmpStr(S,_T("NoFilePPanels"))==0) // NoFilePPanels
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[19].Param.Selected=1;
         }
-        else if (CmpStr(S,"NoPFolders")==0) // NoPFolders
+        else if (CmpStr(S,_T("NoPFolders"))==0) // NoPFolders
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[21].Param.Selected=0;
         }
-        else if (CmpStr(S,"NoPFiles")==0) // NoPFiles
+        else if (CmpStr(S,_T("NoPFiles"))==0) // NoPFiles
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[21].Param.Selected=1;
         }
-        else if (CmpStr(S,"NoPSelection")==0) // NoPSelection
+        else if (CmpStr(S,_T("NoPSelection"))==0) // NoPSelection
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[23].Param.Selected=0;
         }
-        else if (CmpStr(S,"PSelection")==0) // PSelection
+        else if (CmpStr(S,_T("PSelection"))==0) // PSelection
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
             EditDialog[23].Param.Selected=1;
         }
 
-        else if (CmpStr(S,"NoSendKeysToPlugins")==0) // NoSendKeysToPlugins
+        else if (CmpStr(S,_T("NoSendKeysToPlugins"))==0) // NoSendKeysToPlugins
         {
           int result=Reg->ReadInteger(S);
           if (result>0)
@@ -3548,7 +3648,7 @@ EDIT_RETRY:
 
       // сконвертируем из короткого имени группы длинное,
       // для работы в диалоге
-      ConvertGroupName(EditDialog[4].Data.Data,GRP_TOLONGNAME);
+      ConvertGroupName(EditDialog[4].ptrData,GRP_TOLONGNAME);
 
       WriteKeyBar(KB_DIALOG);
       ActiveMode=MAC_EDITACTIVE;
@@ -3560,58 +3660,58 @@ EDIT_RETRY:
       {
         // конвертируем из длинного имени группы короткое,
         // для записи в реестр
-        ConvertGroupName(EditDialog[4].Data.Data,GRP_TOSHORTNAME);
+        ConvertGroupName(EditDialog[4].ptrData,GRP_TOSHORTNAME);
 
         BOOL deleted=FALSE;
-        if ((MacroData)?*MacroData==0:EditDialog[8].Data.Data[0]==0)
+        if ((MacroData)?*MacroData==0:EditDialog[8].ptrData[0]==0)
         {
           lstrcpy(lGroup,Group);
           //Из короткого имени группы создадим длинное
           ConvertGroupName(lGroup,GRP_TOLONGNAME);
-          wsprintf(S,"%s: %s",lGroup,Key);
+          wsprintf(S,_T("%s: %s"),lGroup,Key);
           QuoteText(S,TRUE);
           if (Deactivated)
             lstrcpy(Button,GetMsg(MMacroTmpRest));
           else
             lstrcpy(Button,GetMsg(MMacroTmpDel));
 
-          if (DeletingMacro(ItemsDelEmp,sizeof(ItemsDelEmp)/sizeof(ItemsDelEmp[0]),"MacroDelEmpty")==DM_DELETED)
+          if (DeletingMacro(ItemsDelEmp,ArraySize(ItemsDelEmp),_T("MacroDelEmpty"))==DM_DELETED)
             deleted=TRUE;
 
         }
 
         if (!deleted)
         {
-          if (EditDialog[2].Data.Data[0]!=0)
+          if (EditDialog[2].ptrData[0]!=0)
           {
-            lstrcpy(lGroup,EditDialog[4].Data.Data);
+            lstrcpy(lGroup,EditDialog[4].ptrData);
             //Из короткого имени группы создадим длинное
             ConvertGroupName(lGroup,GRP_TOLONGNAME);
-            if ((Conf.AutomaticSave) || ((Info.Message(Info.ModuleNumber,0,NULL,ItemsEdit,
-                 sizeof(ItemsEdit)/sizeof(ItemsEdit[0]),2))==0))
+            if ((Conf.AutomaticSave) || (Info.Message(Info.ModuleNumber,0,NULL,ItemsEdit,
+                                                      ArraySize(ItemsEdit),2)==0))
             {
               // Если изменилась группа или команда
               // переместим сначала макрокоманду на новое место
-              if ((CmpStr(EditDialog[2].Data.Data,Key)!=0) ||
-                  (CmpStr(EditDialog[4].Data.Data,Group)!=0))
+              if ((CmpStr(EditDialog[2].ptrData,Key)!=0) ||
+                  (CmpStr(EditDialog[4].ptrData,Group)!=0))
               {
-                char *S1=new char[MAX_KEY_LEN];
+                TCHAR *S1=new TCHAR[MAX_KEY_LEN];
 
-                wsprintf(Str,"%s\\%s\\%s",KeyMacros,EditDialog[4].Data.Data,
-                  EditDialog[2].Data.Data);
-                wsprintf(S1,"%s\\%s\\~%s",KeyMacros,EditDialog[4].Data.Data,
-                  EditDialog[2].Data.Data);
+                wsprintf(Str,_T("%s\\%s\\%s"),KeyMacros,EditDialog[4].ptrData,
+                         EditDialog[2].ptrData);
+                wsprintf(S1,_T("%s\\%s\\~%s"),KeyMacros,EditDialog[4].ptrData,
+                         EditDialog[2].ptrData);
 
                 CheckFirstBackSlash(Str,TRUE);
                 CheckFirstBackSlash(S1,TRUE);
 
                 if ((Reg->KeyExists(Str)) || (Reg->KeyExists(S1)))
                 {
-                  wsprintf(S,"\"%s: %s\"",lGroup,EditDialog[2].Data.Data);
+                  wsprintf(S,_T("\"%s: %s\""),lGroup,EditDialog[2].ptrData);
                   int OldActive=ActiveMode;
                   ActiveMode=MAC_ERRORACTIVE;
                   if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsExist,
-                      sizeof(ItemsExist)/sizeof(ItemsExist[0]),2)==0)
+                                   ArraySize(ItemsExist),2)==0)
                   {
                     Reg->DeleteKey(S1);
                     Reg->DeleteKey(Str);
@@ -3627,15 +3727,15 @@ EDIT_RETRY:
 
                 if (Deactivated)
                 {
-                  wsprintf(S1,"%s\\%s\\~%s",KeyMacros,Group,Key); //OldName
-                  wsprintf(S,"%s\\%s\\~%s",KeyMacros,EditDialog[4].Data.Data,
-                    EditDialog[2].Data.Data); //NewName
+                  wsprintf(S1,_T("%s\\%s\\~%s"),KeyMacros,Group,Key); //OldName
+                  wsprintf(S,_T("%s\\%s\\~%s"),KeyMacros,EditDialog[4].ptrData,
+                           EditDialog[2].ptrData); //NewName
                 }
                 else
                 {
-                  wsprintf(S1,"%s\\%s\\%s",KeyMacros,Group,Key); //OldName
-                  wsprintf(S,"%s\\%s\\%s",KeyMacros,EditDialog[4].Data.Data,
-                    EditDialog[2].Data.Data); //NewName
+                  wsprintf(S1,_T("%s\\%s\\%s"),KeyMacros,Group,Key); //OldName
+                  wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,EditDialog[4].ptrData,
+                           EditDialog[2].ptrData); //NewName
                 }
 
                 CheckFirstBackSlash(S,TRUE);
@@ -3645,11 +3745,11 @@ EDIT_RETRY:
               }
               // Теперь сохраняем параметры макрокоманды
               if (Deactivated)
-                wsprintf(S,"%s\\%s\\~%s",KeyMacros,EditDialog[4].Data.Data,
-                  EditDialog[2].Data.Data);
+                wsprintf(S,_T("%s\\%s\\~%s"),KeyMacros,EditDialog[4].ptrData,
+                         EditDialog[2].ptrData);
               else
-                wsprintf(S,"%s\\%s\\%s",KeyMacros,EditDialog[4].Data.Data,
-                  EditDialog[2].Data.Data);
+                wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,EditDialog[4].ptrData,
+                         EditDialog[2].ptrData);
 
               CheckFirstBackSlash(S,TRUE);
               if (!Reg->OpenKey(S))
@@ -3658,7 +3758,7 @@ EDIT_RETRY:
                 ActiveMode=MAC_ERRORACTIVE;
                 QuoteText(S,TRUE);
                 Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsErrorWrite,
-                  sizeof(ItemsErrorWrite)/sizeof(ItemsErrorWrite[0]),1);
+                             ArraySize(ItemsErrorWrite),1);
                 ActiveMode=OldActive;
               }
               else
@@ -3666,7 +3766,7 @@ EDIT_RETRY:
                 WriteRegValues(EditDialog);
                 Reg->CloseKey();
 
-                SwitchOver(EditDialog[4].Data.Data,EditDialog[2].Data.Data);
+                SwitchOver(EditDialog[4].ptrData,EditDialog[2].ptrData);
 
                 RetVal=TRUE;
               }
@@ -3676,16 +3776,16 @@ EDIT_RETRY:
           {
             int OldActive=ActiveMode;
             ActiveMode=MAC_ERRORACTIVE;
-            Info.Message(Info.ModuleNumber,FMSG_WARNING,"MacroGroups",ItemsEditEmp,
-              sizeof(ItemsEditEmp)/sizeof(ItemsEditEmp[0]),1);
+            Info.Message(Info.ModuleNumber,FMSG_WARNING,_T("MacroGroups"),ItemsEditEmp,
+                         ArraySize(ItemsEditEmp),1);
             ActiveMode=OldActive;
             goto EDIT_RETRY;
           }
         }
         // Копируем  в переменные Key и Group последние значения
         // для перехода потом на новое значение
-        lstrcpy(Key,EditDialog[2].Data.Data);
-        lstrcpy(Group,EditDialog[4].Data.Data);
+        lstrcpy(Key,EditDialog[2].ptrData);
+        lstrcpy(Group,EditDialog[4].ptrData);
         Deactivated=EditDialog[28].Param.Selected;
       }
     }
@@ -3694,7 +3794,7 @@ EDIT_RETRY:
 
   return RetVal;
 }
-
+#undef ptrData
 
 /*************************************************/
 /* Создает список макросов и выводит в виде меню */
@@ -3734,7 +3834,7 @@ int TMacroView::MacroList()
   lstrcpy(MenuBottom,GetMsg(MMacroBottom));
 
   WriteKeyBar(KB_COMMON);
-  GetConsoleTitle(OldCaption,sizeof(OldCaption));
+  GetConsoleTitle(OldCaption,ArraySize(OldCaption));
 
   MenuW=60;
   MenuH=14;
@@ -3745,16 +3845,16 @@ int TMacroView::MacroList()
   InitDialogItem InitItems[]=
   {
 
-/*0*/  {DI_LISTBOX,   2,1,MenuW-3,MenuH-2,1,0,((Conf.UseHighlight)?DIF_LISTAUTOHIGHLIGHT:0)|((Conf.MenuCycle)?DIF_LISTWRAPMODE:0),0,""},
+/*0*/  {DI_LISTBOX,   2,1,MenuW-3,MenuH-2,1,0,((Conf.UseHighlight)?DIF_LISTAUTOHIGHLIGHT:0)|((Conf.MenuCycle)?DIF_LISTWRAPMODE:0),0,_T("")},
 /*1*/  {DI_TEXT,      1000,1000,0,0,0,0,0,0,MenuTitle},
 
   };
 
-  InitDialogItems(InitItems,MenuDialog,sizeof(InitItems)/sizeof(InitItems[0]));
+  InitDialogItems(InitItems,MenuDialog,ArraySize(InitItems));
 
-  Info.DialogEx(Info.ModuleNumber,MenuX,MenuY,MenuW,MenuH,"MacroView",
-           MenuDialog,sizeof(MenuDialog)/sizeof(MenuDialog[0]),0,0,
-           MenuDialogProc,0);
+  Info.DialogEx(Info.ModuleNumber,MenuX,MenuY,MenuW,MenuH,_T("MacroView"),
+                MenuDialog,ArraySize(MenuDialog),0,0,
+                MenuDialogProc,0);
 
   InterceptDllCall(hInstance,"kernel32.dll","ReadConsoleInputA",
     (PVOID)p_fnReadConsoleInputOrgA,NULL) /*InterceptDllCall*/;
@@ -3773,8 +3873,10 @@ int TMacroView::MacroList()
 //  Info.RestoreScreen(SaveBar);
 //  SaveBar=NULL;
 
+#ifndef UNICODE
   if (AreFileApisANSI())
     SetFileApisToOEM();
+#endif
 
   akm.Command=MCMD_LOADALL;
   ZeroMemory(akm.Param.Reserved,sizeof(akm.Param.Reserved));

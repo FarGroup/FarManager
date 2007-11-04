@@ -31,15 +31,25 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-int WINAPI _export GetMinFarVersion()
+#ifndef UNICODE
+#define EXP_NAME(p) _export p
+#else
+#define EXP_NAME(p) _export p ## W
+#endif
+#ifndef UNICODE
+#define MIN_FAR_VERMINOR  70
+#define MIN_FAR_BUILD     1238
+#else
+#define MIN_FAR_VERMINOR  80
+#define MIN_FAR_BUILD     210
+#endif
+
+int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-  return MAKEFARVERSION(1,70,1810);
+  return MAKEFARVERSION(1, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
 }
 
-#if defined(__BORLANDC__)
-  #pragma argsused
-#endif
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   hInstance=GetModuleHandle(NULL);
   ::Info=*Info;
@@ -49,20 +59,20 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   vi.dwOSVersionInfoSize=sizeof(vi);
   GetVersionEx(&vi);
 
-  wsprintf(PluginRootKey,"%s\\%s",Info->RootKey,Module_KEY);
+  wsprintf(PluginRootKey, _T("%s\\%s"), Info->RootKey, Module_KEY);
   CheckFirstBackSlash(PluginRootKey,TRUE);
-  const char *ptr=strstr(Info->RootKey,Plugins_KEY);
+  const TCHAR *ptr=_tcsstr(Info->RootKey,Plugins_KEY);
   if (ptr)
-    lstrcpyn(FarKey,Info->RootKey,(int)(ptr-Info->RootKey)+1);
+    lstrcpyn(FarKey,Info->RootKey,(unsigned)(ptr-Info->RootKey)+1);
   else
-    lstrcpyn(FarKey,Default_KEY,sizeof(FarKey));
+    lstrcpyn(FarKey,Default_KEY,ArraySize(FarKey));
 
   CheckFirstBackSlash(FarKey,TRUE);
 
-  ptr=strstr(FarKey,Users_KEY);
+  ptr=_tcsstr(FarKey,Users_KEY);
   if (ptr)
   {
-    ptr=strrchr(FarKey,'\\');
+    ptr=_tcsrchr(FarKey,_T('\\'));
     if (ptr)
       lstrcpyn(FarUserName,ptr+1,lstrlen(ptr+1)+1);
     else
@@ -71,14 +81,13 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   else
     *FarUserName=0;
 
-  lstrcpyn(FarUsersKey,Users_KEY,sizeof(FarUsersKey));
+  lstrcpyn(FarUsersKey,Users_KEY,ArraySize(FarUsersKey));
   CheckFirstBackSlash(FarUsersKey,TRUE);
-  wsprintf(KeyMacros,"%s\\%s",FarKey,KeyMacros_KEY);
+  wsprintf(KeyMacros,_T("%s\\%s"),FarKey,KeyMacros_KEY);
   CheckFirstBackSlash(KeyMacros,TRUE);
 }
 
-
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
 {
   ::OpenFrom=OpenFrom;
 
@@ -100,10 +109,19 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 }
 
 
-#if defined(__BORLANDC__)
-  #pragma argsused
-#endif
-void WINAPI _export ClosePlugin(HANDLE hPlugin)
+void WINAPI EXP_NAME(ClosePlugin)(HANDLE hPlugin)
+{
+  (void)hPlugin;
+  if (Reg)
+    delete Reg;
+  Reg=NULL;
+  if (Macro)
+    delete Macro;
+  Macro=NULL;
+}
+
+
+void WINAPI EXP_NAME(ExitFAR)()
 {
   if (Reg)
     delete Reg;
@@ -114,18 +132,7 @@ void WINAPI _export ClosePlugin(HANDLE hPlugin)
 }
 
 
-void WINAPI _export ExitFAR()
-{
-  if (Reg)
-    delete Reg;
-  Reg=NULL;
-  if (Macro)
-    delete Macro;
-  Macro=NULL;
-}
-
-
-int WINAPI _export Configure(int ItemNumber)
+int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
   // создаем экземпл€р класса дл€ работы с реестром
   if (!Reg)
@@ -145,19 +152,19 @@ int WINAPI _export Configure(int ItemNumber)
 }
 
 
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_VIEWER;
   Info->DiskMenuStrings=NULL;
   Info->DiskMenuNumbers=NULL;
   Info->DiskMenuStringsNumber=0;
-  static char *PluginMenuStrings[1];
+  static TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MMacroMenu);
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
-  static char *PluginConfigStrings[1];
+  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
+  static TCHAR *PluginConfigStrings[1];
   PluginConfigStrings[0]=GetMsg(MMacroMenu);
   Info->PluginConfigStrings=PluginConfigStrings;
-  Info->PluginConfigStringsNumber=sizeof(PluginConfigStrings)/sizeof(PluginConfigStrings[0]);
+  Info->PluginConfigStringsNumber=ArraySize(PluginConfigStrings);
 }

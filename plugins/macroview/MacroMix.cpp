@@ -47,7 +47,7 @@ BOOL InterceptDllCall(HMODULE hLocalModule,const char* cDllName,const char* cFun
     {
       pName=MakePtr(PIMAGE_IMPORT_BY_NAME,hLocalModule,pOrigThunk->u1.AddressOfData);
 
-      if (lstrcmp((char *)&(pName->Name),cFuncName)==0)
+      if (lstrcmpA((char *)&(pName->Name),cFuncName)==0)
       {
         if (!IsBadWritePtr((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR)) /*!IsBadWritePtr*/)
         {
@@ -95,37 +95,45 @@ BOOL InterceptDllCall(HMODULE hLocalModule,const char* cDllName,const char* cFun
 #endif
 
 
-int __fastcall CmpStr(const char *String1,const char *String2,int ln1,int ln2)
+int __fastcall CmpStr(const TCHAR *String1,const TCHAR *String2,int ln1,int ln2)
 {
   int Result;
+#ifndef UNICODE
   char S1[MAX_PATH_LEN],S2[MAX_PATH_LEN];
 
   OemToChar(String1,S1);
   OemToChar(String2,S2);
+#else
+#define S1  String1
+#define S2  String2
+#endif
 
   Result=CompareString(LOCALE_USER_DEFAULT,NORM_IGNORECASE|SORT_STRINGSORT,
            S1,ln1,S2,ln2);
-
+#ifdef UNICODE
+#undef S1
+#undef S2
+#endif
   if (!Result)
     return -2;
   return Result-2;
 }
 
 
-char *__fastcall AllTrim(char *S)
+TCHAR *__fastcall AllTrim(TCHAR *S)
 {
-  int i,l;
+  unsigned i,l;
 
   l=lstrlen(S);
   i=0;
-  while ((i<l) && (S[i]==' ')) i++;
+  while ((i<l) && (S[i]==_T(' '))) i++;
   if ((l==0) || (i>=l))
   {
     S[0]=0;
   }
   else
   {
-    while (S[l-1]==' ') l--;
+    while (S[l-1]==_T(' ')) l--;
     lstrcpyn(S,&S[i],l-i+1);
     S[l-i]=0;
   }
@@ -133,37 +141,37 @@ char *__fastcall AllTrim(char *S)
 }
 
 
-char *__fastcall UnQuoteText(char *S)
+TCHAR *__fastcall UnQuoteText(TCHAR *S)
 {
-  if ((S[0]!=0) && (S[0]=='\"'))
+  if (S[0]==_T('\"'))
   {
     lstrcpy(S,&S[1]);
     int l=lstrlen(S);
-    if (S[l-1]=='\"')
+    if (S[l-1]==_T('\"'))
       S[l-1]=0;
   }
   return S;
 }
 
 
-char *__fastcall QuoteText(char *S,BOOL Force)
+TCHAR *__fastcall QuoteText(TCHAR *S,BOOL Force)
 {
-  BOOL isQuoteBegin=(S[0]=='\"');
-  BOOL isQuoteEnd=(S[lstrlen(S)-1]=='\"');
+  BOOL isQuoteBegin=(S[0]==_T('\"'));
+  BOOL isQuoteEnd=(S[lstrlen(S)-1]==_T('\"'));
 
-  char *TmpStr=new char[lstrlen(S)+3];
+  TCHAR *TmpStr=new TCHAR[lstrlen(S)+3];
   *TmpStr=0;
 
   if (!isQuoteBegin || Force)
   {
-    lstrcpy(TmpStr,"\"");
+    lstrcpy(TmpStr,_T("\""));
     lstrcat(TmpStr,S);
   }
   else
     lstrcpy(TmpStr,S);
 
   if (!isQuoteEnd || Force)
-    lstrcat(TmpStr,"\"");
+    lstrcat(TmpStr,_T("\""));
 
   lstrcpy(S,TmpStr);
   delete[] TmpStr;
@@ -171,14 +179,14 @@ char *__fastcall QuoteText(char *S,BOOL Force)
 }
 
 
-char *__fastcall CheckFirstBackSlash(char *S,BOOL mustbe)
+TCHAR *__fastcall CheckFirstBackSlash(TCHAR *S,BOOL mustbe)
 {
-  BOOL isSlash=(S[0]=='\\');
+  BOOL isSlash=(S[0]==_T('\\'));
 
   if (mustbe && !isSlash)
   {
-    char *TmpStr=new char[lstrlen(S)+2];
-    wsprintf(TmpStr,"\\%s",S);
+    TCHAR *TmpStr=new TCHAR[lstrlen(S)+2];
+    wsprintf(TmpStr,_T("\\%s"),S);
     lstrcpy(S,TmpStr);
     delete[] TmpStr;
   }
@@ -189,9 +197,9 @@ char *__fastcall CheckFirstBackSlash(char *S,BOOL mustbe)
 }
 
 
-char *__fastcall CheckRLen(char *S,unsigned ln,BOOL AddDots)
+TCHAR *__fastcall CheckRLen(TCHAR *S,unsigned ln,BOOL AddDots)
 {
-  char TmpStr[MAX_PATH_LEN];
+  TCHAR TmpStr[MAX_PATH_LEN];
   int i,j,len;
 
   if (ln>=3)
@@ -203,7 +211,7 @@ char *__fastcall CheckRLen(char *S,unsigned ln,BOOL AddDots)
         TmpStr[j]=S[i];
       if (AddDots)
       {
-        lstrcpy(S,"...");
+        lstrcpy(S,_T("..."));
         lstrcat(S,&TmpStr[3]);
       }
       else
@@ -211,19 +219,19 @@ char *__fastcall CheckRLen(char *S,unsigned ln,BOOL AddDots)
     }
   }
   else if (AddDots)
-    S[0]='.';
+    S[0]=_T('.');
   return S;
 }
 
 
-char *__fastcall CheckLen(char *S,unsigned ln,BOOL AddDots)
+TCHAR *__fastcall CheckLen(TCHAR *S,unsigned ln,BOOL AddDots)
 {
   if (AddDots)
   {
     if (ln>=3)
     {
       if ((unsigned)lstrlen(S)>ln)
-        lstrcpy(&S[ln-3],"...");
+        lstrcpy(&S[ln-3],_T("..."));
     }
     else
       S[1]=0;
@@ -234,9 +242,9 @@ char *__fastcall CheckLen(char *S,unsigned ln,BOOL AddDots)
 }
 
 
-char *__fastcall GetMsg(int MsgId)
+TCHAR *__fastcall GetMsg(int MsgId)
 {
-  return const_cast<char *>(Info.GetMsg(Info.ModuleNumber,MsgId));
+  return const_cast<TCHAR *>(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
 void __fastcall FlushInputBuffer()

@@ -1,5 +1,6 @@
 #ifndef MACRO_INCLUDED
 
+#include <tchar.h>
 #include "plugin.hpp"
 #include "strclass.hpp"
 #include "regclass.hpp"
@@ -9,6 +10,8 @@
 #define TITLELEN 64
 
 
+#define ArraySize(d)  sizeof(d)/sizeof(d[0])
+
 //----
 HINSTANCE hInstance;
 PluginStartupInfo Info;
@@ -17,12 +20,12 @@ OSVERSIONINFO vi;
 
 
 //----
-char PluginRootKey[128];
-char FarKey[128];               // default "\\Software\\Far"
-char FarUsersKey[128];          // default "\\Software\\Far\\Users"
-char KeyMacros[128];            // default "\\Software\\Far\\KeyMacros"
-char FarUserName[MAX_PATH_LEN];
-char FarFullName[MAX_PATH_LEN]; // default "C:\\Program Files\\Far\\Far.exe"
+TCHAR PluginRootKey[128];
+TCHAR FarKey[128];               // default "\\Software\\Far"
+TCHAR FarUsersKey[128];          // default "\\Software\\Far\\Users"
+TCHAR KeyMacros[128];            // default "\\Software\\Far\\KeyMacros"
+TCHAR FarUserName[MAX_PATH_LEN];
+TCHAR FarFullName[MAX_PATH_LEN]; // default "C:\\Program Files\\Far\\Far.exe"
 
 
 //----
@@ -31,20 +34,20 @@ static int AltPressed=FALSE,CtrlPressed=FALSE,ShiftPressed=FALSE;
 
 
 //----
-const char *HKCU="HKEY_CURRENT_USER";
-const char *KeyMacros_KEY="KeyMacros";
-const char *Module_KEY="MacroView";
-const char *Plugins_KEY="\\Plugins";
-const char *Default_KEY="\\Software\\Far";
-const char *Users_KEY="\\Software\\Far\\Users";
+const TCHAR *HKCU=_T("HKEY_CURRENT_USER");
+const TCHAR *KeyMacros_KEY=_T("KeyMacros");
+const TCHAR *Module_KEY=_T("MacroView");
+const TCHAR *Plugins_KEY=_T("\\Plugins");
+const TCHAR *Default_KEY=_T("\\Software\\Far");
+const TCHAR *Users_KEY=_T("\\Software\\Far\\Users");
 
 
 //----
-char *MacroGroupShort[]=
+TCHAR *MacroGroupShort[]=
 {
-  "Dialog","Disks","Editor","Help","Info","MainMenu","Menu",
-  "QView","Search","Shell","Tree","Viewer","Other","Common",
-  "FindFolder","UserMenu",
+  _T("Dialog"),_T("Disks"),_T("Editor"),_T("Help"),_T("Info"),_T("MainMenu"),
+  _T("Menu"),_T("QView"),_T("Search"),_T("Shell"),_T("Tree"),_T("Viewer"),
+  _T("Other"),_T("Common"),_T("FindFolder"),_T("UserMenu"),
 };
 
 
@@ -109,7 +112,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   int Flags;
   int DefaultButton;
-  char *Data;
+  TCHAR *Data;
 };
 
 
@@ -132,8 +135,8 @@ struct Config
 
 struct MenuData
 {
-  char Group[16];
-  char Key[32];
+  TCHAR Group[16];
+  TCHAR Key[32];
 };
 
 
@@ -157,14 +160,14 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir);
 
 
 //----
-char *__fastcall AllTrim(char *S);
-char *__fastcall UnQuoteText(char *S);
-char *__fastcall QuoteText(char *S,BOOL Force=FALSE);
-char *__fastcall GetMsg(int MsgId);
-char *__fastcall CheckFirstBackSlash(char *S,BOOL mustbe);
-char *__fastcall CheckLen(char *S,unsigned ln,BOOL AddDots=TRUE);
-char *__fastcall CheckRLen(char *S,unsigned ln,BOOL AddDots=TRUE);
-int   __fastcall CmpStr(const char *String1,const char *String2,int ln1=-1,int ln2=-1);
+TCHAR *__fastcall AllTrim(TCHAR *S);
+TCHAR *__fastcall UnQuoteText(TCHAR *S);
+TCHAR *__fastcall QuoteText(TCHAR *S,BOOL Force=FALSE);
+TCHAR *__fastcall GetMsg(int MsgId);
+TCHAR *__fastcall CheckFirstBackSlash(TCHAR *S,BOOL mustbe);
+TCHAR *__fastcall CheckLen(TCHAR *S,unsigned ln,BOOL AddDots=TRUE);
+TCHAR *__fastcall CheckRLen(TCHAR *S,unsigned ln,BOOL AddDots=TRUE);
+int   __fastcall CmpStr(const TCHAR *String1,const TCHAR *String2,int ln1=-1,int ln2=-1);
 
 
 //----
@@ -183,7 +186,7 @@ class TMacroView
   friend void __fastcall FlushInputBuffer();
 
   private:
-    const char   *MacroText,
+    const TCHAR  *MacroText,
                  *MacroCmdHistory,
                  *MacroKeyHistory,
                  *MacroDescrHistory,
@@ -223,19 +226,19 @@ class TMacroView
     WIN32_FIND_DATA fData;
     CONSOLE_SCREEN_BUFFER_INFO csbi;
 
-    char          S[MAX_PATH_LEN],
+    TCHAR         S[MAX_PATH_LEN],
                   Str[MAX_PATH_LEN],
                   TempPath[MAX_PATH_LEN],
                   TempFileName[MAX_PATH_LEN],
                   Group[MAX_KEY_LEN],
                   Key[MAX_KEY_LEN];
 
-    char          OldCaption[CAPTIONLEN],
+    TCHAR         OldCaption[CAPTIONLEN],
                   NewCaption[CAPTIONLEN],
                   MenuTitle[TITLELEN],
                   MenuBottom[TITLELEN];
 
-    char         *MacroData,*MacroMulti;
+    TCHAR         *MacroData,*MacroMulti;
 
     int           Deactivated;
     int           ActiveMode;
@@ -252,6 +255,13 @@ class TMacroView
     int           LastFocus;
     int           MenuX,MenuY,MenuH,MenuW;
     int           EditX1,EditY1,EditX2,EditY2;
+#ifdef UNICODE
+    // for EditDialog
+    wchar_t       _Button[/*BUTTONLEN*/64];
+    wchar_t       _Group[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+    wchar_t       _Data[MAX_PATH_LEN];
+    wchar_t       _Descr[MAX_PATH_LEN];
+#endif
 
   public:
     TMacroView();
@@ -266,13 +276,13 @@ class TMacroView
     void          __fastcall InitDialogs();
 //    void          __fastcall ParseMenuItem(FarListGetItem *List);
     void          __fastcall WriteKeyBar(int kbType);
-    BOOL          __fastcall CreateDirs(char *Dir);
-    char         *ConvertGroupName(char *Group,int nWhere);
+    BOOL          __fastcall CreateDirs(TCHAR *Dir);
+    TCHAR         *ConvertGroupName(TCHAR *Group,int nWhere);
     void          InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,int ItemsNumber);
     void          __fastcall InsertMacroToEditor(BOOL AllMacros);
     void          __fastcall ExportMacroToFile(BOOL AllMacros=FALSE);
-    void          SwitchOver(char *Group,char *Key);
-    int           DeletingMacro(char **Items,int ItemsSize,char *HelpTopic);
+    void          SwitchOver(const TCHAR *Group,const TCHAR *Key);
+    int           DeletingMacro(TCHAR **Items,int ItemsSize,TCHAR *HelpTopic);
     BOOL          __fastcall CopyMoveMacro(int Op);
     void          MoveTildeInKey(TStrList *&NameList,BOOL doit=FALSE);
     void          PrepareDependentSort(TStrList *&NameList,BOOL doit=FALSE);

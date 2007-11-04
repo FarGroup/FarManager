@@ -33,14 +33,14 @@ class TReg
   private:
     HKEY RootKey;
     HKEY CurrentKey;
-    char CurrentPath[MAX_PATH_LEN];
-    char S[MAX_PATH_LEN];
+    TCHAR CurrentPath[MAX_PATH_LEN];
+    TCHAR S[MAX_PATH_LEN];
     BOOL CloseRootKey;
-    void __fastcall ChangeKey(HKEY Value, char *Path);
+    void __fastcall ChangeKey(HKEY Value, TCHAR *Path);
     HKEY __fastcall GetBaseKey(BOOL Relative);
-    HKEY __fastcall GetKey(char *Key);
+    HKEY __fastcall GetKey(TCHAR *Key);
     void __fastcall SetCurrentKey(HKEY Value);
-    void __fastcall MoveValue(HKEY SrcKey,HKEY DestKey,char *Name);
+    void __fastcall MoveValue(HKEY SrcKey,HKEY DestKey,TCHAR *Name);
     void __fastcall CopyValues(HKEY SrcKey,HKEY DestKey);
     void __fastcall CopyKeys(HKEY SrcKey,HKEY DestKey);
 
@@ -49,32 +49,32 @@ class TReg
     ~TReg();
     void CloseKey();
     void __fastcall SetRootKey(HKEY Value);
-    BOOL __fastcall CreateKey(char *Key);
-    BOOL __fastcall OpenKey(char *Key, BOOL CanCreate=FALSE);
-    BOOL __fastcall DeleteKey(char *Key);
-    BOOL __fastcall DeleteValue(char *Name);
+    BOOL __fastcall CreateKey(TCHAR *Key);
+    BOOL __fastcall OpenKey(TCHAR *Key, BOOL CanCreate=FALSE);
+    BOOL __fastcall DeleteKey(TCHAR *Key);
+    BOOL __fastcall DeleteValue(TCHAR *Name);
     BOOL GetKeyInfo(TRegKeyInfo &Value);
     BOOL GetKeyNames(TStrList *&List);
     BOOL GetValueNames(TStrList *&List);
-    BOOL GetDataInfo(/*const */char *ValueName,TRegDataInfo &Value);
-    int __fastcall GetDataSize(/*const */char *ValueName);
-    TRegDataType GetDataType(char *ValueName);
-    BOOL __fastcall ValueExists(char *Name);
-    void __fastcall RenameValue(char *OldName,char *NewName);
-    BOOL __fastcall WriteString(/*const */char *Name,char *Value);
-    char *__fastcall ReadString(/*const */char *Name,char *Str,int size);
-    BOOL __fastcall WriteInteger(char *Name,DWORD Value);
-    int __fastcall ReadInteger(char *Name);
-    BOOL __fastcall WriteBinaryData(char *Name,void *Buffer,int BufSize);
-    int __fastcall ReadBinaryData(char *Name,void *Buffer,int BufSize);
+    BOOL GetDataInfo(/*const */TCHAR *ValueName,TRegDataInfo &Value);
+    int __fastcall GetDataSize(/*const */TCHAR *ValueName);
+    TRegDataType GetDataType(TCHAR *ValueName);
+    BOOL __fastcall ValueExists(TCHAR *Name);
+    void __fastcall RenameValue(TCHAR *OldName,TCHAR *NewName);
+    BOOL __fastcall WriteString(/*const */TCHAR *Name,TCHAR *Value);
+    TCHAR *__fastcall ReadString(/*const */TCHAR *Name,TCHAR *Str,int size);
+    BOOL __fastcall WriteInteger(TCHAR *Name,DWORD Value);
+    int __fastcall ReadInteger(TCHAR *Name);
+    BOOL __fastcall WriteBinaryData(TCHAR *Name,void *Buffer,int BufSize);
+    int __fastcall ReadBinaryData(TCHAR *Name,void *Buffer,int BufSize);
     BOOL HasSubKeys();
-    int GetData(/*const */char *Name,void *Buffer,DWORD BufSize,TRegDataType &RegData);
-    BOOL PutData(/*const */char *Name,void *Buffer,DWORD BufSize,TRegDataType RegData);    
+    int GetData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType &RegData);
+    BOOL PutData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType RegData);
 #ifdef CREATE_REG_FILE
-    BOOL __fastcall SaveKey(char *Key, char *FileName);
+    BOOL __fastcall SaveKey(TCHAR *Key, TCHAR *FileName);
 #endif
-    BOOL __fastcall KeyExists(char *Key);
-    void __fastcall MoveKey(char *OldName,char *NewName,BOOL Delete=TRUE);
+    BOOL __fastcall KeyExists(TCHAR *Key);
+    void __fastcall MoveKey(TCHAR *OldName,TCHAR *NewName,BOOL Delete=TRUE);
 };
 
 #endif //REG_CLASS_INCLUDED

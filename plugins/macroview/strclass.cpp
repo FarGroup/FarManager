@@ -29,11 +29,11 @@ void __fastcall TStrList::Clear()
   DeleteList();
 }
 
-BOOL __fastcall TStrList::Insert(char *String,int Index)
+BOOL __fastcall TStrList::Insert(TCHAR *String,int Index)
 {
   int i;
   int len=lstrlen(String);
-  char **tmpList=new char*[Count+1];
+  TCHAR **tmpList=new TCHAR*[Count+1];
 
   if (tmpList==NULL)
     return FALSE;
@@ -44,7 +44,7 @@ BOOL __fastcall TStrList::Insert(char *String,int Index)
   if ((Index<Count) && (Index>=0))
     for (i=Count-1;i>=Index;i--) tmpList[i+1]=tmpList[i];
 
-  tmpList[Index]=new char[len+1];
+  tmpList[Index]=new TCHAR[len+1];
   if (String)
     lstrcpy(tmpList[Index],String);
   else
@@ -55,7 +55,7 @@ BOOL __fastcall TStrList::Insert(char *String,int Index)
   return TRUE;
 }
 
-BOOL __fastcall TStrList::Add(char *String)
+BOOL __fastcall TStrList::Add(TCHAR *String)
 {
   return(Insert(String,Count));
 }
@@ -63,13 +63,13 @@ BOOL __fastcall TStrList::Add(char *String)
 BOOL __fastcall TStrList::Delete(int Index)
 {
   int i;
-  char **tmpList;
+  TCHAR **tmpList;
 
   if (Count)
   {
     if (Count-1)
     {
-      tmpList=new char*[Count-1];
+      tmpList=new TCHAR*[Count-1];
       if ((Index<Count) && (Index>=0))
       {
         delete[] List[Index];
@@ -89,7 +89,7 @@ BOOL __fastcall TStrList::Delete(int Index)
   return FALSE;
 }
 
-BOOL __fastcall TStrList::SetText(char *String,int Index)
+BOOL __fastcall TStrList::SetText(TCHAR *String,int Index)
 {
   int len=lstrlen(String);
 
@@ -97,7 +97,7 @@ BOOL __fastcall TStrList::SetText(char *String,int Index)
     if ((Index<Count) && (Index>=0))
     {
       delete[] List[Index];
-      List[Index]=new char[len+1];
+      List[Index]=new TCHAR[len+1];
       if (String)
         lstrcpyn(List[Index],String,len+1);
       else
@@ -107,7 +107,7 @@ BOOL __fastcall TStrList::SetText(char *String,int Index)
   return FALSE;
 }
 
-char *__fastcall TStrList::GetText(char *String,int Index)
+TCHAR *__fastcall TStrList::GetText(TCHAR *String,int Index)
 {
   if (Count)
     if ((Index<Count) && (Index>=0))
@@ -116,7 +116,7 @@ char *__fastcall TStrList::GetText(char *String,int Index)
   return String;
 }
 
-char *__fastcall TStrList::GetText(int Index)
+TCHAR *__fastcall TStrList::GetText(int Index)
 {
   if (Count)
     if ((Index<Count) && (Index>=0))
@@ -127,8 +127,8 @@ char *__fastcall TStrList::GetText(int Index)
 void _fastcall TStrList::Sort(int Low,int Up)
 {
   int i,j;
-  char *x;
-  char *y;
+  TCHAR *x;
+  TCHAR *y;
 
   if (Count)
   {
@@ -181,7 +181,7 @@ TStrList &TStrList::operator=(TStrList &lst)
 }
 
 
-//TStrList &TStrList::operator=(char *String)
+//TStrList &TStrList::operator=(TCHAR *String)
 //{
 //  Add(String);
 //  return *this;

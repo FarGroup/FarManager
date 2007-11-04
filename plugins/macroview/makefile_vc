@@ -5,4 +5,9 @@ include ..\makefile_vc_def_inc
 
 include ..\makefile_vc_target_inc
 
-$(OBJDIR)\MacroView.obj : MacroView.cpp $(COMINC)\plugin.hpp
+$(OBJDIR)\MacroView.obj : MacroView.cpp MacroMix.cpp MacroDiff.cpp \
+                          Config.cpp strclass.cpp regclass.cpp \
+                          MacroView.hpp strclass.hpp regclass.hpp \
+                          MacroLng.hpp $(COMINC)\plugin.hpp \
+                          $(COMINC)\farkeys.hpp $(COMINC)\farcolor.hpp \
+                          $(COMMON)\CRT\crt.hpp
