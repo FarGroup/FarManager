@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2232
+  Plugin API for FAR Manager 1.71 build 2285
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2007 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2232)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2285)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -85,13 +85,14 @@
 // you will need to use Data.Data, and the Selected field - Param.Selected
 //#define _FAR_NO_NAMELESS_UNIONS
 
-// To ensure correct structure packing, you can #define _FAR_USE_FARFINDDATA.
-// In this case, the member PluginPanelItem.FindData will have the type
-// FAR_FIND_DATA, not WIN32_FIND_DATA. The structure FAR_FIND_DATA has the
-// same layout as WIN32_FIND_DATA, but since it is declared in this file,
-// it is generated with correct 2-byte alignment.
-// This #define is necessary to compile plugins with Borland C++ 5.5.
-//#define _FAR_USE_FARFINDDATA
+// To ensure correct structure packing the member PluginPanelItem.FindData
+// has the type FAR_FIND_DATA, not WIN32_FIND_DATA (since version 1.71
+// build 2250). The structure FAR_FIND_DATA has the same layout as
+// WIN32_FIND_DATA, but since it is declared in this file, it is
+// generated with correct 2-byte alignment.
+// This #define is necessary to compile plugins that expect
+// PluginPanelItem.FindData to be of WIN32_FIND_DATA type.
+//#define _FAR_USE_WIN32_FIND_DATA
 
 #ifndef _WINCON_
 typedef struct _INPUT_RECORD INPUT_RECORD;
@@ -256,6 +257,12 @@ enum FarMessagesProc{
 
   DN_LISTHOTKEY,
 
+  DM_GETEDITPOSITION,
+  DM_SETEDITPOSITION,
+
+  DM_SETCOMBOBOXEVENT,
+  DM_GETCOMBOBOXEVENT,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -295,6 +302,11 @@ enum FARLISTMOUSEREACTIONTYPE{
   LMRT_ONLYFOCUS   = 0,
   LMRT_ALWAYS      = 1,
   LMRT_NEVER       = 2,
+};
+
+enum FARCOMBOBOXEVENTTYPE{
+  CBET_KEY         = 0x00000001,
+  CBET_MOUSE       = 0x00000002,
 };
 
 enum LISTITEMFLAGS {
@@ -590,7 +602,7 @@ enum PLUGINPANELITEMFLAGS{
   PPIF_USERDATA               = 0x20000000,
 };
 
-#ifdef _FAR_USE_FARFINDDATA
+#ifndef _FAR_USE_WIN32_FIND_DATA
 
 struct FAR_FIND_DATA
 {
@@ -610,7 +622,7 @@ struct FAR_FIND_DATA
 
 struct PluginPanelItem
 {
-#ifdef _FAR_USE_FARFINDDATA
+#ifndef _FAR_USE_WIN32_FIND_DATA
   struct FAR_FIND_DATA FindData;
 #else
   WIN32_FIND_DATA      FindData;

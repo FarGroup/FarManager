@@ -4,15 +4,44 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 225
+  Plugin API for FAR Manager 1.80 build 319
+*/
 
-  Copyright (c) 1996-2000 Eugene Roshal
-  Copyright (c) 2000-2007 FAR group
+/*
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+EXCEPTION:
+Far Manager plugins that use this header file can be distributed under any
+other possible license with no implications from the above license on them.
 */
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,225)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,319)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -84,14 +113,6 @@
 // for example, the Data field of the FarDialogItem structure
 // you will need to use Data.Data, and the Selected field - Param.Selected
 //#define _FAR_NO_NAMELESS_UNIONS
-
-// To ensure correct structure packing, you can #define _FAR_USE_FARFINDDATA.
-// In this case, the member PluginPanelItem.FindData will have the type
-// FAR_FIND_DATA, not WIN32_FIND_DATA. The structure FAR_FIND_DATA has the
-// same layout as WIN32_FIND_DATA, but since it is declared in this file,
-// it is generated with correct 2-byte alignment.
-// This #define is necessary to compile plugins with Borland C++ 5.5.
-//#define _FAR_USE_FARFINDDATA
 
 #ifndef _WINCON_
 typedef struct _INPUT_RECORD INPUT_RECORD;
@@ -255,6 +276,12 @@ enum FarMessagesProc{
 
   DN_LISTHOTKEY,
 
+  DM_GETEDITPOSITION,
+  DM_SETEDITPOSITION,
+
+  DM_SETCOMBOBOXEVENT,
+  DM_GETCOMBOBOXEVENT,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -294,6 +321,11 @@ enum FARLISTMOUSEREACTIONTYPE{
   LMRT_ONLYFOCUS   = 0,
   LMRT_ALWAYS      = 1,
   LMRT_NEVER       = 2,
+};
+
+enum FARCOMBOBOXEVENTTYPE{
+  CBET_KEY         = 0x00000001,
+  CBET_MOUSE       = 0x00000002,
 };
 
 enum LISTITEMFLAGS {
@@ -940,6 +972,7 @@ struct ActlEjectMedia {
 enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,
   KSFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
+  KSFLAGS_REG_MULTI_SZ        = 0x00100000,
 };
 
 struct KeySequence{
@@ -1122,7 +1155,6 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_DELETECHAR,
   ECTL_INSERTTEXT,
   ECTL_GETINFO,
-  ECTL_FREEINFO, //!!!!!
   ECTL_SETPOSITION,
   ECTL_SELECT,
   ECTL_REDRAW,
@@ -1144,6 +1176,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_GETBOOKMARKS,
   ECTL_TURNOFFMARKINGBLOCK,
   ECTL_DELETEBLOCK,
+  ECTL_FREEINFO, //!!!!!
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
@@ -1390,8 +1423,9 @@ enum XLATMODE{
   XLAT_SWITCHKEYBBEEP    = 0x00000002UL,
 };
 
+typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
+
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);
-typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
 
 typedef int (WINAPI *FRSUSERFUNC)(
@@ -1696,7 +1730,7 @@ int    WINAPI _export GetMinFarVersionW(void);
 void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info);
 int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,char *Name,int OpMode);
+int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,wchar_t *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item);
 int    WINAPI _export ProcessEditorEventW(int Event,void *Param);

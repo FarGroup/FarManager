@@ -3,7 +3,7 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.71 build 2232
+  Inside KeyName for FAR Manager 1.71 build 2285
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2007 FAR group
@@ -26,6 +26,7 @@ enum BaseDefKeyboard
   KEY_DOT                  ='.',
   KEY_SLASH                ='/',
   KEY_COLON                =':',
+  KEY_SEMICOLON            =';',
   KEY_BACKSLASH            ='\\',
 
   KEY_BS                   =0x00000008,
@@ -39,6 +40,9 @@ enum BaseDefKeyboard
   KEY_FKEY_BEGIN           =0x00000100,
 
   KEY_BREAK                =0x00000103,
+
+  KEY_PAUSE                =0x00000113,
+  KEY_CAPSLOCK             =0x00000114,
 
   KEY_PGUP                 =0x00000121,
   KEY_PGDN                 =0x00000122,
@@ -97,6 +101,9 @@ enum BaseDefKeyboard
   KEY_F22                  =0x00000185,
   KEY_F23                  =0x00000186,
   KEY_F24                  =0x00000187,
+
+  KEY_NUMLOCK              =0x00000190,
+  KEY_SCROLLLOCK           =0x00000191,
 
   KEY_BROWSER_BACK         =0x000001A6,
   KEY_BROWSER_FORWARD      =0x000001A7,
@@ -593,6 +600,7 @@ enum AddDefKeyboard
   KEY_CTRLSLASH            =KEY_CTRL|KEY_SLASH,
   KEY_CTRLBACKSLASH        =KEY_CTRL|KEY_BACKSLASH,
   KEY_CTRLCLEAR            =KEY_CTRL|KEY_CLEAR,
+  KEY_CTRLSHIFTCLEAR       =KEY_CTRL|KEY_SHIFT|KEY_CLEAR,
   KEY_CTRLADD              =KEY_CTRL|KEY_ADD,
   KEY_SHIFTADD             =KEY_SHIFT|KEY_ADD,
 

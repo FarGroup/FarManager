@@ -3,10 +3,39 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.80 build 225
+  Inside KeyName for FAR Manager 1.80 build 319
+*/
 
-  Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2007 FAR group
+/*
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+EXCEPTION:
+Far Manager plugins that use this header file can be distributed under any
+other possible license with no implications from the above license on them.
 */
 
 
@@ -65,6 +94,7 @@ enum BaseDefKeyboard
   KEY_DOT                  ='.',
   KEY_SLASH                ='/',
   KEY_COLON                =':',
+  KEY_SEMICOLON            =';',
   KEY_BACKSLASH            ='\\',
 
   KEY_BS                   =0x00000008,
@@ -78,6 +108,9 @@ enum BaseDefKeyboard
   KEY_FKEY_BEGIN           =EXTENDED_KEY_BASE,
 
   KEY_BREAK                =EXTENDED_KEY_BASE+VK_CANCEL,
+
+  KEY_PAUSE                =EXTENDED_KEY_BASE+VK_PAUSE,
+  KEY_CAPSLOCK             =EXTENDED_KEY_BASE+VK_CAPITAL,
 
   KEY_PGUP                 =EXTENDED_KEY_BASE+VK_PRIOR,
   KEY_PGDN                 =EXTENDED_KEY_BASE+VK_NEXT,
@@ -137,6 +170,9 @@ enum BaseDefKeyboard
   KEY_F23                  =EXTENDED_KEY_BASE+VK_F23,
   KEY_F24                  =EXTENDED_KEY_BASE+VK_F24,
 
+  KEY_NUMLOCK              =EXTENDED_KEY_BASE+VK_NUMLOCK,
+  KEY_SCROLLLOCK           =EXTENDED_KEY_BASE+VK_SCROLL,
+
   KEY_BROWSER_BACK         =EXTENDED_KEY_BASE+VK_BROWSER_BACK,
   KEY_BROWSER_FORWARD      =EXTENDED_KEY_BASE+VK_BROWSER_FORWARD,
   KEY_BROWSER_REFRESH      =EXTENDED_KEY_BASE+VK_BROWSER_REFRESH,
@@ -161,6 +197,9 @@ enum BaseDefKeyboard
 
   KEY_MSWHEEL_UP           =INTERNAL_KEY_BASE+3,
   KEY_MSWHEEL_DOWN         =INTERNAL_KEY_BASE+4,
+  KEY_NUMDEL               =INTERNAL_KEY_BASE+9,
+  KEY_DECIMAL              =INTERNAL_KEY_BASE+0xA,
+  KEY_NUMENTER             =INTERNAL_KEY_BASE+0xB,
 
   KEY_VK_0xFF_BEGIN        =EXTENDED_KEY_BASE+0x00000100,
   KEY_VK_0xFF_END          =EXTENDED_KEY_BASE+0x000001FF,
@@ -507,6 +546,8 @@ enum AddDefKeyboard
   KEY_CTRLPGDN             =KEY_CTRL|KEY_PGDN,
   KEY_CTRLINS              =KEY_CTRL|KEY_INS,
   KEY_CTRLDEL              =KEY_CTRL|KEY_DEL,
+  KEY_CTRLNUMDEL           =KEY_CTRL|KEY_NUMDEL,
+  KEY_CTRLDECIMAL          =KEY_CTRL|KEY_DECIMAL,
 
   KEY_SHIFTHOME            =KEY_SHIFT|KEY_HOME,
   KEY_SHIFTUP              =KEY_SHIFT|KEY_UP,
@@ -518,6 +559,8 @@ enum AddDefKeyboard
   KEY_SHIFTPGDN            =KEY_SHIFT|KEY_PGDN,
   KEY_SHIFTINS             =KEY_SHIFT|KEY_INS,
   KEY_SHIFTDEL             =KEY_SHIFT|KEY_DEL,
+  KEY_SHIFTNUMDEL          =KEY_SHIFT|KEY_NUMDEL,
+  KEY_SHIFTDECIMAL         =KEY_SHIFT|KEY_DECIMAL,
 
   KEY_ALTHOME              =KEY_ALT|KEY_HOME,
   KEY_ALTUP                =KEY_ALT|KEY_UP,
@@ -529,6 +572,8 @@ enum AddDefKeyboard
   KEY_ALTPGDN              =KEY_ALT|KEY_PGDN,
   KEY_ALTINS               =KEY_ALT|KEY_INS,
   KEY_ALTDEL               =KEY_ALT|KEY_DEL,
+  KEY_ALTNUMDEL            =KEY_ALT|KEY_NUMDEL,
+  KEY_ALTDECIMAL           =KEY_ALT|KEY_DECIMAL,
 
   KEY_CTRLSHIFTHOME        =KEY_CTRL|KEY_SHIFT|KEY_HOME,
   KEY_CTRLSHIFTUP          =KEY_CTRL|KEY_SHIFT|KEY_UP,
@@ -540,6 +585,8 @@ enum AddDefKeyboard
   KEY_CTRLSHIFTPGDN        =KEY_CTRL|KEY_SHIFT|KEY_PGDN,
   KEY_CTRLSHIFTINS         =KEY_CTRL|KEY_SHIFT|KEY_INS,
   KEY_CTRLSHIFTDEL         =KEY_CTRL|KEY_SHIFT|KEY_DEL,
+  KEY_CTRLSHIFTNUMDEL      =KEY_CTRL|KEY_SHIFT|KEY_NUMDEL,
+  KEY_CTRLSHIFTDECIMAL     =KEY_CTRL|KEY_SHIFT|KEY_DECIMAL,
 
   KEY_ALTSHIFTHOME         =KEY_ALT|KEY_SHIFT|KEY_HOME,
   KEY_ALTSHIFTUP           =KEY_ALT|KEY_SHIFT|KEY_UP,
@@ -551,6 +598,8 @@ enum AddDefKeyboard
   KEY_ALTSHIFTPGDN         =KEY_ALT|KEY_SHIFT|KEY_PGDN,
   KEY_ALTSHIFTINS          =KEY_ALT|KEY_SHIFT|KEY_INS,
   KEY_ALTSHIFTDEL          =KEY_ALT|KEY_SHIFT|KEY_DEL,
+  KEY_ALTSHIFTNUMDEL       =KEY_ALT|KEY_SHIFT|KEY_NUMDEL,
+  KEY_ALTSHIFTDECIMAL      =KEY_ALT|KEY_SHIFT|KEY_DECIMAL,
 
   KEY_CTRLALTHOME          =KEY_CTRL|KEY_ALT|KEY_HOME,
   KEY_CTRLALTUP            =KEY_CTRL|KEY_ALT|KEY_UP,
@@ -620,6 +669,7 @@ enum AddDefKeyboard
   KEY_CTRLSLASH            =KEY_CTRL|KEY_SLASH,
   KEY_CTRLBACKSLASH        =KEY_CTRL|KEY_BACKSLASH,
   KEY_CTRLCLEAR            =KEY_CTRL|KEY_CLEAR,
+  KEY_CTRLSHIFTCLEAR       =KEY_CTRL|KEY_SHIFT|KEY_CLEAR,
   KEY_CTRLADD              =KEY_CTRL|KEY_ADD,
   KEY_SHIFTADD             =KEY_SHIFT|KEY_ADD,
 
@@ -642,6 +692,12 @@ enum AddDefKeyboard
   KEY_ALTSHIFTENTER        =KEY_ALT|KEY_SHIFT|KEY_ENTER,
   KEY_CTRLALTENTER         =KEY_CTRL|KEY_ALT|KEY_ENTER,
   KEY_CTRLSHIFTENTER       =KEY_CTRL|KEY_SHIFT|KEY_ENTER,
+
+  KEY_CTRLNUMENTER         =KEY_CTRL|KEY_NUMENTER,
+  KEY_SHIFTNUMENTER        =KEY_SHIFT|KEY_NUMENTER,
+  KEY_ALTSHIFTNUMENTER     =KEY_ALT|KEY_SHIFT|KEY_NUMENTER,
+  KEY_CTRLALTNUMENTER      =KEY_CTRL|KEY_ALT|KEY_NUMENTER,
+  KEY_CTRLSHIFTNUMENTER    =KEY_CTRL|KEY_SHIFT|KEY_NUMENTER,
 
   KEY_CTRLAPPS             =KEY_CTRL|KEY_APPS,
   KEY_ALTAPPS              =KEY_ALT|KEY_APPS,
