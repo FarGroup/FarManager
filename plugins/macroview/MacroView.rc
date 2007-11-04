@@ -13,7 +13,11 @@ FILETYPE 2
   {
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Plugin for manipulating FAR macro commands\000"
-   VALUE "FileVersion", "1.71 build 1\000"
+#ifndef UNICODE
+   VALUE "FileVersion", "1.71 build 2\000"
+#else
+   VALUE "FileVersion", "1.80 build 2\000"
+#endif
    VALUE "InternalName", "MacroView\000"
    VALUE "LegalCopyright", MACROVIEWCOPYRIGHT
    VALUE "OriginalFilename", "MacroView.dll\000"
