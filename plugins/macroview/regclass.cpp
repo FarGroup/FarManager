@@ -276,7 +276,7 @@ TRegDataType TReg::GetDataType(TCHAR *ValueName)
 
 BOOL __fastcall TReg::WriteString(/*const */TCHAR *Name,TCHAR *Value)
 {
-  return(PutData(Name,Value,lstrlen(Value)+1,rdString));
+  return(PutData(Name,Value,(lstrlen(Value)+1)*sizeof(TCHAR),rdString));
 }
 
 TCHAR *__fastcall TReg::ReadString(/*const */TCHAR *Name,TCHAR *Str,int size)

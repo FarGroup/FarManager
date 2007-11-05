@@ -238,7 +238,7 @@ class TMacroView
                   MenuTitle[TITLELEN],
                   MenuBottom[TITLELEN];
 
-    TCHAR         *MacroData,*MacroMulti;
+    TCHAR         *MacroData;
 
     int           Deactivated;
     int           ActiveMode;

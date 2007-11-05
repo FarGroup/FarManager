@@ -1026,8 +1026,10 @@ TMacroView::TMacroView():
   MacroData=new TCHAR[DATASIZE];
   if (MacroData)
   {
-    MacroMulti=new TCHAR[DATASIZE];
-    if (!MacroMulti)
+    TCHAR *tmp=new TCHAR[DATASIZE];
+    if (tmp)
+      delete[] tmp;
+    else
     {
       delete[] MacroData;
       MacroData=NULL;
@@ -1087,6 +1089,29 @@ void __fastcall TMacroView::InitMacroAreas()
   GroupList.ItemsNumber=MacroGroupsSize;
   GroupList.Items=GroupItems;
 }
+
+#ifdef UNICODE
+//TODO: not work API in 1.8
+static inline void _tmpInit(FarDialogItem& Item, wchar_t* Buf, size_t Len)
+{
+    Item.PtrData = Buf;
+    Item.PtrLength = (int)Len;
+}
+
+static void _tmpAnswer(FarDialogItem& Item, wchar_t* Buf, size_t Len)
+{
+    if (Item.PtrData != Buf)
+    {
+      if (Item.PtrData == NULL)
+        Buf[0] = 0;
+      else {
+        lstrcpyn(Buf, Item.PtrData, (int)Len);
+        FSF.FreeDialogAnsStr(Item.PtrData);
+      }
+      Item.PtrData = Buf;
+    }
+}
+#endif
 
 #ifndef UNICODE
 #define ptrData Data.Data
@@ -1161,7 +1186,11 @@ void __fastcall TMacroView::InitDialogs()
 /* 5*/  {DI_TEXT,       5, 4, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
 /* 6*/  {DI_VTEXT,     37, 2, 0,0,0,0,0,0,_BOX_VTOP},
 /* 7*/  {DI_TEXT,       5, 5, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroCommand),64)},
-/* 8*/  {DI_EDIT,       5, 6,69,0,1,(DWORD_PTR)MacroCmdHistory,(MacroData)?DIF_HISTORY|DIF_SEPARATOR:DIF_HISTORY,0,_T("")},
+/* 8*/  {DI_EDIT,       5, 6,69,0,1,(DWORD_PTR)MacroCmdHistory,
+#ifndef UNICODE
+                                (MacroData)?DIF_HISTORY|DIF_VAREDIT :
+#endif
+                                            DIF_HISTORY,0,_T("")},
 /* 9*/  {DI_TEXT,       5, 7, 0,0,0,0,0,0,CheckLen(GetMsg(MMacroDescription),64)},
 /*10*/  {DI_EDIT,       5, 8,69,0,0,(DWORD_PTR)MacroDescrHistory,DIF_HISTORY,0,_T("")},
 /*11*/  {DI_TEXT,       5, 9, 0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
@@ -1200,10 +1229,10 @@ void __fastcall TMacroView::InitDialogs()
 
   InitDialogItems(InitItems,EditDialog,ArraySize(InitItems));
 #ifdef UNICODE
-  *(EditDialog[2].PtrData = _Group) = 0;
-  *(EditDialog[4].PtrData = _Button) = 0;
-  *(EditDialog[8].PtrData = _Data) = 0;
-  *(EditDialog[10].PtrData = _Descr) = 0;
+  _tmpInit(EditDialog[2], _Group, ArraySize(_Group));
+  _tmpInit(EditDialog[4], _Button, ArraySize(_Button));
+  _tmpInit(EditDialog[10], _Descr, ArraySize(_Descr));
+  _tmpInit(EditDialog[8], MacroData?MacroData:_Data, MacroData?DATASIZE:ArraySize(_Data));
 #endif
 
   InitDialogItem DefItems[]=
@@ -1261,6 +1290,9 @@ void __fastcall TMacroView::InitData()
   if (MacroData)
     ZeroMemory(MacroData,DATASIZE);
   InitDialogs();
+#ifdef UNICODE
+  _Button[0] = _Group[0] = _Descr[0] = _Data[0] = 0;
+#endif
 }
 
 
@@ -1851,8 +1883,7 @@ void __fastcall TMacroView::ExportMacroToFile(BOOL AllMacros)
     FarDialogItem DialogItems[ArraySize(InitItems)];
     InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
 #ifdef UNICODE
-    *(DialogItems[2].PtrData = _fname) = 0;
-    DialogItems[2].PtrLength = sizeof(_fname);  //TODO: this needed?
+    _tmpInit(DialogItems[2], _fname, ArraySize(_fname));
 #endif
 
     wsprintf(Str,_T("%s: %s"),ConvertGroupName(Group,GRP_TOLONGNAME),Key);
@@ -1883,6 +1914,9 @@ MACRO_DIALOG:
 
     int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,EXPORTLEN+6,8,MacroHelp,DialogItems,
                              ArraySize(DialogItems));
+#ifdef UNICODE
+    _tmpAnswer(DialogItems[2], _fname, ArraySize(_fname));
+#endif
     if (ExitCode==4) // Сохранить
     {
       ZeroMemory(&si,sizeof(si));
@@ -2280,8 +2314,12 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 #ifndef UNICODE
   lstrcpyn(DialogItems[8].Data.Data,Key,ArraySize(DialogItems[8].Data.Data));
 #else
-  wchar_t _key[ArraySize(Key)];
-  lstrcpy(DialogItems[8].PtrData = _key, Key);
+  wchar_t _key[ArraySize(Key)], _conf[MAX_KEY_LEN], _area[MAX_KEY_LEN];
+  _conf[0] = _area[0] = 0;
+  _tmpInit(DialogItems[2], _conf, ArraySize(_conf));
+  _tmpInit(DialogItems[4], _area, ArraySize(_area));
+  _tmpInit(DialogItems[8], _key, ArraySize(_key));
+  lstrcpy(DialogItems[8].PtrData, Key);
 #endif
 
 COPY_MOVE:
@@ -2289,6 +2327,11 @@ COPY_MOVE:
   int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,EXPORTLEN+6,11,_T("MacroCopy"),
                              DialogItems,ArraySize(DialogItems),0,0,
                              CopyDialogProc,0);
+#ifdef UNICODE
+  _tmpAnswer(DialogItems[2], _conf, ArraySize(_conf));
+  _tmpAnswer(DialogItems[4], _area, ArraySize(_area));
+  _tmpAnswer(DialogItems[8], _key, ArraySize(_key));
+#endif
 
   if (ExitCode==10) // Сохранить
   {
@@ -2813,7 +2856,11 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems)
     Reg->WriteString(_T("Sequence"),DialogItems[8].ptrData);
   }
 
-  Reg->WriteString(_T("Sequence"),(MacroData)?MacroData:DialogItems[8].ptrData);
+  Reg->WriteString(_T("Sequence"),
+#ifndef UNICODE
+                   (MacroData)?MacroData :
+#endif
+                   DialogItems[8].ptrData);
   if (DialogItems[10].ptrData[0])
     Reg->WriteString(_T("Description"),DialogItems[10].ptrData);
   else
@@ -3116,8 +3163,16 @@ int __fastcall TMacroView::ShowEdit()
   EditX2=EditX1+DIALOGWID-1;
   EditY2=EditY1+DIALOGHGT-1;
 
-  return Info.DialogEx(Info.ModuleNumber,EditX1,EditY1,EditX2,EditY2,_T("MacroParams"),
-                       EditDialog, ArraySize(EditDialog),0,0,MacroDialogProc,0);
+  int res = Info.DialogEx(Info.ModuleNumber,EditX1,EditY1,EditX2,EditY2,
+                          _T("MacroParams"),EditDialog,ArraySize(EditDialog),
+                          0,0,MacroDialogProc,0);
+#ifdef UNICODE
+  _tmpAnswer(EditDialog[2], _Group, ArraySize(_Group));
+  _tmpAnswer(EditDialog[4], _Button, ArraySize(_Button));
+  _tmpAnswer(EditDialog[10], _Descr, ArraySize(_Descr));
+  _tmpAnswer(EditDialog[8],MacroData?MacroData:_Data,MacroData?DATASIZE:ArraySize(_Data));
+#endif
+  return res;
 }
 
 
@@ -3157,19 +3212,16 @@ BOOL __fastcall TMacroView::InsertMacro()
   EditDialog[2].ptrData[0]=0;
   EditDialog[2].Focus=TRUE;
   EditDialog[4].ptrData[0]=0;
+#ifndef UNICODE
   if (MacroData)
   {
-#ifndef UNICODE
     EditDialog[8].Data.Ptr.PtrFlags=0;
     EditDialog[8].Data.Ptr.PtrLength=DATASIZE;
     EditDialog[8].Data.Ptr.PtrData=MacroData;
-#else
-    EditDialog[8].PtrLength=DATASIZE;
-    EditDialog[8].PtrData=MacroData;
-#endif
     *MacroData=0;
   }
   else
+#endif
     EditDialog[8].ptrData[0]=0;
   EditDialog[10].ptrData[0]=0;
   EditDialog[12].Param.Selected=FALSE;
@@ -3236,7 +3288,12 @@ INSERT_RETRY:
     // для записи в реестр
     ConvertGroupName(EditDialog[4].ptrData,GRP_TOSHORTNAME);
 
-    if ((EditDialog[2].ptrData[0]!=0) && ((MacroData)?*MacroData!=0:EditDialog[8].ptrData[0]!=0))
+
+    if ((EditDialog[2].ptrData[0]!=0) && (
+#ifndef UNICODE
+                                          (MacroData)?*MacroData!=0 :
+#endif
+                                          EditDialog[8].ptrData[0]!=0))
     {
       lstrcpy(lGroup,EditDialog[4].ptrData);
       //Из короткого имени группы создадим длинное
@@ -3373,19 +3430,16 @@ BOOL __fastcall TMacroView::EditMacro()
 
   lstrcpy(EditDialog[2].ptrData,Key);
   lstrcpy(EditDialog[4].ptrData,Group);
+#ifndef UNICODE
   if (MacroData)
   {
-#ifndef UNICODE
     EditDialog[8].Data.Ptr.PtrFlags=0;
     EditDialog[8].Data.Ptr.PtrLength=DATASIZE;
     EditDialog[8].Data.Ptr.PtrData=MacroData;
-#else
-    EditDialog[8].PtrLength=DATASIZE;
-    EditDialog[8].PtrData=MacroData;
-#endif
     *MacroData=0;
   }
   else
+#endif
     EditDialog[8].ptrData[0]=0;
   EditDialog[8].Focus=TRUE;
   EditDialog[10].ptrData[0]=0;
@@ -3460,30 +3514,32 @@ BOOL __fastcall TMacroView::EditMacro()
         if (CmpStr(S,_T("Sequence"))==0) // Sequence
         {
           if (MacroData)
-      {
-      // Получим тип данных макропоследовательности
-      TRegDataType Type;
-      int nSize=Reg->GetData(S,MacroData,DATASIZE,Type);
-      if (nSize>0)
-      {
-        if (Type==rdMultiString)
-          // Макрос в реестре с типом многострочный
-          MultiLine=TRUE;
-      }
-      else
-        MacroData[0]=0;
+          {
+            // Получим тип данных макропоследовательности
+            TRegDataType Type;
+            int nSize=Reg->GetData(S,MacroData,DATASIZE,Type);
+            if (nSize>0)
+            {
+              if (Type==rdMultiString)
+                // Макрос в реестре с типом многострочный
+                MultiLine=TRUE;
+            }
+            else
+              MacroData[0]=0;
 
-      /*if (Type==rdMultiString)
-      {
-      }
-      else
-        Reg->ReadString(S,MacroData,DATASIZE);*/
-      }
+            /*if (Type==rdMultiString)
+            {
+            }
+            else
+              Reg->ReadString(S,MacroData,DATASIZE);*/
+          }
           else
           {
             Reg->ReadString(S,Str,sizeof(Str));
             if (Str[0])
               lstrcpy(EditDialog[8].ptrData,Str);
+            else
+              EditDialog[8].ptrData[0]=0;
           }
         }
         else if (CmpStr(S,_T("Description"))==0) // Description
@@ -3663,7 +3719,11 @@ EDIT_RETRY:
         ConvertGroupName(EditDialog[4].ptrData,GRP_TOSHORTNAME);
 
         BOOL deleted=FALSE;
-        if ((MacroData)?*MacroData==0:EditDialog[8].ptrData[0]==0)
+        if (
+#ifndef UNICODE
+            (MacroData)?*MacroData==0 :
+#endif
+            EditDialog[8].ptrData[0]==0)
         {
           lstrcpy(lGroup,Group);
           //Из короткого имени группы создадим длинное
