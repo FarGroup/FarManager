@@ -298,22 +298,13 @@ int SetFLockState(UINT vkKey, int State)
      VK_SCROLL (91)
      VK_CAPITAL (14)
   */
-  UINT ScanCode, ScanCodeBreak, ExKey=KEYEVENTF_EXTENDEDKEY;
+  UINT ExKey=(vkKey==VK_CAPITAL?0:KEYEVENTF_EXTENDEDKEY);
 
   switch(vkKey)
   {
     case VK_NUMLOCK:
-      ScanCode=0x0045;
-      ScanCodeBreak=0x00C5;
-      break;
     case VK_CAPITAL:
-      ScanCode=0x003A;
-      ScanCodeBreak=0x00BA;
-      ExKey=0;
-      break;
     case VK_SCROLL:
-      ScanCode=0x0046;
-      ScanCodeBreak=0x00C6;
       break;
     default:
       return -1;
@@ -327,8 +318,8 @@ int SetFLockState(UINT vkKey, int State)
     if (State == 2 || (State==1 && !oldState) || (!State && oldState) )
 
     {
-      keybd_event( vkKey, ScanCode, ExKey, 0 );
-      keybd_event( vkKey, ScanCodeBreak, ExKey | KEYEVENTF_KEYUP, 0);
+      keybd_event( vkKey, 0, ExKey, 0 );
+      keybd_event( vkKey, 0, ExKey | KEYEVENTF_KEYUP, 0);
     }
   }
 
@@ -485,6 +476,14 @@ _SVS(SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
 _SVS(SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
       }
 #endif
+      //cheat for flock
+      if(rec->EventType==KEY_EVENT&&rec->Event.KeyEvent.wVirtualScanCode==0&&(rec->Event.KeyEvent.wVirtualKeyCode==VK_NUMLOCK||rec->Event.KeyEvent.wVirtualKeyCode==VK_CAPITAL||rec->Event.KeyEvent.wVirtualKeyCode==VK_SCROLL))
+      {
+        INPUT_RECORD pinp;
+        DWORD nread;
+        ReadConsoleInput(hConInp, &pinp, 1, &nread);
+      	continue;
+      }
 
 #if defined(DETECT_ALT_ENTER)
 

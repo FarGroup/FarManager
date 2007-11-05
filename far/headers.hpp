@@ -328,7 +328,7 @@ headers.hpp
   #define IMAGE_ROM_OPTIONAL_HDR_MAGIC       0x107
 #endif
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || defined(__GNUC__)
 /*
  * Bits in wParam of WM_INPUTLANGCHANGEREQUEST message
  */
