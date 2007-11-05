@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 319
+  Plugin API for FAR Manager 1.80 build 322
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,319)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,322)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -1456,6 +1456,8 @@ typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DW
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
 
+typedef void    (WINAPI *FARFREEDIALOGANSSTR)(const wchar_t *);
+
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1515,6 +1517,7 @@ typedef struct FarStandardFunctions
   FARSTDMKLINK               MkLink;
   FARCONVERTNAMETOREAL       ConvertNameToReal;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
+  FARFREEDIALOGANSSTR        FreeDialogAnsStr;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
