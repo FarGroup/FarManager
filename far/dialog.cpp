@@ -3680,7 +3680,7 @@ void Dialog::ConvertItemEx (
             EditPtr->GetString(Data->strData);
         }
 
-        Item->PtrData = _wcsdup(Data->strData); //BUGBUG
+        Item->PtrData = _wcsdup(Data->strData); //BUGBUG (see FreeDialogAnsStr)
 
     }
   else
@@ -3708,7 +3708,10 @@ void Dialog::ConvertItemEx (
     }
 }
 
-
+void WINAPI FreeDialogAnsStr(const wchar_t *P)
+{
+    free((void*)P); // Item.PtrData result
+}
 
 void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,int Count)
 {

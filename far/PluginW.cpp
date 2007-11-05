@@ -493,6 +493,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.MkLink=FarMkLink;
     //StandardFunctions.ConvertNameToReal=ConvertNameToReal; //BUGBUG
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
+    StandardFunctions.FreeDialogAnsStr=FreeDialogAnsStr;
   }
 
   if(!StartupInfo.StructSize)

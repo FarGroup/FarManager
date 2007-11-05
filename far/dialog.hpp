@@ -399,4 +399,6 @@ class Dialog: public Frame
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };
 
+void WINAPI FreeDialogAnsStr(const wchar_t *P);
+
 #endif // __DIALOG_HPP__

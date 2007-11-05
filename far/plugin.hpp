@@ -1631,6 +1631,8 @@ typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DW
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
 
+typedef void    (WINAPI *FARFREEDIALOGANSSTR)(const wchar_t *);
+
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1690,6 +1692,7 @@ typedef struct FarStandardFunctions
   FARSTDMKLINK               MkLink;
   FARCONVERTNAMETOREAL       ConvertNameToReal;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
+  FARFREEDIALOGANSSTR        FreeDialogAnsStr;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
