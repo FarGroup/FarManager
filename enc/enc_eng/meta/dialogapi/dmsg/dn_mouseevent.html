@@ -54,9 +54,8 @@ Pointer to a <a href="../../winapi/mouse_event_record.html">MOUSE_EVENT_RECORD</
 <li>Do not enable this event unless you really need it: mouse events are sent very frequently!
 <li>A plugin may modify the fields of the
     <a href="../../winapi/mouse_event_record.html">MOUSE_EVENT_RECORD</a> structure passed to it.
-<li>По умолчанию для открытого <a href="../controls/di_combobox.html">DI_COMBOBOX</a> событие <dfn>DN_MOUSEEVENT</dfn>
-в диалоговую процедуру не приходит. Воспользуйтесь сообщеним <a href="dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a>,
-чтобы включить режим посылки <dfn>DN_MOUSEEVENT</dfn> в диалоговую процедуру.
+<li>By default the <dfn>DN_MOUSEEVENT</dfn> event is not sent for an open <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+Use the <a href="dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a> message to enable the sending of <dfn>DN_MOUSEEVENT</dfn> events.
 </ol>
 </div>
 

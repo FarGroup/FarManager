@@ -71,11 +71,12 @@ into the queue (the macro will start running when FAR gets control). FALSE is re
        <td class="cont" width="60%">Don't send keystrokes to editor plugins (plugins, that export
         <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a> function).</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_REG_MULTI_SZ">KSFLAGS_REG_MULTI_SZ</a></td>
-       <td class="cont" width="60%">Параметр <em>Param.PlainText.SequenceText</em> представлен в формате <dfn>REG_MULTI_SZ</dfn>.<br>REG_MULTI_SZ в реестре:
-<pre class=code>строка 1\x00
-строка 2\x00
+       <td class="cont" width="60%">The <em>Param.PlainText.SequenceText</em> parameter is represented in the <dfn>REG_MULTI_SZ</dfn> format.<br>
+         REG_MULTI_SZ in the registry:
+<pre class=code>line 1\x00
+line 2\x00
 ...
-строка N\x00
+line N\x00
 \x00</pre>
 
        </td>
@@ -92,7 +93,7 @@ into the queue (the macro will start running when FAR gets control). FALSE is re
 <div class=descr>
 <ol>
 <li>The <dfn>MCMD_LOADALL</dfn> and <dfn>MCMD_SAVEALL</dfn> commands won't execute  during macro recording or playback.</li>
-<li>Флаг <dfn>KSFLAGS_REG_MULTI_SZ</dfn> можно не указывать, если в <em>Param.PlainText.SequenceText</em> вместо 0x00 будут стоять '\n'.
+<li>The <dfn>KSFLAGS_REG_MULTI_SZ</dfn> flag can be discarded, if <em>Param.PlainText.SequenceText</em> contains '\n' instead of 0x00.
 </ol>
 </div>
 

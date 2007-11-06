@@ -36,7 +36,7 @@ internal viewer.
 <tr class="cont"><th class="cont" width="40%">Command</th><th class="cont" width="60%">Description</th></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETINFO">VCTL_GETINFO</a></td>
-<td class="cont" width="60%">Gets viewer information. Param points to an
+<td class="cont" width="60%">Gets viewer information. Param points to a
   <a href="../structures/viewerinfo.html">ViewerInfo</a> structure.
   This command always returns <code>TRUE</code>.
 </td></tr>
@@ -60,22 +60,22 @@ internal viewer.
 </td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
-<td class="cont" width="60%">Controls selection. <var>Param</var> points to an
+<td class="cont" width="60%">Controls selection. <var>Param</var> points to a
   <a href="../structures/viewerselect.html">ViewerSelect</a> structure.
-  <br>Если <var>Param</var> = NULL, произойдет сброс выделения.<br>
-  If the command succeeds <code>TRUE</code> is returned..
+  <br>If <var>Param</var> = NULL, selection will be reset.<br>
+  If the command succeeds <code>TRUE</code> is returned.
 </td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
-<td class="cont" width="60%">Изменить режим работы программы просмотра.<br>
-  <var>Param</var> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.
-  В случае успеха возвращается <code>TRUE</code>.
+<td class="cont" width="60%">Change viewer mode.<br>
+  <var>Param</var> points to a <a href="../structures/viewersetmode.html">ViewerSetMode</a> structure.
+  If the command succeeds <code>TRUE</code> is returned.
 </td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
 <td class="cont" width="60%">Sets position in file. <var>Param</var> points to an
   <a href="../structures/viewersetposition.html">ViewerSetPosition</a> structure.
-  If the command succeeds <code>TRUE</code> is returned..
+  If the command succeeds <code>TRUE</code> is returned.
 </td></tr>
 
 </table>

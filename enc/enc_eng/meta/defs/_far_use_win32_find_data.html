@@ -26,11 +26,10 @@ the Windows API headers, it is not possible to achieve the correct 2-byte alignm
 <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structure when the
 <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> structure is used.
 
-<p>Если <b>определено</b> макро <dfn>_FAR_USE_WIN32_FIND_DATA</dfn>, структура
-<a href="../structures/pluginpanelitem.html">PluginPanelItem</a>
-будет иметь вид, совместимый с FAR 1.65 и FAR 1.70.
-Однако корректная компиляция плагинов в Borland C++ 5.5 будет невозможна без
-модификации системных заголовков Windows API.
+<p>If the <dfn>_FAR_USE_WIN32_FIND_DATA</dfn> macro is <b>defined</b>, the
+<a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structure
+will be compatible with FAR 1.65 and FAR 1.70 headers.
+But correct compilation will not be possible with Borland C++ 5.5 without modifying Windows API header files.
 
 <p>Если <b>не определено</b> макро <dfn>_FAR_USE_WIN32_FIND_DATA</dfn>, будет использоваться
 структура <a href="far_find_data.html">FAR_FIND_DATA</a>. При этом код будет корректно работать со

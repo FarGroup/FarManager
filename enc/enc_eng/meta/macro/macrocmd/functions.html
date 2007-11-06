@@ -42,21 +42,21 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="index">index</a></dfn>(S1,S2)</td>
-    <td class="cont" width="60%">Returns the position of the first occurence of the substring
+    <td class="cont" width="60%">Returns the position of the first occurrence of the substring
     <em>S2</em> within string <em>S1</em>, -1 otherwise.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="rindex">rindex</a></dfn>(S1,S2)</td>
-    <td class="cont" width="60%">Returns the position of the last occurence of the substring
+    <td class="cont" width="60%">Returns the position of the last occurrence of the substring
     <em>S2</em> within string <em>S1</em>, -1 otherwise.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="asc">asc</a></dfn>(S)</td>
-    <td class="cont" width="60%">¬озвращает код символа <em>S</em>.</td>
+    <td class="cont" width="60%">Returns the code of character <em>S</em>.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="chr">chr</a></dfn>(N)</td>
-    <td class="cont" width="60%">¬озвращает символ, заданный кодом <em>N</em>.</td>
+    <td class="cont" width="60%">Returns the character for the code <em>N</em>.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
@@ -95,9 +95,9 @@
 
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
-    <td class="cont" width="60%">¬озвращает хоткей <em>S</em> дл€ пункта <em>N</em>, если в меню присутствует гор€ча€
-      клавиша и текущий &quot;объект&quot; - меню. ¬ противном случае (не меню; нет хотке€; N больше чем количество пунктов меню) возвращает 0.<br>
-      «десь <em>N</em> - позици€ в списке от 1 (0 - текуща€).
+    <td class="cont" width="60%">Returns the hotkey <em>S</em> for item <em>N</em>, if the item has a hotkey
+      and the current &quot;object&quot; is a menu. Otherwise 0 is returned.<br>
+      <em>N</em> - item position beginning with 1 (0 - current item).
     </td>
   </tr>
 
@@ -188,7 +188,7 @@
         <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Current drive in "C:" representation.<br>For network shares - "\\server\share"</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000002</td><td class="cont" width="90%">Rooted path in "\Program Files\Far\" representation</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000004</td><td class="cont" width="90%">Name</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Extension in ".EXT" represention or empty string, if there's no extension.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Extension in ".EXT" representation or empty string, if there's no extension.</td></tr>
        </table>
     </td>
   </tr>
@@ -349,8 +349,8 @@ $End</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="panel.setposidx">panel.setposidx</a></dfn>(panelType,indexItem)</td>
-    <td class="cont" width="60%">ѕозиционирует курсор на элемент с индексом <em>indexItem</em> на активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
-      ¬озвращает позицию элемента или 0, если такого элемента на панели нет.<br>
+    <td class="cont" width="60%">Positions the cursor on the element with index <em>indexItem</em> on the active (<em>panelType</em>=0) or the passive (<em>panelType</em>=1) panel.<br>
+      Returns element position or 0 if such element does not exist.<br>
     </td>
   </tr>
   <tr class="cont">
@@ -393,23 +393,23 @@ $End</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>(N)</td>
-    <td class="cont" width="60%">ќжидает любую клавишу и возвращает ее название.
-     ≈сли врем€ ожидани€ <em>N</em> (миллисекунды) истекло, функци€ возвращает пустую строку.
+    <td class="cont" width="60%">Awaits any key and returns its name.
+      If the timeout <em>N</em> (in milliseconds) was reached, an empty string is returned.
      <br>
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S)</td>
-    <td class="cont" width="60%">"ѕроиграть" макропоследовательность заданную строкой <em>S</em>.
-      ≈сли <em>S</em> содержит синтаксические ошибки, то макропоследовательность исполн€тьс€ не будет.
+    <td class="cont" width="60%">"Play" the macro-sequence <em>S</em>.
+      If <em>S</em> contains syntax errors, the sequence will not be played.
      <br>
-     FAR компилирует последовательность <em>S</em>. ≈сли нет ошибок, то состо€ние текущего макроса сохран€етс€
-     и начинает выполн€тьс€ последовательность <em>S</em>. ѕосле исполнени€ <em>S</em> прерванный макрос продолжает работать.
-     <p>‘ункци€ возвращает 0 в случае успешной компил€ции последовательности <em>S</em>.
-     <p>Ћокальные переменные - общие дл€ текущего исполн€емого макроса и макропоследовательности, исполн€емой функцией <dfn>eval</dfn>.
+     FAR compiles the sequence <em>S</em>. If there were no errors then the state of the current macro is saved and the sequence
+     <em>S</em> is executed. When <em>S</em> finishes the interrupted macro continues.
+     <p>The function returns 0 when <em>S</em> is successfully compiled.
+     <p>Local variables are common for both the current macro and the macro executed by <dfn>eval</dfn>.
 
-     <p>Ќапример, необходимо по F10 запускать окно проводника дл€ каталога на активной панели, содержимое командной строки должно сохран€тьс€.<br>
-     ¬ области Vars задаем 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:
+     <p>For example, we want by pressing F10 to open an Explorer window with the current folder on the active panel, command line contents should be saved.<br>
+     We set 2 string variables, in the Vars area, containing a macro-sequence for saving and restoring the command line:
 <pre class=code>
 %%CmdSave=$If (!CmdLine.Empty) %Flg_Cmd=1;
           %CmdCurPos=CmdLine.ItemCount-CmdLine.CurPos+1;
@@ -419,7 +419,7 @@ $End</pre>
           %Flg_Cmd=0; %Num=%CmdCurPos;
           $While (%Num!=0) %Num=%Num-1; CtrlS $End $End
 </pre>
-     далее на F10 вешаем макрос:
+     then we set the following macro to F10:
 <pre class=code>
 $If (APanel.Visible &amp;&amp; (!APanel.Plugin || (!APanel.Bof &amp;&amp;(APanel.OPIFlags &amp; 0x20))))
   Eval(%%CmdSave)

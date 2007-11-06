@@ -10,12 +10,12 @@
 
 <h1>ViewerSetMode</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ViewerSetMode</dfn> используется для изменения режимов работы программы просмотра FAR.
+The <dfn>ViewerSetMode</dfn> structure is used to set the view mode of the current viewer instance.
 </div>
 
 <pre class=syntax>
@@ -31,22 +31,22 @@ struct ViewerSetMode
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Elements</h3>
 <div class=descr>
   <div class=dfn>Type</div>
-  <div class=dfndescr>Тип режима. Может быть одним из следующих (перечисление <a name="VIEWER_SETMODE_TYPES">VIEWER_SETMODE_TYPES</a>):
+  <div class=dfndescr>Mode type. Can be one of the following values (<a name="VIEWER_SETMODE_TYPES">VIEWER_SETMODE_TYPES</a> enum):
     <table class="cont">
-      <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
+      <tr class="cont"><th class="cont" width="40%">Mode</th><th class="cont" width="60%">Description</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_HEX">VSMT_HEX</a></td>
-    <td class="cont" width="60%">Текстовый/16-ричный режим: <var>iParam</var>=1 - включить 16-ричный режим, <var>iParam</var>=0 - текстовый.</td></tr>
+    <td class="cont" width="60%">Text/Hex mode: <var>iParam</var>=1 - turn Hex mode on, <var>iParam</var>=0 - text mode.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_WRAP">VSMT_WRAP</a></td>
-    <td class="cont" width="60%">Перенос строк: <var>iParam</var>=1 - перенос включен, <var>iParam</var>=0 - выключен)
+    <td class="cont" width="60%">Line wrap: <var>iParam</var>=1 - line wrap is on, <var>iParam</var>=0 - off)
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_WORDWRAP">VSMT_WORDWRAP</a></td>
-    <td class="cont" width="60%">Тип свертки: <var>iParam</var>=1 - используется перенос строк по словам, <var>iParam</var>=0 - по буквам.
+    <td class="cont" width="60%">Word wrap: <var>iParam</var>=1 - word wrap is on, <var>iParam</var>=0 - off.
     </td></tr>
 
    </table>
@@ -54,34 +54,33 @@ struct ViewerSetMode
   </div>
 
   <div class=dfn>iParam</div>
-  <div class=dfndescr>Содержит число, см. описание по конкретному типу режима.</div>
+  <div class=dfndescr>Integer value, see details above.</div>
 
   <div class=dfn>cParam</div>
-  <div class=dfndescr>Указатель на строку, оканчивающуюся нулем, см. описание по конкретному типу режима.</div>
+  <div class=dfndescr>Pointer to a null terminated string, see details above.</div>
 
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Дополнительные флаги (перечисление <a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a>):
-    <table class="cont"><tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
+  <div class=dfndescr>Additional flags (<a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a> enum):
+    <table class="cont"><tr class="cont"><th class="cont" width="40%">Mode</th><th class="cont" width="60%">Description</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VSMFL_REDRAW">VSMFL_REDRAW</a></td>
-    <td class="cont" width="60%">После применения "режима" перерисовать экран. В противном случае после установки режимов воспользоваться
-    командой <a href="../service_functions/viewercontrol.html#VCTL_REDRAW">VCTL_REDRAW</a>.</td></tr>
+    <td class="cont" width="60%">Redraw the screen. Otherwise use the <a href="../service_functions/viewercontrol.html#VCTL_REDRAW">VCTL_REDRAW</a>
+      command to redraw the screen after changing the mode.</td></tr>
 
    </table>
 
   </div>
 
   <div class=dfn>Reserved</div>
-  <div class=dfndescr>Не используется, зарезервировано для будущего использования.
-    Должно быть установлено в 0.</div>
+  <div class=dfndescr>Reserved for future use. Should be 0.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Remarks</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">structures</a> |
 <a href="../delphi/tviewersetmode.html">TViewerSetMode</a>
 </div>
 
