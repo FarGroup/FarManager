@@ -10,54 +10,54 @@
 
 <h1>DM_SETEDITPOSITION</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
+<a  href="index_dm.html">Messages</a> |
 <a href="dm_seteditposition.html">DM_SETEDITPOSITION</a>|
 <a href="../index.html">Dialog API</a><br>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETEDITPOSITION</dfn> посылается обработчику диалога для
-установки позиции и состояния курсора в строках редактирования диалога.
+The <dfn>DM_SETEDITPOSITION</dfn> message is sent to the dialog manager to set the cursor position and state
+in edit controls.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+Dialog item ID
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../structures/editorsetposition.html">EditorSetPosition</a>.
+Pointer to a  <a href="../../structures/editorsetposition.html">EditorSetPosition</a> structure.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором.<br>
-TRUE - позиция курсора установлена.
+FALSE - the given dialog item ID is not an edit control.<br>
+TRUE - cursor position is set.
 </div>
 
-<h3>Элементы</h3>
+<h3>Controls</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Remarks</h3>
 <div class=descr>
 </div>
 
-<h3>Пример</h3>
+<h3>Example</h3>
 <div class=descr>
-Пример функции поддержки выделения мышью в строках ввода в плагине "Visual renaming files"
+Example of a mouse selection support function for edit controls from the "Visual renaming files" plugin
 <pre class="code">
 static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
 {
@@ -114,7 +114,7 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>See also:</div><div class=seecont>
 <a href="../dialogex.html">DialogEx</a> |
 <a href="dm_getcursorpos.html">DM_GETCURSORPOS</a>|
 <a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>|
