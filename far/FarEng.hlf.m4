@@ -172,11 +172,11 @@ $ # FAR: command line switches#
   #/rc#   Upon closing, allows to restore console window title
         and size that were set before running FAR Manager.
 
-  #/m#    При старте FAR не будет загружать макрокоманды 
-        из реестра.
+  #/m#    FAR will not load macros from the registry when
+        started.
 
-  #/ma#    При старте FAR не будет исполнять макрокоманды 
-        с опцией "Выполнять после запуска FAR".
+  #/ma#    Macros with the "Run after FAR start" option set
+        will not be run upon starting FAR.
 
   #/u <username>#
         Allows to have separate settings for different users.
@@ -1883,9 +1883,8 @@ $ #Settings dialog: system#
                           Bin can be performed only for local hard
                           disks.
 
-  #Delete symbolic links#   Перед удалением каталога в Корзину,
-                          просканировать и удалить линки на
-                          подкаталоги.
+  #Delete symbolic links#   Scan for and delete symbolic links to
+                          subfolders before deleting to Recycle Bin.
 
   #Use system copy#         Use the file copy functions provided by
   #routine#                 the operating system instead of internal
@@ -2252,9 +2251,8 @@ $ #Viewer: control keys#
     5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
-    6. Для автоматического скроллинга просматриваемого
-       динамически обновляемого файла необходимо стать в
-       конец файла (клавиша End).
+    6. For automatic scrolling of a dynamicly updating file,
+       position the "cursor" to the end of the file (End key).
 
 
 @ViewerGotoPos
@@ -2536,9 +2534,9 @@ non-existing drive letter would not be correct) and that you have enough rights
 to create the folder.
 
 @WarnEditorPluginName
-$ #Предупреждение: Имя редактируемого файла не может быть пустым#
-    Для создания нового файла на активной панели плагина необходимо указать
-имя файла.
+$ #Warning: The name of the file to edit cannot be empty#
+    To create a new file on a plugin's panel you must specify a
+file name.
 
 @WarnEditorSavedEx
 $ #Warning: The file was changed by an external program#
