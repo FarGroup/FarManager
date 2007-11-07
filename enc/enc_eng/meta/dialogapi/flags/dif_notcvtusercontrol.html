@@ -16,9 +16,9 @@
 </div>
 
 <div class=shortdescr>
-<p>Элемент управления с флагом <dfn>DIF_NOTCVTUSERCONTROL</dfn> перед выводом виртуального буфера на экран
-не будет конвертировать символы (CHAR_INFO::Char). Без этого флага компонента CHAR_INFO::Char.AsciiChar является
-или обычным символом или индексом в массиве Unicode символов (когда FAR работает с консолью в Unicode-режиме).
+<p>A dialog item with the <dfn>DIF_NOTCVTUSERCONTROL</dfn> flag set will not convert characters (CHAR_INFO::Char)
+from the virtual buffer before writing them to the screen. Without this flag only the CHAR_INFO::Char.AsciiChar member
+is used by Far and converted according to the current output method (OEM or Unicode).
 </div>
 
 <h3>Controls</h3>
