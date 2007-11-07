@@ -11,6 +11,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Как пользоваться помощью~@Help@
 
    ~Что такое FAR~@About@
+   ~Лицензия~@License@
 
    ~Параметры командной строки~@CmdLine@
    ~Клавиатурные команды~@KeyRef@
@@ -97,11 +98,43 @@ $ #FAR: что это такое#
 Windows 95/98/Me/NT/2000/XP/2003, которая обеспечивает обработку файлов с
 #длинными именами# и имеет обширный набор дополнительных функций.
 
+    #FAR# является #freeware# и #open source# программой распространяемой
+под модифицированной BSD ~лицензией~@License@.
+
     #FAR# позволяет работать с #архивами#. При этом файлы в архивах
 обрабатываются аналогично файлам в папках. #FAR# сам преобразует ваши команды в
 соответствующие вызовы внешних архиваторов.
 
     #FAR# также обеспечивает значительное количество сервисных функций.
+
+
+@License
+$ #FAR: Лицензия#
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
@@ -157,10 +190,10 @@ $ #FAR: параметры командной строки#
         заголовка и размеров консольного окна, выставленные до
         запуска FAR Manager.
 
-  #/m#    При старте FAR не будет загружать макрокоманды 
+  #/m#    При старте FAR не будет загружать макрокоманды
         из реестра.
 
-  #/ma#    При старте FAR не будет исполнять макрокоманды 
+  #/ma#    При старте FAR не будет исполнять макрокоманды
         с опцией "Выполнять после запуска FAR".
 
   #/u <username>#
@@ -2307,8 +2340,8 @@ $ #Программа просмотра: клавиши управления#
     5. FAR ~ищет~@ViewerSearch@ первое вхождение подстроки (#F7#) с начала видимой
        области экрана программы просмотра.
 
-    6. Для автоматического скроллинга просматриваемого 
-       динамически обновляемого файла необходимо стать в 
+    6. Для автоматического скроллинга просматриваемого
+       динамически обновляемого файла необходимо стать в
        конец файла (клавиша End).
 
 
@@ -3156,17 +3189,8 @@ $ #Настройка режимов просмотра панели файлов#
                  Эти символы можно комбинировать, например NMR
 
     S[C,T,F,E] - размер файла
-                 где: C - форматировать размер файла запятыми;
-                      T - использовать 1000 вместо 1024 как делитель;
-                      F - показывать размер файла в стиле Windows
-                          Explorer (т.е. 999 байт будут показаны
-                          как 999, а 1000 байт как 0.97 KB);
-                      E - экономичный режим, не показывать пробел
-                          перед суффиксом размера файла
-                          (т.е. 0.97KB);
-
     P[C,T,F,E] - упакованный размер файла
-                 где: C - форматировать размер файла запятыми;
+                 где: C - форматировать размер файла;
                       T - использовать 1000 вместо 1024 как делитель;
                       F - показывать размер файла в стиле Windows
                           Explorer (т.е. 999 байт будут показаны

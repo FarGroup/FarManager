@@ -11,6 +11,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~How to use help~@Help@
 
    ~About FAR~@About@
+   ~License~@License@
 
    ~Command line switches~@CmdLine@
    ~Keyboard reference~@KeyRef@
@@ -95,11 +96,44 @@ $ # FAR: about#
 NT and Windows 2000/XP/2003. It supports #long file names# and provides a wide
 set of file and folder operations.
 
+    #FAR# is #freeware# and #open source# software distributed under the
+revised BSD ~license~@License@.
+
     #FAR# does transparent #archive# processing. Files in the archive are
 handled similarly as in a folder: when you operate with the archive, FAR
 transforms your commands into the corresponding external archiver calls.
 
     #FAR# offers a number of service functions as well.
+
+
+@License
+$ # FAR: License#
+
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
@@ -156,11 +190,11 @@ $ # FAR: command line switches#
   #/rc#   Upon closing, allows to restore console window title
         and size that were set before running FAR Manager.
 
-  #/m#    При старте FAR не будет загружать макрокоманды 
-        из реестра.
+  #/m#    FAR will not load macros from the registry when
+        started.
 
-  #/ma#    При старте FAR не будет исполнять макрокоманды 
-        с опцией "Выполнять после запуска FAR".
+  #/ma#    Macros with the "Run after FAR start" option set
+        will not be run upon starting FAR.
 
   #/u <username>#
         Allows to have separate settings for different users.
@@ -1867,9 +1901,8 @@ $ #Settings dialog: system#
                           Bin can be performed only for local hard
                           disks.
 
-  #Delete symbolic links#   Перед удалением каталога в Корзину,
-                          просканировать и удалить линки на
-                          подкаталоги.
+  #Delete symbolic links#   Scan for and delete symbolic links to
+                          subfolders before deleting to Recycle Bin.
 
   #Use system copy#         Use the file copy functions provided by
   #routine#                 the operating system instead of internal
@@ -2236,9 +2269,8 @@ $ #Viewer: control keys#
     5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
-    6. Для автоматического скроллинга просматриваемого 
-       динамически обновляемого файла необходимо стать в 
-       конец файла (клавиша End).
+    6. For automatic scrolling of a dynamicly updating file,
+       position the "cursor" to the end of the file (End key).
 
 
 @ViewerGotoPos
@@ -2519,12 +2551,10 @@ folder, provided that the path is correct (for example, a path starting with a
 non-existing drive letter would not be correct) and that you have enough rights
 to create the folder.
 
-
 @WarnEditorPluginName
-$ #Предупреждение: Имя редактируемого файла не может быть пустым#
-    Для создания нового файла на активной панели плагина необходимо указать
-имя файла.
-
+$ #Warning: The name of the file to edit cannot be empty#
+    To create a new file on a plugin's panel you must specify a
+file name.
 
 @WarnEditorSavedEx
 $ #Warning: The file was changed by an external program#
@@ -3052,17 +3082,8 @@ characters, delimited with commas. Allowed column types are:
                  for example NMR
 
     S[C,T,F,E] - file size
-                 where: C - format file size with commas;
-                        T - use 1000 instead of 1024 as a divider;
-                        F - show file sizes similar to Windows
-                            Explorer (i.e. 999 bytes will be
-                            displayed as 999 and 1000 bytes will
-                            be displayed as 0.97 KB);
-                        E - economic mode, no space between file
-                            size and suffix will be shown;
-
     P[C,T,F,E] - packed file size
-                 where: C - format file size with commas;
+                 where: C - format file size;
                         T - use 1000 instead of 1024 as a divider;
                         F - show file sizes similar to Windows
                             Explorer (i.e. 999 bytes will be
