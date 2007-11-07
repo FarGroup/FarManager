@@ -2566,17 +2566,17 @@
                         <param name="ImageNumber" value="41">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FAR plugins API History">
+                        <param name="Name" value="История FAR plugins API">
                         <param name="Local" value="html/historyapi.html">
                         <param name="ImageNumber" value="17">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Long History">
+                        <param name="Name" value="Длинная история">
                         <param name="Local" value="html/history.html">
                         <param name="ImageNumber" value="17">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FaQ">
+                        <param name="Name" value="ЧАВО">
                         <param name="Local" value="html/faq.html">
                         <param name="ImageNumber" value="37">
                         </OBJECT>

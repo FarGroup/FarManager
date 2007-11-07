@@ -43,8 +43,8 @@
   <li><a href="#fsf1">Is it possible in FSF.ProcessName to get TRUE, when comparing...</a>
   <li><a href="#kbd1">How does Windows dump the file name from the Explorer to the console window?</a>
   <li><a href="#panel1">ProcessKey doesn't work for some reason...</a>
-  <li><a href="#panel2">Можно ли из плагина перейти на определённый файл в директории?</a>
-  <li><a href="#exec1">Как из плагина запустить что-нибудь?</a>
+  <li><a href="#panel2">How can a plugin position the cursor on a specific file?</a>
+  <li><a href="#exec1">How can a plugin run a program? And show its output under the panels?</a>
 
 </ol>
 
@@ -271,14 +271,14 @@ end;
   <span class=faqa>A:</span> FAR calls the <a href="exported_functions/processkey.html">ProcessKey</a> function for the active plugin panel only.
   <br><br></li>
 
-  <li><span class=faqq>Q:</span> <a name="panel2"><span class=faqqb>Можно ли из плагина перейти на определённый файл в директории?</span></a>
+  <li><span class=faqq>Q:</span> <a name="panel2"><span class=faqqb>How can a plugin position the cursor on a specific file?</span></a>
   <br><span class=faqa>A:</span>
 <pre class=code>
 {
   struct PanelInfo PInfo;
   Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
 
-  // установить позицию на элементе панели selectItem
+  // set cursor position on the selectItem panel item
 
   struct PanelRedrawInfo PRI;
   char Name[NM], Dir[NM*5];
@@ -317,7 +317,7 @@ end;
 </pre>
   <br><br></li>
 
-  <li><span class=faqq>Q:</span> <a name="exec1"><span class=faqqb>Как из плагина запустить что-нибудь?</span></a>
+  <li><span class=faqq>Q:</span> <a name="exec1"><span class=faqqb>How can a plugin run a program? And show its output under the panels?</span></a>
   <br><span class=faqa>A:</span>
 <pre class=code>Info.Control(INVALID_HANDLE_VALUE,FCTL_GETUSERSCREEN,NULL);
 

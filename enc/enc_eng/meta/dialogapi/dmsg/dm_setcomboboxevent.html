@@ -10,61 +10,59 @@
 
 <h1>DM_SETCOMBOBOXEVENT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
+<a  href="index_dm.html">Messages</a> |
 <a href="../index.html">Dialog API</a><br>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCOMBOBOXEVENT</dfn> позволяет управлять механизмом
-посылки сообщений <a href="dn_key.html">DN_KEY</a> и <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
-в диалоговую процедуру при навигации в открытом элементе <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+The <dfn>DM_SETCOMBOBOXEVENT</dfn> message allows to control the sending of <a href="dn_key.html">DN_KEY</a> or <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
+events for an open <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+ID of a <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-<dfn>Param2</dfn> комбинация следующих значений (перечисление <a name="FARCOMBOBOXEVENTTYPE">FARCOMBOBOXEVENTTYPE</a>):
+<dfn>Param2</dfn> is a combination of the following flags (<a name="FARCOMBOBOXEVENTTYPE">FARCOMBOBOXEVENTTYPE</a> enum):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="CBET_KEY">CBET_KEY</a></td>
-  <td class="cont" width="60%">Включить приход событий <a href="dn_key.html">DN_KEY</a></td></tr>
+  <td class="cont" width="60%">Enable <a href="dn_key.html">DN_KEY</a> events</td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="CBET_MOUSE">CBET_MOUSE</a></td>
-  <td class="cont" width="60%">Включить приход событий <a href="dn_mouseevent.html">DN_MOUSEEVENT</a></td></tr>
+  <td class="cont" width="60%">Enable <a href="dn_mouseevent.html">DN_MOUSEEVENT</a> events</td></tr>
 </table>
 
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее состояние.
+Previous state.
 </div>
 
-<h3>Элементы</h3>
+<h3>Controls</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Remarks</h3>
 <div class=descr>
-По умолчанию при открытом <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
-события <a href="dn_key.html">DN_KEY</a> и <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
-в диалоговую процедуру неприходят.
+By default, the <a href="dn_key.html">DN_KEY</a> and <a href="dn_mouseevent.html">DN_MOUSEEVENT</a> events
+are not sent for an open <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
-<h3>Пример</h3>
+<h3>Example</h3>
 <div class=descr>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>See also:</div><div class=seecont>
 <a href="dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a><br>
 </div>
 
