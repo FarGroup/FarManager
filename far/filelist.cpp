@@ -4322,41 +4322,33 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 
 void FileList::IfGoHome(wchar_t Drive)
 {
-  string strTmpCurDir;
-  wchar_t wszFName[NM]; //BUGBUG, dynamic
+	string strTmpCurDir;
+	string strFName;
 
-  // СНАЧАЛА ПАССИВНАЯ ПАНЕЛЬ!!!
-  /*
-     Почему? - Просто - если активная шировая (или пассивная
-     широкая) - получаем багу с прорисовкой!
-  */
-  Panel *Another=CtrlObject->Cp()->GetAnotherPanel (this);
-  if (Another->GetMode() != PLUGIN_PANEL)
-  {
-    Another->GetCurDir(strTmpCurDir);
-    if (strTmpCurDir.At(0) == Drive && strTmpCurDir.At(1) == L':')
-    {
-      if (GetModuleFileNameW (NULL, wszFName, sizeof(wszFName)/2-1))
-      {
-        wszFName[3] = L'\0';
-        Another->SetCurDir(wszFName, FALSE);
-      }
-    }
-  }
+	if (apiGetModuleFileName (NULL, strFName))
+	{
+		strFName.SetLength(3);
 
-  if (GetMode() != PLUGIN_PANEL)
-  {
-    GetCurDir(strTmpCurDir);
-    if (strTmpCurDir.At(0) == Drive && strTmpCurDir.At(1) == L':')
-    {
-      // переходим в корень диска с far.exe
-      if (GetModuleFileNameW (NULL, wszFName, sizeof(wszFName)/2-1))
-      {
-        wszFName[3] = L'\0';
-        SetCurDir(wszFName, FALSE);
-      }
-    }
-  }
+		// СНАЧАЛА ПАССИВНАЯ ПАНЕЛЬ!!!
+		/*
+			Почему? - Просто - если активная широкая (или пассивная
+			широкая) - получаем багу с прорисовкой!
+		*/
+		Panel *Another=CtrlObject->Cp()->GetAnotherPanel (this);
+		if (Another->GetMode() != PLUGIN_PANEL)
+		{
+			Another->GetCurDir(strTmpCurDir);
+			if (strTmpCurDir.At(0) == Drive && strTmpCurDir.At(1) == L':')
+				Another->SetCurDir(strFName, FALSE);
+		}
+
+		if (GetMode() != PLUGIN_PANEL)
+		{
+			GetCurDir(strTmpCurDir);
+			if (strTmpCurDir.At(0) == Drive && strTmpCurDir.At(1) == L':')
+				SetCurDir(strFName, FALSE); // переходим в корень диска с far.exe
+		}
+	}
 }
 
 

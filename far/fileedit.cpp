@@ -66,46 +66,46 @@ static int g_nCodepage = 0;
 
 BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 {
-    DWORD dwCP = _wtoi(lpwszCodePage);
-    CPINFOEXW cpi;
+	DWORD dwCP = _wtoi(lpwszCodePage);
+	CPINFOEXW cpi;
 
-    GetCPInfoExW (dwCP, 0, &cpi);
+	GetCPInfoExW (dwCP, 0, &cpi);
 
-    if ( cpi.MaxCharSize == 1 )
-    {
-    	wchar_t *name = cpi.CodePageName;
-    	wchar_t *p = wcschr(name, L'(');
+	if ( cpi.MaxCharSize == 1 )
+	{
+		wchar_t *name = cpi.CodePageName;
+		wchar_t *p = wcschr(name, L'(');
 
-    	if ( p )
-    		name = p+1;
+		if ( p )
+			name = p+1;
 
 		p = wcsrchr(name, L')');
 
 		if ( p )
 			*p = 0;
 
-    	FarListItemData data;
+		FarListItemData data;
 
-    	int index = (int)Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)name);
+		int index = (int)Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)name);
 
-    	data.Index = index;
-    	data.DataSize = sizeof(dwCP);
-    	data.Data = (void*)(DWORD_PTR)dwCP;
+		data.Index = index;
+		data.DataSize = sizeof(dwCP);
+		data.Data = (void*)(DWORD_PTR)dwCP;
 
-    	Dialog::SendDlgMessage (g_hDlg, DM_LISTSETDATA, g_nID, (LONG_PTR)&data);
+		Dialog::SendDlgMessage (g_hDlg, DM_LISTSETDATA, g_nID, (LONG_PTR)&data);
 
-    	if ( g_nCodepage == dwCP )
-    	{
-    		FarListPos pos;
+		if ( g_nCodepage == dwCP )
+		{
+			FarListPos pos;
 
-    		pos.SelectPos = index;
-    		pos.TopPos = -1;
+			pos.SelectPos = index;
+			pos.TopPos = -1;
 
-    		Dialog::SendDlgMessage (g_hDlg, DM_LISTSETCURPOS, g_nID, (LONG_PTR)&pos);
-    	}
+			Dialog::SendDlgMessage (g_hDlg, DM_LISTSETCURPOS, g_nID, (LONG_PTR)&pos);
+		}
 	}
 
-    return TRUE;
+	return TRUE;
 }
 
 
@@ -115,104 +115,104 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 	g_nID = nID;
 	g_nCodepage = nCodepage;
 
-  	FarListItem items[10];
+	FarListItem items[10];
 
-  	memset(&items, 0, sizeof (items));
+	memset(&items, 0, sizeof (items));
 
-  	wcscpy(items[0].Text, L"Auto");
+	wcscpy(items[0].Text, L"Auto");
 
-  	if ( nCodepage == CP_AUTODETECT ) //BUGBUG
-	  	items[0].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_AUTODETECT ) //BUGBUG
+		items[0].Flags |= LIF_SELECTED;
 
-  	wcscpy(items[2].Text, L"OEM");
+	wcscpy(items[2].Text, L"OEM");
 
-  	if ( nCodepage == CP_OEMCP ) //BUGBUG
-	  	items[2].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_OEMCP ) //BUGBUG
+		items[2].Flags |= LIF_SELECTED;
 
-  	wcscpy(items[3].Text, L"ANSI");
+	wcscpy(items[3].Text, L"ANSI");
 
-  	if ( nCodepage == CP_ACP ) //BUGBUG
-	  	items[3].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_ACP ) //BUGBUG
+		items[3].Flags |= LIF_SELECTED;
 
-  	wcscpy(items[5].Text, L"UTF-8");
+	wcscpy(items[5].Text, L"UTF-8");
 
-  	if ( nCodepage == CP_UTF8 ) //BUGBUG
-	  	items[5].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_UTF8 ) //BUGBUG
+		items[5].Flags |= LIF_SELECTED;
 
-  	wcscpy(items[6].Text, L"UTF-7");
+	wcscpy(items[6].Text, L"UTF-7");
 
-  	if ( nCodepage == CP_UTF7 ) //BUGBUG
-	  	items[6].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_UTF7 ) //BUGBUG
+		items[6].Flags |= LIF_SELECTED;
 
-  	wcscpy(items[7].Text, L"UNICODE");
+	wcscpy(items[7].Text, L"UNICODE");
 
-  	if ( nCodepage == CP_UNICODE ) //BUGBUG
-	  	items[7].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_UNICODE ) //BUGBUG
+		items[7].Flags |= LIF_SELECTED;
 
-  	wcscpy(items[8].Text, L"REVERSEBOM");
+	wcscpy(items[8].Text, L"REVERSEBOM");
 
-  	if ( nCodepage == CP_REVERSEBOM ) //BUGBUG
-	  	items[8].Flags |= LIF_SELECTED;
+	if ( nCodepage == CP_REVERSEBOM ) //BUGBUG
+		items[8].Flags |= LIF_SELECTED;
 
 	items[1].Flags = LIF_SEPARATOR;
-  	items[4].Flags = LIF_SEPARATOR;
-  	items[9].Flags = LIF_SEPARATOR;
+	items[4].Flags = LIF_SEPARATOR;
+	items[9].Flags = LIF_SEPARATOR;
 
-  	FarList list;
+	FarList list;
 
-  	list.Items = (FarListItem*)(bAllowAuto?&items[0]:&items[2]);
-  	list.ItemsNumber = bAllowAuto?countof(items):countof(items)-2;
+	list.Items = (FarListItem*)(bAllowAuto?&items[0]:&items[2]);
+	list.ItemsNumber = bAllowAuto?countof(items):countof(items)-2;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTADD, nID, (LONG_PTR)&list);
+	Dialog::SendDlgMessage (hDlg, DM_LISTADD, nID, (LONG_PTR)&list);
 
-  	FarListItemData data;
+	FarListItemData data;
 
-  	int index = bAllowAuto?0:2;
+	int index = bAllowAuto?0:2;
 
-  	//auto
-  	data.Index = 0;
-  	data.DataSize = 4;
-  	data.Data = (void*)CP_AUTODETECT;
+	//auto
+	data.Index = 0;
+	data.DataSize = 4;
+	data.Data = (void*)CP_AUTODETECT;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-  	//oem
-  	data.Index = 2-index;
-  	data.DataSize = 4;
-  	data.Data = (void*)CP_OEMCP;
+	//oem
+	data.Index = 2-index;
+	data.DataSize = 4;
+	data.Data = (void*)CP_OEMCP;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-  	//ansi
-  	data.Index = 3-index;
-  	data.DataSize = 4;
-  	data.Data = (void*)CP_ACP;
+	//ansi
+	data.Index = 3-index;
+	data.DataSize = 4;
+	data.Data = (void*)CP_ACP;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 
-  	//utf-8
-  	data.Index = 5-index;
-  	data.DataSize = 4;
-  	data.Data = (void*)CP_UTF8;
+	//utf-8
+	data.Index = 5-index;
+	data.DataSize = 4;
+	data.Data = (void*)CP_UTF8;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-  	//unicode
-  	data.Index = 6-index;
-  	data.DataSize = 4;
-  	data.Data = (void*)CP_UNICODE;
+	//unicode
+	data.Index = 6-index;
+	data.DataSize = 4;
+	data.Data = (void*)CP_UNICODE;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-  	//reverse bom
-  	data.Index = 7-index;
-  	data.DataSize = 4;
-  	data.Data = (void*)CP_REVERSEBOM;
+	//reverse bom
+	data.Index = 7-index;
+	data.DataSize = 4;
+	data.Data = (void*)CP_REVERSEBOM;
 
-  	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-  	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePages, CP_INSTALLED);
+	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePages, CP_INSTALLED);
 }
 
 
@@ -355,53 +355,53 @@ LONG_PTR __stdcall hndSaveFileAs (
 
 bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 {
-    const wchar_t *HistoryName=L"NewEdit";
+	const wchar_t *HistoryName=L"NewEdit";
 
-    DialogDataEx EditDlgData[]=
-    {
-      /* 00 */ DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MEditTitle,
-      /* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSaveAs,
-      /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
-      /* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,L"File codepage:",
-      /* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST,0,L"",
-      /* 06 */ DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 07 */ DI_TEXT,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
-      /* 08 */ DI_RADIOBUTTON,5,8,0,8,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
-      /* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSaveDOS,
-      /* 10 */ DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MEditSaveUnix,
-      /* 11 */ DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MEditSaveMac,
-      /* 12 */ DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 13 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-      /* 14 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
-    };
+	DialogDataEx EditDlgData[]=
+	{
+		/* 00 */ DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MEditTitle,
+		/* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSaveAs,
+		/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
+		/* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,L"File codepage:",
+		/* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST,0,L"",
+		/* 06 */ DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 07 */ DI_TEXT,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
+		/* 08 */ DI_RADIOBUTTON,5,8,0,8,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
+		/* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSaveDOS,
+		/* 10 */ DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MEditSaveUnix,
+		/* 11 */ DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MEditSaveMac,
+		/* 12 */ DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 13 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+		/* 14 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+	};
 
-    MakeDialogItemsEx(EditDlgData,EditDlg);
+	MakeDialogItemsEx(EditDlgData,EditDlg);
 
-    EditDlg[2].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
+	EditDlg[2].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
 
-    wchar_t *PtrEditDlgData=EditDlg[ID_SF_FILENAME].strData.GetBuffer ();
+	wchar_t *PtrEditDlgData=EditDlg[ID_SF_FILENAME].strData.GetBuffer ();
 
-    PtrEditDlgData = wcsstr (PtrEditDlgData, UMSG(MNewFileName));
+	PtrEditDlgData = wcsstr (PtrEditDlgData, UMSG(MNewFileName));
 
-    if(PtrEditDlgData)
-      *PtrEditDlgData=0;
+	if(PtrEditDlgData)
+		*PtrEditDlgData=0;
 
-    EditDlg[2].strData.ReleaseBuffer();
+	EditDlg[2].strData.ReleaseBuffer();
 
-    EditDlg[ID_SF_DONOTCHANGE].Selected = 0;
-    EditDlg[ID_SF_DOS].Selected = 0;
-    EditDlg[ID_SF_UNIX].Selected = 0;
-    EditDlg[ID_SF_MAC].Selected=0;
-    EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
+	EditDlg[ID_SF_DONOTCHANGE].Selected = 0;
+	EditDlg[ID_SF_DOS].Selected = 0;
+	EditDlg[ID_SF_UNIX].Selected = 0;
+	EditDlg[ID_SF_MAC].Selected=0;
+	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
 
-    Dialog Dlg(EditDlg, countof (EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
-    Dlg.SetPosition(-1,-1,76,16);
-    Dlg.SetHelp(L"FileSaveAs");
-    Dlg.Process();
+	Dialog Dlg(EditDlg, countof (EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
+	Dlg.SetPosition(-1,-1,76,16);
+	Dlg.SetHelp(L"FileSaveAs");
+	Dlg.Process();
 
-    if ( (Dlg.GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.IsEmpty() )
-    {
+	if ( (Dlg.GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.IsEmpty() )
+	{
 		strFileName = EditDlg[ID_SF_FILENAME].strData;
 
 		if (EditDlg[ID_SF_DONOTCHANGE].Selected)
@@ -416,10 +416,10 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 		if (EditDlg[ID_SF_MAC].Selected)
 			TextFormat=3;
 
-       return true;
+		return true;
 	}
 
-    return false;
+	return false;
 }
 
 
@@ -580,8 +580,8 @@ void FileEditor::Init (
 
   if ( !m_editor )
   {
-	ExitCode=XC_OPEN_ERROR;
-	return;
+		ExitCode=XC_OPEN_ERROR;
+		return;
   }
 
   m_codepage = codepage;
@@ -1209,26 +1209,26 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           }
           else
           {
-            //здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
-            {
-            	bool bInPlace = (!IsUnicodeCP(m_codepage) && !IsUnicodeCP(codepage)) || (m_codepage == codepage);
+						//здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
+						{
+							bool bInPlace = (!IsUnicodeCP(m_codepage) && !IsUnicodeCP(codepage)) || (m_codepage == codepage);
 
-            	if ( !bInPlace )
-            		m_editor->FreeAllocatedData ();
+							if ( !bInPlace )
+								m_editor->FreeAllocatedData ();
 
-            	SetFileName (strFullSaveAsName);
+							SetFileName (strFullSaveAsName);
 
-            	SetCodePage (codepage); //
+							SetCodePage (codepage); //
 
-            	if ( !bInPlace )
-            	{
-					Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", UMSG(MOk));
+							if ( !bInPlace )
+							{
+								Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", UMSG(MOk));
 
-					int UserBreak;
-					LoadFile (strFullSaveAsName, UserBreak);
+								int UserBreak;
+								LoadFile (strFullSaveAsName, UserBreak);
 
-					Show();//!!! BUGBUG
-				}
+								Show();//!!! BUGBUG
+							}
             }
 
             Done=TRUE;
@@ -1248,34 +1248,33 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       // $ 21.07.2000 SKV + выход с позиционированием на редактируемом файле по CTRLF10
       case KEY_CTRLF10:
       {
-        {
-          if (isTemporary())
-          {
-            return(TRUE);
-          }
+				if (isTemporary())
+				{
+					return(TRUE);
+				}
 
-          string strFullFileNameTemp = strFullFileName;
+				string strFullFileNameTemp = strFullFileName;
 
-          if(::GetFileAttributesW(strFullFileName) == -1) // а сам файл то еще на месте?
-          {
-              if(!CheckShortcutFolder(&strFullFileNameTemp,-1,FALSE))
-              return FALSE;
-            strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
-          }
+				if(::GetFileAttributesW(strFullFileName) == -1) // а сам файл то еще на месте?
+				{
+					if(!CheckShortcutFolder(&strFullFileNameTemp,-1,FALSE))
+						return FALSE;
+					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
+				}
 
-          Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
-          if(Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1))  // Mantis#279
-          {
-            UpdateFileList();
-            Flags.Clear(FFILEEDIT_NEW);
-          }
+				Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+				if(Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1))  // Mantis#279
+				{
+					UpdateFileList();
+					Flags.Clear(FFILEEDIT_NEW);
+				}
 
-          {
-            SaveScreen Sc;
-            CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
-            Flags.Set(FFILEEDIT_REDRAWTITLE);
-          }
-        }
+				{
+					SaveScreen Sc;
+					CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
+					Flags.Set(FFILEEDIT_REDRAWTITLE);
+				}
+
         return (TRUE);
       }
 
@@ -1509,7 +1508,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	GetFileString GetStr(EditFile);
 
-    *m_editor->GlobalEOL=0; //BUGBUG???
+	*m_editor->GlobalEOL=0; //BUGBUG???
 
 	wchar_t *Str;
 	int StrLength,GetCode;
@@ -1607,9 +1606,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, int Codepage)
 {
-
-
-
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
 
@@ -1802,40 +1798,40 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if ( bSaveAs )
     {
-    	signature_found = true; //BUGBUG;
-		codepage = Codepage;
-	}
-	else
-		codepage = m_editor->GetCodePage (); //???
+			signature_found = true; //BUGBUG;
+			codepage = Codepage;
+		}
+		else
+			codepage = m_editor->GetCodePage (); //???
 
     if ( signature_found )
     {
 	    bool bSignError = false;
 	    DWORD dwSignature = 0;
 
-		if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) )
-		{
-    		dwSignature = SIGN_UNICODE;
-    		if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
-    			bSignError = true;
-		}
+			if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) )
+			{
+				dwSignature = SIGN_UNICODE;
+				if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
+					bSignError = true;
+			}
 
-		if ( codepage == CP_UTF8 )
-		{
-    		dwSignature = SIGN_UTF8;
-    		if ( fwrite (&dwSignature, 1, 3, EditFile) != 3 )
-    			bSignError = true;
-		}
+			if ( codepage == CP_UTF8 )
+			{
+				dwSignature = SIGN_UTF8;
+				if ( fwrite (&dwSignature, 1, 3, EditFile) != 3 )
+					bSignError = true;
+			}
 
-		if ( bSignError )
-		{
-			fclose(EditFile);
-			_wremove(Name);
+			if ( bSignError )
+			{
+				fclose(EditFile);
+				_wremove(Name);
 
-			RetCode=SAVEFILE_ERROR;
-			goto end;
+				RetCode=SAVEFILE_ERROR;
+				goto end;
+			}
 		}
-	}
 
     while (CurPtr!=NULL)
     {
@@ -1861,56 +1857,57 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       int EndLength=StrLength(EndSeq);
       bool bError = false;
 
-		if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
-		{
-			if ( (fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
-				 (fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
-				bError = true;
-		}
-		else
-		{
-			int length = WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL);
+			if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
+			{
+				if ( (fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
+					(fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
+					bError = true;
+			}
+			else
+			{
+				int length = WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL);
 
-            char *SaveStrCopy = new char[length];
+				char *SaveStrCopy = new char[length];
 
-            if ( SaveStrCopy )
-            {
-	            int endlength = WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL);
-
-				char *EndSeqCopy = new char[endlength];
-
-				if ( EndSeqCopy )
+				if ( SaveStrCopy )
 				{
-					WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
-					WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
+					int endlength = WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL);
 
-					if ( (fwrite (SaveStrCopy,1,length,EditFile) != length) ||
-						 (fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
+					char *EndSeqCopy = new char[endlength];
+
+					if ( EndSeqCopy )
+					{
+						WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
+						WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
+
+						if ( (fwrite (SaveStrCopy,1,length,EditFile) != length) ||
+							(fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
+							bError = true;
+
+						delete EndSeqCopy;
+					}
+					else
 						bError = true;
 
-					delete EndSeqCopy;
+					delete SaveStrCopy;
 				}
 				else
 					bError = true;
-
-				delete SaveStrCopy;
 			}
-			else
-				bError = true;
-		}
 
-		if ( bError )
-		{
-			fclose(EditFile);
-			_wremove(Name);
+			if ( bError )
+			{
+				fclose(EditFile);
+				_wremove(Name);
 
-			RetCode=SAVEFILE_ERROR;
-			goto end;
+				RetCode=SAVEFILE_ERROR;
+				goto end;
 
-		}
+			}
 
-		CurPtr=CurPtr->m_next;
+			CurPtr=CurPtr->m_next;
     }
+
     if (fflush(EditFile)==EOF)
     {
       fclose(EditFile);
@@ -1961,31 +1958,31 @@ end:
 
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  if (!EditKeyBar.ProcessMouse(MouseEvent))
-    if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
-      if (!m_editor->ProcessMouse(MouseEvent))
-        return(FALSE);
-  return(TRUE);
+	if (!EditKeyBar.ProcessMouse(MouseEvent))
+		if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
+			if (!m_editor->ProcessMouse(MouseEvent))
+				return(FALSE);
+	return(TRUE);
 }
 
 
 int FileEditor::GetTypeAndName(string &strType, string &strName)
 {
-  strType = UMSG(MScreensEdit);
-  strName = strFullFileName;
+	strType = UMSG(MScreensEdit);
+	strName = strFullFileName;
 
-  return(MODALTYPE_EDITOR);
+	return(MODALTYPE_EDITOR);
 }
 
 
 void FileEditor::ShowConsoleTitle()
 {
-    string strTitle;
+	string strTitle;
 
-    strTitle.Format (UMSG(MInEditor), PointToName(strFileName));
-    SetFarTitle(strTitle);
+	strTitle.Format (UMSG(MInEditor), PointToName(strFileName));
+	SetFarTitle(strTitle);
 
-    Flags.Clear(FFILEEDIT_REDRAWTITLE);
+	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
 
@@ -1994,10 +1991,10 @@ void FileEditor::ShowConsoleTitle()
  resize editor */
 void FileEditor::SetScreenPosition()
 {
-  if (Flags.Check(FFILEEDIT_FULLSCREEN))
-  {
-    SetPosition(0,0,ScrX,ScrY);
-  }
+	if (Flags.Check(FFILEEDIT_FULLSCREEN))
+	{
+		SetPosition(0,0,ScrX,ScrY);
+	}
 }
 
 /* $ 10.05.2001 DJ
@@ -2067,46 +2064,46 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 
 void FileEditor::SetPluginTitle(const wchar_t *PluginTitle)
 {
-    if ( !PluginTitle )
-        strPluginTitle = L"";
-    else
-        strPluginTitle = PluginTitle;
+	if ( !PluginTitle )
+		strPluginTitle = L"";
+	else
+		strPluginTitle = PluginTitle;
 }
 
 BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 {
-  strFileName = NewFileName;
+	strFileName = NewFileName;
 
-  if( wcscmp (strFileName,UMSG(MNewFileName)))
-  {
-    if ( wcspbrk (strFileName, ReservedFilenameSymbols) )
-        return FALSE;
+	if( wcscmp (strFileName,UMSG(MNewFileName)))
+	{
+		if ( wcspbrk (strFileName, ReservedFilenameSymbols) )
+			return FALSE;
 
-    ConvertNameToFull (strFileName, strFullFileName);
+		ConvertNameToFull (strFileName, strFullFileName);
 
-    //Дабы избежать бардака, развернём слэшики...
+		//Дабы избежать бардака, развернём слэшики...
 
-    wchar_t *lpwszChar = strFullFileName.GetBuffer ();
+		wchar_t *lpwszChar = strFullFileName.GetBuffer ();
 
-    while ( *lpwszChar )
-    {
-        if ( *lpwszChar == L'/' )
-            *lpwszChar = L'\\';
+		while ( *lpwszChar )
+		{
+			if ( *lpwszChar == L'/' )
+				*lpwszChar = L'\\';
 
-        lpwszChar++;
-    }
+			lpwszChar++;
+		}
 
-    strFullFileName.ReleaseBuffer ();
-  }
-  else
-  {
-    strFullFileName = strStartDir;
-    AddEndSlash(strFullFileName);
+		strFullFileName.ReleaseBuffer ();
+	}
+	else
+	{
+		strFullFileName = strStartDir;
+		AddEndSlash(strFullFileName);
 
-    strFullFileName += strFileName;
-  }
+		strFullFileName += strFileName;
+	}
 
-  return TRUE;
+	return TRUE;
 }
 
 void FileEditor::SetTitle(const wchar_t *Title)
@@ -2154,7 +2151,7 @@ void FileEditor::ShowStatus()
   int NameLength = Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
 
   if ( X2 > 80)
-     NameLength += (X2-80);
+		NameLength += (X2-80);
 
   if ( !strPluginTitle.IsEmpty () || !strTitle.IsEmpty ())
     TruncPathStr(strLocalTitle, (ObjWidth<NameLength?ObjWidth:NameLength));
@@ -2226,16 +2223,16 @@ void FileEditor::ShowStatus()
 */
 DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
 {
-  FileAttributes=::GetFileAttributesW(Name);
-  int ind=0;
-  if(0xFFFFFFFF!=FileAttributes)
-  {
-     if(FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
-     if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';
-     if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]='H';
-  }
-  AttrStr[ind]=0;
-  return FileAttributes;
+	FileAttributes=::GetFileAttributesW(Name);
+	int ind=0;
+	if(0xFFFFFFFF!=FileAttributes)
+	{
+		if(FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
+		if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';
+		if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]='H';
+	}
+	AttrStr[ind]=0;
+	return FileAttributes;
 }
 
 /* Return TRUE - панель обовили
@@ -2643,7 +2640,7 @@ void FileEditor::SaveToCache ()
 	else
 		strCacheName = strFullFileName;
 
-    if ( !Flags.Check(FFILEEDIT_OPENFAILED) ) //????
+	if ( !Flags.Check(FFILEEDIT_OPENFAILED) ) //????
 	{
 		TPosCache32 PosCache = {0};
 

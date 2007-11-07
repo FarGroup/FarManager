@@ -449,8 +449,6 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       strTotalStr.Format (UMSG(__FormatEndSelectedPhrase(TotalFileCount)),(const wchar_t*)strFormSize,TotalFileCount);
     else
     {
-// UNICODE!!!
-
       static wchar_t DHLine[4]={BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],0x00};
       strTotalStr.Format (L" %s (%d) %s %s ",(const wchar_t*)strFormSize,TotalFileCount,DHLine,(const wchar_t*)strFreeSize);
       if ((int)strTotalStr.GetLength()> X2-X1-1)
@@ -471,13 +469,11 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   Length=(int)strTotalStr.GetLength();
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
-// UNICODE!!!
-  const wchar_t *FirstBox=wcschr(strTotalStr,0x0CD);
+  const wchar_t *FirstBox=wcschr(strTotalStr,BoxSymbols[0xCD-0x0B0]);
   int BoxPos=(FirstBox==NULL) ? -1:(int)(FirstBox-(const wchar_t*)strTotalStr);
   int BoxLength=0;
   if (BoxPos!=-1)
-// UNICODE!!!
-    for (int I=0;strTotalStr.At(BoxPos+I)==0x0CD;I++) //BUGBUG
+    for (int I=0;strTotalStr.At(BoxPos+I)==BoxSymbols[0xCD-0x0B0];I++)
       BoxLength++;
 
   if (BoxPos==-1 || BoxLength==0)
@@ -519,7 +515,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
     int DotPos=MaxLength-Max(DotLength,3);
     if (DotPos<=NameLength)
       DotPos=NameLength+1;
-    if (DotPos>0 && NameLength>0 && SrcName[NameLength-1]==' ')
+    if (DotPos>0 && NameLength>0 && SrcName[NameLength-1]==L' ')
       lpwszDest[NameLength]=L'.';
     wmemcpy(lpwszDest,SrcName,NameLength);
     wmemcpy(lpwszDest+DotPos,DotPtr+1,DotLength);
