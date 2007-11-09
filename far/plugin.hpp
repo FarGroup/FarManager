@@ -1135,7 +1135,7 @@ struct ActlKeyMacro{
       const wchar_t *ErrMsg3;
     } MacroResult;
 #endif // END FAR_USE_INTERNALS
-    DWORD Reserved[3];
+    DWORD_PTR Reserved[3];
   } Param;
 };
 
