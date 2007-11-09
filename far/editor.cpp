@@ -130,7 +130,7 @@ Editor::~Editor()
   _KEYMACRO(SysLog(L"Editor::~Editor()"));
 }
 
-void Editor::FreeAllocatedData()
+void Editor::FreeAllocatedData(bool FreeUndo)
 {
   while (EndList!=NULL)
   {
@@ -145,8 +145,15 @@ void Editor::FreeAllocatedData()
       if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
         delete UndoData[I].Str;
 
-    xf_free(UndoData);
-    UndoData=NULL;
+    if(FreeUndo)
+    {
+      xf_free(UndoData);
+      UndoData=NULL;
+    }
+    else
+    {
+      memset(UndoData,0,EdOpt.UndoSize*sizeof(EditorUndoData));
+    }
   }
 
   TopList=EndList=CurLine=NULL;

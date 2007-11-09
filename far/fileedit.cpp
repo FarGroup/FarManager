@@ -1502,7 +1502,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 
-	m_editor->FreeAllocatedData ();
+	m_editor->FreeAllocatedData (false);
 
 	bool bCached = LoadFromCache (&cp);
 

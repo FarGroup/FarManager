@@ -290,7 +290,7 @@ class Editor:public ScreenObject
     void Xlat();
     static void PR_EditorShowMsg(void);
 
-    void FreeAllocatedData();
+    void FreeAllocatedData(bool FreeUndo=true);
 
     Edit *CreateString (const wchar_t *lpwszStr, int nLength);
     Edit *InsertString (const wchar_t *lpwszStr, int nLength, Edit *pAfter = NULL);
