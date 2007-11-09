@@ -39,25 +39,6 @@ struct DlgParam{
   int Mode;
 };
 
-struct TMacroKeywords MKeywordsArea[] ={
-  {0,  "Other",              MACRO_OTHER,0},
-  {0,  "Shell",              MACRO_SHELL,0},
-  {0,  "Viewer",             MACRO_VIEWER,0},
-  {0,  "Editor",             MACRO_EDITOR,0},
-  {0,  "Dialog",             MACRO_DIALOG,0},
-  {0,  "Search",             MACRO_SEARCH,0},
-  {0,  "Disks",              MACRO_DISKS,0},
-  {0,  "MainMenu",           MACRO_MAINMENU,0},
-  {0,  "Menu",               MACRO_MENU,0},
-  {0,  "Help",               MACRO_HELP,0},
-  {0,  "Info",               MACRO_INFOPANEL,0},
-  {0,  "QView",              MACRO_QVIEWPANEL,0},
-  {0,  "Tree",               MACRO_TREEPANEL,0},
-  {0,  "FindFolder",         MACRO_FINDFOLDER,0},
-  {0,  "UserMenu",           MACRO_USERMENU,0},
-  {0,  "Common",             MACRO_COMMON,0},
-};
-
 struct TMacroKeywords MKeywords[] ={
   {0,  "Other",              MCODE_C_AREA_OTHER,0},
   {0,  "Shell",              MCODE_C_AREA_SHELL,0},
@@ -172,9 +153,29 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Viewer.State",       MCODE_V_VIEWERSTATE,0},
 
   {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
-},
+};
 
-MKeywordsFlags[] ={
+
+struct TMacroKeywords MKeywordsArea[] ={
+  {0,  "Other",              MACRO_OTHER,0},
+  {0,  "Shell",              MACRO_SHELL,0},
+  {0,  "Viewer",             MACRO_VIEWER,0},
+  {0,  "Editor",             MACRO_EDITOR,0},
+  {0,  "Dialog",             MACRO_DIALOG,0},
+  {0,  "Search",             MACRO_SEARCH,0},
+  {0,  "Disks",              MACRO_DISKS,0},
+  {0,  "MainMenu",           MACRO_MAINMENU,0},
+  {0,  "Menu",               MACRO_MENU,0},
+  {0,  "Help",               MACRO_HELP,0},
+  {0,  "Info",               MACRO_INFOPANEL,0},
+  {0,  "QView",              MACRO_QVIEWPANEL,0},
+  {0,  "Tree",               MACRO_TREEPANEL,0},
+  {0,  "FindFolder",         MACRO_FINDFOLDER,0},
+  {0,  "UserMenu",           MACRO_USERMENU,0},
+  {0,  "Common",             MACRO_COMMON,0},
+};
+
+struct TMacroKeywords MKeywordsFlags[] ={
   // ФЛАГИ
   {1,  "DisableOutput",      MFLAGS_DISABLEOUTPUT,0},
   {1,  "RunAfterFARStart",   MFLAGS_RUNAFTERFARSTART,0},
@@ -201,7 +202,9 @@ MKeywordsFlags[] ={
   {1,  "NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
+int MKeywordsFlagsSize = sizeof(MKeywordsFlags)/sizeof(*MKeywordsFlags);
 int MKeywordsSize = sizeof(MKeywords)/sizeof(*MKeywords);
+
 
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName{
@@ -231,18 +234,6 @@ TVarTable glbVarTable;
 static TVar __varTextDate;
 TVMStack VMStack;
 
-#ifdef _DEBUG
-#ifdef SYSLOG_KEYMACRO
-static void printKeyValue(DWORD* k, int& i);
-#endif
-#endif
-
-static char __code2symbol(BYTE b1, BYTE b2);
-static const char* ParsePlainText(char *CurKeyText, const char *BufPtr);
-static const char *__GetNextWord(const char *BufPtr,char *CurKeyText);
-static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const char *BufPtr);
-
-
 // функция преобразования кода макроклавиши в текст
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 {
@@ -271,6 +262,18 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 
   return TRUE;
 }
+
+// функция преобразования названия в код макроклавиши
+// вернет -1, если нет эквивалента!
+int WINAPI KeyNameMacroToKey(const char *Name)
+{
+  // пройдемся по всем модификаторам
+  for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
+    if(!memicmp(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
+      return KeyMacroCodes[I].Key;
+  return -1;
+}
+
 
 KeyMacro::KeyMacro()
 {
@@ -401,16 +404,6 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   return Ret;
 }
 
-// функция преобразования названия в код макроклавиши
-// вернет -1, если нет эквивалента!
-int WINAPI KeyNameMacroToKey(const char *Name)
-{
-  // пройдемся по всем модификаторам
-  for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
-    if(!memicmp(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
-      return KeyMacroCodes[I].Key;
-  return -1;
-}
 
 int KeyMacro::ProcessKey(int Key)
 {
@@ -1420,7 +1413,7 @@ static bool evalFunc()
     CtrlObject->Macro.PopState();
     Ret=false;
   }
-  VMStack.Push((__int64)_macro_ErrCode);
+  VMStack.Push((__int64)__getMacroErrorCode());
 
   return Ret;
 }
@@ -2296,13 +2289,15 @@ const char *eStackAsString(int Pos)
 
 int KeyMacro::GetKey()
 {
-  //_KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
   //_KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   struct MacroRecord *MR;
   TVar tmpVar;
-  int RetKey=0;
+
   if (InternalInput || !FrameManager->GetCurrentFrame())
-    return(FALSE);
+    return 0;
+
+  int RetKey=0;  // функция должна вернуть 0 - сигнал о том, что макропоследовательности нет
 
   if(Work.Executing == MACROMODE_NOMACRO)
   {
@@ -2352,7 +2347,7 @@ int KeyMacro::GetKey()
 
 initial:
   if((MR=Work.MacroWORK) == NULL || !MR->Buffer)
-    return FALSE;
+    return 0;
 
   _KEYMACRO(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
@@ -2361,6 +2356,7 @@ initial:
     LockScr=new LockScreen;
 
 begin:
+  _KEYMACRO(SysLog("begin: (CurPCStack=%d), Work.ExecLIBPos=%d MR->BufferSize=%d",CurPCStack,Work.ExecLIBPos,MR->BufferSize));
   if (Work.ExecLIBPos>=MR->BufferSize || MR->Buffer==NULL)
   {
 done:
@@ -2385,7 +2381,7 @@ done:
       CtrlObject->Plugins.CurEditor->Show();
     }
     /* skv$*/
-    if(CurPCStack < 0)
+    if(CurPCStack < 0 && (Work.MacroWORKCount-1) <= 0)  // mantis#351
     {
       if(LockScr) delete LockScr;
       LockScr=NULL;
@@ -2402,13 +2398,13 @@ done:
     if(TitleModified) SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-    _KEYMACRO(SysLog(-1); SysLog("**** End Of Execute Macro ****"));
+    _KEYMACRO(SysLog(-1); SysLog("**** End Of Execute Macro **** (CurPCStack=%d)",CurPCStack));
     if(CurPCStack >= 0)
     {
       PopState();
       goto initial;
     }
-    return RetKey;
+    return KEY_NONE; // Здесь ВСЕГДА!
   }
 
   if(Work.ExecLIBPos==0)
@@ -2562,14 +2558,12 @@ done:
     }
 
     /* $MMode 1
-       0: MCODE_OP_MACROMODE
-       1: '1'
+       0: MCODE_OP_MACROMODE   - в стеке ожидается число
     */
     case MCODE_OP_MACROMODE:          // $MMode 1
       if (Work.ExecLIBPos<MR->BufferSize)
       {
-        Key=GetOpCode(MR,Work.ExecLIBPos++);
-        if(Key == '1') // Изменяет режим отображения ("DisableOutput").
+        if(VMStack.Pop().toInteger() == _i64(1)) // Изменяет режим отображения ("DisableOutput").
         {
           DWORD Flags=MR->Flags;
           if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
@@ -3951,7 +3945,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 {
   if ( CurMacro )
-    return parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
+    return __parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
   return FALSE;
 }
 
@@ -4377,847 +4371,7 @@ void doneMacroVarTable(int global)
 }
 
 
-
-/* ********************************************************************************* */
-// ПАРСЕР
-/* ********************************************************************************* */
-
-// Парсер строковых эквивалентов в коды клавиш
-//- AN ----------------------------------------------
-//  Парсер строковых эквивалентов в байткод
-//  Переписан практически с нуля 15.11.2003
-//- AN ----------------------------------------------
-
-#ifdef _DEBUG
-#ifdef SYSLOG_KEYMACRO
-static char *printfStr(DWORD* k, int& i)
+BOOL KeyMacro::GetMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3)
 {
-  i++;
-  char *s = (char*)&k[i];
-  while ( strlen((char*)&k[i]) > 3 )
-    i++;
-  return s;
-}
-
-static void printKeyValue(DWORD* k, int& i)
-{
-  DWORD Code=k[i];
-  const char *_mcodename=_MCODE_ToName(Code);
-  const char *cmt="";
-
-  static struct {
-    DWORD c;
-    const char *n;
-  } kmf[]={
-    {MCODE_F_ABS,              "N=abs(N)"},
-    {MCODE_F_ASC,              "N=asc(S)"},
-    {MCODE_F_CHR,              "S=chr(N)"},
-    {MCODE_F_AKEY,             "S=akey()"},
-    {MCODE_F_CLIP,             "V=clip(N,S)"},
-    {MCODE_F_DATE,             "S=date(S)"},
-    {MCODE_F_DLG_GETVALUE,     "V=Dlg.GetValue(ID,N)"},
-    {MCODE_F_EDITOR_SET,       "N=Editor.Set(N,Var)"},
-    {MCODE_F_ENVIRON,          "S=env(S)"},
-    {MCODE_F_FATTR,            "N=fattr(S)"},
-    {MCODE_F_FEXIST,           "S=fexist(S)"},
-    {MCODE_F_FLOCK,            "N=FLock(N,N)"},
-    {MCODE_F_FSPLIT,           "S=fsplit(S,N)"},
-    {MCODE_F_IIF,              "V=iif(Condition,V1,V2)"},
-    {MCODE_F_INDEX,            "S=index(S1,S2)"},
-    {MCODE_F_INT,              "N=int(V)"},
-    {MCODE_F_ITOA,             "S=itoa(N,radix)"},
-    {MCODE_F_LCASE,            "S=lcase(S1)"},
-    {MCODE_F_LEN,              "N=len(S)"},
-    {MCODE_F_MAX,              "N=max(N1,N2)"},
-    {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S)"},
-    {MCODE_F_MENU_GETHOTKEY,   "S=gethotkey()"},
-    {MCODE_F_MIN,              "N=min(N1,N2)"},
-    {MCODE_F_MSAVE,            "N=msave(S)"},
-    {MCODE_F_MSGBOX,           "N=msgbox(sTitle,sText,flags)"},
-    {MCODE_F_PANEL_FATTR,      "N=panel.fattr(panelType,S)"},
-    {MCODE_F_PANEL_FEXIST,     "S=panel.fexist(panelType,S)"},
-    {MCODE_F_PANEL_SETPOS,     "N=panel.SetPos(panelType,fileName)"},
-    {MCODE_F_PANEL_SETPOSIDX,  "N=panel.SetPosIdx(panelType,Index)"},
-    {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
-    {MCODE_F_EVAL,             "N=eval(S)"},
-    {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},
-    {MCODE_F_SLEEP,            "N=Sleep(N)"},
-    {MCODE_F_STRING,           "S=string(V)"},
-    {MCODE_F_SUBSTR,           "S=substr(S1,S2,N)"},
-    {MCODE_F_UCASE,            "S=ucase(S1)"},
-    {MCODE_F_WAITKEY,          "S=waitkey(N)"},
-    {MCODE_F_XLAT,             "S=xlat(S)"},
- };
-
-  if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
-  {
-    for(int J=0; J <= sizeof(kmf)/sizeof(kmf[0]); ++J)
-      if(kmf[J].c == Code)
-      {
-         cmt=kmf[J].n;
-         break;
-      }
-  }
-
-  if(Code == MCODE_OP_KEYS)
-  {
-    char tmp[128];
-    SysLog("%08X: %08X | MCODE_OP_KEYS", i,MCODE_OP_KEYS);
-    ++i;
-    while((Code=k[i]) != MCODE_OP_ENDKEYS)
-    {
-      if ( KeyToText(Code, tmp, sizeof(tmp)) )
-        SysLog("%08X: %08X | Key: '%s'", i,Code,tmp);
-      else
-        SysLog("%08X: %08X | ???", i,Code);
-      ++i;
-    }
-    SysLog("%08X: %08X | MCODE_OP_ENDKEYS", i,MCODE_OP_ENDKEYS);
-    return;
-  }
-
-  if(Code >= KEY_MACRO_BASE && Code <= KEY_MACRO_ENDBASE)
-  {
-    SysLog("%08X: %s  %s%s", i,_mcodename,(*cmt?"# ":""),(*cmt?cmt:""));
-    //++i;
-   // return;
-  }
-
-
-  int ii = i;
-
-  if ( !Code )
-  {
-    SysLog("%08X: %08X | <null>", ii,k[i]);
-  }
-  else if ( Code == MCODE_OP_REP )
-  {
-    FARINT64 i64;
-    i64.Part.HighPart=k[i+1];
-    i64.Part.LowPart=k[i+2];
-    SysLog("%08X: %08X |   %I64d", ii,k[i+1],i64.i64);
-    SysLog("%08X: %08X |", ii,k[i+2]);
-    i+=2;
-  }
-  else if ( Code == MCODE_OP_PUSHINT )
-  {
-    FARINT64 i64;
-    ++i;
-    i64.Part.HighPart=k[i];
-    i64.Part.LowPart=k[i+1];
-    SysLog("%08X: %08X |   %I64d", ++ii,k[i],i64.i64);
-    ++i;
-    SysLog("%08X: %08X |", ++ii,k[i]);
-  }
-  else if ( Code == MCODE_OP_PUSHSTR || Code == MCODE_OP_PUSHVAR || Code == MCODE_OP_SAVE)
-  {
-    int iii=i+1;
-    const char *s=printfStr(k, i);
-    if(Code == MCODE_OP_PUSHSTR)
-      SysLog("%08X: %08X |   \"%s\"", iii,k[iii], s);
-    else
-      SysLog("%08X: %08X |   %%%s", iii,k[iii], s);
-    for(iii++; iii <= i; ++iii)
-      SysLog("%08X: %08X |", iii,k[iii]);
-  }
-  else if ( Code >= MCODE_OP_JMP && Code <= MCODE_OP_JGE)
-  {
-    ++i;
-    SysLog("%08X: %08X |   %08X (%s)", i,k[i],k[i],(k[i]<i?"up":"down"));
-  }
-/*
-  else if ( Code == MCODE_OP_DATE )
-  {
-    //sprint(k[i],ii, "$date ''");
-  }
-  else if ( Code == MCODE_OP_PLAINTEXT )
-  {
-    //sprint(k[i],ii, "$text ''");
-  }
-*/
-
-  else if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
-  {
-    int FARFunc = 0;
-    for ( int j = 0 ; j < MKeywordsSize ; j++ )
-    {
-      if ( Code == MKeywords[j].Value)
-      {
-        FARFunc = 1;
-        SysLog("%08X: %08X | %s", ii,Code,MKeywords[j].Name);
-        break;
-      }
-      else if ( Code == MKeywordsFlags[j].Value)
-      {
-        FARFunc = 1;
-        SysLog("%08X: %08X | %s", ii,Code,MKeywordsFlags[j].Name);
-        break;
-      }
-    }
-    if ( !FARFunc )
-    {
-      char tmp[128];
-      if ( KeyMacroToText(Code, tmp, sizeof(tmp)) )
-        SysLog("%08X: %08X | Key: '%s'", ii,Code,tmp);
-      //else if(*cmt)
-      //  SysLog("%08X: %s  %s%s", ii,_mcodename,(*cmt?"# ":""),(*cmt?cmt:""));
-      else if(!*cmt)
-        SysLog("%08X: %08X | ???", ii,Code);
-    }
-  }
-}
-
-#endif
-#endif
-
-
-// Стек структурных операторов
-enum TExecMode
-{
-  emmMain, emmWhile, emmThen, emmElse, emmRep
-};
-
-struct TExecItem
-{
-  TExecMode state;
-  DWORD pos1, pos2;
-};
-
-class TExec
-{
-  private:
-    TExecItem stack[MAXEXEXSTACK];
-  public:
-    int current;
-    void init()
-    {
-      current = 0;
-      stack[current].state = emmMain;
-      stack[current].pos1 = stack[current].pos2 = 0;
-    }
-    TExec() { init(); }
-    TExecItem& operator()() { return stack[current]; }
-    int add(TExecMode, DWORD, DWORD = 0);
-    int del();
-};
-
-int TExec::add(TExecMode s, DWORD p1, DWORD p2)
-{
-  if ( ++current < MAXEXEXSTACK )
-  {
-    stack[current].state = s;
-    stack[current].pos1 = p1;
-    stack[current].pos2 = p2;
-    return TRUE;
-  }
-  // Stack Overflow
-  return FALSE;
-};
-
-int TExec::del()
-{
-  if ( --current < 0 )
-  {
-    // Stack Underflow ???
-    current = 0;
-    return FALSE;
-  }
-  return TRUE;
-};
-
-#if 0
-#define DeltaByteCodeBuff 8
-class ByteCodeBuff{
-  private:
-    DWROD *Buff;
-    int    Count;
-    int    Idx;
-
-  private:
-    int add(const DWORD *Code, int Size);
-
-  public:
-    ByteCodeBuff() {Buff=NULL;Count=0,Idx=0};
-    ~ByteCodeBuff() {if(Buff) xf_free(Buff);};
-
-  public:
-    DWORD& operator()(int I) {return Buff[Idx+I];};
-    DWORD& operator[](int I) {return Buff[I];};
-
-    ByteCodeBuff& operator+=(DWORD Code) {_add(&Code,1);return *this;};
-    ByteCodeBuff& add(DWORD Code)  {_add(&Code,1);return *this;};
-    ByteCodeBuff& add(const DWORD *Code, int Size) {_add(Code,Size);return *this;};
-};
-
-int ByteCodeBuff::add(const DWORD *Code, int Size)
-{
-  if (Idx+Size >= Count)
-  {
-    Count+=((Size+7)/8)*8;
-    DWORD *CurPtr;
-    if ((CurPtr=(DWORD *)xf_realloc(Buff,Count*sizeof(DWORD)))==NULL)
-      return 0;
-    Buff=CurPtr;
-  }
-  memcpy(Buff+Idx, Code, Size*sizeof(DWORD));
-  Idx+=Size;
-  return 1;
-}
-#endif
-
-
-//- AN ----------------------------------------------
-//  Компиляция строки BufPtr в байткод CurMacroBuffer
-//- AN ----------------------------------------------
-static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const char *BufPtr)
-{
-  _KEYMACRO(CleverSysLog Clev("parseMacroString"));
-  _KEYMACRO(SysLog("Param: BufPtr[%p]='%s'", BufPtr,BufPtr));
-
-  _macro_nErr = 0;
-  if ( BufPtr == NULL || !*BufPtr)
-  {
-    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: BufPtr == NULL || !*BufPtr", __LINE__));
-    return FALSE;
-  }
-
-  int SizeCurKeyText = (int)strlen(BufPtr)*2;
-  char *CurrKeyText = (char*)xf_malloc(SizeCurKeyText);
-  if ( CurrKeyText == NULL )
-  {
-    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: xf_malloc == NULL (for CurrKeyText)", __LINE__));
-    return FALSE;
-  }
-  //- AN ----------------------------------------------
-  //  Буфер под парсинг выражений
-  //- AN ----------------------------------------------
-  DWORD *exprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
-  if ( exprBuff == NULL )
-  {
-    xf_free(CurrKeyText);
-    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: xf_malloc == NULL (for exprBuff)", __LINE__));
-    return FALSE;
-  }
-
-  TExec exec;
-  char varName[256];
-  DWORD KeyCode, *CurMacro_Buffer = NULL;
-
-  _KEYMACRO_PARSE(SysLog("<Parse>{"));
-  _KEYMACRO_PARSE(int __ItNum=0);
-  for (;;)
-  {
-    _KEYMACRO_PARSE(++__ItNum);
-    //_KEYMACRO_PARSE(SysLog("iteration=%d", __ItNum));
-
-    int Size = 1;
-    int SizeVarName = 0;
-    const char *oldBufPtr = BufPtr;
-
-    if ( ( BufPtr = __GetNextWord(BufPtr, CurrKeyText) ) == NULL )
-       break;
-
-    _KEYMACRO_PARSE(SysLog("(%d) CurrKeyText='%s'", __ItNum,CurrKeyText));
-
-    //- AN ----------------------------------------------
-    //  Проверка на строковый литерал
-    //  Сделаем $Text опциональным
-    //- AN ----------------------------------------------
-    if ( *CurrKeyText == '\"' && CurrKeyText[1] )
-    {
-      KeyCode = MCODE_OP_PLAINTEXT;
-      BufPtr = oldBufPtr;
-      _KEYMACRO_PARSE(SysLog("(%d) KeyCode = MCODE_OP_PLAINTEXT", __ItNum));
-    }
-    else if ( ( KeyCode = KeyNameToKey(CurrKeyText) ) == (DWORD)-1 )
-    {
-      _KEYMACRO_PARSE(CleverSysLog Clev("KeyNameToKey() == -1"));
-      int ProcError=0;
-
-      if ( *CurrKeyText == '%' && ( ( isalnum(CurrKeyText[1]) || CurrKeyText[1] == '_' ) || ( CurrKeyText[1] == '%' && ( isalnum(CurrKeyText[2]) || CurrKeyText[2]=='_' ) ) ) )
-      {
-        _KEYMACRO_PARSE(CleverSysLog Clev("Detect Vars"));
-
-        BufPtr = oldBufPtr;
-        while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)))
-          BufPtr++;
-        memset(varName, 0, sizeof(varName));
-        KeyCode = MCODE_OP_SAVE;
-        char* p = varName;
-        char* s = CurrKeyText+1;
-        if ( *s == '%' )
-          *p++ = *s++;
-        char ch;
-        *p++ = *s++;
-        while ( ( isalnum(ch = *s++) || ( ch == '_') ) )
-          *p++ = ch;
-        *p = 0;
-        int Length = (int)strlen(varName)+1;
-        // строка должна быть выровнена на 4
-        SizeVarName = Length/sizeof(DWORD);
-        if ( Length == 1 || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
-          SizeVarName++;
-        _KEYMACRO_PARSE(SysLog("(%d) KeyCode = MCODE_OP_SAVE, varName='%s', SizeVarName=%d", __ItNum,varName,SizeVarName));
-        BufPtr += Length;
-        Size += parseExpr(BufPtr, exprBuff, '=', ';');
-        if(_macro_nErr)
-        {
-          ProcError++;
-        }
-      }
-      else
-      {
-        _KEYMACRO_PARSE(CleverSysLog Clev("not Vars"));
-        // проверим вариант, когда вызвали функцию, но результат не присвоили,
-        // например, вызвали MsgBox(), но результат неважен
-        // тогда SizeVarName=1 и varName=""
-        int __nParam;
-
-        char *Brack=strpbrk(CurrKeyText,"( "), Chr=0;
-        if(Brack)
-        {
-          Chr=*Brack;
-          *Brack=0;
-        }
-
-        if(funcLook(CurrKeyText, __nParam) != MCODE_F_NOFUNC)
-        {
-          _KEYMACRO_PARSE(CleverSysLog Clev("Detect Func"));
-          if(Brack) *Brack=Chr;
-          BufPtr = oldBufPtr;
-          while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
-            BufPtr++;
-          Size += parseExpr(BufPtr, exprBuff, 0, 0);
-          //Size--; //???
-          if(_macro_nErr)
-          {
-            ProcError++;
-          }
-          else
-          {
-            KeyCode=MCODE_OP_SAVE;
-            SizeVarName=1;
-            memset(varName, 0, sizeof(varName));
-          }
-        }
-        else
-        {
-          if(Brack) *Brack=Chr;
-          ProcError++;
-        }
-      }
-
-      if(ProcError)
-      {
-        if(!_macro_nErr)
-          keyMacroParseError(err_Unrecognized_keyword, CurrKeyText, CurrKeyText,CurrKeyText);
-
-        if ( CurMacro_Buffer != NULL )
-        {
-          xf_free(CurMacro_Buffer);
-          CurMacroBuffer = NULL;
-        }
-        CurMacroBufferSize = 0;
-        xf_free(CurrKeyText);
-        xf_free(exprBuff);
-        return FALSE;
-      }
-
-    }
-    else if(!(CurrKeyText[0] == '$' && CurrKeyText[1]))
-    {
-      Size=3;
-      KeyCode=MCODE_OP_KEYS;
-    }
-
-    switch ( KeyCode )
-    {
-      case MCODE_OP_DATE:
-        while ( *BufPtr && IsSpace(*BufPtr) )
-          BufPtr++;
-        if ( *BufPtr == '\"' && BufPtr[1] )
-          Size += parseExpr(BufPtr, exprBuff, 0, 0);
-        else // Опциональность аргумента
-        {
-          Size += 2;
-          exprBuff[0] = MCODE_OP_PUSHSTR;
-          exprBuff[1] = 0;
-        }
-        break;
-      case MCODE_OP_PLAINTEXT:
-        Size += parseExpr(BufPtr, exprBuff, 0, 0);
-        break;
-
-// $Rep (expr) ... $End
-// -------------------------------------
-//            <expr>
-//            MCODE_OP_SAVEREPCOUNT       1
-// +--------> MCODE_OP_REP                    p1=*
-// |          <counter>                   3
-// |          <counter>                   4
-// |          MCODE_OP_JZ  ------------+  5   p2=*+2
-// |          ...                      |
-// +--------- MCODE_OP_JMP             |
-//            MCODE_OP_END <-----------+
-
-      case MCODE_OP_REP:
-        Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4) ) //??? 3
-        {
-          if ( CurMacro_Buffer != NULL )
-          {
-            xf_free(CurMacro_Buffer);
-            CurMacroBuffer = NULL;
-          }
-          CurMacroBufferSize = 0;
-          xf_free(CurrKeyText);
-          xf_free(exprBuff);
-          return FALSE;
-        }
-        Size += 5;  // естественно, размер будет больше = 4
-        break;
-
-// $If (expr) ... $End
-// -------------------------------------
-//            <expr>
-//            MCODE_OP_JZ  ------------+      p1=*+0
-//            ...                      |
-// +--------- MCODE_OP_JMP             |
-// |          ...          <-----------+
-// +--------> MCODE_OP_END
-
-// или
-
-//            <expr>
-//            MCODE_OP_JZ  ------------+      p1=*+0
-//            ...                      |
-//            MCODE_OP_END <-----------+
-
-      case MCODE_OP_IF:
-        Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmThen, CurMacroBufferSize+Size) )
-        {
-          if ( CurMacro_Buffer != NULL )
-          {
-            xf_free(CurMacro_Buffer);
-            CurMacroBuffer = NULL;
-          }
-          CurMacroBufferSize = 0;
-          xf_free(CurrKeyText);
-          xf_free(exprBuff);
-          return FALSE;
-        }
-        Size++;
-        break;
-
-      case MCODE_OP_ELSE:
-        Size++;
-        break;
-
-// $While (expr) ... $End
-// -------------------------------------
-// +--------> <expr>
-// |          MCODE_OP_JZ  ------------+
-// |          ...                      |
-// +--------- MCODE_OP_JMP             |
-//            MCODE_OP_END <-----------+
-
-      case MCODE_OP_WHILE:
-        Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size) )
-        {
-          if ( CurMacro_Buffer != NULL )
-          {
-            xf_free(CurMacro_Buffer);
-            CurMacroBuffer = NULL;
-          }
-          CurMacroBufferSize = 0;
-          xf_free(CurrKeyText);
-          xf_free(exprBuff);
-          return FALSE;
-        }
-        Size++;
-        break;
-      case MCODE_OP_END:
-        switch ( exec().state )
-        {
-          case emmRep:
-          case emmWhile:
-            Size += 2; // Место под дополнительный JMP
-            break;
-        }
-        break;
-    }
-    if(_macro_nErr)
-    {
-      if ( CurMacro_Buffer != NULL )
-      {
-        xf_free(CurMacro_Buffer);
-        CurMacroBuffer = NULL;
-      }
-      CurMacroBufferSize = 0;
-      xf_free(CurrKeyText);
-      xf_free(exprBuff);
-      return FALSE;
-    }
-
-    if ( BufPtr == NULL ) // ???
-      break;
-    // код найден, добавим этот код в буфер последовательности.
-    CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+Size+SizeVarName));
-    if ( CurMacro_Buffer == NULL )
-    {
-      CurMacroBuffer = NULL;
-      CurMacroBufferSize = 0;
-      xf_free(CurrKeyText);
-      xf_free(exprBuff);
-      return FALSE;
-    }
-    switch ( KeyCode )
-    {
-      case MCODE_OP_DATE:
-      case MCODE_OP_PLAINTEXT:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-        break;
-      case MCODE_OP_SAVE:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-        memcpy(CurMacro_Buffer+CurMacroBufferSize+Size, varName, SizeVarName*sizeof(DWORD));
-        break;
-      case MCODE_OP_IF:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
-        break;
-      case MCODE_OP_REP:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT;
-        CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;
-        CurMacro_Buffer[CurMacroBufferSize+Size-4] = 0; // Initilize 0
-        CurMacro_Buffer[CurMacroBufferSize+Size-3] = 0;
-        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
-        break;
-      case MCODE_OP_WHILE:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
-        break;
-      case MCODE_OP_ELSE:
-        if ( exec().state == emmThen )
-        {
-          exec().state = emmElse;
-          CurMacro_Buffer[exec().pos1] = CurMacroBufferSize+2;
-          exec().pos1 = CurMacroBufferSize;
-          CurMacro_Buffer[CurMacroBufferSize] = 0;
-        }
-        else // тут $else и не предвиделось :-/
-        {
-          keyMacroParseError(err_Not_expected_ELSE, oldBufPtr+1, oldBufPtr); // CurrKeyText
-          if ( CurMacro_Buffer != NULL )
-          {
-            xf_free(CurMacro_Buffer);
-            CurMacroBuffer = NULL;
-          }
-          CurMacroBufferSize = 0;
-          xf_free(CurrKeyText);
-          xf_free(exprBuff);
-          return FALSE;
-        }
-        break;
-      case MCODE_OP_END:
-        switch ( exec().state )
-        {
-          case emmMain:
-            // тут $end и не предвиделось :-/
-            keyMacroParseError(err_Not_expected_END, oldBufPtr+1, oldBufPtr); // CurrKeyText
-            if ( CurMacro_Buffer != NULL )
-            {
-              xf_free(CurMacro_Buffer);
-              CurMacroBuffer = NULL;
-            }
-            CurMacroBufferSize = 0;
-            xf_free(CurrKeyText);
-            xf_free(exprBuff);
-            return FALSE;
-          case emmThen:
-            CurMacro_Buffer[exec().pos1-1] = MCODE_OP_JZ;
-            CurMacro_Buffer[exec().pos1+0] = CurMacroBufferSize+Size-1;
-            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-            break;
-          case emmElse:
-            CurMacro_Buffer[exec().pos1-0] = MCODE_OP_JMP; //??
-            CurMacro_Buffer[exec().pos1+1] = CurMacroBufferSize+Size-1; //??
-            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-            break;
-          case emmRep:
-            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;   //??????
-            CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
-            CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
-            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-            break;
-          case emmWhile:
-            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
-            CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
-            CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
-            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-            break;
-        }
-
-        if ( !exec.del() )  // Вообще-то этого быть не должно,  но подстрахуемся
-        {
-          if ( CurMacro_Buffer != NULL )
-          {
-            xf_free(CurMacro_Buffer);
-            CurMacroBuffer = NULL;
-          }
-          CurMacroBufferSize = 0;
-          xf_free(CurrKeyText);
-          xf_free(exprBuff);
-          return FALSE;
-        }
-        break;
-
-      case MCODE_OP_KEYS:
-      {
-        CurMacro_Buffer[CurMacroBufferSize+Size-3]=MCODE_OP_KEYS;
-        CurMacro_Buffer[CurMacroBufferSize+Size-2]=KeyNameToKey(CurrKeyText);
-        CurMacro_Buffer[CurMacroBufferSize+Size-1]=MCODE_OP_ENDKEYS;
-        break;
-      }
-
-      default:
-        _KEYMACRO_PARSE(SysLog("(%d) default: KeyCode = %08X", __ItNum,KeyCode));
-        CurMacro_Buffer[CurMacroBufferSize]=KeyCode;
-
-
-    } // end switch(KeyCode)
-
-    CurMacroBufferSize += Size+SizeVarName;
-    _KEYMACRO_PARSE(SysLog("CurMacroBufferSize=%d",CurMacroBufferSize));
-  } // END for (;;)
-  _KEYMACRO_PARSE(SysLog("}</Parse>"));
-
-#ifdef _DEBUG
-#ifdef SYSLOG_KEYMACRO
-  SysLogDump("Macro Buffer",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
-  SysLog("<ByteCode>{");
-  if ( CurMacro_Buffer )
-  {
-    int ii;
-    for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
-      printKeyValue(CurMacro_Buffer, ii);
-  }
-  else
-    SysLog("??? is NULL");
-  SysLog("}</ByteCode>");
-#endif
-#endif
-  if ( CurMacroBufferSize > 1 )
-    CurMacroBuffer = CurMacro_Buffer;
-  else if ( CurMacro_Buffer )
-  {
-    CurMacroBuffer = reinterpret_cast<DWORD*>((DWORD_PTR)(*CurMacro_Buffer));
-    xf_free(CurMacro_Buffer);
-  }
-  xf_free(exprBuff);
-  if ( exec().state != emmMain )
-  {
-    keyMacroParseError(err_Unexpected_EOS, CurrKeyText, CurrKeyText);
-    return FALSE;
-  }
-  xf_free(CurrKeyText);
-  if ( _macro_nErr )
-    return FALSE;
-  return TRUE;
-}
-
-#if 0
-static char __code2symbol(BYTE b1, BYTE b2)
-{
-  if(b1 >= '0' && b1 <= '9') b1-='0';
-  else { b1&=~0x20; b1=b1-'A'+10; }
-  if(b2 >= '0' && b2 <= '9') b2-='0';
-  else { b2&=~0x20; b2=b2-'A'+10; }
-  return ((b1<<4)&0x00F0)|(b2&0x000F);
-}
-
-static const char* ParsePlainText(char *CurKeyText, const char *BufPtr)
-{
-  char *PtrCurKeyText=CurKeyText;
-  ++BufPtr;
-  while (*BufPtr)
-  {
-    if(*BufPtr == '\\')
-    {
-      switch(BufPtr[1])
-      {
-        case '\\':
-          *PtrCurKeyText++='\\';
-          break;
-        case '"':
-          *PtrCurKeyText++='"';
-          break;
-        case 'n':
-          *PtrCurKeyText++='\n';
-          break;
-        case 't':
-          *PtrCurKeyText++='\t';
-          break;
-        case 'x':
-          BufPtr+=2;
-          if(isxdigit(BufPtr[0]) && isxdigit(BufPtr[1]))
-            *PtrCurKeyText++=__code2symbol((BYTE)BufPtr[0],(BYTE)BufPtr[1]);
-          break;
-        default:
-          *PtrCurKeyText++=BufPtr[1];
-          break;
-      }
-      BufPtr+=2;
-    }
-    else if(*BufPtr == '"')
-    {
-      *PtrCurKeyText=0;
-      BufPtr++;
-      break;
-    }
-    else
-      *PtrCurKeyText++=*BufPtr++;
-  }
-  if(*BufPtr)
-    BufPtr++;
-  return BufPtr;
-}
-#endif
-
-static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
-{
-   // пропускаем ведущие пробельные символы
-   while (IsSpace(*BufPtr) || IsEol(*BufPtr))
-   {
-     //if(IsEol(*BufPtr))
-     //{
-       // TODO!!!
-     //}
-     BufPtr++;
-   }
-
-   if (*BufPtr==0)
-     return NULL;
-
-   const char *CurBufPtr=BufPtr;
-   char Chr=*BufPtr, Chr2=BufPtr[1];
-   BOOL SpecMacro=Chr=='$' && Chr2 && !(IsSpace(Chr2) || IsEol(Chr2));
-
-   // ищем конец очередного названия клавиши
-   while (Chr && !(IsSpace(Chr) || IsEol(Chr))) // удалить IsEol(*BufPtr)?
-   {
-     if(SpecMacro && (Chr == '[' || Chr == '(' || Chr == '{'))
-       break;
-     BufPtr++;
-     Chr=*BufPtr;
-   }
-   int Length=(int)(BufPtr-CurBufPtr);
-
-   memcpy(CurKeyText,CurBufPtr,Length);
-   CurKeyText[Length]=0;
-   return BufPtr;
+  return __getMacroParseError(ErrMsg1,ErrMsg2,ErrMsg3);
 }

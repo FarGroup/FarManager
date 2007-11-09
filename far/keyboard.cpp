@@ -369,6 +369,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
   DWORD ReadKey=0;
   int NotMacros=FALSE;
 
+  _KEYMACRO(SysLog("[%d] ExcludeMacro=%d CtrlObject=%p CtrlObject->Cp()=%p",__LINE__,ExcludeMacro,CtrlObject,(CtrlObject?CtrlObject->Cp():NULL)));
   if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
   {
     _KEYMACRO(CleverSysLog SL("Macro) Get Next MacroKey"));
@@ -441,7 +442,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 #else
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
 #endif
-    //_SVS(SysLog("ReadCount=%d",ReadCount));
+    _SVS(SysLog("LoopCount=%d",LoopCount));
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
     if (ReadCount!=0)
@@ -1646,7 +1647,7 @@ int WINAPI KeyNameToKey(const char *Name)
 
    // Это макроклавиша?
    if(Name[0] == '$' && Name[1])
-     return KeyNameMacroToKey(Name);
+     return -1; // KeyNameMacroToKey(Name);
    if(Name[0] == '%' && Name[1])
      return -1;
    if(Name[1] && strpbrk(Name,"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!

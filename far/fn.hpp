@@ -1147,8 +1147,9 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
 const char *eStackAsString(int Pos=0);
-
-BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
+int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const char *BufPtr);
+BOOL __getMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3);
+int  __getMacroErrorCode(int *nErr=NULL);
 
 int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int ShortNameAsIs=TRUE);
 

@@ -5,7 +5,7 @@
     Стек (LIFO) для виртуальной машины макросов
 */
 
-#include "syntax.hpp"
+#include "tvar.hpp"
 
 class TVMStack
 {

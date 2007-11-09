@@ -512,6 +512,10 @@ SOURCE=.\syntax.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\tvar.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TVMStack.cpp
 # End Source File
 # Begin Source File
@@ -910,6 +914,10 @@ SOURCE=.\struct.hpp
 # Begin Source File
 
 SOURCE=.\syntax.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tvar.hpp
 # End Source File
 # Begin Source File
 

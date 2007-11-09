@@ -106,10 +106,11 @@ SRCS = 	cddrv.cpp \
 	stddlg.cpp \
 	strdup.c \
 	strftime.cpp \
-        timefunc.cpp \
+	timefunc.cpp \
 	strmix.cpp \
 	strncpy.c \
 	syntax.cpp \
+	tvar.cpp \
 	TVMStack.cpp \
 	syslog.cpp \
 	treelist.cpp \

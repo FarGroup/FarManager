@@ -9,6 +9,7 @@ macro.hpp
 
 #include "farconst.hpp"
 #include "syntax.hpp"
+#include "tvar.hpp"
 
 class Panel;
 
@@ -150,13 +151,15 @@ class KeyMacro
     // проверить флаги текущего исполняемого макроса.
     BOOL CheckCurMacroFlags(DWORD Flags);
 
+    void DropProcess();
+
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);
     static int   GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize);
     static char *MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src=NULL);
     // из строкового представления макроса сделать MacroRecord
-    int ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
-    void DropProcess();
+    int  ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
+    BOOL GetMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3);
 };
 
 #endif // __KEYMACRO_HPP__

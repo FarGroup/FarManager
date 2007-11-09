@@ -532,7 +532,7 @@ void InfoList::ShowDirDescription()
 void InfoList::ShowPluginDescription()
 {
   Panel *AnotherPanel;
-  static char VertcalLine[2]={0xBA,0x00};
+  static char VerticalLine[2]={0xBA,0x00};
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
@@ -551,11 +551,13 @@ void InfoList::ShowPluginDescription()
     const struct InfoPanelLine *InfoLine=&Info.InfoLines[I];
     GotoXY(X1,Y);
     SetColor(COL_PANELBOX);
-    Text(VertcalLine);
+    //Text(VerticalLine);
+    BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0]));
     SetColor(COL_PANELTEXT);
     mprintf("%*s",X2-X1-1,"");
     SetColor(COL_PANELBOX);
-    Text(VertcalLine);
+    //Text(VerticalLine);
+    BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0]));
     GotoXY(X1+2,Y);
     if (InfoLine->Separator)
     {
