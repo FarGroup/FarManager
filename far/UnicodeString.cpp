@@ -187,9 +187,9 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwsz
   return Result;
 }
 
-wchar_t *UnicodeString::GetBuffer (int nLength)
+wchar_t *UnicodeString::GetBuffer (int nSize)
 {
-	Inflate (nLength == -1?m_pData->GetSize():nLength); //??force??
+	Inflate (nSize == -1?m_pData->GetSize():nSize);
 
 	return m_pData->GetData ();
 }

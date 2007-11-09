@@ -218,7 +218,7 @@ public:
   friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);
   friend const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2);
 
-  wchar_t *GetBuffer (int nLength = -1);
+  wchar_t *GetBuffer (int nSize = -1);
   void ReleaseBuffer (int nLength = -1);
 
   size_t SetLength(size_t nLength)

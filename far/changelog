@@ -1,3 +1,18 @@
+t-rex 09.11.2007 18:12:56 +0200 - build 328
+
+1. В UnicodeString::GetBuffer nLength переименован в nSize.
+
+от Alex Alabuzhev:
+
+2. API 1.7:
+   a) Control: всё, кроме:
+      - в FCTL_GET[ANOTHER]PANELINFO не заполняются поля PanelItems и SelectedItems;
+      - не реализован FCTL_SET[ANOTHER]SELECTION, т. к. зависит от предыдущего.
+   b) MkLink
+   c) GetNumberOfLinks
+   d) правильно работает DM_KEY
+   e) пропущен break после VCTL_GETINFO в ViewerControl
+
 svs 09.11.2007 15:54:24 +0300 - build 327
 
 1. Mantis#0000352: Undo, вызываемое CTRL+Z не работает если открыть существующий файл на редактирование 

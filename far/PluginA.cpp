@@ -481,12 +481,12 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;//BUGBUG или нет?
     //StandardFunctions.XLat=XlatA;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
-    //StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
+    StandardFunctions.GetNumberOfLinks=GetNumberOfLinksA;
     //StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
     StandardFunctions.MkTemp=FarMkTempA;
     StandardFunctions.DeleteBuffer=DeleteBufferA;
     StandardFunctions.ProcessName=ProcessNameA;
-    //StandardFunctions.MkLink=FarMkLink;
+    StandardFunctions.MkLink=FarMkLinkA;
     //StandardFunctions.ConvertNameToReal=ConvertNameToReal; //BUGBUG
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
     StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStrA;
@@ -499,7 +499,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StartupInfo.Dialog=FarDialogFnA;
     StartupInfo.GetMsg=FarGetMsgFnA;
     StartupInfo.Message=FarMessageFnA;
-    StartupInfo.Control=FarControlA; //заглушка
+    StartupInfo.Control=FarControlA;
     StartupInfo.SaveScreen=FarSaveScreen;
     StartupInfo.RestoreScreen=FarRestoreScreen;
     StartupInfo.GetDirList=FarGetDirListA; //заглушка
