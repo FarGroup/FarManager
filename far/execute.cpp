@@ -552,15 +552,8 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
         {
           if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
-            DWORD Type, DataSize;
 
-            DataSize = (DWORD)strFullName.GetLength()*2; //???
-
-            wchar_t *lpwszFullName = strFullName.GetBuffer ();
-
-            RegQueryValueExW(hKey,L"", 0, &Type, (LPBYTE)lpwszFullName, &DataSize);
-
-            strFullName.ReleaseBuffer ();
+            RegQueryStringValueEx(hKey, L"", strFullName, L"");
 
             RegCloseKey(hKey);
             /* $ 03.10.2001 VVM Обработать переменные окружения */
@@ -584,15 +577,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
             {
               if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
               {
-                DWORD Type, DataSize;
-
-                DataSize = (DWORD)strFullName.GetLength()*2;
-
-                wchar_t *lpwszFullName = strFullName.GetBuffer ();
-
-                RegQueryValueExW(hKey,L"", 0, &Type, (LPBYTE)lpwszFullName,&DataSize);
-
-                strFullName.GetBuffer ();
+                RegQueryStringValueEx(hKey, L"", strFullName, L"");
 
                 RegCloseKey(hKey);
                 /* $ 03.10.2001 VVM Обработать переменные окружения */
@@ -1399,7 +1384,10 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     lpwszValue=wcschr(lpwszValue,L'=');
 
     if (lpwszValue==NULL)
+    {
+      strCmd.ReleaseBuffer ();
       return(FALSE);
+    }
 
     *lpwszValue=0;
 

@@ -354,7 +354,7 @@ wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 
 string& InsertQuote(string &strStr)
 {
-  wchar_t *Str = strStr.GetBuffer ((int)strStr.GetLength()+2);
+  wchar_t *Str = strStr.GetBuffer ((int)strStr.GetLength()+3);
 
   InsertQuote(Str);
 
@@ -365,10 +365,10 @@ string& InsertQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-    if ( wcspbrk(strStr, Opt.strQuotedSymbols) != NULL)
-        InsertQuote(strStr);
+	if ( wcspbrk(strStr, Opt.strQuotedSymbols) != NULL)
+		InsertQuote(strStr);
 
-    return strStr;
+	return strStr;
 }
 
 
@@ -714,7 +714,7 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 
 BOOL WINAPI AddEndSlash(wchar_t *Path)
 {
-    return AddEndSlash(Path, 0);
+	return AddEndSlash(Path, 0);
 }
 
 
@@ -728,7 +728,7 @@ BOOL AddEndSlash(
 		wchar_t TypeSlash
 		)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+1); // +spaceforslash
+	wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+2);
 
 	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
 
@@ -751,18 +751,12 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
       if(*lpwszEndPath == L'\\') //LAME!!!
       {
         Ret=TRUE;
-        *lpwszEndPath=0;
+        *(lpwszEndPath--)=0;
         if(!allendslash)
-        {
-          strPath.ReleaseBuffer();
-          return Ret;
-        }
+        	break;
       }
       else
-      {
-        strPath.ReleaseBuffer();
-        return Ret;
-      }
+      	break;
     }
     strPath.ReleaseBuffer();
   }
@@ -781,8 +775,7 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
        и мы получали обрезанные строки */
     strDest = strTempStr;
 
-    strDest.GetBuffer (); //BUGBUG
-    strDest.ReleaseBuffer (Length);
+    strDest.SetLength (Length);
   }
   else
   {
@@ -1480,24 +1473,25 @@ void UnicodeToAnsi (
   WideCharToMultiByte (CP_OEMCP, 0, lpwszUnicodeString, -1, lpDest, nLength, NULL, NULL); //RAVE!!!
 }
 
-string& CutToSlash(string &strStr, bool bInclude)
+bool CutToSlash(string &strStr, bool bInclude)
 {
-    wchar_t *lpwszStr = strStr.GetBuffer ();
+	bool bRet = false;
+	wchar_t *lpwszStr = strStr.GetBuffer ();
 
-    lpwszStr = wcsrchr (lpwszStr, '\\');
+	lpwszStr = wcsrchr (lpwszStr, '\\');
 
-    if ( lpwszStr )
-    {
-        if ( bInclude )
-            *lpwszStr = 0;
-        else
-            *(lpwszStr+1) = 0;
-    }
+	if ( lpwszStr )
+	{
+		if ( bInclude )
+			*lpwszStr = 0;
+		else
+			*(lpwszStr+1) = 0;
+		bRet = true;
+	}
 
+	strStr.ReleaseBuffer ();
 
-    strStr.ReleaseBuffer ();
-
-    return strStr;
+	return bRet;
 }
 
 string& CutToNameUNC(string &strPath)

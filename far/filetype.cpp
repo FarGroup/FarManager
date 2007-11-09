@@ -396,7 +396,7 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
           {
             string strNewStr;
 
-            wchar_t *NewStr = strNewStr.GetBuffer ((int)strExpAssocStr.GetLength());
+            wchar_t *NewStr = strNewStr.GetBuffer ((int)strExpAssocStr.GetLength()+1);
 
             xwcsncpy(NewStr,strExpAssocStr,I+4);
             NewStr[I+4]=0;

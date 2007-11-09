@@ -57,7 +57,7 @@ ConsoleTitle::~ConsoleTitle()
 
 		if ( !StrCmpI (lpwszTitle, FarTitleAddons) )
 			*lpwszTitle = 0;
-    }
+	}
 
 	strOldTitle.ReleaseBuffer ();
 

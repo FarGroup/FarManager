@@ -392,11 +392,9 @@ int IsLocalDrive(const wchar_t *Path)
 
     if(IsLocalPath(strRootDir))
     {
-        lpwszRootDir = strRootDir.GetBuffer ();
-        lpwszRootDir[3] = 0;
-        strRootDir.ReleaseBuffer ();
+      strRootDir.SetLength(3);
 
-      DriveType = FAR_GetDriveType(lpwszRootDir);
+      DriveType = FAR_GetDriveType(strRootDir);
     }
   }
 

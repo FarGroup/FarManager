@@ -759,9 +759,9 @@ int RemoveToRecycleBin(const wchar_t *Name)
 
   memset(&fop,0,sizeof(fop)); // говорят помогает :-)
 
-  wchar_t *lpwszName = strFullName.GetBuffer ((int)strFullName.GetLength()+1);
+  wchar_t *lpwszName = strFullName.GetBuffer ((int)strFullName.GetLength()+2);
 
-  lpwszName[StrLength(lpwszName)+1] = 0; //dirty trick to make strFullName ends with DOUBLE zero!!!
+  lpwszName[StrLength(lpwszName)+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 
   fop.wFunc=FO_DELETE;
   fop.pFrom=lpwszName;
@@ -872,7 +872,6 @@ int WipeDirectory(const wchar_t *Name)
 int DeleteFileWithFolder(const wchar_t *FileName)
 {
   string strFileOrFolderName;
-  wchar_t *Slash;
 
   strFileOrFolderName = FileName;
 
@@ -884,12 +883,7 @@ int DeleteFileWithFolder(const wchar_t *FileName)
   {
     if(DeleteFileW(strFileOrFolderName)) //BUGBUG
     {
-      Slash = strFileOrFolderName.GetBuffer ();
-      if ((Slash=wcsrchr(Slash,L'\\'))!=NULL)
-        *Slash=0;
-
-      strFileOrFolderName.ReleaseBuffer();
-
+      CutToSlash(strFileOrFolderName);
       return apiRemoveDirectory(strFileOrFolderName);
     }
   }

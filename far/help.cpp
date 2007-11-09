@@ -872,7 +872,7 @@ void Help::OutString(const wchar_t *Str)
             {
               if(*(EndPtr+1) == L'@')
               {
-                memmove(EndPtr,EndPtr+1,(StrLength(EndPtr)+1)*sizeof (wchar_t));
+                wmemmove(EndPtr,EndPtr+1,StrLength(EndPtr)+1);
                 EndPtr++;
               }
               EndPtr=wcschr(EndPtr,L'@');
@@ -1425,6 +1425,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     const wchar_t *p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
 
+    //BUGBUG??? *sizeof (wchar_t) ???
     wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((int)(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof (wchar_t));
 
     xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof(wchar_t));
@@ -1474,12 +1475,12 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
       if(RunURL(lpwszNewTopic, lpwszTopic))
       {
-          StackData.strSelTopic.ReleaseBuffer ();
+				StackData.strSelTopic.ReleaseBuffer ();
 
         return(FALSE);
       }
       else
-          StackData.strSelTopic.ReleaseBuffer ();
+				StackData.strSelTopic.ReleaseBuffer ();
       *p=L':';
     }
 
@@ -1531,7 +1532,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
             StackData.strHelpMask.ReleaseBuffer ();
           }
-          memmove(p,p2,(StrLength(p2)+1)*sizeof(wchar_t));
+          wmemmove(p,p2,StrLength(p2)+1);
           const wchar_t *p3=wcsrchr(StackData.strHelpMask,L'.');
           if(p3 && StrCmpI(p3,L".hlf"))
             StackData.strHelpMask=L"";
@@ -1574,19 +1575,19 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     StackData.strHelpTopic = strNewTopic;
     if( StackData.strHelpTopic.At(0) == HelpBeginLink)
     {
-        wchar_t *Ptr=StackData.strHelpTopic.GetBuffer ();
+			wchar_t *Ptr=StackData.strHelpTopic.GetBuffer ();
 
-        Ptr = wcsrchr(Ptr,HelpEndLink);
+			Ptr = wcsrchr(Ptr,HelpEndLink);
 
-        if ( Ptr )
-        {
-            *(Ptr++) = 0;
-            StackData.strHelpTopic.ReleaseBuffer ();
+			if ( Ptr )
+			{
+				*(Ptr++) = 0;
+				StackData.strHelpTopic.ReleaseBuffer ();
 
-            StackData.strHelpTopic += HelpContents;
-        }
-        else
-            StackData.strHelpTopic.ReleaseBuffer ();
+				StackData.strHelpTopic += HelpContents;
+			}
+			else
+				StackData.strHelpTopic.ReleaseBuffer ();
     }
     StackData.strHelpPath=L"";
     ReadHelp(StackData.strHelpMask);

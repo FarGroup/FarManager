@@ -723,7 +723,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
    }
    int Length=(int)(BufPtr-CurBufPtr);
 
-   wchar_t *CurKeyText = strCurKeyText.GetBuffer (Length);
+   wchar_t *CurKeyText = strCurKeyText.GetBuffer (Length+1);
 
    wcsncpy(CurKeyText,CurBufPtr,Length);
    CurKeyText[Length] = 0;

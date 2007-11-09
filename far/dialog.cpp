@@ -1516,7 +1516,7 @@ void Dialog::ShowDialog(int ID)
           LenText=LenStrItem(I,strStr);
           if(LenText < CW-2)
           {
-              lpwszStr = strStr.GetBuffer();
+              lpwszStr = strStr.GetBuffer(); //BUGBUG
 
               memmove(lpwszStr+1, lpwszStr, (StrLength(lpwszStr)+1)*sizeof (wchar_t));
 
@@ -1564,17 +1564,13 @@ void Dialog::ShowDialog(int ID)
         if ( (CX2 <= 0) || (CX2 < CX1) )
           CW = LenText;
 
-        lpwszStr = strStr.GetBuffer();
-
         if(X1+X+LenText > X2)
         {
           int tmpCW=ObjWidth;
           if(CW < ObjWidth)
             tmpCW=CW+1;
-          lpwszStr[tmpCW-1]=0;
+          strStr.SetLength(tmpCW-1);
         }
-
-        strStr.ReleaseBuffer();
 
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
@@ -1588,11 +1584,7 @@ void Dialog::ShowDialog(int ID)
             CntChr=X2-(X1+X)+1;
           mprintf(L"%*s",CntChr,L"");
           if (CntChr < LenText)
-          {
-          	lpwszStr = strStr.GetBuffer();
-          	lpwszStr[CntChr]=0;
-          	strStr.ReleaseBuffer();
-          }
+          	strStr.SetLength(CntChr);
         }
 
         if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
@@ -1637,17 +1629,13 @@ void Dialog::ShowDialog(int ID)
         if ( (CY2 <= 0) || (CY2 < CY1) )
           CH = LenStrItem(I,strStr);
 
-        lpwszStr = strStr.GetBuffer();
-
         if(Y1+Y+LenText > Y2)
         {
           int tmpCH=ObjHeight;
           if(CH < ObjHeight)
             tmpCH=CH+1;
-          lpwszStr[tmpCH-1]=0;
+          strStr.SetLength(tmpCH-1);
         }
-
-        strStr.ReleaseBuffer();
 
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
@@ -1712,12 +1700,8 @@ void Dialog::ShowDialog(int ID)
 
         LenText=LenStrItem(I, strStr);
 
-        lpwszStr = strStr.GetBuffer();
-
         if(X1+CX1+LenText > X2)
-          lpwszStr[ObjWidth-1]=0;
-
-        strStr.ReleaseBuffer();
+          strStr.SetLength(ObjWidth-1);
 
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
           Text(strStr);

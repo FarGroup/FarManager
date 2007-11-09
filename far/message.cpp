@@ -357,10 +357,7 @@ int Message(
     string strTempTitle = Title;
 
     if ( strTempTitle.GetLength() > MaxLength )
-    {
-        strTempTitle.GetBuffer (); //BUGBUG, dirty hack
-        strTempTitle.ReleaseBuffer (MaxLength);
-    }
+			strTempTitle.SetLength (MaxLength);
 
     GotoXY(X1+(X2-X1-1-(int)strTempTitle.GetLength())/2,Y1+1);
     mprintf(L" %s ",(const wchar_t*)strTempTitle);

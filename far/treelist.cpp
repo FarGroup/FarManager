@@ -454,10 +454,7 @@ int TreeList::ReadTree()
   Redraw();
 
   if (RootLength>0 && strRoot.At (RootLength-1) != L':' && strRoot.At (RootLength)==L'\\')
-  {
-    ListData[0]->strName.GetBuffer (); //BUGBUG
-    ListData[0]->strName.ReleaseBuffer (RootLength);
-  }
+    ListData[0]->strName.SetLength (RootLength);
 
   TreeCount=1;
 

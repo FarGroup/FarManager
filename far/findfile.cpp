@@ -1689,12 +1689,8 @@ int FindFiles::FindFilesProcess()
         if ((Length=(int)strFileName.GetLength())==0)
           break;
 
-        wchar_t *lpwszFileName = strFileName.GetBuffer();
-
-        if (Length>1 && lpwszFileName[Length-1]==L'\\' && lpwszFileName[Length-2]!=L':')
-          lpwszFileName[Length-1]=0;
-
-        strFileName.ReleaseBuffer();
+        if (Length>1 && strFileName.At(Length-1)==L'\\' && strFileName.At(Length-2)!=L':')
+          strFileName.SetLength(Length-1);
 
         #if !defined(INVALID_FILE_ATTRIBUTES)
         #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
@@ -1712,12 +1708,8 @@ int FindFiles::FindFilesProcess()
 
           Length=(int)strFileName.GetLength();
 
-          lpwszFileName = strFileName.GetBuffer();
-
-          if (Length>1 && lpwszFileName[Length-1]==L'\\' && lpwszFileName[Length-2]!=L':')
-            lpwszFileName[Length-1]=0;
-
-          strFileName.ReleaseBuffer();
+          if (Length>1 && strFileName.At(Length-1)==L'\\' && strFileName.At(Length-2)!=L':')
+            strFileName.SetLength(Length-1);
         }
         if ( strFileName.IsEmpty() )
           break;
@@ -1740,12 +1732,8 @@ int FindFiles::FindFilesProcess()
           FindPanel->GetCurDir(strDirTmp);
           Length=(int)strDirTmp.GetLength();
 
-          wchar_t *lpwszDirTmp = strDirTmp.GetBuffer();
-
-          if (Length>1 && lpwszDirTmp[Length-1]==L'\\' && lpwszDirTmp[Length-2]!=L':')
-            lpwszDirTmp[Length-1]=0;
-
-          strDirTmp.ReleaseBuffer();
+          if (Length>1 && strDirTmp.At(Length-1)==L'\\' && strDirTmp.At(Length-2)!=L':')
+            strDirTmp.SetLength(Length-1);
 
           if(0!=StrCmpI(strFileName, strDirTmp))
             FindPanel->SetCurDir(strFileName,TRUE);
@@ -2819,10 +2807,10 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         wchar_t *szPtr = strPluginSearchPath.GetBuffer();
         wchar_t *szNamePtr = wcsrchr(szPtr,L'\x1');
         if (szNamePtr != NULL)
-		  *(szNamePtr + 1) = 0;
-		else
-		  *szPtr = 0;
-		strPluginSearchPath.ReleaseBuffer();
+					*(szNamePtr + 1) = 0;
+				else
+					*szPtr = 0;
+				strPluginSearchPath.ReleaseBuffer();
         WaitForSingleObject(hPluginMutex,INFINITE);
         if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
           StopSearch=TRUE;
@@ -3040,14 +3028,10 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
 
   GetPathRootOne(strCurDir, strCurDir);
 
-  wchar_t *CurDir = strCurDir.GetBuffer ();
+  if (strCurDir.At(strCurDir.GetLength()-1)==L'\\')
+    strCurDir.SetLength(strCurDir.GetLength()-1);
 
-  if (CurDir[StrLength(CurDir)-1]==L'\\')
-    CurDir[StrLength(CurDir)-1]=0;
-
-  strCurDir.ReleaseBuffer ();
-
-  if (*CurDir==0 || PluginMode)
+  if (strCurDir.IsEmpty() || PluginMode)
   {
     strSearchFromRoot = UMSG(MSearchFromRootFolder);
     strMsgStr1 = strSearchFromRoot;

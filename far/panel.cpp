@@ -1411,7 +1411,7 @@ void Panel::FastFind(int FirstKey)
             */
             if(*Name == L'"')
             {
-              memmove(Name,Name+1,(sizeof(Name)-1)*sizeof (wchar_t));
+              wmemmove(Name,Name+1,StrLength(Name)-1);
               Name[StrLength(Name)-1]=0;
               FindEdit.SetString(Name);
             }

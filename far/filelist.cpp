@@ -603,20 +603,11 @@ int FileList::ProcessKey(int Key)
             }
             /* Своеобразное решение BugZ#50 */
             string strRealDir;
-            wchar_t *Ptr;
 
             strRealDir = strPluginFile;
 
-            Ptr = strRealDir.GetBuffer();
-
-            Ptr = wcsrchr(Ptr, L'\\');
-
-            if(Ptr)
+            if(CutToSlash(strRealDir, false))
             {
-              *++Ptr=0;
-
-              strRealDir.ReleaseBuffer();
-
               SetCurDir(strRealDir,TRUE);
               GoToFile(PointToName(strPluginFile));
               // удалим пред.значение.
@@ -626,8 +617,6 @@ int FileList::ProcessKey(int Key)
                   DeleteListData(PrevDataStack[PrevDataStackSize]->PrevListData,PrevDataStack[PrevDataStackSize]->PrevFileCount);
               }
             }
-            else
-                strRealDir.ReleaseBuffer();
             /**/
 
             OpenFilePlugin(strPluginFile,FALSE);
@@ -861,11 +850,7 @@ int FileList::ProcessKey(int Key)
             if (PanelMode==PLUGIN_PANEL)
               strFileName=L"";
             else
-            {
-              wchar_t *lpwszFileName = strFileName.GetBuffer ();
-              lpwszFileName[1]=0; // "."
-              strFileName.ReleaseBuffer(); //???
-            }
+              strFileName.SetLength(1); // "."
 
             if(Key!=KEY_CTRLALTF)
               Key=KEY_CTRLF;
@@ -3058,7 +3043,7 @@ void FileList::SelectFiles(int Mode)
       // Учтем тот момент, что имя может содержать символы-разделители
       strRawMask.Format (L"\"%s", (const wchar_t*)strCurName);
 
-      wchar_t *DotPtr = strRawMask.GetBuffer ((int)strRawMask.GetLength()+3);
+      wchar_t *DotPtr = strRawMask.GetBuffer ((int)strRawMask.GetLength()+4);
 
       DotPtr=wcsrchr(DotPtr,L'.');
 
@@ -3411,13 +3396,8 @@ void FileList::CopyNames(int FillPathName,int UNC)
         */
         if(TestParentFolderName(strQuotedName) && TestParentFolderName(strSelShortName))
         {
-            wchar_t *p = strQuotedName.GetBuffer();
-            p[1] = 0;
-            strQuotedName.ReleaseBuffer();
-
-            p = strSelShortName.GetBuffer();
-            p[1] = 0;
-            strSelShortName.ReleaseBuffer();
+					strQuotedName.SetLength(1);
+					strSelShortName.SetLength(1);
         }
         if(!CreateFullPathName(strQuotedName,strSelShortName,FileAttr,strQuotedName,UNC))
         {
@@ -4281,42 +4261,42 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 */
 string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 {
-  strPrefix = L"";
-  if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
-  {
-    OpenPluginInfo Info;
-    PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
+	strPrefix = L"";
+	if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
+	{
+		OpenPluginInfo Info;
+		PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
 
-    CtrlObject->Plugins.GetOpenPluginInfo(ph,&Info);
+		CtrlObject->Plugins.GetOpenPluginInfo(ph,&Info);
 
-    if(!(Info.Flags & OPIF_REALNAMES))
-    {
-      PluginInfo PInfo;
+		if(!(Info.Flags & OPIF_REALNAMES))
+		{
+			PluginInfo PInfo;
 
-      CtrlObject->Plugins.GetPluginInfo(ph->pPlugin, &PInfo);
+			CtrlObject->Plugins.GetPluginInfo(ph->pPlugin, &PInfo);
 
-      if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
-      {
-        strPrefix = PInfo.CommandPrefix;
+			if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
+			{
+				strPrefix = PInfo.CommandPrefix;
 
-        wchar_t *Ptr=strPrefix.GetBuffer ();
+				wchar_t *Ptr=strPrefix.GetBuffer ();
 
-        Ptr = wcschr(Ptr, L':');
+				Ptr = wcschr(Ptr, L':');
 
-        if(Ptr)
-        {
-            *++Ptr=0;
-            strPrefix.ReleaseBuffer();
-        }
-        else
-        {
-            strPrefix.ReleaseBuffer();
-            strPrefix += L":";
-        }
-      }
-    }
-  }
-  return strPrefix;
+				if(Ptr)
+				{
+					*++Ptr=0;
+					strPrefix.ReleaseBuffer();
+				}
+				else
+				{
+					strPrefix.ReleaseBuffer();
+					strPrefix += L":";
+				}
+			}
+		}
+	}
+	return strPrefix;
 }
 
 

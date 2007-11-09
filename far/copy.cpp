@@ -1579,7 +1579,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       {
         strDestPath = strSelName;
 
-        wchar_t *lpwszDestPath = strDestPath.GetBuffer ((int)(strDestPath.GetLength()+StrLength(Dest)));
+        wchar_t *lpwszDestPath = strDestPath.GetBuffer ((int)(strDestPath.GetLength()+StrLength(Dest)+1));
 
         wcscpy(lpwszDestPath+KeepPathPos,Dest);
 
@@ -1947,12 +1947,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     {
       int Length=(int)strDestPath.GetLength();
 
-      wchar_t *lpwszDest = strDestPath.GetBuffer(Length+1);
-
-      if (lpwszDest[Length-1]!=L'\\' && lpwszDest[Length-1]!=L':')
-        wcscat(lpwszDest,L"\\");
-
-      strDestPath.ReleaseBuffer ();
+      if (strDestPath.At(Length-1)!=L'\\' && strDestPath.At(Length-1)!=L':')
+        strDestPath += L"\\";
 
       const wchar_t *PathPtr=Src+KeepPathPos;
 
@@ -3155,18 +3151,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
           }
           string strDestDir = DestName;
 
-          wchar_t *ChPtr = strDestDir.GetBuffer ();
-
-          if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=NULL)
-          {
-            *ChPtr=0;
-
-            strDestDir.ReleaseBuffer ();
-
+          if (CutToSlash(strDestDir))
             CreatePath(strDestDir);
-          }
-          else
-            strDestDir.ReleaseBuffer ();
 
           DestHandle=apiCreateFile(
               DestName,
@@ -3984,13 +3970,7 @@ string &ShellCopy::GetParentFolder(const wchar_t *Src, string &strDest)
     return strDest;
   }
 
-  wchar_t *Ptr = strDestFullName.GetBuffer ();
-
-  Ptr = wcsrchr(Ptr,L'\\');
-  if(Ptr)
-    *Ptr=0;
-
-  strDestFullName.ReleaseBuffer ();
+  CutToSlash(strDestFullName);
 
   strDest = strDestFullName; //??? а почему бы сразу не работать с strDest???
 
@@ -4049,11 +4029,9 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags)
         strDestFullName += PtrSelName;
       else
       {
-        wchar_t *lpwszDestFull = strDestFullName.GetBuffer ((int)strDestFullName.GetLength()+6);
-        // если таржед не задан - применяется стд. имя "Disk_%c"
-        swprintf(lpwszDestFull+StrLength(lpwszDestFull),L"Disk_%c",*SelName);
-
-        strDestFullName.ReleaseBuffer ();
+        string strTmp;
+        strTmp.Format(L"Disk_%c",*SelName);
+        strDestFullName += strTmp;
       }
     }
 

@@ -1626,7 +1626,7 @@ int Edit::GetSelString (string &strStr)
 
   CopyLength=SelEnd-SelStart; //??? BUGBUG
 
-  wchar_t *lpwszStr = strStr.GetBuffer (CopyLength);
+  wchar_t *lpwszStr = strStr.GetBuffer (CopyLength+1);
 
   wcsncpy(lpwszStr,Edit::Str+SelStart,CopyLength);
   lpwszStr[CopyLength]=0;

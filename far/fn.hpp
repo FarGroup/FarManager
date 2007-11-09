@@ -263,7 +263,7 @@ BOOL WINAPI FAR_EmptyClipboard(VOID);
 
 int GetFileTypeByName(const wchar_t *Name);
 
-string &CutToSlash(string &strStr, bool bInclude = false);
+bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);

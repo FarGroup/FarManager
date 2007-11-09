@@ -321,67 +321,67 @@ BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
 
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
 {
-    int nSize = GetEnvironmentVariableW (lpwszName, NULL, 0);
+	int nSize = GetEnvironmentVariableW (lpwszName, NULL, 0);
 
-    if ( nSize )
-    {
-        wchar_t *lpwszBuffer = strBuffer.GetBuffer (nSize);
+	if ( nSize )
+	{
+		wchar_t *lpwszBuffer = strBuffer.GetBuffer (nSize);
 
-        nSize = GetEnvironmentVariableW (lpwszName, lpwszBuffer, nSize);
+		nSize = GetEnvironmentVariableW (lpwszName, lpwszBuffer, nSize);
 
-        strBuffer.ReleaseBuffer ();
-    }
+		strBuffer.ReleaseBuffer ();
+	}
 
-    return nSize;
+	return nSize;
 }
 
 DWORD apiGetCurrentDirectory (string &strCurDir)
 {
-    DWORD dwSize = GetCurrentDirectoryW (0, NULL);
+	DWORD dwSize = GetCurrentDirectoryW (0, NULL);
 
-    wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize+1);
+	wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize);
 
-    dwSize = GetCurrentDirectoryW (dwSize, lpwszCurDir);
+	dwSize = GetCurrentDirectoryW (dwSize, lpwszCurDir);
 
-    strCurDir.ReleaseBuffer ();
+	strCurDir.ReleaseBuffer ();
 
-    return dwSize;
+	return dwSize;
 }
 
 DWORD apiGetTempPath (string &strBuffer)
 {
-    DWORD dwSize = GetTempPathW (0, NULL);
+	DWORD dwSize = GetTempPathW (0, NULL);
 
-    wchar_t *lpwszBuffer = strBuffer.GetBuffer (dwSize+1);
+	wchar_t *lpwszBuffer = strBuffer.GetBuffer (dwSize);
 
-    dwSize = GetTempPathW (dwSize, lpwszBuffer);
+	dwSize = GetTempPathW (dwSize, lpwszBuffer);
 
-    strBuffer.ReleaseBuffer ();
+	strBuffer.ReleaseBuffer ();
 
-    return dwSize;
+	return dwSize;
 };
 
 
 DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName)
 {
-    DWORD dwSize = 0;
-    DWORD dwBufferSize = MAX_PATH;
-    wchar_t *lpwszFileName = NULL;
+	DWORD dwSize = 0;
+	DWORD dwBufferSize = MAX_PATH;
+	wchar_t *lpwszFileName = NULL;
 
-    do {
-        dwBufferSize <<= 1;
+	do {
+		dwBufferSize <<= 1;
 
-        lpwszFileName = (wchar_t*)xf_realloc (lpwszFileName, dwBufferSize*sizeof (wchar_t));
+		lpwszFileName = (wchar_t*)xf_realloc (lpwszFileName, dwBufferSize*sizeof (wchar_t));
 
-        dwSize = GetModuleFileNameW (hModule, lpwszFileName, dwBufferSize);
-    } while ( dwSize && (dwSize >= dwBufferSize) );
+		dwSize = GetModuleFileNameW (hModule, lpwszFileName, dwBufferSize);
+	} while ( dwSize && (dwSize >= dwBufferSize) );
 
-    if ( dwSize )
-        strFileName = lpwszFileName;
+	if ( dwSize )
+		strFileName = lpwszFileName;
 
-    xf_free (lpwszFileName);
+	xf_free (lpwszFileName);
 
-    return dwSize;
+	return dwSize;
 }
 
 DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
@@ -392,7 +392,7 @@ DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
 
 	if ( length )
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer (length+1);
+		wchar_t *lpwszDest = strDest.GetBuffer (length);
 
 		ExpandEnvironmentStringsW(strSrc, lpwszDest, length);
 
@@ -407,43 +407,43 @@ DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
 
 DWORD apiGetConsoleTitle (string &strConsoleTitle)
 {
-  DWORD dwSize = 0;
-  DWORD dwBufferSize = MAX_PATH;
-  wchar_t *lpwszTitle = NULL;
+	DWORD dwSize = 0;
+	DWORD dwBufferSize = MAX_PATH;
+	wchar_t *lpwszTitle = NULL;
 
-  do {
-      dwBufferSize <<= 1;
+	do {
+		dwBufferSize <<= 1;
 
-      lpwszTitle = (wchar_t*)xf_realloc (lpwszTitle, dwBufferSize*sizeof (wchar_t));
+		lpwszTitle = (wchar_t*)xf_realloc (lpwszTitle, dwBufferSize*sizeof (wchar_t));
 
-      dwSize = GetConsoleTitleW (lpwszTitle, dwBufferSize);
+		dwSize = GetConsoleTitleW (lpwszTitle, dwBufferSize);
 
-  } while ( !dwSize && GetLastError() == ERROR_SUCCESS );
+	} while ( !dwSize && GetLastError() == ERROR_SUCCESS );
 
-  if ( dwSize )
-    strConsoleTitle = lpwszTitle;
+	if ( dwSize )
+		strConsoleTitle = lpwszTitle;
 
-  xf_free (lpwszTitle);
+	xf_free (lpwszTitle);
 
-  return dwSize;
+	return dwSize;
 }
 
 
 DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName)
 {
-    DWORD dwRemoteNameSize = 0;
-    DWORD dwResult = WNetGetConnectionW(lpwszLocalName, NULL, &dwRemoteNameSize);
+	DWORD dwRemoteNameSize = 0;
+	DWORD dwResult = WNetGetConnectionW(lpwszLocalName, NULL, &dwRemoteNameSize);
 
-    if ( dwResult == ERROR_SUCCESS )
-    {
-        wchar_t *lpwszRemoteName = strRemoteName.GetBuffer (dwRemoteNameSize+1);
+	if ( dwResult == ERROR_SUCCESS )
+	{
+		wchar_t *lpwszRemoteName = strRemoteName.GetBuffer (dwRemoteNameSize);
 
-        dwResult = WNetGetConnectionW (lpwszLocalName, lpwszRemoteName, &dwRemoteNameSize);
+		dwResult = WNetGetConnectionW (lpwszLocalName, lpwszRemoteName, &dwRemoteNameSize);
 
-        strRemoteName.ReleaseBuffer ();
-    }
+		strRemoteName.ReleaseBuffer ();
+	}
 
-    return dwResult;
+	return dwResult;
 }
 
 BOOL apiGetVolumeInformation (

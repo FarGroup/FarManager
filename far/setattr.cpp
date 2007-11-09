@@ -650,7 +650,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             string strJuncRoot;
             GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
 
-            wchar_t *lpwszJunc = strJuncName.GetBuffer ((int)strJuncRoot.GetLength()+4);
+            wchar_t *lpwszJunc = strJuncName.GetBuffer ((int)strJuncRoot.GetLength()+5);
 
             if(strJuncRoot.At(1) == L':')
               wcscpy(lpwszJunc+4,strJuncRoot);

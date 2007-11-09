@@ -179,8 +179,8 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 
       int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr);
       lpwszCurDir = strCurDir.GetBuffer (nSize+1);
-      GetFullPathNameW(NewDir,nSize+1,lpwszCurDir,&ptr);
-      AddEndSlash(strCurDir); //???????????????
+      GetFullPathNameW(NewDir,nSize,lpwszCurDir,&ptr);
+      AddEndSlash(lpwszCurDir); //???????????????
       strCurDir.ReleaseBuffer ();
 
       if(CheckFolder((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
@@ -196,9 +196,9 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
   {
     int nSize = GetCurrentDirectoryW (0, NULL);
 
-    lpwszCurDir = strCurDir.GetBuffer (nSize+1);
+    lpwszCurDir = strCurDir.GetBuffer (nSize);
 
-    if ((!ChangeDir || GetCurrentDirectoryW(nSize+1,lpwszCurDir)) &&
+    if ((!ChangeDir || GetCurrentDirectoryW(nSize,lpwszCurDir)) &&
         IsAlpha(*lpwszCurDir) && lpwszCurDir[1]==L':')
     {
       Drive[1]=Upper(*lpwszCurDir);
@@ -217,7 +217,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 
 DWORD FarGetCurDir(string &strBuffer)
 {
-    int nLength = GetCurrentDirectoryW (0, NULL)+1;
+    int nLength = GetCurrentDirectoryW (0, NULL);
 
     wchar_t *lpwszBuffer = strBuffer.GetBuffer (nLength);
 
@@ -349,11 +349,7 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
 
   if (Brief)
   {
-    wchar_t *lpwszDateText = strDateText.GetBuffer (max ((int)strDateText.GetLength(), 7));
-
-    lpwszDateText[TextMonth ? 6:5]=0;
-
-    strDateText.ReleaseBuffer ();
+    strDateText.SetLength(TextMonth ? 6 : 5);
 
     if (lt.wYear!=st.wYear)
       strTimeText.Format (L"%5d",st.wYear);
@@ -1353,36 +1349,27 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
       {
         string strTestPathTemp = *pTestPath;
 
-        wchar_t *Ptr = strTestPathTemp.GetBuffer ();
-
         while ( true )
         {
-            if ( (Ptr=(wchar_t*)wcsrchr(strTestPathTemp,L'\\')) == NULL )
-            {
-                strTestPathTemp.ReleaseBuffer ();
-                break;
-            }
+					if (!CutToSlash(strTestPathTemp))
+						break;
 
-            *Ptr=0;
+					if(GetFileAttributesW(strTestPathTemp) != -1)
+					{
+						int ChkFld=CheckFolder(strTestPathTemp);
+						if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
+						{
+							if(!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
+							{
+								*pTestPath = strTestPathTemp;
 
-            strTestPathTemp.ReleaseBuffer ();
-
-           if(GetFileAttributesW(strTestPathTemp) != -1)
-           {
-            int ChkFld=CheckFolder(strTestPathTemp);
-             if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
-             {
-               if(!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
-               {
-                 *pTestPath = strTestPathTemp;
-
-                 if( pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-                   AddEndSlash(*pTestPath);
-                 FoundPath=1;
-               }
-               break;
-            }
-          }
+								if( pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+									AddEndSlash(*pTestPath);
+								FoundPath=1;
+							}
+							break;
+						}
+					}
         }
       }
     }
@@ -1775,16 +1762,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
     wcsncpy (LocalName, CurDir, 2);
     LocalName[3] = 0;
 
-    DWORD RemoteNameSize = 0;
-
-    if ( WNetGetConnectionW (LocalName, NULL, &RemoteNameSize) == NO_ERROR)
-    {
-        wchar_t *NetDir = strNetDir.GetBuffer (RemoteNameSize);
-
-        WNetGetConnectionW (LocalName, NetDir, &RemoteNameSize);
-
-        strNetDir.ReleaseBuffer ();
-    }
+    apiWNetGetConnection (LocalName, strNetDir);
   }
 
   if ( strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')

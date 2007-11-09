@@ -1053,9 +1053,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
             if(IsLocalPath(strFileName))
             {
               string strRemoteName;
-              wchar_t *FileName = strFileName.GetBuffer ();
-              FileName[2]=0;
-              strFileName.ReleaseBuffer ();
+              strFileName.SetLength(2);
               if(GetSubstName(DriveType,strFileName,strRemoteName))
                 DriveType=DRIVE_SUBSTITUTE;
             }

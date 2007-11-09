@@ -2780,7 +2780,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
               Relative=1;
           else
               Relative=-1;
-          memmove(ptr,ptr+1,StrLength(ptr)*sizeof (wchar_t)); // если вы думаете про strlen(ptr)-1,
+          wmemmove(ptr,ptr+1,StrLength(ptr)); // если вы думаете про strlen(ptr)-1,
                                           // то вы ошибаетесь :)
       }
       if ( wcschr(ptr,L'%') )   // он хочет процентов

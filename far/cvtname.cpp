@@ -77,7 +77,7 @@ int ConvertNameToFull (
 		}
 	}
 
-	int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL)+1;
+	int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL);
 
 	wchar_t *lpwszDest = strDest.GetBuffer (nLength);
 	GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
@@ -90,9 +90,9 @@ int ConvertNameToFull (
 				lpwszSrc[1] == L'/' &&
 				lpwszDest[1] == L':' &&
 				lpwszDest[3] == L'\\' )
-				memmove (lpwszDest, lpwszDest+2, (wcslen (lpwszDest+2)+1)*sizeof (wchar_t));
+				wmemmove (lpwszDest, lpwszDest+2, wcslen (lpwszDest+2)+1);
 
-	strDest.ReleaseBuffer (nLength);
+	strDest.ReleaseBuffer ();
 
 	return (int)strDest.GetLength ();
 }
@@ -140,7 +140,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
     const wchar_t *CtrlChar = TempDest;
 
     if (StrLength(TempDest) > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
-      CtrlChar= wcschr(TempDest+2, L'\\');
+      CtrlChar = wcschr(TempDest+2, L'\\');
 
     // обычный цикл прохода имени от корня
     while(CtrlChar)
@@ -200,12 +200,8 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
     strTempDest.ReleaseBuffer ();
   }
 
-  TempDest = strTempDest.GetBuffer ();
-
   if(IsAddEndSlash) // если не просили - удалим.
-    TempDest[StrLength(TempDest)-1]=0;
-
-  strTempDest.ReleaseBuffer ();
+    strTempDest.SetLength(strTempDest.GetLength()-1);
 
   strDest = strTempDest;
 

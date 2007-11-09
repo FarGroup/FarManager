@@ -66,14 +66,7 @@ PreserveLongName::~PreserveLongName()
 
 			strNewName = strSaveShortName;
 
-			wchar_t *lpwszNewName = strNewName.GetBuffer ();
-
-			lpwszNewName = wcsrchr (lpwszNewName, '\\'); //BUGBUG
-
-			if ( lpwszNewName )
-				*lpwszNewName = 0;
-
-			strNewName.ReleaseBuffer ();
+			CutToSlash(strNewName);
 
 			strNewName += "\\";
 			strNewName += strSaveLongName;

@@ -407,10 +407,10 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
       wchar_t *Ptr=wcschr(ReadStr,L'=');
       if(Ptr)
       {
-          *strParam1 = Ptr+1;
-          wchar_t *EndPtr=strParam1->GetBuffer ();
+				*strParam1 = Ptr+1;
+				wchar_t *EndPtr=strParam1->GetBuffer ();
 
-          EndPtr = wcschr(EndPtr,L',');
+				EndPtr = wcschr(EndPtr,L',');
         if ( strParam2 )
           *strParam2=L"";
         if (EndPtr!=NULL)
@@ -536,7 +536,6 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
       strFullParamName = RemoveExternalSpaces(ReadStr+Length);
 
       Ptr = strFullParamName.GetBuffer ();
-
 
       if((Ptr=wcsrchr(Ptr,L'=')) == NULL)
       {

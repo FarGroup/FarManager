@@ -150,28 +150,23 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi)
 {
-  string strTempDir = Name;
+	string strTempDir = Name;
 
-  wchar_t *ChPtr = strTempDir.GetBuffer ();
+	if (!CutToSlash(strTempDir))
+		return(FALSE);
 
-  if ((ChPtr=wcsrchr(ChPtr,L'\\'))==NULL)
-    return(FALSE);
-  *ChPtr=0;
+	FarChDir(strTempDir);
+	memset(pi,0,sizeof(*pi));
 
-  strTempDir.ReleaseBuffer ();
+	FAR_FIND_DATA_EX fdata;
 
-  FarChDir(strTempDir);
-  memset(pi,0,sizeof(*pi));
+	if ( apiGetFindDataEx (Name, &fdata) )
+	{
+		apiFindDataExToData(&fdata, &pi->FindData);
+		return TRUE;
+	}
 
-  FAR_FIND_DATA_EX fdata;
-
-  if ( apiGetFindDataEx (Name, &fdata) )
-  {
-      apiFindDataExToData(&fdata, &pi->FindData);
-      return TRUE;
-  }
-
-  return FALSE;
+	return FALSE;
 }
 
 
