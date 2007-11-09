@@ -1048,7 +1048,9 @@ void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
 const wchar_t *eStackAsString(int Pos=0);
 
-BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
+int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);
+BOOL __getMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
+int  __getMacroErrorCode(int *nErr=NULL);
 
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 

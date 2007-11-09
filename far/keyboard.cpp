@@ -1483,7 +1483,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 
    // Это макроклавиша?
    if(Name[0] == L'$' && Name[1])
-     return KeyNameMacroToKey(Name);
+     return -1;// KeyNameMacroToKey(Name);
    if(Name[0] == L'%' && Name[1])
      return -1;
    if(Name[1] && wcspbrk(Name,L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!

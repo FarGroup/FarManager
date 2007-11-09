@@ -392,7 +392,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
             else
             {
               static string ErrMsg[3];
-              GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
+              Macro.GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
               KeyMacro->Param.MacroResult.ErrMsg1=ErrMsg[0];
               KeyMacro->Param.MacroResult.ErrMsg2=ErrMsg[1];
               KeyMacro->Param.MacroResult.ErrMsg3=ErrMsg[2];

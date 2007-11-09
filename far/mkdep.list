@@ -71,6 +71,7 @@ scrbuf.hpp
 scrobj.hpp
 struct.hpp
 syntax.hpp
+tvar.hpp
 TList.hpp
 treelist.hpp
 TVMStack.hpp
@@ -184,6 +185,7 @@ strftime.cpp
 strmix.cpp
 strncpy.c
 syntax.cpp
+tvar.cpp
 syslog.cpp
 treelist.cpp
 udlist.cpp

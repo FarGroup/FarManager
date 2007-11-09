@@ -276,7 +276,7 @@ enum MACRO_OP_CODE {
   MCODE_V_HELPSELTOPIC,             // Help.SelTopic
 };
 
-typedef enum MACRO_OP_CODE TFunction;
+typedef enum MACRO_OP_CODE TMacroOpCode;
 
 
 #endif // __MACROOPCODE_HPP__

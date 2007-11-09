@@ -193,7 +193,7 @@ $ # FAR: command line switches#
   #/m#    FAR will not load macros from the registry when
         started.
 
-  #/ma#    Macros with the "Run after FAR start" option set
+  #/ma#   Macros with the "Run after FAR start" option set
         will not be run upon starting FAR.
 
   #/u <username>#

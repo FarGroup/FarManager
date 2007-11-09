@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farconst.hpp"
 #include "syntax.hpp"
 #include "UnicodeString.hpp"
+#include "tvar.hpp"
 
 class Panel;
 
@@ -149,6 +150,8 @@ class KeyMacro
     void SetMode(int Mode) {KeyMacro::Mode=Mode;};
     int  GetMode() {return(Mode);};
 
+    void DropProcess();
+
     void RunStartMacro();
 
     // Поместить временное строковое представление макроса
@@ -183,7 +186,7 @@ class KeyMacro
     static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=NULL);
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr);
-    void DropProcess();
+    BOOL GetMacroParseError(string *ErrMsg1,string *ErrMsg2,string *ErrMsg3);
 };
 
 #endif // __KEYMACRO_HPP__

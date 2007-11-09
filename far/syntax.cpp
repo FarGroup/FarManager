@@ -21,536 +21,40 @@ syntax.cpp
 #include "lang.hpp"
 #include "fn.hpp"
 #include "syntax.hpp"
+#include "tvar.hpp"
 
 #define EOFCH 65536
-
-//---------------------------------------------------------------
-// Реализация класса TVar ("кастрированый" вариант - только целое
-// и строковое значение)
-//---------------------------------------------------------------
-
-static const wchar_t *toString(__int64 num)
-{
-  static wchar_t str[128];
-  _i64tow(num, str, 10);
-  return str;
-};
-
-TVar::~TVar()
-{
-  if ( str )
-    delete [] str;
-};
-
-TVar::TVar(__int64 v) :
-  vType(vtInteger),
-  inum(v)
-{
-  str = NULL;
-};
-
-TVar::TVar(const wchar_t *v) :
-  vType(vtString),
-  inum(0)
-{
-  str = new wchar_t[StrLength(v)+1];
-  if ( str )
-    wcscpy(str, v);
-};
-
-
-TVar::TVar(const TVar& v) :
-  vType(v.vType),
-  inum(v.inum)
-{
-  if ( v.str )
-  {
-    str = new wchar_t[StrLength(v.str)+1];
-    if ( str )
-      wcscpy(str, v.str);
-  }
-  else
-    str = NULL;
-};
-
-TVar& TVar::operator=(const TVar& v)
-{
-  vType = v.vType;
-  inum = v.inum;
-  if ( str )
-    delete [] str;
-  str = NULL;
-  if ( v.str )
-  {
-    str = new wchar_t[StrLength(v.str)+1];
-    if ( str )
-      wcscpy(str, v.str);
-  }
-  return *this;
-}
-
-__int64 TVar::i() const
-{
-  return isInteger() ? inum : ( str ? _wtoi64(str) : 0 );
-}
-
-const wchar_t *TVar::s() const
-{
-  if(isString())
-    return  str ? str : L"";
-  return ::toString(inum);
-}
-
-
-const wchar_t *TVar::toString()
-{
-  wchar_t s[128];
-  switch ( vType )
-  {
-    case vtInteger:
-      wcsncpy(s, ::toString(inum),(sizeof(s)-1)/sizeof (wchar_t));
-      break;
-    default:
-      return str;
-  }
-  if ( str )
-    delete [] str;
-  str = new wchar_t[StrLength(s)+1];
-  if ( str )
-    wcscpy(str, s);
-  vType = vtString;
-  return str;
-};
-
-__int64 TVar::toInteger()
-{
-  switch ( vType )
-  {
-    case vtString:
-      inum = str ? _wtoi64(str) : 0;
-      break;
-  }
-  vType = vtInteger;
-  return inum;
-};
-
-int operator==(const TVar& a, const TVar& b)
-{
-  int r = 0;
-  switch ( a.vType )
-  {
-    case vtInteger: if ( b.isInteger() ) r = a.inum == b.inum;          break;
-    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) == 0; break;
-  }
-  return r;
-};
-
-int operator!=(const TVar& a, const TVar& b)
-{
-  int r = 1;
-  switch ( a.vType )
-  {
-    case vtInteger: if ( b.isInteger() ) r = a.inum != b.inum;          break;
-    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) != 0; break;
-  }
-  return r;
-};
-
-int operator<(const TVar& a, const TVar& b)
-{
-  int r = 0;
-  switch ( a.vType )
-  {
-    case vtInteger: if ( b.isInteger() ) r = a.inum < b.inum;           break;
-    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) < 0;  break;
-  }
-  return r;
-};
-
-int operator<=(const TVar& a, const TVar& b)
-{
-  int r = 0;
-  switch ( a.vType )
-  {
-    case vtInteger: if ( b.isInteger() ) r = a.inum <= b.inum;          break;
-    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) <= 0; break;
-  }
-  return r;
-};
-
-int operator>(const TVar& a, const TVar& b)
-{
-  int r = 0;
-  switch ( a.vType )
-  {
-    case vtInteger: if ( b.isInteger() ) r = a.inum > b.inum;           break;
-    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) > 0;  break;
-  }
-  return r;
-};
-
-int operator>=(const TVar& a, const TVar& b)
-{
-  int r = 0;
-  switch ( a.vType )
-  {
-    case vtInteger: if ( b.isInteger() ) r = a.inum >= b.inum;          break;
-    case vtString:  if ( b.isString() )  r = StrCmp(a.s(), b.s()) >= 0; break;
-  }
-  return r;
-};
-
-static TVar addStr(const wchar_t *a, const wchar_t *b)
-{
-  TVar r(L"");
-  wchar_t *c = new wchar_t[StrLength(a ? a : L"")+StrLength(b ? b : L"")+1];
-  if ( c )
-  {
-    r = wcscat(wcscpy(c, a ? a : L""), b ? b : L"");
-    delete [] c;
-  }
-  return r;
-}
-
-TVar operator+(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum + b.inum;                   break;
-        case vtString:  r = addStr(::toString(a.inum), b.s()); break;
-      }
-      break;
-    case vtString:
-      switch ( b.vType )
-      {
-        case vtInteger: r = addStr(a.s(), ::toString(b.inum)); break;
-        case vtString:  r = addStr(a.s(), b.s());              break;
-      }
-      break;
-  }
-  return r;
-};
-
-TVar operator-(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum - b.inum;                  break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator*(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum * b.inum;                  break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator/(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger:
-          r = b.inum ? ( a.inum / b.inum ) : _i64(0);
-          break;
-        case vtString:
-          r = a;
-          break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator|(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum | b.inum;                  break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator&(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum & b.inum;                  break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator||(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum || b.inum;                 break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator&&(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum && b.inum;                 break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-};
-
-TVar operator^(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum ^ b.inum;                  break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-}
-
-TVar operator>>(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum >> b.inum;                 break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-}
-
-TVar operator<<(const TVar& a, const TVar& b)
-{
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum << b.inum;                 break;
-        case vtString:  r = a;                                break;
-      }
-      break;
-    case vtString:
-      r = a;
-      break;
-  }
-  return r;
-}
-
-TVar TVar::operator+()
-{
-  return *this;
-};
-
-
-TVar TVar::operator-()
-{
-  switch ( vType )
-  {
-    case vtInteger:
-      return TVar(-inum);
-    default:
-      return *this;
-  }
-};
-
-TVar TVar::operator!()
-{
-  switch ( vType )
-  {
-    case vtInteger:
-      return TVar(!inum);
-    default:
-      return *this;
-  }
-};
-
-//---------------------------------------------------------------
-// Работа с таблицами имен переменных
-//---------------------------------------------------------------
-
-int hash(const wchar_t *p)
-{
-  int i = 0;
-  wchar_t *pp = (wchar_t*)p;
-  while ( *pp )
-    i = i << (1^*(pp++));
-  if ( i < 0 )
-    i = -i;
-  i %= V_TABLE_SIZE;
-  return i;
-}
-
-int isVar(TVarTable table, const wchar_t *p)
-{
-  int i = hash(p);
-  for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-    if ( !StrCmpI(n->str, p) )
-      return 1;
-  return 0;
-}
-
-TVarSet *varLook(TVarTable table, const wchar_t *p, int& error, int ins)
-{
-  int i = hash(p);
-  error = 0;
-  for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-    if ( !StrCmpI(n->str, p) )
-      return n;
-  if ( !ins )
-    error = 1;
-  TVarSet *nn = new TVarSet(p);
-  nn->next = table[i];
-  table[i] = nn;
-  return nn;
-}
-
-TVarSet *varEnum(TVarTable table,int NumTable, int Index)
-{
-  if((DWORD)NumTable >= V_TABLE_SIZE)
-    return NULL;
-
-  TVarSet *n = table[NumTable];
-  for(int I=0; I < Index && n; ++I)
-    n = ((TVarSet*)n->next);
-
-  return n;
-}
-
-void varKill(TVarTable table, const wchar_t *p)
-{
-  int i = hash(p);
-  TVarSet *nn = table[i];
-  for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
-  {
-    if ( !StrCmpI(n->str, p) )
-    {
-      if(n == table[i])
-         table[i]=((TVarSet*)n->next);
-      else
-         nn->next= n->next;
-
-      //( ( n == table[i] ) ? table[i] : nn->next ) = n->next;
-      delete n;
-      return;
-    }
-    nn = n;
-  }
-}
-
-void initVTable(TVarTable table)
-{
-  for ( int i = 0 ; i < V_TABLE_SIZE ; i++ )
-    table[i] = NULL;
-}
-
-void deleteVTable(TVarTable table)
-{
-  for ( int i = 0 ; i < V_TABLE_SIZE ; i++ )
-    while ( table[i] != NULL )
-    {
-      TVarSet *n = ((TVarSet*)(table[i]->next));
-      table[i]->next = NULL;
-      delete table[i];
-      table[i] = n;
-    }
-}
 
 static int Size = 0;
 static unsigned long FARVar, *exprBuff = NULL;
 static int IsProcessFunc=0;
+
+static int _macro_nErr = 0;
+static int _macro_ErrCode=err_Success;
+static wchar_t nameString[1024];
+static wchar_t *sSrcString;
+static wchar_t *pSrcString = NULL;
+static wchar_t *oSrcString = NULL;
+
+static TToken currTok = tNo;
+static TVar currVar;
+
+static void expr(void);
+static __int64 _cdecl getInt64();
+
+#ifdef _DEBUG
+#ifdef SYSLOG_KEYMACRO
+static void printKeyValue(DWORD* k, int& i);
+#endif
+#endif
+
+static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText);
+static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);
+static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=NULL);
+static void keyMacroParseError(int err, const wchar_t *c = NULL);
+
+//-----------------------------------------------
+static string ErrMessage[3];
 
 static void put(unsigned long code)
 {
@@ -581,39 +85,7 @@ static void putstr(const wchar_t *s)
   Size+=nSize;
 }
 
-int _macro_nErr = 0;
-int _macro_ErrCode=err_Success;
-static wchar_t nameString[1024];
-static wchar_t *sSrcString;
-static wchar_t *pSrcString = NULL;
-static wchar_t *oSrcString = NULL;
-
-static TToken currTok = tNo;
-static TVar currVar;
-
-static void expr(void);
-static __int64 _cdecl getInt64();
-
-//-----------------------------------------------
-static string ErrMessage[3];
-
-BOOL GetMacroParseError(string *strErrMsg1,string *strErrMsg2,string *strErrMsg3)
-{
-  if(_macro_nErr)
-  {
-    if(strErrMsg1)
-      *strErrMsg1 = ErrMessage[0];
-    if(strErrMsg2)
-      *strErrMsg2 = ErrMessage[1];
-    if(strErrMsg3)
-      *strErrMsg3 = ErrMessage[2];
-    return TRUE;
-  }
-  return FALSE;
-}
-
-
-void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c)
+static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c)
 {
   if ( !_macro_nErr++ )
   {
@@ -644,7 +116,7 @@ void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar
   }
 }
 
-void keyMacroParseError(int err, const wchar_t *c = NULL)
+static void keyMacroParseError(int err, const wchar_t *c)
 {
   keyMacroParseError(err, oSrcString, pSrcString, c);
   //                      ^ s?
@@ -676,7 +148,7 @@ static inline int getChar()
 typedef struct __TMacroFunction{
   const wchar_t *Name;             // имя функции
   int nParam;                   // количество параметров
-  TFunction Code;               // байткод функции
+  TMacroOpCode Code;               // байткод функции
 } TMacroFunction;
 
 static TMacroFunction macroFunction[]={
@@ -720,7 +192,7 @@ static TMacroFunction macroFunction[]={
   {L"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
 
-DWORD funcLook(const wchar_t *s, int& nParam)
+static DWORD funcLook(const wchar_t *s, int& nParam)
 {
   nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
@@ -739,7 +211,7 @@ static TToken getToken(void);
 static void calcFunc(void)
 {
   int nParam;
-  TFunction nFunc = (TFunction)funcLook(nameString, nParam);
+  TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam);
   if ( nFunc != MCODE_F_NOFUNC )
   {
     IsProcessFunc++;
@@ -1026,8 +498,12 @@ static TToken getToken(void)
             }
           if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
             keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
-          else if(KeyNameToKey(nameString) == -1)
-            keyMacroParseError(err_Unrecognized_keyword,nameString);
+          else
+          {
+            if(KeyNameMacroToKey(nameString) == -1)
+              if(KeyNameToKey(nameString) == -1)
+              keyMacroParseError(err_Unrecognized_keyword,nameString);
+          }
         }
       }
       break;
@@ -1148,7 +624,7 @@ static void expr(void)
     }
 }
 
-int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wchar_t bound2)
+static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wchar_t bound2)
 {
   wchar_t tmp[4];
   IsProcessFunc=0;
@@ -1215,4 +691,736 @@ int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound1, wcha
   }
 #endif
   return Size;
+}
+
+
+static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
+{
+   // пропускаем ведущие пробельные символы
+   while (IsSpace(*BufPtr) || IsEol(*BufPtr))
+   {
+     if(IsEol(*BufPtr))
+     {
+       //TODO!!!
+     }
+     BufPtr++;
+   }
+
+   if (*BufPtr==0)
+     return NULL;
+
+   const wchar_t *CurBufPtr=BufPtr;
+   wchar_t Chr=*BufPtr, Chr2=BufPtr[1];
+   BOOL SpecMacro=Chr==L'$' && Chr2 && !(IsSpace(Chr2) || IsEol(Chr2));
+
+   // ищем конец очередного названия клавиши
+   while (Chr && !(IsSpace(Chr) || IsEol(Chr)))
+   {
+     if(SpecMacro && (Chr == L'[' || Chr == L'(' || Chr == L'{'))
+       break;
+     BufPtr++;
+     Chr=*BufPtr;
+   }
+   int Length=(int)(BufPtr-CurBufPtr);
+
+   wchar_t *CurKeyText = strCurKeyText.GetBuffer (Length);
+
+   wcsncpy(CurKeyText,CurBufPtr,Length);
+   CurKeyText[Length] = 0;
+
+   strCurKeyText.ReleaseBuffer ();
+
+   return BufPtr;
+}
+
+// Парсер строковых эквивалентов в коды клавиш
+//- AN ----------------------------------------------
+//  Парсер строковых эквивалентов в байткод
+//  Переписан практически с нуля 15.11.2003
+//- AN ----------------------------------------------
+
+#ifdef _DEBUG
+#ifdef SYSLOG_KEYMACRO
+static wchar_t *printfStr(DWORD* k, int& i)
+{
+  i++;
+  wchar_t *s = (wchar_t *)&k[i];
+  while ( StrLength((wchar_t*)&k[i]) > 2 )
+    i++;
+  return s;
+}
+
+static void printKeyValue(DWORD* k, int& i)
+{
+  DWORD Code=k[i];
+  string _mcodename=_MCODE_ToName(Code);
+  string cmt=L"";
+
+  static struct {
+    DWORD c;
+    const wchar_t *n;
+  } kmf[]={
+    {MCODE_F_ABS,              L"N=abs(N)"},
+    {MCODE_F_ASC,              L"N=asc(S)"},
+    {MCODE_F_CHR,              L"S=chr(N)"},
+    {MCODE_F_AKEY,             L"S=akey()"},
+    {MCODE_F_CLIP,             L"V=clip(N,S)"},
+    {MCODE_F_DATE,             L"S=date(S)"},
+    {MCODE_F_DLG_GETVALUE,     L"V=Dlg.GetValue(ID,N)"},
+    {MCODE_F_EDITOR_SET,       L"N=Editor.Set(N,Var)"},
+    {MCODE_F_ENVIRON,          L"S=env(S)"},
+    {MCODE_F_FATTR,            L"N=fattr(S)"},
+    {MCODE_F_FEXIST,           L"S=fexist(S)"},
+    {MCODE_F_FLOCK,            L"N=FLock(N,N)"},
+    {MCODE_F_FSPLIT,           L"S=fsplit(S,N)"},
+    {MCODE_F_IIF,              L"V=iif(Condition,V1,V2)"},
+    {MCODE_F_INDEX,            L"S=index(S1,S2)"},
+    {MCODE_F_INT,              L"N=int(V)"},
+    {MCODE_F_ITOA,             L"S=itoa(N,radix)"},
+    {MCODE_F_LCASE,            L"S=lcase(S1)"},
+    {MCODE_F_LEN,              L"N=len(S)"},
+    {MCODE_F_MAX,              L"N=max(N1,N2)"},
+    {MCODE_F_MENU_CHECKHOTKEY, L"N=checkhotkey(S)"},
+    {MCODE_F_MENU_GETHOTKEY,   L"S=gethotkey()"},
+    {MCODE_F_MIN,              L"N=min(N1,N2)"},
+    {MCODE_F_MSAVE,            L"N=msave(S)"},
+    {MCODE_F_MSGBOX,           L"N=msgbox(sTitle,sText,flags)"},
+    {MCODE_F_PANEL_FATTR,      L"N=panel.fattr(panelType,S)"},
+    {MCODE_F_PANEL_FEXIST,     L"S=panel.fexist(panelType,S)"},
+    {MCODE_F_PANEL_SETPOS,     L"N=panel.SetPos(panelType,fileName)"},
+    {MCODE_F_PANEL_SETPOSIDX,  L"N=panel.SetPosIdx(panelType,Index)"},
+    {MCODE_F_PANELITEM,        L"V=panelitem(Panel,Index,TypeInfo)"},
+    {MCODE_F_EVAL,             L"N=eval(S)"},
+    {MCODE_F_RINDEX,           L"S=rindex(S1,S2)"},
+    {MCODE_F_SLEEP,            L"N=Sleep(N)"},
+    {MCODE_F_STRING,           L"S=string(V)"},
+    {MCODE_F_SUBSTR,           L"S=substr(S1,S2,N)"},
+    {MCODE_F_UCASE,            L"S=ucase(S1)"},
+    {MCODE_F_WAITKEY,          L"S=waitkey(N)"},
+    {MCODE_F_XLAT,             L"S=xlat(S)"},
+ };
+
+  if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
+  {
+    for(int J=0; J <= sizeof(kmf)/sizeof(kmf[0]); ++J)
+      if(kmf[J].c == Code)
+      {
+         cmt=kmf[J].n;
+         break;
+      }
+  }
+
+  if(Code == MCODE_OP_KEYS)
+  {
+    string strTmp;
+    SysLog(L"%08X: %08X | MCODE_OP_KEYS", i,MCODE_OP_KEYS);
+    ++i;
+    while((Code=k[i]) != MCODE_OP_ENDKEYS)
+    {
+      if ( KeyToText(Code, strTmp) )
+        SysLog(L"%08X: %08X | Key: '%s'", i,Code,(const wchar_t*)strTmp);
+      else
+        SysLog(L"%08X: %08X | ???", i,Code);
+      ++i;
+    }
+    SysLog(L"%08X: %08X | MCODE_OP_ENDKEYS", i,MCODE_OP_ENDKEYS);
+    return;
+  }
+
+  if(Code >= KEY_MACRO_BASE && Code <= KEY_MACRO_ENDBASE)
+  {
+    SysLog(L"%08X: %s  %s%s", i,_mcodename,(!cmt.IsEmpty()?L"# ":L""),(!cmt.IsEmpty()?(const wchar_t*)cmt:L""));
+  }
+
+  int ii = i;
+
+
+  if ( !Code )
+  {
+    SysLog(L"%08X: %08X | <null>", ii,k[i]);
+  }
+  else if ( Code == MCODE_OP_REP )
+  {
+    FARINT64 i64;
+    i64.Part.HighPart=k[i+1];
+    i64.Part.LowPart=k[i+2];
+    SysLog(L"%08X: %08X |   %I64d", ii,k[i+1],i64.i64);
+    SysLog(L"%08X: %08X |", ii,k[i+2]);
+    i+=2;
+  }
+  else if ( Code == MCODE_OP_PUSHINT )
+  {
+    FARINT64 i64;
+    ++i;
+    i64.Part.HighPart=k[i];
+    i64.Part.LowPart=k[i+1];
+    SysLog(L"%08X: %08X |   %I64d", ++ii,k[i],i64.i64);
+    ++i;
+    SysLog(L"%08X: %08X |", ++ii,k[i]);
+  }
+  else if ( Code == MCODE_OP_PUSHSTR || Code == MCODE_OP_PUSHVAR || Code == MCODE_OP_SAVE)
+  {
+    int iii=i+1;
+    const wchar_t *s=printfStr(k, i);
+    if(Code == MCODE_OP_PUSHSTR)
+      SysLog(L"%08X: %08X |   \"%s\"", iii,k[iii], s);
+    else
+      SysLog(L"%08X: %08X |   %%%s", iii,k[iii], s);
+    for(iii++; iii <= i; ++iii)
+      SysLog(L"%08X: %08X |", iii,k[iii]);
+  }
+  else if ( Code >= MCODE_OP_JMP && Code <= MCODE_OP_JGE)
+  {
+    ++i;
+    SysLog(L"%08X: %08X |   %08X (%s)", i,k[i],k[i],((DWORD)k[i]<(DWORD)i?L"up":L"down"));
+  }
+/*
+  else if ( Code == MCODE_OP_DATE )
+  {
+    //sprint(ii, L"$date ''");
+  }
+  else if ( Code == MCODE_OP_PLAINTEXT )
+  {
+    //sprint(ii, L"$text ''");
+  }
+*/
+  else if(k[i] < KEY_MACRO_BASE || k[i] > KEY_MACRO_ENDBASE)
+  {
+    int FARFunc = 0;
+    for ( int j = 0 ; j < MKeywordsSize ; j++ )
+    {
+      if ( k[i] == MKeywords[j].Value)
+      {
+        FARFunc = 1;
+        SysLog(L"%08X: %08X | %s", ii,Code,MKeywords[j].Name);
+        break;
+      }
+      else if ( Code == MKeywordsFlags[j].Value)
+      {
+        FARFunc = 1;
+        SysLog(L"%08X: %08X | %s", ii,Code,MKeywordsFlags[j].Name);
+        break;
+      }
+    }
+    if ( !FARFunc )
+    {
+      string strTmp;
+      if ( KeyToText(k[i], strTmp) )
+        SysLog(L"%08X: %08X | Key: '%s'", ii,Code,(const wchar_t*)strTmp);
+      else if(!cmt.IsEmpty())
+        SysLog(L"%08X: %08X | ???", ii,Code);
+    }
+  }
+}
+#endif
+#endif
+
+// Стек структурных операторов
+enum TExecMode
+{
+  emmMain, emmWhile, emmThen, emmElse, emmRep
+};
+
+struct TExecItem
+{
+  TExecMode state;
+  DWORD pos1, pos2;
+};
+
+class TExec
+{
+  private:
+    TExecItem stack[MAXEXEXSTACK];
+  public:
+    int current;
+    void init()
+    {
+      current = 0;
+      stack[current].state = emmMain;
+      stack[current].pos1 = stack[current].pos2 = 0;
+    }
+    TExec() { init(); }
+    TExecItem& operator()() { return stack[current]; }
+    int add(TExecMode, DWORD, DWORD = 0);
+    int del();
+};
+
+int TExec::add(TExecMode s, DWORD p1, DWORD p2)
+{
+  if ( ++current < MAXEXEXSTACK )
+  {
+    stack[current].state = s;
+    stack[current].pos1 = p1;
+    stack[current].pos2 = p2;
+    return TRUE;
+  }
+  // Stack Overflow
+  return FALSE;
+};
+
+int TExec::del()
+{
+  if ( --current < 0 )
+  {
+    // Stack Underflow ???
+    current = 0;
+    return FALSE;
+  }
+  return TRUE;
+};
+
+//- AN ----------------------------------------------
+//  Компиляция строки BufPtr в байткод CurMacroBuffer
+//- AN ----------------------------------------------
+int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr)
+{
+  _KEYMACRO(CleverSysLog Clev(L"parseMacroString"));
+  _KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
+  _macro_nErr = 0;
+  if ( BufPtr == NULL || !*BufPtr)
+    return FALSE;
+
+  int SizeCurKeyText = (int)(StrLength(BufPtr)*2)*sizeof (wchar_t);
+
+  string strCurrKeyText;
+  //- AN ----------------------------------------------
+  //  Буфер под парсинг выражений
+  //- AN ----------------------------------------------
+  DWORD *exprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
+  if ( exprBuff == NULL )
+    return FALSE;
+
+  TExec exec;
+  wchar_t varName[256];
+  DWORD KeyCode, *CurMacro_Buffer = NULL;
+
+  for (;;)
+  {
+    int Size = 1;
+    int SizeVarName = 0;
+    const wchar_t *oldBufPtr = BufPtr;
+
+    if ( ( BufPtr = __GetNextWord(BufPtr, strCurrKeyText) ) == NULL )
+       break;
+
+    _SVS(SysLog(L"strCurrKeyText=%s",(const wchar_t*)strCurrKeyText));
+    //- AN ----------------------------------------------
+    //  Проверка на строковый литерал
+    //  Сделаем $Text опциональным
+    //- AN ----------------------------------------------
+    if ( strCurrKeyText.At(0) == L'\"' && strCurrKeyText.At(1) )
+    {
+      KeyCode = MCODE_OP_PLAINTEXT;
+      BufPtr = oldBufPtr;
+    }
+    else if ( ( KeyCode = KeyNameToKey(strCurrKeyText) ) == (DWORD)-1 )
+    {
+      int ProcError=0;
+
+      if ( strCurrKeyText.At(0) == L'%' &&
+           (
+             ( IsAlphaNum(strCurrKeyText.At(1)) || strCurrKeyText.At(1) == L'_' ) ||
+             (
+               strCurrKeyText.At(1) == L'%' &&
+               ( IsAlphaNum(strCurrKeyText.At(2)) || strCurrKeyText.At(2)==L'_' )
+             )
+           )
+         )
+      {
+        BufPtr = oldBufPtr;
+        while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
+          BufPtr++;
+        memset(varName, 0, sizeof(varName));
+        KeyCode = MCODE_OP_SAVE;
+        wchar_t* p = varName;
+        const wchar_t* s = (const wchar_t*)strCurrKeyText+1;
+        if ( *s == L'%' )
+          *p++ = *s++;
+        wchar_t ch;
+        *p++ = *s++;
+        while ( ( iswalnum(ch = *s++) || ( ch == L'_') ) )
+          *p++ = ch;
+        *p = 0;
+        int Length = (int)(StrLength(varName)+1)*sizeof(wchar_t);
+        // строка должна быть выровнена на 4
+        SizeVarName = Length/sizeof(DWORD);
+        if ( Length == sizeof(wchar_t) || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
+          SizeVarName++;
+        _SVS(SysLog(L"BufPtr=%s",BufPtr));
+        BufPtr += Length/sizeof(wchar_t);
+        _SVS(SysLog(L"BufPtr=%s",BufPtr));
+        Size += parseExpr(BufPtr, exprBuff, L'=', L';');
+        if(_macro_nErr)
+        {
+          ProcError++;
+        }
+      }
+      else
+      {
+        // проверим вариант, когда вызвали функцию, но результат не присвоили,
+        // например, вызвали MsgBox(), но результат неважен
+        // тогда SizeVarName=1 и varName=""
+        int __nParam;
+
+        wchar_t *lpwszCurrKeyText = strCurrKeyText.GetBuffer();
+        wchar_t *Brack=(wchar_t *)wcspbrk(lpwszCurrKeyText,L"( "), Chr=0;
+        if(Brack)
+        {
+          Chr=*Brack;
+          *Brack=0;
+        }
+
+        if(funcLook(lpwszCurrKeyText, __nParam) != MCODE_F_NOFUNC)
+        {
+          if(Brack) *Brack=Chr;
+          BufPtr = oldBufPtr;
+          while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
+            BufPtr++;
+          Size += parseExpr(BufPtr, exprBuff, 0, 0);
+          //Size--; //???
+          if(_macro_nErr)
+          {
+            ProcError++;
+          }
+          else
+          {
+            KeyCode=MCODE_OP_SAVE;
+            SizeVarName=1;
+            memset(varName, 0, sizeof(varName));
+          }
+        }
+        else
+        {
+          if(Brack) *Brack=Chr;
+          ProcError++;
+        }
+
+        strCurrKeyText.ReleaseBuffer();
+      }
+
+      if(ProcError)
+      {
+        if(!_macro_nErr)
+          keyMacroParseError(err_Unrecognized_keyword, strCurrKeyText, strCurrKeyText,strCurrKeyText);
+
+        if ( CurMacro_Buffer != NULL )
+        {
+          xf_free(CurMacro_Buffer);
+          CurMacroBuffer = NULL;
+        }
+        CurMacroBufferSize = 0;
+        xf_free(exprBuff);
+        return FALSE;
+      }
+
+    }
+    else if(!(strCurrKeyText.At(0) == L'$' && strCurrKeyText.At(1)))
+    {
+      Size=3;
+      KeyCode=MCODE_OP_KEYS;
+    }
+
+    switch ( KeyCode )
+    {
+      case MCODE_OP_DATE:
+        while ( *BufPtr && IsSpace(*BufPtr) )
+          BufPtr++;
+        if ( *BufPtr == L'\"' && BufPtr[1] )
+          Size += parseExpr(BufPtr, exprBuff, 0, 0);
+        else // Опциональность аргумента
+        {
+          Size += 2;
+          exprBuff[0] = MCODE_OP_PUSHSTR;
+          exprBuff[1] = 0;
+        }
+        break;
+      case MCODE_OP_PLAINTEXT:
+        Size += parseExpr(BufPtr, exprBuff, 0, 0);
+        break;
+
+// $Rep (expr) ... $End
+// -------------------------------------
+//            <expr>
+//            MCODE_OP_SAVEREPCOUNT       1
+// +--------> MCODE_OP_REP                    p1=*
+// |          <counter>                   3
+// |          <counter>                   4
+// |          MCODE_OP_JZ  ------------+  5   p2=*+2
+// |          ...                      |
+// +--------- MCODE_OP_JMP             |
+//            MCODE_OP_END <-----------+
+
+      case MCODE_OP_REP:
+        Size += parseExpr(BufPtr, exprBuff, L'(', L')');
+        if ( !exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4) ) //??? 3
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacroBuffer = NULL;
+          }
+          CurMacroBufferSize = 0;
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        Size += 5;  // естественно, размер будет больше = 4
+        break;
+
+// $If (expr) ... $End
+// -------------------------------------
+//            <expr>
+//            MCODE_OP_JZ  ------------+      p1=*+0
+//            ...                      |
+// +--------- MCODE_OP_JMP             |
+// |          ...          <-----------+
+// +--------> MCODE_OP_END
+
+// или
+
+//            <expr>
+//            MCODE_OP_JZ  ------------+      p1=*+0
+//            ...                      |
+//            MCODE_OP_END <-----------+
+
+      case MCODE_OP_IF:
+        Size += parseExpr(BufPtr, exprBuff, L'(', L')');
+        if ( !exec.add(emmThen, CurMacroBufferSize+Size) )
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacroBuffer = NULL;
+          }
+          CurMacroBufferSize = 0;
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        Size++;
+        break;
+
+      case MCODE_OP_ELSE:
+        Size++;
+        break;
+
+// $While (expr) ... $End
+// -------------------------------------
+// +--------> <expr>
+// |          MCODE_OP_JZ  ------------+
+// |          ...                      |
+// +--------- MCODE_OP_JMP             |
+//            MCODE_OP_END <-----------+
+
+      case MCODE_OP_WHILE:
+        Size += parseExpr(BufPtr, exprBuff, L'(', L')');
+        if ( !exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size) )
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacroBuffer = NULL;
+          }
+          CurMacroBufferSize = 0;
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        Size++;
+        break;
+      case MCODE_OP_END:
+        switch ( exec().state )
+        {
+          case emmRep:
+          case emmWhile:
+            Size += 2; // Место под дополнительный JMP
+            break;
+        }
+        break;
+    }
+    if(_macro_nErr)
+    {
+      if ( CurMacro_Buffer != NULL )
+      {
+        xf_free(CurMacro_Buffer);
+        CurMacroBuffer = NULL;
+      }
+      CurMacroBufferSize = 0;
+      xf_free(exprBuff);
+      return FALSE;
+    }
+
+    if ( BufPtr == NULL ) // ???
+      break;
+    // код найден, добавим этот код в буфер последовательности.
+    CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+Size+SizeVarName));
+    if ( CurMacro_Buffer == NULL )
+    {
+      CurMacroBuffer = NULL;
+      CurMacroBufferSize = 0;
+      xf_free(exprBuff);
+      return FALSE;
+    }
+    switch ( KeyCode )
+    {
+      case MCODE_OP_DATE:
+      case MCODE_OP_PLAINTEXT:
+        _SVS(SysLog(L"[%d] Size=%u",__LINE__,Size));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+        break;
+      case MCODE_OP_SAVE:
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+        memcpy(CurMacro_Buffer+CurMacroBufferSize+Size, varName, SizeVarName*sizeof(DWORD));
+        break;
+      case MCODE_OP_IF:
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
+        break;
+      case MCODE_OP_REP:
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT;
+        CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;
+        CurMacro_Buffer[CurMacroBufferSize+Size-4] = 0; // Initilize 0
+        CurMacro_Buffer[CurMacroBufferSize+Size-3] = 0;
+        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
+        break;
+      case MCODE_OP_WHILE:
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
+        break;
+      case MCODE_OP_ELSE:
+        if ( exec().state == emmThen )
+        {
+          exec().state = emmElse;
+          CurMacro_Buffer[exec().pos1] = CurMacroBufferSize+2;
+          exec().pos1 = CurMacroBufferSize;
+          CurMacro_Buffer[CurMacroBufferSize] = 0;
+        }
+        else // тут $else и не предвиделось :-/
+        {
+          keyMacroParseError(err_Not_expected_ELSE, oldBufPtr+1, oldBufPtr); // strCurrKeyText
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacroBuffer = NULL;
+          }
+          CurMacroBufferSize = 0;
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        break;
+      case MCODE_OP_END:
+        switch ( exec().state )
+        {
+          case emmMain:
+            // тут $end и не предвиделось :-/
+            keyMacroParseError(err_Not_expected_END, oldBufPtr+1, oldBufPtr); // strCurrKeyText
+            if ( CurMacro_Buffer != NULL )
+            {
+              xf_free(CurMacro_Buffer);
+              CurMacroBuffer = NULL;
+            }
+            CurMacroBufferSize = 0;
+            xf_free(exprBuff);
+            return FALSE;
+          case emmThen:
+            CurMacro_Buffer[exec().pos1-1] = MCODE_OP_JZ;
+            CurMacro_Buffer[exec().pos1+0] = CurMacroBufferSize+Size-1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+            break;
+          case emmElse:
+            CurMacro_Buffer[exec().pos1-0] = MCODE_OP_JMP; //??
+            CurMacro_Buffer[exec().pos1+1] = CurMacroBufferSize+Size-1; //??
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+            break;
+          case emmRep:
+            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;   //??????
+            CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
+            CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+            break;
+          case emmWhile:
+            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
+            CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+            break;
+        }
+        if ( !exec.del() )  // Вообще-то этого быть не должно,  но подстрахуемся
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacroBuffer = NULL;
+          }
+          CurMacroBufferSize = 0;
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        break;
+      case MCODE_OP_KEYS:
+      {
+        CurMacro_Buffer[CurMacroBufferSize+Size-3]=MCODE_OP_KEYS;
+        CurMacro_Buffer[CurMacroBufferSize+Size-2]=KeyNameToKey(strCurrKeyText);
+        CurMacro_Buffer[CurMacroBufferSize+Size-1]=MCODE_OP_ENDKEYS;
+        break;
+      }
+      default:
+        CurMacro_Buffer[CurMacroBufferSize]=KeyCode;
+
+    } // end switch(KeyCode)
+    CurMacroBufferSize += Size+SizeVarName;
+  } // END for (;;)
+#ifdef _DEBUG
+#ifdef SYSLOG_KEYMACRO
+  SysLogDump(L"Macro Buffer",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
+  SysLog(L"<ByteCode>{");
+  if ( CurMacro_Buffer )
+  {
+    int ii;
+    for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
+      printKeyValue(CurMacro_Buffer, ii);
+  }
+  else
+    SysLog(L"??? is NULL");
+  SysLog(L"}</ByteCode>");
+#endif
+#endif
+  if ( CurMacroBufferSize > 1 )
+    CurMacroBuffer = CurMacro_Buffer;
+  else if ( CurMacro_Buffer )
+  {
+    CurMacroBuffer = reinterpret_cast<DWORD*>((DWORD_PTR)(*CurMacro_Buffer));
+    xf_free(CurMacro_Buffer);
+  }
+  xf_free(exprBuff);
+  if ( exec().state != emmMain )
+  {
+    keyMacroParseError(err_Unexpected_EOS, strCurrKeyText, strCurrKeyText);
+    return FALSE;
+  }
+  if ( _macro_nErr )
+    return FALSE;
+  return TRUE;
+}
+
+BOOL __getMacroParseError(string *strErrMsg1,string *strErrMsg2,string *strErrMsg3)
+{
+  if(_macro_nErr)
+  {
+    if(strErrMsg1)
+      *strErrMsg1 = ErrMessage[0];
+    if(strErrMsg2)
+      *strErrMsg2 = ErrMessage[1];
+    if(strErrMsg3)
+      *strErrMsg3 = ErrMessage[2];
+    return TRUE;
+  }
+  return FALSE;
+}
+
+int  __getMacroErrorCode(int *nErr)
+{
+  if(nErr)
+    *nErr=_macro_nErr;
+  return _macro_ErrCode;
 }
