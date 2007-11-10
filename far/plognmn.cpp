@@ -66,7 +66,7 @@ PreserveLongName::~PreserveLongName()
 
 			strNewName = strSaveShortName;
 
-			CutToSlash(strNewName);
+			CutToSlash(strNewName,true);
 
 			strNewName += "\\";
 			strNewName += strSaveLongName;

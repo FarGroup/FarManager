@@ -3151,7 +3151,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
           }
           string strDestDir = DestName;
 
-          if (CutToSlash(strDestDir))
+          if (CutToSlash(strDestDir,true))
             CreatePath(strDestDir);
 
           DestHandle=apiCreateFile(
@@ -3970,7 +3970,7 @@ string &ShellCopy::GetParentFolder(const wchar_t *Src, string &strDest)
     return strDest;
   }
 
-  CutToSlash(strDestFullName);
+  CutToSlash(strDestFullName,true);
 
   strDest = strDestFullName; //??? а почему бы сразу не работать с strDest???
 

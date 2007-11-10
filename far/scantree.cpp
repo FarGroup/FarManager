@@ -132,7 +132,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))
         Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
-      CutToSlash(strFindPath);
+      CutToSlash(strFindPath,true);
 
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
@@ -140,7 +140,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
         apiGetFindDataEx (strFindPath, fdata);
       }
 
-      CutToSlash(strFindPath, false);
+      CutToSlash(strFindPath);
 
       strFindPath += strFindMask;
 
@@ -163,7 +163,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       ((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC ||
           (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK)))
     {
-      CutToSlash(strFindPath, false);
+      CutToSlash(strFindPath);
 
       strFindPath += fdata->strFileName;
 
@@ -186,7 +186,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
   strFullName = strFindPath;
 
-  CutToSlash(strFullName, false);
+  CutToSlash(strFullName);
 
   strFullName += fdata->strFileName;
   return TRUE;
@@ -205,8 +205,8 @@ void ScanTree::SkipDir()
   if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))
     Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
+  CutToSlash(strFindPath,true);
   CutToSlash(strFindPath);
-  CutToSlash(strFindPath, false);
 
   strFindPath += strFindMask;
 }

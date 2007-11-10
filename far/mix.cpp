@@ -1351,7 +1351,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 
         while ( true )
         {
-					if (!CutToSlash(strTestPathTemp))
+					if (!CutToSlash(strTestPathTemp,true))
 						break;
 
 					if(GetFileAttributesW(strTestPathTemp) != -1)

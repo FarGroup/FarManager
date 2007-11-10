@@ -606,7 +606,7 @@ int FileList::ProcessKey(int Key)
 
             strRealDir = strPluginFile;
 
-            if(CutToSlash(strRealDir, false))
+            if(CutToSlash(strRealDir))
             {
               SetCurDir(strRealDir,TRUE);
               GoToFile(PointToName(strPluginFile));

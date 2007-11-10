@@ -883,7 +883,7 @@ int DeleteFileWithFolder(const wchar_t *FileName)
   {
     if(DeleteFileW(strFileOrFolderName)) //BUGBUG
     {
-      CutToSlash(strFileOrFolderName);
+      CutToSlash(strFileOrFolderName,true);
       return apiRemoveDirectory(strFileOrFolderName);
     }
   }
