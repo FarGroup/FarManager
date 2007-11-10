@@ -227,7 +227,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
       int Count=sizeof(ColorIndex)/sizeof(ColorIndex[0]);
       if(Count>Colors->ColorCount) Count=Colors->ColorCount;
       for(int i=0;i<Count;i++)
-        Colors->Colors[i]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)(ColorIndex[i]));
+        Colors->Colors[i]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)(INT_PTR)(ColorIndex[i]));
       return TRUE;
     }
   }
