@@ -743,20 +743,14 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
   BOOL Ret=FALSE;
   if( !strPath.IsEmpty() )
   {
-    int Length=(int)strPath.GetLength()-1;
+    size_t len=strPath.GetLength();
     wchar_t *lpwszPath = strPath.GetBuffer ();
-    wchar_t *lpwszEndPath = lpwszPath+Length;
-    while ( lpwszEndPath >= lpwszPath )
+    while ( len && lpwszPath[--len] == L'\\' )
     {
-      if(*lpwszEndPath == L'\\') //LAME!!!
-      {
-        Ret=TRUE;
-        *(lpwszEndPath--)=0;
-        if(!allendslash)
-        	break;
-      }
-      else
-      	break;
+      Ret=TRUE;
+      lpwszPath[len] = L'\0';
+      if (!allendslash)
+        break;
     }
     strPath.ReleaseBuffer();
   }
@@ -1475,23 +1469,17 @@ void UnicodeToAnsi (
 
 bool CutToSlash(string &strStr, bool bInclude)
 {
-	bool bRet = false;
-	wchar_t *lpwszStr = strStr.GetBuffer ();
-
-	lpwszStr = wcsrchr (lpwszStr, '\\');
+  wchar_t *lpwszStr = wcsrchr(strStr.GetBuffer(), L'\\');
 
 	if ( lpwszStr )
-	{
 		if ( bInclude )
 			*lpwszStr = 0;
 		else
 			*(lpwszStr+1) = 0;
-		bRet = true;
-	}
 
 	strStr.ReleaseBuffer ();
 
-	return bRet;
+  return lpwszStr != NULL;
 }
 
 string& CutToNameUNC(string &strPath)

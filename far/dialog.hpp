@@ -232,17 +232,17 @@ class Dialog: public Frame
 
   private:
     INT_PTR PluginNumber;       // Номер плагина, для формирования HelpTopic
-    int FocusPos;               // всегда известно какой элемент в фокусе
-    int PrevFocusPos;           // всегда известно какой элемент был в фокусе
+    unsigned FocusPos;               // всегда известно какой элемент в фокусе
+    unsigned PrevFocusPos;           // всегда известно какой элемент был в фокусе
     int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
     BitFlags DialogMode;        // Флаги текущего режима диалога
 
     LONG_PTR DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 
-    struct DialogItemEx **Item;    // массив элементов диалога
+    struct DialogItemEx **Item; // массив элементов диалога
     DialogItemEx *pSaveItemEx;
 
-    int ItemCount;              // количество элементов диалога
+    unsigned ItemCount;         // количество элементов диалога
 
     ConsoleTitle *OldTitle;     // предыдущий заголовок
     int DialogTooLong;          //
@@ -261,6 +261,8 @@ class Dialog: public Frame
 
     int RealWidth, RealHeight;
 
+    REALLOC ReAlloc;
+
   private:
     virtual void DisplayObject();
     void DeleteDialogObjects();
@@ -273,11 +275,9 @@ class Dialog: public Frame
        + Изменяет фокус ввода между двумя элементами.
          Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
     */
-    int ChangeFocus2(int KillFocusPos,int SetFocusPos);
+    int ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos);
 
-    int ChangeFocus(int FocusPos,int Step,int SkipGroup);
-    static int IsEdit(int Type);
-    static int IsFocused(int Type);
+    int ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
     BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr,int MaxLen);
     int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
     int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
@@ -321,7 +321,8 @@ class Dialog: public Frame
     LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
 
   public:
-    Dialog(struct DialogItemEx *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
+    Dialog(struct DialogItemEx *Item, unsigned ItemCount,
+           FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
     virtual ~Dialog();
 
   public:
@@ -331,14 +332,16 @@ class Dialog: public Frame
     virtual void Show();
     virtual void Hide();
     void FastShow() {ShowDialog();}
+    inline void setReAlloc(REALLOC cbReAlloc) { ReAlloc=cbReAlloc; }  // for plugins
 
     void GetDialogObjectsData();
 
     void SetDialogMode(DWORD Flags){ DialogMode.Set(Flags); }
 
     // преобразования из внутреннего представления в FarDialogItem и обратно
-    static void ConvertItemEx (int FromPlugin,struct FarDialogItem *Item,struct DialogItemEx *Data,
-                           int Count,BOOL InternalCall=FALSE);
+    static bool ConvertItemEx (int FromPlugin, struct FarDialogItem *Item,
+                               struct DialogItemEx *Data, unsigned Count,
+                               REALLOC ReAlloc);
 
     static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,
                            int Count);
@@ -398,7 +401,5 @@ class Dialog: public Frame
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };
-
-void WINAPI FreeDialogAnsStr(const wchar_t *P);
 
 #endif // __DIALOG_HPP__

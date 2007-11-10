@@ -387,7 +387,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         // Строка "Содержащих текст"
         {
 
-          BOOL Checked = (Item.PtrData && *Item.PtrData)?FALSE:Opt.FindOpt.FindFolders;
+          BOOL Checked = (Item.DataIn && *Item.DataIn)?FALSE:Opt.FindOpt.FindFolders;
           if (Checked)
             Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_CHECKED);
           else

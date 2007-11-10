@@ -56,6 +56,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t fmtSavedDialogHistory[]=L"SavedDialogHistory\\%s";
 
+//////////////////////////////////////////////////////////////////////////
+/*
+   Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
+*/
+static inline bool CanFocused(int Type)
+{
+    switch(Type) {
+      case DI_EDIT:
+      case DI_FIXEDIT:
+      case DI_PSWEDIT:
+      case DI_COMBOBOX:
+      case DI_BUTTON:
+      case DI_CHECKBOX:
+      case DI_RADIOBUTTON:
+      case DI_LISTBOX:
+      case DI_MEMOEDIT:
+      case DI_USERCONTROL:
+        return true;
+      default:
+        return false;
+    }
+}
+
+
 
 void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 {
@@ -91,13 +115,14 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
 
 Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
-               int SrcItemCount,              // Количество элементов
+               unsigned SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                LONG_PTR InitParam)             // Ассоцированные с диалогом данные
 {
   SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
   CanLoseFocus = FALSE;
   HelpTopic = NULL;
+  ReAlloc = NULL; // для внутренних диалогов фара
   //Номер плагина, вызвавшего диалог (-1 = Main)
   PluginNumber=-1;
   Dialog::DataDialog=InitParam;
@@ -121,7 +146,7 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
   Dialog::Item = (DialogItemEx**)xf_malloc (sizeof(DialogItemEx*)*SrcItemCount);
       //SrcItem;
 
-  for (int i = 0; i < SrcItemCount; i++)
+  for (unsigned i = 0; i < SrcItemCount; i++)
   {
       Dialog::Item[i] = new DialogItemEx;
       DialogItemExToDialogItemEx (&SrcItem[i], Dialog::Item[i]);
@@ -169,7 +194,7 @@ Dialog::~Dialog()
   if (DialogMode.Check(DMODE_OWNSITEMS))
       delete [] pSaveItemEx; //удаляем анси копию
 
-  for (int i = 0; i < ItemCount; i++)
+  for (unsigned i = 0; i < ItemCount; i++)
       delete Item[i];
 
   xf_free (Item);
@@ -335,15 +360,14 @@ void Dialog::ProcessCenterGroup(void)
 {
   CriticalSectionLock Lock(CS);
 
-  int I, J;
   int Length,StartX;
   int Type;
   struct DialogItemEx *CurItem, *JCurItem;
   DWORD ItemFlags;
 
-  for (I=0; I < ItemCount; I++)
+  for (unsigned I=0; I < ItemCount; I++)
   {
-      CurItem = Item[I];
+    CurItem = Item[I];
     Type=CurItem->Type;
     ItemFlags=CurItem->Flags;
 
@@ -360,7 +384,7 @@ void Dialog::ProcessCenterGroup(void)
         )
        )
     {
-
+      unsigned J;
       Length=0;
 
       for (J=I, JCurItem = Item[J]; J < ItemCount &&
@@ -450,15 +474,15 @@ int Dialog::InitDialogObjects(int ID)
 {
   CriticalSectionLock Lock(CS);
 
-  int I, J;
+  unsigned I, J;
   int Type;
   struct DialogItemEx *CurItem;
-  int InitItemCount;
+  unsigned InitItemCount;
   DWORD ItemFlags;
 
   _DIALOG(CleverSysLog CL(L"Init Dialog"));
 
-  if(ID+1 > ItemCount)
+  if((unsigned)(ID+1) > ItemCount)
     return -1;
 
   if(ID == -1) // инициализируем все?
@@ -472,14 +496,14 @@ int Dialog::InitDialogObjects(int ID)
   }
 
   //   если FocusPos в пределах и элемент задисаблен, то ищем сначала.
-  if(FocusPos >= 0 && FocusPos < ItemCount &&
+  if(FocusPos >= 0 && (unsigned)FocusPos < ItemCount &&
      (Item[FocusPos]->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
     FocusPos = -1; // будем искать сначала!
 
   // предварительный цикл по поводу кнопок
   for(I=ID; I < InitItemCount; I++)
   {
-      CurItem = Item[I];
+    CurItem = Item[I];
     ItemFlags=CurItem->Flags;
     Type=CurItem->Type;
 
@@ -492,7 +516,7 @@ int Dialog::InitDialogObjects(int ID)
 
      // предварительный поик фокуса
      if(FocusPos == -1 &&
-        IsFocused(Type) &&
+        CanFocused(Type) &&
         CurItem->Focus &&
         !(ItemFlags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
        FocusPos=I; // запомним первый фокусный элемент
@@ -521,7 +545,7 @@ int Dialog::InitDialogObjects(int ID)
     for (I=0; I < ItemCount; I++) // по всем!!!!
     {
         CurItem = Item[I];
-      if(IsFocused(CurItem->Type) &&
+      if(CanFocused(CurItem->Type) &&
          !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
       {
         FocusPos=I;
@@ -731,7 +755,7 @@ int Dialog::InitDialogObjects(int ID)
       if (Type==DI_COMBOBOX && CurItem->strData.IsEmpty () && CurItem->ListItems)
       {
         struct FarListItem *ListItems=CurItem->ListItems->Items;
-        int Length=CurItem->ListItems->ItemsNumber;
+        unsigned Length=CurItem->ListItems->ItemsNumber;
 
         //CurItem->ListPtr->AddItem(CurItem->ListItems);
 
@@ -781,9 +805,8 @@ const wchar_t *Dialog::GetDialogTitle()
   CriticalSectionLock Lock(CS);
 
   struct DialogItemEx *CurItem, *CurItemList=NULL;
-  int I;
 
-  for(I=0; I < ItemCount; I++)
+  for(unsigned I=0; I < ItemCount; I++)
   {
       CurItem = Item[I];
     // по первому попавшемуся "тексту" установим заголовок консоли!
@@ -839,7 +862,7 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
 {
   CriticalSectionLock Lock(CS);
 
-  if (ID >= ItemCount)
+  if ((unsigned)ID >= ItemCount)
     return FALSE;
 
   DialogItemEx *CurItem=Item[ID];
@@ -895,7 +918,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
 {
   CriticalSectionLock Lock(CS);
 
-  if(I >= ItemCount)
+  if((unsigned)I >= ItemCount)
     return FALSE;
 
   struct DialogItemEx *CurItem=Item[I];
@@ -1007,10 +1030,9 @@ void Dialog::DeleteDialogObjects()
 {
   CriticalSectionLock Lock(CS);
 
-  int I;
   struct DialogItemEx *CurItem;
 
-  for (I=0; I < ItemCount; I++)
+  for (unsigned I=0; I < ItemCount; I++)
   {
       CurItem = Item[I];
     switch(CurItem->Type)
@@ -1050,12 +1072,12 @@ void Dialog::GetDialogObjectsData()
 {
   CriticalSectionLock Lock(CS);
 
-  int I, Type;
+  int Type;
   struct DialogItemEx *CurItem;
 
-  for (I=0; I < ItemCount; I++)
+  for (unsigned I=0; I < ItemCount; I++)
   {
-      CurItem = Item[I];
+    CurItem = Item[I];
     DWORD IFlags=CurItem->Flags;
     switch(Type=CurItem->Type)
     {
@@ -1390,7 +1412,7 @@ void Dialog::ShowDialog(int ID)
 
   //   Если не разрешена отрисовка, то вываливаем.
   if(IsEnableRedraw ||                 // разрешена прорисовка ?
-     (ID+1 > ItemCount) ||             // а номер в рамках дозволенного?
+     ((unsigned)(ID+1) > ItemCount) ||             // а номер в рамках дозволенного?
      DialogMode.Check(DMODE_DRAWING) || // диалог рисуется?
      !DialogMode.Check(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
      !DialogMode.Check(DMODE_INITOBJECTS))
@@ -1834,7 +1856,7 @@ void Dialog::ShowDialog(int ID)
 
   // КОСТЫЛЬ!
   // но работает ;-)
-  for (I=0; I < ItemCount; I++)
+  for (I=0; (unsigned)I < ItemCount; I++)
   {
     CurItem=Item[I];
     if(CurItem->ListPtr && GetDropDownOpened() && CurItem->ListPtr->IsVisible())
@@ -2103,7 +2125,7 @@ int Dialog::ProcessKey(int Key)
   _DIALOG(CleverSysLog CL("Dialog::ProcessKey"));
   _DIALOG(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
 
-  int I;
+  unsigned I;
   wchar_t Str[1024]; //BUGBUG
   string strStr;
 
@@ -2267,10 +2289,12 @@ int Dialog::ProcessKey(int Key)
     case KEY_NUMENTER:
     case KEY_ENTER:
     {
-      if (Item[FocusPos]->Type != DI_COMBOBOX && IsEdit(Item[FocusPos]->Type) &&  (Item[FocusPos]->Flags & DIF_EDITOR) && !(Item[FocusPos]->Flags & DIF_READONLY))
+      if (   Item[FocusPos]->Type != DI_COMBOBOX
+          && IsEdit(Item[FocusPos]->Type)
+          && (Item[FocusPos]->Flags & DIF_EDITOR) && !(Item[FocusPos]->Flags & DIF_READONLY))
       {
-        int EditorLastPos;
-        for (EditorLastPos=I=FocusPos;I<ItemCount;I++)
+        unsigned EditorLastPos;
+        for (EditorLastPos=I=FocusPos; I<ItemCount; I++)
           if (IsEdit(Item[I]->Type) && (Item[I]->Flags & DIF_EDITOR))
             EditorLastPos=I;
           else
@@ -3275,7 +3299,8 @@ int Dialog::ProcessRadioButton(int CurRB)
 {
   CriticalSectionLock Lock(CS);
 
-  int PrevRB=CurRB, I, J;
+  int PrevRB=CurRB, J;
+  unsigned I;
 
   for (I=CurRB;;I--)
   {
@@ -3335,9 +3360,8 @@ int Dialog::Do_ProcessFirstCtrl()
   }
   else
   {
-    int I;
-    for (I=0;I<ItemCount;I++)
-      if (IsFocused(Item[I]->Type))
+    for (unsigned I=0;I<ItemCount;I++)
+      if (CanFocused(Item[I]->Type))
       {
         int OldPos=FocusPos;
         ChangeFocus2(FocusPos,I);
@@ -3471,17 +3495,18 @@ int Dialog::Do_ProcessSpace()
 /* $ 24.08.2000 SVS
    Добавка для DI_USERCONTROL
 */
-int Dialog::ChangeFocus(int CurFocusPos,int Step,int SkipGroup)
+int Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
 {
   CriticalSectionLock Lock(CS);
 
-  int Type,OrigFocusPos=CurFocusPos;
+  int Type;
+  unsigned OrigFocusPos=CurFocusPos;
 //  int FucusPosNeed=-1;
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент - LostFocus() - теряет фокус ввода.
 //  if(DialogMode.Check(DMODE_INITOBJECTS))
 //    FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,FocusPos,0);
-//  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
+//  if(FucusPosNeed != -1 && CanFocused(Item[FucusPosNeed].Type))
 //    FocusPos=FucusPosNeed;
 //  else
   {
@@ -3524,7 +3549,7 @@ int Dialog::ChangeFocus(int CurFocusPos,int Step,int SkipGroup)
    Изменяет фокус ввода между двумя элементами.
    Вынесен отдельно с тем, чтобы обработать DN_KILLFOCUS & DM_SETFOCUS
 */
-int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
+int Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
 {
   CriticalSectionLock Lock(CS);
 
@@ -3538,7 +3563,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
          return SetFocusPos;
     }
 
-    if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed]->Type))
+    if(FucusPosNeed != -1 && CanFocused(Item[FucusPosNeed]->Type))
       SetFocusPos=FucusPosNeed;
 
     if(Item[SetFocusPos]->Flags&DIF_NOFOCUS)
@@ -3628,24 +3653,21 @@ void Dialog::SelectOnEntry(int Pos,BOOL Selected)
   }
 }
 
-void Dialog::ConvertItemEx (
+bool Dialog::ConvertItemEx (
         int FromPlugin,
         struct FarDialogItem *Item,
         struct DialogItemEx *Data,
-        int Count,
-        BOOL InternalCall
+        unsigned Count,
+        REALLOC ReAlloc
         )
 {
-  int I;
+  unsigned I;
   if(!Item || !Data)
-    return;
-
-  DlgEdit *EditPtr;
+    return false;
 
   if(FromPlugin == CVTITEM_TOPLUGIN)
     for (I=0; I < Count; I++, ++Item, ++Data)
     {
-
         Item->Type = Data->Type;
         Item->X1 = Data->X1;
         Item->Y1 = Data->Y1;
@@ -3656,21 +3678,41 @@ void Dialog::ConvertItemEx (
         Item->Flags = Data->Flags;
         Item->DefaultButton = Data->DefaultButton;
 
-        if(InternalCall)
+/* never used!
+        if (InternalCall && IsEdit(Data->Type))
         {
-
-
-          if(Dialog::IsEdit(Data->Type) && (EditPtr=(DlgEdit *)(Data->ObjPtr)) != NULL)
+          DlgEdit *EditPtr;
+          if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
             EditPtr->GetString(Data->strData);
         }
-
-        Item->PtrData = _wcsdup(Data->strData); //BUGBUG (see FreeDialogAnsStr)
-
+*/
+        if (IsEdit(Data->Type) && ReAlloc)  // во внутренних диалогах фара копирование не нужно
+        {
+          size_t sz = Data->strData.GetLength();
+          if (!Item->MaxLen) {
+            Item->DataOut = (wchar_t*)ReAlloc(Item->DataOut, (sz+1)*sizeof(wchar_t));
+            if (!Item->DataOut) {  // TODO: may be needed message?
+              while(I) {
+                --I;
+                --Item;
+                if (Item->DataOut) { // (IsEdit(Item->Type) && !Item->MaxLen) {
+                  ReAlloc(Item->DataOut, 0);
+                  Item->DataOut = NULL;
+                }
+              }
+              return false;
+            }
+          } else {
+            if (sz >= Item->MaxLen)
+                sz = Item->MaxLen-1;
+          }
+          wmemcpy(Item->DataOut, (const wchar_t*)Data->strData, sz);
+          Item->DataOut[sz] = L'\0';
+        }
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
     {
-      Data->Type = Item->Type;
       Data->X1 = Item->X1;
       Data->Y1 = Item->Y1;
       Data->X2 = Item->X2;
@@ -3680,21 +3722,41 @@ void Dialog::ConvertItemEx (
       Data->Flags = Item->Flags;
       Data->DefaultButton = Item->DefaultButton;
 
-      Data->strData = NullToEmpty (Item->PtrData);
-      Data->nMaxLength = Item->PtrLength;
-	  Data->ListItems = Item->Param.ListItems;
+      Data->strData = NullToEmpty (Item->DataIn);
+      Data->Type = Item->Type;
+      if (IsEdit(Data->Type))
+      {
+        size_t  maxlen = Item->MaxLen;
+        if (!maxlen)
+        {
+/* Эта проверка делается в FarDialogEx, т.к. во внутренних жиалогах фара
+ * не нежна аллокация и копирование
+ *
+          if (!ReAlloc)
+              return false;
+*/
+          --maxlen; // unlimited
+          Item->DataOut = NULL;
+        }
+        else
+        {
+          if (IsBadWritePtr(Item->DataOut, maxlen*sizeof(wchar_t)))
+            return false;
+          Data->strData.SetLength(maxlen-1);
+        }
+        Data->nMaxLength = (unsigned)maxlen;  // TODO: replace nMaxLength to size_t
+      }
+      else
+          Item->DataOut = NULL;   // unification for wrapper(A) and other Free proc's
+
+      Data->ListItems = Item->Param.ListItems;
 
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
       if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
         Data->ListItems=NULL;
-
     }
-}
-
-void WINAPI FreeDialogAnsStr(const wchar_t *P)
-{
-    free((void*)P); // Item.PtrData result
+    return true;
 }
 
 void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,int Count)
@@ -3760,40 +3822,6 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
   }
   return Ret;
 }
-
-//////////////////////////////////////////////////////////////////////////
-/* Private:
-   Проверяет тип элемента диалога на предмет строки ввода
-   (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT) и в случае успеха возвращает TRUE
-*/
-int Dialog::IsEdit(int Type)
-{
-  return(Type==DI_EDIT ||
-         Type==DI_FIXEDIT ||
-         Type==DI_PSWEDIT ||
-         Type == DI_MEMOEDIT ||
-         Type == DI_COMBOBOX);
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-/*
-   Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
-*/
-int Dialog::IsFocused(int Type)
-{
-  return(Type==DI_EDIT ||
-         Type==DI_FIXEDIT ||
-         Type==DI_PSWEDIT ||
-         Type==DI_COMBOBOX ||
-         Type==DI_BUTTON ||
-         Type==DI_CHECKBOX ||
-         Type==DI_RADIOBUTTON ||
-         Type==DI_LISTBOX ||
-         Type == DI_MEMOEDIT ||
-         Type==DI_USERCONTROL);
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 /*
@@ -4482,10 +4510,10 @@ BOOL Dialog::CheckHighlights(WORD CheckSymbol)
 {
   CriticalSectionLock Lock(CS);
 
-  int I, Type;
+  int Type;
   DWORD Flags;
 
-  for (I=0;I<ItemCount;I++)
+  for (unsigned I=0;I<ItemCount;I++)
   {
     Type=Item[I]->Type;
     Flags=Item[I]->Flags;
@@ -4513,10 +4541,10 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
   CriticalSectionLock Lock(CS);
 
-  int I, Type;
+  int Type;
   DWORD Flags;
 
-  for (I=0;I<ItemCount;I++)
+  for (unsigned I=0;I<ItemCount;I++)
   {
     Type=Item[I]->Type;
     Flags=Item[I]->Flags;
@@ -4602,14 +4630,13 @@ void Dialog::AdjustEditPos(int dx, int dy)
   CriticalSectionLock Lock(CS);
 
   struct DialogItemEx *CurItem;
-  int I;
   int x1,x2,y1,y2;
 
   if(!DialogMode.Check(DMODE_CREATEOBJECTS))
     return;
 
   ScreenObject *DialogScrObject;
-  for (I=0; I < ItemCount; I++)
+  for (unsigned I=0; I < ItemCount; I++)
   {
     CurItem=Item[I];
     int Type=CurItem->Type;
@@ -4681,7 +4708,7 @@ void Dialog::Process()
   }
 
   if ( pSaveItemEx )
-    for (int i = 0; i < ItemCount; i++)
+    for (unsigned i = 0; i < ItemCount; i++)
         DialogItemExToDialogItemEx (Item[i], &pSaveItemEx[i]);
 
 }
@@ -4900,7 +4927,7 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
   }
 
   // предварительно проверим...
-  if(Param1 >= Dlg->ItemCount && Dlg->Item)
+  if((unsigned)Param1 >= Dlg->ItemCount && Dlg->Item)
     return 0;
 
   if (Param1>=0)
@@ -5027,7 +5054,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           Dlg->DialogMode.Set(DMODE_DRAWING);
           DialogItemEx *Item;
           SMALL_RECT Rect;
-          for (I=0;I<Dlg->ItemCount;I++)
+          for (I=0; (unsigned)I<Dlg->ItemCount; I++)
           {
             Item=Dlg->Item[I];
             if(Item->Flags&DIF_HIDDEN)
@@ -5290,12 +5317,12 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   struct DialogItemEx *CurItem=NULL;
   int Type=0;
   const wchar_t *Ptr=NULL;
-  int Len;
+  size_t Len;
   // предварительно проверим...
   /* $ 09.12.2001 DJ
      для DM_USER проверять _не_надо_!
   */
-  if((Param1 < 0 || Param1 >= Dlg->ItemCount) || !Dlg->Item)
+  if((unsigned)Param1 >= Dlg->ItemCount || !Dlg->Item)
     return 0;
 
 //  CurItem=&Dlg->Item[Param1];
@@ -5936,7 +5963,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_SETFOCUS:
     {
-      if(!Dialog::IsFocused(Type))
+      if(!CanFocused(Type))
         return FALSE;
       if(Dlg->FocusPos == Param1) // уже и так установлено все!
         return TRUE;
@@ -6246,7 +6273,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
       {
-        Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
+        if(!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
+          return FALSE; // no memory in plugin allocator // TODO: may be needed diagnostic
         if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
           ((struct FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
 /*
@@ -6269,7 +6297,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2 && !IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)) &&
          Type == ((struct FarDialogItem *)Param2)->Type) // пока нефига менять тип
       {
-        Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
+        if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
+          return FALSE; // invalid parameters
         CurItem->Type=Type;
         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
           CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);

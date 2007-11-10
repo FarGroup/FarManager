@@ -870,6 +870,8 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2
   return 0;
 }
 
+// ≈сли понадобитс€ использовать эту ф-ци изнутри фара (не счита€ враппера),
+// см. комментарий к FarDialogEx
 int WINAPI FarDialogFn (
 		INT_PTR PluginNumber,
 		int X1,
@@ -878,10 +880,12 @@ int WINAPI FarDialogFn (
 		int Y2,
 		const wchar_t *HelpTopic,
 		FarDialogItem *Item,
-		int ItemsNumber
+    unsigned ItemsNumber,
+    REALLOC ReAlloc
 		)
 {
-	return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
+  return FarDialogEx(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber,
+                     0, 0, NULL, 0, ReAlloc);
 }
 
 #ifndef _MSC_VER
@@ -910,15 +914,17 @@ static int Except_FarDialogEx(struct DialogItemEx *InternalItem)
   return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнени€ цепочки исключений!
 }
 
-static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struct DialogItemEx* InternalItem, int ItemsNumber)
+static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item,
+                            struct DialogItemEx* InternalItem, int ItemsNumber,
+                            REALLOC ReAlloc)
 {
   TRY
   {
     FarDialog.Process();
-    Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
-    int I;
-    for(I=0; I < ItemsNumber; ++I)
+    for(int I=0; I < ItemsNumber; ++I)
       InternalItem[I].ID=I;
+    if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber,ReAlloc))
+      return -1;
     return FarDialog.GetExitCode();
   }
   EXCEPT (Except_FarDialogEx(InternalItem))
@@ -927,11 +933,13 @@ static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struc
   }
 }
 
-int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
-           const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-           DWORD Reserved, DWORD Flags,
-           FARWINDOWPROC DlgProc,LONG_PTR Param)
-
+// ≈сли понадобитс€ использовать эту ф-ци изнутри фара (не счита€ враппера),
+// то надо будет изменить механизм задани€ internal (проверки об€зательности
+// ReAlloc при наличии IsEdit() поделей
+int WINAPI FarDialogEx(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
+                       const wchar_t *HelpTopic, struct FarDialogItem *Item,
+                       unsigned ItemsNumber, DWORD Reserved, DWORD Flags,
+                       FARWINDOWPROC DlgProc, LONG_PTR Param, REALLOC ReAlloc)
 {
   if (FrameManager->ManagerIsDown())
     return -1;
@@ -940,13 +948,11 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
       ItemsNumber <= 0 ||
       !Item ||
       IsBadReadPtr(Item,sizeof(struct FarDialogItem)*ItemsNumber))
-    return(-1);
+    return -1;
 
   // ‘»„ј! нельз€ указывать отрицательные X2 и Y2
   if(X2 < 0 || Y2 < 0)
-  {
     return -1;
-  }
 
   struct DialogItemEx *InternalItem=new DialogItemEx[ItemsNumber];
 
@@ -957,10 +963,14 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
 
   //struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
 
-  for (int i=0; i<ItemsNumber; i++)
+  for (unsigned i=0; i<ItemsNumber; i++) {
     InternalItem[i].Clear();
+    if (!ReAlloc && IsEdit(Item->Type))
+      return -1;  // проверка здесь, т.к. внутренние диалоги работают без аллокатора
+  }
 
-  Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
+  if (!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber,ReAlloc))
+    return -1;  // invalid parameters
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
@@ -968,6 +978,7 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
 
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
+    FarDialog.setReAlloc(ReAlloc);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
 
     if(Flags & FDLG_WARNING)
@@ -988,19 +999,21 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
     */
     FarDialog.SetPluginNumber(PluginNumber);
 
-    int I;
+    unsigned I;
     if(Opt.ExceptRules)
     {
       CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
-      ExitCode=FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber);
+      ExitCode=FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber,ReAlloc);
     }
     else
     {
       FarDialog.Process();
-      Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
       for(I=0; I < ItemsNumber; ++I)
         InternalItem[I].ID=I;
-      ExitCode=FarDialog.GetExitCode();
+      if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber,ReAlloc))
+        ExitCode=-1;  // not enough memory in plugin
+      else
+        ExitCode=FarDialog.GetExitCode();
     }
   }
 
