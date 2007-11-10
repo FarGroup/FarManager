@@ -142,7 +142,11 @@ BOOL _fastcall TMacroView::Configure()
   DialogItems[12].Param.Selected=Conf.ViewShell;
   DialogItems[13].Param.Selected=Conf.ViewViewer;
   DialogItems[14].Param.Selected=Conf.ViewEditor;
-  OutCode=Info.Dialog(Info.ModuleNumber,-1,-1,74,20,_T("Config"),DialogItems,size);
+  OutCode=Info.Dialog(Info.ModuleNumber,-1,-1,74,20,_T("Config"),DialogItems,size
+#ifdef UNICODE
+                      ,NULL
+#endif
+                     );
 
   if (OutCode==16) // кнопка [Сохранить]
   {

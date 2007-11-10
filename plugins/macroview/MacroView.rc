@@ -2,7 +2,7 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 4
+FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 5
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEOS 4
 FILETYPE 2
@@ -14,9 +14,9 @@ FILETYPE 2
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Plugin for manipulating FAR macro commands\000"
 #ifndef UNICODE
-   VALUE "FileVersion", "1.71 build 4\000"
+   VALUE "FileVersion", "1.71 build 5\000"
 #else
-   VALUE "FileVersion", "1.80 build 4\000"
+   VALUE "FileVersion", "1.80 build 5\000"
 #endif
    VALUE "InternalName", "MacroView\000"
    VALUE "LegalCopyright", MACROVIEWCOPYRIGHT
