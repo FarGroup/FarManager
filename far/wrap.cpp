@@ -375,9 +375,9 @@ BOOL AddEndSlashA(char *Path,char TypeSlash)
   if(Path)
   {
     /* $ 06.12.2000 IS
-      ! ’¥¯¥àì äã­ªæ¨ï à ¡®â ¥â á ®¡®¨¬¨ ¢¨¤ ¬¨ á«¥è¥©, â ª¦¥ ¯à®¨áå®¤¨â
-        ¨§¬¥­¥­¨¥ ã¦¥ áãé¥áâ¢ãîé¥£® ª®­¥ç­®£® á«¥è  ­  â ª®©, ª®â®àë©
-        ¢áâà¥ç ¥âáï ç é¥.
+      ! Òåïåðü ôóíêöèÿ ðàáîòàåò ñ îáîèìè âèäàìè ñëåøåé, òàêæå ïðîèñõîäèò
+        èçìåíåíèå óæå ñóùåñòâóþùåãî êîíå÷íîãî ñëåøà íà òàêîé, êîòîðûé
+        âñòðå÷àåòñÿ ÷àùå.
     */
     char *end;
     int Slash=0, BackSlash=0;
@@ -461,7 +461,7 @@ void WINAPI DeleteBufferA(char *Buffer)
 int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
 	string strP1(Param1), strP2(Param2);
-	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //  åà¥­ ¥éñ ª ª ã£ ¤ âì áª®ª  â ¬ íâ®â Param2
+	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //à õðåí åù¸ êàê óãàäàòü ñêîêà òàì ýòîò Param2
 	wchar_t *p=(wchar_t *)malloc(size*sizeof(wchar_t));
 	wcscpy(p,strP2);
 	int ret = ProcessName(strP1,p,size,Flags);
@@ -708,7 +708,8 @@ void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 
 void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarList *l)
 {
-	di->Type=0;
+	memset(di,0,sizeof(FarDialogItem));
+
 	switch(diA->Type)
 	{
 		case oldfar::DI_TEXT:       di->Type=DI_TEXT;        break;
@@ -767,7 +768,6 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 			di->Param.Selected=diA->Param.Selected;
 	}
 
-	di->Flags=0;
 	if(diA->Flags)
 	{
 		if (diA->Flags&oldfar::DIF_SETCOLOR)
@@ -815,24 +815,29 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 	di->DefaultButton=diA->DefaultButton;
 
 	if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
-    di->DataIn = AnsiToUnicode(diA->Data.Ptr.PtrData);
+		di->DataIn = AnsiToUnicode(diA->Data.Ptr.PtrData);
 	else
-    di->DataIn = AnsiToUnicode(diA->Data.Data);
+		di->DataIn = AnsiToUnicode(diA->Data.Data);
+	//BUGBUG òóò íàäî ïðèäóìàòü êàê ñäåëàòü ëó÷øå: maxlen=513 íàïðèìåð è òàêæå ïîäóìàòü ÷òî äåëàòü äëÿ DIF_VAREDIT
+	//di->DataOut = NULL;
+	//di->MaxLen = 0;
 }
 
 void FreeUnicodeDialog(FarDialogItem *di, FarList *l)
 {
-		if((di->Type==DI_EDIT || di->Type==DI_FIXEDIT) && (di->Flags&DIF_HISTORY) || (di->Flags&DIF_MASKEDIT))
-			if(di->Param.History) free((wchar_t *)di->Param.History);
+	if((di->Type==DI_EDIT || di->Type==DI_FIXEDIT) && (di->Flags&DIF_HISTORY) || (di->Flags&DIF_MASKEDIT))
+		if(di->Param.History) free((wchar_t *)di->Param.History);
 
-		if(l->Items) free(l->Items);
+	if(l->Items) free(l->Items);
 
-    if (di->DataOut) free(di->DataOut);
+	if (di->DataIn) free((wchar_t *)di->DataIn);
+	if (di->DataOut) free(di->DataOut);
 }
 
 void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 {
-	diA->Type=0;
+	memset(diA,0,sizeof(oldfar::FarDialogItem));
+
 	switch(di->Type)
 	{
 		case DI_TEXT:       diA->Type=oldfar::DI_TEXT;        break;
@@ -891,7 +896,6 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 			diA->Param.Selected=di->Param.Selected;
 	}
 
-	diA->Flags=0;
 	if(di->Flags)
 	{
 		if (di->Flags&DIF_SETCOLOR)
@@ -939,9 +943,9 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 	diA->DefaultButton=di->DefaultButton;
 
 	if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
-    UnicodeToAnsi(di->DataIn,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength-1);
+    UnicodeToAnsi(di->DataOut,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength-1);
 	else
-    UnicodeToAnsi(di->DataIn,diA->Data.Data,sizeof(diA->Data.Data)-1);
+    UnicodeToAnsi(di->DataOut?di->DataOut:di->DataIn,diA->Data.Data,sizeof(diA->Data.Data)-1);
 }
 
 LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
@@ -1017,12 +1021,10 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 {
 	switch(Msg)
 	{
-		case oldfar::DM_FIRST:
-		case oldfar::DM_CLOSE:
-		case oldfar::DM_ENABLE:
-		case oldfar::DM_ENABLEREDRAW:
-		case oldfar::DM_GETDLGDATA:
-			break;
+		case oldfar::DM_CLOSE:        Msg = DM_CLOSE; break;
+		case oldfar::DM_ENABLE:       Msg = DM_ENABLE; break;
+		case oldfar::DM_ENABLEREDRAW: Msg = DM_ENABLEREDRAW; break;
+		case oldfar::DM_GETDLGDATA:   Msg = DM_GETDLGDATA; break;
 
 		case oldfar::DM_GETDLGITEM:
 			{
@@ -1031,7 +1033,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 				oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 
-				UnicodeDialogItemToAnsi(&di,diA);
+				UnicodeDialogItemToAnsi(&di,diA); //BUGBUG memory leak
         if(!di.MaxLen && IsEdit(di.Type) && di.DataOut) {
           REALLOC ra = (REALLOC)FarSendDlgMessage(hDlg, DM_GETREALLOC, 0, 0);
           if(ra)  // PARANOID
@@ -1040,8 +1042,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_GETDLGRECT:
-			break;
+		case oldfar::DM_GETDLGRECT: Msg = DM_GETDLGRECT; break;
 
 		case oldfar::DM_GETTEXT:
 			{
@@ -1064,8 +1065,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_GETTEXTLENGTH:
-			return FarSendDlgMessage(hDlg, DM_GETTEXTLENGTH, Param1, 0);
+		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXTLENGTH; break;
 
 		case oldfar::DM_KEY:
 			{
@@ -1084,9 +1084,8 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_MOVEDIALOG:
-		case oldfar::DM_SETDLGDATA:
-			break;
+		case oldfar::DM_MOVEDIALOG: Msg = DM_MOVEDIALOG; break;
+		case oldfar::DM_SETDLGDATA: Msg = DM_SETDLGDATA; break;
 
 		case oldfar::DM_SETDLGITEM:
 			{
@@ -1099,9 +1098,8 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_SETFOCUS:
-		case oldfar::DM_REDRAW:
-			break;
+		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
+		case oldfar::DM_REDRAW:   Msg = DM_REDRAW; break;
 
 		case oldfar::DM_SETTEXT:
 			{
@@ -1118,12 +1116,11 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_SETMAXTEXTLENGTH:
-		case oldfar::DM_SHOWDIALOG:
-		case oldfar::DM_GETFOCUS:
-		case oldfar::DM_GETCURSORPOS:
-		case oldfar::DM_SETCURSORPOS:
-			break;
+		case oldfar::DM_SETMAXTEXTLENGTH: Msg = DM_SETMAXTEXTLENGTH; break;
+		case oldfar::DM_SHOWDIALOG:       Msg = DM_SHOWDIALOG; break;
+		case oldfar::DM_GETFOCUS:         Msg = DM_GETFOCUS; break;
+		case oldfar::DM_GETCURSORPOS:     Msg = DM_GETCURSORPOS; break;
+		case oldfar::DM_SETCURSORPOS:     Msg = DM_SETCURSORPOS; break;
 
 		case oldfar::DM_GETTEXTPTR:
 			{
@@ -1149,8 +1146,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_SHOWITEM:
-			break;
+		case oldfar::DM_SHOWITEM: Msg = DM_SHOWITEM; break;
 
 		case oldfar::DM_ADDHISTORY:
 			{
@@ -1181,9 +1177,8 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, state);
 			}
 
-		case oldfar::DM_SET3STATE:
-		case oldfar::DM_LISTSORT:
-			break;
+		case oldfar::DM_SET3STATE: Msg = DM_SET3STATE; break;
+		case oldfar::DM_LISTSORT:  Msg = DM_LISTSORT; break;
 
 		case oldfar::DM_LISTGETITEM: //BUGBUG, íåäîäåëàíî â ôàðå
 			{
@@ -1264,15 +1259,14 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 		case oldfar::DM_LISTGETTITLES:
 			{
-				//BUGBUG ­ ¤® á¤¥« âì ª®£¤  DM_LISTGETTITLES ¡ã¤¥â à ¡®â âì ¢ á ¬®¬ ä à¥
+				//BUGBUG íàäî ñäåëàòü êîãäà DM_LISTGETTITLES áóäåò ðàáîòàòü â ñàìîì ôàðå
 				return FALSE;
 			}
 
-		case oldfar::DM_RESIZEDIALOG:
-		case oldfar::DM_SETITEMPOSITION:
-		case oldfar::DM_GETDROPDOWNOPENED:
-		case oldfar::DM_SETDROPDOWNOPENED:
-			break;
+		case oldfar::DM_RESIZEDIALOG:      Msg = DM_RESIZEDIALOG; break;
+		case oldfar::DM_SETITEMPOSITION:   Msg = DM_SETITEMPOSITION; break;
+		case oldfar::DM_GETDROPDOWNOPENED: Msg = DM_GETDROPDOWNOPENED; break;
+		case oldfar::DM_SETDROPDOWNOPENED: Msg = DM_SETDROPDOWNOPENED; break;
 
 		case oldfar::DM_SETHISTORY:
 			if(!Param2) return FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, 0);
@@ -1284,12 +1278,11 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return ret;
 			}
 
-		case oldfar::DM_GETITEMPOSITION:
-		case oldfar::DM_SETMOUSEEVENTNOTIFY:
-		case oldfar::DM_EDITUNCHANGEDFLAG:
-		case oldfar::DM_GETITEMDATA:
-		case oldfar::DM_SETITEMDATA:
-			break;
+		case oldfar::DM_GETITEMPOSITION:     Msg = DM_GETITEMPOSITION; break;
+		case oldfar::DM_SETMOUSEEVENTNOTIFY: Msg = DM_SETMOUSEEVENTNOTIFY; break;
+		case oldfar::DM_EDITUNCHANGEDFLAG:   Msg = DM_EDITUNCHANGEDFLAG; break;
+		case oldfar::DM_GETITEMDATA:         Msg = DM_GETITEMDATA; break;
+		case oldfar::DM_SETITEMDATA:         Msg = DM_SETITEMDATA; break;
 
 		case oldfar::DM_LISTSET:
 			return 0; //BUGBUG
@@ -1303,10 +1296,9 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, type);
 			}
 
-		case oldfar::DM_GETCURSORSIZE:
-		case oldfar::DM_SETCURSORSIZE:
-		case oldfar::DM_LISTGETDATASIZE:
-			break;
+		case oldfar::DM_GETCURSORSIZE:   Msg = DM_GETCURSORSIZE; break;
+		case oldfar::DM_SETCURSORSIZE:   Msg = DM_SETCURSORSIZE; break;
+		case oldfar::DM_LISTGETDATASIZE: Msg = DM_LISTGETDATASIZE; break;
 
 		case oldfar::DM_GETSELECTION:
 			{
@@ -1333,8 +1325,6 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				es.BlockHeight    = esA->BlockHeight;
 				return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, (LONG_PTR)&es);
 			}
-
-		case DM_USER:
 
 #ifdef FAR_USE_INTERNALS
 		case oldfar::DM_KILLSAVESCREEN:
@@ -2060,8 +2050,8 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 				if (!Param) return FALSE;
 				oldfar::ViewerInfo* viA = (oldfar::ViewerInfo*)Param;
 				if (!viA->StructSize) return FALSE;
-				ViewerInfoW viW;
-				viW.StructSize = sizeof(ViewerInfoW); //BUGBUG?
+				ViewerInfo viW;
+				viW.StructSize = sizeof(ViewerInfo); //BUGBUG?
 				if (FarViewerControl(VCTL_GETINFO, &viW) == FALSE) return FALSE;
 
 				viA->ViewerID = viW.ViewerID;

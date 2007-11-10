@@ -1290,7 +1290,7 @@ struct ViewerMode{
   DWORD Reserved[4];
 };
 
-struct ViewerInfoW
+struct ViewerInfo
 {
   int    StructSize;
   int    ViewerID;

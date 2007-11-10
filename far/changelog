@@ -1,3 +1,9 @@
+t-rex 10.11.2007 23:26:42 +0200 - build 333
+
+1. Правки во врапере по теме нового DialogAPI и около.
+
+2. ViewerInfoW -> ViewerInfo.
+
 yjh 10.11.2007 20:39:24 +0300 - build 332
 
 1. Убран memory leak в GETDLGITEM

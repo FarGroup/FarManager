@@ -3004,9 +3004,9 @@ int Viewer::ViewerControl(int Command,void *Param)
   {
     case VCTL_GETINFO:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerInfoW)))
+      if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerInfo)))
       {
-        struct ViewerInfoW *Info=(struct ViewerInfoW *)Param;
+        struct ViewerInfo *Info=(struct ViewerInfo *)Param;
         memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
         Info->ViewerID=Viewer::ViewerID;
         Info->FileName=strFullFileName;
@@ -3022,7 +3022,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->TabSize=ViOpt.TabSize;
 
         // сюды писать добавки
-        if(Info->StructSize >= sizeof(struct ViewerInfoW))
+        if(Info->StructSize >= sizeof(struct ViewerInfo))
         {
           Info->LeftPos=(int)LeftPos;  //???
         }
