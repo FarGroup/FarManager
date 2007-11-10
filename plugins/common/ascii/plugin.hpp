@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2285
+  Plugin API for FAR Manager 1.71 build 2288
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2007 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2285)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2288)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -1006,7 +1006,7 @@ struct ActlKeyMacro{
       char *SequenceText;
       DWORD Flags;
     } PlainText;
-    DWORD Reserved[3];
+    DWORD_PTR Reserved[3];
   } Param;
 };
 
