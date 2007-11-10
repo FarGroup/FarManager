@@ -22,22 +22,20 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
   switch(Msg)
   {
     case DN_MOUSECLICK:
-      if (Param1==0)
+    {
+      MOUSE_EVENT_RECORD *MouseEvent=(MOUSE_EVENT_RECORD *)Param2;
+
+      if (Macro->Conf.DblClick)
       {
-        MOUSE_EVENT_RECORD *MouseEvent=(MOUSE_EVENT_RECORD *)Param2;
-
-        if (Macro->Conf.DblClick)
-        {
-          if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
-            MenuDialogProc(hDlg,DM_KEY,0,KEY_ENTER);
-        }
-        else
+        if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
           MenuDialogProc(hDlg,DM_KEY,0,KEY_ENTER);
-
-        // —ообщение обработано, больше не обрабатывать его.
-        return TRUE;
       }
-      return FALSE;
+      else
+        MenuDialogProc(hDlg,DM_KEY,0,KEY_ENTER);
+
+      // —ообщение обработано, больше не обрабатывать его.
+      return TRUE;
+    }
     case DN_DRAGGED:
       if (Param1==0)
         return TRUE;
@@ -223,30 +221,15 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
     case DN_CTLCOLORDIALOG:
       return Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
     case DN_CTLCOLORDLGLIST:
-      if (Param1==0)
-      {
-        FarListColors *ListColors=(FarListColors *)Param2;
-        ListColors->Flags=0;
-        ListColors->Reserved=0;
-        ListColors->ColorCount=10;
-        ListColors->Colors[0]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[1]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[2]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTITLE);
-        ListColors->Colors[3]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[4]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUHIGHLIGHT);
-        ListColors->Colors[5]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTEXT);
-        ListColors->Colors[6]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSELECTEDTEXT);
-        ListColors->Colors[7]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSELECTEDHIGHLIGHT);
-        ListColors->Colors[8]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUSCROLLBAR);
-        ListColors->Colors[9]=(BYTE)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUDISABLEDTEXT);
-        return TRUE;
-      }
-      return FALSE;
-    case DN_CTLCOLORDLGITEM:
-      if (Param1==1)
-        return (Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUTITLE))|
-               ((Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUHIGHLIGHT))<<8)|
-               ((Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)COL_MENUBOX))<<16);
+    {
+      FarListColors *Colors=(FarListColors *)Param2;
+      int ColorIndex[]={COL_MENUTEXT,COL_MENUTEXT,COL_MENUTITLE,COL_MENUTEXT,COL_MENUHIGHLIGHT,COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUSELECTEDHIGHLIGHT,COL_MENUSCROLLBAR,COL_MENUDISABLEDTEXT};
+      int Count=sizeof(ColorIndex)/sizeof(ColorIndex[0]);
+      if(Count>Colors->ColorCount) Count=Colors->ColorCount;
+      for(int i=0;i<Count;i++)
+        Colors->Colors[i]=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void *)(ColorIndex[i]));
+      return TRUE;
+    }
   }
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -2829,12 +2812,6 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
   Rect.Right=MenuW-3;
   Rect.Bottom=MenuH-2;
   Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,0,(LONG_PTR)&Rect);
-  Rect.Left=(MenuW-lstrlen(MenuTitle))/2;
-  Rect.Top=1;
-  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,1,(LONG_PTR)&Rect);
-  Rect.Left=(MenuW-lstrlen(MenuBottom))/2;
-  Rect.Top=MenuH-2;
-  Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,2,(LONG_PTR)&Rect);
 }
 
 
@@ -3906,7 +3883,6 @@ int TMacroView::MacroList()
   {
 
 /*0*/  {DI_LISTBOX,   2,1,MenuW-3,MenuH-2,1,0,((Conf.UseHighlight)?DIF_LISTAUTOHIGHLIGHT:0)|((Conf.MenuCycle)?DIF_LISTWRAPMODE:0),0,_T("")},
-/*1*/  {DI_TEXT,      1000,1000,0,0,0,0,0,0,MenuTitle},
 
   };
 
