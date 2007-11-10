@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 322
+  Plugin API for FAR Manager 1.80 build 330
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,322)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,330)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -162,6 +162,24 @@ enum DialogItemTypes {
 
   DI_USERCONTROL=255,
 };
+
+/*
+   Check diagol element type has inputstring?
+   (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT, etc)
+*/
+static inline BOOL IsEdit(int Type)
+{
+    switch(Type) {
+      case DI_EDIT:
+      case DI_FIXEDIT:
+      case DI_PSWEDIT:
+      case DI_COMBOBOX:
+        return TRUE;
+      default:
+        return FALSE;
+    }
+}
+
 
 enum FarDialogItemFlags {
   DIF_COLORMASK             = 0x000000ffUL,
@@ -455,13 +473,14 @@ struct FarDialogItem
   DWORD Flags;
   int DefaultButton;
 
-  wchar_t *PtrData;
-  int PtrLength;
+  const wchar_t *DataIn;
+  wchar_t *DataOut;
+  size_t MaxLen; // terminate 0 included (if == 0 use ReAlloc)
 };
 
 struct FarDialogItemData
 {
-  int   PtrLength;
+  size_t  PtrLength;
   wchar_t *PtrData;
 };
 
@@ -523,6 +542,8 @@ typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
   LONG_PTR Param2
 );
 
+typedef void* (__cdecl *REALLOC)(void*, size_t);
+
 typedef int (WINAPI *FARAPIDIALOG)(
   INT_PTR               PluginNumber,
   int                   X1,
@@ -531,7 +552,8 @@ typedef int (WINAPI *FARAPIDIALOG)(
   int                   Y2,
   const wchar_t        *HelpTopic,
   struct FarDialogItem *Item,
-  int                   ItemsNumber
+  unsigned             ItemsNumber,
+  REALLOC              ReAlloc
 );
 
 typedef int (WINAPI *FARAPIDIALOGEX)(
@@ -542,11 +564,12 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   int                   Y2,
   const wchar_t        *HelpTopic,
   struct FarDialogItem *Item,
-  int                   ItemsNumber,
+  unsigned              ItemsNumber,
   DWORD                 Reserved,
   DWORD                 Flags,
   FARWINDOWPROC         DlgProc,
-  LONG_PTR              Param
+  LONG_PTR              Param,
+  REALLOC               ReAlloc
 );
 
 
@@ -994,7 +1017,7 @@ struct ActlKeyMacro{
       wchar_t *SequenceText;
       DWORD Flags;
     } PlainText;
-    DWORD Reserved[3];
+    DWORD_PTR Reserved[3];
   } Param;
 };
 
@@ -1456,8 +1479,6 @@ typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DW
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
 
-typedef void    (WINAPI *FARFREEDIALOGANSSTR)(const wchar_t *);
-
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1517,7 +1538,6 @@ typedef struct FarStandardFunctions
   FARSTDMKLINK               MkLink;
   FARCONVERTNAMETOREAL       ConvertNameToReal;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
-  FARFREEDIALOGANSSTR        FreeDialogAnsStr;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
