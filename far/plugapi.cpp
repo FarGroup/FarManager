@@ -978,7 +978,7 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
 
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
-    FarDialog.setReAlloc(ReAlloc);
+    FarDialog.setPluginInfo(ReAlloc, Item);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
 
     if(Flags & FDLG_WARNING)

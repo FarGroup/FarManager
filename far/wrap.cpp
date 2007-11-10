@@ -1032,9 +1032,12 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 
 				UnicodeDialogItemToAnsi(&di,diA);
-
+        if(!di.MaxLen && IsEdit(di.Type) && di.DataOut) {
+          REALLOC ra = (REALLOC)FarSendDlgMessage(hDlg, DM_GETREALLOC, 0, 0);
+          if(ra)  // PARANOID
+            ra(di.DataOut, 0);
+        }
 				return ret;
-				// BUGBUG memory leak
 			}
 
 		case oldfar::DM_GETDLGRECT:

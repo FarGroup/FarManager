@@ -123,6 +123,7 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
   CanLoseFocus = FALSE;
   HelpTopic = NULL;
   ReAlloc = NULL; // для внутренних диалогов фара
+  PluginItems = NULL; // -"-
   //Номер плагина, вызвавшего диалог (-1 = Main)
   PluginNumber=-1;
   Dialog::DataDialog=InitParam;
@@ -5005,6 +5006,10 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   switch(Msg)
   {
     /*****************************************************************/
+    case DM_GETREALLOC:
+      return (LONG_PTR)Dlg->ReAlloc;
+
+    /*****************************************************************/
     case DM_RESIZEDIALOG:
       // изменим вызов RESIZE.
       Param1=-1;
@@ -6273,6 +6278,12 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
       {
+        if(Dlg->PluginItems) {  // else - internal FarDialog
+          ((FarDialogItem*)Param2)->MaxLen = Dlg->PluginItems[Param1].MaxLen;
+          ((FarDialogItem*)Param2)->DataOut = Dlg->PluginItems[Param1].DataOut;
+//          if(!IsEdit(Type))
+            ((FarDialogItem*)Param2)->DataIn = Dlg->PluginItems[Param1].DataIn;
+        }
         if(!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
           return FALSE; // no memory in plugin allocator // TODO: may be needed diagnostic
         if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
@@ -6294,25 +6305,38 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_SETDLGITEM:
     {
-      if(Param2 && !IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)) &&
-         Type == ((struct FarDialogItem *)Param2)->Type) // пока нефига менять тип
-      {
-        if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
-          return FALSE; // invalid parameters
-        CurItem->Type=Type;
-        if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-          CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
-        // еще разок, т.к. данные могли быть изменены
-        Dlg->InitDialogObjects(Param1);
-        SetFarTitle(Dlg->GetDialogTitle());
-        if(Dlg->DialogMode.Check(DMODE_SHOW))
-        {
-          Dlg->ShowDialog(Param1);
-          ScrBuf.Flush();
-        }
-        return TRUE;
+      if(!Param2 || !IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
+          return FALSE;
+      if(Type == ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
+          return FALSE;
+      if (Dlg->PluginItems) {
+        if(!Dlg->ReAlloc && IsEdit(Type) && !((FarDialogItem *)Param2)->MaxLen)
+          return FALSE;
       }
-      return FALSE;
+      // не менять
+      if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
+        return FALSE; // invalid parameters
+#if 1 // мне эта идея не нравится, но t-rex захотел попробовать (yjh)
+      if(Dlg->PluginItems)
+      {
+        FarDialogItem* Item = (FarDialogItem*)&Dlg->PluginItems[Param1];
+        Item->MaxLen = ((FarDialogItem*)Param2)->MaxLen;
+        Item->DataOut = ((FarDialogItem*)Param2)->DataOut;
+        Item->DataIn = ((FarDialogItem*)Param2)->DataIn;
+      }
+#endif
+      CurItem->Type=Type;
+      if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+        CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+      // еще разок, т.к. данные могли быть изменены
+      Dlg->InitDialogObjects(Param1);
+      SetFarTitle(Dlg->GetDialogTitle());
+      if(Dlg->DialogMode.Check(DMODE_SHOW))
+      {
+        Dlg->ShowDialog(Param1);
+        ScrBuf.Flush();
+      }
+      return TRUE;
     }
 
     /*****************************************************************/

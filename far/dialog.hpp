@@ -262,6 +262,7 @@ class Dialog: public Frame
     int RealWidth, RealHeight;
 
     REALLOC ReAlloc;
+    const FarDialogItem* PluginItems;
 
   private:
     virtual void DisplayObject();
@@ -332,7 +333,8 @@ class Dialog: public Frame
     virtual void Show();
     virtual void Hide();
     void FastShow() {ShowDialog();}
-    inline void setReAlloc(REALLOC cbReAlloc) { ReAlloc=cbReAlloc; }  // for plugins
+    inline void setPluginInfo(REALLOC cbReAlloc, const FarDialogItem* Items) 
+      { ReAlloc=cbReAlloc; PluginItems = Items; }  // for plugins
 
     void GetDialogObjectsData();
 
