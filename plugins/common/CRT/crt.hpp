@@ -37,6 +37,13 @@
 #define __cdecl_inline  __cdecl
 #endif
 
+#ifndef __BORLANDC__
+#define WMEM  wchar_t
+#define WMINT wchar_t
+#else
+#define WMEM  void
+#define WMINT int
+#endif
 
 #ifdef __cplusplus
   void __cdecl operator delete(void *p);
@@ -89,17 +96,20 @@ extern "C"
   _CONST_RETURN_W wchar_t * __cdecl_inline wmemchr(const wchar_t *buf, wchar_t chr, size_t cnt);
   int __cdecl memcmp(const void *buf1, const void *buf2, size_t count);
   void * __cdecl memcpy(void *dst, const void *src, size_t count);
+#ifdef __BORLANDC__
+#undef wmemcpy
+#define wmemcpy _wmemcpy
+#endif
+  WMEM * __cdecl wmemcpy(WMEM *dst, const WMEM *src, size_t count);
   int __cdecl _memicmp(const void *first, const void *last, size_t count);
   int __cdecl memicmp(const void *first, const void *last, size_t count);
   void * __cdecl memmove(void *dst, const void *src, size_t count);
   void * __cdecl memset(void *dst, int val, size_t count);
 #ifdef __BORLANDC__
-  void * __cdecl _wmemset(void *dst, int val, size_t count);
-#else
-  wchar_t * __cdecl _wmemset(wchar_t *dst, wchar_t val, size_t count);
-#endif
 #undef wmemset
 #define wmemset _wmemset
+#endif
+  WMEM * __cdecl wmemset(WMEM *dst, WMINT val, size_t count);
   void * __cdecl realloc(void *block, size_t size);
   void * __cdecl _recalloc(void *block, size_t num, size_t size);
   _CONST_RETURN char * __cdecl strchr(register const char *s,int c);
@@ -142,8 +152,12 @@ extern "C"
 
 #ifndef UNICODE
 #define _tmemset(t,c,s) memset(t,c,s)
+#define _tmemcpy(t,s,c) memcpy(t,s,c)
+#define _tmemchr(b,c,n) memchr(b,c,n)
 #else
 #define _tmemset(t,c,s) wmemset(t,c,s)
+#define _tmemcpy(t,s,c) wmemcpy(t,s,c)
+#define _tmemchr(b,c,n) wmemchr(b,c,n)
 #endif
 
 #endif

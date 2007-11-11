@@ -31,6 +31,7 @@ $(OBJDIR)\malloc.obj \
 $(OBJDIR)\memchr.obj \
 $(OBJDIR)\memcmp.obj \
 $(OBJDIR)\memcpy.obj \
+$(OBJDIRW)\memcpy.obj \
 $(OBJDIR)\memicmp.obj \
 $(OBJDIR)\memmove.obj \
 $(OBJDIR)\memset.obj \

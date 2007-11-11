@@ -1,3 +1,4 @@
+#define __midl  // do not include inline implementation
 #include "crt.hpp"
 #if defined(_MSC_VER) && !defined(UNICODE)
 #pragma function(memset)
@@ -15,7 +16,11 @@ PTRTYP * __cdecl
 #ifndef UNICODE
                memset
 #else
+#ifdef __BORLANDC__
                _wmemset
+#else
+               wmemset
+#endif
 #endif
                         (PTRTYP *dst, FILLTYP val, size_t count)
 {
