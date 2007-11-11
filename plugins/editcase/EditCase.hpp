@@ -4,8 +4,6 @@
 static struct PluginStartupInfo Info;
 static FARSTANDARDFUNCTIONS FSF;
 
-BOOL IsOldFAR;
-
 // Menu item numbers
 #define CCLower     0
 #define CCTitle     1
