@@ -40,7 +40,7 @@ BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved)
 // for ulink
 #pragma comment(linker, "/alternatename:DllMainCRTStartup=_DllMainCRTStartup@12")
 // for ms-link BUG
-#ifndef _M_AMD64
+#ifndef _WIN64
 void __cdecl main(void) {}
 #endif
 #endif
