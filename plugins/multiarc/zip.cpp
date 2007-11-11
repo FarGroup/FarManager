@@ -99,7 +99,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     SFXSize=0;
     return(TRUE);
   }
-  if (DataSize<MIN_HEADER_LEN) return FALSE;
+  if (DataSize<(int)MIN_HEADER_LEN) return FALSE;
   const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
   const unsigned char *DataEnd=Data+DataSize;
   for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
@@ -453,7 +453,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"pkzipc -add -move -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

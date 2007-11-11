@@ -4,7 +4,7 @@ include ../makefile_gcc_def_inc
 
 DLLNAME = libPCRE.a
 DLLFULLNAME = $(OBJDIR)/$(DLLNAME)
-SRCS = chartables.c get.c pcre.c study.c
+SRCS = get.c pcre.c study.c
 
 OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
 DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
@@ -14,13 +14,13 @@ all: $(DLLFULLNAME)
 $(OBJDIR)/%.d: ./libpcre/%.c
 	@echo making depends for $<
 	@$(MKDIR) -p $(@D)
-	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+	@$(SHELL) -ec '$(CC) -c -MM $(CCFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: ./libpcre/%.c
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@$(CC) $(CCFLAGS) -c -o $@ $<
 
 $(DLLFULLNAME): $(OBJS)
 	@echo linking $@

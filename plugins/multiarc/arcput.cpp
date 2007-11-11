@@ -408,7 +408,6 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (ItemsNumber==0)
     return 0;
 
-  size_t I;
   char Command[MA_MAX_SIZE_COMMAND_NAME],AllFilesMask[MA_MAX_SIZE_COMMAND_NAME];
   int ArcExitCode=1;
   BOOL OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
@@ -519,10 +518,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     // <Prior>
     FarListItem ListPriorItem[5];
-    for(I=0; I < sizeof(ListPriorItem)/sizeof(ListPriorItem[0]); ++I)
+    for(size_t I=0; I < sizeof(ListPriorItem)/sizeof(ListPriorItem[0]); ++I)
     {
       ListPriorItem[I].Flags=0;
-      lstrcpy(ListPriorItem[I].Text,GetMsg(MIdle_Priority_Class+I));
+      lstrcpy(ListPriorItem[I].Text,GetMsg((int)(MIdle_Priority_Class+I)));
     }
     ListPriorItem[Opt.PriorityClass].Flags=LIF_SELECTED;
     if(!(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5))
@@ -640,14 +639,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
 
     int Recurse=FALSE;
-    for (I=0;I<ItemsNumber;I++)
+    for (int I=0;I<ItemsNumber;I++)
       if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       {
         Recurse=TRUE;
         break;
       }
 
-    for (I=0;I<ItemsNumber;I++) //!! $ 22.03.2002 AA временный фикс !!
+    for (int I=0;I<ItemsNumber;I++) //!! $ 22.03.2002 AA временный фикс !!
       PanelItem[I].UserData=0;
 
     int CommandType;

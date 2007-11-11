@@ -530,12 +530,12 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
        "*"
      },
    };
-   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < sizeof(Commands[Type])/sizeof(Commands[Type][0]))
+   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < (int)(sizeof(Commands[Type])/sizeof(Commands[Type][0])))
    {
      lstrcpy(Dest,Commands[Type][Command]);
      return(TRUE);
    }
-  return(FALSE);
+   return(FALSE);
 }
 
 int IsTarHeader(const BYTE *Data,int DataSize)
@@ -543,7 +543,7 @@ int IsTarHeader(const BYTE *Data,int DataSize)
   size_t I;
   struct posix_header *Header;
 
-  if (DataSize<sizeof(struct posix_header))
+  if (DataSize<(int)sizeof(struct posix_header))
     return(FALSE);
 
   Header=(struct posix_header *)Data;
@@ -705,9 +705,12 @@ static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,i
 #define FL_NEG        2       /* negative sign found */
 #define FL_OVERFLOW   4       /* overflow occured */
 #define FL_READDIGIT  8       /* we've read at least one correct digit */
+#undef _UI64_MAX
 #define _UI64_MAX     _ui64(0xFFFFFFFFFFFFFFFF)
 #define _UI64_MAXDIV8 _ui64(0x1FFFFFFFFFFFFFFF)
+#undef _I64_MIN
 #define _I64_MIN    (_i64(-9223372036854775807) - 1)
+#undef _I64_MAX
 #define _I64_MAX      _i64(9223372036854775807)
 
     const char *p;

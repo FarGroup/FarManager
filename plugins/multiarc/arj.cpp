@@ -424,7 +424,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"arj32 m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

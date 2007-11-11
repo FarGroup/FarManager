@@ -512,7 +512,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"lha a -a -r -x -p -m {-w%%W} {%%S} %%a @%%lM",
     /*"All files" mask      */"*.*"
     };
-    if (Command < sizeof(Commands)/sizeof(Commands[0]))
+    if (Command < (int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

@@ -1744,7 +1744,7 @@ for (;; ptr++)
           ptr++;
           }
 
-        posix_class = check_posix_name(ptr, tempptr - ptr);
+        posix_class = check_posix_name(ptr, (int)(tempptr - ptr));
         if (posix_class < 0)
           {
           *errorptr = ERR30;
@@ -2165,9 +2165,9 @@ for (;; ptr++)
       memmove(previous + 1 + LINK_SIZE, previous, 1 + LINK_SIZE);
       code += 1 + LINK_SIZE;
       *previous = OP_BRA;
-      PUT(previous, 1, code - previous);
+      PUT(previous, 1, (int)(code - previous));
       *code = OP_KET;
-      PUT(code, 1, code - previous);
+      PUT(code, 1, (int)(code - previous));
       code += 1 + LINK_SIZE;
       }
 
@@ -2407,7 +2407,7 @@ for (;; ptr++)
       {
       register int i;
       int ketoffset = 0;
-      int len = code - previous;
+      int len = (int)(code - previous);
       uschar *bralink = NULL;
 
       /* If the maximum repeat count is unlimited, find the end of the bracket
@@ -2420,7 +2420,7 @@ for (;; ptr++)
         {
         register uschar *ket = previous;
         do ket += GET(ket, 1); while (*ket != OP_KET);
-        ketoffset = code - ket;
+        ketoffset = (int)(code - ket);
         }
 
       /* The case of a zero minimum is special because of the need to stick
@@ -2469,7 +2469,7 @@ for (;; ptr++)
           /* We chain together the bracket offset fields that have to be
           filled in later when the ends of the brackets are reached. */
 
-          offset = (bralink == NULL)? 0 : previous - bralink;
+          offset = (bralink == NULL)? 0 : (int)(previous - bralink);
           bralink = previous;
           PUTINC(previous, 0, offset);
           }
@@ -2515,7 +2515,7 @@ for (;; ptr++)
             {
             int offset;
             *code++ = OP_BRA;
-            offset = (bralink == NULL)? 0 : code - bralink;
+            offset = (bralink == NULL)? 0 : (int)(code - bralink);
             bralink = code;
             PUTINC(code, 0, offset);
             }
@@ -2530,7 +2530,7 @@ for (;; ptr++)
         while (bralink != NULL)
           {
           int oldlinkoffset;
-          int offset = code - bralink + 1;
+          int offset = (int)(code - bralink + 1);
           uschar *bra = code - offset;
           oldlinkoffset = GET(bra, 1);
           bralink = (oldlinkoffset == 0)? NULL : bralink - oldlinkoffset;
@@ -2564,7 +2564,7 @@ for (;; ptr++)
 
     if (possessive_quantifier)
       {
-      int len = code - tempcode;
+      int len = (int)(code - tempcode);
       memmove(tempcode + 1+LINK_SIZE, tempcode, len);
       code += 1 + LINK_SIZE;
       len += 1 + LINK_SIZE;
@@ -2703,7 +2703,7 @@ for (;; ptr++)
           name = ++ptr;           /* grumble at autoincrement in declaration */
 
           while (*ptr++ != '>');
-          namelen = ptr - name - 1;
+          namelen = (int)(ptr - name - 1);
 
           for (i = 0; i < cd->names_found; i++)
             {
@@ -2741,7 +2741,7 @@ for (;; ptr++)
           uschar *slot = cd->name_table;
 
           while (*ptr != ')') ptr++;
-          namelen = ptr - name;
+          namelen = (int)(ptr - name);
 
           for (i = 0; i < cd->names_found; i++)
             {
@@ -2817,7 +2817,7 @@ for (;; ptr++)
           /* Insert the recursion/subroutine item */
 
           *code = OP_RECURSE;
-          PUT(code, 1, called - cd->start_code);
+          PUT(code, 1, (int)(called - cd->start_code));
           code += 1 + LINK_SIZE;
           }
         continue;
@@ -3456,7 +3456,7 @@ for (;;)
 
   if (*ptr != '|')
     {
-    int length = code - last_branch;
+    int length = (int)(code - last_branch);
     do
       {
       int prev_length = GET(last_branch, 1);
@@ -3469,7 +3469,7 @@ for (;;)
     /* Fill in the ket */
 
     *code = OP_KET;
-    PUT(code, 1, code - start_bracket);
+    PUT(code, 1, (int)(code - start_bracket));
     code += 1 + LINK_SIZE;
 
     /* Resetting option if needed */
@@ -3495,7 +3495,7 @@ for (;;)
   zero offset until it is closed, making it possible to detect recursion. */
 
   *code = OP_ALT;
-  PUT(code, 1, code - last_branch);
+  PUT(code, 1, (int)(code - last_branch));
   bc.current = last_branch = code;
   code += 1 + LINK_SIZE;
   ptr++;
@@ -4325,7 +4325,7 @@ while ((c = *(++ptr)) != 0)
             goto PCRE_ERROR_RETURN;
             }
           name_count++;
-          if (ptr - p > max_name_size) max_name_size = (ptr - p);
+          if (ptr - p > max_name_size) max_name_size = (int)(ptr - p);
           break;
           }
 
@@ -4786,7 +4786,7 @@ if (*errorptr != NULL)
   {
   (pcre_free)(re);
   PCRE_ERROR_RETURN:
-  *erroroffset = ptr - (const uschar *)pattern;
+  *erroroffset = (int)(ptr - (const uschar *)pattern);
   return NULL;
   }
 
@@ -5109,7 +5109,7 @@ for (;;)
       int save_capture_last = md->capture_last;
 
       DPRINTF(("saving %d %d %d\n", save_offset1, save_offset2, save_offset3));
-      md->offset_vector[md->offset_end - number] = eptr - md->start_subject;
+      md->offset_vector[md->offset_end - number] = (int)(eptr - md->start_subject);
 
       do
         {
@@ -5318,9 +5318,9 @@ for (;;)
       cb.callout_number   = ecode[1];
       cb.offset_vector    = md->offset_vector;
       cb.subject          = (const char *)md->start_subject;
-      cb.subject_length   = md->end_subject - md->start_subject;
-      cb.start_match      = md->start_match - md->start_subject;
-      cb.current_position = eptr - md->start_subject;
+      cb.subject_length   = (int)(md->end_subject - md->start_subject);
+      cb.start_match      = (int)(md->start_match - md->start_subject);
+      cb.current_position = (int)(eptr - md->start_subject);
       cb.capture_top      = offset_top/2;
       cb.capture_last     = md->capture_last;
       cb.callout_data     = md->callout_data;
@@ -5585,7 +5585,7 @@ for (;;)
             {
             md->offset_vector[offset] =
               md->offset_vector[md->offset_end - number];
-            md->offset_vector[offset+1] = eptr - md->start_subject;
+            md->offset_vector[offset+1] = (int)(eptr - md->start_subject);
             if (offset_top <= offset) offset_top = offset + 2;
             }
 
@@ -5880,8 +5880,8 @@ for (;;)
       minima. */
 
       length = (offset >= offset_top || md->offset_vector[offset] < 0)?
-        md->end_subject - eptr + 1 :
-        md->offset_vector[offset+1] - md->offset_vector[offset];
+        (int)(md->end_subject - eptr + 1) :
+        (int)(md->offset_vector[offset+1] - md->offset_vector[offset]);
 
       /* Set up for repetition, or handle the non-repeated case */
 
@@ -7205,7 +7205,7 @@ for (;;)
 
           case OP_ANYBYTE:
           c = max - min;
-          if (c > md->end_subject - eptr) c = md->end_subject - eptr;
+          if (c > md->end_subject - eptr) c = (int)(md->end_subject - eptr);
           eptr += c;
           break;
 
@@ -7636,8 +7636,8 @@ do
 
   if (offsetcount < 2) rc = 0; else
     {
-    offsets[0] = start_match - match_block.start_subject;
-    offsets[1] = match_block.end_match_ptr - match_block.start_subject;
+    offsets[0] = (int)(start_match - match_block.start_subject);
+    offsets[1] = (int)(match_block.end_match_ptr - match_block.start_subject);
     }
 
   DPRINTF((">>>> returning %d\n", rc));

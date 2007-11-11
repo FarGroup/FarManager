@@ -215,12 +215,12 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     I=(pMZHeader->e_cp-1)*512+pMZHeader->e_cblp;
   }
 */
-  if(DataSize > sizeof(struct RecHeader)+sizeof(struct ARCHeader))
+  if(DataSize > (int)(sizeof(struct RecHeader)+sizeof(struct ARCHeader)))
   {
     const struct ARCHeader *D=(const struct ARCHeader*)(Data+I);
     if (D->HeadId == ARCMARK &&
         D->Type <= 11 && //???
-        DataSize >= D->CompSize+sizeof(struct ARCHeader))
+        DataSize >= (int)(D->CompSize+sizeof(struct ARCHeader)))
     {
       SFXSize=I;
       ArcType=ARC_FORMAT;
@@ -379,7 +379,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"arc32 m{%%S}{g%%P} %%a %%FMQ",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

@@ -62,6 +62,7 @@ namespace PCRE
         ovector[i] = m.ovector[i];
       if(bufLen > 0)
         buffer = (char*)pcre_malloc(bufLen);
+      return *this;
     }
 
     operator bool()

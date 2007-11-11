@@ -168,12 +168,12 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     if (FileHeader.iFolder == 0xFFFD || FileHeader.iFolder == 0xFFFF)
     {
       EndPos = (char*)FileHeader.szName;
-      while (EndPos - (char*)&FileHeader < sizeof(FileHeader) && *EndPos)
+      while (EndPos - (char*)&FileHeader < (int)sizeof(FileHeader) && *EndPos)
         EndPos++;
-      if (EndPos - (char*)&FileHeader >= sizeof(FileHeader))
+      if (EndPos - (char*)&FileHeader >= (int)sizeof(FileHeader))
         goto blad;
 
-      SetFilePointer( ArcHandle, (EndPos-(char*)&FileHeader+1) - ReadSize, NULL, FILE_CURRENT );
+      SetFilePointer( ArcHandle, (LONG)((EndPos-(char*)&FileHeader+1) - ReadSize), NULL, FILE_CURRENT );
       FilesNumber--;
     }
     else
@@ -202,12 +202,12 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     return GETARC_READERROR;
 
   EndPos = (char *)FileHeader.szName;
-  while (EndPos - (char*)&FileHeader < sizeof(FileHeader) && *EndPos)
+  while (EndPos - (char*)&FileHeader < (int)sizeof(FileHeader) && *EndPos)
     EndPos++;
-  if (EndPos - (char*)&FileHeader >= sizeof(FileHeader))
+  if (EndPos - (char*)&FileHeader >= (int)sizeof(FileHeader))
     return GETARC_BROKEN;
 
-  SetFilePointer( ArcHandle, (EndPos-(char*)&FileHeader+1) - ReadSize, NULL, FILE_CURRENT );
+  SetFilePointer( ArcHandle, (LONG)((EndPos-(char*)&FileHeader+1) - ReadSize), NULL, FILE_CURRENT );
 
   EndPos = (char *)FileHeader.szName;
   while (*EndPos)
@@ -280,7 +280,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNMA",
     /*"All files" mask      */"*"
     };
-    if (Command < sizeof(Commands)/sizeof(Commands[0]))
+    if (Command < (int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

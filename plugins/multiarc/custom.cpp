@@ -208,7 +208,7 @@ class MetaReplacer
                     break;
             }
 
-            m_length = p - start;
+            m_length = (int)(p - start);
 
             m_isValid = true;
 
@@ -720,7 +720,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type, int Command, char *Dest)
         "Add", "Move", "AddRecurse", "MoveRecurse", "AllFilesMask"
     };
 
-    if(Command < sizeof(CmdNames) / sizeof(CmdNames[0]))
+    if(Command < (int)(sizeof(CmdNames)/sizeof(CmdNames[0])))
     {
         GetPrivateProfileString(TypeName, CmdNames[Command], "", Dest, 512, FormatFileName);
         return (TRUE);
@@ -1013,7 +1013,7 @@ void ParseListingItemRegExp(Match match,
         for(size_t I = 0; I < sizeof(Months) / sizeof(Months[0]); I++)
             if(LStrnicmp(p, Months[I], 3) == 0)
             {
-                stModification.wMonth = I + 1;
+                stModification.wMonth = (WORD)(I + 1);
                 break;
             }
     }
@@ -1168,7 +1168,7 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
                 for(size_t I = 0; I < sizeof(Months) / sizeof(Months[0]); I++)
                     if(LStrnicmp(CurStr, Months[I], 3) == 0)
                     {
-                        stModification.wMonth = I + 1;
+                        stModification.wMonth = (WORD)(I + 1);
                         while(CurFormat[1] == 'T' && CurStr[1])
                         {
                             CurStr++;

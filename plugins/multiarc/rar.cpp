@@ -333,7 +333,7 @@ struct RARHeaderDataEx
     NextPosition=SetFilePointer(ArcHandle,NextPosition,&NextPositionHigh,FILE_BEGIN);
     if (NextPosition==0xFFFFFFFF && GetLastError()!=NO_ERROR)
       return(GETARC_READERROR);
-    if (NextPositionHigh>FileSizeHigh || NextPositionHigh==FileSizeHigh && NextPosition>FileSize)
+    if ((DWORD)NextPositionHigh>FileSizeHigh || (DWORD)NextPositionHigh==FileSizeHigh && NextPosition>FileSize)
       return(GETARC_UNEXPEOF);
     if (OldFormat)
     {
@@ -571,7 +571,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

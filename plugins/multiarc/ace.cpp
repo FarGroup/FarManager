@@ -159,7 +159,6 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   DWORD ReadSize;
-  size_t I;
 
   ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                        NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
@@ -182,7 +181,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   NextPosition=SFXSize+MainHeader.HeaderSize+sizeof(WORD)*2;
   SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
 
-  for(I=0; I < sizeof(OSID)/sizeof(OSID[0]); ++I)
+  for(int I=0; I < (int)(sizeof(OSID)/sizeof(OSID[0])); ++I)
     if(OSID[I].Type == MainHeader.Host)
     {
       HostOS=I;
@@ -370,7 +369,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"ace32 m -y -c2 -r -f -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);
