@@ -19,6 +19,14 @@
 // Registry operations
 #include "WrapReg.cpp"
 
+#ifndef UNICODE
+#define EXP_NAME(p) _export p
+#else
+#define EXP_NAME(p) _export p ## W
+#endif
+
+#define ArraySize(a) sizeof(a)/sizeof(a[0])
+
 #if defined(__GNUC__)
 #ifdef __cplusplus
 extern "C"{
@@ -37,38 +45,36 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  IsOldFAR=TRUE;
-  if(Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
-  {
-    ::FSF=*Info->FSF;
-    ::Info.FSF=&::FSF;
-    IsOldFAR=FALSE;
-
-    FSF.sprintf(PluginRootKey,"%s\\EditCase",Info->RootKey);
-    WordDivLen=(int)::Info.AdvControl(::Info.ModuleNumber, ACTL_GETSYSWORDDIV, WordDiv);
-    char AddWordDiv[sizeof(WordDiv)];
-    GetRegKey(HKEY_CURRENT_USER,"","AddWordDiv",AddWordDiv,"#",sizeof(AddWordDiv));
-    WordDivLen += lstrlen(AddWordDiv);
-    lstrcat(WordDiv, AddWordDiv);
-    WordDivLen += sizeof(" \n\r\t");
-    lstrcat(WordDiv, " \n\r\t");
-  };
+  ::FSF=*Info->FSF;
+  ::Info.FSF=&::FSF;
+  FSF.sprintf(PluginRootKey,_T("%s\\EditCase"),Info->RootKey);
+  WordDivLen=(int)::Info.AdvControl(::Info.ModuleNumber, ACTL_GETSYSWORDDIV, WordDiv);
+  TCHAR AddWordDiv[sizeof(WordDiv)];
+  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("AddWordDiv"),AddWordDiv,_T("#"),sizeof(AddWordDiv));
+  WordDivLen += lstrlen(AddWordDiv);
+  lstrcat(WordDiv, AddWordDiv);
+  WordDivLen += sizeof(_T(" \n\r\t"));
+  lstrcat(WordDiv, _T(" \n\r\t"));
 }
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
   size_t i;
   struct FarMenuItem MenuItems[5], *MenuItem;
   memset(MenuItems,0,sizeof(MenuItems));
   int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
 
-  for(MenuItem=MenuItems,i=0; i < sizeof(MenuItems)/sizeof(MenuItems[0]); ++i, ++MenuItem)
+  for(MenuItem=MenuItems,i=0; i < ArraySize(MenuItems); ++i, ++MenuItem)
   {
       MenuItem->Selected=MenuItem->Checked=MenuItem->Separator=0;
-      FSF.sprintf(MenuItem->Text, "%s", GetMsg(Msgs[i])); // Text in menu
+#ifndef UNICODE
+      FSF.sprintf(MenuItem->Text, _T("%s"), GetMsg(Msgs[i])); // Text in menu
+#else
+      MenuItem->Text = GetMsg(Msgs[i]); // Text in menu
+#endif
   };
 
   // First item is selected
@@ -76,8 +82,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 
   // Show menu
   int MenuCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-                         GetMsg(MCaseConversion),NULL,"Contents",NULL,NULL,
-                         MenuItems,sizeof(MenuItems)/sizeof(MenuItems[0]));
+                         GetMsg(MCaseConversion),NULL,_T("Contents"),NULL,NULL,
+                         MenuItems,ArraySize(MenuItems));
   switch(MenuCode)
   {
       // If menu Escaped
@@ -104,7 +110,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
        int CCType=MenuCode;
 
        // Temporary string
-       char *NewString=0;
+       TCHAR *NewString=0;
 
        // Forever :-) (Line processing loop)
        for(;;)
@@ -136,23 +142,28 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
          }
 
          // Memory allocation
-         NewString=(char *)malloc(egs.StringLength+1);
+         NewString=(TCHAR *)malloc((egs.StringLength+1)*sizeof(TCHAR));
          // If memory couldn't be allocated
          if(!NewString)
             break;
 
+
+#ifndef UNICODE
          struct EditorConvertText ect;
+#endif
 
          // If nothing selected - finding word bounds (what'll be converted)
          if (!IsBlock)
          {
            // Making NewString
-           memcpy(NewString,egs.StringText,egs.StringLength);
+           _tmemcpy(NewString,egs.StringText,egs.StringLength);
            NewString[egs.StringLength]=0;
+#ifndef UNICODE
            ect.Text=NewString;
            ect.TextLength=egs.StringLength;
            // Convert to OEM
            Info.EditorControl(ECTL_EDITORTOOEM,&ect);
+#endif
 
            // Like whole line is selected
            egs.SelStart=0;
@@ -163,12 +174,14 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
          };
 
          // Making NewString
-         memcpy(NewString,egs.StringText,egs.StringLength);
+         _tmemcpy(NewString,egs.StringText,egs.StringLength);
          NewString[egs.StringLength]=0;
+#ifndef UNICODE
          ect.Text=&NewString[egs.SelStart];
          ect.TextLength=egs.SelEnd-egs.SelStart;
          // Convert to OEM
          Info.EditorControl(ECTL_EDITORTOOEM,&ect);
+#endif
 
          // If Conversion Type is unknown or Cyclic
          if(CCType==CCCyclic)
@@ -181,14 +194,16 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
              // Do the conversion
              ChangeCase(NewString, egs.SelStart, egs.SelEnd, CCType);
 
+#ifndef UNICODE
              // Back to editor charset
              Info.EditorControl(ECTL_OEMTOEDITOR,&ect);
+#endif
 
              // Put converted string to editor
              struct EditorSetString ess;
              ess.StringNumber=egs.StringNumber;
              ess.StringText=NewString;
-             ess.StringEOL=(char*)egs.StringEOL;
+             ess.StringEOL=(TCHAR*)egs.StringEOL;
              ess.StringLength=egs.StringLength;
              Info.EditorControl(ECTL_SETSTRING,&ess);
          };
@@ -217,21 +232,18 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
   return(INVALID_HANDLE_VALUE);
 }
 
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
-  if(!IsOldFAR)
-  {
-      Info->StructSize=sizeof(*Info);
-      Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
-      static const char *PluginMenuStrings[1];
-      // Text in Plugins menu
-      PluginMenuStrings[0]=GetMsg(MCaseConversion);
-      Info->PluginMenuStrings=PluginMenuStrings;
-      Info->PluginMenuStringsNumber=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
-  };
+  Info->StructSize=sizeof(*Info);
+  Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
+  static const TCHAR *PluginMenuStrings[1];
+  // Text in Plugins menu
+  PluginMenuStrings[0]=GetMsg(MCaseConversion);
+  Info->PluginMenuStrings=PluginMenuStrings;
+  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
 };
 
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -239,11 +251,11 @@ const char *GetMsg(int MsgId)
 // What we consider as letter
 BOOL MyIsAlpha(int c)
 {
-    return ( memchr(WordDiv, c, WordDivLen)==NULL ? TRUE : FALSE );
+    return ( _tmemchr(WordDiv, c, WordDivLen)==NULL ? TRUE : FALSE );
 }
 
 // Finding word bounds (what'll be converted) (Str is in OEM)
-BOOL FindBounds(char *Str, int Len, int Pos, int &Start, int &End)
+BOOL FindBounds(TCHAR *Str, int Len, int Pos, int &Start, int &End)
 {
     int i=1;
     BOOL ret = FALSE;
@@ -313,7 +325,7 @@ BOOL FindBounds(char *Str, int Len, int Pos, int &Start, int &End)
     return ret;
 };
 
-int FindStart(char *Str, int Start, int End)
+int FindStart(TCHAR *Str, int Start, int End)
 {
     // Current pos in Str
     int CurPos=End-1;
@@ -325,7 +337,7 @@ int FindStart(char *Str, int Start, int End)
     return CurPos+1;
 };
 
-int FindEnd(char *Str, int Start, int End)
+int FindEnd(TCHAR *Str, int Start, int End)
 {
     // Current pos in Str
     int CurPos=Start;
@@ -339,7 +351,7 @@ int FindEnd(char *Str, int Start, int End)
 
 // Changes Case of NewString from position Start till End
 // to CCType and returns amount of changes
-int ChangeCase(char *NewString, int Start, int End, int CCType)
+int ChangeCase(TCHAR *NewString, int Start, int End, int CCType)
 {
     // If previous symbol is letter, then IsPrevSymbAlpha!=0
     BOOL IsPrevSymbAlpha=FALSE;
@@ -354,25 +366,25 @@ int ChangeCase(char *NewString, int Start, int End, int CCType)
         switch(CCType)
         {
           case CCLower:
-              NewString[i]=(char)FSF.LLower(NewString[i]);
+              NewString[i]=(TCHAR)FSF.LLower(NewString[i]);
               break;
 
           case CCTitle:
               if(IsPrevSymbAlpha)
-                  NewString[i]=(char)FSF.LLower(NewString[i]);
+                  NewString[i]=(TCHAR)FSF.LLower(NewString[i]);
               else
-                  NewString[i]=(char)FSF.LUpper(NewString[i]);
+                  NewString[i]=(TCHAR)FSF.LUpper(NewString[i]);
               break;
 
           case CCUpper:
-              NewString[i]=(char)FSF.LUpper(NewString[i]);
+              NewString[i]=(TCHAR)FSF.LUpper(NewString[i]);
               break;
 
           case CCToggle:
               if(FSF.LIsLower(NewString[i]))
-                  NewString[i]=(char)FSF.LUpper(NewString[i]);
+                  NewString[i]=(TCHAR)FSF.LUpper(NewString[i]);
               else
-                  NewString[i]=(char)FSF.LLower(NewString[i]);
+                  NewString[i]=(TCHAR)FSF.LLower(NewString[i]);
               break;
 
         };
@@ -381,7 +393,7 @@ int ChangeCase(char *NewString, int Start, int End, int CCType)
         ChangeCount++;
       }
       else
-          IsPrevSymbAlpha=FALSE;
+        IsPrevSymbAlpha=FALSE;
     };
 
     return ChangeCount;
@@ -389,7 +401,7 @@ int ChangeCase(char *NewString, int Start, int End, int CCType)
 
 // Return CCType by rule: lower->Title->UPPER
 // If Str contains no letters, then return CCCyclic
-int GetNextCCType(char *Str, int StrLen, int Start, int End)
+int GetNextCCType(TCHAR *Str, int StrLen, int Start, int End)
 {
     int SignalWordStart=Start,
         SignalWordEnd=End;
@@ -410,17 +422,17 @@ int GetNextCCType(char *Str, int StrLen, int Start, int End)
 
     SignalWordLen=SignalWordEnd-SignalWordStart;
 
-    char *SignalWord=(char *)malloc(SignalWordLen+1);
+    TCHAR *SignalWord=(TCHAR *)malloc((SignalWordLen+1)*sizeof(TCHAR));
 
     if( SignalWord != NULL )
     {
-        char *WrappedWord=(char *)malloc(SignalWordLen+1);
+        TCHAR *WrappedWord=(TCHAR *)malloc((SignalWordLen+1)*sizeof(TCHAR));
 
         if( WrappedWord != NULL )
         {
 
-            FSF.sprintf(SignalWord, "%.*s", SignalWordLen, &Str[SignalWordStart]);
-            FSF.sprintf(WrappedWord, "%s", SignalWord);
+            FSF.sprintf(SignalWord, _T("%.*s"), SignalWordLen, &Str[SignalWordStart]);
+            FSF.sprintf(WrappedWord, _T("%s"), SignalWord);
 
             // if UPPER then Title
             FSF.LUpperBuf(WrappedWord, SignalWordLen);

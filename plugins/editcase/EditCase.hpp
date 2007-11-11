@@ -14,18 +14,18 @@ BOOL IsOldFAR;
 #define CCCyclic    4
 
 // Plugin Registry root
-static char PluginRootKey[80];
+static TCHAR PluginRootKey[80];
 // This chars aren't letters
-static char WordDiv[80];
+static TCHAR WordDiv[80];
 static int WordDivLen;
 
-const char *GetMsg(int MsgId);
+const TCHAR *GetMsg(int MsgId);
 
-BOOL FindBounds(char *Str, int Len, int Pos, int &Start, int &End);
-int FindEnd(char *Str, int Len, int Pos);
-int FindStart(char *Str, int Len, int Pos);
-BOOL MyIsAlpha(unsigned char c);
-int GetNextCCType(char *Str, int StrLen, int Start, int End);
-int ChangeCase(char *NewString, int Start, int End, int CCType);
+BOOL FindBounds(TCHAR *Str, int Len, int Pos, int &Start, int &End);
+int FindEnd(TCHAR *Str, int Len, int Pos);
+int FindStart(TCHAR *Str, int Len, int Pos);
+BOOL MyIsAlpha(int c);
+int GetNextCCType(TCHAR *Str, int StrLen, int Start, int End);
+int ChangeCase(TCHAR *NewString, int Start, int End, int CCType);
 
 #endif
