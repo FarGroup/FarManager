@@ -36,16 +36,18 @@ DEF = $(NAME).gcc.def
 RES = $(OBJDIR)/$(NAME).res.o
 
 CXX = g++
+CC = gcc
 DLLTOOL = dlltool
 RM = rm -f
 CP = cp -f
 M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir -p
-WINDRES=windres
+WINDRES = windres
 AR = ar
 RANLIB = ranlib
 CXXFLAGS = -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions $(USERCPP)
+CCFLAGS = -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions $(USERCPP)
 LNKFLAGS = -mdll -s -nostartfiles -nodefaultlibs -lgcc $(USERLIBSFIRST) -L $(COMMON) -lCRT -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
