@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 330
+  Plugin API for FAR Manager 1.80 build 334
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,330)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,334)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -167,7 +167,7 @@ enum DialogItemTypes {
    Check diagol element type has inputstring?
    (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT, etc)
 */
-static inline BOOL IsEdit(int Type)
+static __inline BOOL IsEdit(int Type)
 {
     switch(Type) {
       case DI_EDIT:
@@ -300,6 +300,8 @@ enum FarMessagesProc{
   DM_SETCOMBOBOXEVENT,
   DM_GETCOMBOBOXEVENT,
 
+  DM_GETREALLOC,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -323,6 +325,7 @@ enum FarMessagesProc{
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
+
 
   DM_USER=0x4000,
 
@@ -1132,7 +1135,7 @@ struct ViewerMode{
   DWORD Reserved[4];
 };
 
-struct ViewerInfoW
+struct ViewerInfo
 {
   int    StructSize;
   int    ViewerID;
