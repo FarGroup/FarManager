@@ -5,8 +5,8 @@
 NAME = AutoWrap
 LINK_OBJS = $(OBJDIR)\AutoWrap.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\AutoWrap.obj: AutoWrap.cpp wrapreg.cpp wrapmix.cpp WrapLng.hpp AutoWrap.hpp $(COMINC)\plugin.hpp

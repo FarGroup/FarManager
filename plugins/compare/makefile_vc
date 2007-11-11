@@ -5,8 +5,8 @@
 NAME = Compare
 LINK_OBJS = $(OBJDIR)\Compare.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\Compare.obj: Compare.cpp $(COMINC)\plugin.hpp

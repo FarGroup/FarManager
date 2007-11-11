@@ -5,8 +5,8 @@
 NAME = FileCase
 LINK_OBJS = $(OBJDIR)\FileCase.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\FileCase.obj: FileCase.cpp filecvt.cpp FileMix.cpp FileReg.cpp ProcessName.cpp FileCase.hpp FileLng.hpp $(COMINC)\plugin.hpp

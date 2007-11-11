@@ -13,8 +13,8 @@ $(OBJDIR)\Plugin.obj
 
 NEEDENTRY = 1
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(RES): resource.h

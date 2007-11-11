@@ -18,10 +18,10 @@ USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre"
 USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre" /Zp1
 !ENDIF
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
 LIBS = $(OBJDIR)\pcre.lib $(LIBS)
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(RES): multiarcversion.hpp

@@ -5,8 +5,8 @@
 NAME = DrawLine
 LINK_OBJS = $(OBJDIR)\DrawLine.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\DrawLine.obj: DrawLine.cpp drawlng.hpp drawline.hpp $(COMINC)\plugin.hpp

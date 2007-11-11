@@ -5,8 +5,8 @@
 NAME = HlfViewer
 LINK_OBJS = $(OBJDIR)\HlfViewer.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\HlfViewer.obj: HlfViewer.cpp FarEditor.cpp Mix.cpp Reg.cpp HlfViewer.hpp Lang.hpp $(COMINC)\plugin.hpp $(COMINC)\farkeys.hpp

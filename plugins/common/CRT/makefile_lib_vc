@@ -1,11 +1,18 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
+CC=$(_BIN_PATH_)cl.exe
+LIBR=$(_BIN_PATH_)lib.exe
+
 !IF "$(CPU)" == "AMD64"
 OBJDIR = obj.64.vc
 DLLNAME = libCRT64.lib
-MASM = ml64
+MASM=$(_BIN_PATH_)ml64.exe
 !ELSE
 OBJDIR = obj.32.vc
 DLLNAME = libCRT.lib
-MASM = ml
+MASM=$(_BIN_PATH_)ml.exe
 !ENDIF
 OBJDIRW = $(OBJDIR)\wide
 OUTDIR = ..
@@ -68,19 +75,35 @@ LINK_FLAGS=/nologo /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
 ALL: $(OBJDIRW) $(OUTDIR)\$(DLLNAME)
 
 $(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
-	lib @<<
+!ifndef __MAKE__
+	$(LIBR) @<<
 	$(LINK_FLAGS) $(LINK_OBJS)
 <<
+!else
+	$(LIBR) @&&<
+	$(LINK_FLAGS) $(LINK_OBJS)
+<
+!endif
 
+!ifndef __MAKE__
 .cpp{$(OBJDIR)}.obj::
-	cl @<<
+	$(CC) @<<
 	$(CPP_PROJ) /Fo"$(OBJDIR)\\" $<
 <<
+!else
+.cpp{$(OBJDIR)}.obj:
+	$(CC) $(CPP_PROJ) /Fo"$(OBJDIR)\\" { $< }
+!endif
 
+!ifndef __MAKE__
 .cpp{$(OBJDIRW)}.obj::
-	cl @<<
+	$(CC) @<<
 	$(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" $<
 <<
+!else
+.cpp{$(OBJDIRW)}.obj:
+	$(CC) $(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" { $< }
+!endif
 
 .asm{$(OBJDIR)}.obj:
 	$(MASM) /nologo /coff /c /Fo$@ $<

@@ -135,6 +135,10 @@ CFLAGS = $(CPP_PROJ) $(CPP_DEBUG) $(CPP_OPT)
 CC=$(_CL_PATH_)cl.exe
 !endif
 
+!ifndef LIBR
+LIBR=$(_LINK_PATH_)lib.exe
+!endif
+
 !ifndef RC
 RC=$(_RC_PATH)rc.exe
 !endif

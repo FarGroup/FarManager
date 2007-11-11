@@ -9,6 +9,6 @@ $(OBJDIR)\TmpClass.obj \
 $(OBJDIR)\TmpMix.obj \
 $(OBJDIR)\TmpReg.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc

@@ -5,8 +5,8 @@
 NAME = Brackets
 LINK_OBJS = $(OBJDIR)\Brackets.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\Brackets.obj: Brackets.cpp BrackMix.cpp BrackCfg.cpp Brackets.hpp BrackLng.hpp $(COMINC)\plugin.hpp

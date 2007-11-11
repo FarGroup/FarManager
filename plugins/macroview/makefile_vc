@@ -5,9 +5,9 @@
 NAME = MacroView
 LINK_OBJS = $(OBJDIR)\MacroView.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\MacroView.obj : MacroView.cpp MacroMix.cpp MacroDiff.cpp \
                           Config.cpp strclass.cpp regclass.cpp \

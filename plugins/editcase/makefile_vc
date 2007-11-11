@@ -5,8 +5,8 @@
 NAME = EditCase
 LINK_OBJS = $(OBJDIR)\EditCase.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\EditCase.obj: EditCase.cpp WrapReg.cpp EditCase.hpp EditLng.hpp $(COMINC)\plugin.hpp

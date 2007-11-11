@@ -5,8 +5,8 @@
 NAME = FARCmds
 LINK_OBJS = $(OBJDIR)\FARCmds.obj
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
-include ..\makefile_vc_target_inc
+!include ..\makefile_vc_target_inc
 
 $(OBJDIR)\FARCmds.obj: FARCmds.cpp Mix.cpp OpenCmd.cpp Reg.cpp syslog.h FARCmds.hpp Lang.hpp $(COMINC)\plugin.hpp

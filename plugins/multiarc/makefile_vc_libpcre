@@ -4,17 +4,22 @@
 
 USERCPP = /D WIN32 /D PCRE_STATIC /D _WIN32
 
-include ..\makefile_vc_def_inc
+!include ..\makefile_vc_def_inc
 
 OUTPUTS = $(OBJDIR)\pcre.lib
 OBJS = $(OBJDIR)\chartables.obj $(OBJDIR)\get.obj $(OBJDIR)\pcre.obj $(OBJDIR)\study.obj
 
 all: $(OUTPUTS)
 
+!ifndef __MAKE__
 {libpcre}.c{$(OBJDIR)}.obj::
-	cl @<<
+	$(CC) @<<
 	$(CFLAGS) $<
 <<
+!else
+{libpcre}.c{$(OBJDIR)}.obj:
+	$(CC) $(CFLAGS) { $< }
+!endif
 	
 $(OUTPUTS): $(OBJS)
-	@lib /nologo /OUT:$(OUTPUTS) $(OBJS)
+	@$(LIBR) /nologo /OUT:$(OUTPUTS) $(OBJS)
