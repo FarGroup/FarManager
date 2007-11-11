@@ -1,0 +1,60 @@
+ALLDIRS=align autowrap brackets common compare drawline editcase emenu \
+ farcmds filecase hlfviewer macroview network proclist tmppanel
+
+##########################
+!ifdef WIDE
+!ifndef __MAKE__
+_MDEFS=$(_MDEFS) WIDE=1
+!else
+_MDEFS=$(_MDEFS) /DWIDE
+!endif
+!endif
+
+!ifdef DEBUG
+!ifndef __MAKE__
+_MDEFS=$(_MDEFS) DEBUG=1
+!else
+_MDEFS=$(_MDEFS) /DDEBUG
+!endif
+!endif
+
+!ifdef NO_ULINK
+!ifndef __MAKE__
+_MDEFS=$(_MDEFS) NO_ULINK=1
+!else
+_MDEFS=$(_MDEFS) /DNO_ULINK
+!endif
+!elseif defined(ULINK)
+!ifndef __MAKE__
+_MDEFS=$(_MDEFS) ULINK=1
+!else
+_MDEFS=$(_MDEFS) /DULINK
+!endif
+!endif
+
+!IF "$(CPU)" == "AMD64"
+!ifndef __MAKE__
+_MDEFS=$(_MDEFS) CPU=AMD64
+!else
+_MDEFS=$(_MDEFS) /DCPU=AMD64
+!endif
+!endif
+
+##########################
+all:    $(ALLDIRS)
+
+!ifdef __MAKE__
+.PHONY: $(ALLDIRS)
+!else
+FICTIVE=_fictive_
+$(FICTIVE):
+
+!endif
+
+##########################
+$(ALLDIRS): $(FICTIVE)
+	@echo ===========$@
+        @cd $@
+        @$(MAKE) -s -f makefile_vc $(_MDEFS)
+        @cd ..
+

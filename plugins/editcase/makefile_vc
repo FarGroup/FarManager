@@ -1,3 +1,7 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
 NAME = EditCase
 LINK_OBJS = $(OBJDIR)\EditCase.obj
 

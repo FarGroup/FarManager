@@ -1,0 +1,52 @@
+yjh 11.11.2007 15:49:14 +0300
+
+1. makefile_vc (и его include's) теперь могут обрабатываться как nmake (ms),
+   так и make от borland
+
+2. Если в каталоге plugins будет находиться makefile_vc_defs (его присутсвие
+   НЕ обязательно), то он автоматически покдлючается и позволяет задавать
+   "стандартные" режимы и пути. Это позволяет (помимо прочего) не переключать
+   environment при сборке 32/64битовых версий.
+   Этот файл НЕ включается в репозиторий (он у каждого свой), а пример такого
+   файла (используемый мной) ниже
+
+3. Добавлен (в корневом каталоге плугинов) makefile_vc_all - он позволяет
+   собрать все "тривиальные" плугины одной командой.
+   В список, на данный момент, не включены:
+     ftp,helloworld,newarc  - нет стандартного makefile_vc
+     multiarc - не общего makefile_vc собирающего и библиотеки с "подплугинами"
+
+4. Добавлен changelog :)
+
+5. Пример файла makefile_vc_defs
+---cut---
+!ifndef NO_ULINK
+ULINK=1
+!endif
+
+####################################################################
+INCLUDE=""
+LIB=""
+
+_ULINK_PATH_=E:\TOOLSES\  # don't remove comment char
+
+ENV_INC_OPT=/IJ:\_MS\SDK\include /IE:\VC8\VC\INCLUDE
+
+!if "$(CPU)" == "AMD64"
+!ifndef ULINK
+ENV_LIB_OPT=/LIBPATH:J:\_MS\SDK\lib\x64 /LIBPATH:E:\VC8\VC\LIB\amd64
+!else
+ENV_LIB_OPT=/LJ:\_MS\SDK\lib\x64;E:\VC8\VC\LIB\amd64
+!endif
+_BIN_PATH_=E:\VC8\VC\bin\x86_amd64\ # don't remove comment char
+!else
+!ifndef ULINK
+ENV_LIB_OPT=/LIBPATH:J:\_MS\SDK\lib /LIBPATH:E:\VC8\VC\LIB
+!else
+ENV_LIB_OPT=/LJ:\_MS\SDK\lib;E:\VC8\VC\LIB
+!endif
+_BIN_PATH_=E:\VC8\VC\bin\  # don't remove comment char
+!endif
+
+######################################################################
+---end---

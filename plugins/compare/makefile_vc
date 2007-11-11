@@ -1,3 +1,7 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
 NAME = Compare
 LINK_OBJS = $(OBJDIR)\Compare.obj
 

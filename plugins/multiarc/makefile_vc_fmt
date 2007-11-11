@@ -1,3 +1,7 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
 # nmake fmt_vc.mak FMT=name
 !if "$(FMT)" == ""
 !error An invalid FMT-target

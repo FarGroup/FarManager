@@ -1,3 +1,7 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
 NAME = AutoWrap
 LINK_OBJS = $(OBJDIR)\AutoWrap.obj
 

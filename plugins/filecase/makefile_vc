@@ -1,3 +1,7 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
 NAME = FileCase
 LINK_OBJS = $(OBJDIR)\FileCase.obj
 

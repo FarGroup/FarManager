@@ -25,7 +25,6 @@
 #
 #EXCLUDECRT - set if you do not want to link with common/crt lib.
 #
-
 !ifndef DEBUG
 DIRNAME=final
 !else
@@ -78,7 +77,7 @@ COMMONLIB = $(COMMON)\libCRT64.lib
 !undef COMMONLIB
 !endif
 LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
-CPP_PROJ=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
+CPP_PROJ=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
 ULOUT=-Tpd+
 !ELSE
 COMMONLIB = $(COMMON)\libCRT.lib
@@ -86,12 +85,26 @@ COMMONLIB = $(COMMON)\libCRT.lib
 !undef COMMONLIB
 !endif
 LIBS = $(COMMONLIB) kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib libcmt.lib
-CPP_PROJ=/nologo /c /W3 /Gy /GF /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
+CPP_PROJ=/nologo /c /W3 /Gy /GF /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
 ULOUT=-Tpd -Re
 !ENDIF
 
+
+!ifdef _BIN_PATH_
+!ifndef _CL_PATH_
+_CL_PATH_=$(_BIN_PATH_)
+!endif
+!ifndef _RC_PATH_
+_RC_PATH_=$(_BIN_PATH_)
+!endif
+!ifndef _LINK_PATH_
+_LINK_PATH_=$(_BIN_PATH_)
+!endif
+!endif
+
+
 !ifndef ULINK
-LNK=link.exe
+LNK=$(_LINK_PATH_)link.exe
 LINK_DEBUG=/pdb:$(PDBNAME)
 CPP_DEBUG=/Zi
 !ifndef NEEDENTRY
@@ -100,15 +113,15 @@ NOENTRY = /noentry
 !ifndef NEEDDEFLIB
 NODEFLIB = /nodefaultlib
 !endif
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 $(NOENTRY) $(NODEFLIB) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !else
 LINK_DEBUG=-v
 CPP_DEBUG=/Z7
-LNK=ulink.exe +-
+LNK=$(_ULINK_PATH_)ulink.exe +-
 !ifndef NEEDENTRY
 NOENTRY = -e-
 !endif
-LINK_FLAGS=-q $(ULOUT) -Gz -n -m- -Gh -Gh- $(NOENTRY) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)"
+LINK_FLAGS=-q $(ULOUT) -Gz -n -m- -Gh -Gh- $(NOENTRY) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
 !endif
 
 !ifndef DEBUG
@@ -117,3 +130,21 @@ LINK_FLAGS=-q $(ULOUT) -Gz -n -m- -Gh -Gh- $(NOENTRY) /ZD:"$(DEF)" /ZM:"$(MAP)" 
 !endif
 
 CFLAGS = $(CPP_PROJ) $(CPP_DEBUG) $(CPP_OPT)
+
+!ifndef CC
+CC=$(_CL_PATH_)cl.exe
+!endif
+
+!ifndef RC
+RC=$(_RC_PATH)rc.exe
+!endif
+
+!if !defined(SRC_PATHS_DEFINED) && defined(__MAKE__)
+.path.cpp=.
+.path.c=.
+.path.hpp=.
+.path.h=.
+.path.rc=.
+.path.def=.
+!endif
+

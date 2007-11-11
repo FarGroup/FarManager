@@ -1,3 +1,7 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
 NAME = EMenu
 LINK_OBJS = $(OBJDIR)\EMenu.obj \
 $(OBJDIR)\auto_sz.obj \
