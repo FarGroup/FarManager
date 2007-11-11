@@ -1,7 +1,4 @@
-all: crt $(DLLFULLNAME)
-
-crt:
-	$(MAKE) -C $(COMMON)/CRT -f makefile_lib_gcc
+all: $(DLLFULLNAME)
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
