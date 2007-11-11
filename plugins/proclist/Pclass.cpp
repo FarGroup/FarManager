@@ -3,6 +3,10 @@
 #include "perfthread.hpp"
 #include "proclng.hpp"
 
+#if !defined(_WIN64) && defined(_MSC_VER)
+#undef wmemset
+#endif
+
 class StrTok {
     LPCTSTR tok;
     LPTSTR  ptr;
@@ -1043,7 +1047,12 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
         _Opt LocalOpt = Opt;
         MakeViewOptions(DialogItems+1, LocalOpt, 2);
-        int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),DialogItems,ArraySize(DialogItems));
+        int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),
+                                   DialogItems,ArraySize(DialogItems)
+#ifdef UNICODE
+                                   ,NULL
+#endif
+                                   );
         if(ExitCode==-1)
             return TRUE;
         GetViewOptions(DialogItems+1, LocalOpt);
@@ -1079,11 +1088,19 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItems(Items, FarItems, ArraySize(Items));
 
 #ifdef UNICODE
-#define Data  PtrData
+        FarItems[2].DataOut = HostName;
+        FarItems[2].MaxLen = ArraySize(HostName);
+        FarItems[7].MaxLen = FarItems[8].MaxLen = 0;
+#define Data  DataOut
 #endif
         //Loop until successful connect or user cancel in dialog
-        while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
-                          FarItems, ArraySize(Items))!=-1)
+        for(bool stop = false;
+            Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
+                        FarItems, ArraySize(Items)
+#ifdef UNICODE
+                         ,realloc
+#endif
+                         )!=-1; )
         {
             if(*FarItems[2].Data==0 || !lstrcmp(FarItems[2].Data,_T("\\\\")))
             {
@@ -1092,10 +1109,14 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 DisconnectWMI();
                 pPerfThread = NT ? new PerfThread(*this/*, FarItems[7].Data, FarItems[8].Data*/) : 0;
                 *HostName = 0;
-                break;
-            }
-            if(Connect(FarItems[2].Data, FarItems[7].Data, FarItems[8].Data))
-                break;
+                stop = true;
+            } else if(Connect(FarItems[2].Data, FarItems[7].Data, FarItems[8].Data))
+                stop =true;
+#ifdef UNICODE
+            free(FarItems[7].DataOut);
+            free(FarItems[8].DataOut);
+#endif
+            if(stop) break;
 #undef Data
         }
         Reread();

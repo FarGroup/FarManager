@@ -73,12 +73,20 @@ int Config()
   DialogItems[1].Selected = Opt.AddToDisksMenu;
   DialogItems[4].Selected = Opt.AddToPluginsMenu;
 #ifdef UNICODE
-#define Data PtrData
+  wchar_t tmpstr[64];
+  DialogItems[2].DataIn = DialogItems[2].DataOut = tmpstr;
+  DialogItems[2].MaxLen = ArraySize(tmpstr);
+#define Data DataOut
 #endif
   if (Opt.DisksMenuDigit)
     FSF.itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
 
-  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,_T("Config"),DialogItems,ArraySize(DialogItems));
+  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
+                             DialogItems,ArraySize(DialogItems)
+#ifdef UNICODE
+                             , NULL
+#endif
+                             );
   if (ExitCode != ArraySize(DialogItems) - 2)
     return FALSE;
 

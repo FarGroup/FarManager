@@ -19,22 +19,30 @@ FarStandardFunctions FSF;
 int NT, W2K;
 TCHAR PluginRootKey[80];
 
-#if defined(__GNUC__)
 #ifdef __cplusplus
 extern "C"{
 #endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+  BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved);
 #ifdef __cplusplus
 };
 #endif
 
-BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-  (void) hDll;
-  (void) dwReason;
   (void) lpReserved;
+  if(dwReason == DLL_PROCESS_ATTACH)
+      DisableThreadLibraryCalls(hDll);
   return TRUE;
 }
+
+#ifndef __GNUC__
+#pragma comment(linker, "/ENTRY:DllMainCRTStartup")
+// for ulink
+#pragma comment(linker, "/alternatename:DllMainCRTStartup=_DllMainCRTStartup@12")
+// for ms-link BUG
+#ifndef _M_AMD64
+void __cdecl main(void) {}
+#endif
 #endif
 
 //-----------------------------------------------------------------------------

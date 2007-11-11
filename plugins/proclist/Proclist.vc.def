@@ -1,3 +1,4 @@
+LIBRARY
 EXPORTS
    SetStartupInfo
    OpenPlugin

@@ -17,13 +17,14 @@ $(OBJDIR)\Proclist.obj
 
 USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 
-!IF "$(CPU)" != "AMD64"
 NEEDENTRY = 1
-!IF !defined(ULINK) && !defined(WIDE)
-EXCLUDECRT = 1
+
+!if "$(CPU)" != "AMD64"
 NEEDDEFLIB = 1
-!ENDIF
-!ENDIF
+!if !defined(ULINK) && !defined(WIDE)
+EXCLUDECRT = 1
+!endif
+!endif
 
 !include ..\makefile_vc_def_inc
 
