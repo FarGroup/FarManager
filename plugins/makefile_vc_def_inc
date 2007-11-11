@@ -76,7 +76,6 @@ COMMONLIB = $(COMMON)\libCRT64.lib
 !ifdef EXCLUDECRT
 !undef COMMONLIB
 !endif
-LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
 CPP_PROJ=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
 ULOUT=-Tpd+
 !ELSE
@@ -84,11 +83,11 @@ COMMONLIB = $(COMMON)\libCRT.lib
 !ifdef EXCLUDECRT
 !undef COMMONLIB
 !endif
-LIBS = $(COMMONLIB) kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib libcmt.lib
 CPP_PROJ=/nologo /c /W3 /Gy /GF /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
 ULOUT=-Tpd -Re
 !ENDIF
 
+LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
 
 !ifdef _BIN_PATH_
 !ifndef _CL_PATH_
@@ -120,8 +119,11 @@ CPP_DEBUG=/Z7
 LNK=$(_ULINK_PATH_)ulink.exe +-
 !ifndef NEEDENTRY
 NOENTRY = -e-
+!ifndef NEEDDEFLIB
+NODEFLIB = -n
 !endif
-LINK_FLAGS=-q $(ULOUT) -Gz -n -m- -Gh -Gh- $(NOENTRY) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
+!endif
+LINK_FLAGS=-q $(ULOUT) -Gz -m- -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
 !endif
 
 !ifndef DEBUG
