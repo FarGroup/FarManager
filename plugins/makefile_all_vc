@@ -1,4 +1,4 @@
-ALLDIRS=align autowrap brackets common compare drawline editcase emenu \
+ALLDIRS=align autowrap brackets compare drawline editcase emenu \
  farcmds filecase hlfviewer macroview network proclist tmppanel multiarc
 
 !include ./makefile_vc_getmode

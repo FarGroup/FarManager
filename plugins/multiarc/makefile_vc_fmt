@@ -16,6 +16,7 @@ LINK_OBJS = $(OBJDIR)\$(NAME).obj
 USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre"
 !ELSE
 USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre" /Zp1
+NEEDDEFLIB = 1
 !ENDIF
 
 !include ..\makefile_vc_def_inc
