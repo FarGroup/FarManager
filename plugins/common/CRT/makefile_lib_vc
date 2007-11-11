@@ -1,5 +1,5 @@
-!if exists(../make_vc_defs)
-!include ../make_vc_defs
+!if exists(../../make_vc_defs)
+!include ../../make_vc_defs
 !endif
 
 CC=$(_BIN_PATH_)cl.exe
@@ -13,6 +13,7 @@ MASM=$(_BIN_PATH_)ml64.exe
 OBJDIR = obj.32.vc
 DLLNAME = libCRT.lib
 MASM=$(_BIN_PATH_)ml.exe
+MASM_OPT=/coff
 !ENDIF
 OBJDIRW = $(OBJDIR)\wide
 OUTDIR = ..
@@ -63,7 +64,7 @@ $(OBJDIR)\strtol.obj \
 $(OBJDIRW)\strtol.obj \
 $(OBJDIR)\aliases.obj
 
-CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3
+CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3 $(ENV_INC_OPT)
 !IF "$(CPU)" == "AMD64"
 CPP_PROJ=$(CPP_BASE) /Zp8 /Wp64
 !ELSE
@@ -76,37 +77,45 @@ ALL: $(OBJDIRW) $(OUTDIR)\$(DLLNAME)
 
 $(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
 !ifndef __MAKE__
-	$(LIBR) @<<
+	@$(LIBR) @<<
 	$(LINK_FLAGS) $(LINK_OBJS)
 <<
 !else
-	$(LIBR) @&&<
+	@$(LIBR) @&&<
 	$(LINK_FLAGS) $(LINK_OBJS)
 <
 !endif
 
+!ifdef __MAKE__
+.path.c=.
+.path.cpp=.
+.path.h=.
+.path.hpp=.
+.path.asm=.
+!endif
+
 !ifndef __MAKE__
 .cpp{$(OBJDIR)}.obj::
-	$(CC) @<<
+	@$(CC) @<<
 	$(CPP_PROJ) /Fo"$(OBJDIR)\\" $<
 <<
 !else
 .cpp{$(OBJDIR)}.obj:
-	$(CC) $(CPP_PROJ) /Fo"$(OBJDIR)\\" { $< }
+	@$(CC) $(CPP_PROJ) /Fo"$(OBJDIR)\\" { $< }
 !endif
 
 !ifndef __MAKE__
 .cpp{$(OBJDIRW)}.obj::
-	$(CC) @<<
+	@$(CC) @<<
 	$(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" $<
 <<
 !else
 .cpp{$(OBJDIRW)}.obj:
-	$(CC) $(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" { $< }
+	@$(CC) $(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" { $< }
 !endif
 
 .asm{$(OBJDIR)}.obj:
-	$(MASM) /nologo /coff /c /Fo$@ $<
+	@$(MASM) /nologo $(MASM_OPT) /c /Fo$@ $<
 
 
 $(OBJDIR)\delete.obj: delete.cpp crt.hpp
@@ -121,11 +130,14 @@ $(OBJDIR)\memcpy.obj: memcpy.cpp crt.hpp
 $(OBJDIR)\memicmp.obj: memicmp.cpp crt.hpp
 $(OBJDIR)\memmove.obj: memmove.cpp crt.hpp
 $(OBJDIR)\memset.obj: memset.cpp crt.hpp
+$(OBJDIRW)\memset.obj: memset.cpp crt.hpp
 $(OBJDIR)\new.obj: new.cpp crt.hpp crt.hpp
 $(OBJDIR)\new_array.obj: new_array.cpp crt.hpp
 $(OBJDIR)\realloc.obj: realloc.cpp crt.hpp
 $(OBJDIR)\strchr.obj: strchr.cpp crt.hpp
 $(OBJDIRW)\strchr.obj: strchr.cpp crt.hpp
+$(OBJDIR)\strcpy.obj: strcpy.cpp crt.hpp
+$(OBJDIRW)\strcpy.obj: strcpy.cpp crt.hpp
 $(OBJDIR)\strcspn.obj: strcspn.cpp crt.hpp
 $(OBJDIR)\strdup.obj: strdup.cpp crt.hpp
 $(OBJDIRW)\strdup.obj: strdup.cpp crt.hpp
@@ -146,6 +158,7 @@ $(OBJDIR)\strtok.obj: strtok.cpp crt.hpp
 $(OBJDIRW)\strtok.obj: strtok.cpp crt.hpp
 $(OBJDIR)\strtol.obj: strtol.cpp crt.hpp
 $(OBJDIRW)\strtol.obj: strtol.cpp crt.hpp
+$(OBJDIR)\aliases.obj: aliases.asm
 
 $(OBJDIRW):
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
