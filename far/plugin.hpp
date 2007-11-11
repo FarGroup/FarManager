@@ -183,7 +183,7 @@ enum DialogItemTypes {
    Check diagol element type has inputstring?
    (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT, etc)
 */
-static inline BOOL IsEdit(int Type)
+static __inline BOOL IsEdit(int Type)
 {
     switch(Type) {
       case DI_EDIT:
