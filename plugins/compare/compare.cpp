@@ -2,6 +2,7 @@
 #define _FAR_USE_FARFINDDATA
 #include <plugin.hpp>
 #include <CRT/crt.hpp>
+#define ArraySize(a)  sizeof(a)/sizeof(a[0])
 
 #ifdef __GNUC__
 #define _i64(num) num##ll
@@ -191,10 +192,7 @@ static void ShowMessage(const TCHAR *Name1, const TCHAR *Name2)
   };
   Info.Message(Info.ModuleNumber, bStart ? FMSG_LEFTALIGN :
                FMSG_LEFTALIGN|FMSG_KEEPBACKGROUND,
-               NULL,
-               MsgItems,
-               sizeof(MsgItems) / sizeof(MsgItems[0]),
-               0);
+               NULL, MsgItems, ArraySize(MsgItems), 0);
   bStart = false;
 }
 
@@ -283,10 +281,10 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     /*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, NULL,                      DIF_CENTERGROUP, NULL },
     /*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, NULL,                      DIF_CENTERGROUP, NULL }
   };
-  struct FarDialogItem DialogItems[sizeof(InitItems) / sizeof(InitItems[0])];
+  struct FarDialogItem DialogItems[ArraySize(InitItems)];
   TCHAR Mask[] = _T("99999");
 #ifdef UNICODE
-  wchar_t tmpnum[sizeof(InitItems)/sizeof(InitItems[0])][32];
+  wchar_t tmpnum[ArraySize(InitItems)][32];
 #endif
 
   memset(DialogItems,0,sizeof(DialogItems));
@@ -299,7 +297,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   size_t DlgData=0;
   bool bNoFocus = true;
   size_t i;
-  for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
+  for (i = 0; i < ArraySize(InitItems); i++)
   {
     DWORD dwRegValue;
     DWORD dwSize                  = sizeof(DWORD);
@@ -312,10 +310,10 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     DialogItems[i].Flags          = InitItems[i].Flags;
 #ifndef UNICODE
     lstrcpy(DialogItems[i].Data.Data, (InitItems[i].Data == MNoLngStringDefined)
-            ? _T("") : GetMsg(InitItems[i].Data));
+            ? "" : GetMsg(InitItems[i].Data));
 #else
-    DialogItems[i].PtrData = (InitItems[i].Data == MNoLngStringDefined)
-            ? _T("") : GetMsg(InitItems[i].Data);
+    DialogItems[i].DataIn = (InitItems[i].Data == MNoLngStringDefined)
+            ? L"" : GetMsg(InitItems[i].Data);
 #endif
     dwRegValue = (hKey && InitItems[i].SelectedRegValue &&
                   RegQueryValueEx(hKey, InitItems[i].SelectedRegValue, NULL,
@@ -326,15 +324,16 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     else if (DialogItems[i].Type == DI_FIXEDIT)
     {
 #ifndef UNICODE
-#define _DD Data.Data
+#define DataIn  Data.Data
+#define DataOut Data.Data
 #else
-      DialogItems[i].PtrData = tmpnum[i];
-#define _DD PtrData
+      DialogItems[i].DataIn = DialogItems[i].DataOut = tmpnum[i];
+      DialogItems[i].MaxLen = ArraySize(tmpnum[i]);
 #endif
-      FSF.itoa(dwRegValue, DialogItems[i]._DD, 10);
+      FSF.itoa(dwRegValue, DialogItems[i].DataOut, 10);
       DialogItems[i].Param.Mask = Mask;
-      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1]._DD)
-                          - (_tcschr(DialogItems[i-1]._DD, _T('&'))?1:0) + 5;
+      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].DataIn)
+                          - (_tcschr(DialogItems[i-1].DataIn, _T('&'))?1:0) + 5;
       DialogItems[i].X2 += DialogItems[i].X1;
     }
 
@@ -433,25 +432,32 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     RegCloseKey(hKey);
 
   int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 22, _T("Contents"),
-                               DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]),
-                               0, 0, ShowDialogProc, DlgData);
-  if (ExitCode == (sizeof(InitItems) / sizeof(InitItems[0]) - 1) || ExitCode == -1)
+                               DialogItems, ArraySize(DialogItems), 0, 0,
+                               ShowDialogProc, DlgData
+#ifdef UNICODE
+                               , NULL
+#endif
+                               );
+  if (ExitCode == (ArraySize(InitItems) - 1) || ExitCode == -1)
     return false;
 
-  for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
+  for (i = 0; i < ArraySize(InitItems); i++)
     if (InitItems[i].StoreTo)
       if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
         *InitItems[i].StoreTo = (DWORD)DialogItems[i].Param.Selected;
       else if (InitItems[i].Type == DI_FIXEDIT)
-        *InitItems[i].StoreTo = FSF.atoi(DialogItems[i]._DD);
-#undef _DD
+        *InitItems[i].StoreTo = FSF.atoi(DialogItems[i].DataOut);
+#ifndef UNICODE
+#undef DataIn
+#undef DataOut
+#endif
 
   DWORD dwDisposition;
   if (PluginRootKey &&
        RegCreateKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, NULL, REG_OPTION_NON_VOLATILE,
        KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS)
   {
-    for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
+    for (i = 0; i < ArraySize(InitItems); i++)
       if (!(DialogItems[i].Flags & DIF_DISABLE) && InitItems[i].SelectedRegValue)
       {
         DWORD dwValue = *InitItems[i].StoreTo;
@@ -504,12 +510,8 @@ static bool CheckForEsc(void)
           GetMsg(MOK),
           GetMsg(MCancel)
         };
-        if ( !Info.Message(Info.ModuleNumber,
-                           FMSG_WARNING,
-                           NULL,
-                           MsgItems,
-                           sizeof(MsgItems) / sizeof(MsgItems[0]),
-                           2) )
+        if ( !Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
+                           MsgItems, ArraySize(MsgItems), 2) )
           return bBrokenByEsc = true;
       }
       else
@@ -616,7 +618,7 @@ static int GetDirList(PanelInfo *PInfo, const TCHAR *Dir)
   int *pItemsNumber = &PInfo->ItemsNumber;
   {
     size_t dirLen = lstrlen(Dir);
-    if(   dirLen > sizeof(cPathMask)/sizeof(cPathMask[0]) - sizeof("\\*")
+    if(   dirLen > ArraySize(cPathMask) - sizeof("\\*")
 #ifndef UNICODE
        || dirLen >= NM
 #endif
@@ -987,12 +989,8 @@ static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *P
       GetMsg(MNoMemBody),
       GetMsg(MOK)
     };
-    Info.Message(Info.ModuleNumber,
-                 FMSG_WARNING,
-                 NULL,
-                 MsgItems,
-                 sizeof(MsgItems) / sizeof(MsgItems[0]),
-                 1);
+    Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
+                 MsgItems, ArraySize(MsgItems), 1);
     bBrokenByEsc = true;
     FreePanelIndex(&sfiA);
     FreePanelIndex(&sfiP);
@@ -1096,12 +1094,8 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
       GetMsg(MNoMemBody),
       GetMsg(MOK)
     };
-    ::Info.Message(::Info.ModuleNumber,
-                   FMSG_WARNING,
-                   NULL,
-                   MsgItems,
-                   sizeof(MsgItems) / sizeof(MsgItems[0]),
-                   1);
+    ::Info.Message(::Info.ModuleNumber, FMSG_WARNING, NULL,
+                   MsgItems, ArraySize(MsgItems), 1);
   }
 }
 
@@ -1117,7 +1111,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   Info->DiskMenuStrings         = NULL;
   PluginMenuStrings[0]          = GetMsg(MCompare);
   Info->PluginMenuStrings       = PluginMenuStrings;
-  Info->PluginMenuStringsNumber = sizeof(PluginMenuStrings) / sizeof(PluginMenuStrings[0]);
+  Info->PluginMenuStringsNumber = ArraySize(PluginMenuStrings);
   Info->PluginConfigStrings     = NULL;
   Info->CommandPrefix           = NULL;
 }
@@ -1135,12 +1129,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
       GetMsg(MOldFARBody),
       GetMsg(MOK)
     };
-    Info.Message(Info.ModuleNumber,
-                 FMSG_WARNING,
-                 NULL,
-                 MsgItems,
-                 sizeof(MsgItems) / sizeof(MsgItems[0]),
-                 1);
+    Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
+                 MsgItems, ArraySize(MsgItems), 1);
 
     return INVALID_HANDLE_VALUE;
   }
@@ -1167,12 +1157,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
       GetMsg(MFilePanelsRequired),
       GetMsg(MOK)
     };
-    Info.Message(Info.ModuleNumber,
-                 FMSG_WARNING,
-                 NULL,
-                 MsgItems,
-                 sizeof(MsgItems) / sizeof(MsgItems[0]),
-                 1);
+    Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
+                 MsgItems, ArraySize(MsgItems), 1);
 
     return INVALID_HANDLE_VALUE;
   }
@@ -1263,12 +1249,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
         GetMsg(MNoDiffBody),
         GetMsg(MOK)
       };
-      Info.Message(Info.ModuleNumber,
-                   0,
-                   NULL,
-                   MsgItems,
-                   sizeof(MsgItems) / sizeof(MsgItems[0]),
-                   1);
+      Info.Message(Info.ModuleNumber, 0, NULL,
+                   MsgItems, ArraySize(MsgItems), 1);
     }
   }
   // Восстановим заголовок консоли ФАРа...

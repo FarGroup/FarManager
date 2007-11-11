@@ -2,7 +2,7 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 16
+FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 17
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEOS 4
 FILETYPE 2
@@ -14,9 +14,9 @@ FILETYPE 2
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Advanced File Compare for FAR Manager\000"
 #ifndef UNICODE
-   VALUE "FileVersion", "1.71 build 16\000"
+   VALUE "FileVersion", "1.71 build 17\000"
 #else
-   VALUE "FileVersion", "1.80 build 16\000"
+   VALUE "FileVersion", "1.80 build 17\000"
 #endif
    VALUE "InternalName", "Compare\000"
    VALUE "LegalCopyright", FARCOPYRIGHT
