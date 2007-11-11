@@ -11,6 +11,14 @@
 #define EXP_NAME(p) _export p ## W
 #endif
 
+#ifndef UNICODE
+#define MIN_FAR_VERMINOR  70
+#define MIN_FAR_BUILD     0
+#else
+#define MIN_FAR_VERMINOR  80
+#define MIN_FAR_BUILD     330
+#endif
+
 _Opt Opt;
 ui64Table *_ui64Table;
 
@@ -153,7 +161,11 @@ static void dynamic_bind(void)
 }
 #undef FUNC_AW_SUFFIX
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return MAKEFARVERSION(1, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
+}
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
