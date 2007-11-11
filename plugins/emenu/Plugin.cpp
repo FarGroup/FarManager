@@ -155,7 +155,11 @@ int CPlugin::DialogEx(int X1, int Y1, int X2, int Y2, LPCTSTR szHelpTopic
     , FARWINDOWPROC DlgProc, LONG_PTR pParam)
 {
   return PluginStartupInfo::DialogEx(ModuleNumber, X1, Y1, X2, Y2, szHelpTopic
-    , pItem, nItemsNumber, nReserved, nFlags, DlgProc, pParam);
+    , pItem, nItemsNumber, nReserved, nFlags, DlgProc, pParam
+#ifdef UNICODE
+    , NULL
+#endif
+    );
 }
 
 int CPlugin::Message(DWORD nFlags, LPCTSTR szHelpTopic, const LPCTSTR* pItems
@@ -246,7 +250,7 @@ int CPlugin::Configure()
 #ifndef UNICODE
 #define SET_DLGITEM(n,v)  lstrcpy(DlgItems[n].Data, v)
 #else
-#define SET_DLGITEM(n,v)  DlgItems[n].PtrData = const_cast<wchar_t*>(v)
+#define SET_DLGITEM(n,v)  DlgItems[n].DataIn = v
 #endif
   SET_DLGITEM(0, GetMsg(LNG_TITLE));
   SET_DLGITEM(m_nShowMessId, GetMsg(LNG_SHOWMESS));
