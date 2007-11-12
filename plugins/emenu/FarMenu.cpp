@@ -28,8 +28,8 @@ CFarMenu::CFarMenu(LPCTSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
   // Это кривоватый способ вычисления макс. ширины
   // Хотелось бы от FARа получать эту инфу...
 #ifndef UNICODE
-  const unsigned nArrowLen=sizeof(m_szArrow)/sizeof(m_szArrow[0]);
-  m_nMaxTextLen=sizeof(m_pfmi->Text.Text)/sizeof(m_pfmi->Text.Text[0])-nArrowLen;
+  const unsigned nArrowLen=ArraySize(m_szArrow);
+  m_nMaxTextLen=ArraySize(m_pfmi->Text.Text)-nArrowLen;
 #else
   m_nMaxTextLen=14; // for assert :)
 #endif

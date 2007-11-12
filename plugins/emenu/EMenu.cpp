@@ -2,12 +2,6 @@
 #include "OleThread.h"
 #include <cassert>
 
-#ifndef UNICODE
-#define EXP_NAME(p) _export p
-#else
-#define EXP_NAME(p) _export p ## W
-#endif
-
 CPlugin *thePlug=NULL;
 
 #ifdef DEBUG

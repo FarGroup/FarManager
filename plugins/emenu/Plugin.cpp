@@ -17,8 +17,6 @@ _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
 _COM_SMARTPTR_TYPEDEF(IContextMenu2, __uuidof(IContextMenu2));
 _COM_SMARTPTR_TYPEDEF(IContextMenu3, __uuidof(IContextMenu3));
 
-#define BOUNDS( x )  (sizeof( (x) ) / sizeof( (x)[0] ))
-
 #ifdef _MSC_VER
 #pragma warning(disable : 4290)
 #endif
@@ -281,7 +279,7 @@ int CPlugin::Configure()
   DlgItems[12].Selected=m_GuiPos==0;
   DlgItems[13].Selected=m_GuiPos==1;
   if (14!=DialogEx(-1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems
-    , BOUNDS(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this)))
+    , ArraySize(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this)))
   {
     return 0;
   }
@@ -323,28 +321,28 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
     {
       MsgItems[1]=GetMsg(LNG_ERR_DIFFERENT_FOLDERS);
       Message(FMSG_WARNING|FMSG_MB_OK, g_szTopicError0, MsgItems
-        , BOUNDS(MsgItems), 0);
+        , ArraySize(MsgItems), 0);
     }
     break;
   case DOMNU_ERR_SHOW:
     {
       MsgItems[1]=GetMsg(LNG_ERR_SHOW);
       Message(FMSG_WARNING|FMSG_MB_OK, g_szTopicError1, MsgItems
-        , BOUNDS(MsgItems), 0);
+        , ArraySize(MsgItems), 0);
     }
     break;
   case DOMNU_ERR_INVOKE:
     {
       MsgItems[1]=GetMsg(LNG_ERR_INVOKE);
       Message(FMSG_WARNING|FMSG_MB_OK, g_szTopicError2, MsgItems
-        , BOUNDS(MsgItems), 0);
+        , ArraySize(MsgItems), 0);
     }
     break;
   case DOMNU_OK:
     if (m_WaitToContinue)
     {
       MsgItems[1]=GetMsg(LNG_CLOSE);
-      Message(FMSG_MB_OK, g_szTopicClose, MsgItems, BOUNDS(MsgItems), 0);
+      Message(FMSG_MB_OK, g_szTopicClose, MsgItems, ArraySize(MsgItems), 0);
     }
     bSuccess=true;
     break;
@@ -404,29 +402,29 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPTSTR szCmdLine)
     int UseGUISav=m_UseGUI;
     LPTSTR szParams=NULL;
     EAutoItem enAutoItem=AI_NONE;
-    if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK _T(":"), BOUNDS(PFX_RCLK)))
+    if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK _T(":"), ArraySize(PFX_RCLK)))
     {
-      szParams=szCmdLine+BOUNDS(PFX_RCLK);
+      szParams=szCmdLine+ArraySize(PFX_RCLK);
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_TXT _T(":"), BOUNDS(PFX_RCLK_TXT)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_TXT _T(":"), ArraySize(PFX_RCLK_TXT)))
     {
-      szParams=szCmdLine+BOUNDS(PFX_RCLK_TXT);
+      szParams=szCmdLine+ArraySize(PFX_RCLK_TXT);
       m_UseGUI=0;
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_GUI _T(":"), BOUNDS(PFX_RCLK_GUI)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_GUI _T(":"), ArraySize(PFX_RCLK_GUI)))
     {
-      szParams=szCmdLine+BOUNDS(PFX_RCLK_GUI);
+      szParams=szCmdLine+ArraySize(PFX_RCLK_GUI);
       m_UseGUI=1;
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_CMD _T(":"), BOUNDS(PFX_RCLK_CMD)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_CMD _T(":"), ArraySize(PFX_RCLK_CMD)))
     {
-      szParams=szCmdLine+BOUNDS(PFX_RCLK_CMD);
+      szParams=szCmdLine+ArraySize(PFX_RCLK_CMD);
       m_UseGUI=0;
       enAutoItem=AI_VERB;
     }
-    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_ITEM _T(":"), BOUNDS(PFX_RCLK_ITEM)))
+    else if (0==m_fsf.LStrnicmp(szCmdLine, PFX_RCLK_ITEM _T(":"), ArraySize(PFX_RCLK_ITEM)))
     {
-      szParams=szCmdLine+BOUNDS(PFX_RCLK_ITEM);
+      szParams=szCmdLine+ArraySize(PFX_RCLK_ITEM);
       m_UseGUI=0;
       enAutoItem=AI_ITEM;
     }
@@ -971,7 +969,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     int nId=nCmd-MENUID_CMDOFFSET;
     CHAR szVerb[100];
     if (FAILED(pPreferredMenu->GetCommandString(nId, GCS_VERBA, NULL, szVerb
-      , BOUNDS(szVerb))))
+      , ArraySize(szVerb))))
     {
       szVerb[0]=_T('\0');
     }
@@ -1107,7 +1105,7 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID
   }
   WCHAR szwAddInfo[200]=L"\0";
   if (FAILED(pContextMenu->GetCommandString(nID, nType, NULL
-    , reinterpret_cast<LPSTR>(szwAddInfo), BOUNDS(szwAddInfo))))
+    , reinterpret_cast<LPSTR>(szwAddInfo), ArraySize(szwAddInfo))))
   {
     return false;
   }

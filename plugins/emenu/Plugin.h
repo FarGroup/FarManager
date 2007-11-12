@@ -1,6 +1,7 @@
 #ifndef _PLUGIN_H_
 #define _PLUGIN_H_
 
+#include <CRT/crt.hpp>
 #include "plugin.hpp"
 #include <shlobj.h>
 #include <tchar.h>
