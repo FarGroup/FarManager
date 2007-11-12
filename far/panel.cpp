@@ -311,12 +311,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				TruncStrFromEnd(strVolumeName,LabelWidth);
 				strTemp.Format (L"%c%-*s",(WORD)VerticalLine,LabelWidth,(const wchar_t*)strVolumeName);
+				strMenuText += strTemp;
 			}
-
-            if ( Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM )
-            	strTemp.Format (L"%c%-8.8s",(WORD)VerticalLine,(const wchar_t*)strFileSystemName);
-
-			strMenuText += strTemp;
+			
+			if ( Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM )
+			{
+				strTemp.Format (L"%c%-8.8s",(WORD)VerticalLine,(const wchar_t*)strFileSystemName);
+				strMenuText += strTemp;
+			}
 		}
 
 		if ( Opt.ChangeDriveMode & (DRIVE_SHOW_SIZE|DRIVE_SHOW_SIZE_FLOAT) )

@@ -950,6 +950,7 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 
 LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
+	static wchar_t* HelpTopic = NULL;
 	switch(Msg)
 	{
 		case DN_LISTHOTKEY:
@@ -976,10 +977,17 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 		case DN_HELP:
 			{
-				char *topic = UnicodeToAnsi((const wchar_t *)Param2);
-				Param2 = (LONG_PTR)topic;
-				LONG_PTR ret = CurrentDlgProc(Msg, Param1, Param2);
-				free (topic);
+				char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
+				LONG_PTR ret = CurrentDlgProc(Msg, Param1, (LONG_PTR)HelpTopicA);
+
+				if(ret)
+				{
+					if(HelpTopic) free(HelpTopic);
+					HelpTopic = AnsiToUnicode((const char *)ret);
+					ret = (LONG_PTR)HelpTopic;
+				}
+
+				free (HelpTopicA);
 				return ret;
 			}
 
@@ -1758,16 +1766,20 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				if (!Param) return FALSE;
 				KeySequence ks;
 				oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
+				if(!ksA->Count || !ksA->Sequence) return FALSE;
 				ks.Count = ksA->Count;
 				if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT) ks.Flags|=KSFLAGS_DISABLEOUTPUT;
 				if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) ks.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
-				ks.Sequence = ksA->Sequence; //BUGBUG
+				ks.Sequence = (DWORD*)malloc(ks.Count*sizeof(DWORD));
 				for (int i=0;i<ks.Count;i++)
 				{
-					if (ks.Sequence[i]&0x100) ks.Sequence[i]=ks.Sequence[i]^0x100|EXTENDED_KEY_BASE;
-					if (ks.Sequence[i]&0x200) ks.Sequence[i]=ks.Sequence[i]^0x200|INTERNAL_KEY_BASE;
+					if (ksA->Sequence[i]&0x100) ks.Sequence[i]=ksA->Sequence[i]^0x100|EXTENDED_KEY_BASE;
+					else if (ksA->Sequence[i]&0x200) ks.Sequence[i]=ksA->Sequence[i]^0x200|INTERNAL_KEY_BASE;
+					else ks.Sequence[i] = ksA->Sequence[i];
 				}
-				return FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
+				LONG_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
+				free (ks.Sequence);
+				return ret;
 			}
 
 		case oldfar::ACTL_GETSHORTWINDOWINFO:

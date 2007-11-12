@@ -3514,10 +3514,10 @@ int Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
     while (1)
     {
       CurFocusPos+=Step;
+      if ((int)CurFocusPos<0)
+        CurFocusPos=ItemCount-1;
       if (CurFocusPos>=ItemCount)
         CurFocusPos=0;
-      if (CurFocusPos<0)
-        CurFocusPos=ItemCount-1;
 
       Type=Item[CurFocusPos]->Type;
 

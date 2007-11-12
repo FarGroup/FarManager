@@ -3007,7 +3007,7 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
     }
 
   if(!strTextBuffer.IsEmpty())
-    return wcsdup((const wchar_t*)strMacroKeyText);
+    return wcsdup((const wchar_t*)strTextBuffer);
   return NULL;
 }
 
