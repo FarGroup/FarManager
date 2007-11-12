@@ -1,13 +1,48 @@
-ALLDIRS=align autowrap brackets compare drawline editcase emenu \
- farcmds filecase hlfviewer macroview network proclist multiarc tmppanel
+#The following variables can be set by the user:
+#
+#INSTALL - the path of top binary directory for all plugins
+#  or
+#DEFINSTALL - тоже самое, но может определяться в makefile_vc_defs
+#
+#WIDE - set for a unicode build
+#
+#DEBUG - set if a debug build is needed
+#
+#AMD64 - set for 64bit build
+#  or
+#CPU=AMD64 - for 64bit build
+#
+#############################################################################
+!if defined(WIDE)
+
+ALLDIRS=compare editcase emenu macroview proclist
+
+!elseif defined(AMD64) || "$(CPU)" == "AMD64"
+
+ALLDIRS=compare editcase emenu macroview proclist multiarc
+
+!else
+
+ALLDIRS=align autowrap brackets compare drawline editcase emenu farcmds \
+        filecase hlfviewer macroview network proclist multiarc tmppanel
+
+!endif
+
+#############################################################################
+!if exists(make_vc_defs)
+!include make_vc_defs
+!endif
+!if !defined(INSTALL) && defined(DEFINSTALL)
+INSTALL=$(DEFINSTALL)
+!endif
 
 !include ./makefile_vc_getmode
 
 ##########################
-all:    libcrt $(ALLDIRS)
+all:    libcrt $(OUTPATH) $(ALLDIRS)
 
 !ifdef __MAKE__
-.PHONY: libcrt $(ALLDIRS)
+.PHONY: libcrt $(OUTPATH) $(ALLDIRS)
 !else
 FICTIVE=_fictive_
 $(FICTIVE):
@@ -21,9 +56,38 @@ libcrt: $(FICTIVE)
         @$(MAKE) -s -f makefile_lib_vc
         @cd ..\..
 
-$(ALLDIRS): $(FICTIVE)
+#######
+!ifdef INSTALL
+
+!ifndef DEBUG
+_ODN_=final
+!else
+_ODN_=debug
+!endif                   
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+_ODB_=64
+!else
+_ODB_=32
+!endif
+!ifdef WIDE
+_ODS_=W
+!endif
+OUTPATH=$(INSTALL)\$(_ODN_).$(_ODB_)$(_ODS_)
+
+$(OUTPATH): $(INSTALL)
+	@if not exist "$(OUTPATH)\$(NULL)" mkdir "$(OUTPATH)"
+
+$(INSTALL):
+	@if not exist "$(INSTALL)\$(NULL)" mkdir "$(INSTALL)"
+!endif
+
+$(ALLDIRS): $(FICTIVE) $(OUTPATH)
 	@echo ===========$@
         @cd $@
+!ifndef INSTALL
         @$(MAKE) -s -f makefile_vc $(_MDEFS)
+!else
+        @$(MAKE) -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
+!endif
         @cd ..
 

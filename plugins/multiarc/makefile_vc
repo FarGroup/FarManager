@@ -15,18 +15,15 @@ $(OBJDIR)\ArcRead.obj \
 $(OBJDIR)\ArcReg.obj \
 $(OBJDIR)\global.obj
 
-!IF "$(CPU)" == "AMD64"
 USERCPP = /D_FAR_USE_FARFINDDATA
-!ELSE
-USERCPP = /D_FAR_USE_FARFINDDATA /Zp1
-!ENDIF
+CPP_UNALIGN=1
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-ALL: libpcre fmts
-	@copy /Y Custom.ini $(OUTDIR)\Formats
+ALL: libpcre $(OUTDIR)\Formats fmts 
+	@copy /Y Custom.ini $(OUTDIR)\Formats\*.*
 
 FMTLIST=Custom Ace Arc Arj Cab Ha Lzh Rar TarGz Zip
 
@@ -40,6 +37,9 @@ _fictive_:
 
 !endif
 
+$(OUTDIR)\Formats:
+	@if not exist "$@\$(NULL)" mkdir "$@"
+
 fmts: $(FMTLIST)
 
 !include ../makefile_vc_getmode
@@ -48,9 +48,9 @@ libpcre: $(FICTIVE)
 	$(MAKE) /f makefile_vc_libpcre $(_MDEFS) 
 
 $(FMTLIST): $(FICTIVE)
-!ifndef __MAKE__
-	$(MAKE) /f makefile_vc_fmt FMT=$@ $(_MDEFS) 
+!ifndef INSTALL
+	$(MAKE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS)
 !else
-	$(MAKE) /f makefile_vc_fmt /DFMT=$@ $(_MDEFS) 
+	$(MAKE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS) INSTALL=$(INSTALL)
 !endif
 

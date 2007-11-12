@@ -1,37 +1,21 @@
-!ifdef WIDE
-!ifndef __MAKE__
-_MDEFS=$(_MDEFS) WIDE=1
-!else
-_MDEFS=$(_MDEFS) /DWIDE
+!ifdef __MAKE__
+_MKDO_=/D
 !endif
+
+!ifdef WIDE
+_MDEFS=$(_MDEFS) $(_MKDO_)WIDE=1
 !endif
 
 !ifdef DEBUG
-!ifndef __MAKE__
-_MDEFS=$(_MDEFS) DEBUG=1
-!else
-_MDEFS=$(_MDEFS) /DDEBUG
-!endif
+_MDEFS=$(_MDEFS) $(_MKDO_)DEBUG=1
 !endif
 
 !ifdef NO_ULINK
-!ifndef __MAKE__
-_MDEFS=$(_MDEFS) NO_ULINK=1
-!else
-_MDEFS=$(_MDEFS) /DNO_ULINK
-!endif
+_MDEFS=$(_MDEFS) $(_MKDO_)NO_ULINK=1
 !elseif defined(ULINK)
-!ifndef __MAKE__
-_MDEFS=$(_MDEFS) ULINK=1
-!else
-_MDEFS=$(_MDEFS) /DULINK
-!endif
+_MDEFS=$(_MDEFS) $(_MKDO_)ULINK=1
 !endif
 
-!IF "$(CPU)" == "AMD64"
-!ifndef __MAKE__
-_MDEFS=$(_MDEFS) CPU=AMD64
-!else
-_MDEFS=$(_MDEFS) /DCPU=AMD64
-!endif
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+_MDEFS=$(_MDEFS) $(_MKDO_)AMD64=1
 !endif

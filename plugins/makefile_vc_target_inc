@@ -1,13 +1,6 @@
-!ifndef ADDOUTDIR
-ALL: $(OUTDIR) $(OBJDIR) $(DLLFULLNAME)
-!else
-ALL: $(OUTDIR) $(OBJDIR) $(OUTDIR)$(ADDOUTDIR) $(DLLFULLNAME)
+ALL: $(INSTALL) $(OUTDIR)$(ADDOUTDIR) $(OBJDIR) $(DLLFULLNAME)
 
-$(OUTDIR)$(ADDOUTDIR): $(OUTDIR)
-	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
-!endif
-
-$(DLLFULLNAME) : $(LINK_OBJS) $(RES)
+$(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(OUTDIR)$(ADDOUTDIR)
 !ifndef __MAKE__
 	$(LNK) @<<
 	$(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
@@ -33,8 +26,19 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES)
 $(RES): $(NAME).rc $(COMINC)\farversion.hpp
 	@$(RC) /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(NAME).rc
 
-$(OBJDIR): $(OUTDIR)
+$(OBJDIR): $(WORKDIR)
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+
+!ifdef ADDOUTDIR
+$(OUTDIR)$(ADDOUTDIR): $(OUTDIR)
+	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
+!endif
 
 $(OUTDIR):
 	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+
+!ifdef INSTALL
+$(WORKDIR):
+	@if not exist "$(WORKDIR)\$(NULL)" mkdir "$(WORKDIR)"
+!endif
+

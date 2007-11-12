@@ -11,6 +11,9 @@
 #USERCPP - user defined switches for the compiler (added after the default
 #          ones).
 #
+#CPP_UNALIGN - use 1byte alignment insead of 8bytes in 32bit compiling
+#
+#
 #LINK_OBJS - a list of target *.obj files
 #
 #DEBUG - set if a debug build is needed
@@ -25,6 +28,18 @@
 #
 #EXCLUDECRT - set if you do not want to link with common/crt lib.
 #
+#AMD64 - set for 64bit build
+#  or
+#CPU=AMD64 - for 64bit build
+#
+
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+!undef AMD64
+!undef CPU
+AMD64=1
+CPU=AMD64
+!endif
+
 !ifndef DEBUG
 DIRNAME=final
 !else
@@ -35,14 +50,19 @@ DIRNAME=debug
 DIRSUFF = W
 !endif
 
-!IF "$(CPU)" == "AMD64"
+!IFDEF AMD64
 DIRBIT = 64
 !ELSE
 DIRBIT = 32
 !ENDIF
-OUTDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
+WORKDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
+!IFDEF INSTALL
+OUTDIR=$(INSTALL)
+!ELSE
+OUTDIR=$(WORKDIR)
+!ENDIF
 
-OBJDIR = $(OUTDIR)\obj
+OBJDIR = $(WORKDIR)\obj
 COMMON = ..\common
 !ifndef WIDE
 COMINC = $(COMMON)\ascii
@@ -71,12 +91,17 @@ PDBNAME="$(OUTDIR)$(ADDOUTDIR)\$(NAME).pdb"
 CPP_OPT=/DDEBUG /Od /Fd$(PDBNAME)
 !endif
 
-!IF "$(CPU)" == "AMD64"
+!IFDEF AMD64
 COMMONLIB = $(COMMON)\libCRT64.lib
 !ifdef EXCLUDECRT
 !undef COMMONLIB
 !endif
-CPP_PROJ=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
+!ifndef CPP_UNALIGN
+CPP_ALIGN=/Zp8
+!else
+CPP_ALIGN=/Zp1
+!endif
+CPP_PROJ=/nologo /c /W3 /Gy /GF $(CPP_ALIGN) /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS $(USERCPP)
 ULOUT=-Tpd+
 !ELSE
 COMMONLIB = $(COMMON)\libCRT.lib
