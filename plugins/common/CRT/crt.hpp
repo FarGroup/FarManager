@@ -160,7 +160,7 @@ extern "C"
 #define _tmemchr(b,c,n) wmemchr(b,c,n)
 #endif
 
-#define ArraySize(a)  sizeof(a)/sizeof(a[0])
+#define ArraySize(a)  (sizeof(a)/sizeof(a[0]))
 
 // macros for plugin's
 
