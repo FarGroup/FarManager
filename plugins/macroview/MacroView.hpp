@@ -10,8 +10,6 @@
 #define TITLELEN 64
 
 
-#define ArraySize(d)  sizeof(d)/sizeof(d[0])
-
 //----
 HINSTANCE hInstance;
 PluginStartupInfo Info;

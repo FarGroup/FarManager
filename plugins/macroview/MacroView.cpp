@@ -32,11 +32,6 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 #ifndef UNICODE
-#define EXP_NAME(p) _export p
-#else
-#define EXP_NAME(p) _export p ## W
-#endif
-#ifndef UNICODE
 #define MIN_FAR_VERMINOR  70
 #define MIN_FAR_BUILD     1238
 #else
