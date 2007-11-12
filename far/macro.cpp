@@ -430,17 +430,12 @@ int KeyMacro::ProcessKey(int Key)
       int WaitInMainLoop0=WaitInMainLoop;
       InternalInput=TRUE;
       WaitInMainLoop=FALSE;
-//_SVS(SysLog(L"StartMode=%d",StartMode));
-//_SVS(SysLog(1));
-      /* $ 23.11.2001 VVM
-        ! Залочить _текущий_ фрейм, а не _последний немодальный_ */
+
+      // Залочить _текущий_ фрейм, а не _последний немодальный_
       FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
       MacroKey=AssignMacroKey();
       FrameManager->ResetLastInputRecord();
       FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
-
-//_SVS(SysLog(-1));
-//_SVS(SysLog(L"StartMode=%d",StartMode));
 
       // выставляем флаги по умолчанию.
       DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
@@ -463,22 +458,10 @@ int KeyMacro::ProcessKey(int Key)
       }
       else
       {
-        int Pos;
-        for (Pos=0;Pos<MacroLIBCount;Pos++)
-          if (MacroLIB[Pos].Key==MacroKey && (MacroLIB[Pos].Flags&MFLAGS_MODEMASK)==StartMode)
-            break;
-
-        // теперь смотрим Common
-        if (Pos==MacroLIBCount)
-          for (Pos=0;Pos<MacroLIBCount;Pos++)
-            if (MacroLIB[Pos].Key==MacroKey && (MacroLIB[Pos].Flags&MFLAGS_MODEMASK)==MACRO_COMMON)
-            {
-              StartMode=MACRO_COMMON;
-              break;
-            }
-
-        if (Pos==MacroLIBCount)
+        int Pos=GetIndex(MacroKey,StartMode);
+        if (Pos == -1)
         {
+          Pos=MacroLIBCount;
           if(RecBufferSize > 0)
           {
             struct MacroRecord *NewMacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
@@ -501,21 +484,24 @@ int KeyMacro::ProcessKey(int Key)
           MacroLIB[Pos].Src=NULL;
         }
 
-        MacroLIB[Pos].Key=MacroKey;
+        if(MacroLIBCount > 0)
+        {
+          MacroLIB[Pos].Key=MacroKey;
 
-        if(RecBufferSize > 0)
-          RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
+          if(RecBufferSize > 0)
+            RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
 
-        if(RecBufferSize > 1)
-          MacroLIB[Pos].Buffer=RecBuffer;
-        else if(RecBuffer && RecBufferSize > 0)
-          MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
-        else if(!RecBufferSize)
-          MacroLIB[Pos].Buffer=NULL;
+          if(RecBufferSize > 1)
+            MacroLIB[Pos].Buffer=RecBuffer;
+          else if(RecBuffer && RecBufferSize > 0)
+            MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
+          else if(!RecBufferSize)
+            MacroLIB[Pos].Buffer=NULL;
 
-        MacroLIB[Pos].BufferSize=RecBufferSize;
-        MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
-        MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+          MacroLIB[Pos].BufferSize=RecBufferSize;
+          MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
+          MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+        }
       }
 
       Recording=MACROMODE_NOMACRO;
