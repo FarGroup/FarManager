@@ -6,12 +6,6 @@
 #include <time.h>
 
 #ifndef UNICODE
-#define EXP_NAME(p) _export p
-#else
-#define EXP_NAME(p) _export p ## W
-#endif
-
-#ifndef UNICODE
 #define MIN_FAR_VERMINOR  70
 #define MIN_FAR_BUILD     0
 #else

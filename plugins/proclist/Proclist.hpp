@@ -235,8 +235,6 @@ void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset);
 void GetViewOptions(FarDialogItem* Items, _Opt& Opt);
 #define NVIEWITEMS 7
 
-#define ArraySize(d)  (sizeof(d)/sizeof(d[0]))
-
 //------
 // dynamic binding
 typedef enum _PROCESSINFOCLASS {
