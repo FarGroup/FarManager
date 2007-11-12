@@ -2778,7 +2778,7 @@ int Editor::ProcessKey(int Key)
           CurLine->GetBinaryString(&Str,NULL,Length);
           CurPos=CurLine->GetCurPos();
           CmpStr=new wchar_t[Length+1];
-          memcpy(CmpStr,Str,Length);
+          memcpy(CmpStr,Str,Length*sizeof(wchar_t));
           CmpStr[Length]=0;
         }
 
