@@ -199,13 +199,8 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
 
   Stack=new CallBackStack;
 
-  memset(&StackData,0,sizeof(StackData));
-
+  StackData.Clear();
   StackData.Flags=Flags;
-  StackData.strHelpMask = L"";
-  StackData.strHelpPath = L"";
-  StackData.strHelpTopic = L"";
-  StackData.strSelTopic = L"";
 
   //   Установим по умолчанию текущий цвет отрисовки...
   CurColor=COL_HELPTEXT;
@@ -234,7 +229,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
       Ptr=wcsrchr(Ptr,HelpEndLink);
 
       if ( Ptr )
-        *Ptr = 0;
+        *++Ptr = 0;
 
       StackData.strHelpTopic.ReleaseBuffer ();
 

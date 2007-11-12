@@ -52,6 +52,17 @@ struct StackHelpData
   string strHelpPath;           // путь к хелпам
   string strHelpTopic;         // текущий топик
   string strSelTopic;          // выделенный топик (???)
+
+  void Clear()
+  {
+  	Flags=0;
+  	TopStr=0;
+  	CurX=CurY=0;
+  	strHelpMask = L"";
+  	strHelpPath = L"";
+  	strHelpTopic = L"";
+  	strSelTopic = L"";
+  }
 };
 
 enum HELPDOCUMENTSHELPTYPE{

@@ -129,16 +129,11 @@ BOOL WINAPI FarShowHelp (
         strPath = ModuleName;
         if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
         {
-          strMask=PointToName(strPath);
           if(Flags&FHELP_CUSTOMFILE)
-          {
-              strPath = PointToName(strPath);
-          }
+            strMask=PointToName(strPath);
           else
-          {
-              CutToSlash(strPath);
-              strMask = L"";
-          }
+            strMask = L"";
+          CutToSlash(strPath);
         }
       }
       else
