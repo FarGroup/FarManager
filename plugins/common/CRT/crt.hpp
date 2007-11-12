@@ -160,4 +160,22 @@ extern "C"
 #define _tmemchr(b,c,n) wmemchr(b,c,n)
 #endif
 
+#define ArraySize(a)  sizeof(a)/sizeof(a[0])
+
+// macros for plugin's
+
+#ifndef UNICODE
+#define EXP_NAME(p) _export p
+#else
+#define EXP_NAME(p) _export p ## W
+#endif
+
+#ifdef __GNUC__
+#define _i64(n)   n ## ll
+#define _ui64(n)  n ## ull
+#else
+#define _i64(n)   n ## i64
+#define _ui64(n)  n ## ui64
+#endif
+
 #endif
