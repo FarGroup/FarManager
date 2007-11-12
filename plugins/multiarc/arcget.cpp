@@ -1,8 +1,6 @@
-#include "plugin.hpp"
-#include "fmt.hpp"
 #include "multiarc.hpp"
 #include "marclng.hpp"
-#include "farkeys.hpp"
+#include <farkeys.hpp>
 
 class TRecur //$ 07.04.2002 AA
 {
@@ -65,8 +63,8 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   /*12 */{DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel},
   };
 
-  FarDialogItem DialogItems[COUNT(InitItems)];
-  InitDialogItems(InitItems,DialogItems,COUNT(InitItems));
+  FarDialogItem DialogItems[ArraySize(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
 
   int AskVolume=(OpMode & (OPM_FIND|OPM_VIEW|OPM_EDIT))==0 &&
                 CurArcInfo.Volume && *CurDir==0;
@@ -91,7 +89,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   if ((OpMode & OPM_SILENT)==0)
   {
     int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,15,"ExtrFromArc",
-                DialogItems,COUNT(DialogItems));
+                DialogItems,ArraySize(DialogItems));
     if (AskCode!=11)
       return -1;
     lstrcpy(DestPath,DialogItems[2].Data);
@@ -153,7 +151,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
       const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
                         GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                         GetMsg(MExtrAllVolumes)};
-      MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,COUNT(MsgItems),2);
+      MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),2);
     }
     if (MsgCode<0)
       return -1;

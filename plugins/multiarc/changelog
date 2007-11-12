@@ -1,3 +1,8 @@
+yjh 13.11.2007 00:26:54 +0300
+
+1. Унифицирована работа с ArraySize из crt.hpp
+
+
 yjh 12.11.2007 04:54:34 +0300
 
 1. Адаптация makefile_vc к новым makefile_all_vc/makefile_vc_def_inc

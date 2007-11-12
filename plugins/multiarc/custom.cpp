@@ -11,9 +11,9 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
 
 #define PCRE_STATIC
 #include "pcre++.h"
@@ -720,7 +720,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type, int Command, char *Dest)
         "Add", "Move", "AddRecurse", "MoveRecurse", "AllFilesMask"
     };
 
-    if(Command < (int)(sizeof(CmdNames)/sizeof(CmdNames[0])))
+    if(Command < (int)(ArraySize(CmdNames)))
     {
         GetPrivateProfileString(TypeName, CmdNames[Command], "", Dest, 512, FormatFileName);
         return (TRUE);

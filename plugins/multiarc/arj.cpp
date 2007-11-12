@@ -11,9 +11,9 @@
 #include <limits.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -368,7 +368,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Info->Chapter=ArjHeader.LastChapter; //???? FirstChapter ????
 
   Info->UnpVer=(ArjHeader.ARJExtrVer/10)*256+(ArjHeader.ARJExtrVer%10);
-  if (ArjHeader.HostOS<sizeof(ArjOS)/sizeof(ArjOS[0]))
+  if (ArjHeader.HostOS<ArraySize(ArjOS))
     lstrcpy(Info->HostOS,ArjOS[ArjHeader.HostOS]);
 
   return(GETARC_SUCCESS);
@@ -424,7 +424,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"arj32 m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command<(int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

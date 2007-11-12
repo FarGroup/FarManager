@@ -12,13 +12,13 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
 #include "marclng.hpp"
 #ifndef _WIN64
 #include "unrar.h"
 #endif
-#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -274,7 +274,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       DosDateTimeToFileTime(HIWORD(HeaderData.FileTime),LOWORD(HeaderData.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
 
-      if (HeaderData.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
+      if (HeaderData.HostOS<ArraySize(RarOS))
         lstrcpy(Info->HostOS,RarOS[HeaderData.HostOS]);
       Info->Solid=Flags & 8;
       Info->Comment=HeaderData.Flags & 8;
@@ -491,7 +491,7 @@ arctime
         }
       }
 
-      if (RarHeader.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
+      if (RarHeader.HostOS<ArraySize(RarOS))
         lstrcpy(Info->HostOS,RarOS[RarHeader.HostOS]);
       Info->Solid=Flags & 8;
       Info->Comment=RarHeader.Flags & 8;
@@ -571,7 +571,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command<(int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

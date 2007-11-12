@@ -1,5 +1,3 @@
-#include "plugin.hpp"
-#include "fmt.hpp"
 #include "multiarc.hpp"
 
 char PluginRootKey[NM];

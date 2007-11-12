@@ -10,9 +10,9 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -295,7 +295,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
                         "OS/2","Mac-OS","Z-System","CP/M","TOPS-20",
                         "Win32","SMS/QDOS","Acorn RISC OS","Win32 VFAT","MVS",
                         "BeOS","Tandem"};
-  if (ZipHeader.PackOS<sizeof(ZipOS)/sizeof(ZipOS[0]))
+  if (ZipHeader.PackOS<ArraySize(ZipOS))
     lstrcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
 
   if (ZipHeader.PackOS==11 && ZipHeader.PackVer>20 && ZipHeader.PackVer<25)
@@ -453,7 +453,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"pkzipc -add -move -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command<(int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

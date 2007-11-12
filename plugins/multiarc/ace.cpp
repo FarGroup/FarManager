@@ -13,9 +13,9 @@
 #include <malloc.h>
 #include <stddef.h>
 #include <memory.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -181,7 +181,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   NextPosition=SFXSize+MainHeader.HeaderSize+sizeof(WORD)*2;
   SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
 
-  for(int I=0; I < (int)(sizeof(OSID)/sizeof(OSID[0])); ++I)
+  for(int I=0; I < (int)(ArraySize(OSID)); ++I)
     if(OSID[I].Type == MainHeader.Host)
     {
       HostOS=I;
@@ -369,7 +369,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"ace32 m -y -c2 -r -f -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command<(int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

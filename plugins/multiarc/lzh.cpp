@@ -10,15 +10,9 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
-
-#ifdef __GNUC__
-#define _i64(num) num##ll
-#else
-#define _i64(num) num##i64
-#endif
 
 
 #if defined(__BORLANDC__)
@@ -430,7 +424,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   }
 
   // OS ID - Host OS
-  for(I=0; I < sizeof(OSID)/sizeof(OSID[0]); ++I)
+  for(I=0; I < ArraySize(OSID); ++I)
   {
     if(OSID[I].Type == OsId)
     {
@@ -452,7 +446,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {{'h','d'},0},   {{'z','5'},4},
   };
   Info->DictSize=0;
-  for(I=0; I < sizeof(DictSize)/sizeof(DictSize[0]); ++I)
+  for(I=0; I < ArraySize(DictSize); ++I)
   {
     if(DictSize[I].Type[0] == LzhHeader.l0.HeadID[2] &&
        DictSize[I].Type[1] == LzhHeader.l0.Method)
@@ -512,7 +506,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"lha a -a -r -x -p -m {-w%%W} {%%S} %%a @%%lM",
     /*"All files" mask      */"*.*"
     };
-    if (Command < (int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command < (int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

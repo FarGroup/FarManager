@@ -1,5 +1,3 @@
-#include "plugin.hpp"
-#include "fmt.hpp"
 #include "multiarc.hpp"
 #include "marclng.hpp"
 
@@ -110,7 +108,7 @@ int PluginClass::ReadArchive(char *Name)
         const char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),NameMsg,FilesMsg};
         FSF.TruncPathStr(lstrcpyn(NameMsg,Name,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
         Info.Message(Info.ModuleNumber,WaitMessage ? FMSG_KEEPBACKGROUND:0,NULL,MsgItems,
-                   sizeof(MsgItems)/sizeof(MsgItems[0]),0);
+                   ArraySize(MsgItems),0);
         WaitMessage=TRUE;
       }
     }
@@ -226,7 +224,7 @@ int PluginClass::ReadArchive(char *Name)
     char NameMsg[NM];
     const char *MsgItems[]={GetMsg(MError),NameMsg,GetMsg(GetItemCode),GetMsg(MOk)};
     FSF.TruncPathStr(lstrcpyn(NameMsg,Name,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
-    Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+    Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),1);
   }
 
   //Info.RestoreScreen(NULL);
@@ -519,14 +517,14 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   FSF.sprintf(InfoLines[14].Data,"%d%%",ToPercent(PackedSize,TotalSize));
 
   Info->InfoLines=InfoLines;
-  Info->InfoLinesNumber=sizeof(InfoLines)/sizeof(InfoLines[0]);
+  Info->InfoLinesNumber=ArraySize(InfoLines);
 
   static char *DescrFiles[32],DescrFilesString[256];
   lstrcpy(DescrFilesString,Opt.DescriptionNames);
   size_t DescrFilesNumber=0;
   char *NamePtr=DescrFilesString;
 
-  while (DescrFilesNumber<sizeof(DescrFiles)/sizeof(DescrFiles[0]))
+  while (DescrFilesNumber<ArraySize(DescrFiles))
   {
     while (__isspace(*NamePtr))
       NamePtr++;

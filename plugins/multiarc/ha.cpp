@@ -10,15 +10,9 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
-
-#ifdef __GNUC__
-#define _i64(num) num##ll
-#else
-#define _i64(num) num##i64
-#endif
 
 
 #if defined(__BORLANDC__)
@@ -198,7 +192,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"ha asmr2{%%S} %%a %%FMQ",
     /*"All files" mask      */"*.*"
     };
-    if (Command<(int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command<(int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

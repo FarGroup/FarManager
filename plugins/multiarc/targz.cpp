@@ -13,18 +13,9 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
-
-#ifdef __GNUC__
-#define _i64(num) num##ll
-#define _ui64(num) num##ull
-#else
-#define _i64(num) num##i64
-#define _ui64(num) num##ui64
-#endif
-
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -530,7 +521,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
        "*"
      },
    };
-   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < (int)(sizeof(Commands[Type])/sizeof(Commands[Type][0])))
+   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < (int)(ArraySize(Commands[Type])))
    {
      lstrcpy(Dest,Commands[Type][Command]);
      return(TRUE);

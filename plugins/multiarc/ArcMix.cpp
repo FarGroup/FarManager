@@ -1,6 +1,4 @@
 #include <dos.h>
-#include "plugin.hpp"
-#include "fmt.hpp"
 #include "multiarc.hpp"
 #include "marclng.hpp"
 
@@ -154,7 +152,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
         hScreen=Info.SaveScreen(0,0,-1,-1);
         const char *MsgItems[]={"",GetMsg(MWaitForExternalProgram)};
         Info.Message(Info.ModuleNumber,0,NULL,MsgItems,
-                      sizeof(MsgItems)/sizeof(MsgItems[0]),0);
+                      ArraySize(MsgItems),0);
       }
     }
     else
@@ -229,7 +227,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),NameMsg);
     const char *MsgItems[]={GetMsg(MError),Msg, GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
-                 NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+                 NULL,MsgItems,ArraySize(MsgItems),1);
     ExitCode=RETEXEC_ARCNOTFOUND;
   }
 

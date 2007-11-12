@@ -10,9 +10,9 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "fmt.hpp"
-#include "CRT/crt.hpp"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -280,7 +280,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNMA",
     /*"All files" mask      */"*"
     };
-    if (Command < (int)(sizeof(Commands)/sizeof(Commands[0])))
+    if (Command < (int)(ArraySize(Commands)))
     {
       lstrcpy(Dest,Commands[Command]);
       return(TRUE);

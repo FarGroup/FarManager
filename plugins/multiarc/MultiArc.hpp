@@ -1,7 +1,9 @@
 #ifndef __MULTIARC_HPP__
 #define __MULTIARC_HPP__
 
-#include "CRT/crt.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
+#include "fmt.hpp"
 
 //#define _NEW_ARC_SORT_
 #define OLD_DIALOG_STYLE 1
@@ -13,10 +15,6 @@
 #endif
 
 #define RETEXEC_ARCNOTFOUND 0x40000
-
-/* $ 26.07.2001 AA */
-#define COUNT(Msg) (sizeof(Msg)/sizeof(Msg[0]))
-/* 26.07.2001 AA $ */
 
 #define F_ENCRYPTED 1
 #define MAX_COMMAND_LENGTH 32768

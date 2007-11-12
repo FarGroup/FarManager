@@ -1,5 +1,3 @@
-#include "plugin.hpp"
-#include "fmt.hpp"
 #include "multiarc.hpp"
 #include "marclng.hpp"
 
@@ -43,14 +41,14 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
       FSF.sprintf(Msg,GetMsg(MDeleteFile),NameMsg);
       MsgItems[1]=Msg;
     }
-    if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
+    if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
       return FALSE;
     if (ItemsNumber>1)
     {
       char Msg[100];
       FSF.sprintf(Msg,GetMsg(MDeleteNumberOfFiles),ItemsNumber);
       MsgItems[1]=Msg;
-      if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
+      if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
         return FALSE;
     }
   }
@@ -87,13 +85,13 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
 
   while(1)
   {
-    struct FarMenuItemEx MenuItems[COUNT(MenuData)];
+    struct FarMenuItemEx MenuItems[ArraySize(MenuData)];
 
     memset(MenuItems,0,sizeof(MenuItems));
     MenuItems[ExitCode].Flags=MIF_SELECTED;
 
     int Count=0;
-    for(size_t i=0; i<COUNT(MenuData); i++)
+    for(size_t i=0; i<ArraySize(MenuData); i++)
     {
       GetCommandFormat(MenuData[i].Cmd, Command, sizeof(Command));
       if(*Command)
@@ -154,7 +152,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     const char *MsgItems[]={"",VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                       GetMsg(MExtrAllVolumes)};
-    int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
+    int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),2);
     if (MsgCode<0)
       return -1;
     if (MsgCode==1)
@@ -209,7 +207,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
   #ifdef _NEW_ARC_SORT_
   int SortModeIndex=GetPrivateProfileInt("MultiArc", "SortMode", 1, IniFile);
   char *SortMode;
-  if(SortModeIndex<=1 || SortModeIndex>=COUNT(SortModes))
+  if(SortModeIndex<=1 || SortModeIndex>=ArraySize(SortModes))
     SortMode=NULL;
   else
     SortMode=SortModes[SortModeIndex];
