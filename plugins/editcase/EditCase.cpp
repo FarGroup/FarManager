@@ -19,13 +19,6 @@
 // Registry operations
 #include "WrapReg.cpp"
 
-#ifndef UNICODE
-#define EXP_NAME(p) _export p
-#else
-#define EXP_NAME(p) _export p ## W
-#endif
-
-#define ArraySize(a) sizeof(a)/sizeof(a[0])
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
