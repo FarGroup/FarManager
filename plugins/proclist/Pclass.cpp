@@ -3,10 +3,6 @@
 #include "perfthread.hpp"
 #include "proclng.hpp"
 
-#if !defined(_WIN64) && defined(_MSC_VER)
-#undef wmemset
-#endif
-
 class StrTok {
     LPCTSTR tok;
     LPTSTR  ptr;

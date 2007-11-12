@@ -19,13 +19,6 @@ USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 
 NEEDENTRY = 1
 
-!if "$(CPU)" != "AMD64"
-NEEDDEFLIB = 1
-!if !defined(ULINK) && !defined(WIDE)
-EXCLUDECRT = 1
-!endif
-!endif
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

@@ -2,12 +2,12 @@
 #include "proclng.hpp"
 #include "perfthread.hpp"
 
-#ifdef _WIN64
+//#ifdef _WIN64
 extern "C"
 {
   int _fltused = 0;
 }
-#endif
+//#endif
 
 // obtained from PSAPI.DLL
 /*
