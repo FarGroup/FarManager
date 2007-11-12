@@ -2,21 +2,6 @@
 #define _FAR_USE_FARFINDDATA
 #include <plugin.hpp>
 #include <CRT/crt.hpp>
-#define ArraySize(a)  sizeof(a)/sizeof(a[0])
-
-#ifdef __GNUC__
-#define _i64(num) num##ll
-#define _ui64(num) num##ull
-#else
-#define _i64(num) num##i64
-#define _ui64(num) num##ui64
-#endif
-
-#ifndef UNICODE
-#define EXP_NAME(p) _export p
-#else
-#define EXP_NAME(p) _export p ## W
-#endif
 
 #ifndef UNICODE
 #define _cFileName            cFileName
