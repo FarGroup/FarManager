@@ -19,7 +19,6 @@ $(OBJDIR)\global.obj
 USERCPP = /D_FAR_USE_FARFINDDATA
 !ELSE
 USERCPP = /D_FAR_USE_FARFINDDATA /Zp1
-NEEDDEFLIB = 1
 !ENDIF
 
 !include ..\makefile_vc_def_inc
