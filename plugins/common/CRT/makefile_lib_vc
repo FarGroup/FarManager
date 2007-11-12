@@ -22,7 +22,23 @@ OUTDIR = ..
 VC8OPT=/GS- /D_CRT_SECURE_NO_DEPRECATE
 !endif
 
-LINK_OBJS = $(OBJDIR)\delete.obj \
+!if "$(CPU)" != "AMD64"
+LINK32_OBJS = \
+$(OBJDIR)\vc_llmul.obj \
+$(OBJDIR)\vc_lldiv.obj \
+$(OBJDIR)\vc_llrem.obj \
+$(OBJDIR)\vc_lldvrm.obj \
+$(OBJDIR)\vc_llshl.obj \
+$(OBJDIR)\vc_llshr.obj \
+$(OBJDIR)\vc_ulldiv.obj \
+$(OBJDIR)\vc_ullrem.obj \
+$(OBJDIR)\vc_ulldvrm.obj \
+$(OBJDIR)\vc_ullshr.obj
+!endif
+
+
+LINK_OBJS = $(LINK32_OBJS) \
+$(OBJDIR)\delete.obj \
 $(OBJDIR)\delete_array.obj \
 $(OBJDIR)\free.obj \
 $(OBJDIR)\i64toa.obj \
@@ -63,7 +79,7 @@ $(OBJDIR)\strtok.obj \
 $(OBJDIRW)\strtok.obj \
 $(OBJDIR)\strtol.obj \
 $(OBJDIRW)\strtol.obj \
-$(OBJDIR)\aliases.obj
+$(OBJDIR)\aliases.obj 
 
 CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3 $(ENV_INC_OPT)
 !IF "$(CPU)" == "AMD64"
@@ -159,7 +175,6 @@ $(OBJDIR)\strtok.obj: strtok.cpp crt.hpp
 $(OBJDIRW)\strtok.obj: strtok.cpp crt.hpp
 $(OBJDIR)\strtol.obj: strtol.cpp crt.hpp
 $(OBJDIRW)\strtol.obj: strtol.cpp crt.hpp
-$(OBJDIR)\aliases.obj: aliases.asm
 
 $(OBJDIRW):
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
