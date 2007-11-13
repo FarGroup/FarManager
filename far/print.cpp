@@ -88,7 +88,7 @@ void PrintFiles(Panel *SrcPanel)
   const int pi_count=1024;
   PRINTER_INFO_2W *pi=new PRINTER_INFO_2W[pi_count];
 
-  if (pi==NULL || !EnumPrinters(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&Returned))
+  if (pi==NULL || !EnumPrintersW(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2W),&Needed,&Returned))
   {
     delete[] pi;
     return;
@@ -123,7 +123,7 @@ void PrintFiles(Panel *SrcPanel)
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
       DWORD NetReturned;
-      if (EnumPrinters(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&NetReturned))
+      if (EnumPrintersW(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2W),&Needed,&NetReturned))
       {
         AddToPrintersMenu(&PrinterList,pi,NetReturned);
         Returned+=NetReturned;
@@ -208,7 +208,7 @@ void PrintFiles(Panel *SrcPanel)
         di1.pOutputFile=NULL;
         di1.pDatatype=NULL;
 
-        if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
+        if (StartDocPrinterW(hPrinter,1,(LPBYTE)&di1))
         {
           char Buffer[8192];
           DWORD Read,Written;
@@ -258,7 +258,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
 
     strPrinterName = NullToEmpty(pi[I].pPrinterName);
 
-    strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,0x0B3U,
+    strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,BoxSymbols[0x0B3-0x0B0],
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,UMSG(MJobs),
             NullToEmpty(pi[I].pComment));
 

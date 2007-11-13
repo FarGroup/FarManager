@@ -1254,8 +1254,8 @@ static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && (Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
   {
     // // _SVS(SysLog(L"_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
-    if(rec->Event.KeyEvent.uChar.AsciiChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
-      Key=(Key&0xFFFFFF00)|rec->Event.KeyEvent.uChar.AsciiChar;   //???
+		if(rec->Event.KeyEvent.uChar.UnicodeChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.UnicodeChar) //???
+      Key=(Key&0xFFF10000)|rec->Event.KeyEvent.uChar.UnicodeChar;   //???
     // // _SVS(SysLog(L"_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
   }
   return Key;
@@ -1347,9 +1347,9 @@ void Panel::FastFind(int FirstKey)
       }
 
       // // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
-      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
+      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535)
         Key=Lower (Key-KEY_ALT_BASE);
-      if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
+      if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535)
         Key=Lower (Key-KEY_ALTSHIFT_BASE);
 
       if (Key==KEY_MULTIPLY)
@@ -1384,7 +1384,7 @@ void Panel::FastFind(int FirstKey)
         case KEY_IDLE:
           break;
         default:
-          if ((Key<32 || Key>=256) && Key!=KEY_BS && Key!=KEY_CTRLY &&
+          if ((Key<32 || Key>=65536) && Key!=KEY_BS && Key!=KEY_CTRLY &&
               Key!=KEY_CTRLBS && Key!=KEY_ALT && Key!=KEY_SHIFT &&
               Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
               !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && !(Key==KEY_SHIFTINS||Key==KEY_SHIFTNUMPAD0))

@@ -1847,8 +1847,8 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     default:
-      if((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
-          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255) &&
+      if((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535 ||
+          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535) &&
          Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
         )
       {

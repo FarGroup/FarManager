@@ -1760,7 +1760,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
     wchar_t LocalName[3];
 
     wcsncpy (LocalName, CurDir, 2);
-    LocalName[3] = 0;
+    LocalName[2] = 0;
 
     apiWNetGetConnection (LocalName, strNetDir);
   }
