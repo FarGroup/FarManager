@@ -477,7 +477,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StandardFunctions.CopyToClipboard=CopyToClipboardA;
     StandardFunctions.PasteFromClipboard=PasteFromClipboardA;
     StandardFunctions.FarKeyToName=FarKeyToNameA; //BUGBUG или нет?
-    StandardFunctions.FarNameToKey=KeyNameToKeyA; //BUGBUG или нет?
+    StandardFunctions.FarNameToKey=KeyNameToKeyA;
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;//BUGBUG или нет?
     //StandardFunctions.XLat=XlatA;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG

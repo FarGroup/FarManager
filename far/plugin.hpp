@@ -1630,7 +1630,8 @@ enum XLATMODE{
 typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
 
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);
-typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
+
+typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 
 typedef int (WINAPI *FRSUSERFUNC)(
   const struct FAR_FIND_DATA *FData,

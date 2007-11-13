@@ -148,6 +148,11 @@ static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
   return (len+1);
 }
 
+int WINAPI KeyNameToKeyW(const wchar_t *Name)
+{
+	string strN(Name);
+	return KeyNameToKey(strN);
+}
 
 PluginW::PluginW (
 		PluginManager *owner,
@@ -481,7 +486,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.CopyToClipboard=CopyToClipboard;
     StandardFunctions.PasteFromClipboard=PasteFromClipboard;
     StandardFunctions.FarKeyToName=FarKeyToName;
-    ///StandardFunctions.FarNameToKey=KeyNameToKey; //BUGBUG
+    StandardFunctions.FarNameToKey=KeyNameToKeyW;
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
     StandardFunctions.XLat=XlatA;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
