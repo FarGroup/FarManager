@@ -1,6 +1,10 @@
-#if !defined(_MSC_VER) || _MSC_VER < 1400 || defined(_WIN64)
+#if !defined(_MSC_VER) || _MSC_VER < 1300 || defined(_WIN64)
 #error
 #endif
+/*
+ * If compiled with VC7 and linking with ulink, please specify 
+ * -DLINK_WITH_ULINK
+*/
 
 #pragma optimize("gty", on)
 
@@ -52,12 +56,22 @@ static void WINAPI HookProc(PVOID h, DWORD dwReason, PVOID u)
         break;
     }
 }
-#pragma const_seg(".CRT$XLY")
+
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
-const PIMAGE_TLS_CALLBACK hook_wow64_tlscb = HookProc;
+#if _MSC_VER < 1400 && !defined(LINK_WITH_ULINK)
+#pragma message("VC8 or higher is strongly recommended")
+#pragma data_seg(".CRT$XLY")
+#else 
+#pragma const_seg(".CRT$XLY")
+const 
+#endif
+      PIMAGE_TLS_CALLBACK hook_wow64_tlscb = HookProc;
 #pragma const_seg()
+#ifdef __cplusplus
+}
+#endif
 // for ulink
 #pragma comment(linker, "/include:_hook_wow64_tlscb")
 
