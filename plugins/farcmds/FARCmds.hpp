@@ -1,20 +1,20 @@
-struct RegistryStr {char *Add2PlugMenu; char *Add2DisksMenu; char *sss;
-                    char *Separator; char *DisksMenuDigit; char *ShowCmdOutput;
-                    char *CatchMode; char *ViewZeroFiles; char *EditNewFiles;};
+struct RegistryStr {TCHAR *Add2PlugMenu; TCHAR *Add2DisksMenu; TCHAR *sss;
+                    TCHAR *Separator; TCHAR *DisksMenuDigit; TCHAR *ShowCmdOutput;
+                    TCHAR *CatchMode; TCHAR *ViewZeroFiles; TCHAR *EditNewFiles;};
 
-struct HELPIDS {char *CMD; char *Config;};
+struct HELPIDS {TCHAR *CMD; TCHAR *Config;};
 
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,DWORD ValueSize);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,TCHAR *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,DWORD ValueSize);
 
 
-inline int IsSpace(int x) { return x==' ' || x=='\t'; }
-inline int IsEol(int x)  { return x=='\r' || x=='\n'; }
+inline int IsSpace(int x) { return x==_T(' ') || x==_T('\t'); }
+inline int IsEol(int x)  { return x==_T('\r') || x==_T('\n'); }
 
 struct InitDialogItem
 {
@@ -24,7 +24,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   DWORD Flags;
   int DefaultButton;
-  char *Data;
+  TCHAR *Data;
 };
 
 struct Options{
@@ -35,7 +35,7 @@ struct Options{
   int CatchMode;
   int ViewZeroFiles;
   int EditNewFiles;
-  char Separator[4];
+  TCHAR Separator[4];
 } Opt={
  0,
  0,
@@ -44,5 +44,5 @@ struct Options{
  0,
  1,
  1,
- " "
+ _T(" ")
 };

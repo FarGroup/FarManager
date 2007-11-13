@@ -19,35 +19,35 @@ static void closeHandle(HANDLE& handle)
   handle = INVALID_HANDLE_VALUE;
 }
 
-static void killTemp(char *TempFileName)
+static void killTemp(TCHAR *TempFileName)
 {
   if ( FileExists(TempFileName) )
   {
     DeleteFile(TempFileName);
-    *(PointToName(TempFileName)-1) = 0;
+    *(TCHAR*)(PointToName(TempFileName)-1) = 0;
     RemoveDirectory(TempFileName);
   }
 }
 
-inline bool isDevice(const char* FileName, const char* dev_begin)
+inline bool isDevice(const TCHAR* FileName, const TCHAR* dev_begin)
 {
     const int len=lstrlen(dev_begin);
     if(LStrnicmp(FileName, dev_begin, len)) return false;
     FileName+=len;
     if(!*FileName) return false;
-    while(*FileName>='0' && *FileName<='9') FileName++;
+    while(*FileName>=_T('0') && *FileName<=_T('9')) FileName++;
     return !*FileName;
 }
 
-static bool validForView(const char *FileName, int viewEmpty, int editNew)
+static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
 {
-  if ( !memcmp(FileName, "\\\\.\\", 4) && // специальная обработка имен
+  if ( !memcmp(FileName, _T("\\\\.\\"), 4) && // специальная обработка имен
       FarIsAlpha(FileName[4]) &&          // вида: \\.\буква:
-      FileName[5]==':' && FileName[6]==0 )
+      FileName[5]==_T(':') && FileName[6]==0 )
     return true;
 
-  if (isDevice(FileName, "\\\\.\\PhysicalDrive")) return true;
-  if (isDevice(FileName, "\\\\.\\cdrom")) return true;
+  if (isDevice(FileName, _T("\\\\.\\PhysicalDrive"))) return true;
+  if (isDevice(FileName, _T("\\\\.\\cdrom"))) return true;
 
   if ( *FileName && FileExists(FileName) )
   {
@@ -86,7 +86,7 @@ struct TThreadData
   enThreadType type;
   bool processDone;
   TShowOutputStreamData stream[enStreamMAX];
-  char title[80], cmd[1024];
+  TCHAR title[80], cmd[1024];
 };
 
 static DWORD showPartOfOutput(TShowOutputStreamData *sd)
@@ -94,9 +94,9 @@ static DWORD showPartOfOutput(TShowOutputStreamData *sd)
   DWORD Res = 0;
   if ( sd )
   {
-    char ReadBuf[4096+1];
+    TCHAR ReadBuf[4096+1];
     DWORD BytesRead = 0;
-    if ( ReadFile(sd->hRead, ReadBuf, sizeof(ReadBuf)-1, &BytesRead, NULL) )
+    if ( ReadFile(sd->hRead, ReadBuf, sizeof(ReadBuf)-sizeof(TCHAR), &BytesRead, NULL) )
     {
       if ( BytesRead )
       {
@@ -143,7 +143,7 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
         }
         if ( td->processDone )
           break;
-        char buff[80];
+        TCHAR buff[80];
         DWORD sCheck[enStreamMAX];
         for ( int i = 0 ; i < enStreamMAX ; i++ )
         {
@@ -159,26 +159,34 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
         }
         if ( sCheck[enStreamOut] )
           if ( sCheck[enStreamErr] )
-            FarSprintf(buff, "%lu/%lu", sCheck[enStreamOut], sCheck[enStreamErr]);
+            FarSprintf(buff, _T("%lu/%lu"), sCheck[enStreamOut], sCheck[enStreamErr]);
           else
-            FarSprintf(buff, "%lu", sCheck[enStreamOut]);
+            FarSprintf(buff, _T("%lu"), sCheck[enStreamOut]);
         else
           if ( sCheck[enStreamErr] )
-            FarSprintf(buff, "%lu", sCheck[enStreamErr]);
+            FarSprintf(buff, _T("%lu"), sCheck[enStreamErr]);
           else
             *buff = 0;
-        const char *MsgItems[] = { td->title, td->cmd, buff };
-        Info.Message(Info.ModuleNumber, 0, NULL, MsgItems, sizeof(MsgItems)/sizeof(*MsgItems), 0);
+        const TCHAR *MsgItems[] = { td->title, td->cmd, buff };
+        Info.Message(Info.ModuleNumber, 0, NULL, MsgItems, ArraySize(MsgItems), 0);
       }
     }
   }
   return 0;
 }
 
-static bool MakeTempNames(char* tempFileName1, char* tempFileName2)
+static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2
+#ifdef UNICODE
+                          , size_t szTempNames
+#endif
+                         )
 {
-  char *tmpPrefix="FCP";
-  if ( MkTemp(tempFileName1, tmpPrefix) )
+  static const TCHAR tmpPrefix[] = _T("FCP");
+  if ( MkTemp(tempFileName1,
+#ifdef UNICODE
+              (DWORD)szTempNames,
+#endif
+              tmpPrefix) )
   {
     DeleteFile(tempFileName1);
     if ( CreateDirectory(tempFileName1, NULL) )
@@ -200,31 +208,32 @@ static bool MakeTempNames(char* tempFileName1, char* tempFileName2)
   return false;
 }
 
-static char *loadFile(const char *fn, char *buff, DWORD maxSize)
+static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 {
-  char *p = NULL, FileName[NM*5];
+  TCHAR *p = NULL, FileName[NM*5];
   lstrcpy(FileName, fn);
-  ExpandEnvironmentStr(FileName, FileName, sizeof(FileName));
+  ExpandEnvironmentStr(FileName, FileName, ArraySize(FileName));
   HANDLE Handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
   if ( vh(Handle) )
   {
-    DWORD size = GetFileSize(Handle, NULL);
+    DWORD size = GetFileSize(Handle, NULL) / sizeof(TCHAR);
     if ( size >= maxSize )
       size = maxSize-1;
+    size *= sizeof(TCHAR);
     if ( size )
     {
       bool dyn = false;
       DWORD read;
       if ( buff == NULL )
       {
-        buff = (char *)malloc(size+1);
+        buff = (TCHAR *)malloc(size+sizeof(TCHAR));
         dyn = buff != NULL;
       }
       if ( buff )
       {
-        if ( ReadFile(Handle, buff, size, &read, NULL) && read )
+        if ( ReadFile(Handle, buff, size, &read, NULL) && read >= sizeof(TCHAR) )
         {
-          buff[read] = 0;
+          buff[read/sizeof(TCHAR)] = 0;
           p = buff;
         }
         else if ( dyn )
@@ -236,27 +245,27 @@ static char *loadFile(const char *fn, char *buff, DWORD maxSize)
   return p;
 }
 
-static void ParseCmdSyntax(char*& pCmd, int& ShowCmdOutput, int& stream)
+static void ParseCmdSyntax(TCHAR*& pCmd, int& ShowCmdOutput, int& stream)
 {
 
   switch ( *pCmd )
   {
-    case '*': stream = 0; ++pCmd; break;
-    case '1': stream = 1; ++pCmd; break;
-    case '2': stream = 2; ++pCmd; break;
-    case '?': stream = 3; ++pCmd; break;
+    case _T('*'): stream = 0; ++pCmd; break;
+    case _T('1'): stream = 1; ++pCmd; break;
+    case _T('2'): stream = 2; ++pCmd; break;
+    case _T('?'): stream = 3; ++pCmd; break;
   }
 
   bool flg_stream = false;
 
   switch ( *pCmd )
   {
-    case '>': ShowCmdOutput = 0; flg_stream = true; ++pCmd; break;
-    case '<': ShowCmdOutput = 1; flg_stream = true; ++pCmd; break;
-    case '+': ShowCmdOutput = 2; flg_stream = true; ++pCmd; break;
-    case ' ': flg_stream = true; break;
-    case '|': flg_stream = true; break;
-    case '"': flg_stream = true; break;
+    case _T('>'): ShowCmdOutput = 0; flg_stream = true; ++pCmd; break;
+    case _T('<'): ShowCmdOutput = 1; flg_stream = true; ++pCmd; break;
+    case _T('+'): ShowCmdOutput = 2; flg_stream = true; ++pCmd; break;
+    case _T(' '): flg_stream = true; break;
+    case _T('|'): flg_stream = true; break;
+    case _T('"'): flg_stream = true; break;
   }
 
  if ( (!flg_stream) && (stream == 1 || stream == 2) ){  --pCmd; }
@@ -264,11 +273,11 @@ static void ParseCmdSyntax(char*& pCmd, int& ShowCmdOutput, int& stream)
   FarLTrim(pCmd);
 }
 
-int OpenFromCommandLine(char *_farcmd)
+int OpenFromCommandLine(TCHAR *_farcmd)
 {
   if ( !_farcmd ) return FALSE;
 
-  static char farcmdbuf[NM*10], *farcmd;
+  static TCHAR farcmdbuf[NM*10], *farcmd;
   farcmd=farcmdbuf;
   lstrcpy(farcmdbuf, _farcmd);
   FarRTrim(farcmdbuf);
@@ -281,18 +290,18 @@ int OpenFromCommandLine(char *_farcmd)
     int ShowCmdOutput=Opt.ShowCmdOutput;
     int stream=Opt.CatchMode;
     BOOL outputtofile=0, allOK=TRUE, View,Edit,Goto,Far,Clip,WhereIs,Macro,Link,Run;
-    char *Ptr, *pCmd=NULL, Pref;
+    TCHAR *Ptr, *pCmd=NULL, Pref;
 
-    Ptr=strchr(farcmd,':'); ++Ptr;
+    Ptr=_tcschr(farcmd,_T(':')); ++Ptr;
 
-    Pref=(char)((*farcmd)&(~0x20));
+    Pref=(TCHAR)((*farcmd)&(~0x20));
 
     // far:<command>[<options>]<separator><object>
-    Far =(Pref == 'F');
+    Far =(Pref == _T('F'));
     if(Far)
     {
       farcmd=Ptr;
-      Pref=(char)((*farcmd)&(~0x20));
+      Pref=(TCHAR)((*farcmd)&(~0x20));
       // farcmd = <command>[<options>]<separator><object>
       // farcmd = <command><separator><object>
       // Pref   = V|E|G|C|W|M|L|R
@@ -300,28 +309,28 @@ int OpenFromCommandLine(char *_farcmd)
 
     // view:[<separator>]<object>
     // view<separator><object>
-    View=(Pref == 'V');
+    View=(Pref == _T('V'));
     // clip:[<separator>]<object>
     // clip:<separator><object>
-    Clip=(Pref == 'C');
+    Clip=(Pref == _T('C'));
     // whereis:[<separator>]<object>
     // whereis:<separator><object>
-    WhereIs=(Pref == 'W');
+    WhereIs=(Pref == _T('W'));
     // edit:[[<options>]<separator>]<object>
     // edit[<options>]<separator><object>
-    Edit=(Pref == 'E');
+    Edit=(Pref == _T('E'));
     // goto:[<separator>]<object>
     // goto<separator><object>
-    Goto=(Pref == 'G');
+    Goto=(Pref == _T('G'));
     // macro:[<separator>]<object>
     // macro<separator><object>
-    Macro=(Pref == 'M');
+    Macro=(Pref == _T('M'));
     // link:[<separator>][<op>]<separator><source><separator><dest>
     // link<separator>[<op>]<separator><source><separator><dest>
-    Link=(Pref == 'L');
+    Link=(Pref == _T('L'));
     // run:[<separator>]<file> < <command>
     // run:<separator><file> < <command>
-    Run=(Pref == 'R');
+    Run=(Pref == _T('R'));
 
     if(!Far)
     {
@@ -333,7 +342,7 @@ int OpenFromCommandLine(char *_farcmd)
     if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run)
     {
       int SeparatorLen=lstrlen(Opt.Separator);
-      char *cBracket=NULL, runFile[NM]="";
+      TCHAR *cBracket=NULL, runFile[NM]=_T("");
       BOOL BracketsOk=TRUE;
 
       if(Edit)
@@ -341,15 +350,15 @@ int OpenFromCommandLine(char *_farcmd)
         // edit:['['<options>']'<separator>]<object>
         //  edit['['<options>']'<separator>]<object>
         //      ^---farcmd
-        char *oBracket;
+        TCHAR *oBracket;
         BracketsOk=FALSE;
-        oBracket=strchr(farcmd,'[');
-        if(oBracket && oBracket<strstr(farcmd,Opt.Separator))
+        oBracket=_tcschr(farcmd,_T('['));
+        if(oBracket && oBracket<_tcsstr(farcmd,Opt.Separator))
         {
-          if((cBracket=strchr(oBracket,']')) != 0 && oBracket < cBracket)
+          if((cBracket=_tcschr(oBracket,_T(']'))) != 0 && oBracket < cBracket)
           {
             farcmd=cBracket+1;
-            char *comma=strchr(oBracket,',');
+            TCHAR *comma=_tcschr(oBracket,_T(','));
 
             if(comma)
             {
@@ -368,12 +377,12 @@ int OpenFromCommandLine(char *_farcmd)
       }
       else if ( Run ) // пятница, 26 апреля 2002, 13:50:08
       {
-        pCmd = strchr(farcmd,'<');
+        pCmd = _tcschr(farcmd,_T('<'));
         if ( pCmd )
         {
           *pCmd = 0;
           lstrcpy(runFile, farcmd);
-          *pCmd = '<';
+          *pCmd = _T('<');
           farcmd = pCmd;
           showhelp=FALSE;
         }
@@ -382,7 +391,7 @@ int OpenFromCommandLine(char *_farcmd)
       if(Far && BracketsOk && cBracket)
         farcmd=cBracket+1;
 
-      if(*farcmd=='<')
+      if(*farcmd==_T('<'))
       {
         pCmd=farcmd+1;
         outputtofile=1;
@@ -395,14 +404,14 @@ int OpenFromCommandLine(char *_farcmd)
           иначе глотается первое слово.
        */
        if(Far)
-         pCmd=strstr(farcmd,Opt.Separator);
+         pCmd=_tcsstr(farcmd,Opt.Separator);
        /* SVS $ */
        if(pCmd)
        {
         if(Far) pCmd+=SeparatorLen;
         else
         {
-         char *Quote=strchr(farcmd,'\"');
+         TCHAR *Quote=_tcschr(farcmd,_T('\"'));
          if(Quote)
          {
           if(Quote<=pCmd) pCmd=farcmd;
@@ -425,7 +434,7 @@ int OpenFromCommandLine(char *_farcmd)
         FarLTrim(pCmd);
         if(!outputtofile)
         {
-          if(*pCmd=='<') outputtofile=1;
+          if(*pCmd==_T('<')) outputtofile=1;
           pCmd+=outputtofile;
         }
         if(View||Edit||Clip)
@@ -438,32 +447,34 @@ int OpenFromCommandLine(char *_farcmd)
           {
             if(outputtofile)
             {
-              if ( loadFile(pCmd, selectItem, sizeof(selectItem)) )
+              if ( loadFile(pCmd, selectItem, ArraySize(selectItem)) )
               {
-                 if(NULL==(Ptr=strchr(selectItem,'\r')))
-                   Ptr=strchr(selectItem,'\n');
+                 if(NULL==(Ptr=_tcschr(selectItem,_T('\r'))))
+                   Ptr=_tcschr(selectItem,_T('\n'));
                  if(Ptr!=NULL) *Ptr=0;
               }
             }
             else lstrcpy(selectItem,pCmd);
 
-            ExpandEnvironmentStr(selectItem,selectItem,sizeof(selectItem));
+            ExpandEnvironmentStr(selectItem,selectItem,ArraySize(selectItem));
           }
           else if(WhereIs)
           {
-             char *Path = NULL, *pFile, temp[NM*5];
-             int Length=GetCurrentDirectory(sizeof(cmd), cmd),
-                 PathLength=GetEnvironmentVariable("PATH", Path, 0);
+             TCHAR *Path = NULL, *pFile, temp[NM*5];
+             int Length=GetCurrentDirectory(ArraySize(cmd), cmd),
+                 PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0);
              Unquote(pCmd);
-             ExpandEnvironmentStr(pCmd,temp,sizeof(temp));
+             ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
              if(Length+PathLength)
              {
-               if(NULL!=(Path=(char *)malloc(Length+1+PathLength)))
+               if(NULL!=(Path=(TCHAR *)malloc((Length+1+PathLength)*sizeof(TCHAR))))
                {
-                 FarSprintf(Path,"%s;", cmd);
-                 GetEnvironmentVariable("PATH", Path+Length+1, PathLength);
-                 SearchPath(Path, temp, NULL, sizeof(selectItem), selectItem, &pFile);
+                 FarSprintf(Path,_T("%s;"), cmd);
+                 GetEnvironmentVariable(_T("PATH"), Path+Length+1, PathLength);
+                 SearchPath(Path, temp, NULL, ArraySize(selectItem), selectItem, &pFile);
+#ifndef UNICODE
                  CharToOem(selectItem, selectItem);
+#endif
                  free(Path);
                }
              }
@@ -471,18 +482,20 @@ int OpenFromCommandLine(char *_farcmd)
              if(*selectItem==0)
              {
                HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
-               char FullKeyName[512];
+               TCHAR FullKeyName[512];
                size_t I;
-               for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+               for(I=0; I < ArraySize(RootFindKey); ++I)
                {
                  FarSprintf(FullKeyName,
-                   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",
+                   _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),
                     pCmd);
+#ifndef UNICODE
                  OemToChar(FullKeyName, FullKeyName);
+#endif
                  if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
                  {
                     DWORD Type, DataSize=sizeof(selectItem);
-                    RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE) selectItem,
+                    RegQueryValueEx(hKey,_T(""), 0, &Type, (LPBYTE) selectItem,
                                     &DataSize);
                     RegCloseKey(hKey);
                     break;
@@ -493,25 +506,25 @@ int OpenFromCommandLine(char *_farcmd)
           else if(Macro)
           {
             ActlKeyMacro command;
-            if(!LStrnicmp(pCmd,"LOAD",lstrlen(pCmd)))
+            if(!LStrnicmp(pCmd,_T("LOAD"),lstrlen(pCmd)))
             {
               command.Command=MCMD_LOADALL;
               Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
             }
-            else if(!LStrnicmp(pCmd,"SAVE",lstrlen(pCmd)))
+            else if(!LStrnicmp(pCmd,_T("SAVE"),lstrlen(pCmd)))
             {
               command.Command=MCMD_SAVEALL;
               Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
             }
             /* $ 21.06.2001 SVS
                Новая команда - поместить последовательность клавиш */
-            else if(!LStrnicmp(pCmd,"POST",4))
+            else if(!LStrnicmp(pCmd,_T("POST"),4))
             {
               pCmd+=4;
 
               command.Command=MCMD_POSTMACROSTRING;
 
-              command.Param.PlainText.SequenceText=(char *)malloc(lstrlen(pCmd)+1);
+              command.Param.PlainText.SequenceText=(TCHAR *)malloc((lstrlen(pCmd)+1)*sizeof(TCHAR));
               if(command.Param.PlainText.SequenceText)
               {
                 command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
@@ -525,31 +538,31 @@ int OpenFromCommandLine(char *_farcmd)
           else if(Link) //link [/msg] [/n] источник назначение
           {
             DWORD LinkFlags=0;
-            char *Arg2=NULL;
-            while(*pCmd && (*pCmd == '/' || *pCmd == '-'))
+            TCHAR *Arg2=NULL;
+            while(*pCmd && (*pCmd == _T('/') || *pCmd == _T('-')))
             {
-              if(!LStrnicmp(pCmd,"/MSG",4))
+              if(!LStrnicmp(pCmd,_T("/MSG"),4))
               {
                 LinkFlags|=FLINK_SHOWERRMSG;
                 pCmd=FarTrim(pCmd+4);
               }
-              else if(!LStrnicmp(pCmd,"/N",2))
+              else if(!LStrnicmp(pCmd,_T("/N"),2))
               {
                 LinkFlags|=FLINK_DONOTUPDATEPANEL;
                 pCmd=FarTrim(pCmd+2);
               }
             }
 
-            if(*pCmd == '"')
+            if(*pCmd == _T('"'))
             {
-              Arg2=strchr(pCmd+1,'"');
+              Arg2=_tcschr(pCmd+1,_T('"'));
               if(Arg2)
               {
                 *++Arg2=0;
                 Arg2=FarTrim(++Arg2);
-                if(*Arg2 == '"')
+                if(*Arg2 == _T('"'))
                 {
-                  char *Arg3=strchr(Arg2+1,'"');
+                  TCHAR *Arg3=_tcschr(Arg2+1,_T('"'));
                   if(Arg3)
                     *++Arg3=0;
                   Unquote(Arg2);
@@ -559,15 +572,15 @@ int OpenFromCommandLine(char *_farcmd)
             }
             else
             {
-              Arg2=strchr(pCmd+1,' ');
+              Arg2=_tcschr(pCmd+1,_T(' '));
               if(Arg2)
               {
 
                 *Arg2=0;
                 Arg2=FarTrim(++Arg2);
-                if(*Arg2 == '"')
+                if(*Arg2 == _T('"'))
                 {
-                  char *Arg3=strchr(Arg2+1,'"');
+                  TCHAR *Arg3=_tcschr(Arg2+1,_T('"'));
                   if(Arg3)
                     *++Arg3=0;
                   Unquote(Arg2);
@@ -578,13 +591,13 @@ int OpenFromCommandLine(char *_farcmd)
             DWORD FTAttr=GetFileAttributes(pCmd);
             if(FTAttr != 0xFFFFFFFF && Arg2)
             {
-              char Disk[16];
-              if(pCmd[1] == ':' && ((pCmd[2] == '\\' && pCmd[3] == 0) || pCmd[2] == 0))
+              TCHAR Disk[16];
+              if(pCmd[1] == _T(':') && ((pCmd[2] == _T('\\') && pCmd[3] == 0) || pCmd[2] == 0))
               {
                 if(pCmd[2] == 0)
                 {
                   lstrcpy(Disk,pCmd);
-                  lstrcat(Disk,"\\");
+                  lstrcat(Disk,_T("\\"));
                   pCmd=Disk;
                 }
                 LinkFlags|=FLINK_VOLMOUNT;
@@ -599,13 +612,14 @@ int OpenFromCommandLine(char *_farcmd)
           }
           else
           {
-            char *tempDir = NULL, temp[NM*5];
-            char TempFileNameOut[NM*5] = "", TempFileNameErr[NM*5] = "";
+            TCHAR *tempDir = NULL, temp[NM*5];
+            TCHAR TempFileNameOut[NM*5], TempFileNameErr[ArraySize(TempFileNameOut)];
+            TempFileNameOut[0] = TempFileNameErr[0] = 0;
             if ( outputtofile )
             {
-              if ( *pCmd == '|' )
+              if ( *pCmd == _T('|') )
               {
-                char *endTempDir = strchr(pCmd+1, '|');
+                TCHAR *endTempDir = _tcschr(pCmd+1, _T('|'));
                 if ( endTempDir )
                 {
                   *endTempDir = 0;
@@ -619,7 +633,7 @@ int OpenFromCommandLine(char *_farcmd)
             else
               Unquote(lstrcpy(temp,pCmd));
 
-            ExpandEnvironmentStr(temp,temp,sizeof(temp));
+            ExpandEnvironmentStr(temp,temp,ArraySize(temp));
 
             // разделение потоков
             int catchStdOutput = stream != 2;
@@ -633,27 +647,31 @@ int OpenFromCommandLine(char *_farcmd)
                 if ( *runFile )
                 {
                   Unquote(runFile);
-                  ExpandEnvironmentStr(runFile,runFile,sizeof(runFile));
+                  ExpandEnvironmentStr(runFile,runFile,ArraySize(runFile));
                   lstrcpy(TempFileNameOut, lstrcpy(TempFileNameErr, runFile));
                   allOK = TRUE;
                 }
               }
               else
-                allOK = MakeTempNames(TempFileNameOut, TempFileNameErr);
+                allOK = MakeTempNames(TempFileNameOut, TempFileNameErr
+#ifdef UNICODE
+                                      , ArraySize(TempFileNameOut)
+#endif
+                                     );
               if ( allOK )
               {
                 allOK = FALSE;
 
                 #if 0
-                lstrcat(lstrcpy(cmd,"%COMSPEC% /c "), temp);
+                lstrcat(lstrcpy(cmd,_T("%COMSPEC% /c ")), temp);
                 #else
-                lstrcpy(cmd,"%COMSPEC% /c ");
-                if(*temp == '"')
-                  lstrcat(cmd, "\"");
+                lstrcpy(cmd,_T("%COMSPEC% /c "));
+                if(*temp == _T('"'))
+                  lstrcat(cmd, _T("\""));
                 lstrcat(cmd, temp);
                 #endif
 
-                ExpandEnvironmentStr(cmd, fullcmd, sizeof(fullcmd));
+                ExpandEnvironmentStr(cmd, fullcmd, ArraySize(fullcmd));
                 lstrcpy(cmd, temp);
                 if ( catchStdOutput && catchStdError )
                 {
@@ -725,8 +743,8 @@ int OpenFromCommandLine(char *_farcmd)
                   if ( ShowCmdOutput )
                   {
                     GetConsoleScreenBufferInfo(StdOutput,&csbi);
-                    char Blank[1024];
-                    memset(Blank, ' ', csbi.dwSize.X);
+                    TCHAR Blank[1024];
+                    _tmemset(Blank, _T(' '), csbi.dwSize.X);
                     for ( int Y = 0 ; Y < csbi.dwSize.Y ; Y++ )
                       Info.Text(0, Y, LIGHTGRAY, Blank);
                     Info.Text(0, 0, 0, NULL);
@@ -782,17 +800,17 @@ int OpenFromCommandLine(char *_farcmd)
                       }
                     }
                   }
-                  char SaveDir[NM], workDir[NM];
+                  TCHAR SaveDir[NM], workDir[NM];
                   static PROCESS_INFORMATION pi;
                   memset(&pi,0,sizeof(pi));
                   if ( tempDir )
                   {
-                    GetCurrentDirectory(sizeof(SaveDir),SaveDir);
-                    ExpandEnvironmentStr(tempDir,workDir,sizeof(workDir));
+                    GetCurrentDirectory(ArraySize(SaveDir),SaveDir);
+                    ExpandEnvironmentStr(tempDir,workDir,ArraySize(workDir));
                     SetCurrentDirectory(workDir);
                   }
 
-                  char consoleTitle[256];
+                  TCHAR consoleTitle[256];
                   DWORD tlen = GetConsoleTitle(consoleTitle, 256);
                   SetConsoleTitle(cmd);
 
@@ -872,7 +890,11 @@ int OpenFromCommandLine(char *_farcmd)
                     src.Right = csbi.dwSize.X;
                     src.Bottom = csbi.dwSize.Y;
                     dest.X = dest.Y = 0;
+#ifndef UNICODE
                     fill.Char.AsciiChar = ' ';
+#else
+                    fill.Char.UnicodeChar = L' ';
+#endif
                     fill.Attributes = LIGHTGRAY;
                     ScrollConsoleScreenBuffer(StdOutput, &src, NULL, dest, &fill);
                     Info.Control(NULL, FCTL_SETUSERSCREEN, NULL);
@@ -888,7 +910,7 @@ int OpenFromCommandLine(char *_farcmd)
             {
               if ( View || Edit )
               {
-                char titleOut[NM] = "", titleErr[NM] = "";
+                TCHAR titleOut[NM] = _T(""), titleErr[NM] = _T("");
                 if ( catchStdError && ( ( catchStdOutput && catchSeparate ) || !catchStdOutput) )
                   lstrcpy(titleErr, GetMsg(MStdErr));
                 if ( catchStdError && catchStdOutput && catchSeparate )
@@ -900,14 +922,14 @@ int OpenFromCommandLine(char *_farcmd)
                     Flags |= VF_DISABLEHISTORY|VF_DELETEONCLOSE;
                   if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, 0) )
                   {
-                    FarSprintf(fullcmd, "%s%s", titleErr, cmd);
+                    FarSprintf(fullcmd, _T("%s%s"), titleErr, cmd);
                     Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameErr);
                   if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, 0) )
                   {
-                    FarSprintf(fullcmd, "%s%s", titleOut, cmd);
+                    FarSprintf(fullcmd, _T("%s%s"), titleOut, cmd);
                     Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
                   }
                   else if(outputtofile)
@@ -921,14 +943,14 @@ int OpenFromCommandLine(char *_farcmd)
                     Flags |= EF_DISABLEHISTORY|EF_DELETEONCLOSE;
                   if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
-                    FarSprintf(fullcmd, "%s%s", titleErr, cmd);
+                    FarSprintf(fullcmd, _T("%s%s"), titleErr, cmd);
                     Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameErr);
                   if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
-                    FarSprintf(fullcmd, "%s%s", titleOut, cmd);
+                    FarSprintf(fullcmd, _T("%s%s"), titleOut, cmd);
                     Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
                   }
                   else if(outputtofile)
@@ -940,7 +962,7 @@ int OpenFromCommandLine(char *_farcmd)
                 outputtofile=FALSE;
               else if ( Clip )
               {
-                char *Ptr = loadFile(TempFileNameOut, NULL, 1048576);
+                TCHAR *Ptr = loadFile(TempFileNameOut, NULL, 1048576/sizeof(TCHAR));
                 if ( Ptr )
                 {
                   CopyToClipboard(Ptr);
