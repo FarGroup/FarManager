@@ -815,7 +815,7 @@ int NetBrowser::SetDirectory(const TCHAR *Dir,int OpMode)
         {
 #ifdef NETWORK_LOGGING
           TCHAR szErrBuff[MAX_PATH*2];
-          sprintf(szErrBuff, _T("GetLastError = %d at line %d, file %s"), GetLastError(), __LINE__, __FILE__);
+          _sntprintf(szErrBuff, ArraySize(szErrBuff), _T("GetLastError = %d at line %d, file %s"), GetLastError(), __LINE__, __FILE__);
           LogData(szErrBuff);
 #endif
           Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
@@ -1058,7 +1058,7 @@ BOOL NetBrowser::GetResourceInfo(TCHAR *SrcName,LPNETRESOURCE DstNetResource)
     return FALSE;
 
 #ifdef NETWORK_LOGGING
-  fprintf (LogFile, _T("GetResourceInfo %s\n"), SrcName);
+  _ftprintf (LogFile, _T("GetResourceInfo %s\n"), SrcName);
 #endif
 
   NETRESOURCE nrOut [32];   // provide buffer space

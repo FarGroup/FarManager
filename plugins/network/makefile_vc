@@ -12,6 +12,11 @@ $(OBJDIR)\NetMix.obj \
 $(OBJDIR)\NetNT.obj \
 $(OBJDIR)\NetReg.obj
 
+!if defined(DEBUG) && !defined(NO_LOG)
+USERCPP=/DNETWORK_LOGGING
+NEEDDEFLIB=1
+!endif
+
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
