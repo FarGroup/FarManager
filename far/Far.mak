@@ -79,6 +79,9 @@ RES_FILES= \
 
 # —юды добавл€ть то, что должно быть в проекте, в смысле сорцы
 LINK32_OBJS= \
+!if !$(_BUILD64) && !defined(DISABLE_WOW64_HOOK)
+	"$(INTDIR)\hook_wow64.obj" \
+!endif
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
 	"$(INTDIR)\chgmmode.obj" \
