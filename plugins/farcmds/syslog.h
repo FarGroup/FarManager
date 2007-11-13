@@ -1,5 +1,5 @@
 #ifdef DEBUG
-static void SysLog(char *fmt,...)
+static void SysLog(TCHAR *fmt,...)
 {
   const TCHAR *Log = _T("\\FarCmds.LOG.TMP");
   TCHAR temp[4096];
