@@ -1,12 +1,12 @@
 #ifndef __mix_cpp
 #define __mix_cpp
 
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
-BOOL FileExists(const char* Name)
+BOOL FileExists(const TCHAR* Name)
 {
   return GetFileAttributes(Name)!=0xFFFFFFFF;
 }
@@ -24,23 +24,27 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->History=(const char *)PInit->Selected;
+    PItem->History=(const TCHAR *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
+#ifndef UNICODE
     lstrcpy(PItem->Data,((unsigned int)(DWORD_PTR)PInit->Data<2000)?GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data);
+#else
+    PItem->DataIn = (PInit->Data<(TCHAR*)2000)?GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data;
+#endif
   }
 }
 
-BOOL CheckExtension(const char *ptrName)
+BOOL CheckExtension(const TCHAR *ptrName)
 {
-  return Info.CmpName("*.hlf", ptrName, TRUE);
+  return Info.CmpName(_T("*.hlf"), ptrName, TRUE);
 }
 
-void ShowHelp(const char *fullfilename,const char *topic, bool CmdLine)
+void ShowHelp(const TCHAR *fullfilename,const TCHAR *topic, bool CmdLine)
 {
   if(CmdLine || CheckExtension(fullfilename))
   {
-    const char *Topic=topic;
+    const TCHAR *Topic=topic;
 
     if(NULL == Topic)
        Topic=GetMsg(MDefaultTopic);

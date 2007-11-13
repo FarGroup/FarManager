@@ -1,44 +1,44 @@
 struct RegistryStr
 {
- char *sss;
- char *EditorKey;
- char *ProcessEditorInput;
- char *Style;
+ TCHAR *sss;
+ TCHAR *EditorKey;
+ TCHAR *ProcessEditorInput;
+ TCHAR *Style;
 } REGStr= {
- "%s%s%s",
- "EditorKey",
- "ProcessEditorInput",
- "Style"
+ _T("%s%s%s"),
+ _T("EditorKey"),
+ _T("ProcessEditorInput"),
+ _T("Style")
 };
 
 struct HELPIDS
 {
- char *Contents;
- char *cmd;
- char *Config;
+ TCHAR *Contents;
+ TCHAR *cmd;
+ TCHAR *Config;
 } HlfId=
 {
- "Contents",
- "cmd",
- "Config"
+ _T("Contents"),
+ _T("cmd"),
+ _T("Config")
 };
 
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,BYTE *ValueData,DWORD ValueSize);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,TCHAR *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,DWORD ValueSize);
 
-const char *GetMsg(int MsgId);
-BOOL FileExists(const char* Name);
+const TCHAR *GetMsg(int MsgId);
+BOOL FileExists(const TCHAR* Name);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item, int ItemsNumber);
-BOOL CheckExtension(const char *ptrName);
-void ShowHelp(const char *fullfilename,const char *topic, bool CmdLine=false);
+BOOL CheckExtension(const TCHAR *ptrName);
+void ShowHelp(const TCHAR *fullfilename,const TCHAR *topic, bool CmdLine=false);
 void RestorePosition(void);
 BOOL IsHlf(void);
-const char *FindTopic(void);
+const TCHAR *FindTopic(void);
 void ShowCurrentHelpTopic();
 void ShowHelpFromTempFile();
 
@@ -50,7 +50,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   DWORD Flags;
   int DefaultButton;
-  char *Data;
+  TCHAR *Data;
 };
 
 struct Options
@@ -69,11 +69,11 @@ static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 
 struct PanelInfo PInfo;
-char PluginRootKey[80];
-char FullFileName[NM];
+TCHAR PluginRootKey[80];
+TCHAR FullFileName[NM];
 struct EditorInfo ei;
 struct EditorGetString egs;
 struct EditorSetPosition esp;
 
-static char KeyNameFromReg[34];
+static TCHAR KeyNameFromReg[34];
 BOOL IsOldFar;

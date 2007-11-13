@@ -25,7 +25,7 @@ BOOL IsHlf(void)
   {
     Info.EditorControl(ECTL_SETPOSITION,&esp);
     Info.EditorControl(ECTL_GETSTRING,&egs);
-    if(!FSF.LStrnicmp(".Language=",egs.StringText,10))
+    if(!FSF.LStrnicmp(_T(".Language="),egs.StringText,10))
     {
       ret=TRUE;
       break;
@@ -35,10 +35,10 @@ BOOL IsHlf(void)
   return ret;
 }
 
-const char *FindTopic(void)
+const TCHAR *FindTopic(void)
 {
-  const char *ret=NULL;
-  const char *tmp;
+  const TCHAR *ret=NULL;
+  const TCHAR *tmp;
 
   Info.EditorControl(ECTL_GETINFO,&ei);
   memset(&esp,-1,sizeof(esp));
@@ -48,7 +48,7 @@ const char *FindTopic(void)
     Info.EditorControl(ECTL_SETPOSITION,&esp);
     Info.EditorControl(ECTL_GETSTRING,&egs);
     tmp=egs.StringText;
-    if(lstrlen(tmp)>1 && *tmp=='@' && *(tmp+1)!='-' && *(tmp+1)!='+')
+    if(lstrlen(tmp)>1 && *tmp==_T('@') && *(tmp+1)!=_T('-') && *(tmp+1)!=_T('+'))
     {
       ret=tmp+1;
       break;
