@@ -2,7 +2,7 @@
 #
 #INSTALL - the path of top binary directory for all plugins
 #  or
-#DEFINSTALL - тоже самое, но может определяться в makefile_vc_defs
+#DEFINSTALL - same as above, but can be defined in makefile_vc_defs
 #
 #WIDE - set for a unicode build
 #
@@ -19,13 +19,13 @@ ALLDIRS=compare editcase emenu farcmds hlfviewer macroview network proclist
 
 !elseif defined(AMD64) || "$(CPU)" == "AMD64"
 
-ALLDIRS=compare editcase emenu farcmds hlfviewer macroview network proclist \
-        multiarc
+ALLDIRS=compare editcase emenu farcmds hlfviewer macroview multiarc network \
+        proclist
 
 !else
 
 ALLDIRS=align autowrap brackets compare drawline editcase emenu farcmds \
-        filecase hlfviewer macroview network proclist multiarc tmppanel
+        filecase hlfviewer macroview multiarc network proclist tmppanel
 
 !endif
 
