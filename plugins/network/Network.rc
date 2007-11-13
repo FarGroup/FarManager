@@ -13,7 +13,11 @@ FILETYPE 2
   {
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Network Plugin for FAR Manager\000"
+#ifndef UNICODE
    VALUE "FileVersion", "1.71 build 38\000"
+#else
+   VALUE "FileVersion", "1.80 build 38\000"
+#endif
    VALUE "InternalName", "Network\000"
    VALUE "LegalCopyright", FARCOPYRIGHT
    VALUE "OriginalFilename", "Network.dll\000"
