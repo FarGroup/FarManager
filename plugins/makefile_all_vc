@@ -15,11 +15,11 @@
 #############################################################################
 !if defined(WIDE)
 
-ALLDIRS=compare editcase emenu macroview proclist
+ALLDIRS=compare editcase emenu macroview proclist network
 
 !elseif defined(AMD64) || "$(CPU)" == "AMD64"
 
-ALLDIRS=compare editcase emenu macroview proclist multiarc
+ALLDIRS=compare editcase emenu macroview proclist network multiarc
 
 !else
 
