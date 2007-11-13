@@ -1,8 +1,8 @@
 #include "NetCommon.hpp"
 
-char *GetMsg(int MsgId)
+TCHAR *GetMsg(int MsgId)
 {
-  return(char *) (Info.GetMsg(Info.ModuleNumber,MsgId));
+  return(TCHAR *) (Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
 
@@ -20,13 +20,21 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->History=(const char *)PInit->Selected;
+    PItem->History=(const TCHAR *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
     if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
+#ifndef UNICODE
       lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
+#else
+      PItem->DataIn = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
+#endif
     else
+#ifndef UNICODE
       lstrcpy(PItem->Data,PInit->Data);
+#else
+      PItem->DataIn = PInit->Data;
+#endif
   }
 }
 
@@ -38,9 +46,8 @@ TSaveScreen::TSaveScreen()
 //  if(Info)
   {
     hScreen=Info.SaveScreen(0,0,-1,-1);
-    const char *MsgItems[]={GetMsg(MWaitForNetworkBrowse1),GetMsg(MWaitForNetworkBrowse2)};
-    Info.Message(Info.ModuleNumber,0,NULL,MsgItems,
-                sizeof(MsgItems)/sizeof(MsgItems[0]),0);
+    const TCHAR *MsgItems[]={GetMsg(MWaitForNetworkBrowse1),GetMsg(MWaitForNetworkBrowse2)};
+    Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
   }
 }
 

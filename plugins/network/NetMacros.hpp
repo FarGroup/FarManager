@@ -3,6 +3,13 @@
 
 #define PointToName FSF.PointToName
 #define InputBox Info.InputBox
-#define ARRAYLEN(x) (sizeof(x)/sizeof(x[0]))
+
+#ifndef UNICODE
+#define CharToOEM(s, d) CharToOem(s, d)
+#define OEMToChar(s, d) OemToChar(s, d)
+#else
+#define CharToOEM(s, d) lstrcpy(d, s)
+#define OEMToChar(s, d) lstrcpy(d, s)
+#endif
 
 #endif // __NETMACROS_HPP__

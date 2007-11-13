@@ -1,5 +1,6 @@
 #include "Network.hpp"
 
+//-----------------------------------------------------------------------------
 #if defined(__GNUC__)
 #ifdef __cplusplus
 extern "C"{
@@ -18,8 +19,8 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-
-HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
+//-----------------------------------------------------------------------------
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
   if(!IsOldFAR)
   {
@@ -32,21 +33,21 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
 
     if(OpenFrom==OPEN_COMMANDLINE)
     {
-      char Path[NM] = "\\\\";
+      TCHAR Path[NM] = _T("\\\\");
 
       int I=0;
-      char *cmd=(char *)Item;
-      char *p=strchr(cmd, ':');
+      TCHAR *cmd=(TCHAR *)Item;
+      TCHAR *p=_tcschr(cmd, _T(':'));
       if (!p || !*p)
       {
         delete Browser;
         return INVALID_HANDLE_VALUE;
       }
-      *p++ = '\0';
+      *p++ = _T('\0');
       bool netg;
-      if (!lstrcmpi(cmd,"netg"))
+      if (!lstrcmpi(cmd, _T("netg")))
         netg = true;
-      else if (!lstrcmpi(cmd, "net"))
+      else if (!lstrcmpi(cmd, _T("net")))
         netg = false;
       else
       {
@@ -56,25 +57,25 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
       cmd = p;
       if(lstrlen(FSF.Trim(cmd)))
       {
-        if (cmd [0] == '/')
-          cmd [0] = '\\';
-        if (cmd [1] == '/')
-          cmd [1] = '\\';
+        if (cmd [0] == _T('/'))
+          cmd [0] = _T('\\');
+        if (cmd [1] == _T('/'))
+          cmd [1] = _T('\\');
         if (!netg && !Opt.NavigateToDomains)
         {
-          if(cmd[0] == '\\' && cmd[1] != '\\')
+          if(cmd[0] == _T('\\') && cmd[1] != _T('\\'))
             I=1;
-          else if(cmd[0] != '\\' && cmd[1] != '\\')
+          else if(cmd[0] != _T('\\') && cmd[1] != _T('\\'))
             I=2;
         }
-        OemToChar (cmd, Path+I);
+        OEMToChar (cmd, Path+I);
 
         FSF.Unquote(Path);
         // Expanding environment variables.
         {
-            char PathCopy[NM];
+            TCHAR PathCopy[NM];
             lstrcpy(PathCopy, Path);
-            ExpandEnvironmentStrings(PathCopy, Path, sizeof(Path));
+            ExpandEnvironmentStrings(PathCopy, Path, ArraySize(Path));
         }
         Browser->SetOpenFromCommandLine (Path);
       }
@@ -84,7 +85,7 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
        in later versions. Please DON'T use it in your plugins. */
     else if (OpenFrom == 7)
     {
-      if (!Browser->SetOpenFromFilePanel ((char *) Item))
+      if (!Browser->SetOpenFromFilePanel ((TCHAR *) Item))
       {
         // we don't support upwards browsing from NetWare shares -
         // it doesn't work correctly
@@ -98,12 +99,12 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
     }
     IsFirstRun = FALSE;
 
-    char szCurrDir[MAX_PATH];
-    if (GetCurrentDirectory(sizeof(szCurrDir), szCurrDir))
+    TCHAR szCurrDir[MAX_PATH];
+    if (GetCurrentDirectory(ArraySize(szCurrDir), szCurrDir))
     {
-      if (*szCurrDir == '\\' && GetSystemDirectory(szCurrDir, sizeof(szCurrDir)))
+      if (*szCurrDir == _T('\\') && GetSystemDirectory(szCurrDir, ArraySize(szCurrDir)))
       {
-        szCurrDir[2] = '\0';
+        szCurrDir[2] = _T('\0');
         SetCurrentDirectory(szCurrDir);
       }
     }
@@ -112,8 +113,8 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item)
   return(INVALID_HANDLE_VALUE);
 }
 
-
-void WINAPI _export ClosePlugin(HANDLE hPlugin)
+//-----------------------------------------------------------------------------
+void WINAPI EXP_NAME(ClosePlugin)(HANDLE hPlugin)
 {
   if(!IsOldFAR)
   {
@@ -121,8 +122,8 @@ void WINAPI _export ClosePlugin(HANDLE hPlugin)
   }
 }
 
-
-int WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+//-----------------------------------------------------------------------------
+int WINAPI EXP_NAME(GetFindData)(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if(!IsOldFAR)
@@ -130,24 +131,24 @@ int WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelIte
   return FALSE;
 }
 
-
-void WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
+//-----------------------------------------------------------------------------
+void WINAPI EXP_NAME(FreeFindData)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if(!IsOldFAR)
     Browser->FreeFindData(PanelItem,ItemsNumber);
 }
 
-
-void WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
+//-----------------------------------------------------------------------------
+void WINAPI EXP_NAME(GetOpenPluginInfo)(HANDLE hPlugin,struct OpenPluginInfo *Info)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if(!IsOldFAR)
     Browser->GetOpenPluginInfo(Info);
 }
 
-
-int WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode)
+//-----------------------------------------------------------------------------
+int WINAPI EXP_NAME(SetDirectory)(HANDLE hPlugin,const TCHAR *Dir,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if(!IsOldFAR)
@@ -156,9 +157,9 @@ int WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode)
   return(FALSE);
 }
 
-
-int WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
-                               int ItemsNumber,int OpMode)
+//-----------------------------------------------------------------------------
+int WINAPI EXP_NAME(DeleteFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
+                                 int ItemsNumber,int OpMode)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if(!IsOldFAR)
@@ -166,8 +167,8 @@ int WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
   return(FALSE);
 }
 
-
-int WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
+//-----------------------------------------------------------------------------
+int WINAPI EXP_NAME(ProcessKey)(HANDLE hPlugin,int Key,unsigned int ControlState)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if(!IsOldFAR)
@@ -175,11 +176,13 @@ int WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
   return(FALSE);
 }
 
-
-int WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param)
+//-----------------------------------------------------------------------------
+int WINAPI EXP_NAME(ProcessEvent)(HANDLE hPlugin,int Event,void *Param)
 {
   NetBrowser *Browser=(NetBrowser *)hPlugin;
   if (!IsOldFAR)
     return Browser->ProcessEvent (Event, Param);
   return(FALSE);
 }
+
+//-----------------------------------------------------------------------------

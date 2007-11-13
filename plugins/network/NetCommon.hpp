@@ -9,7 +9,8 @@
 #include <windows.h>
 #include <lm.h>
 #define _FAR_USE_FARFINDDATA
-#include "plugin.hpp"
+#include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include "netlng.hpp"
 #include "NetMacros.hpp"
 
@@ -21,7 +22,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  char *Data;
+  TCHAR *Data;
 };
 
 extern struct Options
@@ -49,8 +50,8 @@ extern LPNETRESOURCE PCommonCurResource;
 extern BOOL IsFirstRun;
 extern OSVERSIONINFO WinVer;
 
-extern char PluginRootKey[80];
-extern char FarRootKey [NM];
+extern TCHAR PluginRootKey[80];
+extern TCHAR FarRootKey [NM];
 
 class TSaveScreen{
   private:
@@ -63,11 +64,11 @@ class TSaveScreen{
    ~TSaveScreen();
 };
 
-char *GetMsg(int MsgId);
+TCHAR *GetMsg(int MsgId);
 void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
                      int ItemsNumber);
 
-BOOL DlgCreateFolder(char* lpBuffer, int nBufferSize);
+BOOL DlgCreateFolder(TCHAR* lpBuffer, int nBufferSize);
 
 typedef DWORD (APIENTRY *PWNetGetResourceInformation) (
                                                        LPNETRESOURCE lpNetResource,
@@ -76,7 +77,7 @@ typedef DWORD (APIENTRY *PWNetGetResourceInformation) (
                                                        LPTSTR *lplpSystem);
 
 typedef DWORD (APIENTRY *PWNetGetResourceParent)(
-                                                 LPNETRESOURCEA lpNetResource,
+                                                 LPNETRESOURCE lpNetResource,
                                                  LPVOID lpBuffer,
                                                  LPDWORD lpcbBuffer
                                                  );
@@ -92,12 +93,12 @@ typedef NET_API_STATUS (NET_API_FUNCTION *PNetShareEnum)(
 
 typedef NET_API_STATUS (NET_API_FUNCTION *PNetApiBufferFree)(LPVOID Buffer);
 
-typedef API_RET_TYPE (APIENTRY *PNetShareEnum95)(const char FAR *     pszServer,
-                                                 short                sLevel,
-                                                 char FAR *           pbBuffer,
-                                                 unsigned short       cbBuffer,
-                                                 unsigned short FAR * pcEntriesRead,
-                                                 unsigned short FAR * pcTotalAvail );
+typedef API_RET_TYPE (APIENTRY *PNetShareEnum95)(const TCHAR *    pszServer,
+                                                 short            sLevel,
+                                                 TCHAR *          pbBuffer,
+                                                 unsigned short   cbBuffer,
+                                                 unsigned short * pcEntriesRead,
+                                                 unsigned short * pcTotalAvail );
 
 typedef NET_API_STATUS (NET_API_FUNCTION *PNetDfsGetInfo)(
     IN  LPWSTR  DfsEntryPath,       // DFS entry path for the volume
@@ -123,10 +124,10 @@ typedef struct _DFS_INFO_3 {
 } DFS_INFO_3, *PDFS_INFO_3, *LPDFS_INFO_3;
 
 struct share_info_1 {
-  char    shi1_netname[LM20_NNLEN+1];
-  char    shi1_pad1;
+  TCHAR   shi1_netname[LM20_NNLEN+1];
+  TCHAR   shi1_pad1;
   unsigned short  shi1_type;
-  char FAR *    shi1_remark;
+  TCHAR * shi1_remark;
 };  /* share_info_1 */
 
 extern PWNetGetResourceInformation FWNetGetResourceInformation;
@@ -140,7 +141,7 @@ extern BOOL UsedNetFunctions;
 void InitializeNetFunction(void);
 void DeinitializeNetFunctions(void);
 
-#define ShowMessage(x) Info.Message(Info.ModuleNumber, FMSG_ALLINONE|FMSG_MB_OK, "", (const char * const *) x, 0,0)
+#define ShowMessage(x) Info.Message(Info.ModuleNumber, FMSG_ALLINONE|FMSG_MB_OK, _T(""), (const TCHAR * const *) x, 0,0)
 /* NO NEED THIS
 char* NextToken(char *szSource, char *szToken, int nBuff);
 */

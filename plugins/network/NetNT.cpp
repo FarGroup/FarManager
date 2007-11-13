@@ -4,26 +4,30 @@
 void NetBrowser::GetHideShareNT()
 {
 #ifdef NETWORK_LOGGING
-  LogData("Entering NetBrowser::GetHideShareNT()");
+  LogData(_T("Entering NetBrowser::GetHideShareNT()"));
 #endif
   if(UsedNetFunctions)
   {
 #ifdef NETWORK_LOGGING
-  LogData("UsedNetFunctions = TRUE");
+  LogData(_T("UsedNetFunctions = TRUE"));
 #endif
-    char lpwsNetPath[NM];
+    TCHAR lpwsNetPath[NM];
     PSHARE_INFO_1 BufPtr, p;
     NET_API_STATUS res;
     if(PCurResource == NULL) return;
 
     LPTSTR lpszServer = PCurResource->lpRemoteName;
-    char szResPath [NM];
+    TCHAR szResPath [NM];
     LPTSTR pszSystem;
     NETRESOURCE pri;
     NETRESOURCE nr [256];
     DWORD er=0,tr=0,resume=0,rrsiz;
 
-    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpszServer,-1,(LPWSTR)lpwsNetPath,NM);
+#ifndef UNICODE
+    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpszServer,-1,(LPWSTR)lpwsNetPath,ArraySize(lpwsNetPath));
+#else
+    lstrcpyn(lpwsNetPath,lpszServer,ArraySize(lpwsNetPath));
+#endif
     do
     {
       res = FNetShareEnum((LPWSTR)lpwsNetPath, 1, (LPBYTE *) &BufPtr, MAX_PREFERRED_LENGTH, &er, &tr, &resume);
@@ -37,11 +41,17 @@ void NetBrowser::GetHideShareNT()
           pri.dwType = RESOURCETYPE_DISK;
           pri.lpLocalName = NULL;
           lstrcpy(szResPath,lpszServer);
-          lstrcat(szResPath,"\\");
-          WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[lstrlen(szResPath)],NM,NULL,NULL);
-
-          if(szResPath[lstrlen(szResPath)-1] == '$' &&
-           lstrcmp(&szResPath[lstrlen(szResPath)-4],"IPC$"))
+          lstrcat(szResPath,_T("\\"));
+          {
+            size_t pos = lstrlen(szResPath);
+#ifndef UNICODE
+            WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[pos],(int)(ArraySize(szResPath)-pos),NULL,NULL);
+#else
+            lstrcpyn(&szResPath[pos], p->shi1_netname, (int)(ArraySize(szResPath)-pos));
+#endif
+          }
+          if(szResPath[lstrlen(szResPath)-1] == _T('$') &&
+           lstrcmp(&szResPath[lstrlen(szResPath)-4],_T("IPC$")))
           {
             pri.lpRemoteName = szResPath;
             pri.dwUsage = RESOURCEUSAGE_CONTAINER;
@@ -76,22 +86,22 @@ void NetBrowser::GetHideShareNT()
   }
 #ifdef NETWORK_LOGGING
   else
-    LogData("UsedNetFunctions = FALSE");
-  LogData("Leaving NetBrowser::GetHideShareNT()");
+    LogData(_T("UsedNetFunctions = FALSE"));
+  LogData(_T("Leaving NetBrowser::GetHideShareNT()"));
 #endif
 }
 
 void NetBrowser::GetHideShare95()
 {
 #ifdef NETWORK_LOGGING
-  LogData("GetHideShare95()\n");
+  LogData(_T("GetHideShare95()\n"));
 #endif
   if(UsedNetFunctions)
   {
     if(PCurResource == NULL) return;
 
     const int MAX_ENTRIES = 64;
-    char szResPath [NM];
+    TCHAR szResPath [NM];
     LPTSTR pszSystem;
     NETRESOURCE nr [256];
     USHORT nEntriesRead, nTotalEntries;
@@ -99,13 +109,13 @@ void NetBrowser::GetHideShare95()
     USHORT cbBuffer = MAX_ENTRIES * sizeof (share_info_1);
     share_info_1 *pBuf = (share_info_1 *) malloc (cbBuffer);
     NET_API_STATUS nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1,
-      (char *) pBuf, cbBuffer, &nEntriesRead, &nTotalEntries);
+      (TCHAR *) pBuf, cbBuffer, &nEntriesRead, &nTotalEntries);
 
     if (nStatus == ERROR_MORE_DATA && nEntriesRead < nTotalEntries)
     {
       cbBuffer = nTotalEntries * sizeof (share_info_1);
       pBuf = (share_info_1 *) realloc (pBuf, cbBuffer);
-      nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1, (char *) pBuf,
+      nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1, (TCHAR *) pBuf,
         cbBuffer, &nEntriesRead, &nTotalEntries);
     }
 
@@ -113,7 +123,7 @@ void NetBrowser::GetHideShare95()
     {
       free (pBuf);
 #ifdef NETWORK_LOGGING
-      fprintf (LogFile, "nStatus=%d\n", nStatus);
+      _ftprintf (LogFile, _T("nStatus=%d\n"), nStatus);
 #endif
       return;
     }
@@ -122,7 +132,7 @@ void NetBrowser::GetHideShare95()
     for(DWORD J=0; J < nEntriesRead ; J++)
     {
 #ifdef NETWORK_LOGGING
-      fprintf (LogFile, "shi1_netname %s\n", p->shi1_netname);
+      _ftprintf (LogFile, _T("shi1_netname %s\n"), p->shi1_netname);
 #endif
       NETRESOURCE pri;
       memset((void *)&pri,0,sizeof(pri));
@@ -130,11 +140,11 @@ void NetBrowser::GetHideShare95()
       pri.dwType = RESOURCETYPE_DISK;
       pri.lpLocalName = NULL;
       lstrcpy (szResPath, PCurResource->lpRemoteName);
-      lstrcat (szResPath, "\\");
+      lstrcat (szResPath, _T("\\"));
       lstrcat (szResPath, p->shi1_netname);
 
-      if(szResPath[lstrlen(szResPath)-1] == '$' &&
-        lstrcmp(&szResPath[lstrlen(szResPath)-4],"IPC$"))
+      if(szResPath[lstrlen(szResPath)-1] == _T('$') &&
+        lstrcmp(&szResPath[lstrlen(szResPath)-4],_T("IPC$")))
       {
         pri.lpRemoteName = szResPath;
         pri.dwUsage = RESOURCEUSAGE_CONTAINER;
@@ -166,6 +176,6 @@ void NetBrowser::GetHideShare95()
   }
 #ifdef NETWORK_LOGGING
   else
-    fprintf (LogFile, "Failed to load NET functions\n");
+    _ftprintf (LogFile, _T("Failed to load NET functions\n"));
 #endif
 }

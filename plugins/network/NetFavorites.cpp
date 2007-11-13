@@ -2,12 +2,12 @@
 #include "NetCommon.hpp"
 #include "NetReg.hpp"
 
-#define SZ_FAVORITES "Favorites"
-#define SZ_FAVORITES_SUBKEY SZ_FAVORITES"\\%s"
-#define SZ_USERNAME "UserName"
-#define SZ_USERPASS "Password"
+#define SZ_FAVORITES          _T("Favorites")
+#define SZ_FAVORITES_SUBKEY   SZ_FAVORITES _T("\\%s")
+#define SZ_USERNAME           _T("UserName")
+#define SZ_USERPASS           _T("Password")
 
-char* szFavProv = "Far Favorites Provider";
+TCHAR* szFavProv = _T("Far Favorites Provider");
 
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 {
@@ -22,10 +22,11 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
   }
   else if(!lstrcmp(pNR->lpProvider, szFavProv))
   {
-    char szKey[NM*2] = {0};
+    TCHAR szKey[NM*2];
+    szKey[0] = 0;
     if(pNR->lpRemoteName)
     {
-      char *p = strchr(pNR->lpRemoteName, '\\');
+      TCHAR *p = _tcschr(pNR->lpRemoteName, _T('\\'));
       if(p)
         p++;
       else
@@ -36,15 +37,18 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
     HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, szKey, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS);
     if(hKey)
     {
-      char szSubKey[NM] = {0};
-      for(DWORD dwIndex = 0; ERROR_SUCCESS == RegEnumKey(hKey, dwIndex, szSubKey,
-        sizeof(szSubKey)); dwIndex++)
+      TCHAR szSubKey[NM];
+      szSubKey[0] = 0;
+      for(DWORD dwIndex = 0;
+          ERROR_SUCCESS == RegEnumKey(hKey,dwIndex,szSubKey,ArraySize(szSubKey));
+          dwIndex++)
       {
         int bTmp; LONG cData = sizeof(bTmp);
         bTmp = 0;
-        char szSrc[NM] = {0};
+        TCHAR szSrc[NM];
+        szSrc[0] = 0;
 
-        if(ERROR_SUCCESS == RegQueryValue(hKey, szSubKey, (char*)&bTmp, &cData) && bTmp == (int)'1')
+        if(ERROR_SUCCESS == RegQueryValue(hKey, szSubKey, (TCHAR*)&bTmp, &cData) && bTmp == (int)_T('1'))
         {
           tmp.lpProvider = szFavProv;
           tmp.lpRemoteName = szSrc;
@@ -52,15 +56,15 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
           if(pNR->lpRemoteName)
             lstrcpy(szSrc, pNR->lpRemoteName);
           else
-            OemToChar(GetMsg(MFavorites), szSrc);
-          lstrcat(szSrc, "\\");
+            OEMToChar(GetMsg(MFavorites), szSrc);
+          lstrcat(szSrc, _T("\\"));
           lstrcat(szSrc, szSubKey);
           pList->Push(tmp);
         }
         else
         {
-          szSrc[0] = '\\';
-          szSrc[1] = '\\';
+          szSrc[0] = _T('\\');
+          szSrc[1] = _T('\\');
           szSrc[2] = 0;
           lstrcat(szSrc, szSubKey);
           if(Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES)
@@ -88,29 +92,28 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 
 BOOL CheckFavoriteItem(const LPNETRESOURCE pNR)
 {
-  if(pNR && !lstrcmp(pNR->lpProvider, szFavProv))
-    return TRUE;
-  return FALSE;
+  return pNR && !lstrcmp(pNR->lpProvider, szFavProv);
 }
 
-BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int *cSize)
+BOOL GetResourceKey(TCHAR* lpRemoteName, TCHAR* rootKey, TCHAR* lpResourceKey, size_t *cSize)
 {
   // We should be sure that "Favorites" is a folder
-  SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, NULL, "1");
+  SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, NULL, _T("1"));
   if(!lpResourceKey || !cSize || !*cSize)
     return FALSE;
 
-  char *p = NULL;
-  char szKey[NM];
+  TCHAR *p = NULL;
+  TCHAR szKey[NM];
   if(lpRemoteName)
   {
-    while (*lpRemoteName=='\\') lpRemoteName++;
-    if(0 != (p = strchr(lpRemoteName, '\\')))
+    while (*lpRemoteName==_T('\\')) lpRemoteName++;
+    if(0 != (p = _tcschr(lpRemoteName, _T('\\'))))
       *p = 0;
-    char szFavoritesName[NM]; OemToChar(GetMsg(MFavorites), szFavoritesName);
+    TCHAR szFavoritesName[NM];
+    OEMToChar(GetMsg(MFavorites), szFavoritesName);
     if(!lstrcmpi(lpRemoteName, szFavoritesName))
     {
-      if(p) *p = '\\', p++;
+      if(p) *p = _T('\\'), p++;
       if(p)
         FSF.sprintf(szKey, SZ_FAVORITES_SUBKEY, p);
       else
@@ -119,17 +122,16 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
       if(hKey)
       {
         RegCloseKey(hKey);
-        lstrcpyn(lpResourceKey, szKey, *cSize);
+        lstrcpyn(lpResourceKey, szKey, (int)*cSize);
         return TRUE;
       }
     }
     else
-      if(p) *p = '\\';
-
+      if(p) *p = _T('\\');
   }
   if(!lpRemoteName)
   {
-    if(*cSize < lstrlen(rootKey)+1)
+    if(*cSize < (size_t)(lstrlen(rootKey)+1))
     {
       *cSize = 0;
     }
@@ -141,22 +143,22 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
     return FALSE;
   }
   int buffLen = lstrlen(lpRemoteName) + lstrlen(SZ_FAVORITES) + NM;
-  char* buff = new(char[buffLen]);
+  TCHAR* buff = new TCHAR[buffLen];
 
-  p = strchr(lpRemoteName, '\\');
+  p = _tcschr(lpRemoteName, _T('\\'));
   if(p)
     *p = 0;
 
-  FSF.sprintf(buff, "%s\\%s", rootKey, lpRemoteName);
+  FSF.sprintf(buff, _T("%s\\%s"), rootKey, lpRemoteName);
 
   if(p)
-    *p = '\\';
+    *p = _T('\\');
   BOOL res = TRUE;
   HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, buff);
   if(hKey)
   {
     RegCloseKey(hKey);
-    FSF.sprintf(lpResourceKey, "%s\\%s", rootKey, lpRemoteName);
+    FSF.sprintf(lpResourceKey, _T("%s\\%s"), rootKey, lpRemoteName);
 
     *cSize = lstrlen(lpResourceKey);
   }
@@ -166,14 +168,15 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
     if(0 != (hKey = OpenRegKey(HKEY_CURRENT_USER, rootKey,
       KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS)))
     {
-      for(DWORD dwIndex = 0; ERROR_SUCCESS == RegEnumKey(hKey, dwIndex,
-        szKey, sizeof(szKey)); dwIndex++)
+      for(DWORD dwIndex = 0;
+          ERROR_SUCCESS == RegEnumKey(hKey, dwIndex, szKey, ArraySize(szKey));
+          dwIndex++)
       {
         int bTmp = 0;
         LONG cData = sizeof(bTmp);
-        if(ERROR_SUCCESS == RegQueryValue(hKey, szKey, (char *)&bTmp, &cData) && bTmp == (int)'1')
+        if(ERROR_SUCCESS == RegQueryValue(hKey, szKey, (TCHAR*)&bTmp, &cData) && bTmp == (int)_T('1'))
         {
-          FSF.sprintf(buff, "%s\\%s", rootKey, szKey);
+          FSF.sprintf(buff, _T("%s\\%s"), rootKey, szKey);
           if(GetResourceKey(lpRemoteName, buff, lpResourceKey, cSize))
           {
             res = TRUE;
@@ -188,17 +191,17 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
 
   if(!res)
   {
-    FSF.sprintf(lpResourceKey, "%s\\%s", rootKey, lpRemoteName);
+    FSF.sprintf(lpResourceKey, _T("%s\\%s"), rootKey, lpRemoteName);
   }
 
-  delete(buff), buff = NULL;
+  delete(buff);
   return res;
 }
 
-void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, char* /*szFolder*/)
+void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, TCHAR* /*szFolder*/)
 {
-  char szResourceKey[NM];
-  int cSize = sizeof(szResourceKey);
+  TCHAR szResourceKey[NM];
+  size_t cSize = ArraySize(szResourceKey);
   GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERNAME, lpFavItem->lpUserName);
   SetRegKey(HKEY_CURRENT_USER, szResourceKey, SZ_USERPASS, lpFavItem->lpPassword);
@@ -206,14 +209,14 @@ void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, char* /*szFolder*/)
 
 BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
 {
-  char resKey[MAX_PATH];
-  int cData = sizeof(resKey);
+  TCHAR resKey[MAX_PATH];
+  size_t cData = ArraySize(resKey);
   if(lpFavItem && GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, resKey, &cData))
   {
     GetRegKey(HKEY_CURRENT_USER, resKey, SZ_USERNAME, lpFavItem->lpUserName,
-      "", lpFavItem->ccUserName);
+      _T(""), lpFavItem->ccUserName);
     GetRegKey(HKEY_CURRENT_USER, resKey, SZ_USERPASS, lpFavItem->lpPassword,
-      "", lpFavItem->ccPassword);
+      _T(""), lpFavItem->ccPassword);
     return TRUE;
   }
   return FALSE;
@@ -221,13 +224,13 @@ BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
 
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 {
-  char* p;
+  TCHAR* p;
   NETRESOURCE nr = {0};
   nr.lpProvider = szFavProv;
   nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
   if(!lstrcmp(SrcRes.lpProvider, szFavProv))
   {
-    p = PointToName(SrcRes.lpRemoteName);
+    p = (TCHAR*)PointToName(SrcRes.lpRemoteName);
     if(p && p != SrcRes.lpRemoteName)
     {
       p--;
@@ -237,24 +240,24 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
       return FALSE;
     if(lpParent)
     {
-      if(strchr(SrcRes.lpRemoteName, '\\'))
+      if(_tcschr(SrcRes.lpRemoteName, _T('\\')))
         nr.lpRemoteName = SrcRes.lpRemoteName;
       NetResourceList::CopyNetResource(*lpParent, nr);
     }
 
     if(p)
-      *p = '\\';
+      *p = _T('\\');
     return TRUE;
   }
   if(SrcRes.dwDisplayType == RESOURCEDISPLAYTYPE_SHARE)
     return FALSE;
 
 
-  char szResourceKey[NM];
-  int cSize = sizeof(szResourceKey);
+  TCHAR szResourceKey[NM];
+  size_t cSize = ArraySize(szResourceKey);
   if(GetResourceKey(SrcRes.lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize))
   {
-    p = PointToName(szResourceKey);
+    p = (TCHAR*)PointToName(szResourceKey);
     if(!p || !*p)
     {
       return FALSE;
@@ -262,11 +265,12 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
     if(lpParent)
     {
       *--p = 0;
-      char res[NM] = {0};
-      p = strchr(szResourceKey, '\\');
+      TCHAR res[NM];
+      res[0] = 0;
+      p = _tcschr(szResourceKey, _T('\\'));
       if(p)
       {
-        OemToChar(GetMsg(MFavorites), res);
+        OEMToChar(GetMsg(MFavorites), res);
         lstrcat(res, p);
         p = res;
       }
@@ -282,14 +286,15 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 STDAPI
 EliminateSubKey( HKEY hkey, LPTSTR strSubKey );
 
-BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
+BOOL GetFavoriteResource(TCHAR *SrcName, LPNETRESOURCE DstNetResource)
 {
   NETRESOURCE nr = {0};
-  char *p1, *p = SrcName;
-  while(*p == '\\' || *p == '\\') p++;
-  char szKey[NM] = {0};
-  int cSize = sizeof(szKey);
+  TCHAR *p1, *p = SrcName;
+  while(*p == _T('\\')) ++p;
+  TCHAR szKey[NM];
+  size_t cSize = ArraySize(szKey);
   int dwKey = 0;
+  szKey[0] = 0;
   if(GetResourceKey(p, SZ_FAVORITES, szKey, &cSize))
   {
     if(!lstrcmpi(szKey, SZ_FAVORITES))
@@ -302,17 +307,18 @@ BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
       }
       return TRUE;
     }
-    if(GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (char*)&dwKey, "0", sizeof(dwKey))
-      && dwKey == '1')
+    if(GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (TCHAR*)&dwKey, _T("0"), sizeof(dwKey))
+      && dwKey == _T('1'))
     {
-      p = strchr(szKey, '\\');
+      p = _tcschr(szKey, _T('\\'));
       if(p)
       {
         if(DstNetResource)
         {
           nr.lpProvider = szFavProv;
           nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-          char szOutName[NM]; OemToChar(GetMsg(MFavorites), szOutName);
+          TCHAR szOutName[NM];
+          OEMToChar(GetMsg(MFavorites), szOutName);
           lstrcat(szOutName, p);
           nr.lpRemoteName = szOutName;
           NetResourceList::CopyNetResource(*DstNetResource, nr);
@@ -323,30 +329,30 @@ BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
     }
     else
     {
-      p1 = PointToName(szKey);
+      p1 = (TCHAR*)PointToName(szKey);
       if(szKey != p1)
       {
         *(p1-1) = 0;
-        if(GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (char*)&dwKey, "0", sizeof(dwKey))
-          && dwKey == '1')
+        if(GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (TCHAR*)&dwKey, _T("0"), sizeof(dwKey))
+          && dwKey == _T('1'))
         {
           p = p1;
         }
         else
         {
-          p = PointToName(szKey);
-          *(p1-1) = '\\';
+          p = (TCHAR*)PointToName(szKey);
+          *(p1-1) = _T('\\');
           if(p != szKey)
           {
             *(p - 1) = 0;
-            if(!GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (char*)&dwKey, "0", sizeof(dwKey))
-              || dwKey != '1')
+            if(!GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (TCHAR*)&dwKey, _T("0"), sizeof(dwKey))
+              || dwKey != _T('1'))
               return FALSE;
           }
         }
         if(DstNetResource)
         {
-          *(int*)&szKey[0] = 0x00005C5C; // "\\\\\x0\x0"
+          lstrcpy(szKey, _T("\\\\"));
           lstrcat(szKey, p);
           nr.lpRemoteName = szKey;
           nr.dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
@@ -359,20 +365,20 @@ BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
   return FALSE;
 }
 
-BOOL RemoveFromFavorites(char *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, LPVOID /*pUserData*/)
+BOOL RemoveFromFavorites(TCHAR *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, LPVOID /*pUserData*/)
 {
-  char *p = strchr(SrcName, '\\');
+  TCHAR *p = _tcschr(SrcName, _T('\\'));
   if(p)
-    while(*++p == '\\');
+    while(*++p == _T('\\'));
     else
       p = SrcName;
 
 
-    char szKey[MAX_PATH];
+    TCHAR szKey[MAX_PATH];
 
     FSF.sprintf(szKey, SZ_FAVORITES_SUBKEY, p);
 
-    HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, "", MAXIMUM_ALLOWED);
+    HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, _T(""), MAXIMUM_ALLOWED);
     if(!hKey)
       return FALSE;
 
@@ -414,8 +420,8 @@ EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
 
     for( ; ; )
     {
-      CHAR Buffer[MAX_PATH];
-      DWORD dw = MAX_PATH;
+      TCHAR Buffer[MAX_PATH];
+      DWORD dw = ArraySize(Buffer);
       FILETIME ft;
 
       lreturn = RegEnumKeyEx( hk
@@ -444,15 +450,15 @@ EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
   return NOERROR;
 }
 
-BOOL RecursiveSetValue (HKEY hKey, char* lpSubKey)
+BOOL RecursiveSetValue (HKEY hKey, TCHAR* lpSubKey)
 {
   if(!lpSubKey || !*lpSubKey)
     return FALSE;
-  char *p = strchr(lpSubKey, '\\');
+  TCHAR *p = _tcschr(lpSubKey, _T('\\'));
   if(p)
   {
     *p = 0;
-    while(*++p == '\\');
+    while(*++p == _T('\\'));
     if(*p)
     {
       HKEY hSubKey;
@@ -465,17 +471,17 @@ BOOL RecursiveSetValue (HKEY hKey, char* lpSubKey)
         return FALSE;
     }
   }
-  return ERROR_SUCCESS == RegSetValue(hKey, lpSubKey, REG_SZ, "1", 2);
+  return ERROR_SUCCESS == RegSetValue(hKey, lpSubKey, REG_SZ, _T("1"), 2);
 }
 
-char *g_szInvalidChars="\\/";
+TCHAR *g_szInvalidChars=_T("\\/");
 
-BOOL ValidatePath(const char *szPath)
+BOOL ValidatePath(const TCHAR *szPath)
 {
   if(!szPath||!*szPath)
     return FALSE;
-  for(const char *p=szPath;*p;p++)
-    for(char *p1=g_szInvalidChars;*p1;p1++)
+  for(const TCHAR *p=szPath;*p;p++)
+    for(TCHAR *p1=g_szInvalidChars;*p1;p1++)
       if(*p1==*p)
         return FALSE;
   return TRUE;
@@ -522,7 +528,7 @@ public:
    *
    * It sets up the parser's internal m_hKey allowing to perform operations on it.
    */
-  bool init(RegParser* parentItem, const char* subKey, bool createSubKey=false)
+  bool init(RegParser* parentItem, const TCHAR* subKey, bool createSubKey=false)
   {
     if (m_parent)
     {
@@ -543,7 +549,7 @@ public:
         {
           if (dwDispositon == REG_CREATED_NEW_KEY)
           {
-            RegSetValue(m_hKey, NULL, REG_SZ, "1", 2);
+            RegSetValue(m_hKey, NULL, REG_SZ, _T("1"), 2);
           }
         }
       }
@@ -568,10 +574,10 @@ public:
   }
 
 
-  bool parsePath(char* path, bool createFolders, RegParser** ppResult)
+  bool parsePath(TCHAR* path, bool createFolders, RegParser** ppResult)
   {
     RegParser* childItem;
-    char* pRestOfPath;
+    TCHAR* pRestOfPath;
 
     if (!path)
     {
@@ -583,12 +589,12 @@ public:
       return true;
     }
 
-    pRestOfPath = strchr(path, '\\');
+    pRestOfPath = _tcschr(path, _T('\\'));
     if (pRestOfPath)
-      *pRestOfPath++ = '\0';
+      *pRestOfPath++ = _T('\0');
 
     bool res = true;
-    if (!lstrcmp(path, ".."))
+    if (!lstrcmp(path, _T("..")))
     {
       childItem = m_parent;
       if (childItem)
@@ -596,7 +602,7 @@ public:
       else
         res = false;
     }
-    else if (!lstrcmp(path, "."))
+    else if (!lstrcmp(path, _T(".")))
     {
       childItem = this;
       childItem->AddRef();
@@ -608,7 +614,7 @@ public:
     }
 
     if (pRestOfPath)
-      pRestOfPath[-1] = '\\';
+      pRestOfPath[-1] = _T('\\');
     if (!childItem)
       return false;
 
@@ -651,13 +657,13 @@ bool GetFavoriteRoot(RegParser** favoritesRoot)
   return true;
 }
 
-BOOL CreateSubFolder(char *szRoot, char *szSubFolder)
+BOOL CreateSubFolder(TCHAR *szRoot, TCHAR *szSubFolder)
 {
-  char szFavorites[] = SZ_FAVORITES;
+  TCHAR szFavorites[] = SZ_FAVORITES;
 
   if (szRoot && !FSF.LStrnicmp(szRoot, szFavorites, lstrlen(szFavorites)))
   {
-    szRoot = strchr(szRoot, '\\');
+    szRoot = _tcschr(szRoot, _T('\\'));
     if (szRoot)
       szRoot++;
   }

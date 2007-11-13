@@ -15,11 +15,11 @@
 #include "NetClass.hpp"
 
 typedef struct _FAVORITEITEM {
-  char *lpRemoteName;
+  TCHAR *lpRemoteName;
   int ccRemoteName;
-  char *lpUserName;
+  TCHAR *lpUserName;
   int ccUserName;
-  char *lpPassword;
+  TCHAR *lpPassword;
   int ccPassword;
 } FAVORITEITEM, *LPFAVORITEITEM;
 
@@ -30,16 +30,16 @@ typedef struct _FAVORITEITEM {
 
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList);
 BOOL CheckFavoriteItem(const LPNETRESOURCE pNR);
-void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, char* szFolderName=NULL);
+void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, TCHAR* szFolderName=NULL);
 BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem);
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
-BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource);
+BOOL GetFavoriteResource(TCHAR *SrcName, LPNETRESOURCE DstNetResource);
 
-typedef DWORD (WINAPI * LPREMOVEFROMFAVCB)(char *SrcName, LPVOID pUserData);
+typedef DWORD (WINAPI * LPREMOVEFROMFAVCB)(TCHAR *SrcName, LPVOID pUserData);
 
-BOOL RemoveFromFavorites(char *SrcName, LPREMOVEFROMFAVCB pUserCallBack, LPVOID pUserData);
-BOOL ValidatePath(const char *szPath);
-BOOL CreateSubFolder(char *szRoot, char *szSubFolder);
+BOOL RemoveFromFavorites(TCHAR *SrcName, LPREMOVEFROMFAVCB pUserCallBack, LPVOID pUserData);
+BOOL ValidatePath(const TCHAR *szPath);
+BOOL CreateSubFolder(TCHAR *szRoot, TCHAR *szSubFolder);
 
 
 #endif //__NETFAVORITES_HPP__

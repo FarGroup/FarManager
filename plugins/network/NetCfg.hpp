@@ -1,20 +1,21 @@
 #ifndef __NETCFG_HPP__
 #define __NETCFG_HPP__
+#include <CRT/crt.hpp>
 
-extern const char *StrAddToDisksMenu;
-extern const char *StrAddToPluginsMenu;
-extern const char *StrDisksMenuDigit;
-extern const char *StrHelpNetBrowse;
-extern const char *StrNTHiddenShare;
-extern const char *StrLocalNetwork;
-extern const char *StrDisconnectMode;
-extern const char *StrRemoveConnection;
-extern const char *StrHiddenSharesAsHidden;
-extern const char *StrFullPathShares;
-extern const char *StrFavoritesFlags;
-extern const char *StrNoRootDoublePoint;
-extern const char *StrNavigateToDomains;
-extern const char *StrPanelMode;
+extern const TCHAR *StrAddToDisksMenu;
+extern const TCHAR *StrAddToPluginsMenu;
+extern const TCHAR *StrDisksMenuDigit;
+extern const TCHAR *StrHelpNetBrowse;
+extern const TCHAR *StrNTHiddenShare;
+extern const TCHAR *StrLocalNetwork;
+extern const TCHAR *StrDisconnectMode;
+extern const TCHAR *StrRemoveConnection;
+extern const TCHAR *StrHiddenSharesAsHidden;
+extern const TCHAR *StrFullPathShares;
+extern const TCHAR *StrFavoritesFlags;
+extern const TCHAR *StrNoRootDoublePoint;
+extern const TCHAR *StrNavigateToDomains;
+extern const TCHAR *StrPanelMode;
 
 int Config(void);
 
