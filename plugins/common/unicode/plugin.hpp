@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 334
+  Plugin API for FAR Manager 1.80 build 340
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,334)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,340)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -1452,7 +1452,8 @@ enum XLATMODE{
 typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
 
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);
-typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
+
+typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 
 typedef int (WINAPI *FRSUSERFUNC)(
   const struct FAR_FIND_DATA *FData,
