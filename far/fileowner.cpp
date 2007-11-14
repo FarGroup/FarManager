@@ -106,14 +106,24 @@ static const char *add_sid_cache(const char *computer,PSID sid)
           new_rec->username[Len]='\\';
           strcat(new_rec->username,AccountName);
           FAR_CharToOem(new_rec->username,new_rec->username);
-          res=new_rec->username+Len+1;
+          res=new_rec->username;
+          new_rec->next=sid_cache;
+          sid_cache=new_rec;
         }
         else
+        {
+          free(new_rec->sid);
           free(new_rec);
+        }
       }
       else
+      {
+        free(new_rec->sid);
         free(new_rec);
+      }
     }
+    else
+      free(new_rec);
   }
   return res;
 }

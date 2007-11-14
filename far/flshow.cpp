@@ -1055,10 +1055,17 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case OWNER_COLUMN:
               {
+                const char* Owner=CurPtr->Owner;
+                if (Owner && !(ColumnTypes[K]&COLUMN_FULLOWNER))
+                {
+                  Owner=strchr(Owner,'\\');
+                  if(Owner) Owner++;
+                  else Owner="";
+                }
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=(int)strlen(CurPtr->Owner);
+                  int Length=(int)strlen(Owner);
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1068,7 +1075,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       MaxLeftPos=CurLeftPos;
                   }
                 }
-                mprintf("%-*.*s",ColumnWidth,ColumnWidth,CurPtr->Owner+CurLeftPos);
+                mprintf("%-*.*s",ColumnWidth,ColumnWidth,Owner+CurLeftPos);
               }
               break;
             case NUMLINK_COLUMN:

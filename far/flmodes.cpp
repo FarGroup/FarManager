@@ -308,12 +308,20 @@ void FileList::TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
             }
         }
         else
-          for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
-            if (strcmp(ArgName,ColumnSymbol[I])==0)
-            {
-              ViewColumnTypes[ColumnCount]=I;
-              break;
-            }
+          if(*ArgName=='O')
+          {
+            unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
+            ColumnType=OWNER_COLUMN;
+            if(ArgName[1]=='L')
+              ColumnType|=COLUMN_FULLOWNER;
+          }
+          else
+            for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
+              if (strcmp(ArgName,ColumnSymbol[I])==0)
+              {
+                ViewColumnTypes[ColumnCount]=I;
+                break;
+              }
     }
 
   TextPtr=ColumnWidths;
@@ -367,6 +375,12 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
       if (ViewColumnTypes[I] & COLUMN_MONTH)
         strncat(Type,"M",sizeof(Type)-1);
     }
+    if (ColumnType==OWNER_COLUMN)
+    {
+      if (ViewColumnTypes[I] & COLUMN_FULLOWNER)
+        strncat(Type,"L",sizeof(Type)-1);
+    }
+
     strncat(ColumnTitles,Type,NM-1);
     if(ColumnWidths)
     {
