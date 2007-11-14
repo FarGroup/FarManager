@@ -1078,14 +1078,22 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   if(!(Prefix && *Prefix))
     Prefix=L"FTMP";
 
-  string strPath = Opt.strTempPath;
+  string strPath = L".";
+  if(WithPath)
+      strPath = Opt.strTempPath;
 
   wchar_t *lpwszDest = strDest.GetBuffer ((int)(StrLength(Prefix)+strPath.GetLength()+13));
 
-  UINT uniq = GetCurrentProcessId();
-  do {
-    GetTempFileNameW (strPath, Prefix, uniq++, lpwszDest);
-  } while ( GetFileAttributesW (lpwszDest) != -1 );
+  UINT uniq = GetCurrentProcessId(), savePid = uniq;
+  for(;;) {
+    if(!uniq) ++uniq;
+    if(   GetTempFileNameW (strPath, Prefix, uniq, lpwszDest)
+       && GetFileAttributesW (lpwszDest) == -1) break;
+    if(++uniq == savePid) {
+      *lpwszDest = 0;
+      break;
+    }
+  }
 
   strDest.ReleaseBuffer ();
 

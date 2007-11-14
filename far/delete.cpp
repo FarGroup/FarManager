@@ -856,12 +856,18 @@ int WipeFile(const wchar_t *Name)
 
 int WipeDirectory(const wchar_t *Name)
 {
-  string strTempName;
+  string strTempName, strSavePath(Opt.strTempPath);
 
-  FarMkTempEx(strTempName,NULL,FALSE);
+  BOOL usePath = FALSE;
+  if(wcschr(Name, L'\\')) {
+    Opt.strTempPath = Name;
+    CutToSlash(Opt.strTempPath);
+    usePath = TRUE;
+  }
+  FarMkTempEx(strTempName,NULL,usePath);
+  Opt.strTempPath = strSavePath;
 
-  BOOL Ret=MoveFileW(Name, strTempName);
-  if(!Ret)
+  if(!MoveFileW(Name, strTempName))
   {
     SetLastError((_localLastError = GetLastError()));
     return FALSE;
