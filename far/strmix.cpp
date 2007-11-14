@@ -1428,7 +1428,8 @@ int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength)
 {
-  int nLength = (int)wcslen (lpwszUnicodeString)+1;
+ if(!lpwszUnicodeString)lpwszUnicodeString=L"";
+ int nLength = (int)wcslen (lpwszUnicodeString)+1;
 
   if ( (nMaxLength > 0) && (nMaxLength < nLength) )
     nLength = nMaxLength;
@@ -1457,6 +1458,7 @@ void UnicodeToAnsi (
         int nMaxLength
         ) //BUGBUG
 {
+  if(!lpwszUnicodeString)lpwszUnicodeString=L"";
   int nLength = (int)wcslen (lpwszUnicodeString)+1;
 
   if ( (nMaxLength > 0) && (nMaxLength < nLength) )

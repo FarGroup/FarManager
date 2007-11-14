@@ -1202,18 +1202,19 @@ string &Add_PATHEXT(string &strDest)
   {
     /* $ 13.10.2002 IS проверка на '|' (маски исключени€) */
     if( !strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
-      strDest += L',';
+      strDest += L",";
     const wchar_t *Ptr;
     MaskList.Reset();
     while(NULL!=(Ptr=MaskList.GetNext()))
     {
-      strDest += L'*';
+      strDest += L"*";
       strDest += Ptr;
-      strDest += L',';
+      strDest += L",";
     }
   }
   // лишн€€ зап€та€ - в морг!
   /* $ 13.10.2002 IS ќптимизаци€ по скорости */
+  curpos=strDest.GetLength()-1;
   if(strDest.At(curpos) == L',')
     strDest.SetLength(curpos);
   return strDest;

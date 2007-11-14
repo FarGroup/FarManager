@@ -66,31 +66,52 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
   SIDCacheRecord *new_rec=(SIDCacheRecord *)malloc(sizeof(SIDCacheRecord));
   if(new_rec)
   {
-    memset(new_rec,0,sizeof(sizeof(SIDCacheRecord)));
+    memset(new_rec,0,sizeof(SIDCacheRecord));
     new_rec->sid=(PSID)malloc(GetLengthSid(sid));
     if(new_rec->sid)
     {
       CopySid(GetLengthSid(sid),new_rec->sid,sid);
-
-      wchar_t AccountName[200],DomainName[200]; //BUGBUG
-      DWORD AccountLength=sizeof(AccountName)/sizeof (wchar_t),DomainLength=sizeof(DomainName)/sizeof (wchar_t);
+      DWORD AccountLength=0,DomainLength=0;
       SID_NAME_USE snu;
-      if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
+      LookupAccountSidW(computer,new_rec->sid,NULL,&AccountLength,NULL,&DomainLength,&snu);
+      if(AccountLength && DomainLength)
       {
-        if((new_rec->username=(wchar_t *)malloc(AccountLength+DomainLength+16)) != NULL)
+        wchar_t* AccountName=(wchar_t*)malloc(AccountLength*sizeof(wchar_t));
+        wchar_t* DomainName=(wchar_t*)malloc(DomainLength*sizeof(wchar_t));
+        if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
         {
-          size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
-          new_rec->username[Len+1]=0;
-          new_rec->username[Len]=L'\\';
-          wcscat(new_rec->username,AccountName);
-          res=new_rec->username+Len+1;
+          if((new_rec->username=(wchar_t*)malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
+          {
+            size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
+            new_rec->username[Len+1]=0;
+            new_rec->username[Len]=L'\\';
+            wcscat(new_rec->username,AccountName);
+            res=new_rec->username;
+            new_rec->next=sid_cache;
+            sid_cache=new_rec;
+            free(AccountName);
+            free(DomainName);
+          }
+          else
+          {
+            free(new_rec->sid);
+            free(new_rec);
+          }
         }
         else
+        {
+          free(new_rec->sid);
           free(new_rec);
+        }
       }
       else
+      {
+        free(new_rec->sid);
         free(new_rec);
+      }
     }
+    else
+     free(new_rec);
   }
   return res;
 }

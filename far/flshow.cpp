@@ -1082,10 +1082,18 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case OWNER_COLUMN:
               {
+                const wchar_t* Owner=(const wchar_t*)CurPtr->strOwner;
+                if (Owner && !(ColumnTypes[K]&COLUMN_FULLOWNER))
+                {
+                  Owner=wcschr(Owner,L'\\');
+                  if(Owner)Owner++;
+                  else Owner=L"";
+                }
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=(int)CurPtr->strOwner.GetLength();
+                  int Length=StrLength(Owner);
+                  
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1095,7 +1103,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       MaxLeftPos=CurLeftPos;
                   }
                 }
-                mprintf(L"%-*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)CurPtr->strOwner+CurLeftPos);
+                mprintf(L"%-*.*s",ColumnWidth,ColumnWidth,Owner+CurLeftPos);
               }
               break;
             case NUMLINK_COLUMN:

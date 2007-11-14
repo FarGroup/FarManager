@@ -3103,7 +3103,10 @@ characters, delimited with commas. Allowed column types are:
 
     A          - file attributes
     Z          - file descriptions
-    O          - file owner
+    
+    O[L]       - file owner
+                 where: L - show domain name;
+    
     LN         - hard links number
 
     If the column types description contains more than one file name column,

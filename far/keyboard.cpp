@@ -1874,13 +1874,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
       ReturnAltValue=TRUE;
       //_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
-//#if defined(USE_WFUNC_IN)
-//      AltValue&=0xFFFF;
-//      rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
-//#else
-      AltValue&=0x00FF; // UNICODE???
+      AltValue&=0xFFFF;
       rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
-//#endif
       //// // _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }

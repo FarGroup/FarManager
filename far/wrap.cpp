@@ -1377,12 +1377,12 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	for (int i=0; i<ItemsNumber; i++)
 	{
 		Item[i].Param.Selected = di[i].Param.Selected;
-    wchar_t *res = di[i].DataOut;
-    if (!res) res = IsEdit(di[i].Type) ? L"" : di[i].DataIn;
+		const wchar_t *res = di[i].DataOut;
+		if (!res) res = IsEdit(di[i].Type) ? L"" : di[i].DataIn;
 		if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-      UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength);
+			UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength);
 		else
-      UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data)-1);
+			UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data)-1);
 
 		FreeUnicodeDialog(&di[i],&l[i]);
 	}

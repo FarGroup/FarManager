@@ -90,7 +90,7 @@ void FileFilterParams::SetMask(DWORD Used, const wchar_t *Mask)
   // проверим
   if((Ptr=wcschr(Ptr, L'%')) != NULL && !StrCmpNI(Ptr,L"%PATHEXT%",9))
   {
-    int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(int)((Ptr-Mask)/sizeof(wchar_t));
+    int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(int)((Ptr-strMask.GetBuffer()));
     // ≈сли встречаетс€ %pathext%, то допишем в конец...
     memmove(Ptr,Ptr+IQ1,(StrLength(Ptr+IQ1)+1)*sizeof(wchar_t));
 

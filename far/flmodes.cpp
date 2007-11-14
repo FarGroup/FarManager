@@ -352,12 +352,20 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
           }
         }
         else
-          for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
-            if (StrCmp(strArgName,ColumnSymbol[I])==0)
-            {
-              ViewColumnTypes[ColumnCount]=I;
-              break;
-            }
+          if(strArgName.At(0)==L'O')
+          {
+            unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
+            ColumnType=OWNER_COLUMN;
+            if(strArgName.At(1)==L'L')
+              ColumnType|=COLUMN_FULLOWNER;
+          }
+          else
+            for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
+              if (StrCmp(strArgName,ColumnSymbol[I])==0)
+              {
+                ViewColumnTypes[ColumnCount]=I;
+                break;
+              }
     }
 
   TextPtr=ColumnWidths;
@@ -410,7 +418,13 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
       if (ViewColumnTypes[I] & COLUMN_MONTH)
           strType += L"M";
     }
-    strColumnTitles += strType;
+    if (ColumnType==OWNER_COLUMN)
+    {
+      if (ViewColumnTypes[I] & COLUMN_FULLOWNER)
+        strType += L"L";
+    }
+
+		strColumnTitles += strType;
 
     wchar_t *lpwszWidth = strType.GetBuffer(20);
 
