@@ -875,11 +875,25 @@ int WipeFile(const char *Name)
 
 int WipeDirectory(const char *Name)
 {
-  char TempName[NM];
-  BOOL Ret=MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
-  if(!Ret)
+  char TempName[NM], saveTempPath[NM], *ptmp;
+  // переименовывам в том же каталоге - так быстрее, убирает ошибку
+  // "восстановления имени" при невозможности удаления (захвачено кем-то ещё) и
+  // ответе Skip, ну и в досе работает :)
+  strcpy(saveTempPath, Opt.TempPath);
+  strcpy(Opt.TempPath, Name);
+  ptmp = strrchr(Opt.TempPath, '\\');
+  if(ptmp) ptmp[1] = 0;
+  ptmp = FarMkTempEx(TempName, NULL, ptmp != NULL);
+  strcpy(Opt.TempPath, saveTempPath);
+  if(!ptmp) { // при невозможности сгенерировать временное имя получали INVALID_ARGUMENT
+    _localLastError = ERROR_ACCESS_DENIED;
+    goto ret_error;
+  }
+  if(!MoveFile(Name, ptmp))
   {
-    SetLastError((_localLastError = GetLastError()));
+    _localLastError = GetLastError();
+ret_error:
+    SetLastError(_localLastError);
     return FALSE;
   }
   return(FAR_RemoveDirectory(TempName));

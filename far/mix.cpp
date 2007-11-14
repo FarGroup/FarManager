@@ -912,18 +912,22 @@ char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
     if(!(Prefix && *Prefix))
       Prefix="FTMP";
 
+    size_t pathlen = 0;
     char TempName[NM];
     TempName[0]=0;
     if(WithPath)
-      strcpy(TempName,Opt.TempPath);
-    strcat(TempName,"0000XXXXXXXX");
-    memcpy(TempName+strlen(TempName)-12,Prefix,Min((int)strlen(Prefix),4));
-    if (farmktemp(TempName)!=NULL)
-    {
-      strcpy(Dest,strupr(TempName));
-      return Dest;
+      pathlen = strlen(strcpy(TempName,Opt.TempPath));
+    if(pathlen < sizeof(TempName)-12) { // else - invalid name!
+      strcpy(&TempName[pathlen], "0000XXXXXXXX");
+      memcpy(&TempName[pathlen], Prefix, Min((int)strlen(Prefix),4));
+      if (farmktemp(TempName)!=NULL)
+      {
+        strcpy(Dest,strupr(TempName));
+        return Dest;
+      }
     }
   }
+  *Dest = 0;  // PARANOYA
   return NULL;
 }
 /* IS $ */
