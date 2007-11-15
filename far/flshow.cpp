@@ -1083,11 +1083,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case OWNER_COLUMN:
               {
                 const wchar_t* Owner=(const wchar_t*)CurPtr->strOwner;
-                if (Owner && !(ColumnTypes[K]&COLUMN_FULLOWNER))
+                if (Owner && !(ColumnTypes[K]&COLUMN_FULLOWNER) && PanelMode!=PLUGIN_PANEL)
                 {
-                  Owner=wcschr(Owner,L'\\');
-                  if(Owner)Owner++;
-                  else Owner=L"";
+                  const wchar_t* SlashPos=wcschr(Owner,L'\\');
+                  if(SlashPos)Owner=SlashPos+1;
                 }
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
