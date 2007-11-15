@@ -576,12 +576,12 @@ bool FileFilter::FileInFilter(FileListItem *fli)
   return FileInFilter(&fd);
 }
 
-bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
+bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
 {
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  if ((fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+  if ((fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && !IsExcludeDir)
   {
     if (FolderFlags.Check(Inc))
       return true;
@@ -624,6 +624,8 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
         CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
+
+  if(IsExcludeDir) return bExc;
 
   if (bExc) return false;
   if (bInc) return true;

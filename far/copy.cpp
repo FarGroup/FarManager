@@ -524,6 +524,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // Для фильтра
   WIN32_FIND_DATA fd;
 
+  //TODO: проверка здесь достаточно бессмысленна - флаг может поменяться в диалоге
   SrcPanel->GetSelName(NULL,CDP.FileAttr);
   while(SrcPanel->GetSelName(SelName,CDP.FileAttr,NULL,&fd))
   {
@@ -1705,7 +1706,15 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
            вырезанием пути из имени попавшего в фильтр файла.
         */
         if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        {
+          // Просто пропустить каталог недостаточно - если каталог помечен в
+          // фильтре как некопируемый, то следует пропускать и его и всё его
+          // содержимое. Но проверять надо ТОЛЬКО по маске (не по атрибутам)
+          // и при этом только на фильтры "с запретом"
+          if (Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData, true))
+            ScTree.SkipDir();
           continue;
+        }
         /* KM $ */
 
         int AttemptToMove=FALSE;
@@ -1893,9 +1902,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
      Отфильтруем файлы не попадающие в действующий фильтр,
      каталоги же пропускаем всегда
   */
-  if ((UseFilter) && ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0))
+  if (UseFilter)
   {
-    if (!Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData))
+    // Просто не смотреть соотвествие каталога фильтрам недостаточно - если это
+    // делать, то копируются каталоги помеченные в фильтре как некопируемые.
+    // Поэтому проверяем на соотвествие фильтру БЕЗ учёта признака каталога
+    // и при этом только на фильтры "с запретом"
+    bool isDir = (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
+    if(Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData, isDir) == isDir)
       return COPY_NEXT;
   }
   /* KM $ */

@@ -39,7 +39,7 @@ class FileFilter
 
     bool FilterEdit();
     bool FileInFilter(FileListItem *fli);
-    bool FileInFilter(WIN32_FIND_DATA *fd);
+    bool FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir = false);
     bool IsEnabledOnPanel();
 
     static void InitFilter();
