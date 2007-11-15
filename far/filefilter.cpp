@@ -581,10 +581,10 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  if ((fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && !IsExcludeDir)
+  if (fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
   {
     if (FolderFlags.Check(Inc))
-      return true;
+      return !IsExcludeDir;
     if (FolderFlags.Check(Exc))
       return false;
   }
