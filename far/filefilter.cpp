@@ -600,7 +600,7 @@ bool FileFilter::FileInFilter(FileListItem *fli)
   return FileInFilter(&fd);
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde)
+bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde, bool IsExcludeDir)
 {
   FAR_FIND_DATA fd;
 
@@ -613,15 +613,15 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde)
   fd.lpwszFileName=(wchar_t *)(const wchar_t *)fde->strFileName;
   fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fde->strAlternateFileName;
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd, IsExcludeDir);
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
+bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd, bool IsExcludeDir)
 {
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  if ((fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+  if ((fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && !IsExcludeDir)
   {
     if (FolderFlags.Check(Inc))
       return true;
@@ -664,6 +664,8 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
         CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
+
+  if(IsExcludeDir) return bExc;
 
   if (bExc) return false;
   if (bInc) return true;

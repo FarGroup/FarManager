@@ -67,8 +67,8 @@ class FileFilter
   public:
     bool FilterEdit();
     bool FileInFilter(FileListItem *fli);
-    bool FileInFilter(const FAR_FIND_DATA *fd);
-    bool FileInFilter(const FAR_FIND_DATA_EX *fde);
+    bool FileInFilter(const FAR_FIND_DATA *fd, bool IsExcludeDir = false);
+    bool FileInFilter(const FAR_FIND_DATA_EX *fde, bool IsExcludeDir = false);
     bool IsEnabledOnPanel();
 
     static void InitFilter();

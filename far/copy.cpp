@@ -1716,7 +1716,15 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
            вырезанием пути из имени попавшего в фильтр файла.
         */
         if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        {
+          // Просто пропустить каталог недостаточно - если каталог помечен в
+          // фильтре как некопируемый, то следует пропускать и его и всё его
+          // содержимое. Но проверять надо ТОЛЬКО по маске (не по атрибутам)
+          // и при этом только на фильтры "с запретом"
+          if (Filter->FileInFilter(&SrcData, true))
+            ScTree.SkipDir();
           continue;
+        }
 
         int AttemptToMove=FALSE;
         if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
@@ -1881,9 +1889,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
   /* Отфильтруем файлы не попадающие в действующий фильтр,
      каталоги же пропускаем всегда  */
-  if ((UseFilter) && ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0))
+  if (UseFilter)
   {
-    if (!Filter->FileInFilter(&SrcData))
+    // Просто не смотреть соотвествие каталога фильтрам недостаточно - если это
+    // делать, то копируются каталоги помеченные в фильтре как некопируемые.
+    // Поэтому проверяем на соотвествие фильтру БЕЗ учёта признака каталога
+    // и при этом только на фильтры "с запретом"
+    bool isDir = (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
+    if(Filter->FileInFilter(&SrcData, isDir) == isDir)
       return COPY_NEXT;
   }
 
@@ -1980,18 +1993,19 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
           strOldPath = Src;
 
-          strOldPath.GetBuffer ((int)(p1-Src)); //BUGBUG, bad cut
-          strOldPath.ReleaseBuffer ();
+          size_t len = p1 - Src;
+          strOldPath.SetLength(p1-Src);
 
           apiGetFindDataEx (strOldPath,&FileData);
           FileAttr=FileData.dwFileAttributes;
 
           // Создадим имя каталога, который теперь нужно создать, если конечно его ещё нет
           strNewPath = strDestPath;
-          strNewPath += PathPtr;
-
-          strNewPath.GetBuffer ((int)(strDestPath.GetLength()+p1-PathPtr)); //BUGBUG, bad cut, need Append (src, len);
-          strNewPath.ReleaseBuffer ();
+          {
+            string tmp(PathPtr);
+            tmp.SetLength(p1 - PathPtr);
+            strNewPath += tmp;
+          }
 
           // Такого каталога ещё нет, создадим его
           if ((FindHandle=apiFindFirstFile(strNewPath,&FileData))==INVALID_HANDLE_VALUE)
