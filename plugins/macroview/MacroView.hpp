@@ -9,6 +9,17 @@
 #define CAPTIONLEN 128
 #define TITLELEN 64
 
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Param.Selected
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#endif
+
+#ifndef UNICODE
+#define GetDataPtr(i) DialogItems[i].Data.Data
+#else
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#endif
 
 //----
 HINSTANCE hInstance;
@@ -258,6 +269,8 @@ class TMacroView
     wchar_t       _Button[/*BUTTONLEN*/64];
     wchar_t       _Group[MAX_KEY_LEN]; //длинное название текущего раздела макроса
     wchar_t       _Data[MAX_PATH_LEN];
+    wchar_t      *_DataPtr;
+    size_t        _DataPtrSize;
     wchar_t       _Descr[MAX_PATH_LEN];
 #endif
 
@@ -285,12 +298,15 @@ class TMacroView
     void          MoveTildeInKey(TStrList *&NameList,BOOL doit=FALSE);
     void          PrepareDependentSort(TStrList *&NameList,BOOL doit=FALSE);
     void          __fastcall FillMenu(HANDLE hDlg,int RebuildList=TRUE);
+#ifndef UNICODE
     void          WriteRegValues(FarDialogItem *DialogItems);
+#else
+    void          WriteRegValues(FarDialogItem *DialogItems,HANDLE hDlg);
+#endif
     BOOL          __fastcall CopyMacro(int vKey);
     void          __fastcall ExportMacro(BOOL AllMacros=FALSE);
     BOOL          __fastcall DeleteMacro();
     void          __fastcall SetFocus(int Focus);
-    int           __fastcall ShowEdit();
     BOOL          __fastcall InsertMacro();
     BOOL          __fastcall EditMacro();
 };

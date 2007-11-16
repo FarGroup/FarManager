@@ -7,11 +7,6 @@
 #include "macroview.hpp"
 #include "farcolor.hpp"
 #include "farkeys.hpp"
-#include "macromix.cpp"
-#include "strclass.cpp"
-#include "regclass.cpp"
-#include "config.cpp"
-#include "macrodiff.cpp"
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
@@ -31,12 +26,18 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+#include "macromix.cpp"
+#include "strclass.cpp"
+#include "regclass.cpp"
+#include "config.cpp"
+#include "macrodiff.cpp"
+
 #ifndef UNICODE
 #define MIN_FAR_VERMINOR  70
 #define MIN_FAR_BUILD     1238
 #else
 #define MIN_FAR_VERMINOR  80
-#define MIN_FAR_BUILD     330
+#define MIN_FAR_BUILD     349
 #endif
 
 int WINAPI EXP_NAME(GetMinFarVersion)()

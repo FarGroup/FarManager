@@ -14,12 +14,12 @@ struct TRegKeyInfo
 
 enum TRegDataType
 {
-	rdUnknown,
-	rdString,
-	rdExpandString,
-	rdInteger,
-	rdBinary,
-	rdMultiString,
+  rdUnknown,
+  rdString,
+  rdExpandString,
+  rdInteger,
+  rdBinary,
+  rdMultiString,
 };
 
 struct TRegDataInfo
@@ -61,7 +61,7 @@ class TReg
     TRegDataType GetDataType(TCHAR *ValueName);
     BOOL __fastcall ValueExists(TCHAR *Name);
     void __fastcall RenameValue(TCHAR *OldName,TCHAR *NewName);
-    BOOL __fastcall WriteString(/*const */TCHAR *Name,TCHAR *Value);
+    BOOL __fastcall WriteString(const TCHAR *Name,const TCHAR *Value);
     TCHAR *__fastcall ReadString(/*const */TCHAR *Name,TCHAR *Str,int size);
     BOOL __fastcall WriteInteger(TCHAR *Name,DWORD Value);
     int __fastcall ReadInteger(TCHAR *Name);
@@ -69,7 +69,7 @@ class TReg
     int __fastcall ReadBinaryData(TCHAR *Name,void *Buffer,int BufSize);
     BOOL HasSubKeys();
     int GetData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType &RegData);
-    BOOL PutData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType RegData);
+    BOOL PutData(const TCHAR *Name,const BYTE *Buffer,DWORD BufSize,TRegDataType RegData);
 #ifdef CREATE_REG_FILE
     BOOL __fastcall SaveKey(TCHAR *Key, TCHAR *FileName);
 #endif

@@ -274,9 +274,9 @@ TRegDataType TReg::GetDataType(TCHAR *ValueName)
     return rdUnknown;
 }
 
-BOOL __fastcall TReg::WriteString(/*const */TCHAR *Name,TCHAR *Value)
+BOOL __fastcall TReg::WriteString(const TCHAR *Name,const TCHAR *Value)
 {
-  return(PutData(Name,Value,(lstrlen(Value)+1)*sizeof(TCHAR),rdString));
+  return(PutData(Name,(const BYTE *)Value,(lstrlen(Value)+1)*sizeof(TCHAR),rdString));
 }
 
 TCHAR *__fastcall TReg::ReadString(/*const */TCHAR *Name,TCHAR *Str,int size)
@@ -299,7 +299,7 @@ TCHAR *__fastcall TReg::ReadString(/*const */TCHAR *Name,TCHAR *Str,int size)
 
 BOOL __fastcall TReg::WriteInteger(TCHAR *Name,DWORD Value)
 {
-  return(PutData(Name,&Value,sizeof(Value),rdInteger));
+  return(PutData(Name,(const BYTE *)&Value,sizeof(Value),rdInteger));
 }
 
 int __fastcall TReg::ReadInteger(TCHAR *Name)
@@ -315,7 +315,7 @@ int __fastcall TReg::ReadInteger(TCHAR *Name)
 
 BOOL __fastcall TReg::WriteBinaryData(TCHAR *Name,void *Buffer,int BufSize)
 {
-  return(PutData(Name,Buffer,BufSize,rdBinary));
+  return(PutData(Name,(const BYTE *)Buffer,BufSize,rdBinary));
 }
 
 int __fastcall TReg::ReadBinaryData(TCHAR *Name,void *Buffer,int BufSize)
@@ -338,13 +338,12 @@ int __fastcall TReg::ReadBinaryData(TCHAR *Name,void *Buffer,int BufSize)
   return Result;
 }
 
-BOOL TReg::PutData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType RegData)
+BOOL TReg::PutData(const TCHAR *Name,const BYTE *Buffer,DWORD BufSize,TRegDataType RegData)
 {
   DWORD DataType;
 
   DataType=RegDataToDataType(RegData);
-  return((RegSetValueEx(CurrentKey,Name,0,DataType,(BYTE *)Buffer,BufSize
-    ))==ERROR_SUCCESS);
+  return((RegSetValueEx(CurrentKey,Name,0,DataType,Buffer,BufSize))==ERROR_SUCCESS);
 }
 
 int TReg::GetData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType &RegData)
@@ -435,7 +434,7 @@ void __fastcall TReg::RenameValue(TCHAR *OldName,TCHAR *NewName)
       TCHAR *Buffer=new TCHAR[Len+1];
       Len=GetData(OldName,Buffer,Len,RegData);
       DeleteValue(OldName);
-      PutData(NewName,Buffer,Len,RegData);
+      PutData(NewName,(const BYTE *)Buffer,Len,RegData);
       delete[] Buffer;
     }
   }
@@ -456,7 +455,7 @@ void __fastcall TReg::MoveValue(HKEY SrcKey,HKEY DestKey,TCHAR *Name)
     Len=GetData(Name,Buffer,Len,RegData);
     PrevKey=CurrentKey;
     SetCurrentKey(DestKey);
-    PutData(Name,Buffer,Len,RegData);
+    PutData(Name,(const BYTE *)Buffer,Len,RegData);
     SetCurrentKey(PrevKey);
     delete[] Buffer;
   }

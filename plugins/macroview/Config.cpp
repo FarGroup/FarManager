@@ -142,53 +142,62 @@ BOOL _fastcall TMacroView::Configure()
   DialogItems[12].Param.Selected=Conf.ViewShell;
   DialogItems[13].Param.Selected=Conf.ViewViewer;
   DialogItems[14].Param.Selected=Conf.ViewEditor;
-  OutCode=Info.Dialog(Info.ModuleNumber,-1,-1,74,20,_T("Config"),DialogItems,size
-#ifdef UNICODE
-                      ,NULL
-#endif
-                     );
-
-  if (OutCode==16) // кнопка [Сохранить]
+#ifndef UNICODE
+  OutCode=Info.Dialog(Info.ModuleNumber,-1,-1,74,20,_T("Config"),DialogItems,size);
+#else
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,74,20,_T("Config"),DialogItems,size,0,0,NULL,0);
+  if (hDlg != INVALID_HANDLE_VALUE)
   {
-    Reg->OpenKey(PluginRootKey);
-    if ((Reg->WriteInteger(_T("AddDescription"),DialogItems[1].Param.Selected)) &&
-        (Reg->WriteInteger(_T("AutomaticSave"),DialogItems[2].Param.Selected)) &&
-        (Reg->WriteInteger(_T("UseHighlight"),DialogItems[3].Param.Selected)) &&
-        (Reg->WriteInteger(_T("StartDependentSort"),DialogItems[4].Param.Selected)) &&
-        (Reg->WriteInteger(_T("LongGroupNames"),DialogItems[5].Param.Selected)) &&
-        (Reg->WriteInteger(_T("MenuCycle"),DialogItems[6].Param.Selected)) &&
-        (Reg->WriteInteger(_T("DblClick"),DialogItems[7].Param.Selected)) &&
-        (Reg->WriteInteger(_T("GroupDivider"),DialogItems[8].Param.Selected)) &&
-        (Reg->WriteInteger(_T("SaveOnStart"),DialogItems[10].Param.Selected)) &&
-        (Reg->WriteInteger(_T("ViewShell"),DialogItems[12].Param.Selected)) &&
-        (Reg->WriteInteger(_T("ViewViewer"),DialogItems[13].Param.Selected)) &&
-        (Reg->WriteInteger(_T("ViewEditor"),DialogItems[14].Param.Selected)))
+    OutCode=Info.DialogRun(hDlg);
+#endif
+
+    if (OutCode==16) // кнопка [Сохранить]
     {
-      Conf.AddDescription=DialogItems[1].Param.Selected;
-      Conf.AutomaticSave=DialogItems[2].Param.Selected;
-      Conf.UseHighlight=DialogItems[3].Param.Selected;
-      Conf.StartDependentSort=DialogItems[4].Param.Selected;
-      Conf.LongGroupNames=DialogItems[5].Param.Selected;
-      Conf.MenuCycle=DialogItems[6].Param.Selected;
-      Conf.DblClick=DialogItems[7].Param.Selected;
-      Conf.GroupDivider=DialogItems[8].Param.Selected;
-      Conf.SaveOnStart=DialogItems[10].Param.Selected;
-      Conf.ViewShell=DialogItems[12].Param.Selected;
-      Conf.ViewViewer=DialogItems[13].Param.Selected;
-      Conf.ViewEditor=DialogItems[14].Param.Selected;
-      Result=TRUE;
+      Reg->OpenKey(PluginRootKey);
+      if ((Reg->WriteInteger(_T("AddDescription"),GetCheck(1))) &&
+          (Reg->WriteInteger(_T("AutomaticSave"),GetCheck(2))) &&
+          (Reg->WriteInteger(_T("UseHighlight"),GetCheck(3))) &&
+          (Reg->WriteInteger(_T("StartDependentSort"),GetCheck(4))) &&
+          (Reg->WriteInteger(_T("LongGroupNames"),GetCheck(5))) &&
+          (Reg->WriteInteger(_T("MenuCycle"),GetCheck(6))) &&
+          (Reg->WriteInteger(_T("DblClick"),GetCheck(7))) &&
+          (Reg->WriteInteger(_T("GroupDivider"),GetCheck(8))) &&
+          (Reg->WriteInteger(_T("SaveOnStart"),GetCheck(10))) &&
+          (Reg->WriteInteger(_T("ViewShell"),GetCheck(12))) &&
+          (Reg->WriteInteger(_T("ViewViewer"),GetCheck(13))) &&
+          (Reg->WriteInteger(_T("ViewEditor"),GetCheck(14))))
+      {
+        Conf.AddDescription=GetCheck(1);
+        Conf.AutomaticSave=GetCheck(2);
+        Conf.UseHighlight=GetCheck(3);
+        Conf.StartDependentSort=GetCheck(4);
+        Conf.LongGroupNames=GetCheck(5);
+        Conf.MenuCycle=GetCheck(6);
+        Conf.DblClick=GetCheck(7);
+        Conf.GroupDivider=GetCheck(8);
+        Conf.SaveOnStart=GetCheck(10);
+        Conf.ViewShell=GetCheck(12);
+        Conf.ViewViewer=GetCheck(13);
+        Conf.ViewEditor=GetCheck(14);
+        Result=TRUE;
+      }
+      else
+      {
+        lstrcpy(ItemsErrorWrite[2],PluginRootKey);
+        QuoteText(ItemsErrorWrite[2]);
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsErrorWrite,
+                    ArraySize(ItemsErrorWrite),1);
+        Result=FALSE;
+      }
     }
     else
-    {
-      lstrcpy(ItemsErrorWrite[2],PluginRootKey);
-      QuoteText(ItemsErrorWrite[2]);
-      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,ItemsErrorWrite,
-                   ArraySize(ItemsErrorWrite),1);
       Result=FALSE;
-    }
+
+#ifdef UNICODE
+    Info.DialogFree(hDlg);
   }
-  else
-    Result=FALSE;
+#endif
+
   delete[] DialogItems;
   Reg->CloseKey();
   return Result;
