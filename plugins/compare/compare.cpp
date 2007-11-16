@@ -9,6 +9,16 @@
 #define _cFileName            lpwszFileName
 #endif
 
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Param.Selected
+#define GetDataPtr(i) DialogItems[i].Data.Data
+#define CheckDisabled(i) (DialogItems[i].Flags&DIF_DISABLE)
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#define CheckDisabled(i) (!((int)Info.SendDlgMessage(hDlg,DM_ENABLE,i,-1)))
+#endif
+
 /****************************************************************************
  * Нужны для отключения генерации startup-кода при компиляции под GCC
  ****************************************************************************/
@@ -297,7 +307,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     lstrcpy(DialogItems[i].Data.Data, (InitItems[i].Data == MNoLngStringDefined)
             ? "" : GetMsg(InitItems[i].Data));
 #else
-    DialogItems[i].DataIn = (InitItems[i].Data == MNoLngStringDefined)
+    DialogItems[i].PtrData = (InitItems[i].Data == MNoLngStringDefined)
             ? L"" : GetMsg(InitItems[i].Data);
 #endif
     dwRegValue = (hKey && InitItems[i].SelectedRegValue &&
@@ -309,16 +319,15 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     else if (DialogItems[i].Type == DI_FIXEDIT)
     {
 #ifndef UNICODE
-#define DataIn  Data.Data
-#define DataOut Data.Data
+#define PtrData Data.Data
 #else
-      DialogItems[i].DataIn = DialogItems[i].DataOut = tmpnum[i];
+      DialogItems[i].PtrData = tmpnum[i];
       DialogItems[i].MaxLen = ArraySize(tmpnum[i]);
 #endif
-      FSF.itoa(dwRegValue, DialogItems[i].DataOut, 10);
+      FSF.itoa(dwRegValue, (TCHAR *)DialogItems[i].PtrData, 10);
       DialogItems[i].Param.Mask = Mask;
-      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].DataIn)
-                          - (_tcschr(DialogItems[i-1].DataIn, _T('&'))?1:0) + 5;
+      DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].PtrData)
+                          - (_tcschr(DialogItems[i-1].PtrData, _T('&'))?1:0) + 5;
       DialogItems[i].X2 += DialogItems[i].X1;
     }
 
@@ -416,50 +425,66 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   if (hKey)
     RegCloseKey(hKey);
 
+#ifndef UNICODE
   int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 22, _T("Contents"),
                                DialogItems, ArraySize(DialogItems), 0, 0,
-                               ShowDialogProc, DlgData
-#ifdef UNICODE
-                               , NULL
-#endif
-                               );
-  if (ExitCode == (ArraySize(InitItems) - 1) || ExitCode == -1)
+                               ShowDialogProc, DlgData);
+#else
+  HANDLE hDlg = Info.DialogInit(Info.ModuleNumber, -1, -1, 66, 22, _T("Contents"),
+                               DialogItems, ArraySize(DialogItems), 0, 0,
+                               ShowDialogProc, DlgData);
+  if (hDlg == INVALID_HANDLE_VALUE)
     return false;
 
-  for (i = 0; i < ArraySize(InitItems); i++)
-    if (InitItems[i].StoreTo)
-      if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
-        *InitItems[i].StoreTo = (DWORD)DialogItems[i].Param.Selected;
-      else if (InitItems[i].Type == DI_FIXEDIT)
-        *InitItems[i].StoreTo = FSF.atoi(DialogItems[i].DataOut);
-#ifndef UNICODE
-#undef DataIn
-#undef DataOut
+  int ExitCode = Info.DialogRun(hDlg);
 #endif
 
-  DWORD dwDisposition;
-  if (PluginRootKey &&
-       RegCreateKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, NULL, REG_OPTION_NON_VOLATILE,
-       KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS)
+  if (ExitCode == (ArraySize(InitItems) - 2))
   {
     for (i = 0; i < ArraySize(InitItems); i++)
-      if (!(DialogItems[i].Flags & DIF_DISABLE) && InitItems[i].SelectedRegValue)
-      {
-        DWORD dwValue = *InitItems[i].StoreTo;
-        RegSetValueEx(hKey, InitItems[i].SelectedRegValue, 0, REG_DWORD, (BYTE *)&dwValue, sizeof(dwValue));
-      }
-    RegCloseKey(hKey);
+      if (InitItems[i].StoreTo)
+        if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
+          *InitItems[i].StoreTo = (DWORD)GetCheck((int)i);
+        else if (InitItems[i].Type == DI_FIXEDIT)
+          *InitItems[i].StoreTo = FSF.atoi(GetDataPtr((int)i));
+#ifndef UNICODE
+#undef PtrData
+#endif
+
+    DWORD dwDisposition;
+    if (PluginRootKey &&
+        RegCreateKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, NULL, REG_OPTION_NON_VOLATILE,
+        KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS)
+    {
+      for (i = 0; i < ArraySize(InitItems); i++)
+        if (!(CheckDisabled((int)i)) && InitItems[i].SelectedRegValue)
+        {
+          DWORD dwValue = *InitItems[i].StoreTo;
+          RegSetValueEx(hKey, InitItems[i].SelectedRegValue, 0, REG_DWORD, (BYTE *)&dwValue, sizeof(dwValue));
+        }
+      RegCloseKey(hKey);
+    }
+
+    if (bPluginPanels)
+    {
+      Opt.ProcessSubfolders = FALSE;
+      Opt.CompareContents = FALSE;
+    }
+    Opt.ProcessHidden = (Info.AdvControl(Info.ModuleNumber, ACTL_GETPANELSETTINGS, NULL) &
+                          FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
+
+#ifdef UNICODE
+    Info.DialogFree(hDlg);
+#endif
+
+    return true;
   }
 
-  if (bPluginPanels)
-  {
-    Opt.ProcessSubfolders = FALSE;
-    Opt.CompareContents = FALSE;
-  }
-  Opt.ProcessHidden = (Info.AdvControl(Info.ModuleNumber, ACTL_GETPANELSETTINGS, NULL) &
-                        FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
 
-  return true;
+  return false;
 }
 
 static bool bBrokenByEsc;
