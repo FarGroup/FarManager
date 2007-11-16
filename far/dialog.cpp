@@ -60,7 +60,7 @@ static const wchar_t fmtSavedDialogHistory[]=L"SavedDialogHistory\\%s";
 /*
    Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
 */
-static inline bool CanFocused(int Type)
+static inline bool CanGetFocus(int Type)
 {
     switch(Type) {
       case DI_EDIT:
@@ -95,7 +95,7 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
     pDest->Flags = pSrc->Flags;
     pDest->DefaultButton = pSrc->DefaultButton;
 
-    pDest->nMaxLength = -1;
+    pDest->nMaxLength = 0;
     pDest->strData = pSrc->strData;
     pDest->nMaxLength = 1024; //BUGBUG\
 
@@ -119,58 +119,86 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                LONG_PTR InitParam)             // Ассоцированные с диалогом данные
 {
-  SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
-  CanLoseFocus = FALSE;
-  HelpTopic = NULL;
-  ReAlloc = NULL; // для внутренних диалогов фара
-  PluginItems = NULL; // -"-
-  //Номер плагина, вызвавшего диалог (-1 = Main)
-  PluginNumber=-1;
-  Dialog::DataDialog=InitParam;
-  DialogTooLong=0;
-  DialogMode.Set(DMODE_ISCANMOVE);
-  SetDropDownOpened(FALSE);
+	bInitOK = false;
 
-  IsEnableRedraw=0;
+	Dialog::Item = (DialogItemEx**)xf_malloc (sizeof(DialogItemEx*)*SrcItemCount);
 
-  FocusPos=-1;
-  PrevFocusPos=-1;
+	for (unsigned i = 0; i < SrcItemCount; i++)
+	{
+		Dialog::Item[i] = new DialogItemEx;
+		DialogItemExToDialogItemEx (&SrcItem[i], Dialog::Item[i]);
+	}
 
-  if(!DlgProc || IsBadCodePtr((FARPROC)DlgProc)) // функция должна быть всегда!!!
-  {
-    DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
-    // знать диалог в старом стиле - учтем этот факт!
-    DialogMode.Set(DMODE_OLDSTYLE);
-  }
-  Dialog::DlgProc=DlgProc;
+	Dialog::ItemCount = SrcItemCount;
 
-  Dialog::Item = (DialogItemEx**)xf_malloc (sizeof(DialogItemEx*)*SrcItemCount);
-      //SrcItem;
+	Dialog::pSaveItemEx = SrcItem;
 
-  for (unsigned i = 0; i < SrcItemCount; i++)
-  {
-      Dialog::Item[i] = new DialogItemEx;
-      DialogItemExToDialogItemEx (&SrcItem[i], Dialog::Item[i]);
-  }
-
-
-  Dialog::ItemCount = SrcItemCount;
-
-  Dialog::pSaveItemEx = SrcItem;
-
-  if (CtrlObject!=NULL)
-  {
-    // запомним пред. режим макро.
-    PrevMacroMode=CtrlObject->Macro.GetMode();
-    // макросить будет в диалогах :-)
-    CtrlObject->Macro.SetMode(MACRO_DIALOG);
-  }
-//_SVS(SysLog(L"Dialog =%d",CtrlObject->Macro.GetMode()));
-
-  // запоминаем предыдущий заголовок консоли
-  OldTitle=new ConsoleTitle;
+	Init(DlgProc, InitParam);
 }
 
+Dialog::Dialog(struct FarDialogItem *SrcItem,    // Набор элементов диалога
+               unsigned SrcItemCount,              // Количество элементов
+               FARWINDOWPROC DlgProc,      // Диалоговая процедура
+               LONG_PTR InitParam)             // Ассоцированные с диалогом данные
+{
+	bInitOK = false;
+
+	Dialog::Item = (DialogItemEx**)xf_malloc (sizeof(DialogItemEx*)*SrcItemCount);
+
+	for (unsigned i = 0; i < SrcItemCount; i++)
+	{
+		Dialog::Item[i] = new DialogItemEx;
+		//BUGBUG add error check
+		Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Dialog::Item[i],1);
+	}
+
+	Dialog::ItemCount = SrcItemCount;
+
+	Dialog::pSaveItemEx = NULL;
+
+	Init(DlgProc, InitParam);
+}
+
+void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
+                  LONG_PTR InitParam)         // Ассоцированные с диалогом данные
+{
+	SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
+	CanLoseFocus = FALSE;
+	HelpTopic = NULL;
+	//Номер плагина, вызвавшего диалог (-1 = Main)
+	PluginNumber=-1;
+	Dialog::DataDialog=InitParam;
+	DialogTooLong=0;
+	DialogMode.Set(DMODE_ISCANMOVE);
+	SetDropDownOpened(FALSE);
+
+	IsEnableRedraw=0;
+
+	FocusPos=(unsigned)-1;
+	PrevFocusPos=(unsigned)-1;
+
+	if(!DlgProc || IsBadCodePtr((FARPROC)DlgProc)) // функция должна быть всегда!!!
+	{
+		DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
+		// знать диалог в старом стиле - учтем этот факт!
+		DialogMode.Set(DMODE_OLDSTYLE);
+	}
+	Dialog::DlgProc=DlgProc;
+
+	if (CtrlObject!=NULL)
+	{
+		// запомним пред. режим макро.
+		PrevMacroMode=CtrlObject->Macro.GetMode();
+		// макросить будет в диалогах :-)
+		CtrlObject->Macro.SetMode(MACRO_DIALOG);
+	}
+	//_SVS(SysLog(L"Dialog =%d",CtrlObject->Macro.GetMode()));
+
+	// запоминаем предыдущий заголовок консоли
+	OldTitle=new ConsoleTitle;
+
+	bInitOK = true;
+}
 
 //////////////////////////////////////////////////////////////////////////
 /* Public, Virtual:
@@ -178,34 +206,30 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
 */
 Dialog::~Dialog()
 {
-  _tran(SysLog(L"[%p] Dialog::~Dialog()",this));
+	_tran(SysLog(L"[%p] Dialog::~Dialog()",this));
 
-  GetDialogObjectsData();
-  DeleteDialogObjects();
+	GetDialogObjectsData();
+	DeleteDialogObjects();
 
-  if (CtrlObject!=NULL)
-    CtrlObject->Macro.SetMode(PrevMacroMode);
+	if (CtrlObject!=NULL)
+		CtrlObject->Macro.SetMode(PrevMacroMode);
 
-  Hide();
-  ScrBuf.Flush();
+	Hide();
+	ScrBuf.Flush();
 
-  if (HelpTopic)
-    delete [] HelpTopic;
+	if (HelpTopic)
+		delete [] HelpTopic;
 
-  if (DialogMode.Check(DMODE_OWNSITEMS))
-      delete [] pSaveItemEx; //удаляем анси копию
+	for (unsigned i = 0; i < ItemCount; i++)
+			delete Item[i];
 
-  for (unsigned i = 0; i < ItemCount; i++)
-      delete Item[i];
+	xf_free (Item);
 
-  xf_free (Item);
+	INPUT_RECORD rec;
+	PeekInputRecord(&rec);
+	delete OldTitle;
 
-  INPUT_RECORD rec;
-  PeekInputRecord(&rec);
-  delete OldTitle;
-
-
-  _DIALOG(CleverSysLog CL(L"Destroy Dialog"));
+	_DIALOG(CleverSysLog CL(L"Destroy Dialog"));
 }
 
 void Dialog::CheckDialogCoord(void)
@@ -499,7 +523,7 @@ int Dialog::InitDialogObjects(int ID)
   //   если FocusPos в пределах и элемент задисаблен, то ищем сначала.
   if(FocusPos >= 0 && (unsigned)FocusPos < ItemCount &&
      (Item[FocusPos]->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
-    FocusPos = -1; // будем искать сначала!
+    FocusPos = (unsigned)-1; // будем искать сначала!
 
   // предварительный цикл по поводу кнопок
   for(I=ID; I < InitItemCount; I++)
@@ -517,7 +541,7 @@ int Dialog::InitDialogObjects(int ID)
 
      // предварительный поик фокуса
      if(FocusPos == -1 &&
-        CanFocused(Type) &&
+        CanGetFocus(Type) &&
         CurItem->Focus &&
         !(ItemFlags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
        FocusPos=I; // запомним первый фокусный элемент
@@ -546,7 +570,7 @@ int Dialog::InitDialogObjects(int ID)
     for (I=0; I < ItemCount; I++) // по всем!!!!
     {
         CurItem = Item[I];
-      if(CanFocused(CurItem->Type) &&
+      if(CanGetFocus(CurItem->Type) &&
          !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
       {
         FocusPos=I;
@@ -674,7 +698,7 @@ int Dialog::InitDialogObjects(int ID)
 
       //BUGBUG
       if(DialogEdit->GetMaxLength() == -1)
-        DialogEdit->SetMaxLength(CurItem->nMaxLength+1);
+        DialogEdit->SetMaxLength(CurItem->nMaxLength?(int)CurItem->nMaxLength:-1);
 
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
@@ -3288,7 +3312,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFo
           !(CurItem->Flags & DIF_READONLY) &&
           CurItem->ListPtr->GetItemCount() > 0) //??
   {
-    int MaxLen=CurItem->nMaxLength; //BUGBUG
+    int MaxLen=(int)CurItem->nMaxLength; //BUGBUG
 
     if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
       Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
@@ -3362,7 +3386,7 @@ int Dialog::Do_ProcessFirstCtrl()
   else
   {
     for (unsigned I=0;I<ItemCount;I++)
-      if (CanFocused(Item[I]->Type))
+      if (CanGetFocus(Item[I]->Type))
       {
         int OldPos=FocusPos;
         ChangeFocus2(FocusPos,I);
@@ -3507,7 +3531,7 @@ int Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
   //   что элемент - LostFocus() - теряет фокус ввода.
 //  if(DialogMode.Check(DMODE_INITOBJECTS))
 //    FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,FocusPos,0);
-//  if(FucusPosNeed != -1 && CanFocused(Item[FucusPosNeed].Type))
+//  if(FucusPosNeed != -1 && CanGetFocus(Item[FucusPosNeed].Type))
 //    FocusPos=FucusPosNeed;
 //  else
   {
@@ -3564,7 +3588,7 @@ int Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
          return SetFocusPos;
     }
 
-    if(FucusPosNeed != -1 && CanFocused(Item[FucusPosNeed]->Type))
+    if(FucusPosNeed != -1 && CanGetFocus(Item[FucusPosNeed]->Type))
       SetFocusPos=FucusPosNeed;
 
     if(Item[SetFocusPos]->Flags&DIF_NOFOCUS)
@@ -3658,106 +3682,73 @@ bool Dialog::ConvertItemEx (
         int FromPlugin,
         struct FarDialogItem *Item,
         struct DialogItemEx *Data,
-        unsigned Count,
-        REALLOC ReAlloc
+        unsigned Count
         )
 {
-  unsigned I;
-  if(!Item || !Data)
-    return false;
+	unsigned I;
+	if(!Item || !Data)
+		return false;
 
-  if(FromPlugin == CVTITEM_TOPLUGIN)
-    for (I=0; I < Count; I++, ++Item, ++Data)
-    {
-        Item->Type = Data->Type;
-        Item->X1 = Data->X1;
-        Item->Y1 = Data->Y1;
-        Item->X2 = Data->X2;
-        Item->Y2 = Data->Y2;
+	if(FromPlugin == CVTITEM_TOPLUGIN)
+		for (I=0; I < Count; I++, ++Item, ++Data)
+		{
+			Item->Type = Data->Type;
+			Item->X1 = Data->X1;
+			Item->Y1 = Data->Y1;
+			Item->X2 = Data->X2;
+			Item->Y2 = Data->Y2;
 
-        Item->Param.History = Data->History;
-        Item->Flags = Data->Flags;
-        Item->DefaultButton = Data->DefaultButton;
+			Item->Param.History = Data->History;
+			Item->Flags = Data->Flags;
+			Item->DefaultButton = Data->DefaultButton;
 
 /* never used!
-        if (InternalCall && IsEdit(Data->Type))
-        {
-          DlgEdit *EditPtr;
-          if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
-            EditPtr->GetString(Data->strData);
-        }
+			if (InternalCall && IsEdit(Data->Type))
+			{
+				DlgEdit *EditPtr;
+				if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
+					EditPtr->GetString(Data->strData);
+			}
 */
-        if (IsEdit(Data->Type) && ReAlloc)  // во внутренних диалогах фара копирование не нужно
-        {
-          size_t sz = Data->strData.GetLength();
-          if (!Item->MaxLen) {
-            Item->DataOut = (wchar_t*)ReAlloc(Item->DataOut, (sz+1)*sizeof(wchar_t));
-            if (!Item->DataOut) {  // TODO: may be needed message?
-              while(I) {
-                --I;
-                --Item;
-                if (Item->DataOut) { // (IsEdit(Item->Type) && !Item->MaxLen) {
-                  ReAlloc(Item->DataOut, 0);
-                  Item->DataOut = NULL;
-                }
-              }
-              return false;
-            }
-          } else {
-            if (sz >= Item->MaxLen)
-                sz = Item->MaxLen-1;
-          }
-          wmemcpy(Item->DataOut, (const wchar_t*)Data->strData, sz);
-          Item->DataOut[sz] = L'\0';
-        }
-    }
-  else
-    for (I=0; I < Count; I++, ++Item, ++Data)
-    {
-      Data->X1 = Item->X1;
-      Data->Y1 = Item->Y1;
-      Data->X2 = Item->X2;
-      Data->Y2 = Item->Y2;
+			{
+				Item->MaxLen = Data->nMaxLength;
+				size_t sz = Data->strData.GetLength();
+				if (sz > Data->nMaxLength && Data->nMaxLength > 0)
+						sz = Data->nMaxLength;
+				wchar_t *p = (wchar_t*)malloc((sz+1)*sizeof(wchar_t));
+				Item->PtrData = p;
+				if (!p) // TODO: may be needed message?
+					return false;
+				wmemcpy(p, (const wchar_t*)Data->strData, sz);
+				p[sz] = L'\0';
+			}
+		}
+	else
+		for (I=0; I < Count; I++, ++Item, ++Data)
+		{
+			Data->X1 = Item->X1;
+			Data->Y1 = Item->Y1;
+			Data->X2 = Item->X2;
+			Data->Y2 = Item->Y2;
 
-      Data->History = Item->Param.History;
-      Data->Flags = Item->Flags;
-      Data->DefaultButton = Item->DefaultButton;
+			Data->History = Item->Param.History;
+			Data->Flags = Item->Flags;
+			Data->DefaultButton = Item->DefaultButton;
 
-      Data->strData = NullToEmpty (Item->DataIn);
-      Data->Type = Item->Type;
-      if (IsEdit(Data->Type))
-      {
-        size_t  maxlen = Item->MaxLen;
-        if (!maxlen)
-        {
-/* Эта проверка делается в FarDialogEx, т.к. во внутренних жиалогах фара
- * не нежна аллокация и копирование
- *
-          if (!ReAlloc)
-              return false;
-*/
-          --maxlen; // unlimited
-          Item->DataOut = NULL;
-        }
-        else
-        {
-          if (IsBadWritePtr(Item->DataOut, maxlen*sizeof(wchar_t)))
-            return false;
-          Data->strData.SetLength(maxlen-1);
-        }
-        Data->nMaxLength = (unsigned)maxlen;  // TODO: replace nMaxLength to size_t
-      }
-      else
-          Item->DataOut = NULL;   // unification for wrapper(A) and other Free proc's
+			Data->strData = NullToEmpty (Item->PtrData);
+			Data->Type = Item->Type;
+			Data->nMaxLength = Item->MaxLen;
+			if (Data->nMaxLength > 0)
+				Data->strData.SetLength(Data->nMaxLength);
 
-      Data->ListItems = Item->Param.ListItems;
+			Data->ListItems = Item->Param.ListItems;
 
-      if(Data->X2 < Data->X1) Data->X2=Data->X1;
-      if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
-        Data->ListItems=NULL;
-    }
-    return true;
+			if(Data->X2 < Data->X1) Data->X2=Data->X1;
+			if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
+			if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
+				Data->ListItems=NULL;
+		}
+	return true;
 }
 
 void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,int Count)
@@ -5006,10 +4997,6 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   switch(Msg)
   {
     /*****************************************************************/
-    case DM_GETREALLOC:
-      return (LONG_PTR)Dlg->ReAlloc;
-
-    /*****************************************************************/
     case DM_RESIZEDIALOG:
       // изменим вызов RESIZE.
       Param1=-1;
@@ -5968,7 +5955,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_SETFOCUS:
     {
-      if(!CanFocused(Type))
+      if(!CanGetFocus(Type))
         return FALSE;
       if(Dlg->FocusPos == Param1) // уже и так установлено все!
         return TRUE;
@@ -5985,6 +5972,12 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       return Dlg->FocusPos;
     }
+
+		/*****************************************************************/
+		case DM_GETCONSTTEXTPTR:
+		{
+			return (LONG_PTR)Ptr;
+		}
 
     /*****************************************************************/
     case DM_GETTEXTPTR:
@@ -6273,58 +6266,47 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       return 0;
     }
 
-    /*****************************************************************/
-    case DM_GETDLGITEM:
-    {
-      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
-      {
-        if(Dlg->PluginItems) {  // else - internal FarDialog
-          ((FarDialogItem*)Param2)->MaxLen = Dlg->PluginItems[Param1].MaxLen;
-          ((FarDialogItem*)Param2)->DataOut = Dlg->PluginItems[Param1].DataOut;
-//          if(!IsEdit(Type))
-            ((FarDialogItem*)Param2)->DataIn = Dlg->PluginItems[Param1].DataIn;
-        }
-        if(!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
-          return FALSE; // no memory in plugin allocator // TODO: may be needed diagnostic
-        if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
-          ((struct FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
+		/*****************************************************************/
+		case DM_GETDLGITEM:
+		{
+    	FarDialogItem *Item = (FarDialogItem *) malloc(sizeof(FarDialogItem));
+			if(!Item || !Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,CurItem,1))
+				return 0; // no memory TODO: may be needed diagnostic
+			if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
+				Item->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
 /*
-        if(IsEdit(Type))
-        {
-          ((DlgEdit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
-          strcpy((char *)Param2,Str);
-        }
-        else
-          strcpy(((struct FarDialogItem *)Param2)->Data,CurItem->Data);
+			if(IsEdit(Type))
+			{
+				((DlgEdit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
+				strcpy((char *)Param2,Str);
+			}
+			else
+				strcpy(((struct FarDialogItem *)Param2)->Data,CurItem->Data);
 */
-        return TRUE;
-      }
-      return FALSE;
-    }
+			return (LONG_PTR)Item;
+		}
+
+		/*****************************************************************/
+		case DM_FREEDLGITEM:
+		{
+			if(!Param2 || IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
+					return FALSE;
+			if (((FarDialogItem *)Param2)->PtrData)
+				free((wchar_t *)(((FarDialogItem *)Param2)->PtrData));
+			free(((FarDialogItem *)Param2));
+			return TRUE;
+		}
 
     /*****************************************************************/
     case DM_SETDLGITEM:
     {
-      if(!Param2 || !IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
+      if(!Param2 || IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
           return FALSE;
       if(Type == ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
           return FALSE;
-      if (Dlg->PluginItems) {
-        if(!Dlg->ReAlloc && IsEdit(Type) && !((FarDialogItem *)Param2)->MaxLen)
-          return FALSE;
-      }
       // не менять
-      if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(FarDialogItem *)Param2,CurItem,1,Dlg->ReAlloc))
+      if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(FarDialogItem *)Param2,CurItem,1))
         return FALSE; // invalid parameters
-#if 1 // мне эта идея не нравится, но t-rex захотел попробовать (yjh)
-      if(Dlg->PluginItems)
-      {
-        FarDialogItem* Item = (FarDialogItem*)&Dlg->PluginItems[Param1];
-        Item->MaxLen = ((FarDialogItem*)Param2)->MaxLen;
-        Item->DataOut = ((FarDialogItem*)Param2)->DataOut;
-        Item->DataIn = ((FarDialogItem*)Param2)->DataIn;
-      }
-#endif
       CurItem->Type=Type;
       if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
         CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);

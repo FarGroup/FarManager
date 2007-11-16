@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DMODE_RESIZED       0x00010000 //
 #define DMODE_ENDLOOP       0x00020000 //  онец цикла обработки диалога?
 #define DMODE_BEGINLOOP     0x00040000 // Ќачало цикла обработки диалога?
-#define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
+//#define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
 #define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
 #define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
 #define DMODE_CLICKOUTSIDE  0x20000000 // было нажатие мыши вне диалога?
@@ -141,7 +141,7 @@ struct DialogItemEx
   int DefaultButton;
 
   string strData;
-  int nMaxLength;
+  size_t nMaxLength;
 
   WORD ID;
   BitFlags IFlags;
@@ -224,13 +224,14 @@ struct FarDialogMessage{
 class DlgEdit;
 class ConsoleTitle;
 
-typedef LONG_PTR (__stdcall *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+typedef LONG_PTR (WINAPI *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
 class Dialog: public Frame
 {
   friend class FindFiles;
 
   private:
+    bool bInitOK;               // диалог был успешно инициализирован
     INT_PTR PluginNumber;       // Ќомер плагина, дл€ формировани€ HelpTopic
     unsigned FocusPos;               // всегда известно какой элемент в фокусе
     unsigned PrevFocusPos;           // всегда известно какой элемент был в фокусе
@@ -240,7 +241,7 @@ class Dialog: public Frame
     LONG_PTR DataDialog;        // ƒанные, специфические дл€ конкретного экземпл€ра диалога (первоначально здесь параметр, переданный в конструктор)
 
     struct DialogItemEx **Item; // массив элементов диалога
-    DialogItemEx *pSaveItemEx;
+    struct DialogItemEx *pSaveItemEx; // пользовательский массив элементов диалога
 
     unsigned ItemCount;         // количество элементов диалога
 
@@ -251,7 +252,7 @@ class Dialog: public Frame
     FARWINDOWPROC DlgProc;      // функци€ обработки диалога
 
     // переменные дл€ перемещени€ диалога
-    int  OldX1,OldX2,OldY1,OldY2;
+    int OldX1,OldX2,OldY1,OldY2;
 
     wchar_t *HelpTopic;
 
@@ -261,10 +262,8 @@ class Dialog: public Frame
 
     int RealWidth, RealHeight;
 
-    REALLOC ReAlloc;
-    const FarDialogItem* PluginItems;
-
   private:
+    void Init(FARWINDOWPROC DlgProc,LONG_PTR InitParam);
     virtual void DisplayObject();
     void DeleteDialogObjects();
     int  LenStrItem(int ID, const wchar_t *lpwszStr = NULL);
@@ -309,7 +308,7 @@ class Dialog: public Frame
     void ProcessCenterGroup(void);
     int ProcessRadioButton(int);
 
-    int  InitDialogObjects(int ID=-1);
+    int InitDialogObjects(int ID=-1);
 
     int ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem,int CurFocusPos);
     int ProcessMoveDialog(DWORD Key);
@@ -322,8 +321,11 @@ class Dialog: public Frame
     LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
 
   public:
-    Dialog(struct DialogItemEx *Item, unsigned ItemCount,
-           FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
+    Dialog(struct DialogItemEx *SrcItem, unsigned SrcItemCount,
+           FARWINDOWPROC DlgProc=NULL,LONG_PTR InitParam=0);
+    Dialog(struct FarDialogItem *SrcItem, unsigned SrcItemCount,
+           FARWINDOWPROC DlgProc=NULL,LONG_PTR InitParam=0);
+    bool InitOK() {return bInitOK;}
     virtual ~Dialog();
 
   public:
@@ -333,8 +335,6 @@ class Dialog: public Frame
     virtual void Show();
     virtual void Hide();
     void FastShow() {ShowDialog();}
-    inline void setPluginInfo(REALLOC cbReAlloc, const FarDialogItem* Items) 
-      { ReAlloc=cbReAlloc; PluginItems = Items; }  // for plugins
 
     void GetDialogObjectsData();
 
@@ -342,8 +342,7 @@ class Dialog: public Frame
 
     // преобразовани€ из внутреннего представлени€ в FarDialogItem и обратно
     static bool ConvertItemEx (int FromPlugin, struct FarDialogItem *Item,
-                               struct DialogItemEx *Data, unsigned Count,
-                               REALLOC ReAlloc);
+                               struct DialogItemEx *Data, unsigned Count);
 
     static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,
                            int Count);
@@ -371,9 +370,6 @@ class Dialog: public Frame
 
     void CloseDialog();
 
-    // void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; } !!!!!!! :-)
-    void SetOwnsItems (int AOwnsItems) { DialogMode.Change(DMODE_OWNSITEMS,AOwnsItems); }
-
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_DIALOG; }
     virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
@@ -399,7 +395,7 @@ class Dialog: public Frame
     /* $ 23.07.2000 SVS: функци€ обработки диалога (по умолчанию) */
     static LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     /* $ 28.07.2000 SVS: функци€ посылки сообщений диалогу */
-    static LONG_PTR __stdcall SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+    static LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };

@@ -455,9 +455,6 @@ int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
            DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
            const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber);
-int WINAPI FarDialogFn(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
-                       const wchar_t *HelpTopic, struct FarDialogItem *Item,
-                       unsigned ItemsNumber, REALLOC ReAlloc);
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
            const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
@@ -496,10 +493,12 @@ int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
 /* Функция, которая будет действовать и в редакторе, и в панелях, и... */
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
 //  Функция расширенного диалога
-int WINAPI FarDialogEx(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
+HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
                        const wchar_t *HelpTopic, struct FarDialogItem *Item,
-                       unsigned ItemsNumber, DWORD Reserved, DWORD Flags,
-                       FARWINDOWPROC Proc, LONG_PTR Param, REALLOC ReAlloc);
+                       unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
+                       FARWINDOWPROC Proc, LONG_PTR Param);
+int WINAPI FarDialogRun(HANDLE hDlg);
+void WINAPI FarDialogFree(HANDLE hDlg);
 //  Функция обработки диалога по умолчанию
 LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 // Посылка сообщения диалогу

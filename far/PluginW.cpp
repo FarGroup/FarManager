@@ -504,7 +504,6 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
   {
     StartupInfo.StructSize=sizeof(StartupInfo);
     StartupInfo.Menu=FarMenuFn; //BUGBUG
-    StartupInfo.Dialog=FarDialogFn;
     StartupInfo.GetMsg=FarGetMsgFn;
     StartupInfo.Message=FarMessageFn;
     StartupInfo.Control=FarControl;
@@ -522,7 +521,9 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StartupInfo.ViewerControl=FarViewerControl;
     StartupInfo.ShowHelp=FarShowHelp;
     StartupInfo.AdvControl=FarAdvControl;
-    StartupInfo.DialogEx=FarDialogEx;
+    StartupInfo.DialogInit=FarDialogInit;
+    StartupInfo.DialogRun=FarDialogRun;
+    StartupInfo.DialogFree=FarDialogFree;
     StartupInfo.SendDlgMessage=FarSendDlgMessage;
     StartupInfo.DefDlgProc=FarDefDlgProc;
     StartupInfo.InputBox=FarInputBox;

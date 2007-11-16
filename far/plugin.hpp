@@ -328,7 +328,8 @@ enum FarMessagesProc{
   DM_SETCOMBOBOXEVENT,
   DM_GETCOMBOBOXEVENT,
 
-  DM_GETREALLOC,
+  DM_FREEDLGITEM,
+  DM_GETCONSTTEXTPTR,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -512,9 +513,8 @@ struct FarDialogItem
   DWORD Flags;
   int DefaultButton;
 
-  const wchar_t *DataIn;
-  wchar_t *DataOut;
-  size_t MaxLen; // terminate 0 included (if == 0 use ReAlloc)
+  const wchar_t *PtrData;
+  size_t MaxLen; // terminate 0 not included (if == 0 string size is unlimited)
 };
 
 struct FarDialogItemData
@@ -584,9 +584,7 @@ typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
   LONG_PTR Param2
 );
 
-typedef void* (__cdecl *REALLOC)(void*, size_t);
-
-typedef int (WINAPI *FARAPIDIALOG)(
+typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
   INT_PTR               PluginNumber,
   int                   X1,
   int                   Y1,
@@ -594,26 +592,20 @@ typedef int (WINAPI *FARAPIDIALOG)(
   int                   Y2,
   const wchar_t        *HelpTopic,
   struct FarDialogItem *Item,
-  unsigned             ItemsNumber,
-  REALLOC              ReAlloc
-);
-
-typedef int (WINAPI *FARAPIDIALOGEX)(
-  INT_PTR               PluginNumber,
-  int                   X1,
-  int                   Y1,
-  int                   X2,
-  int                   Y2,
-  const wchar_t        *HelpTopic,
-  struct FarDialogItem *Item,
-  unsigned              ItemsNumber,
+  unsigned int          ItemsNumber,
   DWORD                 Reserved,
   DWORD                 Flags,
   FARWINDOWPROC         DlgProc,
-  LONG_PTR              Param,
-  REALLOC               ReAlloc
+  LONG_PTR              Param
 );
 
+typedef int (WINAPI *FARAPIDIALOGRUN)(
+  HANDLE hDlg
+);
+
+typedef void (WINAPI *FARAPIDIALOGFREE)(
+  HANDLE hDlg
+);
 
 struct FarMenuItem
 {
@@ -1729,7 +1721,6 @@ struct PluginStartupInfo
   INT_PTR ModuleNumber;
   const wchar_t *RootKey;
   FARAPIMENU             Menu;
-  FARAPIDIALOG           Dialog;
   FARAPIMESSAGE          Message;
   FARAPIGETMSG           GetMsg;
   FARAPICONTROL          Control;
@@ -1751,7 +1742,10 @@ struct PluginStartupInfo
   FARAPISHOWHELP         ShowHelp;
   FARAPIADVCONTROL       AdvControl;
   FARAPIINPUTBOX         InputBox;
-  FARAPIDIALOGEX         DialogEx;
+  FARAPIDIALOGINIT       DialogInit;
+  FARAPIDIALOGRUN        DialogRun;
+  FARAPIDIALOGFREE       DialogFree;
+
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
   DWORD_PTR              Reserved;

@@ -865,37 +865,13 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2
   return 0;
 }
 
-// Если понадобится использовать эту ф-ци изнутри фара (не считая враппера),
-// см. комментарий к FarDialogEx
-int WINAPI FarDialogFn (
-		INT_PTR PluginNumber,
-		int X1,
-		int Y1,
-		int X2,
-		int Y2,
-		const wchar_t *HelpTopic,
-		FarDialogItem *Item,
-    unsigned ItemsNumber,
-    REALLOC ReAlloc
-		)
-{
-  return FarDialogEx(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber,
-                     0, 0, NULL, 0, ReAlloc);
-}
-
-#ifndef _MSC_VER
-#pragma warn -par
-#endif
 /* Цель данной функции - выставить флаг Flags - признак того, что
    мы упали где то в плагине
 */
-static int Except_FarDialogEx(struct DialogItemEx *InternalItem)
+static int Except_FarDialogEx()
 {
   if(CtrlObject)
     CtrlObject->Plugins.Flags.Set(PSIF_DIALOG);
-
-  // Окончание
-  delete[] InternalItem;
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
@@ -909,123 +885,115 @@ static int Except_FarDialogEx(struct DialogItemEx *InternalItem)
   return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
 }
 
-static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item,
-                            struct DialogItemEx* InternalItem, int ItemsNumber,
-                            REALLOC ReAlloc)
+static int FarDialogExSehed(Dialog *FarDialog)
 {
   TRY
   {
-    FarDialog.Process();
-    for(int I=0; I < ItemsNumber; ++I)
-      InternalItem[I].ID=I;
-    if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber,ReAlloc))
-      return -1;
-    return FarDialog.GetExitCode();
+    FarDialog->Process();
+    return FarDialog->GetExitCode();
   }
-  EXCEPT (Except_FarDialogEx(InternalItem))
+  EXCEPT (Except_FarDialogEx())
   {
     return -1;
   }
 }
 
-// Если понадобится использовать эту ф-ци изнутри фара (не считая враппера),
-// то надо будет изменить механизм задания internal (проверки обязательности
-// ReAlloc при наличии IsEdit() поделей
-int WINAPI FarDialogEx(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
+HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
                        const wchar_t *HelpTopic, struct FarDialogItem *Item,
-                       unsigned ItemsNumber, DWORD Reserved, DWORD Flags,
-                       FARWINDOWPROC DlgProc, LONG_PTR Param, REALLOC ReAlloc)
+                       unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
+                       FARWINDOWPROC DlgProc, LONG_PTR Param)
 {
+  HANDLE hDlg=INVALID_HANDLE_VALUE;
+
   if (FrameManager->ManagerIsDown())
-    return -1;
+    return hDlg;
 
   if (DisablePluginsOutput ||
       ItemsNumber <= 0 ||
       !Item ||
       IsBadReadPtr(Item,sizeof(struct FarDialogItem)*ItemsNumber))
-    return -1;
+    return hDlg;
 
   // ФИЧА! нельзя указывать отрицательные X2 и Y2
   if(X2 < 0 || Y2 < 0)
-    return -1;
-
-  struct DialogItemEx *InternalItem=new DialogItemEx[ItemsNumber];
-
-  if(!InternalItem)
-    return -1;
-
-  int ExitCode=-1;
-
-  //struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
-
-  for (unsigned i=0; i<ItemsNumber; i++) {
-    InternalItem[i].Clear();
-    if (!ReAlloc && IsEdit(Item->Type))
-      return -1;  // проверка здесь, т.к. внутренние диалоги работают без аллокатора
-  }
-
-  if (!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber,ReAlloc))
-    return -1;  // invalid parameters
-
-  Frame *frame;
-  if((frame=FrameManager->GetBottomFrame()) != NULL)
-    frame->Lock(); // отменим прорисовку фрейма
+    return hDlg;
 
   {
-    Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
-    FarDialog.setPluginInfo(ReAlloc, Item);
-    FarDialog.SetPosition(X1,Y1,X2,Y2);
+  	Dialog *FarDialog = new Dialog(Item,ItemsNumber,DlgProc,Param);
+    if (!FarDialog)
+      return hDlg;
+
+    if (!FarDialog->InitOK())
+    {
+    	delete FarDialog;
+    	return hDlg;
+    }
+
+    hDlg = (HANDLE)FarDialog;
+
+    FarDialog->SetPosition(X1,Y1,X2,Y2);
 
     if(Flags & FDLG_WARNING)
-      FarDialog.SetDialogMode(DMODE_WARNINGSTYLE);
+      FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
     if(Flags & FDLG_SMALLDIALOG)
-      FarDialog.SetDialogMode(DMODE_SMALLDIALOG);
+      FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
     if(Flags & FDLG_NODRAWSHADOW)
-      FarDialog.SetDialogMode(DMODE_NODRAWSHADOW);
+      FarDialog->SetDialogMode(DMODE_NODRAWSHADOW);
     if(Flags & FDLG_NODRAWPANEL)
-      FarDialog.SetDialogMode(DMODE_NODRAWPANEL);
+      FarDialog->SetDialogMode(DMODE_NODRAWPANEL);
     if(Flags & FDLG_NONMODAL)
-      FarDialog.SetCanLoseFocus(TRUE);
-    //FarDialog.SetOwnsItems(TRUE);
-    FarDialog.SetHelp(HelpTopic);
+      FarDialog->SetCanLoseFocus(TRUE);
+    FarDialog->SetHelp(HelpTopic);
 
     /* $ 29.08.2000 SVS
        Запомним номер плагина - сейчас в основном для формирования HelpTopic
     */
-    FarDialog.SetPluginNumber(PluginNumber);
-
-    unsigned I;
-    if(Opt.ExceptRules)
-    {
-      CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
-      ExitCode=FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber,ReAlloc);
-    }
-    else
-    {
-      FarDialog.Process();
-      for(I=0; I < ItemsNumber; ++I)
-        InternalItem[I].ID=I;
-      if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber,ReAlloc))
-        ExitCode=-1;  // not enough memory in plugin
-      else
-        ExitCode=FarDialog.GetExitCode();
-    }
+    FarDialog->SetPluginNumber(PluginNumber);
   }
 
-  delete[] InternalItem;
-
-  /* $ 15.05.2002 SKV
-    Однако разлочивать нужно ровно то, что залочили.
-  */
-  if(frame != NULL)
-    frame->Unlock(); // теперь можно :-)
-//  CheckScreenLock();
-  FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
-  return(ExitCode);
+  return hDlg;
 }
-#ifndef _MSC_VER
-#pragma warn +par
-#endif
+
+int WINAPI FarDialogRun(HANDLE hDlg)
+{
+  if (FrameManager->ManagerIsDown())
+    return -1;
+
+	Frame *frame;
+	if((frame=FrameManager->GetBottomFrame()) != NULL)
+		frame->Lock(); // отменим прорисовку фрейма
+
+	int ExitCode=-1;
+
+	Dialog *FarDialog = (Dialog *)hDlg;
+
+	if(Opt.ExceptRules)
+	{
+		CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
+		ExitCode=FarDialogExSehed(FarDialog);
+	}
+	else
+	{
+		FarDialog->Process();
+		ExitCode=FarDialog->GetExitCode();
+	}
+
+	/* $ 15.05.2002 SKV
+		Однако разлочивать нужно ровно то, что залочили.
+	*/
+	if(frame != NULL)
+		frame->Unlock(); // теперь можно :-)
+	//CheckScreenLock();
+	FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
+
+	return(ExitCode);
+}
+
+void WINAPI FarDialogFree(HANDLE hDlg)
+{
+	Dialog *FarDialog = (Dialog *)hDlg;
+	delete FarDialog;
+}
 
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 {

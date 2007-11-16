@@ -481,26 +481,28 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
     case DN_BTNCLICK:
       if(Param1 >= 2 && Param1 <= 34)
       {
-        FarDialogItem DlgItem;
         int NewColor;
         int *CurColor = (int *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, (LONG_PTR) &DlgItem);
+        FarDialogItem *DlgItem = (FarDialogItem *)Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, 0);
 
         NewColor=*CurColor;
         if(Param1 >= 2 && Param1 <= 17) // Fore
         {
           NewColor&=~0x0F;
-          NewColor|=(DlgItem.Flags & B_MASK)>>4;
+          NewColor|=(DlgItem->Flags & B_MASK)>>4;
         }
         if(Param1 >= 19 && Param1 <= 34) // Back
         {
           NewColor&=~0xF0;
-          NewColor|=DlgItem.Flags & B_MASK;
+          NewColor|=DlgItem->Flags & B_MASK;
         }
 
         if (NewColor!=*CurColor)
           *CurColor=NewColor;
+
+        Dialog::SendDlgMessage (hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)DlgItem);
+
         return TRUE;
       }
       break;

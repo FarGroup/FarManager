@@ -765,7 +765,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 			}
 			break;
 		default:
-			di->Param.Selected=diA->Param.Selected;
+			di->Param.Reserved=diA->Param.Reserved;
 	}
 
 	if(diA->Flags)
@@ -815,11 +815,10 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 	di->DefaultButton=diA->DefaultButton;
 
 	if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
-		di->DataIn = AnsiToUnicode(diA->Data.Ptr.PtrData);
+		di->PtrData = AnsiToUnicode(diA->Data.Ptr.PtrData);
 	else
-		di->DataIn = AnsiToUnicode(diA->Data.Data);
+		di->PtrData = AnsiToUnicode(diA->Data.Data);
 	//BUGBUG тут надо придумать как сделать лучше: maxlen=513 например и также подумать что делать для DIF_VAREDIT
-	//di->DataOut = NULL;
 	//di->MaxLen = 0;
 }
 
@@ -830,8 +829,7 @@ void FreeUnicodeDialog(FarDialogItem *di, FarList *l)
 
 	if(l->Items) free(l->Items);
 
-	if (di->DataIn) free((wchar_t *)di->DataIn);
-	if (di->DataOut) free(di->DataOut);
+	if (di->PtrData) free((wchar_t *)di->PtrData);
 }
 
 void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
@@ -871,18 +869,8 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 			//BUGBUG
 			if(di->Param.VBuf) diA->Param.VBuf = di->Param.VBuf;
 			break;
-/*
-		case oldfar::DI_LISTBOX:
-		case oldfar::DI_COMBOBOX:
-			{
-				l->Items = (FarListItem *)malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
-				l->ItemsNumber = diA->Param.ListItems->ItemsNumber;
-				for(int j = 0;j<l->ItemsNumber;j++)
-					UnicodeListItemToAnsi(&l->Items[j],&diA->Param.ListItems->Items[j]);
-				di->Param.ListItems=l;
-			}
-			break;
-*/
+
+/* BUGBUG memory leak here
 		case oldfar::DI_EDIT:
 		case oldfar::DI_FIXEDIT:
 			{
@@ -892,8 +880,10 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 					diA->Param.Mask=UnicodeToAnsi(di->Param.Mask);
 			}
 			break;
+*/
+
 		default:
-			diA->Param.Selected=di->Param.Selected;
+			diA->Param.Reserved=di->Param.Reserved;
 	}
 
 	if(di->Flags)
@@ -943,9 +933,9 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 	diA->DefaultButton=di->DefaultButton;
 
 	if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
-    UnicodeToAnsi(di->DataOut,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength-1);
+    UnicodeToAnsi(di->PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength-1);
 	else
-    UnicodeToAnsi(di->DataOut?di->DataOut:di->DataIn,diA->Data.Data,sizeof(diA->Data.Data)-1);
+    UnicodeToAnsi(di->PtrData,diA->Data.Data,sizeof(diA->Data.Data)-1);
 }
 
 LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
@@ -1036,18 +1026,20 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 		case oldfar::DM_GETDLGITEM:
 			{
-				FarDialogItem di;
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)&di);
+				FarDialogItem *di = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
 
-				oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
+				if (di)
+				{
+					oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 
-				UnicodeDialogItemToAnsi(&di,diA); //BUGBUG memory leak
-        if(!di.MaxLen && IsEdit(di.Type) && di.DataOut) {
-          REALLOC ra = (REALLOC)FarSendDlgMessage(hDlg, DM_GETREALLOC, 0, 0);
-          if(ra)  // PARANOID
-            ra(di.DataOut, 0);
-        }
-				return ret;
+					UnicodeDialogItemToAnsi(di,diA); //BUGBUG memory leak
+
+					FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)di);
+
+					return TRUE;
+				}
+
+				return FALSE;
 			}
 
 		case oldfar::DM_GETDLGRECT: Msg = DM_GETDLGRECT; break;
@@ -1371,21 +1363,37 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	CurrentDlg++;
 	DlgProcs[CurrentDlg] = (LONG_PTR)DlgProc;
-  int ret = FarDialogEx(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?(const wchar_t *)strHT:NULL), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param, realloc);
-	CurrentDlg--;
 
-	for (int i=0; i<ItemsNumber; i++)
-	{
-		Item[i].Param.Selected = di[i].Param.Selected;
-		const wchar_t *res = di[i].DataOut;
-		if (!res) res = IsEdit(di[i].Type) ? L"" : di[i].DataIn;
-		if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-			UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength);
-		else
-			UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data)-1);
+  int ret = -1;
 
-		FreeUnicodeDialog(&di[i],&l[i]);
+  HANDLE hDlg = FarDialogInit(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?(const wchar_t *)strHT:NULL), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
+
+  if (hDlg != INVALID_HANDLE_VALUE)
+  {
+  	ret = FarDialogRun(hDlg);
+
+		for (int i=0; i<ItemsNumber; i++)
+		{
+			FarDialogItem *pdi = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0);
+			if (pdi)
+			{
+				Item[i].Param.Reserved = pdi->Param.Reserved;
+				const wchar_t *res = pdi->PtrData;
+				if (!res) res = L"";
+				if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
+					UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength);
+				else
+					UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data)-1);
+
+				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)pdi);
+			}
+			FreeUnicodeDialog(&di[i],&l[i]);
+		}
+
+		FarDialogFree(hDlg);
 	}
+
+	CurrentDlg--;
 
 	if (di) free(di);
 	if (l) free(l);
@@ -1396,7 +1404,6 @@ int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 {
 	return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, 0, 0);
 }
-
 
 void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL Short)
 {

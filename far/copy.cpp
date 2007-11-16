@@ -1025,9 +1025,10 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       else if(Param1 == ID_SC_ONLYNEWER && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
         // подсократим код путем эмул€ции телодвижений в строке ввода :-))
-        struct FarDialogItem DItemTargetEdit;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_TARGETEDIT,(LONG_PTR)&DItemTargetEdit);
-        Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,(LONG_PTR)&DItemTargetEdit);
+        //BUGBUG DN_EDITCHANGE expects DialogItemEx!!!
+        //FarDialogItem *DItemTargetEdit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_TARGETEDIT,0);
+        //Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,(LONG_PTR)DItemTargetEdit);
+        //Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemTargetEdit);
       }
       else if (Param1==ID_SC_BTNFILTER) // Filter
       {
@@ -1051,23 +1052,23 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DN_EDITCHANGE:
       if(Param1 == ID_SC_TARGETEDIT)
       {
-        struct FarDialogItem DItemACCopy,DItemACInherit,DItemACLeave,DItemOnlyNewer,DItemBtnCopy;
+        FarDialogItem *DItemACCopy,*DItemACInherit,*DItemACLeave,*DItemOnlyNewer,*DItemBtnCopy;
         string strSrcDir;
 
         int LenCurDirName = DlgParam->thisClass->SrcPanel->GetCurDir(strSrcDir);
 
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)&DItemACCopy);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)&DItemACInherit);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)&DItemACLeave);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)&DItemOnlyNewer);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)&DItemBtnCopy);
+        DItemACCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0);
+        DItemACInherit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0);
+        DItemACLeave = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,0);
+        DItemOnlyNewer = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0);
+        DItemBtnCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0);
 
         // Ёто создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
         {
-          DlgParam->thisClass->LinkRules(&DItemBtnCopy.Flags,
-                    &DItemOnlyNewer.Flags,
-                    &DItemOnlyNewer.Param.Selected,
+          DlgParam->thisClass->LinkRules(&DItemBtnCopy->Flags,
+                    &DItemOnlyNewer->Flags,
+                    &DItemOnlyNewer->Param.Selected,
                     strSrcDir,
                     ((struct DialogItemEx *)Param2)->strData,DlgParam); //!!!DialogItemEx
         }
@@ -1080,49 +1081,55 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
           if(!DlgParam->strPluginFormat.IsEmpty() && wcsstr(strBuf, DlgParam->strPluginFormat))
           {
-            DItemACCopy.Flags|=DIF_DISABLE;
-            DItemACInherit.Flags|=DIF_DISABLE;
-            DItemACLeave.Flags|=DIF_DISABLE;
-            DItemOnlyNewer.Flags|=DIF_DISABLE;
-            DlgParam->OnlyNewerFiles=DItemOnlyNewer.Param.Selected;
+            DItemACCopy->Flags|=DIF_DISABLE;
+            DItemACInherit->Flags|=DIF_DISABLE;
+            DItemACLeave->Flags|=DIF_DISABLE;
+            DItemOnlyNewer->Flags|=DIF_DISABLE;
+            DlgParam->OnlyNewerFiles=DItemOnlyNewer->Param.Selected;
             DlgParam->CopySecurity=0;
-            if (DItemACCopy.Param.Selected)
+            if (DItemACCopy->Param.Selected)
               DlgParam->CopySecurity=1;
-            else if (DItemACLeave.Param.Selected)
+            else if (DItemACLeave->Param.Selected)
               DlgParam->CopySecurity=2;
-            DItemACCopy.Param.Selected=0;
-            DItemACInherit.Param.Selected=0;
-            DItemACLeave.Param.Selected=1;
-            DItemOnlyNewer.Param.Selected=0;
+            DItemACCopy->Param.Selected=0;
+            DItemACInherit->Param.Selected=0;
+            DItemACLeave->Param.Selected=1;
+            DItemOnlyNewer->Param.Selected=0;
           }
           else
           {
-            DItemACCopy.Flags&=~DIF_DISABLE;
-            DItemACInherit.Flags&=~DIF_DISABLE;
-            DItemACLeave.Flags&=~DIF_DISABLE;
-            DItemOnlyNewer.Flags&=~DIF_DISABLE;
-            DItemOnlyNewer.Param.Selected=DlgParam->OnlyNewerFiles;
-            DItemACCopy.Param.Selected=0;
-            DItemACInherit.Param.Selected=0;
-            DItemACLeave.Param.Selected=0;
+            DItemACCopy->Flags&=~DIF_DISABLE;
+            DItemACInherit->Flags&=~DIF_DISABLE;
+            DItemACLeave->Flags&=~DIF_DISABLE;
+            DItemOnlyNewer->Flags&=~DIF_DISABLE;
+            DItemOnlyNewer->Param.Selected=DlgParam->OnlyNewerFiles;
+            DItemACCopy->Param.Selected=0;
+            DItemACInherit->Param.Selected=0;
+            DItemACLeave->Param.Selected=0;
             if (DlgParam->CopySecurity == 1)
             {
-              DItemACCopy.Param.Selected=1;
+              DItemACCopy->Param.Selected=1;
             }
             else if (DlgParam->CopySecurity == 2)
             {
-              DItemACLeave.Param.Selected=1;
+              DItemACLeave->Param.Selected=1;
             }
             else
-              DItemACInherit.Param.Selected=1;
+              DItemACInherit->Param.Selected=1;
           }
         }
 
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)&DItemACCopy);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)&DItemACInherit);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)&DItemACLeave);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)&DItemOnlyNewer);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)&DItemBtnCopy);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
+
+        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACCopy);
+        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACInherit);
+        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACLeave);
+        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemOnlyNewer);
+        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemBtnCopy);
       }
       break;
 
@@ -1736,51 +1743,53 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
           }
         }
 
-        int AttemptToMove=FALSE;
-        if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
-          AttemptToMove=TRUE;
-
-          switch(ShellCopyOneFile(strFullName,SrcData,Dest,KeepPathPos,NeedRename)) // 1
+          int AttemptToMove=FALSE;
+          if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
           {
-            case COPY_CANCEL:
-              return COPY_CANCEL;
+            AttemptToMove=TRUE;
 
-            case COPY_NEXT:
+            switch(ShellCopyOneFile(strFullName,SrcData,Dest,KeepPathPos,NeedRename)) // 1
             {
-              unsigned __int64 CurSize = SrcData.nFileSize;
-              TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-              TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-              continue;
-            }
+              case COPY_CANCEL:
+                return COPY_CANCEL;
 
-            case COPY_SUCCESS_MOVE:
-            {
-              FilesInDir++;
-              continue;
-            }
-
-            case COPY_SUCCESS:
-              if(!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
+              case COPY_NEXT:
               {
                 unsigned __int64 CurSize = SrcData.nFileSize;
                 TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
                 TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
-                FilesInDir++;
-                continue;     // ...  т.к. мы Ё“ќ не мувили, а скопировали, то все, на этом закончим бадатьс€ с этим файлов
+                continue;
               }
+
+              case COPY_SUCCESS_MOVE:
+              {
+                FilesInDir++;
+                continue;
+              }
+
+              case COPY_SUCCESS:
+                if(!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
+                {
+                  unsigned __int64 CurSize = SrcData.nFileSize;
+                  TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+                  TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+                  FilesInDir++;
+                  continue;     // ...  т.к. мы Ё“ќ не мувили, а скопировали, то все, на этом закончим бадатьс€ с этим файлов
+                }
+            }
           }
+
+          int SaveOvrMode=OvrMode;
+
+          if (AttemptToMove)
+            OvrMode=1;
+
+          SubCopyCode=ShellCopyOneFile(strFullName,SrcData,Dest,KeepPathPos,0);
+
+          if (AttemptToMove)
+            OvrMode=SaveOvrMode;
         }
-
-        int SaveOvrMode=OvrMode;
-
-        if (AttemptToMove)
-          OvrMode=1;
-
-        SubCopyCode=ShellCopyOneFile(strFullName,SrcData,Dest,KeepPathPos,0);
-
-        if (AttemptToMove)
-          OvrMode=SaveOvrMode;
 
         if (SubCopyCode==COPY_CANCEL)
           return COPY_CANCEL;
