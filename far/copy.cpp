@@ -1719,11 +1719,21 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         {
           // Просто пропустить каталог недостаточно - если каталог помечен в
           // фильтре как некопируемый, то следует пропускать и его и всё его
-          // содержимое. Но проверять надо ТОЛЬКО по маске (не по атрибутам)
-          // и при этом только на фильтры "с запретом"
+          // содержимое. Но проверять надо ТОЛЬКО на фильтры "с запретом"
           if (Filter->FileInFilter(&SrcData, true))
+          {
             ScTree.SkipDir();
-          continue;
+            continue;
+          }
+          else
+          {
+            // Из-за этих пропусков при Move полностью скопированный каталог не
+            // удаляется обычным методом, а пустые каталоги не копируются даже
+            // в случае когда фильтр это разрешает
+            if (!(ShellCopy::Flags&FCOPY_MOVE) || SameDisk || !ScTree.IsDirSearchDone())
+              continue;
+            if(FilesInDir) goto remove_moved_directory;
+          }
         }
 
         int AttemptToMove=FALSE;
@@ -1793,6 +1803,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
               {
                 if (SrcData.dwFileAttributes & FA_RDONLY)
                   SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
+remove_moved_directory:
                 if (apiRemoveDirectory(strFullName))
                   TreeList::DelTreeName(strFullName);
               }
@@ -1893,8 +1904,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
   {
     // Просто не смотреть соотвествие каталога фильтрам недостаточно - если это
     // делать, то копируются каталоги помеченные в фильтре как некопируемые.
-    // Поэтому проверяем на соотвествие фильтру БЕЗ учёта признака каталога
-    // и при этом только на фильтры "с запретом"
+    // Поэтому для каталогов проверяем на соотвествие фильтру "с запретом"
     bool isDir = (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
     if(Filter->FileInFilter(&SrcData, isDir) == isDir)
       return COPY_NEXT;
