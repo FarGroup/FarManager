@@ -14,6 +14,14 @@
 #include "netlng.hpp"
 #include "NetMacros.hpp"
 
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Selected
+#define GetDataPtr(i) DialogItems[i].Data
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#endif
+
 struct InitDialogItem
 {
   unsigned char Type;

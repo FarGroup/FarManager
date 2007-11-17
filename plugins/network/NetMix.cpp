@@ -23,17 +23,20 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     PItem->History=(const TCHAR *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
+#ifdef UNICODE
+    PItem->MaxLen=0;
+#endif
     if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
 #ifndef UNICODE
       lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
 #else
-      PItem->DataIn = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
+      PItem->PtrData = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
 #endif
     else
 #ifndef UNICODE
       lstrcpy(PItem->Data,PInit->Data);
 #else
-      PItem->DataIn = PInit->Data;
+      PItem->PtrData = PInit->Data;
 #endif
   }
 }

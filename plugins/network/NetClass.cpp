@@ -584,8 +584,8 @@ BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, i
 
 #ifdef UNICODE
   TCHAR tmp[NM];
-  DialogItems[3].DataIn = tmp;
-#define Data  DataIn
+  DialogItems[3].PtrData = tmp;
+#define Data  PtrData
 #endif
   {
     size_t rc = lstrlen(DialogItems[0].Data);
@@ -608,21 +608,39 @@ BOOL NetBrowser::ConfirmCancelConnection (TCHAR *LocalName, TCHAR *RemoteName, i
 
   int ExitCode;
   if (!NeedConfirmCancelConnection())
+  {
     ExitCode = 7;
+    UpdateProfile=DialogItems[5].Selected?0:CONNECT_UPDATE_PROFILE;
+    if(ExitCode == 7 && IsPersistent)
+    {
+      Opt.DisconnectMode=DialogItems[5].Selected;
+      SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisconnectMode,Opt.DisconnectMode);
+    }
+  }
   else
+  {
+#ifndef UNICODE
     ExitCode = Info.Dialog (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 11,
                             _T("DisconnectDrive"),
-                            DialogItems, ArraySize(DialogItems)
-#ifdef UNICODE
-                            , NULL
-#endif
-                           );
+                            DialogItems, ArraySize(DialogItems));
+#else
+    HANDLE hDlg=Info.DialogInit (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 11,
+                            _T("DisconnectDrive"),DialogItems, ArraySize(DialogItems),0,0,NULL,0);
+    if (hDlg==INVALID_HANDLE_VALUE)
+      return FALSE;
 
-  UpdateProfile=DialogItems[5].Selected?0:CONNECT_UPDATE_PROFILE;
-  if(ExitCode == 7 && IsPersistent)
-  {
-    Opt.DisconnectMode=DialogItems[5].Selected;
-    SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisconnectMode,Opt.DisconnectMode);
+    ExitCode = Info.DialogRun(hDlg);
+#endif
+
+    UpdateProfile=GetCheck(5)?0:CONNECT_UPDATE_PROFILE;
+    if(ExitCode == 7 && IsPersistent)
+    {
+      Opt.DisconnectMode=GetCheck(5);
+      SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisconnectMode,Opt.DisconnectMode);
+    }
+#ifdef UNICODE
+    Info.DialogFree(hDlg);
+#endif
   }
   return ExitCode == 7;
 }
@@ -1660,38 +1678,42 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
   }
   struct FarDialogItem DialogItems[ArraySize(InitItems)];
   InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  int ret=FALSE;
 
   if (passInfo->Title!=NULL)
 #ifndef UNICODE
     CharToOem(passInfo->Title,DialogItems[0].Data);
 #else
-    DialogItems[0].DataIn = passInfo->Title;
-  DialogItems[2].DataOut = LastName;
-  DialogItems[2].MaxLen = ArraySize(LastName);
-  DialogItems[4].DataOut = LastPassword;
-  DialogItems[4].MaxLen = ArraySize(LastPassword);
+    DialogItems[0].PtrData = passInfo->Title;
+  DialogItems[2].MaxLen = ArraySize(LastName)-1;
+  DialogItems[4].MaxLen = ArraySize(LastPassword)-1;
 #endif
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,12,
-                           StrHelpNetBrowse,DialogItems,ArraySize(DialogItems)
-#ifdef UNICODE
-                           , NULL
-#endif
-                          );
-  //if (ExitCode!=7)
-  if (ExitCode!=(ArraySize(DialogItems)-2))
-    return(FALSE);
-  if (passInfo->pRemember)
-    *passInfo->pRemember = DialogItems[6].Selected;
 #ifndef UNICODE
-  lstrcpy(LastName,DialogItems[2].Data);
-  lstrcpy(LastPassword,DialogItems[4].Data);
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,12,
+                           StrHelpNetBrowse,DialogItems,ArraySize(DialogItems));
+#else
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,76,12,
+                           StrHelpNetBrowse,DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return ret;
+  int ExitCode=Info.DialogRun(hDlg);
 #endif
+  if (ExitCode==(ArraySize(DialogItems)-2))
+  {
+    if (passInfo->pRemember)
+      *passInfo->pRemember = GetCheck(6);
+    lstrcpyn(LastName,GetDataPtr(2),sizeof(LastName));
+    lstrcpyn(LastPassword,GetDataPtr(4),sizeof(LastPassword));
 
-  // Convert Name and Password to Ansi
-  OEMToChar(LastName,passInfo->Name);
-  OEMToChar(LastPassword,passInfo->Password);
-
-  return(TRUE);
+    // Convert Name and Password to Ansi
+    OEMToChar(LastName,passInfo->Name);
+    OEMToChar(LastPassword,passInfo->Password);
+    ret=TRUE;
+  }
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
+  return ret;
 }
 
 

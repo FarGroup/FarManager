@@ -48,12 +48,13 @@ int Config()
 #ifdef UNICODE
   wchar_t digstr[32];
   digstr[0] = 0;
-  DialogItems[2].DataIn = DialogItems[2].DataOut = digstr;
+  DialogItems[2].PtrData = digstr;
   DialogItems[2].MaxLen = ArraySize(digstr);
-#define Data  DataOut
+#define Data  PtrData
 #endif
   if (Opt.DisksMenuDigit)
-    FSF.sprintf(DialogItems[2].Data,_T("%d"),Opt.DisksMenuDigit);
+    FSF.sprintf((TCHAR *)DialogItems[2].Data,_T("%d"),Opt.DisksMenuDigit);
+#undef Data
   DialogItems[7].Selected=Opt.LocalNetwork;
   DialogItems[8].Selected=Opt.NTGetHideShare;
   DialogItems[10].Selected=Opt.FullPathShares;
@@ -61,42 +62,53 @@ int Config()
   DialogItems[12].Selected=Opt.FavoritesFlags & FAVORITES_UPBROWSE_TO_FAVORITES ? TRUE : FALSE;
   DialogItems[13].Selected=Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES       ? TRUE : FALSE;
 
+  int ret=FALSE;
+
+#ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber, -1, -1, 76, 18,_T("Config"),
-                           DialogItems, ArraySize(DialogItems)
-#ifdef UNICODE
-                           , NULL
+                           DialogItems, ArraySize(DialogItems));
+#else
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber, -1, -1, 76, 18,_T("Config"),
+                           DialogItems, ArraySize(DialogItems),0,0,NULL,0);
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return ret;
+  int ExitCode=Info.DialogRun(hDlg);
 #endif
-                          );
-  if (ExitCode!=15)
-    return(FALSE);
-  Opt.AddToDisksMenu=DialogItems[1].Selected;
-  Opt.AddToPluginsMenu=DialogItems[4].Selected;
-  Opt.NoRootDoublePoint=!DialogItems[5].Selected;
-  Opt.DisksMenuDigit=FSF.atoi(DialogItems[2].Data);
-#undef Data
-  Opt.LocalNetwork=DialogItems[7].Selected;
-  Opt.NTGetHideShare=DialogItems[8].Selected;
-  Opt.FullPathShares=DialogItems[10].Selected;
 
-  if(DialogItems[12].Selected)
-    Opt.FavoritesFlags |= FAVORITES_UPBROWSE_TO_FAVORITES;
-  else
-    Opt.FavoritesFlags &= ~FAVORITES_UPBROWSE_TO_FAVORITES;
+  if (ExitCode==15)
+  {
+    Opt.AddToDisksMenu=GetCheck(1);
+    Opt.AddToPluginsMenu=GetCheck(4);
+    Opt.NoRootDoublePoint=!GetCheck(5);
+    Opt.DisksMenuDigit=FSF.atoi(GetDataPtr(2));
+    Opt.LocalNetwork=GetCheck(7);
+    Opt.NTGetHideShare=GetCheck(8);
+    Opt.FullPathShares=GetCheck(10);
 
-  if(DialogItems[13].Selected)
-    Opt.FavoritesFlags |= FAVORITES_CHECK_RESOURCES;
-  else
-    Opt.FavoritesFlags &= ~FAVORITES_CHECK_RESOURCES;
+    if(GetCheck(12))
+      Opt.FavoritesFlags |= FAVORITES_UPBROWSE_TO_FAVORITES;
+    else
+      Opt.FavoritesFlags &= ~FAVORITES_UPBROWSE_TO_FAVORITES;
 
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,Opt.AddToDisksMenu);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,Opt.AddToPluginsMenu);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,Opt.DisksMenuDigit);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrLocalNetwork,Opt.LocalNetwork);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,Opt.NTGetHideShare);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrFullPathShares,Opt.FullPathShares);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrFavoritesFlags,Opt.FavoritesFlags);
-  SetRegKey(HKEY_CURRENT_USER,_T(""),StrNoRootDoublePoint,Opt.NoRootDoublePoint);
-  return(TRUE);
+    if(GetCheck(13))
+      Opt.FavoritesFlags |= FAVORITES_CHECK_RESOURCES;
+    else
+      Opt.FavoritesFlags &= ~FAVORITES_CHECK_RESOURCES;
+
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,Opt.AddToDisksMenu);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,Opt.AddToPluginsMenu);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,Opt.DisksMenuDigit);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrLocalNetwork,Opt.LocalNetwork);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,Opt.NTGetHideShare);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrFullPathShares,Opt.FullPathShares);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrFavoritesFlags,Opt.FavoritesFlags);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrNoRootDoublePoint,Opt.NoRootDoublePoint);
+    ret=TRUE;
+  }
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
+  return ret;
 }
 
 void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
