@@ -12,6 +12,12 @@
 #include "HMenu.h"
 #include <cassert>
 
+#ifndef UNICODE
+#define GetCheck(i) DlgItems[i].Selected
+#else
+#define GetCheck(i) (int)PluginStartupInfo::SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#endif
+
 // new version of PSDK do not contains standard smart-pointer declaration
 _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
 _COM_SMARTPTR_TYPEDEF(IContextMenu2, __uuidof(IContextMenu2));
@@ -148,17 +154,33 @@ int CPlugin::Menu(int nX, int nY, int nMaxHeight, DWORD nFlags
     , pItems, nItemsNumber);
 }
 
+#ifndef UNICODE
 int CPlugin::DialogEx(int X1, int Y1, int X2, int Y2, LPCTSTR szHelpTopic
     , FarDialogItem* pItem, int nItemsNumber, DWORD nReserved, DWORD nFlags
     , FARWINDOWPROC DlgProc, LONG_PTR pParam)
 {
   return PluginStartupInfo::DialogEx(ModuleNumber, X1, Y1, X2, Y2, szHelpTopic
-    , pItem, nItemsNumber, nReserved, nFlags, DlgProc, pParam
-#ifdef UNICODE
-    , NULL
-#endif
-    );
+    , pItem, nItemsNumber, nReserved, nFlags, DlgProc, pParam);
 }
+#else
+HANDLE CPlugin::DialogInit(int X1, int Y1, int X2, int Y2, LPCTSTR szHelpTopic
+    , FarDialogItem* pItem, int nItemsNumber, DWORD nReserved, DWORD nFlags
+    , FARWINDOWPROC DlgProc, LONG_PTR pParam)
+{
+  return PluginStartupInfo::DialogInit(ModuleNumber, X1, Y1, X2, Y2, szHelpTopic
+    , pItem, nItemsNumber, nReserved, nFlags, DlgProc, pParam);
+}
+
+int CPlugin::DialogRun(HANDLE hDlg)
+{
+  return PluginStartupInfo::DialogRun(hDlg);
+}
+
+void CPlugin::DialogFree(HANDLE hDlg)
+{
+  PluginStartupInfo::DialogFree(hDlg);
+}
+#endif
 
 int CPlugin::Message(DWORD nFlags, LPCTSTR szHelpTopic, const LPCTSTR* pItems
     , int nItemsNumber, int nButtonsNumber)
@@ -248,7 +270,7 @@ int CPlugin::Configure()
 #ifndef UNICODE
 #define SET_DLGITEM(n,v)  lstrcpy(DlgItems[n].Data, v)
 #else
-#define SET_DLGITEM(n,v)  DlgItems[n].DataIn = v
+#define SET_DLGITEM(n,v)  DlgItems[n].PtrData = v
 #endif
   SET_DLGITEM(0, GetMsg(LNG_TITLE));
   SET_DLGITEM(m_nShowMessId, GetMsg(LNG_SHOWMESS));
@@ -278,31 +300,48 @@ int CPlugin::Configure()
   DlgItems[10].Selected=m_DifferentOnly;
   DlgItems[12].Selected=m_GuiPos==0;
   DlgItems[13].Selected=m_GuiPos==1;
-  if (14!=DialogEx(-1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems
-    , ArraySize(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this)))
+
+  int ret = 0;
+#ifndef UNICODE
+  int ExitCode = DialogEx(-1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems,
+                   ArraySize(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this));
+#else
+  HANDLE hDlg = DialogInit(-1, -1, nWidth, nHeight, g_szTopicConfig, DlgItems,
+                   ArraySize(DlgItems), 0, 0, CfgDlgProcStatic, reinterpret_cast<LONG_PTR>(this));
+
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return ret;
+
+  int ExitCode = DialogRun(hDlg);
+#endif
+
+  if (ExitCode==14)
   {
-    return 0;
+    m_WaitToContinue=DlgItems[1].Selected;
+    m_UseGUI=DlgItems[2].Selected;
+    m_DelUsingFar=DlgItems[3].Selected;
+    m_ClearSel=DlgItems[4].Selected;
+    m_Silent=DlgItems[5].Selected;
+    if (DlgItems[7].Selected) m_enHelptext=AS_NONE;
+    if (DlgItems[8].Selected) m_enHelptext=AS_HELPTEXT;
+    if (DlgItems[9].Selected) m_enHelptext=AS_VERB;
+    m_DifferentOnly=DlgItems[10].Selected;
+    if (DlgItems[12].Selected) m_GuiPos=0;
+    if (DlgItems[13].Selected) m_GuiPos=1;
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, m_WaitToContinue);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, m_UseGUI);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, m_DelUsingFar);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_ClearSel, m_ClearSel);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Silent, m_Silent);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Helptext, m_enHelptext);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DifferentOnly, m_DifferentOnly);
+    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, m_GuiPos);
+    ret=1;
   }
-  m_WaitToContinue=DlgItems[1].Selected;
-  m_UseGUI=DlgItems[2].Selected;
-  m_DelUsingFar=DlgItems[3].Selected;
-  m_ClearSel=DlgItems[4].Selected;
-  m_Silent=DlgItems[5].Selected;
-  if (DlgItems[7].Selected) m_enHelptext=AS_NONE;
-  if (DlgItems[8].Selected) m_enHelptext=AS_HELPTEXT;
-  if (DlgItems[9].Selected) m_enHelptext=AS_VERB;
-  m_DifferentOnly=DlgItems[10].Selected;
-  if (DlgItems[12].Selected) m_GuiPos=0;
-  if (DlgItems[13].Selected) m_GuiPos=1;
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, m_WaitToContinue);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, m_UseGUI);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, m_DelUsingFar);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_ClearSel, m_ClearSel);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Silent, m_Silent);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Helptext, m_enHelptext);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DifferentOnly, m_DifferentOnly);
-  SetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, m_GuiPos);
-  return 1;
+#ifdef UNICODE
+  DialogFree(hDlg);
+#endif
+  return ret;
 }
 
 void CPlugin::ExitFAR()

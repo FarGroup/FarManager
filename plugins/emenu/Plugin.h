@@ -38,9 +38,17 @@ public:
           , LPCTSTR szTitle, LPCTSTR szBottom, LPCTSTR szHelpTopic
           , const int* pnBreakKeys, int* pnBreakCode
           , const FarMenuItem* pItems, int nItemsNumber);
+#ifndef UNICODE
   int DialogEx(int X1, int Y1, int X2, int Y2, LPCTSTR szHelpTopic
     , FarDialogItem* pItem, int nItemsNumber, DWORD nReserved, DWORD nFlags
     , FARWINDOWPROC DlgProc, LONG_PTR pParam);
+#else
+  HANDLE DialogInit(int X1, int Y1, int X2, int Y2, LPCTSTR szHelpTopic
+    , FarDialogItem* pItem, int nItemsNumber, DWORD nReserved, DWORD nFlags
+    , FARWINDOWPROC DlgProc, LONG_PTR pParam);
+  int DialogRun(HANDLE hDlg);
+  void DialogFree(HANDLE hDlg);
+#endif
   INT_PTR AdvControl(int nCommand, void *pParam);
   HINSTANCE m_hModule;
   IMalloc* m_pMalloc;
