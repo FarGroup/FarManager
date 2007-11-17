@@ -24,6 +24,14 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Selected
+#define GetDataPtr(i) DialogItems[i].Data
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#endif
+
 #include "reg.cpp"
 #include "mix.cpp"
 #include "FarEditor.cpp"
@@ -186,11 +194,10 @@ void ShowHelpFromTempFile()
 #ifdef UNICODE
   wchar_t fname[MAX_PATH];
   esf.FileName = fname;
-  if(FSF.MkTemp(fname, ArraySize(fname)-4,
+  if(FSF.MkTemp(fname, ArraySize(fname)-4,_T("HLF")))
 #else
-  if(FSF.MkTemp(esf.FileName,
+  if(FSF.MkTemp(esf.FileName,_T("HLF")))
 #endif
-                _T("HLF")))
   {
     lstrcat((TCHAR*)esf.FileName,_T(".hlf"));
   /*
@@ -260,36 +267,45 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
   };
   struct FarDialogItem DialogItems[ArraySize(InitItems)];
   InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
+  int ret=FALSE;
 
   DialogItems[1].Selected=Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
   Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
   DialogItems[5].Selected=DialogItems[6].Selected=DialogItems[7].Selected=0;
   DialogItems[5+(Opt.Style>2?0:Opt.Style)].Selected=1;
 #ifdef UNICODE
-  DialogItems[2].DataOut = KeyNameFromReg;
-  DialogItems[2].MaxLen = ArraySize(KeyNameFromReg);
+  DialogItems[2].MaxLen = ArraySize(KeyNameFromReg)-1;
 #endif
 
-  if(9==Info.Dialog(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,
-                    DialogItems,ArraySize(InitItems)
-#ifdef UNICODE
-                    , NULL
+#ifndef UNICODE
+  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,
+                             DialogItems,ArraySize(InitItems));
+#else
+  HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,
+                            DialogItems,ArraySize(InitItems),0,0,NULL,0);
+
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return ret;
+
+  int ExitCode = Info.DialogRun(hDlg);
 #endif
-                   ))
+
+  if(ExitCode==9)
   {
-    Opt.ProcessEditorInput=DialogItems[1].Selected;
-#ifdef UNICODE
-#define Data DataOut
-#endif
-    if((Opt.Key=FSF.FarNameToKey(DialogItems[2].Data))==-1) Opt.Key=KEY_F1;
-#undef Data
+    Opt.ProcessEditorInput=GetCheck(1);
+    if((Opt.Key=FSF.FarNameToKey(GetDataPtr(2)))==-1) Opt.Key=KEY_F1;
     FSF.FarKeyToName(Opt.Key,KeyNameFromReg,ArraySize(KeyNameFromReg)-1);
-    Opt.Style=(DialogItems[6].Selected!=0)+((DialogItems[7].Selected!=0)<<1);
+    Opt.Style=(GetCheck(6)!=0)+((GetCheck(7)!=0)<<1);
 
     SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,Opt.ProcessEditorInput);
     SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg);
     SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,Opt.Style);
-    return TRUE;
+    ret=TRUE;
   }
-  return FALSE;
+
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
+
+  return ret;
 }

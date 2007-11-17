@@ -2,7 +2,7 @@
 #define VERSIONINFO_1   1
 VERSIONINFO_1 VERSIONINFO
 
-FILEVERSION    FAR_MAJOR_VER, FAR_MINOR_VER, 0, 16
+FILEVERSION    FAR_MAJOR_VER, FAR_MINOR_VER, 0, 17
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEFLAGSMASK  0x0
 FILEFLAGS      0x0
@@ -17,9 +17,9 @@ FILESUBTYPE    0x0
       VALUE "CompanyName", FARCOMPANYNAME
       VALUE "FileDescription",   "Hlf-file Viewer for FAR Manager\0"
 #ifndef UNICODE
-      VALUE "FileVersion",       "1.71 build 16\0"
+      VALUE "FileVersion",       "1.71 build 17\0"
 #else
-      VALUE "FileVersion",       "1.80 build 16\0"
+      VALUE "FileVersion",       "1.80 build 17\0"
 #endif
       VALUE "InternalName",      "HlfViewer\0"
       VALUE "LegalCopyright", FARCOPYRIGHT
