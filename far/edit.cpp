@@ -120,29 +120,29 @@ Edit::~Edit()
 void Edit::SetCodePage (int codepage)
 {
 	if ( codepage != m_codepage )
-    {
-    	//m_codepage = codepage;
+	{
+		//m_codepage = codepage;
 
-    	int length = WideCharToMultiByte (m_codepage, 0, Str, StrSize, NULL, 0, NULL, NULL);
+		int length = WideCharToMultiByte (m_codepage, 0, Str, StrSize, NULL, 0, NULL, NULL);
 
-        char *decoded = (char*)xf_malloc (length);
+		char *decoded = (char*)xf_malloc (length);
 
-    	if ( !decoded )
-    		return;
+		if ( !decoded )
+			return;
 
-    	WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
+		WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
 
-    	int length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
+		int length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
 
-    	wchar_t *encoded = (wchar_t*)xf_malloc ((length2+1)*sizeof (wchar_t));
+		wchar_t *encoded = (wchar_t*)xf_malloc ((length2+1)*sizeof (wchar_t));
 
-    	if ( !encoded )
-        {
-        	xf_free (decoded);
-        	return;
-        }
+		if ( !encoded )
+		{
+			xf_free (decoded);
+			return;
+		}
 
-        memset (encoded, 0, (length2+1)*sizeof (wchar_t));
+		memset (encoded, 0, (length2+1)*sizeof (wchar_t));
 
 		MultiByteToWideChar (codepage, 0, decoded, length, encoded, length2);
 
@@ -153,7 +153,7 @@ void Edit::SetCodePage (int codepage)
 		StrSize = length2;
 
 		m_codepage = codepage;
-    }
+	}
 }
 
 int Edit::GetCodePage ()
@@ -1213,7 +1213,7 @@ int Edit::ProcessKey(int Key)
         else
           InsertString(ClipText);
         if(ClipText)
-          delete[] ClipText;
+          xf_free(ClipText);
         Show();
       return(TRUE);
     }
@@ -2441,7 +2441,7 @@ int __stdcall SystemCPEncoder::Transcode (
 	char *lpDecoded = (char *)xf_malloc (length);
 
 	if ( lpDecoded )
-    {
+	{
 		pFrom->Decode (lpwszString, nLength, lpDecoded, length);
 
 		length = Encode (lpDecoded, length, NULL, 0);

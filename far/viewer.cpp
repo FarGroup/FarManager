@@ -1200,12 +1200,12 @@ int Viewer::ProcessKey(int Key)
       if (SelectSize && ViewFile)
       {
         wchar_t *SelData;
-        int DataSize = (int)SelectSize+(VM.Unicode?2:1);
+        size_t DataSize = (size_t)SelectSize+(VM.Unicode?2:1);
         __int64 CurFilePos=vtell(ViewFile);
 
         if ((SelData=(wchar_t*)xf_malloc(DataSize*sizeof (wchar_t))) != NULL)
         {
-          memset(SelData, 0, DataSize*sizeof (wchar_t));
+          wmemset(SelData, 0, DataSize);
           vseek(ViewFile,SelectPos,SEEK_SET);
           vread(SelData, (int)SelectSize, ViewFile);
           /*if (VM.UseDecodeTable && !VM.Unicode) BUGBUG

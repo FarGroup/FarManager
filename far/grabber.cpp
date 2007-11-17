@@ -180,9 +180,9 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
         add=2;
       }
       AppendBuf=(wchar_t *)xf_realloc(AppendBuf,(DataSize+BufSize+add)*sizeof (wchar_t));
-      memcpy(AppendBuf+DataSize+add,CopyBuf,BufSize*sizeof (wchar_t));
+      wmemcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
       if ( add )
-        memcpy(AppendBuf+DataSize,L"\r\n",2*sizeof (wchar_t));
+        wmemcpy(AppendBuf+DataSize,L"\r\n",2);
 
       xf_free(CopyBuf);
       CopyBuf=AppendBuf;

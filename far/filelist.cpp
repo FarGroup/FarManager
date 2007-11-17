@@ -3401,8 +3401,11 @@ void FileList::CopyNames(int FillPathName,int UNC)
         }
         if(!CreateFullPathName(strQuotedName,strSelShortName,FileAttr,strQuotedName,UNC))
         {
-          xf_free(CopyData);
-          CopyData=NULL;
+          if (CopyData)
+          {
+            xf_free(CopyData);
+            CopyData=NULL;
+          }
           break;
         }
       }
@@ -3446,8 +3449,11 @@ void FileList::CopyNames(int FillPathName,int UNC)
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData, (DataSize+Length+3)*sizeof (wchar_t));
     if (NewPtr==NULL)
     {
-      xf_free(CopyData);
-      CopyData=NULL;
+    	if (CopyData)
+    	{
+        xf_free(CopyData);
+        CopyData=NULL;
+      }
       break;
     }
     CopyData=NewPtr;

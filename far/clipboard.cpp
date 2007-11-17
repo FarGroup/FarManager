@@ -265,7 +265,7 @@ wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
 //    else
 //      BufferSize=strlen(ClipAddr)+1;
 
-    ClipText=new wchar_t[BufferSize];
+    ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
     if (ClipText!=NULL)
         wcscpy (ClipText, ClipAddr);
 /*      if (Unicode)
@@ -335,10 +335,10 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
     if ( BufferSize>max )
         BufferSize=max;
 
-    ClipText=new wchar_t[BufferSize+2];
+    ClipText=(wchar_t *)xf_malloc((BufferSize+2)*sizeof(wchar_t));
     if (ClipText!=NULL)
     {
-      memset(ClipText,0,BufferSize+2);
+      wmemset(ClipText,0,BufferSize+2);
 
       xwcsncpy(ClipText,ClipAddr,BufferSize);
       ClipText[BufferSize]=0;
@@ -384,7 +384,7 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
   {
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
     int BufferSize=(int)(StrLength(ClipAddr)+1)*sizeof (wchar_t);
-    ClipText=new wchar_t[BufferSize];
+    ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
     if (ClipText!=NULL)
       wcscpy(ClipText,ClipAddr);
     GlobalUnlock(hClipData);

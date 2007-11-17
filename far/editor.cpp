@@ -3719,7 +3719,7 @@ void Editor::Paste(const wchar_t *Src)
   if (Flags.Check(FEDITOR_LOCKMODE))
     return;
 
-  const wchar_t *ClipText=Src;
+  wchar_t *ClipText=(wchar_t *)Src;
   BOOL IsDeleteClipText=FALSE;
 
   if(!ClipText)
@@ -3818,7 +3818,7 @@ void Editor::Paste(const wchar_t *Src)
     Unlock ();
   }
   if(IsDeleteClipText)
-    delete [] ClipText;
+    xf_free(ClipText);
   BlockUndo=FALSE;
 }
 
@@ -3833,13 +3833,13 @@ void Editor::Copy(int Append)
 
   Edit *CurPtr=BlockStart;
   wchar_t *CopyData=NULL;
-  long DataSize=0,PrevSize=0;
+  size_t DataSize=0;
 
   if (Append)
   {
     CopyData=PasteFromClipboard();
     if (CopyData!=NULL)
-      PrevSize=DataSize=(long)StrLength(CopyData);
+      DataSize=StrLength(CopyData);
   }
 
   while (CurPtr!=NULL)
@@ -3852,13 +3852,16 @@ void Editor::Copy(int Append)
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+Length+2)*sizeof (wchar_t));
     if (NewPtr==NULL)
     {
-      delete CopyData;
-      CopyData=NULL;
+      if (CopyData)
+      {
+        xf_free(CopyData);
+        CopyData=NULL;
+      }
       break;
     }
     CopyData=NewPtr;
     CurPtr->GetSelString(CopyData+DataSize,Length);
-    DataSize+=(long)StrLength(CopyData+DataSize);
+    DataSize+=StrLength(CopyData+DataSize);
     if (EndSel==-1)
     {
       wcscpy(CopyData+DataSize,DOS_EOL_fmt);
@@ -3873,7 +3876,7 @@ void Editor::Copy(int Append)
     if (UseDecodeTable)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
     CopyToClipboard(CopyData);
-    delete CopyData;
+    xf_free(CopyData);
   }
 }
 
@@ -4649,18 +4652,18 @@ void Editor::VCopy(int Append)
 {
   Edit *CurPtr=VBlockStart;
   wchar_t *CopyData=NULL;
-  long DataSize=0,PrevSize=0;
+  size_t DataSize=0;
 
   if (Append)
   {
     CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
     if (CopyData!=NULL)
-      PrevSize=DataSize=(long)StrLength(CopyData);
+      DataSize=StrLength(CopyData);
     else
     {
       CopyData=PasteFromClipboard();
       if (CopyData!=NULL)
-        PrevSize=DataSize=(long)StrLength(CopyData);
+        DataSize=StrLength(CopyData);
     }
   }
 
@@ -4673,12 +4676,15 @@ void Editor::VCopy(int Append)
     int Length;
     CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
 
-    int AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
+    size_t AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
     wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof (wchar_t));
     if (NewPtr==NULL)
     {
-      delete CopyData;
-      CopyData=NULL;
+      if (CopyData)
+      {
+        xf_free(CopyData);
+        CopyData=NULL;
+      }
       break;
     }
     CopyData=NewPtr;
@@ -4708,11 +4714,11 @@ void Editor::VCopy(int Append)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
     CopyToClipboard(CopyData);
     CopyFormatToClipboard(FAR_VerticalBlock,CopyData);
-    delete CopyData;
+    xf_free(CopyData);
   }
 }
 
-void Editor::VPaste(const wchar_t *ClipText)
+void Editor::VPaste(wchar_t *ClipText)
 {
   if (Flags.Check(FEDITOR_LOCKMODE))
     return;
@@ -4802,7 +4808,7 @@ void Editor::VPaste(const wchar_t *ClipText)
     Pasting--;
     Unlock ();
   }
-  delete ClipText;
+  xf_free(ClipText);
   BlockUndo=FALSE;
 }
 

@@ -313,7 +313,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				strTemp.Format (L"%c%-*s",(WORD)VerticalLine,LabelWidth,(const wchar_t*)strVolumeName);
 				strMenuText += strTemp;
 			}
-			
+
 			if ( Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM )
 			{
 				strTemp.Format (L"%c%-8.8s",(WORD)VerticalLine,(const wchar_t*)strFileSystemName);
@@ -1306,11 +1306,14 @@ void Panel::FastFind(int FirstKey)
           if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
           {
             wchar_t *ClipText=PasteFromClipboard();
-            if(ClipText && *ClipText)
+            if(ClipText)
             {
-              FastFindProcessName(&FindEdit,ClipText,strLastName,strName);
-              FastFindShow(FindX,FindY);
-              delete[] ClipText;
+            	if (*ClipText)
+            	{
+                FastFindProcessName(&FindEdit,ClipText,strLastName,strName);
+                FastFindShow(FindX,FindY);
+              }
+              xf_free(ClipText);
             }
             continue;
           }

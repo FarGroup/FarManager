@@ -203,7 +203,7 @@ class Editor:public ScreenObject
     void BlockRight();
     void DeleteVBlock();
     void VCopy(int Append);
-    void VPaste(const wchar_t *ClipText);
+    void VPaste(wchar_t *ClipText);
     void VBlockShift(int Left);
     Edit* GetStringByNumber(int DestLine);
     static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name);

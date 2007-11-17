@@ -1106,7 +1106,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 */
 void WINAPI DeleteBuffer(char *Buffer)
 {
-  if(Buffer)delete [] Buffer;
+  if(Buffer) xf_free(Buffer);
 }
 
 

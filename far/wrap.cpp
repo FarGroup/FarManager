@@ -30,7 +30,7 @@ wchar_t *AnsiToUnicode (const char *lpszAnsiString)
 {
   int nLength = (int)strlen (lpszAnsiString)+1;
 
-  wchar_t *lpResult = (wchar_t*)malloc (nLength*sizeof(wchar_t));
+  wchar_t *lpResult = (wchar_t*)xf_malloc (nLength*sizeof(wchar_t));
 
   wmemset (lpResult, 0, nLength);
 
@@ -48,7 +48,7 @@ wchar_t *AnsiToUnicode (const char *lpszAnsiString)
 
 char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 {
-  char *lpResult = (char*)malloc (nLength);
+  char *lpResult = (char*)xf_malloc (nLength);
 
   memset (lpResult, 0, nLength);
 
@@ -68,7 +68,7 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 
 void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, int ItemsNumber)
 {
-	*PanelItemW = (PluginPanelItem *)malloc(ItemsNumber*sizeof(PluginPanelItem));
+	*PanelItemW = (PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(PluginPanelItem));
 
 	memset(*PanelItemW,0,ItemsNumber*sizeof(PluginPanelItem));
 
@@ -86,7 +86,7 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 		if (PanelItemA[i].CustomColumnNumber)
 		{
 			(*PanelItemW)[i].CustomColumnNumber = PanelItemA[i].CustomColumnNumber;
-			(*PanelItemW)[i].CustomColumnData = (wchar_t **)malloc(PanelItemA[i].CustomColumnNumber*sizeof(wchar_t *));
+			(*PanelItemW)[i].CustomColumnData = (wchar_t **)xf_malloc(PanelItemA[i].CustomColumnNumber*sizeof(wchar_t *));
 
 			for (int j=0; j<PanelItemA[i].CustomColumnNumber; j++)
 				(*PanelItemW)[i].CustomColumnData[j] = AnsiToUnicode(PanelItemA[i].CustomColumnData[j]);
@@ -108,7 +108,7 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 
 void ConvertPanelItemW(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem **PanelItemA, int ItemsNumber)
 {
-	*PanelItemA = (oldfar::PluginPanelItem *)malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
+	*PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
 	memset(*PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
@@ -126,7 +126,7 @@ void ConvertPanelItemW(const PluginPanelItem *PanelItemW, oldfar::PluginPanelIte
 		if (PanelItemW[i].CustomColumnNumber)
 		{
 			(*PanelItemA)[i].CustomColumnNumber = PanelItemW[i].CustomColumnNumber;
-			(*PanelItemA)[i].CustomColumnData = (char **)malloc(PanelItemW[i].CustomColumnNumber*sizeof(char *));
+			(*PanelItemA)[i].CustomColumnData = (char **)xf_malloc(PanelItemW[i].CustomColumnNumber*sizeof(char *));
 
 			for (int j=0; j<PanelItemW[i].CustomColumnNumber; j++)
 				(*PanelItemA)[i].CustomColumnData[j] = UnicodeToAnsi(PanelItemW[i].CustomColumnData[j]);
@@ -153,24 +153,24 @@ void FreePanelItemW(PluginPanelItem *PanelItem, int ItemsNumber)
 	for (int i=0; i<ItemsNumber; i++)
 	{
 		if (PanelItem[i].Description)
-			free(PanelItem[i].Description);
+			xf_free(PanelItem[i].Description);
 
 		if (PanelItem[i].Owner)
-			free(PanelItem[i].Owner);
+			xf_free(PanelItem[i].Owner);
 
 		if (PanelItem[i].CustomColumnNumber)
 		{
 			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
-				free(PanelItem[i].CustomColumnData[j]);
+				xf_free(PanelItem[i].CustomColumnData[j]);
 
-			free(PanelItem[i].CustomColumnData);
+			xf_free(PanelItem[i].CustomColumnData);
 		}
 
-		free(PanelItem[i].FindData.lpwszFileName);
-		free(PanelItem[i].FindData.lpwszAlternateFileName);
+		xf_free(PanelItem[i].FindData.lpwszFileName);
+		xf_free(PanelItem[i].FindData.lpwszAlternateFileName);
 	}
 
-	free(PanelItem);
+	xf_free(PanelItem);
 }
 
 void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber)
@@ -178,21 +178,21 @@ void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber)
 	for (int i=0; i<ItemsNumber; i++)
 	{
 		if (PanelItem[i].Description)
-			free(PanelItem[i].Description);
+			xf_free(PanelItem[i].Description);
 
 		if (PanelItem[i].Owner)
-			free(PanelItem[i].Owner);
+			xf_free(PanelItem[i].Owner);
 
 		if (PanelItem[i].CustomColumnNumber)
 		{
 			for (int j=0; j<PanelItem[i].CustomColumnNumber; j++)
-				free(PanelItem[i].CustomColumnData[j]);
+				xf_free(PanelItem[i].CustomColumnData[j]);
 
-			free(PanelItem[i].CustomColumnData);
+			xf_free(PanelItem[i].CustomColumnData);
 		}
 	}
 
-	free(PanelItem);
+	xf_free(PanelItem);
 }
 
 char *WINAPI FarItoaA(int value, char *string, int radix)
@@ -441,7 +441,7 @@ int WINAPI CopyToClipboardA(const char *Data)
 {
 	wchar_t *p = Data!=NULL?AnsiToUnicode(Data):NULL;
 	int ret = CopyToClipboard(p);
-	if (p) free(p);
+	if (p) xf_free(p);
 	return ret;
 }
 
@@ -455,17 +455,18 @@ char* WINAPI PasteFromClipboardA(void)
 
 void WINAPI DeleteBufferA(char *Buffer)
 {
-	if(Buffer) free(Buffer);
+	if(Buffer) xf_free(Buffer);
 }
 
 int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
 	string strP1(Param1), strP2(Param2);
 	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //а хрен ещЄ как угадать скока там этот Param2
-	wchar_t *p=(wchar_t *)malloc(size*sizeof(wchar_t));
+	wchar_t *p=(wchar_t *)xf_malloc(size*sizeof(wchar_t));
 	wcscpy(p,strP2);
 	int ret = ProcessName(strP1,p,size,Flags);
 	UnicodeToAnsi(p,Param2);
+	xf_free(p);
 	return ret;
 }
 
@@ -585,7 +586,7 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 	else
 	{
 		c = ItemsNumber;
-		p = (wchar_t **)malloc(c*sizeof(wchar_t*));
+		p = (wchar_t **)xf_malloc(c*sizeof(wchar_t*));
 		for (int i=0; i<c; i++)
 			p[i] = AnsiToUnicode(Items[i]);
 	}
@@ -593,8 +594,8 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 	int ret = FarMessageFn(PluginNumber,Flags,(HelpTopic?(const wchar_t *)strHT:NULL),p,ItemsNumber,ButtonsNumber);
 
 	for (int i=0; i<c; i++)
-		free(p[i]);
-	free(p);
+		xf_free(p[i]);
+	xf_free(p);
 
 	return ret;
 }
@@ -621,7 +622,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 
 	if (!Item || !ItemsNumber)	return -1;
 
-	FarMenuItemEx *mi = (FarMenuItemEx *)malloc(ItemsNumber*sizeof(*mi));
+	FarMenuItemEx *mi = (FarMenuItemEx *)xf_malloc(ItemsNumber*sizeof(*mi));
 
 	if (Flags&FMENU_USEEXT)
 	{
@@ -661,8 +662,8 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags|FMENU_USEEXT,(Title?(const wchar_t *)strT:NULL),(Bottom?(const wchar_t *)strB:NULL),(HelpTopic?(const wchar_t *)strHT:NULL),BreakKeys,BreakCode,(FarMenuItem *)mi,ItemsNumber);
 
 	for (int i=0; i<ItemsNumber; i++)
-		if (mi[i].Text) free((wchar_t *)mi[i].Text);
-	if (mi) free(mi);
+		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
+	if (mi) xf_free(mi);
 
 	return ret;
 }
@@ -744,7 +745,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 			{
 				if (diA->Param.ListItems)
 				{
-					l->Items = (FarListItem *)malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
+					l->Items = (FarListItem *)xf_malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
 					l->ItemsNumber = diA->Param.ListItems->ItemsNumber;
 					for(int j = 0;j<l->ItemsNumber;j++)
 						AnsiListItemToUnicode(&diA->Param.ListItems->Items[j], &l->Items[j]);
@@ -825,11 +826,11 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 void FreeUnicodeDialog(FarDialogItem *di, FarList *l)
 {
 	if((di->Type==DI_EDIT || di->Type==DI_FIXEDIT) && (di->Flags&DIF_HISTORY) || (di->Flags&DIF_MASKEDIT))
-		if(di->Param.History) free((wchar_t *)di->Param.History);
+		if(di->Param.History) xf_free((wchar_t *)di->Param.History);
 
-	if(l->Items) free(l->Items);
+	if(l->Items) xf_free(l->Items);
 
-	if (di->PtrData) free((wchar_t *)di->PtrData);
+	if (di->PtrData) xf_free((wchar_t *)di->PtrData);
 }
 
 void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
@@ -972,12 +973,12 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 				if(ret)
 				{
-					if(HelpTopic) free(HelpTopic);
+					if(HelpTopic) xf_free(HelpTopic);
 					HelpTopic = AnsiToUnicode((const char *)ret);
 					ret = (LONG_PTR)HelpTopic;
 				}
 
-				free (HelpTopicA);
+				xf_free (HelpTopicA);
 				return ret;
 			}
 
@@ -1052,7 +1053,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 				if (!length) return 0;
 
-				wchar_t* text = (wchar_t*) malloc((length+1)*sizeof(wchar_t));
+				wchar_t* text = (wchar_t*) xf_malloc((length+1)*sizeof(wchar_t));
 				oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
 
 				//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
@@ -1061,7 +1062,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, (LONG_PTR)&did);
         didA->PtrLength = (unsigned)did.PtrLength;
 				UnicodeToAnsi(text,didA->PtrData);
-				free(text);
+				xf_free(text);
 				return ret;
 			}
 
@@ -1072,7 +1073,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				if(!Param1 || !Param2) return FALSE;
 				int Count = (int)Param1;
 				DWORD* KeysA = (DWORD*)Param2;
-				DWORD* KeysW = (DWORD*)malloc(Count*sizeof(DWORD));
+				DWORD* KeysW = (DWORD*)xf_malloc(Count*sizeof(DWORD));
 				for(int i=0;i<Count;i++)
 				{
 					if (KeysA[i]&0x100) KeysW[i]=KeysA[i]^0x100|EXTENDED_KEY_BASE;
@@ -1080,7 +1081,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 					else KeysW[i] = KeysA[i];
 				}
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (LONG_PTR)KeysW);
-				free(KeysW);
+				xf_free(KeysW);
 				return ret;
 			}
 
@@ -1112,7 +1113,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				FarDialogItemData di = {didA->PtrLength,text};
 
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXT, Param1, (LONG_PTR)&di);
-				free (text);
+				xf_free (text);
 				return ret;
 			}
 
@@ -1129,10 +1130,10 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 				if (length)
 				{
-					wchar_t* text = (wchar_t *) malloc ((length +1)* sizeof(wchar_t));
+					wchar_t* text = (wchar_t *) xf_malloc ((length +1)* sizeof(wchar_t));
 					LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (LONG_PTR)text);
 					UnicodeToAnsi(text, (char *)Param2);
-					free(text);
+					xf_free(text);
 					return ret;
 				}
 			}
@@ -1142,7 +1143,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				if (!Param2) return FALSE;
 				wchar_t* text = AnsiToUnicode((char*)Param2);
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, (LONG_PTR)text);
-				free (text);
+				xf_free (text);
 				return ret;
 			}
 
@@ -1153,7 +1154,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				if (!Param2) return FALSE;
 				wchar_t* history = AnsiToUnicode((char*)Param2);
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (LONG_PTR)history);
-				free (history);
+				xf_free (history);
 				return ret;
 			}
 
@@ -1252,8 +1253,8 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				FarListTitles lt = {0,ltA->Title!=NULL?AnsiToUnicode(ltA->Title):NULL,0,ltA->Bottom!=NULL?AnsiToUnicode(ltA->Bottom):NULL};
 				Param2 = (LONG_PTR)&lt;
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, Param2);
-				if (lt.Bottom) free ((wchar_t *)lt.Bottom);
-				if (lt.Title) free ((wchar_t *)lt.Title);
+				if (lt.Bottom) xf_free ((wchar_t *)lt.Bottom);
+				if (lt.Title) xf_free ((wchar_t *)lt.Title);
 				return ret;
 			}
 
@@ -1274,7 +1275,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			{
 				wchar_t *history = AnsiToUnicode((const char *)Param2);
 				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (LONG_PTR)history);
-				free(history);
+				xf_free(history);
 				return ret;
 			}
 
@@ -1342,9 +1343,9 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	if (!Item || !ItemsNumber) return -1;
 
-	FarList *l = (FarList *)malloc(ItemsNumber*sizeof(FarList));
+	FarList *l = (FarList *)xf_malloc(ItemsNumber*sizeof(FarList));
 	memset(l,0,ItemsNumber*sizeof(FarList));
-	FarDialogItem *di = (FarDialogItem *)malloc(ItemsNumber*sizeof(*di));
+	FarDialogItem *di = (FarDialogItem *)xf_malloc(ItemsNumber*sizeof(*di));
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
@@ -1395,8 +1396,8 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	CurrentDlg--;
 
-	if (di) free(di);
-	if (l) free(l);
+	if (di) xf_free(di);
+	if (l) xf_free(l);
 	return ret;
 }
 
@@ -1496,7 +1497,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if (Param)
 					ParamW = AnsiToUnicode((const char *)Param);
 				int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,ParamW);
-				if (ParamW) free(ParamW);
+				if (ParamW) xf_free(ParamW);
 				return ret;
 			}
 
@@ -1546,7 +1547,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if(!Param) return FALSE;
 				wchar_t* Dir = AnsiToUnicode((char*)Param);
 				int ret = FarControl(hPluginW, FCTL_SETPANELDIR, Dir);
-				free(Dir);
+				xf_free(Dir);
 				return ret;
 			}
 
@@ -1618,7 +1619,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if(!Param) return FALSE;
 				wchar_t* s = AnsiToUnicode((const char*)Param);
 				int ret = FarControl(hPluginW, FCTL_INSERTCMDLINE, s);
-				free(s);
+				xf_free(s);
 				return ret;
 			}
 
@@ -1627,7 +1628,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if(!Param) return FALSE;
 				wchar_t* s = AnsiToUnicode((const char*)Param);
 				int ret = FarControl(hPluginW, FCTL_SETCMDLINE, s);
-				free(s);
+				xf_free(s);
 				return ret;
 			}
 
@@ -1685,10 +1686,10 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			INT_PTR Length = FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, NULL);
 			if(Param)
 			{
-				wchar_t *SysWordDiv = (wchar_t*)malloc((Length+1)*sizeof(wchar_t));
+				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
 				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, SysWordDiv);
 				UnicodeToAnsi(SysWordDiv,(char*)Param,NM-1);
-				free (SysWordDiv);
+				xf_free (SysWordDiv);
 			}
 			return Length;
 		}
@@ -1745,24 +1746,24 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			switch (km.Command)
 			{
 				case MCMD_CHECKMACRO:
-					if (ErrMsg1) free(ErrMsg1);
-					if (ErrMsg2) free(ErrMsg2);
-					if (ErrMsg3) free(ErrMsg3);
+					if (ErrMsg1) xf_free(ErrMsg1);
+					if (ErrMsg2) xf_free(ErrMsg2);
+					if (ErrMsg3) xf_free(ErrMsg3);
 					kmA->Param.MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg1);
 					kmA->Param.MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg2);
 					kmA->Param.MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(km.Param.MacroResult.ErrMsg3);
 					if (km.Param.PlainText.SequenceText)
-						free(km.Param.PlainText.SequenceText);
+						xf_free(km.Param.PlainText.SequenceText);
 					break;
 
 				case MCMD_COMPILEMACRO:
 					if (km.Param.Compile.Sequence)
-						free(km.Param.Compile.Sequence);
+						xf_free(km.Param.Compile.Sequence);
 					break;
 
 				case MCMD_POSTMACROSTRING:
 					if (km.Param.PlainText.SequenceText)
-						free(km.Param.PlainText.SequenceText);
+						xf_free(km.Param.PlainText.SequenceText);
 					break;
 			}
 			return res;
@@ -1777,7 +1778,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				ks.Count = ksA->Count;
 				if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT) ks.Flags|=KSFLAGS_DISABLEOUTPUT;
 				if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) ks.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
-				ks.Sequence = (DWORD*)malloc(ks.Count*sizeof(DWORD));
+				ks.Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
 				for (int i=0;i<ks.Count;i++)
 				{
 					if (ksA->Sequence[i]&0x100) ks.Sequence[i]=ksA->Sequence[i]^0x100|EXTENDED_KEY_BASE;
@@ -1785,7 +1786,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					else ks.Sequence[i] = ksA->Sequence[i];
 				}
 				LONG_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
-				free (ks.Sequence);
+				xf_free (ks.Sequence);
 				return ret;
 			}
 
@@ -1985,8 +1986,8 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					oegs->StringLength=egs.StringLength;
 					oegs->SelStart=egs.SelStart;
 					oegs->SelEnd=egs.SelEnd;
-					if (gt) free(gt);
-					if (geol) free(geol);
+					if (gt) xf_free(gt);
+					if (geol) xf_free(geol);
 					gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength);
 					geol = UnicodeToAnsi(egs.StringEOL);
 					oegs->StringText=gt;
@@ -2014,7 +2015,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			{
 				memset(oei,0,sizeof(*oei));
 				oei->EditorID=ei.EditorID;
-				if (fn)	free(fn);
+				if (fn)	xf_free(fn);
 				fn = UnicodeToAnsi(ei.FileName);
 				oei->FileName=fn;
 				oei->WindowSizeX=ei.WindowSizeX;
@@ -2075,7 +2076,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 				viA->ViewerID = viW.ViewerID;
 
-				if (filename) free (filename);
+				if (filename) xf_free (filename);
 				filename = UnicodeToAnsi(viW.FileName);
 				viA->FileName = filename;
 
@@ -2134,13 +2135,13 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 						FarViewerControl(VCTL_SETKEYBAR, &kbt);
 						for(int i=0;i<12;i++)
 						{
-							free (kbt.Titles[i]);
-							free (kbt.CtrlTitles[i]);
-							free (kbt.AltTitles[i]);
-							free (kbt.ShiftTitles[i]);
-							free (kbt.CtrlShiftTitles[i]);
-							free (kbt.AltShiftTitles[i]);
-							free (kbt.CtrlAltTitles[i]);
+							xf_free (kbt.Titles[i]);
+							xf_free (kbt.CtrlTitles[i]);
+							xf_free (kbt.AltTitles[i]);
+							xf_free (kbt.ShiftTitles[i]);
+							xf_free (kbt.CtrlShiftTitles[i]);
+							xf_free (kbt.AltShiftTitles[i]);
+							xf_free (kbt.CtrlAltTitles[i]);
 						}
 						return TRUE;
 				}
