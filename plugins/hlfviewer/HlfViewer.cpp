@@ -273,9 +273,6 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
   Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
   DialogItems[5].Selected=DialogItems[6].Selected=DialogItems[7].Selected=0;
   DialogItems[5+(Opt.Style>2?0:Opt.Style)].Selected=1;
-#ifdef UNICODE
-  DialogItems[2].MaxLen = ArraySize(KeyNameFromReg)-1;
-#endif
 
 #ifndef UNICODE
   int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,

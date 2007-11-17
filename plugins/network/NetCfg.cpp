@@ -49,7 +49,6 @@ int Config()
   wchar_t digstr[32];
   digstr[0] = 0;
   DialogItems[2].PtrData = digstr;
-  DialogItems[2].MaxLen = ArraySize(digstr);
 #define Data  PtrData
 #endif
   if (Opt.DisksMenuDigit)

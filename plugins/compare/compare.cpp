@@ -322,7 +322,6 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 #define PtrData Data.Data
 #else
       DialogItems[i].PtrData = tmpnum[i];
-      DialogItems[i].MaxLen = ArraySize(tmpnum[i]);
 #endif
       FSF.itoa(dwRegValue, (TCHAR *)DialogItems[i].PtrData, 10);
       DialogItems[i].Param.Mask = Mask;

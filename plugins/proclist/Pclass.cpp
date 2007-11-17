@@ -1095,11 +1095,6 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         FarDialogItem FarItems[ArraySize(Items)];
         InitDialogItems(Items, FarItems, ArraySize(Items));
 
-#ifdef UNICODE
-        FarItems[2].PtrData = HostName;
-        FarItems[2].MaxLen = ArraySize(HostName);
-        FarItems[7].MaxLen = FarItems[8].MaxLen = 0;
-#endif
         //Loop until successful connect or user cancel in dialog
         for(bool stop = false; ; )
         {

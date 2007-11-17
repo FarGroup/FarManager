@@ -300,7 +300,6 @@ int WINAPI EXP_NAME(Configure)( int /*ItemNumber*/ )
 #ifdef UNICODE
   wchar_t numstr[32];
   DialogItems[4].PtrData = numstr;
-  DialogItems[4].MaxLen = ArraySize(numstr);
   FarItoa(Opt.DisksMenuDigit,numstr,10);
 #else
   FarItoa(Opt.DisksMenuDigit,(TCHAR *)DialogItems[4].Data,10);

@@ -20,6 +20,9 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     Item[i].History=(const TCHAR *)Init[i].Selected;
     Item[i].Flags=Init[i].Flags;
     Item[i].DefaultButton=Init[i].DefaultButton;
+#ifdef UNICODE
+    Item[i].MaxLen=0;
+#endif
 #ifndef UNICODE
     if ((unsigned int)(DWORD_PTR)Init[i].Data<2000)
       lstrcpy(Item[i].Data,GetMsg((unsigned int)(DWORD_PTR)Init[i].Data));
