@@ -23,6 +23,14 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Selected
+#define GetDataPtr(i) DialogItems[i].Data
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#endif
+
 FARSTDCOPYTOCLIPBOARD CopyToClipboard;
 FARSTDATOI FarAtoi;
 FARSTDITOA FarItoa;
@@ -67,7 +75,7 @@ int WINAPI EXP_NAME(GetMinFarVersion)(void)
 #ifndef UNICODE
   return MAKEFARVERSION(1,70,1719);
 #else
-  return MAKEFARVERSION(1,80,330);
+  return MAKEFARVERSION(1,80,349);
 #endif
 }
 
@@ -291,35 +299,41 @@ int WINAPI EXP_NAME(Configure)( int /*ItemNumber*/ )
   DialogItems[17].Selected = Opt.EditNewFiles;
 #ifdef UNICODE
   wchar_t numstr[32];
-  DialogItems[4].DataIn = DialogItems[4].DataOut = numstr;
+  DialogItems[4].PtrData = numstr;
   DialogItems[4].MaxLen = ArraySize(numstr);
-#define Data DataOut
+  FarItoa(Opt.DisksMenuDigit,numstr,10);
+#else
+  FarItoa(Opt.DisksMenuDigit,(TCHAR *)DialogItems[4].Data,10);
 #endif
-  FarItoa(Opt.DisksMenuDigit,DialogItems[4].Data,10);
 
+#ifndef UNICODE
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,73,22,HlfId.Config,
-                           DialogItems,ArraySize(InitItems)
-#ifdef UNICODE
-                           , NULL
+                           DialogItems,ArraySize(InitItems));
+#else
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,73,22,HlfId.Config,
+                           DialogItems,ArraySize(InitItems),0,0,NULL,0);
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return ret;
+
+  int ExitCode=Info.DialogRun(hDlg);
 #endif
-                          );
+
   if(19 == ExitCode)
   {
-    Opt.Add2PlugMenu=DialogItems[1].Selected;
-    Opt.Add2DisksMenu=DialogItems[3].Selected;
-    Opt.DisksMenuDigit=FarAtoi(DialogItems[4].Data);
-#undef Data
-    Opt.ViewZeroFiles = DialogItems[16].Selected;
-    Opt.EditNewFiles = DialogItems[17].Selected;
+    Opt.Add2PlugMenu=GetCheck(1);
+    Opt.Add2DisksMenu=GetCheck(3);
+    Opt.DisksMenuDigit=FarAtoi(GetDataPtr(4));
+    Opt.ViewZeroFiles = GetCheck(16);
+    Opt.EditNewFiles = GetCheck(17);
     Opt.CatchMode = Opt.ShowCmdOutput = 0;
-    for ( int i = 0 ; i < 3 ; i++ )
-      if ( DialogItems[7+i].Selected )
+    for (int i = 0 ; i < 3 ; i++)
+      if (GetCheck(7+i))
       {
         Opt.ShowCmdOutput = i;
         break;
       }
-    for ( int j = 0 ; j < 4 ; j++ )
-      if ( DialogItems[11+j].Selected )
+    for (int j = 0 ; j < 4 ; j++)
+      if (GetCheck(11+j))
       {
         Opt.CatchMode = j;
         break;
@@ -334,5 +348,10 @@ int WINAPI EXP_NAME(Configure)( int /*ItemNumber*/ )
     SetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditNewFiles,Opt.EditNewFiles);
     ret=TRUE;
   }
+
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
+
   return ret;
 }

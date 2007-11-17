@@ -60,13 +60,13 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
 #ifndef UNICODE
       lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
 #else
-      PItem->DataIn = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
+      PItem->PtrData = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
 #endif
     else
 #ifndef UNICODE
       lstrcpy(PItem->Data,PInit->Data);
 #else
-      PItem->DataIn = PInit->Data;
+      PItem->PtrData = PInit->Data;
 #endif
   }
 }
