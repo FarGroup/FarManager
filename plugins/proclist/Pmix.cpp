@@ -27,9 +27,9 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
       lstrcpy(Item[i].Data,Init[i].Data);
 #else
     if ((unsigned int)(DWORD_PTR)Init[i].Data<2000)
-      Item[i].DataIn = GetMsg((unsigned int)(DWORD_PTR)Init[i].Data);
+      Item[i].PtrData = GetMsg((unsigned int)(DWORD_PTR)Init[i].Data);
     else
-      Item[i].DataIn = Init[i].Data;
+      Item[i].PtrData = Init[i].Data;
 #endif
   }
 }

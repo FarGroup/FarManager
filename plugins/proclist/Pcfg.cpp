@@ -32,13 +32,13 @@ void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset)
         Items[1].Selected = 0;
 }
 
-void GetViewOptions(FarDialogItem* Items, _Opt& Opt)
+void GetViewOptions(REF_TYPE Ref, int base, _Opt& Opt)
 {
-    Opt.ExportEnvironment = Items[1].Selected;
-    Opt.ExportModuleInfo = Items[2].Selected;
-    Opt.ExportModuleVersion = Items[3].Selected;
-    Opt.ExportPerformance = Items[4].Selected;
-    Opt.ExportHandles = Items[5].Selected | (Items[6].Selected<<1);
+    Opt.ExportEnvironment = GetCheck(Ref,base+1);
+    Opt.ExportModuleInfo = GetCheck(Ref,base+2);
+    Opt.ExportModuleVersion = GetCheck(Ref,base+3);
+    Opt.ExportPerformance = GetCheck(Ref,base+4);
+    Opt.ExportHandles = GetCheck(Ref,base+5) | (GetCheck(Ref,base+6)<<1);
 }
 
 int Config()
@@ -72,36 +72,53 @@ int Config()
 
   DialogItems[1].Selected = Opt.AddToDisksMenu;
   DialogItems[4].Selected = Opt.AddToPluginsMenu;
-#ifdef UNICODE
+#ifndef UNICODE
+#define _N2   DialogItems[2].Data
+#else
   wchar_t tmpstr[64];
-  DialogItems[2].DataIn = DialogItems[2].DataOut = tmpstr;
+  tmpstr[0] = 0;
+  DialogItems[2].PtrData = tmpstr;
   DialogItems[2].MaxLen = ArraySize(tmpstr);
-#define Data DataOut
+#define _N2 tmpstr
 #endif
   if (Opt.DisksMenuDigit)
-    FSF.itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
+    FSF.itoa(Opt.DisksMenuDigit,_N2,10);
+#undef _N2
 
+  int bRet = FALSE;
+#ifndef UNICODE
   int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
-                             DialogItems,ArraySize(DialogItems)
-#ifdef UNICODE
-                             , NULL
+                             DialogItems,ArraySize(DialogItems));
+#define _REF  DialogItems
+#else
+  HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
+                                DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+  if(hDlg == INVALID_HANDLE_VALUE)
+    goto done;
+
+  int ExitCode = Info.DialogRun(hDlg);
+#define _REF  hDlg
 #endif
-                             );
-  if (ExitCode != ArraySize(DialogItems) - 2)
-    return FALSE;
-
-  Opt.AddToDisksMenu = DialogItems[1].Selected;
-  Opt.DisksMenuDigit = FSF.atoi(DialogItems[2].Data);
+  if (ExitCode == ArraySize(DialogItems) - 2)
+  {
+    Opt.AddToDisksMenu = GetCheck(_REF, 1);
+    Opt.DisksMenuDigit = FSF.atoi(GetPtr(_REF, 2));
 #undef Data
-  Opt.AddToPluginsMenu = DialogItems[4].Selected;
-  GetViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt);
+    Opt.AddToPluginsMenu = GetCheck(_REF, 4);
+    GetViewOptions(_REF, NITEMS-NVIEWITEMS-2, ::Opt);
+#undef _REF
+    Opt.Write();
 
-  Opt.Write();
+    Plist::SavePanelModes();
+    Plist::bInit = false;
 
-  Plist::SavePanelModes();
-  Plist::bInit = false;
-
-  return TRUE;
+    bRet = TRUE;
+  }
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+done:
+#endif
+  return bRet;
 }
 
 #define SETKEY(_opt) SetRegKey(0, _T( #_opt ), Opt._opt);

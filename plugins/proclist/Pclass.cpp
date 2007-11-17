@@ -1043,15 +1043,27 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
         _Opt LocalOpt = Opt;
         MakeViewOptions(DialogItems+1, LocalOpt, 2);
+#ifndef UNICODE
         int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),
-                                   DialogItems,ArraySize(DialogItems)
-#ifdef UNICODE
-                                   ,NULL
+                                   DialogItems,ArraySize(DialogItems));
+#define _REF  DialogItems
+#else
+        HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),
+                                DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+        if(hDlg == INVALID_HANDLE_VALUE)
+          return TRUE;
+
+        int ExitCode = Info.DialogRun(hDlg);
+#define _REF  hDlg
 #endif
-                                   );
+        if(ExitCode!=-1)
+          GetViewOptions(_REF, 1, LocalOpt);
+#undef _REF
+#ifdef UNICODE
+        Info.DialogFree(hDlg);
+#endif
         if(ExitCode==-1)
-            return TRUE;
-        GetViewOptions(DialogItems+1, LocalOpt);
+          return TRUE;
 
         TCHAR FileName[MAX_PATH];
 #ifndef UNICODE
@@ -1084,36 +1096,42 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItems(Items, FarItems, ArraySize(Items));
 
 #ifdef UNICODE
-        FarItems[2].DataOut = HostName;
+        FarItems[2].PtrData = HostName;
         FarItems[2].MaxLen = ArraySize(HostName);
         FarItems[7].MaxLen = FarItems[8].MaxLen = 0;
-#define Data  DataOut
 #endif
         //Loop until successful connect or user cancel in dialog
-        for(bool stop = false;
-            Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
-                        FarItems, ArraySize(Items)
-#ifdef UNICODE
-                         ,realloc
-#endif
-                         )!=-1; )
+        for(bool stop = false; ; )
         {
-            if(*FarItems[2].Data==0 || !lstrcmp(FarItems[2].Data,_T("\\\\")))
-            {
-                //go to local computer
-                delete pPerfThread;
-                DisconnectWMI();
-                pPerfThread = NT ? new PerfThread(*this/*, FarItems[7].Data, FarItems[8].Data*/) : 0;
-                *HostName = 0;
-                stop = true;
-            } else if(Connect(FarItems[2].Data, FarItems[7].Data, FarItems[8].Data))
-                stop =true;
-#ifdef UNICODE
-            free(FarItems[7].DataOut);
-            free(FarItems[8].DataOut);
+          const TCHAR *compname;
+#ifndef UNICODE
+          if(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
+                         FarItems, ArraySize(Items)) == -1) break;
+#define _REF  FarItems
+#else
+          HANDLE hDlg=Info.DialogInit(Info.ModuleNumber, -1,-1, 48, 11, _T("Contents"),
+                                      FarItems, ArraySize(Items),0,0,NULL,0);
+          if(hDlg==INVALID_HANDLE_VALUE) break;
+#define _REF  hDlg
+          if(Info.DialogRun(hDlg)==-1)
+            stop = true;
+          else
 #endif
-            if(stop) break;
-#undef Data
+          if(*(compname=GetPtr(_REF,2))==0 || !lstrcmp(compname, _T("\\\\")))
+          {
+              //go to local computer
+              delete pPerfThread;
+              DisconnectWMI();
+              pPerfThread = NT ? new PerfThread(*this/*, GetPtr(_REF,7), GetPtr(_REF,8)*/) : 0;
+              *HostName = 0;
+              stop = true;
+          } else if(Connect(compname, GetPtr(_REF,7), GetPtr(_REF,8)))
+              stop = true;
+#ifdef UNICODE
+          Info.DialogFree(hDlg);
+#endif
+          if(stop) break;
+#undef _REF
         }
         Reread();
         return TRUE;

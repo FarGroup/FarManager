@@ -3,9 +3,17 @@
 #include <windows.h>
 #include <tchar.h>
 #include <stdio.h>
+#include <CRT/crt.hpp>
 #define _FAR_USE_FARFINDDATA
-#include "plugin.hpp"
-#include "CRT/crt.hpp"
+#include <plugin.hpp>
+
+#ifndef UNICODE
+#define GetCheck(FI,i)  FI[i].Selected
+#define GetPtr(FI,i)    FI[i].Data
+#else
+#define GetCheck(h,i) (int)Info.SendDlgMessage(h,DM_GETCHECK,i,0)
+#define GetPtr(h,i)   ((const TCHAR *)Info.SendDlgMessage(h,DM_GETCONSTTEXTPTR,i,0))
+#endif
 
 #ifdef UNICODE
 #define WCONST  const
@@ -232,7 +240,12 @@ struct ProcessPerfData;
 extern bool GetPDataNT(ProcessDataNT& pdata, ProcessPerfData& pd);
 
 void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset);
-void GetViewOptions(FarDialogItem* Items, _Opt& Opt);
+#ifndef UNICODE
+typedef const FarDialogItem *REF_TYPE;
+#else
+typedef HANDLE  REF_TYPE;
+#endif
+void GetViewOptions(REF_TYPE Ref, int base, _Opt& Opt);
 #define NVIEWITEMS 7
 
 //------
