@@ -3978,9 +3978,12 @@ void Editor::DeleteBlock()
       {
         CurPtr->m_next->GetBinaryString(&NextStr,&EndSeq,NextLength);
         NextLength-=NextEndSel;
-        TmpStr=(wchar_t *)xf_realloc(TmpStr,Length+NextLength+3);
-        wmemcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
-        Length+=NextLength;
+        if(NextLength>0)
+        {
+          TmpStr=(wchar_t *)xf_realloc(TmpStr,(Length+NextLength+3)*sizeof(wchar_t));
+          wmemcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
+          Length+=NextLength;
+        }
       }
       if (CurLine==CurPtr->m_next)
       {
