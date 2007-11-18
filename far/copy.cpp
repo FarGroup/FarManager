@@ -1025,10 +1025,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       else if(Param1 == ID_SC_ONLYNEWER && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
         // подсократим код путем эмул€ции телодвижений в строке ввода :-))
-        //BUGBUG DN_EDITCHANGE expects DialogItemEx!!!
-        //FarDialogItem *DItemTargetEdit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_TARGETEDIT,0);
-        //Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,(LONG_PTR)DItemTargetEdit);
-        //Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemTargetEdit);
+        Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,0);
       }
       else if (Param1==ID_SC_BTNFILTER) // Filter
       {
@@ -1070,13 +1067,11 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                     &DItemOnlyNewer->Flags,
                     &DItemOnlyNewer->Param.Selected,
                     strSrcDir,
-                    ((struct DialogItemEx *)Param2)->strData,DlgParam); //!!!DialogItemEx
+                    ((FarDialogItem *)Param2)->PtrData,DlgParam);
         }
         else // обычные Copy/Move
         {
-          DialogItemEx *DItemTargetEdit=(DialogItemEx *)Param2;
-
-          string strBuf = DItemTargetEdit->strData;
+          string strBuf = ((FarDialogItem *)Param2)->PtrData;
           strBuf.Upper();
 
           if(!DlgParam->strPluginFormat.IsEmpty() && wcsstr(strBuf, DlgParam->strPluginFormat))

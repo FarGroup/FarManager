@@ -371,8 +371,8 @@ const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf
     if(ulNewInterfaceList > cbInterfaceList)
     {
       cbInterfaceList = ulNewInterfaceList;
-      //szInterfaceList = malloc(cbInterfaceList*sizeof(szInterfaceList[0]));
-      szInterfaceList = (char *)realloc(szInterfaceList,cbInterfaceList*sizeof(szInterfaceList[0]));
+      //szInterfaceList = xf_malloc(cbInterfaceList*sizeof(szInterfaceList[0]));
+      szInterfaceList = (char *)xf_realloc(szInterfaceList,cbInterfaceList*sizeof(szInterfaceList[0]));
     }
     if(CR_SUCCESS != pCM_Get_Device_Interface_ListA((LPGUID)&VolumeClassGuid, szDevId, szInterfaceList, cbInterfaceList, 0))
         continue;
@@ -441,7 +441,7 @@ const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf
   pSetupDiDestroyDeviceInfoList(hDevs);
 
   if(szInterfaceList)
-      free(szInterfaceList);
+		xf_free(szInterfaceList);
 
   return res;
 #else

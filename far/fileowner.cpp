@@ -54,20 +54,20 @@ void SIDCacheFlush(void)
   {
     tmp_rec=sid_cache;
     sid_cache=sid_cache->next;
-    free(tmp_rec->sid);
-    free(tmp_rec->username);
-    free(tmp_rec);
+    xf_free(tmp_rec->sid);
+    xf_free(tmp_rec->username);
+    xf_free(tmp_rec);
   }
 }
 
 static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
 {
   const wchar_t *res=NULL;
-  SIDCacheRecord *new_rec=(SIDCacheRecord *)malloc(sizeof(SIDCacheRecord));
+  SIDCacheRecord *new_rec=(SIDCacheRecord *)xf_malloc(sizeof(SIDCacheRecord));
   if(new_rec)
   {
     memset(new_rec,0,sizeof(SIDCacheRecord));
-    new_rec->sid=(PSID)malloc(GetLengthSid(sid));
+    new_rec->sid=(PSID)xf_malloc(GetLengthSid(sid));
     if(new_rec->sid)
     {
       CopySid(GetLengthSid(sid),new_rec->sid,sid);
@@ -76,11 +76,11 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
       LookupAccountSidW(computer,new_rec->sid,NULL,&AccountLength,NULL,&DomainLength,&snu);
       if(AccountLength && DomainLength)
       {
-        wchar_t* AccountName=(wchar_t*)malloc(AccountLength*sizeof(wchar_t));
-        wchar_t* DomainName=(wchar_t*)malloc(DomainLength*sizeof(wchar_t));
+        wchar_t* AccountName=(wchar_t*)xf_malloc(AccountLength*sizeof(wchar_t));
+        wchar_t* DomainName=(wchar_t*)xf_malloc(DomainLength*sizeof(wchar_t));
         if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
         {
-          if((new_rec->username=(wchar_t*)malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
+          if((new_rec->username=(wchar_t*)xf_malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
           {
             size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
             new_rec->username[Len+1]=0;
@@ -89,29 +89,29 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
             res=new_rec->username;
             new_rec->next=sid_cache;
             sid_cache=new_rec;
-            free(AccountName);
-            free(DomainName);
+            xf_free(AccountName);
+            xf_free(DomainName);
           }
           else
           {
-            free(new_rec->sid);
-            free(new_rec);
+            xf_free(new_rec->sid);
+            xf_free(new_rec);
           }
         }
         else
         {
-          free(new_rec->sid);
-          free(new_rec);
+          xf_free(new_rec->sid);
+          xf_free(new_rec);
         }
       }
       else
       {
-        free(new_rec->sid);
-        free(new_rec);
+        xf_free(new_rec->sid);
+        xf_free(new_rec);
       }
     }
     else
-     free(new_rec);
+     xf_free(new_rec);
   }
   return res;
 }

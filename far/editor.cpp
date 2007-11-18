@@ -721,7 +721,7 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
     AllLength+=Length+strlen(EndSeq)+16;
   }
 
-  char *MemEditStr=(char *)malloc(sizeof(char) * AllLength);
+  char *MemEditStr=(char *)xf_malloc(sizeof(char) * AllLength);
 
   if(MemEditStr)
   {

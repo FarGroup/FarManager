@@ -1,25 +1,3 @@
-<DN_EDITCHANGE> и </DN_EDITCHANGE>
-   
-   Т.к. диалоговое АПИ было изменено, то... в "юзеровскую" процедуру обработки
-   для события DN_EDITCHANGE вместо FarDialogItem (Param2) передается указатель
-   на элемент DialogItemEx.
-
-   Это привело к тому, что в 1.80 оторвался механизм назначения клавиш (заметил 
-   здесь, возможно и в другим местах так же, где юзается combobox) - невозможно 
-   выбрать клавишу из списка.
-
-   Для решения проблемы в файлах macro.cpp и dialog.cpp внесены комменты и 
-   изменения между тэгами  <DN_EDITCHANGE> и </DN_EDITCHANGE>
-   В KeyMacro::AssignMacroDlgProc напрямую работаем с элементом DlgEdit.
-
-   Если кусок кода в dialog.cpp, обрабатывающий DN_EDITCHANGE будет переделан 
-   (например, как в SendDlgMessageAnsi, с применением Dialog::ConvertItemEx), 
-   то нужно "вернуть" кусок кода в macro.cpp (для обеспечения работы с 
-   FarDialogItem)
-
-   svs 10.01.2007 14:19:09 +0300
-
-
 PROJECT_DI_MEMOEDIT
    
    В usermenu.cpp, по мере развертывания DI_MEMOEDIT, изменять код.

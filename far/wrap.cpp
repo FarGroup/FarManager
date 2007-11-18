@@ -941,27 +941,32 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 
 LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
+	//TODO: конвертация DN_* в oldfar:DN_*
 	static wchar_t* HelpTopic = NULL;
 	switch(Msg)
 	{
 		case DN_LISTHOTKEY:
-		case DN_FIRST:
 		case DN_BTNCLICK:
 		case DN_CTLCOLORDIALOG:
 		case DN_CTLCOLORDLGITEM:
 		case DN_CTLCOLORDLGLIST:
 		case DN_DRAWDIALOG:
 			break;
+
 		case DN_DRAWDLGITEM:
 		case DN_EDITCHANGE:
-			/*if (Param2)
+			if (Param2)
 			{
 				oldfar::FarDialogItem diA;
 				FarDialogItem *di = (FarDialogItem *)Param2;
 				UnicodeDialogItemToAnsi(di,&diA);
 				Param2 = (LONG_PTR)&diA;
-			}*/
-			break;
+				LONG_PTR ret = CurrentDlgProc(Msg, Param1, Param2);
+				//FreeAnsiDialog(&diA) //if and when needed
+				return ret;
+			}
+			return FALSE;
+
 		case DN_ENTERIDLE:
 		case DN_GOTFOCUS:
 			break;
@@ -996,7 +1001,6 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		case DN_RESIZECONSOLE:
 		case DN_MOUSEEVENT:
 		case DN_DRAWDIALOGDONE:
-
 #ifdef FAR_USE_INTERNALS
 		case DM_KILLSAVESCREEN:
 		case DM_ALLKEYMODE:

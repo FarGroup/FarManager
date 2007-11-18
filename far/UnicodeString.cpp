@@ -201,3 +201,29 @@ void UnicodeString::ReleaseBuffer (int nLength)
 	else
 		m_pData->SetLength (StrLength(m_pData->GetData()));
 }
+
+int __cdecl UnicodeString::Format (const wchar_t * format, ...)
+{
+	wchar_t *buffer = NULL;
+	size_t Size = MAX_PATH;
+
+	int retValue;
+	va_list argptr;
+
+	va_start( argptr, format );
+
+	do {
+			Size <<= 1;
+			buffer = (wchar_t*)xf_realloc (buffer, Size*sizeof (wchar_t));
+
+			retValue = _vsnwprintf ( buffer, Size, format, argptr );
+	} while ( retValue == -1 );
+
+	va_end( argptr );
+
+	SetData (buffer);
+
+	xf_free (buffer);
+
+	return retValue;
+}

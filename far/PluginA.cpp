@@ -167,7 +167,7 @@ PluginA::PluginA (
 
 PluginA::~PluginA()
 {
-	if (RootKey) free(RootKey);
+	if (RootKey) xf_free(RootKey);
 	FreePluginInfo();
 	FreeOpenPluginInfo();
 	Lang.Close();
@@ -747,7 +747,7 @@ HANDLE PluginA::OpenPlugin (int OpenFrom, INT_PTR Item)
 
 		EXECUTE_FUNCTION_EX(pOpenPlugin(OpenFrom,Item), es);
 
-		if (ItemA) free(ItemA);
+		if (ItemA) xf_free(ItemA);
 
 		return es.hResult;
     //CurPluginItem=NULL; //BUGBUG
@@ -811,7 +811,7 @@ HANDLE PluginA::OpenFilePlugin (
 
 		EXECUTE_FUNCTION_EX(pOpenFilePlugin(NameA, Data, DataSize), es);
 
-		if (NameA) free(NameA);
+		if (NameA) xf_free(NameA);
 
 		hResult = es.hResult;
 	}
@@ -1122,7 +1122,7 @@ int PluginA::ProcessEvent (
 		EXECUTE_FUNCTION_EX(pProcessEvent(hPlugin, Event, ParamA), es);
 
 		if (ParamA && (Event == FE_COMMAND || Event == FE_CHANGEVIEWMODE))
-			free(ParamA);
+			xf_free(ParamA);
 
 		bResult = es.bResult;
 	}
@@ -1277,7 +1277,7 @@ int PluginA::SetDirectory (
 
 		EXECUTE_FUNCTION_EX(pSetDirectory(hPlugin, DirA, OpMode), es);
 
-		if (DirA) free(DirA);
+		if (DirA) xf_free(DirA);
 
 		bResult = es.bResult;
 	}
@@ -1288,19 +1288,19 @@ int PluginA::SetDirectory (
 void PluginA::FreeOpenPluginInfo()
 {
 	if (OPI.CurDir)
-		free((void *)OPI.CurDir);
+		xf_free((void *)OPI.CurDir);
 
 	if (OPI.HostFile)
-		free((void *)OPI.HostFile);
+		xf_free((void *)OPI.HostFile);
 
 	if (OPI.Format)
-		free((void *)OPI.Format);
+		xf_free((void *)OPI.Format);
 
 	if (OPI.PanelTitle)
-		free((void *)OPI.PanelTitle);
+		xf_free((void *)OPI.PanelTitle);
 
 	//if (OPI.ShortcutData)
-		//free((void *)OPI.ShortcutData);
+		//xf_free((void *)OPI.ShortcutData);
 
 	memset(&OPI,0,sizeof(OPI));
 }
@@ -1380,23 +1380,23 @@ void PluginA::FreePluginInfo()
 	if (PI.DiskMenuStringsNumber)
 	{
 		for (int i=0; i<PI.DiskMenuStringsNumber; i++)
-			free((void *)PI.DiskMenuStrings[i]);
-		free((void *)PI.DiskMenuStrings);
+			xf_free((void *)PI.DiskMenuStrings[i]);
+		xf_free((void *)PI.DiskMenuStrings);
   }
 	if (PI.PluginMenuStringsNumber)
 	{
 		for (int i=0; i<PI.PluginMenuStringsNumber; i++)
-			free((void *)PI.PluginMenuStrings[i]);
-		free((void *)PI.PluginMenuStrings);
+			xf_free((void *)PI.PluginMenuStrings[i]);
+		xf_free((void *)PI.PluginMenuStrings);
   }
 	if (PI.PluginConfigStringsNumber)
 	{
 		for (int i=0; i<PI.PluginConfigStringsNumber; i++)
-			free((void *)PI.PluginConfigStrings[i]);
-		free((void *)PI.PluginConfigStrings);
+			xf_free((void *)PI.PluginConfigStrings[i]);
+		xf_free((void *)PI.PluginConfigStrings);
   }
   if (PI.CommandPrefix)
-  	free((void *)PI.CommandPrefix);
+  	xf_free((void *)PI.CommandPrefix);
 
 	memset(&PI,0,sizeof(PI));
 }
@@ -1410,7 +1410,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 	if (Src.DiskMenuStringsNumber)
 	{
-		wchar_t **p = (wchar_t **) malloc(Src.DiskMenuStringsNumber*sizeof(wchar_t*));
+		wchar_t **p = (wchar_t **) xf_malloc(Src.DiskMenuStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
 			p[i] = AnsiToUnicode(Src.DiskMenuStrings[i]);
 		PI.DiskMenuStrings = p;
@@ -1419,7 +1419,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
   }
 	if (Src.PluginMenuStringsNumber)
 	{
-		wchar_t **p = (wchar_t **) malloc(Src.PluginMenuStringsNumber*sizeof(wchar_t*));
+		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginMenuStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
 			p[i] = AnsiToUnicode(Src.PluginMenuStrings[i]);
 		PI.PluginMenuStrings = p;
@@ -1427,7 +1427,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
   }
 	if (Src.PluginConfigStringsNumber)
 	{
-		wchar_t **p = (wchar_t **) malloc(Src.PluginConfigStringsNumber*sizeof(wchar_t*));
+		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginConfigStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
 			p[i] = AnsiToUnicode(Src.PluginConfigStrings[i]);
 		PI.PluginConfigStrings = p;

@@ -3715,7 +3715,7 @@ bool Dialog::ConvertItemEx (
 				size_t sz = Data->strData.GetLength();
 				if (sz > Data->nMaxLength && Data->nMaxLength > 0)
 						sz = Data->nMaxLength;
-				wchar_t *p = (wchar_t*)malloc((sz+1)*sizeof(wchar_t));
+				wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
 				Item->PtrData = p;
 				if (!p) // TODO: may be needed message?
 					return false;
@@ -5829,18 +5829,18 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DN_EDITCHANGE:
     {
-      // <DN_EDITCHANGE>
+    	FarDialogItem Item;
+			if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
+				return FALSE; // no memory TODO: may be needed diagnostic
 
-      // ВНИМАНИЕ! ЕСЛИ ЭТОТ КУСОК БУДЕТ ПЕРЕДЕЛАН (например, как в SendDlgMessageAnsi,
-      //           с применением Dialog::ConvertItemEx), ТО НУЖНО "ВЕРНУТЬ" КУСОК КОДА В macro.cpp
-      //           ПОМЕТКА ТАК ЖЕ - <DN_EDITCHANGE></DN_EDITCHANGE>
-
-      if((I=(int)Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)CurItem)) == TRUE) //TRUE UNICODE, item itself, no plugins!
+      if((I=(int)Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&Item)) == TRUE)
       {
         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
           CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
       }
-      // </DN_EDITCHANGE>
+
+			if (Item.PtrData)
+				xf_free((wchar_t *)Item.PtrData);
 
       return I;
     }
@@ -5941,13 +5941,17 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DN_DRAWDLGITEM:
     {
-      //вызов напрямую от DialogItemEx!!! пока непонятно, что с плагинами, им эта строка не покатит, они пока
-      //все через Ansi выше, но видимо им нужен будет указатель. Это пока только для самого Far Manager,
-      //для реально юникодных диалогов (как копир)
-      I=(int)Dlg->CallDlgProc(Msg,Param1,(LONG_PTR)CurItem);
+    	FarDialogItem Item;
+			if(!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
+				return FALSE; // no memory TODO: may be needed diagnostic
+
+      I=(int)Dlg->CallDlgProc(Msg,Param1,(LONG_PTR)&Item);
 
       if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
         CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+
+      if (Item.PtrData)
+      	xf_free((wchar_t *)Item.PtrData);
 
       return I;
     }
@@ -6269,7 +6273,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		/*****************************************************************/
 		case DM_GETDLGITEM:
 		{
-    	FarDialogItem *Item = (FarDialogItem *) malloc(sizeof(FarDialogItem));
+    	FarDialogItem *Item = (FarDialogItem *) xf_malloc(sizeof(FarDialogItem));
 			if(!Item || !Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,CurItem,1))
 				return 0; // no memory TODO: may be needed diagnostic
 			if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
@@ -6292,8 +6296,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			if(!Param2 || IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
 					return FALSE;
 			if (((FarDialogItem *)Param2)->PtrData)
-				free((wchar_t *)(((FarDialogItem *)Param2)->PtrData));
-			free(((FarDialogItem *)Param2));
+				xf_free((wchar_t *)(((FarDialogItem *)Param2)->PtrData));
+			xf_free(((FarDialogItem *)Param2));
 			return TRUE;
 		}
 

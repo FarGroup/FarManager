@@ -569,7 +569,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
     {
       if ( dwSize > 1 )
       {
-        wchar_t *lpwszDeviceInterfaceList = (wchar_t*)malloc (dwSize*sizeof (wchar_t));
+        wchar_t *lpwszDeviceInterfaceList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
 
         if ( pfnGetDeviceInterfaceList (
             (LPGUID)&VolumeClassGuid,
@@ -583,7 +583,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
           while ( *p )
           {
-            wchar_t *lpwszMountPoint = (wchar_t*)malloc ((wcslen (p)+1+1)*sizeof (wchar_t)); //for trailing slash
+            wchar_t *lpwszMountPoint = (wchar_t*)xf_malloc ((wcslen (p)+1+1)*sizeof (wchar_t)); //for trailing slash
 
             wcscpy (lpwszMountPoint, p);
 
@@ -599,13 +599,13 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
                 ) )
               dwMask |= DriveMaskFromVolumeName (wszVolumeName);
 
-            free (lpwszMountPoint);
+            xf_free (lpwszMountPoint);
 
             p += wcslen (p)+1;
           }
         }
 
-        free (lpwszDeviceInterfaceList);
+        xf_free (lpwszDeviceInterfaceList);
       }
     }
   }
@@ -636,7 +636,7 @@ DWORD GetRelationDrivesMask (DEVINST hDevInst)
     {
       if ( dwSize )
       {
-        wchar_t *lpDeviceIdList = (wchar_t*)malloc (dwSize*sizeof (wchar_t));
+        wchar_t *lpDeviceIdList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
 
         if ( pfnGetDeviceIDList (
             szDeviceID,
@@ -660,7 +660,7 @@ DWORD GetRelationDrivesMask (DEVINST hDevInst)
           }
         }
 
-        free (lpDeviceIdList);
+        xf_free (lpDeviceIdList);
       }
     }
   }
@@ -721,7 +721,7 @@ int GetHotplugDriveDeviceInfoInternal (DEVINST hDevInst, DeviceInfo **pInfo, int
     if ( IsHotPlugDevice(hDevInst) )
     {
         nCount++;
-        *pInfo = (DeviceInfo*)realloc (*pInfo, nCount*sizeof (DeviceInfo));
+        *pInfo = (DeviceInfo*)xf_realloc (*pInfo, nCount*sizeof (DeviceInfo));
 
         DeviceInfo *pItem = &(*pInfo)[nCount-1];
 
@@ -774,7 +774,7 @@ int GetHotplugDevicesInfo (DeviceInfo **pInfo)
 
 void FreeHotplugDevicesInfo (DeviceInfo *pInfo)
 {
-  free (pInfo);
+  xf_free (pInfo);
 }
 
 bool GetDeviceProperty (

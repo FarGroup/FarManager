@@ -1,3 +1,9 @@
+t-rex 18.11.2007 23:23:43 +0200 - build 353
+
+1. Доделал DN_EDITCHANGE и DN_DRAWDLGITEM на предмет передачи FarDialogItem.
+
+2. Юзаем правильные xf_(free|malloc|realloc) во всём коде.
+
 drkns 18.11.2007 12:11:21 +0200 - build 352
 
 1. для меню пользователя выставлялась макрообласть Menu, a не UserMenu.

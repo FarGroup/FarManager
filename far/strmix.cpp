@@ -1434,7 +1434,7 @@ char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength)
   if ( (nMaxLength > 0) && (nMaxLength < nLength) )
     nLength = nMaxLength;
 
-  char *lpResult = (char*)malloc (nLength);
+  char *lpResult = (char*)xf_malloc (nLength);
 
   memset (lpResult, 0, nLength);
 

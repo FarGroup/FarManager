@@ -3052,7 +3052,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
             ptrSrc[J]=0;
         ptrSrc[Len-1]=0;
         SetRegKey(strRegKeyName,L"Sequence",ptrSrc,(Len+1)*sizeof(wchar_t),REG_MULTI_SZ);
-        free(ptrSrc);
+        xf_free(ptrSrc);
         Ok=FALSE;
       }
     }
@@ -3419,18 +3419,8 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
   {
     LastKey=0;
 
-    // <DN_EDITCHANGE>
-
-    // ВНИМАНИЕ! см. замечение в REMINDER - топик про "<DN_EDITCHANGE> и </DN_EDITCHANGE>"
-    #if 1
-      DlgEdit *EditPtr=(DlgEdit *)(((DialogItemEx*)Param2)->ObjPtr);
-      Param2=KeyNameToKey(EditPtr->GetStringAddrW());
-    #else
       _SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->PtrData));
       Param2=KeyNameToKey(((FarDialogItem*)Param2)->PtrData);
-    #endif
-
-    // </DN_EDITCHANGE>
 
     if(Param2 != -1)
       goto M1;
@@ -3664,7 +3654,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 				{
 					struct MacroRecord NewMacroWORK2={0};
 					long FileSize=filelen(MacroFile);
-					TextBuffer=(char*)malloc(FileSize);
+					TextBuffer=(char*)xf_malloc(FileSize);
 					if(TextBuffer)
 					{
 						fread(TextBuffer,FileSize,1,MacroFile);
@@ -3839,7 +3829,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags)
   // сначала смотрим на парсер
   BOOL parsResult=ParseMacroString(&NewMacroWORK2,Buffer);
   if(allocBuffer && Buffer)
-    free(Buffer);
+    xf_free(Buffer);
 
   if(!parsResult)
   {

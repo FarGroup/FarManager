@@ -929,8 +929,8 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
     CtrlObject->Plugins.FreeFindData (hPlugin, pItems, nItemsNumber);
   }
 
-  free (lpFileNameToFind);
-  free (lpFileNameToFindShort);
+  xf_free (lpFileNameToFind);
+  xf_free (lpFileNameToFindShort);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT|OPM_FIND);
 //  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
