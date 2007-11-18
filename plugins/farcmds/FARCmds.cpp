@@ -182,7 +182,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     pathlen=(int)(PointToName(selectItem)-selectItem);
 
     if(pathlen)
-      memcpy(Dir,selectItem,pathlen);
+      _tmemcpy(Dir,selectItem,pathlen);
 
     Dir[pathlen]=0;
     FarTrim(Name);

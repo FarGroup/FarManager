@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 1 VERSIONINFO
- FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 24
+ FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 25
  PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
  FILEFLAGSMASK 0x3fL
  FILEFLAGS 0x2L
@@ -15,9 +15,9 @@ BEGIN
             VALUE "CompanyName", FARCOMPANYNAME
             VALUE "FileDescription", "FAR Commands Plugin for FAR Manager\000"
 #ifndef UNICODE
-            VALUE "FileVersion", "1.71 build 24\0"
+            VALUE "FileVersion", "1.71 build 25\0"
 #else
-            VALUE "FileVersion", "1.80 build 24\0"
+            VALUE "FileVersion", "1.80 build 25\0"
 #endif
             VALUE "InternalName", "FARCmds\0"
             VALUE "LegalCopyright", FARCOPYRIGHT
