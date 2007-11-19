@@ -442,7 +442,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 #else
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
 #endif
-    _SVS(SysLog("LoopCount=%d",LoopCount));
+    //_SVS(SysLog("LoopCount=%d",LoopCount));
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
     if (ReadCount!=0)

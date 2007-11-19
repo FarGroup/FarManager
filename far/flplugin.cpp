@@ -312,8 +312,9 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
 
     if(AddTwoDot && !ItemNumber && (FileAttr & FA_DIREC)) // это про ".."
     {
-      strcpy(ItemList->FindData.cFileName,ListData->Name);
-      ItemList->FindData.dwFileAttributes=ListData->FileAttr;
+      FileListToPluginItem(ListData,ItemList);
+      //strcpy(ItemList->FindData.cFileName,ListData->Name);
+      //ItemList->FindData.dwFileAttributes=ListData->FileAttr;
       ItemNumber++;
     }
   }

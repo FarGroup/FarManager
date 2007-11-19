@@ -1,3 +1,11 @@
+svs 19.11.2007 11:54:22 +0300 - build 2297
+
+1. Mantis#0000358: Для элемента "точки" PluginPanelItem.UserData всегда 0 
+
+   [-] API: Для элемента ".." в PluginPanelItem заполнялись только поля
+       FindData.dwFileAttributes и FindData.cFileName, остальные элементы 
+       структуры обнулялись.
+
 yjh 16.11.2007 06:58:33 +0300 - build 2296
 
 1. В операции Move при включенной фильтрации не удалялся полностью 
