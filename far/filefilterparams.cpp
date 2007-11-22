@@ -410,7 +410,7 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
   }
   else
   {
-    MarkChar[1]=(char)FF->GetMarkChar();
+    MarkChar[1]=(wchar_t)FF->GetMarkChar();
     if (MarkChar[1]==0)
       *MarkChar=0;
     Name=FF->GetTitle();
@@ -737,7 +737,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
         EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)&ColorExample);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)ColorExample);
         return TRUE;
       }
