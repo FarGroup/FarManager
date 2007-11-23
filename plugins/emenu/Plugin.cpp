@@ -78,8 +78,8 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
   if (LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
   if (HIWORD(nFARVer)<MIN_FAR_BUILD) return;
   m_fsf=*Info->FSF;
-  lstrcpy(g_PluginRootKey, Info->RootKey);
-  lstrcat(g_PluginRootKey, REG_Key);
+  lstrcpy(g_PluginKey, Info->RootKey);
+  lstrcat(g_PluginKey, REG_Key);
   ReadRegValues();
   OSVERSIONINFO osvi;
   osvi.dwOSVersionInfoSize=sizeof(osvi);
@@ -103,14 +103,14 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
 
 void CPlugin::ReadRegValues()
 {
-  m_WaitToContinue=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, 1);
-  m_UseGUI=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, 2);
-  m_DelUsingFar=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, 0);
-  m_ClearSel=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_ClearSel, 1);
-  m_Silent=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_Silent, 0);
-  m_enHelptext=(EAdditionalStr)GetRegKey(HKEY_CURRENT_USER, _T(""), REG_Helptext, 0);
-  m_DifferentOnly=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_DifferentOnly, 0);
-  m_GuiPos=GetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, 1);
+  m_WaitToContinue=GetRegKey(REG_WaitToContinue, 1);
+  m_UseGUI=GetRegKey(REG_UseGUI, 2);
+  m_DelUsingFar=GetRegKey(REG_DelUsingFar, 0);
+  m_ClearSel=GetRegKey(REG_ClearSel, 1);
+  m_Silent=GetRegKey(REG_Silent, 0);
+  m_enHelptext=(EAdditionalStr)GetRegKey(REG_Helptext, 0);
+  m_DifferentOnly=GetRegKey(REG_DifferentOnly, 0);
+  m_GuiPos=GetRegKey(REG_GuiPos, 1);
 }
 
 void CPlugin::GetPluginInfo(PluginInfo *Info)
@@ -328,14 +328,14 @@ int CPlugin::Configure()
     m_DifferentOnly=GetCheck(10);
     if (GetCheck(12)) m_GuiPos=0;
     if (GetCheck(13)) m_GuiPos=1;
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, m_WaitToContinue);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, m_UseGUI);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, m_DelUsingFar);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_ClearSel, m_ClearSel);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Silent, m_Silent);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_Helptext, m_enHelptext);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DifferentOnly, m_DifferentOnly);
-    SetRegKey(HKEY_CURRENT_USER, _T(""), REG_GuiPos, m_GuiPos);
+    SetRegKey(REG_WaitToContinue, m_WaitToContinue);
+    SetRegKey(REG_UseGUI, m_UseGUI);
+    SetRegKey(REG_DelUsingFar, m_DelUsingFar);
+    SetRegKey(REG_ClearSel, m_ClearSel);
+    SetRegKey(REG_Silent, m_Silent);
+    SetRegKey(REG_Helptext, m_enHelptext);
+    SetRegKey(REG_DifferentOnly, m_DifferentOnly);
+    SetRegKey(REG_GuiPos, m_GuiPos);
     ret=1;
   }
 #ifdef UNICODE
