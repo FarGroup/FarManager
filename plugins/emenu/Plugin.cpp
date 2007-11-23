@@ -317,17 +317,17 @@ int CPlugin::Configure()
 
   if (ExitCode==14)
   {
-    m_WaitToContinue=DlgItems[1].Selected;
-    m_UseGUI=DlgItems[2].Selected;
-    m_DelUsingFar=DlgItems[3].Selected;
-    m_ClearSel=DlgItems[4].Selected;
-    m_Silent=DlgItems[5].Selected;
-    if (DlgItems[7].Selected) m_enHelptext=AS_NONE;
-    if (DlgItems[8].Selected) m_enHelptext=AS_HELPTEXT;
-    if (DlgItems[9].Selected) m_enHelptext=AS_VERB;
-    m_DifferentOnly=DlgItems[10].Selected;
-    if (DlgItems[12].Selected) m_GuiPos=0;
-    if (DlgItems[13].Selected) m_GuiPos=1;
+    m_WaitToContinue=GetCheck(1);
+    m_UseGUI=GetCheck(2);
+    m_DelUsingFar=GetCheck(3);
+    m_ClearSel=GetCheck(4);
+    m_Silent=GetCheck(5);
+    if (GetCheck(7)) m_enHelptext=AS_NONE;
+    if (GetCheck(8)) m_enHelptext=AS_HELPTEXT;
+    if (GetCheck(9)) m_enHelptext=AS_VERB;
+    m_DifferentOnly=GetCheck(10);
+    if (GetCheck(12)) m_GuiPos=0;
+    if (GetCheck(13)) m_GuiPos=1;
     SetRegKey(HKEY_CURRENT_USER, _T(""), REG_WaitToContinue, m_WaitToContinue);
     SetRegKey(HKEY_CURRENT_USER, _T(""), REG_UseGUI, m_UseGUI);
     SetRegKey(HKEY_CURRENT_USER, _T(""), REG_DelUsingFar, m_DelUsingFar);
