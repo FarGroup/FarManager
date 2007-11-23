@@ -18,3 +18,4 @@ NEEDENTRY = 1
 !include ..\makefile_vc_target_inc
 
 $(RES): resource.h
+$(OBJDIR)\Plugin.obj : Reg.cpp
