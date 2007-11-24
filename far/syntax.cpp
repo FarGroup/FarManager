@@ -1013,7 +1013,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
       KeyCode = MCODE_OP_PLAINTEXT;
       BufPtr = oldBufPtr;
     }
-    else if ( ( KeyCode = KeyNameToKey(strCurrKeyText) ) == (DWORD)-1 )
+    else if ( ( KeyCode = KeyNameMacroToKey(strCurrKeyText) ) == (DWORD)-1 && ( KeyCode = KeyNameToKey(strCurrKeyText) ) == (DWORD)-1)
     {
       int ProcError=0;
 

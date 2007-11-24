@@ -311,6 +311,7 @@ int MkStrFTime(string &strDest, const wchar_t *Fmt)
 
     int nResult = MkStrFTimeA (szDest, NM-1, lpFmt);
 
+    strDest=szDest;
     xf_free (lpFmt);
 
     return nResult;
