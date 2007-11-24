@@ -2203,7 +2203,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
         if(Opt.PgUpChangeDisk &&
           (FAR_GetDriveType(strDirName) != DRIVE_REMOTE ||
-           CtrlObject->Plugins.FindPlugin(SYSID_NETWORK)))
+           !CtrlObject->Plugins.FindPlugin(SYSID_NETWORK)))
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
           return TRUE;
