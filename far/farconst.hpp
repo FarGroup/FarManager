@@ -61,9 +61,9 @@ template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 inline int IsSpaceA(int x) { return x==' ' || x=='\t'; }
-inline int IsSpace(int x) { return x==L' ' || x==L'\t'; }
+inline int IsSpace(wchar_t x) { return x==L' ' || x==L'\t'; }
 inline int IsEolA(int x)  { return x=='\r' || x=='\n'; }
-inline int IsEol(int x)  { return x==L'\r' || x==L'\n'; }
+inline int IsEol(wchar_t x)  { return x==L'\r' || x==L'\n'; }
 
 #define  FALSE        0
 #define  TRUE         1

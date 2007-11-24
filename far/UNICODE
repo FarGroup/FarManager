@@ -31,6 +31,9 @@
    _fsopen         _wfsopen
    fprintf         fwprintf
 
+   memset          wmemset        only for strings
+   memcpy          wmemcpy        only for strings
+
 
    Examples
    ~~~~~~~~

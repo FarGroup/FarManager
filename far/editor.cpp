@@ -3443,7 +3443,6 @@ BOOL Editor::Search(int Next)
   wchar_t *SearchStr = _wcsdup (strSearchStr); //RAVE!!!
   wchar_t *ReplaceStr = _wcsdup (strReplaceStr); //BUGBUG!!!
 
-
   LastSuccessfulReplaceMode=ReplaceMode;
 
   if (!EdOpt.PersistentBlocks)
@@ -3455,7 +3454,7 @@ BOOL Editor::Search(int Next)
     int SearchLength=(int)strSearchStr.GetLength();
 
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
-    SetCursorType(FALSE,0);
+    SetCursorType(FALSE,-1);
     //SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     EditorShowMsg(UMSG(MEditSearchTitle),UMSG(MEditSearchingFor),strMsgStr);
 

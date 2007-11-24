@@ -204,7 +204,12 @@ void Edit::DisplayObject()
       ::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
     }
     else
-      ::SetCursorType(1,CursorSize);
+    {
+      int NewCursorSize=IsWindowed()?
+       (Opt.CursorSize[0]?Opt.CursorSize[0]:10):
+       (Opt.CursorSize[1]?Opt.CursorSize[1]:10);
+      ::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
+    }
   }
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
@@ -1824,7 +1829,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 */
 int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Reverse)
 {
-/*  int I,J,Length=strlen(Str);
+  int I,J,Length=StrLength(Str);
   if (Reverse)
   {
     Position--;
@@ -1845,26 +1850,29 @@ int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Rev
         }
         if (WholeWords)
         {
-          int ChLeft,ChRight;
+          wchar_t ChLeft,ChRight;
           int locResultLeft=FALSE;
           int locResultRight=FALSE;
 
-          ChLeft=(TableSet==NULL) ? Edit::Str[I-1]:TableSet->DecodeTable[Edit::Str[I-1]];
+          //ChLeft=(TableSet==NULL) ? Edit::Str[I-1]:TableSet->DecodeTable[Edit::Str[I-1]];
+          ChLeft=Edit::Str[I-1];
           if (I>0)
-            locResultLeft=(IsSpace(ChLeft) || strchr(WordDiv,ChLeft)!=NULL);
+            locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv,ChLeft)!=NULL);
           else
             locResultLeft=TRUE;
           if (I+Length<StrSize)
           {
-            ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
-            locResultRight=(IsSpace(ChRight) || strchr(WordDiv,ChRight)!=NULL);
+            //ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
+            ChRight=Edit::Str[I+Length];
+            locResultRight=(IsSpace(ChRight) || wcschr(WordDiv,ChRight)!=NULL);
           }
           else
             locResultRight=TRUE;
           if (!locResultLeft || !locResultRight)
             break;
         }
-        int Ch=(TableSet==NULL) ? Edit::Str[I+J]:TableSet->DecodeTable[Edit::Str[I+J]];
+        //int Ch=(TableSet==NULL) ? Edit::Str[I+J]:TableSet->DecodeTable[Edit::Str[I+J]];
+        wchar_t Ch=Edit::Str[I+J];
         if (Case)
         {
           if (Ch!=Str[J])
@@ -1872,11 +1880,11 @@ int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Rev
         }
         else
         {
-          if (LocalUpper(Ch)!=LocalUpper(Str[J]))
+          if (Upper(Ch)!=Upper(Str[J]))
             break;
         }
       }
-    }*/ //BUGBUG
+    }
   return(FALSE);
 }
 
