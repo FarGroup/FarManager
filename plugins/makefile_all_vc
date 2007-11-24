@@ -19,8 +19,8 @@ ALLDIRS=compare editcase emenu farcmds hlfviewer macroview network proclist
 
 !elseif defined(AMD64) || "$(CPU)" == "AMD64"
 
-ALLDIRS=compare editcase emenu farcmds hlfviewer macroview multiarc network \
-        proclist
+ALLDIRS=align autowrap brackets compare drawline editcase emenu farcmds \
+        filecase hlfviewer macroview multiarc network proclist tmppanel
 
 !else
 
