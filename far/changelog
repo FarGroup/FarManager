@@ -1,3 +1,11 @@
+t-rex 25.11.2007 21:15:46 +0200
+
+Без билда.
+
+1. Не нужный "wchar_t *m_lpwszBuffer" в UnicodeString.hpp.
+
+2. Обновления в HACKING-*.
+
 t-rex 25.11.2007 20:39:14 +0200 - build 359
 
 от Alexey Samlyukov:

@@ -147,8 +147,6 @@ class UnicodeString {
 private:
 	UnicodeStringData *m_pData;
 
-	wchar_t *m_lpwszBuffer;
-
 	void DeleteData()
 	{
 		if (m_pData)
