@@ -617,18 +617,18 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /*  5 */  DI_EDIT,        6, 6,68, 6,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
   /*  6 */  DI_TEXT,        0, 7, 0, 7, 0, 0, DIF_SEPARATOR, 0, L"",
   /*  7 */  DI_TEXT,        5, 8,68,16,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigInternal,
-  /* 15 */  DI_CHECKBOX,    6,15, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
-  /*  8 */  DI_CHECKBOX,    6, 9, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
-  /*  9 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
-  /* 10 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectTable,
-  /* 11 */  DI_FIXEDIT,     6,12, 9,12,0,0,0,0,L"",
-  /* 12 */  DI_TEXT,       11,12, 0,12,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
-  /* 13 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
-  /* 14 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MViewConfigArrows,
-  /* 16 */  DI_CHECKBOX,    6,16, 0,15,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
-  /* 17 */  DI_TEXT,        0,17, 0,16, 0, 0, DIF_SEPARATOR, 0, L"",
-  /* 18 */  DI_BUTTON,      0,18, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 19 */  DI_BUTTON,      0,18, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /*  8 */  DI_CHECKBOX,    6, 9, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
+  /*  9 */  DI_CHECKBOX,    6,10, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
+  /* 10 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
+  /* 11 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectTable,
+  /* 12 */  DI_FIXEDIT,     6,12, 9,12,0,0,0,0,L"",
+  /* 13 */  DI_TEXT,       11,12, 0,12,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
+  /* 14 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
+  /* 15 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MViewConfigArrows,
+  /* 16 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
+  /* 17 */  DI_TEXT,        0,16, 0,16, 0, 0, DIF_SEPARATOR, 0, L"",
+  /* 18 */  DI_BUTTON,      0,17, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 19 */  DI_BUTTON,      0,17, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
 
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
