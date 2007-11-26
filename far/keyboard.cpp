@@ -1678,7 +1678,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
       VirtKey=FKey;
     else if(FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
       VirtKey=FKey-KEY_FKEY_BEGIN;
-    else if(FKey < 0x100)
+    else if(FKey < 0x100)           // EXTENDED_KEY_BASE ???
       VirtKey=VkKeyScan(FKey)&0xFF;
     else
       VirtKey=FKey;
@@ -1691,7 +1691,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
     Rec->Event.KeyEvent.wVirtualKeyCode=VirtKey;
     Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(
                     Rec->Event.KeyEvent.wVirtualKeyCode, 0);
-    if (Key>255)
+    if (Key>255)                    // 0xFFFFF ???
       Key=0;
     Rec->Event.KeyEvent.uChar.UnicodeChar=
         Rec->Event.KeyEvent.uChar.AsciiChar=Key;

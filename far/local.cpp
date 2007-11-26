@@ -69,7 +69,7 @@ void InitKeysArray()
             continue;
           CvtStr[0]=AnsiKey;
           CvtStr[1]=0;
-          FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+          FAR_CharToOem((char *)CvtStr,(char *)CvtStr); //???
           Keys[J]=CvtStr[0];
         }
         if (Keys[0]!=0 && Keys[1]!=0)
@@ -92,7 +92,7 @@ void InitKeysArray()
           if (AnsiKey==0xFF)
             continue;
           CvtStr[0]=I;
-          FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+          FAR_CharToOem((char *)CvtStr,(char *)CvtStr); //???
           KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
         }
       }
@@ -304,7 +304,7 @@ int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 
 int LocalKeyToKey(int Key)
 {
-  return(KeyToKey[Key]);
+  return(KeyToKey[Key]); // BUGBUG!!!
 }
 
 /*---------------------------------------*/

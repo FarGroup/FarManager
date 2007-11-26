@@ -1,3 +1,10 @@
+svs 26.11.2007 12:49:47 +0300 - build 360
+
+From Alexander Mitin (alexmitin):
+1. Mantis#0000379: Memory corruption in QuickView::DisplayObject() 
+   
+В остальном - в keyboard.cpp local.cpp macro.cpp отмечены спорные моменты для Mantis#360
+
 t-rex 25.11.2007 21:15:46 +0200
 
 Без билда.

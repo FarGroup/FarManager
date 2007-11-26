@@ -129,7 +129,7 @@ void QuickView::DisplayObject()
       int ID_Msg, Width;
       if(GetJunctionPointInfo(strCurFileName, strJuncName)) //"\??\D:\Junc\Src\"
       {
-        strJuncName.RShift (4);
+        strJuncName.LShift (4);
 
         if(!wcsncmp(strJuncName,L"Volume{",7))
         {
