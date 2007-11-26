@@ -603,6 +603,57 @@ int HiStrlen(const char *Str,BOOL Dup)
   return(Length);
 }
 
+
+char *HiText2Str(char *Dest, int DestSize, const char *Str)
+{
+  char TextStr[600];
+  char *ChPtr;
+  xstrncpy(TextStr,Str,sizeof(TextStr)-1);
+  if ((ChPtr=strchr(TextStr,'&'))==NULL)
+  {
+    xstrncpy(Dest,Str,DestSize-1);
+  }
+  else
+  {
+    *Dest=0;
+    /*
+       &&      = '&'
+       &&&     = '&'
+                  ^H
+       &&&&    = '&&'
+       &&&&&   = '&&'
+                  ^H
+       &&&&&&  = '&&&'
+    */
+    int I=0;
+    char *ChPtr2=ChPtr;
+    while(*ChPtr2++ == '&')
+      ++I;
+
+    if(I&1) // нечет?
+    {
+      *ChPtr=0;
+
+      strncat(Dest,TextStr,DestSize-1);
+
+      if (ChPtr[1])
+      {
+        char Chr[2];
+        Chr[0]=ChPtr[1]; Chr[1]=0;
+        strncat(Dest,Chr,DestSize-1);
+        ReplaceStrings(ChPtr+1,"&&","&",-1);
+        strncat(Dest,ChPtr+2,DestSize-1);
+      }
+    }
+    else
+    {
+      ReplaceStrings(ChPtr,"&&","&",-1);
+      strncat(Dest,TextStr,DestSize-1);
+    }
+  }
+  return Dest;
+}
+
 BOOL WINAPI AddEndSlash(char *Path)
 {
   return AddEndSlash(Path,0);

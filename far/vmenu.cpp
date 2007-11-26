@@ -733,6 +733,32 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
       return _i64(0);
     }
 
+    case MCODE_F_MENU_SELECT:
+    {
+      const char *str = (const char *)vParam;
+      if ( *str )
+      {
+        char Temp[3*NM];
+        for(int I=0; I < ItemCount; ++I)
+        {
+          struct MenuItem *_item=GetItemPtr(I);
+          const char *Name=((struct MenuItem *)_item)->PtrName();
+          if(LocalRevStrstri(RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),Name)),str))
+          {
+            SelectPos=SetSelectPos(I,1);
+            if(SelectPos != I)
+            {
+              SelectPos=SetSelectPos(SelectPos,1);
+              return _i64(0);
+            }
+            ShowMenu(TRUE);
+            return (__int64)(SelectPos+1);
+          }
+        }
+      }
+      return _i64(0);
+    }
+
     case MCODE_F_MENU_GETHOTKEY:
     {
       if(iParam == _i64(-1))

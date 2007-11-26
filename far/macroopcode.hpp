@@ -60,7 +60,7 @@ enum MACRO_OP_CODE {
   MCODE_OP_AND,                     // a && b
   MCODE_OP_OR,                      // a || b
   MCODE_OP_BITAND,                  // a &  b
-  MCODE_OP_BITOR,                   // a || b
+  MCODE_OP_BITOR,                   // a |  b
   MCODE_OP_BITXOR,                  // a ^  b
   MCODE_OP_BITSHR,                  // a >> b
   MCODE_OP_BITSHL,                  // a << b
@@ -113,7 +113,9 @@ enum MACRO_OP_CODE {
   MCODE_F_MAX,                      // N=max(N1,N2)
   MCODE_F_MENU_CHECKHOTKEY,         // N=checkhotkey(S)
   MCODE_F_MENU_GETHOTKEY,           // S=gethotkey(N)
+  MCODE_F_MENU_SELECT,              // N=Menu.Select(S)
   MCODE_F_MIN,                      // N=min(N1,N2)
+  MCODE_F_MOD,                      // N=mod(a,b) == a %  b
   MCODE_F_MSAVE,                    // B=msave(var)
   MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
   MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)

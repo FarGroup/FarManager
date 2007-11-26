@@ -1444,6 +1444,21 @@ static bool maxFunc()
   return true;
 }
 
+// n=modFunc(n1,n2)
+static bool modFunc()
+{
+  TVar V2 = VMStack.Pop();
+  TVar V1 = VMStack.Pop();
+  if(!V2.i())
+  {
+    _KEYMACRO(SysLog("[%d] modFunc() Error: Divide (mod) by zero",__LINE__));
+    VMStack.Push(_i64(0));
+    return false;
+  }
+  VMStack.Push( V1 % V2 );
+  return true;
+}
+
 // n=iif(expression,n1.n2)
 static bool iifFunc()
 {
@@ -2725,7 +2740,7 @@ done:
       VMStack.Push((__int64)MR->Key); //???
       goto begin;
 
-    case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey()
+    case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey(N)
     {
        _KEYMACRO(CleverSysLog Clev("MCODE_F_MENU_GETHOTKEY"));
        tmpVar=VMStack.Pop();
@@ -2761,9 +2776,10 @@ done:
        goto begin;
     }
 
+    case MCODE_F_MENU_SELECT:      // N=Menu.Select(S)
     case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
     {
-       _KEYMACRO(CleverSysLog Clev("MCODE_F_MENU_CHECKHOTKEY"));
+       _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_CHECKHOTKEY? "MCODE_F_MENU_CHECKHOTKEY":"MCODE_F_MENU_SELECT"));
        __int64 Result=_i64(0);
        tmpVar=VMStack.Pop();
        const char *checkStr=tmpVar.toString();
@@ -2781,7 +2797,7 @@ done:
            f=fo;
 
          if(f)
-           Result=f->VMProcess(MCODE_F_MENU_CHECKHOTKEY,(void*)checkStr);
+           Result=f->VMProcess(Key,(void*)checkStr);
        }
        VMStack.Push(Result);
        goto begin;
@@ -2817,6 +2833,7 @@ done:
         {MCODE_F_WAITKEY,waitkeyFunc},  // S=waitkey(N)
         {MCODE_F_ITOA,itoaFunc}, // S=itoa(N,radix)
         {MCODE_F_MIN,minFunc},  // N=min(N1,N2)
+        {MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
         {MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
         {MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
         {MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)

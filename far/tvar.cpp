@@ -282,6 +282,29 @@ TVar operator/(const TVar& a, const TVar& b)
   return r;
 };
 
+TVar operator%(const TVar& a, const TVar& b)
+{
+  TVar r;
+  switch ( a.vType )
+  {
+    case vtInteger:
+      switch ( b.vType )
+      {
+        case vtInteger:
+          r = b.inum ? ( a.inum % b.inum ) : _i64(0);
+          break;
+        case vtString:
+          r = a;
+          break;
+      }
+      break;
+    case vtString:
+      r = a;
+      break;
+  }
+  return r;
+};
+
 TVar operator|(const TVar& a, const TVar& b)
 {
   TVar r;

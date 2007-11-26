@@ -1690,8 +1690,11 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         KeepPathPos=(int)strlen(SubName);
 
       int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS) && (ShellCopy::Flags&FCOPY_MOVE));
+      int AttemptToMove=FALSE;
+      int SaveOvrMode=OvrMode;
 
       ScTree.SetFindPath(SubName,"*.*",FSCANTREE_FILESFIRST);
+
       while (ScTree.GetNextName(&SrcData,FullName, sizeof (FullName)-1))
       {
         _LOGCOPYR(SysLog("FullName='%s', SameDisk=%d",FullName,SameDisk));
@@ -1727,7 +1730,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         }
         /* KM $ */
 
-        int AttemptToMove=FALSE;
+        AttemptToMove=FALSE;
         if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
           AttemptToMove=TRUE;
@@ -1764,7 +1767,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           }
         }
 
-        int SaveOvrMode=OvrMode;
+        SaveOvrMode=OvrMode;
 
         if (AttemptToMove)
           OvrMode=1;

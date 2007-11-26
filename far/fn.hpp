@@ -310,6 +310,8 @@ void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
 int HiStrlen(const char *Str,BOOL Dup=TRUE);
+char *HiText2Str(char *Dest, int DestSize, const char *Str);
+
 /* $ 27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера */
 int GetErrorString(char *ErrStr, DWORD StrSize);

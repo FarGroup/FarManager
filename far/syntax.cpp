@@ -26,7 +26,7 @@ syntax.cpp
 #define EOFCH 256
 
 static int Size = 0;
-static unsigned long FARVar, *exprBuff = NULL;
+static unsigned long nFARVar, *exprBuff = NULL;
 static int IsProcessFunc=0;
 
 static int _macro_nErr = 0;
@@ -50,6 +50,113 @@ static __int64 _cdecl getInt64();
 #ifdef SYSLOG_KEYMACRO
 static void printKeyValue(DWORD* k, int& i);
 #endif
+#endif
+
+
+// Стек структурных операторов
+enum TExecMode
+{
+  emmMain, emmWhile, emmThen, emmElse, emmRep
+};
+
+struct TExecItem
+{
+  TExecMode state;
+  DWORD pos1, pos2;
+};
+
+class TExec
+{
+  private:
+    TExecItem stack[MAXEXEXSTACK];
+  public:
+    int current;
+    void init()
+    {
+      current = 0;
+      stack[current].state = emmMain;
+      stack[current].pos1 = stack[current].pos2 = 0;
+    }
+    TExec() { init(); }
+    TExecItem& operator()() { return stack[current]; }
+    int add(TExecMode, DWORD, DWORD = 0);
+    int del();
+};
+
+int TExec::add(TExecMode s, DWORD p1, DWORD p2)
+{
+  if ( ++current < MAXEXEXSTACK )
+  {
+    stack[current].state = s;
+    stack[current].pos1 = p1;
+    stack[current].pos2 = p2;
+    return TRUE;
+  }
+  // Stack Overflow
+  return FALSE;
+};
+
+int TExec::del()
+{
+  if ( --current < 0 )
+  {
+    // Stack Underflow ???
+    current = 0;
+    return FALSE;
+  }
+  return TRUE;
+};
+
+
+#if defined(SYSLOG)
+static const char *_MacroParserToken_ToName(int Token)
+{
+#define DEF_TOKEN_(m) { m , #m }
+  static struct TOKENName{
+    int Msg;
+    const char *Name;
+  } TOKEN[]={
+    DEF_TOKEN_(tNo),
+    DEF_TOKEN_(tEnd),
+    DEF_TOKEN_(tLet),
+    DEF_TOKEN_(tVar),
+    DEF_TOKEN_(tStr),
+    DEF_TOKEN_(tInt),
+    DEF_TOKEN_(tFunc),
+    DEF_TOKEN_(tFARVar),
+    DEF_TOKEN_(tPlus),
+    DEF_TOKEN_(tMinus),
+    DEF_TOKEN_(tMul),
+    DEF_TOKEN_(tDiv),
+    DEF_TOKEN_(tLp),
+    DEF_TOKEN_(tRp),
+    DEF_TOKEN_(tComma),
+    DEF_TOKEN_(tBoolAnd),
+    DEF_TOKEN_(tBoolOr),
+    DEF_TOKEN_(tBitAnd),
+    DEF_TOKEN_(tBitOr),
+    DEF_TOKEN_(tBitXor),
+    DEF_TOKEN_(tNot),
+    DEF_TOKEN_(tBitShl),
+    DEF_TOKEN_(tBitShr),
+    DEF_TOKEN_(tEq),
+    DEF_TOKEN_(tNe),
+    DEF_TOKEN_(tLt),
+    DEF_TOKEN_(tLe),
+    DEF_TOKEN_(tGt),
+    DEF_TOKEN_(tGe),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(TOKEN)/sizeof(TOKEN[0]); ++I)
+    if(TOKEN[I].Msg == Token)
+    {
+      sprintf(Name,"\"%s\" [%d/0x%04X]",TOKEN[I].Name,Token,Token);
+      return Name;
+    }
+  sprintf(Name,"\"t???\" [%d/0x%04X]",Token,Token);
+  return Name;
+}
 #endif
 
 static void put(unsigned long code)
@@ -175,6 +282,8 @@ static TMacroFunction macroFunction[]={
   {"LCASE",          1,    MCODE_F_LCASE},               // S=lcase(S1)
   {"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
   {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
+  {"MENU.SELECT",    1,    MCODE_F_MENU_SELECT},         // N=Menu.Select(S)
+  {"MOD",            2,    MCODE_F_MOD},                 // N=mod(a,b) == a %  b
   {"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
   {"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
   {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
@@ -330,73 +439,87 @@ static char hex2ch(char b1, char b2)
 
 static TToken getToken(void)
 {
+  _KEYMACRO_PARSE(CleverSysLog Clev("getToken"));
   oSrcString = sSrcString;
   int ch = getNextChar();
   switch ( ch )
   {
     case EOFCH:
-    case 0:   return currTok = tEnd;
-    case ',': return currTok = tComma;
-    case '+': return currTok = tPlus;
-    case '-': return currTok = tMinus;
-    case '*': return currTok = tMul;
-    case '/': return currTok = tDiv;
-    case '(': return currTok = tLp;
-    case ')': return currTok = tRp;
-    case '^': return currTok = tBitXor;
+    case 0:   currTok = tEnd; break;
+    case ',': currTok = tComma;  break;
+    case '+': currTok = tPlus;   break;
+    case '-': currTok = tMinus;  break;
+    case '*': currTok = tMul;    break;
+    case '/': currTok = tDiv;    break;
+    case '(': currTok = tLp;     break;
+    case ')': currTok = tRp;     break;
+    case '^': currTok = tBitXor; break;
     case '|':
       if ( ( ch = getChar() ) == '|')
-        return currTok = tBoolOr;
+        currTok = tBoolOr;
       else
       {
         putBack(ch);
-        return currTok = tBitOr;
+        currTok = tBitOr;
       }
+      break;
     case '&':
       if ( ( ch = getChar() ) == '&')
-        return currTok = tBoolAnd;
+        currTok = tBoolAnd;
       else
       {
         putBack(ch);
-        return currTok = tBitAnd;
+        currTok = tBitAnd;
       }
+      break;
     case '=':
       if ( ( ch = getChar() ) == '=')
-        return currTok = tEq;
+        currTok = tEq;
       else
       {
         putBack(ch);
-        return currTok = tLet;
+        currTok = tLet;
       }
+      break;
     case '>':
       switch ( ( ch = getChar() ) )
       {
-        case '=': return currTok = tGe;
-        case '>': return currTok = tBitShr;
+        case '=': currTok = tGe;     break;
+        case '>': currTok = tBitShr; break;
         default:
           putBack(ch);
-          return currTok = tGt;
+          currTok = tGt;
+          break;
       }
+      break;
     case '<':
       switch ( ch = getChar() )
       {
-        case '=': return currTok = tLe;
-        case '<': return currTok = tBitShl;
+        case '=': currTok = tLe;     break;
+        case '<': currTok = tBitShl; break;
         default:
           putBack(ch);
-          return currTok = tLt;
+          currTok = tLt;
+          break;
       }
+      break;
     case '!':
       if((ch = getChar() ) != '=')
       {
         putBack(ch);
-        return currTok = tNot;
+        currTok = tNot;
+        break;
       }
-      return currTok = tNe;
+      else
+        currTok = tNe;
+      break;
+
     case '\"':
+    {
       //-AN----------------------------------------------
       // Вообще-то это почти полный аналог ParsePlainText
       //-AN----------------------------------------------
+      TToken __currTok = tNo;
       currVar = "";
       while ( ( ( ch = getChar() ) != EOFCH ) && ( ch != '\"' ) )
       {
@@ -447,26 +570,37 @@ static TToken getToken(void)
               else
               {
                 keyMacroParseError(err_Bad_Hex_Control_Char);
-                return currTok = tEnd;
+                __currTok = tEnd;
               }
               break;
             default:
               keyMacroParseError(err_Bad_Control_Char);
-              return currTok = tEnd;
+              __currTok = tEnd;
+              break;
           }
         }
+        if(__currTok != tNo)
+          break;
         char p[] = " ";
         *p = (char)ch;
         currVar = currVar+TVar(p);
       }
-      return currTok = tStr;
+
+      if(__currTok == tNo)
+        currTok = tStr;
+      else
+        currTok = __currTok;
+
+      break;
+    }
 
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
     {
       putBack(ch);
       currVar = getInt64();
-      return currTok = tInt;
+      currTok = tInt;
+      break;
     }
 
     case '%':
@@ -475,14 +609,16 @@ static TToken getToken(void)
       {
         getVarName(ch);
         putBack(ch);
-        return currTok = tVar;
+        currTok = tVar;
       }
       else
         keyMacroParseError(err_Var_Expected,"");//nameString); // BUG nameString
       break;
+
     default:
       if ( isalpha(ch) ) //  || ch == '_' ????
       {
+        TToken __currTok = tNo;
         getFarName(ch);
         if(ch == ' ')
         {
@@ -490,33 +626,46 @@ static TToken getToken(void)
             ch = getNextChar();
         }
         if ( ch == '(' ) //!!!! а пробелы пропустить? ДА!
-          return currTok = tFunc;
+          __currTok = tFunc;
         else
         {
           putBack(ch);
           for ( int i = 0 ; i < MKeywordsSize ; i++ )
             if ( !stricmp(nameString, MKeywords[i].Name) )
             {
-              FARVar = MKeywords[i].Value;
-              return currTok = tFARVar;
+              nFARVar = MKeywords[i].Value;
+              __currTok = tFARVar;
+              break;
             }
-          if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
-            keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
-          else
+
+          if(__currTok == tNo)
           {
-            if(KeyNameMacroToKey(nameString) == -1)
-              if(KeyNameToKey(nameString) == -1)
-                 keyMacroParseError(err_Unrecognized_keyword,nameString);
+            if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
+              keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+            else
+            {
+              if(KeyNameMacroToKey(nameString) == -1)
+                if(KeyNameToKey(nameString) == -1)
+                   keyMacroParseError(err_Unrecognized_keyword,nameString);
+            }
           }
         }
+
+        if(__currTok != tNo)
+          currTok=__currTok;
       }
+      else
+        currTok = tEnd;
       break;
   }
-  return currTok = tEnd;
+  _KEYMACRO_PARSE(SysLog("currTok=%s",_MacroParserToken_ToName(currTok)));
+  return currTok;
 }
 
 static void prim(void)
 {
+  _KEYMACRO_PARSE(CleverSysLog Clev("prim"));
+  _KEYMACRO_PARSE(SysLog("currTok=%s",_MacroParserToken_ToName(currTok)));
   switch ( currTok )
   {
     case tEnd:
@@ -536,23 +685,13 @@ static void prim(void)
       getToken();
       break;
     case tFARVar:
-      put(FARVar);
+      put(nFARVar); // nFARVar получаем в getToken()
       getToken();
       break;
     case tStr:
       put(MCODE_OP_PUSHSTR);
       putstr(currVar.s());
       getToken();
-      break;
-    case tMinus:
-      getToken();
-      prim();
-      put(MCODE_OP_NEGATE);
-      break;
-    case tNot:
-      getToken();
-      prim();
-      put(MCODE_OP_NOT);
       break;
     case tLp:
       getToken();
@@ -567,46 +706,139 @@ static void prim(void)
   }
 }
 
-static void term(void)
+static void primExpr(void)
 {
+  _KEYMACRO_PARSE(CleverSysLog Clev("primExpr"));
   prim();
   for ( ; ; )
     switch ( currTok )
     {
-      case tMul: getToken(); prim(); put(MCODE_OP_MUL); break;
-      case tDiv: getToken(); prim(); put(MCODE_OP_DIV); break;
+      case tMinus: getToken(); prim(); put(MCODE_OP_NEGATE); break;
+      case tNot:   getToken(); prim(); put(MCODE_OP_NOT);    break;
       default:
         return;
     }
 }
 
-static void mathExpr(void)
+static void multExpr(void)
 {
-  term();
+  _KEYMACRO_PARSE(CleverSysLog Clev("multExpr"));
+  primExpr();
   for ( ; ; )
     switch ( currTok )
     {
-      case tPlus:    getToken(); term(); put(MCODE_OP_ADD); break;
-      case tMinus:   getToken(); term(); put(MCODE_OP_SUB); break;
-      case tBitShl:  getToken(); term(); put(MCODE_OP_BITSHL);  break;
-      case tBitShr:  getToken(); term(); put(MCODE_OP_BITSHR);  break;
+      case tMul: getToken(); primExpr(); put(MCODE_OP_MUL); break;
+      case tDiv: getToken(); primExpr(); put(MCODE_OP_DIV); break;
       default:
         return;
     }
 }
 
-static void booleanPrim(void)
+static void additionExpr(void)
 {
-  mathExpr();
+  _KEYMACRO_PARSE(CleverSysLog Clev("additionExpr"));
+  multExpr();
   for ( ; ; )
     switch ( currTok )
     {
-      case tLt: getToken(); mathExpr(); put(MCODE_OP_LT); break;
-      case tLe: getToken(); mathExpr(); put(MCODE_OP_LE); break;
-      case tGt: getToken(); mathExpr(); put(MCODE_OP_GT); break;
-      case tGe: getToken(); mathExpr(); put(MCODE_OP_GE); break;
-      case tEq: getToken(); mathExpr(); put(MCODE_OP_EQ); break;
-      case tNe: getToken(); mathExpr(); put(MCODE_OP_NE); break;
+      case tPlus:    getToken(); multExpr(); put(MCODE_OP_ADD); break;
+      case tMinus:   getToken(); multExpr(); put(MCODE_OP_SUB); break;
+      default:
+        return;
+    }
+}
+
+static void shiftExpr(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("shiftExpr"));
+  additionExpr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitShl:  getToken(); additionExpr(); put(MCODE_OP_BITSHL);  break;
+      case tBitShr:  getToken(); additionExpr(); put(MCODE_OP_BITSHR);  break;
+      default:
+        return;
+    }
+}
+
+static void relation2Expr(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("relation2Expr"));
+  shiftExpr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tLt: getToken(); shiftExpr(); put(MCODE_OP_LT); break;
+      case tLe: getToken(); shiftExpr(); put(MCODE_OP_LE); break;
+      case tGt: getToken(); shiftExpr(); put(MCODE_OP_GT); break;
+      case tGe: getToken(); shiftExpr(); put(MCODE_OP_GE); break;
+      default:
+        return;
+    }
+}
+
+static void relationExpr(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("relationExpr"));
+  relation2Expr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tEq: getToken(); relation2Expr(); put(MCODE_OP_EQ); break;
+      case tNe: getToken(); relation2Expr(); put(MCODE_OP_NE); break;
+      default:
+        return;
+    }
+}
+
+static void bitAndPrim(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("bitAndPrim"));
+  relationExpr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitAnd:  getToken(); relationExpr(); put(MCODE_OP_BITAND); break;
+      default:
+        return;
+    }
+}
+
+static void bitXorPrim(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("bitXorPrim"));
+  bitAndPrim();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitXor:  getToken(); bitAndPrim(); put(MCODE_OP_BITXOR);  break;
+      default:
+        return;
+    }
+}
+
+static void bitOrPrim(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("bitOrPrim"));
+  bitXorPrim();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitOr:   getToken(); bitXorPrim(); put(MCODE_OP_BITOR);  break;
+      default:
+        return;
+    }
+}
+
+static void boolAndPrim(void)
+{
+  _KEYMACRO_PARSE(CleverSysLog Clev("boolAndPrim"));
+  bitOrPrim();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBoolAnd: getToken(); bitOrPrim(); put(MCODE_OP_AND);    break;
       default:
         return;
     }
@@ -614,15 +846,12 @@ static void booleanPrim(void)
 
 static void expr(void)
 {
-  booleanPrim();
+  _KEYMACRO_PARSE(CleverSysLog Clev("expr"));
+  boolAndPrim();
   for ( ; ; )
     switch ( currTok )
     {
-      case tBoolAnd: getToken(); booleanPrim(); put(MCODE_OP_AND);    break;
-      case tBoolOr:  getToken(); booleanPrim(); put(MCODE_OP_OR);     break;
-      case tBitAnd:  getToken(); booleanPrim(); put(MCODE_OP_BITAND); break;
-      case tBitOr:   getToken(); booleanPrim(); put(MCODE_OP_BITOR);  break;
-      case tBitXor:  getToken(); booleanPrim(); put(MCODE_OP_BITXOR);  break;
+      case tBoolOr:  getToken(); boolAndPrim(); put(MCODE_OP_OR);     break;
       default:
         return;
     }
@@ -630,6 +859,7 @@ static void expr(void)
 
 static int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound2)
 {
+  _KEYMACRO_PARSE(CleverSysLog Clev("parseExpr"));
   char tmp[4];
   IsProcessFunc=0;
   _macro_ErrCode = Size = _macro_nErr = 0;
@@ -749,8 +979,10 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_LEN,              "N=len(S)"},
     {MCODE_F_MAX,              "N=max(N1,N2)"},
     {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S)"},
+    {MCODE_F_MENU_SELECT,      "N=Menu.Select(S)"},
     {MCODE_F_MENU_GETHOTKEY,   "S=gethotkey()"},
     {MCODE_F_MIN,              "N=min(N1,N2)"},
+    {MCODE_F_MOD,              "N=mod(N1,N2)"},
     {MCODE_F_MSAVE,            "N=msave(S)"},
     {MCODE_F_MSGBOX,           "N=msgbox(sTitle,sText,flags)"},
     {MCODE_F_PANEL_FATTR,      "N=panel.fattr(panelType,S)"},
@@ -842,7 +1074,7 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( Code >= MCODE_OP_JMP && Code <= MCODE_OP_JGE)
   {
     ++i;
-    SysLog("%08X: %08X |   %08X (%s)", i,k[i],k[i],(k[i]<i?"up":"down"));
+    SysLog("%08X: %08X |   %08X (%s)", i,k[i],k[i],((int)k[i]<i?"up":"down"));
   }
 /*
   else if ( Code == MCODE_OP_DATE )
@@ -893,59 +1125,6 @@ static void printKeyValue(DWORD* k, int& i)
 #endif
 
 
-// Стек структурных операторов
-enum TExecMode
-{
-  emmMain, emmWhile, emmThen, emmElse, emmRep
-};
-
-struct TExecItem
-{
-  TExecMode state;
-  DWORD pos1, pos2;
-};
-
-class TExec
-{
-  private:
-    TExecItem stack[MAXEXEXSTACK];
-  public:
-    int current;
-    void init()
-    {
-      current = 0;
-      stack[current].state = emmMain;
-      stack[current].pos1 = stack[current].pos2 = 0;
-    }
-    TExec() { init(); }
-    TExecItem& operator()() { return stack[current]; }
-    int add(TExecMode, DWORD, DWORD = 0);
-    int del();
-};
-
-int TExec::add(TExecMode s, DWORD p1, DWORD p2)
-{
-  if ( ++current < MAXEXEXSTACK )
-  {
-    stack[current].state = s;
-    stack[current].pos1 = p1;
-    stack[current].pos2 = p2;
-    return TRUE;
-  }
-  // Stack Overflow
-  return FALSE;
-};
-
-int TExec::del()
-{
-  if ( --current < 0 )
-  {
-    // Stack Underflow ???
-    current = 0;
-    return FALSE;
-  }
-  return TRUE;
-};
 
 #if 0
 #define DeltaByteCodeBuff 8

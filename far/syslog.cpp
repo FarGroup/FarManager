@@ -974,8 +974,10 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_LEN),
      DEF_MCODE_(F_MAX),
      DEF_MCODE_(F_MENU_CHECKHOTKEY),
+     DEF_MCODE_(F_MENU_SELECT),
      DEF_MCODE_(F_MENU_GETHOTKEY),           // S=gethotkey()
      DEF_MCODE_(F_MIN),
+     DEF_MCODE_(F_MOD),
      DEF_MCODE_(F_MSAVE),
      DEF_MCODE_(F_MSGBOX),
      DEF_MCODE_(F_NOFUNC),

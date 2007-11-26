@@ -32,6 +32,7 @@ public:
   friend TVar operator-(const TVar&, const TVar&);
   friend TVar operator*(const TVar&, const TVar&);
   friend TVar operator/(const TVar&, const TVar&);
+  friend TVar operator%(const TVar&, const TVar&);
 
   friend TVar operator&(const TVar&, const TVar&);
   friend TVar operator|(const TVar&, const TVar&);
@@ -48,6 +49,7 @@ public:
   TVar& operator-=(const TVar& b) { return *this = *this-b; };
   TVar& operator*=(const TVar& b) { return *this = *this*b; };
   TVar& operator/=(const TVar& b) { return *this = *this/b; };
+  TVar& operator%=(const TVar& b) { return *this = *this%b; };
 
   TVar operator+();
   TVar operator-();

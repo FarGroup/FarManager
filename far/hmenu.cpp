@@ -90,6 +90,26 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
       return (__int64)ItemCount;
     case MCODE_V_CURPOS:
       return (__int64)(SelectPos+1);
+    case MCODE_F_MENU_SELECT:
+    {
+      const char *str = (const char *)vParam;
+      if ( *str )
+      {
+        char Temp[NM];
+        for(I=0; I < ItemCount; ++I)
+        {
+          if(LocalRevStrstri(RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),Item[I].Name)),str))
+          {
+            Item[SelectPos].Selected=0;
+            SelectPos=I;
+            Item[SelectPos].Selected=1;
+            ShowMenu();
+            return (__int64)(SelectPos+1);
+          }
+        }
+      }
+      return _i64(0);
+    }
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = (const char *)vParam;
