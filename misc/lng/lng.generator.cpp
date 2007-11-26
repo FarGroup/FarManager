@@ -261,6 +261,11 @@ int main (int argc, const char* argv[])
 		}
 	}
 
+    char* lpFeedFileName = (char*)malloc (strlen(argv[argc-1])+1);
+    strcpy (lpFeedFileName, argv[argc-1]);
+
+    UnquoteIfNeeded (lpFeedFileName);
+
 	HANDLE hFeedFile = CreateFile (
 			argv[argc-1],
 			GENERIC_READ,
