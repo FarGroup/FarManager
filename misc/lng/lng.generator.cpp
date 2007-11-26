@@ -256,7 +256,7 @@ int main (int argc, const char* argv[])
 				lpHOutputPath = (char*)malloc (strlen(argv[i])+1);
 				strcpy (lpHOutputPath, argv[i]);
 
-				UnquoteIfNeeded (lpLNGOutputPath);
+				UnquoteIfNeeded (lpHOutputPath);
 			}
 		}
 	}
