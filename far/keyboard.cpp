@@ -2183,7 +2183,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       }
       else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD5)
         return '5';
-      return Modif|(Opt.UseNumPad?Modif2:0)|KEY_NUMPAD5;
+      return Modif|Modif2|KEY_NUMPAD5;
 
 /*    case VK_DECIMAL:
     case VK_DELETE:

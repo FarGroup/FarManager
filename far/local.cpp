@@ -47,9 +47,7 @@ static unsigned char KeyToKey[256];
 void InitKeysArray()
 {
   GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
-  unsigned char CvtStr[2];
   int I;
-  CvtStr[1]=0;
   HKL Layout[10];
 
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
@@ -58,6 +56,8 @@ void InitKeysArray()
   {
     if(!Opt.HotkeyRules)
     {
+      unsigned char CvtStr[2];
+      CvtStr[1]=0;
       for (I=0;I<=255;I++)
       {
         int Keys[10];
@@ -69,7 +69,7 @@ void InitKeysArray()
             continue;
           CvtStr[0]=AnsiKey;
           CvtStr[1]=0;
-          FAR_CharToOem((char *)CvtStr,(char *)CvtStr); //???
+          //FAR_CharToOem((char *)CvtStr,(char *)CvtStr); //???
           Keys[J]=CvtStr[0];
         }
         if (Keys[0]!=0 && Keys[1]!=0)
@@ -83,26 +83,38 @@ void InitKeysArray()
     }
     else
     {
-      CvtStr[1]=0;
       for (I=0;I<=255;I++)
       {
         for (int J=0;J<LayoutNumber;J++)
         {
-          SHORT AnsiKey=VkKeyScanEx(I,Layout[J])&0xFF;
+          DWORD AnsiKey=VkKeyScanEx(I,Layout[J])&0xFF;
           if (AnsiKey==0xFF)
             continue;
-          CvtStr[0]=I;
-          FAR_CharToOem((char *)CvtStr,(char *)CvtStr); //???
-          KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
+          DWORD MapKey=MapVirtualKey(AnsiKey,2);
+          KeyToKey[I]=static_cast<unsigned char>( MapKey ? MapKey : AnsiKey );
+          break;
         }
       }
     }
   }
-  //_SVS(SysLogDump("KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
+  _SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
   unsigned char KeyToKeyMap[256];
   if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
     memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
   //_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
+}
+
+int LocalKeyToKey(int Key)
+{
+  _KEYMACRO(CleverSysLog Clev(L"LocalKeyToKey()"));
+  _KEYMACRO(SysLog(L"Param: Key=%08X",Key));
+  unsigned char CvtStr[2];
+  wchar_t wCvtStr[2];
+  wCvtStr[1]=0;
+  wCvtStr[0]=Key&0x0000FFFF;
+  UnicodeToANSI((wchar_t *)wCvtStr,(char *)CvtStr,1);
+  _SVS(SysLog(L"CvtStr[0]=%X, return KeyToKey[CvtStr[0]] ==> %X",CvtStr[0],KeyToKey[CvtStr[0]]));
+  return(KeyToKey[CvtStr[0]]);
 }
 
 int WINAPI LocalIslower(unsigned Ch)
@@ -300,11 +312,6 @@ int WINAPI LStricmp(const char *s1,const char *s2)
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 {
   return LocalStrnicmp(s1,s2,n);
-}
-
-int LocalKeyToKey(int Key)
-{
-  return(KeyToKey[Key]); // BUGBUG!!!
 }
 
 /*---------------------------------------*/

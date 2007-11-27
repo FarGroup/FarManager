@@ -1077,7 +1077,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemW,L"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystemW,L"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
   {1, REG_DWORD,  NKeySystemW,L"CloseCDGate",&Opt.CloseCDGate,(DWORD)-1, 0},
-  {0, REG_DWORD,  NKeySystemW,L"UseNumPad",&Opt.UseNumPad,0, 0},
+  {0, REG_DWORD,  NKeySystemW,L"UseNumPad",&Opt.UseNumPad,1, 0},
   {0, REG_DWORD,  NKeySystemW,L"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
   {0, REG_DWORD,  NKeySystemW,L"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
   {1, REG_DWORD,  NKeySystemW,L"ScanJunction",&Opt.ScanJunction,1, 0},
