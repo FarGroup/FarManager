@@ -304,7 +304,7 @@ type
    PFarListItem = ^TFarListItem;
    TFarListItem = packed record
       Flags : DWORD;
-      Text : array [0..127] of Char;
+      Text : PChar;
       Reserved : array [0..2] of DWORD;
    end;
 

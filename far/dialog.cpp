@@ -5433,7 +5433,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 memset(Item,0,sizeof(struct FarListItem));
                 Item->Flags=ListMenuItem->Flags;
 
-                ListMenuItem->strName =Item->Text;
+                Item->Text=ListMenuItem->strName;
                 /*
                 if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
                    Item->UserData=ListMenuItem->UserData;
@@ -6220,7 +6220,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
               if(ListMenuItem)
               {
                 LUpdate.Item.Flags=ListMenuItem->Flags;
-                xwcsncpy(LUpdate.Item.Text,Ptr,sizeof(LUpdate.Item.Text)/sizeof (wchar_t));
+                LUpdate.Item.Text=Ptr;
                 Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(LONG_PTR)&LUpdate);
               }
               break;

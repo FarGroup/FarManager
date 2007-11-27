@@ -960,7 +960,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   memset(TableItemSize,0,sizeof(TableItemSize));
   for(int i=0; i < FSIZE_COUNT; ++i)
-    xwcsncpy(TableItemSize[i].Text,UMSG(MFileFilterSizeInBytes+i),countof(TableItemSize[i].Text)-1);
+    TableItemSize[i].Text=UMSG(MFileFilterSizeInBytes+i);
 
   DWORD SizeType;
   __int64 SizeAbove, SizeBelow;
@@ -995,7 +995,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   memset(TableItemDate,0,sizeof(TableItemDate));
   for(int i=0; i < FDATE_COUNT; ++i)
-    xwcsncpy(TableItemDate[i].Text,UMSG(MFileFilterModified+i),countof(TableItemDate[i].Text)-1);
+    TableItemDate[i].Text=UMSG(MFileFilterModified+i);
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;

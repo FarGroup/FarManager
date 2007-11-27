@@ -797,9 +797,9 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   memset(ExpandTabListItems,0,sizeof(ExpandTabListItems));
   FarList ExpandTabList = {3,ExpandTabListItems};
   CfgDlg[ID_EC_EXPANDTABS].ListItems = &ExpandTabList;
-  wcscpy(ExpandTabListItems[0].Text,UMSG(MEditConfigDoNotExpandTabs));
-  wcscpy(ExpandTabListItems[1].Text,UMSG(MEditConfigExpandTabs));
-  wcscpy(ExpandTabListItems[2].Text,UMSG(MEditConfigConvertAllTabsToSpaces));
+  ExpandTabListItems[0].Text=UMSG(MEditConfigDoNotExpandTabs);
+  ExpandTabListItems[1].Text=UMSG(MEditConfigExpandTabs);
+  ExpandTabListItems[2].Text=UMSG(MEditConfigConvertAllTabsToSpaces);
 
   //немного ненормальная логика, чтобы сохранить (по возможности) старое поведение
 

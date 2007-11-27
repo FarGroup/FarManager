@@ -695,7 +695,9 @@ void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 
 void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 {
-	OEMToUnicode(liA->Text, li->Text, sizeof(liA->Text)-1);
+	wchar_t* ListItemText=(wchar_t*)xf_malloc(sizeof(liA->Text)*sizeof(wchar_t));
+	OEMToUnicode(liA->Text, ListItemText, sizeof(liA->Text)-1);
+	li->Text=ListItemText;
 	li->Flags=0;
 	if(liA->Flags&oldfar::LIF_SELECTED)       li->Flags|=LIF_SELECTED;
 	if(liA->Flags&oldfar::LIF_CHECKED)        li->Flags|=LIF_CHECKED;
@@ -828,7 +830,12 @@ void FreeUnicodeDialog(FarDialogItem *di, FarList *l)
 	if((di->Type==DI_EDIT || di->Type==DI_FIXEDIT) && (di->Flags&DIF_HISTORY) || (di->Flags&DIF_MASKEDIT))
 		if(di->Param.History) xf_free((wchar_t *)di->Param.History);
 
-	if(l->Items) xf_free(l->Items);
+	if(l->Items)
+	{
+		for(int i=0;i<l->ItemsNumber;i++)
+			xf_free((void *)l->Items[i].Text);
+		xf_free(l->Items);
+	}
 
 	if (di->PtrData) xf_free((wchar_t *)di->PtrData);
 }

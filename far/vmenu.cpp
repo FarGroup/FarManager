@@ -1342,11 +1342,11 @@ int  VMenu::AddItem(const wchar_t *NewStrItem)
   if(!NewStrItem || NewStrItem[0] == 0x1)
   {
     FarListItem0.Flags=LIF_SEPARATOR;
-    xwcsncpy(FarListItem0.Text,NewStrItem+1,(sizeof(FarListItem0.Text)-2)/sizeof(wchar_t));
+    FarListItem0.Text=NewStrItem+1;
   }
   else
   {
-    xwcsncpy(FarListItem0.Text,NewStrItem,(sizeof(FarListItem0.Text)-1)/sizeof(wchar_t));
+    FarListItem0.Text=NewStrItem;
   }
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
@@ -1512,7 +1512,7 @@ struct FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem
     memset(FItem,0,sizeof(struct FarListItem));
     FItem->Flags=MItem->Flags&(~MIF_USETEXTPTR); //??
 
-    xwcsncpy (FItem->Text, MItem->strName, (sizeof (FItem->Text)-1)/sizeof (wchar_t));
+    FItem->Text=MItem->strName;
     return FItem;
   }
   return NULL;

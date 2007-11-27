@@ -1,3 +1,10 @@
+drkns 27.11.2007 21:20:14 +0200 - build 362
+
+1. Обновление DialogAPI: FarListItem.Text теперь const wchar_t*.
+   Плагины c DI_LISTBOX/DI_COMBOBOX надо править.
+
+2. Криво работал DM_LISTGETITEM.
+
 svs 27.11.2007 09:46:25 +0300 - build 361
 
 1. TechInfo#48 по умолчанию делаем 1, а для Numpad5 TechInfo#48 игнорируем.

@@ -397,7 +397,7 @@ enum LISTITEMFLAGS {
 struct FarListItem
 {
   DWORD Flags;
-  wchar_t  Text[128]; //BUGBUG
+  const wchar_t *Text;
   DWORD Reserved[3];
 };
 

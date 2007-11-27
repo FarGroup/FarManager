@@ -119,37 +119,37 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 
 	memset(&items, 0, sizeof (items));
 
-	wcscpy(items[0].Text, L"Auto");
+	items[0].Text=L"Auto";
 
 	if ( nCodepage == CP_AUTODETECT ) //BUGBUG
 		items[0].Flags |= LIF_SELECTED;
 
-	wcscpy(items[2].Text, L"OEM");
+	items[2].Text=L"OEM";
 
 	if ( nCodepage == CP_OEMCP ) //BUGBUG
 		items[2].Flags |= LIF_SELECTED;
 
-	wcscpy(items[3].Text, L"ANSI");
+	items[3].Text=L"ANSI";
 
 	if ( nCodepage == CP_ACP ) //BUGBUG
 		items[3].Flags |= LIF_SELECTED;
 
-	wcscpy(items[5].Text, L"UTF-8");
+	items[5].Text=L"UTF-8";
 
 	if ( nCodepage == CP_UTF8 ) //BUGBUG
 		items[5].Flags |= LIF_SELECTED;
 
-	wcscpy(items[6].Text, L"UTF-7");
+	items[6].Text=L"UTF-7";
 
 	if ( nCodepage == CP_UTF7 ) //BUGBUG
 		items[6].Flags |= LIF_SELECTED;
 
-	wcscpy(items[7].Text, L"UNICODE");
+	items[7].Text=L"UNICODE";
 
 	if ( nCodepage == CP_UNICODE ) //BUGBUG
 		items[7].Flags |= LIF_SELECTED;
 
-	wcscpy(items[8].Text, L"REVERSEBOM");
+	items[8].Text=L"REVERSEBOM";
 
 	if ( nCodepage == CP_REVERSEBOM ) //BUGBUG
 		items[8].Flags |= LIF_SELECTED;

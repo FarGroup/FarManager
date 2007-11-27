@@ -466,11 +466,11 @@ FindFiles::FindFiles()
   TableList.ItemsNumber=CHAR_TABLE_SIZE;
 
   memset(TableItem,0,sizeof(FarListItem)*CHAR_TABLE_SIZE);
-  xwcsncpy(TableItem[0].Text,UMSG(MFindFileAllTables),(sizeof(TableItem[0].Text)-1)/sizeof (wchar_t));
+  TableItem[0].Text=UMSG(MFindFileAllTables);
   TableItem[1].Flags=LIF_SEPARATOR;
-  xwcsncpy(TableItem[2].Text,UMSG(MGetTableNormalText),(sizeof(TableItem[2].Text)-1)/sizeof (wchar_t));
-  xwcsncpy(TableItem[3].Text,UMSG(MGetTableWindowsText),(sizeof(TableItem[3].Text)-1)/sizeof (wchar_t));
-  xwcsncpy(TableItem[4].Text,L"Unicode",(sizeof(TableItem[4].Text)-1)/sizeof (wchar_t));
+  TableItem[2].Text=UMSG(MGetTableNormalText);
+  TableItem[3].Text=UMSG(MGetTableWindowsText);
+  TableItem[4].Text=L"Unicode";
 
   for (I=0;;I++)
   {
@@ -495,7 +495,11 @@ FindFiles::FindFiles()
       return;
     memset(&TableItem[I+CHAR_TABLE_SIZE+1],0,sizeof(FarListItem));
 
-    MultiByteToWideChar(CP_OEMCP, 0, cts.TableName, -1, TableItem[I+CHAR_TABLE_SIZE+1].Text, (sizeof(TableItem[I+CHAR_TABLE_SIZE+1].Text)-1)/sizeof (wchar_t)); //BUGBUG
+    int BufSize=(int)strlen(cts.TableName)+1;
+    wchar_t* TableName=(wchar_t*)xf_malloc(BufSize*sizeof(wchar_t));
+    OEMToUnicode(cts.TableName,TableName,BufSize);
+
+    TableItem[I+CHAR_TABLE_SIZE+1].Text=TableName;
 
     ///RemoveChar(TableItem[I+CHAR_TABLE_SIZE+1].Text,L'&',TRUE); //BUGBUG!!!
     TableList.Items=TableItem;
@@ -591,7 +595,6 @@ FindFiles::FindFiles()
 
     MakeDialogItemsEx(FindAskDlgData,FindAskDlg);
 
-
     if ( strFindStr.IsEmpty() )
       FindAskDlg[15].Selected=Opt.FindOpt.FindFolders;
     for(I=20; I <= 26; ++I)
@@ -664,6 +667,8 @@ FindFiles::FindFiles()
 
       if (ExitCode!=31)
       {
+        for(int i=CHAR_TABLE_SIZE+1;i<TableList.ItemsNumber;i++)
+          xf_free((void*)TableItem[i].Text);
         xf_free(TableItem);
         CloseHandle(hPluginMutex);
         return;
@@ -748,6 +753,8 @@ FindFiles::FindFiles()
       Editor::SetReplaceMode(FALSE);
   } while (FindFilesProcess());
   CloseHandle(hPluginMutex);
+  for(int i=CHAR_TABLE_SIZE+1;i<TableList.ItemsNumber;i++)
+    xf_free((void*)TableItem[i].Text);
   xf_free(TableItem);
 }
 
@@ -796,10 +803,10 @@ void FindFiles::AdvancedDialog()
   SizeList.ItemsNumber=4;
 
   memset(SizeItem,0,sizeof(FarListItem)*4);
-  xwcsncpy(SizeItem[0].Text,UMSG(MFindFileSearchInBytes),(sizeof(SizeItem[0].Text)-1)/sizeof (wchar_t));
-  xwcsncpy(SizeItem[1].Text,UMSG(MFindFileSearchInKBytes),(sizeof(SizeItem[2].Text)-1)/sizeof (wchar_t));
-  xwcsncpy(SizeItem[2].Text,UMSG(MFindFileSearchInMBytes),(sizeof(SizeItem[3].Text)-1)/sizeof (wchar_t));
-  xwcsncpy(SizeItem[3].Text,UMSG(MFindFileSearchInGBytes),(sizeof(SizeItem[4].Text)-1)/sizeof (wchar_t));
+  SizeItem[0].Text=UMSG(MFindFileSearchInBytes);
+  SizeItem[1].Text=UMSG(MFindFileSearchInKBytes);
+  SizeItem[2].Text=UMSG(MFindFileSearchInMBytes);
+  SizeItem[3].Text=UMSG(MFindFileSearchInGBytes);
 
   const wchar_t *DigitMask=L"99999999999999999999";
 
