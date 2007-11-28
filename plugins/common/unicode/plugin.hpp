@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 349
+  Plugin API for FAR Manager 1.80 build 362
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,349)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,362)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -361,7 +361,7 @@ enum LISTITEMFLAGS {
 struct FarListItem
 {
   DWORD Flags;
-  wchar_t  Text[128]; //BUGBUG
+  const wchar_t *Text;
   DWORD Reserved[3];
 };
 
