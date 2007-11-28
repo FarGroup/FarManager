@@ -1072,9 +1072,17 @@ void __fastcall TMacroView::InitMacroAreas()
   for (i=0;i<MacroGroupsSize;i++)
   {
     if (Conf.LongGroupNames)
+#ifndef UNICODE
       lstrcpyn(GroupItems[i].Text,GetMsg((unsigned)(DWORD_PTR)GroupNumbers[i]),ArraySize(GroupItems[i].Text));
+#else
+      GroupItems[i].Text=GetMsg((unsigned)(DWORD_PTR)GroupNumbers[i]);
+#endif
     else
+#ifndef UNICODE
       lstrcpyn(GroupItems[i].Text,MacroGroupShort[i],ArraySize(GroupItems[i].Text));
+#else
+      GroupItems[i].Text=MacroGroupShort[i];
+#endif
     GroupItems[i].Flags=0;
   }
 
@@ -2189,7 +2197,11 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
     }
 
     ConfItems[0].Flags=0;
+#ifndef UNICODE
     lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),ArraySize(ConfItems[0].Text));
+#else
+    ConfItems[0].Text=GetMsg(MMacroDefaultConfig);
+#endif
     ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
   }
   else
@@ -2211,19 +2223,31 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
       }
 
       ConfItems[0].Flags=0;
+#ifndef UNICODE
       lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),ArraySize(ConfItems[0].Text));
+#else
+      ConfItems[0].Text=GetMsg(MMacroDefaultConfig);
+#endif
       ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
 
       if (UserCount>1)
       {
         ConfItems[1].Flags=LIF_SEPARATOR;
+#ifndef UNICODE
         ConfItems[1].Text[0]=0;
+#else
+        ConfItems[1].Text=L"";
+#endif
         ZeroMemory(ConfItems[1].Reserved,sizeof(ConfItems[1].Reserved));
 
         for (int i=0;i<UserList->GetCount();i++)
         {
           ConfItems[i+2].Flags=0;
+#ifndef UNICODE
           lstrcpyn(ConfItems[i+2].Text,UserList->GetText(i),ArraySize(ConfItems[i+2].Text));
+#else
+          ConfItems[i+2].Text=UserList->GetText(i);
+#endif
           ZeroMemory(ConfItems[i+2].Reserved,sizeof(ConfItems[i+2].Reserved));
 
           if (*FarUserName && (CmpStr(ConfItems[i+2].Text,FarUserName)==0))
@@ -2247,7 +2271,11 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
       }
 
       ConfItems[0].Flags=0;
+#ifndef UNICODE
       lstrcpyn(ConfItems[0].Text,GetMsg(MMacroDefaultConfig),ArraySize(ConfItems[0].Text));
+#else
+      ConfItems[0].Text=GetMsg(MMacroDefaultConfig);
+#endif
       ZeroMemory(ConfItems[0].Reserved,sizeof(ConfItems[0].Reserved));
     }
   }
@@ -2703,7 +2731,11 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
       List.ItemsNumber=1;
       List.Items=&ListItems;
 
+#ifndef UNICODE
       lstrcpy(ListItems.Text,S);
+#else
+      ListItems.Text=S;
+#endif
       ListItems.Flags=LIF_SELECTED;
       Info.SendDlgMessage(hDlg,DM_LISTADD,0,(LONG_PTR)&List);
 
@@ -2749,8 +2781,11 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
           if (S[0]==_T('~'))
             memmove(S,&S[1],sizeof(S)-sizeof(S[0]));
           CheckLen(S,(csbi.dwSize.X-12>MAXMENULEN)?MAXMENULEN:csbi.dwSize.X-12);
+#ifndef UNICODE
           lstrcpy(ListItems/*[i]*/.Text,S);
-
+#else
+          ListItems/*[i]*/.Text=S;
+#endif
           lstrcpyn(MData.Group,GroupList->GetText(i),ArraySize(MData.Group)-1);
           MData.Group[ArraySize(MData.Group)-1]=0;
           lstrcpyn(MData.Key,KeyList->GetText(i),ArraySize(MData.Key)-1);
@@ -2759,7 +2794,11 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
         else
         {
           ListItems/*[i]*/.Flags=LIF_SEPARATOR;
+#ifndef UNICODE
           ListItems/*[i]*/.Text[0]=0;
+#else
+          ListItems/*[i]*/.Text=L"";
+#endif
           ZeroMemory(&MData,sizeof(MData));
         }
         Info.SendDlgMessage(hDlg,DM_LISTADD,0,(LONG_PTR)&List);

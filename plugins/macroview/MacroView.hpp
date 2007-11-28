@@ -47,9 +47,13 @@ const TCHAR *HKCU=_T("HKEY_CURRENT_USER");
 const TCHAR *KeyMacros_KEY=_T("KeyMacros");
 const TCHAR *Module_KEY=_T("MacroView");
 const TCHAR *Plugins_KEY=_T("\\Plugins");
-const TCHAR *Default_KEY=_T("\\Software\\Far");
-const TCHAR *Users_KEY=_T("\\Software\\Far\\Users");
-
+#ifndef UNICODE
+const char *Default_KEY="\\Software\\Far";
+const char *Users_KEY="\\Software\\Far\\Users";
+#else
+const wchar_t *Default_KEY=L"\\Software\\Far18";
+const wchar_t *Users_KEY=L"\\Software\\Far18\\Users";
+#endif
 
 //----
 TCHAR *MacroGroupShort[]=

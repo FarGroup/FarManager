@@ -37,7 +37,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #define MIN_FAR_BUILD     1238
 #else
 #define MIN_FAR_VERMINOR  80
-#define MIN_FAR_BUILD     349
+#define MIN_FAR_BUILD     362
 #endif
 
 int WINAPI EXP_NAME(GetMinFarVersion)()
