@@ -1,3 +1,9 @@
+t-rex 30.11.2007 16:12:41 +0200 - build 365
+
+от Alexandr Zamaraev:
+
+1. Mantis#387: copy.cpp, цикл подсчёта количества вместо вызова функции.
+
 t-rex 30.11.2007 16:02:33 +0200 - build 364
 
 от Alexey Samlyukov:

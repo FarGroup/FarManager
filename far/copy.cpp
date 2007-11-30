@@ -786,10 +786,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
 
         // посчитаем количество целей.
-        DestList.Reset();
-        CountTarget=0;
-        while(DestList.GetNext())
-          CountTarget++;
+        CountTarget=DestList.GetTotal();
 
         DestList.Reset();
         TotalFiles=0;
