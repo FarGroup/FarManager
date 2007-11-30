@@ -546,11 +546,10 @@ void SetDizConfig()
   };
   MakeDialogItemsEx(DizDlgData,DizDlg);
 
-  Dialog Dlg((DialogItemEx*)DizDlg,countof(DizDlg));
-  Dlg.SetPosition(-1,-1,76,16);
-  Dlg.SetHelp(L"FileDiz");
-
-  DizDlg[2].strData = Opt.Diz.strListNames;
+  DizDlg[2].strData=Opt.Diz.strListNames;
+  DizDlg[4].Selected=Opt.Diz.SetHidden;
+  DizDlg[5].Selected=Opt.Diz.ROUpdate;
+  DizDlg[6].strData.Format(L"%d", Opt.Diz.StartPos);
 
   if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
     DizDlg[9].Selected=TRUE;
@@ -560,16 +559,17 @@ void SetDizConfig()
     else
       DizDlg[11].Selected=TRUE;
 
-  DizDlg[4].Selected=Opt.Diz.SetHidden;
-  DizDlg[5].Selected=Opt.Diz.ROUpdate;
-
-  DizDlg[6].strData.Format (L"%d", Opt.Diz.StartPos);
-
+  Dialog Dlg((DialogItemEx*)DizDlg,countof(DizDlg));
+  Dlg.SetPosition(-1,-1,76,16);
+  Dlg.SetHelp(L"FileDiz");
   Dlg.Process();
   if (Dlg.GetExitCode()!=13)
     return;
 
-  Opt.Diz.strListNames = DizDlg[2].strData;
+  Opt.Diz.strListNames=DizDlg[2].strData;
+  Opt.Diz.SetHidden=DizDlg[4].Selected;
+  Opt.Diz.ROUpdate=DizDlg[5].Selected;
+  Opt.Diz.StartPos=_wtoi(DizDlg[6].strData);
 
   if (DizDlg[9].Selected)
     Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
@@ -578,9 +578,6 @@ void SetDizConfig()
       Opt.Diz.UpdateMode=DIZ_UPDATE_IF_DISPLAYED;
     else
       Opt.Diz.UpdateMode=DIZ_UPDATE_ALWAYS;
-  Opt.Diz.SetHidden=DizDlg[4].Selected;
-  Opt.Diz.ROUpdate=DizDlg[5].Selected;
-  Opt.Diz.StartPos=_wtoi(DizDlg[6].strData);
 }
 
 void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
@@ -1054,7 +1051,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystemW,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
   {1, REG_DWORD,  NKeySystemW,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
   {1, REG_BINARY, NKeySystemW,L"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
-  {1, REG_SZ,     NKeySystemW,L"FolderInfo",&Opt.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*"},
+  {1, REG_SZ,     NKeySystemW,L"FolderInfo",&Opt.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
   {0, REG_DWORD,  NKeySystemW,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
   {0, REG_DWORD,  NKeySystemW,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
   {0, REG_DWORD,  NKeySystemW,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
@@ -1174,7 +1171,7 @@ static struct FARConfig{
   {1, REG_SZ,     NKeyDescriptionsW,L"ListNames",&Opt.Diz.strListNames, 0, L"Descript.ion,Files.bbs"},
   {1, REG_DWORD,  NKeyDescriptionsW,L"UpdateMode",&Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED, 0},
   {1, REG_DWORD,  NKeyDescriptionsW,L"ROUpdate",&Opt.Diz.ROUpdate,0, 0},
-  {1, REG_DWORD,  NKeyDescriptionsW,L"SetHidden",&Opt.Diz.SetHidden,TRUE, 0},
+  {1, REG_DWORD,  NKeyDescriptionsW,L"SetHidden",&Opt.Diz.SetHidden,1, 0},
   {1, REG_DWORD,  NKeyDescriptionsW,L"StartPos",&Opt.Diz.StartPos,0, 0},
 
   {0, REG_DWORD,  NKeyKeyMacrosW,L"MacroReuseRules",&Opt.MacroReuseRules,0, 0},
