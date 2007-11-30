@@ -584,14 +584,17 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 
 		HANDLE hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
 
-		if ( (hPlugin == (HANDLE)-2) || (hPlugin == INVALID_HANDLE_VALUE) )
+		if (hPlugin == (HANDLE)-2)
 			return hPlugin;
 
+		if (hPlugin != INVALID_HANDLE_VALUE)
+		{
 			PluginHandle *handle = new PluginHandle;
 			handle->hPlugin = hPlugin;
 			handle->pPlugin = pPlugin;
 
 			return (HANDLE)handle;
+		}
 	}
 
 	return INVALID_HANDLE_VALUE;

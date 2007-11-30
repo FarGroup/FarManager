@@ -1,3 +1,11 @@
+t-rex 30.11.2007 15:30:14 +0200 - build 363
+
+1. UnicodeString: Удалил RShift, глюкодром полный и оно не нужно.
+
+2. UnicodeString: Исправил LShift, не выставлялась длина строки после изменения.
+
+3. По наводке от Sten, неправильно работал цикл в PluginManager::OpenFilePlugin.
+
 drkns 27.11.2007 21:20:14 +0200 - build 362
 
 1. Обновление DialogAPI: FarListItem.Text теперь const wchar_t*.

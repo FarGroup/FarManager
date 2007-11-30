@@ -252,15 +252,6 @@ public:
 		CharUpperW (m_pData->GetData());
 	}
 
-	void RShift (size_t nNewPos)
-	{
-		if ( nNewPos > m_pData->GetLength () )
-			nNewPos = m_pData->GetLength ();
-
-		Inflate (m_pData->GetSize());
-		wmemmove (m_pData->GetData()+nNewPos, m_pData->GetData(), (m_pData->GetLength()-nNewPos+1));
-	}
-
 	void LShift (size_t nNewPos)
 	{
 		if ( nNewPos > m_pData->GetLength () )
@@ -268,6 +259,7 @@ public:
 
 		Inflate (m_pData->GetSize());
 		wmemmove (m_pData->GetData(), m_pData->GetData()+nNewPos, (m_pData->GetLength()-nNewPos+1));
+		m_pData->SetLength(m_pData->GetLength()-nNewPos);
 	}
 
 	int __cdecl Format (const wchar_t * format, ...);
