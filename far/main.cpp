@@ -80,7 +80,6 @@ class TConsoleRestore{
     };
 };
 
-static void ConvertOldSettings();
 static void CopyGlobalSettings();
 
 static void show_help(void)
@@ -567,7 +566,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   }
   wcscpy(InitedLanguage,Opt.strLanguage); // ?????? wcsncpy
   SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
-  ConvertOldSettings();
   SetHighlighting();
 
 
@@ -592,23 +590,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   _OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
   return Result;
-}
-
-void ConvertOldSettings()
-{
-  // Конвертим реестр :-) Бывает же такое...
-  if(!CheckRegKey(RegColorsHighlight))
-    if(CheckRegKey(L"Highlight"))
-    {
-      string strNameSrc, strNameDst;
-      strNameSrc = Opt.strRegRoot;
-      strNameSrc += L"\\Highlight";
-      strNameDst = Opt.strRegRoot;
-      strNameDst += L"\\";
-      strNameDst += RegColorsHighlight;
-      CopyKeyTree(strNameSrc,strNameDst,L"\0");
-    }
-  DeleteKeyTree(L"Highlight");
 }
 
 /* $ 03.08.2000 SVS

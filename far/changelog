@@ -1,3 +1,9 @@
+t-rex 30.11.2007 16:02:33 +0200 - build 364
+
+от Alexey Samlyukov:
+
+1. Mantis#389: удалим ConvertOldSettings().
+
 t-rex 30.11.2007 15:30:14 +0200 - build 363
 
 1. UnicodeString: Удалил RShift, глюкодром полный и оно не нужно.
