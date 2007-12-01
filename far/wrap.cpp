@@ -519,6 +519,45 @@ int WINAPI GetNumberOfLinksA(const char *Name)
 	return GetNumberOfLinks(n);
 }
 
+typedef struct _FAR_SEARCH_A_CALLBACK_PARAM 
+{
+	oldfar::FRSUSERFUNC Func;
+	void *Param;
+}FAR_SEARCH_A_CALLBACK_PARAM, *PFAR_SEARCH_A_CALLBACK_PARAM;
+
+static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param)
+{
+	PFAR_SEARCH_A_CALLBACK_PARAM pCallbackParam = static_cast<PFAR_SEARCH_A_CALLBACK_PARAM>(param);
+
+	WIN32_FIND_DATA FindData;
+	memset(&FindData,0,sizeof(FindData));
+	FindData.dwFileAttributes = FData->dwFileAttributes;
+	FindData.ftCreationTime = FData->ftCreationTime;
+	FindData.ftLastAccessTime = FData->ftLastAccessTime;
+	FindData.ftLastWriteTime = FData->ftLastWriteTime;
+	FindData.nFileSizeLow = (DWORD)FData->nFileSize;
+	FindData.nFileSizeHigh = (DWORD)(FData->nFileSize>>32);
+	UnicodeToAnsi(FData->lpwszFileName,FindData.cFileName,sizeof(FindData.cFileName));
+	UnicodeToAnsi(FData->lpwszAlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
+
+	char FullNameA[NM];
+	UnicodeToAnsi(FullName,FullNameA,sizeof(FullNameA)-1);
+
+	return pCallbackParam->Func(&FindData,FullNameA,pCallbackParam->Param);
+}
+
+void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRSUSERFUNC Func,DWORD Flags,void *Param)
+{
+	string strInitDir(InitDir);
+	string strMask(Mask);
+
+	FAR_SEARCH_A_CALLBACK_PARAM CallbackParam;
+	CallbackParam.Func = Func;
+	CallbackParam.Param = Param;
+	
+	FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,Flags,static_cast<void *>(&CallbackParam));
+}
+
 DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 {
 	string strS(src), strD;
@@ -761,9 +800,9 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 		case DI_EDIT:
 		case DI_FIXEDIT:
 			{
-				if (diA->Flags&oldfar::DIF_HISTORY)
+				if (diA->Flags&oldfar::DIF_HISTORY && diA->Param.History)
 					di->Param.History=AnsiToUnicode(diA->Param.History);
-				else if (diA->Flags&oldfar::DIF_MASKEDIT)
+				else if (diA->Flags&oldfar::DIF_MASKEDIT && diA->Param.Mask)
 					di->Param.Mask=AnsiToUnicode(diA->Param.Mask);
 			}
 			break;

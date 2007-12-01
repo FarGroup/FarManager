@@ -482,7 +482,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     //StandardFunctions.XLat=XlatA;
     //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinksA;
-    //StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
+    StandardFunctions.FarRecursiveSearch=FarRecursiveSearchA;
     StandardFunctions.MkTemp=FarMkTempA;
     StandardFunctions.DeleteBuffer=DeleteBufferA;
     StandardFunctions.ProcessName=ProcessNameA;

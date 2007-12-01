@@ -1,3 +1,11 @@
+t-rex 01.12.2007 15:54:34 +0200 - build 367
+
+от Stanislav Vinorukov (Sten):
+
+1. Mantis#391: Wrapper: Реализация FarRecursiveSearchA.
+
+2. Mantis#392: Wrapper: Некорректная обработка DI_EDIT и DI_FIXEDIT в AnsiDialogItemToUnicode().
+
 t-rex 30.11.2007 16:28:14 +0200 - build 366
 
 от Alexey Samlyukov:
