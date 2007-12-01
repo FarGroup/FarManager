@@ -1,3 +1,7 @@
+t-rex 02.12.2007 00:15:59 +0200 - build 369
+
+1. Mantis#394: В OpenFilePlugin() должен передаваться в Name полный путь, а не имя файла.
+
 t-rex 01.12.2007 19:47:22 +0200 - build 368
 
 1. Memory leak в DeletePluginItemList.

@@ -575,6 +575,14 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 
 	Plugin *pPlugin = NULL;
 
+	string strFullName;
+
+	if (Name)
+	{
+		ConvertNameToFull(Name,strFullName);
+		Name = strFullName;
+	}
+
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
