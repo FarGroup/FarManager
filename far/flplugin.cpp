@@ -188,7 +188,7 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   pi->CustomColumnData=fi->CustomColumnData;
   pi->CustomColumnNumber=fi->CustomColumnNumber;
 
-  //pi->Description=fi->DizText; //BUGBUG
+  pi->Description=fi->DizText; //BUGBUG???
 
   if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
   {
@@ -356,6 +356,7 @@ void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
     for (int I=0;I<ItemNumber;I++,PItemList++)
     {
       xf_free (PItemList->FindData.lpwszFileName);
+      xf_free (PItemList->FindData.lpwszAlternateFileName);
       if ((PItemList->Flags & PPIF_USERDATA) && PItemList->UserData)
         xf_free((void *)PItemList->UserData);
     }

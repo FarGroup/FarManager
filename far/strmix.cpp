@@ -223,97 +223,101 @@ int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
 
 
 
-int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength)
+int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolderNameLength)
 {
-    string strWildName;
-    wchar_t *DestNamePtr, *SrcNamePtr;
-    const wchar_t *CurWildPtr;
+	string strWildName;
+	wchar_t *DestName, *DestNamePtr;
+	const wchar_t *CurWildPtr, *SrcNamePtr;
 
-    wchar_t *PartAfterFolderName;  //BUGBUG string
-    wchar_t *PartBeforeName; //BUGBUG string
-    wchar_t *Src = _wcsdup (SrcName);
-  //char PartBeforeName[NM],PartAfterFolderName[NM];
+	string strPartAfterFolderName;
+	wchar_t *PartBeforeName=NULL;
+	string strSrc = SrcName;
 
-    DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+StrLength(SrcName)+1)); //???
-    DestNamePtr = (wchar_t*)PointToName(DestNamePtr);
+	DestName = DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+strSrc.GetLength()+1)); //???
+	DestNamePtr = (wchar_t*)PointToName(DestNamePtr);
 
-    strWildName = DestNamePtr;
+	strWildName = DestNamePtr;
 
-    if (wcschr(strWildName, L'*')==NULL && wcschr(strWildName, L'?')==NULL)
-    {
-        strDest.ReleaseBuffer ();
-        return(FALSE);
-    }
+	if (wcschr(strWildName, L'*')==NULL && wcschr(strWildName, L'?')==NULL)
+	{
+		strDest.ReleaseBuffer ();
+		return(FALSE);
+	}
 
-    if (SelectedFolderNameLength!=0)
-    {
-        PartAfterFolderName = _wcsdup (Src+SelectedFolderNameLength);
-        Src[SelectedFolderNameLength]=0;
-    }
+	if (SelectedFolderNameLength!=0)
+	{
+		strPartAfterFolderName = ((const wchar_t *)strSrc+SelectedFolderNameLength);
+		strSrc.SetLength(SelectedFolderNameLength);
+	}
 
-    SrcNamePtr = (wchar_t*)PointToName(Src);
+	const wchar_t *Src = strSrc;
+	SrcNamePtr = PointToName(Src);
 
-    int BeforeNameLength=DestNamePtr==(const wchar_t*)strDest ? (int)(SrcNamePtr-Src):0; //BUGBUG strDest
+	int BeforeNameLength=DestNamePtr==DestName ? (int)(SrcNamePtr-Src):0;
 
-    PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
+	PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
 
-    wcsncpy(PartBeforeName, Src, BeforeNameLength);
-    PartBeforeName[BeforeNameLength]=0;
+	wcsncpy(PartBeforeName, Src, BeforeNameLength);
+	PartBeforeName[BeforeNameLength]=0;
 
-    wchar_t *SrcNameDot=wcsrchr(SrcNamePtr, L'.');
+	const wchar_t *SrcNameDot=wcsrchr(SrcNamePtr, L'.');
 
-    CurWildPtr = strWildName;
+	CurWildPtr = strWildName;
 
-  while (*CurWildPtr)
-    switch(*CurWildPtr)
-    {
-      case L'?':
-        CurWildPtr++;
-        if (*SrcNamePtr)
-          *(DestNamePtr++)=*(SrcNamePtr++);
-        break;
-      case L'*':
-        CurWildPtr++;
-        while (*SrcNamePtr)
-        {
-          if (*CurWildPtr==L'.' && SrcNameDot!=NULL && wcschr(CurWildPtr+1,L'.')==NULL)
-          {
-            if (SrcNamePtr==SrcNameDot)
-              break;
-          }
-          else
-            if (*SrcNamePtr==*CurWildPtr)
-              break;
-          *(DestNamePtr++)=*(SrcNamePtr++);
-        }
-        break;
-      case '.':
-        CurWildPtr++;
-        *(DestNamePtr++)=L'.';
-        if (wcspbrk(CurWildPtr,L"*?")!=NULL)
-          while (*SrcNamePtr)
-            if (*(SrcNamePtr++)==L'.')
-              break;
-        break;
-      default:
-        *(DestNamePtr++)=*(CurWildPtr++);
-        if (*SrcNamePtr && *SrcNamePtr!=L'.')
-          SrcNamePtr++;
-        break;
-    }
+	while (*CurWildPtr)
+	{
+		switch(*CurWildPtr)
+		{
+			case L'?':
+				CurWildPtr++;
+				if (*SrcNamePtr)
+					*(DestNamePtr++)=*(SrcNamePtr++);
+				break;
+			case L'*':
+				CurWildPtr++;
+				while (*SrcNamePtr)
+				{
+					if (*CurWildPtr==L'.' && SrcNameDot!=NULL && wcschr(CurWildPtr+1,L'.')==NULL)
+					{
+						if (SrcNamePtr==SrcNameDot)
+							break;
+					}
+					else
+						if (*SrcNamePtr==*CurWildPtr)
+							break;
+					*(DestNamePtr++)=*(SrcNamePtr++);
+				}
+				break;
+			case '.':
+				CurWildPtr++;
+				*(DestNamePtr++)=L'.';
+				if (wcspbrk(CurWildPtr,L"*?")!=NULL)
+					while (*SrcNamePtr)
+						if (*(SrcNamePtr++)==L'.')
+							break;
+				break;
+			default:
+				*(DestNamePtr++)=*(CurWildPtr++);
+				if (*SrcNamePtr && *SrcNamePtr!=L'.')
+					SrcNamePtr++;
+				break;
+		}
+	}
 
-  *DestNamePtr=0;
-  if (DestNamePtr!=(const wchar_t*)strDest && *(DestNamePtr-1)==L'.') //BUGBUG strDest
-    *(DestNamePtr-1)=0;
+	*DestNamePtr=0;
+	if (DestNamePtr!=DestName && *(DestNamePtr-1)==L'.')
+		*(DestNamePtr-1)=0;
 
-  strDest.ReleaseBuffer ();
+	strDest.ReleaseBuffer ();
 
-  if (*PartBeforeName)
-    strDest = PartBeforeName+strDest; //BUGBUG not sure
-  if (SelectedFolderNameLength!=0)
-    strDest += PartAfterFolderName; //BUGBUG, was src
+	if (*PartBeforeName)
+		strDest = PartBeforeName+strDest;
+	if (SelectedFolderNameLength!=0)
+		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
 
-  return(TRUE);
+	xf_free (PartBeforeName);
+
+	return(TRUE);
 }
 
 
@@ -615,7 +619,7 @@ string& WINAPI RemoveUnprintableCharacters(string &strStr)
 string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
 {
   wchar_t *Ptr = strStr.GetBuffer ();
-  wchar_t *Str = Ptr, *StrBegin = Ptr, Chr;
+  wchar_t *Str = Ptr, Chr;
   while((Chr=*Str++) != 0)
   {
     if(Chr == Target)
