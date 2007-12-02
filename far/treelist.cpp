@@ -1386,9 +1386,9 @@ int TreeList::ReadTreeFile()
     {
       int OldCount = TreeCount;
 
-      ListData=(struct TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem*));
+      TreeItem **TmpListData=(TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(TreeItem*));
 
-      if ( !ListData )
+      if ( !TmpListData )
       {
         if(ListData)
         {
@@ -1402,6 +1402,8 @@ int TreeList::ReadTreeFile()
         //RestoreState();
         return(FALSE);
       }
+
+      ListData = TmpListData;
     }
 
     ListData[TreeCount] = new TreeItem;
