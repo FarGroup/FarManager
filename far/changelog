@@ -1,3 +1,9 @@
+t-rex 02.12.2007 20:05:17 +0200 - build 371
+
+1. От Stanislav Vinokurov: Mantis#397: Неправильная обработка oldfar::DM_GETTEXTPTR в FarSendDlgMessageA()
+
+2. Тоже самое для oldfar::DM_GETTEXT.
+
 t-rex 02.12.2007 13:59:53 +0200 - build 370
 
 1. Из Mantis#396, неверная проверка при реалоке в TreeList::ReadTreeFile.

@@ -519,7 +519,7 @@ int WINAPI GetNumberOfLinksA(const char *Name)
 	return GetNumberOfLinks(n);
 }
 
-typedef struct _FAR_SEARCH_A_CALLBACK_PARAM 
+typedef struct _FAR_SEARCH_A_CALLBACK_PARAM
 {
 	oldfar::FRSUSERFUNC Func;
 	void *Param;
@@ -554,7 +554,7 @@ void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRS
 	FAR_SEARCH_A_CALLBACK_PARAM CallbackParam;
 	CallbackParam.Func = Func;
 	CallbackParam.Param = Param;
-	
+
 	FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,Flags,static_cast<void *>(&CallbackParam));
 }
 
@@ -1097,14 +1097,11 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 		case oldfar::DM_GETTEXT:
 			{
-				LONG_PTR length = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
+				if (!Param2)
+					return FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
 
-				if (!Param2) return length;
-
-				if (!length) return 0;
-
-				wchar_t* text = (wchar_t*) xf_malloc((length+1)*sizeof(wchar_t));
 				oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
+				wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 
 				//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
 				FarDialogItemData did = {didA->PtrLength, text};
@@ -1178,14 +1175,11 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				LONG_PTR length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
 				if (!Param2) return length;
 
-				if (length)
-				{
-					wchar_t* text = (wchar_t *) xf_malloc ((length +1)* sizeof(wchar_t));
-					LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (LONG_PTR)text);
-					UnicodeToAnsi(text, (char *)Param2);
-					xf_free(text);
-					return ret;
-				}
+				wchar_t* text = (wchar_t *) xf_malloc ((length +1)* sizeof(wchar_t));
+				length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (LONG_PTR)text);
+				UnicodeToAnsi(text, (char *)Param2);
+				xf_free(text);
+				return length;
 			}
 
 		case oldfar::DM_SETTEXTPTR:
