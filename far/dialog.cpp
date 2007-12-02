@@ -1523,7 +1523,6 @@ void Dialog::ShowDialog(int ID)
 
     short CW=CX2-CX1+1;
     short CH=CY2-CY1+1;
-    BOOL DisabledItem=CurItem->Flags&DIF_DISABLE?TRUE:FALSE;
 
     Attr=(DWORD)CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->Flags);
 
@@ -4856,7 +4855,6 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
   CriticalSectionLock Lock(Dlg->CS);
 
   struct DialogItemEx *CurItem=NULL;
-  char *Ptr=NULL;
   int Type=0;
   _DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
   _DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -4926,7 +4924,6 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
   {
     CurItem=Dlg->Item[Param1];
     Type=CurItem->Type;
-    //Ptr=CurItem->Data;
   }
 
   switch(Msg)

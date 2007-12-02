@@ -631,7 +631,6 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
                                               //      ; supports electronic eject
 
 
-      BOOL fSuccess = FALSE;
       DWORD dwRead;
       DIOC_REGISTERS reg;
       DRIVE_MAP_INFO dmi;

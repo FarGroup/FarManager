@@ -1413,7 +1413,6 @@ static bool evalFunc()
 {
   bool Ret=true;
   TVar Val= VMStack.Pop();
-  __int64 KeysSend=_i64(1);
 
   struct MacroRecord RBuf;
   int KeyPos;
@@ -2746,7 +2745,7 @@ done:
        _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_GETHOTKEY"));
        tmpVar=VMStack.Pop();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || MACRO_USERMENU)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();
@@ -2784,7 +2783,7 @@ done:
        __int64 Result=_i64(0);
        tmpVar=VMStack.Pop();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || MACRO_USERMENU)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();
@@ -4042,7 +4041,7 @@ int KeyMacro::GetMacroKeyInfo(int Mode,int Pos,const wchar_t *KeyName, string &s
     if (!EnumRegKey(strUpKeyName,Pos,strRegKeyName))
       return -1;
 
-    const wchar_t *KeyNamePtr=wcsrchr(strRegKeyName,L'\\');
+    //const wchar_t *KeyNamePtr=wcsrchr(strRegKeyName,L'\\');
     //if (KeyNamePtr!=NULL) BUGBUG
       //strKeyName = KeyNamePtr+1;
     GetRegKey(strRegKeyName,L"Description",strDescription,L"");

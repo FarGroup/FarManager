@@ -2648,7 +2648,6 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
 
     Sleep(200);
     strPluginSearchPath=L"";
-    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);

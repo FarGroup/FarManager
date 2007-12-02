@@ -177,7 +177,7 @@ void PrintFiles(Panel *SrcPanel)
         continue;
       int Success=FALSE;
 
-      FILE *SrcFile;
+      FILE *SrcFile=NULL;
       string strTempDir, strTempName;
 
       if (PluginMode)

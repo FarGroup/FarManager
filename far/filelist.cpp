@@ -496,7 +496,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 int FileList::ProcessKey(int Key)
 {
   struct FileListItem *CurPtr=NULL;
-  int N, NeedRealName=FALSE;
+  int N;
   int CmdLength=CtrlObject->CmdLine->GetLength();
 
   if (IsVisible())
@@ -858,7 +858,6 @@ int FileList::ProcessKey(int Key)
           }
           if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
           {
-            bool realName=PanelMode!=PLUGIN_PANEL;
             struct OpenPluginInfo Info={0};
             if (PanelMode==PLUGIN_PANEL)
             {
@@ -2572,35 +2571,19 @@ void FileList::SetViewMode(int ViewMode)
 
   if (ViewSettings.FullScreen && !CurFullScreen)
   {
-    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-    int AnotherVisible=AnotherPanel->IsVisible();
-//    Hide();
-//    AnotherPanel->Hide();
     if (Y2>0)
       SetPosition(0,Y1,ScrX,Y2);
     FileList::ViewMode=ViewMode;
-//    if (AnotherVisible)
-//      AnotherPanel->Show();
-//    Show();
   }
   else
     if (!ViewSettings.FullScreen && CurFullScreen)
     {
-      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-      int AnotherVisible=AnotherPanel->IsVisible();
-      int CurrentVisible=IsVisible();
-//      Hide();
-//      AnotherPanel->Hide();
       if (Y2>0)
         if (this==CtrlObject->Cp()->LeftPanel)
           SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
         else
           SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
       FileList::ViewMode=ViewMode;
-//      if (AnotherVisible)
-//        AnotherPanel->Show();
-//      if (CurrentVisible)
-//        Show();
     }
     else
     {

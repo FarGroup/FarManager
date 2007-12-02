@@ -999,9 +999,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             */
             SetDeleteOnClose(0);
 
-            FileViewer *Viewer = new FileViewer (strFullFileName, GetCanLoseFocus(), FALSE,
+            FileViewer Viewer(strFullFileName, GetCanLoseFocus(), FALSE,
                FALSE, FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
-  //OT          FrameManager->InsertFrame (Viewer);
           }
           ShowTime(2);
         }
@@ -1452,7 +1451,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	int LastLineCR = 0, Count = 0, MessageShown=FALSE;;
+	int LastLineCR = 0, Count = 0;
+	//BOOL MessageShown=FALSE;
 	EditorCacheParams cp;
 
 	UserBreak = 0;

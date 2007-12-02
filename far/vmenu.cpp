@@ -212,7 +212,7 @@ void VMenu::Show()
 {
   CriticalSectionLock Lock(CS);
 
-  int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
+  //int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
 
   if(VMFlags.Check(VMENU_LISTBOX))
   {
@@ -1560,7 +1560,6 @@ int VMenu::SetSelectPos(struct FarListPos *ListPos)
   CriticalSectionLock Lock(CS);
 
   int Ret=SetSelectPos(ListPos->SelectPos,1);
-  int OldTopPos=TopPos;
   if(Ret > -1)
   {
     TopPos=ListPos->TopPos;
@@ -1593,7 +1592,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   if(!Item || !ItemCount)
     return -1;
 
-  int OrigPos=Pos, Pass=0, I=0;
+  int Pass=0, I=0;
 
   do
   {

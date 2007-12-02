@@ -903,7 +903,6 @@ static int IsReplaceVariable(char *str,int *scr,
   int count_scob = 0;
   int second_count_scob = 0;
 
-  bool was_quest_and_asterics = false; //  ?!
   bool was_quest = false;         //  ?
   bool was_asterics = false;      //  !
 
@@ -1060,7 +1059,6 @@ static int IsReplaceVariableW(const wchar_t *str,
   int count_scob = 0;
   int second_count_scob = 0;
 
-  bool was_quest_and_asterics = false; //  ?!
   bool was_quest = false;         //  ?
   bool was_asterics = false;      //  !
 

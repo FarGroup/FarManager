@@ -480,15 +480,15 @@ int TreeList::ReadTree()
       break;
     if ((TreeCount & 255)==0 )
     {
-      int OldCount = TreeCount;
+      TreeItem **TmpListData=(TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(TreeItem*));
 
-      ListData=(struct TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem*));
-
-      if ( !ListData )
+      if ( !TmpListData )
       {
         AscAbort=TRUE;
         break;
       }
+
+      ListData = TmpListData;
     }
 
     if (!(fdata.dwFileAttributes & FA_DIREC))
@@ -1384,8 +1384,6 @@ int TreeList::ReadTreeFile()
 
     if ((TreeCount & 255)==0 )
     {
-      int OldCount = TreeCount;
-
       TreeItem **TmpListData=(TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(TreeItem*));
 
       if ( !TmpListData )

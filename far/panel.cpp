@@ -1930,7 +1930,6 @@ int Panel::SetPluginCommand(int Command,void *Param)
   int Result=FALSE;
   ProcessingPluginCommand++;
   FilePanels *FPanels=CtrlObject->Cp();
-  Panel *AnotherPanel=FPanels->GetAnotherPanel(this);
   PluginCommand=Command;
 
   switch(Command)

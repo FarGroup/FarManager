@@ -782,7 +782,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   GetCursorType(Visible,Size);
   SetInitialCursorType();
 
-  int PrevLockCount=ScrBuf.GetLockCount();
   ScrBuf.SetLockCount(0);
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);

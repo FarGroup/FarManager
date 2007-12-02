@@ -47,10 +47,7 @@ int ConvertNameToFull (
         )
 {
 	string strSrc = lpwszSrc; //копирование в другую переменную на случай dest == src
-
 	lpwszSrc = strSrc;
-
-	int Result = (int)wcslen (lpwszSrc);
 
 	const wchar_t *lpwszName = PointToName(lpwszSrc);
 
@@ -78,10 +75,8 @@ int ConvertNameToFull (
 	}
 
 	int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL);
-
 	wchar_t *lpwszDest = strDest.GetBuffer (nLength);
 	GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
-
 
 	// это когда ввели в масдае cd //host/share
 	// а масдай выдал на гора c:\\host\share

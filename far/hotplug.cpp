@@ -524,8 +524,6 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
 
 DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
 {
-  DWORD dwMask = 0;
-
   wchar_t wszCurrentVolumeName[MAX_PATH];
   wchar_t wszMountPoint[4];
 

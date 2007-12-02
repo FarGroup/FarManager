@@ -943,7 +943,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 #if 1
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
-  int LenRenamedName=0;
   if (CDP.SelCount==1 && !strRenamedName.IsEmpty() )
     SrcPanel->GoToFile(strRenamedName);
 #if 1
@@ -1049,7 +1048,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         FarDialogItem *DItemACCopy,*DItemACInherit,*DItemACLeave,*DItemOnlyNewer,*DItemBtnCopy;
         string strSrcDir;
 
-        int LenCurDirName = DlgParam->thisClass->SrcPanel->GetCurDir(strSrcDir);
+        DlgParam->thisClass->SrcPanel->GetCurDir(strSrcDir);
 
         DItemACCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0);
         DItemACInherit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0);
@@ -2003,8 +2002,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           FileData.Clear();
 
           strOldPath = Src;
-
-          size_t len = p1 - Src;
           strOldPath.SetLength(p1-Src);
 
           apiGetFindDataEx (strOldPath,&FileData);

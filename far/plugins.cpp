@@ -1053,7 +1053,6 @@ void PluginManager::Configure(int StartPos)
     {
       int I, J;
       BOOL NeedUpdateItems=TRUE;
-      BOOL Done=FALSE;
       int MenuItemNumber=0;
 
       string strFirstHotKey;

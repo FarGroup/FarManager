@@ -242,12 +242,11 @@ static DWORD WINAPI _xfilter(
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
    const wchar_t *pName;
-   int  I, Ret=1;
+   int  I;
    DWORD rc;
    string strBuf1, strBuf2, strBuf3;
 
    string strTruncFileName;
-   BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
    BOOL ShowMessages=FALSE;
 
    // получим запись исключения

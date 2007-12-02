@@ -1,3 +1,9 @@
+t-rex 02.12.2007 23:06:15 +0200 - build 372
+
+1. From Hannes Eder: removed unused variables and corrected a condition in macro processing.
+
+2. Fixed two memory leaks found along the way.
+
 t-rex 02.12.2007 20:05:17 +0200 - build 371
 
 1. От Stanislav Vinokurov: Mantis#397: Неправильная обработка oldfar::DM_GETTEXTPTR в FarSendDlgMessageA()

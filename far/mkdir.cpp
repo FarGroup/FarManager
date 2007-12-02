@@ -103,7 +103,6 @@ void ShellMakeDir(Panel *SrcPanel)
     lpwszDirName[Length]=0;
 
     bool bSuccess = false;
-    int Error=FALSE;
 
     if (Length>0 && (lpwszDirName[Length-1]==L'/' || lpwszDirName[Length-1]==L'\\'))
       lpwszDirName[Length-1]=0;
