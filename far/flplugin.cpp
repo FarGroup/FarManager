@@ -671,7 +671,7 @@ void FileList::PluginPutFilesToNew()
       struct FileListItem *PtrListData, *PtrLastPos=ListData[0];
       for (int I=1; I < FileCount; I++)
       {
-        PtrListData = ListData[I+1];
+        PtrListData = ListData[I];
         if ((*(__int64*)&PtrListData->CreationTime - *(__int64*)&PtrLastPos->CreationTime) > 0)
         {
           PtrLastPos=ListData[LastPos=I];

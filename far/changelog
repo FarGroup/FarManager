@@ -1,3 +1,9 @@
+t-rex 03.12.2007 00:01:04 +0200 - build 373
+
+1. По наводке от Sten, Mantis#398: Patches to fix crashes after adding file to archive by pressing Shift+F1/Enter.
+
+2. One of the memory leaks fixed in 372 was not a memory leak at all :), it was a perfectly correct code.
+
 t-rex 02.12.2007 23:06:15 +0200 - build 372
 
 1. From Hannes Eder: removed unused variables and corrected a condition in macro processing.

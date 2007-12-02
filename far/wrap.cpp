@@ -1478,8 +1478,8 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	}
 	else //FCTL_GET[ANOTHER]PANELINFO
 	{
-		PIA->PanelItems = NULL; //BUGBUG
-		PIA->SelectedItems = NULL; //BUGBUG
+		ConvertPanelItemW(PIW->PanelItems, &PIA->PanelItems, PIW->ItemsNumber);
+		ConvertPanelItemW(PIW->SelectedItems, &PIA->SelectedItems, PIW->SelectedItemsNumber);
 	}
 
 	PIA->CurrentItem = PIW->CurrentItem;
@@ -1525,6 +1525,16 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	PIA->Reserved = PIW->Reserved;
 }
 
+void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
+{
+	if (PIA->PanelItems)
+		FreePanelItemA(PIA->PanelItems,PIA->ItemsNumber);
+	if (PIA->SelectedItems)
+		FreePanelItemA(PIA->SelectedItems,PIA->SelectedItemsNumber);
+
+	memset(PIA,0,sizeof(oldfar::PanelInfo));
+}
+
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PIA={0};
@@ -1550,10 +1560,15 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_GETPANELINFO:
 			{
 				if(!Param) return FALSE;
-				oldfar::PanelInfo *PIA = (oldfar::PanelInfo *)Param;
+				oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
 				PanelInfo PIW;
 				int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
-				if (ret) ConvertUnicodePanelInfoToAnsi(&PIW, PIA, FALSE);
+				if (ret)
+				{
+					FreeAnsiPanelInfo(&PIA);
+					ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, FALSE);
+					*pPIA=PIA;
+				}
 				return ret;
 			}
 
@@ -1562,10 +1577,15 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_GETPANELSHORTINFO:
 			{
 				if(!Param) return FALSE;
-				oldfar::PanelInfo *PIA = (oldfar::PanelInfo *)Param;
+				oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
 				PanelInfo PIW;
 				int ret = FarControl(hPluginW,FCTL_GETPANELSHORTINFO,(void *)&PIW);
-				if (ret) ConvertUnicodePanelInfoToAnsi(&PIW, PIA, TRUE);
+				if (ret)
+				{
+					FreeAnsiPanelInfo(&PIA);
+					ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, TRUE);
+					*pPIA=PIA;
+				}
 				return ret;
 			}
 

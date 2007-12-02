@@ -999,8 +999,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             */
             SetDeleteOnClose(0);
 
-            FileViewer Viewer(strFullFileName, GetCanLoseFocus(), FALSE,
-               FALSE, FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
+            //объект будет в конце удалён в FrameManager
+            new FileViewer(strFullFileName, GetCanLoseFocus(), FALSE, FALSE,
+                   FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
           }
           ShowTime(2);
         }
