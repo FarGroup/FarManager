@@ -146,6 +146,9 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
     ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
     ControlObject CtrlObj;
 
+    // учтем настройки максимизации окна при старте
+    if(IsZoomed(hFarWnd)) ChangeVideoMode(1);
+
     if (*EditName || *ViewName)
     {
       NotUseCAS=TRUE;

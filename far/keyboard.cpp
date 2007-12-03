@@ -432,8 +432,19 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     StartIdleTime=clock();
   LastEventIdle=FALSE;
   SetFarConsoleMode();
+
+  BOOL ZoomedState=IsZoomed(hFarWnd);
+  BOOL IconicState=IsIconic(hFarWnd);
+
   while (1)
   {
+    // "Реакция" на максимизацию/восстановление окна консоли
+    if(ZoomedState!=IsZoomed(hFarWnd) && IconicState==IsIconic(hFarWnd))
+    {
+      ZoomedState=!ZoomedState;
+      ChangeVideoMode(ZoomedState);
+    }
+
 #if defined(USE_WFUNC_IN)
     if(Opt.UseUnicodeConsole)
       PeekConsoleInputW(hConInp,rec,1,&ReadCount);
