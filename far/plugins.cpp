@@ -491,8 +491,8 @@ void PluginManager::LoadPlugins()
         strPluginsDir += strFullName;
         strFullName = strPluginsDir;
       }
-      // Получим реальное значение полного длинного пути с учетом символических связей.
-      ConvertNameToReal(strFullName,strFullName);
+      // Получим реальное значение полного длинного пути
+      ConvertNameToFull(strFullName,strFullName);
       ConvertNameToLong(strFullName,strFullName);
 
       strPluginsDir = strFullName;

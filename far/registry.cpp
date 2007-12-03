@@ -482,6 +482,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
       break;
     RegSetValueExW(hDestKey,ValueName,0,Type,(BYTE *)ValueData,DataSize);
   }
+  CloseRegKey(hDestKey);
   for (I=0;;I++)
   {
     wchar_t SubkeyName[200]; //BUGBUG, dynamic
@@ -514,10 +515,10 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
     strDestKeyName += SubkeyName;
     if (RegCreateKeyExW(hRegRootKey,strDestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
+    CloseRegKey(hDestKey);
     CopyKeyTree(strSrcKeyName,strDestKeyName);
   }
   CloseRegKey(hSrcKey);
-  CloseRegKey(hDestKey);
   return(TRUE);
 }
 

@@ -883,8 +883,8 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   struct PluginPanelItem *pItems;
   int nResult = 0;
 
-  wchar_t *lpFileNameToFind = _wcsdup (PanelItem->FindData.lpwszFileName);
-  wchar_t *lpFileNameToFindShort = _wcsdup (PanelItem->FindData.lpwszAlternateFileName);
+  wchar_t *lpFileNameToFind = xf_wcsdup (PanelItem->FindData.lpwszFileName);
+  wchar_t *lpFileNameToFindShort = xf_wcsdup (PanelItem->FindData.lpwszAlternateFileName);
 
   lpFileNameToFind = (wchar_t*)PointToName(RemovePseudoBackSlash(lpFileNameToFind));
   lpFileNameToFindShort = (wchar_t*)PointToName(RemovePseudoBackSlash(lpFileNameToFindShort));
@@ -900,16 +900,16 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
     {
       struct PluginPanelItem *pItem = &pItems[i];
 
-      wchar_t *lpwszFileName = _wcsdup(pItem->FindData.lpwszFileName);
+      wchar_t *lpwszFileName = xf_wcsdup(pItem->FindData.lpwszFileName);
       xf_free (pItem->FindData.lpwszFileName);
 
-      pItem->FindData.lpwszFileName = _wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
+      pItem->FindData.lpwszFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
-      lpwszFileName = _wcsdup(pItem->FindData.lpwszAlternateFileName);
+      lpwszFileName = xf_wcsdup(pItem->FindData.lpwszAlternateFileName);
       xf_free (pItem->FindData.lpwszAlternateFileName);
 
-      pItem->FindData.lpwszAlternateFileName = _wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
+      pItem->FindData.lpwszAlternateFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
       if ( !wcscmp (lpFileNameToFind, pItem->FindData.lpwszFileName) &&

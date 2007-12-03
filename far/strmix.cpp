@@ -1169,7 +1169,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 
   if (breakcharlen == 1 && docut == 0)
   {
-    newtext = _wcsdup (text);
+    newtext = xf_wcsdup (text);
     if(!newtext)
     {
         strDestText = L"";

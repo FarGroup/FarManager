@@ -2322,7 +2322,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 			if ( m_editor->EditorControl(Command, Param) )
 			{
 				EditorInfo *Info = (EditorInfo*)Param;
-				Info->FileName = _wcsdup(strFullFileName); //BUGBUG
+				Info->FileName = xf_wcsdup(strFullFileName); //BUGBUG mem leak
 				return TRUE;
 			}
 

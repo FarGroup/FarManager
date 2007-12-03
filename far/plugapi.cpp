@@ -1446,8 +1446,8 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
       ItemsList[ItemsNumber].ftCreationTime = FindData.ftCreationTime;
       ItemsList[ItemsNumber].ftLastAccessTime = FindData.ftLastAccessTime;
       ItemsList[ItemsNumber].ftLastWriteTime = FindData.ftLastWriteTime;
-      ItemsList[ItemsNumber].lpwszFileName = _wcsdup (FindData.strFileName);
-      ItemsList[ItemsNumber].lpwszAlternateFileName = _wcsdup (FindData.strAlternateFileName);
+      ItemsList[ItemsNumber].lpwszFileName = xf_wcsdup (FindData.strFileName);
+      ItemsList[ItemsNumber].lpwszAlternateFileName = xf_wcsdup (FindData.strAlternateFileName);
 
       ItemsNumber++;
     }
@@ -1608,7 +1608,7 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
     memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
   }
 
-  DestItem->FindData.lpwszFileName = _wcsdup (strFullName);
+  DestItem->FindData.lpwszFileName = xf_wcsdup (strFullName);
   DirListItemsNumber++;
 }
 

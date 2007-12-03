@@ -2973,11 +2973,11 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
         (((DWORD)(DWORD_PTR)Buffer)&KEY_OP_ENDBASE) >= KEY_OP_BASE && (((DWORD)(DWORD_PTR)Buffer)&KEY_OP_ENDBASE) <= KEY_OP_ENDBASE
       )
     {
-      return Src?wcsdup(Src):NULL;
+      return Src?xf_wcsdup(Src):NULL;
     }
 
     if(KeyToText((DWORD)(DWORD_PTR)Buffer,strMacroKeyText))
-      return wcsdup((const wchar_t*)strMacroKeyText);
+      return xf_wcsdup((const wchar_t*)strMacroKeyText);
     return NULL;
   }
 #endif
@@ -2998,7 +2998,7 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
           !KeyToText(Key,strMacroKeyText)
         )
       {
-        return Src?wcsdup(Src):NULL;
+        return Src?xf_wcsdup(Src):NULL;
       }
       if(J > 1)
         strTextBuffer += L" ";
@@ -3006,7 +3006,7 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
     }
 
   if(!strTextBuffer.IsEmpty())
-    return wcsdup((const wchar_t*)strTextBuffer);
+    return xf_wcsdup((const wchar_t*)strTextBuffer);
   return NULL;
 }
 
@@ -3257,7 +3257,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
       return FALSE;
     }
     MacroLIB=NewMacros;
-    CurMacro.Src=wcsdup(strBuffer);
+    CurMacro.Src=xf_wcsdup(strBuffer);
     memcpy(MacroLIB+MacroLIBCount,&CurMacro,sizeof(CurMacro));
     MacroLIBCount++;
   }

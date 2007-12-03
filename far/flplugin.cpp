@@ -109,7 +109,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       {
         memset(&PanelItem,0,sizeof(PanelItem));
 
-        PanelItem.FindData.lpwszFileName = _wcsdup(PointToName(PStack->strHostFile));
+        PanelItem.FindData.lpwszFileName = xf_wcsdup(PointToName(PStack->strHostFile));
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
 
         xf_free (PanelItem.FindData.lpwszFileName);
@@ -172,8 +172,8 @@ int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi)
 
 void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi)
 {
-  pi->FindData.lpwszFileName = _wcsdup (fi->strName);
-  pi->FindData.lpwszAlternateFileName = _wcsdup (fi->strShortName);
+  pi->FindData.lpwszFileName = xf_wcsdup (fi->strName);
+  pi->FindData.lpwszAlternateFileName = xf_wcsdup (fi->strShortName);
 
   pi->FindData.nFileSize=fi->UnpSize;
   pi->FindData.nPackSize=fi->PackSize;
@@ -337,7 +337,7 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
     if(AddTwoDot && !ItemNumber && (FileAttr & FA_DIREC)) // это про ".."
     {
       FileListToPluginItem(ListData[0],ItemList+ItemNumber);
-      //ItemList->FindData.lpwszFileName = _wcsdup (ListData[0]->strName);
+      //ItemList->FindData.lpwszFileName = xf_wcsdup (ListData[0]->strName);
       //ItemList->FindData.dwFileAttributes=ListData[0]->FileAttr;
       ItemNumber++;
     }
@@ -451,7 +451,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
             PluginPanelItem pi;
             memset(&pi,0,sizeof(pi));
 
-            pi.FindData.lpwszFileName = _wcsdup (DestPanel->strPluginDizName);
+            pi.FindData.lpwszFileName = xf_wcsdup (DestPanel->strPluginDizName);
             CtrlObject->Plugins.DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
             xf_free (pi.FindData.lpwszFileName);
           }
@@ -936,8 +936,8 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
   ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
                      ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
 
-  Info->lpwszColumnTypes = _wcsdup (strColumnTypes);
-  Info->lpwszColumnWidths = _wcsdup (strColumnWidths);
+  Info->lpwszColumnTypes = xf_wcsdup (strColumnTypes);
+  Info->lpwszColumnWidths = xf_wcsdup (strColumnWidths);
   Info->ShortNames=ShowShortNames;
 }
 

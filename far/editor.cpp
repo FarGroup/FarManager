@@ -3440,8 +3440,8 @@ BOOL Editor::Search(int Next)
   if ( strSearchStr.IsEmpty() )
     return TRUE;
 
-  wchar_t *SearchStr = _wcsdup (strSearchStr); //RAVE!!!
-  wchar_t *ReplaceStr = _wcsdup (strReplaceStr); //BUGBUG!!!
+  wchar_t *SearchStr = xf_wcsdup (strSearchStr); //RAVE!!!
+  wchar_t *ReplaceStr = xf_wcsdup (strReplaceStr); //BUGBUG!!!
 
   LastSuccessfulReplaceMode=ReplaceMode;
 
@@ -5094,7 +5094,7 @@ int Editor::EditorControl(int Command,void *Param)
       {
         memset(Info,0,sizeof(*Info));
         Info->EditorID=Editor::EditorID;
-        Info->FileName=_wcsdup (L"");
+        Info->FileName=xf_wcsdup (L""); //BUGBUG mem leak
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1+1;
         Info->TotalLines=NumLastLine;

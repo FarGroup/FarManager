@@ -1767,7 +1767,7 @@ void Edit::SetInputMask(const wchar_t *InputMask)
 
   if (InputMask && *InputMask)
   {
-    if((Mask=_wcsdup(InputMask)) == NULL)
+    if((Mask=xf_wcsdup(InputMask)) == NULL)
       return;
     RefreshStrByMask(TRUE);
   }

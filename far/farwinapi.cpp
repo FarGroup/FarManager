@@ -546,8 +546,8 @@ void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
     pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
     pDest->nFileSize = pSrc->nFileSize;
     pDest->nPackSize = pSrc->nPackSize;
-    pDest->lpwszFileName = _wcsdup (pSrc->strFileName);
-    pDest->lpwszAlternateFileName = _wcsdup (pSrc->strAlternateFileName);
+    pDest->lpwszFileName = xf_wcsdup (pSrc->strFileName);
+    pDest->lpwszAlternateFileName = xf_wcsdup (pSrc->strAlternateFileName);
 }
 
 void apiFreeFindData (FAR_FIND_DATA *pData)

@@ -142,7 +142,7 @@ void History::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int 
     memcpy(SaveLastStr,LastStr,HistoryCount*sizeof(HistoryRecord));
     for (int I=0;I < HistoryCount; I++)
       if(LastStr[I].Name && LastStr[I].Name[0])
-        SaveLastStr[I].Name=wcsdup(LastStr[I].Name);
+        SaveLastStr[I].Name=xf_wcsdup(LastStr[I].Name);
       else
         SaveLastStr[I].Name=NULL;
 
@@ -190,7 +190,7 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
   if(TypeHistory == HISTORYTYPE_FOLDER)
     AddRecord.Name=(wchar_t *)xf_malloc((StrLength(Str)+StrLength(NullToEmpty(Title))+2)*sizeof (wchar_t));
   else
-    AddRecord.Name=wcsdup(Str);
+    AddRecord.Name=xf_wcsdup(Str);
 
   if(!AddRecord.Name)
     return;
@@ -360,8 +360,8 @@ BOOL History::SaveHistory()
     }
   }
 
-  HKEY hKey;
-  if ((hKey=CreateRegKey(strRegKey))!=NULL && BufferLines && *BufferLines)
+  HKEY hKey=CreateRegKey(strRegKey);
+  if (hKey!=NULL && BufferLines && *BufferLines)
   {
     if(!BufferLines)
       SizeLines=1;
@@ -396,6 +396,8 @@ BOOL History::SaveHistory()
   else
     DeleteRegKey(strRegKey);
 
+  if (hKey)
+  	RegCloseKey(hKey);
   if(BufferLines)
     xf_free(BufferLines);
   if(BufferTitles)

@@ -74,3 +74,14 @@ char * __cdecl xf_strdup (const char * string)
   }
   return(NULL);
 }
+
+wchar_t * __cdecl xf_wcsdup (const wchar_t * string)
+{
+  if(string)
+  {
+    wchar_t *memory;
+    if((memory = xf_malloc((wcslen(string)+1)*sizeof(wchar_t))) != NULL)
+       return wcscpy(memory,string);
+  }
+  return(NULL);
+}

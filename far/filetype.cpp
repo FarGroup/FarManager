@@ -333,7 +333,10 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
     if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
       return(FALSE);
     if (RegQueryStringValueEx(hKey,L"",strAssocStr)!=ERROR_SUCCESS)
+    {
+    	RegCloseKey(hKey);
       return(FALSE);
+    }
     RegCloseKey(hKey);
     apiExpandEnvironmentStrings (strAssocStr,strExpAssocStr);
 

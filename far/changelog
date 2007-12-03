@@ -1,3 +1,17 @@
+t-rex 03.12.2007 23:19:20 +0200 - build 376
+
+1. Mantis#367: Не загружаются плагины, когда FAR запущен из папки которая сама или одина из её папок более высокого уровня являются связью.
+
+2. Mantis#401: Handle leak in ProcessGlobalFileTypes().
+
+3. Mantis#402: Handle leak in History::SaveHistory().
+
+4. Mantis#403: Not initialized variable used in MessageRemoveConnection().
+
+5. Mantis#404: Handle leak in CopyKeyTree().
+
+6. Mantis#400: Function xf_wcsdup() should replace wcsdup().
+
 drkns 03.12.2007 20:20:28 +0200 - build 375
 
 1. Mantis#0000364: Maximize button doesn't work as expected

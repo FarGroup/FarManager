@@ -2036,7 +2036,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
       GetCurDir(strInfoCurDir);
 
-      Info->lpwszCurDir = _wcsdup(strInfoCurDir);
+      Info->lpwszCurDir = xf_wcsdup(strInfoCurDir);
 
       {
         static struct {
@@ -2072,7 +2072,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
           struct OpenPluginInfo PInfo;
           DestFilePanel->GetOpenPluginInfo(&PInfo);
 
-          Info->lpwszCurDir = _wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
+          Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
           if (PInfo.Flags & OPIF_REALNAMES)
             Info->Flags |= PFLAGS_REALNAMES;
           if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
@@ -2231,10 +2231,10 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
       DCDlg[5].Flags|=DIF_DISABLE;
       DCDlg[5].Selected=0;
       IsPersistent=FALSE;
+      RegCloseKey(hKey);
     }
     else
       DCDlg[5].Selected=Opt.ChangeDriveDisconnetMode;
-    RegCloseKey(hKey);
   }
 
   // скорректируем размеры диалога - дл€ дизайн”

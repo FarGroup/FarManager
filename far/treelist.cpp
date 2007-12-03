@@ -107,14 +107,14 @@ static struct TreeListCache
   void Add(const wchar_t* name)
   {
     Resize();
-    ListName[TreeCount++]=_wcsdup(name);
+    ListName[TreeCount++]=xf_wcsdup(name);
   }
 
   void Insert(int idx,const wchar_t* name)
   {
     Resize();
     memmove(ListName+idx+1,ListName+idx,sizeof(wchar_t*)*(TreeCount-idx));
-    ListName[idx]=_wcsdup(name);
+    ListName[idx]=xf_wcsdup(name);
     TreeCount++;
   }
 
@@ -1621,7 +1621,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 
       if(TreeCache.ListName[CachePos]) xf_free(TreeCache.ListName[CachePos]);
 
-      TreeCache.ListName[CachePos]=_wcsdup(strNewName);
+      TreeCache.ListName[CachePos]=xf_wcsdup(strNewName);
     }
   }
 }

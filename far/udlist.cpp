@@ -74,7 +74,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const
       Str=NULL;
     }
     if(rhs.Str)
-      Str=_wcsdup(rhs.Str);
+      Str=xf_wcsdup(rhs.Str);
     index=rhs.index;
   }
   return *this;
@@ -90,7 +90,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
       Str=NULL;
     }
     if(rhs)
-      Str=wcsdup(rhs);
+      Str=xf_wcsdup(rhs);
   }
   return *this;
 }

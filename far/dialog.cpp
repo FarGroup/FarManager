@@ -4329,7 +4329,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 
     if( !strStr.IsEmpty() )
     {
-      if((His[HistCount].Str=wcsdup(strStr)) != NULL)
+      if((His[HistCount].Str=xf_wcsdup(strStr)) != NULL)
       {
         His[HistCount].Locked=Locked;
         LockedCount+=Locked;
@@ -4360,7 +4360,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
   else // ...не только можно, но и нужно!
   {
     // добавляем в начало с учетом добавляемого
-    HisTemp[0].Str=wcsdup(AddStr);
+    HisTemp[0].Str=xf_wcsdup(AddStr);
     HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
     J=1;
   }
