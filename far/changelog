@@ -1,3 +1,10 @@
+drkns 03.12.2007 20:20:28 +0200 - build 375
+
+1. Mantis#0000364: Maximize button doesn't work as expected
+   Попробуем с другой стороны :-)
+   Теперь работает "as expected" (кнопка, даблклик по заголовку, Maximize/Restore в системном меню и т. п.)
+   Также учитывается состояние окна консоли при старте (start /max, настройка в lnk и т. п.)
+
 drkns 03.12.2007 07:54:40 +0200 - build 374
 
 1. Mantis#0000399: Memory leak in add_sid_cache()

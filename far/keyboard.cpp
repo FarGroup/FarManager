@@ -411,8 +411,19 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     StartIdleTime=clock();
   LastEventIdle=FALSE;
   SetFarConsoleMode();
+
+  BOOL ZoomedState=IsZoomed(hFarWnd);
+  BOOL IconicState=IsIconic(hFarWnd);
+
   while (1)
   {
+    // "Реакция" на максимизацию/восстановление окна консоли
+    if(ZoomedState!=IsZoomed(hFarWnd) && IconicState==IsIconic(hFarWnd))
+    {
+      ZoomedState=!ZoomedState;
+      ChangeVideoMode(ZoomedState);
+    }
+
     PeekConsoleInputW(hConInp,rec,1,&ReadCount);
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
