@@ -2745,7 +2745,7 @@ done:
        _KEYMACRO(CleverSysLog Clev("MCODE_F_MENU_GETHOTKEY"));
        tmpVar=VMStack.Pop();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || MACRO_USERMENU)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();
@@ -2784,7 +2784,7 @@ done:
        tmpVar=VMStack.Pop();
        const char *checkStr=tmpVar.toString();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || MACRO_USERMENU)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();
