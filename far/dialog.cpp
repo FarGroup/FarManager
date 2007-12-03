@@ -6303,7 +6303,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       if(!Param2 || IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
           return FALSE;
-      if(Type == ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
+      if(Type != ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
           return FALSE;
       // не менять
       if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(FarDialogItem *)Param2,CurItem,1))

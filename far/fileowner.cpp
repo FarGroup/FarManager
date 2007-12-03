@@ -78,19 +78,25 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
       {
         wchar_t* AccountName=(wchar_t*)xf_malloc(AccountLength*sizeof(wchar_t));
         wchar_t* DomainName=(wchar_t*)xf_malloc(DomainLength*sizeof(wchar_t));
-        if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
+        if(AccountName && DomainName)
         {
-          if((new_rec->username=(wchar_t*)xf_malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
+          if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
           {
-            size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
-            new_rec->username[Len+1]=0;
-            new_rec->username[Len]=L'\\';
-            wcscat(new_rec->username,AccountName);
-            res=new_rec->username;
-            new_rec->next=sid_cache;
-            sid_cache=new_rec;
-            xf_free(AccountName);
-            xf_free(DomainName);
+            if((new_rec->username=(wchar_t*)xf_malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
+            {
+              size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
+              new_rec->username[Len+1]=0;
+              new_rec->username[Len]=L'\\';
+              wcscat(new_rec->username,AccountName);
+              res=new_rec->username;
+              new_rec->next=sid_cache;
+              sid_cache=new_rec;
+            }
+            else
+            {
+              xf_free(new_rec->sid);
+              xf_free(new_rec);
+            }
           }
           else
           {
@@ -98,11 +104,8 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
             xf_free(new_rec);
           }
         }
-        else
-        {
-          xf_free(new_rec->sid);
-          xf_free(new_rec);
-        }
+        if(AccountName) xf_free(AccountName);
+        if(DomainName) xf_free(DomainName);
       }
       else
       {

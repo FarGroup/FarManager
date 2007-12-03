@@ -1,3 +1,9 @@
+drkns 03.12.2007 07:54:40 +0200 - build 374
+
+1. Mantis#0000399: Memory leak in add_sid_cache()
+
+2. Не работал DM_SETDLGITEM
+
 t-rex 03.12.2007 00:01:04 +0200 - build 373
 
 1. По наводке от Sten, Mantis#398: Patches to fix crashes after adding file to archive by pressing Shift+F1/Enter.
