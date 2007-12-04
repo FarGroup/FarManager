@@ -1391,6 +1391,10 @@
                                 <param name="Local" value="html/dialogapi/flags/dif_moveselect.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DIF_NOAUTOCOMPLETE">
+                                <param name="Local" value="html/dialogapi/flags/dif_noautocomplete.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DIF_NOBRACKETS">
                                 <param name="Local" value="html/dialogapi/flags/dif_nobrackets.html">
                                 </OBJECT>

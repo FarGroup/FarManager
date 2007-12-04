@@ -36,6 +36,10 @@
     <td class="cont" width="60%">Returns the minimal value of two numeric arguments <em>N1</em> and <em>N2</em>.</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="mod">mod</a></dfn>(N1,N2)</td>
+    <td class="cont" width="60%">ƒеление <em>N1</em> по модулю <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
     <td class="cont" width="60%">Conditional function. If condition <em>Cond</em> is true
     then <em>True</em>-expression is returned, <em>False</em>-expression otherwise.</td>
@@ -99,6 +103,14 @@
       and the current &quot;object&quot; is a menu. Otherwise 0 is returned.<br>
       <em>N</em> - item position beginning with 1 (0 - current item).
     </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S)</td>
+    <td class="cont" width="60%">¬ меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
+    ѕоиск подстроки ведетс€ с конца строки пункта меню. ≈сли такого пункта нет, то ничего не делает.<br>
+    ¬озвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
+    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;) > 0) Enter $end</pre>
+  </td>
   </tr>
 
   <tr class="cont">

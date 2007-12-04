@@ -36,6 +36,10 @@
     <td class="cont" width="60%">¬озвращает минимальное значение между двум€ числовыми аргументами <em>N1</em> и <em>N2</em>.</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="mod">mod</a></dfn>(N1,N2)</td>
+    <td class="cont" width="60%">ƒеление <em>N1</em> по модулю <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
     <td class="cont" width="60%">”словный оператор. ≈сли условие <em>Cond</em> верно,
       то возвращаетс€ <em>True</em>-выражение, иначе <em>False</em>-выражение.</td>
@@ -101,6 +105,14 @@
       клавиша и текущий &quot;объект&quot; - меню. ¬ противном случае (не меню; нет хотке€; N больше чем количество пунктов меню) возвращает 0.<br>
       «десь <em>N</em> - позици€ в списке от 1 (0 - текуща€).
     </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S)</td>
+    <td class="cont" width="60%">¬ меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
+    ѕоиск подстроки ведетс€ с конца строки пункта меню. ≈сли такого пункта нет, то ничего не делает.<br>
+    ¬озвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
+    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;) > 0) Enter $end</pre>
+  </td>
   </tr>
 
   <tr class="cont">
