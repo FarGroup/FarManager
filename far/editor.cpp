@@ -342,8 +342,8 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       if (!LastLineCR && ((CurEOL=wmemchr(Str,L'\r',StrLength))!=NULL ||
           (CurEOL=wmemchr(Str,L'\n',StrLength))!=NULL))
       {
-        xwcsncpy(GlobalEOL,CurEOL,(sizeof(GlobalEOL)-1)/sizeof(wchar_t));
-        GlobalEOL[sizeof(GlobalEOL)-1]=0;
+        xwcsncpy(GlobalEOL,CurEOL,countof(GlobalEOL)-1);
+        GlobalEOL[countof(GlobalEOL)-1]=0;
         LastLineCR=1;
       }
 
@@ -5432,7 +5432,7 @@ int Editor::EditorControl(int Command,void *Param)
           case ESPT_GETWORDDIV:
             _ECTLLOG(SysLog(L"  cParam      =(%p)",espar->Param.cParam));
             if(!IsBadWritePtr(espar->Param.cParam, EdOpt.strWordDiv.GetLength()+1))
-              xwcsncpy(espar->Param.cParam,EdOpt.strWordDiv,EdOpt.strWordDiv.GetLength()*sizeof (wchar_t)); //BUGBUG
+              xwcsncpy(espar->Param.cParam,EdOpt.strWordDiv,EdOpt.strWordDiv.GetLength()); //BUGBUG
             else
               rc=FALSE;
             break;

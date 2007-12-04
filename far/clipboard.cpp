@@ -329,7 +329,7 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
     int BufferSize;
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
 //    if (Unicode)
-      BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
+      BufferSize=StrLength((LPCWSTR)ClipAddr)+1;
  //   else
 //      BufferSize=strlen(ClipAddr)+1;
     if ( BufferSize>max )

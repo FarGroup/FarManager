@@ -199,7 +199,7 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
           {
             Key0 -= KEY_F1;
             int Group=Area[J][0];
-            xwcsncpy (RegKeyTitles [Group][Key0], strValue, (sizeof (KeyTitles [Group][Key0])-1)/sizeof (wchar_t) );
+            xwcsncpy (RegKeyTitles[Group][Key0], strValue, countof(KeyTitles[Group][Key0])-1 );
           }
 
         }
@@ -214,7 +214,7 @@ void KeyBar::SetRegGroup(int Group)
 {
   for (int I=0; I < KEY_COUNT; I++)
     if(*RegKeyTitles[Group][I])
-      xwcsncpy (KeyTitles [Group][I], RegKeyTitles[Group][I], (sizeof (KeyTitles [Group][I])-1)/sizeof (wchar_t));
+      xwcsncpy (KeyTitles[Group][I], RegKeyTitles[Group][I], countof(KeyTitles[Group][I])-1);
 }
 
 void KeyBar::SetAllRegGroup(void)
@@ -230,7 +230,7 @@ void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
 
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
     if(Key[i])
-      xwcsncpy (KeyTitles [Group][i], Key[i], (sizeof (KeyTitles [Group][i])-1)/sizeof (wchar_t));
+      xwcsncpy (KeyTitles[Group][i], Key[i], countof(KeyTitles[Group][i])-1);
   KeyCounts [Group]=KeyCount;
 }
 
@@ -244,7 +244,7 @@ void KeyBar::ClearGroup(int Group)
 void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
   if(NewStr)
-    xwcsncpy (KeyTitles [Group][Pos], NewStr, (sizeof (KeyTitles [Group][Pos])-1)/sizeof (wchar_t));
+    xwcsncpy (KeyTitles[Group][Pos], NewStr, countof(KeyTitles[Group][Pos])-1);
 }
 
 
@@ -254,7 +254,7 @@ void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
   if (Count > KEY_COUNT)
     Count = KEY_COUNT;
   for (int i=0, Index=StartIndex; i<Count; i++, Index++)
-    xwcsncpy (KeyTitles [Group][i], UMSG (Index), (sizeof (KeyTitles [Group][i])-1)/sizeof (wchar_t));
+    xwcsncpy (KeyTitles[Group][i], UMSG (Index), countof(KeyTitles[Group][i])-1);
   KeyCounts [Group] = Count;
 }
 

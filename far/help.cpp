@@ -1420,10 +1420,9 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     const wchar_t *p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
 
-    //BUGBUG??? *sizeof (wchar_t) ???
-    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((int)(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof (wchar_t));
+    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((int)(p-(const wchar_t*)StackData.strSelTopic));
 
-    xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1)*sizeof(wchar_t));
+    xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1));
 
     strNewTopic.ReleaseBuffer();
 

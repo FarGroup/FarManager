@@ -236,7 +236,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       {
         *Ptr=0;
 
-        xwcsncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
+        xwcsncpy(Modifers,CurStr+2,countof(Modifers)-1);
 
         if ( pListName)
         {

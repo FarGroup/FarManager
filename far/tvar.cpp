@@ -95,7 +95,7 @@ const wchar_t *TVar::toString()
   switch ( vType )
   {
     case vtInteger:
-      wcsncpy(s, ::toString(inum),(sizeof(s)-1)/sizeof (wchar_t));
+      xwcsncpy(s, ::toString(inum),countof(s)-1);
       break;
     default:
       return str;

@@ -1570,8 +1570,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			 )
 		   )
 		{
-			xwcsncpy(m_editor->GlobalEOL,CurEOL,(sizeof(m_editor->GlobalEOL)-1)/sizeof(wchar_t));
-			m_editor->GlobalEOL[sizeof(m_editor->GlobalEOL)-1]=0;
+			xwcsncpy(m_editor->GlobalEOL,CurEOL,countof(m_editor->GlobalEOL)-1);
+			m_editor->GlobalEOL[countof(m_editor->GlobalEOL)-1]=0;
 			LastLineCR=1;
 		}
 
