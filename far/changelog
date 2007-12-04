@@ -1,3 +1,7 @@
+drkns 04.12.2007 19:55:33 +0200 - build 2303
+
+1. Мелкий глюк в 2302.
+
 drkns 04.12.2007 18:51:36 +0200 - build 2302
 
 1. Mantis#0000409: User Menu (F2) doesn't handle process INS key when Opt.UseNumPad == 1
