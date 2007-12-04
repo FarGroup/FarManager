@@ -649,7 +649,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
             case KEY_NUMPAD0:
               if (Key != KEY_INS && Key != KEY_NUMPAD0 && MenuPos>=NumLine)
                 break;
-              EditMenuRecord(MenuKey,MenuPos,NumLine,Key == KEY_INS);
+              EditMenuRecord(MenuKey,MenuPos,NumLine,Key == KEY_INS || Key == KEY_NUMPAD0);
 //              MenuModified=TRUE;
               break;
             case KEY_ALTF4:
