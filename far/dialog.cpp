@@ -4291,7 +4291,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
           Done=TRUE;
           continue; //??
         }
-        else if (Key==KEY_INS) // Ins защищает пункт истории от удаления.
+        else if (Key==KEY_INS || Key==KEY_NUMPAD0) // Ins защищает пункт истории от удаления.
         {
           itoa(HistoryMenu.GetSelectPos(),PHisLocked,10);
           if (!HistoryMenu.GetSelection())

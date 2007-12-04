@@ -1,3 +1,8 @@
+drkns 04.12.2007 18:51:36 +0200 - build 2302
+
+1. Mantis#0000409: User Menu (F2) doesn't handle process INS key when Opt.UseNumPad == 1
+   Также поправлено в истории строк ввода, ссылках на папки, фильтрах и ассоциациях.
+
 svs 04.12.2007 09:18:57 +0300 - build 2301
 
 1. Mantis#0000403: Not initialized variable used in MessageRemoveConnection()

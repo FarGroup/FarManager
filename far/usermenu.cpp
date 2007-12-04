@@ -654,7 +654,8 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
             case KEY_INS:
             case KEY_F4:
             case KEY_SHIFTF4:
-              if (Key != KEY_INS && MenuPos>=NumLine)
+            case KEY_NUMPAD0:
+              if (Key != KEY_INS && Key != KEY_NUMPAD0 && MenuPos>=NumLine)
                 break;
               EditMenuRecord(MenuKey,MenuPos,NumLine,Key == KEY_INS);
 //              MenuModified=TRUE;

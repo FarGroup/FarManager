@@ -263,6 +263,7 @@ bool FileFilter::FilterEdit()
         break;
       }
 
+      case KEY_NUMPAD0:
       case KEY_INS:
       case KEY_F5:
       {
