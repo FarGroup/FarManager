@@ -414,12 +414,11 @@ void VMenu::ShowMenu(int IsParent)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   BoxChar2[1]=BoxChar[1]=0;
 
-  /* $ 11.01.2003 KM
-     ! Иногда TopPos=-1, что в дальнейшем приводило к отрицательному
-       индексу и, естественно, приводило к exception.
-  */
+  // коррекция Top`а
+  if(TopPos+ItemCount >= Y2-Y1 && SelectPos == ItemCount-1)
+    TopPos--;
   if (TopPos<0)
-      TopPos=0;
+    TopPos=0;
 
   /* $ 22.07.2001 KM
    - Не устанавливался тип рамки при первом вызове

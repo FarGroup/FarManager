@@ -4144,7 +4144,7 @@ void Editor::GoToPosition()
   static struct DialogDataEx GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(const wchar_t *)MEditGoToLine,
-    DI_EDIT,     5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
+    DI_EDIT,     5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE,1,L"",
   };
   MakeDialogItemsEx(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran
