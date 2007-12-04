@@ -437,7 +437,7 @@ the main help file, that is actual for the current FAR Manager version.
    Can have one of the following values:
      0 - do not distinguish keys on the main keyboard and numerical keypad
      1 - distinguish keys on the main keyboard and numerical keypad
-   Default value = 0 (do not distinguish).
+   Default value = 1 (distinguish).
 
 1.2.19.(TechInfo #50)
 ~~~~~~~~~~~~~~~~~~~~~
