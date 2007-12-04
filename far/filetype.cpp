@@ -579,6 +579,7 @@ void EditFileTypes()
               DeleteTypeRecord(MenuPos);
             MenuModified=TRUE;
             break;
+          case KEY_NUMPAD0:
           case KEY_INS:
             EditTypeRecord(MenuPos,NumLine,1);
             MenuModified=TRUE;

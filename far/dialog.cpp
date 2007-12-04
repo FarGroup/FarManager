@@ -4128,7 +4128,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
           Done=TRUE;
           continue; //??
         }
-        else if (Key==KEY_INS) // Ins защищает пункт истории от удаления.
+        else if (Key==KEY_INS || Key==KEY_NUMPAD0) // Ins защищает пункт истории от удаления.
         {
           string strLine;
 

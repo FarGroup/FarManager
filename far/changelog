@@ -1,3 +1,8 @@
+drkns 04.12.2007 18:51:36 +0200 - build 379
+
+1. Mantis#0000409: User Menu (F2) doesn't handle process INS key when Opt.UseNumPad == 1
+   Также поправлено в истории строк ввода, ссылках на папки, фильтрах и ассоциациях.
+
 svs 04.12.2007 09:26:51 +0300 - build 378
 
 1. Mantis#0000354: Goto dialog in editor

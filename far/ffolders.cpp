@@ -202,10 +202,11 @@ static int ShowFolderShortcutMenu(int Pos)
       {
         case KEY_NUMDEL:
         case KEY_DEL:
+        case KEY_NUMPAD0:
         case KEY_INS:
         {
           ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,NULL);
-          if(Key == KEY_INS)
+          if(Key == KEY_INS || Key == KEY_NUMPAD0)
           {
             Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
