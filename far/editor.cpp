@@ -4278,9 +4278,8 @@ void Editor::AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int St
   UndoData[UndoDataPos].UndoNext=BlockUndo;
   UndoData[UndoDataPos].StrPos=StrPos;
   UndoData[UndoDataPos].StrNum=StrNum;
-  //xstrncpy(UndoData[UndoDataPos].EOL,Eol?Eol:L"",sizeof(UndoData[UndoDataPos].EOL)-1);
-  xwcsncpy(UndoData[UndoDataPos].EOL,Eol?Eol:L"",(sizeof(UndoData[UndoDataPos].EOL)-1)/sizeof(wchar_t));
-  UndoData[UndoDataPos].EOL[sizeof(GlobalEOL)-1]=0;
+  xwcsncpy(UndoData[UndoDataPos].EOL,Eol?Eol:L"",countof(UndoData[UndoDataPos].EOL)-1);
+  UndoData[UndoDataPos].EOL[countof(UndoData[UndoDataPos].EOL)-1]=0;
 
   if (Str!=NULL)
   {

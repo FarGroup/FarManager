@@ -1,3 +1,9 @@
+t-rex 04.12.2007 08:18:31 +0200 - build 377
+
+1. Mantis#406: Memory corruption and crash in Editor::AddUndoData().
+
+2. Mantis#407: Memory leak in CommandLine class.
+
 t-rex 03.12.2007 23:19:20 +0200 - build 376
 
 1. Mantis#367: Не загружаются плагины, когда FAR запущен из папки которая сама или одина из её папок более высокого уровня являются связью.

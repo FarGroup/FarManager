@@ -62,6 +62,8 @@ CommandLine::CommandLine()
 
 CommandLine::~CommandLine()
 {
+  if (BackgroundScreen)
+    delete BackgroundScreen;
 }
 
 void CommandLine::SetPersistentBlocks(int Mode)
