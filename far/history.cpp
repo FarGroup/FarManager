@@ -438,7 +438,7 @@ BOOL History::ReadHistory()
   {
     StrPos=0;
     Buf=Buffer;
-    while ((int)Size > 1 && StrPos < HistoryCount)
+    while ((int)Size > 2 && StrPos < HistoryCount)
     {
       Length=StrLength(Buf)+1;
       if((LastStr[StrPos].Name=(wchar_t*)xf_malloc(Length*sizeof (wchar_t))) == NULL)
@@ -475,7 +475,7 @@ BOOL History::ReadHistory()
     if(RegQueryValueExW(hKey,L"Titles",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
     {
       StrPos=0;
-      while ((int)Size > 1 && StrPos < HistoryCount)
+      while ((int)Size > 2 && StrPos < HistoryCount)
       {
         xwcsncpy(LastStr[StrPos].Title,Buf,(sizeof(LastStr[StrPos].Title)-1)*sizeof (wchar_t));
         ++StrPos;

@@ -1,3 +1,7 @@
+svs 04.12.2007 20:25:07 +0300 - build 380
+
+1. Mantis#0000410: Memory leak in class History
+
 drkns 04.12.2007 18:51:36 +0200 - build 379
 
 1. Mantis#0000409: User Menu (F2) doesn't handle process INS key when Opt.UseNumPad == 1
