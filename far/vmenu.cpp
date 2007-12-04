@@ -403,13 +403,16 @@ void VMenu::ShowMenu(int IsParent)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   BoxChar2[1]=BoxChar[1]=0;
 
+  // коррекция Top`а
+  if(TopPos+ItemCount >= Y2-Y1 && SelectPos == ItemCount-1)
+    TopPos--;
+
   /* $ 11.01.2003 KM
      ! Иногда TopPos=-1, что в дальнейшем приводило к отрицательному
        индексу и, естественно, приводило к exception.
   */
   if (TopPos<0)
       TopPos=0;
-  /* KM $ */
 
   /* $ 22.07.2001 KM
    - Не устанавливался тип рамки при первом вызове
@@ -474,7 +477,6 @@ void VMenu::ShowMenu(int IsParent)
   */
   if(VMFlags.Check(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
     AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
-  /* KM $ */
 
   /* $ 21.07.2001 KM
    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
@@ -487,7 +489,6 @@ void VMenu::ShowMenu(int IsParent)
     TopPos=0;
 
   for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
-  /* KM $ */
   {
     GotoXY(X1,Y);
     if (I<ItemCount)

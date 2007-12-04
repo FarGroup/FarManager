@@ -2052,8 +2052,10 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
       IsPersistent=FALSE;
     }
     else
+    {
       DCDlg[5].Selected=Opt.ChangeDriveDisconnetMode;
-    RegCloseKey(hKey);
+      RegCloseKey(hKey);
+    }
   }
 
   // скорректируем размеры диалога - дл€ дизайн”

@@ -310,7 +310,10 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 #else
     if (RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)AssocStr,(LPDWORD)&ValueSize)!=ERROR_SUCCESS)
 #endif
+    {
+      RegCloseKey(hKey);
       return(FALSE);
+    }
     RegCloseKey(hKey);
     ExpandEnvironmentStrings(AssocStr,ExpAssocStr,sizeof(ExpAssocStr));
     if ((ChPtr=strstr(ExpAssocStr,"%*"))!=NULL)

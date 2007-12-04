@@ -440,6 +440,8 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
       break;
     RegSetValueEx(hDestKey,ValueName,0,Type,(BYTE *)ValueData,DataSize);
   }
+  CloseRegKey(hDestKey);
+
   for (I=0;;I++)
   {
     char SubkeyName[200],SrcKeyName[512],DestKeyName[512];
@@ -467,10 +469,11 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
     strncat(DestKeyName,SubkeyName,sizeof(DestKeyName)-1);
     if (RegCreateKeyEx(hRegRootKey,DestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
+    CloseRegKey(hDestKey);
     CopyKeyTree(SrcKeyName,DestKeyName);
   }
+
   CloseRegKey(hSrcKey);
-  CloseRegKey(hDestKey);
   return(TRUE);
 }
 
@@ -541,6 +544,7 @@ int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName)
 
         if(ExitCode!=ERROR_SUCCESS)
            ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
+
         CloseRegKey(hKey);
 
         if(ExitCode!=ERROR_SUCCESS)

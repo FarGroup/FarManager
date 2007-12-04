@@ -466,11 +466,14 @@ int TreeList::ReadTree()
     }
     if(AscAbort)
       break;
-    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
+    struct TreeItem *NewListData=NULL;
+    if ((TreeCount & 255)==0 && (NewListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
     {
       AscAbort=TRUE;
       break;
     }
+    if(NewListData)
+      ListData=NewListData;
 
     if (!(fdata.dwFileAttributes & FA_DIREC))
       continue;
@@ -1302,7 +1305,9 @@ int TreeList::ReadTreeFile()
     if (RootLength>0 && DirName[RootLength-1]!=':' &&
         DirName[RootLength]=='\\' && DirName[RootLength+1]==0)
       DirName[RootLength]=0;
-    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
+
+    struct TreeItem *NewListData=NULL;
+    if ((TreeCount & 255)==0 && (NewListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
     {
       if(ListData) xf_free(ListData);
       ListData=NULL;
@@ -1311,6 +1316,8 @@ int TreeList::ReadTreeFile()
       //RestoreState();
       return(FALSE);
     }
+    if(NewListData)
+      ListData=NewListData;
     xstrncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name)-1);
   }
   fclose(TreeFile);
@@ -1917,7 +1924,7 @@ bool TreeList::SaveState()
   if(SaveListData) xf_free(SaveListData);
   SaveListData=NULL;
   SaveTreeCount=SaveWorkDir=0;
-  if(TreeCount > 0 && (SaveListData=(struct TreeItem *)xf_realloc(SaveListData,TreeCount*sizeof(struct TreeItem))) != NULL)
+  if(TreeCount > 0 && (SaveListData=(struct TreeItem *)xf_malloc(TreeCount*sizeof(struct TreeItem))) != NULL)
   {
     memmove(SaveListData,ListData,TreeCount*sizeof(struct TreeItem));
     SaveTreeCount=TreeCount;
@@ -1933,7 +1940,7 @@ bool TreeList::RestoreState()
   if(ListData) xf_free(ListData);
   TreeCount=WorkDir=0;
   ListData=NULL;
-  if(SaveTreeCount > 0 && (ListData=(struct TreeItem *)xf_realloc(ListData,SaveTreeCount*sizeof(struct TreeItem))) != NULL)
+  if(SaveTreeCount > 0 && (ListData=(struct TreeItem *)xf_malloc(SaveTreeCount*sizeof(struct TreeItem))) != NULL)
   {
     memmove(ListData,SaveListData,SaveTreeCount*sizeof(struct TreeItem));
     TreeCount=SaveTreeCount;

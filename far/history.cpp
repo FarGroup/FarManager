@@ -335,40 +335,49 @@ BOOL History::SaveHistory()
   }
 
 
-  HKEY hKey;
-  if ((hKey=CreateRegKey(RegKey))!=NULL && BufferLines && *BufferLines)
+  bool isDeleteRegKey=false;
+  if(BufferLines && *BufferLines)
   {
-    if(!BufferLines)
-      SizeLines=1;
-    RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
-
-    if (SaveTitle)
+    HKEY hKey;
+    if ((hKey=CreateRegKey(RegKey))!=NULL)
     {
-      if(BufferTitles && *BufferTitles)
-        RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
-      else
-        RegDeleteValue(hKey,"Titles");
+      if(!BufferLines)
+        SizeLines=1;
+      RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
+
+      if (SaveTitle)
+      {
+        if(BufferTitles && *BufferTitles)
+          RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
+        else
+          RegDeleteValue(hKey,"Titles");
+      }
+
+      if (SaveType)
+      {
+        if(TypesBuffer && *TypesBuffer)
+          RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
+        else
+          RegDeleteValue(hKey,"Types");
+      }
+
+      RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
+
+      RegCloseKey(hKey);
+
+      if (SaveTitle && BufferTitles)
+        xf_free(BufferTitles);
+      xf_free(BufferLines);
+
+      return TRUE;
     }
-
-    if (SaveType)
-    {
-      if(TypesBuffer && *TypesBuffer)
-        RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
-      else
-        RegDeleteValue(hKey,"Types");
-    }
-
-    RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
-
-    RegCloseKey(hKey);
-
-    if (SaveTitle && BufferTitles)
-      xf_free(BufferTitles);
-    xf_free(BufferLines);
-
-    return TRUE;
+    else
+      isDeleteRegKey=true;
   }
   else
+    isDeleteRegKey=true;
+
+  if(isDeleteRegKey)
     DeleteRegKey(RegKey);
 
   if(BufferLines)

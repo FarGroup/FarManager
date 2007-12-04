@@ -4343,7 +4343,7 @@ void Editor::GoToPosition()
   static struct DialogData GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
-    DI_EDIT,5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,"",
+    DI_EDIT,5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE,1,"",
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran

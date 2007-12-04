@@ -168,6 +168,11 @@ void InitKeysArray()
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
 #endif
           KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
+/*
+          DWORD MapKey=MapVirtualKey(AnsiKey,2);
+          KeyToKey[I]=static_cast<unsigned char>( MapKey ? MapKey : AnsiKey );
+          break;
+*/
         }
       }
     }
@@ -177,10 +182,12 @@ void InitKeysArray()
   if(GetRegKey("System","KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
     memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
   //_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
-  /* SVS $ */
-  /* SVS $ */
 }
-/* IS 11.01.2002 $ */
+
+int LocalKeyToKey(int Key)
+{
+  return(KeyToKey[Key]);
+}
 
 int WINAPI LocalIslower(unsigned Ch)
 {
@@ -437,10 +444,4 @@ int _cdecl LCSort(const void *el1,const void *el2)
   FAR_OemToCharBuff(Str2,Str2,1);
 #endif
   return(CompareString(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
-}
-
-
-int LocalKeyToKey(int Key)
-{
-  return(KeyToKey[Key]);
 }

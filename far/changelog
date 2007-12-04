@@ -1,3 +1,25 @@
+svs 04.12.2007 09:18:57 +0300 - build 2301
+
+1. Mantis#0000403: Not initialized variable used in MessageRemoveConnection()
+
+2. Mantis#0000402: Handle leak in History::SaveHistory() 
+
+3. Mantis#0000404: Handle leak in CopyKeyTree()
+
+4. Mantis#0000401: Handle leak in ProcessGlobalFileTypes() 
+
+5. Mantis#0000354: Goto dialog in editor
+   Здесь сделано не так, как хотелка звучит.
+   Добавлен флаг DIF_NOAUTOCOMPLETE
+
+6. TechInfo#48 по умолчанию делаем 1, а для Numpad5 TechInfo#48 игнорируем.
+
+7. Mantis#0000331: ... 
+   про комбобокс; уточнение:
+   - корректировка Top`а
+   - динамическое изменение открытого выпадающего списка (Hide+Show)
+
+
 t-rex 04.12.2007 00:10:10 +0200 - build 2300
 
 1. Глюкс с некоторыми менюшными макро-функциями, могли сработать вне меню.

@@ -1827,6 +1827,13 @@ void Dialog::ShowDialog(int ID)
           //Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
           Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),"\x19");
         }
+
+        if (GetDropDownOpened()) // need redraw VMenu?
+        {
+          CurItem->ListPtr->Hide();
+          //if(CurItem->ListPtr->GetItemCount() > 0)
+            CurItem->ListPtr->Show();
+        }
         break;
         /* SVS $ */
       }
@@ -2776,6 +2783,7 @@ int Dialog::ProcessKey(int Key)
               Автодополнение - чтобы не работало во время проигрывания макросов.
               GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
             */
+            if(!(Item[FocusPos].Flags & DIF_NOAUTOCOMPLETE))
             if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
                ((Item[FocusPos].Flags & DIF_HISTORY) || Item[FocusPos].Type == DI_COMBOBOX))
             if((Opt.Dialogs.AutoComplete && Key && Key < 256 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||

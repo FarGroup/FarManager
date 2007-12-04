@@ -22,7 +22,24 @@ syslog.cpp
 #endif
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(SYSLOG_WARP) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW) || defined(SYSLOG_TREX) || defined(SYSLOG_KEYMACRO_PARSE) || defined(SYSLOG_YJH)
+ #if defined(SYSLOG_OT)             || \
+     defined(SYSLOG_SVS)            || \
+     defined(SYSLOG_DJ)             || \
+     defined(SYSLOG_WARP)           || \
+     defined(VVM)                   || \
+     defined(SYSLOG_AT)             || \
+     defined(SYSLOG_IS)             || \
+     defined(SYSLOG_tran)           || \
+     defined(SYSLOG_SKV)            || \
+     defined(SYSLOG_NWZ)            || \
+     defined(SYSLOG_KM)             || \
+     defined(SYSLOG_KEYMACRO)       || \
+     defined(SYSLOG_ECTL)           || \
+     defined(SYSLOG_COPYR)          || \
+     defined(SYSLOG_EE_REDRAW)      || \
+     defined(SYSLOG_TREX)           || \
+     defined(SYSLOG_KEYMACRO_PARSE) || \
+     defined(SYSLOG_YJH)
   #define SYSLOG
  #endif
 #endif
