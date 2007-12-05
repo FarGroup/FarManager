@@ -148,7 +148,8 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
   if ( MsgAddrA == NULL )
   {
-    delete MsgAddr;
+    delete[] MsgAddr;
+    MsgAddr=NULL;
     fclose(LangFile);
     return FALSE;
   }

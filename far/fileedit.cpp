@@ -1487,10 +1487,16 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
 
 	if ( EditHandle == -1 )
+	{
+		CloseHandle(hEdit);
 		return FALSE;
+	}
 
 	if ( (EditFile=fdopen(EditHandle,"rb")) == NULL )
+	{
+		_close(EditHandle);
 		return FALSE;
+	}
 
 	if ( GetFileType(hEdit) != FILE_TYPE_DISK )
 	{
@@ -1885,12 +1891,12 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 							(fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
 							bError = true;
 
-						delete EndSeqCopy;
+						delete[] EndSeqCopy;
 					}
 					else
 						bError = true;
 
-					delete SaveStrCopy;
+					delete[] SaveStrCopy;
 				}
 				else
 					bError = true;

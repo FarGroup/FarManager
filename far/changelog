@@ -1,3 +1,12 @@
+svs 05.12.2007 17:29:24 +0300 - build 383
+
+1. Mantis#0000414: Handle leak in FileEditor::LoadFile()
+
+2. Mantis#0000412: Wrong delete type in Language::Init()
+
+3. Mantis#0000413: Wrong delete type in FileEditor::SaveFile()
+
+
 t-rex 04.12.2007 23:41:54 +0200 - build 382
 
 1. Различные глюки - по большому кривое использование sizeof в связи с wchar_t.
