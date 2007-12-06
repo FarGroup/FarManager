@@ -652,12 +652,10 @@ int FileList::ProcessKey(int Key)
                   {
                     int CurFocus=GetFocus();
                     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-                    NewPanel->SetPluginMode(hNewPlugin,"");
+                    NewPanel->SetPluginMode(hNewPlugin,"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
                     if (*ShortcutFolder)
                       CtrlObject->Plugins.SetDirectory(hNewPlugin,ShortcutFolder,0);
                     NewPanel->Update(0);
-                    if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
-                      NewPanel->SetFocus();
                     NewPanel->Show();
                   }
                 }
@@ -4041,7 +4039,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
 
     BOOL WasFullscreen = IsFullScreen();
 
-    SetPluginMode(hNewPlugin,FileName);
+    SetPluginMode(hNewPlugin,FileName); // SendOnFocus??? true???
     PanelMode=PLUGIN_PANEL;
     UpperFolderTopFile=CurTopFile;
     CurFile=0;

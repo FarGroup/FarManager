@@ -1,3 +1,34 @@
+svs 06.12.2007 18:45:58 +0300 - build 2304
+
+1. Mantis#407: Memory leak in CommandLine class.
+
+2. Начудил в 2298 с парсером... хотел как лучше, но не все учел...
+   вернем обработку токенов tMinus (унарный минус) и tNot ("!") обратнов в prim()
+
+3. 2 новых эвента для панельного плагина: FE_GOTFOCUS и FE_KILLFOCUS
+   Параметр Param для ProcessEvent равен NULL.
+   В соответствии с этим переделан механизм (очередность) посыла событий - сначала Gotfocus, а потом остальное.
+   Для этого в SetPluginMode() добавлен параметр SendOnFocus
+
+
+4. В билде 2301 забыл в config.cpp для TechInfo#48 поправить дефолтное значение UseNumPad на 1
+
+5. Mantis#0000414: Handle leak in FileEditor::LoadFile()
+
+6. В диалогах, сразу после DN_INITDIALOG приходит DN_GOTFOCUS для того элемента, который Focus=1
+
+7. 2 новых эвента для редакторного плагина: EE_GOTFOCUS и EE_KILLFOCUS
+   Параметр Param для ProcessEditorEvent равен EditorID.
+   Для этого в класс FileEditor добавлена virtual функция OnChangeFocus.
+
+8. Mantis#0000417: Memory leak in Viewer::ProcessKey() 
+
+9. Mantis#0000418: Wrong memory copy function used in TArray<Object>::Pack()
+
+10. Mantis#0000419: Wrong memory copy function used in ScreenBuf::Scroll(int Num)
+
+11. Mantis#0000420: INVALID_HANDLE_VALUE used in FindClose() in ScanTree::GetNextName() 
+
 drkns 04.12.2007 19:55:33 +0200 - build 2303
 
 1. Мелкий глюк в 2302.

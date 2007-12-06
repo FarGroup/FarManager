@@ -658,6 +658,9 @@ static TToken getToken(void)
         currTok = tEnd;
       break;
   }
+  _KEYMACRO_PARSE(SysLog("pSrcString = %s",pSrcString));
+  _KEYMACRO_PARSE(SysLog("oSrcString = %s",oSrcString));
+  _KEYMACRO_PARSE(SysLog("sSrcString = %s",sSrcString));
   _KEYMACRO_PARSE(SysLog("currTok=%s",_MacroParserToken_ToName(currTok)));
   return currTok;
 }
@@ -693,6 +696,16 @@ static void prim(void)
       putstr(currVar.s());
       getToken();
       break;
+    case tMinus:
+      getToken();
+      prim();
+      put(MCODE_OP_NEGATE);
+      break;
+    case tNot:
+      getToken();
+      prim();
+      put(MCODE_OP_NOT);
+      break;
     case tLp:
       getToken();
       expr();
@@ -706,29 +719,15 @@ static void prim(void)
   }
 }
 
-static void primExpr(void)
+static void multExpr(void)
 {
-  _KEYMACRO_PARSE(CleverSysLog Clev("primExpr"));
+  _KEYMACRO_PARSE(CleverSysLog Clev("multExpr"));
   prim();
   for ( ; ; )
     switch ( currTok )
     {
-      case tMinus: getToken(); prim(); put(MCODE_OP_NEGATE); break;
-      case tNot:   getToken(); prim(); put(MCODE_OP_NOT);    break;
-      default:
-        return;
-    }
-}
-
-static void multExpr(void)
-{
-  _KEYMACRO_PARSE(CleverSysLog Clev("multExpr"));
-  primExpr();
-  for ( ; ; )
-    switch ( currTok )
-    {
-      case tMul: getToken(); primExpr(); put(MCODE_OP_MUL); break;
-      case tDiv: getToken(); primExpr(); put(MCODE_OP_DIV); break;
+      case tMul: getToken(); prim(); put(MCODE_OP_MUL); break;
+      case tDiv: getToken(); prim(); put(MCODE_OP_DIV); break;
       default:
         return;
     }
@@ -860,6 +859,7 @@ static void expr(void)
 static int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound2)
 {
   _KEYMACRO_PARSE(CleverSysLog Clev("parseExpr"));
+  _KEYMACRO_PARSE(SysLog("bound1=%X, bound2=%X",bound1, bound2));
   char tmp[4];
   IsProcessFunc=0;
   _macro_ErrCode = Size = _macro_nErr = 0;
@@ -879,7 +879,11 @@ static int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, cha
   else
     pSrcString = oSrcString = sSrcString = (char*)BufPtr;
   exprBuff = eBuff;
-#if !defined(TEST000)
+  _KEYMACRO_PARSE(SysLog("pSrcString = %s",pSrcString));
+  _KEYMACRO_PARSE(SysLog("oSrcString = %s",oSrcString));
+  _KEYMACRO_PARSE(SysLog("sSrcString = %s",sSrcString));
+#if 1
+//!defined(TEST000)
   getToken();
   if ( bound2 )
     expr();

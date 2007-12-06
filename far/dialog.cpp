@@ -234,12 +234,13 @@ void Dialog::InitDialog(void)
       if(Result)
       {
         // еще разок, т.к. данные могли быть изменены
-        InitDialogObjects();
+        InitFocus=InitDialogObjects(); // InitFocus=????
       }
       SetFarTitle(GetDialogTitle());
     }
     // все объекты проинициализированы!
     DialogMode.Set(DMODE_INITOBJECTS);
+    DlgProc((HANDLE)this,DN_GOTFOCUS,InitFocus,0);
   }
 
   CheckDialogCoord();

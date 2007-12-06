@@ -121,6 +121,7 @@ class FileEditor:public Frame
     virtual void ShowConsoleTitle();
     int IsFileChanged() {return(FEdit->IsFileChanged());};
     virtual int IsFileModified() {return(FEdit->IsFileModified());};
+    virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
 
     virtual void SetScreenPosition();                 // $ 28.06.2000 tran - NT Console resize - resize editor
 

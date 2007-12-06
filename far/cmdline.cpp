@@ -42,6 +42,8 @@ CommandLine::~CommandLine()
   if(LastCmdStr)
     xf_free(LastCmdStr);
 
+  if (BackgroundScreen)
+    delete BackgroundScreen;
 }
 
 /* $ 09.09.2001 IS установить/сбросить постоянные блоки */

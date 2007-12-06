@@ -1632,13 +1632,12 @@ int FindFiles::FindFilesProcess()
       {
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,"");
+        NewPanel->SetPluginMode(hNewPlugin,"",true);
         NewPanel->SetVisible(TRUE);
         NewPanel->Update(0);
 //        if (FindExitIndex != LIST_INDEX_NONE)
 //          NewPanel->GoToFile(FindList[FindExitIndex].FindData.cFileName);
         NewPanel->Show();
-        NewPanel->SetFocus();
       }
       /* $ 13.07.2000 SVS
          использовали new[]

@@ -2648,10 +2648,9 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 
 
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-      NewPanel->SetPluginMode(hPlugin,"");
+      NewPanel->SetPluginMode(hPlugin,"",true);
       NewPanel->Update(0);
       NewPanel->Show();
-      NewPanel->SetFocus();
     }
     /* $ 14.05.2002 SKV
        Возможна ситуация, когда в этом месте CurEditor==NULL
@@ -2970,11 +2969,9 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
-    NewPanel->SetPluginMode(hPlugin,"");
+    NewPanel->SetPluginMode(hPlugin,"",!Target || Target == ActivePanel);
     NewPanel->Update(0);
     NewPanel->Show();
-    if(!Target || Target == ActivePanel)
-      NewPanel->SetFocus();
   }
   return(TRUE);
 }
@@ -3023,7 +3020,7 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
       {
         int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,"");
+        NewPanel->SetPluginMode(hNewPlugin,"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
         if (Data && *(char *)Data)
           SetDirectory(hNewPlugin,(char *)Data,0);
         /* $ 04.04.2001 SVS
@@ -3031,8 +3028,6 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
            Если что-то не так - раскомментировать!!!
         */
 //        NewPanel->Update(0);
-        if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
-          NewPanel->SetFocus();
 //        NewPanel->Show();
         /* SVS $ */
       }

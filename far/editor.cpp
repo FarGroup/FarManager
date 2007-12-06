@@ -238,9 +238,17 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
   int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
   if (EditHandle==-1)
+  {
+    CloseHandle(hEdit);
     return(FALSE);
+  }
+
   if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
+  {
+    _close(EditHandle);
     return(FALSE);
+  }
+
   if (GetFileType(hEdit)!=FILE_TYPE_DISK)
   {
     fclose(EditFile);

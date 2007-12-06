@@ -825,14 +825,11 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
     UseLastPanel=TRUE;
   }
   else
-    /* $ 13.07.2000 SVS
-       немного сократим код путем вызова функции класса CreatePanel(int Type)
-    */
     NewPanel=CreatePanel(NewType);
-    /* SVS $*/
 
   if (Current==ActivePanel)
     ActivePanel=NewPanel;
+
   if (LeftPosition)
   {
     LeftPanel=NewPanel;
@@ -843,6 +840,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
     RightPanel=NewPanel;
     LastRightType=OldType;
   }
+
   if (!UseLastPanel)
   {
     if (ChangePosition)

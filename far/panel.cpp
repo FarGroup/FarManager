@@ -907,11 +907,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       {
         Focus=GetFocus();
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hPlugin,"");
+        NewPanel->SetPluginMode(hPlugin,"",Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
         NewPanel->Update(0);
         NewPanel->Show();
-        if (Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
-          NewPanel->SetFocus();
         if(!Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
           CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
       }
@@ -1288,6 +1286,8 @@ void Panel::SetFocus()
     CtrlObject->Cp()->ActivePanel=this;
   }
 
+  ProcessPluginEvent(FE_GOTFOCUS,NULL);
+
   if (!GetFocus())
   {
     CtrlObject->Cp()->RedrawKeyBar();
@@ -1301,6 +1301,7 @@ void Panel::SetFocus()
 void Panel::KillFocus()
 {
   Focus=FALSE;
+  ProcessPluginEvent(FE_KILLFOCUS,NULL);
   Redraw();
 }
 
