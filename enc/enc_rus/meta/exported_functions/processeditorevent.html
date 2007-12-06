@@ -4,7 +4,6 @@
 <title>ProcessEditorEvent</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -100,9 +99,23 @@ int WINAPI ProcessEditorEvent(
           рекурсию.
 
         </td></tr>
+
 </table>
           Функция должна вернуть 0.<br><br>
         </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="EE_KILLFOCUS">EE_KILLFOCUS</a></td>
+        <td class="cont" width="60%">Редактор потерял фокус ввода.<br>
+          <i>Param</i> указывает на переменную, содержащую значение EditorID редактора, теряющего фокус.<br>
+          Функция должна вернуть 0.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="EE_GOTFOCUS">EE_GOTFOCUS</a></td>
+        <td class="cont" width="60%">Редактор получил фокус ввода.<br>
+          <i>Param</i> указывает на переменную, содержащую значение EditorID редактора, получающего фокус.<br>
+          Функция должна вернуть 0.
+        </td></tr>
+
 </table>
        <p class=warning><img src="../../images/warning.gif" alt="Замечание для EE_REDRAW" width="10" height="10"> Внимание!</p>
        <UL class=warning><LI>

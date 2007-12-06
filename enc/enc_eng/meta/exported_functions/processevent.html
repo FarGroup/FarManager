@@ -4,7 +4,6 @@
 <title>ProcessEvent</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
@@ -71,6 +70,19 @@ int WINAPI ProcessEvent(
           <i>Param</i> points to the command text.<br>
           he plugin should return FALSE to allow standard command execution or TRUE
           if it is going to process the command internally.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_KILLFOCUS">FE_KILLFOCUS</a></td>
+        <td class="cont" width="60%">Панель потеряла фокус ввода.<br>
+          <i>Param</i> = NULL.<br>
+          Функция должна вернуть FALSE.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_GOTFOCUS">FE_GOTFOCUS</a></td>
+        <td class="cont" width="60%">Панель получила фокус ввода.<br>
+          Активная панель получает событие FE_GOTFOCUS сразу после создания.<br>
+          <i>Param</i> = NULL.<br>
+          Функция должна вернуть FALSE.
+        </td></tr>
       </table>
     </div>
 
