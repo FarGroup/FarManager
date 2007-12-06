@@ -456,7 +456,7 @@ void ScreenBuf::Scroll(int Num)
   CriticalSectionLock Lock(CS);
 
   if(Num > 0 && Num < BufY)
-    memcpy(Buf,Buf+Num*BufX,(BufY-Num)*BufX*sizeof(CHAR_INFO));
+    memmove(Buf,Buf+Num*BufX,(BufY-Num)*BufX*sizeof(CHAR_INFO));
 #ifdef DIRECT_SCREEN_OUT
   Flush();
 #elif defined(DIRECT_RT)

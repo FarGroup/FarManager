@@ -156,7 +156,7 @@ bool TArray<Object>::Pack()
       --Count;
       if(index<Count)
       {
-        memcpy(&items[index], &items[index+1], sizeof(Object*)*(Count-index));
+        memmove(&items[index], &items[index+1], sizeof(Object*)*(Count-index));
         --index;
       }
     }

@@ -1559,14 +1559,23 @@ int Viewer::ProcessKey(int Key)
     {
       vString.lpData = new wchar_t[MAX_VIEWLINEB];
 
+      if(!vString.lpData)
+        return TRUE;
+
       if (LastPage || ViewFile==NULL)
+      {
+        delete[] vString.lpData;
         return(TRUE);
+      }
       vseek(ViewFile,FilePos,SEEK_SET);
       for (I=Y1;I<Y2;I++)
       {
         ReadString(&vString,-1, MAX_VIEWLINEB);
         if (LastPage)
+        {
+          delete[] vString.lpData;
           return(TRUE);
+        }
       }
       FilePos=vtell(ViewFile);
       for (I=Y1;I<=Y2;I++)
@@ -1582,6 +1591,7 @@ int Viewer::ProcessKey(int Key)
         InternalKey++;
         ProcessKey(KEY_CTRLPGDN);
         InternalKey--;
+        delete[] vString.lpData;
         return(TRUE);
       }
       Show();

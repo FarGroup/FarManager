@@ -103,7 +103,8 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
           continue;
         if (Done)
         {
-          FindClose(Data[FindHandleCount].FindHandle);
+          if(!(Data[FindHandleCount].FindHandle == INVALID_HANDLE_VALUE || !Data[FindHandleCount].FindHandle))
+            FindClose(Data[FindHandleCount].FindHandle);
           Data[FindHandleCount].FindHandle=0;
           Data[FindHandleCount].Flags.Set(FSCANTREE_SECONDPASS);
           continue;

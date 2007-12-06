@@ -1,3 +1,14 @@
+svs 06.12.2007 13:31:33 +0300 - build 384
+
+1. Mantis#0000417: Memory leak in Viewer::ProcessKey() 
+
+2. Mantis#0000418: Wrong memory copy function used in TArray<Object>::Pack()
+
+3. Mantis#0000419: Wrong memory copy function used in ScreenBuf::Scroll(int Num)
+
+4. Mantis#0000420: INVALID_HANDLE_VALUE used in FindClose() in ScanTree::GetNextName() 
+
+
 svs 05.12.2007 17:29:24 +0300 - build 383
 
 1. Mantis#0000414: Handle leak in FileEditor::LoadFile()
