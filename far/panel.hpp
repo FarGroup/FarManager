@@ -222,7 +222,7 @@ class Panel:public ScreenObject
     virtual void QViewDelTempName() {};
     virtual void GetPluginInfo(struct PluginInfo *Info) {};
     virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info) {};
-    virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile) {};
+    virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false) {};
     virtual void SetPluginModified() {};
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};

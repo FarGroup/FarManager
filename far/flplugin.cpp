@@ -651,7 +651,7 @@ void FileList::PluginPutFilesToNew()
   {
     _ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
     FileList TmpPanel;
-    TmpPanel.SetPluginMode(hNewPlugin,L"");
+    TmpPanel.SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
     TmpPanel.SetModalMode(TRUE);
     int PrevFileCount=FileCount;
     /* $ 12.04.2002 IS
@@ -871,7 +871,7 @@ int FileList::ProcessOneHostFile(int Idx)
 
 
 
-void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile)
+void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus)
 {
   if (PanelMode!=PLUGIN_PANEL)
   {
@@ -883,6 +883,8 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile)
   FileList::hPlugin=hPlugin;
 
   PanelMode=PLUGIN_PANEL;
+  if(SendOnFocus)
+    SetFocus();
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   if (Info.StartPanelMode)

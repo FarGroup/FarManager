@@ -1434,10 +1434,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-      NewPanel->SetPluginMode(hPlugin,L"");
+      NewPanel->SetPluginMode(hPlugin,L"",true);
       NewPanel->Update(0);
       NewPanel->Show();
-      NewPanel->SetFocus();
     }
     if (Editor && CurEditor){
       CurEditor->SetPluginTitle(NULL);
@@ -1733,11 +1732,9 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
     Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
-    NewPanel->SetPluginMode(hPlugin,L"");
+    NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
     NewPanel->Update(0);
     NewPanel->Show();
-    if(!Target || Target == ActivePanel)
-      NewPanel->SetFocus();
   }
   return(TRUE);
 }
@@ -1779,7 +1776,7 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
       {
         int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,L"");
+        NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
         if (Data && *(const wchar_t *)Data)
           SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
         /* $ 04.04.2001 SVS
@@ -1787,8 +1784,6 @@ int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
            Если что-то не так - раскомментировать!!!
         */
 //        NewPanel->Update(0);
-        if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
-          NewPanel->SetFocus();
 //        NewPanel->Show();
       }
       return TRUE;

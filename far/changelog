@@ -1,3 +1,17 @@
+svs 06.12.2007 18:45:06 +0300 - build 385
+
+1. 2 новых эвента для панельного плагина: FE_GOTFOCUS и FE_KILLFOCUS
+   Параметр Param для ProcessEvent равен NULL.
+   В соответствии с этим переделан механизм (очередность) посыла событий - сначала Gotfocus, а потом остальное.
+   Для этого в SetPluginMode() добавлен параметр SendOnFocus
+
+2. В диалогах, сразу после DN_INITDIALOG приходит DN_GOTFOCUS для того элемента, который Focus=1
+
+3. 2 новых эвента для редакторного плагина: EE_GOTFOCUS и EE_KILLFOCUS
+   Параметр Param для ProcessEditorEvent равен EditorID.
+   Для этого в класс FileEditor добавлена virtual функция OnChangeFocus.
+
+
 svs 06.12.2007 13:31:33 +0300 - build 384
 
 1. Mantis#0000417: Memory leak in Viewer::ProcessKey() 

@@ -147,6 +147,7 @@ public:
     virtual void ShowConsoleTitle();
     int IsFileChanged() {return(m_editor->IsFileChanged());};
     virtual int IsFileModified() {return(m_editor->IsFileModified());};
+    virtual void OnChangeFocus(int focus);
 
     virtual void SetScreenPosition();                         // $ 28.06.2000 tran - NT Console resize - resize editor
 

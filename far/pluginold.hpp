@@ -1253,16 +1253,19 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
 );
 
 enum VIEWER_EVENTS {
-  VE_READ     =0,
-  VE_CLOSE    =1
+  VE_READ       =0,
+  VE_CLOSE      =1,
 };
 
 
 enum EDITOR_EVENTS {
-  EE_READ,
-  EE_SAVE,
-  EE_REDRAW,
-  EE_CLOSE
+  EE_READ       =0,
+  EE_SAVE       =1,
+  EE_REDRAW     =2,
+  EE_CLOSE      =3,
+
+  EE_GOTFOCUS   =6,
+  EE_KILLFOCUS  =7,
 };
 
 //#define EEREDRAW_ALL    (void*)0
@@ -1877,6 +1880,9 @@ enum FAR_EVENTS {
   FE_CLOSE          =3,
   FE_BREAK          =4,
   FE_COMMAND        =5,
+
+  FE_GOTFOCUS       =6,
+  FE_KILLFOCUS      =7,
 };
 
 #ifndef _WIN64

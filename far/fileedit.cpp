@@ -2305,6 +2305,15 @@ void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
   //m_editor->SetBSLikeDel(EdOpt.BSLikeDel);
 }
 
+void FileEditor::OnChangeFocus (int focus)
+{
+  Frame::OnChangeFocus (focus);
+  CtrlObject->Plugins.CurEditor=this;
+  int FEditEditorID=m_editor->EditorID;
+  CtrlObject->Plugins.ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,&FEditEditorID);
+}
+
+
 int FileEditor::EditorControl(int Command, void *Param)
 {
 #if defined(SYSLOG_KEYMACRO)
