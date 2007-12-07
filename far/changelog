@@ -1,3 +1,7 @@
+t-rex 07.12.2007 16:36:54 +0200 - build 386
+
+1. Mantis#421: Memory leak caused by using memset() to initialize values of structures.
+
 svs 06.12.2007 18:45:06 +0300 - build 385
 
 1. 2 новых эвента для панельного плагина: FE_GOTFOCUS и FE_KILLFOCUS

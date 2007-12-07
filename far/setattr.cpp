@@ -102,6 +102,25 @@ struct SetAttrDlgParam{
   int OStateF_12, OStateC_8, OStateC_9;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
   string strFSysName;
+
+  void Clear()
+  {
+  	Plugin = 0;
+  	FileSystemFlags = 0;
+  	ModeDialog = 0;
+  	DateFormat = 0;
+  	strSelName = L"";
+  	memset(OriginalCBAttr,0,sizeof(OriginalCBAttr));
+  	memset(OriginalCBAttr2,0,sizeof(OriginalCBAttr2));
+  	memset(OriginalCBFlag,0,sizeof(OriginalCBFlag));
+  	OStateF_12 = 0;
+  	OStateC_8 = 0;
+  	OStateC_9 = 0;
+  	OLastWriteTime = 0;
+  	OCreationTime = 0;
+  	OLastAccessTime = 0;
+  	strFSysName = L"";
+  }
 };
 
 static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
@@ -493,11 +512,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   int SelCount, I, J;
   struct SetAttrDlgParam DlgParam;
+  DlgParam.Clear();
 
   if((SelCount=SrcPanel->GetSelCount())==0)
     return 0;
-
-  memset(&DlgParam,0,sizeof(DlgParam));
 
   if (SrcPanel->GetMode()==PLUGIN_PANEL)
   {
