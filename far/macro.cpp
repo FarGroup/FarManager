@@ -353,7 +353,12 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       }
       xf_free(Work.MacroWORK);
       if(Work.AllocVarTable)
+      {
         deleteVTable(*Work.locVarTable);
+        xf_free(Work.locVarTable);
+        Work.locVarTable=NULL;
+        Work.AllocVarTable=false;
+      }
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
     }
@@ -364,7 +369,12 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       if(Work.MacroWORK->Src)
         xf_free(Work.MacroWORK->Src);
       if(Work.AllocVarTable)
+      {
         deleteVTable(*Work.locVarTable);
+        xf_free(Work.locVarTable);
+        Work.locVarTable=NULL;
+        Work.AllocVarTable=false;
+      }
       Work.MacroWORKCount--;
 
       memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*Work.MacroWORKCount);
@@ -445,7 +455,7 @@ int KeyMacro::ProcessKey(int Key)
       if (MacroKey==(DWORD)-1)
       {
         if(RecBuffer)
-        xf_free(RecBuffer);
+          xf_free(RecBuffer);
         RecBuffer=NULL;
       }
       else
@@ -477,7 +487,7 @@ int KeyMacro::ProcessKey(int Key)
           MacroLIB[Pos].Src=NULL;
         }
 
-        if(MacroLIBCount > 0)
+        if(Pos < MacroLIBCount)
         {
           MacroLIB[Pos].Key=MacroKey;
           if(RecBufferSize > 0)
@@ -3043,7 +3053,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
     BOOL Ok=TRUE;
     if(MacroLIB[I].Flags&MFLAGS_REG_MULTI_SZ)
     {
-      int Len=(int)strlen(MacroLIB[I].Src)+1;
+      int Len=(int)strlen(MacroLIB[I].Src)+2;
       char *ptrSrc=(char *)xf_malloc(Len);
       if(ptrSrc)
       {
@@ -4337,7 +4347,7 @@ void MacroState::Init(TVarTable *tbl)
   if(!tbl)
   {
     AllocVarTable=true;
-    locVarTable=(TVarTable*)new TVarTable;
+    locVarTable=(TVarTable*)xf_malloc(sizeof(TVarTable));
     initVTable(*locVarTable);
   }
   else

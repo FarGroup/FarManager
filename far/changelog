@@ -1,3 +1,11 @@
+t-rex 08.12.2007 18:03:05 +0200 - 2305
+
+1. Mantis#408: Memory leak in struct MacroState.
+
+2. Коррупция хипа при удаление несуществующих макросов.
+
+3. Некорректное сохранение REG_MULTI_SZ макросов.
+
 svs 06.12.2007 18:45:58 +0300 - build 2304
 
 1. Mantis#407: Memory leak in CommandLine class.
