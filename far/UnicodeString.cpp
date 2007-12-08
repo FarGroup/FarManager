@@ -37,9 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "UnicodeString.hpp"
 
-size_t UnicodeString::Inflate(size_t nSize, bool bForce)
+size_t UnicodeString::Inflate(size_t nSize)
 {
-  if ( (m_pData->GetRef() == 1) || bForce )
+  if ( m_pData->GetRef() == 1 )
   {
     m_pData->Inflate(nSize);
   }

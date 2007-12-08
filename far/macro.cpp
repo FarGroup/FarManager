@@ -371,7 +371,12 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       }
       xf_free(Work.MacroWORK);
       if(Work.AllocVarTable)
+      {
         deleteVTable(*Work.locVarTable);
+        xf_free(Work.locVarTable);
+        Work.locVarTable=NULL;
+        Work.AllocVarTable=false;
+      }
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
     }
@@ -382,7 +387,12 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       if(Work.MacroWORK->Src)
         xf_free(Work.MacroWORK->Src);
       if(Work.AllocVarTable)
+      {
         deleteVTable(*Work.locVarTable);
+        xf_free(Work.locVarTable);
+        Work.locVarTable=NULL;
+        Work.AllocVarTable=false;
+      }
       Work.MacroWORKCount--;
 
       memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*Work.MacroWORKCount);
@@ -484,7 +494,7 @@ int KeyMacro::ProcessKey(int Key)
           MacroLIB[Pos].Src=NULL;
         }
 
-        if(MacroLIBCount > 0)
+        if(Pos < MacroLIBCount)
         {
           MacroLIB[Pos].Key=MacroKey;
 
@@ -3041,8 +3051,8 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
     BOOL Ok=TRUE;
     if(MacroLIB[I].Flags&MFLAGS_REG_MULTI_SZ)
     {
-      int Len=StrLength(MacroLIB[I].Src)+1;
-      wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len);
+      int Len=StrLength(MacroLIB[I].Src)+2;
+      wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len*sizeof(wchar_t));
       if(ptrSrc)
       {
         wcscpy(ptrSrc,MacroLIB[I].Src);
@@ -3050,7 +3060,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
           if(ptrSrc[J] == L'\n')
             ptrSrc[J]=0;
         ptrSrc[Len-1]=0;
-        SetRegKey(strRegKeyName,L"Sequence",ptrSrc,(Len+1)*sizeof(wchar_t),REG_MULTI_SZ);
+        SetRegKey(strRegKeyName,L"Sequence",ptrSrc,Len*sizeof(wchar_t),REG_MULTI_SZ);
         xf_free(ptrSrc);
         Ok=FALSE;
       }
@@ -3917,7 +3927,7 @@ void MacroState::Init(TVarTable *tbl)
   if(!tbl)
   {
     AllocVarTable=true;
-    locVarTable=(TVarTable*)new TVarTable;
+    locVarTable=(TVarTable*)xf_malloc(sizeof(TVarTable));
     initVTable(*locVarTable);
   }
   else

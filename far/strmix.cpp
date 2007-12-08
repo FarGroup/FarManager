@@ -404,7 +404,7 @@ string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
       wchar_t *lpwszStr = strStr.GetBuffer ();
 
       if (MaxLength>3)
-        memcpy(lpwszStr+MaxLength-3, L"...", 6);
+        wmemcpy(lpwszStr+MaxLength-3, L"...", 3);
 
       lpwszStr[MaxLength]=0;
 
@@ -427,8 +427,8 @@ wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
       if (MaxLength>3)
       {
         wchar_t *MovePos = Str+Length-MaxLength+3;
-        memmove(Str+3, MovePos, (StrLength(MovePos)+1)*sizeof (wchar_t));
-        memcpy(Str,L"...",6);
+        wmemmove(Str+3, MovePos, StrLength(MovePos)+1);
+        wmemcpy(Str,L"...",3);
       }
 
       Str[MaxLength]=0;

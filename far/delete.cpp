@@ -331,14 +331,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             strShortName = strFullName;
             if ( !FindData.strAlternateFileName.IsEmpty() )
             {
-                wchar_t *lpwszDot = strShortName.GetBuffer();
-
-                lpwszDot = wcsrchr (lpwszDot, L'.');
-
-                if ( lpwszDot )
-                    *(lpwszDot+1) = 0;
-
-                strShortName.ReleaseBuffer ();
+                CutToNameUNC(strShortName);
 
                 strShortName += FindData.strAlternateFileName; //???
             }

@@ -47,9 +47,12 @@ private:
 
 	wchar_t *AllocData(size_t nSize, size_t *nNewSize)
 	{
-		*nNewSize = (nSize/m_nDelta + 1) * m_nDelta;
-		if (nSize >= m_nDelta << 3)
-			*nNewSize = (*nNewSize) << 1;
+		if (nSize <= m_nDelta)
+			*nNewSize = m_nDelta;
+		else if (nSize%m_nDelta > 0)
+			*nNewSize = (nSize/m_nDelta + 1) * m_nDelta;
+		else
+			*nNewSize = nSize;
 		return new wchar_t[*nNewSize];
 	}
 
@@ -88,6 +91,10 @@ public:
 			return m_nSize;
 		wchar_t *pOldData = m_pData;
 		size_t nOldSize = m_nSize;
+		if (nSize >= m_nDelta << 3)
+			nSize = nSize << 1;
+		else
+			nSize = (nSize/m_nDelta + 1) * m_nDelta;
 		m_pData = AllocData(nSize,&m_nSize);
 		if (!m_pData)
 		{
@@ -186,7 +193,7 @@ public:
 		DeleteData();
 	}
 
-	size_t Inflate(size_t nSize, bool bForce = false);
+	size_t Inflate(size_t nSize);
 
 	size_t GetLength() const
 	{

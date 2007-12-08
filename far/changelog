@@ -1,3 +1,22 @@
+t-rex 08.12.2007 17:55:02 +0200 - build 387
+
+1. Mantis#416: Crash while deleting folders
+   Это в общем более глубокая проблема была, глюк был в UnicodeString,
+   размер буффера рос при операциях для которых его рост был не нужен и при многих
+   операциях над одной и той же строкой буффер вырастал до нереальных значений.
+
+2. Mantis#408: Memory leak in struct MacroState.
+
+3. Коррупция хипа при удаление несуществующих макросов.
+
+4. Некорректное сохранение REG_MULTI_SZ макросов.
+
+5. From Hannes Eder: StrLength in clipboard.cpp.
+
+6. Потенциальные коррупции хипа и за неправильного не/использование sizeof(wchar_t) в паре мест.
+
+7. От Alexey Samlyukov: wmem* вместо mem* в strmix.cpp.
+
 t-rex 07.12.2007 16:36:54 +0200 - build 386
 
 1. Mantis#421: Memory leak caused by using memset() to initialize values of structures.
