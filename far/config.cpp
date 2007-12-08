@@ -1378,8 +1378,6 @@ void ReadConfig()
 
   if(Opt.strExecuteBatchType.IsEmpty()) // предохраняемся
     Opt.strExecuteBatchType=constBatchExtW;
-  ReplaceStrings(Opt.strExecuteBatchType,L";",L"",-1);
-  Opt.strExecuteBatchType+=L""; //???
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 

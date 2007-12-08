@@ -1596,15 +1596,17 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 // Проверить "Это батник?"
 BOOL IsBatchExtType(const wchar_t *ExtPtr)
 {
-  const wchar_t *PtrBatchType=Opt.strExecuteBatchType;
-  while(*PtrBatchType)
-  {
-    if(StrCmpI(ExtPtr,PtrBatchType)==0)
-      return TRUE;
-    PtrBatchType+=StrLength(PtrBatchType)+1;
-  }
+	string strExecuteBatchType(Opt.strExecuteBatchType);
+	wchar_t *token = wcstok(strExecuteBatchType.GetBuffer(), L";");
 
-  return FALSE;
+	while(token)
+	{
+		if(StrCmpI(ExtPtr,token)==0)
+			return TRUE;
+		token = wcstok(NULL, L";");
+	}
+
+	return FALSE;
 }
 
 #ifdef ADD_GUI_CHECK
