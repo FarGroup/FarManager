@@ -104,6 +104,8 @@ __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   if(OpCode >= MCODE_C_CMDLINE_BOF && OpCode <= MCODE_C_CMDLINE_SELECTED)
     return CmdStr.VMProcess(OpCode-MCODE_C_CMDLINE_BOF+MCODE_C_BOF);
+  if(OpCode >= MCODE_C_BOF && OpCode <= MCODE_C_SELECTED)
+    return CmdStr.VMProcess(OpCode);
   if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_CURPOS)
     return CmdStr.VMProcess(OpCode);
   if(OpCode == MCODE_V_CMDLINE_ITEMCOUNT || OpCode == MCODE_V_CMDLINE_CURPOS)

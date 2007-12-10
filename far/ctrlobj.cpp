@@ -180,6 +180,8 @@ ControlObject::~ControlObject()
   delete EditorPosCache;
   delete FrameManager;
 
+  TreeList::FlushCache();
+
   SIDCacheFlush();
   Lang.Close();
   CtrlObject=NULL;
