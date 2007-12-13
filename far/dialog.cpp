@@ -1563,6 +1563,8 @@ void Dialog::ShowDialog(int ID)
           LenText=LenStrItem(I,strStr);
           if(LenText < CW-2)
           {
+              strStr.SetLength(LenText+8);
+
               lpwszStr = strStr.GetBuffer(); //BUGBUG
 
               memmove(lpwszStr+1, lpwszStr, (StrLength(lpwszStr)+1)*sizeof (wchar_t));

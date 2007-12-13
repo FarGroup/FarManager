@@ -395,6 +395,11 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
             return Ret;
           }
 
+          case MCMD_GETSTATE:
+          {
+            return Macro.GetCurRecord(NULL,NULL);
+          }
+
 #if 0
           case MCMD_COMPILEMACRO:
           {

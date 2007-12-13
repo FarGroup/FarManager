@@ -1791,6 +1791,9 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					if(kmA->Param.PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) km.Param.PlainText.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
 					if(kmA->Param.PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) km.Param.PlainText.Flags|=KSFLAGS_REG_MULTI_SZ;
 					break;
+				case oldfar::MCMD_GETSTATE:
+					km.Command=MCMD_GETSTATE;
+					break;
 	#ifdef FAR_USE_INTERNALS
 					/*
 				case oldfar::MCMD_COMPILEMACRO:

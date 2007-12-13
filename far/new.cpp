@@ -54,6 +54,9 @@ void * operator new( size_t cb )
 {
   // здесь херня - что делать - ХЗ (если кто знает - сделайте!!!)
   void *res = xf_malloc(cb);//_nh_malloc( cb, 1 );
+#if defined(SYSLOG)
+  CallNewDelete++;
+#endif
   return res;
 }
 

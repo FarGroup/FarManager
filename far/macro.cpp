@@ -310,6 +310,8 @@ KeyMacro::KeyMacro()
 KeyMacro::~KeyMacro()
 {
   InitInternalVars();
+  if(Work.AllocVarTable && Work.locVarTable)
+    xf_free(Work.locVarTable);
 }
 
 void KeyMacro::InitInternalLIBVars()
@@ -373,9 +375,9 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       if(Work.AllocVarTable)
       {
         deleteVTable(*Work.locVarTable);
-        xf_free(Work.locVarTable);
-        Work.locVarTable=NULL;
-        Work.AllocVarTable=false;
+        //xf_free(Work.locVarTable);
+        //Work.locVarTable=NULL;
+        //Work.AllocVarTable=false;
       }
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
@@ -389,9 +391,9 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       if(Work.AllocVarTable)
       {
         deleteVTable(*Work.locVarTable);
-        xf_free(Work.locVarTable);
-        Work.locVarTable=NULL;
-        Work.AllocVarTable=false;
+        //xf_free(Work.locVarTable);
+        //Work.locVarTable=NULL;
+        //Work.AllocVarTable=false;
       }
       Work.MacroWORKCount--;
 
