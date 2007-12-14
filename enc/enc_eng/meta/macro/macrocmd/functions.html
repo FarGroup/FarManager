@@ -55,6 +55,12 @@
     <em>S2</em> within string <em>S1</em>, -1 otherwise.</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace,Cnt)</td>
+    <td class="cont" width="60%">¬ строке <em>Str</em> заменить подстроку <em>Find</em> на подстроку <em>Replace</em> <em>Cnt</em> раз
+      (укажите <em>Cnt</em> равное 0 дл€ замены всех найденных подстрок).<br>
+      ¬озвращаетс€ результат замены.</td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="asc">asc</a></dfn>(S)</td>
     <td class="cont" width="60%">Returns the code of character <em>S</em>.</td>
   </tr>
@@ -105,11 +111,18 @@
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S)</td>
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S,N)</td>
     <td class="cont" width="60%">¬ меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
-    ѕоиск подстроки ведетс€ с конца строки пункта меню. ≈сли такого пункта нет, то ничего не делает.<br>
+    ѕоиск подстроки ведетс€ в зависимости от указанного режима <em>N</em>:
+       <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">–ежим</th><th class="cont" width="60%">ќписание</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
+        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с начала строки</td></tr>
+        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с конца строки</td></tr>
+       </table>
+    ѕоиск регистронезависим. ≈сли такого пункта нет, то ничего не делает.<br>
     ¬озвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
-    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;) > 0) Enter $end</pre>
+    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
   </td>
   </tr>
 
