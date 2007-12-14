@@ -1536,7 +1536,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
        if(Len == 1 || Pos == Len-1)
        {
          WORD Chr=(WORD)Name[Pos];
-         if (Chr > 0 && Chr < 256)
+         if (Chr > 0 && Chr < 0xFFFF)
          {
            if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
            {
@@ -1612,7 +1612,6 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
     {
-      //<UNICODE???>
       if(FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
       {
           strKeyTemp.Format (L"Spec%05d",FKey-KEY_VK_0xFF_BEGIN);
@@ -1625,7 +1624,6 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
       }
       else
       {
-    // Karbazol. Я не понял, зачем это нужно, но если не закомментить, эта беда в дебуг-версии не собирается
     #if defined(SYSLOG)
         // Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
         for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
@@ -1637,20 +1635,24 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
         if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
     #endif
         {
-          FKey=(Key&0xFF)&(~0x20);
+          FKey=Upper((wchar_t)Key&0xFFFF);
 
           wchar_t KeyText[2];
           KeyText[0]=KeyText[1] = 0;
 
           if (FKey >= L'A' && FKey <= L'Z')
-            KeyText[0]=(wchar_t)(Key&0xFF)&((Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL))?(~0x20):0xFF);
-          else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
-            KeyText[0]=(wchar_t)Key&0xFF;
+          {
+            if(Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL)) // ??? а если есть другие модификаторы ???
+              KeyText[0]=(wchar_t)FKey; // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+            else
+              KeyText[0]=(wchar_t)(Key&0xFFFF);
+          }
+          else if ((Key&0xFFFF) > 0 && (Key&0xFFFF) < 0xFFFF)
+            KeyText[0]=(wchar_t)Key&0xFFFF;
 
-          strKeyText += (const wchar_t*)&KeyText;
+          strKeyText += (const wchar_t*)KeyText;
         }
       }
-      //</UNICODE???>
     }
     if( strKeyText.IsEmpty () )
     {
