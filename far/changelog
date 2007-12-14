@@ -1,3 +1,14 @@
+svs 14.12.2007 13:45:16 +0300 - build 391
+
+from Alexander Mitin
+
+1. Mantis#0000432: Assertion while creating a submenu in User Menu 
+
+2. Mantis#0000431: Crash when deleting the File Highlighting entry 
+
+3. Mantis#0000430: Crash in "Системные параметры"
+
+
 svs 13.12.2007 20:31:34 +0300 - build 390
 
 1. Mantis#0000433: Updated operator new in new.cpp 

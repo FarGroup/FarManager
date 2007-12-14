@@ -1563,19 +1563,13 @@ void Dialog::ShowDialog(int ID)
           LenText=LenStrItem(I,strStr);
           if(LenText < CW-2)
           {
-              strStr.SetLength(LenText+8);
-
-              lpwszStr = strStr.GetBuffer(); //BUGBUG
-
-              memmove(lpwszStr+1, lpwszStr, (StrLength(lpwszStr)+1)*sizeof (wchar_t));
-
-              LenText = StrLength(lpwszStr);
-
-              *lpwszStr = lpwszStr[LenText]=L' ';
-
-              lpwszStr[LenText+1] = 0;
-
-              strStr.ReleaseBuffer();
+			  int iLen = (int)strStr.GetLength();
+			  lpwszStr = strStr.GetBuffer(iLen + 3);
+			  {
+				  wmemmove(lpwszStr+1, lpwszStr, iLen);
+				  *lpwszStr = lpwszStr[++iLen] = L' ';
+			  }
+              strStr.ReleaseBuffer(iLen+1);
 
               LenText=LenStrItem(I, strStr);
           }
