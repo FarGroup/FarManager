@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2304) (Dec 06 2007)
+FAR 1.71 alpha 4 (build 2306) (Dec 14 2007)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -124,6 +124,13 @@ FAR 1.71 alpha 4 (build 2304) (Dec 06 2007)
 [+] API: 2 новых события для панельного плагина: FE_GOTFOCUS и FE_KILLFOCUS
 
 [+] API: 2 новых события для редакторного плагина: EE_GOTFOCUS и EE_KILLFOCUS
+
+[+] Macro: добавлена функция replace()
+
+[+] API: Легализован метод вызова плагина из панели - OPEN_FILEPANEL
+
+[+] API: Новая команда MCMD_GETSTATE для ACTL_KEYMACRO, возвращает статус
+    работы макродвижка.
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
@@ -281,7 +288,6 @@ FAR 1.71 alpha 4 (build 2304) (Dec 06 2007)
 [-] API: Для элемента ".." в PluginPanelItem заполнялись только поля
     FindData.dwFileAttributes и FindData.cFileName, остальные элементы
     структуры обнулялись (Mantis#0000358).
-
 
 TempPanel - build 31
 ~~~~~~~~~~~~~~~~~~~~
