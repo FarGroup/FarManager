@@ -167,7 +167,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
          FindClose(hFile);
          AddSize=(DWORD)strlen(wfd.cFileName);
          FinalSize+=AddSize;
-         if(FinalSize>=DestSize)
+         if(FinalSize>=DestSize-1)
          {
            DestBuf=(char *)xf_realloc(DestBuf, FinalSize+64);
            if(DestBuf)

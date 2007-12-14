@@ -41,6 +41,7 @@ typedef int (WINAPI *PLUGINSETDIRECTORY)(HANDLE hPlugin,const char *Dir,int OpMo
 typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const struct PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
+typedef int (WINAPI *PLUGINPROCESSDIALOGEVENT)(int Event,void *Param);
 
 // флаги для поля PluginItem.WorkFlags
 enum PLUGINITEMWORKFLAGS{
@@ -79,6 +80,7 @@ enum PLUGINITEMCALLFUNCFLAGS{
   PICFF_PROCESSEDITORINPUT   = 0x01000000, //
   PICFF_MINFARVERSION        = 0x02000000, //
   PICFF_PROCESSVIEWEREVENT   = 0x04000000, //
+  PICFF_PROCESSDIALOGEVENT   = 0x08000000, //
 
   // PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
   PICFF_PANELPLUGIN          = PICFF_OPENFILEPLUGIN|
@@ -146,6 +148,7 @@ struct PluginItem
   PLUGINPROCESSEDITORINPUT    pProcessEditorInput;
   PLUGINMINFARVERSION         pMinFarVersion;
   PLUGINPROCESSVIEWEREVENT    pProcessViewerEvent;
+  PLUGINPROCESSDIALOGEVENT    pProcessDialogEvent;
 };
 
 // флаги для поля PluginsSet.Flags
@@ -222,6 +225,7 @@ class PluginsSet
     int ProcessEditorInput(INPUT_RECORD *Rec);
     int ProcessEditorEvent(int Event,void *Param);
     int ProcessViewerEvent(int Event,void *Param);
+    int ProcessDialogEvent(int Event,void *Param);
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure(int StartPos=0);

@@ -175,6 +175,7 @@ static DWORD WINAPI _xfilter(
              PlugRec.FuncFlags|=Module->pProcessEditorInput?PICFF_PROCESSEDITORINPUT:0;
              PlugRec.FuncFlags|=Module->pMinFarVersion?PICFF_MINFARVERSION:0;
              PlugRec.FuncFlags|=Module->pProcessViewerEvent?PICFF_PROCESSVIEWEREVENT:0;
+             PlugRec.FuncFlags|=Module->pProcessDialogEvent?PICFF_PROCESSDIALOGEVENT:0;
              PlugRec.CachePos=Module->CachePos;
            }
 

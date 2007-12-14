@@ -934,10 +934,10 @@ void Manager::PluginsMenu()
 {
   _OT(SysLog(1));
   int curType = CurrentFrame->GetType();
-  if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
+  if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER || curType == MODALTYPE_DIALOG)
   {
     /* 02.01.2002 IS
-       ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере
+       ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере/диалоге
        ! Если на панели QVIEW или INFO открыт файл, то считаем, что это
          полноценный вьюер и запускаем с соответствующим параметром плагины
     */
@@ -958,9 +958,10 @@ void Manager::PluginsMenu()
       }
     }
 
-    // в редакторе или вьюере покажем свою помощь по Shift-F1
+    // в редакторе, вьюере или диалоге покажем свою помощь по Shift-F1
     const char *Topic=curType==MODALTYPE_EDITOR?"Editor":
-      curType==MODALTYPE_VIEWER?"Viewer":NULL;
+      curType==MODALTYPE_VIEWER?"Viewer":
+      curType==MODALTYPE_DIALOG?"Dialog":NULL;
     CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
     /* IS $ */
   }

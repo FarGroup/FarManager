@@ -56,6 +56,7 @@ static const char NFMP_SetFindList[]="SetFindList";
 static const char NFMP_ProcessEditorInput[]="ProcessEditorInput";
 static const char NFMP_ProcessEditorEvent[]="ProcessEditorEvent";
 static const char NFMP_ProcessViewerEvent[]="ProcessViewerEvent";
+static const char NFMP_ProcessDialogEvent[]="ProcessDialogEvent";
 static const char NFMP_SetStartupInfo[]="SetStartupInfo";
 static const char NFMP_ClosePlugin[]="ClosePlugin";
 static const char NFMP_GetPluginInfo[]="GetPluginInfo";
@@ -234,6 +235,7 @@ void PluginsSet::LoadPlugins()
             CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessEditorInput,0);
             CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessEditorEvent,0);
             CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessViewerEvent,0);
+            CurPlugin.pProcessDialogEvent=(PLUGINPROCESSDIALOGEVENT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessDialogEvent,0);
             CurPlugin.CachePos=CachePos;
           }
           if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
@@ -346,6 +348,7 @@ void PluginsSet::LoadPluginsFromCache()
       CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessEditorInput,0);
       CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessEditorEvent,0);
       CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessViewerEvent,0);
+      CurPlugin.pProcessDialogEvent=(PLUGINPROCESSDIALOGEVENT)(INT_PTR)GetRegKey(RegKey,NFMP_ProcessDialogEvent,0);
       CurPlugin.CachePos=atoi(PlgKey+19);
       CurPlugin.WorkFlags.Set(PIWF_CACHED);
       // вот тут это поле не заполнено, надеюсь, что оно не критично
@@ -640,6 +643,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetProcAddress(hModule,NFMP_ProcessEditorInput);
   CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(hModule,NFMP_ProcessEditorEvent);
   CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetProcAddress(hModule,NFMP_ProcessViewerEvent);
+  CurPlugin.pProcessDialogEvent=(PLUGINPROCESSDIALOGEVENT)GetProcAddress(hModule,NFMP_ProcessDialogEvent);
   CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,NFMP_GetMinFarVersion);
   CurPlugin.LinkedFrame=NULL;
   /*$ 13.09.2001 SKV
@@ -671,6 +675,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     CurPlugin.pProcessEditorInput ||
     CurPlugin.pProcessEditorEvent ||
     CurPlugin.pProcessViewerEvent ||
+    CurPlugin.pProcessDialogEvent ||
     CurPlugin.pMinFarVersion))
   {
     FreeLibrary(hModule);
@@ -1093,7 +1098,8 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       CurPlugin.pSetFindList        ||
       CurPlugin.pProcessEditorInput ||
       CurPlugin.pProcessEditorEvent ||
-      CurPlugin.pProcessViewerEvent
+      CurPlugin.pProcessViewerEvent ||
+      CurPlugin.pProcessDialogEvent
   // —юда добавл€ть те функции, из-за которых плагин имеет место быть в кэше
   ))
    return FALSE;
@@ -1205,6 +1211,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       SetRegKey(RegKey,NFMP_ProcessEditorInput,CurPlugin.pProcessEditorInput!=NULL);
       SetRegKey(RegKey,NFMP_ProcessEditorEvent,CurPlugin.pProcessEditorEvent!=NULL);
       SetRegKey(RegKey,NFMP_ProcessViewerEvent,CurPlugin.pProcessViewerEvent!=NULL);
+      SetRegKey(RegKey,NFMP_ProcessDialogEvent,CurPlugin.pProcessDialogEvent!=NULL);
       break;
     }
   }
@@ -1606,6 +1613,37 @@ int PluginsSet::ProcessViewerEvent(int Event,void *Param)
   return Ret;
 }
 /* SVS $ */
+
+int PluginsSet::ProcessDialogEvent(int Event,void *Param)
+{
+  struct PluginItem *PData=PluginsData;
+  int Ret=FALSE;
+  for (int I=0;I<PluginsCount;I++,PData++)
+  {
+    if (PData->pProcessDialogEvent && PreparePlugin(I) && !ProcessException)
+    {
+      PData->FuncFlags.Set(PICFF_PROCESSDIALOGEVENT);
+      if(Opt.ExceptRules)
+      {
+        TRY
+        {
+          Ret=PData->pProcessDialogEvent(Event,Param);
+        }
+        EXCEPT(xfilter(EXCEPT_PROCESSDIALOGEVENT,GetExceptionInformation(),PData,1))
+        {
+          UnloadPlugin(*PData,EXCEPT_PROCESSDIALOGEVENT);
+          ProcessException=FALSE;
+        }
+      }
+      else
+        Ret=PData->pProcessDialogEvent(Event,Param);
+      PData->FuncFlags.Clear(PICFF_PROCESSDIALOGEVENT);
+    }
+    if(Ret)
+      return TRUE;
+  }
+  return FALSE;
+}
 
 int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,int *pItemsNumber,int OpMode)
 {
@@ -2447,10 +2485,11 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 {
   int MenuItemNumber=0;
 /* $ 04.05.2001 OT */
-  int Editor,Viewer;
+  int Editor,Viewer,Dialog;
 
   Editor = ModalType==MODALTYPE_EDITOR;
   Viewer = ModalType==MODALTYPE_VIEWER;
+  Dialog = ModalType==MODALTYPE_DIALOG;
   /* OT $ */
 
   DWORD Data;
@@ -2494,7 +2533,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
               а сделать четкий анализ на ModalType */
               if (Editor && (IFlags & PF_EDITOR)==0 ||
                 Viewer && (IFlags & PF_VIEWER)==0 ||
-                !Editor && !Viewer && (IFlags & PF_DISABLEPANELS))
+                Dialog && (IFlags & PF_DIALOG)==0 ||
+                !Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS))
                 continue;
               for (int J=0;;J++)
               {
@@ -2529,7 +2569,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
               continue;
             if (Editor && (Info.Flags & PF_EDITOR)==0 ||
               Viewer && (Info.Flags & PF_VIEWER)==0 ||
-              !Editor && !Viewer && (Info.Flags & PF_DISABLEPANELS))
+              Dialog && (Info.Flags & PF_DIALOG)==0 ||
+              !Editor && !Viewer && !Dialog && (Info.Flags & PF_DISABLEPANELS))
               continue;
             for (int J=0;J<Info.PluginMenuStringsNumber;J++)
             {
@@ -2629,21 +2670,39 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
   }
 #if 1
   int OpenCode=OPEN_PLUGINSMENU;
+  INT_PTR Item=HIWORD(Data);
+  OpenDlgPluginData pd;
   if (Editor)
     OpenCode=OPEN_EDITOR;
   if (Viewer)
     OpenCode=OPEN_VIEWER;
-  CallPlugin(LOWORD(Data),OpenCode,(void*)HIWORD(Data),NULL,CtrlObject->Cp()->ActivePanel,true);
+  if(Dialog)
+  {
+    OpenCode=OPEN_DIALOG;
+    pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
+    pd.ItemNumber=HIWORD(Data);
+    Item=(INT_PTR)&pd;
+  }
+  CallPlugin(LOWORD(Data),OpenCode,(void*)Item,NULL,CtrlObject->Cp()->ActivePanel,true);
 #else
   if (PreparePlugin(LOWORD(Data)) && PluginsData[LOWORD(Data)].pOpenPlugin!=NULL && !ProcessException)
   {
     int OpenCode=OPEN_PLUGINSMENU;
+    INT_PTR Item=HIWORD(Data);
+    OpenDlgPluginData pd;
     if (Editor)
       OpenCode=OPEN_EDITOR;
     if (Viewer)
       OpenCode=OPEN_VIEWER;
-    HANDLE hPlugin=OpenPlugin(LOWORD(Data),OpenCode,HIWORD(Data));
-    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
+    if (Dialog)
+    {
+      OpenCode=OPEN_DIALOG;
+      pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
+      pd.ItemNumber=HIWORD(Data);
+      Item=(INT_PTR)&pd;
+    }
+    HANDLE hPlugin=OpenPlugin(LOWORD(Data),OpenCode,Item);
+    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
     {
       Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
