@@ -249,7 +249,7 @@ class Dialog: public Frame
     int DialogTooLong;          //
     int PrevMacroMode;          // предыдущий режим макро
 
-    FARWINDOWPROC DlgProc;      // функция обработки диалога
+    FARWINDOWPROC RealDlgProc;      // функция обработки диалога
 
     // переменные для перемещения диалога
     int OldX1,OldX2,OldY1,OldY2;
@@ -396,6 +396,8 @@ class Dialog: public Frame
     static LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
     static LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+
+    LONG_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };

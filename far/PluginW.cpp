@@ -65,6 +65,7 @@ static const wchar_t wszReg_SetFindList[]=L"SetFindListW";
 static const wchar_t wszReg_ProcessEditorInput[]=L"ProcessEditorInputW";
 static const wchar_t wszReg_ProcessEditorEvent[]=L"ProcessEditorEventW";
 static const wchar_t wszReg_ProcessViewerEvent[]=L"ProcessViewerEventW";
+static const wchar_t wszReg_ProcessDialogEvent[]=L"ProcessDialogEventW";
 static const wchar_t wszReg_SetStartupInfo[]=L"SetStartupInfoW";
 static const wchar_t wszReg_ClosePlugin[]=L"ClosePluginW";
 static const wchar_t wszReg_GetPluginInfo[]=L"GetPluginInfoW";
@@ -93,6 +94,7 @@ static const char NFMP_SetFindList[]="SetFindListW";
 static const char NFMP_ProcessEditorInput[]="ProcessEditorInputW";
 static const char NFMP_ProcessEditorEvent[]="ProcessEditorEventW";
 static const char NFMP_ProcessViewerEvent[]="ProcessViewerEventW";
+static const char NFMP_ProcessDialogEvent[]="ProcessDialogEventW";
 static const char NFMP_SetStartupInfo[]="SetStartupInfoW";
 static const char NFMP_ClosePlugin[]="ClosePluginW";
 static const char NFMP_GetPluginInfo[]="GetPluginInfoW";
@@ -204,6 +206,7 @@ int PluginW::LoadFromCache ()
 		pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorInput,0);
 		pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessEditorEvent,0);
 		pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessViewerEvent,0);
+		pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessDialogEvent,0);
 		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
 
 		CachePos = cp;
@@ -224,7 +227,8 @@ int PluginW::SaveToCache()
 		 pSetFindListW ||
 		 pProcessEditorInputW ||
 		 pProcessEditorEventW ||
-		 pProcessViewerEventW )
+		 pProcessViewerEventW ||
+		 pProcessDialogEventW )
 	{
 		PluginInfo Info;
 
@@ -308,6 +312,7 @@ int PluginW::SaveToCache()
 				SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInputW!=NULL);
 				SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEventW!=NULL);
 				SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEventW!=NULL);
+				SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=NULL);
 				SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=NULL);
 
 				break;
@@ -405,6 +410,7 @@ int PluginW::Load()
 	pProcessEditorInputW=(PLUGINPROCESSEDITORINPUTW)GetProcAddress(m_hModule,NFMP_ProcessEditorInput);
 	pProcessEditorEventW=(PLUGINPROCESSEDITOREVENTW)GetProcAddress(m_hModule,NFMP_ProcessEditorEvent);
 	pProcessViewerEventW=(PLUGINPROCESSVIEWEREVENTW)GetProcAddress(m_hModule,NFMP_ProcessViewerEvent);
+	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
 	pMinFarVersionW=(PLUGINMINFARVERSIONW)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
 
 	bool bUnloaded = false;
@@ -892,6 +898,26 @@ int PluginW::ProcessViewerEvent (
 	return 0; //oops, again!
 }
 
+int PluginW::ProcessDialogEvent (
+		int Event,
+		void *Param
+		)
+{
+	BOOL bResult = FALSE;
+
+	if ( Load() && pProcessDialogEventW && !ProcessException )
+	{
+		ExecuteStruct es;
+
+		es.id = EXCEPT_PROCESSDIALOGEVENT;
+		es.bDefaultResult = FALSE;
+
+		EXECUTE_FUNCTION_EX(pProcessDialogEventW(Event, Param), es);
+		bResult = es.bResult;
+	}
+
+	return bResult;
+}
 
 int PluginW::GetVirtualFindData (
 		HANDLE hPlugin,
@@ -1352,5 +1378,6 @@ void PluginW::ClearExports()
 	pProcessEditorInputW=0;
 	pProcessEditorEventW=0;
 	pProcessViewerEventW=0;
+	pProcessDialogEventW=0;
 	pMinFarVersionW=0;
 }

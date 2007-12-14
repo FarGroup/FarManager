@@ -183,7 +183,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 		// знать диалог в старом стиле - учтем этот факт!
 		DialogMode.Set(DMODE_OLDSTYLE);
 	}
-	Dialog::DlgProc=DlgProc;
+	Dialog::RealDlgProc=DlgProc;
 
 	if (CtrlObject!=NULL)
 	{
@@ -4846,6 +4846,20 @@ void Dialog::ResizeConsole()
 //  }
 //};
 
+LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+  LONG_PTR Result=0;
+  FarDialogEvent de={hDlg,Msg,Param1,Param2,(LONG_PTR)&Result};
+  LONG_PTR ret;
+  if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
+    return Result;
+  ret=RealDlgProc(hDlg,Msg,Param1,Param2);
+  Result=ret;
+  if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
+    return Result;
+  return ret;
+}
+
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS
    функция обработки диалога (по умолчанию)
@@ -4854,6 +4868,11 @@ void Dialog::ResizeConsole()
 */
 LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
+  int Result=0;
+  FarDialogEvent de={hDlg,Msg,Param1,Param2,(LONG_PTR)&Result};
+  if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
+    return Result;
+
   Dialog* Dlg=(Dialog*)hDlg;
 
   CriticalSectionLock Lock(Dlg->CS);

@@ -63,6 +63,7 @@ typedef int (WINAPI *PLUGINSETDIRECTORYW)(HANDLE hPlugin,const wchar_t *Dir,int 
 typedef int (WINAPI *PLUGINSETFINDLISTW)(HANDLE hPlugin,const PluginPanelItem *PanelItem,int ItemsNumber);
 typedef void (WINAPI *PLUGINSETSTARTUPINFOW)(const PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENTW)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
+typedef int (WINAPI *PLUGINPROCESSDIALOGEVENTW)(int Event,void *Param);
 
 
 class PluginW: public Plugin
@@ -117,6 +118,7 @@ private:
 	PLUGINPROCESSEDITORINPUTW    pProcessEditorInputW;
 	PLUGINMINFARVERSIONW         pMinFarVersionW;
 	PLUGINPROCESSVIEWEREVENTW    pProcessViewerEventW;
+	PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
 
 public:
 
@@ -159,6 +161,7 @@ public:
 	bool HasProcessEditorInput() { return pProcessEditorInputW!=NULL; }
 	bool HasMinFarVersion() { return pMinFarVersionW!=NULL; }
 	bool HasProcessViewerEvent() { return pProcessViewerEventW!=NULL; }
+	bool HasProcessDialogEvent() { return pProcessDialogEventW!=NULL; }
 
 	const string &GetModuleName() { return m_strModuleName; }
 	const FAR_FIND_DATA_EX &GetFindData() {return FindData; }
@@ -202,6 +205,7 @@ public:
 	int ProcessEditorInput (const INPUT_RECORD *D);
 	int ProcessEditorEvent (int Event, PVOID Param);
 	int ProcessViewerEvent (int Event, PVOID Param);
+	int ProcessDialogEvent (int Event, PVOID Param);
 
 	void GetPluginInfo (PluginInfo *pi);
 	int Configure (int MenuItem);

@@ -1,3 +1,39 @@
+drkns 14.12.2007 21:59:01 +0200 - build 392
+
+1. ћеню плагинов можно вызывать по F11 из диалогов.
+   „тобы попасть в это меню, плагин должен установить флаг PF_DIALOG в PluginInfo.Flags.
+   ¬ызванный плагин получает следующие параметры в OpenPlugin():
+   - OpenFrom: OPEN_DIALOG
+   - Item: указатель на структуру OpenDlgPluginData:
+     struct OpenDlgPluginData
+     {
+      int ItemNumber; //номер выбранного пункта в меню из зарегистрированных плагином пунктов
+      HANDLE hDlg;    //хэндл диалога, из которого вызван плагин
+     };
+
+2. ѕлагин может экспортировать ProcessDialogEvent дл€ обработки поступающих в диалог событий:
+   int ProcessDialogEvent(int Event, void* Param)
+   Event:
+    DE_DLGPROCINIT - событие поступает в обработчик
+    DE_DEFDLGPROCINIT - событие поступает в стандартный обработчик
+    DE_DLGPROCEND - событие уже обработано
+
+   Param - указатель на структуру FarDialogEvent:
+   struct FarDialogEvent
+   {
+    HANDLE hDlg;
+    int Msg;
+    int Param1;
+    LONG_PTR Param2;
+    LONG_PTR Result;
+   };
+
+   return:
+   - TRUE - событие обработали сами, не продолжать обработку.
+     FarDialogEvent.Result - указатель на переменную, используемую обработчиком
+     в качестве возвращаемого значени€.
+   - FALSE - продолжить обработку событи€.
+
 svs 14.12.2007 13:45:16 +0300 - build 391
 
 from Alexander Mitin

@@ -701,6 +701,17 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 	return nResult;
 }
 
+int PluginManager::ProcessDialogEvent(int Event, void *Param)
+{
+	Plugin *pPlugin=NULL;
+	for (int i=0;i<PluginsCount;i++)
+	{
+		pPlugin = PluginsData[i];
+		if(pPlugin->ProcessDialogEvent(Event,Param))
+			return TRUE;
+	}
+	return FALSE;
+}
 
 int PluginManager::GetFindData (
 		HANDLE hPlugin,
@@ -1228,10 +1239,11 @@ void PluginManager::Configure(int StartPos)
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
   int MenuItemNumber=0;
-  int Editor,Viewer;
+  int Editor,Viewer,Dialog;
 
   Editor = ModalType==MODALTYPE_EDITOR;
   Viewer = ModalType==MODALTYPE_VIEWER;
+  Dialog = ModalType==MODALTYPE_DIALOG;
 
   string strRegKey;
 
@@ -1274,7 +1286,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
               int IFlags=GetRegKey(strRegKey,L"Flags",0);
               if (Editor && (IFlags & PF_EDITOR)==0 ||
                 Viewer && (IFlags & PF_VIEWER)==0 ||
-                !Editor && !Viewer && (IFlags & PF_DISABLEPANELS))
+                Dialog && (IFlags & PF_DIALOG)==0 ||
+                !Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS))
                 continue;
               for (int J=0;;J++)
               {
@@ -1313,7 +1326,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
               continue;
             if (Editor && (Info.Flags & PF_EDITOR)==0 ||
               Viewer && (Info.Flags & PF_VIEWER)==0 ||
-              !Editor && !Viewer && (Info.Flags & PF_DISABLEPANELS))
+              Dialog && (Info.Flags & PF_DIALOG)==0 ||
+              !Editor && !Viewer && !Dialog && (Info.Flags & PF_DISABLEPANELS))
               continue;
             for (int J=0;J<Info.PluginMenuStringsNumber;J++)
             {
@@ -1417,14 +1431,24 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
     int OpenCode=OPEN_PLUGINSMENU;
+    INT_PTR Item=item->nItem;
+    OpenDlgPluginData pd;
+
     if (Editor)
       OpenCode=OPEN_EDITOR;
     if (Viewer)
       OpenCode=OPEN_VIEWER;
+    if (Dialog)
+    {
+      OpenCode=OPEN_DIALOG;
+      pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
+      pd.ItemNumber=item->nItem;
+      Item=(INT_PTR)&pd;
+    }
 
-    HANDLE hPlugin=OpenPlugin(item->pPlugin,OpenCode,item->nItem);
+    HANDLE hPlugin=OpenPlugin(item->pPlugin,OpenCode,Item);
 
-    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
+    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
     {
       if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
       {

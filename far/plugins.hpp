@@ -94,6 +94,7 @@ enum PLUGINITEMCALLFUNCFLAGS{
   PICFF_PROCESSEDITORINPUT   = 0x01000000, //
   PICFF_MINFARVERSION        = 0x02000000, //
   PICFF_PROCESSVIEWEREVENT   = 0x04000000, //
+  PICFF_PROCESSDIALOGEVENT   = 0x08000000, //
 
   // PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
   PICFF_PANELPLUGIN          = PICFF_OPENFILEPLUGIN|
@@ -211,6 +212,7 @@ public:
 	int ProcessEditorInput(INPUT_RECORD *Rec);
 	int ProcessEditorEvent(int Event,void *Param);
 	int ProcessViewerEvent(int Event,void *Param);
+	int ProcessDialogEvent(int Event,void *Param);
 
 friend class Plugin;
 };

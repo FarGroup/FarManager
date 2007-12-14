@@ -524,6 +524,21 @@ struct FarDialogItemData
   wchar_t *PtrData;
 };
 
+struct FarDialogEvent
+{
+  HANDLE hDlg;
+  int Msg;
+  int Param1;
+  LONG_PTR Param2;
+  LONG_PTR Result;
+};
+
+struct OpenDlgPluginData
+{
+  int ItemNumber;
+  HANDLE hDlg;
+};
+
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
@@ -1330,6 +1345,12 @@ enum EDITOR_EVENTS {
   EE_KILLFOCUS  =7,
 };
 
+enum DIALOG_EVENTS {
+  DE_DLGPROCINIT    =0,
+  DE_DEFDLGPROCINIT =1,
+  DE_DLGPROCEND     =2,
+};
+
 #define EEREDRAW_ALL    (void*)0
 #define EEREDRAW_CHANGE (void*)1
 #define EEREDRAW_LINE   (void*)2
@@ -1773,6 +1794,7 @@ enum PLUGIN_FLAGS {
   PF_EDITOR         = 0x0004,
   PF_VIEWER         = 0x0008,
   PF_FULLCMDLINE    = 0x0010,
+  PF_DIALOG         = 0x0020,
 };
 
 struct PluginInfo
@@ -1910,6 +1932,7 @@ enum OPENPLUGIN_OPENFROM{
   OPEN_EDITOR       = 5,
   OPEN_VIEWER       = 6,
   OPEN_FILEPANEL    = 7,
+  OPEN_DIALOG       = 8,
 };
 
 enum FAR_PKF_FLAGS {
@@ -1954,6 +1977,7 @@ int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem 
 int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,wchar_t *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item);
+int    WINAPI _export ProcessDialogEventW(int Event,void *Param);
 int    WINAPI _export ProcessEditorEventW(int Event,void *Param);
 int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);

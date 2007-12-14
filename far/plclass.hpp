@@ -74,6 +74,7 @@ public:
 	virtual bool HasProcessEditorInput() = 0;
 	virtual bool HasMinFarVersion() = 0;
 	virtual bool HasProcessViewerEvent() = 0;
+	virtual bool HasProcessDialogEvent() = 0;
 
 	virtual const string &GetModuleName() = 0;
 	virtual const FAR_FIND_DATA_EX &GetFindData() = 0;
@@ -115,6 +116,7 @@ public:
 	virtual int ProcessEditorInput (const INPUT_RECORD *D) = 0;
 	virtual int ProcessEditorEvent (int Event, PVOID Param) = 0;
 	virtual int ProcessViewerEvent (int Event, PVOID Param) = 0;
+	virtual int ProcessDialogEvent (int Event, PVOID Param) = 0;
 
 	virtual void GetPluginInfo (PluginInfo *pi) = 0;
 	virtual int Configure (int MenuItem) = 0;
