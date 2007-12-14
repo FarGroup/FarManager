@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2306) (Dec 14 2007)
+FAR 1.71 alpha 4 (build 2308) (Dec 15 2007)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -131,6 +131,13 @@ FAR 1.71 alpha 4 (build 2306) (Dec 14 2007)
 
 [+] API: Новая команда MCMD_GETSTATE для ACTL_KEYMACRO, возвращает статус
     работы макродвижка.
+
+[+] API: Новая экспортируемая функция для плагинов ProcessDialogEvent -
+    обработка поступающих в диалог событий.
+
+[+] Меню плагинов можно вызывать по F11 из диалогов. Для этого плагин должен
+    использовать новый флаг PF_DIALOG и уметь обрабатывать OPEN_DIALOG в
+    функции OpenPlugin().
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
