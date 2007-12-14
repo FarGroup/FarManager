@@ -1852,33 +1852,39 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
             /* $ 30.09.2003 KM
               Отфильтруем файлы не попадающие в действующий фильтр
             */
-            int IsFile;
             if (UseFilter)
-              IsFile=Filter->FileInFilter(&FindData);
-            else
-              IsFile=TRUE;
-
-            if (IsFile)
             {
-              /* $ 14.06.2004 KM
-                Уточнение действия при обработке каталогов
-              */
-              if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+              // Если имеется фильтр "с запретом" и под его действие попадает
+              // каталог, то пропускаем  не только сам катаолог но и всё что
+              // ниже (по дереву). Прочие типы фильтров для каталогов не
+              // перепроверяем - всё равно в них заходить надо
+              bool isDir = (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+              if (Filter->FileInFilter(&FindData, isDir) == isDir)
               {
-                statusCS.Enter();
-
-                strFindMessage = strFullName;
-                FindMessageReady=TRUE;
-
-                statusCS.Leave();
+                if(isDir)
+                  ScTree.SkipDir();
+                continue;
               }
-
-              if (IsFileIncluded(NULL,strFullName,FindData.dwFileAttributes))
-                AddMenuRecord(strFullName,&FindData);
-
-              if (SearchInArchives)
-                ArchiveSearch(strFullName);
             }
+
+            /* $ 14.06.2004 KM
+              Уточнение действия при обработке каталогов
+            */
+            if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+              statusCS.Enter();
+
+              strFindMessage = strFullName;
+              FindMessageReady=TRUE;
+
+              statusCS.Leave();
+            }
+
+            if (IsFileIncluded(NULL,strFullName,FindData.dwFileAttributes))
+              AddMenuRecord(strFullName,&FindData);
+
+            if (SearchInArchives)
+              ArchiveSearch(strFullName);
           }
           if (SearchMode!=SEARCH_SELECTED)
             break;
@@ -2752,13 +2758,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       /* $ 30.09.2003 KM
         Отфильтруем файлы не попадающие в действующий фильтр
       */
-      int IsFile;
-      if (UseFilter)
-        IsFile=Filter->FileInFilter(&CurPanelItem->FindData);
-      else
-        IsFile=TRUE;
-
-      if (IsFile)
+      if (!UseFilter || Filter->FileInFilter(&CurPanelItem->FindData))
       {
         /* $ 14.06.2004 KM
           Уточнение действия при обработке каталогов
@@ -2789,8 +2789,11 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
     {
       PluginPanelItem *CurPanelItem=PanelData+I;
       string strCurName=CurPanelItem->FindData.lpwszFileName;
+      // Если имеется фильтр "с запретом" и под его действие попадает каталог,
+      // то пропускаем  не только сам катаолог но и всё что ниже (по дереву)
       if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
           StrCmp(strCurName,L".")!=0 && !TestParentFolderName(strCurName) &&
+          (!UseFilter || !Filter->FileInFilter(&CurPanelItem->FindData, true)) &&
           (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1 ||
           CtrlObject->Cp()->ActivePanel->IsSelected(strCurName)))
       {
