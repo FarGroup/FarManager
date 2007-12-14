@@ -230,6 +230,7 @@ class VMenu: public Modal
     BOOL UpdateRequired(void);
 
     void DeleteItems();
+    int  DeleteSelectedItems();
     int  DeleteItem(int ID,int Count=1);
 
     int  AddItem(const struct MenuItem *NewItem,int PosAdd=0x7FFFFFFF);

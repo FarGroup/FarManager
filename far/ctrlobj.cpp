@@ -35,13 +35,12 @@ ControlObject::ControlObject()
   ViewerPosCache = new FilePositionCache(FPOSCACHE_64);
   EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
-  /* DJ $ */
+
   ReadConfig();
   /* $ 28.02.2001 IS
        Создадим обязательно только после того, как прочитали настройки
   */
   CmdLine=new CommandLine;
-  /* IS $ */
 
   CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
   FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
@@ -120,7 +119,6 @@ void ControlObject::Init()
       Cp()->LeftPanel->GoToFile(Opt.LeftCurFile);
       Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
-  /* tran 07.09.2000 $ */
 
   FrameManager->InsertFrame(FPanels);
 
@@ -176,9 +174,6 @@ ControlObject::~ControlObject()
   delete FolderHistory;
   delete ViewHistory;
   delete CmdLine;
-  /* $ 06.05.2001 DJ
-     удаляем то, что создали динамически
-  */
   delete HiFiles;
 
   if (Opt.ViOpt.SaveViewerPos)
@@ -190,7 +185,8 @@ ControlObject::~ControlObject()
 
   delete EditorPosCache;
   delete FrameManager;
-  /* DJ $ */
+
+  TreeList::FlushCache();
 
   SIDCacheFlush();
   Lang.Close();
@@ -242,8 +238,6 @@ void ControlObject::ShowCopyright(DWORD Flags)
 #endif
   }
 }
-/* SVS $ */
-/* SVS $ */
 
 
 FilePanels* ControlObject::Cp()

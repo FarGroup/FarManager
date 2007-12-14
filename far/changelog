@@ -1,4 +1,67 @@
-t-rex 08.12.2007 18:03:05 +0200 - 2305
+svs 14.12.2007 18:02:33 +0300 - build 2306
+
+Уф... как то много набралось... возможно нужно было бы разбить на несколько...
+
+1. Mantis#0000428: Вновь DI_COMBOBOX 
+   Отсутствовала проверка на тип элемента.
+
+2. Mantis#0000429: Не очищается и не сохраняется кеш директорий
+
+3. Macro: BOF, EOF, EMPTY и SELECTED не обрабатывались в ком.строке
+
+4. Mantis#0000415: произошли какие-то непонятные изменения в DI_COMBOBOX
+   (в 2283 сломалось)
+
+5. Macro: Menu.Select теперь с двумя параметрами, второй - как искать строку:
+      0 = full compare
+      1 = begin compare
+      2 = end compare
+   (надо бы не забыть сделать MCODE_F_MENU_SELECT и в 1.80, после отработки вопроса)
+
+6. Macro: Заготовки в коде для двух функций:
+      MCODE_F_REPLACE        ==>  Result=replace(Str,Find,Replace,Cnt)
+                                  Cnt=0 - заменить все, что найдем.
+    и 
+      MCODE_F_CALLPLUGIN     ==>  S=callplugin(S,Path,N)
+      позволит вместо 'F11 t' писать 'callplugin("Временная панель\nTemporary panel",блаблабла)'
+      т.с. небольшой уход от хоткеев, для большей восприимчивости кода макроса :-)
+      
+      Пока не доделан...
+      Предложения, идеии, etc. по этой функции... (2yjh: Юра, это в основном тебя касается :-))
+
+7. API: пусть OPEN_FILEPANEL будет официальным, а не спрятанным.
+
+8. Крайне эксперементально :-)
+   Переделка PluginsSet::CallPlugin в предвериях п.6.1
+   У новой функции PluginsSet::FindPlugin() параметры:
+      ModuleName ==> список с разделителями '\n' или '\r', например, "Временная панель\nTemporary panel"
+                     т.е. FindPlugin "умеет" искать не только одно значение...
+      FindMode   ==> 0=полное совпадение, 1=подстрока с начала, 2=подстрока с конца
+      QueryMode  ==> 0=искать среди ModuleName, 1=искать среди Info.PluginMenuStrings[]
+
+   В коде присутствуют оба кода - старый и новый, разделенные посредством "#if 1".
+   Потом старый код уберу, когда будет понятно, что ОНО нормально пашет.
+
+9. Добавлена функция VMenu::DeleteSelectedItems() для удаления прочекинных элементов меню.
+
+10. API: Команда MCMD_GETSTATE для ACTL_KEYMACRO, 
+    возвращает одно из значений (перечисление FARMACROSTATE):
+      enum FARMACROSTATE {
+        MACROSTATE_NOMACRO          =0,  // не в режиме макро
+        MACROSTATE_EXECUTING        =1,  // исполнение: без передачи плагину пимп
+        MACROSTATE_EXECUTING_COMMON =2,  // исполнение: с передачей плагину пимп
+        MACROSTATE_RECORDING        =3,  // запись: без передачи плагину пимп
+        MACROSTATE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
+      };
+
+11. Mantis#408: Memory leak in struct MacroState.
+    тыкс... перебор вышел с Work.locVarTable :-(
+    Сам "Work.locVarTable" нужно удалять только в деструкторе. 
+    В остальных случаях - только содержимое таблицы. 
+
+12. Mantis#0000433: Updated operator new in new.cpp 
+
+t-rex 08.12.2007 18:03:05 +0200 - build 2305
 
 1. Mantis#408: Memory leak in struct MacroState.
 

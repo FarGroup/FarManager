@@ -292,6 +292,8 @@ KeyMacro::~KeyMacro()
 {
   _KEYMACRO(SysLog("[%p] KeyMacro::~KeyMacro()", this));
   InitInternalVars();
+  if(Work.AllocVarTable && Work.locVarTable)
+    xf_free(Work.locVarTable);
 }
 
 void KeyMacro::InitInternalLIBVars()
@@ -355,9 +357,9 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       if(Work.AllocVarTable)
       {
         deleteVTable(*Work.locVarTable);
-        xf_free(Work.locVarTable);
-        Work.locVarTable=NULL;
-        Work.AllocVarTable=false;
+        //xf_free(Work.locVarTable);
+        //Work.locVarTable=NULL;
+        //Work.AllocVarTable=false;
       }
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
@@ -371,9 +373,9 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       if(Work.AllocVarTable)
       {
         deleteVTable(*Work.locVarTable);
-        xf_free(Work.locVarTable);
-        Work.locVarTable=NULL;
-        Work.AllocVarTable=false;
+        //xf_free(Work.locVarTable);
+        //Work.locVarTable=NULL;
+        //Work.AllocVarTable=false;
       }
       Work.MacroWORKCount--;
 
@@ -2102,6 +2104,72 @@ static bool panelsetposFunc()
   return Ret?true:false;
 }
 
+// S=callplugin(S,Path,N)
+// Ахтунг, недоделано!
+static bool callpluginFunc()
+{
+  __int64 Ret=_i64(1);
+  TVar Mode   = VMStack.Pop();
+  TVar Path   = VMStack.Pop();
+  TVar MName  = VMStack.Pop();
+
+  VMStack.Push((const char *)""); //!!!!
+
+  return Ret?true:false;
+}
+
+// Result=replace(Str,Find,Replace,Cnt)
+static bool replaceFunc()
+{
+  TVar Count= VMStack.Pop();
+  TVar Repl = VMStack.Pop();
+  TVar Find = VMStack.Pop();
+  TVar Src  = VMStack.Pop();
+
+  __int64 Ret=_i64(1);
+
+  char *Str=NULL;
+
+  int lenS=(int)strlen(Src.s());
+  int lenF=(int)strlen(Find.s());
+  int lenR=(int)strlen(Repl.s());
+
+  int cnt=0;
+  const char *Ptr=Src.s();
+  while((Ptr=LocalStrstri(Ptr,Find.s())) != NULL)
+  {
+    cnt++;
+    Ptr+=lenF;
+  }
+
+  if(cnt)
+  {
+    if(lenR > lenF)
+      lenS+=cnt*(lenR-lenF+1); //???
+
+    Str=(char *)xf_malloc(lenS+1);
+    if(Str)
+    {
+      strcpy(Str,Src.s());
+      cnt=(int)Count.i();
+      if(cnt <= 0)
+        cnt=-1;
+      ReplaceStrings(Str,Find.s(),Repl.s(),cnt,TRUE);
+      VMStack.Push((const char *)Str);
+      free(Str);
+    }
+    else
+    {
+      Ret=_i64(0);
+      VMStack.Push(Src);
+    }
+  }
+  else
+    VMStack.Push(Src);
+
+  return Ret?true:false;
+}
+
 // V=PanelItem(typePanel,Index,TypeInfo)
 static bool panelitemFunc()
 {
@@ -2786,11 +2854,16 @@ done:
        goto begin;
     }
 
-    case MCODE_F_MENU_SELECT:      // N=Menu.Select(S)
+    case MCODE_F_MENU_SELECT:      // N=Menu.Select(S,N)
     case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
     {
        _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_CHECKHOTKEY? "MCODE_F_MENU_CHECKHOTKEY":"MCODE_F_MENU_SELECT"));
        __int64 Result=_i64(0);
+       __int64 tmpMode=_i64(0);
+       if(Key == MCODE_F_MENU_SELECT)
+       {
+         tmpMode=VMStack.Pop().toInteger();
+       }
        tmpVar=VMStack.Pop();
        const char *checkStr=tmpVar.toString();
        int CurMMode=CtrlObject->Macro.GetMode();
@@ -2807,7 +2880,7 @@ done:
            f=fo;
 
          if(f)
-           Result=f->VMProcess(Key,(void*)checkStr);
+           Result=f->VMProcess(Key,(void*)checkStr,tmpMode);
        }
        VMStack.Push(Result);
        goto begin;
@@ -2874,6 +2947,9 @@ done:
         {MCODE_F_ABS,absFunc}, // N=abs(N)
         {MCODE_F_ASC,ascFunc}, // N=asc(S)
         {MCODE_F_CHR,chrFunc}, // S=chr(N)
+        {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
+        {MCODE_F_CALLPLUGIN,callpluginFunc}, // S=callplugin(S,Path,N)
+
       };
       int J;
       for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)

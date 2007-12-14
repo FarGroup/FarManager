@@ -268,7 +268,7 @@ void Edit::FastShow()
   }
 
   CursorPos=TabCurPos;
-  if (TabCurPos-LeftPos>EditLength-1)
+  if (!Flags.Check(FEDITLINE_DROPDOWNBOX) && TabCurPos-LeftPos>EditLength-1)
     LeftPos=TabCurPos-EditLength+1;
   int RealLeftPos=TabPosToReal(LeftPos);
   int OutStrLength=min(EditLength,StrSize-RealLeftPos);

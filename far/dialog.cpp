@@ -1804,7 +1804,6 @@ void Dialog::ShowDialog(int ID)
           if (!DialogMode.Check(DMODE_DRAGGED))
             SetCursorType(1,-1);
           EditPtr->Show();
-          /* KM $ */
         }
         else
         {
@@ -1829,7 +1828,7 @@ void Dialog::ShowDialog(int ID)
           Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),"\x19");
         }
 
-        if (GetDropDownOpened()) // need redraw VMenu?
+        if (CurItem->Type == DI_COMBOBOX && GetDropDownOpened()) // need redraw VMenu?
         {
           CurItem->ListPtr->Hide();
           //if(CurItem->ListPtr->GetItemCount() > 0)

@@ -240,13 +240,11 @@ class PluginsSet
 
     void UnloadPlugin(struct PluginItem &CurPlg,DWORD Exception);
 
-    /* $ .09.2000 SVS
-      Функция CallPlugin - найти плагин по ID и запустить
-      OpenFrom = OPEN_*
-    */
-    int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
+
     int FindPlugin(DWORD SysID);
-    /* SVS $ */
+    int FindPlugin(const char *ModuleName,int FindMode,int QueryMode=0);
+
+    int CallPlugin(int PluginNumber,int OpenFrom, void *Data=NULL, const char *Folder=NULL,Panel *DestPanel=NULL,bool needUpdatePanel=false);
 
     void CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
                                  struct FarStandardFunctions *FSF,

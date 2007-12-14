@@ -645,6 +645,9 @@ int FileList::ProcessKey(int Key)
             {
               if (LocalStricmp(CtrlObject->Plugins.PluginsData[I].ModuleName,PluginModule)==0)
               {
+#if 1
+                CtrlObject->Plugins.CallPlugin(I,OPEN_SHORTCUT,PluginData,ShortcutFolder,this,true);
+#else
                 if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
                 {
                   HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(INT_PTR)PluginData);
@@ -659,6 +662,7 @@ int FileList::ProcessKey(int Key)
                     NewPanel->Show();
                   }
                 }
+#endif
                 break;
               }
             }
@@ -1486,7 +1490,7 @@ int FileList::ProcessKey(int Key)
       _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       // $ 11.03.2001 VVM - Печать через pman только из файловых панелей.
       if ((PanelMode!=PLUGIN_PANEL) && (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
-         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
+         CtrlObject->Plugins.CallPlugin(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER),OPEN_FILEPANEL,NULL,NULL,this); // printman
       else
         if (FileCount>0 && SetCurPath())
           PrintFiles(this);
@@ -2217,7 +2221,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
            Для неремотных дисков ПОКА покажем меню выбора дисков
            Потом сюды можно воткнуть вызов какого-нить плагина.
            Например, при нынешнем SysID
-           CtrlObject->Plugins.CallPlugin(PLG_MYCOMP_SYSID,OPEN_FILEPANEL,CurDir);
+           CtrlObject->Plugins.CallPlugin(PLG_MYCOMP_SYSID,OPEN_FILEPANEL,CurDir,CurDir);
            который будет показывать панель типа "Майн комп" :-)
         */
         /* $ 10.06.2001 KM
@@ -2253,7 +2257,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
           if(PtrS1 && !strchr(PtrS1+1,'\\'))
           {
   // _D(SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
-            if(CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
+            if(CtrlObject->Plugins.CallPlugin(CtrlObject->Plugins.FindPlugin(SYSID_NETWORK),OPEN_FILEPANEL,NewCurDir,NewCurDir)) // NetWork Plugin :-)
             {
   //_D(SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
               return(FALSE);

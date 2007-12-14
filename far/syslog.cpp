@@ -979,10 +979,12 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_EDITOR_SET),
      DEF_MCODE_(F_ENVIRON),
      DEF_MCODE_(F_EVAL),                // N=eval(S)
+     DEF_MCODE_(F_CALLPLUGIN),                // S=callplugin(S,Path,N)
      DEF_MCODE_(F_FATTR),
      DEF_MCODE_(F_FEXIST),
      DEF_MCODE_(F_FLOCK),
      DEF_MCODE_(F_FSPLIT),
+     DEF_MCODE_(F_REPLACE),
      DEF_MCODE_(F_IIF),
      DEF_MCODE_(F_INDEX),
      DEF_MCODE_(F_INT),

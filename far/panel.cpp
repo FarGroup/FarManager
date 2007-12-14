@@ -902,6 +902,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   else
     if (UserDataSize==2)
     {
+#if 1
+      if(CtrlObject->Plugins.CallPlugin(LOWORD(UserData),OPEN_DISKMENU,(void*)HIWORD(UserData),NULL,this,true))
+        if(!GetFocus() && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+          CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
+
+#else
       HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(LOWORD(UserData),OPEN_DISKMENU,HIWORD(UserData));
       if (hPlugin!=INVALID_HANDLE_VALUE)
       {
@@ -913,6 +919,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         if(!Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
           CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
       }
+#endif
     }
   return(-1);
 }

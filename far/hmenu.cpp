@@ -96,9 +96,24 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
       if ( *str )
       {
         char Temp[NM];
+        int Res;
         for(I=0; I < ItemCount; ++I)
         {
-          if(LocalRevStrstri(RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),Item[I].Name)),str))
+          Res=0;
+          RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),Item[I].Name));
+          switch(iParam)
+          {
+            case 0: // full compare
+              Res=LocalStricmp(Temp,str)==0;
+              break;
+            case 1: // begin compare
+              Res=LocalStrstri(Temp,str)!=NULL;
+              break;
+            case 2: // end compare
+              Res=LocalRevStrstri(Temp,str)!=NULL;
+              break;
+          }
+          if(Res)
           {
             Item[SelectPos].Selected=0;
             SelectPos=I;

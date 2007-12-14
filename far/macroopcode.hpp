@@ -132,6 +132,8 @@ enum MACRO_OP_CODE {
   MCODE_F_WAITKEY,                  // S=waitkey(N)
   MCODE_F_XLAT,                     // S=xlat(S)
   MCODE_F_FLOCK,                    // N=FLock(N,N)
+  MCODE_F_REPLACE,                  // S=replace(sS,sF,sR,Count)
+  MCODE_F_CALLPLUGIN,               // S=callplugin(S,Path,N)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

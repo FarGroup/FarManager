@@ -595,7 +595,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
   {
     ; //
   }
-  /* DJ $ */
 
   switch(Key)
   {
@@ -604,14 +603,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     */
     case KEY_ALTF5:
     {
-      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      if(Opt.UsePrintManager)
       {
-        CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
-        return TRUE;
+        if(CtrlObject->Plugins.CallPlugin(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER),OPEN_EDITOR)) // printman
+          return TRUE;
       }
       break; // отдадим Alt-F5 на растерзание плагинам, если не установлен PrintMan
     }
-    /* SVS $*/
 
     case KEY_F6:
     {

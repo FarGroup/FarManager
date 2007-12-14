@@ -2627,11 +2627,16 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
     ScrBuf.Flush();
     Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,ExitCode);
   }
+#if 1
+  int OpenCode=OPEN_PLUGINSMENU;
+  if (Editor)
+    OpenCode=OPEN_EDITOR;
+  if (Viewer)
+    OpenCode=OPEN_VIEWER;
+  CallPlugin(LOWORD(Data),OpenCode,(void*)HIWORD(Data),NULL,CtrlObject->Cp()->ActivePanel,true);
+#else
   if (PreparePlugin(LOWORD(Data)) && PluginsData[LOWORD(Data)].pOpenPlugin!=NULL && !ProcessException)
   {
-    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-//    if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
-//      return(FALSE);
     int OpenCode=OPEN_PLUGINSMENU;
     if (Editor)
       OpenCode=OPEN_EDITOR;
@@ -2640,12 +2645,13 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
     HANDLE hPlugin=OpenPlugin(LOWORD(Data),OpenCode,HIWORD(Data));
     if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
     {
+      Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+
       if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
       {
         ClosePlugin (hPlugin);
         return(FALSE);
       }
-
 
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
       NewPanel->SetPluginMode(hPlugin,"",true);
@@ -2660,6 +2666,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
     }
     /* SKV $ */
   }
+#endif
   return(TRUE);
 }
 
@@ -3002,37 +3009,53 @@ void CheckScreenLock()
   }
 }
 
-/* $ 27.09.2000 SVS
-  Функция CallPlugin - найти плагин по ID и запустить
-  в зачаточном состоянии!
-*/
-int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
-{
-  int I;
-  if((I=FindPlugin(SysID)) != -1)
-  {
-    if (PluginsData[I].pOpenPlugin && !ProcessException)
-    {
-      HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(INT_PTR)Data);
 
-      if (hNewPlugin!=INVALID_HANDLE_VALUE &&
-         (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
+int PluginsSet::CallPlugin(int PluginNumber,int OpenFrom, void *Data, const char *Folder, Panel *DestPanel,bool needUpdatePanel)
+{
+  if ((DWORD)PluginNumber > (DWORD)PluginsCount)
+    return FALSE;
+
+  if (PreparePlugin(PluginNumber) && PluginsData[PluginNumber].pOpenPlugin && !ProcessException)
+  {
+    HANDLE hNewPlugin=OpenPlugin(PluginNumber,OpenFrom,(INT_PTR)Data);
+
+    bool isEditor=OpenFrom==OPEN_EDITOR;
+    bool isViewer=OpenFrom==OPEN_VIEWER;
+    bool isActivePanel=OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL;
+
+    if (hNewPlugin!=INVALID_HANDLE_VALUE && !(isEditor || isViewer))
+    {
+      if(!DestPanel)
       {
-        int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
-        Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
-        if (Data && *(char *)Data)
-          SetDirectory(hNewPlugin,(char *)Data,0);
-        /* $ 04.04.2001 SVS
-           Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
-           Если что-то не так - раскомментировать!!!
-        */
-//        NewPanel->Update(0);
-//        NewPanel->Show();
-        /* SVS $ */
+        DestPanel=CtrlObject->Cp()->ActivePanel;
+        if(!isActivePanel)
+           DestPanel=CtrlObject->Cp()->GetAnotherPanel(DestPanel);
       }
-      return TRUE;
+      int CurFocus=DestPanel->GetFocus();
+
+      if ( DestPanel->ProcessPluginEvent(FE_CLOSE,NULL) )
+      {
+        ClosePlugin (hNewPlugin);
+        return(FALSE);
+      }
+
+      Panel *NewPanel=CtrlObject->Cp()->ChangePanel(DestPanel,FILE_PANEL,TRUE,TRUE);
+      NewPanel->SetPluginMode(hNewPlugin,"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+
+      if (OpenFrom == OPEN_FILEPANEL && Folder && *Folder)
+        SetDirectory(hNewPlugin,Folder,0);
+
+      if(needUpdatePanel)
+      {
+        NewPanel->Update(0);
+        NewPanel->Show();
+      }
     }
+
+    if(isEditor && CurEditor)
+      CurEditor->SetPluginTitle(NULL);
+
+    return TRUE;
   }
   return FALSE;
 }
@@ -3048,7 +3071,75 @@ int PluginsSet::FindPlugin(DWORD SysID)
   }
   return -1;
 }
-/* SVS $ */
+
+/*
+  ModuleName ==> список с разделителями '\n' или '\r'
+  FindMode   ==> 0=полное совпадение, 1=подстрока с начала, 2=подстрока с конца
+  QueryMode  ==> 0=искать среди ModuleName, 1=искать среди Info.PluginMenuStrings[]
+*/
+int PluginsSet::FindPlugin(const char *ModuleName,int FindMode,int QueryMode)
+{
+  if(ModuleName && *ModuleName)
+  {
+    UserDefinedList ModuleList;
+    // Запретим дубли в списке целей
+    ModuleList.SetParameters('\n','\r',ULF_UNIQUE);
+    if(!ModuleList.Set(ModuleName))
+       return -1;
+
+    struct PluginItem *PData=PluginsData;
+    struct PluginInfo Info;
+    for (int I=0; I < PluginsCount; I++, PData++)
+    {
+      int Res;
+      int Cnt=1;
+      const char *Ptr;
+      switch(QueryMode)
+      {
+        case 0:
+          Ptr=PData->ModuleName;
+          break;
+        case 1:
+          if(!GetPluginInfo(I,&Info))
+            continue;
+          Cnt=Info.PluginMenuStringsNumber;
+          break;
+        default:
+          return -1;
+      }
+
+
+      for(int J=0; J < Cnt; ++J)
+      {
+        if(QueryMode == 1)
+          Ptr=Info.PluginMenuStrings[J];
+        const char *NamePtr;
+        ModuleList.Reset();
+        while(NULL!=(NamePtr=ModuleList.GetNext()))
+        {
+          switch(FindMode)
+          {
+            case 0: // full compare
+              Res=LocalStricmp(Ptr,NamePtr)==0;
+              break;
+            case 1: // begin compare
+              Res=LocalStrstri(Ptr,NamePtr)!=NULL;
+              break;
+            case 2: // end compare
+              Res=LocalRevStrstri(Ptr,NamePtr)!=NULL;
+              break;
+            default:
+              Res=0;
+          }
+          if (Res)
+            return I;
+        }
+      }
+
+    }
+  }
+  return -1;
+}
 
 /* $ 23.10.2000 SVS
    Функция TestPluginInfo - проверка на вшивость переданных плагином данных

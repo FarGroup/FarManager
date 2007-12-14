@@ -740,11 +740,27 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
       if ( *str )
       {
         char Temp[3*NM];
+        int Res;
         for(int I=0; I < ItemCount; ++I)
         {
           struct MenuItem *_item=GetItemPtr(I);
-          const char *Name=((struct MenuItem *)_item)->PtrName();
-          if(LocalRevStrstri(RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),Name)),str))
+
+          Res=0;
+          RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),((struct MenuItem *)_item)->PtrName()));
+          switch(iParam)
+          {
+            case 0: // full compare
+              Res=LocalStricmp(Temp,str)==0;
+              break;
+            case 1: // begin compare
+              Res=LocalStrstri(Temp,str)!=NULL;
+              break;
+            case 2: // end compare
+              Res=LocalRevStrstri(Temp,str)!=NULL;
+              break;
+          }
+
+          if(Res)
           {
             SelectPos=SetSelectPos(I,1);
             if(SelectPos != I)
@@ -1133,9 +1149,6 @@ void VMenu::DeleteItems()
 {
   CriticalSectionLock Lock(CS);
 
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос пам€ти через new :-)
-  */
   if(Item)
   {
     for(int I=0; I < ItemCount; ++I)
@@ -1143,7 +1156,7 @@ void VMenu::DeleteItems()
         xf_free(Item[I].UserData);
     xf_free(Item);
   }
-  /* SVS $ */
+
   Item=NULL;
   ItemCount=0;
   SelectPos=-1;
@@ -1151,13 +1164,38 @@ void VMenu::DeleteItems()
   MaxLength=Max((int)strlen(VMenu::Title),(int)strlen(VMenu::BottomTitle))+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
-  /* $ 23.02.2002 DJ
-     а перерисовать?
-  */
+
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  /* DJ $ */
 }
 
+
+int VMenu::DeleteSelectedItems()
+{
+  CriticalSectionLock Lock(CS);
+
+  if(Item)
+  {
+    int I, Cnt;
+    for(Cnt=I=0; I < ItemCount; ++I)
+      if(Item[I].Flags&LIF_CHECKED)
+        Cnt++;
+
+    if(Cnt >= ItemCount)
+      DeleteItems();
+    else
+      for(I=0; I < ItemCount; ++I)
+      {
+        if(Item[I].Flags&LIF_CHECKED)
+        {
+          DeleteItem(I);
+          I=-1;  // начинаем смотреть с начала, т.к. содержимое массива и ItemCount изменились
+        }
+      }
+    VMFlags.Set(VMENU_UPDATEREQUIRED);
+    return Cnt;
+  }
+  return 0;
+}
 
 /* $ 01.08.2000 SVS
    функци€ удалени€ N пунктов меню
