@@ -124,54 +124,22 @@ HANDLE apiCreateFile (
 
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
 {
-#if defined(FAR_ANSI)
-  if(Opt.FarAnsi)
-  {
-    if(lpszDst != lpszSrc)
-      memmove(lpszDst,lpszSrc,cchDstLength);
-    return TRUE;
-  }
-#endif
   return OemToCharBuff(lpszSrc,lpszDst,cchDstLength);
 }
 
 BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
 {
-#if defined(FAR_ANSI)
-  if(Opt.FarAnsi)
-  {
-    if(lpszDst != lpszSrc)
-      memmove(lpszDst,lpszSrc,cchDstLength);
-    return TRUE;
-  }
-#endif
   return CharToOemBuff(lpszSrc,lpszDst,cchDstLength);
 }
 
 
 BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst)
 {
-#if defined(FAR_ANSI)
-  if(Opt.FarAnsi)
-  {
-    if(lpszDst != lpszSrc)
-      memmove(lpszDst,lpszSrc,strlen(lpszSrc)+1);
-    return TRUE;
-  }
-#endif
   return OemToChar(lpszSrc,lpszDst);
 }
 
 BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
 {
-#if defined(FAR_ANSI)
-  if(Opt.FarAnsi)
-  {
-    if(lpszDst != lpszSrc)
-      memmove(lpszDst,lpszSrc,strlen(lpszSrc)+1);
-    return TRUE;
-  }
-#endif
   return CharToOem(lpszSrc,lpszDst);
 }
 

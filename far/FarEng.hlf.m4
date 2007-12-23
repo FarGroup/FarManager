@@ -146,10 +146,6 @@ $ # FAR: command line switches#
 
   #/ag#   Disable display of pseudo-graphic characters.
 
-  #/8#    Forces FAR to work with console, not using
-        unicode capabilities.
-        The option works only under Windows NT 4 or later.
-
   #/e[<line>[:<pos>]] <filename>#
         Edit the specified file. After /e you may optionally
         specify editor start line and line position.

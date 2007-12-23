@@ -92,16 +92,7 @@ L"  ppath - path to a folder (or a file or an archive) for the passive panel\n\n
 L"The following switches may be used in the command line:\n\n"
 L" /?   This help.\n"
 L" /a   Disable display of characters with codes 0 - 31 and 255.\n"
-L" /ag  Disable display of pseudographics characters.\n");
-#if defined(USE_WFUNC)
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-  {
-    wprintf(
-L" /8   Forces FAR to work in ANSI (non-Unicode) console.\n"
-    );
-  }
-#endif
-wprintf(
+L" /ag  Disable display of pseudographics characters.\n"
 L" /e[<line>[:<pos>]] <filename>\n"
 L"      Edit the specified file.\n"
 L" /i   Set small (16x16) icon for FAR console window.\n"

@@ -93,7 +93,7 @@ void FileFilterParams::SetMask(DWORD Used, const wchar_t *Mask)
   {
     int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(int)((Ptr-PtrMask));
     // Если встречается %pathext%, то допишем в конец...
-    memmove(Ptr,Ptr+IQ1,(StrLength(Ptr+IQ1)+1)*sizeof(wchar_t));
+    wmemmove(Ptr,Ptr+IQ1,StrLength(Ptr+IQ1)+1);
 
     strMask.ReleaseBuffer();
 

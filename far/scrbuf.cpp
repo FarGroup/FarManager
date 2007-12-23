@@ -188,7 +188,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
   if (X1==0 && Y1==0 &&
       CtrlObject!=NULL &&
       CtrlObject->Macro.IsRecording() &&
-      GetVidChar(MacroChar) != 'R')
+      GetVidChar(MacroChar) != L'R')
     Text[0]=MacroChar;
 }
 
@@ -288,9 +288,9 @@ void ScreenBuf::Flush()
 
   if (CtrlObject!=NULL && CtrlObject->Macro.IsRecording())
   {
-    if (GetVidChar(Buf[0])!='R')
+    if (GetVidChar(Buf[0])!=L'R')
       MacroChar=Buf[0];
-    SetVidChar(Buf[0],'R');
+    SetVidChar(Buf[0],L'R');
     Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
   }
 

@@ -1,3 +1,9 @@
+svs 23.12.2007 16:14:14 +0300 - build 396
+
+from Alexey Samlyukov:
+
+1. memcpy()/wmemcpy() + прочая уникодная мелочь + убраны анахронизмы (#if defined(FAR_ANSI)), может и зря..
+
 svs 23.12.2007 15:54:37 +0300 - build 395
 
 1. Mantis#0000447: Buffer overrun in Edit:ProcessKey() 

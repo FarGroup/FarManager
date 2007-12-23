@@ -2812,9 +2812,9 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
           GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_HEX].Selected=1;
           if ( StrCmpNI(ptr,L"0x",2)==0)
-              memmove(ptr,ptr+2,(StrLength(ptr)-1)*sizeof (wchar_t)); // а тут надо -1, а не -2  // сдвинем строку
+              wmemmove(ptr,ptr+2,StrLength(ptr)-1); // а тут надо -1, а не -2  // сдвинем строку
           else if (ptr[0]=='$')
-              memmove(ptr,ptr+1,StrLength(ptr)*sizeof (wchar_t));
+              wmemmove(ptr,ptr+1,StrLength(ptr));
           //Relative=0; // при hex значении никаких относительных значений?
       }
 

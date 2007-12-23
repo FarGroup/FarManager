@@ -223,7 +223,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
     }
     CharCopy(NewBuf, ToIndex, ScreenBuf, FromIndex, NewWidth);
   }
-  delete ScreenBuf;
+  delete [] ScreenBuf;
   ScreenBuf=NewBuf;
   X1=NX1;Y1=NY1;X2=NX2;Y2=NY2;
 

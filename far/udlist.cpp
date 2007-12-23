@@ -107,7 +107,7 @@ wchar_t *UserDefinedListItem::set(const wchar_t *Src, unsigned int size)
     Str=static_cast<wchar_t*>(xf_malloc((size+1)*sizeof(wchar_t)));
     if(Str)
     {
-      memcpy(Str, Src, size*sizeof(wchar_t));
+      wmemcpy(Str,Src,size);
       Str[size]=0;
     }
   }
@@ -217,8 +217,7 @@ BOOL UserDefinedList::Set(const wchar_t *List, BOOL AddToList)
                       lastAsterisk=TRUE;
                     else
                     {
-                      memcpy(item.Str+i, item.Str+i+1,
-                        (StrLength(item.Str+i+1)+1)*sizeof(wchar_t));
+                      wmemcpy(item.Str+i, item.Str+i+1, StrLength(item.Str+i+1)+1);
                       --i;
                     }
                   }

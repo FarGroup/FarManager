@@ -3822,7 +3822,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags)
     if(Buffer)
     {
       allocBuffer=true;
-      memmove(Buffer,PlainText,lenPlainText*(int)sizeof(wchar_t));
+      wmemmove(Buffer,PlainText,lenPlainText);
       Buffer[lenPlainText]=0; // +1
       wchar_t *ptrBuffer=Buffer;
       while(1)

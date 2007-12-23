@@ -623,7 +623,7 @@ m1:
               if (StringLen(SplitLine)<RealMaxLength)
               {
                 AddLine(SplitLine);
-                memmove(SplitLine+1,SplitLine+I+1,(StrLength(SplitLine+I+1)+1)*sizeof(wchar_t));
+                wmemmove(SplitLine+1,SplitLine+I+1,StrLength(SplitLine+I+1)+1);
                 *SplitLine=L' ';
                 HighlightsCorrection(SplitLine);
                 Splitted=TRUE;
@@ -704,7 +704,7 @@ void Help::HighlightsCorrection(wchar_t *Str)
       Count++;
   if ((Count & 1) && *Str!=L'$')
   {
-    memmove(Str+1,Str,(StrLength(Str)+1)*sizeof (wchar_t));
+    wmemmove(Str+1,Str,StrLength(Str)+1);
     *Str=L'#';
   }
 }
@@ -2012,7 +2012,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
               - Неверно создавался топик с учётом нового правила,
                 в котором путь для топика должен заканчиваться "/".
             */
-            memmove(Ptr2+1,Ptr,(StrLength(Ptr)+1)*sizeof(wchar_t)); //???
+            wmemmove(Ptr2+1,Ptr,StrLength(Ptr)+1); //???
 
             // А вот ЗДЕСЬ теперь все по правилам Help API!
           }
@@ -2105,14 +2105,14 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
           pp=URLPath;
           while(*pp && (pp=wcsstr(pp,L"~~")) != NULL)
           {
-            memmove(pp,pp+1,(StrLength(pp+1)+1)*sizeof (wchar_t));
+            wmemmove(pp,pp+1,StrLength(pp+1)+1);
             ++pp;
           }
           // удалим два идущих в подряд ##
           pp=URLPath;
           while(*pp && (pp=wcsstr(pp,L"##")) != NULL)
           {
-            memmove(pp,pp+1,(StrLength(pp+1)+1)*sizeof (wchar_t));
+            wmemmove(pp,pp+1,StrLength(pp+1)+1);
             ++pp;
           }
 

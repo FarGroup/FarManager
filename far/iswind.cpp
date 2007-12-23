@@ -76,9 +76,16 @@ void DetectWindowedMode()
 
 BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
 {
-  wchar_t Title[256]; //BUGBUG, dynamic
+  int Len=GetWindowTextLengthW(hwnd);
+  if (!Len)
+    return(TRUE);
 
-  int LenTitle=GetWindowTextW (hwnd, Title, sizeof(Title));
+  wchar_t *Title=(wchar_t *)xf_malloc((Len+1)*sizeof(wchar_t));
+
+  if (!Title)
+    return(TRUE);
+
+  int LenTitle=GetWindowTextW(hwnd, Title, Len);
 
   if (LenTitle)
   {
@@ -86,9 +93,11 @@ BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
     if(wcsstr(Title,(const wchar_t *)FARTitl))
     {
       hFarWnd=hwnd;
+      xf_free(Title);
       return(FALSE);
     }
   }
+  xf_free(Title);
   return(TRUE);
 }
 

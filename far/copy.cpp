@@ -2706,7 +2706,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
       swprintf(wszTotalMsg, L" %s ", UMSG(MCopyDlgTotal));
 
     int TotalLength=StrLength(wszTotalMsg);
-    memcpy(BarStr+(StrLength(BarStr)-TotalLength+1)/2,wszTotalMsg,(TotalLength)*sizeof (wchar_t));
+    wmemcpy(BarStr+(StrLength(BarStr)-TotalLength+1)/2,wszTotalMsg,TotalLength);
 //    *FilesStr=0;
 
     swprintf (FilesStr, UMSG(MCopyProcessedTotal),TotalFiles, TotalFilesToProcess);

@@ -484,7 +484,7 @@ void ShowTime(int ShowAlways)
   }
 
   if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-      GetVidChar(ScreenClockText[2])==':' || ScreenSaverActive)
+      GetVidChar(ScreenClockText[2])==L':' || ScreenSaverActive)
     return;
 
   ProcessShowClock++;
