@@ -1021,7 +1021,7 @@ int Edit::ProcessKey(int Key)
         wchar_t *ShortStr=new wchar_t[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        wcsncpy(ShortStr,Str,StrSize);
+        lstrcpynW(ShortStr,Str,StrSize+1);
         int Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)

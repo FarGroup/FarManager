@@ -1,3 +1,18 @@
+svs 23.12.2007 15:54:37 +0300 - build 395
+
+1. Mantis#0000447: Buffer overrun in Edit:ProcessKey() 
+
+2. Mantis#0000446: Wrong function to free memory in TreeList::SaveState()
+
+3. Mantis#0000449: Handle leak in History::ReadHistory()
+
+4. Mantis#0000444: Bugs and memory leaks in class History
+
+5. Mantis#0000441: Cannot delete file "Descript.ion" 
+   Здесь в panel.hpp было неправильное определение виртуальной функции GetDizName(). 
+   Поэтому в ShellDelete() конструкция SrcPanel->GetDizName(strDizName); возвращала... 
+   да ничего она не возвращала!
+
 yjh 15.12.2007 00:54:56 +0300 - build 394
 
 1. Доделка фильтров "исключения" при поиске (Alt-F7) в отношении каталогов.

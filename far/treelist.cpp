@@ -2071,7 +2071,7 @@ int TreeList::GetCurrentPos()
 
 bool TreeList::SaveState()
 {
-  if(SaveListData) xf_free(SaveListData);
+  if(SaveListData) delete [] SaveListData;
   SaveListData=NULL;
   SaveTreeCount=SaveWorkDir=0;
   if(TreeCount > 0)

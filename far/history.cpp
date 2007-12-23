@@ -216,10 +216,6 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
   RemoveTrailingSpaces(AddRecord.Name);
   AddRecord.Type=Type;
 
-  int OldLastPtr=LastPtr-1;
-  if (OldLastPtr < 0)
-    OldLastPtr=HistoryCount-1;
-
   if (RemoveDups) // удалять дубликаты?
   {
     HistoryRecord *PtrLastStr;
@@ -246,12 +242,16 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
 
         if (Equal)
         {
+          int OldLastPtr=LastPtr-1;
+          if (OldLastPtr < 0)
+            OldLastPtr=HistoryCount-1;
+
           int Length=OldLastPtr-I;
 
           if (Length<0)
             Length+=HistoryCount;
 
-          for (J=0; J <= Length; J++)
+          for (J=0; J < Length; J++)
           {
             int Dest=(I+J) % HistoryCount;
             int Src=(I+J+1) % HistoryCount;
@@ -265,6 +265,10 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
             memset(LastStr+Src,0,sizeof(HistoryRecord));
           }
 
+          if (Length==0)
+            if(LastStr[OldLastPtr].Name)
+              xf_free(LastStr[OldLastPtr].Name);
+
           memcpy(LastStr+OldLastPtr, &AddRecord, sizeof(HistoryRecord));
 
           CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
@@ -274,18 +278,13 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
     }
   }
 
-  int Pos=(LastPtr-1) % HistoryCount;
-
-  if(LastStr[Pos].Name && LastStr[LastPtr].Name &&
-      (StrCmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
-        StrCmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
-        !EqualType(AddRecord.Type,LastStr[Pos].Type)))
+  if(LastStr[LastPtr].Name)
     xf_free(LastStr[LastPtr].Name);
 
   memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
 
   if (++LastPtr==HistoryCount)
-     LastPtr=0;
+    LastPtr=0;
 
   CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
 }
@@ -296,14 +295,14 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
 BOOL History::SaveHistory()
 {
   if(!LastStr)
-    return FALSE; //??
+    return FALSE;
 
   if (!*EnableSave)
     return TRUE;
 
   wchar_t *BufferLines=NULL,*BufferTitles=NULL,*PtrBuffer;
-  unsigned char *TypesBuffer;
-  TypesBuffer=(unsigned char *)alloca(HistoryCount+1);
+  wchar_t *TypesBuffer;
+  TypesBuffer=(wchar_t *)alloca((HistoryCount+1)*sizeof(wchar_t));
   if(!TypesBuffer)
     return FALSE;
 
@@ -352,11 +351,10 @@ BOOL History::SaveHistory()
 
     if (SaveType)
     {
-      memset(TypesBuffer,0,HistoryCount+1);
+      wmemset(TypesBuffer,0,HistoryCount+1);
       for (I=0; I < HistoryCount; I++)
         if(LastStr[I].Name)
-          TypesBuffer[SizeTypes++]=LastStr[I].Type+'0';
-      TypesBuffer[SizeTypes++]=0;
+          TypesBuffer[SizeTypes++]=LastStr[I].Type+L'0';
     }
   }
 
@@ -378,7 +376,7 @@ BOOL History::SaveHistory()
     if (SaveType)
     {
       if(TypesBuffer && *TypesBuffer)
-        RegSetValueExW(hKey,L"Types",0,REG_SZ,TypesBuffer,SizeTypes);
+        RegSetValueExW(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,(SizeTypes+1)*sizeof(wchar_t));
       else
         RegDeleteValueW(hKey,L"Types");
     }
@@ -425,7 +423,10 @@ BOOL History::ReadHistory()
   Size=GetRegKeySize(hKey, L"Lines");
 
   if(!Size) // Нету ничерта
+  {
+    RegCloseKey(hKey);
     return TRUE;
+  }
 
   if((Buffer=(wchar_t*)xf_malloc(Size*sizeof (wchar_t))) == NULL)
   {
@@ -496,12 +497,12 @@ BOOL History::ReadHistory()
 
   if (NeedReadType)
   {
-    unsigned char *TypesBuffer;
-    TypesBuffer=(unsigned char *)alloca(HistoryCount+2);
+    BYTE *TypesBuffer;
+    TypesBuffer=(BYTE *)alloca((HistoryCount+2)*sizeof(wchar_t));
     if(TypesBuffer)
-      memset(TypesBuffer,0,HistoryCount+1);
-    Size=HistoryCount+1;
-    if(TypesBuffer && RegQueryValueExW(hKey,L"Types",0,&Type,(unsigned char *)TypesBuffer,&Size)==ERROR_SUCCESS)
+      memset(TypesBuffer,0,(HistoryCount+1)*sizeof(wchar_t));
+    Size=(HistoryCount+1)*sizeof(wchar_t);
+    if(TypesBuffer && RegQueryValueExW(hKey,L"Types",0,&Type,(BYTE *)TypesBuffer,&Size)==ERROR_SUCCESS)
     {
       StrPos=0;
       Buf=(wchar_t *)TypesBuffer;

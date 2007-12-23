@@ -210,7 +210,7 @@ class Panel:public ScreenObject
     virtual void EditFilter() {};
     virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
     virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {};
-    virtual void GetDizName(const wchar_t *DizName) {};
+    virtual void GetDizName(string &strDizName) {};
     virtual void FlushDiz() {};
     virtual void CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName,
                  const wchar_t *DestShortName,DizList *DestDiz) {};
