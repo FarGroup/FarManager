@@ -64,6 +64,9 @@ HANDLE WINAPI OpenPlugin(
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
         <td class="cont" width="60%">Открыт из встроенной программы просмотра</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
+        <td class="cont" width="60%">Открыт из диалога</td></tr>
 </table>
     </div>
 
@@ -81,6 +84,8 @@ HANDLE WINAPI OpenPlugin(
       для сохранения дополнительной информации о текущем состоянии.
       Не обязательно сохранять в нем информацию о текущей директории, так как этим
       занимается сам FAR.
+      <li>Для OPEN_DIALOG <em>Item</em> содержит адрес структуры
+      <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>.
       <li>Для OPEN_COMMANDLINE <em>Item</em> содержит адрес введенного
       пользователем в командной строке выражения.
       Если плагин не установил флаг <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>, то

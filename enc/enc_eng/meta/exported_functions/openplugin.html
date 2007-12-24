@@ -60,6 +60,10 @@ HANDLE WINAPI OpenPlugin(
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
         <td class="cont" width="60%">Opened from internal viewer.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
+        <td class="cont" width="60%">Opened from dialog</td></tr>
+
 </table>
     </div>
 
@@ -75,6 +79,8 @@ HANDLE WINAPI OpenPlugin(
       structure, when saving the shortcut. The plugin can use it to store any additional
       information about its current state. It is not necessary to save the information about the
       current directory, because it is restored by FAR when using folder shortcuts.
+      <li>For OPEN_DIALOG <em>Item</em> contains adress of an
+      <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a> structure.
       <li>For OPEN_COMMANDLINE <em>Item</em> contains address of a string containing the command
       line entered by the user. Plugin command prefix is not included in this string, unless the
       <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a> flag is set.<br>

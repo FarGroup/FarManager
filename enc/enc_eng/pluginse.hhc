@@ -167,6 +167,16 @@
                                 <param name="Local" value="html/exported_functions/processviewerevent.html">
                                 </OBJECT>
                 </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Dialog specific functions">
+                        <param name="Local" value="html/exported_functions/index_dialog.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ProcessDialogEvent">
+                                <param name="Local" value="html/exported_functions/processdialogevent.html">
+                                </OBJECT>
+                </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
                 <param name="Name" value="Service functions">
@@ -635,6 +645,10 @@
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarDialogEvent">
+                                <param name="Local" value="html/structures/fardialogevent.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="FarDialogItem">
                                 <param name="Local" value="html/dialogapi/structures/fardialogitem.html">
                                 </OBJECT>
@@ -689,6 +703,10 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="FarListUpdate">
                                 <param name="Local" value="html/dialogapi/structures/farlistupdate.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="OpenDlgPluginData">
+                                <param name="Local" value="html/structures/opendlgplugindata.html">
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">

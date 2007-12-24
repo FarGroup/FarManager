@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessDialogEvent</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>ProcessDialogEvent</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>ProcessDialogEvent</dfn> function informs plugins about different dialog events.</div>
+
+<pre class=syntax>
+int WINAPI ProcessDialogEvent(
+  int Event,
+  void *Param
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+    <div class=dfn>Event</div>
+    <div class=dfndescr>Event type.<br>
+      Can be one of the following values (<a name="DIALOG_EVENTS">DIALOG_EVENTS</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCINIT">DE_DLGPROCINIT</a></td>
+        <td class="cont" width="60%">
+        Event was sent to the dialog handler.<br>
+          <i>Param</i> - pointer to the <a href="../structures/fardialogevent.html">FarDialogEvent</a> structure.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="DE_DEFDLGPROCINIT">DE_DEFDLGPROCINIT</a></td>
+        <td class="cont" width="60%">
+        Event was sent to the <a href="../dialogapi/defdlgproc.html">internal</a> dialog handler.<br>
+          <i>Param</i> - pointer to the <a href="../structures/fardialogevent.html">FarDialogEvent</a> structure.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCEND">DE_DLGPROCEND</a></td>
+        <td class="cont" width="60%">
+        Dialog handler processed the event. FarDialogEvent.Result points to dialog handler return value.<br>
+          <i>Param</i> - pointer to the <a href="../structures/fardialogevent.html">FarDialogEvent</a> structure.
+        </td></tr>
+
+</table>
+
+    </div>
+    <div class=dfn>Param</div>
+    <div class=dfndescr>
+      Pointer to the <a href="../structures/fardialogevent.html">FarDialogEvent</a> structure.
+    </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  TRUE - the event was processed internally. FarDialogEvent.Result points to the variable, which be used as dialog handler return value.<br>
+  FALSE - the event should be processed by the internal handler of the Dialog API kernel. 
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../structures/fardialogevent.html">FarDialogEvent</a>,
+<a href="../dialogapi/dmsg/index_dn.html">events</a>,
+<a href="../dialogapi/index.html">Dialog API</a>
+</div>
+
+</body>
+</html>
