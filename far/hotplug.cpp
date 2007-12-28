@@ -51,9 +51,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
 #define VolumeClassGuid             GUID_DEVINTERFACE_VOLUME
 MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
-#define CM_DRP_FRIENDLYNAME                (0x0000000D)
-#define CM_DRP_DEVICEDESC                  (0x00000001)
-#define CM_DRP_CAPABILITIES                (0x00000010)
+#define CM_DRP_FRIENDLYNAME         (0x0000000D)
+#define CM_DRP_DEVICEDESC           (0x00000001)
+#define CM_DRP_CAPABILITIES         (0x00000010)
 #define CM_DEVCAP_REMOVABLE         (0x00000004)
 #define CM_DEVCAP_SURPRISEREMOVALOK (0x00000080)
 #define CM_DEVCAP_DOCKDEVICE        (0x00000008)
@@ -197,49 +197,43 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
   if ( nCount )
   {
     struct MenuItemEx ListItem;
-    string strFriendlyName;
-    string strDescription;
 
     for (int I = 0; I < nCount; I++)
     {
-      DEVINST hDevInst=pInfo[I].hDevInst;
+      string strFriendlyName;
+      string strDescription;
 
-      GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true);
-      RemoveExternalSpaces(strFriendlyName);
-      GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true);
-      RemoveExternalSpaces(strDescription);
+      DEVINST hDevInst=pInfo[I].hDevInst;
 
       ListItem.Clear ();
 
-      if ( !strDescription.IsEmpty() )
-        ListItem.strName = strDescription;
-
-      if ( !strFriendlyName.IsEmpty() && StrCmpI(strDescription, strFriendlyName) )
+      if (GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true))
       {
-        if ( !strDescription.IsEmpty() )
-          ListItem.strName += L" \"";
-
-        ListItem.strName += strFriendlyName;
-
-        if ( !strDescription.IsEmpty() )
-          ListItem.strName += L"\"";
-      }
-
-      if(StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
-      {
-        //TruncStr(szDescription,sizeof(ListItem.Name)-1);
-        ListItem.strName = strDescription + L" \"" + strFriendlyName + L"\"";
-      }
-      else
-      {
-        if(!strDescription.IsEmpty ())
+        if (!strDescription.IsEmpty ())
+        {
+          RemoveExternalSpaces(strDescription);
           ListItem.strName = strDescription;
+        }
       }
 
-      RemoveExternalSpaces(ListItem.strName);
+      if (GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true))
+      {
+        RemoveExternalSpaces(strFriendlyName);
+        if (!strDescription.IsEmpty ())
+        {
+          if (!strFriendlyName.IsEmpty () && StrCmpI(strDescription,strFriendlyName) )
+          {
+            ListItem.strName += L" \"" + strFriendlyName + L"\"";
+          }
+        }
+        else if (!strFriendlyName.IsEmpty ())
+        {
+            ListItem.strName = strFriendlyName;
+        }
+      }
+
       if(!ListItem.strName.IsEmpty ())
         HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
-
     }
   }
 
@@ -283,7 +277,6 @@ void ShowHotplugDevice ()
 
       case KEY_CTRLR:
       {
-
         if(pInfo)
           FreeHotplugDevicesInfo (pInfo);
         pInfo=NULL;
@@ -310,6 +303,7 @@ void ShowHotplugDevice ()
             HotPlugList.Hide();
             if(pInfo)
               FreeHotplugDevicesInfo (pInfo);
+            pInfo=NULL;
             ShowHotplugDevice();
             return;
           }
@@ -356,6 +350,7 @@ int ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags)
     }
 
     FreeHotplugDevicesInfo (pInfo);
+    pInfo=NULL;
   }
 
   SetLastError(SavedLastError);
@@ -470,7 +465,9 @@ void FinalizeSetupAPI ()
 
 /**+
 A device is considered a HotPlug device if the following are TRUE:
-- Does NOT have problem CM_PROB_DEVICE_NOT_THERE
+- does NOT have problem CM_PROB_DEVICE_NOT_THERE
+- does NOT have problem CM_PROB_HELD_FOR_EJECT
+- does NOT have problem CM_PROB_DISABLED
 - has Capability CM_DEVCAP_REMOVABLE
 - does NOT have Capability CM_DEVCAP_SURPRISEREMOVALOK
 - does NOT have Capability CM_DEVCAP_DOCKDEVICE
@@ -511,6 +508,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
     {
       if ( (Problem != CM_PROB_DEVICE_NOT_THERE) &&
            (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
+           (Problem != CM_PROB_DISABLED) &&
          (Capabilities & CM_DEVCAP_REMOVABLE) &&
          !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) &&
          !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
