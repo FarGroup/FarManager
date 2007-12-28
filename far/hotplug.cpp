@@ -231,37 +231,45 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
   {
     for (int I = 0; I < nCount; I++)
     {
+      struct MenuItem ListItem;
+      memset(&ListItem,0,sizeof(ListItem));
+
       DEVINST hDevInst=pInfo[I].hDevInst;
 
       memset (szFriendlyName, 0, sizeof (szFriendlyName));
       memset (szDescription, 0, sizeof (szDescription));
 
-      GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,szFriendlyName,MAX_PATH,true);
-      RemoveExternalSpaces(szFriendlyName);
-      GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,szDescription,MAX_PATH,true);
-      RemoveExternalSpaces(szDescription);
-
-      struct MenuItem ListItem;
-      memset(&ListItem,0,sizeof(ListItem));
-
-      if ( *szDescription )
-        strcpy (ListItem.Name, szDescription);
-
-      if ( *szFriendlyName && stricmp(szDescription,szFriendlyName) )
+      if(GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,szDescription,MAX_PATH,true))
       {
-        if ( *szDescription )
-          strcat (ListItem.Name, " \"");
-
-        strcat (ListItem.Name, szFriendlyName);
+        RemoveExternalSpaces(szDescription);
 
         if ( *szDescription )
-          strcat (ListItem.Name, "\"");
+          xstrncpy (ListItem.Name, szDescription, sizeof(ListItem.Name)-1);
+      }
+
+      if(GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,szFriendlyName,MAX_PATH,true))
+      {
+        RemoveExternalSpaces(szFriendlyName);
+
+        if ( *szDescription )
+        {
+          if ( *szFriendlyName && stricmp(szDescription,szFriendlyName) )
+          {
+            strncat (ListItem.Name, " \"", sizeof(ListItem.Name)-1);
+            strncat (ListItem.Name, szFriendlyName, sizeof(ListItem.Name)-1);
+            strncat (ListItem.Name, "\"", sizeof(ListItem.Name)-1);
+          }
+        }
+        else if ( *szFriendlyName)
+        {
+          xstrncpy (ListItem.Name, szDescription, sizeof(ListItem.Name)-1);
+        }
       }
 
       RemoveExternalSpaces(ListItem.Name);
+
       if(ListItem.Name[0])
         HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
-
     }
   }
 
@@ -332,6 +340,7 @@ void ShowHotplugDevice ()
             HotPlugList.Hide();
             if(pInfo)
               FreeHotplugDevicesInfo (pInfo);
+            pInfo=NULL;
             ShowHotplugDevice();
             return;
           }
@@ -488,7 +497,9 @@ void FinalizeSetupAPI ()
 
 /**+
 A device is considered a HotPlug device if the following are TRUE:
-- Does NOT have problem CM_PROB_DEVICE_NOT_THERE
+- does NOT have problem CM_PROB_DEVICE_NOT_THERE
+- does NOT have problem CM_PROB_HELD_FOR_EJECT
+- does NOT have problem CM_PROB_DISABLED
 - has Capability CM_DEVCAP_REMOVABLE
 - does NOT have Capability CM_DEVCAP_SURPRISEREMOVALOK
 - does NOT have Capability CM_DEVCAP_DOCKDEVICE
@@ -529,9 +540,10 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
     {
       if ( (Problem != CM_PROB_DEVICE_NOT_THERE) &&
            (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
-         (Capabilities & CM_DEVCAP_REMOVABLE) &&
-         !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) &&
-         !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
+           (Problem != CM_PROB_DISABLED) &&
+           (Capabilities & CM_DEVCAP_REMOVABLE) &&
+           !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) &&
+           !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
          return TRUE;
     }
   }
