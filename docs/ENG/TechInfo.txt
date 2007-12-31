@@ -867,6 +867,15 @@ the main help file, that is actual for the current FAR Manager version.
    which speeds up the access rights application process itself.
    The default value is 50 ms.
 
+1.5.6.(TechInfo #78)
+~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Interface]
+   "FormatNumberSeparators":REG_DWORD
+   The  key  "Interface/FormatNumberSeparators"  of  DWORD  type  allows to
+   redefine decimal and digit grouping symbols.
+   High word - code of digit grouping symbol. 
+   Low word - code of decimal symbol.
+   The default value is 0 (use OS regional settings).
 
 =====================
   1.6. Panel.
