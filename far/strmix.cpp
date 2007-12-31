@@ -39,10 +39,45 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "lang.hpp"
 
+string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
+{
+	static bool first = true;
+	static NUMBERFMTW fmt;
+	static wchar_t DecimalSep[4];
+	static wchar_t ThousandSep[4];
+	if (first)
+	{
+		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,sizeof(ThousandSep));
+		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,sizeof(DecimalSep));
+		DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
+		ThousandSep[1]=0; //но для нас это будет не очень хорошо
+
+		if(LOWORD(Opt.FormatNumberSeparators))
+			*DecimalSep=LOWORD(Opt.FormatNumberSeparators);
+		if(HIWORD(Opt.FormatNumberSeparators))
+			*ThousandSep=HIWORD(Opt.FormatNumberSeparators);
+
+		fmt.LeadingZero = 1;
+		fmt.Grouping = 3;
+		fmt.lpDecimalSep = DecimalSep;
+		fmt.lpThousandSep = ThousandSep;
+		fmt.NegativeOrder = 1;
+		first = false;
+	}
+	fmt.NumDigits = NumDigits;
+	string strSrc=Src;
+	int Size=GetNumberFormatW(LOCALE_USER_DEFAULT,0,strSrc,&fmt,NULL,0);
+	wchar_t* lpwszDest=strDest.GetBuffer(Size);
+	GetNumberFormatW(LOCALE_USER_DEFAULT,0,strSrc,&fmt,lpwszDest,Size);
+	strDest.ReleaseBuffer();
+	return strDest;
+}
+
 string &InsertCommas(unsigned __int64 li,string &strDest)
 {
    strDest.Format (L"%I64u", li);
-
+   return FormatNumber(strDest,strDest);
+/*
    wchar_t *lpwszDest = strDest.GetBuffer((int)strDest.GetLength() << 1); //BUGBUG
 
    for (int I=StrLength(lpwszDest)-4;I>=0;I-=3)
@@ -57,6 +92,7 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
    strDest.ReleaseBuffer();
 
    return strDest;
+*/
 }
 
 
@@ -975,6 +1011,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
       DWORD Decimal = (DWORD)((double)(DWORD)OldSize/(double)Divider*100.0);
       strStr.Format (L"%d.%02d", (DWORD)Sz,Decimal);
+      FormatNumber(strStr,strStr,2);
     }
     if (IndexB>0 || ShowBytesIndex)
     {
@@ -1078,7 +1115,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
         wmemmove(Str+I,Str+I+(LenFindStr-LenReplStr),(StrLength(Str+I+(LenFindStr-LenReplStr))+1)); //??
       wmemcpy(Str+I,ReplStr,LenReplStr);
       I += LenReplStr;
-      if(Count > 0 && ++J == Count)
+      if(++J == Count && Count > 0)
         break;
     }
     else

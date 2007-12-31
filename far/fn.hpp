@@ -120,6 +120,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 
+string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
 
 void DeleteDirTree(const wchar_t *Dir);

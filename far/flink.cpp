@@ -805,7 +805,7 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   int IsUNC = FALSE;
   int PathLen = StrLength(Path);
 
-  strNewPath = Path;
+  ConvertNameToFull(Path,strNewPath);
   // Проверим имя на UNC
   if (PathLen > 2 && Path[0] == L'\\' && Path[1] == L'\\')
   {

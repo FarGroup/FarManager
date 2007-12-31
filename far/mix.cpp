@@ -1603,42 +1603,51 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 
 BOOL ProcessOSAliases(string &strStr)
 {
-#if 0
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     return FALSE;
 
   typedef DWORD (WINAPI *PGETCONSOLEALIAS)(
-    LPTSTR lpSource,
-    LPTSTR lpTargetBuffer,
+    LPWSTR lpSource,
+    LPWSTR lpTargetBuffer,
     DWORD TargetBufferLength,
-    LPTSTR lpExeName
+    LPWSTR lpExeName
   );
+
 
   static PGETCONSOLEALIAS GetConsoleAlias=NULL;
   if(!GetConsoleAlias)
   {
-    GetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandle("kernel32"),"GetConsoleAliasA");
+    GetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandleW(L"kernel32"),"GetConsoleAliasW");
     if(!GetConsoleAlias)
       return FALSE;
   }
 
-  char NewCmdStr[4096];
-  char NewCmdPar[2048];
+  string strNewCmdStr;
+  string strNewCmdPar;
 
-  PartCmdLine(Str,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
+  PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
   string strModuleName;
-  apiGetModuleFileName (NULL, strModuleName);
-//  if(GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ModuleName) > 0)
-  int b=GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),"cmd.exe");
-  if(b > 0)
+  apiGetModuleFileName(NULL,strModuleName);
+  const wchar_t* lpwszExeName=PointToName(strModuleName);
+  int nSize=(int)strNewCmdStr.GetLength()+4096;
+  wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
+  int ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+  if(!ret)
   {
-    strncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-1);
-    xstrncpy(Str,NewCmdStr,SizeStr-1);
-    return TRUE;
+    if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
+    {
+      lpwszExeName=PointToName(strModuleName);
+      ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+    }
   }
-#endif
-  return FALSE;
+  strNewCmdStr.ReleaseBuffer();
+  if(!ret)
+    return FALSE;
+  if(!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
+    strNewCmdStr+=L" "+strNewCmdPar;
+  strStr=strNewCmdStr;
+  return TRUE;
 }
 
 

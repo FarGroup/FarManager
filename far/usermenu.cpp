@@ -817,7 +817,10 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
           if(ExtractIfExistCommand(strCommand))
           {
             if ( !strCommand.IsEmpty() )
+            {
+              ProcessOSAliases(strCommand);
               CtrlObject->CmdLine->ExecString(strCommand,FALSE);
+            }
           }
         }
       }

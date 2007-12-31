@@ -449,7 +449,7 @@ struct Options
   int ShowScreensNumber;
   int ShowSortMode;
   int ShowMenuBar;
-
+  int FormatNumberSeparators;
   int CleanAscii;
   int NoGraphics;
   string strFolderInfoFiles;

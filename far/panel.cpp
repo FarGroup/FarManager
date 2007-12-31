@@ -336,19 +336,19 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             	if ( Opt.ChangeDriveMode & DRIVE_SHOW_SIZE )
             	{
             		//размер как минимум в мегабайтах
-            		FileSizeToStr(strTotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
-            		FileSizeToStr(strFreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
+            		FileSizeToStr(strTotalText,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
+            		FileSizeToStr(strFreeText,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
             	}
             	else
             	{
             		//размер с точкой и для 0 добавляем букву размера (B)
-            		FileSizeToStr(strTotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-            		FileSizeToStr(strFreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+            		FileSizeToStr(strTotalText,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+            		FileSizeToStr(strFreeText,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
             	}
 			}
 
 			string strTemp;
-			strTemp.Format(L"%c%-8s%c%-8s",(WORD)VerticalLine,(const wchar_t*)strTotalText,(WORD)VerticalLine,(const wchar_t*)strFreeText);
+			strTemp.Format(L"%c%-9s%c%-9s",(WORD)VerticalLine,(const wchar_t*)strTotalText,(WORD)VerticalLine,(const wchar_t*)strFreeText);
 
 			strMenuText += strTemp;
 		}

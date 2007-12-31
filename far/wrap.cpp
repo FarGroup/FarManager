@@ -2011,6 +2011,8 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		case oldfar::ACTL_GETPOLICIES:
 			return FALSE;
 	#endif // END FAR_USE_INTERNALS
+		case oldfar::ACTL_REDRAWALL:
+			return FarAdvControl(ModuleNumber, ACTL_REDRAWALL, 0);
 	}
 	return FALSE;
 }

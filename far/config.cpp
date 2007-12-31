@@ -956,6 +956,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyInterfaceW, L"CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
   {0, REG_DWORD,  NKeyInterfaceW, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
   {0, REG_DWORD,  NKeyInterfaceW, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
+  {0, REG_DWORD,  NKeyInterfaceW, L"FormatNumberSeparators",&Opt.FormatNumberSeparators, 0, 0},
 
   {1, REG_SZ,     NKeyViewerW,L"ExternalViewerName",&Opt.strExternalViewer, 0, L""},
   {1, REG_DWORD,  NKeyViewerW,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},

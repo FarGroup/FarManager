@@ -1239,6 +1239,8 @@ void PluginManager::Configure(int StartPos)
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
   int MenuItemNumber=0;
+  int PrevMacroMode=CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(MACRO_MENU);
   int Editor,Viewer,Dialog;
 
   Editor = ModalType==MODALTYPE_EDITOR;
@@ -1423,7 +1425,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
     PluginList.Hide();
     if (ExitCode<0)
+    {
+      CtrlObject->Macro.SetMode(PrevMacroMode);
       return(FALSE);
+    }
     ScrBuf.Flush();
 
     PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
@@ -1466,6 +1471,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
       CurEditor->SetPluginTitle(NULL);
     }
 
+  CtrlObject->Macro.SetMode(PrevMacroMode);
   return(TRUE);
 }
 
