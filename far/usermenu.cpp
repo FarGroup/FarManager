@@ -839,7 +839,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
           if(ExtractIfExistCommand(Command))
           {
             if (*Command)
+            {
+              ProcessOSAliases(Command,sizeof(Command));
               CtrlObject->CmdLine->ExecString(Command,FALSE);
+            }
           }
         }
       }

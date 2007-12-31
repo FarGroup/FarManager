@@ -1469,7 +1469,6 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 
 BOOL ProcessOSAliases(char *Str,int SizeStr)
 {
-#if 0
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     return FALSE;
 
@@ -1489,22 +1488,35 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
   }
 
   char NewCmdStr[4096];
-  char NewCmdPar[2048];
+  char NewCmdPar[4096];
+  *NewCmdStr=0;
+  *NewCmdPar=0;
 
   PartCmdLine(Str,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
 
   char ModuleName[NM];
   GetModuleFileName(NULL,ModuleName,sizeof(ModuleName));
-//  if(GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ModuleName) > 0)
-  int b=GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),"cmd.exe");
-  if(b > 0)
+  char* ExeName=PointToName(ModuleName);
+
+  int ret=GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ExeName);
+  if(!ret)
   {
-    strncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-1);
-    xstrncpy(Str,NewCmdStr,SizeStr-1);
-    return TRUE;
+    if(ExpandEnvironmentStr("%COMSPEC%",ModuleName))
+    {
+      ExeName=PointToName(ModuleName);
+      ret=GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ExeName);
+    }
   }
-#endif
-  return FALSE;
+  if(!ret)
+    return FALSE;
+
+  if(!ReplaceStrings(NewCmdStr,"$*",NewCmdPar))
+  {
+    strcat(NewCmdStr," ");
+    strncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-strlen(NewCmdStr)-1);
+  }
+  xstrncpy(Str,NewCmdStr,SizeStr-1);
+  return TRUE;
 }
 
 /*

@@ -3775,14 +3775,15 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend ? 6:5,MSG(MWarning),
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
                 MSG(MCopyFileExist),TruncDestName,"\x1",SrcFileStr,DestFileStr,
                 "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
                 MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
-                AskAppend ? (AskAppend==1 ? MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
-                AskAppend ? MSG(MCopyCancelOvr):NULL);
-        if (!AskAppend && MsgCode==4)
-          MsgCode=5;
+                AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
+                AskAppend?(AskAppend==1?MSG(MCopyAppendAll):MSG(MCopyCancelOvr)):NULL,
+                AskAppend==1?MSG(MCopyCancelOvr):NULL);
+        if((!AskAppend && MsgCode==4)||AskAppend>1 && MsgCode==5)
+          MsgCode=6;
       }
       /* SVS $*/
     }
@@ -3803,9 +3804,14 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
     case 4:
       Append=TRUE;
       break;
+    case 5:
+      Append=TRUE;
+      OvrMode=5;
+      RetCode=COPY_NEXT;
+      break;
     case -1:
     case -2:
-    case 5:
+    case 6:
       RetCode=COPY_CANCEL;
       return(FALSE);
   }
@@ -3840,14 +3846,15 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend ? 6:5,MSG(MWarning),
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
                 MSG(MCopyFileRO),TruncDestName,"\x1",SrcFileStr,DestFileStr,
                 "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
                 MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
-                AskAppend ? MSG(MCopyAppend):MSG(MCopyCancelOvr),
-                AskAppend ? MSG(MCopyCancelOvr):NULL);
-        if (!AskAppend && MsgCode==4)
-          MsgCode=5;
+                AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
+                AskAppend?(AskAppend==1?MSG(MCopyAppendAll):MSG(MCopyCancelOvr)):NULL,
+                AskAppend==1?MSG(MCopyCancelOvr):NULL);
+        if((!AskAppend && MsgCode==4)||AskAppend>1 && MsgCode==5)
+          MsgCode=6;
       }
     switch(MsgCode)
     {
@@ -3865,9 +3872,14 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         ReadOnlyOvrMode=1;
         Append=TRUE;
         break;
+      case 5:
+        Append=TRUE;
+        ReadOnlyOvrMode=5;
+        RetCode=COPY_NEXT;
+        break;
       case -1:
       case -2:
-      case 5:
+      case 6:
         RetCode=COPY_CANCEL;
         return(FALSE);
     }

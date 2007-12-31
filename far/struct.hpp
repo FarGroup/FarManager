@@ -361,6 +361,7 @@ struct Options
   int ShowSortMode;
   int ShowMenuBar;
   int FolderDeepScan;
+  int FormatNumberSeparators;
   int CleanAscii;
   int NoGraphics;
   char FolderInfoFiles[1024];

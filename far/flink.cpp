@@ -844,7 +844,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
     ! Учтем UNC пути */
   int IsUNC = FALSE;
   int PathLen = (int)strlen(Path);
-  xstrncpy(NewPath, Path, sizeof(NewPath)-1);
+  ConvertNameToFull(Path,NewPath,sizeof(NewPath));
   // Проверим имя на UNC
   if (PathLen > 2 && Path[0] == '\\' && Path[1] == '\\')
   {

@@ -27,6 +27,12 @@ char *FormatNumber(const char *Src, char *Dest, int Size, int NumDigits)
     ThousandSep[1]=0; //но для нас это будет не очень хорошо
     FAR_CharToOem(DecimalSep,DecimalSep);
     FAR_CharToOem(ThousandSep,ThousandSep);
+
+    if(LOWORD(Opt.FormatNumberSeparators))
+      *DecimalSep=LOBYTE(LOWORD(Opt.FormatNumberSeparators));
+    if(HIWORD(Opt.FormatNumberSeparators))
+      *ThousandSep=LOBYTE(HIWORD(Opt.FormatNumberSeparators));
+
     fmt.LeadingZero = 1;
     fmt.Grouping = 3;
     fmt.lpDecimalSep = DecimalSep;
@@ -1032,7 +1038,7 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count,B
         memmove(Str+I,Str+I+(LenFindStr-LenReplStr),strlen(Str+I+(LenFindStr-LenReplStr))+1); //??
       memcpy(Str+I,ReplStr,LenReplStr);
       I += LenReplStr;
-      if(Count > 0 && ++J == Count)
+      if(++J == Count && Count > 0)
         break;
     }
     else

@@ -2484,6 +2484,8 @@ void PluginsSet::Configure(int StartPos)
 int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 {
   int MenuItemNumber=0;
+  int PrevMacroMode=CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(MACRO_MENU);
 /* $ 04.05.2001 OT */
   int Editor,Viewer,Dialog;
 
@@ -2664,7 +2666,10 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 
     PluginList.Hide();
     if (ExitCode<0)
+    {
+      CtrlObject->Macro.SetMode(PrevMacroMode);
       return(FALSE);
+    }
     ScrBuf.Flush();
     Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,ExitCode);
   }
@@ -2709,6 +2714,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
       if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
       {
         ClosePlugin (hPlugin);
+        CtrlObject->Macro.SetMode(PrevMacroMode);
         return(FALSE);
       }
 
@@ -2726,6 +2732,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
     /* SKV $ */
   }
 #endif
+  CtrlObject->Macro.SetMode(PrevMacroMode);
   return(TRUE);
 }
 
