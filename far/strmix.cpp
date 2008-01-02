@@ -28,9 +28,9 @@ char *FormatNumber(const char *Src, char *Dest, int Size, int NumDigits)
     FAR_CharToOem(DecimalSep,DecimalSep);
     FAR_CharToOem(ThousandSep,ThousandSep);
 
-    if(LOWORD(Opt.FormatNumberSeparators))
+    if(LOBYTE(LOWORD(Opt.FormatNumberSeparators)))
       *DecimalSep=LOBYTE(LOWORD(Opt.FormatNumberSeparators));
-    if(HIWORD(Opt.FormatNumberSeparators))
+    if(LOBYTE(HIWORD(Opt.FormatNumberSeparators)))
       *ThousandSep=LOBYTE(HIWORD(Opt.FormatNumberSeparators));
 
     fmt.LeadingZero = 1;
