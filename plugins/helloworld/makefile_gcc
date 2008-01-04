@@ -8,8 +8,8 @@ DEF = $(NAME).gcc.def
 CC = gcc
 DLLTOOL = dlltool
 RM = rm -f
-CCFLAGS = -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
-LNKFLAGS = -mdll -s -nostartfiles -L $(COMMON) -lCRT
+CCFLAGS = -mno-cygwin -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
+LNKFLAGS = -mno-cygwin -mdll -s -nostartfiles -L $(COMMON) -lCRT
 
 OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLNAME))

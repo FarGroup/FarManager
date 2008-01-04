@@ -52,7 +52,7 @@ MV = mv -f
 MKDIR = mkdir -p
 AR = ar
 RANLIB = ranlib
-CXXFLAGS = -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+CXXFLAGS = -mno-cygwin -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
 OBJSW = $(patsubst %.cpp,$(OBJDIRW)/%_w.o,$(filter %.cpp,$(SRCSW)))
