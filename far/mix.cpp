@@ -245,6 +245,79 @@ DWORD NTTimeToDos(FILETIME *ft)
   return(((DWORD)DosDate<<16)|DosTime);
 }
 
+void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
+{
+  string strDigit;
+  const wchar_t *PtrDigit;
+  int I;
+
+  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
+  I=0;
+  const wchar_t *Ptr=Src;
+  while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
+  {
+    PtrDigit=strDigit;
+    while (*PtrDigit && !iswdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      Dst[I]=_wtoi(PtrDigit);
+    ++I;
+  }
+}
+
+void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator)
+{
+  unsigned DateN[3],TimeN[3];
+  SYSTEMTIME st;
+  FILETIME lft;
+
+  // Преобразуем введённые пользователем дату и время
+  GetFileDateAndTime(CDate,DateN,DateSeparator);
+  GetFileDateAndTime(CTime,TimeN,GetTimeSeparator());
+  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1)
+  {
+    // Пользователь оставил дату пустой, значит обнулим дату и время.
+    memset(&ft,0,sizeof(ft));
+    return;
+  }
+
+  memset(&st,0,sizeof(st));
+
+  // "Оформим"
+  switch(DateFormat)
+  {
+    case 0:
+      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:0;
+      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:0;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+      break;
+    case 1:
+      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:0;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+      break;
+    default:
+      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:0;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:0;
+      break;
+  }
+  st.wHour   = TimeN[0]!=(unsigned)-1?(TimeN[0]):0;
+  st.wMinute = TimeN[1]!=(unsigned)-1?(TimeN[1]):0;
+  st.wSecond = TimeN[2]!=(unsigned)-1?(TimeN[2]):0;
+
+  if (st.wYear<100)
+    if (st.wYear<80)
+      st.wYear+=2000;
+    else
+      st.wYear+=1900;
+
+  // преобразование в "удобоваримый" формат
+  SystemTimeToFileTime(&st,&lft);
+  LocalFileTimeToFileTime(&lft,&ft);
+  return;
+}
+
 void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear,int DynInit)
 {

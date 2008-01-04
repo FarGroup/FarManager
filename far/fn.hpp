@@ -343,9 +343,11 @@ void SIDCacheFlush(void);
 
 void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType);
 
+void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
+void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator);
+
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
-
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 

@@ -129,27 +129,6 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
 static void PR_ShellSetFileAttributesMsg(void);
 void ShellSetFileAttributesMsg(const wchar_t *Name);
 
-// ¬ Dst получить числа дл€ даты времени
-static void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
-{
-  string strDigit;
-  const wchar_t *PtrDigit;
-  int I;
-
-  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
-  I=0;
-  const wchar_t *Ptr=Src;
-  while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
-  {
-    PtrDigit=strDigit;
-    while (*PtrDigit && !iswdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      Dst[I]=_wtoi(PtrDigit);
-    ++I;
-  }
-}
-
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {

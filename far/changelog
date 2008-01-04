@@ -1,3 +1,9 @@
+t-rex 04.01.2008 18:07:50 +0200 - build 399
+
+1. From Hannes Eder (and some changes from me): remove redundant definition of GetFileDateAndTime from setattr.cpp.
+
+2. Mantis#445: Makefiles have no -mno-cygwin switch.
+
 drkns 31.12.2007 20:03:57 +0200 - build 398
 
 1. Некорректная работа GetPathRoot() для относительного пути внутри симлинка.
