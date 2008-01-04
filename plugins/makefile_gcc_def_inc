@@ -46,9 +46,9 @@ MKDIR = mkdir -p
 WINDRES = windres
 AR = ar
 RANLIB = ranlib
-CXXFLAGS = -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions $(USERCPP)
-CCFLAGS = -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions $(USERCPP)
-LNKFLAGS = -mdll -s -nostartfiles -nodefaultlibs -lgcc $(USERLIBSFIRST) -L $(COMMON) -lCRT -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
+CXXFLAGS = -mno-cygwin -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions $(USERCPP)
+CCFLAGS = -mno-cygwin -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions $(USERCPP)
+LNKFLAGS = -mno-cygwin -mdll -s -nostartfiles -nodefaultlibs -lgcc $(USERLIBSFIRST) -L $(COMMON) -lCRT -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))

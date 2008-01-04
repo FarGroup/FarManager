@@ -24,13 +24,13 @@ $(RES): multiarcversion.hpp
 
 fmt:
 	$(MAKE) -f makefile_gcc_libpcre
-	$(MAKE) -f makefile_gcc_fmt FMT=Custom
-	$(MAKE) -f makefile_gcc_fmt FMT=Ace
-	$(MAKE) -f makefile_gcc_fmt FMT=Arc
-	$(MAKE) -f makefile_gcc_fmt FMT=Arj
-	$(MAKE) -f makefile_gcc_fmt FMT=Cab
-	$(MAKE) -f makefile_gcc_fmt FMT=Ha
-	$(MAKE) -f makefile_gcc_fmt FMT=Lzh
-	$(MAKE) -f makefile_gcc_fmt FMT=Rar
-	$(MAKE) -f makefile_gcc_fmt FMT=TarGz
-	$(MAKE) -f makefile_gcc_fmt FMT=Zip
+	$(MAKE) -f makefile_gcc_fmt FMT=custom
+	$(MAKE) -f makefile_gcc_fmt FMT=ace
+	$(MAKE) -f makefile_gcc_fmt FMT=arc
+	$(MAKE) -f makefile_gcc_fmt FMT=arj
+	$(MAKE) -f makefile_gcc_fmt FMT=cab
+	$(MAKE) -f makefile_gcc_fmt FMT=ha
+	$(MAKE) -f makefile_gcc_fmt FMT=lzh
+	$(MAKE) -f makefile_gcc_fmt FMT=rar
+	$(MAKE) -f makefile_gcc_fmt FMT=targz
+	$(MAKE) -f makefile_gcc_fmt FMT=zip
