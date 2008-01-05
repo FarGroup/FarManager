@@ -1,3 +1,7 @@
+ts 05.01.2008 11:39:30 +0200 - build 400
+
+1. Changes in wrapper messages handling for listbox and combobox.
+
 t-rex 04.01.2008 18:07:50 +0200 - build 399
 
 1. From Hannes Eder (and some changes from me): remove redundant definition of GetFileDateAndTime from setattr.cpp.
