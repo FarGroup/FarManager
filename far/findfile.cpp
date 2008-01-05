@@ -2372,18 +2372,28 @@ int FindFiles::LookForString(const wchar_t *Name)
   int Length,ReadSize,SaveReadSize;
   if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
-  HANDLE FileHandle=apiCreateFile(Name,GENERIC_READ|GENERIC_WRITE,
+  HANDLE FileHandle=apiCreateFile(Name,GENERIC_READ|FILE_WRITE_ATTRIBUTES,
          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   if (FileHandle==INVALID_HANDLE_VALUE)
     FileHandle=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (FileHandle==INVALID_HANDLE_VALUE)
+  {
     return(FALSE);
+  }
+
   int Handle=_open_osfhandle((intptr_t)FileHandle,O_BINARY);
   if (Handle==-1)
+  {
+    CloseHandle(FileHandle);
     return(FALSE);
+  }
+
   if ((SrcFile=fdopen(Handle,"rb"))==NULL)
+  {
+    _close(Handle);
     return(FALSE);
+  }
 
   FILETIME LastAccess;
   int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);

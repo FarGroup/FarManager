@@ -284,7 +284,8 @@ static string &MkKeyName(const wchar_t *Key, string &strDest)
 
   if(*Key)
   {
-    strDest += L"\\";
+    if( !strDest.IsEmpty() )
+      strDest += L"\\";
     strDest += Key;
   }
 
