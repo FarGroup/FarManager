@@ -1267,11 +1267,86 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			}
 
 		case oldfar::DM_LISTADD:
+			{
+				FarList newlist = {0,0};
+				if (Param2)
+				{
+					oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
+					newlist.ItemsNumber = oldlist->ItemsNumber;
+					if (newlist.ItemsNumber)
+					{
+						newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
+						if (newlist.Items)
+						{
+							for (int i=0;i<newlist.ItemsNumber;i++)
+								AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
+						}
+					}
+				}
+				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?(LONG_PTR)&newlist:0);
+	 			if (newlist.Items)
+		 		{
+		 	 		for (int i=0;i<newlist.ItemsNumber;i++)
+		 	 	 		if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
+					xf_free(newlist.Items);
+				}
+				return ret;
+			}
+
 		case oldfar::DM_LISTADDSTR:
+			{
+				wchar_t* newstr = NULL;
+				if (Param2)
+				{
+					newstr = AnsiToUnicode((char*)Param2);
+				}
+				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADDSTR, Param1, (LONG_PTR)newstr);
+				if (newstr) xf_free (newstr);
+				return ret;
+			}
+
 		case oldfar::DM_LISTUPDATE:
+			{
+			  FarListUpdate newui = {0,0};
+				if (Param2)
+				{
+					oldfar::FarListUpdate *oldui = (oldfar::FarListUpdate*) Param2;
+					newui.Index=oldui->Index;
+					AnsiListItemToUnicode(&oldui->Item, &newui.Item);
+				}
+			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?(LONG_PTR)&newui:0);
+			  if (newui.Item.Text) xf_free((void*)newui.Item.Text);
+			  return ret;
+			}
+
 		case oldfar::DM_LISTINSERT:
+			{
+			  FarListInsert newli = {0,0};
+				if (Param2)
+				{
+					oldfar::FarListInsert *oldli = (oldfar::FarListInsert*) Param2;
+					newli.Index=oldli->Index;
+					AnsiListItemToUnicode(&oldli->Item, &newli.Item);
+				}
+			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?(LONG_PTR)&newli:0);
+			  if (newli.Item.Text) xf_free((void*)newli.Item.Text);
+			  return ret;
+			}
+
 		case oldfar::DM_LISTFINDSTRING:
-			return 0; //BUGBUG
+			{
+			  FarListFind newlf = {0,0,0,0};
+				if (Param2)
+				{
+					oldfar::FarListFind *oldlf = (oldfar::FarListFind*) Param2;
+					newlf.StartIndex=oldlf->StartIndex;
+					newlf.Pattern = (oldlf->Pattern)?AnsiToUnicode(oldlf->Pattern):NULL;
+					if(oldlf->Flags&oldfar::LIFIND_EXACTMATCH) newlf.Flags|=LIFIND_EXACTMATCH;
+				}
+			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?(LONG_PTR)&newlf:0);
+			  if (newlf.Pattern) xf_free((void*)newlf.Pattern);
+			  return ret;
+			}
 
 		case oldfar::DM_LISTINFO:
 			{
@@ -1286,9 +1361,21 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return FarSendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
 			}
 
-		case oldfar::DM_LISTGETDATA:
+		case oldfar::DM_LISTGETDATA:	Msg = DM_LISTGETDATA; break;
+
 		case oldfar::DM_LISTSETDATA:
-			return 0; //BUGBUG
+			{
+				FarListItemData newlid = {0,0,0,0};
+				if(Param2)
+				{
+					oldfar::FarListItemData *oldlid = (oldfar::FarListItemData*) Param2;
+					newlid.Index=oldlid->Index;
+					newlid.DataSize=oldlid->DataSize;
+					newlid.Data=oldlid->Data;
+				}
+			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?(LONG_PTR)&newlid:0);
+			  return ret;
+			}
 
 		case oldfar::DM_LISTSETTITLES:
 			{
@@ -1330,7 +1417,31 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_SETITEMDATA:         Msg = DM_SETITEMDATA; break;
 
 		case oldfar::DM_LISTSET:
-			return 0; //BUGBUG
+			{
+				FarList newlist = {0,0};
+				if (Param2)
+				{
+					oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
+					newlist.ItemsNumber = oldlist->ItemsNumber;
+					if (newlist.ItemsNumber)
+					{
+						newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
+						if (newlist.Items)
+						{
+							for (int i=0;i<newlist.ItemsNumber;i++)
+								AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
+						}
+					}
+				}
+				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?(LONG_PTR)&newlist:0);
+	 			if (newlist.Items)
+		 		{
+		 	 		for (int i=0;i<newlist.ItemsNumber;i++)
+		 	 	 		if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
+					xf_free(newlist.Items);
+				}
+				return ret;
+			}
 
 		case oldfar::DM_LISTSETMOUSEREACTION:
 			{
