@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2310) (Dec 31 2007)
+FAR 1.71 alpha 4 (build 2312) (Jan 5 2008)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -302,6 +302,10 @@ FAR 1.71 alpha 4 (build 2310) (Dec 31 2007)
 [-] API: Для элемента ".." в PluginPanelItem заполнялись только поля
     FindData.dwFileAttributes и FindData.cFileName, остальные элементы
     структуры обнулялись (Mantis#0000358).
+
+[-] FAR требовал больше прав на открытие очередного файла, чем требовалось в
+    процессе поиска.
+
 
 TempPanel - build 31
 ~~~~~~~~~~~~~~~~~~~~
