@@ -295,18 +295,22 @@ int Viewer::OpenFile(const char *Name,int warning)
       ShareMode|=FILE_SHARE_DELETE;
     }
 
-    HANDLE hView=FAR_CreateFile(Name,GENERIC_READ,
-                            ShareMode,
-                            NULL,OPEN_EXISTING,Flags,NULL);
+    HANDLE hView=FAR_CreateFile(Name,GENERIC_READ,ShareMode,NULL,OPEN_EXISTING,Flags,NULL);
+
     if (hView==INVALID_HANDLE_VALUE && Flags!=0)
-      hView=FAR_CreateFile(Name,GENERIC_READ,
-                       ShareMode,
-                       NULL,OPEN_EXISTING,0,NULL);
+      hView=FAR_CreateFile(Name,GENERIC_READ,ShareMode,NULL,OPEN_EXISTING,0,NULL);
+
     if (hView!=INVALID_HANDLE_VALUE)
     {
       int ViewHandle=_open_osfhandle((intptr_t)hView,O_BINARY);
-      if (ViewHandle!=-1)
+      if (ViewHandle == -1)
+        CloseHandle(hView);
+      else
+      {
         NewViewFile=fdopen(ViewHandle,"rb");
+        if (NewViewFile==NULL)
+          _close(ViewHandle);
+      }
     }
   }
 

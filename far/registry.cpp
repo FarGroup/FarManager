@@ -250,7 +250,8 @@ static char *MkKeyName(const char *Key, char *Dest, int DestSize)
   xstrncpy(FullKeyName,Opt.RegRoot,sizeof(FullKeyName)-1);
   if(*Key)
   {
-    strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
+    if(*FullKeyName)
+      strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
     strncat(FullKeyName,Key,sizeof(FullKeyName)-1);
   }
   xstrncpy(Dest,FullKeyName,DestSize);

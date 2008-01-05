@@ -658,7 +658,7 @@ static BOOL DetectTTFFont(void)
   ReplaceStrings(AppName,"\\","_",-1);
   if(!CheckRegKey(AppName))
   {
-    strcpy(Opt.RegRoot,"");
+    Opt.RegRoot[0]=0;
     strcpy(AppName,"Console");
   }
   int FontFamily=GetRegKey(AppName,"FontFamily",0);

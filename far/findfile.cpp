@@ -2335,25 +2335,39 @@ int FindFiles::LookForString(char *Name)
   FILE *SrcFile;
   char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
   int Length,ReadSize,SaveReadSize;
+
   if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
-  HANDLE FileHandle=FAR_CreateFile(Name,GENERIC_READ|GENERIC_WRITE,
+
+  HANDLE FileHandle=FAR_CreateFile(Name,GENERIC_READ|FILE_WRITE_ATTRIBUTES,
          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+
   if (FileHandle==INVALID_HANDLE_VALUE)
     FileHandle=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
+
   if (FileHandle==INVALID_HANDLE_VALUE)
+  {
     return(FALSE);
+  }
+
   int Handle=_open_osfhandle((intptr_t)FileHandle,O_BINARY);
+
   if (Handle==-1)
+  {
+    CloseHandle(FileHandle);
     return(FALSE);
+  }
+
   if ((SrcFile=fdopen(Handle,"rb"))==NULL)
+  {
+    _close(Handle);
     return(FALSE);
+  }
 
   FILETIME LastAccess;
   int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);
 
-  /* $ 26.10.2003 KM */
   if (SearchHex)
   {
     int LenCmpStr=sizeof(CmpStr);
@@ -2363,15 +2377,11 @@ int FindFiles::LookForString(char *Name)
   }
   else
     xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-  /* KM $ */
 
   if (!CmpCase && !SearchHex)
     LocalStrupr(CmpStr);
-  /* $ 30.07.2000 KM
-     Добавочные переменные
-  */
+
   int FirstIteration=TRUE;
-  /* KM $ */
   int ReverseBOM=FALSE;
   int IsFirst=FALSE;
 
@@ -2397,7 +2407,6 @@ int FindFiles::LookForString(char *Name)
 
       AlreadyRead+=ReadSize;
     }
-    /* KM $ */
 
     /* $ 11.09.2005 KM
        - Bug #1377
@@ -2434,10 +2443,8 @@ int FindFiles::LookForString(char *Name)
              ReverseBOM=TRUE;       // byte-reversed byte-order mark
                                     // (Reverse BOM) 0xFFFE as its first character.
         }
-        /* SVS $ */
       }
     }
-    /* KM $ */
 
     while (1)
     {
@@ -2487,12 +2494,10 @@ int FindFiles::LookForString(char *Name)
             for (int I=0;I<ReadSize;I++)
               Buf[I]=TableSet.DecodeTable[Buf[I]];
           }
-          /* KM $ */
         }
         if (!CmpCase)
           LocalUpperBuf(Buf,ReadSize);
       }
-      /* KM $ */
 
       int CheckSize=ReadSize-Length+1;
       /* $ 30.07.2000 KM
@@ -2532,7 +2537,6 @@ int FindFiles::LookForString(char *Name)
                (strchr(Opt.WordDiv,Buf[I+Length])!=NULL)))
               locResultRight=TRUE;
         }
-        /* KM $ */
         else
         {
           locResultLeft=TRUE;
@@ -2551,8 +2555,6 @@ int FindFiles::LookForString(char *Name)
           return(TRUE);
         }
       }
-      /* KM $ */
-      /* KM $ */
 
       /* $ 22.09.2003 KM
          Поиск по hex-кодам
@@ -2596,9 +2598,7 @@ int FindFiles::LookForString(char *Name)
       }
       else
         break;
-      /* KM $ */
     }
-    /* KM $ */
 
     if (RealReadSize==sizeof(Buf))
     {
@@ -2618,13 +2618,13 @@ int FindFiles::LookForString(char *Name)
       else
         NewPos=ftell64(SrcFile)-(__int64)(Length+1);
       fseek64(SrcFile,Max(NewPos,_i64(0)),SEEK_SET);
-      /* KM $ */
-      /* KM $ */
     }
   }
+
   if (TimeRead)
     SetFileTime(FileHandle,NULL,&LastAccess,NULL);
   fclose(SrcFile);
+
   return(FALSE);
 }
 
