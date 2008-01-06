@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2312) (Jan 5 2008)
+FAR 1.71 alpha 4 (build 2313) (Jan 6 2008)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -146,6 +146,12 @@ FAR 1.71 alpha 4 (build 2312) (Jan 5 2008)
 
 [+] API: Добавлена команда ACTL_REDRAWALL - перерисовка всех фреймов FAR.
 
+[+] Support for the horizontal mouse wheel in Windows Vista.
+
+[+] Macro: Two new pseudo-keys "MsWheelLeft" and "MsWheelRight".
+
+[+] API: Two new "keys" for the mouse wheel - KEY_MSWHEEL_LEFT/KEY_MSWHEEL_RIGHT.
+
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
 [*] Изменена логика загрузки плагинов. Модуль проверяется на принадлежность
@@ -176,6 +182,9 @@ FAR 1.71 alpha 4 (build 2312) (Jan 5 2008)
 
 [*] API: В диалогах сразу после DN_INITDIALOG приходит DN_GOTFOCUS для того
     элемента, у которого поле Focus=1.
+
+[*] The "MouseHWheelDelta*" parameters, that specify the horizontal scrolling
+    delta, has been added to TechInfo#33.
 
 [-] "Залипание" кейбара при вызове и выходе из диалога поиска папок.
 
