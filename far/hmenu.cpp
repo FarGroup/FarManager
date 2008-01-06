@@ -244,7 +244,7 @@ int HMenu::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_LEFT:      case KEY_NUMPAD4:
+    case KEY_LEFT:      case KEY_NUMPAD4:      case KEY_MSWHEEL_LEFT:
     {
       Item[SelectPos].Selected=0;
       if (--SelectPos<0)
@@ -254,7 +254,7 @@ int HMenu::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_RIGHT:     case KEY_NUMPAD6:
+    case KEY_RIGHT:     case KEY_NUMPAD6:      case KEY_MSWHEEL_RIGHT:
     {
       Item[SelectPos].Selected=0;
       if (++SelectPos==ItemCount)
@@ -379,7 +379,7 @@ void HMenu::ProcessSubMenu(struct MenuDataEx *Data,int DataCount,
     }
     else
     {
-      if (Key==KEY_LEFT || Key==KEY_RIGHT || Key == KEY_TAB)
+      if (Key==KEY_LEFT || Key==KEY_RIGHT || Key == KEY_TAB || Key == KEY_MSWHEEL_LEFT || Key == KEY_MSWHEEL_RIGHT)
       {
         delete SubMenu;
         SubMenu=NULL;

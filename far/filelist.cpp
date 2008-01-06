@@ -1608,6 +1608,24 @@ int FileList::ProcessKey(int Key)
       Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
       return(TRUE);
 
+    case KEY_MSWHEEL_LEFT:
+    case (KEY_MSWHEEL_LEFT | KEY_ALT):
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsHWheelDelta;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_LEFT);
+      return TRUE;
+    }
+
+    case KEY_MSWHEEL_RIGHT:
+    case (KEY_MSWHEEL_RIGHT | KEY_ALT):
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsHWheelDelta;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_RIGHT);
+      return TRUE;
+    }
+
     case KEY_HOME:         case KEY_NUMPAD7:
       Up(0x7fffff);
       return(TRUE);

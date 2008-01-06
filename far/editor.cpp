@@ -1929,6 +1929,24 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_MSWHEEL_LEFT:
+    case (KEY_MSWHEEL_LEFT | KEY_ALT):
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaEdit;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_LEFT);
+      return TRUE;
+    }
+
+    case KEY_MSWHEEL_RIGHT:
+    case (KEY_MSWHEEL_RIGHT | KEY_ALT):
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaEdit;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_RIGHT);
+      return TRUE;
+    }
+
     case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
     {
       Flags.Set(FEDITOR_NEWUNDO);

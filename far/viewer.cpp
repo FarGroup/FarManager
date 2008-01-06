@@ -1512,6 +1512,24 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_MSWHEEL_LEFT:
+    case (KEY_MSWHEEL_LEFT | KEY_ALT):
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaView;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_LEFT);
+      return TRUE;
+    }
+ 
+    case KEY_MSWHEEL_RIGHT:
+    case (KEY_MSWHEEL_RIGHT | KEY_ALT):
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaView;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_RIGHT);
+      return TRUE;
+    }
+
     case KEY_UP: case KEY_NUMPAD8: case KEY_SHIFTNUMPAD8:
     {
       if (FilePos>0 && ViewFile)

@@ -153,10 +153,13 @@ int CommandLine::ProcessKey(int Key)
   // $ 25.03.2002 VVM + ѕри погашенных панел€х колесом крутим историю
   if (!CtrlObject->Cp()->LeftPanel->IsVisible() && !CtrlObject->Cp()->RightPanel->IsVisible())
   {
-    if (Key == KEY_MSWHEEL_UP)
-      Key = KEY_CTRLE;
-    else if (Key == KEY_MSWHEEL_DOWN)
-      Key = KEY_CTRLX;
+    switch(Key)
+    {
+      case KEY_MSWHEEL_UP:    Key = KEY_CTRLE; break;
+      case KEY_MSWHEEL_DOWN:  Key = KEY_CTRLX; break;
+      case KEY_MSWHEEL_LEFT:  Key = KEY_CTRLS; break;
+      case KEY_MSWHEEL_RIGHT: Key = KEY_CTRLD; break;
+    }
   }
 
   switch(Key)

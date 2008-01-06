@@ -133,12 +133,14 @@ static struct TFKey3 FKeys1[]={
   { KEY_BROWSER_FORWARD,     14, L"BrowserForward"},
   //{ KEY_HP_COMMUNITIES,      13, "HPCommunities"},
   { KEY_BROWSER_SEARCH,      13, L"BrowserSearch"},
+  { KEY_MSWHEEL_RIGHT,       12, L"MsWheelRight"},
 #if defined(MOUSEKEY)
   { KEY_MSLDBLCLICK,         11, L"MsLDblClick"},
   { KEY_MSRDBLCLICK,         11, L"MsRDblClick"},
 #endif
   //{ KEY_AC_BOOKMARKS,        11, "ACBookmarks"},
   { KEY_MSWHEEL_DOWN,        11, L"MsWheelDown"},
+  { KEY_MSWHEEL_LEFT,        11, L"MsWheelLeft"},
   { KEY_BROWSER_STOP,        11, L"BrowserStop"},
   { KEY_BROWSER_HOME,        11, L"BrowserHome"},
   { KEY_BROWSER_BACK,        11, L"BrowserBack"},
@@ -1261,6 +1263,18 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       /* $ 14.05.2002 VVM
         - сбросим тип евента вообще. Иначе бывают глюки (ProcessEditorInput) */
       memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
+      rec->EventType = KEY_EVENT;
+    } /* if */
+
+    // Обработка горизонтального колесика (NT>=6)
+    if (MouseEventFlags == MOUSE_HWHEELED)
+    {
+      short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
+      CalcKey = (zDelta>0)?KEY_MSWHEEL_RIGHT:KEY_MSWHEEL_LEFT;
+      CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                 (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                 (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      memset(rec,0,sizeof(*rec));
       rec->EventType = KEY_EVENT;
     } /* if */
   }

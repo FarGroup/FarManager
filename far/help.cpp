@@ -1274,14 +1274,14 @@ int Help::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_RIGHT:   case KEY_NUMPAD6:
+    case KEY_RIGHT:   case KEY_NUMPAD6:   case KEY_MSWHEEL_RIGHT:
     case KEY_TAB:
     {
       MoveToReference(1,0);
       return(TRUE);
     }
 
-    case KEY_LEFT:    case KEY_NUMPAD4:
+    case KEY_LEFT:    case KEY_NUMPAD4:   case KEY_MSWHEEL_LEFT:
     case KEY_SHIFTTAB:
     {
       MoveToReference(0,0);

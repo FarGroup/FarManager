@@ -1038,6 +1038,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       else if (Param2==KEY_UP || Param2==KEY_DOWN || Param2==KEY_PGUP ||
                Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
+               Param2==KEY_MSWHEEL_LEFT || Param2==KEY_MSWHEEL_RIGHT ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {
         ListBox->ProcessKey((int)Param2);

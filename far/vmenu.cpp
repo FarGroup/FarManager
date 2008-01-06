@@ -876,6 +876,7 @@ int VMenu::ProcessKey(int Key)
     }
 
     case KEY_MSWHEEL_UP: // $ 27.04.2001 VVM - Обработка KEY_MSWHEEL_XXXX
+    case KEY_MSWHEEL_LEFT:
     case KEY_LEFT:         case KEY_NUMPAD4:
     case KEY_UP:           case KEY_NUMPAD8:
     {
@@ -885,6 +886,7 @@ int VMenu::ProcessKey(int Key)
     }
 
     case KEY_MSWHEEL_DOWN: // $ 27.04.2001 VVM + Обработка KEY_MSWHEEL_XXXX
+    case KEY_MSWHEEL_RIGHT:
     case KEY_RIGHT:        case KEY_NUMPAD6:
     case KEY_DOWN:         case KEY_NUMPAD2:
     {

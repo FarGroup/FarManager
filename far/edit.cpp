@@ -999,7 +999,7 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_LEFT:        case KEY_NUMPAD4:
+    case KEY_LEFT:        case KEY_NUMPAD4:        case KEY_MSWHEEL_LEFT:
     case KEY_CTRLS:
     {
       if (CurPos>0)
@@ -1011,7 +1011,7 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_RIGHT:       case KEY_NUMPAD6:
+    case KEY_RIGHT:       case KEY_NUMPAD6:        case KEY_MSWHEEL_RIGHT:
     case KEY_CTRLD:
     {
       PrevCurPos=CurPos;

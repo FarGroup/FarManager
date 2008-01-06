@@ -329,6 +329,11 @@ enum FlagsNameAndPassword{
 #define MOUSE_WHEELED 0x0004
 #endif
 
+// Vista посылает консольному окну событие с dwEventFlags == MOUSE_HWHEELED
+#ifndef MOUSE_HWHEELED
+#define MOUSE_HWHEELED 0x0008
+#endif
+
 enum {
     XC_QUIT                = (unsigned long) -777,
     XC_OPEN_ERROR          = 0,
