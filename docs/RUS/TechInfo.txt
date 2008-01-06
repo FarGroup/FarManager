@@ -354,7 +354,18 @@ I. FAR Manager: дополнительные настройки.
      "System/MsWheelDeltaView" - в программе просмотра,
      "System/MsWheelDeltaEdit" - в редакторе.
      "System/MsWheelDeltaHelp" - в подсказке.
-   Ёти параметры имеет значение только дл€ Windows 2000.
+   Ёти параметры имеют значение дл€ Windows 2000 и выше.
+   ѕо умолчанию значени€ = 1
+
+   "MsHWheelDelta":REG_DWORD
+   "MsHWheelDeltaView":REG_DWORD
+   "MsHWheelDeltaEdit":REG_DWORD
+   ѕараметры "System/MsHWheelDelta*" с  типом  DWORD  задают  смещение  дл€
+   горизонтальной прокрутки:
+     "System/MsHWheelDelta"     - в панел€х,
+     "System/MsHWheelDeltaView" - в программе просмотра,
+     "System/MsHWheelDeltaEdit" - в редакторе.
+   Ёти параметры имеют значение дл€ Windows Vista и выше.
    ѕо умолчанию значени€ = 1
 
 1.2.12.(TechInfo #34)

@@ -11,7 +11,7 @@
 
       This software  is  developed  to  facilitate  a  large  number  of
       operations with files, folders and archives under Windows 95/98/Me
-      and Windows NT/2000/XP/2003/Vista operating systems.
+      and Windows NT/2000/XP/2003/Vista/2008 operating systems.
 
       Note, that FAR is actually the text mode shell.
 

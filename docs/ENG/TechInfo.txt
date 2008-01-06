@@ -342,7 +342,18 @@ the main help file, that is actual for the current FAR Manager version.
      "System/MsWheelDeltaView" - in the viewer,
      "System/MsWheelDeltaEdit" - in the editor.
      "System/MsWheelDeltaHelp" - in the help.
-   These parameters are used only under Windows 2000.
+   These parameters are used under Windows 2000 and above.
+   The default values are 1.
+
+   "MsHWheelDelta":REG_DWORD
+   "MsHWheelDeltaView":REG_DWORD
+   "MsHWheelDeltaEdit":REG_DWORD
+   The keys "System/MsHWheelDelta*" of  DWORD  type  specify  the  horizontal
+   scrolling delta:
+     "System/MsHWheelDelta"     - in the panels,
+     "System/MsHWheelDeltaView" - in the viewer,
+     "System/MsHWheelDeltaEdit" - in the editor.
+   These parameters are used under Windows Vista and above.
    The default values are 1.
 
 1.2.12.(TechInfo #34)
