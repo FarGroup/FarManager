@@ -1464,9 +1464,10 @@ const char *_MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *Rec)
       Rec->dwEventFlags,
         (Rec->dwEventFlags==DOUBLE_CLICK?"(DblClick)":
          (Rec->dwEventFlags==MOUSE_MOVED?"(Moved)":
-          (Rec->dwEventFlags==MOUSE_WHEELED?"(Wheel)":"")))
+          (Rec->dwEventFlags==MOUSE_WHEELED?"(Wheel)":
+           (Rec->dwEventFlags==MOUSE_HWHEELED?"(HWheel)":""))))
     );
-  if(Rec->dwEventFlags==MOUSE_WHEELED)
+  if(Rec->dwEventFlags==MOUSE_WHEELED || Rec->dwEventFlags==MOUSE_HWHEELED)
   {
     sprintf(Records+strlen(Records)," (Delta=%d)",(short)HIWORD(Rec->dwButtonState));
   }

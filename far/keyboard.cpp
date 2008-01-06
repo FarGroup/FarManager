@@ -142,12 +142,14 @@ static struct TFKey3 FKeys1[]={
   { KEY_BROWSER_FORWARD,     14, "BrowserForward"},
   //{ KEY_HP_COMMUNITIES,      13, "HPCommunities"},
   { KEY_BROWSER_SEARCH,      13, "BrowserSearch"},
+  { KEY_MSWHEEL_RIGHT,       12, "MsWheelRight"},
 #if defined(MOUSEKEY)
   { KEY_MSLDBLCLICK,         11, "MsLDblClick"},
   { KEY_MSRDBLCLICK,         11, "MsRDblClick"},
 #endif
   //{ KEY_AC_BOOKMARKS,        11, "ACBookmarks"},
   { KEY_MSWHEEL_DOWN,        11, "MsWheelDown"},
+  { KEY_MSWHEEL_LEFT,        11, "MsWheelLeft"},
   { KEY_BROWSER_STOP,        11, "BrowserStop"},
   { KEY_BROWSER_HOME,        11, "BrowserHome"},
   { KEY_BROWSER_BACK,        11, "BrowserBack"},
@@ -1400,6 +1402,18 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
       /* VVM $ */
     } /* if */
     /* VVM $ */
+
+    // Обработка горизонтального колесика (NT>=6)
+    if (MouseEventFlags == MOUSE_HWHEELED)
+    {
+      short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
+      CalcKey = (zDelta>0)?KEY_MSWHEEL_RIGHT:KEY_MSWHEEL_LEFT;
+      CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                 (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                 (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      memset(rec,0,sizeof(*rec));
+      rec->EventType = KEY_EVENT;
+    }
   }
 
   if (ReadKey!=0 && !GrayKey)

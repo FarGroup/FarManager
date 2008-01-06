@@ -510,6 +510,10 @@ struct Options
   int MsWheelDeltaView;
   int MsWheelDeltaEdit;
   int MsWheelDeltaHelp;
+  // горизонтальная прокрутка
+  int MsHWheelDelta;
+  int MsHWheelDeltaView;
+  int MsHWheelDeltaEdit;
   /* $ 28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:
       0 - если установлен, то опрашивать сменные диски при GetSubstName()

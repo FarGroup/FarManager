@@ -2255,6 +2255,8 @@ int Dialog::ProcessKey(int Key)
       case KEY_PGDN:     case KEY_NUMPAD3:
       case KEY_MSWHEEL_UP:
       case KEY_MSWHEEL_DOWN:
+      case KEY_MSWHEEL_LEFT:
+      case KEY_MSWHEEL_RIGHT:
       case KEY_ENTER:
       case KEY_NUMENTER:
         VMenu *List=Item[FocusPos].ListPtr;
@@ -2452,8 +2454,8 @@ int Dialog::ProcessKey(int Key)
       return(TRUE);
     /* SVS 22.11.2000 $ */
 
-    case KEY_LEFT:  case KEY_NUMPAD4:
-    case KEY_RIGHT: case KEY_NUMPAD6:
+    case KEY_LEFT:  case KEY_NUMPAD4: case KEY_MSWHEEL_LEFT:
+    case KEY_RIGHT: case KEY_NUMPAD6: case KEY_MSWHEEL_RIGHT:
     {
       if(Item[FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
         return TRUE;

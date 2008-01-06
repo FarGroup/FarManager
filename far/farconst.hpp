@@ -310,6 +310,11 @@ enum FlagsNameAndPassword{
 #endif
 /* VVM $ */
 
+// Vista посылает консольному окну событие с dwEventFlags == MOUSE_HWHEELED
+#ifndef MOUSE_HWHEELED
+#define MOUSE_HWHEELED 0x0008
+#endif
+
 ///
 
 /* $ 27.05.2001 DJ         30.05.2001 OT

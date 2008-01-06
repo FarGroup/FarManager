@@ -3494,6 +3494,8 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
       "CtrlDown", "Enter", "Esc", "F1", "CtrlF5",
       "CtrlMsWheelUp","ShiftMsWheelUp","AltMsWheelUp","CtrlShiftMsWheelUp","CtrlAltMsWheelUp","AltShiftMsWheelUp",
       "CtrlMsWheelDown","ShiftMsWheelDown","AltMsWheelDown","CtrlShiftMsWheelDown","CtrlAltMsWheelDown","AltShiftMsWheelDown"
+      "CtrlMsWheelLeft","ShiftMsWheelLeft","AltMsWheelLeft","CtrlShiftMsWheelLeft","CtrlAltMsWheelLeft","AltShiftMsWheelLeft",
+      "CtrlMsWheelRight","ShiftMsWheelRight","AltMsWheelRight","CtrlShiftMsWheelRight","CtrlAltMsWheelRight","AltShiftMsWheelRight"
     };
     for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
       Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);

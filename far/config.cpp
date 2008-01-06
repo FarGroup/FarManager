@@ -1124,6 +1124,9 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaHelp", &Opt.MsWheelDeltaHelp, 1, 0},
   /* VVM $ */
+  {0, REG_DWORD,  NKeySystem,"MsHWheelDelta", &Opt.MsHWheelDelta, 1, 0},
+  {0, REG_DWORD,  NKeySystem,"MsHWheelDeltaView", &Opt.MsHWheelDeltaView, 1, 0},
+  {0, REG_DWORD,  NKeySystem,"MsHWheelDeltaEdit", &Opt.MsHWheelDeltaEdit, 1, 0},
   /* $ 28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:
       0 - если установлен, то опрашивать сменные диски при GetSubstName()

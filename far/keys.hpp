@@ -176,6 +176,9 @@ enum BaseDefKeyboard
   KEY_DECIMAL              =0x0000020A,
   KEY_NUMENTER             =0x0000020B,
 
+  KEY_MSWHEEL_LEFT         =0x0000020C,
+  KEY_MSWHEEL_RIGHT        =0x0000020D,
+
   KEY_VK_0xFF_BEGIN        =0x00000300,
 #ifdef FAR_USE_INTERNALS
 //  KEY_HP_INTERNET          =0x00000323,
