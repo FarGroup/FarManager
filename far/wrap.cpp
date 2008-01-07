@@ -46,11 +46,35 @@ wchar_t *AnsiToUnicode (const char *lpszAnsiString)
   return lpResult;
 }
 
+wchar_t *AnsiToUnicodeBin (const char *lpszAnsiString, int nLength)
+{
+  wchar_t *lpResult = (wchar_t*)xf_malloc (nLength*sizeof(wchar_t));
+
+  wmemset (lpResult, 0, nLength);
+
+  MultiByteToWideChar (
+          CP_OEMCP,
+          0,
+          lpszAnsiString,
+          -1,
+          lpResult,
+          nLength
+          );
+
+  return lpResult;
+}
+
 char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 {
-  char *lpResult = (char*)xf_malloc (nLength);
+	/* $ 06.01.2008 TS
+	   ! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
+	   	 работы старых плагинов, которые не знали, что надо смотреть на длину,
+	   	 а не на завершающий ноль (например в EditorGetString.StringText).
+	*/
 
-  memset (lpResult, 0, nLength);
+  char *lpResult = (char*)xf_malloc (nLength+1);
+
+  memset (lpResult, 0, nLength+1);
 
   WideCharToMultiByte (
           CP_OEMCP,
@@ -464,7 +488,12 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //а хрен ещё как угадать скока там этот Param2
 	wchar_t *p=(wchar_t *)xf_malloc(size*sizeof(wchar_t));
 	wcscpy(p,strP2);
-	int ret = ProcessName(strP1,p,size,Flags);
+	int newFlags = 0;
+	if(Flags&oldfar::PN_CMPNAME) newFlags|=PN_CMPNAME;
+	if(Flags&oldfar::PN_CMPNAMELIST) newFlags|=PN_CMPNAMELIST;
+	if(Flags&oldfar::PN_SKIPPATH) newFlags|=PN_SKIPPATH;
+	if(Flags&oldfar::PN_GENERATENAME) newFlags|=PN_GENERATENAME;
+	int ret = ProcessName(strP1,p,size,newFlags);
 	UnicodeToAnsi(p,Param2);
 	xf_free(p);
 	return ret;
@@ -554,8 +583,11 @@ void WINAPI FarRecursiveSearchA(const char *InitDir,const char *Mask,oldfar::FRS
 	FAR_SEARCH_A_CALLBACK_PARAM CallbackParam;
 	CallbackParam.Func = Func;
 	CallbackParam.Param = Param;
-
-	FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,Flags,static_cast<void *>(&CallbackParam));
+	int newFlags = 0;
+	if(Flags&oldfar::FRS_RETUPDIR) newFlags|=FRS_RETUPDIR;
+	if(Flags&oldfar::FRS_RECUR) newFlags|=FRS_RECUR;
+	if(Flags&oldfar::FRS_SCANSYMLINK) newFlags|=FRS_SCANSYMLINK;
+	FarRecursiveSearch(static_cast<const wchar_t *>(strInitDir),static_cast<const wchar_t *>(strMask),FarRecursiveSearchA_Callback,newFlags,static_cast<void *>(&CallbackParam));
 }
 
 DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
@@ -2136,24 +2168,23 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 	switch (Command)
 	{
-		case ECTL_ADDCOLOR:
-		case ECTL_DELETEBLOCK:
-		case ECTL_DELETECHAR:
-		case ECTL_DELETESTRING:
-		case ECTL_EXPANDTABS:
-		case ECTL_GETCOLOR:
-		case ECTL_GETBOOKMARKS:
-		case ECTL_INSERTSTRING:
-		case ECTL_QUIT:
-		case ECTL_REALTOTAB:
-		case ECTL_REDRAW:
-		case ECTL_SELECT:
-		case ECTL_SETPOSITION:
-		case ECTL_TABTOREAL:
-		case ECTL_TURNOFFMARKINGBLOCK:
-			return FarEditorControl(Command,Param);
+		case oldfar::ECTL_ADDCOLOR:			Command = ECTL_ADDCOLOR; break;
+		case oldfar::ECTL_DELETEBLOCK:	Command = ECTL_DELETEBLOCK; break;
+		case oldfar::ECTL_DELETECHAR:		Command = ECTL_DELETECHAR; break;
+		case oldfar::ECTL_DELETESTRING:	Command = ECTL_DELETESTRING; break;
+		case oldfar::ECTL_EXPANDTABS:		Command = ECTL_EXPANDTABS; break;
+		case oldfar::ECTL_GETCOLOR:			Command = ECTL_GETCOLOR; break;
+		case oldfar::ECTL_GETBOOKMARKS:	Command = ECTL_GETBOOKMARKS; break;
+		case oldfar::ECTL_INSERTSTRING:	Command = ECTL_INSERTSTRING; break;
+		case oldfar::ECTL_QUIT:					Command = ECTL_QUIT; break;
+		case oldfar::ECTL_REALTOTAB:		Command = ECTL_REALTOTAB; break;
+		case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
+		case oldfar::ECTL_SELECT:				Command = ECTL_SELECT; break;
+		case oldfar::ECTL_SETPOSITION:	Command = ECTL_SETPOSITION; break;
+		case oldfar::ECTL_TABTOREAL:		Command = ECTL_TABTOREAL; break;
+		case oldfar::ECTL_TURNOFFMARKINGBLOCK:	Command = ECTL_TURNOFFMARKINGBLOCK; break;
 
-		case ECTL_GETSTRING:
+		case oldfar::ECTL_GETSTRING:
 			{
 				EditorGetString egs;
 				oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
@@ -2177,7 +2208,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				return FALSE;
 			}
 
-		case ECTL_INSERTTEXT:
+		case oldfar::ECTL_INSERTTEXT:
 		{
 			const char *p=(const char *)Param;
 			if (!p) return FALSE;
@@ -2185,7 +2216,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			return FarEditorControl(ECTL_INSERTTEXT,(void *)(const wchar_t *)strP);
 		}
 
-		case ECTL_GETINFO:
+		case oldfar::ECTL_GETINFO:
 		{
 			EditorInfo ei;
 			oldfar::EditorInfo *oei=(oldfar::EditorInfo *)Param;
@@ -2220,23 +2251,196 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			return FALSE;
 		}
 
-		case ECTL_EDITORTOOEM:
-		case ECTL_OEMTOEDITOR:
-			return TRUE;
+		case oldfar::ECTL_EDITORTOOEM:
+		case oldfar::ECTL_OEMTOEDITOR:
+			return TRUE;	//BUGBUG
 
-		case ECTL_SAVEFILE:
-		case ECTL_PROCESSINPUT:
-		case ECTL_PROCESSKEY:
-		case ECTL_READINPUT:
-		case ECTL_SETKEYBAR:
-		case ECTL_SETPARAM:
-		case ECTL_SETSTRING:
-		case ECTL_SETTITLE:
+		case oldfar::ECTL_SAVEFILE:
+			{
+			  EditorSaveFile newsf = {0,0};
+				if (Param)
+				{
+					oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
+					newsf.FileName=(oldsf->FileName)?AnsiToUnicode(oldsf->FileName):NULL;
+					newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):NULL;
+				}
+			  int ret = FarEditorControl(ECTL_SAVEFILE, Param?(void *)&newsf:0);
+			  if (newsf.FileName) xf_free((void*)newsf.FileName);
+				if (newsf.FileEOL) xf_free((void*)newsf.FileEOL);
+			  return ret;
+			}
+
+		case oldfar::ECTL_PROCESSINPUT:	//BUGBUG, в работе
+			{
+				return FarEditorControl(ECTL_PROCESSINPUT, Param);
+				break;
+			}
+
+		case oldfar::ECTL_PROCESSKEY:	//BUGBUG, в работе
+			{
+				return FarEditorControl(ECTL_PROCESSKEY, Param);
+				break;
+			}
+
+		case oldfar::ECTL_READINPUT:	//BUGBUG, в работе
+			{
+				return FarEditorControl(ECTL_READINPUT, Param);
+				break;
+			}
+
+		case oldfar::ECTL_SETKEYBAR:
+			{
+				switch((LONG_PTR)Param)
+				{
+					case NULL:
+					case -1:
+						return FarEditorControl(ECTL_SETKEYBAR, Param);
+						break;
+					default:
+						oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
+						KeyBarTitles newkbt;
+
+						for(int i=0;i<12;i++)
+						{
+							newkbt.Titles[i]          = oldkbt->Titles[i]?          AnsiToUnicode(oldkbt->Titles[i]):          NULL;
+							newkbt.CtrlTitles[i]      = oldkbt->CtrlTitles[i]?      AnsiToUnicode(oldkbt->CtrlTitles[i]):      NULL;
+							newkbt.AltTitles[i]       = oldkbt->AltTitles[i]?       AnsiToUnicode(oldkbt->AltTitles[i]):       NULL;
+							newkbt.ShiftTitles[i]     = oldkbt->ShiftTitles[i]?     AnsiToUnicode(oldkbt->ShiftTitles[i]):     NULL;
+							newkbt.CtrlShiftTitles[i] = oldkbt->CtrlShiftTitles[i]? AnsiToUnicode(oldkbt->CtrlShiftTitles[i]): NULL;
+							newkbt.AltShiftTitles[i]  = oldkbt->AltShiftTitles[i]?  AnsiToUnicode(oldkbt->AltShiftTitles[i]):  NULL;
+							newkbt.CtrlAltTitles[i]   = oldkbt->CtrlAltTitles[i]?   AnsiToUnicode(oldkbt->CtrlAltTitles[i]):   NULL;
+						}
+						int ret = FarEditorControl(ECTL_SETKEYBAR, (void*)&newkbt);
+						for(int i=0;i<12;i++)
+						{
+							if (newkbt.Titles[i])					xf_free (newkbt.Titles[i]);
+							if (newkbt.CtrlTitles[i])			xf_free (newkbt.CtrlTitles[i]);
+							if (newkbt.AltTitles[i])			xf_free (newkbt.AltTitles[i]);
+							if (newkbt.ShiftTitles[i])		xf_free (newkbt.ShiftTitles[i]);
+							if (newkbt.CtrlShiftTitles[i])xf_free (newkbt.CtrlShiftTitles[i]);
+							if (newkbt.AltShiftTitles[i])	xf_free (newkbt.AltShiftTitles[i]);
+							if (newkbt.CtrlAltTitles[i])	xf_free (newkbt.CtrlAltTitles[i]);
+						}
+						return ret;
+				}
+			}
+
+		case oldfar::ECTL_SETPARAM:
+			{
+			  EditorSetParameter newsp = {0,0,0,0};
+				if (Param)
+				{
+					oldfar::EditorSetParameter *oldsp= (oldfar::EditorSetParameter*) Param;
+
+					newsp.Param.iParam = oldsp->Param.iParam;
+
+					switch (oldsp->Type)
+					{
+						case oldfar::ESPT_AUTOINDENT:				newsp.Type = ESPT_AUTOINDENT; break;
+						case oldfar::ESPT_CHARCODEBASE:			newsp.Type = ESPT_CHARCODEBASE; break;
+						case oldfar::ESPT_CURSORBEYONDEOL:	newsp.Type = ESPT_CURSORBEYONDEOL; break;
+						case oldfar::ESPT_LOCKMODE:					newsp.Type = ESPT_LOCKMODE; break;
+						case oldfar::ESPT_SAVEFILEPOSITION:	newsp.Type = ESPT_SAVEFILEPOSITION; break;
+						case oldfar::ESPT_TABSIZE:					newsp.Type = ESPT_TABSIZE; break;
+
+						case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
+							{
+								newsp.Type = ESPT_CHARTABLE;
+								break;
+							}
+
+						case oldfar::ESPT_EXPANDTABS:
+							{
+								newsp.Type = ESPT_EXPANDTABS;
+								switch (oldsp->Param.iParam)
+									{
+										case oldfar::EXPAND_NOTABS:		newsp.Param.iParam = EXPAND_NOTABS; break;
+										case oldfar::EXPAND_ALLTABS:	newsp.Param.iParam = EXPAND_ALLTABS; break;
+										case oldfar::EXPAND_NEWTABS: 	newsp.Param.iParam = EXPAND_NEWTABS; break;
+										default: return FALSE;
+									}
+								break;
+							}
+
+						case oldfar::ESPT_SETWORDDIV:
+							{
+								newsp.Type = ESPT_SETWORDDIV;
+								newsp.Param.cParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):NULL;
+								int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
+								if (newsp.Param.cParam) xf_free(newsp.Param.cParam);
+								return ret;
+							}
+
+						case oldfar::ESPT_GETWORDDIV:
+							{
+								if(!oldsp->Param.cParam) return FALSE;
+
+								*oldsp->Param.cParam=0;
+
+								newsp.Type = ESPT_GETWORDDIV;
+								newsp.Param.cParam = (wchar_t*)xf_malloc(8192*sizeof(wchar_t)); //BUGBUG, неизвестна длина необх. буфера
+
+								if (newsp.Param.cParam)
+                {
+	               	int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
+                	char *olddiv = UnicodeToAnsi(newsp.Param.cParam);
+                	if (olddiv)
+                	{
+                		int l = min((int)strlen (olddiv),255);
+                		memcpy(oldsp->Param.cParam,olddiv,l);
+                		oldsp->Param.cParam[l+1]=0;
+                		xf_free(olddiv);
+                	}
+									xf_free(newsp.Param.cParam);
+									return ret;
+                }
+                return FALSE;
+							}
+
+						default:
+							return FALSE;
+					}
+				}
+				return FarEditorControl(ECTL_SETPARAM, Param?(void *)&newsp:0);
+			}
+
+		case oldfar::ECTL_SETSTRING:
+			{
+			  EditorSetString newss = {0,0,0,0};
+				if (Param)
+				{
+					oldfar::EditorSetString *oldss = (oldfar::EditorSetString*) Param;
+					newss.StringNumber=oldss->StringNumber;
+					/* $ 06.01.2008 TS
+					! Непонятно что подразумевалось под "Помещаемая строка должна быть в
+					  кодировке редактора". Считаем что ОЕМ (см. выше oldfar::ECTL_GETSTRING)
+					*/
+					newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength):NULL;
+					newss.StringEOL=(oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL):NULL;
+					newss.StringLength=oldss->StringLength;
+				}
+			  int ret = FarEditorControl(ECTL_SETSTRING, Param?(void *)&newss:0);
+			  if (newss.StringText) xf_free((void*)newss.StringText);
+				if (newss.StringEOL) xf_free((void*)newss.StringEOL);
+			  return ret;
+			}
+		case oldfar::ECTL_SETTITLE:
+			{
+				wchar_t* newtit = NULL;
+				if (Param)
+				{
+					newtit=AnsiToUnicode((char*)Param);
+				}
+			  int ret = FarEditorControl(ECTL_SETTITLE, (void *)newtit);
+			  if (newtit) xf_free(newtit);
+			  return ret;
+			}
+
+		default:
 			return FALSE;
-
 	}
 
-	return FALSE;
+	return FarEditorControl(Command,Param);
 }
 
 int WINAPI FarViewerControlA(int Command,void* Param)
