@@ -815,29 +815,29 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 	{
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
+		{
+			if (diA->Param.ListItems)
 			{
-				if (diA->Param.ListItems)
-				{
-					l->Items = (FarListItem *)xf_malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
-					l->ItemsNumber = diA->Param.ListItems->ItemsNumber;
-					for(int j = 0;j<l->ItemsNumber;j++)
-						AnsiListItemToUnicode(&diA->Param.ListItems->Items[j], &l->Items[j]);
-					di->Param.ListItems=l;
-				}
+				l->Items = (FarListItem *)xf_malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
+				l->ItemsNumber = diA->Param.ListItems->ItemsNumber;
+				for(int j = 0;j<l->ItemsNumber;j++)
+					AnsiListItemToUnicode(&diA->Param.ListItems->Items[j], &l->Items[j]);
+				di->Param.ListItems=l;
 			}
 			break;
+		}
 		case DI_USERCONTROL:
 			di->Param.VBuf=diA->Param.VBuf;
 			break;
 		case DI_EDIT:
 		case DI_FIXEDIT:
-			{
-				if (diA->Flags&oldfar::DIF_HISTORY && diA->Param.History)
-					di->Param.History=AnsiToUnicode(diA->Param.History);
-				else if (diA->Flags&oldfar::DIF_MASKEDIT && diA->Param.Mask)
-					di->Param.Mask=AnsiToUnicode(diA->Param.Mask);
-			}
+		{
+			if (diA->Flags&oldfar::DIF_HISTORY && diA->Param.History)
+				di->Param.History=AnsiToUnicode(diA->Param.History);
+			else if (diA->Flags&oldfar::DIF_MASKEDIT && diA->Param.Mask)
+				di->Param.Mask=AnsiToUnicode(diA->Param.Mask);
 			break;
+		}
 		default:
 			di->Param.Reserved=diA->Param.Reserved;
 	}
@@ -1050,20 +1050,20 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			break;
 
 		case DN_HELP:
+		{
+			char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
+			LONG_PTR ret = CurrentDlgProc(Msg, Param1, (LONG_PTR)HelpTopicA);
+
+			if(ret)
 			{
-				char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
-				LONG_PTR ret = CurrentDlgProc(Msg, Param1, (LONG_PTR)HelpTopicA);
-
-				if(ret)
-				{
-					if(HelpTopic) xf_free(HelpTopic);
-					HelpTopic = AnsiToUnicode((const char *)ret);
-					ret = (LONG_PTR)HelpTopic;
-				}
-
-				xf_free (HelpTopicA);
-				return ret;
+				if(HelpTopic) xf_free(HelpTopic);
+				HelpTopic = AnsiToUnicode((const char *)ret);
+				ret = (LONG_PTR)HelpTopic;
 			}
+
+			xf_free (HelpTopicA);
+			return ret;
+		}
 
 		case DN_HOTKEY:
 			break;
@@ -1108,93 +1108,93 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_GETDLGDATA:   Msg = DM_GETDLGDATA; break;
 
 		case oldfar::DM_GETDLGITEM:
+		{
+			FarDialogItem *di = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
+
+			if (di)
 			{
-				FarDialogItem *di = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
+				oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
 
-				if (di)
-				{
-					oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
+				UnicodeDialogItemToAnsi(di,diA); //BUGBUG memory leak
 
-					UnicodeDialogItemToAnsi(di,diA); //BUGBUG memory leak
+				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)di);
 
-					FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)di);
-
-					return TRUE;
-				}
-
-				return FALSE;
+				return TRUE;
 			}
+
+			return FALSE;
+		}
 
 		case oldfar::DM_GETDLGRECT: Msg = DM_GETDLGRECT; break;
 
 		case oldfar::DM_GETTEXT:
-			{
-				if (!Param2)
-					return FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
+		{
+			if (!Param2)
+				return FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
 
-				oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
-				wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
+			oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
+			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 
-				//BUGBUG: если didA->PtrLength=0, то вернётся с учётом '\0', в Энц написано, что без, хз как правильно.
-				FarDialogItemData did = {didA->PtrLength, text};
+			//BUGBUG: если didA->PtrLength=0, то вернётся с учётом '\0', в Энц написано, что без, хз как правильно.
+			FarDialogItemData did = {didA->PtrLength, text};
 
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, (LONG_PTR)&did);
-        didA->PtrLength = (unsigned)did.PtrLength;
-				UnicodeToAnsi(text,didA->PtrData);
-				xf_free(text);
-				return ret;
-			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, (LONG_PTR)&did);
+			didA->PtrLength = (unsigned)did.PtrLength;
+			UnicodeToAnsi(text,didA->PtrData);
+			xf_free(text);
+			return ret;
+		}
 
 		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXTLENGTH; break;
 
 		case oldfar::DM_KEY:
+		{
+			if(!Param1 || !Param2) return FALSE;
+			int Count = (int)Param1;
+			DWORD* KeysA = (DWORD*)Param2;
+			DWORD* KeysW = (DWORD*)xf_malloc(Count*sizeof(DWORD));
+			for(int i=0;i<Count;i++)
 			{
-				if(!Param1 || !Param2) return FALSE;
-				int Count = (int)Param1;
-				DWORD* KeysA = (DWORD*)Param2;
-				DWORD* KeysW = (DWORD*)xf_malloc(Count*sizeof(DWORD));
-				for(int i=0;i<Count;i++)
-				{
-					if (KeysA[i]&0x100) KeysW[i]=KeysA[i]^0x100|EXTENDED_KEY_BASE;
-					else if (KeysA[i]&0x200) KeysW[i]=KeysA[i]^0x200|INTERNAL_KEY_BASE;
-					else KeysW[i] = KeysA[i];
-				}
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (LONG_PTR)KeysW);
-				xf_free(KeysW);
-				return ret;
+				if (KeysA[i]&0x100) KeysW[i]=KeysA[i]^0x100|EXTENDED_KEY_BASE;
+				else if (KeysA[i]&0x200) KeysW[i]=KeysA[i]^0x200|INTERNAL_KEY_BASE;
+				else KeysW[i] = KeysA[i];
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (LONG_PTR)KeysW);
+			xf_free(KeysW);
+			return ret;
+		}
 
 		case oldfar::DM_MOVEDIALOG: Msg = DM_MOVEDIALOG; break;
 		case oldfar::DM_SETDLGDATA: Msg = DM_SETDLGDATA; break;
 
 		case oldfar::DM_SETDLGITEM:
-			{
-				oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
-				FarDialogItem di;
-				FarList l = {0,0};
-				AnsiDialogItemToUnicode(diA,&di,&l);
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, (LONG_PTR)&di);
-				FreeUnicodeDialog(&di,&l);
-				return ret;
-			}
+		{
+			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
+			FarDialogItem di;
+			FarList l = {0,0};
+			AnsiDialogItemToUnicode(diA,&di,&l);
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, (LONG_PTR)&di);
+			FreeUnicodeDialog(&di,&l);
+			return ret;
+		}
 
 		case oldfar::DM_SETFOCUS: Msg = DM_SETFOCUS; break;
 		case oldfar::DM_REDRAW:   Msg = DM_REDRAW; break;
 
 		case oldfar::DM_SETTEXT:
-			{
-				if (!Param2)return 0;
-				oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
-				if (!didA->PtrData) return 0;
-				wchar_t* text = AnsiToUnicode(didA->PtrData);
+		{
+			if (!Param2)return 0;
+			oldfar::FarDialogItemData* didA = (oldfar::FarDialogItemData*)Param2;
+			if (!didA->PtrData) return 0;
+			wchar_t* text = AnsiToUnicode(didA->PtrData);
 
-				//BUGBUG - PtrLength ни на что не влияет.
-				FarDialogItemData di = {didA->PtrLength,text};
+			//BUGBUG - PtrLength ни на что не влияет.
+			FarDialogItemData di = {didA->PtrLength,text};
 
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXT, Param1, (LONG_PTR)&di);
-				xf_free (text);
-				return ret;
-			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXT, Param1, (LONG_PTR)&di);
+			xf_free (text);
+			return ret;
+		}
 
 		case oldfar::DM_SETMAXTEXTLENGTH: Msg = DM_SETMAXTEXTLENGTH; break;
 		case oldfar::DM_SHOWDIALOG:       Msg = DM_SHOWDIALOG; break;
@@ -1203,69 +1203,69 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_SETCURSORPOS:     Msg = DM_SETCURSORPOS; break;
 
 		case oldfar::DM_GETTEXTPTR:
-			{
-				LONG_PTR length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
-				if (!Param2) return length;
+		{
+			LONG_PTR length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
+			if (!Param2) return length;
 
-				wchar_t* text = (wchar_t *) xf_malloc ((length +1)* sizeof(wchar_t));
-				length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (LONG_PTR)text);
-				UnicodeToAnsi(text, (char *)Param2);
-				xf_free(text);
-				return length;
-			}
+			wchar_t* text = (wchar_t *) xf_malloc ((length +1)* sizeof(wchar_t));
+			length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (LONG_PTR)text);
+			UnicodeToAnsi(text, (char *)Param2);
+			xf_free(text);
+			return length;
+		}
 
 		case oldfar::DM_SETTEXTPTR:
-			{
-				if (!Param2) return FALSE;
-				wchar_t* text = AnsiToUnicode((char*)Param2);
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, (LONG_PTR)text);
-				xf_free (text);
-				return ret;
-			}
+		{
+			if (!Param2) return FALSE;
+			wchar_t* text = AnsiToUnicode((char*)Param2);
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, (LONG_PTR)text);
+			xf_free (text);
+			return ret;
+		}
 
 		case oldfar::DM_SHOWITEM: Msg = DM_SHOWITEM; break;
 
 		case oldfar::DM_ADDHISTORY:
-			{
-				if (!Param2) return FALSE;
-				wchar_t* history = AnsiToUnicode((char*)Param2);
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (LONG_PTR)history);
-				xf_free (history);
-				return ret;
-			}
+		{
+			if (!Param2) return FALSE;
+			wchar_t* history = AnsiToUnicode((char*)Param2);
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_SETHISTORY, Param1, (LONG_PTR)history);
+			xf_free (history);
+			return ret;
+		}
 
 		case oldfar::DM_GETCHECK:
-			{
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETCHECK, Param1, 0);
-				LONG_PTR state = 0;
-				if(ret&oldfar::BSTATE_UNCHECKED) state|=BSTATE_UNCHECKED;
-				if(ret&oldfar::BSTATE_CHECKED)   state|=BSTATE_CHECKED;
-				if(ret&oldfar::BSTATE_3STATE)    state|=BSTATE_3STATE;
-				return state;
-			}
+		{
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETCHECK, Param1, 0);
+			LONG_PTR state = 0;
+			if(ret&oldfar::BSTATE_UNCHECKED) state|=BSTATE_UNCHECKED;
+			if(ret&oldfar::BSTATE_CHECKED)   state|=BSTATE_CHECKED;
+			if(ret&oldfar::BSTATE_3STATE)    state|=BSTATE_3STATE;
+			return state;
+		}
 
 		case oldfar::DM_SETCHECK:
-			{
-				LONG_PTR state = 0;
-				if(Param2&oldfar::BSTATE_UNCHECKED) state|=BSTATE_UNCHECKED;
-				if(Param2&oldfar::BSTATE_CHECKED)   state|=BSTATE_CHECKED;
-				if(Param2&oldfar::BSTATE_3STATE)    state|=BSTATE_3STATE;
-				if(Param2&oldfar::BSTATE_TOGGLE)    state|=BSTATE_TOGGLE;
-				return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, state);
-			}
+		{
+			LONG_PTR state = 0;
+			if(Param2&oldfar::BSTATE_UNCHECKED) state|=BSTATE_UNCHECKED;
+			if(Param2&oldfar::BSTATE_CHECKED)   state|=BSTATE_CHECKED;
+			if(Param2&oldfar::BSTATE_3STATE)    state|=BSTATE_3STATE;
+			if(Param2&oldfar::BSTATE_TOGGLE)    state|=BSTATE_TOGGLE;
+			return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, state);
+		}
 
 		case oldfar::DM_SET3STATE: Msg = DM_SET3STATE; break;
 		case oldfar::DM_LISTSORT:  Msg = DM_LISTSORT; break;
 
 		case oldfar::DM_LISTGETITEM: //BUGBUG, недоделано в фаре
-			{
-				if (!Param2) return FALSE;
-				oldfar::FarListGetItem* lgiA = (oldfar::FarListGetItem*)Param2;
-				FarListGetItem lgi = {lgiA->ItemIndex};
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTGETITEM, Param1, (LONG_PTR)&lgi);
-				UnicodeListItemToAnsi(&lgi.Item, &lgiA->Item);
-				return ret;
-			}
+		{
+			if (!Param2) return FALSE;
+			oldfar::FarListGetItem* lgiA = (oldfar::FarListGetItem*)Param2;
+			FarListGetItem lgi = {lgiA->ItemIndex};
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTGETITEM, Param1, (LONG_PTR)&lgi);
+			UnicodeListItemToAnsi(&lgi.Item, &lgiA->Item);
+			return ret;
+		}
 
 		case oldfar::DM_LISTGETCURPOS:
 			if(Param2)
@@ -1278,154 +1278,154 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			else return FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, 0);
 
 		case oldfar::DM_LISTSETCURPOS:
-			{
-				if(!Param2) return FALSE;
-				oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
-				FarListPos lp = {lpA->SelectPos,lpA->TopPos};
-				Param2 = (LONG_PTR)&lp;
-				return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, (LONG_PTR)&lp);
-			}
+		{
+			if(!Param2) return FALSE;
+			oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
+			FarListPos lp = {lpA->SelectPos,lpA->TopPos};
+			Param2 = (LONG_PTR)&lp;
+			return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, (LONG_PTR)&lp);
+		}
 
 		case oldfar::DM_LISTDELETE:
+		{
+			oldfar::FarListDelete *ldA = (oldfar::FarListDelete *)Param2;
+			FarListDelete ld;
+			if(Param2)
 			{
-				oldfar::FarListDelete *ldA = (oldfar::FarListDelete *)Param2;
-				FarListDelete ld;
-				if(Param2)
-				{
-					ld.Count = ldA->Count;
-					ld.StartIndex = ldA->StartIndex;
-				}
-				return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, Param2?(LONG_PTR)&ld:0);
+				ld.Count = ldA->Count;
+				ld.StartIndex = ldA->StartIndex;
 			}
+			return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, Param2?(LONG_PTR)&ld:0);
+		}
 
 		case oldfar::DM_LISTADD:
+		{
+			FarList newlist = {0,0};
+			if (Param2)
 			{
-				FarList newlist = {0,0};
-				if (Param2)
+				oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
+				newlist.ItemsNumber = oldlist->ItemsNumber;
+				if (newlist.ItemsNumber)
 				{
-					oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
-					newlist.ItemsNumber = oldlist->ItemsNumber;
-					if (newlist.ItemsNumber)
+					newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
+					if (newlist.Items)
 					{
-						newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
-						if (newlist.Items)
-						{
-							for (int i=0;i<newlist.ItemsNumber;i++)
-								AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
-						}
+						for (int i=0;i<newlist.ItemsNumber;i++)
+							AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
 					}
 				}
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?(LONG_PTR)&newlist:0);
-	 			if (newlist.Items)
-		 		{
-		 	 		for (int i=0;i<newlist.ItemsNumber;i++)
-		 	 	 		if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
-					xf_free(newlist.Items);
-				}
-				return ret;
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADD, Param1, Param2?(LONG_PTR)&newlist:0);
+			if (newlist.Items)
+			{
+				for (int i=0;i<newlist.ItemsNumber;i++)
+					if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
+				xf_free(newlist.Items);
+			}
+			return ret;
+		}
 
 		case oldfar::DM_LISTADDSTR:
+		{
+			wchar_t* newstr = NULL;
+			if (Param2)
 			{
-				wchar_t* newstr = NULL;
-				if (Param2)
-				{
-					newstr = AnsiToUnicode((char*)Param2);
-				}
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADDSTR, Param1, (LONG_PTR)newstr);
-				if (newstr) xf_free (newstr);
-				return ret;
+				newstr = AnsiToUnicode((char*)Param2);
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTADDSTR, Param1, (LONG_PTR)newstr);
+			if (newstr) xf_free (newstr);
+			return ret;
+		}
 
 		case oldfar::DM_LISTUPDATE:
+		{
+			FarListUpdate newui = {0,0};
+			if (Param2)
 			{
-			  FarListUpdate newui = {0,0};
-				if (Param2)
-				{
-					oldfar::FarListUpdate *oldui = (oldfar::FarListUpdate*) Param2;
-					newui.Index=oldui->Index;
-					AnsiListItemToUnicode(&oldui->Item, &newui.Item);
-				}
-			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?(LONG_PTR)&newui:0);
-			  if (newui.Item.Text) xf_free((void*)newui.Item.Text);
-			  return ret;
+				oldfar::FarListUpdate *oldui = (oldfar::FarListUpdate*) Param2;
+				newui.Index=oldui->Index;
+				AnsiListItemToUnicode(&oldui->Item, &newui.Item);
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2?(LONG_PTR)&newui:0);
+			if (newui.Item.Text) xf_free((void*)newui.Item.Text);
+			return ret;
+		}
 
 		case oldfar::DM_LISTINSERT:
+		{
+			FarListInsert newli = {0,0};
+			if (Param2)
 			{
-			  FarListInsert newli = {0,0};
-				if (Param2)
-				{
-					oldfar::FarListInsert *oldli = (oldfar::FarListInsert*) Param2;
-					newli.Index=oldli->Index;
-					AnsiListItemToUnicode(&oldli->Item, &newli.Item);
-				}
-			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?(LONG_PTR)&newli:0);
-			  if (newli.Item.Text) xf_free((void*)newli.Item.Text);
-			  return ret;
+				oldfar::FarListInsert *oldli = (oldfar::FarListInsert*) Param2;
+				newli.Index=oldli->Index;
+				AnsiListItemToUnicode(&oldli->Item, &newli.Item);
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2?(LONG_PTR)&newli:0);
+			if (newli.Item.Text) xf_free((void*)newli.Item.Text);
+			return ret;
+		}
 
 		case oldfar::DM_LISTFINDSTRING:
+		{
+			FarListFind newlf = {0,0,0,0};
+			if (Param2)
 			{
-			  FarListFind newlf = {0,0,0,0};
-				if (Param2)
-				{
-					oldfar::FarListFind *oldlf = (oldfar::FarListFind*) Param2;
-					newlf.StartIndex=oldlf->StartIndex;
-					newlf.Pattern = (oldlf->Pattern)?AnsiToUnicode(oldlf->Pattern):NULL;
-					if(oldlf->Flags&oldfar::LIFIND_EXACTMATCH) newlf.Flags|=LIFIND_EXACTMATCH;
-				}
-			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?(LONG_PTR)&newlf:0);
-			  if (newlf.Pattern) xf_free((void*)newlf.Pattern);
-			  return ret;
+				oldfar::FarListFind *oldlf = (oldfar::FarListFind*) Param2;
+				newlf.StartIndex=oldlf->StartIndex;
+				newlf.Pattern = (oldlf->Pattern)?AnsiToUnicode(oldlf->Pattern):NULL;
+				if(oldlf->Flags&oldfar::LIFIND_EXACTMATCH) newlf.Flags|=LIFIND_EXACTMATCH;
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2?(LONG_PTR)&newlf:0);
+			if (newlf.Pattern) xf_free((void*)newlf.Pattern);
+			return ret;
+		}
 
 		case oldfar::DM_LISTINFO:
-			{
-				if(!Param2) return FALSE;
-				oldfar::FarListInfo *liA = (oldfar::FarListInfo *)Param2;
-				FarListInfo li={0,liA->ItemsNumber,liA->SelectPos,liA->TopPos,liA->MaxHeight,liA->MaxLength};
-				if(liA ->Flags&oldfar::LINFO_SHOWNOBOX) li.Flags|=LINFO_SHOWNOBOX;
-				if(liA ->Flags&oldfar::LINFO_AUTOHIGHLIGHT) li.Flags|=LINFO_AUTOHIGHLIGHT;
-				if(liA ->Flags&oldfar::LINFO_REVERSEHIGHLIGHT) li.Flags|=LINFO_REVERSEHIGHLIGHT;
-				if(liA ->Flags&oldfar::LINFO_WRAPMODE) li.Flags|=LINFO_WRAPMODE;
-				if(liA ->Flags&oldfar::LINFO_SHOWAMPERSAND) li.Flags|=LINFO_SHOWAMPERSAND;
-				return FarSendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
-			}
+		{
+			if(!Param2) return FALSE;
+			oldfar::FarListInfo *liA = (oldfar::FarListInfo *)Param2;
+			FarListInfo li={0,liA->ItemsNumber,liA->SelectPos,liA->TopPos,liA->MaxHeight,liA->MaxLength};
+			if(liA ->Flags&oldfar::LINFO_SHOWNOBOX) li.Flags|=LINFO_SHOWNOBOX;
+			if(liA ->Flags&oldfar::LINFO_AUTOHIGHLIGHT) li.Flags|=LINFO_AUTOHIGHLIGHT;
+			if(liA ->Flags&oldfar::LINFO_REVERSEHIGHLIGHT) li.Flags|=LINFO_REVERSEHIGHLIGHT;
+			if(liA ->Flags&oldfar::LINFO_WRAPMODE) li.Flags|=LINFO_WRAPMODE;
+			if(liA ->Flags&oldfar::LINFO_SHOWAMPERSAND) li.Flags|=LINFO_SHOWAMPERSAND;
+			return FarSendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
+		}
 
 		case oldfar::DM_LISTGETDATA:	Msg = DM_LISTGETDATA; break;
 
 		case oldfar::DM_LISTSETDATA:
+		{
+			FarListItemData newlid = {0,0,0,0};
+			if(Param2)
 			{
-				FarListItemData newlid = {0,0,0,0};
-				if(Param2)
-				{
-					oldfar::FarListItemData *oldlid = (oldfar::FarListItemData*) Param2;
-					newlid.Index=oldlid->Index;
-					newlid.DataSize=oldlid->DataSize;
-					newlid.Data=oldlid->Data;
-				}
-			  LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?(LONG_PTR)&newlid:0);
-			  return ret;
+				oldfar::FarListItemData *oldlid = (oldfar::FarListItemData*) Param2;
+				newlid.Index=oldlid->Index;
+				newlid.DataSize=oldlid->DataSize;
+				newlid.Data=oldlid->Data;
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?(LONG_PTR)&newlid:0);
+			return ret;
+		}
 
 		case oldfar::DM_LISTSETTITLES:
-			{
-				if (!Param2) return FALSE;
-				oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
-				FarListTitles lt = {0,ltA->Title!=NULL?AnsiToUnicode(ltA->Title):NULL,0,ltA->Bottom!=NULL?AnsiToUnicode(ltA->Bottom):NULL};
-				Param2 = (LONG_PTR)&lt;
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, Param2);
-				if (lt.Bottom) xf_free ((wchar_t *)lt.Bottom);
-				if (lt.Title) xf_free ((wchar_t *)lt.Title);
-				return ret;
-			}
+		{
+			if (!Param2) return FALSE;
+			oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
+			FarListTitles lt = {0,ltA->Title!=NULL?AnsiToUnicode(ltA->Title):NULL,0,ltA->Bottom!=NULL?AnsiToUnicode(ltA->Bottom):NULL};
+			Param2 = (LONG_PTR)&lt;
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, Param2);
+			if (lt.Bottom) xf_free ((wchar_t *)lt.Bottom);
+			if (lt.Title) xf_free ((wchar_t *)lt.Title);
+			return ret;
+		}
 
 		case oldfar::DM_LISTGETTITLES:
-			{
-				//BUGBUG надо сделать когда DM_LISTGETTITLES будет работать в самом фаре
-				return FALSE;
-			}
+		{
+			//BUGBUG надо сделать когда DM_LISTGETTITLES будет работать в самом фаре
+			return FALSE;
+		}
 
 		case oldfar::DM_RESIZEDIALOG:      Msg = DM_RESIZEDIALOG; break;
 		case oldfar::DM_SETITEMPOSITION:   Msg = DM_SETITEMPOSITION; break;
@@ -1449,70 +1449,70 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_SETITEMDATA:         Msg = DM_SETITEMDATA; break;
 
 		case oldfar::DM_LISTSET:
+		{
+			FarList newlist = {0,0};
+			if (Param2)
 			{
-				FarList newlist = {0,0};
-				if (Param2)
+				oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
+				newlist.ItemsNumber = oldlist->ItemsNumber;
+				if (newlist.ItemsNumber)
 				{
-					oldfar::FarList *oldlist = (oldfar::FarList*) Param2;
-					newlist.ItemsNumber = oldlist->ItemsNumber;
-					if (newlist.ItemsNumber)
+					newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
+					if (newlist.Items)
 					{
-						newlist.Items = (FarListItem*)xf_malloc(newlist.ItemsNumber*sizeof(FarListItem));
-						if (newlist.Items)
-						{
-							for (int i=0;i<newlist.ItemsNumber;i++)
-								AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
-						}
+						for (int i=0;i<newlist.ItemsNumber;i++)
+							AnsiListItemToUnicode(&oldlist->Items[i], &newlist.Items[i]);
 					}
 				}
-				LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?(LONG_PTR)&newlist:0);
-	 			if (newlist.Items)
-		 		{
-		 	 		for (int i=0;i<newlist.ItemsNumber;i++)
-		 	 	 		if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
-					xf_free(newlist.Items);
-				}
-				return ret;
 			}
+			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_LISTSET, Param1, Param2?(LONG_PTR)&newlist:0);
+			if (newlist.Items)
+			{
+				for (int i=0;i<newlist.ItemsNumber;i++)
+					if (newlist.Items[i].Text) xf_free((void*)newlist.Items[i].Text);
+				xf_free(newlist.Items);
+			}
+			return ret;
+		}
 
 		case oldfar::DM_LISTSETMOUSEREACTION:
-			{
-				LONG_PTR type=0;
-				if (Param2&oldfar::LMRT_ONLYFOCUS) type|=LMRT_ONLYFOCUS;
-				if (Param2&oldfar::LMRT_ALWAYS)    type|=LMRT_ALWAYS;
-				if (Param2&oldfar::LMRT_NEVER)     type|=LMRT_NEVER;
-				return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, type);
-			}
+		{
+			LONG_PTR type=0;
+			if (Param2&oldfar::LMRT_ONLYFOCUS) type|=LMRT_ONLYFOCUS;
+			if (Param2&oldfar::LMRT_ALWAYS)    type|=LMRT_ALWAYS;
+			if (Param2&oldfar::LMRT_NEVER)     type|=LMRT_NEVER;
+			return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, type);
+		}
 
 		case oldfar::DM_GETCURSORSIZE:   Msg = DM_GETCURSORSIZE; break;
 		case oldfar::DM_SETCURSORSIZE:   Msg = DM_SETCURSORSIZE; break;
 		case oldfar::DM_LISTGETDATASIZE: Msg = DM_LISTGETDATASIZE; break;
 
 		case oldfar::DM_GETSELECTION:
-			{
-				if (!Param2) return FALSE;
-				oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
-				EditorSelect es;
-				es.BlockType      = esA->BlockType;
-				es.BlockStartLine = esA->BlockStartLine;
-				es.BlockStartPos  = esA->BlockStartPos;
-				es.BlockWidth     = esA->BlockWidth;
-				es.BlockHeight    = esA->BlockHeight;
-				return FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, (LONG_PTR)&es);
-			}
+		{
+			if (!Param2) return FALSE;
+			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
+			EditorSelect es;
+			es.BlockType      = esA->BlockType;
+			es.BlockStartLine = esA->BlockStartLine;
+			es.BlockStartPos  = esA->BlockStartPos;
+			es.BlockWidth     = esA->BlockWidth;
+			es.BlockHeight    = esA->BlockHeight;
+			return FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, (LONG_PTR)&es);
+		}
 
 		case oldfar::DM_SETSELECTION:
-			{
-				if (!Param2) return FALSE;
-				oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
-				EditorSelect es;
-				es.BlockType      = esA->BlockType;
-				es.BlockStartLine = esA->BlockStartLine;
-				es.BlockStartPos  = esA->BlockStartPos;
-				es.BlockWidth     = esA->BlockWidth;
-				es.BlockHeight    = esA->BlockHeight;
-				return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, (LONG_PTR)&es);
-			}
+		{
+			if (!Param2) return FALSE;
+			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
+			EditorSelect es;
+			es.BlockType      = esA->BlockType;
+			es.BlockStartLine = esA->BlockStartLine;
+			es.BlockStartPos  = esA->BlockStartPos;
+			es.BlockWidth     = esA->BlockWidth;
+			es.BlockHeight    = esA->BlockHeight;
+			return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, (LONG_PTR)&es);
+		}
 
 #ifdef FAR_USE_INTERNALS
 		case oldfar::DM_KILLSAVESCREEN:
@@ -1689,58 +1689,58 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			return FarControl(hPlugin,FCTL_CHECKPANELSEXIST,Param);
 
 		case oldfar::FCTL_CLOSEPLUGIN:
-			{
-				wchar_t *ParamW = NULL;
-				if (Param)
-					ParamW = AnsiToUnicode((const char *)Param);
-				int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,ParamW);
-				if (ParamW) xf_free(ParamW);
-				return ret;
-			}
+		{
+			wchar_t *ParamW = NULL;
+			if (Param)
+				ParamW = AnsiToUnicode((const char *)Param);
+			int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,ParamW);
+			if (ParamW) xf_free(ParamW);
+			return ret;
+		}
 
 		case oldfar::FCTL_GETANOTHERPANELINFO:
 			hPluginW = ANOTHER_PANEL;
 		case oldfar::FCTL_GETPANELINFO:
+		{
+			if(!Param) return FALSE;
+			oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
+			PanelInfo PIW;
+			int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
+			if (ret)
 			{
-				if(!Param) return FALSE;
-				oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
-				PanelInfo PIW;
-				int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
-				if (ret)
-				{
-					FreeAnsiPanelInfo(&PIA);
-					ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, FALSE);
-					*pPIA=PIA;
-				}
-				return ret;
+				FreeAnsiPanelInfo(&PIA);
+				ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, FALSE);
+				*pPIA=PIA;
 			}
+			return ret;
+		}
 
 		case oldfar::FCTL_GETANOTHERPANELSHORTINFO:
 			hPluginW = ANOTHER_PANEL;
 		case oldfar::FCTL_GETPANELSHORTINFO:
+		{
+			if(!Param) return FALSE;
+			oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
+			PanelInfo PIW;
+			int ret = FarControl(hPluginW,FCTL_GETPANELSHORTINFO,(void *)&PIW);
+			if (ret)
 			{
-				if(!Param) return FALSE;
-				oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
-				PanelInfo PIW;
-				int ret = FarControl(hPluginW,FCTL_GETPANELSHORTINFO,(void *)&PIW);
-				if (ret)
-				{
-					FreeAnsiPanelInfo(&PIA);
-					ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, TRUE);
-					*pPIA=PIA;
-				}
-				return ret;
+				FreeAnsiPanelInfo(&PIA);
+				ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, TRUE);
+				*pPIA=PIA;
 			}
+			return ret;
+		}
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
 			hPluginW = ANOTHER_PANEL;
 		case oldfar::FCTL_REDRAWPANEL:
-			{
-				if(!Param) return FarControl(hPluginW, FCTL_REDRAWPANEL, NULL);
-				oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
-				PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
-				return FarControl(hPluginW, FCTL_REDRAWPANEL, &pri);
-			}
+		{
+			if(!Param) return FarControl(hPluginW, FCTL_REDRAWPANEL, NULL);
+			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
+			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
+			return FarControl(hPluginW, FCTL_REDRAWPANEL, &pri);
+		}
 
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
 			hPluginW = ANOTHER_PANEL;
@@ -1750,13 +1750,13 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_SETANOTHERPANELDIR:
 			hPluginW = ANOTHER_PANEL;
 		case oldfar::FCTL_SETPANELDIR:
-			{
-				if(!Param) return FALSE;
-				wchar_t* Dir = AnsiToUnicode((char*)Param);
-				int ret = FarControl(hPluginW, FCTL_SETPANELDIR, Dir);
-				xf_free(Dir);
-				return ret;
-			}
+		{
+			if(!Param) return FALSE;
+			wchar_t* Dir = AnsiToUnicode((char*)Param);
+			int ret = FarControl(hPluginW, FCTL_SETPANELDIR, Dir);
+			xf_free(Dir);
+			return ret;
+		}
 
 		case oldfar::FCTL_SETANOTHERSELECTION:
 			hPluginW = ANOTHER_PANEL;
@@ -1786,70 +1786,70 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 
 		case oldfar::FCTL_GETCMDLINE:
-			{
-				if(!Param || IsBadWritePtr(Param, sizeof(char) * 1024)) return FALSE;
-				wchar_t s[1024];
-				int ret = FarControl(hPluginW, FCTL_GETCMDLINE, &s);
-				if(ret) UnicodeToAnsi(s, (char*)Param, 1024-1);
-				return ret;
-			}
+		{
+			if(!Param || IsBadWritePtr(Param, sizeof(char) * 1024)) return FALSE;
+			wchar_t s[1024];
+			int ret = FarControl(hPluginW, FCTL_GETCMDLINE, &s);
+			if(ret) UnicodeToAnsi(s, (char*)Param, 1024-1);
+			return ret;
+		}
 
 		case oldfar::FCTL_GETCMDLINEPOS:
 			if(!Param) return FALSE;
 			return FarControl(hPluginW,FCTL_GETCMDLINEPOS,Param);
 
 		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
-			{
-				if(!Param || IsBadWritePtr(Param, sizeof(char) * 1024)) return FALSE;
-				wchar_t s[1024];
-				int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTEDTEXT, &s);
-				if(ret) UnicodeToAnsi(s, (char*)Param, 1024-1);
-				return ret;
-			}
+		{
+			if(!Param || IsBadWritePtr(Param, sizeof(char) * 1024)) return FALSE;
+			wchar_t s[1024];
+			int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTEDTEXT, &s);
+			if(ret) UnicodeToAnsi(s, (char*)Param, 1024-1);
+			return ret;
+		}
 
 		case oldfar::FCTL_GETCMDLINESELECTION:
+		{
+			if(!Param) return FALSE;
+			CmdLineSelect cls;
+			int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTION, &cls);
+			if (ret)
 			{
-				if(!Param) return FALSE;
-				CmdLineSelect cls;
-				int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTION, &cls);
-				if (ret)
-				{
-					oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
-					clsA->SelStart = cls.SelStart;
-					clsA->SelEnd = cls.SelEnd;
-				};
-				return ret;
-			}
+				oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
+				clsA->SelStart = cls.SelStart;
+				clsA->SelEnd = cls.SelEnd;
+			};
+			return ret;
+		}
 
 		case oldfar::FCTL_INSERTCMDLINE:
-			{
-				if(!Param) return FALSE;
-				wchar_t* s = AnsiToUnicode((const char*)Param);
-				int ret = FarControl(hPluginW, FCTL_INSERTCMDLINE, s);
-				xf_free(s);
-				return ret;
-			}
+		{
+			if(!Param) return FALSE;
+			wchar_t* s = AnsiToUnicode((const char*)Param);
+			int ret = FarControl(hPluginW, FCTL_INSERTCMDLINE, s);
+			xf_free(s);
+			return ret;
+		}
 
 		case oldfar::FCTL_SETCMDLINE:
-			{
-				if(!Param) return FALSE;
-				wchar_t* s = AnsiToUnicode((const char*)Param);
-				int ret = FarControl(hPluginW, FCTL_SETCMDLINE, s);
-				xf_free(s);
-				return ret;
-			}
+		{
+			if(!Param) return FALSE;
+			wchar_t* s = AnsiToUnicode((const char*)Param);
+			int ret = FarControl(hPluginW, FCTL_SETCMDLINE, s);
+			xf_free(s);
+			return ret;
+		}
 
 		case oldfar::FCTL_SETCMDLINEPOS:
 			if(!Param) return FALSE;
 			return FarControl(hPluginW, FCTL_SETCMDLINEPOS, Param);
 
 		case oldfar::FCTL_SETCMDLINESELECTION:
-			{
-				if(!Param) return FALSE;
-				oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
-				CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
-				return FarControl(hPluginW, FCTL_SETCMDLINESELECTION, &cls);
-			}
+		{
+			if(!Param) return FALSE;
+			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
+			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
+			return FarControl(hPluginW, FCTL_SETCMDLINESELECTION, &cls);
+		}
 
 		case oldfar::FCTL_GETUSERSCREEN:
 			return FarControl(hPluginW, FCTL_GETUSERSCREEN, NULL);
@@ -1980,55 +1980,55 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		}
 
 		case oldfar::ACTL_POSTKEYSEQUENCE:
+		{
+			if (!Param) return FALSE;
+			KeySequence ks;
+			oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
+			if(!ksA->Count || !ksA->Sequence) return FALSE;
+			ks.Count = ksA->Count;
+			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT) ks.Flags|=KSFLAGS_DISABLEOUTPUT;
+			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) ks.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
+			ks.Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
+			for (int i=0;i<ks.Count;i++)
 			{
-				if (!Param) return FALSE;
-				KeySequence ks;
-				oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
-				if(!ksA->Count || !ksA->Sequence) return FALSE;
-				ks.Count = ksA->Count;
-				if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT) ks.Flags|=KSFLAGS_DISABLEOUTPUT;
-				if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) ks.Flags|=KSFLAGS_NOSENDKEYSTOPLUGINS;
-				ks.Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
-				for (int i=0;i<ks.Count;i++)
-				{
-					if (ksA->Sequence[i]&0x100) ks.Sequence[i]=ksA->Sequence[i]^0x100|EXTENDED_KEY_BASE;
-					else if (ksA->Sequence[i]&0x200) ks.Sequence[i]=ksA->Sequence[i]^0x200|INTERNAL_KEY_BASE;
-					else ks.Sequence[i] = ksA->Sequence[i];
-				}
-				LONG_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
-				xf_free (ks.Sequence);
-				return ret;
+				if (ksA->Sequence[i]&0x100) ks.Sequence[i]=ksA->Sequence[i]^0x100|EXTENDED_KEY_BASE;
+				else if (ksA->Sequence[i]&0x200) ks.Sequence[i]=ksA->Sequence[i]^0x200|INTERNAL_KEY_BASE;
+				else ks.Sequence[i] = ksA->Sequence[i];
 			}
+			LONG_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
+			xf_free (ks.Sequence);
+			return ret;
+		}
 
 		case oldfar::ACTL_GETSHORTWINDOWINFO:
 		case oldfar::ACTL_GETWINDOWINFO:
+		{
+			if (!Param) return FALSE;
+			int cmd = (Command==oldfar::ACTL_GETWINDOWINFO)?ACTL_GETWINDOWINFO:ACTL_GETSHORTWINDOWINFO;
+			oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
+			WindowInfo wi={wiA->Pos};
+			INT_PTR ret = FarAdvControl(ModuleNumber, cmd, &wi);
+			switch (wi.Type)
 			{
-				if (!Param) return FALSE;
-				int cmd = (Command==oldfar::ACTL_GETWINDOWINFO)?ACTL_GETWINDOWINFO:ACTL_GETSHORTWINDOWINFO;
-				oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
-				WindowInfo wi={wiA->Pos};
-				INT_PTR ret = FarAdvControl(ModuleNumber, cmd, &wi);
-				switch (wi.Type)
-				{
-					case WTYPE_PANELS: wiA->Type = oldfar::WTYPE_PANELS; break;
-					case WTYPE_VIEWER: wiA->Type = oldfar::WTYPE_VIEWER; break;
-					case WTYPE_EDITOR: wiA->Type = oldfar::WTYPE_EDITOR; break;
-					case WTYPE_DIALOG: wiA->Type = oldfar::WTYPE_DIALOG; break;
-					case WTYPE_VMENU:  wiA->Type = oldfar::WTYPE_VMENU;  break;
-					case WTYPE_HELP:   wiA->Type = oldfar::WTYPE_HELP;   break;
-				}
-				wiA->Modified = wi.Modified;
-				wiA->Current = wi.Current;
-				if(cmd==ACTL_GETWINDOWINFO)
-				{
-					// BUGBUG - Name and TypeName not unicode
-					//UnicodeToAnsi(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName)-1);
-					//UnicodeToAnsi(wi.Name,wiA->Name,sizeof(wiA->Name)-1);
-					strncpy(wiA->TypeName,wi.TypeName,sizeof(wiA->TypeName)-1);
-					strncpy(wiA->Name,wi.Name,sizeof(wiA->Name)-1);
-				}
-				return ret;
+				case WTYPE_PANELS: wiA->Type = oldfar::WTYPE_PANELS; break;
+				case WTYPE_VIEWER: wiA->Type = oldfar::WTYPE_VIEWER; break;
+				case WTYPE_EDITOR: wiA->Type = oldfar::WTYPE_EDITOR; break;
+				case WTYPE_DIALOG: wiA->Type = oldfar::WTYPE_DIALOG; break;
+				case WTYPE_VMENU:  wiA->Type = oldfar::WTYPE_VMENU;  break;
+				case WTYPE_HELP:   wiA->Type = oldfar::WTYPE_HELP;   break;
 			}
+			wiA->Modified = wi.Modified;
+			wiA->Current = wi.Current;
+			if(cmd==ACTL_GETWINDOWINFO)
+			{
+				// BUGBUG - Name and TypeName not unicode
+				//UnicodeToAnsi(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName)-1);
+				//UnicodeToAnsi(wi.Name,wiA->Name,sizeof(wiA->Name)-1);
+				strncpy(wiA->TypeName,wi.TypeName,sizeof(wiA->TypeName)-1);
+				strncpy(wiA->Name,wi.Name,sizeof(wiA->Name)-1);
+			}
+			return ret;
+		}
 
 		case oldfar::ACTL_GETWINDOWCOUNT:
 			return FarAdvControl(ModuleNumber, ACTL_GETWINDOWCOUNT, 0);
@@ -2043,94 +2043,94 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			return FarAdvControl(ModuleNumber, ACTL_GETFARHWND, 0);
 
 		case oldfar::ACTL_GETSYSTEMSETTINGS:
-			{
-				INT_PTR ss = FarAdvControl(ModuleNumber, ACTL_GETSYSTEMSETTINGS, 0);
-				INT_PTR ret = 0;
-				if (ss&oldfar::FSS_CLEARROATTRIBUTE)          ret|=FSS_CLEARROATTRIBUTE;
-				if (ss&oldfar::FSS_DELETETORECYCLEBIN)        ret|=FSS_DELETETORECYCLEBIN;
-				if (ss&oldfar::FSS_USESYSTEMCOPYROUTINE)      ret|=FSS_USESYSTEMCOPYROUTINE;
-				if (ss&oldfar::FSS_COPYFILESOPENEDFORWRITING) ret|=FSS_COPYFILESOPENEDFORWRITING;
-				if (ss&oldfar::FSS_CREATEFOLDERSINUPPERCASE)  ret|=FSS_CREATEFOLDERSINUPPERCASE;
-				if (ss&oldfar::FSS_SAVECOMMANDSHISTORY)       ret|=FSS_SAVECOMMANDSHISTORY;
-				if (ss&oldfar::FSS_SAVEFOLDERSHISTORY)        ret|=FSS_SAVEFOLDERSHISTORY;
-				if (ss&oldfar::FSS_SAVEVIEWANDEDITHISTORY)    ret|=FSS_SAVEVIEWANDEDITHISTORY;
-				if (ss&oldfar::FSS_USEWINDOWSREGISTEREDTYPES) ret|=FSS_USEWINDOWSREGISTEREDTYPES;
-				if (ss&oldfar::FSS_AUTOSAVESETUP)             ret|=FSS_AUTOSAVESETUP;
-				if (ss&oldfar::FSS_SCANSYMLINK)               ret|=FSS_SCANSYMLINK;
-				return ret;
-			}
+		{
+			INT_PTR ss = FarAdvControl(ModuleNumber, ACTL_GETSYSTEMSETTINGS, 0);
+			INT_PTR ret = 0;
+			if (ss&oldfar::FSS_CLEARROATTRIBUTE)          ret|=FSS_CLEARROATTRIBUTE;
+			if (ss&oldfar::FSS_DELETETORECYCLEBIN)        ret|=FSS_DELETETORECYCLEBIN;
+			if (ss&oldfar::FSS_USESYSTEMCOPYROUTINE)      ret|=FSS_USESYSTEMCOPYROUTINE;
+			if (ss&oldfar::FSS_COPYFILESOPENEDFORWRITING) ret|=FSS_COPYFILESOPENEDFORWRITING;
+			if (ss&oldfar::FSS_CREATEFOLDERSINUPPERCASE)  ret|=FSS_CREATEFOLDERSINUPPERCASE;
+			if (ss&oldfar::FSS_SAVECOMMANDSHISTORY)       ret|=FSS_SAVECOMMANDSHISTORY;
+			if (ss&oldfar::FSS_SAVEFOLDERSHISTORY)        ret|=FSS_SAVEFOLDERSHISTORY;
+			if (ss&oldfar::FSS_SAVEVIEWANDEDITHISTORY)    ret|=FSS_SAVEVIEWANDEDITHISTORY;
+			if (ss&oldfar::FSS_USEWINDOWSREGISTEREDTYPES) ret|=FSS_USEWINDOWSREGISTEREDTYPES;
+			if (ss&oldfar::FSS_AUTOSAVESETUP)             ret|=FSS_AUTOSAVESETUP;
+			if (ss&oldfar::FSS_SCANSYMLINK)               ret|=FSS_SCANSYMLINK;
+			return ret;
+		}
 
 		case oldfar::ACTL_GETPANELSETTINGS:
-			{
-				INT_PTR ps = FarAdvControl(ModuleNumber, ACTL_GETPANELSETTINGS, 0);
-				INT_PTR ret = 0;
-				if (ps&oldfar::FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=FPS_SHOWHIDDENANDSYSTEMFILES;
-				if (ps&oldfar::FPS_HIGHLIGHTFILES)              ret|=FPS_HIGHLIGHTFILES;
-				if (ps&oldfar::FPS_AUTOCHANGEFOLDER)            ret|=FPS_AUTOCHANGEFOLDER;
-				if (ps&oldfar::FPS_SELECTFOLDERS)               ret|=FPS_SELECTFOLDERS;
-				if (ps&oldfar::FPS_ALLOWREVERSESORTMODES)       ret|=FPS_ALLOWREVERSESORTMODES;
-				if (ps&oldfar::FPS_SHOWCOLUMNTITLES)            ret|=FPS_SHOWCOLUMNTITLES;
-				if (ps&oldfar::FPS_SHOWSTATUSLINE)              ret|=FPS_SHOWSTATUSLINE;
-				if (ps&oldfar::FPS_SHOWFILESTOTALINFORMATION)   ret|=FPS_SHOWFILESTOTALINFORMATION;
-				if (ps&oldfar::FPS_SHOWFREESIZE)                ret|=FPS_SHOWFREESIZE;
-				if (ps&oldfar::FPS_SHOWSCROLLBAR)               ret|=FPS_SHOWSCROLLBAR;
-				if (ps&oldfar::FPS_SHOWBACKGROUNDSCREENSNUMBER) ret|=FPS_SHOWBACKGROUNDSCREENSNUMBER;
-				if (ps&oldfar::FPS_SHOWSORTMODELETTER)          ret|=FPS_SHOWSORTMODELETTER;
-				return ret;
-			}
+		{
+			INT_PTR ps = FarAdvControl(ModuleNumber, ACTL_GETPANELSETTINGS, 0);
+			INT_PTR ret = 0;
+			if (ps&oldfar::FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=FPS_SHOWHIDDENANDSYSTEMFILES;
+			if (ps&oldfar::FPS_HIGHLIGHTFILES)              ret|=FPS_HIGHLIGHTFILES;
+			if (ps&oldfar::FPS_AUTOCHANGEFOLDER)            ret|=FPS_AUTOCHANGEFOLDER;
+			if (ps&oldfar::FPS_SELECTFOLDERS)               ret|=FPS_SELECTFOLDERS;
+			if (ps&oldfar::FPS_ALLOWREVERSESORTMODES)       ret|=FPS_ALLOWREVERSESORTMODES;
+			if (ps&oldfar::FPS_SHOWCOLUMNTITLES)            ret|=FPS_SHOWCOLUMNTITLES;
+			if (ps&oldfar::FPS_SHOWSTATUSLINE)              ret|=FPS_SHOWSTATUSLINE;
+			if (ps&oldfar::FPS_SHOWFILESTOTALINFORMATION)   ret|=FPS_SHOWFILESTOTALINFORMATION;
+			if (ps&oldfar::FPS_SHOWFREESIZE)                ret|=FPS_SHOWFREESIZE;
+			if (ps&oldfar::FPS_SHOWSCROLLBAR)               ret|=FPS_SHOWSCROLLBAR;
+			if (ps&oldfar::FPS_SHOWBACKGROUNDSCREENSNUMBER) ret|=FPS_SHOWBACKGROUNDSCREENSNUMBER;
+			if (ps&oldfar::FPS_SHOWSORTMODELETTER)          ret|=FPS_SHOWSORTMODELETTER;
+			return ret;
+		}
 
 		case oldfar::ACTL_GETINTERFACESETTINGS:
-			{
-				INT_PTR is = FarAdvControl(ModuleNumber, ACTL_GETINTERFACESETTINGS, 0);
-				INT_PTR ret = 0;
-				if (is&oldfar::FIS_CLOCKINPANELS)                  ret|=FIS_CLOCKINPANELS;
-				if (is&oldfar::FIS_CLOCKINVIEWERANDEDITOR)         ret|=FIS_CLOCKINVIEWERANDEDITOR;
-				if (is&oldfar::FIS_MOUSE)                          ret|=FIS_MOUSE;
-				if (is&oldfar::FIS_SHOWKEYBAR)                     ret|=FIS_SHOWKEYBAR;
-				if (is&oldfar::FIS_ALWAYSSHOWMENUBAR)              ret|=FIS_ALWAYSSHOWMENUBAR;
-				if (is&oldfar::FIS_USERIGHTALTASALTGR)             ret|=FIS_USERIGHTALTASALTGR;
-				if (is&oldfar::FIS_SHOWTOTALCOPYPROGRESSINDICATOR) ret|=FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
-				if (is&oldfar::FIS_SHOWCOPYINGTIMEINFO)            ret|=FIS_SHOWCOPYINGTIMEINFO;
-				if (is&oldfar::FIS_USECTRLPGUPTOCHANGEDRIVE)       ret|=FIS_USECTRLPGUPTOCHANGEDRIVE;
-				return ret;
-			}
+		{
+			INT_PTR is = FarAdvControl(ModuleNumber, ACTL_GETINTERFACESETTINGS, 0);
+			INT_PTR ret = 0;
+			if (is&oldfar::FIS_CLOCKINPANELS)                  ret|=FIS_CLOCKINPANELS;
+			if (is&oldfar::FIS_CLOCKINVIEWERANDEDITOR)         ret|=FIS_CLOCKINVIEWERANDEDITOR;
+			if (is&oldfar::FIS_MOUSE)                          ret|=FIS_MOUSE;
+			if (is&oldfar::FIS_SHOWKEYBAR)                     ret|=FIS_SHOWKEYBAR;
+			if (is&oldfar::FIS_ALWAYSSHOWMENUBAR)              ret|=FIS_ALWAYSSHOWMENUBAR;
+			if (is&oldfar::FIS_USERIGHTALTASALTGR)             ret|=FIS_USERIGHTALTASALTGR;
+			if (is&oldfar::FIS_SHOWTOTALCOPYPROGRESSINDICATOR) ret|=FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
+			if (is&oldfar::FIS_SHOWCOPYINGTIMEINFO)            ret|=FIS_SHOWCOPYINGTIMEINFO;
+			if (is&oldfar::FIS_USECTRLPGUPTOCHANGEDRIVE)       ret|=FIS_USECTRLPGUPTOCHANGEDRIVE;
+			return ret;
+		}
 
 		case oldfar::ACTL_GETCONFIRMATIONS:
-			{
-				INT_PTR cs = FarAdvControl(ModuleNumber, ACTL_GETCONFIRMATIONS, 0);
-				INT_PTR ret = 0;
-				if (cs&oldfar::FCS_COPYOVERWRITE)          ret|=FCS_COPYOVERWRITE;
-				if (cs&oldfar::FCS_MOVEOVERWRITE)          ret|=FCS_MOVEOVERWRITE;
-				if (cs&oldfar::FCS_DRAGANDDROP)            ret|=FCS_DRAGANDDROP;
-				if (cs&oldfar::FCS_DELETE)                 ret|=FCS_DELETE;
-				if (cs&oldfar::FCS_DELETENONEMPTYFOLDERS)  ret|=FCS_DELETENONEMPTYFOLDERS;
-				if (cs&oldfar::FCS_INTERRUPTOPERATION)     ret|=FCS_INTERRUPTOPERATION;
-				if (cs&oldfar::FCS_DISCONNECTNETWORKDRIVE) ret|=FCS_DISCONNECTNETWORKDRIVE;
-				if (cs&oldfar::FCS_RELOADEDITEDFILE)       ret|=FCS_RELOADEDITEDFILE;
-				if (cs&oldfar::FCS_CLEARHISTORYLIST)       ret|=FCS_CLEARHISTORYLIST;
-				if (cs&oldfar::FCS_EXIT)                   ret|=FCS_EXIT;
-				return ret;
-			}
+		{
+			INT_PTR cs = FarAdvControl(ModuleNumber, ACTL_GETCONFIRMATIONS, 0);
+			INT_PTR ret = 0;
+			if (cs&oldfar::FCS_COPYOVERWRITE)          ret|=FCS_COPYOVERWRITE;
+			if (cs&oldfar::FCS_MOVEOVERWRITE)          ret|=FCS_MOVEOVERWRITE;
+			if (cs&oldfar::FCS_DRAGANDDROP)            ret|=FCS_DRAGANDDROP;
+			if (cs&oldfar::FCS_DELETE)                 ret|=FCS_DELETE;
+			if (cs&oldfar::FCS_DELETENONEMPTYFOLDERS)  ret|=FCS_DELETENONEMPTYFOLDERS;
+			if (cs&oldfar::FCS_INTERRUPTOPERATION)     ret|=FCS_INTERRUPTOPERATION;
+			if (cs&oldfar::FCS_DISCONNECTNETWORKDRIVE) ret|=FCS_DISCONNECTNETWORKDRIVE;
+			if (cs&oldfar::FCS_RELOADEDITEDFILE)       ret|=FCS_RELOADEDITEDFILE;
+			if (cs&oldfar::FCS_CLEARHISTORYLIST)       ret|=FCS_CLEARHISTORYLIST;
+			if (cs&oldfar::FCS_EXIT)                   ret|=FCS_EXIT;
+			return ret;
+		}
 
 		case oldfar::ACTL_GETDESCSETTINGS:
-			{
-				INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDESCSETTINGS, 0);
-				INT_PTR ret = 0;
-				if (ds&oldfar::FDS_UPDATEALWAYS)      ret|=FDS_UPDATEALWAYS;
-				if (ds&oldfar::FDS_UPDATEIFDISPLAYED) ret|=FDS_UPDATEIFDISPLAYED;
-				if (ds&oldfar::FDS_SETHIDDEN)         ret|=FDS_SETHIDDEN;
-				if (ds&oldfar::FDS_UPDATEREADONLY)    ret|=FDS_UPDATEREADONLY;
-				return ret;
-			}
+		{
+			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDESCSETTINGS, 0);
+			INT_PTR ret = 0;
+			if (ds&oldfar::FDS_UPDATEALWAYS)      ret|=FDS_UPDATEALWAYS;
+			if (ds&oldfar::FDS_UPDATEIFDISPLAYED) ret|=FDS_UPDATEIFDISPLAYED;
+			if (ds&oldfar::FDS_SETHIDDEN)         ret|=FDS_SETHIDDEN;
+			if (ds&oldfar::FDS_UPDATEREADONLY)    ret|=FDS_UPDATEREADONLY;
+			return ret;
+		}
 
 		case oldfar::ACTL_SETARRAYCOLOR:
-			{
-				if (!Param) return FALSE;
-				oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
-				FarSetColors sc = {0, scA->StartIndex, scA->ColorCount, scA->Colors};
-				if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FCLR_REDRAW;
-				return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, &sc);
-			}
+		{
+			if (!Param) return FALSE;
+			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
+			FarSetColors sc = {0, scA->StartIndex, scA->ColorCount, scA->Colors};
+			if (scA->Flags&oldfar::FCLR_REDRAW) sc.Flags|=FCLR_REDRAW;
+			return FarAdvControl(ModuleNumber, ACTL_SETARRAYCOLOR, &sc);
+		}
 
 		case oldfar::ACTL_GETWCHARMODE:
 			return FarAdvControl(ModuleNumber, ACTL_GETWCHARMODE, 0);
@@ -2139,15 +2139,15 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			return FarAdvControl(ModuleNumber, ACTL_GETPLUGINMAXREADDATA, 0);
 
 		case oldfar::ACTL_GETDIALOGSETTINGS:
-			{
-				INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDIALOGSETTINGS, 0);
-				INT_PTR ret = 0;
-				if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
-				if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
-				if (ds&oldfar::FDIS_PERSISTENTBLOCKSINEDITCONTROLS) ret|=FDIS_PERSISTENTBLOCKSINEDITCONTROLS;
-				if (ds&oldfar::FDIS_BSDELETEUNCHANGEDTEXT)          ret|=FDIS_BSDELETEUNCHANGEDTEXT;
-				return ret;
-			}
+		{
+			INT_PTR ds = FarAdvControl(ModuleNumber, ACTL_GETDIALOGSETTINGS, 0);
+			INT_PTR ret = 0;
+			if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
+			if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
+			if (ds&oldfar::FDIS_PERSISTENTBLOCKSINEDITCONTROLS) ret|=FDIS_PERSISTENTBLOCKSINEDITCONTROLS;
+			if (ds&oldfar::FDIS_BSDELETEUNCHANGEDTEXT)          ret|=FDIS_BSDELETEUNCHANGEDTEXT;
+			return ret;
+		}
 	#ifdef FAR_USE_INTERNALS
 		case oldfar::ACTL_REMOVEMEDIA:
 		case oldfar::ACTL_GETMEDIATYPE:
@@ -2185,28 +2185,28 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 		case oldfar::ECTL_TURNOFFMARKINGBLOCK:	Command = ECTL_TURNOFFMARKINGBLOCK; break;
 
 		case oldfar::ECTL_GETSTRING:
+		{
+			EditorGetString egs;
+			oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
+			if (!oegs) return FALSE;
+			egs.StringNumber=oegs->StringNumber;
+			int ret=FarEditorControl(ECTL_GETSTRING,&egs);
+			if (ret)
 			{
-				EditorGetString egs;
-				oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
-				if (!oegs) return FALSE;
-				egs.StringNumber=oegs->StringNumber;
-				int ret=FarEditorControl(ECTL_GETSTRING,&egs);
-				if (ret)
-				{
-					oegs->StringNumber=egs.StringNumber;
-					oegs->StringLength=egs.StringLength;
-					oegs->SelStart=egs.SelStart;
-					oegs->SelEnd=egs.SelEnd;
-					if (gt) xf_free(gt);
-					if (geol) xf_free(geol);
-					gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength);
-					geol = UnicodeToAnsi(egs.StringEOL);
-					oegs->StringText=gt;
-					oegs->StringEOL=geol;
-					return TRUE;
-				}
-				return FALSE;
+				oegs->StringNumber=egs.StringNumber;
+				oegs->StringLength=egs.StringLength;
+				oegs->SelStart=egs.SelStart;
+				oegs->SelEnd=egs.SelEnd;
+				if (gt) xf_free(gt);
+				if (geol) xf_free(geol);
+				gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength);
+				geol = UnicodeToAnsi(egs.StringEOL);
+				oegs->StringText=gt;
+				oegs->StringEOL=geol;
+				return TRUE;
 			}
+			return FALSE;
+		}
 
 		case oldfar::ECTL_INSERTTEXT:
 		{
@@ -2253,188 +2253,181 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 		case oldfar::ECTL_EDITORTOOEM:
 		case oldfar::ECTL_OEMTOEDITOR:
-			return TRUE;	//BUGBUG
+			return TRUE;
 
 		case oldfar::ECTL_SAVEFILE:
-			{
-			  EditorSaveFile newsf = {0,0};
-				if (Param)
-				{
-					oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
-					newsf.FileName=(oldsf->FileName)?AnsiToUnicode(oldsf->FileName):NULL;
-					newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):NULL;
-				}
-			  int ret = FarEditorControl(ECTL_SAVEFILE, Param?(void *)&newsf:0);
-			  if (newsf.FileName) xf_free((void*)newsf.FileName);
-				if (newsf.FileEOL) xf_free((void*)newsf.FileEOL);
-			  return ret;
-			}
+	{
+		EditorSaveFile newsf = {0,0};
+		if (Param)
+		{
+			oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
+			newsf.FileName=(oldsf->FileName)?AnsiToUnicode(oldsf->FileName):NULL;
+			newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):NULL;
+		}
+		int ret = FarEditorControl(ECTL_SAVEFILE, Param?(void *)&newsf:0);
+		if (newsf.FileName) xf_free((void*)newsf.FileName);
+		if (newsf.FileEOL) xf_free((void*)newsf.FileEOL);
+		return ret;
+	}
 
 		case oldfar::ECTL_PROCESSINPUT:	//BUGBUG, в работе
-			{
-				return FarEditorControl(ECTL_PROCESSINPUT, Param);
-				break;
-			}
+		{
+			return FarEditorControl(ECTL_PROCESSINPUT, Param);
+		}
 
 		case oldfar::ECTL_PROCESSKEY:	//BUGBUG, в работе
-			{
-				return FarEditorControl(ECTL_PROCESSKEY, Param);
-				break;
-			}
+		{
+			return FarEditorControl(ECTL_PROCESSKEY, Param);
+		}
 
 		case oldfar::ECTL_READINPUT:	//BUGBUG, в работе
-			{
-				return FarEditorControl(ECTL_READINPUT, Param);
-				break;
-			}
+		{
+			return FarEditorControl(ECTL_READINPUT, Param);
+		}
 
 		case oldfar::ECTL_SETKEYBAR:
+		{
+			switch((LONG_PTR)Param)
 			{
-				switch((LONG_PTR)Param)
-				{
-					case NULL:
-					case -1:
-						return FarEditorControl(ECTL_SETKEYBAR, Param);
-						break;
-					default:
-						oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
-						KeyBarTitles newkbt;
+				case NULL:
+				case -1:
+					return FarEditorControl(ECTL_SETKEYBAR, Param);
+				default:
+					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
+					KeyBarTitles newkbt;
 
-						for(int i=0;i<12;i++)
-						{
-							newkbt.Titles[i]          = oldkbt->Titles[i]?          AnsiToUnicode(oldkbt->Titles[i]):          NULL;
-							newkbt.CtrlTitles[i]      = oldkbt->CtrlTitles[i]?      AnsiToUnicode(oldkbt->CtrlTitles[i]):      NULL;
-							newkbt.AltTitles[i]       = oldkbt->AltTitles[i]?       AnsiToUnicode(oldkbt->AltTitles[i]):       NULL;
-							newkbt.ShiftTitles[i]     = oldkbt->ShiftTitles[i]?     AnsiToUnicode(oldkbt->ShiftTitles[i]):     NULL;
-							newkbt.CtrlShiftTitles[i] = oldkbt->CtrlShiftTitles[i]? AnsiToUnicode(oldkbt->CtrlShiftTitles[i]): NULL;
-							newkbt.AltShiftTitles[i]  = oldkbt->AltShiftTitles[i]?  AnsiToUnicode(oldkbt->AltShiftTitles[i]):  NULL;
-							newkbt.CtrlAltTitles[i]   = oldkbt->CtrlAltTitles[i]?   AnsiToUnicode(oldkbt->CtrlAltTitles[i]):   NULL;
-						}
-						int ret = FarEditorControl(ECTL_SETKEYBAR, (void*)&newkbt);
-						for(int i=0;i<12;i++)
-						{
-							if (newkbt.Titles[i])					xf_free (newkbt.Titles[i]);
-							if (newkbt.CtrlTitles[i])			xf_free (newkbt.CtrlTitles[i]);
-							if (newkbt.AltTitles[i])			xf_free (newkbt.AltTitles[i]);
-							if (newkbt.ShiftTitles[i])		xf_free (newkbt.ShiftTitles[i]);
-							if (newkbt.CtrlShiftTitles[i])xf_free (newkbt.CtrlShiftTitles[i]);
-							if (newkbt.AltShiftTitles[i])	xf_free (newkbt.AltShiftTitles[i]);
-							if (newkbt.CtrlAltTitles[i])	xf_free (newkbt.CtrlAltTitles[i]);
-						}
-						return ret;
-				}
+					for(int i=0;i<12;i++)
+					{
+						newkbt.Titles[i]          = oldkbt->Titles[i]?          AnsiToUnicode(oldkbt->Titles[i]):          NULL;
+						newkbt.CtrlTitles[i]      = oldkbt->CtrlTitles[i]?      AnsiToUnicode(oldkbt->CtrlTitles[i]):      NULL;
+						newkbt.AltTitles[i]       = oldkbt->AltTitles[i]?       AnsiToUnicode(oldkbt->AltTitles[i]):       NULL;
+						newkbt.ShiftTitles[i]     = oldkbt->ShiftTitles[i]?     AnsiToUnicode(oldkbt->ShiftTitles[i]):     NULL;
+						newkbt.CtrlShiftTitles[i] = oldkbt->CtrlShiftTitles[i]? AnsiToUnicode(oldkbt->CtrlShiftTitles[i]): NULL;
+						newkbt.AltShiftTitles[i]  = oldkbt->AltShiftTitles[i]?  AnsiToUnicode(oldkbt->AltShiftTitles[i]):  NULL;
+						newkbt.CtrlAltTitles[i]   = oldkbt->CtrlAltTitles[i]?   AnsiToUnicode(oldkbt->CtrlAltTitles[i]):   NULL;
+					}
+					int ret = FarEditorControl(ECTL_SETKEYBAR, (void*)&newkbt);
+					for(int i=0;i<12;i++)
+					{
+						if (newkbt.Titles[i])					xf_free (newkbt.Titles[i]);
+						if (newkbt.CtrlTitles[i])			xf_free (newkbt.CtrlTitles[i]);
+						if (newkbt.AltTitles[i])			xf_free (newkbt.AltTitles[i]);
+						if (newkbt.ShiftTitles[i])		xf_free (newkbt.ShiftTitles[i]);
+						if (newkbt.CtrlShiftTitles[i])xf_free (newkbt.CtrlShiftTitles[i]);
+						if (newkbt.AltShiftTitles[i])	xf_free (newkbt.AltShiftTitles[i]);
+						if (newkbt.CtrlAltTitles[i])	xf_free (newkbt.CtrlAltTitles[i]);
+					}
+					return ret;
 			}
+		}
 
 		case oldfar::ECTL_SETPARAM:
+		{
+			EditorSetParameter newsp = {0,0,0,0};
+			if (Param)
 			{
-			  EditorSetParameter newsp = {0,0,0,0};
-				if (Param)
+				oldfar::EditorSetParameter *oldsp= (oldfar::EditorSetParameter*) Param;
+
+				newsp.Param.iParam = oldsp->Param.iParam;
+
+				switch (oldsp->Type)
 				{
-					oldfar::EditorSetParameter *oldsp= (oldfar::EditorSetParameter*) Param;
+					case oldfar::ESPT_AUTOINDENT:				newsp.Type = ESPT_AUTOINDENT; break;
+					case oldfar::ESPT_CHARCODEBASE:			newsp.Type = ESPT_CHARCODEBASE; break;
+					case oldfar::ESPT_CURSORBEYONDEOL:	newsp.Type = ESPT_CURSORBEYONDEOL; break;
+					case oldfar::ESPT_LOCKMODE:					newsp.Type = ESPT_LOCKMODE; break;
+					case oldfar::ESPT_SAVEFILEPOSITION:	newsp.Type = ESPT_SAVEFILEPOSITION; break;
+					case oldfar::ESPT_TABSIZE:					newsp.Type = ESPT_TABSIZE; break;
 
-					newsp.Param.iParam = oldsp->Param.iParam;
-
-					switch (oldsp->Type)
+					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
-						case oldfar::ESPT_AUTOINDENT:				newsp.Type = ESPT_AUTOINDENT; break;
-						case oldfar::ESPT_CHARCODEBASE:			newsp.Type = ESPT_CHARCODEBASE; break;
-						case oldfar::ESPT_CURSORBEYONDEOL:	newsp.Type = ESPT_CURSORBEYONDEOL; break;
-						case oldfar::ESPT_LOCKMODE:					newsp.Type = ESPT_LOCKMODE; break;
-						case oldfar::ESPT_SAVEFILEPOSITION:	newsp.Type = ESPT_SAVEFILEPOSITION; break;
-						case oldfar::ESPT_TABSIZE:					newsp.Type = ESPT_TABSIZE; break;
-
-						case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
-							{
-								newsp.Type = ESPT_CHARTABLE;
-								break;
-							}
-
-						case oldfar::ESPT_EXPANDTABS:
-							{
-								newsp.Type = ESPT_EXPANDTABS;
-								switch (oldsp->Param.iParam)
-									{
-										case oldfar::EXPAND_NOTABS:		newsp.Param.iParam = EXPAND_NOTABS; break;
-										case oldfar::EXPAND_ALLTABS:	newsp.Param.iParam = EXPAND_ALLTABS; break;
-										case oldfar::EXPAND_NEWTABS: 	newsp.Param.iParam = EXPAND_NEWTABS; break;
-										default: return FALSE;
-									}
-								break;
-							}
-
-						case oldfar::ESPT_SETWORDDIV:
-							{
-								newsp.Type = ESPT_SETWORDDIV;
-								newsp.Param.cParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):NULL;
-								int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
-								if (newsp.Param.cParam) xf_free(newsp.Param.cParam);
-								return ret;
-							}
-
-						case oldfar::ESPT_GETWORDDIV:
-							{
-								if(!oldsp->Param.cParam) return FALSE;
-
-								*oldsp->Param.cParam=0;
-
-								newsp.Type = ESPT_GETWORDDIV;
-								newsp.Param.cParam = (wchar_t*)xf_malloc(8192*sizeof(wchar_t)); //BUGBUG, неизвестна длина необх. буфера
-
-								if (newsp.Param.cParam)
-                {
-	               	int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
-                	char *olddiv = UnicodeToAnsi(newsp.Param.cParam);
-                	if (olddiv)
-                	{
-                		int l = min((int)strlen (olddiv),255);
-                		memcpy(oldsp->Param.cParam,olddiv,l);
-                		oldsp->Param.cParam[l+1]=0;
-                		xf_free(olddiv);
-                	}
-									xf_free(newsp.Param.cParam);
-									return ret;
-                }
-                return FALSE;
-							}
-
-						default:
-							return FALSE;
+						newsp.Type = ESPT_CHARTABLE;
+						break;
 					}
+
+					case oldfar::ESPT_EXPANDTABS:
+					{
+						newsp.Type = ESPT_EXPANDTABS;
+						switch (oldsp->Param.iParam)
+						{
+							case oldfar::EXPAND_NOTABS:		newsp.Param.iParam = EXPAND_NOTABS; break;
+							case oldfar::EXPAND_ALLTABS:	newsp.Param.iParam = EXPAND_ALLTABS; break;
+							case oldfar::EXPAND_NEWTABS: 	newsp.Param.iParam = EXPAND_NEWTABS; break;
+							default: return FALSE;
+						}
+						break;
+					}
+
+					case oldfar::ESPT_SETWORDDIV:
+					{
+						newsp.Type = ESPT_SETWORDDIV;
+						newsp.Param.cParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):NULL;
+						int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
+						if (newsp.Param.cParam) xf_free(newsp.Param.cParam);
+						return ret;
+					}
+
+					case oldfar::ESPT_GETWORDDIV:
+					{
+						if(!oldsp->Param.cParam) return FALSE;
+
+						*oldsp->Param.cParam=0;
+
+						newsp.Type = ESPT_GETWORDDIV;
+						newsp.Param.cParam = (wchar_t*)xf_malloc(8192*sizeof(wchar_t)); //BUGBUG, неизвестна длина необх. буфера
+
+						if (newsp.Param.cParam)
+						{
+							int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
+							char *olddiv = UnicodeToAnsi(newsp.Param.cParam);
+							if (olddiv)
+							{
+								int l = min((int)strlen (olddiv),255);
+								memcpy(oldsp->Param.cParam,olddiv,l);
+								oldsp->Param.cParam[l+1]=0;
+								xf_free(olddiv);
+							}
+							xf_free(newsp.Param.cParam);
+							return ret;
+						}
+						return FALSE;
+					}
+
+					default:
+						return FALSE;
 				}
-				return FarEditorControl(ECTL_SETPARAM, Param?(void *)&newsp:0);
 			}
+			return FarEditorControl(ECTL_SETPARAM, Param?(void *)&newsp:0);
+		}
 
 		case oldfar::ECTL_SETSTRING:
+		{
+			EditorSetString newss = {0,0,0,0};
+			if (Param)
 			{
-			  EditorSetString newss = {0,0,0,0};
-				if (Param)
-				{
-					oldfar::EditorSetString *oldss = (oldfar::EditorSetString*) Param;
-					newss.StringNumber=oldss->StringNumber;
-					/* $ 06.01.2008 TS
-					! Непонятно что подразумевалось под "Помещаемая строка должна быть в
-					  кодировке редактора". Считаем что ОЕМ (см. выше oldfar::ECTL_GETSTRING)
-					*/
-					newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength):NULL;
-					newss.StringEOL=(oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL):NULL;
-					newss.StringLength=oldss->StringLength;
-				}
-			  int ret = FarEditorControl(ECTL_SETSTRING, Param?(void *)&newss:0);
-			  if (newss.StringText) xf_free((void*)newss.StringText);
-				if (newss.StringEOL) xf_free((void*)newss.StringEOL);
-			  return ret;
+				oldfar::EditorSetString *oldss = (oldfar::EditorSetString*) Param;
+				newss.StringNumber=oldss->StringNumber;
+				newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength):NULL;
+				newss.StringEOL=(oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL):NULL;
+				newss.StringLength=oldss->StringLength;
 			}
+			int ret = FarEditorControl(ECTL_SETSTRING, Param?(void *)&newss:0);
+			if (newss.StringText) xf_free((void*)newss.StringText);
+			if (newss.StringEOL) xf_free((void*)newss.StringEOL);
+			return ret;
+		}
+
 		case oldfar::ECTL_SETTITLE:
+		{
+			wchar_t* newtit = NULL;
+			if (Param)
 			{
-				wchar_t* newtit = NULL;
-				if (Param)
-				{
-					newtit=AnsiToUnicode((char*)Param);
-				}
-			  int ret = FarEditorControl(ECTL_SETTITLE, (void *)newtit);
-			  if (newtit) xf_free(newtit);
-			  return ret;
+				newtit=AnsiToUnicode((char*)Param);
 			}
+			int ret = FarEditorControl(ECTL_SETTITLE, (void *)newtit);
+			if (newtit) xf_free(newtit);
+			return ret;
+		}
 
 		default:
 			return FALSE;
@@ -2450,131 +2443,130 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 	switch (Command)
 	{
 		case oldfar::VCTL_GETINFO:
-			{
-				if (!Param) return FALSE;
-				oldfar::ViewerInfo* viA = (oldfar::ViewerInfo*)Param;
-				if (!viA->StructSize) return FALSE;
-				ViewerInfo viW;
-				viW.StructSize = sizeof(ViewerInfo); //BUGBUG?
-				if (FarViewerControl(VCTL_GETINFO, &viW) == FALSE) return FALSE;
+		{
+			if (!Param) return FALSE;
+			oldfar::ViewerInfo* viA = (oldfar::ViewerInfo*)Param;
+			if (!viA->StructSize) return FALSE;
+			ViewerInfo viW;
+			viW.StructSize = sizeof(ViewerInfo); //BUGBUG?
+			if (FarViewerControl(VCTL_GETINFO, &viW) == FALSE) return FALSE;
 
-				viA->ViewerID = viW.ViewerID;
+			viA->ViewerID = viW.ViewerID;
 
-				if (filename) xf_free (filename);
-				filename = UnicodeToAnsi(viW.FileName);
-				viA->FileName = filename;
+			if (filename) xf_free (filename);
+			filename = UnicodeToAnsi(viW.FileName);
+			viA->FileName = filename;
 
-				viA->FileSize.i64 = viW.FileSize.i64;
-				viA->FilePos.i64 = viW.FilePos.i64;
-				viA->WindowSizeX = viW.WindowSizeX;
-				viA->WindowSizeY = viW.WindowSizeY;
+			viA->FileSize.i64 = viW.FileSize.i64;
+			viA->FilePos.i64 = viW.FilePos.i64;
+			viA->WindowSizeX = viW.WindowSizeX;
+			viA->WindowSizeY = viW.WindowSizeY;
 
-				viA->Options = 0;
-				if (viW.Options&VOPT_SAVEFILEPOSITION) viA->Options |= oldfar::VOPT_SAVEFILEPOSITION;
-				if (viW.Options&VOPT_AUTODETECTTABLE)  viA->Options |= oldfar::VOPT_AUTODETECTTABLE;
+			viA->Options = 0;
+			if (viW.Options&VOPT_SAVEFILEPOSITION) viA->Options |= oldfar::VOPT_SAVEFILEPOSITION;
+			if (viW.Options&VOPT_AUTODETECTTABLE)  viA->Options |= oldfar::VOPT_AUTODETECTTABLE;
 
-				viA->TabSize = viW.TabSize;
+			viA->TabSize = viW.TabSize;
 
-				viA->CurMode.UseDecodeTable = viW.CurMode.UseDecodeTable;
-				viA->CurMode.TableNum       = viW.CurMode.TableNum;
-				viA->CurMode.AnsiMode       = viW.CurMode.AnsiMode;
-				viA->CurMode.Unicode        = viW.CurMode.Unicode;
-				viA->CurMode.Wrap           = viW.CurMode.Wrap;
-				viA->CurMode.WordWrap       = viW.CurMode.WordWrap;
-				viA->CurMode.Hex            = viW.CurMode.Hex;
+			viA->CurMode.UseDecodeTable = viW.CurMode.UseDecodeTable;
+			viA->CurMode.TableNum       = viW.CurMode.TableNum;
+			viA->CurMode.AnsiMode       = viW.CurMode.AnsiMode;
+			viA->CurMode.Unicode        = viW.CurMode.Unicode;
+			viA->CurMode.Wrap           = viW.CurMode.Wrap;
+			viA->CurMode.WordWrap       = viW.CurMode.WordWrap;
+			viA->CurMode.Hex            = viW.CurMode.Hex;
 
-				viA->LeftPos = viW.LeftPos;
-				viA->Reserved3 = 0;
-			}
+			viA->LeftPos = viW.LeftPos;
+			viA->Reserved3 = 0;
 			break;
+		}
 
 		case oldfar::VCTL_QUIT:
-			FarViewerControl(VCTL_QUIT, NULL);
-			break;
-		case oldfar::VCTL_REDRAW:
-			FarViewerControl(VCTL_REDRAW, NULL);
-			break;
-		case oldfar::VCTL_SETKEYBAR:
-			{
-				switch((LONG_PTR)Param)
-				{
-					case NULL:
-					case -1:
-						FarViewerControl(VCTL_SETKEYBAR, Param);
-						break;
-					default:
-						oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
-						KeyBarTitles kbt;
+			return FarViewerControl(VCTL_QUIT, NULL);
 
-						for(int i=0;i<12;i++)
-						{
-							kbt.Titles[i]          = kbtA->Titles[i]?          AnsiToUnicode(kbtA->Titles[i]):          NULL;
-							kbt.CtrlTitles[i]      = kbtA->CtrlTitles[i]?      AnsiToUnicode(kbtA->CtrlTitles[i]):      NULL;
-							kbt.AltTitles[i]       = kbtA->AltTitles[i]?       AnsiToUnicode(kbtA->AltTitles[i]):       NULL;
-							kbt.ShiftTitles[i]     = kbtA->ShiftTitles[i]?     AnsiToUnicode(kbtA->ShiftTitles[i]):     NULL;
-							kbt.CtrlShiftTitles[i] = kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): NULL;
-							kbt.AltShiftTitles[i]  = kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  NULL;
-							kbt.CtrlAltTitles[i]   = kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   NULL;
-						}
-						FarViewerControl(VCTL_SETKEYBAR, &kbt);
-						for(int i=0;i<12;i++)
-						{
-							xf_free (kbt.Titles[i]);
-							xf_free (kbt.CtrlTitles[i]);
-							xf_free (kbt.AltTitles[i]);
-							xf_free (kbt.ShiftTitles[i]);
-							xf_free (kbt.CtrlShiftTitles[i]);
-							xf_free (kbt.AltShiftTitles[i]);
-							xf_free (kbt.CtrlAltTitles[i]);
-						}
-						return TRUE;
-				}
+		case oldfar::VCTL_REDRAW:
+			return FarViewerControl(VCTL_REDRAW, NULL);
+
+		case oldfar::VCTL_SETKEYBAR:
+		{
+			switch((LONG_PTR)Param)
+			{
+				case NULL:
+				case -1:
+					return FarViewerControl(VCTL_SETKEYBAR, Param);
+				default:
+					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
+					KeyBarTitles kbt;
+
+					for(int i=0;i<12;i++)
+					{
+						kbt.Titles[i]          = kbtA->Titles[i]?          AnsiToUnicode(kbtA->Titles[i]):          NULL;
+						kbt.CtrlTitles[i]      = kbtA->CtrlTitles[i]?      AnsiToUnicode(kbtA->CtrlTitles[i]):      NULL;
+						kbt.AltTitles[i]       = kbtA->AltTitles[i]?       AnsiToUnicode(kbtA->AltTitles[i]):       NULL;
+						kbt.ShiftTitles[i]     = kbtA->ShiftTitles[i]?     AnsiToUnicode(kbtA->ShiftTitles[i]):     NULL;
+						kbt.CtrlShiftTitles[i] = kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): NULL;
+						kbt.AltShiftTitles[i]  = kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  NULL;
+						kbt.CtrlAltTitles[i]   = kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   NULL;
+					}
+					int ret=FarViewerControl(VCTL_SETKEYBAR, &kbt);
+					for(int i=0;i<12;i++)
+					{
+						xf_free (kbt.Titles[i]);
+						xf_free (kbt.CtrlTitles[i]);
+						xf_free (kbt.AltTitles[i]);
+						xf_free (kbt.ShiftTitles[i]);
+						xf_free (kbt.CtrlShiftTitles[i]);
+						xf_free (kbt.AltShiftTitles[i]);
+						xf_free (kbt.CtrlAltTitles[i]);
+					}
+					return ret;
 			}
+		}
 
 		case oldfar::VCTL_SETPOSITION:
-			{
-				if (!Param) return FALSE;
-				oldfar::ViewerSetPosition* vspA = (oldfar::ViewerSetPosition*)Param;
-				ViewerSetPosition vsp;
-				vsp.Flags = 0;
-				if(vspA->Flags&oldfar::VSP_NOREDRAW)    vsp.Flags|=VSP_NOREDRAW;
-				if(vspA->Flags&oldfar::VSP_PERCENT)     vsp.Flags|=VSP_PERCENT;
-				if(vspA->Flags&oldfar::VSP_RELATIVE)    vsp.Flags|=VSP_RELATIVE;
-				if(vspA->Flags&oldfar::VSP_NORETNEWPOS) vsp.Flags|=VSP_NORETNEWPOS;
-				vsp.StartPos.i64 = vspA->StartPos.i64;
-				vsp.LeftPos = vspA->LeftPos;
-				int ret = FarViewerControl(VCTL_SETPOSITION, &vsp);
-				vspA->StartPos.i64 = vsp.StartPos.i64;
-				return ret;
-			}
+		{
+			if (!Param) return FALSE;
+			oldfar::ViewerSetPosition* vspA = (oldfar::ViewerSetPosition*)Param;
+			ViewerSetPosition vsp;
+			vsp.Flags = 0;
+			if(vspA->Flags&oldfar::VSP_NOREDRAW)    vsp.Flags|=VSP_NOREDRAW;
+			if(vspA->Flags&oldfar::VSP_PERCENT)     vsp.Flags|=VSP_PERCENT;
+			if(vspA->Flags&oldfar::VSP_RELATIVE)    vsp.Flags|=VSP_RELATIVE;
+			if(vspA->Flags&oldfar::VSP_NORETNEWPOS) vsp.Flags|=VSP_NORETNEWPOS;
+			vsp.StartPos.i64 = vspA->StartPos.i64;
+			vsp.LeftPos = vspA->LeftPos;
+			int ret = FarViewerControl(VCTL_SETPOSITION, &vsp);
+			vspA->StartPos.i64 = vsp.StartPos.i64;
+			return ret;
+		}
 
 		case oldfar::VCTL_SELECT:
-			{
-				if (!Param) return FarViewerControl(VCTL_SELECT, NULL);
+		{
+			if (!Param) return FarViewerControl(VCTL_SELECT, NULL);
 
-				oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
-				ViewerSelect vs = {vsA->BlockStartPos.i64,vsA->BlockLen};
-				return FarViewerControl(VCTL_SELECT, &vs);
-			}
+			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
+			ViewerSelect vs = {vsA->BlockStartPos.i64,vsA->BlockLen};
+			return FarViewerControl(VCTL_SELECT, &vs);
+		}
 
 		case oldfar::VCTL_SETMODE:
+		{
+			if (!Param) return FALSE;
+			oldfar::ViewerSetMode* vsmA = (oldfar::ViewerSetMode*)Param;
+			ViewerSetMode vsm;
+			vsm.Type = 0;
+			switch(vsmA->Type)
 			{
-				if (!Param) return FALSE;
-				oldfar::ViewerSetMode* vsmA = (oldfar::ViewerSetMode*)Param;
-				ViewerSetMode vsm;
-				vsm.Type = 0;
-				switch(vsmA->Type)
-				{
-					case oldfar::VSMT_HEX:      vsm.Type = VSMT_HEX;      break;
-					case oldfar::VSMT_WRAP:     vsm.Type = VSMT_WRAP;     break;
-					case oldfar::VSMT_WORDWRAP: vsm.Type = VSMT_WORDWRAP; break;
-				}
-				vsm.Param.iParam = vsmA->Param.iParam;
-				vsm.Flags = 0;
-				if(vsmA->Flags&oldfar::VSMFL_REDRAW) vsm.Flags|=VSMFL_REDRAW;
-				vsm.Reserved = 0;
-				return FarViewerControl(VCTL_SETMODE, &vsm);
+				case oldfar::VSMT_HEX:      vsm.Type = VSMT_HEX;      break;
+				case oldfar::VSMT_WRAP:     vsm.Type = VSMT_WRAP;     break;
+				case oldfar::VSMT_WORDWRAP: vsm.Type = VSMT_WORDWRAP; break;
 			}
+			vsm.Param.iParam = vsmA->Param.iParam;
+			vsm.Flags = 0;
+			if(vsmA->Flags&oldfar::VSMFL_REDRAW) vsm.Flags|=VSMFL_REDRAW;
+			vsm.Reserved = 0;
+			return FarViewerControl(VCTL_SETMODE, &vsm);
+		}
 	}
 	return TRUE;
 }
