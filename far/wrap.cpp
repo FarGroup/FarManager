@@ -56,7 +56,7 @@ wchar_t *AnsiToUnicodeBin (const char *lpszAnsiString, int nLength)
           CP_OEMCP,
           0,
           lpszAnsiString,
-          -1,
+          nLength,
           lpResult,
           nLength
           );
@@ -88,6 +88,20 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
           );
 
   return lpResult;
+}
+
+DWORD OldKeyToKey (DWORD dOldKey)
+{
+	if (dOldKey&0x100) dOldKey=dOldKey^0x100|EXTENDED_KEY_BASE;
+		else if (dOldKey&0x200) dOldKey=dOldKey^0x200|INTERNAL_KEY_BASE;
+	return dOldKey;
+}
+
+DWORD KeyToOldKey (DWORD dKey)
+{
+	if (dKey&EXTENDED_KEY_BASE) dKey=dKey^EXTENDED_KEY_BASE|0x100;
+		else if (dKey&INTERNAL_KEY_BASE) dKey=dKey^INTERNAL_KEY_BASE|0x200;
+	return dKey;
 }
 
 void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, int ItemsNumber)
@@ -502,13 +516,13 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 int WINAPI KeyNameToKeyA(const char *Name)
 {
 	string strN(Name);
-	return KeyNameToKey(strN);
+	return KeyToOldKey(KeyNameToKey(strN));
 }
 
 BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 {
 	string strKT;
-	int ret=KeyToText(Key,strKT);
+	int ret=KeyToText(OldKeyToKey(Key),strKT);
 	if (ret)
 		strKT.GetCharString(KeyText,Size>0?Size:32);
 	return ret;
@@ -1087,8 +1101,8 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			break;
 
 		case DN_KEY:
-			if (Param2&EXTENDED_KEY_BASE) Param2=Param2^EXTENDED_KEY_BASE|0x100;
-			if (Param2&INTERNAL_KEY_BASE) Param2=Param2^INTERNAL_KEY_BASE|0x200;
+		  Param2=KeyToOldKey((DWORD)Param2);
+		  break;
 	}
 	return CurrentDlgProc(Msg, Param1, Param2);
 }
@@ -1155,9 +1169,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			DWORD* KeysW = (DWORD*)xf_malloc(Count*sizeof(DWORD));
 			for(int i=0;i<Count;i++)
 			{
-				if (KeysA[i]&0x100) KeysW[i]=KeysA[i]^0x100|EXTENDED_KEY_BASE;
-				else if (KeysA[i]&0x200) KeysW[i]=KeysA[i]^0x200|INTERNAL_KEY_BASE;
-				else KeysW[i] = KeysA[i];
+				KeysW[i]=OldKeyToKey(KeysA[i]);
 			}
 			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_KEY, Param1, (LONG_PTR)KeysW);
 			xf_free(KeysW);
@@ -1991,9 +2003,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			ks.Sequence = (DWORD*)xf_malloc(ks.Count*sizeof(DWORD));
 			for (int i=0;i<ks.Count;i++)
 			{
-				if (ksA->Sequence[i]&0x100) ks.Sequence[i]=ksA->Sequence[i]^0x100|EXTENDED_KEY_BASE;
-				else if (ksA->Sequence[i]&0x200) ks.Sequence[i]=ksA->Sequence[i]^0x200|INTERNAL_KEY_BASE;
-				else ks.Sequence[i] = ksA->Sequence[i];
+				ks.Sequence[i]=OldKeyToKey(ksA->Sequence[i]);
 			}
 			LONG_PTR ret = FarAdvControl(ModuleNumber, ACTL_POSTKEYSEQUENCE, &ks);
 			xf_free (ks.Sequence);
@@ -2270,19 +2280,65 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 		return ret;
 	}
 
-		case oldfar::ECTL_PROCESSINPUT:	//BUGBUG, в работе
+		case oldfar::ECTL_PROCESSINPUT:	//BUGBUG?
 		{
+			if (Param)
+			{
+				INPUT_RECORD *pIR = (INPUT_RECORD*) Param;
+				switch(pIR->EventType)
+				{
+					case KEY_EVENT:
+					case FARMACRO_KEY_EVENT:
+						{
+							wchar_t res;
+							MultiByteToWideChar (
+											CP_OEMCP,
+											0,
+											&pIR->Event.KeyEvent.uChar.AsciiChar,
+											1,
+											&res,
+											1
+											);
+
+							 pIR->Event.KeyEvent.uChar.UnicodeChar=res;
+						}
+				}
+			}
 			return FarEditorControl(ECTL_PROCESSINPUT, Param);
 		}
 
-		case oldfar::ECTL_PROCESSKEY:	//BUGBUG, в работе
+		case oldfar::ECTL_PROCESSKEY:
 		{
-			return FarEditorControl(ECTL_PROCESSKEY, Param);
+			return FarEditorControl(ECTL_PROCESSKEY, (void*)(DWORD_PTR)OldKeyToKey((DWORD)(DWORD_PTR)Param));
 		}
 
-		case oldfar::ECTL_READINPUT:	//BUGBUG, в работе
+		case oldfar::ECTL_READINPUT:	//BUGBUG?
 		{
-			return FarEditorControl(ECTL_READINPUT, Param);
+			int ret = FarEditorControl(ECTL_READINPUT, Param);
+			if (Param)
+			{
+				INPUT_RECORD *pIR = (INPUT_RECORD*) Param;
+				switch(pIR->EventType)
+				{
+					case KEY_EVENT:
+					case FARMACRO_KEY_EVENT:
+						{
+							char res;
+							WideCharToMultiByte (
+									CP_OEMCP,
+									0,
+									&pIR->Event.KeyEvent.uChar.UnicodeChar,
+									1,
+									&res,
+									1,
+									NULL,
+									NULL
+									);
+						pIR->Event.KeyEvent.uChar.UnicodeChar=res;
+					}
+				}
+			}
+			return ret;
 		}
 
 		case oldfar::ECTL_SETKEYBAR:
@@ -2569,4 +2625,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 		}
 	}
 	return TRUE;
+}
+
+int WINAPI FarCharTableA(int Command,char *Buffer,int BufferSize) //BUGBUG
+{
+ 	return FarCharTable(Command,Buffer,BufferSize);
 }

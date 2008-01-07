@@ -1,3 +1,11 @@
+ts 07.01.2008 21:02:07 +0200 - build 404
+
+1. Во wrap.cpp добавлены функции OldKeyToKey и KeyToOldKey для перевода внутренних
+   кодов клавиш FAR со старого формата в новый и обратно.
+2. В KeyNameToKeyA и FarKeyToNameA добавлено коррекцию кода клавиши.
+3. Доработаны (возможно) ECTL_PROCESSINPUT, ECTL_PROCESSKEY, ECTL_READINPUT.
+4. Добавлена заглушка FarCharTableA.
+
 t-rex 07.01.2008 08:31:08 +0200
 
 1. Правки индентации во врапере, без билда.
