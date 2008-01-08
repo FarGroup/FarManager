@@ -1325,6 +1325,27 @@ void PluginA::FreeOpenPluginInfo()
 	if (OPI.PanelTitle)
 		xf_free((void *)OPI.PanelTitle);
 
+	if (OPI.InfoLines)
+	{
+		FreeInfoPanelLinesW((InfoPanelLine*)OPI.InfoLines);
+	}
+
+	if (OPI.DescrFiles)
+	{
+		FreeArrayUnicode((wchar_t**)OPI.DescrFiles);
+	}
+
+	if (OPI.PanelModesArray)
+	{
+		FreePanelModesW((PanelMode*)OPI.PanelModesArray, OPI.PanelModesNumber);
+	}
+
+	if (OPI.KeyBar)
+	{
+		FreeKeyBarTitlesW((KeyBarTitles*)OPI.KeyBar);
+		xf_free((void *)OPI.KeyBar);
+	}
+
 	//if (OPI.ShortcutData)
 		//xf_free((void *)OPI.ShortcutData);
 
@@ -1349,6 +1370,33 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 
 	if (Src.PanelTitle)
 		OPI.PanelTitle = AnsiToUnicode(Src.PanelTitle);
+
+	if (Src.InfoLines && Src.InfoLinesNumber)
+	{
+		ConvertInfoPanelLinesA(Src.InfoLines, (InfoPanelLine**)&OPI.InfoLines, Src.InfoLinesNumber);
+		OPI.InfoLinesNumber = Src.InfoLinesNumber;
+	}
+
+	if (Src.DescrFiles && Src.DescrFilesNumber)
+	{
+		OPI.DescrFiles = ArrayAnsiToUnicode((char**)Src.DescrFiles, Src.DescrFilesNumber);
+		OPI.DescrFilesNumber = Src.DescrFilesNumber;
+	}
+
+	if (Src.PanelModesArray && Src.PanelModesNumber)
+	{
+		ConvertPanelModesA(Src.PanelModesArray, (PanelMode**)&OPI.PanelModesArray, Src.PanelModesNumber);
+		OPI.PanelModesNumber	= Src.PanelModesNumber;
+		OPI.StartPanelMode		= Src.StartPanelMode;
+		OPI.StartSortMode			= Src.StartSortMode;
+		OPI.StartSortOrder		= Src.StartSortOrder;
+	}
+
+	if (Src.KeyBar)
+	{
+	  OPI.KeyBar=(KeyBarTitles*) xf_malloc (sizeof(KeyBarTitles));
+		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar);
+	}
 
 	//if (Src.ShortcutData)
 		//OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);

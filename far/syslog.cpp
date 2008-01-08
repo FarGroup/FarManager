@@ -1458,10 +1458,10 @@ string __MOUSE_EVENT_RECORD_Dump(MOUSE_EVENT_RECORD *rec)
       rec->dwEventFlags,
         (rec->dwEventFlags==DOUBLE_CLICK?L"(DblClick)":
          (rec->dwEventFlags==MOUSE_MOVED?L"(Moved)":
-          (Rec->dwEventFlags==MOUSE_WHEELED?"(Wheel)":
-           (Rec->dwEventFlags==MOUSE_HWHEELED?"(HWheel)":""))))
+          (rec->dwEventFlags==MOUSE_WHEELED?L"(Wheel)":
+           (rec->dwEventFlags==MOUSE_HWHEELED?L"(HWheel)":L""))))
     );
-  if(rec->dwEventFlags==MOUSE_WHEELED  || Rec->dwEventFlags==MOUSE_HWHEELED)
+  if(rec->dwEventFlags==MOUSE_WHEELED  || rec->dwEventFlags==MOUSE_HWHEELED)
   {
     string tmp;
     tmp.Format(L" (Delta=%d)",(short)HIWORD(rec->dwButtonState));

@@ -64,6 +64,20 @@ wchar_t *AnsiToUnicodeBin (const char *lpszAnsiString, int nLength)
   return lpResult;
 }
 
+void AnsiToUnicodeBin (const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength)
+{
+  wmemset (lpwszUnicodeString, 0, nLength);
+
+  MultiByteToWideChar (
+          CP_OEMCP,
+          0,
+          lpszAnsiString,
+          nLength,
+          lpwszUnicodeString,
+          nLength
+          );
+}
+
 char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 {
 	/* $ 06.01.2008 TS
@@ -90,6 +104,38 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
   return lpResult;
 }
 
+wchar_t **ArrayAnsiToUnicode (char ** lpaszAnsiString, int iCount)
+{
+	wchar_t** lpaResult = NULL;
+
+	if (lpaszAnsiString)
+	{
+		lpaResult = (wchar_t**) xf_malloc((iCount+1)*sizeof(wchar_t*));
+		if (lpaResult)
+		{
+			for (int i=0;i<iCount;i++)
+			{
+			  lpaResult[i]=(lpaszAnsiString[i])?AnsiToUnicode(lpaszAnsiString[i]):NULL;
+			}
+			lpaResult[iCount] = (wchar_t*)(LONG_PTR) 1; //Array end mark
+		}
+	}
+
+  return lpaResult;
+}
+
+void FreeArrayUnicode (wchar_t ** lpawszUnicodeString)
+{
+	if (lpawszUnicodeString)
+	{
+		for (int i=0;(LONG_PTR)lpawszUnicodeString[i] != 1;i++) //Until end mark
+		{
+			if (lpawszUnicodeString[i]) xf_free(lpawszUnicodeString[i]);
+		}
+		xf_free(lpawszUnicodeString);
+	}
+}
+
 DWORD OldKeyToKey (DWORD dOldKey)
 {
 	if (dOldKey&0x100) dOldKey=dOldKey^0x100|EXTENDED_KEY_BASE;
@@ -102,6 +148,116 @@ DWORD KeyToOldKey (DWORD dKey)
 	if (dKey&EXTENDED_KEY_BASE) dKey=dKey^EXTENDED_KEY_BASE|0x100;
 		else if (dKey&INTERNAL_KEY_BASE) dKey=dKey^INTERNAL_KEY_BASE|0x200;
 	return dKey;
+}
+
+
+void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **piplW, int iCount)
+{
+	if (iplA && piplW && (iCount>0))
+	{
+		InfoPanelLine *iplW = (InfoPanelLine *) xf_malloc(iCount*sizeof(InfoPanelLine));
+		if (iplW)
+		{
+			for (int i=0;i<iCount;i++)
+			{
+				AnsiToUnicodeBin(iplA[i].Text,iplW[i].Text,80); //BUGBUG
+				AnsiToUnicodeBin(iplA[i].Data,iplW[i].Data,80); //BUGBUG
+				iplW[i].Separator=iplA[i].Separator;
+			}
+		}
+		*piplW = iplW;
+	}
+}
+
+void FreeInfoPanelLinesW(InfoPanelLine *iplW)
+{
+	if (iplW)	xf_free((void*)iplW);
+}
+
+void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iCount)
+{
+	if (pnmA && ppnmW && (iCount>0))
+	{
+		PanelMode *pnmW = (PanelMode *) xf_malloc(iCount*sizeof(PanelMode));
+		if (pnmW)
+		{
+			memset(pnmW,0,iCount*sizeof(PanelMode));
+			for (int i=0;i<iCount;i++)
+			{
+				int iColumnCount = 0;
+
+				if (pnmA[i].ColumnTypes)
+				{
+					for (char *pc=pnmA[i].ColumnTypes;*pc;pc++)
+						if (*pc==',') iColumnCount++;
+					iColumnCount++;
+				}
+
+				pnmW[i].ColumnTypes		=	(pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):NULL;
+				pnmW[i].ColumnWidths	=	(pnmA[i].ColumnWidths)?AnsiToUnicode(pnmA[i].ColumnWidths):NULL;
+
+				pnmW[i].ColumnTitles	= (pnmA[i].ColumnTitles && (iColumnCount>0))?ArrayAnsiToUnicode(pnmA[i].ColumnTitles,iColumnCount):NULL;
+
+				pnmW[i].FullScreen			= pnmA[i].FullScreen;
+				pnmW[i].DetailedStatus	= pnmA[i].DetailedStatus;
+				pnmW[i].AlignExtensions	= pnmA[i].AlignExtensions;
+				pnmW[i].CaseConversion	= pnmA[i].CaseConversion;
+				pnmW[i].StatusColumnTypes		=	(pnmA[i].StatusColumnTypes)?AnsiToUnicode(pnmA[i].StatusColumnTypes):NULL;
+				pnmW[i].StatusColumnWidths	=	(pnmA[i].StatusColumnWidths)?AnsiToUnicode(pnmA[i].StatusColumnWidths):NULL;
+			}
+		}
+		*ppnmW = pnmW;
+	}
+}
+
+void FreePanelModesW(PanelMode *pnmW, int iCount)
+{
+	if (pnmW)
+	{
+		for (int i=0;i<iCount;i++)
+		{
+			if (pnmW[i].ColumnTypes) xf_free(pnmW[i].ColumnTypes);
+			if (pnmW[i].ColumnWidths) xf_free(pnmW[i].ColumnWidths);
+			if (pnmW[i].ColumnTitles)	FreeArrayUnicode(pnmW[i].ColumnTitles);
+			if (pnmW[i].StatusColumnTypes) xf_free(pnmW[i].StatusColumnTypes);
+			if (pnmW[i].StatusColumnWidths) xf_free(pnmW[i].StatusColumnWidths);
+		}
+		xf_free((void*)pnmW);
+	}
+}
+
+void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW)
+{
+	if (kbtA && kbtW)
+	{
+		for(int i=0;i<12;i++)
+		{
+			kbtW->Titles[i]          = kbtA->Titles[i]?          AnsiToUnicode(kbtA->Titles[i]):          NULL;
+			kbtW->CtrlTitles[i]      = kbtA->CtrlTitles[i]?      AnsiToUnicode(kbtA->CtrlTitles[i]):      NULL;
+			kbtW->AltTitles[i]       = kbtA->AltTitles[i]?       AnsiToUnicode(kbtA->AltTitles[i]):       NULL;
+			kbtW->ShiftTitles[i]     = kbtA->ShiftTitles[i]?     AnsiToUnicode(kbtA->ShiftTitles[i]):     NULL;
+			kbtW->CtrlShiftTitles[i] = kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): NULL;
+			kbtW->AltShiftTitles[i]  = kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  NULL;
+			kbtW->CtrlAltTitles[i]   = kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   NULL;
+		}
+	}
+}
+
+void FreeKeyBarTitlesW(KeyBarTitles *kbtW)
+{
+	if (kbtW)
+	{
+		for(int i=0;i<12;i++)
+		{
+			if (kbtW->Titles[i])					xf_free (kbtW->Titles[i]);
+			if (kbtW->CtrlTitles[i])			xf_free (kbtW->CtrlTitles[i]);
+			if (kbtW->AltTitles[i])				xf_free (kbtW->AltTitles[i]);
+			if (kbtW->ShiftTitles[i])			xf_free (kbtW->ShiftTitles[i]);
+			if (kbtW->CtrlShiftTitles[i])	xf_free (kbtW->CtrlShiftTitles[i]);
+			if (kbtW->AltShiftTitles[i])	xf_free (kbtW->AltShiftTitles[i]);
+			if (kbtW->CtrlAltTitles[i])		xf_free (kbtW->CtrlAltTitles[i]);
+		}
+	}
 }
 
 void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, int ItemsNumber)
@@ -124,10 +280,7 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 		if (PanelItemA[i].CustomColumnNumber)
 		{
 			(*PanelItemW)[i].CustomColumnNumber = PanelItemA[i].CustomColumnNumber;
-			(*PanelItemW)[i].CustomColumnData = (wchar_t **)xf_malloc(PanelItemA[i].CustomColumnNumber*sizeof(wchar_t *));
-
-			for (int j=0; j<PanelItemA[i].CustomColumnNumber; j++)
-				(*PanelItemW)[i].CustomColumnData[j] = AnsiToUnicode(PanelItemA[i].CustomColumnData[j]);
+			(*PanelItemW)[i].CustomColumnData = ArrayAnsiToUnicode(PanelItemA[i].CustomColumnData,PanelItemA[i].CustomColumnNumber);
 		}
 
 		(*PanelItemW)[i].UserData = PanelItemA[i].UserData;
@@ -2351,28 +2504,9 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				default:
 					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles newkbt;
-
-					for(int i=0;i<12;i++)
-					{
-						newkbt.Titles[i]          = oldkbt->Titles[i]?          AnsiToUnicode(oldkbt->Titles[i]):          NULL;
-						newkbt.CtrlTitles[i]      = oldkbt->CtrlTitles[i]?      AnsiToUnicode(oldkbt->CtrlTitles[i]):      NULL;
-						newkbt.AltTitles[i]       = oldkbt->AltTitles[i]?       AnsiToUnicode(oldkbt->AltTitles[i]):       NULL;
-						newkbt.ShiftTitles[i]     = oldkbt->ShiftTitles[i]?     AnsiToUnicode(oldkbt->ShiftTitles[i]):     NULL;
-						newkbt.CtrlShiftTitles[i] = oldkbt->CtrlShiftTitles[i]? AnsiToUnicode(oldkbt->CtrlShiftTitles[i]): NULL;
-						newkbt.AltShiftTitles[i]  = oldkbt->AltShiftTitles[i]?  AnsiToUnicode(oldkbt->AltShiftTitles[i]):  NULL;
-						newkbt.CtrlAltTitles[i]   = oldkbt->CtrlAltTitles[i]?   AnsiToUnicode(oldkbt->CtrlAltTitles[i]):   NULL;
-					}
+					ConvertKeyBarTitlesA(oldkbt, &newkbt);
 					int ret = FarEditorControl(ECTL_SETKEYBAR, (void*)&newkbt);
-					for(int i=0;i<12;i++)
-					{
-						if (newkbt.Titles[i])					xf_free (newkbt.Titles[i]);
-						if (newkbt.CtrlTitles[i])			xf_free (newkbt.CtrlTitles[i]);
-						if (newkbt.AltTitles[i])			xf_free (newkbt.AltTitles[i]);
-						if (newkbt.ShiftTitles[i])		xf_free (newkbt.ShiftTitles[i]);
-						if (newkbt.CtrlShiftTitles[i])xf_free (newkbt.CtrlShiftTitles[i]);
-						if (newkbt.AltShiftTitles[i])	xf_free (newkbt.AltShiftTitles[i]);
-						if (newkbt.CtrlAltTitles[i])	xf_free (newkbt.CtrlAltTitles[i]);
-					}
+					FreeKeyBarTitlesW(&newkbt);
 					return ret;
 			}
 		}
@@ -2553,28 +2687,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 				default:
 					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles kbt;
-
-					for(int i=0;i<12;i++)
-					{
-						kbt.Titles[i]          = kbtA->Titles[i]?          AnsiToUnicode(kbtA->Titles[i]):          NULL;
-						kbt.CtrlTitles[i]      = kbtA->CtrlTitles[i]?      AnsiToUnicode(kbtA->CtrlTitles[i]):      NULL;
-						kbt.AltTitles[i]       = kbtA->AltTitles[i]?       AnsiToUnicode(kbtA->AltTitles[i]):       NULL;
-						kbt.ShiftTitles[i]     = kbtA->ShiftTitles[i]?     AnsiToUnicode(kbtA->ShiftTitles[i]):     NULL;
-						kbt.CtrlShiftTitles[i] = kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): NULL;
-						kbt.AltShiftTitles[i]  = kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  NULL;
-						kbt.CtrlAltTitles[i]   = kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   NULL;
-					}
+					ConvertKeyBarTitlesA(kbtA, &kbt);
 					int ret=FarViewerControl(VCTL_SETKEYBAR, &kbt);
-					for(int i=0;i<12;i++)
-					{
-						xf_free (kbt.Titles[i]);
-						xf_free (kbt.CtrlTitles[i]);
-						xf_free (kbt.AltTitles[i]);
-						xf_free (kbt.ShiftTitles[i]);
-						xf_free (kbt.CtrlShiftTitles[i]);
-						xf_free (kbt.AltShiftTitles[i]);
-						xf_free (kbt.CtrlAltTitles[i]);
-					}
+					FreeKeyBarTitlesW(&kbt);
 					return ret;
 			}
 		}
