@@ -127,8 +127,9 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
       IsAddEndSlash=TRUE;
     }
 
-    TempDest = strTempDest.GetBuffer (2048); //BUGBUGBUG!!!!
+	  TempDest = strTempDest.GetBuffer();
     wchar_t *Ptr, Chr;
+    bool bufferChanged = false;
 
     Ptr = TempDest+StrLength(TempDest);
 
@@ -158,45 +159,76 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
       *Ptr=0;
       FileAttr=GetFileAttributesW(TempDest);
       // О! Это наш клиент - одна из "компонент" пути - симлинк
-      if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      if(FileAttr != (DWORD)-1 && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
       {
         string strTempDest2;
-
-//        if(CheckParseJunction(TempDest,sizeof(TempDest)))
+        // Получим инфу симлинке
+        if(GetJunctionPointInfo(TempDest, strTempDest2))
         {
-          // Получим инфу симлинке
-          if(GetJunctionPointInfo(TempDest, strTempDest2))
+          // Убираем \\??\ из пути симлинка
+          strTempDest2.LShift(4);
+          // для случая монтированного диска (не имеющего букву)...
+          if(!wcsncmp(strTempDest2, L"Volume{", 7))
           {
-            strTempDest.LShift (4); //???
-            // для случая монтированного диска (не имеющего букву)...
-            if(!wcsncmp(strTempDest2,L"Volume{",7))
-            {
-              string strJuncRoot;
-              // получим либо букву диска, либо...
-              GetPathRootOne(strTempDest2, strJuncRoot);
-              // ...но в любом случае пишем полностью.
-              strTempDest2 = strJuncRoot;
-            }
-
-            *Ptr=Chr; // восстановим символ
-            DeleteEndSlash(strTempDest2);
-            strTempDest2 = Ptr;
-            wcscpy(TempDest,strTempDest2); //BUGBUG
-            Ret=StrLength(TempDest);
-            // ВСЕ. Реальный путь у нас в кармане...
-            break;
+            string strJuncRoot;
+            // получим либо букву диска, либо...
+            GetPathRootOne(strTempDest2, strJuncRoot);
+            // ...но в любом случае пишем полностью.
+            strTempDest2 = strJuncRoot;
           }
+          DeleteEndSlash(strTempDest2);
+          // Буфер симлинка
+          wchar_t* TempDest2 = strTempDest2.GetBuffer();
+          // Длина пути симлинка
+          size_t tempLength = StrLength(TempDest2);
+          // Получаем длину левой и правой частей пути
+          size_t leftLength = StrLength(TempDest);
+          size_t rightLength = StrLength(Ptr + 1); // Измеряем длину пути начиная со следующего симовла после курсора
+          // Восстановим символ
+          *Ptr=Chr;
+          // Если путь симлинка больше левой части пути, увеличиваем буфер
+          if (leftLength < tempLength)
+          {
+            TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength));
+          }
+          // Так как мы производили манипуляции с левой частью пути изменяем указатель на
+          // текущую позицию курсора в пути
+          Ptr = TempDest + tempLength - 1;
+          // Перемещаем правую часть пути на нужное место, только если левая чать отличается по
+          // размеру от пути симлинка
+          if (leftLength != tempLength)
+          {
+            // Копируемый буфер включает сам буфер, начальный '/', конечный '/' (если он есть) и '\0'
+            wmemmove(TempDest + tempLength, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
+            // Изменился занимаемый данными размер
+            bufferChanged = true;
+          }
+          // Копируем путь к симлинку вначало пути
+          wmemcpy(TempDest, TempDest2, tempLength);
+          // Устанавливаем длину возвращаемой строки
+          Ret = StrLength(TempDest);
+          // Переходим к следующему шагу
+          continue;
         }
       }
       *Ptr=Chr;
       --Ptr;
     }
-
-    strTempDest.ReleaseBuffer ();
+    // Если данные в буфере меняли размер, тогда устанавливаем актуальный размер буфера
+    if (bufferChanged)
+    {
+      strTempDest.ReleaseBuffer(Ret);
+    }
   }
 
-  if(IsAddEndSlash) // если не просили - удалим.
-    strTempDest.SetLength(strTempDest.GetLength()-1);
+  // Если не просили - удалим.
+  if(IsAddEndSlash)
+  {
+    if (DeleteEndSlash(strTempDest))
+    {
+      --Ret;
+    }
+  }
 
   strDest = strTempDest;
 

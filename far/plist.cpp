@@ -49,7 +49,6 @@ void ShowProcessList()
 {
   VMenu ProcList(UMSG(MProcessListTitle),NULL,0,ScrY-4);
   ProcList.SetFlags(VMENU_WRAPMODE);
-//  ProcList.SetHelp("TaskList");
   ProcList.SetPosition(-1,-1,0,0);
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
     return;
@@ -100,27 +99,30 @@ void ShowProcessList()
           HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
           if (ProcWnd!=NULL)
           {
-            string strWinTitle;
-
-            wchar_t *lpwszTitle = strWinTitle.GetBuffer (NM*2);
-
-            GetWindowTextW(ProcWnd, lpwszTitle, NM*2);
-
-            strWinTitle.ReleaseBuffer ();
-
+            wchar_t *lpwszTitle=0;
+            int LenTitle=GetWindowTextLengthW(ProcWnd);
+            if (LenTitle)
+            {
+              lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+              if (lpwszTitle!=NULL && (LenTitle=GetWindowTextW(ProcWnd,lpwszTitle,LenTitle+1)))
+                lpwszTitle[LenTitle]=0;
+            }
             DWORD ProcID;
             GetWindowThreadProcessId(ProcWnd,&ProcID);
             if (Message(MSG_WARNING,2,UMSG(MKillProcessTitle),UMSG(MAskKillProcess),
-                        strWinTitle,UMSG(MKillProcessWarning),UMSG(MKillProcessKill),UMSG(MCancel))==0)
+                lpwszTitle?lpwszTitle:L"",UMSG(MKillProcessWarning),UMSG(MKillProcessKill),UMSG(MCancel))==0)
               if (KillProcess(ProcID))
               {
                 Sleep(500);
                 ProcList.Hide();
                 ShowProcessList();
+                if (lpwszTitle) xf_free(lpwszTitle);
                 return;
               }
               else
                 Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcess),UMSG(MOk));
+
+            if (lpwszTitle) xf_free(lpwszTitle);
           }
         }
         break;
@@ -163,7 +165,7 @@ BOOL KillProcess(DWORD dwPID)
 {
   // Полиция 21
   if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
-   return FALSE;
+   return(FALSE);
 
   HANDLE hProcess;
   BOOL bRet;
@@ -187,21 +189,22 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
   if (IsWindowVisible(hwnd) ||
       IsIconic(hwnd) && (GetWindowLongW(hwnd,GWL_STYLE) & WS_DISABLED)==0)
   {
-    string strTitle;
-
-    wchar_t *lpwszTitle = strTitle.GetBuffer (NM*2);
-
-    GetWindowTextW (hwnd, lpwszTitle, NM*2);
-
-    strTitle.ReleaseBuffer ();
-
-    if ( !strTitle.IsEmpty() )
+    int LenTitle=GetWindowTextLengthW(hwnd);
+    if (LenTitle)
     {
-      MenuItemEx ListItem;
-
-      ListItem.Clear ();
-      ListItem.strName = strTitle;
-      ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+      wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+      if (lpwszTitle!=NULL)
+      {
+        if (LenTitle=GetWindowTextW(hwnd,lpwszTitle,LenTitle+1))
+        {
+          lpwszTitle[LenTitle]=0;
+          MenuItemEx ListItem;
+          ListItem.Clear();
+          ListItem.strName=lpwszTitle;
+          ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
+        }
+        xf_free(lpwszTitle);
+      }
     }
   }
   return(TRUE);
