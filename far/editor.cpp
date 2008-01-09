@@ -3556,7 +3556,6 @@ BOOL Editor::Search(int Next)
             const wchar_t *Str=CurPtr->GetStringAddrW()+CurPtr->GetCurPos();
             wchar_t *TmpStr=new wchar_t[SearchLength+1];
             xwcsncpy(TmpStr,Str,SearchLength);
-            TmpStr[SearchLength]=0;
 
             /*
             if (UseDecodeTable)
@@ -4297,7 +4296,6 @@ void Editor::AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int St
   UndoData[UndoDataPos].StrPos=StrPos;
   UndoData[UndoDataPos].StrNum=StrNum;
   xwcsncpy(UndoData[UndoDataPos].EOL,Eol?Eol:L"",countof(UndoData[UndoDataPos].EOL)-1);
-  UndoData[UndoDataPos].EOL[countof(UndoData[UndoDataPos].EOL)-1]=0;
 
   if (Str!=NULL)
   {

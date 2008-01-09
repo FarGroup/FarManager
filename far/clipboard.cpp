@@ -341,7 +341,6 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
       wmemset(ClipText,0,BufferSize+2);
 
       xwcsncpy(ClipText,ClipAddr,BufferSize);
-      ClipText[BufferSize]=0;
 
 /*      if (Unicode)
         if(AnsiMode)

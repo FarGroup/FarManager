@@ -226,7 +226,7 @@ DWORD FarGetCurDir(string &strBuffer)
     if ( Result &&
          IsAlpha (*lpwszBuffer) &&
          lpwszBuffer[1] == L':' &&
-         (lpwszBuffer[2] == 0 || lpwszBuffer[2] == '\\')
+         (lpwszBuffer[2] == 0 || lpwszBuffer[2] == L'\\')
          )
          *lpwszBuffer = Upper (*lpwszBuffer);
 
@@ -516,7 +516,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
 
       int nResult = ConvertWildcards(param1, strResult, flags & 0xFFFF);
 
-      xwcsncpy(param2, strResult, size);
+      xwcsncpy(param2, strResult, size); //?? а разве не size-1
 
       return nResult;
   }
@@ -1139,7 +1139,7 @@ wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 
     if ( FarMkTempEx(strDest, Prefix, TRUE) )
     {
-        xwcsncpy (Dest, strDest, size);
+        xwcsncpy (Dest, strDest, size);  //?? а разве не size-1
         return Dest;
     }
 
@@ -1194,7 +1194,7 @@ string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 
   if(DriveType == DRIVE_UNKNOWN)
   {
-    LocalName[2]='\\';
+    LocalName[2]=L'\\';
     DriveType = FAR_GetDriveType(LocalName);
     LocalName[2]=0;
   }
@@ -1850,8 +1850,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
     */
     wchar_t LocalName[3];
 
-    wcsncpy (LocalName, CurDir, 2);
-    LocalName[2] = 0;
+    xwcsncpy (LocalName, CurDir, 2);
 
     apiWNetGetConnection (LocalName, strNetDir);
   }

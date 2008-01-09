@@ -14,7 +14,7 @@
    strcat          wcscat     
    strncat         wcsncat
    strcpy          wcscpy
-   strncpy         wcsncpy
+   xstrncpy        xwcsncpy       see file "strncpy.c"
    strcmp          StrCmp
    _stricmp        StrCmpI
    strncmp         StrCmpN

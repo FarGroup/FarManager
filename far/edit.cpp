@@ -765,7 +765,7 @@ int Edit::ProcessKey(int Key)
         if (ShortStr==NULL)
           return FALSE;
 
-        wcsncpy(ShortStr,Str,StrSize);
+        xwcsncpy(ShortStr,Str,StrSize);
         Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
@@ -988,7 +988,7 @@ int Edit::ProcessKey(int Key)
         wchar_t *ShortStr=new wchar_t[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        wcsncpy(ShortStr,Str,StrSize);
+        xwcsncpy(ShortStr,Str,StrSize);
         CurPos=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
@@ -1021,7 +1021,7 @@ int Edit::ProcessKey(int Key)
         wchar_t *ShortStr=new wchar_t[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        lstrcpynW(ShortStr,Str,StrSize+1);
+        xwcsncpy(ShortStr,Str,StrSize);
         int Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
@@ -1117,7 +1117,7 @@ int Edit::ProcessKey(int Key)
         wchar_t *ShortStr=new wchar_t[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        wcsncpy(ShortStr,Str,StrSize);
+        xwcsncpy(ShortStr,Str,StrSize);
         Len=StrLength(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
@@ -1162,7 +1162,7 @@ int Edit::ProcessKey(int Key)
             wchar_t *ShortStr=new wchar_t[StrSize+1];
             if (ShortStr==NULL)
               return FALSE;
-            wcsncpy(ShortStr,Str,StrSize);
+            xwcsncpy(ShortStr,Str,StrSize);
             RemoveTrailingSpaces(ShortStr);
             CopyToClipboard(ShortStr);
             delete[] ShortStr;
@@ -1443,7 +1443,6 @@ void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 void Edit::GetString(wchar_t *Str,int MaxSize)
 {
     xwcsncpy(Str, Edit::Str,MaxSize-1);
-    Str[MaxSize-1]=0;
 }
 
 void Edit::GetString(string &strStr)
@@ -1612,8 +1611,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
   else
     CopyLength=Min(MaxSize-1,SelEnd-SelStart);
 
-  wcsncpy(Str,Edit::Str+SelStart,CopyLength);
-  Str[CopyLength]=0;
+  xwcsncpy(Str,Edit::Str+SelStart,CopyLength);
 
   return(TRUE);
 }
@@ -1633,8 +1631,7 @@ int Edit::GetSelString (string &strStr)
 
   wchar_t *lpwszStr = strStr.GetBuffer (CopyLength+1);
 
-  wcsncpy(lpwszStr,Edit::Str+SelStart,CopyLength);
-  lpwszStr[CopyLength]=0;
+  xwcsncpy(lpwszStr,Edit::Str+SelStart,CopyLength);
 
   strStr.ReleaseBuffer ();
 
@@ -1976,7 +1973,7 @@ void Edit::SetTabCurPos(int NewPos)
     wchar_t *ShortStr=new wchar_t[StrSize+1];
     if (ShortStr==NULL)
       return;
-    wcsncpy(ShortStr,Str,StrSize);
+    xwcsncpy(ShortStr,Str,StrSize);
     Pos=StrLength(RemoveTrailingSpaces(ShortStr));
     delete[] ShortStr;
     if (NewPos>Pos)

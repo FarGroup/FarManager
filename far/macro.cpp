@@ -1276,7 +1276,7 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
       p = es;
 
     if ( (nFlags & FLAG_DISK) == FLAG_DISK )
-      wcsncpy (lpDest, s, p-s);
+      xwcsncpy (lpDest, s, p-s);
   }
   else
   {

@@ -293,8 +293,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
 
-	wcsncpy(PartBeforeName, Src, BeforeNameLength);
-	PartBeforeName[BeforeNameLength]=0;
+	xwcsncpy(PartBeforeName, Src, BeforeNameLength);
 
 	const wchar_t *SrcNameDot=wcsrchr(SrcNamePtr, L'.');
 
@@ -324,7 +323,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 					*(DestNamePtr++)=*(SrcNamePtr++);
 				}
 				break;
-			case '.':
+			case L'.':
 				CurWildPtr++;
 				*(DestNamePtr++)=L'.';
 				if (wcspbrk(CurWildPtr,L"*?")!=NULL)

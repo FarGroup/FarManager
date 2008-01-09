@@ -300,7 +300,7 @@ static __int64 _cdecl getInt64()
   static wchar_t buffer[128];
   wchar_t *p = buffer;
   int ch;
-  while ( ( ( ch = getChar() ) != EOFCH ) && (iswxdigit(ch) || ch == 'x') && ( (p-buffer) < 32 ))
+  while ( ( ( ch = getChar() ) != EOFCH ) && (iswxdigit(ch) || ch == L'x') && ( (p-buffer) < 32 ))
     *p++ = (char)ch;
   *p = 0;
   putBack(ch);
@@ -725,8 +725,7 @@ static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText)
 
    wchar_t *CurKeyText = strCurKeyText.GetBuffer (Length+1);
 
-   wcsncpy(CurKeyText,CurBufPtr,Length);
-   CurKeyText[Length] = 0;
+   xwcsncpy(CurKeyText,CurBufPtr,Length);
 
    strCurKeyText.ReleaseBuffer ();
 
