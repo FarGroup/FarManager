@@ -2360,299 +2360,286 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 
 int FindFiles::LookForString(const wchar_t *Name)
 {
-  FILE *SrcFile;
+	int Length;
+	if ((Length=StrLength(strFindStr))==0)
+    	return(TRUE);
 
-  char FindStr[512];
+	char FindStr[512];
+	UnicodeToAnsi(strFindStr, FindStr, 512);
 
-  UnicodeToAnsi(strFindStr, FindStr, 512);
+	HANDLE FileHandle=apiCreateFile (Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES,
+									FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+									FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	FILETIME LastAccess;
+	int TimeRead=0;
+	if (FileHandle==INVALID_HANDLE_VALUE)
+		FileHandle=apiCreateFile (Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
+								OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	else
+		TimeRead=GetFileTime (FileHandle, NULL, &LastAccess, NULL);
 
-  char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
-  int Length,ReadSize,SaveReadSize;
-  if ((Length=(int)strlen(FindStr))==0)
-    return(TRUE);
-  HANDLE FileHandle=apiCreateFile(Name,GENERIC_READ|FILE_WRITE_ATTRIBUTES,
-         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-  if (FileHandle==INVALID_HANDLE_VALUE)
-    FileHandle=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,0,NULL);
-  if (FileHandle==INVALID_HANDLE_VALUE)
-  {
-    return(FALSE);
-  }
+	if (FileHandle==INVALID_HANDLE_VALUE) return (FALSE);
 
-  int Handle=_open_osfhandle((intptr_t)FileHandle,O_BINARY);
-  if (Handle==-1)
-  {
-    CloseHandle(FileHandle);
-    return(FALSE);
-  }
+	char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
+	int ReadSize,SaveReadSize;
 
-  if ((SrcFile=fdopen(Handle,"rb"))==NULL)
-  {
-    _close(Handle);
-    return(FALSE);
-  }
+	if (SearchHex)
+	{
+		int LenCmpStr=sizeof(CmpStr);
+		Transform((unsigned char *)CmpStr,LenCmpStr,(char *)FindStr,'S');
+		Length=LenCmpStr;
+	}
+	else
+		xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
 
-  FILETIME LastAccess;
-  int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);
+	if (!CmpCase && !SearchHex)
+		LocalStrupr(CmpStr);
 
-  if (SearchHex)
-  {
-    int LenCmpStr=sizeof(CmpStr);
+	int FirstIteration=TRUE;
+	int ReverseBOM=FALSE;
+	int IsFirst=FALSE;
 
-    Transform((unsigned char *)CmpStr,LenCmpStr,(char *)FindStr,'S');
-    Length=LenCmpStr;
-  }
-  else
-    xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+	// Уже считано из файла. Используется для сравнения
+	// с максимальным размером, в котором производится поиск
+	__int64 AlreadyRead=_i64(0);
 
-  if (!CmpCase && !SearchHex)
-    LocalStrupr(CmpStr);
+	while ( !StopSearch && ReadFile (FileHandle, Buf, sizeof(Buf)/sizeof(Buf[0]), ((LPDWORD)&ReadSize), NULL) )
+	{
+		if (ReadSize==0) break;
+		/* $ 12.04.2005 KM
+		Если используется ограничение по поиску на размер чтения из файла,
+		проверим не перешли ли мы уже границу максимально допустимого размера
+		*/
+		if (EnableSearchInFirst && SearchInFirst)
+		{
+			if (AlreadyRead+ReadSize>SearchInFirst)
+			{
+				ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
+		}
 
-  int FirstIteration=TRUE;
-  int ReverseBOM=FALSE;
-  int IsFirst=FALSE;
+		if (ReadSize<=0) break;
 
-    // Уже считано из файла. Используется для сравнения
-  // с максимальным размером, в котором производится поиск
-  __int64 AlreadyRead=_i64(0);
+		AlreadyRead+=ReadSize;
+		}
 
-  while (!StopSearch && (ReadSize=(int)fread(Buf,1,sizeof(Buf),SrcFile))>0)
-  {
-    /* $ 12.04.2005 KM
-       Если используется ограничение по поиску на размер чтения из файла,
-       проверим не перешли ли мы уже границу максимально допустимого размера
-    */
-    if (EnableSearchInFirst && SearchInFirst)
-    {
-      if (AlreadyRead+ReadSize>SearchInFirst)
-      {
-        ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
-      }
+		/* $ 11.09.2005 KM
+		   - Bug #1377
+		*/
+		int DecodeTableNum=0;
+		int ANSISearch=UseANSI;
+		int UnicodeSearch=UseUnicode;
+		int RealReadSize=ReadSize;
 
-      if (ReadSize<=0)
-        break;
+		// Сначала в поиске используем внутренние кодировки: OEM, ANSI и Unicode
+		int UseInnerTables=true;
 
-      AlreadyRead+=ReadSize;
-    }
+		/* $ 22.09.2003 KM
+		   Поиск по hex-кодам
+		*/
+		if (!SearchHex)
+		{
+			if (UseAllTables || UseUnicode)
+			{
+				// Раз поиск идёт по всем кодировкам или в юникоде,
+				// запомним считанный размер буфера
+				SaveReadSize=ReadSize;
 
-    /* $ 11.09.2005 KM
-       - Bug #1377
-    */
-    int DecodeTableNum=0;
-    int ANSISearch=UseANSI;
-    int UnicodeSearch=UseUnicode;
-    int RealReadSize=ReadSize;
+				// А также запомним считанный буфер.
+				memcpy(SaveBuf,Buf,ReadSize);
 
-    // Сначала в поиске используем внутренние кодировки: OEM, ANSI и Unicode
-    int UseInnerTables=true;
+			/* $ 21.10.2000 SVS
+			   Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
+			*/
+				if(!IsFirst)
+				{
+					IsFirst=TRUE;
+					if(*(WORD*)Buf == 0xFFFE)	// The text contains the Unicode
+					ReverseBOM=TRUE;			// byte-reversed byte-order mark
+												// (Reverse BOM) 0xFFFE as its first character.
+				}
+			}
+		}
 
-    /* $ 22.09.2003 KM
-       Поиск по hex-кодам
-    */
-    if (!SearchHex)
-    {
-      if (UseAllTables || UseUnicode)
-      {
-        // Раз поиск идёт по всем кодировкам или в юникоде,
-        // запомним считанный размер буфера
-        SaveReadSize=ReadSize;
+		while (1)
+		{
+			/* $ 22.09.2003 KM
+			   Поиск по hex-кодам
+			*/
+			if (!SearchHex)
+			{
+				if (UnicodeSearch)
+				{
+					char BOMBuf[sizeof(SaveBuf)];
+					char *BufPtr=SaveBuf;
 
-        // А также запомним считанный буфер.
-        memcpy(SaveBuf,Buf,ReadSize);
+					if(ReverseBOM)
+					{
+						BufPtr=BOMBuf;
 
-        /* $ 21.10.2000 SVS
-           Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
-        */
-        if(!IsFirst)
-        {
-          IsFirst=TRUE;
-          if(*(WORD*)Buf == 0xFFFE) // The text contains the Unicode
-             ReverseBOM=TRUE;       // byte-reversed byte-order mark
-                                    // (Reverse BOM) 0xFFFE as its first character.
-        }
-      }
-    }
+						for(int I=0; I < SaveReadSize; I+=2)
+						{
+							BOMBuf[I]=SaveBuf[I+1];
+							BOMBuf[I+1]=SaveBuf[I];
+						}
+					}
 
-    while (1)
-    {
-      /* $ 22.09.2003 KM
-         Поиск по hex-кодам
-      */
-      if (!SearchHex)
-      {
-        if (UnicodeSearch)
-        {
-          char BOMBuf[sizeof(SaveBuf)];
-          char *BufPtr=SaveBuf;
+					WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)BufPtr,SaveReadSize/2,Buf,sizeof(Buf),NULL,NULL);
+					ReadSize=SaveReadSize/2;
+				}
+				else
+				{
+					// Если поиск идёт по всем кодировкам, восстановим запомненный буфер
+					// и его размер для поиска в оригинальных считанных данных в другой кодировке
+					if (UseAllTables)
+					{
+						ReadSize=SaveReadSize;
+						memcpy(Buf,SaveBuf,ReadSize);
+					}
 
-          if(ReverseBOM)
-          {
-            BufPtr=BOMBuf;
+					/* $ 20.09.2003 KM
+					  Добавим поддержку ANSI таблицы
+					*/
+					if (UseDecodeTable || DecodeTableNum>0 || ANSISearch)
+					{
+						// Раз добрались до поиска в ANSI кодировке, подготовим таблицу перекодировки
+						if (ANSISearch)
+						GetTable(&TableSet,TRUE,TableNum,UseUnicode);
 
-            for(int I=0; I < SaveReadSize; I+=2)
-            {
-              BOMBuf[I]=SaveBuf[I+1];
-              BOMBuf[I+1]=SaveBuf[I];
-            }
-          }
+						for (int I=0;I<ReadSize;I++)
+						Buf[I]=TableSet.DecodeTable[Buf[I]];
+					}
+				}
+				if (!CmpCase)
+					LocalUpperBuf(Buf,ReadSize);
+			}
 
-          WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)BufPtr,SaveReadSize/2,Buf,sizeof(Buf),NULL,NULL);
-          ReadSize=SaveReadSize/2;
-        }
-        else
-        {
-          // Если поиск идёт по всем кодировкам, восстановим запомненный буфер
-          // и его размер для поиска в оригинальных считанных данных в другой кодировке
-          if (UseAllTables)
-          {
-            ReadSize=SaveReadSize;
-            memcpy(Buf,SaveBuf,ReadSize);
-          }
+			int CheckSize=ReadSize-Length+1;
+			/* $ 30.07.2000 KM
+			  Обработка "Whole words" в поиске
+			*/
+			for (int I=0;I<CheckSize;I++)
+			{
+				int cmpResult;
+				int locResultLeft=FALSE;
+				int locResultRight=FALSE;
 
-          /* $ 20.09.2003 KM
-             Добавим поддержку ANSI таблицы
-          */
-          if (UseDecodeTable || DecodeTableNum>0 || ANSISearch)
-          {
-            // Раз добрались до поиска в ANSI кодировке, подготовим таблицу перекодировки
-            if (ANSISearch)
-              GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+				/* $ 22.09.2003 KM
+				  Поиск по hex-кодам
+				*/
 
-            for (int I=0;I<ReadSize;I++)
-              Buf[I]=TableSet.DecodeTable[Buf[I]];
-          }
-        }
-        if (!CmpCase)
-          LocalUpperBuf(Buf,ReadSize);
-      }
+				char *lpWordDiv = UnicodeToAnsi (Opt.strWordDiv);
 
-      int CheckSize=ReadSize-Length+1;
-      /* $ 30.07.2000 KM
-         Обработка "Whole words" в поиске
-      */
-      for (int I=0;I<CheckSize;I++)
-      {
-        int cmpResult;
-        int locResultLeft=FALSE;
-        int locResultRight=FALSE;
+				if (WholeWords && !SearchHex)
+				{
+					if (!FirstIteration)
+					{
+						if (IsSpaceA(Buf[I-1]) || IsEolA(Buf[I-1]) ||
+							(strchr(lpWordDiv,Buf[I-1])!=NULL))
+							locResultLeft=TRUE;
+					}
+					else
+					{
+						FirstIteration=FALSE;
+						locResultLeft=TRUE;
+					}
 
-        /* $ 22.09.2003 KM
-           Поиск по hex-кодам
-        */
+					if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
+						locResultRight=TRUE;
+					else
+						if (I+Length<RealReadSize &&
+							(IsSpaceA(Buf[I+Length]) || IsEolA(Buf[I+Length]) ||
+							(strchr(lpWordDiv,Buf[I+Length])!=NULL)))
+								locResultRight=TRUE;
+				}
+				else
+				{
+					locResultLeft=TRUE;
+					locResultRight=TRUE;
+				}
 
-        char *lpWordDiv = UnicodeToAnsi (Opt.strWordDiv);
+				xf_free (lpWordDiv);
 
-        if (WholeWords && !SearchHex)
-        {
-          if (!FirstIteration)
-          {
-            if (IsSpaceA(Buf[I-1]) || IsEolA(Buf[I-1]) ||
-               (strchr(lpWordDiv,Buf[I-1])!=NULL))
-              locResultLeft=TRUE;
-          }
-          else
-          {
-            FirstIteration=FALSE;
-            locResultLeft=TRUE;
-          }
+				cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I] &&
+					(Length==1 || CmpStr[1]==Buf[I+1] &&
+					(Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
 
-          if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
-            locResultRight=TRUE;
-          else
-            if (I+Length<RealReadSize &&
-               (IsSpaceA(Buf[I+Length]) || IsEolA(Buf[I+Length]) ||
-               (strchr(lpWordDiv,Buf[I+Length])!=NULL)))
-              locResultRight=TRUE;
-        }
-        else
-        {
-          locResultLeft=TRUE;
-          locResultRight=TRUE;
-        }
+				if (cmpResult)
+				{
+					if (TimeRead)
+						SetFileTime(FileHandle,NULL,&LastAccess,NULL);
+					CloseHandle (FileHandle);
+					return(TRUE);
+				}
+			}
+			/* $ 22.09.2003 KM
+			  Поиск по hex-кодам
+			*/
+			if (UseAllTables && !SearchHex)
+			{
+				if (!ANSISearch && !UnicodeSearch && UseInnerTables)
+				{
+					// Раз не нашли в OEM кодировке, поищем теперь в ANSI.
+					ANSISearch=true;
+				}
+				else
+				{
+					if (!UnicodeSearch && UseInnerTables)
+					{
+						// Не нашли в ANSI кодировке, поищем теперь в Unicode.
+						UnicodeSearch=true;
+						ANSISearch=false;
+					}
+					else
+					{
+						// Внутренние таблицы все прошли, теперь примемся искать в пользовательских
+						UseInnerTables=false;
 
-        xf_free (lpWordDiv);
+						UnicodeSearch=false;
+						ANSISearch=false;
 
-        cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I] &&
-          (Length==1 || CmpStr[1]==Buf[I+1] &&
-          (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+						// Не нашли ни в OEM, ни в ANSI, ни в Unicode, значит будем искать
+						// в установленных пользовательских кодировках.
+						if (PrepareTable(&TableSet,DecodeTableNum,TRUE))
+						{
+							DecodeTableNum++;
+							xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+							if (!CmpCase)
+							LocalStrupr(CmpStr);
+						}
+						else
+							break;
+					}
+				}
+			}
+			else
+				break;
+		}
 
-        if (cmpResult)
-        {
-          if (TimeRead)
-            SetFileTime(FileHandle,NULL,&LastAccess,NULL);
-          fclose(SrcFile);
-          return(TRUE);
-        }
-      }
-      /* $ 22.09.2003 KM
-         Поиск по hex-кодам
-      */
-      if (UseAllTables && !SearchHex)
-      {
-        if (!ANSISearch && !UnicodeSearch && UseInnerTables)
-        {
-          // Раз не нашли в OEM кодировке, поищем теперь в ANSI.
-          ANSISearch=true;
-        }
-        else
-        {
-          if (!UnicodeSearch && UseInnerTables)
-          {
-            // Не нашли в ANSI кодировке, поищем теперь в Unicode.
-            UnicodeSearch=true;
-            ANSISearch=false;
-          }
-          else
-          {
-            // Внутренние таблицы все прошли, теперь примемся искать в пользовательских
-            UseInnerTables=false;
+		if (RealReadSize==sizeof(Buf)/sizeof(Buf[0]))
+		{
+			/* $ 22.09.2003 KM
+			  Поиск по hex-кодам
+			*/
+			/* $ 30.07.2000 KM
+			  Изменение offset при чтении нового блока с учётом WordDiv
+			*/
+			//При поиске по всем таблицам из за того что поиск происходит также и в Юникоде
+			//поиск по примерно FileSize/sizeof(Buf)*(Length+1) байт будет повторён
+			//но если так не делать то при поиске по всем таблицам в Юникоде не будут
+			//находится тоже количество кусков.
+			int offset=(Length/*+1*/);
+			if ((UseAllTables || UnicodeSearch) && !SearchHex) offset*=2;
 
-            UnicodeSearch=false;
-            ANSISearch=false;
-
-            // Не нашли ни в OEM, ни в ANSI, ни в Unicode, значит будем искать
-            // в установленных пользовательских кодировках.
-            if (PrepareTable(&TableSet,DecodeTableNum,TRUE))
-            {
-              DecodeTableNum++;
-              xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-              if (!CmpCase)
-                LocalStrupr(CmpStr);
-            }
-            else
-              break;
-          }
-        }
-      }
-      else
-        break;
-    }
-
-    if (RealReadSize==sizeof(Buf))
-    {
-      /* $ 22.09.2003 KM
-         Поиск по hex-кодам
-      */
-      /* $ 30.07.2000 KM
-         Изменение offset при чтении нового блока с учётом WordDiv
-      */
-      __int64 NewPos;
-      //При поиске по всем таблицам из за того что поиск происходит также и в Юникоде
-      //поиск по примерно FileSize/sizeof(Buf)*(Length+1) байт будет повторён
-      //но если так не делать то при поиске по всем таблицам в Юникоде не будут
-      //находится тоже количество кусков.
-      if ((UseAllTables || UnicodeSearch) && !SearchHex)
-        NewPos=ftell64(SrcFile)-(__int64)(2*(Length+1));
-      else
-        NewPos=ftell64(SrcFile)-(__int64)(Length+1);
-      fseek64(SrcFile,Max(NewPos,_i64(0)),SEEK_SET);
-    }
-  }
-  if (TimeRead)
-    SetFileTime(FileHandle,NULL,&LastAccess,NULL);
-  fclose(SrcFile);
-  return(FALSE);
+			if ( INVALID_SET_FILE_POINTER != SetFilePointer (FileHandle, -offset, NULL, FILE_CURRENT) )
+			{
+				if ((EnableSearchInFirst && SearchInFirst) ) AlreadyRead-=offset;
+			}
+		}
+	}
+	if (TimeRead)
+		SetFileTime(FileHandle,NULL,&LastAccess,NULL);
+	CloseHandle (FileHandle);
+	return (FALSE);
 }
 
 void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
