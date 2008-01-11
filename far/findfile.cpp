@@ -2333,41 +2333,27 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
 
 int FindFiles::LookForString(char *Name)
 {
-  FILE *SrcFile;
-  char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
-  int Length,ReadSize,SaveReadSize;
-
+  int Length;
   if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
 
-  HANDLE FileHandle=FAR_CreateFile(Name,GENERIC_READ|FILE_WRITE_ATTRIBUTES,
-         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-
-  if (FileHandle==INVALID_HANDLE_VALUE)
-    FileHandle=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,0,NULL);
-
-  if (FileHandle==INVALID_HANDLE_VALUE)
-  {
-    return(FALSE);
-  }
-
-  int Handle=_open_osfhandle((intptr_t)FileHandle,O_BINARY);
-
-  if (Handle==-1)
-  {
-    CloseHandle(FileHandle);
-    return(FALSE);
-  }
-
-  if ((SrcFile=fdopen(Handle,"rb"))==NULL)
-  {
-    _close(Handle);
-    return(FALSE);
-  }
-
+  HANDLE FileHandle=FAR_CreateFile (Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES,
+                                    FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                                    FILE_FLAG_SEQUENTIAL_SCAN, NULL);
   FILETIME LastAccess;
-  int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);
+  int TimeRead=0;
+  if (FileHandle==INVALID_HANDLE_VALUE)
+  {
+    FileHandle=FAR_CreateFile (Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
+                               OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+  }
+  else
+    TimeRead=GetFileTime (FileHandle, NULL, &LastAccess, NULL);
+
+  if (FileHandle==INVALID_HANDLE_VALUE) return (FALSE);
+
+  char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
+  int ReadSize,SaveReadSize;
 
   if (SearchHex)
   {
@@ -2390,8 +2376,9 @@ int FindFiles::LookForString(char *Name)
   // с максимальным размером, в котором производитс€ поиск
   __int64 AlreadyRead=_i64(0);
 
-  while (!StopSearch && (ReadSize=(int)fread(Buf,1,sizeof(Buf),SrcFile))>0)
+  while ( !StopSearch && ReadFile (FileHandle, Buf, sizeof(Buf)/sizeof(Buf[0]), ((LPDWORD)&ReadSize), NULL) )
   {
+    if (ReadSize==0) break;
     /* $ 12.04.2005 KM
        ≈сли используетс€ ограничение по поиску на размер чтени€ из файла,
        проверим не перешли ли мы уже границу максимально допустимого размера
@@ -2403,8 +2390,7 @@ int FindFiles::LookForString(char *Name)
         ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
       }
 
-      if (ReadSize<=0)
-        break;
+      if (ReadSize<=0) break;
 
       AlreadyRead+=ReadSize;
     }
@@ -2552,7 +2538,7 @@ int FindFiles::LookForString(char *Name)
         {
           if (TimeRead)
             SetFileTime(FileHandle,NULL,&LastAccess,NULL);
-          fclose(SrcFile);
+          CloseHandle (FileHandle);
           return(TRUE);
         }
       }
@@ -2601,7 +2587,7 @@ int FindFiles::LookForString(char *Name)
         break;
     }
 
-    if (RealReadSize==sizeof(Buf))
+    if (RealReadSize==sizeof(Buf)/sizeof(Buf[0]))
     {
       /* $ 22.09.2003 KM
          ѕоиск по hex-кодам
@@ -2609,23 +2595,23 @@ int FindFiles::LookForString(char *Name)
       /* $ 30.07.2000 KM
          »зменение offset при чтении нового блока с учЄтом WordDiv
       */
-      __int64 NewPos;
       //ѕри поиске по всем таблицам из за того что поиск происходит также и в ёникоде
       //поиск по примерно FileSize/sizeof(Buf)*(Length+1) байт будет повторЄн
       //но если так не делать то при поиске по всем таблицам в ёникоде не будут
       //находитс€ тоже количество кусков.
-      if ((UseAllTables || UnicodeSearch)&& !SearchHex)
-        NewPos=ftell64(SrcFile)-_i64(2)*(__int64)(Length+1);
-      else
-        NewPos=ftell64(SrcFile)-(__int64)(Length+1);
-      fseek64(SrcFile,Max(NewPos,_i64(0)),SEEK_SET);
+      int offset=(Length/*+1*/);
+      if ((UseAllTables || UnicodeSearch) && !SearchHex) offset*=2;
+
+      if ( INVALID_SET_FILE_POINTER != SetFilePointer (FileHandle, -offset, NULL, FILE_CURRENT) )
+      {
+        if ((EnableSearchInFirst && SearchInFirst) ) AlreadyRead-=offset;
+      }
     }
   }
 
   if (TimeRead)
     SetFileTime(FileHandle,NULL,&LastAccess,NULL);
-  fclose(SrcFile);
-
+  CloseHandle (FileHandle);
   return(FALSE);
 }
 
