@@ -3190,7 +3190,7 @@ void FileList::UpdateViewPanel()
           apiRemoveDirectory(strTempDir);
           return;
         }
-        ViewPanel->ShowFile(CurPtr->strName,TRUE,NULL);
+        ViewPanel->ShowFile(strFileName,TRUE,NULL);
       }
       else
         if (!TestParentFolderName(CurPtr->strName))

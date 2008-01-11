@@ -1617,6 +1617,7 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
   }
 
   DestItem->FindData.lpwszFileName = xf_wcsdup (strFullName);
+  DestItem->FindData.lpwszAlternateFileName=NULL;
   DirListItemsNumber++;
 }
 

@@ -226,7 +226,7 @@ void FreePanelModesW(PanelMode *pnmW, int iCount)
 	}
 }
 
-void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW)
+void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct=true)
 {
 	if (kbtA && kbtW)
 	{
@@ -236,9 +236,9 @@ void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW)
 			kbtW->CtrlTitles[i]      = kbtA->CtrlTitles[i]?      AnsiToUnicode(kbtA->CtrlTitles[i]):      NULL;
 			kbtW->AltTitles[i]       = kbtA->AltTitles[i]?       AnsiToUnicode(kbtA->AltTitles[i]):       NULL;
 			kbtW->ShiftTitles[i]     = kbtA->ShiftTitles[i]?     AnsiToUnicode(kbtA->ShiftTitles[i]):     NULL;
-			kbtW->CtrlShiftTitles[i] = kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): NULL;
-			kbtW->AltShiftTitles[i]  = kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  NULL;
-			kbtW->CtrlAltTitles[i]   = kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   NULL;
+			kbtW->CtrlShiftTitles[i] = FullStruct && kbtA->CtrlShiftTitles[i]? AnsiToUnicode(kbtA->CtrlShiftTitles[i]): NULL;
+			kbtW->AltShiftTitles[i]  = FullStruct && kbtA->AltShiftTitles[i]?  AnsiToUnicode(kbtA->AltShiftTitles[i]):  NULL;
+			kbtW->CtrlAltTitles[i]   = FullStruct && kbtA->CtrlAltTitles[i]?   AnsiToUnicode(kbtA->CtrlAltTitles[i]):   NULL;
 		}
 	}
 }
@@ -356,9 +356,7 @@ void FreePanelItemW(PluginPanelItem *PanelItem, int ItemsNumber)
 
 			xf_free(PanelItem[i].CustomColumnData);
 		}
-
-		xf_free(PanelItem[i].FindData.lpwszFileName);
-		xf_free(PanelItem[i].FindData.lpwszAlternateFileName);
+		apiFreeFindData(&PanelItem[i].FindData);
 	}
 
 	xf_free(PanelItem);
@@ -715,6 +713,17 @@ int WINAPI GetNumberOfLinksA(const char *Name)
 	return GetNumberOfLinks(n);
 }
 
+int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
+{
+	string strSrc(Src),strDest;
+	ConvertNameToReal(strSrc,strDest);
+	if(!Dest)
+		return (int)strDest.GetLength();
+	else
+		strDest.GetCharString(Dest,DestSize);
+	return min((int)strDest.GetLength(),DestSize);
+}
+
 typedef struct _FAR_SEARCH_A_CALLBACK_PARAM
 {
 	oldfar::FRSUSERFUNC Func;
@@ -870,7 +879,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 		{
 			mi[i].Flags = p[i].Flags;
 			mi[i].Text = AnsiToUnicode(p[i].Flags&MIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
-			mi[i].AccelKey = p[i].AccelKey;
+			mi[i].AccelKey = OldKeyToKey(p[i].AccelKey);
 			mi[i].Reserved = p[i].Reserved;
 			mi[i].UserData = p[i].UserData;
 		}
@@ -889,8 +898,12 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 					OemToCharBuffW((const char*)&Item[i].Checked,(wchar_t*)&mi[i].Flags,1);
 			}
 			if (Item[i].Separator)
+			{
 				mi[i].Flags|=MIF_SEPARATOR;
-			mi[i].Text = AnsiToUnicode(Item[i].Text);
+				mi[i].Text = 0;
+			}
+			else
+				mi[i].Text = AnsiToUnicode(Item[i].Text);
 			mi[i].AccelKey = 0;
 			mi[i].Reserved = 0;
 			mi[i].UserData = 0;
@@ -1186,20 +1199,20 @@ void UnicodeDialogItemToAnsi(FarDialogItem *di, oldfar::FarDialogItem *diA)
 
 LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
-	//TODO: конвертация DN_* в oldfar:DN_*
 	static wchar_t* HelpTopic = NULL;
 	switch(Msg)
 	{
-		case DN_LISTHOTKEY:
-		case DN_BTNCLICK:
-		case DN_CTLCOLORDIALOG:
-		case DN_CTLCOLORDLGITEM:
-		case DN_CTLCOLORDLGLIST:
-		case DN_DRAWDIALOG:
-			break;
+		case DN_LISTHOTKEY:      Msg=oldfar::DN_LISTHOTKEY; break;
+		case DN_BTNCLICK:        Msg=oldfar::DN_BTNCLICK; break;
+		case DN_CTLCOLORDIALOG:  Msg=oldfar::DN_CTLCOLORDIALOG; break;
+		case DN_CTLCOLORDLGITEM: Msg=oldfar::DN_CTLCOLORDLGITEM; break;
+		case DN_CTLCOLORDLGLIST: Msg=oldfar::DN_CTLCOLORDLGLIST; break;
+		case DN_DRAWDIALOG:      Msg=oldfar::DN_DRAWDIALOG; break;
 
 		case DN_DRAWDLGITEM:
+			Msg=oldfar::DN_DRAWDLGITEM;
 		case DN_EDITCHANGE:
+			Msg=oldfar::DN_EDITCHANGE;
 			if (Param2)
 			{
 				oldfar::FarDialogItem diA;
@@ -1212,14 +1225,13 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 			}
 			return FALSE;
 
-		case DN_ENTERIDLE:
-		case DN_GOTFOCUS:
-			break;
+		case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
+		case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
 
 		case DN_HELP:
 		{
 			char* HelpTopicA = UnicodeToAnsi((const wchar_t *)Param2);
-			LONG_PTR ret = CurrentDlgProc(Msg, Param1, (LONG_PTR)HelpTopicA);
+			LONG_PTR ret = CurrentDlgProc(oldfar::DN_HELP, Param1, (LONG_PTR)HelpTopicA);
 
 			if(ret)
 			{
@@ -1233,29 +1245,32 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		}
 
 		case DN_HOTKEY:
+			Msg=oldfar::DN_HOTKEY;
 			break;
 
 		case DN_INITDIALOG:
+			Msg=oldfar::DN_INITDIALOG;
 			hDlgs[CurrentDlg] = hDlg;
 			break;
 
-		case DN_KILLFOCUS:
-		case DN_LISTCHANGE:
-		case DN_MOUSECLICK:
-		case DN_DRAGGED:
-		case DN_RESIZECONSOLE:
-		case DN_MOUSEEVENT:
-		case DN_DRAWDIALOGDONE:
+		case DN_KILLFOCUS:      Msg=oldfar::DN_KILLFOCUS; break;
+		case DN_LISTCHANGE:     Msg=oldfar::DN_LISTCHANGE; break;
+		case DN_MOUSECLICK:     Msg=oldfar::DN_MOUSECLICK; break;
+		case DN_DRAGGED:        Msg=oldfar::DN_DRAGGED; break;
+		case DN_RESIZECONSOLE:  Msg=oldfar::DN_RESIZECONSOLE; break;
+		case DN_MOUSEEVENT:     Msg=oldfar::DN_MOUSEEVENT; break;
+		case DN_DRAWDIALOGDONE: Msg=oldfar::DN_DRAWDIALOGDONE; break;
 #ifdef FAR_USE_INTERNALS
-		case DM_KILLSAVESCREEN:
-		case DM_ALLKEYMODE:
-		case DN_ACTIVATEAPP:
+		case DM_KILLSAVESCREEN: Msg=oldfar::DM_KILLSAVESCREEN; break;
+		case DM_ALLKEYMODE:     Msg=oldfar::DM_ALLKEYMODE; break;
+		case DN_ACTIVATEAPP:    Msg=oldfar::DN_ACTIVATEAPP; break;
 #endif // END FAR_USE_INTERNALS
 			break;
 
 		case DN_KEY:
-		  Param2=KeyToOldKey((DWORD)Param2);
-		  break;
+			Msg=oldfar::DN_KEY;
+			Param2=KeyToOldKey((DWORD)Param2);
+			break;
 	}
 	return CurrentDlgProc(Msg, Param1, Param2);
 }
@@ -1845,7 +1860,8 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
-	static oldfar::PanelInfo PIA={0};
+	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
+	oldfar::PanelInfo* CurrentPanelInfoA=&PanelInfoA;
 	HANDLE hPluginW = CURRENT_PANEL;
 
 	switch (Command)
@@ -1865,6 +1881,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 		case oldfar::FCTL_GETANOTHERPANELINFO:
 			hPluginW = ANOTHER_PANEL;
+			CurrentPanelInfoA=&AnotherPanelInfoA;
 		case oldfar::FCTL_GETPANELINFO:
 		{
 			if(!Param) return FALSE;
@@ -1873,15 +1890,16 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
 			if (ret)
 			{
-				FreeAnsiPanelInfo(&PIA);
-				ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, FALSE);
-				*pPIA=PIA;
+				FreeAnsiPanelInfo(CurrentPanelInfoA);
+				ConvertUnicodePanelInfoToAnsi(&PIW, CurrentPanelInfoA, FALSE);
+				*pPIA=*CurrentPanelInfoA;
 			}
 			return ret;
 		}
 
 		case oldfar::FCTL_GETANOTHERPANELSHORTINFO:
 			hPluginW = ANOTHER_PANEL;
+			CurrentPanelInfoA=&AnotherPanelInfoA;
 		case oldfar::FCTL_GETPANELSHORTINFO:
 		{
 			if(!Param) return FALSE;
@@ -1890,9 +1908,9 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			int ret = FarControl(hPluginW,FCTL_GETPANELSHORTINFO,(void *)&PIW);
 			if (ret)
 			{
-				FreeAnsiPanelInfo(&PIA);
-				ConvertUnicodePanelInfoToAnsi(&PIW, &PIA, TRUE);
-				*pPIA=PIA;
+				FreeAnsiPanelInfo(CurrentPanelInfoA);
+				ConvertUnicodePanelInfoToAnsi(&PIW, CurrentPanelInfoA, TRUE);
+				*pPIA=*CurrentPanelInfoA;
 			}
 			return ret;
 		}

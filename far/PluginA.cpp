@@ -493,7 +493,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StandardFunctions.DeleteBuffer=DeleteBufferA;
     StandardFunctions.ProcessName=ProcessNameA;
     StandardFunctions.MkLink=FarMkLinkA;
-    //StandardFunctions.ConvertNameToReal=ConvertNameToReal; //BUGBUG
+    StandardFunctions.ConvertNameToReal=ConvertNameToRealA;
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
     StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStrA;
   }
@@ -1230,7 +1230,7 @@ void PluginA::FreeFindData (
 {
 	FreePanelItemW(PanelItem, ItemsNumber);
 
-	if ( pFreeFindData && !ProcessException )
+	if ( pFreeFindData && !ProcessException && pFDPanelItemA)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
@@ -1394,8 +1394,8 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 
 	if (Src.KeyBar)
 	{
-	  OPI.KeyBar=(KeyBarTitles*) xf_malloc (sizeof(KeyBarTitles));
-		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar);
+		OPI.KeyBar=(KeyBarTitles*) xf_malloc (sizeof(KeyBarTitles));
+		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=sizeof(oldfar::OpenPluginInfo));
 	}
 
 	//if (Src.ShortcutData)

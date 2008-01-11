@@ -1,3 +1,11 @@
+drkns 11.01.2008 11:12:03 +0200 - build 409
+
+1. Враппер:
+   - добавлена ConvertNameToRealA.
+   - уточнения в ConvertKeyBarTitlesA, FarMenuFnA и FCTL_GET[ANOTHER]PANEL[SHORT]INFO.
+   - DN_* -> oldfar:DN_.
+2. Не работал QuickView на плагиновой панели.
+
 svs 11.01.2008 11:48:41 +0300 - build 408
 
 1. Mantis#0000456: Функция ConvertNameToReal не работает для симлинков 

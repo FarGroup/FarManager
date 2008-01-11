@@ -923,14 +923,11 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                             OPM_SILENT|OPM_FIND
                             );
 
-        xf_free (pItem->FindData.lpwszFileName);
-        xf_free (pItem->FindData.lpwszAlternateFileName);
+        apiFreeFindData(&pItem->FindData);
 
         break;
       }
-      xf_free (pItem->FindData.lpwszFileName);
-      xf_free (pItem->FindData.lpwszAlternateFileName);
-
+      apiFreeFindData(&pItem->FindData);
     }
 
     CtrlObject->Plugins.FreeFindData (hPlugin, pItems, nItemsNumber);
