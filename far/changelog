@@ -1,3 +1,8 @@
+svs 11.01.2008 11:48:41 +0300 - build 408
+
+1. Mantis#0000456: Функция ConvertNameToReal не работает для симлинков 
+   уточнение
+
 svs 09.01.2008 20:53:11 +0300 - build 407
 
 1. Mantis#0000447: Buffer overrun in Edit:ProcessKey() 

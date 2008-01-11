@@ -127,9 +127,8 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
       IsAddEndSlash=TRUE;
     }
 
-	  TempDest = strTempDest.GetBuffer();
+    TempDest = strTempDest.GetBuffer();
     wchar_t *Ptr, Chr;
-    bool bufferChanged = false;
 
     Ptr = TempDest+StrLength(TempDest);
 
@@ -189,6 +188,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
           // Если путь симлинка больше левой части пути, увеличиваем буфер
           if (leftLength < tempLength)
           {
+            // Выделяем новый буфер
             TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength));
           }
           // Так как мы производили манипуляции с левой частью пути изменяем указатель на
@@ -200,24 +200,26 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
           {
             // Копируемый буфер включает сам буфер, начальный '/', конечный '/' (если он есть) и '\0'
             wmemmove(TempDest + tempLength, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
-            // Изменился занимаемый данными размер
-            bufferChanged = true;
           }
           // Копируем путь к симлинку вначало пути
           wmemcpy(TempDest, TempDest2, tempLength);
+          // Обновляем ссылку на маркер завершения прохождения по пути
+          CtrlChar = TempDest;
+          if (StrLength(TempDest) > 2 && TempDest[0] == L'\\' && TempDest[1] == L'\\')
+          {
+            CtrlChar = wcschr(TempDest + 2, L'\\');
+          }
           // Устанавливаем длину возвращаемой строки
           Ret = StrLength(TempDest);
+          // Релизим буфер для установления корректной длины данных. Если этого не делать, то при
+          // увеличенни буфера могут скопироваться не все данные
+          strTempDest.ReleaseBuffer(Ret);
           // Переходим к следующему шагу
           continue;
         }
       }
       *Ptr=Chr;
       --Ptr;
-    }
-    // Если данные в буфере меняли размер, тогда устанавливаем актуальный размер буфера
-    if (bufferChanged)
-    {
-      strTempDest.ReleaseBuffer(Ret);
     }
   }
 
