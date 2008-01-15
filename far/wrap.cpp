@@ -26,25 +26,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength)
+void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength,bool UseGlyphChars=true)
 {
 	if(lpszAnsiString && lpwszUnicodeString && nLength)
 	{
 		wmemset (lpwszUnicodeString, 0, nLength);
-		MultiByteToWideChar(CP_OEMCP,MB_USEGLYPHCHARS,lpszAnsiString,nLength,lpwszUnicodeString,nLength);
+		MultiByteToWideChar(CP_OEMCP,UseGlyphChars?MB_USEGLYPHCHARS:0,lpszAnsiString,nLength,lpwszUnicodeString,nLength);
 	}
 }
 
-wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength)
+wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength,bool UseGlyphChars=true)
 {
 	wchar_t *lpResult = (wchar_t*)xf_malloc(nLength*sizeof(wchar_t));
-	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength);
+	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength,UseGlyphChars);
 	return lpResult;
 }
 
-wchar_t *AnsiToUnicode(const char *lpszAnsiString)
+wchar_t *AnsiToUnicode(const char *lpszAnsiString,bool UseGlyphChars=true)
 {
-	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1);
+	if(!lpszAnsiString)
+		return NULL;
+	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1,UseGlyphChars);
 }
 
 char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
@@ -800,7 +802,7 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 
 	if (Flags&FMSG_ALLINONE)
 	{
-		p = (wchar_t **)AnsiToUnicode((const char *)Items);
+		p = (wchar_t **)AnsiToUnicode((const char *)Items,false);
 	}
 	else
 	{
@@ -897,7 +899,7 @@ struct DlgData
 	HANDLE hDlg;
 	DlgData* Prev;
 }
-*DialogData=NULL,*FirstDialogData=NULL;
+*DialogData=NULL;
 
 LONG_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
@@ -905,9 +907,9 @@ LONG_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2
 	while(TmpDialogData && TmpDialogData->hDlg!=hDlg)
 		TmpDialogData=TmpDialogData->Prev;
 	if(!TmpDialogData)
-		return NULL;
+		return 0;
 	FARWINDOWPROC Proc = (FARWINDOWPROC)TmpDialogData->DlgProc;
-	return Proc?Proc(TmpDialogData->hDlg, Msg, Param1, Param2):NULL;
+	return Proc?Proc(TmpDialogData->hDlg, Msg, Param1, Param2):0;
 }
 
 void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
@@ -1022,7 +1024,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di, FarL
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA->Param.ListItems)
+			if (diA->Param.ListItems && !IsBadReadPtr(diA->Param.ListItems,sizeof(FarList)))
 			{
 				l->Items = (FarListItem *)xf_malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
 				l->ItemsNumber = diA->Param.ListItems->ItemsNumber;
@@ -1506,10 +1508,12 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_LISTGETCURPOS:
 			if(Param2)
 			{
+				FarListPos lp;
+				LONG_PTR ret=FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, (LONG_PTR)&lp);
 				oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
-				FarListPos lp = {lpA->SelectPos,lpA->TopPos};
-				Param2 = (LONG_PTR)&lp;
-				return FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, (LONG_PTR)&lp);
+				lpA->SelectPos=lp.SelectPos;
+				lpA->TopPos=lp.TopPos;
+				return ret;
 			}
 			else return FarSendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, 0);
 
@@ -1518,7 +1522,6 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			if(!Param2) return FALSE;
 			oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
 			FarListPos lp = {lpA->SelectPos,lpA->TopPos};
-			Param2 = (LONG_PTR)&lp;
 			return FarSendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, (LONG_PTR)&lp);
 		}
 
@@ -1727,14 +1730,16 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_GETSELECTION:
 		{
 			if (!Param2) return FALSE;
-			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
+			
 			EditorSelect es;
-			es.BlockType      = esA->BlockType;
-			es.BlockStartLine = esA->BlockStartLine;
-			es.BlockStartPos  = esA->BlockStartPos;
-			es.BlockWidth     = esA->BlockWidth;
-			es.BlockHeight    = esA->BlockHeight;
-			return FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, (LONG_PTR)&es);
+			LONG_PTR ret=FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, (LONG_PTR)&es);
+			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
+			esA->BlockType      = es.BlockType;
+			esA->BlockStartLine = es.BlockStartLine;
+			esA->BlockStartPos  = es.BlockStartPos;
+			esA->BlockWidth     = es.BlockWidth;
+			esA->BlockHeight    = es.BlockHeight;
+			return ret;
 		}
 
 		case oldfar::DM_SETSELECTION:

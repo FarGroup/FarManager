@@ -126,6 +126,7 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
 	for (unsigned i = 0; i < SrcItemCount; i++)
 	{
 		Dialog::Item[i] = new DialogItemEx;
+		Dialog::Item[i]->Clear();
 		DialogItemExToDialogItemEx (&SrcItem[i], Dialog::Item[i]);
 	}
 
@@ -148,6 +149,7 @@ Dialog::Dialog(struct FarDialogItem *SrcItem,    // Набор элементов диалога
 	for (unsigned i = 0; i < SrcItemCount; i++)
 	{
 		Dialog::Item[i] = new DialogItemEx;
+		Dialog::Item[i]->Clear();
 		//BUGBUG add error check
 		Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Dialog::Item[i],1);
 	}

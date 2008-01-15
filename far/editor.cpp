@@ -3246,7 +3246,6 @@ void Editor::InsertString()
   CurLine->SetCurPos(0);
   if (CurLine==EndList)
     EndList=NewString;
-  NumLastLine++;
   Down();
 
   if (IndentPos>0)

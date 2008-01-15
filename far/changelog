@@ -1,3 +1,17 @@
+drkns 15.01.2008 19:50:26 +0200 - build 413
+
+1. ¬раппер:
+   - уточнени€ в DM_LISTGETCURPOS и DM_GETSELECTION;
+   - MB_USEGLYPHCHARS был нужен не везде;
+   - прочие мелкие правки.
+
+2. ¬ DialogItemEx инициализировались не все пол€ (в 1.7x это делал memset),
+   что при определенных обсто€тельствах было чревато падени€ми.
+
+3. Ћишний инкремент количества строк в редакторе при вставке новой строки.
+
+4. gcc warnings.
+
 svs 15.01.2008 14:44:11 +0300 - build 412
 
 1. Mantis#0000425: Add support of FILE_ATTRIBUTE_OFFLINE attribute
