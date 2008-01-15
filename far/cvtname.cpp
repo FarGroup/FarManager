@@ -319,7 +319,6 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   // "разыменовать симлинк")
   if (IsLocalDrive(TempDest) &&
       WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
-  /* IS $ */
   {
     _SVS(CleverSysLog Clev("VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5"));
     DWORD FileAttr;
@@ -340,12 +339,10 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
       }
     }
 
-    /* $ 21.06.2002 VVM
-      ! Учтем UNC пути */
     char *CtrlChar = TempDest;
     if (strlen(TempDest) > 2 && TempDest[0]=='\\' && TempDest[1]=='\\')
       CtrlChar= strchr(TempDest+2, '\\');
-    /* VVM $ */
+
     // обычный цикл прохода имени от корня
     while(CtrlChar)
     {
@@ -361,7 +358,6 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
         // если дошли до "буква:", то тоже остановимся
         || *(Ptr-1)==':')
         break;
-      /* IS $ */
 
       Chr=*Ptr;
       *Ptr=0;
@@ -395,13 +391,42 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
             // небольшая метаморфоза с именем, дабы удалить ведущие "\??\"
             // но для "Volume{" начало всегда будет корректным!
             memmove(TempDest2,TempDest2+offset,strlen(TempDest2+offset)+1);
-            *Ptr=Chr; // восстановим символ
+
             DeleteEndSlash(TempDest2);
-            strcat(TempDest2,Ptr);
-            strcpy(TempDest,TempDest2);
-            Ret=(int)strlen(TempDest);
-            // ВСЕ. Реальный путь у нас в кармане...
-            break;
+            // Длина пути симлинка
+            size_t tempLength = strlen(TempDest2);
+            // Получаем длину левой и правой частей пути
+            size_t leftLength = strlen(TempDest);
+            size_t rightLength = strlen(Ptr + 1); // Измеряем длину пути начиная со следующего симовла после курсора
+
+            *Ptr=Chr; // восстановим символ
+
+            // Если путь симлинка больше левой части пути, увеличиваем буфер
+            if (leftLength < tempLength)
+            {
+              ;//TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength));
+            }
+            // Так как мы производили манипуляции с левой частью пути изменяем указатель на
+            // текущую позицию курсора в пути
+            Ptr = TempDest + tempLength - 1;
+            // Перемещаем правую часть пути на нужное место, только если левая чать отличается по
+            // размеру от пути симлинка
+            if (leftLength != tempLength)
+            {
+              // Копируемый буфер включает сам буфер, начальный '/', конечный '/' (если он есть) и '\0'
+              memmove(TempDest + tempLength, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
+            }
+            // Копируем путь к симлинку вначало пути
+            memcpy(TempDest, TempDest2, tempLength);
+            // Обновляем ссылку на маркер завершения прохождения по пути
+            CtrlChar = TempDest;
+            if (strlen(TempDest) > 2 && TempDest[0] == '\\' && TempDest[1] == '\\')
+              CtrlChar = strchr(TempDest + 2, '\\');
+            // Устанавливаем длину возвращаемой строки
+            Ret = (int)strlen(TempDest);
+            // Переходим к следующему шагу
+            continue;
+
           }
         }
       }
@@ -409,8 +434,10 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
       --Ptr;
     }
   }
-  if(IsAddEndSlash) // если не просили - удалим.
-    TempDest[strlen(TempDest)-1]=0;
+
+  // Если не просили - удалим.
+  if(IsAddEndSlash && DeleteEndSlash(TempDest))
+    --Ret;
 
   if(Dest && DestSize)
     xstrncpy(Dest,TempDest,DestSize-1);

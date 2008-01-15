@@ -1022,7 +1022,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
                 OutStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':' ';
                 OutStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':' ';
-                OutStr[8]=0;
+                OutStr[8]=(FileAttr & FILE_ATTRIBUTE_OFFLINE) ? 'O':' ';
+                OutStr[9]=(FileAttr & FILE_ATTRIBUTE_VIRTUAL) ? 'V':' ';
+                OutStr[10]=0;
                 char *OutPtr=OutStr;
                 //if (ColumnWidth<7)
                 //  OutPtr=OutStr+7-ColumnWidth;

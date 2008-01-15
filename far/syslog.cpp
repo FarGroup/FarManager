@@ -1857,31 +1857,36 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
     static char D[16]="",T[16]="";
 
     fprintf(fp,"%*s %s  dwFileAttributes      =0x%08X\n",12,"",space,wfd.dwFileAttributes);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ARCHIVE\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_COMPRESSED\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_DIRECTORY\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ENCRYPTED\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_HIDDEN\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NORMAL)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_NORMAL\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_OFFLINE)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_OFFLINE\n",12,"",space);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_READONLY)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_READONLY\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_REPARSE_POINT\n",12,"",space);
-#define FILE_ATTRIBUTE_SPARSE_FILE          0x00000200
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_SPARSE_FILE\n",12,"",space);
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_READONLY            (0x00000001)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_HIDDEN              (0x00000002)\n",12,"",space);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SYSTEM)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_SYSTEM\n",12,"",space);
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_SYSTEM              (0x00000004)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_DIRECTORY           (0x00000010)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ARCHIVE             (0x00000020)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DEVICE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_DEVICE              (0x00000040)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NORMAL)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_NORMAL              (0x00000080)\n",12,"",space);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY)
-      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_TEMPORARY\n",12,"",space);
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_TEMPORARY           (0x00000100)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_SPARSE_FILE         (0x00000200)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_REPARSE_POINT       (0x00000400)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_COMPRESSED          (0x00000800)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_OFFLINE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_OFFLINE             (0x00001000)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_NOT_CONTENT_INDEXED (0x00002000)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ENCRYPTED           (0x00004000)\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_VIRTUAL)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_VIRTUAL             (0x00010000)\n",12,"",space);
 
     ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
     fprintf(fp,"%*s %s  ftCreationTime        =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime,D,T);
@@ -1896,6 +1901,22 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
 
     fprintf(fp,"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,Number.i64);
     fprintf(fp,"%*s %s  dwReserved0           =0x%08X (%d)\n",12,"",space,wfd.dwReserved0,wfd.dwReserved0);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+    {
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT)
+        fprintf(fp,"%*s %s     IO_REPARSE_TAG_MOUNT_POINT (0xA0000003L)\n",12,"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_HSM)
+        fprintf(fp,"%*s %s     IO_REPARSE_TAG_HSM         (0xC0000004L)\n",12,"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_SIS)
+        fprintf(fp,"%*s %s     IO_REPARSE_TAG_SIS         (0x80000007L)\n",12,"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_DFS)
+        fprintf(fp,"%*s %s     IO_REPARSE_TAG_DFS         (0x8000000AL)\n",12,"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
+        fprintf(fp,"%*s %s     IO_REPARSE_TAG_SYMLINK     (0xA000000CL)\n",12,"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_DFSR)
+        fprintf(fp,"%*s %s     IO_REPARSE_TAG_DFSR        (0x80000012L)\n",12,"",space);
+    }
+
     fprintf(fp,"%*s %s  dwReserved1           =0x%08X (%d)\n",12,"",space,wfd.dwReserved1,wfd.dwReserved1);
     fprintf(fp,"%*s %s  cFileName             =\"%s\"\n",12,"",space,wfd.cFileName);
     fprintf(fp,"%*s %s  cAlternateFileName    =\"%s\"\n",12,"",space,wfd.cAlternateFileName);

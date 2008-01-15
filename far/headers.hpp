@@ -69,6 +69,19 @@ headers.hpp
 #define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
 #endif
 
+#define IO_REPARSE_TAG_MOUNT_POINT              (0xA0000003L)
+#define IO_REPARSE_TAG_HSM                      (0xC0000004L)
+#define IO_REPARSE_TAG_SIS                      (0x80000007L)
+#define IO_REPARSE_TAG_DFS                      (0x8000000AL)
+#define IO_REPARSE_TAG_SYMLINK                  (0xA000000CL)
+#define IO_REPARSE_TAG_DFSR                     (0x80000012L)
+
+
+#if !defined(FILE_ATTRIBUTE_VIRTUAL)
+#define FILE_ATTRIBUTE_VIRTUAL              0x00010000
+#endif
+
+
 #if !defined(__DOS_H) && !defined(_DOS_H_)
 #include <dos.h>  // FA_*
 #endif
@@ -337,5 +350,8 @@ headers.hpp
 #define INPUTLANGCHANGE_BACKWARD   0x0004
 #endif
 
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#endif
 
 #endif // __HEADERS_HPP__
