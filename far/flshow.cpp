@@ -1046,7 +1046,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
                 OutStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L' ';
                 OutStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L' ';
-                OutStr[8]=0;
+                OutStr[8]=(FileAttr & FILE_ATTRIBUTE_OFFLINE) ? L'O':L' ';
+                OutStr[9]=(FileAttr & FILE_ATTRIBUTE_VIRTUAL) ? L'V':L' ';
+                OutStr[10]=0;
                 wchar_t *OutPtr=OutStr;
                 mprintf(L"%*.*s",ColumnWidth,ColumnWidth,OutPtr);
               }
@@ -1092,7 +1094,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!ShowStatus && LeftPos>0)
                 {
                   int Length=StrLength(Owner);
-                  
+
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;

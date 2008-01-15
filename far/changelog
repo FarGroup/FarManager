@@ -1,3 +1,18 @@
+svs 15.01.2008 14:44:11 +0300 - build 412
+
+1. Mantis#0000425: Add support of FILE_ATTRIBUTE_OFFLINE attribute
+
+2. Добавлен FILE_ATTRIBUTE_VIRTUAL
+   Пока что для отображения. Если "нада" - делать изменения по аналогии c FILE_ATTRIBUTE_OFFLINE...
+   ..типа ID_FF_VIRTUAL и еже с ним...
+   ...если кто объяснит как ЭТО УВИДЕТЬ!
+
+3. Немного добавок в syslog.cpp
+   + IO_REPARSE_TAG_* в headers.hpp
+
+4. Не работают хоткеи при русской раскладке (с альтом работают).
+   See Dialog::IsKeyHighlighted()
+
 drkns 14.01.2008 19:43:11 +0200 - build 411
 
 1. Враппер:

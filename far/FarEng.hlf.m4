@@ -1508,10 +1508,10 @@ rule sets.
                    #[?]# - ignore this attribute.
 
                    The #Compressed#, #Encrypted#, #Not indexed#,
-                   #Sparse# and #Temporary# attributes are used
-                   only on disks with the NTFS file system.
-                   Although the #Encrypted# attribute is used
-                   only in Windows 2000/XP/2003/Vista/2008.
+                   #Sparse#, #Temporary# and #Offline# attributes 
+                   are used only on disks with the NTFS file system.
+                   Although the #Encrypted# and #Offline# attributes 
+                   are used only in Windows 2000/XP/2003/Vista/2008.
 
 
     To quickly disable one or several conditions, uncheck the corresponding
@@ -2903,10 +2903,11 @@ folders, all checkboxes will always be 3-state.
     Only those attributes will be changed for which the state of the
 corresponding checkboxes was changed from the initial state.
 
-    The "Compressed", "Encrypted", "Not indexed", "Sparse" and "Temporary"
-attributes may be changed only on NTFS drives. The "Encrypted" attribute can
-be used in Windows 2000/XP/2003/Vista/2008 only. The "Compressed" and "Encrypted"
-attributes are mutually exclusive, that is, you can set only one of them.
+    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and 
+"Offline" attributes may be changed only on NTFS drives. The "Encrypted" and
+"Offline" attributes can be used in Windows 2000/XP/2003/Vista/2008 only. 
+The "Compressed" and "Encrypted" attributes are mutually exclusive, that is,
+you can set only one of them.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder
 information (NTFS/Windows 2000/XP/2003/Vista/2008 only). If the information on
@@ -3121,14 +3122,15 @@ the file panel will be displayed in multicolumn form.
        #$#         - Sparse
        #T#         - Temporary
        #I#         - Not content indexed
+       #O#         - Offline
 
-    The attributes are displayed in the following order - RSHALCTI. The
+    The attributes are displayed in the following order - RSHALCTIO. The
 "Sparse" attribute applies only to files and is shown instead of 'L'. The
 "Encrypted" attribute is shown instead of 'C' as a file/folder can not
 have both attributes ("Compressed" and "Encrypted") set at the same time.
 By default the size of the attributes column is 6 characters. To display
-the additional 'T' and 'I' attributes it is necessary to manually set
-the size of the column to 8 characters.
+the additional 'T', 'I' and 'O' attributes it is necessary to manually 
+set the size of the column to 9 characters.
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of

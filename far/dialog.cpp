@@ -4465,9 +4465,8 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
     if(Str[AmpPos] == L'&')
       AmpPos++;
   }
-//_SVS(SysLog(L"'%s' (%d)",Str+AmpPos,AmpPos));
   int UpperStrKey=Upper ((int)Str[AmpPos]);
-  if (Key < 256)
+  if (Key < 0xFFFF)
   {
     int KeyToKey=LocalKeyToKey(Key);
     return(UpperStrKey == (int)Upper(Key) ||
@@ -4479,13 +4478,13 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   if(Key&KEY_ALT)
   {
     int AltKey=Key&(~KEY_ALT);
-    if(AltKey < 256)
+    if(AltKey < 0xFFFF)
     {
       if (AltKey >= L'0' && AltKey <= L'9')
         return(AltKey==UpperStrKey);
 
       int AltKeyToKey=LocalKeyToKey(AltKey);
-      if (AltKey > ' ' && AltKey <= 255)
+      if (AltKey > L' ' && AltKey <= 0xFFFF)
   //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
   //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
   //          AltKey==':'  || AltKey=='"' || AltKey=='~'))

@@ -376,7 +376,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
 //Централизованная функция для создания строк меню различных фильтров.
 void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
-  const wchar_t AttrC[] = L"RAHSDCEI$TL";
+  const wchar_t AttrC[] = L"RAHSDCEI$TLOV";
   const DWORD   AttrF[] = {
                             FILE_ATTRIBUTE_READONLY,
                             FILE_ATTRIBUTE_ARCHIVE,
@@ -388,11 +388,13 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
                             FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,
                             FILE_ATTRIBUTE_SPARSE_FILE,
                             FILE_ATTRIBUTE_TEMPORARY,
-                            FILE_ATTRIBUTE_REPARSE_POINT
+                            FILE_ATTRIBUTE_REPARSE_POINT,
+                            FILE_ATTRIBUTE_OFFLINE,
+                            FILE_ATTRIBUTE_VIRTUAL,
                           };
 
-  const wchar_t Format1[] = L"%-21.21s %c %-22.22s %-2.2s %c %-60.60s";
-  const wchar_t Format2[] = L"%-3.3s %c %-22.22s %-2.2s %c %-78.78s";
+  const wchar_t Format1[] = L"%-21.21s %c %-24.24s %-2.2s %c %-60.60s";
+  const wchar_t Format2[] = L"%-3.3s %c %-24.24s %-2.2s %c %-78.78s";
 
   const wchar_t *Name, *Mask;
   wchar_t MarkChar[]=L"\" \"";
@@ -492,6 +494,7 @@ enum enumFileFilterConfig {
     ID_FF_SPARSE,
     ID_FF_TEMP,
     ID_FF_REPARSEPOINT,
+    ID_FF_OFFLINE,
 
     ID_HER_SEPARATOR3,
     ID_HER_MARK_TITLE,
@@ -597,7 +600,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
            Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
            случае это будет логичнее, т.с. дефолтное значение
         */
-        for(int I=ID_FF_READONLY; I <= ID_FF_REPARSEPOINT; ++I)
+        for(int I=ID_FF_READONLY; I <= ID_FF_OFFLINE; ++I)
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
 
         // 6, 13 - позиции в списке
@@ -693,7 +696,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 15     |   [?] Только для чтения  [?] Каталог           [?] Разреженный      |
 16     |   [?] Архивный           [?] Сжатый            [?] Временный        |
 17     |   [?] Скрытый            [?] Зашифрованный     [?] Символ. связь    |
-18     |   [?] Системный          [?] Неиндексируемый                        |
+18     |   [?] Системный          [?] Неиндексируемый   [?] Автономный       |
 19     +---------------------------------------------------------------------+
 20     |                  [ Ок ]  [ Очистить ]  [ Отмена ]                   |
 21     +---------------------------------------------------------------------+
@@ -784,6 +787,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_CHECKBOX,51,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrSparse,
     DI_CHECKBOX,51,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrT,
     DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrReparse,
+    DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrOffline,
 
     DI_TEXT,-1,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightColors,
     DI_TEXT,7,15,0,15,0,0,0,0,(const wchar_t *)MHighlightMarkChar,
@@ -817,7 +821,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     for (int i=ID_FF_NAME; i<=ID_FF_SEPARATOR1; i++)
       FilterDlg[i].Flags|=DIF_HIDDEN;
 
-    for (int i=ID_FF_MATCHMASK; i<=ID_FF_REPARSEPOINT; i++)
+    for (int i=ID_FF_MATCHMASK; i<=ID_FF_OFFLINE; i++)
     {
       FilterDlg[i].Y1-=2;
       FilterDlg[i].Y2-=2;
@@ -948,10 +952,11 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   FilterDlg[ID_FF_SPARSE].Selected=(AttrSet & FILE_ATTRIBUTE_SPARSE_FILE?1:AttrClear & FILE_ATTRIBUTE_SPARSE_FILE?0:2);
   FilterDlg[ID_FF_TEMP].Selected=(AttrSet & FILE_ATTRIBUTE_TEMPORARY?1:AttrClear & FILE_ATTRIBUTE_TEMPORARY?0:2);
   FilterDlg[ID_FF_REPARSEPOINT].Selected=(AttrSet & FILE_ATTRIBUTE_REPARSE_POINT?1:AttrClear & FILE_ATTRIBUTE_REPARSE_POINT?0:2);
+  FilterDlg[ID_FF_OFFLINE].Selected=(AttrSet & FILE_ATTRIBUTE_OFFLINE?1:AttrClear & FILE_ATTRIBUTE_OFFLINE?0:2);
 
   if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
   {
-    for(int i=ID_FF_READONLY; i <= ID_FF_REPARSEPOINT; i++)
+    for(int i=ID_FF_READONLY; i <= ID_FF_OFFLINE; i++)
       FilterDlg[i].Flags|=DIF_DISABLE;
   }
 
@@ -988,6 +993,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_SPARSE,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_TEMP,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_REPARSEPOINT,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_OFFLINE,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,0,0,DIF_DISABLE);
 
   for (;;)
@@ -1057,6 +1063,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrSet|=(FilterDlg[ID_FF_SPARSE].Selected==1?FILE_ATTRIBUTE_SPARSE_FILE:0);
       AttrSet|=(FilterDlg[ID_FF_TEMP].Selected==1?FILE_ATTRIBUTE_TEMPORARY:0);
       AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
+      AttrSet|=(FilterDlg[ID_FF_OFFLINE].Selected==1?FILE_ATTRIBUTE_OFFLINE:0);
       AttrClear|=(FilterDlg[ID_FF_READONLY].Selected==0?FILE_ATTRIBUTE_READONLY:0);
       AttrClear|=(FilterDlg[ID_FF_ARCHIVE].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
       AttrClear|=(FilterDlg[ID_FF_HIDDEN].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
@@ -1068,6 +1075,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrClear|=(FilterDlg[ID_FF_SPARSE].Selected==0?FILE_ATTRIBUTE_SPARSE_FILE:0);
       AttrClear|=(FilterDlg[ID_FF_TEMP].Selected==0?FILE_ATTRIBUTE_TEMPORARY:0);
       AttrClear|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==0?FILE_ATTRIBUTE_REPARSE_POINT:0);
+      AttrClear|=(FilterDlg[ID_FF_OFFLINE].Selected==0?FILE_ATTRIBUTE_OFFLINE:0);
 
       FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected,
                   AttrSet,

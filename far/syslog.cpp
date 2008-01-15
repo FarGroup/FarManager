@@ -1642,51 +1642,51 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 
   if (fp)
   {
-    fwprintf(fp,L"%*s %s  GetVolumeInformation{\n",12,"",space);
-    fwprintf(fp,L"%*s %s    lpRootPathName            ='%s'\n",12,"",space,lpRootPathName);
-    fwprintf(fp,L"%*s %s    lpVolumeNameBuffer        ='%s'\n",12,"",space,lpVolumeNameBuffer);
-    fwprintf(fp,L"%*s %s    nVolumeNameSize           =%u\n",12,"",space,nVolumeNameSize);
-    fwprintf(fp,L"%*s %s    lpVolumeSerialNumber      =%04X-%04X\n",12,"",space,lpVolumeSerialNumber>>16,lpVolumeSerialNumber&0xffff);
-    fwprintf(fp,L"%*s %s    lpMaximumComponentLength  =%u\n",12,"",space,lpMaximumComponentLength);
+    fwprintf(fp,L"%*s %s  GetVolumeInformation{\n",12,L"",space);
+    fwprintf(fp,L"%*s %s    lpRootPathName            ='%s'\n",12,L"",space,lpRootPathName);
+    fwprintf(fp,L"%*s %s    lpVolumeNameBuffer        ='%s'\n",12,L"",space,lpVolumeNameBuffer);
+    fwprintf(fp,L"%*s %s    nVolumeNameSize           =%u\n",12,L"",space,nVolumeNameSize);
+    fwprintf(fp,L"%*s %s    lpVolumeSerialNumber      =%04X-%04X\n",12,L"",space,lpVolumeSerialNumber>>16,lpVolumeSerialNumber&0xffff);
+    fwprintf(fp,L"%*s %s    lpMaximumComponentLength  =%u\n",12,L"",space,lpMaximumComponentLength);
 
-    fwprintf(fp,L"%*s %s    lpFileSystemFlags         =%u\n",12,"",space,lpFileSystemFlags);
+    fwprintf(fp,L"%*s %s    lpFileSystemFlags         =%u\n",12,L"",space,lpFileSystemFlags);
     if(lpFileSystemFlags&FS_CASE_IS_PRESERVED)
-      fwprintf(fp,L"%*s %s         FS_CASE_IS_PRESERVED\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FS_CASE_IS_PRESERVED\n",12,L"",space);
     if(lpFileSystemFlags&FS_CASE_SENSITIVE)
-      fwprintf(fp,L"%*s %s         FS_CASE_SENSITIVE\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FS_CASE_SENSITIVE\n",12,L"",space);
     if(lpFileSystemFlags&FS_UNICODE_STORED_ON_DISK)
-      fwprintf(fp,L"%*s %s         FS_UNICODE_STORED_ON_DISK\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FS_UNICODE_STORED_ON_DISK\n",12,L"",space);
     if(lpFileSystemFlags&FS_PERSISTENT_ACLS)
-      fwprintf(fp,L"%*s %s         FS_PERSISTENT_ACLS\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FS_PERSISTENT_ACLS\n",12,L"",space);
     if(lpFileSystemFlags&FS_FILE_COMPRESSION)
-      fwprintf(fp,L"%*s %s         FS_FILE_COMPRESSION\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FS_FILE_COMPRESSION\n",12,L"",space);
     if(lpFileSystemFlags&FS_VOL_IS_COMPRESSED)
-      fwprintf(fp,L"%*s %s         FS_VOL_IS_COMPRESSED\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FS_VOL_IS_COMPRESSED\n",12,L"",space);
 #define FILE_NAMED_STREAMS              0x00040000
     if(lpFileSystemFlags&FILE_NAMED_STREAMS)
-      fwprintf(fp,L"%*s %s         FILE_NAMED_STREAMS\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_NAMED_STREAMS\n",12,L"",space);
 #define FILE_READ_ONLY_VOLUME           0x00080000
     if(lpFileSystemFlags&FILE_READ_ONLY_VOLUME)
-      fwprintf(fp,L"%*s %s         FILE_READ_ONLY_VOLUME\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_READ_ONLY_VOLUME\n",12,L"",space);
 #define FILE_SUPPORTS_ENCRYPTION        0x00020000
     if(lpFileSystemFlags&FILE_SUPPORTS_ENCRYPTION)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_ENCRYPTION\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_ENCRYPTION\n",12,L"",space);
 #define FILE_SUPPORTS_OBJECT_IDS        0x00010000
     if(lpFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_OBJECT_IDS\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_OBJECT_IDS\n",12,L"",space);
 #define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
     if(lpFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_REPARSE_POINTS\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_REPARSE_POINTS\n",12,L"",space);
 #define FILE_SUPPORTS_SPARSE_FILES      0x00000040
     if(lpFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_SPARSE_FILES\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_SPARSE_FILES\n",12,L"",space);
 #define FILE_VOLUME_QUOTAS              0x00000020
     if(lpFileSystemFlags&FILE_VOLUME_QUOTAS)
-      fwprintf(fp,L"%*s %s         FILE_VOLUME_QUOTAS\n",12,"",space);
+      fwprintf(fp,L"%*s %s         FILE_VOLUME_QUOTAS\n",12,L"",space);
 
-    fwprintf(fp,L"%*s %s    lpFileSystemNameBuffer    ='%s'\n",12,"",space,lpFileSystemNameBuffer);
-    fwprintf(fp,L"%*s %s    nFileSystemNameSize       =%u\n",12,"",space,nFileSystemNameSize);
-    fwprintf(fp,L"%*s %s  }\n",12,"",space);
+    fwprintf(fp,L"%*s %s    lpFileSystemNameBuffer    ='%s'\n",12,L"",space,lpFileSystemNameBuffer);
+    fwprintf(fp,L"%*s %s    nFileSystemNameSize       =%u\n",12,L"",space,nFileSystemNameSize);
+    fwprintf(fp,L"%*s %s  }\n",12,L"",space);
     fflush(fp);
   }
 
@@ -1713,52 +1713,72 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 
   if (fp)
   {
-    fwprintf(fp,L"%*s %s  dwFileAttributes      =0x%08X\n",12,"",space,wfd.dwFileAttributes);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_ARCHIVE\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_COMPRESSED\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_DIRECTORY\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_ENCRYPTED\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_HIDDEN\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NORMAL)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_NORMAL\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_OFFLINE)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_OFFLINE\n",12,"",space);
+    fwprintf(fp,L"%*s %s  dwFileAttributes      =0x%08X\n",12,L"",space,wfd.dwFileAttributes);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_READONLY)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_READONLY\n",12,"",space);
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_REPARSE_POINT\n",12,"",space);
-#define FILE_ATTRIBUTE_SPARSE_FILE          0x00000200
-    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_SPARSE_FILE\n",12,"",space);
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_READONLY            (0x00000001)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_HIDDEN              (0x00000002)\n",12,L"",space);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SYSTEM)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_SYSTEM\n",12,"",space);
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_SYSTEM              (0x00000004)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_DIRECTORY           (0x00000010)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_ARCHIVE             (0x00000020)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DEVICE)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_DEVICE              (0x00000040)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NORMAL)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_NORMAL              (0x00000080)\n",12,L"",space);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY)
-      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_TEMPORARY\n",12,"",space);
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_TEMPORARY           (0x00000100)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_SPARSE_FILE         (0x00000200)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_REPARSE_POINT       (0x00000400)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_COMPRESSED          (0x00000800)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_OFFLINE)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_OFFLINE             (0x00001000)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_NOT_CONTENT_INDEXED (0x00002000)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_ENCRYPTED           (0x00004000)\n",12,L"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_VIRTUAL)
+      fwprintf(fp,L"%*s %s     FILE_ATTRIBUTE_VIRTUAL             (0x00010000)\n",12,L"",space);
 
     string D="", T="";
     ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
-    fwprintf(fp,L"%*s %s  ftCreationTime        =0x%08X 0x%08X\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
+    fwprintf(fp,L"%*s %s  ftCreationTime        =0x%08X 0x%08X\n",12,L"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
     ConvertDate(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
-    fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
+    fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
     ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
-    fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
+    fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 
     FAR_INT64 Number;
     Number.Part.HighPart=wfd.nFileSizeHigh;
     Number.Part.LowPart=wfd.nFileSizeLow;
 
-    fwprintf(fp,L"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,Number.i64);
-    fwprintf(fp,L"%*s %s  dwReserved0           =0x%08X (%d)\n",12,"",space,wfd.dwReserved0,wfd.dwReserved0);
-    fwprintf(fp,L"%*s %s  dwReserved1           =0x%08X (%d)\n",12,"",space,wfd.dwReserved1,wfd.dwReserved1);
-    fwprintf(fp,L"%*s %s  cFileName             =\"%s\"\n",12,"",space,wfd.cFileName);
-    fwprintf(fp,L"%*s %s  cAlternateFileName    =\"%s\"\n",12,"",space,wfd.cAlternateFileName);
+    fwprintf(fp,L"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,Number.i64);
+    fwprintf(fp,L"%*s %s  dwReserved0           =0x%08X (%d)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+    {
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT)
+        fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_MOUNT_POINT (0xA0000003L)\n",12,L"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_HSM)
+        fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_HSM         (0xC0000004L)\n",12,L"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_SIS)
+        fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_SIS         (0x80000007L)\n",12,L"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_DFS)
+        fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFS         (0x8000000AL)\n",12,L"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
+        fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_SYMLINK     (0xA000000CL)\n",12,L"",space);
+      if(wfd.dwReserved0 == IO_REPARSE_TAG_DFSR)
+        fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFSR        (0x80000012L)\n",12,L"",space);
+    }
+    fwprintf(fp,L"%*s %s  dwReserved1           =0x%08X (%d)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);
+    fwprintf(fp,L"%*s %s  cFileName             =\"%s\"\n",12,L"",space,wfd.cFileName);
+    fwprintf(fp,L"%*s %s  cAlternateFileName    =\"%s\"\n",12,L"",space,wfd.cAlternateFileName);
 
-    fwprintf(fp,L"%*s %s  }\n",12,"",space);
+    fwprintf(fp,L"%*s %s  }\n",12,L"",space);
     fflush(fp);
   }
 
@@ -1785,34 +1805,34 @@ void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings 
   if (fp)
   {
     int I;
-    fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,"",space);
-    fwprintf(fp,L"%*s %s  ColumnType           = [",12,"",space);
+    fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,L"",space);
+    fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
     for(I=0; I < sizeof(ViewSettings.ColumnType)/sizeof(ViewSettings.ColumnType[0])-1;++I)
       fwprintf(fp,L"%d, ",ViewSettings.ColumnType[I]);
     fwprintf(fp,L"%d]\n",ViewSettings.ColumnType[I]);
-    fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,"",space);
+    fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
     for(I=0; I < sizeof(ViewSettings.ColumnWidth)/sizeof(ViewSettings.ColumnWidth[0])-1;++I)
       fwprintf(fp,L"%d, ",ViewSettings.ColumnWidth[I]);
     fwprintf(fp,L"%d]\n",ViewSettings.ColumnWidth[I]);
-    fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,"",space,ViewSettings.ColumnCount);
-    fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,"",space);
+    fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,L"",space,ViewSettings.ColumnCount);
+    fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
     for(I=0; I < sizeof(ViewSettings.StatusColumnType)/sizeof(ViewSettings.StatusColumnType[0])-1;++I)
       fwprintf(fp,L"%08X, ",ViewSettings.StatusColumnType[I]);
     fwprintf(fp,L"%08X]\n",ViewSettings.StatusColumnType[I]);
-    fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,"",space);
+    fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,L"",space);
     for(I=0; I < sizeof(ViewSettings.StatusColumnWidth)/sizeof(ViewSettings.StatusColumnWidth[0])-1;++I)
       fwprintf(fp,L"%d, ",ViewSettings.StatusColumnWidth[I]);
     fwprintf(fp,L"%d]\n",ViewSettings.StatusColumnWidth[I]);
-    fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,"",space,ViewSettings.StatusColumnCount);
-    fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,"",space,ViewSettings.FullScreen);
-    fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,"",space,ViewSettings.AlignExtensions);
-    fwprintf(fp,L"%*s %s  FolderAlignExtensions= %d\n",12,"",space,ViewSettings.FolderAlignExtensions);
-    fwprintf(fp,L"%*s %s  FolderUpperCase      = %d\n",12,"",space,ViewSettings.FolderUpperCase);
-    fwprintf(fp,L"%*s %s  FileLowerCase        = %d\n",12,"",space,ViewSettings.FileLowerCase);
-    fwprintf(fp,L"%*s %s  FileUpperToLowerCase = %d\n",12,"",space,ViewSettings.FileUpperToLowerCase);
-    fwprintf(fp,L"%*s %s  CaseSensitiveSort    = %d\n",12,"",space,ViewSettings.CaseSensitiveSort);
+    fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,L"",space,ViewSettings.StatusColumnCount);
+    fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,ViewSettings.FullScreen);
+    fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,ViewSettings.AlignExtensions);
+    fwprintf(fp,L"%*s %s  FolderAlignExtensions= %d\n",12,L"",space,ViewSettings.FolderAlignExtensions);
+    fwprintf(fp,L"%*s %s  FolderUpperCase      = %d\n",12,L"",space,ViewSettings.FolderUpperCase);
+    fwprintf(fp,L"%*s %s  FileLowerCase        = %d\n",12,L"",space,ViewSettings.FileLowerCase);
+    fwprintf(fp,L"%*s %s  FileUpperToLowerCase = %d\n",12,L"",space,ViewSettings.FileUpperToLowerCase);
+    fwprintf(fp,L"%*s %s  CaseSensitiveSort    = %d\n",12,L"",space,ViewSettings.CaseSensitiveSort);
 
-    fwprintf(fp,L"%*s %s  }\n",12,"",space);
+    fwprintf(fp,L"%*s %s  }\n",12,L"",space);
     fflush(fp);
   }
 
