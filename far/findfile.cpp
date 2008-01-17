@@ -2337,16 +2337,16 @@ int FindFiles::LookForString(char *Name)
   if ((Length=(int)strlen(FindStr))==0)
     return(TRUE);
 
-  HANDLE FileHandle=FAR_CreateFile (Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES,
+  HANDLE FileHandle=FAR_CreateFile (Name,((WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?
+                                    FILE_READ_ATTRIBUTES|FILE_READ_DATA:GENERIC_READ)|FILE_WRITE_ATTRIBUTES,
                                     FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
                                     FILE_FLAG_SEQUENTIAL_SCAN, NULL);
   FILETIME LastAccess;
   int TimeRead=0;
   if (FileHandle==INVALID_HANDLE_VALUE)
-  {
-    FileHandle=FAR_CreateFile (Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
-                               OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
-  }
+    FileHandle=FAR_CreateFile (Name, (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)?
+                               FILE_READ_ATTRIBUTES|FILE_READ_DATA:GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE,
+                               NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
   else
     TimeRead=GetFileTime (FileHandle, NULL, &LastAccess, NULL);
 
