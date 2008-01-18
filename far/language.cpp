@@ -374,8 +374,6 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       strFileName = strEngFileName;
     if ( !strFileName.IsEmpty() )
     {
-      if(!strLangName.IsEmpty() && StrCmpI(strLangName,Language))
-        Opt.strLanguage=strLangName;
       LangFile=_wfopen(strFileName,L"rb");
       if(pstrLangName)
          *pstrLangName=strLangName;

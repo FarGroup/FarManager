@@ -556,6 +556,7 @@ struct ExecuteStruct {
 
 #define EXECUTE_FUNCTION(function, es) \
 	{ \
+		SetFileApisToOEM(); \
 		es.nResult = 0; \
 		es.nDefaultResult = 0; \
 		es.bUnloaded = false; \
@@ -578,6 +579,7 @@ struct ExecuteStruct {
 
 #define EXECUTE_FUNCTION_EX(function, es) \
 	{ \
+		SetFileApisToOEM(); \
 		es.bUnloaded = false; \
 		es.nResult = 0; \
 		if ( Opt.ExceptRules ) \
