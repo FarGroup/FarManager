@@ -2511,6 +2511,10 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 		case oldfar::ECTL_SETPOSITION:	Command = ECTL_SETPOSITION; break;
 		case oldfar::ECTL_TABTOREAL:		Command = ECTL_TABTOREAL; break;
 		case oldfar::ECTL_TURNOFFMARKINGBLOCK:	Command = ECTL_TURNOFFMARKINGBLOCK; break;
+		case oldfar::ECTL_ADDSTACKBOOKMARK:			Command = ECTL_ADDSTACKBOOKMARK; break;
+		case oldfar::ECTL_PREVSTACKBOOKMARK:		Command = ECTL_PREVSTACKBOOKMARK; break;
+		case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSTACKBOOKMARK; break;
+		case oldfar::ECTL_CLEARSTACKBOOKMARKS:	Command = ECTL_CLEARSTACKBOOKMARKS; break;
 
 		case oldfar::ECTL_GETSTRING:
 		{

@@ -2376,6 +2376,26 @@ int FileEditor::EditorControl(int Command, void *Param)
 			return FALSE;
 		}
 
+		case ECTL_ADDSTACKBOOKMARK:
+		{
+			return m_editor->AddStackBookmark();
+		}
+		
+		case ECTL_PREVSTACKBOOKMARK:
+		{
+			return m_editor->PrevStackBookmark();
+		}
+		
+		case ECTL_NEXTSTACKBOOKMARK:
+		{
+			return m_editor->NextStackBookmark();
+		}
+		
+		case ECTL_CLEARSTACKBOOKMARKS:
+		{
+			return m_editor->ClearStackBookmarks();
+		}
+		
 		case ECTL_SETTITLE:
 		{
 			strPluginTitle = NullToEmpty((const wchar_t*)Param);

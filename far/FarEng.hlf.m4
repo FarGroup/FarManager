@@ -2442,6 +2442,9 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl-Shift-0..9#         Set a bookmark 0..9 at the current
                            position
    #LeftCtrl-0..9#           Go to bookmark 0..9
+   #Ctrl-<Gray Enter>#       Add new navigation point  
+   #Ctrl-<Gray +>#           Next navigation point
+   #Ctrl-<Gray ->#           Previous navigation point
    #Shift-Enter#             Insert the name of the current file on
                            the active panel at the cursor position.
    #Ctrl-Shift-Enter#        Insert the name of the current file on

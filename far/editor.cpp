@@ -109,6 +109,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   memset(&SavePos,0xff,sizeof(SavePos));
   MaxRightPos=0;
   UndoSavePos=0;
+  StackPos=0;
+  NewStackPos=FALSE;
+
   Editor::EditorID=::EditorID++;
 
   HostFileEditor=NULL;
@@ -155,6 +158,8 @@ void Editor::FreeAllocatedData(bool FreeUndo)
       memset(UndoData,0,EdOpt.UndoSize*sizeof(EditorUndoData));
     }
   }
+
+  ClearStackBookmarks();
 
   TopList=EndList=CurLine=NULL;
   NumLastLine = 0;
@@ -1049,6 +1054,14 @@ int Editor::ProcessKey(int Key)
     Key=Key-KEY_CTRLSHIFT0+KEY_RCTRL0;
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
     return SetBookmark(Key-KEY_RCTRL0);
+
+	// работа со стековыми закладками
+	if (Key==KEY_CTRLNUMENTER)
+		return AddStackBookmark();
+	if (Key==KEY_CTRLADD)
+		return NextStackBookmark();
+	if (Key==KEY_CTRLSUBTRACT)
+		return PrevStackBookmark();
 
   int SelStart=0,SelEnd=0;
   int SelFirst=FALSE;
@@ -5560,6 +5573,117 @@ int Editor::GotoBookmark(DWORD Pos)
     return TRUE;
   }
   return FALSE;
+}
+
+int Editor::RestoreStackBookmark()
+{
+	if(StackPos)
+	{
+		GoToLine(StackPos->Line);
+		CurLine->SetCurPos(StackPos->Cursor);
+		CurLine->SetLeftPos(StackPos->LeftPos);
+		TopScreen=CurLine;
+		for (DWORD I=0;I<StackPos->ScreenLine && TopScreen->m_prev!=NULL;I++)
+			TopScreen=TopScreen->m_prev;
+		if (!EdOpt.PersistentBlocks)
+			UnmarkBlock();
+		Show();
+		return TRUE;
+	}
+  return FALSE;
+}
+
+int Editor::AddStackBookmark()
+{
+	struct InternalEditorStackBookMark* sb_old = (NewStackPos)?StackPos:(StackPos)?StackPos->prev:0;
+
+	if (sb_old && sb_old->next)
+	{
+		StackPos = sb_old->next;
+		if (StackPos) StackPos->prev = 0;
+		ClearStackBookmarks();
+		sb_old->next = 0;
+	}
+
+	StackPos = (InternalEditorStackBookMark*) xf_malloc (sizeof (InternalEditorStackBookMark));
+
+	if (StackPos)
+	{
+		StackPos->Line=NumLine;
+		StackPos->Cursor=CurLine->GetCurPos();
+		StackPos->LeftPos=CurLine->GetLeftPos();
+		StackPos->ScreenLine=CalcDistance(TopScreen,CurLine,-1);
+		StackPos->prev=sb_old;
+		StackPos->next=0;
+		if (sb_old) sb_old->next=StackPos;
+		NewStackPos = TRUE; // When go prev bookmark, we must save current
+		return TRUE;
+	}
+	else
+	{
+		StackPos = sb_old;
+	}
+	return FALSE;
+}
+
+int Editor::PrevStackBookmark()
+{
+	if (StackPos)
+	{
+		if (NewStackPos) // Save last position in new bookmark
+		{
+			AddStackBookmark();
+			NewStackPos = FALSE;
+		}
+
+		if (StackPos->prev) // If not first bookmark - go
+		{
+			StackPos=StackPos->prev;
+			return RestoreStackBookmark();
+		}
+	}
+	return FALSE;
+}
+
+int Editor::NextStackBookmark()
+{
+	if (StackPos)
+	{
+		if (StackPos->next) // If not last bookmark - go
+		{
+			StackPos=StackPos->next;
+			return RestoreStackBookmark();
+		}
+	}
+	return FALSE;
+}
+
+int Editor::ClearStackBookmarks()
+{
+	if (StackPos)
+	{
+		struct InternalEditorStackBookMark *sb_prev = StackPos->prev, *sb_next;
+
+		while(StackPos)
+		{
+			sb_next = StackPos->next;
+			xf_free (StackPos);
+			StackPos = sb_next;
+		}
+
+		StackPos = sb_prev;
+
+		while(StackPos)
+		{
+			sb_prev = StackPos->prev;
+			xf_free (StackPos);
+			StackPos = sb_prev;
+		}
+
+		NewStackPos = FALSE;
+	}
+
+	return TRUE;
 }
 
 Edit * Editor::GetStringByNumber(int DestLine)
