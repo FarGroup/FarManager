@@ -3812,6 +3812,9 @@ void FileList::DescribeFiles()
 
   SaveSelection();
   GetSelName(NULL,FileAttr);
+  Panel* AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+  int AnotherType=AnotherPanel->GetType();
+
   while (GetSelName(&strSelName,FileAttr,&strSelShortName))
   {
     string strDizText, strMsg, strTruncMsg, strQuotedName;
@@ -3842,10 +3845,12 @@ void FileList::DescribeFiles()
     // BugZ#442 - Deselection is late when making file descriptions
     FlushDiz();
     // BugZ#863 - При редактировании группы дескрипшенов они не обновляются на ходу
+    //if (AnotherType==QVIEW_PANEL) continue; //TODO ???
+    if (AnotherType==INFO_PANEL) AnotherPanel->Update(UIC_UPDATE_NORMAL);
     Update(UPDATE_KEEP_SELECTION);
     Redraw();
   }
-  if (DizCount>0)
+  /*if (DizCount>0)
   {
     FlushDiz();
     Update(UPDATE_KEEP_SELECTION);
@@ -3853,7 +3858,7 @@ void FileList::DescribeFiles()
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     AnotherPanel->Redraw();
-  }
+  }*/
 }
 
 

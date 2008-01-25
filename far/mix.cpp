@@ -1488,8 +1488,11 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
   if(!SrcPanel)
     SrcPanel=CtrlObject->Cp()->ActivePanel;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-  if ( SrcPanel->GetType()==QVIEW_PANEL || SrcPanel->GetType()==INFO_PANEL)
-    SrcPanel=CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
+  switch ( SrcPanel->GetType() ) {
+    case QVIEW_PANEL:
+    case INFO_PANEL:
+      SrcPanel=CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
+  }
 
   int AnotherType=AnotherPanel->GetType();
 
@@ -1504,9 +1507,10 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
     }
     else
     {
-      if(AnotherPanel->NeedUpdatePanel(SrcPanel))
-        AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-      else
+      // TODO: ???
+      //if(AnotherPanel->NeedUpdatePanel(SrcPanel))
+      //  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      //else
       {
         // Сбросим время обновления панели. Если там есть нотификация - обновится сама.
         if (AnotherType==FILE_PANEL)
@@ -1515,7 +1519,7 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
       }
     }
   }
-  SrcPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+  SrcPanel->Update(UPDATE_KEEP_SELECTION);
   if (AnotherType==QVIEW_PANEL)
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   CtrlObject->Cp()->Redraw();

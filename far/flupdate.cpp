@@ -112,7 +112,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     UpdateRequiredMode=KeepSelection;
     return;
   }
+
   Is_FS_NTFS=FALSE;
+  UpdateRequired=FALSE;
   AccessTimeUpdateRequired=FALSE;
   DizRead=FALSE;
   HANDLE FindHandle;
@@ -507,7 +509,7 @@ int FileList::UpdateIfChanged(int UpdateMode)
       if(// Ќормальна€ панель, на ней установлено уведомление и есть сигнал
          (PanelMode==NORMAL_PANEL && hListChange!=INVALID_HANDLE_VALUE && WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0) ||
          // »ли Ќормальна€ панель, но нет уведомлени€ и мы попросили обновить через UPDATE_FORCE
-         (PanelMode==NORMAL_PANEL /*&& hListChange==INVALID_HANDLE_VALUE*/ && UpdateMode==UIC_UPDATE_FORCE) ||
+         (PanelMode==NORMAL_PANEL && hListChange==INVALID_HANDLE_VALUE && UpdateMode==UIC_UPDATE_FORCE) ||
          // »ли плагинна€ панель и обновл€ем через UPDATE_FORCE
          (PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
         )
