@@ -55,6 +55,7 @@ enum {
 
   SETATTR_NAME=2,
 
+  SETATTR_ATTR_FIRST=4,  // This should be equal to the next value.
   SETATTR_RO=4,
   SETATTR_ARCHIVE=5,
   SETATTR_HIDDEN=6,
@@ -65,26 +66,28 @@ enum {
   SETATTR_SPARSE=11,
   SETATTR_TEMP=12,
   SETATTR_OFFLINE=13,
+  SETATTR_VIRTUAL=14,
+  SETATTR_ATTR_LAST=14,  // This should be equal to the previous value.
 
-  SETATTR_SUBFOLDERS=15,
+  SETATTR_SUBFOLDERS=16,
 
-  SETATTR_TITLEDATE=17,
-  SETATTR_MODIFICATION=18,
-  SETATTR_MDATE=19,
-  SETATTR_MTIME=20,
-  SETATTR_CREATION=21,
-  SETATTR_CDATE=22,
-  SETATTR_CTIME=23,
-  SETATTR_LASTACCESS=24,
-  SETATTR_ADATE=25,
-  SETATTR_ATIME=26,
-  SETATTR_ORIGINAL=27,
-  SETATTR_CURRENT=28,
-  SETATTR_BLANK=29,
+  SETATTR_TITLEDATE=18,
+  SETATTR_MODIFICATION=19,
+  SETATTR_MDATE=20,
+  SETATTR_MTIME=21,
+  SETATTR_CREATION=22,
+  SETATTR_CDATE=23,
+  SETATTR_CTIME=24,
+  SETATTR_LASTACCESS=25,
+  SETATTR_ADATE=26,
+  SETATTR_ATIME=27,
+  SETATTR_ORIGINAL=28,
+  SETATTR_CURRENT=29,
+  SETATTR_BLANK=30,
 
-  SETATTR_SET=31,
-  SETATTR_CANCEL=32,
-  SETATTR_TITLELINK=33,
+  SETATTR_SET=32,
+  SETATTR_CANCEL=33,
+  SETATTR_TITLELINK=34,
 };
 
 const wchar_t FmtMask1[]=L"99%c99%c99";
@@ -141,10 +144,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
   switch(Msg)
   {
     case DN_BTNCLICK:
-      if(Param1 >= SETATTR_RO && Param1 <= SETATTR_OFFLINE || Param1 == SETATTR_SUBFOLDERS)
+      if(Param1 >= SETATTR_ATTR_FIRST && Param1 <= SETATTR_ATTR_LAST || Param1 == SETATTR_SUBFOLDERS)
       {
-        DlgParam->OriginalCBAttr[Param1-SETATTR_RO] = (int)Param2;
-        DlgParam->OriginalCBAttr2[Param1-SETATTR_RO] = 0;
+        DlgParam->OriginalCBAttr[Param1-SETATTR_ATTR_FIRST] = (int)Param2;
+        DlgParam->OriginalCBAttr2[Param1-SETATTR_ATTR_FIRST] = 0;
 
         FocusPos=(int)Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0);
         StateC_8=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
@@ -205,17 +208,17 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
               if(DlgParam->OStateF_12 != StateF_12) // Состояние изменилось?
               {
                 // убираем 3-State
-                for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+                for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
                 {
                   if(!StateF_12) // сняли?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,FALSE);
-                    Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-SETATTR_RO]);
+                    Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-SETATTR_ATTR_FIRST]);
                   }
                   else                      // установили?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,TRUE);
-                    if(DlgParam->OriginalCBAttr2[I-SETATTR_RO] == -1)
+                    if(DlgParam->OriginalCBAttr2[I-SETATTR_ATTR_FIRST] == -1)
                       Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
                   }
                 }
@@ -270,17 +273,17 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
             {
               if(DlgParam->OStateF_12 != StateF_12) // Состояние изменилось?
               {
-                for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+                for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
                 {
                   if(!StateF_12) // сняли?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,
-                              ((DlgParam->OriginalCBFlag[I-SETATTR_RO]&DIF_3STATE)?TRUE:FALSE));
-                    Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-SETATTR_RO]);
+                              ((DlgParam->OriginalCBFlag[I-SETATTR_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
+                    Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-SETATTR_ATTR_FIRST]);
                   }
                   else                      // установили?
                   {
-                    if(DlgParam->OriginalCBAttr2[I-SETATTR_RO] == -1)
+                    if(DlgParam->OriginalCBAttr2[I-SETATTR_ATTR_FIRST] == -1)
                     {
                       Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,TRUE);
                       Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
@@ -432,13 +435,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 03   |                 foo                 |   03
 04   |          Link: blach blach          | < 04 <<
 05   +-------------------------------------+   05
-06   | [ ] Read only                       |   06
-07   | [ ] Archive                         |   07
-08   | [ ] Hidden                          |   08
-09   | [ ] System                          |   09
+06   | [ ] Read only        [ ] Sparse     |   06
+07   | [ ] Archive          [ ] Temporary  |   07
+08   | [ ] Hidden           [ ] Offline    |   08
+09   | [ ] System           [ ] Virtual    |   09
 10   | [ ] Compressed                      |   10
 11   | [ ] Encrypted                       |   11
-12   | [ ] Indexed                         |   12
+12   | [ ] Not Indexed                     |   12
 13   +-------------------------------------+   13
 14   | [x] Process subfolders              |   14
 15   +-------------------------------------+   15
@@ -453,40 +456,44 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 24                                             24
 */
   static struct DialogDataEx AttrDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(wchar_t *)MSetAttrTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,65,22,0,0,0,0,(wchar_t *)MSetAttrTitle,
   /* 01 */DI_TEXT,-1,2,0,2,0,0,0,0,(wchar_t *)MSetAttrFor,
   /* 02 */DI_TEXT,-1,3,0,3,0,0,DIF_SHOWAMPERSAND,0,L"",
   /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+
   /* 04 */DI_CHECKBOX,5, 5,0,5,1,0,DIF_3STATE,0,(wchar_t *)MSetAttrRO,
   /* 05 */DI_CHECKBOX,5, 6,0,6,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrArchive,
   /* 06 */DI_CHECKBOX,5, 7,0,7,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrHidden,
   /* 07 */DI_CHECKBOX,5, 8,0,8,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrSystem,
   /* 08 */DI_CHECKBOX,5, 9,0,9,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrCompressed,
-  /* 09 */DI_CHECKBOX,35, 5,0,5,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrEncrypted,
-  /* 10 */DI_CHECKBOX,35, 6,0,6,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrNotIndexed,
-  /* 11 */DI_CHECKBOX,35, 7,0,7,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
-  /* 12 */DI_CHECKBOX,35, 8,0,8,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
-  /* 13 */DI_CHECKBOX,35, 9,0,9,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrOffline,
-  /* 14 */DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 15 */DI_CHECKBOX,5,11,0,11,0,0,DIF_DISABLE,0,(wchar_t *)MSetAttrSubfolders,
-  /* 16 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 17 */DI_TEXT,45,13,0,13,0,0,0,0,L"",
-  /* 18 */DI_TEXT,    5,14,0,14,0,0,0,0,(wchar_t *)MSetAttrModification,
-  /* 19 */DI_FIXEDIT,45,14,54,14,0,0,DIF_MASKEDIT,0,L"",
-  /* 20 */DI_FIXEDIT,56,14,63,14,0,0,DIF_MASKEDIT,0,L"",
-  /* 21 */DI_TEXT,    5,15,0,15,0,0,0,0,(wchar_t *)MSetAttrCreation,
-  /* 22 */DI_FIXEDIT,45,15,54,15,0,0,DIF_MASKEDIT,0,L"",
-  /* 23 */DI_FIXEDIT,56,15,63,15,0,0,DIF_MASKEDIT,0,L"",
-  /* 24 */DI_TEXT,    5,16,0,16,0,0,0,0,(wchar_t *)MSetAttrLastAccess,
-  /* 25 */DI_FIXEDIT,45,16,54,16,0,0,DIF_MASKEDIT,0,L"",
-  /* 26 */DI_FIXEDIT,56,16,63,16,0,0,DIF_MASKEDIT,0,L"",
-  /* 27 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrOriginal,
-  /* 28 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrCurrent,
-  /* 29 */DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrBlank,
-  /* 30 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 31 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(wchar_t *)MSetAttrSet,
-  /* 32 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel,
-  /* 33 */DI_TEXT,-1,4,0,4,0,0,DIF_SHOWAMPERSAND,0,L"",
+  /* 09 */DI_CHECKBOX,5,10,0,10,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrEncrypted,
+  /* 10 */DI_CHECKBOX,5,11,0,11,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrNotIndexed,
+
+  /* 11 */DI_CHECKBOX,35, 5,0,5,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
+  /* 12 */DI_CHECKBOX,35, 6,0,6,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
+  /* 13 */DI_CHECKBOX,35, 7,0,7,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrOffline,
+  /* 14 */DI_CHECKBOX,35, 8,0,8,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrVirtual,
+
+  /* 15 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */DI_CHECKBOX,5,13,0,13,0,0,DIF_DISABLE,0,(wchar_t *)MSetAttrSubfolders,
+  /* 17 */DI_TEXT,3,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 18 */DI_TEXT,45,15,0,15,0,0,0,0,L"",
+  /* 19 */DI_TEXT,    5,16,0,16,0,0,0,0,(wchar_t *)MSetAttrModification,
+  /* 20 */DI_FIXEDIT,45,16,54,16,0,0,DIF_MASKEDIT,0,L"",
+  /* 21 */DI_FIXEDIT,56,16,63,16,0,0,DIF_MASKEDIT,0,L"",
+  /* 22 */DI_TEXT,    5,17,0,17,0,0,0,0,(wchar_t *)MSetAttrCreation,
+  /* 23 */DI_FIXEDIT,45,17,54,17,0,0,DIF_MASKEDIT,0,L"",
+  /* 24 */DI_FIXEDIT,56,17,63,17,0,0,DIF_MASKEDIT,0,L"",
+  /* 25 */DI_TEXT,    5,18,0,18,0,0,0,0,(wchar_t *)MSetAttrLastAccess,
+  /* 26 */DI_FIXEDIT,45,18,54,18,0,0,DIF_MASKEDIT,0,L"",
+  /* 27 */DI_FIXEDIT,56,18,63,18,0,0,DIF_MASKEDIT,0,L"",
+  /* 28 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrOriginal,
+  /* 29 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrCurrent,
+  /* 30 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrBlank,
+  /* 31 */DI_TEXT,3,20,0,20,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 32 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,1,(wchar_t *)MSetAttrSet,
+  /* 33 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel,
+  /* 34 */DI_TEXT,-1,4,0,4,0,0,DIF_SHOWAMPERSAND,0,L"",
   };
   MakeDialogItemsEx(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
@@ -582,6 +589,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         break;
     }
 
+    AttrDlg[SETATTR_TITLEDATE].strData = strAttr;
     AttrDlg[SETATTR_MDATE].Mask=strDMask;
     AttrDlg[SETATTR_MTIME].Mask=strTMask;
     AttrDlg[SETATTR_CDATE].Mask=strDMask;
@@ -620,9 +628,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AttrDlg[SETATTR_SPARSE].Selected=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0;
           AttrDlg[SETATTR_TEMP].Selected=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)!=0;
           AttrDlg[SETATTR_OFFLINE].Selected=(FileAttr & FILE_ATTRIBUTE_OFFLINE)!=0;
+          AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
 
           // убираем 3-State
-          for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+          for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
             AttrDlg[I].Flags&=~DIF_3STATE;
         }
         FolderPresent=TRUE;
@@ -694,7 +703,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else
       {
         // убираем 3-State
-        for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+        for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
           AttrDlg[I].Flags&=~DIF_3STATE;
       }
 
@@ -711,6 +720,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_SPARSE].Selected=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0;
       AttrDlg[SETATTR_TEMP].Selected=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)!=0;
       AttrDlg[SETATTR_OFFLINE].Selected=(FileAttr & FILE_ATTRIBUTE_OFFLINE)!=0;
+      AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
 
       if(DlgParam.Plugin)
       {
@@ -733,7 +743,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_RO].Selected=AttrDlg[SETATTR_ARCHIVE].Selected=AttrDlg[SETATTR_HIDDEN].Selected=
       AttrDlg[SETATTR_SYSTEM].Selected=AttrDlg[SETATTR_COMPRESSED].Selected=AttrDlg[SETATTR_ENCRYPTED].Selected=
       AttrDlg[SETATTR_INDEXED].Selected=AttrDlg[SETATTR_SPARSE].Selected=AttrDlg[SETATTR_TEMP].Selected=
-        AttrDlg[SETATTR_OFFLINE].Selected=2;
+      AttrDlg[SETATTR_OFFLINE].Selected=AttrDlg[SETATTR_VIRTUAL].Selected=2;
+
       AttrDlg[SETATTR_MDATE].strData=AttrDlg[SETATTR_MTIME].strData=AttrDlg[SETATTR_CDATE].strData=
       AttrDlg[SETATTR_CTIME].strData=AttrDlg[SETATTR_ADATE].strData=AttrDlg[SETATTR_ATIME].strData=L"";
 
@@ -742,7 +753,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       AttrDlg[SETATTR_NAME].strData = UMSG(MSetAttrSelectedObjects);
       // выставим -1 - потом учтем этот факт :-)
-      for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+      for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
         AttrDlg[I].Selected=0;
 
       // проверка - есть ли среди выделенных - каталоги?
@@ -767,11 +778,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         AttrDlg[SETATTR_SPARSE].Selected+=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)?1:0;
         AttrDlg[SETATTR_TEMP].Selected+=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)?1:0;
         AttrDlg[SETATTR_OFFLINE].Selected+=(FileAttr & FILE_ATTRIBUTE_OFFLINE)?1:0;
+        AttrDlg[SETATTR_VIRTUAL].Selected+=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)?1:0;
       }
       SrcPanel->GetSelName(NULL,FileAttr);
       SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
       // выставим "неопределенку" или то, что нужно
-      for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+      for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
       {
         J=AttrDlg[I].Selected;
         // снимаем 3-state, если "есть все или нет ничего"
@@ -789,7 +801,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_SUBFOLDERS].Selected=1;
       AttrDlg[SETATTR_MDATE].strData=AttrDlg[SETATTR_MTIME].strData=AttrDlg[SETATTR_CDATE].strData=
       AttrDlg[SETATTR_CTIME].strData=AttrDlg[SETATTR_ADATE].strData=AttrDlg[SETATTR_ATIME].strData=L"";
-      for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+      for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
       {
         AttrDlg[I].Selected=2;
         AttrDlg[I].Flags|=DIF_3STATE;
@@ -797,11 +809,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
 
     // запомним состояние переключателей.
-    for(I=SETATTR_RO; I <= SETATTR_OFFLINE; ++I)
+    for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
     {
-      DlgParam.OriginalCBAttr[I-SETATTR_RO]=AttrDlg[I].Selected;
-      DlgParam.OriginalCBAttr2[I-SETATTR_RO]=-1;
-      DlgParam.OriginalCBFlag[I-SETATTR_RO]=AttrDlg[I].Flags;
+      DlgParam.OriginalCBAttr[I-SETATTR_ATTR_FIRST]=AttrDlg[I].Selected;
+      DlgParam.OriginalCBAttr2[I-SETATTR_ATTR_FIRST]=-1;
+      DlgParam.OriginalCBFlag[I-SETATTR_ATTR_FIRST]=AttrDlg[I].Flags;
     }
 
     DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FA_DIREC)==0)?0:(SelCount==1?1:2));
@@ -814,7 +826,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc,(LONG_PTR)&DlgParam);
       Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
-      Dlg.SetPosition(-1,-1,69,JunctionPresent?23:22);
+      Dlg.SetPosition(-1,-1,69,JunctionPresent?25:24);
       Dlg.Process();
       if (Dlg.GetExitCode()!=SETATTR_SET)
         return 0;
@@ -849,6 +861,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(!(AttrDlg[SETATTR_OFFLINE].Flags&DIF_DISABLE))
           if (AttrDlg[SETATTR_OFFLINE].Selected)
             NewAttr|=FILE_ATTRIBUTE_OFFLINE;
+        if(!(AttrDlg[SETATTR_VIRTUAL].Flags&DIF_DISABLE))
+          if (AttrDlg[SETATTR_VIRTUAL].Selected)
+            NewAttr|=FILE_ATTRIBUTE_VIRTUAL;
         */
 
         SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
@@ -937,6 +952,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       {
         if (AttrDlg[SETATTR_OFFLINE].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_OFFLINE;
         else if (!AttrDlg[SETATTR_OFFLINE].Selected)       ClearAttr|=FILE_ATTRIBUTE_OFFLINE;
+      }
+      if(!(AttrDlg[SETATTR_VIRTUAL].Flags&DIF_DISABLE))
+      {
+        if (AttrDlg[SETATTR_VIRTUAL].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_VIRTUAL;
+        else if (!AttrDlg[SETATTR_VIRTUAL].Selected)       ClearAttr|=FILE_ATTRIBUTE_VIRTUAL;
       }
       */
 

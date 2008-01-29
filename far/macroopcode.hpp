@@ -156,6 +156,12 @@ enum MACRO_OP_CODE {
   MCODE_F_XLAT,                     // S=xlat(S)
   MCODE_F_FLOCK,                    // N=FLock(N,N)
 
+  MCODE_F_BM_ADD,                   // N=BM.Add()
+  MCODE_F_BM_CLEAR,                 // N=BM.Clear()
+  MCODE_F_BM_NEXT,                  // N=BM.Next()
+  MCODE_F_BM_PREV,                  // N=BM.Prev()
+  MCODE_F_BM_STAT,                  // N=BM.Stat()
+
   /* ************************************************************************* */
   // булевые переменные - различные состояния
   MCODE_C_DISABLEOUTPUT=KEY_MACRO_C_BASE,// вывод запрещен?

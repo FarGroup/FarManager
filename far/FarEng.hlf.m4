@@ -1512,6 +1512,8 @@ rule sets.
                    are used only on disks with the NTFS file system.
                    Although the #Encrypted# and #Offline# attributes 
                    are used only in Windows 2000/XP/2003/Vista/2008.
+                   #Virtual# attribute is used only in Windows 
+                   Vista/2008.
 
 
     To quickly disable one or several conditions, uncheck the corresponding
@@ -2442,9 +2444,6 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl-Shift-0..9#         Set a bookmark 0..9 at the current
                            position
    #LeftCtrl-0..9#           Go to bookmark 0..9
-   #Ctrl-<Gray Enter>#       Add new navigation point  
-   #Ctrl-<Gray +>#           Next navigation point
-   #Ctrl-<Gray ->#           Previous navigation point
    #Shift-Enter#             Insert the name of the current file on
                            the active panel at the cursor position.
    #Ctrl-Shift-Enter#        Insert the name of the current file on
@@ -2907,8 +2906,9 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
     The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and 
-"Offline" attributes may be changed only on NTFS drives. The "Encrypted" and
+"Offline" attributes are available only on NTFS drives. The "Encrypted" and
 "Offline" attributes can be used in Windows 2000/XP/2003/Vista/2008 only. 
+The "Virtual" attribute can be used in Windows Vista/2008 only.
 The "Compressed" and "Encrypted" attributes are mutually exclusive, that is,
 you can set only one of them.
 
@@ -3126,14 +3126,15 @@ the file panel will be displayed in multicolumn form.
        #T#         - Temporary
        #I#         - Not content indexed
        #O#         - Offline
+       #V#         - Virtual
 
-    The attributes are displayed in the following order - RSHALCTIO. The
+    The attributes are displayed in the following order - RSHALCTIOV. The
 "Sparse" attribute applies only to files and is shown instead of 'L'. The
 "Encrypted" attribute is shown instead of 'C' as a file/folder can not
 have both attributes ("Compressed" and "Encrypted") set at the same time.
 By default the size of the attributes column is 6 characters. To display
-the additional 'T', 'I' and 'O' attributes it is necessary to manually 
-set the size of the column to 9 characters.
+the additional 'T', 'I', 'O' and 'V' attributes it is necessary to 
+manually set the size of the column to 10 characters.
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of

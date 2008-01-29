@@ -2752,6 +2752,29 @@ done:
       VMStack.Push((__int64)MR->Key);
       goto begin;
 
+    case MCODE_F_BM_ADD:              // N=BM.Add()
+    case MCODE_F_BM_CLEAR:            // N=BM.Clear()
+    case MCODE_F_BM_NEXT:             // N=BM.Next()
+    case MCODE_F_BM_PREV:             // N=BM.Prev()
+    case MCODE_F_BM_STAT:             // N=BM.Stat()
+    {
+       __int64 Result=_i64(0);
+       Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
+       while(f)
+       {
+         fo=f;
+         f=f->GetTopModal();
+       }
+       if(!f)
+         f=fo;
+
+       if(f)
+         Result=f->VMProcess(Key,NULL);
+
+       VMStack.Push(Result);
+       goto begin;
+    }
+
     case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey()
     {
        _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_GETHOTKEY"));

@@ -155,6 +155,11 @@ static TMacroFunction macroFunction[]={
   {L"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
   {L"AKEY",           0,    MCODE_F_AKEY},                // S=akey()
   {L"ASC",            1,    MCODE_F_ASC},                 // N=asc(N)
+  {L"BM.ADD",         0,    MCODE_F_BM_ADD},              // N=BM.Add()
+  {L"BM.CLEAR",       0,    MCODE_F_BM_CLEAR},            // N=BM.Clear()
+  {L"BM.NEXT",        0,    MCODE_F_BM_NEXT},             // N=BM.Next()
+  {L"BM.PREV",        0,    MCODE_F_BM_PREV},             // N=BM.Prev()
+  {L"BM.STAT",        0,    MCODE_F_BM_STAT},             // N=BM.Stat()
   {L"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
   {L"CHR",            1,    MCODE_F_CHR},                 // S=chr(N)
   {L"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
@@ -797,6 +802,11 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_UCASE,            L"S=ucase(S1)"},
     {MCODE_F_WAITKEY,          L"S=waitkey(N)"},
     {MCODE_F_XLAT,             L"S=xlat(S)"},
+    {MCODE_F_BM_ADD,           L"N=BM.Add()"},
+    {MCODE_F_BM_CLEAR,         L"N=BM.Clear()"},
+    {MCODE_F_BM_NEXT,          L"N=BM.Next()"},
+    {MCODE_F_BM_PREV,          L"N=BM.Prev()"},
+    {MCODE_F_BM_STAT,          L"N=BM.Stat()"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)

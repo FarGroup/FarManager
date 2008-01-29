@@ -1961,7 +1961,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strTopic)
 {
   strTopic=L"";
-  Plugin *pPlugin = (Plugin*)PluginNumber;
 
   if (HelpTopic && *HelpTopic)
   {
@@ -1969,6 +1968,8 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
       strTopic = (HelpTopic+1);
     else
     {
+      Plugin *pPlugin = (Plugin*)PluginNumber;
+
       if(PluginNumber != -1 && pPlugin && *HelpTopic!=HelpBeginLink)
       {
          strTopic.Format (

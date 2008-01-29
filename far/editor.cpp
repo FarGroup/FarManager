@@ -963,6 +963,18 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_V_EDITORLINES:
       return (__int64)NumLastLine;
 
+	// работа со стековыми закладками
+	case MCODE_F_BM_ADD:
+		return AddStackBookmark();
+	case MCODE_F_BM_CLEAR:
+	    return ClearStackBookmarks();
+	case MCODE_F_BM_NEXT:
+		return NextStackBookmark();
+	case MCODE_F_BM_PREV:
+		return PrevStackBookmark();
+	case MCODE_F_BM_STAT:
+		return 0; // TODO: нужен механизм получения состояния
+
   }
   return _i64(0);
 }
@@ -1054,14 +1066,6 @@ int Editor::ProcessKey(int Key)
     Key=Key-KEY_CTRLSHIFT0+KEY_RCTRL0;
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
     return SetBookmark(Key-KEY_RCTRL0);
-
-	// работа со стековыми закладками
-	if (Key==KEY_CTRLNUMENTER)
-		return AddStackBookmark();
-	if (Key==KEY_CTRLADD)
-		return NextStackBookmark();
-	if (Key==KEY_CTRLSUBTRACT)
-		return PrevStackBookmark();
 
   int SelStart=0,SelEnd=0;
   int SelFirst=FALSE;
