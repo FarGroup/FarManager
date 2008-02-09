@@ -208,6 +208,12 @@ struct CreateArchiveStruct {
 	HANDLE hResult;
 };
 
+struct ConfigureFormatStruct {
+	GUID uid;
+	char szBuffer[MAX_PATH];
+};
+
+
 #define NOTIFY_EXTERNAL_ADD_START		1
 #define NOTIFY_EXTERNAL_ADD_END			2
 #define NOTIFY_EXTERNAL_DELETE_START	3
@@ -242,6 +248,7 @@ struct NotifyStruct {
 #define FID_ADD                 14 //param - AddStruct
 #define FID_CREATEARCHIVE    	15 //param - CreateArchiveStruct
 #define FID_NOTIFY				16 //param - NotifyStruct
+#define FID_CONFIGUREFORMAT		17 //param - ConfigureFormatStruct
 
 #ifdef __cplusplus
 extern "C" {

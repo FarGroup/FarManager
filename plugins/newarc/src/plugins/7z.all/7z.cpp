@@ -371,6 +371,20 @@ int OnNotify (NotifyStruct *pNS)
 }
 
 
+int OnConfigureFormat (ConfigureFormatStruct *pCF)
+{
+	/*if ( pCF->uid == CLSID_CFormat7z )
+	{
+		FarDialog D(-1, -1, 60, 20);
+
+		D.DoubleBox (2, 2, 57, 17, "7z config");
+
+		D.Show ();
+	}*/
+
+	return NAERROR_SUCCESS;
+}
+
 
 int __stdcall PluginEntry (
 		int nFunctionID,
@@ -426,6 +440,9 @@ int __stdcall PluginEntry (
 
 	case FID_NOTIFY:
 		return OnNotify ((NotifyStruct*)pParams);
+
+	case FID_CONFIGUREFORMAT:
+		return OnConfigureFormat ((ConfigureFormatStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;

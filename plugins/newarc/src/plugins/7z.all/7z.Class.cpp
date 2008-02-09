@@ -963,6 +963,23 @@ bool __stdcall SevenZipArchive::pAddFiles (
 			}
 		}
 
+//-------------------------
+
+		ISetProperties *setProperties;
+
+		if ( SUCCEEDED (outArchive->QueryInterface (
+				IID_ISetProperties, 
+				(void**)&setProperties
+				)) )
+		{
+			//MessageBox (0, "set", "asd", MB_OK);
+
+			setProperties->Release ();
+		}
+
+
+//-------------------------
+
 		char szTempName[MAX_PATH];
 
 		CreateTempName (m_lpFileName, szTempName);
