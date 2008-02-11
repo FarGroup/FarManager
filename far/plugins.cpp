@@ -281,7 +281,7 @@ PluginManager::~PluginManager()
 	{
 		pPlugin = PluginsData[i];
 
-		pPlugin->Unload ();
+		pPlugin->Unload (true);
 
 		delete pPlugin;
 	}

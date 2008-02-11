@@ -903,33 +903,35 @@ struct DlgData
 }
 *DialogData=NULL;
 
-LONG_PTR FindCurrentDlgData(HANDLE hDlg)
+oldfar::FarDialogItem* OneDialogItem=NULL;
+
+DlgData* FindCurrentDlgData(HANDLE hDlg)
 {
 	DlgData* TmpDialogData=DialogData;
 	while(TmpDialogData && TmpDialogData->hDlg!=hDlg)
 		TmpDialogData=TmpDialogData->Prev;
-	return (LONG_PTR)TmpDialogData;
+	return TmpDialogData;
 }
 
-LONG_PTR CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
+oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
 {
-	DlgData* TmpDialogData=(DlgData*)FindCurrentDlgData(hDlg);
+	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
 	if(!TmpDialogData)
-		return 0;
-	return (LONG_PTR)&TmpDialogData->diA[ItemNumber];
+		return NULL;
+	return &TmpDialogData->diA[ItemNumber];
 }
 
-LONG_PTR CurrentDialogItem(HANDLE hDlg,int ItemNumber)
+FarDialogItem* CurrentDialogItem(HANDLE hDlg,int ItemNumber)
 {
-	DlgData* TmpDialogData=(DlgData*)FindCurrentDlgData(hDlg);
+	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
 	if(!TmpDialogData)
-		return 0;
-	return (LONG_PTR)&TmpDialogData->di[ItemNumber];
+		return NULL;
+	return &TmpDialogData->di[ItemNumber];
 }
 
 LONG_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
-	DlgData* TmpDialogData=(DlgData*)FindCurrentDlgData(hDlg);
+	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
 	if(!TmpDialogData)
 		return 0;
 	FARWINDOWPROC Proc = (FARWINDOWPROC)TmpDialogData->DlgProc;
@@ -1172,6 +1174,8 @@ void FreeUnicodeDialogItem(FarDialogItem *di)
 
 void FreeAnsiDialogItem(oldfar::FarDialogItem *diA)
 {
+	if(!diA)
+		return;
 	if((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_FIXEDIT) &&
 	   (diA->Flags&oldfar::DIF_HISTORY ||diA->Flags&oldfar::DIF_MASKEDIT) &&
 	    diA->Param.History)
@@ -1184,10 +1188,18 @@ void FreeAnsiDialogItem(oldfar::FarDialogItem *diA)
 	memset(diA,0,sizeof(oldfar::FarDialogItem));
 }
 
-LONG_PTR UnicodeDialogItemToAnsi(FarDialogItem* di,HANDLE hDlg,int ItemNumber)
+oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem* di,HANDLE hDlg,int ItemNumber)
 {
-	oldfar::FarDialogItem *diA=(oldfar::FarDialogItem*)CurrentDialogItemA(hDlg,ItemNumber);
-
+	oldfar::FarDialogItem *diA=CurrentDialogItemA(hDlg,ItemNumber);
+	
+	if(!diA)
+	{
+		if(OneDialogItem)
+			xf_free(OneDialogItem);
+		OneDialogItem=(oldfar::FarDialogItem*)xf_malloc(sizeof(oldfar::FarDialogItem));
+		memset(OneDialogItem,0,sizeof(oldfar::FarDialogItem));
+		diA=OneDialogItem;
+	}
 	FreeAnsiDialogItem(diA);
 
 	switch(di->Type)
@@ -1301,7 +1313,7 @@ LONG_PTR UnicodeDialogItemToAnsi(FarDialogItem* di,HANDLE hDlg,int ItemNumber)
 	else
 		UnicodeToAnsi(di->PtrData,diA->Data.Data,sizeof(diA->Data.Data)-1);
 
-	return (LONG_PTR)diA;
+	return diA;
 }
 
 LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
@@ -1320,7 +1332,7 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		{
 			Msg=oldfar::DN_DRAWDLGITEM;
 			FarDialogItem *di = (FarDialogItem *)Param2;
-			oldfar::FarDialogItem *FarDiA=(oldfar::FarDialogItem *)UnicodeDialogItemToAnsi(di,hDlg,Param1);
+			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(di,hDlg,Param1);
 
 			LONG_PTR ret = CurrentDlgProc(hDlg, Msg, Param1, (LONG_PTR)FarDiA);
 
@@ -1334,7 +1346,23 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		case DN_EDITCHANGE:
 			Msg=oldfar::DN_EDITCHANGE;
 			if(Param2)
-				return CurrentDlgProc(hDlg, Msg, Param1,UnicodeDialogItemToAnsi((FarDialogItem *)Param2,hDlg,Param1));
+			{
+				oldfar::FarDialogItem* diA=UnicodeDialogItemToAnsi((FarDialogItem *)Param2,hDlg,Param1);
+				int len=(int)FarSendDlgMessage(hDlg,DM_GETTEXTLENGTH,Param1,0);
+				wchar_t* Data=(wchar_t*)xf_malloc((len+1)*sizeof(wchar_t));
+				FarSendDlgMessage(hDlg,DM_GETTEXTPTR,Param1,(LONG_PTR)Data);
+				if((diA->Type==oldfar::DI_EDIT||diA->Type==oldfar::DI_COMBOBOX)&&(diA->Flags&oldfar::DIF_VAREDIT))
+				{
+					if(diA->Data.Ptr.PtrData)
+						xf_free(diA->Data.Ptr.PtrData);
+					diA->Data.Ptr.PtrData=UnicodeToAnsi(Data);
+					diA->Data.Ptr.PtrLength=len;
+				}
+				else
+					UnicodeToOEM(Data,diA->Data.Data,sizeof(diA->Data.Data));
+				xf_free(Data);
+				return CurrentDlgProc(hDlg, Msg, Param1,(LONG_PTR)diA);
+			}
 			else
 				return FALSE;
 
@@ -1407,7 +1435,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			
 			if (di)
 			{
-				oldfar::FarDialogItem *FarDiA=(oldfar::FarDialogItem *)UnicodeDialogItemToAnsi(di,hDlg,Param1);
+				oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(di,hDlg,Param1);
 				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)di);
 
 				memcpy((oldfar::FarDialogItem *)Param2,FarDiA,sizeof(oldfar::FarDialogItem));
@@ -1462,7 +1490,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			if(!Param2)
 				return FALSE;
 
-			FarDialogItem *di=(FarDialogItem *)CurrentDialogItem(hDlg,Param1);
+			FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
 			FreeUnicodeDialogItem(di);
 
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;

@@ -1819,7 +1819,7 @@ void Dialog::ShowDialog(int ID)
           Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),L"\x2193");
         }
 
-        if (CurItem->Type == DI_COMBOBOX && GetDropDownOpened()) // need redraw VMenu?
+        if (CurItem->Type == DI_COMBOBOX && GetDropDownOpened() && CurItem->ListPtr->IsVisible()) // need redraw VMenu?
         {
           CurItem->ListPtr->Hide();
           CurItem->ListPtr->Show();
@@ -2262,10 +2262,10 @@ int Dialog::ProcessKey(int Key)
     case KEY_F1:
       // Перед выводом диалога посылаем сообщение в обработчик
       //   и если вернули что надо, то выводим подсказку
-      if(Help::MkTopic(PluginNumber,
+      if(!Help::MkTopic(PluginNumber,
                  (const wchar_t*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
                                 (HelpTopic?(LONG_PTR)HelpTopic:0)),
-                 strStr))
+                 strStr).IsEmpty())
       {
         Help Hlp (strStr);
       }
