@@ -1848,6 +1848,26 @@ int FileEditor::EditorControl(int Command,void *Param)
       return FALSE;
     }
 
+    case ECTL_ADDSTACKBOOKMARK:
+    {
+      return FEdit->AddStackBookmark();
+    }
+
+    case ECTL_PREVSTACKBOOKMARK:
+    {
+      return FEdit->PrevStackBookmark();
+    }
+
+    case ECTL_NEXTSTACKBOOKMARK:
+    {
+      return FEdit->NextStackBookmark();
+    }
+
+    case ECTL_CLEARSTACKBOOKMARKS:
+    {
+      return FEdit->ClearStackBookmarks();
+    }
+
     case ECTL_SETTITLE:
     {
       // $ 08.06.2001 IS - Баг: не учитывался размер PluginTitle

@@ -24,6 +24,14 @@ struct InternalEditorBookMark{
   DWORD LeftPos[BOOKMARK_COUNT];
 };
 
+struct InternalEditorStackBookMark{
+  DWORD Line;
+  DWORD Cursor;
+  DWORD ScreenLine;
+  DWORD LeftPos;
+  struct InternalEditorStackBookMark *prev, *next;
+};
+
 struct EditorUndoData
 {
   int Type;
@@ -134,6 +142,9 @@ class Editor:public ScreenObject
 
     struct InternalEditorBookMark SavePos;
 
+    struct InternalEditorStackBookMark *StackPos;
+    BOOL NewStackPos;
+
     int EditorID;
 
     FileEditor *HostFileEditor;
@@ -182,6 +193,11 @@ class Editor:public ScreenObject
 
     int SetBookmark(DWORD Pos);
     int GotoBookmark(DWORD Pos);
+    int AddStackBookmark();
+    int RestoreStackBookmark();
+    int PrevStackBookmark();
+    int NextStackBookmark();
+    int ClearStackBookmarks();
 
     bool AddString (const char *lpszStr, int nLength);
     Edit *CreateString (const char *lpszStr, int nLength);

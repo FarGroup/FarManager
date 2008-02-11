@@ -134,6 +134,11 @@ enum MACRO_OP_CODE {
   MCODE_F_FLOCK,                    // N=FLock(N,N)
   MCODE_F_REPLACE,                  // S=replace(sS,sF,sR,Count)
   MCODE_F_CALLPLUGIN,               // S=callplugin(S,Path,N)
+  MCODE_F_BM_ADD,                   // N=BM.Add()
+  MCODE_F_BM_CLEAR,                 // N=BM.Clear()
+  MCODE_F_BM_NEXT,                  // N=BM.Next()
+  MCODE_F_BM_PREV,                  // N=BM.Prev()
+  MCODE_F_BM_STAT,                  // N=BM.Stat()
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

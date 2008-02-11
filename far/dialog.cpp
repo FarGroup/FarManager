@@ -1828,7 +1828,7 @@ void Dialog::ShowDialog(int ID)
           Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),"\x19");
         }
 
-        if (CurItem->Type == DI_COMBOBOX && GetDropDownOpened()) // need redraw VMenu?
+        if (CurItem->Type == DI_COMBOBOX && GetDropDownOpened() && CurItem->ListPtr->IsVisible()) // need redraw VMenu?
         {
           CurItem->ListPtr->Hide();
           //if(CurItem->ListPtr->GetItemCount() > 0)
