@@ -46,7 +46,7 @@ The dialog manager will not receive the <a href="dn_key.html">DN_KEY</a> event i
 // add semicolon to the end of edit string
 DWORD Keys[2]={KEY_END,';'};
 
-Info.SendDlgMessage(hDlg,DM_KEY,sizeof(Keys)/sizeof(Keys[0]),(long)Keys);
+Info.SendDlgMessage(hDlg,DM_KEY,sizeof(Keys)/sizeof(Keys[0]),(LONG_PTR)Keys);
 </pre>
 </div>
 

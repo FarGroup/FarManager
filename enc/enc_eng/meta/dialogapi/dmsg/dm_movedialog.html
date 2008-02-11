@@ -48,15 +48,15 @@ with -1 values and set <dfn>Param1</dfn> = TRUE.
 <pre class=code>
 // center the dialog
 COORD c={-1,-1};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
 
 // move the dialog to the top left corner of the screen with coordinates 1,1
 COORD c={1,1};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
 
 // move the dialog by 2 positions to the right
 COORD c={2,0};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,(long)&amp;c);</pre>
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,(LONG_PTR)&amp;c);</pre>
 </div>
 
 

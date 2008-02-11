@@ -66,8 +66,8 @@ This example sets history and empties edit line:
   {
     static char SwHistoryName[NM];
     FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd-&gt;ArcFormat);
-    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(long)SwHistoryName);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)"");
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)"");
   }
 ...
 </pre>
@@ -79,8 +79,8 @@ This example sets history and empties edit line:
   {
     static char SwHistoryName[NM];
     FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd-&gt;ArcFormat);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)"");
-    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(long)SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)"");
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
   }
 ...
 </pre>

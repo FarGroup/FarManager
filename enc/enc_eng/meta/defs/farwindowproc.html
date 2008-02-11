@@ -19,10 +19,10 @@ The <dfn>FARWINDOWPROC</dfn> type describes a callback function for the dialog w
 </div>
 
 <pre class=syntax>
-typedef long (WINAPI *FARWINDOWPROC)(
-  HANDLE hDlg,
-  int    Msg,
-  int    Param1,
+typedef LONG_PTR (WINAPI *FARWINDOWPROC)(
+  HANDLE   hDlg,
+  int      Msg,
+  int      Param1,
   LONG_PTR Param2
 );
 </pre>

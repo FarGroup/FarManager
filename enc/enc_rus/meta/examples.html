@@ -55,7 +55,7 @@
   Используется "бесконечный цикл" с вызовом команд
   <a href="service_functions/editorcontrol.html#ECTL_READINPUT">ECTL_READINPUT</a> и
   <a href="service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>:
-<pre class=code>HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+<pre class=code>HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 {
   ...
   while (!Done)

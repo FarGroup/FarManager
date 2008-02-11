@@ -86,7 +86,7 @@ void GetFarWindowInfo()
       return ;
 
   // request window count
-  CountWindow=Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,NULL);
+  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,NULL);
   fprintf(Fp,"WindowCount=%i\n",CountWindow);
 
   for ( I=0; I &lt; CountWindow; I++ )

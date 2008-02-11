@@ -49,7 +49,7 @@ case DN_KEY:
   if(Param2 == KEY_CTRLAPPS)
   {
     COORD c={-1,-1};
-    Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
+    Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
     return TRUE;
   }
 </pre>

@@ -51,7 +51,7 @@ User-defined value.
 <div class=descr>
 <pre class=code>#define <b>DMREV_RESULT</b> DM_USER+1
 
-long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
 ...
     Info.SendDlgMessage(hDlg,<b>DMREV_RESULT</b>,0,0);

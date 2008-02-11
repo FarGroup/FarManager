@@ -63,7 +63,7 @@ dialog item, it is also necessary to move the cursor to the necessary position:
 <pre class=code>
 Coord.X=X;
 Coord.Y=Y;
-Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,(long)&amp;Coord);
+Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,(LONG_PTR)&amp;Coord);
 </pre>
 
 The default cursor position in a
@@ -80,7 +80,7 @@ Windows 9x/Me set the high word of <dfn>Param2</dfn> to 99.
 <div class=descr>
 <pre class=code>
 // set the cursor of 3rd element as fully filled cell
-Info.SendDlgMessage(hDlg,DM_SETCURSORSIZE,3,MAKELONG(1,99));
+Info.SendDlgMessage(hDlg,DM_SETCURSORSIZE,3,(LONG_PTR)MAKELONG(1,99));
 </pre>
 </div>
 

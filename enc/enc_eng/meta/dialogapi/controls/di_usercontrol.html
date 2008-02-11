@@ -73,8 +73,8 @@ case DN_DRAWDLGITEM:
     BYTE AddColor=0x00;
 
     <font color=#808080>// get coordinates of the dialog and description of the item</font>
-    Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&amp;Rect);
-    Info.SendDlgMessage(hDlg,DM_GETDLGITEM,11,(long)&amp;DialogItem);
+    Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;Rect);
+    Info.SendDlgMessage(hDlg,DM_GETDLGITEM,11,(LONG_PTR)&amp;DialogItem);
 
     <font color=#808080>// drawing the game field</font>
     for(Y=0; Y &lt; 8; ++Y)

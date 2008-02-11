@@ -44,14 +44,14 @@ struct InitDialogItem InitDlg[]={
 ...
 };
 
-long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 {
 ...
     case DN_DRAWDLGITEM:
       if(Param1 == 11)
       {
         SMALL_RECT Rect;
-        Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&amp;Rect);
+        Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;Rect);
         ...
               Info.Text(Rect.Left+DialogItem.X1+X*3,
                        Rect.Top+DialogItem.Y1+Y,

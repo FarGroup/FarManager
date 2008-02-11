@@ -76,7 +76,7 @@ If one simply delegates control to the kernel in a dialog callback function with
 <a href="defdlgproc.html">DefDlgProc</a> function call, then one gets simple About-styled dialog:
 <pre class=code>
 // dialog callback function with minimal code
-long WINAPI MyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI MyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }

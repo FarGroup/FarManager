@@ -49,9 +49,9 @@ if(msg == DN_CTLCOLORDLGITEM)
 {
   if(Param1 &gt;= 9 &amp;&amp; Param1 &lt;= 13)
   {
-    int Lo=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGEDIT);
-    int Hi=Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGEDITSELECTED);
-    return MAKELONG(MAKEWORD(Lo,Hi),MAKEWORD(Lo,Hi));
+    int Lo=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGEDIT);
+    int Hi=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGEDITSELECTED);
+    return (LONG_PTR)MAKELONG(MAKEWORD(Lo,Hi),MAKEWORD(Lo,Hi));
   }
 }
 ...

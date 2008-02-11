@@ -49,15 +49,15 @@ FALSE - <dfn>Param2</dfn> содержит относительные координаты.
 <pre class=code>
 // центрировать диалог
 COORD c={-1,-1};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
 
 // переместить диалог в левый верхний угол экрана в координаты 1,1.
 COORD c={1,1};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
 
 // переместить диалог на 2 позиции вправо.
 COORD c={2,0};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,(long)&amp;c);</pre>
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,(LONG_PTR)&amp;c);</pre>
 </div>
 
 

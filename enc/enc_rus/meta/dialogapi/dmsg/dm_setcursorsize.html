@@ -65,7 +65,7 @@ ID элемента
 <pre class=code>
 Coord.X=X;
 Coord.Y=Y;
-Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,(long)&amp;Coord);
+Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,(LONG_PTR)&amp;Coord);
 </pre>
 
 Ёто св€зано с тем, что по умолчанию позици€ курсора в
@@ -82,7 +82,7 @@ Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,(long)&amp;Coord);
 <div class=descr>
 <pre class=code>
 // ”становить курсор дл€ элемента 3 полностью заполненной €чейкой.
-Info.SendDlgMessage(hDlg,DM_SETCURSORSIZE,3,MAKELONG(1,99));
+Info.SendDlgMessage(hDlg,DM_SETCURSORSIZE,3,(LONG_PTR)MAKELONG(1,99));
 </pre>
 </div>
 

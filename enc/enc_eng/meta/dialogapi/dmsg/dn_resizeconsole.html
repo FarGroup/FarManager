@@ -64,32 +64,32 @@ case DN_RESIZECONSOLE:
 
   Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-  Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&amp;rect);
+  Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;rect);
   coord.X=rect.Right-rect.Left+1;
   DlgHeight+=IncY;
   coord.Y=DlgHeight;
 
   if (IncY &gt; 0)
-    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&amp;coord);
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&amp;coord);
 
   for (I=0; I &lt; 2; I++)
   {
-    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(long)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(LONG_PTR)&amp;rect);
     rect.Bottom+=(short)IncY;
-    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(long)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(LONG_PTR)&amp;rect);
   }
 
   for (I=2; I &lt; 10; I++)
   {
-    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(long)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(LONG_PTR)&amp;rect);
     if (I==2)
       rect.Left=-1;
     rect.Top+=(short)IncY;
-    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(long)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(LONG_PTR)&amp;rect);
   }
 
   if (IncY &lt;= 0)
-    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&amp;coord);
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&amp;coord);
 
   Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 

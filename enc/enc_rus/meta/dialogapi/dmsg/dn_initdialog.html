@@ -50,7 +50,7 @@ FALSE - изменений не было.
 <pre class=code>case <dfn>DN_INITDIALOG</dfn>:
   struct <a href="../structures/fardialogitem.html">FarDialogItem</a> DialogItem;
 
-  Info.<a href="../senddlgmessage.html">SendDlgMessage</a>(hDlg,<a href="dm_getdlgitem.html">DM_GETDLGITEM</a>,75,(long)&amp;DialogItem);
+  Info.<a href="../senddlgmessage.html">SendDlgMessage</a>(hDlg,<a href="dm_getdlgitem.html">DM_GETDLGITEM</a>,75,(LONG_PTR)&amp;DialogItem);
   if(DialogItem.ListItems-&gt;Items[0].Flags&amp;<a href="../structures/farlistitem.html#LIF_SELECTED">LIF_SELECTED</a>)
     Computer=Pl2;
   else

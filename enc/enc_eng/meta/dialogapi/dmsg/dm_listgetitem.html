@@ -55,7 +55,7 @@ Before retrieving a list element, you should fill the
 <pre class=code>
 struct FarListGetItem List;
 List.ItemIndex=Index;
-Info.SendDlgMessage(hDlg,DM_LISTGETITEM,ID,(long)&amp;List);
+Info.SendDlgMessage(hDlg,DM_LISTGETITEM,ID,(LONG_PTR)&amp;List);
 </pre>
 
 </div>

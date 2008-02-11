@@ -53,7 +53,7 @@ TRUE - данные скопированы или FALSE - для неверного ID элемента.
 // получить параметры 12-го элемента
 struct FarDialogItem DialogItem;
 
-Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,(long)&amp;DialogItem);
+Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,(LONG_PTR)&amp;DialogItem);
 </pre>
 </div>
 

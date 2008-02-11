@@ -29,7 +29,7 @@ The ID of the dialog item for which you want to retrieve the text.
 Pointer to a <a href="../structures/fardialogitemdata.html">FarDialogItemData</a>structure that receives the text.<br>
 If <dfn>Param2</dfn> is NULL this is yet another way to retrieve necessary data size (see <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>):
 <pre class=code>
-LenData=SendDlgMessage(hDlg,DM_GETTEXT,1,(long)NULL);
+LenData=SendDlgMessage(hDlg,DM_GETTEXT,1,(LONG_PTR)NULL);
 </pre>
 
 is equal to 

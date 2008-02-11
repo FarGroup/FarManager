@@ -63,7 +63,7 @@ case DN_HELP:
     i=0;
   else if(GAME[0].NumPl1+GAME[0].NumPl2 &gt; 16)
     i=2;
-  return (long)(&amp;HelpTopics[i][0]);
+  return (LONG_PTR)(&amp;HelpTopics[i][0]);
 }
 </pre>
 </div>

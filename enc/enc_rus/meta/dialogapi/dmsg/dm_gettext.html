@@ -30,7 +30,7 @@ ID требуемого элемента
 Если <dfn>Param2</dfn> = NULL - это еще один способ получить требуемый размер
 данных (см. <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>):
 <pre class=code>
-LenData=SendDlgMessage(hDlg,DM_GETTEXT,1,(long)NULL);
+LenData=SendDlgMessage(hDlg,DM_GETTEXT,1,(LONG_PTR)NULL);
 </pre>
 
 эквивалентно

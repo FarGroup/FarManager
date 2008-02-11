@@ -69,12 +69,12 @@ FarDialogItem dialog[] = {
 ...
 };
 
-long WINAPI FooDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+LONG_PTR WINAPI FooDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
 ...
     if (Msg == DM_KEY &amp;&amp; Param2 == KEY_ENTER){
-      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, 2, (long)Text);
-      Info.SendDlgMessage(hDlg, DM_ADDHISTORY, 2, (long)Text);
+      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, 2, (LONG_PTR)Text);
+      Info.SendDlgMessage(hDlg, DM_ADDHISTORY, 2, (LONG_PTR)Text);
       Res = AData.Parse(Text);
 ...
 }

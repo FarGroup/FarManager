@@ -59,15 +59,15 @@ all items will be deleted from the list.
 struct FarListDelete FLDItem;
 FLDItem.StartIndex=0;
 FLDItem.Count=2;
-Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)&amp;FLDItem);
+Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
 
 // *** clear all list ***
   //   Method 1:
   struct FarListDelete FLDItem={0,<b>0</b>};
-  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)&amp;FLDItem);
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
 
   //   Method 2:
-  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)<b>NULL</b>);
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)<b>NULL</b>);
 </pre>
 </div>
 

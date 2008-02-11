@@ -53,7 +53,7 @@ structure before sending the message:
 FarListTitles ListTitle;
 ListTitle.Title="Some title";
 ListTitle.Bottom=NULL; // reset footer
-Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,ID,(long)&amp;ListTitle);
+Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,ID,(LONG_PTR)&amp;ListTitle);
 </code>
 </div>
 

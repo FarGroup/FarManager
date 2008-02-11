@@ -77,7 +77,7 @@
 функции <a href="defdlgproc.html">DefDlgProc</a>, то получим... тот же About-стиль:
 <pre class=code>
 // минимальный обработчик диалога
-long WINAPI MyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+LONG_PTR WINAPI MyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
