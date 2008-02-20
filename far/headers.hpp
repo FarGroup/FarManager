@@ -69,11 +69,15 @@ headers.hpp
 #define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
 #endif
 
+#if !defined(IO_REPARSE_TAG_MOUNT_POINT)
 #define IO_REPARSE_TAG_MOUNT_POINT              (0xA0000003L)
+#endif
 #define IO_REPARSE_TAG_HSM                      (0xC0000004L)
 #define IO_REPARSE_TAG_SIS                      (0x80000007L)
 #define IO_REPARSE_TAG_DFS                      (0x8000000AL)
+#if !defined(IO_REPARSE_TAG_SYMLINK)
 #define IO_REPARSE_TAG_SYMLINK                  (0xA000000CL)
+#endif
 #define IO_REPARSE_TAG_DFSR                     (0x80000012L)
 
 
