@@ -240,6 +240,18 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
   return pInfo;
 }
 
+static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu& HotPlugList)
+{
+	if(pInfo) FreeHotplugDevicesInfo (pInfo);
+	pInfo=NULL;
+
+	HotPlugList.Hide();
+	HotPlugList.DeleteItems();
+	HotPlugList.SetPosition(-1,-1,0,0);
+	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
+	HotPlugList.Show();
+}
+
 void ShowHotplugDevice ()
 {
   if( !g_hSetupAPI )
@@ -277,16 +289,7 @@ void ShowHotplugDevice ()
 
       case KEY_CTRLR:
       {
-        if(pInfo)
-          FreeHotplugDevicesInfo (pInfo);
-        pInfo=NULL;
-
-        HotPlugList.Hide();
-        HotPlugList.DeleteItems();
-        HotPlugList.SetPosition(-1,-1,0,0);
-        pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
-        HotPlugList.Show();
-
+        RefreshHotplugMenu(pInfo,HotPlugList);
         break;
       }
 
@@ -304,8 +307,7 @@ void ShowHotplugDevice ()
             if(pInfo)
               FreeHotplugDevicesInfo (pInfo);
             pInfo=NULL;
-            ShowHotplugDevice();
-            return;
+            RefreshHotplugMenu(pInfo,HotPlugList);
           }
         }
         break;
