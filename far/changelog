@@ -1,3 +1,9 @@
+t-rex 25.02.2008 01:28:29 +0200 - build 420
+
+От Stanislav Vinokurov:
+
+1. Mantis#436: PrepareExecuteModule() bug(s)
+
 zg 20.02.2008 19:27:59 +0200 - build 419
 
 1. hotplug devices list. при удалении подряд нескольких устройств - визуальные глюки.

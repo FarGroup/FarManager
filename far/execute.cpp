@@ -467,9 +467,9 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
       if (!PtrFName)
         strWorkName += PtrExt;
 
-      if(GetFileAttributesW(strFullName) != -1)
+      if(GetFileAttributesW(strWorkName) != -1)
       {
-        ConvertNameToFull (strFullName, strFullName);
+        ConvertNameToFull (strWorkName, strFullName);
         Ret=TRUE;
         break;
       }
@@ -487,11 +487,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
         while(*PtrExt)
         {
-          strWorkName = strFullName;
-
-          if (!PtrFName)
-            strWorkName += PtrExt;
-
           if ( (dwSize = SearchPathW (strPathEnv, strFullName, PtrExt, 0, NULL, NULL)) != 0 )
           {
             wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
@@ -515,13 +510,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
         PtrExt=StdExecuteExt;
         while(*PtrExt)
         {
-          strWorkName = strFullName;
-
-          if (!PtrFName)
-            strWorkName += PtrExt;
-
-
-
           if ( (dwSize = SearchPathW (NULL, strFullName, PtrExt, 0, NULL, NULL)) != 0 )
           {
             wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
@@ -552,7 +540,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
         {
           if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
-
             RegQueryStringValueEx(hKey, L"", strFullName, L"");
 
             RegCloseKey(hKey);
