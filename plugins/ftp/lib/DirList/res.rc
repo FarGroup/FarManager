@@ -13,7 +13,7 @@ FILETYPE 2 {
    VALUE "OriginalFilename", "ftpDirList.fll\000"
 
    VALUE "ProductVersion",   "FTP client for FAR Manager v1.7\000\000"
-   VALUE "FileVersion",      "v1.2 build 05.12.2005\000\000"
+   VALUE "FileVersion",      "v1.3 build 01.03.2008\000\000"
   }
  }
  BLOCK "VarFileInfo" {

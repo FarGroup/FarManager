@@ -1,3 +1,3 @@
-set CROOT=e:\lng\bcc
+set CROOT=c:\lng\bcc
 
 %CROOT%\bin\make.exe /f makefile.bcb

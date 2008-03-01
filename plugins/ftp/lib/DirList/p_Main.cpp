@@ -110,7 +110,10 @@ BOOL CorrectTime( SYSTEMTIME& st,Time_t& dt, FILETIME *wdt )
          FileTimeToLocalFileTime( wdt, &t1 );
 
          FileTimeToSystemTime( &t1, &ftm );
-         ftm.wYear--;
+         if (ftm.wDay == 29 && ftm.wMonth == 2)
+           ftm.wYear-=4;
+         else
+           ftm.wYear--;
          SystemTimeToFileTime( &ftm, &t1 );
          LocalFileTimeToFileTime( &t1, wdt );
        }
