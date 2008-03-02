@@ -535,11 +535,11 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						pResult->Item.UserData = (char*)item; //BUGBUG, это фантастика просто. Исправить!!!! связано с работой TArray
 						pResult->Item.UserDataSize = sizeof (PanelMenuItem);
 					}
-					else
+				/*	else BUGBUG, а вот это, похоже, лишнее
 					{
 						Done=TRUE;
 						break;
-					}
+					}*/
 				}
 			} // END: for (PluginItem=0;;++PluginItem)
 
@@ -598,7 +598,6 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				pResult->Item.UserData = (char*)item->Item.UserData; //BUGBUG, это фантастика просто. Исправить!!!! связано с работой TArray
 				pResult->Item.UserDataSize = item->Item.UserDataSize;
-				break;
 			}
 		}
 
