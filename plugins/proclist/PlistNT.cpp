@@ -549,7 +549,7 @@ TCHAR* PrintTime(ULONG s, bool bDays=true)
 TCHAR* PrintTime(ULONGLONG ul100ns, bool bDays)
 {
     TCHAR* buf = PrintTime((ULONG)(ul100ns/10000000), bDays);
-    FSF.sprintf(buf+lstrlen(buf), _T(".%03d"), (ul100ns/1000000)%1000 );
+    FSF.sprintf(buf+lstrlen(buf), _T(".%03d"), (ul100ns/10000)%1000 );
     return buf;
 }
 
