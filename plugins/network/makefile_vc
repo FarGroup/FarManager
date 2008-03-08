@@ -15,6 +15,7 @@ $(OBJDIR)\NetReg.obj
 !if defined(DEBUG) && !defined(NO_LOG)
 USERCPP=/DNETWORK_LOGGING
 NEEDDEFLIB=1
+NEEDENTRY=1
 !endif
 
 !include ..\makefile_vc_def_inc
