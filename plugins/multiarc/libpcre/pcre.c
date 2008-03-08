@@ -40,6 +40,7 @@ restrictions:
 inline, and there are *still* stupid compilers about that don't like indented
 pre-processor statements. I suppose it's only been 10 years... */
 
+#undef DEBUG
 #ifdef DEBUG
 #define DPRINTF(p) printf p
 #else
