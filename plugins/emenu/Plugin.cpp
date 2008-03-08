@@ -76,7 +76,7 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
   *(PluginStartupInfo*)this=*Info;
   DWORD nFARVer=(DWORD)AdvControl(ACTL_GETFARVERSION, NULL);
   if (LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
-  if (HIWORD(nFARVer)<MIN_FAR_BUILD) return;
+  if (LOBYTE(nFARVer)==MIN_FAR_VERMINOR && HIWORD(nFARVer)<MIN_FAR_BUILD) return;
   m_fsf=*Info->FSF;
   lstrcpy(g_PluginKey, Info->RootKey);
   lstrcat(g_PluginKey, REG_Key);
