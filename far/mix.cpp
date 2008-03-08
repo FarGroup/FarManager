@@ -1366,33 +1366,36 @@ BOOL IsLocalRootPath(const wchar_t *Path)
 
 string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
-  if( !strPath.IsEmpty() )
-  {
-    if((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
-    {
-      if(CheckFullPath)
-		  ConvertNameToLong (strPath, strPath); //??? а почему не convert to full?
+	if( !strPath.IsEmpty() )
+	{
+		if((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
+		{
+			if(CheckFullPath)
+			{
+				ConvertNameToShort (strPath, strPath);
+				ConvertNameToLong (strPath, strPath); //??? а почему не convert to full?
+			}
 
-      wchar_t *lpwszPath = strPath.GetBuffer ();
+			wchar_t *lpwszPath = strPath.GetBuffer ();
 
-      if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
-      {
-        wchar_t *ptr=&lpwszPath[2];
-        if (*ptr == L'?' && ptr[1] == L'\\' && ptr[2] == L'\\') {
-          if (ptr[3] && ptr[4] == L':')
-              ptr[3] = Upper(ptr[3]);
-        } else {
-          while (*ptr && *ptr!=L'\\')
-            *(ptr++)=Upper(*ptr);
-        }
-      }
-      else
-        lpwszPath[0]=Upper(lpwszPath[0]);
+			if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
+			{
+				wchar_t *ptr=&lpwszPath[2];
+				if (*ptr == L'?' && ptr[1] == L'\\' && ptr[2] == L'\\') {
+					if (ptr[3] && ptr[4] == L':')
+						ptr[3] = Upper(ptr[3]);
+				} else {
+					while (*ptr && *ptr!=L'\\')
+						*(ptr++)=Upper(*ptr);
+				}
+			}
+			else
+				lpwszPath[0]=Upper(lpwszPath[0]);
 
-      strPath.ReleaseBuffer ();
-    }
-  }
-  return strPath;
+			strPath.ReleaseBuffer ();
+		}
+	}
+	return strPath;
 }
 
 /*
