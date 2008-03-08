@@ -1,3 +1,9 @@
+t-rex 08.03.2008 19:21:05 +0200 - build 423
+
+От Alexey Samlyukov:
+
+1. Mantis#439: Cancel after Ctrl+G should not update the panels.
+
 t-rex 08.03.2008 15:51:50 +0200 - build 422
 
 От George Yohng:

@@ -941,9 +941,8 @@ int FileList::ProcessKey(int Key)
       _ALGO(CleverSysLog clv(L"Ctrl-G"));
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
-        if (FileCount>0 && SetCurPath())
+        if (FileCount>0 && ApplyCommand())
         {
-          ApplyCommand();
           Update(UPDATE_KEEP_SELECTION);
           Redraw();
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -3868,13 +3867,13 @@ void FileList::SetReturnCurrentFile(int Mode)
 }
 
 
-void FileList::ApplyCommand()
+bool FileList::ApplyCommand()
 {
   static string strPrevCommand;
   string strCommand;
 
-  if (!GetString(UMSG(MAskApplyCommandTitle),UMSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,260, L"ApplyCmd",FIB_BUTTONS))
-    return;
+  if (!GetString(UMSG(MAskApplyCommandTitle),UMSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,260, L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
+    return false;
 
   strPrevCommand = strCommand;
   string strSelName, strSelShortName;
@@ -3910,6 +3909,7 @@ void FileList::ApplyCommand()
     ScrBuf.Scroll(1);
     ScrBuf.Flush();
   }
+  return true;
 }
 
 
