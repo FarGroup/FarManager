@@ -124,7 +124,7 @@ class Plist
     int ProcessEvent(int Event,void *Param);
     int Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode);
     int ProcessKey(int Key,unsigned int ControlState);
-    PanelMode* Plist::PanelModes(int& nModes);
+    PanelMode *PanelModes(int& nModes);
 
     static TCHAR* PrintTitle(int MsgId);
 
