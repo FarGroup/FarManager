@@ -619,6 +619,9 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 	{
 		pPlugin = PluginsData[i];
 
+		if ( !pPlugin->HasSetFindList() )
+			continue;
+
 		HANDLE hPlugin = pPlugin->OpenPlugin(OPEN_FINDLIST, 0);
 
 		if ( hPlugin != INVALID_HANDLE_VALUE )
