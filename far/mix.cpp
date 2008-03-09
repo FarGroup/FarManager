@@ -1009,7 +1009,7 @@ BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int Des
     if (strlen(Path)-I+strlen(EnvVar) < DestSize)
     {
       xstrncpy(Dest, EnvVar, DestSize-1);
-      strncat(Dest, Path + I, DestSize-1);
+      xstrncat(Dest, Path + I, DestSize-1);
       return TRUE;
     }
   }

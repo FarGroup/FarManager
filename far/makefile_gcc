@@ -108,6 +108,7 @@ SRCS = 	cddrv.cpp \
 	strdup.c \
 	strftime.cpp \
 	strmix.cpp \
+	strncat.c \
 	strncpy.c \
 	syntax.cpp \
 	tvar.cpp \

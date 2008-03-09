@@ -977,6 +977,8 @@ void __cdecl qsortex(char *base, size_t nel, size_t width,
             int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 
 char * __cdecl farmktemp(char *temp);
+char * __cdecl xstrncat (char * dest,const char * src,size_t maxlen);
+wchar_t * __cdecl xwcsncat (wchar_t * dest,const wchar_t * src,size_t maxlen);
 char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen);
 wchar_t * __cdecl xwcsncpy (wchar_t * dest,const wchar_t * src,size_t maxlen);
 char * __cdecl xf_strdup (const char * string);
