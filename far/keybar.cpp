@@ -138,9 +138,9 @@ void KeyBar::ReadRegGroup(const char *RegGroup, const char *szLanguage)
     xstrncpy(RegGroupName,RegGroup,sizeof(RegGroupName)-1);
 
     strcpy(RegName,"KeyBarLabels\\");
-    strncat(RegName,Language,sizeof(RegName)-1);
-    strncat(RegName,"\\",sizeof(RegName)-1);
-    strncat(RegName,RegGroup,sizeof(RegName)-1);
+    xstrncat(RegName,Language,sizeof(RegName)-1);
+    xstrncat(RegName,"\\",sizeof(RegName)-1);
+    xstrncat(RegName,RegGroup,sizeof(RegName)-1);
 
     for (I=0;;I++)
     {

@@ -99,7 +99,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   // !! символ '!'
   if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
   {
-    strncat(TmpStr,"!",MaxTempStrSize-1);
+    xstrncat(TmpStr,"!",MaxTempStrSize-1);
     CurStr+=2;
     //_SVS(SysLog("!! TmpStr=[%s]",TmpStr));
     return CurStr;
@@ -108,7 +108,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   // !.!      Длинное имя файла с расширением
   if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
   {
-    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherName:PSubstData->Name, MaxTempStrSize-1);
+    xstrncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherName:PSubstData->Name, MaxTempStrSize-1);
     CurStr+=3;
     //_SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
     return CurStr;
@@ -117,7 +117,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   // !~       Короткое имя файла без расширения
   if (strncmp(CurStr,"!~",2)==0)
   {
-    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortNameOnly:PSubstData->ShortNameOnly, MaxTempStrSize-1);
+    xstrncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortNameOnly:PSubstData->ShortNameOnly, MaxTempStrSize-1);
     CurStr+=2;
     //_SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
     return CurStr;
@@ -138,7 +138,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       CurStr+=2;
     }
     if(Ext && *Ext)
-      strncat(TmpStr,++Ext, MaxTempStrSize-1);
+      xstrncat(TmpStr,++Ext, MaxTempStrSize-1);
     //_SVS(SysLog("!` TmpStr=[%s]",TmpStr));
     return CurStr;
   }
@@ -159,10 +159,10 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
     }
     else
       *CurDir=0;
-    strncat(CurDir,FileName,sizeof (CurDir)-1);
+    xstrncat(CurDir,FileName,sizeof (CurDir)-1);
     CurStr+=5;
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    xstrncat(TmpStr,CurDir, MaxTempStrSize-1);
     //_SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
     return CurStr;
   }
@@ -198,8 +198,8 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       if (First)
         First = FALSE;
       else
-        strncat(TmpStr," ", MaxTempStrSize-1);
-      strncat(TmpStr,FileNameL, MaxTempStrSize-1);
+        xstrncat(TmpStr," ", MaxTempStrSize-1);
+      xstrncat(TmpStr,FileNameL, MaxTempStrSize-1);
       /* $ 05.03.2002 DJ
          если в буфер больше не влезет - выйдем из цикла
       */
@@ -259,7 +259,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
               /* IS $ */
             }
             //<Skeleton>
-            strncat(TmpStr,ListName+NM, MaxTempStrSize-1);
+            xstrncat(TmpStr,ListName+NM, MaxTempStrSize-1);
           }
           if ( !PSubstData->PassivePanel && (*ListName || PSubstData->ActivePanel->MakeListFile(ListName,ShortN0,Modifers)))
           {
@@ -273,14 +273,14 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
               /* IS $ */
             }
             //<Skeleton>
-            strncat(TmpStr,ListName, MaxTempStrSize-1);
+            xstrncat(TmpStr,ListName, MaxTempStrSize-1);
           }
         }
         else
         {
-          strncat(TmpStr,CurStr, MaxTempStrSize-1);
-          strncat(TmpStr,Modifers, MaxTempStrSize-1);
-          strncat(TmpStr,"!", MaxTempStrSize-1);
+          xstrncat(TmpStr,CurStr, MaxTempStrSize-1);
+          xstrncat(TmpStr,Modifers, MaxTempStrSize-1);
+          xstrncat(TmpStr,"!", MaxTempStrSize-1);
         }
         /* tran $ */
         CurStr+=Ptr-CurStr+1;
@@ -311,7 +311,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
             */
             ConvertNameToShort(PSubstData->ShortListName+NM,PSubstData->ShortListName+NM,NM-1); // BUG! NM-1
             /* IS $ */
-            strncat(TmpStr,PSubstData->ShortListName+NM, MaxTempStrSize-1);
+            xstrncat(TmpStr,PSubstData->ShortListName+NM, MaxTempStrSize-1);
           }
           if ( !PSubstData->PassivePanel && (*PSubstData->ShortListName || PSubstData->ActivePanel->MakeListFile(PSubstData->ShortListName,TRUE,Modifers)))
           {
@@ -320,15 +320,15 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
             */
             ConvertNameToShort(PSubstData->ShortListName,PSubstData->ShortListName,NM-1); // BUG! NM-1
             /* IS $ */
-            strncat(TmpStr,PSubstData->ShortListName, MaxTempStrSize-1);
+            xstrncat(TmpStr,PSubstData->ShortListName, MaxTempStrSize-1);
           }
           /* tran $ */
         }
         else
         {
-          strncat(TmpStr,CurStr, MaxTempStrSize-1);
-          strncat(TmpStr,Modifers, MaxTempStrSize-1);
-          strncat(TmpStr,"!", MaxTempStrSize-1);
+          xstrncat(TmpStr,CurStr, MaxTempStrSize-1);
+          xstrncat(TmpStr,Modifers, MaxTempStrSize-1);
+          xstrncat(TmpStr,"!", MaxTempStrSize-1);
         }
         CurStr+=Ptr-CurStr+1;
         //_SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
@@ -341,7 +341,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   // !-!      Короткое имя файла с расширением
   if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
   {
-    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
+    xstrncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
     CurStr+=3;
     //_SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
     return CurStr;
@@ -351,7 +351,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   //          после выполнения команды, FAR восстановит его
   if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
   {
-    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
+    xstrncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
     CurStr+=3;
     PSubstData->PreserveLFN=TRUE;
     //_SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
@@ -376,7 +376,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
 
     GetPathRoot(CurDir,RootDir);
     DeleteEndSlash(RootDir);
-    strncat(TmpStr,RootDir, MaxTempStrSize-1);
+    xstrncat(TmpStr,RootDir, MaxTempStrSize-1);
     CurStr+=2;
     //_SVS(SysLog("!: TmpStr=[%s]",TmpStr));
     return CurStr;
@@ -429,7 +429,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
         *CurDir=0;
     }
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    xstrncat(TmpStr,CurDir, MaxTempStrSize-1);
     //_SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
     return CurStr;
   }
@@ -461,7 +461,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       }
     }
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    xstrncat(TmpStr,CurDir, MaxTempStrSize-1);
     //_SVS(SysLog("!/ TmpStr=[%s]",TmpStr));
     return CurStr;
   }
@@ -550,7 +550,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   if (*CurStr=='!')
   {
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-    strncat(TmpStr,PointToName(PSubstData->PassivePanel ? PSubstData->AnotherNameOnly:PSubstData->NameOnly), MaxTempStrSize-1);
+    xstrncat(TmpStr,PointToName(PSubstData->PassivePanel ? PSubstData->AnotherNameOnly:PSubstData->NameOnly), MaxTempStrSize-1);
     CurStr++;
     //_SVS(SysLog("! TmpStr=[%s]",TmpStr));
   }

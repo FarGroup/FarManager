@@ -856,7 +856,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
       {
         IsUNC = TRUE;
         xstrncpy(NewPath, "\\",  sizeof(NewPath)-1);
-        strncat(NewPath, &Path[7], sizeof(NewPath)-1);
+        xstrncat(NewPath, &Path[7], sizeof(NewPath)-1);
       }
     }
     else

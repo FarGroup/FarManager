@@ -210,6 +210,7 @@ FAROBJ=\
    $(OBJPATH)\strdup.obj\
    $(OBJPATH)\new.obj\
    $(OBJPATH)\del.obj\
+   $(OBJPATH)\strncat.obj\
    $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\qsort.obj\
    $(OBJPATH)\cmem.obj\

@@ -640,21 +640,21 @@ char *HiText2Str(char *Dest, int DestSize, const char *Str)
     {
       *ChPtr=0;
 
-      strncat(Dest,TextStr,DestSize-1);
+      xstrncat(Dest,TextStr,DestSize-1);
 
       if (ChPtr[1])
       {
         char Chr[2];
         Chr[0]=ChPtr[1]; Chr[1]=0;
-        strncat(Dest,Chr,DestSize-1);
+        xstrncat(Dest,Chr,DestSize-1);
         ReplaceStrings(ChPtr+1,"&&","&",-1);
-        strncat(Dest,ChPtr+2,DestSize-1);
+        xstrncat(Dest,ChPtr+2,DestSize-1);
       }
     }
     else
     {
       ReplaceStrings(ChPtr,"&&","&",-1);
-      strncat(Dest,TextStr,DestSize-1);
+      xstrncat(Dest,TextStr,DestSize-1);
     }
   }
   return Dest;

@@ -1735,7 +1735,7 @@ void Dialog::ShowDialog(int ID)
             sprintf(Str,"(%c)%s",(CurItem->Selected ? '\07':' '),AddSpace);
         }
 
-        strncat(Str,CurItem->Data,sizeof(Str)-1);
+        xstrncat(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str);
         if(X1+CX1+LenText > X2)
           Str[ObjWidth-1]=0;
@@ -4095,8 +4095,10 @@ int Dialog::SelectFromComboBox(
       int Key=ComboBox->ReadInput(&ReadRec);
 
       if(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTKEY) && ReadRec.EventType == KEY_EVENT)
+      {
         if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
           continue;
+      }
       else if(CurItem->IFlags.Check(DLGIIF_COMBOBOXEVENTMOUSE) && ReadRec.EventType == MOUSE_EVENT)
         if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(LONG_PTR)&ReadRec.Event.MouseEvent))
           continue;
@@ -4773,7 +4775,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
         // при ComboBox`е - "вываливаем" последний //????
         else if (Item[I].Type==DI_COMBOBOX)
         {
-          ProcessOpenComboBox(Item[I].Type,Item+I,FocusPos);
+          ProcessOpenComboBox(Item[I].Type,Item+I,I);
           //ProcessKey(KEY_CTRLDOWN);
           return(TRUE);
         }

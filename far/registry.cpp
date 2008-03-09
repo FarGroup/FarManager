@@ -251,8 +251,8 @@ static char *MkKeyName(const char *Key, char *Dest, int DestSize)
   if(*Key)
   {
     if(*FullKeyName)
-      strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
-    strncat(FullKeyName,Key,sizeof(FullKeyName)-1);
+      xstrncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
+    xstrncat(FullKeyName,Key,sizeof(FullKeyName)-1);
   }
   xstrncpy(Dest,FullKeyName,DestSize);
   return Dest;
@@ -451,8 +451,8 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
     if (RegEnumKeyEx(hSrcKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
     xstrncpy(SrcKeyName,Src,sizeof(SrcKeyName)-1);
-    strncat(SrcKeyName,"\\",sizeof(SrcKeyName)-1);
-    strncat(SrcKeyName,SubkeyName,sizeof(SrcKeyName)-1);
+    xstrncat(SrcKeyName,"\\",sizeof(SrcKeyName)-1);
+    xstrncat(SrcKeyName,SubkeyName,sizeof(SrcKeyName)-1);
     if (Skip!=NULL)
     {
       bool Found=false;
@@ -466,8 +466,8 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
         continue;
     }
     xstrncpy(DestKeyName,Dest,sizeof(DestKeyName)-1);
-    strncat(DestKeyName,"\\",sizeof(DestKeyName)-1);
-    strncat(DestKeyName,SubkeyName,sizeof(DestKeyName)-1);
+    xstrncat(DestKeyName,"\\",sizeof(DestKeyName)-1);
+    xstrncat(DestKeyName,SubkeyName,sizeof(DestKeyName)-1);
     if (RegCreateKeyEx(hRegRootKey,DestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
     CloseRegKey(hDestKey);
@@ -513,8 +513,8 @@ void DeleteKeyTreePart(const char *KeyName)
       break;
 
     xstrncpy(FullKeyName,KeyName,sizeof(FullKeyName)-1);
-    strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
-    strncat(FullKeyName,SubkeyName,sizeof(FullKeyName)-1);
+    xstrncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
+    xstrncat(FullKeyName,SubkeyName,sizeof(FullKeyName)-1);
     DeleteKeyTreePart(FullKeyName);
   }
   CloseRegKey(hKey);
@@ -620,7 +620,7 @@ int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
       xstrncpy(TempName,Key,sizeof(TempName)-1);
       if (*TempName)
         AddEndSlash(TempName);
-      strncat(TempName,SubName,sizeof(TempName)-1);
+      xstrncat(TempName,SubName,sizeof(TempName)-1);
       xstrncpy(DestName,TempName,DestSize-1);
       return(TRUE);
     }

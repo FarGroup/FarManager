@@ -351,47 +351,47 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
     if (ColumnType==NAME_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_MARK)
-        strncat(Type,"M",sizeof(Type)-1);
+        xstrncat(Type,"M",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_NAMEONLY)
-        strncat(Type,"O",sizeof(Type)-1);
+        xstrncat(Type,"O",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
-        strncat(Type,"R",sizeof(Type)-1);
+        xstrncat(Type,"R",sizeof(Type)-1);
     }
     if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_COMMAS)
-        strncat(Type,"C",sizeof(Type)-1);
+        xstrncat(Type,"C",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_ECONOMIC)
-        strncat(Type,"E",sizeof(Type)-1);
+        xstrncat(Type,"E",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_FLOATSIZE)
-        strncat(Type,"F",sizeof(Type)-1);
+        xstrncat(Type,"F",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_THOUSAND)
-        strncat(Type,"T",sizeof(Type)-1);
+        xstrncat(Type,"T",sizeof(Type)-1);
     }
     if (ColumnType==MDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_BRIEF)
-        strncat(Type,"B",sizeof(Type)-1);
+        xstrncat(Type,"B",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_MONTH)
-        strncat(Type,"M",sizeof(Type)-1);
+        xstrncat(Type,"M",sizeof(Type)-1);
     }
     if (ColumnType==OWNER_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_FULLOWNER)
-        strncat(Type,"L",sizeof(Type)-1);
+        xstrncat(Type,"L",sizeof(Type)-1);
     }
 
-    strncat(ColumnTitles,Type,NM-1);
+    xstrncat(ColumnTitles,Type,NM-1);
     if(ColumnWidths)
     {
       itoa(ViewColumnWidths[I],Type,10);
-      strncat(ColumnWidths,Type,NM-1);
+      xstrncat(ColumnWidths,Type,NM-1);
     }
     if (I<ColumnCount-1)
     {
-      strncat(ColumnTitles,",",NM-1);
+      xstrncat(ColumnTitles,",",NM-1);
       if(ColumnWidths)
-        strncat(ColumnWidths,",",NM-1);
+        xstrncat(ColumnWidths,",",NM-1);
     }
   }
 }

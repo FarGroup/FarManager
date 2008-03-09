@@ -1354,7 +1354,7 @@ int TreeList::FindPartName(char *Name,int Next,int Direct,int ExcludeSets)
 {
   char Mask[NM*2];
   xstrncpy(Mask,Name,sizeof(Mask)-1);
-  strncat(Mask,"*",sizeof(Mask)-1);
+  xstrncat(Mask,"*",sizeof(Mask)-1);
 
   if(ExcludeSets)
   {
@@ -1875,7 +1875,7 @@ char *TreeList::MkTreeFileName(const char *RootDir,char *Dest,int DestSize)
 {
   xstrncpy(Dest,RootDir,DestSize-1);
   AddEndSlash(Dest);
-  strncat(Dest,"Tree.Far",DestSize);
+  xstrncat(Dest,"Tree.Far",DestSize-1);
   return Dest;
 }
 
@@ -1884,7 +1884,7 @@ char *TreeList::MkTreeCacheFolderName(const char *RootDir,char *Dest,int DestSiz
 {
   xstrncpy(Dest,RootDir,DestSize-1);
   AddEndSlash(Dest);
-  strncat(Dest,"Tree.Cache",DestSize);
+  xstrncat(Dest,"Tree.Cache",DestSize);
   return Dest;
 }
 

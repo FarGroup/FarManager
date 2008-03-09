@@ -1061,6 +1061,7 @@ void __cdecl qsortex(char *base, size_t nel, size_t width,
 
 char * __cdecl farmktemp(char *temp);
 char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen);
+char * __cdecl xstrncat (char * dest,const char * src,size_t maxlen);
 char * __cdecl xf_strdup (const char * string);
 void __cdecl far_qsort (
     void *base,

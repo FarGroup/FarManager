@@ -209,19 +209,19 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
       {
         xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
-        strncat(NewValue, ActionPtr, sizeof(NewValue) - 1);
-        strncat(NewValue, command_action, sizeof(NewValue) - 1);
+        xstrncat(NewValue, ActionPtr, sizeof(NewValue) - 1);
+        xstrncat(NewValue, command_action, sizeof(NewValue) - 1);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          strncat(Value, ActionPtr, sizeof(Value) - 1);
+          xstrncat(Value, ActionPtr, sizeof(Value) - 1);
           RetPtr = xstrncpy(Action,ActionPtr,sizeof(Action)-1);
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */
     } /* if */
     else
-      strncat(Value,Action, sizeof(Value) - 1);
+      xstrncat(Value,Action, sizeof(Value) - 1);
     /* VVM $ */
 
 //_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
@@ -249,12 +249,12 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     // Сначала проверим "open"...
     strcpy(Action,"open");
     xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
-    strncat(NewValue, Action, sizeof(NewValue) - 1);
-    strncat(NewValue, command_action, sizeof(NewValue) - 1);
+    xstrncat(NewValue, Action, sizeof(NewValue) - 1);
+    xstrncat(NewValue, command_action, sizeof(NewValue) - 1);
     if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
     {
       RegCloseKey(hOpenKey);
-      strncat(Value, Action, sizeof(Value) - 1);
+      xstrncat(Value, Action, sizeof(Value) - 1);
       RetPtr = Action;
       RetEnum = ERROR_NO_MORE_ITEMS;
 //_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
@@ -269,12 +269,12 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       {
         // Проверим наличие "команды" у этого ключа
         xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
-        strncat(NewValue, Action, sizeof(NewValue) - 1);
-        strncat(NewValue, command_action, sizeof(NewValue) - 1);
+        xstrncat(NewValue, Action, sizeof(NewValue) - 1);
+        xstrncat(NewValue, command_action, sizeof(NewValue) - 1);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          strncat(Value, Action, sizeof(Value) - 1);
+          xstrncat(Value, Action, sizeof(Value) - 1);
           RetPtr = Action;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
@@ -286,7 +286,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 
   if (RetPtr != NULL)
   {
-    strncat(Value,command_action, sizeof(Value) - 1);
+    xstrncat(Value,command_action, sizeof(Value) - 1);
 
     // а теперь проверим ГУЕвость запускаемой проги
     if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
@@ -857,8 +857,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
       xstrncpy(FarTitle,NewCmdStr,sizeof(FarTitle)-1);
       if (*NewCmdPar)
       {
-        strncat(FarTitle," ",sizeof(FarTitle)-1);
-        strncat(FarTitle,NewCmdPar,sizeof(FarTitle)-1);
+        xstrncat(FarTitle," ",sizeof(FarTitle)-1);
+        xstrncat(FarTitle,NewCmdPar,sizeof(FarTitle)-1);
       }
     }
 
@@ -1553,7 +1553,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
           *++Ptr=0;
         else
           *ExpandedDir=0;
-        strncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
+        xstrncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
         FindClose(hFile);
       }
     }

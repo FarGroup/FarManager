@@ -188,6 +188,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\timefunc.obj" \
+	"$(INTDIR)\strncat.obj" \
 	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\tvar.obj" \

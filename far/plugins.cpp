@@ -183,7 +183,7 @@ void PluginsSet::LoadPlugins()
       if(!PathMayBeAbsolute(FullName))
       {
         xstrncpy(PluginsDir,FarPath,sizeof(PluginsDir)-1);
-        strncat(PluginsDir,FullName,sizeof(PluginsDir)-1);
+        xstrncat(PluginsDir,FullName,sizeof(PluginsDir)-1);
         strcpy(FullName,PluginsDir);
       }
       // Получим реальное значение полного длинного пути с учетом символических связей.
@@ -1023,7 +1023,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
 
     // скорректирем адреса и плагино-зависимые поля
     xstrncpy(CurPlugin.RootKey,Opt.RegRoot,sizeof(CurPlugin.RootKey)-1);
-    strncat(CurPlugin.RootKey,"\\Plugins",sizeof(CurPlugin.RootKey)-1);
+    xstrncat(CurPlugin.RootKey,"\\Plugins",sizeof(CurPlugin.RootKey)-1);
     LocalStartupInfo.RootKey=CurPlugin.RootKey;
 
     //CurPluginItem=&CurPlugin;
@@ -1857,7 +1857,7 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
     char FindPath[NM];
     xstrncpy(FindPath,DestPath,sizeof(FindPath)-2);
     AddEndSlash(FindPath);
-    strncat(FindPath,"*.*",sizeof(FindPath)-1);
+    xstrncat(FindPath,"*.*",sizeof(FindPath)-1);
     HANDLE FindHandle;
     WIN32_FIND_DATA fdata;
     if ((FindHandle=FindFirstFile(FindPath,&fdata))!=INVALID_HANDLE_VALUE)

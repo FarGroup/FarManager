@@ -813,7 +813,7 @@ BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int Des
     if (strlen(Path)-I+strlen(EnvVar) < DestSize)
     {
       xstrncpy(Dest, EnvVar, DestSize-1);
-      strncat(Dest, Path + I, DestSize-1);
+      xstrncat(Dest, Path + I, DestSize-1);
       return TRUE;
     }
   }
@@ -1516,8 +1516,8 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
 
   if(!ReplaceStrings(NewCmdStr,"$*",NewCmdPar))
   {
-    strcat(NewCmdStr," ");
-    strncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-strlen(NewCmdStr)-1);
+    xstrncat(NewCmdStr," ",sizeof(NewCmdStr)-1);
+    xstrncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-1);
   }
   xstrncpy(Str,NewCmdStr,SizeStr-1);
   return TRUE;
@@ -1606,7 +1606,7 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int
             struct OpenPluginInfo Info;
             CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
             FileList::AddPluginPrefix(SrcFilePanel,PathName);
-            strncat(PathName,NullToEmpty(Info.CurDir),PathNameSize);
+            xstrncat(PathName,NullToEmpty(Info.CurDir),PathNameSize);
 
           }
           AddEndSlash(PathName);
@@ -1614,7 +1614,7 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int
 
         if(Opt.QuotedName&QUOTEDNAME_INSERT)
           QuoteSpace(PathName);
-        strncat(PathName,NullToEmpty(Param2),PathNameSize);
+        xstrncat(PathName,NullToEmpty(Param2),PathNameSize);
 
         RetCode=TRUE;
       }

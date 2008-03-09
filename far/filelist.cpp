@@ -3294,14 +3294,14 @@ void FileList::CompareDir()
       {
         strcpy(TempName2,Another->CurDir);
         AddEndSlash(TempName2);
-        strncat(TempName2,AnotherCurPtr->Name,sizeof(TempName2)-1);
+        xstrncat(TempName2,AnotherCurPtr->Name,sizeof(TempName2)-1);
         PtrTempName2=TempName2;
       }
       else if(!fp1 && fp2 && strcmp(PtrTempName1,".."))
       {
         strcpy(TempName1,CurDir);
         AddEndSlash(TempName1);
-        strncat(TempName1,CurPtr->Name,sizeof(TempName1)-1);
+        xstrncat(TempName1,CurPtr->Name,sizeof(TempName1)-1);
         PtrTempName1=TempName1;
       }
 
@@ -4058,7 +4058,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
       PrevDataStack[PrevDataStackSize].PrevListData=ListData;
       PrevDataStack[PrevDataStackSize].PrevFileCount=FileCount;
       PrevDataStack[PrevDataStackSize].PrevTopFile = CurTopFile;
-      strncpy(PrevDataStack[PrevDataStackSize].PrevName,FileName,sizeof(PrevDataStack[PrevDataStackSize].PrevName));
+      strncpy(PrevDataStack[PrevDataStackSize].PrevName,FileName,sizeof(PrevDataStack[PrevDataStackSize].PrevName)-1);
       PrevDataStackSize++;
       ListData=NULL;
       FileCount=0;

@@ -1710,7 +1710,7 @@ void Panel::SetTitle()
       CtrlObject->CmdLine->GetCurDir(CmdText);
       xstrncpy(TitleDir+1,CmdText,sizeof(TitleDir)-3);
     }
-    strncat(TitleDir,"}",sizeof(TitleDir)-3);
+    xstrncat(TitleDir,"}",sizeof(TitleDir)-3);
     strcpy(LastFarTitle,TitleDir);
     SetFarTitle(TitleDir);
   }

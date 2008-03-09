@@ -1579,7 +1579,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_FIND))
         {
           xstrncpy(PluginSearchPath,Dir,sizeof(PluginSearchPath)-1);
-          strncat(PluginSearchPath,"\x1",sizeof(PluginSearchPath)-1);
+          xstrncat(PluginSearchPath,"\x1",sizeof(PluginSearchPath)-1);
 
           ScanPluginDir();
 

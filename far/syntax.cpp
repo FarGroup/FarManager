@@ -208,7 +208,7 @@ static void keyMacroParseError(int err, const char *s, const char *p, const char
       oPos = ePos-50;
       strcpy(ErrMessage[1], "...");
     }
-    strncat(ErrMessage[1], p+oPos,sizeof(ErrMessage[1])-1);
+    xstrncat(ErrMessage[1], p+oPos,sizeof(ErrMessage[1])-1);
     if ( ErrMessage[1][61] )
       strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
     int lPos = ePos-oPos+(oPos ? 3 : 0);

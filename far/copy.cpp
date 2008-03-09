@@ -4403,7 +4403,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
       if(!(Flags&FCOPY_VOLMOUNT))
       {
         // AddEndSlash(DestFullName);
-        strcat(DestFullName,PtrSelName);
+        xstrncat(DestFullName,PtrSelName,sizeof(DestFullName)-1);
       }
       else
       {

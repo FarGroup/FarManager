@@ -3516,7 +3516,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     static const char * const PreDefKeyName[]={
       "CtrlDown", "Enter", "Esc", "F1", "CtrlF5",
       "CtrlMsWheelUp","ShiftMsWheelUp","AltMsWheelUp","CtrlShiftMsWheelUp","CtrlAltMsWheelUp","AltShiftMsWheelUp",
-      "CtrlMsWheelDown","ShiftMsWheelDown","AltMsWheelDown","CtrlShiftMsWheelDown","CtrlAltMsWheelDown","AltShiftMsWheelDown"
+      "CtrlMsWheelDown","ShiftMsWheelDown","AltMsWheelDown","CtrlShiftMsWheelDown","CtrlAltMsWheelDown","AltShiftMsWheelDown",
       "CtrlMsWheelLeft","ShiftMsWheelLeft","AltMsWheelLeft","CtrlShiftMsWheelLeft","CtrlAltMsWheelLeft","AltShiftMsWheelLeft",
       "CtrlMsWheelRight","ShiftMsWheelRight","AltMsWheelRight","CtrlShiftMsWheelRight","CtrlAltMsWheelRight","AltShiftMsWheelRight"
     };

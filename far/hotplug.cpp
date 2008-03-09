@@ -255,9 +255,9 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
         {
           if ( *szFriendlyName && stricmp(szDescription,szFriendlyName) )
           {
-            strncat (ListItem.Name, " \"", sizeof(ListItem.Name)-1);
-            strncat (ListItem.Name, szFriendlyName, sizeof(ListItem.Name)-1);
-            strncat (ListItem.Name, "\"", sizeof(ListItem.Name)-1);
+            xstrncat (ListItem.Name, " \"", sizeof(ListItem.Name)-1);
+            xstrncat (ListItem.Name, szFriendlyName, sizeof(ListItem.Name)-1);
+            xstrncat (ListItem.Name, "\"", sizeof(ListItem.Name)-1);
           }
         }
         else if ( *szFriendlyName)
