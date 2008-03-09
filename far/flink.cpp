@@ -701,7 +701,6 @@ BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
         if(Name[1] == L':' && Name[2] == L'\\')
         {
           strSubstName = Name;
-          //FAR_OemToChar(SubstName,SubstName); // Mantis#224 ???????????????????????
           return TRUE;
         }
       }
@@ -712,85 +711,91 @@ BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 
 void GetPathRootOne(const wchar_t *Path,string &strRoot)
 {
-  string strTempRoot;
-  wchar_t *ChPtr;
+	string strTempRoot;
 
-  strTempRoot = Path;
+	strTempRoot = Path;
 
-  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
-  {
-    if(!pGetVolumeNameForVolumeMountPoint)
-      // работает только под Win2000!
-      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetVolumeNameForVolumeMountPointW");
+	if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+	{
+		if(!pGetVolumeNameForVolumeMountPoint)
+			// работает только под Win2000!
+			pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetVolumeNameForVolumeMountPointW");
 
-    // обработка mounted volume
-    if(pGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))
-    {
-      wchar_t Drive[] = L"A:\\"; // \\?\Volume{...
-      int I;
-      for (I = L'A'; I <= L'Z';  I++ )
-      {
-        Drive[0] = (wchar_t)I;
+		// обработка mounted volume
+		if(pGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))
+		{
+			// For the maximum size of the volume ID
+			// see http://msdn2.microsoft.com/en-us/library/aa364994(VS.85).aspx
+			const DWORD MAX_VOLUME_ID = 50;
+			wchar_t pVolumeName[MAX_VOLUME_ID];
 
-        wchar_t *TempRoot = strTempRoot.GetBuffer (1024); //BUGBUGBUG
+			wchar_t szDrive[] = L"?:\\"; // \\?\Volume{...
+			for (wchar_t chDrive = L'A'; chDrive <= L'Z';  chDrive++ )
+			{
+				*szDrive = chDrive;
+				if ( pGetVolumeNameForVolumeMountPoint(
+								szDrive,            // input volume mount point or directory
+								pVolumeName,        // output volume name buffer
+								MAX_VOLUME_ID       // size of volume name buffer
+						 )
+					 )
+				{
+					if ( !StrCmpI(pVolumeName+4, Path) )	// +4 - for "\\?\"
+					{
+						strRoot = szDrive;
+						return;
+					}
+				}
+			}
 
-        if(pGetVolumeNameForVolumeMountPoint(
-                  Drive, // input volume mount point or directory
-                  TempRoot, // output volume name buffer
-                  1024) &&       // size of volume name buffer
-           !StrCmpI(TempRoot+4,Path))
-        {
-           strTempRoot.ReleaseBuffer ();
+			// Ops. Диск то не имеет буковки
+			strRoot = L"\\\\?\\";
+			strRoot += Path;
+			return;
+		}
+	}
 
-           strRoot = Drive;
-           return;
-        }
+	if ( strTempRoot.IsEmpty() )
+		strTempRoot = L"\\";
+	else
+	{
+		// ..2 <> ...\2
+		if(!PathMayBeAbsolute(strTempRoot))
+		{
+			string strTemp;
+			FarGetCurDir(strTemp);
+			AddEndSlash(strTemp);
+			strTemp += strTempRoot; //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
+			strTempRoot = strTemp;
+		}
 
-        strTempRoot.ReleaseBuffer ();
-      }
-      // Ops. Диск то не имеет буковки
-      strRoot = L"\\\\?\\";
-      strRoot += Path;
-      return;
-    }
-  }
+		const wchar_t *TempRoot = strTempRoot;
+		const wchar_t *ChPtr = NULL;
 
-  if ( strTempRoot.IsEmpty() )
-    strTempRoot = L"\\";
-  else
-  {
-    // ..2 <> ...\2
-    if(!PathMayBeAbsolute(strTempRoot))
-    {
-      string strTemp;
-      FarGetCurDir(strTemp);
-      AddEndSlash(strTemp);
-      strTemp += strTempRoot; //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
-      strTempRoot = strTemp;
-    }
-
-    wchar_t *TempRoot = strTempRoot.GetBuffer ();
-
-    if (TempRoot[0]==L'\\' && TempRoot[1]==L'\\')
-    {
-      if ((ChPtr=wcschr(TempRoot+2,L'\\'))!=NULL)
-        if ((ChPtr=wcschr(ChPtr+1,L'\\'))!=NULL)
-          *(ChPtr+1)=0;
-        else
-          wcscat(TempRoot,L"\\");
-    }
-    else
-    {
-      if ((ChPtr=wcschr(TempRoot,'\\'))!=NULL)
-        *(ChPtr+1)=0;
-      else
-        if ((ChPtr=wcschr(TempRoot,L':'))!=NULL)
-          wcscpy(ChPtr+1,L"\\");
-    }
-
-    strTempRoot.ReleaseBuffer ();
-  }
-  strRoot = strTempRoot;
+		if (TempRoot[0]==L'\\' && TempRoot[1]==L'\\')
+		{
+			if ((ChPtr=wcschr(TempRoot+2,L'\\'))!=NULL)
+			{
+				if ((ChPtr=wcschr(ChPtr+1,L'\\'))!=NULL)
+					strTempRoot.SetLength((ChPtr - TempRoot) + 1);
+				else
+					strTempRoot += L"\\";
+			}
+		}
+		else
+		{
+			if ((ChPtr=wcschr(TempRoot,L'\\'))!=NULL)
+			{
+				strTempRoot.SetLength((ChPtr - TempRoot) + 1);
+			}
+			else if ((ChPtr=wcschr(TempRoot,L':'))!=NULL)
+			{
+				strTempRoot.SetLength((ChPtr - TempRoot) + 1);
+				strTempRoot += L"\\";
+			}
+		}
+	}
+	strRoot = strTempRoot;
 }
 
 

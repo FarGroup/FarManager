@@ -1,3 +1,9 @@
+t-rex 09.03.2008 23:11:42 +0200 - build 427
+
+from Alexander Mitin
+
+1. Mantis#484: Memory corruption in GetPathRootOne().
+
 t-rex 09.03.2008 14:35:11 +0200 - build 426
 
 1. Грузились все плагины подряд даже когда не надо.
