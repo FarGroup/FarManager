@@ -587,6 +587,9 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 	{
 		pPlugin = PluginsData[i];
 
+		if ( !pPlugin->HasOpenFilePlugin() )
+			continue;
+
 		if ( Opt.ShowCheckingFile )
 			ct.Set(L"%s - [%s]...",UMSG(MCheckingFileInPlugin),wcsrchr(pPlugin->GetModuleName(),L'\\')+1);
 
@@ -662,6 +665,9 @@ int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 	{
 		pPlugin = PluginsData[i];
 
+		if ( !pPlugin->HasProcessEditorInput() )
+			continue;
+
 		if ( pPlugin->ProcessEditorInput(Rec) )
 			return TRUE;
 	}
@@ -681,6 +687,10 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 		for (int i = 0; i < PluginsCount; i++)
 		{
 			pPlugin = PluginsData[i];
+
+			if ( !pPlugin->HasProcessEditorEvent() )
+				continue;
+
 			nResult = pPlugin->ProcessEditorEvent(Event, Param);
 		}
 	}
@@ -698,6 +708,10 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
+
+		if ( !pPlugin->HasProcessViewerEvent() )
+			continue;
+
 		nResult = pPlugin->ProcessViewerEvent (Event, Param);
 	}
 
@@ -710,6 +724,10 @@ int PluginManager::ProcessDialogEvent(int Event, void *Param)
 	for (int i=0;i<PluginsCount;i++)
 	{
 		pPlugin = PluginsData[i];
+
+		if ( !pPlugin->HasProcessDialogEvent() )
+			continue;
+
 		if(pPlugin->ProcessDialogEvent(Event,Param))
 			return TRUE;
 	}

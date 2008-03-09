@@ -197,7 +197,7 @@ int PluginW::LoadFromCache ()
 		if ( GetRegKey(strRegKey,wszReg_Preload,0) == 1 ) //PF_PRELOAD plugin, skip cache
 			return Load ();
 
-		strRegKey.Format (FmtPluginsCache_PluginDExport,CachePos);
+		strRegKey.Format (FmtPluginsCache_PluginDExport,cp);
 		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
 
 		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
