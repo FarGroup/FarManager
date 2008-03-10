@@ -1,3 +1,15 @@
+t-rex 10.03.2008 21:47:59 +0200 - build 428
+
+1. От Alexey Samlyukov: Mantis#486: Баг в Dialog::ProcessLastHistory - не подставлялось значение из истории.
+
+2. В связи с 1 нашелся ещё баг в UnicodeString, если в кратце то возможное чтение из недоступной памяти при
+   str = (const wchar_t *)str;
+   str += str;
+
+3. Заодно ещё немного форматирования табами.
+
+4. Обновил немного "readme".
+
 t-rex 09.03.2008 23:11:42 +0200 - build 427
 
 from Alexander Mitin

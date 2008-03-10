@@ -81,17 +81,22 @@ const UnicodeString& UnicodeString::SetData(const UnicodeString &strCopy)
 
 const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 {
-  if (m_pData)
-    m_pData->DecRef();
-  size_t nLength = StrLength(lpwszData);
-  m_pData = new UnicodeStringData(nLength + 1);
-  wchar_t *pStr = m_pData->GetData();
-  if (pStr)
-  {
-    wmemcpy(pStr,lpwszData,nLength);
-    m_pData->SetLength(nLength);
-  }
-  return *this;
+	size_t nLength = StrLength(lpwszData);
+	if (m_pData && m_pData->GetRef() == 1 && nLength + 1 <= m_pData->GetSize())
+	{
+		wmemmove(m_pData->GetData(),lpwszData,nLength);
+		m_pData->SetLength(nLength);
+	}
+	else
+	{
+		UnicodeStringData *pNewData = new UnicodeStringData(nLength + 1);
+		wmemcpy(pNewData->GetData(),lpwszData,nLength);
+		pNewData->SetLength(nLength);
+		if (m_pData)
+			m_pData->DecRef();
+		m_pData = pNewData;
+	}
+	return *this;
 }
 
 const UnicodeString& UnicodeString::SetData(const char *lpszData, UINT CodePage)
@@ -108,22 +113,44 @@ const UnicodeString& UnicodeString::SetData(const char *lpszData, UINT CodePage)
 
 const UnicodeString& UnicodeString::Append(const UnicodeString &strAdd)
 {
-  UnicodeStringData *pAddData = strAdd.m_pData;
-  size_t nNewLength = m_pData->GetLength() + pAddData->GetLength();
-  Inflate(nNewLength + 1);
-  wmemcpy(m_pData->GetData() + m_pData->GetLength(),pAddData->GetData(),pAddData->GetLength());
-  m_pData->SetLength(nNewLength);
-  return *this;
+	UnicodeStringData *pAddData = strAdd.m_pData;
+	size_t nNewLength = m_pData->GetLength() + pAddData->GetLength();
+	if (m_pData->GetRef() == 1 && nNewLength + 1 <= m_pData->GetSize())
+	{
+		wmemcpy(m_pData->GetData() + m_pData->GetLength(),pAddData->GetData(),pAddData->GetLength());
+		m_pData->SetLength(nNewLength);
+	}
+	else
+	{
+		UnicodeStringData *pNewData = new UnicodeStringData(nNewLength + 1);
+		wmemcpy(pNewData->GetData(),m_pData->GetData(),m_pData->GetLength());
+		wmemcpy(pNewData->GetData() + m_pData->GetLength(),pAddData->GetData(),pAddData->GetLength());
+		pNewData->SetLength(nNewLength);
+		m_pData->DecRef();
+		m_pData = pNewData;
+	}
+	return *this;
 }
 
 const UnicodeString& UnicodeString::Append(const wchar_t *lpwszAdd)
 {
-  size_t nAddLength = StrLength(lpwszAdd);
-  size_t nNewLength = m_pData->GetLength() + nAddLength;
-  Inflate(nNewLength + 1);
-  wmemcpy(m_pData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
-  m_pData->SetLength(nNewLength);
-  return *this;
+	size_t nAddLength = StrLength(lpwszAdd);
+	size_t nNewLength = m_pData->GetLength() + nAddLength;
+	if (m_pData->GetRef() == 1 && nNewLength + 1 <= m_pData->GetSize())
+	{
+		wmemcpy(m_pData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
+		m_pData->SetLength(nNewLength);
+	}
+	else
+	{
+		UnicodeStringData *pNewData = new UnicodeStringData(nNewLength + 1);
+		wmemcpy(pNewData->GetData(),m_pData->GetData(),m_pData->GetLength());
+		wmemcpy(pNewData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
+		pNewData->SetLength(nNewLength);
+		m_pData->DecRef();
+		m_pData = pNewData;
+	}
+	return *this;
 }
 
 const UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)

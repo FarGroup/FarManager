@@ -15,6 +15,7 @@
    strncat         wcsncat
    strcpy          wcscpy
    xstrncpy        xwcsncpy       see file "strncpy.c"
+   xstrncat        xwcsncat       see file "strncat.c"
    strcmp          StrCmp
    _stricmp        StrCmpI
    strncmp         StrCmpN
@@ -33,6 +34,7 @@
 
    memset          wmemset        only for strings
    memcpy          wmemcpy        only for strings
+   memmove         wmemmove       only for strings
 
 
    Examples

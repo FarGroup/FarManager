@@ -861,27 +861,30 @@ const wchar_t *Dialog::GetDialogTitle()
 
 void Dialog::ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  string strRegKey;
-  string strData = CurItem->strData;
+	string strRegKey;
+	string &strData = CurItem->strData;
 
-  if( !strData.IsEmpty() )
-  {
-    DWORD UseFlags;
-    strRegKey.Format (fmtSavedDialogHistory,CurItem->History);
-    UseFlags=GetRegKey(strRegKey,L"Flags",1);
-    if(UseFlags)
-    {
-      GetRegKey(strRegKey, L"Line0", strData, L"");
-      if (MsgIndex != -1)
-      {
-        // обработка DM_SETHISTORY => надо пропустить изменение текста через
-        // диалоговую функцию
-        Dialog::SendDlgMessage(this,DM_SETTEXTPTR,MsgIndex,(LONG_PTR)(const wchar_t*)strData);
-      }
-    }
-  }
+	if (strData.IsEmpty())
+	{
+		DWORD UseFlags;
+		strRegKey.Format (fmtSavedDialogHistory,CurItem->History);
+		UseFlags=GetRegKey(strRegKey,L"Flags",1);
+		if (UseFlags)
+		{
+			GetRegKey(strRegKey, L"Line0", strData, L"");
+			if (MsgIndex != -1)
+			{
+				// обработка DM_SETHISTORY => надо пропустить изменение текста через
+				// диалоговую функцию
+				struct FarDialogItemData IData;
+				IData.PtrData=(wchar_t *)(const wchar_t *)strData;
+				IData.PtrLength=(int)strData.GetLength();
+				Dialog::SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
+			}
+		}
+	}
 }
 
 
