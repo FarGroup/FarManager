@@ -254,7 +254,7 @@ int __stdcall ArchivePanel::pGetFindData(
 						pPanelItems[k].FindData.cFileName
 						) )
 				{
-					pPanelItems[k].FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY; //ohhha-ha-ha!!!
+					pPanelItems[k].FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY; //ohhha-ha-ha!!!
 					pPanelItems[k].UserData = 0;
 					bAppend = false;
 					goto l_1;
