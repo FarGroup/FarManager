@@ -397,7 +397,7 @@ HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeV
 }
 
 
-void CreateDirectoryEx (const char *lpFullPath) //$ 16.05.2002 AA
+void CreateDirectoryEx (const char *lpFullPath, DWORD dwFileAttributes = INVALID_FILE_ATTRIBUTES) //$ 16.05.2002 AA
 {
 	char *lpFullPathCopy = StrDuplicate(lpFullPath);
 
@@ -414,7 +414,12 @@ void CreateDirectoryEx (const char *lpFullPath) //$ 16.05.2002 AA
 							CreateDirectory (lpFullPathCopy, NULL);
 							*c='\\';
 						}
+
 				CreateDirectory(lpFullPathCopy, NULL);
+
+				if ( dwFileAttributes != INVALID_FILE_ATTRIBUTES )
+					SetFileAttributes(lpFullPathCopy, dwFileAttributes);
+
 				break;
 			}
 		}
@@ -539,7 +544,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		{
 			//MessageBox (0, szFullName, "asd", MB_OK);
 			*outStream = NULL;
-			CreateDirectoryEx (szFullName);
+			CreateDirectoryEx (szFullName, dwFileAttributes);
 		}
 		else
 		{

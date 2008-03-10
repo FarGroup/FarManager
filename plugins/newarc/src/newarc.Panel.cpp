@@ -254,8 +254,8 @@ int __stdcall ArchivePanel::pGetFindData(
 						pPanelItems[k].FindData.cFileName
 						) )
 				{
-					pPanelItems[k].FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY; //ohhha-ha-ha!!!
-					pPanelItems[k].UserData = 0;
+					//pPanelItems[k].FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY; //ohhha-ha-ha!!!
+					//pPanelItems[k].UserData = 0;
 					bAppend = false;
 					goto l_1;
 				}
@@ -714,6 +714,8 @@ void GetArchiveItemsToProcess (
 		}
 		else
 		{
+			//если мы сюда попали - у нас похоже проблемы. 
+
 			char *lpFullName = StrCreate (260);
 
 			if ( *pPanel->m_lpCurrentFolder )
