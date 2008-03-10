@@ -485,6 +485,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		else
 			strcat (szFullName, szArcFileName);
 
+
 		int itemindex = GetItemIndex (this, index);
 		PluginPanelItem *item = m_pItems[itemindex].pItem;
 

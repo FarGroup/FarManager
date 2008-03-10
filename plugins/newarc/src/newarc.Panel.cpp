@@ -750,13 +750,10 @@ void GetArchiveItemsToProcess (
 
 				if ( IsFileInFolder (lpPath, pCurrentPanelItem->FindData.cFileName) )
 				{
-					if ( (pCurrentPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 )
-					{
-						item = pResult.add();
-						memcpy (item, pCurrentPanelItem, sizeof (PluginPanelItem));
+					item = pResult.add();
+					memcpy (item, pCurrentPanelItem, sizeof (PluginPanelItem));
 
-						pOS->uTotalSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
-					}
+					pOS->uTotalSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
 				}
 			}
 
