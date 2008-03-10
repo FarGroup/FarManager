@@ -898,36 +898,32 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   {
     for (int i = 0; i < nItemsNumber; i++)
     {
-      struct PluginPanelItem *pItem = &pItems[i];
+      PluginPanelItem *pItem = &pItems[i];
+      PluginPanelItem Item = *pItem;
 
       wchar_t *lpwszFileName = xf_wcsdup(pItem->FindData.lpwszFileName);
-      xf_free (pItem->FindData.lpwszFileName);
-
-      pItem->FindData.lpwszFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
+      Item.FindData.lpwszFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
       lpwszFileName = xf_wcsdup(pItem->FindData.lpwszAlternateFileName);
-      xf_free (pItem->FindData.lpwszAlternateFileName);
-
-      pItem->FindData.lpwszAlternateFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
+      Item.FindData.lpwszAlternateFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
-      if ( !wcscmp (lpFileNameToFind, pItem->FindData.lpwszFileName) &&
-           !wcscmp (lpFileNameToFindShort, pItem->FindData.lpwszAlternateFileName) )
+      if ( !StrCmp (lpFileNameToFind, Item.FindData.lpwszFileName) &&
+           !StrCmp (lpFileNameToFindShort, Item.FindData.lpwszAlternateFileName) )
       {
         nResult = CtrlObject->Plugins.GetFile (
                             hPlugin,
-                            pItem,
+                            &Item,
                             DestPath,
                             strResultName,
                             OPM_SILENT|OPM_FIND
                             );
 
-        apiFreeFindData(&pItem->FindData);
-
+        apiFreeFindData(&Item.FindData);
         break;
       }
-      apiFreeFindData(&pItem->FindData);
+      apiFreeFindData(&Item.FindData);
     }
 
     CtrlObject->Plugins.FreeFindData (hPlugin, pItems, nItemsNumber);

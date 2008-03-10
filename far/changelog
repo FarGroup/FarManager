@@ -1,3 +1,8 @@
+t-rex 10.03.2008 22:39:06 +0200 - build 429
+
+1. Mantis#487: Memory under FAR_FIND_DATA is removed twice
+   Тока там всё хуже было, фар нагло освобождал плагиновую память и свою подсовывал.
+
 t-rex 10.03.2008 21:47:59 +0200 - build 428
 
 1. От Alexey Samlyukov: Mantis#486: Баг в Dialog::ProcessLastHistory - не подставлялось значение из истории.
