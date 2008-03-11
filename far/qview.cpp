@@ -349,16 +349,6 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
     ProcessingPluginCommand--;
     return;
   }
-  QView=new Viewer;
-  QView->SetRestoreScreenMode(FALSE);
-  QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
-  QView->SetStatusMode(0);
-  QView->EnableHideCursor(0);
-
-  OldWrapMode = QView->GetWrapMode();
-  OldWrapType = QView->GetWrapType();
-  QView->SetWrapMode(LastWrapMode);
-  QView->SetWrapType(LastWrapType);
 
   strCurFileName = FileName;
 
@@ -400,9 +390,24 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
           Directory=3;
     }
   }
-  else
-    if ( !strCurFileName.IsEmpty() )
-      QView->OpenFile(strCurFileName,FALSE);
+	else
+	{
+		if ( !strCurFileName.IsEmpty() )
+		{
+			QView=new Viewer;
+			QView->SetRestoreScreenMode(FALSE);
+			QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
+			QView->SetStatusMode(0);
+			QView->EnableHideCursor(0);
+
+			OldWrapMode = QView->GetWrapMode();
+			OldWrapType = QView->GetWrapType();
+			QView->SetWrapMode(LastWrapMode);
+			QView->SetWrapType(LastWrapType);
+
+			QView->OpenFile(strCurFileName,FALSE);
+		}
+	}
 
   if (TempFile)
     ConvertNameToFull (strCurFileName, strTempName);

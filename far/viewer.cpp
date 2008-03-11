@@ -124,6 +124,7 @@ Viewer::Viewer()
   OpenFailed=false;
   HostFileViewer=NULL;
   SelectPosOffSet=0;
+  bVE_READ_Sent = false;
 }
 
 
@@ -200,7 +201,7 @@ Viewer::~Viewer()
     delete Strings[i];
   }
 
-  if (!OpenFailed)
+  if (!OpenFailed && bVE_READ_Sent)
   {
     CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
     CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
@@ -439,6 +440,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   /* $ 15.09.2001 tran
      пора легализироваться */
   CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
+  bVE_READ_Sent = true;
   return(TRUE);
 }
 
@@ -1520,7 +1522,7 @@ int Viewer::ProcessKey(int Key)
         ProcessKey(KEY_LEFT);
       return TRUE;
     }
- 
+
     case KEY_MSWHEEL_RIGHT:
     case (KEY_MSWHEEL_RIGHT | KEY_ALT):
     {

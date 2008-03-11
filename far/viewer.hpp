@@ -149,6 +149,7 @@ class Viewer:public ScreenObject
     int Width,XX2;  // , используется при расчете ширины при скролбаре
     int ViewerID;
     bool OpenFailed;
+    bool bVE_READ_Sent;
     FileViewer *HostFileViewer;
     bool AdjustSelPosition;
 
