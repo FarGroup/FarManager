@@ -692,6 +692,13 @@ int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
       MenuFlags|=VMENU_WRAPMODE;
     if (Flags & FMENU_CHANGECONSOLETITLE)
       MenuFlags|=VMENU_CHANGECONSOLETITLE;
+    if (Flags & FMENU_TRUNCPATH)
+      MenuFlags|=VMENU_TRUNCPATH;
+    if (Flags & FMENU_TRUNCSTR)
+      MenuFlags|=VMENU_TRUNCSTR;
+    if (Flags & FMENU_TRUNCSTREND)
+      MenuFlags|=VMENU_TRUNCSTREND;
+
     FarMenu.SetFlags(MenuFlags);
 
     struct MenuItem CurItem;
@@ -704,6 +711,12 @@ int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
+        if(CurItem.Flags&MIF_USETEXTPTR)
+        {
+          CurItem.Flags&=~MIF_USETEXTPTR;
+          CurItem.Flags|=LIF_USETEXTPTR;
+        }
+
         CurItem.NamePtr=NULL; // за раз 4 байта в 0 :-)
 
         // исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
@@ -715,8 +728,8 @@ int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
           Selected++;
         }
 
-        if(CurItem.Flags&MIF_USETEXTPTR)
-          CurItem.NamePtr=(char*)ItemEx->Text.TextPtr;
+        if(CurItem.Flags&LIF_USETEXTPTR)
+          CurItem.NamePtr=xf_strdup((char*)ItemEx->Text.TextPtr);
         else
           xstrncpy(CurItem.Name,ItemEx->Text.Text,sizeof(CurItem.Name)-1);
         /*

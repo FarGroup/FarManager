@@ -1412,7 +1412,7 @@ static bool evalFunc()
   int KeyPos;
   CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
   CtrlObject->Macro.PushState(true);
-  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ)))
+  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
   {
     CtrlObject->Macro.PopState();
     Ret=false;
@@ -2560,7 +2560,7 @@ done:
     case MCODE_OP_EXIT:               // $Exit
       goto done;
 
-    case MCODE_OP_AKEY:               //$AKey
+    case MCODE_OP_AKEY:               // $AKey
     {
       return MR->Key;
     }
@@ -2810,13 +2810,26 @@ done:
 
     // Function
     case MCODE_F_EVAL: // N=eval(S)
+    {
       if(evalFunc())
         goto initial; // т.к.
       goto begin;
+    }
 
-    case MCODE_F_AKEY: // S=akey()
-      VMStack.Push((__int64)MR->Key); //???
+    case MCODE_F_AKEY: // V=akey(N)
+    {
+      TVar tmpVar=VMStack.Pop();
+      if(tmpVar.i() == 0)
+         tmpVar=(__int64)MR->Key;
+      else
+      {
+         ::KeyToText(MR->Key,value);
+         tmpVar=(const char *)value;
+         tmpVar.toString();
+      }
+      VMStack.Push(tmpVar);
       goto begin;
+    }
 
     case MCODE_F_BM_ADD:              // N=BM.Add()
     case MCODE_F_BM_CLEAR:            // N=BM.Clear()
@@ -3932,7 +3945,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 }
 /* IS $ */
 
-int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags)
+int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags,DWORD AKey)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)"));
   _KEYMACRO(SysLog("Param: PlainText=\"%s\"",PlainText));
@@ -3984,6 +3997,7 @@ int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags)
     return FALSE;
   }
   NewMacroWORK2.Flags=Flags;
+  NewMacroWORK2.Key=AKey;
 
   // теперь попробуем выделить немного нужной памяти
   struct MacroRecord *NewMacroWORK;
@@ -4328,6 +4342,7 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
   return(FALSE);
 
 }
+
 
 /*
   Return: 0 - не в режиме макро, 1 - Executing, 2 - Executing common, 3 - Recording, 4 - Recording common

@@ -260,7 +260,7 @@ typedef struct __TMacroFunction{
 
 static TMacroFunction macroFunction[]={
   {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
-  {"AKEY",           0,    MCODE_F_AKEY},                // S=akey()
+  {"AKEY",           1,    MCODE_F_AKEY},                // V=akey(N)
   {"ASC",            1,    MCODE_F_ASC},                 // N=asc(N)
   {"BM.ADD",         0,    MCODE_F_BM_ADD},              // N=BM.Add()
   {"BM.CLEAR",       0,    MCODE_F_BM_CLEAR},            // N=BM.Clear()
@@ -972,7 +972,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_ABS,              "N=abs(N)"},
     {MCODE_F_ASC,              "N=asc(S)"},
     {MCODE_F_CHR,              "S=chr(N)"},
-    {MCODE_F_AKEY,             "S=akey()"},
+    {MCODE_F_AKEY,             "V=akey(N)"},
     {MCODE_F_CLIP,             "V=clip(N,S)"},
     {MCODE_F_DATE,             "S=date(S)"},
     {MCODE_F_DLG_GETVALUE,     "V=Dlg.GetValue(ID,N)"},
@@ -1651,6 +1651,22 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
     _KEYMACRO_PARSE(SysLog("CurMacroBufferSize=%d",CurMacroBufferSize));
   } // END for (;;)
   _KEYMACRO_PARSE(SysLog("}</Parse>"));
+
+  if(CurMacroBufferSize == 1)
+  {
+    CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+1));
+    if ( CurMacro_Buffer == NULL )
+    {
+      CurMacroBuffer = NULL;
+      CurMacroBufferSize = 0;
+      xf_free(CurrKeyText);
+      xf_free(exprBuff);
+      return FALSE;
+    }
+    CurMacro_Buffer[CurMacroBufferSize]=MCODE_OP_NOP;
+    CurMacroBufferSize++;
+
+  }
 
 #ifdef _DEBUG
 #ifdef SYSLOG_KEYMACRO

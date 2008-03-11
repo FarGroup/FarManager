@@ -43,3 +43,12 @@ FAR & Bash (http://farmanager.com/fgwiki/index.php?title=FAR_%26_Bash)
 выставлена переменная в реестре, скажем, "usedbash" И в 
 переменных окружения есть "BASH". 
 </execute>
+
+
+<LIF_USETEXTPTR>
+API: добавлен флаг LIF_USETEXTPTR. Лист использует динамическую компоненту итема.
+   Для публикации необходимо:
+   а) уточнение FarListItem
+   б) изменения в работе Dialog API.
+</LIF_USETEXTPTR>
+

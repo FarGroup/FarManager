@@ -85,6 +85,9 @@ headers.hpp
 #define FILE_ATTRIBUTE_VIRTUAL              0x00010000
 #endif
 
+#if !defined(FILE_ATTRIBUTE_DEVICE)
+#define FILE_ATTRIBUTE_DEVICE               0x00000040
+#endif
 
 #if !defined(__DOS_H) && !defined(_DOS_H_)
 #include <dos.h>  // FA_*

@@ -537,11 +537,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
   {
     VMenu HistoryMenu(Title,NULL,0,Height);
-    /* $ 06.11.2001 IS
-       ! Меню теперь у нас с прокруткой (Wrap)
-    */
-    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-    /* IS $ */
+    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE|VMENU_TRUNCPATH);
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
@@ -576,10 +572,10 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           else
             strcpy(Record,LastStr[CurCmd].Name);
 
-          TruncPathStr(Ptr,SizeTrunc);
           ReplaceStrings(Ptr,"&","&&",-1);
           memset(&HistoryItem,0,sizeof(HistoryItem));
-          xstrncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
+          HistoryItem.Flags|=LIF_USETEXTPTR;
+          HistoryItem.NamePtr=xf_strdup(Record);
           if(CurCmd==CurLastPtr)
               HistoryItem.SetSelect(TRUE);
           HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),

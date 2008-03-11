@@ -55,7 +55,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
        случае при создании меню прокрутка работала _ВСЕГДА_, что
        не всегда удобно.
   */
-  VMFlags.Set(VMENU_UPDATEREQUIRED);
+  VMFlags.Set(VMENU_UPDATEREQUIRED|VMENU_TRUNCMODE);
   /* KM $ */
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
   TopPos=0;
@@ -389,7 +389,7 @@ void VMenu::ShowMenu(int IsParent)
 {
   CriticalSectionLock Lock(CS);
 
-  char TmpStr[1024];
+  char TmpStr[2048];
   unsigned char BoxChar[2],BoxChar2[2];
   int Y,I;
   /* $ 23.02.2002 DJ
@@ -528,8 +528,12 @@ void VMenu::ShowMenu(int IsParent)
         if (*Item[I].PtrName())
         {
           int ItemWidth=(int)strlen(Item[I].PtrName());
+          if(ItemWidth > X2-X1-3)  // 1 ???
+            ItemWidth=X2-X1-3;
+
           GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
           mprintf(" %*.*s ",ItemWidth,ItemWidth,Item[I].PtrName());
+          //??????
         }
       }
       else
@@ -555,10 +559,15 @@ void VMenu::ShowMenu(int IsParent)
 
         if (BoxType!=NO_BOX)
         {
+/*
           if(Item[I].ShowPos > 0)
           {
-            Text(X1,Y,VMenu::Colors[Item[I].Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],"{");
+            //Text(X1,Y,VMenu::Colors[Item[I].Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],"{");
+            GotoXY(X1,Y);
+            SetColor((Item[I].Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorHSelect]:VMenu::Colors[VMenuColorHilite]);
+            BoxText(Opt.UseUnicodeConsole?0xab:'<');
           }
+*/
           GotoXY(X1+1,Y);
         }
         else
@@ -577,10 +586,45 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=(char)Item[I].Flags&0x0000FFFF;
 
-        if(HiStrlen(_MItemPtr) > X2-X1-3)
-          sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,_MItemPtr);
+        int Len_MItemPtr;
+        if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+          Len_MItemPtr=(int)strlen(_MItemPtr);
         else
-          sprintf(TmpStr,"%c %s",Check,_MItemPtr);
+          Len_MItemPtr=HiStrlen(_MItemPtr);
+
+        if(VMFlags.Check(VMENU_TRUNCMODE))
+        {
+           #if defined(__BORLANDC__)
+           #define _snprintf FarSnprintf
+           #endif
+           _snprintf(TmpStr,sizeof(TmpStr)-1,"%c %s",Check,_MItemPtr);
+           if(Len_MItemPtr+2 > X2-X1-3)
+           {
+             switch(VMFlags.Flags&VMENU_TRUNC_MASK)
+             {
+               case VMENU_TRUNCPATH:
+                 TruncPathStr(TmpStr+2,X2-X1-3);
+                 break;
+               case VMENU_TRUNCSTR:
+                 TruncStr(TmpStr+2,X2-X1-3);
+                 break;
+               case VMENU_TRUNCSTREND:
+               //default:
+                 TruncStrFromEnd(TmpStr+2,X2-X1-3);
+                 break;
+               default:
+                 TmpStr[X2-X1-1]=0;
+                 break;
+             }
+           }
+        }
+        else
+        {
+          if(Len_MItemPtr+2 > X2-X1-3)
+            sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,_MItemPtr);
+          else
+            sprintf(TmpStr,"%c %s",Check,_MItemPtr);
+        }
 
         { // табуляции меняем только при показе!!!
           // для сохранение оригинальной строки!!!
@@ -588,6 +632,15 @@ void VMenu::ShowMenu(int IsParent)
           while ((TabPtr=strchr(TmpStr,'\t'))!=NULL)
             *TabPtr=' ';
         }
+
+        // уточнение размера после усечения
+        if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+          Len_MItemPtr=(int)strlen(TmpStr);
+        else
+          Len_MItemPtr=HiStrlen(TmpStr);
+        if(VMFlags.Check(VMENU_TRUNCMODE))
+          Len_MItemPtr-=2;
+
         int Col;
 
         if(!(Item[I].Flags&LIF_DISABLE))
@@ -600,22 +653,40 @@ void VMenu::ShowMenu(int IsParent)
         else
           Col=VMenu::Colors[VMenuColorDisabled];
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+        {
           Text(TmpStr);
+        }
         else
         {
           short AmpPos=Item[I].AmpPos+2;
-//_SVS(SysLog(">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
           if(AmpPos >= 2 && AmpPos < sizeof(TmpStr) && TmpStr[AmpPos] != '&')
           {
             memmove(TmpStr+AmpPos+1,TmpStr+AmpPos,strlen(TmpStr+AmpPos)+1);
             TmpStr[AmpPos]='&';
           }
-//_SVS(SysLog("<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
           HiText(TmpStr,Col);
         }
 
         // сделаем добавочку для NO_BOX
         mprintf("%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),"");
+
+        if (/*BoxType!=NO_BOX && */Item[I].ShowPos > 0)
+        {
+          //Text(X1,Y,VMenu::Colors[Item[I].Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],"{");
+          GotoXY(X1+1,Y);
+          SetColor((Item[I].Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorHSelect]:VMenu::Colors[VMenuColorHilite]);
+          BoxText(Opt.UseUnicodeConsole?0xab:'<');
+        }
+
+        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-2)
+        {
+          //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
+          //  GotoXY(WhereX()-1,Y);
+          //else
+            GotoXY(X2-1,Y);
+          SetColor((Item[I].Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorHSelect]:VMenu::Colors[VMenuColorHilite]);
+          BoxText(Opt.UseUnicodeConsole?0xbb:'>');
+        }
       }
     }
     else
@@ -636,7 +707,6 @@ void VMenu::ShowMenu(int IsParent)
       SetColor(VMenu::Colors[VMenuColorText]);
                                                      // сделаем добавочку для NO_BOX
       mprintf("%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),"");
-      /* KM $ */
     }
   }
   /* $ 28.06.2000 tran
@@ -789,6 +859,42 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
   return _i64(0);
 }
 
+BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
+{
+  int _len;
+  int _OWidth=X2-X1-3;
+  int ItemShowPos=Item[Pos].ShowPos;
+
+  if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+    _len=(int)strlen(Item[Pos].PtrName());
+  else
+    _len=HiStrlen(Item[Pos].PtrName(),TRUE);
+
+  if(_len < _OWidth ||
+     (Direct < 0 && ItemShowPos==0) ||
+     (Direct > 0 && ItemShowPos > _len))
+    return FALSE;
+
+  if(Direct < 0)
+    ItemShowPos--;
+  else
+    ItemShowPos++;
+
+  if(ItemShowPos < 0)
+    ItemShowPos=0;
+
+  if(ItemShowPos > _len-_OWidth)
+    ItemShowPos=_len-_OWidth;
+
+  if(ItemShowPos != Item[Pos].ShowPos)
+  {
+    Item[Pos].ShowPos=ItemShowPos;
+    VMFlags.Set(VMENU_UPDATEREQUIRED);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 int VMenu::ProcessKey(int Key)
 {
   CriticalSectionLock Lock(CS);
@@ -897,32 +1003,67 @@ int VMenu::ProcessKey(int Key)
       break;
     }
 
-    case KEY_ALTLEFT:
-    case KEY_ALTRIGHT:
+    case KEY_CTRLN:
     {
-      int ItemShowPos=Item[SelectPos].ShowPos;
+      VMFlags.Swap(VMENU_TRUNCMODE);
+      VMFlags.Set(VMENU_UPDATEREQUIRED);
+      ShowMenu(TRUE);
+      break;
+    }
 
-      int _len;
-      int _OWidth=X2-X1-3;
-
-      if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-        _len=HiStrlen(Item[SelectPos].PtrName(),TRUE);
-      else
-        _len=(int)strlen(Item[SelectPos].PtrName());
-
-      if(Key == KEY_ALTLEFT && ItemShowPos==0 || Key == KEY_ALTRIGHT && ItemShowPos > _len || _len < _OWidth)
+    case KEY_ALTHOME:           case KEY_NUMPAD7|KEY_ALT:
+    case KEY_ALTEND:            case KEY_NUMPAD1|KEY_ALT:
+    {
+      if(VMFlags.Check(VMENU_TRUNCMODE))
         break;
-
-      if(Key == KEY_ALTLEFT) ItemShowPos--; else ItemShowPos++;
-      if(ItemShowPos < 0) ItemShowPos=0;
-      if(ItemShowPos > _len-_OWidth)
-        ItemShowPos=_len-_OWidth;
-
-      if(ItemShowPos != Item[SelectPos].ShowPos)
+      if(Key == KEY_ALTHOME || Key == (KEY_NUMPAD7|KEY_ALT))
       {
-        Item[SelectPos].ShowPos=ItemShowPos;
-        ShowMenu(TRUE);
+        for(I=0; I < ItemCount; ++I)
+          Item[I].ShowPos=0;
       }
+      else
+      {
+        int _len;
+        int _OWidth=X2-X1-3;
+
+        for(I=0; I < ItemCount; ++I)
+        {
+          if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+            _len=(int)strlen(Item[I].PtrName());
+          else
+            _len=HiStrlen(Item[I].PtrName(),TRUE);
+
+          if(_len >= _OWidth)
+            Item[I].ShowPos=_len-_OWidth;
+        }
+      }
+
+      ShowMenu(TRUE);
+      break;
+    }
+
+    case KEY_ALTLEFT:           case KEY_NUMPAD4|KEY_ALT:
+    case KEY_ALTRIGHT:          case KEY_NUMPAD6|KEY_ALT:
+    {
+      if(VMFlags.Check(VMENU_TRUNCMODE))
+        break;
+      BOOL NeedRedraw=FALSE;
+      for(I=0; I < ItemCount; ++I)
+        if(ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == (KEY_NUMPAD4|KEY_ALT))?-1:1))
+          NeedRedraw=TRUE;
+
+      if(NeedRedraw)
+        ShowMenu(TRUE);
+      break;
+    }
+
+    case KEY_ALTSHIFTLEFT:      case KEY_NUMPAD4|KEY_ALT|KEY_SHIFT:
+    case KEY_ALTSHIFTRIGHT:     case KEY_NUMPAD6|KEY_ALT|KEY_SHIFT:
+    {
+      if(VMFlags.Check(VMENU_TRUNCMODE))
+        break;
+      if(ShiftItemShowPos(SelectPos,(Key == KEY_ALTSHIFTLEFT || Key == (KEY_NUMPAD4|KEY_ALT|KEY_SHIFT))?-1:1))
+        ShowMenu(TRUE);
       break;
     }
 
@@ -1154,8 +1295,12 @@ void VMenu::DeleteItems()
   if(Item)
   {
     for(int I=0; I < ItemCount; ++I)
+    {
       if(Item[I].UserDataSize > sizeof(Item[I].UserData) && Item[I].UserData)
         xf_free(Item[I].UserData);
+      if((Item[I].Flags&LIF_USETEXTPTR) && Item[I].NamePtr)
+        xf_free(Item[I].NamePtr);
+    }
     xf_free(Item);
   }
 
@@ -1389,7 +1534,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 int  VMenu::AddItem(const char *NewStrItem)
 {
   CriticalSectionLock Lock(CS);
-
+#if 0
   struct FarList FarList0;
   struct FarListItem FarListItem0;
 
@@ -1406,6 +1551,23 @@ int  VMenu::AddItem(const char *NewStrItem)
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
   return VMenu::AddItem(&FarList0);
+#else
+  struct MenuItem NewItem;
+  memset(&NewItem,0,sizeof(NewItem));
+  size_t LenNewStrItem=strlen(NewStrItem);
+
+  if(!NewStrItem || NewStrItem[0] == 0x1)
+    NewItem.Flags=LIF_SEPARATOR;
+
+  if(LenNewStrItem >= sizeof(NewItem.Name))
+  {
+    NewItem.NamePtr=xf_strdup(NewStrItem+(NewItem.Flags&LIF_SEPARATOR?1:0));
+    NewItem.Flags|=LIF_USETEXTPTR;
+  }
+  else
+    xstrncpy(NewItem.Name,NewStrItem+(NewItem.Flags&LIF_SEPARATOR?1:0),sizeof(NewItem.Name)-1);
+  return VMenu::AddItem(&NewItem);
+#endif
 }
 
 int VMenu::AddItem(const struct FarList *List)
@@ -1554,7 +1716,7 @@ void* VMenu::_GetUserData(struct MenuItem *PItem,void *Data,int Size)
     else // ... данных нет, значит лудим имя пункта!
     {
       PtrData=PItem->PtrName();
-      if(PItem->Flags&MIF_USETEXTPTR)
+      if(PItem->Flags&LIF_USETEXTPTR)
         memmove(Data,PtrData,Min(Size,(int)strlen(PtrData)));
       else
         memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
@@ -1570,7 +1732,7 @@ struct FarListItem *VMenu::MenuItem2FarList(const struct MenuItem *MItem,
   if(FItem && MItem)
   {
     memset(FItem,0,sizeof(struct FarListItem));
-    FItem->Flags=MItem->Flags&(~MIF_USETEXTPTR); //??
+    FItem->Flags=MItem->Flags&(~LIF_USETEXTPTR); //??
     xstrncpy(FItem->Text,((struct MenuItem *)MItem)->PtrName(),sizeof(FItem->Text)-1);
 //    FItem->AccelKey=MItem->AccelKey;
     //??????????????????
@@ -1591,7 +1753,7 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
     MItem->Flags=FItem->Flags;
 //    MItem->AccelKey=FItem->AccelKey;
     xstrncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
-    MItem->Flags&=~MIF_USETEXTPTR;
+    MItem->Flags&=~LIF_USETEXTPTR;
     //MItem->Flags|=LIF_DELETEUSERDATA; //???????????????????
     //VMenu::_SetUserData(MItem,FItem->UserData,FItem->UserDataSize); //???
     // А здесь надо вычислять AmpPos????
@@ -2408,12 +2570,12 @@ LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR
 
 char MenuItem::operator[](int Pos) const
 {
-  if(Flags&MIF_USETEXTPTR)
+  if(Flags&LIF_USETEXTPTR)
     return (!NamePtr || static_cast<size_t>(Pos) > strlen(NamePtr))?0:NamePtr[Pos];
   return (static_cast<size_t>(Pos) > strlen(Name))?0:Name[Pos];
 }
 
 char* MenuItem::PtrName()
 {
-  return ((Flags&MIF_USETEXTPTR)!=0&&NamePtr)?NamePtr:Name;
+  return ((Flags&LIF_USETEXTPTR)!=0&&NamePtr)?NamePtr:Name;
 }

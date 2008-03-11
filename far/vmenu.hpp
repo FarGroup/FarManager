@@ -54,6 +54,13 @@ enum VMENU_FLAGS_TYPE{
   VMENU_CHANGECONSOLETITLE    =0x01000000, //
   VMENU_SELECTPOSNONE         =0x02000000, //
   VMENU_MOUSEREACTION         =0x04000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
+
+  VMENU_TRUNCMODE             =0x08000000,
+  VMENU_TRUNC_MASK            =0x30000000,
+  VMENU_TRUNCPATH             =0x10000000,
+  VMENU_TRUNCSTR              =0x20000000,
+  VMENU_TRUNCSTREND           =0x30000000,
+
   VMENU_DISABLED              =0x80000000, //
 };
 
@@ -184,6 +191,7 @@ class VMenu: public Modal
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
     BOOL CheckHighlights(BYTE Chr);
     char GetHighlights(const struct MenuItem *_item);
+    BOOL ShiftItemShowPos(int Pos,int Direct);
 
   public:
     VMenu(const char *Title,
@@ -267,7 +275,6 @@ class VMenu: public Modal
       + Функция GetItemPtr - получить указатель на нужный Item.
     */
     struct MenuItem *GetItemPtr(int Position=-1);
-    /* SVS $*/
 
     void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
     BOOL GetVMenuInfo(struct FarListInfo* Info);

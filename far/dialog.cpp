@@ -749,9 +749,19 @@ int Dialog::InitDialogObjects(int ID)
           {
             // берем только первый пункт для области редактирования
             if(ItemFlags&DIF_VAREDIT)
-              xstrncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength-1);
+            {
+              if(ItemFlags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+                HiText2Str((char *)CurItem->Ptr.PtrData, CurItem->Ptr.PtrLength-1, ListItems[J].Text);
+              else
+                xstrncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength-1);
+            }
             else
-              xstrncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data)-1);
+            {
+              if(ItemFlags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+                HiText2Str(CurItem->Data, sizeof(CurItem->Data)-1, ListItems[J].Text);
+              else
+                xstrncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data)-1);
+            }
             break;
           }
         }
@@ -4078,6 +4088,8 @@ int Dialog::SelectFromComboBox(
     // Выставим то, что есть в строке ввода!
     // if(EditLine->GetDropDownBox()) //???
     EditLine->GetString(Str,MaxLen);
+    if(CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+       HiText2Str(Str, MaxLen, Str);
     ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_EXACTMATCH),1);
 
     ComboBox->Show();
@@ -4156,7 +4168,13 @@ int Dialog::SelectFromComboBox(
 
     //ComboBox->GetUserData(Str,MaxLen,Dest);
     struct MenuItem *ItemPtr=ComboBox->GetItemPtr(Dest);
-    EditLine->SetString(ItemPtr->PtrName());
+    if(CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+    {
+       HiText2Str(Str, MaxLen, ItemPtr->PtrName());
+       EditLine->SetString(Str);
+    }
+    else
+      EditLine->SetString(ItemPtr->PtrName());
     EditLine->SetLeftPos(0);
     Redraw();
     xf_free(Str);
@@ -4179,10 +4197,6 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
                                    char *HistoryName,
                                    char *IStr,
                                    int MaxLen)
-/* SVS $ */
-/* $ 21.02.2001 IS
-     Избавился от утечки памяти (проявлялось не у всех, но проявлялось же!)
-*/
 {
   CriticalSectionLock Lock(CS);
 
@@ -4193,7 +4207,6 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
   int I,Dest,Ret=FALSE;
   int Locked;
   int IsOk=FALSE, Done, IsUpdate;
-  struct MenuItem HistoryItem;
   int ItemsCount;
   int LastSelected = 0;
   int IsDeleted=FALSE;
@@ -4230,8 +4243,6 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
       // заполнение пунктов меню
       for (ItemsCount=Dest=I=0; I < Opt.DialogsHistoryCount; I++)
       {
-        memset(&HistoryItem,0,sizeof(HistoryItem));
-
         itoa(I,PHisLine,10);
         GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
         if (*Str==0)
@@ -4239,9 +4250,11 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
 
         itoa(I,PHisLocked,10);
         GetRegKey(RegKey,HisLocked,Locked,0);
-        HistoryItem.SetCheck(Locked);
-        xstrncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
-        HistoryMenu.SetUserData(Str,0,HistoryMenu.AddItem(&HistoryItem));
+
+        int InsPos=HistoryMenu.AddItem(Str);
+        struct MenuItem *HistoryItem=HistoryMenu.GetItemPtr(InsPos);
+        HistoryItem->SetCheck(Locked);
+        HistoryMenu.SetUserData(Str,0,InsPos);
         ItemsCount++;
       }
       if (ItemsCount==0)

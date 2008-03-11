@@ -339,8 +339,8 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPane
                         };
 
   const unsigned char VerticalLine=0x0B3;
-  const char Format1[] = "%-21.21s %c %-24.24s %-2.2s %c %-60.60s";
-  const char Format2[] = "%-3.3s %c %-24.24s %-2.2s %c %-78.78s";
+  const char Format1[] = "%-21.21s %c %-26.26s %-2.2s %c %-60.60s";
+  const char Format2[] = "%-3.3s %c %-26.26s %-2.2s %c %-78.78s";
 
   const char *Name, *Mask;
   char MarkChar[]="\" \"";
@@ -392,6 +392,7 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPane
     sprintf(dest, Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
   else
     sprintf(dest, Format1, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+  RemoveTrailingSpaces(dest);
 }
 
 enum enumFileFilterConfig {
@@ -437,26 +438,28 @@ enum enumFileFilterConfig {
     ID_FF_COMPRESSED,
     ID_FF_ENCRYPTED,
     ID_FF_NOTINDEXED,
+    ID_FF_REPARSEPOINT,
     ID_FF_SPARSE,
     ID_FF_TEMP,
-    ID_FF_REPARSEPOINT,
     ID_FF_OFFLINE,
+    ID_FF_VIRTUAL,
 
     ID_HER_SEPARATOR3,
     ID_HER_MARK_TITLE,
     ID_HER_MARKEDIT,
     ID_HER_MARKTRANSPARENT,
+
     ID_HER_NORMALFILE,
-    ID_HER_SELECTEDFILE,
-    ID_HER_CURSORFILE,
-    ID_HER_SELECTEDCURSORFILE,
     ID_HER_NORMALMARKING,
+    ID_HER_SELECTEDFILE,
     ID_HER_SELECTEDMARKING,
+    ID_HER_CURSORFILE,
     ID_HER_CURSORMARKING,
+    ID_HER_SELECTEDCURSORFILE,
     ID_HER_SELECTEDCURSORMARKING,
+
     ID_HER_COLOREXAMPLE,
     ID_HER_CONTINUEPROCESSING,
-
     ID_FF_SEPARATOR4,
 
     ID_FF_OK,
@@ -546,7 +549,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
            Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
            случае это будет логичнее, т.с. дефолтное значение
         */
-        for(int I=ID_FF_READONLY; I <= ID_FF_OFFLINE; ++I)
+        for(int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
 
         // 6, 13 - позиции в списке
@@ -621,30 +624,57 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     00000000001111111111222222222233333333334444444444555555555566666666667777777777
     01234567890123456789012345678901234567890123456789012345678901234567890123456789
 00
-01     +-------------------------- Фильтр операций --------------------------+
-02     | Название фильтра:                                                   |
-03     | "какое-то название                                                "|
-04     +-------------------------- Параметры файла --------------------------+
-05     | [ ] Совпадение с маской (масками)                                   |
-06     |   *.*                                                              |
-07     +------------------------------+--------------------------------------+
-08     | [x] Размер в                 ¦ [x] Дата/время                       |
-09     |              "мегабайтах   "¦               "модификация         "|
-10     |   Больше или равен: "      " ¦   Начиная с:  "  .  .   " "  :  :  " |
-11     |   Меньше или равен: "      " ¦   Заканчивая: "  .  .   " "  :  :  " |
-12     |                              ¦                [ Текущая ] [ Сброс ] |
-13     +------------------------------+--------------------------------------+
-14     | [ ] Атрибуты                                                        |
-15     |   [?] Только для чтения  [?] Каталог           [?] Разреженный      |
-16     |   [?] Архивный           [?] Сжатый            [?] Временный        |
-17     |   [?] Скрытый            [?] Зашифрованный     [?] Символ. связь    |
-18     |   [?] Системный          [?] Неиндексируемый   [?] Автономный       |
+01     +------------------------------ Filter -------------------------------+
+02     | Filter name: ****************************************************** |
+03     +---------------------------------------------------------------------+
+04     | [ ] Mask: *********************************************************|
+05     +----------------------------------+----------------------------------+
+06     | [ ] Size in    *****************| [ ] Date/Time     **************|
+07     |   >=           ***************** |   >=         **.**.**** **:**:** |
+08     |   <=           ***************** |   <=         **.**.**** **:**:** |
+09     |                                  |            [ Current ] [ Blank ] |
+10     +----------------------------------+----------------------------------+
+11     | [ ] Attributes                                                      |
+12     |   [?] Read only         [?] Directory         [?] Sparse            |
+13     |   [?] Archive           [?] Compressed        [?] Temporary         |
+14     |   [?] Hidden            [?] Encrypted         [?] Offline           |
+15     |   [?] System            [?] Not indexed       [?] Virtual           |
+16     |                         [?] Symbolic link                           |
+17     +---------------------------------------------------------------------+
+18     |                    [ Ok ]  [ Reset ]  [ Cancel ]                    |
 19     +---------------------------------------------------------------------+
-20     |                  [ Ок ]  [ Очистить ]  [ Отмена ]                   |
-21     +---------------------------------------------------------------------+
-22
+20
+21
 */
-
+/*
+    00000000001111111111222222222233333333334444444444555555555566666666667777777777
+    01234567890123456789012345678901234567890123456789012345678901234567890123456789
+00
+01     +------------------------------ Filter -------------------------------+
+02     | [ ] Mask: *********************************************************|
+03     +----------------------------------+----------------------------------+
+04     | [ ] Size in    *****************| [ ] Date/Time     **************|
+05     |   >=           ***************** |   >=         **.**.**** **:**:** |
+06     |   <=           ***************** |   <=         **.**.**** **:**:** |
+07     |                                  |            [ Current ] [ Blank ] |
+08     +----------------------------------+----------------------------------+
+09     | [x] Attributes                                                      |
+10     |   [?] Read only         [ ] Directory         [?] Sparse            |
+11     |   [?] Archive           [?] Compressed        [?] Temporary         |
+12     |   [?] Hidden            [?] Encrypted         [?] Symbolic link     |
+13     |   [?] System            [?] Not indexed       [?] Offline           |
+14     +-------- File name colors ("black on black" - default color) --------+
+15     | * Optional marking character, [ ] transparent                       |
+16     | 1. Normal file name                2. Marking       |filename.ext | |
+17     | 3. Selected file name              4. Marking       |filename.ext | |
+18     | 5. File name under cursor          6. Marking       |filename.ext | |
+19     | 7. File name selected under cursor 8. Marking       |filename.ext | |
+20     | [ ] Continue processing                                             |
+21     +---------------------------------------------------------------------+
+22     |         [ Ok ]  [ Reset ]  [ Cancel ]  [ Make transparent ]         |
+23     +---------------------------------------------------------------------+
+24
+*/
   // Временная маска.
   CFileMask FileMask;
   const char VerticalLine[] = {0x0C2,0x0B3,0x0B3,0x0B3,0x0B3,0x0C1,0};
@@ -652,6 +682,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   const char DigitMask[] = "99999999999999999999";
   // История для маски файлов
   const char FilterMasksHistoryName[] = "FilterMasks";
+  // История для имени фильтра
+  const char FilterNameHistoryName[] = "FilterName";
   // Маски для диалога настройки
   char DateMask[16];
   char TimeMask[16];
@@ -681,10 +713,10 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   struct DialogData FilterDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,73,18,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
+    DI_DOUBLEBOX,3,1,73,19,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
     DI_TEXT,5,2,0,2,1,0,0,0,(char *)MFileFilterName,
-    DI_EDIT,5,2,71,2,0,0,0,0,"",
+    DI_EDIT,5,2,71,2,0,(DWORD_PTR)FilterNameHistoryName,DIF_HISTORY,0,"",
 
     DI_TEXT,0,3,0,3,0,0,DIF_SEPARATOR,0,"",
 
@@ -725,33 +757,36 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_CHECKBOX,29,13,0,13,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
     DI_CHECKBOX,29,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
     DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
+    DI_CHECKBOX,29,16,0,16,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
 
     DI_CHECKBOX,51,12,0,12,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
     DI_CHECKBOX,51,13,0,13,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
-    DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrReparse,
-    DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrOffline,
+    DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(char *)MFileFilterAttrOffline,
+    DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(char *)MFileFilterAttrVirtual,
 
-    DI_TEXT,-1,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-    DI_TEXT,7,15,0,15,0,0,0,0,(char *)MHighlightMarkChar,
-    DI_FIXEDIT,5,15,5,15,0,0,0,0,"",
-    DI_CHECKBOX,0,15,0,15,0,0,0,0,(char *)MHighlightTransparentMarkChar,
-    DI_BUTTON,5,16,0,16,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName1,
-    DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName2,
-    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName3,
-    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName4,
-    DI_BUTTON,0,16,0,16,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking1,
-    DI_BUTTON,0,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking2,
-    DI_BUTTON,0,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking3,
-    DI_BUTTON,0,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking4,
-    DI_USERCONTROL,73-15-1,16,73-2,19,0,0,DIF_NOFOCUS,0,"",
-    DI_CHECKBOX,5,20,0,20,0,0,0,0,(char *)MHighlightContinueProcessing,
+    DI_TEXT,-1,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
+    DI_TEXT,7,16,0,16,0,0,0,0,(char *)MHighlightMarkChar,
+    DI_FIXEDIT,5,16,5,16,0,0,0,0,"",
+    DI_CHECKBOX,0,16,0,16,0,0,0,0,(char *)MHighlightTransparentMarkChar,
 
-    DI_TEXT,0,16,0,16,0,0,DIF_SEPARATOR,0,"",
+    DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName1,
+    DI_BUTTON,0,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking1,
+    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName2,
+    DI_BUTTON,0,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking2,
+    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName3,
+    DI_BUTTON,0,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking3,
+    DI_BUTTON,5,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightFileName4,
+    DI_BUTTON,0,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(char *)MHighlightMarking4,
 
-    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
-    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
-    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterMakeTransparent,
+    DI_USERCONTROL,73-15-1,17,73-2,20,0,0,DIF_NOFOCUS,0,"",
+    DI_CHECKBOX,5,21,0,21,0,0,0,0,(char *)MHighlightContinueProcessing,
+
+    DI_TEXT,0,17,0,17,0,0,DIF_SEPARATOR,0,"",
+
+    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
+    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterMakeTransparent,
   };
 
   MakeDialogItems(FilterDlgData,FilterDlg);
@@ -763,7 +798,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     for (int i=ID_FF_NAME; i<=ID_FF_SEPARATOR1; i++)
       FilterDlg[i].Flags|=DIF_HIDDEN;
 
-    for (int i=ID_FF_MATCHMASK; i<=ID_FF_OFFLINE; i++)
+    for (int i=ID_FF_MATCHMASK; i<=ID_FF_VIRTUAL; i++)
     {
       FilterDlg[i].Y1-=2;
       FilterDlg[i].Y2-=2;
@@ -797,7 +832,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+(int)strlen(FilterDlg[ID_HER_MARK_TITLE].Data)-(strchr(FilterDlg[ID_HER_MARK_TITLE].Data,'&')?1:0)+1;
 
-  for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i++)
+  for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
     FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)strlen(FilterDlg[ID_HER_NORMALFILE].Data)-(strchr(FilterDlg[ID_HER_NORMALFILE].Data,'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];
@@ -890,10 +925,11 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   FilterDlg[ID_FF_TEMP].Selected=(AttrSet & FILE_ATTRIBUTE_TEMPORARY?1:AttrClear & FILE_ATTRIBUTE_TEMPORARY?0:2);
   FilterDlg[ID_FF_REPARSEPOINT].Selected=(AttrSet & FILE_ATTRIBUTE_REPARSE_POINT?1:AttrClear & FILE_ATTRIBUTE_REPARSE_POINT?0:2);
   FilterDlg[ID_FF_OFFLINE].Selected=(AttrSet & FILE_ATTRIBUTE_OFFLINE?1:AttrClear & FILE_ATTRIBUTE_OFFLINE?0:2);
+  FilterDlg[ID_FF_VIRTUAL].Selected=(AttrSet & FILE_ATTRIBUTE_VIRTUAL?1:AttrClear & FILE_ATTRIBUTE_VIRTUAL?0:2);
 
   if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
   {
-    for(int i=ID_FF_READONLY; i <= ID_FF_OFFLINE; i++)
+    for(int i=ID_FF_READONLY; i <= ID_FF_VIRTUAL; i++)
       FilterDlg[i].Flags|=DIF_DISABLE;
   }
 
@@ -931,6 +967,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_TEMP,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_REPARSEPOINT,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_OFFLINE,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_VIRTUAL,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,0,0,DIF_DISABLE);
 
   for (;;)
@@ -997,6 +1034,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrSet|=(FilterDlg[ID_FF_TEMP].Selected==1?FILE_ATTRIBUTE_TEMPORARY:0);
       AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
       AttrSet|=(FilterDlg[ID_FF_OFFLINE].Selected==1?FILE_ATTRIBUTE_OFFLINE:0);
+      AttrSet|=(FilterDlg[ID_FF_VIRTUAL].Selected==1?FILE_ATTRIBUTE_VIRTUAL:0);
 
       AttrClear|=(FilterDlg[ID_FF_READONLY].Selected==0?FILE_ATTRIBUTE_READONLY:0);
       AttrClear|=(FilterDlg[ID_FF_ARCHIVE].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
@@ -1010,6 +1048,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrClear|=(FilterDlg[ID_FF_TEMP].Selected==0?FILE_ATTRIBUTE_TEMPORARY:0);
       AttrClear|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==0?FILE_ATTRIBUTE_REPARSE_POINT:0);
       AttrClear|=(FilterDlg[ID_FF_OFFLINE].Selected==0?FILE_ATTRIBUTE_OFFLINE:0);
+      AttrClear|=(FilterDlg[ID_FF_VIRTUAL].Selected==0?FILE_ATTRIBUTE_VIRTUAL:0);
 
       FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected,
                   AttrSet,
