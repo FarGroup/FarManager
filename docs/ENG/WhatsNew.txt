@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2313) (Jan 6 2008)
+FAR 1.71 alpha 4 (build 2323) (Mar 11 2008)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -151,6 +151,16 @@ FAR 1.71 alpha 4 (build 2313) (Jan 6 2008)
 [+] Macro: Two new pseudo-keys "MsWheelLeft" and "MsWheelRight".
 
 [+] API: Two new "keys" for the mouse wheel - KEY_MSWHEEL_LEFT/KEY_MSWHEEL_RIGHT.
+
+[+] Macro: V=akey(N) - функция возвращает имя или код клавиши, инициировавшей макрос.
+
+[+] API: добавлены флаги FMENU_TRUNCPATH, FMENU_TRUNCSTR, FMENU_TRUNCSTREND.
+
+[+] В фильтры и диалог установки атрибутов добавлена обработка флагов:
+    Виртуальный, Разряженный, Временный и Автономный
+
+[+] В меню, историях и списках добавлена возможность скроллировать длинный строки
+    (клавиши Ctrl-N, Alt-Left/Right/Home/End и Alt-Shift-Left/Right)
 
 [*] API: Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
@@ -314,6 +324,11 @@ FAR 1.71 alpha 4 (build 2313) (Jan 6 2008)
 
 [-] FAR требовал больше прав на открытие очередного файла, чем требовалось в
     процессе поиска.
+
+[-] API: Когда в комбинированном списке применялись горячие клавиши, то в строку
+    редактирования символ '&' тоже попадал.
+
+[-] API: не освобождалась память для пункта меню с выставленным флагом MIF_USETEXTPTR.
 
 
 TempPanel - build 31
