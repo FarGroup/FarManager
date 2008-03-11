@@ -1593,18 +1593,10 @@ string& CutToFolderNameIfFolder(string &strPath)
 
 string& HiText2Str(string& strDest, const wchar_t *Str)
 {
-  string strTextStr;
-  wchar_t *ChPtr, *ptrTextStr;
-  strTextStr = Str;
-  ptrTextStr = strTextStr.GetBuffer();
-  if ((ChPtr=wcschr(ptrTextStr,L'&')) == NULL)
+  const wchar_t *ChPtr;
+  strDest = Str;
+  if ((ChPtr=wcschr(Str,L'&')) != NULL)
   {
-    strTextStr.ReleaseBuffer ();
-    strDest=Str;
-  }
-  else
-  {
-    strDest=L"";
     /*
        &&      = '&'
        &&&     = '&'
@@ -1615,15 +1607,13 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
        &&&&&&  = '&&&'
     */
     int I=0;
-    wchar_t *ChPtr2=ChPtr;
+    const wchar_t *ChPtr2=ChPtr;
     while(*ChPtr2++ == L'&')
       ++I;
 
     if(I&1) // нечет?
     {
-      *ChPtr=0;
-
-      strDest+=(const wchar_t*)ptrTextStr;
+      strDest.SetLength(ChPtr-Str);
 
       if (ChPtr[1])
       {
@@ -1633,8 +1623,6 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 
         string strText = (ChPtr+1);
 
-        strTextStr.ReleaseBuffer ();
-
         ReplaceStrings(strText,L"&&",L"&",-1);
 
         strDest+=(const wchar_t*)strText+1;
@@ -1642,10 +1630,7 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
     }
     else
     {
-      strTextStr.ReleaseBuffer ();
-
-      ReplaceStrings(strTextStr,L"&&",L"&",-1);
-      strDest+=strTextStr;
+      ReplaceStrings(strDest,L"&&",L"&",-1);
     }
   }
   return strDest;
