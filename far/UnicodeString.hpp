@@ -236,13 +236,13 @@ public:
 		return m_pData->GetLength();
 	}
 
-	wchar_t At (size_t nIndex)
+	wchar_t At (size_t nIndex) const
 	{
 		const wchar_t *lpwszData = m_pData->GetData ();
 		return lpwszData[nIndex];
 	}
 
-	bool IsEmpty ()
+	bool IsEmpty () const
 	{
 		return !(m_pData->GetLength () && *m_pData->GetData ());
 	}
@@ -269,8 +269,50 @@ public:
 		m_pData->SetLength(m_pData->GetLength()-nNewPos);
 	}
 
-	int __cdecl Format (const wchar_t * format, ...);
+	bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const
+	{
+		const wchar_t *lpwszStr = wcschr(m_pData->GetData()+nStartPos,Ch);
+		if (lpwszStr)
+		{
+			nPos = lpwszStr - m_pData->GetData();
+			return true;
+		}
+		return false;
+	}
 
+	bool Pos(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const
+	{
+		const wchar_t *lpwszStr = wcsstr(m_pData->GetData()+nStartPos,lpwszFind);
+		if (lpwszStr)
+		{
+			nPos = lpwszStr - m_pData->GetData();
+			return true;
+		}
+		return false;
+	}
+
+	bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const
+	{
+		const wchar_t *lpwszStr = wcsrchr(m_pData->GetData()+nStartPos,Ch);
+		if (lpwszStr)
+		{
+			nPos = lpwszStr - m_pData->GetData();
+			return true;
+		}
+		return false;
+	}
+
+	bool Contains(wchar_t Ch, size_t nStartPos=0) const
+	{
+		return wcschr(m_pData->GetData()+nStartPos,Ch)==NULL ? false : true;
+	}
+
+	bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const
+	{
+		return wcsstr(m_pData->GetData()+nStartPos,lpwszFind)==NULL ? false : true;
+	}
+
+	int __cdecl Format (const wchar_t * format, ...);
 };
 
 #endif // __UNICODESTRING_HPP__

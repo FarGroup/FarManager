@@ -1,3 +1,16 @@
+t-rex 12.03.2008 00:36:38 +0200 - build 433
+
+1. Расширяем UnicodeString:
+   bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0)
+   bool Pos(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0)
+   bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0)
+   bool Contains(wchar_t Ch, size_t nStartPos=0)
+   bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0)
+
+2. Выставил const для ещё пару методов в UnicodeString.
+
+3. Заюзал новый Pos в одном месте и ещё пару мелочей.
+
 t-rex 11.03.2008 22:51:56 +0200 - build 432
 
 1. Небольшая оптимизация HiText2Str().

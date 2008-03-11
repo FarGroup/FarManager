@@ -1308,8 +1308,8 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
 
       if(PtrCmd && *PtrCmd)
       {
-        PtrCmd=wcschr(PtrCmd,' ');
-        if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
+        PtrCmd=wcschr(PtrCmd,L' ');
+        if(PtrCmd && *PtrCmd && *PtrCmd == L' ')
         {
           string strExpandedStr;
           wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
@@ -1361,35 +1361,29 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   // SET [переменная=[строка]]
   if (StrCmpNI(strCmdLine,L"SET ",4)==0)
   {
-    string strCmd;
+    size_t pos;
+    string strCmd = (const wchar_t *)strCmdLine+4;
 
-    strCmd = (const wchar_t*)strCmdLine+4;
+    if (!strCmd.Pos(pos,L'='))
+      return FALSE;
 
-    wchar_t *lpwszValue = strCmd.GetBuffer ();
-
-    lpwszValue=wcschr(lpwszValue,L'=');
-
-    if (lpwszValue==NULL)
+    if (strCmd.GetLength() == pos+1) //set var=
     {
-      strCmd.ReleaseBuffer ();
-      return(FALSE);
-    }
-
-    *lpwszValue=0;
-
-    if (lpwszValue[1]==0) //??
+    	strCmd.SetLength(pos);
       SetEnvironmentVariableW(strCmd,NULL);
+    }
     else
     {
       string strExpandedStr;
 
-      if (apiExpandEnvironmentStrings(lpwszValue+1,strExpandedStr) != 0)
+      if (apiExpandEnvironmentStrings((const wchar_t *)strCmd+pos+1,strExpandedStr) != 0)
+      {
+      	strCmd.SetLength(pos);
         SetEnvironmentVariableW(strCmd,strExpandedStr);
+      }
     }
 
-    strCmd.ReleaseBuffer ();
-
-    return(TRUE);
+    return TRUE;
   }
 
   if (!StrCmpNI(strCmdLine,L"REM ",4) || !StrCmpNI(strCmdLine,L"::",2))
