@@ -155,7 +155,7 @@ class KeyMacro
     void RunStartMacro();
 
     // Поместить временное строковое представление макроса
-    int PostNewMacro(const wchar_t *PlainText,DWORD Flags=0);
+    int PostNewMacro(const wchar_t *PlainText,DWORD Flags=0,DWORD AKey=0);
     // Поместить временный рекорд (бинарное представление)
     int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0,BOOL IsPluginSend=FALSE);
 

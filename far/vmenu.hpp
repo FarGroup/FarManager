@@ -80,6 +80,11 @@ enum{
 #define VMENU_CHANGECONSOLETITLE    0x01000000  //
 #define VMENU_SELECTPOSNONE         0x02000000  //
 #define VMENU_MOUSEREACTION         0x04000000  // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
+#define VMENU_TRUNCMODE             0x08000000
+#define VMENU_TRUNC_MASK            0x30000000
+#define VMENU_TRUNCPATH             0x10000000
+#define VMENU_TRUNCSTR              0x20000000
+#define VMENU_TRUNCSTREND           0x30000000
 #define VMENU_DISABLED              0x80000000  //
 
 class Dialog;
@@ -232,6 +237,7 @@ class VMenu: public Modal
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
     BOOL CheckHighlights(WORD Chr);
     wchar_t GetHighlights(const struct MenuItemEx *_item);
+    BOOL ShiftItemShowPos(int Pos,int Direct);
 
   public:
 

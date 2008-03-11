@@ -446,6 +446,7 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
     dest.Format(Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
   else
     dest.Format(Format1, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+  RemoveTrailingSpaces(dest);
 }
 
 enum enumFileFilterConfig {
@@ -501,17 +502,18 @@ enum enumFileFilterConfig {
     ID_HER_MARK_TITLE,
     ID_HER_MARKEDIT,
     ID_HER_MARKTRANSPARENT,
+
     ID_HER_NORMALFILE,
-    ID_HER_SELECTEDFILE,
-    ID_HER_CURSORFILE,
-    ID_HER_SELECTEDCURSORFILE,
     ID_HER_NORMALMARKING,
+    ID_HER_SELECTEDFILE,
     ID_HER_SELECTEDMARKING,
+    ID_HER_CURSORFILE,
     ID_HER_CURSORMARKING,
+    ID_HER_SELECTEDCURSORFILE,
     ID_HER_SELECTEDCURSORMARKING,
+
     ID_HER_COLOREXAMPLE,
     ID_HER_CONTINUEPROCESSING,
-
     ID_FF_SEPARATOR4,
 
     ID_FF_OK,
@@ -681,24 +683,24 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   00000000001111111111222222222233333333334444444444555555555566666666667777777777
   01234567890123456789012345678901234567890123456789012345678901234567890123456789
 01+-------------------------- Фильтр операций --------------------------+
-02| Название фильтра:                                                   |     
-03+-------------------------- Параметры файла --------------------------+     
-04| [ ] Совпадение с маской (масками)                                   |     
-05+------------------------------+--------------------------------------+     
-06| [x] Размер в                 ¦ [x] Дата/время                       |     
-07|   Больше или равен: "      " ¦   Начиная с:  "  .  .   " "  :  :  " |     
-08|   Меньше или равен: "      " ¦   Заканчивая: "  .  .   " "  :  :  " |     
-09|                              ¦                [ Текущая ] [ Сброс ] |     
-10+------------------------------+--------------------------------------+     
-11| [ ] Атрибуты                                                        |     
-12|   [?] Только для чтения  [?] Каталог           [?] Разреженный      |     
-13|   [?] Архивный           [?] Сжатый            [?] Временный        |     
-14|   [?] Скрытый            [?] Зашифрованный     [?] Автономный       |     
-15|   [?] Системный          [?] Неиндексируемый   [?] Виртуальный      |     
-16|   [?] Символ. связь                                                 |     
-17+---------------------------------------------------------------------+     
-18|                  [ Ок ]  [ Очистить ]  [ Отмена ]                   |     
-19+---------------------------------------------------------------------+     
+02| Название фильтра:                                                   |
+03+-------------------------- Параметры файла --------------------------+
+04| [ ] Совпадение с маской (масками)                                   |
+05+------------------------------+--------------------------------------+
+06| [x] Размер в                 ¦ [x] Дата/время                       |
+07|   Больше или равен: "      " ¦   Начиная с:  "  .  .   " "  :  :  " |
+08|   Меньше или равен: "      " ¦   Заканчивая: "  .  .   " "  :  :  " |
+09|                              ¦                [ Текущая ] [ Сброс ] |
+10+------------------------------+--------------------------------------+
+11| [ ] Атрибуты                                                        |
+12|   [?] Только для чтения  [?] Каталог           [?] Разреженный      |
+13|   [?] Архивный           [?] Сжатый            [?] Временный        |
+14|   [?] Скрытый            [?] Зашифрованный     [?] Автономный       |
+15|   [?] Системный          [?] Неиндексируемый   [?] Виртуальный      |
+16|   [?] Символ. связь                                                 |
+17+---------------------------------------------------------------------+
+18|                  [ Ок ]  [ Очистить ]  [ Отмена ]                   |
+19+---------------------------------------------------------------------+
   01234567890123456789012345678901234567890123456789012345678901234567890123456789
   00000000001111111111222222222233333333334444444444555555555566666666667777777777
   |         |         |         |         |         |         |         |
@@ -711,6 +713,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   const wchar_t DigitMask[] = L"99999999999999999999";
   // История для маски файлов
   const wchar_t FilterMasksHistoryName[] = L"FilterMasks";
+  // История для имени фильтра
+  const wchar_t FilterNameHistoryName[] = L"FilterName";
   // Маски для диалога настройки
   string strDateMask, strTimeMask;
 
@@ -742,7 +746,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_DOUBLEBOX,3,1,73,19,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
 
     DI_TEXT,5,2,0,2,1,0,0,0,(const wchar_t *)MFileFilterName,
-    DI_EDIT,5,2,71,2,0,0,0,0,L"",
+    DI_EDIT,5,2,71,2,0,(DWORD_PTR)(const wchar_t *)FilterNameHistoryName,DIF_HISTORY,0,L"",
 
     DI_TEXT,0,3,0,3,0,0,DIF_SEPARATOR,0,L"",
 
@@ -796,13 +800,14 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_FIXEDIT,5,16,5,16,0,0,0,0,L"",
     DI_CHECKBOX,0,16,0,16,0,0,0,0,(const wchar_t *)MHighlightTransparentMarkChar,
     DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName1,
-    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName2,
-    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName3,
-    DI_BUTTON,5,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName4,
     DI_BUTTON,0,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking1,
+    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName2,
     DI_BUTTON,0,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking2,
+    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName3,
     DI_BUTTON,0,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking3,
+    DI_BUTTON,5,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName4,
     DI_BUTTON,0,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking4,
+
     DI_USERCONTROL,73-15-1,17,73-2,20,0,0,DIF_NOFOCUS,0,L"",
     DI_CHECKBOX,5,21,0,21,0,0,0,0,(const wchar_t *)MHighlightContinueProcessing,
 
@@ -857,7 +862,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+StrLength(FilterDlg[ID_HER_MARK_TITLE].strData)-(wcschr(FilterDlg[ID_HER_MARK_TITLE].strData,L'&')?1:0)+1;
 
-  for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i++)
+  for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
     FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+StrLength(FilterDlg[ID_HER_NORMALFILE].strData)-(wcschr(FilterDlg[ID_HER_NORMALFILE].strData,L'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];

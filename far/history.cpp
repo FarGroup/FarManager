@@ -556,7 +556,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
   {
     VMenu HistoryMenu(Title,NULL,0,Height);
-    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE|VMENU_TRUNCPATH);
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
@@ -583,7 +583,6 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
           string strRecord = LastStr[CurCmd].Name;
 
-          TruncPathStr(strRecord,SizeTrunc);
           ReplaceStrings(strRecord, L"&",L"&&",-1);
 
           if (*LastStr[CurCmd].Title)
@@ -591,6 +590,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
           HistoryItem.Clear ();
           HistoryItem.strName = strRecord;
+          //HistoryItem.Flags|=LIF_USETEXTPTR; //???
 
           HistoryItem.SetSelect(CurCmd==CurLastPtr);
           HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),

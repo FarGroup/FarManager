@@ -852,7 +852,12 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 		for (int i=0; i<ItemsNumber; i++)
 		{
 			mi[i].Flags = p[i].Flags;
-			mi[i].Text = AnsiToUnicode(p[i].Flags&MIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
+			if(mi[i].Flags&MIF_USETEXTPTR)
+			{
+				mi[i].Flags&=~MIF_USETEXTPTR;
+				mi[i].Flags|=LIF_USETEXTPTR;
+			}
+			mi[i].Text = AnsiToUnicode(mi[i].Flags&LIF_USETEXTPTR?p[i].Text.TextPtr:p[i].Text.Text);
 			mi[i].AccelKey = OldKeyToKey(p[i].AccelKey);
 			mi[i].Reserved = p[i].Reserved;
 			mi[i].UserData = p[i].UserData;
@@ -1191,7 +1196,7 @@ void FreeAnsiDialogItem(oldfar::FarDialogItem *diA)
 oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem* di,HANDLE hDlg,int ItemNumber)
 {
 	oldfar::FarDialogItem *diA=CurrentDialogItemA(hDlg,ItemNumber);
-	
+
 	if(!diA)
 	{
 		if(OneDialogItem)
@@ -1432,7 +1437,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_GETDLGITEM:
 		{
 			FarDialogItem *di = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
-			
+
 			if (di)
 			{
 				oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(di,hDlg,Param1);
@@ -1812,7 +1817,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_GETSELECTION:
 		{
 			if (!Param2) return FALSE;
-			
+
 			EditorSelect es;
 			LONG_PTR ret=FarSendDlgMessage(hDlg, DM_GETSELECTION, Param1, (LONG_PTR)&es);
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;

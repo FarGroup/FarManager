@@ -1431,7 +1431,7 @@ static bool evalFunc()
 
   CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
   CtrlObject->Macro.PushState();
-  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ)))
+  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
   {
     CtrlObject->Macro.PopState();
     Ret=false;
@@ -2744,13 +2744,26 @@ done:
 
     // Function
     case MCODE_F_EVAL: // N=eval(S)
+    {
       if(evalFunc())
         goto initial; // т.к.
       goto begin;
+    }
 
     case MCODE_F_AKEY: // S=akey()
-      VMStack.Push((__int64)MR->Key);
+    {
+      TVar tmpVar=VMStack.Pop();
+      if(tmpVar.i() == 0)
+         tmpVar=(__int64)MR->Key;
+      else
+      {
+         KeyToText(MR->Key,value);
+         tmpVar=(const wchar_t*)value;
+         tmpVar.toString();
+      }
+      VMStack.Push(tmpVar);
       goto begin;
+    }
 
     case MCODE_F_BM_ADD:              // N=BM.Add()
     case MCODE_F_BM_CLEAR:            // N=BM.Clear()
@@ -3822,7 +3835,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   return(TRUE);
 }
 
-int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags)
+int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey)
 {
   struct MacroRecord NewMacroWORK2={0};
 
@@ -3874,6 +3887,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags)
     return FALSE;
   }
   NewMacroWORK2.Flags=Flags;
+  NewMacroWORK2.Key=AKey;
 
   // теперь попробуем выделить немного нужной памяти
   struct MacroRecord *NewMacroWORK;

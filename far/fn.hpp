@@ -532,6 +532,7 @@ string & WINAPI RemoveUnprintableCharacters(string &strStr);
 wchar_t* __stdcall TruncStr(wchar_t *Str,int MaxLength);
 string& __stdcall TruncStr(string &strStr,int MaxLength);
 
+wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength);
 string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength);
 
 wchar_t* __stdcall TruncPathStr(wchar_t *Str, int MaxLength);
@@ -1143,5 +1144,6 @@ BOOL apiMoveFileEx (
 		DWORD dwFlags   // flag to determine how to move file
 		);
 
+string& HiText2Str(string& strDest, const wchar_t *Str);
 
 #endif  // __FARFUNC_HPP__

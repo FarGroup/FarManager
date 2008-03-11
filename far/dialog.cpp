@@ -791,7 +791,10 @@ int Dialog::InitDialogObjects(int ID)
         {
           if(ListItems[J].Flags & LIF_SELECTED)
           {
-            CurItem->strData = ListItems[J].Text;
+            if(ItemFlags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+              HiText2Str(CurItem->strData, ListItems[J].Text);
+            else
+              CurItem->strData = ListItems[J].Text;
             break;
           }
         }
@@ -3920,6 +3923,8 @@ int Dialog::SelectFromComboBox(
     // Выставим то, что есть в строке ввода!
     // if(EditLine->GetDropDownBox()) //???
     EditLine->GetString(strStr);
+    if(CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+       HiText2Str(strStr, strStr);
     ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 
     ComboBox->Show();
@@ -3998,8 +4003,13 @@ int Dialog::SelectFromComboBox(
 
     //ComboBox->GetUserData(Str,MaxLen,Dest);
     MenuItemEx *ItemPtr=ComboBox->GetItemPtr(Dest);
-
-    EditLine->SetString(ItemPtr->strName);
+    if(CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+    {
+       HiText2Str(strStr, ItemPtr->strName);
+       EditLine->SetString(strStr);
+    }
+    else
+       EditLine->SetString(ItemPtr->strName);
 
     EditLine->SetLeftPos(0);
     Redraw();

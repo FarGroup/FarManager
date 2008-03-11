@@ -430,23 +430,29 @@ string& WINAPI QuoteSpaceOnly(string &strStr)
 
 string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
 {
-  if( !strStr.IsEmpty() )
+    wchar_t *lpwszBuffer = strStr.GetBuffer ();
+
+    TruncStr(lpwszBuffer, MaxLength);
+
+    strStr.ReleaseBuffer ();
+
+    return strStr;
+}
+
+wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
+{
+  if( Str )
   {
-    int Length = StrLength(strStr);
+    int Length = StrLength(Str);
 
     if (Length > MaxLength)
     {
-      wchar_t *lpwszStr = strStr.GetBuffer ();
-
       if (MaxLength>3)
-        wmemcpy(lpwszStr+MaxLength-3, L"...", 3);
-
-      lpwszStr[MaxLength]=0;
-
-      strStr.ReleaseBuffer ();
+        wmemcpy(Str+MaxLength-3, L"...", 3);
+      Str[MaxLength]=0;
     }
   }
-  return strStr;
+  return Str;
 }
 
 
@@ -1583,6 +1589,66 @@ string& CutToFolderNameIfFolder(string &strPath)
   strPath.ReleaseBuffer ();
 
   return strPath;
+}
+
+string& HiText2Str(string& strDest, const wchar_t *Str)
+{
+  string strTextStr;
+  wchar_t *ChPtr, *ptrTextStr;
+  strTextStr = Str;
+  ptrTextStr = strTextStr.GetBuffer();
+  if ((ChPtr=wcschr(ptrTextStr,L'&')) == NULL)
+  {
+    strTextStr.ReleaseBuffer ();
+    strDest=Str;
+  }
+  else
+  {
+    strDest=L"";
+    /*
+       &&      = '&'
+       &&&     = '&'
+                  ^H
+       &&&&    = '&&'
+       &&&&&   = '&&'
+                  ^H
+       &&&&&&  = '&&&'
+    */
+    int I=0;
+    wchar_t *ChPtr2=ChPtr;
+    while(*ChPtr2++ == L'&')
+      ++I;
+
+    if(I&1) // нечет?
+    {
+      *ChPtr=0;
+
+      strDest+=(const wchar_t*)ptrTextStr;
+
+      if (ChPtr[1])
+      {
+        wchar_t Chr[2];
+        Chr[0]=ChPtr[1]; Chr[1]=0;
+        strDest+=Chr;
+
+        string strText = (ChPtr+1);
+
+        strTextStr.ReleaseBuffer ();
+
+        ReplaceStrings(strText,L"&&",L"&",-1);
+
+        strDest+=(const wchar_t*)strText+1;
+      }
+    }
+    else
+    {
+      strTextStr.ReleaseBuffer ();
+
+      ReplaceStrings(strTextStr,L"&&",L"&",-1);
+      strDest+=strTextStr;
+    }
+  }
+  return strDest;
 }
 
 const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
