@@ -117,11 +117,8 @@ Viewer::Viewer()
   CtrlObject->Plugins.CurViewer=this;
   OpenFailed=false;
   HostFileViewer=NULL;
-  /* $ 06.02.2001 IS
-     См. SelectText
-  */
   SelectPosOffSet=0;
-  /* IS $ */
+  bVE_READ_Sent = false;
 }
 
 
@@ -192,28 +189,15 @@ Viewer::~Viewer()
     }
     /* IS $ */
   }
-  /* $ 12.07.2000 tran
-     free memory  */
   for ( int i=0; i<=MAXSCRY; i++ )
   {
-    /* $ 13.07.2000 SVS
-      раз уж вызвали new[], то и нужно delete[]
-    */
-    //delete[] OutStr[i];
-
     delete [] Strings[i]->lpData;
     delete Strings[i];
-
-    /* SVS $ */
   }
-  /* tran 12.07.2000 $ */
-  if (!OpenFailed)
+  if (!OpenFailed && bVE_READ_Sent)
   {
     CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
-    /* $ 15.09.2001 tran
-       пора легализироваться */
     CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
-    /* tran $ */
   }
 }
 
@@ -461,10 +445,8 @@ int Viewer::OpenFile(const char *Name,int warning)
   AdjustWidth();
   /* DJ $ */
   CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
-  /* $ 15.09.2001 tran
-     пора легализироваться */
   CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
-  /* tran $ */
+  bVE_READ_Sent = true;
   return(TRUE);
 }
 
@@ -1578,7 +1560,7 @@ int Viewer::ProcessKey(int Key)
         ProcessKey(KEY_LEFT);
       return TRUE;
     }
- 
+
     case KEY_MSWHEEL_RIGHT:
     case (KEY_MSWHEEL_RIGHT | KEY_ALT):
     {

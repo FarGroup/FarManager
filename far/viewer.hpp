@@ -135,16 +135,11 @@ class Viewer:public ScreenObject
     struct ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
 
     int LastKeyUndo;
-    /* $ 19.07.2000 tran
-       новая переменная, используется при расчете ширины при скролбаре */
     int Width,XX2;
-    /* tran 19.07.2000 $ */
-    /* $ 27.09.2000 SVS
-    */
     int ViewerID;
     bool OpenFailed;
+    bool bVE_READ_Sent;
     FileViewer *HostFileViewer;
-    /* SVS $ */
     bool AdjustSelPosition;
 
   private:

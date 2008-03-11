@@ -337,18 +337,6 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     ProcessingPluginCommand--;
     return;
   }
-  QView=new Viewer;
-  QView->SetRestoreScreenMode(FALSE);
-  QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
-  QView->SetStatusMode(0);
-  QView->EnableHideCursor(0);
-  /* $ 20.02.2001 VVM
-      + Запомнить старое состояние врапа и потом восстановить. */
-  OldWrapMode = QView->GetWrapMode();
-  OldWrapType = QView->GetWrapType();
-  QView->SetWrapMode(LastWrapMode);
-  QView->SetWrapType(LastWrapType);
-  /* VVM $ */
   strcpy(CurFileName,FileName);
 
   if ((ExtPtr=strrchr(CurFileName,'.'))!=NULL)
@@ -396,11 +384,25 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     }
   }
   else
+  {
     if (*CurFileName)
-      /* $ 04.07.2000 tran
-         + add FALSE as 'warning' parameter*/
+    {
+      QView=new Viewer;
+      QView->SetRestoreScreenMode(FALSE);
+      QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
+      QView->SetStatusMode(0);
+      QView->EnableHideCursor(0);
+      /* $ 20.02.2001 VVM
+          + Запомнить старое состояние врапа и потом восстановить. */
+      OldWrapMode = QView->GetWrapMode();
+      OldWrapType = QView->GetWrapType();
+      QView->SetWrapMode(LastWrapMode);
+      QView->SetWrapType(LastWrapType);
+      /* VVM $ */
+
       QView->OpenFile(CurFileName,FALSE);
-      /* tran 04.07.2000 $ */
+    }
+  }
 
   if (TempFile){
 //    ConvertNameToFull(CurFileName,TempName, sizeof(TempName));
