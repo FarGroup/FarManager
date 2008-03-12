@@ -1581,17 +1581,30 @@ const char* Edit::GetStringAddr()
 }
 
 
+void  Edit::SetHiString(const char *Str)
+{
+  if ( Flags.Check(FEDITLINE_READONLY) )
+    return;
+
+  char *NewStr=(char*) xf_malloc((int)strlen(Str)*2+1);
+  if (NewStr==NULL)
+    return;
+  HiText2Str(NewStr, (int)strlen(Str)*2, Str);
+
+  Select(-1,0);
+  SetBinaryString(NewStr,(int)strlen(NewStr));
+  xf_free(NewStr);
+}
+
 /* $ 25.07.2000 tran
    примечание:
    в этом методе DropDownBox не обрабатывается
    ибо именно этот метод вызывается для установки из истории */
 void Edit::SetString(const char *Str)
 {
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
-  /* tran 03.07.2000 $ */
+
   Select(-1,0);
   SetBinaryString(Str,(int)strlen(Str));
 }
@@ -1632,11 +1645,8 @@ const char *Edit::GetEOL(void)
    в Dialog он нигде не вызывается */
 void Edit::SetBinaryString(const char *Str,int Length)
 {
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
-  /* tran 03.07.2000 $ */
 
   // коррекция вставляемого размера, если определен MaxLength
   if(MaxLength != -1 && Length > MaxLength)
@@ -1684,11 +1694,7 @@ void Edit::SetBinaryString(const char *Str,int Length)
   CurPos=0;
   if (Mask && *Mask)
   {
-    /* $ 21.09.2003 KM
-       Очистка строки с маской.
-    */
     RefreshStrByMask(TRUE);
-    /* KM $ */
 
     /* $ 26.10.2003 KM
        ! Скорректируем вставку из клипборда с учётом маски
@@ -1771,14 +1777,8 @@ int Edit::GetSelString(char *Str,int MaxSize)
 
 void Edit::InsertString(const char *Str)
 {
-  /* $ 25.07.2000 tran
-     + drop-down */
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
-  /* tran 03.07.2000 $ */
-  /* tran 25.07.2000 $ */
 
   Select(-1,0);
   InsertBinaryString(Str,(int)strlen(Str));
@@ -1789,19 +1789,11 @@ void Edit::InsertBinaryString(const char *Str,int Length)
 {
   char *NewStr;
 
-  /* $ 25.07.2000 tran
-     + drop-down */
-  /* $ 03.07.2000 tran
-     + обработка ReadOnly */
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
-  /* tran 03.07.2000 $ */
 
   Flags.Clear(FEDITLINE_CLEARFLAG);
 
-  /* $ 18.08.2000 KM
-     Обслуживание маски ввода.
-  */
   if (Mask && *Mask)
   {
     int Pos=CurPos;
@@ -1897,7 +1889,6 @@ void Edit::InsertBinaryString(const char *Str,int Length)
     else
       MessageBeep(MB_ICONHAND);
   }
-  /* KM $ */
 }
 
 
@@ -2526,12 +2517,8 @@ void Edit::Xlat(BOOL All)
     ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
     Show();
    }
-   /* 12.01.2004 IS $*/
-   /* 10.12.2000 IS $ */
   }
-/* IS $ */
 }
-/* SVS $ */
 
 
 /* $ 15.11.2000 KM
@@ -2550,7 +2537,6 @@ int Edit::KeyMatchedMask(int Key)
   */
   else if (Mask[CurPos]==EDMASK_DIGIT && (isdigit(Key)))
     Inserted=TRUE;
-  /* KM $ */
   else if (Mask[CurPos]==EDMASK_ALPHA && LocalIsalpha(Key))
     Inserted=TRUE;
   /* $ 20.09.2003 KM
@@ -2558,11 +2544,9 @@ int Edit::KeyMatchedMask(int Key)
   */
   else if (Mask[CurPos]==EDMASK_HEX && (isdigit(Key) || (LocalUpper(Key)>='A' && LocalUpper(Key)<='F') || (LocalUpper(Key)>='a' && LocalUpper(Key)<='f')))
     Inserted=TRUE;
-  /* KM $ */
 
   return Inserted;
 }
-/* KM $ */
 
 int Edit::CheckCharMask(char Chr)
 {

@@ -213,6 +213,18 @@ const char* DlgEdit::GetStringAddr()
     return lineEdit->GetStringAddr();
 }
 
+void DlgEdit::SetHiString(const char *Str)
+{
+#if defined(PROJECT_DI_MEMOEDIT)
+  if(Type == DLGEDIT_MULTILINE)
+  {
+    ; //multiEdit;
+  }
+  else
+#endif
+    lineEdit->SetHiString(Str);
+}
+
 void DlgEdit::SetString(const char *Str)
 {
 #if defined(PROJECT_DI_MEMOEDIT)

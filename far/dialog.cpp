@@ -766,9 +766,8 @@ int Dialog::InitDialogObjects(int ID)
           }
         }
       }
-      /* SVS $ */
-      if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
-         (ItemFlags&DIF_VAREDIT))
+
+      if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) && (ItemFlags&DIF_VAREDIT))
         DialogEdit->SetString((char *)CurItem->Ptr.PtrData);
       else
         DialogEdit->SetString(CurItem->Data);
@@ -5898,7 +5897,11 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             struct MenuItem *ListMenuItem;
             if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
             {
-              ((DlgEdit *)(CurItem->ObjPtr))->SetString(ListMenuItem->Name);
+              if(CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+                ((DlgEdit *)(CurItem->ObjPtr))->SetHiString(ListMenuItem->Name);
+              else
+                ((DlgEdit *)(CurItem->ObjPtr))->SetString(ListMenuItem->Name);
+
               ((DlgEdit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
             }
           }

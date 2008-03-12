@@ -83,6 +83,7 @@ class DlgEdit: public ScreenObject
     int   GetClearFlag(void);
 
     void  SetString(const char *Str);
+    void  SetHiString(const char *Str);
     void  GetString(char *Str,int MaxSize,int Row=-1); // Row==-1 - current line
     const char* GetStringAddr();
 
