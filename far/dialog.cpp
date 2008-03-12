@@ -5640,7 +5640,11 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             MenuItemEx *ListMenuItem;
             if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
             {
-              ((DlgEdit *)(CurItem->ObjPtr))->SetString(ListMenuItem->strName);
+              if(CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+                ((DlgEdit *)(CurItem->ObjPtr))->SetHiString(ListMenuItem->strName);
+              else
+                ((DlgEdit *)(CurItem->ObjPtr))->SetString(ListMenuItem->strName);
+
               ((DlgEdit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
             }
           }

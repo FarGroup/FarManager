@@ -1458,6 +1458,18 @@ const wchar_t* Edit::GetStringAddrW()
 
 
 
+void  Edit::SetHiString(const wchar_t *Str)
+{
+  if ( Flags.Check(FEDITLINE_READONLY) )
+    return;
+
+  string NewStr;
+
+  HiText2Str(NewStr, Str);
+  Select(-1,0);
+  SetBinaryString(NewStr,StrLength(NewStr));
+}
+
 void Edit::SetString(const wchar_t *Str)
 {
   if ( Flags.Check(FEDITLINE_READONLY) )

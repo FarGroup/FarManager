@@ -197,6 +197,7 @@ private:
 
     const wchar_t* GetStringAddrW();
 
+    void  SetHiString(const wchar_t *Str);
     void  SetString(const wchar_t *Str);
 
     void  SetBinaryString(const wchar_t *Str,int Length);
