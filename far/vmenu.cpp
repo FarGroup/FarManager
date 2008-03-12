@@ -1007,6 +1007,11 @@ int VMenu::ProcessKey(int Key)
     {
       VMFlags.Swap(VMENU_TRUNCMODE);
       VMFlags.Set(VMENU_UPDATEREQUIRED);
+      if(VMFlags.Check(VMENU_TRUNCMODE))
+      {
+        for(I=0; I < ItemCount; ++I)
+          Item[I].ShowPos=0;
+      }
       ShowMenu(TRUE);
       break;
     }
