@@ -1,3 +1,9 @@
+t-rex 12.03.2008 11:28:17 +0200 - build 435
+
+1. Mantis#489: Crash in ConvertPanelItemA()
+   pItemsNumber посланый плагину в GetFindData не обнулялся а некоторые
+   плагины (network) возвращают TRUE ничего не выставив (типа пустая папка).
+
 svs 12.03.2008 11:42:45 +0300 - build 434
 
 1. После 431 "сломалась" навигация по раскраске в диалоге FileFilterConfig

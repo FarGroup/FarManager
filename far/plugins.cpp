@@ -744,6 +744,8 @@ int PluginManager::GetFindData (
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle *)hPlugin;
 
+	*pItemsNumber = 0;
+
 	return ph->pPlugin->GetFindData (ph->hPlugin, pPanelData, pItemsNumber, OpMode);
 }
 
