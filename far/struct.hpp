@@ -797,7 +797,7 @@ enum enumHighlightDataColor
 
 struct HighlightDataColor
 {
-  WORD Color[2][4];
+  WORD Color[2][4]; // [0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]; if HIBYTE == 0xFF then transparent
   DWORD MarkChar;
 };
 

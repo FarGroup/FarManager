@@ -637,14 +637,15 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
         if (Msg==DN_MOUSECLICK)
         {
-          Param1 = ID_HER_NORMALFILE + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
+          Param1 = ID_HER_NORMALFILE + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y*2;
           if (((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.X==1 && (EditData->MarkChar&0x0000FFFF))
-            Param1 = ID_HER_NORMALMARKING + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
+            Param1 = ID_HER_NORMALMARKING + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y*2;
         }
 
-        unsigned int Color=(unsigned int)EditData->Color[(Param1-ID_HER_NORMALFILE)/4][(Param1-ID_HER_NORMALFILE)%4];
+        //Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
+        unsigned int Color=(unsigned int)EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
         GetColorDialog(Color,true,true);
-        EditData->Color[(Param1-ID_HER_NORMALFILE)/4][(Param1-ID_HER_NORMALFILE)%4]=(WORD)Color;
+        EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=(WORD)Color;
 
         FarDialogItem *ColorExample = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
         wchar_t MarkChar[2];
@@ -818,6 +819,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFileFilterCancel,
     DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterMakeTransparent,
   };
+  FilterDlgData[0].Data=(const wchar_t *)(ColorConfig?MFileHilightTitle:MFileFilterTitle);
 
   MakeDialogItemsEx(FilterDlgData,FilterDlg);
 
@@ -970,7 +972,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   Dialog Dlg(FilterDlg,countof(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)&Colors);
 
-  Dlg.SetHelp(L"Filter");
+  Dlg.SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
   Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 
   Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
