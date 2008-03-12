@@ -1,3 +1,9 @@
+t-rex 12.03.2008 23:55:03 +0200 - build 438
+
+1. От Alexey Samlyukov: wrapper: FarInputBoxA в отличии от 1.7х выставлял DestText даже если отменили диалог.
+
+2. Не работало копирование (и т.п. операции) в плагины c выставленным OPIF_REALNAMES (TmpPanel например).
+
 t-rex 12.03.2008 15:24:39 +0200 - build 437
 
 От Andrey Kuznetsov:

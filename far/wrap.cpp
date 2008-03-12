@@ -789,7 +789,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 	wchar_t *D = strD.GetBuffer(DestLength);
 	int ret = FarInputBox((Title?(const wchar_t *)strT:NULL),(Prompt?(const wchar_t *)strP:NULL),(HistoryName?(const wchar_t *)strHN:NULL),(SrcText?(const wchar_t *)strST:NULL),D,DestLength,(HelpTopic?(const wchar_t *)strHT:NULL),Flags);
 	strD.ReleaseBuffer();
-	if (DestText)
+	if (ret && DestText)
 		strD.GetCharString(DestText,DestLength);
 	return ret;
 }

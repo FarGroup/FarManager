@@ -1635,13 +1635,13 @@ int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
   {
     case PLUGIN_FARGETFILE:
     case PLUGIN_FARGETFILES:
-      return(ph->pPlugin->HasGetFiles() || (Info.Flags & OPIF_EXTERNALGET));
+      return(!ph->pPlugin->HasGetFiles() || (Info.Flags & OPIF_EXTERNALGET));
     case PLUGIN_FARPUTFILES:
-      return(ph->pPlugin->HasPutFiles() || (Info.Flags & OPIF_EXTERNALPUT));
+      return(!ph->pPlugin->HasPutFiles() || (Info.Flags & OPIF_EXTERNALPUT));
     case PLUGIN_FARDELETEFILES:
-      return(ph->pPlugin->HasDeleteFiles() || (Info.Flags & OPIF_EXTERNALDELETE));
+      return(!ph->pPlugin->HasDeleteFiles() || (Info.Flags & OPIF_EXTERNALDELETE));
     case PLUGIN_FARMAKEDIRECTORY:
-      return(ph->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR));
+      return(!ph->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR));
   }
   return(TRUE);
 }
