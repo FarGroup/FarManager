@@ -177,7 +177,8 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     {
       wchar_t *ptr;
 
-      int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr);
+      //Mantis#459 - нужно +3 так как в Win2K SP4 есть глюк у GetFullPathNameW
+      int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr) + 3;
       lpwszCurDir = strCurDir.GetBuffer (nSize+1);
       GetFullPathNameW(NewDir,nSize,lpwszCurDir,&ptr);
       AddEndSlash(lpwszCurDir); //???????????????
