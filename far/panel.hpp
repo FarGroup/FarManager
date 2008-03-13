@@ -145,7 +145,7 @@ class Panel:public ScreenObject
 
     virtual int GetCurName(string &strName, string &strShortName);
     virtual int GetCurBaseName(string &strName, string &strShortName);
-    virtual int GetFileName(string strName,int Pos,int &FileAttr) {return(FALSE);};
+    virtual int GetFileName(string &strName,int Pos,int &FileAttr) {return(FALSE);};
 
     virtual int GetCurrentPos() {return(0);};
     virtual void SetFocus();
