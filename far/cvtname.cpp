@@ -386,7 +386,8 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
               // получим либо букву диска, либо...
               GetPathRootOne(TempDest2+offset,JuncRoot);
               // ...но в любом случае пишем полностью.
-              strcpy(TempDest2+offset,JuncRoot);
+              // (поправка - если букву не получили - вернём точку монтирования)
+              strcpy(TempDest2+offset,JuncRoot[1]==':'?JuncRoot:TempDest);
             }
             // небольшая метаморфоза с именем, дабы удалить ведущие "\??\"
             // но для "Volume{" начало всегда будет корректным!

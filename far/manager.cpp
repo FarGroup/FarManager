@@ -386,9 +386,13 @@ int  Manager::FindFrameByFile(int ModalType,char *FileName,char *Dir)
   for (int I=0;I<FrameCount;I++)
   {
     char Type[200],Name[NM];
-    if (FrameList[I]->GetTypeAndName(Type,Name)==ModalType)
+    // Mantis#0000469 - получать Name будем только при совпадении ModalType
+    if(FrameList[I]->GetType()==ModalType)
+    {
+      FrameList[I]->GetTypeAndName(Type,Name);
       if (LocalStricmp(Name,FullFileName)==0)
         return(I);
+    }
   }
   return(-1);
 }
