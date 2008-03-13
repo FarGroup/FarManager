@@ -1546,6 +1546,8 @@ int FindFiles::FindFilesProcess()
   FindExitIndex = LIST_INDEX_NONE;
   FindExitCode = FIND_EXIT_NONE;
   FindMessageReady=FindCountReady=FindPositionChanged=0;
+  strLastDirName = L"";
+  strFindMessage = L"";
 
   if (PluginMode)
   {
