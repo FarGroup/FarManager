@@ -86,7 +86,7 @@ enum {EC_CLOSE_LEVEL      = -1,   // Выйти из меню на один уровень вверх
 
 static int MenuMode;
 
-static wchar_t SubMenuSymbol[]={0x020,0x010,0x000};
+static wchar_t SubMenuSymbol[]={0x0020,0x25BA,0x0000};
 
 const wchar_t LocalMenuFileName[]=L"FarMenu.Ini";
 
@@ -666,11 +666,11 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 								MenuRegToFile(strMenuRootKey,MenuFile);
 								MenuNeedRefresh=TRUE;
 								fclose(MenuFile);
+
 								{
 									ConsoleTitle *OldTitle=new ConsoleTitle;
 									string strFileName = strMenuFileName;
-									FileEditor ShellEditor(strFileName,-1, // -1 ??? CP_AUTODETECT ???
-																				FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
+									FileEditor ShellEditor(strFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,NULL);
 									delete OldTitle;
 									ShellEditor.SetDynamicallyBorn(false);
 									FrameManager->EnterModalEV();
@@ -682,6 +682,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 										return(0);
 									}
 								}
+
 								DeleteKeyTree(strMenuRootKey);
 								MenuFileToReg(strMenuRootKey,MenuFile);
 								fclose(MenuFile);
