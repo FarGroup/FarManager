@@ -173,7 +173,8 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
             // получим либо букву диска, либо...
             GetPathRootOne(strTempDest2, strJuncRoot);
             // ...но в любом случае пишем полностью.
-            strTempDest2 = strJuncRoot;
+            // (поправка - если букву не получили - вернём точку монтирования)
+            strTempDest2 = strJuncRoot.At(1)==L':'?strJuncRoot:TempDest;
           }
           DeleteEndSlash(strTempDest2);
           // Буфер симлинка
@@ -189,7 +190,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
           if (leftLength < tempLength)
           {
             // Выделяем новый буфер
-            TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength));
+            TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength + (IsAddEndSlash?2:1)));            
           }
           // Так как мы производили манипуляции с левой частью пути изменяем указатель на
           // текущую позицию курсора в пути

@@ -624,6 +624,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
             /* $ 24.08.2001 VVM
               + —трелки вправо/влево открывают/закрывают подменю соответственно */
             case KEY_RIGHT:
+            case KEY_NUMPAD6:
             case KEY_MSWHEEL_RIGHT:
             {
               string strCurrentKey;
@@ -635,6 +636,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
               break;
             }
             case KEY_LEFT:
+            case KEY_NUMPAD4:
             case KEY_MSWHEEL_LEFT:
               if (Title && *Title)
                 UserMenu.SetExitCode(-1);

@@ -1005,7 +1005,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         return TRUE;
       }
 
-      if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
+      if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT || Param2 == KEY_NUMPAD4 || Param2 == KEY_NUMPAD6)
         FindPositionChanged = TRUE;
 
       // некторые спец.клавиши всеже отбработаем.
@@ -1017,20 +1017,22 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         return TRUE;
       }
 
-      if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
+      if (Param1==9 && (Param2==KEY_RIGHT || Param2 == KEY_NUMPAD6 || Param2==KEY_TAB)) // [ Stop ] button
       {
         FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
         return TRUE;
       }
-      else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) // [ New search ] button
+      else if (Param1==5 && (Param2==KEY_LEFT || Param2 == KEY_NUMPAD4 || Param2==KEY_SHIFTTAB)) // [ New search ] button
       {
         FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
         return TRUE;
       }
-      else if (Param2==KEY_UP || Param2==KEY_DOWN || Param2==KEY_PGUP ||
-               Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
+      else if (Param2==KEY_UP || Param2==KEY_DOWN ||
+               Param2==KEY_NUMPAD2 || Param2==KEY_NUMPAD8 ||
+               Param2==KEY_PGUP || Param2==KEY_PGDN ||
+               Param2==KEY_HOME || Param2==KEY_END ||
                Param2==KEY_MSWHEEL_LEFT || Param2==KEY_MSWHEEL_RIGHT ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {

@@ -1607,7 +1607,7 @@ static bool _fattrFunc(int Type)
     {
       long Pos=-1;
 
-      if(wcspbrk(Str,L"\\/:") != NULL)
+      if(wcspbrk(Str,L"*?") != NULL)
         Pos=SelPanel->FindFirst(Str);
       else
         Pos=SelPanel->FindFile(Str,wcspbrk(Str,L"\\/:")?FALSE:TRUE);

@@ -379,7 +379,9 @@ void HMenu::ProcessSubMenu(struct MenuDataEx *Data,int DataCount,
     }
     else
     {
-      if (Key==KEY_LEFT || Key==KEY_RIGHT || Key == KEY_TAB || Key == KEY_MSWHEEL_LEFT || Key == KEY_MSWHEEL_RIGHT)
+      if (Key == KEY_LEFT || Key == KEY_RIGHT ||Key == KEY_TAB ||
+          Key == KEY_NUMPAD4 || Key == KEY_NUMPAD6 ||
+          Key == KEY_MSWHEEL_LEFT || Key == KEY_MSWHEEL_RIGHT)
       {
         delete SubMenu;
         SubMenu=NULL;
