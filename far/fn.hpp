@@ -725,19 +725,11 @@ BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
 // для локального пути делает букву диска в uppercase
 DWORD FarGetCurDir(DWORD Length,char *Buffer);
 
-class UserDefinedList;
-UserDefinedList *SaveAllCurDir(void);
-void RestoreAllCurDir(UserDefinedList *DirList);
-
-/*$ 27.09.2000 skv
-*/
 void WINAPI DeleteBuffer(char* Buffer);
-/* skv$*/
 
 #ifdef __cplusplus
 };
 #endif
-/* SVS $ */
 
 /* <Логи ***************************************************
 */

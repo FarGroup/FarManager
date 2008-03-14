@@ -51,19 +51,14 @@ enum {MM_LOCAL=0,           // Локальное меню
       MM_FAR=1,             // Меню из каталога ФАРа
       MM_MAIN=2};           // Главное меню
 
-/* $ 25.04.2001 DJ
-   новая константа EC_COMMAND_SELECTED
-*/
 enum {EC_CLOSE_LEVEL      = -1,   // Выйти из меню на один уровень вверх
       EC_CLOSE_MENU       = -2,   // Выйти из меню по SHIFT+F10
       EC_PARENT_MENU      = -3,   // Показать меню родительского каталога
       EC_MAIN_MENU        = -4,   // Показать главное меню
       EC_COMMAND_SELECTED = -5};  // Выбрана команда - закрыть меню и
                                   // обновить папку
-/* DJ $ */
 
 static int MenuMode;
-/* VVM $ */
 
 static char SubMenuSymbol[]={0x020,0x010,0x000};
 
@@ -72,36 +67,18 @@ const char LocalMenuFileName[]="FarMenu.Ini";
 void ProcessUserMenu(int EditMenu)
 {
   FILE *MenuFile;
-//  char MenuFileName[NM];
-//  char MenuKey[512];
-//  char CurDir[NM];
   char MenuFilePath[NM];    // Путь к текущему каталогу с файлом LocalMenuFileName
-  char PrevPath[NM];
+  char MenuFileFullPath[NM+sizeof(LocalMenuFileName)];
   char *ChPtr;
   int  ExitCode = 0;
   int RunFirst  = 1;
 
-  CtrlObject->CmdLine->GetCurDir(PrevPath);
-  strcpy(MenuFilePath,PrevPath);
-/* $ 14.07.2000 VVM
-  ! Менять пока ничего не надо - потом сменим.
-*/
-//  if (chdir(MenuFilePath)==-1)
-//    chdir(FarPath);
+  CtrlObject->CmdLine->GetCurDir(MenuFilePath);
 
-//  FILE *MenuFile;
-
-//  sprintf(LocalMenuName,"LocalMenu%u",clock());
   sprintf(LocalMenuKey,"UserMenu\\LocalMenu%u",clock());
   MenuMode=MM_LOCAL;
 
   DeleteKeyTree(LocalMenuKey);
-//  char MenuFileName[NM];
-
-//  strcpy(MenuFileName,LocalMenuFileName);
-
-//  MainMenuTitle=MainMenu=TRUE;
-/* VVM $ */
 
   MenuModified=MenuNeedRefresh=FALSE;
 
@@ -118,24 +95,17 @@ void ProcessUserMenu(int EditMenu)
     } /* if */
   }
 
-  UserDefinedList *SavedCurDirs=SaveAllCurDir();
-
-/* $ 14.07.2000 VVM
-   + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
-*/
-/* $ 25.04.2001 DJ
-   добавлена EC_COMMAND_EXECUTED
-*/
   while((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) &&
       (ExitCode != EC_COMMAND_SELECTED))
-/* DJ $ */
   {
+    strcpy(MenuFileFullPath,MenuFilePath);
+    AddEndSlash(MenuFileFullPath);
+    strcat(MenuFileFullPath,LocalMenuFileName);
 
     if (MenuMode!=MM_MAIN)
     {
       // Пытаемся открыть файл на локальном диске
-      if (FarChDir(MenuFilePath) &&
-         ((MenuFile=fopen(LocalMenuFileName,"rb"))!=NULL))
+      if ((MenuFile=fopen(MenuFileFullPath,"rb"))!=NULL)
       {
         MenuFileToReg(LocalMenuKey, MenuFile);
         fclose(MenuFile);
@@ -149,12 +119,6 @@ void ProcessUserMenu(int EditMenu)
         {
           if (!EditMenu)
           {
-/* $ 14.07.2000 VVM
-    + При первом вызове не ищет меню из родительского каталога
-*/
-/* $ 28.07.2000 VVM
-    + Введен флаг для первого вызова
-*/
             if (!RunFirst)
             {
               ChPtr=strrchr(MenuFilePath, '\\');
@@ -166,16 +130,13 @@ void ProcessUserMenu(int EditMenu)
               } /* if */
             } /* if */
             RunFirst=0;
-/* VVM $ */
             strcpy(MenuFilePath, FarPath);
             MenuMode=MM_FAR;
             continue;
           } /* if */
         } /* else */
       } /* else */
-      FarChDir(PrevPath); // Вернем папку на место !
     } /* if */
-
 
     strcpy(MenuRootKey,(MenuMode==MM_MAIN) ? "UserMenu\\MainMenu":LocalMenuKey);
 
@@ -186,12 +147,10 @@ void ProcessUserMenu(int EditMenu)
     if(_CurrentFrame == FrameManager->GetCurrentFrame()->GetType()) //???
       CtrlObject->Macro.SetMode(PrevMacroMode);
 
-
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
-      FarChDir(MenuFilePath);
-      int FileAttr=GetFileAttributes(LocalMenuFileName);
+      int FileAttr=GetFileAttributes(MenuFileFullPath);
       if (FileAttr!=-1)
       {
         if (FileAttr & FA_RDONLY)
@@ -200,18 +159,18 @@ void ProcessUserMenu(int EditMenu)
           AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,
                        MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
           if (AskOverwrite==0)
-            SetFileAttributes(LocalMenuFileName,FileAttr & ~FA_RDONLY);
+            SetFileAttributes(MenuFileFullPath,FileAttr & ~FA_RDONLY);
         }
         if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
-          SetFileAttributes(LocalMenuFileName,FILE_ATTRIBUTE_NORMAL);
+          SetFileAttributes(MenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
       }
-      if ((MenuFile=fopen(LocalMenuFileName,"wb"))!=NULL)
+      if ((MenuFile=fopen(MenuFileFullPath,"wb"))!=NULL)
       {
         MenuRegToFile(LocalMenuKey,MenuFile);
         long Length=filelen(MenuFile);
         fclose(MenuFile);
         if (Length==0)
-          remove(LocalMenuFileName);
+          remove(MenuFileFullPath);
       }
     }
     if (MenuMode!=MM_MAIN)
@@ -262,21 +221,11 @@ void ProcessUserMenu(int EditMenu)
           }
         } /* switch */
 
-//      if (MenuMode==MM_LOCAL)
-//      {
-//        strcpy(MenuFilePath, FarPath);
-//        MenuMode=MM_FAR;
-//      }
-//      else
-//        MenuMode=MM_MAIN;
         break;
       } /* case */
     } /* switch */
   } /* while */
 
-  //CtrlObject->CmdLine->GetCurDir(MenuFilePath);
-  CtrlObject->CmdLine->SetCurDir(PrevPath);
-  FarChDir(PrevPath);
   /* $ 25.04.2001 DJ
      не перерисовываем панель, если пользователь ничего не сделал
      в меню
@@ -284,69 +233,7 @@ void ProcessUserMenu(int EditMenu)
   if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
   {
     ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
-    //CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-    //CtrlObject->Cp()->ActivePanel->Redraw();
   }
-  /* DJ $ */
-
-/*
-  if ((!EditMenu || !MainMenu) && (MenuFile=fopen(MenuFileName,"rb"))!=NULL)
-  {
-    MenuFileToReg(LocalMenuKey,MenuFile);
-    fclose(MenuFile);
-    MainMenuTitle=MainMenu=FALSE;
-  }
-  else
-    if (!EditMenu || MainMenu)
-    {
-      sprintf(MenuFileName,"%s%s",FarPath,LocalMenuFileName);
-      if ((MenuFile=fopen(MenuFileName,"rb"))!=NULL)
-      {
-        MenuFileToReg(LocalMenuKey,MenuFile);
-        fclose(MenuFile);
-        MainMenu=FALSE;
-      }
-    }
-
-  char MenuKey[512];
-  strcpy(MenuKey,MainMenu ? "MainMenu":LocalMenuName);
-  sprintf(MenuRootKey,"UserMenu\\%s",MenuKey);
-  ProcessSingleMenu(MenuKey,0);
-
-  chdir(CurDir);
-
-  if (!MainMenu && MenuModified)
-  {
-    int FileAttr=GetFileAttributes(MenuFileName);
-    if (FileAttr!=-1)
-    {
-      if (FileAttr & FA_RDONLY)
-      {
-        int AskOverwrite;
-        AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),MenuFileName,
-                     MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
-        if (AskOverwrite==0)
-          SetFileAttributes(MenuFileName,FileAttr & ~FA_RDONLY);
-      }
-      if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
-        SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
-    }
-    if ((MenuFile=fopen(MenuFileName,"wb"))!=NULL)
-    {
-      MenuRegToFile(LocalMenuKey,MenuFile);
-      long Length=filelen(MenuFile);
-      fclose(MenuFile);
-      if (Length==0)
-        remove(LocalMenuFileName);
-      CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-      CtrlObject->Cp()->ActivePanel->Redraw();
-    }
-  }
-  if (!MainMenu)
-    DeleteKeyTree(LocalMenuKey);
-*/
-
-  RestoreAllCurDir(SavedCurDirs);
 }
 
 

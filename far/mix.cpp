@@ -48,41 +48,6 @@ __int64 filelen64(FILE *FPtr)
 }
 
 
-UserDefinedList *SaveAllCurDir(void)
-{
-  UserDefinedList *DirList=new UserDefinedList(0,0,0);
-  if(!DirList)
-    return NULL;
-
-  char CurDir[NM*2], Drive[4]="=A:";
-  for(int I='A'; I <= 'Z'; ++I)
-  {
-    Drive[1]=I;
-    DirList->AddItem(Drive);
-    char *Ptr=CurDir;
-    if(!GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружения
-      Ptr="\x01";
-    DirList->AddItem(Ptr);
-  }
-  return DirList;
-}
-
-void RestoreAllCurDir(UserDefinedList *DirList)
-{
-  if(!DirList)
-    return;
-
-  char Drive[NM*2];
-  const char *NamePtr;
-  while(NULL!=(NamePtr=DirList->GetNext()))
-  {
-    xstrncpy(Drive,NamePtr,sizeof(Drive)-1);
-    if((NamePtr=DirList->GetNext()) != NULL)
-      SetEnvironmentVariable(Drive,(*NamePtr == '\x1'?"":NamePtr));
-  }
-  delete DirList;
-}
-
 
 /* $ 14.01.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
