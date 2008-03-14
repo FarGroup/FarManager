@@ -247,7 +247,11 @@ int CommandLine::ProcessKey(int Key)
           if(SelectType == 6)
             Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
 
-          if(!CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
+          //Type==1 - плагиновый путь
+          //Type==0 - обычный путь
+          //если путь плагиновый то сначала попробуем запустить его (а вдруг там префикс)
+          //ну а если путь не плагиновый то запускать его точно не надо
+          if(Type==0 || !CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
           {
             if(Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolder(&strStr,FALSE))
             {
