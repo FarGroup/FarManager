@@ -322,8 +322,12 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
         // Выделяем имя модуля
         if (*Ptr==L'\"')
         {
-          if ((Ptr=wcschr(Ptr,L'\"'))!=NULL)
-            *Ptr=0;
+          wchar_t *QPtr = wcschr(Ptr + 1,L'\"');
+          if (QPtr!=NULL)
+          {
+            *QPtr=0;
+            wmemmove(Ptr, Ptr + 1, QPtr-Ptr);
+          }
         }
         else
         {

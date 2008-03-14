@@ -73,50 +73,6 @@ __int64 filelen64(FILE *FPtr)
   return(ftell64(FPtr));
 }
 
-
-UserDefinedList *SaveAllCurDir(void)
-{
-  UserDefinedList *DirList=new UserDefinedList(0,0,0);
-  if(!DirList)
-    return NULL;
-
-  string strCurDir;
-  wchar_t Drive[4]=L"=A:";
-  for(int I=L'A'; I <= L'Z'; ++I)
-  {
-    Drive[1]=I;
-    DirList->AddItem(Drive);
-
-    const wchar_t *Ptr;
-
-    if(!apiGetEnvironmentVariable(Drive,strCurDir))  // окружения
-      Ptr=L"\x01";
-    else
-      Ptr=strCurDir;
-
-    DirList->AddItem(Ptr);
-  }
-  return DirList;
-}
-
-void RestoreAllCurDir(UserDefinedList *DirList)
-{
-  if(!DirList)
-    return;
-
-  string strDrive;
-  const wchar_t *NamePtr;
-  while(NULL!=(NamePtr=DirList->GetNext()))
-  {
-    strDrive = NamePtr;
-    if((NamePtr=DirList->GetNext()) != NULL)
-      SetEnvironmentVariableW (strDrive,(*NamePtr == L'\x1'?L"":NamePtr));
-  }
-  delete DirList;
-}
-
-
-
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
   if(!NewDir || *NewDir == 0)

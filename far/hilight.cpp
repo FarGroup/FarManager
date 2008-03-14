@@ -404,7 +404,7 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
       HiMenu->AddItem(&HiMenuItem);
     }
 
-    HiMenuItem.strName="";
+    HiMenuItem.strName=L"";
     HiMenu->AddItem(&HiMenuItem);
     if (j<3)
     {
