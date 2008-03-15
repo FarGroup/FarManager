@@ -3242,8 +3242,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
-    if (DestAttr!=(DWORD)-1 && !Append)
-      remove(DestName);
+    //if (DestAttr!=(DWORD)-1 && !Append) //вот это портит копирование поверх хардлинков
+      //remove(DestName);
     DestHandle=FAR_CreateFile (
         DestName,
         GENERIC_WRITE,
