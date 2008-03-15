@@ -665,7 +665,7 @@ void VMenu::ShowMenu(int IsParent)
           BoxText((WORD)0x00ab);// '<'
         }
 
-        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-2)
+        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-5)
         {
           //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
           //  GotoXY(WhereX()-1,Y);
