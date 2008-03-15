@@ -2978,8 +2978,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
-    if (DestAttr!=(DWORD)-1 && !Append)
-      _wremove(DestName);
+    //if (DestAttr!=(DWORD)-1 && !Append) //вот это портит копирование поверх хардлинков
+      //_wremove(DestName);
     DestHandle=apiCreateFile(
         DestName,
         GENERIC_WRITE,
