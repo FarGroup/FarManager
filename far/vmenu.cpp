@@ -78,7 +78,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
        случае при создании меню прокрутка работала _¬—≈√ƒј_, что
        не всегда удобно.
   */
-  VMFlags.Set(VMENU_UPDATEREQUIRED|VMENU_TRUNCMODE);
+  VMFlags.Set(VMENU_UPDATEREQUIRED/*|VMENU_TRUNCMODE*/);
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
   TopPos=0;
   SaveScr=NULL;
@@ -946,7 +946,7 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     }
-
+/*
     case KEY_CTRLN:
     {
       VMFlags.Swap(VMENU_TRUNCMODE);
@@ -959,7 +959,7 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     }
-
+*/
     case KEY_ALTHOME:           case KEY_NUMPAD7|KEY_ALT:
     case KEY_ALTEND:            case KEY_NUMPAD1|KEY_ALT:
     {
