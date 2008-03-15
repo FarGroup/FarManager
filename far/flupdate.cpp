@@ -101,7 +101,7 @@ static void PR_ReadFileNamesMsg(void)
 }
 
 
-// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manafer
+// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 // при считывании дирректории
 
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
@@ -145,8 +145,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         if(!IsDiskInDrive(strOldCurDir))
           IfGoHome(strOldCurDir.At(0));
         /* При смене каталога путь не изменился */
-        return;
       }
+      return;
     }
   }
 

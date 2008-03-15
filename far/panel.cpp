@@ -64,8 +64,6 @@ static Panel *SrcDragPanel;
 static SaveScreen *DragSaveScr=NULL;
 static string strDragName;
 
-//static wchar_t VerticalLine=/*0x0B3*/0x2502;
-
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile);
 
 /* $ 21.08.2002 IS
@@ -1734,7 +1732,10 @@ int  Panel::SetCurPath()
           break;
       }
       if(FrameManager && FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
-        ChangeDisk();                                    // если запущен - вызовем меню выбора дисков
+      {
+        SetCurDir(g_strFarPath,TRUE);                    // если запущен - выставим путь который мы точно знаем что существует
+        ChangeDisk();                                    // и вызовем меню выбора дисков
+      }
       else                                               // оппа...
       {
         string strTemp=strCurDir;
