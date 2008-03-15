@@ -150,6 +150,16 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 DWORD FarGetCurDir(DWORD Length,char *Buffer)
 {
   DWORD Result=GetCurrentDirectory(Length,Buffer);
+
+  /*
+  баг в GetCurrentDirectory:
+  если текущий каталог - "\\?\Volume{GUID}\", 
+  то в Buffer не попадает завершающий слеш
+  и дальнейшая работа с таким путём обламывается.
+  */
+  if(IsLocalVolumeRootPath(Buffer))
+    AddEndSlash(Buffer);
+
   if(Result && isalpha(*Buffer) && Buffer[1]==':' && (Buffer[2]==0 || Buffer[2]== '\\'))
     *Buffer=toupper(*Buffer);
   return Result;
@@ -1102,13 +1112,28 @@ BOOL IsLocalRootPath(const char *Path)
   return (Path && isalpha(*Path) && Path[1]==':' && Path[2] == '\\' && !Path[3]);
 }
 
+BOOL IsLocalPrefixPath(const char *Path)
+{
+  return (Path && Path[0] == '\\' && Path[1] == '\\' && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\' && isalpha(Path[4]) && Path[5] == ':' && Path[6] == '\\');
+}
+
+BOOL IsLocalVolumePath(const char *Path)
+{
+  return (Path && Path[0] == '\\' && Path[1] == '\\' && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\' && !strnicmp(&Path[4],"Volume{",7));
+}
+
+BOOL IsLocalVolumeRootPath(const char *Path)
+{
+  return (Path && Path[0] == '\\' && Path[1] == '\\' && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\' && !strnicmp(&Path[4],"Volume{",7) && Path[47] == '}' && !Path[48]);
+}
+
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
   if(Path)
   {
-    if((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\'))
+	  if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')) && !IsLocalVolumePath(Path))
     {
       if(CheckFullPath)
       {

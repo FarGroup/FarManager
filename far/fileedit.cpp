@@ -783,10 +783,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           Ptr=strrchr(FullFileName,'\\');
           if(Ptr)
           {
-            Chr=*Ptr;
-            *Ptr=0;
+            Chr=Ptr[1];
+            Ptr[1]=0;
             // В корне?
-            if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && !FullFileName[2]))
+            if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && (FullFileName[2]=='\\') && !FullFileName[3]))
             {
               // а дальше? каталог существует?
               if((FNAttr=::GetFileAttributes(FullFileName)) == -1 ||
@@ -795,7 +795,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
                 )
                 Flags.Set(FFILEEDIT_SAVETOSAVEAS);
             }
-            *Ptr=Chr;
+            Ptr[1]=Chr;
           }
 
           if(Key == KEY_F2 &&
@@ -1231,8 +1231,8 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     char *Ptr=strrchr(xstrncpy(CreatedPath,Name,sizeof(CreatedPath)-1),'\\'), Chr;
     if(Ptr)
     {
-      Chr=*Ptr;
-      *Ptr=0;
+      Chr=Ptr[1];
+      Ptr[1]=0;
       DWORD FAttr=0;
       if(::GetFileAttributes(CreatedPath) == -1)
       {
@@ -1241,7 +1241,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
         CreatePath(CreatedPath);
         FAttr=::GetFileAttributes(CreatedPath);
       }
-      *Ptr=Chr;
+      Ptr[1]=Chr;
       if(FAttr == -1)
         return SAVEFILE_ERROR;
     }

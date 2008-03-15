@@ -1188,7 +1188,8 @@ int FileList::ProcessKey(int Key)
                 char *Ptr=strrchr(FileName,'\\');
                 if(Ptr && Ptr != FileName)
                 {
-                  *Ptr=0;
+                  char Chr=Ptr[1];
+                  Ptr[1]=0;
                   DWORD CheckFAttr=GetFileAttributes(FileName);
                   if(CheckFAttr == (DWORD)-1)
                   {
@@ -1201,7 +1202,7 @@ int FileList::ProcessKey(int Key)
 
                       return(FALSE);
                   }
-                  *Ptr='\\';
+                  Ptr[1]=Chr;
                 }
               }
             }

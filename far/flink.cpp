@@ -230,6 +230,8 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
         PtrFullDir=szFullDir+3;
       }
     }
+    else if(IsLocalPrefixPath(szFullDir) || IsLocalVolumePath(szFullDir))
+      PtrFullDir=szFullDir+4;
     strcat(szDestDir, PtrFullDir);
   }
 
@@ -435,6 +437,16 @@ int IsLocalDrive(const char *Path)
     if(IsLocalPath(RootDir))
     {
       RootDir[3] = 0;
+      DriveType = FAR_GetDriveType(RootDir);
+    }
+    else if(IsLocalPrefixPath(RootDir))
+    {
+      RootDir[7] = 0;
+      DriveType = FAR_GetDriveType(RootDir);
+    }
+    else if(IsLocalVolumePath(RootDir))
+    {
+      RootDir[49] = 0;
       DriveType = FAR_GetDriveType(RootDir);
     }
   }
@@ -849,7 +861,9 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
   if (PathLen > 2 && Path[0] == '\\' && Path[1] == '\\')
   {
     if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-        PathLen > 3 && Path[2] == '?' && Path[3] == '\\')
+        PathLen > 3 && Path[2] == '?' && Path[3] == '\\' &&
+        //"\\?\Volume{GUID}" не трогаем
+        strnicmp(&Path[4],"Volume{",7))
     { // ѕроверим на длинное UNC им€ под NT
       xstrncpy(NewPath, &Path[4], sizeof(NewPath)-1);
       if (PathLen > 8 && strncmp(NewPath, "UNC\\", 4)==0)
