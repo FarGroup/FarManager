@@ -180,6 +180,15 @@ DWORD FarGetCurDir(string &strBuffer)
 
     DWORD Result = GetCurrentDirectoryW (nLength, lpwszBuffer);
 
+    /*
+    баг в GetCurrentDirectory:
+    если текущий каталог - "\\?\Volume{GUID}\", 
+    то в Buffer не попадает завершающий слеш
+    и дальнейшая работа с таким путём обламывается.
+    */
+    if(IsLocalVolumeRootPath(lpwszBuffer))
+      AddEndSlash(lpwszBuffer);
+
     if ( Result &&
          IsAlpha (*lpwszBuffer) &&
          lpwszBuffer[1] == L':' &&
@@ -1318,6 +1327,21 @@ BOOL IsLocalRootPath(const wchar_t *Path)
   return (Path && IsAlpha(*Path) && Path[1]==L':' && Path[2] == L'\\' && !Path[3]);
 }
 
+BOOL IsLocalPrefixPath(const wchar_t *Path)
+{
+  return (Path && Path[0] == L'\\' && Path[1] == L'\\' && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\' && IsAlpha(Path[4]) && Path[5] == L':' && Path[6] == L'\\');
+}
+
+BOOL IsLocalVolumePath(const wchar_t *Path)
+{
+  return (Path && Path[0] == L'\\' && Path[1] == L'\\' && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\' && !wcsnicmp(&Path[4],L"Volume{",7));
+}
+
+BOOL IsLocalVolumeRootPath(const wchar_t *Path)
+{
+  return (Path && Path[0] == L'\\' && Path[1] == L'\\' && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\' && !wcsnicmp(&Path[4],L"Volume{",7) && Path[47] == L'}' && !Path[48]);
+}
+
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 
@@ -1325,7 +1349,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
 	if( !strPath.IsEmpty() )
 	{
-		if((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\'))
+		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')) && !IsLocalVolumePath(strPath))
 		{
 			if(CheckFullPath)
 			{

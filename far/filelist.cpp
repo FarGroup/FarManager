@@ -1168,7 +1168,8 @@ int FileList::ProcessKey(int Key)
                 wchar_t *Ptr = wcsrchr(lpwszStart, L'\\');
                 if(Ptr && Ptr != lpwszStart)
                 {
-                  *Ptr=0;
+                  wchar_t wChr=Ptr[1];
+                  Ptr[1]=0;
                   DWORD CheckFAttr=GetFileAttributesW(lpwszStart);
                   if(CheckFAttr == (DWORD)-1)
                   {
@@ -1181,7 +1182,7 @@ int FileList::ProcessKey(int Key)
 
                       return(FALSE);
                   }
-                  *Ptr=L'\\';
+                  Ptr[1]=wChr;
                 }
 
                 strFileName.ReleaseBuffer ();

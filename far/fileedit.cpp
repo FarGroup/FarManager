@@ -1113,10 +1113,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           lpwszPtr=wcsrchr(lpwszPtr,L'\\');
           if(lpwszPtr)
           {
-            wChr=*lpwszPtr;
-            *lpwszPtr=0;
+            wChr=lpwszPtr[1];
+            lpwszPtr[1]=0;
             // В корне?
-            if (!(IsAlpha(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && !strFullFileName.At(2)))
+            if (!(IsAlpha(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && (strFullFileName.At(2)==L'\\') && !strFullFileName.At(3)))
             {
               // а дальше? каталог существует?
               if((FNAttr=::GetFileAttributesW(strFullFileName)) == -1 ||
@@ -1125,7 +1125,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
                 )
                 Flags.Set(FFILEEDIT_SAVETOSAVEAS);
             }
-            *lpwszPtr=wChr;
+            lpwszPtr[1]=wChr;
           }
           strFullFileName.ReleaseBuffer ();
 
@@ -1701,7 +1701,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if ( Ptr )
     {
-      CutToSlash(strCreatedPath, true);
+      CutToSlash(strCreatedPath);
       DWORD FAttr=0;
       if(::GetFileAttributesW(strCreatedPath) == -1)
       {

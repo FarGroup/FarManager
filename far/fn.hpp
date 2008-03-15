@@ -1040,6 +1040,9 @@ UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD D
 BOOL IsNetworkPath(const wchar_t *Path);
 BOOL IsLocalPath(const wchar_t *Path);
 BOOL IsLocalRootPath(const wchar_t *Path);
+BOOL IsLocalPrefixPath(const wchar_t *Path);
+BOOL IsLocalVolumePath(const wchar_t *Path);
+BOOL IsLocalVolumeRootPath(const wchar_t *Path);
 
 BOOL RunGraber(void);
 
