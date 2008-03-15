@@ -1557,7 +1557,10 @@ int  Panel::SetCurPath()
           break;
       }
       if(FrameManager && FrameManager->ManagerStarted()) // сначала проверим - а запущен ли менеджер
-        ChangeDisk();                                    // если запущен - вызовем меню выбора дисков
+      {
+        SetCurDir(FarPath,TRUE);                         // если запущен - выставим путь который мы точно знаем что существует
+        ChangeDisk();                                    // и вызовем меню выбора дисков
+      }
       else                                               // оппа...
       {
         char *PtrCurDir=PointToFolderNameIfFolder(CurDir); // подымаемся вверх, для очередной порции ChDir

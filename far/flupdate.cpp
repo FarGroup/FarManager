@@ -24,10 +24,6 @@ flupdate.cpp
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
-/* $ 19.03.2002 DJ
-   поддержка UPDATE_IGNORE_VISIBLE
-*/
-
 void FileList::Update(int Mode)
 {
   _ALGO(CleverSysLog clv("FileList::Update"));
@@ -58,11 +54,6 @@ void FileList::Update(int Mode)
   LastUpdateTime=clock();
 }
 
-/* DJ $ */
-
-/* $ 19.03.2002 DJ
-*/
-
 void FileList::UpdateIfRequired()
 {
   if (UpdateRequired)
@@ -71,9 +62,6 @@ void FileList::UpdateIfRequired()
     Update (UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);
   }
 }
-
-/* DJ $ */
-
 
 void ReadFileNamesMsg(char *Msg)
 {
@@ -87,16 +75,12 @@ static void PR_ReadFileNamesMsg(void)
 }
 
 
-// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manafer
+// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 // при считывании дирректории
-
-/* $ 19.03.2002 DJ
-   IgnoreVisible
-*/
 
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
-  if (!IsVisible() && !IgnoreVisible)   /* DJ $ */
+  if (!IsVisible() && !IgnoreVisible)
   {
     UpdateRequired=TRUE;
     UpdateRequiredMode=KeepSelection;
@@ -138,8 +122,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         if(!IsDiskInDrive(OldCurDir))
           IfGoHome(*OldCurDir);
         /* При смене каталога путь не изменился */
-        return;
       }
+      return;
     }
   }
 
