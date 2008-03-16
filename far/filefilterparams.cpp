@@ -393,8 +393,8 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
                             FILE_ATTRIBUTE_VIRTUAL
                           };
 
-  const wchar_t Format1[] = L"%-21.21s %c %-26.26s %-2.2s %c %-60.60s";
-  const wchar_t Format2[] = L"%-3.3s %c %-26.26s %-2.2s %c %-78.78s";
+  const wchar_t Format1[] = L"%-21.21s %c %-26.26s %-2.2s %c %s";
+  const wchar_t Format2[] = L"%-3.3s %c %-26.26s %-2.2s %c %s";
 
   const wchar_t *Name, *Mask;
   wchar_t MarkChar[]=L"\" \"";
