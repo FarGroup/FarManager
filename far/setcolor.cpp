@@ -35,11 +35,13 @@ static struct MenuData ListItems[]=
   (char *)MSetColorDialogListBox,0,0,
   (char *)MSetColorDialogListTitle,0,0,
   (char *)MSetColorDialogListScrollBar,0,0,
+  (char *)MSetColorDialogListArrows,0,0,
+  (char *)MSetColorDialogListArrowsSelected,0,0,
 };
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
-static int ListPaletteItems[4][8]=
+static int ListPaletteItems[4][10]=
 {
   // Listbox
   { // normal
@@ -51,6 +53,8 @@ static int ListPaletteItems[4][8]=
     COL_DIALOGLISTBOX,
     COL_DIALOGLISTTITLE,
     COL_DIALOGLISTSCROLLBAR,
+    COL_DIALOGLISTARROWS,             // Arrow
+    COL_DIALOGLISTARROWSSELECTED,     // Выбранный - Arrow
   },
   { // warn
     COL_WARNDIALOGLISTTEXT,
@@ -61,6 +65,8 @@ static int ListPaletteItems[4][8]=
     COL_WARNDIALOGLISTBOX,
     COL_WARNDIALOGLISTTITLE,
     COL_WARNDIALOGLISTSCROLLBAR,
+    COL_WARNDIALOGLISTARROWS,                   // Arrow
+    COL_WARNDIALOGLISTARROWSSELECTED,           // Выбранный - Arrow
   },
   // Combobox
   { // normal
@@ -72,6 +78,8 @@ static int ListPaletteItems[4][8]=
     COL_DIALOGCOMBOBOX,
     COL_DIALOGCOMBOTITLE,
     COL_DIALOGCOMBOSCROLLBAR,
+    COL_DIALOGCOMBOARROWS,                      // Arrow
+    COL_DIALOGCOMBOARROWSSELECTED,              // Выбранный - Arrow
   },
   { // warn
     COL_WARNDIALOGCOMBOTEXT,
@@ -82,6 +90,8 @@ static int ListPaletteItems[4][8]=
     COL_WARNDIALOGCOMBOBOX,
     COL_WARNDIALOGCOMBOTITLE,
     COL_WARNDIALOGCOMBOSCROLLBAR,
+    COL_WARNDIALOGCOMBOARROWS,                  // Arrow
+    COL_WARNDIALOGCOMBOARROWSSELECTED,          // Выбранный - Arrow
   },
 };
 
@@ -206,9 +216,6 @@ void SetColors()
     3,
   };
 
-    /* $ 29.06.2000 SVS
-      Новый пункт для настройки цветов Menu Scrollbar
-    */
   struct MenuData MenuItems[]=
   {
     (char *)MSetColorMenuNormal,LIF_SELECTED,0,
@@ -219,12 +226,21 @@ void SetColors()
     (char *)MSetColorMenuBox,0,0,
     (char *)MSetColorMenuTitle,0,0,
     (char *)MSetColorMenuScrollBar,0,0,
+    (char *)MSetColorMenuArrows,0,0,
+    (char *)MSetColorMenuArrowsSelected,0,0,
+
   };
   int MenuPaletteItems[]={
-    COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
-    COL_MENUSELECTEDHIGHLIGHT,COL_MENUDISABLEDTEXT,
-    COL_MENUBOX,COL_MENUTITLE,COL_MENUSCROLLBAR,
-    /* SVS $ */
+    COL_MENUTEXT,
+    COL_MENUSELECTEDTEXT,
+    COL_MENUHIGHLIGHT,
+    COL_MENUSELECTEDHIGHLIGHT,
+    COL_MENUDISABLEDTEXT,
+    COL_MENUBOX,
+    COL_MENUTITLE,
+    COL_MENUSCROLLBAR,
+    COL_MENUARROWS,                             // Arrow
+    COL_MENUARROWSSELECTED,                     // Выбранный - Arrow
   };
 
   struct MenuData HMenuItems[]=
@@ -270,8 +286,6 @@ void SetColors()
     COL_EDITORCLOCK,COL_VIEWERCLOCK,
   };
 
-  /* $ 18.07.2000 tran
-     новый пунт для MenuScrollbar*/
   struct MenuData ViewerItems[]=
   {
     (char *)MSetColorViewerNormal,LIF_SELECTED,0,
@@ -283,8 +297,6 @@ void SetColors()
   int ViewerPaletteItems[]={
     COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS,COL_VIEWERSCROLLBAR
   };
-  /* tran 18.07.2000 $ */
-
 
   struct MenuData EditorItems[]=
   {
@@ -326,8 +338,6 @@ void SetColors()
           меню по экрану при AltF9 в диалоге редактирования цветов.
       */
       GroupsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
-      /* KM $ */
-      /* KM $ */
       GroupsMenu.ClearDone();
       GroupsMenu.Process();
       if ((GroupsCode=GroupsMenu.Modal::GetExitCode())<0)

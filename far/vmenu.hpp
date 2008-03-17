@@ -18,20 +18,22 @@ vmenu.hpp
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
 
-#define VMENU_COLOR_COUNT  10
-
 // Цветовые атрибуты - индексы в массиве цветов
 enum{
-  VMenuColorBody=0,      // подложка
-  VMenuColorBox=1,       // рамка
-  VMenuColorTitle=2,     // заголовок - верхний и нижний
-  VMenuColorText=3,      // Текст пункта
-  VMenuColorHilite=4,    // HotKey
-  VMenuColorSeparator=5, // separator
-  VMenuColorSelected=6,  // Выбранный
-  VMenuColorHSelect=7,   // Выбранный - HotKey
-  VMenuColorScrollBar=8, // ScrollBar
-  VMenuColorDisabled=9,  // Disabled
+  VMenuColorBody                = 0,     // подложка
+  VMenuColorBox                 = 1,     // рамка
+  VMenuColorTitle               = 2,     // заголовок - верхний и нижний
+  VMenuColorText                = 3,     // Текст пункта
+  VMenuColorHilite              = 4,     // HotKey
+  VMenuColorSeparator           = 5,     // separator
+  VMenuColorSelected            = 6,     // Выбранный
+  VMenuColorHSelect             = 7,     // Выбранный - HotKey
+  VMenuColorScrollBar           = 8,     // ScrollBar
+  VMenuColorDisabled            = 9,     // Disabled
+  VMenuColorArrows              =10,     // '<' & '>' обычные
+  VMenuColorArrowsSelect        =11,     // '<' & '>' выбранные
+
+  VMENU_COLOR_COUNT,                     // всегда последняя - размерность массива
 };
 
 enum VMENU_FLAGS_TYPE{
