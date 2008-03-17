@@ -634,13 +634,14 @@ void VMenu::ShowMenu(int IsParent)
         }
 
         // уточнение размера после усечения
-        if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-          Len_MItemPtr=(int)strlen(TmpStr);
-        else
-          Len_MItemPtr=HiStrlen(TmpStr);
         if(VMFlags.Check(VMENU_TRUNCMODE))
+        {
+          if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+            Len_MItemPtr=(int)strlen(TmpStr);
+          else
+            Len_MItemPtr=HiStrlen(TmpStr);
           Len_MItemPtr-=2;
-
+        }
         int Col;
 
         if(!(Item[I].Flags&LIF_DISABLE))
@@ -678,7 +679,7 @@ void VMenu::ShowMenu(int IsParent)
           BoxText(Opt.UseUnicodeConsole?0xab:'<');
         }
 
-        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-2)
+        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-3)
         {
           //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
           //  GotoXY(WhereX()-1,Y);
