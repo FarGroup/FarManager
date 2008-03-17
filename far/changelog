@@ -1,3 +1,22 @@
+svs 17.03.2008 20:23:22 +0300 - build 452
+
+1. Mantis#0000498 - Screen scrolling arrows colors for Menu/Listbox/Combobox
+   Добавлены цвета, связанные со стрелками:
+     COL_DIALOGLISTARROWS,
+     COL_DIALOGLISTARROWSSELECTED,
+     COL_DIALOGCOMBOARROWS,
+     COL_DIALOGCOMBOARROWSSELECTED,
+     COL_WARNDIALOGLISTARROWS,
+     COL_WARNDIALOGLISTARROWSSELECTED,
+     COL_WARNDIALOGCOMBOARROWS,
+     COL_WARNDIALOGCOMBOARROWSSELECTED,
+     COL_MENUARROWS,
+     COL_MENUARROWSSELECTED,
+
+2. Добьем '>' - выкинут лишний кусок по расчету новой длины строки, немного оптимизации.
+
+3. Макросы зависили от раскладки клавиатуры
+
 drkns 17.03.2008 07:36:28 +0200 - build 451
 
 1. Уточнение в отрисовке '>' при прокрутке строк VMenu.

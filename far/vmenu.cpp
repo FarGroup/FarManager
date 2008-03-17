@@ -584,9 +584,9 @@ void VMenu::ShowMenu(int IsParent)
         else
           Len_MItemPtr=HiStrlen(_MItemPtr,TRUE);
 
+        swprintf(TmpStrW,L"%c %s",Check,(const wchar_t*)_MItemPtr);
         if(VMFlags.Check(VMENU_TRUNCMODE))
         {
-           swprintf(TmpStrW,L"%c %s",Check,(const wchar_t*)_MItemPtr);
            if(Len_MItemPtr+2 > X2-X1-3)
            {
              switch(VMFlags.Flags&VMENU_TRUNC_MASK)
@@ -609,9 +609,7 @@ void VMenu::ShowMenu(int IsParent)
         else
         {
           if(Len_MItemPtr+2 > X2-X1-3)
-          swprintf(TmpStrW,L"%c %.*s",Check,X2-X1-3,(const wchar_t*)_MItemPtr);
-        else
-          swprintf(TmpStrW,L"%c %s",Check,(const wchar_t*)_MItemPtr);
+            TmpStrW[X2-X1-1]=0;
         }
 
         { // табуляции меняем только при показе!!!
@@ -619,16 +617,6 @@ void VMenu::ShowMenu(int IsParent)
           wchar_t *TabPtr;
           while ((TabPtr=wcschr(TmpStrW,L'\t'))!=NULL)
             *TabPtr=L' ';
-        }
-
-        // уточнение размера после усечения
-        if(VMFlags.Check(VMENU_TRUNCMODE))
-        {
-          if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-            Len_MItemPtr=StrLength(TmpStrW);
-          else
-            Len_MItemPtr=HiStrlen(TmpStrW);
-          Len_MItemPtr-=2;
         }
 
         int Col;
@@ -660,11 +648,10 @@ void VMenu::ShowMenu(int IsParent)
         // сделаем добавочку для NO_BOX
         mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
 
+        SetColor((Item[I]->Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorArrowsSelect]:VMenu::Colors[VMenuColorArrows]);
         if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
         {
-          //Text(X1,Y,VMenu::Colors[Item[I].Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],"{");
           GotoXY(X1+1,Y);
-          SetColor((Item[I]->Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorHSelect]:VMenu::Colors[VMenuColorHilite]);
           BoxText((WORD)0x00ab);// '<'
         }
 
@@ -674,7 +661,6 @@ void VMenu::ShowMenu(int IsParent)
           //  GotoXY(WhereX()-1,Y);
           //else
             GotoXY(X2-1,Y);
-          SetColor((Item[I]->Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorHSelect]:VMenu::Colors[VMenuColorHilite]);
           BoxText((WORD)0x00bb);// '>'
         }
       }
@@ -2132,18 +2118,22 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_DIALOGLISTSELECTEDHIGHLIGHT,           // Выбранный - HotKey
           COL_DIALOGLISTSCROLLBAR,                   // ScrollBar
           COL_DIALOGLISTDISABLED,                    // Disabled
+          COL_DIALOGLISTARROWS,                      // Arrow
+          COL_DIALOGLISTARROWSSELECTED,              // Выбранный - Arrow
         },
         { // VMENU_COMBOBOX
-          COL_DIALOGCOMBOTEXT,                        // подложка
-          COL_DIALOGCOMBOBOX,                         // рамка
-          COL_DIALOGCOMBOTITLE,                       // заголовок - верхний и нижний
-          COL_DIALOGCOMBOTEXT,                        // Текст пункта
-          COL_DIALOGCOMBOHIGHLIGHT,                   // HotKey
-          COL_DIALOGCOMBOBOX,                         // separator
-          COL_DIALOGCOMBOSELECTEDTEXT,                // Выбранный
-          COL_DIALOGCOMBOSELECTEDHIGHLIGHT,           // Выбранный - HotKey
-          COL_DIALOGCOMBOSCROLLBAR,                   // ScrollBar
-          COL_DIALOGCOMBODISABLED,                    // Disabled
+          COL_DIALOGCOMBOTEXT,                       // подложка
+          COL_DIALOGCOMBOBOX,                        // рамка
+          COL_DIALOGCOMBOTITLE,                      // заголовок - верхний и нижний
+          COL_DIALOGCOMBOTEXT,                       // Текст пункта
+          COL_DIALOGCOMBOHIGHLIGHT,                  // HotKey
+          COL_DIALOGCOMBOBOX,                        // separator
+          COL_DIALOGCOMBOSELECTEDTEXT,               // Выбранный
+          COL_DIALOGCOMBOSELECTEDHIGHLIGHT,          // Выбранный - HotKey
+          COL_DIALOGCOMBOSCROLLBAR,                  // ScrollBar
+          COL_DIALOGCOMBODISABLED,                   // Disabled
+          COL_DIALOGCOMBOARROWS,                     // Arrow
+          COL_DIALOGCOMBOARROWSSELECTED,             // Выбранный - Arrow
         },
         { // VMenu
           COL_MENUBOX,                               // подложка
@@ -2156,6 +2146,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
           COL_MENUSCROLLBAR,                         // ScrollBar
           COL_MENUDISABLEDTEXT,                      // Disabled
+          COL_MENUARROWS,                            // Arrow
+          COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
         }
       },
 
@@ -2172,6 +2164,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,       // Выбранный - HotKey
           COL_WARNDIALOGLISTSCROLLBAR,               // ScrollBar
           COL_WARNDIALOGLISTDISABLED,                // Disabled
+          COL_WARNDIALOGLISTARROWS,                  // Arrow
+          COL_WARNDIALOGLISTARROWSSELECTED,          // Выбранный - Arrow
         },
         { // VMENU_COMBOBOX
           COL_WARNDIALOGCOMBOTEXT,                   // подложка
@@ -2184,6 +2178,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT,      // Выбранный - HotKey
           COL_WARNDIALOGCOMBOSCROLLBAR,              // ScrollBar
           COL_WARNDIALOGCOMBODISABLED,               // Disabled
+          COL_WARNDIALOGCOMBOARROWS,                 // Arrow
+          COL_WARNDIALOGCOMBOARROWSSELECTED,         // Выбранный - Arrow
         },
         { // VMenu
           COL_MENUBOX,                               // подложка
@@ -2196,6 +2192,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
           COL_MENUSCROLLBAR,                         // ScrollBar
           COL_MENUDISABLEDTEXT,                      // Disabled
+          COL_MENUARROWS,                            // Arrow
+          COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
         }
       }
     };

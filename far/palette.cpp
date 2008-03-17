@@ -175,6 +175,16 @@ unsigned char DefaultPalette[]=
   F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGCBOXDISABLED,
   F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXSCROLLBAR,
 
+  F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGLISTARROWS,
+  F_YELLOW|B_BLACK,                       // COL_DIALOGLISTARROWSSELECTED,
+  F_YELLOW|B_CYAN,                        // COL_DIALOGCOMBOARROWS,
+  F_YELLOW|B_BLACK,                       // COL_DIALOGCOMBOARROWSSELECTED,
+  F_YELLOW|B_RED,                         // COL_WARNDIALOGLISTARROWS,
+  F_YELLOW|B_LIGHTGRAY,                   // COL_WARNDIALOGLISTARROWSSELECTED,
+  F_YELLOW|B_CYAN,                        // COL_WARNDIALOGCOMBOARROWS,
+  F_YELLOW|B_BLACK,                       // COL_WARNDIALOGCOMBOARROWSSELECTED,
+  F_YELLOW|B_CYAN,                        // COL_MENUARROWS,
+  F_YELLOW|B_BLACK,                       // COL_MENUARROWSSELECTED,
 };
 
 
@@ -316,6 +326,17 @@ unsigned char BlackPalette[]=
   F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXTITLE,
   F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGCBOXDISABLED,
   F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXSCROLLBAR,
+
+  F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGLISTARROWS,
+  F_WHITE|B_BLACK,                        // COL_DIALOGLISTARROWSSELECTED,
+  F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGCOMBOARROWS,
+  F_WHITE|B_BLACK,                        // COL_DIALOGCOMBOARROWSSELECTED,
+  F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTARROWS,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTARROWSSELECTED,
+  F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGCOMBOARROWS,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGCOMBOARROWSSELECTED,
+  F_WHITE|B_LIGHTGRAY,                    // COL_MENUARROWS,
+  F_WHITE|B_BLACK,                        // COL_MENUARROWSSELECTED,
 };
 
 
@@ -337,6 +358,9 @@ int FarColorToReal(int FarColor)
   1.70 b3 (591)   - 0x54
   1.70 b4 (1282)  - 0x60
   1.70 b5 ()      - 0x70
+
+  1.71 a4 (2334)  - 0x7A
+  1.80    (452)   - 0x7A
 */
 void ConvertCurrentPalette()
 {

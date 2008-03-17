@@ -61,11 +61,13 @@ static struct MenuDataEx ListItems[]=
   (const wchar_t *)MSetColorDialogListBox,0,0,
   (const wchar_t *)MSetColorDialogListTitle,0,0,
   (const wchar_t *)MSetColorDialogListScrollBar,0,0,
+  (const wchar_t *)MSetColorDialogListArrows,0,0,
+  (const wchar_t *)MSetColorDialogListArrowsSelected,0,0,
 };
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
-static int ListPaletteItems[4][8]=
+static int ListPaletteItems[4][10]=
 {
   // Listbox
   { // normal
@@ -77,6 +79,8 @@ static int ListPaletteItems[4][8]=
     COL_DIALOGLISTBOX,
     COL_DIALOGLISTTITLE,
     COL_DIALOGLISTSCROLLBAR,
+    COL_DIALOGLISTARROWS,             // Arrow
+    COL_DIALOGLISTARROWSSELECTED,     // Выбранный - Arrow
   },
   { // warn
     COL_WARNDIALOGLISTTEXT,
@@ -87,6 +91,8 @@ static int ListPaletteItems[4][8]=
     COL_WARNDIALOGLISTBOX,
     COL_WARNDIALOGLISTTITLE,
     COL_WARNDIALOGLISTSCROLLBAR,
+    COL_WARNDIALOGLISTARROWS,                   // Arrow
+    COL_WARNDIALOGLISTARROWSSELECTED,           // Выбранный - Arrow
   },
   // Combobox
   { // normal
@@ -98,6 +104,8 @@ static int ListPaletteItems[4][8]=
     COL_DIALOGCOMBOBOX,
     COL_DIALOGCOMBOTITLE,
     COL_DIALOGCOMBOSCROLLBAR,
+    COL_DIALOGCOMBOARROWS,                      // Arrow
+    COL_DIALOGCOMBOARROWSSELECTED,              // Выбранный - Arrow
   },
   { // warn
     COL_WARNDIALOGCOMBOTEXT,
@@ -108,6 +116,8 @@ static int ListPaletteItems[4][8]=
     COL_WARNDIALOGCOMBOBOX,
     COL_WARNDIALOGCOMBOTITLE,
     COL_WARNDIALOGCOMBOSCROLLBAR,
+    COL_WARNDIALOGCOMBOARROWS,                  // Arrow
+    COL_WARNDIALOGCOMBOARROWSSELECTED,          // Выбранный - Arrow
   },
 };
 
@@ -242,11 +252,15 @@ void SetColors()
     (const wchar_t *)MSetColorMenuBox,0,0,
     (const wchar_t *)MSetColorMenuTitle,0,0,
     (const wchar_t *)MSetColorMenuScrollBar,0,0,
+    (const wchar_t *)MSetColorMenuArrows,0,0,
+    (const wchar_t *)MSetColorMenuArrowsSelected,0,0,
   };
   int MenuPaletteItems[]={
     COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
     COL_MENUSELECTEDHIGHLIGHT,COL_MENUDISABLEDTEXT,
     COL_MENUBOX,COL_MENUTITLE,COL_MENUSCROLLBAR,
+    COL_MENUARROWS,                             // Arrow
+    COL_MENUARROWSSELECTED,                     // Выбранный - Arrow
   };
 
   struct MenuDataEx HMenuItems[]=
