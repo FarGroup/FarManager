@@ -1,5 +1,6 @@
 #include "7z.h"
 #include <array.hpp>
+#include <FarDialogs.hpp>
 
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
@@ -38,10 +39,10 @@ const SevenZipModule *GetModuleFromGUID (const GUID &uid, unsigned int *formatIn
 	return NULL;
 }
 
-int OnInitialize (PluginStartupInfo *pInfo)
+int OnInitialize (StartupInfo *pInfo)
 {
-	Info = *pInfo;
-	FSF = *pInfo->FSF;
+	Info = pInfo->Info;
+	FSF = *pInfo->Info.FSF;
 
 	modules.create (ARRAY_OPTIONS_DELETE);
 
@@ -373,14 +374,14 @@ int OnNotify (NotifyStruct *pNS)
 
 int OnConfigureFormat (ConfigureFormatStruct *pCF)
 {
-	/*if ( pCF->uid == CLSID_CFormat7z )
+//	if ( pCF->uid == CLSID_CFormat7z )
 	{
 		FarDialog D(-1, -1, 60, 20);
 
 		D.DoubleBox (2, 2, 57, 17, "7z config");
 
 		D.Show ();
-	}*/
+	}
 
 	return NAERROR_SUCCESS;
 }
@@ -394,7 +395,7 @@ int __stdcall PluginEntry (
 	switch ( nFunctionID ) {
 
 	case FID_INITIALIZE:
-		return OnInitialize ((PluginStartupInfo*)pParams);
+		return OnInitialize ((StartupInfo*)pParams);
 
 	case FID_FINALIZE:
 		return OnFinalize ();

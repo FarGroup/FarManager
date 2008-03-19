@@ -9,10 +9,10 @@ FARSTANDARDFUNCTIONS FSF;
 
 ZipModule *pModule;
 
-int OnInitialize (PluginStartupInfo *pInfo)
+int OnInitialize (StartupInfo *pInfo)
 {
-	Info = *pInfo;
-	FSF = *pInfo->FSF;
+	Info = pInfo->Info;
+	FSF = *pInfo->Info.FSF;
 
 	pModule = new ZipModule (NULL);
 
@@ -152,16 +152,10 @@ int __stdcall PluginEntry (
 		void *pParams
 		)
 {
-/*	char s[100];
-
-	sprintf (s, "%d", nFunctionID);
-
-	MessageBox (0, s, "asd", MB_OK);*/
-
 	switch ( nFunctionID ) {
 
 	case FID_INITIALIZE:
-		return OnInitialize ((PluginStartupInfo*)pParams);
+		return OnInitialize ((StartupInfo*)pParams);
 
 	case FID_FINALIZE:
 		return OnFinalize ();

@@ -79,6 +79,7 @@ struct ArchiveItemInfo {
 #define AFF_SUPPORT_INTERNAL_ADD		4
 #define AFF_SUPPORT_INTERNAL_DELETE		8
 #define AFF_SUPPORT_INTERNAL_CREATE		16
+#define AFF_SUPPORT_INTERNAL_CONFIG		32
 
 struct ArchiveFormatInfo {
 	GUID uid;
@@ -210,7 +211,7 @@ struct CreateArchiveStruct {
 
 struct ConfigureFormatStruct {
 	GUID uid;
-	char szBuffer[MAX_PATH];
+	char *lpResult;
 };
 
 
@@ -232,7 +233,21 @@ struct NotifyStruct {
 };
 
 
-#define FID_INITIALIZE			 1	//param - PluginStartupInfo
+typedef void* (__stdcall *ALLOCATE) (DWORD dwBytes);
+typedef void (__stdcall *FREE) (void *pBlock);
+
+struct Helpers {
+	ALLOCATE Allocate;
+	FREE Free;
+};
+
+struct StartupInfo {
+	PluginStartupInfo Info;
+	Helpers HF;
+};
+
+
+#define FID_INITIALIZE			 1	//param - StartupInfo
 #define FID_FINALIZE			 2	//param - NULL
 #define FID_QUERYARCHIVE    	 3	//param - QueryArchiveStruct
 #define FID_FINALIZEARCHIVE		 4	//param - hArchive (to change to FinalizeArchiveStruct!!!)

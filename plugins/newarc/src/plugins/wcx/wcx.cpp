@@ -8,10 +8,10 @@ FARSTANDARDFUNCTIONS FSF;
 
 WcxModules *pModules;
 
-int OnInitialize (PluginStartupInfo *pInfo)
+int OnInitialize (StartupInfo *pInfo)
 {
-	Info = *pInfo;
-	FSF = *pInfo->FSF;
+	Info = pInfo->Info;
+	FSF = *pInfo->Info.FSF;
 	Info.FSF = &FSF;
 
 	pModules = new WcxModules;
@@ -134,7 +134,7 @@ int __stdcall PluginEntry (
 	switch ( nFunctionID ) {
 
 	case FID_INITIALIZE:
-		return OnInitialize ((PluginStartupInfo*)pParams);
+		return OnInitialize ((StartupInfo*)pParams);
 
 	case FID_FINALIZE:
 		return OnFinalize ();

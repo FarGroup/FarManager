@@ -17,10 +17,10 @@ struct ArchiveModuleInformation {
 	char **pConfigStrings;
 };
 
-int OnInitialize (PluginStartupInfo *pInfo)
+int OnInitialize (StartupInfo *pInfo)
 {
-	Info = *pInfo;
-	FSF = *pInfo->FSF;
+	Info = pInfo->Info;
+	FSF = *pInfo->Info.FSF;
 
 	return NAERROR_SUCCESS;
 }
@@ -154,7 +154,7 @@ int __stdcall PluginEntry (
 	switch ( nFunctionID ) {
 
 	case FID_INITIALIZE:
-		return OnInitialize ((PluginStartupInfo*)pParams);
+		return OnInitialize ((StartupInfo*)pParams);
 
 	case FID_FINALIZE:
 		return OnFinalize ();

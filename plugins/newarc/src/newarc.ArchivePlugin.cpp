@@ -1,5 +1,15 @@
 #include "newarc.h"
 
+void* __stdcall Allocate (DWORD dwBytes)
+{
+	return malloc(dwBytes);
+}
+
+void __stdcall Free (void *pBlock)
+{
+	free (pBlock);
+}
+
 bool ArchivePlugin::Initialize (
 		const char *lpModuleName,
 		const char *lpLanguage
@@ -22,21 +32,28 @@ bool ArchivePlugin::Initialize (
 
 		if ( m_pfnPluginEntry )
 		{
-			PluginStartupInfo _Info;
+			StartupInfo _si;
 			FARSTANDARDFUNCTIONS _FSF;
+			Helpers _HF;
 
-			_Info = Info;
+			_si.Info = Info;
+
+			_HF.Allocate = Allocate;
+			_HF.Free = Free;
+
 			_FSF  = FSF;
-			_Info.FSF = &_FSF;
+
+			_si.Info.FSF = &_FSF;
+			_si.HF = _HF;
 
 			CreateClassThunk (ArchivePlugin, pGetMsg, m_pfnGetMsgThunk);
 
-			strcpy (_Info.ModuleName, lpModuleName);
+			strcpy (_si.Info.ModuleName, lpModuleName);
 
-			memcpy (&_Info.GetMsg, &m_pfnGetMsgThunk, 4);
+			memcpy (&_si.Info.GetMsg, &m_pfnGetMsgThunk, 4);
 			ReloadLanguage (lpLanguage);
 
-            m_pfnPluginEntry (FID_INITIALIZE, (void*)&_Info);
+            m_pfnPluginEntry (FID_INITIALIZE, (void*)&_si);
 
 			memset (&m_ArchivePluginInfo, 0, sizeof (ArchivePluginInfo));
 

@@ -287,10 +287,10 @@ int WINAPI _export ProcessArchive(int Command, void *InData, void *OutData)
 }
 */
 
-int OnInitialize (PluginStartupInfo *pInfo)
+int OnInitialize (StartupInfo *pInfo)
 {
-	Info = *pInfo;
-	FSF = *pInfo->FSF;
+    Info = pInfo->Info;
+	FSF = *pInfo->Info.FSF;
 
 	char *lpModuleName = StrDuplicate(Info.ModuleName, 260);
 
@@ -491,7 +491,7 @@ int __stdcall PluginEntry (
 	switch ( nFunctionID ) {
 
 	case FID_INITIALIZE:
-		return OnInitialize ((PluginStartupInfo*)pParams);
+		return OnInitialize ((StartupInfo*)pParams);
 
 	case FID_FINALIZE:
 		return OnFinalize ();
