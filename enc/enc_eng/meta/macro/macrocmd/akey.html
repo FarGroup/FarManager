@@ -42,9 +42,26 @@ None.
 
 <h3>Example</h3>
 <div class=descr>
+Макрос для переключения между экранами. В разделе Common вводятся 10 однотипных макросов AltЦифра:
+<pre class="code">
+$If ( Dialog || MainMenu || Menu || UserMenu || Search )
+  $AKey
+$Else
+  %s = AKey ( 1 );
+  %c = substr ( %s, len ( %s ) - 1, 1 );
+  F12
+  $If ( CheckHotkey ( %c ) )
+    eval ( %c )
+  $Else
+    Esc
+    $AKey
+  $End
+$End
+</pre>
 </div>
 
 <div class=see>See also:</div><div class=seecont>
+<a href="functions.html#akey">akey</a>,
 <a href="../examples.html">Examples</a>
 </div>
 
