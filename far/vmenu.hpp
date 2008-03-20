@@ -59,6 +59,7 @@ enum{
   VMenuColorDisabled            = 9,     // Disabled
   VMenuColorArrows              =10,     // '<' & '>' обычные
   VMenuColorArrowsSelect        =11,     // '<' & '>' выбранные
+  VMenuColorArrowsDisabled      =12,     // '<' & '>' Disabled
 
   VMENU_COLOR_COUNT,                     // всегда последняя - размерность массива
 };

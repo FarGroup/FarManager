@@ -1,3 +1,11 @@
+svs 20.03.2008 18:22:21 +0300 - build 453
+
+1. Добавлен Disable цвет для пред. билда и изменены наименования пунктов меню в настройке цвета
+   Итого размер палитры ФАРа = 0x7F байт
+
+2. В History/Combobox стрелки отображались цветом меню - жлбавим флаг VMENU_COMBOBOX
+
+
 svs 17.03.2008 20:23:22 +0300 - build 452
 
 1. Mantis#0000498 - Screen scrolling arrows colors for Menu/Listbox/Combobox

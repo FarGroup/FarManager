@@ -4048,7 +4048,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
   strRegKey.Format (fmtSavedDialogHistory,HistoryName);
   {
     // создание пустого вертикального меню
-    VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR);
+    VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX);
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
