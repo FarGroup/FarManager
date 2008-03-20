@@ -576,7 +576,7 @@ void VMenu::ShowMenu(int IsParent)
         if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
           SetColor(VMenu::Colors[VMenuColorSelected]);
         else
-          SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
+          SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?VMenuColorDisabled:VMenuColorText)]);
 
 
         char Check=' ';
@@ -661,7 +661,7 @@ void VMenu::ShowMenu(int IsParent)
         // сделаем добавочку для NO_BOX
         mprintf("%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),"");
 
-        SetColor((Item[I].Flags&LIF_SELECTED)?VMenu::Colors[VMenuColorArrowsSelect]:VMenu::Colors[VMenuColorArrows]);
+        SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
         if (/*BoxType!=NO_BOX && */Item[I].ShowPos > 0)
         {
           GotoXY(X1+1,Y);
@@ -2218,6 +2218,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_DIALOGLISTDISABLED,                    // Disabled
           COL_DIALOGLISTARROWS,                      // Arrow
           COL_DIALOGLISTARROWSSELECTED,              // Выбранный - Arrow
+          COL_DIALOGLISTARROWSDISABLED,              // Arrow Disabled
         },
         { // VMENU_COMBOBOX
           COL_DIALOGCOMBOTEXT,                       // подложка
@@ -2232,6 +2233,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_DIALOGCOMBODISABLED,                   // Disabled
           COL_DIALOGCOMBOARROWS,                     // Arrow
           COL_DIALOGCOMBOARROWSSELECTED,             // Выбранный - Arrow
+          COL_DIALOGCOMBOARROWSDISABLED,             // Arrow Disabled
         },
         { // VMenu
           COL_MENUBOX,                               // подложка
@@ -2246,6 +2248,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_MENUDISABLEDTEXT,                      // Disabled
           COL_MENUARROWS,                            // Arrow
           COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
+          COL_MENUARROWSDISABLED,                    // Arrow Disabled
         }
       },
 
@@ -2264,6 +2267,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGLISTDISABLED,                // Disabled
           COL_WARNDIALOGLISTARROWS,                  // Arrow
           COL_WARNDIALOGLISTARROWSSELECTED,          // Выбранный - Arrow
+          COL_WARNDIALOGLISTARROWSDISABLED,          // Arrow Disabled
         },
         { // VMENU_COMBOBOX
           COL_WARNDIALOGCOMBOTEXT,                   // подложка
@@ -2278,6 +2282,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGCOMBODISABLED,               // Disabled
           COL_WARNDIALOGCOMBOARROWS,                 // Arrow
           COL_WARNDIALOGCOMBOARROWSSELECTED,         // Выбранный - Arrow
+          COL_WARNDIALOGCOMBOARROWSDISABLED,         // Arrow Disabled
         },
         { // VMenu
           COL_MENUBOX,                               // подложка
@@ -2292,6 +2297,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_MENUDISABLEDTEXT,                      // Disabled
           COL_MENUARROWS,                            // Arrow
           COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
+          COL_MENUARROWSDISABLED,                    // Arrow Disabled
         }
       }
     };

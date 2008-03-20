@@ -37,11 +37,12 @@ static struct MenuData ListItems[]=
   (char *)MSetColorDialogListScrollBar,0,0,
   (char *)MSetColorDialogListArrows,0,0,
   (char *)MSetColorDialogListArrowsSelected,0,0,
+  (char *)MSetColorDialogListArrowsDisabled,0,0,
 };
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
-static int ListPaletteItems[4][10]=
+static int ListPaletteItems[4][11]=
 {
   // Listbox
   { // normal
@@ -55,6 +56,7 @@ static int ListPaletteItems[4][10]=
     COL_DIALOGLISTSCROLLBAR,
     COL_DIALOGLISTARROWS,             // Arrow
     COL_DIALOGLISTARROWSSELECTED,     // Выбранный - Arrow
+    COL_DIALOGLISTARROWSDISABLED,     // Arrow disabled
   },
   { // warn
     COL_WARNDIALOGLISTTEXT,
@@ -67,6 +69,7 @@ static int ListPaletteItems[4][10]=
     COL_WARNDIALOGLISTSCROLLBAR,
     COL_WARNDIALOGLISTARROWS,                   // Arrow
     COL_WARNDIALOGLISTARROWSSELECTED,           // Выбранный - Arrow
+    COL_WARNDIALOGLISTARROWSDISABLED,           // Arrow disabled
   },
   // Combobox
   { // normal
@@ -80,6 +83,7 @@ static int ListPaletteItems[4][10]=
     COL_DIALOGCOMBOSCROLLBAR,
     COL_DIALOGCOMBOARROWS,                      // Arrow
     COL_DIALOGCOMBOARROWSSELECTED,              // Выбранный - Arrow
+    COL_DIALOGCOMBOARROWSDISABLED,              // Arrow disabled
   },
   { // warn
     COL_WARNDIALOGCOMBOTEXT,
@@ -92,6 +96,7 @@ static int ListPaletteItems[4][10]=
     COL_WARNDIALOGCOMBOSCROLLBAR,
     COL_WARNDIALOGCOMBOARROWS,                  // Arrow
     COL_WARNDIALOGCOMBOARROWSSELECTED,          // Выбранный - Arrow
+    COL_WARNDIALOGCOMBOARROWSDISABLED,          // Arrow disabled
   },
 };
 
@@ -228,6 +233,7 @@ void SetColors()
     (char *)MSetColorMenuScrollBar,0,0,
     (char *)MSetColorMenuArrows,0,0,
     (char *)MSetColorMenuArrowsSelected,0,0,
+    (char *)MSetColorMenuArrowsDisabled,0,0,
 
   };
   int MenuPaletteItems[]={
@@ -241,6 +247,7 @@ void SetColors()
     COL_MENUSCROLLBAR,
     COL_MENUARROWS,                             // Arrow
     COL_MENUARROWSSELECTED,                     // Выбранный - Arrow
+    COL_MENUARROWSDISABLED,
   };
 
   struct MenuData HMenuItems[]=
