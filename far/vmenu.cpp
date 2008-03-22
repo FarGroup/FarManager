@@ -1449,7 +1449,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   if ((ItemCount & 255)==0)
   {
     if ((NewPtr=(struct MenuItem *)xf_realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
-      return(0);
+      return -1;
     Item=NewPtr;
   }
 
@@ -1525,7 +1525,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   return(ItemCount++);
 }
 
-int  VMenu::AddItem(const char *NewStrItem)
+int VMenu::AddItem(const char *NewStrItem)
 {
   CriticalSectionLock Lock(CS);
 #if 0
@@ -1544,7 +1544,7 @@ int  VMenu::AddItem(const char *NewStrItem)
   }
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
-  return VMenu::AddItem(&FarList0);
+  return VMenu::AddItem(&FarList0)-1; //-1 потому что AddItem(FarList) возвращает количество элементов
 #else
   struct MenuItem NewItem;
   memset(&NewItem,0,sizeof(NewItem));
@@ -1619,7 +1619,8 @@ int VMenu::InsertItem(const struct FarListInsert *NewItem)
   if(NewItem)
   {
     struct MenuItem MItem;
-    return AddItem(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index);
+    if (AddItem(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index) >= 0)
+      return ItemCount;
   }
   return -1;
 }
