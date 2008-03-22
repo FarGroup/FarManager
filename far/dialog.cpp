@@ -5670,7 +5670,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTADDSTR: // Param1=ID Param2=String
             {
-              Ret=ListBox->AddItem((char*)Param2)-1;
+              Ret=ListBox->AddItem((char*)Param2);
               /* $ 23.02.2002 DJ
                  а вдруг это вообще первый элемент, на который можно поставить курсор?
               */
