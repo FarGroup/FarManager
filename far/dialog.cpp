@@ -5417,7 +5417,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTADDSTR: // Param1=ID Param2=String
             {
-              Ret=ListBox->AddItem((wchar_t*)Param2)-1;
+              Ret=ListBox->AddItem((wchar_t*)Param2);
               ListBox->AdjustSelectPos();
               break;
             }
