@@ -2195,7 +2195,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         }
 
         SECURITY_ATTRIBUTES sa;
-        _LOGCOPYR(ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName));
+        _LOGCOPYR(ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)));
         _LOGCOPYR(SysLog("%d call GetSecurity ('%s')",__LINE__,Dest));
         _LOGCOPYR(SysLog("%d DestFullName='%s'",__LINE__,DestFullName));
         _LOGCOPYR(SysLog("%d SrcFullName ='%s'",__LINE__,SrcFullName));
