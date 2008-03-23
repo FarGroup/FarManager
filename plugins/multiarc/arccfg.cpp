@@ -105,11 +105,6 @@ LONG_PTR WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
       for (I=2,J=0;I<=32;I+=2,J++)
       {
         *Command=0;
-        if(Param1) // Reset?
-        {
-          DeleteRegKey(HKEY_CURRENT_USER,FormatInfo->ArcFormat);
-          DeleteRegKey(HKEY_LOCAL_MACHINE,FormatInfo->ArcFormat); //???
-        }
         int PluginNumber=FormatInfo->PluginNumber,PluginType=FormatInfo->PluginType;
         if (FormatInfo->FastAccess||PluginClass::FormatToPlugin(FormatInfo->ArcFormat,PluginNumber,PluginType))
         {
@@ -121,8 +116,8 @@ LONG_PTR WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
           else
             ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
         }
-        //хитрый прием - передача Command в качестве дефолта для Command
-        GetRegKey(FormatInfo->ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
+        if(!Param1) // if not Reset
+          GetRegKey(FormatInfo->ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
         Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(LONG_PTR)Command);
       }
       return TRUE;
