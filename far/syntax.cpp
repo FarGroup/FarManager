@@ -53,6 +53,61 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
 static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=NULL);
 static void keyMacroParseError(int err, const wchar_t *c = NULL);
 
+// Стек структурных операторов
+enum TExecMode
+{
+  emmMain, emmWhile, emmThen, emmElse, emmRep
+};
+
+struct TExecItem
+{
+  TExecMode state;
+  DWORD pos1, pos2;
+};
+
+class TExec
+{
+  private:
+    TExecItem stack[MAXEXEXSTACK];
+  public:
+    int current;
+    void init()
+    {
+      current = 0;
+      stack[current].state = emmMain;
+      stack[current].pos1 = stack[current].pos2 = 0;
+    }
+    TExec() { init(); }
+    TExecItem& operator()() { return stack[current]; }
+    int add(TExecMode, DWORD, DWORD = 0);
+    int del();
+};
+
+int TExec::add(TExecMode s, DWORD p1, DWORD p2)
+{
+  if ( ++current < MAXEXEXSTACK )
+  {
+    stack[current].state = s;
+    stack[current].pos1 = p1;
+    stack[current].pos2 = p2;
+    return TRUE;
+  }
+  // Stack Overflow
+  return FALSE;
+};
+
+int TExec::del()
+{
+  if ( --current < 0 )
+  {
+    // Stack Underflow ???
+    current = 0;
+    return FALSE;
+  }
+  return TRUE;
+};
+
+
 //-----------------------------------------------
 static string ErrMessage[3];
 
@@ -147,64 +202,70 @@ static inline int getChar()
 
 typedef struct __TMacroFunction{
   const wchar_t *Name;             // имя функции
-  int nParam;                   // количество параметров
+  int nParam;                      // количество параметров
+  int oParam;                      // необязательные параметры
   TMacroOpCode Code;               // байткод функции
 } TMacroFunction;
 
 static TMacroFunction macroFunction[]={
-  {L"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
-  {L"AKEY",           1,    MCODE_F_AKEY},                // V=akey(N)
-  {L"ASC",            1,    MCODE_F_ASC},                 // N=asc(N)
-  {L"BM.ADD",         0,    MCODE_F_BM_ADD},              // N=BM.Add()
-  {L"BM.CLEAR",       0,    MCODE_F_BM_CLEAR},            // N=BM.Clear()
-  {L"BM.NEXT",        0,    MCODE_F_BM_NEXT},             // N=BM.Next()
-  {L"BM.PREV",        0,    MCODE_F_BM_PREV},             // N=BM.Prev()
-  {L"BM.STAT",        0,    MCODE_F_BM_STAT},             // N=BM.Stat()
-  {L"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
-  {L"CHR",            1,    MCODE_F_CHR},                 // S=chr(N)
-  {L"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
-  {L"DATE",           1,    MCODE_F_DATE},                // S=date(S)
-  {L"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
-  {L"EDITOR.SET",     2,    MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
-  {L"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
-  {L"EVAL",           1,    MCODE_F_EVAL},                // N=eval(S)
-  {L"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
-  {L"FEXIST",         1,    MCODE_F_FEXIST},              // N=fexist(S)
-  {L"FLOCK",          2,    MCODE_F_FLOCK},               // N=FLock(N,N)
-  {L"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
-  {L"GETHOTKEY",      1,    MCODE_F_MENU_GETHOTKEY},      // S=gethotkey(N)
-  {L"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
-  {L"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
-  {L"INT",            1,    MCODE_F_INT},                 // N=int(V)
-  {L"ITOA",           2,    MCODE_F_ITOA},                // S=itoa(N,radix)
-  {L"LCASE",          1,    MCODE_F_LCASE},               // S=lcase(S1)
-  {L"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
-  {L"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
-  {L"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
-  {L"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
-  {L"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
-  {L"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
-  {L"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
-  {L"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
-  {L"PANEL.SETPOSIDX",2,    MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
-  {L"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
-  {L"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
-  {L"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
-  {L"STRING",         1,    MCODE_F_STRING},              // S=string(V)
-  {L"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
-  {L"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
-  {L"WAITKEY",        1,    MCODE_F_WAITKEY},             // S=waitkey(N)
-  {L"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
+  {L"ABS",              1, 0,   MCODE_F_ABS},                 // N=abs(N)
+  {L"AKEY",             1, 0,   MCODE_F_AKEY},                // V=akey(N)
+  {L"ASC",              1, 0,   MCODE_F_ASC},                 // N=asc(N)
+  {L"BM.ADD",           0, 0,   MCODE_F_BM_ADD},              // N=BM.Add()
+  {L"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR},            // N=BM.Clear()
+  {L"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT},             // N=BM.Next()
+  {L"BM.PREV",          0, 0,   MCODE_F_BM_PREV},             // N=BM.Prev()
+  {L"BM.STAT",          0, 0,   MCODE_F_BM_STAT},             // N=BM.Stat()
+  {L"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {L"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
+  {L"CLIP",             2, 0,   MCODE_F_CLIP},                // V=clip(N,S)
+  {L"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
+  {L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
+  {L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
+  {L"ENV",              1, 0,   MCODE_F_ENVIRON},             // S=env(S)
+  {L"EVAL",             1, 0,   MCODE_F_EVAL},                // N=eval(S)
+  {L"FATTR",            1, 0,   MCODE_F_FATTR},               // N=fattr(S)
+  {L"FEXIST",           1, 0,   MCODE_F_FEXIST},              // N=fexist(S)
+  {L"FLOCK",            2, 0,   MCODE_F_FLOCK},               // N=FLock(N,N)
+  {L"FSPLIT",           2, 0,   MCODE_F_FSPLIT},              // S=fsplit(S,N)
+  {L"GETHOTKEY",        1, 0,   MCODE_F_MENU_GETHOTKEY},      // S=gethotkey(N)
+  {L"IIF",              3, 0,   MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
+  {L"INDEX",            2, 0,   MCODE_F_INDEX},               // S=index(S1,S2)
+  {L"INT",              1, 0,   MCODE_F_INT},                 // N=int(V)
+  {L"ITOA",             2, 1,   MCODE_F_ITOA},                // S=itoa(N[,radix])
+  {L"LCASE",            1, 0,   MCODE_F_LCASE},               // S=lcase(S1)
+  {L"LEN",              1, 0,   MCODE_F_LEN},                 // N=len(S)
+  {L"MAX",              2, 0,   MCODE_F_MAX},                 // N=max(N1,N2)
+  {L"MENU.SELECT",      2, 1,   MCODE_F_MENU_SELECT},         // N=Menu.Select(S[,N])
+  {L"MOD",              2, 0,   MCODE_F_MOD},                 // N=mod(a,b) == a %  b
+  {L"MSAVE",            1, 0,   MCODE_F_MSAVE},               // N=msave(S)
+  {L"MSGBOX",           3, 1,   MCODE_F_MSGBOX},              // N=msgbox("Title","Text"[,flags])
+  {L"MIN",              2, 0,   MCODE_F_MIN},                 // N=min(N1,N2)
+  {L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
+  {L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
+  {L"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH},       // N=panel.SetPath(panelType,pathName[,fileName])
+  {L"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
+  {L"PANEL.SETPOSIDX",  2, 0,   MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
+  {L"PANELITEM",        3, 0,   MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
+  {L"REPLACE",          4, 1,   MCODE_F_REPLACE},             // S=replace(Str,Find,Replace[,Cnt])
+  {L"RINDEX",           2, 0,   MCODE_F_RINDEX},              // S=rindex(S1,S2)
+  {L"SLEEP",            1, 0,   MCODE_F_SLEEP},               // N=sleep(N)
+  {L"STRING",           1, 0,   MCODE_F_STRING},              // S=string(V)
+  {L"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
+  {L"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
+  {L"WAITKEY",          1, 0,   MCODE_F_WAITKEY},             // S=waitkey(N)
+  {L"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
 };
 
-static DWORD funcLook(const wchar_t *s, int& nParam)
+static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 {
-  nParam=0;
+  oParam=nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
     //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
     if(!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
     {
       nParam = macroFunction[I].nParam;
+      oParam = macroFunction[I].oParam;
       return (DWORD)macroFunction[I].Code;
     }
 
@@ -215,8 +276,8 @@ static TToken getToken(void);
 
 static void calcFunc(void)
 {
-  int nParam;
-  TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam);
+  int nParam, oParam;
+  TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
   if ( nFunc != MCODE_F_NOFUNC )
   {
     IsProcessFunc++;
@@ -228,13 +289,23 @@ static void calcFunc(void)
         expr();
         if ( currTok != ( (i == nParam-1) ? tRp : tComma ) )
         {
+          if ( oParam > 0 &&  currTok != tEnd) // если опциональные параметры есть и...
+            break;
+
           if ( i == nParam-1 )
             keyMacroParseError(err_Expected, L")");
           else
             keyMacroParseError(err_Expected, L",");
           currTok = tEnd;
         }
-       }
+      }
+
+      // добьем нулями опциональные параметры
+      for( ; i < nParam; ++i)
+      {
+        put(MCODE_OP_PUSHINT);
+        put64(_i64(0));
+      }
     }
     else
     {
@@ -340,68 +411,91 @@ static TToken getToken(void)
   switch ( ch )
   {
     case EOFCH:
-    case 0:   return currTok = tEnd;
-    case L',': return currTok = tComma;
-    case L'+': return currTok = tPlus;
-    case L'-': return currTok = tMinus;
-    case L'*': return currTok = tMul;
-    case L'/': return currTok = tDiv;
-    case L'(': return currTok = tLp;
-    case L')': return currTok = tRp;
-    case L'^': return currTok = tBitXor;
+    case 0:    currTok = tEnd;    break;
+    case L',': currTok = tComma;  break;
+    case L'+': currTok = tPlus;   break;
+    case L'-': currTok = tMinus;  break;
+    case L'*': currTok = tMul;    break;
+    case L'/': currTok = tDiv;    break;
+    case L'(': currTok = tLp;     break;
+    case L')': currTok = tRp;     break;
+    case L'^': currTok = tBitXor; break;
+    case L'~':
+      if ( ( ch = getChar() ) != L' ')
+      {
+        putBack(ch);
+        currTok = tBitNot;
+        break;
+      }
+      putBack(ch);   //????
+      currTok = tEnd;
+      break;
     case L'|':
       if ( ( ch = getChar() ) == L'|')
-        return currTok = tBoolOr;
+        currTok = tBoolOr;
       else
       {
         putBack(ch);
-        return currTok = tBitOr;
+        currTok = tBitOr;
       }
+      break;
     case L'&':
       if ( ( ch = getChar() ) == L'&')
-        return currTok = tBoolAnd;
+        currTok = tBoolAnd;
       else
       {
         putBack(ch);
-        return currTok = tBitAnd;
+        currTok = tBitAnd;
       }
+      break;
     case L'=':
       if ( ( ch = getChar() ) == L'=')
-        return currTok = tEq;
+        currTok = tEq;
       else
       {
         putBack(ch);
-        return currTok = tLet;
+        currTok = tLet;
       }
+      break;
     case L'>':
       switch ( ( ch = getChar() ) )
       {
-        case L'=': return currTok = tGe;
-        case L'>': return currTok = tBitShr;
+        case L'=': currTok = tGe;     break;
+        case L'>': currTok = tBitShr; break;
         default:
           putBack(ch);
-          return currTok = tGt;
+          currTok = tGt;
+          break;
       }
+      break;
     case L'<':
       switch ( ch = getChar() )
       {
-        case L'=': return currTok = tLe;
-        case L'<': return currTok = tBitShl;
+        case L'=': currTok = tLe;     break;
+        case L'<': currTok = tBitShl; break;
         default:
           putBack(ch);
-          return currTok = tLt;
+          currTok = tLt;
+          break;
       }
+      break;
     case L'!':
       if((ch = getChar() ) != L'=')
       {
         putBack(ch);
-        return currTok = tNot;
+        currTok = tNot;
+        break;
       }
-      return currTok = tNe;
+      else
+        currTok = tNe;
+      break;
+
     case L'\"':
+    {
       //-AN----------------------------------------------
       // Вообще-то это почти полный аналог ParsePlainText
       //-AN----------------------------------------------
+      TToken __currTok = tNo;
       currVar = L"";
       while ( ( ( ch = getChar() ) != EOFCH ) && ( ch != L'\"' ) )
       {
@@ -452,38 +546,55 @@ static TToken getToken(void)
               else
               {
                 keyMacroParseError(err_Bad_Hex_Control_Char);
-                return currTok = tEnd;
+                __currTok = tEnd;
               }
               break;
             default:
               keyMacroParseError(err_Bad_Control_Char);
-              return currTok = tEnd;
+              __currTok = tEnd;
+              break;
           }
         }
+        if(__currTok != tNo)
+          break;
         wchar_t p[] = L" ";
         *p = (wchar_t)ch;
         currVar = currVar+TVar(p);
       }
-      return currTok = tStr;
+
+      if(__currTok == tNo)
+        currTok = tStr;
+      else
+        currTok = __currTok;
+
+      break;
+    }
+
     case L'0': case L'1': case L'2': case L'3': case L'4':
     case L'5': case L'6': case L'7': case L'8': case L'9':
+    {
       putBack(ch);
       currVar = getInt64();
-      return currTok = tInt;
+      currTok = tInt;
+      break;
+    }
+
     case L'%':
       ch = getChar();
       if ( (IsAlphaNum(ch) || ch == L'_') || ( ch == L'%'  && (IsAlphaNum(*sSrcString) || *sSrcString == L'_')))
       {
         getVarName(ch);
         putBack(ch);
-        return currTok = tVar;
+        currTok = tVar;
       }
       else
         keyMacroParseError(err_Var_Expected,L""); // BUG nameString
       break;
+
     default:
       if ( IsAlpha(ch) ) // || ch == L'_' ????
       {
+        TToken __currTok = tNo;
         getFarName(ch);
         if(ch == L' ')
         {
@@ -491,7 +602,7 @@ static TToken getToken(void)
             ch = getNextChar();
         }
         if ( ch == L'(' ) //!!!! а пробелы пропустить? ДА!
-          return currTok = tFunc;
+          __currTok = tFunc;
         else
         {
           putBack(ch);
@@ -499,21 +610,31 @@ static TToken getToken(void)
             if ( !StrCmpI(nameString, MKeywords[i].Name) )
             {
               FARVar = MKeywords[i].Value;
-              return currTok = tFARVar;
+              __currTok = tFARVar;
+              break;
             }
-          if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
-            keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
-          else
+
+          if(__currTok == tNo)
           {
-            if(KeyNameMacroToKey(nameString) == -1)
-              if(KeyNameToKey(nameString) == -1)
-              keyMacroParseError(err_Unrecognized_keyword,nameString);
+            if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
+              keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+            else
+            {
+              if(KeyNameMacroToKey(nameString) == -1)
+                if(KeyNameToKey(nameString) == -1)
+                   keyMacroParseError(err_Unrecognized_keyword,nameString);
+            }
           }
         }
+
+        if(__currTok != tNo)
+          currTok=__currTok;
       }
+      else
+        currTok = tEnd;
       break;
   }
-  return currTok = tEnd;
+  return currTok;
 }
 
 static void prim(void)
@@ -537,7 +658,7 @@ static void prim(void)
       getToken();
       break;
     case tFARVar:
-      put(FARVar);
+      put(FARVar); // nFARVar получаем в getToken()
       getToken();
       break;
     case tStr:
@@ -549,6 +670,11 @@ static void prim(void)
       getToken();
       prim();
       put(MCODE_OP_NEGATE);
+      break;
+    case tBitNot:
+      getToken();
+      prim();
+      put(MCODE_OP_BITNOT);
       break;
     case tNot:
       getToken();
@@ -568,7 +694,7 @@ static void prim(void)
   }
 }
 
-static void term(void)
+static void multExpr(void)
 {
   prim();
   for ( ; ; )
@@ -581,49 +707,116 @@ static void term(void)
     }
 }
 
-static void mathExpr(void)
+static void additionExpr(void)
 {
-  term();
+  multExpr();
   for ( ; ; )
     switch ( currTok )
     {
-      case tPlus:    getToken(); term(); put(MCODE_OP_ADD);     break;
-      case tMinus:   getToken(); term(); put(MCODE_OP_SUB);     break;
-      case tBitShl:  getToken(); term(); put(MCODE_OP_BITSHL);  break;
-      case tBitShr:  getToken(); term(); put(MCODE_OP_BITSHR);  break;
+      case tPlus:    getToken(); multExpr(); put(MCODE_OP_ADD); break;
+      case tMinus:   getToken(); multExpr(); put(MCODE_OP_SUB); break;
       default:
         return;
     }
 }
 
-static void booleanPrim(void)
+static void shiftExpr(void)
 {
-  mathExpr();
+  additionExpr();
   for ( ; ; )
     switch ( currTok )
     {
-      case tLt: getToken(); mathExpr(); put(MCODE_OP_LT); break;
-      case tLe: getToken(); mathExpr(); put(MCODE_OP_LE); break;
-      case tGt: getToken(); mathExpr(); put(MCODE_OP_GT); break;
-      case tGe: getToken(); mathExpr(); put(MCODE_OP_GE); break;
-      case tEq: getToken(); mathExpr(); put(MCODE_OP_EQ); break;
-      case tNe: getToken(); mathExpr(); put(MCODE_OP_NE); break;
+      case tBitShl:  getToken(); additionExpr(); put(MCODE_OP_BITSHL);  break;
+      case tBitShr:  getToken(); additionExpr(); put(MCODE_OP_BITSHR);  break;
       default:
         return;
     }
 }
+
+static void relation2Expr(void)
+{
+  shiftExpr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tLt: getToken(); shiftExpr(); put(MCODE_OP_LT); break;
+      case tLe: getToken(); shiftExpr(); put(MCODE_OP_LE); break;
+      case tGt: getToken(); shiftExpr(); put(MCODE_OP_GT); break;
+      case tGe: getToken(); shiftExpr(); put(MCODE_OP_GE); break;
+      default:
+        return;
+    }
+}
+
+static void relationExpr(void)
+{
+  relation2Expr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tEq: getToken(); relation2Expr(); put(MCODE_OP_EQ); break;
+      case tNe: getToken(); relation2Expr(); put(MCODE_OP_NE); break;
+      default:
+        return;
+    }
+}
+
+static void bitAndPrim(void)
+{
+  relationExpr();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitAnd:  getToken(); relationExpr(); put(MCODE_OP_BITAND); break;
+      default:
+        return;
+    }
+}
+
+static void bitXorPrim(void)
+{
+  bitAndPrim();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitXor:  getToken(); bitAndPrim(); put(MCODE_OP_BITXOR);  break;
+      default:
+        return;
+    }
+}
+
+static void bitOrPrim(void)
+{
+  bitXorPrim();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBitOr:   getToken(); bitXorPrim(); put(MCODE_OP_BITOR);  break;
+      default:
+        return;
+    }
+}
+
+static void boolAndPrim(void)
+{
+  bitOrPrim();
+  for ( ; ; )
+    switch ( currTok )
+    {
+      case tBoolAnd: getToken(); bitOrPrim(); put(MCODE_OP_AND);    break;
+      default:
+        return;
+    }
+}
+
 
 static void expr(void)
 {
-  booleanPrim();
+  boolAndPrim();
   for ( ; ; )
     switch ( currTok )
     {
-      case tBoolAnd: getToken(); booleanPrim(); put(MCODE_OP_AND);    break;
-      case tBoolOr:  getToken(); booleanPrim(); put(MCODE_OP_OR);     break;
-      case tBitAnd:  getToken(); booleanPrim(); put(MCODE_OP_BITAND); break;
-      case tBitOr:   getToken(); booleanPrim(); put(MCODE_OP_BITOR);  break;
-      case tBitXor:  getToken(); booleanPrim(); put(MCODE_OP_BITXOR);  break;
+      case tBoolOr:  getToken(); boolAndPrim(); put(MCODE_OP_OR);     break;
       default:
         return;
     }
@@ -650,7 +843,8 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
   else
     pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr;
   exprBuff = eBuff;
-#if !defined(TEST000)
+#if 1
+//!defined(TEST000)
   getToken();
   if ( bound2 )
     expr();
@@ -780,25 +974,30 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_IIF,              L"V=iif(Condition,V1,V2)"},
     {MCODE_F_INDEX,            L"S=index(S1,S2)"},
     {MCODE_F_INT,              L"N=int(V)"},
-    {MCODE_F_ITOA,             L"S=itoa(N,radix)"},
+    {MCODE_F_ITOA,             L"S=itoa(N[,radix])"},
     {MCODE_F_LCASE,            L"S=lcase(S1)"},
     {MCODE_F_LEN,              L"N=len(S)"},
     {MCODE_F_MAX,              L"N=max(N1,N2)"},
     {MCODE_F_MENU_CHECKHOTKEY, L"N=checkhotkey(S)"},
+    {MCODE_F_MENU_SELECT,      L"N=Menu.Select(S[,N])"},
     {MCODE_F_MENU_GETHOTKEY,   L"S=gethotkey()"},
     {MCODE_F_MIN,              L"N=min(N1,N2)"},
+    {MCODE_F_MOD,              L"N=mod(N1,N2)"},
     {MCODE_F_MSAVE,            L"N=msave(S)"},
-    {MCODE_F_MSGBOX,           L"N=msgbox(sTitle,sText,flags)"},
+    {MCODE_F_MSGBOX,           L"N=msgbox(sTitle,sText[,flags])"},
     {MCODE_F_PANEL_FATTR,      L"N=panel.fattr(panelType,S)"},
     {MCODE_F_PANEL_FEXIST,     L"S=panel.fexist(panelType,S)"},
+    {MCODE_F_PANEL_SETPATH,    L"N=panel.SetPath(panelType,pathName[,fileName])"},
     {MCODE_F_PANEL_SETPOS,     L"N=panel.SetPos(panelType,fileName)"},
     {MCODE_F_PANEL_SETPOSIDX,  L"N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        L"V=panelitem(Panel,Index,TypeInfo)"},
     {MCODE_F_EVAL,             L"N=eval(S)"},
+
+    {MCODE_F_REPLACE,          L"S=replace(sS,sF,sR[,cnt])"},
     {MCODE_F_RINDEX,           L"S=rindex(S1,S2)"},
     {MCODE_F_SLEEP,            L"N=Sleep(N)"},
     {MCODE_F_STRING,           L"S=string(V)"},
-    {MCODE_F_SUBSTR,           L"S=substr(S1,S2,N)"},
+    {MCODE_F_SUBSTR,           L"S=substr(S1,S2[,N])"},
     {MCODE_F_UCASE,            L"S=ucase(S1)"},
     {MCODE_F_WAITKEY,          L"S=waitkey(N)"},
     {MCODE_F_XLAT,             L"S=xlat(S)"},
@@ -924,59 +1123,6 @@ static void printKeyValue(DWORD* k, int& i)
 #endif
 #endif
 
-// Стек структурных операторов
-enum TExecMode
-{
-  emmMain, emmWhile, emmThen, emmElse, emmRep
-};
-
-struct TExecItem
-{
-  TExecMode state;
-  DWORD pos1, pos2;
-};
-
-class TExec
-{
-  private:
-    TExecItem stack[MAXEXEXSTACK];
-  public:
-    int current;
-    void init()
-    {
-      current = 0;
-      stack[current].state = emmMain;
-      stack[current].pos1 = stack[current].pos2 = 0;
-    }
-    TExec() { init(); }
-    TExecItem& operator()() { return stack[current]; }
-    int add(TExecMode, DWORD, DWORD = 0);
-    int del();
-};
-
-int TExec::add(TExecMode s, DWORD p1, DWORD p2)
-{
-  if ( ++current < MAXEXEXSTACK )
-  {
-    stack[current].state = s;
-    stack[current].pos1 = p1;
-    stack[current].pos2 = p2;
-    return TRUE;
-  }
-  // Stack Overflow
-  return FALSE;
-};
-
-int TExec::del()
-{
-  if ( --current < 0 )
-  {
-    // Stack Underflow ???
-    current = 0;
-    return FALSE;
-  }
-  return TRUE;
-};
 
 //- AN ----------------------------------------------
 //  Компиляция строки BufPtr в байткод CurMacroBuffer
@@ -1069,7 +1215,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
         // проверим вариант, когда вызвали функцию, но результат не присвоили,
         // например, вызвали MsgBox(), но результат неважен
         // тогда SizeVarName=1 и varName=""
-        int __nParam;
+        int __nParam,__oParam;
 
         wchar_t *lpwszCurrKeyText = strCurrKeyText.GetBuffer();
         wchar_t *Brack=(wchar_t *)wcspbrk(lpwszCurrKeyText,L"( "), Chr=0;
@@ -1079,7 +1225,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
           *Brack=0;
         }
 
-        if(funcLook(lpwszCurrKeyText, __nParam) != MCODE_F_NOFUNC)
+        if(funcLook(lpwszCurrKeyText, __nParam, __oParam) != MCODE_F_NOFUNC)
         {
           if(Brack) *Brack=Chr;
           BufPtr = oldBufPtr;
@@ -1144,6 +1290,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
         }
         break;
       case MCODE_OP_PLAINTEXT:
+      case MCODE_OP_MACROMODE:
         Size += parseExpr(BufPtr, exprBuff, 0, 0);
         break;
 
@@ -1271,6 +1418,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
     {
       case MCODE_OP_DATE:
       case MCODE_OP_PLAINTEXT:
+      case MCODE_OP_MACROMODE:
         _SVS(SysLog(L"[%d] Size=%u",__LINE__,Size));
         memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
         CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
@@ -1373,6 +1521,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
         CurMacro_Buffer[CurMacroBufferSize+Size-1]=MCODE_OP_ENDKEYS;
         break;
       }
+
       default:
         CurMacro_Buffer[CurMacroBufferSize]=KeyCode;
 

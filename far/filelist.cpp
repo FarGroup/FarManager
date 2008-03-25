@@ -2060,14 +2060,14 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 }
 
 
-void FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
+BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
   if (ClosePlugin && PanelMode==PLUGIN_PANEL)
   {
     while (1)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
-        return;
+        return FALSE;
       if (!PopPlugin(TRUE))
         break;
     }
@@ -2077,8 +2077,9 @@ void FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
     ! Проверить на непустую строку */
   if ((NewDir) && (*NewDir))
   {
-    ChangeDir(NewDir);
+    return ChangeDir(NewDir);
   }
+  return FALSE;
 }
 
 BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)

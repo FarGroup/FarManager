@@ -1653,10 +1653,11 @@ int Panel::GetCurDir(string &strCurDir)
 
 
 
-void Panel::SetCurDir(const wchar_t *CurDir,int ClosePlugin)
+BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePlugin)
 {
   strCurDir = CurDir;
   PrepareDiskPath(strCurDir);
+  return TRUE;
 }
 
 

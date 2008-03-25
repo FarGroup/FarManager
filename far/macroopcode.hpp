@@ -66,8 +66,8 @@ enum MACRO_OP_CODE {
   MCODE_OP_END,                     // $end - признак конца цикла/условия
 
   // Одноместные операции
-  MCODE_OP_NEGATE,
-  MCODE_OP_NOT,
+  MCODE_OP_NEGATE,                  // -a
+  MCODE_OP_NOT,                     // !a
 
   // Двуместные операции
   MCODE_OP_LT,                      // a <  b
@@ -85,10 +85,11 @@ enum MACRO_OP_CODE {
   MCODE_OP_AND,                     // a && b
   MCODE_OP_OR,                      // a || b
   MCODE_OP_BITAND,                  // a &  b
-  MCODE_OP_BITOR,                   // a || b
+  MCODE_OP_BITOR,                   // a |  b
   MCODE_OP_BITXOR,                  // a ^  b
   MCODE_OP_BITSHR,                  // a >> b
   MCODE_OP_BITSHL,                  // a << b
+  MCODE_OP_BITNOT,                  // ~a
 
   MCODE_OP_DISCARD,                 // убрать значение с вершины стека
   MCODE_OP_POP,                     // присвоить значение переменной и убрать из вершины стека
@@ -126,27 +127,30 @@ enum MACRO_OP_CODE {
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
   MCODE_F_ENVIRON,                  // S=env(S)
-  MCODE_F_EVAL,                     // N=eval(S)
   MCODE_F_FATTR,                    // N=fattr(S)
   MCODE_F_FEXIST,                   // S=fexist(S)
   MCODE_F_FSPLIT,                   // S=fsplit(S,N)
   MCODE_F_IIF,                      // V=iif(C,V1,V2)
   MCODE_F_INDEX,                    // S=index(S1,S2)
   MCODE_F_INT,                      // N=int(V)
-  MCODE_F_ITOA,                     // S=itoa(N,radix)
+  MCODE_F_ITOA,                     // S=itoa(N[,radix])
   MCODE_F_LCASE,                    // S=lcase(S1)
   MCODE_F_LEN,                      // N=len(S)
   MCODE_F_MAX,                      // N=max(N1,N2)
   MCODE_F_MENU_CHECKHOTKEY,         // N=checkhotkey(S)
   MCODE_F_MENU_GETHOTKEY,           // S=gethotkey(N)
+  MCODE_F_MENU_SELECT,              // N=Menu.Select(S[,N])
   MCODE_F_MIN,                      // N=min(N1,N2)
+  MCODE_F_MOD,                      // N=mod(a,b) == a %  b
   MCODE_F_MSAVE,                    // B=msave(var)
-  MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
+  MCODE_F_MSGBOX,                   // MsgBox("Title","Text"[,flags])
   MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)
+  MCODE_F_PANEL_SETPATH,            // N=panel.SetPath(panelType,pathName[,fileName])
   MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
   MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
   MCODE_F_PANEL_SETPOSIDX,          // N=Panel.SetPosIdx(panelType,Idx)
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
+  MCODE_F_EVAL,                     // N=eval(S)
   MCODE_F_RINDEX,                   // S=rindex(S1,S2)
   MCODE_F_SLEEP,                    // Sleep(N)
   MCODE_F_STRING,                   // S=string(V)
@@ -155,6 +159,7 @@ enum MACRO_OP_CODE {
   MCODE_F_WAITKEY,                  // S=waitkey(N)
   MCODE_F_XLAT,                     // S=xlat(S)
   MCODE_F_FLOCK,                    // N=FLock(N,N)
+  MCODE_F_REPLACE,                  // S=replace(sS,sF,sR[,Count])
 
   MCODE_F_BM_ADD,                   // N=BM.Add()
   MCODE_F_BM_CLEAR,                 // N=BM.Clear()

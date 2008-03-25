@@ -1179,7 +1179,7 @@ void TreeList::CorrectPosition()
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-void TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
+BOOL TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
   if (TreeCount==0)
     Update(0);
@@ -1193,6 +1193,7 @@ void TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
     CtrlObject->CmdLine->SetCurDir(NewDir);
     CtrlObject->CmdLine->Show();
   }
+  return TRUE; //???
 }
 
 

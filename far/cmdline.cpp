@@ -350,10 +350,11 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-void CommandLine::SetCurDir(const wchar_t *CurDir)
+BOOL CommandLine::SetCurDir(const wchar_t *CurDir)
 {
     strCurDir = CurDir;
     PrepareDiskPath(strCurDir);
+    return TRUE;
 }
 
 

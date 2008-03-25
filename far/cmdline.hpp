@@ -68,7 +68,7 @@ class CommandLine:public ScreenObject
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     int GetCurDir(string &strCurDir);
-    void SetCurDir(const wchar_t *CurDir);
+    BOOL SetCurDir(const wchar_t *CurDir);
 
     void GetString (string &strStr);
 
