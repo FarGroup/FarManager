@@ -665,7 +665,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
   int I;
   TVar Cond(_i64(0));
 
-  string strFileName("");
+  string strFileName;
 
   int FileAttr=-1;
 
