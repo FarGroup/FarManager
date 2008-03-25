@@ -301,7 +301,7 @@ static void calcFunc(void)
       }
 
       // добьем нулями опциональные параметры
-      for( ; i < nParam; ++i)
+      for( ; i < nParam-1; ++i)
       {
         put(MCODE_OP_PUSHINT);
         put64(_i64(0));

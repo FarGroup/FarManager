@@ -2077,7 +2077,7 @@ static bool panelsetposidxFunc()
   return Ret?true:false;
 }
 
-// N=panel.SetPath(panelType,pathName,fileName)
+// N=panel.SetPath(panelType,pathName[,fileName])
 static bool panelsetpathFunc()
 {
   TVar ValFileName=VMStack.Pop();
@@ -2085,30 +2085,29 @@ static bool panelsetpathFunc()
   int typePanel=(int)VMStack.Pop().toInteger();
   __int64 Ret=_i64(0);
 
-  const wchar_t *pathName=Val.s();
-
-  const wchar_t *fileName=ValFileName.s();
-  if(fileName && *fileName)
-    fileName=L"";
-
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  Panel *PassivePanel=NULL;
-  if(ActivePanel!=NULL)
-    PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-  //Frame* CurFrame=FrameManager->GetCurrentFrame();
-
-  Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
-
-  if(SelPanel)
+  if(!Val.isInteger())
   {
-    //int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
-    //if(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
-    if(pathName && *pathName)
+    const wchar_t *pathName=Val.s();
+
+    const wchar_t *fileName=L"";
+    if(!ValFileName.isInteger())
+      fileName=ValFileName.s();
+
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+    Panel *PassivePanel=NULL;
+    if(ActivePanel!=NULL)
+      PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+    //Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+    Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+
+    if(SelPanel)
     {
       if(SelPanel->SetCurDir(pathName,TRUE))
       {
                        // Need PointToName()?
         SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName аля опциональный
+
         //SelPanel->Show();
         // <Mantis#0000289> - грозно, но со вкусом :-)
         ShellUpdatePanels(SelPanel);
