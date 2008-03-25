@@ -61,9 +61,9 @@
     <em>S2</em> within string <em>S1</em>, -1 otherwise.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace,Cnt)</td>
+    <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace[,Cnt])</td>
     <td class="cont" width="60%">В строке <em>Str</em> заменить подстроку <em>Find</em> на подстроку <em>Replace</em> <em>Cnt</em> раз
-      (укажите <em>Cnt</em> равное 0 для замены всех найденных подстрок).<br>
+      (укажите <em>Cnt</em> равное 0 или опустите этот параметр для замены всех найденных подстрок).<br>
       Возвращается результат замены.</td>
   </tr>
   <tr class="cont">
@@ -79,10 +79,12 @@
     <td class="cont" width="60%">Evaluates the <em>V</em> argument to a number.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="itoa">itoa</a></dfn>(N,Radix)</td>
+    <td class="cont" width="40%">S=<dfn><a name="itoa">itoa</a></dfn>(N[,Radix])</td>
     <td class="cont" width="60%">Converts numeric value <em>N</em> to a string. Parameter
     <em>Radix</em> defines the base of the numerical representation for the number
-    conversion. The <em>Radix</em> parameter can be from 2 to 36.</td>
+    conversion. The <em>Radix</em> parameter can be from 2 to 36.
+    Если параметр <em>Radix</em> не указан, то подразумевается база 10.
+    </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="len">len</a></dfn>(V)</td>
@@ -95,9 +97,11 @@
     <td class="cont" width="60%">Converts the value of the expression <em>V</em> to a string.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1,N2)</td>
+    <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1[,N2])</td>
     <td class="cont" width="60%">Returns the substring of the expression <em>V</em>
-    beginning from position <em>N1</em> with the length of <em>N2</em>.</td>
+    beginning from position <em>N1</em> with the length of <em>N2</em>.<br>
+    Если параметр <em>N2</em> не указан или равен 0, то вернется подстрока от позиции <em>N1</em> до конца строки.
+    </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
@@ -117,7 +121,7 @@
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S,N)</td>
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
     <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
     Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
        <table class="cont">
@@ -129,6 +133,7 @@
     Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
     Возвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
     <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
+    Если параметр <em>N</em> не указан, подразумевается полное совпадение.
   </td>
   </tr>
 
@@ -306,7 +311,7 @@
     Argument <em>S</em> is mandatory.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text,Flags)</td>
+    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
     <td class="cont" width="60%">Shows up the message box with the <em>Text</em> and the <em>Title</em>.
     Lines in the <em>Text</em> argument should be delimited by '\n'.<br>
       <em>Flags</em> can be a combination of the following values:
@@ -322,9 +327,28 @@
         <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Show the &lt;Yes&gt;, &lt;No&gt; and &lt;Cancel&gt; buttons.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Show the &lt;Retry&gt; and &lt;Cancel&gt; buttons.</td></tr>
        </table>
-    If the <em>Flags</em> argument is 0 then standard message box is displayed with the &lt;Ok&gt; button.<br>
+    If the <em>Flags</em> argument is 0 (или не указан) then standard message box is displayed with the &lt;Ok&gt; button.<br>
     The return value is the number of the button the user selected (1 for the first, 2 for the second, etc.),
     if user canceled the message the result will be 0.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Text"[,flags[, "Src"]]])</td>
+    <td class="cont" width="60%">Функция позволяет ввести одну строку текста.<br>
+      Параметры: <em>Title</em> - заголовок диалога, <em>Text</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода.<br>
+      <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+       </table>
+       Функция возвращает строку - введенное пользователем значение.<br>
+       Например, запросить пароль и вывести его
+      <pre class=code>%s=prompt("Password","Input password:",0x02); $Text %s</pre>
     </td>
   </tr>
   <tr class="cont">
@@ -376,6 +400,17 @@ $If (fexist(%dt))
 $Else
   F7 $Text %dt Enter
 $End</pre>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.setpath">panel.setpath</a></dfn>(panelType,pathName[,fileName])</td>
+    <td class="cont" width="60%">На активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели выставляет каталог <em>pathName</em> и
+      позиционирует курсор на элемент с именем <em>fileName</em> (если указан параметр <em>fileName</em>).<br>
+      Возвращает 1 в случае успешной установки каталога и 0, если каталог не существует.<br>
+      Например, на активной панели выставить каталог "C:\WINDOWS", на пассивной - "C:\Program Files", активную панель сделать слева и установить курсор на каталог "FAR":
+      <pre class=code>$if(APanel.Left) CtrlU $End
+panel.SetPath(1,"C:\\WINDOWS")
+panel.SetPath(0,"C:\\Program Files","FAR")</pre>
     </td>
   </tr>
   <tr class="cont">
@@ -478,6 +513,7 @@ $End
 <h3>Notes</h3>
 <div class=descr>
 <ol>
+<li>Параметры функций, указанных в квадратных скобках можно не указывать. Значение по умолчанию см. в описаниях функций.
 <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
   a macro in a usual way. Macro-language elements can be added to the sequence only by editing
   the registry manually or by using special applications or FAR plugins.</li>
