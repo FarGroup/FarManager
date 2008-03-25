@@ -150,7 +150,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       MaxLength=I;
   }
 
-  #define MAX_WIDTH_MESSAGE (ScrX*2/3)
+  #define MAX_WIDTH_MESSAGE (ScrX-13)
 
   // певая коррекция максимального размера
   if (MaxLength > MAX_WIDTH_MESSAGE)
