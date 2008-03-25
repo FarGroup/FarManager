@@ -360,7 +360,7 @@ static void calcFunc(void)
       if(oParam > 0)  //???
       {
         // добьем нулями опциональные параметры
-        for( ; i < nParam; ++i)
+        for( ; i < nParam-1; ++i)
         {
           _KEYMACRO_PARSE(SysLog("Optional params [%d] ==> currTok=%s, MCODE_OP_PUSHINT 0",i,_MacroParserToken_ToName(currTok)));
           put(MCODE_OP_PUSHINT);

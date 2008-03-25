@@ -2085,35 +2085,34 @@ static bool panelsetposidxFunc()
 // N=panel.SetPath(panelType,pathName[,fileName])
 static bool panelsetpathFunc()
 {
+  _KEYMACRO(CleverSysLog Clev("panelsetpathFunc()"));
   TVar ValFileName=VMStack.Pop();
   TVar Val=VMStack.Pop();
   int typePanel=(int)VMStack.Pop().toInteger();
   __int64 Ret=_i64(0);
 
-  const char *pathName=Val.s();
-
-  const char *fileName=ValFileName.s();
-  if(fileName && *fileName)
-    fileName="";
-
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  Panel *PassivePanel=NULL;
-  if(ActivePanel!=NULL)
-    PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-
-  Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
-
-  if(SelPanel)
+  if(!Val.isInteger())
   {
-    //int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
-    //if(!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
-    if(pathName && *pathName)
+    const char *pathName=Val.s();
+
+    const char *fileName="";
+    if(!ValFileName.isInteger())
+      fileName=ValFileName.s();
+
+    //_KEYMACRO(SysLog("pathName='%s', fileName='%s'",pathName,fileName));
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+    Panel *PassivePanel=NULL;
+    if(ActivePanel!=NULL)
+      PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+
+    Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+
+    if(SelPanel)
     {
       if(SelPanel->SetCurDir(pathName,TRUE))
       {
                        // PointToName()???
         SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName аля опциональный
-
 
         //SelPanel->Show();
         // <Mantis#0000289> - грозно, но со вкусом :-)
