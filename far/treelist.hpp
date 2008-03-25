@@ -83,7 +83,7 @@ class TreeList: public Panel
 //  virtual void KillFocus();
     virtual void Update(int Mode);
     int ReadTree();
-    virtual void SetCurDir(char *NewDir,int ClosePlugin);
+    virtual BOOL SetCurDir(const char *NewDir,int ClosePlugin);
     void SetRootDir(char *NewRootDir);
     virtual int GetCurDir(char *CurDir);
     virtual int GetCurName(char *Name,char *ShortName);

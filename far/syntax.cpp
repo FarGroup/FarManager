@@ -136,6 +136,7 @@ static const char *_MacroParserToken_ToName(int Token)
     DEF_TOKEN_(tBitAnd),
     DEF_TOKEN_(tBitOr),
     DEF_TOKEN_(tBitXor),
+    DEF_TOKEN_(tBitNot),
     DEF_TOKEN_(tNot),
     DEF_TOKEN_(tBitShl),
     DEF_TOKEN_(tBitShr),
@@ -254,68 +255,70 @@ static inline int getChar()
 typedef struct __TMacroFunction{
   const char *Name;             // имя функции
   int nParam;                   // количество параметров
-  TMacroOpCode Code;               // байткод функции
+  int oParam;                   // необязательные параметры
+  TMacroOpCode Code;            // байткод функции
 } TMacroFunction;
 
-
 static TMacroFunction macroFunction[]={
-  {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
-  {"AKEY",           1,    MCODE_F_AKEY},                // V=akey(N)
-  {"ASC",            1,    MCODE_F_ASC},                 // N=asc(N)
-  {"BM.ADD",         0,    MCODE_F_BM_ADD},              // N=BM.Add()
-  {"BM.CLEAR",       0,    MCODE_F_BM_CLEAR},            // N=BM.Clear()
-  {"BM.NEXT",        0,    MCODE_F_BM_NEXT},             // N=BM.Next()
-  {"BM.PREV",        0,    MCODE_F_BM_PREV},             // N=BM.Prev()
-  {"BM.STAT",        0,    MCODE_F_BM_STAT},             // N=BM.Stat()
-  {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
-  {"CALLPLUGIN",     3,    MCODE_F_CALLPLUGIN},          // S=callplugin(S,Path,N)
-  {"CHR",            1,    MCODE_F_CHR},                 // S=chr(N)
-  {"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
-  {"DATE",           1,    MCODE_F_DATE},                // S=date(S)
-  {"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
-  {"EDITOR.SET",     2,    MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
-  {"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
-  {"EVAL",           1,    MCODE_F_EVAL},                // N=eval(S)
-  {"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
-  {"FEXIST",         1,    MCODE_F_FEXIST},              // N=fexist(S)
-  {"FLOCK",          2,    MCODE_F_FLOCK},               // N=FLock(N,N)
-  {"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
-  {"GETHOTKEY",      1,    MCODE_F_MENU_GETHOTKEY},      // S=gethotkey(N)
-  {"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
-  {"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
-  {"INT",            1,    MCODE_F_INT},                 // N=int(V)
-  {"ITOA",           2,    MCODE_F_ITOA},                // S=itoa(N,radix)
-  {"LCASE",          1,    MCODE_F_LCASE},               // S=lcase(S1)
-  {"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
-  {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
-  {"MENU.SELECT",    2,    MCODE_F_MENU_SELECT},         // N=Menu.Select(S,N)
-  {"MOD",            2,    MCODE_F_MOD},                 // N=mod(a,b) == a %  b
-  {"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
-  {"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
-  {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
-  {"PANEL.FATTR",    2,    MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
-  {"PANEL.FEXIST",   2,    MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
-  {"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
-  {"PANEL.SETPOSIDX",2,    MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
-  {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
-  {"REPLACE",        4,    MCODE_F_REPLACE},             // S=replace(sS,sF,sR,Count)
-  {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
-  {"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
-  {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
-  {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
-  {"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
-  {"WAITKEY",        1,    MCODE_F_WAITKEY},             // S=waitkey(N)
-  {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
+  {"ABS",              1, 0,   MCODE_F_ABS},                 // N=abs(N)
+  {"AKEY",             1, 0,   MCODE_F_AKEY},                // V=akey(N)
+  {"ASC",              1, 0,   MCODE_F_ASC},                 // N=asc(N)
+  {"BM.ADD",           0, 0,   MCODE_F_BM_ADD},              // N=BM.Add()
+  {"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR},            // N=BM.Clear()
+  {"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT},             // N=BM.Next()
+  {"BM.PREV",          0, 0,   MCODE_F_BM_PREV},             // N=BM.Prev()
+  {"BM.STAT",          0, 0,   MCODE_F_BM_STAT},             // N=BM.Stat()
+  {"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {"CALLPLUGIN",       3, 0,   MCODE_F_CALLPLUGIN},          // S=callplugin(S,Path,N)
+  {"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
+  {"CLIP",             2, 0,   MCODE_F_CLIP},                // V=clip(N,S)
+  {"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
+  {"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
+  {"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
+  {"ENV",              1, 0,   MCODE_F_ENVIRON},             // S=env(S)
+  {"EVAL",             1, 0,   MCODE_F_EVAL},                // N=eval(S)
+  {"FATTR",            1, 0,   MCODE_F_FATTR},               // N=fattr(S)
+  {"FEXIST",           1, 0,   MCODE_F_FEXIST},              // N=fexist(S)
+  {"FLOCK",            2, 0,   MCODE_F_FLOCK},               // N=FLock(N,N)
+  {"FSPLIT",           2, 0,   MCODE_F_FSPLIT},              // S=fsplit(S,N)
+  {"GETHOTKEY",        1, 0,   MCODE_F_MENU_GETHOTKEY},      // S=gethotkey(N)
+  {"IIF",              3, 0,   MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
+  {"INDEX",            2, 0,   MCODE_F_INDEX},               // S=index(S1,S2)
+  {"INT",              1, 0,   MCODE_F_INT},                 // N=int(V)
+  {"ITOA",             2, 1,   MCODE_F_ITOA},                // S=itoa(N[,radix])
+  {"LCASE",            1, 0,   MCODE_F_LCASE},               // S=lcase(S1)
+  {"LEN",              1, 0,   MCODE_F_LEN},                 // N=len(S)
+  {"MAX",              2, 0,   MCODE_F_MAX},                 // N=max(N1,N2)
+  {"MENU.SELECT",      2, 1,   MCODE_F_MENU_SELECT},         // N=Menu.Select(S[,N])
+  {"MOD",              2, 0,   MCODE_F_MOD},                 // N=mod(a,b) == a %  b
+  {"MSAVE",            1, 0,   MCODE_F_MSAVE},               // N=msave(S)
+  {"MSGBOX",           3, 1,   MCODE_F_MSGBOX},              // N=msgbox("Title","Text"[,flags])
+  {"MIN",              2, 0,   MCODE_F_MIN},                 // N=min(N1,N2)
+  {"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
+  {"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
+  {"PANEL.SETPATH",    3, 1,   MCODE_F_PANEL_SETPATH},       // N=panel.SetPath(panelType,pathName[,fileName])
+  {"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
+  {"PANEL.SETPOSIDX",  2, 0,   MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
+  {"PANELITEM",        3, 0,   MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
+  {"REPLACE",          4, 1,   MCODE_F_REPLACE},             // S=replace(Str,Find,Replace[,Cnt])
+  {"RINDEX",           2, 0,   MCODE_F_RINDEX},              // S=rindex(S1,S2)
+  {"SLEEP",            1, 0,   MCODE_F_SLEEP},               // N=sleep(N)
+  {"STRING",           1, 0,   MCODE_F_STRING},              // S=string(V)
+  {"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
+  {"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
+  {"WAITKEY",          1, 0,   MCODE_F_WAITKEY},             // S=waitkey(N)
+  {"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
 };
 
-static DWORD funcLook(const char *s, int& nParam)
+static DWORD funcLook(const char *s, int& nParam, int& oParam)
 {
-  nParam=0;
+  oParam=nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
     //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
     if(!strnicmp(s, macroFunction[I].Name, Max(strlen(macroFunction[I].Name),strlen(s))))
     {
       nParam = macroFunction[I].nParam;
+      oParam = macroFunction[I].oParam;
       return (DWORD)macroFunction[I].Code;
     }
 
@@ -326,26 +329,44 @@ static TToken getToken(void);
 
 static void calcFunc(void)
 {
-  int nParam;
-  TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam);
+  _KEYMACRO_PARSE(CleverSysLog Clev("calcFunc"));
+  int nParam, oParam;
+  TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
   if ( nFunc != MCODE_F_NOFUNC )
   {
     IsProcessFunc++;
     if ( nParam )
     {
-      for ( int i = 0 ; i < nParam ; i++ )
+      int i;
+      for ( i = 0 ; i < nParam ; i++ )
       {
         getToken();
         expr();
-        if ( currTok != ( (i == nParam-1) ? tRp : tComma ) )
+        _KEYMACRO_PARSE(SysLog("i=%d, nParam=%d  oParam=%d currTok=%s",i,nParam,oParam,_MacroParserToken_ToName(currTok)));
+        if ( currTok != ( (i == nParam-1 ) ? tRp : tComma ) )
         {
+          if ( oParam > 0 &&  currTok != tEnd) // если опциональные параметры есть и...
+            break;
+
+          _KEYMACRO_PARSE(SysLog("ERROR currTok=%s",_MacroParserToken_ToName(currTok)));
           if ( i == nParam-1 )
             keyMacroParseError(err_Expected, ")");
           else
             keyMacroParseError(err_Expected, ",");
           currTok = tEnd;
         }
-       }
+      }
+
+      if(oParam > 0)  //???
+      {
+        // добьем нулями опциональные параметры
+        for( ; i < nParam; ++i)
+        {
+          _KEYMACRO_PARSE(SysLog("Optional params [%d] ==> currTok=%s, MCODE_OP_PUSHINT 0",i,_MacroParserToken_ToName(currTok)));
+          put(MCODE_OP_PUSHINT);
+          put64(_i64(0));
+        }
+      }
     }
     else
     {
@@ -452,7 +473,7 @@ static TToken getToken(void)
   switch ( ch )
   {
     case EOFCH:
-    case 0:   currTok = tEnd; break;
+    case 0:   currTok = tEnd;    break;
     case ',': currTok = tComma;  break;
     case '+': currTok = tPlus;   break;
     case '-': currTok = tMinus;  break;
@@ -461,6 +482,16 @@ static TToken getToken(void)
     case '(': currTok = tLp;     break;
     case ')': currTok = tRp;     break;
     case '^': currTok = tBitXor; break;
+    case '~':
+      if ( ( ch = getChar() ) != ' ')
+      {
+        putBack(ch);
+        currTok = tBitNot;
+        break;
+      }
+      putBack(ch);   //????
+      currTok = tEnd;
+      break;
     case '|':
       if ( ( ch = getChar() ) == '|')
         currTok = tBoolOr;
@@ -707,6 +738,11 @@ static void prim(void)
       getToken();
       prim();
       put(MCODE_OP_NEGATE);
+      break;
+    case tBitNot:
+      getToken();
+      prim();
+      put(MCODE_OP_BITNOT);
       break;
     case tNot:
       getToken();
@@ -985,29 +1021,30 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_IIF,              "V=iif(Condition,V1,V2)"},
     {MCODE_F_INDEX,            "S=index(S1,S2)"},
     {MCODE_F_INT,              "N=int(V)"},
-    {MCODE_F_ITOA,             "S=itoa(N,radix)"},
+    {MCODE_F_ITOA,             "S=itoa(N[,radix])"},
     {MCODE_F_LCASE,            "S=lcase(S1)"},
     {MCODE_F_LEN,              "N=len(S)"},
     {MCODE_F_MAX,              "N=max(N1,N2)"},
     {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S)"},
-    {MCODE_F_MENU_SELECT,      "N=Menu.Select(S,N)"},
+    {MCODE_F_MENU_SELECT,      "N=Menu.Select(S[,N])"},
     {MCODE_F_MENU_GETHOTKEY,   "S=gethotkey()"},
     {MCODE_F_MIN,              "N=min(N1,N2)"},
     {MCODE_F_MOD,              "N=mod(N1,N2)"},
     {MCODE_F_MSAVE,            "N=msave(S)"},
-    {MCODE_F_MSGBOX,           "N=msgbox(sTitle,sText,flags)"},
+    {MCODE_F_MSGBOX,           "N=msgbox(sTitle,sText[,flags])"},
     {MCODE_F_PANEL_FATTR,      "N=panel.fattr(panelType,S)"},
     {MCODE_F_PANEL_FEXIST,     "S=panel.fexist(panelType,S)"},
+    {MCODE_F_PANEL_SETPATH,    "N=panel.SetPath(panelType,pathName[,fileName])"},
     {MCODE_F_PANEL_SETPOS,     "N=panel.SetPos(panelType,fileName)"},
     {MCODE_F_PANEL_SETPOSIDX,  "N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
     {MCODE_F_EVAL,             "N=eval(S)"},
     {MCODE_F_CALLPLUGIN,       "S=callplugin(S,Path,N)"},
-    {MCODE_F_REPLACE,          "S=replace(sS,sF,sR,cnt)"},
+    {MCODE_F_REPLACE,          "S=replace(sS,sF,sR[,cnt])"},
     {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},
     {MCODE_F_SLEEP,            "N=Sleep(N)"},
     {MCODE_F_STRING,           "S=string(V)"},
-    {MCODE_F_SUBSTR,           "S=substr(S1,S2,N)"},
+    {MCODE_F_SUBSTR,           "S=substr(S1,S2[,N])"},
     {MCODE_F_UCASE,            "S=ucase(S1)"},
     {MCODE_F_WAITKEY,          "S=waitkey(N)"},
     {MCODE_F_XLAT,             "S=xlat(S)"},
@@ -1325,7 +1362,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
         // проверим вариант, когда вызвали функцию, но результат не присвоили,
         // например, вызвали MsgBox(), но результат неважен
         // тогда SizeVarName=1 и varName=""
-        int __nParam;
+        int __nParam, __oParam;
 
         char *Brack=strpbrk(CurrKeyText,"( "), Chr=0;
         if(Brack)
@@ -1334,7 +1371,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           *Brack=0;
         }
 
-        if(funcLook(CurrKeyText, __nParam) != MCODE_F_NOFUNC)
+        if(funcLook(CurrKeyText, __nParam, __oParam) != MCODE_F_NOFUNC)
         {
           _KEYMACRO_PARSE(CleverSysLog Clev("Detect Func"));
           if(Brack) *Brack=Chr;

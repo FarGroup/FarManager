@@ -107,7 +107,7 @@ class Panel:public ScreenObject
 
   public:
     virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE){return FALSE;};
-    virtual void SetCurDir(char *NewDir,int ClosePlugin);
+    virtual BOOL SetCurDir(const char *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
     virtual int GetCurDir(char *CurDir);
     virtual int GetSelCount() {return(0);};

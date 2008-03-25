@@ -54,6 +54,7 @@ public:
   TVar operator+();
   TVar operator-();
   TVar operator!();
+  TVar operator~();
 
   friend int operator==(const TVar&, const TVar&);
   friend int operator!=(const TVar&, const TVar&);

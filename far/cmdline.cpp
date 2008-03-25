@@ -325,23 +325,15 @@ int CommandLine::ProcessKey(int Key)
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
          Key == KEY_OP_XLAT)
       {
-        /* 13.12.2000 SVS
-           ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
-        */
+        //   ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
         CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
-        /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
         if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
           LastCmdPartLength=(int)strlen(LastCmdStr);
-        /* IS $ */
         return(TRUE);
       }
-      /* SVS $ */
-      /* SVS $ */
 
-      /* $ 18.12.2000 SVS
-         Сбрасываем выделение на некоторых клавишах
-      */
+      //   Сбрасываем выделение на некоторых клавишах
       if (!Opt.Dialogs.EditBlock)
       {
         static int UnmarkKeys[]={
@@ -364,14 +356,10 @@ int CommandLine::ProcessKey(int Key)
             break;
           }
       }
-      /* SVS $ */
 
-      /* $ 18.12.2000 SVS
-         Написано же "Ctrl-D - Символ вправо"
-      */
+      // Написано же "Ctrl-D - Символ вправо"
       if(Key == KEY_CTRLD)
         Key=KEY_RIGHT;
-      /* SVS $ */
 
       if (!CmdStr.ProcessKey(Key))
         break;
@@ -383,9 +371,10 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-void CommandLine::SetCurDir(const char *CurDir)
+BOOL CommandLine::SetCurDir(const char *CurDir)
 {
   PrepareDiskPath(xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1),sizeof(CommandLine::CurDir)-1);
+  return TRUE;
 }
 
 
@@ -401,12 +390,10 @@ void CommandLine::GetString(char *Str,int MaxSize)
   CmdStr.GetString(Str,MaxSize);
 }
 
-/* $ 14.12.2001 IS получить адрес данных командной строки */
 const char *CommandLine::GetStringAddr()
 {
   return CmdStr.GetStringAddr();
 }
-/* IS $ */
 
 void CommandLine::SetString(const char *Str,BOOL Redraw)
 {

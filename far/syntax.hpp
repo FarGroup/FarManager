@@ -30,7 +30,7 @@ enum TToken
   tVar, tStr, tInt, tFunc, tFARVar,
   tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
   tBoolAnd, tBoolOr,
-  tBitAnd, tBitOr, tBitXor, tNot, tBitShl, tBitShr,
+  tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,
   tEq, tNe, tLt, tLe, tGt, tGe,
 };
 

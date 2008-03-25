@@ -155,7 +155,6 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
 };
 
-
 struct TMacroKeywords MKeywordsArea[] ={
   {0,  "Other",              MACRO_OTHER,0},
   {0,  "Shell",              MACRO_SHELL,0},
@@ -1086,8 +1085,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
                   break;
               }
             }
+            RemoveExternalSpaces(FileName);
           }
-          RemoveExternalSpaces(FileName);
           Cond=FileName;
           break;
         }
@@ -1151,7 +1150,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
               struct EditorGetString egs;
               egs.StringNumber=-1;
               CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETSTRING,&egs);
+              #if 0
+              struct EditorConvertText ect;
+              ect.Text=xf_strdup(egs.StringText);
+              ect.TextLength=egs.StringLength;
+              CtrlObject->Plugins.CurEditor->EditorControl(ECTL_EDITORTOOEM,&ect);
+              Cond=(char *)ect.Text;
+              xf_free(ect.Text);
+              #else
               Cond=(char *)egs.StringText;
+              #endif
             }
             else
               Cond=CtrlObject->Plugins.CurEditor->VMProcess(CheckCode);
@@ -1202,7 +1210,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
   return Cond;
 }
 
-// S=substr(S,N1,N2)
+// S=substr(S,N1[,N2])
 static bool substrFunc()
 {
   int  p2 = (int)   VMStack.Pop().toInteger();
@@ -1371,7 +1379,7 @@ static bool metaFunc()
 #endif
 
 
-// S=itoa(N,radix)
+// S=itoa(N[,radix])
 static bool itoaFunc()
 {
   bool Ret=false;
@@ -1381,8 +1389,11 @@ static bool itoaFunc()
   if(N.isInteger())
   {
     char value[NM];
+    int Radix=(int)R.toInteger();
+    if(Radix == 0)
+      Radix=10;
     Ret=true;
-    N=TVar(_i64toa(N.toInteger(),value,(int)R.toInteger()));
+    N=TVar(_i64toa(N.toInteger(),value,Radix));
   }
   VMStack.Push(N);
 
@@ -1408,8 +1419,10 @@ static bool evalFunc()
 {
   bool Ret=true;
   TVar Val= VMStack.Pop();
+
   struct MacroRecord RBuf;
   int KeyPos;
+
   CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
   CtrlObject->Macro.PushState(true);
   if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
@@ -1438,7 +1451,7 @@ static bool waitkeyFunc()
 }
 
 
-// n=min(n1.n2)
+// n=min(n1,n2)
 static bool minFunc()
 {
   TVar V2 = VMStack.Pop();
@@ -1471,7 +1484,7 @@ static bool modFunc()
   return true;
 }
 
-// n=iif(expression,n1.n2)
+// n=iif(expression,n1,n2)
 static bool iifFunc()
 {
   TVar V2 = VMStack.Pop();
@@ -1534,7 +1547,7 @@ static bool xlatFunc()
   return Ret;
 }
 
-// N=msgbox("Title","Text",flags)
+// N=msgbox("Title","Text"[,flags])
 static bool msgBoxFunc()
 {
   DWORD Flags = (DWORD)VMStack.Pop().toInteger();
@@ -2069,6 +2082,52 @@ static bool panelsetposidxFunc()
   return Ret?true:false;
 }
 
+// N=panel.SetPath(panelType,pathName[,fileName])
+static bool panelsetpathFunc()
+{
+  TVar ValFileName=VMStack.Pop();
+  TVar Val=VMStack.Pop();
+  int typePanel=(int)VMStack.Pop().toInteger();
+  __int64 Ret=_i64(0);
+
+  const char *pathName=Val.s();
+
+  const char *fileName=ValFileName.s();
+  if(fileName && *fileName)
+    fileName="";
+
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+  Panel *PassivePanel=NULL;
+  if(ActivePanel!=NULL)
+    PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+
+  Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+
+  if(SelPanel)
+  {
+    //int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+    //if(!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
+    if(pathName && *pathName)
+    {
+      if(SelPanel->SetCurDir(pathName,TRUE))
+      {
+                       // PointToName()???
+        SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName аля опциональный
+
+
+        //SelPanel->Show();
+        // <Mantis#0000289> - грозно, но со вкусом :-)
+        ShellUpdatePanels(SelPanel);
+        FrameManager->RefreshFrame(FrameManager->GetTopModal());
+        // </Mantis#0000289>
+        Ret=_i64(1);
+      }
+    }
+  }
+  VMStack.Push(Ret);
+  return Ret?true:false;
+}
+
 // N=Panel.SetPos(panelType,fileName)
 static bool panelsetposFunc()
 {
@@ -2082,7 +2141,7 @@ static bool panelsetposFunc()
   //Frame* CurFrame=FrameManager->GetCurrentFrame();
 
   Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
-  __int64 Ret=0;
+  __int64 Ret=_i64(0);
 
   if(SelPanel)
   {
@@ -2118,7 +2177,7 @@ static bool callpluginFunc()
   return Ret?true:false;
 }
 
-// Result=replace(Str,Find,Replace,Cnt)
+// Result=replace(Str,Find,Replace[,Cnt])
 static bool replaceFunc()
 {
   TVar Count= VMStack.Pop();
@@ -2808,6 +2867,8 @@ done:
     case MCODE_OP_BITSHR: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() >> tmpVar); goto begin;
     case MCODE_OP_BITSHL: tmpVar=VMStack.Pop(); VMStack.Push(VMStack.Pop() << tmpVar); goto begin;
 
+    case MCODE_OP_BITNOT: VMStack.Push(~VMStack.Pop()); goto begin;
+
     // Function
     case MCODE_F_EVAL: // N=eval(S)
     {
@@ -2890,7 +2951,7 @@ done:
        goto begin;
     }
 
-    case MCODE_F_MENU_SELECT:      // N=Menu.Select(S,N)
+    case MCODE_F_MENU_SELECT:      // N=Menu.Select(S[,N])
     case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
     {
        _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_CHECKHOTKEY? "MCODE_F_MENU_CHECKHOTKEY":"MCODE_F_MENU_SELECT"));
@@ -2922,7 +2983,7 @@ done:
        goto begin;
     }
 
-    case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
+    case MCODE_F_MSGBOX:  // N=msgbox("Title","Text"[,flags])
     {
         _KEYMACRO(CleverSysLog Clev("MCODE_F_MSGBOX"));
         DWORD Flags=MR->Flags;
@@ -2960,6 +3021,7 @@ done:
         {MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
         {MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
         {MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
+        {MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
         {MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx)
         {MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
         {MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
@@ -3041,7 +3103,7 @@ return_func:
   return(Key);
 }
 
-// Проверить - еслть ли еще клавиша?
+// Проверить - есть ли еще клавиша?
 int KeyMacro::PeekKey()
 {
   if (InternalInput || !Work.MacroWORK)
@@ -3626,7 +3688,7 @@ M1:
       {
         int F=0;
         I=strlen(TextBuffer);
-        if(I > 45) { I=45; F++; }
+        if(I > sizeof(Buf)-6) { I=sizeof(Buf)-6; F++; }
         sprintf(Buf,"\"%*.*s%s\"",I,I,TextBuffer,(F?"...":""));
         strcpy(BufKey,Buf);
         xf_free(TextBuffer);

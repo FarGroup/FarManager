@@ -42,7 +42,7 @@ class CommandLine:public ScreenObject
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
     int GetCurDir(char *CurDir);
-    void SetCurDir(const char *CurDir);
+    BOOL SetCurDir(const char *CurDir);
     void GetString(char *Str,int MaxSize);
     const char *GetStringAddr();
     void SetString(const char *Str,BOOL Redraw=TRUE);

@@ -154,7 +154,7 @@ class FileList:public Panel
     /* $ 09.04.2001 SVS
        ChangeDir возвращает FALSE, eсли файловая панель была закрыта
     */
-    BOOL ChangeDir(char *NewDir,BOOL IsUpdated=TRUE);
+    BOOL ChangeDir(const char *NewDir,BOOL IsUpdated=TRUE);
     /* SVS $ */
     void CountDirSize(DWORD PluginFlags);
     /* $ 19.03.2002 DJ
@@ -242,7 +242,7 @@ class FileList:public Panel
     virtual void SetViewMode(int ViewMode);
     virtual void SetSortMode(int SortMode);
     virtual void ChangeSortOrder(int NewOrder);
-    virtual void SetCurDir(char *NewDir,int ClosePlugin);
+    virtual BOOL SetCurDir(const char *NewDir,int ClosePlugin);
     virtual int GetPrevSortMode();
     virtual int GetPrevSortOrder();
     virtual int GetPrevViewMode();

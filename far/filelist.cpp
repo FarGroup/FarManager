@@ -2070,7 +2070,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 }
 
 
-void FileList::SetCurDir(char *NewDir,int ClosePlugin)
+BOOL FileList::SetCurDir(const char *NewDir,int ClosePlugin)
 {
   _ALGO(CleverSysLog clv("FileList::SetCurDir"));
   _ALGO(SysLog("(NewDir=\"%s\", ClosePlugin=%d)",NewDir,ClosePlugin));
@@ -2079,23 +2079,21 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
     while (1)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
-        return;
+        return FALSE;
       if (!PopPlugin(TRUE))
         break;
     }
     CtrlObject->Cp()->RedrawKeyBar();
   }
-  /* $ 20.07.2001 VVM
-    ! Проверить на непустую строку */
   if ((NewDir) && (*NewDir))
   {
-    ChangeDir(NewDir);
+    return ChangeDir(NewDir);
   }
-  /* VVM $ */
+  return FALSE;
 }
 
 
-BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
+BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
 {
   Panel *AnotherPanel;
   char FindDir[4096],SetDir[4096];
@@ -2326,13 +2324,11 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
 
   if (!FarChDir(SetDir))
   {
-    /* $ 03.11.2001 IS
-         Укажем имя неудачного каталога
-    */
+    // $ 03.11.2001 IS - Укажем имя неудачного каталога
     Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), SetDir, MSG (MOk));
-    /* IS $ */
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
+
   /* $ 28.04.2001 IS
        Закомментарим "до лучших времен".
        Я не знаю, почему глюк проявлялся только у меня, но зато знаю, почему он

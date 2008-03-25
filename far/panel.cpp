@@ -1477,9 +1477,10 @@ int Panel::GetCurDir(char *CurDir)
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-void Panel::SetCurDir(char *CurDir,int ClosePlugin)
+BOOL Panel::SetCurDir(const char *CurDir,int ClosePlugin)
 {
   PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+  return TRUE;
 }
 #if defined(__BORLANDC__)
 #pragma warn +par

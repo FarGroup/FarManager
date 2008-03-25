@@ -1119,7 +1119,7 @@ void TreeList::CorrectPosition()
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
+BOOL TreeList::SetCurDir(const char *NewDir,int ClosePlugin)
 {
   char SetDir[NM];
   xstrncpy(SetDir,NewDir,sizeof(SetDir)-1);
@@ -1135,6 +1135,7 @@ void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
     CtrlObject->CmdLine->SetCurDir(SetDir);
     CtrlObject->CmdLine->Show();
   }
+  return TRUE; //???
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
