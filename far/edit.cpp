@@ -1227,6 +1227,7 @@ int Edit::ProcessKey(int Key)
     {
         PrevCurPos=CurPos;
         CursorPos-=(CursorPos-1) % TabSize+1;
+		if(CursorPos<0) CursorPos=0; //CursorPos=0,TabSize=1 case
         SetTabCurPos(CursorPos);
         Show();
       return(TRUE);
