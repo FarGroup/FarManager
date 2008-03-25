@@ -333,16 +333,16 @@
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Text"[,flags[, "Src"]]])</td>
+    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])</td>
     <td class="cont" width="60%">‘ункци€ позвол€ет ввести одну строку текста.<br>
-      ѕараметры: <em>Title</em> - заголовок диалога, <em>Text</em> - приглашени€ дл€ ввода, <em>Src</em> - начальное значение строки ввода.<br>
+      ѕараметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашени€ дл€ ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - им€ истории ввода<br>
       <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">ќписание</th></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функци€ вернет значение пустое значение.</td></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используетс€ дл€ ввода парол€ - вводимый текст на экране отрисовываетс€ символами <code>'*'</code>.</td></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружени€ замен€ютс€ на их значени€, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <em>History</em>.</td></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. ƒиалог увеличитс€ на 2 строки.</td></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его дл€ определени€ гор€чей клавиши.</td></tr>
        </table>

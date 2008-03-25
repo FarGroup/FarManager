@@ -4,10 +4,6 @@
 <title>InputBox</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
-
-<!-- History of modification:
--->
 </head>
 
 <body>
@@ -71,7 +67,7 @@ int WINAPI InputBox(
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
            <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
-           <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой</td></tr>
+           <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <dfn>HistoryName</dfn> не равен NULL.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>
            <td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOAMPERSAND">FIB_NOAMPERSAND</a></td>
