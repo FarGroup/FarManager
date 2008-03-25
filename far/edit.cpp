@@ -1327,6 +1327,7 @@ int Edit::ProcessKey(int Key)
         /* KM $ */
         /* $ 12.12.2000 OT KEY_SHIFTTAB Bug Fix*/
         CursorPos-=(CursorPos-1) % TabSize+1;
+        if(CursorPos<0) CursorPos=0; //CursorPos=0,TabSize=1 case
         SetTabCurPos(CursorPos);
         /* OT $ */
         Show();
