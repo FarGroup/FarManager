@@ -4340,7 +4340,7 @@ void Editor::GoToLine(int Line)
     }
     else
     {
-      if (Line > NumLastLine/2)
+      if (Line > (NumLine + (NumLastLine-NumLine)/2))
       {
         bReverse = true;
         CurLine = EndList;
