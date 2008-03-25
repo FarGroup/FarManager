@@ -999,6 +999,7 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_MOD),
      DEF_MCODE_(F_MSAVE),
      DEF_MCODE_(F_MSGBOX),
+     DEF_MCODE_(F_PROMPT),              // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
      DEF_MCODE_(F_NOFUNC),
      DEF_MCODE_(F_PANEL_FATTR),
      DEF_MCODE_(F_PANEL_FEXIST),
@@ -1090,6 +1091,7 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(V_DRVSHOWPOS),
      DEF_MCODE_(V_EDITORCURLINE),
      DEF_MCODE_(V_EDITORCURPOS),
+     DEF_MCODE_(V_EDITORREALPOS),      // Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции
      DEF_MCODE_(V_EDITORFILENAME),
      DEF_MCODE_(V_EDITORLINES),
      DEF_MCODE_(V_EDITORSTATE),

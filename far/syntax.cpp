@@ -300,6 +300,7 @@ static TMacroFunction macroFunction[]={
   {"PANEL.SETPOS",     2, 0,   MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
   {"PANEL.SETPOSIDX",  2, 0,   MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
   {"PANELITEM",        3, 0,   MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
+  {"PROMPT",           5, 4,   MCODE_F_PROMPT},              // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
   {"REPLACE",          4, 1,   MCODE_F_REPLACE},             // S=replace(Str,Find,Replace[,Cnt])
   {"RINDEX",           2, 0,   MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"SLEEP",            1, 0,   MCODE_F_SLEEP},               // N=sleep(N)

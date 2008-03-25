@@ -135,6 +135,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Editor.CurLine",     MCODE_V_EDITORCURLINE,0},  // текущая линия в редакторе (в дополнении к Count)
   {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
   {2,  "Editor.CurPos",      MCODE_V_EDITORCURPOS,0},
+  {2,  "Editor.RealPos",     MCODE_V_EDITORREALPOS,0},
   {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
   {2,  "Editor.Value",       MCODE_V_EDITORVALUE,0},
 
@@ -1134,6 +1135,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
         case MCODE_V_EDITORSTATE:   // Editor.State
         case MCODE_V_EDITORLINES:   // Editor.Lines
         case MCODE_V_EDITORCURPOS:  // Editor.CurPos
+        case MCODE_V_EDITORREALPOS: // Editor.RealPos
         case MCODE_V_EDITORFILENAME: // Editor.FileName
         case MCODE_V_EDITORVALUE:   // Editor.Value
         {
@@ -1544,6 +1546,49 @@ static bool xlatFunc()
   char *Str = (char *)Val.toString();
   bool Ret=::Xlat(Str,0,(int)strlen(Str),NULL,Opt.XLat.Flags)==NULL?false:true;
   VMStack.Push(Str);
+  return Ret;
+}
+
+// S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+static bool promptFunc()
+{
+  TVar ValHistory = VMStack.Pop();
+  TVar ValSrc = VMStack.Pop();
+  DWORD Flags = (DWORD)VMStack.Pop().toInteger();
+  TVar ValPrompt = VMStack.Pop();
+  TVar ValTitle = VMStack.Pop();
+  TVar Result("");
+  bool Ret=false;
+
+  if(!ValTitle.isInteger())
+  {
+    const char *history=NULL;
+    if(!ValHistory.isInteger())
+      history=ValHistory.s();
+
+    const char *src="";
+    if(!ValSrc.isInteger())
+       src=ValSrc.s();
+
+    const char *prompt="";
+    if(!ValPrompt.isInteger())
+       prompt=ValPrompt.s();
+
+    const char *title=NullToEmpty(ValTitle.toString());
+
+    char *TempBuf=(char *)xf_malloc(sizeof(char)*2048+1);
+    if(TempBuf)
+    {
+      if(GetString(title,prompt,history,src,TempBuf,sizeof(char)*2048+1,NULL,Flags&~FIB_CHECKBOX,NULL,NULL))
+      {
+        Result=(const char *)TempBuf;
+        Result.toString();
+        Ret=true;
+      }
+      xf_free(TempBuf);
+    }
+  }
+  VMStack.Push(Result);
   return Ret;
 }
 
@@ -2982,9 +3027,10 @@ done:
        goto begin;
     }
 
+    case MCODE_F_PROMPT:  // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
     case MCODE_F_MSGBOX:  // N=msgbox("Title","Text"[,flags])
     {
-        _KEYMACRO(CleverSysLog Clev("MCODE_F_MSGBOX"));
+        _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_PROMPT?"MCODE_F_PROMPT":"MCODE_F_MSGBOX"));
         DWORD Flags=MR->Flags;
         if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
         {
@@ -2992,7 +3038,10 @@ done:
           LockScr=NULL;
         }
         InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
-        msgBoxFunc();
+        if(Key == MCODE_F_PROMPT)
+          promptFunc();
+        else
+          msgBoxFunc();
         InternalInput--;
         if(Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
         {
