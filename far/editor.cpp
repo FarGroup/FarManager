@@ -4236,11 +4236,7 @@ void Editor::DeleteBlock()
     Length+=EndLength;
     TmpStr[Length]=0;
     CurPtr->SetBinaryString(TmpStr,Length);
-    /* $ 17.09.2002 SKV
-      выделяли через malloc
-    */
     xf_free(TmpStr);
-    /* SKV $ */
     CurPtr->SetCurPos(CurPos);
     if (DeleteNext && EndSel==-1)
     {
@@ -4293,12 +4289,6 @@ void Editor::UnmarkBlock()
   Show();
 }
 
-/* $ 10.03.2002 IS
-   ! Теперь нормально работает с вертикальными блоками
-*/
-/* $ 07.03.2002 IS
-   Удалить выделение, если оно пустое (выделено ноль символов в ширину)
-*/
 void Editor::UnmarkEmptyBlock()
 {
   _SVS(SysLog("[%d] Editor::UnmarkEmptyBlock()",__LINE__));
@@ -4327,34 +4317,53 @@ void Editor::UnmarkEmptyBlock()
       UnmarkBlock();       // перестанем морочить голову и снимем выделение
   }
 }
-/* IS 07.03.2002 $ */
-/* IS 10.03.2002 $ */
 
-/* $ 07.07.2000 tran & SVS
-   + добавлена возможность переходить на колонку
-     по формату [!][ROW][,COL]
-     вынужден был изменить тип возвращаемого значения с void на int
-     не хотелось вводить переменную в класс
-     '!' - задает относительное смещение (пока не реализовано ;-)
-*/
-/* $ 21.07.2000 tran
-   GotoLine стала воид и не выводит диалогов */
 void Editor::GoToLine(int Line)
 {
-  int NewLine;
+  if (Line != NumLine)
+  {
+    bool bReverse = false;
+    int LastNumLine=NumLine;
+    int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
 
-  NewLine=Line;
+    if (Line < NumLine)
+    {
+      if (Line > NumLine/2)
+      {
+        bReverse = true;
+      }
+      else
+      {
+        CurLine = TopList;
+        NumLine = 0;
+      }
+    }
+    else
+    {
+      if (Line > NumLastLine/2)
+      {
+        bReverse = true;
+        CurLine = EndList;
+        NumLine = NumLastLine-1;
+      }
+    }
 
-  int LastNumLine=NumLine;
-  int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
-  for (NumLine=0,CurLine=TopList;
-         NumLine<NewLine && CurLine->m_next!=NULL;
-         NumLine++)
-    CurLine=CurLine->m_next;
-  CurScrLine+=NumLine-LastNumLine;
+    if (bReverse)
+    {
+      for ( ; NumLine>Line && CurLine->m_prev!=NULL; NumLine--)
+        CurLine=CurLine->m_prev;
+    }
+    else
+    {
+      for ( ; NumLine<Line && CurLine->m_next!=NULL; NumLine++)
+        CurLine=CurLine->m_next;
+    }
 
-  if (CurScrLine<0 || CurScrLine>Y2-Y1)
-    TopScreen=CurLine;
+    CurScrLine+=NumLine-LastNumLine;
+
+    if (CurScrLine<0 || CurScrLine>Y2-Y1)
+      TopScreen=CurLine;
+  }
 
 // <GOTO_UNMARK:2>
 //  if (!EdOpt.PersistentBlocks)
@@ -4362,19 +4371,9 @@ void Editor::GoToLine(int Line)
 // </GOTO_UNMARK>
 
   Show();
-  return ;
+  return;
 }
-/* tran 21.07.2000 $ */
 
-/* $ 07.07.2000 tran & SVS
-   + добавлена возможность переходить на колонку
-     по формату [!][ROW][,COL]
-     вынужден был изменить тип возвращаемого значения с void на int
-     не хотелось вводить переменную в класс
-     '!' - задает относительное смещение (пока не реализовано ;-)
-*/
-/* $ 21.07.2000 tran
-   диалог из GotoLine перекочевал сюда */
 void Editor::GoToPosition()
 {
   int NewLine, NewCol;
@@ -4433,20 +4432,8 @@ void Editor::GoToPosition()
   Show();
   return ;
 }
-/* tran 07.07.2000 $ */
-/* tran 21.07.2000 $ */
 
 
-/* $ 07.07.2000 tran & SVS
-   function for AltF8 user answer parsing
-   Возвращает:
-      TRUE  - абсолютное смещение
-      FALSE - относительное
-*/
-/* $ 21.07.2000 tran
-   теперь ничего не возвращает
-   просто сама определяет относительность
-   и вычисляет новые координаты */
 void Editor::GetRowCol(char *argv,int *row,int *col)
 {
   int x=0xffff,y,l;
@@ -4508,7 +4495,6 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
      *col=-1;
   return ;
 }
-/* tran 07.07.2000 $ */
 
 void Editor::AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,int Type)
 {
@@ -5884,113 +5870,113 @@ int Editor::GotoBookmark(DWORD Pos)
 
 int Editor::RestoreStackBookmark()
 {
-	if(StackPos)
-	{
-		GoToLine(StackPos->Line);
-		CurLine->SetCurPos(StackPos->Cursor);
-		CurLine->SetLeftPos(StackPos->LeftPos);
-		TopScreen=CurLine;
-		for (DWORD I=0;I<StackPos->ScreenLine && TopScreen->m_prev!=NULL;I++)
-			TopScreen=TopScreen->m_prev;
-		if (!EdOpt.PersistentBlocks)
-			UnmarkBlock();
-		Show();
-		return TRUE;
-	}
+  if(StackPos)
+  {
+    GoToLine(StackPos->Line);
+    CurLine->SetCurPos(StackPos->Cursor);
+    CurLine->SetLeftPos(StackPos->LeftPos);
+    TopScreen=CurLine;
+    for (DWORD I=0;I<StackPos->ScreenLine && TopScreen->m_prev!=NULL;I++)
+      TopScreen=TopScreen->m_prev;
+    if (!EdOpt.PersistentBlocks)
+      UnmarkBlock();
+    Show();
+    return TRUE;
+  }
   return FALSE;
 }
 
 int Editor::AddStackBookmark()
 {
-	struct InternalEditorStackBookMark* sb_old = (NewStackPos)?StackPos:(StackPos)?StackPos->prev:0;
+  struct InternalEditorStackBookMark* sb_old = (NewStackPos)?StackPos:(StackPos)?StackPos->prev:0;
 
-	if (sb_old && sb_old->next)
-	{
-		StackPos = sb_old->next;
-		if (StackPos) StackPos->prev = 0;
-		ClearStackBookmarks();
-		sb_old->next = 0;
-	}
+  if (sb_old && sb_old->next)
+  {
+    StackPos = sb_old->next;
+    if (StackPos) StackPos->prev = 0;
+    ClearStackBookmarks();
+    sb_old->next = 0;
+  }
 
-	StackPos = (InternalEditorStackBookMark*) xf_malloc (sizeof (InternalEditorStackBookMark));
+  StackPos = (InternalEditorStackBookMark*) xf_malloc (sizeof (InternalEditorStackBookMark));
 
-	if (StackPos)
-	{
-		StackPos->Line=NumLine;
-		StackPos->Cursor=CurLine->GetCurPos();
-		StackPos->LeftPos=CurLine->GetLeftPos();
-		StackPos->ScreenLine=CalcDistance(TopScreen,CurLine,-1);
-		StackPos->prev=sb_old;
-		StackPos->next=0;
-		if (sb_old) sb_old->next=StackPos;
-		NewStackPos = TRUE; // When go prev bookmark, we must save current
-		return TRUE;
-	}
-	else
-	{
-		StackPos = sb_old;
-	}
-	return FALSE;
+  if (StackPos)
+  {
+    StackPos->Line=NumLine;
+    StackPos->Cursor=CurLine->GetCurPos();
+    StackPos->LeftPos=CurLine->GetLeftPos();
+    StackPos->ScreenLine=CalcDistance(TopScreen,CurLine,-1);
+    StackPos->prev=sb_old;
+    StackPos->next=0;
+    if (sb_old) sb_old->next=StackPos;
+    NewStackPos = TRUE; // When go prev bookmark, we must save current
+    return TRUE;
+  }
+  else
+  {
+    StackPos = sb_old;
+  }
+  return FALSE;
 }
 
 int Editor::PrevStackBookmark()
 {
-	if (StackPos)
-	{
-		if (NewStackPos) // Save last position in new bookmark
-		{
-			AddStackBookmark();
-			NewStackPos = FALSE;
-		}
+  if (StackPos)
+  {
+    if (NewStackPos) // Save last position in new bookmark
+    {
+      AddStackBookmark();
+      NewStackPos = FALSE;
+    }
 
-		if (StackPos->prev) // If not first bookmark - go
-		{
-			StackPos=StackPos->prev;
-			return RestoreStackBookmark();
-		}
-	}
-	return FALSE;
+    if (StackPos->prev) // If not first bookmark - go
+    {
+      StackPos=StackPos->prev;
+      return RestoreStackBookmark();
+    }
+  }
+  return FALSE;
 }
 
 int Editor::NextStackBookmark()
 {
-	if (StackPos)
-	{
-		if (StackPos->next) // If not last bookmark - go
-		{
-			StackPos=StackPos->next;
-			return RestoreStackBookmark();
-		}
-	}
-	return FALSE;
+  if (StackPos)
+  {
+    if (StackPos->next) // If not last bookmark - go
+    {
+      StackPos=StackPos->next;
+      return RestoreStackBookmark();
+    }
+  }
+  return FALSE;
 }
 
 int Editor::ClearStackBookmarks()
 {
-	if (StackPos)
-	{
-		struct InternalEditorStackBookMark *sb_prev = StackPos->prev, *sb_next;
+  if (StackPos)
+  {
+    struct InternalEditorStackBookMark *sb_prev = StackPos->prev, *sb_next;
 
-		while(StackPos)
-		{
-			sb_next = StackPos->next;
-			xf_free (StackPos);
-			StackPos = sb_next;
-		}
+    while(StackPos)
+    {
+      sb_next = StackPos->next;
+      xf_free (StackPos);
+      StackPos = sb_next;
+    }
 
-		StackPos = sb_prev;
+    StackPos = sb_prev;
 
-		while(StackPos)
-		{
-			sb_prev = StackPos->prev;
-			xf_free (StackPos);
-			StackPos = sb_prev;
-		}
+    while(StackPos)
+    {
+      sb_prev = StackPos->prev;
+      xf_free (StackPos);
+      StackPos = sb_prev;
+    }
 
-		NewStackPos = FALSE;
-	}
+    NewStackPos = FALSE;
+  }
 
-	return TRUE;
+  return TRUE;
 }
 
 Edit * Editor::GetStringByNumber(int DestLine)
