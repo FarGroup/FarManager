@@ -4127,47 +4127,62 @@ void Editor::UnmarkEmptyBlock()
   }
 }
 
-/* $ 07.07.2000 tran & SVS
-   + добавлена возможность переходить на колонку
-     по формату [!][ROW][,COL]
-     вынужден был изменить тип возвращаемого значения с void на int
-     не хотелось вводить переменную в класс
-     '!' - задает относительное смещение (пока не реализовано ;-)
-*/
 void Editor::GoToLine(int Line)
 {
-  int NewLine;
+	if (Line != NumLine)
+	{
+		bool bReverse = false;
+		int LastNumLine=NumLine;
+		int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
 
-  NewLine=Line;
+		if (Line < NumLine)
+		{
+			if (Line > NumLine/2)
+			{
+				bReverse = true;
+			}
+			else
+			{
+				CurLine = TopList;
+				NumLine = 0;
+			}
+		}
+		else
+		{
+			if (Line > (NumLine + (NumLastLine-NumLine)/2))
+			{
+				bReverse = true;
+				CurLine = EndList;
+				NumLine = NumLastLine-1;
+			}
+		}
 
-  int LastNumLine=NumLine;
-  int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
-  for (NumLine=0,CurLine=TopList;
-         NumLine<NewLine && CurLine->m_next!=NULL;
-         NumLine++)
-    CurLine=CurLine->m_next;
-  CurScrLine+=NumLine-LastNumLine;
+		if (bReverse)
+		{
+			for ( ; NumLine>Line && CurLine->m_prev!=NULL; NumLine--)
+				CurLine=CurLine->m_prev;
+		}
+		else
+		{
+			for ( ; NumLine<Line && CurLine->m_next!=NULL; NumLine++)
+				CurLine=CurLine->m_next;
+		}
 
-  if (CurScrLine<0 || CurScrLine>Y2-Y1)
-    TopScreen=CurLine;
+		CurScrLine+=NumLine-LastNumLine;
+
+		if (CurScrLine<0 || CurScrLine>Y2-Y1)
+			TopScreen=CurLine;
+	}
 
 // <GOTO_UNMARK:2>
 //  if (!EdOpt.PersistentBlocks)
 //     UnmarkBlock();
 // </GOTO_UNMARK>
 
-  Show();
-  return ;
+	Show();
+	return;
 }
-/* tran 21.07.2000 $ */
 
-/* $ 07.07.2000 tran & SVS
-   + добавлена возможность переходить на колонку
-     по формату [!][ROW][,COL]
-     вынужден был изменить тип возвращаемого значения с void на int
-     не хотелось вводить переменную в класс
-     '!' - задает относительное смещение (пока не реализовано ;-)
-*/
 void Editor::GoToPosition()
 {
   int NewLine, NewCol;

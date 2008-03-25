@@ -1,3 +1,7 @@
+t-rex 25.03.2008 23:41:53 +0200 - build 461
+
+1. Оптимизация Editor::GoToLine ибо уж полный ужас был.
+
 t-rex 25.03.2008 21:25:42 +0200 - build 460
 
 1. Mantis#499: Invalid file handle used in ShellCopy::ShellCopyFile().
