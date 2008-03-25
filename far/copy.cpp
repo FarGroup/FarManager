@@ -3075,7 +3075,7 @@ int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
     }
     SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   }
-  
+
   while((Attr&FA_DIREC)?!FAR_RemoveDirectory(Name):remove(Name)!=0)
   {
     int MsgCode;
@@ -3200,39 +3200,29 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       FILE_FLAG_SEQUENTIAL_SCAN,
       NULL
       );
-  if (SrcHandle==INVALID_HANDLE_VALUE)
+  if (SrcHandle==INVALID_HANDLE_VALUE && Opt.CMOpt.CopyOpened)
   {
-    if (Opt.CMOpt.CopyOpened)
+    _localLastError=GetLastError();
+    SetLastError(_localLastError);
+    if ( _localLastError == ERROR_SHARING_VIOLATION )
     {
-      _localLastError=GetLastError();
-      SetLastError(_localLastError);
-      if ( _localLastError == ERROR_SHARING_VIOLATION )
-      {
-        SrcHandle = FAR_CreateFile (
-            SrcName,
-            GENERIC_READ,
-            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-            NULL,
-            OPEN_EXISTING,
-            FILE_FLAG_SEQUENTIAL_SCAN,
-            NULL
-            );
-        if (SrcHandle == INVALID_HANDLE_VALUE )
-        {
-           _localLastError=GetLastError();
-           SetLastError(_localLastError);
-          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
-          return COPY_FAILURE;
-        }
-      }
+      SrcHandle = FAR_CreateFile (
+          SrcName,
+          GENERIC_READ,
+          FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+          NULL,
+          OPEN_EXISTING,
+          FILE_FLAG_SEQUENTIAL_SCAN,
+          NULL
+          );
     }
-    else
-    {
-      _localLastError=GetLastError();
-      SetLastError(_localLastError);
-      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
-      return COPY_FAILURE;
-    }
+  }
+  if (SrcHandle == INVALID_HANDLE_VALUE )
+  {
+    _localLastError=GetLastError();
+    SetLastError(_localLastError);
+    _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+    return COPY_FAILURE;
   }
 
   HANDLE DestHandle=INVALID_HANDLE_VALUE;
