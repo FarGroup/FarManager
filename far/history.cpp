@@ -730,20 +730,15 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
           return -1;
         if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributesW(LastStr[StrPos].Name) == (DWORD)-1)
         {
-          string strTruncFileName = LastStr[StrPos].Name;
-
-          if ( !strTruncFileName.IsEmpty () )
-              TruncPathStr(strTruncFileName,ScrX-16);
-
           SetLastError(ERROR_FILE_NOT_FOUND);
 
           if(LastStr[StrPos].Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
           {
-            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,!strTruncFileName.IsEmpty()?strTruncFileName:LastStr[StrPos].Name,UMSG(MViewHistoryIsCreate),UMSG(MHYes),UMSG(MHNo)) == 0)
+            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,LastStr[StrPos].Name,UMSG(MViewHistoryIsCreate),UMSG(MHYes),UMSG(MHNo)) == 0)
               break;
           }
           else
-            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,!strTruncFileName.IsEmpty()?strTruncFileName:LastStr[StrPos].Name,UMSG(MOk));
+            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,LastStr[StrPos].Name,UMSG(MOk));
           Done=FALSE;
           SetUpMenuPos=TRUE;
           HistoryMenu.Modal::SetExitCode(StrPos=Code);

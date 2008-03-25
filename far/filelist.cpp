@@ -2288,10 +2288,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     /* $ 03.11.2001 IS
          Укажем имя неудачного каталога
     */
-    string strTarget;
-    strTarget = strSetDir;
-    TruncPathStr(strTarget, ScrX-16);
-    Message(MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strTarget, UMSG (MOk));
+    Message(MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strSetDir, UMSG (MOk));
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
   /* $ 28.04.2001 IS

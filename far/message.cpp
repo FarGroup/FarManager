@@ -43,9 +43,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "farftp.hpp"
 #include "scrbuf.hpp"
+#include "keys.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static string strMsgHelpTopic;
+static int FirstButtonIndex,LastButtonIndex;
+static BOOL IsWarningStyle;
 
 
 
@@ -99,6 +102,39 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
   return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
 }
 
+LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+	switch(Msg)
+	{
+		case DN_CTLCOLORDLGITEM:
+			{
+				FarDialogItem *di=(FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,0);
+				int Type=di->Type;
+				Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)di);
+				if(Type==DI_EDIT)
+				{
+					int Color=FarColorToReal(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT)&0xFF;
+					return Param2&0xFF00FF00|Color<<16|Color;
+				}
+			}
+			break;
+		case DN_KEY:
+			{
+				if(Param1==FirstButtonIndex && (Param2==KEY_LEFT || Param2 == KEY_NUMPAD4 || Param2==KEY_SHIFTTAB))
+				{
+					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
+					return TRUE;
+				}
+				else if(Param1==LastButtonIndex && (Param2==KEY_RIGHT || Param2 == KEY_NUMPAD6 || Param2==KEY_TAB))
+				{
+					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
+					return TRUE;
+				}
+			}
+			break;
+	}
+	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 int Message(
         DWORD Flags,
@@ -149,7 +185,7 @@ int Message(
       MaxLength=I;
   }
 
-  #define MAX_WIDTH_MESSAGE static_cast<DWORD>(ScrX-13)
+  #define MAX_WIDTH_MESSAGE static_cast<DWORD>(ScrX*2/3)
 
   // певая коррекция максимального размера
   if (MaxLength > MAX_WIDTH_MESSAGE)
@@ -294,6 +330,8 @@ int Message(
         TypeItem=DI_BUTTON;
         FlagsItem=DIF_CENTERGROUP|DIF_NOBRACKETS;
         IsButton=TRUE;
+        FirstButtonIndex=CurItem+1;
+        LastButtonIndex=CurItem;
       }
 
       PtrMsgDlg->Type=TypeItem;
@@ -303,6 +341,7 @@ int Message(
       {
         PtrMsgDlg->Y1=Y2-Y1-2;
         PtrMsgDlg->strData = string(L" ")+string(CPtrStr)+string(L" "); //BUGBUG!!!
+        LastButtonIndex++;
       }
       else
       {
@@ -314,13 +353,23 @@ int Message(
           CPtrStr++;
           PtrMsgDlg->Flags|=DIF_BOXCOLOR|(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
         }
+        else if(StrLength(CPtrStr)>X2-X1-9)
+        {
+          PtrMsgDlg->Type=DI_EDIT;
+          PtrMsgDlg->Flags|=DIF_READONLY|DIF_BTNNOCLOSE|DIF_SELECTONENTRY;
+          PtrMsgDlg->X1=5;
+          PtrMsgDlg->X2=X2-X1-5;
+          PtrMsgDlg->strData=CPtrStr;
+          continue;
+        }
         //xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
         PtrMsgDlg->strData = CPtrStr; //BUGBUG, wrong len
       }
     }
 
     {
-      Dialog Dlg(MsgDlg,ItemCount);
+      IsWarningStyle=Flags&MSG_WARNING;
+      Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc);
       Dlg.SetPosition(X1,Y1,X2,Y2);
       if ( !strHelpTopic.IsEmpty() )
         Dlg.SetHelp(strHelpTopic);

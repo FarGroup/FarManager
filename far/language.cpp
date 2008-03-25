@@ -292,10 +292,8 @@ BOOL Language::CheckMsgId(int MsgId)
            (раньше имя файла обрезалось справа и приходилось иногда гадать - в
            каком же файле ошибка)
       */
-      string strMsg1, strMsg2, strTmp;
-      strTmp = strMessageFile;
-      TruncPathStr(strTmp,41);
-      strMsg1.Format(L"Incorrect or damaged %s", (const wchar_t*)strTmp);
+      string strMsg1, strMsg2;
+      strMsg1.Format(L"Incorrect or damaged %s", (const wchar_t*)strMessageFile);
       /* IS $ */
       strMsg2.Format(L"Message %d not found",MsgId);
       if (Message(MSG_WARNING,2,L"Error",strMsg1,strMsg2,L"Ok",L"Quit")==1)

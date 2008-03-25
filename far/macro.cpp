@@ -3544,11 +3544,8 @@ M1:
 #else
       if(Mac->Src != NULL)
       {
-        int F=0;
-        I=StrLength(Mac->Src);
-        if(I > 45) { I=45; F++; }
-        strBuf.Format (L"\"%*.*s%s\"",I,I,Mac->Src,(F?L"...":L""));
-        strBufKey = strBuf;
+        strBufKey=Mac->Src;
+        InsertQuote(strBufKey);
       }
       else
         strBufKey=L"";

@@ -2533,9 +2533,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     strMsg1 = Src;
     strMsg2 = strDestPath;
 
-    TruncPathStr(strMsg1, 64);
-    TruncPathStr(strMsg2, 64);
-
     InsertQuote(strMsg1);
     InsertQuote(strMsg2);
 
@@ -2814,7 +2811,7 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
     }
     SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
   }
-  while ( _wremove(Name) )
+  while((Attr&FA_DIREC)?!apiRemoveDirectory(Name):_wremove(Name)!=0)
   {
     int MsgCode;
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
@@ -2859,11 +2856,11 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     {
       SetMessageHelp(L"WarnCopyEncrypt");
 
-      string strTruncSrcName = SrcName;
-      InsertQuote(TruncPathStr(strTruncSrcName,64));
+      string strSrcName = SrcName;
+      InsertQuote(strSrcName);
       MsgCode=Message(MSG_DOWN|MSG_WARNING,3,UMSG(MWarning),
                       UMSG(MCopyEncryptWarn1),
-                      strTruncSrcName,
+                      strSrcName,
                       UMSG(MCopyEncryptWarn2),
                       UMSG(MCopyEncryptWarn3),
                       UMSG(MCopyIgnore),UMSG(MCopyIgnoreAll),UMSG(MCopyCancel));
@@ -3430,9 +3427,6 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
   if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
     return(TRUE);
 
-  string strTruncDestName = DestName;
-  TruncPathStr(strTruncDestName,ScrX-16);
-
   if (OvrMode!=-1)
     MsgCode=OvrMode;
   else
@@ -3478,7 +3472,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
         SetMessageHelp(L"CopyFiles");
         MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,UMSG(MWarning),
-                UMSG(MCopyFileExist),strTruncDestName,L"\x1",strSrcFileStr, strDestFileStr,
+                UMSG(MCopyFileExist),DestName,L"\x1",strSrcFileStr, strDestFileStr,
                 L"\x1",UMSG(MCopyOverwrite),UMSG(MCopyOverwriteAll),
                 UMSG(MCopySkipOvr),UMSG(MCopySkipAllOvr),
                 AskAppend?(AskAppend==1?UMSG(MCopyAppend):UMSG(MCopyResume)):UMSG(MCopyCancelOvr),
@@ -3549,7 +3543,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
         SetMessageHelp(L"CopyFiles");
         MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,UMSG(MWarning),
-                UMSG(MCopyFileRO),strTruncDestName,L"\x1",strSrcFileStr, strDestFileStr,
+                UMSG(MCopyFileRO),DestName,L"\x1",strSrcFileStr, strDestFileStr,
                 L"\x1",UMSG(MCopyOverwrite),UMSG(MCopyOverwriteAll),
                 UMSG(MCopySkipOvr),UMSG(MCopySkipAllOvr),
                 AskAppend?(AskAppend==1?UMSG(MCopyAppend):UMSG(MCopyResume)):UMSG(MCopyCancelOvr),
@@ -4053,7 +4047,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags)
       Flags|=FCOPY_VOLMOUNT;
     }
     else
-      ConvertNameToFull(SelName,strSrcFullName);
+      ConvertNameToReal(SelName,strSrcFullName);
 
     ConvertNameToFull(Dest,strDestFullName);
 

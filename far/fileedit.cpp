@@ -636,11 +636,9 @@ void FileEditor::Init (
       {
         if(OpenModeExstFile == FEOPMODE_QUERY)
         {
-          string strMsgFullFileName;
-          strMsgFullFileName = strFullFileName;
           SetMessageHelp(L"EditorReload");
           MsgCode=Message(0,3,UMSG(MEditTitle),
-                TruncPathStr(strMsgFullFileName,ScrX-16),
+                strFullFileName,
                 UMSG(MAskReload),
                 UMSG(MCurrent),UMSG(MNewOpen),UMSG(MReload));
         }

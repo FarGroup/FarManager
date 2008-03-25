@@ -261,7 +261,6 @@ static int ShowFolderShortcutMenu(int Pos)
             apiExpandEnvironmentStrings(strNewDir,strOldNewDir);
             if(GetFileAttributesW(strOldNewDir) == -1)
             {
-              TruncPathStr(strNewDir, ScrX-16);
               SetLastError(ERROR_PATH_NOT_FOUND);
               Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strNewDir, UMSG(MSaveThisShortcut), UMSG(MYes), UMSG(MNo)) == 0);
             }

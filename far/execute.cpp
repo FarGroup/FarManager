@@ -1066,7 +1066,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
       strOutStr = strNewCmdStr;
       Unquote(strOutStr);
-      TruncPathStr(strOutStr,ScrX-15);
 
       Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotExecute),strOutStr,UMSG(MOk));
     }

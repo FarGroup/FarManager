@@ -117,7 +117,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       goto done;
     }
     strDeleteFilesMsg = strSelName;
-    TruncPathStr(strDeleteFilesMsg, ScrX-16);
   }
   else
   {
@@ -150,7 +149,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if(GetJunctionPointInfo(strJuncName, strJuncName)) // ? SelName ?
     {
       strJuncName.LShift(4);
-      //TruncPathStr(strJuncName, strJuncName.GetLength()-4); //
 
       //SetMessageHelp(L"DeleteLink");
       Ret=Message(0,3,UMSG(MDeleteLinkTitle),
@@ -285,18 +283,12 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           if (CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
           {
             int MsgCode=0;
-            /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
-            string strMsgFullName;
-
-            strMsgFullName = strFullName;
-            TruncPathStr(strMsgFullName, ScrX-16);
             // дл€ symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
                MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                  UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
+                  UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
                     UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
                     UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
-            /* IS $ */
             if (MsgCode<0 || MsgCode==3)
             {
               NeedSetUpADir=FALSE;
@@ -362,12 +354,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               }
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
               {
-                // усекаем им€, чтоб оно поместилось в сообщение
-                string strMsgFullName;
-                strMsgFullName = strFullName;
-                TruncPathStr(strMsgFullName, ScrX-16);
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                      UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strMsgFullName,
+                      UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
                       UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
                       UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
                 if (MsgCode<0 || MsgCode==3)
@@ -540,11 +528,7 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
     MsgCode=ReadOnlyDeleteMode;
   else
   {
-    /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
-    string strMsgName;
-    strMsgName = Name;
-    TruncPathStr(strMsgName, ScrX-16);
-    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),UMSG(MDeleteRO),strMsgName,
+    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),UMSG(MDeleteRO),Name,
             UMSG(Wipe?MAskWipeRO:MAskDeleteRO),UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
             UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),
             UMSG(MDeleteFileCancel));
@@ -588,9 +572,6 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       {
         if(GetNumberOfLinks(strFullName) > 1)
         {
-          string strMsgName;
-          strMsgName = Name;
-          TruncPathStr(strMsgName, ScrX-16);
           /*
                             ‘айл
                          "им€ файла"
@@ -598,7 +579,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
   ”ничтожение файла приведет к обнулению всех ссылающихс€ на него файлов.
                         ”ничтожать файл?
           */
-          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MError),
+          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MError),strFullName,
                           UMSG(MDeleteHardLink1),UMSG(MDeleteHardLink2),UMSG(MDeleteHardLink3),
                           UMSG(MDeleteFileWipe),UMSG(MDeleteFileAll),UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
         }
@@ -642,13 +623,8 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         MsgCode=SkipMode;
     else
     {
-      /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
-      string strMsgName;
-      strMsgName = Name;
-      TruncPathStr(strMsgName, ScrX-16);
-
       MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                      UMSG(MCannotDeleteFile),strMsgName,UMSG(MDeleteRetry),
+                      UMSG(MCannotDeleteFile),Name,UMSG(MDeleteRetry),
                       UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
     }
     switch(MsgCode)
@@ -689,13 +665,8 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         MsgCode=SkipFoldersMode;
     else
     {
-      /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
-      string strMsgName;
-      strMsgName = Name;
-      TruncPathStr(strMsgName, ScrX-16);
-
       MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                  UMSG(MCannotDeleteFolder),strMsgName,UMSG(MDeleteRetry),
+                  UMSG(MCannotDeleteFolder),Name,UMSG(MDeleteRetry),
                   UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
     }
     switch(MsgCode)

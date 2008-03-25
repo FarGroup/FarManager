@@ -247,7 +247,7 @@ static DWORD WINAPI _xfilter(
    DWORD rc;
    string strBuf1, strBuf2, strBuf3;
 
-   string strTruncFileName;
+   string strFileName;
    BOOL ShowMessages=FALSE;
 
    // получим запись исключения
@@ -268,9 +268,9 @@ static DWORD WINAPI _xfilter(
    */
    pName=NULL;
    if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
-     apiGetModuleFileName (NULL, strTruncFileName);
+     apiGetModuleFileName (NULL, strFileName);
    else
-     strTruncFileName = Module->GetModuleName();
+     strFileName = Module->GetModuleName();
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */
@@ -306,13 +306,11 @@ static DWORD WINAPI _xfilter(
 
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       TruncPathStr(strTruncFileName,40);
-
        Message(MSG_WARNING,1,
             xFromMSGTitle(From),
             UMSG(MExcTrappedException),
             UMSG(MExcCheckOnLousys),
-            strTruncFileName,
+            strFileName,
             strBuf1,
             L"\1",
             UMSG(MExcUnloadYes),
@@ -344,13 +342,11 @@ static DWORD WINAPI _xfilter(
      strBuf1.Format (UMSG(MExcInvalidFuncResult),pName);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       TruncPathStr(strTruncFileName,40);
-
        Message(MSG_WARNING, 1,
                  xFromMSGTitle(From),
                  UMSG(MExcTrappedException),
                  UMSG(MExcCheckOnLousys),
-                 strTruncFileName,
+                 strFileName,
                  strBuf1,
                  L"\1",
                  UMSG(MExcUnloadYes),
@@ -404,14 +400,12 @@ static DWORD WINAPI _xfilter(
      strBuf1.Format (UMSG(MExcAddress),xr->ExceptionAddress);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
-       TruncPathStr(strTruncFileName, 40);
-
        Message(MSG_WARNING,1,
                xFromMSGTitle(From),
                UMSG(MExcTrappedException),
                pName,
                strBuf1,
-               strTruncFileName, L"\1",
+               strFileName, L"\1",
                UMSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
                UMSG(MOk));
        ShowMessages=TRUE;
