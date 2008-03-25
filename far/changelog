@@ -1,3 +1,15 @@
+t-rex 25.03.2008 21:25:42 +0200 - build 460
+
+1. Mantis#499: Invalid file handle used in ShellCopy::ShellCopyFile().
+
+2. Mantis#395: Crash in UnicodeString::Format().
+
+3. ћешанина пробелов и табов в panel.cpp.
+
+4. ќт Denis Kosy Mantis#505: Ќеобрезание строк в некоторых VMenu.
+
+5. syntax.cpp: не собиралс€ (как минимум) в VC8.
+
 svs 25.03.2008 21:51:35 +0300 - build 459
 
 1. Macro: добавлен Editor.RealPos - текуща€ поз. в редакторе без прив€зки к размеру табул€ции

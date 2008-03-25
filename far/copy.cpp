@@ -2936,37 +2936,29 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
       FILE_FLAG_SEQUENTIAL_SCAN,
       NULL
       );
-  if (SrcHandle==INVALID_HANDLE_VALUE)
+
+  if (SrcHandle==INVALID_HANDLE_VALUE && Opt.CMOpt.CopyOpened)
   {
-    if (Opt.CMOpt.CopyOpened)
+    _localLastError=GetLastError();
+    SetLastError(_localLastError);
+    if ( _localLastError == ERROR_SHARING_VIOLATION )
     {
-      _localLastError=GetLastError();
-      SetLastError(_localLastError);
-      if ( _localLastError == ERROR_SHARING_VIOLATION )
-      {
-        SrcHandle = apiCreateFile(
-            SrcName,
-            GENERIC_READ,
-            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-            NULL,
-            OPEN_EXISTING,
-            FILE_FLAG_SEQUENTIAL_SCAN,
-            NULL
-            );
-        if (SrcHandle == INVALID_HANDLE_VALUE )
-        {
-          _localLastError=GetLastError();
-          SetLastError(_localLastError);
-          return COPY_FAILURE;
-        }
-      }
+      SrcHandle = apiCreateFile(
+          SrcName,
+          GENERIC_READ,
+          FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+          NULL,
+          OPEN_EXISTING,
+          FILE_FLAG_SEQUENTIAL_SCAN,
+          NULL
+          );
     }
-    else
-    {
-      _localLastError=GetLastError();
-      SetLastError(_localLastError);
-      return COPY_FAILURE;
-    }
+  }
+  if (SrcHandle == INVALID_HANDLE_VALUE )
+  {
+    _localLastError=GetLastError();
+    SetLastError(_localLastError);
+    return COPY_FAILURE;
   }
 
   HANDLE DestHandle=INVALID_HANDLE_VALUE;

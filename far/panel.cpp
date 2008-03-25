@@ -228,12 +228,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 //	int UserDataSize=0;
 //	DWORD UserData=0;
 
-    VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+	VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
 
-    ChDisk.SetFlags(VMENU_NOTCENTER);
+	ChDisk.SetFlags(VMENU_NOTCENTER);
 
-    if ( this == CtrlObject->Cp()->LeftPanel )
-      ChDisk.SetFlags(VMENU_LEFTMOST);
+	if ( this == CtrlObject->Cp()->LeftPanel )
+		ChDisk.SetFlags(VMENU_LEFTMOST);
 
 	ChDisk.SetHelp(L"DriveDlg");
 	ChDisk.SetFlags(VMENU_WRAPMODE);
@@ -324,25 +324,25 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			string strTotalText, strFreeText;
 			unsigned __int64 TotalSize,TotalFree,UserFree;
 
-            if ( ShowDisk && GetDiskSize(
-            		strRootDir,
-            		&TotalSize,
-            		&TotalFree,
-            		&UserFree
-            		) )
-            {
-            	if ( Opt.ChangeDriveMode & DRIVE_SHOW_SIZE )
-            	{
-            		//размер как минимум в мегабайтах
-            		FileSizeToStr(strTotalText,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
-            		FileSizeToStr(strFreeText,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
-            	}
-            	else
-            	{
-            		//размер с точкой и для 0 добавляем букву размера (B)
-            		FileSizeToStr(strTotalText,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-            		FileSizeToStr(strFreeText,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-            	}
+			if ( ShowDisk && GetDiskSize(
+					strRootDir,
+					&TotalSize,
+					&TotalFree,
+					&UserFree
+					) )
+			{
+				if ( Opt.ChangeDriveMode & DRIVE_SHOW_SIZE )
+				{
+					//размер как минимум в мегабайтах
+					FileSizeToStr(strTotalText,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
+					FileSizeToStr(strFreeText,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
+				}
+				else
+				{
+					//размер с точкой и для 0 добавляем букву размера (B)
+					FileSizeToStr(strTotalText,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+					FileSizeToStr(strFreeText,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+				}
 			}
 
 			string strTemp;
@@ -351,21 +351,21 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			strMenuText += strTemp;
 		}
 
-        if ( Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME )
-        {
-        	string strRemoteName;
+		if ( Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME )
+		{
+			string strRemoteName;
 
-        	DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
+			DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
 
-            TruncPathStr(strRemoteName,ScrX-(int)strMenuText.GetLength()-12);
+			//TruncPathStr(strRemoteName,ScrX-(int)strMenuText.GetLength()-12);
 
-            if( !strRemoteName.IsEmpty() )
-            {
-            	strMenuText += L"  ";
-            	strMenuText += strRemoteName;
-            }
+			if( !strRemoteName.IsEmpty() )
+			{
+				strMenuText += L"  ";
+				strMenuText += strRemoteName;
+			}
 
-            ShowSpecial=TRUE;
+			ShowSpecial=TRUE;
 		}
 
 		ChDiskItem.Clear ();
@@ -485,26 +485,26 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 				strMenuText=L"";
 
-                if ( HotKey < 0 )
-                	strMenuText = ShowSpecial?strPluginText:L"";
-                else
-                {
-                	if ( PluginTextNumber < 10 )
-                		strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
-                	else
-                	{
-                		if ( AHKPos<AHKSize )
-                		{
-                			strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
-                			++AHKPos;
-                		}
-                		else
-                		{
-                			if ( ShowSpecial ) // IS: не добавляем пустые строки!
-                			{
-                				HotKey=0;
-                				strMenuText.Format (L"   %s", (const wchar_t*)strPluginText);
-                			}
+				if ( HotKey < 0 )
+					strMenuText = ShowSpecial?strPluginText:L"";
+				else
+				{
+					if ( PluginTextNumber < 10 )
+						strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
+					else
+					{
+						if ( AHKPos<AHKSize )
+						{
+							strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
+							++AHKPos;
+						}
+						else
+						{
+							if ( ShowSpecial ) // IS: не добавляем пустые строки!
+							{
+								HotKey=0;
+								strMenuText.Format (L"   %s", (const wchar_t*)strPluginText);
+							}
 						}
 					}
 				}
@@ -602,7 +602,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		MPItems.Sort();
 		MPItems.Pack(); // выкинем дубли
 
-        PluginMenuItemsCount=MPItems.getSize();
+		PluginMenuItemsCount=MPItems.getSize();
 
 		if ( PluginMenuItemsCount )
 		{
@@ -611,21 +611,21 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			ChDiskItem.UserDataSize=0;
 			ChDisk.AddItem(&ChDiskItem);
 
-            ChDiskItem.Flags&=~LIF_SEPARATOR;
+			ChDiskItem.Flags&=~LIF_SEPARATOR;
 
-            for (int I=0; I < PluginMenuItemsCount; ++I)
-            {
-            	if(Pos > DiskCount && !SetSelected)
-            	{
-            		MPItems.getItem(I)->Item.SetSelect(DiskCount+I+1==Pos);
+			for (int I=0; I < PluginMenuItemsCount; ++I)
+			{
+				if(Pos > DiskCount && !SetSelected)
+				{
+					MPItems.getItem(I)->Item.SetSelect(DiskCount+I+1==Pos);
 
-            		if ( !SetSelected )
-            			SetSelected=DiskCount+I+1==Pos;
-            	}
+					if ( !SetSelected )
+						SetSelected=DiskCount+I+1==Pos;
+				}
 
-            	ChDisk.AddItem(&MPItems.getItem(I)->Item);
+				ChDisk.AddItem(&MPItems.getItem(I)->Item);
 
-            	delete (PanelMenuItem*)MPItems.getItem(I)->Item.UserData; //ммда...
+				delete (PanelMenuItem*)MPItems.getItem(I)->Item.UserData; //ммда...
 			}
 		}
 	}
@@ -640,7 +640,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	if (Y < 1)
 		Y=1;
 
-    ChDisk.SetPosition(X,Y,0,0);
+	ChDisk.SetPosition(X,Y,0,0);
 
 	if ( Y < 3)
 		ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
@@ -652,16 +652,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		int SelPos=ChDisk.GetSelectPos();
 		int Key;
 
-        { //очередная фигня
-        	ChangeMacroMode MacroMode(MACRO_DISKS);
-        	Key=ChDisk.ReadInput();
-        }
+		{ //очередная фигня
+			ChangeMacroMode MacroMode(MACRO_DISKS);
+			Key=ChDisk.ReadInput();
+		}
 
-        PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(NULL,0);
+		PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(NULL,0);
 
-        switch ( Key )
-        {
-        	// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
+		switch ( Key )
+		{
+			// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
 			case KEY_SHIFTNUMENTER:
 			case KEY_SHIFTENTER:
 			{
@@ -687,21 +687,21 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			// Т.к. нет способа получить состояние "открытости" устройства,
 			// то добавим обработку Ins для CD - "закрыть диск"
 
-            case KEY_INS:
-            case KEY_NUMPAD0:
-            {
-            	if ( item && !item->bIsPlugin )
-            	{
-            		if ( IsDriveTypeCDROM(item->nDriveType) /* || DriveType == DRIVE_REMOVABLE*/)
-            		{
-            			SaveScreen SvScrn;
-            			EjectVolume (item->cDrive, EJECT_LOAD_MEDIA);
-            			return SelPos;
-            		}
-            	}
-            }
+			case KEY_INS:
+			case KEY_NUMPAD0:
+			{
+				if ( item && !item->bIsPlugin )
+				{
+					if ( IsDriveTypeCDROM(item->nDriveType) /* || DriveType == DRIVE_REMOVABLE*/)
+					{
+						SaveScreen SvScrn;
+						EjectVolume (item->cDrive, EJECT_LOAD_MEDIA);
+						return SelPos;
+					}
+				}
+			}
 
-            break;
+			break;
 
 			case KEY_NUMDEL:
 			case KEY_DEL:
@@ -728,36 +728,36 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 							CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir(strTmpADir);
 
-                            // отключим меню, иначе бага с прорисовкой этой самой меню
-                            // (если меню поболее высоты экрана)
+							// отключим меню, иначе бага с прорисовкой этой самой меню
+							// (если меню поболее высоты экрана)
 
-                            ChDisk.Hide();
-                            ChDisk.Lock(); // ... и запретим ее перерисовку.
+							ChDisk.Hide();
+							ChDisk.Lock(); // ... и запретим ее перерисовку.
 
-                            // "цикл до умопомрачения"
-                            int DoneEject=FALSE;
+							// "цикл до умопомрачения"
+							int DoneEject=FALSE;
 
-                            while ( !DoneEject )
-                            {
-                            	// "освободим диск" - перейдем при необходимости в домашний каталог
-                            	// TODO: А если домашний каталог - CD? ;-)
+							while ( !DoneEject )
+							{
+								// "освободим диск" - перейдем при необходимости в домашний каталог
+								// TODO: А если домашний каталог - CD? ;-)
 
-                                IfGoHome(item->cDrive);
+								IfGoHome(item->cDrive);
 
-                                // очередная попытка извлечения без вывода сообщения
+								// очередная попытка извлечения без вывода сообщения
 
-                                int ResEject = EjectVolume(item->cDrive, EJECT_NO_MESSAGE);
+								int ResEject = EjectVolume(item->cDrive, EJECT_NO_MESSAGE);
 
-                                if ( !ResEject )
-                                {
-                                	// восстановим пути - это избавит нас от левых данных в панели.
-                                	if ( AMode != PLUGIN_PANEL )
-                                		CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
+								if ( !ResEject )
+								{
+									// восстановим пути - это избавит нас от левых данных в панели.
+									if ( AMode != PLUGIN_PANEL )
+										CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
 
-                                	if ( CMode != PLUGIN_PANEL )
-                                		SetCurDir(strTmpCDir, FALSE);
+									if ( CMode != PLUGIN_PANEL )
+										SetCurDir(strTmpCDir, FALSE);
 
-									// ... и выведем месаг о...
+								// ... и выведем месаг о...
 
 									string strMsgText;
 									strMsgText.Format (UMSG(MChangeCouldNotEjectMedia), item->cDrive);
@@ -785,14 +785,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					{
 						int Code = ProcessDelDisk (item->cDrive, item->nDriveType, &ChDisk);
 
-                        if ( Code != DRIVE_DEL_FAIL )
-                        {
-                        	ScrBuf.Lock(); // отменяем всякую прорисовку
-                        	FrameManager->ResizeAllFrame();
-                        	FrameManager->PluginCommit(); // коммитим.
-                        	ScrBuf.Unlock(); // разрешаем прорисовку
+						if ( Code != DRIVE_DEL_FAIL )
+						{
+							ScrBuf.Lock(); // отменяем всякую прорисовку
+							FrameManager->ResizeAllFrame();
+							FrameManager->PluginCommit(); // коммитим.
+							ScrBuf.Unlock(); // разрешаем прорисовку
 
-                        	return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
+							return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
 						}
 					}
 				}
@@ -819,33 +819,33 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						GetCurDir(strTmpCDir);
 						CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir(strTmpADir);
 
-                        // отключим меню, иначе бага с прорисовкой этой самой меню
-                        // (если меню поболее высоты экрана)
+						// отключим меню, иначе бага с прорисовкой этой самой меню
+						// (если меню поболее высоты экрана)
 
-                        ChDisk.Hide();
-                        ChDisk.Lock(); // ... и запретим ее перерисовку.
+						ChDisk.Hide();
+						ChDisk.Lock(); // ... и запретим ее перерисовку.
 
-                        // "цикл до умопомрачения"
-                        int DoneEject=FALSE;
+						// "цикл до умопомрачения"
+						int DoneEject=FALSE;
 
-                        while ( !DoneEject )
-                        {
-                        	// "освободим диск" - перейдем при необходимости в домашний каталог
-                        	// TODO: А если домашний каталог - USB? ;-)
-                        	IfGoHome(item->cDrive);
+						while ( !DoneEject )
+						{
+							// "освободим диск" - перейдем при необходимости в домашний каталог
+							// TODO: А если домашний каталог - USB? ;-)
+							IfGoHome(item->cDrive);
 
-                        	// очередная попытка извлечения без вывода сообщения
+							// очередная попытка извлечения без вывода сообщения
 
-                        	Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
+							Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
 
-                        	if ( Code == 0 )
-                        	{
-                        		// восстановим пути - это избавит нас от левых данных в панели.
-                        		if ( AMode != PLUGIN_PANEL )
-                        			CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
+							if ( Code == 0 )
+							{
+								// восстановим пути - это избавит нас от левых данных в панели.
+								if ( AMode != PLUGIN_PANEL )
+									CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
 
-                        		if ( CMode != PLUGIN_PANEL )
-                        			SetCurDir(strTmpCDir, FALSE);
+								if ( CMode != PLUGIN_PANEL )
+									SetCurDir(strTmpCDir, FALSE);
 
 								// ... и выведем месаг о...
 
@@ -1201,39 +1201,39 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
 {
-   wchar_t *Ptr=(wchar_t *)xf_malloc((StrLength(Src)+StrLength(FindEdit->GetStringAddrW())+32)*sizeof (wchar_t));
-    if(Ptr)
-    {
-      wcscpy(Ptr,FindEdit->GetStringAddrW());
-      wchar_t *EndPtr=Ptr+StrLength(Ptr);
-      wcscat(Ptr,Src);
-      Unquote(EndPtr);
+	wchar_t *Ptr=(wchar_t *)xf_malloc((StrLength(Src)+StrLength(FindEdit->GetStringAddrW())+32)*sizeof (wchar_t));
+	if(Ptr)
+	{
+		wcscpy(Ptr,FindEdit->GetStringAddrW());
+		wchar_t *EndPtr=Ptr+StrLength(Ptr);
+		wcscat(Ptr,Src);
+		Unquote(EndPtr);
 
-      EndPtr=Ptr+StrLength(Ptr);
-      DWORD Key;
-      while(1)
-      {
-        if(EndPtr == Ptr)
-        {
-          Key=KEY_NONE;
-          break;
-        }
+		EndPtr=Ptr+StrLength(Ptr);
+		DWORD Key;
+		while(1)
+		{
+			if(EndPtr == Ptr)
+			{
+				Key=KEY_NONE;
+				break;
+			}
 
-        if (FindPartName(Ptr,FALSE,1,1))
-        {
-          Key=*(EndPtr-1);
-          *EndPtr=0;
-          FindEdit->SetString(Ptr);
-          strLastName = Ptr;
-          strName = Ptr;
-          FindEdit->Show();
-          break;
-        }
+			if (FindPartName(Ptr,FALSE,1,1))
+			{
+				Key=*(EndPtr-1);
+				*EndPtr=0;
+				FindEdit->SetString(Ptr);
+				strLastName = Ptr;
+				strName = Ptr;
+				FindEdit->Show();
+				break;
+			}
 
-        *--EndPtr=0;
-      }
-      xf_free(Ptr);
-    }
+			*--EndPtr=0;
+		}
+		xf_free(Ptr);
+	}
 }
 
 __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
@@ -1925,218 +1925,218 @@ void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
 int Panel::SetPluginCommand(int Command,void *Param)
 {
-  _ALGO(CleverSysLog clv(L"Panel::SetPluginCommand"));
-  _ALGO(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param,Param));
-  int Result=FALSE;
-  ProcessingPluginCommand++;
-  FilePanels *FPanels=CtrlObject->Cp();
-  PluginCommand=Command;
+	_ALGO(CleverSysLog clv(L"Panel::SetPluginCommand"));
+	_ALGO(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param,Param));
+	int Result=FALSE;
+	ProcessingPluginCommand++;
+	FilePanels *FPanels=CtrlObject->Cp();
+	PluginCommand=Command;
 
-  switch(Command)
-  {
-    case FCTL_SETVIEWMODE:
-      Result=FPanels->ChangePanelViewMode(this, (Param?*(int *)Param:0), FPanels->IsTopFrame());
-      break;
+	switch(Command)
+	{
+		case FCTL_SETVIEWMODE:
+			Result=FPanels->ChangePanelViewMode(this, (Param?*(int *)Param:0), FPanels->IsTopFrame());
+			break;
 
-    case FCTL_SETSORTMODE:
-      if (Param!=NULL)
-      {
-        int Mode=*(int *)Param;
-        if ((Mode>SM_DEFAULT) && (Mode<=SM_NUMLINKS))
-        {
-          SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
-          Result=TRUE;
-        }
-      }
-      break;
+		case FCTL_SETSORTMODE:
+			if (Param!=NULL)
+			{
+				int Mode=*(int *)Param;
+				if ((Mode>SM_DEFAULT) && (Mode<=SM_NUMLINKS))
+				{
+					SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
+					Result=TRUE;
+				}
+			}
+			break;
 
-    case FCTL_SETNUMERICSORT:
-      {
-        int NumericSortOrder = (Param && (*(int *)Param)) ? 1:0;
+		case FCTL_SETNUMERICSORT:
+			{
+				int NumericSortOrder = (Param && (*(int *)Param)) ? 1:0;
 
-        SetNumericSort(NumericSortOrder);
-        Result=TRUE;
-      }
-      break;
+				SetNumericSort(NumericSortOrder);
+				Result=TRUE;
+			}
+			break;
 
-    case FCTL_SETSORTORDER:
-      {
-        int Order = (Param && (*(int *)Param)) ? -1:1;
+		case FCTL_SETSORTORDER:
+			{
+				int Order = (Param && (*(int *)Param)) ? -1:1;
 
-        ChangeSortOrder(Order);
-        Result=TRUE;
-      }
-      break;
+				ChangeSortOrder(Order);
+				Result=TRUE;
+			}
+			break;
 
-    case FCTL_CLOSEPLUGIN:
-      strPluginParam = NullToEmpty((const wchar_t *)Param);
-      Result=TRUE;
-      //if(Opt.CPAJHefuayor)
-      //  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
-      break;
+		case FCTL_CLOSEPLUGIN:
+			strPluginParam = NullToEmpty((const wchar_t *)Param);
+			Result=TRUE;
+			//if(Opt.CPAJHefuayor)
+			//  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
+			break;
 
-    case FCTL_FREEPANELINFO:
-    {
-        if (Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
-            break;
+		case FCTL_FREEPANELINFO:
+		{
+			if (Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
+					break;
 
-        PanelInfo *Info=(PanelInfo *)Param;
+			PanelInfo *Info=(PanelInfo *)Param;
 
-        xf_free (Info->lpwszCurDir);
-        xf_free (Info->lpwszColumnTypes);
-        xf_free (Info->lpwszColumnWidths);
+			xf_free (Info->lpwszCurDir);
+			xf_free (Info->lpwszColumnTypes);
+			xf_free (Info->lpwszColumnWidths);
 
-        for (int i = 0; i < Info->ItemsNumber; i++)
-            apiFreeFindData (&Info->PanelItems[i].FindData);
+			for (int i = 0; i < Info->ItemsNumber; i++)
+					apiFreeFindData (&Info->PanelItems[i].FindData);
 
-        for (int i = 0; i < Info->SelectedItemsNumber; i++)
-            apiFreeFindData (&Info->SelectedItems[i].FindData);
+			for (int i = 0; i < Info->SelectedItemsNumber; i++)
+					apiFreeFindData (&Info->SelectedItems[i].FindData);
 
-        break;
-    }
+			break;
+		}
 
-    case FCTL_GETPANELINFO:
-    case FCTL_GETPANELSHORTINFO:
-    {
-      if(Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
-        break;
-      struct PanelInfo *Info=(struct PanelInfo *)Param;
-      memset(Info,0,sizeof(*Info));
+		case FCTL_GETPANELINFO:
+		case FCTL_GETPANELSHORTINFO:
+		{
+			if(Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
+				break;
+			struct PanelInfo *Info=(struct PanelInfo *)Param;
+			memset(Info,0,sizeof(*Info));
 
-      UpdateIfRequired();
+			UpdateIfRequired();
 
-      switch( GetType() )
-      {
-        case FILE_PANEL:
-          Info->PanelType=PTYPE_FILEPANEL;
-          break;
-        case TREE_PANEL:
-          Info->PanelType=PTYPE_TREEPANEL;
-          break;
-        case QVIEW_PANEL:
-          Info->PanelType=PTYPE_QVIEWPANEL;
-          break;
-        case INFO_PANEL:
-          Info->PanelType=PTYPE_INFOPANEL;
-          break;
-      }
-      Info->Plugin=(GetMode()==PLUGIN_PANEL);
-      int X1,Y1,X2,Y2;
-      GetPosition(X1,Y1,X2,Y2);
-      Info->PanelRect.left=X1;
-      Info->PanelRect.top=Y1;
-      Info->PanelRect.right=X2;
-      Info->PanelRect.bottom=Y2;
-      Info->Visible=IsVisible();
-      Info->Focus=GetFocus();
-      Info->ViewMode=GetViewMode();
-      Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
+			switch( GetType() )
+			{
+				case FILE_PANEL:
+					Info->PanelType=PTYPE_FILEPANEL;
+					break;
+				case TREE_PANEL:
+					Info->PanelType=PTYPE_TREEPANEL;
+					break;
+				case QVIEW_PANEL:
+					Info->PanelType=PTYPE_QVIEWPANEL;
+					break;
+				case INFO_PANEL:
+					Info->PanelType=PTYPE_INFOPANEL;
+					break;
+			}
+			Info->Plugin=(GetMode()==PLUGIN_PANEL);
+			int X1,Y1,X2,Y2;
+			GetPosition(X1,Y1,X2,Y2);
+			Info->PanelRect.left=X1;
+			Info->PanelRect.top=Y1;
+			Info->PanelRect.right=X2;
+			Info->PanelRect.bottom=Y2;
+			Info->Visible=IsVisible();
+			Info->Focus=GetFocus();
+			Info->ViewMode=GetViewMode();
+			Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
 
-      string strInfoCurDir;
+			string strInfoCurDir;
 
-      GetCurDir(strInfoCurDir);
+			GetCurDir(strInfoCurDir);
 
-      Info->lpwszCurDir = xf_wcsdup(strInfoCurDir);
+			Info->lpwszCurDir = xf_wcsdup(strInfoCurDir);
 
-      {
-        static struct {
-          int *Opt;
-          DWORD Flags;
-        } PFLAGS[]={
-          {&Opt.ShowHidden,PFLAGS_SHOWHIDDEN},
-          {&Opt.Highlight,PFLAGS_HIGHLIGHT},
-        };
+			{
+				static struct {
+					int *Opt;
+					DWORD Flags;
+				} PFLAGS[]={
+					{&Opt.ShowHidden,PFLAGS_SHOWHIDDEN},
+					{&Opt.Highlight,PFLAGS_HIGHLIGHT},
+				};
 
-        DWORD Flags=0;
+				DWORD Flags=0;
 
-        for(int I=0; I < sizeof(PFLAGS)/sizeof(PFLAGS[0]); ++I)
-          if(*(PFLAGS[I].Opt) != 0)
-            Flags|=PFLAGS[I].Flags;
+				for(int I=0; I < sizeof(PFLAGS)/sizeof(PFLAGS[0]); ++I)
+					if(*(PFLAGS[I].Opt) != 0)
+						Flags|=PFLAGS[I].Flags;
 
-        Flags|=GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
-        Flags|=GetSortGroups()?PFLAGS_USESORTGROUPS:0;
-        Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
-        Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
+				Flags|=GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
+				Flags|=GetSortGroups()?PFLAGS_USESORTGROUPS:0;
+				Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
+				Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
 
 
-        Info->Flags=Flags;
-      }
+				Info->Flags=Flags;
+			}
 
-      if (GetType()==FILE_PANEL)
-      {
-        FileList *DestFilePanel=(FileList *)this;
-        static int Reenter=0;
-        if (!Reenter && Info->Plugin)
-        {
-          Reenter++;
-          struct OpenPluginInfo PInfo;
-          DestFilePanel->GetOpenPluginInfo(&PInfo);
+			if (GetType()==FILE_PANEL)
+			{
+				FileList *DestFilePanel=(FileList *)this;
+				static int Reenter=0;
+				if (!Reenter && Info->Plugin)
+				{
+					Reenter++;
+					struct OpenPluginInfo PInfo;
+					DestFilePanel->GetOpenPluginInfo(&PInfo);
 
-          Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
-          if (PInfo.Flags & OPIF_REALNAMES)
-            Info->Flags |= PFLAGS_REALNAMES;
-          if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
-            Info->Flags &= ~PFLAGS_HIGHLIGHT;
-          Reenter--;
-        }
-        DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO)?TRUE:FALSE);
-      }
+					Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
+					if (PInfo.Flags & OPIF_REALNAMES)
+						Info->Flags |= PFLAGS_REALNAMES;
+					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
+						Info->Flags &= ~PFLAGS_HIGHLIGHT;
+					Reenter--;
+				}
+				DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO)?TRUE:FALSE);
+			}
 
-      if (!Info->Plugin) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
-          Info->Flags |= PFLAGS_REALNAMES;
-      Result=TRUE;
-      break;
-    }
+			if (!Info->Plugin) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
+					Info->Flags |= PFLAGS_REALNAMES;
+			Result=TRUE;
+			break;
+		}
 
-    case FCTL_SETSELECTION:
-      {
-        if (GetType()==FILE_PANEL && !IsBadReadPtr(Param,sizeof(PanelInfo)))
-        {
-          ((FileList *)this)->PluginSetSelection((PanelInfo *)Param);
-          Result=TRUE;
-        }
-        break;
-      }
+		case FCTL_SETSELECTION:
+			{
+				if (GetType()==FILE_PANEL && !IsBadReadPtr(Param,sizeof(PanelInfo)))
+				{
+					((FileList *)this)->PluginSetSelection((PanelInfo *)Param);
+					Result=TRUE;
+				}
+				break;
+			}
 
-    case FCTL_UPDATEPANEL:
-      Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
+		case FCTL_UPDATEPANEL:
+			Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
 
-      if ( GetType() == QVIEW_PANEL )
-      	UpdateViewPanel();
+			if ( GetType() == QVIEW_PANEL )
+				UpdateViewPanel();
 
-      Result=TRUE;
-      break;
+			Result=TRUE;
+			break;
 
-    case FCTL_REDRAWPANEL:
-    {
-      PanelRedrawInfo *Info=(PanelRedrawInfo *)Param;
-      if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
-      {
-        CurFile=Info->CurrentItem;
-        CurTopFile=Info->TopPanelItem;
-      }
-        // $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
-      if (FPanels->IsTopFrame())
-      {
-        Redraw();
-        Result=TRUE;
-      }
-      break;
-    }
+		case FCTL_REDRAWPANEL:
+		{
+			PanelRedrawInfo *Info=(PanelRedrawInfo *)Param;
+			if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
+			{
+				CurFile=Info->CurrentItem;
+				CurTopFile=Info->TopPanelItem;
+			}
+				// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
+			if (FPanels->IsTopFrame())
+			{
+				Redraw();
+				Result=TRUE;
+			}
+			break;
+		}
 
-    case FCTL_SETPANELDIR:
-    {
-      if (Param)
-      {
-        SetCurDir((const wchar_t *)Param,TRUE);
-        Result=TRUE;
-      }
-      break;
-    }
+		case FCTL_SETPANELDIR:
+		{
+			if (Param)
+			{
+				SetCurDir((const wchar_t *)Param,TRUE);
+				Result=TRUE;
+			}
+			break;
+		}
 
-  }
-  ProcessingPluginCommand--;
-  return Result;
+	}
+	ProcessingPluginCommand--;
+	return Result;
 }
 
 

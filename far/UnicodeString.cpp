@@ -234,16 +234,25 @@ int __cdecl UnicodeString::Format (const wchar_t * format, ...)
 	wchar_t *buffer = NULL;
 	size_t Size = MAX_PATH;
 
-	int retValue;
+	int retValue = -1;
 	va_list argptr;
 
 	va_start( argptr, format );
 
-	do {
-			Size <<= 1;
-			buffer = (wchar_t*)xf_realloc (buffer, Size*sizeof (wchar_t));
+	do
+	{
+		Size <<= 1;
+		wchar_t *tmpbuffer = (wchar_t*)xf_realloc (buffer, Size*sizeof (wchar_t));
 
-			retValue = _vsnwprintf ( buffer, Size, format, argptr );
+		if (!tmpbuffer)
+		{
+			va_end( argptr );
+			xf_free (buffer);
+			return retValue;
+		}
+
+		buffer = tmpbuffer;
+		retValue = _vsnwprintf ( buffer, Size, format, argptr );
 	} while ( retValue == -1 );
 
 	va_end( argptr );

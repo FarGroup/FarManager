@@ -284,7 +284,8 @@ static void calcFunc(void)
     IsProcessFunc++;
     if ( nParam )
     {
-      for ( int i = 0 ; i < nParam ; i++ )
+      int i;
+      for ( i = 0 ; i < nParam ; i++ )
       {
         getToken();
         expr();

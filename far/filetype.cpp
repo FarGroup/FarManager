@@ -528,7 +528,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
         Ampersand=0;
       strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,VerticalLine);
     }
-    TruncStr(strMask,ScrX-DizWidth-14);
+    //TruncStr(strMask,ScrX-DizWidth-14);
     strMenuText = strMask;
     TypesMenuItem.strName = strMenuText;
     TypesMenuItem.SetSelect(NumLine==MenuPos);

@@ -176,7 +176,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
       ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,I,&strFolderName);
 
-      TruncStr(strFolderName,60);
+      //TruncStr(strFolderName,60);
 
       if ( strFolderName.IsEmpty() )
       {
