@@ -3628,7 +3628,7 @@ BOOL Editor::Search(int Next)
   unsigned char SearchStr[SEARCHSTRINGBUFSIZE],ReplaceStr[SEARCHSTRINGBUFSIZE];
   static char LastReplaceStr[SEARCHSTRINGBUFSIZE];
   static int LastSuccessfulReplaceMode=0;
-  char MsgStr[512];
+  char MsgStr[514];
   const char *TextHistoryName="SearchText",*ReplaceHistoryName="ReplaceText";
   /* $ 03.08.2000 KM
      Новая переменная

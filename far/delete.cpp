@@ -88,7 +88,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       goto done;
     }
     strcpy(DeleteFilesMsg,SelName);
-    TruncPathStr(DeleteFilesMsg,Min((int)sizeof(DeleteFilesMsg),ScrX-16));
   }
   else
   /* $ 05.01.2001 SVS
@@ -127,7 +126,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       int offset = 0;
       if (!strncmp(JuncName,"\\??\\",4))
         offset = 4;
-      TruncPathStr(JuncName+offset,sizeof(JuncName)-offset);
 
       //SetMessageHelp("DeleteLink");
       Ret=Message(0,3,MSG(MDeleteLinkTitle),
@@ -264,16 +262,12 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           if (CheckFolder(FullName) == CHKFLD_NOTEMPTY)
           {
             int MsgCode=0;
-            /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-            char MsgFullName[NM];
-            xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
-            TruncPathStr(MsgFullName, ScrX-16);
             // для symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
             {
               //SetMessageHelp("DeleteFile");
               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                  MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),MsgFullName,
+                  MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),FullName,
                     MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
                     MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
             }
@@ -346,18 +340,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               /* SVS $ */
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(FullName) == CHKFLD_NOTEMPTY)
               {
-                /* $ 13.07.2001 IS
-                     усекаем имя, чтоб оно поместилось в сообщение
-                */
-                char MsgFullName[NM];
-                xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
-                TruncPathStr(MsgFullName, ScrX-16);
                 //SetMessageHelp("DeleteFile");
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                      MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),MsgFullName,
+                      MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),FullName,
                       MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
                       MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
-                /* IS $ */
                 if (MsgCode<0 || MsgCode==3)
                 {
                   Cancel=1;
@@ -540,16 +527,11 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe)
     MsgCode=ReadOnlyDeleteMode;
   else
   {
-    /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-    char MsgName[NM];
-    xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-    TruncPathStr(MsgName, ScrX-16);
     //SetMessageHelp("DeleteFile");
-    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
+    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name,
             MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
             MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
             MSG(MDeleteFileCancel));
-    /* IS $ */
   }
   switch(MsgCode)
   {
@@ -590,9 +572,6 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
       {
         if(GetNumberOfLinks(FullName) > 1)
         {
-          char MsgName[NM];
-          xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-          TruncPathStr(MsgName, ScrX-16);
           /*
                             Файл
                          "имя файла"
@@ -601,7 +580,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
                         Уничтожать файл?
           */
           // SetMessageHelp("DeleteFile");
-          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),
+          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),FullName,
                           MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
                           MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
         }
@@ -648,22 +627,17 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
         MsgCode=SkipMode;
     else
     {
-      /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-      char MsgName[NM];
-      xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-      TruncPathStr(MsgName, ScrX-16);
       //SetMessageHelp("DeleteFile");
       if(strlen(FullName) > NM-1)
       {
         MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
-                      MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
+                      MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
                       MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
       }
       else
         MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                      MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
+                      MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
                       MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-      /* IS */
     }
     /* KM $ */
     switch(MsgCode)
@@ -707,21 +681,17 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
         MsgCode=SkipFoldersMode;
     else
     {
-      /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
-      char MsgName[NM];
-      xstrncpy(MsgName, Name,sizeof(MsgName)-1);
-      TruncPathStr(MsgName, ScrX-16);
       //SetMessageHelp("DeleteFile");
       if(strlen(FullName) > NM-1)
       {
         MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
-                  MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
+                  MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
                   MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
       }
       else
       {
         MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                    MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
+                    MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
                     MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
       }
     }

@@ -210,10 +210,8 @@ BOOL Language::CheckMsgId(int MsgId)
            (раньше имя файла обрезалось справа и приходилось иногда гадать - в
            каком же файле ошибка)
       */
-      char Msg1[100],Msg2[100],Tmp[NM];
-      strcpy(Tmp,MessageFile);
-      TruncPathStr(Tmp,41);
-      sprintf(Msg1,"Incorrect or damaged %s",Tmp);
+      char Msg1[100],Msg2[100];
+      sprintf(Msg1,"Incorrect or damaged %s",MessageFile);
       /* IS $ */
       sprintf(Msg2,"Message %d not found",MsgId);
       if (Message(MSG_WARNING,2,"Error",Msg1,Msg2,"Ok","Quit")==1)

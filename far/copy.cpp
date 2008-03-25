@@ -2713,9 +2713,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
     char Msg1[2*NM],Msg2[2*NM];
     int MsgMCannot=(ShellCopy::Flags&FCOPY_LINK) ? MCannotLink: (ShellCopy::Flags&FCOPY_MOVE) ? MCannotMove: MCannotCopy;
-    InsertQuote(TruncPathStr(strcpy(Msg1,Src),64));
-    InsertQuote(TruncPathStr(strcpy(Msg2,DestPath),64));
-
+    InsertQuote(strcpy(Msg1,Src));
+    InsertQuote(strcpy(Msg2,DestPath));
     {
       int MsgCode;
       if((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
@@ -2736,7 +2735,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             ;//SetLastError(_localLastError=(DWORD)0x80090345L);//SEC_E_DELEGATION_REQUIRED);
             SetLastError(_localLastError=ERROR_EFS_SERVER_NOT_TRUSTED);
           }
-
           MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
                           MSG(MsgMCannot),
                           Msg1,
@@ -3077,7 +3075,8 @@ int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
     }
     SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   }
-  while (remove(Name)!=0)
+  
+  while((Attr&FA_DIREC)?!FAR_RemoveDirectory(Name):remove(Name)!=0)
   {
     int MsgCode;
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
@@ -3122,7 +3121,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     {
       char Msg1[2*NM];
       SetMessageHelp("WarnCopyEncrypt");
-      InsertQuote(TruncPathStr(xstrncpy(Msg1,SrcName,sizeof(Msg1)-1),64));
+      InsertQuote(xstrncpy(Msg1,SrcName,sizeof(Msg1)-1));
       MsgCode=Message(MSG_DOWN|MSG_WARNING,3,MSG(MWarning),
                       MSG(MCopyEncryptWarn1),
                       Msg1,
@@ -3727,10 +3726,6 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
   if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
     return(TRUE);
 
-  char TruncDestName[NM];
-  strcpy(TruncDestName,DestName);
-  TruncPathStr(TruncDestName,ScrX-16);
-
   if (OvrMode!=-1)
     MsgCode=OvrMode;
   else
@@ -3776,7 +3771,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
 
         SetMessageHelp("CopyFiles");
         MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
-                MSG(MCopyFileExist),TruncDestName,"\x1",SrcFileStr,DestFileStr,
+                MSG(MCopyFileExist),DestName,"\x1",SrcFileStr,DestFileStr,
                 "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
                 MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
                 AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
@@ -3847,7 +3842,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
 
         SetMessageHelp("CopyFiles");
         MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
-                MSG(MCopyFileRO),TruncDestName,"\x1",SrcFileStr,DestFileStr,
+                MSG(MCopyFileRO),DestName,"\x1",SrcFileStr,DestFileStr,
                 "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
                 MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
                 AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
@@ -4389,9 +4384,9 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
       _LOGCOPYR(SysLog("Flags=0x%08X (transfer SymLink to VolMount)",Flags));
     }
     else
-      if (ConvertNameToFull(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
+      if (ConvertNameToReal(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
         return 0;
-    _LOGCOPYR(SysLog("Src: ConvertNameToFull('%s','%s')",SelName,SrcFullName));
+    _LOGCOPYR(SysLog("Src: ConvertNameToReal('%s','%s')",SelName,SrcFullName));
 
     if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
       return 0;

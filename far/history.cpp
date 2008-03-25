@@ -715,23 +715,14 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           return -1;
         if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
         {
-          char *TruncFileName=xf_strdup(LastStr[StrPos].Name);
-          if(TruncFileName)
-            TruncPathStr(TruncFileName,ScrX-16);
           SetLastError(ERROR_FILE_NOT_FOUND);
           if(LastStr[StrPos].Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
           {
-            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == 0)
-            {
-              if(TruncFileName)
-                free(TruncFileName);
+            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,LastStr[StrPos].Name,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == 0)
               break;
-            }
           }
           else
-            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MOk));
-          if(TruncFileName)
-            free(TruncFileName);
+            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,LastStr[StrPos].Name,MSG(MOk));
           Done=FALSE;
           SetUpMenuPos=TRUE;
           HistoryMenu.Modal::SetExitCode(StrPos=Code);

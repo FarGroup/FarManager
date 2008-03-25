@@ -606,11 +606,8 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   {
     if(!Opt.LoadPlug.SilentLoadPlugin)
     {
-      char PlgName[NM];
-      xstrncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
-      TruncPathStr(PlgName,ScrX-20);
       SetMessageHelp("ErrLoadPlugin");
-      Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),PlgName,MSG(MOk));
+      Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),CurPlugin.ModuleName,MSG(MOk));
     }
     CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
     return(FALSE);
@@ -794,14 +791,11 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 void PluginsSet::ShowMessageAboutIllegalPluginVersion(char* plg,int required)
 {
     char msg[2][512];
-    char PlgName[NM];
-    xstrncpy(PlgName,plg,sizeof(PlgName)-1);
-    TruncPathStr(PlgName,ScrX-20);
     sprintf(msg[0],MSG(MPlgRequired),
            HIBYTE(LOWORD(required)),LOBYTE(LOWORD(required)),HIWORD(required));
     sprintf(msg[1],MSG(MPlgRequired2),
            HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
-    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),PlgName,msg[0],msg[1],MSG(MOk));
+    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,msg[0],msg[1],MSG(MOk));
 }
 /* tran 03.08.2000 $ */
 /* SVS $ */

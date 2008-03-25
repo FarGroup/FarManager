@@ -2329,10 +2329,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
     /* $ 03.11.2001 IS
          Укажем имя неудачного каталога
     */
-    char Target[NM];
-    xstrncpy(Target, SetDir, sizeof(Target)-1);
-    TruncPathStr(Target, ScrX-16);
-    Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
+    Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), SetDir, MSG (MOk));
     /* IS $ */
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }

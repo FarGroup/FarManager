@@ -3613,8 +3613,8 @@ M1:
     {
       struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
       DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
-      char Buf[256];
-      char BufKey[64];
+      char Buf[512];
+      char BufKey[512];
       char RegKeyName[150];
       MacroDlg->MkRegKeyName(Index,RegKeyName);
 
@@ -3638,7 +3638,7 @@ M1:
       {
         int F=0;
         I=(int)strlen(Mac->Src);
-        if(I > 45) { I=45; F++; }
+        if(I > sizeof(Buf)-6) { I=sizeof(Buf)-6; F++; }
         sprintf(Buf,"\"%*.*s%s\"",I,I,Mac->Src,(F?"...":""));
         strcpy(BufKey,Buf);
       }

@@ -220,7 +220,7 @@ static DWORD WINAPI _xfilter(
    int  I, Ret=1;
    DWORD rc;
    char Buf[3][NM];
-   char TruncFileName[2*NM];
+   char FileName[2*NM];
    BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
    BOOL ShowMessages=FALSE;
 
@@ -242,9 +242,9 @@ static DWORD WINAPI _xfilter(
    */
    pName=NULL;
    if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
-     GetModuleFileName(NULL,TruncFileName,sizeof(TruncFileName));
+     GetModuleFileName(NULL,FileName,sizeof(FileName));
    else
-     xstrncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
+     xstrncpy(FileName,NullToEmpty(Module->ModuleName),sizeof(FileName));
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */
@@ -284,7 +284,7 @@ static DWORD WINAPI _xfilter(
             xFromMSGTitle(From),
             MSG(MExcTrappedException),
             MSG(MExcCheckOnLousys),
-            TruncPathStr(TruncFileName,40),
+            FileName,
             Buf[0],
             "\1",
             MSG(MExcUnloadYes),
@@ -320,7 +320,7 @@ static DWORD WINAPI _xfilter(
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
                  MSG(MExcCheckOnLousys),
-                 TruncPathStr(TruncFileName,40),
+                 FileName,
                  Buf[0],
                  "\1",
                  MSG(MExcUnloadYes),
@@ -379,7 +379,7 @@ static DWORD WINAPI _xfilter(
                MSG(MExcTrappedException),
                pName,
                Buf[0],
-               TruncPathStr(TruncFileName,40),"\1",
+               FileName,"\1",
                MSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
                MSG(MOk));
        ShowMessages=TRUE;

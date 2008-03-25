@@ -259,11 +259,9 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
       {
         if(OpenModeExstFile == FEOPMODE_QUERY)
         {
-          char MsgFullFileName[NM];
-          xstrncpy(MsgFullFileName,FullFileName,sizeof(MsgFullFileName)-1);
           SetMessageHelp("EditorReload");
           MsgCode=Message(0,3,MSG(MEditTitle),
-                TruncPathStr(MsgFullFileName,ScrX-16),
+                FullFileName,
                 MSG(MAskReload),
                 MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
         }

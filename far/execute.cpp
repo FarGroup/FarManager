@@ -1080,7 +1080,6 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
       xstrncpy(OutStr,NewCmdStr,sizeof(OutStr)-1);
       Unquote(OutStr);
-      TruncPathStr(OutStr,ScrX-15);
 
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
     }
