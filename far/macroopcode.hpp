@@ -166,6 +166,7 @@ enum MACRO_OP_CODE {
   MCODE_F_BM_NEXT,                  // N=BM.Next()
   MCODE_F_BM_PREV,                  // N=BM.Prev()
   MCODE_F_BM_STAT,                  // N=BM.Stat()
+  MCODE_F_PROMPT,                   // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
@@ -265,6 +266,7 @@ enum MACRO_OP_CODE {
   MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе
   MCODE_V_EDITORCURLINE,            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
   MCODE_V_EDITORCURPOS,             // Editor.CurPos - текущая поз. в редакторе
+  MCODE_V_EDITORREALPOS,            // Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции
   MCODE_V_EDITORSTATE,              // Editor.State
   MCODE_V_EDITORVALUE,              // Editor.Value - содержимое текущей строки
 

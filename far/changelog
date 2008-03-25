@@ -1,7 +1,14 @@
+svs 25.03.2008 21:51:35 +0300 - build 459
+
+1. Macro: добавлен Editor.RealPos - текуща€ поз. в редакторе без прив€зки к размеру табул€ции
+
+2. Macro: функци€ S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+   Mantis#0000512: N = prompt(Title, Text, Flags)
+   ќписание в Ёнц.
+
 svs 25.03.2008 18:34:01 +0300 - build 458
 
 1. ”точнени€ в panel.SetPath и опциональных параметров
-
 
 svs 25.03.2008 16:54:07 +0300 - build 457
 

@@ -957,6 +957,8 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
       return (__int64)(BlockStart || VBlockStart?TRUE:FALSE);
     case MCODE_V_EDITORCURPOS:
       return (__int64)(CurLine->GetTabCurPos()+1);
+    case MCODE_V_EDITORREALPOS:
+      return (__int64)(CurLine->GetCurPos()+1);
     case MCODE_V_EDITORCURLINE:
       return (__int64)(NumLine+1);
     case MCODE_V_ITEMCOUNT:
