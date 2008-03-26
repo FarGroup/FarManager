@@ -4866,15 +4866,14 @@ void Dialog::ResizeConsole()
 
 LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  LONG_PTR Result=0;
-  FarDialogEvent de={hDlg,Msg,Param1,Param2,(LONG_PTR)&Result};
+  FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
   LONG_PTR ret;
   if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
-    return Result;
+    return de.Result;
   ret=RealDlgProc(hDlg,Msg,Param1,Param2);
-  Result=ret;
+  de.Result=ret;
   if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
-    return Result;
+    return de.Result;
   return ret;
 }
 
@@ -4886,10 +4885,9 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 */
 LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  int Result=0;
-  FarDialogEvent de={hDlg,Msg,Param1,Param2,(LONG_PTR)&Result};
+  FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
   if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
-    return Result;
+    return de.Result;
 
   Dialog* Dlg=(Dialog*)hDlg;
 
