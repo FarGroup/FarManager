@@ -45,7 +45,7 @@ int WINAPI ProcessDialogEvent(
 
         <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCEND">DE_DLGPROCEND</a></td>
         <td class="cont" width="60%">
-        Dialog handler processed the event. FarDialogEvent.Result points to dialog handler return value.<br>
+        Dialog handler processed the event. FarDialogEvent.Result contains the dialog handler return value.<br>
           <i>Param</i> - pointer to the <a href="../structures/fardialogevent.html">FarDialogEvent</a> structure.
         </td></tr>
 
@@ -61,7 +61,7 @@ int WINAPI ProcessDialogEvent(
 <h3>Return value</h3>
 <div class=descr>
   TRUE - the event was processed internally. FarDialogEvent.Result will be used as dialog handler return value.<br>
-  FALSE - the event should be processed by the internal handler of the Dialog API kernel. 
+  FALSE - the event should be processed by the internal handler of the Dialog API kernel.
 </div>
 
 <h3>Remarks</h3>
