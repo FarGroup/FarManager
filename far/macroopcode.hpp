@@ -61,6 +61,7 @@ enum MACRO_OP_CODE {
   MCODE_OP_PUSHINT,                 // Положить значение на стек. Само
   MCODE_OP_PUSHSTR,                 // значение - следующий DWORD
   MCODE_OP_PUSHVAR,                 // или несколько таковых (как в $Text)
+  MCODE_OP_PUSHCONST,               // в стек положить константу
 
   MCODE_OP_REP,                     // $rep - признак начала цикла
   MCODE_OP_END,                     // $end - признак конца цикла/условия

@@ -1052,6 +1052,7 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
+bool checkMacroConst(const wchar_t *name);
 const wchar_t *eStackAsString(int Pos=0);
 
 int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);

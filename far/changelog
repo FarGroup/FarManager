@@ -1,3 +1,30 @@
+svs 27.03.2008 18:03:22 +0300 - build 463
+
+1. Macro: добавлена макрообласть "Consts" для хранения именованных констант.
+   Константы располагать в ветке реестра "KeyMacros\Consts". Синтаксис аналогичен "Vars", т.е.
+   Код:
+   KeyMacros\Consts
+     "StringName":REG_SZ
+     "IntName":REG_DWORD
+   Имена констант произвольные, начинающиеся с буквы...
+   Константы аля "ShiftIns" не имеют право на жизнь (хотя "ShiftIns1" допустим для имени)
+
+   Вот вполне работоспособный макрос с использование константы FIB_PASSWORD.
+
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Consts]
+   "FIB_PASSWORD"=dword:00000002
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\CtrlP]
+   "Sequence"="%s=prompt(\"Password\",\"Input password:\",FIB_PASSWORD); $Text %s"
+   "DisableOutput"=dword:00000001
+
+   Константы ФАР считывает из реестра при старте и хранит в таблице glbConstTable
+   Т.к. это константа, то ее наличие можно только проверить функцией checkMacroConst()
+
+2. Переделаем функцию varLook. Было так, что она всегда добавляла переменную, даже если
+   параметр ins = 0. В ней тек же удален параметр error. Вместо этого функция возвращает
+   ссылку или NULL. В связи с этим переделки в макроисполняторе.
+
+
 drkns 26.03.2008 10:19:23 +0200 - build 462
 
 1. Mantis#0000510: Тип FarDialogEvent.Result должен быть PLONG_PTR, а не LONG_PTR

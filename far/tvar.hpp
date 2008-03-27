@@ -145,15 +145,14 @@ const int V_TABLE_SIZE = 23;
 typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 extern int isVar(TVarTable, const wchar_t*);
 extern TVarSet *varEnum(TVarTable, int, int);
-extern TVarSet *varLook(TVarTable, const wchar_t*, int&, int = 0);
+extern TVarSet *varLook(TVarTable worktable, const wchar_t* name, bool ins=false);
 extern void varKill(TVarTable, const wchar_t*);
 extern void initVTable(TVarTable);
 extern void deleteVTable(TVarTable);
 
 inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
 {
-  int e;
-  return varLook(t, s, e, 1);
+  return varLook(t, s, true);
 }
 
 #endif // __TVAR_H

@@ -530,19 +530,20 @@ int isVar(TVarTable table, const wchar_t *p)
   return 0;
 }
 
-TVarSet *varLook(TVarTable table, const wchar_t *p, int& error, int ins)
+TVarSet *varLook(TVarTable table, const wchar_t *p, bool ins)
 {
   int i = hash(p);
-  error = 0;
   for ( TVarSet *n = table[i] ; n ; n = ((TVarSet*)n->next) )
     if ( !StrCmpI(n->str, p) )
       return n;
-  if ( !ins )
-    error = 1;
-  TVarSet *nn = new TVarSet(p);
-  nn->next = table[i];
-  table[i] = nn;
-  return nn;
+  if ( ins )
+  {
+    TVarSet *nn = new TVarSet(p);
+    nn->next = table[i];
+    table[i] = nn;
+    return nn;
+  }
+  return NULL;
 }
 
 TVarSet *varEnum(TVarTable table,int NumTable, int Index)

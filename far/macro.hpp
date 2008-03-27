@@ -104,7 +104,7 @@ class KeyMacro
   private:
     int ReadVarsConst(int ReadMode, string &strBuffer);
     int ReadMacroFunction(int ReadMode, string &strBuffer);
-    int WriteVarsConst(int ReadMode);
+    int WriteVarsConst(int WriteMode);
     int ReadMacros(int ReadMode, string &strBuffer);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);
