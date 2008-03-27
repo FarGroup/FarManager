@@ -52,7 +52,6 @@ static void printKeyValue(DWORD* k, int& i);
 #endif
 #endif
 
-
 // —тек структурных операторов
 enum TExecMode
 {
@@ -120,6 +119,7 @@ static const char *_MacroParserToken_ToName(int Token)
     DEF_TOKEN_(tEnd),
     DEF_TOKEN_(tLet),
     DEF_TOKEN_(tVar),
+    DEF_TOKEN_(tConst),
     DEF_TOKEN_(tStr),
     DEF_TOKEN_(tInt),
     DEF_TOKEN_(tFunc),
@@ -651,7 +651,10 @@ static TToken getToken(void)
         currTok = tVar;
       }
       else
+      {
+        _KEYMACRO_PARSE(SysLog("[%d] IsProcessFunc = %d, ch=%c",__LINE__,IsProcessFunc,ch));
         keyMacroParseError(err_Var_Expected,"");//nameString); // BUG nameString
+      }
       break;
 
     default:
@@ -680,12 +683,25 @@ static TToken getToken(void)
           if(__currTok == tNo)
           {
             if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
-              keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+            {
+              if(KeyNameMacroToKey(nameString) == -1 && KeyNameToKey(nameString) == -1 && checkMacroConst(nameString))
+                 __currTok = tConst;
+              else
+              {
+                _KEYMACRO_PARSE(SysLog("[%d] IsProcessFunc = %d, currTok=%s",__LINE__,IsProcessFunc,_MacroParserToken_ToName(currTok)));
+                keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+              }
+            }
             else
             {
               if(KeyNameMacroToKey(nameString) == -1)
                 if(KeyNameToKey(nameString) == -1)
-                   keyMacroParseError(err_Unrecognized_keyword,nameString);
+                {
+                  if(checkMacroConst(nameString))
+                    __currTok = tConst;
+                  else
+                     keyMacroParseError(err_Unrecognized_keyword,nameString);
+                }
             }
           }
         }
@@ -718,6 +734,11 @@ static void prim(void)
       break;
     case tVar:
       put(MCODE_OP_PUSHVAR);
+      putstr(nameString);
+      getToken();
+      break;
+    case tConst:
+      put(MCODE_OP_PUSHCONST);
       putstr(nameString);
       getToken();
       break;

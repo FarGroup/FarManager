@@ -27,7 +27,7 @@ syntax.hpp
 enum TToken
 {
   tNo, tEnd,  tLet,
-  tVar, tStr, tInt, tFunc, tFARVar,
+  tVar, tConst, tStr, tInt, tFunc, tFARVar,
   tPlus, tMinus, tMul, tDiv, tLp, tRp, tComma,
   tBoolAnd, tBoolOr,
   tBitAnd, tBitOr, tBitXor, tBitNot, tNot, tBitShl, tBitShr,

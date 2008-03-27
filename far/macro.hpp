@@ -77,7 +77,7 @@ class KeyMacro
   private:
     int ReadVarsConst(int ReadMode, char *Buffer, int BufferSize);
     int ReadMacroFunction(int ReadMode, char *Buffer, int BufferSize);
-    int WriteVarsConst(int ReadMode);
+    int WriteVarsConst(int WriteMode);
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);

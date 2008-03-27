@@ -230,6 +230,7 @@ static struct TKeyCodeName{
 
 
 TVarTable glbVarTable;
+TVarTable glbConstTable;
 
 static TVar __varTextDate;
 TVMStack VMStack;
@@ -402,6 +403,7 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   {
     int I;
     ReadVarsConst(MACRO_VARS,Buffer,TEMP_BUFFER_SIZE);
+    ReadVarsConst(MACRO_CONSTS,Buffer,TEMP_BUFFER_SIZE);
     for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
       if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE))
         break;
@@ -1978,8 +1980,6 @@ static bool editorsetFunc()
 // b=msave(var)
 static bool msaveFunc()
 {
-  static int errVar;
-
   TVar Val=VMStack.Pop();
   TVarTable *t = &glbVarTable;
   const char *Name=Val.s();
@@ -1989,12 +1989,14 @@ static bool msaveFunc()
     return false;
   }
 
-  TVar Result=varLook(*t, Name+1, errVar)->value;
-  if(errVar)
+  TVarSet *tmpVarSet=varLook(*t, Name+1);
+  if(!tmpVarSet)
   {
     VMStack.Push(_i64(0));
     return false;
   }
+
+  TVar Result=tmpVarSet->value;
 
   DWORD Ret=(DWORD)-1;
   char ValueName[129];
@@ -2469,7 +2471,7 @@ static bool chrFunc()
   return true;
 }
 
-const char *eStackAsString(int Pos)
+const char *eStackAsString(int)
 {
   const char *s=__varTextDate.toString();
   return !s?"":s;
@@ -2481,6 +2483,7 @@ int KeyMacro::GetKey()
   //_KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   struct MacroRecord *MR;
   TVar tmpVar;
+  TVarSet *tmpVarSet=NULL;
 
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return 0;
@@ -2607,7 +2610,6 @@ done:
     goto return_func;
   }
 
-  static int errVar;
   char value[2048];
 
   switch(Key)
@@ -2781,7 +2783,9 @@ done:
       tmpVar=VMStack.Pop();
       GetPlainText(value);
       TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
-      varLook(*t, value, errVar)->value=tmpVar;
+      tmpVarSet=varLook(*t, value);
+      if(tmpVarSet)
+        tmpVarSet->value=tmpVar;
       goto begin;
     }
 
@@ -2800,10 +2804,14 @@ done:
     {
       GetPlainText(value);
       TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
-      tmpVar=varLook(*t, value, errVar)->value;
+      tmpVarSet=varLook(*t, value);
+      if(tmpVarSet)
+         tmpVar=tmpVarSet->value;
       GetPlainText(value);
       t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
-      tmpVar=varLook(*t, value, errVar)->value;
+      tmpVarSet=varLook(*t, value);
+      if(tmpVarSet)
+        tmpVar=tmpVarSet->value;
       goto begin;
     }
 
@@ -2816,12 +2824,27 @@ done:
       goto begin;
     }
 
+    case MCODE_OP_PUSHCONST:  // ѕоложить на стек константу.
+    {
+      GetPlainText(value);
+      tmpVarSet=varLook(glbConstTable, value);
+      if(tmpVarSet)
+        VMStack.Push(tmpVarSet->value);
+      else
+        VMStack.Push(_i64(0));
+      goto begin;
+    }
+
     case MCODE_OP_PUSHVAR:  // ѕоложить на стек переменную.
     {
       GetPlainText(value);
       TVarTable *t = ( *value == '%' ) ? &glbVarTable : Work.locVarTable;
       // %%name - глобальна€ переменна€
-      VMStack.Push(varLook(*t, value, errVar)->value);
+      tmpVarSet=varLook(*t, value);
+      if(tmpVarSet)
+        VMStack.Push(tmpVarSet->value);
+      else
+        VMStack.Push(_i64(0));
       goto begin;
     }
 
@@ -3250,6 +3273,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
   char RegKeyName[150];
 
   //WriteVarsConst(MACRO_VARS);
+  //WriteVarsConst(MACRO_CONSTS);
 
   for (int I=0;I<MacroLIBCount;I++)
   {
@@ -3305,25 +3329,31 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 }
 
 
-int KeyMacro::WriteVarsConst(int ReadMode)
+int KeyMacro::WriteVarsConst(int WriteMode)
 {
-  if(ReadMode!=MACRO_VARS) // пока так :-)
-    return FALSE;
-
   char UpKeyName[100];
   char ValueName[129];
-  *ValueName='%';
+  char *ptrValueName=ValueName;
 
-  sprintf(UpKeyName,"KeyMacros\\%s",(ReadMode==MACRO_VARS?"Vars":""));
+  *ValueName=0;
+  if(WriteMode==MACRO_VARS)
+  {
+    *ValueName='%';
+    ptrValueName=ValueName+1;
+  }
 
-  TVarTable *t = &glbVarTable;
+
+  sprintf(UpKeyName,"KeyMacros\\%s",(WriteMode==MACRO_VARS?"Vars":"Consts"));
+
+  TVarTable *t = (WriteMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
+
   for (int I=0;I < V_TABLE_SIZE;I++)
     for(int J=0;;++J)
     {
       TVarSet *var=varEnum(*t,I,J);
       if(!var)
         break;
-      xstrncpy(ValueName+1,var->str,sizeof(ValueName)-2);
+      xstrncpy(ptrValueName,var->str,sizeof(ValueName)-2);
       switch(var->value.type())
       {
         case vtInteger:
@@ -3346,16 +3376,18 @@ int KeyMacro::WriteVarsConst(int ReadMode)
 
 int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
 {
-  if(ReadMode!=MACRO_VARS) // пока так :-)
-    return FALSE;
-
   int I;
   char UpKeyName[100];
   char ValueName[129];
+  char *ptrValueName=ValueName;
   long IData;
   __int64 IData64;
 
-  sprintf(UpKeyName,"KeyMacros\\%s",(ReadMode==MACRO_VARS?"Vars":""));
+  if(ReadMode==MACRO_VARS)
+    ptrValueName=ValueName+1;
+
+  sprintf(UpKeyName,"KeyMacros\\%s",(ReadMode==MACRO_VARS?"Vars":"Consts"));
+  TVarTable *t = (ReadMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
 
   for (I=0;;I++)
   {
@@ -3368,17 +3400,15 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     if (Type == REG_NONE)
       break;
 
-    if(*ValueName != '%' && ValueName[1] != '%')
+    if(ReadMode==MACRO_VARS && *ValueName != '%' && ValueName[1] != '%')
       continue;
 
-    TVarTable *t = &glbVarTable;
-
     if (Type == REG_SZ)
-      varInsert(*t, ValueName+1)->value = SData;
+      varInsert(*t, ptrValueName)->value = SData;
     else if (Type == REG_DWORD)
-      varInsert(*t, ValueName+1)->value = (__int64)IData;
+      varInsert(*t, ptrValueName)->value = (__int64)IData;
     else if (Type == REG_QWORD)
-      varInsert(*t, ValueName+1)->value = IData64;
+      varInsert(*t, ptrValueName)->value = IData64;
   }
   return TRUE;
 }
@@ -4603,18 +4633,31 @@ int KeyMacro::PopState()
   return TRUE;
 }
 
+
+bool checkMacroConst(const char *name)
+{
+   _KEYMACRO_PARSE(CleverSysLog Clev("checkMacroConst"));
+   _KEYMACRO_PARSE(SysLog("name='%s'",name));
+   return !varLook(glbConstTable, name)?false:true;
+}
+
 void initMacroVarTable(int global)
 {
   if(global)
+  {
     initVTable(glbVarTable);
+    initVTable(glbConstTable); //???
+  }
 }
 
 void doneMacroVarTable(int global)
 {
   if(global)
+  {
     deleteVTable(glbVarTable);
+    deleteVTable(glbConstTable); //???
+  }
 }
-
 
 BOOL KeyMacro::GetMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3)
 {
