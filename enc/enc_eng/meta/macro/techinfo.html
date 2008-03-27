@@ -19,8 +19,8 @@
 <h3>Storing macro commands</h3>
 <p>FAR macro commands are located in Windows registry under <code>[HKEY_CURRENT_USER\Software\Far\[Users\USERNAME\]KeyMacros]</code>
 registry key in a text form.
-<p>Macro commands are divided by 17 context areas, so called 'areas of execution' (see <a href="about/macroarea.html">Areas of execution</a>),
-and the name of the certain area corresponds to the registry subkey:
+<p>Макрокоманды делятся на 16 областей действий (см. <a href="about/macroarea.html">Области действия</a>) и 2 области для хранения глобальных переменных и констант.
+Имя области соответствует ветке реестра:
 <table class="cont">
   <tr class="cont">
     <th class="cont" width="40%">Area</th>
@@ -96,6 +96,11 @@ and the name of the certain area corresponds to the registry subkey:
     <td class="cont" width="60%">Global variables area read by FAR during startup.
     Variables can be string (REG_SZ) and numeric (REG_QWORD). One can write to this area using
     <a href="macrocmd/functions.html#msave">msave()</a> function.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">&quot;Consts&quot;</td>
+    <td class="cont" width="60%">Область для глобальных констант, которые FAR считывает при старте.
+    Константы могут быть двух типов - строковые (типа REG_SZ) и числовые (типа REG_QWORD). </td>
   </tr>
 </table>
 
