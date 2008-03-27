@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 4 (build 2342) (Mar 25 2008)
+FAR 1.71 alpha 4 (build 2347) (Mar 25 2008)
 ---------------------------------------------------------------------------
 
 [!] For elimination of effects of Vista virtualization technology the
@@ -174,6 +174,8 @@ FAR 1.71 alpha 4 (build 2342) (Mar 25 2008)
     к размеру табул€ции
 
 [+] Macro: функци€ prompt() - позвол€ет ввести и передать одну строку в макрос
+
+[+] Macro: добавлена макрообласть "Consts" дл€ хранени€ именованных констант.
 
 [*] API: „лен структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
 
