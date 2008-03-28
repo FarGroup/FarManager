@@ -3715,14 +3715,14 @@ bool Dialog::ConvertItemEx (
 			Item->Flags = Data->Flags;
 			Item->DefaultButton = Data->DefaultButton;
 
-/* never used!
-			if (InternalCall && IsEdit(Data->Type))
+			//TODO: тут видимо надо сделать поумнее
+			if (IsEdit(Data->Type))
 			{
 				DlgEdit *EditPtr;
 				if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
 					EditPtr->GetString(Data->strData);
 			}
-*/
+
 			{
 				Item->MaxLen = Data->nMaxLength;
 				size_t sz = Data->strData.GetLength();

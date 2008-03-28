@@ -395,7 +395,7 @@ void InterfaceSettings()
   Opt.ScreenSaver=CfgDlg[DLG_INTERF_SCREENSAVER].Selected;
 
   wchar_t *endptr;
-  Opt.ScreenSaverTime=wcstoul(CfgDlg[DLG_INTERF_USEPROMPTFORMAT].strData, &endptr, 10);
+  Opt.ScreenSaverTime=wcstoul(CfgDlg[DLG_INTERF_SCREENSAVERTIME].strData, &endptr, 10);
   Opt.UsePromptFormat=CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected;
 
   Opt.strPromptFormat = CfgDlg[DLG_INTERF_PROMPTFORMAT].strData;
