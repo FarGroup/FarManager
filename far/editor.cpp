@@ -3056,6 +3056,26 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
     if (SavePos.Line[I]!=0xffffffff && UndoLine<static_cast<int>(SavePos.Line[I]))
       SavePos.Line[I]--;
 
+  if (StackPos)
+  {
+		struct InternalEditorStackBookMark *sb_temp = StackPos, *sb_new;
+
+		while(sb_temp->prev)
+			sb_temp=sb_temp->prev;
+		while (sb_temp)
+		{
+			sb_new = sb_temp->next;
+			if (UndoLine < static_cast<int>(sb_temp->Line))
+				sb_temp->Line--;
+			else
+			{
+				if (UndoLine == static_cast<int>(sb_temp->Line))
+					DeleteStackBookmark(sb_temp);
+			}
+			sb_temp = sb_new;
+		}
+  }
+
   NumLastLine--;
 
   if (CurLine==DelPtr)
@@ -3151,6 +3171,20 @@ void Editor::InsertString()
     if (SavePos.Line[I]!=0xffffffff &&
         (NumLine<static_cast<int>(SavePos.Line[I]) || NumLine==SavePos.Line[I] && CurPos==0))
       SavePos.Line[I]++;
+
+  if (StackPos)
+  {
+		struct InternalEditorStackBookMark *sb_temp = StackPos;
+
+		while(sb_temp->prev)
+			sb_temp=sb_temp->prev;
+		while(sb_temp)
+		{
+			if (NumLine < static_cast<int>(sb_temp->Line) || NumLine==static_cast<int>(sb_temp->Line) && CurPos==0)
+				sb_temp->Line++;
+			sb_temp=sb_temp->next;
+		}
+  }
 
   int IndentPos=0;
 
@@ -5705,6 +5739,24 @@ int Editor::ClearStackBookmarks()
 	}
 
 	return TRUE;
+}
+
+int Editor::DeleteStackBookmark(InternalEditorStackBookMark *sb_delete)
+{
+	if (sb_delete==(InternalEditorStackBookMark *)-1)
+		sb_delete=StackPos;
+	if (sb_delete)
+	{
+		if (sb_delete->next)
+			sb_delete->next->prev=sb_delete->prev;
+		if (sb_delete->prev)
+			sb_delete->prev->next=sb_delete->next;
+		if (StackPos==sb_delete)
+			StackPos=(sb_delete->next)?sb_delete->next:sb_delete->prev;
+		xf_free (sb_delete);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 Edit * Editor::GetStringByNumber(int DestLine)

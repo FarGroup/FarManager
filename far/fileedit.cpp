@@ -2378,22 +2378,32 @@ int FileEditor::EditorControl(int Command, void *Param)
 		{
 			return m_editor->AddStackBookmark();
 		}
-		
+
 		case ECTL_PREVSTACKBOOKMARK:
 		{
 			return m_editor->PrevStackBookmark();
 		}
-		
+
 		case ECTL_NEXTSTACKBOOKMARK:
 		{
 			return m_editor->NextStackBookmark();
 		}
-		
+
 		case ECTL_CLEARSTACKBOOKMARKS:
 		{
 			return m_editor->ClearStackBookmarks();
 		}
-		
+
+		case ECTL_DELETESTACKBOOKMARK:
+		{
+			return m_editor->DeleteStackBookmark((InternalEditorStackBookMark *)-1);
+		}
+
+		case ECTL_STATSTACKBOOKMARK:
+		{
+			return 0;
+		}
+
 		case ECTL_SETTITLE:
 		{
 			strPluginTitle = NullToEmpty((const wchar_t*)Param);
