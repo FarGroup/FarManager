@@ -1885,6 +1885,10 @@ int Panel::SetPluginCommand(int Command,void *Param)
         Flags|=DestPanel->GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
         Flags|=DestPanel->GetNumericSort()?PFLAGS_NUMERICSORT:0;
 
+        if (CtrlObject->Cp()->LeftPanel == DestPanel)
+          Flags|=PFLAGS_PANELLEFT;
+        else if (CtrlObject->Cp()->RightPanel == DestPanel)
+          Flags|=PFLAGS_PANELRIGHT;
 
         Info->Flags=Flags;
       }

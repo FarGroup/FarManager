@@ -1,3 +1,7 @@
+t-rex 29.03.2008 09:15:50 +0200 - build 2348
+
+1. Panel API: Флаги PFLAGS_PANELLEFT и PFLAGS_PANELRIGHT.
+
 svs 27.03.2008 16:54:21 +0300 - build 2347
 
 1. Macro: добавлена макрообласть "Consts" для хранения именованных констант.
