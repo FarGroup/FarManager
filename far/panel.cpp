@@ -2058,6 +2058,10 @@ int Panel::SetPluginCommand(int Command,void *Param)
 				Flags|=GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
 				Flags|=GetNumericSort()?PFLAGS_NUMERICSORT:0;
 
+				if (CtrlObject->Cp()->LeftPanel == this)
+					Flags|=PFLAGS_PANELLEFT;
+				else if (CtrlObject->Cp()->RightPanel == this)
+					Flags|=PFLAGS_PANELRIGHT;
 
 				Info->Flags=Flags;
 			}
