@@ -1158,7 +1158,7 @@ const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int Size
 int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType);
 
 BOOL GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator);
-BOOL StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator);
+BOOL StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
 int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,char *OSrcDate,char *OSrcTime);
 
 #endif  // __FARFUNC_HPP__

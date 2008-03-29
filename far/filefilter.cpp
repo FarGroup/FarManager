@@ -697,7 +697,8 @@ void FileFilter::InitFilter()
       NewFilter->SetDate((DWORD)GetRegKey(RegKey,"UseDate",0),
                          (DWORD)GetRegKey(RegKey,"DateType",0),
                          DateAfter,
-                         DateBefore);
+                         DateBefore,
+                         GetRegKey(RegKey,"RelativeDate",0)?true:false);
 
       NewFilter->SetSize((DWORD)GetRegKey(RegKey,"UseSize",0),
                          (DWORD)GetRegKey(RegKey,"SizeType",0),
@@ -778,10 +779,12 @@ void FileFilter::SaveFilters()
 
     DWORD DateType;
     FILETIME DateAfter, DateBefore;
-    SetRegKey(RegKey,"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore));
+    bool bRelative;
+    SetRegKey(RegKey,"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative));
     SetRegKey(RegKey,"DateType",DateType);
     SetRegKey(RegKey,"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
     SetRegKey(RegKey,"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
+    SetRegKey(RegKey,"RelativeDate",bRelative?1:0);
 
 
     DWORD SizeType;

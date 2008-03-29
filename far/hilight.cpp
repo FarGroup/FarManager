@@ -32,7 +32,7 @@ struct HighlightStrings
        *MarkCharNormalColor,*MarkCharSelectedColor,*MarkCharCursorColor,*MarkCharSelectedCursorColor,
        *MarkChar,
        *ContinueProcessing,
-       *UseDate,*DateType,*DateAfter,*DateBefore,
+       *UseDate,*DateType,*DateAfter,*DateBefore, *DateRelative,
        *UseSize,*SizeType,*SizeAbove,*SizeBelow,
        *HighlightEdit,*HighlightList;
 };
@@ -44,7 +44,7 @@ static const HighlightStrings HLS=
   "MarkCharNormalColor","MarkCharSelectedColor","MarkCharCursorColor","MarkCharSelectedCursorColor",
   "MarkChar",
   "ContinueProcessing",
-  "UseDate","DateType","DateAfter","DateBefore",
+  "UseDate","DateType","DateAfter","DateBefore", "DateRelative",
   "UseSize","SizeType","SizeAbove","SizeBelow",
   "HighlightEdit","HighlightList"
 };
@@ -77,7 +77,8 @@ void LoadFilterFromReg(FileFilterParams *HData, const char *RegKey, const char *
   HData->SetDate((DWORD)GetRegKey(RegKey,HLS.UseDate,0),
                   (DWORD)GetRegKey(RegKey,HLS.DateType,0),
                   DateAfter,
-                  DateBefore);
+                  DateBefore,
+                  GetRegKey(RegKey,HLS.DateRelative,0)?true:false);
 
   HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
                   (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
@@ -671,10 +672,12 @@ void SaveFilterToReg(FileFilterParams *CurHiData, const char *RegKey, bool bSort
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
-  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
+  bool bRelative;
+  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative));
   SetRegKey(RegKey,HLS.DateType,DateType);
   SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
   SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
+  SetRegKey(RegKey,HLS.DateRelative,bRelative?1:0);
 
   DWORD SizeType;
   __int64 SizeAbove, SizeBelow;

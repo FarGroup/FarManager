@@ -68,6 +68,7 @@ class FileFilterParams
       FDateType DateType;
       FILETIME DateAfter;
       FILETIME DateBefore;
+      bool bRelative;
     } FDate;
 
     struct
@@ -106,7 +107,7 @@ class FileFilterParams
 
     void SetTitle(const char *Title);
     void SetMask(DWORD Used, const char *Mask);
-    void SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore);
+    void SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
     void SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow);
     void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
     void SetColors(HighlightDataColor *Colors);
@@ -115,7 +116,7 @@ class FileFilterParams
 
     const char *GetTitle() const;
     DWORD GetMask(const char **Mask) const;
-    DWORD GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore) const;
+    DWORD GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
     DWORD GetSize(DWORD *SizeType, __int64 *SizeAbove, __int64 *SizeBelow) const;
     DWORD GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
     void  GetColors(HighlightDataColor *Colors) const;
