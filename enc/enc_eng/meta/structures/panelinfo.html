@@ -72,7 +72,7 @@ struct PanelInfo
     <div class=dfn>PanelItems</div>
     <div class=dfndescr>Pointer to an array of all panel items (see
       <a href="pluginpanelitem.html">PluginPanelItem</a>). Plugins shouldn't change items
-      (except those marked with <a href="pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a>) 
+      (except those marked with <a href="pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a>)
       or free memory  allocated for this array.
       Data is valid until return from the plugin's exported function, which retrieved it
       via a  call to the Control(FCTL_GET[ANOTHER]PANELINFO, ...) function, or until the
@@ -86,7 +86,7 @@ struct PanelInfo
     <div class=dfndescr>Pointer to the array of selected panel items.
       (see <a href="pluginpanelitem.html">PluginPanelItem</a>).
       Plugin shouldn't change elements
-      (except those marked with <a href="pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a>) 
+      (except those marked with <a href="pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a>)
       or free memory allocated for this array.
       Data is valid until return from the plugin's exported function, which retrieved it
       via a  call to the Control(FCTL_GET[ANOTHER]PANELINFO, ...) function, or until the
@@ -109,7 +109,7 @@ struct PanelInfo
     <div class=dfndescr>Number of panel view mode.</div>
     <div class=dfn>ColumnTypes</div>
     <div class=dfndescr>Null-terminated string, which describes <a href="../exported_functions/panelcolumntype.html">column
-      types</a>. Column types are encoded with one or several letters, separated by commas, 
+      types</a>. Column types are encoded with one or several letters, separated by commas,
       for example: <b><code>&quot;N,SC,D,T&quot;</code></b>.</div>
     <div class=dfn>ColumnWidths</div>
     <div class=dfndescr>
@@ -147,6 +147,8 @@ struct PanelInfo
           (see also <a href="openplugininfo.html#OPIF_REALNAMES">OPIF_REALNAMES</a>).</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_NUMERICSORT">PFLAGS_NUMERICSORT</a></td>
       <td class="cont" width="60%"><a href="../dict.html#numericsort">Numeric sort</a> is used.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a> or <a name="PFLAGS_PANELRIGHT">PFLAGS_PANELRIGHT</a></td>
+      <td class="cont" width="60%">Left or right panel.</td></tr>
     </table>
      </div>
 
