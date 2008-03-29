@@ -586,13 +586,13 @@ int KeyMacro::ProcessKey(int Key)
       //_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
       //_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
       DWORD CurFlags;
-      if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < KEY_MASKF) // 0xFFFF ??
+      if((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
       {
 //        Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
         Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
         //_KEYMACRO(SysLog(L"Upper(Key)=%s",_FARKEY_ToName(Key)));
 
-        if((Key&0x00FFFFFF) > 0x7F && (Key&0x00FFFFFF) < KEY_MASKF)
+        if((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
           Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
       }
 

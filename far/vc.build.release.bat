@@ -1,5 +1,9 @@
 @echo off
 
+::    @echo off
+::    set NMAKE_OPTS=USE_VC8_32=1
+call "E:\MICROSOFT SDKS\WINDOWS\V6.0\BIN\setenv.cmd" /Release /x86 /xp
+
 rem set misc far compilation options
 set FAR_MSVCRT=
 set USE_WFUNC=/D "USE_WFUNC" /D "USE_WFUNC_ALW" /D "USE_WFUNC_IN"
