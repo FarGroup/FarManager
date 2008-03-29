@@ -31,16 +31,14 @@ the Windows API headers, it is not possible to achieve the correct 2-byte alignm
 will be compatible with FAR 1.65 and FAR 1.70 headers.
 But correct compilation will not be possible with Borland C++ 5.5 without modifying Windows API header files.
 
-<p>≈сли <b>не определено</b> макро <dfn>_FAR_USE_WIN32_FIND_DATA</dfn>, будет использоватьс€
-структура <a href="far_find_data.html">FAR_FIND_DATA</a>. ѕри этом код будет корректно работать со
-всеми компил€торами, но некоторые плагины, рассчитанные на то, что
-используетс€ <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a>,
-не будут компилироватьс€.
+<p>If the macro <dfn>_FAR_USE_WIN32_FIND_DATA</dfn> <b>is not defined</b>, the
+<a href="far_find_data.html">FAR_FIND_DATA</a> structure will be used. This way the code would compile correctly with any
+compiler, but some plugins that depend on the usage of <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a>
+would not compile.
 
-<p class=note><img src="../../images/warning.gif" alt="¬нимание!" width="10" height="10"> ¬нимание!</p>
-<UL class=note><LI>¬ FAR 1.70 release по умолчанию используетс€ вариант, совместимый со
-старыми плагинами (<dfn>_FAR_USE_WIN32_FIND_DATA</dfn> определено). ¬ версии FAR 1.71
-умолчанием станет вариант со структурой <a href="far_find_data.html">FAR_FIND_DATA</a>.
+<p class=note><img src="../../images/warning.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note><LI>In FAR 1.70 release <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> is used by default
+(<dfn>_FAR_USE_WIN32_FIND_DATA</dfn> is defined). In FAR 1.71 <a href="far_find_data.html">FAR_FIND_DATA</a> will be used by default.
 </div>
 
 <div class=see>See also:</div><div class=seecont>

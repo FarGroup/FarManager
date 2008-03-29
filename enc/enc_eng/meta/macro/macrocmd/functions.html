@@ -25,9 +25,9 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(N)</td>
-    <td class="cont" width="60%">Возвращает название или код клавиши, вызвавшей макропоследовательность.
-      <em>N</em> = 0 - возвращается код клавиши, <em>N</em> = 1 - возвращается наименование клавиши.<br>
-      Пример см. в описании <a href="akey.html">$AKey</a></td>
+    <td class="cont" width="60%">Returns the name or code of the key combination that was used to call this macro.
+      <em>N</em> = 0 - key code is returned, <em>N</em> = 1 - key name is returned.<br>
+      See example in the full description <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="abs">abs</a></dfn>(N)</td>
@@ -43,7 +43,7 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="mod">mod</a></dfn>(N1,N2)</td>
-    <td class="cont" width="60%">Деление <em>N1</em> по модулю <em>N2</em>.</td>
+    <td class="cont" width="60%">Division of <em>N1</em> by the modulus <em>N2</em>.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
@@ -62,9 +62,9 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace[,Cnt])</td>
-    <td class="cont" width="60%">В строке <em>Str</em> заменить подстроку <em>Find</em> на подстроку <em>Replace</em> <em>Cnt</em> раз
-      (укажите <em>Cnt</em> равное 0 или опустите этот параметр для замены всех найденных подстрок).<br>
-      Возвращается результат замены.</td>
+    <td class="cont" width="60%">Replace substing <em>Find</em> in <em>Str</em> with <em>Replace</em>, <em>Cnt</em> times
+      (set <em>Cnt</em> to 0 or omit this parameter to replace all occurrences).<br>
+      Returns the resulting string.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="asc">asc</a></dfn>(S)</td>
@@ -83,7 +83,7 @@
     <td class="cont" width="60%">Converts numeric value <em>N</em> to a string. Parameter
     <em>Radix</em> defines the base of the numerical representation for the number
     conversion. The <em>Radix</em> parameter can be from 2 to 36.
-    Если параметр <em>Radix</em> не указан, то подразумевается база 10.
+    If <em>Radix</em> is omitted, base 10 is implied.
     </td>
   </tr>
   <tr class="cont">
@@ -100,7 +100,7 @@
     <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1[,N2])</td>
     <td class="cont" width="60%">Returns the substring of the expression <em>V</em>
     beginning from position <em>N1</em> with the length of <em>N2</em>.<br>
-    Если параметр <em>N2</em> не указан или равен 0, то вернется подстрока от позиции <em>N1</em> до конца строки.
+    If <em>N2</em> is omitted or equals 0, a substring from <em>N1</em> to the end of the string will be returned.
     </td>
   </tr>
   <tr class="cont">
@@ -125,7 +125,7 @@
     <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
     Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
        <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><th class="cont" width="40%">Mode</th><th class="cont" width="60%">Description</th></tr>
         <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
         <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с начала строки</td></tr>
         <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с конца строки</td></tr>
@@ -327,7 +327,7 @@
         <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Show the &lt;Yes&gt;, &lt;No&gt; and &lt;Cancel&gt; buttons.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Show the &lt;Retry&gt; and &lt;Cancel&gt; buttons.</td></tr>
        </table>
-    If the <em>Flags</em> argument is 0 (или не указан) then standard message box is displayed with the &lt;Ok&gt; button.<br>
+    If the <em>Flags</em> argument is 0 (or omitted) then standard message box is displayed with the &lt;Ok&gt; button.<br>
     The return value is the number of the button the user selected (1 for the first, 2 for the second, etc.),
     if user canceled the message the result will be 0.
     </td>
@@ -338,7 +338,7 @@
       Параметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - имя истории ввода<br>
       <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
+       <tr class="cont"><th class="cont" width="10%">Flag</th><th class="cont" width="90%">Description</th></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
            <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
@@ -456,14 +456,14 @@ $End</pre>
     <td class="cont" width="60%">Позволяет переключить состояние Lock-клавиш (NumLock, CapsLock и ScrollLock).<br>
     Клавиша <em>Nkey</em>:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Nkey</th><th class="cont" width="90%">Описание</th></tr>
+       <tr class="cont"><th class="cont" width="10%">Nkey</th><th class="cont" width="90%">Description</th></tr>
         <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">NumLock</td></tr>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">CapsLock</td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">ScrollLock</td></tr>
        </table>
     Состояние <em>NState</em>:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">NState</th><th class="cont" width="90%">Описание</th></tr>
+       <tr class="cont"><th class="cont" width="10%">NState</th><th class="cont" width="90%">Description</th></tr>
         <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">получить состояние клавиши</td></tr>
         <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">погасить индикатор</td></tr>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">включить индикатор</td></tr>
@@ -541,7 +541,7 @@ $End
 <h3>Notes</h3>
 <div class=descr>
 <ol>
-<li>Параметры функций, обозначенные в квадратных скобках можно не указывать. Значение по умолчанию см. в описаниях функций.
+<li>Function arguments given in square brackets may be omitted. See default values in function description.
 <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
   a macro in a usual way. Macro-language elements can be added to the sequence only by editing
   the registry manually or by using special applications or FAR plugins.</li>

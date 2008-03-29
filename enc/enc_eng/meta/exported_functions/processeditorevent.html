@@ -109,15 +109,15 @@ int WINAPI ProcessEditorEvent(
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_KILLFOCUS">EE_KILLFOCUS</a></td>
-        <td class="cont" width="60%">–едактор потер€л фокус ввода.<br>
-          <i>Param</i> указывает на переменную, содержащую значение EditorID редактора, тер€ющего фокус.<br>
-          ‘ункци€ должна вернуть 0.
+        <td class="cont" width="60%">Editor has lost keyboard focus.<br>
+          <i>Param</i> points to a variable containing the EditorID of the editor that looses focus.<br>
+          Return value must be 0.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_GOTFOCUS">EE_GOTFOCUS</a></td>
-        <td class="cont" width="60%">–едактор получил фокус ввода.<br>
-          <i>Param</i> указывает на переменную, содержащую значение EditorID редактора, получающего фокус.<br>
-          ‘ункци€ должна вернуть 0.
+        <td class="cont" width="60%">Editor received keyboard focus.<br>
+          <i>Param</i> points to a variable containing the EditorID of the editor that receives focus.<br>
+          Return value must be 0.
         </td></tr>
 </table>
        <p class=warning><img src="../../images/warning.gif" alt="Remark for EE_REDRAW" width="10" height="10"> Attention!</p>

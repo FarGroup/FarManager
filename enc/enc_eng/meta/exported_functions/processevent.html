@@ -72,16 +72,16 @@ int WINAPI ProcessEvent(
           if it is going to process the command internally.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FE_KILLFOCUS">FE_KILLFOCUS</a></td>
-        <td class="cont" width="60%">Панель потеряла фокус ввода.<br>
+        <td class="cont" width="60%">Panel has lost keyboard focus.<br>
           <i>Param</i> = NULL.<br>
-          Функция должна вернуть FALSE.
+          Return value must be FALSE.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="FE_GOTFOCUS">FE_GOTFOCUS</a></td>
-        <td class="cont" width="60%">Панель получила фокус ввода.<br>
-          Активная панель получает событие FE_GOTFOCUS сразу после создания.<br>
+        <td class="cont" width="60%">Panel received keyboard focus.<br>
+          The active panel receives the FE_GOTFOCUS event immediately after its creation.<br>
           <i>Param</i> = NULL.<br>
-          Функция должна вернуть FALSE.
+          Return value must be FALSE.
         </td></tr>
       </table>
     </div>
