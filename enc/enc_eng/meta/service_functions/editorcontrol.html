@@ -42,6 +42,17 @@ int WINAPI EditorControl(
       does not exist, this command will return FALSE, otherwise TRUE.
     </td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Create navigation position ("stack bookmark") at current editor position.
+      All navigation positions with index greater then current one will be deleted.
+      <em>Param</em> must be <code>NULL</code>.
+      If command is processed successfully, this command returns TRUE, otherwise FALSE.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_CLEARSTACKBOOKMARKS">ECTL_CLEARSTACKBOOKMARKS</a></td>
+    <td class="cont" width="60%">Deletes all navigation positions. <em>Param</em> must be <code>NULL</code>.
+    </td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
     <td class="cont" width="60%">Deletes the block currently selected in the editor. Returns
     <code>TRUE</code> if the block has been deleted successfully or <code>FALSE</code> in case the
@@ -52,6 +63,15 @@ int WINAPI EditorControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETECHAR">ECTL_DELETECHAR</a></td>
     <td class="cont" width="60%">Deletes the character under cursor. <em>Param</em> must be NULL.
     </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTACKBOOKMARK">ECTL_DELETESTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Deletes specified navigation position.
+      <em>Param</em> contains index of navigation position to be deleted (0 and greater)
+      or -1 for deleting current navigation position. Count of navigation positions can be recieved after executing
+      <a href="#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a> command with <em>Param</em> containing <code>NULL</code>.<br>
+      If command is processed successfully, this command returns TRUE, otherwise FALSE.
+  </td></tr>
+
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTRING">ECTL_DELETESTRING</a></td>
     <td class="cont" width="60%">Deletes the current line. <em>Param</em> must be NULL.
@@ -79,6 +99,13 @@ int WINAPI EditorControl(
        <li><var>Param</var> is <code>NULL</code>;
      </ol>
      If the command succeeds TRUE is returned.<br>
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a></td>
+    <td class="cont" width="60%">Returns information about navigation positions ("stack bookmarks") for the current editor.<br>
+     <em>Param</em> points to an <a href="../structures/editorbookmarks.html">EditorBookMarks</a>
+     structure or contains <code>NULL</code>. This command returns count of navigation positions were successfully set
+     (or summary navigation positions count in case if <var>Param</var> was <code>NULL</code>).
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETCOLOR">ECTL_GETCOLOR</a></td>
@@ -126,10 +153,24 @@ Info.EditorControl(ECTL_INSERTSTRING,0);</pre>
 Info.EditorControl(ECTL_INSERTTEXT,"Text");</pre>
     </td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_NEXTSTACKBOOKMARK">ECTL_NEXTSTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Go to next navigation position.<br>
+     <em>Param</em> must be <code>NULL</code>.
+     If command is processed successfully, this command returns TRUE, otherwise FALSE.
+    </td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_OEMTOEDITOR">ECTL_OEMTOEDITOR</a></td>
     <td class="cont" width="60%">Converts text from the OEM codepage to the editor codepage.
       <em>Param</em> points to an
       <a href="../structures/editorconverttext.html">EditorConvertText</a> structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PREVSTACKBOOKMARK">ECTL_PREVSTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Go to previous navigation position.If there were no navigation commands after last
+     <a href="#ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a> command, current editor position will be saved as a
+     new navigation position before executing this command.<br>
+     <em>Param</em> must be <code>NULL</code>.
+     If command is processed successfully, this command returns TRUE, otherwise FALSE.
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a></td>

@@ -41,6 +41,16 @@ int WINAPI EditorControl(
       Если указанная строка отсутствует, то
       возвращается FALSE, иначе TRUE.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Добавить позицию навигации ("стековую закладку") в текущую позицию редактора.
+  При добавлении удаляются все позиции навигации с индексом выше индекса текущей позиции навигации.
+  Param должен быть равен NULL. Команда возвращает TRUE в случае успешного выполнения.
+  </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_CLEARSTACKBOOKMARKS">ECTL_CLEARSTACKBOOKMARKS</a></td>
+    <td class="cont" width="60%">Удалить все позиции навигации. <em>Param</em> должен быть равен <code>NULL</code>.
+  </td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
     <td class="cont" width="60%">Удалить блок в редакторе. Функция вернет
      <code>TRUE</code> в случае удачного удаления блока и <code>FALSE</code>,
@@ -51,6 +61,14 @@ int WINAPI EditorControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETECHAR">ECTL_DELETECHAR</a></td>
     <td class="cont" width="60%">Удалить символ под курсором. <em>Param</em> должен быть
       NULL.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTACKBOOKMARK">ECTL_DELETESTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Удалить указанную позицию навигации.
+  <em>Param</em> должен быть равен индексу удаляемой позиции навигации (0 и более) или -1 для удаления текущей позиции навигации.
+  Количество позиций навигации можна получить, вызвав <a href="#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a> c <em>Param</em>
+  равным значению <code>NULL</code>.<br>
+  Команда возвращает TRUE в случае успешного выполнения.
+  </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTRING">ECTL_DELETESTRING</a></td>
     <td class="cont" width="60%">Удалить текущую строку. <em>Param</em> должен быть NULL.</td></tr>
@@ -79,6 +97,13 @@ int WINAPI EditorControl(
      В случае успеха возвращается TRUE.<br>
     </td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a></td>
+    <td class="cont" width="60%">Получить информацию о позициях навигации ("стековых закладках") для текущего
+     редактируемого файла. 
+     <em>Param</em> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a> или равен значению <code>NULL</code>.<br>
+     Команда возвращает количество позиций навигации, информация о которых была передана (или общее количество позиций навигации,
+     если в качестве <var>Param</var> было передано значение <code>NULL</code>).
+    </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETCOLOR">ECTL_GETCOLOR</a></td>
     <td class="cont" width="60%">Получить цвет части строки. <em>Param</em> указывает на
@@ -129,10 +154,23 @@ Info.EditorControl(ECTL_INSERTSTRING,0);</pre>
 Info.EditorControl(ECTL_INSERTTEXT,"Text");</pre>
     </td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_NEXTSTACKBOOKMARK">ECTL_NEXTSTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Перейти на следующую позицию навигации.
+  <em>Param</em> должен быть равен <code>NULL</code>.<br>
+  Команда возвращает TRUE в случае успешного выполнения.
+  </td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_OEMTOEDITOR">ECTL_OEMTOEDITOR</a></td>
     <td class="cont" width="60%">Конвертировать текст из OEM-кодировки в
       кодировку редактора. <em>Param</em> указывает на
       структуру <a href="../structures/editorconverttext.html">EditorConvertText</a>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PREVSTACKBOOKMARK">ECTL_PREVSTACKBOOKMARK</a></td>
+    <td class="cont" width="60%">Перейти на предыдущую позицию навигации. 
+  Если после предыдущего вызова команды <a href="#ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a> не выполнялось операций
+  с позициями навигации, то перед переходом запоминается текущая позиция редактора в качестве новой позиции навигации.
+  <em>Param</em> должен быть равен <code>NULL</code>. Команда возвращает TRUE в случае успешного выполнения.
+  </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a></td>
     <td class="cont" width="60%">Передает структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>,
