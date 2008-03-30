@@ -198,6 +198,9 @@ class Editor:public ScreenObject
     int PrevStackBookmark();
     int NextStackBookmark();
     int ClearStackBookmarks();
+    int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
+    int DeleteStackBookmark(int iDeleteIdx);
+    int GetStackBookmarks(void *Param);
 
     bool AddString (const char *lpszStr, int nLength);
     Edit *CreateString (const char *lpszStr, int nLength);
