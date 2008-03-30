@@ -227,6 +227,8 @@ class Editor:public ScreenObject
     int NextStackBookmark();
     int ClearStackBookmarks();
     int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
+    int DeleteStackBookmark(int iDeleteIdx);
+    int GetStackBookmarks(void *Param);
 
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);

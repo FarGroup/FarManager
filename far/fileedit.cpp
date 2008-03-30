@@ -2396,12 +2396,12 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 		case ECTL_DELETESTACKBOOKMARK:
 		{
-			return m_editor->DeleteStackBookmark((InternalEditorStackBookMark *)-1);
+			return m_editor->DeleteStackBookmark((int)(INT_PTR)Param);
 		}
 
-		case ECTL_STATSTACKBOOKMARK:
+		case ECTL_GETSTACKBOOKMARKS:
 		{
-			return 0;
+			return m_editor->GetStackBookmarks(Param);
 		}
 
 		case ECTL_SETTITLE:

@@ -2551,7 +2551,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 		case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSTACKBOOKMARK; break;
 		case oldfar::ECTL_CLEARSTACKBOOKMARKS:	Command = ECTL_CLEARSTACKBOOKMARKS; break;
 		case oldfar::ECTL_DELETESTACKBOOKMARK:	Command = ECTL_DELETESTACKBOOKMARK; break;
-		case oldfar::ECTL_STATSTACKBOOKMARK:		Command = ECTL_STATSTACKBOOKMARK; break;
+		case oldfar::ECTL_GETSTACKBOOKMARKS:		Command = ECTL_GETSTACKBOOKMARKS; break;
 
 		case oldfar::ECTL_GETSTRING:
 		{
