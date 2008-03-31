@@ -19,15 +19,11 @@
 <h3>Function list</h3>
 <p>You can use the following functions in the macro sequence:</p>
 <table class="cont">
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Математические функции</th></tr>
   <tr class="cont">
     <th class="cont" width="40%">Function</th>
     <th class="cont" width="60%">Description</th>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(N)</td>
-    <td class="cont" width="60%">Returns the name or code of the key combination that was used to call this macro.
-      <em>N</em> = 0 - key code is returned, <em>N</em> = 1 - key name is returned.<br>
-      See example in the full description <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="abs">abs</a></dfn>(N)</td>
@@ -46,9 +42,15 @@
     <td class="cont" width="60%">Division of <em>N1</em> by the modulus <em>N2</em>.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
-    <td class="cont" width="60%">Conditional function. If condition <em>Cond</em> is true
-    then <em>True</em>-expression is returned, <em>False</em>-expression otherwise.</td>
+    <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
+    <td class="cont" width="60%">Evaluates the <em>V</em> argument to a number.</td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Строковые функции</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="index">index</a></dfn>(S1,S2)</td>
@@ -73,10 +75,6 @@
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="chr">chr</a></dfn>(N)</td>
     <td class="cont" width="60%">Returns the character for the code <em>N</em>.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
-    <td class="cont" width="60%">Evaluates the <em>V</em> argument to a number.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="itoa">itoa</a></dfn>(N[,Radix])</td>
@@ -104,116 +102,32 @@
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
-    <td class="cont" width="60%">Returns 1 if there is a hot key <em>S</em> in a menu
-    and the current 'object' is a menu, otherwise returns 0.
-    <p>For example there's a hotkey '7' assigned to 'S&amp;R' plugin in the plugins menu (F11).
-    The following macro command sequence for the internal file editor should call 'S&amp;R'
-    plugin if there is a hot key assigned and the standard search dialog if not:
-    <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
-    <td class="cont" width="60%">Returns the hotkey <em>S</em> for item <em>N</em>, if the item has a hotkey
-      and the current &quot;object&quot; is a menu. Otherwise 0 is returned.<br>
-      <em>N</em> - item position beginning with 1 (0 - current item).
-    </td>
+    <td class="cont" width="40%">S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
+    <td class="cont" width="60%">Transforms the string <em>S</em> to lower-case.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
-    <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
-    Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
-       <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Mode</th><th class="cont" width="60%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
-        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с начала строки</td></tr>
-        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с конца строки</td></tr>
-       </table>
-    Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
-    Возвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
-    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
-    Если параметр <em>N</em> не указан, подразумевается полное совпадение.
-  </td>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
-    <td class="cont" width="60%">Get misc. values of the current dialog.<br>
-      <em>ID</em> - dialog element number (elements are numbered starting with 1; 0 - is the dialog windows itself).<br>
-      <em>Type</em> - type of the value to get, depending on the type of the element. For the dialog windows itself (ID=0) the following values are allowed:
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="80%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of elements in the dialog</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID of the current element that has the <a href="../../dialogapi/keybfocus.html">keyboard focus</a></td></tr>
-       </table>
-
-       For dialog elements the following values are allowed:
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="10%">Element</th><th class="cont" width="70%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Element type</a></td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X1 relative to the dialog window</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y1 relative to the dialog window</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X2 relative to the dialog window</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y2 relative to the dialog window</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">does the element has focus?</td></tr>
-
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">0</td></tr>
-
-        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Element flags</a></td></tr>
-        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">A flag that specifies that the given dialog element is the "default element".</td></tr>
-
-        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the  <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
-       </table>
-       Returns -1 if <em>ID</em> is bigger than the number of elements in the dialog or the value of <em>Type</em> is not supported.<br>
-    </td>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
-    <td class="cont" width="60%">Change settings of the current editor instance.
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Var Type</th><th class="cont" width="80%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Tab size</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Expand tabs</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Persistent blocks</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Del removes blocks</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Autoindent</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Autodetect character table</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Create new files in WIN encoding</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Cursor beyond end of line</td></tr>
-        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">BackSpace behaviour (TechInfo #13)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Representation of the character under cursor in the status line (TechInfo #32)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Save file position</td></tr>
-        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Save bookmarks</td></tr>
-        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Word delimiters (TechInfo #1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
-       </table>
-       The value of <em>Var</em> can be  -1, in this case the function will not change any settings
-       and will return the current state of the option.<br>
-       Returns the previous value of the option or -1 if wrong arguments are given.<br>
-       For example, a macro that moves the selected block one line down:
-       <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
-    </td>
+    <td class="cont" width="40%">S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
+    <td class="cont" width="60%">Transforms the string <em>S</em> to upper-case .</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
-    <td class="cont" width="60%">Returns the value of an environment variable V, for instance:<br>
-    <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>...do something...</em> $end</pre></td>
+    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
+    <td class="cont" width="60%">Returns the current date/time according to the format <em>format</em>
+    (See the $Date for the <em>format</em> description).<br>
+    This function is similar to $Date macro-command but can also be used in expressions.
+  The <em>format</em> argument is mandatory.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="xlat">xlat</a></dfn>(S)</td>
+    <td class="cont" width="60%">Returns the transliterated string.<br>
+    This function is similar to $XLat macro command but can be used in expressions.
+    Argument <em>S</em> is mandatory.</td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Файловые функции</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="fsplit">fsplit</a></dfn>(path,N)</td>
@@ -235,14 +149,6 @@
       Usage of the '*' and '?' mask symbols is allowed in the <em>S</em> argument. In that case the function
       checks only the first occurrence of the file or folder.<br>
       This function does not work with the panels.
-     </td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="panel.fexist">panel.fexist</a></dfn>(panelType,S)</td>
-    <td class="cont" width="60%">Checks if the file or folder <em>S</em> exists in the active (<em>panelType</em>=0) or the passive (<em>panelType</em>=1) panel (returns 1 if true or 0 otherwise).<br>
-      Usage of the '*' and '?' mask symbols is allowed in the <em>S</em> argument. In that case the function
-      checks only the first occurrence of the file or folder.<br>
-      This function works only with the panels.
      </td>
   </tr>
   <tr class="cont">
@@ -271,6 +177,21 @@
        This function does not work with the panels.
     </td>
   </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Панель</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.fexist">panel.fexist</a></dfn>(panelType,S)</td>
+    <td class="cont" width="60%">Checks if the file or folder <em>S</em> exists in the active (<em>panelType</em>=0) or the passive (<em>panelType</em>=1) panel (returns 1 if true or 0 otherwise).<br>
+      Usage of the '*' and '?' mask symbols is allowed in the <em>S</em> argument. In that case the function
+      checks only the first occurrence of the file or folder.<br>
+      This function works only with the panels.
+     </td>
+  </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="panel.fattr">panel.fattr</a></dfn>(panelType,S)</td>
     <td class="cont" width="60%">Returns the file system attributes of the file or folder <em>S</em> from the active (<em>panelType</em>=0) or the passive (<em>panelType</em>=1) panel.<br>
@@ -296,68 +217,6 @@
        checks only the first occurrence of the file or folder.<br>
        This function works only with the panels.
     </td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
-    <td class="cont" width="60%">Returns the current date/time according to the format <em>format</em>
-    (See the $Date for the <em>format</em> description).<br>
-    This function is similar to $Date macro-command but can also be used in expressions.
-  The <em>format</em> argument is mandatory.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="xlat">xlat</a></dfn>(S)</td>
-    <td class="cont" width="60%">Returns the transliterated string.<br>
-    This function is similar to $XLat macro command but can be used in expressions.
-    Argument <em>S</em> is mandatory.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
-    <td class="cont" width="60%">Shows up the message box with the <em>Text</em> and the <em>Title</em>.
-    Lines in the <em>Text</em> argument should be delimited by '\n'.<br>
-      <em>Flags</em> can be a combination of the following values:
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Use the 'Warning' color scheme (usually white text on red background).</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Show the message lower by two lines.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Use the left alignment for the message strings (align to center of not specified).</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00010000</td><td class="cont" width="90%">Show the &lt;Ok&gt; button.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00020000</td><td class="cont" width="90%">Show the &lt;Ok&gt; and &lt;Cancel&gt; buttons.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00030000</td><td class="cont" width="90%">Show the &lt;Abort&gt;, &lt;Retry&gt; and &lt;Ignore&gt; buttons.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00040000</td><td class="cont" width="90%">Show the &lt;Yes&gt; and &lt;No&gt; buttons.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Show the &lt;Yes&gt;, &lt;No&gt; and &lt;Cancel&gt; buttons.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Show the &lt;Retry&gt; and &lt;Cancel&gt; buttons.</td></tr>
-       </table>
-    If the <em>Flags</em> argument is 0 (or omitted) then standard message box is displayed with the &lt;Ok&gt; button.<br>
-    The return value is the number of the button the user selected (1 for the first, 2 for the second, etc.),
-    if user canceled the message the result will be 0.
-    </td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])</td>
-    <td class="cont" width="60%">Функция позволяет ввести одну строку текста.<br>
-      Параметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - имя истории ввода<br>
-      <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Flag</th><th class="cont" width="90%">Description</th></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <em>History</em>.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
-       </table>
-       Функция возвращает строку - введенное пользователем значение.<br>
-       Например, запросить пароль и вывести его
-      <pre class=code>%s=prompt("Password","Input password:",0x02); $Text %s</pre>
-    </td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
-    <td class="cont" width="60%">Transforms the string <em>S</em> to lower-case.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
-    <td class="cont" width="60%">Transforms the string <em>S</em> to upper-case .</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(panelType,itemIndex,propIndex)</td>
@@ -419,6 +278,36 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
       Returns element position or 0 if such element does not exist.<br>
     </td>
   </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Управляющие функции</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
+    <td class="cont" width="60%">Conditional function. If condition <em>Cond</em> is true
+    then <em>True</em>-expression is returned, <em>False</em>-expression otherwise.</td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Среда исполнения</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(N)</td>
+    <td class="cont" width="60%">Returns the name or code of the key combination that was used to call this macro.
+      <em>N</em> = 0 - key code is returned, <em>N</em> = 1 - key name is returned.<br>
+      See example in the full description <a href="akey.html">$AKey</a></td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
+    <td class="cont" width="60%">Returns the value of an environment variable V, for instance:<br>
+    <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>...do something...</em> $end</pre></td>
+  </tr>
   <tr class="cont">
     <td class="cont" width="40%">B=<dfn><a name="msave">msave</a></dfn>(S)</td>
     <td class="cont" width="60%">Stores the value of a global variable with the name <em>S</em>
@@ -427,7 +316,7 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
     Example: <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
     </td>
   </tr>
-<tr class="cont">
+  <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
     <td class="cont" width="60%">Allows to perform miscellaneous manipulations on the Clipboard in accordance with the
          <em>Cmd</em> command:
@@ -534,6 +423,169 @@ $If (APanel.Visible &amp;&amp; (!APanel.Plugin || (!APanel.Bof &amp;&amp;(APanel
   Eval(%%CmdRestore)
 $End
 </pre>
+    </td>
+  </tr>
+
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Взаимодействие с пользователем</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
+    <td class="cont" width="60%">Shows up the message box with the <em>Text</em> and the <em>Title</em>.
+    Lines in the <em>Text</em> argument should be delimited by '\n'.<br>
+      <em>Flags</em> can be a combination of the following values:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Use the 'Warning' color scheme (usually white text on red background).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Show the message lower by two lines.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Use the left alignment for the message strings (align to center of not specified).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00010000</td><td class="cont" width="90%">Show the &lt;Ok&gt; button.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00020000</td><td class="cont" width="90%">Show the &lt;Ok&gt; and &lt;Cancel&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00030000</td><td class="cont" width="90%">Show the &lt;Abort&gt;, &lt;Retry&gt; and &lt;Ignore&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00040000</td><td class="cont" width="90%">Show the &lt;Yes&gt; and &lt;No&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Show the &lt;Yes&gt;, &lt;No&gt; and &lt;Cancel&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Show the &lt;Retry&gt; and &lt;Cancel&gt; buttons.</td></tr>
+       </table>
+    If the <em>Flags</em> argument is 0 (or omitted) then standard message box is displayed with the &lt;Ok&gt; button.<br>
+    The return value is the number of the button the user selected (1 for the first, 2 for the second, etc.),
+    if user canceled the message the result will be 0.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])</td>
+    <td class="cont" width="60%">Функция позволяет ввести одну строку текста.<br>
+      Параметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - имя истории ввода<br>
+      <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flag</th><th class="cont" width="90%">Description</th></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <em>History</em>.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+       </table>
+       Функция возвращает строку - введенное пользователем значение.<br>
+       Например, запросить пароль и вывести его
+      <pre class=code>%s=prompt("Password","Input password:",0x02); $Text %s</pre>
+    </td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Элементы управления</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
+    <td class="cont" width="60%">Returns 1 if there is a hot key <em>S</em> in a menu
+    and the current 'object' is a menu, otherwise returns 0.
+    <p>For example there's a hotkey '7' assigned to 'S&amp;R' plugin in the plugins menu (F11).
+    The following macro command sequence for the internal file editor should call 'S&amp;R'
+    plugin if there is a hot key assigned and the standard search dialog if not:
+    <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
+    <td class="cont" width="60%">Returns the hotkey <em>S</em> for item <em>N</em>, if the item has a hotkey
+      and the current &quot;object&quot; is a menu. Otherwise 0 is returned.<br>
+      <em>N</em> - item position beginning with 1 (0 - current item).
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
+    <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
+    Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
+       <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Mode</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
+        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с начала строки</td></tr>
+        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с конца строки</td></tr>
+       </table>
+    Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
+    Возвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
+    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
+    Если параметр <em>N</em> не указан, подразумевается полное совпадение.
+  </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
+    <td class="cont" width="60%">Get misc. values of the current dialog.<br>
+      <em>ID</em> - dialog element number (elements are numbered starting with 1; 0 - is the dialog windows itself).<br>
+      <em>Type</em> - type of the value to get, depending on the type of the element. For the dialog windows itself (ID=0) the following values are allowed:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="80%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of elements in the dialog</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID of the current element that has the <a href="../../dialogapi/keybfocus.html">keyboard focus</a></td></tr>
+       </table>
+
+       For dialog elements the following values are allowed:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="10%">Element</th><th class="cont" width="70%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Element type</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X1 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y1 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X2 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y2 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">does the element has focus?</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">0</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Element flags</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">A flag that specifies that the given dialog element is the "default element".</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the  <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
+       </table>
+       Returns -1 if <em>ID</em> is bigger than the number of elements in the dialog or the value of <em>Type</em> is not supported.<br>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
+    <td class="cont" width="60%">Change settings of the current editor instance.
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Var Type</th><th class="cont" width="80%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Tab size</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Expand tabs</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Persistent blocks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Del removes blocks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Autoindent</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Autodetect character table</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Create new files in WIN encoding</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Cursor beyond end of line</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">BackSpace behaviour (TechInfo #13)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Representation of the character under cursor in the status line (TechInfo #32)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Save file position</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Save bookmarks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Word delimiters (TechInfo #1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
+       </table>
+       The value of <em>Var</em> can be  -1, in this case the function will not change any settings
+       and will return the current state of the option.<br>
+       Returns the previous value of the option or -1 if wrong arguments are given.<br>
+       For example, a macro that moves the selected block one line down:
+       <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
     </td>
   </tr>
   </table>

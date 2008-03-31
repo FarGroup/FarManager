@@ -19,15 +19,11 @@
 <p>В макропоследовательности допускаются следующие функции:
 
 <table class="cont">
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Математические функции</th></tr>
   <tr class="cont">
     <th class="cont" width="40%">Функция</th>
     <th class="cont" width="60%">Описание</th>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(N)</td>
-    <td class="cont" width="60%">Возвращает название или код клавиши, вызвавшей макропоследовательность.
-       <em>N</em> = 0 - возвращается код клавиши, <em>N</em> = 1 - возвращается наименование клавиши.<br>
-       Пример см. в описании <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="abs">abs</a></dfn>(N)</td>
@@ -46,9 +42,15 @@
     <td class="cont" width="60%">Деление <em>N1</em> по модулю <em>N2</em>.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
-    <td class="cont" width="60%">Условный оператор. Если условие <em>Cond</em> верно,
-      то возвращается <em>True</em>-выражение, иначе <em>False</em>-выражение.</td>
+    <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
+    <td class="cont" width="60%">Приведение значения выражения <em>V</em> к числу.</td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Строковые функции</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="index">index</a></dfn>(S1,S2)</td>
@@ -65,10 +67,6 @@
     <td class="cont" width="60%">В строке <em>Str</em> заменить подстроку <em>Find</em> на подстроку <em>Replace</em> <em>Cnt</em> раз
       (укажите <em>Cnt</em> равное 0 или опустите этот параметр для замены всех найденных подстрок).<br>
       Возвращается результат замены.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
-    <td class="cont" width="60%">Приведение значения выражения <em>V</em> к числу.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="asc">asc</a></dfn>(S)</td>
@@ -104,118 +102,34 @@
       </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
-    <td class="cont" width="60%">Возвращает 1, если в меню присутствует горячая
-      клавиша <em>S</em> и текущий &quot;объект&quot; - меню. В противном
-      случае возвращает 0.
-      <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
-      горячая клавиша '7'. Последовательность макрокоманды для
-      редактора:
-      <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
-      вызовет плагин, если хоткей назначен или стандартный диалог
-      поиска, если хоткей не назначен.</td>
+    <td class="cont" width="40%">S=<dfn><a name="xlat">xlat</a></dfn>(S)</td>
+    <td class="cont" width="60%">Возвращает транслитерируемую строку<br>
+      Функция аналогична макрокоманде $XLat, но используется в
+      выражениях. Строковый аргумент <em>S</em> обязателен.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
-    <td class="cont" width="60%">Возвращает хоткей <em>S</em> для пункта <em>N</em>, если в меню присутствует горячая
-      клавиша и текущий &quot;объект&quot; - меню. В противном случае (не меню; нет хоткея; N больше чем количество пунктов меню) возвращает 0.<br>
-      Здесь <em>N</em> - позиция в списке от 1 (0 - текущая).
-    </td>
+    <td class="cont" width="40%">S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
+    <td class="cont" width="60%">Преобразует строку <em>S</em> в нижний регистр.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
-    <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
-    Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
-       <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
-        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с начала строки</td></tr>
-        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с конца строки</td></tr>
-       </table>
-    Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
-    Возвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
-    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
-    Если параметр <em>N</em> не указан, подразумевается полное совпадение.
-  </td>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
-    <td class="cont" width="60%">Получить различные значения текущего диалога.<br>
-      <em>ID</em> - номер элемента диалога (элементы нумеруются с 1; 0 - само диалоговое окно).<br>
-      <em>Type</em> - тип получаемой информации, зависит от типа элемента. Для самого диалога (ID=0) допустимы следующие значения:
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Количество элементов диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID текущего элемента, имеющего <a href="../../dialogapi/keybfocus.html">клавиатурный фокус ввода</a></td></tr>
-       </table>
-
-       Для элементов диалога допустимы:
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="10%">Элемент</th><th class="cont" width="70%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Тип элемента</a></td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X1 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y1 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X2 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y2 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">элемент в фокусе?</td></tr>
-
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">0</td></tr>
-
-        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Флаги элемента</a></td></tr>
-        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Флаг, означающий, что данный элемент диалога является "элементом по умолчанию".</td></tr>
-
-        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
-       </table>
-       Возвращает -1, если <em>ID</em> больше количества элементов диалога или значение <em>Type</em> не поддерживается.<br>
-    </td>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
-    <td class="cont" width="60%">Для текущей копии редактора изменить настройки.
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер табуляции</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Преобразование табуляции</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Постоянные блоки</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Del удаляет блоки</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Автоотступ</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Автоопределение таблицы символов</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AnsiTableForNewFile</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Курсор за пределами строки</td></tr>
-        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">поведением клавиши BackSpace (TechInfo #13)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Представление кода символа под курсором в статусной строке (TechInfo #32)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Сохранять позицию файла</td></tr>
-        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Сохранять закладки</td></tr>
-        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Символы разделители слов (TechInfo #1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
-       </table>
-       Значение <em>Var</em> может быть равно -1, в этом случае функция ничего не изменит, а вернет текущее значение настройки.<br>
-       Возвращает предыдущее значение опций или -1, если данные указаны некорректно.<br>
-       Например, макрос, перемещающий выделенный фрагмент на одну строку вниз:
-       <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
-    </td>
+    <td class="cont" width="40%">S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
+    <td class="cont" width="60%">Преобразует строку <em>S</em> в верхний регистр.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
-    <td class="cont" width="60%">Возвращает значение переменной среды V,
-      например,<br>
-      <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>что-то делаем</em> $end</pre></td>
+    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
+    <td class="cont" width="60%">Возвращает текущую дату/время по формату <em>format</em>
+      (описание <em>format</em> см. в $Date).<br>
+      Функция аналогична макрокоманде $Date, но используется в
+      выражениях. Строковый аргумент <em>format</em> в отличии от
+      макрокоманды $Date обязателен.</td>
+  </tr>
+
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Файловые функции</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="fsplit">fsplit</a></dfn>(path,N)</td>
@@ -237,14 +151,6 @@
       проверяет только первое вхождение файла/каталога.<br>
       Функция не работает с панелями.
     </td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="panel.fexist">panel.fexist</a></dfn>(panelType,S)</td>
-    <td class="cont" width="60%">Проверяет существование файла/каталога <em>S</em> из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели (возвращает 0 или 1).<br>
-      В параметр <em>S</em> допускается использование символов '*' и '?'. В этом случае функция
-      проверяет только первое вхождение файла/каталога.<br>
-      Функция работает только с панелями.
-     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="fattr">fattr</a></dfn>(S)</td>
@@ -273,6 +179,22 @@
        Функция не работает с панелями.
     </td>
   </tr>
+
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Панель</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.fexist">panel.fexist</a></dfn>(panelType,S)</td>
+    <td class="cont" width="60%">Проверяет существование файла/каталога <em>S</em> из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели (возвращает 0 или 1).<br>
+      В параметр <em>S</em> допускается использование символов '*' и '?'. В этом случае функция
+      проверяет только первое вхождение файла/каталога.<br>
+      Функция работает только с панелями.
+     </td>
+  </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="panel.fattr">panel.fattr</a></dfn>(panelType,S)</td>
     <td class="cont" width="60%">Возвращает файловые атрибуты файла/каталога <em>S</em> из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
@@ -299,72 +221,6 @@
        возвращает атрибуты только для первого найденного файла/каталога.<br>
        Функция работает только с панелями.
     </td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
-    <td class="cont" width="60%">Возвращает текущую дату/время по формату <em>format</em>
-      (описание <em>format</em> см. в $Date).<br>
-      Функция аналогична макрокоманде $Date, но используется в
-      выражениях. Строковый аргумент <em>format</em> в отличии от
-      макрокоманды $Date обязателен.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="xlat">xlat</a></dfn>(S)</td>
-    <td class="cont" width="60%">Возвращает транслитерируемую строку<br>
-      Функция аналогична макрокоманде $XLat, но используется в
-      выражениях. Строковый аргумент <em>S</em> обязателен.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
-    <td class="cont" width="60%">
-      Показывает сообщение <em>Text</em> с заголовком <em>Title</em>.
-      В параметре <em>Text</em> строки разбиваются символом '\n'.<br>
-      <em>Flags</em> может быть набором следующих значений:
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Используются цвета "Предупреждения" (обычно белые буквы на красном фоне).</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Показать сообщение двумя строками ниже.</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00010000</td><td class="cont" width="90%">Выводится кнопка &lt;Ok&gt;</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00020000</td><td class="cont" width="90%">Выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00030000</td><td class="cont" width="90%">Выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00040000</td><td class="cont" width="90%">Выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
-       </table>
-       Если параметр <em>Flags</em> равен 0 (или не указан), то выводится стандартный диалог с кнопкой &lt;Ok&gt;<br>
-       Функция возвращает 0, если пользователь отменил сообщение или выбранный номер кнопки
-       (для первой кнопки - 1, для второй - 2 и так далее).
-    </td>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])</td>
-    <td class="cont" width="60%">Функция позволяет ввести одну строку текста.<br>
-      Параметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - имя истории ввода<br>
-      <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
-       <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <em>History</em>.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
-           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
-       </table>
-       Функция возвращает строку - введенное пользователем значение.<br>
-       Например, запросить пароль и вывести его
-      <pre class=code>%s=prompt("Password","Input password:",0x02); $Text %s</pre>
-    </td>
-  </tr>
-
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
-    <td class="cont" width="60%">Преобразует строку <em>S</em> в нижний регистр.</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
-    <td class="cont" width="60%">Преобразует строку <em>S</em> в верхний регистр.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(panelType,itemIndex,propIndex)</td>
@@ -424,12 +280,43 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
       Возвращает позицию элемента или 0, если такого элемента на панели нет.<br>
     </td>
   </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Управляющие функции</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
+    <td class="cont" width="60%">Условный оператор. Если условие <em>Cond</em> верно,
+      то возвращается <em>True</em>-выражение, иначе <em>False</em>-выражение.</td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Среда исполнения</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
+    <td class="cont" width="60%">Возвращает значение переменной среды V,
+      например,<br>
+      <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>что-то делаем</em> $end</pre></td>
+  </tr>
   <tr class="cont">
     <td class="cont" width="40%">B=<dfn><a name="msave">msave</a></dfn>(S)</td>
     <td class="cont" width="60%">Сохраняет значение глобальной переменной с именем <em>S</em> в область <dfn>Vars</dfn>.
      В случае неудачи возвращает 0.<br>
      Например, <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
     </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="akey">akey</a></dfn>(N)</td>
+    <td class="cont" width="60%">Возвращает название или код клавиши, вызвавшей макропоследовательность.
+       <em>N</em> = 0 - возвращается код клавиши, <em>N</em> = 1 - возвращается наименование клавиши.<br>
+       Пример см. в описании <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
@@ -540,6 +427,173 @@ $End
 
     </td>
   </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Взаимодействие с пользователем</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
+    <td class="cont" width="60%">
+      Показывает сообщение <em>Text</em> с заголовком <em>Title</em>.
+      В параметре <em>Text</em> строки разбиваются символом '\n'.<br>
+      <em>Flags</em> может быть набором следующих значений:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Используются цвета "Предупреждения" (обычно белые буквы на красном фоне).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Показать сообщение двумя строками ниже.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00010000</td><td class="cont" width="90%">Выводится кнопка &lt;Ok&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00020000</td><td class="cont" width="90%">Выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00030000</td><td class="cont" width="90%">Выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00040000</td><td class="cont" width="90%">Выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
+       </table>
+       Если параметр <em>Flags</em> равен 0 (или не указан), то выводится стандартный диалог с кнопкой &lt;Ok&gt;<br>
+       Функция возвращает 0, если пользователь отменил сообщение или выбранный номер кнопки
+       (для первой кнопки - 1, для второй - 2 и так далее).
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="prompt">prompt</a></dfn>("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])</td>
+    <td class="cont" width="60%">Функция позволяет ввести одну строку текста.<br>
+      Параметры: <em>Title</em> - заголовок диалога, <em>Prompt</em> - приглашения для ввода, <em>Src</em> - начальное значение строки ввода, <em>History</em> - имя истории ввода<br>
+      <em>Flags</em> может быть набором следующих значений (аналогичным константам <a href="../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000001</td><td class="cont" width="60%">даже если строка ввода пуста функция вернет значение пустое значение.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000002</td><td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000004</td><td class="cont" width="60%">после успешного ввода, в результирующем значении <em>S</em> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000008</td><td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <em>History</em>.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000010</td><td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
+           <tr class="cont"><td class="cont" width="40%">0x00000020</td><td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+       </table>
+       Функция возвращает строку - введенное пользователем значение.<br>
+       Например, запросить пароль и вывести его
+      <pre class=code>%s=prompt("Password","Input password:",0x02); $Text %s</pre>
+    </td>
+  </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Элементы управления</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
+    <td class="cont" width="60%">Возвращает 1, если в меню присутствует горячая
+      клавиша <em>S</em> и текущий &quot;объект&quot; - меню. В противном
+      случае возвращает 0.
+      <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
+      горячая клавиша '7'. Последовательность макрокоманды для
+      редактора:
+      <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
+      вызовет плагин, если хоткей назначен или стандартный диалог
+      поиска, если хоткей не назначен.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
+    <td class="cont" width="60%">Возвращает хоткей <em>S</em> для пункта <em>N</em>, если в меню присутствует горячая
+      клавиша и текущий &quot;объект&quot; - меню. В противном случае (не меню; нет хоткея; N больше чем количество пунктов меню) возвращает 0.<br>
+      Здесь <em>N</em> - позиция в списке от 1 (0 - текущая).
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="menu.select">Menu.Select</a></dfn>(S[,N])</td>
+    <td class="cont" width="60%">В меню позиционирует курсор на первый пункт, содержащий подстроку <em>S</em>.
+    Поиск подстроки ведется в зависимости от указанного режима <em>N</em>:
+       <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">полное совпадение</td></tr>
+        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">совпадение с начала строки</td></tr>
+        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">совпадение с конца строки</td></tr>
+       </table>
+    Поиск регистронезависим. Если такого пункта нет, то ничего не делает.<br>
+    Возвращает: 0=ошибка при позиционировании (нет пункта или пункт задисаблен), иначе - позицию пункта меню.
+    <pre class=code>F11 $if(Menu.Select(&quot;Advanced compare&quot;,0) > 0) Enter $end</pre>
+    Если параметр <em>N</em> не указан, подразумевается полное совпадение.
+  </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
+    <td class="cont" width="60%">Получить различные значения текущего диалога.<br>
+      <em>ID</em> - номер элемента диалога (элементы нумеруются с 1; 0 - само диалоговое окно).<br>
+      <em>Type</em> - тип получаемой информации, зависит от типа элемента. Для самого диалога (ID=0) допустимы следующие значения:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Количество элементов диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID текущего элемента, имеющего <a href="../../dialogapi/keybfocus.html">клавиатурный фокус ввода</a></td></tr>
+       </table>
+
+       Для элементов диалога допустимы:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="10%">Элемент</th><th class="cont" width="70%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Тип элемента</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X1 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y1 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X2 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y2 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">элемент в фокусе?</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">0</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Флаги элемента</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Флаг, означающий, что данный элемент диалога является "элементом по умолчанию".</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+       </table>
+       Возвращает -1, если <em>ID</em> больше количества элементов диалога или значение <em>Type</em> не поддерживается.<br>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
+    <td class="cont" width="60%">Для текущей копии редактора изменить настройки.
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер табуляции</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Преобразование табуляции</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Постоянные блоки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Del удаляет блоки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Автоотступ</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Автоопределение таблицы символов</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AnsiTableForNewFile</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Курсор за пределами строки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">поведением клавиши BackSpace (TechInfo #13)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Представление кода символа под курсором в статусной строке (TechInfo #32)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Сохранять позицию файла</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Сохранять закладки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Символы разделители слов (TechInfo #1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
+       </table>
+       Значение <em>Var</em> может быть равно -1, в этом случае функция ничего не изменит, а вернет текущее значение настройки.<br>
+       Возвращает предыдущее значение опций или -1, если данные указаны некорректно.<br>
+       Например, макрос, перемещающий выделенный фрагмент на одну строку вниз:
+       <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
+    </td>
+  </tr>
+
+
 </table>
 
 
