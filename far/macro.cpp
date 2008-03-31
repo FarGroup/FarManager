@@ -2173,7 +2173,7 @@ static bool panelsetposFunc()
   TVar Val=VMStack.Pop();
   int typePanel=(int)VMStack.Pop().toInteger();
   const wchar_t *fileName=Val.s();
-  if(fileName && *fileName)
+  if(!fileName || !*fileName)
     fileName=L"";
 
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
