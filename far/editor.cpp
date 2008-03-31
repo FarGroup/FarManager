@@ -319,6 +319,12 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       Flags.Swap(FEDITOR_LOCKMODE);
   }
 
+  // Mantis#0000516: ѕропадание курсора в редакторе...
+  // ... проблема возникает тогда, когда файл большой и срабатывает таймаут.
+  bool CursorShow=true;
+  int __Visible, __Size;
+  GetCursorType(__Visible, __Size);
+
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     GetFileString GetStr(EditFile);
@@ -357,6 +363,8 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         }
         if (!MessageShown)
         {
+          CursorShow=false;
+
           SetCursorType(FALSE,0);
           SetPreRedrawFunc(Editor::PR_EditorShowMsg);
           EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
@@ -396,6 +404,8 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     NumLastLine=1;
   fclose(EditFile);
 
+  if(!CursorShow)
+    SetCursorType(__Visible, __Size);
 
   if (StartLine==-2)
   {

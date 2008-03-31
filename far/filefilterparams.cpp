@@ -273,11 +273,11 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
   {
     // Преобразуем FILETIME в беззнаковый __int64
     ULARGE_INTEGER after;
-    after.LowPart  = FDate.DateAfter.dwLowDateTime;
-    after.HighPart = FDate.DateAfter.dwHighDateTime;
+    after.u.LowPart  = FDate.DateAfter.dwLowDateTime;
+    after.u.HighPart = FDate.DateAfter.dwHighDateTime;
     ULARGE_INTEGER before;
-    before.LowPart  = FDate.DateBefore.dwLowDateTime;
-    before.HighPart = FDate.DateBefore.dwHighDateTime;
+    before.u.LowPart  = FDate.DateBefore.dwLowDateTime;
+    before.u.HighPart = FDate.DateBefore.dwHighDateTime;
 
     if (after.QuadPart!=_ui64(0) || before.QuadPart!=_ui64(0))
     {
@@ -296,8 +296,8 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
       }
 
       ULARGE_INTEGER ftime;
-      ftime.LowPart  = ft->dwLowDateTime;
-      ftime.HighPart = ft->dwHighDateTime;
+      ftime.u.LowPart  = ft->dwLowDateTime;
+      ftime.u.HighPart = ft->dwHighDateTime;
 
       if (FDate.bRelative)
       {
@@ -307,8 +307,8 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
         SystemTimeToFileTime(&cst, &cft);
 
         ULARGE_INTEGER current;
-        current.LowPart  = cft.dwLowDateTime;
-        current.HighPart = cft.dwHighDateTime;
+        current.u.LowPart  = cft.dwLowDateTime;
+        current.u.HighPart = cft.dwHighDateTime;
 
         if (after.QuadPart!=_ui64(0))
           after.QuadPart = current.QuadPart - after.QuadPart;
@@ -992,8 +992,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     WORD d,h,m,s;
     ULARGE_INTEGER time;
 
-    time.LowPart  = DateAfter.dwLowDateTime;
-    time.HighPart = DateAfter.dwHighDateTime;
+    time.u.LowPart  = DateAfter.dwLowDateTime;
+    time.u.HighPart = DateAfter.dwHighDateTime;
     d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
     time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
     h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
@@ -1004,8 +1004,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     itoa(d, FilterDlg[ID_FF_DAYSAFTEREDIT].Data, 10);
     sprintf(FilterDlg[ID_FF_TIMEAFTEREDIT].Data, "%02d%c%02d%c%02d", h,GetTimeSeparator(),m,GetTimeSeparator(),s);
 
-    time.LowPart  = DateBefore.dwLowDateTime;
-    time.HighPart = DateBefore.dwHighDateTime;
+    time.u.LowPart  = DateBefore.dwLowDateTime;
+    time.u.HighPart = DateBefore.dwHighDateTime;
     d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
     time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
     h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));

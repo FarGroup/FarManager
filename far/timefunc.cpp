@@ -112,8 +112,8 @@ BOOL StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft, int DateFor
     time.QuadPart += (unsigned __int64)st.wMinute * _ui64(10000000) * _ui64(60);
     time.QuadPart += (unsigned __int64)st.wHour   * _ui64(10000000) * _ui64(60) * _ui64(60);
     time.QuadPart += (unsigned __int64)st.wDay    * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24);
-    ft.dwLowDateTime  = time.LowPart;
-    ft.dwHighDateTime = time.HighPart;
+    ft.dwLowDateTime  = time.u.LowPart;
+    ft.dwHighDateTime = time.u.HighPart;
   }
   else
   {
