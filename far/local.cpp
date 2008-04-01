@@ -113,7 +113,7 @@ int LocalKeyToKey(int Key)
   wCvtStr[1]=0;
   wCvtStr[0]=Key&0x0000FFFF;
   UnicodeToANSI((wchar_t *)wCvtStr,(char *)CvtStr,1);
-  _SVS(SysLog(L"CvtStr[0]=%X, return KeyToKey[CvtStr[0]] ==> %X",CvtStr[0],KeyToKey[CvtStr[0]]));
+  //_SVS(SysLog(L"CvtStr[0]=%X, return KeyToKey[CvtStr[0]] ==> %X",CvtStr[0],KeyToKey[CvtStr[0]]));
   return(KeyToKey[CvtStr[0]]);
 }
 

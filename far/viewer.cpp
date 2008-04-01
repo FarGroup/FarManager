@@ -2095,7 +2095,6 @@ void Viewer::ChangeViewKeyBar()
 
 LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  //char DataStr[NM*2]; //BUGBUG
   FarDialogItem *Item;
 
   switch(Msg)
@@ -2132,6 +2131,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
     }
     case DN_BTNCLICK:
     {
+      string strDataStr;
       if(Param1 == 5 || Param1 == 6)
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
@@ -2140,47 +2140,44 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
            Переключение видимости строки ввода искомого текста
            в зависимости от установленного режима hex search
         */
-        //int LenDataStr=sizeof(DataStr);
         if (Param1 == 6 && Param2)
         {
-          //Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,0);
-          //Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'X'); //BUGBUG
-          //Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)DataStr);
-          //Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
+          _SVS(SysLog(L"Param1=%d",Param1));
+          Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,0);
+          Transform(strDataStr,Item->PtrData,L'X');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)(const wchar_t*)strDataStr);
+          Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
 
-          /*
-          if (strlen(DataStr)>0)
+          if (!strDataStr.IsEmpty())
           {
             int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
             Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,UnchangeFlag);
           }
-          */
         }
 
         if (Param1 == 5 && Param2)
         {
-          //Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,0);
-          //Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'S'); //BUGBUG
-          //Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)DataStr);
-          //Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
+          _SVS(SysLog(L"Param1=%d",Param1));
+          Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,0);
+          Transform(strDataStr,Item->PtrData,L'S');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strDataStr);
+          Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
 
-          /*
-          if (strlen(DataStr)>0)
+          if (!strDataStr.IsEmpty())
           {
             int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,-1);
             Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,UnchangeFlag);
           }
-          */
         }
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -2339,13 +2336,8 @@ void Viewer::Search(int Next,int FirstChar)
 
     if (SearchHex)
     {
-      /*unsigned char HexStr[NM*2];
-      int LenHexStr=sizeof(HexStr);
-
-      Transform(HexStr,LenHexStr,(char *)SearchStr,'S');
-      SearchLength=LenHexStr;
-
-      memmove(SearchStr,HexStr,sizeof(SearchStr));*/ //BUGBUG
+      Transform(strSearchStr,strSearchStr,L'S');
+      SearchLength=(int)strSearchStr.GetLength();
     }
 
     if (!Case && !SearchHex)
@@ -2399,6 +2391,7 @@ void Viewer::Search(int Next,int FirstChar)
         if (CurPos<0)
           BufSize+=(int)CurPos;
       }
+
       int ReadSize;
       while (!Match)
       {

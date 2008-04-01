@@ -332,7 +332,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         //int LenDataStr=sizeof(DataStr); //BUGBUG
         if (Param2)
         {
-         // Transform((unsigned char *)DataStr,LenDataStr,Dlg->Item[5].Data,'X'); BUGBUG
+          Transform(strDataStr,Dlg->Item[5]->strData,L'X');
           Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(LONG_PTR)(const wchar_t*)strDataStr);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,FALSE);
@@ -344,7 +344,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         }
         else
         {
-          //Transform((unsigned char *)DataStr,LenDataStr,Dlg->Item[6].Data,'S'); BUGBUG
+          Transform(strDataStr,Dlg->Item[6]->strData,L'S');
           Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(LONG_PTR)(const wchar_t*)strDataStr);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,TRUE);
@@ -2386,7 +2386,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 	if (SearchHex)
 	{
 		int LenCmpStr=sizeof(CmpStr);
-		Transform((unsigned char *)CmpStr,LenCmpStr,(char *)FindStr,'S');
+		TransformA((unsigned char *)CmpStr,LenCmpStr,(char *)FindStr,'S');
 		Length=LenCmpStr;
 	}
 	else

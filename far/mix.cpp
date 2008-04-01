@@ -182,7 +182,7 @@ DWORD FarGetCurDir(string &strBuffer)
 
     /*
     баг в GetCurrentDirectory:
-    если текущий каталог - "\\?\Volume{GUID}\", 
+    если текущий каталог - "\\?\Volume{GUID}\",
     то в Buffer не попадает завершающий слеш
     и дальнейшая работа с таким путём обламывается.
     */
@@ -1538,7 +1538,50 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 /* $ 21.09.2003 KM
    Трансформация строки по заданному типу.
 */
-void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType)
+void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
+{
+  string strTemp, strTemp2;
+  wchar_t Hex[16], *stop;
+
+  switch(TransformType)
+  {
+    case L'X': // Convert common string to hexadecimal string representation
+    {
+      while(*ConvStr)
+      {
+        swprintf(Hex,L"%02X",*ConvStr);
+        strTemp += (const wchar_t*)Hex;
+        ConvStr++;
+      }
+      break;
+    }
+    case L'S': // Convert hexadecimal string representation to common string
+    {
+      const wchar_t *ptrConvStr=ConvStr;
+      Hex[2]=0;
+      while(*ptrConvStr)
+      {
+        if(*ptrConvStr != L' ')
+        {
+          Hex[0]=ptrConvStr[0];
+          Hex[1]=ptrConvStr[1];
+          DWORD value=wcstoul(Hex,&stop,16);
+          Hex[0]=static_cast<wchar_t>(value);
+          Hex[1]=0;
+          strTemp += (const wchar_t*)Hex;
+          ptrConvStr++;
+        }
+        ptrConvStr++;
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  strBuffer=strTemp;
+}
+
+void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType)
 {
   int I,J,L,N;
   char *stop,HexNum[3];

@@ -341,7 +341,8 @@ int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &str
 
 void SIDCacheFlush(void);
 
-void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType);
+void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType);
+void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 
 void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator);
