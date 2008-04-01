@@ -5743,6 +5743,19 @@ int Editor::ClearStackBookmarks()
 	return TRUE;
 }
 
+InternalEditorStackBookMark* Editor::PointerToStackBookmark(int iIdx)
+{
+	InternalEditorStackBookMark *sb_temp=StackPos;
+	if (iIdx!=-1 && sb_temp)
+	{
+		while(sb_temp->prev)
+			sb_temp=sb_temp->prev;
+		for (int i=0;i!=iIdx && sb_temp;i++)
+			sb_temp=sb_temp->next;
+	}
+	return sb_temp;
+}
+
 int Editor::DeleteStackBookmark(InternalEditorStackBookMark *sb_delete)
 {
 	if (sb_delete)
@@ -5759,21 +5772,22 @@ int Editor::DeleteStackBookmark(InternalEditorStackBookMark *sb_delete)
 	return FALSE;
 }
 
-int Editor::DeleteStackBookmark(int iDeleteIdx)
+int Editor::GetStackBookmark(int iIdx,EditorBookMarks *Param)
 {
-	InternalEditorStackBookMark *sb_delete=StackPos;
+	InternalEditorStackBookMark *sb_temp = PointerToStackBookmark(iIdx);
 
-	if (iDeleteIdx!=-1 && sb_delete)
+	if (sb_temp && Param && !IsBadWritePtr(Param,sizeof(EditorBookMarks)))
 	{
-		while(sb_delete->prev)
-			sb_delete=sb_delete->prev;
-		for (int i=0;i!=iDeleteIdx && sb_delete;i++)
-			sb_delete=sb_delete->next;
+		*(long*)&(Param->Line)=sb_temp->Line;
+		*(long*)&(Param->Cursor)=sb_temp->Cursor;
+		*(long*)&(Param->LeftPos)=sb_temp->LeftPos;
+		*(long*)&(Param->ScreenLine)=sb_temp->ScreenLine;
+		return TRUE;
 	}
-	return DeleteStackBookmark (sb_delete);
+	return FALSE;
 }
 
-int Editor::GetStackBookmarks(void *Param)
+int Editor::GetStackBookmarks(EditorBookMarks *Param)
 {
 	InternalEditorStackBookMark *sb_temp=StackPos, *sb_start;
 	int iCount=0;
@@ -5785,18 +5799,27 @@ int Editor::GetStackBookmarks(void *Param)
 		sb_start=sb_temp;
 		for (sb_temp=StackPos;sb_temp;iCount++)
 			sb_temp=sb_temp->next;
-		if (Param)
+
+		if (Param && !IsBadReadPtr(Param,sizeof(EditorBookMarks)))
 		{
-			EditorBookMarks *ebm=(EditorBookMarks *)Param;
-			sb_temp=sb_start;
-			for(int i=0;i<iCount;i++)
+			bool blLine = Param->Line && !IsBadWritePtr(Param->Line,iCount*sizeof(long));
+			bool blCursor = Param->Cursor && !IsBadWritePtr(Param->Cursor,iCount*sizeof(long));
+			bool blLeftPos = Param->LeftPos && !IsBadWritePtr(Param->LeftPos,iCount*sizeof(long));
+			bool blScreenLine = Param->ScreenLine && !IsBadWritePtr(Param->ScreenLine,iCount*sizeof(long));
+
+			if (blLine || blCursor || blLeftPos || blScreenLine)
 			{
-				if (ebm->Line) ebm->Line[i]=sb_temp->Line;
-				if (ebm->Cursor) ebm->Cursor[i]=sb_temp->Cursor;
-				if (ebm->LeftPos) ebm->LeftPos[i]=sb_temp->LeftPos;
-				if (ebm->ScreenLine) ebm->ScreenLine[i]=sb_temp->ScreenLine;
-				sb_temp=sb_temp->next;
+				sb_temp=sb_start;
+				for(int i=0;i<iCount;i++)
+				{
+					if (blLine) Param->Line[i]=sb_temp->Line;
+					if (blCursor) Param->Cursor[i]=sb_temp->Cursor;
+					if (blLeftPos) Param->LeftPos[i]=sb_temp->LeftPos;
+					if (blScreenLine) Param->ScreenLine[i]=sb_temp->ScreenLine;
+					sb_temp=sb_temp->next;
+				}
 			}
+			else iCount=0;
 		}
 	}
 	return iCount;

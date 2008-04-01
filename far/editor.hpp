@@ -226,9 +226,10 @@ class Editor:public ScreenObject
     int PrevStackBookmark();
     int NextStackBookmark();
     int ClearStackBookmarks();
+    InternalEditorStackBookMark* PointerToStackBookmark(int iIdx);
     int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
-    int DeleteStackBookmark(int iDeleteIdx);
-    int GetStackBookmarks(void *Param);
+    int GetStackBookmark(int iIdx,EditorBookMarks *Param);
+    int GetStackBookmarks(EditorBookMarks *Param);
 
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);

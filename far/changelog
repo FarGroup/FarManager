@@ -1,7 +1,12 @@
+ts 01.04.2008 23:31:05 +0200 - build 472
+
+1. Проверка на запись в ECTL_GETSTACKBOOKMARKS
+
+2. Подготовка функций для макросов
+
 svs 01.04.2008 16:23:57 +0300 - build 471
 
 1. Mantis#0000518: Search does not honor Hex mode
-
 
 svs 31.03.2008 12:31:56 +0300 - build 470
 
