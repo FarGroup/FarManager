@@ -1868,12 +1868,12 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_DELETESTACKBOOKMARK:
     {
-      return FEdit->DeleteStackBookmark((int)(INT_PTR)Param);
+      return FEdit->DeleteStackBookmark(FEdit->PointerToStackBookmark((int)(INT_PTR)Param));
     }
 
     case ECTL_GETSTACKBOOKMARKS:
     {
-      return FEdit->GetStackBookmarks(Param);
+      return FEdit->GetStackBookmarks((EditorBookMarks *)Param);
     }
 
     case ECTL_SETTITLE:
