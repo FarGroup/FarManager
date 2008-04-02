@@ -161,13 +161,14 @@ enum MACRO_OP_CODE {
   MCODE_F_XLAT,                     // S=xlat(S)
   MCODE_F_FLOCK,                    // N=FLock(N,N)
   MCODE_F_REPLACE,                  // S=replace(sS,sF,sR[,Count])
-
-  MCODE_F_BM_ADD,                   // N=BM.Add()
-  MCODE_F_BM_CLEAR,                 // N=BM.Clear()
-  MCODE_F_BM_NEXT,                  // N=BM.Next()
-  MCODE_F_BM_PREV,                  // N=BM.Prev()
-  MCODE_F_BM_STAT,                  // N=BM.Stat()
   MCODE_F_PROMPT,                   // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+  MCODE_F_BM_ADD,                   // N=BM.Add()  - добавить текущие координаты и обрезать хвост
+  MCODE_F_BM_CLEAR,                 // N=BM.Clear() - очистить все закладки
+  MCODE_F_BM_DEL,                   // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=0...), -1 - удаляет текущую закладку
+  MCODE_F_BM_GET,                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=0...)
+  MCODE_F_BM_NEXT,                  // N=BM.Next() - перейти на следующую закладку
+  MCODE_F_BM_PREV,                  // N=BM.Prev() - перейти на предыдущую закладку
+  MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

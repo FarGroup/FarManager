@@ -975,7 +975,31 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	case MCODE_F_BM_PREV:
 		return PrevStackBookmark();
 	case MCODE_F_BM_STAT:
-		return 0; // TODO: нужен механизм получения состояния
+      // пока так, т.е. BM.Stat(0) возвращает количество
+      return GetStackBookmarks(NULL);
+
+    case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
+    {
+      __int64 Ret=_i64(-1);
+      long Val[1];
+      EditorBookMarks ebm={0};
+      int iMode=(int)((__int64)vParam);
+      switch(iMode)
+      {
+        case 0: ebm.Line=Val;  break;
+        case 1: ebm.Cursor=Val; break;
+        case 2: ebm.LeftPos=Val; break;
+        case 3: ebm.ScreenLine=Val; break;
+        default: iMode=-1; break;
+      }
+
+      if(iMode >= 0 && GetStackBookmark((int)iParam-1,&ebm))
+        Ret=(__int64)((DWORD)Val[0]+1);
+      return Ret;
+    }
+
+    case MCODE_F_BM_DEL:                   // N=BM.Del(Idx) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
+      return DeleteStackBookmark(PointerToStackBookmark((int)iParam-1));
 
   }
   return _i64(0);
@@ -5778,10 +5802,10 @@ int Editor::GetStackBookmark(int iIdx,EditorBookMarks *Param)
 
 	if (sb_temp && Param && !IsBadWritePtr(Param,sizeof(EditorBookMarks)))
 	{
-		*(long*)&(Param->Line)=sb_temp->Line;
-		*(long*)&(Param->Cursor)=sb_temp->Cursor;
-		*(long*)&(Param->LeftPos)=sb_temp->LeftPos;
-		*(long*)&(Param->ScreenLine)=sb_temp->ScreenLine;
+		if(Param->Line)       Param->Line[0]       =sb_temp->Line;
+		if(Param->Cursor)     Param->Cursor[0]     =sb_temp->Cursor;
+		if(Param->LeftPos)    Param->LeftPos[0]    =sb_temp->LeftPos;
+		if(Param->ScreenLine) Param->ScreenLine[0] =sb_temp->ScreenLine;
 		return TRUE;
 	}
 	return FALSE;

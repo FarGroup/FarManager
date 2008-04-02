@@ -103,13 +103,13 @@ BOOL CommandLine::SetLastCmdStr(const wchar_t *Ptr)
 __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   if(OpCode >= MCODE_C_CMDLINE_BOF && OpCode <= MCODE_C_CMDLINE_SELECTED)
-    return CmdStr.VMProcess(OpCode-MCODE_C_CMDLINE_BOF+MCODE_C_BOF);
+    return CmdStr.VMProcess(OpCode-MCODE_C_CMDLINE_BOF+MCODE_C_BOF,vParam,iParam);
   if(OpCode >= MCODE_C_BOF && OpCode <= MCODE_C_SELECTED)
-    return CmdStr.VMProcess(OpCode);
+    return CmdStr.VMProcess(OpCode,vParam,iParam);
   if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_CURPOS)
-    return CmdStr.VMProcess(OpCode);
+    return CmdStr.VMProcess(OpCode,vParam,iParam);
   if(OpCode == MCODE_V_CMDLINE_ITEMCOUNT || OpCode == MCODE_V_CMDLINE_CURPOS)
-    return CmdStr.VMProcess(OpCode-MCODE_V_CMDLINE_ITEMCOUNT+MCODE_V_ITEMCOUNT);
+    return CmdStr.VMProcess(OpCode-MCODE_V_CMDLINE_ITEMCOUNT+MCODE_V_ITEMCOUNT,vParam,iParam);
 
   return _i64(0);
 }

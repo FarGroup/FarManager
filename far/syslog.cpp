@@ -1035,6 +1035,8 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(F_BM_NEXT),             // N=BM.Next()
      DEF_MCODE_(F_BM_PREV),             // N=BM.Prev()
      DEF_MCODE_(F_BM_STAT),             // N=BM.Stat()
+     DEF_MCODE_(F_BM_GET),
+     DEF_MCODE_(F_BM_DEL),
      DEF_MCODE_(OP_ADD),
      DEF_MCODE_(OP_AKEY),
      DEF_MCODE_(OP_AND),

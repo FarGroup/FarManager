@@ -2948,8 +2948,16 @@ done:
     case MCODE_F_BM_CLEAR:            // N=BM.Clear()
     case MCODE_F_BM_NEXT:             // N=BM.Next()
     case MCODE_F_BM_PREV:             // N=BM.Prev()
-    case MCODE_F_BM_STAT:             // N=BM.Stat()
+    case MCODE_F_BM_STAT:             // N=BM.Stat([N])
+    case MCODE_F_BM_DEL:              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=0...), -1 - удаляет текущую закладку
+    case MCODE_F_BM_GET:              // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=0...)
     {
+       TVar p1, p2;
+       if(Key == MCODE_F_BM_GET)
+         p2=VMStack.Pop();
+       if(Key == MCODE_F_BM_GET || Key == MCODE_F_BM_DEL || Key == MCODE_F_BM_GET)
+         p1=VMStack.Pop();
+
        __int64 Result=_i64(0);
        Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
        while(f)
@@ -2961,7 +2969,7 @@ done:
          f=fo;
 
        if(f)
-         Result=f->VMProcess(Key,NULL);
+         Result=f->VMProcess(Key,(void*)p2.i(),p1.i());
 
        VMStack.Push(Result);
        goto begin;

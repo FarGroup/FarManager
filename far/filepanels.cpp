@@ -389,7 +389,7 @@ int FilePanels::SwapPanels(void)
 
 __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  return ActivePanel->VMProcess(OpCode);
+  return ActivePanel->VMProcess(OpCode,vParam,iParam);
 }
 
 int FilePanels::ProcessKey(int Key)
