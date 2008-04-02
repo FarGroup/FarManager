@@ -2122,7 +2122,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
       if (IsEdit(Item[FocusPos].Type))
         return ((DlgEdit *)(Item[FocusPos].ObjPtr))->VMProcess(OpCode,vParam,iParam);
       else if(Item[FocusPos].Type == DI_LISTBOX && OpCode != MCODE_C_SELECTED)
-        return Item[FocusPos].ListPtr->VMProcess(OpCode);
+        return Item[FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
       return _i64(0);
     }
     case MCODE_V_DLGITEMTYPE:
@@ -2157,13 +2157,13 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
       {
         case DI_COMBOBOX:
            if(DropDownOpened || (Item[FocusPos].Flags & DIF_DROPDOWNLIST))
-             return Item[FocusPos].ListPtr->VMProcess(OpCode);
+             return Item[FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
         case DI_EDIT:
         case DI_PSWEDIT:
         case DI_FIXEDIT:
-           return ((DlgEdit *)(Item[FocusPos].ObjPtr))->VMProcess(OpCode);
+           return ((DlgEdit *)(Item[FocusPos].ObjPtr))->VMProcess(OpCode,vParam,iParam);
         case DI_LISTBOX:
-          return Item[FocusPos].ListPtr->VMProcess(OpCode);
+          return Item[FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
 
         case DI_USERCONTROL:
           if(OpCode == MCODE_V_CURPOS)

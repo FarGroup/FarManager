@@ -557,7 +557,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
   if(OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
     return (__int64)FEdit->NumLastLine;
 
-  return FEdit->VMProcess(OpCode);
+  return FEdit->VMProcess(OpCode,vParam,iParam);
 }
 
 

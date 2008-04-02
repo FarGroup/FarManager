@@ -52,3 +52,13 @@ API: добавлен флаг LIF_USETEXTPTR. Лист использует динамическую компоненту итема
    б) изменения в работе Dialog API.
 </LIF_USETEXTPTR>
 
+<StackBookmark>
+ работа со стековыми закладками в панелях
+    case MCODE_F_BM_ADD:
+    case MCODE_F_BM_CLEAR:
+    case MCODE_F_BM_NEXT:
+    case MCODE_F_BM_PREV:
+    case MCODE_F_BM_STAT:
+    case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
+    case MCODE_F_BM_DEL:                   // N=BM.Del(Idx) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
+</StackBookmark>

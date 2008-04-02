@@ -265,9 +265,11 @@ static TMacroFunction macroFunction[]={
   {"ASC",              1, 0,   MCODE_F_ASC},                 // N=asc(N)
   {"BM.ADD",           0, 0,   MCODE_F_BM_ADD},              // N=BM.Add()
   {"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR},            // N=BM.Clear()
+  {"BM.DEL",           1, 1,   MCODE_F_BM_DEL},              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=0...), -1 - удаляет текущую закладку
+  {"BM.GET",           2, 0,   MCODE_F_BM_GET},              // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=0...)
   {"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT},             // N=BM.Next()
   {"BM.PREV",          0, 0,   MCODE_F_BM_PREV},             // N=BM.Prev()
-  {"BM.STAT",          0, 0,   MCODE_F_BM_STAT},             // N=BM.Stat()
+  {"BM.STAT",          1, 1,   MCODE_F_BM_STAT},             // N=BM.Stat([N])
   {"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
   {"CALLPLUGIN",       3, 0,   MCODE_F_CALLPLUGIN},          // S=callplugin(S,Path,N)
   {"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
@@ -1074,7 +1076,9 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_CLEAR,         "N=BM.Clear()"},
     {MCODE_F_BM_NEXT,          "N=BM.Next()"},
     {MCODE_F_BM_PREV,          "N=BM.Prev()"},
-    {MCODE_F_BM_STAT,          "N=BM.Stat()"},
+    {MCODE_F_BM_STAT,          "N=BM.Stat([N])"},
+    {MCODE_F_BM_GET,           "N=BM.Get(Idx,M)"},
+    {MCODE_F_BM_DEL,           "N=BM.Del([Idx])"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
