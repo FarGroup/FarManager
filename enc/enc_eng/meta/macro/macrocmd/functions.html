@@ -588,11 +588,66 @@ $End
        <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
     </td>
   </tr>
+
+  <!-- -------------------------------------- -->
+  <tr class="cont"><th class="cont" colspan=2>Работа с закладками</th></tr>
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Add">BM.Add</a></dfn>()</td>
+    <td class="cont" width="60%">Добавить текущие параметры закладки и обрезать хвост</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Clear">BM.Clear</a></dfn>()</td>
+    <td class="cont" width="60%">Очистить все закладки</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Del">BM.Del</a></dfn>([Idx])</td>
+    <td class="cont" width="60%">Удалить закладку с указанным индексом <em>Idx</em> (нумерация начинается с 1). Если параметр <em>Idx</em> не указан или равен 0 - удаляется текущая закладка.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Get">BM.Get</a></dfn>(Idx,M)</td>
+    <td class="cont" width="60%">Получить параметры закладки с индексом <em>Idx</em> (нумерация начинается с 1), Idx=0 - текущая закладка.<br>
+      Параметр <em>M</em> может быть одним из следующих:
+       <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">координаты строки (начиная с 1)</td></tr>
+        <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">координаты колонки (начиная с 1)</td></tr>
+        <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">позиция, соответствующая первому видимому символу текста на экране слева</td></tr>
+        <tr class="cont"><td class="cont" width="40%">3</td><td class="cont" width="60%">номер строки, соответствующей первой видимой строке текста на экране</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Next">BM.Next</a></dfn>()</td>
+    <td class="cont" width="60%">Перейти на следующую закладку</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Prev">BM.Prev</a></dfn>()</td>
+    <td class="cont" width="60%">Перейти на предыдущую закладку</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="BM.Stat">BM.Stat</a></dfn>([M])</td>
+    <td class="cont" width="60%">Получить информацию о закладках.<br>
+      Параметр <em>M</em> может быть одним из следующих:
+       <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">текущее количество закладок</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr class="cont"><td class="cont" colspan=2>Пример работы с закладками:<pre class=code>
+
+  </pre></td></tr>
+
   </table>
 
 <h3>Notes</h3>
 <div class=descr>
 <ol>
+<li>Функции работы с закладками BM.XXX() доступны только в редакторе.
 <li>Function arguments given in square brackets may be omitted. See default values in function description.
 <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
   a macro in a usual way. Macro-language elements can be added to the sequence only by editing
