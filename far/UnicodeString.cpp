@@ -252,7 +252,12 @@ int __cdecl UnicodeString::Format (const wchar_t * format, ...)
 		}
 
 		buffer = tmpbuffer;
-		retValue = _vsnwprintf ( buffer, Size, format, argptr );
+
+		//_vsnwprintf не всегда ставит '\0' вконце.
+		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
+		buffer[Size-1] = 0;
+		retValue = _vsnwprintf ( buffer, Size-1, format, argptr );
+
 	} while ( retValue == -1 );
 
 	va_end( argptr );
