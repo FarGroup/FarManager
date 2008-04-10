@@ -772,6 +772,7 @@ FindFiles::FindFiles()
   } while (FindFilesProcess());
   CloseHandle(hPluginMutex);
   xf_free(TableItem);
+  CtrlObject->Cp()->ActivePanel->SetTitle();
 }
 
 

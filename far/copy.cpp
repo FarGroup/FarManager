@@ -2251,61 +2251,54 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           }
           else // $ 18.07.2001 VVM
           {    //  Спросить, что делать, если не смогли переименовать каталог
-            /* $ 24.04.2002 VVM
-              + Перед тем как спрашивать - попытаемся создать пустой */
-            int LastError = GetLastError();
-            int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
-            SECURITY_ATTRIBUTES sa;
-            if ((CopySecurity) && !GetSecurity(Src,sa))
-              CopySecurity = FALSE;
-            if (CreateDirectory(DestPath,CopySecurity?&sa:NULL))
+            switch (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                            MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
+                            MSG(MCopyIgnore),MSG(MCopyCancel)))
             {
-              if (PointToName(DestPath)==DestPath)
-                strcpy(RenamedName,DestPath);
-              else
-                strcpy(CopiedName,PointToName(DestPath));
-//              if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
-//                return(COPY_NEXT);
-//              TreeList::RenTreeName(SrcFullName,DestFullName);
-#if 0
-              // для источника, имеющего суть симлинка - создадим симлинк
-              if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+              case 0:  continue;
+              case 1:
               {
-                char SrcRealName[NM*2];
-                ConvertNameToReal(Src,SrcRealName,sizeof(SrcRealName));
-                switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
+                // если сказали "ignore" - попытаемся создать пустой и перенести туда содержимое
+                int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
+                SECURITY_ATTRIBUTES sa;
+                if ((CopySecurity) && !GetSecurity(Src,sa))
+                  CopySecurity = FALSE;
+                if (CreateDirectory(DestPath,CopySecurity?&sa:NULL))
                 {
-                  case 2:
-                    _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
-                    return COPY_CANCEL;
-                  case 1: break;
-                  case 0:
-                    _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-                    return COPY_FAILURE;
+                  if (PointToName(DestPath)==DestPath)
+                    strcpy(RenamedName,DestPath);
+                  else
+                    strcpy(CopiedName,PointToName(DestPath));
+//                  if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
+//                    return(COPY_NEXT);
+//                  TreeList::RenTreeName(SrcFullName,DestFullName);
+#if 0
+                  // для источника, имеющего суть симлинка - создадим симлинк
+                  if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+                  {
+                    char SrcRealName[NM*2];
+                    ConvertNameToReal(Src,SrcRealName,sizeof(SrcRealName));
+                    switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
+                    {
+                      case 2:
+                        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+                        return COPY_CANCEL;
+                      case 1: break;
+                      case 0:
+                        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                        return COPY_FAILURE;
+                    }
+                  }
+#endif
+                  TreeList::AddTreeName(DestPath);
+                  _LOGCOPYR(SysLog("return COPY_SUCCESS -> %d",__LINE__));
+                  return(COPY_SUCCESS);
                 }
               }
-#endif
-              TreeList::AddTreeName(DestPath);
-              _LOGCOPYR(SysLog("return COPY_SUCCESS -> %d",__LINE__));
-              return(COPY_SUCCESS);
-            }
-            else
-            {
-              SetLastError(LastError);
-              switch (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                              MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
-                              MSG(MCopyIgnore),MSG(MCopyCancel)))
-              {
-                case 0:  continue;
-                case 1:
-                  _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-                  return (COPY_FAILURE);
-                default:
-                  _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
-                  return (COPY_CANCEL);
-              } /* switch */
-            } /* else */
-            /* VVM $ */
+              default:
+                _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+                return (COPY_CANCEL);
+            } /* switch */
           } /* else */
         } /* while */
         /* VVM $ */

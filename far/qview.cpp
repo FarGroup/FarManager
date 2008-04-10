@@ -373,7 +373,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
                    ClusterSize,500,
                    NULL,
-                   GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF);
+                   GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
       if (ExitCode==1)
         Directory=1;
       else
