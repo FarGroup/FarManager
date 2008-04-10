@@ -998,10 +998,9 @@ void *__cdecl xf_realloc(void *__block, size_t __size);
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 
-void PrepareStrFTimeA(void);
-int WINAPI StrFTimeA(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
-int MkStrFTimeA(char *Dest,int DestSize,const char *Fmt=NULL);
-int MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
+void PrepareStrFTime();
+size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
+size_t MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
 
 BOOL WINAPI GetMenuHotKey(string &strHotKey,int LenHotKey,
                           const wchar_t *DlgHotKeyTitle,

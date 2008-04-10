@@ -756,6 +756,7 @@ FindFiles::FindFiles()
   for(int i=CHAR_TABLE_SIZE+1;i<TableList.ItemsNumber;i++)
     xf_free((void*)TableItem[i].Text);
   xf_free(TableItem);
+  CtrlObject->Cp()->ActivePanel->SetTitle();
 }
 
 

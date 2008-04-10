@@ -2169,36 +2169,31 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           }
           else
           {
-            int LastError = GetLastError();
-            int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
-            SECURITY_ATTRIBUTES sa;
-            if ((CopySecurity) && !GetSecurity(Src,sa))
-              CopySecurity = FALSE;
-            if (CreateDirectoryW(strDestPath,CopySecurity?&sa:NULL))
+            int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+                                  UMSG(MCopyCannotRenameFolder),Src,UMSG(MCopyRetry),
+                                  UMSG(MCopyIgnore),UMSG(MCopyCancel));
+            switch (MsgCode)
             {
-              if (PointToName(strDestPath)==(const wchar_t*)strDestPath)
-                strRenamedName = strDestPath;
-              else
-                strCopiedName = PointToName(strDestPath);
-
-              TreeList::AddTreeName(strDestPath);
-              return(COPY_SUCCESS);
-            }
-            else
-            {
-              SetLastError(LastError);
-              int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
-                                    UMSG(MCopyCannotRenameFolder),Src,UMSG(MCopyRetry),
-                                    UMSG(MCopyIgnore),UMSG(MCopyCancel));
-              switch (MsgCode)
+              case 0:  continue;
+              case 1:
               {
-                case 0:  continue;
-                case 1:
-                  return (COPY_FAILURE);
-                default:
-                  return (COPY_CANCEL);
-              } /* switch */
-            } /* else */
+                int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
+                SECURITY_ATTRIBUTES sa;
+                if ((CopySecurity) && !GetSecurity(Src,sa))
+                CopySecurity = FALSE;
+                if (CreateDirectoryW(strDestPath,CopySecurity?&sa:NULL))
+                {
+                  if (PointToName(strDestPath)==(const wchar_t*)strDestPath)
+                    strRenamedName = strDestPath;
+                  else
+                    strCopiedName = PointToName(strDestPath);
+                  TreeList::AddTreeName(strDestPath);
+                  return(COPY_SUCCESS);
+                }
+              }
+              default:
+                return (COPY_CANCEL);
+            } /* switch */
           } /* else */
         } /* while */
       } // if (Rename)
