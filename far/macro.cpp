@@ -464,7 +464,8 @@ int KeyMacro::ProcessKey(int Key)
       }
       else
       {
-        int Pos=GetIndex(MacroKey,StartMode);
+        // в области common будем искать только при удалении
+        int Pos=GetIndex(MacroKey,StartMode,!(RecBuffer && RecBufferSize));
 
         if (Pos == -1)
         {
@@ -506,6 +507,12 @@ int KeyMacro::ProcessKey(int Key)
 
           MacroLIB[Pos].BufferSize=RecBufferSize;
           MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
+
+          // если удаляем макрос - скорректируем StartMode,
+          // иначе макрос из common получит ту область, в которой его решили удалить.
+          if(!MacroLIB[Pos].BufferSize||!MacroLIB[Pos].Src)
+            StartMode=MacroLIB[Pos].Flags&MFLAGS_MODEMASK;
+
           MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
         }
       }
@@ -3760,92 +3767,97 @@ M1:
     if((Index=MacroDlg->GetIndex((int)Param2,KMParam->Mode)) != -1)
     {
       struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
-      DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
-      char Buf[512];
-      char BufKey[512];
-      char RegKeyName[150];
-      MacroDlg->MkRegKeyName(Index,RegKeyName);
+
+      // общие макросы учитываем только при удалении.
+      if(!MacroDlg->RecBuffer || !MacroDlg->RecBufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
+      {
+        DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
+        char Buf[512];
+        char BufKey[512];
+        char RegKeyName[150];
+        MacroDlg->MkRegKeyName(Index,RegKeyName);
 
 #if 0
-      char *TextBuffer;
+        char *TextBuffer;
 
-      // берем из памяти.
-      if((TextBuffer=MacroDlg->MkTextSequence(Mac->Buffer,Mac->BufferSize)) != NULL)
-      {
-        int F=0;
-        I=strlen(TextBuffer);
-        if(I > sizeof(Buf)-6) { I=sizeof(Buf)-6; F++; }
-        sprintf(Buf,"\"%*.*s%s\"",I,I,TextBuffer,(F?"...":""));
-        strcpy(BufKey,Buf);
-        xf_free(TextBuffer);
-      }
-      else
-        BufKey[0]=0;
+        // берем из памяти.
+        if((TextBuffer=MacroDlg->MkTextSequence(Mac->Buffer,Mac->BufferSize)) != NULL)
+        {
+          int F=0;
+          I=strlen(TextBuffer);
+          if(I > sizeof(Buf)-6) { I=sizeof(Buf)-6; F++; }
+          sprintf(Buf,"\"%*.*s%s\"",I,I,TextBuffer,(F?"...":""));
+          strcpy(BufKey,Buf);
+          xf_free(TextBuffer);
+        }
+        else
+          BufKey[0]=0;
 #else
-      if(Mac->Src != NULL)
-      {
-        int F=0;
-        I=(int)strlen(Mac->Src);
-        if(I > sizeof(Buf)-6) { I=sizeof(Buf)-6; F++; }
-        sprintf(Buf,"\"%*.*s%s\"",I,I,Mac->Src,(F?"...":""));
-        strcpy(BufKey,Buf);
-      }
-      else
-        BufKey[0]=0;
+        if(Mac->Src != NULL)
+        {
+          int F=0;
+          I=(int)strlen(Mac->Src);
+          if(I > sizeof(Buf)-6) { I=sizeof(Buf)-6; F++; }
+          sprintf(Buf,"\"%*.*s%s\"",I,I,Mac->Src,(F?"...":""));
+          strcpy(BufKey,Buf);
+        }
+        else
+          BufKey[0]=0;
 #endif
 
-      if((Mac->Flags&0xFF)==MACRO_COMMON)
-        sprintf(Buf,
-          MSG(!MacroDlg->RecBufferSize?
-             (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
-             MMacroCommonReDefinedKey),
-          KeyText);
-      else
-        sprintf(Buf,
-          MSG(!MacroDlg->RecBufferSize?
-             (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
-             MMacroReDefinedKey),
-          KeyText);
+        if((Mac->Flags&0xFF)==MACRO_COMMON)
+          sprintf(Buf,
+            MSG(!MacroDlg->RecBufferSize?
+               (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
+               MMacroCommonReDefinedKey),
+            KeyText);
+        else
+          sprintf(Buf,
+            MSG(!MacroDlg->RecBufferSize?
+               (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
+               MMacroReDefinedKey),
+            KeyText);
 
-      // проверим "а не совпадает ли всё?"
-      if(!DisFlags &&
-         Mac->Buffer && MacroDlg->RecBuffer &&
-         Mac->BufferSize == MacroDlg->RecBufferSize &&
-         (
-           Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)) ||
-           Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer
-         )
-        )
-        I=0;
-      else
-        I=Message(MSG_WARNING,2,MSG(MWarning),
-            Buf,
-            MSG(MMacroSequence),
-            BufKey,
-            MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
-                  (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
-            MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
-            MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
+        // проверим "а не совпадает ли всё?"
+        if(!DisFlags &&
+           Mac->Buffer && MacroDlg->RecBuffer &&
+           Mac->BufferSize == MacroDlg->RecBufferSize &&
+           (
+             Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)) ||
+             Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer
+           )
+          )
+          I=0;
+        else
+          I=Message(MSG_WARNING,2,MSG(MWarning),
+              Buf,
+              MSG(MMacroSequence),
+              BufKey,
+              MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
+                    (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
+              MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
+              MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
 
-      if(!I)
-      {
-        if(DisFlags)
+        if(!I)
         {
-          if (Opt.AutoSaveSetup) // удаляем из реестра только в случае
-          {                      // когда включен автосейв
-            // удалим старую запись из реестра
-            DeleteRegKey(RegKeyName);
+          if(DisFlags)
+          {
+            if (Opt.AutoSaveSetup) // удаляем из реестра только в случае
+            {                      // когда включен автосейв
+              // удалим старую запись из реестра
+              DeleteRegKey(RegKeyName);
+            }
+            // раздисаблим
+            Mac->Flags&=~MFLAGS_DISABLEMACRO;
           }
-          // раздисаблим
-          Mac->Flags&=~MFLAGS_DISABLEMACRO;
+          // в любом случае - вываливаемся
+          Dialog::SendDlgMessage(hDlg,DM_CLOSE,1,0);
+          return TRUE;
         }
-        // в любом случае - вываливаемся
-        Dialog::SendDlgMessage(hDlg,DM_CLOSE,1,0);
-        return TRUE;
+        // здесь - здесь мы нажимали "Нет", ну а на нет и суда нет
+        //  и значит очистим поле ввода.
+        KeyText[0]=0;
       }
-      // здесь - здесь мы нажимали "Нет", ну а на нет и суда нет
-      //  и значит очистим поле ввода.
-      KeyText[0]=0;
     }
     Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)KeyText);
 //    if(Param2 == KEY_F1 && LastKey == KEY_F1)
@@ -4235,7 +4247,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 // Функция получения индекса нужного макроса в массиве
 // Ret=-1 - не найден таковой.
 // если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
-int KeyMacro::GetIndex(int Key, int ChechMode)
+int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
 {
   if(MacroLIB)
   {
@@ -4270,7 +4282,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
         }
       }
       // здесь смотрим на MACRO_COMMON
-      if(ChechMode != -1 && !I)
+      if(ChechMode != -1 && !I && UseCommon)
         ChechMode=MACRO_COMMON;
       else
         break;
