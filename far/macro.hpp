@@ -164,7 +164,7 @@ class KeyMacro
 
     int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST-1?Mode:MACRO_LAST-1][0];}
     // Функция получения индекса нужного макроса в массиве
-    int GetIndex(int Key, int Mode);
+    int GetIndex(int Key, int Mode, bool UseCommon=true);
     // получение размера, занимаемого указанным макросом
     int GetRecordSize(int Key, int Mode);
 

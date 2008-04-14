@@ -1264,15 +1264,14 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
   int MenuItemNumber=0;
   int PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_MENU);
-  int Editor,Viewer,Dialog;
 
-  Editor = ModalType==MODALTYPE_EDITOR;
-  Viewer = ModalType==MODALTYPE_VIEWER;
-  Dialog = ModalType==MODALTYPE_DIALOG;
+  int Editor = ModalType==MODALTYPE_EDITOR,
+      Viewer = ModalType==MODALTYPE_VIEWER,
+      Dialog = ModalType==MODALTYPE_DIALOG;
 
   string strRegKey;
-
-//  {
+  PluginMenuItemData item;
+  {
     VMenu PluginList(UMSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetHelp(L"Plugins");
@@ -1454,45 +1453,46 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
     }
     ScrBuf.Flush();
 
-    PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
+    item = *(PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
+  }
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
-    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+  int OpenCode=OPEN_PLUGINSMENU;
+  INT_PTR Item=item.nItem;
+  OpenDlgPluginData pd;
 
-    int OpenCode=OPEN_PLUGINSMENU;
-    INT_PTR Item=item->nItem;
-    OpenDlgPluginData pd;
+  if (Editor)
+    OpenCode=OPEN_EDITOR;
+  else if (Viewer)
+    OpenCode=OPEN_VIEWER;
+  else if (Dialog)
+  {
+    OpenCode=OPEN_DIALOG;
+    pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
+    pd.ItemNumber=item.nItem;
+    Item=(INT_PTR)&pd;
+  }
 
-    if (Editor)
-      OpenCode=OPEN_EDITOR;
-    if (Viewer)
-      OpenCode=OPEN_VIEWER;
-    if (Dialog)
+  HANDLE hPlugin=OpenPlugin(item.pPlugin,OpenCode,Item);
+
+  if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
+  {
+    if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
     {
-      OpenCode=OPEN_DIALOG;
-      pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
-      pd.ItemNumber=item->nItem;
-      Item=(INT_PTR)&pd;
+      ClosePlugin (hPlugin);
+      return(FALSE);
     }
 
-    HANDLE hPlugin=OpenPlugin(item->pPlugin,OpenCode,Item);
 
-    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
-    {
-      if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
-      {
-        ClosePlugin (hPlugin);
-        return(FALSE);
-      }
-
-
-      Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-      NewPanel->SetPluginMode(hPlugin,L"",true);
-      NewPanel->Update(0);
-      NewPanel->Show();
-    }
-    if (Editor && CurEditor){
-      CurEditor->SetPluginTitle(NULL);
-    }
+    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+    NewPanel->SetPluginMode(hPlugin,L"",true);
+    NewPanel->Update(0);
+    NewPanel->Show();
+  }
+  if (Editor && CurEditor)
+  {
+    CurEditor->SetPluginTitle(NULL);
+  }
 
   CtrlObject->Macro.SetMode(PrevMacroMode);
   return(TRUE);

@@ -1350,26 +1350,7 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 
 		case DN_EDITCHANGE:
 			Msg=oldfar::DN_EDITCHANGE;
-			if(Param2)
-			{
-				oldfar::FarDialogItem* diA=UnicodeDialogItemToAnsi((FarDialogItem *)Param2,hDlg,Param1);
-				int len=(int)FarSendDlgMessage(hDlg,DM_GETTEXTLENGTH,Param1,0);
-				wchar_t* Data=(wchar_t*)xf_malloc((len+1)*sizeof(wchar_t));
-				FarSendDlgMessage(hDlg,DM_GETTEXTPTR,Param1,(LONG_PTR)Data);
-				if((diA->Type==oldfar::DI_EDIT||diA->Type==oldfar::DI_COMBOBOX)&&(diA->Flags&oldfar::DIF_VAREDIT))
-				{
-					if(diA->Data.Ptr.PtrData)
-						xf_free(diA->Data.Ptr.PtrData);
-					diA->Data.Ptr.PtrData=UnicodeToAnsi(Data);
-					diA->Data.Ptr.PtrLength=len;
-				}
-				else
-					UnicodeToOEM(Data,diA->Data.Data,sizeof(diA->Data.Data));
-				xf_free(Data);
-				return CurrentDlgProc(hDlg, Msg, Param1,(LONG_PTR)diA);
-			}
-			else
-				return FALSE;
+			return Param2?CurrentDlgProc(hDlg,Msg,Param1,(LONG_PTR)UnicodeDialogItemToAnsi((FarDialogItem *)Param2,hDlg,Param1)):FALSE;
 
 		case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
 		case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
