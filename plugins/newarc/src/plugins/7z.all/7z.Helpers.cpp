@@ -490,7 +490,6 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		else
 			strcat (szFullName, szArcFileName);
 
-
 		int itemindex = GetItemIndex (this, index);
 		PluginPanelItem *item = m_pItems[itemindex].pItem;
 
@@ -532,7 +531,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
    		bool bIsFolder = false;
 
-   		if ( archive->GetProperty (index, kpidIsFolder, &value) )
+   		if ( archive->GetProperty (index, kpidIsFolder, &value) == S_OK )
    		{
    			if (value.vt == VT_BOOL)
    				bIsFolder = (value.boolVal == VARIANT_TRUE);
@@ -542,7 +541,6 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 			 OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )//||
 			 //OptionIsOn (item->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
-			//MessageBox (0, szFullName, "asd", MB_OK);
 			*outStream = NULL;
 			CreateDirectoryEx (szFullName, dwFileAttributes);
 		}

@@ -1146,8 +1146,15 @@ bool dlgAddEditTemplate (ArchiveTemplate *ptpl, bool bAdd)
 	D.ComboBox (5, 6, 15, NULL, 0); //5
 	D.SetFlags (DIF_DROPDOWNLIST);
 
-	D.Text (22, 5, "Дополнительные параметры"); //6
-	D.Edit (22, 6, 27); //7
+//	const ArchiveFormatInfo *info = pPlugin?pPlugin->GetArchiveFormatInfo (ptpl->uid):NULL;
+
+//	if ( info && OptionIsOn(info->dwFlags, AFF_SUPPORT_INTERNAL_CONFIG) )
+//		D.Button (22, 5, "Internal config");
+//	else
+//	{
+		D.Text (22, 5, "Дополнительные параметры"); //6
+		D.Edit (22, 6, 27); //7
+//	}
 
 	D.Separator(7); //8
 

@@ -371,6 +371,7 @@ int OnNotify (NotifyStruct *pNS)
 	return NAERROR_SUCCESS;
 }
 
+//extern GUID CLSID_CFormat7z;
 
 int OnConfigureFormat (ConfigureFormatStruct *pCF)
 {
