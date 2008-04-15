@@ -791,12 +791,12 @@ int FileList::ProcessKey(int Key)
         return(FALSE);
     case KEY_CTRLSHIFTINS: case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
     case KEY_CTRLALTINS:   case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
-    case KEY_ALTSHIFTINS:                              // копировать полные имена
+    case KEY_ALTSHIFTINS:  case KEY_ALTSHIFTNUMPAD0:   // копировать полные имена
 
       //if (FileCount>0 && SetCurPath()) // ?????
       SetCurPath ();
 
-      CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0,
+      CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0 || Key == KEY_ALTSHIFTNUMPAD0,
                 (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
       return(TRUE);
 
