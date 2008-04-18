@@ -4,7 +4,7 @@ m4_include(`farversion.m4')m4_dnl
 
 @Contents
 $^#File and archive manager#
-`$^#'FULLVERSIONNOBRACES`'m4_ifelse(`1',BUILDTESTONLY,`. TEST ONLY!')`#'
+`$^#'FULLVERSIONNOBRACES`#'
 $^#Copyright (C) 1996-2000 Eugene Roshal#
 `$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
    ~Help file index~@Index@
@@ -1493,11 +1493,11 @@ rule sets.
                    #[?]# - ignore this attribute.
 
                    The #Compressed#, #Encrypted#, #Not indexed#,
-                   #Sparse#, #Temporary# and #Offline# attributes 
+                   #Sparse#, #Temporary# and #Offline# attributes
                    are used only on disks with the NTFS file system.
-                   Although the #Encrypted# and #Offline# attributes 
+                   Although the #Encrypted# and #Offline# attributes
                    are used only in Windows 2000/XP/2003/Vista/2008.
-                   #Virtual# attribute is used only in 
+                   #Virtual# attribute is used only in
                    Windows Vista/2008.
 
 
@@ -2890,10 +2890,10 @@ folders, all checkboxes will always be 3-state.
     Only those attributes will be changed for which the state of the
 corresponding checkboxes was changed from the initial state.
 
-    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and 
-"Offline", "Virtual" attributes are available only on NTFS drives. The 
-"Encrypted" and "Offline" attributes can be used in Windows 
-2000/XP/2003/Vista/2008 only. The "Virtual" attribute can be used in 
+    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and
+"Offline", "Virtual" attributes are available only on NTFS drives. The
+"Encrypted" and "Offline" attributes can be used in Windows
+2000/XP/2003/Vista/2008 only. The "Virtual" attribute can be used in
 Windows Vista/2008 only.
 The "Compressed" and "Encrypted" attributes are mutually exclusive, that is,
 you can set only one of them.

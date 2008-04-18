@@ -14,7 +14,6 @@ FILETYPE 1
  {
   BLOCK "000004E4"
   {
-m4_ifelse(`1',BUILDTESTONLY,`   VALUE "Comments", "TEST ONLY!\000\000"',`m4_dnl')
    VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
    VALUE "FileDescription", "File and archive manager\000\000"
    VALUE "FileVersion", "`v'FULLVERSION\000\000"
