@@ -3854,45 +3854,46 @@ void Editor::Paste(const wchar_t *Src)
         oldAutoIndent=EdOpt.AutoIndent;
 
     for (int I=0;ClipText[I]!=0;)
-      if (ClipText[I]!=10)
-        if (ClipText[I]==13)
-        {
-          CurLine->Select(StartPos,-1);
-          StartPos=0;
-          EdOpt.AutoIndent=FALSE;
-          ProcessKey(KEY_ENTER);
-          BlockUndo=TRUE;
+    {
+      if (ClipText[I]==10 || ClipText[I]==13)
+      {
+        CurLine->Select(StartPos,-1);
+        StartPos=0;
+        EdOpt.AutoIndent=FALSE;
+        ProcessKey(KEY_ENTER);
+        BlockUndo=TRUE;
+        if (ClipText[I]==13 && ClipText[I+1]==10)
           I++;
-        }
-        else
-        {
-          if(EdOpt.AutoIndent)       // первый символ вставим так, чтобы
-          {                          // сработал автоотступ
-            //ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]); //BUGBUG
-              ProcessKey(ClipText[I]); //BUGBUG
-
-            I++;
-            StartPos=CurLine->GetCurPos();
-            if(StartPos) StartPos--;
-          }
-
-          int Pos=I;
-          while (ClipText[Pos]!=0 && ClipText[Pos]!=10 && ClipText[Pos]!=13)
-            Pos++;
-          if (Pos>I)
-          {
-            const wchar_t *Str;
-            int Length,CurPos;
-            CurLine->GetBinaryString(&Str,NULL,Length);
-            CurPos=CurLine->GetCurPos();
-            AddUndoData(Str,CurLine->GetEOL(),NumLine,CurPos,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-            BlockUndo=TRUE;
-            CurLine->InsertBinaryString(&ClipText[I],Pos-I);
-          }
-          I=Pos;
-        }
-      else
         I++;
+      }
+      else
+      {
+        if(EdOpt.AutoIndent)       // первый символ вставим так, чтобы
+        {                          // сработал автоотступ
+          //ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]); //BUGBUG
+            ProcessKey(ClipText[I]); //BUGBUG
+
+          I++;
+          StartPos=CurLine->GetCurPos();
+          if(StartPos) StartPos--;
+        }
+
+        int Pos=I;
+        while (ClipText[Pos]!=0 && ClipText[Pos]!=10 && ClipText[Pos]!=13)
+          Pos++;
+        if (Pos>I)
+        {
+          const wchar_t *Str;
+          int Length,CurPos;
+          CurLine->GetBinaryString(&Str,NULL,Length);
+          CurPos=CurLine->GetCurPos();
+          AddUndoData(Str,CurLine->GetEOL(),NumLine,CurPos,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+          BlockUndo=TRUE;
+          CurLine->InsertBinaryString(&ClipText[I],Pos-I);
+        }
+        I=Pos;
+      }
+    }
 
     EdOpt.AutoIndent=oldAutoIndent;
 
@@ -3904,7 +3905,6 @@ void Editor::Paste(const wchar_t *Src)
       Flags.Set(FEDITOR_OVERTYPE);
       CurLine->SetOvertypeMode(TRUE);
     }
-
 
     Pasting--;
     Unlock ();
