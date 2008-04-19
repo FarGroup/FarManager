@@ -3,10 +3,10 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.71 build 2288
+  Inside KeyName for FAR Manager 1.71 build 2358
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2007 FAR group
+  Copyrigth (c) 2000-2008 FAR group
 */
 
 
@@ -132,6 +132,9 @@ enum BaseDefKeyboard
   KEY_NUMDEL               =0x00000209,
   KEY_DECIMAL              =0x0000020A,
   KEY_NUMENTER             =0x0000020B,
+
+  KEY_MSWHEEL_LEFT         =0x0000020C,
+  KEY_MSWHEEL_RIGHT        =0x0000020D,
 
   KEY_VK_0xFF_BEGIN        =0x00000300,
   KEY_VK_0xFF_END          =0x000003FF,
