@@ -84,7 +84,7 @@ CLIBS    = $(CLIBS) \
            ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
 
 !IF "$(CPU)" == "AMD64"
-CLIBS    = $(CLIBS) bufferoverflowu.lib
+#CLIBS    = $(CLIBS) bufferoverflowu.lib
 !ENDIF
 #############################################################################
 # Implicit source rules.                                                    #
