@@ -3221,18 +3221,15 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             else
               my=MouseY-MsY;
 
-            if(mx >= 0 && mx+(X2-X1)<=ScrX)
-            {
-              NX2=mx+(X2-X1);
-              NX1=mx;
-              AdjX=NX1-X0;
-            }
-            if(my >= 0 && my+(Y2-Y1)<=ScrY)
-            {
-              NY2=my+(Y2-Y1);
-              NY1=my;
-              AdjY=NY1-Y0;
-            }
+            mx=max(0,min(mx,ScrX-(X2-X1)));
+            NX2=mx+(X2-X1);
+            NX1=mx;
+            AdjX=NX1-X0;
+
+            my=max(0,min(my,ScrY-(Y2-Y1)));
+            NY2=my+(Y2-Y1);
+            NY1=my;
+            AdjY=NY1-Y0;
 
             // "А был ли мальчик?" (про холостой ход)
             if(OX1 != NX1 || OY1 != NY1)
