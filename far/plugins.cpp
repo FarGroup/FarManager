@@ -1498,36 +1498,29 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
   {
     if (PData->pProcessEditorInput && PreparePlugin(I) && !ProcessException)
     {
-      /* $ 13.07.2000 IS
-         Фиксит трап при входе в редактор (подсказал tran)
-      */
-      if (PData->pProcessEditorInput)
+      int Ret;
+      _KEYMACRO(SysLog("CALL pProcessEditorInput(): '%s'",PData->ModuleName));
+
+      PData->FuncFlags.Set(PICFF_PROCESSEDITORINPUT);
+      if(Opt.ExceptRules)
       {
-        int Ret;
-        _KEYMACRO(SysLog("CALL pProcessEditorInput(): '%s'",PData->ModuleName));
-
-        PData->FuncFlags.Set(PICFF_PROCESSEDITORINPUT);
-        if(Opt.ExceptRules)
-        {
-          TRY {
-            Ret=PData->pProcessEditorInput(Rec);
-          }
-          EXCEPT(xfilter(EXCEPT_PROCESSEDITORINPUT,GetExceptionInformation(),PData,1))
-          {
-            UnloadPlugin(*PData,EXCEPT_PROCESSEDITORINPUT); //????!!!!
-            Ret=FALSE;
-            ProcessException=FALSE; //??
-          }
-        }
-        else
+        TRY {
           Ret=PData->pProcessEditorInput(Rec);
-        PData->FuncFlags.Clear(PICFF_PROCESSEDITORINPUT);
-
-        _KEYMACRO(SysLog("Ret=%d",Ret));
-        if(Ret)
-          return(TRUE);
-        /* IS $ */
+        }
+        EXCEPT(xfilter(EXCEPT_PROCESSEDITORINPUT,GetExceptionInformation(),PData,1))
+        {
+          UnloadPlugin(*PData,EXCEPT_PROCESSEDITORINPUT); //????!!!!
+          Ret=FALSE;
+          ProcessException=FALSE; //??
+        }
       }
+      else
+        Ret=PData->pProcessEditorInput(Rec);
+      PData->FuncFlags.Clear(PICFF_PROCESSEDITORINPUT);
+
+      _KEYMACRO(SysLog("Ret=%d",Ret));
+      if(Ret)
+        return(TRUE);
     }
   }
   return(FALSE);
