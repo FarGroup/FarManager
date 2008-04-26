@@ -32,6 +32,7 @@ struct FarDialogItem
   int Focus;
   union
   {
+    DWORD_PTR Reserved;
     int Selected;
     const char *History;
     const char *Mask;
@@ -81,6 +82,11 @@ struct FarDialogItem
     <div class=dfndescr>
       <a href="../keybfocus.html">Keyboard focus</a> flag. You must specify one item with <var>Focus</var>
       equal to <code>TRUE</code>.
+    </div>
+
+    <div class=dfn>Param.Reserved</div>
+    <div class=dfndescr>Size of this members always equals the size of the Param union,
+      which allows to use this member for platform independent initialization.
     </div>
 
     <div class=dfn>Param.Selected</div>

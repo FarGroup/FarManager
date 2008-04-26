@@ -33,6 +33,7 @@ struct FarDialogItem
   int Focus;
   union
   {
+    DWORD_PTR Reserved;
     int Selected;
     const char *History;
     const char *Mask;
@@ -81,6 +82,11 @@ struct FarDialogItem
     <div class=dfndescr>Определяет имеет ли элемент <a href="../keybfocus.html">фокус ввода</a>.
       <var>Focus</var> одного (одного и только одного!) из элементов диалога
       должен быть равным <code>TRUE</code>.
+    </div>
+
+    <div class=dfn>Param.Reserved</div>
+    <div class=dfndescr>Размер этого параметра всегда равен размеру объединения Param,
+      что позволяет использовать этот параметр для платформенно-независимой инициализации.
     </div>
 
     <div class=dfn>Param.Selected</div>
