@@ -702,8 +702,12 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
   {
     if (*(Str++)!='!')
       continue;
+    if(!*Str)
+      break;
     if (*(Str++)!='?')
       continue;
+    if(!*Str)
+      break;
 
     //<Skeleton 2003 11 20>
     //if (strchr(Str,'!')==NULL)  //<---------теперича все не просто
