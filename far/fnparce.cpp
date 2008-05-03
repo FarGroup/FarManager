@@ -567,8 +567,12 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
   {
     if (*(Str++)!=L'!')
       continue;
+    if(!*Str)
+      break;
     if (*(Str++)!=L'?')
       continue;
+    if(!*Str)
+      break;
 
     //<Skeleton 2003 11 20>
     //if (strchr(Str,'!')==NULL)  //<---------теперича все не просто
@@ -757,7 +761,6 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
   	delete [] DlgData;
     return 0;
   }
-  DlgData=(struct DialogItemEx *)xf_realloc(DlgData,(DlgSize+1)*sizeof(*DlgData));
   DlgData[DlgSize].Clear();
   DlgData[DlgSize].Type=DI_DOUBLEBOX;
   DlgData[DlgSize].X1=3;

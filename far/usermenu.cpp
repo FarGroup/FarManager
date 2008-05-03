@@ -1063,6 +1063,7 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
 
 void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile)
 {
+  fputwc(0xFEFF,MenuFile);
   for (int I=0;;I++)
   {
     string strItemKey, strHotKey, strLabel;
@@ -1097,6 +1098,10 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
 {
   wchar_t MenuStr[4096]; //BUGBUG
   int KeyNumber=-1,CommandNumber=0;
+
+  if(GetFileFormat(MenuFile)!=CP_UNICODE)
+    return;
+
   while (fgetws(MenuStr,sizeof(MenuStr)*sizeof(wchar_t),MenuFile)!=NULL)
   {
     string strItemKey;
