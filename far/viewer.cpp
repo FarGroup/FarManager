@@ -1984,6 +1984,7 @@ void Viewer::Up()
        не обращаемся за границу массива (а надо было всего лишь поменять местами условия...)
     */
     if (I==-1 || Buf[I]==CRSym)
+    {
       if (!VM.Wrap)
       {
         FilePos-=BufSize-(I+1)+Skipped;
@@ -2015,13 +2016,15 @@ void Viewer::Up()
               StrPos=0;
           }
           if (J<BufSize)
+          {
             if (Buf[J]=='\t')
               StrPos+=ViOpt.TabSize-(StrPos % ViOpt.TabSize);
-            else
-              if (Buf[J]!=13)
-                StrPos++;
+            else if (Buf[J]!=13)
+              StrPos++;
+          }
         }
       }
+    }
   }
   for (I=Min(Width,BufSize);I>0;I-=5)
     if (CalcStrSize(&Buf[BufSize-I],I) <= Width)
@@ -2248,7 +2251,7 @@ void Viewer::Search(int Next,int FirstChar)
   __int64 MatchPos=0;
   int SearchLength,Case,WholeWords,ReverseSearch,Match;
 
-  if (ViewFile==NULL || Next && strLastSearchStr.IsEmpty())
+  if (ViewFile==NULL || (Next && strLastSearchStr.IsEmpty()))
     return;
 
   if ( !strLastSearchStr.IsEmpty() )

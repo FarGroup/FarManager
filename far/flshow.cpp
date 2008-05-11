@@ -215,7 +215,7 @@ void FileList::ShowFileList(int Fast)
       MMenuSortByExt,MMenuSortByModification,MMenuSortByCreation,
       MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
       MMenuSortByCompressedSize,MMenuSortByNumLinks};
-    for (int I=0;I<sizeof(SortModes)/sizeof(SortModes[0]);I++)
+    for (size_t I=0;I<countof(SortModes);I++)
     {
       if (SortModes[I]==SortMode)
       {
@@ -324,10 +324,12 @@ void FileList::ShowFileList(int Fast)
       NamePtr = wcsrchr(NamePtr,L'\\');
 
       if (NamePtr!=NULL && NamePtr!=strCurDir) //BUGBUG, bad
+      {
         if (*(NamePtr-1)!=L':')
           *NamePtr=0;
         else
           *(NamePtr+1)=0;
+      }
 
       strCurDir.ReleaseBuffer ();
 
@@ -534,10 +536,12 @@ void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
 {
   struct OpenPluginInfo Info;
   if (PanelMode==PLUGIN_PANEL)
+  {
     if (PlugInfo==NULL)
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     else
       Info=*PlugInfo;
+  }
 
   ViewSettings=ViewSettingsArray[ViewMode];
   if (PanelMode==PLUGIN_PANEL)
@@ -754,6 +758,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
     {
       int ListPos=J+CurColumn*Height;
       if (ShowStatus)
+      {
         if (CurFile!=ListPos)
         {
           CurColumn++;
@@ -761,6 +766,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         }
         else
           StatusLine=TRUE;
+      }
       int CurX=WhereX();
       int CurY=WhereY();
       int ShowDivider=TRUE;
@@ -795,7 +801,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
         {
           int ColumnNumber=ColumnType-CUSTOM_COLUMN0;
-          wchar_t *ColumnData=NULL;
+          const wchar_t *ColumnData=NULL;
           if (ColumnNumber<CurPtr->CustomColumnNumber)
             ColumnData=CurPtr->CustomColumnData[ColumnNumber];
           if (ColumnData==NULL)

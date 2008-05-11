@@ -148,7 +148,7 @@ class TreeList: public Panel
 
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}
-    virtual int GetFileName(string &strName,int Pos,int &FileAttr);
+    virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 
     virtual void SetTitle();
     virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
@@ -158,7 +158,7 @@ class TreeList: public Panel
     virtual BOOL GetItem(int Index,void *Dest);
     virtual int GetCurrentPos();
 
-    virtual int GetSelName(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
+    virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
 
   public:
     static void AddTreeName(const wchar_t *Name);

@@ -59,7 +59,7 @@ void PrintFiles(Panel *SrcPanel)
   string strPrinterName;
   DWORD Needed,Returned;
   int PrinterNumber;
-  int FileAttr;
+  DWORD FileAttr;
   string strSelName;
 
   long DirsCount=0;

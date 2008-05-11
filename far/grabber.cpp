@@ -391,7 +391,7 @@ int Grabber::ProcessKey(int Key)
 int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if (MouseEvent->dwEventFlags==DOUBLE_CLICK ||
-      MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
+      (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))
   {
     ProcessKey(KEY_ENTER);
     return(TRUE);

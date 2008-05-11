@@ -1812,88 +1812,87 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
 #endif
 void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
-      {
-        ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
+	{
+		ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
 
-        string strSelName;
-        int FileAttr;
-        if (SearchMode==SEARCH_SELECTED)
-          CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
+		string strSelName;
+		DWORD FileAttr;
+		if (SearchMode==SEARCH_SELECTED)
+			CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
 
-        while (1)
-        {
-          string strCurRoot;
-          if (SearchMode==SEARCH_SELECTED)
-          {
-            if (!CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
-              break;
-            if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(strSelName) ||
-                StrCmp(strSelName,L".")==0)
-              continue;
+		while (1)
+		{
+			string strCurRoot;
+			if (SearchMode==SEARCH_SELECTED)
+			{
+				if (!CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
+					break;
+				if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(strSelName) ||
+						StrCmp(strSelName,L".")==0)
+					continue;
 
+				strCurRoot = strRoot;
+				AddEndSlash(strCurRoot);
+				strCurRoot += strSelName;
+			}
+			else
+				strCurRoot = strRoot;
 
-            strCurRoot = strRoot;
-            AddEndSlash(strCurRoot);
-            strCurRoot += strSelName;
-          }
-          else
-            strCurRoot = strRoot;
+			ScTree.SetFindPath(strCurRoot,L"*.*");
 
-          ScTree.SetFindPath(strCurRoot,L"*.*");
+			statusCS.Enter ();
 
-          statusCS.Enter ();
+			strFindMessage = strCurRoot;
+			FindMessageReady=TRUE;
 
-          strFindMessage = strCurRoot;
-          FindMessageReady=TRUE;
+			statusCS.Leave ();
 
-          statusCS.Leave ();
+			while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
+			{
+				while (PauseSearch)
+					Sleep(10);
 
-          while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
-          {
-            while (PauseSearch)
-              Sleep(10);
+				/* $ 30.09.2003 KM
+					Отфильтруем файлы не попадающие в действующий фильтр
+				*/
+				if (UseFilter)
+				{
+					// Если имеется фильтр "с запретом" и под его действие попадает
+					// каталог, то пропускаем  не только сам катаолог но и всё что
+					// ниже (по дереву). Прочие типы фильтров для каталогов не
+					// перепроверяем - всё равно в них заходить надо
+					bool isDir = (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+					if (Filter->FileInFilter(&FindData, isDir) == isDir)
+					{
+						if(isDir)
+							ScTree.SkipDir();
+						continue;
+					}
+				}
 
-            /* $ 30.09.2003 KM
-              Отфильтруем файлы не попадающие в действующий фильтр
-            */
-            if (UseFilter)
-            {
-              // Если имеется фильтр "с запретом" и под его действие попадает
-              // каталог, то пропускаем  не только сам катаолог но и всё что
-              // ниже (по дереву). Прочие типы фильтров для каталогов не
-              // перепроверяем - всё равно в них заходить надо
-              bool isDir = (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-              if (Filter->FileInFilter(&FindData, isDir) == isDir)
-              {
-                if(isDir)
-                  ScTree.SkipDir();
-                continue;
-              }
-            }
+				/* $ 14.06.2004 KM
+					Уточнение действия при обработке каталогов
+				*/
+				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					statusCS.Enter();
 
-            /* $ 14.06.2004 KM
-              Уточнение действия при обработке каталогов
-            */
-            if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-              statusCS.Enter();
+					strFindMessage = strFullName;
+					FindMessageReady=TRUE;
 
-              strFindMessage = strFullName;
-              FindMessageReady=TRUE;
+					statusCS.Leave();
+				}
 
-              statusCS.Leave();
-            }
+				if (IsFileIncluded(NULL,strFullName,FindData.dwFileAttributes))
+					AddMenuRecord(strFullName,&FindData);
 
-            if (IsFileIncluded(NULL,strFullName,FindData.dwFileAttributes))
-              AddMenuRecord(strFullName,&FindData);
-
-            if (SearchInArchives)
-              ArchiveSearch(strFullName);
-          }
-          if (SearchMode!=SEARCH_SELECTED)
-            break;
-        }
-      }
+				if (SearchInArchives)
+					ArchiveSearch(strFullName);
+			}
+			if (SearchMode!=SEARCH_SELECTED)
+				break;
+		}
+	}
 }
 void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
@@ -1938,10 +1937,12 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
         int DriveType=FAR_GetDriveType(strRoot);
         if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
            (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
+        {
           if (DiskMask==1)
             break;
           else
             continue;
+        }
       }
       else if (SearchMode==SEARCH_ROOT)
         GetPathRootOne(strRoot,strRoot);

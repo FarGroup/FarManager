@@ -144,7 +144,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
   switch(Msg)
   {
     case DN_BTNCLICK:
-      if(Param1 >= SETATTR_ATTR_FIRST && Param1 <= SETATTR_ATTR_LAST || Param1 == SETATTR_SUBFOLDERS)
+      if((Param1 >= SETATTR_ATTR_FIRST && Param1 <= SETATTR_ATTR_LAST) || Param1 == SETATTR_SUBFOLDERS)
       {
         DlgParam->OriginalCBAttr[Param1-SETATTR_ATTR_FIRST] = (int)Param2;
         DlgParam->OriginalCBAttr2[Param1-SETATTR_ATTR_FIRST] = 0;
@@ -546,7 +546,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   {
     string strSelName;
-    int FileAttr;
+    DWORD FileAttr;
     FILETIME LastWriteTime,CreationTime,LastAccessTime;
     int SetWriteTime,SetCreationTime,SetLastAccessTime;
     int SetWriteTimeRetCode=TRUE;
@@ -556,7 +556,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData);
-    if (SelCount==0 || SelCount==1 && TestParentFolderName(strSelName))
+    if (SelCount==0 || (SelCount==1 && TestParentFolderName(strSelName)))
       return 0;
 
 //    int NewAttr;
@@ -1203,10 +1203,12 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
   st.wSecond = TimeN[2]!=(unsigned)-1? (TimeN[2]):ost.wSecond;
 
   if (st.wYear<100)
+  {
     if (st.wYear<80)
       st.wYear+=2000;
     else
       st.wYear+=1900;
+  }
 
   if(TimeN[0]==(unsigned)-1 && TimeN[1]==(unsigned)-1 && TimeN[2]==(unsigned)-1)
   {

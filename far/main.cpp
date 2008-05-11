@@ -511,7 +511,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         apiExpandEnvironmentStrings (Argv[I], DestNames[CntDestName]);
         Unquote(DestNames[CntDestName]);
         ConvertNameToFull(Argv[I],DestNames[CntDestName]);
-        if(GetFileAttributesW(DestNames[CntDestName]) != -1)
+        if(GetFileAttributesW(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
           CntDestName++; //???
       }
     }

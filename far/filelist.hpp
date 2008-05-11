@@ -260,7 +260,7 @@ class FileList:public Panel
     void MoveSelection(struct FileListItem **FileList,long FileCount,
                        struct FileListItem **OldList,long OldFileCount);
     virtual int GetSelCount();
-    virtual int GetSelName(string *strName,int &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
+    virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
     virtual void UngetSelName();
     virtual void ClearLastGetSelection();
 
@@ -343,7 +343,7 @@ class FileList:public Panel
     virtual int GetPrevViewMode();
     virtual int GetPrevNumericSort();
     HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
-    virtual int GetFileName(string &strName,int Pos,int &FileAttr);
+    virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
     virtual int GetCurrentPos();
     virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
     long FindFile(const char *Name,BOOL OnlyPartName=FALSE);

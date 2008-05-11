@@ -63,7 +63,6 @@ MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2
 #endif
 
 #include <setupapi.h>
-#pragma hdrstop
 
 #include "lang.hpp"
 #include "fn.hpp"

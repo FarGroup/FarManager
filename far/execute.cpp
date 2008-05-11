@@ -101,7 +101,7 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
         } header, *pheader;
         #include <poppack.h>
 
-        if(SetFilePointer(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN) != -1)
+        if(SetFilePointer(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN) != INVALID_SET_FILE_POINTER)
         {
           // читаем очередной заголовок
           if(ReadFile(hFile,&header,sizeof(struct __HDR),&ReadSize,NULL))
@@ -366,7 +366,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 */
 int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& ImageSubsystem)
 {
-  int Ret, I;
+  int Ret;
   wchar_t *Ptr;
 
   string strCommand = Command;
@@ -382,13 +382,12 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
   if(!PreparePrepareExt) // самоинициилизирующийся кусок
   {
     // если переменная %PATHEXT% доступна...
-    if((I=apiGetEnvironmentVariable(L"PATHEXT",strFullName)) != 0)
+    if(apiGetEnvironmentVariable(L"PATHEXT",strFullName) != 0)
     {
       static wchar_t const * const StdExecuteExt0[4]={L".BAT;",L".CMD;",L".EXE;",L".COM;"};
-      for(I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
+      for(size_t I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
         ReplaceStrings(strFullName,StdExecuteExt0[I],L"",-1);
     }
-
 
     strFullName += ";";
 
@@ -471,7 +470,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
       if (!PtrFName)
         strWorkName += PtrExt;
 
-      if(GetFileAttributesW(strWorkName) != -1)
+      if(GetFileAttributesW(strWorkName) != INVALID_FILE_ATTRIBUTES)
       {
         ConvertNameToFull (strWorkName, strFullName);
         Ret=TRUE;
@@ -540,7 +539,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
         strFullName = RegPath+strFileName;
 
-        for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+        for (size_t I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
         {
           if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
@@ -564,7 +563,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
           {
             strFullName = RegPath+strFileName+PtrExt;
 
-            for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+            for(size_t I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
             {
               if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
               {
@@ -738,7 +737,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   if ( SeparateWindow == 1 )
   {
-      if ( strNewCmdPar.IsEmpty() && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
+      if ( strNewCmdPar.IsEmpty() && dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
       {
           ConvertNameToFull(strNewCmdStr, strNewCmdStr);
           SeparateWindow=2;
@@ -1290,7 +1289,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
             FileAttr=GetFileAttributesW(strFullPath);
           }
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
-          if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
+          if ((FileAttr != INVALID_FILE_ATTRIBUTES && !Not) || (FileAttr == INVALID_FILE_ATTRIBUTES && Not))
           {
             while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
             Exist++;
@@ -1319,7 +1318,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           Cmd[PtrCmd-CmdStart]=0;
           DWORD ERet=apiGetEnvironmentVariable(Cmd,strExpandedStr);
 //_SVS(SysLog(Cmd));
-          if(ERet && !Not || !ERet && Not)
+          if ((ERet && !Not) || (!ERet && Not))
           {
             while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
             Exist++;
@@ -1486,7 +1485,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
 //      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-    if(SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == (DWORD)-1)
+    if(SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
     {
       GetRegKey(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
       DeleteEndSlash(strExpandedDir);
@@ -1526,7 +1525,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
     DWORD DirAtt=GetFileAttributesW(strExpandedDir);
-    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
+    if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
     {
       ReplaceStrings(strExpandedDir,L"/",L"\\",-1);
       SetPanel->SetCurDir(strExpandedDir,TRUE);
@@ -1610,7 +1609,7 @@ BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
     {
       strcat(FullNameExt,PtrBatchType);
 
-      if(GetFileAttributes(FullName)!=-1)
+      if(GetFileAttributes(FullName)!=INVALID_FILE_ATTRIBUTES)
       {
         strncpy(DestName,FullName,SizeDestName);
         Result=TRUE;

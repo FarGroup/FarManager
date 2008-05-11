@@ -458,7 +458,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     UserMenuItem.Clear ();
     int NumLine=0,ExitCode,FuncPos[12];
 
-    for (int I=0;I<sizeof(FuncPos)/sizeof(FuncPos[0]);I++)
+    for (size_t I=0;I<countof(FuncPos);I++)
       FuncPos[I]=-1;
 
     string strName,strShortName;

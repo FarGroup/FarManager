@@ -167,7 +167,7 @@ typedef BOOL (WINAPI *PSETVOLUMEMOUNTPOINT)(
 
 
 static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
-static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
+//static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
 static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
 
 /*
@@ -220,7 +220,7 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
 
     ConvertNameToFull (SrcFolder, strFullDir); //??? было GetFullPathName
 
-    if ( GetFileAttributesW (strFullDir) == -1 )
+    if ( GetFileAttributesW (strFullDir) == INVALID_FILE_ATTRIBUTES )
     {
       SetLastError(ERROR_PATH_NOT_FOUND);
       return FALSE;
@@ -861,7 +861,7 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
       {
         FileAttr=GetFileAttributesW(TempRoot);
 
-        if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+        if(FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
         {
           if(GetJunctionPointInfo(TempRoot,strJuncName))
           {

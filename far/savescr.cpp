@@ -97,6 +97,7 @@ void SaveScreen::RestoreArea(int RestoreCursor)
   else
     PutText(X1,Y1,X2,Y2,ScreenBuf);
   if (RestoreCursor)
+  {
     if (RealScreen)
     {
       SetRealCursorType(CurVisible,CurSize);
@@ -107,6 +108,7 @@ void SaveScreen::RestoreArea(int RestoreCursor)
       SetCursorType(CurVisible,CurSize);
       MoveCursor(CurPosX,CurPosY);
     }
+  }
 }
 
 

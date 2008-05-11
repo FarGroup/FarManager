@@ -273,10 +273,12 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
   st.wSecond = TimeN[2]!=(unsigned)-1?(TimeN[2]):0;
 
   if (st.wYear<100)
+  {
     if (st.wYear<80)
       st.wYear+=2000;
     else
       st.wYear+=1900;
+  }
 
   // преобразование в "удобоваримый" формат
   SystemTimeToFileTime(&st,&lft);
@@ -1394,7 +1396,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 {
-  if( pTestPath && !pTestPath->IsEmpty() && GetFileAttributesW(*pTestPath) == -1)
+  if( pTestPath && !pTestPath->IsEmpty() && GetFileAttributesW(*pTestPath) == INVALID_FILE_ATTRIBUTES)
   {
     int FoundPath=0;
 
@@ -1420,7 +1422,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 					if (!CutToSlash(strTestPathTemp,true))
 						break;
 
-					if(GetFileAttributesW(strTestPathTemp) != -1)
+					if(GetFileAttributesW(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
 					{
 						int ChkFld=CheckFolder(strTestPathTemp);
 						if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)

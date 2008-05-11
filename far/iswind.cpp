@@ -66,7 +66,7 @@ lpModeFlags - [out] Display mode of the console. This parameter can be one or mo
 */
 typedef BOOL (WINAPI *PROCGETCONSOLEDISPLAYMODE)(LPDWORD lpModeFlags);
 static PROCSETCONSOLEDISPLAYMODEELLWND pfnSetConsoleDisplayMode=NULL;
-static PROCGETCONSOLEDISPLAYMODE pfnGetConsoleDisplayMode=NULL;
+//static PROCGETCONSOLEDISPLAYMODE pfnGetConsoleDisplayMode=NULL;
 
 void DetectWindowedMode()
 {
@@ -156,7 +156,7 @@ BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM FARpid)
 {
   DWORD pid;
   GetWindowThreadProcessId(hwnd,&pid);
-  if (pid==FARpid)
+  if (pid==(DWORD)FARpid)
   {
     hFarWnd=hwnd;
     return(FALSE);

@@ -174,7 +174,7 @@ typedef BOOL (__stdcall *COPYFILEEXW) (
 		DWORD dwCopyFlags
 		);
 
-static COPYFILEEX pCopyFileEx=NULL;
+//static COPYFILEEX pCopyFileEx=NULL;
 static COPYFILEEXW pCopyFileExW=NULL;
 
 BOOL Init_CopyFileEx(void)

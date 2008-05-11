@@ -113,7 +113,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
     } /* if */
 
     const wchar_t *FileName=fdata->strFileName;
-    if (Done || !(*FileName==L'.' && (!FileName[1] || FileName[1]==L'.' && !FileName[2])))
+    if (Done || !(*FileName==L'.' && (!FileName[1] || (FileName[1]==L'.' && !FileName[2]))))
       break;
   }
 
@@ -162,7 +162,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
     */
     if (Flags.Check(FSCANTREE_RECUR) &&
       ((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC ||
-          (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK)))
+          ((fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK))))
     {
       CutToSlash(strFindPath);
 

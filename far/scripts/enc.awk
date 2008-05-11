@@ -1,7 +1,7 @@
 BEGIN {
   FS = ""
   Xor = 17
-  printf "char *Copyright=\""
+  printf "const char *Copyright=\""
   test = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 }
 

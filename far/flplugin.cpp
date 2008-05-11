@@ -319,7 +319,7 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
   long OldLastSelPosition=LastSelPosition;
 
   string strSelName;
-  int FileAttr;
+  DWORD FileAttr;
   ItemNumber=0;
   ItemList=new PluginPanelItem[SelFileCount+1];
   if (ItemList!=NULL)
@@ -397,7 +397,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
   CtrlObject->Plugins.GetOpenPluginInfo(DestPanel->hPlugin,&Info);
   if ( DestPanel->strPluginDizName.IsEmpty() && Info.DescrFilesNumber>0)
     DestPanel->strPluginDizName = Info.DescrFiles[0];
-  if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed() ||
+  if (((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
       Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.IsEmpty() &&
       (Info.HostFile==NULL || *Info.HostFile==0 || DestPanel->GetModalMode() ||
       GetFileAttributesW(Info.HostFile)!=0xFFFFFFFF))
@@ -473,7 +473,7 @@ void FileList::PluginGetFiles(const wchar_t *DestPath,int Move)
   if (ItemList!=NULL && ItemNumber>0)
   {
     int GetCode=CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,Move,DestPath,0);
-    if (Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed() ||
+    if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
         Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
     {
       DizList DestDiz;
@@ -582,7 +582,7 @@ void FileList::PluginHostGetFiles()
   string strSelName;
 
   wchar_t *ExtPtr;
-  int FileAttr;
+  DWORD FileAttr;
 
   SaveSelection();
 
@@ -591,8 +591,8 @@ void FileList::PluginHostGetFiles()
     return;
 
   AnotherPanel->GetCurDir(strDestPath);
-  if ((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
-      SelFileCount==0 || strDestPath.IsEmpty() )
+  if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
+      SelFileCount==0) || strDestPath.IsEmpty() )
   {
       strDestPath = PointToName(strSelName);
     // SVS: ј зачем здесь велс€ поиск точки с начала?

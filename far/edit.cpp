@@ -562,7 +562,7 @@ int Edit::ProcessKey(int Key)
          - символ перед курсором удален
          - выделение блока снято
   */
-  if (((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS) || Key==KEY_CTRLD) &&
+  if ((((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || Key==KEY_CTRLD) &&
       !Flags.Check(FEDITLINE_EDITORMODE) && SelStart!=-1 && SelStart<SelEnd)
   {
     DeleteBlock();
@@ -572,7 +572,7 @@ int Edit::ProcessKey(int Key)
 
   int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
   // $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
-  if (!ShiftPressed && (!_Macro_IsExecuting || IsNavKey(Key) && _Macro_IsExecuting) &&
+  if (!ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
       !IsShiftKey(Key) && !Recurse &&
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
       Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE &&
@@ -621,7 +621,7 @@ int Edit::ProcessKey(int Key)
     SelEnd=StrSize;
   }
 
-  if (Flags.Check(FEDITLINE_CLEARFLAG) && (Key<256 && Key!=KEY_BS || Key==KEY_CTRLBRACKET ||
+  if (Flags.Check(FEDITLINE_CLEARFLAG) && ((Key<256 && Key!=KEY_BS) || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
       Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
   {
@@ -641,7 +641,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
-      !(Key>=KEY_MACRO_BASE && Key<=KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && Key!=KEY_CTRLQ)
+      !((Key>=KEY_MACRO_BASE && Key<=KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();
@@ -684,7 +684,7 @@ int Edit::ProcessKey(int Key)
         Select(-1,0);
         Flags.Set(FEDITLINE_MARKINGBLOCK);
       }
-      if (SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
+      if ((SelStart!=-1 && SelEnd==-1) || SelEnd>CurPos)
       {
         if (CurPos+1==SelEnd)
           Select(-1,0);
@@ -1155,6 +1155,7 @@ int Edit::ProcessKey(int Key)
     case KEY_CTRLINS:     case KEY_CTRLNUMPAD0:
     {
       if (!Flags.Check(FEDITLINE_PASSWORDMODE))
+      {
         if (SelStart==-1 || SelStart>=SelEnd)
         {
           if (Mask && *Mask)
@@ -1170,14 +1171,14 @@ int Edit::ProcessKey(int Key)
           else
             CopyToClipboard(Str);
         }
-        else
-          if (SelEnd<=StrSize) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
-          {
-            int Ch=Str[SelEnd];
-            Str[SelEnd]=0;
-            CopyToClipboard(Str+SelStart);
-            Str[SelEnd]=Ch;
-          }
+        else if (SelEnd<=StrSize) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
+        {
+          int Ch=Str[SelEnd];
+          Str[SelEnd]=0;
+          CopyToClipboard(Str+SelStart);
+          Str[SelEnd]=Ch;
+        }
+      }
       return(TRUE);
     }
 
@@ -1611,7 +1612,7 @@ void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
 
 int Edit::GetSelString(wchar_t *Str, int MaxSize)
 {
-  if (SelStart==-1 || SelEnd!=-1 && SelEnd<=SelStart ||
+  if (SelStart==-1 || (SelEnd!=-1 && SelEnd<=SelStart) ||
       SelStart>=StrSize)
   {
     *Str=0;
@@ -1631,7 +1632,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 
 int Edit::GetSelString (string &strStr)
 {
-  if (SelStart==-1 || SelEnd!=-1 && SelEnd<=SelStart ||
+  if (SelStart==-1 || (SelEnd!=-1 && SelEnd<=SelStart) ||
       SelStart>=StrSize)
   {
     strStr = L"";
@@ -1849,7 +1850,7 @@ int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Rev
       return(FALSE);
   }
   if (Position<StrSize && *Str)
-    for (I=Position;Reverse && I>=0 || !Reverse && I<StrSize;Reverse ? I--:I++)
+    for (I=Position;(Reverse && I>=0) || (!Reverse && I<StrSize);Reverse ? I--:I++)
     {
       for (J=0;;J++)
       {
@@ -2087,7 +2088,7 @@ void Edit::AddSelect(int Start,int End)
 {
   if (Start<SelStart || SelStart==-1)
     SelStart=Start;
-  if (End==-1 || End>SelEnd && SelEnd!=-1)
+  if (End==-1 || (End>SelEnd && SelEnd!=-1))
     SelEnd=End;
   if (SelEnd>StrSize)
     SelEnd=StrSize;
@@ -2165,10 +2166,12 @@ void Edit::DeleteBlock()
     wmemmove(Str+From,Str+To,StrSize-To+1);
     StrSize-=To-From;
     if (CurPos>From)
+    {
       if (CurPos<To)
         CurPos=From;
       else
         CurPos-=To-From;
+    }
     Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t));
   }
 
@@ -2262,7 +2265,7 @@ void Edit::ApplyColor()
       if(Length < X2)
         Length-=CorrectPos;
 
-      if (Length > 0 && Length < sizeof(TextData))
+      if (Length > 0 && Length < (int)countof(TextData))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
 

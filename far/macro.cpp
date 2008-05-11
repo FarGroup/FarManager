@@ -671,18 +671,18 @@ int KeyMacro::GetPlainTextSize()
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 {
   _KEYMACRO(CleverSysLog Clev(L"KeyMacro::FARPseudoVariable()"));
-  int I;
+  size_t I;
   TVar Cond(_i64(0));
 
   string strFileName;
 
-  int FileAttr=-1;
+  DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
   // Найдем индекс нужного кейворда
-  for ( I=0 ; I < sizeof(MKeywords)/sizeof(MKeywords[0]) ; ++I )
+  for ( I=0 ; I < countof(MKeywords) ; ++I )
     if ( MKeywords[I].Value == CheckCode )
       break;
-  if ( I == sizeof(MKeywords)/sizeof(MKeywords[0]) )
+  if ( I == countof(MKeywords) )
   {
     Err=1;
     _KEYMACRO(SysLog(L"return; Err=%d",Err));
@@ -1646,7 +1646,7 @@ static bool environFunc()
 static bool _fattrFunc(int Type)
 {
   bool Ret=false;
-  DWORD FileAttr=(DWORD)-1;
+  DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
   if(Type == 0 || Type == 2) // не панели
   {
@@ -1683,14 +1683,14 @@ static bool _fattrFunc(int Type)
       if(Pos >= 0)
       {
         string strFileName;
-        SelPanel->GetFileName(strFileName,Pos,(int&)FileAttr);
+        SelPanel->GetFileName(strFileName,Pos,FileAttr);
         Ret=true;
       }
     }
   }
 
   if(Type == 2 || Type == 3)
-    FileAttr=(FileAttr!=(DWORD)-1)?1:0;
+    FileAttr=(FileAttr!=INVALID_FILE_ATTRIBUTES)?1:0;
 
   VMStack.Push(TVar((__int64)(long)FileAttr));
 
@@ -4349,9 +4349,9 @@ BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags,BOOL IsPassivePanel)
 BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassivePanel)
 {
   string strFileName;
-  int FileAttr=-1;
+  DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
   CheckPanel->GetFileName(strFileName,CheckPanel->GetCurrentPos(),FileAttr);
-  if(FileAttr != -1)
+  if(FileAttr != INVALID_FILE_ATTRIBUTES)
   {
     if(IsPassivePanel)
     {

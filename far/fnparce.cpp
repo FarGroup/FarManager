@@ -74,7 +74,7 @@ struct TSubstDataW
 };
 
 
-static int IsReplaceVariableW(const wchar_t *str,int *scr = NULL,
+static int IsReplaceVariable(const wchar_t *str,int *scr = NULL,
                                 int *end = NULL,
                                 int *beg_scr_break = NULL,
                                 int *end_scr_break = NULL,
@@ -154,12 +154,12 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !& !&~  список файлов разделенных пробелом.
-  if (!wcsncmp(CurStr,L"!&~",3) && CurStr[3] != L'?' ||
-      !wcsncmp(CurStr,L"!&",2) && CurStr[2] != L'?')
+  if ((!wcsncmp(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
+      (!wcsncmp(CurStr,L"!&",2) && CurStr[2] != L'?'))
   {
     string strFileNameL, strShortNameL;
     Panel *WPanel=PSubstData->PassivePanel?PSubstData->AnotherPanel:PSubstData->ActivePanel;
-    int FileAttrL;
+    DWORD FileAttrL;
     int ShortN0=FALSE;
     int CntSkip=2;
     if(CurStr[2] == L'~')
@@ -382,7 +382,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     //CurStr=NewCurStr;
 
     int j;
-    int i = IsReplaceVariableW(CurStr);
+    int i = IsReplaceVariable(CurStr);
     if (i == -1)  // if bad format string
     {             // skip 1 char
       j = 1;
@@ -580,7 +580,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
                                   // запомнить их позицию
     int scr,end, beg_t,end_t,beg_s,end_s;
     scr = end = beg_t = end_t = beg_s = end_s = 0;
-    int ii = IsReplaceVariableW(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
+    int ii = IsReplaceVariable(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
     if (ii == -1)
     {
       delete [] DlgData;
@@ -830,7 +830,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
   }
 
   string strFileName, strShortName;
-  int FileAttr;
+  DWORD FileAttr;
   GetSelName(NULL,FileAttr);
   while (GetSelName(&strFileName,FileAttr,&strShortName))
   {
@@ -888,162 +888,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
   return(TRUE);
 }
 
-static int IsReplaceVariable(char *str,int *scr,
-                                int *end,
-                                int *beg_scr_break,
-                                int *end_scr_break,
-                                int *beg_txt_break,
-                                int *end_txt_break)
-// все очень сложно - посл-иe 4 указател€ - это смещени€ от str
-// начало скобок в строке описани€, конец этих скобок, начало скобок в строке начального заполнени€, ну и соотв конец.
-// ¬ообще при простом вызове (который € собираюсь юзать) это выгл€дит просто:
-// i = IsReplaceVariable(str) - ведь нам надо только провер€ть семантику скобок и вс€ких ?!
-// где  i - тот прыжок, который надо совершить, чтоб прыгнуть на конец ! структуры !??!
-{
-  char *s      = str;
-  char *scrtxt = str;
-
-  int count_scob = 0;
-  int second_count_scob = 0;
-
-  bool was_quest = false;         //  ?
-  bool was_asterics = false;      //  !
-
-  bool in_firstpart_was_scob = false;
-  char *beg_firstpart_scob = NULL;
-  char *end_firstpart_scob = NULL;
-
-  bool in_secondpart_was_scob = false;
-  char *beg_secondpart_scob = NULL;
-  char *end_secondpart_scob = NULL;
-
-  if (!s)
-    return -1;
-
-  if (strncmp(s,"!?",2) == 0)
-    s = s + 2;
-  else
-    return -1;
-  //
-  while (true)    // analize from !? to ?
-  {
-    if (!*s)
-      return -1;
-
-    if (*s == '(')
-    {
-      if (in_firstpart_was_scob)
-      {
-        //return -1;
-      }
-      else
-      {
-        in_firstpart_was_scob = true;
-        beg_firstpart_scob = s;     //remember wher is first break
-      }
-      count_scob += 1;
-    }
-    else if (*s == ')')
-    {
-      count_scob -= 1;
-      if (count_scob == 0)
-      {
-        if (!end_firstpart_scob)
-          end_firstpart_scob = s;   //remember wher is last break
-      }
-      else if (count_scob < 0)
-        return -1;
-    }
-    else if ((*s == '?') && ((!beg_firstpart_scob && !end_firstpart_scob) || (beg_firstpart_scob && end_firstpart_scob)))
-    {
-      was_quest = true;
-    }
-
-    s++;
-    if (was_quest) break;
-  }
-  if (count_scob != 0) return -1;
-  scrtxt = s - 1; //remember s for return
-
-  while (true)    //analize from ? or !
-  {
-    if (!*s)
-      return -1;
-
-    if (*s == '(')
-    {
-      if (in_secondpart_was_scob)
-      {
-        //return -1;
-      }
-      else
-      {
-        in_secondpart_was_scob = true;
-        beg_secondpart_scob = s;    //remember wher is first break
-      }
-      second_count_scob += 1;
-    }
-    else if (*s == ')')
-    {
-      second_count_scob -= 1;
-      if (second_count_scob == 0)
-      {
-        if (!end_secondpart_scob)
-          end_secondpart_scob = s;  //remember wher is last break
-      }
-      else if (second_count_scob < 0)
-        return -1;
-    }
-    else if ((*s == '!') && ((!beg_secondpart_scob && !end_secondpart_scob) || (beg_secondpart_scob && end_secondpart_scob)))
-    {
-      was_asterics = true;
-    }
-
-    s++;
-    if (was_asterics) break;
-  }
-  if (second_count_scob != 0) return -1;
-
-  //
-  if (scr != NULL)
-    *scr = (int)(scrtxt - str);
-  if (end != NULL)
-    *end = (int)(s - str) - 1;
-
-  if (in_firstpart_was_scob)
-  {
-    if (beg_scr_break != NULL)
-      *beg_scr_break = (int)(beg_firstpart_scob - str);
-    if (end_scr_break != NULL)
-      *end_scr_break = (int)(end_firstpart_scob - str);
-  }
-  else
-  {
-    if (beg_scr_break != NULL)
-      *beg_scr_break = -1;
-    if (end_scr_break != NULL)
-      *end_scr_break = -1;
-  }
-
-  if (in_secondpart_was_scob)
-  {
-    if (beg_txt_break != NULL)
-      *beg_txt_break = (int)(beg_secondpart_scob - str);
-    if (end_txt_break != NULL)
-      *end_txt_break = (int)(end_secondpart_scob - str);
-  }
-  else
-  {
-    if (beg_txt_break != NULL)
-      *beg_txt_break = -1;
-    if (end_txt_break != NULL)
-      *end_txt_break = -1;
-  }
-
-  return (int)((s - str) - 1);
-}
-
-static int IsReplaceVariableW(const wchar_t *str,
+static int IsReplaceVariable(const wchar_t *str,
                                 int *scr,
                                 int *end,
                                 int *beg_scr_break,
@@ -1095,7 +940,7 @@ static int IsReplaceVariableW(const wchar_t *str,
       else
       {
         in_firstpart_was_scob = true;
-        beg_firstpart_scob = s;     //remember wher is first break
+        beg_firstpart_scob = s;     //remember where is first break
       }
       count_scob += 1;
     }
@@ -1105,7 +950,7 @@ static int IsReplaceVariableW(const wchar_t *str,
       if (count_scob == 0)
       {
         if (!end_firstpart_scob)
-          end_firstpart_scob = s;   //remember wher is last break
+          end_firstpart_scob = s;   //remember where is last break
       }
       else if (count_scob < 0)
         return -1;
@@ -1135,7 +980,7 @@ static int IsReplaceVariableW(const wchar_t *str,
       else
       {
         in_secondpart_was_scob = true;
-        beg_secondpart_scob = s;    //remember wher is first break
+        beg_secondpart_scob = s;    //remember where is first break
       }
       second_count_scob += 1;
     }
@@ -1145,7 +990,7 @@ static int IsReplaceVariableW(const wchar_t *str,
       if (second_count_scob == 0)
       {
         if (!end_secondpart_scob)
-          end_secondpart_scob = s;  //remember wher is last break
+          end_secondpart_scob = s;  //remember where is last break
       }
       else if (second_count_scob < 0)
         return -1;

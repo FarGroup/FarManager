@@ -52,15 +52,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct HighlightStrings
 {
-  wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
-          *IgnoreMask,*UseMask,*Mask,
-          *NormalColor,*SelectedColor,*CursorColor,*SelectedCursorColor,
-          *MarkCharNormalColor,*MarkCharSelectedColor,*MarkCharCursorColor,*MarkCharSelectedCursorColor,
-          *MarkChar,
-          *ContinueProcessing,
-          *UseDate,*DateType,*DateAfter,*DateBefore,
-          *UseSize,*SizeType,*SizeAbove,*SizeBelow,
-          *HighlightEdit,*HighlightList;
+  const wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
+                *IgnoreMask,*UseMask,*Mask,
+                *NormalColor,*SelectedColor,*CursorColor,*SelectedCursorColor,
+                *MarkCharNormalColor,*MarkCharSelectedColor,*MarkCharCursorColor,*MarkCharSelectedCursorColor,
+                *MarkChar,
+                *ContinueProcessing,
+                *UseDate,*DateType,*DateAfter,*DateBefore,
+                *UseSize,*SizeType,*SizeAbove,*SizeBelow,
+                *HighlightEdit,*HighlightList;
 };
 static const HighlightStrings HLS=
 {
@@ -824,7 +824,7 @@ void SetHighlighting()
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strCmdExt+=L",*.cmd";
 
-  for(int I=0; I < countof(StdHighlightData); I++)
+  for(size_t I=0; I < countof(StdHighlightData); I++)
   {
   	strRegKey.Format(L"%s\\Group%d",RegColorsHighlight,I);
     SetRegKey(strRegKey,HLS.Mask,StdHighlightData[I].Mask);

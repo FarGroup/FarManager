@@ -97,7 +97,7 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
     pDest->nMaxLength = 0;
     pDest->strData = pSrc->strData;
-    pDest->nMaxLength = 1024; //BUGBUG\
+    pDest->nMaxLength = 1024; //BUGBUG
 
     pDest->ID = pSrc->ID;
     pDest->IFlags = pSrc->IFlags;
@@ -543,7 +543,7 @@ int Dialog::InitDialogObjects(int ID)
       CurItem->strData.Format (L"[ %s ]", (const wchar_t*)CurItem->strData);
 
      // предварительный поик фокуса
-     if(FocusPos == -1 &&
+     if(FocusPos == (unsigned)-1 &&
         CanGetFocus(Type) &&
         CurItem->Focus &&
         !(ItemFlags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
@@ -568,7 +568,7 @@ int Dialog::InitDialogObjects(int ID)
 
   // Опять про фокус ввода - теперь, если "чудо" забыло выставить
   // хотя бы один, то ставим на первый подходящий
-  if(FocusPos == -1)
+  if(FocusPos == (unsigned)-1)
   {
     for (I=0; I < ItemCount; I++) // по всем!!!!
     {
@@ -581,7 +581,7 @@ int Dialog::InitDialogObjects(int ID)
       }
     }
   }
-  if(FocusPos == -1) // ну ни хрена себе - нет ни одного
+  if(FocusPos == (unsigned)-1) // ну ни хрена себе - нет ни одного
   {                  //   элемента с возможностью фокуса
      FocusPos=0;     // убится, блин
   }
@@ -1493,7 +1493,7 @@ void Dialog::ShowDialog(int ID)
   */
   {
     int CursorVisible=0,CursorSize=0;
-    if(ID != -1 && FocusPos != ID)
+    if(ID != -1 && FocusPos != (unsigned)ID)
     {
       if(Item[FocusPos]->Type == DI_USERCONTROL && Item[FocusPos]->UCData->CursorPos.X != -1 && Item[FocusPos]->UCData->CursorPos.Y != -1)
       {
@@ -1855,7 +1855,7 @@ void Dialog::ShowDialog(int ID)
           CurItem->ListPtr->Show();
 
           // .. а теперь восстановим!
-          if(FocusPos != I)
+          if(FocusPos != (unsigned)I)
             SetCursorType(CurSorVisible,CurSorSize);
         }
         break;
@@ -1869,7 +1869,7 @@ void Dialog::ShowDialog(int ID)
         {
           PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
           // не забудем переместить курсор, если он позиционирован.
-          if(FocusPos == I)
+          if(FocusPos == (unsigned)I)
           {
             if(CurItem->UCData->CursorPos.X != -1 &&
                CurItem->UCData->CursorPos.Y != -1)
@@ -2457,7 +2457,7 @@ int Dialog::ProcessKey(int Key)
               Item[I]->Y1==Item[FocusPos]->Y1)
           {
             int Dist=Item[I]->X1-Item[FocusPos]->X1;
-            if ((Key==KEY_LEFT||Key==KEY_SHIFTNUMPAD4) && Dist<0 || (Key==KEY_RIGHT||Key==KEY_SHIFTNUMPAD6) && Dist>0)
+            if (((Key==KEY_LEFT||Key==KEY_SHIFTNUMPAD4) && Dist<0) || ((Key==KEY_RIGHT||Key==KEY_SHIFTNUMPAD6) && Dist>0))
               if (abs(Dist)<MinDist)
               {
                 MinDist=abs(Dist);
@@ -2697,7 +2697,7 @@ int Dialog::ProcessKey(int Key)
               if(!(Item[I]->Flags & DIF_EDITOR))
                 I=ChangeFocus(I,(Key == KEY_PGUP || Key == KEY_NUMPAD9)?1:-1,FALSE);
 
-              int oldFocus=FocusPos;
+              unsigned oldFocus=FocusPos;
               ChangeFocus2(FocusPos,I);
               if(oldFocus != I)
               {
@@ -2709,9 +2709,9 @@ int Dialog::ProcessKey(int Key)
           }
         }
 
-        if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
-           Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == KEY_OP_XLAT && !(Item[FocusPos]->Flags & DIF_READONLY))
+        if(((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey) ||
+           (Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey)) ||
+           (Key == KEY_OP_XLAT && !(Item[FocusPos]->Flags & DIF_READONLY)))
         {
           edt->SetClearFlag(0);
           edt->Xlat();
@@ -2722,7 +2722,7 @@ int Dialog::ProcessKey(int Key)
 
 
         if(!(Item[FocusPos]->Flags & DIF_READONLY) ||
-            (Item[FocusPos]->Flags & DIF_READONLY) && IsNavKey(Key))
+            ((Item[FocusPos]->Flags & DIF_READONLY) && IsNavKey(Key)))
         {
           // "только что ломанулись и начинать выделение с нуля"?
           if((Opt.Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Item[FocusPos]->SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
@@ -2868,7 +2868,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       int CheckedListItem=List->GetSelection(-1);
       if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
       {
-        if(FocusPos != I)
+        if(FocusPos != (unsigned)I)
         {
           ChangeFocus2(FocusPos,I);
           ShowDialog();
@@ -2931,9 +2931,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       {
         if( !MouseEvent->dwButtonState || SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent) )
         {
-          if(I == FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONFOCUS)
+          if(((unsigned)I == FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONFOCUS))
               ||
-             I != FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS)
+             ((unsigned)I != FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS))
             )
           {
             List->ProcessMouse(MouseEvent);
@@ -3108,7 +3108,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                   (Item[I]->History ||
                     (Type == DI_COMBOBOX && Item[I]->ListPtr && Item[I]->ListPtr->GetItemCount())
                   ) &&
-                  ((Item[I]->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory
+                  (((Item[I]->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory)
                    || Type == DI_COMBOBOX))
 //                  ((Item[I].Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory))
               {
@@ -3398,7 +3398,7 @@ int Dialog::Do_ProcessFirstCtrl()
     for (unsigned I=0;I<ItemCount;I++)
       if (CanGetFocus(Item[I]->Type))
       {
-        int OldPos=FocusPos;
+        unsigned OldPos=FocusPos;
         ChangeFocus2(FocusPos,I);
         if(OldPos!=FocusPos)
         {
@@ -4365,7 +4365,7 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
     if (!StrCmpI (AddStr,His[I].Str))
     {
       // берем только! либо которой нету либо залоченную
-      if(AddLine == -1 || AddLine != -1 && His[I].Locked)
+      if(AddLine == -1 || (AddLine != -1 && His[I].Locked))
         AddLine=I;
     }
   /*
@@ -4484,9 +4484,8 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   {
     int KeyToKey=LocalKeyToKey(Key);
     return(UpperStrKey == (int)Upper(Key) ||
-      Translate &&
-      (!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey) ||
-        Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey));
+      (Translate && (!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey))) ||
+         (Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey));
   }
 
   if(Key&KEY_ALT)
@@ -4504,9 +4503,8 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
       {
         return(UpperStrKey==(int)Upper(AltKey) ||
-               Translate &&
-               (!Opt.HotkeyRules && UpperStrKey==(int)Upper(AltKeyToKey) ||
-                  Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
+               (Translate && (!Opt.HotkeyRules && UpperStrKey==(int)Upper(AltKeyToKey))) ||
+                  (Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
       }
     }
   }
@@ -4600,7 +4598,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
         if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
           break; // сказали не продолжать обработку...
         ChangeFocus2(FocusPos,I); //??
-        if(FocusPos != I)
+        if(FocusPos != (int)I)
         {
           ShowDialog(FocusPos);
           ShowDialog(I);
@@ -4650,8 +4648,8 @@ void Dialog::AdjustEditPos(int dx, int dy)
   {
     CurItem=Item[I];
     int Type=CurItem->Type;
-    if (CurItem->ObjPtr  && IsEdit(Type) ||
-        CurItem->ListPtr && Type == DI_LISTBOX)
+    if ((CurItem->ObjPtr  && IsEdit(Type)) ||
+        (CurItem->ListPtr && Type == DI_LISTBOX))
     {
        if(Type == DI_LISTBOX)
          DialogScrObject=(ScreenObject *)CurItem->ListPtr;
@@ -5342,7 +5340,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   struct DialogItemEx *CurItem=NULL;
   int Type=0;
   const wchar_t *Ptr=NULL;
-  size_t Len;
+  size_t Len=0;
   // предварительно проверим...
   /* $ 09.12.2001 DJ
      для DM_USER проверять _не_надо_!
@@ -5744,7 +5742,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         CurItem->UCData->CursorPos.X=Coord.X-CurItem->X1;
         CurItem->UCData->CursorPos.Y=Coord.Y-CurItem->Y1;
         // переместим если надо
-        if(Dlg->DialogMode.Check(DMODE_SHOW) && Dlg->FocusPos == Param1)
+        if(Dlg->DialogMode.Check(DMODE_SHOW) && Dlg->FocusPos == (unsigned)Param1)
         {
            // что-то одно надо убрать :-)
            MoveCursor(Coord.X+Dlg->X1,Coord.Y+Dlg->Y1); // ???
@@ -5850,7 +5848,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         int CCX=CurItem->UCData->CursorPos.X;
         int CCY=CurItem->UCData->CursorPos.Y;
         if(Dlg->DialogMode.Check(DMODE_SHOW) &&
-           Dlg->FocusPos == Param1 &&
+           Dlg->FocusPos == (unsigned)Param1 &&
            CCX != -1 && CCY != -1)
           SetCursorType(CurItem->UCData->CursorVisible,CurItem->UCData->CursorSize);
       }
@@ -5998,7 +5996,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       if(!CanGetFocus(Type))
         return FALSE;
-      if(Dlg->FocusPos == Param1) // уже и так установлено все!
+      if(Dlg->FocusPos == (unsigned)Param1) // уже и так установлено все!
         return TRUE;
       if(Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == Param1)
       {
@@ -6381,7 +6379,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
            CurItem->Flags|=DIF_HIDDEN;
         if(Dlg->DialogMode.Check(DMODE_SHOW))// && (PrevFlags&DIF_HIDDEN) != (CurItem->Flags&DIF_HIDDEN))//!(CurItem->Flags&DIF_HIDDEN))
         {
-          if((CurItem->Flags&DIF_HIDDEN) && Dlg->FocusPos == Param1)
+          if((CurItem->Flags&DIF_HIDDEN) && Dlg->FocusPos == (unsigned)Param1)
           {
             Param2=Dlg->ChangeFocus(Param1,1,TRUE);
             Dlg->ChangeFocus2(Param1,(int)Param2);

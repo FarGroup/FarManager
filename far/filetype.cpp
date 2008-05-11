@@ -162,7 +162,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
             strNewCommand=L""; // обнулим на всякий пожарный
         }
 
-        if ( !strNewCommand.IsEmpty() && CommandCount<sizeof(Commands)/sizeof(Commands[0]))
+        if ( !strNewCommand.IsEmpty() && CommandCount<(int)countof(Commands))
         {
           strCommand = strNewCommand;
           Commands[CommandCount] = strCommand;
@@ -256,6 +256,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 
     PreserveLongName PreserveName(ShortName,PreserveLFN);
     if ( !strCommand.IsEmpty() )
+    {
       if ( strCommand.At(0) != L'@')
       {
         CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
@@ -285,6 +286,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         CtrlObject->Cp()->Redraw();
 #endif
       }
+    }
   }
 
   if ( !strListName.IsEmpty() )

@@ -907,7 +907,7 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
   ScrBuf.ApplyColor(X1,Y1,X2,Y2,FarColorToReal(Color));
 }
 
-void mprintf(WCHAR *fmt,...)
+void mprintf(const WCHAR *fmt,...)
 {
   va_list argptr;
   va_start(argptr,fmt);
@@ -917,7 +917,7 @@ void mprintf(WCHAR *fmt,...)
   va_end(argptr);
 }
 
-void vmprintf(WCHAR *fmt,...)
+void vmprintf(const WCHAR *fmt,...)
 {
   va_list argptr;
   va_start(argptr,fmt);

@@ -411,7 +411,7 @@ int Help::ReadHelp(const wchar_t *Mask)
   int NearTopicFound=0;
   wchar_t PrevSymbol=0;
 
-  for (int i = 0; i < countof(TabSpace); i++)
+  for (size_t i = 0; i < countof(TabSpace); i++)
     TabSpace[i] = L' ';
 
   TabSpace[countof(TabSpace)-1]=0;

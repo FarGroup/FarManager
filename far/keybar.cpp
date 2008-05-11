@@ -78,7 +78,7 @@ void KeyBar::DisplayObject()
     SetColor(COL_KEYBARNUM);
     mprintf(L"%d",I+1);
     SetColor(COL_KEYBARTEXT);
-    wchar_t *Label=L"";
+    const wchar_t *Label=L"";
 
     if (ShiftPressed)
     {
@@ -181,7 +181,7 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
         DWORD Ctrl=Key&KEY_CTRLMASK;
         if( Key0 >= KEY_F1 && Key0 <= KEY_F24 )
         {
-          int J;
+          size_t J;
           static DWORD Area[][2]={
             { KBL_MAIN,        0 },
             { KBL_SHIFT,       KEY_SHIFT },
@@ -191,11 +191,11 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
             { KBL_ALTSHIFT,    KEY_ALT|KEY_SHIFT },
             { KBL_CTRLALT,     KEY_CTRL|KEY_ALT },
           };
-          for(J=0; J < sizeof(Area)/sizeof(Area[0]); ++J)
+          for(J=0; J < countof(Area); ++J)
             if(Area[J][1] == Ctrl)
               break;
 
-          if(J <= sizeof(Area)/sizeof(Area[0]))
+          if(J <= countof(Area))
           {
             Key0 -= KEY_F1;
             int Group=Area[J][0];

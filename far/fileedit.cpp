@@ -592,7 +592,7 @@ void FileEditor::Init (
   *AttrStr=0;
 
   CurrentEditor=this;
-  FileAttributes=(DWORD)-1;
+  FileAttributes=INVALID_FILE_ATTRIBUTES;
   FileAttributesModified=false;
   SetTitle(Title);
 
@@ -700,14 +700,14 @@ void FileEditor::Init (
   /* $ 05.06.2001 IS
      + посылаем подальше всех, кто пытается отредактировать каталог
   */
-  if(FAttr!=-1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
+  if(FAttr!=INVALID_FILE_ATTRIBUTES && FAttr&FILE_ATTRIBUTE_DIRECTORY)
   {
     Message(MSG_WARNING,1,UMSG(MEditTitle),UMSG(MEditCanNotEditDirectory),UMSG(MOk));
     ExitCode=XC_OPEN_ERROR;
     return;
   }
   if((m_editor->EdOpt.ReadOnlyLock&2) &&
-     FAttr != -1 &&
+     FAttr != INVALID_FILE_ATTRIBUTES &&
      (FAttr &
         (FILE_ATTRIBUTE_READONLY|
            /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
@@ -736,7 +736,7 @@ void FileEditor::Init (
      При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
      не нарушать однообразие.
   */
-  if(FAttr == -1)
+  if(FAttr == INVALID_FILE_ATTRIBUTES)
     Flags.Set(FFILEEDIT_NEW);
 
   if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
@@ -936,7 +936,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
      никак не соответствует обрабатываемой клавише, возникают разномастные
      глюки
   */
-  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) // исключаем MACRO
+  if((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
   {
     ; //
   }
@@ -965,7 +965,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         // возможно здесь она и не нужна!
         // хотя, раз уж были изменени, то
         if(m_editor->IsFileChanged() &&  // в текущем сеансе были изменения?
-           ::GetFileAttributesW(strFullFileName) == -1) // а файл еще существует?
+           ::GetFileAttributesW(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
         {
           switch(Message(MSG_WARNING,2,UMSG(MEditTitle),
                          UMSG(MEditSavedChangedNonFile),
@@ -983,7 +983,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           }
         }
 
-        if(!FirstSave || m_editor->IsFileChanged() || ::GetFileAttributesW (strFullFileName)!=-1)
+        if(!FirstSave || m_editor->IsFileChanged() || ::GetFileAttributesW (strFullFileName)!=INVALID_FILE_ATTRIBUTES)
         {
           long FilePos=m_editor->GetCurPos();
           /* $ 01.02.2001 IS
@@ -1117,7 +1117,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if (!(IsAlpha(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && (strFullFileName.At(2)==L'\\') && !strFullFileName.At(3)))
             {
               // а дальше? каталог существует?
-              if((FNAttr=::GetFileAttributesW(strFullFileName)) == -1 ||
+              if((FNAttr=::GetFileAttributesW(strFullFileName)) == INVALID_FILE_ATTRIBUTES ||
                                 !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
                   //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
                 )
@@ -1129,7 +1129,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 
           if(Key == KEY_F2 &&
-             (FNAttr=::GetFileAttributesW(strFullFileName)) != -1 &&
+             (FNAttr=::GetFileAttributesW(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
               Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 
@@ -1161,7 +1161,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
 
             FNAttr=::GetFileAttributesW(strSaveAsName);
-            if (NameChanged && FNAttr != -1)
+            if (NameChanged && FNAttr != INVALID_FILE_ATTRIBUTES)
             {
               if (Message(MSG_WARNING,2,UMSG(MEditTitle),strSaveAsName,UMSG(MEditExists),
                            UMSG(MEditOvr),UMSG(MYes),UMSG(MNo))!=0)
@@ -1253,7 +1253,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				string strFullFileNameTemp = strFullFileName;
 
-				if(::GetFileAttributesW(strFullFileName) == -1) // а сам файл то еще на месте?
+				if(::GetFileAttributesW(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а сам файл то еще на месте?
 				{
 					if(!CheckShortcutFolder(&strFullFileNameTemp,-1,FALSE))
 						return FALSE;
@@ -1305,7 +1305,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         int FirstSave=1, NeedQuestion=1;
         if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
         {
-          int FilePlased=::GetFileAttributesW (strFullFileName) == -1 && !Flags.Check(FFILEEDIT_NEW);
+          int FilePlased=::GetFileAttributesW (strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
           if(m_editor->IsFileChanged() ||  // в текущем сеансе были изменения?
              FilePlased) // а сам файл то еще на месте?
           {
@@ -1415,7 +1415,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
         + Обновить панели, если писали в текущий каталог */
       if (NeedQuestion)
       {
-        if(GetFileAttributesW(strFullFileName)!=-1)
+        if(GetFileAttributesW(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
         {
           UpdateFileList();
         }
@@ -1426,6 +1426,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       break;
     }
     if(!StrCmp(strFileName,UMSG(MNewFileName)))
+    {
       if(!ProcessKey(KEY_SHIFTF2))
       {
         FarChDir(strOldCurDir);
@@ -1433,6 +1434,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       }
       else
         break;
+    }
     SetLastError(SysErrorCode);
     if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
               strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
@@ -1639,7 +1641,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
   int NewFile=TRUE;
   FileAttributesModified=false;
-  if ((FileAttributes=::GetFileAttributesW(Name))!=-1)
+  if ((FileAttributes=::GetFileAttributesW(Name))!=INVALID_FILE_ATTRIBUTES)
   {
     // Проверка времени модификации...
     if(!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
@@ -1701,7 +1703,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     {
       CutToSlash(strCreatedPath);
       DWORD FAttr=0;
-      if(::GetFileAttributesW(strCreatedPath) == -1)
+      if(::GetFileAttributesW(strCreatedPath) == INVALID_FILE_ATTRIBUTES)
       {
         // и попробуем создать.
         // Раз уж
@@ -1709,7 +1711,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
         FAttr=::GetFileAttributesW(strCreatedPath);
       }
 
-      if(FAttr == -1)
+      if(FAttr == INVALID_FILE_ATTRIBUTES)
         return SAVEFILE_ERROR;
     }
   }
@@ -1735,7 +1737,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       break;
   }
 
-  if(::GetFileAttributesW(Name) == -1)
+  if(::GetFileAttributesW(Name) == INVALID_FILE_ATTRIBUTES)
     Flags.Set(FFILEEDIT_NEW);
 
   {
@@ -1927,7 +1929,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 end:
   SetPreRedrawFunc(NULL);
 
-  if (FileAttributes!=-1 && FileAttributesModified)
+  if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
   {
     SetFileAttributesW(Name,FileAttributes|FA_ARCH);
   }
@@ -2213,7 +2215,7 @@ void FileEditor::ShowStatus()
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */
-      static wchar_t *FmtCharCode[3]={L"%05o",L"%5d",L"%04Xh"};
+      static const wchar_t *FmtCharCode[3]={L"%05o",L"%5d",L"%04Xh"};
       mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%3],(wchar_t)Str[CurPos]);
     }
   }
@@ -2558,7 +2560,7 @@ int FileEditor::EditorControl(int Command, void *Param)
         {
           Key=GetInputRecord(rec);
           if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&
-              (Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) // исключаем MACRO
+              ((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE))) // исключаем MACRO
              ReProcessKey(Key);
           else
             break;

@@ -1191,7 +1191,6 @@ static struct FARConfig{
 
 void ReadConfig()
 {
-  int I, J;
   DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
   string strKeyNameFromReg;
 
@@ -1208,7 +1207,7 @@ void ReadConfig()
   //Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-  for(I=0; I < countof(CFG); ++I)
+  for(size_t I=0; I < countof(CFG); ++I)
   {
     switch(CFG[I].ValType)
     {
@@ -1249,11 +1248,12 @@ void ReadConfig()
   Opt.HelpTabSize=8; // пока жестко пропишем...
 
   //   Уточняем алгоритм "взятия" палитры.
-  for(I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
+  for(int I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
       ++I)
   {
     if(!Palette[I])
+    {
       if(!Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR])
         Palette[I]=DefaultPalette[I];
       else if(Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR] == 1)
@@ -1263,6 +1263,7 @@ void ReadConfig()
         в других случаях нифига ничего не делаем, т.к.
         есть другие палитры...
       */
+    }
   }
 
   Opt.ViOpt.ViewerIsWrap&=1;
@@ -1306,11 +1307,11 @@ void ReadConfig()
     Opt.ViOpt.TabSize=8;
 
   GetRegKey(NKeyKeyMacrosW,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
-  if((Opt.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if((Opt.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
     Opt.KeyMacroCtrlDot=KEY_CTRLDOT;
 
   GetRegKey(NKeyKeyMacrosW,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
-  if((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
     Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
   GetRegKey(NKeyXLatW,L"EditorKey",strKeyNameFromReg,szCtrlShiftX);
@@ -1340,9 +1341,9 @@ void ReadConfig()
     Opt.XLat.XLatAltFastFindKey=0;
 
 
-  for(I=0; I < 2; ++I)
+  for(size_t I=0; I < 2; ++I)
   {
-    for(J=1; J < sizeof(Opt.XLat.Table[0]); ++J)
+    for(size_t J=1; J < sizeof(Opt.XLat.Table[0]); ++J)
     {
       if(!Opt.XLat.Table[I][J])
       {
@@ -1352,9 +1353,9 @@ void ReadConfig()
       }
     }
   }
-  for(I=0; I < 3; ++I)
+  for(size_t I=0; I < 3; ++I)
   {
-    for(J=1; J < sizeof(Opt.XLat.Rules[0]); ++J)
+    for(size_t J=1; J < sizeof(Opt.XLat.Rules[0]); ++J)
     {
       if(!Opt.XLat.Rules[I][J])
       {
@@ -1395,7 +1396,6 @@ void SaveConfig(int Ask)
     return;
 
   string strTemp;
-  int I;
 
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
   Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
@@ -1438,7 +1438,7 @@ void SaveConfig(int Ask)
   CtrlObject->HiFiles->SaveHiData();
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-  for(I=0; I < countof(CFG); ++I)
+  for(size_t I=0; I < countof(CFG); ++I)
   {
     if(CFG[I].IsSave)
       switch(CFG[I].ValType)

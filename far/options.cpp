@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
-  int I;
   struct MenuDataEx LeftMenu[]=
   {
     (const wchar_t *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
@@ -192,7 +191,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   CmdMenu[19].SetDisable(!CheckInitSetupAPI());
 
   if (Opt.Policies.DisabledOptions)
-    for(I=0; I < sizeof(OptionsMenu)/sizeof(OptionsMenu[0]); ++I)
+    for(size_t I=0; I < countof(OptionsMenu); ++I)
     {
       if(I > 6)
         OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> (I-1)) & 1);
@@ -207,10 +206,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       {
         int MenuLine=CtrlObject->Cp()->LeftPanel->GetViewMode()-VIEW_0;
         if (MenuLine<10)
+        {
           if (MenuLine==0)
             LeftMenu[9].SetCheck(1);
           else
             LeftMenu[MenuLine-1].SetCheck(1);
+        }
       }
       break;
     case INFO_PANEL:
@@ -233,10 +234,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       {
         int MenuLine=CtrlObject->Cp()->RightPanel->GetViewMode()-VIEW_0;
         if (MenuLine<10)
+        {
           if (MenuLine==0)
             RightMenu[9].SetCheck(1);
           else
             RightMenu[MenuLine-1].SetCheck(1);
+        }
       }
       break;
     case INFO_PANEL:

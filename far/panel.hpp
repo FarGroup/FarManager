@@ -137,7 +137,7 @@ class Panel:public ScreenObject
 
     virtual int GetSelCount() {return(0);};
     virtual int GetRealSelCount() {return(0);};
-    virtual int GetSelName(string *strName,int &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL) {return(FALSE);};
+    virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=NULL,FAR_FIND_DATA_EX *fd=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};
     virtual unsigned __int64 GetLastSelectedSize () {return (unsigned __int64)(-1);};
@@ -145,7 +145,7 @@ class Panel:public ScreenObject
 
     virtual int GetCurName(string &strName, string &strShortName);
     virtual int GetCurBaseName(string &strName, string &strShortName);
-    virtual int GetFileName(string &strName,int Pos,int &FileAttr) {return(FALSE);};
+    virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return(FALSE);};
 
     virtual int GetCurrentPos() {return(0);};
     virtual void SetFocus();

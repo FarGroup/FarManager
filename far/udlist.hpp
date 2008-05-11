@@ -57,7 +57,7 @@ class UserDefinedListItem
   public:
    unsigned int index;
    wchar_t *Str;
-   UserDefinedListItem():Str(NULL), index(0)
+   UserDefinedListItem():index(0), Str(NULL)
    {
    }
    bool operator==(const UserDefinedListItem &rhs) const;

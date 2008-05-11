@@ -72,7 +72,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   string strSelShortName;
   string strDizName;
   string strFullName;
-  int SelCount,FileAttr,UpdateDiz;
+  DWORD FileAttr;
+  int SelCount,UpdateDiz;
   int DizPresent;
   int Ret;
   BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
@@ -88,8 +89,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
 
   UpdateDiz=(Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
-             SrcPanel->IsDizDisplayed() &&
-             Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED);
+             (SrcPanel->IsDizDisplayed() &&
+             Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
 
   if ((SelCount=SrcPanel->GetSelCount())==0)
     goto done;
@@ -271,8 +272,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       }
 
       int Length=(int)strSelName.GetLength();
-      if (Length==0 || strSelName.At(0)==L'\\' && Length<2 ||
-          strSelName.At(1)==L':' && Length<4)
+      if (Length==0 || (strSelName.At(0)==L'\\' && Length<2) ||
+          (strSelName.At(1)==L':' && Length<4))
         continue;
       if (FileAttr & FA_DIREC)
       {
@@ -602,7 +603,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       }
     }
     else
-      if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4 || !Opt.DeleteToRecycleBin)
+      if ((WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4) || !Opt.DeleteToRecycleBin)
       {
 /*
         if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
@@ -764,7 +765,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 
   if(RetCode)
   {
-    for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)
+    for(size_t I=0; I < countof(SHErrorCode2LastErrorCode); ++I)
       if(SHErrorCode2LastErrorCode[I].SHError == RetCode2)
       {
         SetLastError(SHErrorCode2LastErrorCode[I].LCError);
@@ -864,8 +865,9 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 
 void DeleteDirTree(const wchar_t *Dir)
 {
-  if (*Dir==0 || (Dir[0]==L'\\' || Dir[0]==L'/') && Dir[1]==0 ||
-      Dir[1]==L':' && (Dir[2]==L'\\' || Dir[2]==L'/') && Dir[3]==0)
+  if (*Dir==0 ||
+      ((Dir[0]==L'\\' || Dir[0]==L'/') && Dir[1]==0) ||
+      (Dir[1]==L':' && (Dir[2]==L'\\' || Dir[2]==L'/') && Dir[3]==0))
     return;
   string strFullName;
   FAR_FIND_DATA_EX FindData;

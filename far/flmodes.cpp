@@ -43,9 +43,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "dialog.hpp"
 
-int       ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
+int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
 
-static wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
+static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
 
 struct PanelViewSettings ViewSettingsArray[]=
 {
@@ -257,7 +257,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
      unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount)
 {
   const wchar_t *TextPtr=ColumnTitles;
-  for (ColumnCount=0;ColumnCount<sizeof(ViewSettingsArray[0].ColumnType)/sizeof(ViewSettingsArray[0].ColumnType[0]);ColumnCount++)
+  for (ColumnCount=0;ColumnCount<(int)countof(ViewSettingsArray[0].ColumnType);ColumnCount++)
   {
     string strArgName;
     if ((TextPtr=GetCommaWord(TextPtr,strArgName))==NULL)
@@ -289,6 +289,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
       }
     }
     else
+    {
       if ( strArgName.At(0)==L'S' || strArgName.At(0)==L'P')
       {
         unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
@@ -318,6 +319,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
         }
       }
       else
+      {
         if (wcsncmp(strArgName,L"DM",2)==0 || wcsncmp(strArgName,L"DC",2)==0 || wcsncmp(strArgName,L"DA",2)==0)
         {
           unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
@@ -352,6 +354,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
           }
         }
         else
+        {
           if(strArgName.At(0)==L'O')
           {
             unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
@@ -360,13 +363,20 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
               ColumnType|=COLUMN_FULLOWNER;
           }
           else
-            for (int I=0;I<sizeof(ColumnSymbol)/sizeof(ColumnSymbol[0]);I++)
+          {
+            for (unsigned I=0;I<countof(ColumnSymbol);I++)
+            {
               if (StrCmp(strArgName,ColumnSymbol[I])==0)
               {
                 ViewColumnTypes[ColumnCount]=I;
                 break;
               }
+            }
+          }
+        }
+      }
     }
+  }
 
   TextPtr=ColumnWidths;
   for (int I=0;I<ColumnCount;I++)

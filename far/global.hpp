@@ -124,7 +124,7 @@ extern BOOL IsRedrawFramesInProcess;
 extern PREREDRAWFUNC PreRedrawFunc;
 extern struct PreRedrawParamStruct PreRedrawParam;
 
-extern char *Copyright;
+extern const char *Copyright;
 
 extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 

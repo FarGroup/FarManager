@@ -424,7 +424,7 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
   }
 
   wchar_t Attr[countof(AttrC)*2] = {0};
-  for (int i=0; i<countof(AttrF); i++)
+  for (size_t i=0; i<countof(AttrF); i++)
   {
     wchar_t *Ptr=Attr+i*2;
     *Ptr=AttrC[i];

@@ -366,10 +366,12 @@ int _cdecl SortList(const void *el1,const void *el2)
 
       case BY_DIZ:
         if (SPtr1->DizText==NULL)
+        {
           if (SPtr2->DizText==NULL)
             break;
           else
             return(ListSortOrder);
+        }
         if (SPtr2->DizText==NULL)
           return(-ListSortOrder);
         RetCode=ListSortOrder*StrCmpI(SPtr1->DizText,SPtr2->DizText);
@@ -558,8 +560,8 @@ int FileList::ProcessKey(int Key)
     ShiftSelection=-1;
   }
 
-  if (!InternalProcessKey && (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9 ||
-      Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9))
+  if (!InternalProcessKey && ((Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
+      (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)))
   {
 
     string strShortcutFolder;
@@ -1270,8 +1272,8 @@ int FileList::ProcessKey(int Key)
         if ( !strFileName.IsEmpty () )
           if (Edit)
           {
-            int EnableExternal=((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor ||
-                Key==KEY_ALTF4 && !Opt.EdOpt.UseExternalEditor) && !Opt.strExternalEditor.IsEmpty();
+            int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor) ||
+                (Key==KEY_ALTF4 && !Opt.EdOpt.UseExternalEditor)) && !Opt.strExternalEditor.IsEmpty();
             /* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
             BOOL Processed=FALSE;
             if(Key==KEY_ALTF4 &&
@@ -2787,7 +2789,7 @@ int FileList::GetRealSelCount()
 }
 
 
-int FileList::GetSelName(string *strName,int &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
+int FileList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
 {
   if ( strName==NULL )
   {
@@ -2795,7 +2797,6 @@ int FileList::GetSelName(string *strName,int &FileAttr,string *strShortName,FAR_
     LastSelPosition=-1;
     return(TRUE);
   }
-
 
   if (SelFileCount==0 || ReturnCurrentFile)
   {
@@ -3367,7 +3368,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
   wchar_t *CopyData=NULL;
   long DataSize=0;
   string strSelName, strSelShortName, strQuotedName;
-  int FileAttr;
+  DWORD FileAttr;
 
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -3675,7 +3676,7 @@ void FileList::RestoreSelection()
 
 
 
-int FileList::GetFileName(string &strName,int Pos,int &FileAttr)
+int FileList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 {
   if (Pos>=FileCount)
     return(FALSE);
@@ -3804,7 +3805,8 @@ void FileList::CopyDiz(const wchar_t *Name, const wchar_t *ShortName,const wchar
 void FileList::DescribeFiles()
 {
   string strSelName, strSelShortName;
-  int FileAttr,DizCount=0;
+  DWORD FileAttr;
+  int DizCount=0;
 
   ReadDiz();
 
@@ -3876,7 +3878,7 @@ bool FileList::ApplyCommand()
 
   strPrevCommand = strCommand;
   string strSelName, strSelShortName;
-  int FileAttr;
+  DWORD FileAttr;
   int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
 
   RedrawDesktop Redraw(TRUE);

@@ -87,7 +87,7 @@ int ScreenSaver(int EnableExit)
     randomize();
     SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
 
-    for (int I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
+    for (size_t I=0;I<countof(Star);I++)
     {
       Star[I].Type=STAR_NONE;
       Star[I].Color=0;
@@ -121,8 +121,8 @@ int ScreenSaver(int EnableExit)
 
 static void ShowSaver(int Step)
 {
-  int I;
-  for (I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
+  size_t I;
+  for (I=0;I<countof(Star);I++)
     if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
     {
       SetColor(F_LIGHTCYAN|B_BLACK);
@@ -184,7 +184,7 @@ static void ShowSaver(int Step)
       }
 
     }
-  for (I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
+  for (I=0;I<countof(Star);I++)
     if (Star[I].Type==STAR_NONE)
     {
       static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};

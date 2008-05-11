@@ -243,7 +243,6 @@ static DWORD WINAPI _xfilter(
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
    const wchar_t *pName;
-   int  I;
    DWORD rc;
    string strBuf1, strBuf2, strBuf3;
 
@@ -277,7 +276,7 @@ static DWORD WINAPI _xfilter(
    // Этот кусок обрабатываем в первую очередь, т.к. это проверки "на вшивость"
    if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
    {
-     I = 0;
+     int I = 0;
      static const wchar_t *NameField[2][3]={
        {L"DiskMenuStrings",L"PluginMenuStrings",L"PluginConfigStrings"},
        {L"InfoLines",L"DescrFiles",L"PanelModesArray"},};
@@ -354,16 +353,16 @@ static DWORD WINAPI _xfilter(
        ShowMessages=TRUE;
      }
    }
-
    else
    {
      // просмотрим "знакомые" FAR`у исключения и обработаем...
-     for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
-       if(ECode[I].Code == xr->ExceptionCode)
+     for (size_t I=0; I < countof(ECode); ++I)
+     {
+       if (ECode[I].Code == xr->ExceptionCode)
        {
          pName=UMSG(ECode[I].IdMsg);
          rc=ECode[I].RetCode;
-         if(xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+         if (xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
          {
            int Offset = 0;
 
@@ -391,14 +390,16 @@ static DWORD WINAPI _xfilter(
          }
          break;
        }
+     }
 
-     if (!pName) {
+     if (!pName)
+     {
        strBuf2.Format(L"%s (0x%X)", UMSG(MExcUnknown), xr->ExceptionCode);
        pName = strBuf2;
      }
 
      strBuf1.Format (UMSG(MExcAddress),xr->ExceptionAddress);
-     if(FrameManager && !FrameManager->ManagerIsDown())
+     if (FrameManager && !FrameManager->ManagerIsDown())
      {
        Message(MSG_WARNING,1,
                xFromMSGTitle(From),
@@ -412,7 +413,7 @@ static DWORD WINAPI _xfilter(
      }
    } /* else */
 
-   if(ShowMessages && (Is_STACK_OVERFLOW || From == (int)(INT_PTR)INVALID_HANDLE_VALUE))
+   if (ShowMessages && (Is_STACK_OVERFLOW || From == (int)(INT_PTR)INVALID_HANDLE_VALUE))
    {
      CriticalInternalError=TRUE;
      TerminateProcess( GetCurrentProcess(), 1);
@@ -420,7 +421,7 @@ static DWORD WINAPI _xfilter(
 
    rc = EXCEPTION_EXECUTE_HANDLER;
 
-   if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
+   if (xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?
 
 //   return UnhandledExceptionFilter(xp);

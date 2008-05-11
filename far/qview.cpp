@@ -334,7 +334,7 @@ void QuickView::Update(int Mode)
 void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
   const wchar_t *ExtPtr;
-  int FileAttr;
+  DWORD FileAttr;
   CloseFile();
   QView=NULL;
 
@@ -362,7 +362,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
         strCurFileType=L"";
     }
   }
-  if (hDirPlugin || (FileAttr=GetFileAttributesW(strCurFileName))!=-1 && (FileAttr & FA_DIREC))
+  if (hDirPlugin || ((FileAttr=GetFileAttributesW(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FA_DIREC)))
   {
     // Не показывать тип файла для каталогов в "Быстром просмотре"
     strCurFileType=L"";

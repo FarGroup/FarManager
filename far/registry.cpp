@@ -159,7 +159,7 @@ int GetRegKeySize(HKEY hKey,const wchar_t *ValueName)
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,const wchar_t *Default,DWORD *pType)
 {
-  int ExitCode;
+  int ExitCode=!ERROR_SUCCESS;
   HKEY hKey=OpenRegKey(Key);
   if(hKey) // надобно проверить!
   {
@@ -184,7 +184,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,c
       *pType=Type;
     CloseRegKey(hKey);
   }
-  if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
+  if (ExitCode!=ERROR_SUCCESS)
   {
     strValueData = Default;
     return(FALSE);
@@ -196,7 +196,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,c
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default)
 {
-  int ExitCode;
+  int ExitCode=!ERROR_SUCCESS;
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
@@ -204,7 +204,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD D
     ExitCode=RegQueryValueExW(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
     CloseRegKey(hKey);
   }
-  if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
+  if (ExitCode!=ERROR_SUCCESS)
   {
     ValueData=Default;
     return(FALSE);
@@ -221,7 +221,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default)
 
 int GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default)
 {
-  int ExitCode;
+  int ExitCode=!ERROR_SUCCESS;
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
@@ -229,7 +229,7 @@ int GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,u
     ExitCode=RegQueryValueExW(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
     CloseRegKey(hKey);
   }
-  if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
+  if (ExitCode!=ERROR_SUCCESS)
   {
     ValueData=Default;
     return(FALSE);
@@ -246,7 +246,7 @@ __int64 GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType)
 {
-  int ExitCode;
+  int ExitCode=!ERROR_SUCCESS;
   HKEY hKey=OpenRegKey(Key);
   DWORD Required=DataSize;
   if(hKey)
@@ -267,7 +267,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const 
       *pType=Type;
     CloseRegKey(hKey);
   }
-  if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
+  if (ExitCode!=ERROR_SUCCESS)
   {
     if (Default!=NULL)
       memcpy(ValueData,Default,DataSize);
@@ -632,7 +632,7 @@ int CheckRegKey(const wchar_t *Key)
 */
 int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName)
 {
-  int ExitCode;
+  int ExitCode=!ERROR_SUCCESS;
   DWORD DataSize=0;
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
@@ -641,7 +641,7 @@ int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName)
     ExitCode=RegQueryValueExW(hKey,ValueName,0,&Type,NULL,&DataSize);
     CloseRegKey(hKey);
   }
-  if (hKey==NULL || ExitCode!=ERROR_SUCCESS || !DataSize)
+  if (ExitCode!=ERROR_SUCCESS || !DataSize)
     return(FALSE);
   return(TRUE);
 }

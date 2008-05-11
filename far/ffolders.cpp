@@ -82,7 +82,7 @@ static int ProcessShortcutRecord(int Command,int ValType,int RecNumber, string *
     SetRegKey(FolderShortcuts,strValueName,NullToEmpty(*pValue));
   else if(Command == PSCR_CMDDELALL)
   {
-    for(int I=0; I < sizeof(RecTypeName)/sizeof(RecTypeName[0]); ++I)
+    for(size_t I=0; I < sizeof(RecTypeName)/sizeof(RecTypeName[0]); ++I)
     {
       strValueName.Format (RecTypeName[I],RecNumber);
       SetRegKey(FolderShortcuts,strValueName,L"");
@@ -259,7 +259,7 @@ static int ShowFolderShortcutMenu(int Pos)
               DeleteEndSlash(strNewDir);
             BOOL Saved=TRUE;
             apiExpandEnvironmentStrings(strNewDir,strOldNewDir);
-            if(GetFileAttributesW(strOldNewDir) == -1)
+            if(GetFileAttributesW(strOldNewDir) == INVALID_FILE_ATTRIBUTES)
             {
               SetLastError(ERROR_PATH_NOT_FOUND);
               Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strNewDir, UMSG(MSaveThisShortcut), UMSG(MYes), UMSG(MNo)) == 0);

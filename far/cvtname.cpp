@@ -65,7 +65,7 @@ int ConvertNameToFull (
 	if ( PathMayBeAbsolute(lpwszSrc) )
 	{
 		if ( *lpwszName &&
-				(*lpwszName != L'.' || lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0) ) &&
+				(*lpwszName != L'.' || (lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0)) ) &&
 				(wcsstr (lpwszSrc, L"\\..\\") == NULL && wcsstr (lpwszSrc, L"\\.\\") == NULL) )
 		{
 			strDest = lpwszSrc;
@@ -121,7 +121,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
   {
     DWORD FileAttr;
 
-    if((FileAttr=GetFileAttributesW(strTempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+    if((FileAttr=GetFileAttributesW(strTempDest)) != INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
     {
       AddEndSlash(strTempDest);
       IsAddEndSlash=TRUE;
@@ -158,7 +158,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
       *Ptr=0;
       FileAttr=GetFileAttributesW(TempDest);
       // О! Это наш клиент - одна из "компонент" пути - симлинк
-      if(FileAttr != (DWORD)-1 && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      if(FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
       {
         string strTempDest2;
         // Получим инфу симлинке
@@ -190,7 +190,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
           if (leftLength < tempLength)
           {
             // Выделяем новый буфер
-            TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength + (IsAddEndSlash?2:1)));            
+            TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength + (IsAddEndSlash?2:1)));
           }
           // Так как мы производили манипуляции с левой частью пути изменяем указатель на
           // текущую позицию курсора в пути

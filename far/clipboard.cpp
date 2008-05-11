@@ -92,7 +92,7 @@ BOOL WINAPI FAR_EmptyClipboard(VOID)
   {
     if(OppenedClipboard)
     {
-      for(int I=0; I < countof(hInternalClipboard); ++I)
+      for(size_t I=0; I < countof(hInternalClipboard); ++I)
         if(hInternalClipboard[I])
         {
           GlobalFree(hInternalClipboard[I]);
@@ -112,8 +112,7 @@ static HANDLE WINAPI FAR_GetClipboardData(UINT uFormat)
   {
     if(OppenedClipboard)
     {
-      int I;
-      for(I=0; I < countof(hInternalClipboard); ++I)
+      for(size_t I=0; I < countof(hInternalClipboard); ++I)
       {
         if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I] == uFormat)
         {
@@ -132,8 +131,7 @@ static UINT WINAPI FAR_EnumClipboardFormats(UINT uFormat)
   {
     if(OppenedClipboard)
     {
-      int I;
-      for(I=0; I < countof(hInternalClipboard); ++I)
+      for(size_t I=0; I < countof(hInternalClipboard); ++I)
       {
         if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I] == uFormat)
         {
@@ -152,8 +150,7 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
   {
     if(OppenedClipboard)
     {
-      int I;
-      for(I=0; I < countof(hInternalClipboard); ++I)
+      for(size_t I=0; I < countof(hInternalClipboard); ++I)
       {
         if(!hInternalClipboard[I])
         {

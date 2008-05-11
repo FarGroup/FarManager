@@ -446,11 +446,13 @@ CLEANUP_AND_EXIT_APP:
 }
 
 
+#if 0
 static BOOL DismountVolume(HANDLE hVolume)
 {
   DWORD dwBytesReturned;
   return DeviceIoControl(hVolume,FSCTL_DISMOUNT_VOLUME,NULL, 0,NULL, 0,&dwBytesReturned,NULL);
 }
+#endif
 
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет под NT/2000 "вставлять" диск :-)

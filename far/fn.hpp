@@ -98,8 +98,8 @@ void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
 void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 
-void mprintf(WCHAR *fmt,...);
-void vmprintf(WCHAR *fmt,...);
+void mprintf(const WCHAR *fmt,...);
+void vmprintf(const WCHAR *fmt,...);
 
 inline WORD GetVidChar(CHAR_INFO CI)
 {

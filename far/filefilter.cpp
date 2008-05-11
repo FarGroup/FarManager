@@ -155,7 +155,7 @@ bool FileFilter::FilterEdit()
   else
   {
     string strFileName;
-    int FileAttr;
+    DWORD FileAttr;
     for (int i=0; m_HostPanel->GetFileName(strFileName,i,FileAttr); i++)
       if(!ParseAndAddMasks(&ExtPtr,strFileName,FileAttr,ExtCount,0))
         break;

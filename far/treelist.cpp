@@ -1497,7 +1497,7 @@ int TreeList::GetSelCount()
 }
 
 
-int TreeList::GetSelName(string *strName,int &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
+int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FAR_FIND_DATA_EX *fd)
 {
   if ( strName==NULL)
   {
@@ -1845,7 +1845,7 @@ long TreeList::FindNext(int StartPos, const wchar_t *Name)
   return -1;
 }
 
-int TreeList::GetFileName(string &strName,int Pos,int &FileAttr)
+int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 {
   if (Pos < 0 || Pos >= TreeCount)
     return FALSE;

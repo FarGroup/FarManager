@@ -207,7 +207,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int Silent)
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                   FILETIME *LastAccessTime,int FileAttr)
 {
-  if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
+  if ((LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL) ||
       ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
     return 1;
 
