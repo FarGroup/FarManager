@@ -1279,7 +1279,7 @@ int Viewer::ProcessKey(int Key)
     case KEY_ALTBS:
     case KEY_CTRLZ:
     {
-      for (int I=1;I<sizeof(UndoData)/sizeof(UndoData[0]);I++)
+      for (size_t I=1;I<countof(UndoData);I++)
       {
         UndoData[I-1].UndoAddr=UndoData[I].UndoAddr;
         UndoData[I-1].UndoLeft=UndoData[I].UndoLeft;
@@ -1288,8 +1288,8 @@ int Viewer::ProcessKey(int Key)
       {
         FilePos=UndoData[0].UndoAddr;
         LeftPos=UndoData[0].UndoLeft;
-        UndoData[sizeof(UndoData)/sizeof(UndoData[0])-1].UndoAddr=-1;
-        UndoData[sizeof(UndoData)/sizeof(UndoData[0])-1].UndoLeft=-1;
+        UndoData[countof(UndoData)-1].UndoAddr=-1;
+        UndoData[countof(UndoData)-1].UndoLeft=-1;
 
         Show();
 //        LastSelPos=FilePos;
@@ -2475,8 +2475,8 @@ void Viewer::Search(int Next,int FirstChar)
           }
 
           Match=locResultLeft && locResultRight && strSearchStr.At(0)==Buf[I] &&
-            (SearchLength==1 || strSearchStr.At(1)==Buf[I+1] &&
-            (SearchLength==2 || memcmp((const wchar_t*)strSearchStr+2,&Buf[I+2],(SearchLength-2)*sizeof (wchar_t))==0));
+            (SearchLength==1 || (strSearchStr.At(1)==Buf[I+1] &&
+            (SearchLength==2 || memcmp((const wchar_t*)strSearchStr+2,&Buf[I+2],(SearchLength-2)*sizeof (wchar_t))==0)));
 
           if (Match)
           {
@@ -3059,7 +3059,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->TabSize=ViOpt.TabSize;
 
         // сюды писать добавки
-        if(Info->StructSize >= sizeof(struct ViewerInfo))
+        if(Info->StructSize >= (int)sizeof(struct ViewerInfo))
         {
           Info->LeftPos=(int)LeftPos;  //???
         }

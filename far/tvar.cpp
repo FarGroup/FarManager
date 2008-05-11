@@ -548,7 +548,7 @@ TVarSet *varLook(TVarTable table, const wchar_t *p, bool ins)
 
 TVarSet *varEnum(TVarTable table,int NumTable, int Index)
 {
-  if((DWORD)NumTable >= V_TABLE_SIZE)
+  if(NumTable >= V_TABLE_SIZE)
     return NULL;
 
   TVarSet *n = table[NumTable];

@@ -268,10 +268,12 @@ void VMenu::Show()
     AutoHeight=TRUE;
   }
   if (Y2<=0)
+  {
     if (MaxHeight!=0 && MaxHeight<ItemCount)
       Y2=Y1+MaxHeight+1;
     else
       Y2=Y1+ItemCount+1;
+  }
   if (Y2>ScrY)
     Y2=ScrY;
   if (AutoHeight && Y1<3 && Y2>ScrY-3)
@@ -401,7 +403,7 @@ void VMenu::ShowMenu(int IsParent)
 
   wchar_t TmpStrW[1024]; //BUGBUG, dynamic
 
-  wchar_t BoxChar[2],BoxChar2[2];
+  wchar_t BoxChar[2]={0};
   int Y,I;
   /* $ 23.02.2002 DJ
      если в меню нету пунктов - это не значит, что не надо рисовать фон!
@@ -412,7 +414,6 @@ void VMenu::ShowMenu(int IsParent)
       return;
   }
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  BoxChar2[1]=BoxChar[1]=0;
 
   // коррекци€ Top`а
   if(TopPos+ItemCount >= Y2-Y1 && SelectPos == ItemCount-1)
@@ -573,10 +574,12 @@ void VMenu::ShowMenu(int IsParent)
 
         wchar_t Check=L' ';
         if (Item[I]->Flags&LIF_CHECKED)
+        {
           if (!(Item[I]->Flags&0x0000FFFF))
             Check=0x221A;
           else
             Check=(wchar_t)Item[I]->Flags&0x0000FFFF;
+        }
 
         int Len_MItemPtr;
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -896,7 +899,7 @@ int VMenu::ProcessKey(int Key)
       return(FALSE);
     }
 
-  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE))
+  if(!((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE)))
   {
     DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
     DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));
@@ -1283,7 +1286,7 @@ void VMenu::DeleteItems()
   {
     for(int I=0; I < ItemCount; ++I)
     {
-      if(Item[I]->UserDataSize > sizeof(Item[I]->UserData) && Item[I]->UserData)
+      if(Item[I]->UserDataSize > (int)sizeof(Item[I]->UserData) && Item[I]->UserData)
         xf_free(Item[I]->UserData);
 
       delete Item[I];
@@ -1338,7 +1341,7 @@ int VMenu::DeleteItem(int ID,int Count)
   for(I=0; I < Count; ++I)
   {
     MenuItemEx *PtrItem=Item[ID+I];
-    if(PtrItem->UserDataSize > sizeof(PtrItem->UserData) && PtrItem->UserData)
+    if(PtrItem->UserDataSize > (int)sizeof(PtrItem->UserData) && PtrItem->UserData)
       xf_free(PtrItem->UserData);
   }
 
@@ -1550,7 +1553,7 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     MenuItemEx MItem;
     // ќсвободим пам€ть... от ранее зан€того ;-)
     MenuItemEx *PItem=Item[NewItem->Index];
-    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
+    if(PItem->UserDataSize > (int)sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
     {
       xf_free(PItem->UserData);
       PItem->UserData=NULL;
@@ -1603,7 +1606,7 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
                        const void *Data,   // ƒанные
                        int Size)     // –азмер, если =0 то предполагаетс€, что в Data-строка
 {
-  if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
+  if(PItem->UserDataSize > (int)sizeof(PItem->UserData) && PItem->UserData)
     xf_free(PItem->UserData);
 
   PItem->UserDataSize=0;
@@ -1619,10 +1622,10 @@ int VMenu::_SetUserData(MenuItemEx *PItem,
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
     if(!Size ||
-        Size > sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
+        Size > (int)sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
     {
       // размер больше 4 байт?
-      if(SizeReal > sizeof(PItem->UserData))
+      if(SizeReal > (int)sizeof(PItem->UserData))
       {
         // ...значит выдел€ем нужную пам€ть.
         if((PItem->UserData=(char*)xf_malloc(SizeReal)) != NULL)
@@ -1660,7 +1663,7 @@ void* VMenu::_GetUserData(MenuItemEx *PItem,void *Data,int Size)
     if (PtrData) // данные есть?
     {
       // размерчик больше 4 байт?
-      if(DataSize > sizeof(PItem->UserData))
+      if(DataSize > (int)sizeof(PItem->UserData))
       {
         memmove(Data,PtrData,Min(Size,DataSize));
       }

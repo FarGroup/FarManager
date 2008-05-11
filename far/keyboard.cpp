@@ -65,7 +65,7 @@ static BOOL IsKeyRCASPressed=FALSE; // Right CtrlAltShift - нажато или нет?
 
 static clock_t PressedLastTime,KeyPressedLastTime;
 static int ShiftState=0;
-static int AltEnter=-1;
+//static int AltEnter=-1;
 static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */
@@ -1911,10 +1911,12 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   }
 
   if ((CtrlState & 9)==9)
+  {
     if (Char.UnicodeChar!=0)
       return(Char.UnicodeChar);
     else
       CtrlPressed=0;
+  }
 
   if (Opt.AltGr && CtrlPressed && (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED))
     if (Char.UnicodeChar=='\\')

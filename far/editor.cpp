@@ -3207,7 +3207,7 @@ void Editor::InsertString()
 
   for (size_t I=0;I<countof(SavePos.Line);I++)
     if (SavePos.Line[I]!=0xffffffff &&
-        (NumLine<static_cast<int>(SavePos.Line[I]) || (NumLine==SavePos.Line[I] && CurPos==0)))
+        (NumLine<(int)SavePos.Line[I] || (NumLine==(int)SavePos.Line[I] && CurPos==0)))
       SavePos.Line[I]++;
 
 	if (StackPos)
@@ -5672,7 +5672,7 @@ int Editor::GotoBookmark(DWORD Pos)
 
 int Editor::RestoreStackBookmark()
 {
-	if(StackPos && (StackPos->Line!=NumLine || StackPos->Cursor!=CurLine->GetCurPos()))
+	if(StackPos && ((int)StackPos->Line!=NumLine || (int)StackPos->Cursor!=CurLine->GetCurPos()))
 	{
 		GoToLine(StackPos->Line);
 		CurLine->SetCurPos(StackPos->Cursor);
@@ -5701,7 +5701,7 @@ int Editor::AddStackBookmark()
 		StackPos->next = 0;
 	}
 
-	if (StackPos && StackPos->Line==NumLine && StackPos->Cursor==CurLine->GetCurPos())
+	if (StackPos && (int)StackPos->Line==NumLine && (int)StackPos->Cursor==CurLine->GetCurPos())
 		return TRUE;
 
 	sb_new = (InternalEditorStackBookMark*) xf_malloc (sizeof (InternalEditorStackBookMark));

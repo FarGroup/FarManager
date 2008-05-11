@@ -1143,8 +1143,8 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
   GetFileDateAndTime(OSrcTime,TimeN,GetTimeSeparator());
 
   // исключаем лишние телодвижения
-  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
-     TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
+  if(DateN[0] == (unsigned)-1 || DateN[1] == (unsigned)-1 || DateN[2] == (unsigned)-1 ||
+     TimeN[0] == (unsigned)-1 || TimeN[1] == (unsigned)-1 || TimeN[2] == (unsigned)-1)
   {
     // получаем инфу про оригинальную дату и время файла.
     HANDLE hFile= apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,

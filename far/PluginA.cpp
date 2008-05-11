@@ -1391,7 +1391,7 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 	if (Src.KeyBar)
 	{
 		OPI.KeyBar=(KeyBarTitles*) xf_malloc (sizeof(KeyBarTitles));
-		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=sizeof(oldfar::OpenPluginInfo));
+		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPluginInfo));
 	}
 
 	//if (Src.ShortcutData)

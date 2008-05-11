@@ -227,17 +227,17 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
         int Equal;
         if(TypeHistory == HISTORYTYPE_VIEW) // только по файлу и типу
         {
-           Equal=RemoveDups==1 && StrCmp(AddRecord.Name,PtrLastStr->Name)==0 ||
-                 RemoveDups==2 && StrCmpI(AddRecord.Name,PtrLastStr->Name)==0;
+           Equal=((RemoveDups==1 && StrCmp(AddRecord.Name,PtrLastStr->Name)==0) ||
+                 (RemoveDups==2 && StrCmpI(AddRecord.Name,PtrLastStr->Name)==0));
         }
         else
         {
-           Equal=RemoveDups==1 &&
+           Equal=((RemoveDups==1 &&
                    StrCmp(AddRecord.Name,PtrLastStr->Name)==0 &&
-                   StrCmp(AddRecord.Title,PtrLastStr->Title)==0 ||
-                 RemoveDups==2 &&
+                   StrCmp(AddRecord.Title,PtrLastStr->Title)==0) ||
+                  (RemoveDups==2 &&
                    StrCmpI(AddRecord.Name,PtrLastStr->Name)==0 &&
-                   StrCmpI(AddRecord.Title,PtrLastStr->Title)==0;
+                   StrCmpI(AddRecord.Title,PtrLastStr->Title)==0));
         }
 
         if (Equal)
@@ -283,7 +283,7 @@ void History::AddToHistoryLocal(const wchar_t *Str,const wchar_t *Title,int Type
 
   memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
 
-  if (++LastPtr==HistoryCount)
+  if (++LastPtr==(unsigned)HistoryCount)
     LastPtr=0;
 
   CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
@@ -579,8 +579,6 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
         if (LastStr[CurCmd].Name && *LastStr[CurCmd].Name)
         {
-          int SizeTrunc=ScrX-14;
-
           string strRecord = LastStr[CurCmd].Name;
 
           ReplaceStrings(strRecord, L"&",L"&&",-1);
@@ -869,5 +867,5 @@ void History::SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos)
 
 BOOL History::EqualType(int Type1, int Type2)
 {
-  return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && (Type1 == 4 && Type2 == 1 || (Type1 == 1 && Type2 == 4)))?TRUE:FALSE;
+  return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && ((Type1 == 4 && Type2 == 1) || (Type1 == 1 && Type2 == 4)))?TRUE:FALSE;
 }

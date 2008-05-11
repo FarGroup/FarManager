@@ -164,7 +164,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     int *Opt;
     DWORD Flags;
   };
-  int I;
 
   switch(Command)
   {
@@ -543,7 +542,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.Dialogs.AutoComplete,FDIS_AUTOCOMPLETEININPUTLINES},
         {&Opt.Dialogs.EULBsClear,FDIS_BSDELETEUNCHANGEDTEXT},
       };
-      for(I=0; I < sizeof(ODlg)/sizeof(ODlg[0]); ++I)
+      for(size_t I=0; I < countof(ODlg); ++I)
         if(*ODlg[I].Opt)
           Options|=ODlg[I].Flags;
       return Options;
@@ -567,7 +566,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.UseRegisteredTypes,FSS_USEWINDOWSREGISTEREDTYPES},
         {&Opt.AutoSaveSetup,FSS_AUTOSAVESETUP},
       };
-      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+      for(size_t I=0; I < countof(OSys); ++I)
         if(*OSys[I].Opt)
           Options|=OSys[I].Flags;
       return Options;
@@ -590,7 +589,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.ShowScreensNumber,FPS_SHOWBACKGROUNDSCREENSNUMBER},
         {&Opt.ShowSortMode,FPS_SHOWSORTMODELETTER},
       };
-      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+      for(size_t I=0; I < countof(OSys); ++I)
         if(*OSys[I].Opt)
           Options|=OSys[I].Flags;
       return Options;
@@ -610,7 +609,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.CMOpt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
         {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
       };
-      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+      for(size_t I=0; I < countof(OSys); ++I)
         if(*OSys[I].Opt)
           Options|=OSys[I].Flags;
       return Options;
@@ -631,7 +630,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.Confirm.HistoryClear,FCS_CLEARHISTORYLIST},
         {&Opt.Confirm.Exit,FCS_EXIT},
       };
-      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+      for(size_t I=0; I < countof(OSys); ++I)
         if(*OSys[I].Opt)
           Options|=OSys[I].Flags;
       return Options;
@@ -879,6 +878,7 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2
   return 0;
 }
 
+#if !defined(__GNUC__)
 /* Цель данной функции - выставить флаг Flags - признак того, что
    мы упали где то в плагине
 */
@@ -898,6 +898,7 @@ static int Except_FarDialogEx()
 
   return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
 }
+#endif
 
 static int FarDialogExSehed(Dialog *FarDialog)
 {
@@ -1985,7 +1986,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     return(DetectCode ? TableNum-1:-1);
   }
 
-  if (BufferSize > sizeof(struct CharTableSet))
+  if (BufferSize > (int)sizeof(struct CharTableSet))
     return(-1);
 
   /* $ 07.08.2001 IS

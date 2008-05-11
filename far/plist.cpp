@@ -111,6 +111,7 @@ void ShowProcessList()
             GetWindowThreadProcessId(ProcWnd,&ProcID);
             if (Message(MSG_WARNING,2,UMSG(MKillProcessTitle),UMSG(MAskKillProcess),
                 lpwszTitle?lpwszTitle:L"",UMSG(MKillProcessWarning),UMSG(MKillProcessKill),UMSG(MCancel))==0)
+            {
               if (KillProcess(ProcID))
               {
                 Sleep(500);
@@ -121,6 +122,7 @@ void ShowProcessList()
               }
               else
                 Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcess),UMSG(MOk));
+            }
 
             if (lpwszTitle) xf_free(lpwszTitle);
           }
@@ -187,7 +189,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
   VMenu *ProcList=(VMenu *)lParam;
   if (IsWindowVisible(hwnd) ||
-      IsIconic(hwnd) && (GetWindowLongW(hwnd,GWL_STYLE) & WS_DISABLED)==0)
+      (IsIconic(hwnd) && (GetWindowLongW(hwnd,GWL_STYLE) & WS_DISABLED)==0))
   {
     int LenTitle=GetWindowTextLengthW(hwnd);
     if (LenTitle)
@@ -195,7 +197,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
       wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
       if (lpwszTitle!=NULL)
       {
-        if (LenTitle=GetWindowTextW(hwnd,lpwszTitle,LenTitle+1))
+        if ((LenTitle=GetWindowTextW(hwnd,lpwszTitle,LenTitle+1))!=0)
         {
           lpwszTitle[LenTitle]=0;
           MenuItemEx ListItem;

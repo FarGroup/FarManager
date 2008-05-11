@@ -400,7 +400,7 @@ int FilePanels::ProcessKey(int Key)
   if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
       /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&
       (CtrlObject->CmdLine->GetLength()>0 ||
-      !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
+      (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
   {
     CtrlObject->CmdLine->ProcessKey(Key);
     return(TRUE);
@@ -769,10 +769,10 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 
   Current->GetPosition(X1,Y1,X2,Y2);
 
-  ChangePosition=(OldType==FILE_PANEL && NewType!=FILE_PANEL &&
-             OldFullScreen || NewType==FILE_PANEL &&
-             (OldFullScreen && !FileList::IsModeFullScreen(OldViewMode) ||
-             !OldFullScreen && FileList::IsModeFullScreen(OldViewMode)));
+  ChangePosition=((OldType==FILE_PANEL && NewType!=FILE_PANEL &&
+             OldFullScreen) || (NewType==FILE_PANEL &&
+             ((OldFullScreen && !FileList::IsModeFullScreen(OldViewMode)) ||
+             (!OldFullScreen && FileList::IsModeFullScreen(OldViewMode)))));
 
   if (!ChangePosition)
   {
@@ -819,8 +819,8 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
     NewPanel=LastFilePanel;
     if (!ChangePosition)
     {
-      if (NewPanel->IsFullScreen() && !OldFullScreen ||
-          !NewPanel->IsFullScreen() && OldFullScreen)
+      if ((NewPanel->IsFullScreen() && !OldFullScreen) ||
+          (!NewPanel->IsFullScreen() && OldFullScreen))
       {
         Panel *AnotherPanel=GetAnotherPanel(Current);
         if (SaveScr!=NULL && AnotherPanel->IsVisible() &&

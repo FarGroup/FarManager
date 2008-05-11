@@ -106,7 +106,7 @@ const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
 
   while ( *lpwszPath )
   {
-    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || *lpwszPath==L':' && lpwszPath == lpwszNamePtr+1 )
+    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
       lpwszNamePtr = lpwszPath+1;
 
     lpwszPath++;
@@ -129,7 +129,7 @@ const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
   while (*Path)
   {
     if (*Path==L'\\' || *Path==L'/' ||
-        *Path==L':' && Path==NamePtr+1)
+        (*Path==L':' && Path==NamePtr+1))
     {
       prevNamePtr=NamePtr;
       NamePtr=Path+1;
@@ -219,10 +219,12 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
         while ((rangec = Upper(*pattern++))!=0)
         {
           if (rangec == L']')
+          {
             if (match)
               break;
             else
               return(FALSE);
+          }
           if (match)
             continue;
           if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
@@ -239,10 +241,12 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
         break;
       default:
         if (patternc != stringc)
+        {
           if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
             return(*pattern!=L'.' && CmpName(pattern,str));
           else
             return(FALSE);
+        }
         break;
     }
   }
@@ -1520,10 +1524,12 @@ bool CutToSlash(string &strStr, bool bInclude)
   wchar_t *lpwszStr = wcsrchr(strStr.GetBuffer(), L'\\');
 
 	if ( lpwszStr )
+	{
 		if ( bInclude )
 			*lpwszStr = 0;
 		else
 			*(lpwszStr+1) = 0;
+	}
 
 	strStr.ReleaseBuffer ();
 
@@ -1550,7 +1556,7 @@ string& CutToNameUNC(string &strPath)
 
   while ( *lpwszPath )
   {
-    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || *lpwszPath==L':' && lpwszPath == lpwszNamePtr+1 )
+    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
       lpwszNamePtr = lpwszPath+1;
 
     lpwszPath++;
@@ -1573,7 +1579,7 @@ string& CutToFolderNameIfFolder(string &strPath)
   while (*lpwszPath)
   {
     if (*lpwszPath==L'\\' || *lpwszPath==L'/' ||
-        *lpwszPath==L':' && lpwszPath==lpwszNamePtr+1)
+        (*lpwszPath==L':' && lpwszPath==lpwszNamePtr+1))
     {
       lpwszprevNamePtr=lpwszNamePtr;
       lpwszNamePtr=lpwszPath+1;
@@ -1657,7 +1663,7 @@ const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
 
   while ( *lpwszPath )
   {
-    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || *lpwszPath==L':' && lpwszPath == lpwszNamePtr+1 )
+    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
       lpwszNamePtr = lpwszPath+1;
 
     lpwszPath++;

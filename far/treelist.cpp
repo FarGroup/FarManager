@@ -552,7 +552,7 @@ void TreeList::SaveTreeFile()
   MkTreeFileName(strRoot, strName);
   // получим и сразу сбросим атрибуты (если получится)
   DWORD FileAttributes=GetFileAttributesW(strName);
-  if(FileAttributes != -1)
+  if(FileAttributes != INVALID_FILE_ATTRIBUTES)
     SetFileAttributesW(strName,FILE_ATTRIBUTE_NORMAL);
   if ((TreeFile=_wfopen(strName,L"wb"))==NULL)
   {
@@ -578,7 +578,7 @@ void TreeList::SaveTreeFile()
 
     Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),strName,UMSG(MOk));
   }
-  else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
+  else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
     SetFileAttributesW(strName,FileAttributes);
 }
 
@@ -690,6 +690,7 @@ void TreeList::SyncDir()
   AnotherPanel->GetCurDir(strPanelDir);
 
   if ( !strPanelDir.IsEmpty() )
+  {
     if (AnotherPanel->GetType()==FILE_PANEL)
     {
       if (!SetDirPosition(strPanelDir))
@@ -701,6 +702,7 @@ void TreeList::SyncDir()
     }
     else
       SetDirPosition(strPanelDir);
+  }
 }
 
 
@@ -901,7 +903,7 @@ int TreeList::ProcessKey(int Key)
       if (SetCurPath() && TreeCount>0)
       {
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-        int Ask=(Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE || Opt.Confirm.Drag);
+        int Ask=((Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE) || Opt.Confirm.Drag);
         int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
         int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
                      AnotherPanel->IsVisible() &&
@@ -1084,8 +1086,8 @@ int TreeList::ProcessKey(int Key)
     }
 
     default:
-      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
-          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
+      if ((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255) ||
+          (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255))
       {
         FastFind(Key);
         if (Opt.Tree.AutoChangeFolder && !ModalMode)
@@ -1282,11 +1284,11 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if (TreeCount==0)
       return(TRUE);
 
-    if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-        MouseEvent->dwEventFlags==DOUBLE_CLICK ||
-        (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
-        MouseEvent->dwEventFlags==0 ||
-        OldFile!=CurFile && Opt.Tree.AutoChangeFolder && !ModalMode)
+    if (((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
+        MouseEvent->dwEventFlags==DOUBLE_CLICK) ||
+        ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
+        MouseEvent->dwEventFlags==0) ||
+        (OldFile!=CurFile && Opt.Tree.AutoChangeFolder && !ModalMode))
     {
       ProcessEnter();
       return(TRUE);
@@ -1741,7 +1743,7 @@ void TreeList::FlushCache()
   if ( !TreeCache.strTreeName.IsEmpty() )
   {
     DWORD FileAttributes=GetFileAttributesW(TreeCache.strTreeName);
-    if(FileAttributes != -1)
+    if(FileAttributes != INVALID_FILE_ATTRIBUTES)
       SetFileAttributesW(TreeCache.strTreeName,FILE_ATTRIBUTE_NORMAL);
     if ((TreeFile=_wfopen(TreeCache.strTreeName,L"wb"))==NULL)
     {
@@ -1763,7 +1765,7 @@ void TreeList::FlushCache()
       Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),
               TreeCache.strTreeName,UMSG(MOk));
     }
-    else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
+    else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
       SetFileAttributesW(TreeCache.strTreeName,FileAttributes);
   }
   ClearCache(1);

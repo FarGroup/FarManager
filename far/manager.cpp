@@ -589,21 +589,23 @@ void Manager::ExitMainLoop(int Ask)
     CloseFARMenu=TRUE;
   };
   if (!Ask || !Opt.Confirm.Exit || Message(0,2,UMSG(MQuit),UMSG(MAskQuit),UMSG(MYes),UMSG(MNo))==0)
-   /* $ 29.12.2000 IS
-      + ѕровер€ем, сохранены ли все измененные файлы. ≈сли нет, то не выходим
-        из фара.
-   */
-   if(ExitAll())
-   {
-   //TODO: при закрытии по x нужно делать форсированный выход. »наче могут быть
-   //      глюки, например, при перезагрузке
-     FilePanels *cp;
-     if ( (cp = CtrlObject->Cp()) == NULL
-        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL)) )
-       EndLoop=TRUE;
-   } else {
-     CloseFARMenu=FALSE;
-   }
+  {
+    /* $ 29.12.2000 IS
+       + ѕровер€ем, сохранены ли все измененные файлы. ≈сли нет, то не выходим
+         из фара.
+    */
+    if(ExitAll())
+    {
+    //TODO: при закрытии по x нужно делать форсированный выход. »наче могут быть
+    //      глюки, например, при перезагрузке
+      FilePanels *cp;
+      if ( (cp = CtrlObject->Cp()) == NULL
+         || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL)) )
+        EndLoop=TRUE;
+    } else {
+      CloseFARMenu=FALSE;
+    }
+  }
 }
 
 #if defined(FAR_ALPHA_VERSION)
@@ -639,7 +641,7 @@ int  Manager::ProcessKey(DWORD Key)
     int i=0;
 
     DWORD KeyM=(Key&(~KEY_CTRLMASK));
-    if(!(KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE || KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE)) // пропустим макро-коды
+    if(!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
     {
       switch(CurrentFrame->GetType())
       {
@@ -720,7 +722,7 @@ int  Manager::ProcessKey(DWORD Key)
       ModalMenu.SetFlags(VMENU_WRAPMODE);
       ModalMenu.SetPosition(-1,-1,0,0);
 
-      for (int I=0;I<sizeof(ECode)/sizeof(ECode[0]);I++)
+      for (size_t I=0;I<countof(ECode);I++)
       {
         ModalMenuItem.strName = ECode[I].Name;
         ModalMenu.AddItem(&ModalMenuItem);
@@ -1317,10 +1319,10 @@ void Manager::RefreshCommit()
       return;
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
   }
-  if (Opt.ViewerEditorClock &&
+  if ((Opt.ViewerEditorClock &&
       (RefreshedFrame->GetType() == MODALTYPE_EDITOR ||
-      RefreshedFrame->GetType() == MODALTYPE_VIEWER)
-      || WaitInMainLoop && Opt.Clock)
+      RefreshedFrame->GetType() == MODALTYPE_VIEWER))
+      || (WaitInMainLoop && Opt.Clock))
     ShowTime(1);
 }
 

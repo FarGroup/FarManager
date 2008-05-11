@@ -1866,8 +1866,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
 			{
-				if ( (fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
-					(fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
+				if ( ((int)fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
+					((int)fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
 					bError = true;
 			}
 			else
@@ -1887,8 +1887,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 						WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
 						WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
 
-						if ( (fwrite (SaveStrCopy,1,length,EditFile) != length) ||
-							(fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
+						if ( ((int)fwrite (SaveStrCopy,1,length,EditFile) != length) ||
+							((int)fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
 							bError = true;
 
 						delete[] EndSeqCopy;

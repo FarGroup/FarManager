@@ -1048,7 +1048,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, int INum)
 		PMode[0]=CtrlObject->Cp()->LeftPanel->GetMode();
 		PMode[1]=CtrlObject->Cp()->RightPanel->GetMode();
 
-		for(int I=0; I < sizeof(PMode)/sizeof(PMode[0]); ++I)
+		for(size_t I=0; I < countof(PMode); ++I)
 		{
 			if(PMode[I] == PLUGIN_PANEL)
 			{
@@ -1308,10 +1308,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
             {
               strRegKey.Format (FmtPluginsCache_PluginD,RegNumber);
               int IFlags=GetRegKey(strRegKey,L"Flags",0);
-              if (Editor && (IFlags & PF_EDITOR)==0 ||
-                Viewer && (IFlags & PF_VIEWER)==0 ||
-                Dialog && (IFlags & PF_DIALOG)==0 ||
-                !Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS))
+              if ((Editor && (IFlags & PF_EDITOR)==0) ||
+                (Viewer && (IFlags & PF_VIEWER)==0) ||
+                (Dialog && (IFlags & PF_DIALOG)==0) ||
+                (!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
                 continue;
               for (int J=0;;J++)
               {
@@ -1348,10 +1348,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
             PluginInfo Info;
             if (!GetPluginInfo(pPlugin,&Info))
               continue;
-            if (Editor && (Info.Flags & PF_EDITOR)==0 ||
-              Viewer && (Info.Flags & PF_VIEWER)==0 ||
-              Dialog && (Info.Flags & PF_DIALOG)==0 ||
-              !Editor && !Viewer && !Dialog && (Info.Flags & PF_DISABLEPANELS))
+            if ((Editor && (Info.Flags & PF_EDITOR)==0) ||
+              (Viewer && (Info.Flags & PF_VIEWER)==0) ||
+              (Dialog && (Info.Flags & PF_DIALOG)==0) ||
+              (!Editor && !Viewer && !Dialog && (Info.Flags & PF_DISABLEPANELS)))
               continue;
             for (int J=0;J<Info.PluginMenuStringsNumber;J++)
             {

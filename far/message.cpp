@@ -96,7 +96,7 @@ int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
   Str[12]=Str13; Str[13]=Str14;
 
   StrCount=0;
-  while (StrCount<sizeof(Str)/sizeof(Str[0]) && Str[StrCount]!=NULL)
+  while (StrCount<(int)countof(Str) && Str[StrCount]!=NULL)
     StrCount++;
 
   return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
@@ -114,7 +114,7 @@ LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				if(Type==DI_EDIT)
 				{
 					int Color=FarColorToReal(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT)&0xFF;
-					return Param2&0xFF00FF00|Color<<16|Color;
+					return ((Param2&0xFF00FF00)|(Color<<16)|Color);
 				}
 			}
 			break;
@@ -548,15 +548,14 @@ int GetErrorString (string &strErrStr)
 
   DWORD LastError = GetLastError();
 
-  for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
+  for(I=0; I < (int)countof(ErrMsgs); ++I)
     if(ErrMsgs[I].WinMsg == LastError)
     {
       strErrStr = UMSG(ErrMsgs[I].FarMsg);
       break;
     }
 
-  //  I = sizeof(ErrMsgs)/sizeof(ErrMsgs[0]);
-  if(I >= sizeof(ErrMsgs)/sizeof(ErrMsgs[0]))
+  if(I >= (int)countof(ErrMsgs))
   {
     if ( LastError != ERROR_SUCCESS )
     {

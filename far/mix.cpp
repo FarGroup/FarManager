@@ -240,7 +240,7 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
   // Преобразуем введённые пользователем дату и время
   GetFileDateAndTime(CDate,DateN,DateSeparator);
   GetFileDateAndTime(CTime,TimeN,GetTimeSeparator());
-  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1)
+  if(DateN[0] == (unsigned)-1 || DateN[1] == (unsigned)-1 || DateN[2] == (unsigned)-1)
   {
     // Пользователь оставил дату пустой, значит обнулим дату и время.
     memset(&ft,0,sizeof(ft));
@@ -611,7 +611,7 @@ int GetDirInfo(const wchar_t *Title,
       }
     }
 
-    if (!MsgOut && MsgWaitTime!=0xffffffff && clock()-StartTime > MsgWaitTime)
+    if (!MsgOut && MsgWaitTime!=-1 && clock()-StartTime > MsgWaitTime)
     {
       OldTitle.Set(L"%s %s",UMSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
@@ -783,7 +783,7 @@ int CheckFolder(const wchar_t *Path)
   // Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
   while(!Done)
   {
-    if (fdata.strFileName.At(0) == L'.' && (fdata.strFileName.At(1) == 0 || fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0))
+    if (fdata.strFileName.At(0) == L'.' && (fdata.strFileName.At(1) == 0 || (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)))
       ; // игнорируем "." и ".."
     else
     {
@@ -870,7 +870,7 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
   if (pGetDiskFreeSpaceExW!=NULL)
     ExitCode=pGetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
-  if (pGetDiskFreeSpaceExW==NULL || ExitCode==0 || uiTotalSize == _i64(0) && uiTotalSize == _i64(0))
+  if (pGetDiskFreeSpaceExW==NULL || ExitCode==0 || uiTotalSize == _i64(0))
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
     ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
@@ -1129,7 +1129,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   for(;;) {
     if(!uniq) ++uniq;
     if(   GetTempFileNameW (strPath, Prefix, uniq, lpwszDest)
-       && GetFileAttributesW (lpwszDest) == -1) break;
+       && GetFileAttributesW (lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
     if(++uniq == savePid) {
       *lpwszDest = 0;
       break;
@@ -1369,7 +1369,10 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 						ptr[3] = Upper(ptr[3]);
 				} else {
 					while (*ptr && *ptr!=L'\\')
-						*(ptr++)=Upper(*ptr);
+					{
+						*ptr=Upper(*ptr);
+						ptr++;
+					}
 				}
 			}
 			else
@@ -1940,7 +1943,7 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
     if (wcspbrk(DestPath,L"\\:")==NULL)
       return TRUE;
 
-    if ((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\' || strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\') &&
+    if (((strSrcRoot.At(0)==L'\\' && strSrcRoot.At(1)==L'\\') || (strDestRoot.At(0)==L'\\' && strDestRoot.At(1)==L'\\')) &&
         StrCmpI(strSrcRoot,strDestRoot)!=0)
       return FALSE;
 

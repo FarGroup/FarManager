@@ -217,7 +217,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	string strDiskType, strRootDir, strDiskLetter;
 	DWORD Mask,DiskMask;
-	int DiskCount,Focus,I,J;
+	int DiskCount,Focus,I;
 	int ShowSpecial=FALSE, SetSelected=FALSE;
 
 	Mask = FarGetLogicalDrives();
@@ -259,7 +259,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			strDiskType.Format (L"%*s",StrLength(UMSG(MChangeDriveFixed)),L"");
 
-			for (J=0; J < countof(DrTMsg); ++J)
+			for (size_t J=0; J < countof(DrTMsg); ++J)
 			{
 				if (DrTMsg[J].DrvType == DriveType)
 				{
@@ -1156,6 +1156,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
       int LastError=GetLastError();
       strMsgText.Format (UMSG(MChangeDriveCannotDelSubst),DiskLetter);
       if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+      {
         if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,
                 L"\x1",UMSG(MChangeDriveOpenFiles),
                 UMSG(MChangeDriveAskDisconnect),UMSG(MOk),UMSG(MCancel))==0)
@@ -1165,6 +1166,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
         }
         else
           return DRIVE_DEL_FAIL;
+      }
       Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),strMsgText,UMSG(MOk));
     }
     return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
@@ -1179,6 +1181,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
       int LastError=GetLastError();
       strMsgText.Format (UMSG(MChangeDriveCannotDisconnect),DiskLetter);
       if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+      {
         if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,
                 L"\x1",UMSG(MChangeDriveOpenFiles),
                 UMSG(MChangeDriveAskDisconnect),UMSG(MOk),UMSG(MCancel))==0)
@@ -1188,6 +1191,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
         }
         else
           return DRIVE_DEL_FAIL;
+      }
       string strRootDir;
       strRootDir.Format (L"%c:\\", *DiskLetter);
       if (FAR_GetDriveType(strRootDir)==DRIVE_REMOTE)
@@ -1310,8 +1314,8 @@ void Panel::FastFind(int FirstKey)
             }
             continue;
           }
-          else if((Opt.XLat.XLatFastFindKey && Key == Opt.XLat.XLatFastFindKey ||
-                   Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey) ||
+          else if(((Opt.XLat.XLatFastFindKey && Key == Opt.XLat.XLatFastFindKey) ||
+                   (Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey)) ||
                   Key == KEY_OP_XLAT)
           {
             string strTempName;
@@ -1494,6 +1498,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 {
   RetCode=TRUE;
   if (!ModalMode && MouseEvent->dwMousePosition.Y==0)
+  {
     if (MouseEvent->dwMousePosition.X==ScrX)
     {
       if (Opt.ScreenSaver && (MouseEvent->dwButtonState & 3)==0)
@@ -1504,6 +1509,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
       }
     }
     else
+    {
       if ((MouseEvent->dwButtonState & 3)!=0 && MouseEvent->dwEventFlags==0)
       {
         EndDrag();
@@ -1513,6 +1519,8 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
           ShellOptions(0,MouseEvent);
         return(TRUE);
       }
+    }
+  }
 
   if (!IsVisible() ||
       (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
@@ -1544,6 +1552,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
     if ((MouseEvent->dwButtonState & 2) && MouseEvent->dwEventFlags==0)
       DragMove=!DragMove;
     if (MouseEvent->dwButtonState & 1)
+    {
       if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) &&
           !ModalMode)
       {
@@ -1560,6 +1569,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
         delete DragSaveScr;
         DragSaveScr=NULL;
       }
+    }
   }
 
   if ((MouseEvent->dwButtonState & 3)==0)
@@ -1787,8 +1797,8 @@ void Panel::Hide()
   if (AnotherPanel->IsVisible())
   {
     if (AnotherPanel->GetFocus())
-      if (AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen() ||
-          GetType()==FILE_PANEL && IsFullScreen())
+      if ((AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen()) ||
+          (GetType()==FILE_PANEL && IsFullScreen()))
         AnotherPanel->Show();
   }
 }
@@ -2049,7 +2059,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
 				DWORD Flags=0;
 
-				for(int I=0; I < sizeof(PFLAGS)/sizeof(PFLAGS[0]); ++I)
+				for(size_t I=0; I < countof(PFLAGS); ++I)
 					if(*(PFLAGS[I].Opt) != 0)
 						Flags|=PFLAGS[I].Flags;
 

@@ -412,7 +412,7 @@ void FileList::ShowSelectedSize()
     for (int I=0,ColumnPos=X1+1;I<ViewSettings.ColumnCount-1;I++)
     {
       if (ViewSettings.ColumnWidth[I]<0 ||
-          I==ViewSettings.ColumnCount-2 && ViewSettings.ColumnWidth[I+1]<0)
+          (I==ViewSettings.ColumnCount-2 && ViewSettings.ColumnWidth[I+1]<0))
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
@@ -507,7 +507,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
   }
   const wchar_t *DotPtr;
   if (!ShowStatus &&
-      (!(FileAttr&FA_DIREC) && ViewSettings.AlignExtensions || (FileAttr&FA_DIREC) && ViewSettings.FolderAlignExtensions)
+      ((!(FileAttr&FA_DIREC) && ViewSettings.AlignExtensions) || ((FileAttr&FA_DIREC) && ViewSettings.FolderAlignExtensions))
       && SrcLength<=MaxLength &&
       (DotPtr=wcsrchr(SrcName,L'.'))!=NULL && DotPtr!=SrcName &&
       (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
@@ -694,7 +694,7 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
 
   ColumnsInGlobal = 1;
 
-  int GlobalColumns;
+  int GlobalColumns=0;
   bool UnEqual;
   int Remainder;
 
@@ -1013,15 +1013,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 FILETIME *FileTime;
                 switch(ColumnType)
                 {
-                  case MDATE_COLUMN:
-                    FileTime=&CurPtr->WriteTime;
-                    break;
                   case CDATE_COLUMN:
                     FileTime=&CurPtr->CreationTime;
                     break;
                   case ADATE_COLUMN:
                     FileTime=&CurPtr->AccessTime;
                     break;
+                  default: //case MDATE_COLUMN:
+                    FileTime=&CurPtr->WriteTime;
                 }
                 int TextMonth=(ColumnTypes[K] & COLUMN_MONTH)!=0;
                 int Brief=ColumnTypes[K] & COLUMN_BRIEF;
@@ -1208,10 +1207,10 @@ int FileList::IsColumnDisplayed(int Type)
 {
   int I;
   for (I=0;I<ViewSettings.ColumnCount;I++)
-    if ((ViewSettings.ColumnType[I] & 0xff)==Type)
+    if ((int)(ViewSettings.ColumnType[I] & 0xff)==Type)
       return(TRUE);
   for (I=0;I<ViewSettings.StatusColumnCount;I++)
-    if ((ViewSettings.StatusColumnType[I] & 0xff)==Type)
+    if ((int)(ViewSettings.StatusColumnType[I] & 0xff)==Type)
       return(TRUE);
   return(FALSE);
 }

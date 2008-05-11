@@ -311,7 +311,7 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
       {
         if(SizeValue==sizeof(DWORD))
         {
-          if(*(DWORD*)(Position+POSITION_POS(Pos,J)) != -1)
+          if(*(DWORD*)(Position+POSITION_POS(Pos,J)) != (DWORD)-1)
             break;
         }
         else

@@ -76,7 +76,6 @@ static void printKeyValue(DWORD* k, int& i);
 #endif
 
 static const wchar_t *__GetNextWord(const wchar_t *BufPtr,string &strCurKeyText);
-static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);
 static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c=NULL);
 static void keyMacroParseError(int err, const wchar_t *c = NULL);
 
@@ -290,7 +289,7 @@ static TMacroFunction macroFunction[]={
 static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 {
   oParam=nParam=0;
-  for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
+  for(size_t I=0; I < countof(macroFunction); ++I)
     //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
     if(!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
     {
@@ -388,6 +387,7 @@ static inline int peekChar()
   return c;
 }
 
+/*
 static long getLong()
 {
   static wchar_t buffer[32];
@@ -400,7 +400,7 @@ static long getLong()
   wchar_t *endptr;
   return wcstol(buffer,&endptr,0);
 }
-
+*/
 
 static __int64 _cdecl getInt64()
 {

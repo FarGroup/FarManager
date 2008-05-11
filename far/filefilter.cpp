@@ -194,7 +194,7 @@ bool FileFilter::FilterEdit()
       {
         int SelPos=FilterList.GetSelectPos();
 
-        if (SelPos==FilterData.getCount())
+        if (SelPos==(int)FilterData.getCount())
           break;
 
         int Check=FilterList.GetSelection(SelPos),NewCheck;
@@ -311,7 +311,7 @@ bool FileFilter::FilterEdit()
             NewFilter->SetTitle(L"");
             NewFilter->Flags.ClearAll();
           }
-          else if (SelPos2 == (FilterData.getCount()+2))
+          else if (SelPos2 == (int)(FilterData.getCount()+2))
           {
             *NewFilter = FoldersFilter;
 
@@ -391,7 +391,7 @@ bool FileFilter::FilterEdit()
       case KEY_CTRLDOWN:
       {
         int SelPos=FilterList.GetSelectPos();
-        if (SelPos<(int)FilterData.getCount() && !(Key==KEY_CTRLUP && SelPos==0) && !(Key==KEY_CTRLDOWN && SelPos==FilterData.getCount()-1))
+        if (SelPos<(int)FilterData.getCount() && !(Key==KEY_CTRLUP && SelPos==0) && !(Key==KEY_CTRLDOWN && SelPos==(int)(FilterData.getCount()-1)))
         {
           int NewPos = SelPos + (Key == KEY_CTRLDOWN ? 1 : -1);
           MenuItemEx CurItem, NextItem;
@@ -500,13 +500,13 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
   GetIncludeExcludeFlags(Inc,Exc);
 
   FileFilterParams *CurFilterData;
-  for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
+  for (unsigned int i=0,j=0; i < (unsigned)FilterList->GetItemCount(); i++)
   {
     int Check=FilterList->GetSelection(i);
 
     CurFilterData=NULL;
 
-    if (i < (int)FilterData.getCount())
+    if (i < FilterData.getCount())
     {
       CurFilterData = FilterData.getItem(i);
     }
@@ -514,7 +514,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
     {
       CurFilterData = &FoldersFilter;
     }
-    else if (i > (int)(FilterData.getCount() + 2))
+    else if (i > (FilterData.getCount() + 2))
     {
       const wchar_t *FMask;
       wchar_t Mask[NM];

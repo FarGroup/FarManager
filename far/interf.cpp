@@ -183,7 +183,7 @@ void SetFarTitle(const wchar_t *Title)
 		TitleModified=TRUE;
 
 		if ( wcscmp (strOldFarTitle, strFarTitle) &&
-				(CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
+				((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
 				!CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()) )
 		{
 			SetConsoleTitleW (strFarTitle);
@@ -460,7 +460,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   */
   if(!Opt.CloseConsoleRule)
   {
-    if (CurrentEditor!=NULL && CurrentEditor->IsFileModified() ||
+    if ((CurrentEditor!=NULL && CurrentEditor->IsFileModified()) ||
         (FrameManager && FrameManager->IsAnyFrameModified (FALSE)))
       return(TRUE);
     return(FALSE);
@@ -483,8 +483,8 @@ void ShowTime(int ShowAlways)
     return;
   }
 
-  if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-      GetVidChar(ScreenClockText[2])==L':' || ScreenSaverActive)
+  if ((!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
+      GetVidChar(ScreenClockText[2])==L':') || ScreenSaverActive)
     return;
 
   ProcessShowClock++;
@@ -622,7 +622,7 @@ void InitRecodeOutTable(UINT cp)
 
   OutputCP=!cp?GetConsoleOutputCP():cp;
 
-  for (I=0;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
+  for (I=0;I<(int)countof(RecodeOutTable);I++)
     RecodeOutTable[I]=I;
   if (Opt.CleanAscii)
   {
@@ -707,7 +707,7 @@ void InitRecodeOutTable(UINT cp)
       Oem2Unicode[0xCD]='=';
     }
 */
-    for (I=1;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
+    for (I=1;I<(int)countof(RecodeOutTable);I++)
     {
       if(!Oem2Unicode[I])
       {
@@ -752,17 +752,17 @@ void Text(int X, int Y, int Color, const WCHAR *Str)
 
 void Text(const WCHAR *Str)
 {
-  int Length=StrLength(Str), I;
+  int Length=StrLength(Str);
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
     return;
   CHAR_INFO CharBuf[1024], *PtrCharBuf;
-  if (Length >= sizeof(CharBuf))
-    Length=sizeof(CharBuf)-1;
+  if (Length >= (int)countof(CharBuf))
+    Length=countof(CharBuf)-1;
 
   PtrCharBuf=CharBuf;
-  for (I=0; I < Length; I++, ++PtrCharBuf)
+  for (int I=0; I < Length; I++, ++PtrCharBuf)
   {
     PtrCharBuf->Char.UnicodeChar=Str[I];
     PtrCharBuf->Attributes=CurColor;
@@ -1115,8 +1115,8 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 
   {
     WCHAR OutStr[4096];
-    if(Length > sizeof(OutStr)-3)
-       Length=sizeof(OutStr)-3;
+    if(Length > (int)(countof(OutStr)-3))
+       Length=countof(OutStr)-3;
     _wmemset(OutStr+1,BoxSymbols[0xB0-0x0B0],Length);
     OutStr[ThumbPos+1]=BoxSymbols[0xB2-0x0B0];
     OutStr[0]=Oem2Unicode[0x1E];
@@ -1130,14 +1130,12 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 {
   if (Length>1)
   {
-
      WCHAR Separator[4096];
      MakeSeparator(Length,Separator,Type,UserSep);
      if( ( Type >= 4 && Type <= 7 ) || ( Type >= 10 && Type <= 11) )
        VText(Separator);
      else
        Text(Separator);
-
   }
 }
 

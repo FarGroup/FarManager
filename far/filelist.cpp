@@ -1270,6 +1270,7 @@ int FileList::ProcessKey(int Key)
         */
         bool DeleteViewedFile=PluginMode && !Edit;
         if ( !strFileName.IsEmpty () )
+        {
           if (Edit)
           {
             int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor) ||
@@ -1386,8 +1387,8 @@ int FileList::ProcessKey(int Key)
           }
           else
           {
-            int EnableExternal=(Key==KEY_F3 && Opt.ViOpt.UseExternalViewer ||
-                                Key==KEY_ALTF3 && !Opt.ViOpt.UseExternalViewer) &&
+            int EnableExternal=((Key==KEY_F3 && Opt.ViOpt.UseExternalViewer) ||
+                                (Key==KEY_ALTF3 && !Opt.ViOpt.UseExternalViewer)) &&
                                 !Opt.strExternalViewer.IsEmpty();
             /* $ 02.08.2001 IS обработаем ассоциации для alt-f3 */
             BOOL Processed=FALSE;
@@ -1399,6 +1400,7 @@ int FileList::ProcessKey(int Key)
                Processed=TRUE;
 
             if (!Processed || Key==KEY_CTRLSHIFTF3)
+            {
               if (EnableExternal)
                 ProcessExternal(Opt.strExternalViewer,strFileName,strShortFileName,PluginMode);
               else
@@ -1425,7 +1427,9 @@ int FileList::ProcessKey(int Key)
                 }
                 Modaling=FALSE;
               }
+            }
           }
+        }
         /* $ 08.04.2002 IS
              для файла, который открывался во внутреннем вьюере, ничего не
              предпринимаем, т.к. вьюер об этом позаботится сам
@@ -1864,8 +1868,8 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     default:
-      if((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535 ||
-          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535) &&
+      if(((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) ||
+          (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535)) &&
          Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
         )
       {
@@ -1895,6 +1899,7 @@ int FileList::ProcessKey(int Key)
 void FileList::Select(struct FileListItem *SelPtr,int Selection)
 {
   if (!TestParentFolderName(SelPtr->strName) && SelPtr->Selected!=Selection)
+  {
     if ((SelPtr->Selected=Selection)!=0)
     {
       SelFileCount++;
@@ -1905,6 +1910,7 @@ void FileList::Select(struct FileListItem *SelPtr,int Selection)
        SelFileCount--;
        SelFileSize -= SelPtr->UnpSize;
     }
+  }
 }
 
 
@@ -2353,10 +2359,12 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       MouseEvent->dwMousePosition.X>X1 && MouseEvent->dwMousePosition.X<X1+3)
   {
     if (MouseEvent->dwButtonState)
+    {
       if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
         ChangeDisk();
       else
         SelectSortMode();
+    }
     return(TRUE);
   }
 
@@ -2574,9 +2582,9 @@ void FileList::SetViewMode(int ViewMode)
       NewPacked=FALSE;
 
   if (FileCount>0 && PanelMode!=PLUGIN_PANEL &&
-      (!OldOwner && NewOwner || !OldPacked && NewPacked ||
-       !OldNumLink && NewNumLink ||
-       AccessTimeUpdateRequired && NewAccessTime))
+      ((!OldOwner && NewOwner) || (!OldPacked && NewPacked) ||
+       (!OldNumLink && NewNumLink) ||
+       (AccessTimeUpdateRequired && NewAccessTime)))
     Update(UPDATE_KEEP_SELECTION);
   else
     if (OldCaseSensitiveSort!=NewCaseSensitiveSort || OldNumericSort!=NewNumericSort) //????
@@ -2592,13 +2600,16 @@ void FileList::SetViewMode(int ViewMode)
     FileList::ViewMode=ViewMode;
   }
   else
+  {
     if (!ViewSettings.FullScreen && CurFullScreen)
     {
       if (Y2>0)
+      {
         if (this==CtrlObject->Cp()->LeftPanel)
           SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
         else
           SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
+      }
       FileList::ViewMode=ViewMode;
     }
     else
@@ -2606,6 +2617,7 @@ void FileList::SetViewMode(int ViewMode)
       FileList::ViewMode=ViewMode;
       FrameManager->RefreshFrame();
     }
+  }
 
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -2704,7 +2716,7 @@ long FileList::FindNext(int StartPos, const wchar_t *Name)
 int FileList::IsSelected(const wchar_t *Name)
 {
   long Pos=FindFile(Name);
-  return(Pos!=-1 && (ListData[Pos]->Selected || SelFileCount==0 && Pos==CurFile));
+  return(Pos!=-1 && (ListData[Pos]->Selected || (SelFileCount==0 && Pos==CurFile)));
 }
 
 
@@ -3728,7 +3740,7 @@ void FileList::SelectSortMode()
                           BY_ATIME,  BY_DIZ,    BY_OWNER,
                           BY_COMPRESSEDSIZE,BY_NUMLINKS};
 
-  for (int I=0;I<sizeof(SortModes)/sizeof(SortModes[0]);I++)
+  for (size_t I=0;I<countof(SortModes);I++)
     if (SortMode==SortModes[I])
     {
       SortMenu[I].SetCheck(SortOrder==1 ? L'+':L'-');
@@ -3742,7 +3754,7 @@ void FileList::SelectSortMode()
 
   int SortCode;
   {
-    VMenu SortModeMenu(UMSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
+    VMenu SortModeMenu(UMSG(MMenuSortTitle),SortMenu,countof(SortMenu),0);
 
     SortModeMenu.SetHelp(L"PanelCmdSort");
     SortModeMenu.SetPosition(X1+4,-1,0,0);
@@ -3751,7 +3763,7 @@ void FileList::SelectSortMode()
     if ((SortCode=SortModeMenu.Modal::GetExitCode())<0)
       return;
   }
-  if (SortCode<sizeof(SortModes)/sizeof(SortModes[0]))
+  if (SortCode<(int)countof(SortModes))
     SetSortMode(SortModes[SortCode]);
   else
     switch(SortCode)
@@ -3977,14 +3989,14 @@ void FileList::CountDirSize(DWORD PluginFlags)
     if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
     {
       SelDirCount++;
-      if (PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-          GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize)
+      if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
+          GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
         ||
-          (PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
+          (PanelMode!=PLUGIN_PANEL || ((PluginFlags & OPIF_REALNAMES) &&
           GetDirInfo(UMSG(MDirInfoViewTitle),
                      CurPtr->strName,
                      DirCount,DirFileCount,FileSize,
-                     CompressedFileSize,RealFileSize, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1)
+                     CompressedFileSize,RealFileSize, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1)))
       {
         SelFileSize -= CurPtr->UnpSize;
         SelFileSize += FileSize;
@@ -4001,14 +4013,14 @@ void FileList::CountDirSize(DWORD PluginFlags)
 
   if (SelDirCount==0)
   {
-    if (PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-        GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize)
+    if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
+        GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
       ||
-        (PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
+        (PanelMode!=PLUGIN_PANEL || ((PluginFlags & OPIF_REALNAMES) &&
         GetDirInfo(UMSG(MDirInfoViewTitle),
                    TestParentFolderName(CurPtr->strName) ? L".":CurPtr->strName,
                    DirCount,
-                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1)
+                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1)))
     {
       CurPtr->UnpSize = FileSize;
       CurPtr->PackSize = CompressedFileSize;
@@ -4140,6 +4152,7 @@ void FileList::ProcessCopyKeys(int Key)
           ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath);
         }
         if (ToPlugin!=-1)
+        {
           if (ToPlugin)
             PluginToPluginFiles(Move);
           else
@@ -4171,6 +4184,7 @@ void FileList::ProcessCopyKeys(int Key)
 
             PluginGetFiles(strDestPath,Move);
           }
+        }
       }
     }
     else
@@ -4234,7 +4248,7 @@ BOOL FileList::UpdateKeyBar()
       KB->SetShift((const wchar_t **)Info.KeyBar->ShiftTitles,12);
       KB->SetAlt((const wchar_t **)Info.KeyBar->AltTitles,12);
       KB->SetCtrl((const wchar_t **)Info.KeyBar->CtrlTitles,12);
-      if(Info.StructSize >= sizeof(struct OpenPluginInfo))
+      if(Info.StructSize >= (int)sizeof(struct OpenPluginInfo))
       {
         KB->SetCtrlShift((const wchar_t **)Info.KeyBar->CtrlShiftTitles,12);
         KB->SetAltShift((const wchar_t **)Info.KeyBar->AltShiftTitles,12);

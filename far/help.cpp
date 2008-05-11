@@ -423,7 +423,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   while (TRUE)
   {
-    if ( StartPos != -1 )
+    if ( StartPos != (DWORD)-1 )
       RealMaxLength = MaxLength-StartPos;
     else
       RealMaxLength = MaxLength;
@@ -451,7 +451,7 @@ int Help::ReadHelp(const wchar_t *Mask)
       PosTab=(int)(Ptr-ReadStr+1);
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
         InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
-      if(StrLength(ReadStr) > sizeof(ReadStr)/2/sizeof (wchar_t))
+      if(StrLength(ReadStr) > (int)(countof(ReadStr)/2))
         break;
     }
 
@@ -828,11 +828,11 @@ void Help::OutString(const wchar_t *Str)
   wchar_t OutStr[512]; //BUGBUG
   const wchar_t *StartTopic=NULL;
   int OutPos=0,Highlight=0,Topic=0;
-  while (OutPos<countof(OutStr)-10)
+  while (OutPos<(int)(countof(OutStr)-10))
   {
-    if (Str[0]==L'~' && Str[1]==L'~' ||
-        Str[0]==L'#' && Str[1]==L'#' ||
-        Str[0]==L'@' && Str[1]==L'@' ||
+    if ((Str[0]==L'~' && Str[1]==L'~') ||
+        (Str[0]==L'#' && Str[1]==L'#') ||
+        (Str[0]==L'@' && Str[1]==L'@') ||
         ( !strCtrlColorChar.IsEmpty() && Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
        )
     {
@@ -971,9 +971,9 @@ int Help::StringLen(const wchar_t *Str)
   int Length=0;
   while (*Str)
   {
-    if (Str[0]==L'~' && Str[1]==L'~' ||
-        Str[0]==L'#' && Str[1]==L'#' ||
-        Str[0]==L'@' && Str[1]==L'@' ||
+    if ((Str[0]==L'~' && Str[1]==L'~') ||
+        (Str[0]==L'#' && Str[1]==L'#') ||
+        (Str[0]==L'@' && Str[1]==L'@') ||
         ( !strCtrlColorChar.IsEmpty() && Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
        )
     {
@@ -1765,7 +1765,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
         StackData.CurX=0;
         StackData.CurY++;
         if (StackData.TopStr+StackData.CurY>=StrCount-FixCount ||
-            CurScreen && StackData.CurY>Y2-Y1-2-FixSize)
+            (CurScreen && StackData.CurY>Y2-Y1-2-FixSize))
           break;
       }
     }
@@ -1779,7 +1779,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
         StackData.CurX=X2-X1-2;
         StackData.CurY--;
         if (StackData.TopStr+StackData.CurY<0 ||
-            CurScreen && StackData.CurY<0)
+            (CurScreen && StackData.CurY<0))
           break;
       }
     }

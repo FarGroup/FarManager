@@ -63,7 +63,7 @@ RefreshFrameManager::~RefreshFrameManager()
 {
   if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())
     return;
-  else if(OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=0xffffffff)
+  else if(OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=-1)
   {
     LockScreen LckScr;
     FrameManager->ResizeAllFrame();

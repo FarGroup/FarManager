@@ -274,7 +274,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
           break;
         }
     }
-    if (ProcessedSize>1024 || TextData && Attempt>4 || !TextData && Attempt>8)
+    if (ProcessedSize>1024 || (TextData && Attempt>4) || (!TextData && Attempt>8))
       break;
   }
 
@@ -284,21 +284,21 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
     return(FALSE);
   }
 
-  int MaxDistr=0,MaxFileDistr=0,I;
-  for (I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
+  int MaxDistr=0,MaxFileDistr=0;
+  for (size_t I=0;I<countof(DistrTable);I++)
     if (DistrTable[I]!=0xff && DistrTable[I]>MaxDistr)
       MaxDistr=DistrTable[I];
-  for (I=0;I<sizeof(FileDistr)/sizeof(FileDistr[0]);I++)
+  for (size_t I=0;I<countof(FileDistr);I++)
     if (FileDistr[I]!=0xff && FileDistr[I]>MaxFileDistr)
       MaxFileDistr=FileDistr[I];
 
   int SrcTable[256],CheckedTable[256];
-  for (I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
+  for (size_t I=0;I<countof(DistrTable);I++)
     if (DistrTable[I]==0xff)
       SrcTable[I]=-1;
     else
       SrcTable[I]=MaxFileDistr*DistrTable[I];
-  for (I=0;I<sizeof(FileDistr)/sizeof(FileDistr[0]);I++)
+  for (size_t I=0;I<countof(FileDistr);I++)
     if (FileDistr[I]==0xff)
       CheckedTable[I]=-1;
     else
@@ -307,7 +307,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   unsigned long BestValue=CalcDifference(SrcTable,CheckedTable,NULL);
   int BestTable=-1;
 
-  for (I=0;;I++)
+  for (int I=0;;I++)
   {
     string strTableKey;
     if (!EnumRegKey(L"CodeTables",I,strTableKey))
@@ -321,7 +321,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
       continue; //return(FALSE);
 
     unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
-    if (CurValue<(5*BestValue)/6 || CurValue<BestValue && BestTable!=-1)
+    if (CurValue<(5*BestValue)/6 || (CurValue<BestValue && BestTable!=-1))
     {
       BestValue=CurValue;
       BestTable=I;

@@ -112,15 +112,15 @@ void FreeArrayUnicode (wchar_t ** lpawszUnicodeString)
 
 DWORD OldKeyToKey (DWORD dOldKey)
 {
-	if (dOldKey&0x100) dOldKey=dOldKey^0x100|EXTENDED_KEY_BASE;
-		else if (dOldKey&0x200) dOldKey=dOldKey^0x200|INTERNAL_KEY_BASE;
+	if (dOldKey&0x100) dOldKey=(dOldKey^0x100)|EXTENDED_KEY_BASE;
+		else if (dOldKey&0x200) dOldKey=(dOldKey^0x200)|INTERNAL_KEY_BASE;
 	return dOldKey;
 }
 
 DWORD KeyToOldKey (DWORD dKey)
 {
-	if (dKey&EXTENDED_KEY_BASE) dKey=dKey^EXTENDED_KEY_BASE|0x100;
-		else if (dKey&INTERNAL_KEY_BASE) dKey=dKey^INTERNAL_KEY_BASE|0x200;
+	if (dKey&EXTENDED_KEY_BASE) dKey=(dKey^EXTENDED_KEY_BASE)|0x100;
+		else if (dKey&INTERNAL_KEY_BASE) dKey=(dKey^INTERNAL_KEY_BASE)|0x200;
 	return dKey;
 }
 
@@ -394,7 +394,7 @@ char* WINAPI PointToNameA(char *Path)
   char *NamePtr=Path;
   while (*Path)
   {
-    if (*Path=='\\' || *Path=='/' || *Path==':' && Path==NamePtr+1)
+    if (*Path=='\\' || *Path=='/' || (*Path==':' && Path==NamePtr+1))
       NamePtr=Path+1;
     Path++;
   }
@@ -2221,7 +2221,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			GetRegKey(L"wrapper",L"version",OldFarVer,FarVer);
 			if(
 			   //не выше текущей версии
-			   (LOWORD(OldFarVer)<LOWORD(FarVer) || (LOWORD(OldFarVer)==LOWORD(FarVer)) && HIWORD(OldFarVer)<HIWORD(FarVer)) &&
+			   (LOWORD(OldFarVer)<LOWORD(FarVer) || ((LOWORD(OldFarVer)==LOWORD(FarVer)) && HIWORD(OldFarVer)<HIWORD(FarVer))) &&
 			   //и не ниже 1.70.1
 			   LOWORD(OldFarVer)>=0x0146 && HIWORD(OldFarVer)>=0x1)
 				FarVer=OldFarVer;

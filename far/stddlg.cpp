@@ -177,7 +177,7 @@ int WINAPI GetSearchReplaceString (
       HeightDialog--;
       ReplaceDlg[0].Y2--;
       ReplaceDlg[6].Type=DI_TEXT;
-      for(I=7; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      for(I=7; I < (int)countof(ReplaceDlg); ++I)
       {
         ReplaceDlg[I].Y1--;
         ReplaceDlg[I].Y2--;
@@ -191,7 +191,7 @@ int WINAPI GetSearchReplaceString (
       HeightDialog--;
       ReplaceDlg[0].Y2--;
       ReplaceDlg[7].Type=DI_TEXT;
-      for(I=8; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      for(I=8; I < (int)countof(ReplaceDlg); ++I)
       {
         ReplaceDlg[I].Y1--;
         ReplaceDlg[I].Y2--;
@@ -205,7 +205,7 @@ int WINAPI GetSearchReplaceString (
       HeightDialog--;
       ReplaceDlg[0].Y2--;
       ReplaceDlg[8].Type=DI_TEXT;
-      for(I=9; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      for(I=9; I < (int)countof(ReplaceDlg); ++I)
       {
         ReplaceDlg[I].Y1--;
         ReplaceDlg[I].Y2--;
@@ -215,14 +215,14 @@ int WINAPI GetSearchReplaceString (
     // нам не нужны 2 разделительных линии
     if(HeightDialog == 11)
     {
-      for(I=9; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      for(I=9; I < (int)countof(ReplaceDlg); ++I)
       {
         ReplaceDlg[I].Y1--;
         ReplaceDlg[I].Y2--;
       }
     }
     {
-      Dialog Dlg(ReplaceDlg,sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]));
+      Dialog Dlg(ReplaceDlg,countof(ReplaceDlg));
       Dlg.SetPosition(-1,-1,76,HeightDialog);
       Dlg.Process();
       if (Dlg.GetExitCode()!=10)
@@ -286,7 +286,7 @@ int WINAPI GetSearchReplaceString (
       HeightDialog--;
       SearchDlg[0].Y2--;
       SearchDlg[4].Type=DI_TEXT;
-      for(I=5; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      for(I=5; I < (int)countof(SearchDlgData); ++I)
       {
         SearchDlg[I].Y1--;
         SearchDlg[I].Y2--;
@@ -300,7 +300,7 @@ int WINAPI GetSearchReplaceString (
       HeightDialog--;
       SearchDlg[0].Y2--;
       SearchDlg[5].Type=DI_TEXT;
-      for(I=6; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      for(I=6; I < (int)countof(SearchDlgData); ++I)
       {
         SearchDlg[I].Y1--;
         SearchDlg[I].Y2--;
@@ -314,7 +314,7 @@ int WINAPI GetSearchReplaceString (
       HeightDialog--;
       SearchDlg[0].Y2--;
       SearchDlg[6].Type=DI_TEXT;
-      for(I=7; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      for(I=7; I < (int)countof(SearchDlgData); ++I)
       {
         SearchDlg[I].Y1--;
         SearchDlg[I].Y2--;
@@ -324,14 +324,14 @@ int WINAPI GetSearchReplaceString (
     // нам не нужны 2 разделительных линии
     if(HeightDialog == 9)
     {
-      for(I=7; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      for(I=7; I < (int)countof(SearchDlgData); ++I)
       {
         SearchDlg[I].Y1--;
         SearchDlg[I].Y2--;
       }
     }
     {
-      Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
+      Dialog Dlg(SearchDlg,countof(SearchDlg));
       Dlg.SetPosition(-1,-1,76,HeightDialog);
       Dlg.Process();
       if (Dlg.GetExitCode()!=8)

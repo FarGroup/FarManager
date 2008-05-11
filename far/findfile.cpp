@@ -411,21 +411,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-
-static void ShowTruncateMessage(int IDMField,int MaxSize)
-{
-  string strBuf1;
-  string strBuf2;
-
-  strBuf1 = L"\'";
-  strBuf1 += UMSG(IDMField);
-  strBuf1 += L"\'";
-  RemoveHighlights(strBuf1);
-  strBuf2.Format (UMSG(MEditInputSize2), MaxSize);
-  Message(MSG_WARNING,1,UMSG(MWarning),UMSG(MEditInputSize1),strBuf1,strBuf2,UMSG(MOk));
-}
-
-
 FindFiles::FindFiles()
 {
   _ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
@@ -1046,7 +1031,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         return TRUE;
       }
       else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5 || Param2==KEY_F4 ||
-               (Param2==KEY_ENTER||Param2==KEY_NUMENTER) && Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0) == 7
+               ((Param2==KEY_ENTER||Param2==KEY_NUMENTER) && Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0) == 7)
               )
       {
         if (ListBox->GetItemCount()==0)
@@ -1590,12 +1575,12 @@ int FindFiles::FindFilesProcess()
     case FIND_EXIT_PANEL:
     // ќтработаем переброску на временную панель
     {
-      int ListSize = FindListCount;
+      DWORD ListSize = FindListCount;
       PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
       if (PanelItems==NULL)
         ListSize=0;
       int ItemsNumber=0;
-      for (int i=0;i<ListSize;i++)
+      for (DWORD i=0;i<ListSize;i++)
       {
         if (StrLength(FindList[i]->FindData.strFileName)>0 && FindList[i]->Used)
         // ƒобавл€ем всегда, если им€ задано
@@ -1897,8 +1882,8 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
   TRY {
-    wchar_t *PathEnv=NULL, *Ptr; //BUGBUG
-      PrepareFilesListUsed++;
+    wchar_t *PathEnv=NULL, *Ptr=NULL; //BUGBUG
+    PrepareFilesListUsed++;
     DWORD DiskMask=FarGetLogicalDrives();
 
     //string strRoot; //BUGBUG
@@ -2052,7 +2037,7 @@ void FindFiles::ArchiveSearch(const wchar_t *ArcName)
         » если ничего не нашли - не рисуем его снова */
     {
       string strSaveDirName, strSaveSearchPath;
-      int SaveListCount = FindListCount;
+      DWORD SaveListCount = FindListCount;
       /* $ 19.01.2003 KM
          «апомним пути поиска в плагине, они могут изменитьс€.
       */
@@ -2388,7 +2373,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 	if (FileHandle==INVALID_HANDLE_VALUE) return (FALSE);
 
 	char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
-	int ReadSize,SaveReadSize;
+	int ReadSize=0,SaveReadSize=0;
 
 	if (SearchHex)
 	{
@@ -2510,10 +2495,10 @@ int FindFiles::LookForString(const wchar_t *Name)
 					{
 						// –аз добрались до поиска в ANSI кодировке, подготовим таблицу перекодировки
 						if (ANSISearch)
-						GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+							GetTable(&TableSet,TRUE,TableNum,UseUnicode);
 
 						for (int I=0;I<ReadSize;I++)
-						Buf[I]=TableSet.DecodeTable[Buf[I]];
+							Buf[I]=TableSet.DecodeTable[(unsigned)Buf[I]];
 					}
 				}
 				if (!CmpCase)
@@ -2567,8 +2552,8 @@ int FindFiles::LookForString(const wchar_t *Name)
 				xf_free (lpWordDiv);
 
 				cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I] &&
-					(Length==1 || CmpStr[1]==Buf[I+1] &&
-					(Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+					(Length==1 || (CmpStr[1]==Buf[I+1] &&
+					(Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0)));
 
 				if (cmpResult)
 				{
