@@ -19,15 +19,7 @@ AceModule::AceModule ()
 			);
 
 	if ( m_hModule )
-	{
-		m_pfnInitDll = (ACEINITDLL)GetProcAddress (m_hModule, "ACEInitDll");
-		m_pfnReadArchiveData = (ACEREADARCHIVEDATA)GetProcAddress (m_hModule, "ACEReadArchiveData");
-		m_pfnList = (ACELIST)GetProcAddress (m_hModule, "ACEList");
-		m_pfnTest = (ACETEST)GetProcAddress (m_hModule, "ACETest");
-		m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
-
 		m_bSupportUpdate = false;
-	}
 	else
 	{
 		CutToSlash(lpModuleName);
@@ -41,16 +33,19 @@ AceModule::AceModule ()
 				);
 
 		if ( m_hModule )
-		{
-			m_pfnInitDll = (ACEINITDLL)GetProcAddress (m_hModule, "ACEInitDll");
-			m_pfnReadArchiveData = (ACEREADARCHIVEDATA)GetProcAddress (m_hModule, "ACEReadArchiveData");
-			m_pfnList = (ACELIST)GetProcAddress (m_hModule, "ACEList");
-			m_pfnTest = (ACETEST)GetProcAddress (m_hModule, "ACETest");
-			m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
-			m_pfnAdd = (ACEADD)GetProcAddress (m_hModule, "ACEAdd");
-
 			m_bSupportUpdate = true;
-		}
+	}
+
+	if ( m_hModule )
+	{
+		m_pfnInitDll = (ACEINITDLL)GetProcAddress (m_hModule, "ACEInitDll");
+		m_pfnReadArchiveData = (ACEREADARCHIVEDATA)GetProcAddress (m_hModule, "ACEReadArchiveData");
+		m_pfnList = (ACELIST)GetProcAddress (m_hModule, "ACEList");
+		m_pfnTest = (ACETEST)GetProcAddress (m_hModule, "ACETest");
+		m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
+
+		if ( m_bSupportUpdate )
+			m_pfnAdd = (ACEADD)GetProcAddress (m_hModule, "ACEAdd");
 	}
 
 	StrFree (lpModuleName);

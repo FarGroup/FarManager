@@ -208,8 +208,6 @@ struct ArchiveUpdateItem {
 	unsigned int index;
 	bool bNewFile;
 	PluginPanelItem *pItem;
-	const char *lpSourcePath;
-	const char *lpCurrentPath;
 };
 
 class CArchiveUpdateCallback : public IArchiveUpdateCallback2, public ICryptoGetTextPassword2 {
@@ -220,13 +218,22 @@ private:
 	int m_nRefCount;
 	pointer_array<ArchiveUpdateItem*> *m_indicies;
 
+	const char *m_lpSourcePath;
+	const char *m_lpCurrentPath;
+
 	SevenZipArchive *m_pArchive;
 
 	unsigned __int64 m_nLastProcessed;
 
 public:
 
-	CArchiveUpdateCallback (SevenZipArchive *pArchive, pointer_array<ArchiveUpdateItem*> *indicies);
+	CArchiveUpdateCallback (
+			SevenZipArchive *pArchive, 
+			pointer_array<ArchiveUpdateItem*> *indicies,
+			const char *lpSourcePath,
+			const char *lpCurrentPath
+			);
+
 	~CArchiveUpdateCallback();
 
 	//IUnknown

@@ -726,7 +726,7 @@ bool __stdcall SevenZipArchive::pDelete (
 		CreateTempName (m_lpFileName, szTempName);
 
 		COutFile *file = new COutFile (szTempName);
-		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (this, &indicies);
+		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (this, &indicies, NULL, NULL);
 
 		if ( file->Open () )
 		{
@@ -901,8 +901,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 				item->index = i;
 				item->bNewFile = false;
-				item->lpCurrentPath = lpCurrentPath;
-				item->lpSourcePath = lpSourcePath;
 
 				indicies.add (item);
 			}
@@ -946,9 +944,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 						item->bNewFile = true;
 						item->pItem = &pItems[i];
-						item->lpCurrentPath = lpCurrentPath;
-						item->lpSourcePath = lpSourcePath;
-
 						break;
 					}
 				}
@@ -960,9 +955,6 @@ bool __stdcall SevenZipArchive::pAddFiles (
 				item->index = (unsigned int)-1;
 				item->bNewFile = true;
 				item->pItem = &pItems[i];
-				item->lpCurrentPath = lpCurrentPath;
-				item->lpSourcePath = lpSourcePath;
-
 				indicies.add (item);
 			}
 		}
@@ -989,7 +981,13 @@ bool __stdcall SevenZipArchive::pAddFiles (
 		CreateTempName (m_lpFileName, szTempName);
 
 		COutFile *file = new COutFile (szTempName);
-		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (this, &indicies);
+
+		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (
+				this, 
+				&indicies, 
+				lpSourcePath, 
+				lpCurrentPath
+				);
 
 		if ( file->Open () )
 		{

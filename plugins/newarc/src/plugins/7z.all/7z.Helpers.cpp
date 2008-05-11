@@ -898,11 +898,19 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 
 
-CArchiveUpdateCallback::CArchiveUpdateCallback (SevenZipArchive *pArchive, pointer_array<ArchiveUpdateItem*> *indicies)
+CArchiveUpdateCallback::CArchiveUpdateCallback (
+		SevenZipArchive *pArchive, 
+		pointer_array<ArchiveUpdateItem*> *indicies,
+		const char *lpSourcePath,
+		const char *lpCurrentPath
+		)
 {
 	m_nRefCount = 1;
 	m_indicies = indicies;
 	m_pArchive = pArchive;
+
+	m_lpSourcePath = lpSourcePath;
+	m_lpCurrentPath = lpCurrentPath;
 }
 
 CArchiveUpdateCallback::~CArchiveUpdateCallback()
@@ -1048,9 +1056,9 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 
 			memset (wszFullPath, 0, sizeof (wszFullPath));
 
-			if ( item->lpCurrentPath && *item->lpCurrentPath )
+			if ( m_lpCurrentPath && m_lpCurrentPath )
 			{
-				MultiByteToWideChar (CP_OEMCP, 0, item->lpCurrentPath, -1, wszFullPath, MAX_PATH);
+				MultiByteToWideChar (CP_OEMCP, 0, m_lpCurrentPath, -1, wszFullPath, MAX_PATH);
 
 				if ( wszFullPath[0] )
 					wcscat (wszFullPath, L"\\");
@@ -1127,9 +1135,9 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 
 		char *lpFullName = (char*)malloc (MAX_PATH);
 
-		if ( item->lpSourcePath && *item->lpSourcePath )
+		if ( m_lpSourcePath && m_lpSourcePath )
 		{
-			strcpy (lpFullName, item->lpSourcePath);
+			strcpy (lpFullName, m_lpSourcePath);
 			FSF.AddEndSlash (lpFullName);
 		}
 
