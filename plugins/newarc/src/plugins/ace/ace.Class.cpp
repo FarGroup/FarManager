@@ -2,6 +2,8 @@
 #include "Ace.class.h"
 #include "ace.h"
 
+MY_DEFINE_GUID (CLSID_FormatACE, 0x08183761, 0x87D3, 0x4C85, 0xBF, 0xB7, 0x7C, 0x5E, 0x8A, 0x7F, 0x81, 0xEA);
+
 AceModule::AceModule ()
 {
 	char *lpModuleName = StrDuplicate(Info.ModuleName, 260);
@@ -16,8 +18,6 @@ AceModule::AceModule ()
 			LOAD_WITH_ALTERED_SEARCH_PATH
 			);
 
-	StrFree (lpModuleName);
-
 	if ( m_hModule )
 	{
 		m_pfnInitDll = (ACEINITDLL)GetProcAddress (m_hModule, "ACEInitDll");
@@ -25,8 +25,49 @@ AceModule::AceModule ()
 		m_pfnList = (ACELIST)GetProcAddress (m_hModule, "ACEList");
 		m_pfnTest = (ACETEST)GetProcAddress (m_hModule, "ACETest");
 		m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
+
+		m_bSupportUpdate = false;
 	}
+	else
+	{
+		CutToSlash(lpModuleName);
+
+		strcat (lpModuleName, "acev2.dll");
+
+		m_hModule = LoadLibraryEx (
+				lpModuleName,
+				NULL,
+				LOAD_WITH_ALTERED_SEARCH_PATH
+				);
+
+		if ( m_hModule )
+		{
+			m_pfnInitDll = (ACEINITDLL)GetProcAddress (m_hModule, "ACEInitDll");
+			m_pfnReadArchiveData = (ACEREADARCHIVEDATA)GetProcAddress (m_hModule, "ACEReadArchiveData");
+			m_pfnList = (ACELIST)GetProcAddress (m_hModule, "ACEList");
+			m_pfnTest = (ACETEST)GetProcAddress (m_hModule, "ACETest");
+			m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
+			m_pfnAdd = (ACEADD)GetProcAddress (m_hModule, "ACEAdd");
+
+			m_bSupportUpdate = true;
+		}
+	}
+
+	StrFree (lpModuleName);
 }
+
+void AceModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
+{
+	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
+	pInfo->uid = CLSID_FormatACE;
+
+	if ( m_bSupportUpdate )
+		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
+
+	pInfo->lpName = "ACE Archive";
+	pInfo->lpDefaultExtention = "ace";
+}
+
 
 AceModule::~AceModule ()
 {
@@ -57,9 +98,10 @@ int __stdcall ErrorProc(pACEErrorCallbackProcStruc Error)
 	return pArchive->OnError (Error);
 }
 
-AceArchive::AceArchive (const char *lpFileName)
+AceArchive::AceArchive (AceModule *pModule, const char *lpFileName, bool bNewFile)
 {
-	m_pModule = new AceModule;
+	m_pModule = pModule;
+	m_bNewFile = bNewFile;
 
 	if ( m_pModule->m_pfnInitDll )
 	{
@@ -100,7 +142,7 @@ AceArchive::AceArchive (const char *lpFileName)
 AceArchive::~AceArchive ()
 {
 	StrFree (m_lpFileName);
-	delete m_pModule;
+//	delete m_pModule;
 }
 
 bool AceArchive::IsArchive ()
@@ -213,6 +255,14 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 {
 	if ( State->StructureType == ACE_CALLBACK_TYPE_ARCHIVEDFILE )
 	{
+
+		if ( State->ArchivedFile.Operation == ACE_CALLBACK_OPERATION_ADD )
+		{
+			//MessageBox (0, "asd", State->ArchivedFile.FileData->SourceFileName, MB_OK);
+
+		}
+
+
 		if ( State->ArchivedFile.Code == ACE_CALLBACK_STATE_STARTFILE )
 		{
 			if ( m_nMode == OM_LIST )
@@ -220,11 +270,13 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 				WaitForSingleObject (m_hListEvent, INFINITE);
 
 				strcpy (m_item->pi.FindData.cFileName, State->ArchivedFile.FileData->SourceFileName);
-				m_item->pi.FindData.nFileSizeLow = State->ArchivedFile.FileData->Size;
+				m_item->pi.FindData.nFileSizeLow = (DWORD)State->ArchivedFile.FileData->Size;
+				m_item->pi.FindData.nFileSizeHigh = (DWORD)(State->ArchivedFile.FileData->Size >> 32);
 				m_item->pi.FindData.dwFileAttributes = State->ArchivedFile.FileData->Attributes;
 
 				m_item->pi.CRC32 = State->ArchivedFile.FileData->CRC32;
-				m_item->pi.PackSize = State->ArchivedFile.FileData->CompressedSize;
+				m_item->pi.PackSize = (DWORD)State->ArchivedFile.FileData->CompressedSize;
+				m_item->pi.PackSizeHigh = (DWORD)(State->ArchivedFile.FileData->CompressedSize >> 32);
 
 				DWORD DateTime = State->ArchivedFile.FileData->Time;
 
@@ -237,34 +289,47 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 			}
 			else
 			{
-				if ( State->ArchivedFile.Operation == ACE_CALLBACK_OPERATION_EXTRACT )
+				if ( (State->ArchivedFile.Operation == ACE_CALLBACK_OPERATION_EXTRACT) || 
+					 (State->ArchivedFile.Operation == ACE_CALLBACK_OPERATION_ADD) )
+					
 				{
 					PluginPanelItem item;
 
 					memset (&item, 0, sizeof (item));
 					strcpy (item.FindData.cFileName, State->ArchivedFile.FileData->SourceFileName);
 
-					item.FindData.nFileSizeLow = State->ArchivedFile.FileData->Size;
+					item.FindData.nFileSizeLow = (DWORD)State->ArchivedFile.FileData->Size;
 					item.FindData.nFileSizeHigh = (DWORD)(State->ArchivedFile.FileData->Size >> 32);
 
-					m_pfnCallback (AM_PROCESS_FILE, (int)&item, 0);
+					Callback (AM_PROCESS_FILE, (int)&item, (int)&item.FindData.cFileName);
 				}
 			}
 		}
 	}
 
-	if ( (State->StructureType == ACE_CALLBACK_TYPE_PROGRESS) &&
-		 (State->Progress.Operation == ACE_CALLBACK_OPERATION_EXTRACT) )
-	{
-		int diff = State->Progress.ProgressData->TotalProcessedSize-m_nLastProcessed;
 
-		if ( m_pfnCallback )
+	if ( (State->StructureType == ACE_CALLBACK_TYPE_PROGRESS) &&
+		 ((State->Progress.Operation == ACE_CALLBACK_OPERATION_EXTRACT) || 
+		  (State->Progress.Operation == ACE_CALLBACK_OPERATION_ADD)) )
+	{
+		if ( m_dwLastProcessed == 0 )
 		{
-			if ( !m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff) )
-				return ACE_CALLBACK_RETURN_CANCEL;
+			OperationStructPlugin os;
+
+			os.uTotalFiles = 1;
+			os.uTotalSize = State->Progress.ProgressData->TotalSize+State->Progress.ProgressData->TotalCompressedSize;
+			os.dwFlags = OS_FLAG_TOTALFILES|OS_FLAG_TOTALSIZE;
+
+			Callback (AM_START_OPERATION, OPERATION_ADD, (int)&os);
+			Callback (AM_PROCESS_FILE, 0, 0);
 		}
 
-		m_nLastProcessed = State->Progress.ProgressData->TotalProcessedSize;
+		unsigned __int64 diff = State->Progress.ProgressData->TotalProcessedSize-m_dwLastProcessed;
+
+		if ( !Callback (AM_PROCESS_DATA, 0, (int)diff) ) //__int64 to int, but it's just a diff (change API?) BUGBUG!!!
+			return ACE_CALLBACK_RETURN_CANCEL;
+
+		m_dwLastProcessed = State->Progress.ProgressData->TotalProcessedSize;
 	}
 
 	return ACE_CALLBACK_RETURN_OK;
@@ -323,11 +388,76 @@ bool __stdcall AceArchive::pExtract (
 	if ( m_pfnCallback )
 		m_pfnCallback (AM_START_OPERATION, OPERATION_EXTRACT, 0);
 
-	m_nLastProcessed = 0;
+	m_dwLastProcessed = 0;
 
 	m_pModule->m_pfnExtract (m_lpFileName, &extract);
 
 	free (extract.Files.FileList);
 
 	return true;
+}
+
+bool __stdcall AceArchive::pAddFiles (
+		const char *lpSourcePath,
+		const char *lpCurrentPath,
+		PluginPanelItem *pItems,
+		int nItemsNumber
+		)
+{
+	m_nMode = OM_ADD; //BUGBUG!!!!
+
+	tACEAddStruc add;
+	DWORD size = 0;
+	DWORD newsize = 0;
+
+	m_dwLastProcessed = 0;
+
+	memset (&add, 0, sizeof (add));
+
+	char name[MAX_PATH];
+
+	for (int i = 0; i < nItemsNumber; i++)
+	{
+		strcpy (name, pItems[i].FindData.cFileName);
+
+		newsize += strlen(name)+1;
+
+		add.Files.FileList = (char*)realloc (add.Files.FileList, newsize);
+
+		memset (&add.Files.FileList[size], 0, newsize-size-1);
+
+		strcat (add.Files.FileList, name);
+
+		if ( i != (nItemsNumber-1) )
+			add.Files.FileList[newsize-1] = 0x0D;
+
+		size = newsize;
+	}
+
+	add.Files.ExcludeList = "";             // no files to exclude
+	add.DestinationDir = ""; // archive directory to add to
+	add.Files.SourceDir = (char*)lpSourcePath;
+	add.Files.FullMatch = TRUE;
+	add.Files.RecurseSubDirs = true;
+	add.EncryptPassword = "";             // do not encrypt files
+	add.DecryptPassword = "";             // no encrypted files expected
+	add.SFXName = ACE_SFX_NONE;
+
+	add.CompressParams.Dictionary = 20;
+	add.CompressParams.Level = ACE_LEVEL_BEST;
+	add.CompressParams.V20Compression.DoUse = 1;
+
+	m_pModule->m_pfnAdd (m_lpFileName, &add);
+
+	free (add.Files.FileList);
+
+	return true;
+}
+
+int __stdcall AceArchive::Callback (int nMsg, int nParam1, int nParam2)
+{
+	if ( m_pfnCallback )
+		return m_pfnCallback (nMsg, nParam1, nParam2);
+
+	return FALSE;
 }

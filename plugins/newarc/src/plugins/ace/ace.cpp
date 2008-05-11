@@ -2,10 +2,9 @@
 #include "ace.class.h"
 #include "ace.h"
 
-MY_DEFINE_GUID (CLSID_FormatACE, 0x08183761, 0x87D3, 0x4C85, 0xBF, 0xB7, 0x7C, 0x5E, 0x8A, 0x7F, 0x81, 0xEA);
-
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
+AceModule *pModule;
 
 struct ArchiveModuleInformation {
 
@@ -22,17 +21,20 @@ int OnInitialize (StartupInfo *pInfo)
 	Info = pInfo->Info;
 	FSF = *pInfo->Info.FSF;
 
+	pModule = new AceModule;
+
 	return NAERROR_SUCCESS;
 }
 
 int OnFinalize ()
 {
+	delete pModule;
 	return NAERROR_SUCCESS;
 }
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
-	AceArchive *pArchive = new AceArchive (pQAS->lpFileName);
+	AceArchive *pArchive = new AceArchive (pModule, pQAS->lpFileName, false);
 
 	if ( pArchive && pArchive->IsArchive() )
 	{
@@ -41,8 +43,19 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 	}
 
 	delete pArchive;
+
 	return NAERROR_INTERNAL;
 }
+
+int OnCreateArchive (CreateArchiveStruct *pCAS)
+{
+	AceArchive *pArchive = new AceArchive(pModule, pCAS->lpFileName, true);
+
+	pCAS->hResult = (HANDLE)pArchive;
+
+	return NAERROR_SUCCESS;
+}
+
 
 int OnOpenArchive (OpenArchiveStruct *pOAS)
 {
@@ -75,10 +88,7 @@ int OnGetArchivePluginInfo (
 {
 	static ArchiveFormatInfo formatInfo;
 
-	formatInfo.uid = CLSID_FormatACE;
-	formatInfo.dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT;
-	formatInfo.lpName = "ACE Archive";
-	formatInfo.lpDefaultExtention = "ace";
+	pModule->GetArchiveFormatInfo(&formatInfo);
 
 	ai->nFormats = 1;
 	ai->pFormatInfo = (ArchiveFormatInfo*)&formatInfo;
@@ -145,6 +155,21 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 	return NAERROR_SUCCESS;
 }
 
+int OnAdd (AddStruct *pAS)
+{
+	AceArchive *pArchive = (AceArchive*)pAS->hArchive;
+
+	pAS->bResult = pArchive->pAddFiles (
+			pAS->lpSourcePath,
+			pAS->lpCurrentPath,
+			pAS->pItems,
+			pAS->nItemsNumber
+			);
+
+	return NAERROR_SUCCESS;
+}
+
+
 
 int __stdcall PluginEntry (
 		int nFunctionID,
@@ -185,6 +210,12 @@ int __stdcall PluginEntry (
 
 	case FID_GETDEFAULTCOMMAND:
 		return OnGetDefaultCommand ((GetDefaultCommandStruct*)pParams);
+
+	case FID_ADD:
+		return OnAdd ((AddStruct*)pParams);
+
+	case FID_CREATEARCHIVE:
+		return OnCreateArchive ((CreateArchiveStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;
