@@ -105,7 +105,7 @@ int __stdcall RarArchive::pGetArchiveItem (
 
 		strcpy ((char*)pItem->pi.FindData.cFileName, fileHeader->FileName);
 
-		pItem->pi.FindData.dwFileAttributes = fileHeader->FileAttr;
+		pItem->pi.FindData.dwFileAttributes = (BYTE)(fileHeader->FileAttr >> 16); //бред!
 
 		if ( (fileHeader->Flags & 0x04) == 0x04 )
 			pItem->dwFlags |= AIF_CRYPTED;
