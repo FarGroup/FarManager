@@ -357,6 +357,8 @@ headers.hpp
 #define INPUTLANGCHANGE_BACKWARD   0x0004
 #endif
 
+#define __USE_MCI    1
+
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
 #define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif

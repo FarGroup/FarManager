@@ -5,8 +5,6 @@ Eject סתולםûץ םמסטעוכוי
 
 */
 
-#define __USE_MCI    1
-
 #include "headers.hpp"
 #pragma hdrstop
 
