@@ -1353,6 +1353,33 @@ int __stdcall hndModifyCreateArchive (
 
 	if ( nMsg == DN_CLOSE )
 	{
+//*************************************/
+		if ( nParam1 == 27 )
+		{
+  			int pos = D->ListGetCurrentPos (12, NULL);
+
+  			if ( pos != -1 )
+  			{
+				GUID uid = *(GUID*)D->ListGetData (12, pos);//Templates[pos];
+
+				ArchivePlugin *pPlugin = GetPluginFromUID (uid);
+
+				if ( pPlugin )
+				{
+					ConfigureFormatStruct CF;
+
+					CF.uid = uid;
+
+					if ( pPlugin->m_pfnPluginEntry (FID_CONFIGUREFORMAT, (void*)&CF) == NAERROR_SUCCESS )
+					{
+					}
+				}
+			}
+	
+			return false;
+		}
+//*************************************/
+
 		if ( nParam1 == 25 )
 		{
 			bool bResult;
@@ -1481,6 +1508,8 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 	D.DefaultButton ();
 
 	D.Button (-1, 17, "Отменить"); //26
+
+	D.Button (-1, 17, "[?]"); //27
 
 	ArchiveTemplate tpl;
 	memset (&tpl, 0, sizeof (tpl));

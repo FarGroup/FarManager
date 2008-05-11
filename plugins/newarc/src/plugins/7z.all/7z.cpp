@@ -371,7 +371,55 @@ int OnNotify (NotifyStruct *pNS)
 	return NAERROR_SUCCESS;
 }
 
-//extern GUID CLSID_CFormat7z;
+extern "C" const GUID CLSID_CFormat7z;
+
+int __stdcall hndConfigureFormat(FarDialogHandler *D, int nMsg, int Param1, int Param2)
+{
+	if ( nMsg == DN_INITDIALOG )
+	{
+		D->ListAddStr (2, "LZMA");
+		D->ListAddStr (2, "PPMd");
+		D->ListAddStr (2, "BZip2");
+
+		D->ListAddStr (4, "None");
+		D->ListAddStr (4, "Ultra fast");
+		D->ListAddStr (4, "Fast");
+		D->ListAddStr (4, "Normal");
+		D->ListAddStr (4, "High");
+		D->ListAddStr (4, "Ultra");
+
+		D->ListAddStr (6, "64 kb");
+		D->ListAddStr (6, "1 mb");
+		D->ListAddStr (6, "2 mb");
+		D->ListAddStr (6, "3 mb");
+		D->ListAddStr (6, "4 mb");
+		D->ListAddStr (6, "6 mb");
+		D->ListAddStr (6, "8 mb");
+		D->ListAddStr (6, "12 mb");
+		D->ListAddStr (6, "16 mb");
+		D->ListAddStr (6, "32 mb");
+		D->ListAddStr (6, "48 mb");
+		D->ListAddStr (6, "64 mb");
+		D->ListAddStr (6, "128 mb");
+		D->ListAddStr (6, "256 mb");
+
+		D->ListAddStr (10, "8");
+		D->ListAddStr (10, "12");
+		D->ListAddStr (10, "16");
+		D->ListAddStr (10, "24");
+		D->ListAddStr (10, "32");
+		D->ListAddStr (10, "48");
+		D->ListAddStr (10, "64");
+		D->ListAddStr (10, "96");
+		D->ListAddStr (10, "128");
+		D->ListAddStr (10, "192");
+		D->ListAddStr (10, "256");
+		D->ListAddStr (10, "273");
+
+	}
+
+	return D->DefDlgProc (nMsg, Param1, Param2);
+}
 
 int OnConfigureFormat (ConfigureFormatStruct *pCF)
 {
@@ -379,9 +427,35 @@ int OnConfigureFormat (ConfigureFormatStruct *pCF)
 	{
 		FarDialog D(-1, -1, 60, 20);
 
-		D.DoubleBox (2, 2, 57, 17, "7z config");
+		D.DoubleBox (2, 2, 57, 17, "7z config"); //0
 
-		D.Show ();
+		D.Text(5, 4, "Method:"); //1
+		D.ComboBox (25, 4, 20, NULL); //2
+		D.SetFlags(DIF_DROPDOWNLIST);
+
+		D.Text(5, 5, "Level:"); //3
+		D.ComboBox (25, 5, 20, NULL); //4
+		D.SetFlags(DIF_DROPDOWNLIST);
+
+		D.Text(5, 6, "Dict. size:"); //5
+		D.ComboBox (25, 6, 20, NULL); //6
+		D.SetFlags(DIF_DROPDOWNLIST);
+
+		D.Text(5, 7, "Solid block size:"); //7
+		D.ComboBox (25, 7, 20, NULL); //8
+		D.SetFlags(DIF_DROPDOWNLIST);
+
+		D.Text(5, 8, "Fast bytes:"); //9
+		D.ComboBox (25, 8, 20, NULL); //10
+		D.SetFlags(DIF_DROPDOWNLIST);
+
+		D.Separator(9);
+
+		D.CheckBox(5, 10, false, "Compress headers");
+		D.CheckBox(5, 11, false, "Compress headers full");
+		D.CheckBox(5, 12, false, "Encrypt headers");
+
+		D.ShowEx (hndConfigureFormat);
 	}
 
 	return NAERROR_SUCCESS;

@@ -395,7 +395,7 @@ void SevenZipModule::GetArchiveFormatInfo (unsigned int nFormatIndex, ArchiveFor
 		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_DELETE|AFF_SUPPORT_INTERNAL_ADD|AFF_SUPPORT_INTERNAL_CREATE);
 
 
-	if ( m_pInfo[nFormatIndex].uid == CLSID_CFormat7z )
+	//if ( m_pInfo[nFormatIndex].uid == CLSID_CFormat7z )
 		pInfo->dwFlags |= (AFF_SUPPORT_INTERNAL_CONFIG);
 
 	pInfo->lpName = m_pInfo[nFormatIndex].lpName;
