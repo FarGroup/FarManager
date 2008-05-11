@@ -365,6 +365,8 @@ typedef struct _MEMORYSTATUSEX {
 #define INPUTLANGCHANGE_FORWARD 0x0002
 #endif
 
+#define __USE_MCI    1
+
 //#include <crtdbg.h>
 
 #endif // __HEADERS_HPP__

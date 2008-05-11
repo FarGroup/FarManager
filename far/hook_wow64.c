@@ -1,3 +1,7 @@
+#define __NEW_H
+#include "headers.hpp"
+#pragma hdrstop
+
 #if !defined(_MSC_VER) || _MSC_VER < 1300 || defined(_WIN64)
 #error
 #endif
