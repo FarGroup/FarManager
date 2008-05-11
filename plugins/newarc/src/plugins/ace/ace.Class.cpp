@@ -1,6 +1,6 @@
 #include <FarPluginBase.hpp>
 #include "Ace.class.h"
-#include "unace.h"
+#include "ace.h"
 
 AceModule::AceModule ()
 {

@@ -181,7 +181,6 @@
                 //                     | ACE_CALLBACK_ERROR_NOFILES
                 //                     | ACE_CALLBACK_ERROR_ISNOTANARCHIVE
                 //                     | ACE_CALLBACK_ERROR_TEMPDIRCREATE
-                //                     | ACE_CALLBACK_ERROR_INCOMPATIBLEARCHIVE
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 // RequestCallbackProc | ACE_CALLBACK_REQUEST_MARKASSOLID
                 //                     | ACE_CALLBACK_REQUEST_CHANGEVOLUME
@@ -1151,29 +1150,6 @@
                                 //   ACEAddSFX
                                 //   ACELock
                                 //   ACEAddAV
-                                //   ACEAddRecoveryRecord
-
-
-        #define ACE_CALLBACK_ERROR_INCOMPATIBLEARCHIVE  0x232
-
-                                // this Dll version is not able to handle
-                                // the archive
-                                //---------------------------------------------
-                                // structure type:
-                                //   ACE_CALLBACK_TYPE_ARCHIVE
-                                // operations:
-                                //   ACEReadArchiveData
-                                //   ACEList
-                                //   ACEDelete
-                                //   ACETest
-                                //   ACEExtract
-                                //   ACEAdd
-                                //   ACERepair
-                                //   ACESetComments
-                                //   ACEEncryptFiles
-                                //   ACEAddSFX
-                                //   ACEAddAV
-                                //   ACELock
                                 //   ACEAddRecoveryRecord
 
 

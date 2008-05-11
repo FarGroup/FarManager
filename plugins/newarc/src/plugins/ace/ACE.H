@@ -1,5 +1,5 @@
-#ifndef _UNACEDLL_H
-#define _UNACEDLL_H
+#ifndef _ACEDLL_H
+#define _ACEDLL_H
 
 #ifdef __cplusplus
   extern "C" {
@@ -37,9 +37,16 @@
 
 #include "includes/unacefnc.h"
 
+//อออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+//อออออออ=====---  Part 4: Functions supported by the AceV2.Dll ---====ออออออออ
+//อออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+
+#include "includes/acefnc.h"
+
+
 
 #ifdef __cplusplus
  }
 #endif /* __cplusplus */
 
-#endif /* _UNACEDLL_H */
+#endif /* _ACEDLL_H */
