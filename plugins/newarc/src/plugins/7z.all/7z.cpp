@@ -373,6 +373,17 @@ int OnNotify (NotifyStruct *pNS)
 
 extern "C" const GUID CLSID_CFormat7z;
 
+const char *SevenZipLevel[] = {"None", "Fastest", "Fast", "Normal", "Maximum", "Ultra"};
+const char *SevenZipLevelStrings[] = {"X0", "X1", "X3", "X5", "X7", "X9"};
+
+const char *SevenZipLZMADictionary[] = {"64 KB", "1 MB", "2 MB", "3 MB", "4 MB", "6 MB", "8 MB", "12 MB", "16 MB", "24 MB", "32 MB", "48 MB", "64 MB"};
+const char *SevenZipLZMADictionaryStrings[] = {"64K", "1M", "2M", "3M", "4M", "6M", "8M", "12M", "16M", "24M", "32M", "48M", "64M"};
+const char *SevenZipLZMAWordSize[] = {"8", "12", "16", "24", "32", "48", "64", "96", "128", "192", "256", "273"};
+const char *SevenZipLZMASBSize[] = {"Non solid", "1 MB", "2 MB", "4 MB", "8 MB", "16 MB", "32 MB", "64 MB", "128 MB", "256 MB", "512 MB", "1 GB", "2 GB", "4 GB", "8 GB", "16 GB", "32 GB", "64 GB", "Solid"};
+const char *SevenZipLZMASBSizeStrings[] = {"???", "E1M", "E2M", "E4M", "E8M", "E16M", "E32M", "E64M", "E128M", "E256M", "E512M", "E1G", "E2G", "E4G", "E8G", "E16G", "E32G", "E64G", "???"};
+
+#define countof(x) (sizeof(x)/sizeof(x[0]))
+
 int __stdcall hndConfigureFormat(FarDialogHandler *D, int nMsg, int Param1, int Param2)
 {
 	if ( nMsg == DN_INITDIALOG )
@@ -381,41 +392,17 @@ int __stdcall hndConfigureFormat(FarDialogHandler *D, int nMsg, int Param1, int 
 		D->ListAddStr (2, "PPMd");
 		D->ListAddStr (2, "BZip2");
 
-		D->ListAddStr (4, "None");
-		D->ListAddStr (4, "Ultra fast");
-		D->ListAddStr (4, "Fast");
-		D->ListAddStr (4, "Normal");
-		D->ListAddStr (4, "High");
-		D->ListAddStr (4, "Ultra");
+		for (int i = 0; i < countof(SevenZipLevel); i++)
+			D->ListAddStr (4, SevenZipLevel[i]);
 
-		D->ListAddStr (6, "64 kb");
-		D->ListAddStr (6, "1 mb");
-		D->ListAddStr (6, "2 mb");
-		D->ListAddStr (6, "3 mb");
-		D->ListAddStr (6, "4 mb");
-		D->ListAddStr (6, "6 mb");
-		D->ListAddStr (6, "8 mb");
-		D->ListAddStr (6, "12 mb");
-		D->ListAddStr (6, "16 mb");
-		D->ListAddStr (6, "32 mb");
-		D->ListAddStr (6, "48 mb");
-		D->ListAddStr (6, "64 mb");
-		D->ListAddStr (6, "128 mb");
-		D->ListAddStr (6, "256 mb");
+		for (int i = 0; i < countof(SevenZipLZMADictionary); i++)
+			D->ListAddStr (6, SevenZipLZMADictionary[i]);
 
-		D->ListAddStr (10, "8");
-		D->ListAddStr (10, "12");
-		D->ListAddStr (10, "16");
-		D->ListAddStr (10, "24");
-		D->ListAddStr (10, "32");
-		D->ListAddStr (10, "48");
-		D->ListAddStr (10, "64");
-		D->ListAddStr (10, "96");
-		D->ListAddStr (10, "128");
-		D->ListAddStr (10, "192");
-		D->ListAddStr (10, "256");
-		D->ListAddStr (10, "273");
+		for (int i = 0; i < countof(SevenZipLZMASBSize); i++)
+			D->ListAddStr (8, SevenZipLZMASBSize[i]);
 
+		for (int i = 0; i < countof(SevenZipLZMAWordSize); i++)
+			D->ListAddStr (10, SevenZipLZMAWordSize[i]);
 	}
 
 	return D->DefDlgProc (nMsg, Param1, Param2);
@@ -427,33 +414,38 @@ int OnConfigureFormat (ConfigureFormatStruct *pCF)
 	{
 		FarDialog D(-1, -1, 60, 20);
 
-		D.DoubleBox (2, 2, 57, 17, "7z config"); //0
+		D.DoubleBox (3, 1, 56, 18, "7z config"); //0
 
-		D.Text(5, 4, "Method:"); //1
-		D.ComboBox (25, 4, 20, NULL); //2
+		D.Text(5, 2, "Method:"); //1
+		D.ComboBox (25, 2, 20, NULL); //2
 		D.SetFlags(DIF_DROPDOWNLIST);
 
-		D.Text(5, 5, "Level:"); //3
-		D.ComboBox (25, 5, 20, NULL); //4
+		D.Text(5, 3, "Level:"); //3
+		D.ComboBox (25, 3, 20, NULL); //4
 		D.SetFlags(DIF_DROPDOWNLIST);
 
-		D.Text(5, 6, "Dict. size:"); //5
-		D.ComboBox (25, 6, 20, NULL); //6
+		D.Text(5, 4, "Dict. size:"); //5
+		D.ComboBox (25, 4, 20, NULL); //6
 		D.SetFlags(DIF_DROPDOWNLIST);
 
-		D.Text(5, 7, "Solid block size:"); //7
-		D.ComboBox (25, 7, 20, NULL); //8
+		D.Text(5, 5, "Solid block size:"); //7
+		D.ComboBox (25, 5, 20, NULL); //8
 		D.SetFlags(DIF_DROPDOWNLIST);
 
-		D.Text(5, 8, "Fast bytes:"); //9
-		D.ComboBox (25, 8, 20, NULL); //10
+		D.Text(5, 6, "Fast bytes:"); //9
+		D.ComboBox (25, 6, 20, NULL); //10
 		D.SetFlags(DIF_DROPDOWNLIST);
 
-		D.Separator(9);
+		D.Separator(7);
 
-		D.CheckBox(5, 10, false, "Compress headers");
-		D.CheckBox(5, 11, false, "Compress headers full");
-		D.CheckBox(5, 12, false, "Encrypt headers");
+		D.CheckBox(5, 8, false, "Compress headers");
+		D.CheckBox(5, 9, false, "Compress headers full");
+		D.CheckBox(5, 10, false, "Encrypt headers");
+
+		D.Separator(11);
+
+		D.Button (-1, 12, "Ok");
+		D.Button (-1, 12, "Cancel");
 
 		D.ShowEx (hndConfigureFormat);
 	}
