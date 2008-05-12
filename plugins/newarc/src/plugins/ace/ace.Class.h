@@ -11,6 +11,7 @@ typedef int (__stdcall *ACELIST) (LPSTR ArchiveName, pACEListStruc List);
 typedef int (__stdcall *ACETEST) (LPSTR ArchiveName, pACETestStruc Test);
 typedef int (__stdcall *ACEEXTRACT) (LPSTR ArchiveName, pACEExtractStruc Extract);
 typedef int (__stdcall *ACEADD) (LPSTR ArchiveName, pACEAddStruc Add);
+typedef int (__stdcall *ACEDELETE) (LPSTR ArchiveName, pACEDeleteStruc Delete);
 
 class AceModule {
 
@@ -24,6 +25,7 @@ public:
 	ACETEST m_pfnTest;
 	ACEEXTRACT m_pfnExtract;
 	ACEADD m_pfnAdd;
+	ACEDELETE m_pfnDelete;
 
 	bool m_bSupportUpdate;
 
@@ -71,6 +73,7 @@ public:
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
 	virtual bool __stdcall pExtract (PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);
 	virtual bool __stdcall pAddFiles (const char *lpSourcePath, const char *lpCurrentPath, PluginPanelItem *pItems, int nItemsNumber);
+	virtual bool __stdcall pDelete (PluginPanelItem *pItems, int nItemsNumber);
 
 public:
 

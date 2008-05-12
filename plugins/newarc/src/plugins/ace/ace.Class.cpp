@@ -45,7 +45,10 @@ AceModule::AceModule ()
 		m_pfnExtract = (ACEEXTRACT)GetProcAddress (m_hModule, "ACEExtract");
 
 		if ( m_bSupportUpdate )
+		{
 			m_pfnAdd = (ACEADD)GetProcAddress (m_hModule, "ACEAdd");
+			m_pfnDelete = (ACEDELETE)GetProcAddress (m_hModule, "ACEDelete");
+		}
 	}
 
 	StrFree (lpModuleName);
@@ -455,4 +458,50 @@ int __stdcall AceArchive::Callback (int nMsg, int nParam1, int nParam2)
 		return m_pfnCallback (nMsg, nParam1, nParam2);
 
 	return FALSE;
+}
+
+bool __stdcall AceArchive::pDelete (
+		PluginPanelItem *pItems,
+		int nItemsNumber
+		)
+{
+	tACEDeleteStruc del;
+
+	DWORD size = 0;
+	DWORD newsize = 0;
+
+	memset (&del, 0, sizeof (del));
+
+	char name[MAX_PATH];
+
+	for (int i = 0; i < nItemsNumber; i++)
+	{
+		strcpy (name, pItems[i].FindData.cFileName);
+
+		newsize += strlen(name)+1;
+
+		del.Files.FileList = (char*)realloc (del.Files.FileList, newsize);
+
+		memset (&del.Files.FileList[size], 0, newsize-size-1);
+
+		strcat (del.Files.FileList, name);
+
+		if ( i != (nItemsNumber-1) )
+			del.Files.FileList[newsize-1] = 0x0D;
+
+		size = newsize;
+	}
+
+	del.Files.ExcludeList = "";
+	del.Files.FullMatch = false;
+	del.Files.RecurseSubDirs = TRUE;
+	del.Files.SourceDir = "";
+	del.DecryptPassword  = ""; 
+
+
+	m_pModule->m_pfnDelete (m_lpFileName, &del);
+
+	free (del.Files.FileList);
+
+	return true;
 }

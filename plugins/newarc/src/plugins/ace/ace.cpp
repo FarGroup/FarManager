@@ -170,6 +170,18 @@ int OnAdd (AddStruct *pAS)
 }
 
 
+int OnDelete (DeleteStruct *pDS)
+{
+	AceArchive *pArchive = (AceArchive*)pDS->hArchive;
+
+	pDS->bResult = pArchive->pDelete (
+			pDS->pItems,
+			pDS->nItemsNumber
+			);
+
+	return NAERROR_SUCCESS;
+}
+
 
 int __stdcall PluginEntry (
 		int nFunctionID,
@@ -213,6 +225,9 @@ int __stdcall PluginEntry (
 
 	case FID_ADD:
 		return OnAdd ((AddStruct*)pParams);
+
+	case FID_DELETE:
+		return OnDelete ((DeleteStruct*)pParams);
 
 	case FID_CREATEARCHIVE:
 		return OnCreateArchive ((CreateArchiveStruct*)pParams);
