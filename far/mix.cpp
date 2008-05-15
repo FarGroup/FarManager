@@ -1410,7 +1410,7 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
   {
     if (*CmdPtr == '"')
       QuoteFound = !QuoteFound;
-    if (!QuoteFound)
+    if (!QuoteFound && CmdPtr != NewCmdStr)
     {
       if (*CmdPtr == '>' || *CmdPtr == '<' ||
           *CmdPtr == '|' || *CmdPtr == ' ' ||
