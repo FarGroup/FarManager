@@ -541,6 +541,8 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.Dialogs.EditBlock,FDIS_PERSISTENTBLOCKSINEDITCONTROLS},
         {&Opt.Dialogs.AutoComplete,FDIS_AUTOCOMPLETEININPUTLINES},
         {&Opt.Dialogs.EULBsClear,FDIS_BSDELETEUNCHANGEDTEXT},
+        {&Opt.Dialogs.DelRemovesBlocks,FDIS_DELREMOVESBLOCKS},
+        {&Opt.Dialogs.MouseButton,FDIS_MOUSECLICKOUTSIDECLOSESDIALOG},
       };
       for(size_t I=0; I < countof(ODlg); ++I)
         if(*ODlg[I].Opt)

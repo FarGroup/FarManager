@@ -1661,7 +1661,8 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
   apiExpandEnvironmentStrings (CmdStr, strNewCmdStr);
   RemoveExternalSpaces(strNewCmdStr);
 
-  wchar_t *CmdPtr = strNewCmdStr.GetBuffer();
+  wchar_t *NewCmdStr = strNewCmdStr.GetBuffer();
+  wchar_t *CmdPtr = NewCmdStr;
   wchar_t *ParPtr = NULL;
 
   // Разделим собственно команду для исполнения и параметры.
@@ -1672,7 +1673,7 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
   {
     if (*CmdPtr == L'"')
       QuoteFound = !QuoteFound;
-    if (!QuoteFound)
+    if (!QuoteFound && CmdPtr != NewCmdStr)
     {
       if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
           *CmdPtr == L'|' || *CmdPtr == L' ' ||

@@ -156,7 +156,7 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 {
   CriticalSectionLock Lock(CS);
 
-  if (Y>=BufY || TextLength==0)
+  if (X>=BufX || Y>=BufY || TextLength==0)
     return;
   if(X+TextLength >= BufX)
     TextLength=BufX-X; //??
