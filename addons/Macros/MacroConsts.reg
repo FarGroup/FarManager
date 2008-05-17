@@ -134,3 +134,17 @@ REGEDIT4
 "DLGGETVALUE_DI_TEXT"                =dword:00000000
 "DLGGETVALUE_DI_USERCONTROL"         =dword:000000FF
 "DLGGETVALUE_DI_VTEXT"               =dword:00000001
+
+"PANELTYPE_FILES"                    =dword:00000000
+"PANELTYPE_TREE"                     =dword:00000001
+"PANELTYPE_QVIEW"                    =dword:00000002
+"PANELTYPE_INFO"                     =dword:00000003
+
+"PANELDRIVETYPE_PLUGIN"              =dword:FFFFFFFF
+"PANELDRIVETYPE_UNKNOWN"             =dword:00000000
+"PANELDRIVETYPE_REMOVABLE"           =dword:00000002
+"PANELDRIVETYPE_HARDDRIVE"           =dword:00000003
+"PANELDRIVETYPE_NETWORK"             =dword:00000004
+"PANELDRIVETYPE_CD_DVD"              =dword:00000005
+"PANELDRIVETYPE_VIRTUAL"             =dword:00000006
+"PANELDRIVETYPE_SUBST"               =dword:0000000F
