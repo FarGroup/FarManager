@@ -1454,7 +1454,7 @@ static bool evalFunc()
   return Ret;
 }
 
-// S=waitkey(N)
+// S=waitkey([N])
 static bool waitkeyFunc()
 {
   long Period=(long)VMStack.Pop().toInteger();
@@ -2017,11 +2017,19 @@ static bool msaveFunc()
   return Ret==ERROR_SUCCESS;
 }
 
-// V=Clip(N,S)
+// V=Clip(N[,S])
 static bool clipFunc()
 {
   TVar Val=VMStack.Pop();
   int cmdType=(int)VMStack.Pop().toInteger();
+
+  // принудительно второй параметр ставим AS string
+  if(Val.isInteger() && Val.i() == 0)
+  {
+    Val=(const wchar_t *)L"";
+    Val.toString();
+  }
+
   int Ret=0;
 
   switch(cmdType)
@@ -3081,7 +3089,7 @@ done:
         DWORD Op;
         bool (*Func)();
       } MCode2Func[]={
-        {MCODE_F_WAITKEY,waitkeyFunc},  // S=waitkey(N)
+        {MCODE_F_WAITKEY,waitkeyFunc},  // S=waitkey([N])
         {MCODE_F_ITOA,itowFunc}, // S=itoa(N,radix)
         {MCODE_F_MIN,minFunc},  // N=min(N1,N2)
         {MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
@@ -3109,7 +3117,7 @@ done:
         {MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
         {MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
         {MCODE_F_STRING,stringFunc},  // S=string(V)
-        {MCODE_F_CLIP,clipFunc}, // V=Clip(N,S)
+        {MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
         {MCODE_F_INT,intFunc}, // N=int(V)
         {MCODE_F_DATE,dateFunc},  // // S=date(S)
         {MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
