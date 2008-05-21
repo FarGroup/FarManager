@@ -317,7 +317,7 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
+    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd[,S])</td>
     <td class="cont" width="60%">Allows to perform miscellaneous manipulations on the Clipboard in accordance with the
          <em>Cmd</em> command:
        <table class="cont">
@@ -375,9 +375,10 @@ $end</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>(N)</td>
+    <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>([N])</td>
     <td class="cont" width="60%">Awaits any key and returns its name.
       If the timeout <em>N</em> (in milliseconds) was reached, an empty string is returned.
+     Если параметр <em>N</em> не указан или равен 0, то функция будет бесконечно ждать нажатия клавиши.
      <br>
     </td>
   </tr>

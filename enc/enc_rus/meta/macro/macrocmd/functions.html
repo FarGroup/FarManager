@@ -319,7 +319,7 @@ panel.SetPath(0,"C:\\Program Files","FAR")</pre>
        Пример см. в описании <a href="akey.html">$AKey</a></td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
+    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd[,S])</td>
     <td class="cont" width="60%">Позволяет производить разнообразные манипуляции с Clipboard в
          зависимости от команды <em>Cmd</em>:
        <table class="cont">
@@ -377,9 +377,10 @@ $end</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>(N)</td>
+    <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>([N])</td>
     <td class="cont" width="60%">Ожидает любую клавишу и возвращает ее название.
      Если время ожидания <em>N</em> (миллисекунды) истекло, функция возвращает пустую строку.
+     Если параметр <em>N</em> не указан или равен 0, то функция будет бесконечно ждать нажатия клавиши.
      <br>
     </td>
   </tr>

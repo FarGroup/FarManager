@@ -357,6 +357,14 @@ MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
           <td class="cont" width="10%">0x00000400</td>
           <td class="cont" width="90%">permanent blocks are used</td>
         </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000800</td>
+          <td class="cont" width="90%">модальный редактор</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x08000000</td>
+          <td class="cont" width="90%">FAR запущен с ключами /e</td>
+        </tr>
       </table>
       Example:
       <pre class="code">$If (Editor.State &amp; 0x8) <em>...do something if file was modified...</em> $End
@@ -402,6 +410,14 @@ MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
         <tr class="cont">
           <td class="cont" width="10%">0x00000020</td>
           <td class="cont" width="90%">hexadecimal mode is used</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000800</td>
+          <td class="cont" width="90%">модальный вьювер</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x08000000</td>
+          <td class="cont" width="90%">FAR запущен с ключами /v</td>
         </tr>
       </table>
       Example,
