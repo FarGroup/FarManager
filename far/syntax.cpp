@@ -273,7 +273,7 @@ static TMacroFunction macroFunction[]={
   {"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
   {"CALLPLUGIN",       3, 0,   MCODE_F_CALLPLUGIN},          // S=callplugin(S,Path,N)
   {"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
-  {"CLIP",             2, 0,   MCODE_F_CLIP},                // V=clip(N,S)
+  {"CLIP",             2, 1,   MCODE_F_CLIP},                // V=clip(N[,S])
   {"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
   {"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
   {"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
@@ -309,7 +309,7 @@ static TMacroFunction macroFunction[]={
   {"STRING",           1, 0,   MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
   {"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
-  {"WAITKEY",          1, 0,   MCODE_F_WAITKEY},             // S=waitkey(N)
+  {"WAITKEY",          1, 1,   MCODE_F_WAITKEY},             // S=waitkey([N])
   {"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
 };
 
@@ -340,24 +340,32 @@ static void calcFunc(void)
     IsProcessFunc++;
     if ( nParam )
     {
-      int i;
-      for ( i = 0 ; i < nParam ; i++ )
+      int i=0;
+      if (nParam > oParam)
+      {
+        for ( ; i < nParam ; i++ )
+        {
+          getToken();
+          expr();
+          _KEYMACRO_PARSE(SysLog("i=%d, nParam=%d  oParam=%d currTok=%s",i,nParam,oParam,_MacroParserToken_ToName(currTok)));
+          if ( currTok != ( (i == nParam-1 ) ? tRp : tComma ) )
+          {
+            if ( oParam > 0 &&  currTok != tEnd) // если опциональные параметры есть и...
+              break;
+
+            _KEYMACRO_PARSE(SysLog("ERROR currTok=%s",_MacroParserToken_ToName(currTok)));
+            if ( i == nParam-1 )
+              keyMacroParseError(err_Expected, ")");
+            else
+              keyMacroParseError(err_Expected, ",");
+            currTok = tEnd;
+          }
+        }
+      }
+      else
       {
         getToken();
         expr();
-        _KEYMACRO_PARSE(SysLog("i=%d, nParam=%d  oParam=%d currTok=%s",i,nParam,oParam,_MacroParserToken_ToName(currTok)));
-        if ( currTok != ( (i == nParam-1 ) ? tRp : tComma ) )
-        {
-          if ( oParam > 0 &&  currTok != tEnd) // если опциональные параметры есть и...
-            break;
-
-          _KEYMACRO_PARSE(SysLog("ERROR currTok=%s",_MacroParserToken_ToName(currTok)));
-          if ( i == nParam-1 )
-            keyMacroParseError(err_Expected, ")");
-          else
-            keyMacroParseError(err_Expected, ",");
-          currTok = tEnd;
-        }
       }
 
       if(oParam > 0)  //???
@@ -780,6 +788,9 @@ static void prim(void)
         keyMacroParseError(err_Expected, ")");
       getToken();
       break;
+    case tRp:
+      break;
+
     default:
       keyMacroParseError(err_Expr_Expected);
       break;
@@ -1033,7 +1044,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_ASC,              "N=asc(S)"},
     {MCODE_F_CHR,              "S=chr(N)"},
     {MCODE_F_AKEY,             "V=akey(N)"},
-    {MCODE_F_CLIP,             "V=clip(N,S)"},
+    {MCODE_F_CLIP,             "V=clip(N[,S])"},
     {MCODE_F_DATE,             "S=date(S)"},
     {MCODE_F_DLG_GETVALUE,     "V=Dlg.GetValue(ID,N)"},
     {MCODE_F_EDITOR_SET,       "N=Editor.Set(N,Var)"},
@@ -1070,7 +1081,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_STRING,           "S=string(V)"},
     {MCODE_F_SUBSTR,           "S=substr(S1,S2[,N])"},
     {MCODE_F_UCASE,            "S=ucase(S1)"},
-    {MCODE_F_WAITKEY,          "S=waitkey(N)"},
+    {MCODE_F_WAITKEY,          "S=waitkey([N])"},
     {MCODE_F_XLAT,             "S=xlat(S)"},
     {MCODE_F_BM_ADD,           "N=BM.Add()"},
     {MCODE_F_BM_CLEAR,         "N=BM.Clear()"},
