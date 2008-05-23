@@ -829,16 +829,23 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
           Res=0;
           RemoveExternalSpaces(HiText2Str(strTemp,_item->strName));
+
+          const wchar_t *p;
           switch(iParam)
           {
             case 0: // full compare
               Res=StrCmpI(strTemp,str)==0;
               break;
             case 1: // begin compare
-              Res=StrStrI(strTemp,str)!=NULL;
+              p=StrStrI(strTemp,str);
+              Res=p==strTemp;
               break;
             case 2: // end compare
-              Res=RevStrStrI(strTemp,str)!=NULL;
+              p=RevStrStrI(strTemp,str);
+              Res=p!=NULL && *(p+StrLength(str)) == 0;
+              break;
+            case 3: // in str
+              Res=StrStrI(strTemp,str)!=NULL;
               break;
           }
 
