@@ -814,7 +814,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
               break;
             case 1: // begin compare
               p=LocalStrstri(Temp,str);
-              Res= p==str;
+              Res= p==Temp;
               break;
             case 2: // end compare
               p=LocalRevStrstri(Temp,str);
