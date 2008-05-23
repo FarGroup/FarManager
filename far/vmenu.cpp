@@ -806,17 +806,26 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
           Res=0;
           RemoveExternalSpaces(HiText2Str(Temp,sizeof(Temp),((struct MenuItem *)_item)->PtrName()));
+          const char *p;
           switch(iParam)
           {
             case 0: // full compare
               Res=LocalStricmp(Temp,str)==0;
               break;
             case 1: // begin compare
-              Res=LocalStrstri(Temp,str)!=NULL;
+              p=LocalStrstri(Temp,str);
+              Res= p==str;
               break;
             case 2: // end compare
-              Res=LocalRevStrstri(Temp,str)!=NULL;
+              p=LocalRevStrstri(Temp,str);
+              Res= p && p[strlen(str)] == 0;
               break;
+            case 3: // in str
+              Res=LocalStrstri(Temp,str)!=NULL;
+              break;
+//            case 4: // pattern
+//              Res=CmpName(str,Temp,FALSE);
+//              break;
           }
 
           if(Res)
