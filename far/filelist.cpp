@@ -3992,11 +3992,11 @@ void FileList::CountDirSize(DWORD PluginFlags)
       if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
           GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
         ||
-          (PanelMode!=PLUGIN_PANEL || ((PluginFlags & OPIF_REALNAMES) &&
+          ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
           GetDirInfo(UMSG(MDirInfoViewTitle),
                      CurPtr->strName,
                      DirCount,DirFileCount,FileSize,
-                     CompressedFileSize,RealFileSize, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1)))
+                     CompressedFileSize,RealFileSize, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
       {
         SelFileSize -= CurPtr->UnpSize;
         SelFileSize += FileSize;
