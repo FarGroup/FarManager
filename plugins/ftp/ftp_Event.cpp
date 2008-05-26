@@ -48,7 +48,7 @@ int FTP::ProcessEvent(int Event,void *Param)
         for ( n = 0; n < pi.ItemsNumber; n++ ) {
           if ( ShowHosts ) {
             if ( (p=FTPHost::Convert(&pi.PanelItems[n])) == NULL ||
-                 !SelectFile.Cmp(p->RegKey) )
+                 !SelectFile.Cmp(PointToName(p->RegKey)) )
               continue;
           } else {
             if ( !SelectFile.Cmp( FTP_FILENAME(&pi.PanelItems[n]) )  )

@@ -97,7 +97,7 @@ int FTP::MakeDirectory( String& Name,int OpMode)
 
        TStrCpy( h.Host, str );
        h.Write( HostsPath );
-
+       SelectFile=Name;
        return TRUE;
      }
 

@@ -248,6 +248,7 @@ CONSTSTR String::Set( CONSTSTR s, int from, int to )
 
     Alloc( to-from+1 );
     StrCpy( str, s+from, to-from+1 );
+    len = strLen(str);
  return c_str();
 }
 
