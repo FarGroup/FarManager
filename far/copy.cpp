@@ -4153,6 +4153,9 @@ bool ShellCopy::CalcTotalSize()
   SrcPanel->GetSelName(NULL,FileAttr);
   while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName,&fd))
   {
+    if ((FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
+        continue;
+
     if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
     {
       {
