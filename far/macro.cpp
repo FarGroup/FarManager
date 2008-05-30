@@ -266,7 +266,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 {
   string strKeyText;
 
-  for (int I=0;I<sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]);I++)
+  for (int I=0;I<int(sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]));I++)
     if (Key==KeyMacroCodes[I].Key)
     {
       strKeyText = KeyMacroCodes[I].Name;
@@ -289,7 +289,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 {
   // пройдемся по всем модификаторам
-  for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
+  for(int I=0; I < int(sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0])); ++I)
     if(!StrCmpNI (Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
       return KeyMacroCodes[I].Key;
   return -1;
@@ -438,7 +438,7 @@ int KeyMacro::ProcessKey(int Key)
 
   if (Recording) // Идет запись?
   {
-    if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
+    if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
     {
       _KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
       DWORD MacroKey;
@@ -458,7 +458,7 @@ int KeyMacro::ProcessKey(int Key)
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
       //if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-      if (MacroKey != (DWORD)-1 && Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
+      if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=(DWORD)-1;
@@ -540,7 +540,7 @@ int KeyMacro::ProcessKey(int Key)
     }
     else // процесс записи продолжается.
     {
-      if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
+      if ((unsigned int)Key>=KEY_NONE && (unsigned int)Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
 
       RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
@@ -557,7 +557,7 @@ int KeyMacro::ProcessKey(int Key)
       return(FALSE);
     }
   }
-  else if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
+  else if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
   {
     _KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
     // Полиция 18
@@ -574,7 +574,7 @@ int KeyMacro::ProcessKey(int Key)
     // тип записи - с вызовом диалога настроек или...
     // В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
     // с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-    Recording=(Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+    Recording=((unsigned int)Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
     if(RecBuffer)
       xf_free(RecBuffer);
@@ -698,9 +698,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
     case 0: // проверка на область
     {
       if(WaitInMainLoop) // здесь надо учесть тот самый WaitInMainLoop, хотя могу и ошибаться!!!
-       Cond=(CheckCode-MCODE_C_AREA_OTHER+MACRO_OTHER) == FrameManager->GetCurrentFrame()->GetMacroMode()?1:0;
+       Cond=int(CheckCode-MCODE_C_AREA_OTHER+MACRO_OTHER) == FrameManager->GetCurrentFrame()->GetMacroMode()?1:0;
      else
-       Cond=(CheckCode-MCODE_C_AREA_OTHER+MACRO_OTHER) == CtrlObject->Macro.GetMode()?1:0;
+       Cond=int(CheckCode-MCODE_C_AREA_OTHER+MACRO_OTHER) == CtrlObject->Macro.GetMode()?1:0;
       break;
     }
 
@@ -929,7 +929,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           if(SelPanel!=NULL)
           {
             SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
-            if(FileAttr != -1)
+            if(FileAttr != (DWORD)-1)
               Cond=(FileAttr&FA_DIREC)?1:0;
           }
           break;
@@ -957,7 +957,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           if ( SelPanel != NULL )
           {
             SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
-            if ( FileAttr != -1 )
+            if ( FileAttr != (DWORD)-1 )
               Cond = (const wchar_t*)strFileName;
           }
           break;
@@ -2984,7 +2984,7 @@ done:
          f=fo;
 
        if(f)
-         Result=f->VMProcess(Key,(void*)p2.i(),p1.i());
+         Result=f->VMProcess(Key,(void*)(LONG_PTR)p2.i(),p1.i());
 
        VMStack.Push(Result);
        goto begin;
@@ -3127,14 +3127,14 @@ done:
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
       };
       int J;
-      for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)
+      for(J=0; J < int(sizeof(MCode2Func)/sizeof(MCode2Func[0])); ++J)
         if(MCode2Func[J].Op == Key)
         {
           MCode2Func[J].Func();
           break;
         }
 
-      if(J >= sizeof(MCode2Func)/sizeof(MCode2Func[0]))
+      if(J >= int(sizeof(MCode2Func)/sizeof(MCode2Func[0])))
       {
         DWORD Err=0;
         tmpVar=FARPseudoVariable(MR->Flags, Key, Err);
@@ -3325,7 +3325,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
       SetRegKey(strRegKeyName,L"Sequence",MacroLIB[I].Src);
 
     // подсократим кодУ...
-    for(int J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
+    for(int J=0; J < int(sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0])); ++J)
     {
       if (MacroLIB[I].Flags & MKeywordsFlags[J].Value)
         SetRegKey(strRegKeyName,MKeywordsFlags[J].Name,1);
@@ -3490,7 +3490,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
     CurMacro.BufferSize=0;
     CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK)|(regType == REG_MULTI_SZ?MFLAGS_REG_MULTI_SZ:0);
 
-    for(J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
+    for(J=0; J < int(sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0])); ++J)
       CurMacro.Flags|=GetRegKey(strRegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
 
     if(ReadMode == MACRO_EDITOR || ReadMode == MACRO_DIALOG || ReadMode == MACRO_VIEWER)
@@ -3646,7 +3646,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
       L"CtrlMsWheelLeft",L"ShiftMsWheelLeft",L"AltMsWheelLeft",L"CtrlShiftMsWheelLeft",L"CtrlAltMsWheelLeft",L"AltShiftMsWheelLeft",
       L"CtrlMsWheelRight",L"ShiftMsWheelRight",L"AltMsWheelRight",L"CtrlShiftMsWheelRight",L"CtrlAltMsWheelRight",L"AltShiftMsWheelRight"
     };
-    for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
+    for(I=0; I < int(sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0])); ++I)
       Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
 /*
     int KeySize=GetRegKeySize("KeyMacros","DlgKeys");

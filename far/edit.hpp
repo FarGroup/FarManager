@@ -85,7 +85,7 @@ public:
 public:
 
 	SystemCPEncoder (int nCodePage);
-	~SystemCPEncoder ();
+	virtual ~SystemCPEncoder ();
 
 	virtual int __stdcall AddRef ();
 	virtual int __stdcall Release ();

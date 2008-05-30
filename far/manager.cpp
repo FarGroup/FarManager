@@ -369,7 +369,7 @@ int Manager::GetFrameCountByType(int Type)
     /* $ 10.05.2001 DJ
        не учитываем фрейм, который собираемся удалять
     */
-    if (FrameList[I] == DeletedFrame || FrameList [I]->GetExitCode() == XC_QUIT)
+    if (FrameList[I] == DeletedFrame || (unsigned int)FrameList [I]->GetExitCode() == XC_QUIT)
       continue;
     if (FrameList[I]->GetType()==Type)
       ret++;

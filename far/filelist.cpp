@@ -122,7 +122,6 @@ FileList::FileList()
   ReturnCurrentFile=FALSE;
   LastUpdateTime=0;
   PluginCommand=-1;
-  DataToDeleteCount=0;
   PrevDataStack=NULL;
   PrevDataStackSize=0;
   LeftPos=0;

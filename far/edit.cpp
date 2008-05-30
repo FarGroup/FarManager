@@ -638,10 +638,10 @@ int Edit::ProcessKey(int Key)
   }
 
   if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS && Key!=KEY_SHIFTNUMPAD0 && Key!=KEY_CTRLINS &&
-      (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
+      ((unsigned int)Key<KEY_F1 || (unsigned int)Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
-      !((Key>=KEY_MACRO_BASE && Key<=KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) && Key!=KEY_CTRLQ)
+      !(((unsigned int)Key>=KEY_MACRO_BASE && (unsigned int)Key<=KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();

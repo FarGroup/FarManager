@@ -514,7 +514,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
           }
           MenuPos=UserMenu.GetSelectPos();
           int Key=UserMenu.ReadInput();
-          if (Key>=KEY_F1 && Key<=KEY_F12)
+          if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F12)
           {
             int FuncItemPos;
             if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)

@@ -157,7 +157,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #if defined(__BORLANDC__)
   #pragma option -p-
  #endif
-  #include <new.h>
+  #include <new>
  #if defined(__BORLANDC__)
   #pragma option -p.
  #endif

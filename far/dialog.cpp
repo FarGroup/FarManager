@@ -2185,7 +2185,7 @@ int Dialog::ProcessKey(int Key)
     Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
   }
 
-  if(!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
+  if(!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 
@@ -4493,11 +4493,11 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
     int AltKey=Key&(~KEY_ALT);
     if(AltKey < 0xFFFF)
     {
-      if (AltKey >= L'0' && AltKey <= L'9')
+      if ((unsigned int)AltKey >= L'0' && (unsigned int)AltKey <= L'9')
         return(AltKey==UpperStrKey);
 
       int AltKeyToKey=LocalKeyToKey(AltKey);
-      if (AltKey > L' ' && AltKey <= 0xFFFF)
+      if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
   //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
   //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
   //          AltKey==':'  || AltKey=='"' || AltKey=='~'))

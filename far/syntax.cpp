@@ -558,10 +558,10 @@ static TToken getToken(void)
             case L'0': case L'1': case L'2': case L'3': case L'4': case L'5': case L'6': case L'7': // octal: \d \dd \ddd
             {
               BYTE n = ch - L'0';
-              if ((ch = getChar()) >= L'0' && ch < L'8')
+              if ((unsigned int)(ch = getChar()) >= L'0' && (unsigned int)ch < L'8')
               {
                 n = 8 * n + ch - L'0';
-                if ((ch = getChar()) >= L'0' && ch < L'8')
+                if ((unsigned int)(ch = getChar()) >= L'0' && (unsigned int)ch < L'8')
                   n = 8 * n + ch - L'0';
                 else
                   putBack(ch);

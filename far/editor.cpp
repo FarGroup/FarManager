@@ -983,7 +983,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
       __int64 Ret=_i64(-1);
       long Val[1];
       EditorBookMarks ebm={0};
-      int iMode=(int)((__int64)vParam);
+      int iMode=(int)((LONG_PTR)vParam);
       switch(iMode)
       {
         case 0: ebm.Line=Val;  break;
@@ -1028,7 +1028,7 @@ int Editor::ProcessKey(int Key)
   int isk=IsShiftKey(Key);
   _SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
   //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
-  if (!isk && !Pasting && !((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE)))
+  if (!isk && !Pasting && !(((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)))
   {
     _SVS(SysLog(L"[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
     if (BlockStart!=NULL || VBlockStart!=NULL)

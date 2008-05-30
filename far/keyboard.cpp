@@ -363,7 +363,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=(((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE || (unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
 //_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -1522,7 +1522,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    strTmpName = Name;
 
    // пройдемся по всем модификаторам
-   for(Pos=I=0; I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
+   for(Pos=I=0; I < int(sizeof(ModifKeyName)/sizeof(ModifKeyName[0])); ++I)
    {
      if(StrStrI(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
@@ -1538,7 +1538,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    {
      // сначала - FKeys1
      const wchar_t* Ptr=Name+Pos;
-     for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
+     for (I=0;I<int(sizeof(FKeys1)/sizeof(FKeys1[0]));I++)
        if (!StrCmpNI (Ptr,FKeys1[I].Name,FKeys1[I].Len))
        {
          Key|=FKeys1[I].Key;
@@ -1615,7 +1615,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
   {
     GetShiftKeyName(strKeyText,Key,Len);
 
-    for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
+    for (I=0;I<int(sizeof(FKeys1)/sizeof(FKeys1[0]));I++)
     {
       if (FKey==FKeys1[I].Key)
       {
@@ -1692,7 +1692,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
                (FShift&KEY_ALT?PKF_ALT:0)|
                (FShift&KEY_CTRL?PKF_CONTROL:0);
 
-  for(I=0; I < sizeof(Table_KeyToVK)/sizeof(Table_KeyToVK[0]); ++I)
+  for(I=0; I < int(sizeof(Table_KeyToVK)/sizeof(Table_KeyToVK[0])); ++I)
     if (FKey==Table_KeyToVK[I].Key)
     {
       VirtKey=Table_KeyToVK[I].VK;
@@ -1703,7 +1703,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
   {
     if (FKey>='0' && FKey<='9' || FKey>='A' && FKey<='Z')
       VirtKey=FKey;
-    else if(FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
+    else if((unsigned int)FKey > KEY_FKEY_BEGIN && (unsigned int)FKey < KEY_END_FKEY)
       VirtKey=FKey-KEY_FKEY_BEGIN;
     else if(FKey < 0x100)           // EXTENDED_KEY_BASE ???
       VirtKey=VkKeyScan(FKey)&0xFF;
@@ -1752,7 +1752,7 @@ int IsNavKey(DWORD Key)
     //!!!!!!!!!!!
   };
 
-  for (int I=0; I < sizeof(NavKeys)/sizeof(NavKeys[0]); I++)
+  for (int I=0; I < int(sizeof(NavKeys)/sizeof(NavKeys[0])); I++)
     if(!NavKeys[I][0] && Key==NavKeys[I][1] ||
        NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF))
       return TRUE;
@@ -1802,7 +1802,7 @@ int IsShiftKey(DWORD Key)
      KEY_CTRL,
   };
 
-  for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)
+  for (int I=0;I<int(sizeof(ShiftKeys)/sizeof(ShiftKeys[0]));I++)
     if (Key==ShiftKeys[I])
       return TRUE;
   return FALSE;
@@ -2073,11 +2073,11 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     {
     //// // _SVS(SysLog(L"2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
-      for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
+      for (int I=0;I<int(sizeof(ScanCodes)/sizeof(ScanCodes[0]));I++)
       {
         if (ScanCodes[I]==ScanCode)
         {
-          if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
+          if (RealKey && (unsigned int)KeyCodeForALT_LastPressed != KeyCode)
           {
             AltValue=AltValue*10+I;
             KeyCodeForALT_LastPressed=KeyCode;
