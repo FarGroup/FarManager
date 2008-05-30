@@ -247,7 +247,10 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
         wcscpy(fi->CustomColumnData[I],pi->CustomColumnData[I]);
       }
       else
-        fi->CustomColumnData[I]=L"";
+      {
+        fi->CustomColumnData[I]=new wchar_t[1];
+        fi->CustomColumnData[I][0]=0;
+      }
   }
   fi->CustomColumnNumber=pi->CustomColumnNumber;
   fi->CRC32=pi->CRC32;
@@ -671,7 +674,7 @@ void FileList::PluginPutFilesToNew()
       for (int I=1; I < FileCount; I++)
       {
         PtrListData = ListData[I];
-        if ((*(__int64*)&PtrListData->CreationTime - *(__int64*)&PtrLastPos->CreationTime) > 0)
+        if (FileTimeDifference(&PtrListData->CreationTime,&PtrLastPos->CreationTime) > 0)
         {
           PtrLastPos=ListData[LastPos=I];
         }

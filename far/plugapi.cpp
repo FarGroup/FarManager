@@ -155,7 +155,7 @@ BOOL WINAPI FarShowHelp (
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-#ifndef _MSC_VER
+#if defined(__BORLANDC__)
 #pragma warn -par
 #endif
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
@@ -664,7 +664,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
   }
   return FALSE;
 }
-#ifndef _MSC_VER
+#if defined(__BORLANDC__)
 #pragma warn +par
 #endif
 

@@ -379,7 +379,9 @@ typedef struct _GET_MEDIA_TYPES {
 
 
 //#pragma option pop /*P_O_Push*/
+#if !defined(__GNUC__)
 #pragma option -a.
+#endif
 #elif defined(_MSC_VER)
 #pragma pack(pop)
 #endif

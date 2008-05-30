@@ -239,8 +239,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #ifdef  __cplusplus
   }
   #endif
-
-  #pragma warning (once:4018)
+  #if defined(_MSC_VER)
+  	#pragma warning (once:4018)
+  #endif
 #endif
 
 #if defined(__BORLANDC__)

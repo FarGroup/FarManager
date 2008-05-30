@@ -879,8 +879,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           {
             SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
             int GetFileCount=SelPanel->GetFileCount();
-            Cond=GetFileCount == 0 ||
-                 GetFileCount == 1 && TestParentFolderName(strFileName)
+            Cond=(GetFileCount == 0 ||
+                 (GetFileCount == 1 && TestParentFolderName(strFileName)))
                  ?1:0;
           }
           break;
@@ -1248,10 +1248,11 @@ static bool substrFunc()
     if ( ( p2 > 0 ) && ( p2 < len ) )
       p[p2] = 0;
     Ret=true;
+    VMStack.Push((const wchar_t*)p);
   }
   else
-    p=L"";
-  VMStack.Push((const wchar_t*)p);
+    VMStack.Push(L"");
+
   return Ret;
 }
 
@@ -1926,7 +1927,7 @@ static bool editorsetFunc()
         Ret=-1L;
     }
 
-    if(Index != 12 && longState != -1 || Index == 12 && _longState.i() == -1)
+    if((Index != 12 && longState != -1) || (Index == 12 && _longState.i() == -1))
     {
       switch(Index)
       {
@@ -2375,13 +2376,13 @@ static bool panelitemFunc()
         break;
 
       case 15:  // CreationTime (FILETIME)
-        Ret=TVar((__int64)*(__int64*)&filelistItem.CreationTime);
+        Ret=TVar((__int64)FileTimeToUI64(&filelistItem.CreationTime));
         break;
       case 16:  // AccessTime (FILETIME)
-        Ret=TVar((__int64)*(__int64*)&filelistItem.AccessTime);
+        Ret=TVar((__int64)FileTimeToUI64(&filelistItem.AccessTime));
         break;
       case 17:  // WriteTime (FILETIME)
-        Ret=TVar((__int64)*(__int64*)&filelistItem.WriteTime);
+        Ret=TVar((__int64)FileTimeToUI64(&filelistItem.WriteTime));
         break;
     }
   }
@@ -3038,7 +3039,7 @@ done:
          tmpMode=VMStack.Pop().toInteger();
        }
        tmpVar=VMStack.Pop();
-       const wchar_t *checkStr=tmpVar.toString();
+       //const wchar_t *checkStr=tmpVar.toString();
        int CurMMode=CtrlObject->Macro.GetMode();
        if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
        {
@@ -3190,7 +3191,7 @@ int KeyMacro::PeekKey()
     return(0);
 
   struct MacroRecord *MR=Work.MacroWORK;
-  if(Work.Executing == MACROMODE_NOMACRO && !Work.MacroWORK || Work.ExecLIBPos >= MR->BufferSize)
+  if((Work.Executing == MACROMODE_NOMACRO && !Work.MacroWORK) || Work.ExecLIBPos >= MR->BufferSize)
     return(FALSE);
 
   DWORD OpCode=GetOpCode(MR,Work.ExecLIBPos);
@@ -3695,7 +3696,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     // <Обработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
     if(Param2 == KEY_ESC ||
-       (Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER) ||
+       ((Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
        Param2 == KEY_CTRLDOWN ||
        Param2 == KEY_F1
       )
@@ -3765,8 +3766,8 @@ M1:
            Mac->Buffer && MacroDlg->RecBuffer &&
            Mac->BufferSize == MacroDlg->RecBufferSize &&
            (
-             Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)) ||
-             Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer
+             (Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD))) ||
+             (Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer)
            )
           )
           I=0;
@@ -4313,8 +4314,8 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
       else
         CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
 
-      if((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected ||
-         (CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected)
+      if(((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected) ||
+         ((CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected))
           return FALSE;
     }
   }
@@ -4331,8 +4332,8 @@ BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
 
 BOOL KeyMacro::CheckCmdLine(int CmdLength,DWORD CurFlags)
 {
- if ((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
-     (CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
+ if (((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0) ||
+     ((CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0))
       return FALSE;
   return TRUE;
 }
@@ -4341,14 +4342,14 @@ BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags,BOOL IsPassivePanel)
 {
   if(IsPassivePanel)
   {
-    if(PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS) ||
-       PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS))
+    if((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS)) ||
+       (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS)))
       return FALSE;
   }
   else
   {
-    if(PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS) ||
-       PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS))
+    if((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS)) ||
+       (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS)))
       return FALSE;
   }
   return TRUE;
@@ -4363,12 +4364,12 @@ BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassiveP
   {
     if(IsPassivePanel)
     {
-      if((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_PNOFOLDERS) || !(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_PNOFILES))
+      if(((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_PNOFOLDERS)) || (!(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_PNOFILES)))
         return FALSE;
     }
     else
     {
-      if((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFOLDERS) || !(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFILES))
+      if(((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFOLDERS)) || (!(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFILES)))
         return FALSE;
     }
   }
@@ -4419,13 +4420,13 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
       if(Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG && Mode!=MACRO_VIEWER)
       {
         int SelCount=ActivePanel->GetRealSelCount();
-        if((CurFlags&MFLAGS_SELECTION) && SelCount < 1 ||
-           (CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1)
+        if(((CurFlags&MFLAGS_SELECTION) && SelCount < 1) ||
+           ((CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1))
           return FALSE;
 
         SelCount=PassivePanel->GetRealSelCount();
-        if((CurFlags&MFLAGS_PSELECTION) && SelCount < 1 ||
-           (CurFlags&MFLAGS_PNOSELECTION) && SelCount >= 1)
+        if(((CurFlags&MFLAGS_PSELECTION) && SelCount < 1) ||
+           ((CurFlags&MFLAGS_PNOSELECTION) && SelCount >= 1))
           return FALSE;
       }
   }

@@ -346,17 +346,17 @@ int _cdecl SortList(const void *el1,const void *el2)
         break;
 
       case BY_MTIME:
-        if((RetCode64=*(__int64*)&SPtr1->WriteTime - *(__int64*)&SPtr2->WriteTime) == 0)
+        if((RetCode64=FileTimeDifference(&SPtr1->WriteTime,&SPtr2->WriteTime)) == 0)
           break;
         return -ListSortOrder*(RetCode64<0?-1:1);
 
       case BY_CTIME:
-        if((RetCode64=*(__int64*)&SPtr1->CreationTime - *(__int64*)&SPtr2->CreationTime) == 0)
+        if((RetCode64=FileTimeDifference(&SPtr1->CreationTime,&SPtr2->CreationTime)) == 0)
           break;
         return -ListSortOrder*(RetCode64<0?-1:1);
 
       case BY_ATIME:
-        if((RetCode64=*(__int64*)&SPtr1->AccessTime - *(__int64*)&SPtr2->AccessTime) == 0)
+        if((RetCode64=FileTimeDifference(&SPtr1->AccessTime,&SPtr2->AccessTime)) == 0)
           break;
         return -ListSortOrder*(RetCode64<0?-1:1);
 
@@ -3345,7 +3345,7 @@ void FileList::CompareDir()
         }
         else
         {
-          __int64 RetCompare=*(__int64*)&CurPtr->WriteTime - *(__int64*)&AnotherCurPtr->WriteTime;
+          __int64 RetCompare=FileTimeDifference(&CurPtr->WriteTime,&AnotherCurPtr->WriteTime);
           Cmp=!RetCompare?0:(RetCompare > 0?1:-1);
         }
 

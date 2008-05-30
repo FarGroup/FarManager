@@ -2498,7 +2498,7 @@ int VMenu::GetTypeAndName(string &strType, string &strName)
 }
 
 
-#ifndef _MSC_VER
+#if defined(__BORLANDC__)
 #pragma warn -par
 #endif
 // функция обработки меню (по умолчанию)
@@ -2506,11 +2506,11 @@ LONG_PTR WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Par
 {
   return 0;
 }
-#ifndef _MSC_VER
+#if defined(__BORLANDC__)
 #pragma warn +par
 #endif
 
-#ifndef _MSC_VER
+#if defined(__BORLANDC__)
 #pragma warn -par
 #endif
 // функция посылки сообщений меню
@@ -2522,6 +2522,6 @@ LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR
     return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
   return 0;
 }
-#ifndef _MSC_VER
+#if defined(__BORLANDC__)
 #pragma warn +par
 #endif

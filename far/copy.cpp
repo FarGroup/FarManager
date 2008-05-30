@@ -3434,7 +3434,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
       if((ShellCopy::Flags&FCOPY_ONLYNEWERFILES))
       {
         // сравним время
-        __int64 RetCompare=*(__int64*)&DestData.ftLastWriteTime - *(__int64*)&SrcData.ftLastWriteTime;
+        __int64 RetCompare=FileTimeDifference(&DestData.ftLastWriteTime,&SrcData.ftLastWriteTime);
         if(RetCompare < 0)
           MsgCode=0;
         else

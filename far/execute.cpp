@@ -1351,7 +1351,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     wchar_t NewDir[10];
     swprintf(NewDir,L"%c:",Upper(strCmdLine.At(0)));
     FarChDir(strCmdLine);
-    if ((unsigned int)getdisk()!=NewDir[0]-L'A')
+    if (getdisk()!=(int)(NewDir[0]-L'A'))
     {
       wcscat(NewDir,L"\\");
       FarChDir(NewDir);

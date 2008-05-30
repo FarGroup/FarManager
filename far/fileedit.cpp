@@ -1653,7 +1653,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       FAR_FIND_DATA_EX FInfo;
       if( apiGetFindDataEx (Name,&FInfo) && !FileInfo.strFileName.IsEmpty())
       {
-        __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
+        __int64 RetCompare=FileTimeDifference(&FileInfo.ftLastWriteTime,&FInfo.ftLastWriteTime);
         if(RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
         {
           SetMessageHelp(L"WarnEditorSavedEx");

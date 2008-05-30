@@ -324,8 +324,8 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
   if (FDate.Used)
   {
     // Преобразуем FILETIME в беззнаковый __int64
-    unsigned __int64 &after=(unsigned __int64 &)FDate.DateAfter;
-    unsigned __int64 &before=(unsigned __int64 &)FDate.DateBefore;
+    unsigned __int64 after=FileTimeToUI64(&FDate.DateAfter);
+    unsigned __int64 before=FileTimeToUI64(&FDate.DateBefore);
 
     if (after!=_ui64(0) || before!=_ui64(0))
     {
@@ -334,13 +334,13 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
       switch (FDate.DateType)
       {
         case FDATE_MODIFIED:
-          (unsigned __int64 &)ftime=(unsigned __int64 &)fd->ftLastWriteTime;
+          ftime=FileTimeToUI64(&fd->ftLastWriteTime);
           break;
         case FDATE_CREATED:
-          (unsigned __int64 &)ftime=(unsigned __int64 &)fd->ftCreationTime;
+          ftime=FileTimeToUI64(&fd->ftCreationTime);
           break;
         case FDATE_OPENED:
-          (unsigned __int64 &)ftime=(unsigned __int64 &)fd->ftLastAccessTime;
+          ftime=FileTimeToUI64(&fd->ftLastAccessTime);
           break;
       }
 

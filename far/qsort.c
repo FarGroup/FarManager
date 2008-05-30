@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(__BORLANDC__)
 #pragma intrinsic memcpy
-#else
+#elif defined(_MSC_VER)
 #pragma intrinsic (memcpy)
 #endif
 

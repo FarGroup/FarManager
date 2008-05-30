@@ -2021,3 +2021,25 @@ int GetFileFormat (FILE *file, bool *pSignatureFound)
 
 	return nCodePage;
 }
+
+__int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
+{
+	LARGE_INTEGER A, B;
+
+	A.u.LowPart  = a->dwLowDateTime;
+	A.u.HighPart = a->dwHighDateTime;
+	B.u.LowPart  = b->dwLowDateTime;
+	B.u.HighPart = b->dwHighDateTime;
+
+	return A.QuadPart - B.QuadPart;
+}
+
+unsigned __int64 FileTimeToUI64(const FILETIME *ft)
+{
+	ULARGE_INTEGER A;
+
+	A.u.LowPart  = ft->dwLowDateTime;
+	A.u.HighPart = ft->dwHighDateTime;
+
+	return A.QuadPart;
+}

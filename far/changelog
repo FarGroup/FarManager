@@ -1,3 +1,9 @@
+t-rex + zg 30.05.2008 17:54:32 +0200 - build 491
+
+1. ¬ сборке GCC не осталось предупреждений (не счита€ -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch).
+
+2. «а одно решились (некоторые?) проблемы с выравниванием вли€ющие на IA64 (FILETIME to __int64).
+
 t-rex 30.05.2008 15:32:02 +0200 - build 490
 
 1. fixed vc build.

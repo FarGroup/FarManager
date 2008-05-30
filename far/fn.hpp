@@ -1146,4 +1146,7 @@ BOOL apiMoveFileEx (
 
 string& HiText2Str(string& strDest, const wchar_t *Str);
 
+__int64 FileTimeDifference(const FILETIME *a, const FILETIME* b);
+unsigned __int64 FileTimeToUI64(const FILETIME *ft);
+
 #endif  // __FARFUNC_HPP__

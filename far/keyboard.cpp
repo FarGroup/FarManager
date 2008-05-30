@@ -363,7 +363,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=(((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE || (unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
 //_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -401,8 +401,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     return(CalcKey);
   }
 
-  int EnableShowTime=Opt.Clock && (WaitInMainLoop || CtrlObject!=NULL &&
-                     CtrlObject->Macro.GetMode()==MACRO_SEARCH);
+  int EnableShowTime=Opt.Clock && (WaitInMainLoop || (CtrlObject!=NULL &&
+                     CtrlObject->Macro.GetMode()==MACRO_SEARCH));
 
   if (EnableShowTime)
     ShowTime(1);
@@ -658,7 +658,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
               {
                 INPUT_RECORD tmprec;
                 int Key=GetInputRecord(&tmprec);
-                if ((DWORD)Key==KEY_NONE || (DWORD)Key!=KEY_SHIFT && tmprec.Event.KeyEvent.bKeyDown)
+                if ((DWORD)Key==KEY_NONE || ((DWORD)Key!=KEY_SHIFT && tmprec.Event.KeyEvent.bKeyDown))
                   break;
               }
               CtrlObject->Cp()->SetScreenPosition();
@@ -772,13 +772,13 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
         (CtrlState&NUMLOCK_ON))
       {
-        if((PrevVKKeyCode2 >= 0x21 && PrevVKKeyCode2 <= 0x28 ||
-            PrevVKKeyCode2 >= 0x2D && PrevVKKeyCode2 <= 0x2E) &&
-           PrevVKKeyCode == VK_SHIFT && rec->Event.KeyEvent.bKeyDown
+        if((((PrevVKKeyCode2 >= 0x21 && PrevVKKeyCode2 <= 0x28) ||
+            (PrevVKKeyCode2 >= 0x2D && PrevVKKeyCode2 <= 0x2E)) &&
+           PrevVKKeyCode == VK_SHIFT && rec->Event.KeyEvent.bKeyDown)
            ||
-           (PrevVKKeyCode >= 0x21 && PrevVKKeyCode <= 0x28 ||
-            PrevVKKeyCode >= 0x2D && PrevVKKeyCode <= 0x2E) &&
-           PrevVKKeyCode2 == VK_SHIFT && !rec->Event.KeyEvent.bKeyDown
+           (((PrevVKKeyCode >= 0x21 && PrevVKKeyCode <= 0x28) ||
+            (PrevVKKeyCode >= 0x2D && PrevVKKeyCode <= 0x2E)) &&
+           PrevVKKeyCode2 == VK_SHIFT && !rec->Event.KeyEvent.bKeyDown)
           )
         {
           if(PrevVKKeyCode2 != VK_SHIFT)
@@ -1003,7 +1003,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     else
       ShiftPressed=(CtrlState & SHIFT_PRESSED);
 
-    if (KeyCode==VK_F16 && ReadKey==VK_F16 || KeyCode==0)
+    if ((KeyCode==VK_F16 && ReadKey==VK_F16) || KeyCode==0)
       return(KEY_NONE);
 
     if (!rec->Event.KeyEvent.bKeyDown &&
@@ -1337,7 +1337,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=GetInputRecord(&rec,true);
     if(KeyWait == (DWORD)-1)
     {
-      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
+      if (!((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE)) && Key != KEY_NONE && Key != KEY_IDLE)
         break;
     }
     else if(Key == KeyWait)
@@ -1701,7 +1701,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
   if(I  == sizeof(Table_KeyToVK)/sizeof(Table_KeyToVK[0]))
   {
-    if (FKey>='0' && FKey<='9' || FKey>='A' && FKey<='Z')
+    if ((FKey>='0' && FKey<='9') || (FKey>='A' && FKey<='Z'))
       VirtKey=FKey;
     else if((unsigned int)FKey > KEY_FKEY_BEGIN && (unsigned int)FKey < KEY_END_FKEY)
       VirtKey=FKey-KEY_FKEY_BEGIN;
@@ -1753,8 +1753,8 @@ int IsNavKey(DWORD Key)
   };
 
   for (int I=0; I < int(sizeof(NavKeys)/sizeof(NavKeys[0])); I++)
-    if(!NavKeys[I][0] && Key==NavKeys[I][1] ||
-       NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF))
+    if((!NavKeys[I][0] && Key==NavKeys[I][1]) ||
+       (NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF)))
       return TRUE;
   return FALSE;
 }
@@ -2015,7 +2015,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     if(CtrlState&NUMLOCK_ON)
     {
       Modif2|=KEY_SHIFT;
-      if(KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 || KeyCode == VK_DECIMAL)
+      if((KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9) || KeyCode == VK_DECIMAL)
       {
         Modif2&=~KEY_SHIFT;
       }
@@ -2337,7 +2337,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   {
 _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='A' && KeyCode<='Z')
-      return(KEY_SHIFT|KEY_CTRL|KEY_ALT+KeyCode);
+      return((KEY_SHIFT|KEY_CTRL|KEY_ALT)+KeyCode);
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
@@ -2374,11 +2374,11 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
     }
     if (Char.UnicodeChar)
-      return(KEY_SHIFT|KEY_CTRL|KEY_ALT+Char.UnicodeChar);
+      return((KEY_SHIFT|KEY_CTRL|KEY_ALT)+Char.UnicodeChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_MENU))
       return(KEY_NONE);
     if (KeyCode)
-      return(KEY_SHIFT|KEY_CTRL|KEY_ALT+KeyCode);
+      return((KEY_SHIFT|KEY_CTRL|KEY_ALT)+KeyCode);
   }
 
   /* ------------------------------------------------------------- */
@@ -2386,7 +2386,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
   {
 _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='A' && KeyCode<='Z')
-      return(KEY_CTRL|KEY_ALT+KeyCode);
+      return((KEY_CTRL|KEY_ALT)+KeyCode);
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
@@ -2427,11 +2427,11 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_V
         return KEY_NONE;
     }
     if (Char.UnicodeChar)
-      return(KEY_CTRL|KEY_ALT+Char.UnicodeChar);
+      return((KEY_CTRL|KEY_ALT)+Char.UnicodeChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_MENU))
       return(KEY_NONE);
     if (KeyCode)
-      return(KEY_CTRL|KEY_ALT+KeyCode);
+      return((KEY_CTRL|KEY_ALT)+KeyCode);
   }
 
 
@@ -2554,11 +2554,11 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
           return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
       }
     if (Char.UnicodeChar)
-      return(KEY_CTRL|KEY_SHIFT+Char.UnicodeChar);
+      return((KEY_CTRL|KEY_SHIFT)+Char.UnicodeChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_SHIFT))
       return(KEY_NONE);
     if (KeyCode)
-      return(KEY_CTRL|KEY_SHIFT+KeyCode);
+      return((KEY_CTRL|KEY_SHIFT)+KeyCode);
   }
 
 

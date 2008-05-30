@@ -30,9 +30,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
 #pragma intrinsic (strcmp)       /* don't use the unsafe version */
-#else
+#elif defined(__BORLANDC__)
 #pragma intrinsic -strcmp       /* don't use the unsafe version */
 #endif
 /*---------------------------------------------------------------------*
