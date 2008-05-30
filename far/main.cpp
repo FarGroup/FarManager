@@ -527,7 +527,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   TConsoleRestore __ConsoleRestore(RectoreConsole);
 
 #if _MSC_VER>=1300
-  _set_new_handler(0);
+  std::set_new_handler(0);
 #elif __GNUC__ >= 3
   std::set_new_handler(0);
 #else
