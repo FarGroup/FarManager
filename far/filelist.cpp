@@ -99,7 +99,6 @@ FileList::FileList()
   ReturnCurrentFile=FALSE;
   LastUpdateTime=0;
   PluginCommand=-1;
-  DataToDeleteCount=0;
   PrevDataStack=NULL;
   PrevDataStackSize=0;
   LeftPos=0;
@@ -165,11 +164,13 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
 
 void FileList::DeleteAllDataToDelete()
 {
-  while (DataToDeleteCount>0)
-  {
-    DataToDeleteCount--;
-    DeletePluginItemList(DataToDelete[DataToDeleteCount],DataSizeToDelete[DataToDeleteCount]);
-  }
+	DataToDelete.toEnd();
+	while(!DataToDelete.empty())
+	{
+		DataToDeleteItem item=*DataToDelete.getItem();
+		DataToDelete.removeToBegin();
+		DeletePluginItemList(item.Item,item.Size);
+	}
 }
 
 

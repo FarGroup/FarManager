@@ -10,6 +10,7 @@ filelist.hpp
 #include "panel.hpp"
 #include "dizlist.hpp"
 #include "filefilter.hpp"
+#include "TList.hpp"
 
 struct FileListItem
 {
@@ -117,9 +118,13 @@ class FileList:public Panel
     /* SVS $ */
     int AccessTimeUpdateRequired;
 
-    PluginPanelItem *DataToDelete[32];
-    int DataSizeToDelete[32];
-    int DataToDeleteCount;
+	struct DataToDeleteItem
+	{
+		PluginPanelItem* Item;
+		int Size;
+	};
+	TList<DataToDeleteItem> DataToDelete;
+
     int UpdateRequired,UpdateRequiredMode;
     int SortGroupsRead;
     int InternalProcessKey;

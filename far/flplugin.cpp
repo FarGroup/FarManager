@@ -880,25 +880,19 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
         Info->ItemsNumber++;
       }
     }
-    DataToDelete[DataToDeleteCount]=Info->PanelItems;
-    DataSizeToDelete[DataToDeleteCount++]=Info->ItemsNumber;
+	DataToDeleteItem item={Info->PanelItems,Info->ItemsNumber};
+	DataToDelete.push_back(item);
 
     CreatePluginItemList(Info->SelectedItems,Info->SelectedItemsNumber,FALSE);
 
-    DataToDelete[DataToDeleteCount]=Info->SelectedItems;
-    DataSizeToDelete[DataToDeleteCount++]=Info->SelectedItemsNumber;
+	item.Item=Info->SelectedItems;
+	item.Size=Info->SelectedItemsNumber;
+	DataToDelete.push_back(item);
   }
   else
   {
     Info->ItemsNumber=FileCount;
     Info->SelectedItemsNumber=GetSelCount();
-    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-    /* Вот на счет ЭТОГО не уверен! */
-    DataToDelete[DataToDeleteCount]=NULL;
-    DataSizeToDelete[DataToDeleteCount++]=0;
-    DataToDelete[DataToDeleteCount]=NULL;
-    DataSizeToDelete[DataToDeleteCount++]=0;
-    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
   }
 
   Info->CurrentItem=CurFile;
