@@ -2894,28 +2894,28 @@ int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName,WIN32_FIND_DAT
   while (GetSelPosition<FileCount)
     if (ListData[GetSelPosition++].Selected)
     {
-      strcpy(Name,ListData[GetSelPosition-1].Name);
+      LastSelPosition=GetSelPosition-1;
+      strcpy(Name,ListData[LastSelPosition].Name);
       if (ShortName!=NULL)
       {
-        strcpy(ShortName,ListData[GetSelPosition-1].ShortName);
+        strcpy(ShortName,ListData[LastSelPosition].ShortName);
         if (*ShortName==0)
           strcpy(ShortName,Name);
       }
-      FileAttr=ListData[GetSelPosition-1].FileAttr;
-      LastSelPosition=GetSelPosition-1;
+      FileAttr=ListData[LastSelPosition].FileAttr;
 
       if (fd)
       {
-        fd->dwFileAttributes=ListData[GetSelPosition-1].FileAttr;
-        fd->ftCreationTime=ListData[GetSelPosition-1].CreationTime;
-        fd->ftLastAccessTime=ListData[GetSelPosition-1].AccessTime;
-        fd->ftLastWriteTime=ListData[GetSelPosition-1].WriteTime;
-        fd->nFileSizeHigh=ListData[GetSelPosition-1].UnpSizeHigh;
-        fd->nFileSizeLow=ListData[GetSelPosition-1].UnpSize;
-        fd->dwReserved0=ListData[GetSelPosition-1].PackSizeHigh;
-        fd->dwReserved1=ListData[GetSelPosition-1].PackSize;
-        xstrncpy(fd->cFileName,ListData[GetSelPosition-1].Name,MAX_PATH-1);
-        xstrncpy(fd->cAlternateFileName,ListData[GetSelPosition-1].ShortName,sizeof(fd->cAlternateFileName)-1);
+        fd->dwFileAttributes=ListData[LastSelPosition].FileAttr;
+        fd->ftCreationTime=ListData[LastSelPosition].CreationTime;
+        fd->ftLastAccessTime=ListData[LastSelPosition].AccessTime;
+        fd->ftLastWriteTime=ListData[LastSelPosition].WriteTime;
+        fd->nFileSizeHigh=ListData[LastSelPosition].UnpSizeHigh;
+        fd->nFileSizeLow=ListData[LastSelPosition].UnpSize;
+        fd->dwReserved0=ListData[LastSelPosition].PackSizeHigh;
+        fd->dwReserved1=ListData[LastSelPosition].PackSize;
+        xstrncpy(fd->cFileName,ListData[LastSelPosition].Name,MAX_PATH-1);
+        xstrncpy(fd->cAlternateFileName,ListData[LastSelPosition].ShortName,sizeof(fd->cAlternateFileName)-1);
       }
 
       return(TRUE);

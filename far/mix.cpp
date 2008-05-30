@@ -153,7 +153,7 @@ DWORD FarGetCurDir(DWORD Length,char *Buffer)
 
   /*
   баг в GetCurrentDirectory:
-  если текущий каталог - "\\?\Volume{GUID}\", 
+  если текущий каталог - "\\?\Volume{GUID}\",
   то в Buffer не попадает завершающий слеш
   и дальнейшая работа с таким путём обламывается.
   */
@@ -617,7 +617,7 @@ BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalF
   if (pGetDiskFreeSpaceEx!=NULL)
     ExitCode=pGetDiskFreeSpaceEx(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
-  if (pGetDiskFreeSpaceEx==NULL || ExitCode==0 || uiTotalSize == _i64(0) && uiTotalSize == _i64(0))
+  if (pGetDiskFreeSpaceEx==NULL || ExitCode==0 || uiTotalSize == _i64(0))
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
     ExitCode=GetDiskFreeSpace(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
@@ -1133,7 +1133,7 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
   if(Path)
   {
-	  if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')) && !IsLocalVolumePath(Path))
+    if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')) && !IsLocalVolumePath(Path))
     {
       if(CheckFullPath)
       {

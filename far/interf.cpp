@@ -855,8 +855,8 @@ void Text(const char *Str)
   if (Length<=0)
     return;
   CHAR_INFO CharBuf[1024], *PtrCharBuf;
-  if (Length >= sizeof(CharBuf))
-    Length=sizeof(CharBuf)-1;
+  if (Length >= sizeof(CharBuf)/sizeof(CharBuf[0]))
+    Length=sizeof(CharBuf)/sizeof(CharBuf[0])-1;
 
   PtrCharBuf=CharBuf;
 #if defined(USE_WFUNC)

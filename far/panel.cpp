@@ -143,7 +143,7 @@ void Panel::ChangeDisk()
 }
 
 
-int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
+int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
   class Guard_Macro_DskShowPosType{
     public:

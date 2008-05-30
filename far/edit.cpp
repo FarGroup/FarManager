@@ -2436,7 +2436,7 @@ void Edit::ApplyColor()
       if(Length < X2)
         Length-=CorrectPos;
 
-      if (Length > 0 && Length < sizeof(TextData))
+      if (Length > 0 && Length < sizeof(TextData)/sizeof(TextData[0]))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
 
