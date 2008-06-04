@@ -84,10 +84,11 @@ void InfoList::Update (int Mode)
     Redraw();
 }
 
-void InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
+string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   strTitle.Format (L" %s ", UMSG(MInfoTitle));
   TruncStr(strTitle,X2-X1-3);
+  return strTitle;
 }
 
 void InfoList::DisplayObject()

@@ -227,7 +227,7 @@ class Panel:public ScreenObject
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
-    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+    virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 

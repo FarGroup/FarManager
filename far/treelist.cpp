@@ -223,10 +223,11 @@ void TreeList::DisplayObject()
 }
 
 
-void TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
+string &TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   strTitle.Format (L" %s ",ModalMode ? UMSG(MFindFolderTitle):UMSG(MTreeTitle));
   TruncStr(strTitle,X2-X1-3);
+  return strTitle;
 }
 
 void TreeList::DisplayTree(int Fast)

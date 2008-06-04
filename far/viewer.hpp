@@ -211,7 +211,7 @@ class Viewer:public ScreenObject
     void SetTempViewName(const wchar_t *Name, BOOL DeleteFolder);
 
     void SetTitle(const wchar_t *Title);
-    void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+    string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
     void SetFilePos(__int64 Pos); // $ 18.07.2000 tran - change 'long' to 'unsigned long'
     __int64 GetFilePos() const { return FilePos; };

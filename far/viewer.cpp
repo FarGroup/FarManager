@@ -888,7 +888,7 @@ void Viewer::DrawScrollbar()
 }
 
 
-void Viewer::GetTitle(string &strName,int,int)
+string &Viewer::GetTitle(string &strName,int,int)
 {
   if ( !strTitle.IsEmpty () )
     strName = strTitle;
@@ -907,6 +907,7 @@ void Viewer::GetTitle(string &strName,int,int)
     else
       strName = strFileName;
   }
+  return strName;
 }
 
 void Viewer::ShowStatus()

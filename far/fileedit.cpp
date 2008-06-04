@@ -2134,7 +2134,7 @@ void FileEditor::ChangeEditKeyBar()
   EditKeyBar.Redraw();
 }
 
-void FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
+string &FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
 {
   if ( !strPluginTitle.IsEmpty () )
     strLocalTitle = strPluginTitle;
@@ -2145,6 +2145,7 @@ void FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
     else
       strLocalTitle = strFullFileName;
   }
+  return strLocalTitle;
 }
 
 void FileEditor::ShowStatus()

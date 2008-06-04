@@ -1936,7 +1936,7 @@ void VMenu::SetTitle(const wchar_t *Title)
 }
 
 
-string &VMenu::GetTitle(string &strDest)
+string &VMenu::GetTitle(string &strDest,int,int)
 {
   CriticalSectionLock Lock(CS);
 

@@ -1909,7 +1909,7 @@ void Panel::SetTitle()
   }
 }
 
-void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
+string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   string strTitleDir;
 
@@ -1931,6 +1931,8 @@ void Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
   }
 
   strTitle = L" "+strTitleDir+L" ";
+
+  return strTitle;
 }
 
 int Panel::SetPluginCommand(int Command,void *Param)

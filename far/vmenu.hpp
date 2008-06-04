@@ -261,7 +261,7 @@ class VMenu: public Modal
     virtual void Hide();
 
     void SetTitle(const wchar_t *Title);
-    string &GetTitle(string &strDest);
+    virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0);
     const wchar_t *GetPtrTitle() { return (const wchar_t*)strTitle; }
 
 

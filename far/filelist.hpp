@@ -383,7 +383,7 @@ class FileList:public Panel
     virtual void SetPluginModified();
     virtual int ProcessPluginEvent(int Event,void *Param);
     virtual void SetTitle();
-    //virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+    //virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     int PluginPanelHelp(HANDLE hPlugin);
     virtual long GetFileCount() {return FileCount;}
 

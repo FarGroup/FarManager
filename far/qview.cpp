@@ -72,10 +72,11 @@ QuickView::~QuickView()
 }
 
 
-void QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
+string &QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
   strTitle.Format (L" %s ", UMSG(MQuickViewTitle));
   TruncStr(strTitle,X2-X1-3);
+  return strTitle;
 }
 
 void QuickView::DisplayObject()

@@ -151,7 +151,7 @@ class TreeList: public Panel
     virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 
     virtual void SetTitle();
-    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+    virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     virtual void SetFocus();
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();

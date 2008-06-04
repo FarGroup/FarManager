@@ -99,7 +99,7 @@ class InfoList:public Panel
     virtual void Update(int Mode);
     virtual void SetFocus();
     virtual void KillFocus();
-    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+    virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     virtual BOOL UpdateKeyBar();
     virtual void CloseFile();
     virtual int GetCurName(string &strName, string &strShortName);

@@ -185,7 +185,7 @@ public:
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const wchar_t *PluginTitle);
     void SetTitle(const wchar_t *Title);
-    virtual void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+    virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
     BOOL SetFileName(const wchar_t *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);
