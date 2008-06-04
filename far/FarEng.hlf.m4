@@ -2421,6 +2421,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F7#                      Search
    #Ctrl-F7#                 Replace
    #Shift-F7#                Continue search/replace
+   #Alt-F7#                  Continue search/replace in "reverse" mode
    #F8#                      Toggle DOS/Windows text
    #Shift-F8#                Select custom character table
                            (see notes below)

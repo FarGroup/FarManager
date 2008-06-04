@@ -2185,6 +2185,16 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
+   case KEY_ALTF7:
+   {
+     Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+     int LastSearchReversePrev = LastSearchReverse;
+     LastSearchReverse = !LastSearchReverse;
+     Search(TRUE);
+     LastSearchReverse = LastSearchReversePrev;
+     return(TRUE);
+   }
+
     /*case KEY_F8:
     {
       Flags.Set(FEDITOR_TABLECHANGEDBYUSER);

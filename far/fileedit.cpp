@@ -1457,7 +1457,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
 	int LastLineCR = 0, Count = 0;
-	//BOOL MessageShown=FALSE;
 	EditorCacheParams cp;
 
 	UserBreak = 0;
@@ -1538,6 +1537,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 
 	m_editor->SetCodePage (m_codepage); //BUGBUG
+	BOOL MessageShown=FALSE;
 
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
 	{
@@ -1552,23 +1552,25 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		if ( (++Count & 0xfff) == 0 && (clock()-StartTime > 500) )
 		{
-			if ( CheckForEsc() )
+			if (CheckForEscSilent())
 			{
-				UserBreak = 1;
-				fclose(EditFile);
-				SetPreRedrawFunc(NULL);
-
-				return FALSE;
+	  			if ( ConfirmAbortOp() )
+  				{
+  					UserBreak = 1;
+  					fclose(EditFile);
+  					SetPreRedrawFunc(NULL);
+	  				return FALSE;
+				}
+				MessageShown=FALSE;
 			}
-/*
+
 			if (!MessageShown)
 			{
 				SetCursorType(FALSE,0);
 				SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-				EditorShowMsg(UMSG(MEditTitle),UMSG(MEditReading),Name);
+				Editor::EditorShowMsg(UMSG(MEditTitle),UMSG(MEditReading),Name);
 				MessageShown=TRUE;
 			}
-			*/
 		}
 
 		const wchar_t *CurEOL;
