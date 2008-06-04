@@ -1332,8 +1332,16 @@ int FileList::ProcessKey(int Key)
                   FrameManager->ExecuteModal();//OT
                 }
 #else
-                ShellEditor->SetNamesList (&EditList);
-                FrameManager->ExecuteModal();//OT
+                if (ShellEditor->GetExitCode() == XC_LOADING_INTERRUPTED
+                  || ShellEditor->GetExitCode() == XC_OPEN_ERROR)
+                {
+                  delete ShellEditor;
+                }
+                else
+                {
+                  ShellEditor->SetNamesList (&EditList);
+                  FrameManager->ExecuteModal();//OT
+                }
 #endif
               }
             }
