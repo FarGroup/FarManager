@@ -36,7 +36,6 @@ public:
     return res;
   }
 };
-/* SKV$*/
 
 class InfoList:public Panel
 {
@@ -58,9 +57,7 @@ class InfoList:public Panel
     void PrintInfo(int MsgID);
     int  OpenDizFile(char *DizFile);
     void SetMacroMode(int Restore = FALSE);
-    /* $ 30.04.2001 DJ */
     void DynamicUpdateKeyBar();
-    /* DJ $ */
 
   public:
     InfoList();
@@ -72,17 +69,14 @@ class InfoList:public Panel
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void Update(int Mode);
     virtual void SetFocus();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual const char *GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void KillFocus();
-    /* $ 30.04.2001 DJ */
     virtual BOOL UpdateKeyBar();
     virtual void CloseFile();
-    /* DJ $ */
     /* $ 02.01.2002 IS
        Получить имя просматриваемого diz-файла
     */
     virtual int GetCurName(char *Name,char *ShortName);
-    /* IS $ */
 };
 
 #endif  // __INFOLIST_HPP__

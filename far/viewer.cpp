@@ -899,15 +899,11 @@ void Viewer::DrawScrollbar()
        если status line выключена, рисуем скроллбар до верха окна
     */
     ScrollBar(X2,Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
-    /* DJ $ */
   }
-  /* tran 18.07.2000 $ */
 }
 
-/* DJ $ */
 
-
-void Viewer::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+const char *Viewer::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   if(*Title)
     strcpy(lTitle,Title);
@@ -923,6 +919,7 @@ void Viewer::GetTitle(char *lTitle,int LenTitle,int TruncSize)
     else
       strcpy(lTitle,FileName);
   }
+  return lTitle;
 }
 
 void Viewer::ShowStatus()

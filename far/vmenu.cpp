@@ -1988,7 +1988,7 @@ void VMenu::SetTitle(const char *Title)
 }
 
 
-char *VMenu::GetTitle(char *Dest,int Size)
+const char *VMenu::GetTitle(char *Dest,int Size,int /*TruncSize*/)
 {
   CriticalSectionLock Lock(CS);
 

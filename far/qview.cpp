@@ -59,12 +59,13 @@ QuickView::~QuickView()
 }
 
 
-void QuickView::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+const char *QuickView::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   sprintf(Title," %s ",MSG(MQuickViewTitle));
   TruncStr(Title,X2-X1-3);
   xstrncpy(lTitle,Title,LenTitle);
+  return lTitle;
 }
 
 void QuickView::DisplayObject()

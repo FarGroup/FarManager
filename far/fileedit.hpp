@@ -157,7 +157,7 @@ class FileEditor:public Frame
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const char *PluginTitle);
     void SetTitle(const char *Title);
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual const char *GetTitle(char *Title,int LenTitle,int TruncSize=0);
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);

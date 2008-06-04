@@ -1582,7 +1582,6 @@ void FileEditor::SetTitle(const char *Title)
        к падению Фара.
   */
     xstrncpy(FileEditor::Title, Title, sizeof(FileEditor::Title)-1);
-  /* IS $ */
 }
 
 void FileEditor::ChangeEditKeyBar()
@@ -1595,9 +1594,10 @@ void FileEditor::ChangeEditKeyBar()
   EditKeyBar.Redraw();
 }
 
-void FileEditor::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+const char *FileEditor::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   xstrncpy(lTitle,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),LenTitle);
+  return lTitle;
 }
 
 void FileEditor::ShowStatus()
@@ -1612,13 +1612,12 @@ void FileEditor::ShowStatus()
        чем размер TruncFileName
   */
   GetTitle(TruncFileName,sizeof(TruncFileName)-1);
-  /* IS $ */
+
   int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
   /* $ 11.07.2000 tran
      + expand filename if console more when 80 column */
   if (X2>80)
      NameLength+=(X2-80);
-  /* tran 11.07.2000 $ */
 
   if (*PluginTitle || *Title)
     /* $ 20.09.2000 SVS

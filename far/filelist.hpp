@@ -291,7 +291,7 @@ class FileList:public Panel
     virtual void SetPluginModified();
     virtual int ProcessPluginEvent(int Event,void *Param);
     virtual void SetTitle();
-    //virtual void GetTitle(char *Title,int LenTitle,int TruncSize);
+    //virtual const char *GetTitle(char *Title,int LenTitle,int TruncSize);
     int PluginPanelHelp(HANDLE hPlugin);
     virtual long GetFileCount() {return FileCount;}
     char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,

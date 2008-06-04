@@ -72,14 +72,14 @@ void InfoList::Update (int Mode)
   if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
     Redraw();
 }
-/* DJ $ */
 
-void InfoList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+const char *InfoList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   sprintf(Title," %s ",MSG(MInfoTitle));
   TruncStr(Title,X2-X1-3);
   xstrncpy(lTitle,Title,LenTitle);
+  return lTitle;
 }
 
 void InfoList::DisplayObject()

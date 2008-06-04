@@ -46,7 +46,7 @@ class QuickView:public Panel
     virtual void QViewDelTempName();
     virtual int UpdateIfChanged(int UpdateMode);
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual const char *GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void SetFocus();
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();

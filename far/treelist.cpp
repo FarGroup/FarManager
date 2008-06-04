@@ -193,12 +193,13 @@ void TreeList::DisplayObject()
 }
 
 
-void TreeList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+const char *TreeList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   sprintf(Title," %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));
   TruncStr(Title,X2-X1-3);
   xstrncpy(lTitle,Title,LenTitle);
+  return lTitle;
 }
 
 void TreeList::DisplayTree(int Fast)

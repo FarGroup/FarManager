@@ -1720,7 +1720,7 @@ void Panel::SetTitle()
   }
 }
 
-void Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+const char *Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   char TitleDir[512];
@@ -1744,6 +1744,7 @@ void Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
   if(*TitleDir)
     sprintf(Title," %s ",TitleDir);
   xstrncpy(lTitle,Title,LenTitle);
+  return lTitle;
 }
 
 int Panel::SetPluginCommand(int Command,void *Param)

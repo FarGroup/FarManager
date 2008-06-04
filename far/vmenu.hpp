@@ -212,7 +212,7 @@ class VMenu: public Modal
     virtual void Hide();
 
     void SetTitle(const char *Title);
-    char *GetTitle(char *Dest,int Size);
+    virtual const char *GetTitle(char *Dest,int Size,int TruncSize=0);
     const char *GetPtrTitle() { return Title; }
 
 

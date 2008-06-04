@@ -103,7 +103,7 @@ class TreeList: public Panel
     virtual int GetFileName(char *Name,int Pos,int &FileAttr);
 
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual const char *GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void SetFocus();
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();

@@ -80,7 +80,7 @@ class FileViewer:public Frame
     /* KM $ */
     int  ViewerControl(int Command,void *Param);
     BOOL IsFullScreen(){return FullScreen;}
-    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
+    virtual const char *GetTitle(char *Title,int LenTitle,int TruncSize=0);
     __int64 GetViewFileSize() const;
     __int64 GetViewFilePos() const;
     void ShowStatus();

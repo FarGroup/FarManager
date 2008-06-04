@@ -354,13 +354,17 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
       if ((++Count & 0xfff)==0 && clock()-StartTime>500)
       {
-        if (CheckForEsc())
-        {
-          UserBreak=1;
-          fclose(EditFile);
-          SetPreRedrawFunc(NULL);
-          return(FALSE);
-        }
+		if (CheckForEscSilent())
+		{
+	  		if ( ConfirmAbortOp() )
+  			{
+  				UserBreak = 1;
+  				fclose(EditFile);
+  				SetPreRedrawFunc(NULL);
+	  			return FALSE;
+			}
+			MessageShown=FALSE;
+		}
         if (!MessageShown)
         {
           CursorShow=false;
@@ -2248,14 +2252,22 @@ int Editor::ProcessKey(int Key)
          При All после нажатия Shift-F7 надобно снова спросить...
       */
       //ReplaceAll=FALSE;
-      /* SVS $*/
       /* $ 07.05.2001 IS
          Сказано в хелпе "Shift-F7 Продолжить _поиск_"
       */
       //ReplaceMode=FALSE;
-      /* IS */
       Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       Search(TRUE);
+      return(TRUE);
+    }
+
+    case KEY_ALTF7:
+    {
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+      int LastSearchReversePrev = LastSearchReverse;
+      LastSearchReverse = !LastSearchReverse;
+      Search(TRUE);
+      LastSearchReverse = LastSearchReversePrev;
       return(TRUE);
     }
 

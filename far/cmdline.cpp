@@ -472,12 +472,10 @@ void CommandLine::GetPrompt(char *DestStr)
   // продвинутый вариант промптера, как в XP
   if (Opt.UsePromptFormat)
   {
-    char FormatStr[512],ExpandedFormatStr[512];
-    strcpy(FormatStr,Opt.PromptFormat);
-    char *Format=FormatStr;
-    ExpandEnvironmentStr(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
-    Format=ExpandedFormatStr;
-    char ChrFmt[][2]={
+    char ExpandedFormatStr[512];
+    ExpandEnvironmentStr(Opt.PromptFormat,ExpandedFormatStr,sizeof(ExpandedFormatStr));
+    char *Format=ExpandedFormatStr;
+    static char ChrFmt[][2]={
       {'A','&'},   // $A - & (Ampersand)
       {'B','|'},   // $B - | (pipe)
       {'C','('},   // $C - ( (Left parenthesis)
