@@ -1915,7 +1915,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
                                       DeleteOnClose,OpMode);
     /* IS $ */
     // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
-    if (Editor && Editor->GetExitCode() == XC_OPEN_ERROR)
+    if (Editor && (Editor->GetExitCode() == XC_OPEN_ERROR || Editor->GetExitCode() == XC_LOADING_INTERRUPTED))
     {
       delete Editor;
       Editor=NULL;

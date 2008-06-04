@@ -1279,7 +1279,7 @@ int FileList::ProcessKey(int Key)
            должно быт равно false, т.к. внутренний вьюер сам все удалит.
         */
         bool DeleteViewedFile=PluginMode && !Edit;
-        /* IS $ */
+
         if (*FileName)
           if (Edit)
           {
@@ -1298,13 +1298,11 @@ int FileList::ProcessKey(int Key)
 
             if (!Processed || Key==KEY_CTRLSHIFTF4)
             {
-            /* IS $ */
               if (EnableExternal)
                 /* $ 24.11.200 IS
                    дождемся выполнения команды, если мы на панели плагина
                 */
                 ProcessExternal(Opt.ExternalEditor,FileName,ShortFileName,PluginMode);
-                /* IS $ */
               else if (PluginMode)
               {
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
@@ -1318,7 +1316,6 @@ int FileList::ProcessKey(int Key)
                      или нет, все равно добавим его на панель плагина.
                 */
                 UploadFile=ShellEditor.IsFileChanged() || NewFile;
-                /* IS $ */
                 Modaling=TRUE;///
               }
               else
@@ -1336,8 +1333,15 @@ int FileList::ProcessKey(int Key)
                                                         GetFileAttributes(FileName) == (DWORD)-1 &&
                                                         GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
                                                         (Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6);
-                ShellEditor->SetNamesList (&EditList);
-                FrameManager->ExecuteModal();//OT
+                if (ShellEditor->GetExitCode() == XC_LOADING_INTERRUPTED || ShellEditor->GetExitCode() == XC_OPEN_ERROR)
+                {
+                  delete ShellEditor;
+                }
+                else
+                {
+                  ShellEditor->SetNamesList (&EditList);
+                  FrameManager->ExecuteModal();//OT
+                }
               }
             }
 
@@ -1396,7 +1400,6 @@ int FileList::ProcessKey(int Key)
                Processed=TRUE;
 
             if (!Processed || Key==KEY_CTRLSHIFTF3)
-            /* IS $ */
               if (EnableExternal)
                 ProcessExternal(Opt.ExternalViewer,FileName,ShortFileName,PluginMode);
               else
