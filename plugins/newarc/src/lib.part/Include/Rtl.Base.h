@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
  #if defined(__GNUC__) || defined(_MSC_VER)
   #if !defined(_WINCON_H) && !defined(_WINCON_)

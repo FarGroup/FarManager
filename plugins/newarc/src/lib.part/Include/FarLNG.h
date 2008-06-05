@@ -1,3 +1,6 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+
 extern bool LoadLanguageFile (
 		const char *lpFileName, 
 		const char *lpLanguage,

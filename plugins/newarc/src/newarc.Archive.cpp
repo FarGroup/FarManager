@@ -417,8 +417,8 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 
 int __stdcall Archive::ArchiveCallback (
 		int nMsg,
-		int nParam1,
-		int nParam2
+		INT_PTR nParam1,
+		INT_PTR nParam2
 		)
 {
 	if ( nMsg == AM_NEED_PASSWORD )

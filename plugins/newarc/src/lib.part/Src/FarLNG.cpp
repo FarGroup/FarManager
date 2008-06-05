@@ -206,7 +206,7 @@ bool ScanMsgsBuf(
 		{
 			if ( pMsgs )
 			{
-				int nLength = qe-qb;
+				INT_PTR nLength = qe-qb;
 
 				char *pnew = (char*)malloc (nLength+2);
 				char *pnew2 = (char*)malloc (nLength+2);
@@ -283,7 +283,7 @@ bool LoadLanguageFile (
 
 		ReadFile (hFile, lpBuffer, dwFileSize, &dwRead, NULL);
 
-		lpEndOfBuffer = (char*)((DWORD)lpBuffer+dwRead-1);
+		lpEndOfBuffer = (char*)((DWORD_PTR)lpBuffer+dwRead-1);
 
 		if ( ScanMsgsBuf (
 				lpBuffer,

@@ -2,11 +2,11 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="newarc"
-	ProjectGUID="{C3256485-D1F9-40E0-BCA2-4E51921E14D6}"
-	RootNamespace="newarc"
+	Name="NewArc"
+	ProjectGUID="{F91422A5-993D-40CC-B42A-0E3D2510BFEE}"
+	RootNamespace="newarcVS2008"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -18,10 +18,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -43,14 +42,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="lib.part/Include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NEWARCVS2008_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				StructMemberAlignment="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -64,15 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="&quot;C:\System Independent Files\Manager\Far\Plugins\newarc\newarc.dll&quot;"
 				LinkIncremental="2"
-				ModuleDefinitionFile="newarc.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/newarc.pdb"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/newarc.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -99,11 +90,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -122,20 +113,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="1"
-				FavorSizeOrSpeed="2"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="lib.part/Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
-				StringPooling="true"
-				ExceptionHandling="0"
-				RuntimeLibrary="0"
-				StructMemberAlignment="1"
-				BufferSecurityCheck="false"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NEWARCVS2008_EXPORTS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="0"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -148,19 +133,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\bin\newarc.dll"
+				AdditionalDependencies="lib.part/Include"
 				LinkIncremental="1"
-				ModuleDefinitionFile="newarc.def"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				EntryPointSymbol=""
-				BaseAddress=""
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/newarc.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -191,21 +169,9 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\lib.part\Src\debug.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\FarDialogs.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\FarLNG.cpp"
-				>
-			</File>
 			<File
 				RelativePath=".\newarc.Archive.cpp"
 				>
@@ -222,30 +188,46 @@
 				RelativePath=".\newarc.Panel.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\lib.part\Src\Registry.cpp"
+			<Filter
+				Name="RtlLib"
 				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Hook.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Kernel.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Misc.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Strings.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Thunks.cpp"
-				>
-			</File>
+				<File
+					RelativePath=".\lib.part\Src\debug.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\FarDialogs.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\FarLNG.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\Registry.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\Rtl.Hook.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\Rtl.Kernel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\Rtl.Misc.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\Rtl.Strings.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib.part\Src\Rtl.Thunks.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -255,7 +237,7 @@
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
