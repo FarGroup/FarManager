@@ -23,6 +23,7 @@
 #define FTP_TYPE_NETWARE   8
 #define FTP_TYPE_VXDOS     9
 #define FTP_TYPE_PCTCP     10
+#define FTP_TYPE_OS400     11
 
 //------------------------------------------------------------------------
 // Serve information (set server type and SYST command reply)
