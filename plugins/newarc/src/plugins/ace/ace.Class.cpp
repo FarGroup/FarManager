@@ -1,3 +1,4 @@
+#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "Ace.class.h"
 #include "ace.h"
@@ -299,7 +300,12 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 					item.FindData.nFileSizeLow = (DWORD)State->ArchivedFile.FileData->Size;
 					item.FindData.nFileSizeHigh = (DWORD)(State->ArchivedFile.FileData->Size >> 32);
 
-					Callback (AM_PROCESS_FILE, (int)&item, (int)&item.FindData.cFileName);
+					ProcessFileStruct pfs;
+
+					pfs.pItem = &item;
+					pfs.lpDestFileName = (const char*)&item.FindData.cFileName;
+
+					Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 				}
 			}
 		}
@@ -318,13 +324,13 @@ int __stdcall AceArchive::OnState (pACEStateCallbackProcStruc State)
 			os.uTotalSize = State->Progress.ProgressData->TotalSize+State->Progress.ProgressData->TotalCompressedSize;
 			os.dwFlags = OS_FLAG_TOTALFILES|OS_FLAG_TOTALSIZE;
 
-			Callback (AM_START_OPERATION, OPERATION_ADD, (int)&os);
+			Callback (AM_START_OPERATION, OPERATION_ADD, (LONG_PTR)&os);
 			Callback (AM_PROCESS_FILE, 0, 0);
 		}
 
 		unsigned __int64 diff = State->Progress.ProgressData->TotalProcessedSize-m_dwLastProcessed;
 
-		if ( !Callback (AM_PROCESS_DATA, 0, (int)diff) ) //__int64 to int, but it's just a diff (change API?) BUGBUG!!!
+		if ( !Callback (AM_PROCESS_DATA, 0, (LONG_PTR)diff) ) //__int64 to int, but it's just a diff (change API?) BUGBUG!!!
 			return ACE_CALLBACK_RETURN_CANCEL;
 
 		m_dwLastProcessed = State->Progress.ProgressData->TotalProcessedSize;
@@ -363,9 +369,9 @@ bool __stdcall AceArchive::pExtract (
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
-		char *name = pItems[i].FindData.cFileName+strlen(lpCurrentFolder);
+		char *name = pItems[i].FindData.cFileName+StrLength(lpCurrentFolder);
 
-		newsize += strlen(name)+1;
+		newsize += StrLength(name)+1;
 
 		extract.Files.FileList = (char*)realloc (extract.Files.FileList, newsize);
 
@@ -418,7 +424,7 @@ bool __stdcall AceArchive::pAddFiles (
 	{
 		strcpy (name, pItems[i].FindData.cFileName);
 
-		newsize += strlen(name)+1;
+		newsize += StrLength(name)+1;
 
 		add.Files.FileList = (char*)realloc (add.Files.FileList, newsize);
 
@@ -452,7 +458,7 @@ bool __stdcall AceArchive::pAddFiles (
 	return true;
 }
 
-int __stdcall AceArchive::Callback (int nMsg, int nParam1, int nParam2)
+LONG_PTR __stdcall AceArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (nMsg, nParam1, nParam2);
@@ -478,7 +484,7 @@ bool __stdcall AceArchive::pDelete (
 	{
 		strcpy (name, pItems[i].FindData.cFileName);
 
-		newsize += strlen(name)+1;
+		newsize += StrLength(name)+1;
 
 		del.Files.FileList = (char*)realloc (del.Files.FileList, newsize);
 

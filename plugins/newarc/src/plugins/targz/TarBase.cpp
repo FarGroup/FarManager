@@ -1,3 +1,5 @@
+#include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include "Archive.hpp"
 #include "../../module.hpp"
 #include "unixutils.hpp"

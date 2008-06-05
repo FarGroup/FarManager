@@ -68,7 +68,7 @@ void RegSaveStringArray (
 	{
 		for (int i = 0; i < nStringCount; i++)
 		{
-			dwSize = strlen (Strings[i])+1;
+			dwSize = StrLength(Strings[i])+1;
 
 			FSF.sprintf (lpValueName, "%s%d", lpPrefix, i);
 

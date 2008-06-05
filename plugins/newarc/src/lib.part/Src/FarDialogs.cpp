@@ -1,8 +1,8 @@
 #include <FarDialogs.hpp>
 
-int cstrlen (const char *str)
+unsigned int cstrlen (const char *str)
 {
-	return strlen (str)-(strchr (str,'&') != NULL);
+	return StrLength(str)-(strchr (str,'&') != NULL);
 }
 
 
@@ -75,7 +75,7 @@ void FarDialog::Control (int Type, int X, int Y, int X2, int Y2, const char *Dat
 		if ( Data )
 		{
 			if (DataLength == -1)
-				DataLength = strlen (Data);
+				DataLength = StrLength(Data);
 
 			memcpy (item->Data, Data, DataLength);
 		}
@@ -237,7 +237,7 @@ LONG_PTR __stdcall DialogHandler (
 	}
 	else
 	{
-		D = (FarDialogHandler*)CurrentInfo->SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+		D = (FarDialogHandler*)CurrentInfo->SendDlgMessage (hDlg, DM_GETDLGDATA, NULL, NULL);
 		return D->DlgProc (Msg, Param1, Param2);
 	}
 }
@@ -245,7 +245,7 @@ LONG_PTR __stdcall DialogHandler (
 
 int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 {
-	PVOID             DialogProc;
+	PVOID              DialogProc;
 	FarDialogHandler *Handler;
 
 	CurrentInfo = m_Info;
@@ -255,7 +255,7 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 	Handler = new FarDialogHandler;
 	Handler->Create (this, (DIALOGHANDLER)DlgProc, Param);
 
-	DialogProc = (PVOID)DialogHandler;
+	DialogProc = DialogHandler;
 
 	int Result = m_Info->DialogEx (
 			m_Info->ModuleNumber,
@@ -298,28 +298,29 @@ void FarPagedDialog::NewPage (int nItems)
 {
 	PageInfo *Info = new PageInfo;
 
-	Info->StartItem = m_Counter;
+	Info->StartItem = count();
 	Info->nItems     = nItems;
 
-	m_Pages->Add (Info);
+	m_Pages->add (Info);
 }
 
 void FarPagedDialogHandler::PreparePage (bool bDirect)
 {
-	Collection <PageInfo*> *Pages = m_Owner->m_Pages;
-	if ( Pages->GetCount() > 1)
+	array<PageInfo*> *Pages = m_Owner->m_Pages;
+
+	if ( Pages->count() > 1)
 	{
 
 		char *temp = StrCreate (128);
-		FSF.sprintf (temp, "(%d/%d)", m_Owner->m_CurrentPage+1, Pages->GetCount());
-		SetTextPtr (m_Owner->m_RealCount-3, temp);
+		FSF.sprintf (temp, "(%d/%d)", m_Owner->m_CurrentPage+1, Pages->count());
+		SetTextPtr (m_Owner->count()-3, temp);
 		StrFree (temp);
 
-		int btnNext = m_Owner->m_RealCount-1;
-		int btnPrev = m_Owner->m_RealCount-2;
+		int btnNext = m_Owner->count()-1;
+		int btnPrev = m_Owner->count()-2;
 
 
-		if ( m_Owner->m_CurrentPage == Pages->GetCount()-1 )
+		if ( m_Owner->m_CurrentPage == Pages->count()-1 )
 		{
 			Enable  (btnPrev, true);
 
@@ -345,7 +346,7 @@ void FarPagedDialogHandler::PreparePage (bool bDirect)
 
 		EnableRedraw (false);
 
-		for (int Page = 0; Page < Pages->GetCount(); Page++)
+		for (int Page = 0; Page < Pages->count(); Page++)
 		{
 			PageInfo *Info = (*Pages)[Page];
 
@@ -392,11 +393,11 @@ LONG_PTR __stdcall PagedDialogHandler (
 		Dialog = D->m_Owner;
 
 		if ((Msg == DN_BTNCLICK) &&
-		    ((Param1 == Dialog->m_RealCount-1) ||
-		     (Param1 == Dialog->m_RealCount-2)))
+		    ((Param1 == Dialog->count()-1) ||
+		     (Param1 == Dialog->count()-2)))
 		{
 
-			if (Param1 == Dialog->m_RealCount-1)
+			if (Param1 == Dialog->count()-1)
 				Dialog->m_CurrentPage++;
 			else
 				Dialog->m_CurrentPage--;
@@ -427,14 +428,14 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 
 	Handler->m_Owner = this;
 
-	if (m_Pages->GetCount() > 1)
+	if (m_Pages->count() > 1)
 	{
 		Text (m_X2-10, 1);
 
 		Button (Button (m_X2-17, m_Y2-2, "<<"), m_Y2-2, ">>");
 
-		SetFlags (DIF_BTNNOCLOSE | DIF_DISABLE, GetCounter()-1);
-		SetFlags (DIF_BTNNOCLOSE | DIF_DISABLE, GetCounter()-2);
+		SetFlags (DIF_BTNNOCLOSE | DIF_DISABLE, count()-1);
+		SetFlags (DIF_BTNNOCLOSE | DIF_DISABLE, count()-2);
 
 		DialogProc = PagedDialogHandler;
 	}
@@ -448,10 +449,10 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 			m_X2,
 			m_Y2,
 			m_lpHelpTopic,
-			m_Items,
-			m_RealCount,
+			m_data,
+			count(),
 			0,
-			m_Flags,
+			m_nFlags,
 			(FARWINDOWPROC)DialogProc,
 			(int)Handler
 			);
@@ -462,4 +463,4 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 
 }
 
-#endif //PAGED_DIALOGS
+#endif PAGED_DIALOGS

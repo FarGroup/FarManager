@@ -57,6 +57,6 @@ void ReleaseThunk (byte *pThunk)
 
 void ReleaseThunkCdecl (byte *pThunk)
 {
-	free ((void*)*(dword*)(pThunk+3));
+	free ((void*)*(DWORD_PTR*)(pThunk+3));
 	VirtualFree (pThunk, 0, MEM_RELEASE);
 }

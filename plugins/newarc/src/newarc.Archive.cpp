@@ -135,7 +135,7 @@ void doFrame (int X, int Y, int Width, int Height, char *Header, bool Shadow)
 	if (Header)
 	{
 		Color = FarGetColor (COL_DIALOGBOXTITLE);
-		Info.Text (X+(Width-strlen(Header))/2,Y+1,Color,Header);
+		Info.Text (X+(Width-StrLength(Header))/2,Y+1,Color,Header);
 	}
 
 	free (Line);
@@ -252,11 +252,11 @@ int __stdcall Archive::OnQueryPassword (int nMode, ArchivePassword *pPassword)
 
 static COORD c;
 
-int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestName)
+int __stdcall Archive::OnProcessFile (int nParam1, ProcessFileStruct *pfs)
 {
 	char *lpTemp;
 
-	m_pCurrentItem = item;
+	m_pCurrentItem = pfs->pItem;
 
 	if ( m_OS.bFirstFile )
 	{
@@ -315,9 +315,9 @@ int __stdcall Archive::OnProcessFile (PluginPanelItem *item, const char *lpDestN
 			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
 		}
 
-		if ( lpDestName )
+		if ( pfs->lpDestFileName )
 		{
-			strcpy (lpTemp, lpDestName);
+			strcpy (lpTemp, pfs->lpDestFileName);
 			FSF.TruncPathStr (lpTemp, 40);
 
 			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
@@ -417,7 +417,7 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 
 int __stdcall Archive::ArchiveCallback (
 		int nMsg,
-		INT_PTR nParam1,
+		int nParam1,
 		INT_PTR nParam2
 		)
 {
@@ -428,7 +428,7 @@ int __stdcall Archive::ArchiveCallback (
 		return OnStartOperation (nParam1, (OperationStructPlugin *)nParam2);
 
 	if ( nMsg == AM_PROCESS_FILE )
-		return OnProcessFile ((PluginPanelItem*)nParam1, (const char*)nParam2);
+		return OnProcessFile (0, (ProcessFileStruct*)nParam2);
 
 	if ( nMsg == AM_PROCESS_DATA )
 		return OnProcessData ((unsigned int)nParam2);

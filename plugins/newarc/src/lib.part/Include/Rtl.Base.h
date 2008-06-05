@@ -1,6 +1,13 @@
 #pragma once
 
+#if defined(_MSC_VER)
+#pragma warning(disable:4201) // nameless unions
+#pragma warning(disable:4121) // alignment of a member was sensitive to packing (i don't care)
+#pragma warning(disable:4127) // conditional expression is constant
+#pragma warning(disable:4100) // unreferenced formal parameter
+
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
  #if defined(__GNUC__) || defined(_MSC_VER)
@@ -39,10 +46,6 @@
  #endif
 #endif
 
-#if defined(_MSC_VER)
-#pragma warning(disable:4201) // nameless unions
-#pragma warning(disable:4121) // alignment of a member was sensitive to packing (i don't care)
-#endif
 
 #include <Rtl.Types.h>
 #ifdef __GNUC__

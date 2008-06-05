@@ -1,3 +1,4 @@
+#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "rar.class.h"
 #include "dll.hpp"
@@ -147,7 +148,7 @@ int __stdcall RarArchive::RarCallback (
 		Password.lpBuffer = StrCreate (260);
 		Password.dwBufferSize = 260;
 
-		if ( Callback (AM_NEED_PASSWORD, (m_nOpMode == RAR_OM_LIST)?PASSWORD_LIST:PASSWORD_FILE, (int)&Password) );
+		if ( Callback (AM_NEED_PASSWORD, (m_nOpMode == RAR_OM_LIST)?PASSWORD_LIST:PASSWORD_FILE, (LONG_PTR)&Password) );
 		{
 			lstrcpyn ((char*)nParam1, Password.lpBuffer, nParam2);
 		}
@@ -157,7 +158,7 @@ int __stdcall RarArchive::RarCallback (
 
 	if ( nMsg == UCM_PROCESSDATA )
 	{
-		if ( !Callback (AM_PROCESS_DATA, (dword)nParam1, (dword)nParam2) )
+		if ( !Callback (AM_PROCESS_DATA, nParam1, (LONG_PTR)nParam2) )
 		{
 			m_bAborted = true; // а нужно ли...
 			return -1;
@@ -246,7 +247,12 @@ bool __stdcall RarArchive::pExtract (
 
 					strcat (lpDestName, lpName);
 
-					Callback (AM_PROCESS_FILE, (dword)&pItems[i], (dword)lpDestName);
+					ProcessFileStruct pfs;
+
+					pfs.lpDestFileName = lpDestName;
+					pfs.pItem = &pItems[i];
+
+					Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 
 					wchar_t *lpDestNameW = (wchar_t *)malloc (2*260);
 
@@ -283,7 +289,7 @@ l_1:
 }
 
 
-int RarArchive::Callback (int nMsg, int nParam1, int nParam2)
+LONG_PTR RarArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (nMsg, nParam1, nParam2);

@@ -74,7 +74,7 @@ int Is7zHeader(const unsigned char *Data,int DataSize)
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{
 		if ( IsValidHeader (CurData) )
-			return CurData-Data;
+			return (int)(CurData-Data);
 	}
 	return -1;
 }

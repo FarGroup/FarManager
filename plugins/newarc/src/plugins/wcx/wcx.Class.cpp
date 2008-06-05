@@ -1,3 +1,4 @@
+#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include <debug.h>
 #include "wcx.class.h"
@@ -78,7 +79,7 @@ WcxModule::WcxModule (const char *lpFileName)
 
 	const char *lpName = FSF.PointToName (m_lpModuleName);
 
-	m_dwCRC = CRC32 (0, lpName, strlen (lpName));
+	m_dwCRC = CRC32 (0, lpName, StrLength(lpName));
 
 	m_hModule = LoadLibraryEx (
 			lpFileName,
@@ -264,7 +265,7 @@ bool WcxModules::GetDefaultCommand (const GUID &uid, int nCommand, char *lpComma
 int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
 {
 	if ( m_pfnCallback && bProcessDataProc )
-		return m_pfnCallback (AM_PROCESS_DATA, 0, (int)Size);
+		return (int)m_pfnCallback (AM_PROCESS_DATA, 0, (LONG_PTR)Size);
 
 	return 1;
 }
@@ -491,7 +492,12 @@ bool __stdcall WcxArchive::pExtract (
 					strcat (lpDestName,  lpName);
 					strcat (lpDestNameA, lpNameA);
 
-					Callback (AM_PROCESS_FILE, (int)&pItems[i], (int)lpDestName);
+					ProcessFileStruct pfs;
+
+					pfs.pItem = &pItems[i];
+					pfs.lpDestFileName = lpDestName;
+
+					Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 
 					int nProcessResult = 0;
 
@@ -538,7 +544,7 @@ l_1:
 	return nProcessed!=0;
 }
 
-int WcxArchive::Callback (int nMsg, int nParam1, int nParam2)
+LONG_PTR WcxArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (nMsg, nParam1, nParam2);

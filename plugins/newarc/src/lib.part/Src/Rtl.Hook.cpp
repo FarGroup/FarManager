@@ -7,23 +7,25 @@ PROC RtlHookImportTable(
 		HMODULE hModule
 		)
 {
+	PBYTE pModule = (PBYTE)hModule;
 	PROC pfnResult = NULL;
 
-	dword dwBase = (dword)hModule;
+	//dword dwBase = (dword)hModule;
+	//dword dwOP;
 
 	PIMAGE_DOS_HEADER pDosHeader;
 
-	pDosHeader = (PIMAGE_DOS_HEADER)dwBase;
+	pDosHeader = (PIMAGE_DOS_HEADER)pModule;
 
-	if ( pDosHeader->e_magic != 0x00005A4D )
+	if ( pDosHeader->e_magic != 'ZM' )
 		return NULL;
 
-	PIMAGE_NT_HEADERS pPEHeader  = (PIMAGE_NT_HEADERS)(dwBase+pDosHeader->e_lfanew);
+	PIMAGE_NT_HEADERS pPEHeader  = (PIMAGE_NT_HEADERS)&pModule[pDosHeader->e_lfanew];
 
-	if ( pPEHeader->Signature != 0x00004550 )
+	if ( pPEHeader->Signature != 0x00004550 ) 
 		return NULL;
 
-	PIMAGE_IMPORT_DESCRIPTOR pImportDesc = (PIMAGE_IMPORT_DESCRIPTOR)(dwBase+pPEHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+	PIMAGE_IMPORT_DESCRIPTOR pImportDesc = (PIMAGE_IMPORT_DESCRIPTOR)&pModule[pPEHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress];
 
 	const char *lpImportTableFunctionName;
 
@@ -34,9 +36,9 @@ PROC RtlHookImportTable(
 
 	while ( pImportDesc->Name )
 	{
-		lpImportTableModuleName = (const char*)(dwBase+(dword)pImportDesc->Name);
+		lpImportTableModuleName = (const char*)&pModule[pImportDesc->Name];
 
-		if ( !lstrcmpiA (lpImportTableModuleName, lpModuleName) )
+		if ( !lstrcmpiA (lpImportTableModuleName, lpModuleName) ) 
 			break;
 
 		pImportDesc++;
@@ -47,15 +49,17 @@ PROC RtlHookImportTable(
 
 	PIMAGE_THUNK_DATA pFirstThunk;
 	PIMAGE_THUNK_DATA pOriginalThunk;
-
-	pFirstThunk = (PIMAGE_THUNK_DATA)(dwBase+(dword)pImportDesc->FirstThunk);
-	pOriginalThunk = (PIMAGE_THUNK_DATA)(dwBase+(dword)pImportDesc->OriginalFirstThunk);
+	
+	pFirstThunk = (PIMAGE_THUNK_DATA)&pModule[pImportDesc->FirstThunk];	
+	pOriginalThunk = (PIMAGE_THUNK_DATA)&pModule[pImportDesc->OriginalFirstThunk];	
 
 	while ( pFirstThunk->u1.Function )
 	{
-		lpImportTableFunctionName = (const char*)(dwBase+(dword)((PIMAGE_IMPORT_BY_NAME)pOriginalThunk->u1.AddressOfData)->Name);
+		DWORD index = (DWORD)((PIMAGE_IMPORT_BY_NAME)pOriginalThunk->u1.AddressOfData)->Name;
 
-		dword dwOldProtect;
+		lpImportTableFunctionName = (const char*)&pModule[index];
+
+		DWORD dwOldProtect;
 		PROC* ppfnOld;
 
 		if ( !lstrcmpiA (lpImportTableFunctionName, lpFunctionName) )
@@ -63,16 +67,17 @@ PROC RtlHookImportTable(
 			pfnResult = (PROC)pFirstThunk->u1.Function;
 			ppfnOld = (PROC*)&pFirstThunk->u1.Function;
 
-			VirtualProtect (ppfnOld, 4, PAGE_READWRITE, &dwOldProtect);
+			VirtualProtect (ppfnOld, sizeof (PROC), PAGE_READWRITE, &dwOldProtect);
 			WriteProcessMemory(GetCurrentProcess(), ppfnOld, &pfnNew, sizeof pfnNew, NULL);
-			VirtualProtect (ppfnOld, 4, dwOldProtect, &dwOldProtect);
+			VirtualProtect (ppfnOld, sizeof (PROC), dwOldProtect, &dwOldProtect);
 
 			return pfnResult;
 		}
-
+		
         pFirstThunk++;
 		pOriginalThunk++;
 	}
 
 	return NULL; //error
 }
+

@@ -1,4 +1,5 @@
-#include <windows.h>
+#include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include <stdlib.h>
 #include "unixutils.hpp"
 

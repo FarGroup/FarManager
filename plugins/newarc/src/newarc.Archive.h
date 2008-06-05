@@ -75,6 +75,6 @@ private:
 
 	int __stdcall OnStartOperation (int nOperation, OperationStructPlugin *pOS);
 	int __stdcall OnQueryPassword (int nMode, ArchivePassword *pPassword);
-	int __stdcall OnProcessFile (PluginPanelItem *item, const char *lpDestName);
+	int __stdcall OnProcessFile (int nParam1, ProcessFileStruct *pfs);
 	int __stdcall OnProcessData (unsigned int uDataSize);
 };

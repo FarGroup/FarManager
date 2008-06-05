@@ -495,7 +495,7 @@ void mnuCommandLinesAndParams ()
 
 			*puid = info->uid;
 
-			pItems[nCount].UserData = (DWORD)puid;
+			pItems[nCount].UserData = (DWORD_PTR)puid;
 			pItems[nCount].Flags = MIF_USETEXTPTR;
 			pItems[nCount].Text.TextPtr = info->lpName;
 

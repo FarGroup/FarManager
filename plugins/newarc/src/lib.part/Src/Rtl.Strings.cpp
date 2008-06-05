@@ -19,7 +19,7 @@ char *StrDuplicate (const char *String, int Length)
 	if (String && Length)
 	{
 		if (Length == -1)
-			Length = strlen (String)+1;
+			Length = StrLength(String)+1;
 
 		char *result = StrCreate (Length);
 		strcpy (result, String);

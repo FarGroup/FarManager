@@ -224,7 +224,7 @@ int __stdcall ArchivePanel::pGetFindData(
 
 		char *lpName = StrDuplicate (pCurrentPanelItem->FindData.cFileName);
 
-		if ( !*m_lpCurrentFolder || !FSF.LStrnicmp (lpName, lpFoder, strlen (lpFoder)) )
+		if ( !*m_lpCurrentFolder || !FSF.LStrnicmp (lpName, lpFoder, StrLength(lpFoder)) )
 		{
 			char *lpName2 = lpName;
 
@@ -363,7 +363,7 @@ char *GetFlags (char *p, dword &dwFlags)
 	if ( string && *string ) \
 	{\
 		strcat (lpResult, string); \
-		n += strlen (string); \
+		n += StrLength(string); \
 		bEmpty = false; \
 	};\
 	break;
@@ -454,14 +454,14 @@ void CreateListFile (
 					FSF.AddEndSlash (lpProcessedString);
 					strcat (lpProcessedString, "*.*");
 
-					WriteFile (hListFile, lpProcessedString, strlen (lpProcessedString), &dwWritten, NULL);
+					WriteFile (hListFile, lpProcessedString, StrLength(lpProcessedString), &dwWritten, NULL);
 					WriteFile (hListFile, lpCRLF, 2, &dwWritten, NULL);
 
 					CutTo (lpProcessedString, '\\', true);
 				}
 			}
 
-			WriteFile (hListFile, lpProcessedString, strlen (lpProcessedString), &dwWritten, NULL);
+			WriteFile (hListFile, lpProcessedString, StrLength(lpProcessedString), &dwWritten, NULL);
 			WriteFile (hListFile, lpCRLF, 2, &dwWritten, NULL);
 		}
 
@@ -552,7 +552,7 @@ int ParseString (
 								);
 
 						strcat (lpResult, lpProcessedName);
-						n += strlen (lpProcessedName);
+						n += StrLength (lpProcessedName);
 						bEmpty = false;
 					};
 					break;
@@ -572,7 +572,7 @@ int ParseString (
 								);
 
 						strcat (lpResult, lpProcessedName);
-						n += strlen (lpProcessedName);
+						n += StrLength (lpProcessedName);
 						bEmpty = false;
 					};
 
@@ -609,7 +609,7 @@ int ParseString (
 								);
 
 						strcat (lpResult, pParam->lpListFileName);
-						n += strlen (pParam->lpListFileName);
+						n += StrLength (pParam->lpListFileName);
 						bEmpty = false;
 					};
 
@@ -630,7 +630,7 @@ int ParseString (
 								);
 
 						strcat (lpResult, lpProcessedName);
-						n += strlen (lpProcessedName);
+						n += StrLength (lpProcessedName);
 
 						bEmpty = false;
 
@@ -683,7 +683,7 @@ int ParseString (
 
 bool IsFileInFolder (const char *lpCurrentPath, const char *lpFileName)
 {
-	int nLength = strlen (lpCurrentPath);
+	int nLength = StrLength (lpCurrentPath);
 
 	return !FSF.LStrnicmp (lpCurrentPath, lpFileName, nLength);
 }
@@ -978,11 +978,11 @@ struct ArchiveTemplate {
 
 pointer_array <ArchiveTemplate*> Templates;
 
-int __stdcall hndAddEditTemplate (
+LONG_PTR __stdcall hndAddEditTemplate (
 		FarDialogHandler *D,
 		int nMsg,
 		int nParam1,
-		int nParam2
+		LONG_PTR nParam2
 		)
 {
 	ArchiveTemplate *ptpl = (ArchiveTemplate*)D->GetDlgData();
@@ -1231,11 +1231,11 @@ void SetTemplate (FarDialogHandler *D, ArchiveTemplate *ptpl = NULL)
 
 
 
-int __stdcall hndModifyCreateArchive (
+LONG_PTR __stdcall hndModifyCreateArchive (
 		FarDialogHandler *D,
 		int nMsg,
 		int nParam1,
-		int nParam2
+		LONG_PTR nParam2
 		)
 {
 	if ( nMsg == DN_INITDIALOG )
@@ -1993,8 +1993,8 @@ int __stdcall ArchivePanel::pSetDirectory (
 	}
 	else
 	{
-		int nCurDirLength = strlen(m_lpCurrentFolder);
-		int nDirLength = strlen(Dir);
+		int nCurDirLength = StrLength(m_lpCurrentFolder);
+		int nDirLength = StrLength(Dir);
 
 		if ( nCurDirLength )
 			nCurDirLength++;
@@ -2005,7 +2005,7 @@ int __stdcall ArchivePanel::pSetDirectory (
 
 			const char *lpCurName = (const char*)&item->ItemInfo.pi.FindData.cFileName;
 
-			if ( ((int)strlen(lpCurName) >= nCurDirLength+nDirLength) &&
+			if ( ((int)StrLength(lpCurName) >= nCurDirLength+nDirLength) &&
 					!FSF.LStrnicmp (Dir, lpCurName+nCurDirLength, nDirLength) )
 			{
 				const char *p = lpCurName+nCurDirLength+nDirLength;

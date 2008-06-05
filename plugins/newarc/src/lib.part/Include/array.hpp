@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable:4127) // conditional expression is constant
+
 typedef int (__cdecl *SORTFUNC) (const void *, const void *, void *);
 
 #define ARRAY_OPTIONS_SKIP		0
@@ -61,7 +63,7 @@ public:
 private:
 
 	bool SetLimit (int limit);
-	virtual void FreeItem (int index) {};
+	virtual void FreeItem (int index) { index; };
 };
 
 
@@ -337,7 +339,7 @@ structures.  The default value is optimized for a high cost for compares. */
 typedef void (__cdecl *SWAP_FP) (void *, void *,unsigned int);
 
 
-static void __cdecl __qsortex (
+static void __cdecl qsortex (
 		char *base, 
 		unsigned int nel, 
 		unsigned int width,
@@ -461,5 +463,5 @@ void AutoArray<type>::sort (void *SortFunc, void *Param)
 	IP.Param = Param;
 	IP.fcmp  = (SORTFUNC)SortFunc;
 
-	__qsortex ((char*)m_data, m_nCount, sizeof (type), (SORTFUNC)SortFunction, &IP);
+	qsortex ((char*)m_data, m_nCount, sizeof (type), (SORTFUNC)SortFunction, &IP);
 }

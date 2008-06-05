@@ -1,8 +1,8 @@
 #ifndef _NA7Z_
 #define _NA7Z_
 
-#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include "../../module.hpp"
 
 #include "../7z.headers/7zip/Archive/IArchive.h"

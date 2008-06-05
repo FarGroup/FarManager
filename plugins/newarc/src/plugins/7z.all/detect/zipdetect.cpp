@@ -51,7 +51,7 @@ int IsZipHeader(const unsigned char *Data,int DataSize)
 	{
 		if (IsValidHeader(CurData, DataEnd))
 		{
-			return (CurData-Data);
+			return (int)(CurData-Data);
 		}
 	}
 	return -1;

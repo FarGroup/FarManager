@@ -1,3 +1,4 @@
+#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "rar.class.h"
 #include "dll.hpp"

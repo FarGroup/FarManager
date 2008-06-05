@@ -8,7 +8,7 @@ extern void RegQueryLongValue (HKEY hKey, const char *lpValueName, void *pValueD
 extern char *RegQueryStringValueEx (HKEY hKey, const char *lpValueName,	char *lpCurrentValue = NULL);
 
 #define RegSetStringValue(key, name, data) \
-	if ( data ) RegSetValueEx (key, name, 0, REG_SZ, (PBYTE)data, strlen(data)+1);
+	if ( data ) RegSetValueEx (key, name, 0, REG_SZ, (PBYTE)data, (DWORD)strlen(data)+1);
 
 #define RegSetLongValue(key, name, data) \
 	RegSetValueEx (key, name, 0, REG_DWORD, (PBYTE)&data, 4);

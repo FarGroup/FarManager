@@ -485,15 +485,20 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
 		FSF.AddEndSlash (szFullName);
 
-		if ( !FSF.LStrnicmp (szArcFileName, m_lpCurrentFolder, strlen (m_lpCurrentFolder)) )
-			strcat (szFullName, szArcFileName+strlen (m_lpCurrentFolder));
+		if ( !FSF.LStrnicmp (szArcFileName, m_lpCurrentFolder, StrLength(m_lpCurrentFolder)) )
+			strcat (szFullName, szArcFileName+StrLength(m_lpCurrentFolder));
 		else
 			strcat (szFullName, szArcFileName);
 
 		int itemindex = GetItemIndex (this, index);
 		PluginPanelItem *item = m_pItems[itemindex].pItem;
 
-		m_pArchive->Callback (AM_PROCESS_FILE, (int)item, (int)szFullName);
+		ProcessFileStruct pfs;
+
+		pfs.pItem = item;
+		pfs.lpDestFileName = szFullName;
+
+		m_pArchive->Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 
 		if ( (int)m_nLastProcessed == -1 )
 			m_nLastProcessed = 0;
@@ -635,7 +640,7 @@ HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword (BSTR *password)
 	Password.lpBuffer = StrCreate (260);
 	Password.dwBufferSize = 260;
 
-	if ( m_pArchive->Callback (AM_NEED_PASSWORD, (m_nType == TYPE_FILE)?PASSWORD_FILE:PASSWORD_LIST, (int)&Password) );
+	if ( m_pArchive->Callback (AM_NEED_PASSWORD, (m_nType == TYPE_FILE)?PASSWORD_FILE:PASSWORD_LIST, (LONG_PTR)&Password) )
 	{
 		wchar_t wszPassword[MAX_PATH];
 
@@ -989,7 +994,7 @@ HRESULT __stdcall CArchiveUpdateCallback::SetTotal (unsigned __int64 total)
 
 	m_nLastProcessed = 0;
 
-	m_pArchive->Callback (AM_START_OPERATION, OPERATION_ADD, (int)&os);
+	m_pArchive->Callback (AM_START_OPERATION, OPERATION_ADD, (LONG_PTR)&os);
 	m_pArchive->Callback (AM_PROCESS_FILE, 0, 0);
 
 	return S_OK;
@@ -999,7 +1004,7 @@ HRESULT __stdcall CArchiveUpdateCallback::SetCompleted (const unsigned __int64* 
 {
 	unsigned __int64 diff = *completeValue-m_nLastProcessed;
 
-	if ( !m_pArchive->Callback (AM_PROCESS_DATA, 0, (unsigned int)diff) )
+	if ( !m_pArchive->Callback (AM_PROCESS_DATA, 0, (LONG_PTR)diff) )
 		return E_ABORT;
 
 	m_nLastProcessed = *completeValue;
@@ -1149,7 +1154,12 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 
 			if ( file->Open () )
 			{
-				m_pArchive->Callback (AM_PROCESS_FILE, (int)pitem, (int)lpFullName);
+				ProcessFileStruct pfs;
+
+				pfs.pItem = pitem;
+				pfs.lpDestFileName = lpFullName;
+
+				m_pArchive->Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 				*inStream = file;
 			}
 			else

@@ -1,14 +1,13 @@
-#include <windows.h>
+#include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include <string.h>
 #include <dos.h>
-#include <plugin.hpp>
 #include "../../module.hpp"
 #include "Archive.hpp"
 #include "ArchiveGzip.hpp"
 #include "detect.hpp"
 #include "fileutils.hpp"
 #include "FarZlib.hpp"
-#include <Rtl.Base.h>
 
 #if defined(__BORLANDC__)
   #pragma option -a1

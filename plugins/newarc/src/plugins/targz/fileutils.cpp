@@ -1,4 +1,5 @@
-#include <plugin.hpp>
+#include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include <stdio.h>
 #include "fileutils.hpp"
 
@@ -220,7 +221,7 @@ void GenerateName(const char *Name,char *ZipName)
   if(Dot!=NULL)
   {
     Dot++;
-    if (strcmpi(Dot,"tgz")==0 || strcmpi(Dot,"taz")==0)
+    if (_strcmpi(Dot,"tgz")==0 || _strcmpi(Dot,"taz")==0)
       strcpy(&ZipName[Dot-NamePtr],"tar");
     else
       ZipName[Dot-NamePtr-1]=0;

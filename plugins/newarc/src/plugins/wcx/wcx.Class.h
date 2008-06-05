@@ -1,5 +1,5 @@
-#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include <array.hpp>
 #include "../../module.hpp"
 #include "wcxhead.h"
@@ -96,7 +96,7 @@ public:
 	WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileName);
 	virtual ~WcxArchive ();
 
-	int Callback (int nMsg, int nParam1, int nParam2);
+	LONG_PTR Callback (int nMsg, int nParam1, LONG_PTR nParam2);
 
 	virtual int ConvertResult (int nResult);
 

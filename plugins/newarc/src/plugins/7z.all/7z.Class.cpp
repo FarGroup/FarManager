@@ -184,10 +184,10 @@ int FindFormats (const char *lpFileName, pointer_array<FormatPosition*> &formats
 				}
 			}
 
-			if ( strstr(lpFileName, ".") && strlen(lpFileName) > 2 )
+			if ( strstr(lpFileName, ".") && StrLength(lpFileName) > 2 )
 			{
 				bool bMatch = false;
-				int len = strlen(lpFileName);
+				int len = StrLength(lpFileName);
 
 				if ( lpFileName[len-2] == '0' && lpFileName[len-1] == '1' )
 				{
@@ -357,7 +357,7 @@ SevenZipModule::~SevenZipModule ()
 {
 	if ( m_pInfo )
 	{
-		for (int i = 0; i < m_nNumberOfFormats; i++)
+		for (unsigned int i = 0; i < m_nNumberOfFormats; i++)
 		{
 			free (m_pInfo[i].lpDefaultExt);
 			free (m_pInfo[i].lpSignature);
@@ -836,7 +836,7 @@ bool __stdcall SevenZipArchive::pExtract (
 		{
 			//__debug ("indexed - %s %d", pItems[i].FindData.cFileName, pItems[i].UserData);
 
-			indices[lastitem] = pItems[i].UserData-1; //GetIndex (m_pArchive, pItems[i].FindData.cFileName);
+			indices[lastitem] = (unsigned int)pItems[i].UserData-1; //GetIndex (m_pArchive, pItems[i].FindData.cFileName);
 
 			items[lastitem].nIndex = indices[lastitem];
 			items[lastitem].pItem = &pItems[i];
@@ -1024,7 +1024,7 @@ void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
 		pCloseArchive ();
 }
 
-int SevenZipArchive::Callback (int nMsg, int nParam1, int nParam2)
+LONG_PTR SevenZipArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (nMsg, nParam1, nParam2);

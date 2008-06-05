@@ -1,3 +1,4 @@
+#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "ma.class.h"
 #include <debug.h>
@@ -82,7 +83,7 @@ MaModule::MaModule (
 
 	const char *lpName = FSF.PointToName (m_lpModuleName);
 
-	m_dwCRC = CRC32 (0, lpName, strlen (lpName));
+	m_dwCRC = CRC32 (0, lpName, StrLength(lpName));
 
 	m_hModule = LoadLibraryEx (
 			lpFileName,
@@ -288,7 +289,7 @@ bool MaModules::GetDefaultCommand (const GUID &uid, int nCommand, char *lpComman
 	}
 
 	if ( pResultModule && pResultModule->m_pfnGetDefaultCommands )
-		return pResultModule->m_pfnGetDefaultCommands (
+		return (bool)pResultModule->m_pfnGetDefaultCommands (
 				index,
 				nCommand,
 				lpCommand

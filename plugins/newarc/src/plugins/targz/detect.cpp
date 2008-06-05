@@ -1,4 +1,5 @@
-#include <plugin.hpp>
+#include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include "unixutils.hpp"
 
 int IsTarHeader(const unsigned char *Data,int DataSize)

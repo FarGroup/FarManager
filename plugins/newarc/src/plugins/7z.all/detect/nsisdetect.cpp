@@ -38,7 +38,7 @@ int IsNSISHeader(const unsigned char *Data,int DataSize)
 
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{
-		int position = CurData-Data;
+		int position = (int)(CurData-Data);
 
 		if ( !(position%512) && IsValidHeader (CurData) )
 			return position;

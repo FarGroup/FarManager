@@ -14,6 +14,7 @@ inline bool IsEmpty (char c)
 //#define StrCreateArray(i) (i?((char**)malloc (i << 2)):NULL)
 //#define StrCreate(i) (char*)malloc(i)
 #define StrFree(s) free(s)
+#define StrLength(s) (unsigned int)strlen(s)
 
 extern char** StrCreateArray (int nCount);
 extern char*  StrCreate (int nLength);

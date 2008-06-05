@@ -58,7 +58,7 @@ void __cdecl __fdebug (const char *format, ...)
 
     	char *lpCRLF = "\n\r";
 
-    	WriteFile (hFile, szBuff, strlen (szBuff), &dwWritten, NULL);
+    	WriteFile (hFile, szBuff, StrLength(szBuff), &dwWritten, NULL);
     	WriteFile (hFile, lpCRLF, 2, &dwWritten, NULL);
 
     	CloseHandle (hFile);

@@ -384,7 +384,7 @@ const char *SevenZipLZMASBSizeStrings[] = {"???", "E1M", "E2M", "E4M", "E8M", "E
 
 #define countof(x) (sizeof(x)/sizeof(x[0]))
 
-int __stdcall hndConfigureFormat(FarDialogHandler *D, int nMsg, int Param1, int Param2)
+LONG_PTR __stdcall hndConfigureFormat(FarDialogHandler *D, int nMsg, int Param1, LONG_PTR Param2)
 {
 	if ( nMsg == DN_INITDIALOG )
 	{

@@ -82,5 +82,5 @@ public:
 	int __stdcall OnRequest (pACERequestCallbackProcStruc Request);
 	int __stdcall OnError (pACEErrorCallbackProcStruc Error);
 
-	int __stdcall Callback (int nMsg, int nParam1, int nParam2);
+	LONG_PTR __stdcall Callback (int nMsg, int nParam1, LONG_PTR nParam2);
 };

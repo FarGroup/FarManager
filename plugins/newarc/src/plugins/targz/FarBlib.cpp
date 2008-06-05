@@ -1,4 +1,5 @@
-#include <plugin.hpp>
+#include <Rtl.Base.h>
+#include <FarPluginBase.hpp>
 #include "FarBlib.hpp"
 
 bool BlibOk=false;
