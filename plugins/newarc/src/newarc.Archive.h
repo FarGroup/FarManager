@@ -71,7 +71,7 @@ friend class ArchivePlugin;
 
 private:
 
-	int __stdcall ArchiveCallback (int nMsg, int nParam, int nParam2);
+	LONG_PTR __stdcall ArchiveCallback (int nMsg, int nParam, LONG_PTR nParam2);
 
 	int __stdcall OnStartOperation (int nOperation, OperationStructPlugin *pOS);
 	int __stdcall OnQueryPassword (int nMode, ArchivePassword *pPassword);

@@ -847,8 +847,7 @@ bool __stdcall SevenZipArchive::pExtract (
 		//	__debug ("non indexed - %s %d", pItems[i].FindData.cFileName, pItems[i].UserData);
 	}
 
-	FSF.qsort (indices, lastitem, 4, compare);
-
+	FSF.qsort (indices, lastitem, sizeof(unsigned int), compare);
 	//unsigned int nItems = 0;
 	//m_pArchive->GetNumberOfItems((unsigned int*)&nItems);
 
@@ -865,6 +864,7 @@ bool __stdcall SevenZipArchive::pExtract (
 		bResult = true;
 
 	delete pCallback;
+
 	free (indices);
 	free (items);
 
