@@ -275,7 +275,7 @@ int __stdcall ArchivePanel::pGetFindData(
 						item->UserData = 0;
 					}
 					else
-						item->UserData = (dword)&m_pArchiveFiles[i];
+						item->UserData = (DWORD_PTR)&m_pArchiveFiles[i];
 				}
 			}
 		}

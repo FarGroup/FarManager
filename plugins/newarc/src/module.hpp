@@ -64,7 +64,7 @@ struct ArchivePassword {
 	char *lpBuffer;
 };
 
-typedef int (__stdcall *ARCHIVECALLBACK) (int nMsg, int nParam1, int nParam2); //TODO! INT_PTR
+typedef int (__stdcall *ARCHIVECALLBACK) (int nMsg, INT_PTR nParam1, INT_PTR nParam2); //TODO! INT_PTR
 
 #define AIF_CRYPTED		1
 #define AIF_SOLID		2

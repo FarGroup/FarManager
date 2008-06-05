@@ -337,7 +337,7 @@ structures.  The default value is optimized for a high cost for compares. */
 typedef void (__cdecl *SWAP_FP) (void *, void *,unsigned int);
 
 
-static void __cdecl qsortex (
+static void __cdecl __qsortex (
 		char *base, 
 		unsigned int nel, 
 		unsigned int width,
@@ -461,5 +461,5 @@ void AutoArray<type>::sort (void *SortFunc, void *Param)
 	IP.Param = Param;
 	IP.fcmp  = (SORTFUNC)SortFunc;
 
-	qsortex ((char*)m_data, m_nCount, sizeof (type), (SORTFUNC)SortFunction, &IP);
+	__qsortex ((char*)m_data, m_nCount, sizeof (type), (SORTFUNC)SortFunction, &IP);
 }
