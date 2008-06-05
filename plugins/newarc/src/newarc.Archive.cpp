@@ -256,7 +256,7 @@ int __stdcall Archive::OnProcessFile (int nParam1, ProcessFileStruct *pfs)
 {
 	char *lpTemp;
 
-	m_pCurrentItem = pfs->pItem;
+	m_pCurrentItem = pfs?pfs->pItem:NULL;
 
 	if ( m_OS.bFirstFile )
 	{
@@ -315,7 +315,7 @@ int __stdcall Archive::OnProcessFile (int nParam1, ProcessFileStruct *pfs)
 			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
 		}
 
-		if ( pfs->lpDestFileName )
+		if ( pfs && pfs->lpDestFileName )
 		{
 			strcpy (lpTemp, pfs->lpDestFileName);
 			FSF.TruncPathStr (lpTemp, 40);

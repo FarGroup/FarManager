@@ -172,7 +172,7 @@ BOOL WINAPI DllMainCRTStartup (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 }
 
 #else
-/*
+
 BOOL __stdcall DllMain (
 		HINSTANCE hinstDLL,
 		DWORD fdwReason,
@@ -180,5 +180,6 @@ BOOL __stdcall DllMain (
 		)
 {
 	return true;
-}*/
+}
+
 #endif

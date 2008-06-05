@@ -1160,6 +1160,7 @@ HRESULT __stdcall CArchiveUpdateCallback::GetStream (unsigned int index, ISequen
 				pfs.lpDestFileName = lpFullName;
 
 				m_pArchive->Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
+
 				*inStream = file;
 			}
 			else

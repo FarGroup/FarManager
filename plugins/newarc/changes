@@ -15,6 +15,10 @@ AY - Alex Yaroslavsky
 WI - WARP ItSelf
 TS - Tim Sobolev
 
+[06/06/2008]
+
+[+] В x64 сборке заработали 7z.all и ma. [NA, 7z.all, ma] [WI]
+
 [05/06/2008]
 
 [*] Первичная поддержка x64 (newarc + 7z). Но скажу по секрету - она не работает. [NA, 7z.all] [WI]

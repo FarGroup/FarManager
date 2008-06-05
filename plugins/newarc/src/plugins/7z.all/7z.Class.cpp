@@ -991,6 +991,10 @@ bool __stdcall SevenZipArchive::pAddFiles (
 
 		if ( file->Open () )
 		{
+			char sz[MAX_PATH];
+
+			wsprintf (sz, "%d", indicies.count());
+
 			if ( outArchive->UpdateItems (
 					(ISequentialOutStream *)file,
 					indicies.count(),

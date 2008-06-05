@@ -246,6 +246,7 @@ int OnCloseArchive (CloseArchiveStruct *pCAS)
 int OnFinalizeArchive (SevenZipArchive *pArchive)
 {
 	pArchive->pCloseArchive ();
+
 	delete pArchive;
 
 	return NAERROR_SUCCESS;
