@@ -2,8 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ma"
-	ProjectGUID="{3D39C84D-E135-4E5A-94CD-DA3852890A37}"
+	Name="newarc"
+	ProjectGUID="{C3256485-D1F9-40E0-BCA2-4E51921E14D6}"
+	RootNamespace="newarc"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -41,11 +42,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\lib.part\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MA_EXPORTS"
+				AdditionalIncludeDirectories="lib.part/Include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				StructMemberAlignment="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -62,14 +64,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\plugins\ma\ma.module"
+				OutputFile="&quot;C:\System Independent Files\Manager\Far\Plugins\newarc\newarc.dll&quot;"
 				LinkIncremental="2"
+				ModuleDefinitionFile="newarc.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/ma.pdb"
+				ProgramDatabaseFile="$(OutDir)/newarc.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/ma.lib"
+				ImportLibrary="$(OutDir)/newarc.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -122,8 +125,8 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\lib.part\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MA_EXPORTS"
+				AdditionalIncludeDirectories="lib.part/Include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -132,7 +135,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="0"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -145,17 +148,19 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\plugins\ma\ma.module"
+				OutputFile="..\bin\newarc.dll"
 				LinkIncremental="1"
-				ModuleDefinitionFile="ma.def"
-				GenerateDebugInformation="true"
+				ModuleDefinitionFile="newarc.def"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
+				EntryPointSymbol=""
+				BaseAddress=""
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/ma.lib"
+				ImportLibrary="$(OutDir)/newarc.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -190,31 +195,55 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\lib.part\Src\debug.cpp"
+				RelativePath=".\lib.part\Src\debug.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\FarDialogs.cpp"
+				RelativePath=".\lib.part\Src\FarDialogs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ma.Class.cpp"
+				RelativePath=".\lib.part\Src\FarLNG.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ma.cpp"
+				RelativePath=".\newarc.Archive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Registry.cpp"
+				RelativePath=".\newarc.ArchivePlugin.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Misc.cpp"
+				RelativePath=".\newarc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Strings.cpp"
+				RelativePath=".\newarc.Panel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib.part\Src\Registry.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib.part\Src\Rtl.Hook.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib.part\Src\Rtl.Kernel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib.part\Src\Rtl.Misc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib.part\Src\Rtl.Strings.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lib.part\Src\Rtl.Thunks.cpp"
 				>
 			</File>
 		</Filter>
