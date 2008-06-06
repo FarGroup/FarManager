@@ -54,6 +54,8 @@ BOOL parse_os400_date_time( pchar& line, Time_t& decoded )
          st.wSecond == MAX_WORD )
       return FALSE;
 
+    line += 8;
+
     st.wDayOfWeek = 0;
 
  return SystemTimeToFileTime( &st, decoded );
@@ -86,6 +88,7 @@ MUELLERJ           58 01/03/06 11:29:17 *STMF      UNTITLED.TXT
 BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info )
   {  char *e;
      int   len;
+     static Time_t savedate;
 
 //Owner
     e = SkipNSpace( line );
@@ -109,13 +112,16 @@ BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info )
         line = SkipSpace(e);
         CHECK( (!parse_os400_date_time( line,entry_info->date )), FALSE )
 
+        //save date of *FILE for *MEM members
+        savedate = entry_info->date;
+
         line = SkipSpace( line );
         CHECK( (*line == 0), FALSE )
     }
     else
     {
         entry_info->size = 0;
-        memset(entry_info->date, 0, sizeof(entry_info->date));
+        entry_info->date = savedate;
     }
 
     line = SkipNSpace( line );

@@ -225,7 +225,7 @@ static WORD ParseSystemInfo( CONSTSTR str )
      if ( strstr(str,   "NETWARE") != NULL)                                   return FTP_TYPE_NETWARE; else
      if ( strstr(str,   "VxWorks") != NULL)                                   return FTP_TYPE_VXDOS; else
      if ( strstr(str,   "PC/TCP ") != NULL)                                   return FTP_TYPE_PCTCP; else
-     if ( StrNCmp(str,  "OS/400", 6) == 0)                                    return FTP_TYPE_OS400; else
+     if ( strstr(str,   "OS/400")  != NULL)                                   return FTP_TYPE_OS400; else
        return FTP_TYPE_INVALID;
 }
 
