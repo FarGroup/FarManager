@@ -1028,10 +1028,10 @@ void __stdcall SevenZipArchive::pNotify (int nEvent, void *pEventData)
 		pCloseArchive ();
 }
 
-LONG_PTR SevenZipArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
+LONG_PTR __stdcall SevenZipArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
-		return m_pfnCallback (nMsg, nParam1, nParam2);
+		return m_pfnCallback (nMsg, nParam1, nParam2, 0);
 
 	return FALSE;
 }

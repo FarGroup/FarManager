@@ -44,8 +44,8 @@ RarModule::~RarModule ()
 RarArchive::RarArchive (RarModule *pModule, const char *lpFileName)
 {
 	m_pModule = pModule;
-
 	CreateClassThunk (RarArchive, RarCallback, m_pfnRarCallback);
+
 	m_lpFileName = StrDuplicate (lpFileName);
 
 	m_bAborted = false;

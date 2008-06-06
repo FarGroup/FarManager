@@ -70,8 +70,8 @@ char** StrCreateArray (int nCount)
 
 	if ( nCount )
 	{
-		pResult = (char**)malloc (nCount*4);
-		memset (pResult, 0, nCount*4);
+		pResult = (char**)malloc (nCount*sizeof(char*));
+		memset (pResult, 0, nCount*sizeof(char*));
 	}
 
 	return pResult;

@@ -293,8 +293,8 @@ bool LoadLanguageFile (
 				&nStringsCount
 				) ) // correct language found!
 		{
-			pStrings = (char**)malloc (nStringsCount*4);
-			memset (pStrings, 0, nStringsCount*4);
+			pStrings = (char**)malloc (nStringsCount*sizeof(char*));
+			memset (pStrings, 0, nStringsCount*sizeof(char*));
 
 			ScanMsgsBuf (
 					lpBuffer,

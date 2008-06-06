@@ -50,7 +50,7 @@ bool ArchivePlugin::Initialize (
 
 			strcpy (_si.Info.ModuleName, lpModuleName);
 
-			memcpy (&_si.Info.GetMsg, &m_pfnGetMsgThunk, 4);
+			memcpy (&_si.Info.GetMsg, &m_pfnGetMsgThunk, sizeof(void*));
 			ReloadLanguage (lpLanguage);
 
             m_pfnPluginEntry (FID_INITIALIZE, (void*)&_si);

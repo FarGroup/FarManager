@@ -55,8 +55,7 @@ Archive::Archive (
 	if ( m_pPlugin->m_pfnPluginEntry (FID_GETARCHIVEFORMAT, (void*)&GAF) == NAERROR_SUCCESS )
 		m_pInfo = m_pPlugin->GetArchiveFormatInfo (GAF.uid);
 
-	CreateClassThunk (Archive, ArchiveCallback, m_pCallbackThunk);
-
+	CreateClassThunk(Archive, ArchiveCallback, m_pCallbackThunk);
 }
 
 bool Archive::WasUpdated ()
@@ -297,7 +296,8 @@ int __stdcall Archive::OnProcessFile (int nParam1, ProcessFileStruct *pfs)
 			Info.Text (c.X+5, c.Y+2, FarGetColor (COL_DIALOGTEXT), _M(MProcessFileAdditionRecompresion));
 	}
 
-	//MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
+	//if ( m_pCurrentItem )
+	//	MessageBox (0, m_pCurrentItem->FindData.cFileName, m_pCurrentItem->FindData.cFileName, MB_OK);
 
 	if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 	{
@@ -343,11 +343,9 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 	m_OS.uTotalProcessedSize += uDataSize;
 	m_OS.uProcessedSize += uDataSize;
 
-	//if ( m_OS.nOperation == OPERATION_ADD )
-	//__debug ("%d %I64d %I64d", uDataSize, m_OS.uProcessedSize, m_OS.uFileSize);
 	static char szOldTitle[MAX_PATH] = {0};
 
-	//if ( m_pCurrentItem )
+	///if ( m_pCurrentItem )
 	{
 		double div;
 		char szPercents[MAX_PATH];
@@ -356,8 +354,10 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 			div = (double)m_OS.uProcessedSize/(double)m_OS.uFileSize;
 		else
 			div = 1;
+
 		if (div > 1)
 			div = 1;
+
 		dword dwPercent = (int)(div*40);
 		dword dwRealPercent = (int)(div*100);
 
@@ -381,6 +381,7 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 		{
+			//MessageBox (0, "asd", "asd", MB_OK);
 			doIndicator (c.X+5, c.Y+8, dwPercent);
 
 			FSF.sprintf (szPercents, "%4u%%", dwRealPercent);
@@ -418,22 +419,25 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 LONG_PTR __stdcall Archive::ArchiveCallback (
 		int nMsg,
 		int nParam1,
-		LONG_PTR nParam2
+		LONG_PTR nParam2,
+		int fake
 		)
 {
+	int nResult = 0;
+
 	if ( nMsg == AM_NEED_PASSWORD )
-		return OnQueryPassword (nParam1, (ArchivePassword*)nParam2);
+		nResult = OnQueryPassword (nParam1, (ArchivePassword*)nParam2);
 
 	if ( nMsg == AM_START_OPERATION )
-		return OnStartOperation (nParam1, (OperationStructPlugin *)nParam2);
+		nResult = OnStartOperation (nParam1, (OperationStructPlugin *)nParam2);
 
 	if ( nMsg == AM_PROCESS_FILE )
-		return OnProcessFile (0, (ProcessFileStruct*)nParam2);
+		nResult = OnProcessFile (0, (ProcessFileStruct*)nParam2);
 
 	if ( nMsg == AM_PROCESS_DATA )
-		return OnProcessData ((unsigned int)nParam2);
+		nResult = OnProcessData ((unsigned int)nParam2);
 
-	return 1;
+	return nResult;
 }
 
 

@@ -81,7 +81,7 @@ ArchivePanel *__stdcall OpenFilePlugin (
 {
 	ArchivePanel *pPanelResult = (ArchivePanel*)INVALID_HANDLE_VALUE;
 
-	Archive **pArchives = (Archive**)malloc (5*4);
+	Archive **pArchives = (Archive**)malloc (5*sizeof(Archive*));
 	int nCount = 5;
 	int nArchivesCount = 0;
 
@@ -106,7 +106,7 @@ ArchivePanel *__stdcall OpenFilePlugin (
 
 					pArchives = (Archive**)realloc (
 							pArchives,
-							nCount*4
+							nCount*sizeof(Archive*)
 							);
 				}
 			}

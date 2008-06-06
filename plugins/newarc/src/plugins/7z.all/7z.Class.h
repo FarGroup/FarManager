@@ -73,7 +73,7 @@ public:
 	SevenZipArchive (const SevenZipModule *pModule, unsigned int nFormatIndex, const char *lpFileName, bool bNewArchive);
 	virtual ~SevenZipArchive ();
 
-	LONG_PTR Callback (int nMsg, int nParam1, LONG_PTR nParam2);
+	LONG_PTR __stdcall Callback (int nMsg, int nParam1, LONG_PTR nParam2);
 
 	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);
 	virtual void __stdcall pCloseArchive ();
