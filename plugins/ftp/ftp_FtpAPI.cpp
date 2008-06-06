@@ -158,7 +158,11 @@ BOOL FtpSetCurrentDirectory( Connection *hConnect, CONSTSTR dir )
        return FALSE;
 
      do{
-       Command.printf( "cd \x1%s\x1",dir );
+       if (StrCmp(dir, "..") == 0) {
+         Command.printf( "cdup" );
+       } else {
+         Command.printf( "cd \x1%s\x1",dir );
+       }
        if ( hConnect->ProcessCommand(Command) )
          break;
 
