@@ -1,5 +1,6 @@
 #include "newarc.h"
 
+
 FARSTANDARDFUNCTIONS FSF;
 PluginStartupInfo Info;
 

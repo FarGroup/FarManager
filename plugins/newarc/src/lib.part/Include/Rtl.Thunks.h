@@ -38,3 +38,5 @@ extern byte* CreateThunkCdecl (void *pClass, void *pfnClassProc);
 
 extern void ReleaseThunk (byte *pThunk);
 extern void ReleaseThunkCdecl (byte *pThunk);
+
+
