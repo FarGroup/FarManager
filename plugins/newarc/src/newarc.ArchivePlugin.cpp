@@ -46,7 +46,7 @@ bool ArchivePlugin::Initialize (
 			_si.Info.FSF = &_FSF;
 			_si.HF = _HF;
 
-			CreateClassThunk (ArchivePlugin, pGetMsg, m_pfnGetMsgThunk);
+			m_pfnGetMsgThunk = CreateThunkFastEx(this, GetMsgThunk);
 
 			strcpy (_si.Info.ModuleName, lpModuleName);
 
@@ -75,7 +75,7 @@ void ArchivePlugin::Finalize ()
 
 	StrFree (m_lpModuleName);
 
-	ReleaseThunk (m_pfnGetMsgThunk);
+	ReleaseThunkEx (m_pfnGetMsgThunk);
 
 	FinalizeLanguageStrings (m_pLanguageStrings, m_nStringsCount);
 }

@@ -275,6 +275,21 @@ int __stdcall WcxArchive::SetChangeVolProc (char *ArcName, int Mode)
 	return 1;
 }
 
+
+int __stdcall SetChangeVolProcThunk (char *ArcName, int Mode)
+{
+	WcxArchive *p = (WcxArchive*)THUNK_MAGIC;
+	return p->SetChangeVolProc(ArcName, Mode);
+}
+
+
+int __stdcall ProcessDataProcThunk (char *FileName, int Size)
+{
+	WcxArchive *p = (WcxArchive*)THUNK_MAGIC;
+	return p->ProcessDataProc(FileName, Size);
+}
+
+
 WcxArchive::WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileName)
 {
 	m_pModule = pModule;
@@ -283,13 +298,12 @@ WcxArchive::WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileNa
 	OemToChar (m_lpFileName, m_lpFileName);
 
 	m_nModuleNum = nModuleNum;
-
 	m_hArchive = NULL;
 
 	bProcessDataProc = false;
 
-	CreateClassThunk (WcxArchive, ProcessDataProc, m_pfnProcessDataProc);
-	CreateClassThunk (WcxArchive, SetChangeVolProc, m_pfnSetChangeVolProc);
+	m_pfnProcessDataProc = CreateThunkFastEx(this, ProcessDataProcThunk);
+	m_pfnSetChangeVolProc = CreateThunkFastEx(this, SetChangeVolProcThunk);
 
 	m_pfnCallback = NULL;
 }
@@ -298,8 +312,8 @@ WcxArchive::~WcxArchive ()
 {
 	StrFree (m_lpFileName);
 
-	ReleaseThunk (m_pfnProcessDataProc);
-	ReleaseThunk (m_pfnSetChangeVolProc);
+	ReleaseThunkEx (m_pfnProcessDataProc);
+	ReleaseThunkEx (m_pfnSetChangeVolProc);
 }
 
 int WcxArchive::ConvertResult (int nResult)

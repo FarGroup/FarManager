@@ -28,35 +28,6 @@ bool GetFileInfo (
 	return bResult;
 }
 
-#pragma code_seg("thunk")
-LONG_PTR __stdcall CallbackThunk(int nMsg, int nParam, LONG_PTR nParam2, int fake)
-{
-	Archive *p = (Archive*)0x1234567812345678;
-	return 1;
-	//return p->ArchiveCallback(nMsg, nParam, nParam2, fake);
-}
-void CallbackThunkEnd() {};
-#pragma code_seg()
-
-byte *CreateCallbackThunk(Archive *ptr)
-{
-	int size = (byte*)CallbackThunkEnd-(byte*)CallbackThunk; 
-
-	byte *code = (byte*)VirtualAlloc (NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE); 
-	memcpy (code, &CallbackThunk, size); 
-
-	for (byte *p = code; p < code+size-4; p++) 
-	{ 
-		if ( *(INT_PTR*)p == 0x1234567812345678 ) 
-		{ 
-			memcpy(p, &ptr, sizeof(void*)); 
-			break; 
-		} 
-	} 
-
-	return code; 
-}
-
 Archive::Archive (
 		ArchivePlugin *pPlugin,
 		const char *lpFileName,
@@ -83,10 +54,7 @@ Archive::Archive (
 	if ( m_pPlugin->m_pfnPluginEntry (FID_GETARCHIVEFORMAT, (void*)&GAF) == NAERROR_SUCCESS )
 		m_pInfo = m_pPlugin->GetArchiveFormatInfo (GAF.uid);
 
-	m_pCallbackThunk = CreateCallbackThunk(this);
-	//CreateClassThunk(Archive, ArchiveCallback, m_pCallbackThunk);
-
-	//m_pCallbackThunk = 0;
+	m_pCallbackThunk = CreateThunkFastEx(this, ArchiveCallbackThunk);
 }
 
 bool Archive::WasUpdated ()
@@ -111,7 +79,7 @@ Archive::~Archive ()
 	StrFree (m_lpLastUsedPassword);
 	StrFree (m_lpFileName);
 
-	//ReleaseThunk (m_pCallbackThunk);
+	ReleaseThunkEx (m_pCallbackThunk);
 
 	//for (int i = 0; i < 11; i++)
 	//	StrFree (m_pCommands[i]);
@@ -450,8 +418,7 @@ int __stdcall Archive::OnProcessData (unsigned int uDataSize)
 LONG_PTR __stdcall Archive::ArchiveCallback (
 		int nMsg,
 		int nParam1,
-		LONG_PTR nParam2,
-		int fake
+		LONG_PTR nParam2
 		)
 {
 	int nResult = 0;

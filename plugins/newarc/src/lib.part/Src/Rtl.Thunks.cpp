@@ -1,64 +1,43 @@
 #include <Rtl.Base.h>
 
-#ifdef _WIN64
-
-//.code
-//     mov  rax, [rsp]
-//     mov  [0AAFFAAFFAAFFAAFFh], rax
-//     mov  [rsp+4*8], r9
-//     mov  r9, r8
-//     mov  r8, rdx
-//     mov  rdx, rcx
-//     mov  rcx, 0AAFFAAFFAAFFAAFFh
-//     mov  rax, 0AAFFAAFFAAFFAAFFh
-//     call rax
-//     add  rsp, 8
-//     mov  rdx, 0AAFFAAFFAAFFAAFFh
-//     jmp dword ptr [rdx]
-//end
-
-
-
-byte _thunk_code_x64[] = {
-		0x48, 0x8B, 0x04, 0x24,
-		0x48, 0xA3, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA,
-		0x4C, 0x89, 0x4C, 0x24, 0x20,
-		0x4D, 0x8B, 0xC8,
-		0x4C, 0x8B, 0xC2,
-		0x48, 0x8B, 0xD1,
-		0x48, 0xB9, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA,
-		0x48, 0xB8, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA,
-		0xFF, 0xD0,
-		0x48, 0x83, 0xC4, 0x08,
-		0x48, 0xBA, 0x22, 0x11, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA,
-		0xFF, 0x22
-		};
-
-byte* CreateThunk (void *pClass, void *pClassProc)
+byte *CreateThunkEx(void *obj, void *start, void *end)
 {
-	byte *code = (byte*)VirtualAlloc (NULL, sizeof _thunk_code_x64, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	byte *addr = (byte*)malloc (8);
+	int size = (byte*)end-(byte*)start; 
 
-	memcpy (code, &_thunk_code_x64, sizeof _thunk_code_x64);
+	byte *code = (byte*)VirtualAlloc (NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE); 
+	memcpy (code, start, size); 
 
-	memcpy (&code[6], &addr, 8);
+	for (byte *p = code; p < code+size-sizeof(INT_PTR); p++) 
+	{ 
+		if ( *(INT_PTR*)p == THUNK_MAGIC ) 
+			memcpy(p, &obj, sizeof(void*)); 
+	} 
 
-	memcpy (&code[30], &pClass, 8);
-	memcpy (&code[40], &pClassProc, 8);
-
-	memcpy (&code[56], &addr, 8);
-
-	return code;
+	return code; 
 }
 
-void ReleaseThunk(byte *pThunk)
+
+byte *CreateThunkFastEx(void *obj, void *start)
 {
-	free ((void*)*(DWORD_PTR*)(pThunk+6));
+	byte *code = (byte*)VirtualAlloc (NULL, 4096, MEM_COMMIT, PAGE_EXECUTE_READWRITE); 
+	memcpy (code, start, 4096); 
+
+	for (byte *p = code; p < code+4096-sizeof(INT_PTR); p++) 
+	{ 
+		if ( *(INT_PTR*)p == THUNK_MAGIC ) 
+			memcpy(p, &obj, sizeof(void*)); 
+	} 
+
+	return code; 
+}
+
+
+void ReleaseThunkEx (byte *pThunk)
+{
 	VirtualFree (pThunk, 0, MEM_RELEASE);
 }
 
 
-#else
 
 byte _thunk_code[] =	{
 		0x5A, // pop edx - pop ret addr
@@ -83,9 +62,6 @@ void ReleaseThunk (byte *pThunk)
 {
 	VirtualFree (pThunk, 0, MEM_RELEASE);
 }
-
-#endif
-
 
 
 unsigned char cdeclCode[] = {//all ecx!!

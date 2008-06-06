@@ -11,9 +11,10 @@
 #include <array.hpp>
 #include <debug.h>
 #include "module.hpp"
-#include "newarc.archive.h"
-#include "newarc.archiveplugin.h"
-#include "newarc.panel.h"
+#include "newarc.Thunks.h"
+#include "newarc.Archive.h"
+#include "newarc.ArchivePlugin.h"
+#include "newarc.Panel.h"
 #include "newarc.Messages.h"
 
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)

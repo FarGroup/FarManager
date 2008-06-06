@@ -109,6 +109,7 @@ public:
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
 	virtual void __stdcall pGetArchiveType (GUID *puid);
 
-	int __stdcall ProcessDataProc (char *FileName, int Size);
-	int __stdcall SetChangeVolProc (char *ArcName, int Mode);
+public:
+	virtual int __stdcall ProcessDataProc (char *FileName, int Size);
+	virtual int __stdcall SetChangeVolProc (char *ArcName, int Mode);
 };

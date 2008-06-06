@@ -69,7 +69,7 @@ public:
 
 friend class ArchivePlugin;
 
-	LONG_PTR __stdcall ArchiveCallback (int nMsg, int nParam, LONG_PTR nParam2, int fake);
+	virtual LONG_PTR __stdcall ArchiveCallback (int nMsg, int nParam, LONG_PTR nParam2);
 
 private:
 

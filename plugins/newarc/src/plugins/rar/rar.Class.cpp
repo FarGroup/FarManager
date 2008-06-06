@@ -41,11 +41,23 @@ RarModule::~RarModule ()
 	FreeLibrary (m_hModule);
 }
 
+LONG_PTR __stdcall RarCallbackThunk(
+		int nMsg,
+		void *pParam,
+		int nParam1,
+		int nParam2
+		)
+{
+	RarArchive *p = (RarArchive*)THUNK_MAGIC;
+	return p->RarCallback(nMsg, pParam, nParam1, nParam2);
+}
+
+
 RarArchive::RarArchive (RarModule *pModule, const char *lpFileName)
 {
 	m_pModule = pModule;
-	CreateClassThunk (RarArchive, RarCallback, m_pfnRarCallback);
 
+	m_pfnRarCallback = CreateThunkFastEx (this, RarCallbackThunk);
 	m_lpFileName = StrDuplicate (lpFileName);
 
 	m_bAborted = false;
@@ -54,7 +66,7 @@ RarArchive::RarArchive (RarModule *pModule, const char *lpFileName)
 RarArchive::~RarArchive ()
 {
 	StrFree (m_lpFileName);
-	ReleaseThunk (m_pfnRarCallback);
+	ReleaseThunkEx (m_pfnRarCallback);
 }
 
 bool __stdcall RarArchive::pOpenArchive (

@@ -68,7 +68,7 @@ public:
 
 //	virtual int __stdcall pGetArchiveType () {	return 0; }
 
-private:
+public:
 
-	int __stdcall RarCallback (int nMsg, void *pParam, int nParam1, int nParam2);
+	virtual int __stdcall RarCallback (int nMsg, void *pParam, int nParam1, int nParam2);
 };

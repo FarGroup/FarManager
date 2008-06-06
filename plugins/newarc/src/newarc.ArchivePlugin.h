@@ -41,5 +41,7 @@ public:
 
 	void ReloadLanguage (const char *lpLanguage);
 
-	const char * __stdcall pGetMsg (int nModuleNumber, int nID);
+public:
+
+	virtual const char * __stdcall pGetMsg (int nModuleNumber, int nID);
 };

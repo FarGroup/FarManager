@@ -64,7 +64,7 @@ struct ArchivePassword {
 	char *lpBuffer;
 };
 
-typedef LONG_PTR (__stdcall *ARCHIVECALLBACK) (int nMsg, int nParam1, LONG_PTR nParam2, int fake); 
+typedef LONG_PTR (__stdcall *ARCHIVECALLBACK) (int nMsg, int nParam1, LONG_PTR nParam2); 
 
 struct ProcessFileStruct {
 	PluginPanelItem *pItem;
