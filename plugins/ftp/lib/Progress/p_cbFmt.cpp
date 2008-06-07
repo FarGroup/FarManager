@@ -134,7 +134,7 @@ void TrafficInformation::DrawInfo( PInfoItem it,time_t tm )
         case 10: FTP_Info->FDigit( str,CurrentRemain(),-1 );
               break;
   //11 "CurTime" ---- Time from start of current file
-        case 11: cn = tm - FileStartTime;
+        case 11: cn = (int)(tm - FileStartTime);
                  FTP_Info->SNprintf( str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60 );
               break;
   //12 "CurFTime" ---- Full time to process current file
@@ -187,7 +187,7 @@ void TrafficInformation::DrawInfo( PInfoItem it,time_t tm )
         case 19: FTP_Info->FDigit( str,TotalRemain(),-1 );
               break;
   //20 "TotTime" ---- Time from start of current file
-        case 20: cn = tm - TotalStartTime;
+        case 20: cn = (int)(tm - TotalStartTime);
                  FTP_Info->SNprintf( str,sizeof(str), "%02d:%02d:%02d", cn/3600, (cn/60)%60, cn%60 );
               break;
   //21 "TotFTime" ---- Full time to process current file
