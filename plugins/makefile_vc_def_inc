@@ -16,6 +16,8 @@
 #
 #LINK_OBJS - a list of target *.obj files
 #
+#LINK_DEP - additional dependents for link rule (e.g. prebuild library)
+#
 #DEBUG - set if a debug build is needed
 #
 #WIDE - set for a unicode build
