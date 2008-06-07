@@ -713,7 +713,7 @@ struct PluginPanelItem
   int           CustomColumnNumber;
   DWORD_PTR     UserData;
   DWORD         CRC32;
-  DWORD         Reserved[2];
+  DWORD_PTR     Reserved[2];
 };
 
 

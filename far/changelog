@@ -1,3 +1,7 @@
+yjh 08.06.2008 00:53:42 +0300 - build 495
+
+1. В PluginsPanelInfo Reserved теперь не 2 DWORD'а а 2 DWORD_PTR.
+
 drkns 06.06.2008 11:04:18 +0200 - без билда
 
 1. Проект для VS2008.
