@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2358
+  Plugin API for FAR Manager 1.71 build 2371
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2008 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2358)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2371)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -657,7 +657,7 @@ struct PluginPanelItem
   int                  CustomColumnNumber;
   DWORD_PTR            UserData;
   DWORD                CRC32;
-  DWORD                Reserved[2];
+  DWORD_PTR            Reserved[2];
 };
 
 #if defined(__BORLANDC__)
@@ -952,6 +952,8 @@ enum FarDialogSettings{
   FDIS_PERSISTENTBLOCKSINEDITCONTROLS = 0x00000002,
   FDIS_AUTOCOMPLETEININPUTLINES       = 0x00000004,
   FDIS_BSDELETEUNCHANGEDTEXT          = 0x00000008,
+  FDIS_DELREMOVESBLOCKS               = 0x00000010,
+  FDIS_MOUSECLICKOUTSIDECLOSESDIALOG  = 0x00000020,
 };
 
 enum FarInterfaceSettings{

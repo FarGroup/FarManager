@@ -3,7 +3,7 @@
 
 #define FAR_MAJOR_VER 1
 #define FAR_MINOR_VER 71
-#define FAR_BUILD 2358
+#define FAR_BUILD 2371
 
 #define FARCOMPANYNAME "Eugene Roshal & FAR Group\000\000"
 #define FARCOPYRIGHT "Copyright © Eugene Roshal 1996-2000, Copyright © 2000-2008 FAR Group\000\000"

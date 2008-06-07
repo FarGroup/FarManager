@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 362
+  Plugin API for FAR Manager 1.80 build 494
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,362)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,494)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -208,6 +208,7 @@ enum FarDialogItemFlags {
   DIF_SELECTONENTRY         = 0x00800000UL,
   DIF_3STATE                = 0x00800000UL,
   DIF_LISTWRAPMODE          = 0x01000000UL,
+  DIF_NOAUTOCOMPLETE        = 0x02000000UL,
   DIF_LISTAUTOHIGHLIGHT     = 0x02000000UL,
   DIF_LISTNOCLOSE           = 0x04000000UL,
   DIF_HIDDEN                = 0x10000000UL,
@@ -487,6 +488,21 @@ struct FarDialogItemData
   wchar_t *PtrData;
 };
 
+struct FarDialogEvent
+{
+  HANDLE hDlg;
+  int Msg;
+  int Param1;
+  LONG_PTR Param2;
+  LONG_PTR Result;
+};
+
+struct OpenDlgPluginData
+{
+  int ItemNumber;
+  HANDLE hDlg;
+};
+
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
@@ -594,12 +610,16 @@ struct FarMenuItemEx
 };
 
 enum FARMENUFLAGS{
-  FMENU_SHOWAMPERSAND        = 0x0001,
-  FMENU_WRAPMODE             = 0x0002,
-  FMENU_AUTOHIGHLIGHT        = 0x0004,
-  FMENU_REVERSEAUTOHIGHLIGHT = 0x0008,
-  FMENU_USEEXT               = 0x0020,
-  FMENU_CHANGECONSOLETITLE   = 0x0040,
+  FMENU_SHOWAMPERSAND        = 0x00000001,
+  FMENU_WRAPMODE             = 0x00000002,
+  FMENU_AUTOHIGHLIGHT        = 0x00000004,
+  FMENU_REVERSEAUTOHIGHLIGHT = 0x00000008,
+  FMENU_USEEXT               = 0x00000020,
+  FMENU_CHANGECONSOLETITLE   = 0x00000040,
+
+  FMENU_TRUNCPATH            = 0x10000000,
+  FMENU_TRUNCSTR             = 0x20000000,
+  FMENU_TRUNCSTREND          = 0x30000000,
 };
 
 typedef int (WINAPI *FARAPIMENU)(
@@ -669,6 +689,8 @@ enum PANELINFOFLAGS {
   PFLAGS_SELECTEDFIRST      = 0x00000010,
   PFLAGS_REALNAMES          = 0x00000020,
   PFLAGS_NUMERICSORT        = 0x00000040,
+  PFLAGS_PANELLEFT          = 0x00000080,
+  PFLAGS_PANELRIGHT         = 0x00000100,
 };
 
 enum PANELINFOTYPE{
@@ -874,30 +896,31 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(
 );
 
 enum ADVANCED_CONTROL_COMMANDS{
-  ACTL_GETFARVERSION,
-  ACTL_CONSOLEMODE,
-  ACTL_GETSYSWORDDIV,
-  ACTL_WAITKEY,
-  ACTL_GETCOLOR,
-  ACTL_GETARRAYCOLOR,
-  ACTL_EJECTMEDIA,
-  ACTL_KEYMACRO,
-  ACTL_POSTKEYSEQUENCE,
-  ACTL_GETWINDOWINFO,
-  ACTL_GETWINDOWCOUNT,
-  ACTL_SETCURRENTWINDOW,
-  ACTL_COMMIT,
-  ACTL_GETFARHWND,
-  ACTL_GETSYSTEMSETTINGS,
-  ACTL_GETPANELSETTINGS,
-  ACTL_GETINTERFACESETTINGS,
-  ACTL_GETCONFIRMATIONS,
-  ACTL_GETDESCSETTINGS,
-  ACTL_SETARRAYCOLOR,
-  ACTL_GETWCHARMODE,
-  ACTL_GETPLUGINMAXREADDATA,
-  ACTL_GETDIALOGSETTINGS,
-  ACTL_GETSHORTWINDOWINFO,
+  ACTL_GETFARVERSION        = 0,
+  ACTL_CONSOLEMODE          = 1,
+  ACTL_GETSYSWORDDIV        = 2,
+  ACTL_WAITKEY              = 3,
+  ACTL_GETCOLOR             = 4,
+  ACTL_GETARRAYCOLOR        = 5,
+  ACTL_EJECTMEDIA           = 6,
+  ACTL_KEYMACRO             = 7,
+  ACTL_POSTKEYSEQUENCE      = 8,
+  ACTL_GETWINDOWINFO        = 9,
+  ACTL_GETWINDOWCOUNT       = 10,
+  ACTL_SETCURRENTWINDOW     = 11,
+  ACTL_COMMIT               = 12,
+  ACTL_GETFARHWND           = 13,
+  ACTL_GETSYSTEMSETTINGS    = 14,
+  ACTL_GETPANELSETTINGS     = 15,
+  ACTL_GETINTERFACESETTINGS = 16,
+  ACTL_GETCONFIRMATIONS     = 17,
+  ACTL_GETDESCSETTINGS      = 18,
+  ACTL_SETARRAYCOLOR        = 19,
+  ACTL_GETWCHARMODE         = 20,
+  ACTL_GETPLUGINMAXREADDATA = 21,
+  ACTL_GETDIALOGSETTINGS    = 22,
+  ACTL_GETSHORTWINDOWINFO   = 23,
+  ACTL_REDRAWALL            = 27,
 };
 
 
@@ -935,6 +958,8 @@ enum FarDialogSettings{
   FDIS_PERSISTENTBLOCKSINEDITCONTROLS = 0x00000002,
   FDIS_AUTOCOMPLETEININPUTLINES       = 0x00000004,
   FDIS_BSDELETEUNCHANGEDTEXT          = 0x00000008,
+  FDIS_DELREMOVESBLOCKS               = 0x00000010,
+  FDIS_MOUSECLICKOUTSIDECLOSESDIALOG  = 0x00000020,
 };
 
 enum FarInterfaceSettings{
@@ -1000,10 +1025,20 @@ struct KeySequence{
 };
 
 enum FARMACROCOMMAND{
-  MCMD_LOADALL,
-  MCMD_SAVEALL,
-  MCMD_POSTMACROSTRING,
+  MCMD_LOADALL           = 0,
+  MCMD_SAVEALL           = 1,
+  MCMD_POSTMACROSTRING   = 2,
+  MCMD_GETSTATE          = 5,
 };
+
+enum FARMACROSTATE {
+  MACROSTATE_NOMACRO          =0,
+  MACROSTATE_EXECUTING        =1,
+  MACROSTATE_EXECUTING_COMMON =2,
+  MACROSTATE_RECORDING        =3,
+  MACROSTATE_RECORDING_COMMON =4,
+};
+
 
 struct ActlKeyMacro{
   int Command;
@@ -1149,16 +1184,25 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
 );
 
 enum VIEWER_EVENTS {
-  VE_READ     =0,
-  VE_CLOSE    =1
+  VE_READ       =0,
+  VE_CLOSE      =1,
 };
 
 
 enum EDITOR_EVENTS {
-  EE_READ,
-  EE_SAVE,
-  EE_REDRAW,
-  EE_CLOSE
+  EE_READ       =0,
+  EE_SAVE       =1,
+  EE_REDRAW     =2,
+  EE_CLOSE      =3,
+
+  EE_GOTFOCUS   =6,
+  EE_KILLFOCUS  =7,
+};
+
+enum DIALOG_EVENTS {
+  DE_DLGPROCINIT    =0,
+  DE_DEFDLGPROCINIT =1,
+  DE_DLGPROCEND     =2,
 };
 
 #define EEREDRAW_ALL    (void*)0
@@ -1195,6 +1239,12 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_TURNOFFMARKINGBLOCK,
   ECTL_DELETEBLOCK,
   ECTL_FREEINFO, //!!!!!
+  ECTL_ADDSTACKBOOKMARK,
+  ECTL_PREVSTACKBOOKMARK,
+  ECTL_NEXTSTACKBOOKMARK,
+  ECTL_CLEARSTACKBOOKMARKS,
+  ECTL_DELETESTACKBOOKMARK,
+  ECTL_GETSTACKBOOKMARKS,
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
@@ -1581,6 +1631,7 @@ enum PLUGIN_FLAGS {
   PF_EDITOR         = 0x0004,
   PF_VIEWER         = 0x0008,
   PF_FULLCMDLINE    = 0x0010,
+  PF_DIALOG         = 0x0020,
 };
 
 struct PluginInfo
@@ -1706,13 +1757,15 @@ struct OpenPluginInfo
 };
 
 enum OPENPLUGIN_OPENFROM{
-  OPEN_DISKMENU,
-  OPEN_PLUGINSMENU,
-  OPEN_FINDLIST,
-  OPEN_SHORTCUT,
-  OPEN_COMMANDLINE,
-  OPEN_EDITOR,
-  OPEN_VIEWER,
+  OPEN_DISKMENU     = 0,
+  OPEN_PLUGINSMENU  = 1,
+  OPEN_FINDLIST     = 2,
+  OPEN_SHORTCUT     = 3,
+  OPEN_COMMANDLINE  = 4,
+  OPEN_EDITOR       = 5,
+  OPEN_VIEWER       = 6,
+  OPEN_FILEPANEL    = 7,
+  OPEN_DIALOG       = 8,
 };
 
 enum FAR_PKF_FLAGS {
@@ -1729,6 +1782,9 @@ enum FAR_EVENTS {
   FE_CLOSE          =3,
   FE_BREAK          =4,
   FE_COMMAND        =5,
+
+  FE_GOTFOCUS       =6,
+  FE_KILLFOCUS      =7,
 };
 
 
@@ -1754,6 +1810,7 @@ int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem 
 int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,wchar_t *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item);
+int    WINAPI _export ProcessDialogEventW(int Event,void *Param);
 int    WINAPI _export ProcessEditorEventW(int Event,void *Param);
 int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);
