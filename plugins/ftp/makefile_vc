@@ -19,6 +19,10 @@ LIBSRC=FStdLib\FARStdLib
 LINK_DEP=$(FSTDLIB)
 
 FLLLIST = DirList Progress Notify
+
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+DEF_NAME=FarFtp64
+!endif
 ##########
 
 LINK_OBJS = \
