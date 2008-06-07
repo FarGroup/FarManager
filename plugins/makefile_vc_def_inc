@@ -117,7 +117,7 @@ COMMONLIB = $(COMMON)\libCRT64.lib
 !ifdef EXCLUDECRT
 !undef COMMONLIB
 !endif
-CPP_PROJ=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
+CPP_PROJ_NO=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
 ULOUT=-Tpd+
 !ELSE
 COMMONLIB = $(COMMON)\libCRT.lib
@@ -127,9 +127,10 @@ COMMONLIB = $(COMMON)\libCRT.lib
 !ifdef CPP_UNALIGN
 CPP_ALIGN=/Zp1
 !endif
-CPP_PROJ=/nologo /c /W3 /Gy /GF $(CPP_ALIGN) /J /Gr /GS- /GR- /EHs-c- /LD /Fo"$(OBJDIR)\\" /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
+CPP_PROJ_NO=/nologo /c /W3 /Gy /GF $(CPP_ALIGN) /J /Gr /GS- /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
 ULOUT=-Tpd -Re
 !ENDIF
+CPP_PROJ=$(CPP_PROJ_NO) /Fo"$(OBJDIR)\\"
 
 LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
 
@@ -175,6 +176,7 @@ LINK_FLAGS=-q $(ULOUT) -Gz -m- -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEF)" /ZM:
 !undef CPP_DEBUG
 !endif
 
+CFLAGS_NO = $(CPP_PROJ_NO) $(CPP_DEBUG) $(CPP_OPT)
 CFLAGS = $(CPP_PROJ) $(CPP_DEBUG) $(CPP_OPT)
 
 !ifndef CC
