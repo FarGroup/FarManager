@@ -6,6 +6,7 @@ NAME = FarFtp
 
 NEEDDEFLIB=1
 NEEDENTRY=1
+EXCLUDECRT=1
 
 OUTTXT=$(OUTDIR)\ReadMe_eng.txt $(OUTDIR)\Notes_rus.txt $(OUTDIR)\Notes.txt \
   $(OUTDIR)\FtpCmds.txt $(OUTDIR)\FtpCmds_rus.txt $(OUTDIR)\BugReport_rus.txt \
@@ -16,6 +17,8 @@ OBJLIB=$(OBJDIR)\LibObj
 LIBSRC=FStdLib\FARStdLib
 
 LINK_DEP=$(FSTDLIB)
+
+FLLLIST = DirList Progress Notify
 ##########
 
 LINK_OBJS = \
@@ -72,7 +75,10 @@ LIBS=$(FSTDLIB) $(LIBS) wsock32.lib winmm.lib
 
 !include ..\makefile_vc_target_inc
 
-libnode: $(FSTDLIB)
+All: fstdlib flls
+	-255 @copy /Y lib\*.reg $(OUTDIR)\lib\ >NUL 2>NUL
+
+fstdlib: $(FSTDLIB)
 
 ##########
 $(OBJLIB): $(OBJDIR)
@@ -107,3 +113,23 @@ $(LIB_OBJS)
 	@copy /Y $< $@ >NUL
 
 $(DLLFULLNAME) : $(OUTTXT)
+
+##########
+flls: $(FLLLIST)
+
+!include ../makefile_vc_getmode
+
+!ifdef __MAKE__
+.PHONY: $(FLLLIST)
+!else
+FICTIVE=_fictive_
+_fictive_:
+!endif
+
+$(FLLLIST): $(FICTIVE)
+!ifndef INSTALL
+	$(MAKE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS)
+!else
+	$(MAKE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS) INSTALL=$(INSTALL)
+!endif
+

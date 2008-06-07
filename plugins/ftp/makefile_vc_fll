@@ -1,0 +1,53 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
+# nmake makefile_vc_fll.mak FLL=name
+#!if "$(FLL)" == ""
+#!error An invalid FLL-target
+#!endif
+
+NEEDDEFLIB=1
+NEEDENTRY=1
+EXCLUDECRT=1
+
+NAME = ftp$(FLL)
+EXT = fll
+ADDOUTDIR = \lib
+ADDOBJDIR = \$(FLL)
+
+#specify LINK_OBJS and additional libraryes
+!include .\lib\$(FLL)\makefile_vc.inc
+
+SRC_PATHS=lib\$(FLL);lib;.
+SRC_PATHS_DEFINED=1
+!ifdef __MAKE__
+.path.cpp=$(SRC_PATHS)
+.path.c=$(SRC_PATHS)
+.path.hpp=$(SRC_PATHS)
+.path.h=$(SRC_PATHS)
+.path.rc=$(SRC_PATHS)
+.path.def=$(SRC_PATHS)
+!endif
+
+RC_NAME=.\lib\$(FLL)\res
+DEF_NAME=.\lib\def
+
+USERCPP=/I.\lib\$(FLL) /I.\lib /I.\FstdLib /D__USE_TRAPLOGER__=1
+
+!include ..\makefile_vc_def_inc
+
+LIBS=$(LIBS) $(FLL_LIBS)
+
+!include ..\makefile_vc_target_inc
+
+!ifndef __MAKE__
+{lib/$(FLL)}.cpp{$(OBJDIR)}.obj::
+	$(CC) @<<
+	$(CFLAGS) $<
+<<
+{lib}.cpp{$(OBJDIR)}.obj::
+	$(CC) @<<
+	$(CFLAGS) $<
+<<
+!endif
