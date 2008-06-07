@@ -130,7 +130,7 @@ int FTP::GetFindData( PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMod
       tmp.FindData.dwFileAttributes = h.Folder ? FILE_ATTRIBUTE_DIRECTORY : 0;
       tmp.Flags                     = PPIF_USERDATA;
       tmp.PackSizeHigh              = FTP_HOSTID;
-      tmp.UserData                  = (DWORD)&h;
+      tmp.UserData                  = (DWORD_PTR)&h;
       if ( !IS_SILENT(OpMode) ) {
         tmp.Description               = h.HostDescr;
         tmp.CustomColumnNumber        = 3;

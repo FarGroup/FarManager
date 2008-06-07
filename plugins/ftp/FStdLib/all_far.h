@@ -596,10 +596,10 @@ STRUCT( FPPeriod )
 #if !defined(__FP_NOT_FUNCTIONS__)
 #if !defined(USE_ALL_LIB)
   //Allocators [fstd_mem.inc]
-  extern LPVOID DECLSPEC _Alloc( DWORD sz );
-  extern LPVOID DECLSPEC _Realloc( LPVOID ptr,DWORD sz );
+  extern LPVOID DECLSPEC _Alloc( SIZE_T sz );
+  extern LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz );
   extern void   DECLSPEC _Del( LPVOID ptr );
-  extern DWORD  DECLSPEC _PtrSize( LPVOID ptr );
+  extern SIZE_T DECLSPEC _PtrSize( LPVOID ptr );
   extern BOOL   DECLSPEC _HeapCheck( void );
 
   //MemXXX replacement

@@ -17,7 +17,7 @@ void DECLSPEC_PT __WinAbort( CONSTSTR msg,... )
 
 //Plugin name
      strcpy( pnm,"Assertion in \"" );
-     l = strlen(pnm);
+     l = (int)strlen(pnm);
      pnm[ l + GetModuleFileName(FP_HModule,pnm+l,sizeof(pnm)-l)] = 0;
      strcat( pnm,"\" !" );
 

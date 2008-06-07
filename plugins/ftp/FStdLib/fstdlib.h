@@ -355,7 +355,7 @@ STRUCT( FP_Dialog )
 
     bool     DlgRect( PSRect p )                  const { return FP_Info->SendDlgMessage(Handle,DM_GETDLGRECT,0,(LONG_PTR)p) == TRUE; }
     bool     ItemRect( int num,PSRect p )         const { return FP_Info->SendDlgMessage(Handle,DM_GETITEMPOSITION,num,(LONG_PTR)p) == TRUE; }
-    int      CursorPos( int num )                 const { COORD cp; return FP_Info->SendDlgMessage(Handle,DM_GETCURSORPOS,num,(LONG_PTR)&cp) == TRUE ? cp.X : 0; }
+    int      CursorPos( int num )                 const { COORD cp={0,0}; return FP_Info->SendDlgMessage(Handle,DM_GETCURSORPOS,num,(LONG_PTR)&cp) == TRUE ? cp.X : 0; }
     bool     CursorPos( int num,int pos ) const;
 
     void     Lock( bool v = true );

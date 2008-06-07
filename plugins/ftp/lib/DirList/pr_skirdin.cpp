@@ -128,7 +128,7 @@ BOOL DECLSPEC idDirParceSkirdin( const PFTPServerInfo Server, CONSTSTR Line, cha
     if ( StrNCmp( Line+4,"DW0-/",5 ) != 0 )
       return FALSE;
 
-    StrCpy( CurDir, Line+4, CurDirSize );
+    StrCpy( CurDir, Line+4, (int)CurDirSize );
 
     Ptr=CurDir;
     while(!isspace(*Ptr))

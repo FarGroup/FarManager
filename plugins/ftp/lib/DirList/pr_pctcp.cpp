@@ -91,7 +91,7 @@ BOOL DECLSPEC idDirParcePCTCP( const PFTPServerInfo Server, CONSTSTR Line, char 
     // то копируем текст после этой строки
 
     if (memcmp(Line, PCTCP_PWD_Title, PCTCP_PWD_TITLE_LEN)==0) {
-      StrCpy(CurDir, Line+PCTCP_PWD_TITLE_LEN, CurDirSize);
+      StrCpy(CurDir, Line+PCTCP_PWD_TITLE_LEN, (int)CurDirSize);
       return TRUE;
     }
 

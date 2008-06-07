@@ -77,5 +77,5 @@ int DECLSPEC CheckForKeyPressed( WORD *Codes,int NumCodes )
 //------------------------------------------------------------------------
 int DECLSPEC FP_Color( int tp )
   {
- return (int)FP_Info->AdvControl( FP_Info->ModuleNumber, ACTL_GETCOLOR, (void*)tp );
+ return (int)FP_Info->AdvControl( FP_Info->ModuleNumber, ACTL_GETCOLOR, (void*)(INT_PTR)tp );
 }

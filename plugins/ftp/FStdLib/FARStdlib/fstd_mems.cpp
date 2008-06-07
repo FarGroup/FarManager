@@ -3,10 +3,10 @@
 
 #include "fstdlib.h"
 
-LPVOID DECLSPEC __Alloc_S( DWORD sz )               { return malloc(sz); }
+LPVOID DECLSPEC __Alloc_S( SIZE_T sz )              { return malloc(sz); }
 void   DECLSPEC __Del_S( LPVOID ptr )               { if (ptr) free(ptr); }
-LPVOID DECLSPEC __Realloc_S( LPVOID ptr,DWORD sz )  { return (!ptr) ? malloc(sz) : realloc(ptr,sz); }
-DWORD  DECLSPEC __PtrSize_S( LPVOID ptr )           { return 0; }
+LPVOID DECLSPEC __Realloc_S( LPVOID ptr,SIZE_T sz ) { return (!ptr) ? malloc(sz) : realloc(ptr,sz); }
+SIZE_T DECLSPEC __PtrSize_S( LPVOID ptr )           { return 0; }
 
 #if defined(__BORLAND)
 BOOL   DECLSPEC __HeapCheck_S( void )               { return heapcheck() == _HEAPOK; }

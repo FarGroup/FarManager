@@ -40,7 +40,7 @@
   #endif
 
   #undef  THROW_ERROR
-  #define THROW_ERROR(err,fl,nm)  FTP_Info->Assertion( "Assertion...\nConditin: \"%s\"\nAt file: \"%s:%d\"",err,fl,nm )
+  #define THROW_ERROR(err,fl,nm)  FTP_Info->Assertion( "Assertion...\nCondition: \"%s\"\nAt file: \"%s:%d\"",err,fl,nm )
 #endif
 
 //------------------------------------------------------------------------
@@ -152,10 +152,10 @@ STRUCT( FTPInterface )
    char*    (DECLSPEC    *GetRegKeyStr)( CONSTSTR ValueName,char *ValueData,CONSTSTR Default,DWORD DataMaxSize );
 
 //Std
-   LPVOID   (DECLSPEC    *Alloc)( DWORD sz );
+   LPVOID   (DECLSPEC    *Alloc)( SIZE_T sz );
    void     (DECLSPEC    *Del)( LPVOID ptr );
-   LPVOID   (DECLSPEC    *Realloc)( LPVOID ptr,DWORD sz );
-   DWORD    (DECLSPEC    *PtrSize)( LPVOID ptr );
+   LPVOID   (DECLSPEC    *Realloc)( LPVOID ptr,SIZE_T sz );
+   SIZE_T   (DECLSPEC    *PtrSize)( LPVOID ptr );
    BOOL     (DECLSPEC    *HeapCheck)( void );
 
    int      (DECLSPEC    *StrCmp)( CONSTSTR str,CONSTSTR str1,int maxlen /*= -1*/, BOOL isCaseSens /*= TRUE*/ );

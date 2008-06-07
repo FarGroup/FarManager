@@ -41,7 +41,7 @@ int String::vprintf( CONSTSTR fmt,va_list list )
 
 void String::BeginSet( size_t sz )
   {
-   str = (char*)_Alloc( maxchar = Max( (size_t)DEF_STR_ALLOC, sz ) );
+   str = (char*)_Alloc( maxchar = (int)Max( (size_t)DEF_STR_ALLOC, sz ) );
    str[len = 0] = 0;
 }
 

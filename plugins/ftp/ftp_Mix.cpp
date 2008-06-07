@@ -97,7 +97,7 @@ void DECLSPEC Size2Str( char *buff,DWORD sz )
      }
 
      Sprintf( buff,"%f",size );
-     rc = strlen(buff);
+     rc = (int)strlen(buff);
      if ( !rc || strchr(buff,'.') == NULL )
        return;
 
@@ -109,7 +109,7 @@ void DECLSPEC Size2Str( char *buff,DWORD sz )
 }
 
 DWORD DECLSPEC Str2Size( char *str )
-  {  int    rc = strlen( str );
+  {  int    rc = (int)strlen( str );
      double sz;
      char   letter;
 
@@ -375,7 +375,7 @@ void DMessage( CONSTSTR str,BOOL full,int color,int y )
      if ( full ) {
        TStrCpy( err, str );
 
-       int len = strlen(err),
+       int len = (int)strlen(err),
            w   = Min( (int)sizeof(err)-1, FP_ConWidth()-4 );
 
        while( len < w ) err[len++] = ' ';
@@ -444,7 +444,7 @@ int DECLSPEC FDialog( int X2,int Y2,CONSTSTR HelpTopic,struct FarDialogItem *Ite
   return rc;
 }
 
-int DECLSPEC FDialogEx( int X2,int Y2,CONSTSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber,DWORD Flags,FARWINDOWPROC DlgProc,long Param )
+int DECLSPEC FDialogEx( int X2,int Y2,CONSTSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber,DWORD Flags,FARWINDOWPROC DlgProc,LONG_PTR Param )
   {  time_t b = time(NULL);
      int    rc;
 

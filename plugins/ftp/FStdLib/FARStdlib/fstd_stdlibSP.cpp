@@ -24,7 +24,7 @@ int DECLSPEC_PT SNprintf( char *Buff,size_t cn,const char *Fmt,... )
 
      if ( cn && res >= cn ) Buff[cn] = 0;
 
- return res;
+ return (int)res;
 }
 
 int DECLSPEC VSprintf( char *Buff,const char *Fmt,va_list arglist )
@@ -38,5 +38,5 @@ int DECLSPEC VSNprintf( char *Buff,size_t cn,const char *Fmt,va_list arglist )
      if (cn) cn--;
        res = vsnprintf( Buff,cn,Fmt,arglist );
      if ( cn && res >= cn ) Buff[cn] = 0;
- return res;
+ return (int)res;
 }

@@ -29,7 +29,7 @@ char *DECLSPEC StrRChr( CONSTSTR s, char ch )
 
 int DECLSPEC strLen( CONSTSTR str )
   {
-  return str ? strlen(str) : 0;
+  return str ? (int)strlen(str) : 0;
 }
 
 char *DECLSPEC StrDup( CONSTSTR m )

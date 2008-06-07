@@ -84,10 +84,10 @@ void __cdecl operator delete[]( void *ptr )      { RTLCheck("delete[]")    FTP_I
 void *__cdecl operator new[]( size_t sz )        { RTLCheck("new[]")       return FTP_Info->Alloc(sz); }
 #endif
 
-LPVOID DECLSPEC _Alloc( DWORD sz )               { RTLCheck("_Alloc")      return FTP_Info->Alloc(sz); }
+LPVOID DECLSPEC _Alloc( SIZE_T sz )              { RTLCheck("_Alloc")      return FTP_Info->Alloc(sz); }
 void   DECLSPEC _Del( LPVOID ptr )               { RTLCheck("_Del")        FTP_Info->Del(ptr); }
-LPVOID DECLSPEC _Realloc( LPVOID ptr,DWORD sz )  { RTLCheck("_Realloc")    return FTP_Info->Realloc(ptr,sz); }
-DWORD  DECLSPEC _PtrSize( LPVOID ptr )           { RTLCheck("_PtrSize")    return FTP_Info->PtrSize(ptr); }
+LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz ) { RTLCheck("_Realloc")    return FTP_Info->Realloc(ptr,sz); }
+SIZE_T DECLSPEC _PtrSize( LPVOID ptr )           { RTLCheck("_PtrSize")    return FTP_Info->PtrSize(ptr); }
 BOOL   DECLSPEC _HeapCheck( void )               { RTLCheck("_HeapCheck")  return FTP_Info->HeapCheck(); }
 
 /*******************************************************************

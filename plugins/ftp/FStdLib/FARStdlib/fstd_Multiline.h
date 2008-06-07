@@ -87,7 +87,7 @@ CLASS( FP_Multiline )
    FP_Multiline( int from,int to,int maxLines = 100 );
    ~FP_Multiline();
 
-   virtual BOOL DlgProc( PFP_Dialog d, int Msg, int Param1, long Param2, long& rc );
+   virtual BOOL DlgProc( PFP_Dialog d, int Msg, int Param1, LONG_PTR Param2, long& rc );
    virtual void SetChanged( bool ch );
 
    int         AddSelection( void );

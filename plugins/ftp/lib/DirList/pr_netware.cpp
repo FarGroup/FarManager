@@ -58,11 +58,11 @@ BOOL DECLSPEC idPRParceNETWARE( const PFTPServerInfo Server, PFTPFileInfo p, cha
 //Owner
     entry = SkipSpace(entry);
     m = SkipNSpace( entry );
-    StrCpy( entry_info.FTPOwner, entry, m-entry+1 );
+    StrCpy( entry_info.FTPOwner, entry, (int)(m-entry+1) );
     entry = SkipSpace( m );
     if ( !NET_IS_DIGIT(*entry) ) {
       m = SkipNSpace( entry );
-      StrCpy( entry_info.FTPOwner, entry, m-entry+1 );
+      StrCpy( entry_info.FTPOwner, entry, (int)(m-entry+1) );
       entry = SkipSpace( m );
     }
 

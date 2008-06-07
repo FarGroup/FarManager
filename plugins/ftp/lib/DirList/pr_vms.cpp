@@ -84,7 +84,7 @@ BOOL net_parse_vms_dir_entry(char *line, PNET_FileEntryInfo entry_info)
        return FALSE;
 
 //Filename
-     StrCpy( entry_info->FindData.cFileName, line, e-line+1 );
+     StrCpy( entry_info->FindData.cFileName, line, (int)(e-line+1) );
      line = SkipSpace( SkipNSpace(e) );
 
 //Size

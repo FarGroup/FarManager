@@ -74,7 +74,7 @@ extern int      DECLSPEC FMessage( unsigned int Flags,CONSTSTR HelpTopic,CONSTST
                                       int ItemsNumber,int ButtonsNumber );
 extern int      DECLSPEC FDialog( int X2,int Y2,CONSTSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber );
 extern int      DECLSPEC FDialogEx( int X2,int Y2,CONSTSTR HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-                                       DWORD Flags = 0,FARWINDOWPROC DlgProc = (FARWINDOWPROC)(size_t)-1,long Param = 0 );
+                                       DWORD Flags = 0,FARWINDOWPROC DlgProc = (FARWINDOWPROC)(size_t)-1,LONG_PTR Param = 0 );
 
 extern void     DECLSPEC IdleMessage( CONSTSTR str,int color );
 extern int      DECLSPEC StrSlashCount( CONSTSTR m );      //Rets number af any slash chars in string

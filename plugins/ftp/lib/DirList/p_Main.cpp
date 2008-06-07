@@ -180,7 +180,7 @@ BOOL is_unix_start( char *s, int len, int *off )
     if (off) *off = 0;
     if ( NET_IS_DIGIT( *s ) ) {
       char *e = SkipSpace( SkipDigit(s) );
-      if (off) *off = e-s;
+      if (off) *off = (int)(e-s);
       s = e;
     }
 

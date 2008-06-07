@@ -10,7 +10,7 @@ EXCLUDECRT=1
 
 OUTTXT=$(OUTDIR)\ReadMe_eng.txt $(OUTDIR)\Notes_rus.txt $(OUTDIR)\Notes.txt \
   $(OUTDIR)\FtpCmds.txt $(OUTDIR)\FtpCmds_rus.txt $(OUTDIR)\BugReport_rus.txt \
-  $(OUTDIR)\dirlist_rus.txt $(OUTDIR)\Problems-FAQ.txt
+  $(OUTDIR)\dirlist_rus.txt
 
 FSTDLIB=$(OBJDIR)\FsdLib.lib
 OBJLIB=$(OBJDIR)\LibObj

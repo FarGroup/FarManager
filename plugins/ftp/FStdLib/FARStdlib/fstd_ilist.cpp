@@ -70,7 +70,7 @@ void FP_ItemList::Copy( PluginPanelItem *dest,const PluginPanelItem *src,int cn 
                      ? (*((DWORD*)src->UserData))
                      : 0;
         if ( sz && !IsBadReadPtr( (void*)src->UserData,sz ) ) {
-          dest->UserData = (DWORD)_Alloc( sz+1 );
+          dest->UserData = (DWORD_PTR)_Alloc( sz+1 );
           MemMove( (char*)dest->UserData,(char*)src->UserData,sz );
         } else {
           dest->UserData = NULL;

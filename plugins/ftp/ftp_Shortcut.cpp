@@ -51,23 +51,23 @@ FTP
     m1 = m;
     m = StrChr(m1,'\x1');
     if ( !m ) return FALSE;
-    StrCpy( str, m1, m-m1+1 );
+    StrCpy( str, m1, (int)(m-m1+1) );
     Host.ServerType = (WORD)atoi(str);
 
     m1 = m+1;
     m = StrChr(m1,'\x1');
     if ( !m ) return FALSE;
-    StrCpy( Host.HostTable, m1, m-m1+1 );
+    StrCpy( Host.HostTable, m1, (int)(m-m1+1) );
 
     m1 = m+1;
     m  = StrChr(m1,'\x1');
     if ( !m ) return FALSE;
-    StrCpy( Host.User,m1,m-m1+1 );
+    StrCpy( Host.User,m1,(int)(m-m1+1) );
 
     m1 = m+1;
     m  = StrChr(m1,'\x1');
     if ( !m ) return FALSE;
-    StrCpy( Host.Password,m1,m-m1+1 );
+    StrCpy( Host.Password,m1,(int)(m-m1+1) );
 
     do{
       Host.ExtCmdView    = Opt.ExtCmdView;
@@ -85,7 +85,7 @@ FTP
       if ( !m )
         return FALSE;
 
-      StrCpy( str,m1,m-m1+1 );
+      StrCpy( str,m1,(int)(m-m1+1) );
       Host.IOBuffSize = Max(FTR_MINBUFFSIZE,(DWORD)atoi(str));
 
       //FFDup

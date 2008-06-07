@@ -3,7 +3,7 @@
 
 #include "fstdlib.h"
 
-BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, DWORD DataSize )
+BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, SIZE_T DataSize )
   {  HGLOBAL  hData;
      void    *GData;
      BOOL     rc = FALSE;
@@ -39,7 +39,7 @@ BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, DWORD DataSize )
       }
       if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,DataSize*2+2))!=NULL) {
         if ((GData=GlobalLock(hData))!=NULL) {
-          MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)Data,-1,(LPWSTR)GData,DataSize);
+          MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)Data,-1,(LPWSTR)GData,(int)DataSize);
           GlobalUnlock(hData);
           SetClipboardData(CF_UNICODETEXT,(HANDLE)hData);
           rc = TRUE;
@@ -54,7 +54,7 @@ BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, DWORD DataSize )
   return rc;
 }
 
-BOOL DECLSPEC FP_GetFromClipboard( LPVOID& Data, DWORD& DataSize )
+BOOL DECLSPEC FP_GetFromClipboard( LPVOID& Data, SIZE_T& DataSize )
   {  HANDLE   hData;
      void    *GData;
      BOOL     rc = FALSE;

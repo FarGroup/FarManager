@@ -260,7 +260,7 @@ char *DECLSPEC FDigit( char *buff,__int64 val,int sz )
      }
 
      PDigit( str,val,sz );
-     len = strlen(str);
+     len = (int)strlen(str);
      s   = str + len-1;
      if (sz == -1)
        sz = len + len/3 - ((len%3) == 0);
@@ -427,7 +427,7 @@ void DECLSPEC LogCmd( CONSTSTR src,CMDOutputDir out,DWORD Size )
                  "%4d.%02d.%02d %02d:%02d:%02d:%04d",
                  st.wYear, st.wMonth,  st.wDay,
                  st.wHour, st.wMinute, st.wSecond, st.wMilliseconds );
-       Fwrite( LogFile,tmstr,strlen(tmstr) );
+       Fwrite( LogFile,tmstr,(int)strlen(tmstr) );
 
        //Delay
        if ( !stOld.wYear )
@@ -435,7 +435,7 @@ void DECLSPEC LogCmd( CONSTSTR src,CMDOutputDir out,DWORD Size )
          else
           Sprintf( tmstr," %04d",
                    (st.wSecond-stOld.wSecond)*1000 + (st.wMilliseconds-stOld.wMilliseconds) );
-       Fwrite( LogFile,tmstr,strlen(tmstr) );
+       Fwrite( LogFile,tmstr,(int)strlen(tmstr) );
 
        stOld = st;
 

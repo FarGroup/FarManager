@@ -7,7 +7,7 @@ static void DECLSPEC _strncat( char *dest,const char *src,int dest_sz )
   {
     if ( !dest || !dest[0] || !src || !src[0] ) return;
 
-    int len = strlen(dest);
+    int len = (int)strlen(dest);
     if ( len >= dest_sz ) return;
 
     for( dest += len; *src && len < dest_sz; len++ )

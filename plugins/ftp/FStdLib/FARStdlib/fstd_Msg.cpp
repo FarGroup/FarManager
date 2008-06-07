@@ -49,7 +49,7 @@ static CONSTSTR DECLSPEC _FP_GetMsgINT(int MsgId)
     MsgId = Abs(MsgId);
     if ( MsgId < FAR_MAX_LANGID )
       return FP_Info->GetMsg(FP_Info->ModuleNumber,MsgId);
-     else
+    else
       return NULL;
 }
 
@@ -62,7 +62,7 @@ static CONSTSTR DECLSPEC _FP_GetMsgSTR( CONSTSTR String )
 
     if ( !FISMSG(String) )
       res = FP_Info->GetMsg(FP_Info->ModuleNumber,FGETID(String));
-     else
+    else
       res = String;
 
  return res;

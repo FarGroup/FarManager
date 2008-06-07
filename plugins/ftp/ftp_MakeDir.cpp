@@ -5,7 +5,7 @@
 
 BOOL FTP::FTPCreateDirectory( CONSTSTR dir,int OpMode )
   {  String Command;
-     int    len = strlen(dir);
+     int    len = (int)strlen(dir);
 
      if ( !len )
        return FALSE;

@@ -32,42 +32,42 @@ void *__cdecl operator new[]( size_t sz )   { void *p = _Alloc(sz); if (!p) retu
 #endif
 
 #if defined(__BMM_MEMORY__)
-  extern LPVOID DECLSPEC __Alloc_B( DWORD sz );
-  extern LPVOID DECLSPEC __Realloc_B( LPVOID ptr,DWORD sz );
+  extern LPVOID DECLSPEC __Alloc_B( SIZE_T sz );
+  extern LPVOID DECLSPEC __Realloc_B( LPVOID ptr,SIZE_T sz );
   extern void   DECLSPEC __Del_B( LPVOID ptr );
-  extern DWORD  DECLSPEC __PtrSize_B( LPVOID ptr );
+  extern SIZE_T DECLSPEC __PtrSize_B( LPVOID ptr );
   extern BOOL   DECLSPEC __HeapCheck_B( void );
 
-  LPVOID DECLSPEC _Alloc( DWORD sz )              { CHK_MEM return __Alloc_B( sz ); }
-  LPVOID DECLSPEC _Realloc( LPVOID ptr,DWORD sz ) { CHK_MEM return __Realloc_B( ptr,sz ); }
+  LPVOID DECLSPEC _Alloc( SIZE_T sz )             { CHK_MEM return __Alloc_B( sz ); }
+  LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz ){ CHK_MEM return __Realloc_B( ptr,sz ); }
   void   DECLSPEC _Del( LPVOID ptr )              { CHK_MEM __Del_B( ptr ); }
-  DWORD  DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_B( ptr ); }
+  SIZE_T DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_B( ptr ); }
   BOOL   DECLSPEC _HeapCheck( void )              { return __HeapCheck_B(); }
 #else
 #if defined(__HEAP_MEMORY__)
-  extern LPVOID DECLSPEC __Alloc_H( DWORD sz );
-  extern LPVOID DECLSPEC __Realloc_H( LPVOID ptr,DWORD sz );
+  extern LPVOID DECLSPEC __Alloc_H( SIZE_T sz );
+  extern LPVOID DECLSPEC __Realloc_H( LPVOID ptr,SIZE_T sz );
   extern void   DECLSPEC __Del_H( LPVOID ptr );
-  extern DWORD  DECLSPEC __PtrSize_H( LPVOID ptr );
+  extern SIZE_T DECLSPEC __PtrSize_H( LPVOID ptr );
   extern BOOL   DECLSPEC __HeapCheck_H( void );
 
-  LPVOID DECLSPEC _Alloc( DWORD sz )              { CHK_MEM return __Alloc_H( sz ); }
-  LPVOID DECLSPEC _Realloc( LPVOID ptr,DWORD sz ) { CHK_MEM return __Realloc_H( ptr,sz ); }
+  LPVOID DECLSPEC _Alloc( SIZE_T sz )             { CHK_MEM return __Alloc_H( sz ); }
+  LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz ){ CHK_MEM return __Realloc_H( ptr,sz ); }
   void   DECLSPEC _Del( LPVOID ptr )              { CHK_MEM __Del_H( ptr ); }
-  DWORD  DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_H( ptr ); }
+  SIZE_T DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_H( ptr ); }
   BOOL   DECLSPEC _HeapCheck( void )              { return __HeapCheck_H(); }
 #else
 #if defined(__STD_MEMORY__)
-  extern LPVOID DECLSPEC __Alloc_S( DWORD sz );
-  extern LPVOID DECLSPEC __Realloc_S( LPVOID ptr,DWORD sz );
+  extern LPVOID DECLSPEC __Alloc_S( SIZE_T sz );
+  extern LPVOID DECLSPEC __Realloc_S( LPVOID ptr,SIZE_T sz );
   extern void   DECLSPEC __Del_S( LPVOID ptr );
-  extern DWORD  DECLSPEC __PtrSize_S( LPVOID ptr );
+  extern SIZE_T DECLSPEC __PtrSize_S( LPVOID ptr );
   extern BOOL   DECLSPEC __HeapCheck_S( void );
 
-  LPVOID DECLSPEC _Alloc( DWORD sz )              { CHK_MEM return __Alloc_S( sz ); }
-  LPVOID DECLSPEC _Realloc( LPVOID ptr,DWORD sz ) { CHK_MEM return __Realloc_S( ptr,sz ); }
+  LPVOID DECLSPEC _Alloc( SIZE_T sz )             { CHK_MEM return __Alloc_S( sz ); }
+  LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz ){ CHK_MEM return __Realloc_S( ptr,sz ); }
   void   DECLSPEC _Del( LPVOID ptr )              { CHK_MEM __Del_S( ptr ); }
-  DWORD  DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_S( ptr ); }
+  SIZE_T DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_S( ptr ); }
   BOOL   DECLSPEC _HeapCheck( void )              { return __HeapCheck_S(); }
 #else
   #error "Memory allocation types not defined"

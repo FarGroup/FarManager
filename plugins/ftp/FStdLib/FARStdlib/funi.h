@@ -276,9 +276,9 @@ extern int DECLSPEC FP_Color( int far_color_num );
     [fstd_Msg.cpp]
     Wrapers for FAR language API.
 */
-#define FMSG( v )       ((CONSTSTR)(v))
-#define FISMSG(v)      ((v) != NULL && ((int)(v)) > FAR_MAX_LANGID)
-#define FGETID( v )    Abs((int)LO_WORD((DWORD)(v)))
+#define FMSG( v )       ((CONSTSTR)(INT_PTR)(v))
+#define FISMSG(v)      ((v) != NULL && ((int)(INT_PTR)(v)) > FAR_MAX_LANGID)
+#define FGETID( v )    Abs((int)LO_WORD((DWORD)(DWORD_PTR)(v)))
 
 #if !defined(__FP_NOT_FUNCTIONS__)
 typedef CONSTSTR (DECLSPEC *FP_GetMsgINT_t)( int MsgId );
@@ -342,8 +342,8 @@ inline CONSTSTR FP_GetMsg( CONSTSTR Msg) { return FP_GetMsgSTR(Msg); }
     Wrapers for clipboard Win API.
 */
 #if !defined(__FP_NOT_FUNCTIONS__)
-  extern BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, DWORD DataSize );
-  extern BOOL DECLSPEC FP_GetFromClipboard( LPVOID& Data, DWORD& DataSize );  //The calles should call `free()` to recvd data
+  extern BOOL DECLSPEC FP_CopyToClipboard( LPVOID Data, SIZE_T DataSize );
+  extern BOOL DECLSPEC FP_GetFromClipboard( LPVOID& Data, SIZE_T& DataSize );  //The calles should call `free()` to recvd data
 #endif
 /**@}*/
 

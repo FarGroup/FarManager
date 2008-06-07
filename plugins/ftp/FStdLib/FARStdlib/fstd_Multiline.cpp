@@ -47,7 +47,7 @@ void FP_Multiline::Init( int maxLines )
      SelCount   = 1;
      Selections = (PFP_Hilight)_Alloc( sizeof(FP_Hilight) );
      Selections[0].Rect.Empty();
-     Selections[0].Color = FP_Info->AdvControl( FP_Info->ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGEDITSELECTED );
+     Selections[0].Color = (int)FP_Info->AdvControl( FP_Info->ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGEDITSELECTED );
 }
 
 int FP_Multiline::AddSelection( void )
@@ -221,7 +221,7 @@ void FP_Multiline::DeleteSelectionText( int num )
 
 void FP_Multiline::PasteSelection( int num )
   {  LPVOID      data;
-     DWORD       sz;
+     SIZE_T      sz;
      PFP_Hilight p;
 
      if ( ((unsigned)num) >= ((unsigned)SelCount) ||
@@ -249,9 +249,9 @@ void FP_Multiline::PasteSelection( int num )
        last = strdup( Lines[pos] + p->Rect.X() );
 
        if ( tCount > 1 )
-         p->Rect.Right = strlen( tLines[tCount-1] );
+         p->Rect.Right = (SHORT)strlen( tLines[tCount-1] );
         else
-         p->Rect.Right += strlen( tLines[tCount-1] );
+         p->Rect.Right += (SHORT)strlen( tLines[tCount-1] );
 
        tmp  = (char*)_Alloc( p->Rect.X() + strlen(tLines[0]) + 1 );
        strncpy( tmp,Lines[pos],p->Rect.X() );
@@ -372,7 +372,7 @@ void FP_Multiline::SetChanged( bool ch )
   {
     Changed = ch;
     if ( ch )
-      dlg->User( DN_TEXTCHHANGED,(BOOL)ch,(long)this );
+      dlg->User( DN_TEXTCHHANGED,(BOOL)ch,(LONG_PTR)this );
 }
 
 int FP_Multiline::TextLength( void )
@@ -452,7 +452,7 @@ void FP_Multiline::SetText( char *m )
 
 void FP_Multiline::SetTextFromCipboard( void )
   {  LPVOID data;
-     DWORD  sz;
+     SIZE_T  sz;
 
      ClearLines();
      if ( FP_GetFromClipboard(data,sz) ) {
@@ -568,7 +568,7 @@ void FP_Multiline::AddLineTail( int nLine )
 
      char *m = Lines[ nLine ],
           *tmp;
-     int   len = strlen( m );
+     int   len = (int)strlen( m );
 
      if ( CurrentPos <= len )
        return;
@@ -648,7 +648,7 @@ enum SPos {
        case  KEY_CTRL+KEY_SHIFT+KEY_PGUP: y1 = 0;               break;
        case  KEY_CTRL+KEY_SHIFT+KEY_HOME: y1 = 0;       x1 = 0; break;
        case  KEY_CTRL+KEY_SHIFT+KEY_PGDN: y1 = Count-1;         break;
-       case   KEY_CTRL+KEY_SHIFT+KEY_END: y1 = Count-1; x1 = strlen(Lines[Count-1]); break;
+       case   KEY_CTRL+KEY_SHIFT+KEY_END: y1 = Count-1; x1 = (int)strlen(Lines[Count-1]); break;
 
        case    KEY_SHIFT+KEY_UP: y1--; break;
        case  KEY_SHIFT+KEY_DOWN: y1++; break;
@@ -735,14 +735,14 @@ bool FP_Multiline::DoEdit( int id,int num,long key )
      }
 
      char *m = Lines[ top+num ];
-     int   len = strlen(m);
+     int   len = (int)strlen(m);
 
      if ( delP && (CurrentPos < len || CurLine() == Count-1) ||
           !delP  && (CurrentPos > 0 || CurLine() == 0) )
        return false;
 
      num = CurLine() - (delP == false);
-     len = strlen(Lines[num]);
+     len = (int)strlen(Lines[num]);
      m   = (char*)_Alloc( len + strlen(Lines[num+1]) + 1 );
      strcpy( m,Lines[num] );
      strcat( m,Lines[num+1] );
@@ -780,7 +780,7 @@ bool IsChangeKey( long key )
 
  return false;
 }
-BOOL FP_Multiline::DlgProc( PFP_Dialog d, int Msg, int id, long Param2, long& rc )
+BOOL FP_Multiline::DlgProc( PFP_Dialog d, int Msg, int id, LONG_PTR Param2, long& rc )
   {  int  num;
 
     dlg = d;
@@ -806,15 +806,15 @@ BOOL FP_Multiline::DlgProc( PFP_Dialog d, int Msg, int id, long Param2, long& rc
                           CurrentPos  = dlg->CursorPos(id);
                           CurrentLine = num;
 
-                          if ( IsChangeKey(Param2) ) {
+                          if ( IsChangeKey((long)Param2) ) {
                             DeleteSelectionText( 0 );
                             Selections[0].Rect.Empty();
                             AddLineTail( num+top );
                           }
 
-                          if ( DoArrows( id,num,Param2 ) ||
-                               DoSelection(id,num,Param2) ||
-                               DoEdit(id,num,Param2) ) {
+                          if ( DoArrows( id,num,(long)Param2 ) ||
+                               DoSelection(id,num,(long)Param2) ||
+                               DoEdit(id,num,(long)Param2) ) {
                             DRET( TRUE );
                           }
                       break;
