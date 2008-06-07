@@ -72,7 +72,8 @@ Log(("global timeout finished %08X-%08X=%3.3f > %d",tmE,tmB,tmDiff,Opt.WaitTimeo
     }
 
 //Select
-    res = select( (*peer)+1, readfds, writefds, excptfds, &timeout );
+    // in windows nfds ignored
+    res = select( 0/*ignored*/, readfds, writefds, excptfds, &timeout );
 
 //Idle
     static bool inIdle = false;

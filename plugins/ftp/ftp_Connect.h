@@ -8,8 +8,8 @@ struct comvars {
   char         name[ MAXHOSTNAMELEN ];
   sockaddr_in  mctl;
   sockaddr_in  hctl;
-  FILE        *in;
-  FILE        *out;
+  SOCKET       in;
+  SOCKET       out;
   ftTypes      tpe;
   int          cpnd;
   int          sunqe;

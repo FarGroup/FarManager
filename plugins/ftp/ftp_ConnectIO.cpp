@@ -244,10 +244,10 @@ void Connection::pswitch(int flag)
   hisctladdr = op->hctl;
   ip->mctl = myctladdr;
   myctladdr = op->mctl;
-  ip->in = (FILE *)cin; // What the hell am I looking at...?
-  cin = (int)op->in;
-  ip->out = (FILE *)cout; // Same again...
-  cout = (int)op->out;
+  ip->in = cin; // What the hell am I looking at...?
+  cin = op->in;
+  ip->out = cout; // Same again...
+  cout = op->out;
   ip->tpe = type;
   type = op->tpe;
 

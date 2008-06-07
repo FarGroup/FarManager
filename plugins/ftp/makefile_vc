@@ -18,7 +18,10 @@ LIBSRC=FStdLib\FARStdLib
 
 LINK_DEP=$(FSTDLIB)
 
-FLLLIST = DirList Progress Notify
+FLLLIST = DirList Progress
+!ifndef INSTALL
+FLLLIST = $(FLLLIST) Notify
+!endif
 ##########
 
 LINK_OBJS = \
@@ -77,6 +80,7 @@ LIBS=$(FSTDLIB) $(LIBS) wsock32.lib winmm.lib
 
 All: fstdlib flls
 	-255 @copy /Y lib\*.reg $(OUTDIR)\lib\ >NUL 2>NUL
+	-255 @copy /Y lib\*.txt $(OUTDIR)\lib\ >NUL 2>NUL
 
 fstdlib: $(FSTDLIB)
 
@@ -98,11 +102,11 @@ $(LIB_OBJS)
 !ifndef __MAKE__
 {$(LIBSRC)}.cpp{$(OBJLIB)}.obj::
 	$(CC) @<<
-	$(CFLAGS) /Fo$(OBJLIB)\ $<
+	$(CFLAGS_NO) /Fo$(OBJLIB)\ $<
 <<
 !else
 {$(LIBSRC)}.cpp{$(OBJLIB)}.obj:
-	@$(CC) $(CFLAGS) /Fo$(OBJLIB)\ { $< } 
+	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
 !endif
 
 ##########
