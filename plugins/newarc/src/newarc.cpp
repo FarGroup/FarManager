@@ -10,7 +10,7 @@ pointer_array<ArchivePanel*> Panels;
 char *lpCurrentLanguage;
 char *lpINIFileName;
 
-char *pCommandNames[11] = {
+const char *pCommandNames[11] = {
 	"Extract",
 	"ExtractWithoutPath",
 	"Test",

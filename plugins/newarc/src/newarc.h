@@ -37,7 +37,7 @@ extern ArchivePlugin *GetPluginFromUID (const GUID &uid);
         "Add"
         };*/
 
-extern char *pCommandNames[11];
+extern const char *pCommandNames[11];
 
 #define FILE_ENCRYPTED 1
 

@@ -445,7 +445,7 @@ void CreateListFile (
 					true
 					);
 
-			char *lpCRLF = "\r\n";
+			const char *lpCRLF = "\r\n";
 
 			if ( OptionIsOn (dwFlags, PF_FLAG_DIR_NAME_AS_MASK) )
 			{
@@ -714,7 +714,7 @@ void GetArchiveItemsToProcess (
 		}
 		else
 		{
-			//если мы сюда попали - у нас похоже проблемы. 
+			//если мы сюда попали - у нас похоже проблемы.
 
 			char *lpFullName = StrCreate (260);
 
@@ -1375,7 +1375,7 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 					}
 				}
 			}
-	
+
 			return false;
 		}
 //*************************************/
@@ -1911,7 +1911,7 @@ int __stdcall ArchivePanel::pGetFiles (
 
 bool msgDeleteFiles ()
 {
-	char *pMsgs[4];
+	const char *pMsgs[4];
 
 	pMsgs[0] = "У§†Ђ•≠®• ®І †ае®Ґ†";
 	pMsgs[1] = "Вл еЃв®в• г§†Ђ®вм ®І †ае®Ґ† д†©Ђл";

@@ -2,33 +2,33 @@
 
 byte *CreateThunkEx(void *obj, void *start, void *end)
 {
-	int size = (byte*)end-(byte*)start; 
+	int size = (byte*)end-(byte*)start;
 
-	byte *code = (byte*)VirtualAlloc (NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE); 
-	memcpy (code, start, size); 
+	byte *code = (byte*)VirtualAlloc (NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	memcpy (code, start, size);
 
-	for (byte *p = code; p < code+size-sizeof(INT_PTR); p++) 
-	{ 
-		if ( *(INT_PTR*)p == THUNK_MAGIC ) 
-			memcpy(p, &obj, sizeof(void*)); 
-	} 
+	for (byte *p = code; p < code+size-sizeof(DWORD_PTR); p++)
+	{
+		if ( *(DWORD_PTR*)p == THUNK_MAGIC )
+			memcpy(p, &obj, sizeof(void*));
+	}
 
-	return code; 
+	return code;
 }
 
 
 byte *CreateThunkFastEx(void *obj, void *start)
 {
-	byte *code = (byte*)VirtualAlloc (NULL, 4096, MEM_COMMIT, PAGE_EXECUTE_READWRITE); 
-	memcpy (code, start, 4096); 
+	byte *code = (byte*)VirtualAlloc (NULL, 4096, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	memcpy (code, start, 4096);
 
-	for (byte *p = code; p < code+4096-sizeof(INT_PTR); p++) 
-	{ 
-		if ( *(INT_PTR*)p == THUNK_MAGIC ) 
-			memcpy(p, &obj, sizeof(void*)); 
-	} 
+	for (byte *p = code; p < code+4096-sizeof(DWORD_PTR); p++)
+	{
+		if ( *(DWORD_PTR*)p == THUNK_MAGIC )
+			memcpy(p, &obj, sizeof(void*));
+	}
 
-	return code; 
+	return code;
 }
 
 

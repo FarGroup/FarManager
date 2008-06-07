@@ -41,7 +41,7 @@ bool GetLngHlfParam (
 		char *last,
 		char **qb,
 		char **qe,
-		char *ParamName
+		const char *ParamName
 		)
 {
 	SkipEmpty (s, last);

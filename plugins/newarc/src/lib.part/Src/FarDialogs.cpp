@@ -245,7 +245,7 @@ LONG_PTR __stdcall DialogHandler (
 
 int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 {
-	PVOID              DialogProc;
+	FARWINDOWPROC DialogProc;
 	FarDialogHandler *Handler;
 
 	CurrentInfo = m_Info;
@@ -463,4 +463,4 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 
 }
 
-#endif PAGED_DIALOGS
+#endif //PAGED_DIALOGS

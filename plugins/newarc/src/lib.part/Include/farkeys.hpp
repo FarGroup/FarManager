@@ -3,13 +3,11 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.70
+  Inside KeyName for FAR Manager 1.71 build 2368
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2004 FAR group
+  Copyrigth (c) 2000-2008 FAR group
 */
-
-/* Revision: 1.29 29.05.2004 $ */
 
 
 enum BaseDefKeyboard
@@ -28,6 +26,7 @@ enum BaseDefKeyboard
   KEY_DOT                  ='.',
   KEY_SLASH                ='/',
   KEY_COLON                =':',
+  KEY_SEMICOLON            =';',
   KEY_BACKSLASH            ='\\',
 
   KEY_BS                   =0x00000008,
@@ -38,7 +37,12 @@ enum BaseDefKeyboard
 
   KEY_MASKF                =0x00000FFF,
 
+  KEY_FKEY_BEGIN           =0x00000100,
+
   KEY_BREAK                =0x00000103,
+
+  KEY_PAUSE                =0x00000113,
+  KEY_CAPSLOCK             =0x00000114,
 
   KEY_PGUP                 =0x00000121,
   KEY_PGDN                 =0x00000122,
@@ -85,11 +89,55 @@ enum BaseDefKeyboard
   KEY_F11                  =0x0000017A,
   KEY_F12                  =0x0000017B,
 
+  KEY_F13                  =0x0000017C,
+  KEY_F14                  =0x0000017D,
+  KEY_F15                  =0x0000017E,
+  KEY_F16                  =0x0000017F,
+  KEY_F17                  =0x00000180,
+  KEY_F18                  =0x00000181,
+  KEY_F19                  =0x00000182,
+  KEY_F20                  =0x00000183,
+  KEY_F21                  =0x00000184,
+  KEY_F22                  =0x00000185,
+  KEY_F23                  =0x00000186,
+  KEY_F24                  =0x00000187,
+
+  KEY_NUMLOCK              =0x00000190,
+  KEY_SCROLLLOCK           =0x00000191,
+
+  KEY_BROWSER_BACK         =0x000001A6,
+  KEY_BROWSER_FORWARD      =0x000001A7,
+  KEY_BROWSER_REFRESH      =0x000001A8,
+  KEY_BROWSER_STOP         =0x000001A9,
+  KEY_BROWSER_SEARCH       =0x000001AA,
+  KEY_BROWSER_FAVORITES    =0x000001AB,
+  KEY_BROWSER_HOME         =0x000001AC,
+  KEY_VOLUME_MUTE          =0x000001AD,
+  KEY_VOLUME_DOWN          =0x000001AE,
+  KEY_VOLUME_UP            =0x000001AF,
+  KEY_MEDIA_NEXT_TRACK     =0x000001B0,
+  KEY_MEDIA_PREV_TRACK     =0x000001B1,
+  KEY_MEDIA_STOP           =0x000001B2,
+  KEY_MEDIA_PLAY_PAUSE     =0x000001B3,
+  KEY_LAUNCH_MAIL          =0x000001B4,
+  KEY_LAUNCH_MEDIA_SELECT  =0x000001B5,
+  KEY_LAUNCH_APP1          =0x000001B6,
+  KEY_LAUNCH_APP2          =0x000001B7,
+
   KEY_CTRLALTSHIFTPRESS    =0x00000201,
   KEY_CTRLALTSHIFTRELEASE  =0x00000202,
 
   KEY_MSWHEEL_UP           =0x00000203,
   KEY_MSWHEEL_DOWN         =0x00000204,
+  KEY_NUMDEL               =0x00000209,
+  KEY_DECIMAL              =0x0000020A,
+  KEY_NUMENTER             =0x0000020B,
+
+  KEY_MSWHEEL_LEFT         =0x0000020C,
+  KEY_MSWHEEL_RIGHT        =0x0000020D,
+
+  KEY_VK_0xFF_BEGIN        =0x00000300,
+  KEY_VK_0xFF_END          =0x000003FF,
 
   KEY_END_FKEY             =0x00000FFF,
 
@@ -97,6 +145,7 @@ enum BaseDefKeyboard
   KEY_IDLE                 =0x00001002,
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
+
 };
 
 enum AddDefKeyboard
@@ -431,6 +480,8 @@ enum AddDefKeyboard
   KEY_CTRLPGDN             =KEY_CTRL|KEY_PGDN,
   KEY_CTRLINS              =KEY_CTRL|KEY_INS,
   KEY_CTRLDEL              =KEY_CTRL|KEY_DEL,
+  KEY_CTRLNUMDEL           =KEY_CTRL|KEY_NUMDEL,
+  KEY_CTRLDECIMAL          =KEY_CTRL|KEY_DECIMAL,
 
   KEY_SHIFTHOME            =KEY_SHIFT|KEY_HOME,
   KEY_SHIFTUP              =KEY_SHIFT|KEY_UP,
@@ -442,6 +493,8 @@ enum AddDefKeyboard
   KEY_SHIFTPGDN            =KEY_SHIFT|KEY_PGDN,
   KEY_SHIFTINS             =KEY_SHIFT|KEY_INS,
   KEY_SHIFTDEL             =KEY_SHIFT|KEY_DEL,
+  KEY_SHIFTNUMDEL          =KEY_SHIFT|KEY_NUMDEL,
+  KEY_SHIFTDECIMAL         =KEY_SHIFT|KEY_DECIMAL,
 
   KEY_ALTHOME              =KEY_ALT|KEY_HOME,
   KEY_ALTUP                =KEY_ALT|KEY_UP,
@@ -453,6 +506,8 @@ enum AddDefKeyboard
   KEY_ALTPGDN              =KEY_ALT|KEY_PGDN,
   KEY_ALTINS               =KEY_ALT|KEY_INS,
   KEY_ALTDEL               =KEY_ALT|KEY_DEL,
+  KEY_ALTNUMDEL            =KEY_ALT|KEY_NUMDEL,
+  KEY_ALTDECIMAL           =KEY_ALT|KEY_DECIMAL,
 
   KEY_CTRLSHIFTHOME        =KEY_CTRL|KEY_SHIFT|KEY_HOME,
   KEY_CTRLSHIFTUP          =KEY_CTRL|KEY_SHIFT|KEY_UP,
@@ -464,6 +519,8 @@ enum AddDefKeyboard
   KEY_CTRLSHIFTPGDN        =KEY_CTRL|KEY_SHIFT|KEY_PGDN,
   KEY_CTRLSHIFTINS         =KEY_CTRL|KEY_SHIFT|KEY_INS,
   KEY_CTRLSHIFTDEL         =KEY_CTRL|KEY_SHIFT|KEY_DEL,
+  KEY_CTRLSHIFTNUMDEL      =KEY_CTRL|KEY_SHIFT|KEY_NUMDEL,
+  KEY_CTRLSHIFTDECIMAL     =KEY_CTRL|KEY_SHIFT|KEY_DECIMAL,
 
   KEY_ALTSHIFTHOME         =KEY_ALT|KEY_SHIFT|KEY_HOME,
   KEY_ALTSHIFTUP           =KEY_ALT|KEY_SHIFT|KEY_UP,
@@ -475,6 +532,8 @@ enum AddDefKeyboard
   KEY_ALTSHIFTPGDN         =KEY_ALT|KEY_SHIFT|KEY_PGDN,
   KEY_ALTSHIFTINS          =KEY_ALT|KEY_SHIFT|KEY_INS,
   KEY_ALTSHIFTDEL          =KEY_ALT|KEY_SHIFT|KEY_DEL,
+  KEY_ALTSHIFTNUMDEL       =KEY_ALT|KEY_SHIFT|KEY_NUMDEL,
+  KEY_ALTSHIFTDECIMAL      =KEY_ALT|KEY_SHIFT|KEY_DECIMAL,
 
   KEY_CTRLALTHOME          =KEY_CTRL|KEY_ALT|KEY_HOME,
   KEY_CTRLALTUP            =KEY_CTRL|KEY_ALT|KEY_UP,
@@ -544,6 +603,7 @@ enum AddDefKeyboard
   KEY_CTRLSLASH            =KEY_CTRL|KEY_SLASH,
   KEY_CTRLBACKSLASH        =KEY_CTRL|KEY_BACKSLASH,
   KEY_CTRLCLEAR            =KEY_CTRL|KEY_CLEAR,
+  KEY_CTRLSHIFTCLEAR       =KEY_CTRL|KEY_SHIFT|KEY_CLEAR,
   KEY_CTRLADD              =KEY_CTRL|KEY_ADD,
   KEY_SHIFTADD             =KEY_SHIFT|KEY_ADD,
 
@@ -566,6 +626,12 @@ enum AddDefKeyboard
   KEY_ALTSHIFTENTER        =KEY_ALT|KEY_SHIFT|KEY_ENTER,
   KEY_CTRLALTENTER         =KEY_CTRL|KEY_ALT|KEY_ENTER,
   KEY_CTRLSHIFTENTER       =KEY_CTRL|KEY_SHIFT|KEY_ENTER,
+
+  KEY_CTRLNUMENTER         =KEY_CTRL|KEY_NUMENTER,
+  KEY_SHIFTNUMENTER        =KEY_SHIFT|KEY_NUMENTER,
+  KEY_ALTSHIFTNUMENTER     =KEY_ALT|KEY_SHIFT|KEY_NUMENTER,
+  KEY_CTRLALTNUMENTER      =KEY_CTRL|KEY_ALT|KEY_NUMENTER,
+  KEY_CTRLSHIFTNUMENTER    =KEY_CTRL|KEY_SHIFT|KEY_NUMENTER,
 
   KEY_CTRLAPPS             =KEY_CTRL|KEY_APPS,
   KEY_ALTAPPS              =KEY_ALT|KEY_APPS,

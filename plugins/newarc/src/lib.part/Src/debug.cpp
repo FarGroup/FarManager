@@ -51,16 +51,16 @@ void __cdecl __fdebug (const char *format, ...)
 	       NULL
 	       );
 
-    if ( hFile != INVALID_HANDLE_VALUE )
-    {
-		dword dwWritten;
-    	SetFilePointer (hFile, 0, NULL, FILE_END);
+		if ( hFile != INVALID_HANDLE_VALUE )
+		{
+			dword dwWritten;
+			SetFilePointer (hFile, 0, NULL, FILE_END);
 
-    	char *lpCRLF = "\n\r";
+			const char *lpCRLF = "\n\r";
 
-    	WriteFile (hFile, szBuff, StrLength(szBuff), &dwWritten, NULL);
-    	WriteFile (hFile, lpCRLF, 2, &dwWritten, NULL);
+			WriteFile (hFile, szBuff, StrLength(szBuff), &dwWritten, NULL);
+			WriteFile (hFile, lpCRLF, 2, &dwWritten, NULL);
 
-    	CloseHandle (hFile);
-    }
+			CloseHandle (hFile);
+		}
 }

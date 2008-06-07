@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2358
+  Plugin API for FAR Manager 1.71 build 2368
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2008 FAR group
@@ -12,7 +12,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,71,2358)
+#define FARMANAGERVERSION MAKEFARVERSION(1,71,2368)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -952,6 +952,8 @@ enum FarDialogSettings{
   FDIS_PERSISTENTBLOCKSINEDITCONTROLS = 0x00000002,
   FDIS_AUTOCOMPLETEININPUTLINES       = 0x00000004,
   FDIS_BSDELETEUNCHANGEDTEXT          = 0x00000008,
+  FDIS_DELREMOVESBLOCKS               = 0x00000010,
+  FDIS_MOUSECLICKOUTSIDECLOSESDIALOG  = 0x00000020,
 };
 
 enum FarInterfaceSettings{
@@ -1818,7 +1820,6 @@ int    WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode);
 int    WINAPI _export SetFindList(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
 */
-
 
 #ifdef __cplusplus
 };

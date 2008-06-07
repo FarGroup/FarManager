@@ -46,7 +46,7 @@ bool ArchivePlugin::Initialize (
 			_si.Info.FSF = &_FSF;
 			_si.HF = _HF;
 
-			m_pfnGetMsgThunk = CreateThunkFastEx(this, GetMsgThunk);
+			m_pfnGetMsgThunk = CreateThunkFastEx(this, (void *)GetMsgThunk);
 
 			strcpy (_si.Info.ModuleName, lpModuleName);
 

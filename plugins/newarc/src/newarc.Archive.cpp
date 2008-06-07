@@ -54,7 +54,7 @@ Archive::Archive (
 	if ( m_pPlugin->m_pfnPluginEntry (FID_GETARCHIVEFORMAT, (void*)&GAF) == NAERROR_SUCCESS )
 		m_pInfo = m_pPlugin->GetArchiveFormatInfo (GAF.uid);
 
-	m_pCallbackThunk = CreateThunkFastEx(this, ArchiveCallbackThunk);
+	m_pCallbackThunk = CreateThunkFastEx(this, (void *)ArchiveCallbackThunk);
 }
 
 bool Archive::WasUpdated ()
