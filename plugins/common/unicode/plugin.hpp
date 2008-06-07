@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 494
+  Plugin API for FAR Manager 1.80 build 495
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,494)
+#define FARMANAGERVERSION MAKEFARVERSION(1,80,495)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -667,7 +667,7 @@ struct PluginPanelItem
   int           CustomColumnNumber;
   DWORD_PTR     UserData;
   DWORD         CRC32;
-  DWORD         Reserved[2];
+  DWORD_PTR     Reserved[2];
 };
 
 
