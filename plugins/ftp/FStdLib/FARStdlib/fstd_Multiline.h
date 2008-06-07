@@ -67,7 +67,7 @@ CLASS( FP_Multiline )
    int          SelCount;             ///< Number of created selections.
 
   private:
-    void N_PosChanged( void ) { dlg->User(DN_POSCHANGED,0,(long)this); }
+    void N_PosChanged( void ) { dlg->User(DN_POSCHANGED,0,(LONG_PTR)this); }
     void N_Changed( void )    { SetChanged( true ); }
 
   private:

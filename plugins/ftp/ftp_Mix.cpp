@@ -448,7 +448,7 @@ int DECLSPEC FDialogEx( int X2,int Y2,CONSTSTR HelpTopic,struct FarDialogItem *I
   {  time_t b = time(NULL);
      int    rc;
 
-     if ( DlgProc == (FARWINDOWPROC)MAX_DWORD )
+     if ( DlgProc == (FARWINDOWPROC)(size_t)-1 )
        DlgProc = FP_Info->DefDlgProc;
 
      rc = FP_Info->DialogEx(FP_Info->ModuleNumber,-1,-1,X2,Y2,HelpTopic,Item,ItemsNumber,0,Flags,DlgProc,Param );

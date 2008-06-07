@@ -45,11 +45,11 @@
 #if defined(__USE_165_HEADER__)
   #include <FARStdlib\plugin_165.hpp>
 #else
-  #include <FARStdlib\plugin.hpp>
+  #include <plugin.hpp>
 #endif
 
-#include <FARStdlib\farcolor.hpp>
-#include <FARStdlib\farkeys.hpp>
+#include <farcolor.hpp>
+#include <farkeys.hpp>
 
 #include <FARStdlib\pack1.h>
 
@@ -385,9 +385,9 @@ STRUCT( FP_Dialog )
     Data CAT NOT BE zero sized.
 */
 inline BOOL   FPIL_ADDEXIST( const PluginPanelItem *p ) { return ((p)->Reserved[0] && (p)->Reserved[1]); }
-inline DWORD  FPIL_ADDSIZE( const PluginPanelItem *p )  { return FPIL_ADDEXIST(p) ? (p)->Reserved[0] : 0; }
+inline DWORD  FPIL_ADDSIZE( const PluginPanelItem *p )  { return FPIL_ADDEXIST(p) ? (DWORD)(p)->Reserved[0] : 0; }
 inline LPVOID FPIL_ADDDATA( const PluginPanelItem *p )  { return FPIL_ADDEXIST(p) ? ((void*)(p)->Reserved[1]) : NULL; }
-inline void   FPIL_ADDSET( PluginPanelItem *p, DWORD sz, LPVOID dt ) { (p)->Reserved[0] = sz; (p)->Reserved[1] = (DWORD)dt; }
+inline void   FPIL_ADDSET( PluginPanelItem *p, DWORD sz, LPVOID dt ) { (p)->Reserved[0] = sz; (p)->Reserved[1] = (DWORD_PTR)dt; }
 
 STRUCT( FP_ItemList )
     PluginPanelItem *List;         ///< Panel items array
