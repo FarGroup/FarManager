@@ -54,7 +54,7 @@ $(FICTIVE):
 libcrt: $(FICTIVE)
 	@echo ===========CRT library
         @cd common\CRT
-        @$(MAKE) -s -f makefile_lib_vc
+        @$(MAKE) -s -f makefile_lib_vc $(_MDEFS)
         @cd ..\..
 
 #######

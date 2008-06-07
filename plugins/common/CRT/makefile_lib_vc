@@ -5,7 +5,7 @@
 CC=$(_BIN_PATH_)cl.exe
 LIBR=$(_BIN_PATH_)lib.exe
 
-!IF "$(CPU)" == "AMD64"
+!IF "$(CPU)" == "AMD64" || defined(AMD64)
 OBJDIR = obj.64.vc
 DLLNAME = libCRT64.lib
 MASM=$(_BIN_PATH_)ml64.exe
@@ -22,7 +22,7 @@ OUTDIR = ..
 VC8OPT=/GS- /D_CRT_SECURE_NO_DEPRECATE
 !endif
 
-!if "$(CPU)" != "AMD64"
+!IF "$(CPU)" != "AMD64" && !defined(AMD64)
 LINK32_OBJS = \
 $(OBJDIR)\vc_llmul.obj \
 $(OBJDIR)\vc_lldiv.obj \
@@ -82,7 +82,7 @@ $(OBJDIRW)\strtol.obj \
 $(OBJDIR)\aliases.obj 
 
 CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3 $(ENV_INC_OPT)
-!IF "$(CPU)" == "AMD64"
+!IF "$(CPU)" == "AMD64" || defined(AMD64)
 CPP_PROJ=$(CPP_BASE) /Zp8 /Wp64
 !ELSE
 CPP_PROJ=$(CPP_BASE)
