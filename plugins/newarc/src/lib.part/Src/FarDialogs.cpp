@@ -284,7 +284,7 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 
 FarPagedDialog::FarPagedDialog (int X1, int Y1, int X2, int Y2) : FarDialog (X1, Y1, X2, Y2)
 {
-	m_Pages = new array<PageInfo*>(ARRAY_OPTIONS_DELETE);
+	m_Pages = new pointer_array<PageInfo*>(ARRAY_OPTIONS_DELETE);
 	m_CurrentPage = 0;
 }
 
@@ -385,7 +385,7 @@ LONG_PTR __stdcall PagedDialogHandler (
 
 		D->PreparePage (false);
 
-		return D->DlgProc (Msg, Param1, (int)D->Data);
+		return D->DlgProc (Msg, Param1, (LONG_PTR)D->Data);
 	}
 	else
 	{
@@ -416,7 +416,7 @@ LONG_PTR __stdcall PagedDialogHandler (
 
 int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 {
-	PVOID              DialogProc;
+	PVOID DialogProc;
 	FarPagedDialogHandler *Handler;
 
 	CurrentInfo = m_Info;
@@ -454,7 +454,7 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 			0,
 			m_nFlags,
 			(FARWINDOWPROC)DialogProc,
-			(int)Handler
+			(LONG_PTR)Handler
 			);
 
 	delete Handler;
