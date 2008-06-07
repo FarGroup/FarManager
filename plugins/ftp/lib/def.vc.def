@@ -1,2 +1,2 @@
 EXPORTS
-   FTPQueryInterface = _FTPQueryInterface@4
+   FTPQueryInterface

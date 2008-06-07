@@ -31,11 +31,7 @@ SRC_PATHS_DEFINED=1
 !endif
 
 RC_NAME=.\lib\$(FLL)\res
-!if defined(AMD64) || "$(CPU)" == "AMD64"
-DEF_NAME=.\lib\def64
-!else
 DEF_NAME=.\lib\def
-!endif
 
 USERCPP=/I.\lib\$(FLL) /I.\lib /I.\FstdLib /D__USE_TRAPLOGER__=1
 
