@@ -13,6 +13,17 @@
 #
 #CPP_UNALIGN - use 1byte alignment insead of 8bytes in 32bit compiling
 #
+#ADDOBJDIR - you can set it to /dir if the temporary folder for the plugin
+#            compiled files is a folder inside the default temporary folder.
+#            This is used in ftp for building *.fll.
+#
+#DEF_NAME - name of DEF-file (maybe with path, but always without extension).
+#           If unspecifiedn used $(NAME).
+#           This is used in ftp for building *.fll.
+#
+#RC_NAME  - name of RC-file (maybe with path, but always without extension).
+#           If unspecifiedn used $(NAME).
+#           This is used in ftp for building *.fll.
 #
 #LINK_OBJS - a list of target *.obj files
 #
@@ -42,6 +53,14 @@ AMD64=1
 CPU=AMD64
 !endif
 
+!ifndef RC_NAME
+RC_NAME=$(NAME)
+!endif
+
+!ifndef DEF_NAME
+DEF_NAME=$(NAME)
+!endif
+
 !ifndef DEBUG
 DIRNAME=final
 !else
@@ -64,7 +83,7 @@ OUTDIR=$(INSTALL)
 OUTDIR=$(WORKDIR)
 !ENDIF
 
-OBJDIR = $(WORKDIR)\obj
+OBJDIR = $(WORKDIR)\obj$(ADDOBJDIR)
 COMMON = ..\common
 !ifndef WIDE
 COMINC = $(COMMON)\ascii
@@ -79,9 +98,9 @@ EXT = dll
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
 !ifndef WIDE
-DEF = $(NAME).vc.def
+DEF = $(DEF_NAME).vc.def
 !else
-DEF = $(NAME)W.vc.def
+DEF = $(DEF_NAME)W.vc.def
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
 RES = $(OBJDIR)\$(NAME).res
