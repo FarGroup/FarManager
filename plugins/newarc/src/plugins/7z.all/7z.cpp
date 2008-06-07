@@ -24,7 +24,7 @@ const SevenZipModule *GetModuleFromGUID (const GUID &uid, unsigned int *formatIn
 	{
 		SevenZipModule *pModule = modules[i];
 
-		for (int j = 0; j < pModule->m_nNumberOfFormats; j++)
+		for (unsigned int j = 0; j < pModule->m_nNumberOfFormats; j++)
 		{
 			if ( pModule->m_pInfo[j].uid == uid )
 			{
@@ -187,7 +187,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		{
 			SevenZipModule *pModule = modules[i];
 
-			for (int k = 0; k < pModule->m_nNumberOfFormats; k++)
+			for (unsigned int k = 0; k < pModule->m_nNumberOfFormats; k++)
 			{
 				if ( IsEqualGUID (pModule->m_pInfo[k].uid, *pos->puid) )
 				{
@@ -269,7 +269,7 @@ int OnGetArchivePluginInfo (
 	{
 		SevenZipModule *pModule = modules[i];
 
-		for (int j = 0; j < pModule->m_nNumberOfFormats; j++)
+		for (unsigned int j = 0; j < pModule->m_nNumberOfFormats; j++)
 		{
 			pModule->GetArchiveFormatInfo (j, &pFormatInfo[index]);
 			index++;
@@ -393,16 +393,16 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialogHandler *D, int nMsg, int Param1,
 		D->ListAddStr (2, "PPMd");
 		D->ListAddStr (2, "BZip2");
 
-		for (int i = 0; i < countof(SevenZipLevel); i++)
+		for (unsigned int i = 0; i < countof(SevenZipLevel); i++)
 			D->ListAddStr (4, SevenZipLevel[i]);
 
-		for (int i = 0; i < countof(SevenZipLZMADictionary); i++)
+		for (unsigned int i = 0; i < countof(SevenZipLZMADictionary); i++)
 			D->ListAddStr (6, SevenZipLZMADictionary[i]);
 
-		for (int i = 0; i < countof(SevenZipLZMASBSize); i++)
+		for (unsigned int i = 0; i < countof(SevenZipLZMASBSize); i++)
 			D->ListAddStr (8, SevenZipLZMASBSize[i]);
 
-		for (int i = 0; i < countof(SevenZipLZMAWordSize); i++)
+		for (unsigned int i = 0; i < countof(SevenZipLZMAWordSize); i++)
 			D->ListAddStr (10, SevenZipLZMAWordSize[i]);
 	}
 

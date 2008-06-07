@@ -782,14 +782,14 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const
 	if ( !(*files & 0x1f)  && (GetTickCount ()-m_dwStartTime > 500) )
 	{
 	   	char szFileCount[100];
-   		char *pMsgs[4];
+   		const char *pMsgs[4];
 
 	   	pMsgs[0] = "Подождите";
    		pMsgs[1] = "Чтение архива [7z.all]";
 	   	pMsgs[2] = m_pArchive->m_lpFileName;
-   		pMsgs[3] = (char*)&szFileCount;
+   		pMsgs[3] = szFileCount;
 
-	   	FSF.sprintf ((char*)&szFileCount, "%I64u файлов", *files);
+	   	FSF.sprintf (szFileCount, "%I64u файлов", *files);
 
    		Info.Message(
    				Info.ModuleNumber,
@@ -904,7 +904,7 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 
 CArchiveUpdateCallback::CArchiveUpdateCallback (
-		SevenZipArchive *pArchive, 
+		SevenZipArchive *pArchive,
 		pointer_array<ArchiveUpdateItem*> *indicies,
 		const char *lpSourcePath,
 		const char *lpCurrentPath
