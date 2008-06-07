@@ -25,6 +25,8 @@
 
 class FarDialogHandler;
 
+typedef LONG_PTR (__stdcall *DIALOGHANDLER) (FarDialogHandler*, int, int, LONG_PTR);
+
 class FarDialog : public AutoArray<FarDialogItem> {
 
 protected:
@@ -76,7 +78,7 @@ public:
 	void Separator (int Y, const char *lpCaption = NULL) {	Text (-1, Y, lpCaption); SetFlags (DIF_SEPARATOR); }
 
 	int Show (const char *lpHelpTopic = NULL);
-	virtual int ShowEx (void *DlgProc = NULL, void *Param = NULL, const char *lpHelpTopic = NULL);
+	virtual int ShowEx (DIALOGHANDLER DlgProc = NULL, void *Param = NULL, const char *lpHelpTopic = NULL);
 
 friend class FarDialogHandler;
 };
@@ -105,15 +107,13 @@ public:
 
 	void NewPage (int nItems);
 
-	virtual int ShowEx (void *DlgProc = NULL, void *Param = NULL, const char *lpHelpTopic = NULL);
+	virtual int ShowEx (DIALOGHANDLER DlgProc = NULL, void *Param = NULL, const char *lpHelpTopic = NULL);
 
 friend class FarPagedDialogHandler;
 friend class FarDialogHandler;
 };
 
 #endif //PAGED_DIALOGS
-
-typedef LONG_PTR (__stdcall *DIALOGHANDLER) (FarDialogHandler*, int, int, LONG_PTR);
 
 class FarDialogHandler {
 public:

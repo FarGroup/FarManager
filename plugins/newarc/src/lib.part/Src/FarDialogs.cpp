@@ -243,7 +243,7 @@ LONG_PTR __stdcall DialogHandler (
 }
 
 
-int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
+int FarDialog::ShowEx(DIALOGHANDLER DlgProc, PVOID Param, const char *lpHelpTopic)
 {
 	FARWINDOWPROC DialogProc;
 	FarDialogHandler *Handler;
@@ -253,7 +253,7 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 	m_lpHelpTopic = lpHelpTopic;
 
 	Handler = new FarDialogHandler;
-	Handler->Create (this, (DIALOGHANDLER)DlgProc, Param);
+	Handler->Create (this, DlgProc, Param);
 
 	DialogProc = DialogHandler;
 
@@ -268,7 +268,7 @@ int FarDialog::ShowEx(PVOID DlgProc, PVOID Param, const char *lpHelpTopic)
 			count(),
 			0,
 			m_nFlags,
-			(FARWINDOWPROC)DialogProc,
+			DialogProc,
 			(LONG_PTR)Handler
 			);
 
@@ -414,9 +414,9 @@ LONG_PTR __stdcall PagedDialogHandler (
 }
 
 
-int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
+int FarPagedDialog::ShowEx (DIALOGHANDLER DlgProc, void *Param, const char *lpHelpTopic)
 {
-	PVOID DialogProc;
+	FARWINDOWPROC DialogProc;
 	FarPagedDialogHandler *Handler;
 
 	CurrentInfo = m_Info;
@@ -424,7 +424,7 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 	m_lpHelpTopic = lpHelpTopic;
 
 	Handler = new FarPagedDialogHandler;
-	Handler->Create (this, (DIALOGHANDLER)DlgProc, Param);
+	Handler->Create (this, DlgProc, Param);
 
 	Handler->m_Owner = this;
 
@@ -453,7 +453,7 @@ int FarPagedDialog::ShowEx (void *DlgProc, void *Param, const char *lpHelpTopic)
 			count(),
 			0,
 			m_nFlags,
-			(FARWINDOWPROC)DialogProc,
+			DialogProc,
 			(LONG_PTR)Handler
 			);
 

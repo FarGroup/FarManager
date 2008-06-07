@@ -1164,7 +1164,7 @@ bool dlgAddEditTemplate (ArchiveTemplate *ptpl, bool bAdd)
 	D.Button(-1, 8, "Отменить"); //10
 
 
-	if ( D.ShowEx ((void *)hndAddEditTemplate, ptpl) == 9 )
+	if ( D.ShowEx (hndAddEditTemplate, ptpl) == 9 )
 		return true;
 
 	return false;
@@ -1515,7 +1515,7 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 	memset (&tpl, 0, sizeof (tpl));
 
 	if ( D.ShowEx (
-			(PVOID)hndModifyCreateArchive,
+			hndModifyCreateArchive,
 			&tpl
 			) == 25 )
 	{
