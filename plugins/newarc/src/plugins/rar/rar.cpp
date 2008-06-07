@@ -151,7 +151,7 @@ int OnTest (TestStruct *pTS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-    static char *pCommands[]={
+    static const char *pCommands[]={
     /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
     /*Extract without paths */"rar e {-p%%P} -y -c- -kb -- %%A @%%LNM",
     /*Test                  */"rar t -y {-p%%P} -- %%A",

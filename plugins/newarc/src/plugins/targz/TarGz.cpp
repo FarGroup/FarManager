@@ -449,7 +449,7 @@ int OnTest (TestStruct *pTS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-	static char *pCommands[]={
+	static const char *pCommands[]={
 	/*Extract               */"",
 	/*Extract without paths */"",
 	/*Test                  */"",
@@ -465,9 +465,9 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 
 	pGDC->bResult = false;
 
-	if ( pGDC->nCommand < sizeof(pCommands)/sizeof(pCommands[0]) )
+	if ( pGDC->nCommand < (int)(sizeof(pCommands)/sizeof(pCommands[0])) )
 	{
-		for (int i = 0; i < sizeof (FormatInfo)/sizeof (FormatInfo[0]); i++)
+		for (unsigned int i = 0; i < sizeof (FormatInfo)/sizeof (FormatInfo[0]); i++)
 		{
 			if ( FormatInfo[i].uid == pGDC->uid )
 			{

@@ -13,7 +13,7 @@ int IsTarHeader(const unsigned char *Data,int DataSize)
   {
     /* If we have what looks like a real ustar archive, we must
     check the version number.  We only understand version 00.  */
-    if(Header->magic[TMAGLEN]=='\0'&&(Header->version[0]!='0'||Header->version[1]!='0'))
+    if(Header->magic[TMAGLEN-1]=='\0'&&(Header->version[0]!='0'||Header->version[1]!='0'))
       return FALSE;
   }
   for (I=0;Header->name[I];I++)

@@ -121,7 +121,7 @@ int OnExtract (ExtractStruct *pES)
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
     // Console PKZIP 4.0/Win32 commands
-    static char *pCommands[]={
+    static const char *pCommands[]={
     /*Extract               */"pkzipc -ext -dir -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA",
     /*Extract without paths */"pkzipc -ext -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA",
     /*Test                  */"pkzipc -test=all -nozip {-pass=%%P} %%A",

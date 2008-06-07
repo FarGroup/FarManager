@@ -302,8 +302,8 @@ WcxArchive::WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileNa
 
 	bProcessDataProc = false;
 
-	m_pfnProcessDataProc = CreateThunkFastEx(this, ProcessDataProcThunk);
-	m_pfnSetChangeVolProc = CreateThunkFastEx(this, SetChangeVolProcThunk);
+	m_pfnProcessDataProc = CreateThunkFastEx(this, (void *)ProcessDataProcThunk);
+	m_pfnSetChangeVolProc = CreateThunkFastEx(this, (void *)SetChangeVolProcThunk);
 
 	m_pfnCallback = NULL;
 }

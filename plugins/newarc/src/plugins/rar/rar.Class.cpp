@@ -57,7 +57,7 @@ RarArchive::RarArchive (RarModule *pModule, const char *lpFileName)
 {
 	m_pModule = pModule;
 
-	m_pfnRarCallback = CreateThunkFastEx (this, RarCallbackThunk);
+	m_pfnRarCallback = CreateThunkFastEx (this, (void *)RarCallbackThunk);
 	m_lpFileName = StrDuplicate (lpFileName);
 
 	m_bAborted = false;
