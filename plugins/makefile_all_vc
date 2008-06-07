@@ -13,20 +13,12 @@
 #CPU=AMD64 - for 64bit build
 #
 #############################################################################
-!if defined(WIDE)
-
 ALLDIRS=compare editcase emenu farcmds hlfviewer macroview network proclist
 
-!elseif defined(AMD64) || "$(CPU)" == "AMD64"
-
-ALLDIRS=align autowrap brackets compare drawline editcase emenu farcmds \
-        filecase hlfviewer macroview multiarc network proclist tmppanel
-
-!else
-
-ALLDIRS=align autowrap brackets compare drawline editcase emenu farcmds \
-        filecase hlfviewer macroview multiarc network proclist tmppanel
-
+!ifndef WIDE
+ALLDIRS = $(ALLDIRS) \
+          align autowrap brackets drawline filecase multiarc tmppanel \
+          ftp
 !endif
 
 #############################################################################
