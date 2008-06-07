@@ -1,0 +1,109 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
+NAME = FarFtp
+
+NEEDDEFLIB=1
+NEEDENTRY=1
+
+OUTTXT=$(OUTDIR)\ReadMe_eng.txt $(OUTDIR)\Notes_rus.txt $(OUTDIR)\Notes.txt \
+  $(OUTDIR)\FtpCmds.txt $(OUTDIR)\FtpCmds_rus.txt $(OUTDIR)\BugReport_rus.txt \
+  $(OUTDIR)\dirlist_rus.txt $(OUTDIR)\Problems-FAQ.txt
+
+FSTDLIB=$(OBJDIR)\FsdLib.lib
+OBJLIB=$(OBJDIR)\LibObj
+LIBSRC=FStdLib\FARStdLib
+
+LINK_DEP=$(FSTDLIB)
+##########
+
+LINK_OBJS = \
+$(OBJDIR)\ftp_AskOver.obj $(OBJDIR)\ftp_Cfg.obj $(OBJDIR)\ftp_CmdLine.obj \
+$(OBJDIR)\ftp_cnDownload.obj $(OBJDIR)\ftp_cnInit.obj \
+$(OBJDIR)\ftp_cnUpload.obj $(OBJDIR)\ftp_Connect.obj \
+$(OBJDIR)\ftp_ConnectCmds.obj $(OBJDIR)\ftp_ConnectIO.obj \
+$(OBJDIR)\ftp_ConnectMain.obj $(OBJDIR)\ftp_ConnectNB.obj \
+$(OBJDIR)\ftp_ConnectSock.obj $(OBJDIR)\ftp_DeleteFile.obj \
+$(OBJDIR)\ftp_EnumHost.obj $(OBJDIR)\ftp_Event.obj $(OBJDIR)\ftp_FAR.obj \
+$(OBJDIR)\ftp_FGet.obj $(OBJDIR)\ftp_FileList.obj $(OBJDIR)\ftp_FPut.obj \
+$(OBJDIR)\ftp_Ftp.obj $(OBJDIR)\ftp_FtpAPI.obj $(OBJDIR)\ftp_FTPBlock.obj \
+$(OBJDIR)\ftp_FTPConnect.obj $(OBJDIR)\ftp_FtpDlg.obj \
+$(OBJDIR)\ftp_FTPHost.obj $(OBJDIR)\ftp_fUtils.obj \
+$(OBJDIR)\ftp_GetOpenInfo.obj $(OBJDIR)\ftp_HGet.obj $(OBJDIR)\ftp_HPut.obj \
+$(OBJDIR)\ftp_JM.obj $(OBJDIR)\ftp_Key.obj $(OBJDIR)\ftp_MakeDir.obj \
+$(OBJDIR)\ftp_Mem.obj $(OBJDIR)\ftp_Mix.obj $(OBJDIR)\ftp_Plugin.obj \
+$(OBJDIR)\ftp_SetDir.obj $(OBJDIR)\ftp_Shortcut.obj $(OBJDIR)\ftp_sock.obj \
+$(OBJDIR)\ftp_Queque.obj $(OBJDIR)\ftp_Url.obj
+
+##########
+
+LIB_OBJS = \
+$(OBJLIB)\fstd_Arg.obj $(OBJLIB)\fstd_asrt.obj $(OBJLIB)\fstd_cDialog.obj \
+$(OBJLIB)\fstd_ClpS.obj $(OBJLIB)\fstd_crc32.obj $(OBJLIB)\fstd_Dbg.obj \
+$(OBJLIB)\fstd_Dialog.obj $(OBJLIB)\fstd_Dlg.obj $(OBJLIB)\fstd_Editor.obj \
+$(OBJLIB)\fstd_err.obj $(OBJLIB)\fstd_exSCAT.obj $(OBJLIB)\fstd_exSCHC.obj \
+$(OBJLIB)\fstd_exSCMP.obj $(OBJLIB)\fstd_exSCPY.obj $(OBJLIB)\fstd_exSNCH.obj \
+$(OBJLIB)\fstd_exSPCH.obj $(OBJLIB)\fstd_exSPS.obj $(OBJLIB)\fstd_ilist.obj \
+$(OBJLIB)\fstd_INProc.obj $(OBJLIB)\fstd_log.obj $(OBJLIB)\fstd_memb.obj \
+$(OBJLIB)\fstd_mems.obj $(OBJLIB)\fstd_memh.obj $(OBJLIB)\fstd_menu.obj \
+$(OBJLIB)\fstd_mesg.obj $(OBJLIB)\fstd_mklog.obj $(OBJLIB)\fstd_Msg.obj \
+$(OBJLIB)\fstd_Multiline.obj $(OBJLIB)\fstd_Patt.obj $(OBJLIB)\fstd_per.obj \
+$(OBJLIB)\fstd_plg.obj $(OBJLIB)\fstd_RegCh.obj $(OBJLIB)\fstd_RegCp.obj \
+$(OBJLIB)\fstd_RegCr.obj $(OBJLIB)\fstd_RegDl.obj $(OBJLIB)\fstd_RegDla.obj \
+$(OBJLIB)\fstd_RegGB.obj $(OBJLIB)\fstd_RegGI.obj $(OBJLIB)\fstd_RegOp.obj \
+$(OBJLIB)\fstd_RegRn.obj $(OBJLIB)\fstd_RegSB.obj $(OBJLIB)\fstd_RegSC.obj \
+$(OBJLIB)\fstd_RegSI.obj $(OBJLIB)\fstd_SCol.obj $(OBJLIB)\fstd_scr.obj \
+$(OBJLIB)\fstd_String.obj $(OBJLIB)\fstd_stdlibCS.obj \
+$(OBJLIB)\fstd_stdlibME.obj $(OBJLIB)\fstd_stdlibSP.obj \
+$(OBJLIB)\fstd_stdlibST.obj $(OBJLIB)\fstd_SText.obj $(OBJLIB)\fstd_Trap.obj \
+$(OBJLIB)\fstd_exit.obj $(OBJLIB)\fstd_HotKey.obj $(OBJLIB)\fstd_Con.obj \
+$(OBJLIB)\fstd_FMsg.obj $(OBJLIB)\fstd_CharDraw.obj $(OBJLIB)\fstd_OEM.obj \
+$(OBJLIB)\fstd_Utils.obj $(OBJLIB)\fstd_FUtils.obj
+
+##########
+
+USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__HEAP_MEMORY__=1 /D__USEASSERT__=1 \
+        /D__NOVCL__=1 /D_CONSOLE=1
+
+!include ..\makefile_vc_def_inc
+
+LIBS=$(FSTDLIB) $(LIBS) wsock32.lib winmm.lib
+
+!include ..\makefile_vc_target_inc
+
+libnode: $(FSTDLIB)
+
+##########
+$(OBJLIB): $(OBJDIR)
+	@if not exist "$(OBJLIB)\$(NULL)" mkdir "$(OBJLIB)"
+
+$(FSTDLIB): $(OBJLIB) $(LIB_OBJS)
+!ifndef __MAKE__
+	@$(LIBR) /OUT:$@ @<<
+$(LIB_OBJS)
+<<
+!else
+	@$(LIBR) /OUT:$@ @&&<
+$(LIB_OBJS)
+<
+!endif
+
+!ifndef __MAKE__
+{$(LIBSRC)}.cpp{$(OBJLIB)}.obj::
+	$(CC) @<<
+	$(CFLAGS) /Fo$(OBJLIB)\ $<
+<<
+!else
+{$(LIBSRC)}.cpp{$(OBJLIB)}.obj:
+	@$(CC) $(CFLAGS) /Fo$(OBJLIB)\ { $< } 
+!endif
+
+##########
+!ifndef __MAKE__
+.SUFFIXES: .txt
+!endif
+{.\}.txt{$(OUTDIR)}.txt:
+	@copy /Y $< $@ >NUL
+
+$(DLLFULLNAME) : $(OUTTXT)
