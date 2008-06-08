@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)debug.32.vc"
+			OutputDirectory="$(ProjectDir)\debug.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../common/ascii;../common"
+				AdditionalIncludeDirectories="..\common\ascii;..\common"
 				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -75,7 +75,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libCRT.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../common"
+				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
 				ModuleDefinitionFile="Align.vc.def"
@@ -114,7 +114,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(ProjectDir)debug.64.vc"
+			OutputDirectory="$(ProjectDir)\debug.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -139,7 +139,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../common/ascii;../common"
+				AdditionalIncludeDirectories="..\common\ascii;..\common"
 				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -169,7 +169,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../common"
+				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
 				ModuleDefinitionFile="Align.vc.def"
@@ -207,7 +207,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)final.32.vc"
+			OutputDirectory="$(ProjectDir)\final.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -233,7 +233,7 @@
 				Optimization="1"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../common/ascii;../common"
+				AdditionalIncludeDirectories="..\common\ascii;..\common"
 				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -264,7 +264,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libCRT.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../common"
+				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
 				ModuleDefinitionFile="Align.vc.def"
@@ -305,7 +305,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)final.64.vc"
+			OutputDirectory="$(ProjectDir)\final.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -332,7 +332,7 @@
 				Optimization="1"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../common/ascii;../common"
+				AdditionalIncludeDirectories="..\common\ascii;..\common"
 				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -363,7 +363,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../common"
+				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
 				ModuleDefinitionFile="Align.vc.def"
@@ -519,7 +519,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="../common/ascii"
+						AdditionalIncludeDirectories="..\common\ascii"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -527,7 +527,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="../common/ascii"
+						AdditionalIncludeDirectories="..\common\ascii"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -535,7 +535,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="../common/ascii"
+						AdditionalIncludeDirectories="..\common\ascii"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -543,7 +543,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="../common/ascii"
+						AdditionalIncludeDirectories="..\common\ascii"
 					/>
 				</FileConfiguration>
 			</File>
