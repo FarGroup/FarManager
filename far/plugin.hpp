@@ -42,10 +42,15 @@ Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
 
+#define FARMANAGERVERSION_MAJOR 1
+#define FARMANAGERVERSION_MINOR 80
+#define FARMANAGERVERSION_BUILD 496
+
+#ifndef RC_INVOKED
+
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION  MAKEFARVERSION(1,80,1)
-
+#define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD)
 
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
@@ -2019,5 +2024,7 @@ void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);
   #pragma pack(pop)
 #endif
 #endif
+
+#endif /* RC_INVOKED */
 
 #endif /* __PLUGIN_HPP__ */
