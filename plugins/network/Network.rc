@@ -1,35 +1,8 @@
 #include "farversion.hpp"
-#define VERSIONINFO_1   1
 
-VERSIONINFO_1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 41
-PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FARCOMPANYNAME
-   VALUE "FileDescription", "Network Plugin for FAR Manager\000"
-#ifndef UNICODE
-   VALUE "FileVersion", "1.71 build 41\000"
-#else
-   VALUE "FileVersion", "1.80 build 41\000"
-#endif
-   VALUE "InternalName", "Network\000"
-   VALUE "LegalCopyright", FARCOPYRIGHT
-   VALUE "OriginalFilename", "Network.dll\000"
-   VALUE "ProductName", FARPRODUCTNAME
-   VALUE "ProductVersion", FARPRODUCTVERSION
-  }
+#define PLUGIN_BUILD 41
+#define PLUGIN_DESC "Network Plugin for FAR Manager"
+#define PLUGIN_NAME "Network"
+#define PLUGIN_FILENAME "Network.dll"
 
- }
-
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+genericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

@@ -1,33 +1,8 @@
 #include "farversion.hpp"
-1 VERSIONINFO
- FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 26
- PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
- FILEFLAGSMASK 0x3fL
- FILEFLAGS 0x2L
- FILEOS 0x4L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "000004E4"
-        BEGIN
-            VALUE "CompanyName", FARCOMPANYNAME
-            VALUE "FileDescription", "FAR Commands Plugin for FAR Manager\000"
-#ifndef UNICODE
-            VALUE "FileVersion", "1.71 build 26\0"
-#else
-            VALUE "FileVersion", "1.80 build 26\0"
-#endif
-            VALUE "InternalName", "FARCmds\0"
-            VALUE "LegalCopyright", FARCOPYRIGHT
-            VALUE "OriginalFilename", "FARCmds.dll\000"
-            VALUE "ProductName", FARPRODUCTNAME
-            VALUE "ProductVersion", FARPRODUCTVERSION
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0, 0x4e4
-    END
-END
+
+#define PLUGIN_BUILD 26
+#define PLUGIN_DESC "FAR Commands Plugin for FAR Manager"
+#define PLUGIN_NAME "FARCmds"
+#define PLUGIN_FILENAME "FARCmds.dll"
+
+genericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

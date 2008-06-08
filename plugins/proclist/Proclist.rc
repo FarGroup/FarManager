@@ -1,39 +1,8 @@
 #include "farversion.hpp"
-#define VERSIONINFO_1   1
 
-#include <windows.h>
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
+#define PLUGIN_BUILD 139
+#define PLUGIN_DESC "Process List for FAR Manager"
+#define PLUGIN_NAME "ProcList"
+#define PLUGIN_FILENAME "ProcList.dll"
 
-VERSIONINFO_1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 139
-PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FARCOMPANYNAME
-   VALUE "FileDescription", "Process List for FAR Manager\000"
-#ifndef UNICODE
-   VALUE "FileVersion", "1.71 build 139\000"
-#else
-   VALUE "FileVersion", "1.80 build 139\000"
-#endif
-   VALUE "InternalName", "ProcList\000"
-   VALUE "LegalCopyright", FARCOPYRIGHT
-   VALUE "OriginalFilename", "ProcList.dll\000"
-   VALUE "ProductName", FARPRODUCTNAME
-   VALUE "ProductVersion", FARPRODUCTVERSION
-  }
-
- }
-
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+genericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

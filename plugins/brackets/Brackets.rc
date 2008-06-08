@@ -1,29 +1,8 @@
 #include "farversion.hpp"
-1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 6
-PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FARCOMPANYNAME
-   VALUE "FileDescription", "Brackets matching for FAR Manager\000"
-   VALUE "FileVersion", "1.71 build 6\000\000"
-   VALUE "InternalName", "Brackets\000"
-   VALUE "LegalCopyright", FARCOPYRIGHT
-   VALUE "OriginalFilename", "Brackets.dll\000"
-   VALUE "ProductName", FARPRODUCTNAME
-   VALUE "ProductVersion", FARPRODUCTVERSION
-  }
 
- }
+#define PLUGIN_BUILD 6
+#define PLUGIN_DESC "Brackets matching for FAR Manager"
+#define PLUGIN_NAME "Brackets"
+#define PLUGIN_FILENAME "Brackets.dll"
 
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+genericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

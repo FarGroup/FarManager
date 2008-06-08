@@ -1,33 +1,8 @@
 #include "farversion.hpp"
-1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 6
-PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-      VALUE "CompanyName", FARCOMPANYNAME
-      VALUE "FileDescription",   "Text case conversion\0"
-#ifndef UNICODE
-      VALUE "FileVersion", "1.71 build 6\000"
-#else
-      VALUE "FileVersion", "1.80 build 6\000"
-#endif
-      VALUE "InternalName",      "EditCase\0"
-      VALUE "LegalCopyright", FARCOPYRIGHT
-      VALUE "OriginalFilename",  "EditCase.dll\0"
-      VALUE "ProductName", FARPRODUCTNAME
-      VALUE "ProductVersion", FARPRODUCTVERSION
-  }
 
- }
+#define PLUGIN_BUILD 6
+#define PLUGIN_DESC "Text case conversion for FAR Manager"
+#define PLUGIN_NAME "EditCase"
+#define PLUGIN_FILENAME "EditCase.dll"
 
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+genericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

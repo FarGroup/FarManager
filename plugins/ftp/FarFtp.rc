@@ -1,29 +1,8 @@
 #include "ftpversion.hpp"
-1 VERSIONINFO
-FILEVERSION FTP_MAJOR_VER, FTP_MINOR_VER, 0, FTP_BUILD
-PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FARCOMPANYNAME
-   VALUE "FileDescription", "FTP client for FAR Manager\000"
-   VALUE "FileVersion", FTPPRODUCTVERSION
-   VALUE "InternalName", "FarFtp\000"
-   VALUE "LegalCopyright", FARCOPYRIGHT
-   VALUE "OriginalFilename", "FarFtp.dll\000"
-   VALUE "ProductName", FARPRODUCTNAME
-   VALUE "ProductVersion", FARPRODUCTVERSION
-  }
 
- }
+#define PLUGIN_BUILD FTP_BUILD
+#define PLUGIN_DESC "FTP client for FAR Manager"
+#define PLUGIN_NAME "FarFtp"
+#define PLUGIN_FILENAME "FarFtp.dll"
 
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+genericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
