@@ -183,14 +183,20 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       {
         int Space1=-1,Space2=-1;
         for (int J=PrevSpacePos-1;J>LastSplitPos+20;J--)
+        {
           if (TotalString[J]==' ')
+          {
             if (Space2==-1)
               Space2=J;
             else
+            {
               if (Space1==-1)
                 Space1=J;
               else
                 break;
+            }
+          }
+        }
         if (Space2!=-1 && PrevSpacePos-Space2<4)
           if (Space1==-1 || Space2-Space1>4 || PrevSpacePos-Space2==2)
           {
