@@ -40,7 +40,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default)
 }
 
 
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize)
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(hRoot,Key);
   DWORD Type;
