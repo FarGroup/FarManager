@@ -11,7 +11,7 @@ $(OBJDIR)/%.o: %.cpp
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(RES): $(NAME).rc $(COMINC)/farversion.hpp
+$(RES): $(NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
 	@$(MKDIR) -p $(@D)
 	$(WINDRES) -I $(COMINC) -i $< -o $@
 

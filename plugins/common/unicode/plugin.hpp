@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 495
+  Plugin API for FAR Manager 1.80 build 496
 */
 
 /*
@@ -39,10 +39,15 @@ Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
 
+#define FARMANAGERVERSION_MAJOR 1
+#define FARMANAGERVERSION_MINOR 80
+#define FARMANAGERVERSION_BUILD 496
+
+#ifndef RC_INVOKED
+
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,80,495)
-
+#define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD)
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
  #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
@@ -1836,5 +1841,7 @@ void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);
   #pragma pack(pop)
 #endif
 #endif
+
+#endif /* RC_INVOKED */
 
 #endif /* __PLUGIN_HPP__ */
