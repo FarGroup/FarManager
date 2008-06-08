@@ -13,10 +13,15 @@
   Copyright (c) 2000-<%YEAR%> FAR group
 */
 
+#define FARMANAGERVERSION_MAJOR 1
+#define FARMANAGERVERSION_MINOR 71
+#define FARMANAGERVERSION_BUILD 2373
+
+#ifndef RC_INVOKED
+
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION  MAKEFARVERSION(1,71,2249)
-
+#define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD)
 
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
@@ -2026,5 +2031,7 @@ void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
   #pragma pack(pop)
 #endif
 #endif
+
+#endif /* RC_INVOKED */
 
 #endif /* __PLUGIN_HPP__ */
