@@ -108,7 +108,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
       }
       Items=NewItems;
       lstrcpyn(Items[Count].Text, Format, sizeof(Items[Count].Text));
-      Items[Count].Flags=(Count==0 && *ArcFormat==0 ||
+      Items[Count].Flags=((Count==0 && *ArcFormat==0) ||
                           !FSF.LStricmp(ArcFormat, Format))?MIF_SELECTED:0;
       Count++;
     }

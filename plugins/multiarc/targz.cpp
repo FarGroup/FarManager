@@ -554,7 +554,7 @@ int IsTarHeader(const BYTE *Data,int DataSize)
   for (I=0; I < sizeof(Header->mode); I++)
   {
     int Mode=Header->mode[I];
-    if (Mode > '7' || Mode < '0' && Mode && Mode != ' ')
+    if (Mode > '7' || (Mode < '0' && Mode && Mode != ' '))
       return FALSE;
   }
 

@@ -249,7 +249,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   FileSize=GetFileSize(ArcHandle,NULL);
   NextPosition=SFXSize;
 
-  OffsetComment=OffsetComment=0;
+  OffsetComment=0;
   ArcComment=0;
 
   return(TRUE);
@@ -362,7 +362,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==ARC_FORMAT)
   {
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"arc32 xo{%%S}{g%%P} %%a %%FMQ",
     /*Extract without paths */"arc32 eo{%%S}{g%%P} %%a %%FMQ",
     /*Test                  */"arc32 t{g%%P} %%a %%FMQ",

@@ -3,9 +3,9 @@
 #include <farkeys.hpp>
 
 ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
-                       char *FormatString,char *ArcName,char *ArcDir,
-                       char *Password,char *AllFilesMask,int IgnoreErrors,
-                       int CommandType,int ASilent,char *RealArcDir)
+                       const char *FormatString,const char *ArcName,const char *ArcDir,
+                       const char *Password,const char *AllFilesMask,int IgnoreErrors,
+                       int CommandType,int ASilent,const char *RealArcDir)
 {
 
   Silent=ASilent;
@@ -73,7 +73,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
   if (*Command)
   {
     int Hide=Opt.HideOutput;
-    if (Hide==1 && CommandType==0 || CommandType==2)
+    if ((Hide==1 && CommandType==0) || CommandType==2)
       Hide=0;
     ExecCode=Execute(this,Command,Hide,Silent,!*Password,ListFileName);
     if(ExecCode==RETEXEC_ARCNOTFOUND)
@@ -404,7 +404,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             else
               lstrcpy(Name," ");
           }
-          if (*Names==0 || lstrlen(Names)+lstrlen(Name)<MaxNamesLength && Command[2]!='f')
+          if (*Names==0 || (lstrlen(Names)+lstrlen(Name)<MaxNamesLength && Command[2]!='f'))
           {
             NameNumber+=IncreaseNumber;
             if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -422,10 +422,12 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
                   lstrcpy(FolderMaskName," ");
               }
               if (FolderMask)
+              {
                 if (FolderName)
                   lstrcpy(NextFileName,FolderMaskName);
                 else
                   lstrcpy(Name,FolderMaskName);
+              }
             }
 
             if (QuoteName==1)

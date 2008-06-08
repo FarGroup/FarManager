@@ -227,6 +227,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     if (!ReadFile(ArcHandle,&ZipHeader,sizeof(ZipHeader),&ReadSize,NULL))
       return(GETARC_READERROR);
     if (ZipHeader.Mark!=0x02014b50 && ZipHeader.Mark!=0x06054b50)
+    {
       if (FirstRecord)
       {
         if (SFXSize>0)
@@ -245,12 +246,13 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       }
       else
         return(GETARC_UNEXPEOF);
+    }
   }
 
   FirstRecord=FALSE;
 
   if (ReadSize==0 || ZipHeader.Mark==0x06054b50 ||
-      Truncated && ZipHeader.Mark==0x02014b50)
+      (Truncated && ZipHeader.Mark==0x02014b50))
   {
     if (!Truncated && *(WORD *)((char *)&ZipHeader+20)!=0)
       ArcComment=TRUE;
@@ -291,7 +293,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     Info->Encrypted=TRUE;
   if (ZipHeader.CommLen > 0)
     Info->Comment=TRUE;
-  static char *ZipOS[]={"DOS","Amiga","VAX/VMS","Unix","VM/CMS","Atari ST",
+  static const char *ZipOS[]={"DOS","Amiga","VAX/VMS","Unix","VM/CMS","Atari ST",
                         "OS/2","Mac-OS","Z-System","CP/M","TOPS-20",
                         "Win32","SMS/QDOS","Acorn RISC OS","Win32 VFAT","MVS",
                         "BeOS","Tandem"};
@@ -436,7 +438,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     // Console PKZIP 4.0/Win32 commands
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"pkzipc -ext -dir -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA",
     /*Extract without paths */"pkzipc -ext -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA",
     /*Test                  */"pkzipc -test=all -nozip {-pass=%%P} %%A",

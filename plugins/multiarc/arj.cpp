@@ -78,7 +78,7 @@ DWORD CRC;
 #define UPDATE_CRC(r,c) r=crctable[((BYTE)(r)^(BYTE)(c))&0xff]^(r>>CHAR_BIT)
 #define CRCPOLY         0xEDB88320L
 
-static char *ArjOS[]={"MSDOS","PRIMOS","UNIX","AMIGA","MAC-OS",
+static const char *ArjOS[]={"MSDOS","PRIMOS","UNIX","AMIGA","MAC-OS",
                       "OS/2","APPLE GS","ATARI ST","NEXT",
                       "VAX VMS","WIN95","WIN32"};
 
@@ -407,7 +407,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     // Correct Arj/Win32 commands
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"arj32 x -+ {-g%%P} -v -y -p1 -- %%A !%%LM",
     /*Extract without paths */"arj32 e -+ {-g%%P} -v -y -p1 -- %%A !%%LM",
     /*Test                  */"arj32 t -+ -y {-g%%P} -v -p1 -- %%A",

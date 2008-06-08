@@ -19,7 +19,7 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData)
 }
 
 
-int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize)
+int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize)
 {
   int Ret;
   if(0==(Ret=GetRegKey(HKEY_CURRENT_USER, Key,ValueName,ValueData,Default,DataSize)))
@@ -28,7 +28,7 @@ int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Defaul
 }
 
 
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize)
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(hRoot,Key);
   DWORD Type;

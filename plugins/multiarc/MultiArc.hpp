@@ -179,9 +179,9 @@ class ArcCommand
 
   public:
     ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
-               char *FormatString,char *ArcName,char *ArcDir,char *Password,
-               char *AllFilesMask,int IgnoreErrors,int CommandType=0,
-               int Silent=0,char *RealArcDir=NULL);
+               const char *FormatString,const char *ArcName,const char *ArcDir,const char *Password,
+               const char *AllFilesMask,int IgnoreErrors,int CommandType=0,
+               int Silent=0,const char *RealArcDir=NULL);
     ~ArcCommand(); //$ AA 25.11.2001
 
   public:
@@ -197,7 +197,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  char *Data;
+  const char *Data;
 };
 
 /* $ 13.09.2000 tran
@@ -257,11 +257,11 @@ extern struct Options Opt;
 extern struct PluginStartupInfo Info;
 extern class ArcPlugins *ArcPlugin;
 extern int FarVER;
-extern char *CmdNames[];
+extern const char *CmdNames[];
 
 #ifdef _NEW_ARC_SORT_
 extern char IniFile[];
-extern char *SortModes[];
+extern const char *SortModes[];
 #endif //_NEW_ARC_SORT_
 
 extern DWORD PriorityProcessCode[];
@@ -304,8 +304,8 @@ int GetScrX(void);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
-int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
+int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
 void DeleteRegKey(HKEY hRoot,const char *Key);

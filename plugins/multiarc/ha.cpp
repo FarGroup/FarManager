@@ -81,7 +81,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   if (DataSize<26 || Data[0]!='H' || Data[1]!='A' || Data[3]>32)
     return(FALSE);
   int Type=Data[4] & 0xf;
-  if (Type>2 && Type<14 || Data[4]>0x2f)
+  if ((Type>2 && Type<14) || Data[4]>0x2f)
     return(FALSE);
   return(TRUE);
 }
@@ -175,7 +175,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"ha xay %%a %%FMQ",
     /*Extract without paths */"ha eay %%a %%FMQ",
     /*Test                  */"ha t %%a %%FMQ",

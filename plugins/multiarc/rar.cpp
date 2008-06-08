@@ -120,8 +120,8 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   {
     const unsigned char *D=Data+I;
     if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e &&
-        (I==0 || DataSize>31 && Data[28]==0x52 && Data[29]==0x53 &&
-        Data[30]==0x46 && Data[31]==0x58))
+        (I==0 || (DataSize>31 && Data[28]==0x52 && Data[29]==0x53 &&
+        Data[30]==0x46 && Data[31]==0x58)))
     //if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e)
     {
       OldFormat=TRUE;
@@ -333,7 +333,7 @@ struct RARHeaderDataEx
     NextPosition=SetFilePointer(ArcHandle,NextPosition,&NextPositionHigh,FILE_BEGIN);
     if (NextPosition==0xFFFFFFFF && GetLastError()!=NO_ERROR)
       return(GETARC_READERROR);
-    if ((DWORD)NextPositionHigh>FileSizeHigh || (DWORD)NextPositionHigh==FileSizeHigh && NextPosition>FileSize)
+    if ((DWORD)NextPositionHigh>FileSizeHigh || ((DWORD)NextPositionHigh==FileSizeHigh && NextPosition>FileSize))
       return(GETARC_UNEXPEOF);
     if (OldFormat)
     {
@@ -554,7 +554,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     // Console RAR 2.50 commands
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
     /*Extract without paths */"rar e {-p%%P} -y -c- -kb -- %%A @%%LNM",
     /*Test                  */"rar t -y {-p%%P} -- %%A",

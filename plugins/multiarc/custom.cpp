@@ -591,8 +591,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *
             }
             else
             {
-                if(*StartText == '^' && strncmp(Str, StartText + 1, lstrlen(StartText + 1)) == 0 ||
-                   *StartText != '^' && strstr(Str, StartText) != NULL)
+                if((*StartText == '^' && strncmp(Str, StartText + 1, lstrlen(StartText + 1)) == 0) ||
+                   (*StartText != '^' && strstr(Str, StartText) != NULL))
                 {
                     *StartText = 0;
                 }

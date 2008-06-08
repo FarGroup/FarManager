@@ -352,7 +352,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"ace32 x {-p%%P} -y -c- -std {%%S} %%A @%%LN",
     /*Extract without paths */"ace32 e -av- {-p%%P} -y -c- -std {%%S} %%A @%%LN",
     /*Test                  */"ace32 t -y {-p%%P} -c- -std {%%S} %%A",

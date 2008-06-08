@@ -169,8 +169,8 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
 
   if (strstr(Command,"%%P")!=NULL)
     for (int I=0;I<ItemsNumber;I++)
-      if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
-          (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+      if ((PanelItem[I].Flags & F_ENCRYPTED) || (ItemsInfo.Encrypted &&
+          (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
       {
         if (!GetPassword(Password,FSF.PointToName(ArcName)))
           return FALSE;
@@ -244,8 +244,8 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
         memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItemEx));
         MenuItems[MenuItemsNumber].UserData = MAKEWPARAM((WORD)i,(WORD)j);
         lstrcpyn(MenuItems[MenuItemsNumber].Text.Text,Format,sizeof(MenuItems[MenuItemsNumber].Text.Text));
-        MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
-                                          *ArcFormat==0 ||
+        MenuItems[MenuItemsNumber].Flags=((MenuItemsNumber==0 &&
+                                          *ArcFormat==0) ||
                                           !FSF.LStricmp(ArcFormat,Format))?
                                           MIF_SELECTED:0;
         #ifdef _NEW_ARC_SORT_
@@ -280,7 +280,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
     if (ExitCode>=0)
     {
       lstrcpy(ArcFormat,MenuItems[ExitCode].Text.Text);
-      if(BreakCode >=0 && BreakCode <= 1 || !AddOnly)  // F4 or Enter pressed
+      if((BreakCode >=0 && BreakCode <= 1) || !AddOnly)  // F4 or Enter pressed
         ConfigCommands(ArcFormat,2,TRUE,LOWORD(MenuItems[ExitCode].UserData),HIWORD(MenuItems[ExitCode].UserData));
       else
         break;

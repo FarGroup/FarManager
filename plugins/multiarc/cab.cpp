@@ -263,7 +263,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"MsCab -i0 -FAR {-ap%%R} {-p%%P} {%%S} x %%A @%%LMA",
     /*Extract without paths */"MsCab -i0 -FAR {-p%%P} {%%S} e %%A @%%LMA",
     /*Test                  */"MsCab -i0 {-p%%P} {%%S} t %%A",

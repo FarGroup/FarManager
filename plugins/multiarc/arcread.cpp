@@ -283,7 +283,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
     if (Name[0]=='\\')
       Append=TRUE;
 
-    if (Name[0]=='.' && (Name[1]=='\\' || Name[1]=='.' && Name[2]=='\\'))
+    if (Name[0]=='.' && (Name[1]=='\\' || (Name[1]=='.' && Name[2]=='\\')))
       Append=TRUE;
 
     if (!Append && lstrlen(Name)>CurDirLength && FSF.LStrnicmp(Name,CurDir,CurDirLength)==0 && (CurDirLength==0 || Name[CurDirLength]=='\\'))
@@ -545,7 +545,7 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 
   static struct KeyBarTitles KeyBar;
   memset(&KeyBar,0,sizeof(KeyBar));
-  KeyBar.ShiftTitles[1-1]="";
+  KeyBar.ShiftTitles[1-1]=(char*)"";
   KeyBar.AltTitles[6-1]=(char*)GetMsg(MAltF6);
   KeyBar.AltShiftTitles[9-1]=(char*)GetMsg(MAltShiftF9);
   Info->KeyBar=&KeyBar;

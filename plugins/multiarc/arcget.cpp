@@ -172,8 +172,8 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
 
   if (*DialogItems[5].Data==0 && strstr(Command,"%%P")!=NULL)
     for (int I=0;I<ItemsNumber;I++)
-      if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
-          (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+      if ((PanelItem[I].Flags & F_ENCRYPTED) || (ItemsInfo.Encrypted &&
+          (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
       {
         if(OpMode&OPM_FIND || !GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
           return -1;

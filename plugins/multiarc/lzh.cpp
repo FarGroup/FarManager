@@ -171,7 +171,7 @@ typedef union {
 BOOL CheckLZHHeader(struct LZH_Level0 *lzh)
 {
   return lzh->HeadID[0]=='-' && lzh->HeadID[1]=='l' && (lzh->HeadID[2]=='h' || lzh->HeadID[2]=='z') &&
-        (lzh->Method>='0' && lzh->Method<='9' || lzh->Method=='d' || lzh->Method=='s' || lzh->Method=='d') &&
+        ((lzh->Method>='0' && lzh->Method<='9') || lzh->Method=='d' || lzh->Method=='s') &&
         lzh->free1 == '-' && lzh->FLevel >= 0 && lzh->FLevel <= 2;
 }
 
@@ -489,7 +489,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     // Correct Commands for LHA 2.55!
-    static char *Commands[]={
+    static const char *Commands[]={
     /*Extract               */"lha x -a -c -d -m {-w%%W} %%a @%%lM",
     /*Extract without paths */"lha e -a -c -m {-w%%W} %%a @%%lM",
     /*Test                  */"lha t -r2 -a -m {-w%%W} %%a",
