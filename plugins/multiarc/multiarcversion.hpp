@@ -2,8 +2,8 @@
 #define __MULTIARCVERSION_HPP__
 #include "farversion.hpp"
 
-#define MA_MAJOR_VER 1
-#define MA_MINOR_VER 71
+#define MA_MAJOR_VER FAR_MAJOR_VER
+#define MA_MINOR_VER FAR_MINOR_VER
 #define MA_BUILD 184
 
 #define MACOMPANYNAME FARCOMPANYNAME
