@@ -2,14 +2,9 @@
 #define __FTPVERSION_HPP__
 #include "farversion.hpp"
 
-#define FTP_MAJOR_VER FAR_MAJOR_VER
-#define FTP_MINOR_VER FAR_MINOR_VER
 #define FTP_BUILD 243
+#define FTPPRODUCTNAME "FarFtp"
 
-#define FTPCOMPANYNAME FARCOMPANYNAME
-#define FTPCOPYRIGHT FARCOPYRIGHT
-#define FTPPRODUCTNAME "FarFtp\000"
-#define FTPPRODUCTVERSION "1.71 build 243\000"
-#define FLLDESCRIPTION "Second-level plugin module for FAR Manager and FTP plugin\000"
+#define ftpgenericpluginrc(major, minor, desc, name, filename) fullgenericpluginrc_nobuild(major, minor, desc, name, filename, FARCOPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, FTP_BUILD, FTPPRODUCTNAME)
 
 #endif

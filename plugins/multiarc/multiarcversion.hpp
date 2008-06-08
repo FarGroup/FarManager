@@ -2,14 +2,10 @@
 #define __MULTIARCVERSION_HPP__
 #include "farversion.hpp"
 
-#define MA_MAJOR_VER FAR_MAJOR_VER
-#define MA_MINOR_VER FAR_MINOR_VER
 #define MA_BUILD 185
+#define MAPRODUCTNAME "MultiArc"
+#define FMTDESCRIPTION "Second-level plugin module for MultiArc FAR Manager plugin"
 
-#define MACOMPANYNAME FARCOMPANYNAME
-#define MACOPYRIGHT FARCOPYRIGHT
-#define MAPRODUCTNAME "MultiArc\000"
-#define MAPRODUCTVERSION "1.71 build 185\000"
-#define FMTDESCRIPTION "Second-level plugin module for FAR Manager and MultiArc plugin\000"
+#define magenericpluginrc(major, minor, name, filename) fullgenericpluginrc_nobuild(major, minor, FMTDESCRIPTION, name, filename, FARCOPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, MA_BUILD, MAPRODUCTNAME)
 
 #endif

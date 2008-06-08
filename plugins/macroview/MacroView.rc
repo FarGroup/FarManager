@@ -1,35 +1,9 @@
 #include "farversion.hpp"
-#define VERSIONINFO_1   1
 
-VERSIONINFO_1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 8
-PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FARCOMPANYNAME
-   VALUE "FileDescription", "Plugin for manipulating FAR macro commands\000"
-#ifndef UNICODE
-   VALUE "FileVersion", "1.71 build 8\000"
-#else
-   VALUE "FileVersion", "1.80 build 8\000"
-#endif
-   VALUE "InternalName", "MacroView\000"
-   VALUE "LegalCopyright", MACROVIEWCOPYRIGHT
-   VALUE "OriginalFilename", "MacroView.dll\000"
-   VALUE "ProductName", FARPRODUCTNAME
-   VALUE "ProductVersion", FARPRODUCTVERSION
-  }
+#define PLUGIN_BUILD 8
+#define PLUGIN_DESC "Macro browser for FAR Manager"
+#define PLUGIN_NAME "MacroView"
+#define PLUGIN_FILENAME "MacroView.dll"
+#define PLUGIN_COPYRIGHT "Copyright © Konstantin Melnikov 1998-2007, " FARGROUPCOPYRIGHT("2007")
 
- }
-
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+fullgenericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_COPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, FAR_BUILD, FARPRODUCTNAME)

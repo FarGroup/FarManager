@@ -1,30 +1,8 @@
 #include "multiarcversion.hpp"
-#include <windows.h>
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-1 VERSIONINFO
-FILEVERSION 1, 26, 0, 0
-PRODUCTVERSION MA_MAJOR_VER, MA_MINOR_VER, 0, MA_BUILD
-FILEOS 4
-FILEFLAGS 0
-FILETYPE 2
-FILESUBTYPE 0
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", MACOMPANYNAME
-   VALUE "FileDescription", FMTDESCRIPTION
-   VALUE "FileVersion", "1.26\000\000"
-   VALUE "InternalName", "rar\000\000"
-   VALUE "LegalCopyright", MACOPYRIGHT
-   VALUE "OriginalFilename", "RAR.FMT\000\000"
-   VALUE "ProductName", MAPRODUCTNAME
-   VALUE "ProductVersion", MAPRODUCTVERSION
-  }
- }
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0x0, 1252
- }
-}
+
+#define PLUGIN_MAJOR 1
+#define PLUGIN_MINOR 26
+#define PLUGIN_NAME "rar"
+#define PLUGIN_FILENAME "rar.fmt"
+
+magenericpluginrc(PLUGIN_MAJOR, PLUGIN_MINOR, PLUGIN_NAME, PLUGIN_FILENAME)

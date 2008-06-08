@@ -1,29 +1,9 @@
 #include "ftpversion.hpp"
-1 VERSIONINFO
-FILEVERSION 1, 4, 0, 0
-PRODUCTVERSION FTP_MAJOR_VER, FTP_MINOR_VER, 0, FTP_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FTPCOMPANYNAME
-   VALUE "FileDescription", "Directory listing parcer FTP plugin\000"
-   VALUE "FileVersion", "1.4\000\000"
-   VALUE "InternalName", "ftpDirList\000"
-   VALUE "LegalCopyright", FTPCOPYRIGHT
-   VALUE "OriginalFilename", "ftpDirList.fll\000"
-   VALUE "ProductName", FTPPRODUCTNAME
-   VALUE "ProductVersion", FTPPRODUCTVERSION
-  }
 
- }
+#define PLUGIN_MAJOR 1
+#define PLUGIN_MINOR 4
+#define PLUGIN_DESC "Directory listing parcer FTP plugin"
+#define PLUGIN_NAME "ftpDirList"
+#define PLUGIN_FILENAME "ftpDirList.fll"
 
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+ftpgenericpluginrc(PLUGIN_MAJOR, PLUGIN_MINOR, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)

@@ -1,29 +1,9 @@
 #include "ftpversion.hpp"
-1 VERSIONINFO
-FILEVERSION 1, 0, 0, 0
-PRODUCTVERSION FTP_MAJOR_VER, FTP_MINOR_VER, 0, FTP_BUILD
-FILEOS 4
-FILETYPE 2
-{
- BLOCK "StringFileInfo"
- {
-  BLOCK "000004E4"
-  {
-   VALUE "CompanyName", FTPCOMPANYNAME
-   VALUE "FileDescription", "FTP IO Notify sub-plugin\000"
-   VALUE "FileVersion", "1.0\000\000"
-   VALUE "InternalName", "ftpNotify\000"
-   VALUE "LegalCopyright", FTPCOPYRIGHT
-   VALUE "OriginalFilename", "ftpNotify.fll\000"
-   VALUE "ProductName", FTPPRODUCTNAME
-   VALUE "ProductVersion", FTPPRODUCTVERSION
-  }
 
- }
+#define PLUGIN_MAJOR 1
+#define PLUGIN_MINOR 0
+#define PLUGIN_DESC "FTP IO Notify sub-plugin"
+#define PLUGIN_NAME "ftpNotify"
+#define PLUGIN_FILENAME "ftpNotify.fll"
 
- BLOCK "VarFileInfo"
- {
-   VALUE "Translation", 0, 0x4e4
- }
-
-}
+ftpgenericpluginrc(PLUGIN_MAJOR, PLUGIN_MINOR, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
